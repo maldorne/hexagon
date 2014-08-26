@@ -3,7 +3,7 @@ ccmudlib
 
 A project to make the original [ccmudlib](http://www.ciudadcapital.net) 
 and other MudOS-alike mud libraries (like the ones from Final 
-Realms or Discworld) to work with a modern DGD mud driver.
+Realms or Discworld) work with a modern DGD mud driver.
 
 ### How to use
 1. Download. Be sure the `driver/dgd` submodule is downloaded too.
