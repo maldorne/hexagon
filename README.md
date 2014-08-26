@@ -14,7 +14,7 @@ Realms_ or _Discworld_) work with a modern DGD mud driver.
 5. `sh mud.sh`
 6. `telnet localhost 6047` to connect and see if everything is working.
 
-### How to compile the DGD Driver
+### How to compile the DGD driver
 1. Copy the contents of `driver/dgd.Makefile` to `driver/dgd/src/Makefile`
    (the only change is to include the `SLASHSLASH` flag to allow this 
    kind of `// comments` in the mud code).
