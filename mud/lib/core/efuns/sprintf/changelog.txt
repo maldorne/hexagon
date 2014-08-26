@@ -1,0 +1,86 @@
+
+v 1.4.0 neverbot@ccmud, march, 2014
+
+- Making it work with DGD 1.5
+- switch/Case -> case
+- old extra.c included in sprintf.c
+- Made possible to include the file from auto.c instead of inheriting it.
+
+v 1.3.0 Released April 6, 1995
+
+v 1.2.0 Released December 23, 1994.
+
+- In time.c #include <config.h> -> #include "config.h"  [Drevreck]
+- Removed my xs4all address from the README file, as it is no longer valid.
+- Fixed a typo in an error message.
+- Oops! Typo in extra.c made characters only be lowercase if they were 'a'
+  or in the upper range. Similar, characters were only uppercase if 'A' or
+  in the upper range.
+
+v 1.1.0 Released August 9. 1994. First official release.
+
+- Made mkmapping in extra.c. mkmapping is not a kfun. Also changed the
+  arguments. Now just one array is passed, and the values in the resulting
+  array will be 1.
+- Removed use of member_array (not a kfun) in time.c. Made similar function
+  index in extra.c.
+- Renamed m_indices and m_values (not kfuns) to map_indices and map_values.
+- Renamed file_name (not a kfun) to object_name.
+* version 1.1.1.
+- Merged a few statements.
+* version 1.1.2.
+- Changed email address to abigail@mars.ic.iaf.nl.
+- Removed # define __UPPER_CASE__ from the config file as it wasn't used.
+- Right justified the doc file.
+- Merged a few more statements.
+- Renamed some SYM_undefs to SYM_controls in sym_names.h
+* version 1.1.3.
+- Added 'SP' to the # defined guards in the .h files, as it was generating
+  nameclashes with the Deimos mudlib.
+- Changed some typos in the doc file.
+- Added credits to K & R in the doc file, since parts of the doc file were
+  copied from their description of sprintf.
+- Adjusted the timezone calculation for the upcoming changes in the DST rules
+  for (parts of) Europe in 1996. I still don't know in which year the current
+  DST rules were first used.
+- Added an 'installation' section in the doc file. Copied into a separate
+  file as well.
+- Typo fix in sym_names.h
+- Added a note in the readme file that this is LPC, not a driver extension.
+  (Why do lots of people think you cannot simulate sprintf in LPC?)
+- Added comments in the Copyright file. (What GPL allows you & suggestion
+  what to do if you use this commercially)
+- Renamed SYM_control_g to SYM_control_f, as e is followed by f, not g.
+
+v 1.0.0 Released (Igor only) April 1994.
+
+- Added '|' flag: center argument.
+- Changed ':' conversion char to '@'. ':' is too common. Maybe this should
+  become a configurable option?
+- Added '%y' conversion: print any type.
+- Added '`' flag: reverse string.
+- Made function give_padding (), to speed up padding in align () and
+  numerical () (Of course, the speed up is only noticeable if you want
+  to pad 10000 spaces, but nevertheless, if your strings padded with
+  that many spaces, sprintf () isn't going to lag your mud.)
+- '%q' will now print any result.
+- Added '%R' and '%r': encryption mode.
+- Added '%H' and '%h': hex-mode.
+- Added '&' flag: rot 13.
+- # define __FLOATS__ added in config.h
+- Made # defines for intp, stringp, etc as they are no longer kfuns in DGD.
+- # define nump (arg). True if arg an int, or arg a float and __FLOATS__
+  # defined (note that and binds stronger than or).
+- %s and %a now accept floats if __FLOATS__ is # defined.
+- Made version.h file, moved appropriate # defines into it.
+- Made sym_names.h file, added islower/isupper/tolower/toupper and
+  changed capitalize/lower_case/upper_case/flip_case to use them. (extra.c)
+- capitalize/lower_case/upper_case/flip_case adapted for ISO-LATIN-1
+  character set.
+- Added do_float (). It handles all %f, %e, %E, %g and %G conversations.
+  Note, it uses constructs available in DGD 1.0.7.7 for the first time.
+- Added copyright messages, it is distributed under the GNU Public Licence.
+- Removed map_array () from anything (). map_array () isn't a DGD kfun.
+  As a side-effect, the function is private in stead of static.
+- Removed 'public' modifiers. sprintf () is static.
+

@@ -1,0 +1,13 @@
+
+#define DRIVER "/lib/core/driver"
+#define AUTO   "/lib/core/auto"
+#define SECURE "/lib/core/secure"
+
+// Longer logs in the driver stderr
+#define DRIVER_LONG_LOGS
+
+
+#define ERROR_HANDLER  "/lib/handlers/errors"
+#define USER_HANDLER   "/lib/handlers/users"
+#define OBJECT_HANDLER "/lib/handlers/objects"
+

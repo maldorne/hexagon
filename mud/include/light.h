@@ -1,0 +1,2 @@
+#define OPAQUE "opaque"
+

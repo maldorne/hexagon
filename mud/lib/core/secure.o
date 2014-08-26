@@ -1,0 +1,7 @@
+#/lib/core/secure.c
+preload ({"/std/race","/std/room","/global/player","/global/coder","/global/coordinator","/global/administrator","/std/guildroom","/global/virtual/compiler","/obj/handlers/timed","/secure/net/ftpd","/obj/handlers/soul","/global/account",})
+call_out_preload ({"/obj/handlers/do_chat","/obj/handlers/weather",})
+positions (["folken":2,"god":1,])
+permissions (["/d/dargaad":(["inovercy":1,]),"/d/ciudad_capital":(["inovercy":1,]),"/d":(["sirio":1,"ddraencara":1,]),])
+password 0
+no_times 0

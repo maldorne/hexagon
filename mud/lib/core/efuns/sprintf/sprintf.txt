@@ -1,0 +1,316 @@
+SYNTAX
+    string sprintf (string format, mixed args...)
+    [int sprintf (string out, string format, mixed args...)]
+
+
+DESCRIPTION
+    sprintf takes  a format string  and a  number of arguments.  Using the
+    format  string the  arguments are  formatted  into a  string which  is
+    returned. The format string consists  of ordinary characters which are
+    copied into the  returned string, and conversion  specifications which
+    cause the next  argument of sprintf to be converted  into the returned
+    string.
+
+    sprintf  will simulate  C's behaviour,  except  in non-relevant  cases
+    since LPC has less types than C.  It will also simulate all options of
+    C's strftime.  Beside that,  there are  several (mostly  LPC specific)
+    extensions in both the available flags and conversion characters.
+
+    Unlike C, sprintf  returns the output string, in stead  of writing the
+    output string in the first argument  and returning the number of bytes
+    written.  However, defining  __CLOSE_TO_C__ in  the  config file  will
+    write the output string into the  first argument and return the number
+    of bytes written.
+
+    A conversion specification starts with a '%'  or a '@' and ends with a
+    conversion character. Between the '%'  or '@' and conversion character
+    there may be, in order:
+
+    Flags (in any order), which modify the specification:
+      '-': (string) specifies left in stead of the default right alignment
+                    of argument.
+      '_': (string) specifies  left   in  stead   of  the   default  right
+                    truncation of converted arguments. (C-sprintf does not
+                    have this option)
+      '|': (string) center the  converted  argument in  its field,  if the
+                    size  of  the  converted  argument is  less  than  the
+                    specified width.
+      '+': (numerical) forces printing of a sign. Default is only to print
+                       a sign when the number is negative.
+      ' ': (numerical) If  no sign  is  printed,  a leading  space will be
+                       added.
+      '0': (numerical,float) use  '0' in  stead of  ' ' as  a padding char
+                             when aligning. Default is a space.
+      '#': (numerical) Specifies  alternative output.  Octal numbers  will
+                       have a leading "0",  hexadecimal  numbers a leading
+                       "0x" (if  conversion  character  is  'x')  or  "0X"
+                       (conversion character is 'X').
+           (float) Force printing of decimal dot, even if precision is 0.
+      '`': (string) reverse the  string before further processing it.  The
+                    reversal  will  be  done  before  calling  lower_case/
+                    upper_case/capitalize,   or   padding/truncating   the
+                    string.
+      '&': (string) do a  rot-13  on the  string.  A  rot-13  rotates  all
+                    letters in a string 13 places.
+      '~': (string) flip the case of the letters of a string.
+      '<': (string) force output to be lower_case.
+      '=': (string) force output to be capitalized.
+      '>': (string) force output to be upper_case.
+           The order of evaluation of '<',  and '>' will not be garanteed,
+           so be careful when  using more than one.  '=' will be evaluated
+           after '<' or '>'.
+           The '~',  '<',  '=' and '>' flags use the ISO-LATIN-1 character
+           set.
+
+    A number  specifying the minimum  field width. The  converted argument
+    will be printed in a field at  least this wide, wider if necessary. If
+    the converted argument  has fewer characters than the  field width, it
+    will be  padded to  the left  (or right  if left  adjustment has  been
+    requested)  to make  up  the field  width.  The  padding character  is
+    normally a space, or a character set  by the %p conversion, but is '0'
+    if the zero padding flag is present.
+
+    A  period which  seperates the  field  width from  the precision.  The
+    period is required when the precision is defined.
+
+    A  number, the  precision,  which for  strings  specifies the  maximum
+    number of  characters to be  printed from  a converted argument.  If a
+    converted  argument has  to be  truncated,  the end  of the  converted
+    argument is truncated, unless the '_'  flag is present, then the first
+    part  will  be  truncted. For  numerical  conversions,  the  precision
+    determines the  minimum number of digits  to be printed.  Leading '0's
+    will be  used for padding.  For f, e  and E conversions  the precision
+    indicates how many digits after the decimal period have to be printed;
+    for g and G conversions, the precision gives the number of significant
+    digits.
+
+    Both the field  width and the precision  can be '*' meaning  the field
+    width  and/or the  precision should  be  taken by  the next  available
+    argument.
+
+    Lenght modifiers are not supported (they are meaningless in LPC).
+
+  Conversion characters
+    Unless stated otherwise,  they convert the next  unconverted argument.
+    The type(s)  mentioned in brackets is  the type the  matching argument
+    should have. A  '[N]' denotes a numerical conversion.  A '[F]' denotes
+    float conversion.
+
+    % Conversion characters:
+         a: (mixed *, all int/float/string)
+              handle all elements of argument as with %s (in order).  This
+              is  useful  to print  several  strings with  the same  flags,
+              field width and/or precision. 
+         A: (string *)
+              as %a, but strings only.
+         b: (int) [N]
+              signed binair notation.
+         c: (char)
+              single character.
+         d, i: (int) [N]
+              signed decimal notation.
+         e: (int, float) [F] 
+         E: (int, float) [F]
+              Decimal notation of the form [-]m.ddd(e|E)(+|-)xx[x],  where
+              the number of d's is specified by the precision. The default
+              precision is FLT_PRECISION (6);  a precision of 0 surpresses
+              the decimal point, except when the '#' flag is given.
+         f: (int, float) [F]
+              Decimal notation of the form [-]mmm.ddd, where the number of
+              d's is specified by the precision.  The default precision is
+              FLT_PRECISION (6);  a precision of 0 surpresses  the decimal
+              point, except when the '#' flag is given.
+         g: (int, float) [F]
+         G: (int, float) [F]
+              %e or %E is used if the exponent is less than -4, or greater
+              than or equal the precision; otherwise %f is used.  Trailing
+              zeros and a trailing decimal point are not printed.
+         h: (string)
+         H: (string)
+              Print a  string  by  giving the  character  values  (in  hex
+              notation). If the h form is used, nothing is printed between
+              bytes, otherwise the bytes are separated by the padding char
+              (defaults to a space).
+         n: (int *)
+              the number  of bytes  written into  the output  string sofar
+              will be written into the argument.  Nothing will  be printed
+              into the output string.
+         o: (int) [N]
+              signed octal notation.
+         O: (object)
+              file_name of object.
+         p: (char)
+              change padding char to argument.  This padding char  will be
+              active until  it is changed again.  When no padding  char is
+              set, a space will be used. No character will be written into
+              the output string.
+              The zero flag will still overrule the padding char.
+         q: (string)
+              In object  previously set  by %Q,  the current  argument  is
+              called (treated as function).  The result  is printed as %y.
+              The function is called without arguments.
+         Q: (object)
+              Store argument  to be  queried later.  See %q.  No character
+              will be written into the output string.
+         r: (string)
+              Encrypt a string.  The string is chopped in 8 byte parts and
+              encrypted.
+         R: (string)
+              Encrypt a string.  The string is  chopped in  10 byte parts,
+              using  the first  2 as encryption seed,  and the latter 8 as
+              message.  If the last part is 1 byte long,  it is discarded;
+              if it is 2 bytes long,  the empty string  will be  encrypted
+              using the 2 bytes as seed.
+         s: (string, int, float)
+              string.
+         S: (string)
+              as %s, but string only.
+         x: (int) [N]
+              signed hexadecimal notation. Use abcdef.
+         X: (int) [N]
+              signed hexadecimal notation. Use ABCDEF.
+         y: (mixed)
+              print any type represented as a string.  Integers and floats
+              are printed 'as they are'.  Strings will be enclosed by "'s.
+              Objects will  be in the form  OBJ <file_name>  (WITH the '<'
+              and  '>').   Arrays  are  preceded  by  '({',  its  elements
+              (separated by commas) printed recursively and ended by '})'.
+              Mappings start with '([', the index/values pairs (with ' : '
+              between the  index and  the value and  commas separating the
+              pairs) printed recursively and end with '])'.
+         %: (none)
+              print a '%' symbol. No argument is converted.
+
+    @ Conversation  characters:  They all  are time-related.  The argument
+         passed  should  be  the  number  of  seconds  after  Jan 1, 1970,
+         0:00:00 GMT. Passing time () gives the current time.
+         a: (int) abbreviated weekday.
+         A: (int) full weekday name.
+         b: (int) abbreviated month name.
+         B: (int) full month name.
+         c: (int) local date and time representation.
+         d: (int) [N] day of the month. (00 - 31)
+         H: (int) [N] hour (24 hour clock). (00 - 23)
+         I: (int) [N] hour (12 hour clock). (01 - 12)
+         j: (int) [N] day of the year. (001 - 366)
+         m: (int) [N] month. (01 - 12)
+         M: (int) [N] minute. (00 - 59)
+         p: (int) local equivalent of AM or PM.
+         S: (int) [N] second. (00 - 61)
+         U: (int) [N] week  number  of year  (Sunday  as first  day of the
+                      week). (00 - 53)
+         w: (int) [N] weekday (0-6, Sunday is 0).
+         W: (int) [N] week  number  of year  (Monday  as first  day of the
+                      week). (00 - 53)
+         x: (int) local date representation.
+         X: (int) local time representation.
+         y: (int) [N] year without century. (00 - 99)
+         Y: (int) [N] year with century.
+         Z: (int) time zone,  if any.  The code  knows about  the upcoming
+                  change in the METDST rules.
+         @: (none) print a '@' symbol. No argument is converted.
+    @ conversion  characters are not  recognized when  __TIME_CONVERSION__
+    is not defined in the config file.
+
+    Flags,  field width  and precission  on the  %n,  %p, %Q,  %%, and  @@
+    conversion characters are recognized but ignored.
+
+    The conversation arguments follow the format string, and are converted
+    in order.
+
+
+ERRORS
+    Passing 0 as format string results in an error.
+    Conversion  specifications not  terminated by a  conversion  character
+    result in an error.
+    The programmer should take care of  the correct number of arguments of
+    sprintf ().  The number of args should  match the number of conversion
+    specifications (except for the % and @ conversion characters.) Passing
+    too few arguments will result in an error.  If too many arguments  are
+    passed, the non-used arguments will be ignored.
+    Use of wrong  typed arguments  (see above lists for  the proper  type)
+    results in undefined behaviour.
+    Use of conversion  characters not  mentioned in above lists results in
+    undefined behaviour.
+    Using  the same  flag twice or  a flag for  numerical  conversions  on
+    non-numerical conversions will result in undefined behaviour.
+
+
+CONFIGURATION
+    The file config.h gives a few configuration possibilities.
+    __CLOSE_TO_C__      If defined,  sprintf puts the output string in the
+                        first argument,  and returns  the number  of bytes
+                        written. Otherwise, the output string is returned.
+                        Undefined by default;
+    __TIME_CONVERSION__ Define  if  @  conversation  sequences  should  be
+                        handled. Defined by default.
+    BASE                Define to  the default  base in which  numbers are
+                        represented. 10 is the default value.
+    The file time.h contains a few time related configurations.
+    FIRST_DST_CONVERSION_YEAR
+                        Define this  to the first  year when DST runs from
+                        last Sunday in March to  last Sunday in September.
+                        Dates  before this  year are  assumed to  not have
+                        DST. Defaults to 1970 (this is wrong).
+    SECOND_DST_CONVERSION_YEAR
+                        Define this  to the first  year when DST runs from
+                        last Sunday  in March to  last Sunday  in October.
+                        Dates  before this  year are  assumed to  not have
+                        DST. Defaults to 1996 (MET rules).
+    TZ                  Name of the timezone. Default "MET".
+    DSTZ                Name of the timezone with DST. Default "METDST".
+    AM                  Name how  'am' should be  represented.  Default is
+                        "am".
+    PM                  Name how  'pm' should be  represented.  Default is
+                        "pm".
+
+
+INSTALLATION
+    Just unpack the archive  in a directory, and keep all  .c and .h files
+    in the same  directory (or change the pathnames).  Then simply inherit
+    "directory/sprintf" in the program you need it in.
+
+    It should be possible to precompile this  package and link it into the
+    driver, but I have never tested it.
+
+
+FILES
+    In the same  directory as  the file 'sprintf.c',  the following  files
+    should be found:
+    config.h            A few configurations.
+    macros.h            Macros used by the program.
+    time.h              Time related macros and configurations.
+    sym_names.h         Defines characters.
+    extra.c             Functions modifying strings.
+    time.c              Time related functions.
+
+
+DRIVER
+    This package  was designed  for the  DGD driver,  and the  most recent
+    version needs DGD 1.0.7.7 or higher to work.
+    This package runs on all DGD  versions from 1.0.7.7 till 1.0.8.10 (the
+    latest release of DGD at the moment this was written.)
+
+
+HISTORY
+    Version 1.0 was developed early April 1994.
+    Version 1.1 (with floats) was released August 9, 1994.
+    Version 1.2 (bug fixes) was released December 18, 1994.
+
+
+AUTHOR
+    The author is  Haijo Schipper (Abigail).  The author can be reached on
+    the following addresses:
+    abigail@mars.ic.iaf.nl (preferred)
+    abigail@The Pattern (epsilon.me.chalmers.se 6047)
+    abigail@TMI-2 (tmi.ccs.neu.edu 5555)
+
+
+CREDITS
+    Some parts of this doc are shamelessly copied from:
+    Kerningham and Ritchie: "The C Programming Language".
+
+
+BUGS
+    The code is not well commented.
+    The DST scheme is off for the early 70's.
