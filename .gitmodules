@@ -1,0 +1,3 @@
+[submodule "driver/dgd"]
+	path = driver/dgd
+	url = https://github.com/dworkin/dgd.git
