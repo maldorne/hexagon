@@ -1,0 +1,40 @@
+
+telnet_port = 6047;                    /* telnet port number */
+binary_port = 6048;                    /* binary port number */
+directory = "/path_to_the_base_directory/ccmudlib/mud"; /* base directory (MUST be absolute) */
+users = 40;                            /* max # of users */
+editors = 40;                          /* max # of editor sessions */
+ed_tmpfile = "../driver/dgd/tmp/ed";   /* proto editor tmpfile */
+swap_file = "../driver/dgd/tmp/swap";  /* swap file */
+swap_size = 1024;                      /* # sectors in swap file */
+cache_size = 50;                       /* # sectors in swap cache */
+sector_size = 512;                     /* swap sector size */
+swap_fragment = 32;                    /* fragment to swap out */
+static_chunk = 64512;                  /* static memory chunk */
+dynamic_chunk = 261120;                /* dynamic memory chunk */
+dump_file = "../dgd/snapshot";         /* snapshot file */
+dump_interval = 3600;                  /* snapshot interval in seconds */
+
+/* highest level of typechecking */
+typechecking = 2;   
+
+/* the next paths are relative to the previously defined 'directory' */
+
+/* standard include file */
+include_file = "/include/std.h"; 
+
+/* directories to search */
+include_dirs = ({ "/include", "~/include" }); 
+
+/* auto inherited object */
+auto_object   = "/lib/core/auto";
+
+/* driver object */ 
+driver_object = "/lib/core/driver"; 
+
+/* name of create function */
+create  = "_F_create";  
+
+array_size = 1000;  /* max array size */
+objects  = 500;     /* max # of objects */
+call_outs = 100;    /* max # of call_outs */
