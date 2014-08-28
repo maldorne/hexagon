@@ -1,5 +1,4 @@
 
-
 #include "/lib/core/efuns/mud.c"
 
 // neverbot, 03/14
@@ -37,12 +36,7 @@
 
 #include "/lib/core/efuns/find_match.c"
 
-
 #include "/lib/core/efuns/snoop.c"
-
-
-
-
 
 // Hamlet patch
 #include "/lib/core/efuns/exec.c"
@@ -50,10 +44,8 @@
 // Raskolnikov's simul_efuns
 #include "/lib/core/efuns/children.c"
 
-
 // Nuevas para CcMud
 #include "/lib/core/efuns/domains.c"
 #include "/lib/core/efuns/path.c"
-    
 
 #include "/lib/core/efuns/math.c"
