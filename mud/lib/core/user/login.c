@@ -1,10 +1,10 @@
 
-// Antiguo objeto new_login.c, ahora el unico modo de hacer login
-// Añadidas tambien algunas cosas del antiguo login.c
+// old new_login.c object, now this is the only way to log in
+// added some things from the old login.c
 //   neverbot 21/01/03
-// Cambiado el sistema de login al incluir cuentas de usuario,
+// changed login system to include user accounts
 //   neverbot 12/2010
-// Ported to dgd, neverbot 03/2014
+// ported to dgd, neverbot 03/2014
 
 #include <config.h>
 #include <login.h>
@@ -41,7 +41,7 @@ void create()
   // player_ob = "/global/player";
 } 
 
-// Function prototypes
+// function prototypes
 nomask void show_options();
 nomask void disconnect(varargs int silence);
 nomask void time_out();
@@ -65,7 +65,7 @@ nomask void time_out()
 
 nomask void quit()
 {
-  // TODO muchas cosas aqui
+  // TODO lots of things here
   destruct(this_object());
 }
 
@@ -79,7 +79,7 @@ nomask void logon()
 
   cat(WELCOME_MESSAGE);
 
-  // Añadido del antiguo login.c, neverbot 21/01/03
+  // added from old login.c, neverbot 21/01/03
   if (uptime() < MIN_UPTIME_LOGIN_TIME) 
   {
     write("El mundo aún se está formando, inténtalo de nuevo en unos minutos.\n");

@@ -2,7 +2,7 @@
    /secure/master/create_dom_creator.c
    Originally bashed at Final Realms
    Fixed and tweaked by Radix : March 5, 1997
-   Traducido por Folken, 4/2003
+   Translated by neverbot, 4/2003
 */
 
 #define POSTAL_D "/obj/handlers/postal_d"

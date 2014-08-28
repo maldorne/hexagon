@@ -30,7 +30,7 @@
 #include "/lib/core/efuns/process_string.c"
 #include "/lib/core/efuns/parse_command.c"
 
-//   neverbot 21/4/2003 
+// neverbot 21/4/2003 
 #include "/lib/core/efuns/time.c"
 #include "/lib/core/efuns/log.c"
 

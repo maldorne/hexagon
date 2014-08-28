@@ -107,7 +107,7 @@ nomask string runtime_error(string error, int caught, int ticks)
 
 string atomic_error(string error, int atom, mixed **trace)
 {
-  return "LELE\n";
+  return "lib > core > handlers > errors :: atomic_error\n";
   // load_object(DRIVER)->driver_message("An atomic error happened!");
 }
 
