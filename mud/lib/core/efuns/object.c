@@ -1,5 +1,5 @@
 
-// TODO tmp, borrar esto de aqui
+// TODO tmp, remove this from here
 static nomask void stderr(string str);
 
 
@@ -81,17 +81,20 @@ static nomask object load_object(string name)
   return obj;
 }
 
-// int destruct(varargs object ob) 
-// {
-//   if (!ob)
-//     ob = this_object();
 
-//   destruct_object(ob);
+// as the driver object has its own destruct object, this
+// cannot be part of the efuns general files. This function is included
+// inside the auto object in /lib/core/auto.c
+
+/*
+int destruct(varargs object ob) 
+{
+  if (!ob)
+    ob = this_object();
+
+  destruct_object(ob);
   
-//   return TRUE;
-//   // return (this_object() == nil);
-// }
-
-
-
-
+  return TRUE;
+  // return (this_object() == nil);
+}
+*/
