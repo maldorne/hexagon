@@ -34,12 +34,14 @@ void create()
   this_object()->setup();
 }
 
-// Movido aqui, para asegurarnos de que todos los objetos tienen
-// una funcion init en algun sitio, neverbot 8/2008
+// moved here, be sure every object has an init function somewhere
+// neverbot 8/2008
 void init() 
 {
 	
 } 
+
+nomask string query_create_me() { return create_me; }
 
 void set_name(string str) 
 {
@@ -66,9 +68,7 @@ mixed *query_init_data() {
 } 
 */
 
-/*
- * This is here till I can delete it...  ie the new system is functioning.
- */
+// This is here till I can delete it...  ie the new system is functioning.
 mapping int_query_static_auto_load() 
 {
   return ([ 
@@ -152,7 +152,7 @@ void init_arg(mixed *bing)
   set_name(bing[9]);
   map_prop = bing[10];
   value = bing[12];
-} /* init_arg() */
+}
 
  // The following is from the TMI-2 Lib. Asmodean Put it here
 int clean_up()
@@ -181,8 +181,6 @@ int clean_up()
   }
   return 1; /* try again later... */
 }
-
-nomask string query_create_me() { return create_me; }
 
 mixed *stats() {
   return id::stats() +
