@@ -19,6 +19,11 @@ string print_object(mixed ob, varargs int offset, string pre)
     write("\"" + ob + "\"\n");
     return "string";
   }
+  else if (userp(ob)) 
+  {
+    write("<" + file_name(ob) + ">");
+    return "user object";
+  }
   else if (objectp(ob)) 
   {
     write("<" + file_name(ob) + ">");
@@ -72,7 +77,7 @@ string print_object(mixed ob, varargs int offset, string pre)
       
       write("                       "[0..offset] + "})\n");
     }
-    return "pointer";
+    return "array";
   }
   else if (undefinedp(ob))
   {
