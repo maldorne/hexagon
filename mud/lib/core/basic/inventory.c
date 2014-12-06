@@ -11,12 +11,12 @@ void create()
   _inventory = ({ });
 }
 
-static nomask object * query_inventory()
+nomask object * query_inventory()
 {
   return _inventory;
 }
 
-static nomask object query_environment()
+nomask object query_environment()
 {
   return _environment;
 }

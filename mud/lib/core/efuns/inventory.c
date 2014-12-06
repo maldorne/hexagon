@@ -2,21 +2,34 @@
 // Non-dgd efuns
 // neverbot, 03/2014
 
-// TODO all_inventory
-
-object * all_inventory(mixed obs)
+object * all_inventory(object ob)
 {
-  if (pointerp(obs))
-    return ({ });
-  else
-    return ({ });
+  return ob->query_inventory();
 }
 
 // TODO deep_inventory
 
-object * deep_inventory(mixed obs)
+object * deep_inventory(object ob)
 {
-  return all_inventory(obs);
+  object * result;
+  object * pending;
+  int i;
+
+  pending = all_inventory(ob);
+
+  // recursively check the inventory of all
+  // the items
+  while(sizeof(pending) > 0)
+  {
+    object current;
+    current = pending[0];
+
+    result += ({ current });
+    pending -= ({ current });
+    pending += all_inventory(current);
+  }
+
+  return result;
 }
 
 mixed query_strange_inventory(mixed arr) 
