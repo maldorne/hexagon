@@ -1,5 +1,1 @@
-Opciones: <email o nombre de personaje> - para comenzar a jugar con alguno de tus personajes.\n"+
-          crear           - para crear una nueva cuenta.
-          invitado        - para probar el juego temporalmente.
-          finger <nombre> - para obtener datos sobre otro jugador.
-          who             - para ver la lista de jugadores conectados.
+Enter your name to connect: 
