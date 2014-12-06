@@ -1,5 +1,6 @@
 
-inherit "/lib/core/user/login";
+inherit login "/lib/core/user/login";
+inherit tmp "/lib/core/coder/tmp";
 
 #include <user.h>
 #include <kernel.h>
@@ -21,7 +22,7 @@ void write_prompt();
 
 void create() 
 {
-  ::create();
+  login::create();
 
   name = "";
   inner_player = nil;
@@ -54,13 +55,13 @@ nomask int set_input_to(object obj, string func, varargs int flag, mixed arg)
 // Called from the driver
 static void open()
 {
-  ::logon();
+  login::logon();
 }
 
 // Called from the driver
 static void close(mixed arg)
 {
-  ::disconnect(FALSE);
+  login::disconnect(FALSE);
 }
 
 void write_prompt() 
@@ -84,6 +85,9 @@ static void receive_message(string str)
 {
   string tmp_redirect_func;
   object tmp_redirect_obj;
+  string verb;
+  string params;
+  string * pieces;
   int i;
 
   rlimits (MAX_USER_DEPTH; MAX_USER_TICKS) 
@@ -112,21 +116,40 @@ static void receive_message(string str)
       return;
     }
 
+    pieces = explode(str, " ");
+    verb = pieces[0];
+    if (sizeof(pieces) > 1)
+      params = implode(pieces[1..], " ");
+    else
+      params = "";
+
     // inner_player->command(str);
-    write("Has introducido el comando: " + str + "\n");
+    // write("Has introducido el comando: " + verb + "\n");
 
-    // TMP
-    if (str == "quit")
+    switch(verb)
     {
-      ::quit();
-      return;
-    }
-    else if (str == "users")
-    {
-      object * users;
-      users = find_object("/lib/handlers/users")->query_users();
+      case "quit":
+        login::quit();
+        return;
 
-      write("Hay conectados: " + sizeof(users) + " usuarios.\n");
+      case "users":
+        {
+          object * users;
+          users = find_object("/lib/handlers/users")->query_users();
+
+          write("Hay conectados: " + sizeof(users) + " usuarios.\n");
+        }
+        break;
+
+      case "compile":
+      case "update":
+      case "up":
+        tmp::cmd_compile(params);
+        break;
+
+      default:
+        write("Unknown command.\n");
+        break;
     }
 
     if (!redirect_input_ob) 

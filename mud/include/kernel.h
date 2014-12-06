@@ -11,3 +11,8 @@
 #define USER_HANDLER   "/lib/handlers/users"
 #define OBJECT_HANDLER "/lib/handlers/objects"
 
+// driver messages
+#define DRIVER_MESSAGE_PLAIN 0
+#define DRIVER_MESSAGE_ERROR 1
+
+

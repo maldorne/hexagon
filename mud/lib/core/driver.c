@@ -68,6 +68,30 @@ static nomask void log_driver(string str)
   _stderr(str);
 }
 
+static nomask void inform_user(string str, int message_type)
+{
+  string msg;
+  // TODO change messages if not coder
+
+  // if (message_type == DRIVER_MESSAGE_ERROR)
+  //   write("Se ha producido un error.\n");
+
+  msg = "\n";
+
+  switch(message_type)
+  {
+    case DRIVER_MESSAGE_PLAIN:
+      msg = "";
+      break;
+    case DRIVER_MESSAGE_ERROR:
+      msg += "Error: ";
+      break;
+  }
+
+  msg += str;
+  write(msg);  
+}
+
 // The driver object cannot clone objects
 nomask object clone_object(mixed what, varargs string uid) 
 {
@@ -135,7 +159,10 @@ static object inherit_program(string from, string path, int priv)
   }
 
   if (err)
+  {
     log_driver(" + inherit_program error: " + err + "\n");
+    inform_user("(inherit_program) compile_object returned:\n" + err + "\n", DRIVER_MESSAGE_ERROR);
+  }
     
   return ob;
 }
@@ -176,6 +203,7 @@ static void compile_error(string file, int line, string err)
     return;
 
   log_driver(ret);
+  inform_user(ret, DRIVER_MESSAGE_PLAIN);
 }
 
 static string atomic_error(string error, int atom, mixed **trace)

@@ -63,12 +63,29 @@ static nomask object clone_object(mixed what, varargs string uid)
 
 nomask object compile_object(string path, varargs string source...)
 {
-  stderr(" - compile_object: " + path + "\n");
+  mixed obj;
+  int is_new;
 
-  if (source && (sizeof(source) != 0))
-    return ::compile_object(path, source...);
-  else 
-    return ::compile_object(path); 
+  obj = ::find_object(path);
+
+  // only non previously compiled code
+  if (!obj)
+  {
+    stderr(" - compile_object: " + path + "\n");
+
+    if (source && (sizeof(source) != 0))
+      obj = ::compile_object(path, source...);
+    else 
+      obj = ::compile_object(path); 
+  }
+  else
+  {
+    // TODO different messages if not coder
+    write(object_name(obj) + " was already compiled.\n");
+    return nil;
+  }
+
+  return obj;
 }
 
 // Cannot be included inside efuns because the driver object has its own
@@ -82,7 +99,7 @@ int destruct(varargs object ob)
 
   ::destruct_object(ob);
   
-  return TRUE;
+  return 1;
   // return (this_object() == nil);
 }
 
