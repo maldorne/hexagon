@@ -1,4 +1,4 @@
-#include <move_failures.h>
+#include <move.h>
 #include <money.h>
 
 inherit light "/lib/core/basic/light";

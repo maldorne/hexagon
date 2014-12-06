@@ -1,4 +1,4 @@
-#include <move_failures.h>
+#include <move.h>
 
 #define DROP 1
 #define GET 2
