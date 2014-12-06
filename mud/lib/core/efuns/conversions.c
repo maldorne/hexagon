@@ -1,18 +1,4 @@
 
-// very simple copy function, idea extracted from the melville mudlib
-mixed copy(mixed what) 
-{
-  mixed b;
-
-  if ((typeof(what) == T_ARRAY) || 
-      (typeof(what) == T_MAPPING)) 
-    b = a[..];
-  else 
-    b = a;
-
-  return b;
-}
-
 // Extracted from the old /global/basic/print_object.c, neverbot
 string print_object(mixed ob, varargs int offset, string pre) 
 {

@@ -63,7 +63,7 @@ mixed * exclude_array(mixed *arr, int from, varargs int to)
 // takes any array and returns an array with no repeat members
 // created by Descartes of Borg 930822
 
-mixed *uniq_array(mixed *arr) 
+mixed * uniq_array(mixed *arr) 
 {
   mapping borg;
   int i;
@@ -118,3 +118,16 @@ string itoa(int i)
 //       j = arr[i];
 //   return j;
 // }
+
+
+mixed * array_copy(mixed * what) 
+{
+  mixed result;
+
+  if (typeof(what) != T_ARRAY)
+    return ({ });
+
+  result = what[..];
+
+  return result;
+}

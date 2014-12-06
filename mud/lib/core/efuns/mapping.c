@@ -41,3 +41,17 @@ mapping map_delete(mapping map, mixed key)
 
 mapping m_delete(mapping map, mixed key) { return map_delete(map, key); }
 
+mapping map_copy(mapping map) 
+{
+  mapping result;
+
+  if (typeof(map) != T_MAPPING)
+    return ([ ]);
+
+  result = map[..];
+
+  return result;
+}
+
+mapping m_copy(mapping map) { return map_copy(map); }
+
