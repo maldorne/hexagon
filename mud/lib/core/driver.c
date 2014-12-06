@@ -32,6 +32,7 @@ static object object_h;
 
 // Function prototypes
 static nomask void log_driver(string str);
+static nomask void inform_user(string str, int message_type);
 
 
 static nomask void initialize()

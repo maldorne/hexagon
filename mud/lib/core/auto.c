@@ -767,22 +767,6 @@ int destruct(varargs object ob)
 // }
 
 /*
- * NAME:    users()
- * DESCRIPTION:    return an array with the current user objects
- */
-// static object *users()
-// {
-//   if (!this_object()) {
-//     return nil;
-//   } else if (object_name(this_object()) == USERD) {
-//     /* connection objects */
-//     return ::users();
-//   } else {
-//     return ::find_object(USERD)->query_users();
-//   }
-// }
-
-/*
  * NAME:    connect()
  * DESCRIPTION:    establish an outbound connection
  */

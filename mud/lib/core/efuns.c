@@ -41,8 +41,8 @@
 // Hamlet patch
 #include "/lib/core/efuns/exec.c"
 
-// Raskolnikov's simul_efuns
-#include "/lib/core/efuns/children.c"
+// users, children, etc
+#include "/lib/core/efuns/collections.c"
 
 // Nuevas para CcMud
 #include "/lib/core/efuns/domains.c"

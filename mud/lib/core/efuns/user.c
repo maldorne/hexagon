@@ -127,22 +127,3 @@ object find_player(string str)
 
   return nil;
 } 
-
-// TODO remove comment if no auto::users is not needed
-
-// object * users()
-// {
-//    object * all;
-//    int i;
-
-//    all = ::users();
-
-//    if (this_player() && this_player()->query_admin())
-//       return all;
-
-//    for (i = 0; i < sizeof(all); i++)
-//       if (all[i]->query_invis() == 2) 
-//          all -= ({ all[i] });
-   
-//    return all;
-// }

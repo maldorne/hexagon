@@ -133,12 +133,8 @@ static void receive_message(string str)
         return;
 
       case "users":
-        {
-          object * users;
-          users = find_object("/lib/handlers/users")->query_users();
-
-          write("Hay conectados: " + sizeof(users) + " usuarios.\n");
-        }
+      case "who":
+        tmp::cmd_who(params);
         break;
 
       case "compile":

@@ -1,4 +1,6 @@
 
+#include <kernel.h>
+
 // tmp commands to help building the mudos -> dgd port
 
 
@@ -11,7 +13,7 @@ static void cmd_compile(string str)
   object obj;
   string path;
 
-  if (!str) 
+  if (!str || (strlen(str) == 0)) 
   {
     write("Usage: compile <file>\n");
     return;
@@ -23,7 +25,7 @@ static void cmd_compile(string str)
 
   if (!file_exists(path))
   {
-    write("Not an LPC source file: " + str + "\n");
+    write("Not an LPC source file: '" + str + "'\n");
     return;
   }
 
@@ -54,5 +56,23 @@ static void cmd_compile(string str)
   //       }
   //   }
   // }
+}
+
+static nomask cmd_who(string str)
+{
+  mapping user_data;
+  string * user_ids;
+  object handler;
+  int i;
+
+  handler = find_object(USER_HANDLER); 
+  user_data = handler->query_user_data();
+  user_ids = handler->query_user_ids();
+
+  write("Hay conectados: " + sizeof(user_ids) + " usuarios.\n");
+  for (i = 0; i < sizeof(user_ids); i++)
+  {
+    write(" " + i + ") " + user_data[user_ids[i]][1]  + " (" + user_ids[i] + ")\n");
+  }
 }
 

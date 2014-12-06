@@ -9,6 +9,7 @@
 #include <config.h>
 #include <login.h>
 #include <user.h>
+#include <kernel.h>
 
 static int timestamp;
 static int validated;
@@ -108,7 +109,10 @@ nomask void logon_options()
 
 nomask void logon_option(string str) 
 {
-  write("Login done!\n");
+  // store the user name in the user handler
+  find_object(USER_HANDLER)->update_user_name(file_name(this_object()), str);
+
+  write("¡Nos hemos conectado!\n");
   validated = TRUE;
 }
 

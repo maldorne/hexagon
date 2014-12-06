@@ -19,37 +19,77 @@ void create()
     compile_object(USER_OB);
 }
 
-// Called only from this object, in 'new_connection'
-static void add_new_user(object ob, string name) 
+// called only from this object, in 'new_connection'
+static void add_new_user(object ob, string id) 
 {
   // if (base_name(previous_object()) != USER_OB) 
   //   return;
-  users += ([ name : ob ]);
+
+  users += ([ id : allocate(2) ]);
+
+  // values[0] = the user object
+  // values[1] = the user name
+  users[id][0] = ob;
+  users[id][1] = "";
 }
 
-void remove_user(object ob, string name) 
+void remove_user(object ob, string id) 
 {
   // if (base_name(previous_object()) != USER_OB) 
   //   return;
-  users[name] = 0;
+
+  users[id] = 0;
 }
 
-object *query_users() 
+object * query_users()
 {
-  return m_values(users);
+  string * ids;
+  int i;
+  object * result;
+
+  ids = m_indices(users);
+  result = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+    result += ({ users[ids[i]][0] });
+
+  return result;
 }
 
-string *query_user_names() 
+mapping query_user_data() 
+{
+  return users;
+}
+
+string * query_user_ids() 
 {
   return m_indices(users);
 }
 
-object find_user(string name) 
+object find_user(string id) 
 {
-  if (member_array(name, m_indices(users)) == -1) 
+  if (!users[id])
     return nil;
   
-  return users[name];
+  return users[id];
+}
+
+int update_user_name(string id, string name)
+{
+  if (!users[id])
+    return -1;
+
+  // cannot change names of already logged-in players
+  if (users[id][1] != "")
+    return -1;
+
+  // only the same object can do that (from /lib/core/user/login.c)
+  if (users[id][0] != previous_object())
+    return -1;
+
+  users[id][1] = name;
+
+  return 1;
 }
 
 object new_connection()
@@ -58,9 +98,7 @@ object new_connection()
 
   new_user = clone_object(find_object(USER_OB));
 
-  add_new_user(new_user, "test");
+  add_new_user(new_user, file_name(new_user));
 
   return new_user;
 }
-
-
