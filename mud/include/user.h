@@ -7,3 +7,4 @@
 #define MAX_USER_DEPTH 30
 #define MAX_USER_TICKS 100000
 
+#define USERS_SAVE_DIR "/save/players"

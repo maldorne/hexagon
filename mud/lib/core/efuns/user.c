@@ -2,7 +2,7 @@
 // Non-dgd efuns
 // neverbot, 03/2014
 
-#include <dirs.h>
+#include <user.h>
 
 int interactive(object ob)
 {
@@ -97,7 +97,7 @@ int user_exists(string str)
   int ret;
 
   // seteuid((string)master()->get_root_uid());
-  ret = file_exists(DIR_USERS + "/" + str[0..0] + "/" + str + ".o");
+  ret = file_exists(USERS_SAVE_DIR + "/" + str[0..0] + "/" + str + ".o");
   // seteuid(0);
   return ret;
 }
