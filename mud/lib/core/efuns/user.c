@@ -27,7 +27,6 @@ static nomask object this_player()
 //   return this_user(flag);
 // }
 
-
 object real_this_player()
 {
   object * list;
@@ -49,25 +48,10 @@ object real_this_player()
   return nil;
 }
 
-
-/* The fail_msg() autofun calls the set_fail_msg() in this_player().
-   This allows you to set a failure message in the player to be printed
-   instead of "What?" when a command doesn't recognize the input it was
-   given.
-   It is equivalent, and maybe better, to just call the function in the
-   player.c object directly. It would be more properly object oriented
-   to do so, it would be faster, and it would make for one less autofun.
-   However, it is also much more typing, and I want it to be very easy
-   for wizards to use this in their own add_commands, so I don't want
-   people to have to type this_player()-> all the time. Also, doing it
-   this way is analagous to the way MudOS handled it (the notify_fail()
-   efun) and so I think people are more used to this.
-*/
 static nomask void notify_fail(string str) 
 {
   this_player()->set_fail_msg(str);
 }
-
 
 // void notify_fail(mixed str) 
 // {

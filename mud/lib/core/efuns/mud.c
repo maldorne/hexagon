@@ -1,6 +1,5 @@
 
 
-
 #ifdef MUD_NAME
 string mud_name() { return capitalize(MUD_NAME); }
 #else

@@ -106,10 +106,9 @@ nomask void logon_options()
   cat(OPTIONS_MESSAGE);
 }
 
-
 nomask void logon_option(string str) 
 {
-  write("Hemos hecho login!\n");
+  write("Login done!\n");
   validated = TRUE;
 }
 

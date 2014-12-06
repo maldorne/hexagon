@@ -1,7 +1,7 @@
 
 // neverbot, 03/2014
 
-// Override kfuns
+// override kfuns
 
 mixed * map_indices(mapping map)
 {
@@ -17,7 +17,7 @@ mixed * map_values(mapping map)
   return ::map_values(map);
 }
 
-// Mudos function names
+// mudos function names
 
 mixed * keys(mapping map) { return map_indices(map); }
 mixed * values(mapping map) { return map_values(map); }
@@ -26,8 +26,7 @@ mixed * m_indices(mapping map) { return map_indices(map); }
 mixed * m_values(mapping map) { return map_values(map); }
 int m_sizeof(mapping map) { return map_sizeof(map); }
 
-// Added, non existant in dgd
-
+// added, non existant in dgd
 mapping map_delete(mapping map, mixed key) 
 {
   // old mudos version

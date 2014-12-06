@@ -1,5 +1,4 @@
 
-
 // Non-dgd efuns
 // neverbot, 03/2014
 

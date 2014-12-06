@@ -1,5 +1,5 @@
 
-/* Raskolnikov Nov 96 */
+// Raskolnikov Nov 96
 
 // TODO children
 
