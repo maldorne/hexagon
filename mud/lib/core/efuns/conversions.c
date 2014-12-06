@@ -1,18 +1,14 @@
 
-/* A non-recursive copy function for arrays, mappings, and other
-   variables represented by pointers. If the variable being copied
-   itself contains pointers, those pointers are _not_ copied so the
-   data they point to is not secured. (So far I have no need of such
-   a structure so this is adequate. And much faster.)
-*/
-nomask mixed copy (mixed a) 
+// very simple copy function, idea extracted from the melville mudlib
+mixed copy(mixed what) 
 {
   mixed b;
 
-  if (typeof(a)==T_ARRAY || typeof(a)==T_MAPPING) 
-      b = a[..];
+  if ((typeof(what) == T_ARRAY) || 
+      (typeof(what) == T_MAPPING)) 
+    b = a[..];
   else 
-      b = a;
+    b = a;
 
   return b;
 }
@@ -230,6 +226,5 @@ string query_multiple_short(mixed *obs, varargs int flag)
     return implode(str[0..sizeof(str)-2],", ")+" e "+str[sizeof(str)-1];
   else
     return implode(str[0..sizeof(str)-2],", ")+" y "+str[sizeof(str)-1];
-
 }
 

@@ -1,6 +1,6 @@
 
 
-void say(string str, varargs mixed avoid) 
+static nomask void say(string str, varargs mixed avoid) 
 {
   if (!pointerp(avoid))
     avoid = ({ this_player(), previous_object() }) + ({ avoid });
@@ -15,20 +15,20 @@ void say(string str, varargs mixed avoid)
     event(environment(previous_object()), "say", str, avoid);
 } 
 
-void tell_room(object ob, string str, varargs mixed avoid) 
+static nomask void tell_room(object ob, string str, varargs mixed avoid) 
 {
   if (!ob || !objectp(ob))
     return ;
   event(ob, "say", str, avoid);
 } 
 
-void tell_object(object ob, string str) 
+static nomask void tell_object(object ob, string str) 
 {
   if (objectp(ob))
     ob->event_write(previous_object(), str);
 } 
 
-void shout(string str, varargs object avoid) 
+static nomask void shout(string str, varargs object avoid) 
 {
   object *ob;
   int i;
@@ -72,10 +72,9 @@ static nomask void stderr(string str)
   return;  
 }
 
-
-void tell_player(object player, string text)
+static nomask void tell_player(object player, string text)
 {
-    tell_object(player, "\n\t%^BOLD%^" + text + "%^RESET%^\n");
+  tell_object(player, "\n\t%^BOLD%^" + text + "%^RESET%^\n");
 }
 
 

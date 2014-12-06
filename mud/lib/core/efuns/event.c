@@ -9,25 +9,31 @@
 
 void event( mixed obs, string event_name, mixed arg... )
 {
-   object who ;
-   object *event_obs ;
+  object who ;
+  object *event_obs ;
 
-   who = previous_object() ;
-   if( arrayp( obs ) )
+  who = previous_object() ;
+
+  if( arrayp( obs ) )
+  {
+    event_obs = obs ;
+  } 
+  else 
+  {
+    if( objectp( obs ) )
     {
-       event_obs = obs ;
-    } else {
-       if( objectp( obs ) )
-        {
-           event_obs = ({ obs }) + all_inventory( obs ) ;
-           if( obs != who )
-            {
-               event_obs -= ({ who }) ;
-            }
-        } else {
-           return ;
-        }
+      event_obs = ({ obs }) + all_inventory( obs ) ;
+      if( obs != who )
+      {
+        event_obs -= ({ who }) ;
+      }
+    } 
+    else 
+    {
+      return ;
     }
-   call_other( event_obs, "event_"+ event_name, who, arg... ) ;
+  }
+
+  call_other( event_obs, "event_"+ event_name, who, arg... ) ;
 }
 

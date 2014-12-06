@@ -12,7 +12,7 @@ static string euid;
 // But, when the value is 0, no objects can be loaded or cloned by this object.
 
 // TODO seteuid
-// llamar primero a valid_seteuid
+// call valid_seteuid first
 
 static nomask int seteuid( string str )
 {

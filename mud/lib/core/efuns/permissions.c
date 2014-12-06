@@ -13,9 +13,9 @@
 int valid_exec(string name) 
 {
   if (name == "/lib/core/login.c")
-    return TRUE;
+    return 1;
 
-  return FALSE;
+  return -1;
 } 
 
 int valid_load(string path, mixed euid, string func) { return 1; }
@@ -32,7 +32,7 @@ int valid_ident(string euid)
 
 int valid_link(string from, string to) 
 {
-  return FALSE;
+  return -1;
 }
 
 int valid_override(string file, string func) 
@@ -44,7 +44,7 @@ int valid_override(string file, string func)
   switch (bing[0]) 
   {
     case "secure" :
-      return TRUE;
+      return 1;
     case "std" :
     case "obj" :
     case "simul_efun" :
@@ -52,15 +52,14 @@ int valid_override(string file, string func)
     case "table" :
       return (func != "snoop");
     default :
-      return FALSE;
+      return -1;
   }
 } 
 
-/*
- * Read permisions for all of the objects in the game.
- * This IS fun.
- * But seems to be buggy, fix nov '95, Baldrick.
- */
+
+// Read permisions for all of the objects in the game.
+// This IS fun.
+// But seems to be buggy, fix nov '95, Baldrick.
 
 int valid_read(string path, mixed euid, string func) 
 {
@@ -92,10 +91,10 @@ int valid_read(string path, mixed euid, string func)
   if (euid == "tmp")
     return bing[0] == "tmp";
 
-  // Comprobacion añadida:
-  // Cualquier directorio 'old' sera utilizado como
-  // una 'papelera de reciclaje' de codigo antiguo,
-  // solo legible por admins. neverbot 02/2006
+  // added check:
+  // any "old" directory will be used as a "recycle bin" of old code,
+  // only readable by admins. neverbot 02/2006
+
   for (i = 0; i < sizeof(bing); i++)
   {
     if (bing[i] == "old")
@@ -116,7 +115,7 @@ int valid_read(string path, mixed euid, string func)
     */
 
     case "log" : 
-    // Logs de tiendas, baules, etc
+    // logs for shops, vaults, etc
     if ((sizeof(bing) >= 2) && (bing[1] == "common"))
     return 1;
 
@@ -126,15 +125,15 @@ int valid_read(string path, mixed euid, string func)
       return (euid == "secure") || load_object(SECURE)->check_permission(euid, bing, READ_MASK);
 
     case "d" :
-       // /d open read for Thanes...
-     // No, los thanes solo tienen acceso a su dominio
-       // if("/secure/thanes"->query_of(euid)) return 1;
+      // /d open read for Thanes...
+      // no, the thanes have access only to their domains
+      // if("/secure/thanes"->query_of(euid)) return 1;
 
     case "home" :
       if (sizeof(bing) >= 2) 
-    {
+      {
         if ((bing[0]=="home"?bing[1]:capitalize(bing[1])) == euid) 
-      return 1;
+          return 1;
       
         master = bing[0] + "/" + bing[1] + "/master.c";
 
@@ -178,9 +177,9 @@ int valid_read(string path, mixed euid, string func)
       if (!handler)
         return 0;
 
+      // if we do not have an effective uid we need it so the calls
+      // to the command handler will work. neverbot
       if (!euid)
-      // Si no tenemos uid efectiva la necesitamos para que 
-      // las llamadas al handler de comandos funcionen correctamente
       {
         if (this_player())
           euid = geteuid(this_player());
@@ -211,8 +210,8 @@ int valid_save_binary(string file)
   if(!file || file=="")
     return 0;
  
-  if(file_name(previous_object()) == "/global/virtual/compiler")
-    return 0;
+  // if(file_name(previous_object()) == "/global/virtual/compiler")
+  //   return 0;
  
   path = explode(file, "/") - ({ "" });
  
@@ -245,7 +244,6 @@ int valid_save_binary(string file)
   }
   return 0;
 }
- 
 
 int valid_seteuid(object ob, string euid) 
 {
@@ -410,11 +408,11 @@ int valid_write(string path, mixed euid, string func)
 } /* valid_write() */
 
 
-// Revisado para CcMud, neverbot 07/05
+// checked for ccmud, neverbot 07/05
 
 int valid_snoop(object snooper, object snoopee, object pobj) 
 {
-  return FALSE;
+  return -1;
   /*
   if (snooper == snoopee) {
     tell_object(snooper, "No puedes snoopearte a ti mismo.\n");

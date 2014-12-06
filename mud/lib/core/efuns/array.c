@@ -41,48 +41,48 @@ mixed * shift_right(mixed * arr)
 	return ({ }) + arr[0..sizeof(arr)-2];
 }
 
-mixed *exclude_array(mixed *arr, int from, varargs int to) 
+mixed * exclude_array(mixed *arr, int from, varargs int to) 
 {
-    mixed *bottom, *top;
+  mixed *bottom, *top;
 
-    bottom = ({});
-    top = ({});
+  bottom = ({});
+  top = ({});
 
-    if (!to) 
-      to = from;
-    if (from > 0) 
-      bottom = arr[0..from -1];
-    if (to < sizeof(arr)-1) 
-      top = arr[to+1..sizeof(arr)-1];
+  if (!to) 
+    to = from;
+  if (from > 0) 
+    bottom = arr[0..from -1];
+  if (to < sizeof(arr)-1) 
+    top = arr[to+1..sizeof(arr)-1];
 
-    return bottom + top;
+  return bottom + top;
 }
 
-//      /secure/simul_efun/uniq_array.c
-//      from the RotD Mudlib
-//      takes any array and returns an array with no repeat members
-//      created by Descartes of Borg 930822
+// /secure/simul_efun/uniq_array.c
+// from the RotD Mudlib
+// takes any array and returns an array with no repeat members
+// created by Descartes of Borg 930822
 
 mixed *uniq_array(mixed *arr) 
 {
-    mapping borg;
-    int i;
+  mapping borg;
+  int i;
+
+  i = sizeof(arr);
+  borg = ([]);
   
-    i = sizeof(arr);
-    borg = ([]);
-    
-    while(i--) 
-      borg[arr[i]] = 1;
-    return keys(borg);
+  while(i--) 
+    borg[arr[i]] = 1;
+  return keys(borg);
 }
 
+int atoi(string str) 
+{
+  int x;
 
-int atoi(string str) {
-    int x;
-
-    if(!stringp(str)) return 0;
-    else sscanf(str, "%d", x);
-    return x;
+  if(!stringp(str)) return 0;
+  else sscanf(str, "%d", x);
+  return x;
 }
 
 string itoa(int i)

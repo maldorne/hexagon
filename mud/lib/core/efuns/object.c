@@ -22,23 +22,23 @@ string file_name(object ob)
   return object_name(ob);
 }
 
-//      /secure/simul_efun/base_name.c
-//      from the RotD Mudlib
-//      returns the file name of the master copy of an object (no #???)
-//      created by Descartes of Borg 930822
+// /secure/simul_efun/base_name.c
+// from the RotD Mudlib
+// returns the file name of the master copy of an object (no #???)
+// created by Descartes of Borg 930822
 
 static nomask string base_name(object ob) 
 {
-    string file, tmp;
+  string file, tmp;
 
-    // seteuid(geteuid(previous_object()));
+  // seteuid(geteuid(previous_object()));
 
-    if (sscanf(file_name(ob), "%s#%s", file, tmp) != 2) 
-      file = file_name(ob);
+  if (sscanf(file_name(ob), "%s#%s", file, tmp) != 2) 
+    file = file_name(ob);
 
-    // seteuid(0);
+  // seteuid(0);
 
-    return file;
+  return file;
 }
 
 static nomask int clone_number(object ob) 
@@ -54,7 +54,6 @@ static nomask int clone_number(object ob)
 
   return 0;
 }
-
 
 // static nomask object find_object(string path)
 // {

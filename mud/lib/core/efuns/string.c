@@ -7,7 +7,6 @@
 
 
 // To simulate the member_array(character, string)
-
 int at(int character, string str)
 {
   int i;
@@ -83,21 +82,21 @@ string trim(string str)
   return str;
 }
 
-//      /secure/simul_efun/wrap.c
-//      from the RotD Mudlib
-//      wraps text automatically
-//      created by Pallando@Nightmare
+// /secure/simul_efun/wrap.c
+// from the RotD Mudlib
+// wraps text automatically
+// created by Pallando@Nightmare
 
 string wrap(string str, varargs int width) 
 {
-    return (width ? sprintf("%-=" + width + "s", str + "\n") : 
-      sprintf("%-=75s", str + "\n"));
+  return (width ? sprintf("%-=" + width + "s", str + "\n") : 
+    sprintf("%-=75s", str + "\n"));
 }
 
-//  /adm/simul_efun/arrange_string.c
-//  from the Nightmare mudlib
-//  makes a string a certain length
-//  created by Descartes of Borg 23 december 1992
+// /adm/simul_efun/arrange_string.c
+// from the Nightmare mudlib
+// makes a string a certain length
+// created by Descartes of Borg 23 december 1992
 
 string arrange_string(string str, int x) 
 {
@@ -121,11 +120,11 @@ string arrange_string(string str, int x)
     return str;
 }
 
-// What the hell would need this???
-int vowel(int i) 
-{
-  return (i == 'a' || i == 'e' || i == 'i' || i == 'o' || i == 'u');
-}
+// what the hell would need this???
+// int vowel(int i) 
+// {
+//   return (i == 'a' || i == 'e' || i == 'i' || i == 'o' || i == 'u');
+// }
 
 
 // spanish characters, neverbot 4/03
@@ -186,8 +185,9 @@ string pluralize(string str)
     return "objects";
   else return (str + "s");
 }
-// Antes o despues haria falta...
-// Cambia unicamente los acentos, o tambien los acentos y la ñ
+
+// needed in a spanish-language mud
+// it could change only the accents or both the accents and the ñ
 
 string replace_spanish_characters(string str, varargs int flag_enye)
 {
@@ -219,32 +219,38 @@ string replace_spanish_characters(string str, varargs int flag_enye)
 
 // format_page()
 // Tweaked by Radix for who command : MArch 4, 1997
-string format_page(string *items, int columns) {
-    int width, i, j, x;
-    string ret;
+string format_page(string *items, int columns) 
+{
+  int width, i, j, x;
+  string ret;
 
-    if(!columns) columns = 2;
-    ret = "";
-    if(!this_user())
-        width = 75/columns;
-    else
-        width = this_user()->query_cols() / columns;
-    for(i=0, x = sizeof(items); i<x; i+=columns) {
-        for(j=0; j<columns; j++) {
-            if(i+j >= x) break;
-            // ret += arrange_string(items[i+j], width);
-            // Cambio para mejorar la presentacion, Folken 02/05
-            ret += arrange_string("  " +capitalize(items[i+j]), width);
-        }
-        ret += "\n";
+  if (!columns) 
+    columns = 2;
+
+  ret = "";
+
+  if (!this_user())
+    width = 75/columns;
+  else
+    width = this_user()->query_cols() / columns;
+ 
+  for (i = 0, x = sizeof(items); i < x; i += columns) 
+  {
+    for (j = 0; j < columns; j++) 
+    {
+      if(i + j >= x) 
+        break;
+      // ret += arrange_string(items[i+j], width);
+      // changed to improve presentation, neverbot 02/05
+      ret += arrange_string("  " +capitalize(items[i+j]), width);
     }
-    return ret;
+    ret += "\n";
+  }
+  return ret;
 }
 
-/* pad takes a mixed arg, converts to string, and pads it to the desired
-   length. Left-justify is the default: if the justify arg is 1, it will
-   be right-justified. */
-static nomask string pad (string str, int size, varargs int justify) 
+// idea taken from the melville mudlib
+static nomask string pad(string str, int size, varargs int justify) 
 {
   int i, len;
 

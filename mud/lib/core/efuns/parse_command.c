@@ -1,14 +1,14 @@
 /*
  * Default language functions used by parse_command() in non -o mode
  *
- * Folken 02/06, intentando traducir los "all" y otras cosas...
+ * neverbot 02/06, trying to translate the "all" and other things
  * 
  */
 
 string *parse_command_id_list() {
   // return ({ "one", "thing" });
   // return ({ "cosa", "objeto" });
-  // Por alguna razon esto no funciona como debiera
+  // this doest not work as it should
   return ({ "algo", "cosa", "objeto" });
 } 
 

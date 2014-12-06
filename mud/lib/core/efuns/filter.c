@@ -15,7 +15,7 @@
 // first call fun(arr[0], 2, 3) then fun(arr[1], 2, 3) etc.
 
 
-mapping filter_mapping(mapping map, string func, mixed ob, varargs mixed extra)
+static nomask mapping filter_mapping(mapping map, string func, mixed ob, varargs mixed extra)
 {
   mixed * bing;
   mapping ret;
@@ -30,7 +30,7 @@ mapping filter_mapping(mapping map, string func, mixed ob, varargs mixed extra)
   return ret;
 }
 
-mixed * filter_array(mixed * list, string func, mixed ob, varargs mixed extra)
+static nomask mixed * filter_array(mixed * list, string func, mixed ob, varargs mixed extra)
 {
   int i;
   mixed * ret;
@@ -43,7 +43,7 @@ mixed * filter_array(mixed * list, string func, mixed ob, varargs mixed extra)
   return ret;
 }
 
-mixed filter(mixed list, string func, mixed ob, varargs mixed extra)
+static nomask mixed filter(mixed list, string func, mixed ob, varargs mixed extra)
 {
   if (arrayp(list))
     return filter_array(list, func, ob, extra);

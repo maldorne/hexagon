@@ -6,34 +6,34 @@
 
 // TODO file_size
 
-int file_size(string str)
+static nomask int file_size(string str)
 {
   return 1;
 }
-
 
 // TODO file_length
 
 // This is a very temporary hack.  file_length() seems to crash and burn
 //   with directories.  So let's wrap it...   -- Hamlet 
-int file_length(string file_name) {
-   // int tmp;
+static nomask int file_length(string file_name) 
+{
+  // int tmp;
 
-   // tmp = file_size(file_name);
-   // if(tmp < 1)
-   //   return tmp;
+  // tmp = file_size(file_name);
+  // if(tmp < 1)
+  //   return tmp;
 
-   // return ::file_length(file_name);
+  // return ::file_length(file_name);
 
   return file_size(file_name);
 }
 
 
 
-//      /secure/simul_efun/file_exists.c
-//      from the RotD Mudlib
-//      returns true if the file named exists
-//      created by Descartes of Borg 930822
+//  /secure/simul_efun/file_exists.c
+//  from the RotD Mudlib
+//  returns true if the file named exists
+//  created by Descartes of Borg 930822
 
 // int file_exists(string str) {
 //     int ret;
@@ -46,25 +46,22 @@ int file_length(string file_name) {
 //     return ret;
 // }
 
-
-// From Melville mudlib
-static nomask int file_exists (string str) 
+static nomask int file_exists(string str) 
 {
-  mixed *val;
-  int *sizes;
+  mixed * content;
+  int * sizes;
 
-  val = get_dir(str);
-  sizes = val[1];
-  // If there's no names at all, then the file doesn't exist.
-  if (!sizes || sizeof(sizes)==0) 
-    return FALSE;
-  // It's not clear to me what the behavior should be in the case of
-  // more than one file returning (ie, if a wildcard is passed). For
-  // now, I'm going to return information for the first file in the
-  // list. Don't pass wildcards to this function, eh? ;)   
+  content = get_dir(str);
+  sizes = content[1];
+  
+  // no files
+  if (!sizes || (sizeof(sizes) == 0)) 
+    return 0;
+
   if (sizes[0] == -2) 
     return -1;
-  return TRUE;
+
+  return 1;
 }
 
 // Stuff required as a result of MudOS upgrades..
@@ -96,10 +93,10 @@ static nomask int file_exists (string str)
 //   return 1;
 // }
 
-static nomask int cat (string file) 
+static nomask int cat(string file) 
 {
   int i;
-  string *lines;
+  string * lines;
 
   i = file_exists(file);
   if (i == 0) 
@@ -121,6 +118,7 @@ static nomask int cat (string file)
   
   for (i = 0; i < sizeof(lines); i++) 
       write (lines[i]+"\n");
+
   return 1;
 }
 
@@ -165,28 +163,28 @@ static nomask mixed creator_file(string file, varargs int author)
   }
 }
 
-mixed author_file(mixed bing) 
+static nomask mixed author_file(mixed bing) 
 {
   return creator_file(bing, 1);
 }
 
 
-int rename(string from, string to)
+static nomask int rename(string from, string to)
 {
   return rename_file(from, to);
 }
 
-int rm(string name)
+static nomask int rm(string name)
 {
   return remove_file(name);
 }
 
-int mkdir(string dir)
+static nomask int mkdir(string dir)
 {
   return make_dir(dir);
 }
 
-int rmdir(string dir)
+static nomask int rmdir(string dir)
 {
   return remove_dir(dir);
 }
@@ -196,9 +194,9 @@ int rmdir(string dir)
 // Returns 1 for success, returns -1 if the first src is unreadable, -2 if
 // dst is unreadable, and -3 if an i/o error occurs.
 
-// TODO cp revisar
+// TODO cp check if this is working
 
-int cp(string src, string dst)
+static nomask int cp(string src, string dst)
 {
   mixed chunk;
   int offset, sz, n;
@@ -209,17 +207,13 @@ int cp(string src, string dst)
 
   info = get_dir(src);
 
+  // file does not exist
   if (sizeof(info[0]) == 0)
-  {
-    // file does not exist
-    return FALSE;
-  }
+    return -1;
 
+  // is a directory
   if (sizeof(info[2]) && (info[2][0] < 0))
-  {
-    // is a directory
-    return FALSE;
-  }
+    return -1;
 
   offset = 0;
   sz = info[2][0];
@@ -227,16 +221,16 @@ int cp(string src, string dst)
   do {
     chunk = read_file(src, offset, 57344);
 
-    // Some error, should not happen
+    // some error, should not happen
     if (typeof(chunk) != T_STRING) 
-      return FALSE;
+      return -1;
 
     n = write_file(dst, chunk);
 
     if (n <= 0) 
     {
-      // Should not happen
-      return FALSE;
+      // should not happen
+      return -1;
     }
 
     offset += strlen(chunk);
@@ -244,6 +238,5 @@ int cp(string src, string dst)
 
   } while (sz > 0 && strlen(chunk) != 0);
 
-  return TRUE;
-
+  return 1;
 }

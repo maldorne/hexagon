@@ -47,17 +47,19 @@ mixed * localtime(int timestamp)
 }
 
 
-
-/* Intentaremos hacer una simul_efun para 'capar' el
- * funcionamiento del ctime() y que siempre nos devuelva
- * informacion en castellano, con posibles modos de horario
- * (mundo real y/o hora del mud), Folken 4/2003
- * Incluida hora/fecha del mud, Folken 6/03
- *  (tira del /obj/handlers/weather.c, da igual el time que pasemos
- *   como parametro).
- * Incluida hora en formato ingles, para compatibilidad con ftpd,
- *   Folken 12/04
- * Incluido formato que devuelve solo la hora del dia, Folken 1/06
+/* 
+ * We'll try to do a simul_efun to wrap the ctime and make it
+ * always return information in spanish, with different modes
+ * for real-world time or mud time, neverbot 4/2003
+ *
+ * Added date and time inside the mud, Folken 6/03
+ *  (takes info from the weather handler, ignoring the time
+ *   passed as parameter)
+ *
+ * Added english formatted date, for ftpd compatibility, 
+ *   neverbot 12/04
+ * 
+ * Added format with only the time, neverbot 1/06
  */
 
 #include <weather.h>
@@ -136,7 +138,7 @@ string convert_english_month(int num){
 
 string convert_birthday(string str) 
 {
-	/* we assume it is 4 characters long 'ddmm'*/
+	// we assume it is 4 characters long 'ddmm'
 	int day, month, tot;
 	string retval;
 
@@ -169,7 +171,7 @@ string convert_birthday(string str)
 	*/
 	retval = day + " de ";
 	return retval + convert_month(month-1);
-} /* convert_birthday() */
+} 
 
 int valid_birthday(string str) 
 {
@@ -194,7 +196,6 @@ int valid_birthday(string str)
 	return day <= LENGTHS[month];
 } /* valid_birthday() */
 
-
 string repair_number(int num)
 {
   string res;
@@ -209,18 +210,22 @@ string repair_number(int num)
 }
 
 /*
- * Diferentes modos:
- *  - sin flag o flag = 0: hora reducida para logs:
+ * Different modes:
+ *  - no flag or flag = 0: reduced datetime for logging:
  *    "Lun 21 Abr 2003 15:58:0"
- *  - flag = 1: hora generica del mundo real (para el who, p.ej.):
+ *  - flag = 1: generic real-world time (i.e. for the who command):
  *    "Lunes 21 de Abril de 2003"
- *  - flag = 2: Fecha con 6 caracteres: ddmmaa
- *  - flag = 3: Hora y Fecha del mud (segun weather.c)
- *  Añadido para acortar el 'ls -la', Folken 23/11/03
+ *  - flag = 2: date with 6 characters: ddmmaa
+ *  - flag = 3: mud datetime (from weather.c)
+ *
+ *  Added to make the 'ls -la' shorter, neverbot 23/11/03
  *  - flag = 4: ddmmaa hh:mm:ss
- *  Añadido para el comando time, Folken 09/12/04 (mundo real)
+ *
+ *  Added real-world datetime for the "time" command
+ *    neverbot 09/12/04
  *  - flag = 5:  "Lunes 21 de Abril de 2003 - hh:mm:ss"
- *  Añadido para compatibilidad con ftp, Folken 10/12/04
+ *
+ *  Added for the sake of ftpd compatibility, neverbot 10/12/04
  *  - flag = 6:  "Fri Dec 10 hh:mm:ss aaaa"
  */
 string ctime(int time, varargs int flag)
@@ -286,5 +291,5 @@ string ctime(int time, varargs int flag)
              repair_number(datos[LT_SEC]);
   }
   return result;
-} /* ctime() */
+} 
 

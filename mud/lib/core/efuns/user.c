@@ -84,10 +84,10 @@ static nomask void notify_fail(string str)
 // } 
 
 
-//      /secure/simul_efun/user_exists.c
-//      from the RotD Mudlib
-//      returns true if there is such a player
-//      created by Descartes of Borg 930822
+// /secure/simul_efun/user_exists.c
+// from the RotD Mudlib
+// returns true if there is such a player
+// created by Descartes of Borg 930822
 
 // TODO user_exists
 int file_exists(string str);

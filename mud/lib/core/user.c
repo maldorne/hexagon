@@ -76,7 +76,10 @@ void do_efun_write(string str)
   send_message(str);
 }
 
-// Called from the driver
+// called from the driver
+
+// the skeleton of this function started taking the melville received_message 
+// as the general idea, but I think it will change a lot with time
 static void receive_message(string str) 
 {
   string tmp_redirect_func;

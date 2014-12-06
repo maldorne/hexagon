@@ -1,15 +1,16 @@
 
+// idea taken from melville mudlib
 static nomask string resolve_path(string path) 
 {
-  int i,j;
-  string *dirs;
+  int i, j;
+  string * dirs;
 
   if (!path) 
     return "";
   
   dirs = explode(path,"/");
   
-  // First, remove any . from the array. 
+  // remove any . from the array
   dirs -= ({ "." });
 
   for (i = 0; i < sizeof(dirs); i++) 
@@ -28,51 +29,50 @@ static nomask string resolve_path(string path)
     }
   }
 
-  // Now remove any .. and the preceding element. 
-  i = member_array("..",dirs);
-  while (i>-1) 
+  // remove any .. and the preceding element
+  i = member_array("..", dirs);
+  while (i > -1) 
   {
-    // Can't start with a ..  
-    if (i==0) 
+    // can't start with ..  
+    if (i == 0) 
       return "";
 
     j = sizeof(dirs);
 
-    // Piece it back together, depending on if we remove the first two
+    // piece it back together, depending on if we remove the first two
     //   elements, the last two, or two from the middle. 
-    if (i==1) 
+    if (i == 1) 
     {
-      if (j==2) 
+      if (j == 2) 
         return "";
       dirs = dirs[i+1 .. j-1];
     } 
     else 
     {
-      if (i==j-1) 
+      if (i == j-1) 
         dirs = dirs[0 .. i-2];
       else 
         dirs = dirs[0 .. i-2] + dirs[i+1 .. j-1];
     }
 
-    // Look for another .. in the path. 
+    // look for another .. in the path. 
     i = member_array("..",dirs);
   }
+
   path = implode(dirs,"/");
   return path;
 }
 
-/* absolute_path() returns 1 if the string is an absolute path (ie, it
-   begins with ~ or /) and 0 if not. This is done in so many different
-   commands that it seemed wisest to just put it in the auto object so
-   you didn't have to change it in 30 places. The null string returns 0. */
-
+// idea taken from melville mudlib
 static nomask int is_absolute_path(string str) 
 {
-    if (!str || str=="") 
-      return FALSE;
-    if (str[0]=='/' || str[0]=='~') 
-      return TRUE;
-    return FALSE;
+    if (!str || (str == "")) 
+      return -1;
+
+    if ((str[0] == '/') || (str[0] == '~')) 
+      return 1;
+
+    return -1;
 }
 
 string get_path_file_name(string path)
@@ -103,22 +103,17 @@ string get_path_only(string path)
   return "/" + implode(words[0..sizeof(words)-2], "/") + "/";
 }
 
-// Antiguo /global/path.c, ahora extraido a simul_efuns, Folken 03/2009                       
-
+// old /global/path.c, now moved to simul_efuns, neverbot 03/2009                       
 string get_path(string str) 
 {
   string *array, *array1, temp;
   int i;
 
   if (!str) 
-  {
     str = this_player()->query_home_dir();
-  }
 
   if (str == "~") 
-  {
     str = this_player()->query_home_dir();
-  }
   else if(str[0] == '~') 
   {
     if(str[1] == '/') 
@@ -142,7 +137,6 @@ string get_path(string str)
     }
   } 
   else if (str[0] != '/')
-
     str = this_player()->query_current_path() + "/" + str + "/";
 
   if (str == "/")
@@ -183,7 +177,7 @@ string get_path(string str)
   return "/"+str;
 }  
 
-string *get_files(string str) 
+string * get_files(string str) 
 {
   mixed * info;
 

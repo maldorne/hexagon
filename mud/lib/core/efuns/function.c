@@ -3,7 +3,7 @@
 // Non-dgd efuns
 // neverbot, 03/2014
 
-object * previous_objects(varargs int step)
+static nomask object * previous_objects(varargs int step)
 {
   object result;
   int arg;
@@ -22,7 +22,7 @@ object * previous_objects(varargs int step)
 
 }
 
-object previous_object(varargs int number)
+static nomask object previous_object(varargs int number)
 {
   if (!number || (number != -1))
     return ::previous_object(number);
@@ -30,32 +30,20 @@ object previous_object(varargs int number)
     return previous_objects(1)[0];
 }
 
-/* The previous_function() function. It reports the name of the
-   function in previous_object() that called the function which
-   calls previous_function(). (Read that a couple times until it
-   makes sense.)
-   It's just a front end that extracts the particular information
-   from the call_trace() kfun.
-*/
 static nomask string previous_function() 
 {
-  mixed *trace;
-  mixed *elem;
-  int size;
+  mixed * trace;
 
   trace = call_trace();
-  size = sizeof(trace);
 
-  // The last element is this function. The second to last element is
-  //   the function that requested previous_function(). The third to
-  //   last element is the function before that: that's the one we want.    
-  if (size < 3) 
+  // last element = this function
+  // second to last element = the function that requested previous_function()
+  // third to last element is the function before that: that's the one we want.    
+  if (sizeof(trace) < 3) 
     return nil;
   
-  elem = trace[size-3];
-  
-  // Element 2 is the function name. 
-  return elem[2];
+  // second element is the function name. 
+  return trace[sizeof(trace) - 3][2];
 }
 
 /*

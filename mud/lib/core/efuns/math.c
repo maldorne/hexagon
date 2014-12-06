@@ -1,11 +1,11 @@
 
 /* Math Utility Functions */
 
-// Extraidas de varios lugares para hacerlas comunes, Folken 03/09
-// Funciones nuevas 
-// 	valor absoluto: abs
-// 	representacion de puntos: class point, class fpoint
-//    distancia entre puntos: distance, fdistance
+// extracted from various places to make them common, neverbot 03/09
+// new functions
+// 	absolute value: abs
+// 	class point, class fpoint
+//    distance between points: distance, fdistance
 
 // TODO class point and distance
 // look here http://lpmuds.net/smf/index.php?topic=942.0
@@ -35,7 +35,7 @@
 // 	return sqrt(res);
 // }
 
-int random(int low, varargs int max)
+static nomask int random(int low, varargs int max)
 {
   if (!max) 
     return ::random(low);
@@ -47,12 +47,12 @@ int random(int low, varargs int max)
   return ::random(max-low)+low+1;
 }
 
-int rand_num(int low, int max)
+static nomask int rand_num(int low, int max)
 {
 	return random(low, max);
 }
 
-int abs(int value)
+static nomask int abs(int value)
 {
   if (value < 0)
     return -value;
@@ -76,26 +76,29 @@ int exp(int x, int y) {
 */
 
 
-/* it would be best to use the roll(int) thingie. 
- * less processor intesive, but the string looks better */
-/* Made by Sojan, put in Simul_efun by Baldrick. */
+// it would be best to use the roll(int) thingie. 
+// less processor intesive, but the string looks better
+// Made by Sojan, put in Simul_efun by Baldrick.
 
-/* this is a dice function - rolls a dice and gives a result ... 
- * can be a simul_efun
- * or put wherever it can be accessed 
- */
-
-int roll(int times, int type)
+// this is a dice function - rolls a dice and gives a result ... 
+// can be a simul_efun
+// or put wherever it can be accessed 
+ 
+static nomask int roll(int times, int type)
 {
   int i,retval;
-  retval=0;
-  if(!times||!type) return 0;
-  for(i=0;i<times;i++)
+  retval = 0;
+
+  if (!times || !type) 
+    return 0;
+  
+  for (i = 0; i < times; i++)
   {
-    retval+=(random(type)+1);
+    retval += (random(type) + 1);
   }
+
   return retval;
-} /* roll */
+}
 
 /* input to above function is of form roll(10, 20) if you wanted to roll 
    10 20 sided dice */
