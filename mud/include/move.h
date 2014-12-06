@@ -4,3 +4,6 @@
 #define MOVE_NO_DROP 3
 #define MOVE_TOO_HEAVY 4
 #define MOVE_INVALID_DEST 5
+
+#define CAN_BE_DROPPED 1
+#define CAN_BE_GOTTEN 2

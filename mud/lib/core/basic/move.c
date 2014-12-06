@@ -1,87 +1,106 @@
 #include <move.h>
 
-#define DROP 1
-#define GET 2
+inherit inventory "/lib/core/basic/inventory";
 
 private int move_flag;
-private object prev; /* added Mar 3 '93 by Dank to support goback command */
 
-// Añadido create
+// added Mar 3 '93 by Dank to support goback command 
+private object prev; 
+
 void create()
 {
-	prev = nil;
+  prev = nil;
+  inventory::create();
 }
 
 object query_prev() { return prev; }
 
-/* default to being gettable and dropable...
- * modify as you will...
- */
-void reset_get() { move_flag |= GET; }   /* can't be gotten */
-void set_get() { move_flag &= ~GET; }    /* can be gotten */
-void reset_drop() { move_flag |= DROP; }   /* can't be dropped */
-void set_drop() { move_flag &= ~DROP; }    /* can be dropped */  
+// default to being gettable and dropable...
+// modify as you will...
+void reset_get() { move_flag |= CAN_BE_DROPPED; }  // can't be gotten 
+void set_get() { move_flag &= ~CAN_BE_DROPPED; }   // can be gotten 
+void reset_drop() { move_flag |= CAN_BE_GOTTEN; }  // can't be dropped 
+void set_drop() { move_flag &= ~CAN_BE_GOTTEN; }   // can be dropped
 
-/* these should have been called "query...", but they're not */
-int drop() { return move_flag & DROP; }
-int get() { return move_flag & GET; }
+// these should have been called "query...", but they're not
+int drop() { return move_flag & CAN_BE_DROPPED; }
+int get() { return move_flag & CAN_BE_DROPPED; }
 int gettable() { return !get(); }
 
 void set_move_flag(int i) { move_flag = i; }
 
 int move(mixed dest, varargs mixed messin, mixed messout) 
 {
-	prev = environment();
-	
-	if (!dest)
-		return MOVE_EMPTY_DEST;
-		
-	if (environment() && !environment()->test_remove(this_object(),
-		move_flag & DROP))
-		return MOVE_NO_DROP;
-		
-	if (!dest->test_add(this_object(), move_flag & GET))
-		return MOVE_NO_GET;
-		
-	if (environment())
-		event(environment(), "exit", messout, dest);
-		
-	move_object(dest);
-	
-	if (objectp(dest))
-		event(dest, "enter", messin, prev);
-	else if (find_object(dest))
-		event(find_object(dest), "enter", messin, prev);
-		
-	return MOVE_OK;
+  object destination;
+  object previous;
+
+  previous = environment();
+  
+  if (!dest)
+    return MOVE_EMPTY_DEST;
+
+  if (objectp(dest))
+    destination = dest;
+  else
+  {
+    destination = load_object(dest);
+
+    // valid destination
+    if (!destination)
+      return MOVE_EMPTY_DEST;
+  }
+
+  // previous environment can let go
+  if ((move_flag & CAN_BE_DROPPED) && previous)
+		if (!previous->test_remove(this_object()))
+    	return MOVE_NO_DROP;
+    
+  // destination can accept the object
+  if (move_flag & CAN_BE_GOTTEN)
+  	if (!destination->test_add(this_object()))
+    	return MOVE_NO_GET;
+
+  // event_exit
+  if (previous)
+    event(previous, "exit", messout, dest);
+  
+  // update inventories and current environment
+  previous->remove_from_inventory(this_object());
+	destination->add_to_inventory(this_object());
+	update_environment(destination);
+
+	// event_enter
+  event(destination, "enter", messin, prev);
+    
+  return MOVE_OK;
 }
 
 void dest_me() 
 {
-	/*
-	int i;
-	object* obs;
-	object ob;
+  /*
+  int i;
+  object* obs;
+  object ob;
 
-	if (environment())
-		event(environment(), "dest_me");
+  if (environment())
+    event(environment(), "dest_me");
 
-	// Destruct shadows of this object, Wonderflug 96
-	obs = ({ });
-	ob = shadow(this_object(), 0);
+  // Destruct shadows of this object, Wonderflug 96
+  obs = ({ });
+  ob = shadow(this_object(), 0);
 
-	while ( ob )
-	{
-		obs += ({ ob });
-		ob = shadow(ob, 0);
-	}
+  while ( ob )
+  {
+    obs += ({ ob });
+    ob = shadow(ob, 0);
+  }
 
-	for ( i = 0; i < sizeof(obs); i++ )
-		if ( obs[i] )
-			destruct(obs[i]);
-			*/
+  for ( i = 0; i < sizeof(obs); i++ )
+    if ( obs[i] )
+      destruct(obs[i]);
+      */
 
-	::destruct(this_object());
+  ::destruct(this_object());
 }
 
 /* Do not I repeat do not mask this function.
@@ -102,11 +121,10 @@ mixed *query_init_data() {
 }
 */
 
-// Añadido stats
 mixed stats()
 {
-	return ({
-		({"Move Flag", move_flag, }),
-		({"Previous", prev, }),
-	   });
+  return ({
+    ({"Move Flag", move_flag, }),
+    ({"Previous", prev, }),
+     });
 }

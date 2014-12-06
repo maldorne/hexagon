@@ -2,7 +2,8 @@
 
 static int light, int_light;
 
-void create(){
+void create()
+{
 	light = 0;
 	int_light = 0;
 }
