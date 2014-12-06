@@ -143,8 +143,12 @@ static void receive_message(string str)
         tmp::cmd_compile(params);
         break;
 
+      case "test":
+        tmp::cmd_test(params);
+        break;
+
       default:
-        write("Unknown command.\n");
+        write("¿Perdón?\n");
         break;
     }
 

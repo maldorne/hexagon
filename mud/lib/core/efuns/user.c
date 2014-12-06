@@ -111,19 +111,29 @@ object find_living(string name)
   return nil;
 }
 
-// Similar to find_living(), but only searches through objects that are
-// interactive, or were once interactive.
-
-// TODO find_player
-
 object find_player(string str) 
 {
+  mapping user_data;
+  string * user_ids;
+  object handler;
+  int i;
+
+  handler = find_object(USER_HANDLER);
+  user_data = handler->query_user_data();
+  user_ids = handler->query_user_ids();
+
+  for (i = 0; i < sizeof(user_ids); i++)
+  {
+    if (str == user_data[user_ids[i]][1])
+      return user_data[user_ids[i]][0];
+  }
+
+  return nil;
+
   // object ob;
 
   // if ((ob = efun::find_player(str)))
   //   if ((int)ob->query_invis() == 2)
   //     return nil;
   // return ob;
-
-  return nil;
 } 

@@ -56,6 +56,21 @@ object * query_users()
   return result;
 }
 
+string * query_user_names()
+{
+  string * ids;
+  int i;
+  string * result;
+
+  ids = m_indices(users);
+  result = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+    result += ({ users[ids[i]][1] });
+
+  return result;
+}
+
 mapping query_user_data() 
 {
   return users;

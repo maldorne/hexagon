@@ -76,3 +76,11 @@ static nomask cmd_who(string str)
   }
 }
 
+static nomask cmd_test(string str)
+{
+  object ob;
+
+  ob = find_player(str);
+
+  write(" " + print_object(ob) + "\n");
+}
