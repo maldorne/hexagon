@@ -14,14 +14,12 @@ string print_object(mixed ob, varargs int offset, string pre)
     write(ob + "\n");
     return "int";
   }
-
-  if (stringp(ob)) 
+  else if (stringp(ob)) 
   {
     write("\"" + ob + "\"\n");
     return "string";
   }
-
-  if (objectp(ob)) 
+  else if (objectp(ob)) 
   {
     write("<" + file_name(ob) + ">");
     
@@ -34,24 +32,49 @@ string print_object(mixed ob, varargs int offset, string pre)
     
     return "object";
   }
+  else if (mappingp(ob))
+  {
+    if (!m_sizeof(ob))
+      write("([ ])");
+    else
+    {
+      string * keys;
+      keys = m_indices(ob);
+      
+      write("([ -- size " + sizeof(keys) + "\n");
 
-  if (pointerp(ob)) 
+      for (i = 0; i < sizeof(keys); i++)
+      {
+        write("                       "[0..offset+2] + keys[i] + " : \n");
+        print_object(ob[keys[i]], offset + 2, "");
+        if (i < sizeof(keys)-1)
+          write("\n");
+      }
+
+      write("                       "[0..offset] + "])\n");
+    }
+    return "mapping";
+  }
+  else if (arrayp(ob)) 
   {
     if (!sizeof(ob))
       write("({ })\n");
     else 
     {
-      write("({  -- size " + sizeof(ob) + "\n");
+      write("({ -- size " + sizeof(ob) + "\n");
       
       for (i = 0; i < sizeof(ob); i++)
+      {
         print_object(ob[i], offset + 5, ""+i+". ");
+        if (i < sizeof(ob)-1)
+          write("\n");
+      }
       
       write("                       "[0..offset] + "})\n");
     }
     return "pointer";
   }
-
-  if (undefinedp(ob))
+  else if (undefinedp(ob))
   {
     return "nil";
   }
