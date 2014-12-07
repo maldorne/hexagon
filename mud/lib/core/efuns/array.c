@@ -131,3 +131,102 @@ mixed * array_copy(mixed * what)
 
   return result;
 }
+
+
+// sort_array
+
+// this bubblesort implementation and the idea of the pre-defined sort-array types
+// has been taken from the MudOSAlike4DGD project
+
+private int sort_string_asc(string str1, string str2) { return strcmp(str1, str2); }
+private int sort_string_des(string str1, string str2) { return strcmp(str2, str1); }
+private int sort_int_asc(int int1, int int2) { return int1-int2; }
+private int sort_int_des(int int1, int int2) { return int2-int1; }
+private int sort_float_asc(float f1, float f2) { return (int)(f1-f2); }
+private int sort_float_des(float f1, float f2) { return (int)(f2-f1); }
+
+static nomask mixed * sort_array(mixed * arr, varargs string fun, mixed ob, int dir) 
+{
+  int i, e, sz;
+  mixed * result, a, b, a2;
+
+  if (!fun) 
+  {
+    if (sizeof(arr) == 0)
+      return array_copy(arr);
+
+    // check for pre-defined sort_array types 
+    switch (typeof(arr[0])) 
+    {
+      case T_STRING:
+        fun = "sort_string_asc";
+        ob = this_object();
+        break;
+      case T_INT:
+        fun = "sort_int_asc";
+        ob = this_object();
+        break;
+      case T_FLOAT:
+        fun = "sort_float_asc";
+        ob = this_object();
+        break;
+      default:
+        return array_copy(arr);
+    }
+  }
+
+  result = array_copy(arr);
+  i = sizeof(result);
+  a = result[sz = --i];
+
+  // ascending
+  if (dir >= 0) 
+  {
+    while (--i >= 0) 
+    {
+      b = result[i];
+      if (call_other(ob, fun, a, b) >= 0) 
+      {
+        // continue
+        a = b;
+      }
+      else 
+      {
+        result[e=i] = a;
+        while (++e < sz && call_other(ob, fun, a2=result[e+1], b) < 0) 
+        {
+          // swap backwards until we got it right
+          result[e] = a2;
+        }
+        result[e] = b;
+      }
+    }
+  }
+  // descending
+  else 
+  {
+    while (--i >= 0) 
+    {
+      b = result[i];
+      if (call_other(ob, fun, a, b) > 0) 
+      {
+        result[e=i] = a;
+        while (++e < sz && call_other(ob, fun, a2=result[e+1], b) > 0) 
+        {
+          // swap backwards until we got it right
+          result[e] = a2;
+        }
+        result[e] = b;
+      }
+      else 
+      {
+        // continue
+        a = b;
+      }
+    }
+  }
+
+  return result;
+}
+
+
