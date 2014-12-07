@@ -14,10 +14,10 @@ inherit desc     "/lib/core/basic/desc";
 inherit actions  "/lib/core/basic/actions";
 inherit events   "/lib/core/basic/events";
 
-inherit senses     "/lib/rooms/basic/senses";
-inherit guard      "/lib/rooms/basic/guard";
-inherit navigation "/lib/rooms/basic/navigation";
-inherit diplomacy  "/lib/rooms/basic/diplomacy";
+inherit senses     "/lib/room/basic/senses";
+inherit guard      "/lib/room/basic/guard";
+inherit navigation "/lib/room/basic/navigation";
+inherit diplomacy  "/lib/room/basic/diplomacy";
 
 // debugging logs
 //#define CLEAN_UP_LOG "clean_up_room"
