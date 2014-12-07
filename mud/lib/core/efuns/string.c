@@ -25,6 +25,9 @@ string replace_string(string str, string foo, string bar)
   string a, b, result;
   int i;
 
+  a = "";
+  b = "";
+
   i = sscanf(str, "%s"+foo+"%s", a, b);
   result = a + bar + b;
 

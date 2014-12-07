@@ -16,7 +16,7 @@ inherit misc       "/lib/core/basic/misc";
 inherit extra_look "/lib/core/basic/extra_look";
 inherit desc       "/lib/core/basic/desc";
 inherit actions    "/lib/core/basic/actions";
-
+inherit events     "/lib/core/basic/events";
 
 string create_me;
  

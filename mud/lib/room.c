@@ -12,6 +12,7 @@ inherit property "/lib/core/basic/property";
 inherit contents "/lib/core/basic/contents";
 inherit desc     "/lib/core/basic/desc";
 inherit actions  "/lib/core/basic/actions";
+inherit events   "/lib/core/basic/events";
 
 inherit senses     "/lib/rooms/basic/senses";
 inherit guard      "/lib/rooms/basic/guard";

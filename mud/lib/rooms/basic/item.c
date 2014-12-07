@@ -83,7 +83,7 @@ string long()
   }
   if (ret == "")
     return "Error en el objeto, comunícaselo a un programador.\n";
-  return sprintf("%*-=s",
+  return sprintf("%-=*s",
     (this_player()->query_cols()?this_player()->query_cols():79),
     "   "+ret);
 } /* long() */

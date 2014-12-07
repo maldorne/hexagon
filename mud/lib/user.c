@@ -7,11 +7,15 @@ inherit login   "/lib/user/login";
 inherit history "/lib/user/history";
 inherit alias   "/lib/user/alias";
 
+
+// tmp, should be in the player object
+inherit events  "/lib/core/basic/events";
+
 inherit queue   "/lib/living/queue";
+
 
 // tmp for testing commands
 inherit tmp     "/lib/coder/tmp";
-
 
 static string name;         // user name != inner_player name ?
 static object inner_player; // The inner_player object attached to this user
@@ -39,6 +43,8 @@ void create()
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
+
+  set_heart_beat(1);
 
   // if (object_name(previous_object())!=DRIVER) {
   //   destruct_object(this_object());
@@ -85,12 +91,12 @@ void show_prompt()
   send_message("> ");
 }
 
-void do_efun_write(string str)
+void send_message(string str)
 {
   if (str == nil)
     return;
 
-  send_message(str);
+  ::send_message(str);
 }
 
 // called from the driver
@@ -228,6 +234,13 @@ static void receive_message(string str)
 }
 
 
+void heart_beat()
+{
+  // send_message("hb: " + object_name(this_object()) + "\n");
+}
+
+int query_player() { return 1; }
+int query_user() { return 1; }
 
 // static int echo;     is input echoing turned on 
 // static int editing;   /* are we editing? */

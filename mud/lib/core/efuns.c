@@ -1,4 +1,7 @@
 
+// tmp prototype so we could debug from everywhere
+string print_object(mixed ob, varargs int offset, string pre);
+
 #include "/lib/core/efuns/mud.c"
 
 // neverbot, 03/14
@@ -24,6 +27,9 @@
 #include "/lib/core/efuns/output.c"
 #include "/lib/core/efuns/file.c"
 #include "/lib/core/efuns/input.c"
+#include "/lib/core/efuns/term.c"
+
+#include "/lib/core/efuns/heart_beat.c"
 
 #include "/lib/core/efuns/conversions.c"
 
