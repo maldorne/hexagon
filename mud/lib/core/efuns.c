@@ -10,6 +10,8 @@
 #include "/lib/core/efuns/object.c"
 #include "/lib/core/efuns/function.c"
 
+#include "/lib/core/efuns/actions.c"
+
 // #include "/lib/core/efuns/creation.c"
 #include "/lib/core/efuns/environment.c"
 #include "/lib/core/efuns/user.c"
@@ -45,7 +47,7 @@
 // users, children, etc
 #include "/lib/core/efuns/collections.c"
 
-// Nuevas para CcMud
+// new for ccmud
 #include "/lib/core/efuns/domains.c"
 #include "/lib/core/efuns/path.c"
 
