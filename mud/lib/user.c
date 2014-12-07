@@ -3,9 +3,9 @@
 #include <user/user.h>
 #include <user/input.h>
 
-inherit login   "/lib/user/login";
-inherit history "/lib/user/history";
-inherit alias   "/lib/user/alias";
+inherit login   "/lib/users/login";
+inherit history "/lib/users/history";
+inherit alias   "/lib/users/alias";
 
 
 // tmp, should be in the player object
