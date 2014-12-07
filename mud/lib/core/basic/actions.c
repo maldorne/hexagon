@@ -9,12 +9,20 @@ void create()
   actions = ([ ]);
 }
 
-void add_action(string verb, string function) 
+void add_action(string function, mixed verbs) 
 {
   if (!actions) 
     actions = ([ ]);
   
-  actions[verb] = function;
+  if (arrayp(verbs))
+  {
+    int i;
+
+    for (i = 0; i < sizeof(verbs); i++)
+      actions[verbs[i]] = function;
+  }
+  else if (stringp(verbs))
+    actions[verbs] = function;
 }
 
 // TODO perform_action or do_action or something like that

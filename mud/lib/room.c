@@ -12,6 +12,7 @@ inherit property "/lib/core/basic/property";
 inherit contents "/lib/core/basic/contents";
 inherit desc     "/lib/core/basic/desc";
 inherit actions  "/lib/core/basic/actions";
+inherit events   "/lib/core/basic/events";
 
 inherit senses     "/lib/rooms/basic/senses";
 inherit guard      "/lib/rooms/basic/guard";
@@ -405,16 +406,6 @@ void init()
   int i, j;
   mapping done;
 
-  // senses stuff
-  add_action("do_smell",  "olfatear");
-  add_action("do_smell",  "oler");
-  add_action("do_listen", "escuchar");
-  add_action("do_listen", "oir");
-  add_action("do_taste",  "probar");
-  add_action("do_taste",  "saborear");
-  add_action("do_feel",   "sentir");
-  add_action("do_feel",   "tocar");
-
   if (!dest_direc)
     return;
 
@@ -453,6 +444,7 @@ void init()
   for (i = 0; i < sizeof(hidden_objects); i++)
       hidden_objects[i]->init();
 
+  senses::init();
   start_clean_up();
 }
 

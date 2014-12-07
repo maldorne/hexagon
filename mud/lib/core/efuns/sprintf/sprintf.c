@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 1994 Haijo Schipper (abigail@mars.ic.iaf.nl)
+ *  Copyright (C) 1994 Haijo Schipper (abigail@xs4all.nl)
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,13 +21,38 @@
 # include "config.h"
 # include <type.h>
 # include "macros.h"
-
 # ifdef   __TIME_CONVERSION__
 # include "time.h"
 # include "time.c"
 # endif
 
+
 # include "sym_names.h"
+
+private mapping mkmapping(mixed *indices, mixed *values)
+{
+  mapping map;
+  int i, sz;
+
+  if (sizeof(indices) != sizeof(values)) {
+      error("Unequal argument sizes in mkmapping()");
+  }
+  map = ([ ]);
+  for (i = 0, sz = sizeof(indices); i < sz; i++) {
+      map[indices[i]] = values[i];
+  }
+
+  return map;
+}
+
+// private mapping mkmapping (mixed * arg) {
+//   mapping result;
+//   int     i;
+//   result = ([ ]);
+//   for (i = sizeof (arg); i --;) {result [arg [i]] = 1;}
+//   return (result);
+// }
+
 
 private string convert_to_base (int i, int base);
 
@@ -142,24 +167,6 @@ private string rot_13 (string message) {
   return (message);
 }
 
-
-private mapping mkmapping (mixed * arg) {
-  mapping result;
-  int     i;
-  result = ([ ]);
-  for (i = sizeof (arg); i --;) {result [arg [i]] = 1;}
-  return (result);
-}
-
-
-private int index (mixed arg, mixed * arr) {
-  int i;
-  for (i = sizeof (arg); i --;) {
-    if (arr [i] == arg) {return (i);}
-  }
-  return (-1);
-}
-
 // End of old extra.c
 
 
@@ -176,11 +183,11 @@ private string anything (mixed this) {
     case T_INT:
     case T_FLOAT:
       return (this + "");
-    case T_STRING:
+    Case T_STRING:
       return ("\"" + this + "\"");
-    case T_OBJECT:
+    Case T_OBJECT:
       return ("OBJ <" + object_name (this) + ">");
-    case T_ARRAY: {
+    Case T_ARRAY: {
       int      i, sz;
       string * res;
       for (i = 0, res = allocate (sz = sizeof (this)); i < sz; i ++) {
@@ -188,7 +195,7 @@ private string anything (mixed this) {
       }
       return ( "({ " + implode (res, ", ") + " })");
     }
-    case T_MAPPING: {
+    Case T_MAPPING: {
       int i, sz;
       mixed * idx, * vals;
       string * res;
@@ -201,19 +208,24 @@ private string anything (mixed this) {
   }
 }
 
-
-private string give_padding (int n, string pad) {
+private string give_padding (int n, string pad) 
+{
   string padding;
-  if (n <= 0) {return ("");}
+  if (n <= 0) 
+    return ("");
+
   padding = pad;
-  for (; strlen (padding) < n; padding += padding);
+  // for (; strlen(ANSI_D->strip_colors (padding)) < n; padding += padding);
+  for (; strlen (padding) < n; padding += pad);
+
   return (padding [.. n - 1]);
 }
 
 
 /* Apply flags, width & precision to string. */
 private string align (string this, int width, int precision, mapping options,
-                      string padding) {
+                      string padding) 
+{
   int sz;
   if (options ["`"]) {this = reverse (this);}
   if (options ["~"]) {this = flip_case (this);}
@@ -221,7 +233,10 @@ private string align (string this, int width, int precision, mapping options,
   if (options [">"]) {this = _upper_case (this);}
   if (options ["="]) {this = _capitalize (this);}
   if (options ["&"]) {this = rot_13 (this);}
+
+  // sz = strlen(ANSI_D->strip_colors (this));
   sz = strlen (this);
+
   if (options ["-"]) {this += give_padding (width - sz, padding);}
   else {
     if (options ["|"]) {
@@ -230,6 +245,12 @@ private string align (string this, int width, int precision, mapping options,
     }
     else {this = give_padding (width - sz, padding) + this;}
   }
+
+  // return ((precision <= 0) || strlen(ANSI_D->strip_colors (this)) < precision
+  //             ? this
+  //             : options ["_"]
+  //                  ? this [strlen(ANSI_D->strip_colors (this)) - precision ..]
+  //                  : this [.. precision - 1]);
   return ((precision <= 0) || strlen (this) < precision
               ? this
               : options ["_"]
@@ -285,6 +306,11 @@ private string numerical (int n, int base, int width, int precision,
 
 
 private string round_off (string arg) {
+  // int i;
+  // i = strlen(ANSI_D->strip_colors (arg)) - 1;
+  // if (arg [i] != '9') {arg [i] += 1; return (arg);}
+  // if (i == 0) {return ("10");}
+  // return (round_off (arg [.. i - 1]) + "0");
   int i;
   if (arg [i = strlen (arg) - 1] != '9') {arg [i] += 1; return (arg);}
   return (i == 0 ? "10" : round_off (arg [.. i - 1]) + "0");
@@ -408,7 +434,8 @@ private string * make_chunks (string format) {
   string   option;
   result = ({ });
   i = j = 0;
-  sz = strlen (format);
+  // sz = strlen(ANSI_D->strip_colors (format));
+  sz = strlen(format);
   while (i < sz) {
     if (CONV_CHAR [format [i]]) { /* Encountered a '%' or '@' */
       option = format [i .. i];
@@ -447,7 +474,7 @@ private string * make_chunks (string format) {
         ENDCHECK (i, sz);
       }
 
-      /* Chunk */
+      /* Chunck */
       result += ({ option + format [i .. i] + tmp });
       j = ++ i;
     }
@@ -461,9 +488,9 @@ private string * make_chunks (string format) {
 }
 
 # ifdef __CLOSE_TO_C__
-static int sprintf (string out, string format, varargs mixed args...) {
+static int sprintf (string out, string format, mixed args...) {
 # else
-static string sprintf (string format, varargs mixed args...) {
+static string sprintf (string format, mixed args...) {
 # endif
   mixed  * arguments;
   string * chunks;
@@ -483,8 +510,10 @@ static string sprintf (string format, varargs mixed args...) {
 
   TYPECHECK (string, format, 1);
 
-  for (i = 0, sz = sizeof (chunks = make_chunks (format)),
-       sz_args = sizeof (args), result = "", padding = " ";
+  chunks = make_chunks (format);
+
+  padding = " ";
+  for (i = 0, sz = sizeof (chunks), sz_args = sizeof (args), result = "";
        i < sz; i ++) {
     if (!CONV_CHAR [chunks [i] [0]]) {result += chunks [i];}
     else {
@@ -511,7 +540,8 @@ NOTE      case 2: if (!width) {width = -2;} /* Reserved for future use? */
           precision = args [j ++];
           ARGCOUNTCHECK (j, sz_args);
         }
-        options = mkmapping (explode (flags, ""));
+
+        options = mkmapping (explode (flags, ""), explode (flags, ""));
         switch (cur = chunks [i] [.. 1]) {
           case "%A":
           case "%a": {
@@ -524,7 +554,7 @@ NOTE      case 2: if (!width) {width = -2;} /* Reserved for future use? */
                                options, padding);
             }
           }
-          case "%b": /* Binary      */
+          Case "%b": /* Binary      */
           case "%d": /* Decimal     */
           case "%i":
           case "%o": /* Octal       */
@@ -538,61 +568,65 @@ NOTE      case 2: if (!width) {width = -2;} /* Reserved for future use? */
                                  width, precision,
                                  cur == "%X" ? (options + ([ "X" : 1 ]))
                                              : options, padding);
-          case "%c":
+          Case "%c":
             TYPECHECK (char, args [j], j + 2);
             tmp = " ";
             tmp [0] = args [j];
             result += align (tmp, width, precision, options, padding);
-          case "%H":
+          Case "%H":
             TYPECHECK (string, args [j], j + 2);
             result += align (make_hex (args [j], padding), width, precision,
                              options, padding);
-          case "%h":
+          Case "%h":
             TYPECHECK (string, args [j], j + 2);
-            // result += align (make_hex (args [j], 0), width, precision,
-            // neverbot 03/14, did not compile
-            result += align (make_hex (args [j], ""), width, precision,
+            result += align (make_hex (args [j], nil), width, precision,
                              options, padding);
-          case "%n":
+          Case "%n":
             TYPECHECK (array, args [j], j + 2);
             if (!sizeof (args [j])) {error ("No space for %n conversion");}
-            args [j] [0] = strlen (result);
-          case "%O":
+            // args [j] [0] = strlen(ANSI_D->strip_colors (result));
+            args [j] [0] = strlen(result);
+          Case "%O":
             TYPECHECK (object, args [j], j + 2);
             result += align (object_name (args [j]), width, precision,
                              options, padding);
-          case "%p":
+          Case "%p":
             TYPECHECK (char, args [j], j + 2);
             padding = "X";
             padding [0] = args [j];
-          case "%Q": 
+          Case "%Q": 
             TYPECHECK (object, args [j], j + 2);
             query_object = args [j];
-          case "%q": {
+          Case "%q": {
+            mixed res;
             TYPECHECK (string, args [j], j + 2);
             if (!query_object) {error ("%q used before %Q in sprintf.");}
-            result += align (anything (call_other (query_object, args [j])),
-                             width, precision, options, padding);
+            res = (mixed) call_other (query_object, args [j]);
+            if (intp (res)) {res += "";}
+            if (!stringp (res)) {
+              res = anything (res);
+            }
+            result += align (res, width, precision, options, padding);
           }
-          case "%R":
+          Case "%R":
             TYPECHECK (string, args [j], j + 2);
             result += align (crypt (args [j], 1), width, precision,
                              options, padding);
-          case "%r":
+          Case "%r":
             TYPECHECK (string, args [j], j + 2);
             result += align (crypt (args [j], 0), width, precision,
                              options, padding);
-          case "%s":
+          Case "%s":
             if (nump (args [j])) {args [j] += "";}
 NOTE      case "%S":
             TYPECHECK (string, args [j], j + 2);
             result += align (args [j], width, precision, options, padding);
-          case "%y":
+          Case "%y":
             result += align (anything (args [j]), width, precision,
                              options, padding);
 # ifdef __FLOATS__       
           /* Bit 0 for exp, bit 1 for uppercase, bit 2 for conditional exp */
-          case "%G": 
+          Case "%G": 
           case "%g": exp |= 4;
           case "%E": if (cur != "%g") {exp |= 2;}
           case "%e": exp |= 1;
@@ -605,105 +639,106 @@ NOTE      case "%S":
 # endif              
 # ifdef __TIME_CONVERSION__
           /* Time related conversions. */
-          case "@a":
+          Case "@a":
             TYPECHECK (int, args [j], j + 2);
             result += align (weekday (args [j], 0), width, precision,
                              options, padding);
-          case "@A":
+          Case "@A":
             TYPECHECK (int, args [j], j + 2);
             result += align (weekday (args [j], 1), width, precision,
                              options, padding);
-          case "@b":
+          Case "@b":
             TYPECHECK (int, args [j], j + 2);
             result += align (month (args [j], 0), width, precision,
                              options, padding);
-          case "@B":
+          Case "@B":
             TYPECHECK (int, args [j], j + 2);
             result += align (month (args [j], 1), width, precision,
                              options, padding);
-          case "@c":
+          Case "@c":
             TYPECHECK (int, args [j], j + 2);
             result += align (ctime (args [j]), width, precision, options,
                              padding);
-          case "@d":
+          Case "@d":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (day (args [j]), BASE, width, precision,
                                  options + ([ "T" : 2 ]), padding);
-          case "@H":
+          Case "@H":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (hour (args [j]), BASE, width, precision,
                                  options + ([ "T" : 2 ]), padding);
-          case "@I": {
+          Case "@I": {
             int h;
             TYPECHECK (int, args [j], j + 2);
             result += numerical ((h = hour (args [j])) ? h % NOON : NOON, BASE,
                                   width, precision, options + ([ "T" : 2 ]),
                                   padding);
           }
-          case "@j":
+          Case "@j":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (day_of_year (args [j]), BASE, width, precision,
                                  options + ([ "T" : 3 ]), padding);
-          case "@m":
+          Case "@m":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (month (args [j], 2) + 1, BASE, width,
                                  precision, options + ([ "T" : 2 ]), padding);
-          case "@M":
+          Case "@M":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (minute (args [j]), BASE, width, precision,
                                  options + ([ "T" : 2 ]), padding);
-          case "@p":
+          Case "@p":
             TYPECHECK (int, args [j], j + 2);
             result += align (hour (args [j]) < NOON ? AM : PM,
                              width, precision, options, padding);
-          case "@S":
+          Case "@S":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (second (args [j]), BASE, width, precision,
                                  options + ([ "T" : 2 ]), padding);
-          case "@U":
+          Case "@U":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (week_number (args [j], 0), BASE, width,
                                  precision, options + ([ "T" : 2 ]), padding);
-          case "@w":
+          Case "@w":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (weekday (args [j], 2), BASE, width, precision,
                                  options + ([ "T" : 1 ]), padding);
-          case "@W":
+          Case "@W":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (week_number (args [j], 1), BASE, width,
                                  precision, options + ([ "T" : 2 ]), padding);
-          case "@x":
+          Case "@x":
             TYPECHECK (int, args [j], j + 2);
             result += align (date (args [j]), width, precision,
                              options, padding);
-          case "@X":
+          Case "@X":
             TYPECHECK (int, args [j], j + 2);
             result += align (ttime (args [j]), width, precision,
                              options, padding);
-          case "@y":
+          Case "@y":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (year (args [j]) % 100, BASE, width, precision,
                                  options + ([ "T" : 2 ]), padding);
-          case "@Y":
+          Case "@Y":
             TYPECHECK (int, args [j], j + 2);
             result += numerical (year (args [j]), BASE, width, precision,
                                  options, padding);
 # ifdef __TIME_ZONE__
-          case "@Z":
+          Case "@Z":
             TYPECHECK (int, args [j], j + 2);
             result += align (timezone (args [j]), width, precision,
                              options, padding);
 # endif
 # endif       
           Default :
-            error ("Unknown conversion character " + cur);
+            error ("Unknown conversation character " + cur);
         }
         j ++;
       }
     }
   } 
 # ifdef __CLOSE_TO_C__
-  return (strlen (out [0] = result));
+  out [0] = result;
+  return (strlen(ANSI_D->strip_colors (result)));
 # else
   return (result);
 # endif

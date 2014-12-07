@@ -19,13 +19,14 @@ string print_object(mixed ob, varargs int offset, string pre)
     write("\"" + ob + "\"\n");
     return "string";
   }
-  else if (userp(ob)) 
-  {
-    write("<" + file_name(ob) + ">");
-    return "user object";
-  }
   else if (objectp(ob)) 
   {
+    if (userp(ob)) 
+    {
+      write("<" + file_name(ob) + ">");
+      return "user object";
+    }    
+
     write("<" + file_name(ob) + ">");
     
     // if (ob->short())

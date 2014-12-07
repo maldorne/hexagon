@@ -25,6 +25,9 @@ string replace_string(string str, string foo, string bar)
   string a, b, result;
   int i;
 
+  a = "";
+  b = "";
+
   i = sscanf(str, "%s"+foo+"%s", a, b);
   result = a + bar + b;
 
@@ -57,28 +60,56 @@ string extract(string str, int start, varargs int end)
 
 string trim(string str) 
 {
-  if(strlen(str) == 0)
+  if (strlen(str) == 0)
     return str;
 
-  if((str[strlen(str)-1] != 32 && str[strlen(str)-1] != 9) &&
+  if ((str[strlen(str)-1] != 32 && str[strlen(str)-1] != 9) &&
     (str[0] != 32 && str[0] != 9))
     return str;
 
-  while(str[strlen(str)-1] == 32 || str[strlen(str)-1] == 9)
+  while (str[strlen(str)-1] == 32 || str[strlen(str)-1] == 9)
   {
-    if(strlen(str) == 1)
+    if (strlen(str) == 1)
       return str;
     str = str[0..strlen(str)-2];
   }
 
-  while(str[0] == 32 || str[0] == 9)
+  while (str[0] == 32 || str[0] == 9)
   {
-    if(strlen(str) == 1)
+    if (strlen(str) == 1)
       return str;
     str = str[1..strlen(str)-1];
   }  
 
   return str;
+}
+
+int strcmp(string a, string b)
+{
+  int i, aa, bb, len_a, len_b;
+
+  len_a = strlen(a);
+  len_b = strlen(b);
+
+  while ((i < len_a) && (i < len_b))
+  {
+    aa = a[i];
+    bb = b[i];
+    
+    if (aa > bb)
+      return -1;
+    else if (aa < bb)
+      return 1;
+  }
+
+  // one is substring of the other
+  if (len_a < len_b)
+    return -1;
+  else if (len_a > len_b)
+    return 1;
+
+  // same strings
+  return 0;
 }
 
 // /secure/simul_efun/wrap.c

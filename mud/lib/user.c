@@ -1,9 +1,21 @@
 
-inherit login "/lib/core/user/login";
-inherit tmp "/lib/core/coder/tmp";
-
-#include <user.h>
 #include <kernel.h>
+#include <user/user.h>
+#include <user/input.h>
+
+inherit login   "/lib/user/login";
+inherit history "/lib/user/history";
+inherit alias   "/lib/user/alias";
+
+
+// tmp, should be in the player object
+inherit events  "/lib/core/basic/events";
+
+inherit queue   "/lib/living/queue";
+
+
+// tmp for testing commands
+inherit tmp     "/lib/coder/tmp";
 
 static string name;         // user name != inner_player name ?
 static object inner_player; // The inner_player object attached to this user
@@ -11,19 +23,20 @@ static object inner_player; // The inner_player object attached to this user
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
 
-static string current_verb;
-
 // Function prototypes
 // static void open();
 // static void close(varargs mixed dest);
 // static void receive_message(string str);
 // nomask int set_input_to(object obj, string func, varargs int flag, mixed arg) 
-void write_prompt();
+void show_prompt();
 
 
 void create() 
 {
   login::create();
+  history::create();
+  alias::create();
+  queue::create();
 
   name = "";
   inner_player = nil;
@@ -31,11 +44,17 @@ void create()
   redirect_input_ob       = nil;
   redirect_input_function = "";
 
-  current_verb = "";
+  set_heart_beat(1);
 
   // if (object_name(previous_object())!=DRIVER) {
   //   destruct_object(this_object());
   // }
+}
+
+void init()
+{
+  history::init();
+  alias::init();
 }
 
 // Called from the input_to efun
@@ -67,17 +86,17 @@ static void close(mixed arg)
   login::disconnect(FALSE);
 }
 
-void write_prompt() 
+void show_prompt() 
 {
   send_message("> ");
 }
 
-void do_efun_write(string str)
+void send_message(string str)
 {
   if (str == nil)
     return;
 
-  send_message(str);
+  ::send_message(str);
 }
 
 // called from the driver
@@ -88,6 +107,7 @@ static void receive_message(string str)
 {
   string tmp_redirect_func;
   object tmp_redirect_obj;
+  string verb;
   string params;
   string * pieces;
   int i;
@@ -96,6 +116,7 @@ static void receive_message(string str)
   {
     timestamp = time();
 
+    // input_to redirection
     if (redirect_input_ob) 
     {
       tmp_redirect_obj =  redirect_input_ob;
@@ -107,67 +128,119 @@ static void receive_message(string str)
       call_other(tmp_redirect_obj, tmp_redirect_func, str);
   
       if (!redirect_input_ob)
-        write_prompt();
+        show_prompt();
       
       return;
     }
 
-    if (!str || strlen(str) == 0) 
+    // old ccmudlib process_input content
+
+    // Taniwha crash workround
+    // if ( !strsrch(str,"%^") ) 
+    //   return;
+
+    // while ( str[<1..<1] == " " )
+    //    str = str[0..<2];
+    str = trim(str);
+
+    if ( !strlen(str) || str == "\n" ) 
     {
-      write_prompt();
+      show_prompt();
       return;
     }
 
-    pieces = explode(str, " ");
-    current_verb = pieces[0];
-
-    if (sizeof(pieces) > 1)
-      params = implode(pieces[1..], " ");
-    else
-      params = "";
-
-    // inner_player->command(str);
-    // write("Has introducido el comando: " + current_verb + "\n");
-
-    switch(current_verb)
+    if( strlen(str) > INPUT_MAX_STRLEN ) 
     {
-      case "quit":
-      case "salir":
-        login::quit();
-        return;
-
-      case "users":
-      case "who":
-        tmp::cmd_who(params);
-        break;
-
-      case "compile":
-      case "update":
-      case "up":
-        tmp::cmd_compile(params);
-        break;
-
-      case "test":
-        tmp::cmd_test(params);
-        break;
-
-      default:
-        write("¿Perdón?\n");
-        break;
+      str = str[ 0..INPUT_MAX_STRLEN ];
+      write("Comando demasiado largo - procesando de todas formas.\n");
     }
 
-    if (!redirect_input_ob) 
-      write_prompt();
+    // Ok, my stuff: (Baldrick)
+
+    // Might as well move this here too
+    if (str[0] == '.')
+    {
+      this_object()->set_trivial_action();
+      str = expand_history(str[1..100]);
+    }
+
+    // Bishop - adding history
+    add_history( str );
+
+    sscanf(str, "%s %s", verb, params);
+
+    if (!verb)
+      verb = str;
+
+    // First the aliases
+    if ( exec_alias(verb, params) )
+      return;
+
+    action_check( str );
+    lower_check( str );
+
+  } // rlimits
+
+
+
+  //   if (!str || strlen(str) == 0) 
+  //   {
+  //     show_prompt();
+  //     return;
+  //   }
+
+  //   pieces = explode(str, " ");
+  //   current_verb = pieces[0];
+
+  //   if (sizeof(pieces) > 1)
+  //     params = implode(pieces[1..], " ");
+  //   else
+  //     params = "";
+
+  //   // write("Has introducido el comando: " + current_verb + "\n");
+
+  //   switch(current_verb)
+  //   {
+  //     case "quit":
+  //     case "salir":
+  //       login::quit();
+  //       return;
+
+  //     case "users":
+  //     case "who":
+  //       tmp::cmd_who(params);
+  //       break;
+
+  //     case "compile":
+  //     case "update":
+  //     case "up":
+  //       tmp::cmd_compile(params);
+  //       break;
+
+  //     case "test":
+  //       tmp::cmd_test(params);
+  //       break;
+
+  //     default:
+  //       write("¿Perdón?\n");
+  //       break;
+  //   }
+
+  //   if (!redirect_input_ob) 
+  //     show_prompt();
     
-    return;
-  }
+  //   return;
+  // }
 }
 
-string query_current_verb() { return current_verb; }
 
+void heart_beat()
+{
+  // send_message("hb: " + object_name(this_object()) + "\n");
+}
 
-
-
+int query_player() { return 1; }
+int query_user() { return 1; }
 
 // static int echo;     is input echoing turned on 
 // static int editing;   /* are we editing? */

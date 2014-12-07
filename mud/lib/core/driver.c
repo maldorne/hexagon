@@ -1,7 +1,7 @@
 
 
 #include <kernel.h>
-#include <user.h>
+#include <user/user.h>
 
 #include "/lib/core/efuns.c"
 

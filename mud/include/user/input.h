@@ -1,0 +1,2 @@
+
+#define INPUT_MAX_STRLEN 900

@@ -2,7 +2,7 @@
 // Non-dgd efuns
 // neverbot, 03/2014
 
-#include <user.h>
+#include <user/user.h>
 
 int interactive(object ob)
 {
@@ -53,10 +53,14 @@ static nomask void notify_fail(string str)
   this_player()->set_fail_msg(str);
 }
 
-static nomask string query_verb()
+static string query_verb()
 {
-  return this_player()->query_current_verb();
+  return this_player()->query_verb();
 }
+
+
+
+
 
 // void notify_fail(mixed str) 
 // {
