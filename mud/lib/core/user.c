@@ -132,6 +132,7 @@ static void receive_message(string str)
     switch(current_verb)
     {
       case "quit":
+      case "salir":
         login::quit();
         return;
 
