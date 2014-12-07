@@ -65,6 +65,18 @@ void create()
   smells = ([ ]);
 }
 
+void init()
+{
+  add_action("do_smell",  "olfatear");
+  add_action("do_smell",  "oler");
+  add_action("do_listen", "escuchar");
+  add_action("do_listen", "oir");
+  add_action("do_taste",  "probar");
+  add_action("do_taste",  "saborear");
+  add_action("do_feel",   "sentir");
+  add_action("do_feel",   "tocar");  
+}
+
 int do_smell(string what) {
   if(!what||!smells[what]) {
     if(smells["default"]) {

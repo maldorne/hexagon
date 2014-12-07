@@ -405,16 +405,6 @@ void init()
   int i, j;
   mapping done;
 
-  // senses stuff
-  add_action("do_smell",  "olfatear");
-  add_action("do_smell",  "oler");
-  add_action("do_listen", "escuchar");
-  add_action("do_listen", "oir");
-  add_action("do_taste",  "probar");
-  add_action("do_taste",  "saborear");
-  add_action("do_feel",   "sentir");
-  add_action("do_feel",   "tocar");
-
   if (!dest_direc)
     return;
 
@@ -453,6 +443,7 @@ void init()
   for (i = 0; i < sizeof(hidden_objects); i++)
       hidden_objects[i]->init();
 
+  senses::init();
   start_clean_up();
 }
 
