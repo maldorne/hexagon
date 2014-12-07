@@ -6,7 +6,7 @@
 // with connections and the player objects with the game related issues
 
 #include <kernel.h>
-#include <user.h>
+#include <user/user.h>
 
 static mapping users;
 

@@ -1,4 +1,14 @@
 
+#include <areas/weather.h>
+
+#define LT_WDAY 6
+#define LT_MDAY 3
+#define LT_MON 4
+#define LT_YEAR 5
+#define LT_HOUR 2
+#define LT_MIN 1
+#define LT_SEC 0
+
 // uptime - return the number of seconds elapsed since the last driver reboot
 // int uptime();
 // This function returns the number of seconds since the last driver reboot.
@@ -46,7 +56,6 @@ mixed * localtime(int timestamp)
   return result;
 }
 
-
 /* 
  * We'll try to do a simul_efun to wrap the ctime and make it
  * always return information in spanish, with different modes
@@ -61,16 +70,6 @@ mixed * localtime(int timestamp)
  * 
  * Added format with only the time, neverbot 1/06
  */
-
-#include <weather.h>
-
-#define LT_WDAY 6
-#define LT_MDAY 3
-#define LT_MON 4
-#define LT_YEAR 5
-#define LT_HOUR 2
-#define LT_MIN 1
-#define LT_SEC 0
 
 string convert_day(int num)
 {

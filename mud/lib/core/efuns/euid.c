@@ -1,5 +1,5 @@
 
-#include <secure.h>
+#include <mud/secure.h>
 
 static string euid;
 

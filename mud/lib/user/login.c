@@ -6,10 +6,10 @@
 //   neverbot 12/2010
 // ported to dgd, neverbot 03/2014
 
-#include <config.h>
-#include <login.h>
-#include <user.h>
 #include <kernel.h>
+#include <mud/config.h>
+#include <user/login.h>
+#include <user/user.h>
 
 static int timestamp;
 static int validated;
