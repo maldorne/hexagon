@@ -64,3 +64,19 @@ static nomask string previous_function()
 //   return fname;
 // }
 
+
+// evaluate - evaluate a function pointer
+// mixed evaluate(mixed f, ...);
+// If f is a function, f is called with the rest of the arguments.
+// Otherwise, f is returned.  evaluate(f, ...) is the same as (*f)(...).
+
+mixed evaluate(mixed f, varargs mixed args...)
+{
+  if (stringp(f))
+  {
+    if (function_object(f, this_object()))
+      return call_other(this_object(), f, args);
+  }
+
+  return f;
+}
