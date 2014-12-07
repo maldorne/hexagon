@@ -11,6 +11,7 @@ static object inner_player; // The inner_player object attached to this user
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
 
+static string current_verb;
 
 // Function prototypes
 // static void open();
@@ -29,6 +30,8 @@ void create()
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
+
+  current_verb = "";
 
   // if (object_name(previous_object())!=DRIVER) {
   //   destruct_object(this_object());
@@ -85,7 +88,6 @@ static void receive_message(string str)
 {
   string tmp_redirect_func;
   object tmp_redirect_obj;
-  string verb;
   string params;
   string * pieces;
   int i;
@@ -117,16 +119,17 @@ static void receive_message(string str)
     }
 
     pieces = explode(str, " ");
-    verb = pieces[0];
+    current_verb = pieces[0];
+
     if (sizeof(pieces) > 1)
       params = implode(pieces[1..], " ");
     else
       params = "";
 
     // inner_player->command(str);
-    // write("Has introducido el comando: " + verb + "\n");
+    // write("Has introducido el comando: " + current_verb + "\n");
 
-    switch(verb)
+    switch(current_verb)
     {
       case "quit":
         login::quit();
@@ -159,7 +162,7 @@ static void receive_message(string str)
   }
 }
 
-
+string query_current_verb() { return current_verb; }
 
 
 

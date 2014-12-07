@@ -53,6 +53,11 @@ static nomask void notify_fail(string str)
   this_player()->set_fail_msg(str);
 }
 
+static nomask string query_verb()
+{
+  return this_player()->query_current_verb();
+}
+
 // void notify_fail(mixed str) 
 // {
 //   if(!this_player())
@@ -84,31 +89,6 @@ int user_exists(string str)
   ret = file_exists(USERS_SAVE_DIR + "/" + str[0..0] + "/" + str + ".o");
   // seteuid(0);
   return ret;
-}
-
-// Find first the object that is marked as living, and answers to the
-// id 'str'.  A living object is an object that has called
-// enable_commands().  The object must have set a name with
-// set_living_name(), so its name will be entered into the hash table
-// used to speed up the search for living objects.
-
-// TODO find_living
-
-object find_living(string name)
-{
-  // string nick;
-  // object ob;
-
-  // if (this_player() && (nick = (string)this_player()->expand_nickname(str)))
-  //   str = nick;
-
-  // if ((ob = efun::find_living(str)))
-  //   if ((int)ob->query_invis() == 2)
-  //     return nil;
-
-  // return ob;
-
-  return nil;
 }
 
 object find_player(string str) 
