@@ -13,6 +13,7 @@
 // #include "/lib/core/efuns/creation.c"
 #include "/lib/core/efuns/environment.c"
 #include "/lib/core/efuns/user.c"
+#include "/lib/core/efuns/living.c"
 
 #include "/lib/core/efuns/filter.c"
 #include "/lib/core/efuns/inventory.c"
