@@ -193,6 +193,7 @@ static void runtime_error(string error, int caught, int ticks)
     return;
 
   log_driver(ret);
+  inform_user(ret, DRIVER_MESSAGE_PLAIN);
 }
 
 static void compile_error(string file, int line, string err)
@@ -216,6 +217,7 @@ static string atomic_error(string error, int atom, mixed **trace)
     return "";
 
   log_driver(ret);
+  inform_user(ret, DRIVER_MESSAGE_PLAIN);
 
   return ret;
 }
