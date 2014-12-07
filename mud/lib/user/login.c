@@ -43,7 +43,7 @@ void create()
 } 
 
 // function prototypes
-nomask void show_options();
+// nomask void show_options();
 nomask void disconnect(varargs int silence);
 nomask void time_out();
 nomask void logon();
