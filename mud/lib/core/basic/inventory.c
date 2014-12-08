@@ -11,15 +11,8 @@ void create()
   _inventory = ({ });
 }
 
-nomask object * _inner_inventory()
-{
-  return _inventory;
-}
-
-nomask object _inner_environment()
-{
-  return _environment;
-}
+nomask object * _inner_inventory() { return _inventory; }
+nomask object _inner_environment() { return _environment; }
 
 // old definitions
 // int test_add(object ob, int flag) { return !flag; }
