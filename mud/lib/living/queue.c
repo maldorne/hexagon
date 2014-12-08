@@ -681,7 +681,8 @@ nomask int action_check(string str)
           return 1;
       */
       case "test":
-        write(print_object(::status(this_object())));
+        write(print_object(::status(this_object())) + "\n");
+        write(print_object(this_object()->stats()) + "\n");
         return 1;
     }
 
