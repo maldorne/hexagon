@@ -34,7 +34,7 @@ string pretty_short(int dark)
   return (string)this_object()->short();
 }
 
-string long(string str, int dark) 
+string long(string str, varargs int dark) 
 {
   if (!query_long())
     return "No ves nada particularmente interesante.\n";

@@ -7,18 +7,18 @@ inherit login   "/lib/user/login";
 inherit history "/lib/user/history";
 inherit alias   "/lib/user/alias";
 
+inherit living  "/lib/living/living";
+
+
+
 
 // tmp, should be in the player object
 inherit events  "/lib/core/basic/events";
-
-inherit queue   "/lib/living/queue";
-
-
 // tmp for testing commands
 inherit tmp     "/lib/coder/tmp";
 
-static string name;         // user name != inner_player name ?
-static object inner_player; // The inner_player object attached to this user
+// static string name;         // user name != inner_player name ?
+// static object inner_player; // The inner_player object attached to this user
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
@@ -36,10 +36,10 @@ void create()
   login::create();
   history::create();
   alias::create();
-  queue::create();
+  living::create();
 
-  name = "";
-  inner_player = nil;
+  // name = "";
+  // inner_player = nil;
 
   redirect_input_ob       = nil;
   redirect_input_function = "";

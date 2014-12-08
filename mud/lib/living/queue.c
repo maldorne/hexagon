@@ -809,3 +809,8 @@ nomask int lower_check(string str)
 
   return 0;
 } /* lower_check() */
+
+mixed * stats() 
+{
+  return ({ });
+}
