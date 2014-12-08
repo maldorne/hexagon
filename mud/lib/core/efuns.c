@@ -1,17 +1,19 @@
 
 // tmp prototype so we could debug from everywhere
 string print_object(mixed ob, varargs int offset, string pre);
+static nomask void stderr(string str);
+
 
 #include "/lib/core/efuns/mud.c"
 
 // neverbot, 03/14
 #include "/lib/core/efuns/types.c"
-#include "/lib/core/efuns/euid.c"
 #include "/lib/core/efuns/string.c"
 #include "/lib/core/efuns/mapping.c"
 #include "/lib/core/efuns/array.c"
 #include "/lib/core/efuns/object.c"
 #include "/lib/core/efuns/function.c"
+#include "/lib/core/efuns/euid.c"
 
 #include "/lib/core/efuns/actions.c"
 

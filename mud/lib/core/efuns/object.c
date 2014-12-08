@@ -1,8 +1,4 @@
 
-// TODO tmp, remove this from here
-static nomask void stderr(string str);
-
-
 // object new(string path)
 // {
 //   object ob;
