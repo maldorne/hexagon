@@ -1,7 +1,7 @@
 
 #define HISTORY_LENGHT 30
 
-string *history;
+string * history;
 static int hoffset, numoff;
 static int in_alias_command;
 static string ignore_history;
@@ -208,4 +208,11 @@ int print_history(string arg)
       return 1;
   }
   return 1;
+}
+
+mixed * stats() 
+{
+  return ({ 
+    ({ "History", history, }),
+          });
 }

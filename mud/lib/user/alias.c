@@ -6,7 +6,6 @@ int convert();
 mapping aliases, map_aliases;
 static mapping doing_alias;
 
-
 void create()
 {
   aliases = ([ ]);
@@ -586,3 +585,9 @@ int convert()
   return 1;
 }
 
+mixed * stats() 
+{
+  return ({ 
+    ({ "Command Aliases", aliases, }),
+          });
+}
