@@ -16,14 +16,12 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/euid.c"
 
 #include "/lib/core/efuns/actions.c"
+#include "/lib/core/efuns/move.c"
 
-// #include "/lib/core/efuns/creation.c"
-#include "/lib/core/efuns/environment.c"
 #include "/lib/core/efuns/user.c"
 #include "/lib/core/efuns/living.c"
 
 #include "/lib/core/efuns/filter.c"
-#include "/lib/core/efuns/inventory.c"
 #include "/lib/core/efuns/event.c"
 
 #include "/lib/core/efuns/output.c"
