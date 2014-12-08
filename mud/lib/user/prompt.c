@@ -18,16 +18,13 @@ string prompt_string;
  */
 static string * prompt;
 
-void create()
-{
-
-}
 
 void parse_prompt();
 
-/* initialization; called from start_player or somewhere */
-void init_prompt()
+void create()
 {
+  prompt_string = "$n > ";
+  prompt = ({ });
   parse_prompt();
 }
 
@@ -111,6 +108,9 @@ mixed parse_prompt_element(string str)
 
     case "m":
       return ({ mud_name(),  str[1..] });
+
+    case "n":
+      return ({ "@query_name",  str[1..] });
 
     // case "t":
     //  return ({ yymmddhhmmss()[6..9],  str[1..<0] });

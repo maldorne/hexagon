@@ -29,8 +29,6 @@ static string redirect_input_function; // function inside that object
 // static void close(varargs mixed dest);
 // static void receive_message(string str);
 // nomask int set_input_to(object obj, string func, varargs int flag, mixed arg) 
-void show_prompt();
-
 
 void create() 
 {
@@ -86,11 +84,6 @@ static void open()
 static void close(mixed arg)
 {
   login::disconnect(FALSE);
-}
-
-void show_prompt() 
-{
-  send_message("> ");
 }
 
 void send_message(string str)

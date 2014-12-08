@@ -637,7 +637,7 @@ nomask int action_check(string str)
     }
 
     if( (tmp = EXPANSION[str]) ) 
-      str = tmp ;
+      str = tmp;
 
     /* check for some special queue-affecting commands */
     switch( str )
@@ -681,9 +681,10 @@ nomask int action_check(string str)
           return 1;
       */
       case "test":
+        write(object_name(this_object()) + "\n");
         write(print_object(::status(this_object())) + "\n");
         write(print_object(this_object()->stats()) + "\n");
-        return 1;
+        // return 1;
     }
 
     if ( query_heart_beat(this_object()) == 0 )
@@ -714,7 +715,6 @@ nomask int action_check(string str)
       mixed ret;
 
       pop = this_object()->action_blocked();
-
 
       // if ( stringp(pop) )
       // {
@@ -789,7 +789,7 @@ nomask int action_check(string str)
       }
     }
 
-    if ( show_prompt && this_object() )
+    if ( show_prompt )
       this_object()->show_prompt();
 
     return 1;
