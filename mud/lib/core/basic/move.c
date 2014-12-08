@@ -1,8 +1,6 @@
 
 #include <basic/move.h>
 
-inherit inventory "/lib/core/basic/inventory";
-
 private int move_flag;
 
 // added Mar 3 '93 by Dank to support goback command 
@@ -11,7 +9,6 @@ private object prev;
 void create()
 {
   prev = nil;
-  inventory::create();
 }
 
 object query_prev() { return prev; }
@@ -65,10 +62,9 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   if (previous)
     event(previous, "exit", messout, dest);
   
-  // update inventories and current environment
-  previous->remove_from_inventory(this_object());
-	destination->add_to_inventory(this_object());
-	update_environment(destination);
+  // efun that simulates the mudos inventory and
+  // environment handling
+  ::_move(destination);
 
 	// event_enter
   event(destination, "enter", messin, prev);
