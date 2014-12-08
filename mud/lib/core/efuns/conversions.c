@@ -23,11 +23,11 @@ string print_object(mixed ob, varargs int offset, string pre)
   {
     if (userp(ob)) 
     {
-      write("<" + file_name(ob) + ">");
+      write("<" + file_name(ob) + ">\n");
       return "user object";
     }    
 
-    write("<" + file_name(ob) + ">");
+    write("<" + file_name(ob) + ">\n");
     
     // if (ob->short())
     //   write("(short) " + ob->short() + "\n");
@@ -41,7 +41,7 @@ string print_object(mixed ob, varargs int offset, string pre)
   else if (mappingp(ob))
   {
     if (!m_sizeof(ob))
-      write("([ ])");
+      write("([ ])\n");
     else
     {
       string * keys;
@@ -53,8 +53,8 @@ string print_object(mixed ob, varargs int offset, string pre)
       {
         write("                       "[0..offset+2] + keys[i] + " : \n");
         print_object(ob[keys[i]], offset + 2, "");
-        if (i < sizeof(keys)-1)
-          write("\n");
+        // if (i < sizeof(keys)-1)
+        //   write("\n");
       }
 
       write("                       "[0..offset] + "])\n");
@@ -72,8 +72,8 @@ string print_object(mixed ob, varargs int offset, string pre)
       for (i = 0; i < sizeof(ob); i++)
       {
         print_object(ob[i], offset + 5, ""+i+". ");
-        if (i < sizeof(ob)-1)
-          write("\n");
+        // if (i < sizeof(ob)-1)
+        //   write("\n");
       }
       
       write("                       "[0..offset] + "})\n");
@@ -82,6 +82,7 @@ string print_object(mixed ob, varargs int offset, string pre)
   }
   else if (undefinedp(ob))
   {
+    write("nil\n");
     return "nil";
   }
 
