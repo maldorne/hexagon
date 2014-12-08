@@ -11,15 +11,19 @@ void create()
   _inventory = ({ });
 }
 
-nomask object * query_inventory()
+nomask object * _inner_inventory()
 {
   return _inventory;
 }
 
-nomask object query_environment()
+nomask object _inner_environment()
 {
   return _environment;
 }
+
+// old definitions
+// int test_add(object ob, int flag) { return !flag; }
+// int test_remove(object ob, int flag) { return !flag; }
 
 // can add object ob to our inventory?
 int test_add(object ob)

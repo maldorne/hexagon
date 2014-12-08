@@ -2,12 +2,25 @@
 // Non-dgd efuns
 // neverbot, 03/2014
 
-object * all_inventory(object ob)
+
+// object array all_inventory( object ob );
+// Returns an array of the objects contained inside of 'ob'.  If 'ob' is
+// omitted, this_object() is used.
+
+object * all_inventory(varargs object ob)
 {
-  return ob->query_inventory();
+  if (!ob)
+    ob = this_object();
+
+  return ob->_inner_inventory();
 }
 
-// TODO deep_inventory
+// object *deep_inventory( object ob );
+// Returns an array of the objects contained in the inventory
+// of <ob> and all the objects contained in the inventories of
+// those objects and so on. The return array of objects is flat,
+// i.e. there is no structure reflecting internal containment
+// relations.
 
 object * deep_inventory(object ob)
 {
@@ -30,6 +43,31 @@ object * deep_inventory(object ob)
   }
 
   return result;
+}
+
+// object first_inventory( mixed ob );
+// Return the first object in the inventory of 'ob', where 'ob' is
+// either an object or the file name of an object.
+
+object first_inventory(mixed ob)
+{
+  object tmp;
+  object * list;
+
+  // load the object if the parameter is a string
+  if (stringp(ob))
+  {
+    ob = load_object(ob);
+    if (!ob)
+      return nil;
+  }
+
+  list = ob->all_inventory();
+
+  if (sizeof(list))
+    return list[0];
+
+  return nil;
 }
 
 mixed query_strange_inventory(mixed arr) 

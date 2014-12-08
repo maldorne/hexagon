@@ -13,7 +13,7 @@ object environment( varargs object ob )
   if (!ob)
     ob = this_object();
 
-  return ob->query_environment();
+  return ob->_inner_environment();
 }
 
 // move_object - move current object to another environment
