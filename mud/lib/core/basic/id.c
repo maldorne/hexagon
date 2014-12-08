@@ -2,8 +2,8 @@
 // Añadido aqui el antiguo /global/basic/print_object.c
 // Eliminados los adjetivos, nunca han sido de utilidad
 
-#include <parse_command.h>
-#include <id.h>
+#include <basic/parse.h>
+#include <basic/id.h>
 
 static string name,
        *alias,

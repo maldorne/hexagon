@@ -7,7 +7,7 @@
     neverbot, cleaning, 4/03
 */
 
-#include <id.h>
+#include <basic/id.h>
 #include <kernel.h>
 
 inherit id         "/lib/core/basic/id";

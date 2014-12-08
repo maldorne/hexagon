@@ -1,4 +1,5 @@
-#include <move.h>
+
+#include <basic/move.h>
 
 inherit inventory "/lib/core/basic/inventory";
 

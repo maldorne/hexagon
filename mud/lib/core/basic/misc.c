@@ -1,9 +1,10 @@
-#include <move.h>
 
-inherit light "/lib/core/basic/light";
-inherit move "/lib/core/basic/move";
+#include <basic/move.h>
+
+inherit light  "/lib/core/basic/light";
+inherit move   "/lib/core/basic/move";
 inherit weight "/lib/core/basic/weight";
-inherit value "/lib/core/basic/value";
+inherit value  "/lib/core/basic/value";
 
 
 void create() 
