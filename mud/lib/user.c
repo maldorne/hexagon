@@ -6,6 +6,7 @@
 inherit login   "/lib/user/login";
 inherit history "/lib/user/history";
 inherit alias   "/lib/user/alias";
+inherit prompt  "/lib/user/prompt";
 
 inherit living  "/lib/living/living";
 
@@ -36,6 +37,7 @@ void create()
   login::create();
   history::create();
   alias::create();
+  prompt::create();
   living::create();
 
   // name = "";
@@ -244,6 +246,19 @@ int query_user() { return 1; }
 
 // static int echo;     is input echoing turned on 
 // static int editing;   /* are we editing? */
+
+
+mixed * stats() 
+{
+  return ({ }) + login::stats() + 
+                 history::stats() + 
+                 alias::stats() + 
+                 prompt::stats() + 
+                 living::stats();
+}
+
+
+
 
 
 /*
