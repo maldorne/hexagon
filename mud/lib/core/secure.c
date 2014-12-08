@@ -1,14 +1,14 @@
 
-inherit permission "/lib/core/secure/permission"
+#include <mud/secure.h>
+#include <mud/patch_version.h>
+#include <mud/config.h>
+#include <mud/version.h>
+#include <files/log.h>
 
-#include <secure.h>
-#include <patch_version.h>
-#include <config.h>
-#include <log.h>
-#include <version.h>
+inherit permission "/lib/core/secure/permission.c";
 
-string  *preload;
-string  *call_out_preload;
+string * preload;
+string * call_out_preload;
 
 static int done;
 static mapping snoop_list;

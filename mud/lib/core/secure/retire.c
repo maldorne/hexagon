@@ -7,9 +7,9 @@
  * Here we only do the security checks
  */
 
-#include <post.h>
-#include <money.h>
-#include <player.h>
+#include <files/post.h>
+#include <basic/money.h>
+#include <user/player.h>
 
 #define MAX_RETRYS 1
 
