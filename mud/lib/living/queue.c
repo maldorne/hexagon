@@ -1,4 +1,4 @@
-#pragma save_types
+
 /*
  * Originally..
  * 'the bit of the soul that all players should have ;)'
@@ -16,9 +16,9 @@
  *   Added query_action_pending and some stuff in aq_add/insert
  *   so that monsters' heartbeats can be active anytime there's
  *   an action pending.
- * Folken, Abril 2003
- *   Arreglados algunos problemas con el mensaje de error de notify_fail().
- *   Restauradas las variables eliminadas por Goku.
+ *
+ * neverbot, april 2003
+ *   resolved some problems with the error message in notify_fail()
  */
 
 #include <living/queue.h>
