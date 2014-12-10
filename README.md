@@ -10,7 +10,7 @@ Realms_ or _Discworld_) work with a modern DGD mud driver.
 2. Compile DGD (see below).
 3. Copy the file `driver/config.example.dgd` to `driver/config.dgd`
 4. Edit it, changing the directory field to the absolute path of the 
-   mud directory (must end in `/whatever/mud` without an ending slash)
+   `mud` directory (must end in `/whatever/mud` without an ending slash)
 5. `sh mud.sh`
 6. `telnet localhost 6047` to connect and see if everything is working.
 
