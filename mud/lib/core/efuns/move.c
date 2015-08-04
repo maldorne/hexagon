@@ -12,27 +12,6 @@ private static object * _inventory;
 object * all_inventory(varargs object ob);
 object * deep_inventory(varargs object ob);
 
-// void init();
-// When the mudlib moves an object "A" inside another object "B", the
-// driver (the move_object() efunction) does the following:
-
-// * if "A" is living, causes "A" to call the init() in "B"
-// * causes each living object in the inventory of "B" to call init() in
-// "A".  regardless of whether "A" is living or not.
-// * if "A" is living, causes "A" to call the init() in each object in
-// the inventory of "B".
-
-// Note: an object is considered to be living if enable_commands() has
-// been called by that object.
-
-// Typically, the init() function in an object is used to call add_action()
-// for each command that the object offers.
-
-void init()
-{
-
-}
-
 // old definitions
 // int test_add(object ob, int flag) { return !flag; }
 // int test_remove(object ob, int flag) { return !flag; }
@@ -61,6 +40,9 @@ int test_remove(object ob)
 
 nomask int _inv_add(object ob)
 {
+  if (!arrayp(_inventory))
+    _inventory = ({ });
+
   // item already in inventory
   if (member_array(ob, _inventory) != -1)
     return -1;
@@ -72,6 +54,9 @@ nomask int _inv_add(object ob)
 
 nomask int _inv_remove(object ob)
 {
+  if (!arrayp(_inventory))
+    _inventory = ({ });
+
   // if item not in inventory
   if (member_array(ob, _inventory) == -1)
     return -1;
@@ -81,8 +66,12 @@ nomask int _inv_remove(object ob)
   return 1;
 }
 
-nomask int _move(varargs object dest)
+int move(varargs object dest)
 {
+  object * contents;
+  object old_this_player;
+  int i;
+
   // if we are doing something like ob->move(),
   // then we are trying to move inside the caller
   // object
@@ -100,6 +89,8 @@ nomask int _move(varargs object dest)
   if (member_array(dest, deep_inventory()) != -1)
     return MOVE_LIB_LOOP;
 
+  stderr(" * move <" + object_name(this_object()) + "> to <" + object_name(dest) + ">\n");
+
   // update inventories and current environment
   if (_environment)
     _environment->_inv_remove(this_object());
@@ -109,12 +100,35 @@ nomask int _move(varargs object dest)
   if (_environment)
     _environment->_inv_add(this_object());
 
-  // TODO
   // init calling
+
+  // save this_player to restore it afterwards
+  old_this_player = this_player();
+
+  // get all objects in the new environment
+  contents = all_inventory(_environment);
+
+  if (living(this_object()))
+  {
+    MUDOS->set_this_player(this_object());
+
+    // call init in the environment
+    catch(call_other(_environment, "init"));
+
+    // call init in the environment contents
+    for (i = 0; i < sizeof(contents); i++)
+      if (contents[i] != this_object())
+        catch(call_other(contents[i], "init"));
+  }
+
+  map_array(filter_array(contents, "living", MUDOS),
+               "do_init", MUDOS, old_this_player);
+
+  // restore this_player()
+  MUDOS->set_this_player(old_this_player);
 
   return MOVE_OK;
 }
-
 
 // environment - return the environment of an object
 // object environment( object ob );
@@ -124,8 +138,8 @@ nomask int _move(varargs object dest)
 
 nomask object environment( varargs object ob )
 {
-  if (!ob)
-    ob = this_object();
+  if (ob)
+    return ob->environment();
 
   return _environment;
 }
@@ -138,8 +152,9 @@ nomask object environment( varargs object ob )
 void move_object(mixed dest)
 {
   // if the move function exists in this object, move
-  if (function_object("move", this_object()))
-    this_object()->move(dest);
+  // if (function_object("move", this_object()))
+  //   this_object()->move(dest);
+  move(dest);
 }
 
 // Called if the environment is dested and there is no where else
@@ -168,10 +183,19 @@ void destruct_environment_of(object ob)
 
 object * all_inventory(varargs object ob)
 {
-  if (!ob)
-    ob = this_object();
+  if (ob)
+    return ob->all_inventory();
 
-  return _inventory;
+  if (arrayp(_inventory))
+  {
+    // _inventory -= ({ 0 });
+    // return array_copy(_inventory);
+    return _inventory;
+  }
+  else
+  {
+    return ({ });
+  }
 }
 
 // object *deep_inventory( object ob );
@@ -194,7 +218,7 @@ object * deep_inventory(varargs object ob)
 
   // recursively check the inventory of all
   // the items
-  while(sizeof(pending) > 0)
+  while( sizeof(pending) > 0 )
   {
     object current;
     current = pending[0];

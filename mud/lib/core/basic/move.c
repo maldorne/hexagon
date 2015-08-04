@@ -60,14 +60,14 @@ int move(mixed dest, varargs mixed messin, mixed messout)
 
   // event_exit
   if (previous)
-    event(previous, "exit", messout, dest);
+    event(previous, "exit", messout, destination);
   
   // efun that simulates the mudos inventory and
   // environment handling
-  ::_move(destination);
+  ::move(destination);
 
 	// event_enter
-  event(destination, "enter", messin, prev);
+  event(destination, "enter", messin, previous);
     
   return MOVE_OK;
 }

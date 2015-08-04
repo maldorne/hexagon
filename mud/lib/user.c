@@ -38,6 +38,8 @@ void create()
   prompt::create();
   living::create();
 
+  enable_commands();
+
   // name = "";
   // inner_player = nil;
 
@@ -55,6 +57,8 @@ void init()
 {
   history::init();
   alias::init();
+
+  living::init();
 }
 
 // Called from the input_to efun
@@ -144,6 +148,10 @@ static void receive_message(string str)
       return;
     }
 
+    // the new line has content, so we have a new this_player()
+    MUDOS->set_effective_this_player(this_object());
+    MUDOS->set_this_player(this_object());
+
     if( strlen(str) > INPUT_MAX_STRLEN ) 
     {
       str = str[ 0..INPUT_MAX_STRLEN ];
@@ -156,11 +164,13 @@ static void receive_message(string str)
     if (str[0] == '.')
     {
       this_object()->set_trivial_action();
-      str = expand_history(str[1..100]);
+      str = expand_history(str);
     }
-
-    // Bishop - adding history
-    add_history( str );
+    else
+    {
+      // Bishop - adding history
+      add_history( str );      
+    }
 
     sscanf(str, "%s %s", verb, params);
 
@@ -168,11 +178,15 @@ static void receive_message(string str)
       verb = str;
 
     // First the aliases
-    if ( exec_alias(verb, params) )
-      return;
+    if ( !exec_alias(verb, params) )
+    {
+      // if no alias found, continue
+      action_check( str );
+      lower_check( str );      
+    }
 
-    action_check( str );
-    lower_check( str );
+    MUDOS->set_effective_this_player(nil);
+    MUDOS->set_this_player(nil);
 
   } // rlimits
 

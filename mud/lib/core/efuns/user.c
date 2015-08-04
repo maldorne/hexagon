@@ -17,9 +17,14 @@ int userp(object ob)
   return interactive(ob);
 }
 
-static nomask object this_player() 
+// static nomask object this_player() 
+// {
+//   return this_user();
+// }
+
+object this_player(varargs int i) 
 {
-  return this_user();
+  return MUDOS->this_player(i);
 }
 
 // object this_player(varargs int flag)

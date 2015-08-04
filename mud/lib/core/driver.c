@@ -1,4 +1,7 @@
 
+/* 
+ *  Interface between the mudlib and DGD
+ */
 
 #include <kernel.h>
 #include <user/user.h>
@@ -45,6 +48,7 @@ static nomask void initialize()
   log_driver("Initializing...\n");
 
   load_object(AUTO);
+  load_object(MUDOS);
 
   call_other(error_h  = load_object(ERROR_HANDLER), "???"); // obviously, must be the first
   call_other(user_h   = load_object(USER_HANDLER), "???");
@@ -315,8 +319,16 @@ static int forbid_inherit(string from, string path, int priv)
   return FALSE;
 }
 
+// get an object for call_other's first (string) argument
+static object call_object(string path)
+{
+  object ob;
 
+  if (ob = find_object(path))
+    return ob;
 
+  return compile_object(path);
+}
 
 
 
