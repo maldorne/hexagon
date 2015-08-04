@@ -133,6 +133,22 @@ mixed * array_copy(mixed * what)
 }
 
 
+// map elements in an array 
+mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed args...) 
+{
+  int i;
+  mixed * result;
+
+  result = allocate(sizeof(arr));
+
+  for (i= 0; i < sizeof(arr); i++)
+    result[i] = (call_other(ob, func, arr[i], args...));
+  
+  return result;
+}
+
+
+
 // sort_array
 
 // this bubblesort implementation and the idea of the pre-defined sort-array types
