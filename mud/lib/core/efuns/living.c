@@ -25,7 +25,7 @@ nomask int living(object ob)
 // local function catch_tell(), and if found, it will call it every time
 // a message (via say() for example) is given to the object.
 
-private enable_commands()
+nomask enable_commands()
 {
   // no needed, private function
   // only this_object can do this

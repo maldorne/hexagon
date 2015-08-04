@@ -18,18 +18,21 @@ static nomask object * previous_objects(varargs int step)
     return ({ });
 
   return ({ result }) + previous_objects(arg + 1);
-
 }
 
 static nomask object previous_object(varargs int number)
 {
-  if (!number || (number != -1))
+  if (!number)
+    return ::previous_object();
+  else if (number != -1)
     return ::previous_object(number);
   else
+  {
     return previous_objects(1)[0];
+  }
 }
 
-static nomask string previous_function() 
+nomask string previous_function() 
 {
   mixed * trace;
 

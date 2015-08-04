@@ -7,7 +7,7 @@
     neverbot, cleaning, 4/03
 */
 
-#include <id.h>
+#include <basic/id.h>
 #include <kernel.h>
 
 inherit id         "/lib/core/basic/id";
@@ -40,7 +40,7 @@ void create()
 // neverbot 8/2008
 void init() 
 {
-	
+  ::init();	
 } 
 
 nomask string query_create_me() { return create_me; }

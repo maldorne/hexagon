@@ -14,7 +14,7 @@
 // first call fun(arr[0], 2, 3) then fun(arr[1], 2, 3) etc.
 
 
-static nomask mapping filter_mapping(mapping map, string func, mixed ob, varargs mixed extra)
+static nomask mapping filter_mapping(mapping map, string func, mixed ob, varargs mixed extra...)
 {
   mixed * bing;
   mapping ret;
@@ -22,14 +22,17 @@ static nomask mapping filter_mapping(mapping map, string func, mixed ob, varargs
 
   ret = ([ ]);
   bing = keys(map);
-  for (i=0;i<sizeof(bing);i++) {
-    if (call_other(ob, func, map[bing[i]], extra))
+
+  for (i = 0; i < sizeof(bing); i++) 
+  {
+    if (call_other(ob, func, map[bing[i]], extra...))
       ret[bing[i]] = map[bing[i]];
   }
+
   return ret;
 }
 
-static nomask mixed * filter_array(mixed * list, string func, mixed ob, varargs mixed extra)
+static nomask mixed * filter_array(mixed * list, string func, mixed ob, varargs mixed extra...)
 {
   int i;
   mixed * ret;
@@ -37,7 +40,12 @@ static nomask mixed * filter_array(mixed * list, string func, mixed ob, varargs 
   ret = ({ });
 
   for (i = 0; i < sizeof(list); i++) 
-    ret += call_other(list[i], func, ob, extra);
+  {
+    if (call_other(ob, func, list[i], extra...))
+      ret += ({ list[i] });
+
+    // ret += call_other(list[i], func, ob, extra);
+  }
 
   return ret;
 }
@@ -49,4 +57,3 @@ static nomask mixed filter(mixed list, string func, mixed ob, varargs mixed extr
   if (mappingp(list))
     return filter_mapping(list, func, ob, extra);
 }
-

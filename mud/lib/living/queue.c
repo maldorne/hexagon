@@ -1,4 +1,4 @@
-#pragma save_types
+
 /*
  * Originally..
  * 'the bit of the soul that all players should have ;)'
@@ -16,9 +16,9 @@
  *   Added query_action_pending and some stuff in aq_add/insert
  *   so that monsters' heartbeats can be active anytime there's
  *   an action pending.
- * Folken, Abril 2003
- *   Arreglados algunos problemas con el mensaje de error de notify_fail().
- *   Restauradas las variables eliminadas por Goku.
+ *
+ * neverbot, april 2003
+ *   resolved some problems with the error message in notify_fail()
  */
 
 #include <living/queue.h>
@@ -517,14 +517,12 @@ private int perform_next_action()
       if (!(environment() &&
         environment(this_object())->do_move_command(curr_act)) )
         if (!this_object()->do_gr_command(verb, t))
-          if (!CMD_HANDLER->cmd(verb, t, this_object()))
+          // if (!CMD_HANDLER->cmd(verb, t, this_object()))
             if (!this_object()->parse_comm(verb, t ))
-            {
-              if (!CMD_HANDLER->soul_com(curr_act, this_object()))
-                /* The end, either the command didn't work or we have 
-                 * a notify fail. in that case, it writes a new message, if not,
-                 * it writes the one we made earlier, a standard one.
-                 */
+              // if (!CMD_HANDLER->soul_com(curr_act, this_object()))
+                // The end, either the command didn't work or we have 
+                // a notify fail. in that case, it writes a new message, if not,
+                // it writes the one we made earlier, a standard one.
                 if(notify_fail_msg)
                   tell_object(this_object(),query_notify_fail_msg());
                 else
@@ -535,7 +533,7 @@ private int perform_next_action()
               this_object()->set_notify_fail_msg("El intento de hacer '%^RED%^" + curr_act
                + "%^RESET%^' no funcionó.\n");
               */
-            }
+
     }
   
     command_in_progress = "";
@@ -620,6 +618,8 @@ nomask int action_check(string str)
 {
     int i;
     string tmp;
+    object tmp_ob, tmp_env;
+    int tmp_res;
 
     /* this is ridiculous.  MudOS will not show these strings as equal. */
     if ( str == command_in_progress )
@@ -637,7 +637,7 @@ nomask int action_check(string str)
     }
 
     if( (tmp = EXPANSION[str]) ) 
-      str = tmp ;
+      str = tmp;
 
     /* check for some special queue-affecting commands */
     switch( str )
@@ -681,7 +681,36 @@ nomask int action_check(string str)
           return 1;
       */
       case "test":
-        write(print_object(::status(this_object())));
+        write(object_name(this_object()) + "\n");
+        print_object(::status(this_object()));
+        print_object(this_object()->stats());
+        return 1;
+
+      case "test2":
+
+        tmp_env = clone_object("/lib/core/basic/container");
+        tmp_res = this_object()->move(tmp_env);
+        write(tmp_res + "\n");
+
+        tmp_ob = clone_object("/lib/core/object");
+        tmp_res = tmp_ob->move(tmp_env);
+        write(tmp_res + "\n");
+
+        // this_object()->move(tmp_ob);
+        return 1;
+
+      case "inv":
+        print_object(this_object()->all_inventory());
+        return 1;
+
+      case "env":
+        print_object(environment(this_object()));
+        if (environment(this_object()))
+          print_object(environment(this_object())->all_inventory());
+        return 1;
+
+      case "init":
+        this_object()->init();
         return 1;
     }
 
@@ -713,7 +742,6 @@ nomask int action_check(string str)
       mixed ret;
 
       pop = this_object()->action_blocked();
-
 
       // if ( stringp(pop) )
       // {
@@ -788,7 +816,7 @@ nomask int action_check(string str)
       }
     }
 
-    if ( show_prompt && this_object() )
+    if ( show_prompt )
       this_object()->show_prompt();
 
     return 1;
@@ -809,3 +837,8 @@ nomask int lower_check(string str)
 
   return 0;
 } /* lower_check() */
+
+mixed * stats() 
+{
+  return ({ });
+}

@@ -6,19 +6,20 @@
 inherit login   "/lib/user/login";
 inherit history "/lib/user/history";
 inherit alias   "/lib/user/alias";
+inherit prompt  "/lib/user/prompt";
+
+inherit living  "/lib/living/living";
+
+
 
 
 // tmp, should be in the player object
 inherit events  "/lib/core/basic/events";
-
-inherit queue   "/lib/living/queue";
-
-
 // tmp for testing commands
 inherit tmp     "/lib/coder/tmp";
 
-static string name;         // user name != inner_player name ?
-static object inner_player; // The inner_player object attached to this user
+// static string name;         // user name != inner_player name ?
+// static object inner_player; // The inner_player object attached to this user
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
@@ -28,18 +29,19 @@ static string redirect_input_function; // function inside that object
 // static void close(varargs mixed dest);
 // static void receive_message(string str);
 // nomask int set_input_to(object obj, string func, varargs int flag, mixed arg) 
-void show_prompt();
-
 
 void create() 
 {
   login::create();
   history::create();
   alias::create();
-  queue::create();
+  prompt::create();
+  living::create();
 
-  name = "";
-  inner_player = nil;
+  enable_commands();
+
+  // name = "";
+  // inner_player = nil;
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
@@ -55,6 +57,8 @@ void init()
 {
   history::init();
   alias::init();
+
+  living::init();
 }
 
 // Called from the input_to efun
@@ -84,11 +88,6 @@ static void open()
 static void close(mixed arg)
 {
   login::disconnect(FALSE);
-}
-
-void show_prompt() 
-{
-  send_message("> ");
 }
 
 void send_message(string str)
@@ -149,6 +148,10 @@ static void receive_message(string str)
       return;
     }
 
+    // the new line has content, so we have a new this_player()
+    MUDOS->set_effective_this_player(this_object());
+    MUDOS->set_this_player(this_object());
+
     if( strlen(str) > INPUT_MAX_STRLEN ) 
     {
       str = str[ 0..INPUT_MAX_STRLEN ];
@@ -161,11 +164,13 @@ static void receive_message(string str)
     if (str[0] == '.')
     {
       this_object()->set_trivial_action();
-      str = expand_history(str[1..100]);
+      str = expand_history(str);
     }
-
-    // Bishop - adding history
-    add_history( str );
+    else
+    {
+      // Bishop - adding history
+      add_history( str );      
+    }
 
     sscanf(str, "%s %s", verb, params);
 
@@ -173,11 +178,15 @@ static void receive_message(string str)
       verb = str;
 
     // First the aliases
-    if ( exec_alias(verb, params) )
-      return;
+    if ( !exec_alias(verb, params) )
+    {
+      // if no alias found, continue
+      action_check( str );
+      lower_check( str );      
+    }
 
-    action_check( str );
-    lower_check( str );
+    MUDOS->set_effective_this_player(nil);
+    MUDOS->set_this_player(nil);
 
   } // rlimits
 
@@ -244,6 +253,19 @@ int query_user() { return 1; }
 
 // static int echo;     is input echoing turned on 
 // static int editing;   /* are we editing? */
+
+
+mixed * stats() 
+{
+  return ({ }) + login::stats() + 
+                 history::stats() + 
+                 alias::stats() + 
+                 prompt::stats() + 
+                 living::stats();
+}
+
+
+
 
 
 /*

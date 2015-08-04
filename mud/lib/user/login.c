@@ -116,3 +116,12 @@ nomask void logon_option(string str)
   validated = TRUE;
 }
 
+mixed * stats() 
+{
+  return ({ 
+    ({ "Login timestamp", timestamp, }),
+    ({ "Login validated", validated, }),
+          });
+}
+
+

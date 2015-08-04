@@ -1,6 +1,5 @@
-#include <move.h>
 
-inherit inventory "/lib/core/basic/inventory";
+#include <basic/move.h>
 
 private int move_flag;
 
@@ -10,7 +9,6 @@ private object prev;
 void create()
 {
   prev = nil;
-  inventory::create();
 }
 
 object query_prev() { return prev; }
@@ -62,15 +60,14 @@ int move(mixed dest, varargs mixed messin, mixed messout)
 
   // event_exit
   if (previous)
-    event(previous, "exit", messout, dest);
+    event(previous, "exit", messout, destination);
   
-  // update inventories and current environment
-  previous->remove_from_inventory(this_object());
-	destination->add_to_inventory(this_object());
-	update_environment(destination);
+  // efun that simulates the mudos inventory and
+  // environment handling
+  ::move(destination);
 
 	// event_enter
-  event(destination, "enter", messin, prev);
+  event(destination, "enter", messin, previous);
     
   return MOVE_OK;
 }
