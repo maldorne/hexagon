@@ -9,7 +9,7 @@ int intp(mixed what)
   if (typeof(what) == T_INT)
     return 1;
 
-  return -1;
+  return 0;
 }
 
 int arrayp(mixed what)
@@ -17,7 +17,7 @@ int arrayp(mixed what)
   if (typeof(what) == T_ARRAY)
     return 1;
 
-  return -1;
+  return 0;
 }
 
 int pointerp(mixed what)
@@ -30,7 +30,7 @@ int mappingp(mixed what)
   if (typeof(what) == T_MAPPING)
     return 1;
 
-  return -1;
+  return 0;
 }
 
 int objectp(mixed what)
@@ -38,7 +38,7 @@ int objectp(mixed what)
   if (typeof(what) == T_OBJECT)
     return 1;
 
-  return -1;
+  return 0;
 }
 
 int stringp(mixed what)
@@ -46,7 +46,7 @@ int stringp(mixed what)
   if (typeof(what) == T_STRING)
     return 1;
 
-  return -1;
+  return 0;
 }
 
 int floatp(mixed what)
@@ -54,7 +54,7 @@ int floatp(mixed what)
   if (typeof(what) == T_FLOAT)
     return 1;
 
-  return -1;
+  return 0;
 }
 
 int undefinedp(mixed what)
@@ -62,7 +62,7 @@ int undefinedp(mixed what)
   if (what == nil)
     return 1;
 
-  return -1;
+  return 0;
 }
 
 // int userp(mixed what)

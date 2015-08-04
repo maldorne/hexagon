@@ -40,7 +40,7 @@ void create()
 // neverbot 8/2008
 void init() 
 {
-	
+  ::init();	
 } 
 
 nomask string query_create_me() { return create_me; }

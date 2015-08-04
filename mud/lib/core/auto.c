@@ -1,4 +1,9 @@
 
+/* 
+ *  Object auto-inherited by every object in the mud, 
+ *  equivalent to the master.c in MudOS
+ */
+
 # include <kernel.h>
 # include <status.h>
 # include <type.h>
@@ -54,7 +59,7 @@ static nomask object clone_object(mixed what, varargs string uid)
   }
   else if (stringp(what))
   {
-    stderr(" - clone_object from \"" + object_name(what) + "\">\n");
+    stderr(" - clone_object from \"" + what + "\"\n");
     what = load_object(what);
   }
 
