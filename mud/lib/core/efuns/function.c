@@ -20,6 +20,11 @@ static nomask object * previous_objects(varargs int step)
   return ({ result }) + previous_objects(arg + 1);
 }
 
+static nomask object * all_previous_objects()
+{
+  return previous_objects();
+}
+
 static nomask object previous_object(varargs int number)
 {
   if (!number)

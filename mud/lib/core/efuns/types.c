@@ -33,6 +33,11 @@ int mappingp(mixed what)
   return 0;
 }
 
+int mapp(mixed what)
+{
+  return mappingp(what);
+}
+
 int objectp(mixed what)
 {
   if (typeof(what) == T_OBJECT)
@@ -63,6 +68,11 @@ int undefinedp(mixed what)
     return 1;
 
   return 0;
+}
+
+int nullp(mixed what)
+{
+  return undefinedp(what);
 }
 
 // int userp(mixed what)
