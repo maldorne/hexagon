@@ -110,7 +110,7 @@ int move(varargs object dest)
 
   if (living(this_object()))
   {
-    MUDOS->set_this_player(this_object());
+    MUDOS->set_initiator_object(this_object());
 
     // call init in the environment
     catch(call_other(_environment, "init"));
@@ -125,7 +125,7 @@ int move(varargs object dest)
                "do_init", MUDOS, old_this_player);
 
   // restore this_player()
-  MUDOS->set_this_player(old_this_player);
+  MUDOS->set_initiator_object(old_this_player);
 
   return MOVE_OK;
 }

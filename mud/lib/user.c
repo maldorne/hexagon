@@ -149,8 +149,8 @@ static void receive_message(string str)
     }
 
     // the new line has content, so we have a new this_player()
-    MUDOS->set_effective_this_player(this_object());
-    MUDOS->set_this_player(this_object());
+    MUDOS->set_initiator_player(this_object());
+    MUDOS->set_initiator_object(this_object());
 
     if( strlen(str) > INPUT_MAX_STRLEN ) 
     {
@@ -185,8 +185,8 @@ static void receive_message(string str)
       lower_check( str );      
     }
 
-    MUDOS->set_effective_this_player(nil);
-    MUDOS->set_this_player(nil);
+    MUDOS->set_initiator_player(nil);
+    MUDOS->set_initiator_object(nil);
 
   } // rlimits
 

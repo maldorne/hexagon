@@ -8,46 +8,40 @@
 #include <mud/mudos.h>
 
 
-private static object command_giver, command_actor;
+private static object initiator_player, initiator_object;
 
-int set_this_player(object player) 
+int set_initiator_object(object player) 
 {
   if (!mudlib_privileges()) 
   {
-    stderr("Illegal set_this_player with <" + object_name(player) + ">\n");
+    stderr("Illegal set_initiator_object with <" + object_name(player) + ">\n");
     return 0;
   }
   
-  command_actor = player;
+  initiator_object = player;
   return 1;
 }
 
-int set_effective_this_player(object player) 
+int set_initiator_player(object player) 
 {
   if (!mudlib_privileges()) 
   {
-    stderr("Illegal set_effective_this_player with <" + object_name(player) + ">\n");
+    stderr("Illegal set_initiator_player with <" + object_name(player) + ">\n");
     return 0;
   }
   
-  command_giver = player;
+  initiator_player = player;
   return 1;
 }
 
 object this_player(varargs int i) 
 {
-  /*
-  if (!AUTO_PRIV()) 
-  {
-    illegal();
-    return 0;
-  }
-  */
+  // TODO: privileges?
 
   if (i && (i == 1))
-    return command_giver;
+    return initiator_player;
 
-  return command_actor;
+  return initiator_object;
 }
 
 // call init in ob2 with ob1 as this_player() 
@@ -60,7 +54,7 @@ void do_init(object ob1, object ob2)
     return;
   }
 
-  command_giver = ob1;
+  initiator_player = ob1;
 
   catch(call_other(ob2, "__call_other", "init"));
 }
