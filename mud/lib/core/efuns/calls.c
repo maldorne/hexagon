@@ -12,7 +12,6 @@ nomask mixed __call_other(string func, varargs mixed args...)
   }
   else
   {
-    // illegal();
     stderr("Illegal __call_other on <" + object_name(this_object()) + ">, func: " + func + " \n");
   }
 }

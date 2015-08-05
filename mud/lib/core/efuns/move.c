@@ -121,8 +121,13 @@ int move(varargs object dest)
         catch(call_other(contents[i], "init"));
   }
 
-  map_array(filter_array(contents, "living", MUDOS),
-               "do_init", MUDOS, old_this_player);
+  stderr("   - M before, this_object():\n    " + this_object()->to_string() + " \n");
+  stderr("   - M before, this_player():\n    " + this_player()->to_string() + " \n");
+  stderr("   - M before, this_player(1):\n    " + this_player(1)->to_string() + " \n");
+
+  // call out own init() from all living objects in dest
+  map_array(filter_array(contents, "living", MUDOS), 
+            "do_init", MUDOS, this_object());
 
   // restore this_player()
   MUDOS->set_initiator_object(old_this_player);

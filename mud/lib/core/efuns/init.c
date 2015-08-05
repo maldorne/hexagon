@@ -18,6 +18,7 @@
 void init()
 {
   stderr(" * init " + object_name(this_object()) + " \n");
+  stderr("   - this_object():\n    " + this_object()->to_string() + " \n");
   stderr("   - this_player():\n    " + this_player()->to_string() + " \n");
   stderr("   - this_player(1):\n    " + this_player(1)->to_string() + " \n");
 }
