@@ -2,10 +2,13 @@
 
 // Extracted from the old /global/basic/print_object.c, neverbot
 // (and heavily improved)
-string to_string(mixed ob, varargs int offset, string pre) 
+string to_string(varargs mixed ob, int offset, string pre) 
 {
   int i;
   string ret;
+
+  if (!ob)
+    ob = this_object();
 
   ret = "";
 
