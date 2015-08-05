@@ -64,7 +64,7 @@ do not have an open source license.
 
 | Function | Description | Status | Comments |
 | -------- | ----------- | :------: | -------- |
-| `init`                  |  | :white_check_mark: |  |
+| `init`                  |  | :white_check_mark: | it's not a function provided by MudOS per se, it's the function that will be called inside every object when they move (if it exists). Listed here for clarity, as `ccmudlib` makes the same calls. |
 | `this_player`           |  | :white_check_mark: |  |
 | `this_interactive`      |  |  |  |
 | `this_user`             |  |  |  |
