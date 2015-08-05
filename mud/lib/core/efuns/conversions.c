@@ -1,88 +1,130 @@
 
+
 // Extracted from the old /global/basic/print_object.c, neverbot
-string print_object(mixed ob, varargs int offset, string pre) 
+// (and heavily improved)
+string to_string(mixed ob, varargs int offset, string pre) 
 {
   int i;
+  string ret;
+
+  ret = "";
 
   if (pre)
-    write("                   "[0..offset - strlen(pre)] + pre);
+    ret += "                   "[0..offset - strlen(pre)] + pre;
   else
-    write("                   "[0..offset]);
+    ret += "                   "[0..offset];
 
   if (intp(ob)) 
   {
-    write(ob + "\n");
+    ret += ob + "\n";
+    return ret; // "int";
+  }
+  else if (stringp(ob)) 
+  {
+    ret += "\"" + ob + "\"\n";
+    return ret; // "string";
+  }
+  else if (objectp(ob)) 
+  {
+    if (userp(ob)) 
+    {
+      ret += "<" + file_name(ob) + ">\n";
+      return ret; // "user object";
+    }    
+
+    ret += "<" + file_name(ob) + ">\n";
+    
+    // if (ob->short())
+    //   ret += "(short) " + ob->short() + "\n";
+    // else if (ob->query_name())
+    //   ret += "(name)  " + ob->query_name() + "\n";
+    // else
+    //   ret += "(argghhhh)\n";
+    
+    return ret; // "object";
+  }
+  else if (mappingp(ob))
+  {
+    if (!m_sizeof(ob))
+      ret += "([ ])\n";
+    else
+    {
+      string * keys;
+      keys = m_indices(ob);
+      
+      ret += "([ -- size " + sizeof(keys) + "\n";
+
+      for (i = 0; i < sizeof(keys); i++)
+      {
+        ret += "                       "[0..offset+2] + keys[i] + " : \n";
+        ret += to_string(ob[keys[i]], offset + 2, "");
+        // if (i < sizeof(keys)-1)
+        //   ret += "\n";
+      }
+
+      ret += "                       "[0..offset] + "])\n";
+    }
+    return ret; // "mapping";
+  }
+  else if (arrayp(ob)) 
+  {
+    if (!sizeof(ob))
+      ret += "({ })\n";
+    else 
+    {
+      ret += "({ -- size " + sizeof(ob) + "\n";
+      
+      for (i = 0; i < sizeof(ob); i++)
+      {
+        ret += to_string(ob[i], offset + 5, ""+i+". ");
+        // if (i < sizeof(ob)-1)
+        //   ret += "\n";
+      }
+      
+      ret += "                       "[0..offset] + "})\n";
+    }
+    return ret; // "array";
+  }
+  else if (undefinedp(ob))
+  {
+    ret += "nil\n";
+    return ret; // "nil";
+  }
+
+  return ret; // "oh dear";
+}
+
+string print_object(mixed ob) 
+{
+  write(to_string(ob));
+
+  if (intp(ob)) 
+  {
     return "int";
   }
   else if (stringp(ob)) 
   {
-    write("\"" + ob + "\"\n");
     return "string";
   }
   else if (objectp(ob)) 
   {
     if (userp(ob)) 
     {
-      write("<" + file_name(ob) + ">\n");
       return "user object";
     }    
 
-    write("<" + file_name(ob) + ">\n");
-    
-    // if (ob->short())
-    //   write("(short) " + ob->short() + "\n");
-    // else if (ob->query_name())
-    //   write("(name)  " + ob->query_name() + "\n");
-    // else
-    //   write("(argghhhh)\n");
-    
     return "object";
   }
   else if (mappingp(ob))
   {
-    if (!m_sizeof(ob))
-      write("([ ])\n");
-    else
-    {
-      string * keys;
-      keys = m_indices(ob);
-      
-      write("([ -- size " + sizeof(keys) + "\n");
-
-      for (i = 0; i < sizeof(keys); i++)
-      {
-        write("                       "[0..offset+2] + keys[i] + " : \n");
-        print_object(ob[keys[i]], offset + 2, "");
-        // if (i < sizeof(keys)-1)
-        //   write("\n");
-      }
-
-      write("                       "[0..offset] + "])\n");
-    }
     return "mapping";
   }
   else if (arrayp(ob)) 
   {
-    if (!sizeof(ob))
-      write("({ })\n");
-    else 
-    {
-      write("({ -- size " + sizeof(ob) + "\n");
-      
-      for (i = 0; i < sizeof(ob); i++)
-      {
-        print_object(ob[i], offset + 5, ""+i+". ");
-        // if (i < sizeof(ob)-1)
-        //   write("\n");
-      }
-      
-      write("                       "[0..offset] + "})\n");
-    }
     return "array";
   }
   else if (undefinedp(ob))
   {
-    write("nil\n");
     return "nil";
   }
 

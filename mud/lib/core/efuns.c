@@ -1,6 +1,6 @@
 
-// tmp prototype so we could debug from everywhere
-string print_object(mixed ob, varargs int offset, string pre);
+// tmp prototype so we could debug from everywhere, for debugging
+string to_string(mixed ob, varargs int offset, string pre);
 static nomask void stderr(string str);
 
 

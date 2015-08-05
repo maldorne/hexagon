@@ -18,6 +18,6 @@
 void init()
 {
   stderr(" * init " + object_name(this_object()) + " \n");
-  stderr("   - this_player(): " + print_object(this_player()) + " \n");
-  stderr("   - this_player(1): " + print_object(this_player(1)) + " \n");
+  stderr("   - this_player():\n    " + to_string(this_player()) + " \n");
+  stderr("   - this_player(1):\n    " + to_string(this_player(1)) + " \n");
 }
