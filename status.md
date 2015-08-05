@@ -1,6 +1,10 @@
 #Current status of the project
 
-List of MudOS `efun` functions and their implementation in `ccmudlib`
+List of MudOS `efun` functions and their implementation in `ccmudlib`. 
+
+Be aware: most of the functions 
+listed here are already implemented and working, but as I've just started working in this 
+document recently, I'll update every entry as I test each function.
 
 ##Types
 
