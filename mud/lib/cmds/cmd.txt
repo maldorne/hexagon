@@ -1,0 +1,178 @@
+AuroraMUD command handler.			9 Mar 1995 Chrisy
+========================== 
+
+Creating a command for this handler is very simple. In the header
+file aurora/cmd.h  (This may just be cmd.h on some installations)
+the definitions needed are declared. You need to inherit CMD_BASE
+for a command.
+
+
+A skeleton command might be: (Note, this is for Aurora. Mudlib
+differences will be discussed below).
+
+File: /global/creator/cmds/write.c
+
+#include <aurora/cmd.h>
+
+inherit CMD_BASE;
+
+void setup()
+{
+	position = CREATOR;
+}
+
+string query_usage()
+{
+	return "write [-notabs] [-lower|-upper] string";
+}
+
+string query_short_help()
+{
+	return "Writes the specified string on the screen.\n"+
+		"	-notabs	Reduce tabs to a single space.\n"+
+		"	-lower	Lowercase the entire string.\n"+
+		"	-upper	Uppercase the entire string.";
+}
+
+int cmd(string tail)
+{
+	string *params;
+	int i, notabs, upper, lower;
+
+	notabs = upper = lower = 0;
+
+	params = explode(tail, " ");
+
+	for(i=0; i<sizeof(params) && params[i][0]=='-'; i++);
+	tail = implode(params[i..sizeof(params)-1], " ");
+	params = params[0..i-1];
+
+	if(member_array("-notabs", params) != -1)
+		notabs++;
+
+	if(member_array("-upper", params) != -1)
+		upper++;
+
+	if(member_array("-lower", params) != -1)
+		lower++;
+
+	if(upper && lower)
+	{
+		write("You should specify only one of -upper or -lower!\n"+
+			"Usage: "+query_usage()+"\n\n");
+		return 1;
+	}
+
+	if(notabs)
+		tail = replace(tail, "\t", " ");
+
+	if(upper)
+		tail = upper_case(tail);
+
+	if(lower)
+		tail = lower_case(tail);
+
+	write(tail+"\n");
+	return 1;
+}
+
+
+This does as you might expect it to.
+
+Each command object has three variables (at present) that is can modify
+to define it's behaviour. These are "position", "doclone" and "dodest".
+
+position:
+	This set's the level of the person required to allow them
+	to use this command. Level means "player", "creator",
+	"lord" and so forth. The actual values you should assign
+	are mudlib dependant. Refer to local documentation (see below).
+
+doclone:
+	This tells the handler whether it should actually clone a
+	copy of the command object, or use the master copy.
+	You would use this if the object used some form of call back,
+	like input_to or more_file. Default is 0, no cloneing. Set it
+	to 1 to clone.
+	NOTE: You should set doclone to 0 inside of cmd() before it
+	returns if need be, otherwise the command handler will go
+	and dest the object upon it's return.
+
+dodest:
+	This says whether the object should be dested after use. Not
+	really useful, but there anyway. Default is 0, not to.
+
+command_giver:
+	This is an object and points to the current "command giver",
+	ie, the person who issued the command. This is more reliable
+	than this_player() (or the macro TP).
+
+The return value from cmd is as for normal add_actioned commands.
+If it returns 0, then it is deemed to have failed or not be
+recognised. You should set notify_fail("xx"); to a string should
+you wish some sort of fail message be given to the user. The
+command handler returns control straight to the mud (it does not
+continue searching) and the mud then carries on it's normal command
+search. If you return 1, then control it sent back to the player.
+
+
+Command aliasing.
+=================
+
+You can create command "aliases" by adding entries to the file
+(creating it if necessary) _CMD_ALIASES in the same directory as
+the command. These lines are of the form:
+
+	alias command verb1 verb2 ...
+
+You only *need* one verb. "command" is the name of the _actual_
+command. The verbs are the aliases for it.  These alias files are
+only read when the handler updates it hash mapping (see the rehash
+command below).
+
+Command handler commands.
+=========================
+
+The command handler defines a number of commands itself. These are
+briefly described below:
+
+cmd command
+	This gives some general information on the command specified,
+	such as where it resides and how many times it has been accessed.
+
+rehash [-v]
+	This tells the command handler to update it's internal
+	command hash, and reload the aliases. The -v option enables
+	verbose mode and it tells the user what it is doing.
+
+cmdhelp command
+	This gives any help the command has to offer on itself. The
+	results depend entirely on what the command returns.
+
+Mudlib differences.
+===================
+
+AuroraMUD
+---------
+
+The positions are declared in /secure/master.h. Not everyone can
+read this file, but the definitions are CREATOR, LORD and HIGH_LORD.
+To set to player access, set the position variable to 0 (or leave
+it alone since it's the default).
+
+The include line is
+	#include <aurora/cmd.h>
+
+Realms of the Dragon
+--------------------
+
+The positions are declared in /secure/master.h. Not everyone can
+read this file, but the definitions are CODER_CMD, LORD_CMD and
+HIGH_LORD_CMD. To set to player access, set the position variable
+to 0 (or leave it alone since it's the default).
+
+The include line is
+	#include <cmd.h>
+
+
+
