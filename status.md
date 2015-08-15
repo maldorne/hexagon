@@ -38,8 +38,9 @@ Common calls and operations over the basic types.
 | `sizeof`                |  | :white_check_mark: | provided by dgd |
 | `explode`               |  |  |  |
 | `implode`               |  |  |  |
-| `allocate`              |  |  |  |
-| `member_array`          |  |  |  |
+| `allocate`              |  | :white_check_mark: | note: all array elements are initialized to `nil` |
+| `member_array`          |  | :white_check_mark: |  |
+| `index`                 |  | :white_check_mark: | alias for `member_array` |
 | `sort_array`            |  |  |  |
 | `unique_array`          |  |  |  |
 | `filter`                |  |  |  |
@@ -51,6 +52,7 @@ Common calls and operations over the basic types.
 | `m_delete`              |  |  |  |
 | `m_values`              |  |  |  |
 | `m_indices`             |  |  |  |
+| `allocate_mapping`      |  |  |  |
 | `unique_mapping`        |  |  |  |
 | `map`                   |  |  |  |
 | `map_mapping`           |  |  |  |
@@ -73,6 +75,14 @@ do not have an open source license.
 | `previous_object`       |  | :white_check_mark: |  |
 | `all_previous_objects`  |  | :white_check_mark: | alias for `previous_objects` |
 | `evaluate`              |  | :white_check_mark: |  |
+| `add_action`            |  |  |  |
+| `query_verb`            |  |  |  |
+| `command`               |  |  |  |
+| `remove_action`         |  |  |  |
+| `commands`              |  |  |  |
+| `disable_commands`      |  |  |  |
+| `enable_commands`       |  |  |  |
+| `interactive`           |  |  |  |
 
 ##Time & Date
 
@@ -80,7 +90,22 @@ do not have an open source license.
 | -------- | ----------- | :------: | -------- |
 | `time`                  |  | :white_check_mark: | provided by dgd |
 | `ctime`                 |  | :white_check_mark: | provided by dgd, masked as efun to translate and add functionality |
-| `localtime`             |  | :white_check_mark: | done using the sprintf time functions, would be reimplemented |
+| `localtime`             |  | :white_check_mark: | done using the `sprintf` time functions, would be reimplemented |
+
+##Movement, Inventory & Environment
+
+| Function | Description | Status | Comments |
+| -------- | ----------- | :------: | -------- |
+| `init`                  |  | :white_check_mark: | see above |
+| `environment`           |  | :white_check_mark: |  |
+| `all_inventory`         |  | :white_check_mark: |  |
+| `deep_inventory`        |  | :white_check_mark: |  |
+| `first_inventory`       |  |  |  |
+| `next_inventory`        |  |  |  |
+| `present`               |  |  |  |
+| `move`                  |  | :white_check_mark: |  |
+| `move_object`           |  | :white_check_mark: | alias for `move` |
+
 
 | Function | Description | Status | Comments |
 | -------- | ----------- | :------: | -------- |
@@ -91,23 +116,9 @@ do not have an open source license.
 | `call_out`              |  |  |  |
 | `input_to`              |  |  |  |
 | `random`                |  |  |  |
-| `environment`           |  |  |  |
-| `all_inventory`         |  |  |  |
-| `deep_inventory`        |  |  |  |
-| `first_inventory`       |  |  |  |
-| `next_inventory`        |  |  |  |
 | `say`                   |  |  |  |
 | `tell_room`             |  |  |  |
-| `present`               |  |  |  |
-| `move_object`           |  |  |  |
-| `add_action`            |  |  |  |
-| `query_verb`            |  |  |  |
-| `command`               |  |  |  |
-| `remove_action`         |  |  |  |
 | `living`                |  |  |  |
-| `commands`              |  |  |  |
-| `disable_commands`      |  |  |  |
-| `enable_commands`       |  |  |  |
 | `set_living_name`       |  |  |  |
 | `livings`               |  |  |  |
 | `find_living`           |  |  |  |
@@ -127,7 +138,6 @@ do not have an open source license.
 | `find_object`           |  |  |  |
 | `load_object`           |  |  |  |
 | `find_call_out`         |  |  |  |
-| `allocate_mapping`      |  |  |  |
 | `match_path`            |  |  |  |
 | `inherits`              |  |  |  |
 | `replace_program`       |  |  |  |
@@ -172,7 +182,6 @@ do not have an open source license.
 | `deep_inherit_list`     |  |  |  |
 | `shallow_inherit_list`  |  |  |  |
 | `stat`                  |  |  |  |
-| `interactive`           |  |  |  |
 | `in_edit`               |  |  |  |
 | `in_input`              |  |  |  |
 | `master`                |  |  |  |
