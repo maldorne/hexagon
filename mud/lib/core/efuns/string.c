@@ -28,8 +28,11 @@ string replace_string(string str, string foo, string bar)
   a = "";
   b = "";
 
-  i = sscanf(str, "%s"+foo+"%s", a, b);
+  i = sscanf(str, "%s" + foo + "%s", a, b);
   result = a + bar + b;
+
+  if (i <= 0)
+    return str;
 
   while (i > 0)
   {
