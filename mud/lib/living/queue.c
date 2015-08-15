@@ -22,7 +22,7 @@
  */
 
 #include <living/queue.h>
-#include <files/cmd.h>
+#include <mud/cmd.h>
 
 /*
  * These must be saved in permanent storage; in fact, these should be
@@ -49,14 +49,14 @@ private int ia_show_interrupt;
  * ready to be plugged in though, should we be able to spare the memory,
  * and not the cpu. (the other version isn't particularly faster though)
  */
-private static mixed* actionq;
+private static mixed * actionq;
 
 /*
  * Security array; this is an array of flags, each corresponding to
  * an action in the action queue, indicating if the action was forced by
  * some other object or not.
  */
-private static int* action_forcedq;
+private static int * action_forcedq;
 
 /* If the current command was forced or not; 
  * -1 means no command is in progress (and thus, to most checks, has the
@@ -125,14 +125,8 @@ string query_verb()
     // return efun::query_verb();
 }
 
-// Esta funcion es llamada desde la simul notify_fail
+// This function is called from the notify_fail simul_efun
 void set_notify_fail_msg(mixed txt) { notify_fail_msg = txt; }
-/*
-void set_notify_fail_msg(string str) { 
-    notify_fail_msg = str;
-    return;
-}
-*/
 string query_notify_fail_msg() 
 { 
   return stringp(notify_fail_msg)?notify_fail_msg:evaluate(notify_fail_msg);
@@ -159,12 +153,6 @@ int adjust_time_left(varargs int i)
     time_left = max_time;
   return time_left;
 }
-
-/*
-void adjust_time_left(){ 
-    time_adjusted = 1;
-}
-*/
 
 int query_show_interrupt() { 
   return ia_show_interrupt;
@@ -335,9 +323,8 @@ private int aq_insert( mixed val )
   return AQ_OK;
 }
 
-/*
- * Tries to add an action to the end of queue
- */
+// * Tries to add an action to the end of queue
+
 private int aq_add( mixed val )
 {
   // if ( !stringp( val ) && !functionp( val ) )
@@ -358,10 +345,9 @@ private int aq_add( mixed val )
   return AQ_OK;
 }
 
-/*
- * Removes the head of the queue, of course, and returns it
- * -1 if there are no entries in the queue.
- */
+// * Removes the head of the queue, of course, and returns it
+// * -1 if there are no entries in the queue.
+ 
 private mixed aq_decapitate()
 {
   mixed ret;
@@ -375,10 +361,9 @@ private mixed aq_decapitate()
   return ret;
 }
 
-/*
- * Deletes user actions from the queue.  Any command string is a user
- * action.  (supposedly)
- */
+// * Deletes user actions from the queue.  Any command string is a user
+// * action.  (supposedly)
+
 private int aq_delete_user_actions()
 {
   int i;
@@ -401,11 +386,11 @@ private int aq_delete_user_actions()
   return AQ_OK;
 }
 
-/* The do_cmd is a part of the external command handling system.
- * Made by Chrisy and gotten from RD. oct '95.
- * Moved here by Baldrick so that the whole living-tree can use the 
- * commands in that system.
- */   
+// The do_cmd is a part of the external command handling system.
+// * Made by Chrisy and gotten from RD. oct '95.
+// * Moved here by Baldrick so that the whole living-tree can use the 
+// * commands in that system.
+  
 int do_cmd(string tail)
 {
   string verb, t;
@@ -415,13 +400,12 @@ int do_cmd(string tail)
     verb = tail;
 
   return (int)CMD_HANDLER->cmd(verb, t, this_object());
-} /* do_cmd() */
+} 
 
-/*
- * This looks for an action to perform and does it if there's one waiting
- * and time left.  Otherwise it returns.  If it does perform an action it'll
- * return 1, otherwise 0.
- */
+// * This looks for an action to perform and does it if there's one waiting
+// * and time left.  Otherwise it returns.  If it does perform an action it'll
+// * return 1, otherwise 0.
+ 
 private int perform_next_action()
 {
   mixed curr_act;
@@ -434,7 +418,7 @@ private int perform_next_action()
   {
     string ret;
 
-    /* this means the interruptable action is complete. */
+    // this means the interruptable action is complete. 
     // if ( functionp(ia_complete) )
     //   evaluate(ia_complete);
     // else if ( stringp(ia_complete) )
@@ -448,7 +432,7 @@ private int perform_next_action()
     ia_abort = 0;
     ia_message = "";
     curr_forced = -1;
-    /* now we go ahead and try to perform the next action as usual */
+    // now we go ahead and try to perform the next action as usual 
   }
 
   // if (trivial_actions_performed > MAXIMUM_COMMANDS_PER_HB )
@@ -501,39 +485,55 @@ private int perform_next_action()
   // }
   // else if ( stringp( curr_act ) )    
 
-  if (evaluate(curr_act) == curr_act)
+  // dangerous!
+  // if (evaluate(curr_act) == curr_act)
+  // {
+
+  if (stringp( curr_act ))
   {
     notify_fail_msg = 0;
     command_in_progress = curr_act;
     time_adjusted = 0;
 
     sscanf(curr_act, "%s %s", verb, t);
+
     if(!verb)
       verb = curr_act;
+
     temp_verb = verb;
+
+    // The real command chain
 
     if (!command( curr_act ))
     {
       if (!(environment() &&
-        environment(this_object())->do_move_command(curr_act)) )
+            environment(this_object())->do_move_command(curr_act)) )
+      {  
         if (!this_object()->do_gr_command(verb, t))
-          // if (!CMD_HANDLER->cmd(verb, t, this_object()))
+        { 
+          if (!CMD_HANDLER->cmd(verb, t, this_object()))
+          {  
             if (!this_object()->parse_comm(verb, t ))
+            {
               // if (!CMD_HANDLER->soul_com(curr_act, this_object()))
+              // {
                 // The end, either the command didn't work or we have 
                 // a notify fail. in that case, it writes a new message, if not,
                 // it writes the one we made earlier, a standard one.
-                if(notify_fail_msg)
-                  tell_object(this_object(),query_notify_fail_msg());
+                if (notify_fail_msg)
+                  tell_object(this_object(), query_notify_fail_msg());
                 else
-                  tell_object(this_object(),"El intento de hacer '%^RED%^" + curr_act + 
+                  tell_object(this_object(), "El intento de hacer '%^RED%^" + curr_act + 
                     "%^RESET%^' no funcionó.\n");
-              /*
-              // Hack, baldrick 
-              this_object()->set_notify_fail_msg("El intento de hacer '%^RED%^" + curr_act
-               + "%^RESET%^' no funcionó.\n");
-              */
-
+              
+                // Hack, baldrick 
+                // this_object()->set_notify_fail_msg("El intento de hacer '%^RED%^" + curr_act
+                //  + "%^RESET%^' no funcionó.\n");
+              // }
+            }
+          }
+        }
+      }
     }
   
     command_in_progress = "";
@@ -605,7 +605,6 @@ void act()
   }
 } /* act() */
 
-
 /*
  * The great command enqueuer.  Fwheee.
  * If this_object has no heartbeat, it won't do anything.  Actions
@@ -621,13 +620,12 @@ nomask int action_check(string str)
     object tmp_ob, tmp_env;
     int tmp_res;
 
-    /* this is ridiculous.  MudOS will not show these strings as equal. */
+    // this is ridiculous.  MudOS will not show these strings as equal. 
     if ( str == command_in_progress )
       return 0;
 
-    /* Expand some common aliases
-     * Moved from process_input.
-     */
+    // Expand some common aliases
+    // * Moved from process_input.
     switch( str[0] )
     {   
       case '\'' : str = "decir "+   str[1..]; break;
@@ -639,7 +637,7 @@ nomask int action_check(string str)
     if( (tmp = EXPANSION[str]) ) 
       str = tmp;
 
-    /* check for some special queue-affecting commands */
+    // check for some special queue-affecting commands 
     switch( str )
     {
       case "restart":
@@ -651,7 +649,7 @@ nomask int action_check(string str)
         else
         {
           tell_object(this_object(),"Intentando reiniciar tu personaje...\n");
-          actionq = ({ });  /* will get cascading failure without this */
+          actionq = ({ }); // will get cascading failure without this 
           set_heart_beat(1);
           catch(this_object()->flush_spell_effects());
         }
@@ -735,10 +733,10 @@ nomask int action_check(string str)
 
     if(this_object()->action_blocked())
     {
-      /* Wonderflug, Dec 95, making this more flexible --
-       * can specify the string that the block puts out.
-       * A year later, adding ability to make it a function pointer too.
-       */
+      // Wonderflug, Dec 95, making this more flexible --
+      // * can specify the string that the block puts out.
+      // * A year later, adding ability to make it a function pointer too.
+
       mixed pop;
       mixed ret;
 
@@ -769,47 +767,54 @@ nomask int action_check(string str)
         else
         {
           tell_object(this_object(), ret);
+
           if(!this_object()->query_admin())
             return 1;
         }
       }
       else
       {
-        tell_object(this_object(),
-          "Estás aturdido, no puedes hacer nada.\n");
+        tell_object(this_object(), "Estás aturdido, no puedes hacer nada.\n");
+
         if(!this_object()->query_admin())
           return 1;
       }
     }
 
-    /* not sure why this is necessary.. */
-    str = replace_string(str,"@@","");
+    // not sure why this is necessary... 
+    str = replace_string(str, "@@", "");
 
-    /* Bishop - moving to process_input
-    this_object()->add_history(str);
-     */
-    /* The latency is too much, so we've added a check to see
-     * if it's ok to execute the command right away.
-     */
-    if ( (i=aq_add( str )) != AQ_OK )
-      tell_object(this_object(),"Error insertando en la cola de comandos '"
-        +str+"', "+i+"\n");
+    // Bishop - moving to process_input
+    // this_object()->add_history(str);
+     
+    // The latency is too much, so we've added a check to see
+    // * if it's ok to execute the command right away.
+     
+    if ( (i = aq_add( str )) != AQ_OK )
+    {
+      tell_object(this_object(), "Error insertando en la cola de comandos '"
+        + str + "', " + i + "\n");
+    }
     else if ( ia_in_progress && query_show_interrupt() )
-      tell_object(this_object(),ia_message);
+    {
+      tell_object(this_object(), ia_message);
+    }
     else 
     {
-      /* added the while below to remove latency in history/alias commands 
-       * as well; to get prompting correct, I've also unrolled the first
-       * iteration of the loop into an if.
-       */
+      // added the while below to remove latency in history/alias commands 
+      // * as well; to get prompting correct, I've also unrolled the first
+      // * iteration of the loop into an if.
+
       // if ( ( sizeof(actionq) >= 1 ) 
-      if ( ( sizeof(actionq) >= 1 ) && ( time_left > 0 )
-        && ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
-          perform_next_action();
+      if ( ( sizeof(actionq) >= 1 ) && ( time_left > 0 ) && 
+           ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
+      {
+        perform_next_action();
+      }
 
       // while ( sizeof(actionq) >= 1 
-      while ( sizeof(actionq) >= 1 && time_left > 0 
-        && trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB )
+      while ( sizeof(actionq) >= 1 && (time_left > 0) && 
+            ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
       {
         this_object()->show_prompt();
         this_object()->write_prompt();
