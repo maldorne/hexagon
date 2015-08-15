@@ -16,6 +16,11 @@ int member_array(mixed element, mixed *arr)
   return -1;
 }
 
+int index (mixed element, mixed * arr) 
+{
+  return member_array(element, arr);
+}
+
 mixed * delete(mixed * arr, int start, int len) 
 {
   return arr[0..start-1]+arr[start+len..sizeof(arr)];
