@@ -23,3 +23,6 @@ Realms_ or _Discworld_) work with a modern DGD mud driver.
 4. `make install`
 5. It's done!
 
+### More detailed information about the project
+* Current project status and roadmap in the [status document](status.md).
+* Detailed compatibility information about every function in the [compatibility document](status_compat.md).
