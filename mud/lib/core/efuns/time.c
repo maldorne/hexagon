@@ -1,13 +1,21 @@
 
 #include <areas/weather.h>
 
-#define LT_WDAY 6
+#include "sprintf/time.h"
+#include "sprintf/time.c"
+
+#define LT_SEC 0
+#define LT_MIN 1
+#define LT_HOUR 2
 #define LT_MDAY 3
 #define LT_MON 4
 #define LT_YEAR 5
-#define LT_HOUR 2
-#define LT_MIN 1
-#define LT_SEC 0
+#define LT_WDAY 6
+#define LT_YDAY 7
+#define LT_GMTOFF 8
+#define LT_ZONE 9
+
+#define MILLISECONDS_PER_DAY 86400000
 
 // uptime - return the number of seconds elapsed since the last driver reboot
 // int uptime();
@@ -15,7 +23,7 @@
 
 // TODO uptime
 
-int uptime()
+static int uptime()
 {
   return 1000;
 }
@@ -48,10 +56,22 @@ int uptime()
 //         string  LT_ZONE         Timezone name
 
 // TODO localtime
-mixed * localtime(int timestamp)
+static mixed * localtime(int timestamp)
 {
   mixed * result;
+
   result = allocate(10);
+
+  result[LT_SEC] = second(timestamp);
+  result[LT_MIN] = minute(timestamp);
+  result[LT_HOUR] = hour(timestamp);
+  result[LT_MDAY] = day(timestamp);
+  result[LT_MON] = month(timestamp, 2);
+  result[LT_YEAR] = year(timestamp);
+  result[LT_WDAY] = weekday(timestamp, 2);
+  result[LT_YDAY] = day_of_year(timestamp);
+  result[LT_GMTOFF] = 0;
+  result[LT_ZONE] = "CET";
 
   return result;
 }
@@ -71,7 +91,7 @@ mixed * localtime(int timestamp)
  * Added format with only the time, neverbot 1/06
  */
 
-string convert_day(int num)
+static string convert_day(int num)
 {
   switch(num)
   {
@@ -86,8 +106,10 @@ string convert_day(int num)
   }
 }
 
-string convert_english_day(int num){
-  switch(num){
+static string convert_english_day(int num)
+{
+  switch(num)
+  {
    case 0: return "Sunday";
    case 1: return "Monday";
    case 2: return "Tuesday";
@@ -99,8 +121,10 @@ string convert_english_day(int num){
   }
 }
 
-string convert_month(int num){
- switch(num){
+static string convert_month(int num)
+{
+ switch(num)
+ {
   case 0: return "Enero";
   case 1: return "Febrero";
   case 2: return "Marzo";
@@ -117,8 +141,10 @@ string convert_month(int num){
   }
 }
 
-string convert_english_month(int num){
- switch(num){
+static string convert_english_month(int num)
+{
+ switch(num)
+ {
   case 0: return "Jan";
   case 1: return "Feb";
   case 2: return "Mar";
@@ -135,7 +161,7 @@ string convert_english_month(int num){
   }
 }
 
-string convert_birthday(string str) 
+static string convert_birthday(string str) 
 {
 	// we assume it is 4 characters long 'ddmm'
 	int day, month, tot;
@@ -172,7 +198,7 @@ string convert_birthday(string str)
 	return retval + convert_month(month-1);
 } 
 
-int valid_birthday(string str) 
+static int valid_birthday(string str) 
 {
 #define LENGTHS ({ 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 })
 
@@ -195,7 +221,7 @@ int valid_birthday(string str)
 	return day <= LENGTHS[month];
 } /* valid_birthday() */
 
-string repair_number(int num)
+static string repair_number(int num)
 {
   string res;
 
@@ -227,7 +253,7 @@ string repair_number(int num)
  *  Added for the sake of ftpd compatibility, neverbot 10/12/04
  *  - flag = 6:  "Fri Dec 10 hh:mm:ss aaaa"
  */
-string ctime(int time, varargs int flag)
+static string ctime(int time, varargs int flag)
 {
   mixed * datos;
   string result;
@@ -267,6 +293,7 @@ string ctime(int time, varargs int flag)
               repair_number(datos[LT_SEC]);
   }
   else if (flag == 5){
+    print_object(datos);
     result = convert_day(datos[LT_WDAY]);
     result += " " + repair_number(datos[LT_MDAY]) + " de " +
               convert_month(datos[LT_MON]);
