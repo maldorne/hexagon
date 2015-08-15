@@ -293,7 +293,6 @@ static string ctime(int time, varargs int flag)
               repair_number(datos[LT_SEC]);
   }
   else if (flag == 5){
-    print_object(datos);
     result = convert_day(datos[LT_WDAY]);
     result += " " + repair_number(datos[LT_MDAY]) + " de " +
               convert_month(datos[LT_MON]);

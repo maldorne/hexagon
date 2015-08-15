@@ -21,13 +21,17 @@ static string current_verb;  // Used by query_verb() efun
 void create()
 {
   cmd_dirs = ([
-      // "/lib/cmds/living/":        ({LIVING_CMD,   "Player"}),
-      "/lib/cmds/player/":        ({PLAYER_CMD,        "Jugador"}),
-      "/lib/cmds/coder/":         ({CODER_CMD,         "Programador"}),
-      "/lib/cmds/coordinator/":   ({COORDINATOR_CMD,   "Coordinador"}),
-      "/lib/cmds/administrator/": ({ADMINISTRATOR_CMD, "Administrador"}),
-      // "/net/cmds/":           ({0,                 "InterMUD network"}),
-      "/lib/cmds/handler/cmds/":  ({0,                 "Command handler"}),
+      // "/lib/cmds/living/": ({LIVING_CMD, "Player"}),
+       "/lib/cmds/player/":  ({PLAYER_CMD,  "Player"}),
+      "/game/cmds/player/":  ({PLAYER_CMD,  "Player"}),
+       "/lib/cmds/coder/":   ({CODER_CMD,   "Coder"}),
+      "/game/cmds/coder/":   ({CODER_CMD,   "Coder"}),
+       "/lib/cmds/manager/": ({MANAGER_CMD, "Project Manager"}),
+      "/game/cmds/manager/": ({MANAGER_CMD, "Project Manager"}),
+       "/lib/cmds/admin/":   ({ADMIN_CMD,   "Administrator"}),
+      "/game/cmds/admin/":   ({ADMIN_CMD,   "Administrator"}),
+      // "/net/cmds/":              ({0,   "InterMUD network"}),
+      // "/lib/cmds/handler/cmds/": ({0,   "Command handler"}),
     ]);
 
   cmd_hash = ([ ]);
@@ -104,10 +108,10 @@ string * query_available_cmds(object player)
 		perms += ({ PLAYER_CMD, });
 	if (player->query_coder())
 		perms += ({ CODER_CMD, });
-	if (player->query_coordinator())
-		perms += ({ COORDINATOR_CMD, });
-	if (player->query_administrator())
-		perms += ({ ADMINISTRATOR_CMD, });
+	if (player->query_manager())
+		perms += ({ MANAGER_CMD, });
+	if (player->query_admin())
+		perms += ({ ADMIN_CMD, });
 	
 	// Obtenemos todos los posibles directorios de comandos
 	aux = keys(cmd_dirs);
@@ -138,16 +142,28 @@ string * query_available_directories(object player)
   result = ({ });
 	
 	if (player->query_player())
-		result += ({ "/lib/cmds/player/" });
+		result += ({ 
+                "/lib/cmds/player/",
+                "/game/cmds/player/" 
+              });
 	if (player->query_coder())
-		result += ({ "/lib/cmds/coder/" });
-	if (player->query_coordinator())
-		result += ({ "/lib/cmds/coordinator/" });
-	if (player->query_administrator())
+		result += ({ 
+                "/lib/cmds/coder/",
+                "/game/cmds/coder/" 
+              });
+	if (player->query_manager())
+		result += ({ 
+                "/lib/cmds/manager/",
+                "/game/cmds/manager/"
+              });
+	if (player->query_admin())
 	{
-		result += ({ "/lib/cmds/administrator/" });
-		result += ({ "/lib/cmds/handler/cmds/" });
-		// result += ({ "/net/cmds/" });
+		result += ({ 
+                "/lib/cmds/admin/",
+                "/game/cmds/admin/",
+                // "/lib/cmds/handler/cmds/",
+                // "/net/cmds/"
+              });
 	}
 	
 	return result;
@@ -190,17 +206,27 @@ mapping query_available_cmds_by_category(object player)
 	} 
 
 	if (player->query_player())
+  {
 		directories["/lib/cmds/player/"] = ({  });
+    directories["/game/cmds/player/"] = ({  });
+  }
 	if (player->query_coder())
 	{
 		directories["/lib/cmds/coder/"] = ({  });
+    directories["/game/cmds/coder/"] = ({  });
 		// directories["/net/cmds/"] = ({  });
-		directories["/lib/cmds/handlers/cmds/"] = ({  });
+		// directories["/lib/cmds/handlers/cmds/"] = ({  });
 	}
-	if (player->query_coordinator())
-		directories["/lib/cmds/coordinator/"] = ({  });
-	if (player->query_administrator())
-		directories["/lib/cmds/administrator/"] = ({  });
+	if (player->query_manager())
+  {
+    directories["/lib/cmds/manager/"] = ({  });
+    directories["/game/cmds/manager/"] = ({  });
+  }
+	if (player->query_admin())
+  {
+    directories["/lib/cmds/admin/"] = ({  });
+    directories["/game/cmds/admin/"] = ({  });
+  }
 
 	// En categories tenemos una lista de listas, donde cada una
 	// contiene el tipo de comando y el directorio de dichos comandos
@@ -254,13 +280,9 @@ int cmd(string verb, string tail, object thisob)
 
   orig_verb = verb;
 
-write("cmd 1\n");
-
 	// Flode, 250499. Security
 	if (!thisob || (interactive(thisob) && previous_object() != thisob))
 		return 0;
-
-write("cmd 2\n");
 
 	seteuid("Root");
 	euid = geteuid(thisob);
@@ -274,23 +296,22 @@ write("cmd 2\n");
 	if (!s)
 		return 0;
 
-write("cmd 3 "+s+"\n");
+  // TODO: remove log
+  write("Executing cmd '"+s+"'\n");
 		
   // Check their position now...
   // if(!interactive(thisob) && cmd_dirs[last_dir][0] != LIVING_CMD)
   if (!interactive(thisob))
    return 0;
 
-write("cmd 4\n");
-
   switch(cmd_dirs[last_dir][0])
   {
-    case ADMINISTRATOR_CMD:
-      if(!thisob->query_administrator())
+    case ADMIN_CMD:
+      if(!thisob->query_admin())
         return 0;
       break;
-    case COORDINATOR_CMD:
-      if(!thisob->query_coordinator())
+    case MANAGER_CMD:
+      if(!thisob->query_manager())
         return 0;
       break;
     case CODER_CMD:

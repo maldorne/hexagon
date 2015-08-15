@@ -67,13 +67,13 @@ int _cmd(string tail, object thisob, string verb)
   // Will check who is using command and if allowed here sort of :)
   switch(position)
   {
-    case ADMINISTRATOR_CMD:
-      if(!thisob->query_administrator() && !thisob->query_highlord(euid))
+    case ADMIN_CMD:
+      if(!thisob->query_admin() && !thisob->query_highlord(euid))
         return 0;
       break;
 
-    case COORDINATOR_CMD:
-      if(!thisob->query_coordinator())
+    case MANAGER_CMD:
+      if(!thisob->query_manager())
         return 0;
       break;
 
