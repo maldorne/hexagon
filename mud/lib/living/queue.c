@@ -711,6 +711,14 @@ nomask int action_check(string str)
       case "init":
         this_object()->init();
         return 1;
+
+      case "name":
+        print_object(this_object()->query_name());
+        return 1;
+
+      case "aq":
+        print_object(actionq);
+        return 1;
     }
 
     if ( query_heart_beat(this_object()) == 0 )
