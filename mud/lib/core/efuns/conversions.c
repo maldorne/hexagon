@@ -7,7 +7,8 @@ string to_string(varargs mixed ob, int offset, string pre)
   int i;
   string ret;
 
-  if (!ob)
+  // no parameter passed
+  if (ob == nil)
     ob = this_object();
 
   ret = "";
@@ -97,39 +98,30 @@ string to_string(varargs mixed ob, int offset, string pre)
   return ret; // "oh dear";
 }
 
-string print_object(mixed ob) 
+static string print_object(mixed ob)
 {
   write(to_string(ob));
 
   if (intp(ob)) 
-  {
     return "int";
-  }
-  else if (stringp(ob)) 
-  {
-    return "string";
-  }
-  else if (objectp(ob)) 
-  {
-    if (userp(ob)) 
-    {
-      return "user object";
-    }    
 
+  else if (stringp(ob)) 
+    return "string";
+
+  else if (userp(ob)) 
+    return "user object";
+
+  else if (objectp(ob)) 
     return "object";
-  }
+
   else if (mappingp(ob))
-  {
     return "mapping";
-  }
+
   else if (arrayp(ob)) 
-  {
     return "array";
-  }
+
   else if (undefinedp(ob))
-  {
     return "nil";
-  }
 
   return "oh dear";
 }
