@@ -38,6 +38,20 @@ static nomask string geteuid( varargs object ob )
   return euid;
 }
 
+
+// getuid - return the user id (uid) of an object
+// string getuid( object ob );
+// Returns the user id of an object.  The uid of an object is determined at
+// object creation by the creator_file() function.
+
+// TODO getuid
+
+static nomask string getuid( varargs object ob )
+{
+  return euid;
+}
+
+
 static nomask string get_root_uid() { return ROOT; }
 static nomask string get_bb_uid() { return BACKBONE; }
 
