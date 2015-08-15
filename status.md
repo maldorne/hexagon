@@ -6,7 +6,7 @@ Be aware: most of the functions
 listed here are already implemented and working, but as I've just started working in this 
 document recently, I'll update every entry as I test each function.
 
-##Types
+##Basic Types
 
 Common calls and operations over the basic types.
 
@@ -26,17 +26,25 @@ Common calls and operations over the basic types.
 | `classp`                |  | - | nonexistant in dgd |
 | `mapp`                  |  | :white_check_mark: | alias for `mappingp` |
 | `userp`                 |  | :white_check_mark: |  |
-| `sizeof`                |  |  |  |
+| **strings**             |  |  |  |
 | `capitalize`            |  |  |  |
+| `lower_case`            |  |  |  |
+| `replace_string`        |  | :white_check_mark: |  |
+| `strsrch`               |  |  |  |
+| `printf`                |  |  |  |
+| `sprintf`               |  | :white_check_mark: | sprintf package by Haijo Schipper (GPL license) included as a [Gurbalib contrib package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) |
+| `strcmp`                |  |  |  |
+| **arrays**              |  |  |  |
+| `sizeof`                |  | :white_check_mark: | provided by dgd |
 | `explode`               |  |  |  |
 | `implode`               |  |  |  |
 | `allocate`              |  |  |  |
 | `member_array`          |  |  |  |
 | `sort_array`            |  |  |  |
 | `unique_array`          |  |  |  |
-| `lower_case`            |  |  |  |
-| `replace_string`        |  |  |  |
-| `strsrch`               |  |  |  |
+| `filter`                |  |  |  |
+| `filter_array`          |  |  |  |
+| **mappings**            |  |  |  |
 | `values`                |  |  |  |
 | `keys`                  |  |  |  |
 | `map_delete`            |  |  |  |
@@ -44,16 +52,10 @@ Common calls and operations over the basic types.
 | `m_values`              |  |  |  |
 | `m_indices`             |  |  |  |
 | `unique_mapping`        |  |  |  |
-| `printf`                |  |  |  |
-| `sprintf`               |  |  |  |
-| `strcmp`                |  |  |  |
-| `filter`                |  |  |  |
-| `filter_array`          |  |  |  |
-| `filter_mapping`        |  |  |  |
 | `map`                   |  |  |  |
 | `map_mapping`           |  |  |  |
 | `map_array`             |  |  |  |
-
+| `filter_mapping`        |  |  |  |
 
 ##Basic calls and interactions between objects
 
@@ -72,6 +74,13 @@ do not have an open source license.
 | `all_previous_objects`  |  | :white_check_mark: | alias for `previous_objects` |
 | `evaluate`              |  | :white_check_mark: |  |
 
+##Time & Date
+
+| Function | Description | Status | Comments |
+| -------- | ----------- | :------: | -------- |
+| `time`                  |  | :white_check_mark: | provided by dgd |
+| `ctime`                 |  | :white_check_mark: | provided by dgd, masked as efun to translate and add functionality |
+| `localtime`             |  | :white_check_mark: | done using the sprintf time functions, would be reimplemented |
 
 | Function | Description | Status | Comments |
 | -------- | ----------- | :------: | -------- |
@@ -143,9 +152,7 @@ do not have an open source license.
 | `next_bit`              |  |  |  |
 | `crypt`                 |  |  |  |
 | `oldcrypt`              |  |  |  |
-| `ctime`                 |  |  |  |
 | `exec`                  |  |  |  |
-| `localtime`             |  |  |  |
 | `function_exists`       |  |  |  |
 | `objects`               |  |  |  |
 | `query_host_name`       |  |  |  |
@@ -162,7 +169,6 @@ do not have an open source license.
 | `shadow`                |  |  |  |
 | `query_shadowing`       |  |  |  |
 | `throw`                 |  |  |  |
-| `time`                  |  |  |  |
 | `deep_inherit_list`     |  |  |  |
 | `shallow_inherit_list`  |  |  |  |
 | `stat`                  |  |  |  |
