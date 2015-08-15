@@ -32,7 +32,7 @@ Common calls and operations over the basic types.
 | `replace_string`        |  | :white_check_mark: |  |
 | `strsrch`               |  |  |  |
 | `printf`                |  |  |  |
-| `sprintf`               |  | :white_check_mark: | sprintf package by Haijo Schipper (GPL license) included as a [Gurbalib contrib package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) |
+| `sprintf`               |  | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license) |
 | `strcmp`                |  |  |  |
 | **arrays**              |  |  |  |
 | `sizeof`                |  | :white_check_mark: | provided by dgd |
