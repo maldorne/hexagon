@@ -1,4 +1,4 @@
-#Current status of the project
+#Current status: MudOS compatibility
 
 List of MudOS `efun` functions and their implementation in `ccmudlib`. 
 
