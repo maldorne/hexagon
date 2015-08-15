@@ -1,7 +1,7 @@
 
 // tmp prototype so we could debug from everywhere, for debugging
-string to_string(varargs mixed ob, int offset, string pre) ;
-string print_object(mixed ob);
+static string to_string(mixed ob, varargs int offset, string pre);
+static string print_object(mixed ob);
 static nomask void write(string str);
 static nomask void stderr(string str);
 
