@@ -6,15 +6,15 @@
 
 - [x] Include the **AuroraMud command (cmds) system**
 
-    Done. This will help test and debug everything as new commands are ported.
+    **Done**. This will help test and debug everything as new commands are ported.
 
 - [x] **Test and document** the current status of the project
 
     Being done, as you can see both in this document and in the [MudOS compatibility status document](status_compat.md).
 
-- [ ] **heart_beats**
+- [x] **heart_beats** management
 
-    Idea (*improvement from MudOS*): have different priority lists for different `hbs`: every second, every two seconds (default), every five seconds, etc.
+    **Done**. Idea (*improvement from MudOS*): have different priority lists for different `hbs`: every second, every two seconds (default), every five seconds, etc.
 
 - [ ] **Rooms and movement**
 
