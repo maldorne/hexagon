@@ -245,6 +245,11 @@ static void receive_message(string str)
 
 void heart_beat()
 {
+  // do not forget!!
+  ::heart_beat();
+
+  write("test\n");
+
   // send_message("hb: " + object_name(this_object()) + "\n");
 }
 

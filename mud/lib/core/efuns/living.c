@@ -2,7 +2,7 @@
 // Non-dgd stuff
 // neverbot, 12/2014
 
-static int _living;
+private static int _living;
 
 nomask int query_living() { return _living; }
 

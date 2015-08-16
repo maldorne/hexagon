@@ -6,12 +6,11 @@
 
 nomask mixed __call_other(string func, varargs mixed args...) 
 {
-  if (mudlib_privileges()) 
-  {
-    return ::call_other(this_object(), func, args...);
-  }
-  else
+  if (!mudlib_privileges()) 
   {
     stderr("Illegal __call_other on <" + object_name(this_object()) + ">, func: " + func + " \n");
+    return nil;
   }
+
+  return ::call_other(this_object(), func, args...);
 }

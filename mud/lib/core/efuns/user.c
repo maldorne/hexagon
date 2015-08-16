@@ -65,8 +65,6 @@ static string query_verb()
 
 
 
-
-
 // void notify_fail(mixed str) 
 // {
 //   if(!this_player())

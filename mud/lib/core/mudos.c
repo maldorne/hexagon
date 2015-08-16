@@ -7,8 +7,14 @@
 
 #include <mud/mudos.h>
 
+inherit hb "/lib/core/heart_beats";
 
 private static object initiator_player, initiator_object;
+
+void create()
+{
+  hb::create();
+}
 
 int set_initiator_object(object ob) 
 {

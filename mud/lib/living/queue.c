@@ -317,7 +317,7 @@ private int aq_insert( mixed val )
   /* Hack so monster's HB's are started if they do something.
    */
   if ( !(this_object()->query_player())
-    && !query_heart_beat(this_object()) )
+    && !query_heart_beat() )
     set_heart_beat(1);
 
   return AQ_OK;
@@ -339,7 +339,7 @@ private int aq_add( mixed val )
 
   // Hack so monster's HB's are started if they do something.
   if ( !(this_object()->query_player())
-    && !query_heart_beat(this_object()) )
+    && !query_heart_beat() )
     set_heart_beat(1);
 
   return AQ_OK;
@@ -642,7 +642,7 @@ nomask int action_check(string str)
     {
       case "restart":
       case "reiniciar":
-        if ( query_heart_beat(this_object()) )
+        if ( query_heart_beat() )
           tell_object(this_object(),
             // "No necesitas que tu heartbeat sea reseteado.\n");
             "No necesitas reiniciar tu personaje en estos momentos.\n");
@@ -721,7 +721,7 @@ nomask int action_check(string str)
         return 1;
     }
 
-    if ( query_heart_beat(this_object()) == 0 )
+    if ( query_heart_beat() == 0 )
     {
       // tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"
       //   "No tienes heartbeat; prueba '%^BOLD%^reiniciar%^RESET%^' para intentar "

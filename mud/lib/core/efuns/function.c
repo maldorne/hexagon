@@ -7,7 +7,7 @@ static nomask object * previous_objects(varargs int step)
   object result;
   int arg;
 
-  if (!step)
+  if (nullp(step))
     arg = 0;
   else
     arg = step;
@@ -27,7 +27,7 @@ static nomask object * all_previous_objects()
 
 static nomask object previous_object(varargs int number)
 {
-  if (!number)
+  if (nullp(number))
     return ::previous_object();
   else if (number != -1)
     return ::previous_object(number);
@@ -37,7 +37,7 @@ static nomask object previous_object(varargs int number)
   }
 }
 
-nomask string previous_function() 
+static nomask string previous_function() 
 {
   mixed * trace;
 
@@ -45,11 +45,11 @@ nomask string previous_function()
 
   // last element = this function
   // second to last element = the function that requested previous_function()
-  // third to last element is the function before that: that's the one we want.    
+  // third to last element is the function before that: that's the one we want   
   if (sizeof(trace) < 3) 
     return nil;
   
-  // second element is the function name. 
+  // second element is the function name
   return trace[sizeof(trace) - 3][2];
 }
 

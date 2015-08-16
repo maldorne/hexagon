@@ -32,6 +32,7 @@ static object user_h;
 static object error_h;
 static object object_h;
 
+static object mudos;
 
 // Function prototypes
 static nomask void log_driver(string str);
@@ -48,9 +49,11 @@ static nomask void initialize()
   log_driver("Initializing...\n");
 
   load_object(AUTO);
-  load_object(MUDOS);
 
   call_other(error_h  = load_object(ERROR_HANDLER), "???"); // obviously, must be the first
+  
+  // global object in charge of heart_beats, init calls, etc
+  call_other(mudos    = load_object(MUDOS_PATH), "???");
   call_other(user_h   = load_object(USER_HANDLER), "???");
   call_other(object_h = load_object(OBJECT_HANDLER), "???");
 
@@ -66,6 +69,12 @@ nomask void _stderr(string str)
     return;
 
   send_message(str);
+}
+
+// return the mudos global object
+nomask object mudos()
+{
+  return mudos;
 }
 
 static nomask void log_driver(string str)

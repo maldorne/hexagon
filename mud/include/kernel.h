@@ -2,7 +2,9 @@
 #define DRIVER "/lib/core/driver"
 #define AUTO   "/lib/core/auto"
 #define SECURE "/lib/core/secure"
-#define MUDOS  "/lib/core/mudos"
+
+#define MUDOS_PATH  "/lib/core/mudos"
+#define MUDOS find_object(DRIVER)->mudos()
 
 // Longer logs in the driver stderr
 #define DRIVER_LONG_LOGS

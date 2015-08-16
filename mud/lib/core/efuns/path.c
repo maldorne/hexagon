@@ -20,10 +20,10 @@ static nomask string resolve_path(string path)
     
     if (dirs[i][0]=='~') 
     {
-      if (!this_user())
+      if (!this_player())
         dirs[i] = "/home/admin";
       else if (strlen(dirs[i])==1) 
-        dirs[i] = "/home/"+this_user()->query_name();
+        dirs[i] = "/home/"+this_player()->query_name();
       else 
         dirs[i] = "/home/"+dirs[i][1..];
     }

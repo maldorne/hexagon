@@ -13,7 +13,7 @@ static nomask void write(string str)
 {
   object user;
 
-  if (str == nil)
+  if (nullp(str))
     return;
 
   // TODO write this is temporal
@@ -21,7 +21,8 @@ static nomask void write(string str)
   // find_object(DRIVER)->_stderr(str);  
   // return;
 
-  user = this_user();
+  // user = this_user();
+  user = this_player();
 
   if (!user)
     return;

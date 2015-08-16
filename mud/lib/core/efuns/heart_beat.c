@@ -1,11 +1,4 @@
 
-// number of seconds between calls to the heart_beat function
-// do not touch this
-
-#define HEART_BEAT_PERIOD 2
-
-private static int hb_handle;
-
 // Passing 'flag' as 0 disables the object's heart beat.  Passing a 'flag' of
 // 1 will cause heart_beat() to be called in the object once each heart beat
 // (a variable number defined by your local administrator, usually 2 seconds).
@@ -13,45 +6,29 @@ private static int hb_handle;
 // in between calls to heart_beat(), however your local administrator may have
 // the system configured to treat any 'flag' above 1 as 1.
 
-#include <status.h>
+private static int _hb_status;
 
-static nomask void set_heart_beat(int flag) 
+nomask void set_heart_beat(int flag) 
 {
+  stderr("set_heart_beat " + flag + " in " + object_name(this_object()) + "\n");
+
   if (flag == 0)
   {
-    remove_call_out(hb_handle);
-    hb_handle = 0;
+    _hb_status = 0;
+    MUDOS->remove_hb_object(this_object());
     return;
   }
 
-  hb_handle = call_out("perform_heart_beat", HEART_BEAT_PERIOD);
+  _hb_status = 1;
+  MUDOS->add_hb_object(this_object());
 }
 
-nomask void perform_heart_beat() 
+nomask int query_heart_beat()
 {
-  string error;
-
-  if (previous_object() && previous_object() != this_object()) 
-    return;
-
-  error = catch(this_object()->heart_beat());
-  
-  if (error) 
-  {
-    set_heart_beat(0);
-    return;
-  }
-
-  hb_handle = call_out("perform_heart_beat", HEART_BEAT_PERIOD);
+  return _hb_status;
 }
 
-static nomask int query_heart_beat(varargs object ob)
+void heart_beat()
 {
-  if (ob && (ob != this_object()))
-    return ob->query_heart_beat();
-
-  if (hb_handle != 0)
-    return 1;
-
-  return 0;
+  stderr("heart_beat in " + object_name(this_object()) + "\n");
 }
