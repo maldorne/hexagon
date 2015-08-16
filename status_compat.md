@@ -30,10 +30,11 @@ Common calls and operations over the basic types.
 | `capitalize`            |  |  |  |
 | `lower_case`            |  |  |  |
 | `replace_string`        |  | :white_check_mark: |  |
-| `strsrch`               |  |  |  |
 | `printf`                |  |  |  |
 | `sprintf`               |  | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license) |
+| `strlen`                |  | :white_check_mark: | provided by dgd |
 | `strcmp`                |  |  |  |
+| `strsrch`               |  |  |  |
 | **arrays**              |  |  |  |
 | `sizeof`                |  | :white_check_mark: | provided by dgd |
 | `explode`               |  |  |  |
@@ -83,6 +84,8 @@ do not have an open source license.
 | `disable_commands`      |  |  |  |
 | `enable_commands`       |  |  |  |
 | `interactive`           |  |  |  |
+| `set_heart_beat`        |  | :white_check_mark: |  |
+| `query_heart_beat`      |  | :white_check_mark: |  |
 
 ##Time & Date
 
@@ -106,45 +109,14 @@ do not have an open source license.
 | `move`                  |  | :white_check_mark: |  |
 | `move_object`           |  | :white_check_mark: | alias for `move` |
 
-
+##Files and paths
 | Function | Description | Status | Comments |
 | -------- | ----------- | :------: | -------- |
-| `bind`                  |  |  |  |
-| `call_stack`            |  |  |  |
-| `destruct`              |  |  |  |
-| `file_name`             |  |  |  |
-| `call_out`              |  |  |  |
-| `input_to`              |  |  |  |
-| `random`                |  |  |  |
-| `say`                   |  |  |  |
-| `tell_room`             |  |  |  |
-| `living`                |  |  |  |
-| `set_living_name`       |  |  |  |
-| `livings`               |  |  |  |
-| `find_living`           |  |  |  |
-| `find_player`           |  |  |  |
-| `notify_fail`           |  |  |  |
+| `file_name`             |  | :white_check_mark: | alias for `object_name` |
 | `restore_object`        |  |  |  |
 | `save_object`           |  |  |  |
-| `save_variable`         |  |  |  |
-| `restore_variable`      |  |  |  |
-| `users`                 |  |  |  |
 | `get_dir`               |  |  |  |
-| `write`                 |  |  |  |
-| `tell_object`           |  |  |  |
-| `shout`                 |  |  |  |
-| `receive`               |  |  |  |
-| `message`               |  |  |  |
-| `find_object`           |  |  |  |
-| `load_object`           |  |  |  |
-| `find_call_out`         |  |  |  |
 | `match_path`            |  |  |  |
-| `inherits`              |  |  |  |
-| `replace_program`       |  |  |  |
-| `regexp`                |  |  |  |
-| `reg_assoc`             |  |  |  |
-| `call_out_info`         |  |  |  |
-| `crc32`                 |  |  |  |
 | `write_file`            |  |  |  |
 | `rename`                |  |  |  |
 | `write_bytes`           |  |  |  |
@@ -156,6 +128,41 @@ do not have an open source license.
 | `mkdir`                 |  |  |  |
 | `rm`                    |  |  |  |
 | `rmdir`                 |  |  |  |
+
+
+| Function | Description | Status | Comments |
+| -------- | ----------- | :------: | -------- |
+| `bind`                  |  |  |  |
+| `destruct`              |  |  |  |
+| `input_to`              |  |  |  |
+| `random`                |  |  |  |
+| `say`                   |  |  |  |
+| `tell_room`             |  |  |  |
+| `living`                |  | :white_check_mark: |  |
+| `set_living_name`       |  |  |  |
+| `livings`               |  |  |  |
+| `find_living`           |  |  |  |
+| `find_player`           |  |  |  |
+| `notify_fail`           |  |  |  |
+| `save_variable`         |  |  |  |
+| `restore_variable`      |  |  |  |
+| `users`                 |  |  |  |
+| `write`                 |  |  |  |
+| `tell_object`           |  |  |  |
+| `shout`                 |  |  |  |
+| `receive`               |  |  |  |
+| `message`               |  |  |  |
+| `find_object`           |  |  |  |
+| `load_object`           |  |  |  |
+| `call_stack`            |  |  |  |
+| `call_out`              |  |  |  |
+| `find_call_out`         |  |  |  |
+| `call_out_info`         |  |  |  |
+| `inherits`              |  |  |  |
+| `replace_program`       |  |  |  |
+| `regexp`                |  |  |  |
+| `reg_assoc`             |  |  |  |
+| `crc32`                 |  |  |  |
 | `clear_bit`             |  |  |  |
 | `test_bit`              |  |  |  |
 | `set_bit`               |  |  |  |
@@ -173,8 +180,6 @@ do not have an open source license.
 | `query_snoop`           |  |  |  |
 | `query_snooping`        |  |  |  |
 | `remove_call_out`       |  |  |  |
-| `set_heart_beat`        |  |  |  |
-| `query_heart_beat`      |  |  |  |
 | `set_hide`              |  |  |  |
 | `shadow`                |  |  |  |
 | `query_shadowing`       |  |  |  |
