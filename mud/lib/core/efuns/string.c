@@ -4,6 +4,12 @@
 
 #include "sprintf/sprintf.c"
 
+// patch
+static string printf (string format, mixed args...) 
+{
+  return sprintf(format, args);
+}
+
 
 // To simulate the member_array(character, string)
 int at(int character, string str)

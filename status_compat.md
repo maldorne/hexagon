@@ -30,7 +30,7 @@ Common calls and operations over the basic types.
 | `capitalize`            |  |  |  |
 | `lower_case`            |  |  |  |
 | `replace_string`        |  | :white_check_mark: |  |
-| `printf`                |  |  |  |
+| `printf`                |  | :white_check_mark: | alias for `sprintf` |
 | `sprintf`               |  | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license) |
 | `strlen`                |  | :white_check_mark: | provided by dgd |
 | `strcmp`                |  |  |  |
@@ -120,7 +120,7 @@ do not have an open source license.
 | `write_file`            |  |  |  |
 | `rename`                |  |  |  |
 | `write_bytes`           |  |  |  |
-| `file_size`             |  |  |  |
+| `file_size`             |  | :white_check_mark: | Mikael Lind code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
 | `read_bytes`            |  |  |  |
 | `read_file`             |  |  |  |
 | `cp`                    |  |  |  |
