@@ -120,7 +120,7 @@ do not have an open source license.
 | `write_file`            |  |  |  |
 | `rename`                |  |  |  |
 | `write_bytes`           |  |  |  |
-| `file_size`             |  | :white_check_mark: | Mikael Lind code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
+| `file_size`             |  | :white_check_mark: | Mikael Lind's example code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
 | `read_bytes`            |  |  |  |
 | `read_file`             |  |  |  |
 | `cp`                    |  |  |  |
