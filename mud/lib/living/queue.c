@@ -605,6 +605,14 @@ void act()
   }
 } /* act() */
 
+void heart_beat()
+{
+  // do not forget!!
+  ::heart_beat();
+
+  act();
+}
+
 /*
  * The great command enqueuer.  Fwheee.
  * If this_object has no heartbeat, it won't do anything.  Actions
@@ -739,7 +747,7 @@ nomask int action_check(string str)
       return 1;
     }
 
-    if(this_object()->action_blocked())
+    if ( this_object()->action_blocked() )
     {
       // Wonderflug, Dec 95, making this more flexible --
       // * can specify the string that the block puts out.

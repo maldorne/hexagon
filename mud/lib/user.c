@@ -248,7 +248,7 @@ void heart_beat()
   // do not forget!!
   ::heart_beat();
 
-  write("test\n");
+  write("hb: " + object_name(this_object()) + "\n");
 
   // send_message("hb: " + object_name(this_object()) + "\n");
 }
