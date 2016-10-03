@@ -189,57 +189,6 @@ static void receive_message(string str)
     MUDOS->set_initiator_object(nil);
 
   } // rlimits
-
-
-
-  //   if (!str || strlen(str) == 0) 
-  //   {
-  //     show_prompt();
-  //     return;
-  //   }
-
-  //   pieces = explode(str, " ");
-  //   current_verb = pieces[0];
-
-  //   if (sizeof(pieces) > 1)
-  //     params = implode(pieces[1..], " ");
-  //   else
-  //     params = "";
-
-  //   // write("Has introducido el comando: " + current_verb + "\n");
-
-  //   switch(current_verb)
-  //   {
-  //     case "quit":
-  //     case "salir":
-  //       login::quit();
-  //       return;
-
-  //     case "users":
-  //     case "who":
-  //       tmp::cmd_who(params);
-  //       break;
-
-  //     case "compile":
-  //     case "update":
-  //     case "up":
-  //       tmp::cmd_compile(params);
-  //       break;
-
-  //     case "test":
-  //       tmp::cmd_test(params);
-  //       break;
-
-  //     default:
-  //       write("¿Perdón?\n");
-  //       break;
-  //   }
-
-  //   if (!redirect_input_ob) 
-  //     show_prompt();
-    
-  //   return;
-  // }
 }
 
 
@@ -255,6 +204,12 @@ void heart_beat()
 
 int query_player() { return 1; }
 int query_user() { return 1; }
+
+// TMP DEBUG, REMOVE!!!
+int query_coder() { return 1; }
+string query_name() { return "neverbot"; }
+
+
 
 // static int echo;     is input echoing turned on 
 // static int editing;   /* are we editing? */

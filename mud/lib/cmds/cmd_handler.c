@@ -298,7 +298,7 @@ int cmd(string verb, string tail, object thisob)
 
   // TODO: remove log
   write("Executing cmd '"+s+"'\n");
-		
+
   // Check their position now...
   // if(!interactive(thisob) && cmd_dirs[last_dir][0] != LIVING_CMD)
   if (!interactive(thisob))
@@ -329,10 +329,10 @@ int cmd(string verb, string tail, object thisob)
   // Baldrick, 1998-12-05
   // if(!(ob = find_object(s)))
   // {
-  //        catch(s->FORCE_LOAD());
-  //        ob = find_object(s);
+  //   catch(s->FORCE_LOAD());
+  //   ob = find_object(s);
   // }
-  
+ 
   // This looks silly but catch is reversed.
   if (catch(ob = load_object(s)))
   {
@@ -340,7 +340,7 @@ int cmd(string verb, string tail, object thisob)
     return 0;
   }
 
-  if(ob->_query_doclone())
+  if (ob->_query_doclone())
     ob = clone_object(s);
 
   seteuid("CMD");
@@ -348,8 +348,8 @@ int cmd(string verb, string tail, object thisob)
   ret = (int)ob->_cmd(tail, thisob, orig_verb);
   current_verb = "";
 
-  if(ob->_query_dodest() || ob->_query_doclone())
-         ob->dest_me();
+  if (ob->_query_dodest() || ob->_query_doclone())
+    ob->dest_me();
 
   return ret;
 }
