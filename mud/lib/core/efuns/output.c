@@ -9,6 +9,11 @@ static nomask void stderr(string str)
   return;  
 }
 
+// write() - send a message to current player
+// void write( mixed str );
+// Write a message `str' to current player. `str' can also be a number, which
+// will be translated to a string.
+
 static nomask void write(string str) 
 {
   object user;
@@ -16,13 +21,10 @@ static nomask void write(string str)
   if (nullp(str))
     return;
 
-  // TODO write this is temporal
-  // find_object(DRIVER)->_stderr("[from "+previous_program()+"] " + str);
-  // find_object(DRIVER)->_stderr(str);  
-  // return;
+  user = this_user();
 
-  // user = this_user();
-  user = this_player();
+  if (!user)
+    user = this_player();
 
   if (!user)
     return;
@@ -30,20 +32,20 @@ static nomask void write(string str)
   user->send_message(str);
 }
 
-static nomask void say(string str, varargs mixed avoid) 
-{
-  if (!pointerp(avoid))
-    avoid = ({ this_player(), previous_object() }) + ({ avoid });
-  else
-    avoid += ({ this_player(), previous_object() });
-  if (!environment(previous_object()))
-    if (this_player() && environment(this_player()))
-      event(environment(this_player()), "say", str, avoid);
-    else
-      event(previous_object(), "say", str, avoid);
-  else
-    event(environment(previous_object()), "say", str, avoid);
-} 
+// static nomask void say(string str, varargs mixed avoid) 
+// {
+//   if (!pointerp(avoid))
+//     avoid = ({ this_player(), previous_object() }) + ({ avoid });
+//   else
+//     avoid += ({ this_player(), previous_object() });
+//   if (!environment(previous_object()))
+//     if (this_player() && environment(this_player()))
+//       event(environment(this_player()), "say", str, avoid);
+//     else
+//       event(previous_object(), "say", str, avoid);
+//   else
+//     event(environment(previous_object()), "say", str, avoid);
+// } 
 
 static nomask void shout(string str, varargs object avoid) 
 {

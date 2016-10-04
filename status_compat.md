@@ -139,6 +139,15 @@ do not have an open source license.
 | `rm`                    |  |  |  |
 | `rmdir`                 |  |  |  |
 
+##Interactions with users
+| Function | Description | Status | Comments |
+| -------- | ----------- | :------: | -------- |
+| `write`                 |  | :white_check_mark: |  |
+| `tell_object`           |  |  |  |
+| `shout`                 |  |  |  |
+| `receive`               |  |  |  |
+| `message`               |  |  |  |
+
 
 | Function | Description | Status | Comments |
 | -------- | ----------- | :------: | -------- |
@@ -156,11 +165,6 @@ do not have an open source license.
 | `save_variable`         |  |  |  |
 | `restore_variable`      |  |  |  |
 | `users`                 |  |  |  |
-| `write`                 |  |  |  |
-| `tell_object`           |  |  |  |
-| `shout`                 |  |  |  |
-| `receive`               |  |  |  |
-| `message`               |  |  |  |
 | `call_stack`            |  |  |  |
 | `call_out`              |  |  |  |
 | `find_call_out`         |  |  |  |
