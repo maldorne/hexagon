@@ -20,9 +20,7 @@ static nomask int file_size(string path)
     string *comps, base;
 
     if (path == "/")
-    {
       return -2;
-    }
 
     comps = explode(path, "/");
     base = comps[sizeof(comps) - 1];
@@ -36,6 +34,7 @@ static nomask int file_size(string path)
         return dir[1][i];
       }
     }
+    
     return -1;
 }
 

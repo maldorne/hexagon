@@ -34,38 +34,38 @@ void create()
  */
 void write_prompt()
 {
-    /*
-    int i;
+  /*
+  int i;
 
-    // Added by baldrick, new ed.
-    if ( ( i = query_ed_mode() ) != -1)
-    { 
-        switch (i)
-        {
-            case -2:
-                write ("more:");
-                return;
-            case 0:
-                write ("ed:");
-                return;
-            default:
-                write (i + ":");
-                return;
-        }
-    } 
-    */
-
-    switch( this_object()->query_busy() )
+  // Added by baldrick, new ed.
+  if ( ( i = query_ed_mode() ) != -1)
+  { 
+    switch (i)
     {
-        case NON_INTERRUPTABLE_BUSY:
-            write("] ");
-            break;
-        case INTERRUPTABLE_BUSY:
-            write("} ");
-            break;
-        case NOT_BUSY:
-            write("> ");
+      case -2:
+        write ("more:");
+        return;
+      case 0:
+        write ("ed:");
+        return;
+      default:
+        write (i + ":");
+        return;
     }
+  } 
+  */
+
+  switch( this_object()->query_busy() )
+  {
+    case NON_INTERRUPTABLE_BUSY:
+      write("] ");
+      break;
+    case INTERRUPTABLE_BUSY:
+      write("} ");
+      break;
+    case NOT_BUSY:
+      write("> ");
+  }
 }
 
 /*

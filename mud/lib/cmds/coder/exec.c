@@ -53,6 +53,7 @@ private int check_file()
 
 private int check_code(string str)
 {
+  /*
   string file_target;
   // int auxvar = 0;
   object ob;
@@ -121,6 +122,8 @@ private int check_code(string str)
       }
     }        
   }  
+  */
+
   return 1;
 }
 
@@ -163,8 +166,12 @@ static int cmd(string str, object me, string verb)
     if (!check_code(str))
       return 1;
         
-  if (show) 
+  if (show)
+  {
+    write("--------------------------------------------------\n\n");
     write(before() + str + after());
+    write("\n--------------------------------------------------\n\n");
+  }
   
   file = CODER_FILE;
   
@@ -181,8 +188,7 @@ static int cmd(string str, object me, string verb)
   if (error) 
     write(sprintf("\nHa ocurrido un error: %s\n", error));
   else
-    // write(sprintf("\nResultado: %O\n", ret));
-    write(to_string(ret));
+    write("Resultado:\n\n" + to_string(ret) + "\n");
   
   if ((ob = find_object(file))) 
     destruct(ob);  
@@ -235,9 +241,6 @@ private void usage()
   write("        a <arg>: pasa como argumento 'arg' al llamar a main()\n");
   write("                 (debe ser el último flag)\n");
   write("\nSe pueden utilizar las siguientes macros: \n"+defines()+"\n");
-  // write("These variables are set for you: \n"+vars()+"\n");
-  // No veo utilidad en esto
-  // write("Además, si \"ABORT\" se encuentra en la línea, exec será abortado.\n");
   write("Ej: exec object *a=users(); for(int i=0;i<sizeof(a);i++) tell_object(a[i], \"Prueba\");\n");
 }
 
@@ -262,7 +265,7 @@ private string before()
   return defines() + 
          "\nvoid create() { seteuid(geteuid(this_player())); }\n" +
          "void dest_me() { destruct(this_object()); }\n\n" +
-         "\nmixed main(mixed arg)\n{\n" + vars() +
+         "\nmixed main(mixed arg)\n{\n" + // vars() +
          "  /* ONE LINE: */\n\n  ";
 }
 
