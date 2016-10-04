@@ -98,7 +98,7 @@ private int check_code(string str)
     {
       if (!ob->query_coder())
       {
-        tell_object(this_player(), "No esta permitido hacer execs sobre jugadores.\n");
+        tell_object(this_player(), "No esta permitido hacer execs sobre usuarios.\n");
         return 0;
       }
     }
@@ -109,10 +109,13 @@ private int check_code(string str)
         tell_object(this_player(), "Exec sobre el archivo: '"+file_target+"' (no existe)\n");          
         return 0;
       }
+
       tell_object(this_player(), "Exec sobre el archivo: '"+file_target+"'\n");          
-      if((int)"/secure/master.c"->valid_read(file_target,this_player())==0)
+      
+      if (!valid_read(file_target, this_player()))
       {
-        log_file("exec_ilegal",ctime(time(),4) + " " + (string)this_player()->query_cap_name()+ " ilegal exec: "+str+"\n");
+        log_file("illegal_exec", ctime(time(), 4) + " " + (string)this_player()->query_cap_name() + 
+                                 " illegal exec: "+str+"\n");
         tell_object(this_player(), "Tu intento de hacer un exec ilegal ha sido grabado.\n");
         return 0;
       }

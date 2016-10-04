@@ -10,7 +10,7 @@
  *                  NOTE, the absence of a leading slash in the name.
  * Returns:         True if exec() is allowed.
  */
-int valid_exec(string name) 
+static int valid_exec(string name) 
 {
   if (name == "/lib/core/login.c")
     return 1;
@@ -18,24 +18,24 @@ int valid_exec(string name)
   return -1;
 } 
 
-int valid_load(string path, mixed euid, string func) { return 1; }
+static int valid_load(string path, mixed euid, string func) { return 1; }
 
-int valid_hide(object ob) 
+static int valid_hide(object ob) 
 {
   return load_object(SECURE)->load_object(SECURE)->is_administrator(geteuid(ob));
 }
 
-int valid_ident(string euid) 
+static int valid_ident(string euid) 
 {
   return load_object(SECURE)->is_administrator(euid);
 } 
 
-int valid_link(string from, string to) 
+static int valid_link(string from, string to) 
 {
   return -1;
 }
 
-int valid_override(string file, string func) 
+static int valid_override(string file, string func) 
 {
   string *bing;
 
@@ -61,7 +61,7 @@ int valid_override(string file, string func)
 // This IS fun.
 // But seems to be buggy, fix nov '95, Baldrick.
 
-int valid_read(string path, mixed euid, string func) 
+static int valid_read(string path, mixed euid, varargs string func) 
 {
   string *bing;
   mixed master;
@@ -203,7 +203,7 @@ int valid_read(string path, mixed euid, string func)
 
 
 /* this stuff added by asmodean, stolen from sojan, who stole it from chrisy */
-int valid_save_binary(string file)
+static int valid_save_binary(string file)
 {
   string *path;
  
@@ -245,7 +245,7 @@ int valid_save_binary(string file)
   return 0;
 }
 
-int valid_seteuid(object ob, string euid) 
+static int valid_seteuid(object ob, string euid) 
 {
   string crea;
 
@@ -269,7 +269,7 @@ int valid_seteuid(object ob, string euid)
  * In this example, we allow shadowing as long as the victim object
  * hasn't denied it with a query_prevent_shadow() returning 1.
  */
-int valid_shadow(object ob) 
+static int valid_shadow(object ob) 
 {
   string dummy;
 
@@ -277,7 +277,7 @@ int valid_shadow(object ob)
           !sscanf(file_name(ob), "/secure/%s", dummy));
 }
 
-int valid_socket(object ob, string func, mixed *info) 
+static int valid_socket(object ob, string func, mixed *info) 
 {
   return TRUE;
 }
@@ -297,7 +297,7 @@ int valid_socket(object ob, string func, mixed *info)
 #define PLAYEROBS ({ "/global/player", "/global/coder", \
                      "/global/coordinator", "/global/administrator", })
  
-int valid_write(string path, mixed euid, string func) 
+static int valid_write(string path, mixed euid, string func) 
 {
   string *bing;
   mixed master;
@@ -410,7 +410,7 @@ int valid_write(string path, mixed euid, string func)
 
 // checked for ccmud, neverbot 07/05
 
-int valid_snoop(object snooper, object snoopee, object pobj) 
+static int valid_snoop(object snooper, object snoopee, object pobj) 
 {
   return -1;
   /*

@@ -35,6 +35,11 @@ static nomask string geteuid( varargs object ob )
   // if (ob && objectp(ob))
   //   return ob->geteuid();
   
+  // TODO
+
+  if (objectp(ob))
+    return ob->query_name();
+
   return euid;
 }
 
