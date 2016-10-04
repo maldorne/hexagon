@@ -30,8 +30,8 @@ Common calls and operations over the basic types.
 | `capitalize`            |  |  |  |
 | `lower_case`            |  |  |  |
 | `replace_string`        |  | :white_check_mark: |  |
+| `sprintf`               |  | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license). Used in the form `static string sprintf (string format, mixed args...)` as there are no way to modify strings passed as arguments. |
 | `printf`                |  | :white_check_mark: | alias for `sprintf` |
-| `sprintf`               |  | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license) |
 | `strlen`                |  | :white_check_mark: | provided by dgd |
 | `strcmp`                |  |  |  |
 | `strsrch`               |  |  |  |
