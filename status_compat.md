@@ -65,9 +65,9 @@ Common calls and operations over the basic types.
 
 | Function | Description | Status | Comments |
 | -------- | ----------- | :------: | -------- |
-| `destruct`              |  | :white_check_mark: | alias to `destruct_object`, implemented in the `auto` object to avoid collision with the `destruct` driver function. |
+| `destruct`              |  | :white_check_mark: | alias for `destruct_object` |
 | `find_object`           |  | :white_check_mark: | provided by dgd |
-| `load_object`           |  | :white_check_mark: | extended alias to `compile_object` |
+| `load_object`           |  | :white_check_mark: | extended alias for `compile_object` |
 
 
 ##Basic calls and interactions between objects
