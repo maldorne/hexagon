@@ -4,6 +4,13 @@
 // Non-dgd efuns
 // neverbot, 03/2014
 
+
+// file_size - get the size of a file
+// int file_size( string file );
+// file_size() returns the size of file 'file' in bytes.  Size -1
+// indicates that 'file' either does not exist, or that it is not
+// readable. Size -2 indicates that 'file' is a directory.
+
 // implementation from http://phantasmal.sourceforge.net/DGD/external/file_size.c
 
 static nomask int file_size(string path)
@@ -188,7 +195,6 @@ static nomask mixed author_file(mixed bing)
 {
   return creator_file(bing, 1);
 }
-
 
 static nomask int rename(string from, string to)
 {

@@ -171,7 +171,7 @@ static int cmd(string str, object me, string verb)
   write_file(file, before() + str + after());
   
   if ((ob = find_object(file))) 
-    destruct(ob);  /* update */
+    destruct(ob);  
   
   error = catch(ret = load_object(file)->main(arg));
   
@@ -181,8 +181,8 @@ static int cmd(string str, object me, string verb)
     // write(sprintf("\nResultado: %O\n", ret));
     write(to_string(ret));
   
-  if (find_object(file)) 
-    file->dest_me();
+  if ((ob = find_object(file))) 
+    destruct(ob);  
   
   if (!dont_remove)
     rm(file);

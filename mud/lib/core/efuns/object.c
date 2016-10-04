@@ -51,16 +51,11 @@ static nomask int clone_number(object ob)
   return 0;
 }
 
-// static nomask object find_object(string path)
-// {
-//   return ::find_object(path);
-// }
-
 static nomask object load_object(string name) 
 {
   object obj;
   
-  // If name has a trailing .c, let's get rid of it.
+  // if name has a trailing .c, let's get rid of it.
   if (strlen(name) > 2 && name[strlen(name)-2..strlen(name)-1] == ".c") 
     name = name[0..strlen(name)-3];
 
@@ -70,12 +65,32 @@ static nomask object load_object(string name)
   
   if (!obj)
     obj = compile_object(name);
-  else
-    stderr(" - find_object (found): <" + object_name(obj) + ">\n");
   
   return obj;
 }
 
+// find_object - find an object by file name
+// object find_object( string str );
+// Find the object with the file name 'str'.  If the object is a
+// cloned object, then it can be found using the file name which
+// would by returned if file_name() was called with it as the
+// argument.
+
+static nomask object find_object(string name)
+{
+  object obj;
+
+  // if name has a trailing .c, let's get rid of it.
+  if (strlen(name) > 2 && name[strlen(name)-2..strlen(name)-1] == ".c") 
+    name = name[0..strlen(name)-3];
+
+  obj = ::find_object(name);
+
+  if (!obj)
+    stderr(" - find_object: <" + name + "> (not found)\n");
+  
+  return obj;
+}
 
 // as the driver object has its own destruct object, this
 // cannot be part of the efuns general files. This function is included
@@ -84,12 +99,6 @@ static nomask object load_object(string name)
 /*
 int destruct(varargs object ob) 
 {
-  if (!ob)
-    ob = this_object();
-
-  destruct_object(ob);
-  
-  return TRUE;
-  // return (this_object() == nil);
+  ...
 }
 */
