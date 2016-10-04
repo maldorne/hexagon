@@ -60,6 +60,16 @@ Common calls and operations over the basic types.
 | `map_array`             |  |  |  |
 | `filter_mapping`        |  |  |  |
 
+
+##Objects
+
+| Function | Description | Status | Comments |
+| -------- | ----------- | :------: | -------- |
+| `destruct`              |  | :white_check_mark: | alias to `destruct_object`, implemented in the `auto` object to avoid collision with the `destruct` driver function. |
+| `find_object`           |  | :white_check_mark: | provided by dgd |
+| `load_object`           |  | :white_check_mark: | extended alias to `compile_object` |
+
+
 ##Basic calls and interactions between objects
 
 The general scheme of how the `this_player` value is being stored in a central object (`/lib/core/mudos.c`,
@@ -133,7 +143,6 @@ do not have an open source license.
 | Function | Description | Status | Comments |
 | -------- | ----------- | :------: | -------- |
 | `bind`                  |  |  |  |
-| `destruct`              |  |  |  |
 | `input_to`              |  |  |  |
 | `random`                |  |  |  |
 | `say`                   |  |  |  |
@@ -152,8 +161,6 @@ do not have an open source license.
 | `shout`                 |  |  |  |
 | `receive`               |  |  |  |
 | `message`               |  |  |  |
-| `find_object`           |  |  |  |
-| `load_object`           |  |  |  |
 | `call_stack`            |  |  |  |
 | `call_out`              |  |  |  |
 | `find_call_out`         |  |  |  |
