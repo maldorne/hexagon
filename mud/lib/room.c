@@ -5,7 +5,7 @@
 * CcMud revision, neverbot 6/03
 */
 
-#include <room.h>
+#include <rooms/room.h>
 
 inherit light    "/lib/core/basic/light";
 inherit property "/lib/core/basic/property";
@@ -244,7 +244,7 @@ void create()
   door_control = ([ ]);
   room_zone = "nowhere";
   exit_color = "%^BOLD%^%^CYAN%^";
-  seteuid((string)"/secure/master"->creator_file(file_name(this_object())));
+  seteuid(creator_file(file_name(this_object())));
   set_dark_mess("Está demasiado oscuro para poder ver");
   
   property::create();
@@ -944,9 +944,9 @@ int clean_up_room( int flag )
   object * arr;
   int i, elapsed_time;
 
-  i = sizeof( arr );
   elapsed_time = time() - room_init_time;
 	arr = deep_inventory( this_object() );
+  i = sizeof( arr );
 
   if (this_object()->query_property(NO_CLEAN_UP_PROP))  
   	return 1;

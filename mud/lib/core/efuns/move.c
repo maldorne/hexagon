@@ -121,9 +121,9 @@ int move(varargs object dest)
         catch(call_other(contents[i], "init"));
   }
 
-  stderr("   - M before, this_object():\n    " + this_object()->to_string() + " \n");
-  stderr("   - M before, this_player():\n    " + this_player()->to_string() + " \n");
-  stderr("   - M before, this_player(1):\n    " + this_player(1)->to_string() + " \n");
+  stderr("   - M before, this_object():\n    " + to_string(this_object()) + " \n");
+  stderr("   - M before, this_player():\n    " + to_string(this_player()) + " \n");
+  stderr("   - M before, this_player(1):\n    " + to_string(this_player(1)) + " \n");
 
   // call out own init() from all living objects in dest
   map_array(filter_array(contents, "living", MUDOS), 
@@ -215,6 +215,8 @@ object * deep_inventory(varargs object ob)
   object * result;
   object * pending;
   int i;
+
+  result = ({ });
 
   if (!ob)
     ob = this_object();

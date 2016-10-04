@@ -5,7 +5,7 @@
  *  Folken 10/08/2013
  */
 
-#include <diplomacy.h>
+#include <areas/diplomacy.h>
 
 void create()
 {

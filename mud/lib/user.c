@@ -81,7 +81,6 @@ nomask int set_input_to(object obj, string func, varargs int flag, mixed arg)
 // called from the driver
 static void open()
 {
-  stderr("PLAYER OPEN\n");
   login::logon();
 }
 

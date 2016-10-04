@@ -5,7 +5,7 @@
  *  Folken 08/08/2013
  */
 
-#include <navigation.h>
+#include <areas/navigation.h>
 
 void create()
 {

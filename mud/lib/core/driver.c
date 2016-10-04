@@ -184,8 +184,7 @@ static object inherit_program(string from, string path, int priv)
 static mixed include_file(string file, string path)
 { 
   if (path[0] != '/')
-    // path = file + "/../" + path;
-    path = resolve_path(path);
+    path = resolve_path(file + "/../" + path);
 
   log_driver(" + include_file: " + path + " inside " + file + "\n");
 

@@ -10,6 +10,7 @@
 #include <mud/config.h>
 #include <user/login.h>
 #include <user/user.h>
+#include <areas/common.h>
 
 static int timestamp;
 static int validated;
@@ -109,11 +110,17 @@ nomask void logon_options()
 
 nomask void logon_option(string str) 
 {
+  object room;
+
   // store the user name in the user handler
   find_object(USER_HANDLER)->update_user_name(file_name(this_object()), str);
 
   write("¡Nos hemos conectado!\n");
   validated = TRUE;
+
+  room = load_object(CODER_COMMON_ROOM);
+
+  this_object()->move(room);
 }
 
 mixed * stats() 
