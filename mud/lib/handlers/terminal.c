@@ -9,9 +9,9 @@
     Modified more by Baldrick to make this a nonblink mud (Oct 95)
     Modified more by Hamlet to add 'text' and 'monoflag' and 'monoansi'
              termtypes (Dec 97)
-    Modified more by Folken@CcMud para añadir la terminal tipo 'web'
+    Modified more by neverbot@CcMud para añadir la terminal tipo 'web'
              (saca texto por pantalla con formato HTML)
-  Mejorado el sistema ansi_enye, Folken 12/2010
+    Improved with ansi_enye, neverbot 12/2010
 
     Definitions:
 
@@ -174,7 +174,11 @@ void create() {
                          "ENDTERM": "",
                          ]),
              "freedom" : ([ "RESET" : ESC("G0"),
-                         "BOLD" : "", //"BOLD" : ESC("G@"),
+                         // not working with new sprintf conversion characters
+                         // not sure how to fix, although maybe noone uses 
+                         // freedom term anymore...
+                         // "BOLD" : ESC("G@"),
+                         "BOLD" : ESC("G@@"),
                          "FLASH" : "",
                          "UNDERLINE" : "",
                          "REVERSE" : "",
@@ -420,10 +424,9 @@ string fix_string(string ret, object user)
   if (userp(user))
     term_name = user->query_term_name();
 
-  // if (!term_name) 
-  //   term_name = "dumb";
-  
   if (!term_name) 
+    // term_name = "dumb";
+    // ansi by default
     term_name = "ansi";
 
   colour_map = set_term_type(term_name);
@@ -433,7 +436,7 @@ string fix_string(string ret, object user)
 
   // ret += "%^RESET%^";
 
-  // new terms for ccmud, Folken 7/03
+  // new terms for ccmud, neverbot 7/03
   if (term_name == "web")
     ret = fix_web_mode(ret);
 
@@ -445,13 +448,6 @@ string fix_string(string ret, object user)
 
   for (i = 0; i < sizeof(st); i++) 
   {
-    /*
-    if(st[i][0..8] == "OCTARINE:")
-      if(query_see_magic()) 
-        st[i] = extract(st[i], 9);
-      else 
-      continue;
-    */
     if (colour_map[st[i]])
       ret += colour_map[st[i]];
     else
