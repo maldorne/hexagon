@@ -6,6 +6,9 @@
 
 int interactive(object ob)
 {
+  if (!ob)
+    return 0;
+  
   if (query_ip_number(ob) == nil)
     return 0;
 

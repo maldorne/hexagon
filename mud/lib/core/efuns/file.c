@@ -128,13 +128,13 @@ static nomask int cat(string file)
   i = file_exists(file);
   if (i == 0) 
   {
-    write ("No such file.\n");
+    write("No such file.\n");
     return 0;
   }
 
   if (i == -1) 
   {
-    write ("That file is a directory.\n");
+    write("That file is a directory.\n");
     return 0;
   }
 
@@ -144,7 +144,7 @@ static nomask int cat(string file)
     lines = lines[0..MAX_CAT_LINES-1];
   
   for (i = 0; i < sizeof(lines); i++) 
-      write (lines[i]+"\n");
+      write(lines[i]+"\n");
 
   return 1;
 }

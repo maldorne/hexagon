@@ -73,7 +73,7 @@ string dir_entry(string path, string name, int mask, object me)
     // file-size, human-readable, Folken 05/06
     h_size = "" + size;
 
-    // if (mask & MASK_H){
+    if (mask & MASK_H){
       if (size > 1048576)
         h_size = size /1048576 + "." + ("" + (size % 1048576) / 1024)[0..0] + "M";
       else if (size > 1024)
@@ -81,7 +81,7 @@ string dir_entry(string path, string name, int mask, object me)
         h_size = (size/1024) + "K";
       else
         h_size = " " + size;
-    // }    
+    }    
 
     return "     "[0..4 - strlen(h_size)] + h_size + " " + name;
   }

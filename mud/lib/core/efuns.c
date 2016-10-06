@@ -32,7 +32,6 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/output.c"
 #include "/lib/core/efuns/file.c"
 #include "/lib/core/efuns/input.c"
-#include "/lib/core/efuns/term.c"
 
 #include "/lib/core/efuns/heart_beat.c"
 

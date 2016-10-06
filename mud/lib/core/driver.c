@@ -5,6 +5,7 @@
 
 #include <kernel.h>
 #include <user/user.h>
+#include <user/terminal.h>
 
 // to avoid the error:
 //     /lib/core/driver.c: too many functions declared
@@ -16,8 +17,9 @@
 #include "/lib/core/efuns/types.c"
 #include "/lib/core/efuns/output/stderr.c"
 #include "/lib/core/efuns/users/this_player.c"
-#include "/lib/core/efuns/output/write.c"
 #include "/lib/core/efuns/objects/load_object.c"
+#include "/lib/core/efuns/output/fix_string.c"
+#include "/lib/core/efuns/output/write.c"
 #include "/lib/core/efuns/arrays/member_array.c"
 #include "/lib/core/efuns/paths/resolve_path.c"
 #include "/lib/core/efuns/users/interactive.c"
@@ -74,6 +76,7 @@ static nomask void initialize()
   call_other(mudos    = load_object(MUDOS_PATH), "???");
   call_other(user_h   = load_object(USER_HANDLER), "???");
   call_other(object_h = load_object(OBJECT_HANDLER), "???");
+  call_other(load_object(TERM_HANDLER), "???");
 
   date = ::ctime(time())[4 .. 18];
 

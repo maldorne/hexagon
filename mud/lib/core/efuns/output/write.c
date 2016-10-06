@@ -1,4 +1,5 @@
 
+
 // write() - send a message to current player
 // void write( mixed str );
 // Write a message `str' to current player. `str' can also be a number, which
@@ -18,6 +19,8 @@ static nomask void write(string str)
 
   if (!user)
     return;
+
+  str = fix_string(str);
 
   user->send_message(str);
 }
