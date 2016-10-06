@@ -173,9 +173,10 @@ static nomask mixed creator_file(string file, varargs int author)
         return get_root_uid();
 
       //if (!author)
-        return capitalize(str[2]);
+        // return capitalize(str[2]);
+      return str[2];
      
-     // return ("/d/"+str[1]+"/master")->author_file(str);
+      // return ("/d/"+str[1]+"/master")->author_file(str);
 
     case "tmp" :
      return "tmp_files";
@@ -193,6 +194,22 @@ static nomask mixed creator_file(string file, varargs int author)
 static nomask mixed author_file(mixed bing) 
 {
   return creator_file(bing, 1);
+}
+
+mixed domain_file(mixed bing) 
+{
+  string str;
+
+  str = creator_file(bing);
+  
+  if (!str) 
+    return str;
+  
+  if ((str[0] >= 'A' && str[0] <= 'Z') ||
+      (str[0] >= 'a' && str[0] <= 'z'))
+    return str;
+  
+  return "mud";
 }
 
 static nomask int rename(string from, string to)

@@ -16,15 +16,15 @@
 /* Error checks. */
 # ifdef  __CLOSE_TO_C__
 # define TYPECHECK(type, arg, n) \
-            if (!(type##p (arg))) {error ("Sprintf: bad argument " + (n + 1));}
+            if (!(type##p (arg))) {error ("sprintf: bad argument " + (n + 1));}
 # else              
 # define TYPECHECK(type, arg, n) \
-                  if (!(type##p (arg))) {error ("Sprintf: bad argument " + n);}
+                  if (!(type##p (arg))) {error ("sprintf: bad argument " + n);}
 # endif              
 # define ARGCOUNTCHECK(n, m) \
-                        if ((n) == (m)) {error ("Sprintf: too few arguments");}
+                        if ((n) == (m)) {error ("sprintf: too few arguments");}
 # define ENDCHECK(c, e) \
-      if ((c) == (e)) {error ("Sprintf: missing format conversion character");}
+      if ((c) == (e)) {error ("sprintf: missing format conversion character");}
 
 /* My favourites. */
 # define Case    break; case

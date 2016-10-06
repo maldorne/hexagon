@@ -1,7 +1,7 @@
 
-#include "/lib/core/efuns/conversions/chr.c"
-#include "/lib/core/efuns/conversions/to_string.c"
-#include "/lib/core/efuns/conversions/print_object.c"
+#include "conversions/chr.c"
+#include "conversions/to_string.c"
+#include "conversions/print_object.c"
 
 private string number_as_string_aux(int n);
 string number_as_string(int n);

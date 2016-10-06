@@ -1,8 +1,8 @@
 
 #include <areas/weather.h>
 
-#include "sprintf/time.h"
-#include "sprintf/time.c"
+#include "strings/sprintf/time.h"
+#include "strings/sprintf/time.c"
 
 #define LT_SEC 0
 #define LT_MIN 1
@@ -244,7 +244,7 @@ static string repair_number(int num)
  *  - flag = 3: mud datetime (from weather.c)
  *
  *  Added to make the 'ls -la' shorter, neverbot 23/11/03
- *  - flag = 4: ddmmaa hh:mm:ss
+ *  - flag = 4: dd/mm/yy hh:mm:ss
  *
  *  Added real-world datetime for the "time" command
  *    neverbot 09/12/04

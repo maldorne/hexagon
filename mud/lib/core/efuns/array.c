@@ -1,37 +1,37 @@
 
-#include "/lib/core/efuns/arrays/member_array.c"
+#include "arrays/member_array.c"
 
-int index (mixed element, mixed * arr) 
+static nomask int index (mixed element, mixed * arr) 
 {
   return member_array(element, arr);
 }
 
-mixed * delete(mixed * arr, int start, int len) 
+static nomask mixed * delete(mixed * arr, int start, int len) 
 {
   return arr[0..start-1]+arr[start+len..sizeof(arr)];
 } 
 
-mixed * slice_array(mixed * arr, int start, int fin) 
+static nomask mixed * slice_array(mixed * arr, int start, int fin) 
 {
   return arr[start..fin];
 } 
 
-mixed * insert(mixed * arr, mixed el, int pos) 
+static nomask mixed * insert(mixed * arr, mixed el, int pos) 
 {
   return arr[0..pos-1]+({ el })+arr[pos..sizeof(arr)];
 } 
 
-mixed * shift_left(mixed * arr)
+static nomask mixed * shift_left(mixed * arr)
 {
 	return arr[1..sizeof(arr)-1] + ({ });
 }
 
-mixed * shift_right(mixed * arr)
+static nomask mixed * shift_right(mixed * arr)
 {
 	return ({ }) + arr[0..sizeof(arr)-2];
 }
 
-mixed * exclude_array(mixed *arr, int from, varargs int to) 
+static nomask mixed * exclude_array(mixed *arr, int from, varargs int to) 
 {
   mixed *bottom, *top;
 
@@ -53,7 +53,7 @@ mixed * exclude_array(mixed *arr, int from, varargs int to)
 // takes any array and returns an array with no repeat members
 // created by Descartes of Borg 930822
 
-mixed * uniq_array(mixed *arr) 
+static nomask mixed * uniq_array(mixed *arr) 
 {
   mapping borg;
   int i;
@@ -66,7 +66,7 @@ mixed * uniq_array(mixed *arr)
   return keys(borg);
 }
 
-int atoi(string str) 
+static nomask int atoi(string str) 
 {
   int x;
 
@@ -75,7 +75,7 @@ int atoi(string str)
   return x;
 }
 
-string itoa(int i)
+static nomask string itoa(int i)
 {
   if (!intp(i))
     return "";
@@ -110,7 +110,7 @@ string itoa(int i)
 // }
 
 
-mixed * array_copy(mixed * what) 
+static nomask mixed * array_copy(mixed * what) 
 {
   mixed result;
 
@@ -124,7 +124,7 @@ mixed * array_copy(mixed * what)
 
 
 // map elements in an array 
-mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed args...) 
+static nomask mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed args...) 
 {
   int i;
   mixed * result;

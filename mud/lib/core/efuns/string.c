@@ -1,8 +1,6 @@
 
-// Non-dgd efuns
-// neverbot, 03/2014
-
-#include "sprintf/sprintf.c"
+#include "/lib/core/efuns/strings/sprintf/sprintf.c"
+#include "/lib/core/efuns/strings/full_explode.c"
 
 // prototypes
 
@@ -172,6 +170,14 @@ int strsrch( string str, mixed substr, varargs int flag )
     while(flag > 0);
 
     return i;
+  }
+  else if (flag == -1)
+  {
+    string * arr;
+
+    arr = full_explode(str, substr);
+
+    return strlen(implode(arr[..sizeof(arr)-2], substr));
   }
 
   if (sscanf(str, "%s" + substr + "%s", tmp1, tmp2) >= 1) 

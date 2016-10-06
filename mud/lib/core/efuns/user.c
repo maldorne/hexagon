@@ -1,8 +1,8 @@
 
 #include <user/user.h>
-#include "/lib/core/efuns/users/this_player.c"
-#include "/lib/core/efuns/users/interactive.c"
-#include "/lib/core/efuns/users/userp.c"
+#include "users/this_player.c"
+#include "users/interactive.c"
+#include "users/userp.c"
 
 object real_this_player()
 {

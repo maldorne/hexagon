@@ -1,5 +1,6 @@
 
-#include "/lib/core/efuns/paths/resolve_path.c"
+#include "paths/resolve_path.c"
+#include "paths/get_path.c"
 
 // idea taken from melville mudlib
 static nomask int is_absolute_path(string str) 
@@ -40,80 +41,6 @@ string get_path_only(string path)
 
   return "/" + implode(words[0..sizeof(words)-2], "/") + "/";
 }
-
-// old /global/path.c, now moved to simul_efuns, neverbot 03/2009                       
-string get_path(string str) 
-{
-  string *array, *array1, temp;
-  int i;
-
-  if (!str) 
-    str = this_player()->query_home_dir();
-
-  if (str == "~") 
-    str = this_player()->query_home_dir();
-  else if(str[0] == '~') 
-  {
-    if(str[1] == '/') 
-    {
-      sscanf(str, "~/%s", temp);
-      str = this_player()->query_home_dir() + temp;
-    }
-    else 
-    {
-      string name;
-      if (sscanf(str, "~%s/%s", name, str) != 2) 
-      {
-        name = extract(str,1);
-        str = "w/" + name;
-      } 
-      else
-      {
-        /* cheat at this point and just assume they are a wizard. sigh i know i know */
-        str = "w/" + name + "/" + str;
-      }
-    }
-  } 
-  else if (str[0] != '/')
-    str = this_player()->query_current_path() + "/" + str + "/";
-
-  if (str == "/")
-    return "/"; 
- 
-  array = explode(str, "/") - ({ "" });
-
-  for (i = 0; i < sizeof(array); i++)
-  {
-    if (array[i] == "..") 
-    {
-      if (i < 1)
-      {
-          write("Path inválido.\n");
-          return "";
-      }
-      
-      if (i == 1)
-        array1 = ({ "." });
-      else
-        array1 = array[0..i-2];
-        
-      if (i + 1 <= sizeof(array)-1) 
-        array1 += array[i+1..sizeof(array)-1];
-      
-      array = array1;
-      i -= 2;
-    } 
-    else if (array[i] == ".")
-      array[i] = "";
- }
- 
- if (array)
-   str = implode(array, "/");
- else
-   str = "";
-
-  return "/"+str;
-}  
 
 string * get_files(string str) 
 {

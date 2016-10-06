@@ -208,6 +208,7 @@ int query_user() { return 1; }
 // TMP DEBUG, REMOVE!!!
 int query_coder() { return 1; }
 string query_name() { return "neverbot"; }
+int query_cols() { return 79; }
 
 
 

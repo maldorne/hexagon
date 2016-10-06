@@ -1,9 +1,9 @@
 
 
-#include "/lib/core/efuns/objects/find_object.c"
-#include "/lib/core/efuns/objects/load_object.c"
-#include "/lib/core/efuns/objects/file_name.c"
-#include "/lib/core/efuns/objects/destruct.c"
+#include "objects/find_object.c"
+#include "objects/load_object.c"
+#include "objects/file_name.c"
+#include "objects/destruct.c"
 
 // object new(string path)
 // {

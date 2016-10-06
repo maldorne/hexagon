@@ -1,6 +1,6 @@
 
-#include "/lib/core/efuns/output/stderr.c"
-#include "/lib/core/efuns/output/write.c"
+#include "output/stderr.c"
+#include "output/write.c"
 
 // static nomask void say(string str, varargs mixed avoid) 
 // {
