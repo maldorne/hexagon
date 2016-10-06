@@ -125,7 +125,7 @@ do not have an open source license.
 | `file_name`             |  | :white_check_mark: | alias for `object_name` |
 | `restore_object`        |  |  |  |
 | `save_object`           |  |  |  |
-| `get_dir`               |  |  |  |
+| `get_dir`               |  | :white_check_mark: | masked to mimic MudOS behaviour |
 | `match_path`            |  |  |  |
 | `write_file`            |  |  |  |
 | `rename`                |  |  |  |
