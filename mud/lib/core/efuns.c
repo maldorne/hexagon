@@ -18,6 +18,7 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/euid.c"
 #include "/lib/core/efuns/calls.c"
 #include "/lib/core/efuns/filter.c"
+#include "/lib/core/efuns/compiler.c"
 
 #include "/lib/core/efuns/living.c"
 #include "/lib/core/efuns/user.c"

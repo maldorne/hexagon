@@ -34,7 +34,7 @@ Common calls and operations over the basic types.
 | `printf`                |  | :white_check_mark: | alias for `sprintf` |
 | `strlen`                |  | :white_check_mark: | provided by dgd |
 | `strcmp`                |  |  |  |
-| `strsrch`               |  |  |  |
+| `strsrch`               |  | :white_check_mark: |  |
 | **arrays**              |  |  |  |
 | `sizeof`                |  | :white_check_mark: | provided by dgd |
 | `explode`               |  |  |  |
@@ -149,6 +149,14 @@ do not have an open source license.
 | `message`               |  |  |  |
 
 
+##Driver configuration
+| Function | Description | Status | Comments |
+| -------- | ----------- | :------: | -------- |
+| `eval_cost`             |  | :white_check_mark: | uses `status`  |
+| `reset_eval_cost`       |  | :white_check_mark: | dummy function |
+| `set_eval_limit`        |  | :white_check_mark: | dummy function |
+
+
 | Function | Description | Status | Comments |
 | -------- | ----------- | :------: | -------- |
 | `bind`                  |  |  |  |
@@ -222,6 +230,5 @@ do not have an open source license.
 | `set_light`             |  |  |  |
 | `origin`                |  |  |  |
 | `reclaim_objects`       |  |  |  |
-| `set_eval_limit`        |  |  |  |
 | `resolve`               |  |  |  |
 | `shutdown`              |  |  |  |
