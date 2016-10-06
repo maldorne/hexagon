@@ -272,8 +272,6 @@ private string align (string this, int width, int precision, mapping options,
   {
     if (strlen(this) < width)
     {
-      stderr("WHAT "+width+" "+sz+" '"+padding+"'\n");
-      
       if (this[strlen(this)-1] != '\n')
         this += give_padding (width - sz, padding);
     }

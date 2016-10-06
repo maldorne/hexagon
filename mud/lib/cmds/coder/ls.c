@@ -107,13 +107,13 @@ int ls(string str, int mask, object me)
 
   if (!direc) 
   {
-    notify_fail("No hay archivos.\n");
+    notify_fail("No files.\n");
     return 0;
   }
 
   if (!sizeof(direc)) 
   {
-    notify_fail("No hay archivos.\n");
+    notify_fail("No files.\n");
     return 0;
   }
 
@@ -132,12 +132,12 @@ int ls(string str, int mask, object me)
   if(path == "//")
     path = "/";
 
-  write("Directorio: "+path+"\n");
+  write("Directory: "+path+"\n");
 
   if (!(mask & MASK_A))
     direc = filter_array(direc, "check_dots", this_object(), 0);
 
-// moved after filter_array, neverbot 05/2006
+  // moved after filter_array, neverbot 05/2006
   bing = allocate(sizeof(direc));
   j = sizeof(direc); 
 
@@ -145,7 +145,7 @@ int ls(string str, int mask, object me)
   {
     if (!(mask & MASK_F) && !(mask & MASK_O)) 
     {
-      bong = sprintf("%-=*s\n", me->query_cols(),
+      bong = sprintf("%-*s", me->query_cols(),
         implode(direc, "\n"));
       bing = explode(bong, "\n");
     }
@@ -155,11 +155,11 @@ int ls(string str, int mask, object me)
       {
         if (file_size(path+direc[i]) == -2 || direc[i] == "..")
           if (mask & MASK_O)
-            bing[i] = sprintf("%s%-=*s", "%^GREEN%^",
+            bing[i] = sprintf("%s%-*s", "%^GREEN%^",
               (int)me->query_cols()+8, direc[i]+"%^RESET%^"+
               (mask & MASK_F?"/":""));
           else
-            bing[i] = sprintf("%-=*s", me->query_cols(),
+            bing[i] = sprintf("%-*s", me->query_cols(),
               direc[i]+"/");
 
         // else if (virtual_find_object(path+direc[i]))
@@ -172,7 +172,7 @@ int ls(string str, int mask, object me)
         //       direc[i]+"*");
 
         else
-          bing[i] = sprintf("%-=*s", me->query_cols(), direc[i]);
+          bing[i] = sprintf("%-*s", me->query_cols(), direc[i]);
       }
     }
     bong = implode(bing, "\n");
@@ -195,7 +195,7 @@ int ls(string str, int mask, object me)
         bing[i] = dir_entry(path, direc[i], mask, me) + "\n";
     }
 
-    bong = sprintf( "%#-*s\n", me->query_cols(),
+    bong = sprintf( "%#-*s", me->query_cols(),
       implode(bing, ""));
 
     if (mask & MASK_O) 
@@ -356,7 +356,7 @@ int ls(string str, int mask, object me)
           (loaded?(mask & MASK_F?"*":""):"")));
       }
 
-      bong = implode(bit, "\n");
+      bong = implode(bit, "\n") + "\n";
     }
   }
 
