@@ -241,7 +241,7 @@ private void usage()
   write("        a <arg>: pasa como argumento 'arg' al llamar a main()\n");
   write("                 (debe ser el último flag)\n");
   write("\nSe pueden utilizar las siguientes macros: \n"+defines()+"\n");
-  write("Ej: exec object *a=users(); for(int i=0;i<sizeof(a);i++) tell_object(a[i], \"Prueba\");\n");
+  write("Ej: exec object *a; a=users(); for(int i=0;i<sizeof(a);i++) tell_object(a[i], \"Test\");\n");
 }
 
 // Codigo a incluir en el archivo generado

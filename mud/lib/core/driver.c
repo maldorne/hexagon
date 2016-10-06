@@ -6,7 +6,25 @@
 #include <kernel.h>
 #include <user/user.h>
 
-#include "/lib/core/efuns.c"
+// to avoid the error:
+//     /lib/core/driver.c: too many functions declared
+// do not include every efun in the driver object, just the ones used,
+// as the driver cannot inherit other programs
+
+// #include "/lib/core/efuns.c"
+
+#include "/lib/core/efuns/types.c"
+#include "/lib/core/efuns/output/stderr.c"
+#include "/lib/core/efuns/users/this_player.c"
+#include "/lib/core/efuns/output/write.c"
+#include "/lib/core/efuns/objects/load_object.c"
+#include "/lib/core/efuns/arrays/member_array.c"
+#include "/lib/core/efuns/paths/resolve_path.c"
+#include "/lib/core/efuns/users/interactive.c"
+#include "/lib/core/efuns/users/userp.c"
+#include "/lib/core/efuns/objects/file_name.c"
+#include "/lib/core/efuns/conversions/to_string.c"
+#include "/lib/core/efuns/conversions/print_object.c"
 
 #include <status.h>
 #include <trace.h>

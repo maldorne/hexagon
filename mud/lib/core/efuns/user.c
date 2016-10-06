@@ -1,36 +1,8 @@
 
-// Non-dgd efuns
-// neverbot, 03/2014
-
 #include <user/user.h>
-
-int interactive(object ob)
-{
-  if (query_ip_number(ob) == nil)
-    return FALSE;
-
-  return TRUE;
-}
-
-int userp(object ob)
-{
-  return interactive(ob);
-}
-
-// static nomask object this_player() 
-// {
-//   return this_user();
-// }
-
-object this_player(varargs int i) 
-{
-  return MUDOS->this_player(i);
-}
-
-// object this_player(varargs int flag)
-// {
-//   return this_user(flag);
-// }
+#include "/lib/core/efuns/users/this_player.c"
+#include "/lib/core/efuns/users/interactive.c"
+#include "/lib/core/efuns/users/userp.c"
 
 object real_this_player()
 {

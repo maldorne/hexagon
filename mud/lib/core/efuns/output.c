@@ -1,36 +1,6 @@
 
-static nomask void stderr(string str)
-{
-  if (!str)
-    return;
-
-  ::find_object(DRIVER)->_stderr(str);
-
-  return;  
-}
-
-// write() - send a message to current player
-// void write( mixed str );
-// Write a message `str' to current player. `str' can also be a number, which
-// will be translated to a string.
-
-static nomask void write(string str) 
-{
-  object user;
-
-  if (nullp(str))
-    return;
-
-  user = this_user();
-
-  if (!user)
-    user = this_player();
-
-  if (!user)
-    return;
-
-  user->send_message(str);
-}
+#include "/lib/core/efuns/output/stderr.c"
+#include "/lib/core/efuns/output/write.c"
 
 // static nomask void say(string str, varargs mixed avoid) 
 // {

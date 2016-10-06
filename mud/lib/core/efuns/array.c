@@ -1,20 +1,5 @@
 
-// Non-dgd efuns
-// neverbot, 03/2014
-
-int member_array(mixed element, mixed *arr)
-{
-  int i;
-  
-  if (!element || !arr) 
-   return -1;
-  
-  for (i = 0; i < sizeof(arr); i++)
-    if (arr[i] == element)
-      return i; 
-
-  return -1;
-}
+#include "/lib/core/efuns/arrays/member_array.c"
 
 int index (mixed element, mixed * arr) 
 {

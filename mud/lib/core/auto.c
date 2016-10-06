@@ -93,23 +93,6 @@ nomask object compile_object(string path, varargs string source...)
   return obj;
 }
 
-// Cannot be included inside efuns because the driver object has its own
-// destruct function
-int destruct(varargs object ob) 
-{
-  stderr(" - destruct: <" + object_name(ob) + ">\n");
-
-  if (!ob)
-    ob = this_object();
-
-  ::destruct_object(ob);
-  
-  return 1;
-  // return (this_object() == nil);
-}
-
-
-
 // end neverbot
 
 
