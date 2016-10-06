@@ -4,6 +4,12 @@
 
 #include "sprintf/sprintf.c"
 
+// prototypes
+
+// defined in /lib/core/efuns/conversions.c
+string chr(int c);
+
+
 // patch
 static string printf (string format, mixed args...) 
 {
@@ -119,6 +125,59 @@ int strcmp(string a, string b)
 
   // same strings
   return 0;
+}
+
+// strsrch - search for substrings in a string
+// int strsrch( string str, string substr | int char, int flag );
+
+// strsrch() searches for the first occurance of the string 'substr' in the 
+// string 'str'.  The last occurance of 'substr' can be found by passing '-1' 
+// as the 3rd argument (which is optional).  If the second argument is an 
+// integer, that character is found (like C's strchr()/strrchr().)  The empty 
+// string or null value cannot be searched for.
+
+// The integer offset of the first (last) match is returned.  -1 is returned
+// if there was no match, or an error occurred (bad args, etc).
+
+int strsrch( string str, mixed substr, varargs int flag )
+{
+  string tmp1, tmp2;
+
+  // if the substring is a char
+  if (intp(substr))
+    substr = chr(substr);
+  else if (!stringp(substr))
+    return -1;
+
+  if (flag >= 0)
+  {
+    int substr_len, i;
+    
+    substr_len = strlen(substr);
+    i = -substr_len;
+
+    do
+    {
+      if (sscanf(str, "%s" + substr + "%s", tmp1, str) >= 1)
+      {
+        i += strlen(tmp1) + substr_len;
+        if (!str)
+          str = "";
+      }
+      else
+        return -1;
+
+      flag--;
+    }
+    while(flag > 0);
+
+    return i;
+  }
+
+  if (sscanf(str, "%s" + substr + "%s", tmp1, tmp2) >= 1) 
+    return strlen(tmp1) + strlen(substr);
+
+  return -1;
 }
 
 // /secure/simul_efun/wrap.c

@@ -374,8 +374,8 @@ int cmd_make_hash(int verbose)
 		if (verbose) 
 			write("Scanning directory: "+paths[i]+"\n");
 			
-		// files = get_dir(paths[i] + "*.c");
-    files = get_files(paths[i] + "*.c");
+		files = get_dir(paths[i] + "*.c");
+    // files = get_files(paths[i] + "*.c");
 		
     for (j = 0; j < sizeof(files); j++)
 		{
