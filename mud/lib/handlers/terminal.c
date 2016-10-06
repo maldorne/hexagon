@@ -9,8 +9,6 @@
     Modified more by Baldrick to make this a nonblink mud (Oct 95)
     Modified more by Hamlet to add 'text' and 'monoflag' and 'monoansi'
              termtypes (Dec 97)
-    Modified more by neverbot@CcMud para añadir la terminal tipo 'web'
-             (saca texto por pantalla con formato HTML)
     Improved with ansi_enye, neverbot 12/2010
 
     Definitions:
@@ -87,34 +85,6 @@ void create() {
                          "INITTERM": "",
                          "ENDTERM": "",
                          ]),
-              "web" : ([ "RESET" : "</FONT></B></U>",
-                         "BOLD" : "<B>",
-                         "FLASH" : "",
-                         "UNDERLINE" : "<U>",
-                         "REVERSE" : "",
-                         "BLACK" : "",
-                         "RED" : "<FONT color=\"red\">",
-                         "GREEN" : "<FONT color=\"green\">",
-                         "ORANGE" : "<FONT color=\"orange\">",
-                         "YELLOW" : "<FONT color=\"yellow\">",
-                         "BLUE" : "<FONT color=\"blue\">",
-                         "CYAN" : "<FONT color=\"cyan\">",
-                         "MAGENTA" : "<FONT color=\"magenta\">",
-                         "WHITE" : "</FONT>",
-                         "B_RED" : "",
-                         "B_GREEN" : "",
-                         "B_ORANGE" : "",
-                         "B_YELLOW" : "",
-                         "B_BLUE" : "",
-                         "B_CYAN" : "",
-                         "B_BLACK" : "",
-                         "B_WHITE" : "",
-                         "B_MAGENTA" : "",
-                         "STATUS": "",
-                         "WINDOW": "",
-                         "INITTERM": "",
-                         "ENDTERM": "",
-                         ]),
        "ansi-status": ([ "RESET" : ANSI("0;37;40"),
                          "BOLD" : ANSI(1),
                          "FLASH" : "",
@@ -144,7 +114,7 @@ void create() {
                                       ESC("[23;24r")+ESC("23H\n"),
                          "ENDTERM" : ESC("[0r")+ESC("[H")+ESC("[J"),
                          ]),
-        // Mismo mapa de colores que ansi, ver funciones mas abajo
+        // same colour_map as ansi, take a look to the functions below
         "ansi-enye" : ([ "RESET" : ANSI("0;37;40"),
                          "BOLD" : ANSI(1),
                          "FLASH" : "",
@@ -173,7 +143,7 @@ void create() {
                          "INITTERM": "",
                          "ENDTERM": "",
                          ]),
-             "freedom" : ([ "RESET" : ESC("G0"),
+          "freedom" : ([ "RESET" : ESC("G0"),
                          // not working with new sprintf conversion characters
                          // not sure how to fix, although maybe noone uses 
                          // freedom term anymore...
@@ -205,7 +175,7 @@ void create() {
                          "INITTERM": "",
                          "ENDTERM": "",
                          ]),
-      "xterm": ([ "RESET" : ESC(">")+ESC("[1;3;4;5;6l")+ESC("[?7h")+ESC("[m"),
+             "xterm": ([ "RESET" : ESC(">")+ESC("[1;3;4;5;6l")+ESC("[?7h")+ESC("[m"),
                          "BOLD" : ESC("[7m"),
                          "FLASH" : "",
                          "UNDERLINE" : "",
@@ -261,7 +231,7 @@ void create() {
                          "INITTERM": "",
                          "ENDTERM": "",
                          ]),
-        "monoansi" : ([ "RESET" : ANSI("0;37;40"),
+         "monoansi" : ([ "RESET" : ANSI("0;37;40"),
                          "BOLD" : ANSI(1),
                          "FLASH" : "",
                          "UNDERLINE" : ANSI(4),
@@ -335,19 +305,9 @@ string *query_term_types()
   return m_indices(terms);
 }
 
-// Nuevas terminales para CcMud, Folken 7/03
+// new terms for ccmud, neverbot 7/03
 
-// Cambiamos los retornos de carro por <BR>'s
-// (y tambien un retorno de carro para que se pueda ver algo decente
-//  por telnet :P)
-string fix_web_mode(string mess)
-{
-  mess = implode(explode(mess, "\n"), "<BR/>\n");
-  return "<PRE>" + mess + "<BR/></PRE>";
-}
-
-// Cambiamos ñ's y letras con acentos por letras
-//  comunes (por si alguien utiliza clientes antiguos)
+// change ñ's and accents to common letters
 string fix_enye_mode(string mess)
 {
   int i;
@@ -414,14 +374,14 @@ string fix_enye_mode(string mess)
     return ret;
 }
 
-string fix_string(string ret, object user)
+string _fix_string(string ret, varargs object user)
 {
   string *st;
   int i;
   string term_name;
   mapping colour_map;
 
-  if (userp(user))
+  if (user && userp(user))
     term_name = user->query_term_name();
 
   if (!term_name) 
@@ -437,8 +397,6 @@ string fix_string(string ret, object user)
   // ret += "%^RESET%^";
 
   // new terms for ccmud, neverbot 7/03
-  if (term_name == "web")
-    ret = fix_web_mode(ret);
 
   if (term_name == "ansi-enye")
     ret = fix_enye_mode(ret);

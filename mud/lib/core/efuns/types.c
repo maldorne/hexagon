@@ -1,10 +1,8 @@
 
-// Non-dgd efuns
-// neverbot, 03/2014
-
 #include <type.h>
+#include <limits.h>
 
-int intp(mixed what)
+static nomask int intp(mixed what)
 {
   if (typeof(what) == T_INT)
     return 1;
@@ -12,7 +10,14 @@ int intp(mixed what)
   return 0;
 }
 
-int arrayp(mixed what)
+static nomask int charp(mixed what) 
+{
+  return (intp(what) && 
+         (CHAR_MIN <= what) && 
+         (what <= CHAR_MAX));
+}
+
+static nomask int arrayp(mixed what)
 {
   if (typeof(what) == T_ARRAY)
     return 1;
@@ -20,12 +25,12 @@ int arrayp(mixed what)
   return 0;
 }
 
-int pointerp(mixed what)
+static nomask int pointerp(mixed what)
 {
   return arrayp(what);
 }
 
-int mappingp(mixed what)
+static nomask int mappingp(mixed what)
 {
   if (typeof(what) == T_MAPPING)
     return 1;
@@ -33,12 +38,12 @@ int mappingp(mixed what)
   return 0;
 }
 
-int mapp(mixed what)
+static nomask int mapp(mixed what)
 {
   return mappingp(what);
 }
 
-int objectp(mixed what)
+static nomask int objectp(mixed what)
 {
   if (typeof(what) == T_OBJECT)
     return 1;
@@ -46,7 +51,7 @@ int objectp(mixed what)
   return 0;
 }
 
-int stringp(mixed what)
+static nomask int stringp(mixed what)
 {
   if (typeof(what) == T_STRING)
     return 1;
@@ -54,7 +59,7 @@ int stringp(mixed what)
   return 0;
 }
 
-int floatp(mixed what)
+static nomask int floatp(mixed what)
 {
   if (typeof(what) == T_FLOAT)
     return 1;
@@ -62,7 +67,7 @@ int floatp(mixed what)
   return 0;
 }
 
-int undefinedp(mixed what)
+static nomask int undefinedp(mixed what)
 {
   if (what == nil)
     return 1;
@@ -70,7 +75,7 @@ int undefinedp(mixed what)
   return 0;
 }
 
-int nullp(mixed what)
+static nomask int nullp(mixed what)
 {
   return undefinedp(what);
 }

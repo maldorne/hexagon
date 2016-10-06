@@ -111,7 +111,6 @@ private string reverse (string this) {
   return (result);
 }
 
-
 private string crypt (string message, int flag) {
   int    sz, pointer;
   string result;
@@ -151,7 +150,6 @@ private string make_hex (string message, string padding) {
   return (implode (result, padding ? padding : ""));
 }
 
-
 private string rot_13 (string message) {
   int i;
   for (i = strlen (message); i --; ) {
@@ -172,11 +170,9 @@ private string rot_13 (string message) {
 
 string query_version () {return (VERSION);}
 
-
-private int charp (mixed arg) {
-  return (intp (arg) && CHAR_MIN <= arg && arg <= CHAR_MAX);
-}
-
+// private int charp (mixed arg) {
+//   return (intp (arg) && CHAR_MIN <= arg && arg <= CHAR_MAX);
+// }
 
 private string anything (mixed this) {
   switch (typeof (this)) {
@@ -211,6 +207,7 @@ private string anything (mixed this) {
 private string give_padding (int n, string pad) 
 {
   string padding;
+
   if (n <= 0) 
     return ("");
 
@@ -221,6 +218,40 @@ private string give_padding (int n, string pad)
   return (padding [.. n - 1]);
 }
 
+private string multi_line(string this, int width)
+{
+  string * pieces;
+  int i, line_length, word_length;
+  string new_this;
+
+  pieces = explode(this, " ");
+  new_this = "";
+  line_length = 0;
+  word_length = 0;
+
+  for (i = 0; i < sizeof(pieces); i++)
+  {
+    word_length = strlen(pieces[i]);
+
+    if ((i != 0) && 
+        (line_length + word_length > width))
+    {
+      new_this += "\n";
+      line_length = 0;
+    }
+
+    new_this += pieces[i];
+    line_length += word_length;
+
+    if (i < sizeof(pieces) - 1)
+    {
+      new_this += " ";
+      line_length += 1;
+    }
+  }
+
+  return new_this;
+}
 
 /* Apply flags, width & precision to string. */
 private string align (string this, int width, int precision, mapping options,
@@ -237,13 +268,29 @@ private string align (string this, int width, int precision, mapping options,
   // sz = strlen(ANSI_D->strip_colors (this));
   sz = strlen (this);
 
-  if (options ["-"]) {this += give_padding (width - sz, padding);}
-  else {
-    if (options ["|"]) {
+  if (options ["-"]) 
+  {
+    if (strlen(this) < width)
+    {
+      stderr("WHAT "+width+" "+sz+" '"+padding+"'\n");
+      
+      if (this[strlen(this)-1] != '\n')
+        this += give_padding (width - sz, padding);
+    }
+    else
+      this = multi_line(this, width);
+  }
+  else 
+  {
+    if (options ["|"]) 
+    {
       this = give_padding ((width + 1 - sz) / 2, padding) + this +
              give_padding ((width - sz) / 2, padding);
     }
-    else {this = give_padding (width - sz, padding) + this;}
+    else 
+    {
+      this = give_padding (width - sz, padding) + this;
+    }
   }
 
   // return ((precision <= 0) || strlen(ANSI_D->strip_colors (this)) < precision

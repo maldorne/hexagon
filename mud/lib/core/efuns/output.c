@@ -43,7 +43,13 @@ static nomask void tell_room(object ob, string str, varargs mixed avoid)
 static nomask void tell_object(object ob, string str) 
 {
   if (ob)
+  {
+    str = sprintf("%-*s", (userp(ob) && ob->query_cols() ? 
+                           ob->query_cols() : 
+                           79), str);
+  
     ob->event_write(previous_object(), str);
+  }
 }
 
 static nomask void tell_player(object player, string text)

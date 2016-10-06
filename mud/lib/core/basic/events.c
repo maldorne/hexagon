@@ -13,14 +13,9 @@ void event_write(object caller, string str)
 
   str = fix_string(str);
   
-  if (userp(this_object()))
-  {
-    str = sprintf("%-=*s", (this_object()->query_cols()?this_object()->query_cols():79), str);
+  if (interactive(this_object()))
     this_object()->send_message(str);
-  }
 }
-
-
 
 void event_inform(object ob, string mess, string type)
 {

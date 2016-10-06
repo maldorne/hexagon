@@ -184,7 +184,7 @@ void show_prompt()
     //   s += (string)evaluate(prompt[i]);
 
     if (prompt[i][0..0] == "@")
-      s+= call_other(this_object(), prompt[i][1..]);
+      s += call_other(this_object(), prompt[i][1..]);
     else
       s += prompt[i];
   }
