@@ -216,7 +216,7 @@ int ls(string str, int mask, object me)
         else
           // Believe me, it's needed.
           bong = replace_string(bong, " "+direc[i],
-            sprintf(" %s%s", "%^WHITE%^", direc[i]));
+            sprintf(" %s%s%s", "%^WHITE%^", direc[i], "%^RESET%^"));
       }
     }
   } 
@@ -251,12 +251,9 @@ int ls(string str, int mask, object me)
     for (i = 0; i < size; i++)
       bit[i] = "";
 
-stderr("BBBB " + str + "\n");
-
     i = strsrch(str, '/', -1);
     if (i >= 0)
         str = str[0..i];
-stderr("BBBB " + str + "\n");
 
     for (i = 0; i < size; i++) 
     {
@@ -281,11 +278,6 @@ stderr("BBBB " + str + "\n");
         count[i] = 1;
 
         /* directory */
-stderr("AAAA " + str + "\n");
-stderr("AAAA " + direc[i][0] + "\n");
-
-stderr("AAAA " + to_string(get_dir(get_path(sprintf("%s%s/*", str, direc[i][0])))) + "\n");
-
 
         bit[i] = sprintf("%-*s", (me->query_cols()+
           (mask & MASK_O?17:0)),
