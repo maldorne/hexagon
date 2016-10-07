@@ -1,8 +1,6 @@
 
-// Non-dgd stuff
-// neverbot, 12/2014
-
 #include <living/living.h>
+#include <user/user.h>
 
 private static int _living;
 
@@ -29,9 +27,8 @@ static nomask int living(object ob)
 
 nomask void enable_commands()
 {
-  // only this_object can do this
-  if (!previous_object() || 
-      (previous_object() != this_object())) 
+  // TODO check npcs too
+  if (base_name(previous_object()) != USER_HANDLER)
     return;
 
   _living = 1;
