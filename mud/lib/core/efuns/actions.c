@@ -7,7 +7,7 @@ static mapping _actions;
 // debug
 mapping query_actions() { return _actions; }
 
-void add_action(string function, mixed verbs) 
+nomask void add_action(string function, mixed verbs) 
 {
   if (!_actions) 
     _actions = ([ ]);
@@ -23,21 +23,26 @@ void add_action(string function, mixed verbs)
     _actions[verbs] = function;
 }
 
-int action_exist(string verb)
+nomask int action_exist(string verb)
 {
   if (_actions[verb])
     return 1;
   return 0;
 }
 
-string query_action(string verb)
+nomask string query_action(string verb)
 {
   return _actions[verb];
 }
 
-string query_verb()
+nomask string query_verb()
 {
   return MUDOS->query_current_verb();
+}
+
+nomask void notify_fail(string str) 
+{
+  MUDOS->set_notify_fail_msg(str);
 }
 
 // Execute 'action' for the object this_object() as a command (matching against
@@ -51,7 +56,7 @@ int command(string action)
 {
   object old_this_player;
   string * words;
-  string verb, params, old_verb;
+  string verb, params;
   object * targets;
   object env;
   int i, found;
@@ -69,13 +74,7 @@ int command(string action)
   // set this_object as currect this_player
   MUDOS->set_initiator_object(this_object());
 
-  // TODO: save current notify_fail message
-
   verb = words[0];
-
-  // save current verb being used
-  old_verb = MUDOS->query_current_verb();
-  MUDOS->set_current_verb(verb);
   
   if (sizeof(words) > 1)
     params = implode(words[1..], " ");
@@ -120,11 +119,6 @@ int command(string action)
       }
     }
   }
-
-  // restore previous verb
-  MUDOS->set_current_verb(old_verb);
-
-  // TODO: restore previous notify_fail message
 
   // restore this_player()
   MUDOS->set_initiator_object(old_this_player);

@@ -23,6 +23,7 @@
 
 #include <living/queue.h>
 #include <mud/cmd.h>
+#include <kernel.h>
 
 /*
  * These must be saved in permanent storage; in fact, these should be
@@ -76,9 +77,8 @@ private static int trivial_actions_performed;  /* number performed this hb  */
 private static int trivial_action_in_progress;  /* flag if command trivial  */
 private static int notified;
 /* Gosh this is ugly, Baldrick 1998-11-05 */
-private static mixed notify_fail_msg;
-
-private static string temp_verb; 
+// private static mixed notify_fail_msg;
+// private static string temp_verb; 
 
 /* interruptable action stuff */
 private static int ia_in_progress; /* flag indicating in the middle of an ia */
@@ -116,22 +116,22 @@ void debug_resetq() {  actionq = ({ }); }
 /* debug of course */
 int query_bits_per_beat() { return 10; }
 
-string query_verb() 
-{
-  if ( strlen(temp_verb) > 0)
-    return temp_verb;
-  else
-    return "";
-    // return efun::query_verb();
-}
+// string query_verb() 
+// {
+//   if ( strlen(temp_verb) > 0)
+//     return temp_verb;
+//   else
+//     return "";
+//     // return efun::query_verb();
+// }
 
 // This function is called from the notify_fail simul_efun
+/*
 void set_notify_fail_msg(mixed txt) { notify_fail_msg = txt; }
 string query_notify_fail_msg() 
 { 
   return stringp(notify_fail_msg)?notify_fail_msg:evaluate(notify_fail_msg);
 }
-/*
 string query_notify_fail_msg() { 
     string tmp_m;
     tmp_m = notify_fail_msg;
@@ -409,8 +409,7 @@ int do_cmd(string tail)
 private int perform_next_action()
 {
   mixed curr_act;
-  //int verb, t;
-  string verb, t;
+  string verb, t, old_notify_fail, old_verb;
 
   show_prompt = 1;
   // if ( ia_in_progress )
@@ -472,13 +471,6 @@ private int perform_next_action()
 
   trivial_action_in_progress = 0;
 
-  /* testing something.. 
-   * the right order of this may have to be tweaked
-   * Baldrick */
-  notify_fail("");
-  // notified = 0;
-
-
   // if ( functionp( curr_act ) )    
   // {
   //   evaluate( curr_act );
@@ -491,7 +483,6 @@ private int perform_next_action()
 
   if (stringp( curr_act ))
   {
-    notify_fail_msg = 0;
     command_in_progress = curr_act;
     time_adjusted = 0;
 
@@ -500,7 +491,14 @@ private int perform_next_action()
     if(!verb)
       verb = curr_act;
 
-    temp_verb = verb;
+    // save current verb being used
+    old_verb = MUDOS->query_current_verb();
+    MUDOS->set_current_verb(verb);
+
+    // save current notify_fail message
+    // will be changed (presumably) during the execution 
+    // of this action
+    old_notify_fail = MUDOS->query_notify_fail_msg();
 
     // The real command chain
 
@@ -522,30 +520,38 @@ private int perform_next_action()
             {
               // if (!CMD_HANDLER->soul_com(curr_act, this_object()))
               // {
+                string fail_msg;
                 // The end, either the command didn't work or we have 
                 // a notify fail. in that case, it writes a new message, if not,
                 // it writes the one we made earlier, a standard one.
-                if (notify_fail_msg)
-                  tell_object(this_object(), query_notify_fail_msg());
+
+                fail_msg = MUDOS->query_notify_fail_msg();
+
+                if (fail_msg && (fail_msg != ""))
+                  tell_object(this_object(), fail_msg);
                 else
-                  tell_object(this_object(), "El intento de hacer '%^RED%^" + curr_act + 
-                    "%^RESET%^' no funcionó.\n");
+                  tell_object(this_object(), "El intento de hacer '%^RED%^" + 
+                                              curr_act + 
+                                             "%^RESET%^' no funcionó.\n");
               
-                // Hack, baldrick 
-                // this_object()->set_notify_fail_msg("El intento de hacer '%^RED%^" + curr_act
-                //  + "%^RESET%^' no funcionó.\n");
               // }
             }
           }
         }
       }
     }
-  
+
+    // restore previous notify_fail message
+    // (might have change during the execution of the action)
+    MUDOS->set_notify_fail_msg(old_notify_fail);
+
+    // restore previous verb
+    MUDOS->set_current_verb(old_verb);
+
     command_in_progress = "";
   }
   else
   {
-    temp_verb = "";
     return 0;
   }
 
@@ -567,7 +573,6 @@ private int perform_next_action()
   if ( !ia_in_progress )
     curr_forced = -1;
 
-  temp_verb = "";
   return 1;
 } /* perform_next_action() */
 

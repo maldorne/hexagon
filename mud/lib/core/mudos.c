@@ -11,15 +11,22 @@ inherit hb "/lib/core/heart_beats";
 
 private static object initiator_player, initiator_object;
 private static string current_verb;
+private static string notify_fail_msg;
 
 void create()
 {
   current_verb = "";
+  notify_fail_msg = "";
   hb::create();
 }
 
+// TODO security in set_current_verb
 string query_current_verb() { return current_verb; }
 void set_current_verb(string v) { current_verb = v; }
+
+// TODO security in set_notify_fail_msg
+string query_notify_fail_msg() { return notify_fail_msg; }
+void set_notify_fail_msg(string msg) { notify_fail_msg = msg; }
 
 int set_initiator_object(object ob) 
 {

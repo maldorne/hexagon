@@ -25,13 +25,6 @@ object real_this_player()
   return nil;
 }
 
-static nomask void notify_fail(string str) 
-{
-  this_player()->set_fail_msg(str);
-}
-
-
-
 // void notify_fail(mixed str) 
 // {
 //   if(!this_player())
