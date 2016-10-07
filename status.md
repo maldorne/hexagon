@@ -16,6 +16,14 @@
 
     **Done**. Idea (*improvement from MudOS*): have different priority lists for different `hbs`: every second, every two seconds (default), every five seconds, etc.
 
-- [ ] **Rooms and movement**
+- [x] **Rooms and movement**
 
-    Environment, inventory and `move`: done.
+    **Done**. Environments, inventories, `move` functions, move commands between rooms.
+
+- [x] **`exec` command**
+
+    **Done**. Command to execute LPC code on the fly to help test everything.
+
+- [ ] **Login with multiple types of users**
+
+    Login process for coders, players, administrators, etc.
