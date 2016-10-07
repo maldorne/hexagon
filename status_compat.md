@@ -86,9 +86,9 @@ do not have an open source license.
 | `previous_object`       |  | :white_check_mark: |  |
 | `all_previous_objects`  |  | :white_check_mark: | alias for `previous_objects` |
 | `evaluate`              |  | :white_check_mark: |  |
-| `add_action`            |  |  |  |
-| `query_verb`            |  |  |  |
-| `command`               |  |  |  |
+| `add_action`            |  | :white_check_mark: |  |
+| `query_verb`            |  | :white_check_mark: |  |
+| `command`               |  | :white_check_mark: |  |
 | `remove_action`         |  |  |  |
 | `commands`              |  |  |  |
 | `disable_commands`      |  |  |  |

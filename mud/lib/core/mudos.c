@@ -10,11 +10,16 @@
 inherit hb "/lib/core/heart_beats";
 
 private static object initiator_player, initiator_object;
+private static string current_verb;
 
 void create()
 {
+  current_verb = "";
   hb::create();
 }
+
+string query_current_verb() { return current_verb; }
+void set_current_verb(string v) { current_verb = v; }
 
 int set_initiator_object(object ob) 
 {
@@ -63,5 +68,3 @@ void do_init(object ob1, object ob2)
 
   catch(call_other(ob2, "__call_other", "init"));
 }
-
-

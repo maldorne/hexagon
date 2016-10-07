@@ -1,4 +1,6 @@
 
+#include <kernel.h>
+
 // actions available
 static mapping _actions;
 
@@ -33,6 +35,11 @@ string query_action(string verb)
   return _actions[verb];
 }
 
+string query_verb()
+{
+  return MUDOS->query_current_verb();
+}
+
 // Execute 'action' for the object this_object() as a command (matching against
 // add_actions and such).  The object must have called enable_commands() for
 // this to have any effect.
@@ -44,7 +51,7 @@ int command(string action)
 {
   object old_this_player;
   string * words;
-  string verb, params;
+  string verb, params, old_verb;
   object * targets;
   object env;
   int i, found;
@@ -63,9 +70,12 @@ int command(string action)
   MUDOS->set_initiator_object(this_object());
 
   // TODO: save current notify_fail message
-  // TODO: save current verb
 
   verb = words[0];
+
+  // save current verb being used
+  old_verb = MUDOS->query_current_verb();
+  MUDOS->set_current_verb(verb);
   
   if (sizeof(words) > 1)
     params = implode(words[1..], " ");
@@ -92,7 +102,7 @@ int command(string action)
     if ((func = targets[i]->query_action(verb)) != nil)
     {
       mixed result;
-      catch(result = call_other(targets[i], verb, params));
+      catch(result = call_other(targets[i], func, params));
 
       // wrong function definition, maybe wrong prototype
       // add_action functions should be in the form
@@ -111,7 +121,9 @@ int command(string action)
     }
   }
 
-  // TODO: restore previous verb
+  // restore previous verb
+  MUDOS->set_current_verb(old_verb);
+
   // TODO: restore previous notify_fail message
 
   // restore this_player()

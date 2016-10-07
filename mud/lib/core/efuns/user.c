@@ -30,11 +30,6 @@ static nomask void notify_fail(string str)
   this_player()->set_fail_msg(str);
 }
 
-static string query_verb()
-{
-  return this_player()->query_verb();
-}
-
 
 
 // void notify_fail(mixed str) 
