@@ -8,7 +8,10 @@ static nomask int index (mixed element, mixed * arr)
 
 static nomask mixed * delete(mixed * arr, int start, int len) 
 {
-  return arr[0..start-1]+arr[start+len..sizeof(arr)];
+  if (start + len >= sizeof(arr))
+    return arr[0 .. start - 1];
+
+  return arr[0 .. start - 1] + arr[start + len .. sizeof(arr)];
 } 
 
 static nomask mixed * slice_array(mixed * arr, int start, int fin) 

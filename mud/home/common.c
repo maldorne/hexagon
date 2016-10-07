@@ -1,5 +1,5 @@
 /*
- * Habitaci贸n com煤n de los inmortales... traducida por fin, Folken@Cc 25/04/03
+ * Habitaci髇 com鷑 de los inmortales... traducida por fin, Folken@Cc 25/04/03
  */
 
 #define ADMIN "/lib/areas/admin/  "
@@ -35,15 +35,15 @@ void reset()
 void setup() 
 {
   set_light(60);
-  set_short("Habitaci贸n com煤n de los programadores");
-  set_long("Esta habitaci贸n es en la que los programadores de "+mud_name()+
-        " se re煤nen para discutir temas de cualquier tipo concernientes al juego. "+
-        "Utiliza el tabl贸n para poner cualquier nota y dejar tus opiniones sobre "+
-        "cualquier tema de discusi贸n actual, tambi茅n es tu mud... \n");
+  set_short("Habitaci髇 com鷑 de los programadores");
+  set_long("Esta habitaci髇 es en la que los programadores de "+mud_name()+
+        " se re鷑en para discutir temas de cualquier tipo concernientes al juego. "+
+        "Utiliza el tabl髇 para poner cualquier nota y dejar tus opiniones sobre "+
+        "cualquier tema de discusi髇 actual, tambi閚 es tu mud... \n");
 
   // add_exit("cc", "/d/ciudad_capital/common", "standard");
-  // add_exit("sur", ADMIN + "admin1","standard");
-  // add_exit("norte", "/room/admin/meeting.c","standard");
+  add_exit("sur", ADMIN + "admin1","standard");
+  add_exit("norte", "/room/admin/meeting.c","standard");
 }
 
 void dest_me() 
