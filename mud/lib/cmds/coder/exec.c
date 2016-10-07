@@ -160,9 +160,8 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  // Intento de ejecutar codigo ilegal (solo comprobamos para programadores
-  // de bajo nivel)
-  if (!"/lib/core/secure/permission"->is_administrator(this_player()->query_name()))
+  // check if trying to execute illegal code (for low level coders)
+  if (!"/lib/core/secure"->is_administrator(this_player()->query_name()))
     if (!check_code(str))
       return 1;
         

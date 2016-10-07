@@ -696,7 +696,10 @@ nomask int action_check(string str)
           environment(this_object())->do_random_move_command();
           return 1;
       */
-      case "test":
+
+      // some testing commands
+
+      case "stats":
         // write(object_name(this_object()) + "\n");
         // print_object(::status(this_object()));
         // print_object(this_object()->stats());
