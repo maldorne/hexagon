@@ -32,6 +32,9 @@ nomask int action_exist(string verb)
 
 nomask string query_action(string verb)
 {
+  if (!_actions) 
+    _actions = ([ ]);
+  
   return _actions[verb];
 }
 

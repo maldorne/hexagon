@@ -49,6 +49,10 @@ void create()
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
   container::create();
+
+  // every living has enable_commands activated,
+  // so it will respond to living()
+  enable_commands();
 }
 
 mixed * stats() 

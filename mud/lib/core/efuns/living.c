@@ -2,6 +2,8 @@
 // Non-dgd stuff
 // neverbot, 12/2014
 
+#include <living/living.h>
+
 private static int _living;
 
 nomask int query_living() { return _living; }
@@ -10,7 +12,7 @@ nomask int query_living() { return _living; }
 // Return true if `ob' is a living object (that is, if "enable_commands()" has
 // been called by `ob').
 
-nomask int living(object ob)
+static nomask int living(object ob)
 {
   if (ob)
     return ob->query_living();
@@ -25,12 +27,12 @@ nomask int living(object ob)
 // local function catch_tell(), and if found, it will call it every time
 // a message (via say() for example) is given to the object.
 
-nomask enable_commands()
+nomask void enable_commands()
 {
-  // no needed, private function
   // only this_object can do this
-  // if (!previous_object() || previous_object() != this_object()) 
-  //   return;
+  if (!previous_object() || 
+      (previous_object() != this_object())) 
+    return;
 
   _living = 1;
 }
@@ -42,21 +44,16 @@ nomask enable_commands()
 // set_living_name(), so its name will be entered into the hash table
 // used to speed up the search for living objects.
 
-// TODO find_living
-
-object find_living(string name)
+static nomask object find_living(string name)
 {
-  // string nick;
-  // object ob;
+  return find_object(LIVING_HANDLER)->_find_living(name);
+}
 
-  // if (this_player() && (nick = (string)this_player()->expand_nickname(str)))
-  //   str = nick;
+// void set_living_name( string name );
+// Set a living name on an object that is living. After this has been done, the
+// object can be found with "find_living()".
 
-  // if ((ob = efun::find_living(str)))
-  //   if ((int)ob->query_invis() == 2)
-  //     return nil;
-
-  // return ob;
-
-  return nil;
+nomask void set_living_name(string name)
+{
+  find_object(LIVING_HANDLER)->_set_living_name(this_object(), name);
 }

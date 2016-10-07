@@ -91,9 +91,11 @@ do not have an open source license.
 | `command`               |  | :white_check_mark: |  |
 | `remove_action`         |  |  |  |
 | `commands`              |  |  |  |
+| `enable_commands`       |  | :white_check_mark: |  |
 | `disable_commands`      |  |  |  |
-| `enable_commands`       |  |  |  |
 | `interactive`           |  |  |  |
+| `living`                |  | :white_check_mark: |  |
+| `find_living`           |  | :white_check_mark: |  |
 | `set_heart_beat`        |  | :white_check_mark: |  |
 | `query_heart_beat`      |  | :white_check_mark: |  |
 
@@ -164,10 +166,8 @@ do not have an open source license.
 | `random`                |  |  |  |
 | `say`                   |  |  |  |
 | `tell_room`             |  |  |  |
-| `living`                |  | :white_check_mark: |  |
 | `set_living_name`       |  |  |  |
 | `livings`               |  |  |  |
-| `find_living`           |  |  |  |
 | `find_player`           |  |  |  |
 | `notify_fail`           |  |  |  |
 | `save_variable`         |  |  |  |

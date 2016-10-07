@@ -5,6 +5,7 @@
 
 #include <kernel.h>
 #include <user/user.h>
+#include <living/living.h>
 #include <user/terminal.h>
 
 // to avoid the error:
@@ -49,6 +50,7 @@
 // start neverbot
 
 static object user_h;
+static object living_h;
 static object error_h;
 static object object_h;
 
@@ -75,6 +77,7 @@ static nomask void initialize()
   // global object in charge of heart_beats, init calls, etc
   call_other(mudos    = load_object(MUDOS_PATH), "???");
   call_other(user_h   = load_object(USER_HANDLER), "???");
+  call_other(living_h = load_object(LIVING_HANDLER), "???");
   call_other(object_h = load_object(OBJECT_HANDLER), "???");
   call_other(load_object(TERM_HANDLER), "???");
 

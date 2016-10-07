@@ -38,7 +38,11 @@ void create()
   prompt::create();
   living::create();
 
-  enable_commands();
+  // already done in living
+  // enable_commands();
+
+  // this should be done both for players and npcs
+  set_living_name("neverbot");
 
   // name = "";
   // inner_player = nil;
