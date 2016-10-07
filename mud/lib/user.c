@@ -144,7 +144,8 @@ static void receive_message(string str)
 
     if ( !strlen(str) || str == "\n" ) 
     {
-      show_prompt();
+      // \n added before the prompt 
+      show_prompt("\n");
       return;
     }
 

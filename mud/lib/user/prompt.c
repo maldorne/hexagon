@@ -169,7 +169,9 @@ int set_prompt(string str)
   return 1;
 }
 
-void show_prompt()
+// if prefix is passed as an argument, it will be
+// prepended to the current promtp
+void show_prompt(varargs string prefix)
 {
   int i;
   string s;
@@ -188,7 +190,11 @@ void show_prompt()
     else
       s += prompt[i];
   }
-  write(s);
+
+  if (prefix)
+    write(prefix + s);
+  else
+    write(s);
 }
 
 // debugging 
