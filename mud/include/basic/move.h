@@ -10,6 +10,7 @@
 #define MOVE_LIB_INSIDE 7
 #define MOVE_LIB_LOOP 8
 
-
 #define CAN_BE_DROPPED 1
 #define CAN_BE_GOTTEN 2
+
+#define UNKNOWN_MOVE_PROP "unknown move"

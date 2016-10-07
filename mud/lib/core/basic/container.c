@@ -136,6 +136,7 @@ int move(mixed dest, varargs mixed messin, mixed messout)
 {
   if (prevent_insert && loc_weight && !living(dest) && environment(dest))
     return MOVE_INVALID_DEST;
+
   return (int)obj::move(dest, messin, messout);
 } 
 

@@ -5,7 +5,7 @@
 * CcMud revision, neverbot 6/03
 */
 
-#include <rooms/room.h>
+#include <room/room.h>
 
 inherit light    "/lib/core/basic/light";
 inherit property "/lib/core/basic/property";
@@ -662,22 +662,29 @@ int query_size(string direc)
   return size;
 }
 
-int do_exit_command(string str, mixed verb, object ob)
+int do_exit_command(string str, varargs mixed verb, object ob)
 {
-  mixed zip;
-  int old_call_out;
+  int zip, old_call_out;
   object room_ob;
 
   room_ob = this_object();
+
+  if (!verb)
+    verb = query_verb();
+
+  if (!ob)
+    ob = this_player();
+
   zip = EXIT_HAND->do_exit_command(door_control,
     exit_map, dest_direc, dest_other,
     aliases, str, verb, ob, room_ob);
+
 #ifdef FAST_CLEAN_UP
   old_call_out = remove_call_out( clean_up_handle );  // multiple folks in room
 
   if ( old_call_out > 0
       &&  old_call_out < FAST_CLEAN_UP
-    &&  (time() - room_create_time) < FAST_CLEAN_UP )
+      &&  (time() - room_create_time) < FAST_CLEAN_UP )
   {
     // was merely passing through {Laggard}
     clean_up_handle = call_out( "clean_up_room", FAST_CLEAN_UP, 0 );

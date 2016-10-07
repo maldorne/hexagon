@@ -31,9 +31,8 @@
 // inherit "/global/living/health";
 // inherit "/global/living/handle.c";
 
-// from here we inherit object.c
-inherit container "/lib/core/basic/container";
 inherit queue     "/lib/living/queue.c";
+inherit movement  "/lib/living/movement.c";
 
 // inherit "/global/living/groups_obs.c";
 // inherit "/global/living/mount.c";
@@ -48,7 +47,7 @@ void create()
 
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
-  container::create();
+  movement::create();
 
   // every living has enable_commands activated,
   // so it will respond to living()
@@ -57,8 +56,8 @@ void create()
 
 mixed * stats() 
 {
-  return container::stats() + 
-         queue::stats();
+  return queue::stats() + 
+         movement::stats();
          // stats::stats() + 
          // equip::stats() + 
          // alignment::stats() + 

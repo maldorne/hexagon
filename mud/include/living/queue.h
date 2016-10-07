@@ -38,19 +38,19 @@
 
 /* Some common aliases */
 #define EXPANSION ([     \
-     "n" : "norte",      \
-     "s" : "sur",      \
-     "e" : "este",       \
-     "ne" : "noreste", \
-     "no" : "noroeste", \
-     "se" : "sudeste", \
-     "so" : "sudoeste", \
-     "ar"  : "arriba",         \
-     "ab" : "abajo",       \
-     "o" : "oeste",       \
-     "de" : "dentro",       \
-     "fu" : "fuera",       \
-     "es" : "escaleras",       \
+     "n"  : "norte",     \
+     "s"  : "sur",       \
+     "e"  : "este",      \
+     "ne" : "noreste",   \
+     "no" : "noroeste",  \
+     "se" : "sudeste",   \
+     "so" : "sudoeste",  \
+     "ar" : "arriba",    \
+     "ab" : "abajo",     \
+     "o"  : "oeste",     \
+     "de" : "dentro",    \
+     "fu" : "fuera",     \
+     "es" : "escaleras", \
   ])
 
 #endif

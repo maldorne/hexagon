@@ -21,12 +21,14 @@ void event_inform(object ob, string mess, string type)
 {
 }
 
-void event_enter(object ob, string mess, object *ignore) 
+void event_enter(object ob, string mess, varargs object from, object *ignore) 
 {
+  stderr(" * event_enter " + object_name(this_object()) + "\n");
 }
 
-void event_exit(object ob, string mess, object to, object *ignore) 
+void event_exit(object ob, string mess, varargs object dest, object *ignore) 
 {
+  stderr(" * event_exit " + object_name(this_object()) + "\n");
 }
 
 void event_say(object caller, string str, mixed avoid)

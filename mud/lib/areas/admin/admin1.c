@@ -2,7 +2,7 @@
 #define IMM2 " "
 
 #include "path.h"
-inherit "/std/room.c";
+inherit "/lib/room.c";
 
 void init() {
 ::init();

@@ -1,10 +1,10 @@
 // External exit_handler for room.c...  should make it less "fat"
 //      room.c references these functions below [Piper 12/24/95]
-// Algunos retoques, Folken 6/03
+// Algunos retoques, neverbot 6/03
 // Añadidas nearest_exits, 04/2009
-// Sistema de guardias protectores de salidas, Folken 15/04/2009
+// Sistema de guardias protectores de salidas, neverbot 15/04/2009
 
-#include <rooms/room.h>
+#include <room/room.h>
 #include <basic/material.h>
 #include <common/properties.h>
 
@@ -64,7 +64,7 @@ mixed* add_exit(mapping door_control, mapping exit_map,
   //  string exit_string, 
   //  short_exit_string;
 
-  // tell_object(find_living("folken"), "Direccion: "+direc+" Tipo: "+type+"\n");
+  // tell_object(find_living("neverbot"), "Direccion: "+direc+" Tipo: "+type+"\n");
 
   if(!material) {
    switch(type) {
@@ -240,44 +240,44 @@ int do_exit_command(mapping door_control,
                     string str, mixed verb, object ob,
                     object room_ob)
 {
-   string special_mess;
-   // string closed;
-   int i;
-   mixed zip;
-   object door;
-   mixed * guards;
+  string special_mess;
+  int i, result;
+  mixed zip;
+  object door;
+  mixed * guards;
  
-   if (!verb)
-     verb = query_verb();
-   else {
-     if (pointerp(verb)) {
-        special_mess = verb[1];
-        verb = verb[0];
-     }
-     if (!sscanf(verb, "%s %s", verb, str) !=2)
-        str = "";
-   }
-   if (!ob)
-     ob = this_player();
+  if (!verb)
+    verb = query_verb();
+  else 
+  {
+    if (pointerp(verb)) 
+    {
+       special_mess = verb[1];
+       verb = verb[0];
+    }
+    if (!sscanf(verb, "%s %s", verb, str) !=2)
+       str = "";
+  }
+  if (!ob)
+    ob = this_player();
 
-   // Si esta passed out no se puede mover
-   if (ob->query_property(PASSED_OUT_PROP))
-   {
-       // No damos un mensaje de error, porque en ese caso estariamos dando pistas 
-       // de donde estan las salidas (las que dan error), mientras que las "no-salidas"
-       // saldrian como "El intento de hacer 'xxx' no funcionó.""
-       // notify_fail(ob->query_timed_property(PASSED_OUT_PROP));
-       return 0;
-   }
+  // cannot move in passed out
+  if (ob->query_property(PASSED_OUT_PROP))
+  {
+    // do not give an error message, because we will be giving clues
+    // about which are the "right" exits (the ones returning an error)
+    // notify_fail(ob->query_timed_property(PASSED_OUT_PROP));
+    return 0;
+  }
 
-   if ((i = member_array(verb, dest_direc)) == -1)
-     if ((i = member_array(verb, aliases)) == -1)
-       return 0;
-     else
-       if ((i = member_array(aliases[i-1], dest_direc)) == -1)
-         return 0;
+  if ((i = member_array(verb, dest_direc)) == -1)
+    if ((i = member_array(verb, aliases)) == -1)
+      return 0;
+    else
+      if ((i = member_array(aliases[i-1], dest_direc)) == -1)
+        return 0;
 
-  /* ok must be two command exit */
+  // ok must be two command exit 
   if (dest_direc[i] != dest_other[i*2]) 
   {
     string s1,s2;
@@ -285,7 +285,9 @@ int do_exit_command(mapping door_control,
  
     sscanf(dest_other[i*2],"%s %s",s1,s2);
     str = expand_alias(aliases,str);
-    if (s2 != str) {
+
+    if (s2 != str) 
+    {
       zip = dest_direc[i+1..sizeof(dest_direc)];
       while (1)
         if ((j = member_array(verb, zip)) != -1) 
@@ -299,20 +301,22 @@ int do_exit_command(mapping door_control,
           return 0;
     }
   }
-  
+
   // Las monturas no pueden pasar por salidas tipo rope ni door
   if (ob->query_ride() && 
-      (room_ob->query_ex_type(dest_direc[i]) == "rope" || room_ob->query_ex_type(dest_direc[i]) == "door" ) )
+      (room_ob->query_ex_type(dest_direc[i]) == "rope" || 
+       room_ob->query_ex_type(dest_direc[i]) == "door" ) )
       return 0;
 
   door = room_ob->query_doors(dest_direc[i]);
+
   if (door && !door->is_open()) 
   {    
     string fail_msg;
     fail_msg = "";
 
     // Nuevo sistema de personalizacion de puertas,
-    // Folken 10/03
+    // neverbot 10/03
     if (door->query_reset_message())
       notify_fail("La puerta hacia "+dest_direc[i]+" está cerrada.\n");
     else if (door->query_known_exit(dest_direc[i]))
@@ -332,125 +336,107 @@ int do_exit_command(mapping door_control,
     }
     return 0;
   }
-  
+
   // Comprobamos si la salida tiene guardias asignados
   if (sizeof(guards = room_ob->query_guards()) )
   {
-      int j, k;
-      mixed * list;
+    int j, k;
+    mixed * list;
 
-      for (j = 0; j < sizeof(guards); j++)
+    for (j = 0; j < sizeof(guards); j++)
+    {
+      int sneak;
+      sneak = 0;
+      list = guards[j];
+      for (k = 0; k < sizeof(list); k+=2)
       {
-          int sneak;
-          sneak = 0;
-          list = guards[j];
-          for (k = 0; k < sizeof(list); k+=2)
+        // Si esta el guardia y esta protegiendo la salida escogida
+        if (list[k] && (list[k+1] == dest_direc[i]) &&
+            (environment(list[k]) == room_ob))
+        {  
+          // El npc impide el paso
+          if (!list[k]->guardian_check(ob) )
           {
-              // Si esta el guardia y esta protegiendo la salida escogida
-              if (list[k] && (list[k+1] == dest_direc[i]) &&
-                  (environment(list[k]) == room_ob))
-                  
-                  // El npc impide el paso
-                  if (!list[k]->guardian_check(ob) )
-                  {
-                      if (ob->query_timed_property(file_name(list[k]) + "_guard_lock") )
-                      {
-                          notify_fail(list[k]->query_short() + " ya se ha dado cuenta de lo que intentas.\n");
-                          return 0;
-                      }
-                      
-                      // Azar de percepcion del guardia contra destreza del invasor
-                      if (list[k]->query_level() + list[k]->query_per() + random(list[k]->query_per()) >= 
-                          ob->query_level() + ob->query_dex() + random(ob->query_dex()))
-                          { 
-                              if (list[k]->guardian_message())
-                                  notify_fail(list[k]->guardian_message());
-                              else
-                                  notify_fail(list[k]->query_short() + " te impide el paso.\n");
-                              ob->add_timed_property(file_name(list[k])+"_guard_lock", 1, 20);
-                              return 0;
-                          }
-                          else
-                          {
-                              tell_object(ob, list[k]->query_short() + " está vigilando esa dirección, " +
-                                  "pero en un descuido te cuelas sin que se dé cuenta.\n");
-                              sneak = 1;
-                              break;
-                          }
-                  }
-          }
-          
-          // si nos hemos colado a un guardia, no seguimos comprobando los demas
-          // en otro caso se podria ver el mensaje de "te cuelas" seguido del "te descubre"
-          if (sneak)
-              break;
-      }
-  }
+            if (ob->query_timed_property(file_name(list[k]) + "_guard_lock") )
+            {
+                notify_fail(list[k]->query_short() + " ya se ha dado cuenta de lo que intentas.\n");
+                return 0;
+            }
+            
+            // Azar de percepcion del guardia contra destreza del invasor
+            if (list[k]->query_level() + list[k]->query_per() + random(list[k]->query_per()) >= 
+                ob->query_level() + ob->query_dex() + random(ob->query_dex()))
+            { 
+              if (list[k]->guardian_message())
+                notify_fail(list[k]->guardian_message());
+              else
+                notify_fail(list[k]->query_short() + " te impide el paso.\n");
 
-  /* First check for lockedness of doors etc
-  if (zip = door_control[dest_other[i*2]]) {
-    if (zip[0]->query_locked()) 
-    // Locked...  We auto-unlock, if they have the key
-      if (!zip[0]->moveing_unlock(ob))
-        return 0;
-    if (!zip[0]->query_open()) { // Closed open it and close it after us.
-      if (!zip[0]->moveing_open(ob))
-        return 0;
-      closed = zip[0];
+              ob->add_timed_property(file_name(list[k])+"_guard_lock", 1, 20);
+              return 0;
+            }
+            else
+            {
+              tell_object(ob, list[k]->query_short() + " está vigilando esa dirección, " +
+                  "pero en un descuido te cuelas sin que se dé cuenta.\n");
+              sneak = 1;
+              break;
+            }
+          }
+        }
+      }
+      
+      // si nos hemos colado a un guardia, no seguimos comprobando los demas
+      // en otro caso se podria ver el mensaje de "te cuelas" seguido del "te descubre"
+      if (sneak)
+        break;
     }
   }
-  */
 
   if (dest_other[i*2+1][ROOM_FUNC])
     if (stringp(dest_other[i*2+1][ROOM_FUNC])) 
-  {
-     if (!call_other(room_ob, dest_other[i*2+1][ROOM_FUNC],
+    {
+      if (!call_other(room_ob, dest_other[i*2+1][ROOM_FUNC],
           str, ob, special_mess))
         return 0;
     } 
   else 
   {
-      if (pointerp(dest_other[i*2+1][ROOM_FUNC]))
-        if (!call_other(dest_other[i*2+1][ROOM_FUNC][0],
-                        dest_other[i*2+1][ROOM_FUNC][1], ob, special_mess))
-          return 0;
-    }
+    if (pointerp(dest_other[i*2+1][ROOM_FUNC]))
+      if (!call_other(dest_other[i*2+1][ROOM_FUNC][0],
+                      dest_other[i*2+1][ROOM_FUNC][1], ob, special_mess))
+        return 0;
+  }
  
   if (!special_mess)
-  /*
+    catch( result = (int)ob->move_living(dest_other[i*2], 
+                                      dest_other[i*2+1][ROOM_DEST],
+                                      dest_other[i*2+1][ROOM_MESS],
+                                      dest_other[i*2+1][ROOM_ENTER]));
+  else
+    catch( result = (int)ob->move_living(dest_other[i*2], 
+                                      dest_other[i*2+1][ROOM_DEST],
+                                      special_mess,
+                                      dest_other[i*2+1][ROOM_ENTER]));
+
+/*
+  // visited places, neverbot 08/2010
+  if (result)
   {
-         special_mess = room_exits[exit_index + ROOM_MESS];
-         if (!special_mess){
-              special_mess = ROOM_HAND->exit_message(full_exit_name);
-          }
+    // prototipo de la funcion:
+    // void add_visited(string file_name, string direction, int is_stealth, 
+    //        int is_mounted, string mount_name)
+    ob->add_visited(
+      file_name(room_ob), // room que ha visitado
+      dest_direc[i],      // direccion que ha tomado
+      0,                  // flag estaba sigilando
+      ob->query_riding(), // flag iba montado
+      (ob->query_riding()?ob->query_mount()->query_name():"") // nombre de la montura usada
+      );
   }
   */
-    catch( zip = (int)ob->move_player(dest_other[i*2], dest_other[i*2+1][ROOM_DEST],
-                                   dest_other[i*2+1][ROOM_MESS],
-                                   dest_other[i*2+1][ROOM_ENTER]));
-  else
-    catch( zip = (int)ob->move_player(dest_other[i*2], dest_other[i*2+1][ROOM_DEST],
-                                   special_mess,
-                                   dest_other[i*2+1][ROOM_ENTER]));
-  // if (closed)
-  //   closed->moveing_close(ob);
 
-  // Visited places, Folken 08/2010
-  if (zip)
-  {
-  // prototipo de la funcion:
-  // void add_visited(string file_name, string direction, int is_stealth, 
-  //        int is_mounted, string mount_name)
-  ob->add_visited(
-    file_name(room_ob), // room que ha visitado
-    dest_direc[i],      // direccion que ha tomado
-    0,                  // flag estaba sigilando
-    ob->query_riding(), // flag iba montado
-    (ob->query_riding()?ob->query_mount()->query_name():"") // nombre de la montura usada
-    );
-  }
-
-  return zip;
+  return result;
 } /* do_exit_command() */
 
 /*
@@ -475,7 +461,7 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
   for (i=0; i < size; i+=2){
 
     // Modificado el sistema para que las salidas se vean igual que
-    //  con el short_exit_string, Folken 6/03
+    //  con el short_exit_string, neverbot 6/03
 
     door = room_ob->query_doors(dest_other[i]);
     if (door) {

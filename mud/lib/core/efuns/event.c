@@ -5,8 +5,6 @@
  *
  */
 
-// TODO remove comment when auto::event and auto::event_except are no longer needed
-
 void event( mixed obs, string event_name, mixed arg... )
 {
   object who;

@@ -505,37 +505,32 @@ private int perform_next_action()
     // add_action commands
     if (!command( curr_act ))
     {
-      // move commands
-      if (!(environment() &&
-            environment(this_object())->do_move_command(curr_act)) )
-      {  
-        // TODO
-        if (!this_object()->do_gr_command(verb, t))
-        { 
-          // cmd system
-          if (!CMD_HANDLER->cmd(verb, t, this_object()))
-          {  
-            // TODO
-            if (!this_object()->parse_comm(verb, t ))
-            {
-              // if (!CMD_HANDLER->soul_com(curr_act, this_object()))
-              // {
-                string fail_msg;
-                // The end, either the command didn't work or we have 
-                // a notify fail. in that case, it writes a new message, if not,
-                // it writes the one we made earlier, a standard one.
+      // TODO
+      if (!this_object()->do_gr_command(verb, t))
+      { 
+        // cmd system
+        if (!CMD_HANDLER->cmd(verb, t, this_object()))
+        {  
+          // TODO
+          if (!this_object()->parse_comm(verb, t ))
+          {
+            // if (!CMD_HANDLER->soul_com(curr_act, this_object()))
+            // {
+              string fail_msg;
+              // The end, either the command didn't work or we have 
+              // a notify fail. in that case, it writes a new message, if not,
+              // it writes the one we made earlier, a standard one.
 
-                fail_msg = MUDOS->query_notify_fail_msg();
+              fail_msg = MUDOS->query_notify_fail_msg();
 
-                if (fail_msg && (fail_msg != ""))
-                  tell_object(this_object(), fail_msg);
-                else
-                  tell_object(this_object(), "El intento de hacer '%^RED%^" + 
-                                              curr_act + 
-                                             "%^RESET%^' no funcionó.\n");
-              
-              // }
-            }
+              if (fail_msg && (fail_msg != ""))
+                tell_object(this_object(), fail_msg);
+              else
+                tell_object(this_object(), "El intento de hacer '%^RED%^" + 
+                                            curr_act + 
+                                           "%^RESET%^' no funcionó.\n");
+            
+            // }
           }
         }
       }

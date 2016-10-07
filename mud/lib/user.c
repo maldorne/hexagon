@@ -226,6 +226,7 @@ mixed * stats()
 // TMP DEBUG, REMOVE!!!
 int query_coder() { return 1; }
 string query_name() { return "neverbot"; }
+string short(varargs int dark) { return "neverbot"; }
 int query_cols() { return 79; }
 
 object query_race_ob() { return nil; }
@@ -240,6 +241,10 @@ int check_dark(int light)
   return 0;
 }
 
+int do_look() 
+{
+  return do_cmd("mirar");
+}
 
 
 /*

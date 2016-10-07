@@ -237,6 +237,9 @@ string lower_case(string str)
 {
   int first_char;
 
+  if (!strlen(str))
+    return str;
+
   first_char = str[0];
   
   switch(first_char)
@@ -249,7 +252,8 @@ string lower_case(string str)
     case 'Ü': str[0] = 'ü'; break;
     case 'Ñ': str[0] = 'ñ'; break;
     default:
-      str[0] = first_char + 32;
+      if ((first_char >= 65) && (first_char <= 90))
+        str[0] = first_char + 32;
   }
 
   return str;
@@ -258,6 +262,9 @@ string lower_case(string str)
 string capitalize(string str)
 {
   int first_char;
+
+  if (!strlen(str))
+    return str;
 
   first_char = str[0];
   
@@ -271,7 +278,8 @@ string capitalize(string str)
     case 'ü': str[0] = 'Ü'; break;
     case 'ñ': str[0] = 'Ñ'; break;
     default:
-      str[0] = first_char - 32;
+      if ((first_char >= 97) && (first_char <= 122))
+        str[0] = first_char - 32;
   }
 
   return str;

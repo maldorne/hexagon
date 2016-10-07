@@ -1,4 +1,4 @@
-#include "parse_command.h"
+#include <basic/parse.h>
 
 string *lng,
        *shrt,
@@ -102,7 +102,7 @@ string *query_shrt() { return shrt; }
 int drop() { return 1; }
 int get() { return 1; }
 
-varargs void setup_item(mixed nam, mixed long, int no_plural) 
+void setup_item(mixed nam, mixed long, varargs int no_plural) 
 {
   string *bits, s, real_long;
   int i;
@@ -228,7 +228,7 @@ object query_parse_id(mixed *arr)
     bits = explode(arr[P_STR], " ");
     if (!(stuff = plural[bits[sizeof(bits)-1]]))
       if (!(stuff = verb[bits[sizeof(bits)-1]]))
-        return 0;
+        return nil;
     cur_desc = ({ });
     for (j=0;j<sizeof(stuff);j+=2) 
     {
@@ -245,7 +245,7 @@ object query_parse_id(mixed *arr)
   { /* specific object case */
     bits = explode(arr[P_STR], " ");
     if (!(stuff = verb[bits[sizeof(bits)-1]]))
-      return 0;
+      return nil;
     for (j=0;j<sizeof(stuff);j+=2) 
     {
       for (i=0;i<sizeof(bits)-2;i++)
@@ -258,13 +258,13 @@ object query_parse_id(mixed *arr)
       arr[P_THING] = -10321;
       return this_object();
     }
-    return 0;
+    return nil;
   }
 /* Lots of objects case.  The objects are specified though. */
   bits = explode(arr[P_STR], " ");
   if (!(stuff = plural[bits[sizeof(bits)-1]]))
     if (!(stuff = verb[bits[sizeof(bits)-1]]))
-      return 0;
+      return nil;
   cur_desc = ({ });
   for (j=0;j<sizeof(stuff);j+=2) 
   {

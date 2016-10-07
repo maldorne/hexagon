@@ -1,12 +1,26 @@
 /*
- * Habitación común de los inmortales... traducida por fin, Folken@Cc 25/04/03
+ * Common coder room
  */
 
-#define ADMIN "/lib/areas/admin/  "
+#define ADMIN "/lib/areas/admin/"
 
 inherit "/lib/room";
 
 // object board;
+
+void init()
+{
+  add_action("do_ttt", "test");
+  ::init();
+}
+
+int do_ttt(string str)
+{
+  tell_object(this_player(), "YAH! We've done a '"+query_verb()+"' with '"+str+"'\n");
+
+  notify_fail("But i want a fail message.\n");
+  return 0;
+}
 
 void reset() 
 {
@@ -42,8 +56,8 @@ void setup()
         "cualquier tema de discusión actual, también es tu mud... \n");
 
   // add_exit("cc", "/d/ciudad_capital/common", "standard");
-  add_exit("sur", ADMIN + "admin1","standard");
-  add_exit("norte", "/room/admin/meeting.c","standard");
+  add_exit("sur", ADMIN + "admin1", "standard");
+  add_exit("norte", "/room/admin/meeting.c", "standard");
 }
 
 void dest_me() 
