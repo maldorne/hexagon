@@ -121,7 +121,7 @@ string query_contents(string str, varargs object *ob)
       ob -= hidden_objects;
   else 
       ob = all_inventory(this_object()) - hidden_objects;
-  return ::query_contents(str,ob);
+  return ::query_contents(str, ob);
 }
 
 void reset()

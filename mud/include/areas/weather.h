@@ -1,3 +1,4 @@
+
 #define WEATHER "/obj/handlers/weather.c"
 #define HOME "/room/weather_room.c"
 #define SAVE_FILE "/save/environ/weather"

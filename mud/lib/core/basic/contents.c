@@ -174,8 +174,8 @@ string query_contents(string str, varargs object *obs)
     }
     ret += capitalize(inv[2][i]) + ".\n";
   }  
-  return ret;
 
+  return ret;
 }
 
 string number_as_place(int n) {

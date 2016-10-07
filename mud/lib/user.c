@@ -204,16 +204,8 @@ void heart_beat()
 int query_player() { return 1; }
 int query_user() { return 1; }
 
-// TMP DEBUG, REMOVE!!!
-int query_coder() { return 1; }
-string query_name() { return "neverbot"; }
-int query_cols() { return 79; }
-
-
-
 // static int echo;     is input echoing turned on 
 // static int editing;   /* are we editing? */
-
 
 mixed * stats() 
 {
@@ -225,6 +217,23 @@ mixed * stats()
 }
 
 
+
+// TMP DEBUG, REMOVE!!!
+int query_coder() { return 1; }
+string query_name() { return "neverbot"; }
+int query_cols() { return 79; }
+
+object query_race_ob() { return nil; }
+int query_volume(int i) { return 0; }
+
+int check_dark(int light)
+{
+  if (this_object()->query_dead())
+    return 0;
+  if (this_object()->query_race_ob())
+    return (int)query_race_ob()->query_dark(light);
+  return 0;
+}
 
 
 

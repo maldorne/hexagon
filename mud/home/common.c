@@ -2,7 +2,7 @@
  * Habitación común de los inmortales... traducida por fin, Folken@Cc 25/04/03
  */
 
-#include "path.h"
+#define ADMIN "/lib/areas/admin/  "
 
 inherit "/lib/room";
 

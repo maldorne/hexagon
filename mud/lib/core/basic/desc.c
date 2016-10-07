@@ -5,6 +5,9 @@ static string short_d,
 
 void create()
 {
+  short_d = "";
+  plural_d = "";
+  long_d = "";
 }
 
 // Changed implode(explode(.. to replace_string but screwed it up
@@ -24,14 +27,14 @@ string query_short() { return short_d; }
 string query_long() { return long_d; }
 string query_main_plural() { return plural_d; }
 
-string short(int dark) 
+string short(varargs int dark) 
 {
   return query_short(); 
 }
 
-string pretty_short(int dark) 
+string pretty_short(varargs int dark) 
 {
-  return (string)this_object()->short();
+  return (string)this_object()->short(dark);
 }
 
 string long(string str, varargs int dark) 
