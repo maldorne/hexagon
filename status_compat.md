@@ -87,15 +87,18 @@ do not have an open source license.
 | `all_previous_objects`  | :white_check_mark: | alias for `previous_objects` |
 | `evaluate`              | :white_check_mark: |  |
 | `add_action`            | :white_check_mark: |  |
+| `remove_action`         |  |  |
 | `query_verb`            | :white_check_mark: |  |
 | `command`               | :white_check_mark: |  |
-| `remove_action`         |  |  |
 | `commands`              |  |  |
+| `notify_fail`           | :white_check_mark: |  |
 | `enable_commands`       | :white_check_mark: |  |
 | `disable_commands`      |  |  |
 | `interactive`           |  |  |
+| `set_living_name`       | :white_check_mark: |  |
 | `living`                | :white_check_mark: |  |
 | `find_living`           | :white_check_mark: |  |
+| `livings`               | :white_check_mark: |  |
 | `set_heart_beat`        | :white_check_mark: |  |
 | `query_heart_beat`      | :white_check_mark: |  |
 
@@ -145,7 +148,8 @@ do not have an open source license.
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `write`                 | :white_check_mark: |  |
-| `tell_object`           |  |  |
+| `tell_object`           | :white_check_mark: |  |
+| `tell_room`             |  |  |
 | `shout`                 |  |  |
 | `receive`               |  |  |
 | `message`               |  |  |
@@ -165,11 +169,7 @@ do not have an open source license.
 | `input_to`              |  |  |
 | `random`                |  |  |
 | `say`                   |  |  |
-| `tell_room`             |  |  |
-| `set_living_name`       |  |  |
-| `livings`               |  |  |
 | `find_player`           |  |  |
-| `notify_fail`           |  |  |
 | `save_variable`         |  |  |
 | `restore_variable`      |  |  |
 | `users`                 |  |  |

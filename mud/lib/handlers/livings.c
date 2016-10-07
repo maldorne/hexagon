@@ -14,7 +14,23 @@ void create()
   _livings = ([ ]);
 }
 
-mapping query_livings() { return _livings; }
+mapping query_livings_mapping() { return _livings; }
+
+object * query_livings() 
+{
+  string * indices;
+  int i;
+  object * result;
+
+  result = ({ });
+
+  indices = map_indices(_livings);
+
+  for (i = 0; i < sizeof(indices); i++)
+    result += _livings[indices[i]];
+
+  return result; 
+}
 
 void _set_living_name(object ob, string name) 
 {

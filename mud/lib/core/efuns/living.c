@@ -37,6 +37,15 @@ nomask void enable_commands()
   _living = 1;
 }
 
+// livings - return an array of all living objects
+// object array livings();
+// Returns an array of pointers to all living objects (objects that have
+// had enable_commands() called in them).
+
+static nomask object * livings()
+{
+  return find_object(LIVING_HANDLER)->query_livings();
+}
 
 // Find first the object that is marked as living, and answers to the
 // id 'str'.  A living object is an object that has called
