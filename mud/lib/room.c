@@ -11,7 +11,6 @@ inherit light    "/lib/core/basic/light";
 inherit property "/lib/core/basic/property";
 inherit contents "/lib/core/basic/contents";
 inherit desc     "/lib/core/basic/desc";
-inherit actions  "/lib/core/basic/actions";
 inherit events   "/lib/core/basic/events";
 
 inherit senses     "/lib/room/basic/senses";
@@ -252,7 +251,6 @@ void create()
   guard::create();
   navigation::create();
   diplomacy::create();
-  actions::create();
     
   add_property("location", "inside");
   this_object()->setup();
@@ -413,8 +411,10 @@ void init()
   for (i = 0; i < sizeof(dest_direc); i++) 
   {
     if (!done[dest_direc[i]])
-        add_action("do_exit_command", dest_direc[i]);
+      add_action("do_exit_command", dest_direc[i]);
+    
     done[dest_direc[i]] = 1;
+    
     if ((j = member_array(dest_direc[i], aliases)) != -1) 
     {
       string *al;
@@ -432,7 +432,9 @@ void init()
         } 
         else
             j++;
+
         al = al[j+2..sizeof(al)];
+
       } while ((j=member_array(dest_direc[i], al)) != -1);
     }
   }
@@ -442,9 +444,10 @@ void init()
   hidden_objects -= ({ 0 });
 
   for (i = 0; i < sizeof(hidden_objects); i++)
-      hidden_objects[i]->init();
+    hidden_objects[i]->init();
 
   senses::init();
+
   start_clean_up();
 }
 
@@ -1071,8 +1074,7 @@ mixed stats()
       desc::stats() + 
       guard::stats() + 
       navigation::stats() + 
-      diplomacy::stats() + 
-      actions::stats();
+      diplomacy::stats();
 } 
 
 int query_decay() { return 10; }

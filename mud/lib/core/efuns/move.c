@@ -1,8 +1,4 @@
 
-// Non-dgd efuns and stuff
-// neverbot, 03/2014
-// init added, 12/2014
-
 #include <basic/move.h>
 
 private static object _environment;

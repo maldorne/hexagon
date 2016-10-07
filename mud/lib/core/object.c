@@ -15,7 +15,6 @@ inherit property   "/lib/core/basic/property";
 inherit misc       "/lib/core/basic/misc";
 inherit extra_look "/lib/core/basic/extra_look";
 inherit desc       "/lib/core/basic/desc";
-inherit actions    "/lib/core/basic/actions";
 inherit events     "/lib/core/basic/events";
 
 string create_me;
@@ -28,7 +27,6 @@ void create()
   misc::create(); 
   extra_look::create();
   desc::create();
-  actions::create();
 
   seteuid(load_object(SECURE)->creator_file(file_name(this_object())));
   // Radix, July 1996
@@ -191,7 +189,6 @@ mixed * stats()
          misc::stats() +
          extra_look::stats() +
          desc::stats() +
-         actions::stats() +
             ({
               ({ "Cloned By", create_me, }),
             });

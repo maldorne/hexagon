@@ -5,25 +5,19 @@
    By Sojan of Salford UK - I can be found as Sojan@discworld or Sojan@FR
    most frequently or at j.s.greenland@eee.salford.ac.uk
    Bing on.
-*/
 
-/*
    Version 1.1-Beta
 
    17/11/94 - Now upgraded for handling the ({item,item,item,}) syntax that
               people have requested ....
               Version # now 1.1
-*/
 
-/*
    01/15/96 - Added a default to all senses. When set to default the room
               displays the message when the sense command is typed ....
               Verkho - Version 1.2
 */
 
-/*
-   function declarations
-*/
+// function declarations
 
 void create();
 void init();
@@ -43,19 +37,9 @@ void remove_taste(string taste);
 void remove_sound(string sound);
 void remove_feel(string feel);
 
-/*
-   End
-*/
-
-/*
-   variable declarations
-*/
+// variable declarations
 
 static mapping smells, feels, tastes, sounds;
-
-/*
-   End
-*/
 
 void create() 
 {
@@ -74,7 +58,8 @@ void init()
   add_action("do_taste",  "probar");
   add_action("do_taste",  "saborear");
   add_action("do_feel",   "sentir");
-  add_action("do_feel",   "tocar");  
+  add_action("do_feel",   "tocar");
+  ::init();
 }
 
 int do_smell(string what) {
@@ -88,7 +73,7 @@ int do_smell(string what) {
   }
   write(smells[what]+"\n");
   return 1;
-} /* do_smell */
+} 
 
 int do_taste(string what) {
   if(!what||!tastes[what]) {
@@ -101,7 +86,7 @@ int do_taste(string what) {
   }
   write(tastes[what]+"\n");
   return 1;
-} /* do_taste */
+} 
 
 int do_feel(string what) {
   if(!what||!feels[what]) {
@@ -127,12 +112,10 @@ int do_listen(string what) {
   }
   write(sounds[what]+"\n");
   return 1;
-} /* do_listen */
+} 
 
-/*
-  Okay - thats the actual functions for players to interact with the senses
-  now for some control code for the programmers to add stuff to them with
-*/
+// Okay - thats the actual functions for players to interact with the senses
+// now for some control code for the programmers to add stuff to them with
 
 void add_smell(mixed smell, string smell_desc) {
   int i;
@@ -144,13 +127,13 @@ void add_smell(mixed smell, string smell_desc) {
   }
   smells[smell]=smell_desc;
   return;
-} /* add_smell */
+} 
 
 void remove_smell(string smell) {
   if(!smell) return;
   smells=m_delete(smells, smell);
   return;
-} /* remove_smell */
+} 
 
 void add_taste(mixed taste, string taste_desc) {
   int i;
@@ -162,13 +145,13 @@ void add_taste(mixed taste, string taste_desc) {
   }
   tastes[taste]=taste_desc;
   return;
-} /* add_taste */
+} 
 
 void remove_taste(string taste) {
   if(!taste) return;
   tastes=m_delete(tastes, taste);
   return;
-} /* remove_taste */
+} 
 
 void add_sound(mixed sound, string sound_desc) {
   int i;
@@ -180,16 +163,16 @@ void add_sound(mixed sound, string sound_desc) {
   }
   sounds[sound]=sound_desc;
   return;
-} /* add_sound */
+} 
 
 void remove_sound(string sound) {
   if(!sound) return;
   sounds=m_delete(sounds, sound);
   return;
-} /* remove_sound */
+} 
 
-  /* I couldn't decide wether to call this pair XXX_feel or XXX_touch
-     I'm still unsure but its XXX_feel for now. */
+// I couldn't decide wether to call this pair XXX_feel or XXX_touch
+// I'm still unsure but its XXX_feel for now.
 
 void add_feel(mixed feel, string feel_desc) {
   int i;
@@ -201,17 +184,15 @@ void add_feel(mixed feel, string feel_desc) {
   }
   feels[feel]=feel_desc;
   return;
-} /* add_feel */
+} 
 
 void remove_feel(string feel) {
   if(!feel) return;
   feels=m_delete(feels, feel);
   return;
-} /* remove_feel */
+} 
 
-/*
-   Okay add/remove stuff over - in case you were wondering the add_XXX
-   routine can actually be used to modify the sense in question as well
-   due to the simplistic coding it uses
-*/
+// Okay add/remove stuff over - in case you were wondering the add_XXX
+// routine can actually be used to modify the sense in question as well
+// due to the simplistic coding it uses
 

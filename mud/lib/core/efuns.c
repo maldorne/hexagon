@@ -24,8 +24,8 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/user.c"
 #include "/lib/core/efuns/init.c"
 
-#include "/lib/core/efuns/actions.c"
 #include "/lib/core/efuns/move.c"
+#include "/lib/core/efuns/actions.c"
 
 #include "/lib/core/efuns/event.c"
 
@@ -41,7 +41,6 @@ static nomask void stderr(string str);
 
 // included for compatibility, neverbot 17/01/03
 #include "/lib/core/efuns/process_string.c"
-#include "/lib/core/efuns/parse_command.c"
 
 // neverbot 21/4/2003 
 #include "/lib/core/efuns/time.c"

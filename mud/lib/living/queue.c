@@ -504,15 +504,20 @@ private int perform_next_action()
 
     // The real command chain
 
+    // add_action commands
     if (!command( curr_act ))
     {
+      // move commands
       if (!(environment() &&
             environment(this_object())->do_move_command(curr_act)) )
       {  
+        // TODO
         if (!this_object()->do_gr_command(verb, t))
         { 
+          // cmd system
           if (!CMD_HANDLER->cmd(verb, t, this_object()))
           {  
+            // TODO
             if (!this_object()->parse_comm(verb, t ))
             {
               // if (!CMD_HANDLER->soul_com(curr_act, this_object()))
@@ -716,9 +721,9 @@ nomask int action_check(string str)
           print_object(environment(this_object())->all_inventory());
         return 1;
 
-      case "init":
-        this_object()->init();
-        return 1;
+      // case "init":
+      //   this_object()->init();
+      //   return 1;
 
       case "name":
         print_object(this_object()->query_name());
@@ -726,6 +731,10 @@ nomask int action_check(string str)
 
       case "aq":
         print_object(actionq);
+        return 1;
+
+      case "actions":
+        print_object(this_object()->query_actions());
         return 1;
     }
 

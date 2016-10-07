@@ -340,7 +340,7 @@ int print_aliases()
   return 1;
 }
 
-static int alias(string str, int bing) 
+static int alias(string str, varargs int bing) 
 {
   string s1, s2;
   mixed *boos;
