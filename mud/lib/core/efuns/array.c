@@ -1,7 +1,7 @@
 
 #include "arrays/member_array.c"
 
-static nomask int index (mixed element, mixed * arr) 
+static nomask int index(mixed element, mixed * arr) 
 {
   return member_array(element, arr);
 }
