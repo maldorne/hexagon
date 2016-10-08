@@ -165,6 +165,10 @@ do not have an open source license.
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
+| `call_out`              | :white_check_mark: | provided by dgd |
+| `remove_call_out`       | :white_check_mark: | provided by dgd |
+| `find_call_out`         |  |  |
+| `call_out_info`         |  |  |
 | `bind`                  |  |  |
 | `input_to`              |  |  |
 | `random`                |  |  |
@@ -174,9 +178,6 @@ do not have an open source license.
 | `restore_variable`      |  |  |
 | `users`                 |  |  |
 | `call_stack`            |  |  |
-| `call_out`              |  |  |
-| `find_call_out`         |  |  |
-| `call_out_info`         |  |  |
 | `inherits`              |  |  |
 | `replace_program`       |  |  |
 | `regexp`                |  |  |
@@ -198,7 +199,6 @@ do not have an open source license.
 | `snoop`                 |  |  |
 | `query_snoop`           |  |  |
 | `query_snooping`        |  |  |
-| `remove_call_out`       |  |  |
 | `set_hide`              |  |  |
 | `shadow`                |  |  |
 | `query_shadowing`       |  |  |
