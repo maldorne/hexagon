@@ -23,6 +23,7 @@
 #include "/lib/core/efuns/output/write.c"
 #include "/lib/core/efuns/arrays/member_array.c"
 #include "/lib/core/efuns/paths/resolve_path.c"
+#include "/lib/core/efuns/livings/living.c"
 #include "/lib/core/efuns/users/interactive.c"
 #include "/lib/core/efuns/users/userp.c"
 #include "/lib/core/efuns/objects/file_name.c"

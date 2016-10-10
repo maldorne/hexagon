@@ -3,6 +3,7 @@
 #include "users/this_player.c"
 #include "users/interactive.c"
 #include "users/userp.c"
+#include "users/catch_tell.c"
 
 object real_this_player()
 {

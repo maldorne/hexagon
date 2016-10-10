@@ -12,9 +12,30 @@ void event_write(object caller, string str)
     return;
 
   str = fix_string(str);
-  
-  if (interactive(this_object()))
-    this_object()->send_message(str);
+
+  // only will do if interactive(this_object())  
+  this_object()->catch_tell(str);
+}
+
+void event_say(object caller, string str, varargs mixed avoid)
+{
+  if (!str || str == "")
+    return;
+
+  if (avoid)
+  {
+    if (pointerp(avoid)) 
+    {
+      if (member_array(this_object(), avoid) != -1)
+        return;
+    } 
+    else if (objectp(avoid) && (avoid == this_object()))
+      return;
+  }
+
+  str = fix_string("\n" + str);
+
+  this_object()->catch_tell(str);
 }
 
 void event_inform(object ob, string mess, string type)
@@ -29,10 +50,6 @@ void event_enter(object ob, string mess, varargs object from, object *ignore)
 void event_exit(object ob, string mess, varargs object dest, object *ignore) 
 {
   stderr(" * event_exit " + object_name(this_object()) + "\n");
-}
-
-void event_say(object caller, string str, mixed avoid)
-{
 }
 
 void event_soul(object ob, string str, mixed avoid)

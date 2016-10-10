@@ -126,7 +126,7 @@ do not have an open source license.
 | `environment`           | :white_check_mark: |  |
 | `all_inventory`         | :white_check_mark: |  |
 | `deep_inventory`        | :white_check_mark: |  |
-| `first_inventory`       |  |  |
+| `first_inventory`       | :white_check_mark: |  |
 | `next_inventory`        |  |  |
 | `present`               |  |  |
 | `move`                  | :white_check_mark: |  |

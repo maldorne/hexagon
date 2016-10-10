@@ -708,7 +708,7 @@ int do_exit_command(string str, varargs mixed verb, object ob)
 // Ok we have done all the exit junk, now for the item bits and pieces
 // share and enjoy your plastic pal who is fun to be with
 
-int add_item(string str,string desc) 
+int add_item(mixed id, string desc) 
 {
   object ob;
 
@@ -725,7 +725,7 @@ int add_item(string str,string desc)
   }
   
   // Flag final para evitar el pluralize automatico, Folken 05/09
-  ob->setup_item(str, desc, 1);
+  ob->setup_item(id, desc, 1);
   return 1;
 } 
 

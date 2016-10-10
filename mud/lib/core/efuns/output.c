@@ -2,21 +2,7 @@
 #include "output/stderr.c"
 #include "output/fix_string.c"
 #include "output/write.c"
-
-// static nomask void say(string str, varargs mixed avoid) 
-// {
-//   if (!pointerp(avoid))
-//     avoid = ({ this_player(), previous_object() }) + ({ avoid });
-//   else
-//     avoid += ({ this_player(), previous_object() });
-//   if (!environment(previous_object()))
-//     if (this_player() && environment(this_player()))
-//       event(environment(this_player()), "say", str, avoid);
-//     else
-//       event(previous_object(), "say", str, avoid);
-//   else
-//     event(environment(previous_object()), "say", str, avoid);
-// } 
+#include "output/say.c"
 
 static nomask void shout(string str, varargs object avoid) 
 {

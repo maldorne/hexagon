@@ -2,21 +2,7 @@
 #include <living/living.h>
 #include <user/user.h>
 
-private static int _living;
-
-nomask int query_living() { return _living; }
-
-// int living( object ob );
-// Return true if `ob' is a living object (that is, if "enable_commands()" has
-// been called by `ob').
-
-static nomask int living(object ob)
-{
-  if (ob)
-    return ob->query_living();
-  
-  return _living;
-}
+#include "livings/living.c"
 
 // void enable_commands();
 // enable_commands() marks this_object() as a living object, and allows
