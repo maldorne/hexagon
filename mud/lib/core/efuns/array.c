@@ -8,10 +8,13 @@ static nomask int index(mixed element, mixed * arr)
 
 static nomask mixed * delete(mixed * arr, int start, int len) 
 {
+  if (start < 0)
+    return arr;
+  
   if (start + len >= sizeof(arr))
-    return arr[0 .. start - 1];
+    return arr[..start - 1];
 
-  return arr[0 .. start - 1] + arr[start + len .. sizeof(arr)];
+  return arr[..start - 1] + arr[start + len..];
 } 
 
 static nomask mixed * slice_array(mixed * arr, int start, int fin) 
@@ -21,7 +24,16 @@ static nomask mixed * slice_array(mixed * arr, int start, int fin)
 
 static nomask mixed * insert(mixed * arr, mixed el, int pos) 
 {
-  return arr[0..pos-1]+({ el })+arr[pos..sizeof(arr)];
+  if (!sizeof(arr))
+    return ({ el });
+
+  if (pos >= sizeof(arr))
+    return arr + ({ el });
+
+  if (pos <= 0)
+    return ({ el }) + arr;
+
+  return arr[..pos-1] + ({ el }) + arr[pos..];
 } 
 
 static nomask mixed * shift_left(mixed * arr)

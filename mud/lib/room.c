@@ -957,7 +957,7 @@ int clean_up_room( int flag )
   object * arr;
   int i, elapsed_time;
 
-  stderr(" * clean_up_room check " + object_name(this_object()) + "\n");
+  stderr(" ~ clean_up_room check " + object_name(this_object()) + "\n");
 
   elapsed_time = time() - room_init_time;
 	arr = deep_inventory( this_object() );
@@ -999,7 +999,7 @@ int clean_up_room( int flag )
     + ".\n" );
 #endif
 
-  stderr(" * clean_up_room " + object_name(this_object()) + " (done)\n");
+  stderr(" ~ clean_up_room " + object_name(this_object()) + " (done)\n");
 
   dest_me();
   return 0;    // don't call back

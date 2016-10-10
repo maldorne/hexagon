@@ -165,8 +165,8 @@ do not have an open source license.
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
-| `call_out`              | :white_check_mark: | provided by dgd |
-| `remove_call_out`       | :white_check_mark: | provided by dgd |
+| `call_out`              | :white_check_mark: | provided by dgd, expanded to store list of pending call outs |
+| `remove_call_out`       | :white_check_mark: | provided by dgd, expanded to store list of pending call outs |
 | `find_call_out`         |  |  |
 | `call_out_info`         |  |  |
 | `bind`                  |  |  |

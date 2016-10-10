@@ -30,5 +30,7 @@ nomask int query_heart_beat()
 
 void heart_beat()
 {
-  stderr("heart_beat in " + object_name(this_object()) + "\n");
+  stderr(" ~ heart_beat in " + object_name(this_object()) + "\n");
+  // stderr(" ~ sizeof call_out stack: " + (MUDOS->query_call_out_stack_size()) + " time: "+time()+"\n");
+  // stderr(" ~ call_out stack: " + to_string(MUDOS->query_call_out_stack()) + "\n");
 }
