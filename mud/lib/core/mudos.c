@@ -97,14 +97,12 @@ static void _purge_call_out_stack()
     if (call_outs[i][CALL_OUT_STACK_TIME] <= time)
     {
       if (i+1 > size)
-      {
         call_outs = ({ });
-      }
       else
-      {
         call_outs = call_outs[i+1..];
-        i--;
-      }
+
+      i--;
+      size--;
     }
     else
       break; 
