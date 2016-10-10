@@ -20,11 +20,12 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   int i;
   object from;
 
+  // Taniwha 1995, maybe log this ?
   if(!dest)
-  {
-    // Taniwha 1995, maybe log this ?
     return 0;
-  }
+
+  if (!objectp(dest))
+    dest = load_object(dest);
 
   from = environment();
 

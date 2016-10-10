@@ -119,7 +119,6 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   else 
     ret = container::move(dest);
 
-
   // important: MOVE_OK == 0, value != 0 means it did not move
   if (ret) 
     return 0;
