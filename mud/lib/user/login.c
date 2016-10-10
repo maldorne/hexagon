@@ -8,6 +8,8 @@
 
 #include <kernel.h>
 #include <mud/config.h>
+#include <mud/version.h>
+#include <mud/patch_version.h>
 #include <user/login.h>
 #include <user/user.h>
 #include <areas/common.h>
@@ -73,6 +75,11 @@ nomask void quit()
 
 nomask void logon() 
 {
+  write("Versión de LPmud: " + version() + "\n" +
+        "Versión de Mudlib: " + MUDLIB_VERSION + "\n\n"/* + 
+        "Último parche: " + PATCH_VERSION + "\n\n"*/);
+
+
   timestamp = time();
 
   call_out("time_out", LOGIN_TIMEOUT);

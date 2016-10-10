@@ -61,9 +61,6 @@ object connect( int cPort )
 	}
 	*/
 
-	write("Versión de LPmud: "+version()+".\nVersión de Mudlib: " 
-		+ MUDLIB_VERSION + " // Último parche: " + PATCH_VERSION + "\n");
-
 	/*
 	if (cPort==4000) 
 	ob = clone_object("/secure/new_login");

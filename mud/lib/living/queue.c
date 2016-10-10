@@ -391,13 +391,17 @@ private int aq_delete_user_actions()
 // * Moved here by Baldrick so that the whole living-tree can use the 
 // * commands in that system.
   
-int do_cmd(string tail)
+int do_cmd(string cmd)
 {
   string verb, t;
 
-  sscanf(tail, "%s %s", verb, t);
+  sscanf(cmd, "%s %s", verb, t);
+
   if(!verb)
-    verb = tail;
+    verb = cmd;
+
+  if (!t)
+    t = "";
 
   return (int)CMD_HANDLER->cmd(verb, t, this_object());
 } 
@@ -509,7 +513,7 @@ private int perform_next_action()
       if (!this_object()->do_gr_command(verb, t))
       { 
         // cmd system
-        if (!CMD_HANDLER->cmd(verb, t, this_object()))
+        if (!do_cmd(curr_act))
         {  
           // TODO
           if (!this_object()->parse_comm(verb, t ))

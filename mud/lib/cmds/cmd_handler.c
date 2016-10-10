@@ -284,6 +284,10 @@ int cmd(string verb, string tail, object thisob)
 	if (!thisob || (interactive(thisob) && previous_object() != thisob))
 		return 0;
 
+  // if(!interactive(thisob) && cmd_dirs[last_dir][0] != LIVING_CMD)
+  if (!interactive(thisob))
+   return 0;
+
 	seteuid("Root");
 	euid = geteuid(thisob);
 	s = cmd_aliases[verb];
@@ -296,14 +300,9 @@ int cmd(string verb, string tail, object thisob)
 	if (!s)
 		return 0;
 
-  // TODO: remove log
-  write("Executing cmd '"+s+"'\n");
+  // write("Executing cmd <"+s+"> with args <"+tail+">\n");
 
   // Check their position now...
-  // if(!interactive(thisob) && cmd_dirs[last_dir][0] != LIVING_CMD)
-  if (!interactive(thisob))
-   return 0;
-
   switch(cmd_dirs[last_dir][0])
   {
     case ADMIN_CMD:

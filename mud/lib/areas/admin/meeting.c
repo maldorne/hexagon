@@ -45,7 +45,7 @@ void reset()
   if (floor)
     return ;
 
-  floor = clone_object("/std/object");
+  floor = clone_object("/lib/core/object");
   floor->set_name("floor");
   floor->set_short("The floor");
   floor->set_long(
@@ -65,8 +65,9 @@ void init()
    * You did what?
    * I banged my gavel and did the "order in the court thing"
    */
-  if ("/secure/master"->high_programmer((str=(string)this_player()->query_name()))
-      || str == chair) {
+  if ("/lib/core/secure"->high_programmer((str=(string)this_player()->query_name()))
+      || str == chair) 
+  {
     add_action("appoint", "appoint");
     add_action("bang", "bang");
     add_action("recover", "recover"); /* recovers the floor in case of
@@ -74,7 +75,8 @@ void init()
   }
 }
 
-int appoint(string str) {
+int appoint(string str) 
+{
   object ob;
 
   if (chair && (string)this_player()->query_name() != chair) {
