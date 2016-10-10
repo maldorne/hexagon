@@ -94,7 +94,7 @@ static void _purge_call_out_stack()
 
   for (i = 0; i < size; i++)
   {
-    if (call_outs[i][CALL_OUT_STACK_TIME] < time)
+    if (call_outs[i][CALL_OUT_STACK_TIME] <= time)
     {
       if (i+1 > size)
       {
@@ -132,7 +132,7 @@ int _call_out(object ob, int handle, string func, int delay, varargs mixed args.
   if (delay < 0)
     delay = 0;
 
-  // every time we modify the list, we purge the pending call_out
+  // every time we modify or check the list, we purge the pending call_out
   _purge_call_out_stack();
 
   time = time() + delay;
@@ -153,7 +153,7 @@ int _remove_call_out(object ob, int handle)
 {
   int i, ret;
 
-  // every time we modify the list, we purge the pending call_out
+  // every time we modify or check the list, we purge the pending call_out
   _purge_call_out_stack();
 
   for (i = sizeof(call_outs) - 1; i >= 0; i--) 
@@ -176,4 +176,55 @@ int _remove_call_out(object ob, int handle)
   }
 
   return -1;
+}
+
+int _find_call_out(object ob, string func)
+{
+  int i;
+
+  // every time we modify or check the list, we purge the pending call_out
+  _purge_call_out_stack();
+
+  for (i = sizeof(call_outs) - 1; i >= 0; i--) 
+  {
+    if ((call_outs[i][CALL_OUT_STACK_OB] == ob) && 
+        (call_outs[i][CALL_OUT_STACK_FUNC] == func))
+    {
+      return call_outs[i][CALL_OUT_STACK_TIME] - time();
+    }
+  }
+
+  return -1;
+}
+
+mixed * _call_out_info()
+{
+  mixed * ret;
+  int i, time;
+
+  ret = ({ });
+  time = time();
+
+  // every time we modify or check the list, we purge the pending call_out
+  _purge_call_out_stack();
+
+  // An array is returned,
+  // where every item in the array consists 4 elements: the object,
+  // the function, the delay to go, and the optional argument.
+  for (i = 0; i < sizeof(call_outs); i++)
+  {
+    ret += ({ 
+              ({ 
+                call_outs[i][CALL_OUT_STACK_OB],
+                call_outs[i][CALL_OUT_STACK_FUNC],
+                call_outs[i][CALL_OUT_STACK_TIME] - time,
+              })
+              +
+              (sizeof(call_outs[i][CALL_OUT_STACK_ARG]) ? 
+                ({ call_outs[i][CALL_OUT_STACK_ARG] }) :
+                ({ }))
+            });
+  }
+
+  return ret;
 }

@@ -167,8 +167,8 @@ do not have an open source license.
 | -------- | :------: | -------- |
 | `call_out`              | :white_check_mark: | provided by dgd, expanded to store list of pending call outs |
 | `remove_call_out`       | :white_check_mark: | provided by dgd, expanded to store list of pending call outs |
-| `find_call_out`         |  |  |
-| `call_out_info`         |  |  |
+| `find_call_out`         | :white_check_mark: |  |
+| `call_out_info`         | :white_check_mark: |  |
 | `bind`                  |  |  |
 | `input_to`              |  |  |
 | `random`                |  |  |
