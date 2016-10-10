@@ -4,9 +4,27 @@
  */
 
 #include <kernel.h>
+#include <status.h>
+#include <trace.h>
+
 #include <user/user.h>
 #include <living/living.h>
 #include <user/terminal.h>
+
+
+// ************************************************************
+//  Function prototypes
+// ************************************************************
+
+static nomask void log_driver(string str);
+static nomask void inform_user(string str, int message_type);
+// own version, different from the one in the auto object
+static nomask void write(string str);
+
+
+// ************************************************************
+//  efuns needed in the driver object
+// ************************************************************
 
 // to avoid the error:
 //     /lib/core/driver.c: too many functions declared
@@ -20,7 +38,6 @@
 #include "/lib/core/efuns/users/this_player.c"
 #include "/lib/core/efuns/objects/load_object.c"
 #include "/lib/core/efuns/output/fix_string.c"
-#include "/lib/core/efuns/output/write.c"
 #include "/lib/core/efuns/arrays/member_array.c"
 #include "/lib/core/efuns/paths/resolve_path.c"
 #include "/lib/core/efuns/livings/living.c"
@@ -29,23 +46,6 @@
 #include "/lib/core/efuns/objects/file_name.c"
 #include "/lib/core/efuns/conversions/to_string.c"
 #include "/lib/core/efuns/conversions/print_object.c"
-
-#include <status.h>
-#include <trace.h>
-
-// # define TLSVAR2    call_trace()[1][TRACE_FIRSTARG][1]
-// # define TLSVAR3    call_trace()[1][TRACE_FIRSTARG][2]
-
-// object rsrcd;        /* resource manager object */
-// object accessd;      /* access manager object */
-// object userd;        /* user manager object */
-// object initd;         // init manager object 
-// object objectd;      /* object manager object */
-// // object errord;       /* error manager object */
-// int tls_size;        /* thread local storage size */
-
-// object TMP;
-
 
 // ************************************************************
 // start neverbot
@@ -56,11 +56,6 @@ static object error_h;
 static object object_h;
 
 static object mudos;
-
-// Function prototypes
-static nomask void log_driver(string str);
-static nomask void inform_user(string str, int message_type);
-
 
 static nomask void initialize()
 {
@@ -107,6 +102,25 @@ static nomask void log_driver(string str)
   _stderr(str);
 }
 
+static nomask void write(string str) 
+{
+  object user;
+
+  if (nullp(str))
+    return;
+
+  user = this_user();
+
+  if (!user)
+    user = this_player();
+
+  if (!user)
+    return;
+
+  str = fix_string(str);
+
+  user->catch_tell(str);
+}
 static nomask void inform_user(string str, int message_type)
 {
   string msg;

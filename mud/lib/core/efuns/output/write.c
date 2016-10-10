@@ -22,5 +22,5 @@ static nomask void write(string str)
 
   str = fix_string(str);
 
-  user->send_message(str);
+  event(user, "write", str);
 }

@@ -171,9 +171,9 @@ void destruct_environment_of(object ob)
       string *a;
       a = (string *)env->query_dest_dir();
 
-      if (catch(ob->move_player(a[0], a[1], "stumbles"))) 
+      if (catch(ob->move_living(a[0], a[1], "stumbles"))) 
       {
-        ob->move_player("void", "/room/void", "is sucked into the");
+        ob->move_living("void", "/room/void", "is sucked into the");
       }
   }
 } 

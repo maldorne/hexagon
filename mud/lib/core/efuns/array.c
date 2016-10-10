@@ -78,15 +78,17 @@ static nomask mixed * uniq_array(mixed *arr)
   
   while(i--) 
     borg[arr[i]] = 1;
-  return keys(borg);
+  return map_indices(borg);
 }
 
 static nomask int atoi(string str) 
 {
   int x;
 
-  if(!stringp(str)) return 0;
-  else sscanf(str, "%d", x);
+  if (!stringp(str)) 
+    return 0;
+  else 
+    sscanf(str, "%d", x);
   return x;
 }
 
