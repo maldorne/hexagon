@@ -40,9 +40,11 @@ void setup() {
            "he takes down the minutes of the meeting.\n");
 }
 
-void reset() {
+void reset() 
+{
   if (floor)
     return ;
+
   floor = clone_object("/std/object");
   floor->set_name("floor");
   floor->set_short("The floor");
@@ -53,11 +55,12 @@ void reset() {
   floor->move(this_object());
 }
 
-void init() {
+void init() 
+{
   string str;
 
   ::init();
-  add_action("log_mode","logmode");
+  add_action("log_mode", "logmode");
   /* So I just banged my gavel.
    * You did what?
    * I banged my gavel and did the "order in the court thing"

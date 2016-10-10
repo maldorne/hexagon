@@ -3,7 +3,6 @@
 
 // #define eval_cost() status()[ST_TICKS]
 
-
 // eval_cost - returns the evaluation cost remaining
 // void eval_cost()
 // eval_cost() returns the number of instructions that can be executed

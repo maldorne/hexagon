@@ -1,5 +1,6 @@
 
 
+#include "objects/compile_object.c"
 #include "objects/find_object.c"
 #include "objects/load_object.c"
 #include "objects/file_name.c"

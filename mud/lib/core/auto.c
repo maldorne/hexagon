@@ -66,33 +66,6 @@ static nomask object clone_object(mixed what, varargs string uid)
   return ::clone_object(what);
 }
 
-nomask object compile_object(string path, varargs string source...)
-{
-  mixed obj;
-  int is_new;
-
-  obj = ::find_object(path);
-
-  // only non previously compiled code
-  if (!obj)
-  {
-    stderr(" - compile_object: " + path + "\n");
-
-    if (source && (sizeof(source) != 0))
-      obj = ::compile_object(path, source...);
-    else 
-      obj = ::compile_object(path); 
-  }
-  else
-  {
-    // TODO different messages if not coder
-    write(object_name(obj) + " was already compiled.\n");
-    return nil;
-  }
-
-  return obj;
-}
-
 // end neverbot
 
 
