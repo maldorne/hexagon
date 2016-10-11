@@ -7,15 +7,15 @@
 
 #define NO_CLEAN_UP_PROP "no_clean_up"
 
-#define ITEM_OBJECT "/lib/room/item"
-#define DOOR_OBJECT "/lib/room/door"
+#define ITEM_OBJECT "/lib/room/items/item"
+#define DOOR_OBJECT "/lib/room/items/door"
 
 /* Only move one room a round.  Hmm.... Make it two */
 #define EXIT_TIME 10
 
-#define ROOM_HAND "/lib/room/room_handler"
-#define EXIT_HAND "/lib/room/exit_handler"
-#define DIG_HAND "/lib/room/dig_handler"
+#define ROOM_HAND "/lib/room/handlers/room_handler"
+#define EXIT_HAND "/lib/room/handlers/exit_handler"
+#define DIG_HAND "/lib/room/handlers/dig_handler"
 
 #define SHORTEN ([\
 "norte":"n", "sur":"s", "oeste":"o", "este":"e", "noreste":"ne",\
