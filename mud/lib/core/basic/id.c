@@ -56,11 +56,6 @@ int remove_alias(string str)
 
 string *query_alias() { return alias; }
 
-int id(string str) 
-{
-  return (str == name) || (member_array(str, alias) != -1);
-} 
-
 /*
 int full_id(string str) {
   int loop;
@@ -70,8 +65,6 @@ int full_id(string str) {
   return 0;
 } 
 */
-
-
 
 /* plural stuff */
 void set_plurals(string *str) 
@@ -106,6 +99,20 @@ string *query_plurals() { return plurals; }
 int id_plural(string str) 
 {
   return (member_array(str, plurals) != -1);
+} 
+
+// id - function called by present() in order to identify an object
+// int id( string an_id );
+
+// The present() efunction calls id() to determine if a given object is named
+// by a given string.  id() should return 1 if the object wishes to be known
+// by the name in the string anId; it should return 0 otherwise.
+
+int id(string str) 
+{
+  return ((str == name) || 
+          (member_array(str, alias) != -1) || 
+          id_plural(str));
 } 
 
 /*

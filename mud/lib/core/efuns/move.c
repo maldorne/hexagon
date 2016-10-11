@@ -3,6 +3,7 @@
 
 private static object _environment;
 private static object * _inventory;
+private static int _inventory_iterator;
 
 
 object * all_inventory(varargs object ob);
@@ -253,8 +254,31 @@ object first_inventory(mixed ob)
 
   list = ob->all_inventory();
 
+  _inventory_iterator = 0;
+
   if (sizeof(list))
     return list[0];
+
+  return nil;
+}
+
+// next_inventory - return the next object in the same inventory
+// object next_inventory( object ob );
+// Return the next object in the same inventory as 'ob'.
+
+object next_inventory(object ob)
+{
+  object * list; 
+
+  if (!ob)
+    return nil;
+
+  _inventory_iterator++;
+
+  list = ob->all_inventory();
+
+  if (_inventory_iterator < sizeof(list))
+    return list[_inventory_iterator];
 
   return nil;
 }
@@ -281,5 +305,74 @@ mixed query_strange_inventory(mixed arr)
   }
 
   return inv;
+}
+
+// id - function called by present() in order to identify an object
+// int id( string an_id );
+
+// The present() efunction calls id() to determine if a given object is named
+// by a given string.  id() should return 1 if the object wishes to be known
+// by the name in the string anId; it should return 0 otherwise.
+
+// returns 0 by default, masked in /lib/core/basic/id.c for every object.c
+
+int id(string str)
+{
+  return 0;
+}
+
+// present - find an object by id
+// object present( mixed str);
+// object present( mixed str, object ob );
+
+// If an object for which id(str) returns true exists, return it.
+// `str' can also be an object, in 'str' is searched for, instead of calling
+// the function id().
+
+// If `ob' is given, then the search is done in the inventory of `ob', otherwise
+// the object is searched for in the inventory of the current object, and
+// in the inventory of the environment of the current object.
+static nomask object present(mixed str, varargs object ob) 
+{
+  object * where;
+  string what;
+  int num, i;
+
+  // check if the object is in the inventory
+  if (objectp(str))
+  {
+    if (ob && objectp(ob))
+      where = all_inventory(ob);
+    else
+      where = all_inventory(this_object());
+
+    if (member_array(str, where) != -1)
+      return (object)str;
+
+    return nil;
+  }
+
+  num = 1;
+
+  // if we are looking for "sword 2"
+  if (sscanf(str, "%s %d", what, num) >= 2)
+    str = what;
+
+  if (ob && objectp(ob))
+    where = all_inventory(ob);
+  else
+    where = all_inventory(this_object()) + 
+            all_inventory(environment(this_object()));
+
+  if (strlen(str))
+  {
+    for (i = 0; i < sizeof(where); i++)
+    {
+      if (where[i]->id(str) && (--num <= 0))
+        return where[i];
+    }
+  }
+
+  return nil;
 }
 
