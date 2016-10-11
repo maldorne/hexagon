@@ -88,3 +88,20 @@ mixed evaluate(mixed f, varargs mixed args...)
 
   return f;
 }
+
+// function_exists - find the file containing a given function in an object
+// string function_exists( string str, object ob );
+
+// Return the file name of the object that defines the function 'str' in
+// object 'ob'. The returned value can be other than 'file_name(ob)' if the
+// function is defined by an inherited object.
+
+// 0 is returned if the function was not defined.
+
+// Note that function_exists() does not check shadows, or functions that cannot
+// be called from outside the object.
+
+static nomask string function_exists(string str, object ob)
+{
+  return function_object(str, ob);
+}
