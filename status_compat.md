@@ -159,6 +159,7 @@ do not have an open source license.
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `write`                 | :white_check_mark: |  |
+| `say`                   | :white_check_mark: |  |
 | `tell_object`           | :white_check_mark: |  |
 | `tell_room`             | :white_check_mark: |  |
 | `shout`                 |  |  |
@@ -179,7 +180,6 @@ do not have an open source license.
 | `bind`                  |  |  |
 | `input_to`              |  |  |
 | `random`                |  |  |
-| `say`                   |  |  |
 | `find_player`           |  |  |
 | `save_variable`         |  |  |
 | `restore_variable`      |  |  |
