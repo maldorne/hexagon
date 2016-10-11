@@ -36,6 +36,7 @@ static nomask void write(string str);
 #include "/lib/core/efuns/types.c"
 #include "/lib/core/efuns/output/stderr.c"
 #include "/lib/core/efuns/users/this_player.c"
+#include "/lib/core/efuns/objects/compile_object.c"
 #include "/lib/core/efuns/objects/load_object.c"
 #include "/lib/core/efuns/output/fix_string.c"
 #include "/lib/core/efuns/arrays/member_array.c"
@@ -69,7 +70,7 @@ static nomask void initialize()
   load_object(AUTO);
 
   call_other(error_h  = load_object(ERROR_HANDLER), "???"); // obviously, must be the first
-  
+
   // global object in charge of heart_beats, init calls, etc
   call_other(mudos    = load_object(MUDOS_PATH), "???");
   call_other(user_h   = load_object(USER_HANDLER), "???");
@@ -244,9 +245,10 @@ static void runtime_error(string error, int caught, int ticks)
 {
   string ret;
 
-  ret = error_h->runtime_error(error, caught, ticks);
+  if (error_h)
+    ret = error_h->runtime_error(error, caught, ticks);
 
-  if (!ret)
+  if (!strlen(ret))
     return;
 
   log_driver(ret);
@@ -256,9 +258,14 @@ static void runtime_error(string error, int caught, int ticks)
 static void compile_error(string file, int line, string err)
 {
   string ret;
-  ret = error_h->compile_error(file, line, err);
 
-  if (!ret)
+  if (!error_h)
+    stderr(" - compile_error in file " + file + ", line " + line + "\n" +
+           "   Error: " + err + "\n");
+  else
+    ret = error_h->compile_error(file, line, err);
+
+  if (!strlen(ret))
     return;
 
   log_driver(ret);

@@ -89,20 +89,7 @@ nomask string runtime_error(string error, int caught, int ticks)
 #else
   return short_err;
 #endif
-
-  // if (this_user())
-  //   this_user()->catch_tell(long_err);
-
-  // If this player is a wizard, send longerr: if not, send the bogus message.
-  // player = this_user();
-  // if (player!=nil) {
-  //     player->catch_tell("You suddenly notice a strange distortion in the fabric of space.\n");
-  // }
-  // if (player != nil && player->query_wizard()) {
-  //     player->catch_tell(long_err);
-  // }
 }
-
 
 
 string atomic_error(string error, int atom, mixed **trace)
