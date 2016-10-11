@@ -231,6 +231,7 @@ int query_coder() { return 1; }
 string query_name() { return "neverbot"; }
 string short(varargs int dark) { return "neverbot"; }
 int query_cols() { return 79; }
+int query_invis() { return 0; }
 
 object query_race_ob() { return nil; }
 int query_volume(int i) { return 0; }

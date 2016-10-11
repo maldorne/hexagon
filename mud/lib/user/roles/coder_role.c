@@ -9,7 +9,6 @@
 
 inherit base   "/lib/user/roles/player_role.c";
 
-inherit find   "/lib/user/roles/coder_find.c";
 inherit path   "/lib/user/roles/coder_path.c";
 inherit editor "/lib/user/roles/coder_editor.c";
 inherit obj    "/lib/user/roles/coder_object.c";
@@ -18,11 +17,12 @@ inherit obj    "/lib/user/roles/coder_object.c";
 // inherit "/global/coder/coder_info_comm.c";
 // inherit "/global/coder/coder_communicate.c";
 
+inherit        "/lib/user/roles/coder_utils.c";
+
 
 void create()
 {
   base::create();
-  find::create();
   path::create();
   editor::create();
   obj::create();
@@ -71,7 +71,6 @@ static void role_commands()
 mixed stats() 
 {
   return ({ }) + base::stats() + 
-                 find::stats() + 
                  path::stats() + 
                  editor::stats() + 
                  obj::stats();

@@ -1,4 +1,6 @@
 
+#include <common/properties.h>
+
 // all the posible events will be called from
 // the event efun:
 //   call_other( event_obs, "event_"+ event_name, who, arg... ) ;
@@ -6,20 +8,20 @@
 // show general info to the object
 // used from tell_object and tell_room
 
-void event_write(object caller, string str)
+void event_write(object caller, string msg)
 {
-  if (!str || str == "")
+  if (!strlen(msg))
     return;
 
-  str = fix_string(str);
+  msg = fix_string(msg);
 
   // only will do if interactive(this_object())  
-  this_object()->catch_tell(str);
+  this_object()->catch_tell(msg);
 }
 
-void event_say(object caller, string str, varargs mixed avoid)
+void event_say(object caller, string msg, varargs mixed avoid)
 {
-  if (!str || str == "")
+  if (!strlen(msg))
     return;
 
   if (avoid)
@@ -33,13 +35,40 @@ void event_say(object caller, string str, varargs mixed avoid)
       return;
   }
 
-  str = fix_string("\n" + str);
+  msg = fix_string("\n" + msg);
 
-  this_object()->catch_tell(str);
+  this_object()->catch_tell(msg);
 }
 
-void event_inform(object ob, string mess, string type)
+
+// TODO ob no es caller!?!
+void event_inform(object ob, string msg, string type)
 {
+  string * on;
+
+  if (!strlen(msg))
+    return;
+
+  on = (string *)this_object()->query_property(INFORM_PROP);
+  
+  if (!on) 
+    on = ({ });
+  
+  // TODO inform properties
+  // if (this_object()->query_property(NO_INFORM) || 
+  //    (ob->query_invis() && !this_object()->query_coder()) || 
+  //    ((int)ob->query_invis() == 2 && !this_object()->query_admin()) || 
+  //    !sizeof(on))
+  // {
+  //     return;
+  // }
+  
+  // if (member_array(type, on) == -1) 
+  //   return;
+  
+  msg = fix_string("\n[" + msg + "]\n\n");
+
+  this_object()->catch_tell(msg);
 }
 
 void event_enter(object ob, string mess, varargs object from, object *ignore) 

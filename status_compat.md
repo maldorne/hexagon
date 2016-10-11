@@ -59,6 +59,8 @@ Common calls and operations over the basic types.
 | `map_mapping`           |  |  |
 | `map_array`             |  |  |
 | `filter_mapping`        |  |  |
+| **functions**           |  |  |
+| `function_exists`       | :white_check_mark: | alias for `function_object` |
 
 
 ##Objects
@@ -195,7 +197,6 @@ do not have an open source license.
 | `crypt`                 |  |  |
 | `oldcrypt`              |  |  |
 | `exec`                  |  |  |
-| `function_exists`       |  |  |
 | `objects`               |  |  |
 | `query_host_name`       |  |  |
 | `query_idle`            |  |  |

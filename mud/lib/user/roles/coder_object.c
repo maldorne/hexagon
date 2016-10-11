@@ -1,6 +1,8 @@
 
 // prototypes
 object *wiz_present(string str, varargs object onobj, int nogoout);
+void inform_of_call(object ob, mixed *argv);
+static mixed *parse_args(string str, string close);
 
 void create()
 {
@@ -9,6 +11,24 @@ void create()
 static void role_commands()
 {
   add_action("update", "update");
+
+  add_action("do_a_call", "call");
+  // add_action("parse_frogs", ";*");
+  // add_action("dest", "destruct");
+  // add_action("dest", "destruir");
+  add_action("dest", "dest");
+  // add_action("show_stats", "stat");
+  add_action("trans", "trans");
+  add_action("whereis","whereis");
+  add_action("get_pathof","pathof");
+  add_action("get_creator","coder");
+  add_action("get_inv","inv");
+  add_action("goback","goback");
+  // add_action("upgrade_player", "upgrade");
+  add_action("find_shadows", "shadows");
+  add_action("do_find", "find");
+  add_action("do_debug", "dump");
+  add_action("do_debug", "debug");  
 }
 
 static string desc_object(mixed o)
@@ -65,7 +85,7 @@ static int do_update(object *ov)
   if (!rsv) 
   { 
     // Die in horror
-    notify_fail("Â¡La habitaciÃ³n en el vacÃ­o ha desaparecido!\n");
+    notify_fail("¡La habitación en el vacío ha desaparecido!\n");
     return 0;
   }
 
@@ -146,7 +166,7 @@ static int do_update(object *ov)
             if (strlen(itemname))
               tell_object(totell,"Ups. Tu "+itemname+" acaba de romperse.\n");
           else
-            tell_object(totell,"Ups. Algo que tenÃ­as acaba de romperse.\n");
+            tell_object(totell,"Ups. Algo que tenías acaba de romperse.\n");
           thing = clone_object( "/obj/misc/iou" );
           thing->add_auto_string( load_junk );
           thing->move( totell );
@@ -173,7 +193,7 @@ static int do_update(object *ov)
           if (strlen(itemname))
             tell_object(totell,"Ups. Tu "+itemname+" acaba de romperse.\n");
         else
-          tell_object(totell, "Ups. Algo que tenÃ­as acaba de romperse.\n");
+          tell_object(totell, "Ups. Algo que tenías acaba de romperse.\n");
         thing = clone_object( "/obj/misc/iou" );
         thing->add_auto_string( load_junk );
         thing->move( totell );
@@ -202,7 +222,10 @@ int update(string str)
 
   notify_fail("No existe tal objeto.\n");
   tring = str;
-  
+
+  if (this_player(1) != this_player()) 
+    return 0;
+
   if (!strlen(str) || str == "here") 
   {
     str = file_name(environment(this_player()));
@@ -262,6 +285,140 @@ int update(string str)
         
 } /* update() */
 
+int do_a_call(string str) 
+{
+  /* call fish(x,y,z) object */
+  mixed * args;
+  string *s, s1, s2;
+  string fn, os;
+  mixed *argv;
+  object *ov;
+  mixed retobj;
+  object fish, shad;
+  string f, file;
+  int i;
+
+  if (this_player(1) != this_player()) 
+    return 0;
+  
+  if (!strlen(str)) 
+  {
+    notify_fail("Sintaxis: call lfun(arg[,arg[,arg...]]) objeto[s]\n");
+    return 0;
+  }
+
+  log_file("calls", (string)this_player()->query_cap_name()+
+                    " calls "+str+" ["+ctime(time(),4)+"]\n");
+
+  s = explode("&"+str+"&", ")");
+
+  if (sizeof(s) < 2 || sscanf(s[0], "%s(%s", s1, s2) != 2) 
+  {
+    notify_fail("Sintaxis: call lfun(arg[,arg[,arg...]]) objeto[s]\n");
+    return 0;
+  }
+
+  fn = replace(s1[1..], " ", "");
+  s[0] = s2;
+  args = parse_args(implode(s, ")"), ")");
+
+  if (!sizeof(args)) 
+    return 1;
+  
+  argv = args[0];
+  os = args[1][0..strlen(args[1])-2];
+ 
+  while (strlen(os) && os[0] == ' ') 
+    os = os[1..];
+  
+  notify_fail("No puedo encontrar el objeto "+os+".\n");
+  ov = wiz_present(os,this_object());
+
+  if (!sizeof(ov)) 
+    return 0;
+
+  // if (sizeof(argv) < 6) 
+  //   argv += allocate(6 - sizeof(argv));
+
+  for (i = 0; i < sizeof(ov); i++) 
+  {
+    fish = ov[i];
+    
+    if (fish != this_player() && fish->query_coder() && !this_player()->query_admin())
+    {
+      log_file("call_prog", (string)this_player()->query_cap_name()+
+        " calls '"+str+"' ["+ctime(time(),4)+"]\n");
+      notify_fail("Tu intento de hacer un call sobre un inmortal ha sido "+
+        "grabado.\n");
+      return 0;
+    }
+    
+    while (shad = shadow(fish, 0)) 
+    {
+      fish = shad;
+      if (f = function_exists(fn, fish)) 
+        file = f;
+    }
+
+    if (!file || !strlen(file)) 
+      file = function_exists(fn, ov[i]);
+    
+    if (strlen(file)) 
+    {
+      string error;
+
+      switch(sizeof(argv))
+      {
+        case 0:
+          error = catch(retobj = call_other(ov[i], fn));
+          break;
+        case 1:
+          error = catch(retobj = call_other(ov[i], fn, argv[0]));
+          break;
+        case 2:
+          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1]));
+          break;
+        case 3:
+          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2]));
+          break;
+        case 4:
+          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3]));
+          break;
+        case 5:
+          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3], argv[4]));
+          break;
+        case 6:
+          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]));
+          break;
+        default:
+          notify_fail("More than 6 parameters? Nope.\n");
+          return 0;
+      }
+
+      if (error)
+      {
+        write("Se ha producido un error:\n" + error + "\n");
+        return 1;
+      }
+
+      inform_of_call(ov[i], ({ fn }) + argv);
+  
+      if ( ov[i] && interactive(ov[i]) && !ov[i]->query_coder() )
+        log_file("call_player",(string)this_player()->query_cap_name()+" calls '"+str+
+          "' -- player "+(string)ov[i]->query_name()+" ["+ctime(time(),4)+"]\n");
+      
+      write("*** Función en '"+ desc_object(ov[i])+"' encontrada en "+ file+ " ***\n");
+      write("Returned: " + to_string(retobj) + "\n");
+      // printf("%O\n", retobj);
+    } 
+    else
+      write("*** Función en '"+desc_object(ov[i])+"' no encontrada ***\n");
+    
+    file = "";
+  }
+
+  return 1;
+} /* do_a_call() */
 
 mixed stats() 
 {
