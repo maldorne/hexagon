@@ -11,7 +11,7 @@ void set_ed_setup(int i) { ed_setup = i; }
 mixed stats() 
 {
   return ({ 
-            ({"Ed setup", ed_setup, }),
+            ({"(role) Ed Setup", ed_setup, }),
           });
 }
             

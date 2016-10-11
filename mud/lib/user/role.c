@@ -40,9 +40,6 @@ int set_role(string name, object player)
 
 mixed * stats() 
 {
-  return ({ 
-            ({ "role name", (_role?_role->query_name():"") }),
-          }) +
-        (_role ? _role->stats() : ({ }));
+  return (_role ? _role->stats() : ({ }));
 }
 

@@ -14,6 +14,11 @@ void role_commands()
 
 }
 
+static void initialize_roles(object player)
+{
+  
+}
+
 static nomask object query_player() { return _player; }
 
 nomask int set_player(object ob)
@@ -27,6 +32,7 @@ nomask int set_player(object ob)
 
   _player = ob;
 
+  initialize_roles(_player);
   role_commands();
 
   return 1;
@@ -35,7 +41,7 @@ nomask int set_player(object ob)
 mixed * stats() 
 {
   return ({ 
-      ({ "Role name", _name }),
+      ({ "(role) Role name", _name }),
           });
 }
 

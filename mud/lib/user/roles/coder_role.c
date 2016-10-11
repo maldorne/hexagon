@@ -7,7 +7,7 @@
 
 // #define MASTER "/secure/master"
 
-inherit base "/lib/user/roles/player_role.c";
+inherit base   "/lib/user/roles/player_role.c";
 
 inherit find   "/lib/user/roles/coder_find.c";
 inherit path   "/lib/user/roles/coder_path.c";
@@ -28,6 +28,11 @@ void create()
   find::create();
   path::create();
   editor::create();
+}
+
+static void initialize_roles(object player)
+{
+  path::initialize_roles(player);
 }
 
 static void role_commands()
@@ -51,13 +56,13 @@ static void role_commands()
   // add_action("le", "le");
 
   add_action("edit","ed");
-  add_action("set_home_dir", "homedir");
 
   // coder_object_comm::all_commands();
   // coder_info_comm::all_commands();
 
   path::role_commands();
 } 
+
 
 
 
@@ -355,15 +360,6 @@ void fini_editor() {
   in_editor = 0;
 } /* fini_editor() */
 
-static int set_home_dir(string str) 
-{
-  if (this_player(1) != this_object()) 
-      return 0;
-  if (str) 
-      home_dir = get_path(str);
-    write("Homedir establecido en '"+home_dir+"'.\n");
-  return 1;
-} 
 
 // int review() 
 // {

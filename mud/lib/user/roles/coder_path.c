@@ -14,10 +14,21 @@ void create()
   current_path = "";
 }
 
+static void initialize_roles(object player)
+{
+  if (player)
+    home_dir = "/home/" + player->query_name();
+  else
+    home_dir = "/";
+
+  current_path = home_dir;
+}
+
 static void role_commands()
 {
   add_action("what_dir", "pwd");
   add_action("change_dir", "cd");
+  add_action("set_home_dir", "homedir");
 }
 
 string query_home_dir() { return home_dir; }
@@ -114,11 +125,23 @@ int change_dir(string str)
   return 1;
 }
 
+int set_home_dir(string str) 
+{
+  if (this_player(1) != this_object()->query_player()) 
+    return 0;
+
+  if (str) 
+    home_dir = get_path(str);
+
+  write("Homedir establecido en '"+home_dir+"'.\n");
+  return 1;
+} 
+
 mixed stats() 
 {
   return ({ 
-          ({"Home dir", home_dir, }),
-          ({"Current Path (nosave)", current_path, }),
+          ({"(role) Home Dir", home_dir, }),
+          ({"(role) Current Path", current_path, }),
           });
 }
             
