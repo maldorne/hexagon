@@ -8,10 +8,6 @@
 #include "objects/destruct.c"
 
 
-// prototypes
-// int strsrch( string str, mixed substr, varargs int flag );
-
-
 // object new(string path)
 // {
 //   object ob;

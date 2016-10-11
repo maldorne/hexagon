@@ -3,24 +3,19 @@
 #include <user/user.h>
 #include <user/input.h>
 
-inherit login   "/lib/user/login";
-inherit history "/lib/user/history";
-inherit alias   "/lib/user/alias";
-inherit prompt  "/lib/user/prompt";
+inherit login     "/lib/user/login";
+inherit history   "/lib/user/history";
+inherit alias     "/lib/user/alias";
+inherit prompt    "/lib/user/prompt";
 
-inherit living  "/lib/living/living";
-inherit role    "/lib/user/role";
+inherit living    "/lib/living/living";
+inherit role      "/lib/user/role";
 
+inherit events    "/lib/core/basic/events";
+inherit auto_load "/lib/core/basic/auto_load";
 
-
-
-// tmp, should be in the player object
-inherit events  "/lib/core/basic/events";
 // tmp for testing commands
-inherit tmp     "/lib/coder/tmp";
-
-// static string name;         // user name != inner_player name ?
-// static object inner_player; // The inner_player object attached to this user
+inherit tmp       "/lib/coder/tmp";
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
@@ -253,38 +248,6 @@ int do_look()
 {
   return do_cmd("mirar");
 }
-
-
-/*
- * NAME:  set_inner_player()
- * DESCRIPTION: set the inner_player object associated with this user
- */
-// void set_inner_player(object obj) {
-//     if (object_name(previous_object()) == DRIVER) {
-//   inner_player = obj;
-//     }
-//     return;
-// }
-
-/*
- * NAME:  query_inner_player()
- * DESCRIPTION: return the inner_player object associated with this user
- */
-// object query_inner_player() {
-//     return inner_player;
-// }
-
-
-// static void set_name(string str) {
-//     name=str;
-// }
-
-/* query_name returns the inner_player's name. */
-
-// string query_name() {
-//     return name;
-// }
-
 
 
 /* Control over editing function. Can come only from the associated

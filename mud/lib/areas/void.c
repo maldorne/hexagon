@@ -12,11 +12,11 @@
 
 inherit "/lib/room";
 
-
 int do_update(string str)
 {
    int i;
-   object *all = all_inventory(this_object());
+   object *all;
+   all = all_inventory(this_object());
    // if(!stringp(str) || str == "here")
    // {
       // load destinations
@@ -32,6 +32,7 @@ int do_update(string str)
                all[i]->move(ENTRY_POS);
                all[i]->do_look();
             }
+
             if(all[i]->query_creator())
             {
                tell_object(all[i],"Viajando hasta la habitación común...\n");
@@ -50,10 +51,10 @@ int do_update(string str)
 void setup() {
      set_light(40);
      set_short(mud_name()+": El Vacío");
-     set_long("Éste es el lugar al que vienes cuando el lugar en el que "
-              "estás desaparece y no tienes ningún lugar al que ir. "
-              "La razón por la que estás en él se deberá muy probablemente "
-              "a algún fallo involuntario del programador de la zona en la "
+     set_long("Éste es el lugar al que vienes cuando el lugar en el que " +
+              "estás desaparece y no tienes ningún lugar al que ir. " +
+              "La razón por la que estás en él se deberá muy probablemente " +
+              "a algún fallo involuntario del programador de la zona en la " +
               "que estabas.\n");
 
      add_exit("ciudad", ENTRY_POS, "standard");
@@ -62,6 +63,6 @@ void setup() {
 void init()
 {
    add_action("do_update", ({"update", "up"}));
-   room::init();
+   ::init();
 }
 
