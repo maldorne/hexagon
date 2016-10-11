@@ -272,7 +272,9 @@ private string align (string this, int width, int precision, mapping options,
   {
     if (strlen(this) < width)
     {
-      if (this[strlen(this)-1] != '\n')
+      if (!strlen(this))
+        this += give_padding (width - sz, padding);
+      else if (this[strlen(this)-1] != '\n')
         this += give_padding (width - sz, padding);
     }
     else
