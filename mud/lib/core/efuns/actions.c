@@ -58,6 +58,7 @@ nomask void notify_fail(string str)
 int command(string action)
 {
   object old_this_player;
+  object role;
   string * words;
   string verb, params;
   object * targets;
@@ -94,6 +95,10 @@ int command(string action)
 
   targets += ({ this_object() });
   targets += all_inventory(this_object());
+
+  role = this_object()->query_role();
+  if (role)
+    targets += ({ role });
 
   stderr(" * command targets <" + to_string(targets) + ">\n");
 

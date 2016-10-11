@@ -79,12 +79,13 @@ nomask void logon()
         "Versión de Mudlib: " + MUDLIB_VERSION + "\n\n"/* + 
         "Último parche: " + PATCH_VERSION + "\n\n"*/);
 
-
   timestamp = time();
 
   call_out("time_out", LOGIN_TIMEOUT);
 
   // TODO check shut object to avoid login near a shutdown
+
+  this_object()->set_name("neverbot");
 
   cat(WELCOME_MESSAGE);
 
@@ -121,6 +122,11 @@ nomask void logon_option(string str)
 
   // store the user name in the user handler
   find_object(USER_HANDLER)->update_user_name(file_name(this_object()), str);
+
+  // TODO validation
+
+  // set user privileges
+  this_object()->set_role("coder", this_object());
 
   write("¡Nos hemos conectado!\n");
   validated = TRUE;

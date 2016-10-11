@@ -126,7 +126,7 @@ int ls(string str, int mask, object me)
   {
     bit = explode(path, "/");
     bit = bit[0..sizeof(bit)-2];
-    path = "/"+implode(bit,"/")+"/";
+    path = "/" + implode(bit,"/") + "/";
   }
 
   if(path == "//")
@@ -145,8 +145,7 @@ int ls(string str, int mask, object me)
   {
     if (!(mask & MASK_F) && !(mask & MASK_O)) 
     {
-      bong = sprintf("%-*s", me->query_cols(),
-        implode(direc, "\n"));
+      bong = sprintf("%-*s", me->query_cols(), implode(direc, "\n"));
       bing = explode(bong, "\n");
     }
     else 
@@ -159,8 +158,7 @@ int ls(string str, int mask, object me)
               (int)me->query_cols()+8, direc[i]+"%^RESET%^"+
               (mask & MASK_F?"/":""));
           else
-            bing[i] = sprintf("%-*s", me->query_cols(),
-              direc[i]+"/");
+            bing[i] = sprintf("%-*s", me->query_cols(), direc[i]+"/");
 
         // else if (virtual_find_object(path+direc[i]))
         //   if (mask & MASK_O)
@@ -195,8 +193,7 @@ int ls(string str, int mask, object me)
         bing[i] = dir_entry(path, direc[i], mask, me) + "\n";
     }
 
-    bong = sprintf( "%#-*s", me->query_cols(),
-      implode(bing, ""));
+    bong = sprintf("%#-*s", me->query_cols(), implode(bing, ""));
 
     if (mask & MASK_O) 
     {
@@ -207,16 +204,19 @@ int ls(string str, int mask, object me)
       {
         if (file_size(path+direc[i]) == -2 || direc[i] == "..")
           bong = replace_string(bong, " "+direc[i], 
-            sprintf(" %s%s%s", "%^GREEN%^", direc[i], "%^RESET%^"));
+            // sprintf(" %s%s%s", "%^GREEN%^", direc[i], "%^RESET%^"));
+            " %^GREEN%^" + direc[i] + "%^RESET%^");
 
         // else if (virtual_find_object(path+direc[i]))
         //   bong = replace_string(bong, " "+direc[i], 
         //     sprintf(" %s%s%s", "%^MAGENTA%^", direc[i], "%^RESET%^"));
+        //     " %^MAGENTA%^" + direc[i] + "%^RESET%^");
 
         else
           // Believe me, it's needed.
           bong = replace_string(bong, " "+direc[i],
-            sprintf(" %s%s%s", "%^WHITE%^", direc[i], "%^RESET%^"));
+            // sprintf(" %s%s%s", "%^BOLD%^", direc[i], "%^RESET%^"));
+            " %^WHITE%^" + direc[i] + "%^RESET%^");
       }
     }
   } 
@@ -389,10 +389,10 @@ static int cmd(string str, object me, string verb)
 
   tp = me;
 
-  if (!str) 
+  if (!strlen(str)) 
     str = "";
   
-  if ( (sscanf(str,"-%s %s",flags,str) == 2) ||
+  if ( (sscanf(str,"-%s %s", flags, str) == 2) ||
        (sscanf(str,"-%s", flags) == 1) )
     for (i=0;i<strlen(flags);i++)
       switch(flags[i..i]) 
@@ -427,8 +427,8 @@ static int cmd(string str, object me, string verb)
 
   str = get_path(str);
 
-  if (!str)
-    return 1;
+  if (!strlen(str))
+    return 0;
 
   return ls(str, mask, me);
 

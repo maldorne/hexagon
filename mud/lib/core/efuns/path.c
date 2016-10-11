@@ -1,4 +1,6 @@
 
+#include <kernel.h>
+
 #include "paths/resolve_path.c"
 #include "paths/get_path.c"
 
@@ -44,96 +46,86 @@ string get_path_only(string path)
 
 string * get_files(string str) 
 {
-  mixed * info;
+  int loop, count;
+  string *filenames, rmpath, temp1, temp2, *names, *files;
 
-  info = get_dir(str);
+  names = explode(str, " ") - ({ "" });
 
-  return info[0];
-
-  /*
-
-    int loop, count;
-    string *filenames, rmpath, temp1, temp2, *names, *files;
-
-    names = explode(str, " ") - ({ "" });
-
-    if(sizeof(names) == 0) 
+  if (sizeof(names) == 0) 
+    return ({ });
+  
+  filenames = ({ });
+  
+  for (count = 0; count < sizeof(names); count++) 
+  {
+    str = names[count];
+    str = rmpath = get_path(str);
+  
+    if (rmpath == "/") 
     {
-      return ({ });
-    }
-    
-    filenames = ({ });
-    
-    for(count = 0; count < sizeof(names); count++) 
-    {
-      str = names[count];
-      str = rmpath = get_path(str);
-    
-      if(rmpath == "/") 
-      {
-        filenames += ({ "/" });
-        continue;
-      }
-
-      if(!rmpath)
-        rmpath = "/";
-      if(!str) 
-        str = "/";
-
-      if(sscanf(rmpath, "%s/%s", temp1, temp2) == 2) 
-      {
-          string *path_elements;
- 
-          path_elements = explode(rmpath, "/") - ({ "" });
-          rmpath = implode(path_elements[0..sizeof(path_elements) - 2], "/");
-      }
-    
-      // if (this_player() != nil)
-      //   seteuid(geteuid(this_player(1)));
-      // else
-      //   seteuid((string)master()->get_root_uid());
-      
-      files = get_dir(str);
-      
-      seteuid(0);
-
-      if(files) 
-      {
-        int loop2;
-        for (loop2 = 0; loop2 < sizeof(files); loop2++) 
-        {
-          filenames += ({ rmpath + "/" + files[loop2] });
-        }
-      }
+      filenames += ({ "/" });
+      continue;
     }
 
-    for (loop = 0; loop < sizeof(filenames); loop++) 
+    if (!strlen(rmpath))
+      rmpath = "/";
+    if (!strlen(str)) 
+      str = "/";
+
+    if (sscanf(rmpath, "%s/%s", temp1, temp2) == 2) 
     {
-      if(filenames[loop][0] != '/') {
-        filenames[loop] = "/" + filenames[loop];
+        string * path_elements;
+
+        path_elements = explode(rmpath, "/") - ({ "" });
+        rmpath = implode(path_elements[0..sizeof(path_elements) - 2], "/");
+    }
+  
+    if (this_player() != nil)
+      seteuid(geteuid(this_player(1)));
+    else
+      seteuid((string)MUDOS->get_root_uid());
+
+    files = get_dir(str);
+    
+    seteuid(0);
+
+    if (files) 
+    {
+      int loop2;
+      for (loop2 = 0; loop2 < sizeof(files); loop2++) 
+      {
+        filenames += ({ rmpath + "/" + files[loop2] });
       }
     }
-    return filenames;
-    */
+  }
+
+  for (loop = 0; loop < sizeof(filenames); loop++) 
+  {
+    if (filenames[loop][0] != '/') {
+      filenames[loop] = "/" + filenames[loop];
+    }
+  }
+
+  return filenames;
 }
 
 // Changed to be *.* so as to handle virtual wombles as well
-// string *get_cfiles(string str) 
-// {
-//   int loop;
-//   string temp, *names, temp2;
+string *get_cfiles(string str) 
+{
+  int loop;
+  string temp, *names, temp2;
 
-//   names = explode(str, " ") - ({ "" });
+  names = explode(str, " ") - ({ "" });
 
-//   for(loop = 0; loop < sizeof(names); loop++) 
-//   {
-//     if(sscanf(names[loop], "%s.%s", temp, temp2) != 2) 
-//     {
-//       names[loop] += ".c";
-//     }
-//   }
+  for (loop = 0; loop < sizeof(names); loop++) 
+  {
+    if (sscanf(names[loop], "%s.%s", temp, temp2) != 2) 
+    {
+      names[loop] += ".c";
+    }
+  }
   
-//   str = implode(names, " ");
-//   return get_files(str);
-// }
+  str = implode(names, " ");
+  return get_files(str);
+}
 

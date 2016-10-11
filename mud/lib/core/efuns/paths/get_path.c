@@ -1,24 +1,26 @@
 
 // old /global/path.c, now moved to simul_efuns, neverbot 03/2009                       
-string get_path(string str) 
+string get_path(varargs string str) 
 {
   string *array, *array1, temp;
   int i;
 
   if (!str) 
-    str = this_player()->query_home_dir();
+    str = this_player()->query_role()->query_home_dir();
 
-  if (!strlen(str))
-    return "/"; 
+  // if (!strlen(str))
+  //   return "/"; 
 
   if (str == "~") 
-    str = this_player()->query_home_dir();
-  else if(str[0] == '~') 
   {
-    if(str[1] == '/') 
+    str = this_player()->query_role()->query_home_dir();
+  }
+  else if (strlen(str) && (str[0] == '~'))
+  {
+    if (str[1] == '/') 
     {
       sscanf(str, "~/%s", temp);
-      str = this_player()->query_home_dir() + temp;
+      str = this_player()->query_role()->query_home_dir() + temp;
     }
     else 
     {
@@ -35,8 +37,8 @@ string get_path(string str)
       }
     }
   } 
-  else if (str[0] != '/')
-    str = this_player()->query_current_path() + "/" + str + "/";
+  else if (!strlen(str) || (str[0] != '/'))
+    str = this_player()->query_role()->query_current_path() + "/" + str + "/";
 
   if (str == "/")
     return "/"; 
@@ -49,7 +51,7 @@ string get_path(string str)
     {
       if (i < 1)
       {
-          write("Invalid path.\n");
+          notify_fail("Invalid path.\n");
           return "";
       }
       

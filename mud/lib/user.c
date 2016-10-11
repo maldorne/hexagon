@@ -9,6 +9,7 @@ inherit alias   "/lib/user/alias";
 inherit prompt  "/lib/user/prompt";
 
 inherit living  "/lib/living/living";
+inherit role    "/lib/user/role";
 
 
 
@@ -37,6 +38,7 @@ void create()
   alias::create();
   prompt::create();
   living::create();
+  role::create();
 
   // already done in living
   // enable_commands();
@@ -218,8 +220,16 @@ mixed * stats()
                  history::stats() + 
                  alias::stats() + 
                  prompt::stats() + 
-                 living::stats();
+                 living::stats() +
+                 role::stats();
 }
+
+
+
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 
 #include <mud/secure.h>
 
-static string euid;
+static mixed euid;
 
 // seteuid - set the effective user id (euid) of an object
 // int seteuid( string str );
@@ -14,9 +14,12 @@ static string euid;
 // TODO seteuid
 // call valid_seteuid first
 
-static nomask int seteuid( string str )
+static nomask int seteuid( mixed str )
 {
-  euid = str;
+  if (stringp(str) && strlen(str))
+    euid = str;
+  else
+    euid = 0;
 }
 
 
@@ -30,7 +33,7 @@ static nomask int seteuid( string str )
 
 // TODO geteuid
 
-static nomask string geteuid( varargs object ob )
+static nomask mixed geteuid( varargs object ob )
 {
   // if (ob && objectp(ob))
   //   return ob->geteuid();

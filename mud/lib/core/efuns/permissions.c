@@ -1,6 +1,26 @@
 
 #include <files/log.h>
 
+
+static nomask int valid_progname(int steps, string progname)
+{
+  mixed ** trace;
+
+  // this valid_progname call counts as one 
+  // more level in the call trace
+  steps++;
+
+  trace = call_trace();
+
+  if (sizeof(trace) < steps)
+    return 0;
+
+  if (trace[sizeof(trace) - steps][TRACE_PROGNAME] != progname)
+    return 0;
+
+  return 1;  
+}
+
 /*
  * Function name:   valid_exec
  * Description:     Checks if a certain 'program' has the right to use exec()
@@ -10,7 +30,7 @@
  *                  NOTE, the absence of a leading slash in the name.
  * Returns:         True if exec() is allowed.
  */
-static int valid_exec(string name) 
+static nomask int valid_exec(string name) 
 {
   if (name == "/lib/core/login.c")
     return 1;
@@ -18,24 +38,24 @@ static int valid_exec(string name)
   return -1;
 } 
 
-static int valid_load(string path, mixed euid, string func) { return 1; }
+static nomask int valid_load(string path, mixed euid, string func) { return 1; }
 
-static int valid_hide(object ob) 
+static nomask int valid_hide(object ob) 
 {
   return load_object(SECURE)->load_object(SECURE)->is_administrator(geteuid(ob));
 }
 
-static int valid_ident(string euid) 
+static nomask int valid_ident(string euid) 
 {
   return load_object(SECURE)->is_administrator(euid);
 } 
 
-static int valid_link(string from, string to) 
+static nomask int valid_link(string from, string to) 
 {
   return -1;
 }
 
-static int valid_override(string file, string func) 
+static nomask int valid_override(string file, string func) 
 {
   string *bing;
 
@@ -61,7 +81,7 @@ static int valid_override(string file, string func)
 // This IS fun.
 // But seems to be buggy, fix nov '95, Baldrick.
 
-static int valid_read(string path, mixed euid, varargs string func) 
+static nomask int valid_read(string path, mixed euid, varargs string func) 
 {
   string *bing;
   mixed master;
@@ -203,7 +223,7 @@ static int valid_read(string path, mixed euid, varargs string func)
 
 
 /* this stuff added by asmodean, stolen from sojan, who stole it from chrisy */
-static int valid_save_binary(string file)
+static nomask int valid_save_binary(string file)
 {
   string *path;
  
@@ -245,7 +265,7 @@ static int valid_save_binary(string file)
   return 0;
 }
 
-static int valid_seteuid(object ob, string euid) 
+static nomask int valid_seteuid(object ob, string euid) 
 {
   string crea;
 
@@ -269,7 +289,7 @@ static int valid_seteuid(object ob, string euid)
  * In this example, we allow shadowing as long as the victim object
  * hasn't denied it with a query_prevent_shadow() returning 1.
  */
-static int valid_shadow(object ob) 
+static nomask int valid_shadow(object ob) 
 {
   string dummy;
 
@@ -277,7 +297,7 @@ static int valid_shadow(object ob)
           !sscanf(file_name(ob), "/secure/%s", dummy));
 }
 
-static int valid_socket(object ob, string func, mixed *info) 
+static nomask int valid_socket(object ob, string func, mixed *info) 
 {
   return TRUE;
 }
@@ -297,7 +317,7 @@ static int valid_socket(object ob, string func, mixed *info)
 #define PLAYEROBS ({ "/global/player", "/global/coder", \
                      "/global/coordinator", "/global/administrator", })
  
-static int valid_write(string path, mixed euid, string func) 
+static nomask int valid_write(string path, mixed euid, string func) 
 {
   string *bing;
   mixed master;
@@ -410,7 +430,7 @@ static int valid_write(string path, mixed euid, string func)
 
 // checked for ccmud, neverbot 07/05
 
-static int valid_snoop(object snooper, object snoopee, object pobj) 
+static nomask int valid_snoop(object snooper, object snoopee, object pobj) 
 {
   return -1;
   /*
