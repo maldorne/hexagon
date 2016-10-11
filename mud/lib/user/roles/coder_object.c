@@ -4,6 +4,9 @@ object *wiz_present(string str, varargs object onobj, int nogoout);
 void inform_of_call(object ob, mixed *argv);
 static mixed *parse_args(string str, string close);
 
+private static object *dest_obj;
+private static int objn, majd;
+
 void create()
 {
 }
@@ -11,12 +14,13 @@ void create()
 static void role_commands()
 {
   add_action("update", "update");
-
   add_action("do_a_call", "call");
+
   // add_action("parse_frogs", ";*");
   // add_action("dest", "destruct");
   // add_action("dest", "destruir");
-  add_action("dest", "dest");
+  add_action("do_dest", "dest");
+
   // add_action("show_stats", "stat");
   add_action("trans", "trans");
   add_action("whereis","whereis");
@@ -419,6 +423,187 @@ int do_a_call(string str)
 
   return 1;
 } /* do_a_call() */
+
+// returns true if s is a 'yes' equiv response 
+int affirmative(string s) 
+{
+  s = lower_case(s);
+  return (s == "y" || s == "s" || s == "si" || s == "ok" || s == "please");
+} /* affirmative() */
+
+void ask_dest() 
+{
+  if (!pointerp(dest_obj) || objn >= sizeof(dest_obj)) 
+  {
+    write("No hay más cosas por destruir.\n");
+    dest_obj = ({ }); // wipe array to free memory 
+    return;
+  }
+
+  write("¿Destruir " + desc_object(dest_obj[objn]) + "? ");
+  input_to("dest_answer");
+  return;
+} /* ask_dest() */
+
+void dest_answer(string s)
+{
+  string err, shrt;
+
+  if (affirmative(s)) 
+  {
+    if (majd) 
+    {
+      shrt = (string)dest_obj[objn]->short();
+      err = catch(dest_obj[objn]->dwep());
+      write("DWEP falló: " + err + "\n");
+    
+      if (dest_obj[objn]) 
+      {
+        write("Este objeto no quiere ser destruido.\n");
+        err = catch(destruct(dest_obj[objn]));
+        write("destruct() falló: " + err + "\n");
+      }
+
+      majd = 0;
+      
+      if (dest_obj[objn]) 
+        write("No se pudo destruir.\n");
+      else 
+      {
+        say((string)this_player()->query_cap_name()+" destruye "+
+          (shrt ? shrt : "algo") +".\n");
+        write("Ok.\n");
+      }
+
+      objn++;
+      ask_dest();
+      return;
+    } 
+    else 
+    {
+      err = catch(dest_obj[objn]->dest_me());
+      write("dest_me falló: " + err + "\n");
+    
+      if (dest_obj[objn]) 
+      {
+        write("Este objeto no desea ser destruido, ¿aún deseas hacerlo?");
+        majd = 1;
+        input_to("dest_answer");
+        return;
+      }
+
+      write("Ok.\n");
+      objn++;
+      ask_dest();
+      return;
+    }
+  } 
+  else if (s == "q" || s == "quit") 
+  {
+    write("Ok. No se destruiran más objetos.\n");
+    dest_obj = ({ });
+    return;
+  }
+
+  write("Ok. No destruido.\n");
+  objn++;
+  ask_dest();
+  return;
+} /* dest_answer() */
+
+int do_dest(string str) 
+{
+  object *ob;
+  int i;
+  string qstr, err, shrt, dobj;
+
+  dest_obj = ({ });
+
+  if (!strlen(str)) {
+    notify_fail("¿Destruir el qué?\n");
+    return 0;
+  }
+
+  notify_fail("No puedo encontrar '" + str + "' para destruir.\n");
+
+  if (sscanf(str, "query %s", qstr) == 1) 
+  {
+    dest_obj = wiz_present(qstr, this_player());
+    if (!sizeof(dest_obj)) 
+      return 0;
+    objn = 0;
+    majd = 0; // MAJOR dest needed
+    ask_dest();
+    return 1;
+  }
+
+  ob = wiz_present(str, this_player());
+  
+  if (!sizeof(ob)) 
+    return 0;
+
+  for (i = 0; i < sizeof(ob); i++)
+  {
+    if(interactive(ob[i]) && (sizeof(ob) !=1 || 
+      "/lib/core/secure"->high_programmer(geteuid(ob[i]))))
+    {
+      write("No destruyes a " + ob[i]->query_cap_name() + 
+            " (no puedes destruir objetos interactive).\n");
+      continue;
+    }
+    // if(interactive(ob[i]) && !(this_player()->query_admin() || this_player()->query_thane()))
+    if(interactive(ob[i]) && !(this_player()->query_admin()) )
+    {
+      log_file("dest", "["+ctime(time(), 4)+"] " + 
+        this_player()->query_cap_name()+" intentó (sin éxito) destruir el objeto interactive '"+
+        ob[i]->query_cap_name()+"'.\n");
+      write("Lo siento, no te está permitido destruir a "+ob[i]->query_cap_name()+".\n");
+      continue;
+    }
+
+    catch(shrt = (string)ob[i]->short());
+    dobj = desc_object(ob[i]);
+
+    if( ob[i] && ob[i]->query_cap_name() && environment(ob[i]) )
+    {
+      // log_file("dest",(string)this_player(1)->query_cap_name()+
+      log_file("dest",  "["+ctime(time(), 4)+"] " + 
+        (string)this_object()->query_cap_name()+
+        " destruye "+ob[i]->query_cap_name() + /* " de "+
+        environment(ob[i])->query_short() + */ " en " +
+        file_name(environment(ob[i]))+"\n");
+      
+      event(users(), "inform", (string)this_object()->query_cap_name() +
+        " destruye "+ob[i]->query_cap_name() + /* " de "+
+        environment(ob[i])->query_short() + */ " en "+
+        file_name(environment(ob[i])), "dest");
+    }
+
+    err = catch(ob[i]->dest_me());
+    write("dest_me falló: " + err + "\n");
+
+    if (ob[i])
+      dest_obj += ({ ob[i] });
+    else
+    {
+      write("Destruyes " + dobj + ".\n");
+      say((string)this_player()->query_cap_name()+" destruye "+
+        (shrt ? shrt : "algo") + ".\n");
+    }
+  }
+  
+  if (sizeof(dest_obj) > 0) 
+  {
+    objn = 0;
+    majd = 0;
+    ask_dest();
+    return 1;
+  }
+  
+  return 1;
+} /* dest() */
+
+
 
 mixed stats() 
 {

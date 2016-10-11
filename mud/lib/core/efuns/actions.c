@@ -105,24 +105,20 @@ int command(string action)
   for (i = 0; i < sizeof(targets); i++)
   {
     string func;
-    string error;
 
     if ((func = targets[i]->query_action(verb)) != nil)
     {
       mixed result;
-      error = catch(result = call_other(targets[i], func, params));
 
-      // wrong function definition, maybe wrong prototype
-      // add_action functions should be in the form
-      //   int func(string str) or
-      //   int func(string str, varargs...)
-      if ((result == nil) || (error != nil))
+      result = call_other(targets[i], func, params);
+      
+      if (result == nil)
       {
         write("Se ha producido un error.\n");
         notify_fail("");
         stderr(" * command: wrong action function for <" + func + "> in " + 
                object_name(targets[i]) + "\n");
-        stderr("   -> " + error + "\n");
+        // stderr("   -> " + error + "\n");
       }
 
       // function executed

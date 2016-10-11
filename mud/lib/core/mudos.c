@@ -10,6 +10,7 @@
 inherit hb "/lib/core/heart_beats";
 
 private static object initiator_player, initiator_object;
+private static string current_command;
 private static string current_verb;
 private static string notify_fail_msg;
 
@@ -18,6 +19,7 @@ private static mixed ** call_outs;
 void create()
 {
   current_verb = "";
+  current_command = "";
   notify_fail_msg = "";
   call_outs = ({ });
   hb::create();
@@ -26,6 +28,10 @@ void create()
 // TODO security in set_current_verb
 string query_current_verb() { return current_verb; }
 void set_current_verb(string v) { current_verb = v; }
+
+// TODO security in set_current_command
+string query_current_command() { return current_command; }
+void set_current_command(string v) { current_command = v; }
 
 // TODO security in set_notify_fail_msg
 string query_notify_fail_msg() { return notify_fail_msg; }

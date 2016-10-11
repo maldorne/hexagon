@@ -498,6 +498,7 @@ private int perform_next_action()
     // save current verb being used
     old_verb = MUDOS->query_current_verb();
     MUDOS->set_current_verb(verb);
+    MUDOS->set_current_command(curr_act);
 
     // save current notify_fail message
     // will be changed (presumably) during the execution 
@@ -538,7 +539,7 @@ private int perform_next_action()
           }
         }
       }
-    }
+    }      
 
     // restore previous notify_fail message
     // (might have change during the execution of the action)

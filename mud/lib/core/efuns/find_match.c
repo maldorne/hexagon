@@ -361,8 +361,8 @@ mixed simple_find_match(string str, mixed ob, varargs int no_hidden)
   if (no_hidden)
     list = filter(list, "not_hidden", this_object());    
 
-  id_list_common = "/lib/core/master.c"->parse_command_id_list();
-  id_list_common_plurals = "/lib/core/master.c"->parse_command_plural_id_list();
+  id_list_common = this_object()->parse_command_id_list();
+  id_list_common_plurals = this_object()->parse_command_plural_id_list();
 
   for (i = 0; i < sizeof(list); i++)
   {

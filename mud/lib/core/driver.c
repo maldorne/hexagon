@@ -121,13 +121,10 @@ static nomask void write(string str)
 
   user->catch_tell(str);
 }
+
 static nomask void inform_user(string str, int message_type)
 {
   string msg;
-  // TODO change messages if not coder
-
-  // if (message_type == DRIVER_MESSAGE_ERROR)
-  //   write("Se ha producido un error.\n");
 
   msg = "\n";
 
@@ -141,8 +138,17 @@ static nomask void inform_user(string str, int message_type)
       break;
   }
 
-  msg += str;
-  write(msg);  
+  msg += str + "\n";
+
+  if (this_player()->query_coder())
+    write(msg);
+
+  write("Se ha producido un error.\n");
+
+  if (strlen(mudos->query_current_command()))
+    write("El intento de hacer '%^RED%^" + 
+          mudos->query_current_command() + 
+          "%^RESET%^' no funcionó.\n");
 }
 
 // The driver object cannot clone objects
