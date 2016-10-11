@@ -1,6 +1,6 @@
 
-#include "/lib/core/efuns/strings/sprintf/sprintf.c"
 #include "/lib/core/efuns/strings/full_explode.c"
+#include "/lib/core/efuns/strings/sprintf/sprintf.c"
 
 // prototypes
 

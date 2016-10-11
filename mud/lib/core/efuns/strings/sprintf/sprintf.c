@@ -220,34 +220,42 @@ private string give_padding (int n, string pad)
 
 private string multi_line(string this, int width)
 {
-  string * pieces;
-  int i, line_length, word_length;
+  string * pieces, * lines;
+  int i, j, line_length, word_length;
   string new_this;
 
-  pieces = explode(this, " ");
+  lines = full_explode(this, "\n");
   new_this = "";
-  line_length = 0;
-  word_length = 0;
 
-  for (i = 0; i < sizeof(pieces); i++)
+  for (j = 0; j < sizeof(lines); j++)
   {
-    word_length = strlen(pieces[i]);
+    pieces = explode(lines[j], " ");
+    line_length = 0;
+    word_length = 0;
 
-    if ((i != 0) && 
-        (line_length + word_length > width))
+    for (i = 0; i < sizeof(pieces); i++)
     {
+      word_length = strlen(pieces[i]);
+
+      if ((i != 0) && 
+          (line_length + word_length > width))
+      {
+        new_this += "\n";
+        line_length = 0;
+      }
+
+      new_this += pieces[i];
+      line_length += word_length;
+
+      if (i < sizeof(pieces) - 1)
+      {
+        new_this += " ";
+        line_length += 1;
+      }
+    }
+
+    if (j < sizeof(lines) - 1)
       new_this += "\n";
-      line_length = 0;
-    }
-
-    new_this += pieces[i];
-    line_length += word_length;
-
-    if (i < sizeof(pieces) - 1)
-    {
-      new_this += " ";
-      line_length += 1;
-    }
   }
 
   return new_this;
