@@ -34,8 +34,9 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/input.c"
 
 #include "/lib/core/efuns/heart_beat.c"
-
 #include "/lib/core/efuns/conversions.c"
+
+#include "/lib/core/efuns/shadow.c"
 
 #include "/lib/core/efuns/permissions.c"
 
