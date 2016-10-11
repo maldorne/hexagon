@@ -88,6 +88,10 @@ int command(string action)
   targets = ({ });
   found = FALSE;
 
+  role = this_object()->query_role();
+  if (role)
+    targets += ({ role });
+
   if (env = environment(this_object()))
     targets += ({ env }) + 
                all_inventory(env) - 
@@ -95,10 +99,6 @@ int command(string action)
 
   targets += ({ this_object() });
   targets += all_inventory(this_object());
-
-  role = this_object()->query_role();
-  if (role)
-    targets += ({ role });
 
   stderr(" * command targets <" + to_string(targets) + ">\n");
 
