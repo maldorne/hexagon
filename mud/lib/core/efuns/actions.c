@@ -118,6 +118,8 @@ int command(string action)
       //   int func(string str, varargs...)
       if ((result == nil) || (error != nil))
       {
+        write("Se ha producido un error.\n");
+        notify_fail("");
         stderr(" * command: wrong action function for <" + func + "> in " + 
                object_name(targets[i]) + "\n");
         stderr("   -> " + error + "\n");

@@ -527,7 +527,7 @@ private int perform_next_action()
 
               fail_msg = MUDOS->query_notify_fail_msg();
 
-              if (fail_msg && (fail_msg != ""))
+              if (strlen(fail_msg))
                 tell_object(this_object(), fail_msg);
               else
                 tell_object(this_object(), "El intento de hacer '%^RED%^" + 
