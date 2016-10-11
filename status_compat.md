@@ -12,7 +12,7 @@ Common calls and operations over the basic types.
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
-| `clonep`                |  |  |
+| `clonep`                | :white_check_mark: |  |
 | `intp`                  | :white_check_mark: |  |
 | `undefinedp`            | :white_check_mark: |  |
 | `nullp`                 | :white_check_mark: | alias for `undefinedp` |
@@ -158,7 +158,7 @@ do not have an open source license.
 | -------- | :------: | -------- |
 | `write`                 | :white_check_mark: |  |
 | `tell_object`           | :white_check_mark: |  |
-| `tell_room`             |  |  |
+| `tell_room`             | :white_check_mark: |  |
 | `shout`                 |  |  |
 | `receive`               |  |  |
 | `message`               |  |  |

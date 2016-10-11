@@ -46,13 +46,11 @@ void create()
   // this should be done both for players and npcs
   set_living_name("neverbot");
 
-  // name = "";
-  // inner_player = nil;
-
   redirect_input_ob       = nil;
   redirect_input_function = "";
 
-  set_heart_beat(1);
+  if (clonep(this_object()))
+    set_heart_beat(1);
 
   // if (object_name(previous_object())!=DRIVER) {
   //   destruct_object(this_object());

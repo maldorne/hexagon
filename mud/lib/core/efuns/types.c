@@ -51,6 +51,9 @@ static nomask int objectp(mixed what)
   return 0;
 }
 
+// defined in object.c
+// static nomask int clonep(varargs mixed what)
+
 static nomask int stringp(mixed what)
 {
   if (typeof(what) == T_STRING)

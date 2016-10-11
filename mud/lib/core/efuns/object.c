@@ -1,10 +1,16 @@
 
+#include <type.h>
 
 #include "objects/compile_object.c"
 #include "objects/find_object.c"
 #include "objects/load_object.c"
 #include "objects/file_name.c"
 #include "objects/destruct.c"
+
+
+// prototypes
+// int strsrch( string str, mixed substr, varargs int flag );
+
 
 // object new(string path)
 // {
@@ -17,6 +23,30 @@
 
 //   return clone_object(ob);  
 // }
+
+
+// clonep - determine whether or not a given variable points to a cloned object
+// int clonep();
+// int clonep(mixed arg);
+
+// Returns true (1) iff the argument is objectp() ... 
+// The clonep() efun will not return true when called on
+// objects that are the blueprint copy (those that are loaded via call_other()
+// or load_object()).
+
+// Note that if clonep() returns true, then file_name() will return a string
+// containing a '#'.  clonep() defaults to this_object().
+
+static nomask int clonep(varargs mixed what)
+{
+  if (!what)
+    what = this_object();
+
+  if (typeof(what) != T_OBJECT)
+    return 0;
+
+  return (strsrch(object_name(what), "#") >= 0);
+}        
 
 // /secure/simul_efun/base_name.c
 // from the RotD Mudlib
