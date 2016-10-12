@@ -165,6 +165,7 @@ do not have an open source license.
 | `shout`                 |  |  |
 | `receive`               |  |  |
 | `message`               |  |  |
+| `input_to`              | :white_check_mark: | accepts optional parameters `input_to(func, flag, args...)` |
 
 
 ##Driver configuration
@@ -178,7 +179,6 @@ do not have an open source license.
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `bind`                  |  |  |
-| `input_to`              |  |  |
 | `random`                |  |  |
 | `find_player`           |  |  |
 | `save_variable`         |  |  |
