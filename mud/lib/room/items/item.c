@@ -212,17 +212,18 @@ int remove_item(string str, string new_long)
 /* this is a mess.  I am not sure I want to do it.  So I won't for now. */
 } /* remove_item() */
 
-string *parse_command_id_list() { return name; }
-string *parse_command_plural_id_list() { return plu; }
-string *parse_command_adjectiv_id_list() { return adjs; }
+// string *parse_command_id_list() { return name; }
+// string *parse_command_plural_id_list() { return plu; }
+// string *parse_command_adjectiv_id_list() { return adjs; }
 
+/*
 object query_parse_id(mixed *arr) 
 {
   string *bits;
   mixed stuff;
   int i, j;
 
-/* all case */
+  // all case 
   if (arr[P_THING] == 0) 
   {
     bits = explode(arr[P_STR], " ");
@@ -242,7 +243,8 @@ object query_parse_id(mixed *arr)
     return this_object();
   }
   if (arr[P_THING] < 0) 
-  { /* specific object case */
+  { 
+    // specific object case
     bits = explode(arr[P_STR], " ");
     if (!(stuff = verb[bits[sizeof(bits)-1]]))
       return nil;
@@ -253,14 +255,14 @@ object query_parse_id(mixed *arr)
           break;
       if (i < (sizeof(bits) - 2) || ++arr[P_THING] != 0)
         continue;
-/* Get the current thingy out of the list */
+      // Get the current thingy out of the list
       cur_desc = ({ stuff[j+1] });
       arr[P_THING] = -10321;
       return this_object();
     }
     return nil;
   }
-/* Lots of objects case.  The objects are specified though. */
+  // Lots of objects case.  The objects are specified though.
   bits = explode(arr[P_STR], " ");
   if (!(stuff = plural[bits[sizeof(bits)-1]]))
     if (!(stuff = verb[bits[sizeof(bits)-1]]))
@@ -282,7 +284,7 @@ object query_parse_id(mixed *arr)
     }
   }
   return this_object();
-} /* query_parse_id() */
+} */
 
 void dest_me() 
 {

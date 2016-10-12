@@ -6,6 +6,7 @@
 inherit login     "/lib/user/login";
 inherit history   "/lib/user/history";
 inherit alias     "/lib/user/alias";
+inherit nickname  "/lib/user/nickname";
 inherit prompt    "/lib/user/prompt";
 
 inherit living    "/lib/living/living";
@@ -31,6 +32,7 @@ void create()
   login::create();
   history::create();
   alias::create();
+  nickname::create();
   prompt::create();
   living::create();
   role::create();
@@ -56,6 +58,7 @@ void init()
 {
   history::init();
   alias::init();
+  nickname::init();
 
   living::init();
 }
@@ -212,6 +215,7 @@ mixed * stats()
   return ({ }) + login::stats() + 
                  history::stats() + 
                  alias::stats() + 
+                 nickname::stats() + 
                  prompt::stats() + 
                  living::stats() +
                  role::stats();

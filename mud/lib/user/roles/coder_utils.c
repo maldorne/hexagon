@@ -1,7 +1,7 @@
 
 
 // prototypes
-object *wiz_present(string str, varargs object onobj, int nogoout);
+object *wiz_present(string str, object onobj, varargs int nogoout);
 
 void inform_of_call(object ob, mixed *argv) 
 {
@@ -300,64 +300,82 @@ object *wzpresent2(string str, mixed onobj) {
   return ({ });
 } /* wiz_present2() */
 
-object *wiz_present(string str, varargs object onobj, int nogoout) {
-  /* nogoout is so that it WON'T check the environment of onobj */
+object * wiz_present(string str, object onobj, varargs int nogoout) 
+{
+  // nogoout is so that it WON'T check the environment of onobj
   int i,j;
   object ob, *obs, *obs2;
   string s1, s2, *sts;
 
-  if (!str || !onobj) {
+  if (!strlen(str) || !onobj) 
     return ({ });
-  }
 
-  /* all the simple ones first */
-  if(str[0] == '@') {
-    if (ob = find_living(
-    (string)this_player()->expand_nickname(extract(str, 1))))
-    return ({ ob });
+  // all the simple ones first 
+  if(str[0] == '@') 
+  {
+    if (ob = find_living((string)this_player()->expand_nickname(extract(str, 1))))
+      return ({ ob });
+    
     notify_fail("Imposible encontrar el objeto living: "+extract(str,1)+".\n");
     return ({ });
   }
 
-  if ((str == "me") || (str == "yo")) return ({ this_player() });
+  if ((str == "me") || (str == "yo")) 
+    return ({ this_player() });
 
-  if ((str == "here") || (str == "aqui")) return ({ environment(this_player()) });
+  if ((str == "here") || (str == "aqui")) 
+    return ({ environment(this_player()) });
 
-  if ((str == "everyone") || (str == "todos"))  return users();
+  if ((str == "everyone") || (str == "todos"))  
+    return users();
 
-  if(str[0] == '/') {
-    if (ob = find_object(str)) return ({ ob });
-    if (sizeof((sts = (string *)get_cfiles(str))))  {
+  if(str[0] == '/') 
+  {
+    if (ob = find_object(str)) 
+      return ({ ob });
+
+    if (sizeof((sts = (string *)get_cfiles(str))))  
+    {
       obs = ({ });
       for (i=0;i<sizeof(obs);i++)
-      if ((ob = find_object(sts[i])))
-      obs += ({ ob });
+        if ((ob = find_object(sts[i])))
+          obs += ({ ob });
       return obs;
     }
+
     notify_fail("Objeto no estaba cargado en memoria: "+str+".\n");
     return ({ });
   }
 
-  /* (fish) == environment of fish */
+  // (fish) == environment of fish
 
-  if (str[0] == '(' && str[strlen(str) - 1] == ')') {
+  if (str[0] == '(' && str[strlen(str) - 1] == ')') 
+  {
     obs = wiz_present(extract(str,1,strlen(str) - 2),onobj);
-    if (!sizeof(obs)) return obs;
-    for (i = 0; i < sizeof(obs); i++) obs[i] = environment(obs[i]);
+  
+    if (!sizeof(obs)) 
+      return obs;
+
+    for (i = 0; i < sizeof(obs); i++) 
+      obs[i] = environment(obs[i]);
     return obs;
   }
 
   if ((sscanf(str,"%s except %s",s1,s2) == 2) ||
       (sscanf(str,"%s but %s",s1,s2) == 2) ||
-      (sscanf(str,"%s excepto %s",s1,s2) == 2)) {
-
+      (sscanf(str,"%s excepto %s",s1,s2) == 2)) 
+  {
     obs = wiz_present(s1, onobj);
     obs2= wiz_present(s2, onobj);
-    for (i=0;i<sizeof(obs2);i++){
-      while ((j = member_array(obs2[i], obs)) > -1){
+
+    for (i=0;i<sizeof(obs2);i++)
+    {
+      while ((j = member_array(obs2[i], obs)) > -1)
+      {
         obs = delete(obs, j--, 1);
-                  }
-                }
+      }
+    }
+
     return obs;
   }
 
@@ -365,47 +383,56 @@ object *wiz_present(string str, varargs object onobj, int nogoout) {
   /* Hmm....sounds fishy to me.  Timion 97 */
 
   if ((sscanf(str,"%s on %s",s1,s2) == 2) ||
-  (sscanf(str,"%s in %s",s1,s2) == 2) ||
-  (sscanf(str,"%s en %s",s1,s2) == 2))  {
+      (sscanf(str,"%s in %s",s1,s2) == 2) ||
+      (sscanf(str,"%s en %s",s1,s2) == 2))  
+  {
     obs = wiz_present(s2, onobj);
-    if (!sizeof(obs)) return obs;
+
+    if (!sizeof(obs)) 
+      return obs;
+
     obs2 = ({ });
+
     for (i = 0; i < sizeof(obs); i++)
-    obs2 += wiz_present(s1,obs[i],1);
+      obs2 += wiz_present(s1,obs[i],1);
+
     return obs2;
   }
 
   /* fish and fish2 */
 
   if ((sscanf(str,"%s and %s",s1,s2) == 2) ||
-  (sscanf(str,"%s y %s",s1,s2) == 2)) {
+      (sscanf(str,"%s y %s",s1,s2) == 2)) 
+  {
     obs = wiz_present(s1, onobj);
     obs2= wiz_present(s2, onobj);
     for (i=0;i<sizeof(obs);i++)  /* remove duplicates ... */
-    if (member_array(obs[i], obs2) < 0) obs2 += ({ obs[i] });
+      if (member_array(obs[i], obs2) < 0) 
+        obs2 += ({ obs[i] });
     return obs2;
   }
 
   /* fish except fish2 */
 
   if ((sscanf(str,"player %s",s1)) || (sscanf(str,"jugador %s",s1)))
-  return ({ find_player(s1) });
+    return ({ find_player(s1) });
 
-  if (!sizeof(obs2 = wzpresent2(str,onobj)) && !nogoout) {
+  if (!sizeof(obs2 = wzpresent2(str,onobj)) && !nogoout) 
     obs2 = wzpresent2(str, environment(onobj));
-  }
 
-  if (sizeof(obs2)) return obs2;
+  if (sizeof(obs2)) 
+    return obs2;
 
   /* check for a find_match locally */
 
   obs2 = find_match(str,onobj);
-  if (sizeof(obs2) > 0) return obs2;
+  if (sizeof(obs2) > 0) 
+    return obs2;
 
   /* default to return find_living ...  */
 
   if (ob = find_living((string)this_player()->expand_nickname(str)))
-  return ({ ob });
+    return ({ ob });
 
   return ({ });
 } /* wiz_present() */

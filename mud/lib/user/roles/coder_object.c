@@ -1,6 +1,6 @@
 
 // prototypes
-object *wiz_present(string str, varargs object onobj, int nogoout);
+object *wiz_present(string str, object onobj, varargs int nogoout);
 void inform_of_call(object ob, mixed *argv);
 static mixed *parse_args(string str, string close);
 
@@ -367,7 +367,7 @@ int do_a_call(string str)
     if (!file || !strlen(file)) 
       file = function_exists(fn, ov[i]);
     
-    if (strlen(file)) 
+    if (file && strlen(file)) 
     {
       string error;
 

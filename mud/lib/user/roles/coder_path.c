@@ -5,7 +5,7 @@ static string home_dir;
 static string current_path;
 
 // prototypes
-object *wiz_present(string str, varargs object onobj, int nogoout);
+object *wiz_present(string str, object onobj, varargs int nogoout);
 
 
 void create()

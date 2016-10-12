@@ -3,7 +3,7 @@ static int ed_setup;
 static mixed in_editor;
 
 // prototypes
-object *wiz_present(string str, varargs object onobj, int nogoout);
+object *wiz_present(string str, object onobj, varargs int nogoout);
 
 
 void create()

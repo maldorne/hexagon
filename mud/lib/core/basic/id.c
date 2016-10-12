@@ -154,10 +154,10 @@ string *query_adjectives() { return adjectives; }
 */
 
 /* ok parse command stuff */
-string *parse_command_id_list() { return ({ name }) + alias; }
-string *parse_command_plural_id_list() { return plurals; }
+// string *parse_command_id_list() { return ({ name }) + alias; }
+// string *parse_command_plural_id_list() { return plurals; }
 // string *parse_command_adjectiv_id_list() { return adjectives; }
-
+/*
 object query_parse_id(mixed *arr) 
 {
   if (arr[P_THING] == 0)
@@ -185,8 +185,8 @@ object query_frac_parse_id(mixed *arr)
     if (arr[P_THING] != 0)
       return nil;
     arr[P_THING] = -10235;
-    return nil; /* it refered to me and I am pretty depressed about it.
-                 * I want to break free! */
+    return nil; // it refered to me and I am pretty depressed about it.
+                // I want to break free!
   }
   if (arr[P_THING] == 0)
     if ((arr[P_MAX_NUM]*arr[P_TOP])/arr[P_BOT] > arr[P_CUR_NUM]++)
@@ -197,6 +197,7 @@ object query_frac_parse_id(mixed *arr)
     return this_object();
   return nil;
 }
+*/
 
 /* global/basic/id: */
 /*
