@@ -20,6 +20,7 @@ inherit tmp       "/lib/coder/tmp";
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
+static mixed  redirect_input_args;     // optional arguments passed to the function
 
 // Function prototypes
 // static void open();
@@ -45,6 +46,7 @@ void create()
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
+  redirect_input_args     = ({ });
 
   if (clonep(this_object()))
     set_heart_beat(1);
@@ -64,13 +66,14 @@ void init()
 }
 
 // Called from the input_to efun
-nomask int set_input_to(object obj, string func, varargs int flag, mixed arg) 
+nomask int set_input_to(object obj, string func, varargs int flag, mixed args...) 
 {
   if (redirect_input_ob == nil) 
   {
     redirect_input_ob = obj;
     redirect_input_function = func;
-    
+    redirect_input_args = args;
+
     // if (flag)
     //   send_message(echo = 0);
   
@@ -108,6 +111,7 @@ static void receive_message(string str)
 {
   string tmp_redirect_func;
   object tmp_redirect_obj;
+  mixed  tmp_redirect_args;
   string verb;
   string params;
   string * pieces;
@@ -122,13 +126,15 @@ static void receive_message(string str)
     {
       tmp_redirect_obj =  redirect_input_ob;
       tmp_redirect_func = redirect_input_function;
+      tmp_redirect_args = redirect_input_args;
     
       redirect_input_ob = nil;
       redirect_input_function = "";
+      redirect_input_args = ({ });
 
-      call_other(tmp_redirect_obj, tmp_redirect_func, str);
+      call_other(tmp_redirect_obj, tmp_redirect_func, str, tmp_redirect_args...);
   
-      if (!redirect_input_ob)
+      if (!redirect_input_ob && this_object())
         show_prompt();
       
       return;

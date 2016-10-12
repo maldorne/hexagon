@@ -1,5 +1,5 @@
 
-static nomask void input_to(string func, varargs int flag, mixed arg) 
+static nomask void input_to(string func, varargs int flag, mixed arg...) 
 {
   object ob;
 
@@ -13,7 +13,7 @@ static nomask void input_to(string func, varargs int flag, mixed arg)
     ob = this_user();
 
   if (ob)
-    ob->set_input_to(this_object(), func, flag, arg);
+    ob->set_input_to(this_object(), func, flag, arg...);
   
   return;
 }
