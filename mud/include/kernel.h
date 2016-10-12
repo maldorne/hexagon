@@ -15,7 +15,7 @@
 #define OBJECT_HANDLER "/lib/handlers/objects"
 
 // driver messages
-#define DRIVER_MESSAGE_PLAIN 0
-#define DRIVER_MESSAGE_ERROR 1
-
+#define DRIVER_RUNTIME_ERROR 0
+#define DRIVER_COMPILE_ERROR 1
+#define DRIVER_ATOMIC_ERROR  2
 

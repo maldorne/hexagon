@@ -505,6 +505,8 @@ private int perform_next_action()
     // of this action
     old_notify_fail = MUDOS->query_notify_fail_msg();
 
+    MUDOS->set_notify_fail_msg("");
+
     // The real command chain
 
     // add_action commands

@@ -34,20 +34,20 @@ nomask string runtime_error(string error, int caught, int ticks)
       function = trace[i][2];
 
       // I'm not sure what this is catching: bad object to call_other maybe?
-      if (progname == AUTO && strlen(function) > 3) 
-      {
-        switch (function[0 .. 2]) 
-        {
-          // case "bad":
-          //   progname = trace[i - 1][1];
-          //   function = trace[i - 1][2];
-          case "_F_":
-          case "_Q_":
-            continue;
-          default:
-            break;
-        }
-      }
+      // if (progname == AUTO && strlen(function) > 3) 
+      // {
+      //   switch (function[0 .. 2]) 
+      //   {
+      //     // case "bad":
+      //     //   progname = trace[i - 1][1];
+      //     //   function = trace[i - 1][2];
+      //     case "_F_":
+      //     case "_Q_":
+      //       continue;
+      //     default:
+      //       break;
+      //   }
+      // }
 
       objname  = trace[i][0];
       line     = trace[i][3];

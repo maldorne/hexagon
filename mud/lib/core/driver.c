@@ -125,31 +125,29 @@ static nomask void write(string str)
 
 static nomask void inform_user(string str, int message_type)
 {
-  string msg;
-
-  msg = "\n";
+  if (this_player()->query_coder())
+    write(str);
 
   switch(message_type)
   {
-    case DRIVER_MESSAGE_PLAIN:
-      msg = "";
+    case DRIVER_RUNTIME_ERROR:
+
+      write("\nSe ha producido un error.\n");
+
+      if (strlen(mudos->query_current_command()))
+        write("El intento de hacer '%^RED%^" + 
+              mudos->query_current_command() + 
+              "%^RESET%^' no funcionó.\n");
+      this_player()->show_prompt("\n");
+
       break;
-    case DRIVER_MESSAGE_ERROR:
-      msg += "Error: ";
+
+    case DRIVER_COMPILE_ERROR:
+      break;
+
+    case DRIVER_ATOMIC_ERROR:
       break;
   }
-
-  msg += str + "\n";
-
-  if (this_player()->query_coder())
-    write(msg);
-
-  write("Se ha producido un error.\n");
-
-  if (strlen(mudos->query_current_command()))
-    write("El intento de hacer '%^RED%^" + 
-          mudos->query_current_command() + 
-          "%^RESET%^' no funcionó.\n");
 }
 
 // The driver object cannot clone objects
@@ -208,20 +206,20 @@ static object inherit_program(string from, string path, int priv)
   if ((i = strlen(path)) >= 2 && path[i - 2 ..] == ".c") 
     path = path[0 .. i - 3];
 
+  ob = ::find_object(path);
+
+  if (ob)
+    return ob;
+  
   log_driver(" + inherit_program: " + path + " from " + from + "\n");
 
-  ob = ::find_object(path);
-  
-  if (!ob) 
-  {
-    log_driver(" - compile_object: " + path + " (from driver)\n");
-    err = catch(ob = ::compile_object(path));
-  }
+  log_driver(" - compile_object: " + path + " (from driver)\n");
+  err = catch(ob = ::compile_object(path));
 
   if (err)
   {
     log_driver(" + inherit_program error: " + err + "\n");
-    inform_user("(inherit_program) compile_object returned:\n" + err + "\n", DRIVER_MESSAGE_ERROR);
+    inform_user("(inherit_program) compile_object returned:\n" + err + "\n", DRIVER_COMPILE_ERROR);
   }
     
   return ob;
@@ -232,11 +230,8 @@ static mixed include_file(string file, string path)
   if (path[0] != '/')
     path = resolve_path(file + "/../" + path);
 
-  log_driver(" + include_file: " + path + " inside " + file + "\n");
-
   return path;
 }
-
 
 // Error handling
 // void set_error_manager(object ob) { error_h = ob; }
@@ -245,31 +240,33 @@ static void runtime_error(string error, int caught, int ticks)
 {
   string ret;
 
-  if (error_h)
+  if (!error_h)
+    stderr(" - runtime_error: " + error + "\n");
+  else
     ret = error_h->runtime_error(error, caught, ticks);
 
-  if (!strlen(ret))
+  if (!ret || !strlen(ret))
     return;
 
   log_driver(ret);
-  inform_user(ret, DRIVER_MESSAGE_PLAIN);
+  inform_user(ret, DRIVER_RUNTIME_ERROR);
 }
 
-static void compile_error(string file, int line, string err)
+static void compile_error(string file, int line, string error)
 {
   string ret;
 
   if (!error_h)
     stderr(" - compile_error in file " + file + ", line " + line + "\n" +
-           "   Error: " + err + "\n");
+           "   Error: " + error + "\n");
   else
-    ret = error_h->compile_error(file, line, err);
+    ret = error_h->compile_error(file, line, error);
 
-  if (!strlen(ret))
+  if (!ret || !strlen(ret))
     return;
 
   log_driver(ret);
-  inform_user(ret, DRIVER_MESSAGE_PLAIN);
+  inform_user(ret, DRIVER_COMPILE_ERROR);
 }
 
 static string atomic_error(string error, int atom, mixed **trace)
@@ -281,7 +278,7 @@ static string atomic_error(string error, int atom, mixed **trace)
     return "";
 
   log_driver(ret);
-  inform_user(ret, DRIVER_MESSAGE_PLAIN);
+  inform_user(ret, DRIVER_ATOMIC_ERROR);
 
   return ret;
 }
@@ -372,12 +369,12 @@ static int forbid_call(string path)
 
 //   Return a non-zero value if inheritance of `path' by `from' is not
 //   allowed.  The flag `priv' indicates that inheritance is private.
-static int forbid_inherit(string from, string path, int priv) 
-{ 
-  log_driver(" + forbid_inherit: " + path + " from " + from + "\n");
+// static int forbid_inherit(string from, string path, int priv) 
+// { 
+//   log_driver(" + forbid_inherit: " + path + " from " + from + "\n");
 
-  return FALSE;
-}
+//   return FALSE;
+// }
 
 // get an object for call_other's first (string) argument
 static object call_object(string path)

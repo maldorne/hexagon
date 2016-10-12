@@ -8,7 +8,7 @@ static nomask string resolve_path(string path)
   if (!path) 
     return "";
   
-  dirs = explode(path,"/");
+  dirs = explode(path, "/");
   
   // remove any . from the array
   dirs -= ({ "." });
@@ -23,9 +23,11 @@ static nomask string resolve_path(string path)
       if (!this_player())
         dirs[i] = "/home/admin";
       else if (strlen(dirs[i])==1) 
-        dirs[i] = "/home/"+this_player()->query_name();
+        dirs[i] = "/home/" + this_player()->query_name();
       else 
-        dirs[i] = "/home/"+dirs[i][1..];
+        dirs[i] = "/home/" + dirs[i][1..];
+
+      dirs = dirs[i..];
     }
   }
 

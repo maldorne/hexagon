@@ -274,9 +274,8 @@ mapping query_available_cmds_by_category(object player)
 int cmd(string verb, string tail, object thisob)
 {
 	object ob;
-	string s, euid;
+	string s, euid, orig_verb, error;
 	int ret;
-	string orig_verb;
 
   orig_verb = verb;
 
@@ -332,8 +331,9 @@ int cmd(string verb, string tail, object thisob)
   //   ob = find_object(s);
   // }
  
-  // This looks silly but catch is reversed.
-  if (catch(ob = load_object(s)))
+  ob = load_object(s);
+
+  if (!ob)
   {
     notify_fail("Error cargando el comando.\n");
     return 0;

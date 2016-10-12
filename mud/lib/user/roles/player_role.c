@@ -28,8 +28,6 @@ nomask int set_player(object ob)
   if (!valid_progname(3, "/lib/user/login"))
     return 0;
 
-  stderr("SET PLAYER 1\n");
-
   _player = ob;
 
   initialize_roles(_player);

@@ -11,6 +11,10 @@ static nomask object compile_object(string path, varargs string source...)
   {
     stderr(" - compile_object: " + path + "\n");
 
+    // errors during compilation will be reported to
+    // the driver object to compile_error() 
+    // even with this catch here
+
     if (source && (sizeof(source) > 0))
       err = catch(obj = ::compile_object(path, source...));
     else 
@@ -24,10 +28,7 @@ static nomask object compile_object(string path, varargs string source...)
   }
 
   if (err || !objectp(obj))
-  {
-    write("Se ha producido un error.\n");
     stderr(" - compile_object: " + path + " (not able to compile)\n");
-  }
 
   return obj;
 }
