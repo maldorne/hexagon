@@ -1,5 +1,6 @@
 
 #include <files/file.h>
+#include <mud/secure.h>
 
 // Non-dgd efuns
 // neverbot, 03/2014
@@ -138,7 +139,7 @@ static nomask int cat(string file)
     return 0;
   }
 
-  lines = explode(read_file(file), "\n");
+  lines = full_explode(read_file(file), "\n");
 
   if (sizeof(lines) > MAX_CAT_LINES) 
     lines = lines[0..MAX_CAT_LINES-1];
@@ -158,19 +159,19 @@ static nomask mixed creator_file(string file, varargs int author)
   
   str = explode(file, "/") - ({ "" });
   if (sizeof(str) < 2) 
-    return get_root_uid();
+    return ROOT;
   
   switch (str[0]) 
   {
     case "lib" :
-      return get_root_uid();
+      return ROOT;
     case "net" :
       // return "Network stuff";
       return "network";
 
     case "game" :
       if (sizeof(str) < 3)
-        return get_root_uid();
+        return ROOT;
 
       //if (!author)
         // return capitalize(str[2]);
@@ -183,11 +184,11 @@ static nomask mixed creator_file(string file, varargs int author)
 
     case "home" :
       if (sizeof(str) < 3)
-        return get_root_uid();
+        return ROOT;
       return str[1];
 
     default:
-      return get_root_uid();    
+      return ROOT;    
   }
 }
 

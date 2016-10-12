@@ -4,7 +4,7 @@
 #define _LOGIN_INCLUDE
 
 // #define LOGIN_TIMEOUT 300
-#define LOGIN_TIMEOUT 10
+#define LOGIN_TIMEOUT 20
 #define MIN_UPTIME_LOGIN_TIME 20
 #define MAX_PLAYERS 50
 
@@ -12,8 +12,7 @@
 #define MAX_RETRIES 3
 #define MIN_LEN 3
 #define MAX_LEN 11
-// #define IMMORT_SLOTS 5
-// #define ACCOUNT_OBJECT "/global/account.c"
+#define CODER_SLOTS 5
 
 #ifndef _PRIMARY_MUD
 #define WELCOME_MESSAGE "/doc/welcome_devel.txt"

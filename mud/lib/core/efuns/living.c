@@ -47,5 +47,6 @@ static nomask object find_living(string name)
 
 nomask void set_living_name(string name)
 {
+  // TODO if interactive, only login can do this
   find_object(LIVING_HANDLER)->_set_living_name(this_object(), name);
 }

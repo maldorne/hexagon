@@ -37,7 +37,7 @@ int add_admin(string str)
     is_administrator(geteuid(previous_object()))) 
   {
     positions[str] = POS_ADMIN;
-    save_object(SECURE);
+    save_object(SECURE_SAVE_PATH);
     return 1;
   }
   return 0;
@@ -49,7 +49,7 @@ int remove_admin(string str)
     positions[str] == POS_ADMIN) 
   {
     map_delete(positions, str);
-    save_object(SECURE);
+    save_object(SECURE_SAVE_PATH);
     return 1;
   }
   return 0;
@@ -93,7 +93,7 @@ int add_permission(string euid, string path, int mask)
     } else {
       permissions[path][euid] |= mask;
     }
-    save_object(SECURE);
+    save_object(SECURE_SAVE_PATH);
     return 1;
   }
   return 0;
@@ -144,7 +144,7 @@ int remove_permission(string euid, string path, int mask)
         map_delete(permissions[path], euid);
       }
     }
-    save_object(SECURE);
+    save_object(SECURE_SAVE_PATH);
     return 1;
   }
   return 0;

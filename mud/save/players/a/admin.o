@@ -1,0 +1,13 @@
+aliases ([0|])
+map_aliases ([0|])
+map_nicknames ([0|])
+prompt_string "$n > "
+map_prop ([0|])
+timed_prop ([0|])
+create_me "object"
+msgout "@$N se va hacia $T."
+msgin "@$N llega desde $F."
+mmsgout "@$N desaparece en una nube de humo."
+mmsgin "@$N aparece del suelo."
+role_name "coder"
+account_name "admin@ciudadcapital.net"

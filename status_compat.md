@@ -139,8 +139,8 @@ do not have an open source license.
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `file_name`             | :white_check_mark: | alias for `object_name` |
-| `restore_object`        |  |  |
-| `save_object`           |  |  |
+| `restore_object`        | :white_check_mark: |  |
+| `save_object`           | :white_check_mark: |  |
 | `get_dir`               | :white_check_mark: | masked to mimic MudOS behaviour |
 | `match_path`            |  |  |
 | `write_file`            |  |  |

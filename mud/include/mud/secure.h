@@ -4,15 +4,19 @@
 // #ifdef  __SECURE_INCLUDE
 // #define __SECURE_INCLUDE
 
-#define ROOT "root"
+#include <kernel.h>
+
+#define ROOT     "root"
 #define BACKBONE "root"
+
+
+#define SECURE find_object(DRIVER)->secure()
 
 // Objects
 // old /secure/master
 #define MASTER "/lib/core/secure"
-#define SECURE "/lib/core/secure"
-// old /secure/bastards
-#define ACCESS "/lib/core/access"
+#define SECURE_OB "/lib/core/secure"
+#define SECURE_SAVE_PATH "/save/secure/secure.o"
 // old /secure/ftp_access
 #define FTPACC "/lib/net/ftp_access"
 
@@ -32,4 +36,3 @@
 #define ADMINISTRATOR_CMD 4
 
 // #endif
-

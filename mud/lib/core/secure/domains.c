@@ -50,7 +50,7 @@ int create_domain(string name, string lord)
    write_file("/d/"+name+"/loader.c", "#define DOMAIN \""+name+"\"\n");
    write_file("/d/"+name+"/loader.c", file);
    
-   save_object(SECURE);
+   save_object(SECURE_SAVE_PATH);
    write("Creado el dominio "+name+".\n");
    
    log_file("promotions", "El Dominio "+name+" ha sido creado para el Lord "+lord+

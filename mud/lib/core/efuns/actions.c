@@ -4,8 +4,12 @@
 // actions available
 static mapping _actions;
 
-// debug
-mapping query_actions() { return _actions; }
+mapping query_actions() 
+{ 
+  if (!_actions) 
+    _actions = ([ ]);
+  return _actions; 
+}
 
 nomask void add_action(string function, mixed verbs) 
 {

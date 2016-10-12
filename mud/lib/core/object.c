@@ -9,6 +9,7 @@
 
 #include <basic/id.h>
 #include <kernel.h>
+#include <mud/secure.h>
 
 inherit id         "/lib/core/basic/id";
 inherit property   "/lib/core/basic/property";
@@ -28,9 +29,9 @@ void create()
   extra_look::create();
   desc::create();
 
-  seteuid(load_object(SECURE)->creator_file(file_name(this_object())));
+  seteuid(load_object(SECURE_OB)->creator_file(file_name(this_object())));
   // Radix, July 1996
-  create_me = load_object(SECURE)->get_create_me(create_me);
+  create_me = load_object(SECURE_OB)->get_create_me(create_me);
   this_object()->setup();
 }
 

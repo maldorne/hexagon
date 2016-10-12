@@ -7,6 +7,9 @@
 #include "objects/file_name.c"
 #include "objects/destruct.c"
 
+#include "objects/restore_object.c"
+#include "objects/save_object.c"
+
 
 // object new(string path)
 // {

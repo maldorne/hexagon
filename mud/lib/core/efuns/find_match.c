@@ -1,4 +1,6 @@
-/* If anyone can tell me what this does...
+
+/* 
+ * If anyone can tell me what this does...
  * I would be most apprecative, Pinkfish... Yes yes ok i did write it.
  * 
  * muhahaha filtering out parse stuff...Raskolnikov Nov 96 
@@ -14,14 +16,12 @@
  * It also ignores objects with query_hidden_object (like doors)
  */
 
-static mixed *rest;
+// static mixed *rest;
 
-/*
-string *parse_blocks = ({
-  "thing",
-  "things",
-});
-*/
+// string *parse_blocks = ({
+//   "thing",
+//   "things",
+// });
 
 static int not_hidden(object ob) 
 { 
@@ -32,6 +32,7 @@ static int not_hidden(object ob)
          !(ob->is_money() && ob->query_number_coins() == 0) ); 
 }
 
+/*
 static int local_atoi(string str)
 {
   int x;
@@ -46,12 +47,68 @@ static int remove_ints(string s)
 {
   return (local_atoi(s) == 0);
 }
-
-static mixed simple_find_match(string str, mixed ob, varargs int no_hidden);
+*/
 
 static mixed find_match(string str, mixed ob, varargs int no_hidden) 
 {
-  return simple_find_match(str, ob, no_hidden);
+  object * list;
+  string * id_list;
+  string * id_list_plurals;
+  object * result;
+  int i;
+
+  list = ({ });
+  id_list = ({ });
+  id_list_plurals = ({ });
+  result = ({ });
+  
+  if (!ob || intp(ob))
+    return ({ });
+      
+  if (str == "" || !str)
+    return ({ });
+      
+  if (stringp(ob)) 
+  {
+    ob->dummy();
+    ob = find_object(ob);
+  }
+  
+  if (!pointerp(ob)) 
+  {
+    list = (object *)ob->find_inv_match(str);
+    if (!sizeof(list))
+      return ({ });
+  }
+  else 
+  {
+    for (i = 0; i < sizeof(ob); i++)
+      list += (object *)ob[i]->find_inv_match(str);
+    list -= ({ 0 });
+
+    if (!sizeof(list))
+      return ({ });
+  }
+
+  if (no_hidden)
+    list = filter(list, "not_hidden", this_object());    
+
+  for (i = 0; i < sizeof(list); i++)
+  {
+    id_list = ({ list[i]->query_name(), list[i]->query_short(), }) + 
+              list[i]->query_alias();
+
+    id_list_plurals = list[i]->query_plurals() + 
+                      ({ list[i]->query_main_plural(),  });
+
+    if (member_array(str, id_list) != -1)
+      return ({ list[i] });
+
+    if (member_array(str, id_list_plurals) != -1)
+      result += ({ list[i] });
+  }
+
+  return result;    
 
   /* 
   mixed *arr, test, *ret;
@@ -286,67 +343,4 @@ mixed find_one_match(string find, mixed inx, varargs int no_ghost)
     return 0;
   else
     return olist[0];
-}
-
-// simple find_match system, to be used in shops, neverbot 04/2009
-static mixed simple_find_match(string str, mixed ob, varargs int no_hidden)
-{
-  object * list;
-  string * id_list;
-  string * id_list_plurals;
-  object * result;
-  int i;
-
-  list = ({ });
-  id_list = ({ });
-  id_list_plurals = ({ });
-  result = ({ });
-  
-  if (!ob || intp(ob))
-    return ({ });
-      
-  if (str == "" || !str)
-    return ({ });
-      
-  if (stringp(ob)) 
-  {
-    ob->dummy();
-    ob = find_object(ob);
-  }
-  
-  if (!pointerp(ob)) 
-  {
-    list = (object *)ob->find_inv_match(str);
-    if (!sizeof(list))
-      return ({ });
-  }
-  else 
-  {
-    for (i = 0; i < sizeof(ob); i++)
-      list += (object *)ob[i]->find_inv_match(str);
-    list -= ({ 0 });
-
-    if (!sizeof(list))
-      return ({ });
-  }
-
-  if (no_hidden)
-    list = filter(list, "not_hidden", this_object());    
-
-  for (i = 0; i < sizeof(list); i++)
-  {
-    id_list = ({ list[i]->query_name(), list[i]->query_short(), }) + 
-              list[i]->query_alias();
-
-    id_list_plurals = list[i]->query_plurals() + 
-                      ({ list[i]->query_main_plural(),  });
-
-    if (member_array(str, id_list) != -1)
-      return ({ list[i] });
-
-    if (member_array(str, id_list_plurals) != -1)
-      result += ({ list[i] });
-  }
-
-  return result;    
 }

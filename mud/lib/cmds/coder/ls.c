@@ -6,6 +6,7 @@
  */
 
 #include <mud/cmd.h>
+#include <mud/secure.h>
 #include <files/file.h>
 
 #define FPERM "/secure/fperm"
@@ -282,13 +283,13 @@ int ls(string str, int mask, object me)
         bit[i] = sprintf("%-*s", (me->query_cols()+
           (mask & MASK_O?17:0)),
           sprintf("drwxr%cx%c%c%c %3d %-8.8s %-8.8s [%4d] %12s %s%s%s%s",
-          (valid_write(sprintf("%s%s/fl.uff",str,direc[i][0]),
+          (SECURE->valid_write(sprintf("%s%s/fl.uff",str,direc[i][0]),
                        DOMAIN_D, "get_dir")?'w':'-'),
-          (valid_read(sprintf("%s%s",str,direc[i][0]),
+          (SECURE->valid_read(sprintf("%s%s",str,direc[i][0]),
                        "NOBODY", "get_dir")?'r':'-'),
-          (valid_write(sprintf("%s%s/fl.uff",str,direc[i][0]),
+          (SECURE->valid_write(sprintf("%s%s/fl.uff",str,direc[i][0]),
                        "NOBODY", "get_dir")?'w':'-'),
-          (valid_read(sprintf("%s%s",str,direc[i][0]),
+          (SECURE->valid_read(sprintf("%s%s",str,direc[i][0]),
                        "NOBODY", "get_dir")?'x':'-'),
           sizeof(filter_array((get_dir(get_path(
                               sprintf("%s%s/*", str, direc[i][0])))?get_dir(
@@ -334,13 +335,13 @@ int ls(string str, int mask, object me)
           ((mask & MASK_O) && loaded?19:0)), 
           sprintf("-rw%c%c%c-%c%c-   1 %-8.8s %-8.8s %6s %12s %s%s%s%s",
           (loaded ? 'x' : '-'),
-          (valid_read(sprintf("%s/%s",str,direc[i][0]),
+          (SECURE->valid_read(sprintf("%s/%s",str,direc[i][0]),
           DOMAIN, "get_dir")?'r':'-'),
-          (valid_write(sprintf("%s/%s",str,direc[i][0]),
+          (SECURE->valid_write(sprintf("%s/%s",str,direc[i][0]),
           DOMAIN, "get_dir")?'w':'-'),
-          (valid_read(sprintf("%s/%s",str,direc[i][0]),
+          (SECURE->valid_read(sprintf("%s/%s",str,direc[i][0]),
           "NOBODY", "get_dir")?'r':'-'),
-          (valid_write(sprintf("%s/%s",str,direc[i][0]),
+          (SECURE->valid_write(sprintf("%s/%s",str,direc[i][0]),
           "NOBODY", "get_dir")?'w':'-'),
           /*
           (FPERM->query_fperms(str+direc[i][0])?

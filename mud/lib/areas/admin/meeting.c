@@ -1,4 +1,6 @@
+
 #include "path.h"
+#include <mud/secure.h>
 
 inherit "/lib/room";
 
@@ -12,7 +14,7 @@ void setup() {
   set_short("Meeting room");
   set_long(
     "This room is the definition of comfort. Along the oak-paneled walls " +
-    "on every side are book shelves stretching all the way to the high ceiling.  " +
+    "on every side are book shelves stretching all the way to the high ceiling. " +
     "One corner has a table adorned with various liquor decanters. The center " +
     "of the room is filled with all types of large, soft chairs. Each has a " +
     "foot stool and a small table beside it. Cowering in another corner you see " +
@@ -21,14 +23,14 @@ void setup() {
   add_exit("sur","/home/common","standard");
   set_light(45);
 
-  add_item("wall","These are oak paneled walls, dummy.  What more would you "+
-                  "have me say about them?\n");
+  add_item("wall","These are oak paneled walls, dummy. What more would you "+
+           "have me say about them?\n");
   add_item(({"book","book shelf","book shelves"}),"The shelves are all "+
-           "filled with ancient leather-bound volumes.  Their collection "+
+           "filled with ancient leather-bound volumes. Their collection "+
            "must have taken quite some time.\n");
   add_item("table","All the tables are made of hard woods and are ornately "+
            "crafted.\n");
-  add_item("ceiling","This room must be two stories high.  You have trouble "+
+  add_item("ceiling","This room must be two stories high. You have trouble "+
            "seeing any details of the ceiling.\n");
   add_item("liquor decanters","Made of a fine crystal, these decanters "+
            "hold any sort of alcohol you might want.\n");
@@ -36,7 +38,7 @@ void setup() {
   add_item("foot stool","The stool is just what you need to fully relax "+
            "during a meeting.\n");
   add_item("scribe","Being a very young man, this scribe obviously feels "+
-           "dwarfed by the immense characters of your party.  Dutifully "+
+           "dwarfed by the immense characters of your party. Dutifully "+
            "he takes down the minutes of the meeting.\n");
 }
 
@@ -49,8 +51,8 @@ void reset()
   floor->set_name("floor");
   floor->set_short("The floor");
   floor->set_long(
-    "This is the floor of the meeting.  It gives you the right to speak "+
-    "during the meeting.  Please give this to the next person to speak "+
+    "This is the floor of the meeting. It gives you the right to speak "+
+    "during the meeting. Please give this to the next person to speak "+
     "after you have finished.\n");
   floor->move(this_object());
 }
@@ -65,7 +67,7 @@ void init()
    * You did what?
    * I banged my gavel and did the "order in the court thing"
    */
-  if ("/lib/core/secure"->high_programmer((str=(string)this_player()->query_name()))
+  if (SECURE->high_programmer((str=(string)this_player()->query_name()))
       || str == chair) 
   {
     add_action("appoint", "appoint");

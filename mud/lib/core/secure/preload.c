@@ -13,7 +13,7 @@ void add_preload(string file)
   } else if (member_array(file, preload) == -1) {
     preload += ({ file });
   }
-  save_object(SECURE);
+  save_object(SECURE_SAVE_PATH);
   }
 } /* add_preload() */
 
@@ -27,7 +27,7 @@ void remove_preload(string file) {
     i = member_array(file, preload);
     if (i >= 0) {
     preload = preload[0 .. i - 1] + preload[i + 1 .. 1000];
-    save_object(SECURE);
+    save_object(SECURE_SAVE_PATH);
     }
   }
   }
@@ -42,7 +42,7 @@ void add_call_out_preload(string file) {
   } else if (member_array(file, call_out_preload) == -1) {
     call_out_preload += ({ file });
   }
-  save_object(SECURE);
+  save_object(SECURE_SAVE_PATH);
   }
 } /* add_call_out_preload() */
 
@@ -56,7 +56,7 @@ void remove_call_out_preload(string file) {
     i = member_array(file, call_out_preload);
     if (i >= 0) {
     call_out_preload = delete(call_out_preload, i, 1);
-    save_object(SECURE);
+    save_object(SECURE_SAVE_PATH);
     }
   }
   }
@@ -67,7 +67,7 @@ void load_secure_object()
   if (!done) {
     done = 1;
     seteuid(ROOT);
-    restore_object(SECURE);
+    restore_object(SECURE_SAVE_PATH);
   }
 } /* load_secure_object() */
 

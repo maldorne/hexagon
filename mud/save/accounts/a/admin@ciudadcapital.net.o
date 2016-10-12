@@ -1,0 +1,7 @@
+map_prop ([0|])
+timed_prop ([0|])
+create_me "object"
+account_name "admin@ciudadcapital.net"
+password "fvIlUukstqR1c"
+player_list ({1|"admin",})
+last_connected 1476302343

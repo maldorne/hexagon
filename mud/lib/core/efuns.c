@@ -38,8 +38,6 @@ static nomask void stderr(string str);
 
 #include "/lib/core/efuns/shadow.c"
 
-#include "/lib/core/efuns/permissions.c"
-
 // included for compatibility, neverbot 17/01/03
 #include "/lib/core/efuns/process_string.c"
 

@@ -10,7 +10,7 @@ private static int _hb_status;
 
 nomask void set_heart_beat(int flag) 
 {
-  stderr("set_heart_beat " + flag + " in " + object_name(this_object()) + "\n");
+  stderr(" ~ set_heart_beat " + flag + " in " + object_name(this_object()) + "\n");
 
   if (flag == 0)
   {

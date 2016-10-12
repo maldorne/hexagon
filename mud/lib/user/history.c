@@ -1,7 +1,7 @@
 
 #define HISTORY_LENGHT 30
 
-string * history;
+static string * history;
 static int hoffset, numoff;
 static int in_alias_command;
 static string ignore_history;

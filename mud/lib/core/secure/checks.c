@@ -1,21 +1,23 @@
 
+#include <trace.h>
+
 #include <files/log.h>
+#include <mud/secure.h>
 
-
-static nomask int valid_progname(int steps, string progname)
+nomask int valid_progname(int steps, string progname)
 {
   mixed ** trace;
+
+  trace = call_trace();
+
+  if (steps >= sizeof(trace) - 1)
+    return 0;
 
   // this valid_progname call counts as one 
   // more level in the call trace
   steps++;
 
-  trace = call_trace();
-
-  if (sizeof(trace) < steps)
-    return 0;
-
-  if (trace[sizeof(trace) - steps][TRACE_PROGNAME] != progname)
+  if (trace[sizeof(trace) - steps - 1][TRACE_PROGNAME] != progname)
     return 0;
 
   return 1;  
@@ -30,7 +32,7 @@ static nomask int valid_progname(int steps, string progname)
  *                  NOTE, the absence of a leading slash in the name.
  * Returns:         True if exec() is allowed.
  */
-static nomask int valid_exec(string name) 
+nomask int valid_exec(string name) 
 {
   if (name == "/lib/core/login.c")
     return 1;
@@ -38,24 +40,24 @@ static nomask int valid_exec(string name)
   return -1;
 } 
 
-static nomask int valid_load(string path, mixed euid, string func) { return 1; }
+nomask int valid_load(string path, mixed euid, string func) { return 1; }
 
-static nomask int valid_hide(object ob) 
+nomask int valid_hide(object ob) 
 {
-  return load_object(SECURE)->load_object(SECURE)->is_administrator(geteuid(ob));
+  return load_object(SECURE_OB)->is_administrator(geteuid(ob));
 }
 
-static nomask int valid_ident(string euid) 
+nomask int valid_ident(string euid) 
 {
-  return load_object(SECURE)->is_administrator(euid);
+  return load_object(SECURE_OB)->is_administrator(euid);
 } 
 
-static nomask int valid_link(string from, string to) 
+nomask int valid_link(string from, string to) 
 {
   return -1;
 }
 
-static nomask int valid_override(string file, string func) 
+nomask int valid_override(string file, string func) 
 {
   string *bing;
 
@@ -76,12 +78,11 @@ static nomask int valid_override(string file, string func)
   }
 } 
 
-
 // Read permisions for all of the objects in the game.
 // This IS fun.
 // But seems to be buggy, fix nov '95, Baldrick.
 
-static nomask int valid_read(string path, mixed euid, varargs string func) 
+nomask int valid_read(string path, mixed euid, varargs string func) 
 {
   string *bing;
   mixed master;
@@ -95,7 +96,7 @@ static nomask int valid_read(string path, mixed euid, varargs string func)
   if (objectp(euid)) 
     euid = geteuid(euid);
 
-  if (load_object(SECURE)->is_administrator(euid)) 
+  if (load_object(SECURE_OB)->is_administrator(euid)) 
     return 1;
   
   bing = explode(path, "/");
@@ -119,35 +120,35 @@ static nomask int valid_read(string path, mixed euid, varargs string func)
   {
     if (bing[i] == "old")
     {
-      return (load_object(SECURE)->check_permission(euid, bing, READ_MASK));
+      return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
     }
   }
 
-  if (load_object(SECURE)->check_permission(euid, bing, READ_MASK)) 
+  if (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK)) 
     return 1;
 
   switch (bing[0]) 
   {
     /*
     case "players" :
-      // return (sizeof(bing) < 3) || load_object(SECURE)->check_permission(euid, bing, READ_MASK);
-      return (load_object(SECURE)->check_permission(euid, bing, READ_MASK));
+      // return (sizeof(bing) < 3) || load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK);
+      return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
     */
 
     case "log" : 
-    // logs for shops, vaults, etc
-    if ((sizeof(bing) >= 2) && (bing[1] == "common"))
-    return 1;
+      // logs for shops, vaults, etc
+      if ((sizeof(bing) >= 2) && (bing[1] == "common"))
+        return 1;
 
-      return (load_object(SECURE)->check_permission(euid, bing, READ_MASK));
+      return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
 
     case "secure" :
-      return (euid == "secure") || load_object(SECURE)->check_permission(euid, bing, READ_MASK);
+      return (euid == "secure") || load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK);
 
     case "d" :
       // /d open read for Thanes...
       // no, the thanes have access only to their domains
-      // if("/secure/thanes"->query_of(euid)) return 1;
+      // if ("/secure/thanes"->query_of(euid)) return 1;
 
     case "home" :
       if (sizeof(bing) >= 2) 
@@ -158,19 +159,19 @@ static nomask int valid_read(string path, mixed euid, varargs string func)
         master = bing[0] + "/" + bing[1] + "/master.c";
 
         // Bits down to master->valid_read fixed by Wonderflug, nov 95
-        if ( load_object(SECURE)->get_checked_master()[master] )
+        if ( load_object(SECURE_OB)->get_checked_master()[master] )
           return 1;
         if ( !file_exists( master ) )
         {
           /* This is the case where no master.c exists */
-          load_object(SECURE)->get_checked_master()[master] = 1;
+          load_object(SECURE_OB)->get_checked_master()[master] = 1;
           return 1;
         }
-        if (!find_object(master) && !load_object(SECURE)->get_checked_master()[master]
+        if (!find_object(master) && !load_object(SECURE_OB)->get_checked_master()[master]
             && catch(master->dead_frogs())) 
         {
           /* this is the case the master.c exists but does not load */
-          load_object(SECURE)->get_checked_master()[master] = 1;
+          load_object(SECURE_OB)->get_checked_master()[master] = 1;
           return 1;
         }
         return (int) master->valid_read(bing, euid, func);
@@ -179,63 +180,61 @@ static nomask int valid_read(string path, mixed euid, varargs string func)
 
     case "save" :
       if (sizeof(bing) >= 2 && bing[1] == "players") 
-        return (load_object(SECURE)->check_permission(euid, bing, READ_MASK));
+        return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
       if (sizeof(bing) >= 2 && bing[1] == "accounts") 
-        return (load_object(SECURE)->check_permission(euid, bing, READ_MASK));
+        return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
 
       if (sizeof(bing) >= 2 && bing[1] == "post") 
         return (euid == "mailer");
 
       return (euid == "Room");
 
-  case "cmds" :
-    if (sizeof(bing) >= 2)
-    {
-      object handler;
-      handler = load_object("/cmds/handlers/cmd_handler.c");
-      
-      if (!handler)
-        return 0;
-
-      // if we do not have an effective uid we need it so the calls
-      // to the command handler will work. neverbot
-      if (!euid)
+    case "cmds" :
+      if (sizeof(bing) >= 2)
       {
-        if (this_player())
-          euid = geteuid(this_player());
-        else
-          euid = geteuid(previous_object());
+        object handler;
+        handler = load_object("/cmds/handlers/cmd_handler.c");
+        
+        if (!handler)
+          return 0;
+
+        // if we do not have an effective uid we need it so the calls
+        // to the command handler will work. neverbot
+        if (!euid)
+        {
+          if (this_player())
+            euid = geteuid(this_player());
+          else
+            euid = geteuid(previous_object());
+        }
+        
+        if (member_array("/"+bing[0]+"/"+bing[1]+"/", 
+          handler->query_available_directories_by_euid(euid)) == -1)
+          return 0;
+        
+        return 1;
       }
-      
-      if (member_array("/"+bing[0]+"/"+bing[1]+"/", 
-        handler->query_available_directories_by_euid(euid)) == -1)
-        return 0;
-      
-      return 1;
-    }
-    else
-      return 1;
+      else
+        return 1;
   }
 
   return 1;
-
 } /* valid_read() */
 
-
 /* this stuff added by asmodean, stolen from sojan, who stole it from chrisy */
-static nomask int valid_save_binary(string file)
+nomask int valid_save_binary(string file)
 {
   string *path;
  
-  if(!file || file=="")
+  if (!file || file=="")
     return 0;
  
-  // if(file_name(previous_object()) == "/global/virtual/compiler")
+  // if (file_name(previous_object()) == "/global/virtual/compiler")
   //   return 0;
  
   path = explode(file, "/") - ({ "" });
  
-  if(!sizeof(path))
+  if (!sizeof(path))
     return 0;
  
  
@@ -254,10 +253,10 @@ static nomask int valid_save_binary(string file)
     return 1;
  
   case "obj":
-    if(sizeof(path)==2)
+    if (sizeof(path)==2)
       return 1;
  
-    if(path[1] == "armours" || path[1] == "weapons")
+    if (path[1] == "armours" || path[1] == "weapons")
       return 0;
  
     return 1;
@@ -265,7 +264,7 @@ static nomask int valid_save_binary(string file)
   return 0;
 }
 
-static nomask int valid_seteuid(object ob, string euid) 
+nomask int valid_seteuid(object ob, string euid) 
 {
   string crea;
 
@@ -289,7 +288,7 @@ static nomask int valid_seteuid(object ob, string euid)
  * In this example, we allow shadowing as long as the victim object
  * hasn't denied it with a query_prevent_shadow() returning 1.
  */
-static nomask int valid_shadow(object ob) 
+nomask int valid_shadow(object ob) 
 {
   string dummy;
 
@@ -297,7 +296,7 @@ static nomask int valid_shadow(object ob)
           !sscanf(file_name(ob), "/secure/%s", dummy));
 }
 
-static nomask int valid_socket(object ob, string func, mixed *info) 
+nomask int valid_socket(object ob, string func, mixed *info) 
 {
   return TRUE;
 }
@@ -314,52 +313,52 @@ static nomask int valid_socket(object ob, string func, mixed *info)
  * but perhaps a little hard for some people to use.
  */
  
-#define PLAYEROBS ({ "/global/player", "/global/coder", \
-                     "/global/coordinator", "/global/administrator", })
+#define PLAYEROBS ({ "/lib/user", "/lib/core/login" })
  
-static nomask int valid_write(string path, mixed euid, string func) 
+nomask int valid_write(string path, mixed euid, string func) 
 {
   string *bing;
   mixed master;
 
   if (objectp(euid)) 
-  euid = geteuid(euid);
+    euid = geteuid(euid);
   
-  if (load_object(SECURE)->is_administrator(euid)) 
-  return 1;
+  if (load_object(SECURE_OB)->is_administrator(euid)) 
+    return 1;
   
   bing = explode(path, "/");
 
-  if (bing)
+  if (sizeof(bing))
     bing = bing - ({ ".", "" });
   else
     return 0;
 
   /* Little patch to plug a security leak -- Wahooka */
   if (func == "save_object" && (sizeof(bing) >= 2) &&
-      (bing[0] == "save") && (bing[1] == "players")) 
+     (bing[0] == "save") && (bing[1] == "players")) 
   {
-    if(member_array(base_name(previous_object()), PLAYEROBS) != -1) 
+    if (member_array(base_name(previous_object()), PLAYEROBS) != -1) 
       return 1;
     return 0;
   }
   else if (func == "save_object" && (sizeof(bing) >= 2) &&
-      (bing[0] == "save") && (bing[1] == "accounts")) 
+          (bing[0] == "save") && (bing[1] == "accounts")) 
   {
-    if (base_name(previous_object()) == "/global/account") 
+    if ((base_name(previous_object(0)) == "/lib/user/accounts/player_account") &&
+        (base_name(previous_object(1)) == "/lib/core/login"))
       return 1;
     return 0;
   }
   else if (func == "save_object" && bing[0] == "secure") 
   {
-    if(load_object(SECURE)->is_administrator(euid)) 
+    if (load_object(SECURE_OB)->is_administrator(euid)) 
       return 1;
     else 
       return 0;
   }
   else if (func == "save_object") 
     return 1;
-  
+
   if (euid == "tmp") 
   {
     if (bing[0] == "tmp") 
@@ -373,7 +372,7 @@ static nomask int valid_write(string path, mixed euid, string func)
   if ((sizeof(bing) == 0) || (bing[sizeof(bing)-1] == ERROR_LOG)) 
     return 1;
 
-  if (load_object(SECURE)->check_permission(euid, bing, WRITE_MASK)) 
+  if (load_object(SECURE_OB)->check_permission(euid, bing, WRITE_MASK)) 
     return 1;
   
   switch (bing[0]) 
@@ -395,21 +394,21 @@ static nomask int valid_write(string path, mixed euid, string func)
     case "d" :
       if ((sizeof(bing) == 1) || 
           ((bing[0]=="home"?bing[1]:capitalize(bing[1])) == euid) ||
-          load_object(SECURE)->is_administrator(euid) ) 
+          load_object(SECURE_OB)->is_administrator(euid) ) 
       {
         return 1;
       }
         
       master = bing[0] + "/" + bing[1] + "/master";
         
-      if (find_object(master) && !load_object(SECURE)->get_checked_master()[master]
+      if (find_object(master) && !load_object(SECURE_OB)->get_checked_master()[master]
             && !catch(master->dead_frogs())) 
       {
         return (find_object(master) == previous_object() ||
                find_object(master)->valid_write(bing, euid, func));
       }
 
-      load_object(SECURE)->get_checked_master()[master] = 1;
+      load_object(SECURE_OB)->get_checked_master()[master] = 1;
       break;
 
     case "save" :
@@ -427,10 +426,60 @@ static nomask int valid_write(string path, mixed euid, string func)
   return 0;
 } /* valid_write() */
 
+// used in login
+// returned value -1 means the name is ok
+// other value is the index of the wrong character inside the string
+nomask int valid_user_name(string str) 
+{
+  int i;
+  for (i = 0; i < strlen(str); i++)
+    if (str[i] < 'a' || str[i] > 'z') 
+      return i;
+  return -1;
+}
+
+// used in login
+int valid_email(string str) 
+{
+  int i;
+  string * pieces;
+  
+  // first character must be a letter
+  if (str[0] < 'a' || str[0] > 'z')
+    return 0;
+  
+  // only letters, numbers, @ and dots
+  for (i = 0; i < strlen(str); i++)
+  {
+    if (str[i] >= 'a' && str[i] <= 'z') 
+      continue;
+    if (str[i] >= 'A' && str[i] <= 'Z') 
+      continue;
+    if (str[i] >= '0' && str[i] <= '9') 
+      continue;
+
+    if (str[i] == '@') 
+      continue; 
+    if (str[i] == '.') 
+      continue;
+    
+    return 0;
+  }
+      
+  pieces = explode(str, "@");
+  if (sizeof(pieces) != 2)
+    return 0;
+    
+  pieces = explode(pieces[1], ".");
+  if (sizeof(pieces) < 2)
+    return 0;
+    
+  return 1;
+}
 
 // checked for ccmud, neverbot 07/05
 
-static nomask int valid_snoop(object snooper, object snoopee, object pobj) 
+nomask int valid_snoop(object snooper, object snoopee, object pobj) 
 {
   return -1;
   /*
@@ -484,7 +533,7 @@ static nomask int valid_snoop(object snooper, object snoopee, object pobj)
       snoopee->query_cap_name()+".\n");
   }
   // Radix...
-  if(snooper->query_invis() < 2)
+  if (snooper->query_invis() < 2)
   {
     log_file("snoop","[" + ctime(time(),4) + "] " +
       (string)snooper->query_cap_name() + " " +
@@ -523,7 +572,7 @@ void snoop_reason(string str) {
   write("Se ha desconectado.\n");
   return ;
     }
-    if(!str) {
+    if (!str) {
   write("Snoop cancelado.\n");
   log_file("snoop", "  No ha indicado razon (termina).\n");
   return;

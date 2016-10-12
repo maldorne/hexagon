@@ -10,6 +10,7 @@
 #include <user/user.h>
 #include <living/living.h>
 #include <user/terminal.h>
+#include <mud/secure.h>
 
 
 // ************************************************************
@@ -57,6 +58,7 @@ static object error_h;
 static object object_h;
 
 static object mudos;
+static object secure;
 
 static nomask void initialize()
 {
@@ -73,10 +75,13 @@ static nomask void initialize()
 
   // global object in charge of heart_beats, init calls, etc
   call_other(mudos    = load_object(MUDOS_PATH), "???");
+  call_other(secure   = load_object(SECURE_OB), "???");
   call_other(user_h   = load_object(USER_HANDLER), "???");
   call_other(living_h = load_object(LIVING_HANDLER), "???");
   call_other(object_h = load_object(OBJECT_HANDLER), "???");
   call_other(load_object(TERM_HANDLER), "???");
+
+  load_object(LOGIN_OB);
 
   date = ::ctime(time())[4 .. 18];
 
@@ -93,9 +98,17 @@ nomask void _stderr(string str)
 }
 
 // return the mudos global object
-nomask object mudos()
+nomask object mudos() { return mudos; }
+// return the secure global object
+nomask object secure() { return secure; }
+// get a new login object
+nomask object login() 
 {
-  return mudos;
+  object login;
+
+  login = clone_object(find_object(LOGIN_OB));
+
+  return login; 
 }
 
 static nomask void log_driver(string str)

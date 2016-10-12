@@ -3,7 +3,7 @@
 #ifdef MUD_NAME
 static nomask string mud_name() { return capitalize(MUD_NAME); }
 #else
-static nomask string mud_name() { return "Cc"; }
+static nomask string mud_name() { return "Hexagon mudlib"; }
 #endif
 
 // #ifdef VERSION

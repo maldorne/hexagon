@@ -2,8 +2,8 @@
 #include <kernel.h>
 #include <user/user.h>
 #include <user/input.h>
+#include <mud/secure.h>
 
-inherit login     "/lib/user/login";
 inherit history   "/lib/user/history";
 inherit alias     "/lib/user/alias";
 inherit nickname  "/lib/user/nickname";
@@ -11,6 +11,7 @@ inherit prompt    "/lib/user/prompt";
 
 inherit living    "/lib/living/living";
 inherit role      "/lib/user/role";
+inherit account   "/lib/user/account";
 
 inherit events    "/lib/core/basic/events";
 inherit auto_load "/lib/core/basic/auto_load";
@@ -22,6 +23,9 @@ static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
 static mixed  redirect_input_args;     // optional arguments passed to the function
 
+// last input time
+static int timestamp;
+
 // Function prototypes
 // static void open();
 // static void close(varargs mixed dest);
@@ -30,19 +34,20 @@ static mixed  redirect_input_args;     // optional arguments passed to the funct
 
 void create() 
 {
-  login::create();
   history::create();
   alias::create();
   nickname::create();
   prompt::create();
-  living::create();
   role::create();
+  account::create();
+
+  // the last one
+  living::create();
 
   // already done in living
   // enable_commands();
 
-  // this should be done both for players and npcs
-  set_living_name("neverbot");
+  timestamp = 0;
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
@@ -86,13 +91,37 @@ nomask int set_input_to(object obj, string func, varargs int flag, mixed args...
 // called from the driver
 static void open()
 {
-  login::logon();
+  timestamp = time();
+
+  LOGIN->logon(this_object());
+}
+
+static nomask void disconnect(varargs int silence)
+{
+  if (!silence)
+    write("¡Vuelve dentro de poco!\n");  
 }
 
 // called from the driver
 static void close(mixed arg)
 {
-  login::disconnect(FALSE);
+  disconnect(FALSE);
+}
+
+int restore_me(string path, varargs int flag)
+{
+  if (!SECURE->valid_progname(1, "/lib/core/login"))
+    return 0;
+
+  return restore_object(path, flag);
+}
+
+int save_me(string path, varargs int flag)
+{
+  // if (!SECURE->valid_progname(1, "/lib/core/login"))
+  //   return 0;
+
+  return save_object(path, flag);  
 }
 
 void send_message(string str)
@@ -218,13 +247,15 @@ int query_user() { return 1; }
 
 mixed * stats() 
 {
-  return ({ }) + login::stats() + 
-                 history::stats() + 
-                 alias::stats() + 
-                 nickname::stats() + 
-                 prompt::stats() + 
-                 living::stats() +
-                 role::stats();
+  return ({ 
+    ({ "Timestamp", timestamp, }),
+          }) + history::stats() + 
+               alias::stats() + 
+               nickname::stats() + 
+               prompt::stats() + 
+               living::stats() +
+               role::stats() +
+               account::stats();
 }
 
 
@@ -238,8 +269,8 @@ mixed * stats()
 
 // TMP DEBUG, REMOVE!!!
 int query_coder() { return 1; }
-string query_name() { return "neverbot"; }
-string short(varargs int dark) { return "neverbot"; }
+// string query_name() { return "neverbot"; }
+// string short(varargs int dark) { return "neverbot"; }
 int query_cols() { return 79; }
 int query_invis() { return 0; }
 
@@ -311,28 +342,6 @@ int do_look()
 //     log_file(USAGE_LOG,cap_name+" quit from "+query_ip_number(this_object())+
 //        " at "+ctime(time())+"\n");
 //     destruct();
-// }
-
-/* Write the edit-time prompt. */
-
-// void write_edit_prompt() {
-//     if (query_editor(inner_player)=="insert") {
-//         send_message("*\b");
-//     } else {
-//         send_message(": ");
-//     }
-// }
-
-/*
- * NAME:  catch_tell()
- * DESCRIPTION: catch a message
- */
-// void catch_tell(string str) {
-
-//     if (str == nil) {
-//   return;
-//     }
-//     send_message(str);
 // }
 
 /*

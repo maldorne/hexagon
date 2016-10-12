@@ -9,3 +9,6 @@
 #define MAX_USER_TICKS 10000000
 
 #define USERS_SAVE_DIR "/save/players"
+
+// player accounts
+#define ACCOUNT_OB "/lib/user/accounts/player_account"

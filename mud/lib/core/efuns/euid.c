@@ -59,10 +59,6 @@ static nomask string getuid( varargs object ob )
   return euid;
 }
 
-
-static nomask string get_root_uid() { return ROOT; }
-static nomask string get_bb_uid() { return BACKBONE; }
-
 // Radix, July 1996
 // Called from create() in /std/object.c
 // if creator made me, tag their name to it
@@ -79,7 +75,7 @@ string get_create_me(string tmp)
   //       return geteuid(obj[i]);
 
   if (obj->query_coder())
-    return geteuid(obj[i]);
+    return geteuid(obj);
 
   return tmp;
 }

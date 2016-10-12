@@ -1,4 +1,6 @@
 
+#include <mud/secure.h>
+
 static int ed_setup;
 static mixed in_editor;
 
@@ -91,7 +93,7 @@ int edit(string str)
 
   in_editor = str;
   
-  if (!valid_write(str, geteuid(), "frog"))
+  if (!SECURE->valid_write(str, geteuid(), "frog"))
     write("[sólo lectura] ");
   
   // ed(str, "fini_editor");

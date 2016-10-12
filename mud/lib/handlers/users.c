@@ -2,9 +2,6 @@
 // Users handler
 // Keeps tracking of users connected and disconnected
 
-// Do not confuse user objects with player objects, the user objects deal
-// with connections and the player objects with the game related issues
-
 #include <kernel.h>
 #include <user/user.h>
 
@@ -98,8 +95,8 @@ int update_user_name(string id, string name)
   if (users[id][1] != "")
     return -1;
 
-  // only the same object can do that (from /lib/core/user/login.c)
-  if (users[id][0] != previous_object())
+  // only the login object can do this (from /lib/core/login.c)
+  if (base_name(previous_object()) != "/lib/core/login")
     return -1;
 
   users[id][1] = name;

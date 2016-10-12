@@ -1,12 +1,11 @@
 
+#include <mud/secure.h>
 
 static object _player;
-static string _name;
 
 void create()
 {
   ::create();
-  _name = "player";
 }
 
 void role_commands()
@@ -23,9 +22,9 @@ static nomask object query_player() { return _player; }
 
 nomask int set_player(object ob)
 {
-  // for safety reasons, we allow set_player only to be called from /lib/user/login
-  // the login progname should be 3 steps ago in the call trace
-  if (!valid_progname(3, "/lib/user/login"))
+  // for safety reasons, we allow set_player only to be called from /lib/core/login
+  // the login progname should be 2 steps ago in the call trace
+  if (!SECURE->valid_progname(2, "/lib/core/login"))
     return 0;
 
   _player = ob;
@@ -39,7 +38,6 @@ nomask int set_player(object ob)
 mixed * stats() 
 {
   return ({ 
-      ({ "(role) Role name", _name }),
           });
 }
 

@@ -40,6 +40,10 @@ void _set_living_name(object ob, string name)
   if (previous_object() != ob)
     return;
 
+  // players in login
+  if (_livings["object"])
+    _livings["object"] -= ({ ob });
+
   if (!_livings[name])
     _livings[name] = ({ ob });
   else
