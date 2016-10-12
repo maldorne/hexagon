@@ -14,7 +14,7 @@ void role_commands()
 
 }
 
-static void initialize_roles(object player)
+static void initialize_role(object player)
 {
   
 }
@@ -30,7 +30,7 @@ nomask int set_player(object ob)
 
   _player = ob;
 
-  initialize_roles(_player);
+  initialize_role(_player);
   role_commands();
 
   return 1;

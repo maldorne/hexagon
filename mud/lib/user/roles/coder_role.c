@@ -28,9 +28,9 @@ void create()
   obj::create();
 }
 
-static void initialize_roles(object player)
+static void initialize_role(object player)
 {
-  path::initialize_roles(player);
+  path::initialize_role(player);
 }
 
 static void role_commands()
