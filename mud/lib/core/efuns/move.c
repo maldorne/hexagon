@@ -5,8 +5,8 @@ private static object _environment;
 private static object * _inventory;
 
 
-object * all_inventory(varargs object ob);
-object * deep_inventory(varargs object ob);
+nomask object * all_inventory(varargs object ob);
+nomask object * deep_inventory(varargs object ob);
 
 // old definitions
 // int test_add(object ob, int flag) { return !flag; }
@@ -167,7 +167,7 @@ void move_object(mixed dest)
 // will immediately become zero.  move_or_destruct() is called in all the
 // objects inside of the object being destructed.
 
-int destruct(varargs object ob) 
+nomask int destruct(varargs object ob) 
 {
   object env;
 
@@ -221,7 +221,7 @@ void destruct_environment_of(object ob)
 // Returns an array of the objects contained inside of 'ob'.  If 'ob' is
 // omitted, this_object() is used.
 
-object * all_inventory(varargs object ob)
+nomask object * all_inventory(varargs object ob)
 {
   if (ob)
     return ob->all_inventory();
@@ -245,7 +245,7 @@ object * all_inventory(varargs object ob)
 // i.e. there is no structure reflecting internal containment
 // relations.
 
-object * deep_inventory(varargs object ob)
+nomask object * deep_inventory(varargs object ob)
 {
   object * result;
   object * pending;
@@ -277,7 +277,7 @@ object * deep_inventory(varargs object ob)
 // Return the first object in the inventory of 'ob', where 'ob' is
 // either an object or the file name of an object.
 
-object first_inventory(mixed ob)
+nomask object first_inventory(mixed ob)
 {
   object tmp;
   object * list;
@@ -302,7 +302,7 @@ object first_inventory(mixed ob)
 // object next_inventory( object ob );
 // Return the next object in the same inventory as 'ob'.
 
-object next_inventory(object ob)
+nomask object next_inventory(object ob)
 {
   object * list, where;
   int i;
@@ -374,7 +374,7 @@ int id(string str)
 // If `ob' is given, then the search is done in the inventory of `ob', otherwise
 // the object is searched for in the inventory of the current object, and
 // in the inventory of the environment of the current object.
-static nomask object present(mixed str, varargs object ob) 
+nomask object present(mixed str, varargs object ob) 
 {
   object * where;
   string what;

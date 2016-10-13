@@ -19,7 +19,7 @@ void event_write(object caller, string msg)
   this_object()->catch_tell(msg);
 }
 
-void event_say(object caller, string msg, mixed avoid)
+void event_say(object caller, string msg, varargs mixed avoid)
 {
   if (!strlen(msg))
     return;
@@ -39,7 +39,6 @@ void event_say(object caller, string msg, mixed avoid)
 
   this_object()->catch_tell(msg);
 }
-
 
 // TODO ob no es caller!?!
 void event_inform(object ob, string msg, string type)

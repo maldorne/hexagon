@@ -144,7 +144,7 @@ void event_person_say(object ob, string start, string rest) {
   LOGGER->log_it(start+rest+"\n");
 }
 
-void event_say(object ob, string rest) {
+void event_say(object ob, string rest, varargs mixed avoid) {
   check_expired();
   LOGGER->log_it(rest);
 }

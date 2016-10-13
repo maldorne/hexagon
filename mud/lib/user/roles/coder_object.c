@@ -668,14 +668,10 @@ int get_inv(string str)
     write("Inventario de " + desc_object(ov[i]) + " en " +
           desc_object(environment(ov[i])) + ":\n");
 
-stderr("WHAT " + to_string(all_inventory(ov[i])) + "\n");    
-
     obj = first_inventory(ov[i]);
     
     while (obj) 
     {
-stderr("WHAT 2 " + object_name(obj) + "\n");    
-
       write("  " + desc_f_object(obj) + "\n");
       obj = next_inventory(obj);
     }

@@ -17,7 +17,7 @@ void create()
   _hb_object_list = ({ });
   _hb_handle = -1;
 
-  stderr("@ __heart_beat create\n");    
+  stderr(" ───> heart_beat creation\n");    
 
   _hb_handle = call_out("__heart_beat", HEART_BEAT_TIME);
 }
@@ -32,7 +32,7 @@ nomask void __heart_beat()
     return;
   }
 
-  stderr("@ __heart_beat cicle\n");
+  stderr(" ───> heart_beat cicle\n");
 
   for (i = 0; i < sizeof(_hb_object_list); i++)
   {
