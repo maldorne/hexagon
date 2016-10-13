@@ -1,0 +1,5 @@
+# ignore players and accounts
+/save/accounts/*
+/save/players/*
+!/save/accounts/a/admin@ciudadcapital.net.o
+!/save/players/a/admin.o
