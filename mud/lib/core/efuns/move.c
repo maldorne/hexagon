@@ -274,6 +274,10 @@ object * deep_inventory(varargs object ob)
   return result;
 }
 
+int _query_inventory_iterator() { return _inventory_iterator; }
+int _inc_inventory_iterator() { return ++_inventory_iterator; } 
+void _reset_inventory_iterator() { _inventory_iterator = 0; }
+
 // object first_inventory( mixed ob );
 // Return the first object in the inventory of 'ob', where 'ob' is
 // either an object or the file name of an object.
@@ -293,10 +297,13 @@ object first_inventory(mixed ob)
 
   list = ob->all_inventory();
 
-  _inventory_iterator = 0;
+  ob->_reset_inventory_iterator();
 
   if (sizeof(list))
+  {
+    ob->_inc_inventory_iterator();
     return list[0];
+  }
 
   return nil;
 }
@@ -308,17 +315,20 @@ object first_inventory(mixed ob)
 object next_inventory(object ob)
 {
   object * list; 
+  int iterator;
 
   if (!ob)
     return nil;
 
-  _inventory_iterator++;
-
+  iterator = ob->_query_inventory_iterator();
   list = ob->all_inventory();
 
-  if (_inventory_iterator < sizeof(list))
-    return list[_inventory_iterator];
+  ob->_inc_inventory_iterator();
 
+  if (iterator < sizeof(list))
+    return list[iterator];
+
+  ob->_reset_inventory_iterator();
   return nil;
 }
 
