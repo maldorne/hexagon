@@ -159,6 +159,45 @@ void move_object(mixed dest)
   move(dest);
 }
 
+// destruct - remove an object
+// void destruct( object ob );
+
+// Completely destroy and remove object 'ob'. After the call to destruct().
+// If 'ob' is this_object(), execution will continue, but it is best to return
+// a value immediately.  All pointers to the object in any variable or structure
+// will immediately become zero.  move_or_destruct() is called in all the
+// objects inside of the object being destructed.
+
+int destruct(varargs object ob) 
+{
+  object env;
+
+  stderr(" - destruct: <" + object_name(ob) + ">\n");
+
+  if (!ob)
+    ob = this_object();
+
+  // TODO destruct its inventory?
+
+  env = environment(ob);
+
+  if (env)
+  {
+    if (!env->_inv_remove(ob))
+    {
+      stderr(" *** destruct: <" + object_name(ob) + "> error, its environment refused to let it go\n");
+      return 0;
+    }
+
+    _environment = nil;
+  }
+
+  ::destruct_object(ob);
+  
+  return 1;
+  // return (this_object() == nil);
+}
+
 // Called if the environment is dested and there is no where else
 // to go...
 

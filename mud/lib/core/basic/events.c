@@ -19,7 +19,7 @@ void event_write(object caller, string msg)
   this_object()->catch_tell(msg);
 }
 
-void event_say(object caller, string msg, varargs mixed avoid)
+void event_say(object caller, string msg, mixed avoid)
 {
   if (!strlen(msg))
     return;

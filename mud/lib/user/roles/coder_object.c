@@ -1,4 +1,6 @@
 
+#include <mud/secure.h>
+
 // prototypes
 object *wiz_present(string str, object onobj, varargs int nogoout);
 void inform_of_call(object ob, mixed *argv);
@@ -15,6 +17,7 @@ static void role_commands()
 {
   add_action("update", "update");
   add_action("do_a_call", "call");
+  add_action("get_creator","coder");
 
   // add_action("parse_frogs", ";*");
   // add_action("dest", "destruct");
@@ -25,7 +28,6 @@ static void role_commands()
   add_action("trans", "trans");
   add_action("whereis","whereis");
   add_action("get_pathof","pathof");
-  add_action("get_creator","coder");
   add_action("get_inv","inv");
   add_action("goback","goback");
   // add_action("upgrade_player", "upgrade");
@@ -42,10 +44,10 @@ static string desc_object(mixed o)
   if (!o) 
     return "** Espacio-Vacio **";
   
-  if (!catch(str = (string)o->short()) && str) 
+  if (!catch(str = (string)o->short()) && strlen(str)) 
     return str;
   
-  if (!catch(str = (string)o->query_name()) && str) 
+  if (!catch(str = (string)o->query_name()) && strlen(str)) 
     return str;
   
   return file_name(o);
@@ -336,7 +338,7 @@ int do_a_call(string str)
     os = os[1..];
   
   notify_fail("No puedo encontrar el objeto "+os+".\n");
-  ov = wiz_present(os, this_object());
+  ov = wiz_present(os, this_player());
 
   if (!sizeof(ov)) 
     return 0;
@@ -568,19 +570,21 @@ int do_dest(string str)
     {
       // log_file("dest",(string)this_player(1)->query_cap_name()+
       log_file("dest",  "["+ctime(time(), 4)+"] " + 
-        (string)this_object()->query_cap_name()+
+        (string)this_player()->query_cap_name()+
         " destruye "+ob[i]->query_cap_name() + /* " de "+
         environment(ob[i])->query_short() + */ " en " +
         file_name(environment(ob[i]))+"\n");
       
-      event(users(), "inform", (string)this_object()->query_cap_name() +
+      event(users(), "inform", (string)this_player()->query_cap_name() +
         " destruye "+ob[i]->query_cap_name() + /* " de "+
         environment(ob[i])->query_short() + */ " en "+
         file_name(environment(ob[i])), "dest");
     }
 
     err = catch(ob[i]->dest_me());
-    write("dest_me falló: " + err + "\n");
+    
+    if (err)
+      write("dest_me falló: " + err + "\n");
 
     if (ob[i])
       dest_obj += ({ ob[i] });
@@ -603,7 +607,27 @@ int do_dest(string str)
   return 1;
 } /* dest() */
 
+int get_creator(string str) 
+{
+  object * ov;
+  int i;
 
+  notify_fail("Creator of what?\n");
+  ov = wiz_present(str,this_player());
+
+  if (!sizeof(ov)) 
+    return 0;
+
+  for (i = 0; i < sizeof(ov); i++) 
+  {
+    write("Creator of " + desc_object(ov[i]) + ": " +
+          SECURE->creator_file (file_name(ov[i])) + 
+          ", uid: " + getuid(ov[i]) + 
+          ", euid: " + geteuid(ov[i]) + "\n");
+  }
+
+  return 1;
+} /* get_creator() */
 
 mixed stats() 
 {

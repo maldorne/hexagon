@@ -5,7 +5,6 @@
 #include "objects/find_object.c"
 #include "objects/load_object.c"
 #include "objects/file_name.c"
-#include "objects/destruct.c"
 
 #include "objects/restore_object.c"
 #include "objects/save_object.c"

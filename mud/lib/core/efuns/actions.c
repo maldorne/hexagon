@@ -108,9 +108,11 @@ int command(string action)
 
   for (i = 0; i < sizeof(targets); i++)
   {
-    string func;
+    string func, error;
 
-    if ((func = targets[i]->query_action(verb)) != nil)
+    error = catch(func = targets[i]->query_action(verb));
+
+    if ((!error) && (func != nil))
     {
       mixed result;
 
