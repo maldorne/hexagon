@@ -9,6 +9,8 @@
 
 inherit "/lib/core/object";
 
+#include <mud/secure.h>
+
 #define SAVE_DIR "/save/accounts/"
 
 string account_name;
@@ -28,6 +30,9 @@ void create()
   ::create();
   player_list = ({ });
   account_name = "";
+
+  seteuid(PLAYER_EUID);
+  seteuid(ROOT);
 }
 
 int restore_me(string name)

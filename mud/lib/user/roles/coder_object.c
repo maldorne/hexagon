@@ -336,7 +336,7 @@ int do_a_call(string str)
     os = os[1..];
   
   notify_fail("No puedo encontrar el objeto "+os+".\n");
-  ov = wiz_present(os,this_object());
+  ov = wiz_present(os, this_object());
 
   if (!sizeof(ov)) 
     return 0;

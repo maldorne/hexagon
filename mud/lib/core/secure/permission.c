@@ -25,8 +25,8 @@ int is_administrator(string str)
   if (str == ROOT) 
     return 1;
 
-  if (str == "Admin") 
-    return 1;
+  // if (str == "Admin") 
+  //   return 1;
   
   return ((positions[str] == POS_ADMIN) || (administrators[str]));
 } 

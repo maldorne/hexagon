@@ -12,6 +12,7 @@
 // #include <standard.h>
 
 #include <mud/cmd.h>
+#include <mud/secure.h>
 
 inherit CMD_BASE;
 
@@ -64,7 +65,7 @@ private int check_code(string str)
   
   // Aqui metio mano (mucho) Folken 3/2002, para arreglar el capado
   //  del exec que funcionaba mal :)
-  if(sizeof(explode(str,"->"))>1)
+  if (sizeof(explode(str,"->"))>1)
   {
     // auxvar = sizeof(explode(explode(str,"->")[0]," "));
     // file_target = explode(explode(str,"->")[0]," ")[auxvar?auxvar-1:auxvar];
@@ -146,7 +147,7 @@ static int cmd(string str, object me, string verb)
   dont_remove = 0;
   arg = 0;
   
-  if(!str) 
+  if (!strlen(str)) 
   {
     usage();
     return 1;
@@ -161,7 +162,7 @@ static int cmd(string str, object me, string verb)
   }
 
   // check if trying to execute illegal code (for low level coders)
-  if (!"/lib/core/secure"->is_administrator(this_player()->query_name()))
+  if (!SECURE->is_administrator(this_player()->query_name()))
     if (!check_code(str))
       return 1;
         
@@ -177,6 +178,8 @@ static int cmd(string str, object me, string verb)
   if ((file_size(file) > 0) && dont_overwrite) 
     write("Abortado. El archivo '"+file+"' ya existe (bórralo antes)\n");
   
+  seteuid(ROOT);
+
   write_file(file, before() + str + after());
   
   if ((ob = find_object(file))) 
@@ -196,7 +199,7 @@ static int cmd(string str, object me, string verb)
     rm(file);
 
   log_file("exec", ctime(time(),4) + " " + (string)this_player()->query_name()+
-                   " ejecutó : " + str + "\n");  
+                   " executed : " + str + "\n");  
   return 1;
 }
 
@@ -204,21 +207,21 @@ private string parse_args(string str)
 {
   string pre, rest, flags;
 
-  if(sscanf(str, "%sABORT%s", pre, rest) == 2) 
+  if (sscanf(str, "%sABORT%s", pre, rest) == 2) 
     return nil;
-  if(sscanf(str, "-%s %s", flags, rest) == 2) 
+  if (sscanf(str, "-%s %s", flags, rest) == 2) 
   {
     str = rest;
-    if(sscanf(flags, "%ss%s", pre, rest) == 2) 
+    if (sscanf(flags, "%ss%s", pre, rest) == 2) 
       show = 1;
-    if(sscanf(flags, "%sd%s", pre, rest) == 2) 
+    if (sscanf(flags, "%sd%s", pre, rest) == 2) 
       dont_overwrite = 1;
-    if(sscanf(flags, "%sp%s", pre, rest) == 2) 
+    if (sscanf(flags, "%sp%s", pre, rest) == 2) 
       dont_remove = 1;
-    if(sscanf(flags, "%sa", pre) ==1)
+    if (sscanf(flags, "%sa", pre) ==1)
     {
-      if((sscanf(str, "\"%s\" %s", arg, str) != 2) &&
-         (sscanf(str, "%s %s", arg, str) != 2)) 
+      if ((sscanf(str, "\"%s\" %s", arg, str) != 2) &&
+          (sscanf(str, "%s %s", arg, str) != 2)) 
       {
         usage();
         return nil;
@@ -263,7 +266,7 @@ private string before()
 {
   return defines() + 
          "\nvoid create() { seteuid(geteuid(this_player())); }\n" +
-         "void dest_me() { destruct(this_object()); }\n\n" +
+         "void dest_me() { destruct(this_object()); }\n" +
          "\nmixed main(mixed arg)\n{\n" + // vars() +
          "  /* ONE LINE: */\n\n  ";
 }

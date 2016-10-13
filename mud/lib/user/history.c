@@ -1,4 +1,6 @@
 
+#include <mud/secure.h>
+
 #define HISTORY_LENGHT 30
 
 static string * history;
@@ -110,10 +112,11 @@ void add_history(string arg)
 
   old = geteuid();
 
-  if(this_object()->query_property("spy_on") || this_object()->query_property("cre_channel") )
+  if (this_object()->query_property("spy_on") || 
+      this_object()->query_property("cre_channel") )
   {
-    seteuid("Root");
-    log_file(this_object()->query_name(),arg+"\n");
+    seteuid(ROOT);
+    log_file(this_object()->query_name(), arg+"\n");
     seteuid(old);
   }
 

@@ -15,28 +15,30 @@
 
 #include "/lib/core/efuns.c"
 
-private string creator, owner; // creator and owner of this object
-
 // default high-level create function 
 void create() { }    
 
 // Name of this function defined in dgd config file
-nomask void _F_create()
+nomask void _auto_create()
 {
   string object_name;
   string class_name;
   int clone, number;
+  string creator;
 
   rlimits (-1; -1) 
   {
     object_name = object_name(this_object());
 
-    creator = creator_file(object_name);
-    owner = creator;
+    creator = "/lib/core/secure/files"->creator_file(object_name);
+    setuid(creator);
+    seteuid(creator);
+    // owner = creator;
 
     clone = (sscanf(object_name, "%s#%d", class_name, number) > 1);
     
-    stderr(" - create: "+object_name+" "+creator+":"+owner+"\n");
+    // stderr(" - create: "+object_name+" "+creator+":"+owner+"\n");
+    stderr(" - create: "+object_name+" : "+getuid()+"\n");
 
     // Register object in object handler
     // if (clone) or if (number >= 0) 
@@ -124,69 +126,6 @@ static nomask object clone_object(mixed what, varargs string uid)
 //       resources[rsrc] = incr;
 //     } else if (!(resources[rsrc] += incr)) {
 //       resources[rsrc] = nil;
-//     }
-//   }
-// }
-
-// void create(varargs int clone) { }    /* default high-level create function */
-
-/*
- * NAME:    _F_create()
- * DESCRIPTION:    kernel creator function
- */
-// nomask void _F_create()
-// {
-//   if (!prev) {
-//     string oname;
-// # ifdef CREATOR
-//     string cname;
-// # endif
-//     object driver;
-//     int clone, number;
-
-//     rlimits (-1; -1) {
-//        // * set creator and owner
-//       oname = object_name(this_object());
-//       driver = ::find_object(DRIVER);
-//       creator = driver->creator(oname);
-//       clone = !!sscanf(oname, "%s#%d", oname, number);
-//       if (clone) {
-//         owner = TLSVAR2;
-//       } else {
-//         owner = creator;
-//       }
-
-//       if (number >= 0) {
-//          // * register object
-//         if (oname != BINARY_CONN && oname != TELNET_CONN &&
-//           oname != OBJREGD) {
-//           ::find_object(OBJREGD)->link(this_object(), owner);
-
-//           if (clone) {
-//             driver->clone(this_object(), owner);
-//           }
-//         }
-//       } else {
-//          // * new non-persistent object
-//         prev = driver;
-//       }
-
-// # ifdef CREATOR
-//       cname = function_object(CREATOR, this_object());
-//       if (cname && sscanf(cname, USR_DIR + "/system/%*s") != 0) {
-//         // extra initialisation function 
-//         if (call_other(this_object(), CREATOR, clone)) {
-//           return;
-//         }
-//       }
-// # endif
-//     }
-//     // call higher-level creator function 
-//     if (sscanf(oname, "%*s" + CLONABLE_SUBDIR) == 0 &&
-//       sscanf(oname, "%*s" + LIGHTWEIGHT_SUBDIR) == 0) {
-//       create();
-//     } else {
-//       create(clone);
 //     }
 //   }
 // }

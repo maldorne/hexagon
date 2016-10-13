@@ -5,6 +5,8 @@
    Translated by neverbot, 4/2003
 */
 
+#include <mud/secure.h>
+
 #define POSTAL_D "/obj/handlers/postal_d"
 
 int create_creator(string s);
@@ -15,7 +17,7 @@ int create_creator(string name)
    string file;
    object player;
  
-   seteuid("Root");
+   seteuid(ROOT);
 
    if(!is_administrator(geteuid(previous_object())))
       return 0;

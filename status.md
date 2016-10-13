@@ -14,7 +14,7 @@
 
 - [x] **heart_beats** management
 
-    **Done**. Idea (*improvement from MudOS*): have different priority lists for different `hbs`: every second, every two seconds (default), every five seconds, etc.
+    **Done**.
 
 - [x] **Rooms and movement**
 

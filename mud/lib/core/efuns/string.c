@@ -68,7 +68,10 @@ string replace(string str, mixed bing, varargs string rep)
 
 string extract(string str, int start, varargs int end) 
 {
-  return str[start..(end?end:10000)];
+  if (end)
+    return str[start..end];
+  else
+    return str[start..];
 } 
 
 string trim(string str) 

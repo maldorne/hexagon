@@ -10,18 +10,18 @@
 #include <files/file.h>
 
 #define FPERM "/secure/fperm"
-#define CREATOR (author_file(sprintf("%s/%s", str, direc[i][0]))? \
-                author_file(sprintf("%s/%s", str, direc[i][0])): \
-                "Cc-Mud ")
-#define DOMAIN  (domain_file(sprintf("%s/%s", str, direc[i][0]))? \
-                domain_file(sprintf("%s/%s", str, direc[i][0])): \
-                "Cc-Mud ")
-#define CREATOR_D (author_file(sprintf("%s/%s/.", str, direc[i][0]))? \
-                author_file(sprintf("%s/%s/.", str, direc[i][0])): \
-                "Cc-Mud ")
-#define DOMAIN_D (domain_file(sprintf("%s/%s/.", str, direc[i][0]))? \
-                domain_file(sprintf("%s/%s/.", str, direc[i][0])): \
-                "Cc-Mud ")
+#define CREATOR (SECURE->author_file(sprintf("%s/%s", str, direc[i][0]))? \
+                SECURE->author_file(sprintf("%s/%s", str, direc[i][0])): \
+                "mud")
+#define DOMAIN  (SECURE->domain_file(sprintf("%s/%s", str, direc[i][0]))? \
+                SECURE->domain_file(sprintf("%s/%s", str, direc[i][0])): \
+                "mud")
+#define CREATOR_D (SECURE->author_file(sprintf("%s/%s/.", str, direc[i][0]))? \
+                SECURE->author_file(sprintf("%s/%s/.", str, direc[i][0])): \
+                "mud")
+#define DOMAIN_D (SECURE->domain_file(sprintf("%s/%s/.", str, direc[i][0]))? \
+                SECURE->domain_file(sprintf("%s/%s/.", str, direc[i][0])): \
+                "mud")
 
 inherit CMD_BASE;
 
@@ -283,14 +283,14 @@ int ls(string str, int mask, object me)
         bit[i] = sprintf("%-*s", (me->query_cols()+
           (mask & MASK_O?17:0)),
           sprintf("drwxr%cx%c%c%c %3d %-8.8s %-8.8s [%4d] %12s %s%s%s%s",
-          (SECURE->valid_write(sprintf("%s%s/fl.uff",str,direc[i][0]),
-                       DOMAIN_D, "get_dir")?'w':'-'),
-          (SECURE->valid_read(sprintf("%s%s",str,direc[i][0]),
-                       "NOBODY", "get_dir")?'r':'-'),
-          (SECURE->valid_write(sprintf("%s%s/fl.uff",str,direc[i][0]),
-                       "NOBODY", "get_dir")?'w':'-'),
-          (SECURE->valid_read(sprintf("%s%s",str,direc[i][0]),
-                       "NOBODY", "get_dir")?'x':'-'),
+          (SECURE->valid_write(sprintf("%s%s/fl.uff", str, direc[i][0]),
+                               DOMAIN_D, "get_dir")?'w':'-'),
+          (SECURE->valid_read(sprintf("%s%s", str, direc[i][0]),
+                               NOBODY_EUID, "get_dir")?'r':'-'),
+          (SECURE->valid_write(sprintf("%s%s/fl.uff", str, direc[i][0]),
+                               NOBODY_EUID, "get_dir")?'w':'-'),
+          (SECURE->valid_read(sprintf("%s%s", str, direc[i][0]),
+                               NOBODY_EUID, "get_dir")?'x':'-'),
           sizeof(filter_array((get_dir(get_path(
                               sprintf("%s%s/*", str, direc[i][0])))?get_dir(
                               get_path(sprintf("%s%s/*", str, direc[i][0]))):({ })),
@@ -335,14 +335,14 @@ int ls(string str, int mask, object me)
           ((mask & MASK_O) && loaded?19:0)), 
           sprintf("-rw%c%c%c-%c%c-   1 %-8.8s %-8.8s %6s %12s %s%s%s%s",
           (loaded ? 'x' : '-'),
-          (SECURE->valid_read(sprintf("%s/%s",str,direc[i][0]),
-          DOMAIN, "get_dir")?'r':'-'),
-          (SECURE->valid_write(sprintf("%s/%s",str,direc[i][0]),
-          DOMAIN, "get_dir")?'w':'-'),
-          (SECURE->valid_read(sprintf("%s/%s",str,direc[i][0]),
-          "NOBODY", "get_dir")?'r':'-'),
-          (SECURE->valid_write(sprintf("%s/%s",str,direc[i][0]),
-          "NOBODY", "get_dir")?'w':'-'),
+          (SECURE->valid_read(sprintf("%s/%s", str, direc[i][0]),
+                              DOMAIN, "get_dir")?'r':'-'),
+          (SECURE->valid_write(sprintf("%s/%s", str, direc[i][0]),
+                              DOMAIN, "get_dir")?'w':'-'),
+          (SECURE->valid_read(sprintf("%s/%s", str, direc[i][0]),
+                              NOBODY_EUID, "get_dir")?'r':'-'),
+          (SECURE->valid_write(sprintf("%s/%s", str, direc[i][0]),
+                              NOBODY_EUID, "get_dir")?'w':'-'),
           /*
           (FPERM->query_fperms(str+direc[i][0])?
           FPERM->query_fperms(str+direc[i][0])[0]:CREATOR),DOMAIN, j, tmp, 

@@ -6,6 +6,8 @@ static object _player;
 void create()
 {
   ::create();
+
+  seteuid(PLAYER_EUID);
 }
 
 void role_commands()

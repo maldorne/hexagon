@@ -59,7 +59,6 @@ static nomask int abs(int value)
   return value;
 }
 
-
 /* integer exponential function added by dank Feb 23, 93 */
 /*
 int exp(int x, int y) {
@@ -74,7 +73,6 @@ int exp(int x, int y) {
   return ret;
 }
 */
-
 
 // it would be best to use the roll(int) thingie. 
 // less processor intesive, but the string looks better
@@ -102,3 +100,10 @@ static nomask int roll(int times, int type)
 
 /* input to above function is of form roll(10, 20) if you wanted to roll 
    10 20 sided dice */
+
+// compatibility with old mudos
+static nomask string oldcrypt(string str, varargs string salt)
+{
+  return ::crypt(str, salt);
+}
+

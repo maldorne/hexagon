@@ -67,7 +67,7 @@ void create()
   // set_name("logon");
   // gender = -1;
   // invis_wish = -1;
-  // seteuid("Root");
+  seteuid(ROOT);
   // player_ob = "/global/player";
 } 
 
@@ -611,7 +611,7 @@ nomask void begin2(int new_player)
     _player->add_property(GUEST_PROP, 1);
 
   // set user privileges
-  _player->set_role("coder", _player);
+  _player->set_role(_player->query_role_name());
 
   /* Hamlet stuff */
   if(!coder)

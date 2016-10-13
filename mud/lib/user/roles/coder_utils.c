@@ -114,7 +114,7 @@ static mixed *parse_args(string str, string close)
       case '|' :
         if (sscanf(str, "|%s|%s", s1, s2) != 2) 
         {
-          write("No se encontrÃ³ la pareja de | (Unmatched)\n");
+          write("No se encontró la pareja de | (Unmatched)\n");
           return ({ });
         }
 
@@ -134,7 +134,7 @@ static mixed *parse_args(string str, string close)
       case '-' :
         if (sscanf(str, "%d%s", i, str) != 2) 
         {
-          write("Se esperaba un nÃºmero (Number expected).\n");
+          write("Se esperaba un número (Number expected).\n");
           return ({ });
         }
 
@@ -155,7 +155,7 @@ static mixed *parse_args(string str, string close)
             s7 = s7[1..];
           if (sscanf(s7, "%s(%s", s1, s7) != 2) 
           {
-            write("Falta un '(' (expected).\nResto de la lÃ­nea sin procesar '"+s7+"'.\n");
+            write("Falta un '(' (expected).\nResto de la línea sin procesar '"+s7+"'.\n");
             return ({ });
           }
           
@@ -247,7 +247,7 @@ static mixed *parse_args(string str, string close)
     if (str[0] != ',') 
     {
       write("Parse error leyendo argumentos, falta un ',' o '"+close+"' (expected).\n");
-      write("Resto de la lÃ­nea no procesada '"+str+"'.\n");
+      write("Resto de la línea no procesada '"+str+"'.\n");
       return ({ });
     }
 
@@ -256,12 +256,14 @@ static mixed *parse_args(string str, string close)
   return ({ args, str });
 } /* parse_args() */
 
-object *wzpresent2(string str, mixed onobj) {
+object *wzpresent2(string str, mixed onobj) 
+{
   int i;
   object *obs, obj, *obs2;
   string s1, s2;
 
-  if (pointerp(onobj)) {
+  if (pointerp(onobj)) 
+  {
     obs = ({ });
     for(i = 0; i < sizeof(onobj); i++)
     obs += wzpresent2(str,onobj[i]);
@@ -269,14 +271,15 @@ object *wzpresent2(string str, mixed onobj) {
   }
 
   // if (str == "all")
-        // AÃ±adido al find_match posterior
+        // Añadido al find_match posterior
   // if (str == "todo")
   // return all_inventory(onobj);
 
   /* every fish */
 
-  if ((sscanf(str,"cada %s",s1) == 1) || 
-      (sscanf(str,"each %s",s1) == 1) ){
+  if ((sscanf(str, "cada %s", s1) == 1) || 
+      (sscanf(str, "each %s", s1) == 1) )
+  {
     obs2 = all_inventory(onobj);
     obs = ({ });
     for (i=0;i<sizeof(obs2);i++)
@@ -285,12 +288,15 @@ object *wzpresent2(string str, mixed onobj) {
   }
 
   obs2 = find_match(str,onobj);
-  if(sizeof(obs2)) {
+  
+  if (sizeof(obs2)) 
     return obs2;
-  }
 
-  if (obj = present(str,onobj)) return ({ obj });
-  for (obj = first_inventory(onobj); obj; obj = next_inventory(obj)) {
+  if (obj = present(str,onobj)) 
+    return ({ obj });
+  
+  for (obj = first_inventory(onobj); obj; obj = next_inventory(obj)) 
+  {
     s2 = file_name(obj);
     if (sscanf(s2, "%s"+str+"#%d", s1, i)
     || sscanf(s2, "%s#"+str, s1)) {
@@ -311,7 +317,7 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
     return ({ });
 
   // all the simple ones first 
-  if(str[0] == '@') 
+  if (str[0] == '@') 
   {
     if (ob = find_living((string)this_player()->expand_nickname(extract(str, 1))))
       return ({ ob });
@@ -323,13 +329,13 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
   if ((str == "me") || (str == "yo")) 
     return ({ this_player() });
 
-  if ((str == "here") || (str == "aqui")) 
+  if ((str == "here") || (str == "aqui") || (str == "aquí")) 
     return ({ environment(this_player()) });
 
   if ((str == "everyone") || (str == "todos"))  
     return users();
 
-  if(str[0] == '/') 
+  if (str[0] == '/') 
   {
     if (ob = find_object(str)) 
       return ({ ob });

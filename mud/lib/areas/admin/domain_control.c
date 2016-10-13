@@ -1,4 +1,7 @@
 /* domain administration room */
+
+#include <mud/secure.h>
+
 #include "access.h"
 #include "path.h"
 inherit "/std/room";
@@ -28,7 +31,7 @@ void setup() {
 	add_item("space", "Space is something that isn't really there. So how can "
 		"you look at it ?\n");
 	add_exit("sur",HEAVEN+"admin3","standard");
-	seteuid("Root");
+	seteuid(ROOT);
 } /* setup() */
 
 void init() {

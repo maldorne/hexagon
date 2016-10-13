@@ -44,12 +44,12 @@ nomask int valid_load(string path, mixed euid, string func) { return 1; }
 
 nomask int valid_hide(object ob) 
 {
-  return load_object(SECURE_OB)->is_administrator(geteuid(ob));
+  return SECURE->is_administrator(geteuid(ob));
 }
 
 nomask int valid_ident(string euid) 
 {
-  return load_object(SECURE_OB)->is_administrator(euid);
+  return SECURE->is_administrator(euid);
 } 
 
 nomask int valid_link(string from, string to) 
@@ -96,20 +96,20 @@ nomask int valid_read(string path, mixed euid, varargs string func)
   if (objectp(euid)) 
     euid = geteuid(euid);
 
-  if (load_object(SECURE_OB)->is_administrator(euid)) 
+  if (SECURE->is_administrator(euid)) 
     return 1;
   
   bing = explode(path, "/");
   
   if (bing)
-    bing = bing - ({ "", "." });
+    bing = bing - ({ "", ".", "*" });
   else
     return 1;
 
   if (!sizeof(bing)) 
-  return 1;
+    return 1;
 
-  if (euid == "tmp")
+  if (euid == TMP_EUID)
     return bing[0] == "tmp";
 
   // added check:
@@ -120,76 +120,97 @@ nomask int valid_read(string path, mixed euid, varargs string func)
   {
     if (bing[i] == "old")
     {
-      return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
+      return (SECURE->check_permission(euid, bing, READ_MASK));
     }
   }
 
-  if (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK)) 
+  if (SECURE->check_permission(euid, bing, READ_MASK)) 
     return 1;
 
   switch (bing[0]) 
   {
-    /*
-    case "players" :
-      // return (sizeof(bing) < 3) || load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK);
-      return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
-    */
-
-    case "log" : 
+    case "log": 
       // logs for shops, vaults, etc
       if ((sizeof(bing) >= 2) && (bing[1] == "common"))
         return 1;
 
-      return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
+      return (SECURE->check_permission(euid, bing, READ_MASK));
 
-    case "secure" :
-      return (euid == "secure") || load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK);
+    // case "secure":
+    //   return (euid == SECURE_EUID) || SECURE->check_permission(euid, bing, READ_MASK);
 
-    case "d" :
-      // /d open read for Thanes...
-      // no, the thanes have access only to their domains
-      // if ("/secure/thanes"->query_of(euid)) return 1;
+    case "game":
+      if (sizeof(bing) < 3)
+        return 1;
 
-    case "home" :
-      if (sizeof(bing) >= 2) 
-      {
-        if ((bing[0]=="home"?bing[1]:capitalize(bing[1])) == euid) 
-          return 1;
+      if ((sizeof(bing) >= 3) && (bing[2] == euid)) 
+        return 1;
       
-        master = bing[0] + "/" + bing[1] + "/master.c";
+      master = "/" + bing[0] + "/" + bing[1] + "/" + bing[2] + "/master.c";
 
-        // Bits down to master->valid_read fixed by Wonderflug, nov 95
-        if ( load_object(SECURE_OB)->get_checked_master()[master] )
-          return 1;
-        if ( !file_exists( master ) )
-        {
-          /* This is the case where no master.c exists */
-          load_object(SECURE_OB)->get_checked_master()[master] = 1;
-          return 1;
-        }
-        if (!find_object(master) && !load_object(SECURE_OB)->get_checked_master()[master]
-            && catch(master->dead_frogs())) 
-        {
-          /* this is the case the master.c exists but does not load */
-          load_object(SECURE_OB)->get_checked_master()[master] = 1;
-          return 1;
-        }
-        return (int) master->valid_read(bing, euid, func);
+      // Bits down to master->valid_read fixed by Wonderflug, nov 95
+      if ( SECURE->get_checked_master()[master] )
+        return 0;
+
+      if ( !file_exists( master ) )
+      {
+        /* This is the case where no master.c exists */
+        SECURE->get_checked_master()[master] = 1;
+        return 0;
       }
-      return 1;
 
-    case "save" :
+      if (!find_object(master) && !SECURE->get_checked_master()[master]
+          && catch(master->dead_frogs())) 
+      {
+        /* this is the case the master.c exists but does not load */
+        SECURE->get_checked_master()[master] = 1;
+        return 0;
+      }
+
+      return (int) master->valid_read(bing, euid, func);
+
+    case "home":
+      if (sizeof(bing) < 2)
+        return 1;
+
+      if ((sizeof(bing) >= 2) && (bing[1] == euid)) 
+        return 1;
+      
+      master = "/" + bing[0] + "/" + bing[1] + "/master.c";
+
+      // Bits down to master->valid_read fixed by Wonderflug, nov 95
+      if ( SECURE->get_checked_master()[master] )
+        return 0;
+
+      if ( !file_exists( master ) )
+      {
+        /* This is the case where no master.c exists */
+        SECURE->get_checked_master()[master] = 1;
+        return 0;
+      }
+
+      if (!find_object(master) && !SECURE->get_checked_master()[master]
+          && catch(master->dead_frogs())) 
+      {
+        /* this is the case the master.c exists but does not load */
+        SECURE->get_checked_master()[master] = 1;
+        return 0;
+      }
+
+      return (int) master->valid_read(bing, euid, func);
+
+    case "save":
       if (sizeof(bing) >= 2 && bing[1] == "players") 
-        return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
+        return (SECURE->check_permission(euid, bing, READ_MASK));
       if (sizeof(bing) >= 2 && bing[1] == "accounts") 
-        return (load_object(SECURE_OB)->check_permission(euid, bing, READ_MASK));
+        return (SECURE->check_permission(euid, bing, READ_MASK));
 
       if (sizeof(bing) >= 2 && bing[1] == "post") 
-        return (euid == "mailer");
+        return (euid == MAIL_EUID);
 
-      return (euid == "Room");
+      return (euid == ROOM_EUID);
 
-    case "cmds" :
+    case "cmds":
       if (sizeof(bing) >= 2)
       {
         object handler;
@@ -237,49 +258,60 @@ nomask int valid_save_binary(string file)
   if (!sizeof(path))
     return 0;
  
- 
   switch(path[0])
   {
-  case "home":
-  case "tmp":
-  case "open":
-  case "d":
-    return 0;
- 
-  case "secure":
-  case "std":
-  case "global":
-  case "net":
-    return 1;
- 
-  case "obj":
-    if (sizeof(path)==2)
-      return 1;
- 
-    if (path[1] == "armours" || path[1] == "weapons")
+    case "home":
+    case "tmp":
+    case "open":
+    case "d":
       return 0;
- 
-    return 1;
+   
+    case "secure":
+    case "std":
+    case "global":
+    case "net":
+      return 1;
+   
+    case "obj":
+      if (sizeof(path)==2)
+        return 1;
+   
+      if (path[1] == "armours" || path[1] == "weapons")
+        return 0;
+   
+      return 1;
   }
   return 0;
 }
 
 nomask int valid_seteuid(object ob, string euid) 
 {
+  string current;
   string crea;
 
-  if (euid == "tmp") 
-      return 1;
+  current = geteuid(ob);
+
+  if ((current == ROOT) || 
+      (current == BACKBONE) ||
+      (current == euid))
+  {
+    return 1;
+  }
   
-  crea = creator_file(file_name(ob));
-  // crea = creator_file(file_name(ob), 1);
+  // if (euid == TMP_EUID) 
+  //   return 1;
+  
+  crea = SECURE->creator_file(file_name(ob));
 
-  if (crea == "Root" || crea == "Room") 
-  return 1;
+  if ((crea == ROOT) || 
+      (crea == BACKBONE) || 
+      (crea == euid)) 
+  {
+    return 1;
+  }
 
-  return (euid == crea) || !euid;
+  return 0;
 } 
-
 
 /*
  * The master object is asked if it is ok to shadow object ob. Use
@@ -323,7 +355,7 @@ nomask int valid_write(string path, mixed euid, string func)
   if (objectp(euid)) 
     euid = geteuid(euid);
   
-  if (load_object(SECURE_OB)->is_administrator(euid)) 
+  if (SECURE->is_administrator(euid)) 
     return 1;
   
   bing = explode(path, "/");
@@ -351,7 +383,7 @@ nomask int valid_write(string path, mixed euid, string func)
   }
   else if (func == "save_object" && bing[0] == "secure") 
   {
-    if (load_object(SECURE_OB)->is_administrator(euid)) 
+    if (SECURE->is_administrator(euid)) 
       return 1;
     else 
       return 0;
@@ -359,7 +391,7 @@ nomask int valid_write(string path, mixed euid, string func)
   else if (func == "save_object") 
     return 1;
 
-  if (euid == "tmp") 
+  if (euid == TMP_EUID) 
   {
     if (bing[0] == "tmp") 
       return 1;
@@ -372,53 +404,73 @@ nomask int valid_write(string path, mixed euid, string func)
   if ((sizeof(bing) == 0) || (bing[sizeof(bing)-1] == ERROR_LOG)) 
     return 1;
 
-  if (load_object(SECURE_OB)->check_permission(euid, bing, WRITE_MASK)) 
+  if (SECURE->check_permission(euid, bing, WRITE_MASK)) 
     return 1;
   
   switch (bing[0]) 
   {
-    case "log" :
+    case "log":
       if (func == "log_file")
         return 1;
       break;
-    case "open" :
-    case "tmp" :
+
+    case "open":
+    case "tmp":
       return 1;
-    case "net" :
-      return euid == "Network";
-    case "obj" :
+
+    case "net":
+      return euid == NETWORK_EUID;
+
+    case "obj":
       if (euid == "ims")
         return 1;
       break;
-    case "home" :
-    case "d" :
-      if ((sizeof(bing) == 1) || 
-          ((bing[0]=="home"?bing[1]:capitalize(bing[1])) == euid) ||
-          load_object(SECURE_OB)->is_administrator(euid) ) 
-      {
+
+    case "home":
+      if (bing[1] == euid) 
         return 1;
-      }
         
-      master = bing[0] + "/" + bing[1] + "/master";
+      master = "/" + bing[0] + "/" + bing[1] + "/master.c";
         
-      if (find_object(master) && !load_object(SECURE_OB)->get_checked_master()[master]
+      if (find_object(master) && !SECURE->get_checked_master()[master]
             && !catch(master->dead_frogs())) 
       {
         return (find_object(master) == previous_object() ||
                find_object(master)->valid_write(bing, euid, func));
       }
 
-      load_object(SECURE_OB)->get_checked_master()[master] = 1;
+      SECURE->get_checked_master()[master] = 1;
       break;
 
-    case "save" :
+    case "game":
+      if (sizeof(bing) <= 2)
+        return 0;
+
+      // game/{areas,quests/permission
+      if ((sizeof(bing) >= 3) &&
+          (bing[2] == euid))
+        return 1;
+        
+      master = "/" + bing[0] + "/" + bing[1] + "/" + bing[2] + "/master.c";
+        
+      if (find_object(master) && !SECURE->get_checked_master()[master]
+            && !catch(master->dead_frogs())) 
+      {
+        return (find_object(master) == previous_object() ||
+               find_object(master)->valid_write(bing, euid, func));
+      }
+
+      SECURE->get_checked_master()[master] = 1;
+      break;
+
+    case "save":
       if ((sizeof(bing) >= 2) && (bing[1] == "players"))
         // return query_admin(euid);
         return 0;
       if ((sizeof(bing) >= 2) && (bing[1] == "accounts"))
         return 0;
     
-      if (euid == "Room" ||
+      if (euid == ROOM_EUID ||
          (euid == "mailer" && sizeof(bing) == 3 && bing[1] == "post")) 
         return 1;
   }

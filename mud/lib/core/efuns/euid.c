@@ -1,27 +1,35 @@
 
+#include <kernel.h>
+
 #include <mud/secure.h>
+#include <mud/mudos.h>
 
-static mixed euid;
+private string _euid;
+private string _uid;
 
-// seteuid - set the effective user id (euid) of an object
-// int seteuid( string str );
-// Set effective uid to 'str'.  valid_seteuid() in master.c controls which
-// values the euid of an object may be set to.
-// When this value is 0, then the current object's uid can be changed by
-// export_uid(), and only then.
-// But, when the value is 0, no objects can be loaded or cloned by this object.
+// getuid - return the user id (uid) of an object
+// string getuid( object ob );
+// Returns the user id of an object.  The uid of an object is determined at
+// object creation by the creator_file() function.
 
-// TODO seteuid
-// call valid_seteuid first
-
-static nomask int seteuid( mixed str )
+nomask string getuid( varargs object ob )
 {
-  if (stringp(str) && strlen(str))
-    euid = str;
-  else
-    euid = 0;
+  if (ob)
+    return ob->getuid();
+
+  return _uid;
 }
 
+nomask int setuid(string id)
+{
+  if (!stringp(id) || !strlen(id))
+    return 0;
+
+  if (!is_auto_object())
+    return 0;
+
+  _uid = id;
+}
 
 // geteuid - return the effective user id of an object or function
 // string geteuid( object|function );
@@ -31,51 +39,45 @@ static nomask int seteuid( mixed str )
 // at the time of the function variable's construction, had no euid, the
 // object's uid is stored instead.
 
-// TODO geteuid
-
-static nomask mixed geteuid( varargs object ob )
+nomask string geteuid( varargs object ob )
 {
-  // if (ob && objectp(ob))
-  //   return ob->geteuid();
+  if (ob)
+    return ob->geteuid();
   
-  // TODO
-
-  if (objectp(ob))
-    return ob->query_name();
-
-  return euid;
+  return _euid;
 }
 
+// seteuid - set the effective user id (euid) of an object
+// int seteuid( string str );
+// Set effective uid to 'str'.  valid_seteuid() in master.c controls which
+// values the euid of an object may be set to.
+// When this value is 0, then the current object's uid can be changed by
+// export_uid(), and only then.
+// But, when the value is 0, no objects can be loaded or cloned by this object.
 
-// getuid - return the user id (uid) of an object
-// string getuid( object ob );
-// Returns the user id of an object.  The uid of an object is determined at
-// object creation by the creator_file() function.
-
-// TODO getuid
-
-static nomask string getuid( varargs object ob )
+nomask int seteuid( string id )
 {
-  return euid;
-}
+  // allow seteuid("") similar to the old seteuid(0)
+  // if (!stringp(id) || !strlen(id))
+  //   return 0;
 
-// Radix, July 1996
-// Called from create() in /std/object.c
-// if creator made me, tag their name to it
+  string file;
 
-string get_create_me(string tmp)
-{
-  int i;
-  object obj;
+  // initial value, same as uid
+  if (is_auto_object())
+  {
+    _euid = id;
+    return 1;
+  }
 
-  obj = previous_object(-1);
+  file = object_name(this_object());
 
-  // for (i = sizeof(obj)-1; i > -1; --i)
-  //    if (obj[i]->query_coder())
-  //       return geteuid(obj[i]);
+  if (((id == DRIVER_EIUD) && (file == DRIVER || file == MUDOS_PATH)) ||
+      (SECURE->valid_seteuid(this_object(), id)))
+  {
+    _euid = id;
+    return 1;
+  }
 
-  if (obj->query_coder())
-    return geteuid(obj);
-
-  return tmp;
+  return 0;
 }

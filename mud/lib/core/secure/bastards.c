@@ -35,7 +35,7 @@ void create()
              "/global/failsafe", });
   
   def = "/global/player";
-  seteuid("Root");
+  seteuid(ROOT);
   access = ([ ]);
   suspended = ([ ]);
   banished = ([ ]);

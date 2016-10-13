@@ -34,7 +34,7 @@ auto_object   = "/lib/core/auto";
 driver_object = "/lib/core/driver"; 
 
 /* name of create function */
-create  = "_F_create";  
+create  = "_auto_create";  
 
 array_size = 1000;  /* max array size */
 objects  = 5000;    /* max # of objects */

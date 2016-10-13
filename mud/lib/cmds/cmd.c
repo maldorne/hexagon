@@ -55,7 +55,7 @@ int _cmd(string tail, object thisob, string verb)
   string euid;
   int ret;
 
-  if(previous_object() != find_object(CMD_HANDLER))
+  if (previous_object() != find_object(CMD_HANDLER))
     return 0;
 
   command_giver = thisob;
@@ -68,22 +68,22 @@ int _cmd(string tail, object thisob, string verb)
   switch(position)
   {
     case ADMIN_CMD:
-      if(!thisob->query_admin() && !thisob->query_highlord(euid))
+      if (!thisob->query_admin() && !thisob->query_highlord(euid))
         return 0;
       break;
 
     case MANAGER_CMD:
-      if(!thisob->query_manager())
+      if (!thisob->query_manager())
         return 0;
       break;
 
     case CODER_CMD:
-      if(!thisob->query_coder())
+      if (!thisob->query_coder())
         return 0;
       break;
 
     case PLAYER_CMD:
-      if(!thisob->query_player())
+      if (!thisob->query_player())
         return 0;
       break;
   }

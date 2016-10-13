@@ -6,9 +6,18 @@
 
 #include <kernel.h>
 
-#define ROOT     "root"
-#define BACKBONE "root"
-
+// euids
+#define DRIVER_EIUD  "driver"
+#define ROOT         "root"
+#define BACKBONE     "root"
+// #define SECURE_EUID  "secure"
+#define ROOM_EUID    "room"
+#define CMD_EUID     "cmd"
+#define TMP_EUID     "tmp"
+#define NETWORK_EUID "network"
+#define MAIL_EUID    "mailer"
+#define PLAYER_EUID  "player"
+#define NOBODY_EUID  "nobody"
 
 #define SECURE find_object(DRIVER)->secure()
 

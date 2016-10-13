@@ -2,8 +2,14 @@
 #include <files/file.h>
 #include <mud/secure.h>
 
-// Non-dgd efuns
-// neverbot, 03/2014
+
+int write_file(string file, string str, varargs int offset)
+{
+  if (!SECURE->valid_write(file, geteuid(), previous_function()))
+    return 0;
+
+  return ::write_file(file, str, offset);
+}
 
 
 // file_size - get the size of a file
@@ -55,8 +61,6 @@ static nomask int file_length(string file_name)
 
   return file_size(file_name);
 }
-
-
 
 //  /secure/simul_efun/file_exists.c
 //  from the RotD Mudlib
@@ -150,69 +154,6 @@ static nomask int cat(string file)
   return 1;
 }
 
-static nomask mixed creator_file(string file, varargs int author) 
-{
-  string *str;
-
-  if (!file || !stringp(file)) 
-    return "noone";
-  
-  str = explode(file, "/") - ({ "" });
-  if (sizeof(str) < 2) 
-    return ROOT;
-  
-  switch (str[0]) 
-  {
-    case "lib" :
-      return ROOT;
-    case "net" :
-      // return "Network stuff";
-      return "network";
-
-    case "game" :
-      if (sizeof(str) < 3)
-        return ROOT;
-
-      //if (!author)
-        // return capitalize(str[2]);
-      return str[2];
-     
-      // return ("/d/"+str[1]+"/master")->author_file(str);
-
-    case "tmp" :
-     return "tmp_files";
-
-    case "home" :
-      if (sizeof(str) < 3)
-        return ROOT;
-      return str[1];
-
-    default:
-      return ROOT;    
-  }
-}
-
-static nomask mixed author_file(mixed bing) 
-{
-  return creator_file(bing, 1);
-}
-
-mixed domain_file(mixed bing) 
-{
-  string str;
-
-  str = creator_file(bing);
-  
-  if (!str) 
-    return str;
-  
-  if ((str[0] >= 'A' && str[0] <= 'Z') ||
-      (str[0] >= 'a' && str[0] <= 'z'))
-    return str;
-  
-  return "mud";
-}
-
 static nomask int rename(string from, string to)
 {
   return rename_file(from, to);
@@ -285,7 +226,6 @@ static nomask int cp(string src, string dst)
   return 1;
 }
 
-
 // mixed array get_dir(string dir);
 // mixed array get_dir(string dir, int flag);
 
@@ -307,6 +247,9 @@ static nomask int cp(string src, string dst)
 static nomask mixed * get_dir(string dir, varargs int flag)
 {
   mixed ** obs;
+
+  if (!SECURE->valid_read(dir, geteuid(), "get_dir"))
+    return ({ });
 
   obs = ::get_dir(dir);
 

@@ -30,7 +30,7 @@ void create()
 
 // every valid_xxx function
 #include "/lib/core/secure/checks.c"
-
+#include "/lib/core/secure/files.c"
 
 #include "/lib/core/secure/crash.c"
 #include "/lib/core/secure/coders.c"
@@ -74,6 +74,27 @@ int check_permission(string euid, string *path, int mask);
 
 string get_root_uid() { return ROOT; }
 string get_bb_uid() { return BACKBONE; }
+
+// Radix, July 1996
+// Called from create() in /std/object.c
+// if creator made me, tag their name to it
+
+string get_create_me(string tmp)
+{
+  int i;
+  object obj;
+
+  obj = previous_object(-1);
+
+  // for (i = sizeof(obj)-1; i > -1; --i)
+  //    if (obj[i]->query_coder())
+  //       return geteuid(obj[i]);
+
+  if (obj->query_coder())
+    return geteuid(obj);
+
+  return tmp;
+}
 
 string *define_include_dirs() 
 {

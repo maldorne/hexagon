@@ -1,25 +1,29 @@
 
-// Code by Aragorn, who likes his log files...
-#define MAX_LOG_SIZE 200000
+#include <files/log.h>
+#include <mud/secure.h>
 
-// TODO log_file
+// Code by Aragorn, who likes his log files...
 
 static nomask void log_file( string file, string text )
 {
-  // string logfile;
+  string logfile;
 
-  // if( !stringp( file ) || !stringp( text ) ) 
-  //     return; // syntax error
-  // if( -1 != strsrch( file, ".." ) ) 
-  //     return; // security error
+  if ( !strlen( file ) || !strlen( text ) ) 
+    return; // syntax error
+
+  if ( -1 != strsrch( file, ".." ) ) 
+    return; // security error
   
-  // logfile = LOG_DIR + file; // would 'sprintf' be much better here?
-  // seteuid("Root");
-  // if( file_size( logfile ) > MAX_LOG_SIZE )
-  //     rename( logfile, logfile + ".old" );
-  // write_file( logfile, text );
+  logfile = LOG_DIR + file; // would 'sprintf' be much better here?
   
-  // seteuid(0);
+  seteuid(ROOT);
+
+  if ( file_size( logfile ) > MAX_LOG_SIZE )
+    rename( logfile, logfile + ".old" );
+  
+  write_file( logfile, text );
+  
+  seteuid("");
 }
 
 // log_attacks.c

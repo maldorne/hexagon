@@ -87,7 +87,7 @@ string * get_files(string str)
 
     files = get_dir(str);
     
-    seteuid(0);
+    seteuid("");
 
     if (files) 
     {

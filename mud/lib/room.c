@@ -6,6 +6,7 @@
 */
 
 #include <room/room.h>
+#include <mud/secure.h>
 
 inherit light    "/lib/core/basic/light";
 inherit property "/lib/core/basic/property";
@@ -246,7 +247,7 @@ void create()
   door_control = ([ ]);
   room_zone = "nowhere";
   exit_color = "%^BOLD%^%^CYAN%^";
-  seteuid(creator_file(file_name(this_object())));
+  seteuid(SECURE->creator_file(file_name(this_object())));
   set_dark_mess("Está demasiado oscuro para poder ver");
   
   property::create();

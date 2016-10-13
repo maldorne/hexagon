@@ -143,8 +143,8 @@ do not have an open source license.
 | `save_object`           | :white_check_mark: |  |
 | `get_dir`               | :white_check_mark: | masked to mimic MudOS behaviour |
 | `match_path`            |  |  |
-| `write_file`            |  |  |
-| `rename`                |  |  |
+| `write_file`            | :white_check_mark: | provided by dgd, masked for permissions |
+| `rename`                | :white_check_mark: | alias for `rename_file`, masked for permissions |
 | `write_bytes`           |  |  |
 | `file_size`             | :white_check_mark: | Mikael Lind's example code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
 | `read_bytes`            |  |  |
@@ -175,9 +175,11 @@ do not have an open source license.
 | `reset_eval_cost`       | :white_check_mark: | dummy function |
 | `set_eval_limit`        | :white_check_mark: | dummy function |
 
-
+##Others
 | Function | Status | Comments |
 | -------- | :------: | -------- |
+| `crypt`                 | :white_check_mark: | provided by dgd |
+| `oldcrypt`              | :white_check_mark: | alias for `crypt` |
 | `bind`                  |  |  |
 | `random`                |  |  |
 | `find_player`           |  |  |
@@ -194,8 +196,6 @@ do not have an open source license.
 | `test_bit`              |  |  |
 | `set_bit`               |  |  |
 | `next_bit`              |  |  |
-| `crypt`                 |  |  |
-| `oldcrypt`              |  |  |
 | `exec`                  |  |  |
 | `objects`               |  |  |
 | `query_host_name`       |  |  |

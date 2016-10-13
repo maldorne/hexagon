@@ -29,9 +29,9 @@ void create()
   extra_look::create();
   desc::create();
 
-  seteuid(load_object(SECURE_OB)->creator_file(file_name(this_object())));
+  seteuid(SECURE->creator_file(file_name(this_object())));
   // Radix, July 1996
-  create_me = load_object(SECURE_OB)->get_create_me(create_me);
+  create_me = SECURE->get_create_me(create_me);
   this_object()->setup();
 }
 

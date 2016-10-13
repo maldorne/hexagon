@@ -5,6 +5,7 @@
 // Ported to dgd, neverbot aug '15
  
 #include <mud/cmd.h>
+#include <mud/secure.h>
 
 #define SOUL_OBJECT "/obj/handlers/soul"
  
@@ -287,7 +288,7 @@ int cmd(string verb, string tail, object thisob)
   if (!interactive(thisob))
    return 0;
 
-	seteuid("Root");
+	seteuid(ROOT);
 	euid = geteuid(thisob);
 	s = cmd_aliases[verb];
 
@@ -342,7 +343,7 @@ int cmd(string verb, string tail, object thisob)
   if (ob->_query_doclone())
     ob = clone_object(s);
 
-  seteuid("CMD");
+  seteuid(CMD_EUID);
   current_verb = verb;
   ret = (int)ob->_cmd(tail, thisob, orig_verb);
   current_verb = "";
@@ -362,7 +363,7 @@ int cmd_make_hash(int verbose)
 	string *paths, *files, s, *a;
 	int i, j, k, l, count;
 	
-	seteuid("Root");
+	seteuid(ROOT);
 	cmd_hash = ([ ]);
 	cmd_aliases = ([ ]);
 	count = 0;
@@ -422,7 +423,7 @@ int cmd_make_hash(int verbose)
 		}
 	}
 	
-	seteuid("CMD");
+	seteuid(CMD_EUID);
 	return count;
 }
 

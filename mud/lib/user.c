@@ -44,6 +44,8 @@ void create()
   // the last one
   living::create();
 
+  seteuid(PLAYER_EUID);
+
   // already done in living
   // enable_commands();
 
