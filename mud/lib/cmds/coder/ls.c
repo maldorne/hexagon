@@ -60,7 +60,7 @@ string dir_entry(string path, string name, int mask, object me)
     if (mask & MASK_F)
       name += "/";
 
-    return "[     "[0..4 - strlen(size + "]")] + size + "] " + name;
+    return "[    "[0..4 - strlen(size + "]")] + size + "] " + name;
   } 
   else 
   {
@@ -79,12 +79,12 @@ string dir_entry(string path, string name, int mask, object me)
         h_size = size /1048576 + "." + ("" + (size % 1048576) / 1024)[0..0] + "M";
       else if (size > 1024)
         // h_size = (((size/1024)==0)?1:(size/1024))+ "K";
-        h_size = (size/1024) + "K";
+        h_size = "" + (size/1024) + "K";
       else
-        h_size = " " + size;
+        h_size = "" + size + "B";
     }    
 
-    return "     "[0..4 - strlen(h_size)] + h_size + " " + name;
+    return "     "[0..5 - strlen(h_size)] + h_size + " " + name;
   }
 } /* dir_entry() */
  
