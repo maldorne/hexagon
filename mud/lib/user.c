@@ -270,7 +270,6 @@ mixed * stats()
 
 
 // TMP DEBUG, REMOVE!!!
-int query_coder() { return 1; }
 // string query_name() { return "neverbot"; }
 // string short(varargs int dark) { return "neverbot"; }
 int query_cols() { return 79; }

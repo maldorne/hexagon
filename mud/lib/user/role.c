@@ -8,7 +8,7 @@ string role_name;
 
 void create()
 {
-  role_name = "";
+  role_name = PLAYER_ROLE;
 }
 
 object query_role() { return _role; }
@@ -26,10 +26,13 @@ int set_role(string name)
 
   switch(name)
   {
-    case "administrator":
+    case ADMIN_ROLE:
       break;
 
-    case "coder":
+    case MANAGER_ROLE:
+      break;
+
+    case CODER_ROLE:
       role_name = name;
       _role = clone_object(CODER_ROLE_OB);
       _role->set_player(this_object());
@@ -39,13 +42,22 @@ int set_role(string name)
       
       break;
 
-    case "player":
+    case PLAYER_ROLE:
     default:
+      role_name = PLAYER_ROLE;
+      _role = clone_object(PLAYER_ROLE_OB);
+      _role->set_player(this_object());
       break;
   }
 
   return 1;
 }
+
+int query_coder()         { return role_name == CODER_ROLE; }
+int query_manager()       { return role_name == MANAGER_ROLE; }
+int query_admin()         { return role_name == ADMIN_ROLE; }
+int query_administrator() { return role_name == ADMIN_ROLE; }
+
 
 mixed * stats() 
 {
