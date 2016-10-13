@@ -18,6 +18,7 @@ static void role_commands()
   add_action("update", "update");
   add_action("do_a_call", "call");
   add_action("get_creator","coder");
+  add_action("get_inv","inv");
 
   // add_action("parse_frogs", ";*");
   // add_action("dest", "destruct");
@@ -28,7 +29,6 @@ static void role_commands()
   add_action("trans", "trans");
   add_action("whereis","whereis");
   add_action("get_pathof","pathof");
-  add_action("get_inv","inv");
   add_action("goback","goback");
   // add_action("upgrade_player", "upgrade");
   add_action("find_shadows", "shadows");
@@ -521,7 +521,8 @@ int do_dest(string str)
 
   dest_obj = ({ });
 
-  if (!strlen(str)) {
+  if (!strlen(str)) 
+  {
     notify_fail("¿Destruir el qué?\n");
     return 0;
   }
@@ -628,6 +629,60 @@ int get_creator(string str)
 
   return 1;
 } /* get_creator() */
+
+int get_inv(string str) 
+{
+  object *ov, obj;
+  int i;
+
+  // thanks for the great error message!
+  notify_fail("¿Inventario de qué?\n"); 
+
+  if (!strlen(str)) 
+  {
+    ov = ({ this_player() });
+  } 
+  else 
+  {
+    sscanf(str, "de %s", str);
+    ov = wiz_present(str, this_player());
+  }
+
+  if (!sizeof(ov)) 
+    return 0;
+
+  for (i = 0; i < sizeof(ov); i++) 
+  {
+    if (!ov[i]) 
+      continue;
+    
+    if( (interactive(ov[i])) && !(ov[i]->query_coder()) && 
+       !(this_object()->query_admin()) && !(ov[i] == this_object()))
+    {
+      log_file("inv", this_object()->query_cap_name()+" intentó ver el inventario del interactive: "+
+                      ov[i]->query_cap_name()+" ["+ctime(time(), 4)+"]\n");
+      write("No te está permitido ver el inventario de "+ov[i]->query_cap_name()+".\n");
+      continue;
+    }
+
+    write("Inventario de " + desc_object(ov[i]) + " en " +
+          desc_object(environment(ov[i])) + ":\n");
+
+stderr("WHAT " + to_string(all_inventory(ov[i])) + "\n");    
+
+    obj = first_inventory(ov[i]);
+    
+    while (obj) 
+    {
+stderr("WHAT 2 " + object_name(obj) + "\n");    
+
+      write("  " + desc_f_object(obj) + "\n");
+      obj = next_inventory(obj);
+    }
+  }
+
+  return 1;
+} /* inv() */
 
 mixed stats() 
 {

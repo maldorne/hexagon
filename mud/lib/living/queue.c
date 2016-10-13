@@ -721,9 +721,9 @@ nomask int action_check(string str)
         // this_object()->move(tmp_ob);
         return 1;
 
-      case "inv":
-        print_object(this_object()->all_inventory());
-        return 1;
+      // case "inv":
+      //   print_object(this_object()->all_inventory());
+      //   return 1;
 
       case "env":
         print_object(environment(this_object()));
