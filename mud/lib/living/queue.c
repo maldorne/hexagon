@@ -744,7 +744,22 @@ nomask int action_check(string str)
         return 1;
 
       case "actions":
-        print_object(this_object()->query_actions());
+        {
+          object * targets;
+          mapping actions;
+          int i;
+
+          targets = ({ this_object()->query_role(), 
+                       environment(this_object()) }) +
+                       all_inventory(environment(this_object())) +
+                       all_inventory(this_object());
+          actions = ([ ]);
+
+          for (i = 0; i < sizeof(targets); i++)
+            actions += targets[i]->query_actions();
+
+          print_object(actions);
+        }
         return 1;
     }
 
