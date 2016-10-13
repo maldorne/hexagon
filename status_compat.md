@@ -129,7 +129,7 @@ do not have an open source license.
 | `all_inventory`         | :white_check_mark: |  |
 | `deep_inventory`        | :white_check_mark: |  |
 | `first_inventory`       | :white_check_mark: |  |
-| `next_inventory`        | :white_check_mark: | uses iterator restarted with `first_inventory` |
+| `next_inventory`        | :white_check_mark: |  |
 | `id`                    | :white_check_mark: |  |
 | `present`               | :white_check_mark: |  |
 | `move`                  | :white_check_mark: |  |
