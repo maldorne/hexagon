@@ -39,7 +39,7 @@ void create()
   cmd_aliases = ([ ]);
   last_dir = "";
 
-  seteuid(getuid());
+  // seteuid(getuid());
   current_verb = "";
   cmd_make_hash(0);
 }
@@ -288,7 +288,7 @@ int cmd(string verb, string tail, object thisob)
   if (!interactive(thisob))
    return 0;
 
-	seteuid(ROOT);
+	// seteuid(ROOT);
 	euid = geteuid(thisob);
 	s = cmd_aliases[verb];
 

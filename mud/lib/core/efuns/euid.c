@@ -75,9 +75,15 @@ nomask int seteuid( string id )
   if (((id == DRIVER_EIUD) && (file == DRIVER || file == MUDOS_PATH)) ||
       (SECURE->valid_seteuid(this_object(), id)))
   {
+    if (_euid != id)
+      stderr(" *** seteuid changed in " + object_name(this_object()) + 
+             " from " + _euid + " to " + id + "\n");
+    
     _euid = id;
     return 1;
   }
 
+  stderr(" *** seteuid invalid " + object_name(this_object()) + " " + id + "\n");
+  // stderr(to_string(call_trace()) + "\n");
   return 0;
 }

@@ -32,7 +32,6 @@ void create()
   account_name = "";
 
   seteuid(PLAYER_EUID);
-  seteuid(ROOT);
 }
 
 int restore_me(string name)

@@ -247,8 +247,10 @@ void create()
   door_control = ([ ]);
   room_zone = "nowhere";
   exit_color = "%^BOLD%^%^CYAN%^";
-  seteuid(SECURE->creator_file(file_name(this_object())));
   set_dark_mess("Está demasiado oscuro para poder ver");
+
+  // seteuid(SECURE->creator_file(file_name(this_object())));
+  // seteuid(ROOM_EUID);
   
   property::create();
   senses::create();

@@ -104,7 +104,7 @@ int _cmd(string tail, object thisob, string verb)
 
   ret = cmd(tail, thisob, verb);
 
-  seteuid(getuid(this_object()));
+  // seteuid(getuid(this_object()));
 
   return ret;
 }

@@ -3,6 +3,7 @@
 
 #include <files/log.h>
 #include <mud/secure.h>
+#include <user/user.h>
 
 nomask int valid_progname(int steps, string progname)
 {
@@ -291,6 +292,10 @@ nomask int valid_seteuid(object ob, string euid)
 
   current = geteuid(ob);
 
+  // when seteuid("")
+  if (!strlen(euid))
+    return 1;
+
   if ((current == ROOT) || 
       (current == BACKBONE) ||
       (current == euid))
@@ -298,17 +303,24 @@ nomask int valid_seteuid(object ob, string euid)
     return 1;
   }
   
+  if ((base_name(ob) == USER_OB) && 
+      (ob->query_coder()))
+    return (euid == ob->query_name());
+
+  if (geteuid(initial_object()) == euid)
+    return 1;
+
   // if (euid == TMP_EUID) 
   //   return 1;
   
-  crea = SECURE->creator_file(file_name(ob));
+  // crea = SECURE->creator_file(file_name(ob));
 
-  if ((crea == ROOT) || 
-      (crea == BACKBONE) || 
-      (crea == euid)) 
-  {
-    return 1;
-  }
+  // if ((crea == ROOT) || 
+  //     (crea == BACKBONE) || 
+  //     (crea == euid)) 
+  // {
+  //   return 1;
+  // }
 
   return 0;
 } 

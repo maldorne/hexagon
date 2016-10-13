@@ -5,10 +5,11 @@ nomask mixed creator_file(string file, varargs int author)
 {
   string *str;
 
-  if (!file || !stringp(file)) 
+  if (!strlen(file) || !stringp(file)) 
     return NOBODY_EUID;
   
   str = explode(file, "/") - ({ "" });
+
   if (sizeof(str) < 2) 
     return ROOT;
   
@@ -25,11 +26,11 @@ nomask mixed creator_file(string file, varargs int author)
       if (sizeof(str) <= 3)
         return ROOT;
 
-      //if (!author)
-        // return capitalize(str[2]);
+      // if (!author)
+      //  return capitalize(str[2]);
       return str[2];
      
-      // return ("/d/"+str[1]+"/master")->author_file(str);
+      // return ("/game/"+str[1]+"/"+str[2]+"/master")->author_file(str);
 
     case "tmp" :
      return TMP_EUID;
