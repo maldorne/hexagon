@@ -263,7 +263,25 @@ mixed * stats()
 
 
 
+/* old glance(), neverbot 21/4/2003 */
+int do_glance(string arg)
+{
+  // Externalized - Radix
+  if (!arg) 
+      return do_command("ojear");
+  return do_command("ojear " +arg);
+}
 
+/* old look_me(), neverbot 21/4/2003 */
+int do_look(varargs string arg)
+{
+  if (!this_object()->query_verbose())
+    return do_glance(arg);
+
+  if (!arg) 
+    return do_command("mirar");
+  return do_command("mirar " + arg);
+}
 
 
 
@@ -274,6 +292,7 @@ mixed * stats()
 // string short(varargs int dark) { return "neverbot"; }
 int query_cols() { return 79; }
 int query_invis() { return 0; }
+int query_verbose() { return 1; }
 
 object query_race_ob() { return nil; }
 int query_volume(int i) { return 0; }
@@ -287,10 +306,6 @@ int check_dark(int light)
   return 0;
 }
 
-int do_look() 
-{
-  return action_check("mirar");
-}
 
 
 /* Control over editing function. Can come only from the associated

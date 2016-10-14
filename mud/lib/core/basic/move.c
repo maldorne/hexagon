@@ -4,14 +4,14 @@
 private int move_flag;
 
 // added Mar 3 '93 by Dank to support goback command 
-private object prev; 
+private object previous; 
 
 void create()
 {
-  prev = nil;
+  previous = nil;
 }
 
-object query_prev() { return prev; }
+object query_prev() { return previous; }
 
 // default to being gettable and dropable...
 // modify as you will...
@@ -30,7 +30,6 @@ void set_move_flag(int i) { move_flag = i; }
 int move(mixed dest, varargs mixed messin, mixed messout) 
 {
   object destination;
-  object previous;
 
   previous = environment();
   
@@ -122,6 +121,6 @@ mixed stats()
 {
   return ({
     ({"Move Flag", move_flag, }),
-    ({"Previous", prev, }),
+    ({"Previous", previous, }),
      });
 }

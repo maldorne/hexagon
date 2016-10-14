@@ -390,12 +390,17 @@ private int aq_delete_user_actions()
   return AQ_OK;
 }
 
+nomask int do_command(string cmd)
+{
+  call_out("action_check", 0, cmd);
+}
+
 // The do_cmd is a part of the external command handling system.
 // * Made by Chrisy and gotten from RD. oct '95.
 // * Moved here by Baldrick so that the whole living-tree can use the 
 // * commands in that system.
 // Let's do it private, so the only way of forcing livings to do commands
-// is to queue them through action_check. 
+// is to queue them through do_command. 
 // That way the this_player, notify_fail_msg, query_verb, etc
 // will have the right values when executing, neverbot 10/2016
   
