@@ -28,6 +28,19 @@ void create()
   parse_prompt();
 }
 
+// specific way of printing the prompt
+// the show_prompt & write_prompt calls are outside
+// the perform_next_action function in queue.c, so
+// this_player might or might not be the right user
+// to be sure, we have here our own way of printing
+// it to the user: always this_object
+//   neverbot 10/2016
+private void do_prompt_write(string msg)
+{
+  msg = fix_string(msg);
+  this_object()->catch_tell(msg);
+}
+
 /*
  * Returns a short string showing if the current player is 'busy' or not
  * This is used by the driver whenever it needs to show a prompt.
@@ -43,13 +56,13 @@ void write_prompt()
     switch (i)
     {
       case -2:
-        write ("more:");
+        do_prompt_write("more:");
         return;
       case 0:
-        write ("ed:");
+        do_prompt_write("ed:");
         return;
       default:
-        write (i + ":");
+        do_prompt_write("" + i + ":");
         return;
     }
   } 
@@ -58,13 +71,13 @@ void write_prompt()
   switch( this_object()->query_busy() )
   {
     case NON_INTERRUPTABLE_BUSY:
-      write("] ");
+      do_prompt_write("] ");
       break;
     case INTERRUPTABLE_BUSY:
-      write("} ");
+      do_prompt_write("} ");
       break;
     case NOT_BUSY:
-      write("> ");
+      do_prompt_write("> ");
   }
 }
 
@@ -192,9 +205,9 @@ void show_prompt(varargs string prefix)
   }
 
   if (prefix)
-    write(prefix + s);
+    do_prompt_write(prefix + s);
   else
-    write(s);
+    do_prompt_write(s);
 }
 
 // debugging 

@@ -289,7 +289,7 @@ int check_dark(int light)
 
 int do_look() 
 {
-  return do_cmd("mirar");
+  return action_check("mirar");
 }
 
 

@@ -313,14 +313,14 @@ nomask int valid_seteuid(object ob, string euid)
   // if (euid == TMP_EUID) 
   //   return 1;
   
-  // crea = SECURE->creator_file(file_name(ob));
+  crea = SECURE->creator_file(file_name(ob));
 
-  // if ((crea == ROOT) || 
-  //     (crea == BACKBONE) || 
-  //     (crea == euid)) 
-  // {
-  //   return 1;
-  // }
+  if ((crea == ROOT) || 
+      (crea == BACKBONE) || 
+      (crea == euid)) 
+  {
+    return 1;
+  }
 
   return 0;
 } 

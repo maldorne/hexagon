@@ -753,8 +753,9 @@ int trans(string str)
         obs[i]->query_cap_name()+" desde "+file_name(environment(obs[i]))+
         " hasta "+file_name(environment(this_player()))+" ["+ctime(time(),4)+"]\n");
     
-    tell_object(obs[i], "Eres transferido mágicamente a algún lugar.\n");
-    obs[i]->move_player("X", file_name(environment(this_player())));
+    tell_object(obs[i], "\nEres transferido mágicamente a algún lugar.\n\n");
+    write("Transfieres a " + obs[i]->query_cap_name() + " hasta aquí.\n");
+    obs[i]->move_living("X", environment(this_player()));
   }
 
   return 1;

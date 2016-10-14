@@ -84,7 +84,7 @@ do not have an open source license.
 | `init`                  | :white_check_mark: | it's not a function provided by MudOS per se, it's the function that will be called inside every object when they move (if it exists). Listed here for clarity, as `ccmudlib` makes the same calls. |
 | `this_player`           | :white_check_mark: |  |
 | `this_interactive`      |  |  |
-| `this_user`             |  |  |
+| `this_user`             | :white_check_mark: | provided by dgd |
 | `previous_object`       | :white_check_mark: |  |
 | `all_previous_objects`  | :white_check_mark: | alias for `previous_objects` |
 | `evaluate`              | :white_check_mark: |  |

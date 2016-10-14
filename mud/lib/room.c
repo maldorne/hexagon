@@ -695,9 +695,9 @@ int do_exit_command(string str, varargs mixed verb, object ob)
 #ifdef FAST_CLEAN_UP
   old_call_out = remove_call_out( clean_up_handle );  // multiple folks in room
 
-  if ( old_call_out > 0
-      &&  old_call_out < FAST_CLEAN_UP
-      &&  (time() - room_create_time) < FAST_CLEAN_UP )
+  if ( old_call_out > 0 && 
+       old_call_out < FAST_CLEAN_UP && 
+      (time() - room_create_time) < FAST_CLEAN_UP )
   {
     // was merely passing through {Laggard}
     clean_up_handle = call_out( "clean_up_room", FAST_CLEAN_UP, 0 );
@@ -707,6 +707,11 @@ int do_exit_command(string str, varargs mixed verb, object ob)
     clean_up_handle = call_out( "clean_up_room", SLOW_CLEAN_UP, 0 );
   }
 #endif
+
+  // the movement shows no prompt message, the look or glance commands
+  // will be queued and one of them will show it
+  if (zip)
+    this_player()->set_no_prompt();
 
   return zip;
 }

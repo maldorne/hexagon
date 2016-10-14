@@ -111,7 +111,7 @@ void create()
 } 
 
 mixed* debug_actionq() { return actionq; }
-void debug_resetq() {  actionq = ({ }); }
+void debug_resetq() { actionq = ({ }); }
 
 /* debug of course */
 int query_bits_per_beat() { return 10; }
@@ -149,21 +149,24 @@ int adjust_time_left(varargs int i)
     return time_left;
 
   time_left += i;
-  if(time_left > max_time)
+  if (time_left > max_time)
     time_left = max_time;
   return time_left;
 }
 
-int query_show_interrupt() { 
+int query_show_interrupt() 
+{ 
   return ia_show_interrupt;
     // return this_object()->query_consent("debug");
 }
-int set_show_interrupt(int i) { 
+int set_show_interrupt(int i) 
+{ 
   return ia_show_interrupt = i;
   // return this_object()->set_consent("debug", i);
 }
 int query_max_time() { return max_time; }
-int set_max_time(int i){
+int set_max_time(int i)
+{
   if ( i < 0 )
     return max_time = 0;
   else
@@ -173,20 +176,21 @@ int set_max_time(int i){
 int query_default_action_time() { return default_time; }
 int set_default_action_time(int i) { return default_time = i; }
 
-int query_action_pending(){
+int query_action_pending()
+{
   return ( (sizeof(actionq) != 0) || ia_in_progress);
 }
 
-void set_notified(int fi){
-  notified = fi;
-}
+void set_notified(int fi) { notified = fi; }
 
-void set_trivial_action() { 
+void set_trivial_action() 
+{ 
   trivial_action_in_progress = 1; 
   trivial_actions_performed++;
 }
 
-int set_interruptable_action(int time, string message, mixed abort, mixed complete){
+int set_interruptable_action(int time, string message, mixed abort, mixed complete)
+{
   if ( ia_in_progress )
     return AQ_ERROR;
 
@@ -250,7 +254,7 @@ int abort_interruptable_action()
 int query_busy()
 {
   // if ( time_left < 0 )
-  if(sizeof(actionq) && (time_left < 0))
+  if (sizeof(actionq) && (time_left < 0))
   {
     if ( ia_in_progress )
       return INTERRUPTABLE_BUSY;
@@ -390,14 +394,18 @@ private int aq_delete_user_actions()
 // * Made by Chrisy and gotten from RD. oct '95.
 // * Moved here by Baldrick so that the whole living-tree can use the 
 // * commands in that system.
+// Let's do it private, so the only way of forcing livings to do commands
+// is to queue them through action_check. 
+// That way the this_player, notify_fail_msg, query_verb, etc
+// will have the right values when executing, neverbot 10/2016
   
-int do_cmd(string cmd)
+private int do_cmd(string cmd)
 {
   string verb, t;
 
   sscanf(cmd, "%s %s", verb, t);
 
-  if(!verb)
+  if (!verb)
     verb = cmd;
 
   if (!t)
@@ -414,6 +422,7 @@ private int perform_next_action()
 {
   mixed curr_act;
   string verb, t, old_notify_fail, old_verb;
+  object old_this_player;
 
   show_prompt = 1;
   // if ( ia_in_progress )
@@ -444,10 +453,7 @@ private int perform_next_action()
 
   if ( sizeof(actionq) == 0 ) 
   {
-    // Folken 4/2003, esta funcion no existe!!!
-    // Mal vamos con esta zona de codigo, si ni query_in_combat ni
-    //   determine_action existen... las dejare comentadas por si algun
-    //   dia el misterio se explica.
+    // neverbot commented this 4/2003
     /*
     if ( this_object()->query_in_combat() )  {
         mixed act = this_object()->determine_action() ;
@@ -492,8 +498,13 @@ private int perform_next_action()
 
     sscanf(curr_act, "%s %s", verb, t);
 
-    if(!verb)
+    if (!verb)
       verb = curr_act;
+
+    // save this_player to restore it afterwards
+    old_this_player = this_player();
+    // set this_object as currect this_player
+    MUDOS->set_initiator_object(this_object());
 
     // save current verb being used
     old_verb = MUDOS->query_current_verb();
@@ -504,7 +515,6 @@ private int perform_next_action()
     // will be changed (presumably) during the execution 
     // of this action
     old_notify_fail = MUDOS->query_notify_fail_msg();
-
     MUDOS->set_notify_fail_msg("");
 
     // The real command chain
@@ -549,6 +559,9 @@ private int perform_next_action()
 
     // restore previous verb
     MUDOS->set_current_verb(old_verb);
+
+    // restore this_player()
+    MUDOS->set_initiator_object(old_this_player);
 
     command_in_progress = "";
   }
@@ -640,6 +653,9 @@ nomask int action_check(string str)
     object tmp_ob, tmp_env;
     int tmp_res;
 
+    if (!strlen(str))
+      return 0;
+
     // this is ridiculous.  MudOS will not show these strings as equal. 
     if ( str == command_in_progress )
       return 0;
@@ -654,7 +670,7 @@ nomask int action_check(string str)
       // case ';'  : str = "parse "+ str[1..<1]; break;
     }
 
-    if( (tmp = EXPANSION[str]) ) 
+    if ( (tmp = EXPANSION[str]) ) 
       str = tmp;
 
     // check for some special queue-affecting commands 
@@ -795,7 +811,7 @@ nomask int action_check(string str)
       // if ( stringp(pop) )
       // {
       //   tell_object(this_object(),pop);
-      //   if(!this_object()->query_admin())
+      //   if (!this_object()->query_admin())
       //     return 1;
       // }
       // else if ( functionp( pop) )
@@ -804,7 +820,7 @@ nomask int action_check(string str)
       // {
       //   tell_object(this_object(),
       //     "Estás aturdido, no puedes hacer nada.\n");
-      //   if(!this_object()->query_admin())
+      //   if (!this_object()->query_admin())
       //     return 1;
       // }
 
@@ -818,7 +834,7 @@ nomask int action_check(string str)
         {
           tell_object(this_object(), ret);
 
-          if(!this_object()->query_admin())
+          if (!this_object()->query_admin())
             return 1;
         }
       }
@@ -826,7 +842,7 @@ nomask int action_check(string str)
       {
         tell_object(this_object(), "Estás aturdido, no puedes hacer nada.\n");
 
-        if(!this_object()->query_admin())
+        if (!this_object()->query_admin())
           return 1;
       }
     }

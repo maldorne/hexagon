@@ -61,7 +61,6 @@ nomask void notify_fail(string str)
 
 int command(string action)
 {
-  object old_this_player;
   object role;
   string * words;
   string verb, params;
@@ -76,12 +75,6 @@ int command(string action)
   if (!sizeof(words))
     return 0;
 
-  // save this_player to restore it afterwards
-  old_this_player = this_player();
-
-  // set this_object as currect this_player
-  MUDOS->set_initiator_object(this_object());
-
   verb = words[0];
   
   if (sizeof(words) > 1)
@@ -92,16 +85,22 @@ int command(string action)
   targets = ({ });
   found = FALSE;
 
+  // priority for looking actions
+  // first, our role (user privileges)
   role = this_object()->query_role();
   if (role)
     targets += ({ role });
 
+  // second, our own user ob
+  targets += ({ this_object() });
+
+  // third, our environment and other items in there
   if (env = environment(this_object()))
     targets += ({ env }) + 
                all_inventory(env) - 
                ({ this_object() });
 
-  targets += ({ this_object() });
+  // last, our inventory
   targets += all_inventory(this_object());
 
   stderr(" * command targets <" + to_string(targets) + ">\n");
@@ -135,9 +134,6 @@ int command(string action)
       }
     }
   }
-
-  // restore this_player()
-  MUDOS->set_initiator_object(old_this_player);
 
   return found;
 }

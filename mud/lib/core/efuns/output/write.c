@@ -11,10 +11,10 @@ static nomask void write(string str)
   if (nullp(str))
     return;
 
-  user = this_user();
+  user = this_player();
 
   if (!user)
-    user = this_player();
+    user = this_user();
 
   if (!user)
     return;
