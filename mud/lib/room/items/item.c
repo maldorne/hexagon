@@ -31,8 +31,9 @@ string short()
   int i;
 
   ret = ({ });
-  for (i=0;i<sizeof(cur_desc);i++)
+  for (i = 0; i < sizeof(cur_desc); i++)
     ret += ({ shrt[cur_desc[i]] });
+
   return query_multiple_short(ret);
 } /* short() */
 
@@ -53,7 +54,7 @@ string query_plural()
   int i;
 
   ret = ({ });
-  for (i=0;i<sizeof(cur_desc);i++)
+  for (i = 0; i < sizeof(cur_desc); i++)
     ret += ({ pluralize(shrt[cur_desc[i]]) });
   return query_multiple_short(ret);
 } /* query_plural() */
@@ -64,7 +65,7 @@ string *pretty_plural()
   int i;
 
   ret = ({ });
-  for (i=0;i<sizeof(cur_desc);i++)
+  for (i = 0; i < sizeof(cur_desc);i++)
     ret += ({ pluralize(shrt[cur_desc[i]]) });
   return ret;
 } /* query_plural() */
@@ -94,7 +95,7 @@ string query_long() { return lng[cur_desc]; }
  */
 int *query_cur_desc() { return cur_desc; }
 mapping query_verbs() { return verb; }
-mapping query_plurals() { return plural; }
+string * query_plurals() { return map_indices(plural) + map_values(plural); }
 
 string *query_lng() { return lng; }
 string *query_shrt() { return shrt; }

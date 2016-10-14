@@ -65,7 +65,7 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   if (!ob || intp(ob))
     return ({ });
       
-  if (str == "" || !str)
+  if (!strlen(str))
     return ({ });
       
   if (stringp(ob)) 
@@ -77,7 +77,7 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   if (!pointerp(ob)) 
   {
     list = (object *)ob->find_inv_match(str);
-    if (!sizeof(list))
+    if (!list || !sizeof(list))
       return ({ });
   }
   else 
@@ -96,10 +96,10 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   for (i = 0; i < sizeof(list); i++)
   {
     id_list = ({ list[i]->query_name(), list[i]->query_short(), }) + 
-              list[i]->query_alias();
+                (list[i]->query_alias() ? list[i]->query_alias() : ({ }));
 
-    id_list_plurals = list[i]->query_plurals() + 
-                      ({ list[i]->query_main_plural(),  });
+    id_list_plurals = ({ list[i]->query_main_plural(), }) +
+                        (list[i]->query_plurals() ? list[i]->query_plurals() : ({ }));
 
     if (member_array(str, id_list) != -1)
       return ({ list[i] });

@@ -1,10 +1,13 @@
 
 #include <mud/secure.h>
+#include <user/user.h>
 
 // prototypes
 object *wiz_present(string str, object onobj, varargs int nogoout);
 void inform_of_call(object ob, mixed *argv);
 static mixed *parse_args(string str, string close);
+static string desc_object(mixed o);
+static string desc_f_object(object o);
 
 private static object *dest_obj;
 private static int objn, majd;
@@ -21,54 +24,22 @@ static void role_commands()
   add_action("get_inv","inv");
 
   // add_action("parse_frogs", ";*");
+  // add_action("show_stats", "stat");
+  // add_action("upgrade_player", "upgrade");
+
   // add_action("dest", "destruct");
   // add_action("dest", "destruir");
   add_action("do_dest", "dest");
 
-  // add_action("show_stats", "stat");
   add_action("trans", "trans");
   add_action("whereis","whereis");
   add_action("get_pathof","pathof");
   add_action("goback","goback");
-  // add_action("upgrade_player", "upgrade");
   add_action("find_shadows", "shadows");
   add_action("do_find", "find");
   add_action("do_debug", "dump");
   add_action("do_debug", "debug");  
 }
-
-static string desc_object(mixed o)
-{
-  string str;
-
-  if (!o) 
-    return "** Espacio-Vacio **";
-  
-  if (!catch(str = (string)o->short()) && strlen(str)) 
-    return str;
-  
-  if (!catch(str = (string)o->query_name()) && strlen(str)) 
-    return str;
-  
-  return file_name(o);
-} 
-
-static string desc_f_object(object o)
-{
-  string str; //, tmp;
-
-  str = desc_object(o);
-
-  if (o && (str != file_name(o))) 
-  {
-    // if (tmp)
-    //   str += " (" + tmp + ")";
-    // else
-      str += " (" + file_name(o) + ")";
-  }
-
-  return str;
-} 
 
 static int do_update(object *ov) 
 {
@@ -679,6 +650,115 @@ int get_inv(string str)
 
   return 1;
 } /* inv() */
+
+/* Free form parse_args code */
+/*
+protected int parse_frogs(string str) {
+  mixed junk;
+  
+  if (this_player(1) != this_object()) return 0;
+  // We are not as such looking for an end thingy of any sort...
+  junk = parse_args(str, ";");
+  // It has already printed an error, so we return 1...
+  if (!junk) return 1;
+  log_file("exec",(string)this_player(1)->query_cap_name()+" exec'd "+str+"\n");
+  write("The line "+str+" Returns: \n");
+  printf("%O\n", junk[0]);
+  return 1;
+} */
+/* parse_forgs() */
+
+/*
+int show_stats(string str) {
+  object *ob;
+  mixed *ob1;
+  string s,bing;
+  int i,j;
+  
+  bing = "";
+  ob = wiz_present(str, this_object());
+  if (!sizeof(ob)) {
+  write("No existe tal objeto.\n");
+  return 1;
+  }
+  for (j=0;j<sizeof(ob);j++) {
+  // if(interactive(ob[j]) && !(this_player()->query_admin() || this_player()->query_thane()) && !(this_player() == obj(j))
+  // {
+  //  log_file("LOCATE",this_player()->query_cap_name()+" tried to Stat "+ob[j]->query_cap_name()+".\n");
+  //  write("You are not allowed to stat "+ob[j]->query_cap_name()+".\n");
+  // continue;
+  // }
+  
+  ob1 =ob[j]->stats();
+  if (!pointerp(ob1))
+  continue;
+  s = "";
+  for (i=0;i<(sizeof(ob1)-1);i++)
+  if(ob1[i])
+  if(ob1[i][0])
+  s += ob1[i][0] + ": "+ob1[i][1]+"\n";
+  
+  bing += sprintf("%-*#s\n\n\n", this_object()->query_cols(), s);
+  }
+  this_object()->more_string(bing);
+  return 1;
+} show_stats() */
+
+
+/*
+int upgrade_player() {
+  object ob;
+  
+  ob = clone_object("/secure/upgrade");
+  ob->new_player(this_object());
+  return 1;
+} upgrade_player() */
+
+
+int trans(string str) 
+{
+  object *obs;
+  int i;
+
+  if (this_player(1) != this_object()->query_player()) 
+    return 0;
+
+  if (!strlen(str) || !(sizeof(obs = wiz_present(str, this_player())))) 
+  {
+    write("¿Transportar a quién?\n");
+    return 1;
+  }
+
+  for (i = 0; i < sizeof(obs); i++) 
+  {
+    if (environment(obs[i]) == environment()) 
+    {
+      write(desc_object(obs[i])+" ya está aquí.\n");
+      continue;
+    }
+
+    /*
+    if (interactive(obs[i]) && 
+       !(this_player()->query_thane() || this_player()->query_admin()) && 
+       !(obs[i]->query_property("test_char"))
+    {
+      log_file("BUSTED",this_player()->query_cap_name()+" tried to illegally trans "+obs[i]->query_cap_name()+".\n");
+      write("Sorry, You are not powerful enough to trans "+obs[i]->query_cap_name()+".  Ask a higher ranking immortal.\n");
+      continue;
+    }
+    */
+
+    if(environment(obs[i]) && (!obs[i]->query_coder()))
+      log_file("trans", (string)this_player(1)->query_cap_name()+" (trans) "+
+        obs[i]->query_cap_name()+" desde "+file_name(environment(obs[i]))+
+        " hasta "+file_name(environment(this_player()))+" ["+ctime(time(),4)+"]\n");
+    
+    tell_object(obs[i], "Eres transferido mágicamente a algún lugar.\n");
+    obs[i]->move_player("X", file_name(environment(this_player())));
+  }
+
+  return 1;
+} /* trans() */
 
 mixed stats() 
 {

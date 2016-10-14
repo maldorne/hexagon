@@ -293,7 +293,7 @@ nomask object first_inventory(mixed ob)
 
   list = ob->all_inventory();
 
-  if (sizeof(list))
+  if (list && sizeof(list))
     return list[0];
 
   return nil;

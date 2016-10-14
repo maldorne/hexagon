@@ -3,6 +3,39 @@
 // prototypes
 object *wiz_present(string str, object onobj, varargs int nogoout);
 
+static string desc_object(mixed o)
+{
+  string str;
+
+  if (!o) 
+    return "** Espacio-Vacio **";
+  
+  if (!catch(str = (string)o->short()) && strlen(str)) 
+    return str;
+  
+  if (!catch(str = (string)o->query_name()) && strlen(str)) 
+    return str;
+  
+  return file_name(o);
+} 
+
+static string desc_f_object(object o)
+{
+  string str; //, tmp;
+
+  str = desc_object(o);
+
+  if (o && (str != file_name(o))) 
+  {
+    // if (tmp)
+    //   str += " (" + tmp + ")";
+    // else
+      str += " (" + file_name(o) + ")";
+  }
+
+  return str;
+}
+
 void inform_of_call(object ob, mixed *argv) 
 {
   // Arggghhh!  This is annoying me.
@@ -22,7 +55,7 @@ void inform_of_call(object ob, mixed *argv)
 
   // TODO change for event(users() being coders, "inform", ...)
   if (ob)
-    ob->event_inform(this_player(), str + ") sobre "+ob->query_name(), "call");
+    ob->event_inform(this_player(), str + ") sobre " + desc_object(ob), "call");
 
 } /* inform_of_call() */
 
@@ -256,7 +289,7 @@ static mixed *parse_args(string str, string close)
   return ({ args, str });
 } /* parse_args() */
 
-object *wzpresent2(string str, mixed onobj) 
+object * wzpresent2(string str, mixed onobj) 
 {
   int i;
   object *obs, obj, *obs2;
@@ -266,14 +299,12 @@ object *wzpresent2(string str, mixed onobj)
   {
     obs = ({ });
     for(i = 0; i < sizeof(onobj); i++)
-    obs += wzpresent2(str,onobj[i]);
+      obs += wzpresent2(str, onobj[i]);
     return obs;
   }
 
-  // if (str == "all")
-        // Añadido al find_match posterior
-  // if (str == "todo")
-  // return all_inventory(onobj);
+  // if ((str == "all") || (str == "todo"))
+  //   return all_inventory(onobj);
 
   /* every fish */
 
@@ -282,19 +313,21 @@ object *wzpresent2(string str, mixed onobj)
   {
     obs2 = all_inventory(onobj);
     obs = ({ });
-    for (i=0;i<sizeof(obs2);i++)
-    if (obs2[i]->id(s1)) obs += ({ obs2[i] });
+    for (i = 0; i < sizeof(obs2); i++)
+      if (obs2[i]->id(s1)) 
+        obs += ({ obs2[i] });
+
     return obs;
   }
 
-  obs2 = find_match(str,onobj);
+  obs2 = find_match(str, onobj);
   
   if (sizeof(obs2)) 
     return obs2;
 
-  if (obj = present(str,onobj)) 
+  if (obj = present(str, onobj)) 
     return ({ obj });
-  
+
   for (obj = first_inventory(onobj); obj; obj = next_inventory(obj)) 
   {
     s2 = file_name(obj);
@@ -367,6 +400,8 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
     return obs;
   }
 
+  /* fish except fish2 */
+
   if ((sscanf(str,"%s except %s",s1,s2) == 2) ||
       (sscanf(str,"%s but %s",s1,s2) == 2) ||
       (sscanf(str,"%s excepto %s",s1,s2) == 2)) 
@@ -400,7 +435,7 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
     obs2 = ({ });
 
     for (i = 0; i < sizeof(obs); i++)
-      obs2 += wiz_present(s1,obs[i],1);
+      obs2 += wiz_present(s1, obs[i], 1);
 
     return obs2;
   }
@@ -410,21 +445,26 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
   if ((sscanf(str,"%s and %s",s1,s2) == 2) ||
       (sscanf(str,"%s y %s",s1,s2) == 2)) 
   {
-    obs = wiz_present(s1, onobj);
-    obs2= wiz_present(s2, onobj);
-    for (i=0;i<sizeof(obs);i++)  /* remove duplicates ... */
+    obs  = wiz_present(s1, onobj);
+    obs2 = wiz_present(s2, onobj);
+
+    for (i = 0; i < sizeof(obs); i++)  /* remove duplicates ... */
       if (member_array(obs[i], obs2) < 0) 
         obs2 += ({ obs[i] });
+
     return obs2;
   }
 
-  /* fish except fish2 */
-
-  if ((sscanf(str,"player %s",s1)) || (sscanf(str,"jugador %s",s1)))
+  if ((sscanf(str, "player %s", s1)) || 
+      (sscanf(str, "jugador %s", s1)))
     return ({ find_player(s1) });
 
-  if (!sizeof(obs2 = wzpresent2(str,onobj)) && !nogoout) 
+  if (!sizeof(obs2 = wzpresent2(str, onobj)) && 
+      !nogoout && 
+      environment(onobj))
+  { 
     obs2 = wzpresent2(str, environment(onobj));
+  }
 
   if (sizeof(obs2)) 
     return obs2;

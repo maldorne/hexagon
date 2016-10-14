@@ -252,6 +252,12 @@ void create()
 
   // seteuid(SECURE->creator_file(file_name(this_object())));
   // seteuid(ROOM_EUID);
+
+  light::create();
+  property::create();
+  contents::create();
+  desc::create();
+  events::create();
   
   property::create();
   senses::create();
@@ -270,8 +276,8 @@ void create()
     room_create_time = time();
     clean_up_handle = 0;
     start_clean_up();
-//     replace_program(inh[0]);
-//   }
+  //   replace_program(inh[0]);
+  // }
 } 
 
 string expand_alias(string str);
@@ -1012,8 +1018,8 @@ int clean_up_room( int flag )
 
 object * find_inv_match(string str) 
 {
-  if(!sizeof(hidden_objects))
-    return(object *)all_inventory(this_object()) + m_values(items);
+  if (!sizeof(hidden_objects))
+    return (object *)all_inventory(this_object()) + m_values(items);
 
   return (object *)all_inventory(this_object()) + (object *)hidden_objects + m_values(items);
 } 
