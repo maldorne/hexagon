@@ -7,6 +7,7 @@
 
 #include <room/room.h>
 #include <mud/secure.h>
+#include <user/user.h>
 
 inherit light    "/lib/core/basic/light";
 inherit property "/lib/core/basic/property";
@@ -856,7 +857,7 @@ void dest_me()
   for (i = 0; i < sizeof(arr); i++) 
   {
     if (interactive(arr[i]))
-        arr[i]->move("/room/void");
+        arr[i]->move(ROOM_VOID);
     else
         arr[i]->dest_me();
   }

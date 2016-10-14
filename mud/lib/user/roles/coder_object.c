@@ -85,9 +85,9 @@ static int do_update(object *ov)
     return 0;
 
   // Easy way to preload something...
-  "/lib/areas/void"->bingle_bingle();
+  ROOM_VOID->bingle_bingle();
 
-  rsv = find_object("/lib/areas/void"); // RSV = Room Slash Void
+  rsv = find_object(ROOM_VOID); // RSV = Room Slash Void
   if (!rsv) 
   { 
     // Die in horror

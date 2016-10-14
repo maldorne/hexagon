@@ -1,5 +1,6 @@
 
 #include <basic/move.h>
+#include <user/user.h>
 
 private static object _environment;
 private static object * _inventory;
@@ -212,7 +213,7 @@ void destruct_environment_of(object ob)
 
       if (catch(ob->move_living(a[0], a[1], "stumbles"))) 
       {
-        ob->move_living("void", "/room/void", "is sucked into the");
+        ob->move_living("void", ROOM_VOID, "is sucked into the");
       }
   }
 } 
