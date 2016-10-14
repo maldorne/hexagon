@@ -180,6 +180,7 @@ do not have an open source license.
 | -------- | :------: | -------- |
 | `crypt`                 | :white_check_mark: | provided by dgd |
 | `oldcrypt`              | :white_check_mark: | alias for `crypt` |
+| `debug_info`            | :white_check_mark: | not same info as in mudos, returns `status(ob)` converted to a string |
 | `bind`                  |  |  |
 | `random`                |  |  |
 | `find_player`           |  |  |

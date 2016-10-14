@@ -78,3 +78,22 @@ static nomask int clone_number(object ob)
 
   return 0;
 }
+
+static nomask string debug_info(int operation, object ob)
+{
+  mixed * info;
+  string ret;
+
+  info = status(ob);
+
+  ret  = "Object                 : " + object_name(ob) + "\n";
+  ret += "Time of compiling      : " + info[O_COMPILETIME] + " ("+ctime(info[O_COMPILETIME])+")\n";
+  ret += "Program size           : " + info[O_PROGSIZE] + "\n";
+  ret += "Variables in object    : " + info[O_DATASIZE] + "\n";
+  ret += "Sectors used by object : " + info[O_NSECTORS] + "\n";
+  ret += "Callouts in object     : " + (sizeof(info[O_CALLOUTS]) ? "\n"+to_string(info[O_CALLOUTS]) : "none") + "\n";
+  ret += "Unique id              : " + info[O_INDEX] + "\n";
+  ret += "Undefined functions    : " + (info[O_UNDEFINED] ? "\n"+to_string(info[O_UNDEFINED]) : "none") + "\n";
+
+  return ret;
+}
