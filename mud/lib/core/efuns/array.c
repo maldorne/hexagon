@@ -68,7 +68,7 @@ static nomask mixed * exclude_array(mixed *arr, int from, varargs int to)
 // takes any array and returns an array with no repeat members
 // created by Descartes of Borg 930822
 
-static nomask mixed * uniq_array(mixed *arr) 
+static nomask mixed * unique_array(mixed *arr) 
 {
   mapping borg;
   int i;
@@ -126,7 +126,6 @@ static nomask string itoa(int i)
 //   return j;
 // }
 
-
 static nomask mixed * array_copy(mixed * what) 
 {
   mixed result;
@@ -138,7 +137,6 @@ static nomask mixed * array_copy(mixed * what)
 
   return result;
 }
-
 
 // map elements in an array 
 static nomask mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed args...) 

@@ -32,26 +32,44 @@ object * children(string name)
 
 }
 
-// from auto.c
-static object * users()
+// users - return an array of objects containing all interactive players
+// object array users();
+// Return an array of objects, containing all interactive players.
+
+static nomask object * users()
 {
+  object * all;
+  int i;
+
   if (!this_object()) 
     return ({ });
   else if (object_name(this_object()) == USER_HANDLER) 
-    return ::users();
+    all = ::users();
   else 
-    return ::find_object(USER_HANDLER)->query_users();
+    all = ::find_object(USER_HANDLER)->query_users();
+
+  if (this_player() && this_player()->query_admin())
+    return all;
+
+  for (i = 0; i < sizeof(all); i++)
+    if (all[i]->query_invis() == 2) 
+      all -= ({ all[i] });
+
+  return all;
 }
 
-// static object * users()
-// {
-//    object * all;
-//    int i;
-//    all = ::users();
-//    if (this_player() && this_player()->query_admin())
-//       return all;
-//    for (i = 0; i < sizeof(all); i++)
-//       if (all[i]->query_invis() == 2) 
-//          all -= ({ all[i] });
-//    return all;
-// }
+static nomask object * coders()
+{
+  object * all;
+  object * result;
+  int i;
+
+  all = users();
+  result = ({ });
+
+  for (i = 0; i < sizeof(all); i++)
+    if (all[i]->query_coder())
+      result += ({ all[i] });
+
+  return result;
+}

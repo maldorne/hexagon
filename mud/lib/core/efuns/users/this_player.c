@@ -8,12 +8,14 @@ object this_player(varargs int i)
   return MUDOS->this_player(i);
 }
 
-// static nomask object this_player() 
-// {
-//   return this_user();
-// }
+// this_interactive - return the object representing the current player
+// object this_interactive();
 
-// object this_player(varargs int flag)
-// {
-//   return this_user(flag);
-// }
+// Return the object representing the player that caused the calling function
+// to be called.  This returns what this_player() was originally even if
+// it changed later due to enable_commands() or command()
+
+object this_interactive()
+{
+  return this_user();
+}

@@ -27,13 +27,13 @@ Common calls and operations over the basic types.
 | `mapp`                  | :white_check_mark: | alias for `mappingp` |
 | `userp`                 | :white_check_mark: |  |
 | **strings**             |  |  |
-| `capitalize`            |  |  |
-| `lower_case`            |  |  |
+| `capitalize`            | :white_check_mark: |  |
+| `lower_case`            | :white_check_mark: |  |
 | `replace_string`        | :white_check_mark: |  |
 | `sprintf`               | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license). Used in the form `static string sprintf (string format, mixed args...)` as there are no way to modify strings passed as arguments. Expanded to accept strings with multiple lines. |
 | `printf`                | :white_check_mark: | alias for `sprintf` |
 | `strlen`                | :white_check_mark: | provided by dgd |
-| `strcmp`                |  |  |
+| `strcmp`                | :white_check_mark: |  |
 | `strsrch`               | :white_check_mark: |  |
 | **arrays**              |  |  |
 | `sizeof`                | :white_check_mark: | provided by dgd |
@@ -43,22 +43,22 @@ Common calls and operations over the basic types.
 | `member_array`          | :white_check_mark: |  |
 | `index`                 | :white_check_mark: | alias for `member_array` |
 | `sort_array`            |  |  |
-| `unique_array`          |  |  |
-| `filter`                |  |  |
-| `filter_array`          |  |  |
+| `unique_array`          | :white_check_mark: |  |
+| `filter`                | :white_check_mark: |  |
+| `filter_array`          | :white_check_mark: |  |
 | **mappings**            |  |  |
-| `values`                |  |  |
-| `keys`                  |  |  |
-| `map_delete`            |  |  |
-| `m_delete`              |  |  |
-| `m_values`              |  |  |
-| `m_indices`             |  |  |
+| `values`                | :white_check_mark: | alias for `map_values` |
+| `keys`                  | :white_check_mark: | alias for `map_indices` |
+| `map_delete`            | :white_check_mark: |  |
+| `m_delete`              | :white_check_mark: | alias for `map_delete` |
+| `m_values`              | :white_check_mark: | alias for `map_values` |
+| `m_indices`             | :white_check_mark: | alias for `map_indices` |
 | `allocate_mapping`      |  |  |
 | `unique_mapping`        |  |  |
 | `map`                   |  |  |
 | `map_mapping`           |  |  |
-| `map_array`             |  |  |
-| `filter_mapping`        |  |  |
+| `map_array`             | :white_check_mark: |  |
+| `filter_mapping`        | :white_check_mark: |  |
 | **functions**           |  |  |
 | `function_exists`       | :white_check_mark: | alias for `function_object` |
 
@@ -83,8 +83,8 @@ do not have an open source license.
 | -------- | :------: | -------- |
 | `init`                  | :white_check_mark: | it's not a function provided by MudOS per se, it's the function that will be called inside every object when they move (if it exists). Listed here for clarity, as `ccmudlib` makes the same calls. |
 | `this_player`           | :white_check_mark: |  |
-| `this_interactive`      |  |  |
 | `this_user`             | :white_check_mark: | provided by dgd |
+| `this_interactive`      | :white_check_mark: | alias for `this_user` |
 | `previous_object`       | :white_check_mark: |  |
 | `all_previous_objects`  | :white_check_mark: | alias for `previous_objects` |
 | `evaluate`              | :white_check_mark: |  |
@@ -97,10 +97,11 @@ do not have an open source license.
 | `users`                 | :white_check_mark: | provided by dgd |
 | `enable_commands`       | :white_check_mark: |  |
 | `disable_commands`      |  |  |
-| `interactive`           |  |  |
+| `interactive`           | :white_check_mark: |  |
 | `set_living_name`       | :white_check_mark: |  |
 | `living`                | :white_check_mark: |  |
 | `find_living`           | :white_check_mark: |  |
+| `find_player`           |  |  |
 | `livings`               | :white_check_mark: |  |
 | `set_heart_beat`        | :white_check_mark: |  |
 | `query_heart_beat`      | :white_check_mark: |  |
@@ -187,9 +188,8 @@ do not have an open source license.
 | `query_snooping`        |  |  |
 | `query_ip_number`       | :white_check_mark: | provided by dgd |
 | `query_ip_name`         | :white_check_mark: | provided by dgd |
+| `random`                | :white_check_mark: | provided by dgd |
 | `bind`                  |  |  |
-| `random`                |  |  |
-| `find_player`           |  |  |
 | `save_variable`         |  |  |
 | `restore_variable`      |  |  |
 | `call_stack`            |  |  |
@@ -207,7 +207,7 @@ do not have an open source license.
 | `query_host_name`       |  |  |
 | `query_idle`            |  |  |
 | `set_hide`              |  |  |
-| `shadow`                |  |  |
+| `shadow`                |  | dummy function for now |
 | `query_shadowing`       |  |  |
 | `throw`                 |  |  |
 | `deep_inherit_list`     |  |  |

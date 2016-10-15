@@ -53,9 +53,9 @@ void inform_of_call(object ob, mixed *argv)
     //  str += " ";
   }
 
-  // TODO change for event(users() being coders, "inform", ...)
   if (ob)
-    ob->event_inform(this_player(), str + ") sobre " + desc_object(ob), "call");
+    event(coders(), "inform", str + ") on " + desc_object(ob), 
+                    "calls", this_object());
 
 } /* inform_of_call() */
 

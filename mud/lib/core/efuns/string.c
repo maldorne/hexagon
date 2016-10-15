@@ -106,6 +106,7 @@ int strcmp(string a, string b)
 
   len_a = strlen(a);
   len_b = strlen(b);
+  i = 0;
 
   while ((i < len_a) && (i < len_b))
   {
@@ -116,6 +117,8 @@ int strcmp(string a, string b)
       return -1;
     else if (aa < bb)
       return 1;
+
+    i++;
   }
 
   // one is substring of the other
