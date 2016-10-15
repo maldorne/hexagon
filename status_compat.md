@@ -92,7 +92,7 @@ do not have an open source license.
 | `remove_action`         |  |  |
 | `query_verb`            | :white_check_mark: |  |
 | `command`               | :white_check_mark: |  |
-| `commands`              |  |  |
+| `commands`              | :white_check_mark: |  |
 | `notify_fail`           | :white_check_mark: |  |
 | `users`                 | :white_check_mark: | provided by dgd |
 | `enable_commands`       | :white_check_mark: |  |
@@ -182,6 +182,9 @@ do not have an open source license.
 | `crypt`                 | :white_check_mark: | provided by dgd |
 | `oldcrypt`              | :white_check_mark: | alias for `crypt` |
 | `debug_info`            | :white_check_mark: | not same info as in mudos, returns `status(ob)` converted to a string |
+| `snoop`                 |  | dummy function for now |
+| `query_snoop`           |  |  |
+| `query_snooping`        |  |  |
 | `bind`                  |  |  |
 | `random`                |  |  |
 | `find_player`           |  |  |
@@ -203,9 +206,6 @@ do not have an open source license.
 | `query_idle`            |  |  |
 | `query_ip_name`         |  |  |
 | `query_ip_number`       |  |  |
-| `snoop`                 |  |  |
-| `query_snoop`           |  |  |
-| `query_snooping`        |  |  |
 | `set_hide`              |  |  |
 | `shadow`                |  |  |
 | `query_shadowing`       |  |  |

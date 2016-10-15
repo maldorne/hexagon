@@ -137,3 +137,51 @@ int command(string action)
 
   return found;
 }
+
+// commands - returns some information about actions the user can take
+// array commands();
+
+// Returns an array of an array of 4 items describing the actions that
+// are available to this_object().  The first item is the command
+// itself (as passed to add_action()).  The second is the set of
+// flags (passed to add_action as the third argument, often defaulted
+// to 0).  The third is the object that defined the action.  The fourth
+// is the function to be called ("&#60;function&#62;" if it is a function pointer).
+
+mixed ** commands(varargs object ob) 
+{
+  object * targets;
+  mapping actions;
+  string * verbs;
+  mixed ** result;
+  int i, j;
+
+  if (!ob)
+    ob = this_object();
+
+  result = ({ });
+  targets = ({ });
+
+  if (ob->query_role())
+    targets += ({ ob->query_role() });
+
+  if (environment(ob))
+    targets += ({ environment(ob) }) +
+                  all_inventory(environment(ob)) +
+                  all_inventory(ob);
+
+  actions = ([ ]);
+
+  for (i = 0; i < sizeof(targets); i++)
+  {
+    actions = targets[i]->query_actions();
+    verbs = map_indices(actions);
+
+    for (j = 0; j < sizeof(verbs); j++)
+    {
+      result += ({ ({ verbs[j], 0, targets[i], actions[verbs[j]], }), });
+    }
+  }
+
+  return result;
+}
