@@ -30,7 +30,7 @@ Common calls and operations over the basic types.
 | `capitalize`            |  |  |
 | `lower_case`            |  |  |
 | `replace_string`        | :white_check_mark: |  |
-| `sprintf`               | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license). Used in the form `static string sprintf (string format, mixed args...)` as there are no way to modify strings passed as arguments. |
+| `sprintf`               | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license). Used in the form `static string sprintf (string format, mixed args...)` as there are no way to modify strings passed as arguments. Expanded to accept strings with multiple lines. |
 | `printf`                | :white_check_mark: | alias for `sprintf` |
 | `strlen`                | :white_check_mark: | provided by dgd |
 | `strcmp`                |  |  |
@@ -94,6 +94,7 @@ do not have an open source license.
 | `command`               | :white_check_mark: |  |
 | `commands`              |  |  |
 | `notify_fail`           | :white_check_mark: |  |
+| `users`                 | :white_check_mark: | provided by dgd |
 | `enable_commands`       | :white_check_mark: |  |
 | `disable_commands`      |  |  |
 | `interactive`           |  |  |
@@ -186,7 +187,6 @@ do not have an open source license.
 | `find_player`           |  |  |
 | `save_variable`         |  |  |
 | `restore_variable`      |  |  |
-| `users`                 |  |  |
 | `call_stack`            |  |  |
 | `inherits`              |  |  |
 | `replace_program`       |  |  |

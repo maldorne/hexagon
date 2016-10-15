@@ -35,26 +35,6 @@ static void initialize_role(object player)
 
 static void role_commands()
 {
-  // add_action("indent", "indent");
-
-  // neverbot 07/05
-  // add_action("review", "review");
-
-  // This may not work: (baldrick)
-  // coder_object_comm::wiz_commands();
-  // coder_info_comm::wiz_commands();
-  // coder_communicate::wiz_commands();
-
-  // coder_object_comm::app_commands();
-  // coder_info_comm::app_commands();
-  // coder_inter_comm::wiz_commands();
-
-  // add_action("list_files","ls");
-  // add_action("le", "le");
-
-  // coder_object_comm::all_commands();
-  // coder_info_comm::all_commands();
-
   path::role_commands();
   editor::role_commands();
   obj::role_commands();

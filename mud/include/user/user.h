@@ -15,3 +15,4 @@
 
 // where to move the player on errors
 #define ROOM_VOID "/lib/areas/void"
+

@@ -32,13 +32,13 @@ static void role_commands()
   add_action("do_dest", "dest");
 
   add_action("trans", "trans");
-  add_action("whereis","whereis");
-  add_action("get_pathof","pathof");
-  add_action("goback","goback");
-  add_action("find_shadows", "shadows");
+  add_action("whereis", "whereis");
+  add_action("get_pathof", "pathof");
+  add_action("goback", "goback");
   add_action("do_find", "find");
-  add_action("do_debug", "dump");
-  add_action("do_debug", "debug");  
+  add_action("do_debug", ({ "dump", "debug" }));
+
+  add_action("find_shadows", "shadows");
 }
 
 static int do_update(object *ov) 
@@ -518,15 +518,15 @@ int do_dest(string str)
 
   for (i = 0; i < sizeof(ob); i++)
   {
-    if(interactive(ob[i]) && (sizeof(ob) !=1 || 
+    if (interactive(ob[i]) && (sizeof(ob) !=1 || 
       "/lib/core/secure"->high_programmer(geteuid(ob[i]))))
     {
       write("No destruyes a " + ob[i]->query_cap_name() + 
             " (no puedes destruir objetos interactive).\n");
       continue;
     }
-    // if(interactive(ob[i]) && !(this_player()->query_admin() || this_player()->query_thane()))
-    if(interactive(ob[i]) && !(this_player()->query_admin()) )
+    // if (interactive(ob[i]) && !(this_player()->query_admin() || this_player()->query_thane()))
+    if (interactive(ob[i]) && !(this_player()->query_admin()) )
     {
       log_file("dest", "["+ctime(time(), 4)+"] " + 
         this_player()->query_cap_name()+" intentó (sin éxito) destruir el objeto interactive '"+
@@ -538,7 +538,7 @@ int do_dest(string str)
     catch(shrt = (string)ob[i]->short());
     dobj = desc_object(ob[i]);
 
-    if( ob[i] && ob[i]->query_cap_name() && environment(ob[i]) )
+    if ( ob[i] && ob[i]->query_cap_name() && environment(ob[i]) )
     {
       // log_file("dest",(string)this_player(1)->query_cap_name()+
       log_file("dest",  "["+ctime(time(), 4)+"] " + 
@@ -627,7 +627,7 @@ int get_inv(string str)
     if (!ov[i]) 
       continue;
     
-    if( (interactive(ov[i])) && !(ov[i]->query_coder()) && 
+    if ( (interactive(ov[i])) && !(ov[i]->query_coder()) && 
        !(this_object()->query_admin()) && !(ov[i] == this_object()))
     {
       log_file("inv", this_object()->query_cap_name()+" intentó ver el inventario del interactive: "+
@@ -682,7 +682,7 @@ int show_stats(string str) {
   return 1;
   }
   for (j=0;j<sizeof(ob);j++) {
-  // if(interactive(ob[j]) && !(this_player()->query_admin() || this_player()->query_thane()) && !(this_player() == obj(j))
+  // if (interactive(ob[j]) && !(this_player()->query_admin() || this_player()->query_thane()) && !(this_player() == obj(j))
   // {
   //  log_file("LOCATE",this_player()->query_cap_name()+" tried to Stat "+ob[j]->query_cap_name()+".\n");
   //  write("You are not allowed to stat "+ob[j]->query_cap_name()+".\n");
@@ -694,8 +694,8 @@ int show_stats(string str) {
   continue;
   s = "";
   for (i=0;i<(sizeof(ob1)-1);i++)
-  if(ob1[i])
-  if(ob1[i][0])
+  if (ob1[i])
+  if (ob1[i][0])
   s += ob1[i][0] + ": "+ob1[i][1]+"\n";
   
   bing += sprintf("%-*#s\n\n\n", this_object()->query_cols(), s);
@@ -748,7 +748,7 @@ int trans(string str)
     }
     */
 
-    if(environment(obs[i]) && (!obs[i]->query_coder()))
+    if (environment(obs[i]) && (!obs[i]->query_coder()))
       log_file("trans", (string)this_player(1)->query_cap_name()+" (trans) "+
         obs[i]->query_cap_name()+" desde "+file_name(environment(obs[i]))+
         " hasta "+file_name(environment(this_player()))+" ["+ctime(time(),4)+"]\n");
@@ -760,6 +760,189 @@ int trans(string str)
 
   return 1;
 } /* trans() */
+
+int whereis(string str) 
+{
+  object *ov,e;
+  int i;
+
+  notify_fail("¿Dónde esta el qué?\n");
+  ov = wiz_present(str, this_player());
+
+  if (!sizeof(ov)) 
+    return 0;
+
+  for (i = 0; i < sizeof(ov); i++) 
+  {
+    if (ov[i]->query_invis() > 1) 
+      continue;
+
+    if (interactive(ov[i]))
+      if (!(this_player()->query_admin() || this_player()->query_thane()))
+      { 
+        log_file("whereis", this_player()->query_cap_name()+" attempted to locate interactive: " + 
+                            ov[i]->query_cap_name()+" ["+ctime(time(),4)+"]\n");
+        write("Lo siento, no te está permitido localizar jugadores.\n");
+        continue;
+      }
+
+    write(desc_object(ov[i]) + " está: \n");
+    e = ov[i];
+    while (e = environment(e))
+      write("  en " + desc_f_object(e) + "\n");
+  }
+
+  return 1;
+} /* whereis() */
+
+int get_pathof(string str) 
+{
+  object *ov;
+  int i;
+
+  notify_fail("¿Path de qué?\n");
+  ov = wiz_present(str,this_player());
+
+  if (!sizeof(ov)) 
+    return 0;
+
+  for (i = 0; i < sizeof(ov); i++) 
+  {
+    if (!ov[i]) 
+      continue;
+    /*
+    if (sizeof(ov) > 1) {
+    */
+    write("Path de " + desc_object(ov[i]) + " en " +
+          desc_object(environment(ov[i])) + ":\n");
+    /*
+    }
+    */
+    write(file_name(ov[i])+ "\n");
+  }
+
+  return 1;
+} /* get_pathof() */
+
+/* added by Dank Mar 3 '93.  also added query_prev() to move.c */
+int goback(string str) 
+{
+  object ob;
+
+  if (!(ob = this_player()->query_prev()))
+    write("La localización anterior no es válida (quizá ya no está cargada en memoria).\n");
+  else
+  {
+    this_player()->set_no_prompt();
+    this_player()->move_living("X", ob);
+  }
+
+  return 1;
+}
+
+int do_find(string str) 
+{
+  string func, thing, s, ping;
+  object *obs, fish;
+  int i;
+
+  notify_fail("Sintaxis: find funcion() <objeto(s)>\n");
+
+  if (!strlen(str)) 
+    return 0;
+
+  if (sscanf(str, "%s() %s", func, thing) != 2)
+    if (sscanf(str, "%s %s", func, thing) != 2)
+      return 0;
+
+  obs = wiz_present(thing, this_object());
+
+  if (!sizeof(obs)) 
+  {
+    notify_fail("No se encontró '" + thing + "'.\n");
+    return 0;
+  }
+
+  s = "";
+
+  for (i = 0; i < sizeof(obs); i++) 
+  {
+    if (ping = function_exists(func, obs[i]))
+      s += "*** " + desc_object(obs[i])+": "+func+"() encontrada en " + ping + " ***\n";
+    else
+      s += "*** " + desc_object(obs[i]) + ": " + func + "() no encontrada ***\n";
+    
+    fish = obs[i];
+    
+    while(fish = shadow(fish, 0))
+      if (function_exists(func, fish))
+        s += "      Shadowed por " + file_name(fish) + "\n";
+  }
+
+  write(s);
+  return 1;
+} /* do_find() */
+
+int do_debug(string str) 
+{
+  object *obs;
+
+  if (!strlen(str)) 
+  {
+    notify_fail("Sintaxis: " + query_verb() + " <objeto>\n");
+    return 0;
+  }
+
+  if (!sizeof(obs = wiz_present(str, this_object()))) 
+  {
+    notify_fail("Objeto " + str + " no encontrado.\n");
+    return 0;
+  }
+
+  write(debug_info((query_verb() == "dump"?0:1), obs[0]));
+  return 1;
+} /* do_debug() */
+
+int find_shadows(string s) 
+{
+  object *objs, *shadows;
+  object nobj;
+  int i, j;
+
+  if (!strlen(s)) 
+    s = "me";
+
+  objs = wiz_present(s, this_object());
+
+  if (sizeof(objs) == 0) 
+  {
+    notify_fail("No puedo encontrar el objeto.\n");
+    return 0;
+  }
+
+  for (i = 0; i < sizeof(objs); i++) 
+  {
+    shadows = ({ });
+    nobj = objs[i];
+
+    while (nobj = shadow(nobj, 0))
+      shadows += ({ nobj });
+
+    if (!sizeof(shadows)) 
+    {
+      write(desc_f_object(objs[i]) + " no esta siendo shadowed.\n");
+    } 
+    else 
+    {
+      write(desc_f_object(objs[i]) + " esta siendo shadowed por:\n");
+    
+      for(j = 0; j < sizeof(shadows); j++)
+        write("    " + file_name(shadows[j]) + "\n");
+    }
+  }
+  
+  return 1;
+} /* find_shadows() */
 
 mixed stats() 
 {

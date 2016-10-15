@@ -37,6 +37,7 @@ nomask int set_player(object ob)
   return 1;
 }
 
+
 mixed * stats() 
 {
   return ({ 

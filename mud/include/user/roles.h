@@ -8,3 +8,9 @@
 #define CODER_ROLE   "coder"
 #define MANAGER_ROLE "manager"
 #define ADMIN_ROLE   "admin"
+
+// object types
+#define O_ADMINISTRATOR "A"
+#define O_MANAGER "M"
+#define O_CODER "C"
+#define O_PLAYER " "

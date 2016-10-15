@@ -1,5 +1,6 @@
 
 #include <trace.h>
+#include <basic/id.h>
 #include <user/roles.h>
 #include <mud/secure.h>
 
@@ -57,6 +58,29 @@ int query_coder()         { return role_name == CODER_ROLE; }
 int query_manager()       { return role_name == MANAGER_ROLE; }
 int query_admin()         { return role_name == ADMIN_ROLE; }
 int query_administrator() { return role_name == ADMIN_ROLE; }
+
+string query_object_type()
+{
+  string name;
+  name = this_object()->query_name();
+
+  if (!strlen(name) || (name == DEF_NAME))
+    return "X";
+
+  switch(role_name)
+  {
+    case PLAYER_ROLE:
+      return O_PLAYER;
+    case CODER_ROLE:
+      return O_CODER;
+    case MANAGER_ROLE:
+      return O_MANAGER;
+    case ADMIN_ROLE:
+      return O_ADMINISTRATOR;
+  }
+
+  return PLAYER_ROLE;
+} /* query_object_type() */
 
 
 mixed * stats() 
