@@ -6,14 +6,18 @@
 void add_preload(string file) 
 {
   if (previous_object() == this_object() ||
-    is_administrator(geteuid(previous_object()))) {
+      is_administrator(geteuid(initial_object()))) 
+  {
+    if (!sizeof(preload)) 
+    {
+      preload = ({ file });
+    } 
+    else if (member_array(file, preload) == -1) 
+    {
+      preload += ({ file });
+    }
 
-  if (!preload) {
-    preload = ({ file });
-  } else if (member_array(file, preload) == -1) {
-    preload += ({ file });
-  }
-  save_object(SECURE_SAVE_PATH);
+    save_object(SECURE_SAVE_PATH);
   }
 } /* add_preload() */
 
@@ -21,50 +25,62 @@ void remove_preload(string file) {
   int i;
 
   if (previous_object() == this_object() ||
-    is_administrator(geteuid(previous_object()))) {
+      is_administrator(geteuid(initial_object()))) 
+  {
+    if (sizeof(preload)) 
+    {
+      i = member_array(file, preload);
 
-  if (preload) {
-    i = member_array(file, preload);
-    if (i >= 0) {
-    preload = preload[0 .. i - 1] + preload[i + 1 .. 1000];
-    save_object(SECURE_SAVE_PATH);
+      if (i >= 0) 
+      {
+        preload = preload[0 .. i - 1] + preload[i + 1 .. 1000];
+        save_object(SECURE_SAVE_PATH);
+      }
     }
-  }
   }
 } /* remove_preload() */
 
-void add_call_out_preload(string file) {
+void add_call_out_preload(string file) 
+{
   if (previous_object() == this_object() ||
-    is_administrator(geteuid(previous_object()))) {
+      is_administrator(geteuid(initial_object()))) 
+  {
+    if (!sizeof(call_out_preload)) 
+    {
+      call_out_preload = ({ file });
+    } 
+    else if (member_array(file, call_out_preload) == -1) 
+    {
+      call_out_preload += ({ file });
+    }
 
-  if (!call_out_preload) {
-    call_out_preload = ({ file });
-  } else if (member_array(file, call_out_preload) == -1) {
-    call_out_preload += ({ file });
-  }
-  save_object(SECURE_SAVE_PATH);
+    save_object(SECURE_SAVE_PATH);
   }
 } /* add_call_out_preload() */
 
-void remove_call_out_preload(string file) {
+void remove_call_out_preload(string file) 
+{
   int i;
 
   if (previous_object() == this_object() ||
-    is_administrator(geteuid(previous_object()))) {
-
-  if (call_out_preload) {
-    i = member_array(file, call_out_preload);
-    if (i >= 0) {
-    call_out_preload = delete(call_out_preload, i, 1);
-    save_object(SECURE_SAVE_PATH);
+      is_administrator(geteuid(initial_object()))) 
+  {
+    if (sizeof(call_out_preload)) 
+    {
+      i = member_array(file, call_out_preload);
+      if (i >= 0) 
+      {
+        call_out_preload = delete(call_out_preload, i, 1);
+        save_object(SECURE_SAVE_PATH);
+      }
     }
-  }
   }
 } /* remove_call_out_preload() */
 
 void load_secure_object() 
 {
-  if (!done) {
+  if (!done) 
+  {
     done = 1;
     seteuid(ROOT);
     restore_object(SECURE_SAVE_PATH);
@@ -75,13 +91,11 @@ string *epilog()
 {
   int i;
 
-  if (!preload) 
-  {
+  if (!sizeof(preload)) 
     load_secure_object();
-  }
 
-  for (i=0;i<sizeof(call_out_preload);i++)
-  call_out("preload", 2, call_out_preload[i]);
+  for (i = 0; i < sizeof(call_out_preload); i++)
+    call_out("preload", 2, call_out_preload[i]);
 
   // Wonderflug 96, Making secure
   return ( preload ? preload + ({ }) : ({ }) );
@@ -92,10 +106,8 @@ void preload(string file)
   string e;
 
   write("Preloading: "+file+".\n");
+
   if ((e = catch(file->dummy()))) 
-  {
     write("      "+e+"\n");
-  }
+
 } /* preload() */
-
-

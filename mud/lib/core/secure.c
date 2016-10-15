@@ -43,7 +43,6 @@ void create()
 #include "/lib/core/secure/preload.c"
 
 
-
 int query_admin(string str) 
 {
 	return ((positions[str] == POS_ADMIN) || (is_administrator(str)));

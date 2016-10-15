@@ -529,7 +529,7 @@ int do_dest(string str)
     if (interactive(ob[i]) && !(this_player()->query_admin()) )
     {
       log_file("dest", "["+ctime(time(), 4)+"] " + 
-        this_player()->query_cap_name()+" intentó (sin éxito) destruir el objeto interactive '"+
+        this_player()->query_cap_name()+" tried (unsuccessfully) to dest the interactive object '"+
         ob[i]->query_cap_name()+"'.\n");
       write("Lo siento, no te está permitido destruir a "+ob[i]->query_cap_name()+".\n");
       continue;
@@ -543,7 +543,7 @@ int do_dest(string str)
       // log_file("dest",(string)this_player(1)->query_cap_name()+
       log_file("dest",  "["+ctime(time(), 4)+"] " + 
         (string)this_player()->query_cap_name()+
-        " destruye "+ob[i]->query_cap_name() + /* " de "+
+        " dest'ed "+ob[i]->query_cap_name() + /* " de "+
         environment(ob[i])->query_short() + */ " en " +
         file_name(environment(ob[i]))+"\n");
       
