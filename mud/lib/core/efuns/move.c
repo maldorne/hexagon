@@ -114,13 +114,12 @@ int move(varargs object dest)
 
     // call init in the environment contents
     for (i = 0; i < sizeof(contents); i++)
-      if (contents[i] != this_object())
-        catch(call_other(contents[i], "init"));
+      catch(call_other(contents[i], "init"));
   }
 
-  stderr("   - M before, this_object():\n    " + to_string(this_object()) + " \n");
-  stderr("   - M before, this_player():\n    " + to_string(this_player()) + " \n");
-  stderr("   - M before, this_player(1):\n    " + to_string(this_player(1)) + " \n");
+  // stderr("   - M before, this_object():\n    " + to_string(this_object()) + " \n");
+  // stderr("   - M before, this_player():\n    " + to_string(this_player()) + " \n");
+  // stderr("   - M before, this_player(1):\n    " + to_string(this_player(1)) + " \n");
 
   // call out own init() from all living objects in dest
   map_array(filter_array(contents, "living", MUDOS), 

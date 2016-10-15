@@ -4,10 +4,10 @@
 // driver (the move_object() efunction) does the following:
 
 // * if "A" is living, causes "A" to call the init() in "B"
-// * causes each living object in the inventory of "B" to call init() in
-// "A".  regardless of whether "A" is living or not.
 // * if "A" is living, causes "A" to call the init() in each object in
-// the inventory of "B".
+//   the inventory of "B", including "A" itself.
+// * causes each living object in the inventory of "B" to call init() in
+//   "A".  regardless of whether "A" is living or not.
 
 // Note: an object is considered to be living if enable_commands() has
 // been called by that object.
