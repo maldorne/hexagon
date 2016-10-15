@@ -70,12 +70,12 @@ void event_inform(object ob, string msg, string type)
   this_object()->catch_tell(msg);
 }
 
-void event_enter(object ob, string mess, varargs object from, object *ignore) 
+void event_enter(object ob, string msg, varargs object from, object *ignore) 
 {
   stderr(" * event_enter " + object_name(this_object()) + "\n");
 }
 
-void event_exit(object ob, string mess, varargs object dest, object *ignore) 
+void event_exit(object ob, string msg, varargs object dest, object *ignore) 
 {
   stderr(" * event_exit " + object_name(this_object()) + "\n");
 }
@@ -84,44 +84,78 @@ void event_soul(object ob, string str, mixed avoid)
 {
 }
 
-void event_person_say(object ob, string start, string mess, string lang, int speaker)
+void event_person_say(object ob, string start, string msg, string lang, int speaker)
 {
 }
 
-void event_person_tell(object ob, string start, string mess, string lang)
+void event_person_tell(object ob, string start, string msg, string lang)
 {
 }
 
-void event_whisper(object ob, string start, string mess, 
+void event_whisper(object ob, string start, string msg, 
                    object *obs, string lang)
 {
 }
 
-void event_person_shout(object ob, string start, string mess, string lang)
+void event_person_shout(object ob, string start, string msg, string lang)
 {
 }
 
-void event_creator_tell(object ob, string start, string mess)
+void event_creator_tell(object ob, string start, string msg)
 {
 }
 
-nomask void event_god_inform(object ob, string start, string mess)
+nomask void event_god_inform(object ob, string start, string msg)
 {
+  if (!strlen(msg))
+    return;
+
+  msg = fix_string("\n" + start + " " + msg);
+
+  // only will do if interactive(this_object())  
+  this_object()->catch_tell(msg);  
 }
 
 void event_inter_creator_tell(object ob, string mname, string pname,
-                              string mess, object ig, int emote) 
+                              string msg, object ig, int emote) 
 {
 }
 
-void event_player_echo_to(object ob, string mess) 
+void event_player_echo(object ob, string msg)
 {
+  if (ob == this_object())
+    return;
+
+  if (this_object()->query_admin())
+    msg = ob->query_cap_name()+" echo's:\n" + msg;
+  
+  msg = fix_string("\n" + msg);
+
+  // only will do if interactive(this_object())  
+  this_object()->catch_tell(msg);  
 }
 
-void event_player_emote_all(object ob, string mess)
+void event_player_echo_to(object ob, string msg) 
 {
+  if (this_object()->query_admin())
+    msg = ob->query_cap_name()+" echo to's:\n" + msg;
+
+  msg = fix_string("\n" + msg);
+
+  // only will do if interactive(this_object())  
+  this_object()->catch_tell(msg);
 }
 
-void event_player_echo(object ob, string mess)
+void event_player_emote_all(object ob, string msg)
 {
+  if (ob == this_object())
+    return;
+
+  if (this_object()->query_admin())
+    msg = ob->query_cap_name()+" emote all's:\n" + msg;
+
+  msg = fix_string("\n" + msg);
+
+  // only will do if interactive(this_object())  
+  this_object()->catch_tell(msg);
 }

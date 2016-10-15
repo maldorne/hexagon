@@ -13,13 +13,9 @@ inherit path   "/lib/user/roles/coder_path.c";
 inherit editor "/lib/user/roles/coder_editor.c";
 inherit obj    "/lib/user/roles/coder_object.c";
 inherit info   "/lib/user/roles/coder_info.c";
-
-// inherit "/global/coder/coder_object_comm.c";
-// inherit "/global/coder/coder_info_comm.c";
-// inherit "/global/coder/coder_communicate.c";
+inherit comm   "/lib/user/roles/coder_communicate.c";
 
 inherit        "/lib/user/roles/coder_utils.c";
-
 
 void create()
 {
@@ -28,6 +24,7 @@ void create()
   editor::create();
   obj::create();
   info::create();
+  comm::create();
 }
 
 static void initialize_role(object player)
@@ -41,6 +38,7 @@ static void role_commands()
   editor::role_commands();
   obj::role_commands();
   info::role_commands();
+  comm::role_commands();
 } 
 
 // int review() 
@@ -57,5 +55,6 @@ mixed stats()
                  path::stats() + 
                  editor::stats() + 
                  obj::stats() +
-                 info::stats();
+                 info::stats() + 
+                 comm::stats();
 }
