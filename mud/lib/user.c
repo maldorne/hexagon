@@ -1,8 +1,12 @@
 
 #include <kernel.h>
+#include <basic/id.h>
 #include <user/user.h>
+#include <user/roles.h>
+#include <user/player.h>
 #include <user/input.h>
 #include <mud/secure.h>
+#include <common/properties.h>
 
 inherit history   "/lib/user/history";
 inherit alias     "/lib/user/alias";
@@ -25,6 +29,13 @@ static mixed  redirect_input_args;     // optional arguments passed to the funct
 
 // last input time
 static int timestamp;
+
+string last_pos;   // file name of environment of last connection
+string *auto_load; // inventory
+int time_on;       // total time connected 
+int ontime;        // session time
+int last_log_on;   // time of last log on
+
 
 // Function prototypes
 // static void open();
@@ -49,7 +60,11 @@ void create()
   // already done in living
   // enable_commands();
 
-  timestamp = 0;
+  timestamp   = 0;
+  time_on     = time();
+  ontime      = time();
+  last_log_on = time();
+  auto_load   = ({ });
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
@@ -70,6 +85,26 @@ void init()
   nickname::init();
 
   living::init();
+}
+
+int query_player() { return 1; }
+int query_user() { return 1; }
+// total time connected
+int query_time_on() { return time_on - time(); }
+int query_last_log_on() { return last_log_on; }
+nomask void set_ontime(int i) { ontime = i; }
+nomask int query_ontime() { return ontime; }
+
+void dest_me()
+{
+  role::dest_me();
+  account::dest_me();
+
+  // remove the user from the user handler
+  find_object(USER_HANDLER)->remove_user(this_object());
+
+  // main dest_me
+  living::dest_me();
 }
 
 // Called from the input_to efun
@@ -110,20 +145,74 @@ static void close(mixed arg)
   disconnect(FALSE);
 }
 
-int restore_me(string path, varargs int flag)
+nomask int restore_me()
 {
   if (!SECURE->valid_progname(1, "/lib/core/login"))
     return 0;
 
-  return restore_object(path, flag);
+  return restore_object("/save/players/" + 
+                        this_object()->query_name()[0..0] + "/" +
+                        this_object()->query_name() + ".o", 1);
 }
 
-int save_me(string path, varargs int flag)
+nomask int save_me()
 {
+  string oldeuid;
   // if (!SECURE->valid_progname(1, "/lib/core/login"))
   //   return 0;
 
-  return save_object(path, flag);  
+  if (query_loading() || query_property(LOADING_PROP))
+    return 0;
+
+  if (query_property(GUEST_PROP)) 
+  {
+    tell_object(this_object(), "Ups, l"+G_CHAR+"s invitad"+G_CHAR+"s no pueden salvar...\n");
+    return 0;
+  }
+
+  // Fix by Wonderflug.  Saving object is a bad idea.
+  if (!strlen(query_name()) || (query_name() == DEF_NAME))
+    return 0;
+
+  if ((this_object()->query_role_name() == PLAYER_ROLE) ||
+      (member_array(query_verb(), ({ "save", "salvar", "grabar" })) != -1))
+  {
+    tell_object(this_object(), "Salvando...\n");
+  }
+
+
+  // TODO money save... should be in living?
+  // if ((ob = present(MONEY_NAME, this_object())))
+  //   money_array = (mixed *)ob->query_money_array();
+  // else
+  //   money_array = ({ });
+
+  // TODO social save
+  // if ( query_guild_ob() && ( (file_size(query_guild_ob()) > 0) ||
+  //   (file_size(query_guild_ob()+".c") > 0) ) )
+    //   query_guild_ob()->player_save_me();
+  // if (query_race_ob())
+    //   query_race_ob()->player_save_me();
+  
+  oldeuid = geteuid();
+
+  if (environment())
+    last_pos = file_name(environment());
+  else
+    last_pos = START_POS;
+
+  auto_load = create_auto_load(all_inventory());
+  time_on -= time();
+
+  // seteuid(ROOT);
+  catch(save_object("/save/players/" + 
+                    this_object()->query_name()[0..0] + "/" +
+                    this_object()->query_name() + ".o", 1));  
+
+  // seteuid(oldeuid);
+  time_on += time();
+
+  return 1;
 }
 
 void send_message(string str)
@@ -192,7 +281,7 @@ static void receive_message(string str)
     MUDOS->set_initiator_player(this_object());
     MUDOS->set_initiator_object(this_object());
 
-    if( strlen(str) > INPUT_MAX_STRLEN ) 
+    if ( strlen(str) > INPUT_MAX_STRLEN ) 
     {
       str = str[ 0..INPUT_MAX_STRLEN ];
       write("Comando demasiado largo - procesando de todas formas.\n");
@@ -225,12 +314,15 @@ static void receive_message(string str)
       lower_check( str );      
     }
 
+    // the object destructed itself
+    if (!this_object())
+      return;
+
     MUDOS->set_initiator_player(nil);
     MUDOS->set_initiator_object(nil);
 
   } // rlimits
 }
-
 
 void heart_beat()
 {
@@ -241,11 +333,265 @@ void heart_beat()
   // send_message("hb: " + object_name(this_object()) + "\n");
 }
 
-int query_player() { return 1; }
-int query_user() { return 1; }
+/* old glance(), neverbot 21/4/2003 */
+int do_glance(varargs string arg)
+{
+  // already in the cmd
+  // if (this_object()->query_coder())
+  //   if (!strlen(arg) && environment())
+  //     write(object_name(environment()) + "\n");
 
-// static int echo;     is input echoing turned on 
-// static int editing;   /* are we editing? */
+  // Externalized - Radix
+  if (!arg || !strlen(arg)) 
+      return do_command("ojear");
+  return do_command("ojear " +arg);
+}
+
+/* old look_me(), neverbot 21/4/2003 */
+int do_look(varargs string arg)
+{
+  if (!this_object()->query_verbose())
+    return do_glance(arg);
+
+  // already in the cmd
+  // if (this_object()->query_coder())
+  //   if ((!arg || !strlen(arg)) && environment())
+  //     write(object_name(environment()) + "\n");
+
+  if (!arg || !strlen(arg)) 
+    return do_command("mirar");
+  return do_command("mirar " + arg);
+}
+
+
+
+
+
+
+
+
+int really_quit()
+{
+  object *ob, money;
+  object frog, frog2;
+  int i;
+  int secure;
+  string aux;
+
+  aux = "";
+  secure = 0;
+
+  // quit_destination added by neverbot, 03/09  
+  while (environment(this_object()) &&
+        (aux = environment(this_object())->query_quit_destination()) && 
+        (secure < 10))
+  {
+    if (load_object(aux))
+      this_object()->move(aux);
+    secure++;
+  }
+  
+  if (secure != 0) 
+  {
+    tell_object(this_object(), "En tu localización previa no es posible salir, "+
+        "has sido movido a la más cercana (vuelve a intentarlo aquí si aún "+
+        "deseas desconectar).\n");
+    this_object()->do_look();
+    this_object()->save_me();
+    return 1;
+  }
+
+  traverse_timed_properties();
+  last_log_on = time();
+  
+  this_object()->adjust_online_time(time() - ontime);
+
+  // TODO timekeeper
+  /* This should send the time the player was on to an object which keeps
+   * track of total hours played (non-immortal) Anirudh - March 17, 1996 */
+  // if (!this_object()->query_coder())
+  //   TIMEKEEPER->add_time(time() - ontime);
+
+  if (this_object()->query_name() != DEF_NAME)
+  {
+    if (this_object()->query_property(GUEST_PROP))
+      log_file("enter", sprintf("Exit  : %-15s %s (guest) [%s]\n",
+                                name, ctime(time(),4),
+                                query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
+                                // (query_ip_name()?query_ip_name():query_ip_number())));
+    else
+      log_file("enter", sprintf("Exit  : %-15s %s [%s]\n",
+                                name, ctime(time(),4), 
+                                query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
+                                // (query_ip_name()?query_ip_name():query_ip_number())));
+  }
+
+  // TODO editor
+  // catch(editor_check_do_quit());
+
+  // TODO social
+  // if (query_race_ob())
+  //   catch(query_race_ob()->player_quit(this_object()));
+  // if (query_guild_ob())
+  //   catch(query_guild_ob()->player_quit(this_object()));
+  // if (query_class_ob())
+  //   catch(query_class_ob()->player_quit(this_object()));
+  // if (query_deity_ob())
+  //   catch(query_deity_ob()->player_quit(this_object()));
+  // if (query_group_ob())
+  //   catch(query_group_ob()->player_quit(this_object()));
+  // if (query_race_group_ob())
+  //   catch(query_race_group_ob()->player_quit(this_object()));
+  // if (query_job_ob())
+  //   catch(query_job_ob()->player_quit(this_object()));
+  // if (query_city_ob())
+  //   catch(query_city_ob()->player_quit(this_object()));
+
+  // curses_quit();
+
+  // Antes del save_me, movemos todos los objetos que no vamos a grabar a
+  // la room del jugador
+  if (environment(this_object()))
+  {
+    ob = deep_inventory(this_object());
+    for(i = 0; i < sizeof(ob); i++)
+    {
+      if (ob[i]->query_no_save_object())
+      {
+        ob[i]->move(environment(this_object()));
+        tell_object(this_object(), "Dejas tu "+ob[i]->short()+".\n");
+      }
+    }
+  }
+
+  // write("Thanks for playing see you next time.\n");
+  tell_player(this_object(), "Gracias por jugar, ¡hasta la próxima!\n");
+
+  if (query_name() != DEF_NAME)
+  {
+    if ( !this_object()->query_hidden() )
+      tell_room( environment(this_object()), this_object()->query_cap_name() + 
+        " sale de "+mud_name()+".\n");
+
+    if ( this_object()->query_coder() )
+      event(users(), "inform", this_object()->query_cap_name() +
+                               " sale de " + mud_name(), "logon_programadores",
+                               all_inventory(environment(this_object())));
+    else
+      event(users(), "inform", this_object()->query_cap_name() + 
+                               " sale de " + mud_name(), "logon",
+                               all_inventory(environment(this_object())));
+  }
+
+  ob = ({ });
+  i = 0;
+
+  save_me();
+  
+  // TODO mounts
+  // mounts, neverbot 07/05
+  // save_mount();
+  // if (query_mount())
+  //   query_mount()->owner_quit();
+
+  // TODO money    
+  /* get rid of the money.... we dont want them taking it twice now do we? */
+  // if ((money = present(MONEY_NAME, this_object())))
+  //     money->dest_me();
+
+  frog = first_inventory(this_object());
+  while (frog) 
+  {
+    frog2 = next_inventory(frog);
+
+    // if (frog)
+
+    // hack para los objetos unicos... si los destruimos con la funcion
+    // dest_me el handler no los almacenara como grabados en la ficha
+    // de un player, sino como destruidos.
+    if (frog->query_unique_object())
+    {
+      tell_object(find_living("folken"), "Dest unique del objeto "+frog->short()+".\n");
+      frog->dest_unique();
+    }
+    else if (frog->query_auto_load() ||
+             frog->query_static_auto_load())
+    {
+      frog->dest_me();
+    }
+
+    frog = frog2;
+  }
+
+  transfer_all_to(environment());
+  ob = all_inventory(this_object());
+  
+  for (i = 0; i < sizeof(ob); i++)
+    ob[i]->dest_me();
+
+  dest_me();
+
+  return 1;
+} /* really quit() */
+
+void continue_quit(int a, object here)
+{
+  if (this_object()->query_is_fighting()) 
+  {
+    tell_object(this_object(), "Debes terminar primero tus combates.\n "+
+        "Escribe '%^BOLD%^detener combates%^RESET%^' para terminarlos lo antes posible.\n");
+    return;
+  }
+
+  if (environment(this_object()) != here) 
+  {
+    tell_object(this_object(),"Si no paras de moverte será imposible buscar un buen lugar "+
+        "para salir del juego.\n");
+    return;
+  }
+
+  if (a <= 0)
+  {
+    this_object()->really_quit();
+    return;
+  }
+
+  call_out("continue_quit", 0, a-1, environment(this_object()));
+}
+
+int quit()
+{
+  if (query_loading() || query_property(LOADING_PROP))
+  {
+    notify_fail("Todavía se esta cargando tu equipo, espera a que termine el proceso.\n");
+    return 0;
+  }
+
+  tell_object(this_object(), "Saliendo...\n");
+  
+  if (this_object()->query_coder()) 
+  {
+    this_object()->really_quit();
+    return 1;
+  }
+  
+  tell_room(environment(this_object()), this_object()->query_cap_name()+
+      " busca un lugar cómodo para salir del juego.\n", ({this_object()}));
+
+  if (this_object()->query_is_fighting())
+  {
+    tell_object(this_object(),"Debes terminar primero tus combates.\n"+
+        "Escribe '%^BOLD%^detener combates%^RESET%^' para terminarlos lo antes posible.\n");
+    save_me();
+  }
+  else
+    call_out("continue_quit", 0, 5, environment(this_object()));
+  
+  return 1;
+} 
+
+
+
 
 mixed * stats() 
 {
@@ -263,25 +609,13 @@ mixed * stats()
 
 
 
-/* old glance(), neverbot 21/4/2003 */
-int do_glance(string arg)
-{
-  // Externalized - Radix
-  if (!arg) 
-      return do_command("ojear");
-  return do_command("ojear " +arg);
-}
 
-/* old look_me(), neverbot 21/4/2003 */
-int do_look(varargs string arg)
-{
-  if (!this_object()->query_verbose())
-    return do_glance(arg);
 
-  if (!arg) 
-    return do_command("mirar");
-  return do_command("mirar " + arg);
-}
+
+
+
+
+
 
 
 

@@ -13,6 +13,11 @@ void create()
   account_name = "";
 }
 
+void dest_me()
+{
+  destruct(_account);
+}
+
 object query_account() { return _account; }
 string query_account_name() { return account_name; }
 

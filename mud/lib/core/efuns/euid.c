@@ -63,7 +63,7 @@ nomask int seteuid( string id )
 
   string file;
 
-  // initial value, same as uid
+  // efuns always allowed to set their own euid
   if (is_auto_object())
   {
     _euid = id;
@@ -77,7 +77,7 @@ nomask int seteuid( string id )
   {
     if (_euid != id)
       stderr(" *** seteuid changed in " + object_name(this_object()) + 
-             " from " + _euid + " to " + id + "\n");
+             " from " + (strlen(_euid) ? _euid : "<empty>") + " to " + id + "\n");
     
     _euid = id;
     return 1;

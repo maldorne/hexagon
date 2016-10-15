@@ -54,6 +54,20 @@ void create()
   enable_commands();
 }
 
+void dest_me() 
+{
+  object *obs;
+  int i;
+
+  obs = deep_inventory(this_object());
+
+  for (i = 0; i < sizeof(obs); i++)
+    if(obs[i])
+      obs[i]->dest_me();
+
+  movement::dest_me();
+}
+
 mixed * stats() 
 {
   return queue::stats() + 

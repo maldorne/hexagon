@@ -17,7 +17,7 @@
 
 #define IDENTD "/net/identd"
 #define NUM_MAX_OBJ 50 // Numero maximo de objetos
-#define G_CHAR (query_gender()==2?"a":"o")
+#define G_CHAR (this_object()->query_gender()==2?"a":"o")
 #define MIN_AGE 1800
 // -------------
 

@@ -178,7 +178,7 @@ static int cmd(string str, object me, string verb)
   if ((file_size(file) > 0) && dont_overwrite) 
     write("Abortado. El archivo '"+file+"' ya existe (bórralo antes)\n");
   
-  seteuid(geteuid(this_player()));
+  // seteuid(geteuid(this_player()));
 
   write_file(file, before() + str + after());
   

@@ -40,13 +40,23 @@ void event_say(object caller, string msg, varargs mixed avoid)
   this_object()->catch_tell(msg);
 }
 
-// TODO ob no es caller!?!
-void event_inform(object ob, string msg, string type)
+void event_inform(object caller, string msg, string type, varargs mixed avoid)
 {
   string * on;
 
   if (!strlen(msg))
     return;
+
+  if (avoid)
+  {
+    if (pointerp(avoid)) 
+    {
+      if (member_array(this_object(), avoid) != -1)
+        return;
+    } 
+    else if (objectp(avoid) && (avoid == this_object()))
+      return;
+  }
 
   on = (string *)this_object()->query_property(INFORM_PROP);
   
@@ -55,8 +65,8 @@ void event_inform(object ob, string msg, string type)
   
   // TODO inform properties
   // if (this_object()->query_property(NO_INFORM) || 
-  //    (ob->query_invis() && !this_object()->query_coder()) || 
-  //    ((int)ob->query_invis() == 2 && !this_object()->query_admin()) || 
+  //    (caller->query_invis() && !this_object()->query_coder()) || 
+  //    ((int)caller->query_invis() == 2 && !this_object()->query_admin()) || 
   //    !sizeof(on))
   // {
   //     return;
@@ -65,7 +75,7 @@ void event_inform(object ob, string msg, string type)
   // if (member_array(type, on) == -1) 
   //   return;
   
-  msg = fix_string("\n[" + msg + "]\n\n");
+  msg = fix_string("\n\n[" + msg + "]\n\n");
 
   this_object()->catch_tell(msg);
 }

@@ -558,6 +558,13 @@ private int perform_next_action()
       }
     }      
 
+    // the object destructed itself
+    if (!this_object())
+    {
+      actionq = ({ });
+      return 0;
+    }
+
     // restore previous notify_fail message
     // (might have change during the execution of the action)
     MUDOS->set_notify_fail_msg(old_notify_fail);
@@ -892,6 +899,10 @@ nomask int action_check(string str)
         perform_next_action();
       }
     }
+
+    // the object destructed itself
+    if (!this_object())
+      return 0;
 
     if ( show_prompt )
       this_object()->show_prompt();

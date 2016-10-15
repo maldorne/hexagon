@@ -17,10 +17,14 @@ void create()
 }
 
 // called only from this object, in 'new_connection'
-static void add_new_user(object ob, string id) 
+static void add_new_user(object ob) 
 {
+  string id;
+
   // if (base_name(previous_object()) != USER_OB) 
   //   return;
+
+  id = file_name(ob);
 
   users += ([ id : allocate(2) ]);
 
@@ -30,12 +34,16 @@ static void add_new_user(object ob, string id)
   users[id][1] = "";
 }
 
-void remove_user(object ob, string id) 
+void remove_user(object ob) 
 {
+  string id;
+
   // if (base_name(previous_object()) != USER_OB) 
   //   return;
 
-  users[id] = 0;
+  id = file_name(ob);
+
+  users[id] = nil;
 }
 
 object * query_users()
@@ -86,8 +94,16 @@ object find_user(string id)
   return users[id];
 }
 
-int update_user_name(string id, string name)
+int update_user_name(object ob)
 {
+  string id;
+
+  // only the login object can do this (from /lib/core/login.c)
+  if (base_name(previous_object()) != "/lib/core/login")
+    return -1;
+
+  id = file_name(ob);
+
   if (!users[id])
     return -1;
 
@@ -95,11 +111,7 @@ int update_user_name(string id, string name)
   if (users[id][1] != "")
     return -1;
 
-  // only the login object can do this (from /lib/core/login.c)
-  if (base_name(previous_object()) != "/lib/core/login")
-    return -1;
-
-  users[id][1] = name;
+  users[id][1] = ob->query_name();
 
   return 1;
 }
@@ -110,7 +122,7 @@ object new_connection()
 
   new_user = clone_object(find_object(USER_OB));
 
-  add_new_user(new_user, file_name(new_user));
+  add_new_user(new_user);
 
   return new_user;
 }

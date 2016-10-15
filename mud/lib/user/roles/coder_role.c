@@ -29,11 +29,15 @@ void create()
 
 static void initialize_role(object player)
 {
+  base::initialize_role(player);
   path::initialize_role(player);
 }
 
 static void role_commands()
 {
+  // player commands
+  base::role_commands();
+
   path::role_commands();
   editor::role_commands();
   obj::role_commands();

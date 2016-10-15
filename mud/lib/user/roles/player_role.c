@@ -1,5 +1,6 @@
 
 #include <mud/secure.h>
+#include <user/roles.h>
 
 static object _player;
 
@@ -12,7 +13,11 @@ void create()
 
 void role_commands()
 {
+  add_action("do_clear_screen", "clear");
+  add_action("help_func", ({ "help", "ayuda" }));
 
+  add_action("save", ({ "save", "salvar", "grabar" }));
+  add_action("quit", ({ "quit", "salir" }));
 }
 
 static void initialize_role(object player)
@@ -37,6 +42,15 @@ nomask int set_player(object ob)
   return 1;
 }
 
+nomask int save(string str) 
+{
+  return _player->save_me();
+}
+
+nomask int quit(string str)
+{
+  return _player->quit();
+}
 
 mixed * stats() 
 {

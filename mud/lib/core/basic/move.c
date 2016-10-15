@@ -73,7 +73,6 @@ int move(mixed dest, varargs mixed messin, mixed messout)
 
 void dest_me() 
 {
-  /*
   int i;
   object* obs;
   object ob;
@@ -94,9 +93,8 @@ void dest_me()
   for ( i = 0; i < sizeof(obs); i++ )
     if ( obs[i] )
       destruct(obs[i]);
-      */
 
-  ::destruct(this_object());
+  destruct(this_object());
 }
 
 /* Do not I repeat do not mask this function.

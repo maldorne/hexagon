@@ -18,7 +18,7 @@
 void init()
 {
   stderr(" * init " + object_name(this_object()) + " \n");
-  stderr("   - this_object():\n    " + to_string(this_object()) + " \n");
-  stderr("   - this_player():\n    " + to_string(this_player()) + " \n");
-  stderr("   - this_player(1):\n    " + to_string(this_player(1)) + " \n");
+  stderr("   - this_object():  " + object_name(this_object()) + "\n");
+  stderr("   - this_player():  " + object_name(this_player()) + "\n");
+  stderr("   - this_player(1): " + (this_player(1) ? object_name(this_player(1)) : "nil") + "\n");
 }

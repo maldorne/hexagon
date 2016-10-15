@@ -12,6 +12,11 @@ void create()
   role_name = PLAYER_ROLE;
 }
 
+void dest_me()
+{
+  destruct(_role);
+}
+
 object query_role() { return _role; }
 string query_role_name() { return role_name; }
 

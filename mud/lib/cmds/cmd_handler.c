@@ -39,7 +39,7 @@ void create()
   cmd_aliases = ([ ]);
   last_dir = "";
 
-  // seteuid(getuid());
+  seteuid(getuid());
   current_verb = "";
   cmd_make_hash(0);
 }

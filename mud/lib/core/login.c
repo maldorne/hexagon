@@ -425,9 +425,10 @@ nomask void logon_player_name(string str, int flag)
   }
   
   name = chosen;
+  _player->set_name(name);
   
   // try to restore the character
-  if (!_player->restore_me("/save/players/"+chosen[0..0]+"/"+chosen+".o", 1))
+  if (!_player->restore_me())
   {
     write("Error, no se ha podido recuperar el personaje.\n");
     destruct(_player);
@@ -602,7 +603,7 @@ nomask void begin2(int new_player)
   _player->set_living_name(name); // both for players and npcs
 
   // store the user name in the user handler
-  find_object(USER_HANDLER)->update_user_name(file_name(_player), name);
+  find_object(USER_HANDLER)->update_user(_player);
 
   validated = TRUE;
   write("¡Te has conectado! Bienvenido a "+mud_name()+"\n");
@@ -834,7 +835,7 @@ void get_sex(string str)
 
   if (!query_property(GUEST_PROP))
   {
-    _player->save_me("/save/players/"+name[0..0]+"/"+name+".o", 1);
+    _player->save_me();
     account->add_player(name);
   }
 

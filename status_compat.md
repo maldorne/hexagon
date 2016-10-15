@@ -185,6 +185,8 @@ do not have an open source license.
 | `snoop`                 |  | dummy function for now |
 | `query_snoop`           |  |  |
 | `query_snooping`        |  |  |
+| `query_ip_number`       | :white_check_mark: | provided by dgd |
+| `query_ip_name`         | :white_check_mark: | provided by dgd |
 | `bind`                  |  |  |
 | `random`                |  |  |
 | `find_player`           |  |  |
@@ -204,8 +206,6 @@ do not have an open source license.
 | `objects`               |  |  |
 | `query_host_name`       |  |  |
 | `query_idle`            |  |  |
-| `query_ip_name`         |  |  |
-| `query_ip_number`       |  |  |
 | `set_hide`              |  |  |
 | `shadow`                |  |  |
 | `query_shadowing`       |  |  |

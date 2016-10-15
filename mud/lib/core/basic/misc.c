@@ -66,7 +66,8 @@ void dest_me()
   
   for(i = 0; i < sizeof(olist); i++)
   {
-    if(olist[i]) olist[i]->dest_me();
+    if(olist[i]) 
+      olist[i]->dest_me();
   }
   
   ::dest_me();

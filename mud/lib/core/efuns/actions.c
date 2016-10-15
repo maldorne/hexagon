@@ -42,12 +42,12 @@ nomask string query_action(string verb)
   return _actions[verb];
 }
 
-nomask string query_verb()
+static nomask string query_verb()
 {
   return MUDOS->query_current_verb();
 }
 
-nomask void notify_fail(string str) 
+static nomask void notify_fail(string str) 
 {
   MUDOS->set_notify_fail_msg(str);
 }
