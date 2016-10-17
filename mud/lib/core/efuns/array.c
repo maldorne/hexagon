@@ -1,6 +1,21 @@
 
 #include "arrays/member_array.c"
 
+
+static nomask mixed * allocate(int size, varargs int flag_zero)
+{
+  mixed * result;
+  int i;
+
+  result = ::allocate(size);
+
+  if (flag_zero)
+    for (i = 0; i < sizeof(result); i++)
+      result[i] = 0;
+
+  return result;
+}
+
 static nomask int index(mixed element, mixed * arr) 
 {
   return member_array(element, arr);
@@ -171,11 +186,11 @@ static nomask mixed * sort_array(mixed * arr, varargs string fun, mixed ob, int 
   int i, e, sz;
   mixed * result, a, b, a2;
 
+  if (sizeof(arr) == 0)
+    return array_copy(arr);
+
   if (!fun) 
   {
-    if (sizeof(arr) == 0)
-      return array_copy(arr);
-
     // check for pre-defined sort_array types 
     switch (typeof(arr[0])) 
     {
