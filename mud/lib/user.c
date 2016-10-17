@@ -377,8 +377,8 @@ int do_glance(varargs string arg)
 
   // Externalized - Radix
   if (!arg || !strlen(arg)) 
-      return do_command("ojear");
-  return do_command("ojear " +arg);
+      return do_command("glance");
+  return do_command("glance " +arg);
 }
 
 /* old look_me(), neverbot 21/4/2003 */
@@ -393,8 +393,8 @@ int do_look(varargs string arg)
   //     write(object_name(environment()) + "\n");
 
   if (!arg || !strlen(arg)) 
-    return do_command("mirar");
-  return do_command("mirar " + arg);
+    return do_command("look");
+  return do_command("look " + arg);
 }
 
 int really_quit()

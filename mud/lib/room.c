@@ -114,14 +114,14 @@ object *add_hidden_object(object ob)
   return hidden_objects;
 }
 
-string query_contents(string str, varargs object *ob)
+string query_contents(varargs string str, object *ob)
 {
-  if(!hidden_objects) 
-      hidden_objects = ({ });
-  if(ob)
-      ob -= hidden_objects;
+  if (!hidden_objects) 
+    hidden_objects = ({ });
+  if (ob)
+    ob -= hidden_objects;
   else 
-      ob = all_inventory(this_object()) - hidden_objects;
+    ob = all_inventory(this_object()) - hidden_objects;
   return ::query_contents(str, ob);
 }
 
@@ -146,7 +146,7 @@ void reset()
         thing = room_clones[i];
         flags = 0;
       }
-      else if(room_clones[i])
+      else if (room_clones[i])
       {
         flags = room_clones[i];
       }
@@ -155,10 +155,10 @@ void reset()
         // Taniwha, clone, then TEST then move, so if it's screwed
         //  it still works
         room_clones[i] = clone_object(thing);
-        if(room_clones[i])
+        if (room_clones[i])
         {
           room_clones[i]->move(this_object());
-          if(flags == 1) add_hidden_object(room_clones[i]);
+          if (flags == 1) add_hidden_object(room_clones[i]);
         }
       }
     }
@@ -195,7 +195,7 @@ void add_clone( string the_file, int how_many, varargs int flags)
     room_clones += ({ 0 });
   }
   // last, for backward processing.
-  if(flags) room_clones += ({ flags });
+  if (flags) room_clones += ({ flags });
   room_clones += ({ the_file });
 }
 
@@ -269,10 +269,10 @@ void create()
   this_object()->setup();
   reset();
 
-  // if(replaceable(this_object())) 
+  // if (replaceable(this_object())) 
   // {
   //   inh = inherit_list(this_object());
-  //   if(sizeof(inh) == 1)
+  //   if (sizeof(inh) == 1)
     room_create_time = time();
     clean_up_handle = 0;
     start_clean_up();
@@ -395,7 +395,7 @@ string long(string str, int dark)
   //  abiertas (el metodo es peor pero con un glance se recalculan siempre,
   //  y todo el mundo se mueve en brief, asi que no creo que esto afecte
   //  demasiado).
-  // if(!exit_string)
+  // if (!exit_string)
   exit_string = query_dirs_string();
 
   if (!str || (str == ""))
@@ -541,7 +541,7 @@ mixed add_exit(string direc, mixed dest, string type,
   mixed *m;
   object door;
 
-  if(!dest_other) dest_other = ({ });
+  if (!dest_other) dest_other = ({ });
   m = EXIT_HAND->add_exit(door_control, exit_map, // mappings
     dest_other, dest_direc, hidden_objects,       // arrays
     // direc, dest, room_ob, type, material);     // & data
@@ -549,7 +549,7 @@ mixed add_exit(string direc, mixed dest, string type,
 
   short_exit_string = "";
 
-  if(sizeof(m) > 0)
+  if (sizeof(m) > 0)
   {
     door_control = m[0];
     exit_map = m[1];
@@ -583,11 +583,11 @@ int query_special_exit(string direc)
 {
   int i;
   for(i = 0; i < sizeof(dest_other); i+=2)
-    if(dest_other[i]==direc)
-      if(dest_other[i+1][ROOM_FUNC]) 
+    if (dest_other[i]==direc)
+      if (dest_other[i+1][ROOM_FUNC]) 
         return 1;
   
-  if(query_ex_type(direc)=="door" || query_ex_type(direc)=="gate") 
+  if (query_ex_type(direc)=="door" || query_ex_type(direc)=="gate") 
     return 2;
   
   return 0;
@@ -611,9 +611,9 @@ int modify_exit(string direc, mixed *data)
   m = EXIT_HAND->modify_exit(door_control,dest_other,hidden_objects,
                 direc,data);
 
-  if(sizeof(m) > 0)
+  if (sizeof(m) > 0)
   {
-    if(sizeof(m) > 0 )
+    if (sizeof(m) > 0 )
     {
       door_control = m[0];
       dest_other = m[1];
@@ -646,7 +646,7 @@ int remove_exit(string direc)
   if (door)
       door->dest_me();
 
-  if(sizeof(m))
+  if (sizeof(m))
   {
     door_control = m[0];
     exit_map = m[1];
@@ -830,18 +830,18 @@ static int empty_room(object ob)
   object *olist;
   int i;
 
-  if(!environment(ob))
+  if (!environment(ob))
     return 1;
   
   // TEMP fix I think, - Radix
-  if(!environment(ob)->query_property("location"))
+  if (!environment(ob)->query_property("location"))
     return 0;
   
   olist = all_inventory(environment(ob));
   
   for( i = 0; i < sizeof(olist) ; i++)
   {
-    if(interactive(olist[i]))
+    if (interactive(olist[i]))
       return 0; // Player in room
   }
 
@@ -876,8 +876,8 @@ void dest_me()
   // Wandering NPC hunt, Taniwha 1996
   for( i = 0; i < sizeof(room_clones); i++)
   {
-    if(objectp(room_clones[i]))
-      if(empty_room(room_clones[i]))
+    if (objectp(room_clones[i]))
+      if (empty_room(room_clones[i]))
           room_clones[i]->dest_me();
   }
   
@@ -1045,7 +1045,7 @@ object add_sign(string long, string mess, varargs string short, string sname)
 
   sign = clone_object("/std/item.c");
 
-  if(!sname) 
+  if (!sname) 
       sname = "cartel";
       
   sign->set_name(sname);
