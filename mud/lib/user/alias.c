@@ -22,205 +22,205 @@ void init()
 
 mixed *compile_alias(string str) 
 {
-    mixed *ret;
-    int i, space;
-    string *frog, s1;
-    int tmp, gumby, nodollar;
-    mixed *ifargs;
+  mixed *ret;
+  int i, space;
+  string *frog, s1;
+  int tmp, gumby, nodollar;
+  mixed *ifargs;
 
-    str = implode(explode(str," ")," ");
-    /* Quick hack.. Baldrick. */
-    //if (!this_player()->query_coder())
-    if(0)
+  str = implode(explode(str," ")," ");
+  /* Quick hack.. Baldrick. */
+  //if (!this_player()->query_coder())
+  if (0)
+  {
+    frog = explode(str,";");
+    if (sizeof(frog) > 1)
     {
-      frog = explode(str,";");
-      if (sizeof(frog) > 1)
-      {
-        tell_object(this_player(),"\";\" no permitido en los alias\n");
-        return ({ });
-      }
+      tell_object(this_player(),"\";\" no permitido en los alias\n");
+      return ({ });
     }
-    else
-      str = implode(explode(str,";"), "$new_line$");
+  }
+  else
+    str = implode(explode(str,";"), "$new_line$");
 
-    str = "&"+str+"&";
-    frog = explode(str, "$");
-    
-    if (frog[0] == "&")
-      frog = delete(frog, 0, 1);
-    else
-      frog[0] = frog[0][1..100];
-    
-    s1 = frog[sizeof(frog)-1];
-    
-    if (s1 == "&")
-      frog = delete(frog, sizeof(frog)-1, 1);
-    else
-      frog[sizeof(frog)-1] = s1[0..strlen(s1)-2];
+  str = "&"+str+"&";
+  frog = explode(str, "$");
+  
+  if (frog[0] == "&")
+    frog = delete(frog, 0, 1);
+  else
+    frog[0] = frog[0][1..];
+  
+  s1 = frog[sizeof(frog)-1];
+  
+  if (s1 == "&")
+    frog = delete(frog, sizeof(frog)-1, 1);
+  else
+    frog[sizeof(frog)-1] = s1[0..strlen(s1)-2];
 
-    ret = ({ });
-    ifargs = ({ });
-    nodollar = 1;
-    
-    for (i = 0; i < sizeof(frog); i++)
-      if (frog[i] == "new_line") 
+  ret = ({ });
+  ifargs = ({ });
+  nodollar = 1;
+  
+  for (i = 0; i < sizeof(frog); i++)
+    if (frog[i] == "new_line") 
+    {
+      ret += ({ NEW_LINE });
+      nodollar = 1;
+    } 
+    else if (frog[i] == "*") 
+    {
+      ret += ({ ALL_ARGS });
+      gumby = 1;
+      nodollar = 1;
+    } 
+    else if (strlen(frog[i]) >= 5 && frog[i][0..4] == "ifarg") 
+    {
+      if (sscanf(frog[i], "ifarg%d:%s", tmp, s1) == 2) 
       {
-        ret += ({ NEW_LINE });
+        if (tmp < 0)
+          tmp = 0;
+        if (tmp > ALIAS_MASK)
+          tmp = ALIAS_MASK;
+
+        ret += ({ IFARG_THING+ tmp, 0, "" });
+        frog[i--] = s1;
         nodollar = 1;
-      } 
-      else if (frog[i] == "*") 
-      {
-        ret += ({ ALL_ARGS });
-        gumby = 1;
-        nodollar = 1;
-      } 
-      else if (frog[i][0..4] == "ifarg") 
-      {
-        if (sscanf(frog[i], "ifarg%d:%s", tmp, s1) == 2) 
-        {
-          if (tmp < 0)
-            tmp = 0;
-          if (tmp > ALIAS_MASK)
-            tmp = ALIAS_MASK;
-
-          ret += ({ IFARG_THING+ tmp, 0, "" });
-          frog[i--] = s1;
-          nodollar = 1;
-          ifargs += ({ sizeof(ret)-2 });
-          space = 0;
-          gumby = 1;
-        } 
-        else if (frog[i][5] == ':') 
-        {
-          ret += ({ ALL_IFARG, 0, "" });
-          // Needed to be separated.. not sure why. Flode - 040398
-          // frog[i] = frog[i--][6..100];
-          frog[i] = frog[i][6..100];
-          i--;
-          nodollar = 1;
-          ifargs += ({ sizeof(ret)-2 });
-          space = 0;
-          gumby = 1;
-        } 
-        else if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && !space)
-          ret[sizeof(ret)-1] += "$"+frog[i];
-        else if (nodollar) 
-        {
-          ret += ({ frog[i] });
-          nodollar = 0;
-        } 
-        else
-          ret += ({ "$"+frog[i] });   
-      } 
-      else if (frog[i][0..2] == "arg") 
-      {
-        if (sscanf(frog[i], "arg%d:%s", tmp, s1) == 2) 
-        {
-          if (tmp < 0)
-            tmp = 0;
-          if (tmp > ALIAS_MASK)
-            tmp = ALIAS_MASK;
-          ret += ({ ARG_THING+ tmp, s1 });
-          nodollar = 1;
-        } 
-        else if (frog[i][3] == ':') 
-        {
-          ret += ({ ALL_ARG, frog[i][4..100] });
-          nodollar = 1;
-        }
-        else if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && !space)
-          ret[sizeof(ret)-1] += "$"+frog[i];
-        else if (nodollar) 
-        {
-          ret += ({ frog[i] });
-          nodollar = 0;
-        }
-        else
-          ret += ({ "$"+frog[i] });
-
-        gumby = 1;
+        ifargs += ({ sizeof(ret)-2 });
         space = 0;
-      } 
-      else if (frog[i] == "else" && sizeof(ifargs)) 
-      {
-        ret[ifargs[sizeof(ifargs)-1]] = sizeof(ret)-ifargs[sizeof(ifargs)-1]+1;
-        ret += ({ ELSE_THING, 0, "" });
-        ifargs[sizeof(ifargs)-1] = sizeof(ret)-2;
-        nodollar = 1;
-      } 
-      else if (strlen(frog[i]) && frog[i][strlen(frog[i])-1] == '*' &&
-             sscanf(frog[i], "%d", tmp) == 1) 
-      {
-        if (tmp < 0)
-          tmp = 0;
-        if (tmp > ALIAS_MASK)
-          tmp = ALIAS_MASK;
-        ret += ({ FROM_ARG + tmp });
         gumby = 1;
-        nodollar = 1;
       } 
-      else if (strlen(frog[i]) && frog[i][0] == '*' &&
-             sscanf(frog[i][1..1000], "%d", tmp) == 1) 
+      else if (frog[i][5] == ':') 
       {
-        if (tmp < 0)
-          tmp = 0;
-        if (tmp > ALIAS_MASK)
-          tmp = ALIAS_MASK;
-        ret += ({ TO_ARG + tmp });
+        ret += ({ ALL_IFARG, 0, "" });
+        // Needed to be separated.. not sure why. Flode - 040398
+        // frog[i] = frog[i--][6..100];
+        frog[i] = frog[i][6..100];
+        i--;
+        nodollar = 1;
+        ifargs += ({ sizeof(ret)-2 });
+        space = 0;
         gumby = 1;
-        nodollar = 1;
       } 
-      else if (sscanf(frog[i], "%d", tmp) == 1) 
+      else if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && !space)
+        ret[sizeof(ret)-1] += "$"+frog[i];
+      else if (nodollar) 
       {
-        if (tmp < 0)
-          tmp = 0;
-        if (tmp > ALIAS_MASK)
-          tmp = ALIAS_MASK;
-        ret += ({ ONE_ARG + tmp });
-        gumby = 1;
-        nodollar = 1;
-      } 
-      else 
-      {
-        if (!nodollar)
-          frog[i] = "$"+frog[i];
+        ret += ({ frog[i] });
         nodollar = 0;
-        space = 0;
-        if (strlen(frog[i]) && frog[i][strlen(frog[i])-1] == '~')
-          if (sizeof(ifargs)) 
-          {
-            if (strlen(frog[i]) == 1)
-              frog[i] = "";
-            else
-              frog[i] = frog[i][0..strlen(frog[i])-2];
-            /* create an offset */
-            ret[ifargs[sizeof(ifargs)-1]] = sizeof(ret)-
-                   ifargs[sizeof(ifargs)-1];
-            ifargs = delete(ifargs, sizeof(ifargs)-1, 1);
-            nodollar = 1;
-            space = 1;
-          }
-
-        if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && space != 2)
-          ret[sizeof(ret)-1] += frog[i];
-        else  
-          ret += ({ frog[i] });
-
-        if (space)
-          space = 2;
-      }
-        
-    if (!gumby) 
+      } 
+      else
+        ret += ({ "$"+frog[i] });   
+    } 
+    else if (frog[i][0..2] == "arg") 
     {
-      if (sizeof(ret) && !stringp(ret[sizeof(ret)-1]) || space)
-        ret += ({ " ", ALL_ARGS });
-      else 
+      if (sscanf(frog[i], "arg%d:%s", tmp, s1) == 2) 
       {
-        ret[sizeof(ret)-1] += " ";
-        ret += ({ ALL_ARGS });
+        if (tmp < 0)
+          tmp = 0;
+        if (tmp > ALIAS_MASK)
+          tmp = ALIAS_MASK;
+        ret += ({ ARG_THING+ tmp, s1 });
+        nodollar = 1;
+      } 
+      else if (frog[i][3] == ':') 
+      {
+        ret += ({ ALL_ARG, frog[i][4..100] });
+        nodollar = 1;
       }
+      else if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && !space)
+        ret[sizeof(ret)-1] += "$"+frog[i];
+      else if (nodollar) 
+      {
+        ret += ({ frog[i] });
+        nodollar = 0;
+      }
+      else
+        ret += ({ "$"+frog[i] });
+
+      gumby = 1;
+      space = 0;
+    } 
+    else if (frog[i] == "else" && sizeof(ifargs)) 
+    {
+      ret[ifargs[sizeof(ifargs)-1]] = sizeof(ret)-ifargs[sizeof(ifargs)-1]+1;
+      ret += ({ ELSE_THING, 0, "" });
+      ifargs[sizeof(ifargs)-1] = sizeof(ret)-2;
+      nodollar = 1;
+    } 
+    else if (strlen(frog[i]) && frog[i][strlen(frog[i])-1] == '*' &&
+           sscanf(frog[i], "%d", tmp) == 1) 
+    {
+      if (tmp < 0)
+        tmp = 0;
+      if (tmp > ALIAS_MASK)
+        tmp = ALIAS_MASK;
+      ret += ({ FROM_ARG + tmp });
+      gumby = 1;
+      nodollar = 1;
+    } 
+    else if (strlen(frog[i]) && frog[i][0] == '*' &&
+           sscanf(frog[i][1..1000], "%d", tmp) == 1) 
+    {
+      if (tmp < 0)
+        tmp = 0;
+      if (tmp > ALIAS_MASK)
+        tmp = ALIAS_MASK;
+      ret += ({ TO_ARG + tmp });
+      gumby = 1;
+      nodollar = 1;
+    } 
+    else if (sscanf(frog[i], "%d", tmp) == 1) 
+    {
+      if (tmp < 0)
+        tmp = 0;
+      if (tmp > ALIAS_MASK)
+        tmp = ALIAS_MASK;
+      ret += ({ ONE_ARG + tmp });
+      gumby = 1;
+      nodollar = 1;
+    } 
+    else 
+    {
+      if (!nodollar)
+        frog[i] = "$"+frog[i];
+      nodollar = 0;
+      space = 0;
+      if (strlen(frog[i]) && frog[i][strlen(frog[i])-1] == '~')
+        if (sizeof(ifargs)) 
+        {
+          if (strlen(frog[i]) == 1)
+            frog[i] = "";
+          else
+            frog[i] = frog[i][0..strlen(frog[i])-2];
+          /* create an offset */
+          ret[ifargs[sizeof(ifargs)-1]] = sizeof(ret)-
+                 ifargs[sizeof(ifargs)-1];
+          ifargs = delete(ifargs, sizeof(ifargs)-1, 1);
+          nodollar = 1;
+          space = 1;
+        }
+
+      if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && space != 2)
+        ret[sizeof(ret)-1] += frog[i];
+      else  
+        ret += ({ frog[i] });
+
+      if (space)
+        space = 2;
     }
-    return ret;
+      
+  if (!gumby) 
+  {
+    if (sizeof(ret) && !stringp(ret[sizeof(ret)-1]) || space)
+      ret += ({ " ", ALL_ARGS });
+    else 
+    {
+      ret[sizeof(ret)-1] += " ";
+      ret += ({ ALL_ARGS });
+    }
+  }
+  return ret;
 }
 
 string alias_string(mixed *al) 
@@ -234,7 +234,7 @@ string alias_string(mixed *al)
   if (!pointerp(al))
     return "";
     
-  for (i=0;i<sizeof(al);i++) 
+  for (i = 0; i < sizeof(al); i++) 
   {
     if (stringp(al[i]))
       str += al[i];
@@ -287,7 +287,7 @@ int flushalias(string str)
 
 static int flushem(string str)
 {
-  if(str == "S" || str == "s")
+  if (str == "S" || str == "s")
   {
     aliases = ([ ]);
     map_aliases = ([ ]);
@@ -302,7 +302,7 @@ static int flushem(string str)
 int print_aliases() 
 {
   int i;
-  string str,str1,str2, *tmp, bing;
+  string str,str1,str2, *tmp, bing, ret;
  
   /* ahh well here goes the clean. you dont want to know what used to
    * be here ;)
@@ -315,15 +315,17 @@ int print_aliases()
  
   str1 = "";
   str2 = "";
-  tmp = m_indices(aliases);
+  ret = "";
+  tmp = map_indices(aliases);
+
   tmp = sort_array(tmp);
 
-  for (i=0;i<sizeof(tmp);i++) 
+  for (i = 0; i < sizeof(tmp); i++) 
   {
     bing = alias_string(aliases[tmp[i]]);
     str = tmp[i]+": "+bing;
     if (strlen(str)>39)
-      sprintf(tmp[i]+": %-=*s\n", (int)this_player()->query_cols()-
+      ret += sprintf(tmp[i]+": %-*s\n", (int)this_player()->query_cols()-
                                       strlen(tmp[i])-2, bing);
     else if (strlen(str)>19)
       str1 += str+"\n";
@@ -332,10 +334,12 @@ int print_aliases()
   }
   
   if (strlen(str1))
-    sprintf("%-#*s\n", this_player()->query_cols(), str1);
+    ret += sprintf("%-#*s\n", this_player()->query_cols(), str1);
 
   if (strlen(str2))
-    sprintf("%-#*s\n", this_player()->query_cols(), str2);
+    ret += sprintf("%-#*s\n", this_player()->query_cols(), str2);
+
+  write(ret);
 
   return 1;
 }
@@ -351,23 +355,24 @@ static int alias(string str, varargs int bing)
   if (map_aliases && !bing)
     convert();
 
-  if (!str)
+  if (!strlen(str))
     return print_aliases();
 
-  if(sscanf(str, "%s %s", s1, s2) != 2)
+  if (sscanf(str, "%s %s", s1, s2) != 2)
   {
     if (!aliases[str])
     {
       notify_fail("No hay ningún alias '"+str+"' definido.\n");
       return 0;
     }
-    sprintf("%s: %-=*s\n", str, (int)this_player()->query_cols() -
-                          strlen(str) -2, alias_string(aliases[str]));
+
+    write(sprintf("%s: %-=*s\n", str, (int)this_player()->query_cols() -
+                          strlen(str) -2, alias_string(aliases[str])));
     return 1;
   }
   
   /* Bishop - somehow this can happen */
-  if (!s1) 
+  if (!strlen(s1)) 
     return 1;
 
   /* Add by Baldrick, we don't want long aliases.. 
@@ -376,12 +381,12 @@ static int alias(string str, varargs int bing)
    */
   if (!this_player()->query_coder())
   {
-    if(m_sizeof(aliases) > MAXALIAS )
+    if (m_sizeof(aliases) > MAXALIAS )
     {
        write("Demasiados alias.\n");
        return 1;
     }
-    if(strlen(s2) > MAXALIASLEN)
+    if (strlen(s2) > MAXALIASLEN)
     {
       tell_object(this_player(),"Alias demasiado largo.\n");
       return 1;
