@@ -8,17 +8,18 @@
 #include <mud/secure.h>
 #include <common/properties.h>
 
-inherit history   "/lib/user/history";
-inherit alias     "/lib/user/alias";
-inherit nickname  "/lib/user/nickname";
-inherit prompt    "/lib/user/prompt";
+inherit history     "/lib/user/history";
+inherit alias       "/lib/user/alias";
+inherit nickname    "/lib/user/nickname";
+inherit prompt      "/lib/user/prompt";
+inherit more_string "/lib/user/more_string";
 
-inherit living    "/lib/living/living";
-inherit role      "/lib/user/role";
-inherit account   "/lib/user/account";
+inherit living      "/lib/living/living";
+inherit role        "/lib/user/role";
+inherit account     "/lib/user/account";
 
-inherit events    "/lib/core/basic/events";
-inherit auto_load "/lib/core/basic/auto_load";
+inherit events      "/lib/core/basic/events";
+inherit auto_load   "/lib/core/basic/auto_load";
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
@@ -39,6 +40,7 @@ string last_on_from; // last ip the user connected from
 // string query_name() { return "neverbot"; }
 // string short(varargs int dark) { return "neverbot"; }
 int query_cols() { return 79; }
+int query_rows() { return 20; }
 void set_cols(int i) { }
 int query_verbose() { return 1; }
 int query_level() { return 10; }
@@ -82,6 +84,7 @@ void create()
   prompt::create();
   role::create();
   account::create();
+  more_string::create();
 
   // the last one
   living::create();

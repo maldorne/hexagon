@@ -10,10 +10,14 @@ static nomask void input_to(string func, varargs int flag, mixed arg...)
   //   ob = this_player()->query_user();
   
   // if (!ob) 
-    ob = this_user();
+  
+  ob = this_user();
 
   if (ob)
+  {
+    ob->set_no_prompt();
     ob->set_input_to(this_object(), func, flag, arg...);
+  }
   
   return;
 }

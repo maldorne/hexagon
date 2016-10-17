@@ -148,7 +148,7 @@ int query_hands_needed() { return hands; }
 // Radix moved long() from /obj/weapon.c & armour.c to here.
 // Also added calc_extra_look() cause it was unused (though inherited)
 // Jan 18, 1996
-string long(string s, int dark)
+string long(varargs string s, int dark)
 {
   string cond, xtra;
   if ((this_object()->query_weapon()) || 
@@ -165,10 +165,10 @@ string long(string s, int dark)
   if (!xtra) 
     xtra = "";
   
-  // return object::long() + read_desc::long() + xtra + cond;
-  
+  // return obj::long() + read_desc::long() + xtra + cond;
+
   return( 
-         sprintf("\n  %-=*s\n", (this_player()?this_player()->query_cols()-2:77),
+         sprintf("\n  %-*s\n", (this_player()?this_player()->query_cols()-2:77),
                  "   " + obj::long()) +
                  read_desc::long() + xtra + cond
         );    
