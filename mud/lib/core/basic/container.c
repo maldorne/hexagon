@@ -33,14 +33,14 @@ int query_weight()
 {
   int temp;
 
-  if(living(this_object()))
+  if (living(this_object()))
     temp = this_object()->query_loc_weight();
   else
     temp = this_object()->query_loc_weight() * weight_reduction / 100;
 
   temp += ::query_weight();
 
-  if(temp > 0) 
+  if (temp > 0) 
     return temp;
   else 
     return 0;
@@ -56,7 +56,7 @@ int add_weight(int n)
 
   loc_weight += n;
 
-  if(environment()) 
+  if (environment()) 
     environment()->fix_my_loc_weight();
 
   return 1;
@@ -79,7 +79,7 @@ void fix_my_loc_weight()
   loc_weight = 0;
 
   for(i = 0; i < sizeof(stuff); i++)
-    if(!add_weight(stuff[i]->query_weight())) 
+    if (!add_weight(stuff[i]->query_weight())) 
   {
 	  // Let's be nice to the player and TELL them when they drop something :)
 	  // Anirudh
@@ -119,7 +119,7 @@ string long(string str, int dark)
 
   ret += calc_extra_look();
 
-  if(this_object()->query_corpse())
+  if (this_object()->query_corpse())
     ret += (string)this_object()->query_living_contents(0);
   else
     ret += query_contents(short(dark)+" contiene:\n", all_inventory());

@@ -19,12 +19,12 @@
 // #include <drinks.h>
 // #include <quests.h>
 
-// inherit "/global/living/alignment";
+inherit alignment "/lib/core/basic/alignment";
 // inherit "/global/living/death";
 // inherit "/global/living/force";
 // inherit "/global/living/money";
 // inherit "/global/living/effects";
-// inherit "/global/living/equip";
+inherit equip     "/lib/living/equip";
 // inherit "/global/living/gender";
 // inherit "/global/living/stats";
 // inherit "/global/living/combat.c";
@@ -43,6 +43,8 @@ inherit movement  "/lib/living/movement.c";
 
 void create()
 {
+  alignment::create();
+  equip::create();
   queue::create();
 
   // from here we inherit object.c, were the call to
@@ -68,9 +70,16 @@ void dest_me()
   movement::dest_me();
 }
 
+void start_player()
+{
+  // groups_obs::start_player();
+}
+
 mixed * stats() 
 {
-  return queue::stats() + 
+  return alignment::stats() +
+         equip::stats() +
+         queue::stats() + 
          movement::stats();
          // stats::stats() + 
          // equip::stats() + 

@@ -620,12 +620,17 @@ nomask void begin2(int new_player)
   else if( (invis_wish == 2) && !SECURE->query_admin(name) )
     invis_wish = 1;
 
-  room = load_object(CODER_COMMON_ROOM);
-  _player->move(room);
-  // new_copy->move_player_to_start(name, new_player, invis_wish);
+  // room = load_object(CODER_COMMON_ROOM);
+  // _player->move(room);
+  _player->move_player_to_start(invis_wish, new_player);
 
-  // Añadido por Folken, esto deberia andar por aqui
+  // Añadido por neverbot, esto deberia andar por aqui
   cat("/doc/news.txt");
+
+  // do not show the first prompt, a command will be issued 
+  // in move_player_to_start and after that the prompt will be
+  // shown
+  _player->set_no_prompt();
 
   destruct(this_object());
 

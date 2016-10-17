@@ -40,12 +40,15 @@ void setup() {
   add_item("scribe","Being a very young man, this scribe obviously feels "+
            "dwarfed by the immense characters of your party. Dutifully "+
            "he takes down the minutes of the meeting.\n");
+
 }
 
 void reset() 
 {
+  ::reset();
+
   if (floor)
-    return ;
+    return;
 
   floor = clone_object("/lib/core/object");
   floor->set_name("floor");

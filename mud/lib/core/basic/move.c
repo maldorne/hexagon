@@ -15,14 +15,14 @@ object query_prev() { return previous; }
 
 // default to being gettable and dropable...
 // modify as you will...
-void reset_get() { move_flag |= CAN_BE_DROPPED; }  // can't be gotten 
-void set_get() { move_flag &= ~CAN_BE_DROPPED; }   // can be gotten 
-void reset_drop() { move_flag |= CAN_BE_GOTTEN; }  // can't be dropped 
-void set_drop() { move_flag &= ~CAN_BE_GOTTEN; }   // can be dropped
+void reset_get() { move_flag |= DROP; }  // can't be gotten 
+void set_get() { move_flag &= ~DROP; }   // can be gotten 
+void reset_drop() { move_flag |= GET; }  // can't be dropped 
+void set_drop() { move_flag &= ~GET; }   // can be dropped
 
 // these should have been called "query...", but they're not
-int drop() { return move_flag & CAN_BE_DROPPED; }
-int get() { return move_flag & CAN_BE_DROPPED; }
+int drop() { return move_flag & DROP; }
+int get() { return move_flag & DROP; }
 int gettable() { return !get(); }
 
 void set_move_flag(int i) { move_flag = i; }
@@ -48,14 +48,12 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   }
 
   // previous environment can let go
-  if ((move_flag & CAN_BE_DROPPED) && previous)
-		if (!previous->test_remove(this_object()))
-    	return MOVE_NO_DROP;
+  if (previous && !previous->test_remove(this_object(), move_flag & DROP))
+  	return MOVE_NO_DROP;
     
   // destination can accept the object
-  if (move_flag & CAN_BE_GOTTEN)
-  	if (!destination->test_add(this_object()))
-    	return MOVE_NO_GET;
+  if (!destination->test_add(this_object(), move_flag & GET))
+  	return MOVE_NO_GET;
 
   // event_exit
   if (previous)

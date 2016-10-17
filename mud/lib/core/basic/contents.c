@@ -3,7 +3,7 @@
 
 // #include <alignment.h>
 
-#define HUD "/table/hud_table.c"
+#include <user/hud.h>
 
 string number_as_place(int num);
 
@@ -133,7 +133,8 @@ string query_contents(string str, varargs object *obs)
   if (!sizeof(inv[0]) && !sizeof(inv[2])) 
      return ret;
   
-  if (str) ret += str;
+  if (str) 
+    ret += str;
   
   howmany = count = sizeof(inv[0]);
 

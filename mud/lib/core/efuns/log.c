@@ -7,6 +7,7 @@
 static nomask void log_file( string file, string text )
 {
   string logfile;
+  string oldeiud;
 
   if ( !strlen( file ) || !strlen( text ) ) 
     return; // syntax error
@@ -16,6 +17,7 @@ static nomask void log_file( string file, string text )
   
   logfile = LOG_DIR + file; // would 'sprintf' be much better here?
   
+  oldeiud = geteuid();
   seteuid(ROOT);
 
   if ( file_size( logfile ) > MAX_LOG_SIZE )
@@ -23,7 +25,7 @@ static nomask void log_file( string file, string text )
   
   write_file( logfile, text );
   
-  seteuid("");
+  seteuid(oldeiud);
 }
 
 // log_attacks.c

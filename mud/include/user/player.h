@@ -3,11 +3,12 @@
 
 // Tabla de actualizacion de jugadores
 #define SHEET_TABLE "/table/sheet_table.c"
+#define RANKING_OB  "/obj/handlers/ranking.c"
 
 // Objetos que un player siempre debe tener
 #define MUST_HAVE ({"/obj/misc/diary","/obj/misc/hearthstone",})
 
-// Definiciones extraidas del player.c, Folken 4/2003
+// Definiciones extraidas del player.c, neverbot 4/2003
 // ------------
 // Taniwha 14/09/1995 how long shall we disable guild commands 
 //  and spells after login

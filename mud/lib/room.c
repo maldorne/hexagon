@@ -92,12 +92,12 @@ string set_login_room(string room)
   return loginroom;
 }
 
-void event_login(object ob)
+void event_login(object ob, varargs mixed avoid)
 {
-  if(!stringp(loginroom) || !ob) 
-      return;
-  else 
-      ob->move(loginroom);
+  ::event_login(ob, avoid);
+  
+  if (stringp(loginroom) && ob) 
+    ob->move(loginroom);
 }
 
 void start_clean_up();

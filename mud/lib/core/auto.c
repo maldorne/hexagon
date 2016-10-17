@@ -55,15 +55,14 @@ nomask void _auto_create()
 
 static nomask object clone_object(mixed what, varargs string uid) 
 {
-  if (objectp(what))
-  {
-    stderr(" - clone_object from <" + object_name(what) + ">\n");
-  }
-  else if (stringp(what))
+  if (stringp(what))
   {
     stderr(" - clone_object from \"" + what + "\"\n");
-    what = load_object(what);
+    return load_object(what);
   }
+
+  if (objectp(what))
+    stderr(" - clone_object from <" + object_name(what) + ">\n");
 
   return ::clone_object(what);
 }

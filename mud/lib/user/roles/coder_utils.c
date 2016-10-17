@@ -373,12 +373,13 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
     if (ob = find_object(str)) 
       return ({ ob });
 
-    if (sizeof((sts = (string *)get_cfiles(str))))  
+    if (sizeof((sts = (string *)get_files(str))))  
     {
       obs = ({ });
-      for (i=0;i<sizeof(obs);i++)
+      for (i = 0; i < sizeof(obs); i++)
         if ((ob = find_object(sts[i])))
           obs += ({ ob });
+        
       return obs;
     }
 

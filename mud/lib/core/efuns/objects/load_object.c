@@ -8,7 +8,7 @@
 static nomask object load_object(string name) 
 {
   object obj;
-  
+
   // if name has a trailing .c, let's get rid of it.
   if (strlen(name) > 2 && name[strlen(name)-2..strlen(name)-1] == ".c") 
     name = name[0..strlen(name)-3];

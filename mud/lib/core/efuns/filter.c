@@ -32,10 +32,13 @@ static nomask mapping filter_mapping(mapping map, string func, mixed ob, varargs
   return ret;
 }
 
-static nomask mixed * filter_array(mixed * list, string func, mixed ob, varargs mixed extra...)
+static nomask mixed * filter_array(mixed * list, string func, varargs mixed ob, mixed extra...)
 {
   int i;
   mixed * ret;
+
+  if (!ob)
+    ob = this_object();
 
   ret = ({ });
 
@@ -50,8 +53,11 @@ static nomask mixed * filter_array(mixed * list, string func, mixed ob, varargs 
   return ret;
 }
 
-static nomask mixed filter(mixed list, string func, mixed ob, varargs mixed extra)
+static nomask mixed filter(mixed list, string func, varargs mixed ob, mixed extra)
 {
+  if (!ob)
+    ob = this_object();
+  
   if (arrayp(list))
     return filter_array(list, func, ob, extra);
   if (mappingp(list))

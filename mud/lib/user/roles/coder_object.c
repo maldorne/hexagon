@@ -212,7 +212,7 @@ int update(string str)
   }
   else 
   {
-    filenames = get_cfiles(str);
+    filenames = get_files(str);
   }
   
   if (sizeof(filenames) == 0) 

@@ -90,6 +90,24 @@ void event_exit(object ob, string msg, varargs object dest, object *ignore)
   stderr(" * event_exit " + object_name(this_object()) + "\n");
 }
 
+void event_login(object ob, varargs mixed avoid)
+{
+  stderr(" * event_login " + object_name(this_object()) + "\n");
+
+  if (avoid)
+  {
+    if (pointerp(avoid)) 
+    {
+      if (member_array(this_object(), avoid) != -1)
+        return;
+    } 
+    else if (objectp(avoid) && (avoid == this_object()))
+      return;
+  }
+
+  this_object()->catch_tell(ob->query_cap_name() + " entra en "+mud_name() + ".\n");
+}
+
 void event_soul(object ob, string str, mixed avoid)
 {
 }

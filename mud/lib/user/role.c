@@ -6,10 +6,12 @@
 
 static object _role;
 string role_name;
+int invis;
 
 void create()
 {
   role_name = PLAYER_ROLE;
+  invis = 0;
 }
 
 void dest_me()
@@ -45,7 +47,7 @@ int set_role(string name)
 
       // euid as coder
       seteuid(this_object()->query_name());
-      
+     
       break;
 
     case PLAYER_ROLE:
@@ -86,6 +88,21 @@ string query_object_type()
 
   return PLAYER_ROLE;
 } /* query_object_type() */
+
+nomask int set_invis(int i) 
+{
+  if (query_coder())
+  { 
+    if (i)
+        invis = 1;
+    else
+        invis = 0;
+  }
+  else
+    invis = i;
+}
+
+nomask int query_invis() { return invis; }
 
 
 mixed * stats() 

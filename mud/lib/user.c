@@ -20,9 +20,6 @@ inherit account   "/lib/user/account";
 inherit events    "/lib/core/basic/events";
 inherit auto_load "/lib/core/basic/auto_load";
 
-// tmp for testing commands
-inherit tmp       "/lib/coder/tmp";
-
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
 static mixed  redirect_input_args;     // optional arguments passed to the function
@@ -30,12 +27,47 @@ static mixed  redirect_input_args;     // optional arguments passed to the funct
 // last input time
 static int timestamp;
 
-string last_pos;   // file name of environment of last connection
-string *auto_load; // inventory
-int time_on;       // total time connected 
-int ontime;        // session time
-int last_log_on;   // time of last log on
+string last_pos;     // file name of environment of last connection
+string *auto_load;   // inventory
+int time_on;         // total time connected 
+int ontime;          // session time
+int last_log_on;     // time of last log on
+string last_on_from; // last ip the user connected from
 
+
+// TMP DEBUG, REMOVE!!!
+// string query_name() { return "neverbot"; }
+// string short(varargs int dark) { return "neverbot"; }
+int query_cols() { return 79; }
+void set_cols(int i) { }
+int query_verbose() { return 1; }
+int query_level() { return 10; }
+// stats
+void reset_all() { }
+string query_gtitle() { return "rey de reyes"; }
+int query_dead() { return 0; }
+void set_dead(int i) { }
+int query_gender() { return 1; }
+void load_mount();
+
+object query_race_ob() { return nil; }
+int query_volume(int i) { return 0; }
+
+int check_dark(int light)
+{
+  if (this_object()->query_dead())
+    return 0;
+  if (this_object()->query_race_ob())
+    return (int)query_race_ob()->query_dark(light);
+  return 0;
+}
+// END TMP DEBUG
+
+
+
+
+
+#include "/lib/user/start.c"
 
 // Function prototypes
 // static void open();
@@ -60,11 +92,12 @@ void create()
   // already done in living
   // enable_commands();
 
-  timestamp   = 0;
-  time_on     = time();
-  ontime      = time();
-  last_log_on = time();
-  auto_load   = ({ });
+  timestamp    = 0;
+  time_on      = time();
+  ontime       = time();
+  last_log_on  = time();
+  auto_load    = ({ });
+  last_on_from = "";
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
@@ -254,8 +287,11 @@ static void receive_message(string str)
 
       call_other(tmp_redirect_obj, tmp_redirect_func, str, tmp_redirect_args...);
   
-      if (!redirect_input_ob && this_object())
+      if (!redirect_input_ob && 
+          this_object() && this_object()->query_show_prompt())
+      {
         show_prompt();
+      }
       
       return;
     }
@@ -330,7 +366,6 @@ void heart_beat()
   ::heart_beat();
 
   // write("hb: " + object_name(this_object()) + "\n");
-  // send_message("hb: " + object_name(this_object()) + "\n");
 }
 
 /* old glance(), neverbot 21/4/2003 */
@@ -362,13 +397,6 @@ int do_look(varargs string arg)
     return do_command("mirar");
   return do_command("mirar " + arg);
 }
-
-
-
-
-
-
-
 
 int really_quit()
 {
@@ -418,12 +446,10 @@ int really_quit()
       log_file("enter", sprintf("Exit  : %-15s %s (guest) [%s]\n",
                                 name, ctime(time(),4),
                                 query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
-                                // (query_ip_name()?query_ip_name():query_ip_number())));
     else
       log_file("enter", sprintf("Exit  : %-15s %s [%s]\n",
                                 name, ctime(time(),4), 
                                 query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
-                                // (query_ip_name()?query_ip_name():query_ip_number())));
   }
 
   // TODO editor
@@ -475,7 +501,7 @@ int really_quit()
 
     if ( this_object()->query_coder() )
       event(users(), "inform", this_object()->query_cap_name() +
-                               " sale de " + mud_name(), "logon_programadores",
+                               " sale de " + mud_name(), "logon-coders",
                                all_inventory(environment(this_object())));
     else
       event(users(), "inform", this_object()->query_cap_name() + 
@@ -596,7 +622,15 @@ int quit()
 mixed * stats() 
 {
   return ({ 
+
     ({ "Timestamp", timestamp, }),
+    ({ "Last Pos", last_pos }),
+    ({ "Auto Load", auto_load }),
+    ({ "Time On", time_on }),
+    ({ "On Time", ontime }),
+    ({ "Last Logon", last_log_on }),
+    ({ "Last On From", last_on_from }),
+
           }) + history::stats() + 
                alias::stats() + 
                nickname::stats() + 
@@ -619,26 +653,6 @@ mixed * stats()
 
 
 
-
-
-// TMP DEBUG, REMOVE!!!
-// string query_name() { return "neverbot"; }
-// string short(varargs int dark) { return "neverbot"; }
-int query_cols() { return 79; }
-int query_invis() { return 0; }
-int query_verbose() { return 1; }
-
-object query_race_ob() { return nil; }
-int query_volume(int i) { return 0; }
-
-int check_dark(int light)
-{
-  if (this_object()->query_dead())
-    return 0;
-  if (this_object()->query_race_ob())
-    return (int)query_race_ob()->query_dark(light);
-  return 0;
-}
 
 
 

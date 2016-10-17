@@ -3,8 +3,7 @@
 #ifndef _LOGIN_INCLUDE
 #define _LOGIN_INCLUDE
 
-// #define LOGIN_TIMEOUT 300
-#define LOGIN_TIMEOUT 20
+#define LOGIN_TIMEOUT 300
 #define MIN_UPTIME_LOGIN_TIME 20
 #define MAX_PLAYERS 50
 

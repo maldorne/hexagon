@@ -266,6 +266,7 @@ int query_busy()
   return NOT_BUSY;
 }
 
+int query_show_prompt() { return show_prompt; }
 void set_no_prompt() { show_prompt = 0; }
 
 /****
@@ -609,6 +610,8 @@ private int perform_next_action()
 
 /*
  * The outside interface for inserting actions to the head of the queue.
+ *
+ * consider using do_command instead of this, neverbot 10/16
  */
 nomask int insert_action( mixed val ) { return aq_insert( val ); }
 nomask int queue_action( mixed val ) { return aq_add( val ); }
@@ -660,254 +663,257 @@ void heart_beat()
  */
 nomask int action_check(string str) 
 {
-    int i;
-    string tmp;
-    object tmp_ob, tmp_env;
-    int tmp_res;
+  int i;
+  string tmp;
+  object tmp_ob, tmp_env;
+  int tmp_res;
 
-    if (!strlen(str))
-      return 0;
+  if (!strlen(str))
+    return 0;
 
-    // this is ridiculous.  MudOS will not show these strings as equal. 
-    if ( str == command_in_progress )
-      return 0;
+  // this is ridiculous.  MudOS will not show these strings as equal. 
+  if ( str == command_in_progress )
+    return 0;
 
-    // Expand some common aliases
-    // * Moved from process_input.
-    switch( str[0] )
-    {   
-      case '\'' : str = "decir "+   str[1..]; break;
-      case ':'  : str = "emocion "+ str[1..]; break;
-      // case '\"' : str = "lsay "+  str[1..<1]; break;
-      // case ';'  : str = "parse "+ str[1..<1]; break;
-    }
+  // Expand some common aliases
+  // * Moved from process_input.
+  switch( str[0] )
+  {   
+    case '\'' : str = "decir "+   str[1..]; break;
+    case ':'  : str = "emocion "+ str[1..]; break;
+    // case '\"' : str = "lsay "+  str[1..<1]; break;
+    // case ';'  : str = "parse "+ str[1..<1]; break;
+  }
 
-    if ( (tmp = EXPANSION[str]) ) 
-      str = tmp;
+  if ( (tmp = EXPANSION[str]) ) 
+    str = tmp;
 
-    // check for some special queue-affecting commands 
-    switch( str )
-    {
-      case "restart":
-      case "reiniciar":
-        if ( query_heart_beat() )
-          tell_object(this_object(),
-            // "No necesitas que tu heartbeat sea reseteado.\n");
-            "No necesitas reiniciar tu personaje en estos momentos.\n");
-        else
-        {
-          tell_object(this_object(),"Intentando reiniciar tu personaje...\n");
-          actionq = ({ }); // will get cascading failure without this 
-          set_heart_beat(1);
-          catch(this_object()->flush_spell_effects());
-        }
+  // check for some special queue-affecting commands 
+  switch( str )
+  {
+    case "restart":
+    case "reiniciar":
+      if ( query_heart_beat() )
+        tell_object(this_object(),
+          // "No necesitas que tu heartbeat sea reseteado.\n");
+          "No necesitas reiniciar tu personaje en estos momentos.\n");
+      else
+      {
+        tell_object(this_object(),"Intentando reiniciar tu personaje...\n");
+        actionq = ({ }); // will get cascading failure without this 
+        set_heart_beat(1);
+        catch(this_object()->flush_spell_effects());
+      }
+      return 1;
+
+    case "stop":
+    case "parar":
+      if ( sizeof(actionq) != 0 )
+          aq_delete_user_actions();
+        tell_object(this_object(),"Cola de comandos borrada.\n");
+        // "(stop-fight parara los ataques si es lo que querias)\n");
+      return 1;
+
+    case "abort":
+    case "abortar":
+      if ( !ia_in_progress )
+      {
+        tell_object(this_object(),"No estás en medio de una acción que "+
+          "pueda ser abortada.\n");
         return 1;
-
-      case "stop":
-      case "parar":
-        if ( sizeof(actionq) != 0 )
-            aq_delete_user_actions();
-          tell_object(this_object(),"Cola de comandos borrada.\n");
-          // "(stop-fight parara los ataques si es lo que querias)\n");
+      }
+      abort_interruptable_action();
+      return 1;
+    /*
+    case "huir":
+        environment(this_object())->do_random_move_command();
         return 1;
+    */
 
-      case "abort":
-      case "abortar":
-        if ( !ia_in_progress )
-        {
-          tell_object(this_object(),"No estás en medio de una acción que "+
-            "pueda ser abortada.\n");
-          return 1;
-        }
-        abort_interruptable_action();
-        return 1;
-      /*
-      case "huir":
-          environment(this_object())->do_random_move_command();
-          return 1;
-      */
+    // some testing commands
 
-      // some testing commands
+    case "stats":
+      // write(object_name(this_object()) + "\n");
+      // print_object(::status(this_object()));
+      // print_object(this_object()->stats());
+      write(to_string(this_object()->stats()));
+      return 1;
 
-      case "stats":
-        // write(object_name(this_object()) + "\n");
-        // print_object(::status(this_object()));
-        // print_object(this_object()->stats());
-        write(to_string(this_object()->stats()));
-        return 1;
+    case "test2":
 
-      case "test2":
+      tmp_env = clone_object("/lib/core/basic/container");
+      tmp_res = this_object()->move(tmp_env);
+      write(tmp_res + "\n");
 
-        tmp_env = clone_object("/lib/core/basic/container");
-        tmp_res = this_object()->move(tmp_env);
-        write(tmp_res + "\n");
+      tmp_ob = clone_object("/lib/core/object");
+      tmp_res = tmp_ob->move(tmp_env);
+      write(tmp_res + "\n");
 
-        tmp_ob = clone_object("/lib/core/object");
-        tmp_res = tmp_ob->move(tmp_env);
-        write(tmp_res + "\n");
+      // this_object()->move(tmp_ob);
+      return 1;
 
-        // this_object()->move(tmp_ob);
-        return 1;
+    // case "inv":
+    //   print_object(this_object()->all_inventory());
+    //   return 1;
 
-      // case "inv":
-      //   print_object(this_object()->all_inventory());
-      //   return 1;
+    case "env":
+      print_object(environment(this_object()));
+      if (environment(this_object()))
+        print_object(environment(this_object())->all_inventory());
+      return 1;
 
-      case "env":
-        print_object(environment(this_object()));
-        if (environment(this_object()))
-          print_object(environment(this_object())->all_inventory());
-        return 1;
+    // case "init":
+    //   this_object()->init();
+    //   return 1;
 
-      // case "init":
-      //   this_object()->init();
-      //   return 1;
+    case "name":
+      print_object(this_object()->query_name());
+      return 1;
 
-      case "name":
-        print_object(this_object()->query_name());
-        return 1;
+    case "aq":
+      print_object(actionq);
+      return 1;
 
-      case "aq":
-        print_object(actionq);
-        return 1;
+    case "actions":
+      {
+        object * targets;
+        mapping actions;
+        int i;
 
-      case "actions":
-        {
-          object * targets;
-          mapping actions;
-          int i;
+        targets = ({ this_object()->query_role(), 
+                     environment(this_object()) }) +
+                     all_inventory(environment(this_object())) +
+                     all_inventory(this_object());
+        actions = ([ ]);
 
-          targets = ({ this_object()->query_role(), 
-                       environment(this_object()) }) +
-                       all_inventory(environment(this_object())) +
-                       all_inventory(this_object());
-          actions = ([ ]);
+        stderr("ACTIONS targets" + to_string(targets) + "\n");
 
-          for (i = 0; i < sizeof(targets); i++)
+        for (i = 0; i < sizeof(targets); i++)
+          if (targets[i])
             actions += targets[i]->query_actions();
 
-          print_object(actions);
-        }
-        return 1;
-    }
-
-    if ( query_heart_beat() == 0 )
-    {
-      // tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"
-      //   "No tienes heartbeat; prueba '%^BOLD%^reiniciar%^RESET%^' para intentar "
-      //   "solucionarlo.  No podrás hacer nada sin tu "
-      //   "heartbeat.\n");
-      tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"+
-        "Se ha producido un error. Prueba a '%^BOLD%^reiniciar%^RESET%^' para intentar "+
-        "solucionarlo.\n");
-    }
-
-    if ( sizeof(actionq) >= AQ_MAX_ACTIONS )
-    {
-      tell_object(this_object(), "Ya hay demasiados comandos en la cola; "+
-        "ignorando '"+str+"'.\n");
+        print_object(actions);
+      }
       return 1;
-    }
+  }
 
-    if ( this_object()->action_blocked() )
+  if ( query_heart_beat() == 0 )
+  {
+    // tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"
+    //   "No tienes heartbeat; prueba '%^BOLD%^reiniciar%^RESET%^' para intentar "
+    //   "solucionarlo.  No podrás hacer nada sin tu "
+    //   "heartbeat.\n");
+    tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"+
+      "Se ha producido un error. Prueba a '%^BOLD%^reiniciar%^RESET%^' para intentar "+
+      "solucionarlo.\n");
+  }
+
+  if ( sizeof(actionq) >= AQ_MAX_ACTIONS )
+  {
+    tell_object(this_object(), "Ya hay demasiados comandos en la cola; "+
+      "ignorando '"+str+"'.\n");
+    return 1;
+  }
+
+  if ( this_object()->action_blocked() )
+  {
+    // Wonderflug, Dec 95, making this more flexible --
+    // * can specify the string that the block puts out.
+    // * A year later, adding ability to make it a function pointer too.
+
+    mixed pop;
+    mixed ret;
+
+    pop = this_object()->action_blocked();
+
+    // if ( stringp(pop) )
+    // {
+    //   tell_object(this_object(),pop);
+    //   if (!this_object()->query_admin())
+    //     return 1;
+    // }
+    // else if ( functionp( pop) )
+    //   return evaluate( pop );
+    // else
+    // {
+    //   tell_object(this_object(),
+    //     "Estás aturdido, no puedes hacer nada.\n");
+    //   if (!this_object()->query_admin())
+    //     return 1;
+    // }
+
+    if (stringp(pop))
     {
-      // Wonderflug, Dec 95, making this more flexible --
-      // * can specify the string that the block puts out.
-      // * A year later, adding ability to make it a function pointer too.
-
-      mixed pop;
-      mixed ret;
-
-      pop = this_object()->action_blocked();
-
-      // if ( stringp(pop) )
-      // {
-      //   tell_object(this_object(),pop);
-      //   if (!this_object()->query_admin())
-      //     return 1;
-      // }
-      // else if ( functionp( pop) )
-      //   return evaluate( pop );
-      // else
-      // {
-      //   tell_object(this_object(),
-      //     "Estás aturdido, no puedes hacer nada.\n");
-      //   if (!this_object()->query_admin())
-      //     return 1;
-      // }
-
-      if (stringp(pop))
+      if (( ret = evaluate(pop) ) != pop)
       {
-        if (( ret = evaluate(pop) ) != pop)
-        {
-          return ret;
-        }
-        else
-        {
-          tell_object(this_object(), ret);
-
-          if (!this_object()->query_admin())
-            return 1;
-        }
+        return ret;
       }
       else
       {
-        tell_object(this_object(), "Estás aturdido, no puedes hacer nada.\n");
+        tell_object(this_object(), ret);
 
         if (!this_object()->query_admin())
           return 1;
       }
     }
-
-    // not sure why this is necessary... 
-    str = replace_string(str, "@@", "");
-
-    // Bishop - moving to process_input
-    // this_object()->add_history(str);
-     
-    // The latency is too much, so we've added a check to see
-    // * if it's ok to execute the command right away.
-     
-    if ( (i = aq_add( str )) != AQ_OK )
+    else
     {
-      tell_object(this_object(), "Error insertando en la cola de comandos '"
-        + str + "', " + i + "\n");
+      tell_object(this_object(), "Estás aturdido, no puedes hacer nada.\n");
+
+      if (!this_object()->query_admin())
+        return 1;
     }
-    else if ( ia_in_progress && query_show_interrupt() )
-    {
-      tell_object(this_object(), ia_message);
-    }
-    else 
-    {
-      // added the while below to remove latency in history/alias commands 
-      // * as well; to get prompting correct, I've also unrolled the first
-      // * iteration of the loop into an if.
+  }
 
-      // if ( ( sizeof(actionq) >= 1 ) 
-      if ( ( sizeof(actionq) >= 1 ) && ( time_left > 0 ) && 
-           ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
-      {
-        perform_next_action();
-      }
+  // not sure why this is necessary... 
+  str = replace_string(str, "@@", "");
 
-      // while ( sizeof(actionq) >= 1 
-      while ( sizeof(actionq) >= 1 && (time_left > 0) && 
-            ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
-      {
-        this_object()->show_prompt();
-        this_object()->write_prompt();
-        perform_next_action();
-      }
+  // Bishop - moving to process_input
+  // this_object()->add_history(str);
+   
+  // The latency is too much, so we've added a check to see
+  // * if it's ok to execute the command right away.
+   
+  if ( (i = aq_add( str )) != AQ_OK )
+  {
+    tell_object(this_object(), "Error insertando en la cola de comandos '"
+      + str + "', " + i + "\n");
+  }
+  else if ( ia_in_progress && query_show_interrupt() )
+  {
+    tell_object(this_object(), ia_message);
+  }
+  else 
+  {
+    // added the while below to remove latency in history/alias commands 
+    // * as well; to get prompting correct, I've also unrolled the first
+    // * iteration of the loop into an if.
+
+    // if ( ( sizeof(actionq) >= 1 ) 
+    if ( ( sizeof(actionq) >= 1 ) && ( time_left > 0 ) && 
+         ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
+    {
+      perform_next_action();
     }
 
-    // the object destructed itself
-    if (!this_object())
-      return 0;
-
-    if ( show_prompt )
+    // while ( sizeof(actionq) >= 1 
+    while ( sizeof(actionq) >= 1 && (time_left > 0) && 
+          ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
+    {
       this_object()->show_prompt();
+      this_object()->write_prompt();
+      perform_next_action();
+    }
+  }
 
-    return 1;
+  // the object destructed itself
+  if (!this_object())
+    return 0;
+
+  if ( show_prompt )
+    this_object()->show_prompt();
+
+  return 1;
 } /* action_check() */
 
 /* Always return 0 to get the driver's notify_fail;

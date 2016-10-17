@@ -21,7 +21,7 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   object from;
 
   // Taniwha 1995, maybe log this ?
-  if(!dest)
+  if (!dest)
     return 0;
 
   if (!objectp(dest))
@@ -42,7 +42,7 @@ int move(mixed dest, varargs mixed messin, mixed messout)
       from->adjust_light(-query_light());
     }
 
-    if(environment())
+    if (environment())
       environment()->adjust_light(query_light());
   } 
   else
@@ -64,9 +64,9 @@ void dest_me()
   
   olist = all_inventory(this_object());
   
-  for(i = 0; i < sizeof(olist); i++)
+  for (i = 0; i < sizeof(olist); i++)
   {
-    if(olist[i]) 
+    if (olist[i]) 
       olist[i]->dest_me();
   }
   
