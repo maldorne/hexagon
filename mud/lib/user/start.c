@@ -192,9 +192,9 @@ void do_first_look()
   //   tell_player(this_object(), "Tu ficha ha sido actualizada.\n");
 
   if (query_verbose())
-    do_command("mirar");
+    do_command("look");
   else
-    do_command("ojear");
+    do_command("glance");
 
   // Si estamos creando el personaje, su nivel es cero, no debemos hacer esto
   if (query_level() >= 1)
@@ -217,7 +217,7 @@ void do_first_look()
         {
           ob->move(this_object());
           tell_object(this_object(), "Por algún error has debido perder tu "+ob->query_name()+". "+
-              "Otr"+ob->query_vocal()+" nuev"+ob->query_vocal()+" te es concedid"+ob->query_vocal()+".\n");                
+              "Otr"+ob->query_vocal()+" nuev"+ob->query_vocal()+" te es concedid"+ob->query_vocal()+".\n\n");                
         }
       }
   }

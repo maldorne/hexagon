@@ -7,7 +7,7 @@
 
 int gender;
 
-// AÃ±adidos create y stats, neverbot 4/03
+// Añadidos create y stats, neverbot 4/03
 void create()
 {
   gender = 1;
@@ -27,10 +27,10 @@ string query_gender_string()
   switch (gender) 
   {
     // case 0: return "asexual";
-    case 1: return "varÃ³n";
+    case 1: return "varón";
     case 2: return "mujer";
     // case 3: return "bisexual";
-    default: return "varÃ³n";
+    default: return "varón";
   }
 }
 
@@ -38,8 +38,8 @@ string query_gender_title()
 {
   switch (gender) 
   {
-    case 1: return "seÃ±or";
-    case 2: return "seÃ±ora";
+    case 1: return "señor";
+    case 2: return "señora";
     default: return "ente";
   }
 }
@@ -70,9 +70,9 @@ string query_pronoun()
 {
   switch (gender) 
   {
-    case 1: return "Ã©l";
+    case 1: return "él";
     case 2: return "ella";
-    default: return "Ã©l";
+    default: return "él";
   }
 }
 
@@ -80,14 +80,15 @@ string query_pronoun()
 // Cambiado por neverbot, solo puede recibir int.
 void set_gender(int arg) 
 {
-  // AÃ±adido para el genero de los objetos (espero que no
+  // Añadido para el genero de los objetos (espero que no
   // se use en mas sitios!!)
   if (arg == 0)
   {
     // if (interactive(this_object())){
     if (living(this_object()))
     {
-      write("No se puede hacer eso (gÃ©nero ilegal).\n");
+stderr("SET GENDER " + object_name(this_object()) + " " +to_string(call_trace())+"\n");
+      write("No se puede hacer eso (género ilegal).\n");
       return;
     }
       

@@ -61,14 +61,9 @@ void create()
   no_times = 0;
   coder = 0;
   password = "";
-  // cols = 79;
-  // account = nil;
-  // initial_player = "";
-  // set_name("logon");
-  // gender = -1;
-  // invis_wish = -1;
+  gender = 1;
+  invis_wish = -1;
   seteuid(ROOT);
-  // player_ob = "/global/player";
 } 
 
 nomask void time_out() 
@@ -599,7 +594,6 @@ nomask void begin2(int new_player)
   object room;
 
   _player->set_name(name);
-  _player->set_gender(gender);
   _player->set_living_name(name); // both for players and npcs
 
   // store the user name in the user handler
@@ -828,9 +822,15 @@ void get_sex(string str)
   i = str[0];
 
   if ((i == 'h') || (i == 'H'))
+  {
+    _player->set_gender(1);
     gender = 1;
+  }
   else if ((i== 'm')  || (i == 'M'))
+  {
+    _player->set_gender(2);
     gender = 2;
+  }
   else 
   {
     write("Inténtalo con hombre o mujer (h/m): ");
