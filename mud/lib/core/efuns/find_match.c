@@ -23,8 +23,8 @@
 //   "things",
 // });
 
-static int not_hidden(object ob) 
-{ 
+int not_hidden(object ob, varargs mixed extra...) 
+{
   return (ob && 
          !ob->query_hide_shadow() && 
          !ob->query_invis() && 
