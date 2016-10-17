@@ -116,6 +116,11 @@ int move(varargs object dest)
     for (i = 0; i < sizeof(contents); i++)
       catch(call_other(contents[i], "init"));
   }
+  // moving something to a player inventory
+  else if (living(_environment))
+  {
+    MUDOS->do_init(_environment, this_object());
+  }
 
   // stderr("   - M before, this_object():\n    " + to_string(this_object()) + " \n");
   // stderr("   - M before, this_player():\n    " + to_string(this_player()) + " \n");
@@ -123,7 +128,7 @@ int move(varargs object dest)
 
   // call out own init() from all living objects in dest
   map_array(filter_array(contents, "living", MUDOS), 
-            "do_init", MUDOS, this_object());
+            "do_init", MUDOS, old_this_player);
 
   // restore this_player()
   MUDOS->set_initiator_object(old_this_player);
