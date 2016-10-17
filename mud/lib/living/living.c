@@ -25,7 +25,7 @@ inherit alignment "/lib/core/basic/alignment";
 // inherit "/global/living/money";
 // inherit "/global/living/effects";
 inherit equip     "/lib/living/equip";
-// inherit "/global/living/gender";
+inherit gender    "/lib/core/basic/gender";
 // inherit "/global/living/stats";
 // inherit "/global/living/combat.c";
 // inherit "/global/living/health";
@@ -45,6 +45,7 @@ void create()
 {
   alignment::create();
   equip::create();
+  gender::create();
   queue::create();
 
   // from here we inherit object.c, were the call to
@@ -79,15 +80,13 @@ mixed * stats()
 {
   return alignment::stats() +
          equip::stats() +
+         gender::stats() + 
          queue::stats() + 
          movement::stats();
          // stats::stats() + 
-         // equip::stats() + 
-         // alignment::stats() + 
          // death::stats() + 
          // health::stats() + 
          // combat::stats() +
-         // gender::stats() +
          // mount::stats() +
          // groups_obs::stats() +
          // spells::stats() + 

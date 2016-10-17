@@ -6,7 +6,7 @@
 #define RANKING_OB  "/obj/handlers/ranking.c"
 
 // Objetos que un player siempre debe tener
-#define MUST_HAVE ({"/obj/misc/diary","/obj/misc/hearthstone",})
+#define MUST_HAVE ({ "/lib/obj/diary", "/lib/obj/hearthstone", })
 
 // Definiciones extraidas del player.c, neverbot 4/2003
 // ------------

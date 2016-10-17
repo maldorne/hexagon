@@ -130,15 +130,15 @@ void init_static_arg(mapping bing)
 
 void init_dynamic_arg(mapping args) 
 {
-    if (args["properties"])
-        map_prop = args["properties"];
-    if (args["timed"])
-        timed_prop = thaw_timed_properties(args["timed"]);
+  if (args["properties"])
+    map_prop = args["properties"];
+  if (args["timed"])
+    timed_prop = thaw_timed_properties(args["timed"]);
 
-    if (args["cloned by"])
-        create_me = args["cloned by"];
-    else
-        create_me = DEF_NAME;
+  if (args["cloned by"])
+    create_me = args["cloned by"];
+  else
+    create_me = DEF_NAME;
 } 
 
 void init_arg(mixed *bing) 

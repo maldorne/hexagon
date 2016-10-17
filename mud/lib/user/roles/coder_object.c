@@ -117,23 +117,24 @@ static int do_update(object *ov)
       loaded = find_object(pname);
 
       // Next three Hamlet's
-      if (loaded) {
+      if (loaded) 
+      {
         load_junk = "/lib/core/basic/auto_load"->create_update_auto_load(loaded);
         totell = environment(loaded);
         itemname = loaded->query_short();
       }
 
       if (loaded) 
-          loaded->dest_me();
+        loaded->dest_me();
       if (loaded) 
-          loaded->dwep();
+        loaded->dwep();
       if (loaded) 
-          destruct(loaded);
+        destruct(loaded);
 
       // These are Hamlet's too
       catch(loaded = load_object(pname));
       if (loaded)
-          loaded->move(totell);
+        loaded->move(totell);
       else 
       { 
         // Damn thing didn't reload... Oops... 
@@ -151,6 +152,7 @@ static int do_update(object *ov)
       }
 
       catch(dup = clone_object(pname));
+
       if (dup && ov[i]) 
       {
         ov[i]->dest_me();
@@ -233,7 +235,8 @@ int update(string str)
   for (loop = 0; loop < sizeof(filenames); loop++) 
   {
     str = filenames[loop];
-    ob = find_object(str);
+    ob = load_object(str);
+
     if (!ob) 
     {
       if (file_size(str) >= 0) 

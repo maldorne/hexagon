@@ -47,7 +47,6 @@ void reset_all() { }
 string query_gtitle() { return "rey de reyes"; }
 int query_dead() { return 0; }
 void set_dead(int i) { }
-int query_gender() { return 1; }
 void load_mount();
 
 object query_race_ob() { return nil; }

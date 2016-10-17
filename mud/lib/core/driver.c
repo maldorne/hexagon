@@ -230,7 +230,7 @@ static object inherit_program(string from, string path, int priv)
   if (err)
   {
     log_driver(" + inherit_program error: " + err + "\n");
-    inform_user("(inherit_program) compile_object returned:\n" + err + "\n", DRIVER_COMPILE_ERROR);
+    inform_user(" + inherit_program error\n   compile_object returned: " + err + "\n", DRIVER_COMPILE_ERROR);
   }
     
   return ob;

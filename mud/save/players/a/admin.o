@@ -2,6 +2,7 @@ aliases ([0|])
 map_aliases ([0|])
 map_nicknames ([0|])
 prompt_string "$n > "
+gender 1
 map_prop ([0|])
 timed_prop ([0|])
 create_me "object"
@@ -13,7 +14,7 @@ role_name "coder"
 account_name "admin@ciudadcapital.net"
 last_pos "/home/common"
 auto_load ({0|})
-time_on -538655270
-ontime 1476655981
-last_log_on 1476656106
+time_on -501
+ontime 1476711797
+last_log_on 1476711922
 last_on_from "localhost (::1)"
