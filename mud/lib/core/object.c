@@ -48,10 +48,10 @@ nomask string query_create_me() { return create_me; }
 void set_name(string str) 
 {
   if (name && name != DEF_NAME) 
-      return;
+    return;
   name = str;
   if (!short_d)
-      short_d = str;
+    short_d = str;
 }
 
 int query_weapon() { return 0; }
@@ -86,24 +86,24 @@ mapping int_query_static_auto_load()
 
 mixed query_static_auto_load() 
 {
-  if (file_name(this_object())[0..10] == "/std/object")
+  if (base_name(this_object()) == "/lib/core/object")
     return int_query_static_auto_load();
   return ([ ]);
 } 
 
 mapping query_dynamic_auto_load() 
 {
-    mapping res;
-    res = ([ ]);
+  mapping res;
+  res = ([ ]);
+  
+  if (m_sizeof(map_prop))
+    res += ([ "properties" : map_prop, ]);
+  if (m_sizeof(timed_prop))
+    res += ([ "timed" : freeze_timed_properties(timed_prop), ]);
+  if ((create_me != DEF_NAME) && (create_me != capitalize(DEF_NAME)))
+    res += ([ "cloned by" : create_me, ]);
     
-    if (m_sizeof(map_prop))
-        res += ([ "properties" : map_prop, ]);
-    if (m_sizeof(timed_prop))
-        res += ([ "timed" : freeze_timed_properties(timed_prop), ]);
-    if ((create_me != DEF_NAME) && (create_me != capitalize(DEF_NAME)))
-        res += ([ "cloned by" : create_me, ]);
-      
-    return res;
+  return res;
 } 
 
 void init_static_arg(mapping bing) 
@@ -163,23 +163,23 @@ int clean_up()
   int i;
 
   if (userp(this_object())) 
-     return 1; /* don't clean_up players */
+    return 1; /* don't clean_up players */
   env = environment();
   if (env && userp(env)) 
-     return 1; /* carried ob */
+    return 1; /* carried ob */
   if (env && environment(env))
-     return (int)environment(env)->clean_up(); /* recurse */
+    return (int)environment(env)->clean_up(); /* recurse */
   
   contents = deep_inventory(this_object());
   if (contents) {
-     for (i=0;i<sizeof(contents);i++)
-           if (userp(contents[i])) 
-              return 1; /* holding a user */
+    for (i=0;i<sizeof(contents);i++)
+      if (userp(contents[i])) 
+        return 1; /* holding a user */
   }
   if (!env) {
   /* we're a room with no users inside or a lost object */
-      dest_me();
-      return 1;
+    dest_me();
+    return 1;
   }
   return 1; /* try again later... */
 }

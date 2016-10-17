@@ -57,9 +57,9 @@ int remove_admin(string str)
 
 int immortal_create_me(object origin)
 {
-   if(member_array(origin->query_create_me(), get_dir("/home/")) > -1)
-      return 1;
-   return 0;
+  if (member_array(origin->query_create_me(), get_dir("/home/")) > -1)
+    return 1;
+  return 0;
 }
 
 /* Permision handling stuff */

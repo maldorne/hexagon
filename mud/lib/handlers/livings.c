@@ -50,15 +50,15 @@ void _set_living_name(object ob, string name)
     _livings[name] = _livings[name] + ({ ob });
 }
 
-void _remove_living(object ob, string name)
+void remove_living(object ob)
 {
-  if (!_livings[name])
+  if (!_livings[ob->query_name()])
     return;
 
-  _livings[name] -= ({ ob });
+  _livings[ob->query_name()] -= ({ ob });
 
-  if (!sizeof(_livings[name]))
-    m_delete(_livings, name);
+  if (!sizeof(_livings[ob->query_name()]))
+    m_delete(_livings, ob->query_name());
 }
 
 object _find_living(string name) 

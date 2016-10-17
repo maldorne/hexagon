@@ -94,7 +94,7 @@ object find_user(string id)
   return users[id];
 }
 
-int update_user_name(object ob)
+int update_user(object ob)
 {
   string id;
 

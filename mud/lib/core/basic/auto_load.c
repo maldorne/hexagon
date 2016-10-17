@@ -19,7 +19,7 @@ string *create_auto_load(object *obs)
   string *fname2;
   int i;
   
-  if(!obs) 
+  if (!sizeof(obs)) 
     return ({ });
     
   auto_string = ({ });
@@ -27,14 +27,15 @@ string *create_auto_load(object *obs)
   /* do this backwards, means it comes out right on logon */
   for (i = sizeof(obs) -1; i >= 0; i--)
   {
-    s = s3 = 0;
-    
-    if (!catch(s=(string)obs[i]->query_auto_load()) && !s) 
+    s = s3 = ([ ]);
+
+    if (!function_exists("query_auto_load", obs[i]) ||
+       (!catch(s = obs[i]->query_auto_load()) && !s))
     {
-      catch(s = (string)obs[i]->query_static_auto_load());
-      catch(s3 = (string)obs[i]->query_dynamic_auto_load());
-      
-      if (!s && !s3)
+      catch(s = obs[i]->query_static_auto_load());
+      catch(s3 = obs[i]->query_dynamic_auto_load());
+
+      if (!map_sizeof(s) && !map_sizeof(s3))
         continue;
     /*
     * Fix by Aragorn. Used to be !s below
@@ -43,17 +44,18 @@ string *create_auto_load(object *obs)
     */
     }
     else 
-      if (s)
+    {
+      if (map_sizeof(s))
         continue;
-    else
-      s3 = 0;
+      else
+        s3 = ([ ]);
+    }
       
     // Taniwha, there's some evidence that things aren't SAVING maybe something dests in query_auto_load()
-    if(!obs[i]) 
+    if (!obs[i]) 
       continue;
       
-    fname2 = explode(file_name(obs[i]),"#");
-    s1 = fname2[0];
+    s1 = base_name(obs[i]);
     auto_string += ({ 1, s1, ({ s, s3 }) });
   }
   
@@ -63,9 +65,9 @@ string *create_auto_load(object *obs)
 /*
 void birthday_gifts() 
 {
-  if(!sizeof(find_match("birthday card", this_object())))
-    if(this_object()->query_is_birthday_today())
-    if(!catch(call_other("/obj/b_day/card", "??")) &&
+  if (!sizeof(find_match("birthday card", this_object())))
+    if (this_object()->query_is_birthday_today())
+    if (!catch(call_other("/obj/b_day/card", "??")) &&
   !catch(call_other("/obj/b_day/demon", "??"))) {
     call_out("card_arrives", 5);
   }
@@ -109,7 +111,7 @@ void make_iou(mixed stuff_tmp, object dest)
     (string)dest->query_cap_name()+" tiene ["+(string)stuff_tmp[1]+"] que no se ha cargado.\n");
   catch(iou = clone_object("/obj/misc/iou"));
   
-  if(iou)
+  if (iou)
   {
     iou->add_auto_string(stuff_tmp);
     catch(iou->move(dest));
@@ -125,25 +127,25 @@ object *load_auto_load(mixed auto_string, object dest)
   if (stringp(auto_string))
     return ({ });
     
-  if (!auto_string || !sizeof(auto_string))
+  if (!sizeof(auto_string))
     return ({ });
     
   /* This for loop gives errors sometimes..
   * should be made bulletproof..
   * Baldrick.
   */
-  for (i=0;i<sizeof(auto_string);i+=3)
+  for (i = 0; i < sizeof(auto_string); i+=3)
   {
     /* Maybe this line makes it bulletproof?
     * Baldrick May '95
     */
     // If there's a file name here
-    if (sizeof(auto_string[i+1]))
+    if (strlen(auto_string[i+1]))
     {
       // Try to clone one
       catch(ob = clone_object(auto_string[i+1]));
       
-      if(ob)
+      if (ob)
       {
         // This initializes the data in the object,and saved vars
         auto_clone( ({ ob, auto_string[i+2], dest }));
@@ -151,7 +153,7 @@ object *load_auto_load(mixed auto_string, object dest)
         obs += ({ ob });
       }
       
-      if(!ob)
+      if (!ob)
       {
         // And if it didn't work , give em an IOU
         make_iou( ({auto_string[i], auto_string[i+1], auto_string[i+2]}), dest);
@@ -164,13 +166,13 @@ object *load_auto_load(mixed auto_string, object dest)
 
 void auto_clone(mixed arg) 
 {
-  if(!arg[0])
+  if (!arg[0])
   {
     tell_object(this_object(),"¡Ups, algo va mal!\n");
     stuff --;
     return;
   }
-  
+
   if (sizeof(arg[1]) == 1 || !arg[1][1])
   {
     arg[0]->init_arg(arg[1][0]);
@@ -182,13 +184,13 @@ void auto_clone(mixed arg)
   }
   
   // Taniwha 1995, if the container hasn't loaded, what shall we do ?
-  if(arg[0] && arg[2] && !(arg[0]->move(arg[2]))); // if they exist AND the move succeeds
+  if (arg[0] && arg[2] && !(arg[0]->move(arg[2]))); // if they exist AND the move succeeds
   else
   {
     log_file("loader", "["+ctime(time(), 4)+"] "+ (string)this_object()->query_cap_name()+
       " ha dejado caer su ["+(string)arg[0]->query_name()+"] al conectarse.\n");
     tell_object(this_object(),"Ups, se te ha caído algo (quizá estés cargando demasiadas cosas y no puedas con todo).\n");
-    if(arg[0])
+    if (arg[0])
       arg[0]->move(environment());
   }
   
@@ -219,7 +221,7 @@ string *create_update_auto_load(object ob)
   mixed auto_string;
   int j;
 
-  if(!ob) return ({ });
+  if (!ob) return ({ });
 
   catch(s = (string)ob->query_static_auto_load());
   catch(s3 = (string)ob->query_dynamic_auto_load());

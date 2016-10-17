@@ -6,6 +6,7 @@
 #include <user/player.h>
 #include <user/input.h>
 #include <mud/secure.h>
+#include <living/living.h>
 #include <common/properties.h>
 
 inherit history     "/lib/user/history";
@@ -556,6 +557,10 @@ int really_quit()
   
   for (i = 0; i < sizeof(ob); i++)
     ob[i]->dest_me();
+
+  // TODO safety here?
+  find_object(USER_HANDLER)->remove_user(this_object());
+  find_object(LIVING_HANDLER)->remove_living(this_object());
 
   dest_me();
 

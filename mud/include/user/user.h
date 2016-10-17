@@ -1,7 +1,6 @@
 
 
 #define USER_OB      "/lib/user"
-#define USER_HANDLER "/lib/handlers/users"
 
 // rlimits of every command issued by the user
 #define MAX_USER_DEPTH 30

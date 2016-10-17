@@ -160,7 +160,9 @@ mapping int_query_static_auto_load()
   mapping tmp;
 
   tmp = ::int_query_static_auto_load();
-  return ([ "::" : tmp, "max weight" : max_weight,
+  return ([ 
+    "::" : tmp, 
+    "max weight" : max_weight,
     "prevent insert" : prevent_insert,
     ]);
 } 
@@ -168,8 +170,7 @@ mapping int_query_static_auto_load()
 mapping query_dynamic_auto_load() 
 {
   return ([ "::" : ::query_dynamic_auto_load(),
-    "inv" : 
-  "/global/basic/auto_load"->create_auto_load(all_inventory(this_object())),
+    "inv" : "/lib/core/basic/auto_load"->create_auto_load(all_inventory(this_object())),
     ]);
 }
 
@@ -179,7 +180,7 @@ void init_dynamic_arg(mapping bing)
     ::init_dynamic_arg(bing["::"]);
 
   if (bing["inv"])
-    "/global/basic/auto_load"->load_auto_load(bing["inv"], this_object());
+    "/lib/core/basic/auto_load"->load_auto_load(bing["inv"], this_object());
 } 
 
 void init_static_arg(mapping bing) 
@@ -196,7 +197,7 @@ void init_static_arg(mapping bing)
 
 mixed query_static_auto_load() 
 {
-  if (file_name(this_object())[0..13] == "/std/container")
+  if (base_name(this_object()) == "/lib/container")
     return int_query_static_auto_load();
   return ([ ]);
 }
