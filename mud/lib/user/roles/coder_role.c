@@ -27,10 +27,10 @@ void create()
   comm::create();
 }
 
-static void initialize_role(object player)
+static void start_role(object player)
 {
-  base::initialize_role(player);
-  path::initialize_role(player);
+  base::start_role(player);
+  path::start_role(player);
 }
 
 static void role_commands()

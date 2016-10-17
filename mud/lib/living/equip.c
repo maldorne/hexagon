@@ -239,12 +239,9 @@ private int sort(object s1, object s2)
   return 0;
 }
 
-private int filtro(object ob)
+int filter_short(object ob, varargs mixed args...)
 {
-  string str;
-  str = ob->query_short();
-
-  return (str && str!="");
+  return (strlen(ob->query_short()));
 }
 
 // This function returns a string containing the formatted output
@@ -304,7 +301,7 @@ string query_living_contents(int self)
   money = present(MONEY_NAME, this_object()); // Dinero
   carry = all_inventory(this_object()) - wpn - held 
           - worn - ({ money });               // Resto de objetos
-  carry = filter(carry, "query_short");       // Elimino objetos "ocultos",
+  carry = filter(carry, "filter_short");      // Elimino objetos "ocultos",
                                               // quedandonos solo con los que
                                               // responden a la funcion
                                               // query_short
@@ -383,17 +380,17 @@ string query_living_contents(int self)
 
   if (self == 1)
   {
-     if (!sizeof(strs))
-     {
-        s = "Estás con las manos vacías.\n";
-     }
-     ret = (money?money->short(0):0);
+    if (!sizeof(strs))
+    {
+      s = "Estás con las manos vacías.\n";
+    }
+    ret = (money?money->short(0):"");
 
-   if (!ret)
-       s += "No llevas dinero encima.";
-     else
-       s += sprintf(
-           "%-=*s", 
+    if (!strlen(ret))
+      s += "No llevas dinero encima.";
+    else
+      s += sprintf(
+           "%-*s", 
            (this_player()?(this_player()->query_cols()):79), 
            "Llevas encima " + ret+".");     
   }

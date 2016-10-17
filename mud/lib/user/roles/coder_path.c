@@ -14,7 +14,7 @@ void create()
   current_path = "";
 }
 
-static void initialize_role(object player)
+static void start_role(object player)
 {
   if (player)
     home_dir = "/home/" + player->query_name();

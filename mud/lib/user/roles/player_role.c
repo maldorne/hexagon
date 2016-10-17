@@ -20,7 +20,7 @@ void role_commands()
   add_action("quit", ({ "quit", "salir" }));
 }
 
-static void initialize_role(object player)
+static void start_role(object player)
 {
   
 }
@@ -36,7 +36,7 @@ nomask int set_player(object ob)
 
   _player = ob;
 
-  initialize_role(_player);
+  start_role(_player);
   role_commands();
 
   return 1;

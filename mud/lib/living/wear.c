@@ -37,7 +37,7 @@ int do_unwear_ob(object on);
 int wear_ob(object ob);
 int do_wear_ob(object ob);
 void reset_types();
-object *query_worn_ob(int type);
+object *query_worn_ob(varargs int type);
 int query_max_dex_bon(){ return max_dex_bon; }
 int set_max_dex_bon(int i){ return max_dex_bon = i; }
 mapping query_total_worn_ac(){ return worn_ac; }
@@ -64,7 +64,7 @@ void create()
   }
 }
 
-object * query_worn_ob(int type)
+object * query_worn_ob(varargs int type)
 { 
   int i;
   object * ret; 

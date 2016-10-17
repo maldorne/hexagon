@@ -88,12 +88,12 @@ string query_multiple_short(mixed *obs, varargs int flag)
       // like a string.  First bit is the string.
       // second the object 
       {
-        if(objectp(obs[i]))
+        if (objectp(obs[i]))
         {
           if (flag)
-            str = (string *)obs[i]->pretty_short();
+            str = ({ (string)obs[i]->pretty_short() });
           else
-            str = (string *)obs[i]->short();
+            str = ({ (string)obs[i]->short() });
         }
       }
       else 

@@ -37,8 +37,8 @@ mapping query_total_held_ac(){ return held_ac; }
 int query_held_ac(string tipo)
 {
   if(member_array(tipo, keys(held_ac)) != -1)
-     return held_ac[tipo];
-   return 0;
+    return held_ac[tipo];
+  return 0;
 }
 
 void create() 
@@ -53,7 +53,7 @@ void create()
 
   for(i = 0; i < sizeof(AC_TYPES); i++)
   {
-     held_ac[AC_TYPES[i]] = 0;
+    held_ac[AC_TYPES[i]] = 0;
   }
 }
 
@@ -124,18 +124,20 @@ void reset_hands()
 {
   int i;
 
+  held_ob -= ({ 0 });
+
   // Unhold everything
   for (i = 0; i < sizeof(held_ob); i++)
-     this_object()->unhold_ob(held_ob[i]);
+    this_object()->unhold_ob(held_ob[i]);
 
   free_hands_left = query_limbs();
 
   // Si no tiene raza, o su raza no tiene brazos (ej: animales)
   // Le asignamos un brazo para que pueda realizar ataques.
   if (free_hands_left == 0)
-     free_hands_left = 1;
+    free_hands_left = 1;
 
-  held_ob = allocate(free_hands_left);
+  held_ob = allocate(free_hands_left, 1);
 }
 
 // The free_hand_left is a quickie, easier to have an int than go through
