@@ -3,7 +3,6 @@
 
 #include <basic/move.h>
 
-// cannot name the inherit object as it is a reserver word
 inherit obj      "/lib/core/object";
 inherit contents "/lib/core/basic/contents"; // old cute_look.c
 
@@ -126,8 +125,8 @@ string long(string str, int dark)
   return ret;
 } 
 
-int test_remove(object ob, int flag) { return 1; }
-int test_add(object ob, int flag) {  return 1; }
+// int test_remove(object ob, int flag) { return 1; }
+// int test_add(object ob, int flag) {  return 1; }
 int set_prevent_insert() { prevent_insert = 1; }
 int reset_prevent_insert() { prevent_insert = 0; }
 int query_prevent_insert() { return prevent_insert; }

@@ -15,15 +15,17 @@ object query_prev() { return previous; }
 
 // default to being gettable and dropable...
 // modify as you will...
-void reset_get() { move_flag |= DROP; }  // can't be gotten 
-void set_get() { move_flag &= ~DROP; }   // can be gotten 
-void reset_drop() { move_flag |= GET; }  // can't be dropped 
-void set_drop() { move_flag &= ~GET; }   // can be dropped
+void reset_get() { move_flag |= GET; }   // can't be gotten 
+void set_get() { move_flag &= ~GET; }    // can be gotten 
+void reset_drop() { move_flag |= DROP; } // can't be dropped 
+void set_drop() { move_flag &= ~DROP; }  // can be dropped
 
 // these should have been called "query...", but they're not
 int drop() { return move_flag & DROP; }
-int get() { return move_flag & DROP; }
+int get() { return move_flag & GET; }
+
 int gettable() { return !get(); }
+int droppable() { return !drop(); }
 
 void set_move_flag(int i) { move_flag = i; }
 
@@ -116,7 +118,7 @@ mixed *query_init_data() {
 mixed stats()
 {
   return ({
-    ({"Move Flag", move_flag, }),
-    ({"Previous", previous, }),
+    ({"Move Flag (nosave)", move_flag, }),
+    ({"Previous (nosave)", previous, }),
      });
 }

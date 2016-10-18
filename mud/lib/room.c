@@ -283,7 +283,7 @@ void create()
 string expand_alias(string str);
 
 // moved glance code to the command  (:   Radix 1996
-string short(int dark) 
+string short(varargs int dark) 
 {
   return ::short(dark);
 } 

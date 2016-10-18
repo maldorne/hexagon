@@ -9,24 +9,20 @@ private static object * _inventory;
 nomask object * all_inventory(varargs object ob);
 nomask object * deep_inventory(varargs object ob);
 
-// old definitions
-// int test_add(object ob, int flag) { return !flag; }
-// int test_remove(object ob, int flag) { return !flag; }
-
 // can add object ob to our inventory?
-int test_add(object ob)
+int test_add(object ob, int flag)
 {
-  return 1;
+  return !flag;
 }
 
 // can remove object ob from our inventory?
-int test_remove(object ob)
+int test_remove(object ob, int flag)
 {
   // if item not in inventory
   if (member_array(ob, _inventory) == -1)
     return -1;
 
-  return 1;
+  return !flag;
 }
 
 // inner functions that simulates the mudos inventory
@@ -86,7 +82,9 @@ int move(varargs object dest)
   if (member_array(dest, deep_inventory()) != -1)
     return MOVE_LIB_LOOP;
 
-  stderr(" * move <" + object_name(this_object()) + "> to <" + object_name(dest) + ">\n");
+  stderr(" * move <" + object_name(this_object()) + 
+         (_environment ? ("> from <" + object_name(_environment)) : "") + 
+         "> to <" + object_name(dest) + ">\n");
 
   // update inventories and current environment
   if (_environment)

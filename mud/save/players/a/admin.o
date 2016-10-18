@@ -3,6 +3,11 @@ map_aliases ([0|])
 map_nicknames ([0|])
 prompt_string "$n > "
 gender 1
+stats_bon ({8|0,0,0,0,0,0,0,0,})
+stats_base ({8|10,10,10,10,10,10,10,10,})
+resistances ([0|])
+max_hp 1
+max_gp 1
 map_prop ([0|])
 timed_prop ([0|])
 create_me "object"

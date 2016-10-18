@@ -13,8 +13,8 @@
 // Taniwha 14/09/1995 how long shall we disable guild commands 
 //  and spells after login
 #define LOGINLOCK 20
-#define START_POS "/room/inicio.c"
-#define ENTRY_POS "/d/ciudad_capital/barrio_antiguo/rooms/calzada02.c"
+#define START_POS "/lib/areas/start"
+#define ENTRY_POS "/d/ciudad_capital/barrio_antiguo/rooms/calzada02"
 
 #define IDENTD "/net/identd"
 #define NUM_MAX_OBJ 50 // Numero maximo de objetos

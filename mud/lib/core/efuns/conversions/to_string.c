@@ -1,4 +1,6 @@
 
+#define TO_STRING_PADDING "                       "
+
 // Extracted from the old /global/basic/print_object.c, neverbot
 // (and heavily improved)
 static string to_string(mixed ob, varargs int offset, string pre) 
@@ -9,9 +11,9 @@ static string to_string(mixed ob, varargs int offset, string pre)
   ret = "";
 
   if (pre)
-    ret += "                   "[0..offset - strlen(pre)] + pre;
+    ret += TO_STRING_PADDING[0..offset - strlen(pre)] + pre;
   else
-    ret += "                   "[0..offset];
+    ret += TO_STRING_PADDING[0..offset];
 
   if (intp(ob)) 
   {
@@ -55,13 +57,13 @@ static string to_string(mixed ob, varargs int offset, string pre)
 
       for (i = 0; i < sizeof(keys); i++)
       {
-        ret += "                       "[0..offset+2] + keys[i] + " : \n";
+        ret += TO_STRING_PADDING[0..offset+2] + keys[i] + " : \n";
         ret += to_string(ob[keys[i]], offset + 2, "");
         // if (i < sizeof(keys)-1)
         //   ret += "\n";
       }
 
-      ret += "                       "[0..offset] + "])\n";
+      ret += TO_STRING_PADDING[0..offset] + "])\n";
     }
     return ret; // "mapping";
   }
@@ -80,7 +82,7 @@ static string to_string(mixed ob, varargs int offset, string pre)
         //   ret += "\n";
       }
       
-      ret += "                       "[0..offset] + "})\n";
+      ret += TO_STRING_PADDING[0..offset] + "})\n";
     }
     return ret; // "array";
   }

@@ -168,7 +168,7 @@ void auto_clone(mixed arg)
 {
   if (!arg[0])
   {
-    tell_object(this_object(),"Â¡Ups, algo va mal!\n");
+    tell_object(this_object(),"¡Ups, algo va mal!\n");
     stuff --;
     return;
   }
@@ -189,7 +189,7 @@ void auto_clone(mixed arg)
   {
     log_file("loader", "["+ctime(time(), 4)+"] "+ (string)this_object()->query_cap_name()+
       " ha dejado caer su ["+(string)arg[0]->query_name()+"] al conectarse.\n");
-    tell_object(this_object(),"Ups, se te ha caÃ­do algo (quizÃ¡ estÃ©s cargando demasiadas cosas y no puedas con todo).\n");
+    tell_object(this_object(),"Ups, se te ha caído algo (quizá estés cargando demasiadas cosas y no puedas con todo).\n");
     if (arg[0])
       arg[0]->move(environment());
   }
