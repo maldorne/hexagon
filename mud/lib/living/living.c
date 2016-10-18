@@ -20,14 +20,14 @@
 // #include <quests.h>
 
 inherit alignment "/lib/core/basic/alignment";
-// inherit "/global/living/death";
+inherit death     "/lib/living/death";
 // inherit "/global/living/force";
 // inherit "/global/living/money";
 // inherit "/global/living/effects";
 inherit equip     "/lib/living/equip";
 inherit gender    "/lib/core/basic/gender";
 inherit stats     "/lib/living/stats";
-// inherit "/global/living/combat.c";
+inherit combat    "/lib/living/combat";
 inherit health    "/lib/living/health";
 inherit handle    "/lib/living/handle";
 
@@ -44,9 +44,11 @@ inherit movement  "/lib/living/movement.c";
 void create()
 {
   alignment::create();
+  death::create();
   equip::create();
   gender::create();
   stats::create();
+  combat::create();
   health::create();
   handle::create();
   queue::create();
@@ -74,7 +76,7 @@ void create()
   add_action("do_unwear", "quitarse");
   add_action("do_unwear", "quitarme");
 
-  // combat_commands();    
+  combat_commands();    
   handle_commands();
   // groups_commands();
   // spell_commands();
@@ -105,15 +107,15 @@ void start_player()
 mixed * stats() 
 {
   return alignment::stats() +
+         death::stats() +
          equip::stats() +
          gender::stats() + 
          stats::stats() + 
+         combat::stats() + 
          health::stats() + 
          handle::stats() + 
          queue::stats() + 
          movement::stats();
-         // death::stats() + 
-         // combat::stats() +
          // mount::stats() +
          // groups_obs::stats() +
          // spells::stats() + 

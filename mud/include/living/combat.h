@@ -25,3 +25,31 @@
 #define COMBAT_ROLE_STRINGS ({ "cualquiera", "ofensiva", "defensiva", "de apoyo" })
 
 #define COMBAT_ROLE_CHANGED_PROP "combat_role_changed"
+
+// ****************************************************
+// armed combat
+
+#define WEAPON_TABLE "/table/weapon_table.c"
+
+// Porcentaje minimo de control de un estilo
+// #define MIN_ARMED_ABILITY 10
+
+// Porcentaje maximo que se puede alcanzar sin maestros
+#define MAX_ARMED_AUTO_LEARN 75
+
+// ****************************************************
+// unarmed combat
+
+#define UNARMED_BASE "/table/unarmed_combat"
+
+// Tipo de estilo de combate por defecto
+#define DEF_UNARMED "pelea"
+// Porcentaje minimo de control de un estilo
+#define MIN_UNARMED_ABILITY 10
+
+// Porcentaje maximo que se puede alcanzar sin maestros
+#define MAX_UNARMED_AUTO_LEARN 75
+
+#define BDEFNUM 1
+#define BDEFTYPE 6
+

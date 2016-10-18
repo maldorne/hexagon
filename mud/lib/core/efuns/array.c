@@ -101,31 +101,37 @@ static nomask string itoa(int i)
 }
 
 // by Dank Mar 11 93.  max may be a reserved word, so maxi is safer
-// int maxi(int *arr) {
-//   int i, j;
-//   if (!sizeof(arr)) {
-//     notify_fail("Array must contain one or more ints.\n");
-//     return 0;
-//   }
-//   j = arr[0];
-//   for (i=1; i<sizeof(arr); i++)
-//     if (arr[i] > j)
-//       j = arr[i];
-//   return j;
-// }
+static int maxi(int *arr) 
+{
+  int i, j;
 
-// int mini(int *arr) {
-//   int i, j;
-//   if (!sizeof(arr)) {
-//     notify_fail("Array must contain one or more ints.\n");
-//     return 0;
-//   }
-//   j = arr[0];
-//   for (i=1; i<sizeof(arr); i++)
-//     if (arr[i] < j)
-//       j = arr[i];
-//   return j;
-// }
+  if (!sizeof(arr)) 
+    return 0;
+
+  j = arr[0];
+
+  for (i = 1; i < sizeof(arr); i++)
+    if (arr[i] > j)
+      j = arr[i];
+
+  return j;
+}
+
+static int mini(int *arr) 
+{
+  int i, j;
+
+  if (!sizeof(arr)) 
+    return 0;
+
+  j = arr[0];
+
+  for (i = 1; i<sizeof(arr); i++)
+    if (arr[i] < j)
+      j = arr[i];
+
+  return j;
+}
 
 static nomask mixed * array_copy(mixed * what) 
 {

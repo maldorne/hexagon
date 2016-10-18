@@ -3,6 +3,7 @@
 #include <areas/common.h>
 #include <files/log.h>
 #include <living/consents.h>
+#include <living/death.h>
 
 // prototypes
 void do_first_look();

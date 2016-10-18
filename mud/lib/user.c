@@ -48,8 +48,6 @@ int query_level() { return 10; }
 // stats
 void reset_all() { }
 string query_gtitle() { return "rey de reyes"; }
-int query_dead() { return 0; }
-void set_dead(int i) { }
 void load_mount();
 
 object query_race_ob() { return nil; }
@@ -70,6 +68,7 @@ int check_dark(int light)
 
 
 #include "/lib/user/start.c"
+#include "/lib/user/death.c"
 
 // Function prototypes
 // static void open();

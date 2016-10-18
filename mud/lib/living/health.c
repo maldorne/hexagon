@@ -66,10 +66,10 @@ int set_max_hp(int i)
 // Made varargs : Radix - March 3, 1997
 int set_hp(int i, varargs object hp_remover)
 {
-  if (i>max_hp)
+  if (i > max_hp)
     i = max_hp;
   hp = i;
-  if (hp<0)
+  if (hp < 0)
     call_out("do_death", 0,  hp_remover);
   return hp;
 }
@@ -120,7 +120,7 @@ string query_main_aggro_doer()
   return doer;
 }
 
-int adjust_hp(int i, object hp_remover)
+int adjust_hp(int i, varargs object hp_remover)
 {
   int color;
   hp += i;
@@ -156,7 +156,7 @@ int adjust_hp(int i, object hp_remover)
     else // combate no seguro, ha muerto
     {
       if (i > 0 && hp_remover == this_object() ) 
-        call_out("do_death", 0, 0); /* NOT this object, use attacker list */
+        call_out("do_death", 0, nil); /* NOT this object, use attacker list */
       else
         call_out("do_death", 0, hp_remover);
     }   

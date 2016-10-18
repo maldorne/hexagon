@@ -51,22 +51,22 @@ int move(mixed dest, varargs mixed messin, mixed messout)
 
   // previous environment can let go
   if (previous && !previous->test_remove(this_object(), move_flag & DROP))
-  	return MOVE_NO_DROP;
+    return MOVE_NO_DROP;
     
   // destination can accept the object
   if (!destination->test_add(this_object(), move_flag & GET))
-  	return MOVE_NO_GET;
+    return MOVE_NO_GET;
 
   // event_exit
   if (previous)
-    event(previous, "exit", messout, destination);
+    event(previous, "exit", messout, destination, this_object());
   
   // efun that simulates the mudos inventory and
   // environment handling
   ::move(destination);
 
-	// event_enter
-  event(destination, "enter", messin, previous);
+  // event_enter
+  event(destination, "enter", messin, previous, this_object());
     
   return MOVE_OK;
 }

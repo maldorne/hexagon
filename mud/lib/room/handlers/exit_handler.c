@@ -21,16 +21,16 @@ void create()
 
 string * query_nearest_directions(string dir)
 {
-    if (undefinedp(nearest_exits[dir]))
-        return ({ });
-    return ({ }) + nearest_exits[dir];
+  if (undefinedp(nearest_exits[dir]))
+    return ({ });
+  return ({ }) + nearest_exits[dir];
 }
 
 string * query_broad_nearest_directions(string dir)
 {
-    if (undefinedp(broad_nearest_exits[dir]))
-        return ({ });
-    return ({ }) + broad_nearest_exits[dir];
+  if (undefinedp(broad_nearest_exits[dir]))
+    return ({ });
+  return ({ }) + broad_nearest_exits[dir];
 }
 
 string expand_alias(mixed *aliases,string str)
@@ -52,7 +52,8 @@ string expand_direc(string str)
 {
   string s1,s2;
   
-  if(sscanf(str,"%s %s",s1,s2) == 2)  return s1;
+  if(sscanf(str,"%s %s",s1,s2) == 2)  
+    return s1;
   return str;
 }  /* expand_direc() */
 

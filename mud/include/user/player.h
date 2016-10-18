@@ -33,8 +33,6 @@
 #define NO_LINE_PROP "no new line"
 #define RACE_STD "/obj/races/desconocida"
 #define MAX_IDLE 900
-// #define DEATH_CHAR clone_object("/obj/death")
-#define DEATH_SHADOW "/obj/shadows/death_shadow"
 #define TIME_BETWEEN_SAVES 450
 // #define LOADING "loading" // Ahora en properties.h
 // #define AUTOEQUIP_PROP "autoequip"

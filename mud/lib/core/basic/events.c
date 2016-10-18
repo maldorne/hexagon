@@ -80,20 +80,46 @@ void event_inform(object caller, string msg, string type, varargs mixed avoid)
   this_object()->catch_tell(msg);
 }
 
-void event_enter(object ob, string msg, varargs object from, object *ignore) 
+void event_enter(object ob, varargs string msg, object from, mixed avoid) 
 {
+  if (msg && !strlen(msg))
+    return;
+
+  if (avoid)
+  {
+    if (pointerp(avoid)) 
+    {
+      if (member_array(this_object(), avoid) != -1)
+        return;
+    } 
+    else if (objectp(avoid) && (avoid == this_object()))
+      return;
+  }
+
   stderr(" * event_enter " + object_name(this_object()) + "\n");
 }
 
-void event_exit(object ob, string msg, varargs object dest, object *ignore) 
+void event_exit(object ob, varargs string msg, object dest, mixed avoid) 
 {
+  if (msg && !strlen(msg))
+    return;
+
+  if (avoid)
+  {
+    if (pointerp(avoid)) 
+    {
+      if (member_array(this_object(), avoid) != -1)
+        return;
+    } 
+    else if (objectp(avoid) && (avoid == this_object()))
+      return;
+  }
+
   stderr(" * event_exit " + object_name(this_object()) + "\n");
 }
 
 void event_login(object ob, varargs mixed avoid)
 {
-  stderr(" * event_login " + object_name(this_object()) + "\n");
-
   if (avoid)
   {
     if (pointerp(avoid)) 
@@ -186,4 +212,20 @@ void event_player_emote_all(object ob, string msg)
 
   // only will do if interactive(this_object())  
   this_object()->catch_tell(msg);
+}
+
+void event_death(object caller, varargs object killer, object * attackers, mixed avoid)
+{
+  if (avoid)
+  {
+    if (pointerp(avoid)) 
+    {
+      if (member_array(this_object(), avoid) != -1)
+        return;
+    } 
+    else if (objectp(avoid) && (avoid == this_object()))
+      return;
+  }
+  
+  stderr(" * event_death " + object_name(this_object()) + "\n");
 }
