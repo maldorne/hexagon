@@ -33,7 +33,7 @@ void recalc_max_dex_bon()
 
   max = 100;
 
-  // Creamos una lista con todos los objetos empuÃ±ados y vestidos
+  // Creamos una lista con todos los objetos empuñados y vestidos
   obs = this_object()->query_weapons_wielded() - ({ 0 });
   obs += this_object()->query_worn_ob() - ({ 0 });
   
@@ -104,15 +104,15 @@ int do_equip(string str)
       // Now in consent
       // if (str == "off") {
       //    this_object()->remove_property(AUTOEQUIP_PROP);
-      //    tell_object(this_object(),"Equiparte automÃ¡ticamente al entrar desactivado.\n");
+      //    tell_object(this_object(),"Equiparte automáticamente al entrar desactivado.\n");
       // } else if (str == "on") {
       //    this_object()->add_property(AUTOEQUIP_PROP, 1);
-      //    tell_object(this_object(),"Equiparte automÃ¡ticamente al entrar activado.\n");
+      //    tell_object(this_object(),"Equiparte automáticamente al entrar activado.\n");
       // } else
       //    tell_object(this_object(),"Sintaxis: equipar [on|off].\n"+
-      //                              "         (opcionales: on/off son para equiparte automÃ¡ticamente al entrar).\n");
+      //                              "         (opcionales: on/off son para equiparte automáticamente al entrar).\n");
       tell_object(this_object(),"Sintaxis: equipar o equiparse.\n"+
-                                "Para equiparse automÃ¡ticamente al entrar, utiliza 'consentir'.\n");
+                                "Para equiparse automáticamente al entrar, utiliza 'consentir'.\n");
       return 1;
    }
 
@@ -307,19 +307,19 @@ string query_living_contents(int self)
                                               // query_short
 
   if (sizeof(wpn))  
-    strs += ({ sprintf( "%-11s", "EmpuÃ±ando"), capitalize(query_multiple_short(wpn, 1)) + "."});
+    strs += ({ sprintf( "%-11s", "Empuñando"), capitalize(query_multiple_short(wpn, 1)) + "."});
 
   // Supondremos que la primera arma esta en la derecha y la segunda
   // en la izquierda:
   // if (sizeof(wpn)){
   //   if (sizeof(wpn) == 2){
-  //      strs+=({"EmpuÃ±ando  ", capitalize(wpn[0]->pretty_short())+
+  //      strs+=({"Empuñando  ", capitalize(wpn[0]->pretty_short())+
   //                       " (mano derecha).\n             "+
   //                       capitalize(wpn[1]->pretty_short())+
   //                       " (mano izquierda)."});
   //   }
   //   else{
-  //     strs += ({"EmpuÃ±ando  ",  query_multiple_short(wpn, 1) + "."});
+  //     strs += ({"Empuñando  ",  query_multiple_short(wpn, 1) + "."});
   //   }
   // }
 
@@ -382,7 +382,7 @@ string query_living_contents(int self)
   {
     if (!sizeof(strs))
     {
-      s = "EstÃ¡s con las manos vacÃ­as.\n";
+      s = "Estás con las manos vacías.\n";
     }
     ret = (money?money->short(0):"");
 
@@ -402,7 +402,7 @@ string query_living_contents(int self)
         case 0..5:     s += "No parece llevar dinero encima.";     break;
         case 6..50:    s += "Apenas parece llevar dinero encima."; break;
         case 51..300:  s += "Parece estar cargado de monedas.";       break;
-        default:       s += "Â¡Lleva una bolsa de monedas a punto de reventar!";
+        default:       s += "¡Lleva una bolsa de monedas a punto de reventar!";
       }
     }
   

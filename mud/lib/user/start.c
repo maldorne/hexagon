@@ -180,7 +180,7 @@ void do_first_look()
   object * obs;
   object ob;
 
-  has = allocate(sizeof(MUST_HAVE), 1); 
+  has = allocate_int(sizeof(MUST_HAVE)); 
 
   for (i = 0; i < sizeof(has); i++)
     has[i] = 0;

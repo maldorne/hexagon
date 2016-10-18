@@ -2,20 +2,6 @@
 #include "arrays/member_array.c"
 
 
-static nomask mixed * allocate(int size, varargs int flag_zero)
-{
-  mixed * result;
-  int i;
-
-  result = ::allocate(size);
-
-  if (flag_zero)
-    for (i = 0; i < sizeof(result); i++)
-      result[i] = 0;
-
-  return result;
-}
-
 static nomask int index(mixed element, mixed * arr) 
 {
   return member_array(element, arr);

@@ -39,7 +39,7 @@ Common calls and operations over the basic types.
 | `sizeof`                | :white_check_mark: | provided by dgd |
 | `explode`               | :white_check_mark: | provided by dgd, also added `full_explode` |
 | `implode`               | :white_check_mark: | provided by dgd |
-| `allocate`              | :white_check_mark: | note: all array elements are initialized to `nil` by default. Expanded with flag to initialize elements to zero. |
+| `allocate`              | :white_check_mark: | note: all array elements are initialized to `nil` by default. To initialize the array elements to zero, use `allocate_int`. |
 | `member_array`          | :white_check_mark: |  |
 | `index`                 | :white_check_mark: | alias for `member_array` |
 | `sort_array`            |  |  |

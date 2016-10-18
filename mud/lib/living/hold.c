@@ -137,7 +137,7 @@ void reset_hands()
   if (free_hands_left == 0)
     free_hands_left = 1;
 
-  held_ob = allocate(free_hands_left, 1);
+  held_ob = allocate_int(free_hands_left);
 }
 
 // The free_hand_left is a quickie, easier to have an int than go through
