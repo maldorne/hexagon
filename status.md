@@ -34,8 +34,13 @@
 
 - [ ] **Full inheritance tree from the original ccmudlib**
 
-    [x] **coder, manager, administrator** to the different user roles
-    [ ] **living** to `/lib/living/living.c`
-    [ ] **player** to `/lib/user.c`
-    [ ] **item** to `/lib/item.c`
-    [ ] **monster** to `/lib/npc.c`
+    - [x] **coder, manager, administrator** to the different user roles
+
+    - [ ] **living** to `/lib/living/living.c`
+
+    - [ ] **player** to `/lib/user.c`
+
+    - [ ] **item** to `/lib/item.c`
+
+    - [ ] **monster** to `/lib/npc.c`
+    
