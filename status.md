@@ -24,6 +24,18 @@
 
     **Done**. Command to execute LPC code on the fly to help test everything.
 
-- [ ] **Login with multiple types of users**
+- [x] **Login with multiple types of users**
 
     Login process for coders, players, administrators, etc.
+
+- [x] **Shadows**
+
+    Emulate MudOS shadows.
+
+- [ ] **Full inheritance tree from the original ccmudlib**
+
+    [x] **coder, manager, administrator** to the different user roles
+    [ ] **living** to `/lib/living/living.c`
+    [ ] **player** to `/lib/user.c`
+    [ ] **item** to `/lib/item.c`
+    [ ] **monster** to `/lib/npc.c`

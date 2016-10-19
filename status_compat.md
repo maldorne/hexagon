@@ -42,7 +42,7 @@ Common calls and operations over the basic types.
 | `allocate`              | :white_check_mark: | note: all array elements are initialized to `nil` by default. To initialize the array elements to zero, use `allocate_int`. |
 | `member_array`          | :white_check_mark: |  |
 | `index`                 | :white_check_mark: | alias for `member_array` |
-| `sort_array`            |  |  |
+| `sort_array`            | :white_check_mark: | must be reimplemented |
 | `unique_array`          | :white_check_mark: |  |
 | `filter`                | :white_check_mark: |  |
 | `filter_array`          | :white_check_mark: |  |
@@ -68,7 +68,7 @@ Common calls and operations over the basic types.
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `clone_object`          | :white_check_mark: | provided by dgd, extended |
-| `new`                   | - | provided by dgd, different behaviour, use clone_object instead |
+| `new`                   | - | provided by dgd, different behaviour, use `clone_object` instead |
 | `destruct`              | :white_check_mark: | alias for `destruct_object` |
 | `find_object`           | :white_check_mark: | provided by dgd |
 | `load_object`           | :white_check_mark: | extended alias for `compile_object` |
