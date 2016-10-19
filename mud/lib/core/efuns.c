@@ -16,6 +16,7 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/object.c"
 #include "/lib/core/efuns/function.c"
 #include "/lib/core/efuns/euid.c"
+#include "/lib/core/efuns/shadow.c"
 #include "/lib/core/efuns/calls.c"
 #include "/lib/core/efuns/filter.c"
 #include "/lib/core/efuns/compiler.c"
@@ -35,8 +36,6 @@ static nomask void stderr(string str);
 
 #include "/lib/core/efuns/heart_beat.c"
 #include "/lib/core/efuns/conversions.c"
-
-#include "/lib/core/efuns/shadow.c"
 
 // included for compatibility, neverbot 17/01/03
 #include "/lib/core/efuns/process_string.c"

@@ -1,7 +1,4 @@
 
-// Non-dgd efuns
-// neverbot, 03/2014
-
 static nomask object * previous_objects(varargs int step)
 {
   object result;
@@ -24,6 +21,18 @@ static nomask object * all_previous_objects()
 {
   return previous_objects();
 }
+
+// previous_object - returns the object(s) that called the current function
+// object previous_object(); 
+// mixed previous_object(int x); 
+
+// Returns an object pointer to the object, if any, that called current function.
+// Note that local function calls do not set previous_object() to the current
+// object, but leave it unchanged.  If passed a positive integer, it goes back
+// the given number of previous objects in the calling chain.
+// previous_object(0) is the same as previous_object(), previous_object(1) is
+// the previous object's previous_object(), etc.  previous_object(-1) returns
+// an array containing all of the previous objects.
 
 static nomask object previous_object(varargs int number)
 {

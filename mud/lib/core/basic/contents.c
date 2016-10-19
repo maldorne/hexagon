@@ -168,9 +168,11 @@ string query_contents(string str, varargs object *obs)
   // Objetos  
   for (i = sizeof(inv[2]) - 1; i >= 0; i--) {
     j = sizeof(inv[3][i])*((random(drunk)/1000)+1);
-    if (j > 1) {
+    if (j > 1) 
+    {
       ret += capitalize(query_num(j, 20)) + " " +
-             capitalize((string)inv[3][i][0]->pretty_plural(inv[2][i])) + ".\n";
+             // capitalize((string)inv[3][i][0]->pretty_plural(inv[2][i])) + ".\n";
+             capitalize((string)inv[3][i][0]->pretty_plural()) + ".\n";
       continue;
     }
     ret += capitalize(inv[2][i]) + ".\n";

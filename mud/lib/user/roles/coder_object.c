@@ -925,11 +925,13 @@ int find_shadows(string s)
 
   for (i = 0; i < sizeof(objs); i++) 
   {
-    shadows = ({ });
-    nobj = objs[i];
+    shadows = objs[i]->_query_shadows();
 
-    while (nobj = shadow(nobj, 0))
-      shadows += ({ nobj });
+    // shadows = ({ });
+    // nobj = objs[i];
+
+    // while (nobj = shadow(nobj, 0))
+    //   shadows += ({ nobj });
 
     if (!sizeof(shadows)) 
     {
@@ -939,7 +941,7 @@ int find_shadows(string s)
     {
       write(desc_f_object(objs[i]) + " esta siendo shadowed por:\n");
     
-      for(j = 0; j < sizeof(shadows); j++)
+      for (j = 0; j < sizeof(shadows); j++)
         write("    " + file_name(shadows[j]) + "\n");
     }
   }

@@ -15,7 +15,8 @@ void create()
 
 void dest_me()
 {
-  destruct(_account);
+  if (_account)
+    destruct(_account);
 }
 
 object query_account() { return _account; }
@@ -24,8 +25,7 @@ string query_account_name() { return account_name; }
 int set_account(string acc_name)
 {
   // for safety reasons, we allow set_account only to be called from /lib/core/login
-  // the login progname should be 1 steps ago in the call trace
-  if (!SECURE->valid_progname(1, "/lib/core/login"))
+  if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
   // if (!interactive(player))
@@ -44,8 +44,7 @@ int set_account(string acc_name)
 int set_account_ob(object account)
 {
   // for safety reasons, we allow set_account only to be called from /lib/core/login
-  // the login progname should be 1 steps ago in the call trace
-  if (!SECURE->valid_progname(1, "/lib/core/login"))
+  if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
   _account = account;

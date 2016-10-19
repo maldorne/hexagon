@@ -24,6 +24,9 @@ nomask void _auto_create()
   int clone, number;
   string creator;
 
+  _shadows = ({ });
+  _is_shadowing = 0;
+
   rlimits (-1; -1) 
   {
     object_name = object_name(this_object());
@@ -49,24 +52,4 @@ nomask void _auto_create()
   }
 
   create();
-}
-
-static nomask object clone_object(mixed what, varargs string uid) 
-{
-  if (stringp(what))
-  {
-    object blueprint;
-    
-    stderr(" - clone_object from \"" + what + "\"\n");
-    blueprint = load_object(what);
-
-    if (blueprint)
-      return clone_object(blueprint);
-    return nil;
-  }
-
-  if (objectp(what))
-    stderr(" - clone_object from <" + object_name(what) + ">\n");
-
-  return ::clone_object(what);
 }

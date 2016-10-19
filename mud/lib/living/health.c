@@ -168,7 +168,8 @@ int adjust_hp(int i, varargs object hp_remover)
 
   if (interactive(this_object()))
   {
-    remove_call_out(display_monitor_handle);
+    if (display_monitor_handle)
+      remove_call_out(display_monitor_handle);
     display_monitor_handle = call_out("display_monitor", 0, color);
   }
   return hp;

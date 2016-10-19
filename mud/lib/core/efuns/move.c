@@ -173,11 +173,19 @@ void move_object(mixed dest)
 nomask int destruct(varargs object ob) 
 {
   object env;
+  object * shadows;
+  int i;
 
   stderr(" - destruct: <" + object_name(ob) + ">\n");
 
   if (!ob)
     ob = this_object();
+
+  // destruct all objects shadowing this object
+  shadows = ob->_query_shadows();
+  
+  for (i = 0; i < sizeof(shadows); i++)
+    destruct(shadows[i]);
 
   // TODO destruct its inventory?
 

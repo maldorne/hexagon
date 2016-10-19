@@ -1,4 +1,9 @@
 
+#include <mud/mudos.h>
+
+private object * _shadows;
+private int _is_shadowing;
+
 // shadow - shadow one or more functions in some object
 // object shadow( object ob, int flag );
 
@@ -33,8 +38,86 @@
 
 static nomask object shadow(object ob, varargs int flag)
 {
+  int i;
+  object * dest_shadows;
+
+  dest_shadows = ob->_query_shadows();
+
+  // flag == 0, asking for who is shadowing me
   if (flag == 0)
+  {
+    if (sizeof(dest_shadows))
+      return dest_shadows[0];
+
+    return nil;
+  }
+
+  // this object is already shadowing something
+  if (_is_shadowing)
+  {
+    stderr(" *** shadow: object " + object_name(this_object()) + 
+           " is already shadowing other object.\n");
+    return nil;
+  }
+
+  if ( !clonep(ob) || !clonep(this_object()) )
     return nil;
 
+  // avoid same shadow again
+  for (i = 0; i < sizeof(dest_shadows); i++)
+    if (base_name(this_object()) == base_name(dest_shadows[i]))
+    {
+      stderr(" *** shadow: object " + object_name(ob) + 
+             " is already being shadowed by a clone of " +
+             base_name(this_object()) + ".\n");
+
+      return nil;
+    }
+
+  ob->_add_shadow(this_object());
+
+  _is_shadowing = 1;
+
   return ob;
+}
+
+nomask object * _query_shadows()
+{
+  // if (!is_auto_object())
+  //   return ({ });
+ 
+  _shadows -= ({ nil });
+
+  return _shadows;
+}
+
+nomask void _add_shadow(object ob)
+{
+  if (!is_auto_object())
+  {
+    stderr(" *** illegal _add_shadow\n");
+    return;
+  }
+
+  stderr(" *** shadow: object " + object_name(ob) + 
+         " starts shadowing object " + object_name(this_object()) + ".\n");
+
+  // not needed, done masking call_other in the auto object
+  // call_touch(this_object());
+
+  _shadows += ({ ob });
+}
+
+// query_shadowing - determine whether or not a given object it shadowing another
+// object query_shadowing( object ob );
+
+// Returns the object that `ob' is shadowing, or zero (0) if it is not
+// shadowing any object.
+
+static nomask int query_shadowing(varargs object ob)
+{
+  if (!ob)
+    ob = this_object();
+
+  return _is_shadowing;
 }

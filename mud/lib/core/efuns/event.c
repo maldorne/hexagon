@@ -23,10 +23,8 @@ void event( mixed obs, string event_name, mixed arg... )
     {
       event_obs = ({ obs }) + all_inventory( obs );
       
-      if( obs != who )
-      {
-        event_obs -= ({ who });
-      }
+      // if( obs != who )
+      //   event_obs -= ({ who });
     } 
     else 
     {

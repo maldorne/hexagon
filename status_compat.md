@@ -67,6 +67,8 @@ Common calls and operations over the basic types.
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
+| `clone_object`          | :white_check_mark: | provided by dgd, extended |
+| `new`                   | - | provided by dgd, different behaviour, use clone_object instead |
 | `destruct`              | :white_check_mark: | alias for `destruct_object` |
 | `find_object`           | :white_check_mark: | provided by dgd |
 | `load_object`           | :white_check_mark: | extended alias for `compile_object` |
@@ -189,6 +191,8 @@ do not have an open source license.
 | `query_ip_number`       | :white_check_mark: | provided by dgd |
 | `query_ip_name`         | :white_check_mark: | provided by dgd |
 | `random`                | :white_check_mark: | provided by dgd |
+| `shadow`                | :white_check_mark: |  |
+| `query_shadowing`       | :white_check_mark: |  |
 | `bind`                  |  |  |
 | `save_variable`         |  |  |
 | `restore_variable`      |  |  |
@@ -207,8 +211,6 @@ do not have an open source license.
 | `query_host_name`       |  |  |
 | `query_idle`            |  |  |
 | `set_hide`              |  |  |
-| `shadow`                |  | dummy function for now |
-| `query_shadowing`       |  |  |
 | `throw`                 |  |  |
 | `deep_inherit_list`     |  |  |
 | `shallow_inherit_list`  |  |  |

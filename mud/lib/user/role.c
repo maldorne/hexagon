@@ -16,7 +16,8 @@ void create()
 
 void dest_me()
 {
-  destruct(_role);
+  if (_role)
+    destruct(_role);
 }
 
 object query_role() { return _role; }
@@ -25,8 +26,7 @@ string query_role_name() { return role_name; }
 int set_role(string name)
 {
   // for safety reasons, we allow set_role only to be called from /lib/core/login
-  // the login progname should be 1 steps ago in the call trace
-  if (!SECURE->valid_progname(1, "/lib/core/login"))
+  if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
   if (!interactive(this_object()))

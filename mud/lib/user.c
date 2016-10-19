@@ -21,6 +21,7 @@ inherit account     "/lib/user/account";
 
 inherit events      "/lib/core/basic/events";
 inherit auto_load   "/lib/core/basic/auto_load";
+inherit output      "/lib/user/output";
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
@@ -85,6 +86,7 @@ void create()
   role::create();
   account::create();
   more_string::create();
+  output::create();
 
   // the last one
   living::create();
@@ -107,10 +109,6 @@ void create()
 
   if (clonep(this_object()))
     set_heart_beat(1);
-
-  // if (object_name(previous_object())!=DRIVER) {
-  //   destruct_object(this_object());
-  // }
 }
 
 void init()
@@ -136,7 +134,8 @@ void dest_me()
   account::dest_me();
 
   // remove the user from the user handler
-  find_object(USER_HANDLER)->remove_user(this_object());
+  if (clonep(this_object()))
+    find_object(USER_HANDLER)->remove_user(this_object());
 
   // main dest_me
   living::dest_me();
@@ -182,7 +181,7 @@ static void close(mixed arg)
 
 nomask int restore_me()
 {
-  if (!SECURE->valid_progname(1, "/lib/core/login"))
+  if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
   return restore_object("/save/players/" + 
@@ -193,7 +192,7 @@ nomask int restore_me()
 nomask int save_me()
 {
   string oldeuid;
-  // if (!SECURE->valid_progname(1, "/lib/core/login"))
+  // if (!SECURE->valid_progname("/lib/core/login"))
   //   return 0;
 
   if (query_loading() || query_property(LOADING_PROP))
@@ -643,7 +642,8 @@ mixed * stats()
                prompt::stats() + 
                living::stats() +
                role::stats() +
-               account::stats();
+               account::stats() + 
+               output::stats();
 }
 
 

@@ -19,16 +19,16 @@ void create()
 
   stderr(" ───> heart_beat creation\n");    
 
-  _hb_handle = call_out("__heart_beat", HEART_BEAT_TIME);
+  _hb_handle = call_out("_heart_beat", HEART_BEAT_TIME);
 }
 
-nomask void __heart_beat()
+nomask void _heart_beat()
 {
   int i;
 
   if (!mudlib_privileges()) 
   {
-    stderr("Illegal __heart_beat\n");
+    stderr("Illegal _heart_beat\n");
     return;
   }
 
@@ -57,7 +57,7 @@ nomask void __heart_beat()
 
     rlimits(MAX_HB_DEPTH ; MAX_HB_TICKS) 
     {
-      result = catch(call_other(ob, "__call_other", "heart_beat"));
+      result = catch(call_other(ob, "heart_beat"));
     }
 
     set_initiator_object(nil);
@@ -71,8 +71,8 @@ nomask void __heart_beat()
     }
   }
 
-  // queue the next __heart_beat execution
-  _hb_handle = call_out("__heart_beat", HEART_BEAT_TIME);
+  // queue the next _heart_beat execution
+  _hb_handle = call_out("_heart_beat", HEART_BEAT_TIME);
 }
 
 nomask int hb_object_index(object ob)

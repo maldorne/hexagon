@@ -17,7 +17,7 @@
 //  Function prototypes
 // ************************************************************
 
-static nomask void log_driver(string str);
+nomask void log_driver(string str);
 static nomask void inform_user(string str, int message_type);
 // own version, different from the one in the auto object
 static nomask void write(string str);
@@ -69,15 +69,15 @@ static nomask void initialize()
 
   load_object(AUTO);
 
-  call_other(error_h  = load_object(ERROR_HANDLER), "???"); // obviously, must be the first
+  ::call_other(error_h  = load_object(ERROR_HANDLER), "???"); // obviously, must be the first
 
   // global object in charge of heart_beats, init calls, etc
-  call_other(mudos    = load_object(MUDOS_PATH), "???");
-  call_other(secure   = load_object(SECURE_OB), "???");
-  call_other(user_h   = load_object(USER_HANDLER), "???");
-  call_other(living_h = load_object(LIVING_HANDLER), "???");
-  call_other(object_h = load_object(OBJECT_HANDLER), "???");
-  call_other(load_object(TERM_HANDLER), "???");
+  ::call_other(mudos    = load_object(MUDOS_PATH), "???");
+  ::call_other(secure   = load_object(SECURE_OB), "???");
+  ::call_other(user_h   = load_object(USER_HANDLER), "???");
+  ::call_other(living_h = load_object(LIVING_HANDLER), "???");
+  ::call_other(object_h = load_object(OBJECT_HANDLER), "???");
+  ::call_other(load_object(TERM_HANDLER), "???");
 
   load_object(LOGIN_OB);
 
@@ -109,7 +109,7 @@ nomask object login()
   return login; 
 }
 
-static nomask void log_driver(string str)
+nomask void log_driver(string str)
 {
   _stderr(str);
 }
@@ -285,7 +285,7 @@ static string atomic_error(string error, int atom, mixed **trace)
   string ret;
   ret = error_h->atomic_error(error, atom, trace);
 
-  if (!ret)
+  if (!ret || !strlen(ret))
     return "";
 
   log_driver(ret);
@@ -293,6 +293,24 @@ static string atomic_error(string error, int atom, mixed **trace)
 
   return ret;
 }
+
+// An object which has been marked by call_touch() is about to have the
+// given function called in it.  A non-zero return value indicates that the
+// object's "untouched" status should be preserved through the following
+// call.
+static int touch(object obj, string func) 
+{
+  stderr(" - touch object " + object_name(obj) + ", function " + func + "\n");
+
+  return FALSE;
+}
+
+
+
+
+
+
+
 
 // Object handler
 
@@ -355,18 +373,6 @@ static void compile_failed(string owner, string path)
 static void remove_program(string path, int timestamp, int index)
 { 
   log_driver(" + remove_program: " + path + "\n");
-}
-
-//   An object which has been marked by call_touch() is about to have the
-//   given function called in it.  A non-zero return value indicates that the
-//   object's "untouched" status should be preserved through the following
-//   call.
-static int touch(object obj, string function) 
-{ 
-  log_driver(" + touch: " + function);
-  print_object(obj);
-
-  return FALSE;
 }
 
 //   Return a non-zero value if `path' is not a legal first argument

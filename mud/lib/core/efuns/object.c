@@ -4,23 +4,11 @@
 #include "objects/compile_object.c"
 #include "objects/find_object.c"
 #include "objects/load_object.c"
+#include "objects/clone_object.c"
 #include "objects/file_name.c"
 
 #include "objects/restore_object.c"
 #include "objects/save_object.c"
-
-
-// object new(string path)
-// {
-//   object ob;
-
-//   ob = ::find_object(path);
-  
-//   if (!ob)
-//     ob = compile_object(path);
-
-//   return clone_object(ob);  
-// }
 
 
 // clonep - determine whether or not a given variable points to a cloned object

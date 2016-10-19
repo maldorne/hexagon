@@ -5,23 +5,19 @@
 #include <mud/secure.h>
 #include <user/user.h>
 
-nomask int valid_progname(int steps, string progname)
+nomask int valid_progname(string progname)
 {
   mixed ** trace;
+  int i;
 
   trace = call_trace();
 
-  if (steps >= sizeof(trace) - 1)
-    return 0;
+  for (i = sizeof(trace) - 1; i >= 0; i--)
+    if (trace[i][TRACE_PROGNAME] == progname)
+      return 1;  
 
-  // this valid_progname call counts as one 
-  // more level in the call trace
-  steps++;
-
-  if (trace[sizeof(trace) - steps - 1][TRACE_PROGNAME] != progname)
-    return 0;
-
-  return 1;  
+  stderr("NOT VALID "+to_string(call_trace())+"\n");
+  return 0;
 }
 
 /*
@@ -328,16 +324,18 @@ nomask int valid_seteuid(object ob, string euid)
 /*
  * The master object is asked if it is ok to shadow object ob. Use
  * previous_object() to find out who is asking.
- *
- * In this example, we allow shadowing as long as the victim object
- * hasn't denied it with a query_prevent_shadow() returning 1.
  */
 nomask int valid_shadow(object ob) 
 {
-  string dummy;
+  if (ob->query_prevent_shadow(previous_object()))
+    return 0;
 
-  return (!ob->query_prevent_shadow(previous_object()) &&
-          !sscanf(file_name(ob), "/secure/%s", dummy));
+  return 1;
+
+  // string dummy;
+
+  // return (!ob->query_prevent_shadow(previous_object()) &&
+  //         !sscanf(file_name(ob), "/secure/%s", dummy));
 }
 
 nomask int valid_socket(object ob, string func, mixed *info) 

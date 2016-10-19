@@ -73,3 +73,43 @@ int second_life(object corpse, object initiator)
   tmp->set_my_corpse(corpse);
   return 1;
 }
+
+void remove_ghost()
+{
+  if (this_object()->query_real_con() < 1)
+  {
+    tell_object(this_object(),"Algo va mal... tu constitución es " +
+      "demasiado baja.\n");
+    return;
+  }
+  
+  this_object()->set_dead(0);
+
+  // disabled 28/09/95 Taniwha, too many bugs, we can do without the hassles for now.
+  if (this_player() && this_player()->query_coder()) 
+  {
+    log_file("raise", ctime(time())+": "+this_player()->query_cap_name()+
+        " raised "+this_object()->query_cap_name()+".\n");
+  }
+  else 
+  {
+    // if (!OMIQ_HAND->omiq_in_progress())
+    // if (this_object()->query_level() > 9) this_object()->adjust_con(-1);
+  }
+
+  tell_object(this_object(), "Recuperas tu forma mortal.\n");
+  say(query_cap_name() + " recupera su forma mortal.\n");
+
+  this_object()->dest_death_shadow();
+
+  if (this_object()->query_hp() <= 0) 
+    this_object()->set_hp(3);
+  if (this_object()->query_gp() <= 0) 
+    this_object()->set_gp(3);
+
+  // if (OMIQ_HAND->flag_in_progress())
+  //   call_out("give_me_armband",2);
+
+  // Taniwha, just to avoid a few problems with being raised and dying from HP later
+  this_object()->save_me();
+}

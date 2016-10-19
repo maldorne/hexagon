@@ -79,12 +79,11 @@ nomask void time_out()
   destruct(this_object());
 }
 
-nomask void quit()
-{
-  // TODO lots of things here
-  destruct(_player);
-  destruct(this_object());
-}
+// nomask void quit()
+// {
+//   destruct(_player);
+//   destruct(this_object());
+// }
 
 nomask void logon(object pl) 
 {

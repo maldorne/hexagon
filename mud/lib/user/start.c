@@ -17,7 +17,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
   // object obb = find_object(OMIQ_H);
   mapping mail_stat;
 
-  if (!SECURE->valid_progname(1, "/lib/core/login"))
+  if (!SECURE->valid_progname("/lib/core/login"))
   {
     notify_fail("No tienes los suficientes permisos para hacer eso.");
     return ;

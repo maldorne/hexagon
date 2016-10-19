@@ -91,7 +91,6 @@ nomask string runtime_error(string error, int caught, int ticks)
 #endif
 }
 
-
 string atomic_error(string error, int atom, mixed **trace)
 {
   return "lib > core > handlers > errors :: atomic_error\n";
