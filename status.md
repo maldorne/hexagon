@@ -26,21 +26,25 @@
 
 - [x] **Login with multiple types of users**
 
-    Login process for coders, players, administrators, etc.
+    **Done**. Login process for coders, players, administrators, etc.
 
 - [x] **Shadows**
 
-    Emulate MudOS shadows.
+    **Done**. Emulate MudOS shadows.
 
 - [ ] **Full inheritance tree from the original ccmudlib**
 
     - [x] **coder, manager, administrator** to the different user roles
 
+    **Done**. 
+
     - [ ] **living** to `/lib/living/living.c`
 
     - [ ] **player** to `/lib/user.c`
 
-    - [ ] **item** to `/lib/item.c`
+    - [x] **item** to `/lib/item.c`
+
+    **Done**. 
 
     - [ ] **monster** to `/lib/npc.c`
-    
+
