@@ -20,7 +20,7 @@
 
     **Done**. Environments, inventories, `move` functions, move commands between rooms. `init` function calling.
 
-- [x] **actions and this_player**
+- [x] **Actions and `this_player()`**
 
     **Done**. Actions, `init` function calling, `this_player()`, `query_verb()` and `notify_fail()`.
 
