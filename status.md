@@ -36,7 +36,7 @@
 
     **Done**. Emulate MudOS shadows.
 
-- [ ] **Full inheritance tree from the original ccmudlib**
+- [ ] **Full inheritance tree from the original `ccmudlib`**
 
     - [x] **coder, manager, administrator** to the different user roles
 

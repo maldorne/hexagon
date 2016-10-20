@@ -858,7 +858,7 @@ int do_find(string str)
     if (sscanf(str, "%s %s", func, thing) != 2)
       return 0;
 
-  obs = wiz_present(thing, this_object());
+  obs = wiz_present(thing, this_player());
 
   if (!sizeof(obs)) 
   {
@@ -896,7 +896,7 @@ int do_debug(string str)
     return 0;
   }
 
-  if (!sizeof(obs = wiz_present(str, this_object()))) 
+  if (!sizeof(obs = wiz_present(str, this_player()))) 
   {
     notify_fail("Objeto " + str + " no encontrado.\n");
     return 0;
@@ -915,7 +915,7 @@ int find_shadows(string s)
   if (!strlen(s)) 
     s = "me";
 
-  objs = wiz_present(s, this_object());
+  objs = wiz_present(s, this_player());
 
   if (sizeof(objs) == 0) 
   {
