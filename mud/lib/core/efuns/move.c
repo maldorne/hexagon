@@ -1,6 +1,6 @@
 
 #include <basic/move.h>
-#include <user/user.h>
+#include <areas/common.h>
 
 private static object _environment;
 private static object * _inventory;

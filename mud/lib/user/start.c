@@ -8,7 +8,6 @@
 // prototypes
 void do_first_look();
 void start_player();
-void start_money();
 
 
 void move_player_to_start(varargs int going_invis, int is_new_player) 
@@ -252,7 +251,6 @@ void start_player()
 
   reset_all();
 
-  start_money();
   call_out("do_load_auto", 0);
 
   add_timed_property(LOADING_PROP, 1, 50);
@@ -277,17 +275,6 @@ void start_player()
   //     wimpy = 25;
 
 } /* start_player() */
-
-void start_money()
-{
-  // TODO money
-  // object money;
-
-  // // Done here after encumberance is set up
-  // money = clone_object(MONEY_OBJECT);
-  // money->set_money_array(money_array);
-  // money->move(this_object());
-}
 
 int do_load_auto() 
 {

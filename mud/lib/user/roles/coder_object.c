@@ -1,6 +1,6 @@
 
 #include <mud/secure.h>
-#include <user/user.h>
+#include <areas/common.h>
 
 // prototypes
 object *wiz_present(string str, object onobj, varargs int nogoout);
@@ -347,39 +347,40 @@ int do_a_call(string str)
     {
       string error;
 
-      switch(sizeof(argv))
-      {
-        case 0:
-          error = catch(retobj = call_other(ov[i], fn));
-          break;
-        case 1:
-          error = catch(retobj = call_other(ov[i], fn, argv[0]));
-          break;
-        case 2:
-          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1]));
-          break;
-        case 3:
-          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2]));
-          break;
-        case 4:
-          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3]));
-          break;
-        case 5:
-          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3], argv[4]));
-          break;
-        case 6:
-          error = catch(retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]));
-          break;
-        default:
-          notify_fail("More than 6 parameters? Nope.\n");
-          return 0;
-      }
-
-      if (error)
-      {
-        write("Se ha producido un error:\n" + error + "\n");
-        return 1;
-      }
+      // not using a catch, so the error will get to the driver
+      // and the error handler will inform the coder about program and line
+      // catch {
+        switch(sizeof(argv))
+        {
+          case 0:
+            retobj = call_other(ov[i], fn);
+            break;
+          case 1:
+            retobj = call_other(ov[i], fn, argv[0]);
+            break;
+          case 2:
+            retobj = call_other(ov[i], fn, argv[0], argv[1]);
+            break;
+          case 3:
+            retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2]);
+            break;
+          case 4:
+            retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3]);
+            break;
+          case 5:
+            retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3], argv[4]);
+            break;
+          case 6:
+            retobj = call_other(ov[i], fn, argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
+            break;
+          default:
+            notify_fail("More than 6 parameters? Nope.\n");
+            return 0;
+        }
+      // } : {
+      //     write("Se ha producido un error durante el call.\n");
+      //     return 1;
+      // }
 
       inform_of_call(ov[i], ({ fn }) + argv);
   

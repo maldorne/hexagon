@@ -21,8 +21,8 @@
 
 inherit alignment "/lib/core/basic/alignment";
 inherit death     "/lib/living/death";
-// inherit "/global/living/force";
-// inherit "/global/living/money";
+inherit force     "/lib/living/force";
+inherit money     "/lib/living/money";
 // inherit "/global/living/effects";
 inherit equip     "/lib/living/equip";
 inherit gender    "/lib/core/basic/gender";
@@ -45,6 +45,8 @@ void create()
 {
   alignment::create();
   death::create();
+  force::create();
+  money::create();
   equip::create();
   gender::create();
   stats::create();
@@ -102,12 +104,28 @@ void dest_me()
 void start_player()
 {
   // groups_obs::start_player();
+
+  // at the end
+  money::start_money();
 }
+
+// resolve multiple instances between 
+// value.c (for every object) and money.c (only for livings)
+
+int query_value() { return money::query_value(); }
+mixed * query_money_array() { return money::query_money_array(); }
+int query_money(string type) { return money::query_money(type); }
+int adjust_money(mixed i, varargs string type) { return money::adjust_money(i, type); }
+
+// end resolving multiple instances
+
 
 mixed * stats() 
 {
   return alignment::stats() +
          death::stats() +
+         force::stats() +
+         money::stats() +
          equip::stats() +
          gender::stats() + 
          stats::stats() + 

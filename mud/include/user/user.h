@@ -12,6 +12,3 @@
 // player accounts
 #define ACCOUNT_OB "/lib/user/accounts/player_account"
 
-// where to move the player on errors
-#define ROOM_VOID "/lib/areas/void"
-

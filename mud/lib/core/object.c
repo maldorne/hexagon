@@ -74,13 +74,13 @@ mixed *query_init_data() {
 mapping int_query_static_auto_load() 
 {
   return ([ 
-            "weight" : weight, "light" : light, 
-            "short" : short_d, 
-            "long" : long_d, 
-            "alias" : alias, 
-            "plural" : plurals, "name" : name, 
+            "weight"      : weight, "light" : light, 
+            "short"       : short_d, 
+            "long"        : long_d, 
+            "alias"       : alias, 
+            "plural"      : plurals, "name" : name, 
             "main plural" : plural_d, 
-            "value" : value 
+            "value"       : value 
           ]);
 } 
 

@@ -18,6 +18,7 @@ int adjust_money(mixed amt, varargs string type)
   if (pointerp(amt)) 
   {
     value += (int)MONEY_HAND->query_total_value(amt);
+    
     if (value < 0)
       value = 0;
     return value;
@@ -33,16 +34,19 @@ int adjust_money(mixed amt, varargs string type)
 
 int adjust_value(int i) { return (value += i); }
 
-mixed *query_money_array() { 
+mixed * query_money_array() 
+{ 
   return (mixed *)MONEY_HAND->create_money_array(value);
 }
 
-int query_money(string type) { 
+int query_money(string type) 
+{ 
   int i;
   mixed *m_a;
 
   m_a = (mixed *)MONEY_HAND->create_money_array(value); 
-  if ((i=member_array(type, m_a)) == -1)
+
+  if ((i = member_array(type, m_a)) == -1)
     return 0;
   return m_a[i+1];
 }
@@ -80,7 +84,7 @@ void no_sell_if_stolen() { stolen_modifier = -1; }
 mixed stats()
 {
   return ({
-            ({"Value", value, }),
+            ({ "Value", value, }),
             // ({"Resale Value", resale_value, }),
             // ({"Stolen Modifier", stolen_modifier, }),
           });

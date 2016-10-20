@@ -45,7 +45,7 @@ string *create_auto_load(object *obs)
     }
     else 
     {
-      if (map_sizeof(s))
+      if (mappingp(s) && map_sizeof(s))
         continue;
       else
         s3 = ([ ]);

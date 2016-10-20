@@ -10,12 +10,11 @@
 #include <common/properties.h>
 #include <basic/alignment.h>
 #include <user/xp.h>
-#include <item/money.h>
+#include <basic/money.h>
 
 // Traido desde /global/living/living.c, neverbot 4/03
 int dead;
 
-// Funcion create añadida
 void create()
 {
   dead = 0;
@@ -454,7 +453,6 @@ static void actual_death(object initiator)
                            
 } /* void actual death */
 
-// Stats añadidos
 mixed stats()
 {
   return ({ ({ "Is Dead", dead, }), });

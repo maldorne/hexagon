@@ -8,7 +8,6 @@
  *
  */
 
-#include <item/money.h>
 #include <common/properties.h>
 #include <user/xp.h>
 

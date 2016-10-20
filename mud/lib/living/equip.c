@@ -13,7 +13,7 @@
  */
 
 #include <user/player.h>
-#include <item/money.h>
+#include <basic/money.h>
 #include <living/equip.h>
 
 inherit wear "/lib/living/wear";

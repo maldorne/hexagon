@@ -8,6 +8,7 @@
 #include <mud/secure.h>
 #include <living/living.h>
 #include <common/properties.h>
+#include <basic/money.h>
 
 inherit history     "/lib/user/history";
 inherit alias       "/lib/user/alias";
@@ -192,6 +193,7 @@ nomask int restore_me()
 nomask int save_me()
 {
   string oldeuid;
+  object ob;
   // if (!SECURE->valid_progname("/lib/core/login"))
   //   return 0;
 
@@ -214,12 +216,10 @@ nomask int save_me()
     tell_object(this_object(), "Salvando...\n");
   }
 
-
-  // TODO money save... should be in living?
-  // if ((ob = present(MONEY_NAME, this_object())))
-  //   money_array = (mixed *)ob->query_money_array();
-  // else
-  //   money_array = ({ });
+  if ((ob = present(MONEY_NAME, this_object())))
+    money_array = (mixed *)ob->query_money_array();
+  else
+    money_array = ({ });
 
   // TODO social save
   // if ( query_guild_ob() && ( (file_size(query_guild_ob()) > 0) ||
@@ -521,10 +521,9 @@ int really_quit()
   // if (query_mount())
   //   query_mount()->owner_quit();
 
-  // TODO money    
   /* get rid of the money.... we dont want them taking it twice now do we? */
-  // if ((money = present(MONEY_NAME, this_object())))
-  //     money->dest_me();
+  if ((money = present(MONEY_NAME, this_object())))
+      money->dest_me();
 
   frog = first_inventory(this_object());
   while (frog) 

@@ -7,7 +7,7 @@
 
 #include <room/room.h>
 #include <mud/secure.h>
-#include <user/user.h>
+#include <areas/common.h>
 
 inherit light    "/lib/core/basic/light";
 inherit property "/lib/core/basic/property";

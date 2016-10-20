@@ -8,7 +8,7 @@
 
 #include <basic/move.h>
 #include <common/properties.h>
-#include <item/money.h>
+#include <basic/money.h>
 #include <user/player.h>
 #include <living/consents.h>
 #include <living/equip.h>
