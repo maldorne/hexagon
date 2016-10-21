@@ -193,6 +193,17 @@ int query_tohit_bonus()   { return tohit_bonus + tmp_tohit_bon; }
 int query_real_body_ac()  { return body_ac;   }
 int query_body_ac()     { return body_ac + body_ac_bon + tmp_ac_bon; }
 
+string stat_string(int i) 
+{
+  if (i<19)
+    return i +"";
+  if (i>28)
+    return i-10+"";
+  if (i==28)
+    return "18/00";
+  return "18/"+(i-18)+"0";
+}
+
 /* This is ugly.. 
  * But a test right now..
  * This does calculate the adjustments of max_gp & max_hp 

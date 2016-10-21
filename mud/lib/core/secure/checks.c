@@ -16,7 +16,6 @@ nomask int valid_progname(string progname)
     if (trace[i][TRACE_PROGNAME] == progname)
       return 1;  
 
-  stderr("NOT VALID "+to_string(call_trace())+"\n");
   return 0;
 }
 
@@ -29,6 +28,7 @@ nomask int valid_progname(string progname)
  *                  NOTE, the absence of a leading slash in the name.
  * Returns:         True if exec() is allowed.
  */
+/*
 nomask int valid_exec(string name) 
 {
   if (name == "/lib/core/login.c")
@@ -36,8 +36,9 @@ nomask int valid_exec(string name)
 
   return -1;
 } 
+*/
 
-nomask int valid_load(string path, mixed euid, string func) { return 1; }
+// nomask int valid_load(string path, mixed euid, string func) { return 1; }
 
 nomask int valid_hide(object ob) 
 {

@@ -11,3 +11,12 @@
 #define CLASS_OB 7
 
 #define NULL_SOCIAL_VALUE "none"
+
+#define LOG_ADJUST_LEVEL "adjust_level"
+#define LOG_ADJUST_GUILD_LEVEL "adjust_guild_level"
+
+// old jobs.h
+#define JOB_XP_LIMIT 15000
+#define LOGFILE "job_busted"
+#define LOG_JOB_XP "job_xp"
+#define LOG_ADJUST_JOB_LEVEL "adjust_job_level"

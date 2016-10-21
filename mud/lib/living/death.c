@@ -149,7 +149,7 @@ int do_death(object killed_by)
   dead_xp = (int)this_object()->query_xp() / 3;
 
   if (interactive(this_object()) && dead_xp)
-    log_file("xp", ctime(time())+": "+
+    log_file(LOG_XP, ctime(time())+": "+
             this_object()->query_cap_name()+" "+
              "has lost '"+dead_xp+"' xp dying.\n");
 

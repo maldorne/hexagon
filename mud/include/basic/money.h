@@ -1,6 +1,6 @@
 
 #define MONEY_OBJECT  "/lib/obj/money"
-#define MONEY_HAND    "/lib/handlers/money_handler"
+#define MONEY_HAND    "/lib/handlers/money"
 #define MONEY_ALIAS   "Some Money For Me"
 #define MONEY_TRACKER "/obj/handlers/money_track"
 

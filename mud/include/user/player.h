@@ -1,19 +1,17 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-// Tabla de actualizacion de jugadores
-#define SHEET_TABLE "/table/sheet_table.c"
-#define RANKING_OB  "/obj/handlers/ranking.c"
+#define RANKING_OB  "/lib/obj/handlers/ranking"
 
-// Objetos que un player siempre debe tener
+// objects a player must have
 #define MUST_HAVE ({ "/lib/obj/diary", "/lib/obj/hearthstone", })
 
-// Definiciones extraidas del player.c, neverbot 4/2003
+// taken from old player.c, neverbot 4/2003
 // ------------
 // Taniwha 14/09/1995 how long shall we disable guild commands 
 //  and spells after login
 #define LOGINLOCK 20
-#define START_POS "/lib/areas/start"
+#define START_POS "/game/areas/start/start"
 #define ENTRY_POS "/d/ciudad_capital/barrio_antiguo/rooms/calzada02"
 
 #define IDENTD "/net/identd"

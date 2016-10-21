@@ -23,6 +23,7 @@ inherit account     "/lib/user/account";
 inherit events      "/lib/core/basic/events";
 inherit auto_load   "/lib/core/basic/auto_load";
 inherit output      "/lib/user/output";
+inherit migration   "/lib/user/migration";
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
@@ -46,14 +47,10 @@ int query_cols() { return 79; }
 int query_rows() { return 20; }
 void set_cols(int i) { }
 int query_verbose() { return 1; }
-int query_level() { return 10; }
+
 // stats
-void reset_all() { }
-string query_gtitle() { return "rey de reyes"; }
 void load_mount();
 
-object query_race_ob() { return nil; }
-int query_volume(int i) { return 0; }
 
 int check_dark(int light)
 {
@@ -80,6 +77,14 @@ int check_dark(int light)
 
 void create() 
 {
+  // avoid calling create() on already cloned players
+  if (name)
+  {
+    // event(admins(), "inform", this_player()->query_name() + 
+    //   " called create() on " + name, "cheat");
+    return;
+  }
+
   history::create();
   alias::create();
   nickname::create();
@@ -88,6 +93,7 @@ void create()
   account::create();
   more_string::create();
   output::create();
+  migration::create();
 
   // the last one
   living::create();
@@ -620,9 +626,6 @@ int quit()
   return 1;
 } 
 
-
-
-
 mixed * stats() 
 {
   return ({ 
@@ -642,89 +645,7 @@ mixed * stats()
                living::stats() +
                role::stats() +
                account::stats() + 
+               migration::stats() + 
                output::stats();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Control over editing function. Can come only from the associated
-   inner_player object */
-
-// void set_in_edit (int foo) {
-//     if (previous_object()!=inner_player) return;
-//     editing = foo;
-// }
-
-// int query_in_edit() {
-//     return editing;
-// }
-
-// int query_in_input() {
-//     if (redirect_input_ob) return 1;
-//     return 0;
-// }
-
-/* The destruct() function overrides the one defined in the auto object,
-   making it static. User objects can only call dest internally: if you
-   need to dest one, call quit() in it (though that requires permissions
-   as well.)
-   This protection does not apply to the master copy of the object,
-   since you need to remove that to update.
-*/
-
-// int destruct() {
-//     if (clone_num(this_object())) {
-//         if (previous_object()!=inner_player) return 0;
-//     }
-//     CHANNEL_D->remove_user_from_all(this_object());
-//     destruct_object(this_object());
-//     return (this_object()==0);
-//   }
-
-/* The quit() function is called from the inner_player object when the
-   inner_player types the quit command. Save the user and destruct. */
-
-// void quit() {
-
-//     string str;
-
-//     if (inner_player && previous_object()!=inner_player) return;
-//     last_on = time();
-//     str = query_ip_number(this_object());
-//     if (str) last_ip = str;
-//     save_object(USER_SAVE_DIR+name+USER_SAVE_EXT);
-//     USERS_D->remove_user(this_object(),name);
-//     log_file(USAGE_LOG,cap_name+" quit from "+query_ip_number(this_object())+
-//        " at "+ctime(time())+"\n");
-//     destruct();
-// }
-
-/*
- * NAME:  query_idle()
- * DESCRIPTION: return idle time of this user
- */
-// int query_idle() {
-//     return time() - timestamp;
-// }
-
-/* The linkdead function checks the user's IP. If there is none, he's
-   linkdead and we return 1. If there is one, we return 0. */
-
-// int linkdead() {
-//     if (query_ip_number(this_object())) return 0;
-//     return 1;
-// }

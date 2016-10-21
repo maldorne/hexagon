@@ -4,10 +4,7 @@
 #include <living/combat.h>
 #include <common/quests.h>
 #include <mud/secure.h>
-
-// Logging Taniwha 1995
-#define XP_LIMIT 15000
-#define XP_LOGFILE "xp_log"
+#include <user/xp.h>
 
 int max_hp, max_gp, total_xp, wimpy;
 int hp, xp, gp;
@@ -22,7 +19,7 @@ void create()
 {
   damage_done = ([ ]);
   aggro_done = ([ ]);
-  drink_info = allocate(D_SIZEOF);
+  drink_info = allocate_int(D_SIZEOF);
   max_gp = 1;
   max_hp = 1;
   display_monitor_handle = 0;
@@ -205,12 +202,12 @@ int adjust_gp(int i)
   return gp;
 }
 
-void logit(string what,int amount)
+void logit(string what, int amount)
 {
   if (interactive(this_object()))
   {
-    log_file(XP_LOGFILE, "["+ctime(time(),4)+"] " + (string)this_object()->query_cap_name()+" ganó "+amount+" "+what+
-      " de: "+previous_object()->query_name()+", archivo: "+file_name(previous_object())+
+    log_file(LOG_XP, "["+ctime(time(),4)+"] " + (string)this_object()->query_cap_name()+" got "+amount+" "+what+
+      " from: "+previous_object()->query_name()+", file: "+file_name(previous_object())+
       "\n");
   }
 }
@@ -343,7 +340,7 @@ string health_string(int self)
 int adjust_volume(int type, int amt) 
 {
   if (!pointerp(drink_info))
-    drink_info = allocate(D_SIZEOF);
+    drink_info = allocate_int(D_SIZEOF);
   if (type >= sizeof(drink_info))
     return 0;
   return drink_info[type] += amt;
@@ -352,7 +349,7 @@ int adjust_volume(int type, int amt)
 int query_volume(int type) 
 {
   if (!pointerp(drink_info))
-    drink_info = allocate(D_SIZEOF);
+    drink_info = allocate_int(D_SIZEOF);
   if (type >= sizeof(drink_info))
     return 0;
   return drink_info[type];
@@ -364,7 +361,7 @@ void update_volumes()
 
   if (!drink_info)
     return ;
-  for (i=0;i<sizeof(drink_info);i++)
+  for (i = 0; i < sizeof(drink_info); i++)
     if (drink_info[i] > 0)
     drink_info[i]--;
   else
@@ -392,10 +389,9 @@ string volume_string()
 }
 
 // stats añadido
-mixed stats() {
-
-  mixed * ret;
-  ret = ({ ({"Max Hp", max_hp, }),
+mixed stats() 
+{
+  return ({ ({"Max Hp", max_hp, }),
     ({"Hp", hp, }),
     ({"Max Gp", max_gp, }),
     ({"Gp", gp, }),
@@ -406,5 +402,4 @@ mixed stats() {
     ({"Aggro Done (nosave)", aggro_done, }),
     ({"Drink Info", drink_info, }),
     });
-  return ret;
 }

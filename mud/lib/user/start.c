@@ -15,6 +15,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
   object tmp;
   // object obb = find_object(OMIQ_H);
   mapping mail_stat;
+  object last;
 
   if (!SECURE->valid_progname("/lib/core/login"))
   {
@@ -88,8 +89,9 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
   // CHAT_HANDLER->init_player_channels(query_property(CHANNELS_PROPERTY));
   // channel_init();
 
-  if (!last_pos || 
-      catch(call_other(last_pos, "??")))
+  if (!strlen(last_pos) || 
+      catch(last = load_object(last_pos)) ||
+      !last)
   {
     if (query_level() >= 5)
     {
@@ -104,7 +106,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
   }
   else
   {
-    move(last_pos);
+    move(find_object(last_pos));
   }
 
   if (query_coder())
@@ -127,13 +129,9 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
 
   call_out("do_first_look", 0);
   
-  // last_pos->enter(this_object());
-
   if (query_property(PASSED_OUT_PROP))
     call_out("remove_property", 10+random(30), PASSED_OUT_PROP);
   
-  // curses_start();
-
   // TODO mail
   /*
   mail_stat = (mapping)POSTAL_D->mail_status(query_name());
@@ -185,12 +183,6 @@ void do_first_look()
   for (i = 0; i < sizeof(has); i++)
     has[i] = 0;
 
-  // TODO sheet table  
-  // Aprovechamos que esto se hace tras el login completo + carga de equipo
-  // para hacer la actualizacion de la ficha
-  // if (SHEET_TABLE->update_player(this_object()))
-  //   tell_player(this_object(), "Tu ficha ha sido actualizada.\n");
-
   if (query_verbose())
     do_command("look");
   else
@@ -229,10 +221,9 @@ void start_player()
 
   reset_get();
 
-  // TODO 
-  // Añadido para actualizar fichas antes de añadir comandos, etc
-  // if (SHEET_TABLE->pre_update_player(this_object()))
-  //   tell_player("Características del personaje modificadas.\n");
+  // player migrations
+  if (this_object()->update_player())
+    tell_player(this_object(), "Tu ficha ha sido actualizada.\n");
  
   living::start_player();
 
@@ -281,7 +272,7 @@ int do_load_auto()
   object ranking;
   
   load_auto_load(auto_load, this_object());
-  
+
   reset_hands();
 
   // mounts, neverbot 07/05

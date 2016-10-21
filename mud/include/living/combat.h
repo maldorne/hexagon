@@ -27,6 +27,17 @@
 #define COMBAT_ROLE_CHANGED_PROP "combat_role_changed"
 
 // ****************************************************
+// old attacks.h
+
+#define SLASHING 1
+#define BLUNT 2
+#define PIERCING 3
+
+#define SLASHING_STR "cortante"
+#define BLUNT_STR    "contundente"
+#define PIERCING_STR "perforante"
+
+// ****************************************************
 // armed combat
 
 #define WEAPON_TABLE "/table/weapon_table.c"

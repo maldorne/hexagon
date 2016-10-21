@@ -2,7 +2,7 @@ aliases ([0|])
 map_aliases ([0|])
 map_nicknames ([0|])
 prompt_string "$n > "
-money_array ({2|"plata",100,})
+money_array ({0|})
 gender 1
 stats_bon ({8|0,0,0,0,0,0,0,0,})
 stats_base ({8|10,10,10,10,10,10,10,10,})
@@ -17,9 +17,16 @@ msgout "@$N se va hacia $T."
 msgin "@$N llega desde $F."
 mmsgout "@$N desaparece en una nube de humo."
 mmsgin "@$N aparece del suelo."
+known_feats ({0|})
+feat_list ([0|])
+spec_object_list ({8|nil,nil,nil,nil,nil,nil,nil,nil,})
+guild_joined ([0|])
+job_joined ([0|])
+social_object_list ({8|nil,nil,nil,nil,nil,nil,nil,nil,})
 role_name "coder"
 account_name "admin@ciudadcapital.net"
 monitor 1
+last_migration 1
 last_pos "/home/common"
 auto_load ({0|})
 time_on -501

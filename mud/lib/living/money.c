@@ -16,8 +16,6 @@ void start_money()
 {
   object money;
 
-  stderr("START MONEY\n");
-
   // Done here after encumberance is set up
   money = clone_object(MONEY_OBJECT);
   money->set_money_array(money_array);

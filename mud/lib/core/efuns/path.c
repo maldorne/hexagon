@@ -7,13 +7,13 @@
 // idea taken from melville mudlib
 static nomask int is_absolute_path(string str) 
 {
-    if (!str || (str == "")) 
-      return -1;
-
-    if ((str[0] == '/') || (str[0] == '~')) 
-      return 1;
-
+  if (!str || (str == "")) 
     return -1;
+
+  if ((str[0] == '/') || (str[0] == '~')) 
+    return 1;
+
+  return -1;
 }
 
 string get_path_file_name(string path)
