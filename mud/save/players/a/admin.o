@@ -24,6 +24,7 @@ guild_joined ([0|])
 job_joined ([0|])
 class_level 1
 social_object_list ({8|nil,nil,nil,nil,nil,nil,nil,nil,})
+spells ([0|])
 consents ([0|])
 role_name "coder"
 account_name "admin@ciudadcapital.net"

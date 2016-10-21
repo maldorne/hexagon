@@ -420,7 +420,6 @@ int do_exit_command(mapping door_control,
                                       special_mess,
                                       dest_other[i*2+1][ROOM_ENTER]));
 
-/*
   // visited places, neverbot 08/2010
   if (result)
   {
@@ -435,7 +434,6 @@ int do_exit_command(mapping door_control,
       (ob->query_riding()?ob->query_mount()->query_name():"") // nombre de la montura usada
       );
   }
-  */
 
   return result;
 } /* do_exit_command() */

@@ -9,7 +9,7 @@
  *   a players y npcs (antiguos monster::heart_beat y player::heart_beat, 
  *   ahora living::living_heart_beat()), neverbot 04/09
  *
- * AÃ±adido do_death para los npcs o players de quest, neverbot 03/09
+ * Añadido do_death para los npcs o players de quest, neverbot 03/09
  */
 
 // #include <living.h>
@@ -37,9 +37,9 @@ inherit movement  "/lib/living/movement";
 inherit social    "/lib/living/social";
 inherit mount     "/lib/living/mount";
 inherit drunk     "/lib/living/drunk";
-// inherit "/global/living/spells.c";
+inherit spells    "/lib/living/spells";
 inherit consent   "/lib/living/consent";
-// inherit "/global/living/visited.c";
+inherit visited   "/lib/living/visited";
 
 void create()
 {
@@ -58,7 +58,9 @@ void create()
   social::create();
   mount::create();
   drunk::create();
+  spells::create();
   consent::create();
+  visited::create();
 
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
@@ -71,10 +73,10 @@ void create()
   add_action("do_equip",  "equipar");
   add_action("do_equip",  "equiparse");
   add_action("do_hold",   "empunyar");
-  add_action("do_hold",   "empuÃ±ar");
+  add_action("do_hold",   "empuñar");
   add_action("do_hold",   "sostener");
   add_action("do_unhold", "desempunyar");
-  add_action("do_unhold", "desempuÃ±ar");
+  add_action("do_unhold", "desempuñar");
   add_action("do_unhold", "soltar");
   add_action("do_wear",   "ponerse");
   add_action("do_wear",   "ponerme");
@@ -86,7 +88,7 @@ void create()
   combat_commands();    
   handle_commands();
   social_commands();
-  // spell_commands();
+  spell_commands();
   consent_commands();
 }
 
@@ -146,11 +148,11 @@ int query_total_ac(varargs string type)
   else
     ret += 10 + eac + bac;
 
-  // Bonificador por la caracteristica de constitucion aÃ±adido
+  // Bonificador por la caracteristica de constitucion añadido
   ret += this_object()->query_stat_bonus_to_con();
 
-  // Bonificador al AC por tamaÃ±o (de la raza)
-  // TamaÃ±o 5 == humano
+  // Bonificador al AC por tamaño (de la raza)
+  // Tamaño 5 == humano
   if (this_object()->query_race_size() <= 3)
     ret += 1;
 
@@ -183,7 +185,7 @@ int query_total_wc()
   }
   else // Luchamos con armas
   {
-    // AÃ±adimos la dificultad de manejo de cada arma y su enchant
+    // Añadimos la dificultad de manejo de cada arma y su enchant
     for (i = 0; i < sizeof(obs); i++)
     {
       ret -= obs[i]->query_difficulty();
@@ -228,8 +230,8 @@ mixed * stats()
          social::stats() +
          mount::stats() +
          drunk::stats() +
+         spells::stats() +
          consent::stats() +
+         visited::stats() +
          movement::stats();
-         // spells::stats() + 
-         // visited::stats();
 }

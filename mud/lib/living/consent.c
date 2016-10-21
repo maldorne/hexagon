@@ -54,7 +54,7 @@ int change_consent(string str)
             
     ret += "\nPara cambiarlos, utiliza 'consentir <nombre> <sí|no>'.\n";
 
-        tell_object(this_player(), ret);
+    tell_object(this_player(), ret);
     return 1;
   }
 
@@ -64,8 +64,8 @@ int change_consent(string str)
     value = 0;
   else
   {
-    notify_fail("Tipo inválido de consentimiento.\nLos tipos válidos son: "
-      +query_multiple_short(CONSENT_TYPES)+".\n");
+    notify_fail("Tipo inválido de consentimiento.\nLos tipos válidos son: " +
+      query_multiple_short(CONSENT_TYPES) + ".\n");
     return 0;
   }
 

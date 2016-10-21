@@ -63,8 +63,8 @@ nomask string runtime_error(string error, int caught, int ticks)
       str += " " + function + " ";
       len = strlen(function);
 
-      if (len < 17) 
-        str += "                 "[len ..];
+      if (len < 22) 
+        str += "                      "[len ..];
 
       str += " " + progname;
 

@@ -8,6 +8,9 @@ static object mount;
 // string mount_save_name;
 string mount_file_name;
 
+// default for mounts
+int query_riding() { return 0; }
+
 string query_mount_file_name() { return mount_file_name; }
 void set_mount(object ob)
 { 
