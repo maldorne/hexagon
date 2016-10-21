@@ -1,5 +1,5 @@
-ccmudlib
-========
+Hexagon mudlib
+==============
 
 A project to make the original [ccmudlib](http://www.ciudadcapital.net) 
 and other MudOS-alike mud libraries (like the ones from _Final 
