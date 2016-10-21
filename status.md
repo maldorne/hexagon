@@ -52,3 +52,7 @@
 
     - [ ] **monster** to `/lib/npc.c`
 
+- [x] **User migrations to update user data**
+
+    **Done**.
+
