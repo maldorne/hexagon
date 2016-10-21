@@ -1,7 +1,7 @@
 
 // Aqui se define cual es la version actual de la ficha que estan usando los jugadores
 // Al hacer login, se comprueba tu query_last_migration() contra este numero.
-// Si es menor, se actualiza tu ficha segun todo lo indicado en /table/sheet_table.c
+// Si es menor, se actualiza tu ficha.
 
 // Por lo tanto: NO TOQUES ESTE NUMERO a menos que sepas lo que estas haciendo, 
 // puedes cargarte las fichas de todos los jugadores

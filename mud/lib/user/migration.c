@@ -95,6 +95,8 @@ nomask int update_player()
       return 0;
     }
 
+    stderr(" *** migration " + migration_name + " applied to user " + object_name(this_object()) + "\n");
+
     update_last_migration(query_last_migration() + 1);
 
     log_file(LOG_MIGRATIONS, "["+ctime(time(), 4)+"] " + 

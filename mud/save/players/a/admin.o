@@ -22,7 +22,9 @@ feat_list ([0|])
 spec_object_list ({8|nil,nil,nil,nil,nil,nil,nil,nil,})
 guild_joined ([0|])
 job_joined ([0|])
+class_level 1
 social_object_list ({8|nil,nil,nil,nil,nil,nil,nil,nil,})
+consents ([0|])
 role_name "coder"
 account_name "admin@ciudadcapital.net"
 monitor 1

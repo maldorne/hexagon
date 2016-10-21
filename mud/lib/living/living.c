@@ -35,10 +35,10 @@ inherit queue     "/lib/living/queue";
 inherit movement  "/lib/living/movement";
 
 inherit social    "/lib/living/social";
-// inherit "/global/living/mount.c";
-// inherit "/global/living/drunk.c";
+inherit mount     "/lib/living/mount";
+inherit drunk     "/lib/living/drunk";
 // inherit "/global/living/spells.c";
-// inherit "/global/living/consent.c";
+inherit consent   "/lib/living/consent";
 // inherit "/global/living/visited.c";
 
 void create()
@@ -56,6 +56,9 @@ void create()
   handle::create();
   queue::create();
   social::create();
+  mount::create();
+  drunk::create();
+  consent::create();
 
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
@@ -84,7 +87,7 @@ void create()
   handle_commands();
   social_commands();
   // spell_commands();
-  // consent_commands();
+  consent_commands();
 }
 
 int cannot_get_stuff() { return 1; }
@@ -208,7 +211,6 @@ int query_total_wc()
   return ret;
 }
 
-
 mixed * stats() 
 {
   return alignment::stats() +
@@ -224,11 +226,10 @@ mixed * stats()
          handle::stats() + 
          queue::stats() + 
          social::stats() +
+         mount::stats() +
+         drunk::stats() +
+         consent::stats() +
          movement::stats();
-         // mount::stats() +
          // spells::stats() + 
-         // drunk::stats() + 
-         // consent::stats() + 
          // visited::stats();
 }
-
