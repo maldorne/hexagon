@@ -14,8 +14,8 @@
  * Rings will be multipple.  Maybe add an amount_heads ? :=)
  * It won't be any problem to add new types later.
  *
- * AÃ±adido bonificador maximo por destreza segun la armadura.
- * AÃ±adido penalizador a las habilidades segun la armadura.
+ * Añadido bonificador maximo por destreza segun la armadura.
+ * Añadido penalizador a las habilidades segun la armadura.
  */
 
 #include <common/properties.h>
@@ -62,6 +62,16 @@ void create()
   {
      worn_ac[AC_TYPES[i]] = 0;
   }
+}
+
+void wear_commands() 
+{
+  add_action("do_wear",   "ponerse");
+  add_action("do_wear",   "ponerme");
+  add_action("do_wear",   "vestir");
+  add_action("do_unwear", "desvestir");
+  add_action("do_unwear", "quitarse");
+  add_action("do_unwear", "quitarme");
 }
 
 object * query_worn_ob(varargs int type)
@@ -207,8 +217,8 @@ int wear_ob(object ob)
   /* Made a query_holdable in living.c.. */
   if (this_object()->query_property(LOADING_PROP))
   {
-    notify_fail("Tu equipamiento todavÃ­a estÃ¡ cargÃ¡ndose, te es imposible "+
-                "ponÃ©rtelo.\n");
+    notify_fail("Tu equipamiento todavía está cargándose, te es imposible "+
+                "ponértelo.\n");
     return 0;
   }
   
@@ -223,7 +233,7 @@ int wear_ob(object ob)
   if (local && local[2] && 
       (local[2] != ob->query_body_type())) {
     tell_object(this_object(),"Este equipo no se ajusta bien a tu cuerpo, "+
-        "ha sido diseÃ±ado para otro tipo de persona.\n");
+        "ha sido diseñado para otro tipo de persona.\n");
     return 1;
   }
 
@@ -236,7 +246,7 @@ int wear_ob(object ob)
     return 1;
   }
 
-  notify_fail("Ya tienes puesto un objeto de las mismas caracterÃ­sticas.\n");
+  notify_fail("Ya tienes puesto un objeto de las mismas características.\n");
   
   thisone = base_name(ob);
   
@@ -267,7 +277,7 @@ int wear_ob(object ob)
 
   if (!(aux = ob->query_size()))
   {
-    notify_fail("Este objeto tiene un fallo (no tiene tamaÃ±o), pide ayuda a un programador.\n");
+    notify_fail("Este objeto tiene un fallo (no tiene tamaño), pide ayuda a un programador.\n");
     return 0;
   }
   
@@ -334,7 +344,7 @@ int wear_ob(object ob)
         {
           // Sumamos cuantas piezas de este conjunto llevamos
           found += 1;
-          // tell_object(find_living("folken"), "-- aÃ±adimos al set: " + file_name(worn_objects[position]) + "\n");
+          // tell_object(find_living("folken"), "-- añadimos al set: " + file_name(worn_objects[position]) + "\n");
           
           // Guardamos los objetos reales (no nombres de archivo) que forman el conjunto
           set += ({ worn_objects[position] });
@@ -365,7 +375,7 @@ int wear_ob(object ob)
         // En el primer minuto de conexion no cuenta
         if (time() - this_object()->query_last_log_on() > 60)
             if (this_object()->query_time_remaining(PASSED_OUT_PROP) < aux/6)
-                this_object()->add_timed_property(PASSED_OUT_PROP, "TodavÃ­a estÃ¡s "+
+                this_object()->add_timed_property(PASSED_OUT_PROP, "Todavía estás "+
                   "intentando ponerte tu "+ob->short()+".\n", aux/6);
     return 1; 
   }
@@ -374,6 +384,104 @@ int wear_ob(object ob)
   return 0; 
 
 } /* wear_ob */
+
+int do_wear(string woo)
+{
+  object *boo;
+  int i;
+  int size;
+  
+  if (!strlen(woo))
+  {
+    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    return 0;
+  }
+
+  // AAArrrggghhhh find_match() doesn't work... -Aragorn
+  // boo = find_match(woo, this_object());
+  boo = all_inventory(this_object());
+  
+  for (i = 0; i < sizeof(boo); i++)
+    if (!boo[i]->id(woo)) 
+      boo[i] = nil;
+    
+  boo -= ({ 0 });
+
+  if (!sizeof(boo))
+  {
+    notify_fail("No llevas eso en tu inventario.\n");
+    return 0;
+  }
+
+  // Somewhat nasty but does the trick... -Aragorn
+  /* what does this do ? Baldy.. 
+   * It gives me an error message here, but not in hold.c */
+  boo -= (mixed *)this_object()->query_worn_ob();
+
+  if (sizeof(boo))
+  {
+    if (!boo[0]->query_wearable())
+    {
+      notify_fail("¡Este objeto no se puede vestir!\n");
+      return 0;
+    }
+
+    if (boo[0]->query_in_use())
+    {
+      notify_fail("Ya lo llevas puesto.\n");
+      return 0;
+    }
+  
+    if (size = boo[0]->query_size() == 0)
+    {
+      notify_fail("Ese objeto no tiene tamaño definido, díselo a alguien que pueda arreglarlo.\n");
+      return 0;
+    }
+
+    size = size / 2;
+    if (size < 1)
+      size = 1;
+
+    return wear_ob(boo[0]);
+  }
+  return 1;
+}
+
+int do_unwear(string woo)
+{
+  object *boo;
+  int i;
+
+  if (!strlen(woo))
+  {
+    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    return 0;
+  }
+
+  // AAArrrggghhhh find_match() doesn't work... -Aragorn
+  // boo = find_match(woo, this_object());
+  boo = all_inventory(this_object());
+  
+  for (i = 0; i < sizeof(boo); i++)
+    if (!boo[i]->id(woo)) 
+      boo[i] = nil;
+    
+  boo -= ({ 0 });
+
+  // As nasty as it gets but I'm just trying to get it to work 
+  // right now. Speedups later.
+  // -Aragorn
+  boo -= (all_inventory(this_object())-(mixed*)this_object()->query_worn_ob());
+
+  if (!sizeof(boo))
+  {
+    notify_fail("No llevas eso en tu inventario.\n"); 
+    return 0;
+  }
+
+   // At the moment you can only unwear one thing at the time. -Aragorn
+   return unwear_ob(boo[0]);
+}
 
 mixed stats() 
 {

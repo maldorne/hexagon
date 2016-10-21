@@ -9,7 +9,7 @@
  * Will add that in version 2...:=)
  *
  * Folken@Cc Abr'03
- * AÃ±adidos stats.
+ * Añadidos stats.
  */
 
 #include <item/armour.h>
@@ -57,6 +57,16 @@ void create()
   {
     held_ac[AC_TYPES[i]] = 0;
   }
+}
+
+void hold_commands() 
+{
+  add_action("do_hold",   "empunyar");
+  add_action("do_hold",   "empuñar");
+  add_action("do_hold",   "sostener");
+  add_action("do_unhold", "desempunyar");
+  add_action("do_unhold", "desempuñar");
+  add_action("do_unhold", "soltar");
 }
 
 // Support functions for the rest of the player object.
@@ -157,7 +167,7 @@ int unhold_ob(object ob)
   
   if ((slot = member_array(ob, held_ob)) == -1)     
   { 
-    notify_fail("No estÃ¡s sosteniendo ese objeto.\n");
+    notify_fail("No estás sosteniendo ese objeto.\n");
     return 0;
   }
 
@@ -205,7 +215,7 @@ int hold_ob(object ob)
     if( gobj && !gobj->query_legal_weapon(ob->query_weapon_name()))
     {
       tell_object(this_object(),"Careces de la habilidad necesaria "+
-                  "para empuÃ±ar este arma.\n");
+                  "para empuñar este arma.\n");
       return 1;
     }
   }
@@ -227,7 +237,7 @@ int hold_ob(object ob)
   if (this_object()->query_free_hands_left() < weap_hands) 
   {
     if (ob->query_weapon())
-        notify_fail("No tienes suficientes manos libres para empuÃ±ar este arma.\n");
+        notify_fail("No tienes suficientes manos libres para empuñar este arma.\n");
     else
         notify_fail("No tienes suficientes manos libres para sostener este escudo.\n");
     return 0;
@@ -278,7 +288,7 @@ int hold_ob(object ob)
   free_hands_left -= weap_hands; 
 
   if (ob->query_weapon())
-    tell_object(this_object(), "EmpuÃ±as tu " + (string)ob->short() + ".\n");
+    tell_object(this_object(), "Empuñas tu " + (string)ob->short() + ".\n");
   else
     tell_object(this_object(), "Sostienes tu " + (string)ob->short() + ".\n");
   
@@ -366,7 +376,98 @@ int find_empty_slot(object ob, mixed *h)
   return -1;
 }
 
-// stats aÃ±adido, algunos archivos con stats no llegan a devolver nada
+
+int do_hold(string woo)
+{
+  object *boo;
+  int i;
+
+  if (!strlen(woo))
+  {
+    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    return 0;
+  }
+
+  // AAArrrggghhhh find_match() doesn't work... -Aragorn
+  // boo = find_match(woo, this_object());
+  boo = all_inventory(this_object());
+  
+  for (i = 0; i < sizeof(boo); i++)
+    if (!boo[i]->id(woo)) 
+      boo[i] = nil;
+    
+  boo -= ({ 0 });
+
+  if (!sizeof(boo))
+  {
+    notify_fail("No llevas eso en tu inventario.\n");
+    return 0;
+  }
+
+  // Somewhat nasty but does the trick... -Aragorn
+  boo -= (mixed *)this_object()->query_held_ob();
+
+  // Somehow, this is not working...
+  if (!sizeof(boo))
+  {
+    notify_fail("¡Ya estás sosteniendo eso!\n");
+    return 0;
+  }
+
+  if (!boo[0]->query_holdable())
+  {
+    notify_fail("No puedes " + query_verb() + " eso.\n");
+    return 0;
+  }
+  
+  if (boo[0]->query_in_use())
+  {
+    notify_fail("Ya lo estás usando.\n");
+    return 0;
+  }
+
+  // At the moment you can only hold one thing at the time. -Aragorn
+  // if (!hold_ob(boo)) return 0;
+  return hold_ob(boo[0]);
+}
+
+int do_unhold(string woo)
+{
+  object *boo;
+  int i;
+
+  if (!strlen(woo))
+  {
+    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    return 0;
+  }
+
+  // AAArrrggghhhh find_match() doesn't work... -Aragorn
+  // boo = find_match(woo, this_object());
+  boo = all_inventory(this_object());
+  
+  for (i = 0 ; i < sizeof(boo); i++)
+    if (!boo[i]->id(woo)) 
+      boo[i] = nil;
+    
+  boo -= ({ 0 });
+
+  // As nasty as it gets but I'm just trying to get it to work 
+  // right now. Speedups later.
+  // -Aragorn
+  boo -= (all_inventory(this_object())-(mixed*)this_object()->query_held_ob());
+
+  if (!sizeof(boo))
+  {
+    notify_fail("No tienes eso en tu inventario.\n"); 
+    return 0;
+  }
+  // At the moment you can only unhold one thing at the time. -Aragorn
+  // unhold_ob (boo);
+  return unhold_ob(boo[0]);
+}
+
+// stats añadido, algunos archivos con stats no llegan a devolver nada
 mixed stats() {
   return ({ ({"Held ob", held_ob, }),
             ({"Free Hands Left", free_hands_left, }),

@@ -25,6 +25,12 @@ void create()
   hold::create();
 }
 
+void equip_commands() 
+{
+  add_action("do_equip",  "equipar");
+  add_action("do_equip",  "equiparse");
+}
+
 void recalc_max_dex_bon()
 {
   int max;

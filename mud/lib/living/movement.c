@@ -6,6 +6,7 @@
 inherit container "/lib/core/basic/container";
 
 string msgout, msgin, mmsgout, mmsgin;
+// static int in_move;
 
 void create()
 {
@@ -135,6 +136,15 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   return 1;
 } /* move_player() */
+
+// int query_in_move() { return in_move; }
+
+// int abort_move_player(string dir)
+// {
+//   tell_object(this_object(), "Dejas de moverte hacia "+dir+".\n");
+//   in_move = 0;
+//   return 1;
+// }
 
 mixed * stats() 
 {

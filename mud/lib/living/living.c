@@ -7,15 +7,13 @@
  *
  * Traida a este archivo la logica necesaria para recuperar vida, haciendola comun
  *   a players y npcs (antiguos monster::heart_beat y player::heart_beat, 
- *   ahora living::living_heart_beat()), neverbot 04/09
+ *   ahora living::heart_beat()), neverbot 04/09
  *
  * Añadido do_death para los npcs o players de quest, neverbot 03/09
  */
 
-// #include <living.h>
-// #include <room.h> 
-// #include <drinks.h>
-// #include <quests.h>
+#include <living/drinks.h>
+#include <common/quests.h>
 #include <common/properties.h>
 #include <living/combat.h>
 
@@ -41,6 +39,10 @@ inherit spells    "/lib/living/spells";
 inherit consent   "/lib/living/consent";
 inherit visited   "/lib/living/visited";
 
+int hb_counter;
+static int hp_counter, gp_counter;
+static int no_heal; 
+
 void create()
 {
   alignment::create();
@@ -62,6 +64,10 @@ void create()
   consent::create();
   visited::create();
 
+  hp_counter = gp_counter = 0;
+  hb_counter = 0;
+  no_heal = 0;
+
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
   movement::create();
@@ -70,21 +76,9 @@ void create()
   // so it will respond to living()
   enable_commands();
 
-  add_action("do_equip",  "equipar");
-  add_action("do_equip",  "equiparse");
-  add_action("do_hold",   "empunyar");
-  add_action("do_hold",   "empuñar");
-  add_action("do_hold",   "sostener");
-  add_action("do_unhold", "desempunyar");
-  add_action("do_unhold", "desempuñar");
-  add_action("do_unhold", "soltar");
-  add_action("do_wear",   "ponerse");
-  add_action("do_wear",   "ponerme");
-  add_action("do_wear",   "vestir");
-  add_action("do_unwear", "desvestir");
-  add_action("do_unwear", "quitarse");
-  add_action("do_unwear", "quitarme");
-
+  equip_commands();
+  hold_commands();
+  wear_commands();
   combat_commands();    
   handle_commands();
   social_commands();
@@ -110,7 +104,7 @@ void dest_me()
 
 void start_player()
 {
-  // groups_obs::start_player();
+  social::start_player();
 
   // at the end
   money::start_money();
@@ -125,7 +119,6 @@ int query_money(string type) { return money::query_money(type); }
 int adjust_money(mixed i, varargs string type) { return money::adjust_money(i, type); }
 
 // end resolving multiple instances
-
 
 /* 
  * Nuevo sistema de combate para CcMud, neverbot 6/03
@@ -211,6 +204,116 @@ int query_total_wc()
   // permiten muchos niveles de clase, cambiar la division / 10
   ret += this_object()->query_level() / 5;
   return ret;
+}
+
+int query_hb_counter()
+{
+  return hb_counter;
+}
+
+int query_hb_diff(int oldc)
+{
+  if (hb_counter > oldc) 
+    return hb_counter - oldc;
+  else return oldc - hb_counter;
+}
+
+void heal_hp(int i)
+{
+  if (i && (query_hp() < query_max_hp()) && (query_hp() >= 0) && !no_heal)
+    hp++;
+  return;
+}
+
+void heal_gp(int i, int intox)
+{
+  if (i && intox < 200 && query_gp() < query_max_gp() && !no_heal)
+    gp++;
+  return;
+}
+
+/* Hamlet -- this is so noncombat rooms can keep players from healing */
+void set_no_heal() { no_heal = 1; }
+void set_heal() { no_heal = 0; }
+
+void heart_beat()
+{
+  int regen_gp, regen_hp;
+  int race_regen_gp, race_regen_hp;
+
+  regen_gp = regen_hp = 0;
+  race_regen_gp = race_regen_hp = 0;
+
+  queue::heart_beat(); // queue.c, will do act()
+
+  hb_counter++;
+
+  if (query_race_ob() && !(hb_counter & 31) )
+    query_race_ob()->race_heartbeat(this_object());
+
+  // Clima solo a players
+  if (this_object()->query_player() && ((hb_counter%5) == 0) && environment(this_object()))
+    this_object()->weather_heart_beat();
+
+  // Quark, adding heart beat to curses.
+  // if(!(hb_counter & 31))
+  //   this_object()->curses_heart_beat();
+
+  /* Sistema de regeneracion de vida actualizado, Folken@Cc, 13/7/03 */
+  if ((hp_counter + query_con()) >= 22 + random(10))
+    regen_hp = 1;
+  if ((gp_counter + query_gp_main_stat()) >= 22 + random(10))
+    regen_gp = 1;
+
+  if(regen_hp || regen_gp) 
+  {
+    if (regen_hp)
+      hp_counter = -1;
+    if (regen_gp)
+      gp_counter = -1;
+
+    if (query_race_ob())
+    {
+      // Comprobacion racial (si la raza esta en condiciones de subir vida)
+      //  ej: drows solo en suboscuridad, etc...
+      if (regen_hp && query_race_ob()->query_regen_hp(this_object()))
+        heal_hp(regen_hp);
+      if (regen_gp && query_race_ob()->query_regen_gp(this_object()))
+        heal_gp(regen_gp, query_volume(D_ALCOHOL));
+    }
+    else
+    {
+      if (regen_hp)
+        heal_hp(regen_hp);
+      if (regen_gp)
+        heal_gp(regen_gp, query_volume(D_ALCOHOL));
+    }
+  }
+
+  hp_counter++;
+  gp_counter++;
+ 
+  if (this_object()->query_player() && this_object()->query_is_quiet())
+  {
+      hp_counter++;
+      gp_counter++;
+  }
+}
+
+// Añadido para comprobar si es un npc de quest
+int do_death(object killer)
+{
+  if (!killer)
+    return ::do_death(killer);
+  
+  // Debemos actualizar _antes_ del do_death, o este objeto ya 
+  // se habra destruido
+  if (killer->is_doing_quest(base_name(this_object()), TYPE_KILL) )
+    killer->update_quest(base_name(this_object()));
+  else if (killer->is_doing_quest_from_name(this_object()->query_short(), TYPE_KILL) )
+    killer->update_quest_from_name(this_object()->query_short());
+
+  return ::do_death(killer);
 }
 
 mixed * stats() 
