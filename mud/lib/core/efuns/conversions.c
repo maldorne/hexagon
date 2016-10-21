@@ -76,8 +76,8 @@ private string number_as_string_aux(int n)
 string query_multiple_short(mixed *obs, varargs int flag) 
 {
   int i, j, k;
-  string *str;
-  mixed *bity;
+  string * str;
+  mixed * bity;
 
   bity = ({ });
   for (i = 0; i < sizeof(obs); i++) 
@@ -103,7 +103,7 @@ string query_multiple_short(mixed *obs, varargs int flag)
       }
     } 
     else
-      str = obs[i];
+      str = ({ obs[i] });
       
     if (!str) // ignore invis objects
       continue;
@@ -117,7 +117,9 @@ string query_multiple_short(mixed *obs, varargs int flag)
       else
         bity[k+1] = ({ obs[i] })+bity[k+1];
   }
+
   str = ({ });
+
   for (i = 0; i < sizeof(bity); i+=2) 
   {
     j = sizeof(bity[i+1]);
@@ -125,8 +127,8 @@ string query_multiple_short(mixed *obs, varargs int flag)
       if (j==1)
         str += ({ bity[i] });
       else
-      str += ({ (query_num(j,20)+
-        " "+pluralize(bity[i])) });
+        str += ({ (query_num(j,20)+
+          " "+pluralize(bity[i])) });
     else if (j == 1)
     /* Propiedad determinate eliminada
     if (bity[i+1][0]->query_property("determinate"))
