@@ -32,25 +32,27 @@ int at(int character, string str)
 
 string replace_string(string str, string foo, string bar)
 {
-  string a, b, result;
-  int i;
+  return implode(explode(str, foo), bar);
+  
+  // string a, b, result;
+  // int i;
 
-  a = "";
-  b = "";
+  // a = "";
+  // b = "";
 
-  i = sscanf(str, "%s" + foo + "%s", a, b);
-  result = a + bar + b;
+  // i = sscanf(str, "%s" + foo + "%s", a, b);
+  // result = a + bar + b;
 
-  if (i <= 0)
-    return str;
+  // if (i <= 0)
+  //   return str;
 
-  while (i > 0)
-  {
-    i = sscanf(result, "%s"+foo+"%s", a, b);
-    result = a + bar + b;
-  }
+  // while (i > 0)
+  // {
+  //   i = sscanf(result, "%s"+foo+"%s", a, b);
+  //   result = a + bar + b;
+  // }
 
-  return result;
+  // return result;
 }
 
 string replace(string str, mixed bing, varargs string rep) 

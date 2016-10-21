@@ -12,6 +12,12 @@ static nomask string * full_explode(string str, string delimiter)
   sz_str = strlen(str);
   sz_delimiter = strlen(delimiter);
 
+  if (str == delimiter)
+    return ({ "", "" });
+
+  if (sz_delimiter > sz_str)
+    return ({ str });
+
   if (str[0..sz_delimiter - 1] == delimiter)
       result = ({ "" }) + result;
 
@@ -20,4 +26,3 @@ static nomask string * full_explode(string str, string delimiter)
 
   return result;
 }
-
