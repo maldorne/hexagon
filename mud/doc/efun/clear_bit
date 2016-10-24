@@ -1,0 +1,8 @@
+clear_bit
+
+string clear_bit(string str, int n)
+
+Return the new string where bit n is cleared in string str. Note that the 
+old string str is not modified.
+
+See also: set_bit, test_bit.

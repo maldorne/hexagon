@@ -1,0 +1,14 @@
+Usage : clone <objects>
+
+Clone is used to get a usable copy of an object on disk.  This is how all
+objects used in the game are created, except the rare one off objects that
+do not actually move into the game usually.  You must specify the file name
+of the objects you wish to clone.
+
+Examples:
+
+clone /obj/torch.c
+
+clone/obj/t*
+
+clone torch.c sword.c armour.c

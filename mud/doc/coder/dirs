@@ -1,0 +1,11 @@
+Usage : dirs [<player>]
+
+The Dirs command is used to gain information about the other players on the
+MUD. Use the optional <player> arguement to get info on only one player.
+
+Field:-
+ (1) Name - prefixed by a '*' means editing.
+ (2) Current directory.
+ (3) Location filename and euid.
+
+See also: finger, people, netstat, terms, qpeople, who

@@ -1,0 +1,50 @@
+The new functions are very easy to use and are currently very simplisticly
+coded.  To put out a first working version I went for the simplest method
+I could to do it and I neither claim that the code is efficient, bug free,
+new or innovative - In fact its downright old hat but noone had done it before.
+
+Okay to use it you simply use the functions in a similar way to how you would
+use add_item ... the functions are ..
+
+add_smell(string smell, string desc)
+add_taste(string taste, string desc)
+add_sound(string sound, string desc)
+add_feel(string feel, string desc)
+
+there are also the remove equivalents although you only have to use the specific
+sense to be removed as a parameter ie,
+
+remove_XXXX(string XXXX)
+
+The add_XXXX functions can also be used to modify existing items due to the way
+in which the code is written.
+
+From a players point of view they simply have to type in
+smell XXXX, listen XXXX, taste XXXX, feel XXXX or touch XXXX to get the
+relevant stuff out of the commands ... if they player tries to get an undefined
+description they get XXXX what? with the exception of listen since that also
+exists as a soul command.
+
+Limitations ...
+   Currently, unlike add_item, you cannot use an array to define several 
+particulars to one description ie,
+add_smell(({"bing1","bing2","bing3"}), "Pooh");
+will not work (well not unless I've done something I don't know about in the
+code) This situation is being rectified.
+  also the listen commands format is listen <item> ... this is also being 
+changed to listen to <item> - just gimme a little time (my timetable 
+changes totally AGAIN this week - the 5th time so far in 4 weeks).
+
+Forthcoming ....
+  Listen to <item> syntax.  Array parameters handling. Anything else I think
+of and probably everything everyone else suggests ...
+
+Footnote ...
+  Because I use add_actions to handle it you can actually redefine the
+do_listen, do_smell, do_feel and do_taste functions if you need a slightly
+different syntax or whatever - a popular use may be to make it do something
+if the input is particular and do a ::do_listen if it ain't .....
+   Bing on
+
+Sojan
+

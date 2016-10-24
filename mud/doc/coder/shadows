@@ -1,0 +1,10 @@
+Usage : shadows <objects>
+
+Shadows will list the shadows acting on an object.  The objects can be specified
+using wiz_present syntax.
+
+Examples:
+
+shadows me
+shadows player ben
+shadows duck

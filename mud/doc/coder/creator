@@ -1,0 +1,11 @@
+Usage : creator <objects>
+
+Creator gives the creator of the file in terms of its filename and also the
+uid and euid of the object.  Objects can be specified using wiz_present
+specification.
+
+Examples:
+
+creator me
+creator all in here
+creator sword

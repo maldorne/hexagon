@@ -1,0 +1,14 @@
+Usage : mkdir <directory name>
+
+mkdir creates a directory that is part of the file system.  If you need
+more information on directories see /doc/general/filesystem.
+
+Examples:
+
+mkdir /home/ducky/tmp
+
+mkdir test
+
+mkdir test/test2
+
+mkdir ~/test

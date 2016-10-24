@@ -1,0 +1,5 @@
+string *grab_file(filename)
+string filename;
+
+Loads an entire file into an array of strings, each element is a seperate line
+of the file.
