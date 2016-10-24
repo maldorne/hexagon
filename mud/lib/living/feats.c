@@ -471,6 +471,9 @@ string help_feat(string str)
   string aux;
 
   table = load_object(FEATS_TABLE);
+
+  if (!table)
+    return "";
   
   if (!pointerp(feat_list[str]))
   {

@@ -51,6 +51,11 @@ nomask int quit(string str)
   return _player->quit();
 }
 
+nomask int help_func(string str) 
+{
+  return _player->do_help(str);
+}
+
 mixed * stats() 
 {
   return ({ 

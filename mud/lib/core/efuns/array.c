@@ -202,6 +202,9 @@ static nomask mixed * sort_array(mixed * arr, varargs string fun, mixed ob, int 
         return array_copy(arr);
     }
   }
+  else
+    if (!ob)
+      ob = this_object();
 
   result = array_copy(arr);
   i = sizeof(result);

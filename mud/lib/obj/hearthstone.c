@@ -226,7 +226,7 @@ int do_mark(string str)
 }
 
 
-string get_help(string str)
+string get_help(varargs string str)
 {
   string ret;
 
