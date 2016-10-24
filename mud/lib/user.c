@@ -206,7 +206,7 @@ nomask int restore_me()
 
 nomask int save_me()
 {
-  string oldeuid;
+  // string oldeuid;
   object ob;
   // if (!SECURE->valid_progname("/lib/core/login"))
   //   return 0;
@@ -242,7 +242,7 @@ nomask int save_me()
   // if (query_race_ob())
     //   query_race_ob()->player_save_me();
   
-  oldeuid = geteuid();
+  // oldeuid = geteuid();
 
   if (environment())
     last_pos = file_name(environment());
@@ -292,6 +292,10 @@ static void receive_message(string str)
     // input_to redirection
     if (redirect_input_ob) 
     {
+      // to have this_player() inside an input_to redirection
+      MUDOS->set_initiator_player(this_object());
+      MUDOS->set_initiator_object(this_object());
+
       tmp_redirect_obj =  redirect_input_ob;
       tmp_redirect_func = redirect_input_function;
       tmp_redirect_args = redirect_input_args;
@@ -307,7 +311,10 @@ static void receive_message(string str)
       {
         show_prompt();
       }
-      
+
+      MUDOS->set_initiator_player(nil);
+      MUDOS->set_initiator_object(nil);
+            
       return;
     }
 

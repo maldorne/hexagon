@@ -780,7 +780,8 @@ nomask int action_check(string str)
         mapping actions;
         int i;
 
-        targets = ({ this_object()->query_role(), 
+        targets = ({ this_object()->query_role(),
+                     this_object()->query_account(),
                      environment(this_object()) }) +
                      all_inventory(environment(this_object())) +
                      all_inventory(this_object());

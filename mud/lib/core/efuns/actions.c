@@ -61,7 +61,6 @@ static nomask void notify_fail(string str)
 
 int command(string action)
 {
-  object role;
   string * words;
   string verb, params;
   object * targets;
@@ -87,9 +86,12 @@ int command(string action)
 
   // priority for looking actions
   // first, our role (user privileges)
-  role = this_object()->query_role();
-  if (role)
-    targets += ({ role });
+  if (this_object()->query_role())
+    targets += ({ this_object()->query_role() });
+
+  // account actions (password, etc)
+  if (this_object()->query_account())
+    targets += ({ this_object()->query_account() });
 
   // second, our own user ob
   targets += ({ this_object() });
@@ -164,6 +166,9 @@ mixed ** commands(varargs object ob)
 
   if (ob->query_role())
     targets += ({ ob->query_role() });
+
+  if (ob->query_account())
+    targets += ({ ob->query_account() });
 
   if (environment(ob))
     targets += ({ environment(ob) }) +

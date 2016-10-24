@@ -2,6 +2,9 @@ map_prop ([0|])
 timed_prop ([0|])
 create_me "object"
 account_name "admin@ciudadcapital.net"
-password "fvIlUukstqR1c"
+password "cLk1UJuT0nrXg"
+real_name "Administrator"
+birthday "0101"
+location "Madrid"
 player_list ({1|"admin",})
 last_connected 1476302343

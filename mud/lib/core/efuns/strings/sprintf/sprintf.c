@@ -168,7 +168,7 @@ private string rot_13 (string message) {
 // End of old extra.c
 
 
-string query_version () {return (VERSION);}
+private string query_version () {return (VERSION);}
 
 // private int charp (mixed arg) {
 //   return (intp (arg) && CHAR_MIN <= arg && arg <= CHAR_MAX);

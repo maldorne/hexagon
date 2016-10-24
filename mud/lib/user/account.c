@@ -38,6 +38,8 @@ int set_account(string acc_name)
   if (!_account->restore_me(acc_name))
     return 0;
 
+  _account->set_player(this_object());
+
   return 1;
 }
 

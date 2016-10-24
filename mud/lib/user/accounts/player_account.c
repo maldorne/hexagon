@@ -7,7 +7,8 @@
  *
  * ****************************************************** */
 
-inherit "/lib/core/object";
+inherit obj  "/lib/core/object";
+inherit data "/lib/user/accounts/account_data.c";
 
 #include <mud/secure.h>
 
@@ -25,13 +26,37 @@ string * player_list;
 
 int last_connected;
 
+static object _player;
+
 void create()
 {
-  ::create();
+  data::create();
+  obj::create();
   player_list = ({ });
   account_name = "";
+  real_name = "";
+  birthday = "";
+  location = "";
 
   seteuid(PLAYER_EUID);
+}
+
+void account_commands()
+{
+  data::account_commands();
+}
+
+nomask int set_player(object ob)
+{
+  // for safety reasons, we allow set_player only to be called from /lib/core/login
+  if (!SECURE->valid_progname("/lib/core/login"))
+    return 0;
+
+  _player = ob;
+
+  account_commands();
+
+  return 1;
 }
 
 int restore_me(string name)
@@ -104,7 +129,7 @@ void update_last_connection()
 
 mixed * stats() 
 {
-  return ({ 
+  return data::stats() + ({ 
         ({ "(account) Account Name", account_name }),
           });
 }

@@ -356,7 +356,7 @@ nomask int valid_socket(object ob, string func, mixed *info)
  * but perhaps a little hard for some people to use.
  */
  
-#define PLAYEROBS ({ "/lib/user", "/lib/core/login" })
+#define PLAYEROBS ({ "/lib/user", "/lib/core/login", "/lib/user/accounts/player_account" })
  
 nomask int valid_write(string path, mixed euid, string func) 
 {
@@ -387,8 +387,7 @@ nomask int valid_write(string path, mixed euid, string func)
   else if (func == "save_object" && (sizeof(bing) >= 2) &&
           (bing[0] == "save") && (bing[1] == "accounts")) 
   {
-    if ((base_name(previous_object(0)) == "/lib/user/accounts/player_account") &&
-        (base_name(previous_object(1)) == "/lib/core/login"))
+    if (member_array(base_name(previous_object()), PLAYEROBS) != -1) 
       return 1;
     return 0;
   }
