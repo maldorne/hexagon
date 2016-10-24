@@ -65,6 +65,10 @@ int open_channel(string channel, object ob)
 void init_player_channels(string *chans, object player) 
 {
   int i;
+
+  if (nullp(chans))
+    chans = ({ });
+
   for (i = 0; i < sizeof(chans); i++) 
   {
     // Los canales temporales los eliminamos al reconectar
@@ -87,11 +91,11 @@ void init_player_channels(string *chans, object player)
   }
 
   if (player->query_coder() &&
-      !query_channel_on(player, "emergencia")) 
+      !query_channel_on(player, EMERGENCY_CHANNEL)) 
   {
-    if (!channels["emergencia"]) 
-      channels["emergencia"] = ({ });
-    channels["emergencia"] += ({ player });
+    if (!channels[EMERGENCY_CHANNEL]) 
+      channels[EMERGENCY_CHANNEL] = ({ });
+    channels[EMERGENCY_CHANNEL] += ({ player });
   }
 }
 
@@ -125,7 +129,7 @@ int query_channel_permission(object ob, string chan)
       */
 
     // Canal emergencia solo jugadores y admins
-    case "emergencia":
+    case EMERGENCY_CHANNEL:
       if (ob->query_coder()) 
             if (ob->query_admin())
               return 1;
@@ -316,14 +320,14 @@ int do_chat( string str )
   TODO network
 
   // Hacemos remote el canal emergencia, neverbot 02/06
-  if ((verb == "emergencia") &&
+  if ((verb == EMERGENCY_CHANNEL) &&
       (str[0] != '!') &&
       (str[0] != '@') &&
       (str[0] != '.') &&
       (str[0] != '?') )
   {
    REMOTE_CHANNELS->transmit(this_player(),verb,str);
-       log_file("emergencia", "[" + ctime(time(),4) + "] " + 
+       log_file(EMERGENCY_CHANNEL, "[" + ctime(time(),4) + "] " + 
                   this_player()->query_cap_name() + ": " +
                   str + "\n");
   }
@@ -446,7 +450,7 @@ void do_channel(string verb, string str, varargs string name, string mud, int fl
     default:
       // chan_msg();
       // No permitimos que los jugadores vean el canal emergencia
-      if (verb == "emergencia")
+      if (verb == EMERGENCY_CHANNEL)
       {
         admin_chan_msg();
       }

@@ -44,7 +44,7 @@ int grim_snoop(string str)
   {
     if (!strlen(str))
     {
-      snoop(this_object());
+      snoop(this_player());
       write("Ok, quiet snoop cancelado.\n");
       return 1;
     }
@@ -65,7 +65,7 @@ int grim_snoop(string str)
       return 1;
     }
     
-    if (!snoop(this_object(), targ))
+    if (!snoop(this_player(), targ))
     {
       notify_fail("Tu intento de snoop silencioso a "+capitalize(str)+" ha fallado.\n");
       return 0;
@@ -86,7 +86,7 @@ int do_snoop(string str)
 
   if (!strlen(str)) 
   {
-    snoop(this_object());
+    snoop(this_player());
     write("Ok, snoop cancelado.\n");
     return 1;
   }
@@ -108,7 +108,7 @@ int do_snoop(string str)
     return 1;
   }
 
-  if (!snoop(this_object(), targ)) 
+  if (!snoop(this_player(), targ)) 
   {
     notify_fail("Fallas tu intento de snoopear a " + capitalize(str) + ".\n");
     return 0;
@@ -233,12 +233,12 @@ int comm_info(string str)
     num_comms = sizeof(comms);
     
     // Añadimos los comandos de /cmds, neverbot 01/2010
-    comms = CMD_HANDLER->query_available_cmds(this_object());
+    comms = CMD_HANDLER->query_available_cmds(this_player());
     num_comms += sizeof(comms);
     
     for (j = 0; j < sizeof(comms); j++) 
     {
-      text += "" + (i+j) + ". " + explode(explode(comms[j], "/")[2], ".")[0] + " " + 
+      text += "" + (i+j) + ". " + explode(explode(comms[j], "/")[3], ".")[0] + " " + 
         explode(comms[j], ".")[0] + "->cmd() encontrado en " +
         comms[j] + "\n"; 
     }
@@ -286,7 +286,7 @@ int comm_info(string str)
     num_comms = sizeof(comms);
 
     // Añadimos los comandos de /cmds, neverbot 01/2010
-    comms = CMD_HANDLER->query_available_cmds(this_object());
+    comms = CMD_HANDLER->query_available_cmds(this_player());
     num_comms += sizeof(comms);   
     
     // Si no se ha encontrado, buscamos en los cmds
@@ -294,9 +294,9 @@ int comm_info(string str)
     {     
       for (j = 0; j < sizeof(comms); j++) 
       {
-        if (str == explode(explode(comms[j], "/")[2], ".")[0])
+        if (str == explode(explode(comms[j], "/")[3], ".")[0])
         {
-          text = explode(explode(comms[j], "/")[2], ".")[0] + " " + 
+          text = explode(explode(comms[j], "/")[3], ".")[0] + " " + 
             explode(comms[j], ".")[0] + "->cmd() encontrado en " +
             comms[j] + "\n"; 
           break;

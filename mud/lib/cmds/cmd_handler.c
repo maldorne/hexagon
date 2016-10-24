@@ -65,21 +65,21 @@ string find_cmd(string verb)
 	string s, *dirs;
 	int i;
 	
-	if(cmd_hash[verb])
+	if (cmd_hash[verb])
 	{
 		last_dir = cmd_hash[verb]["dir"];
 		return cmd_hash[verb]["file"];
 	}
 	
-	dirs = m_indices(cmd_dirs);
+	dirs = map_indices(cmd_dirs);
 	
-	for(i = 0; i < sizeof(dirs); i++)
+	for (i = 0; i < sizeof(dirs); i++)
 	{
 		s = dirs[i] + verb;
-		if(file_size(s+".c") > 0)
+		if (file_size(s + ".c") > 0)
 		{
 			last_dir = dirs[i];
-			cmd_hash[verb] = ([ "file" : s+".c", "count" : 0 ]);
+			cmd_hash[verb] = ([ "file" : s + ".c", "count" : 0 ]);
 			cmd_hash[verb]["dir"] = last_dir;
 			return s;
 		}
@@ -284,7 +284,7 @@ int cmd(string verb, string tail, object thisob)
 	if (!thisob || (interactive(thisob) && previous_object() != thisob))
 		return 0;
 
-  // if(!interactive(thisob) && cmd_dirs[last_dir][0] != LIVING_CMD)
+  // if (!interactive(thisob) && cmd_dirs[last_dir][0] != LIVING_CMD)
   if (!interactive(thisob))
    return 0;
 
@@ -292,7 +292,7 @@ int cmd(string verb, string tail, object thisob)
 	euid = geteuid(thisob);
 	s = cmd_aliases[verb];
 
-	if(stringp(s) && (s != ""))
+	if (stringp(s) && (s != ""))
 		verb = s;
 		
 	s = find_cmd(verb);
@@ -306,19 +306,19 @@ int cmd(string verb, string tail, object thisob)
   switch(cmd_dirs[last_dir][0])
   {
     case ADMIN_CMD:
-      if(!thisob->query_admin())
+      if (!thisob->query_admin())
         return 0;
       break;
     case MANAGER_CMD:
-      if(!thisob->query_manager())
+      if (!thisob->query_manager())
         return 0;
       break;
     case CODER_CMD:
-      if(!thisob->query_coder())
+      if (!thisob->query_coder())
         return 0;
       break;
     case PLAYER_CMD:
-      if(!thisob->query_player())
+      if (!thisob->query_player())
         return 0;
       break;
   }
@@ -326,7 +326,7 @@ int cmd(string verb, string tail, object thisob)
   cmd_hash[verb]["count"]++;
 
   // Baldrick, 1998-12-05
-  // if(!(ob = find_object(s)))
+  // if (!(ob = find_object(s)))
   // {
   //   catch(s->FORCE_LOAD());
   //   ob = find_object(s);
@@ -382,7 +382,7 @@ int cmd_make_hash(int verbose)
 			a = explode(files[j], ".");
 			s = implode(a[0..sizeof(a)-2], ".");
 			
-			if(verbose) 
+			if (verbose) 
 				write("    Command: "+s+"\n");
 				
 			cmd_hash[s] =
@@ -400,20 +400,20 @@ int cmd_make_hash(int verbose)
     if (stringp(s) && (s != ""))
 		{
 			a = explode(s, "\n");
-			for(j = 0; j < sizeof(a); j++)
+			for (j = 0; j < sizeof(a); j++)
 			{
 				k = 0;
 				files = explode(replace(a[j],"\t", " "), " ");
 				
-				if(sizeof(files) && files[0] == "alias") 
+				if (sizeof(files) && files[0] == "alias") 
 					k++;
 					
-				if(sizeof(files) > k)
+				if (sizeof(files) > k)
 				{
-					for(l = k+1; l < sizeof(files); l++)
-						if(files[l] != files[k])
+					for (l = k+1; l < sizeof(files); l++)
+						if (files[l] != files[k])
 						{
-							if(verbose) write("    Alias "+
+							if (verbose) write("    Alias "+
 								files[l]+" to "+
 								files[k]+"\n");
 							cmd_aliases[files[l]]= files[k];
@@ -474,13 +474,13 @@ int soul_com(string str, object me)
  
 void set_save_all()
 {
-  // if(base_name(previous_object()) == "/home/flode/fun/nastiness/nastiness")
+  // if (base_name(previous_object()) == "/home/flode/fun/nastiness/nastiness")
     save_all = 1;
 }
  
 void reset_save_all()
 {
-  // if(base_name(previous_object()) == "/home/flode/fun/nastiness/nastiness")
+  // if (base_name(previous_object()) == "/home/flode/fun/nastiness/nastiness")
     save_all = 0;
 }
  

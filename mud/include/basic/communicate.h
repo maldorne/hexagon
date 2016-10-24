@@ -35,3 +35,5 @@
 #define CHANNELS_PROPERTY "channels"
 #define MAX_CHANNEL_HISTORY 20
 #define REMOTE_CHANNELS "/lib/core/net/remote_channels"
+
+#define EMERGENCY_CHANNEL "emergencia"

@@ -7,14 +7,16 @@ static int poffset, pnumoff;
 
 void create()
 {
-
+  past_g = ({ });
+  poffset = 0;
+  pnumoff = 0;
 }
 
 void add_past_g(string arg)
 {
   arg = "[%^CYAN%^%^BOLD%^" + ctime(time(), 7) + "%^RESET%^] " + arg;
 
-  if (!past_g) 
+  if (!past_g || !sizeof(past_g)) 
   {
     past_g = allocate(PAST_LENGHT);
     pnumoff = -PAST_LENGHT;
@@ -29,16 +31,16 @@ void add_past_g(string arg)
   }
 }
  
-int print_past_g(string arg) 
+int print_past_g(varargs string arg) 
 {
   int i, from, to, num;
  
   if (this_player()!=this_object()) 
   {
-      if (!interactive(this_player())) 
-          return 0;
-      if (!(SECURE->query_admin(geteuid(this_player())))) 
-          return 0;
+    if (!interactive(this_player())) 
+      return 0;
+    if (!(SECURE->query_admin(geteuid(this_player())))) 
+      return 0;
   }
   
   if (!sizeof(past_g))
