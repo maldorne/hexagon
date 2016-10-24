@@ -56,6 +56,15 @@ nomask int help_func(string str)
   return _player->do_help(str);
 }
 
+nomask int do_clear_screen(string str)
+{
+  // if( this_player(1) != this_player() )  
+  //   return 0;
+
+  tell_object(this_player(), sprintf("%c[H%c[2J\n", 27, 27));
+  return 1;
+}
+
 mixed * stats() 
 {
   return ({ 
