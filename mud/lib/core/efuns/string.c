@@ -32,8 +32,8 @@ int at(int character, string str)
 
 string replace_string(string str, string foo, string bar)
 {
-  return implode(explode(str, foo), bar);
-  
+  return implode(full_explode(str, foo), bar);
+
   // string a, b, result;
   // int i;
 

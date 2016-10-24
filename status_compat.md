@@ -96,7 +96,6 @@ do not have an open source license.
 | `command`               | :white_check_mark: |  |
 | `commands`              | :white_check_mark: |  |
 | `notify_fail`           | :white_check_mark: |  |
-| `users`                 | :white_check_mark: | provided by dgd |
 | `enable_commands`       | :white_check_mark: |  |
 | `disable_commands`      |  |  |
 | `interactive`           | :white_check_mark: |  |
@@ -107,6 +106,9 @@ do not have an open source license.
 | `livings`               | :white_check_mark: |  |
 | `set_heart_beat`        | :white_check_mark: |  |
 | `query_heart_beat`      | :white_check_mark: |  |
+| `users`                 | :white_check_mark: | provided by dgd |
+| `objects`               |  |  |
+| `children`              |  |  |
 
 ##Functions
 | Function | Status | Comments |
@@ -190,6 +192,9 @@ do not have an open source license.
 | `query_snooping`        |  |  |
 | `query_ip_number`       | :white_check_mark: | provided by dgd |
 | `query_ip_name`         | :white_check_mark: | provided by dgd |
+| `query_host_name`       |  |  |
+| `resolve`               |  |  |
+| `query_idle`            | :white_check_mark: |  |
 | `random`                | :white_check_mark: | provided by dgd |
 | `shadow`                | :white_check_mark: |  |
 | `query_shadowing`       | :white_check_mark: |  |
@@ -206,12 +211,10 @@ do not have an open source license.
 | `test_bit`              |  |  |
 | `set_bit`               |  |  |
 | `next_bit`              |  |  |
-| `exec`                  |  |  |
-| `objects`               |  |  |
-| `query_host_name`       |  |  |
-| `query_idle`            |  |  |
+| `exec`                  | - | dummy function |
 | `set_hide`              |  |  |
 | `throw`                 |  |  |
+| `error`                 |  |  |
 | `deep_inherit_list`     |  |  |
 | `shallow_inherit_list`  |  |  |
 | `stat`                  |  |  |
@@ -221,9 +224,7 @@ do not have an open source license.
 | `memory_info`           |  |  |
 | `get_config`            |  |  |
 | `get_char`              |  |  |
-| `children`              |  |  |
 | `reload_object`         |  |  |
-| `error`                 |  |  |
 | `uptime`                |  |  |
 | `flush_messages`        |  |  |
 | `ed`                    |  |  |
@@ -239,5 +240,4 @@ do not have an open source license.
 | `set_light`             |  |  |
 | `origin`                |  |  |
 | `reclaim_objects`       |  |  |
-| `resolve`               |  |  |
 | `shutdown`              |  |  |

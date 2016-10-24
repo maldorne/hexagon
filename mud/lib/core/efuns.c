@@ -54,8 +54,7 @@ static nomask void stderr(string str);
 // users, children, etc
 #include "/lib/core/efuns/collections.c"
 
-// new for ccmud
 #include "/lib/core/efuns/domains.c"
 #include "/lib/core/efuns/path.c"
-
 #include "/lib/core/efuns/math.c"
+#include "/lib/core/efuns/net.c"

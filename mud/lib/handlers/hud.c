@@ -91,7 +91,7 @@ string query_colored_name(object me, object he, string his_name, int how_many)
     string new_str;
 
     new_str = "";
-    race = he->query_race_ob();
+    race = load_object(he->query_race_ob());
 
     // No damos las subrazas/culturas, porque los nombres
     //  suelen ser mas largos y menos representativos

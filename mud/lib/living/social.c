@@ -21,7 +21,7 @@
  * Extraido todo lo relacionado con los antiguos comandos (gr_commands)
  *  para crear nuevo sistema de dotes (feats.c), neverbot 11/10/08
  *
- * AÃ±adido nuevo sistema de especialidades para cada uno de los grupos sociales
+ * Añadido nuevo sistema de especialidades para cada uno de los grupos sociales
  *  neverbot 20/10/2012
  *
  * Renamed as social.c, neverbot 10/2016
@@ -29,12 +29,13 @@
 
 #include <user/player.h>
 #include <living/social.h>
+#include <living/races.h>
 #include <mud/secure.h>
 
 inherit feats "/lib/living/feats";
 inherit specs "/lib/living/specs";
 
-// guild_joined[guild_ob] = ({ nivel, 1Âº vez alistado, ultima vez abandonado, })
+// guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
 mapping guild_joined;
 mapping job_joined;
 
@@ -106,10 +107,13 @@ void start_player()
 string query_gtitle()
 {
   string str;
+
   if (social_object_list[GUILD_OB] &&
      !catch((str = (string)social_object_list[GUILD_OB]->query_title(this_object()))))
     return str;
-  return "(su gremio no tiene tÃ­tulo)";
+
+  // return "(su gremio no tiene título)";
+  return "";
 }
 
 void set_race_ob(string str) 
@@ -117,26 +121,28 @@ void set_race_ob(string str)
   // string frog;
     
   if (!strlen(str)) 
-    str = "/lib/obj/races/desconocida";
+    str = RACES_PATH + "unknown";
   
   // if ( sscanf(str, "/%s", frog)==1)
   //   str = extract(str, 1);
 
-  if (str[0..strlen("/lib/obj/races")-1]!="/lib/obj/races") 
+  if (str[0..strlen(RACES_PATH)-1] != RACES_PATH) 
   {
     write("Path ilegal para set_race_ob.\n");
     return;
   }
 
-  if (str[0..strlen("/lib/obj/races/god")-1] == "/lib/obj/races/god" &&
-    !"/secure/master"->high_programmer(geteuid())) {
+  if (str[0..strlen(RACES_PATH+"god")-1] == RACES_PATH+"god" &&
+    !SECURE->high_programmer(geteuid())) 
+  {
     write("El cielo retumba y los reinos tiemblan. No puedes hacer eso.\n");
     return;
   }
 
-  if ( (file_size(str) < 0) && (file_size(str+".c") < 0) ) {
+  if ( (file_size(str) < 0) && (file_size(str+".c") < 0) ) 
+  {
     tell_object(this_object(),"El intento de set_race_ob no ha funcionado. "+
-      "DÃ­selo a alguien que pueda arreglarlo.\n"); 
+      "Díselo a alguien que pueda arreglarlo.\n");
     return;
   }
   // Taniwha 1997, stop these accumulating on race change
@@ -150,19 +156,22 @@ void set_race_ob(string str)
   this_object()->adjust_bonus_wil(-this_object()->query_bonus_wil());
 
   // Remove the old language if they have one. Flode - 150997
-  if (social_object_list[RACE_OB]){
+  if (social_object_list[RACE_OB])
+  {
     this_object()->remove_languages(social_object_list[RACE_OB]->query_initial_languages());
       // Asignamos uno de los lenguajes actuales, neverbot 02/2006
       if (sizeof(this_object()->query_languages()) > 0)
         this_object()->set_language(this_object()->query_languages()[0]);
 
-    this_object()->adjust_ext_align(-social_object_list[RACE_OB]->query_ext_align());
+      this_object()->adjust_ext_align(-social_object_list[RACE_OB]->query_ext_align());
       // Quitamos los alias raciales
-      if (social_object_list[RACE_OB]->query_base_race()){
+      if (social_object_list[RACE_OB]->query_base_race())
+      {
         this_object()->remove_alias(lower_case(this_object()->query_race_name()));
         this_object()->remove_alias(lower_case(this_object()->query_base_race_name()));
       }
-      else{
+      else
+      {
         this_object()->remove_alias(lower_case(this_object()->query_race_name()));
       }
   }
@@ -176,12 +185,13 @@ void set_race_ob(string str)
   this_object()->set_weight(social_object_list[RACE_OB]->query_race_weight());
   social_object_list[RACE_OB]->set_racial_bonuses(this_object());
   
-  // Problema: con subrazas esto aÃ±ade el alias "Humano (Velan)" por ejemplo
+  // Problema: con subrazas esto añade el alias "Humano (Velan)" por ejemplo
   // this_object()->add_alias(lower_case(this_object()->query_race()));
-  if (social_object_list[RACE_OB]->query_base_race()){
-    // AÃ±adimos subraza
+  if (social_object_list[RACE_OB]->query_base_race())
+  {
+    // Añadimos subraza
     this_object()->add_alias(lower_case(this_object()->query_race_name()));
-    // AÃ±adimos raza base
+    // Añadimos raza base
     this_object()->add_alias(lower_case(this_object()->query_base_race_name()));
   }
   else
@@ -205,7 +215,7 @@ void set_race_ob(string str)
 
 void set_race(string str) 
 {
-  set_race_ob("/lib/obj/races/"+str);
+  set_race_ob(RACES_PATH + str);
 }
 
 string query_race_ob() { return social_object_list[RACE_OB]; }
@@ -253,7 +263,7 @@ int query_race_size()
   if (social_object_list[RACE_OB])
     return (int)social_object_list[RACE_OB]->query_race_size();
   else
-    return 5; // TamaÃ±o estandar (humano)
+    return 5; // Tamaño estandar (humano)
 } /* query_race_size() */
 
 // *****************************************
@@ -302,7 +312,7 @@ string query_class()
 
 // *****************************************
 
-// guild_joined[guild_ob] = ({ nivel, 1Âº vez alistado, ultima vez abandonado, })
+// guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
 
 mapping query_guild_joined(){ return guild_joined; }
 
@@ -613,7 +623,7 @@ int adjust_job_level(int i)
    * Baldrick.     */
   if ((job_level + i) > 100) 
   {
-    notify_fail("OlvÃ­dalo.\n");
+    notify_fail("Olvídalo.\n");
     return 0;
   }
 
@@ -622,7 +632,7 @@ int adjust_job_level(int i)
     (query_job_ob())->new_levels(i, this_object());
 
   if (i >= 1)
-    tell_player(this_object(), "Â¡Subes tu nivel de oficio!\n");
+    tell_player(this_object(), "¡Subes tu nivel de oficio!\n");
 
   job_level += i;
 
@@ -663,7 +673,7 @@ int query_max_job_level()
   res = job_level;
   list = keys(job_joined);
   
-  // job_joined[job_ob] = ({ nivel, 1Âº vez alistado, ultima vez abandonado, })
+  // job_joined[job_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
   for (i = 0; i < sizeof(list); i++)
     // El oficio actual estara almacenado con un nivel antiguo
     if (list[i] != query_job_ob())
@@ -791,7 +801,7 @@ string query_city_name()
   if (social_object_list[CITY_OB])
     return ((string)social_object_list[CITY_OB]->query_short());
   else
-    return ("Sin CiudadanÃ­a");
+    return ("Sin Ciudadanía");
 }
 string query_city(){ return query_city_name(); }
 string query_citizenship(){ return query_city_name(); }
@@ -814,7 +824,7 @@ int adjust_level(int i)
   // Baldrick.
   if ((class_level + i) > 100) 
   {
-    notify_fail("OlvÃ­dalo.\n");
+    notify_fail("Olvídalo.\n");
     return 0;
   }
 
@@ -825,7 +835,7 @@ int adjust_level(int i)
   // Mensaje de subida de nivel (excepto la primera subida que es automatica)
   if ((class_level >= 5) && (i > 0)) 
   {
-    tell_player(this_object(), "Â¡Subes de nivel!");
+    tell_player(this_object(), "¡Subes de nivel!");
 
     // Log para players
     if (interactive(this_object()))
@@ -858,7 +868,7 @@ int query_max_guild_level()
   res = guild_level;
   list = keys(guild_joined);
   
-  // guild_joined[guild_ob] = ({ nivel, 1Âº vez alistado, ultima vez abandonado, })
+  // guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
   for (i = 0; i < sizeof(list); i++)
     // El gremio actual estara almacenado con un nivel antiguo
     if (list[i] != query_guild_ob())
@@ -877,7 +887,7 @@ int adjust_guild_level(int i)
    * Baldrick.     */
   if ((guild_level + i) > 100) 
   {
-    notify_fail("OlvÃ­dalo.\n");
+    notify_fail("Olvídalo.\n");
     return 0;
   }
 
@@ -887,7 +897,7 @@ int adjust_guild_level(int i)
 
   // Mensaje de subida de nivel (excepto la primera subida que es automatica)
   if ((guild_level >= 1) && (i > 0)) 
-    tell_player(this_object(), "Â¡Subes tu nivel de gremio!");
+    tell_player(this_object(), "¡Subes tu nivel de gremio!");
 
   guild_level += i;
   

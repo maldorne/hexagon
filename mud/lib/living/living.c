@@ -38,6 +38,7 @@ inherit drunk     "/lib/living/drunk";
 inherit spells    "/lib/living/spells";
 inherit consent   "/lib/living/consent";
 inherit visited   "/lib/living/visited";
+inherit comm      "/lib/living/communicate";
 
 int hb_counter;
 static int hp_counter, gp_counter;
@@ -63,6 +64,7 @@ void create()
   spells::create();
   consent::create();
   visited::create();
+  comm::create();
 
   hp_counter = gp_counter = 0;
   hb_counter = 0;
@@ -84,6 +86,7 @@ void create()
   social_commands();
   spell_commands();
   consent_commands();
+  communicate_commands();
 }
 
 int cannot_get_stuff() { return 1; }
@@ -336,5 +339,6 @@ mixed * stats()
          spells::stats() +
          consent::stats() +
          visited::stats() +
+         comm::stats() +
          movement::stats();
 }

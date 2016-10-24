@@ -7,7 +7,7 @@
  */
 
 /* this one also contians info on read_messages... */
-#include <basic/language.h>
+#include <basic/communicate.h>
 
 static mixed *read_mess;
 static int max_size, cur_size;
@@ -79,17 +79,17 @@ mixed add_read_mess(mixed str, string type, string lang, int size)
     environment()->add_command("leer", this_object());
   }
 
-  de_size = size*((int)LANGUAGE_HAND->query_language_size(lang, str));
+  de_size = size*((int)LANGUAGE_HANDLER->query_language_size(lang, str));
 
   if (cur_size+de_size > max_size) 
   {
     /* Try and squidge the text on somehow... */
-    str = (string)LANGUAGE_HAND->squidge_text(lang, str,
+    str = (string)LANGUAGE_HANDLER->squidge_text(lang, str,
                 (max_size-cur_size)/size);
 
     if (!strlen(str))
       return "";
-    cur_size += size*((int)LANGUAGE_HAND->query_language_size(lang, str));
+    cur_size += size*((int)LANGUAGE_HANDLER->query_language_size(lang, str));
   }
 
   if (!read_mess)
@@ -120,7 +120,7 @@ int remove_read_mess(string str, string type, string lang)
       continue;
 
     cur_size -= read_mess[i][READ_SIZE] *
-              ((int)LANGUAGE_HAND->query_language_size(lang, read_mess[i][READ_STR]));
+              ((int)LANGUAGE_HANDLER->query_language_size(lang, read_mess[i][READ_STR]));
     read_mess = delete(read_mess, i, 1);
     return 1;
   }

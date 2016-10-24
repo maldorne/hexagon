@@ -20,14 +20,6 @@
 #define MIN_AGE 1800
 // -------------
 
-#define NO_POWER "Puntos sociales insuficientes.\n"
-#define NOT_ALLOWED "Aún no posees esa habilidad.\n"
-#define SHOUT_COST 20
-#define TELL_COST 1
-#define EMOTE_COST 1
-#define ECHO_COST 1
-#define ECHOTO_COST 4
-#define EMOTEALL_COST 40
 #define NO_LINE_PROP "no new line"
 #define RACE_STD "/obj/races/desconocida"
 #define MAX_IDLE 900

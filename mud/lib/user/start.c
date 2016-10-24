@@ -111,7 +111,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
 
   if (query_coder())
   {
-    event(users(), "inform", query_cap_name()+" "+query_gtitle()+
+    event(users(), "inform", query_cap_name()+(strlen(query_gtitle()) ? " "+query_gtitle() : "")+
                              " entra en "+mud_name(), "logon-coders", this_object());
   }
   else

@@ -1,5 +1,7 @@
 
 #include <common/properties.h>
+#include <basic/communicate.h>
+#include <user/player.h>
 
 // all the posible events will be called from
 // the event efun:
@@ -140,19 +142,225 @@ void event_soul(object ob, string str, mixed avoid)
 
 void event_person_say(object ob, string start, string msg, string lang, int speaker)
 {
+  string tmp;
+
+  msg = fix_string(msg);
+
+  if (member_array(lang, this_object()->query_languages()) == -1) 
+  {
+    mixed str;
+
+    if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
+      if ((str = (mixed)str->garble_say(start, msg))) 
+      {
+        start = str[0];
+        msg = str[1];
+      } 
+      else
+        return;
+    else
+      return;
+  }
+  // else
+  if (lang != "comun")
+    start = start[0..strlen(start)-3]+" en "+lang+": ";
+
+  if (ob == this_object()) 
+    return;
+
+  tmp = start + msg;
+
+  // "Distorsion" por el entorno :?
+  // if (!this_object()->query_coder())
+  // msg = "/std/language"->scramble_sentence(msg, speaker, this_object()->query_int());
+
+  if (ob && interactive(ob))
+    this_object()->add_past_g(tmp);
+
+  this_object()->catch_tell("\n" + tmp + "\n");
 }
 
 void event_person_tell(object ob, string start, string msg, string lang)
 {
+  int id;
+  mixed str;
+  string tmp;
+
+  // TODO blocks
+  // if (ob && !ob->query_coder() && ob->query_name() == block)
+  // {
+  //   tell_object(this_player(), "Esta persona está bloqueando tus mensajes.\n");
+  //   return;
+  // }
+
+  msg = fix_string(msg);
+
+  if (member_array(lang, this_object()->query_languages()) == -1) 
+  {
+    mixed str;
+
+    if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
+      if ((str = (mixed)str->garble_say(start, msg))) 
+      {
+        start = str[0];
+        msg = str[1];
+      } 
+      else
+        return;
+    else
+      return;
+  }
+  // else
+  if (lang != "comun")
+    start = start[0..strlen(start)-3]+" en "+lang+": ";
+
+  /* The following block of code was added to tell players that the target
+     is idle and may not reply for a period of time.
+     Firestorm 9/3/93
+  */
+
+  if (interactive(this_object()) && 
+     (id = query_idle(this_object())) > TELL_WARN_TIME)
+  {
+    str = ({  });
+    /* Need to use some neato formulas to convert to standard time -- FS */
+    // This needs cleaned up, a simul_efun does this... have to come back
+    // Radix
+
+    if (id/(60*60))
+      str += ({ (id/(60*60)) + " horas" });
+    if ((id/60)%60)
+      str += ({ ((id/60)%60) + " minutos" });
+    if (id%60)
+      str += ({ (id%60) + " segundos" });
+
+    tell_object(this_player(), this_object()->query_cap_name() + " ha estado inactiv"+
+      this_object()->query_vocal()+" durante "+
+      query_multiple_short(str) + ".\n");
+  }
+
+  if (this_object()->query_in_editor())
+  {
+    tell_object(this_player(), this_object()->query_cap_name() + " está editando un fichero "+
+      "y puede tardar un poco en contestar.\n");
+  }
+
+  if (this_object()->query_static_property(AWAY_PROP)) 
+  {
+    tell_object(this_player(), this_object()->query_cap_name()+" está ocupad"+this_object()->query_vocal()+
+      ", razón: \"%^RED%^"+
+      (string)this_object()->query_static_property(AWAY_PROP)+"%^RESET%^\"\n");
+  }
+
+  tmp = start + msg;
+
+  // if (ob && interactive(ob))
+  this_object()->add_past_g(tmp);
+
+  this_object()->catch_tell("\n" + tmp + "\n");  
 }
 
-void event_whisper(object ob, string start, string msg, 
-                   object *obs, string lang)
+void event_person_whisper(object ob, string start, string msg, 
+                          object * obs, string lang)
 {
+  string oblue;
+  string tmp;
+
+  tmp = "";
+  msg = fix_string(msg);
+  oblue = "";
+
+  if (this_object() == ob)
+    return;
+
+  if (member_array(lang, this_object()->query_languages()) == -1) 
+  {
+    mixed str;
+
+    if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
+      if ((str = (mixed)str->garble_say(start, msg))) 
+      {
+        start = str[0];
+        msg = str[1];
+      } 
+      else
+        return;
+    else
+      return;
+  }
+  // else
+  // if (lang != "comun")
+  //   start = start[0..strlen(start)-3]+" en "+lang+": ";
+  // else {
+  if (lang != "comun")
+    oblue = " en "+lang+": ";
+  else
+    // if (!stringp(oblue))
+    oblue = ": ";
+  // }
+
+  if (member_array(this_object(), obs) == -1)
+  {
+    tmp = fix_string(start + " a " + query_multiple_short(obs) +
+          oblue[0..strlen(oblue)-3] + ".");
+  }
+  else if (sizeof(obs) == 1) 
+  {
+    start = replace_string(start, "susurra", "te susurra");
+    tmp = fix_string(start + oblue + msg);
+    this_object()->add_past_g( tmp );
+  }
+  else 
+  {
+    start = replace_string(start, "susurra", "te susurra");
+    tmp = fix_string(start + " a ti y a " +
+          query_multiple_short(obs - ({this_object()})) +
+          oblue + msg);
+    this_object()->add_past_g( tmp );
+  }
+
+  this_object()->catch_tell("\n" + tmp + "\n");  
 }
 
 void event_person_shout(object ob, string start, string msg, string lang)
 {
+  string tmp;
+
+  if (ob == this_object()) 
+    return;
+  
+  if (this_object()->query_earmuffs() == 1 && 
+    ((string)ob->query_verb() != "cre!") &&
+    ((string)ob->query_verb() != "shout!")) 
+    return; 
+
+  msg = fix_string(msg);
+
+  if (member_array(lang, this_object()->query_languages()) == -1) 
+  {
+    mixed str;
+
+    if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
+      if ((str = (mixed)str->garble_say(start, msg))) 
+      {
+        start = str[0];
+        msg = str[1];
+      } 
+      else
+        return;
+    else
+      return;
+  }
+  // else
+  if (lang != "comun")
+    start = start[0..strlen(start)-3]+" en "+lang+": ";
+
+  tmp = start + msg;
+
+  // if (ob && interactive(ob))
+  this_object()->add_past_g( tmp );
+  
+  this_object()->catch_tell("\n" + tmp + "\n");  
 }
 
 void event_creator_tell(object ob, string start, string msg)

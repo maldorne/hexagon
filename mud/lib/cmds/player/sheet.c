@@ -100,14 +100,14 @@ static int cmd (string name, object who, string verb)
     return 0;
   }
 
-  race = me->query_race_ob();
-  guild = me->query_guild_ob();
-  guild_class = me->query_class_ob();
-  job = me->query_job_ob();
-  group = me->query_group_ob();
-  race_group = me->query_race_group_ob();
-  deity = me->query_deity_ob();
-  city = me->query_city_ob();
+  race =        load_object(me->query_race_ob());
+  guild =       load_object(me->query_guild_ob());
+  guild_class = load_object(me->query_class_ob());
+  job =         load_object(me->query_job_ob());
+  group =       load_object(me->query_group_ob());
+  race_group =  load_object(me->query_race_group_ob());
+  deity =       load_object(me->query_deity_ob());
+  city =        load_object(me->query_city_ob());
 
   // Obtenemos los datos del personaje:
   str_stats[0] = me->stat_string(me->query_str()); // Para dar el 18/xx
@@ -364,9 +364,9 @@ static int cmd (string name, object who, string verb)
 
   // if (me->query_status_points() > 0)
   //   info+="Puntos de Prestigio:\t\t"+me->query_status_points()+"\n";
-// TODO comm
-  // if (me->query_max_social_points() > 0)
-  //   info+="Puntos Sociales:\t\t"+me->query_social_points()+" ( "+me->query_max_social_points()+" )\n";
+
+  if (me->query_max_social_points() > 0)
+    info+="Puntos Sociales:\t\t"+me->query_social_points()+" ( "+me->query_max_social_points()+" )\n";
   info+="Puntos de Energía:\t\t"+me->query_gp()+" ( "+me->query_max_gp()+" )\n";
   info+="Puntos de Vida:\t\t\t"+me->query_hp()+" ( "+me->query_max_hp()+" )\n";
 

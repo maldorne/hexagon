@@ -735,7 +735,7 @@ int trans(string str)
 
   for (i = 0; i < sizeof(obs); i++) 
   {
-    if (environment(obs[i]) == environment()) 
+    if (environment(obs[i]) == environment(this_player())) 
     {
       write(desc_object(obs[i])+" ya está aquí.\n");
       continue;

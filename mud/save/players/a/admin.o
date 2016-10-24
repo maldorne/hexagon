@@ -10,6 +10,7 @@ resistances ([0|])
 max_hp 1
 max_gp 1
 hp 1
+gp 1
 map_prop ([0|])
 timed_prop ([0|])
 create_me "object"
@@ -24,8 +25,13 @@ guild_joined ([0|])
 job_joined ([0|])
 class_level 1
 social_object_list ({8|nil,nil,nil,nil,nil,nil,nil,nil,})
+social_object_list ({8|"/lib/obj/races/unknown",nil,nil,nil,nil,nil,nil,nil,})
 spells ([0|])
 consents ([0|])
+social_points 100
+max_social_points 100
+languages ({1|"comun",})
+cur_lang "comun"
 role_name "coder"
 account_name "admin@ciudadcapital.net"
 monitor 1
@@ -36,3 +42,4 @@ time_on -501
 ontime 1476711797
 last_log_on 1476711922
 last_on_from "localhost (::1)"
+hud "dificultad"
