@@ -12,7 +12,7 @@ static nomask mixed call_other(mixed obj, string func, mixed args...)
 
   shadows = ::call_other(obj, "_query_shadows");
 
-  if (pointerp(shadows) && sizeof(shadows))
+  if (arrayp(shadows) && sizeof(shadows))
   {
     int i, j;
 

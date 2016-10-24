@@ -11,10 +11,10 @@ void create()
 
 static void role_commands()
 {
-  add_action("do_echo", "echo");
-  add_action("do_echo_to", "echoto");
+  add_action("do_echo",      "echo");
+  add_action("do_echo_to",   "echoto");
   add_action("do_emote_all", "emoteall");
-  add_action("do_channels", "cre");
+  add_action("do_channels",  "coders");
 
   // add_action("do_channels", "dwcre");
   // add_action("do_channels", "intercre");
@@ -34,6 +34,11 @@ static void role_commands()
   //   add_action("do_channels", "thane");
 
 } /* role_commands() */
+
+int do_channels(string mess)
+{
+  return this_player()->do_channels(mess);
+}
 
 int do_god_inform(string mess)
 {

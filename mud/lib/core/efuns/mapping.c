@@ -1,8 +1,6 @@
 
 // neverbot, 03/2014
 
-// override kfuns
-
 mixed * map_indices(mapping map)
 {
   if (map == nil)

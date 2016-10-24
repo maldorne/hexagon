@@ -4,6 +4,7 @@
 #include "output/percentage_bar.c"
 #include "output/write.c"
 #include "output/say.c"
+#include "output/message.c"
 
 static nomask void shout(string str, varargs object avoid) 
 {

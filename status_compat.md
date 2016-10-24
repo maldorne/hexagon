@@ -170,7 +170,7 @@ do not have an open source license.
 | `tell_room`             | :white_check_mark: |  |
 | `shout`                 |  |  |
 | `receive`               |  |  |
-| `message`               |  |  |
+| `message`               | :white_check_mark: |  |
 | `input_to`              | :white_check_mark: | accepts optional parameters `input_to(func, flag, args...)` |
 
 

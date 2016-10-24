@@ -22,8 +22,8 @@ int really_quit()
   
   if (secure != 0) 
   {
-    tell_object(this_object(), "En tu localizaciÃ³n previa no es posible salir, "+
-        "has sido movido a la mÃ¡s cercana (vuelve a intentarlo aquÃ­ si aÃºn "+
+    tell_object(this_object(), "En tu localización previa no es posible salir, "+
+        "has sido movido a la más cercana (vuelve a intentarlo aquí si aún "+
         "deseas desconectar).\n");
     this_object()->do_look();
     this_object()->save_me();
@@ -92,7 +92,7 @@ int really_quit()
   }
 
   // write("Thanks for playing see you next time.\n");
-  tell_player(this_object(), "Gracias por jugar, Â¡hasta la prÃ³xima!\n");
+  tell_player(this_object(), "Gracias por jugar, ¡hasta la próxima!\n");
 
   if (query_name() != DEF_NAME)
   {
@@ -175,7 +175,7 @@ void continue_quit(int a, object here)
 
   if (environment(this_object()) != here) 
   {
-    tell_object(this_object(),"Si no paras de moverte serÃ¡ imposible buscar un buen lugar "+
+    tell_object(this_object(),"Si no paras de moverte será imposible buscar un buen lugar "+
         "para salir del juego.\n");
     return;
   }
@@ -193,7 +193,7 @@ int quit()
 {
   if (query_loading() || query_property(LOADING_PROP))
   {
-    notify_fail("TodavÃ­a se esta cargando tu equipo, espera a que termine el proceso.\n");
+    notify_fail("Todavía se esta cargando tu equipo, espera a que termine el proceso.\n");
     return 0;
   }
 
@@ -206,7 +206,7 @@ int quit()
   }
   
   tell_room(environment(this_object()), this_object()->query_cap_name()+
-      " busca un lugar cÃ³modo para salir del juego.\n", ({this_object()}));
+      " busca un lugar cómodo para salir del juego.\n", ({this_object()}));
 
   if (this_object()->query_is_fighting())
   {

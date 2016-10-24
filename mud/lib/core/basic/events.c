@@ -330,7 +330,7 @@ void event_person_shout(object ob, string start, string msg, string lang)
     return;
   
   if (this_object()->query_earmuffs() == 1 && 
-    ((string)ob->query_verb() != "cre!") &&
+    ((string)ob->query_verb() != "coders!") &&
     ((string)ob->query_verb() != "shout!")) 
     return; 
 

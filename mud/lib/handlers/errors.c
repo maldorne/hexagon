@@ -77,6 +77,13 @@ nomask string runtime_error(string error, int caught, int ticks)
           str += " (" + objname + ")";
       }
 
+      // call_other is masked ("because of reasons"... shadows)
+      // remove those messages from the error trace
+      if (function == "call_other" && 
+          progname == "/lib/core/auto" &&
+          line == 49)
+        continue;
+
       long_err += str+"\n";
     }
   }

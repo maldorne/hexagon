@@ -4,6 +4,7 @@
 #include <files/log.h>
 #include <living/consents.h>
 #include <living/death.h>
+#include <basic/communicate.h>
 
 // prototypes
 void do_first_look();
@@ -85,8 +86,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
   if (!mmsgout)
     mmsgout = "@$N desaparece en una nube de humo.";
 
-  // TODO channels
-  // CHAT_HANDLER->init_player_channels(query_property(CHANNELS_PROPERTY));
+  CHAT_HANDLER->init_player_channels(query_property(CHANNELS_PROPERTY), this_object());
   // channel_init();
 
   if (!strlen(last_pos) || 

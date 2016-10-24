@@ -33,3 +33,5 @@
 
 #define CHAT_HANDLER "/lib/handlers/channels"
 #define CHANNELS_PROPERTY "channels"
+#define MAX_CHANNEL_HISTORY 20
+#define REMOTE_CHANNELS "/lib/core/net/remote_channels"
