@@ -136,8 +136,12 @@ void event_login(object ob, varargs mixed avoid)
   this_object()->catch_tell(ob->query_cap_name() + " entra en "+mud_name() + ".\n");
 }
 
-void event_soul(object ob, string str, mixed avoid)
+void event_soul(object ob, string msg, varargs mixed avoid)
 {
+  if (ob != this_object())
+    event_say(ob, msg, avoid);
+  else
+    this_object()->catch_tell(msg + "\n");
 }
 
 void event_person_say(object ob, string start, string msg, string lang, int speaker)

@@ -87,7 +87,6 @@ void set_gender(int arg)
     // if (interactive(this_object())){
     if (living(this_object()))
     {
-stderr("SET GENDER " + object_name(this_object()) + " " +to_string(call_trace())+"\n");
       write("No se puede hacer eso (género ilegal).\n");
       return;
     }

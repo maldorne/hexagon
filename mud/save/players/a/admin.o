@@ -35,6 +35,8 @@ role_name "coder"
 account_name "admin@ciudadcapital.net"
 monitor 1
 last_migration 1
+quests ([0|])
+quests_done ([0|])
 last_pos "/home/common"
 auto_load ({0|})
 time_on -501

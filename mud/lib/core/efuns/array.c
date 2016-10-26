@@ -215,8 +215,10 @@ static nomask mixed * sort_array(mixed * arr, varargs string fun, mixed ob, int 
   {
     while (--i >= 0) 
     {
+      mixed returned;
       b = result[i];
-      if (call_other(ob, fun, a, b) >= 0) 
+
+      if (undefinedp(returned = call_other(ob, fun, a, b)) || (returned >= 0)) 
       {
         // continue
         a = b;
@@ -224,7 +226,7 @@ static nomask mixed * sort_array(mixed * arr, varargs string fun, mixed ob, int 
       else 
       {
         result[e=i] = a;
-        while (++e < sz && call_other(ob, fun, a2=result[e+1], b) < 0) 
+        while (++e < sz && (intp(returned = call_other(ob, fun, a2=result[e+1], b)) && (returned < 0))) 
         {
           // swap backwards until we got it right
           result[e] = a2;

@@ -7,8 +7,6 @@
 #include <mud/cmd.h>
 #include <mud/secure.h>
 
-#define SOUL_OBJECT "/obj/handlers/soul"
- 
 int cmd_make_hash(int i);
 int soul_com(string str, object me);
 

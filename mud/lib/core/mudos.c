@@ -96,8 +96,6 @@ static void _purge_call_out_stack()
 
   time = time();
 
-  // stderr("PURGE: "+time+" "+to_string(call_outs) + "\n");
-
   for (i = 0; i < size; i++)
   {
     if (call_outs[i][CALL_OUT_STACK_TIME] <= time)
@@ -113,9 +111,6 @@ static void _purge_call_out_stack()
     else
       break; 
   }
-
-  // if (size != sizeof(call_outs))
-  //   stderr("PURGE end: "+to_string(call_outs) + "\n");
 }
 
 int query_call_out_stack_size() 

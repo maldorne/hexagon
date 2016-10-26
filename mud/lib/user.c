@@ -26,6 +26,8 @@ inherit auto_load   "/lib/core/basic/auto_load";
 inherit output      "/lib/user/output";
 inherit migration   "/lib/user/migration";
 inherit past        "/lib/user/past";
+inherit help        "/lib/user/help";
+inherit quests      "/lib/user/quests";
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
@@ -47,7 +49,7 @@ string hud;
 // string query_name() { return "neverbot"; }
 // string short(varargs int dark) { return "neverbot"; }
 int query_cols() { return 79; }
-int query_rows() { return 20; }
+int query_rows() { return 100; }
 void set_cols(int i) { }
 int query_verbose() { return 1; }
 
@@ -99,6 +101,8 @@ void create()
   output::create();
   migration::create();
   past::create();
+  help::create();
+  quests::create();
 
   // the last one
   living::create();
@@ -314,7 +318,7 @@ static void receive_message(string str)
 
       MUDOS->set_initiator_player(nil);
       MUDOS->set_initiator_object(nil);
-            
+
       return;
     }
 
@@ -445,6 +449,8 @@ mixed * stats()
                account::stats() + 
                migration::stats() + 
                past::stats() + 
+               help::stats() + 
+               quests::stats() + 
                output::stats();
 }
 

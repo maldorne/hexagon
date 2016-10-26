@@ -2,7 +2,8 @@
    Removes any unwanted words from text.
 */
 
-#define WORD_FILE "/doc/profanity.txt"
+#include <basic/communicate.h>
+
 /* This file should be of the form:
       bad thing -> replacement
 
@@ -29,7 +30,7 @@ string clean_language(string str)
   if (!str || !strlen(str))
     return str;
 
-  if (file_size(WORD_FILE) != fsize)
+  if (file_size(PROFANITY_TABLE) != fsize)
     read_init_file();
 
   if (!bad_words || !sizeof(bad_words))
@@ -66,12 +67,12 @@ void read_init_file()
   int i,j;
   string *pair;
 
-  fsize = file_size(WORD_FILE);
+  fsize = file_size(PROFANITY_TABLE);
 
   if (!fsize)  
     return;
 
-  text = read_file(WORD_FILE);
+  text = read_file(PROFANITY_TABLE);
   if (!text)  
     return;
   lines = explode(text, "\n");

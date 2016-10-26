@@ -31,7 +31,6 @@ string query_short()
 int set_hp(int i, varargs object hp_remover) { }
 int adjust_hp(int i, varargs object hp_remover)
 {
-  stderr("SHADOW DE MUERTE adjust_hp\n");
   return 0;
 }
 

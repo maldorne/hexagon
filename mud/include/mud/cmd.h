@@ -1,10 +1,11 @@
 #ifndef _CMD_H
 #define _CMD_H
     
-// #include "/secure/master.h"
-  
+#define SOUL_OBJECT "/lib/handlers/souls"
+#define SOUL_DATA   "/lib/table/souls"
+
 #define CMD_HANDLER "/lib/cmds/cmd_handler"
-#define CMD_BASE "/lib/cmds/cmd"
+#define CMD_BASE    "/lib/cmds/cmd"
  
 // command positions
 #define PLAYER_CMD 1

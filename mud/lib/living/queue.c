@@ -537,8 +537,8 @@ private int perform_next_action()
           // TODO
           if (!this_object()->parse_comm(verb, t ))
           {
-            // if (!CMD_HANDLER->soul_com(curr_act, this_object()))
-            // {
+            if (!CMD_HANDLER->soul_com(curr_act, this_object()))
+            {
               string fail_msg;
               // The end, either the command didn't work or we have 
               // a notify fail. in that case, it writes a new message, if not,
@@ -553,7 +553,7 @@ private int perform_next_action()
                                             curr_act + 
                                            "%^RESET%^' no funcionó.\n");
             
-            // }
+            }
           }
         }
       }
@@ -786,8 +786,6 @@ nomask int action_check(string str)
                      all_inventory(environment(this_object())) +
                      all_inventory(this_object());
         actions = ([ ]);
-
-        stderr("ACTIONS targets" + to_string(targets) + "\n");
 
         for (i = 0; i < sizeof(targets); i++)
           if (targets[i])

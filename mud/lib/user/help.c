@@ -5,8 +5,6 @@
 
 #include <mud/cmd.h>
 
-#define SOUL_OB "/obj/handlers/soul"
-
 #define help_dirs ({ "/doc/mud/concepts/", "/doc/mud/important/","/doc/helpdir/"})
 
 #define creator_dirs ({ "/doc/lfun/", "/doc/efun/", "/doc/coder/",\
@@ -136,18 +134,15 @@ int do_help(string str)
   }
   
   // Ya no hay 'mirar soul', neverbot 02/2006
-  // TODO souls
-  /*
   if (( str == "emocion") || (str == "emoción") || (str == "emociones"))
   {
-    s = SOUL_OB->query_soul_list();
-    if (!s)
+    s = SOUL_OBJECT->query_soul_list();
+    if (!strlen(s))
       write("No hay ayuda sobre eso.\n");
     else 
       this_object()->more_string(s, "[Emociones]");
     return 1;
   }
-  */
   
   aux = ({ });
   
@@ -193,10 +188,9 @@ int do_help(string str)
     // por último probamos con la ayuda de las emociones
     if (!sizeof(objs)) 
     {
-      // TODO souls
-      // s = (string)SOUL_OB->help_soul(str);
+      s = (string)SOUL_OBJECT->help_soul(str);
       
-      if (!s) 
+      if (!strlen(s)) 
       {
         notify_fail("Lo siento, no hay ayuda sobre "+str+".\n");
         return 0;

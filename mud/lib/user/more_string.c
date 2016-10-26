@@ -324,7 +324,7 @@ int more_string(mixed str, varargs string bity, string more_fmt)
   return 1;
 }
 
-int set_finish_func(mixed str, object ob) 
+int set_finish_func(mixed str, varargs object ob) 
 {
   finish_func = str;
 
