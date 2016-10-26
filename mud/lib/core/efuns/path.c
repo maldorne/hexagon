@@ -48,6 +48,7 @@ string * get_files(string str)
 {
   int loop, count;
   string *filenames, rmpath, temp1, temp2, *names, *files;
+  string oldeiud;
 
   names = explode(str, " ") - ({ "" });
 
@@ -79,7 +80,9 @@ string * get_files(string str)
         path_elements = explode(rmpath, "/") - ({ "" });
         rmpath = implode(path_elements[0..sizeof(path_elements) - 2], "/");
     }
-  
+
+    oldeiud = geteuid();
+
     if (this_player() != nil)
       seteuid(geteuid(this_player(1)));
     else
@@ -87,7 +90,8 @@ string * get_files(string str)
 
     files = get_dir(str);
     
-    seteuid("");
+    // seteuid("");
+    seteuid(oldeiud);
 
     if (files) 
     {
