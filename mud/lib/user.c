@@ -16,6 +16,7 @@ inherit alias       "/lib/user/alias";
 inherit nickname    "/lib/user/nickname";
 inherit prompt      "/lib/user/prompt";
 inherit more_string "/lib/user/more_string";
+inherit more_file   "/lib/user/more_file";
 
 inherit living      "/lib/living/living";
 inherit role        "/lib/user/role";
@@ -98,6 +99,7 @@ void create()
   role::create();
   account::create();
   more_string::create();
+  more_file::create();
   output::create();
   migration::create();
   past::create();
@@ -453,4 +455,3 @@ mixed * stats()
                quests::stats() + 
                output::stats();
 }
-

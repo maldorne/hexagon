@@ -472,7 +472,7 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
 
   /* check for a find_match locally */
 
-  obs2 = find_match(str,onobj);
+  obs2 = find_match(str, onobj);
   if (sizeof(obs2) > 0) 
     return obs2;
 

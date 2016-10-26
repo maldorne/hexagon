@@ -2,15 +2,8 @@
 #include <files/file.h>
 #include <mud/secure.h>
 
-
-int write_file(string file, string str, varargs int offset)
-{
-  if (!SECURE->valid_write(file, geteuid(), previous_function()))
-    return 0;
-
-  return ::write_file(file, str, offset);
-}
-
+#include "files/write_file.c"
+#include "files/read_file.c"
 
 // file_size - get the size of a file
 // int file_size( string file );

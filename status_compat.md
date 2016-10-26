@@ -149,12 +149,12 @@ do not have an open source license.
 | `save_object`           | :white_check_mark: |  |
 | `get_dir`               | :white_check_mark: | masked to mimic MudOS behaviour |
 | `match_path`            |  |  |
+| `read_file`             | :white_check_mark: | The DGD version reads one character at a time. The MudOS version read one line. Use `read_file_line` for this last behaviour. |
 | `write_file`            | :white_check_mark: | provided by dgd, masked for permissions |
 | `rename`                | :white_check_mark: | alias for `rename_file`, masked for permissions |
 | `write_bytes`           |  |  |
 | `file_size`             | :white_check_mark: | Mikael Lind's example code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
 | `read_bytes`            |  |  |
-| `read_file`             |  |  |
 | `cp`                    |  |  |
 | `link`                  |  |  |
 | `mkdir`                 |  |  |
