@@ -149,7 +149,7 @@ do not have an open source license.
 | `save_object`           | :white_check_mark: |  |
 | `get_dir`               | :white_check_mark: | masked to mimic MudOS behaviour |
 | `match_path`            |  |  |
-| `read_file`             | :white_check_mark: | The DGD version reads one character at a time. The MudOS version read one line. Use `read_file_line` for this last behaviour. |
+| `read_file`             | :white_check_mark: | The DGD version reads one character at a time. The MudOS version reads one line. Use `read_file_line` for this last behaviour. |
 | `write_file`            | :white_check_mark: | provided by dgd, masked for permissions |
 | `rename`                | :white_check_mark: | alias for `rename_file`, masked for permissions |
 | `write_bytes`           |  |  |
