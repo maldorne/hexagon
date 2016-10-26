@@ -76,10 +76,7 @@ Common calls and operations over the basic types.
 
 ##Basic calls and interactions between objects
 
-The general scheme of how the `this_player` value is being stored in a central object (`/lib/core/mudos.c`,
-which is in charge of doing the respective `init` calls) has been taken from the 
-`mudos_alike_4_dgd` mudlib, although the code had to be written from scratch as it 
-do not have an open source license.
+The general idea of how the `this_player` value is being stored in a central object (`/lib/core/mudos.c`, which is in charge of doing the respective `init` calls and stores current `query_verb`, `notify_fail`, etc) has been taken from the `mudos_alike_4_dgd` mudlib, although the code had to be written from scratch as it do not have an open source license.
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
