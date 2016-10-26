@@ -50,14 +50,17 @@ static string to_string(mixed ob, varargs int offset, string pre)
       ret += "([ ])\n";
     else
     {
-      string * keys;
+      mixed * keys;
       keys = map_indices(ob);
       
       ret += "([ -- size " + sizeof(keys) + "\n";
 
       for (i = 0; i < sizeof(keys); i++)
       {
-        ret += TO_STRING_PADDING[0..offset+2] + keys[i] + " : \n";
+        if (objectp(keys[i]))
+          ret += TO_STRING_PADDING[0..offset+2] + "<" + object_name(keys[i]) + "> : \n";
+        else
+          ret += TO_STRING_PADDING[0..offset+2] + keys[i] + " : \n";
         ret += to_string(ob[keys[i]], offset + 2, "");
         // if (i < sizeof(keys)-1)
         //   ret += "\n";
