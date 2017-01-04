@@ -1,2 +1,2 @@
 #!/bin/bash
-./driver/dgd/bin/driver ./driver/config.dgd
+./driver/dgd/bin/dgd ./driver/config.dgd
