@@ -11,28 +11,36 @@ These instructions assume you have some knowledge about compiling code under a U
 
 DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tree/master/src/host/win32) as noticed in its own documentation, but I've never tried. Any feedback or documentation about this would be appreciated.
 
+#### Instructions
+
 1. Download. Be sure the `driver/dgd` submodule is downloaded too.
    In command line, you can do both things with:
+
    `git clone --recursive git://github.com/houseofmaldorne/hexagon.git`
 2. `cd hexagon`   
-2. *Compile the DGD driver*:
+2. **Compile the DGD driver**:
    1. `cd driver/dgd/src`
    2. Edit the file `Makefile` an change the line
+
       `DEFINES=-D$(HOST)       # -DSLASHSLASH -DNETWORK_EXTENSIONS -DNOFLOAT -DCLOSURES -DCO_THROTTLE=50`
+
       with
+
       `DEFINES=-D$(HOST) -DSLASHSLASH # -DNETWORK_EXTENSIONS -DNOFLOAT -DCLOSURES -DCO_THROTTLE=50`
+
       (the only change is to include the `SLASHSLASH` flag to allow this 
       kind of `// comments` in the mud code).
-      `cp cp driver/dgd.Makefile driver/dgd/src/Makefile`
    3. `make`
    4. `make install`
    5. `cd ../../..`
 
 3. Copy the file `driver/config.example.dgd` to `driver/config.dgd`
+
    `cp driver/config.example.dgd driver/config.dgd`
 4. Edit it, changing the directory field to the absolute path of the 
    `mud` directory (must end in `/whatever/mud` without an ending slash)
 5. Create the `tmp` directory to store the swap file if it does not exist:
+
    `mkdir driver/dgd/tmp`
 5. Execute `./mud.sh`
 6. `telnet localhost 6047` to connect and see if everything is working.
