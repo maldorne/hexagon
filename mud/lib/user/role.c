@@ -66,10 +66,13 @@ int set_role(string name)
   return 1;
 }
 
-int query_coder()         { return role_name == CODER_ROLE; }
-int query_manager()       { return role_name == MANAGER_ROLE; }
 int query_admin()         { return role_name == ADMIN_ROLE; }
-int query_administrator() { return role_name == ADMIN_ROLE; }
+int query_administrator() { return query_admin(); }
+int query_manager()       { return role_name == MANAGER_ROLE; }
+int query_coder()         { return (role_name == CODER_ROLE) || 
+                                    query_manager() || 
+                                    query_administrator(); 
+                          }
 
 string query_object_type()
 {

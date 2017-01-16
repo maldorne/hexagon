@@ -28,7 +28,18 @@ static nomask object compile_object(string path, varargs string source...)
   }
 
   if (err || !objectp(obj))
+  {
+    object initial;
+    
     stderr(" - compile_object: " + path + " (not able to compile)\n");
+    if (err)
+    {
+      initial = initial_object();
+
+      if (initial && initial->query_coder())
+        write(err + "\n");
+    }
+  }
 
   return obj;
 }

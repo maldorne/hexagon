@@ -1,21 +1,7 @@
 
-static nomask object * previous_objects(varargs int step)
-{
-  object result;
-  int arg;
+#include "functions/previous_objects.c"
+#include "functions/initial_object.c"
 
-  if (nullp(step))
-    arg = 0;
-  else
-    arg = step;
-
-  result = previous_object(arg);
-
-  if (result == nil)
-    return ({ });
-
-  return ({ result }) + previous_objects(arg + 1);
-}
 
 static nomask object * all_previous_objects()
 {
@@ -44,17 +30,6 @@ static nomask object previous_object(varargs int number)
   {
     return previous_objects(1)[0];
   }
-}
-
-static nomask object initial_object()
-{
-  object * list;
-  list = previous_objects();
-
-  if (!sizeof(list))
-    return nil;
-
-  return list[sizeof(list)-1];
 }
 
 static nomask string previous_function() 
