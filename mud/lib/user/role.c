@@ -35,6 +35,12 @@ int set_role(string name)
   switch(name)
   {
     case ADMIN_ROLE:
+      role_name = name;
+      _role = clone_object(ADMIN_ROLE_OB);
+      _role->set_player(this_object());
+
+      // euid as coder
+      seteuid(this_object()->query_name());
       break;
 
     case MANAGER_ROLE:
@@ -46,8 +52,7 @@ int set_role(string name)
       _role->set_player(this_object());
 
       // euid as coder
-      seteuid(this_object()->query_name());
-     
+      seteuid(this_object()->query_name());     
       break;
 
     case PLAYER_ROLE:

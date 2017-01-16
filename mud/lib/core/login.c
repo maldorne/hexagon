@@ -474,7 +474,7 @@ nomask void logon_player_name_2(string str, int flag)
       if (++no_times > MAX_RETRIES) 
       {
           write("Demasiados reintentos...\n"+
-            "No estarás haciendo nada malo, ¿verdad?");
+            "No estarás haciendo nada malo, ¿verdad?\n");
           destruct(_player);
           destruct(this_object());
           return ;

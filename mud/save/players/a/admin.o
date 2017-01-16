@@ -31,7 +31,7 @@ social_points 100
 max_social_points 100
 languages ({1|"comun",})
 cur_lang "comun"
-role_name "coder"
+role_name "admin"
 account_name "admin@ciudadcapital.net"
 monitor 1
 last_migration 1
