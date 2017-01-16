@@ -241,10 +241,14 @@ int update(string str)
     {
       if (file_size(str) >= 0) 
       {
-        if (!(err = catch(str->bing_with_me())))
-          write(str + " cargado.\n");
-        else
-          write("No se pudo cargar "+str+", error:\n\t"+err+".\n");
+        // stop trying to do this, if load_object did not work, this
+        // won't work either. 
+        //    neverbot 01/2017
+        // if (!(err = catch(str->bing_with_me())))
+        //   write(str + " cargado.\n");
+        // else
+        //   write("No se pudo cargar " + str + ", error:\n\t" + err + ".\n");
+        write("No se pudo cargar " + str + ".\n");
       }
       else 
       {
