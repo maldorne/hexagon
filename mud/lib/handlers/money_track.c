@@ -28,8 +28,7 @@ inherit "/lib/core/object.c";
 #define SAVE "/save/"
 #define INFLATION_LOG_FILE "inflation"
 #define MONEY_TRACKER_LOG "money_tracker"
-#define MONEY_TRACKER_SAVE_FILE "money_tracker"
-//#define PKHAND "/obj/handlers/pk"
+#define MONEY_TRACKER_SAVE_FILE "money_tracker.o"
 
 float *mult;
 float last_adj;
@@ -37,18 +36,26 @@ mapping data;
 float totaldif,diftimes;
 
 void reset_la() { last_adj = 0.0; }
-void reset_screw_rate() {
+void reset_screw_rate() 
+{
   totaldif = 0.0;
   diftimes = 0.0;
 }
 
-float query_screw_rate() {
+float query_screw_rate() 
+{
   float num, dif;
   num = diftimes;
   dif = totaldif;
+  
   write(num+"\n");
-  if (num > 20000.0) reset_screw_rate();
-  if (num <= 0.0) return 1.0; // Taniwha
+  
+  if (num > 20000.0) 
+    reset_screw_rate();
+
+  if (num <= 0.0) 
+    return 1.0; // Taniwha
+
   return dif/num;
 }
 
@@ -57,19 +64,23 @@ float *query_adj_data() { return ({last_adj }) +mult; }
 
 mapping query_data() { return data; }
 
-void load_this_ob() {
-   if (!m_sizeof(data))
-     restore_object(SAVE+MONEY_TRACKER_SAVE_FILE);
+void load_this_ob() 
+{
+  if (!m_sizeof(data))
+    restore_object(SAVE + MONEY_TRACKER_SAVE_FILE);
 }
 
-void save_this_ob() {
+void save_this_ob() 
+{
   if (m_sizeof(data)) 
-    save_object(SAVE+MONEY_TRACKER_SAVE_FILE,1);
+    save_object(SAVE + MONEY_TRACKER_SAVE_FILE,1);
 }
-void clear_data() {
+
+void clear_data() 
+{
   data = ([ ]);
   mult = ({ 0.0,0.0,0.0,0.0 });
-  save_object(SAVE+MONEY_TRACKER_SAVE_FILE,1);
+  save_object(SAVE + MONEY_TRACKER_SAVE_FILE,1);
 }
 
 void create()
@@ -86,7 +97,8 @@ void dest_me()
    destruct(this_object());
 }
 
-string crop_string(string longpa, int howlong) {
+string crop_string(string longpa, int howlong) 
+{
   string shorter;
   shorter = longpa[strlen(longpa)-howlong..strlen(longpa)];
   return shorter;
@@ -103,26 +115,33 @@ string environment_path(object obj)
   return implode(dom,"/");
 }
 
-mapping query_moneystats() {
+mapping query_moneystats() 
+{
   load_this_ob();
   return data;
 }
 
-mapping query_domain_moneystats( string dom ) { 
+mapping query_domain_moneystats( string dom ) 
+{ 
   load_this_ob();
-  if (data[dom]) return data[dom];
+  if (data[dom]) 
+    return data[dom];
   return ([ ]);
 }
 
-mixed *query_money_stat( string dom, string pathname ) {
+mixed *query_money_stat( string dom, string pathname ) 
+{
   load_this_ob();
-  if (data[dom]) {
-    if (data[dom][pathname]) return data[dom][pathname];
+  if (data[dom]) 
+  {
+    if (data[dom][pathname]) 
+      return data[dom][pathname];
   }
   return ({ });
 }
 
-void select_domain_stats(string realdom) {
+void select_domain_stats(string realdom) 
+{
   int i;
   float tim, timt, timtt, time_now;
   float ttl15t,gtl15t;
@@ -130,78 +149,100 @@ void select_domain_stats(string realdom) {
   float tt, ttl,ttl15,gt,gtl,gtl15;
   string dom, outgoing;
   string *ind, *tmp;
-  load_this_ob();
-  time_now = TIMEKEEPER->query_running_time()/60.0;
-  outgoing ="\nDir  ggive ngive ggivel ngivel ggl15 ngl15\n";
-  outgoing += "(money in copper, time in player hours)\n\n";
-  if (!mappingp(data)) data = ([ ]); // Taniwha
-  ind = m_indices(data);
-  for(i=0;i<sizeof(ind);i++) {
-    tmp = explode(ind[i],"/");
-    if (sizeof(tmp) < 2) continue;
-    if (tmp[1] == realdom) {
-      dom = ind[i];
-          if (!m_sizeof(data[dom])) {
-            data = m_delete(data,data[dom]);
-            continue;
-          }
-        tt = data[dom][0];
-        ttl = data[dom][1];
-        ttl15 = data[dom][2];
-        gt = data[dom][5];
-        gtl = data[dom][6];
-        gtl15 = data[dom][7];
-        if (((time_now-data[dom][3])>(float)BASE_WEEK/30.0
-          &&(time_now-data[dom][8])>(float)BASE_WEEK/30.0)
-          ||(time_now-data[dom][3])<0.0
-          ||(time_now-data[dom][8])<0.0)
-         {
-          data = m_delete(data,dom);
-          continue;
-        }
-        tim = data[dom][9];
-                if (data[dom][4]>tim) tim = data[dom][4];
-        if (tim > timt) timt = tim;
-      if (dom)
-         dom = dom[strlen(realdom)+3..1000]+"/";
-   if (timt) {
-         outgoing+=sprintf("%-13s %8.2f ",crop_string(dom,17),(gt*60.0)/timt);
-         outgoing+=sprintf(" %8.2f ", (gt+tt)*60.0/timt);
-         outgoing+=sprintf(" %8.2f ", (gtl)*60.0/timt);
-         outgoing+=sprintf(" %8.2f ", (gtl+ttl)*60.0/timt);
-         outgoing+=sprintf(" %6.4f ", (gtl15)*60.0/timt);
-         outgoing+=sprintf(" %6.4f\n", (gtl15+ttl15)*60.0/timt);
-       }
 
-       gtt+=gt;
-       ttt+=tt;
-       gtlt+=gtl;
-       ttlt+=ttl;
-       gtl15t+=gtl15;
-       ttl15t+=ttl15;
-      if (timt > timtt) timtt = timt;
-       gt=0.0;
-       tt=0.0;
-       gtl=0.0;
-       ttl=0.0;
-       gtl15=0.0;
-       ttl15=0.0;
-       timt=0.0;
+  load_this_ob();
+  time_now = (float)TIMEKEEPER->query_running_time()/60.0;
+
+  outgoing ="\nDir              ggive     ngive     ggivel    ngivel    ggl15     ngl15\n";
+  outgoing += "                 (money in copper, time in player hours)\n\n";
+
+  if (!mappingp(data)) 
+    data = ([ ]); // Taniwha
+  
+  ind = m_indices(data);
+  
+  for (i=0;i<sizeof(ind);i++) 
+  {
+    tmp = explode(ind[i],"/");
+    if (sizeof(tmp) < 2) 
+      continue;
+    if (tmp[1] == realdom) 
+    {
+      dom = ind[i];
+      if (!sizeof(data[dom])) 
+      {
+        data = m_delete(data,data[dom]);
+        continue;
+      }
+      tt = data[dom][0];
+      ttl = data[dom][1];
+      ttl15 = data[dom][2];
+      gt = data[dom][5];
+      gtl = data[dom][6];
+      gtl15 = data[dom][7];
+
+      if (((time_now-data[dom][3])>(float)BASE_WEEK/30.0
+        &&(time_now-data[dom][8])>(float)BASE_WEEK/30.0)
+        ||(time_now-data[dom][3])<0.0
+        ||(time_now-data[dom][8])<0.0)
+      {
+        data = m_delete(data,dom);
+        continue;
+      }
+
+      tim = data[dom][9];
+      if (data[dom][4]>tim) 
+        tim = data[dom][4];
+      if (tim > timt) 
+        timt = tim;
+      // if (dom)
+      //   dom = dom[strlen(realdom)+3..]+"/";
+      if (timt) 
+      {
+        outgoing+=sprintf("%-13s %8.2f ", dom, (gt*60.0)/timt);
+        outgoing+=sprintf(" %8.2f ", (gt+tt)*60.0/timt);
+        outgoing+=sprintf(" %8.2f ", (gtl)*60.0/timt);
+        outgoing+=sprintf(" %8.2f ", (gtl+ttl)*60.0/timt);
+        outgoing+=sprintf(" %8.2f ", (gtl15)*60.0/timt);
+        outgoing+=sprintf(" %8.2f\n", (gtl15+ttl15)*60.0/timt);
+      }
+
+      gtt+=gt;
+      ttt+=tt;
+      gtlt+=gtl;
+      ttlt+=ttl;
+      gtl15t+=gtl15;
+      ttl15t+=ttl15;
+
+      if (timt > timtt) 
+        timtt = timt;
+      gt=0.0;
+      tt=0.0;
+      gtl=0.0;
+      ttl=0.0;
+      gtl15=0.0;
+      ttl15=0.0;
+      timt=0.0;
     }
   }
-   outgoing+="\n\n";
-   if (timtt) {
-         outgoing+=sprintf("%-13s %8.2f ","TOTALS",(gtt*60.0)/timtt);
-         outgoing+=sprintf(" %8.2f ", (gtt+ttt)*60.0/timtt);
-         outgoing+=sprintf(" %8.2f ", (gtlt)*60.0/timtt);
-         outgoing+=sprintf(" %8.2f ", (gtlt+ttlt)*60.0/timtt);
-         outgoing+=sprintf(" %8.2f ", (gtl15t)*60.0/timtt);
-         outgoing+=sprintf(" %8.2f\n", (gtl15t+ttl15t)*60.0/timtt);
-     }
+
+  outgoing+="\n";
+
+  if (timtt) 
+  {
+    outgoing+=sprintf("%-13s %8.2f ", "Totals", (gtt*60.0)/timtt);
+    outgoing+=sprintf(" %8.2f ", (gtt+ttt)*60.0/timtt);
+    outgoing+=sprintf(" %8.2f ", (gtlt)*60.0/timtt);
+    outgoing+=sprintf(" %8.2f ", (gtlt+ttlt)*60.0/timtt);
+    outgoing+=sprintf(" %8.2f ", (gtl15t)*60.0/timtt);
+    outgoing+=sprintf(" %8.2f\n", (gtl15t+ttl15t)*60.0/timtt);
+  }
+
   this_player()->more_string(outgoing);
 }
 
-void full_domain_stats(string realdom) {
+void full_domain_stats(string realdom) 
+{
   int i;
   float tim, timt, timtt, time_now;
   float ttl15t,gtl15t;
@@ -209,74 +250,101 @@ void full_domain_stats(string realdom) {
   float tt, ttl,ttl15,gt,gtl,gtl15;
   string dom, outgoing;
   string *ind, *tmp;
-  load_this_ob();
-  time_now = TIMEKEEPER->query_running_time()/60.0;
-    outgoing="\nDir  grs give  grs take  ggive/lev  gtak/lev  gg/lev<15  gt/lev<15\n";
-  outgoing += "(money in copper, per time in player hours)\n\n";
-  if (!mappingp(data)) data = ([ ]); // Taniwha
-  ind = m_indices(data);
-  for(i=0;i<sizeof(ind);i++) {
-    tmp = explode(ind[i],"/");
-    if (sizeof(tmp) < 2) continue;
-    if (tmp[1] == realdom) {
-      dom = ind[i];
-          if (!m_sizeof(data[dom])) {
-            data = m_delete(data,data[dom]);
-            continue;
-          }
-         tt = data[dom][0];
-        ttl = data[dom][1];
-        ttl15 = data[dom][2];
-        gt = data[dom][5];
-        gtl = data[dom][6];
-        gtl15 = data[dom][7];
-        if (((time_now-data[dom][3])>(float)BASE_WEEK/30.0
-          &&(time_now-data[dom][8])>(float)BASE_WEEK/30.0)
-          ||(time_now-data[dom][3])<0.0
-          ||(time_now-data[dom][8])<0.0)
-         {
-          data = m_delete(data,dom);
-          continue;
-        }
-        tim = data[dom][9];
-                if (data[dom][4]>tim) tim = data[dom][4];
-        if (tim > timt) timt = tim;
-      if (dom)
-         dom = dom[strlen(realdom)+3..1000]+"/";
-   if (timt) {
-         outgoing+=sprintf("%-13s %8.2f ",crop_string(dom,17),(gt*60.0)/timt);
-         outgoing+=sprintf(" %8.2f ", (tt)*60.0/timt);
-         outgoing+=sprintf(" %8.2f ", (gtl)*60.0/timt);
-         outgoing+=sprintf(" %8.2f ", (ttl)*60.0/timt);
-         outgoing+=sprintf(" %6.4f ", (gtl15)*60.0/timt);
-         outgoing+=sprintf(" %6.4f\n", (ttl15)*60.0/timt);
-       }
 
-       gtt+=gt;
-       ttt+=tt;
-       gtlt+=gtl;
-       ttlt+=ttl;
-       gtl15t+=gtl15;
-       ttl15t+=ttl15;
-      if (timt > timtt) timtt = timt;
-       gt=0.0;
-       tt=0.0;
-       gtl=0.0;
-       ttl=0.0;
-       gtl15=0.0;
-       ttl15=0.0;
-       timt=0.0;
+  load_this_ob();
+  time_now = (float)TIMEKEEPER->query_running_time()/60.0;
+  
+  outgoing="\nDir           grs give  grs take  ggive/lev  gtak/lev  gg/lev<15  gt/lev<15\n";
+  outgoing += "              (money in copper, per time in player hours)\n\n";
+
+  if (!mappingp(data)) 
+    data = ([ ]); // Taniwha
+  
+  ind = m_indices(data);
+
+  for (i = 0; i < sizeof(ind); i++) 
+  {
+    tmp = explode(ind[i],"/");
+
+    if (sizeof(tmp) < 2) 
+      continue;
+
+    if (tmp[1] == realdom) 
+    {
+      dom = ind[i];
+
+      if (!sizeof(data[dom])) 
+      {
+        data = m_delete(data, data[dom]);
+        continue;
+      }
+
+      tt = data[dom][0];
+      ttl = data[dom][1];
+      ttl15 = data[dom][2];
+      gt = data[dom][5];
+      gtl = data[dom][6];
+      gtl15 = data[dom][7];
+
+      if (((time_now-data[dom][3])>(float)BASE_WEEK/30.0
+        &&(time_now-data[dom][8])>(float)BASE_WEEK/30.0)
+        ||(time_now-data[dom][3])<0.0
+        ||(time_now-data[dom][8])<0.0)
+      {
+        data = m_delete(data, dom);
+        continue;
+      }
+
+      tim = data[dom][9];
+
+      if (data[dom][4]>tim) 
+        tim = data[dom][4];
+      if (tim > timt) 
+        timt = tim;
+      // if (dom)
+      //   dom = dom[strlen(realdom)+3..]+"/";
+      if (timt) 
+      {
+        outgoing+=sprintf("%-13s %8.2f ", dom, (gt*60.0)/timt);
+        outgoing+=sprintf(" %8.2f ", (tt)*60.0/timt);
+        outgoing+=sprintf(" %8.2f ", (gtl)*60.0/timt);
+        outgoing+=sprintf(" %8.2f ", (ttl)*60.0/timt);
+        outgoing+=sprintf(" %8.2f ", (gtl15)*60.0/timt);
+        outgoing+=sprintf(" %8.2f\n", (ttl15)*60.0/timt);
+      }
+
+      gtt+=gt;
+      ttt+=tt;
+      gtlt+=gtl;
+      ttlt+=ttl;
+      gtl15t+=gtl15;
+      ttl15t+=ttl15;
+
+      if (timt > timtt) 
+        timtt = timt;
+
+      gt=0.0;
+      tt=0.0;
+      gtl=0.0;
+      ttl=0.0;
+      gtl15=0.0;
+      ttl15=0.0;
+      timt=0.0;
     }
   }
-   outgoing+="\n\n";
-   if (timtt) {
-         outgoing+=sprintf("%-13s %8.2f ","TOTALS",(gtt*60.0)/timtt);
-         outgoing+=sprintf(" %8.2f ", (ttt)*60.0/timtt);
-         outgoing+=sprintf(" %8.2f ", (gtlt)*60.0/timtt);
-         outgoing+=sprintf(" %8.2f ", (ttlt)*60.0/timtt);
-         outgoing+=sprintf(" %8.2f ", (gtl15t)*60.0/timtt);
-         outgoing+=sprintf(" %8.2f\n", (ttl15t)*60.0/timtt);
-     }
+  
+  outgoing+="\n";
+
+  if (timtt) 
+  {
+    outgoing+=sprintf("%-13s %8.2f ", "Totals",(gtt*60.0)/timtt);
+    outgoing+=sprintf(" %8.2f ", (ttt)*60.0/timtt);
+    outgoing+=sprintf(" %8.2f ", (gtlt)*60.0/timtt);
+    outgoing+=sprintf(" %8.2f ", (ttlt)*60.0/timtt);
+    outgoing+=sprintf(" %8.2f ", (gtl15t)*60.0/timtt);
+    outgoing+=sprintf(" %8.2f\n", (ttl15t)*60.0/timtt);
+  }
+
   this_player()->more_string(outgoing);
 }
 
@@ -291,7 +359,7 @@ float *mudwide_sums() {
   if (!mappingp(data)) data = ([ ]); // Taniwha
   vals = ({ 0,0,0,0,0,0,0 });
   ind = m_indices(data);
-  for(i=0;i<sizeof(ind);i++) {
+  for (i=0;i<sizeof(ind);i++) {
     tmp = explode(ind[i],"/");
     if (sizeof(tmp) < 2) continue;
       dom = ind[i];
@@ -384,9 +452,9 @@ int update_money_given(float amount, object player)
   if (!vals) 
     vals = ({0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0});
   
-  if (player->query_coder() || 
-      strsrch(player->query_name(),"test") != -1) 
-    return 1;
+  // if (player->query_coder() || 
+  //     strsrch(player->query_name(),"test") != -1) 
+  //   return 1;
 
   time_now = (float)TIMEKEEPER->query_running_time()/60.0;
 

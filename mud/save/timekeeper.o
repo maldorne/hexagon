@@ -1,3 +1,6 @@
 map_prop ([0|])
 timed_prop ([0|])
 create_me "object"
+last_wrote "Lun"
+daily_time 100000
+running_time 100000

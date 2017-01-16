@@ -2,24 +2,26 @@
 inherit "/lib/core/object";
 
 string last_wrote;
-int daily_time,running_time;
+int daily_time, running_time;
 
 void save_timekeeper();
 int check_write();
 
 void setup() 
 {
+  tell_object(find_living("admin"), "Y ESTO QUE\n");
   set_name("timekeeper");
-  restore_object("/save/timekeeper");
+  restore_object("/save/timekeeper.o");
 }
 
 int add_time(int time_on) 
 {
-  if(time_on > 0 && time_on < 86400) 
+  if (time_on > 0 && time_on < 86400) 
   {
     daily_time+=time_on;
     running_time+=time_on;
   }
+
   check_write();
   save_timekeeper();
   return daily_time;
@@ -45,6 +47,7 @@ int query_daily_time()
   check_write();
   return daily_time;
 }
+
 int query_running_time() 
 {
   check_write();
@@ -61,6 +64,8 @@ void set_last_wrote(string str)
 {
   last_wrote = str;
 }
-void save_timekeeper() {
-  save_object("/save/timekeeper",1);
+
+void save_timekeeper() 
+{
+  save_object("/save/timekeeper.o", 1);
 }

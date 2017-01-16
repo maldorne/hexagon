@@ -1,4 +1,6 @@
 
+#include <mud/time.h>
+
 int really_quit()
 {
   object *ob, money;
@@ -35,11 +37,10 @@ int really_quit()
   
   this_object()->adjust_online_time(time() - ontime);
 
-  // TODO timekeeper
-  /* This should send the time the player was on to an object which keeps
-   * track of total hours played (non-immortal) Anirudh - March 17, 1996 */
+  // This should send the time the player was on to an object which keeps
+  // track of total hours played (non-immortal) Anirudh - March 17, 1996
   // if (!this_object()->query_coder())
-  //   TIMEKEEPER->add_time(time() - ontime);
+    TIMEKEEPER->add_time(time() - ontime);
 
   if (this_object()->query_name() != DEF_NAME)
   {
