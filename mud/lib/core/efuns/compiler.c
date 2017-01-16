@@ -50,3 +50,19 @@ static nomask int set_eval_limit(int limit)
   // something here
   return eval_cost();
 }
+
+#define kb_memory(mem,used) sprintf("%2.2f Mb (%2.2f%% used)", \
+                                    (float)mem / 1048576.0, \
+                                    ((float)used/(float)mem) * 100.0)
+
+static nomask string memory_status()
+{
+  mixed *status;
+
+  status = status();
+  return "MEMORY STATUS: static: " + 
+         kb_memory(status[ST_SMEMSIZE], status[ST_SMEMUSED]) +
+         " dynamic: " + 
+         kb_memory(status[ST_DMEMSIZE], status[ST_DMEMUSED]) +
+         "\n";
+}

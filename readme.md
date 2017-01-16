@@ -5,6 +5,10 @@ A project to make the original [ccmudlib](http://www.ciudadcapital.net)
 and other MudOS-alike mud libraries (like the ones from _Final 
 Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd) mud driver.
 
+### More detailed information about the project
+* Current project status and roadmap in the [status document](status.md).
+* Detailed compatibility information about every function in the [compatibility document](status_compat.md).
+
 ### How to use or test the mudlib
 
 These instructions assume you have some knowledge about compiling code under a Unix enviroment (Unix, Linux, OS X, etc). If that is not the case, I recommend to follow the instructions about [How to install the environment in a virtual machine](install_in_vm.md) instead, which are suitable for any operating system (including Windows).
@@ -44,7 +48,5 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
    `mkdir driver/dgd/tmp`
 5. Execute `./mud.sh`
 6. `telnet localhost 6047` to connect and see if everything is working.
+7. By default you will have an administrator account created, with username `admin` and password `admin`.
 
-### More detailed information about the project
-* Current project status and roadmap in the [status document](status.md).
-* Detailed compatibility information about every function in the [compatibility document](status_compat.md).

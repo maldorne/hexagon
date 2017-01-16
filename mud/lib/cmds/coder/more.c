@@ -27,7 +27,7 @@ static int cmd(string str, object me, string verb)
 
   /* dodgy idea, but allows 'ed here' or 'ed strawberry' */    
   if (sizeof(things = me->query_role()->wiz_present(str, me))) 
-	{
+  {
     spam = object_name(things[0]);
     sscanf(spam, "%s#%d", spam, egg);
     if (file_size(spam) < 0)
@@ -35,31 +35,31 @@ static int cmd(string str, object me, string verb)
     else
       filenames = ({ spam });
   } 
-	else
+  else
     filenames = get_files(str);
 
   if (!sizeof(filenames)) 
-	{ 
+  { 
     str = get_path(str);
   } 
-	else 
-	{
+  else 
+  {
     if (sizeof(filenames) > 0) 
-		{
+    {
       str = filenames[0];
       if (sizeof(filenames) > 1) 
-			{
+      {
         int loop;
         loop = 0;
         while (loop < sizeof(filenames) && file_size(filenames[loop]) < 0)
           loop++;
         if (loop >= sizeof(filenames)) 
-				{
+        {
           write("No existe ese archivo.\n");
           return 0;
         }
         else 
-				{
+        {
           str = filenames[loop];
         } 
         write("Nombre ambiguo, usando: " + str + "\n");
@@ -68,18 +68,18 @@ static int cmd(string str, object me, string verb)
   }
 
   if (file_size(str) == -2) 
-	{
+  {
     write("Es un directorio.\n");
     return 1;
   }
 
   if (file_size(str) == -1) 
-	{
+  {
     write("No hay archivos coincidentes.\n");
     return 1;
   }
   
-	if (!SECURE->valid_read(str, this_player()))
+  if (!SECURE->valid_read(str, this_player()))
   {
     write("No tienes permisos para ver este fichero.\n");
     return 1;
@@ -103,7 +103,7 @@ int ex_spool(string yn, string fil, int linum)
   }
 
   if ( (yn == "Q") || (yn == "q") ) 
-		return 1;
+    return 1;
 
   for (i = 0; i < this_player()->query_rows(); linum++)
   {
