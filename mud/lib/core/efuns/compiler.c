@@ -51,6 +51,9 @@ static nomask int set_eval_limit(int limit)
   return eval_cost();
 }
 
+// idea taken from the DGD mailing list
+// https://mail.dworkin.nl/pipermail/dgd/2003-March/003279.html
+
 #define kb_memory(mem,used) sprintf("%2.2f Mb (%2.2f%% used)", \
                                     (float)mem / 1048576.0, \
                                     ((float)used/(float)mem) * 100.0)
