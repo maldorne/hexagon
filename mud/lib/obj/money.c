@@ -196,7 +196,7 @@ string *half_short()
   return retval;
 }
 
-string short(int dark) 
+string short(varargs int dark) 
 {
   mixed retval;
 

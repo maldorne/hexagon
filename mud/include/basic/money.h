@@ -2,7 +2,7 @@
 #define MONEY_OBJECT  "/lib/obj/money"
 #define MONEY_HAND    "/lib/handlers/money"
 #define MONEY_ALIAS   "Some Money For Me"
-#define MONEY_TRACKER "/obj/handlers/money_track"
+#define MONEY_TRACKER "/lib/handlers/money_track"
 
 #define BASE_COIN "copper"
 #define MONEY_NAME "Some Money For Me"
@@ -24,17 +24,17 @@
 #define TAVFRAC 0.25
 #define MONFRAC 0.00
 
-#define SSMAXC 20
-#define SBMAXC 40
-#define TAVMAXC 20
-#define MONMAXC 20
+#define SSMAXC 20.0
+#define SBMAXC 40.0
+#define TAVMAXC 20.0
+#define MONMAXC 20.0
 
 #define SSMAXM 10000.00
 #define SBMAXM 10000.00
 #define TAVMAXM 10000.00
 #define MONMAXM 10000.00
 
-#define SSMINM -900
-#define SBMINM -900
-#define TAVMINM -900
-#define MONMINM -900
+#define SSMINM -900.0
+#define SBMINM -900.0
+#define TAVMINM -900.0
+#define MONMINM -900.0
