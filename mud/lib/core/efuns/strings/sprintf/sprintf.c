@@ -237,6 +237,9 @@ private string multi_line(string this, int width)
     {
       word_length = strlen(pieces[i]);
 
+      if ((i == 0) && (word_length > width))
+        pieces[i] = pieces[i][0..width-1];
+
       if ((i != 0) && 
           (line_length + word_length > width))
       {
