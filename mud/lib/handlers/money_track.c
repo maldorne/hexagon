@@ -140,7 +140,7 @@ mixed *query_money_stat( string dom, string pathname )
   return ({ });
 }
 
-void select_domain_stats(string realdom) 
+string select_domain_stats(varargs string realdom) 
 {
   int i;
   float tim, timt, timtt, time_now;
@@ -153,27 +153,33 @@ void select_domain_stats(string realdom)
   load_this_ob();
   time_now = (float)TIMEKEEPER->query_running_time()/60.0;
 
-  outgoing ="\nDir              ggive     ngive     ggivel    ngivel    ggl15     ngl15\n";
-  outgoing += "                 (money in copper, time in player hours)\n\n";
+  // outgoing ="\nDir              ggive     ngive     ggivel    ngivel    ggl15     ngl15\n";
+
+  outgoing = sprintf("%-20s %9s %9s %9s %9s %9s %9s\n", "Dir", "ggive", "ngive", "ggivel", "ngivel", "ggl15", "ngl15");
+  outgoing += "                         (money in copper, time in player hours)\n\n";
 
   if (!mappingp(data)) 
     data = ([ ]); // Taniwha
   
   ind = m_indices(data);
   
-  for (i=0;i<sizeof(ind);i++) 
+  for (i = 0; i < sizeof(ind); i++) 
   {
     tmp = explode(ind[i],"/");
+
     if (sizeof(tmp) < 2) 
       continue;
-    if (tmp[1] == realdom) 
+
+    if (!realdom || tmp[1] == realdom) 
     {
       dom = ind[i];
+
       if (!sizeof(data[dom])) 
       {
         data = m_delete(data,data[dom]);
         continue;
       }
+
       tt = data[dom][0];
       ttl = data[dom][1];
       ttl15 = data[dom][2];
@@ -199,7 +205,7 @@ void select_domain_stats(string realdom)
       //   dom = dom[strlen(realdom)+3..]+"/";
       if (timt) 
       {
-        outgoing+=sprintf("%-13s %8.2f ", dom, (gt*60.0)/timt);
+        outgoing+=sprintf("%-20s %8.2f ", dom, (gt*60.0)/timt);
         outgoing+=sprintf(" %8.2f ", (gt+tt)*60.0/timt);
         outgoing+=sprintf(" %8.2f ", (gtl)*60.0/timt);
         outgoing+=sprintf(" %8.2f ", (gtl+ttl)*60.0/timt);
@@ -230,7 +236,7 @@ void select_domain_stats(string realdom)
 
   if (timtt) 
   {
-    outgoing+=sprintf("%-13s %8.2f ", "Totals", (gtt*60.0)/timtt);
+    outgoing+=sprintf("%-20s %8.2f ", "Totals", (gtt*60.0)/timtt);
     outgoing+=sprintf(" %8.2f ", (gtt+ttt)*60.0/timtt);
     outgoing+=sprintf(" %8.2f ", (gtlt)*60.0/timtt);
     outgoing+=sprintf(" %8.2f ", (gtlt+ttlt)*60.0/timtt);
@@ -238,10 +244,10 @@ void select_domain_stats(string realdom)
     outgoing+=sprintf(" %8.2f\n", (gtl15t+ttl15t)*60.0/timtt);
   }
 
-  this_player()->more_string(outgoing);
+  return outgoing;
 }
 
-void full_domain_stats(string realdom) 
+string full_domain_stats(varargs string realdom) 
 {
   int i;
   float tim, timt, timtt, time_now;
@@ -254,8 +260,9 @@ void full_domain_stats(string realdom)
   load_this_ob();
   time_now = (float)TIMEKEEPER->query_running_time()/60.0;
   
-  outgoing="\nDir           grs give  grs take  ggive/lev  gtak/lev  gg/lev<15  gt/lev<15\n";
-  outgoing += "              (money in copper, per time in player hours)\n\n";
+  // outgoing="\nDir           grs give  grs take  ggive/lev  gtak/lev  gg/lev<15  gt/lev<15\n";
+  outgoing = sprintf("%-20s %9s %9s %9s %9s %9s %9s\n", "Dir", "grs give", "grs take", "ggive/lev", "gtak/lev", "gg/lev<15", "gt/lev<15");
+  outgoing += "                      (money in copper, per time in player hours)\n\n";
 
   if (!mappingp(data)) 
     data = ([ ]); // Taniwha
@@ -269,7 +276,7 @@ void full_domain_stats(string realdom)
     if (sizeof(tmp) < 2) 
       continue;
 
-    if (tmp[1] == realdom) 
+    if (!realdom || tmp[1] == realdom) 
     {
       dom = ind[i];
 
@@ -305,7 +312,7 @@ void full_domain_stats(string realdom)
       //   dom = dom[strlen(realdom)+3..]+"/";
       if (timt) 
       {
-        outgoing+=sprintf("%-13s %8.2f ", dom, (gt*60.0)/timt);
+        outgoing+=sprintf("%-20s %8.2f ", dom, (gt*60.0)/timt);
         outgoing+=sprintf(" %8.2f ", (tt)*60.0/timt);
         outgoing+=sprintf(" %8.2f ", (gtl)*60.0/timt);
         outgoing+=sprintf(" %8.2f ", (ttl)*60.0/timt);
@@ -337,7 +344,7 @@ void full_domain_stats(string realdom)
 
   if (timtt) 
   {
-    outgoing+=sprintf("%-13s %8.2f ", "Totals",(gtt*60.0)/timtt);
+    outgoing+=sprintf("%-20s %8.2f ", "Totals",(gtt*60.0)/timtt);
     outgoing+=sprintf(" %8.2f ", (ttt)*60.0/timtt);
     outgoing+=sprintf(" %8.2f ", (gtlt)*60.0/timtt);
     outgoing+=sprintf(" %8.2f ", (ttlt)*60.0/timtt);
@@ -345,7 +352,7 @@ void full_domain_stats(string realdom)
     outgoing+=sprintf(" %8.2f\n", (ttl15t)*60.0/timtt);
   }
 
-  this_player()->more_string(outgoing);
+  return outgoing;
 }
 
 float *mudwide_sums() {
@@ -452,9 +459,9 @@ int update_money_given(float amount, object player)
   if (!vals) 
     vals = ({0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0});
   
-  // if (player->query_coder() || 
-  //     strsrch(player->query_name(),"test") != -1) 
-  //   return 1;
+  if (player->query_coder() || 
+      strsrch(player->query_name(),"test") != -1) 
+    return 1;
 
   time_now = (float)TIMEKEEPER->query_running_time()/60.0;
 
@@ -515,9 +522,9 @@ void update_money_taken(float amount, object player)
   float temp, plev;
   float time_now, time_since, total_time, time_extra;
 
-  // if (player->query_coder() || 
-  //     strsrch(player->query_name(),"test") != -1) 
-  //   return;
+  if (player->query_coder() || 
+      strsrch(player->query_name(),"test") != -1) 
+    return;
 
   if (!(domname = environment_path(player)))
     return;
