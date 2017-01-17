@@ -1,17 +1,17 @@
 /*
- * Nuevas puertas para CcMud, Folken 6/03
+ * Nuevas puertas para CcMud, neverbot 6/03
  * Modificacion de la idea original de Iolo@Rl
  *
  * query_hidden_object() devuelve 1, asi nos saltamos
- *  los find_match, Folken 2/06
+ *  los find_match, neverbot 2/06
  * Solucionado error que cargaba otras rooms al destruir una
  *  con puertas (añadido flag a query_other_side_door para
- *  evitar el repop), Folken 12/06
+ *  evitar el repop), neverbot 12/06
  */
 
-#include <room.h>
+#include <room/room.h>
 
-inherit "/std/object.c";
+inherit "/lib/core/object.c";
 
 string dest,		// la direccion de la puerta
        dir_other_side,	// Direccion desde la que se viene por la otra puerta (norte -> sur)
@@ -37,18 +37,21 @@ object query_other_side_door(int flag);
 // Añadido para regenerar el estado de las puertas si hacemos un 
 //  update, por ejemplo (en otro caso al updatear la puerta de nuestra
 //  room vuelve al estado original, pero no la otra).
-// Folken, 7/03
-void dest_me(){
-   object other_door;
-   if (environment(this_object())){
-     other_door = query_other_side_door(0);
-     if (other_door)
-        other_door->repop();
-   }
-   return ::dest_me();
+// neverbot, 7/03
+void dest_me()
+{
+  object other_door;
+  if (environment(this_object()))
+  {
+    other_door = query_other_side_door(0);
+    if (other_door)
+      other_door->repop();
+  }
+  ::dest_me();
 }
 
-void create(){
+void create()
+{
 	dest = "";
 	s_dest = "";
 	dir_other_side = "";
@@ -57,13 +60,13 @@ void create(){
 	breakable = 1;
 	max_hps = 1000;
 	hps = 1000;
-   lockable = 0;
-   lock_status = 0;
-   keys = ({ });
-   gender = 1; // male
-   number = 0; // single
-   reset_msg = 0;
-	object::create();
+  lockable = 0;
+  lock_status = 0;
+  keys = ({ });
+  gender = 1; // male
+  number = 0; // single
+  reset_msg = 0;
+	::create();
 }
 
 void setup() {
@@ -150,7 +153,7 @@ int is_open() { return status; }
 
 // Con el nuevo sistema de mensajes personalizados, hay algunas direcciones
 // de uso comun que no funcionan todo lo bien que deberian, nos encargamos de 
-// ellas aqui, Folken 10/03
+// ellas aqui, neverbot 10/03
 void set_dest(string str) { 
 
         // Forzamos a que con estas direcciones siempre se resetee
@@ -203,7 +206,8 @@ int query_known_exit(string name){
 void open_msg(string door, object ob, int flag);
 void close_msg(string door, object ob, int flag);
 
-varargs int open(string str) {
+int open(varargs string str) 
+{
   object other_door;
   int find, i, aux;
   object * obs;
@@ -416,7 +420,8 @@ void close_msg(string door, object ob, int flag){
   }
 }
 
-varargs int close(string str) { 
+int close(varargs string str) 
+{ 
   object other_door;
   string * list;
   int i, find, aux;
@@ -730,7 +735,7 @@ object query_other_side_door(int flag) {
   int i;
   
   if (!environment(this_object()))
-     return 0;
+    return nil;
   
   exits = environment(this_object())->query_dest_dir();
   i = 0;
