@@ -1,7 +1,11 @@
-#include "access.h"
+
+#include <mud/secure.h>
+#include <mud/access.h>
+
 #include "path.h"
-inherit "/std/room";
-#define MASTER "/secure/master"
+
+inherit "/lib/room.c";
+
 
 void setup() {
 //  string *doms, com;
@@ -9,47 +13,49 @@ void setup() {
   
   set_light(100);
   set_short("Site access control room");
-  set_long("This room allows Demi-Gods and higher to easily remove "
-   "troublesome players and even creators.  You can also banish a site "
-   "from here entirely, but be absolutely certain that is approved by "
-   "a God before you do so (or face demotion).\n\n"
-"Available commands:\n"
-"For specific character names\n"
-"----------------------------\n"
-"banish <player> <reason>       :  Banish a player name.\n"
-"unbanish <player>              :  Unbanish a player name.\n"
-"suspend <player> <time>        :  Suspend someones access for <time> hours.\n"
-"unsuspend <player>             :  Unsuspend someones access.\n\n"
-"For entire sites\n"
-"----------------\n"
-"access                         :  Show the current access of various sites.\n"
-"unsite*banish [<ident>@]<ip>           :  Completely unbanish a site.\n"
-"grant [<ident>@]<ip>                   :  Grant access to a specific\n"
-"                                          user/machine\n"
-"nonew [<ident>@]<ip> <reason>          :  Disallow new players from a site.\n"
-"noaccess [<ident>@]<ip> <reason>       :  Disallow all access from a site.\n"
-"noguest [<ident>@]<ip> <reason>        :  Disallow guests from a site.\n");
+  set_long("This room allows Demi-Gods and higher to easily remove "+
+    "troublesome players and even creators.  You can also banish a site "+
+    "from here entirely, but be absolutely certain that is approved by "+
+    "a God before you do so (or face demotion).\n\n"+
+    "Available commands:\n"+
+    "For specific character names\n"+
+    "----------------------------\n"+
+    "banish <player> <reason>         : Banish a player name.\n"+
+    "unbanish <player>                : Unbanish a player name.\n"+
+    "suspend <player> <time>          : Suspend someones access for <time> hours.\n"+
+    "unsuspend <player>               : Unsuspend someones access.\n\n"+
+    "For entire sites\n"+
+    "----------------\n"+
+    "access                           : Show the current access of various sites.\n"+
+    "unsite*banish [<ident>@]<ip>     : Completely unbanish a site.\n"+
+    "grant [<ident>@]<ip>             : Grant access to a specific\n"+
+    "                                    user/machine\n"+
+    "nonew [<ident>@]<ip> <reason>    : Disallow new players from a site.\n"+
+    "noaccess [<ident>@]<ip> <reason> : Disallow all access from a site.\n"+
+    "noguest [<ident>@]<ip> <reason>  : Disallow guests from a site.\n");
 
-add_exit("norte", HEAVEN+"admin3","standard");
+add_exit("norte", ADMIN+"admin3","standard");
   seteuid("Admin");
 } /* setup() */
 
-void init() {
+void init() 
+{
   ::init();
-// YES, should be lord, certainly NOT high programmer.
-if ("/secure/master"->query_lord(geteuid(previous_object()))) {
+  // YES, should be lord, certainly NOT high programmer.
+  if (MASTER->query_lord(geteuid(previous_object()))) 
+  {
     add_action("do_site_banish", "site*banish"); /* Site banishing... */
-  add_action("do_access", "access"); /* Show the current access list. */
-  add_action("do_banish","banish");
-  add_action("do_unbanish","unbanish");
-  add_action("do_suspend", "suspend");
-  add_action("do_unsuspend", "unsuspend");
-       add_action("do_unsite_banish","unsite*banish");
-       add_action("do_grant","grant");
-       add_action("do_nonew","nonew");
-       add_action("do_noaccess","noaccess");
-       add_action("do_noguest","noguest");
- }
+    add_action("do_access", "access"); /* Show the current access list. */
+    add_action("do_banish","banish");
+    add_action("do_unbanish","unbanish");
+    add_action("do_suspend", "suspend");
+    add_action("do_unsuspend", "unsuspend");
+    add_action("do_unsite_banish","unsite*banish");
+    add_action("do_grant","grant");
+    add_action("do_nonew","nonew");
+    add_action("do_noaccess","noaccess");
+    add_action("do_noguest","noguest");
+  }
 } /* init() */
 
 int print_access(string bit, mapping bing, int depth, int cols) {
@@ -79,7 +85,7 @@ int print_access(string bit, mapping bing, int depth, int cols) {
             printf("%s@%-=*s", bits[i], cols - strlen(bits[i]), bit +
                                " set to no guests.\n");
           break;
-          case NO_IMMORTS :
+          case NO_CODERS :
             printf("%s@%-=*s", bits[i], cols - strlen(bits[i]), bit +
                                " set to no immortals.\n");
           break;
@@ -121,11 +127,11 @@ int do_site_banish(string str) {
     notify_fail("You need to be Demi-God or higher to sitebanish.\n");
     return 0;
   }*/
-   notify_fail("Syntax: sitebanish <ip number> <ident> <severity> <reason>\n"
-              "        <severity> :  0 delete ident,   1 normal access,\n"
-               "                      2 no new players, 3 No access.\n"
-               "                      4 no guests,       5 no immorts\n"
-                "                      6 no players.\n");
+   notify_fail("Syntax: sitebanish <ip number> <ident> <severity> <reason>\n"+
+              "        <severity> :  0 delete ident,   1 normal access,\n"+
+              "                      2 no new players, 3 No access.\n"+
+              "                      4 no guests,       5 no immorts\n"+
+              "                      6 no players.\n");
   if (!str)
     return 0;
   if (sscanf(str, "%s %s %d %s", ip, ident, level, reason) != 4)
@@ -156,12 +162,12 @@ int do_unsite_banish(string str) {
   if(sizeof(junk) != 4)  return 0;
 
   if((junk[0] == "*") || (junk[1] == "*")) {
-    tell_object(this_player(),"Naughty.  Only the last number should "
+    tell_object(this_player(),"Naughty.  Only the last number should "+
                               "be a *\n");
           return 1;
   }
 
-  return do_site_banish(addr+" "+ident+" 0 ""No reason");
+  return do_site_banish(addr+" "+ident+" 0 No reason");
 }
 
 int do_grant(string str) {
@@ -182,12 +188,12 @@ int do_grant(string str) {
   if(sizeof(junk) != 4)  return 0;
 
   if((junk[0] == "*") || (junk[1] == "*")) {
-    tell_object(this_player(),"Naughty.  Only the last number should "
+    tell_object(this_player(),"Naughty.  Only the last number should "+
                               "be a *\n");
         return 1;
   }
 
-  return do_site_banish(addr+" "+ident+" 1 ""No reason");
+  return do_site_banish(addr+" "+ident+" 1 No reason");
 }
 
 int do_nonew(string str) {
@@ -209,7 +215,7 @@ int do_nonew(string str) {
   if(sizeof(junk) != 4)  return 0;
 
   if((junk[0] == "*") || (junk[1] == "*")) {
-    tell_object(this_player(),"Naughty.  Only the last number should "
+    tell_object(this_player(),"Naughty.  Only the last number should "+
                               "be a *\n");
          return 1;
   }
@@ -236,7 +242,7 @@ int do_noaccess(string str) {
   if(sizeof(junk) != 4)  return 0;
 
   if((junk[0] == "*") || (junk[1] == "*")) {
-    tell_object(this_player(),"Naughty.  Only the last number should "
+    tell_object(this_player(),"Naughty.  Only the last number should "+
                               "be a *\n");
            return 1;
   }
@@ -263,7 +269,7 @@ int do_noguest(string str) {
   if(sizeof(junk) != 4)  return 0;
 
   if((junk[0] == "*") || (junk[1] == "*")) {
-    tell_object(this_player(),"Naughty.  Only the last number should "
+    tell_object(this_player(),"Naughty.  Only the last number should "+
                               "be a *\n");
           return 1;
   }

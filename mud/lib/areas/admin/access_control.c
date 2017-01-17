@@ -1,8 +1,12 @@
+
 /* domain administration room */
-#include "access.h"
+#include <mud/secure.h>
+#include <mud/access.h>
+
 #include "path.h"
-inherit "/std/room";
-#define MASTER "/secure/master"
+
+inherit "/lib/room.c";
+
 
 void setup() {
   // string *doms, com;
@@ -11,18 +15,18 @@ void setup() {
   set_light(100);
   set_short("File access control room");
   set_long(
-    "You now have to go to this room to grant or deny others access to "
-    "paths.  This is in order to make the mud a bit faster, comparing to "
-    "adding these commands to each creator/lord.\n"
-"Available commands:\n"
-"  read <creator> <path>        : add read permison to the path.\n" 
-"  write <creator> <path>       : add write permission to the path.\n" 
-"  grant <creator> <path>       : add granting privilages to the path.\n" 
-"  noread <creator> <path>      : remove read permission from the path.\n" 
-"  nowrite <creator> <path>     : remove write permission from the path.\n" 
-"  nogrant <creator> <path>     : remove granting privilages to the path.\n" 
-"  summary [path]               : give a list of all the read/write perms.\n");
-add_exit("oeste",HEAVEN+"admin3","standard");
+    "You now have to go to this room to grant or deny others access to "+
+    "paths.  This is in order to make the mud a bit faster, comparing to "+
+    "adding these commands to each creator/lord.\n"+
+    "Available commands:\n"+
+    "  read <creator> <path>        : add read permison to the path.\n" +
+    "  write <creator> <path>       : add write permission to the path.\n" +
+    "  grant <creator> <path>       : add granting privilages to the path.\n" +
+    "  noread <creator> <path>      : remove read permission from the path.\n" +
+    "  nowrite <creator> <path>     : remove write permission from the path.\n" +
+    "  nogrant <creator> <path>     : remove granting privilages to the path.\n" +
+    "  summary [path]               : give a list of all the read/write perms.\n");
+  add_exit("oeste",ADMIN+"admin3","standard");
   seteuid("Admin");
 } /* setup() */
 

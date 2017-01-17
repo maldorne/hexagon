@@ -22,7 +22,7 @@
 
 #include "path.h"
 
-inherit "std/room";
+inherit "/lib/room.c";
 
 /*
 
@@ -269,8 +269,8 @@ remove_quest( string answer )
 void setup()
 {
     set_short( "Quest Room" );
-	set_long("This room is used to create, list, and remove quests."
+	set_long("This room is used to create, list, and remove quests."+
 	"  It is a simple room, with a door to the north.\n");
 	set_light(100);
-	add_exit("norte",HEAVEN+"admin2","standard");
+	add_exit("norte",ADMIN+"admin2","standard");
 }

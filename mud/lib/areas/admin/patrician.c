@@ -3,14 +3,14 @@
 */
 
 #include "path.h"
-inherit "std/room";
+inherit "/lib/room.c";
  
-#define OUTSIDE "d/fr/daggerford/ladyluck"
+// #define OUTSIDE "d/fr/daggerford/ladyluck"
  
 string ban;
-nosave string message, apply_dom, *doms;
-nosave int in_use;
-nosave object sign;
+static string message, apply_dom, *doms;
+static int in_use;
+static object sign;
 
 string query_cap_name() { return "A wandering spirit"; }
 
@@ -23,7 +23,7 @@ void setup() {
 	"small sign hanging on the wall.\n");
  
   // add_exit("east", OUTSIDE, "standard");
-  add_exit("noroeste", "/room/admin/rooms/admin3.c", "standard");
+  add_exit("noroeste", ADMIN+"admin3.c", "standard");
 
   add_item("busy looking clerk",
            "There are several of them pretending to look busy here.\n");
