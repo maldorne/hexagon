@@ -2,7 +2,7 @@
 #define MONEY_OBJECT  "/lib/obj/money"
 #define MONEY_HAND    "/lib/handlers/money"
 #define MONEY_ALIAS   "Some Money For Me"
-#define MONEY_TRACKER "/lib/handlers/money_track"
+#define MONEY_TRACKER "/lib/handlers/money_tracker"
 
 #define BASE_COIN "copper"
 #define MONEY_NAME "Some Money For Me"
