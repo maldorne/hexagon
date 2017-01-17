@@ -1,7 +1,7 @@
 // Antiguo chkexits por Radiks
-// Cambiado a exits por Folken 2001
+// Cambiado a exits por neverbot 2001
 // Añadido parametros para poder comprobar que las salidas son correctas
-//  en una serie de archivos (por ejemplo exits *), Folken 04/2009
+//  en una serie de archivos (por ejemplo exits *), neverbot 04/2009
 
 #include <mud/cmd.h>
 
