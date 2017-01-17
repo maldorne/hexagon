@@ -4,6 +4,7 @@ alias inventory inventario
 alias sheet ficha
 alias past pasado
 alias time hora date fecha
+alias map mapa
 alias quests misiones
 alias atacar matar
 alias configuracion configuración
