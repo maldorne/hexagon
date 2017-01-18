@@ -39,7 +39,7 @@ void setup()
   set_long("Ésta es la habitación donde realizas aquellas actividades de "+
      "creación basicas de un inmortal. Puedes ver un viejo sillón al "+
      "fondo de la habitación junto a una enorme mesa. Una pequeña "+
-     "lámpara proporciona luz a la habitación, momento en el cuál te "+
+     "lámpara proporciona luz a la habitación, momento en el cual te "+
      "das cuenta de que tal vez necesite una limpieza.\n");
   
   /**
