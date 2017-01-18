@@ -90,7 +90,7 @@ void setup()
    * En general se encontraran en ficheros diferentes a los que hacemos una
    * llamada con la funcion add_clone(dir,num).
    */
-  add_clone("/obj/misc/button.c",1);
+  add_clone("/lib/obj/coders/button.c", 1);
   
   /**
    * Aqui se describe las salidas que pudiera tener tu habitcion
