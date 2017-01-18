@@ -22,7 +22,7 @@ int create_creator(string name)
    if(!is_administrator(geteuid(previous_object())))
       return 0;
 
-   if(!"/secure/login"->test_user(name))
+   if(!"/lib/core/login"->test_user(name))
       return 0;
 
    if(file_size("/home/"+name) != -1) 

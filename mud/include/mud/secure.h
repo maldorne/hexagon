@@ -31,7 +31,7 @@
 
 /* Positions */
 #define POS_ADMIN 1
-#define ADMINISTRATORS (["god":1, ROOT:1, ])
+#define ADMINISTRATORS (["admin":1, ROOT:1, ])
 
 /* Masks */
 #define READ_MASK 1

@@ -33,8 +33,8 @@ int is_administrator(string str)
 
 int add_admin(string str) 
 {
-  if ("/secure/login"->test_user(str) &&
-    is_administrator(geteuid(previous_object()))) 
+  if ("/lib/core/login"->test_user(str) &&
+    is_administrator(geteuid(initial_object()))) 
   {
     positions[str] = POS_ADMIN;
     save_object(SECURE_SAVE_PATH);
@@ -45,7 +45,7 @@ int add_admin(string str)
 
 int remove_admin(string str) 
 {
-  if (is_administrator(geteuid(previous_object())) &&
+  if (is_administrator(geteuid(initial_object())) &&
     positions[str] == POS_ADMIN) 
   {
     map_delete(positions, str);
@@ -85,7 +85,7 @@ mapping query_permissions() { return permissions + ([ ]); }
 
 int add_permission(string euid, string path, int mask) 
 {
-  if (is_administrator(geteuid(previous_object()))) 
+  if (is_administrator(geteuid(initial_object()))) 
   {
     if (!permissions[path]) 
     {
@@ -131,7 +131,7 @@ int add_grant_permission(string euid, string path)
 
 int remove_permission(string euid, string path, int mask) 
 {
-  if (is_administrator(geteuid(previous_object())) &&
+  if (is_administrator(geteuid(initial_object())) &&
   permissions[path] && permissions[path][euid]) 
   {
     permissions[path][euid] &= ~mask;

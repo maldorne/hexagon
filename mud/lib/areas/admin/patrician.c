@@ -85,7 +85,7 @@ int banish(string str) {
     notify_fail("That name is already banished.\n");
     return 0;
   }
-  if("secure/login"->test_user(str)) {
+  if("/lib/core/login"->test_user(str)) {
     notify_fail("That is a player.  You must rm or mv the player file first.\n");
     return 0;
   }

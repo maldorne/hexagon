@@ -66,6 +66,23 @@ void create()
   seteuid(ROOT);
 } 
 
+nomask int test_user(string str) 
+{
+  string tmp;
+  object user;
+  int result;
+
+  if (!stringp(str) || sscanf(str, "%s ",tmp))
+    return 0;
+
+  user = clone_object("/lib/user.c");
+  user->set_name(str);
+  result = user->restore_me();
+
+  user->dest_me();
+  return result;
+}
+
 nomask void time_out() 
 {
   if (validated == TRUE)

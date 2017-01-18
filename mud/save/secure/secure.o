@@ -1,4 +1,4 @@
-positions ([0|])
+positions ([1|"admin":1,])
 permissions ([0|])
 access ([0|])
 preferred ({0|})

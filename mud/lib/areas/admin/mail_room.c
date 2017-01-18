@@ -52,13 +52,13 @@ int do_add(string str) {
     if (names[i][0] == '*') {
 /* They are trying to add a controller. */
       names[i] = names[i][1..1000];
-      if (!"/secure/login"->test_user(names[i]))
+      if (!"/lib/core/login"->test_user(names[i]))
         write("the player "+names[i]+" does not exist.\n");
       else if (MAIL_TRACK->add_controller(list, names[i]))
         write("Added "+names[i]+" as a controller of "+list+".\n");
       else
         write("Failed to add "+names[i]+" as a controller of "+list+".\n");
-    } else if (!"/secure/login"->test_user(names[i]) &&
+    } else if (!"/lib/core/login"->test_user(names[i]) &&
                !MAIL_TRACK->query_list(names[i]))
       write("The player "+names[i]+" does not exist.\n");
     else if (MAIL_TRACK->add_member(list, names[i]))
