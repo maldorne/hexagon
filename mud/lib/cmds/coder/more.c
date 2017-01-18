@@ -92,6 +92,7 @@ static int cmd(string str, object me, string verb)
 int ex_spool(string yn, string fil, int linum)
 {
   string s1;
+  string * lines;
   int i;
   mixed tnum;
 
@@ -105,18 +106,31 @@ int ex_spool(string yn, string fil, int linum)
   if ( (yn == "Q") || (yn == "q") ) 
     return 1;
 
-  for (i = 0; i < this_player()->query_rows(); linum++)
-  {
-    i++;
-    s1 = read_file_line(fil, linum, 1);
-    if ( !strlen(s1) && (s1 != "\n") )
-    {
-      write("\n");
-      return 1;
-    }
+  // for (i = 0; i < this_player()->query_rows(); linum++)
+  // {
+  //   i++;
+  //   s1 = read_file_line(fil, linum, 1);
+  //   if ( !strlen(s1) && (s1 != "\n") )
+  //   {
+  //     write("\n");
+  //     return 1;
+  //   }
 
-    write(sprintf("%4d: %s", linum, s1));
+  //   write(sprintf("%4d: %s", linum, s1));
+  // }
+
+  s1 = read_file_line(fil, linum, this_player()->query_rows());
+
+  if ( !strlen(s1) )
+  {
+    write("\n");
+    return 1;
   }
+
+  lines = explode(s1, "\n");
+
+  for (i = 0; i < sizeof(lines); i++, linum++)
+    write(sprintf("%4d: %s\n", linum, lines[i]));
 
   write(sprintf("Archivo: %s. Q para salir ", fil));
   input_to("ex_spool", 0, fil, linum);

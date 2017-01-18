@@ -4,7 +4,7 @@ string read_file(string file, varargs int offset, int size)
   if (!SECURE->valid_read(file, geteuid(), previous_function()))
     return "";
 
-  return ::read_file(file, offset, size)  ;
+  return ::read_file(file, offset, size);
 }
 
 
