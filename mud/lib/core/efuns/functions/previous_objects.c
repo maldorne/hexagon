@@ -1,18 +1,21 @@
 
-static nomask object * previous_objects(varargs int step)
+static nomask object * previous_objects()
 {
-  object result;
-  int arg;
+  object prev;
+  object * result;
+  int step;
 
-  if (nullp(step))
-    arg = 0;
-  else
-    arg = step;
+  result = ({ });
+  step = 0;
 
-  result = previous_object(arg);
+  prev = previous_object(step);
 
-  if (result == nil)
-    return ({ });
+  while (prev != nil)
+  {
+    result += ({ prev });
+    step++;
+    prev = previous_object(step);
+  }
 
-  return ({ result }) + previous_objects(arg + 1);
+  return result;
 }

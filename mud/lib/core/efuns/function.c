@@ -20,16 +20,14 @@ static nomask object * all_previous_objects()
 // the previous object's previous_object(), etc.  previous_object(-1) returns
 // an array containing all of the previous objects.
 
-static nomask object previous_object(varargs int number)
+static nomask mixed previous_object(varargs int number)
 {
-  if (nullp(number))
+  if (undefinedp(number))
     return ::previous_object();
   else if (number != -1)
     return ::previous_object(number);
   else
-  {
-    return previous_objects(1)[0];
-  }
+    return previous_objects();
 }
 
 static nomask string previous_function() 

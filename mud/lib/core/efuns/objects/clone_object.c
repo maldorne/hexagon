@@ -19,7 +19,7 @@ static nomask object clone_object(mixed what)
     blueprint = load_object(what);
 
     if (blueprint)
-      return clone_object(blueprint);
+      return ::clone_object(blueprint);
     return nil;
   }
 

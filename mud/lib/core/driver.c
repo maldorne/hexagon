@@ -46,7 +46,6 @@ static nomask void write(string str);
 #include "/lib/core/efuns/paths/resolve_path.c"
 #include "/lib/core/efuns/livings/living.c"
 #include "/lib/core/efuns/users/interactive.c"
-#include "/lib/core/efuns/users/userp.c"
 #include "/lib/core/efuns/objects/file_name.c"
 #include "/lib/core/efuns/conversions/to_string.c"
 #include "/lib/core/efuns/conversions/print_object.c"

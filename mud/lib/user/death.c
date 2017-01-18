@@ -24,7 +24,7 @@ int second_life(object corpse, object initiator)
       }
   
   log_file("deaths", ctime(time())+": "+str + "\n");
-  // log_file("DEATH2",str+" : "+sprintf("%O\n",previous_object(-1)));
+  // log_file("DEATH2",str+" : "+sprintf("%O\n",initial_object()));
   
   event(users(), "inform", str, "deaths");
   attacker_list = ({ });

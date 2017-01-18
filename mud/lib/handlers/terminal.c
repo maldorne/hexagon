@@ -381,7 +381,7 @@ string _fix_string(string ret, varargs object user)
   string term_name;
   mapping colour_map;
 
-  if (user && userp(user))
+  if (user && interactive(user))
     term_name = user->query_term_name();
 
   if (!term_name) 

@@ -13,7 +13,7 @@ static string print_object(mixed ob)
   }
   else if (objectp(ob)) 
   {
-    if (userp(ob)) 
+    if (interactive(ob)) 
       return "user object";
 
     return "object";

@@ -27,7 +27,7 @@ static string to_string(mixed ob, varargs int offset, string pre)
   }
   else if (objectp(ob)) 
   {
-    if (userp(ob)) 
+    if (interactive(ob)) 
     {
       ret += "<" + file_name(ob) + ">\n";
       return ret; // "user object";

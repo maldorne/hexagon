@@ -1,7 +1,7 @@
 // External exit_handler for room.c...  should make it less "fat"
 //      room.c references these functions below [Piper 12/24/95]
 // Algunos retoques, neverbot 6/03
-// AÃ±adidas nearest_exits, 04/2009
+// Añadidas nearest_exits, 04/2009
 // Sistema de guardias protectores de salidas, neverbot 15/04/2009
 
 #include <room/room.h>
@@ -316,19 +316,19 @@ int do_exit_command(mapping door_control,
     string fail_msg;
     fail_msg = "";
 
-    // Nuevo sistema de personalizacion de puertas,
+    // Nuevo sistema de personalizacion de puertas, 
     // neverbot 10/03
     if (door->query_reset_message())
-      notify_fail("La puerta hacia "+dest_direc[i]+" estÃ¡ cerrada.\n");
+      notify_fail("La puerta hacia "+dest_direc[i]+" está cerrada.\n");
     else if (door->query_known_exit(dest_direc[i]))
-      notify_fail("La puerta "+dest_direc[i]+" estÃ¡ cerrada.\n");
+      notify_fail("La puerta "+dest_direc[i]+" está cerrada.\n");
     else 
     {
       if(door->query_gender() == 1) // male
         fail_msg += (door->query_number())?("Los "):("El ");
       else
         fail_msg += (door->query_number())?("Las "):("La ");
-      fail_msg += dest_direc[i] + " estÃ¡"+((door->query_number())?("n"):(""));
+      fail_msg += dest_direc[i] + " está"+((door->query_number())?("n"):(""));
       if(door->query_gender() == 1) // male
         fail_msg += (door->query_number())?(" cerrados.\n"):(" cerrado.\n");
       else
@@ -378,8 +378,8 @@ int do_exit_command(mapping door_control,
             }
             else
             {
-              tell_object(ob, list[k]->query_short() + " estÃ¡ vigilando esa direcciÃ³n, " +
-                  "pero en un descuido te cuelas sin que se dÃ© cuenta.\n");
+              tell_object(ob, list[k]->query_short() + " está vigilando esa dirección, " +
+                  "pero en un descuido te cuelas sin que se dé cuenta.\n");
               sneak = 1;
               break;
             }

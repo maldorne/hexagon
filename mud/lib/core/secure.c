@@ -83,7 +83,7 @@ string get_create_me(string tmp)
   int i;
   object obj;
 
-  obj = previous_object(-1);
+  obj = initial_object();
 
   // for (i = sizeof(obj)-1; i > -1; --i)
   //    if (obj[i]->query_coder())
