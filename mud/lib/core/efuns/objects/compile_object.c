@@ -4,16 +4,16 @@ static nomask object compile_object(string path, varargs string source...)
   mixed obj;
   string err;
 
+  // if path has a trailing .c, let's get rid of it
+  if (strlen(path) > 2 && path[strlen(path)-2..strlen(path)-1] == ".c") 
+    path = path[0..strlen(path)-3];
+
   obj = ::find_object(path);
 
   // only non previously compiled code
   if (!obj)
   {
     stderr(" - compile_object: " + path + "\n");
-
-    // if path has a trailing .c, let's get rid of it
-    if (strlen(path) > 2 && path[strlen(path)-2..strlen(path)-1] == ".c") 
-      path = path[0..strlen(path)-3];
 
     // errors during compilation will be reported to
     // the driver object to compile_error() 
@@ -26,9 +26,8 @@ static nomask object compile_object(string path, varargs string source...)
   }
   else
   {
-    // TODO different messages if not coder
-    write(object_name(obj) + " was already compiled.\n");
-    return nil;
+    // write(object_name(obj) + " was already compiled.\n");
+    return obj;
   }
 
   if (err || !objectp(obj))
