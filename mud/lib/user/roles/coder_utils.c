@@ -43,12 +43,12 @@ void inform_of_call(object ob, mixed *argv)
   int i;
   
   str = this_player()->query_cap_name() + " calls " + argv[0] + "(";
-  for (i = 1; i < sizeof(argv)-1; i++) 
+  for (i = 1; i < sizeof(argv); i++) 
   {
     // str += replace(sprintf("%O", argv[i]), "\n", " ");
-    str += replace(replace(to_string(argv[i]), " ", ""), "\n", " ");
-    if (i < sizeof(argv)-2)
-      str += ",";
+    str += replace(replace(to_string(argv[i]), " ", ""), "\n", "");
+    if (i < sizeof(argv)-1)
+      str += ", ";
     //else
     //  str += " ";
   }
