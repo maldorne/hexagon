@@ -11,6 +11,10 @@ static nomask object compile_object(string path, varargs string source...)
   {
     stderr(" - compile_object: " + path + "\n");
 
+    // if path has a trailing .c, let's get rid of it
+    if (strlen(path) > 2 && path[strlen(path)-2..strlen(path)-1] == ".c") 
+      path = path[0..strlen(path)-3];
+
     // errors during compilation will be reported to
     // the driver object to compile_error() 
     // even with this catch here
@@ -31,7 +35,8 @@ static nomask object compile_object(string path, varargs string source...)
   {
     object initial;
     
-    stderr(" - compile_object: " + path + " (not able to compile)\n");
+    stderr(" - compile_object: " + path + " (not able to compile)\n"+
+           "                   " + err + "\n");
     if (err)
     {
       initial = initial_object();
