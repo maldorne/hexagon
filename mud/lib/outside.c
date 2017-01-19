@@ -56,7 +56,7 @@ string long(string str, int dark)
   ret = "";
   // aux = "";
   /*
-  if ((int)WEATHER->query_day() != current_day){
+  if ((int)load_object(WEATHER)->query_day() != current_day){
     if (light_change)
         call_other(this_object(), light_change, current_day);
   }
@@ -65,23 +65,23 @@ string long(string str, int dark)
   if (this_player()) 
     dark = (int)this_player()->check_dark(query_light());
   
-  if (!str)
+  if (!strlen(str))
   {
     // aux = "Es de día.\n";
     // Coordenadas eliminadas, neverbot
-    // if ( pointerp(co_ord) && !WEATHER->query_day())
+    // if ( pointerp(co_ord) && !load_object(WEATHER)->query_day())
     
     /* night... */
-    if (!WEATHER->query_day())
+    if (!load_object(WEATHER)->query_day())
     {
       /*
       aux = "Es de noche.\n";
-      s = (string) WEATHER->moon_string();
+      s = (string) load_object(WEATHER)->moon_string();
       if (!s){
          aux =  "Es de noche y la luna aún no ha salido.\n";
       }
       else{
-        if ((int)WEATHER->cloud_index() > 20)
+        if ((int)load_object(WEATHER)->cloud_index() > 20)
             aux = "Es de noche y la "+s+" está oculta tras las nubes.\n";
 
         else if (!dark || dark > 3) // if its that dark it ain't lit up
@@ -125,7 +125,7 @@ string long(string str, int dark)
     if (s && s != "")
       ret += s;
     
-    ret += (string)WEATHER->weather_string(this_object());
+    ret += (string)load_object(WEATHER)->weather_string(this_object());
     
     if (!exit_string) 
       query_dirs_string();
@@ -147,7 +147,7 @@ int query_light()
 #ifdef TESTING
   i = 100;
 #else
-  i = (int)WEATHER->query_darkness(this_object());
+  i = (int)load_object(WEATHER)->query_darkness(this_object());
 #endif
 
   return ::query_light()*i/100;

@@ -455,10 +455,12 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
  
   if (!dest_direc || sizeof(dest_direc)==0)
     dest_direc = ({ });
+
   dirs = ({ });
   size = sizeof(dest_other);
-  for (i=0; i < size; i+=2){
 
+  for (i=0; i < size; i+=2)
+  {
     // Modificado el sistema para que las salidas se vean igual que
     //  con el short_exit_string, neverbot 6/03
 
@@ -513,8 +515,9 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
   exit_string = exit_color+"There are "+query_num(sizeof(dirs)+1, 0)+
                 " obvious exits : "+implode(dirs,", ")+ret+"%^RESET%^";
   */
-      return exit_color+"Puedes ver "+query_num(sizeof(dirs)+1, 0)+
+    return exit_color+"Puedes ver "+query_num(sizeof(dirs)+1, 0)+
            " salidas: "+implode(dirs,", ")+ret+"%^RESET%^";
+
   exit_string = exit_color+"Puedes ver "+query_num(sizeof(dirs)+1, 0)+
                 " salidas: "+implode(dirs,", ")+ret+"%^RESET%^";
   return exit_string;

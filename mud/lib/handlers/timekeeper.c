@@ -9,7 +9,6 @@ int check_write();
 
 void setup() 
 {
-  tell_object(find_living("admin"), "Y ESTO QUE\n");
   set_name("timekeeper");
   restore_object("/save/timekeeper.o");
 }

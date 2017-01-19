@@ -39,7 +39,7 @@ int adjust_light(int i) {
   if (i) {
     if (environment() && !this_object()->query_property(OPAQUE))
       environment()->adjust_light(i);
-    event(this_object(), "light_change", i);
+    // event(this_object(), "light_change", i);
   }
   return (int_light += i);
 }
@@ -48,7 +48,7 @@ int set_light(int i) {
   if (light - i) {
     if (environment())
       environment()->adjust_light(i-light);
-    event(this_object(), "light_change", i-light);
+    // event(this_object(), "light_change", i-light);
   }
   return (light = i);
 }

@@ -77,22 +77,12 @@ void remove_call_out_preload(string file)
   }
 } /* remove_call_out_preload() */
 
-void load_secure_object() 
-{
-  if (!done) 
-  {
-    done = 1;
-    seteuid(ROOT);
-    restore_object(SECURE_SAVE_PATH);
-  }
-} /* load_secure_object() */
-
 string *epilog() 
 {
   int i;
 
-  if (!sizeof(preload)) 
-    load_secure_object();
+  // if (!sizeof(preload)) 
+  //   load_secure_object();
 
   for (i = 0; i < sizeof(call_out_preload); i++)
     call_out("preload", 2, call_out_preload[i]);
@@ -105,9 +95,20 @@ void preload(string file)
 {
   string e;
 
-  write("Preloading: "+file+".\n");
+  stderr(" ~ preloading: "+file+".\n");
 
-  if ((e = catch(file->dummy()))) 
+  if ((e = catch(load_object(file)->dummy()))) 
     write("      "+e+"\n");
 
 } /* preload() */
+
+void load_secure_object() 
+{
+  if (!done) 
+  {
+    done = 1;
+    seteuid(ROOT);
+    restore_object(SECURE_SAVE_PATH);
+    epilog();
+  }
+} /* load_secure_object() */

@@ -12,8 +12,9 @@
 #define is_auto_object()    (previous_program() == AUTO && \
                              previous_function() != "call_other")
 
+// rlimits of every heart_beat in any object
 #define MAX_HB_DEPTH 100
-#define MAX_HB_TICKS 100000
+#define MAX_HB_TICKS 1000000
 
 // for the list of pending call_outs
 #define CALL_OUT_STACK_OB     0

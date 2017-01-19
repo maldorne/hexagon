@@ -86,6 +86,7 @@ void clear_data()
 void create()
 {
   ::create();
+  set_name("money tracker");
   data = ([ ]);
   mult = ({ 0.0,0.0,0.0,0.0 });
   load_this_ob();

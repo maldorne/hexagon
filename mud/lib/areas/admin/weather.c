@@ -5,6 +5,7 @@
 // con las palancas... paciencia :(
 
 #include <areas/weather.h>
+#include <room/room.h>
 
 #include "path.h"
 
@@ -73,6 +74,7 @@ void setup()
   
   add_exit("sudoeste", ADMIN + "admin3.c", "standard"); 
 
+  add_property(NO_CLEAN_UP_PROP, 1);
 
   /*
   add_item("dials","Large dials with all sort of things on them. One you can see says\n"+
