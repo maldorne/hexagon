@@ -3,6 +3,8 @@
 /save/players/*
 !/save/accounts/a/admin@ciudadcapital.net.o
 !/save/players/a/admin.o
+# some save files
+/save/weather.o
 # only initial migration
 /lib/user/migrations/*
 !/lib/user/migrations/base_migration.c
@@ -10,4 +12,3 @@
 # ignore areas
 /game/areas/*
 !/game/areas/start
-
