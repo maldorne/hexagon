@@ -44,6 +44,12 @@ int set_role(string name)
       break;
 
     case MANAGER_ROLE:
+      role_name = name;
+      _role = clone_object(MANAGER_ROLE_OB);
+      _role->set_player(this_object());
+
+      // euid as coder
+      seteuid(this_object()->query_name());
       break;
 
     case CODER_ROLE:
