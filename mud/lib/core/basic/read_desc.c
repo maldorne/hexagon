@@ -3,7 +3,7 @@
  *
  * Antiguamente esto se heredaba en object.c y todos los objetos del mud
  *  tenian esta funcionalidad. Extraido ahora de la cadena de herencias y solo
- *  disponible en item.c, Folken 24/08/2008
+ *  disponible en item.c, neverbot 24/08/2008
  */
 
 /* this one also contians info on read_messages... */
@@ -18,6 +18,12 @@ void create()
   cur_size = 0;
 }
 
+void init()
+{
+  ::init();
+  add_action("do_read", "leer");
+}
+
 mixed add_read_mess(mixed str, string type, string lang, int size);
 
 void set_max_size(int siz) { max_size = siz; }
@@ -25,10 +31,6 @@ int query_max_size() { return max_size; }
 
 void set_cur_size(int siz) { cur_size = siz; }
 int query_cur_size() { return cur_size; }
-
-void add_read_this(object ob) {
-  ob->add_command("leer", this_object());
-} /* add_read_this() */
 
 /*
 * calling this is very rude unless you are createing the object as it
@@ -39,14 +41,7 @@ void set_read_mess(mixed str, varargs string lang, int size)
   if (pointerp(str)) 
   {
     read_mess = str;
-    return ;
-  }
-
-  if (!read_mess && str && environment()) 
-  {
-    filter_array(all_inventory(environment()), "add_read_this", this_object());
-    environment()->add_command("leer", this_object());
-
+    return;
   }
 
   if (!lang)
@@ -54,8 +49,8 @@ void set_read_mess(mixed str, varargs string lang, int size)
   if (!size)
     size = 1;
 
-  if (str)
-    read_mess = ({ ({ str, 0, lang, size }) });
+  if (strlen(str))
+    read_mess = ({ ({ str, "", lang, size }) });
   else
     read_mess = ({ });
 } /* set_read_mess() */
@@ -73,15 +68,9 @@ mixed add_read_mess(mixed str, string type, string lang, int size)
   if (!size) 
     size = 1;
 
-  if (!read_mess && environment()) 
-  {
-    filter_array(all_inventory(environment()), "add_read_this", this_object());
-    environment()->add_command("leer", this_object());
-  }
-
   de_size = size*((int)LANGUAGE_HANDLER->query_language_size(lang, str));
 
-  if (cur_size+de_size > max_size) 
+  if (cur_size + de_size > max_size) 
   {
     /* Try and squidge the text on somehow... */
     str = (string)LANGUAGE_HANDLER->squidge_text(lang, str,
@@ -89,6 +78,7 @@ mixed add_read_mess(mixed str, string type, string lang, int size)
 
     if (!strlen(str))
       return "";
+
     cur_size += size*((int)LANGUAGE_HANDLER->query_language_size(lang, str));
   }
 
@@ -128,15 +118,6 @@ int remove_read_mess(string str, string type, string lang)
   return 0;
 } /* remove_read_mess() */
 
-void init() 
-{
-  if (read_mess)
-  {
-    this_player()->add_command("leer", this_object());
-    environment()->add_command("leer", this_object());
-  }
-} /* init() */
-
 /*
 * This is used by the do_read procedure to create the message that
 * you will end up reading.  Useful huh?
@@ -163,25 +144,28 @@ void init()
 * Yeppers, this actually reads the object.  Handles reading of actual
 * messages and labels.
 */
-
-// Folken 4/2003, despues de traducir el comando 'read' por 'leer' a algun
-// inteligente se le olvido cambiar la funcion tambien (el sistema busca automaticamente
-// la funcion 'do_' + verbo :(
-// mixed do_read() {
-mixed do_leer() 
+int do_read(string what) 
 {
   string s1, s2, s3, str, str2;
-  // Folken 4/2003
+  // neverbot 4/2003
   string ret;
   int i;
 
+  if (!this_object()->id(what))
+  {
+    notify_fail("¿Leer el qué?\n");
+    return 0;
+  }
+
   if (!read_mess) 
     return 0;
+
   if (read_mess) 
   {
     for (i = 0; i < sizeof(read_mess); i++) 
     {
       str = read_mess[i][READ_STR];
+
       /* Its not a string when we are dealing with magical writing */
       if (stringp(str)) 
       {
@@ -198,9 +182,9 @@ mixed do_leer()
         read_mess[i][READ_SIZE]));
         */
         ret = (string)this_player()->read_message(str2 + str,
-        read_mess[i][READ_TYPE],
-        read_mess[i][READ_LANG],
-        read_mess[i][READ_SIZE]);
+          read_mess[i][READ_TYPE],
+          read_mess[i][READ_LANG],
+          read_mess[i][READ_SIZE]);
       } 
       else 
       {
@@ -212,9 +196,9 @@ mixed do_leer()
         read_mess[i][READ_SIZE]));
         */
         ret = (string)this_player()->read_message(str,
-        read_mess[i][READ_TYPE],
-        read_mess[i][READ_LANG],
-        read_mess[i][READ_SIZE]);
+          read_mess[i][READ_TYPE],
+          read_mess[i][READ_LANG],
+          read_mess[i][READ_SIZE]);
       }
     }
   }
@@ -238,15 +222,16 @@ mixed do_leer()
   *   return s1;
   */
 
-  // Folken 4/2003
-  if (ret && (ret != "")) 
+  // neverbot 4/2003
+  if (strlen(ret)) 
   {
-    ret = sprintf("%*-=s",
-              (this_player()?this_player()->query_cols():79),
-              ret);
-    write(ret);
-    return this_object();
+    // ret = sprintf("%*-=s",
+    //           (this_player()?this_player()->query_cols():79),
+    //           ret);
+    // write(ret);
+    tell_object(this_player(), ret);
   }
+
   return 1;
 } /* do_read() */
 

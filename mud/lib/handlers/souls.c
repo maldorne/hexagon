@@ -2,12 +2,13 @@
 #pragma save_types
 
 #include <areas/common.h>
+#include <areas/weather.h>
 #include <mud/cmd.h>
 
 inherit "/lib/core/object";
 
 /*
- * Traduccion para CcMud, Folken 02/2006
+ * Traduccion para CcMud, neverbot 02/2006
  * 
  * ok format...
  * name ({ your st, everyone st })
@@ -48,8 +49,8 @@ void create()
   lastarg = "";
 
   /* Taniwha 1995, move it here, players can't pick it up */
-  catch(load_object(WEATHER_ROOM));
-  call_out("move", 2, WEATHER_ROOM);
+  catch(load_object(HOME));
+  call_out("move", 2, HOME);
 
   global_adj = SOUL_DATA->query_global_adj();
   soul_data = SOUL_DATA->query_soul_data();

@@ -1,6 +1,6 @@
 
 // A place to locate the controller
-#define HOME "/room/weather_room.c"
+#define HOME "/lib/areas/admin/weather.c"
 
 #define DIPLOMACY_HANDLER "/obj/handlers/diplomacy.c"
 #define DIPLOMACY_TABLE "/table/diplomacy.c"

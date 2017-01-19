@@ -214,11 +214,11 @@ string query_dark_mess(int lvl)
         return "No puedes ver mucho.\n"+ exit_string;
     case 3: /* getting dim */
         return "Es demasiado difícil ver en esta oscuridad.\n"+
-        // ::short(1)+"\n" + // Folken
+        // ::short(1)+"\n" + // neverbot
         exit_string;
     case 4: /* slightly dazzled */
         return "Estás deslumbrado por la luz.\n" +
-        // ::short(0)+"\n" + // Folken
+        // ::short(0)+"\n" + // neverbot
         exit_string;
     case 5: /* very bright */
         return "La luz es realmente cegadora.\n"+ exit_string;
@@ -389,7 +389,7 @@ string long(string str, int dark)
   if (dark)
     return "   "+query_dark_mess(dark)+"\n";
   
-  // Comentado por Folken 6/03
+  // Comentado por neverbot 6/03
   // Se pierde velocidad, pero necesitamos que el exit_string se actualice,
   //  ya que ahora tambien en el long se pueden ver las puertas cerradas y
   //  abiertas (el metodo es peor pero con un glance se recalculan siempre,
@@ -489,8 +489,8 @@ void start_clean_up()
 // not particularly useful.
 // But here just the same, great for debugging purposes.
 string *query_direc() { return dest_direc; }
-mapping query_exit_map() { return exit_map; } // Folken, debugging
-string * query_aliases() { return aliases; } // Folken, debugging
+mapping query_exit_map() { return exit_map; } // neverbot, debugging
+string * query_aliases() { return aliases; } // neverbot, debugging
 
 // It IS useful to get directions + where they go to
 // BTW this is not a frog.
@@ -557,7 +557,7 @@ mixed add_exit(string direc, mixed dest, string type,
     dest_direc = m[3];
     hidden_objects = m[4];
     exit_string = query_dirs_string();
-    reset_short_exit_string(); // Folken
+    reset_short_exit_string(); // neverbot
 
     // New door system for ccmud, just with calling add_exit
     // with door exit type, the door object will be added
@@ -641,7 +641,7 @@ int remove_exit(string direc)
 
   // Destruimos el objeto de la puerta si la puerta desaparece,
   // no es una solucion muy elegante pero no se me ocurre otra cosa :(
-  // Folken 6/03
+  // neverbot 6/03
   door = query_doors(direc);
   if (door)
       door->dest_me();
@@ -739,7 +739,7 @@ int add_item(mixed id, string desc)
     items["The object"] = ob;
   }
   
-  // Flag final para evitar el pluralize automatico, Folken 05/09
+  // Flag final para evitar el pluralize automatico, neverbot 05/09
   ob->setup_item(id, desc, 1);
   return 1;
 } 
@@ -1043,7 +1043,7 @@ object add_sign(string long, string mess, varargs string short, string sname)
 {
   object sign;
 
-  sign = clone_object("/std/item.c");
+  sign = clone_object("/lib/item.c");
 
   if (!sname) 
       sname = "cartel";

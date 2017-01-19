@@ -255,8 +255,12 @@ void heart_beat()
     query_race_ob()->race_heartbeat(this_object());
 
   // Clima solo a players
-  if (this_object()->query_player() && ((hb_counter%5) == 0) && environment(this_object()))
+  if (this_object()->query_player() && 
+     ((hb_counter%5) == 0) && 
+      environment(this_object()))
+  {
     this_object()->weather_heart_beat();
+  }
 
   // Quark, adding heart beat to curses.
   // if(!(hb_counter & 31))

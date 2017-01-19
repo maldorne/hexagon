@@ -4,5 +4,3 @@
 
 // where to move objects on errors
 #define ROOM_VOID "/lib/areas/void"
-
-#define WEATHER_ROOM "/lib/areas/weather"

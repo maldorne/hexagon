@@ -75,10 +75,10 @@ string * get_files(string str)
 
     if (sscanf(rmpath, "%s/%s", temp1, temp2) == 2) 
     {
-        string * path_elements;
+      string * path_elements;
 
-        path_elements = explode(rmpath, "/") - ({ "" });
-        rmpath = implode(path_elements[0..sizeof(path_elements) - 2], "/");
+      path_elements = explode(rmpath, "/") - ({ "" });
+      rmpath = implode(path_elements[0..sizeof(path_elements) - 2], "/");
     }
 
     oldeiud = geteuid();

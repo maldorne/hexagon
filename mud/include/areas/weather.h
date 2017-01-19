@@ -1,9 +1,10 @@
 
-#define WEATHER "/obj/handlers/weather.c"
-#define HOME "/room/weather_room.c"
-#define SAVE_FILE "/save/environ/weather"
-#define LOG_FILE "weather_log"
-#define TABLE "/table/weather_table.c"
+#define WEATHER "/lib/handlers/weather.c"
+#define HOME "/lib/areas/admin/weather.c"
+#define SAVE_FILE "/save/weather.o"
+#define LOG_FILE "weather"
+
+#define TABLE "/lib/table/weather_table"
 #define WEATHER_SH "/obj/shadows/weather_sh.c"
 
 // Cuantas zonas climaticas modificaremos cada

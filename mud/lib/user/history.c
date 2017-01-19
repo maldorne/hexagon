@@ -60,10 +60,10 @@ string expand_history(string arg)
   int num, i;
   string s1;
 
-  if(this_player())
+  if (this_player())
   {
-    if(this_player() != this_object() &&
-      !"secure/master"->query_admin(geteuid(this_player())))
+    if (this_player() != this_object() &&
+      !MASTER->query_admin(geteuid(this_player())))
     {
       log_file("history_steal",
         "\n"+ctime(time())+":"+this_player()->query_name()+
@@ -153,11 +153,11 @@ int print_history(string arg)
 {
   int i, from, to, num;
  
-  if(this_player()!=this_object()) 
+  if (this_player()!=this_object()) 
   { /* a call */
-    if(!interactive(this_player())) 
+    if (!interactive(this_player())) 
       return 0;
-    if(!("secure/master"->query_admin(geteuid(this_player())))) 
+    if (!("secure/master"->query_admin(geteuid(this_player())))) 
       return 0;
   }
 

@@ -1,12 +1,14 @@
 
 // Traducida para CcMud, neverbot 29/6/03
-// y arreglada, nunca funcionÃ³ ;)
-// AlgÃºn dia habria que arreglarlo para poder establecer el clima
+// y arreglada, nunca funcionó ;)
+// Algún dia habria que arreglarlo para poder establecer el clima
 // con las palancas... paciencia :(
 
 #include <areas/weather.h>
 
-inherit "/lib/room";
+#include "path.h"
+
+inherit "/lib/room.c";
 
 mixed leverarr;
 
@@ -23,31 +25,31 @@ void reset()
   */       
 
   leverarr = ({ ({ "lluvia",
-       "La habitaciÃ³n gira y un pequeÃ±o pedazo de papel sale del "+
+       "La habitación gira y un pequeño pedazo de papel sale del "+
        "controlador del tiempo con el siguiente mensaje escrito: "+
        "\n#rain_string" }),
                 ({ "nubes",
-       "La habitaciÃ³n gira y un pequeÃ±o pedazo de papel sale del "+
+       "La habitación gira y un pequeño pedazo de papel sale del "+
        "controlador del tiempo con el siguiente mensaje escrito: "+
        "\n#cloud_string" }),
                 ({ "estacion",
-       "La habitaciÃ³n gira y un pequeÃ±o pedazo de papel sale del "+
+       "La habitación gira y un pequeño pedazo de papel sale del "+
        "controlador del tiempo con el siguiente mensaje escrito: "+
        "\n#season_string" }),
                 ({ "dia",
-       "La habitaciÃ³n gira y un pequeÃ±o pedazo de papel sale del "+
+       "La habitación gira y un pequeño pedazo de papel sale del "+
        "controlador del tiempo con el siguiente mensaje escrito: "+
        "\n#daynight_string" }),
                 ({ "temperatura",
-       "La habitaciÃ³n gira y un pequeÃ±o pedazo de papel sale del "+
+       "La habitación gira y un pequeño pedazo de papel sale del "+
        "controlador del tiempo con el siguiente mensaje escrito: "+
        "\n#temperature_string" }),
                 ({ "luna",
-       "La habitaciÃ³n gira y un pequeÃ±o pedazo de papel sale del "+
+       "La habitación gira y un pequeño pedazo de papel sale del "+
        "controlador del tiempo con el siguiente mensaje escrito: "+
        "\n#query_moon_string" }),
                 ({ "fecha",
-       "La habitaciÃ³n gira y un pequeÃ±o pedazo de papel sale del "+
+       "La habitación gira y un pequeño pedazo de papel sale del "+
        "controlador del tiempo con el siguiente mensaje escrito: "+
        "\n#date_string" }),
               });
@@ -55,12 +57,12 @@ void reset()
 
 void setup()
 {
-  set_short("HabitaciÃ³n de control del clima");
+  set_short("Habitación de control del clima");
   set_long("Este es el centro de control del clima para todo " + mud_name() + 
-           ". En el suelo deberÃ­a estar el controlador en sÃ­ mismo, y "+
-           "tirados alrededor estÃ¡n un montÃ³n de luces parpadeantes, controles y palancas. "+
-           "Tienes la extraÃ±a sensaciÃ³n de que realmente no sirven para nada, y "+
-           "alguien debe estar trabajando aÃºn en ellas para que algÃºn dÃ­a "+
+           ". En el suelo debería estar el controlador en sí mismo, y "+
+           "tirados alrededor están un montón de luces parpadeantes, controles y palancas. "+
+           "Tienes la extraña sensación de que realmente no sirven para nada, y "+
+           "alguien debe estar trabajando aún en ellas para que algún día "+
            "tengan utilidad.\n");
 
   set_light(60);
@@ -69,6 +71,9 @@ void setup()
   add_item( ({ "palancas", "palanca" }), "Palancas multicolor instaladas en el suelo. "+
              "Puedes ver una palancas etiquetadas como lluvia, nubes, estacion, dia, fecha, luna y temperatura.\n");
   
+  add_exit("sudoeste", ADMIN + "admin3.c", "standard"); 
+
+
   /*
   add_item("dials","Large dials with all sort of things on them. One you can see says\n"+
            "'Colour of spring', it is currently pointing at purple.\n");
@@ -117,7 +122,7 @@ int do_pull(string str) {
   weather = find_object(WEATHER);
   
   if (!weather) {
-    notify_fail("Â¡Â¡Ups, el controlador del tiempo no estÃ¡ en esta habitaciÃ³n!!\n");
+    notify_fail("¡¡Ups, el controlador del tiempo no está en esta habitación!!\n");
     return 0;
   }
   
@@ -162,6 +167,6 @@ int do_push(string str)
   }
 
   tell_object(this_player(), "Empujas una y otra vez pero no puedes activar la palanca.\n"+
-              "AlgÃºn dÃ­a alguien la activarÃ¡.\n");
+              "Algún día alguien la activará.\n");
   return 1;
 }

@@ -29,6 +29,8 @@ inherit migration   "/lib/user/migration";
 inherit past        "/lib/user/past";
 inherit help        "/lib/user/help";
 inherit quests      "/lib/user/quests";
+inherit weather     "/lib/user/weather";
+inherit read        "/lib/user/read";
 
 static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
@@ -105,6 +107,8 @@ void create()
   past::create();
   help::create();
   quests::create();
+  weather::create();
+  read::create();
 
   // the last one
   living::create();
@@ -136,6 +140,7 @@ void init()
   history::init();
   alias::init();
   nickname::init();
+  weather::init();
 
   living::init();
 }
@@ -453,5 +458,7 @@ mixed * stats()
                past::stats() + 
                help::stats() + 
                quests::stats() + 
+               weather::stats() + 
+               read::stats() + 
                output::stats();
 }
