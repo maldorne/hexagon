@@ -3,10 +3,10 @@
 // after we moved to Aurora...
 // Sept 28, 1995
 // This got COMPLICATED .. argh
-// Traducido para CcMud, Folken 7/03
-//   Los jugadores ahora van a la ENTRY_POS (definida en player.h)
+// Translated for CcMud, neverbot 7/03
+// Player now go to ENTRY_POS
 
-#define ENTRY_POS "/game/someplace"
+#define ENTRY_POS "/game/areas/ciudad-capital/barrio-antiguo/rooms/calzada02"
 
 #include <areas/common.h>
 
@@ -28,14 +28,14 @@ int do_update(string str)
          {
             if(!all[i]->query_creator())
             {
-               tell_object(all[i], "Sac√°ndote del infierno...\n");
+               tell_object(all[i], "Sac·ndote del infierno...\n");
                all[i]->move(ENTRY_POS);
                all[i]->do_look();
             }
 
             if(all[i]->query_creator())
             {
-               tell_object(all[i],"Viajando hasta la habitaci√≥n com√∫n...\n");
+               tell_object(all[i],"Viajando hasta la habitaciÛn com˙n...\n");
                all[i]->move(CODER_COMMON_ROOM);
                all[i]->do_look();
                tell_room(find_object(CODER_COMMON_ROOM), all[i]->query_cap_name()+
@@ -50,11 +50,11 @@ int do_update(string str)
 
 void setup() {
      set_light(40);
-     set_short(mud_name()+": El Vac√≠o");
-     set_long("√âste es el lugar al que vienes cuando el lugar en el que " +
-              "est√°s desaparece y no tienes ning√∫n lugar al que ir. " +
-              "La raz√≥n por la que est√°s en √©l se deber√° muy probablemente " +
-              "a alg√∫n fallo involuntario del programador de la zona en la " +
+     set_short(mud_name()+": El VacÌo");
+     set_long("…ste es el lugar al que vienes cuando el lugar en el que " +
+              "est·s desaparece y no tienes ning˙n lugar al que ir. " +
+              "La razÛn por la que est·s en Èl se deber· muy probablemente " +
+              "a alg˙n fallo involuntario del programador de la zona en la " +
               "que estabas.\n");
 
      add_exit("ciudad", ENTRY_POS, "standard");
