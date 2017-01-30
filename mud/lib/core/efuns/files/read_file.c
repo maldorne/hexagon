@@ -7,6 +7,20 @@ string read_file(string file, varargs int offset, int size)
   return ::read_file(file, offset, size);
 }
 
+// read_bytes - reads a contiguous series of bytes from a file into a string
+// string read_bytes( string path, int start, int length );
+
+// This function reads 'length' bytes beginning at byte # 'start' in the
+// file named 'path'.  The bytes are returned as a string.  Note that
+// (start + length) must not be past the end of the file or else read_bytes
+// will fail.  If the second and third arguments are omitted, the entire file
+// is returned.
+
+string read_bytes(string file, varargs int start, int length)
+{
+  // returns characters, not bytes
+  return read_file(file, start, length);
+}
 
 // read_file - read a file into a string
 // string read_file( string file, int start_line, int number_of_lines );

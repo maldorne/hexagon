@@ -155,6 +155,15 @@ nomask void logon(object pl)
   input_to("logon_option");
 }
 
+static nomask void disconnect(varargs int silence)
+{
+  if (!silence)
+    write("¡Vuelve dentro de poco!\n"); 
+
+  destruct(_player);
+  destruct(this_object());     
+}
+
 nomask void show_finger(string who)
 {
   write("Hacemos un finger\n");

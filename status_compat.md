@@ -222,7 +222,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `get_config`            |  |  |
 | `get_char`              |  |  |
 | `reload_object`         |  |  |
-| `uptime`                |  |  |
+| `uptime`                | :white_check_mark: | uses `status` |
 | `flush_messages`        |  |  |
 | `ed`                    |  |  |
 | `ed_start`              |  |  |

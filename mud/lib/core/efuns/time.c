@@ -1,4 +1,5 @@
 
+#include <status.h>
 #include <areas/weather.h>
 
 #include "strings/sprintf/time.h"
@@ -21,13 +22,10 @@
 // int uptime();
 // This function returns the number of seconds since the last driver reboot.
 
-// TODO uptime
-
-static int uptime()
+nomask static int uptime()
 {
-  return 1000;
+  return status()[ST_UPTIME];
 }
-
 
 // localtime() converts a time value (as returned by time()) into an array
 // of values which represents the time locally.  In the past time() was used
