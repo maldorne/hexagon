@@ -118,6 +118,15 @@ nomask int set_invis(int i)
 
 nomask int query_invis() { return invis; }
 
+nomask string query_path()
+{
+  string path;
+  path = _role->query_path();
+
+  if (strlen(path))
+    return path;
+  return "";
+}
 
 mixed * stats() 
 {

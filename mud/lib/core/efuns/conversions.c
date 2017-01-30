@@ -9,7 +9,7 @@ string number_as_string(int n);
 string query_num(int n, int limit) 
 {
   if (limit && n>limit) 
-    return "miles de"; /* this is a little pointless ... */
+    return "montones de"; /* this is a little pointless ... */
   return number_as_string(n);
 }
 

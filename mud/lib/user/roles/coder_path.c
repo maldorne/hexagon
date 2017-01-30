@@ -91,18 +91,20 @@ int change_dir(string str)
     // Radix
     if (interactive(obs[0]) && obs[0]->query_coder())
       filenames = get_files(obs[0]->query_path());
-    // else
-    // {
-    //   tmp = virtual_file_name(obs[0]);
-    //   if (!stringp(tmp))
-    //   {
-    //     notify_fail("Error: call a wiz_present erróneo, cd imposible.\n");
-    //     return 0;
-    //   }
-    //   arr = explode(tmp,"/");
-    //   str = implode(arr[0..sizeof(arr)-2],"/");
-    //   filenames = get_files("/"+str);
-    // }
+    else
+    {
+      tmp = base_name(obs[0]);
+
+      if (!stringp(tmp))
+      {
+        notify_fail("Error: call a wiz_present erróneo, cd imposible.\n");
+        return 0;
+      }
+
+      arr = explode(tmp,"/");
+      str = implode(arr[0..sizeof(arr)-2],"/");
+      filenames = get_files("/"+str);
+    }
 
     // Unlikely a loaded object won't have a dir, but leave it
     // to a bastard to do such things...
