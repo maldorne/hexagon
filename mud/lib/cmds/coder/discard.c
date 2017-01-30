@@ -51,7 +51,7 @@ static int cmd(string str, object me, string verb)
     }
 
     err = catch(discard_obj->dest_me());
-    this_player()->handle_error(err, "dest_me");
+    tell_object(this_player(), "Error in dest_me():\n   " + err + "\n");
 
     if (discard_obj) 
     {
@@ -73,7 +73,7 @@ void no_discard(string s)
   if (this_player()->affirmative(s)) 
   {
     err = catch(discard_obj->dwep());
-    this_player()->handle_error(err, "DWEP");
+    tell_object(this_player(), "Error in DWEP():\n   " + err + "\n");
     if (discard_obj) 
     {
       tell_object(this_player(), "Este objeto NO quiere ser descartado.\n");
