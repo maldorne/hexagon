@@ -147,11 +147,11 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `get_dir`               | :white_check_mark: | masked to mimic MudOS behaviour |
 | `match_path`            |  |  |
 | `read_file`             | :white_check_mark: | The DGD version reads one character at a time. The MudOS version reads one line. Use `read_file_line` for this last behaviour. |
+| `read_bytes`            | :white_check_mark: | alias for `read_file` |
 | `write_file`            | :white_check_mark: | provided by dgd, masked for permissions |
-| `rename`                | :white_check_mark: | alias for `rename_file`, masked for permissions |
 | `write_bytes`           |  |  |
+| `rename`                | :white_check_mark: | alias for `rename_file`, masked for permissions |
 | `file_size`             | :white_check_mark: | Mikael Lind's example code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
-| `read_bytes`            |  |  |
 | `cp`                    |  |  |
 | `link`                  |  |  |
 | `mkdir`                 |  |  |
