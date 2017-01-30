@@ -36,22 +36,25 @@ static int cmd(string str, object me, string verb)
       notify_fail("No hay archivos coincidentes.\n");
       return 0;
     }
-    /*  err = catch(ob = clone_object(str));
-         this_player()->handle_error(err, "clone_object()"); */
-    ob = clone_object(str);
+ 
+    err = catch(ob = clone_object(str));
+    tell_object(this_player(), "Error in clone_object():\n   " + err + "\n"); 
+ 
+    // ob = clone_object(str);
+
     if (ob) 
     {
       err = catch((mov = (int)ob->move(this_player())));
-      this_player()->handle_error(err, "move(this_player())");
+      tell_object(this_player(), "Error in move(this_player()):\n   " + err + "\n");
 
       if (err || mov) 
       {
         err = catch(ob -> move(environment(this_player())));
-        this_player()->handle_error(err, "move(environment())");
+        tell_object(this_player(), "Error in move(environment()):\n   " + err + "\n");
       }
 
       // Añadido por neverbot, los objetos unicos pueden ser destruidos durante el move
-      if(!ob)
+      if (!ob)
       {
         tell_object(this_player(),"Error, no se ha podido clonar el objeto (¿objeto único?).\n");
         return 1;
