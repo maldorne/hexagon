@@ -155,8 +155,8 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `cp`                    |  |  |
 | `link`                  |  |  |
 | `mkdir`                 |  |  |
-| `rm`                    |  |  |
-| `rmdir`                 |  |  |
+| `rm`                    | :white_check_mark: |  |
+| `rmdir`                 | :white_check_mark: |  |
 
 ##Interactions with users
 | Function | Status | Comments |
