@@ -154,7 +154,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `file_size`             | :white_check_mark: | Mikael Lind's example code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
 | `cp`                    |  |  |
 | `link`                  |  |  |
-| `mkdir`                 |  |  |
+| `mkdir`                 | :white_check_mark: |  |
 | `rm`                    | :white_check_mark: |  |
 | `rmdir`                 | :white_check_mark: |  |
 
