@@ -1,0 +1,6 @@
+boards ([1|"coders-common":({0|}),])
+security ([1|"coders-common":({1|"admin",}),])
+priv ([0|])
+timeouts ([0|])
+archives ([0|])
+num 1
