@@ -4,7 +4,8 @@
 #define _LOGIN_INCLUDE
 
 #define LOGIN_TIMEOUT 300
-#define MIN_UPTIME_LOGIN_TIME 20
+// #define MIN_UPTIME_LOGIN_TIME 20
+#define MIN_UPTIME_LOGIN_TIME 1
 #define MAX_PLAYERS 50
 
 // From /lib/core/user/login

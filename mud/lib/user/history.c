@@ -26,7 +26,7 @@ static void set_in_alias_command(int val)
 int clear_history()
 {
   /* First: a high_programmer check.. */
-  if (!("/secure/master"->high_programmer(geteuid(this_player()))))
+  if (!(MASTER->high_programmer(geteuid(this_player()))))
   {
     notify_fail ("¿Cómo dices?\n");
     return 0;
@@ -71,13 +71,13 @@ string expand_history(string arg)
     }
   }
 
-  if (arg[0] == '.')
+  if ((strlen(arg) == 1) && (arg[0] == '.'))
     if (hoffset)
-      return history[hoffset-1]+arg[1..strlen(arg)];
+      return history[hoffset-1]+arg[1..];
     else
-      return history[sizeof(history)-1]+arg[1..strlen(arg)];
+      return history[sizeof(history)-1]+arg[1..];
 
-  if (sscanf(arg,"%d",num)==1) 
+  if (sscanf(arg, "%d", num)==1) 
   {
     num = num % sizeof(history);
     if (num<0) 

@@ -362,7 +362,7 @@ static void receive_message(string str)
     if (str[0] == '.')
     {
       this_object()->set_trivial_action();
-      str = expand_history(str);
+      str = expand_history(str[1..]);
     }
     else
     {
