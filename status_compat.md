@@ -238,3 +238,9 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `origin`                |  |  |
 | `reclaim_objects`       |  |  |
 | `shutdown`              |  |  |
+
+##Other optional MudOS packages
+| Function | Package | Status | Comments |
+| -------- | :------: | :------: | -------- |
+| `domain_stats`         | PACKAGE_MUDLIB_STATS | :heavy_multiplication_x: | Not used |
+| `author_stats`         | PACKAGE_MUDLIB_STATS | :heavy_multiplication_x: | Not used |
