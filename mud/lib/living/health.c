@@ -78,7 +78,7 @@ void end_practise(object loser, object winner)
   loser->stop_fight(winner);
   winner->stop_fight(loser);    
   // 5 hbs == 10 segundos
-  loser->add_timed_property(PASSED_OUT_PROP, "EstÃ¡s inconsciente.\n", 5);
+  loser->add_timed_property(PASSED_OUT_PROP, "Estás inconsciente.\n", 5);
 }
 
 int adjust_aggro(int i, object aggro_doer)
@@ -289,50 +289,50 @@ int set_xp(int i)
   return xp;
 }
 
-// AÃ±adido self, Folken 02/2006
+// Añadido self, Folken 02/2006
 string health_string(int self) 
 {
   if (!self)
   {
     if (hp < max_hp/20)
-      return "estÃ¡ al borde la muerte";
+      return "está al borde la muerte";
     if (hp < max_hp/10)
-      return "estÃ¡ en muy mal estado";
+      return "está en muy mal estado";
     if (hp < max_hp/5)
-      return "estÃ¡ en mal estado";
+      return "está en mal estado";
     if (hp < max_hp/2)
-      return "no estÃ¡ en muy buen estado";
+      return "no está en muy buen estado";
     if ((float)hp < (float)max_hp/1.2)
     {
       if (this_object()->query_gender() == 2) 
-        return "estÃ¡ ligeramente herida";
+        return "está ligeramente herida";
       else
-        return "estÃ¡ ligeramente herido";
+        return "está ligeramente herido";
     }
     if (hp == max_hp)
-      return "estÃ¡ en perfecto estado";
-    return "estÃ¡ en buen estado";
+      return "está en perfecto estado";
+    return "está en buen estado";
   }
   else
   {
     if (hp < max_hp/20)
-      return "EstÃ¡s al borde la muerte";
+      return "Estás al borde la muerte";
     if (hp < max_hp/10)
-      return "EstÃ¡s en muy mal estado";
+      return "Estás en muy mal estado";
     if (hp < max_hp/5)
-      return "EstÃ¡s en mal estado";
+      return "Estás en mal estado";
     if (hp < max_hp/2)
-      return "No estÃ¡s en muy buen estado";
+      return "No estás en muy buen estado";
     if ((float)hp < (float)max_hp/1.2)
     {
       if (this_object()->query_gender() == 2) 
-        return "EstÃ¡s ligeramente herida";
+        return "Estás ligeramente herida";
       else
-        return "EstÃ¡s ligeramente herido";
+        return "Estás ligeramente herido";
     }
     if (hp == max_hp)
-      return "EstÃ¡s en perfecto estado";
-    return "EstÃ¡s en buen estado";
+      return "Estás en perfecto estado";
+    return "Estás en buen estado";
   }
 }
 
@@ -388,7 +388,7 @@ string volume_string()
   return "reza por una muerte sin dolor";
 }
 
-// stats aÃ±adido
+// stats añadido
 mixed stats() 
 {
   return ({ ({"Max Hp", max_hp, }),

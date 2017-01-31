@@ -105,7 +105,7 @@ int do_equip(string str)
    int i, j;
 
    // Assum going to tell us something about the autoequip
-   if (str && stringp(str)) 
+   if (strlen(str)) 
    {
       // Now in consent
       // if (str == "off") {

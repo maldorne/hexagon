@@ -121,21 +121,15 @@ void set_race_ob(string str)
   // string frog;
     
   if (!strlen(str)) 
-    str = RACES_PATH + "unknown";
+    str = VALID_RACES_PATHS[0] + "unknown";
   
   // if ( sscanf(str, "/%s", frog)==1)
   //   str = extract(str, 1);
 
-  if (str[0..strlen(RACES_PATH)-1] != RACES_PATH) 
+  if ((str[0..strlen(VALID_RACES_PATHS[0])-1] != VALID_RACES_PATHS[0]) && 
+      (str[0..strlen(VALID_RACES_PATHS[1])-1] != VALID_RACES_PATHS[1]))
   {
-    write("Path ilegal para set_race_ob.\n");
-    return;
-  }
-
-  if (str[0..strlen(RACES_PATH+"god")-1] == RACES_PATH+"god" &&
-    !SECURE->high_programmer(geteuid())) 
-  {
-    write("El cielo retumba y los reinos tiemblan. No puedes hacer eso.\n");
+    write("Illegal path for set_race_ob.\n");
     return;
   }
 
@@ -145,6 +139,7 @@ void set_race_ob(string str)
       "Díselo a alguien que pueda arreglarlo.\n");
     return;
   }
+
   // Taniwha 1997, stop these accumulating on race change
   this_object()->adjust_bonus_str(-this_object()->query_bonus_str());
   this_object()->adjust_bonus_con(-this_object()->query_bonus_con());
@@ -215,7 +210,7 @@ void set_race_ob(string str)
 
 void set_race(string str) 
 {
-  set_race_ob(RACES_PATH + str);
+  set_race_ob(VALID_RACES_PATHS[1] + str);
 }
 
 string query_race_ob() { return social_object_list[RACE_OB]; }
@@ -427,7 +422,7 @@ void set_group_ob(string str)
 
   if (str[0..strlen("/lib/obj/groups")-1]!="/lib/obj/groups") 
   {
-    write("Path ilegal para set_group_ob.\n");
+    write("Illegal path for set_group_ob.\n");
     return;
   }
 

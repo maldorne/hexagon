@@ -1,7 +1,8 @@
 
 #define STD_RACE    "/lib/race.c"
 #define STD_SUBRACE "/lib/subrace.c"
-#define RACES_PATH  "/lib/obj/races/"
+
+#define VALID_RACES_PATHS  ({ "/lib/obj/races/", "/game/obj/races" })
 
 // Tamaños para las razas, desde 1 (diminuto), 5 (humano) hasta 10 (enorme)
 #define ELF_S 5

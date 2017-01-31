@@ -216,7 +216,7 @@ void recalc_stats(int i)
   
   int hp_bonus, gp_bonus;
   
-  class_ob = (object)this_object()->query_class_ob();
+  class_ob = load_object(this_object()->query_class_ob());
   
   // Cambiado, ahora hp_bonus y gp_bonus funcionan por los bonificadores segun
   //  caracteristica, neverbot 7/03
@@ -1026,7 +1026,7 @@ int adjust_bonus_to_stat_bonus_wil(int num) { return bonus_to_stat_bonus[WIL_POS
 int query_gp_main_stat()
 {
   object class_ob;
-  class_ob = this_object()->query_class_ob();
+  class_ob = load_object(this_object()->query_class_ob());
 
   if (class_ob)
     return class_ob->query_gp_main_stat(this_object());
