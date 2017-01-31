@@ -1,6 +1,8 @@
 
+#define NPC_OB       "/lib/npc"
+
 #define MONSTER_HAND "/lib/handlers/npcs.c"
-#define NO_SPAM "no_spam"
+#define NO_SPAM      "no_spam"
 
 // #define NO_WANDER
 #define MIN_PLAYER_LEVEL 1
