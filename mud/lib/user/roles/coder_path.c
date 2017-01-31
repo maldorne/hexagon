@@ -97,7 +97,7 @@ int change_dir(string str)
 
       if (!stringp(tmp))
       {
-        notify_fail("Error: call a wiz_present errÃ³neo, cd imposible.\n");
+        notify_fail("Error: call a wiz_present erróneo, cd imposible.\n");
         return 0;
       }
 
@@ -119,7 +119,7 @@ int change_dir(string str)
   str = filenames[0];
   
   if (file_size(str) != -2)
-    write("Directorio errÃ³neo: '" + str + "'.\n");
+    write("Directorio erróneo: '" + str + "'.\n");
   else
     current_path = str;
 

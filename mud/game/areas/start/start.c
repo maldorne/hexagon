@@ -8,7 +8,7 @@
 
 inherit "/std/room";
 
-#include <races.h>
+#include <living/races.h>
 #include <player.h>
 
 #define PATH "/doc/races/"

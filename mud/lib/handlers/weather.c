@@ -23,26 +23,26 @@ inherit "/lib/core/object.c";
 #define DIA 60
 #define ANYO 366
 
-private int ticks,         // [0..60]
-            hora_del_dia,   // [0..23]
-            dia_de_semana, // [0..6]
-            dia_del_mes,   // [0..num_dias_del_mes - 1]
-            dia_del_anyo,   // [0..365]
-            mes,           // [0..11]
-            estacion,       // [0..3]
-            anyo;           // x
+int ticks,         // [0..60]
+    hora_del_dia,   // [0..23]
+    dia_de_semana, // [0..6]
+    dia_del_mes,   // [0..num_dias_del_mes - 1]
+    dia_del_anyo,   // [0..365]
+    mes,           // [0..11]
+    estacion,       // [0..3]
+    anyo;           // x
 
-private int luna_uno,    // Fase lunar en la que esta cada luna.
-            luna_dos,
-            luna_tres;
+int luna_uno,    // Fase lunar en la que esta cada luna.
+    luna_dos,
+    luna_tres;
 
-private int * luna_uno_oculta;  // Arrays con la hora del dia a la que la luna
-private int * luna_dos_oculta;  // se oculta y comienza a ser visible.
-private int * luna_tres_oculta;
+int * luna_uno_oculta;  // Arrays con la hora del dia a la que la luna
+int * luna_dos_oculta;  // se oculta y comienza a ser visible.
+int * luna_tres_oculta;
 
 // Lista de zonas con el estado climatico de cada
 // una de ellas
-private mapping zones;    
+mapping zones;    
 
 // Lista de objetos a los que hemos de notificar
 // sobre los eventos del clima.

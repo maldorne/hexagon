@@ -8,6 +8,14 @@ static int hoffset, numoff;
 static int in_alias_command;
 static string ignore_history;
 
+void create()
+{
+  // history = ({ });
+  history = allocate(HISTORY_LENGHT); 
+  numoff = -HISTORY_LENGHT;
+  hoffset = 1;  
+}
+
 void init() 
 {
   add_action("print_history", ({ "historia" }) );
@@ -31,8 +39,9 @@ int clear_history()
     notify_fail ("¿Cómo dices?\n");
     return 0;
   }
+
   history = ({ });
-  history = allocate (HISTORY_LENGHT); 
+  history = allocate(HISTORY_LENGHT); 
   numoff = -HISTORY_LENGHT;
   hoffset = 1;
   history[0] = "cleared";
@@ -157,7 +166,7 @@ int print_history(string arg)
   { /* a call */
     if (!interactive(this_player())) 
       return 0;
-    if (!("secure/master"->query_admin(geteuid(this_player())))) 
+    if (!(MASTER->query_admin(geteuid(this_player())))) 
       return 0;
   }
 
