@@ -12,6 +12,7 @@ string init_room;
 void create()
 {
   init_room = "";
+  ::create();
 }
 
 int query_legal_race(string race) { return(1); }
