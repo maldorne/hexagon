@@ -220,7 +220,7 @@ string query_base_race_name()
 { 
   object ob;
   if (social_object_list[RACE_OB])
-    if (ob = social_object_list[RACE_OB]->query_base_race())
+    if (ob = load_object(social_object_list[RACE_OB]->query_base_race()))
         return (string)ob->query_name(); 
   return "";
 }
@@ -420,7 +420,8 @@ void set_group_ob(string str)
   // if (sscanf(str,"/%s", tmp) == 1)
   //   str = extract(str,1);
 
-  if (str[0..strlen("/lib/obj/groups")-1]!="/lib/obj/groups") 
+  if ((str[0..strlen("/lib/obj/groups")-1] != "/lib/obj/groups") &&
+      (str[0..strlen("/game/obj/groups")-1] != "/game/obj/groups"))
   {
     write("Illegal path for set_group_ob.\n");
     return;
@@ -465,9 +466,10 @@ void set_race_group_ob(string str)
   // if (sscanf(str,"/%s", tmp) == 1)
   //   str = extract(str,1);
 
-  if (str[0..strlen("/lib/obj/race_groups")-1]!="/lib/obj/race_groups") 
+  if ((str[0..strlen("/lib/obj/race_groups")-1] != "/lib/obj/race_groups") &&
+      (str[0..strlen("/game/obj/race_groups")-1] != "/game/obj/race_groups"))
   {
-    write("Path ilegal en set_race_group_ob.\n");
+    write("Illegal path in set_race_group_ob.\n");
     return;
   }
 
@@ -549,9 +551,10 @@ void set_job_ob(string str)
   // if (sscanf(str,"/%s", tmp) == 1)
   //   str = extract(str,1);
 
-  if (str[0..strlen("/lib/obj/jobs")-1]!="/lib/obj/jobs") 
+  if ((str[0..strlen("/lib/obj/jobs")-1] != "/lib/obj/jobs") &&
+      (str[0..strlen("/game/obj/jobs")-1] != "/game/obj/jobs"))
   {
-    write("Path ilegal en set_job_ob.\n");
+    write("Illegal path in set_job_ob.\n");
     return;
   }
 
@@ -735,9 +738,10 @@ void set_deity_ob(string str)
   //  if (sscanf(str,"/%s", tmp) == 1)
   //  str = extract(str,1);
 
-  if (str[0..strlen("/lib/obj/deities")-1]!="/lib/obj/deities") 
+  if ((str[0..strlen("/lib/obj/deities")-1] != "/lib/obj/deities") && 
+      (str[0..strlen("/game/obj/deities")-1] != "/game/obj/deities"))
   {
-    write("Path ilegal en set_deity_ob.\n");
+    write("Illegal path in set_deity_ob.\n");
     return;
   }
 
@@ -775,9 +779,10 @@ void set_city_ob(string str)
   // if (sscanf(str,"/%s", tmp) == 1)
   //  str = extract(str,1);
 
-  if (str[0..strlen("/lib/obj/citizenships")-1]!="/lib/obj/citizenships") 
+  if ((str[0..strlen("/lib/obj/citizenships")-1] != "/lib/obj/citizenships") &&
+      (str[0..strlen("/game/obj/citizenships")-1] != "/game/obj/citizenships"))
   {
-    write("Path ilegal en set_city_ob.\n");
+    write("Illegal path in set_city_ob.\n");
     return;
   }
 

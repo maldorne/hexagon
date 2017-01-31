@@ -43,7 +43,8 @@ static void role_commands()
 
 static int do_update(object *ov) 
 {
-  string pname, dummy;
+  string pname;
+  int dummy;
   int i, j;
   object *invent, rsv, env, dup, loaded;
   // next three Hamlet's
@@ -214,7 +215,7 @@ int update(string str)
   }
   else 
   {
-    filenames = get_files(str);
+    filenames = get_cfiles(str);
   }
   
   if (sizeof(filenames) == 0) 

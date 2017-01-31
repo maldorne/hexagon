@@ -5,6 +5,7 @@
 
 #include <living/living.h>
 #include <user/user.h>
+#include <npc/npc.h>
 
 static mapping _livings;
 
@@ -33,9 +34,13 @@ object * query_livings()
 }
 
 void _set_living_name(object ob, string name) 
-{
-  if (base_name(previous_object()) != USER_OB) 
-    return;
+{  
+  // TODO check it's a user object or it inherits from npc object
+
+  // stderr("TEST " + name + " " + to_string(previous_objects()) + "\n");
+  // if ((base_name(previous_object()) != USER_OB) &&
+  //     (base_name(previous_object()) != NPC_OB) )
+  //   return;
 
   if (previous_object() != ob)
     return;

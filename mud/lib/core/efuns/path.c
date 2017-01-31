@@ -114,7 +114,6 @@ string * get_files(string str)
 }
 
 // Changed to be *.* so as to handle virtual wombles as well
-/*
 string *get_cfiles(string str) 
 {
   int loop;
@@ -133,4 +132,3 @@ string *get_cfiles(string str)
   str = implode(names, " ");
   return get_files(str);
 }
-*/

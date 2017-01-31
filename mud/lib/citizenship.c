@@ -1,13 +1,18 @@
 // Base citizenship file...
-// Folken 4/2003
+// neverbot 4/2003
 // No creo que sean necesarios ni canales para el grupo ciudadania, ni
 // comandos propios, pero dejo el codigo comentado por si acaso
-//      Folken 4/2003
+//      neverbot 4/2003
 
-inherit "/std/object.c";
+inherit "/lib/core/object.c";
 
 // mixed *job_commands = ({ });
-string init_room = "";
+string init_room;
+
+void create()
+{
+  init_room = "";
+}
 
 int query_legal_race(string race) { return(1); }
 int query_legal_player(object player) { return 1; }

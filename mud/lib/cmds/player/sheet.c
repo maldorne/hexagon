@@ -87,9 +87,6 @@ static int cmd (string name, object who, string verb)
         log_file(LOG_SHEET, who->query_cap_name() + " looked through "+
            me->query_cap_name() + "'s sheet [" + ctime(time()) + "]\n");
     }
-
-    if (!who->query_coordinator() && !me->query_coder())
-      me = who;
   }
   else 
     me = who;
