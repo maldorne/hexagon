@@ -675,34 +675,40 @@ void event_fight_in_progress(object one, object two)
   }
 }
 
-void event_exit(object me, string mess, mixed ob) 
+void event_exit(object ob, varargs string mess, object dest, mixed avoid) 
+// void event_exit(object ob, string mess, mixed dest) 
 {
   mixed *bing;
   int i;
-  string zone;
+  string zone, file;
 
-  if (!move_after) /* we dont move :( */
-   return ;
-  /* follow the suckers. */
-  if (member_array(me, attacker_list) != -1)
+  if (!move_after) // we dont move :( 
+    return;
+
+  // follow the suckers.
+  if (member_array(ob, attacker_list) != -1)
   {
     bing = (mixed *)environment()->query_dest_dir();
-    if ((i = member_array(ob, bing)) == -1)
-    {
-      if (!objectp(ob))
-        ob = find_object(ob); /* arhghh must have teleported... scums. */
-      else
-        ob = file_name(ob);
-      if ((i = member_array(ob, bing)) == -1)
-        return ; /* lost cause */
-    }
-    zone = (string)ob->query_move_zone();
+    
+    // if ((i = member_array(dest, bing)) == -1)
+    // {
+      // if (!objectp(dest))
+      //   dest = find_object(dest); // arhghh must have teleported... scums.
+      // else
+      file = file_name(dest);
+      if ((i = member_array(file, bing)) == -1)
+        return; // lost cause
+    // }
+
+    zone = (string)dest->query_move_zone();
+
     if (move_zones && sizeof(move_zones))
       if (member_array(zone, move_zones) == -1)
       {
-        return ; /* If we are suppose to wander in move_zones.. dont go
+        return; /* If we are suppose to wander in move_zones.. dont go
                   * where we are not supposed to... get stuck */
       }
+
     remove_call_out(_follow_move_handle);
     _follow_move_handle = call_out("do_follow_move", 2 + random(query_follow_speed()), bing[i-1]);
   }

@@ -16,12 +16,13 @@ static nomask object load_object(string name)
   if (strlen(name) > 2 && name[strlen(name)-2..strlen(name)-1] == ".c") 
     name = name[0..strlen(name)-3];
 
-  stderr(" - load_object: " + name + " from: " + previous_program() + "\n");
-
   obj = find_object(name);
   
   if (!obj)
+  {
+    stderr(" - load_object: " + name + " from: " + previous_program() + "\n");
     obj = compile_object(name);
+  }
   
   return obj;
 }
