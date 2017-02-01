@@ -44,7 +44,7 @@ static int cmd (string str, object me, string verb)
     return 0;
   }
 
-  if (!str || str == "")
+  if (!strlen(str))
   {
     notify_fail("Sintaxis: atacar <objetivos>\n");
     return 0;
@@ -64,8 +64,10 @@ static int cmd (string str, object me, string verb)
     notify_fail("Tu estado etéreo tiene poco efecto en el mundo material.\n ");
     return 0;
   }
+
   obs = find_match(me->expand_nickname(str), environment(me));
   //obs = find_living(str, environment());
+  
   if (!sizeof(obs) || obs[0]->query_hidden() == 1)
   {
     notify_fail("No consigues encontrar a "+me->expand_nickname(str)+".\n");
@@ -81,32 +83,39 @@ static int cmd (string str, object me, string verb)
     notify_fail("¿Te quieres suicidar?\n");
     return 0;
   }
+
   if (!obs[0]->query_alive())
   {
     notify_fail("Comienzas a golpear a "+str+", pero "+str+" no "+
       "parece darse cuenta.\n");
     return 0;
   }
+
   for (i = 0; i < sizeof(obs); i++)
   {
     // Taniwha 1995, make sure the targets are alive
-    if (obs[i]->query_alive()){
+    if (obs[i]->query_alive())
+    {
       me->attack_ob(obs[i]);
+
       // Mostramos lista de con quienes realmente comenzamos a combatir
       // list += ({ obs[i]->query_name() }); 
-      if (member_array(obs[i]->query_name(), keys(list)) > -1){
-         list[obs[i]->query_name()][0] = list[obs[i]->query_name()][0] + 1;
+      if (member_array(obs[i]->query_name(), keys(list)) > -1)
+      {
+        list[obs[i]->query_name()][0] = list[obs[i]->query_name()][0] + 1;
       }
       else
       {
         list[obs[i]->query_name()] = ({ 1, 
-          (sizeof(obs[i]->query_plurals())?obs[i]->query_plurals()[0]:obs[i]->query_main_plural()),
+            (sizeof(obs[i]->query_plurals())?obs[i]->query_plurals()[0]:obs[i]->query_main_plural()),
           });
       }
     }
+
     if (obs[i]->query_statue())
       log_file("link", "["+ctime(time())+"] "+me->query_cap_name()+" atacó a "+
         obs[i]->query_cap_name()+" (respondia a query_statue).\n");
+    
     if (interactive(obs[i]))
     {
       log_file("attacks", "["+ctime(time(), 4)+"] " + me->query_name() + 

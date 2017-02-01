@@ -732,44 +732,6 @@ nomask int action_check(string str)
 
     // some testing commands
 
-    case "stats":
-      // write(object_name(this_object()) + "\n");
-      // print_object(::status(this_object()));
-      // print_object(this_object()->stats());
-      write(to_string(this_object()->stats()));
-      return 1;
-
-    case "test2":
-
-      tmp_env = clone_object("/lib/core/basic/container");
-      tmp_res = this_object()->move(tmp_env);
-      write(tmp_res + "\n");
-
-      tmp_ob = clone_object("/lib/core/object");
-      tmp_res = tmp_ob->move(tmp_env);
-      write(tmp_res + "\n");
-
-      // this_object()->move(tmp_ob);
-      return 1;
-
-    // case "inv":
-    //   print_object(this_object()->all_inventory());
-    //   return 1;
-
-    case "env":
-      print_object(environment(this_object()));
-      if (environment(this_object()))
-        print_object(environment(this_object())->all_inventory());
-      return 1;
-
-    // case "init":
-    //   this_object()->init();
-    //   return 1;
-
-    case "name":
-      print_object(this_object()->query_name());
-      return 1;
-
     case "aq":
       print_object(actionq);
       return 1;

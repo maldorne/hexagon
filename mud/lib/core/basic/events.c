@@ -77,7 +77,7 @@ void event_inform(object caller, string msg, string type, varargs mixed avoid)
   // if (member_array(type, on) == -1) 
   //   return;
   
-  msg = fix_string("\n\n[" + msg + "]\n\n");
+  msg = fix_string("\n[" + msg + "]\n\n");
 
   this_object()->catch_tell(msg);
 }
