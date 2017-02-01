@@ -6,33 +6,19 @@
 
 inherit "/lib/room";
 
-// object board;
-
-void init()
-{
-  add_action("do_ttt", "test");
-  ::init();
-}
-
-int do_ttt(string str)
-{
-  tell_object(this_player(), "YAH! We've done a '"+query_verb()+"' with '"+str+"'\n");
-
-  notify_fail("But i want a fail message.\n");
-  return 0;
-}
+object board;
 
 void reset() 
 {
-  // int i,n;
-  // object *all;
+  int i,n;
+  object *all;
   
-  // if(!board) 
-  // {
-  //   board = clone_object("/obj/misc/board");
-  //   board->set_datafile("programadores_comun");
-  //   board->move(this_object());
-  // }
+  if(!board) 
+  {
+    board = clone_object("/lib/obj/board");
+    board->set_datafile("coders-common");
+    board->move(this_object());
+  }
   
   /* Try to clean some memory */
   // n = reclaim_objects();
@@ -43,7 +29,7 @@ void reset()
   //     tell_object(all[i],"[ Objetos liberados (reclaim_object): "+ n +" ]\n");
   // }
 
-  //::reset();
+  ::reset();
 }
 
 void setup() 
@@ -57,12 +43,12 @@ void setup()
 
   // add_exit("cc", "/d/ciudad_capital/common", "standard");
   add_exit("sur", ADMIN + "admin1", "standard");
-  add_exit("norte", "/room/admin/meeting.c", "standard");
+  add_exit("norte", ADMIN + "meeting.c", "standard");
 }
 
 void dest_me() 
 {
-  // if (board)
-  //   board->dest_me();
+  if (board)
+    board->dest_me();
   ::dest_me();
 }
