@@ -91,10 +91,10 @@ int adjust_aggro(int i, object aggro_doer)
   return aggro_done[aggro_doer];
 }
 
-string query_main_aggro_doer()
+object query_main_aggro_doer()
 {
-  string doer;
-  string * atts;
+  object doer;
+  object * atts;
   int i, max;
   
   doer = nil;
@@ -103,7 +103,7 @@ string query_main_aggro_doer()
 
   for (i = 0; i < sizeof(atts); i++)
   {
-    if (aggro_done[atts[i]] < max)
+    if (aggro_done[atts[i]] && (aggro_done[atts[i]] < max))
     {
       doer = atts[i];
       max = aggro_done[atts[i]];
@@ -126,8 +126,15 @@ int adjust_hp(int i, varargs object hp_remover)
 
   if (hp_remover && !(int)hp_remover->query_dead() )
   {
-    damage_done[hp_remover] += i;
-    aggro_done[hp_remover] += i;
+    if (damage_done[hp_remover])
+      damage_done[hp_remover] += i;
+    else
+      damage_done[hp_remover] = i;
+    
+    if (aggro_done[hp_remover])
+      aggro_done[hp_remover] += i;
+    else
+      aggro_done[hp_remover] = i;
   }
 
   if ( hp > max_hp )
@@ -253,7 +260,7 @@ int adjust_xp(int i)
   }
   */
 
-  ob = this_object()->query_class_ob();
+  ob = load_object(this_object()->query_class_ob());
   if (ob && (i > 0)) 
   {
     next_level = ob->query_next_level_xp(this_object());

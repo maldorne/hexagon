@@ -181,9 +181,13 @@ void add_clone(string what,int num)
 void attack_by(object ob)
 {
   // For NPC's remember the man who shot my paw ;) Taniwha 1995
-  if (p_memory && interactive(ob) && (ob->query_level() > MIN_PLAYER_LEVEL) &&
+  if (p_memory && interactive(ob) && 
+      (ob->query_level() > MIN_PLAYER_LEVEL) &&
       (member_array(ob->query_name(), p_attack_list) == -1) )
+  {
     p_attack_list += ({ (string)ob->query_name() });
+  }
+
   if (p_attack_list)
     do_equip("");
 
@@ -250,7 +254,7 @@ string long(string str, int dark)
   // neverbot, 7/03
   // Con el 1 de query_race_gender_string nos ahorramos el articulo
   // (en lugar de 'la humana', devuelve unicamente 'humana')
-  if (ob = this_object()->query_race_ob())
+  if (ob = load_object(this_object()->query_race_ob()))
     if (ob->query_race_gender_string(this_object(), 1) != "")
       s += capitalize(query_pronoun())+" es "+query_numeral()+ " " +
            ob->query_race_gender_string(this_object(), 1) + ".\n";
@@ -657,10 +661,12 @@ void do_move_after(int bing)
 } /* do_move_after() */
 
 // Added by Wonderflug.  To fix add_protect.
-void event_death(object ob, object* obs)
+void event_death(object caller, varargs object killer, 
+                                        object * attackers, 
+                                        mixed avoid)
 {
-  if ( ob == this_object() )
-    return ;
+  if ( caller == this_object() )
+    return;
   else
     protecting = 0;
 }

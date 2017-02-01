@@ -306,23 +306,28 @@ void attack()
 void attack_by(object ob) 
 {
   if (ob == this_object())
-    return ;
+    return;
+
   if (this_object()->query_hidden())
     return;
+
   if (!attacker_list)
     attacker_list = ({ });
+
   if (!sizeof(attacker_list)) 
   {
     dodging = (int)this_object()->query_level();
   }
+
   if (member_array(ob, attacker_list) == -1 &&
-    member_array(ob, call_outed) == -1) 
+      member_array(ob, call_outed) == -1) 
   {
     tell_object(this_object(), "Estás siendo atacado por " + 
       ob->query_short() + ".\n");
 
     attacker_list += ({ ob });
   }
+
   set_heart_beat(1);
 }
 

@@ -1,6 +1,6 @@
 
 
-#define DEATH_HANDLER "/lib/handlers/death_handler"
+#define DEATH_HANDLER "/lib/handlers/death"
 #define CORPSE_OB "/lib/obj/corpse"
 
 #define WAR_HANDLER "/lib/handlers/war_handler"

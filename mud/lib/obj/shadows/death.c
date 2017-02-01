@@ -99,7 +99,7 @@ int score()
 }
 */
  
-void second_life() 
+int second_life(object corpse, object initiator) 
 {
 } 
 

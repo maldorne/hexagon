@@ -7,3 +7,8 @@
 #define MAGIC_XP "magic_xp"
 #define KILL_XP "kill_xp"
 #define SKILL_XP "skill_xp"
+
+#define MAX_XP_BON 2.0
+#define MAX_XP_PEN 0.80
+#define BASE_KAR 0.040
+

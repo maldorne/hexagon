@@ -65,6 +65,8 @@ nomask void _heart_beat()
     // turn off heart beat in the object
     if (result)
     {
+      stderr("  └─> heart_beat error in " + object_name(ob) + ":\n      " + 
+                                            result + "\n");
       _hb_object_list -= ({ _hb_object_list[i] });
       i--;
       call_other(ob, "set_heart_beat", 0);

@@ -80,12 +80,10 @@ static int cmd(string str, object me, string verb)
 
       ret += to_string(my_stats[i][1]) + "\n";
     }
-
   }
 
   tell_object(me, ret);
-
-  tell_object(me, "Utiliza exec para más información, por ejemplo:\n  exec return find_living(\""+me->query_name()+"\")->stats()[ <indice> ]\n  para más información.\n");
+  tell_object(me, "\nUtiliza exec para más información, por ejemplo:\n  exec return find_living(\""+me->query_name()+"\")->stats()[ <indice> ]\n  para más información.\n");
 
   return 1;
 }
