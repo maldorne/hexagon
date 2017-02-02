@@ -328,7 +328,8 @@ void attack_by(object ob)
     attacker_list += ({ ob });
   }
 
-  set_heart_beat(1);
+  if (!query_heart_beat())
+    set_heart_beat(1);
 }
 
 // Hmm, this is called by the attacker, object ob is the victim 
