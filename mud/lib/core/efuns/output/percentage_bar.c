@@ -1,5 +1,5 @@
 // Funcion util para multiples comandos
-// Folken 08/05, basada en el comando score 
+// neverbot 08/05, basada en el comando score 
 
 string percentage_bar(int value) 
 {
@@ -17,7 +17,7 @@ string percentage_bar(int value)
   
   i = (20 * value)/100;
 
-  str = aux_1[0..i-1] + aux_2[i..20];
+  str = aux_1[0..i-1] + aux_2[i..19];
   aux_1 = "%^BOLD%^RED%^" + str[0..3] +
           "%^MAGENTA%^" + str[4..7] +
           "%^YELLOW%^" + str[8..11] +
