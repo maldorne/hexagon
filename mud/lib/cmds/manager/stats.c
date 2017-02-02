@@ -71,8 +71,9 @@ static int cmd(string str, object me, string verb)
   
       if (intp(my_stats[i][1]) ||
           stringp(my_stats[i][1]) || 
-          (arrayp(my_stats[i][1]) && sizeof(my_stats[i][1]) == 0) || 
-          (mappingp(my_stats[i][1]) && m_sizeof(my_stats[i][1]) == 0)
+         (arrayp(my_stats[i][1]) && sizeof(my_stats[i][1]) == 0) || 
+         (mappingp(my_stats[i][1]) && m_sizeof(my_stats[i][1]) == 0) ||
+         (undefinedp(my_stats[i][1]))
          )
         ret += ": ";
       else

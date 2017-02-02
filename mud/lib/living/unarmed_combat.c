@@ -19,19 +19,19 @@
     an include file cause this doesn't rely on different weapons
     classes and stuff ... bingles ...
     
-    Retocado por Folken para Cc, 04/2003, para aÃ±adir el sistema
+    Retocado por neverbot para Cc, 04/2003, para añadir el sistema
     de localizaciones de Iolo y utilizar (por fin) el sistema
     de estilos de combate.
 
-    AÃ±adido sistema de aprendizaje automatico de los estilos de 
-    combate, Folken 7/03
+    Añadido sistema de aprendizaje automatico de los estilos de 
+    combate, neverbot 7/03
     
 */
 
 static int ovr_num, ovr_type;
 static object defender,
               attacker;
-// Mensajes de daÃ±o desarmado segun el estilo de combate. Se almacenan solo
+// Mensajes de daño desarmado segun el estilo de combate. Se almacenan solo
 // una vez cada cambio de estilo, para no tener que estar comprobando mappings
 // para cada golpe
 static mixed * messages;
@@ -101,7 +101,7 @@ int unarmed_attack(object def, object att)
     danyo = recalc_damage(att_val[1]);
     danyo_absorbido = 0;
 
-    // Buscamos el objeto que protege para ver cuanto daÃ±o absorbe
+    // Buscamos el objeto que protege para ver cuanto daño absorbe
     if (danyo[1] != "")
     {
       obs = defender->query_worn_ob();
@@ -109,7 +109,7 @@ int unarmed_attack(object def, object att)
       {
         if (obs[j]->query_localization() == danyo[1])
         {
-          // Calculamos cuanto % de daÃ±o absorbe la armadura
+          // Calculamos cuanto % de daño absorbe la armadura
           if (obs[j]->query_ac() + obs[j]->query_blunt_bon() > 0) 
           {
               if ((obs[j]->query_ac() + obs[j]->query_blunt_bon()) > 10)
@@ -124,12 +124,12 @@ int unarmed_attack(object def, object att)
       }
     }
  
-    // Aplicamos el daÃ±o definitivo
+    // Aplicamos el daño definitivo
     defender->adjust_hp(-(danyo[0] - danyo_absorbido), attacker);
 
     write_message(danyo[0],danyo[1], attacker, defender);
 
-    // Sistema de aprendizaje de estilos desarmados, Folken 7/03
+    // Sistema de aprendizaje de estilos desarmados, neverbot 7/03
     num_unarmed_hits++;
     if ((num_unarmed_hits > 0) && (num_unarmed_hits%100 == 0))
     {
@@ -170,8 +170,8 @@ mixed *workout_attack(string unarmed_type)
   string happen;
   int result, attackerwc, defenderac, damage_done;
   int tmp;
-  
-  // Comprobacion por si acaso (aunque nunca deberia darse), Folken 4/03
+
+  // Comprobacion por si acaso (aunque nunca deberia darse), neverbot 4/03
   if (!defender || !attacker)
     return ({ MISS, 0 });
      
@@ -193,8 +193,8 @@ mixed *workout_attack(string unarmed_type)
   // Luck factor  
   if (roll(1, 200) < 10 )
   {
-    // Mensaje de pifia aÃ±adido, habria que hacerlo personalizado mas adelante
-    tell_object(this_object(), "Â¡Oh, quÃ© torpeza!\n");
+    // Mensaje de pifia añadido, habria que hacerlo personalizado mas adelante
+    tell_object(this_object(), "¡Oh, qué torpeza!\n");
     return ({ FUMBLE, 0 });
   }
 
@@ -213,7 +213,7 @@ mixed *workout_attack(string unarmed_type)
   // if ( sizeof(defender->query_attacker_list()) > 2)
   //   defenderac = (defenderac / (sizeof(defender->query_attacker_list()) / 2));
 
-  // Cambiado por Folken, 10/2009. No depende de tu numero de atacantes, sino de la diferencia
+  // Cambiado por neverbot, 10/2009. No depende de tu numero de atacantes, sino de la diferencia
   // entre tus atacantes y los de tu contrario. Asi evitamos que la AC se modifique en batallas campales
   // 6 vs 6, por ejemplo.
   {
@@ -249,8 +249,8 @@ mixed *workout_attack(string unarmed_type)
     // Luck factor  
     if ( roll(1, 200) < 10 ) 
     {
-      // Mensaje de critico aÃ±adido
-      tell_object(this_object(), "Â¡Oh, quÃ© habilidad!\n");
+      // Mensaje de critico añadido
+      tell_object(this_object(), "¡Oh, qué habilidad!\n");
       damage_done *= 2;
     }
   }
@@ -259,7 +259,7 @@ mixed *workout_attack(string unarmed_type)
     // Calculamos si el fallo ha sido porque el defensor esquiva o 
     // porque el atacante falla (el resultado es irrelevante excepto a terminos
     // "narrativos", solo influira en el tipo de mensajes que se le 
-    // darÃ¡n a cada uno)
+    // darán a cada uno)
     result = ((attacker->query_level() + 
                attacker->query_dex() + 
                attacker->query_skill_malus()) + 
@@ -292,7 +292,7 @@ int set_unarmed_combat_style(string style)
 
   if (this_object()->query_dead())
   {
-     notify_fail("EstÃ¡s en forma espiritual, no necesitas conocer eso.\n");
+     notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
      return 0;
   }
 
@@ -320,7 +320,7 @@ int set_unarmed_combat_style(string style)
     // Minimo de habilidad
     unarmed_ability = (known_unarmed_styles[style]>=MIN_UNARMED_ABILITY?known_unarmed_styles[style]:MIN_UNARMED_ABILITY);
 
-    // Actualizamos tambien el tipo de dados de daÃ±o que vamos a utilizar.
+    // Actualizamos tambien el tipo de dados de daño que vamos a utilizar.
     tmp = UNARMED_BASE->set_damage_dice(current_unarmed_style, this_object());
     if (tmp == 0)
     {
@@ -398,7 +398,7 @@ int adjust_unarmed_ability(string style, int i)
     unarmed_ability += i;
 
   if (i > 0)
-    tell_player(this_object(), "Â¡Has mejorado tus habilidades en "+style+"!\n");
+    tell_player(this_object(), "¡Has mejorado tus habilidades en "+style+"!\n");
 
   return known_unarmed_styles[style];   
 }
@@ -421,7 +421,7 @@ int do_combat_styles(string style)
 
   if (this_object()->query_dead())
   {
-    notify_fail("EstÃ¡s en forma espiritual, no necesitas conocer eso.\n");
+    notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
     return 0;
   }
 
@@ -432,9 +432,11 @@ int do_combat_styles(string style)
     //    line += "-"; // Tengo que averiguar como se hace esto con un sprinf :S
     // line += "\n";
     
-    line = sprintf("%*'-'s\n", this_object()->query_cols(), "");
+    // line = sprintf("%*'-'s\n", this_object()->query_cols(), "");
+    line = sprintf("%*s\n", this_object()->query_cols(), "");
     
-    ret = sprintf("%*'-'|s\n\n", this_object()->query_cols()+18, 
+    // ret = sprintf("%*'-'|s\n\n", this_object()->query_cols()+18, 
+    ret = sprintf("%*s\n\n", this_object()->query_cols()+18, 
       "> %^GREEN%^Conoces los siguientes estilos de lucha: %^RESET%^<");
     // ret += "   Sin armas:\n";
 
@@ -521,7 +523,7 @@ int do_combat_styles(string style)
 
 /* This needs the attacker's object too.. */
 /* Aqui he aplicado tambien el sistema de localizaciones de Iolo en Rl,
- * Folken 4/03
+ * neverbot 4/03
  */
 mixed *recalc_damage(int i)
 {
@@ -536,7 +538,7 @@ mixed *recalc_damage(int i)
     local = ({ 1, "" });
   
   // Aplicamos aqui el modificador por localizacion
-  // (segun donde demos haremos mas o menos daÃ±o con un golpe
+  // (segun donde demos haremos mas o menos daño con un golpe
   //  de la misma fuerza).
   hps = (int)((float)i * (float)local[0]);
     
@@ -544,7 +546,7 @@ mixed *recalc_damage(int i)
 }
 
 // Sistema de Iolo@RL de localizaciones!!
-// Sistema de mensajes generalizado con tecnicas, Folken 4/03
+// Sistema de mensajes generalizado con tecnicas, neverbot 4/03
 void write_message(int damage, string local, object att, object defdr)
 {
   string sitio;
@@ -559,8 +561,8 @@ void write_message(int damage, string local, object att, object defdr)
 
   if (sizeof(messages) != 3)
   {
-    tell_object(att, "Parece que ha habido algÃºn problema con tus tÃ©cnicas de combate, "+
-                     "habla con algÃºn programador.\n");
+    tell_object(att, "Parece que ha habido algún problema con tus técnicas de combate, "+
+                     "habla con algún programador.\n");
     return;
   }
   
@@ -597,7 +599,7 @@ int set_messages(mixed * list)
   if (sizeof(list) != 3)
     return 0;
   
-  // Si es una lista de listas pero tienen distinto tamaÃ±o
+  // Si es una lista de listas pero tienen distinto tamaño
   if ( arrayp(list[0]) && 
     ( (sizeof(list[0]) != sizeof(list[1])) || (sizeof(list[1]) != sizeof(list[2])) ))
     return 0;
@@ -656,7 +658,7 @@ void set_damage_dice(int numdie, int dietype)
   return;
 }
 
-// stats aÃ±adido
+// stats añadido
 mixed stats() 
 {
   mixed * ret;
