@@ -99,7 +99,7 @@ void dest_me()
   obs = deep_inventory(this_object());
 
   for (i = 0; i < sizeof(obs); i++)
-    if(obs[i])
+    if (obs[i])
       obs[i]->dest_me();
 
   movement::dest_me();
@@ -247,6 +247,8 @@ void heart_beat()
   regen_gp = regen_hp = 0;
   race_regen_gp = race_regen_hp = 0;
 
+  combat::heart_beat();
+
   queue::heart_beat(); // queue.c, will do act()
 
   hb_counter++;
@@ -263,16 +265,16 @@ void heart_beat()
   }
 
   // Quark, adding heart beat to curses.
-  // if(!(hb_counter & 31))
+  // if (!(hb_counter & 31))
   //   this_object()->curses_heart_beat();
 
-  /* Sistema de regeneracion de vida actualizado, Folken@Cc, 13/7/03 */
+  /* Sistema de regeneracion de vida actualizado, neverbot@Cc, 13/7/03 */
   if ((hp_counter + query_con()) >= 22 + random(10))
     regen_hp = 1;
   if ((gp_counter + query_gp_main_stat()) >= 22 + random(10))
     regen_gp = 1;
 
-  if(regen_hp || regen_gp) 
+  if (regen_hp || regen_gp) 
   {
     if (regen_hp)
       hp_counter = -1;
@@ -302,9 +304,12 @@ void heart_beat()
  
   if (this_object()->query_player() && this_object()->query_is_quiet())
   {
-      hp_counter++;
-      gp_counter++;
+    hp_counter++;
+    gp_counter++;
   }
+
+  health::heart_beat();
+  comm::heart_beat();
 }
 
 // Añadido para comprobar si es un npc de quest

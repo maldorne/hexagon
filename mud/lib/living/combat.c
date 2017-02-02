@@ -25,6 +25,12 @@ static int dodging;
 static int combat_mode;
 static int combat_role;
 
+static object last_moving_env; // object with the last enviroment
+static int combat_counter; // heart_beat counter
+static int is_quiet;  // not moving or fighting
+static int is_moving; // recently moved
+
+
 int query_dodging() { return dodging; }
 int query_combat_mode() { return combat_mode; }
 void set_combat_mode(int i) { combat_mode = i; }
@@ -47,6 +53,9 @@ int query_concentrate_valid() { return 0; }
 void remove_protector(object ob) { protector = nil; }
 object set_protector(object ob) { return (protector = ob); }
 object query_protector() { return protector; }
+
+int query_is_quiet() { return is_quiet; }
+int query_is_moving() { return is_moving; }
 
 
 void combat_commands() 
@@ -72,6 +81,51 @@ void create()
   combat_role = DPS_ROLE;
   unarmed_combat::create();
   armed_combat::create();
+
+  combat_counter  = 1; // start even
+  last_moving_env = nil;
+  is_moving       = 0;
+  is_quiet        = 1;
+}
+
+void attack();
+
+void heart_beat()
+{
+  // Added a combat_counter, so the combat aren't that quick.
+  if (combat_counter % 2 == 0)
+  {
+    attack();
+    this_object()->do_active_effects(attackee);
+
+    if (combat_counter % 4 == 0)
+    {
+      if (last_moving_env != environment(this_object()))
+      {
+        last_moving_env = environment(this_object());
+        is_moving = 1;
+      }
+      else
+        is_moving = 0;
+    }
+
+    if (combat_counter >= 100)
+     combat_counter = 1; 
+    
+    if (!this_object()->query_is_fighting() && !is_moving)
+      is_quiet = 1;
+    else
+      is_quiet = 0;
+  } 
+
+  combat_counter++;
+
+  if (sizeof(attacker_list) && 
+      this_object()->query_wimpy() && 
+     (this_object()->query_hp() < this_object()->query_max_hp()*this_object()->query_wimpy()/100))
+  {
+    this_object()->run_away();
+  }
 }
 
 object query_attackee() { return attackee; }

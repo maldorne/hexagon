@@ -15,6 +15,8 @@ private int display_monitor_handle;
 static mapping damage_done;
 static mapping aggro_done;
 
+int headache;
+
 void create() 
 {
   damage_done = ([ ]);
@@ -23,6 +25,43 @@ void create()
   max_gp = 1;
   max_hp = 1;
   display_monitor_handle = 0;
+  headache = 0;
+}
+
+int query_volume(int type);
+void update_volumes();
+
+void heart_beat()
+{
+  int intox;
+
+  intox = query_volume(D_ALCOHOL);
+
+  // TODO -> review drunk.c
+  // if (drunk_heart_beat(intox) > 0)
+
+  /* handle intoxication dispersion by our selves...
+   * they just handle hp recival and sp recival...     */
+  if (headache)
+    if (!--headache) 
+    {
+      tell_object(this_object(), "Se te pasa el dolor de cabeza.\n");
+      headache = 0;
+    }
+
+  if (intox) 
+  {
+    if (!(intox-1)) 
+    {
+      headache = 15;
+      tell_object(this_object(), "Empieza a dolerte la cabeza, qué alegría.\n");
+      hp -= 2;
+      if (hp < 1)
+        hp = 1;
+    }
+  }
+
+  update_volumes();
 }
 
 int query_hp() { return hp; }

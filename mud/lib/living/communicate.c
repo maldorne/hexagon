@@ -7,13 +7,16 @@
 // #include <network.h>
 
 
-// PENDIENTE: Este archivo hay que retocarlo entero para comprobar los
+// TODO: Este archivo hay que retocarlo entero para comprobar los
 //  idiomas, comandos de comunicacion, etc
 // neverbot starts: 12/10/03
 
 int social_points, max_social_points;
 string *languages,
 cur_lang;
+
+static int social_hb_num; // heart_beat counter
+
 
 string drunk_speech(string str);
 
@@ -62,6 +65,24 @@ void create()
   max_social_points = 0;
   languages = ({ });
   cur_lang = "";
+  social_hb_num = 0;
+}
+
+void heart_beat()
+{
+  if (++social_hb_num%8)  // How about half as fast?
+  {
+    social_points++;
+    if(social_points > max_social_points)
+        social_points = max_social_points;
+
+    if (social_hb_num > 500) 
+    {
+      if(max_social_points < 1000)
+          max_social_points++;
+      social_hb_num = 0;
+    }
+  }  
 }
 
 void set_max_social_points(int num) 

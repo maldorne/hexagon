@@ -21,14 +21,14 @@ inherit chatter    "/lib/npc/chatter.c";
 inherit npc_combat "/lib/npc/npc_combat.c";
 inherit npc_timed  "/lib/npc/npc_timed.c";
 
-static int combat_counter;  /* Counts what we should do next in combat */
+// already defined in living/combat.c
+// static int combat_counter;  /* Counts what we should do next in combat */
 
 // Taniwha 1995
 int p_memory;          /* if !0 will record player names, else won't */
 string *p_attack_list; /* names we don't like */
 
-mixed move_after,      /* ({ minimum time, Add'l random time }) */
-*throw_out;            /* ({ their hp, % chance, theirmess, elsemess}) */
+mixed move_after;      /* ({ minimum time, Add'l random time }) */
 
 int move_when;         /* how many hbs we shall move */
 
@@ -340,12 +340,6 @@ void set_move_after(int after, int rand)
   move_when = (move_after[0] + random(move_after[1]));
 }
 
-mixed* query_throw_out() { return throw_out; }
-void set_throw_out(int hps, int chance, string their_mess,string everyone_mess)
-{
-  throw_out = ({ hps, chance, their_mess, everyone_mess });
-}
-
 void run_away(varargs int bing)
 {
   if (bing)
@@ -380,49 +374,6 @@ int check_heart_beat()
     protecting = 0;
   }
 } 
-
-void combat_heart_beat()
-{
-  int i;
-
-  if ( (max_hp*wimpy/100) > hp && hp > 0) 
-  {
-    run_away();
-    // taniwha, don't return here, they may NOT be able to run
-  }
-  switch(combat_counter++)
-  {
-    case 0:
-        do_active_effects(this_object());
-        if (!sizeof(query_attack_effects()) || !sizeof(attacker_list) ) 
-            break;
-        MONSTER_HAND->effect_heart_beat(this_object(), attacker_list, query_attack_effects());
-        break;
-    case 1:
-        chatter(achat_chance, achat_string);
-        combat_counter=0;
-        if (drunk_heart_beat(query_volume(0)))
-            attack();
-        if (!throw_out)
-            break;
-        for (i=0;i<sizeof(attacker_list);i++)
-            if (attacker_list[i] &&
-                attacker_list[i]->query_hp() < throw_out[0] &&
-                environment(attacker_list[i]) == environment(this_object()) &&
-                random(100) < throw_out[1] )
-            {
-              if (throw_out[2])
-                  tell_object(attacker_list[i],
-                      (string)MONSTER_HAND->expand_string(this_object(), throw_out[2], 0, attacker_list[i]));
-              if (throw_out[3])
-                  tell_room(environment(this_object()), 
-                      (string)MONSTER_HAND->expand_string(this_object(), throw_out[3], 0, attacker_list[i]),
-                      attacker_list[i]);
-              attacker_list[i]->run_away(1);
-            } /* if (attacker_list */
-        break;
-  }
-}
 
 /* Does the move after thingie called in heart_beat
 * Wonderflug, cut this down to nothing :)
@@ -460,9 +411,14 @@ void heart_beat()
    * it runs when the monsie is in fight.
    */
   if ( sizeof(attacker_list) || sizeof(call_outed) || sizeof(query_effects()) )
-    combat_heart_beat();
+  {
+    MONSTER_HAND->effect_heart_beat(this_object(), attacker_list, query_attack_effects());
+    chatter(achat_chance, achat_string);
+  }
   else
+  {
     chatter(chat_chance, chat_string);
+  }
 
   if (move_after && !sizeof(attacker_list))
     move_after_heart_beat();
