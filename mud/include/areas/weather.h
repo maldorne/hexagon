@@ -5,7 +5,7 @@
 #define LOG_FILE "weather"
 
 #define TABLE "/lib/table/weather_table"
-#define WEATHER_SH "/obj/shadows/weather_sh.c"
+#define WEATHER_SH "/lib/obj/shadows/weather_sh.c"
 
 // Cuantas zonas climaticas modificaremos cada
 // vez que actualicemos el clima
