@@ -10,6 +10,7 @@
 #include <common/properties.h>
 #include <basic/money.h>
 #include <user/hud.h>
+#include <living/drinks.h>
 
 inherit history     "/lib/user/history";
 inherit alias       "/lib/user/alias";
@@ -40,6 +41,7 @@ static mixed  redirect_input_args;     // optional arguments passed to the funct
 static int timestamp;
 
 string last_pos;     // file name of environment of last connection
+static object last_moving_env; // same concept, just the object
 string *auto_load;   // inventory
 int time_on;         // total time connected 
 int ontime;          // session time
@@ -47,6 +49,17 @@ int last_log_on;     // time of last log on
 string last_on_from; // last ip the user connected from
 string hud;
 
+static int hb_num;         // heart_beat counter
+static int combat_counter; // heart_beat counter
+static int save_counter;   // each reset counter
+
+static int is_quiet;  // not moving or fighting
+static int is_moving; // recently moved
+
+static int last_command; // time of last command
+static int net_dead;     // has lost connection?
+
+int headache, max_headache; // TODO take these from here
 
 // TMP DEBUG, REMOVE!!!
 // string query_name() { return "neverbot"; }
@@ -127,6 +140,15 @@ void create()
   
   hud          = HUD_DIFFICULTY; 
 
+  hb_num          = 0;
+  save_counter    = 0;
+  combat_counter  = 1; // start even
+  last_moving_env = nil;
+  is_moving       = 0;
+  is_quiet        = 1;
+  last_command    = time();
+  net_dead        = 0;
+
   redirect_input_ob       = nil;
   redirect_input_function = "";
   redirect_input_args     = ({ });
@@ -154,6 +176,9 @@ nomask void set_ontime(int i) { ontime = i; }
 nomask int query_ontime() { return ontime; }
 nomask int query_timestamp() { return timestamp; }
 
+int query_is_quiet() { return is_quiet; }
+int query_is_moving() { return is_moving; }
+
 void dest_me()
 {
   role::dest_me();
@@ -165,6 +190,19 @@ void dest_me()
 
   // main dest_me
   living::dest_me();
+}
+
+nomask int save_me();
+
+void reset()
+{
+  if(save_counter > 0)    
+  {
+    update_tmps();
+    save_me();
+  }
+  else
+    ++save_counter;
 }
 
 // Called from the input_to efun
@@ -393,12 +431,132 @@ static void receive_message(string str)
   } // rlimits
 }
 
+void run_away()
+{
+  mixed *direcs;
+  int i, bong;
+
+  if ( this_object()->query_property(PASSED_OUT_PROP) )
+  {
+    tell_object(this_object(),"No estás en condiciones de salir corriendo.\n");
+    return ;
+  }
+
+  direcs = (mixed *)environment()->query_dest_dir();
+  
+  while (!bong && sizeof(direcs))
+  {
+    i = random(sizeof(direcs)/2)*2;
+    bong = insert_action(direcs[i]);
+    if (!bong)
+      direcs = delete(direcs, i, 2);
+    else
+      write("Ves a tus pies correr ante ti.\n");
+  }
+  if (!bong)
+    write("Intentaste escapar, pero no has encontrado "+
+      "ninguna salida.\n");
+}
+
 void heart_beat()
 {
-  // do not forget!!
-  ::heart_beat();
+  int intox;
 
-  // write("hb: " + object_name(this_object()) + "\n");
+  intox = query_volume(D_ALCOHOL);
+
+  // Added a combat_counter, so the combat aren't that quick.
+  if (drunk_heart_beat(intox) > 0 && (combat_counter % 2 == 0))
+  {
+    attack();
+    do_active_effects(attackee);
+
+    if (combat_counter % 4 == 0)
+    {
+      if (last_moving_env != environment(this_object()))
+      {
+        last_moving_env = environment(this_object());
+        is_moving = 1;
+      }
+      else
+        is_moving = 0;
+    }
+
+    if (combat_counter >= 100)
+     combat_counter = 1; 
+    
+    if (!this_object()->query_is_fighting() && !is_moving)
+      is_quiet = 1;
+    else
+      is_quiet = 0;
+  } 
+
+  combat_counter++;
+
+  if (this_object() && !interactive(this_object()) )
+  {
+    if (name == "guest" || name == "root")
+    {
+      say(query_cap_name()+" es engullid"+G_CHAR+" por una nube de lógica.\n");
+      quit();
+    }
+    else if (!net_dead)
+    {
+      say(query_cap_name()+" se vuelve blanc"+G_CHAR+" y sólid"+G_CHAR+" al tiempo que se "+
+        "convierte en una estatua.\n");
+      event(users(), "inform", query_cap_name() + " ha perdido " +
+        query_possessive() + " conexión", "conexiones");
+      save_me();
+      quit();
+      net_dead = 1;
+    }
+    // last_command = time() - query_idle(this_object());
+  }
+
+  // query_idle no se puede ejecutar sobre objetos no interactive,
+  // asi que saco esta linea del if anterior, Folken 7/05
+  if (!net_dead)
+    last_command = time() - query_idle(this_object());
+
+  living::heart_beat();
+
+  /* handle intoxication dispersion by our selves...
+   * they just handle hp recival and sp recival...     */
+  if(headache)
+    if (!--headache) 
+    {
+      tell_object(this_object(), "Se te pasa el dolor de cabeza.\n");
+      headache = 0;
+    }
+
+  if (intox) 
+  {
+    if (!(intox-1)) 
+    {
+      headache = 15;
+      tell_object(this_object(), "Empieza a dolerte la cabeza, que alegría.\n");
+      hp -= 2;
+      if (hp<1)
+        hp = 1;
+    }
+  }
+
+  if (++hb_num%8)  // How about half as fast?
+  {
+    social_points++;
+    if(social_points > max_social_points)
+        social_points = max_social_points;
+
+    if (hb_num > 500) 
+    {
+      if(max_social_points < 1000)
+          max_social_points++;
+      hb_num = 0;
+    }
+  }
+  if (sizeof(attacker_list) && wimpy && hp < max_hp*wimpy/100)
+    run_away();
+
+  update_volumes();
 }
 
 /* old glance(), neverbot 21/4/2003 */
