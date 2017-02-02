@@ -40,21 +40,21 @@ int query_alive()
 int do_kill(object victim)
 {
   if (this_object()->query_race_ob())
-    catch(this_object()->query_race_ob()->on_kill(this_object(), victim));
+    catch(load_object(this_object()->query_race_ob())->on_kill(this_object(), victim));
   if (this_object()->query_guild_ob())
-    catch(this_object()->query_guild_ob()->on_kill(this_object(), victim));
+    catch(load_object(this_object()->query_guild_ob())->on_kill(this_object(), victim));
   if (this_object()->query_class_ob())
-    catch(this_object()->query_class_ob()->on_kill(this_object(), victim));
+    catch(load_object(this_object()->query_class_ob())->on_kill(this_object(), victim));
   if (this_object()->query_deity_ob())
-    catch((this_object()->query_deity_ob())->on_kill(this_object(), victim));   
+    catch(load_object(this_object()->query_deity_ob())->on_kill(this_object(), victim));   
   if (this_object()->query_group_ob())
-    catch((this_object()->query_group_ob())->on_kill(this_object(), victim));
+    catch(load_object(this_object()->query_group_ob())->on_kill(this_object(), victim));
   if (this_object()->query_race_group_ob())
-    catch((this_object()->query_race_group_ob())->on_kill(this_object(), victim));
+    catch(load_object(this_object()->query_race_group_ob())->on_kill(this_object(), victim));
   if (this_object()->query_job_ob())
-    catch((this_object()->query_job_ob())->on_kill(this_object(), victim));
+    catch(load_object(this_object()->query_job_ob())->on_kill(this_object(), victim));
   if (this_object()->query_city_ob())
-    catch((this_object()->query_city_ob())->on_kill(this_object(), victim));
+    catch(load_object(this_object()->query_city_ob())->on_kill(this_object(), victim));
 
   return 1;
 }
@@ -90,21 +90,21 @@ int do_death(object killed_by)
     killed_by->do_kill(this_object());
 
   if (this_object()->query_race_ob())
-    catch(this_object()->query_race_ob()->on_death(this_object(), killed_by));
+    catch(load_object(this_object()->query_race_ob())->on_death(this_object(), killed_by));
   if (this_object()->query_guild_ob())
-    catch(this_object()->query_guild_ob()->on_death(this_object(), killed_by));
+    catch(load_object(this_object()->query_guild_ob())->on_death(this_object(), killed_by));
   if (this_object()->query_class_ob())
-    catch(this_object()->query_class_ob()->on_death(this_object(), killed_by));
+    catch(load_object(this_object()->query_class_ob())->on_death(this_object(), killed_by));
   if (this_object()->query_deity_ob())
-    catch((this_object()->query_deity_ob())->on_death(this_object(), killed_by));   
+    catch(load_object(this_object()->query_deity_ob())->on_death(this_object(), killed_by));   
   if (this_object()->query_group_ob())
-    catch((this_object()->query_group_ob())->on_death(this_object(), killed_by));
+    catch(load_object(this_object()->query_group_ob())->on_death(this_object(), killed_by));
   if (this_object()->query_race_group_ob())
-    catch((this_object()->query_race_group_ob())->on_death(this_object(), killed_by));
+    catch(load_object(this_object()->query_race_group_ob())->on_death(this_object(), killed_by));
   if (this_object()->query_job_ob())
-    catch((this_object()->query_job_ob())->on_death(this_object(), killed_by));
+    catch(load_object(this_object()->query_job_ob())->on_death(this_object(), killed_by));
   if (this_object()->query_city_ob())
-    catch((this_object()->query_city_ob())->on_death(this_object(), killed_by));
+    catch(load_object(this_object()->query_city_ob())->on_death(this_object(), killed_by));
 
   // Añadido por neverbot 3/2002, para el sistema de guerras entre ciudades
   if (killed_by)
@@ -138,7 +138,7 @@ int do_death(object killed_by)
         attackers++;
   }
   
-  for (i=0;i<sizeof(call_outed);i++)
+  for (i = 0; i < sizeof(call_outed); i++)
     call_outed[i]->stop_fight(this_object());
 
   /* ??? where is this from ???  
@@ -250,11 +250,14 @@ int do_death(object killed_by)
 
   if (killed_by) 
   {
-    tell_room(environment(this_object()), "\n"+killed_by->query_cap_name()+
-      " propina el golpe mortal a "+
-      this_object()->query_cap_name()+".\n\n",({killed_by}));
-    tell_player(killed_by,"Propinas el golpe mortal a "+
+    tell_room(environment(this_object()), "\n" + 
+      killed_by->query_cap_name() +
+      " propina el golpe mortal a " +
+      this_object()->query_cap_name() + ".\n\n", ({ killed_by, this_object() }));
+    tell_player(killed_by, "Propinas el golpe mortal a "+
       this_object()->query_cap_name()+".");
+    tell_player(this_object(), killed_by->query_cap_name() + 
+      " te propina el golpe mortal.");
   }
   else
     tell_room(environment(this_object()),this_object()->query_cap_name()+
@@ -398,19 +401,22 @@ static void actual_death(object initiator)
 
   if (!((int)this_object()->second_life(corp, initiator))) 
   {
-    if (corp)
-      corp->move(environment(this_object()));
+    // already done in make_corpse
+    // if (corp)
+    //   corp->move(environment(this_object()));
 
     // dw dest the ones that stick around... 
     // This is slightly useless now, the stuff is in the corpse
     // Good for the stuff that for some reason couldn't be moved tho
     ob = first_inventory(this_object());
+
     while(ob) 
     {
       ob2 = next_inventory(ob);
       ob->dest_me();
       ob = ob2;
     }
+
     this_object()->dest_me();
   }
   
