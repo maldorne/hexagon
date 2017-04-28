@@ -13,8 +13,6 @@ inherit "/lib/core/object.c";
 
 #include <areas/weather.h>
 
-#define CALENDAR "/obj/handlers/calendar.c"
-
 // Constantes de duracion del tiempo-mud
 // Un tick dura 60 segundos (un minuto)
 // Un dia dura 60 ticks (una hora)
@@ -205,7 +203,7 @@ void weather_inform(int flag, varargs string zone, int * values)
     // Si el objeto no tiene environment (es una room)
     if (!environment(obs[i]))
     {
-      if (zone == TABLE->query_zone(file_name(obs[i])))
+      if (zone == table(WEATHER_TABLE)->query_zone(file_name(obs[i])))
         event(obs[i], "weather", flag, values);
     }
 
@@ -213,7 +211,7 @@ void weather_inform(int flag, varargs string zone, int * values)
     if (obs[i]->query_player())
     {
       if ((environment(obs[i])->query_outside()) &&
-          (zone == TABLE->query_zone(file_name(environment(obs[i])))))
+          (zone == table(WEATHER_TABLE)->query_zone(file_name(environment(obs[i])))))
         event(obs[i], "weather", flag, values);
     }
   }
@@ -353,9 +351,9 @@ string date_string()
   else
     ret = "Son las " + data[0] + " ";//horas ";
   
-  ret += "del " + capitalize(CALENDAR->query_week_day_string()) + " " + (dia_del_mes + 1) + " de "+
+  ret += "del " + capitalize(handler(CALENDAR_HANDLER)->query_week_day_string()) + " " + (dia_del_mes + 1) + " de "+
         // month_string()+" del año "+data[4]+". Temporada de "+capitalize(season_string());
-        capitalize(month_string())+" del año "+ CALENDAR->query_year_name(data[4]);
+        capitalize(month_string())+" del año "+ handler(CALENDAR_HANDLER)->query_year_name(data[4]);
   
   return ret;
 }
@@ -476,7 +474,7 @@ void reset_zones()
   // El map_copy nos sirve para copiar el mapping completo (no solo
   // su direccion). De otro modo estaremos siempre modificando el mapping
   // cargado en memoria de TABLE).
-  zones = map_copy(TABLE->query_zones());
+  zones = map_copy(table(WEATHER_TABLE)->query_zones());
 
   // Actualizamos las medias segun la estacion en la que nos encontremos
   // (en verano hara mas calor y en invierno mas frio)  
@@ -495,7 +493,7 @@ void check_zones()
   int changed;
 
   changed = 0;
-  table_zones = map_copy(TABLE->query_zones());
+  table_zones = map_copy(table(WEATHER_TABLE)->query_zones());
   table_names = keys(table_zones);
   names = keys(zones);
   
@@ -697,7 +695,7 @@ int query_darkness(object room)
   int cuanto;
   string zona;
 
-  zona = TABLE->query_zone(file_name(room));
+  zona = table(WEATHER_TABLE)->query_zone(file_name(room));
   
   if (query_day())
   {
@@ -764,7 +762,7 @@ int query_darkness(object room)
 int query_raining(object room)
 {
   string zona;
-  zona = TABLE->query_zone(file_name(room));
+  zona = table(WEATHER_TABLE)->query_zone(file_name(room));
   return (zones[zona][0] >= 50);
 }
 
@@ -772,7 +770,7 @@ int query_raining(object room)
 int * query_actual_data(object room)
 {
   string zona;
-  zona = TABLE->query_zone(file_name(room));
+  zona = table(WEATHER_TABLE)->query_zone(file_name(room));
   return ({ zones[zona][0], zones[zona][1], zones[zona][2], });
 }
 
@@ -986,7 +984,7 @@ string weather_string(object room)
   string temp, wind, rain;
 
   ret = capitalize(daynight_string())+" de "+season_string();
-  zona = TABLE->query_zone(file_name(room));
+  zona = table(WEATHER_TABLE)->query_zone(file_name(room));
   
   temp = temperature_string(zona);
   wind = wind_string(zona);

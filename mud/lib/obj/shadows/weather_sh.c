@@ -47,7 +47,7 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   ret = player->move_living(dir, dest, message, enter);
 
   // Si ya no hace frio la destruimos
-  if (WEATHER->query_actual_data(environment(player))[2] <= 80)
+  if (handler(WEATHER_HANDLER)->query_actual_data(environment(player))[2] <= 80)
   {
     tell_object(player, "Notas cómo tus músculos vuelven a entrar en calor al moverte.\n");
     destruct_weather_shadow();

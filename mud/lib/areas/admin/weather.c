@@ -93,11 +93,12 @@ void init()
 }
 
 
-int do_pull(string str) {
+int do_pull(string str) 
+{
   int i;
   string type,rand;
   string lever;
-  object weather;
+  // object weather;
 
   if (str == "palancas")
     lever = leverarr[random(sizeof(leverarr))];
@@ -121,9 +122,9 @@ int do_pull(string str) {
   }
 
   // weather = present("tiempo", this_object());
-  weather = find_object(WEATHER);
+  // weather = find_object(WEATHER);
   
-  if (!weather) {
+  if (!handler(WEATHER_HANDLER)) {
     notify_fail("¡¡Ups, el controlador del tiempo no está en esta habitación!!\n");
     return 0;
   }
@@ -133,8 +134,8 @@ int do_pull(string str) {
   type = sprintf("%*-=s", this_player()->query_cols(), type);
 
   tell_object(this_player(), type);
-  // this_player()->print_object(call_other(weather, rand));
-  type = (string)call_other(weather, rand);
+  // this_player()->print_object(call_other(handler(WEATHER_HANDLER), rand));
+  type = (string)call_other(handler(WEATHER_HANDLER), rand);
   if (!type || (type != ""))
     tell_object(this_player(), capitalize(type) + ".\n");
   else

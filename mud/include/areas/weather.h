@@ -1,11 +1,13 @@
 
-#define WEATHER "/lib/handlers/weather.c"
+#define WEATHER_HANDLER "weather"
 #define HOME "/lib/areas/admin/weather.c"
 #define SAVE_FILE "/save/weather.o"
 #define LOG_FILE "weather"
 
-#define TABLE "/lib/tables/weather_table"
+#define WEATHER_TABLE "weather_table"
 #define WEATHER_SH "/lib/obj/shadows/weather_sh.c"
+
+#define CALENDAR_HANDLER "calendar"
 
 // Cuantas zonas climaticas modificaremos cada
 // vez que actualicemos el clima

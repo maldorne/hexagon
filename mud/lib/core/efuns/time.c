@@ -259,7 +259,8 @@ static string ctime(int time, varargs int flag)
   result = "";
   datos = localtime(time);
 
-  if (!flag || (flag == 0)){
+  if (!flag || (flag == 0))
+  {
     result = convert_day(datos[LT_WDAY])[0..2];
     result += " " + repair_number(datos[LT_MDAY]) + " " +
               convert_month(datos[LT_MON])[0..2]; 
@@ -268,21 +269,25 @@ static string ctime(int time, varargs int flag)
               repair_number(datos[LT_MIN]) + ":" +
               repair_number(datos[LT_SEC]);
   }
-  else if (flag == 1){
+  else if (flag == 1)
+  {
     result = convert_day(datos[LT_WDAY]);
     result += " " + repair_number(datos[LT_MDAY]) + " de " +
               convert_month(datos[LT_MON]);
     result += " de " + datos[LT_YEAR];
   }
-  else if (flag == 2){
+  else if (flag == 2)
+  {
     result = "" + repair_number(datos[LT_MDAY]) +
              repair_number(datos[LT_MON]+1);
     result += ("" + (string)datos[LT_YEAR])[2..3];
   }
-  else if (flag == 3){
-    result = WEATHER->date_string();
+  else if (flag == 3)
+  {
+    result = handler(WEATHER_HANDLER)->date_string();
   }
-  else if (flag == 4){
+  else if (flag == 4)
+  {
     result = "" + repair_number(datos[LT_MDAY]) + "/" +
              repair_number(datos[LT_MON]+1) + "/";
     result += ("" + (string)datos[LT_YEAR])[2..3];
@@ -290,7 +295,8 @@ static string ctime(int time, varargs int flag)
               repair_number(datos[LT_MIN]) + ":" +
               repair_number(datos[LT_SEC]);
   }
-  else if (flag == 5){
+  else if (flag == 5)
+  {
     result = convert_day(datos[LT_WDAY]);
     result += " " + repair_number(datos[LT_MDAY]) + " de " +
               convert_month(datos[LT_MON]);
@@ -299,7 +305,8 @@ static string ctime(int time, varargs int flag)
               repair_number(datos[LT_MIN]) + ":" +
               repair_number(datos[LT_SEC]);
   }
-  else if (flag == 6){
+  else if (flag == 6)
+  {
     result = convert_english_day(datos[LT_WDAY])[0..2] + " " +
              convert_english_month(datos[LT_MON]);
     result += " " + repair_number(datos[LT_MDAY]) + " " +
@@ -308,7 +315,8 @@ static string ctime(int time, varargs int flag)
                     repair_number(datos[LT_SEC]) + " " + 
                     repair_number(datos[LT_YEAR]);
   }
-  else if (flag == 7){
+  else if (flag == 7)
+  {
     result = repair_number(datos[LT_HOUR]) + ":" + 
              repair_number(datos[LT_MIN]) + ":" +
              repair_number(datos[LT_SEC]);
