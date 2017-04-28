@@ -432,13 +432,13 @@ void heart_beat()
       quit();
       net_dead = 1;
     }
-    // last_command = time() - query_idle(this_object());
+    // last_command = time() - this_object()->query_idle();
   }
 
   // query_idle no se puede ejecutar sobre objetos no interactive,
-  // asi que saco esta linea del if anterior, Folken 7/05
+  // asi que saco esta linea del if anterior, neverbot 7/05
   if (!net_dead)
-    last_command = time() - query_idle(this_object());
+    last_command = time() - this_object()->query_idle();
 
   living::heart_beat();
 }
@@ -498,6 +498,15 @@ int do_look(varargs string arg)
   if (!arg || !strlen(arg)) 
     return do_command("look");
   return do_command("look " + arg);
+}
+
+// query_idle - determine how many seconds an interactive player has been idle
+// int query_idle( object ob );
+// Query how many seconds a player object (ob) has been idling.
+
+nomask int query_idle()
+{
+  return time() - this_object()->query_timestamp();
 }
 
 // Funciones para el apuntador (forma de percibir a otros personajes)

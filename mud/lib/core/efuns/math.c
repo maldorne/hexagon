@@ -102,8 +102,10 @@ static nomask int roll(int times, int type)
    10 20 sided dice */
 
 // compatibility with old mudos
+/*
 static nomask string oldcrypt(string str, varargs string salt)
 {
   return ::crypt(str, salt);
 }
+*/
 

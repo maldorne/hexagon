@@ -17,6 +17,7 @@
 #define ERROR_HANDLER  "/lib/core/errors"
 #define USER_HANDLER   "/lib/core/users"
 #define OBJECT_HANDLER "/lib/core/objects"
+#define SINGLETON_HANDLER "/lib/core/singletons"
 
 // driver messages
 #define DRIVER_RUNTIME_ERROR 0

@@ -40,7 +40,7 @@
 // ****************************************************
 // armed combat
 
-#define WEAPON_TABLE "/lib/table/weapon_table.c"
+#define WEAPON_TABLE "/lib/tables/weapon_table.c"
 
 // Porcentaje minimo de control de un estilo
 // #define MIN_ARMED_ABILITY 10
@@ -51,7 +51,7 @@
 // ****************************************************
 // unarmed combat
 
-#define UNARMED_BASE "/lib/table/unarmed_combat"
+#define UNARMED_BASE "/lib/tables/unarmed_combat"
 
 // Tipo de estilo de combate por defecto
 #define DEF_UNARMED "pelea"

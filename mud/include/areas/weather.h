@@ -4,7 +4,7 @@
 #define SAVE_FILE "/save/weather.o"
 #define LOG_FILE "weather"
 
-#define TABLE "/lib/table/weather_table"
+#define TABLE "/lib/tables/weather_table"
 #define WEATHER_SH "/lib/obj/shadows/weather_sh.c"
 
 // Cuantas zonas climaticas modificaremos cada

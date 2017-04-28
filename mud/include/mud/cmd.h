@@ -2,7 +2,7 @@
 #define _CMD_H
     
 #define SOUL_OBJECT "/lib/handlers/souls"
-#define SOUL_DATA   "/lib/table/souls"
+#define SOUL_DATA   "/lib/tables/souls"
 
 #define CMD_HANDLER "/lib/cmds/cmd_handler"
 #define CMD_BASE    "/lib/cmds/cmd"

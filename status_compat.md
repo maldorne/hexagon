@@ -182,7 +182,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `crypt`                 | :white_check_mark: | provided by dgd |
-| `oldcrypt`              | :white_check_mark: | alias for `crypt` |
+| `oldcrypt`              | :white_check_mark: | alias for `crypt`, commented to have less functions in the auto ob |
 | `debug_info`            | :white_check_mark: | not same info as in mudos, returns `status(ob)` converted to a string |
 | `snoop`                 |  | dummy function for now |
 | `query_snoop`           |  |  |
@@ -191,7 +191,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `query_ip_name`         | :white_check_mark: | provided by dgd |
 | `query_host_name`       |  |  |
 | `resolve`               |  |  |
-| `query_idle`            | :white_check_mark: |  |
+| `query_idle`            | :white_check_mark: | moved to local function in the user object |
 | `random`                | :white_check_mark: | provided by dgd |
 | `shadow`                | :white_check_mark: |  |
 | `query_shadowing`       | :white_check_mark: |  |

@@ -224,7 +224,7 @@ void event_person_tell(object ob, string start, string msg, string lang)
   */
 
   if (interactive(this_object()) && 
-     (id = query_idle(this_object())) > TELL_WARN_TIME)
+     (id = this_object()->query_idle()) > TELL_WARN_TIME)
   {
     str = ({  });
     /* Need to use some neato formulas to convert to standard time -- FS */

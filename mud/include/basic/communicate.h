@@ -2,7 +2,7 @@
 
 #define LANGUAGE_HANDLER  "/lib/handlers/languages"
 #define PROFANITY_HANDLER "/lib/handlers/profanity"
-#define PROFANITY_TABLE   "/lib/table/profanity.txt"
+#define PROFANITY_TABLE   "/lib/tables/profanity.txt"
 #define LANGUAGES_PATH    "/lib/obj/languages/"
 
 #define L_SPOKEN 1
