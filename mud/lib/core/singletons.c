@@ -12,6 +12,9 @@ void create()
   _handlers = ([ ]);
 }
 
+mapping handlers() { return _handlers; }
+mapping tables() { return _tables; }
+
 object get_handler(string name)
 {
   if (_handlers[name])
