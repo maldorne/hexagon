@@ -14,9 +14,9 @@
 // Longer logs in the driver stderr
 #define DRIVER_LONG_LOGS
 
-#define ERROR_HANDLER  "/lib/handlers/errors"
-#define USER_HANDLER   "/lib/handlers/users"
-#define OBJECT_HANDLER "/lib/handlers/objects"
+#define ERROR_HANDLER  "/lib/core/errors"
+#define USER_HANDLER   "/lib/core/users"
+#define OBJECT_HANDLER "/lib/core/objects"
 
 // driver messages
 #define DRIVER_RUNTIME_ERROR 0
