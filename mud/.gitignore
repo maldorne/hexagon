@@ -3,12 +3,25 @@
 /save/players/*
 !/save/accounts/a/admin@ciudadcapital.net.o
 !/save/players/a/admin.o
+
 # some save files
 /save/weather.o
+
 # only initial migration
 /lib/user/migrations/*
 !/lib/user/migrations/base_migration.c
 !/lib/user/migrations/0001.c
+
 # ignore areas
 /game/areas/*
 !/game/areas/start
+
+# game specific social objects
+/game/obj/citizenships/*
+!/game/obj/citizenships/.gitkeep
+/game/obj/deities/*
+!/game/obj/deities/.gitkeep
+/game/obj/jobs/*
+!/game/obj/jobs/.gitkeep
+/game/obj/races/*
+!/game/obj/races/.gitkeep

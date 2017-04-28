@@ -14,7 +14,7 @@ int hp_bonus, gp_bonus;
 int hit_dice, gp_dice;
 
 // Define la facilidad para el combate de una clase
-// (este bono se añade a la AC del pj)
+// (este bono se aade a la AC del pj)
 int combat_bonus;
 
 // Sistema de tipos de xp, neverbot 07/04
@@ -101,7 +101,7 @@ int query_gp_main_stat(object player){
     return player->query_str();
 }
 
-// Añadido 7/03, neverbot (mismo sistema que gremios)
+// Aadido 7/03, neverbot (mismo sistema que gremios)
 /* What happens when you advance in level */
 void new_levels(int lvls, object ob) {
   ob->reset_all();
