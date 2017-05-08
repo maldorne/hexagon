@@ -1,5 +1,6 @@
 
 #include <mud/secure.h>
+#include <areas/calendar.h>
 
 static string tmppassword;
 
@@ -158,7 +159,7 @@ void birthday(string str)
     }
     else
     {
-      if (!valid_birthday(str))
+      if (!handler(CALENDAR_HANDLER)->valid_birthday(str))
       {
         write("La fecha no es válida, vuelve a introducirla (ddmm): ");
         input_to("birthday",1);

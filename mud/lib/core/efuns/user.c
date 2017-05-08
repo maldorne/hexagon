@@ -26,27 +26,11 @@ object real_this_player()
   return nil;
 }
 
-// void notify_fail(mixed str) 
-// {
-//   if(!this_player())
-//     return;
-
-//   if (intp(str))
-//     str = "" + str;
-
-//   // neverbot 4/2003
-//   // efun::notify_fail(sprintf("%-=*s", this_player()->query_cols(),str));
-//   this_player()->set_notify_fail_msg(sprintf("%-=*s",
-//                                      this_player()->query_cols(),str));
-// } 
-
-
 // /secure/simul_efun/user_exists.c
 // from the RotD Mudlib
 // returns true if there is such a player
 // created by Descartes of Borg 930822
 
-// TODO user_exists
 int file_exists(string str);
 
 int user_exists(string str) 

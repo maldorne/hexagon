@@ -4,10 +4,10 @@
  *  equivalent to the master.c in MudOS
  */
 
-# include <kernel.h>
-# include <status.h>
-# include <type.h>
-# include <trace.h>
+#include <kernel.h>
+#include <status.h>
+#include <type.h>
+#include <trace.h>
 
 #include <mud/version.h>
 
