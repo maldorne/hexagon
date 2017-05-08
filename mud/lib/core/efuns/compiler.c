@@ -84,6 +84,12 @@ static nomask int memory_info(varargs object ob)
 {
   mixed *status;
 
+  if (ob)
+  {
+    status = status(ob);
+    return status[O_PROGSIZE] + status[O_DATASIZE];
+  }
+
   status = status();  
   return status[ST_SMEMSIZE] + status[ST_DMEMSIZE];
 }

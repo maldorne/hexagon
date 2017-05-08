@@ -218,7 +218,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `in_edit`               |  |  |
 | `in_input`              |  |  |
 | `master`                |  |  |
-| `memory_info`           | :white_check_mark: | does not accept parameters, returns `status[ST_SMEMSIZE] + status[ST_DMEMSIZE]` |
+| `memory_info`           | :white_check_mark: |  |
 | `cache_stats`           |  |  |
 | `malloc_status`         |  |  |
 | `query_load_average`    |  |  |

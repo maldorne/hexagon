@@ -3,6 +3,8 @@
 #ifndef __MUD_CONFIG
 #define __MUD_CONFIG
 
+#include <status.h>
+
 /* 
  * Opciones de salvado común 
  *   (si esta activado, todos los objetos importantes se
@@ -39,11 +41,11 @@
 // TELNET_PORT will only be used if the driver is compiled
 // with -DNETWORK_EXTENSIONS
 #ifdef _PRIMARY_MUD
-#define TELNET_PORT 6047
+#define TELNET_PORT status()[ST_TELNETPORTS][0]
 #define FTP_PORT 21
 #define FTP_VERSION "Ciudad Capital Mud (Juego) - FTPD"
 #else
-#define TELNET_PORT 6047
+#define TELNET_PORT status()[ST_TELNETPORTS][0]
 #define FTP_PORT 3007
 #define FTP_VERSION "Ciudad Capital Mud (Desarrollo) - FTPD"
 #endif
