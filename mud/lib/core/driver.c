@@ -67,6 +67,9 @@ static nomask void initialize()
 
   log_driver("[" + date + "] ** " + status()[ST_VERSION] + "\n");
   log_driver("Initializing...\n");
+#ifdef __NETWORK_EXTENSIONS__
+  log_driver("Network extensions in use.\n");
+#endif
 
   load_object(AUTO);
 
@@ -175,6 +178,7 @@ nomask object clone_object(mixed what, varargs string uid)
 //   return nil;
 // }
 
+#ifndef __NETWORK_EXTENSIONS__
 static object telnet_connect(int port)
 {
   object user;
@@ -185,6 +189,7 @@ static object telnet_connect(int port)
 
   return user;
 }
+#endif
 
 static string object_type(string file, string type)
 {

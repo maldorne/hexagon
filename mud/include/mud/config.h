@@ -36,10 +36,14 @@
 #endif
 
 // Para /include/ftp.h (puerto del servidor ftp)
+// TELNET_PORT will only be used if the driver is compiled
+// with -DNETWORK_EXTENSIONS
 #ifdef _PRIMARY_MUD
+#define TELNET_PORT 6047
 #define FTP_PORT 21
 #define FTP_VERSION "Ciudad Capital Mud (Juego) - FTPD"
 #else
+#define TELNET_PORT 6047
 #define FTP_PORT 3007
 #define FTP_VERSION "Ciudad Capital Mud (Desarrollo) - FTPD"
 #endif

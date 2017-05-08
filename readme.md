@@ -24,16 +24,18 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
 2. `cd hexagon`   
 2. **Compile the DGD driver**:
    1. `cd driver/dgd/src`
-   2. Edit the file `Makefile` an change the line
+   2. Edit the file `Makefile` and change the line
 
       `DEFINES=-D$(HOST)       # -DSLASHSLASH -DNETWORK_EXTENSIONS -DNOFLOAT -DCLOSURES -DCO_THROTTLE=50`
 
       with
 
-      `DEFINES=-D$(HOST) -DSLASHSLASH # -DNETWORK_EXTENSIONS -DNOFLOAT -DCLOSURES -DCO_THROTTLE=50`
+      `DEFINES=-D$(HOST) -DSLASHSLASH -DNETWORK_EXTENSIONS # -DNOFLOAT -DCLOSURES -DCO_THROTTLE=50`
 
-      (the only change is to include the `SLASHSLASH` flag to allow this 
-      kind of `// comments` in the mud code).
+      The only changes are to include the `SLASHSLASH` flag to allow this 
+      kind of `// comments` in the mud code and the flag `NETWORK_EXTENSIONS` to allow connections from the mud to the outer world.
+
+      If you are not going to use things like ftp servers, remote channels, etc, you don't need to use the `NETWORK_EXTENSIONS` flag, the mudlib should work fine without it.
    3. `make`
    4. `make install`
    5. `cd ../../..`

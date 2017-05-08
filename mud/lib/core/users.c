@@ -4,6 +4,7 @@
 
 #include <kernel.h>
 #include <user/user.h>
+#include <mud/config.h>
 
 static mapping users;
 
@@ -14,6 +15,10 @@ void create()
   
   if (!find_object(USER_OB)) 
     compile_object(USER_OB);
+
+#ifdef __NETWORK_EXTENSIONS__
+  open_port("telnet", TELNET_PORT);
+#endif
 }
 
 // called only from this object, in 'new_connection'
@@ -126,3 +131,21 @@ object new_connection()
 
   return new_user;
 }
+
+#ifdef __NETWORK_EXTENSIONS__
+object connection(string ipnumber, int port)
+{
+  stderr(" - connection from: "+ipnumber+" with port "+port+"\n");
+  return new_connection();
+}
+
+void open(int port)
+{
+  stderr("Now accepting connections on port "+port+"\n");
+}
+
+void close(int force)
+{
+  stderr("Not accepting any more connections (force "+force+")\n");
+}
+#endif
