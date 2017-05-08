@@ -38,20 +38,8 @@ static nomask int file_size(string path)
     return -1;
 }
 
-// TODO file_length
-
-// This is a very temporary hack.  file_length() seems to crash and burn
-//   with directories.  So let's wrap it...   -- Hamlet 
 static nomask int file_length(string file_name) 
 {
-  // int tmp;
-
-  // tmp = file_size(file_name);
-  // if(tmp < 1)
-  //   return tmp;
-
-  // return ::file_length(file_name);
-
   return file_size(file_name);
 }
 
@@ -171,8 +159,6 @@ static nomask int rmdir(string dir)
 // Copies the file 'src' to the file 'dst'.
 // Returns 1 for success, returns -1 if the first src is unreadable, -2 if
 // dst is unreadable, and -3 if an i/o error occurs.
-
-// TODO cp check if this is working
 
 static nomask int cp(string src, string dst)
 {
