@@ -137,18 +137,21 @@ void heart_beat()
     ishout("El destino del mundo se decidirá en "+time_to_crash+" segundos.",0);
     return;
   }
-  if (time_to_crash % 60 > 1) return;
+  if (time_to_crash % 60 > 1) 
+    return;
+  
   time_to_crash /= 60;
+  
   if (time_to_crash < 10 || !(time_to_crash % 10)) 
   {
-     if (time_to_crash > 3)
-     {
-       ishout("El destino del mundo se decidirá en "+time_to_crash+
-         " minutos.",1);
-     }
-     else
-       ishout("El destino del mundo se decidirá en "+time_to_crash+
-         " minuto"+((time_to_crash == 1)?"":"s")+".",0);
+    if (time_to_crash > 3)
+    {
+      ishout("El destino del mundo se decidirá en "+time_to_crash+
+        " minutos.",1);
+    }
+    else
+      ishout("El destino del mundo se decidirá en "+time_to_crash+
+        " minuto"+((time_to_crash == 1)?"":"s")+".",0);
     return;
   }
 } /* heart_beat() */
@@ -179,21 +182,23 @@ void shut(int minutes)
       (time_of_crash - time()) + " segundos.\n");
 
   time_of_crash = time() + minutes*60;
+
   write("Reinicio del mundo dentro de "+
     (time_of_crash - time()) + " segundos.\n");
+
   shutdown_in_progress = 1;
   set_heart_beat(1);
 } /* shut() */
  
 string long(string str, int dark) 
 {
-  ::long();
-  if (time_of_crash && this_player()->query_wizard())
-   return ::long(str,dark)+
+  if (time_of_crash && this_player()->query_coder())
+   return ::long(str,dark) +
       "El destino del mundo se decidirá en "+(time_of_crash - time())+
       " segundos.\n";
+
   return ::long(str,dark);
-} /* long() */
+}
  
 void end_it_all() 
 {
@@ -201,10 +206,13 @@ void end_it_all()
   object *obs;
  
   ishout("¡Mud cerrándose!\n", 0);
+
   obs = users();
-  for (i=0;i<sizeof(obs);i++)
+  
+  for (i = 0; i < sizeof(obs); i++)
     call_out("force_quit", 0, obs[i]);
-  closed = 1; /* Ahora no dejamos entrar a nadie, estamos de Shut */
+  
+  closed = 1;
   call_out("blue",5);
 } /* end_it_all() */
  
@@ -229,7 +237,7 @@ void blue()
 int query_time_to_crash() 
 { 
   if (closed) 
-    return 1; /* Devolvemos un valor pequenyo asi no deja entrar */
+    return 1;
   return time_of_crash - time(); 
 }
  
@@ -245,7 +253,7 @@ void dest_me()
     log_file("game_log", "["+ctime(time())+"] Shutdown cancelled\n");
   }
 
-  closed = 0; /* Anulamos por si acaso */
+  closed = 0;
   
   // Radix...
   if (this_player())
