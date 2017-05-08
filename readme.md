@@ -41,7 +41,7 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
    6. Nothing more. As a side note: if you are using a version of DGD minor 
       than 1.6 (i.e. 1.5.x), you can also activate the flag `NETWORK_EXTENSIONS`
       in step number two, to allow connections from the mud to the outer world. 
-      From version 1.6 this package does not exists anymore.
+      From version 1.6 this package does not exist anymore.
 
       If you use an older driver but you are not going to use things like ftp 
       servers, remote channels, etc, you don't need to use the `NETWORK_EXTENSIONS` 
