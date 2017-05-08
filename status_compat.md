@@ -218,7 +218,11 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `in_edit`               |  |  |
 | `in_input`              |  |  |
 | `master`                |  |  |
-| `memory_info`           |  |  |
+| `memory_info`           | :white_check_mark: | does not accept parameters, returns `status[ST_SMEMSIZE] + status[ST_DMEMSIZE]` |
+| `cache_stats`           |  |  |
+| `malloc_status`         |  |  |
+| `query_load_average`    |  |  |
+| `mud_status`            |  |  |
 | `get_config`            |  |  |
 | `get_char`              |  |  |
 | `reload_object`         |  |  |
@@ -228,12 +232,8 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `ed_start`              |  |  |
 | `ed_cmd`                |  |  |
 | `query_ed_mode`         |  |  |
-| `cache_stats`           |  |  |
-| `malloc_status`         |  |  |
-| `mud_status`            |  |  |
 | `dumpallobj`            |  |  |
 | `dump_file_descriptors` |  |  |
-| `query_load_average`    |  |  |
 | `set_light`             |  |  |
 | `origin`                |  |  |
 | `reclaim_objects`       |  |  |
