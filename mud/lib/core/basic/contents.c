@@ -166,8 +166,10 @@ string query_contents(string str, varargs object *obs)
      ret += " está aquí.\n"; 	
     	
   // Objetos  
-  for (i = sizeof(inv[2]) - 1; i >= 0; i--) {
+  for (i = sizeof(inv[2]) - 1; i >= 0; i--) 
+  {
     j = sizeof(inv[3][i])*((random(drunk)/1000)+1);
+  
     if (j > 1) 
     {
       ret += capitalize(query_num(j, 20)) + " " +

@@ -37,8 +37,13 @@
 
 static nomask int random(int low, varargs int max)
 {
-  if (!max) 
+  if (!max)
+  {
+    if (low == 0)
+      return 0;
     return ::random(low);
+  }
+  
   if (low == max) 
     return low;
   if (low > max) 

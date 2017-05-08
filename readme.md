@@ -30,15 +30,22 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
 
       with
 
-      `DEFINES=-D$(HOST) -DSLASHSLASH -DNETWORK_EXTENSIONS # -DNOFLOAT -DCLOSURES -DCO_THROTTLE=50`
+      `DEFINES=-D$(HOST) -DSLASHSLASH # -DNETWORK_EXTENSIONS -DNOFLOAT -DCLOSURES -DCO_THROTTLE=50`
 
-      The only changes are to include the `SLASHSLASH` flag to allow this 
-      kind of `// comments` in the mud code and the flag `NETWORK_EXTENSIONS` to allow connections from the mud to the outer world.
+      The only change is to include the `SLASHSLASH` flag to allow this 
+      kind of `// comments` in the mud code.
 
-      If you are not going to use things like ftp servers, remote channels, etc, you don't need to use the `NETWORK_EXTENSIONS` flag, the mudlib should work fine without it.
    3. `make`
    4. `make install`
    5. `cd ../../..`
+   6. Nothing more. As a side note: if you are using a version of DGD minor 
+      than 1.6 (i.e. 1.5.x), you can also activate the flag `NETWORK_EXTENSIONS`
+      in step number two, to allow connections from the mud to the outer world. 
+      From version 1.6 this package does not exists anymore.
+
+      If you use an older driver but you are not going to use things like ftp 
+      servers, remote channels, etc, you don't need to use the `NETWORK_EXTENSIONS` 
+      flag, the mudlib should work fine without it.
 
 3. Copy the file `driver/config.example.dgd` to `driver/config.dgd`
 
