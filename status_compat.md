@@ -1,6 +1,6 @@
 # Current status: MudOS compatibility
 
-List of MudOS `efun` functions and their implementation in `ccmudlib`. 
+List of MudOS `efun` functions and their implementation in `Hexagon Mudlib`. 
 
 Be aware: most of the functions 
 listed here are already implemented and working, but as I've just started working in this 
@@ -80,7 +80,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
-| `init`                  | :white_check_mark: | it's not a function provided by MudOS per se, it's the function that will be called inside every object when they move (if it exists). Listed here for clarity, as `ccmudlib` makes the same calls. |
+| `init`                  | :white_check_mark: | it's not a function provided by MudOS per se, it's the function that will be called inside every object when they move (if it exists). Listed here for clarity, as `Hexagon Mudlib` makes the same calls. |
 | `this_player`           | :white_check_mark: |  |
 | `this_user`             | :white_check_mark: | provided by dgd |
 | `this_interactive`      | :white_check_mark: | alias for `this_user` |
