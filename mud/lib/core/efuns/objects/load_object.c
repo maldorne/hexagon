@@ -16,6 +16,17 @@ static nomask object load_object(string name)
   if (strlen(name) > 2 && name[strlen(name)-2..strlen(name)-1] == ".c") 
     name = name[0..strlen(name)-3];
 
+  // extra check: if the file does not exist, don't 
+  // even bother trying
+  {
+    int * sizes;
+    sizes = ::get_dir(name + ".c")[1];
+    
+    // no files
+    if (!sizes || (sizeof(sizes) == 0) || (sizes[0] == -2) ) 
+      return nil;
+  }
+
   obj = find_object(name);
   
   if (!obj)
