@@ -528,7 +528,7 @@ int do_dest(string str)
   for (i = 0; i < sizeof(ob); i++)
   {
     if (interactive(ob[i]) && (sizeof(ob) !=1 || 
-      "/lib/core/secure"->high_programmer(geteuid(ob[i]))))
+      MASTER->high_programmer(geteuid(ob[i]))))
     {
       write("No destruyes a " + ob[i]->query_cap_name() + 
             " (no puedes destruir objetos interactive).\n");

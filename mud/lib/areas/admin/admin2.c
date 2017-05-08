@@ -11,15 +11,15 @@ void init() {
 }
 
 void setup() {
-	set_long("This is a black marble hallway.  Power flows through"+
+	set_long("This is a black marble hallway. Power flows through"+
 	     " the very structure"+
-		" that serves as the walls of this hallway.  You are afraid that"+
+		" that serves as the walls of this hallway. You are afraid that"+
 		" the power"+
 		" will someday burst out of the crystal and destroy this"+
 		" wonderous place."+
-		"  A door lies to your north, and to your south.  A golden"+
+		" A door lies to your north, and to your south. A golden"+
 		" plaque on the "+
-		"northern door reads: Mail Control.  A identical plaque"+
+		"northern door reads: Mail Control. A identical plaque"+
 		"on the southern door reads: Quest regulation.\n");
 	set_short("Admin Hallway");
 	add_exit("norte",ADMIN+"mail_room","standard");

@@ -226,7 +226,6 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `get_config`            |  |  |
 | `get_char`              |  |  |
 | `reload_object`         |  |  |
-| `uptime`                | :white_check_mark: | uses `status` |
 | `flush_messages`        |  |  |
 | `ed`                    |  |  |
 | `ed_start`              |  |  |
@@ -237,7 +236,8 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `set_light`             |  |  |
 | `origin`                |  |  |
 | `reclaim_objects`       |  |  |
-| `shutdown`              |  |  |
+| `uptime`                | :white_check_mark: | uses `status` |
+| `shutdown`              | :white_check_mark: |  |
 
 ##Other optional MudOS packages
 | Function | Package | Status | Comments |

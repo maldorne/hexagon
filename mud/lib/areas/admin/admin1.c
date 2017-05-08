@@ -9,16 +9,16 @@ void init() {
 }
 
 void setup() {
-      set_long("This is a black marble hallway.  Power flows"+
+      set_long("This is a black marble hallway. Power flows"+
 	" through the very structure"+
-	" that serves as the walls of this hallway.  You are afraid"+
+	" that serves as the walls of this hallway. You are afraid"+
 	" that the power"+
 	" will someday burst out of the crystal and destroy this"+
 	" wonderous place."+
-	"  A door lies to your north, and to your south.  A golden "+
+	" A door lies to your north, and to your south. A golden "+
 	"plaque on the "+
-	"northern door reads: Meeting Chambers of Immortals.  "+
-	"A identical plaque  "+
+	"northern door reads: Meeting Chambers of Immortals. "+
+	"A identical plaque "+
 	"on the southern door reads: Influence/ Territorial claims room.\n");
 
 	set_short("Admin Hallway");
