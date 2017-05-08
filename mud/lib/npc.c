@@ -118,7 +118,7 @@ void create()
 
   if (is_timed && this_object() && (  strsrch(file_name(this_object()), "#") != -1 ) )
   {
-    time = WEATHER->query_date_data()[0];
+    time = handler(WEATHER_HANDLER)->query_date_data()[0];
     // Si no es su hora no clonamos el npc
     if ((time < init_hour) || (time > end_hour))
         dest_me();
@@ -127,7 +127,7 @@ void create()
 
   if (is_night_timed && this_object() && (  strsrch(file_name(this_object()), "#") != -1 ) )
   {
-    time = WEATHER->query_date_data()[0];
+    time = handler(WEATHER_HANDLER)->query_date_data()[0];
     // Si no es su hora no clonamos el npc
     if ((time < init_hour) && (time > end_hour))
         dest_me();
@@ -692,7 +692,7 @@ void dest_me()
   // Extraemos el objeto de weather.c
   if (query_timed_npc())
   {
-    WEATHER->unnotify_me(this_object());
+    handler(WEATHER_HANDLER)->unnotify_me(this_object());
     // destruct(this_object());
   }
 

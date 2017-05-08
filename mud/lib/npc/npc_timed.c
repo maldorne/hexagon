@@ -58,7 +58,7 @@ void event_weather(object who, varargs int flag, int * values)
 	    (flag != FLAG_ANOCHECER) )
 	return;
 
-	time = WEATHER->query_date_data()[0];
+	time = handler(WEATHER_HANDLER)->query_date_data()[0];
 
 	if (is_timed && (time > end_hour))
 	{
@@ -75,7 +75,7 @@ void event_weather(object who, varargs int flag, int * values)
 					this_object()->queue_action(end_hour_comms[i]);
 				}
 				is_timed = 0; // No repetimos mas veces este proceso
-				WEATHER->unnotify_me(this_object());
+				handler(WEATHER_HANDLER)->unnotify_me(this_object());
 			}
 			return;
 		}
@@ -96,7 +96,7 @@ void event_weather(object who, varargs int flag, int * values)
 					this_object()->queue_action(end_hour_comms[i]);
 				}
 				is_night_timed = 0; // No repetimos mas veces este proceso
-				WEATHER->unnotify_me(this_object());
+				handler(WEATHER_HANDLER)->unnotify_me(this_object());
 			}
 			return;
 		}
@@ -144,7 +144,7 @@ void set_time_range(int start, int end, varargs string * comms)
 	end_hour = end;
 	// Solo lo hacemos con los objetos clonados
 	if (strsrch(file_name(this_object()), "#") != -1)
-	WEATHER->notify_me(this_object());
+	handler(WEATHER_HANDLER)->notify_me(this_object());
 }
 
 // Ummm... el metodo anterior no nos sirve si queremos clonar npcs nocturnos
@@ -177,7 +177,7 @@ private void set_night_time_range(int start, int end)
 	end_hour = end;
 	// Solo lo hacemos con los objetos clonados
 	if (strsrch(file_name(this_object()), "#") != -1)
-	    WEATHER->notify_me(this_object());
+	    handler(WEATHER_HANDLER)->notify_me(this_object());
 }
 
 mixed *stats() 

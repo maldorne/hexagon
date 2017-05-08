@@ -2,14 +2,13 @@
 #ifndef _COMMON_PROPERTIES_H
 #define _COMMON_PROPERTIES_H
 
-
 #define LOADING_PROP "loading"
 #define NORAISE_PROP "noregen"
 
-#define AWAY_PROP "ausente"
+#define AWAY_PROP "away"
 
-#define BUSCAR_PROP "buscar_prop"
-#define BLIND_PROP "ciego"
+#define BUSCAR_PROP "search"
+#define BLIND_PROP "blind"
 #define SENSE_LIFE_PROP "sense_life"
 
 #define SWIMMING_PROP "swimming direction"

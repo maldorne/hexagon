@@ -7,6 +7,7 @@ alias time hora date fecha
 alias map mapa
 alias kill atacar matar
 alias score puntos
+alias grope palpar
 alias quests misiones
 alias configuracion configuración
 alias cobardia cobardía

@@ -219,7 +219,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `in_input`              |  |  |
 | `master`                |  |  |
 | `memory_info`           | :white_check_mark: |  |
-| `cache_stats`           |  |  |
+| `cache_stats`           | - | nonexistant in dgd |
 | `malloc_status`         |  |  |
 | `query_load_average`    |  |  |
 | `mud_status`            |  |  |
