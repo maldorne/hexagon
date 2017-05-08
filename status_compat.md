@@ -1,12 +1,12 @@
-#Current status: MudOS compatibility
+# Current status: MudOS compatibility
 
-List of MudOS `efun` functions and their implementation in `ccmudlib`. 
+List of MudOS `efun` functions and their implementation in `Hexagon Mudlib`. 
 
 Be aware: most of the functions 
 listed here are already implemented and working, but as I've just started working in this 
 document recently, I'll update every entry as I test each function.
 
-##Basic Types
+## Basic Types
 
 Common calls and operations over the basic types.
 
@@ -63,7 +63,7 @@ Common calls and operations over the basic types.
 | `function_exists`       | :white_check_mark: | alias for `function_object` |
 
 
-##Objects
+## Objects
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
@@ -74,13 +74,13 @@ Common calls and operations over the basic types.
 | `load_object`           | :white_check_mark: | extended alias for `compile_object` |
 
 
-##Basic calls and interactions between objects
+## Basic calls and interactions between objects
 
 The general idea of how the `this_player` value is being stored in a central object (`/lib/core/mudos.c`, which is in charge of doing the respective `init` calls and stores current `query_verb`, `notify_fail`, etc) has been taken from the `mudos_alike_4_dgd` mudlib, although the code had to be written from scratch as it do not have an open source license.
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
-| `init`                  | :white_check_mark: | it's not a function provided by MudOS per se, it's the function that will be called inside every object when they move (if it exists). Listed here for clarity, as `ccmudlib` makes the same calls. |
+| `init`                  | :white_check_mark: | it's not a function provided by MudOS per se, it's the function that will be called inside every object when they move (if it exists). Listed here for clarity, as `Hexagon Mudlib` makes the same calls. |
 | `this_player`           | :white_check_mark: |  |
 | `this_user`             | :white_check_mark: | provided by dgd |
 | `this_interactive`      | :white_check_mark: | alias for `this_user` |
@@ -107,7 +107,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `objects`               |  |  |
 | `children`              |  |  |
 
-##Functions
+## Functions
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `call_out`              | :white_check_mark: | provided by dgd, expanded to store list of pending call outs |
@@ -115,7 +115,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `find_call_out`         | :white_check_mark: |  |
 | `call_out_info`         | :white_check_mark: |  |
 
-##Time & Date
+## Time & Date
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
@@ -123,7 +123,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `ctime`                 | :white_check_mark: | provided by dgd, masked as efun to translate and add functionality |
 | `localtime`             | :white_check_mark: | done using the `sprintf` time functions, would be reimplemented |
 
-##Movement, Inventory & Environment
+## Movement, Inventory & Environment
 
 | Function | Status | Comments |
 | -------- | :------: | -------- |
@@ -138,7 +138,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `move`                  | :white_check_mark: |  |
 | `move_object`           | :white_check_mark: | alias for `move` |
 
-##Files and paths
+## Files and paths
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `file_name`             | :white_check_mark: | alias for `object_name` |
@@ -158,7 +158,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `rm`                    | :white_check_mark: |  |
 | `rmdir`                 | :white_check_mark: |  |
 
-##Interactions with users
+## Interactions with users
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `write`                 | :white_check_mark: |  |
@@ -171,14 +171,14 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `input_to`              | :white_check_mark: | accepts optional parameters `input_to(func, flag, args...)` |
 
 
-##Driver configuration
+## Driver configuration
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `eval_cost`             | :white_check_mark: | uses `status`  |
 | `reset_eval_cost`       | :white_check_mark: | dummy function |
 | `set_eval_limit`        | :white_check_mark: | dummy function |
 
-##Others
+## Others
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `crypt`                 | :white_check_mark: | provided by dgd |
@@ -239,7 +239,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `uptime`                | :white_check_mark: | uses `status` |
 | `shutdown`              | :white_check_mark: |  |
 
-##Other optional MudOS packages
+## Other optional MudOS packages
 | Function | Package | Status | Comments |
 | -------- | :------: | :------: | -------- |
 | `domain_stats`         | PACKAGE_MUDLIB_STATS | :heavy_multiplication_x: | Not used |
