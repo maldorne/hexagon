@@ -108,7 +108,8 @@ void make_iou(mixed stuff_tmp, object dest)
 {
   object iou;
   log_file("loader",  "["+ctime(time(), 4)+"] "+ 
-    (string)dest->query_cap_name()+" tiene ["+(string)stuff_tmp[1]+"] que no se ha cargado.\n");
+    (string)dest->query_cap_name()+" has ["+(string)stuff_tmp[1]+
+    "] which did not load.\n");
   catch(iou = clone_object("/obj/misc/iou"));
   
   if (iou)
@@ -188,7 +189,7 @@ void auto_clone(mixed arg)
   else
   {
     log_file("loader", "["+ctime(time(), 4)+"] "+ (string)this_object()->query_cap_name()+
-      " ha dejado caer su ["+(string)arg[0]->query_name()+"] al conectarse.\n");
+      " dropped ["+(string)arg[0]->query_name()+"] when logging in.\n");
     tell_object(this_object(),"Ups, se te ha caído algo (quizá estés cargando demasiadas cosas y no puedas con todo).\n");
     if (arg[0])
       arg[0]->move(environment());

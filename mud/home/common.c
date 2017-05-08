@@ -13,7 +13,7 @@ void reset()
   int i,n;
   object *all;
   
-  if(!board) 
+  if (!board) 
   {
     board = clone_object("/lib/obj/board");
     board->set_datafile("coders-common");

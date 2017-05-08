@@ -14,31 +14,32 @@ static object sign;
 
 string query_cap_name() { return "A wandering spirit"; }
 
-void setup() {
+void setup() 
+{
   set_light(60);
   set_short("Patrician's Office");
   set_long(
-	"This is a small sparsely funished outer waiting room in the Patrician's "+
-	"Office.  Several busy looking clerks are rushing around.  You can see a "+
-	"small sign hanging on the wall.\n");
+    "This is a small sparsely funished outer waiting room in the Patrician's "+
+    "Office. Several busy looking clerks are rushing around.\n"); //" You can see a "+
+    // "small sign hanging on the wall.\n");
  
   // add_exit("east", OUTSIDE, "standard");
   add_exit("noroeste", ADMIN+"admin3.c", "standard");
 
-  add_item("busy looking clerk",
+  add_item("clerk",
            "There are several of them pretending to look busy here.\n");
 
   set_zone("patricians office");
 }
  
-void init() {
-  ::init();
-  add_action("banish", "banish");
-  add_action("start", "start");
-  add_action("vote", "vote");
-  add_action("apply", "apply");
-  add_action("complain", "complain");
-}
+// void init() {
+//   ::init();
+//   add_action("banish", "banish");
+//   add_action("start", "start");
+//   add_action("vote", "vote");
+//   add_action("apply", "apply");
+//   add_action("complain", "complain");
+// }
 
 /*
 int read(string str) {

@@ -504,7 +504,8 @@ void check_zones()
     if (member_array(table_names[i], names) == -1)
     {
       zones[table_names[i]] = table_zones[table_names[i]];
-      log_file(LOG_FILE, "Zona climática añadida: "+table_names[i] + " " +ctime(time(), 4) + "\n");
+      log_file(LOG_FILE, "Weather zone added: "+table_names[i] + 
+        " " +ctime(time(), 4) + "\n");
       changed = 1;
     }
   }

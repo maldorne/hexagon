@@ -577,14 +577,14 @@ float update_statistics(object victim, object enemy)
       create_name = victim->query_create_me();
 
       if (victim->query_npc() && interactive(enemy)) 
-	  {
+      {
          if (!enemy->query_coder())
             if (create_name != "Object" && create_name != "object" && create_name != "Root")
                log_file("created_npcs", "["+ctime(time(),4)+"] "+ 
-					base_name(victim)+
-					" ["+victim->query_create_me()+"] matado por "+
-					enemy->query_cap_name()+" por "+
-					victim->query_kill_xp()+" xp\n");
+                    base_name(victim)+
+                    " ["+victim->query_create_me()+"] killed by "+
+                    enemy->query_cap_name()+" for "+
+                    victim->query_kill_xp()+" xp\n");
          return update_npc_died(victim, enemy);
       }
 

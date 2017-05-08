@@ -36,27 +36,18 @@ void communicate_commands()
   // add_action("set_language", "speak");
   add_action("set_language", "hablar");
 
-  add_action("do_emote", "emote");
-  add_action("do_emote", "emocion");
+  // deactivated for a while
+  // add_action("do_emote", ({ "emote", "emocion"}));
+
+  // add_action("do_shout", "shout");
+  add_action("do_shout", "gritar");
 
   add_action("do_channels", "emergencia");
   add_action("do_channels", "gremio");
   add_action("do_channels", "clan");
   add_action("do_channels", "aventurero");
   add_action("do_channels", "raza");
- 
-/* Testing something, baldrick, may '96
- * and it works.. next dimension, here we come.
- */
-#ifndef STRICT_MUD
-    add_action("do_echo","echo");
-    add_action("do_emote_all", "emoteall");
-    add_action("do_echo_to", "echoto");
-    add_action("do_shout", "shout");
-    add_action("do_shout", "gritar");
-#endif
-
-} /* communicate_commands() */
+} 
 
 // neverbot 6/03
 void create()

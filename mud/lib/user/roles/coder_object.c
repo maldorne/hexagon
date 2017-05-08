@@ -758,9 +758,9 @@ int trans(string str)
     */
 
     if (environment(obs[i]) && (!obs[i]->query_coder()))
-      log_file("trans", (string)this_player(1)->query_cap_name()+" (trans) "+
-        obs[i]->query_cap_name()+" desde "+file_name(environment(obs[i]))+
-        " hasta "+file_name(environment(this_player()))+" ["+ctime(time(),4)+"]\n");
+      log_file("trans", (string)this_player(1)->query_cap_name()+" (trans'ed) "+
+        obs[i]->query_cap_name()+" from "+file_name(environment(obs[i]))+
+        " to "+file_name(environment(this_player()))+" ["+ctime(time(),4)+"]\n");
     
     tell_object(obs[i], "\nEres transferido mágicamente a algún lugar.\n\n");
     write("Transfieres a " + obs[i]->query_cap_name() + " hasta aquí.\n");

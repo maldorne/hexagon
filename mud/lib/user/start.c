@@ -29,11 +29,11 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
   // set_name(bong);
 
   if (query_property(GUEST_PROP))
-    log_file("enter", sprintf("Enter  : %-15s %s (guest) [%s]\n",
+    log_file("enter", sprintf("Enter : %-15s %s (guest) [%s]\n",
                               name, ctime(time(),4),
                               query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
   else
-    log_file("enter", sprintf("Enter  : %-15s %s [%s]\n",
+    log_file("enter", sprintf("Enter : %-15s %s [%s]\n",
                               name, ctime(time(),4), 
                               query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
 

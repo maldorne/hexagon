@@ -159,11 +159,12 @@ void log_death(string filename, object attacker)
 		return 0;
 	*/
 		
-	log = "["+ctime(time(),4)+"] "+this_object()->query_cap_name() + " matado por " + attacker->query_cap_name() + 
-		" ("+attacker->query_class_name()+" nivel "+attacker->query_level()+")\n";
+	log = "["+ctime(time(),4)+"] "+this_object()->query_cap_name() + " killed by " + 
+    attacker->query_cap_name() + 
+		" ("+attacker->query_class_name()+" lvl "+attacker->query_level()+")\n";
 		
 	if (sizeof(obs) > 1)
-		log += "\tayudado por ";
+		log += "\thelped by ";
 	
 	for (i = 0; i < sizeof(obs); i++)
 	{
