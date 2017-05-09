@@ -42,7 +42,7 @@ Common calls and operations over the basic types.
 | `allocate`              | :white_check_mark: | note: all array elements are initialized to `nil` by default. To initialize the array elements to zero, use `allocate_int`. |
 | `member_array`          | :white_check_mark: |  |
 | `index`                 | :white_check_mark: | alias for `member_array` |
-| `sort_array`            | :white_check_mark: | must be reimplemented |
+| `sort_array`            | :white_check_mark: |  |
 | `unique_array`          | :white_check_mark: |  |
 | `filter`                | :white_check_mark: |  |
 | `filter_array`          | :white_check_mark: |  |

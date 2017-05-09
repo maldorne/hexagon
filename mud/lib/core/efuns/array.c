@@ -159,107 +159,34 @@ static nomask mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed
   return result;
 }
 
+// sort_array - sort an array
+// array sort_array( array arr, string fun, object ob );
+// array sort_array( array arr, function f );
+// array sort_array( array arr, int direction );
 
+// The (ob, fun) syntax behaves the same as if (: call_other, ob, fun :)
+// was passed as f.
 
-// sort_array
+// In the first two forms, the returned array is sorted with respect to
+// the comparison function given.  The function takes two elements as
+// arguments, and returns -1 if if first argument is less than the second,
+// 0 if they are the same, or 1 if the first argument is greater than the
+// second.
 
-// this bubblesort implementation and the idea of the pre-defined sort-array types
-// has been taken from the MudOSAlike4DGD project
+// The third form returns an array with the same elements as 'arr', but
+// quicksorted using built-in sort routines.  A 'direction' of 1 or 0 will
+// quicksort in ascending order, while a 'direction' of -1 will
+// quicksort in descending order.  A limitation of the built-in
+// sort routines is that the array must be homogeneous, composed entirely
+// of a single type, where that type is string, int, or float.
+// Arrays of arrays are sorted by sorting based on the first element,
+// making database sorts possible.
 
-private int sort_string_asc(string str1, string str2) { return strcmp(str1, str2); }
-private int sort_string_des(string str1, string str2) { return strcmp(str2, str1); }
-private int sort_int_asc(int int1, int int2) { return int1-int2; }
-private int sort_int_des(int int1, int int2) { return int2-int1; }
-private int sort_float_asc(float f1, float f2) { return (int)(f1-f2); }
-private int sort_float_des(float f1, float f2) { return (int)(f2-f1); }
-
-static nomask mixed * sort_array(mixed * arr, varargs string fun, mixed ob, int dir) 
+static nomask mixed * sort_array(mixed * arr, 
+  varargs string fun, mixed ob, int dir) 
 {
-  int i, e, sz;
-  mixed * result, a, b, a2;
-
-  if (sizeof(arr) == 0)
-    return array_copy(arr);
-
-  if (!fun) 
-  {
-    // check for pre-defined sort_array types 
-    switch (typeof(arr[0])) 
-    {
-      case T_STRING:
-        fun = "sort_string_asc";
-        ob = this_object();
-        break;
-      case T_INT:
-        fun = "sort_int_asc";
-        ob = this_object();
-        break;
-      case T_FLOAT:
-        fun = "sort_float_asc";
-        ob = this_object();
-        break;
-      default:
-        return array_copy(arr);
-    }
-  }
-  else
-    if (!ob)
-      ob = this_object();
-
-  result = array_copy(arr);
-  i = sizeof(result);
-  a = result[sz = --i];
-
-  // ascending
-  if (dir >= 0) 
-  {
-    while (--i >= 0) 
-    {
-      mixed returned;
-      b = result[i];
-
-      if (undefinedp(returned = call_other(ob, fun, a, b)) || (returned >= 0)) 
-      {
-        // continue
-        a = b;
-      }
-      else 
-      {
-        result[e=i] = a;
-        while (++e < sz && (intp(returned = call_other(ob, fun, a2=result[e+1], b)) && (returned < 0))) 
-        {
-          // swap backwards until we got it right
-          result[e] = a2;
-        }
-        result[e] = b;
-      }
-    }
-  }
-  // descending
-  else 
-  {
-    while (--i >= 0) 
-    {
-      b = result[i];
-      if (call_other(ob, fun, a, b) > 0) 
-      {
-        result[e=i] = a;
-        while (++e < sz && call_other(ob, fun, a2=result[e+1], b) > 0) 
-        {
-          // swap backwards until we got it right
-          result[e] = a2;
-        }
-        result[e] = b;
-      }
-      else 
-      {
-        // continue
-        a = b;
-      }
-    }
-  }
-
-  return result;
+  return "/lib/handlers/sort"->bubblesort(arr, fun, ob, dir);
+  // return "/lib/handlers/sort"->quicksort(arr, fun, ob, dir);
 }
 
 
