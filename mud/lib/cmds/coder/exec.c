@@ -42,8 +42,8 @@ private int check_file()
 
   if (file_size(wiz_dir) != -2) 
   {
-      notify_fail("Directorio: '" + wiz_dir + "' no existente.\n");
-      return 0;
+    notify_fail("Directorio: '" + wiz_dir + "' no existente.\n");
+    return 0;
   }
   
   if (wiz_file_ob = find_object(wiz_file_str)) 

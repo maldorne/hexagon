@@ -20,6 +20,11 @@ static string to_string(mixed ob, varargs int offset, string pre)
     ret += ob + "\n";
     return ret; // "int";
   }
+  else if (floatp(ob))
+  {
+    ret += ob + "f\n";
+    return ret; // "float";    
+  }
   else if (stringp(ob)) 
   {
     ret += "\"" + ob + "\"\n";

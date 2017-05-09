@@ -40,7 +40,7 @@ static nomask int random(int low, varargs int max)
   if (!max)
   {
     if (low == 0)
-      return 0;
+      return 0; // changed in dgd v1.6
     return ::random(low);
   }
   
@@ -50,11 +50,6 @@ static nomask int random(int low, varargs int max)
     return 0;
   
   return ::random(max-low)+low+1;
-}
-
-static nomask int rand_num(int low, int max)
-{
-	return random(low, max);
 }
 
 static nomask int abs(int value)

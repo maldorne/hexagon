@@ -20,7 +20,7 @@ nomask string getuid( varargs object ob )
   return _uid;
 }
 
-nomask int setuid(string id)
+static nomask int setuid(string id)
 {
   if (!stringp(id) || !strlen(id))
     return 0;
@@ -55,7 +55,7 @@ nomask string geteuid( varargs object ob )
 // export_uid(), and only then.
 // But, when the value is 0, no objects can be loaded or cloned by this object.
 
-nomask int seteuid( string id )
+static nomask int seteuid( string id )
 {
   // allow seteuid("") similar to the old seteuid(0)
   // if (!stringp(id) || !strlen(id))

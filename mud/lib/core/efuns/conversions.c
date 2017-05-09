@@ -18,36 +18,52 @@ string number_as_string(int n)
   string ret;
   int i;
 
-  if (n < 0) return "miles de"; /* fo wraps... */
-  if (n > 99999) return "miles de"; /* sorry 'bout the hard limit */
+  if (n < 0) 
+    return "miles de"; /* fo wraps... */
+  if (n > 99999) 
+    return "miles de"; /* sorry 'bout the hard limit */
+
   ret = nil;
-  if ((i = n/1000)) {
+
+  if ((i = n/1000)) 
+  {
     n = n%1000;
-    if (i==1) ret = "mil";
+    if (i==1) 
+      ret = "mil";
     else
       ret = number_as_string_aux(i) + " mil";
-    if (!n) return ret;
+    if (!n) 
+      return ret;
   }
-  if ((i = n/100)) {
+
+  if ((i = n/100)) 
+  {
     n = n%100;
-      if (!ret) ret="";
-      else ret += " ";
-      switch (i)
-      {
-        case 1: if (!n) ret += "cien"; else ret += "ciento"; break;
-        case 2: ret += "doscientos"; break;
-        case 3: ret += "trescientos"; break;
-        case 4: ret += "cuatrocientos"; break;
-        case 5: ret += "quinientos"; break;
-        case 6: ret += "seiscientos"; break;
-        case 7: ret += "setecientos"; break;
-        case 8: ret += "ochocientos"; break;
-        case 9: ret += "novecientos"; break;
-      }  
-      if (!n) return ret;
+    if (!ret) 
+      ret="";
+    else 
+      ret += " ";
+    
+    switch (i)
+    {
+      case 1: if (!n) ret += "cien"; else ret += "ciento"; break;
+      case 2: ret += "doscientos"; break;
+      case 3: ret += "trescientos"; break;
+      case 4: ret += "cuatrocientos"; break;
+      case 5: ret += "quinientos"; break;
+      case 6: ret += "seiscientos"; break;
+      case 7: ret += "setecientos"; break;
+      case 8: ret += "ochocientos"; break;
+      case 9: ret += "novecientos"; break;
+    }
+
+    if (!n) 
+      return ret;
   }
+
   if (ret)
     return ret + " " + number_as_string_aux(n);
+
   return number_as_string_aux(n);
 } /* query_num() */
 
@@ -55,19 +71,26 @@ private string number_as_string_aux(int n)
 {
   string ret;
 
-  if (!n) return "cero";
+  if (!n) 
+    return "cero";
 
-  if (n > 99) return "muchos";
+  if (n > 99) 
+    return "muchos";
   
-  if (n<30 && n>9) return ({ "diez", "once", "doce", "trece",
-                             "catorce", "quince", "dieciséis", "diecisiete",
-                             "dieciocho", "diecinueve", "veinte",
-                             "veintiún", "veintidós", "veintitrés",
-                             "veinticuatro", "veinticinco", "veintiséis",
-                             "veintisiete", "veintiocho", "veintinueve" })[n-10];
+  if (n<30 && n>9) 
+    return ({ "diez", "once", "doce", "trece",
+              "catorce", "quince", "dieciséis", "diecisiete",
+              "dieciocho", "diecinueve", "veinte",
+              "veintiún", "veintidós", "veintitrés",
+              "veinticuatro", "veinticinco", "veintiséis",
+              "veintisiete", "veintiocho", "veintinueve" })[n-10];
+
   ret = ({ "", "", "", "treinta", "cuarenta", "cincuenta", "sesenta",
            "setenta", "ochenta", "noventa"})[n/10];
-  if ((n = n%10)&&(ret!="")) ret += " y ";
+
+  if ((n = n%10)&&(ret!="")) 
+    ret += " y ";
+
   return ret + ({ "", "un", "dos", "tres", "cuatro", "cinco", "seis",
                   "siete", "ocho", "nueve"})[n];
 } /* number_as_string() */

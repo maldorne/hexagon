@@ -7,6 +7,10 @@ static string print_object(mixed ob)
   {
     return "int";
   }
+  else if (floatp(ob)) 
+  {
+    return "float";
+  }
   else if (stringp(ob)) 
   {
     return "string";

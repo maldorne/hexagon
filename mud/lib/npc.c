@@ -435,14 +435,14 @@ void heart_beat()
 
 void set_random_stats(int low, int max) 
 {
-  set_str(rand_num(low, max));
-  set_dex(rand_num(low, max));
-  set_int(rand_num(low, max));
-  set_con(rand_num(low, max));
-  set_wis(rand_num(low, max));
-  set_cha(rand_num(low, max));
-  set_wil(rand_num(low, max));
-  set_per(rand_num(low, max));
+  set_str(random(low, max));
+  set_dex(random(low, max));
+  set_int(random(low, max));
+  set_con(random(low, max));
+  set_wis(random(low, max));
+  set_cha(random(low, max));
+  set_wil(random(low, max));
+  set_per(random(low, max));
 }
 
 int set_guild_level(int i)
