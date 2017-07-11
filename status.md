@@ -1,4 +1,4 @@
-### Project status and roadmap
+# Project status and roadmap
 
 - [ ] **MudOS compatibility layer**
 
