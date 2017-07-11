@@ -113,7 +113,7 @@ int do_look(string str)
   tmp += "   "+(string)races[lower_case(str)]; //+"\n";
   tmp += "%^BOLD%^Escribe <abrir cofre "+str+"> si deseas reencarnarte como un miembro "+
     "de esta raza.%^RESET%^\n";
-  tmp = sprintf("%-=*s", this_player()->query_cols(), tmp);
+
   tell_object(this_player(), tmp);
   return 1;
 }
@@ -162,7 +162,7 @@ int do_open_chest(string str)
   tmp = "Te acercas al cofre con la efigie dorada de "+
     "un "+lista[1]+" y lo abres con cuidado, notando como comienza "+
     "a atraerte hacia su interior antes de perder la consciencia.\n\n";
-  tmp = sprintf("%*-=s", this_player()->query_cols(), tmp);
+
   tell_object(this_player(), tmp);
 
   // Solo cambiamos la raza SI NO TIENE!!!!
