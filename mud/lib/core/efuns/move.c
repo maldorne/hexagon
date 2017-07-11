@@ -140,7 +140,7 @@ int move(varargs object dest)
 // is given, 'ob' defaults to this_object().  If the object is not
 // inside anything, zero is returned.
 
-nomask object environment( varargs object ob )
+nomask object environment(varargs object ob)
 {
   if (ob)
     return ob->environment();

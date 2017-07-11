@@ -131,9 +131,9 @@ void create()
   
   hud          = HUD_DIFFICULTY; 
 
-  save_counter    = 0;
-  last_command    = time();
-  net_dead        = 0;
+  save_counter = 0;
+  last_command = time();
+  net_dead     = 0;
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
@@ -328,13 +328,13 @@ static void receive_message(string str)
       MUDOS->set_initiator_player(this_object());
       MUDOS->set_initiator_object(this_object());
 
-      tmp_redirect_obj =  redirect_input_ob;
+      tmp_redirect_obj  = redirect_input_ob;
       tmp_redirect_func = redirect_input_function;
       tmp_redirect_args = redirect_input_args;
     
-      redirect_input_ob = nil;
+      redirect_input_ob       = nil;
       redirect_input_function = "";
-      redirect_input_args = ({ });
+      redirect_input_args     = ({ });
 
       call_other(tmp_redirect_obj, tmp_redirect_func, str, tmp_redirect_args...);
   

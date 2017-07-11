@@ -481,7 +481,7 @@ void start_clean_up()
   }
   else if ( !room_stabilize )
   {
-    clean_up_handle = call_out( "clean_up_room", old_call_out, 0 );
+    clean_up_handle = call_out( "clean_up_room", (old_call_out < 0 ? 0 : old_call_out), 0 );
   }
 #endif
 }

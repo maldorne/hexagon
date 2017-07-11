@@ -679,8 +679,8 @@ nomask int action_check(string str)
   // * Moved from process_input.
   switch( str[0] )
   {   
-    case '\'' : str = "decir "+   str[1..]; break;
-    case ':'  : str = "emocion "+ str[1..]; break;
+    case '\'' : str = "decir "   + str[1..]; break;
+    case ':'  : str = "emocion " + str[1..]; break;
     // case '\"' : str = "lsay "+  str[1..<1]; break;
     // case ';'  : str = "parse "+ str[1..<1]; break;
   }
@@ -699,7 +699,7 @@ nomask int action_check(string str)
           "No necesitas reiniciar tu personaje en estos momentos.\n");
       else
       {
-        tell_object(this_object(),"Intentando reiniciar tu personaje...\n");
+        tell_object(this_object(), "Intentando reiniciar tu personaje...\n");
         actionq = ({ }); // will get cascading failure without this 
         set_heart_beat(1);
         catch(this_object()->flush_spell_effects());
@@ -710,7 +710,7 @@ nomask int action_check(string str)
     case "parar":
       if ( sizeof(actionq) != 0 )
           aq_delete_user_actions();
-        tell_object(this_object(),"Cola de comandos borrada.\n");
+        tell_object(this_object(), "Cola de comandos borrada.\n");
         // "(stop-fight parara los ataques si es lo que querias)\n");
       return 1;
 
@@ -718,7 +718,7 @@ nomask int action_check(string str)
     case "abortar":
       if ( !ia_in_progress )
       {
-        tell_object(this_object(),"No estás en medio de una acción que "+
+        tell_object(this_object(), "No estás en medio de una acción que "+
           "pueda ser abortada.\n");
         return 1;
       }
