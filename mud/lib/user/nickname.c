@@ -42,7 +42,7 @@ int add_nickname(string str)
   if (!map_nicknames[s1]) 
   {
     map_nicknames[s1] = s2;
-    write("Apodo '"+s1+"' aÃ±adido como '"+s2+"'.\n");
+    write("Apodo '"+s1+"' añadido como '"+s2+"'.\n");
     return 1;
   }
 
@@ -162,7 +162,7 @@ int nickname(string str)
 /*
 int flushnicknames(string str)
 {
-  write("Esto borrarÃ¡ tu lista de apodos completa. Â¿EstÃ¡s seguro? (s/n)\n");
+  write("Esto borrará tu lista de apodos completa. ¿Estás seguro? (s/n)\n");
   input_to("flushnicks",0);
   return 1;
 }
@@ -174,7 +174,7 @@ int flushnicks(string str)
     map_nicknames=0;
     write ("Apodos borrados.\n");
   }
-  else write("QuizÃ¡ otro dÃ­a.\n");
+  else write("Quizá otro día.\n");
   return 1;
 }
 */
