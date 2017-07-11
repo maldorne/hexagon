@@ -127,6 +127,7 @@ void create()
   last_log_on  = time();
   auto_load    = ({ });
   last_on_from = "";
+  last_pos     = "";
   
   hud          = HUD_DIFFICULTY; 
 
