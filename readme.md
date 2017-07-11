@@ -57,5 +57,5 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
    `mkdir driver/dgd/tmp`
 5. Execute `./mud.sh`
 6. `telnet localhost 6047` to connect and see if everything is working.
-7. By default you will have an administrator account created, with username `admin` and password `admin`.
+7. By default you will have an administrator account created, with username `admin` and password `administrator`.
 
