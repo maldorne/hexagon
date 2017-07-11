@@ -70,21 +70,25 @@ string *pretty_plural()
   return ret;
 } /* query_plural() */
 
-string long() 
+string long(varargs string s, int dark)
 {
   int i;
   string ret;
 
   ret = "";
-  for (i=0;i<sizeof(cur_desc);i++) 
+
+  for (i = 0; i < sizeof(cur_desc); i++) 
   {
     if (!lng[cur_desc[i]])
       continue;
+
     ret += lng[cur_desc[i]];
   }
+
   if (ret == "")
     return "Error en el objeto, comunícaselo a un programador.\n";
-  return sprintf("%-=*s",
+
+  return sprintf("%-*s",
     (this_player()->query_cols()?this_player()->query_cols():79),
     "   "+ret);
 } /* long() */
@@ -164,7 +168,7 @@ void setup_item(mixed nam, mixed long, varargs int no_plural)
       plural[(s=pluralize(s))] = ({ bits[0..sizeof(bits)-2], sizeof(lng) });
   } else 
   {
-/* Dey are both existant... */
+    /* Dey are both existant... */
     verb[s] += ({ bits[0..sizeof(bits)-2], sizeof(lng) });
     if (!no_plural)
       plural[(s=pluralize(s))] += ({ bits[0..sizeof(bits)-2], sizeof(lng) });
@@ -183,7 +187,7 @@ int modify_item(string str, mixed long)
 
   if ((j = member_array(str, shrt)) == -1)
     return 0;
-/* Got a match... */
+  /* Got a match... */
   if (pointerp(long)) 
   {
     for (i=0;i<sizeof(long);i+=2)
@@ -201,7 +205,7 @@ int modify_item(string str, mixed long)
   }
   lng[j] = long;
   return 1;
-} /* modify_exit() */
+}
 
 int remove_item(string str, string new_long) 
 {
@@ -209,15 +213,14 @@ int remove_item(string str, string new_long)
 
   if ((i = member_array(str, shrt)) == -1)
     return 0;
-/* Ok, got him.  Now we need to track down all the bits.  Sigh. */
-/* this is a mess.  I am not sure I want to do it.  So I won't for now. */
-} /* remove_item() */
+  /* Ok, got him.  Now we need to track down all the bits.  Sigh. */
+  /* this is a mess.  I am not sure I want to do it.  So I won't for now. */
+}
 
 // string *parse_command_id_list() { return name; }
 // string *parse_command_plural_id_list() { return plu; }
 // string *parse_command_adjectiv_id_list() { return adjs; }
 
-/*
 object query_parse_id(mixed *arr) 
 {
   string *bits;
@@ -228,64 +231,84 @@ object query_parse_id(mixed *arr)
   if (arr[P_THING] == 0) 
   {
     bits = explode(arr[P_STR], " ");
+
     if (!(stuff = plural[bits[sizeof(bits)-1]]))
       if (!(stuff = verb[bits[sizeof(bits)-1]]))
         return nil;
+    
     cur_desc = ({ });
-    for (j=0;j<sizeof(stuff);j+=2) 
+    
+    for (j = 0 ;j < sizeof(stuff); j+=2) 
     {
-      for (i=0;i<sizeof(bits)-2;i++)
+      for (i = 0; i < sizeof(bits)-2; i++)
         if (member_array(bits[i], stuff[j]) == -1)
           break;
+
       if (i < sizeof(bits)-2)
         continue;
+
       cur_desc += ({ stuff[j+1] });
     }
+
     return this_object();
   }
+
   if (arr[P_THING] < 0) 
   { 
     // specific object case
     bits = explode(arr[P_STR], " ");
+
     if (!(stuff = verb[bits[sizeof(bits)-1]]))
       return nil;
-    for (j=0;j<sizeof(stuff);j+=2) 
+
+    for (j = 0; j < sizeof(stuff); j+=2) 
     {
-      for (i=0;i<sizeof(bits)-2;i++)
+      for (i = 0; i < sizeof(bits)-2; i++)
         if (member_array(bits[i], stuff[j]) == -1)
           break;
+
       if (i < (sizeof(bits) - 2) || ++arr[P_THING] != 0)
         continue;
+
       // Get the current thingy out of the list
       cur_desc = ({ stuff[j+1] });
       arr[P_THING] = -10321;
       return this_object();
     }
+
     return nil;
   }
+
   // Lots of objects case.  The objects are specified though.
   bits = explode(arr[P_STR], " ");
+
   if (!(stuff = plural[bits[sizeof(bits)-1]]))
     if (!(stuff = verb[bits[sizeof(bits)-1]]))
       return nil;
+
   cur_desc = ({ });
-  for (j=0;j<sizeof(stuff);j+=2) 
+  
+  for (j = 0; j < sizeof(stuff); j+=2) 
   {
-    for (i=0;i<sizeof(bits)-2;i++)
+    for (i = 0; i < sizeof(bits)-2; i++)
       if (member_array(bits[i], stuff[j]) == -1)
         continue;
+
     if (i < sizeof(bits)-2)
       continue;
+
     cur_desc += ({ stuff[j+1] });
     arr[P_THING]--;
+    
     if (arr[P_THING] <= 0) 
     {
       arr[P_THING] = -10786;
       return this_object();
     }
   }
+
   return this_object();
-} */
+}
 
 void dest_me() 
 {

@@ -55,7 +55,9 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   string * id_list;
   string * id_list_plurals;
   object * result;
-  int i;
+  string * bits;
+  int i, j;
+  string aux;
 
   list = ({ });
   id_list = ({ });
@@ -93,19 +95,32 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   if (no_hidden)
     list = filter(list, "not_hidden", this_object());    
 
-  for (i = 0; i < sizeof(list); i++)
+  bits = explode(implode(explode(str, " y "), ","), ",");
+  
+  for (j = 0; j < sizeof(bits); j++) 
   {
-    id_list = ({ list[i]->query_name(), list[i]->query_short(), }) + 
-                (list[i]->query_alias() ? list[i]->query_alias() : ({ }));
+    aux = bits[j];
 
-    id_list_plurals = ({ list[i]->query_main_plural(), }) +
-                        (list[i]->query_plurals() ? list[i]->query_plurals() : ({ }));
+    if (this_player())
+      aux = this_player()->expand_nickname(bits[j]);
 
-    if (member_array(str, id_list) != -1)
-      return ({ list[i] });
+    for (i = 0; i < sizeof(list); i++)
+    {
+      id_list = ({ list[i]->query_name(), list[i]->query_short(), }) + 
+                  (list[i]->query_alias() ? list[i]->query_alias() : ({ }));
 
-    if (member_array(str, id_list_plurals) != -1)
-      result += ({ list[i] });
+      id_list_plurals = ({ list[i]->query_main_plural(), }) +
+                          (list[i]->query_plurals() ? list[i]->query_plurals() : ({ }));
+
+      if (member_array(aux, id_list) != -1)
+        result += ({ list[i] });
+
+      else if (member_array(aux, id_list_plurals) != -1)
+        result += ({ list[i] });
+
+      else if (list[i]->query_parse_id( ({ 0, aux}) ))
+        result += ({ list[i] });
+    } 
   }
 
   return result;    
@@ -159,6 +174,17 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   
   for (j = 0; j < sizeof(bits); j++) 
   {
+
+
+
+
+
+
+
+
+
+
+
     str = bits[j];
     nick = (string)this_object()->expand_nickname(str);
 
