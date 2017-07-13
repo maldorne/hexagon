@@ -1,8 +1,0 @@
-Usage: find function() ob
-       find function ob
-
-This acts similarly to 'call' but only finds out where the function is and 
-doesn't call it. It tells you where the function is in the object, and
-any shadows that mask the function.
-
-note: I will get it to list *all* the incidences of the function soon--bil

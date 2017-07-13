@@ -1,3 +1,0 @@
-typeof(var)
-
-Returns type of var as a string, either "string", "int", or "object".
