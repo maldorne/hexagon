@@ -204,15 +204,7 @@ nomask void show_who()
 
 nomask void show_options()
 {
-  // new options without login, neverbot 2/06
-  string ret;
-  ret = "Opciones: %^BOLD%^GREEN%^<email o nombre de personaje>%^RESET%^ para comenzar a jugar.\n"+
-        "          %^BOLD%^crear%^RESET%^ para crear una nueva cuenta.\n"+
-        "          %^BOLD%^invitado%^RESET%^ para probar el juego temporalmente.\n"+
-        "          %^BOLD%^finger <nombre>%^RESET%^ para obtener datos sobre otro jugador.\n"+
-        "          %^BOLD%^who%^RESET%^ para ver la lista de jugadores conectados.\n\n";
-
-  write( ret );
+  cat(doc(LOGIN_OPTIONS_MESSAGE));
 }
 
 nomask void logon_option(string str) 

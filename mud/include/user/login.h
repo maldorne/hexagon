@@ -20,7 +20,6 @@
 #define WELCOME_MESSAGE "welcome.txt"
 #endif
 
-#define OPTIONS_MESSAGE "login_options.txt"
+#define LOGIN_OPTIONS_MESSAGE "login_options.txt"
 
 #endif
-
