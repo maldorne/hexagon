@@ -2,11 +2,12 @@
   /  _________________________________________________________  \
   | /                                                         \ |
   | |                                                         | |
-  | |            Welcome to the Hexagon Mudlib test           | |
+  | |              Welcome to the Hexagon Mudlib              | |
   | |                                                         | |
   | \_________________________________________________________/ |
   \_____________________________________________________________/
      
-              Web:     http://www.ciudadcapital.net
-              Twitter: http://twitter.com/ccmud
+        Github:  https://github.com/houseofmaldorne/hexagon
+        Web:     http://maldorne.org/
+        Twitter: https://twitter.com/houseofmaldorne
                    
