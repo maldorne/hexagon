@@ -5,11 +5,11 @@
 
 #include <mud/cmd.h>
 
-#define help_dirs ({ "/doc/mud/concepts/", "/doc/mud/important/","/doc/helpdir/"})
+#define help_dirs ({ "/lib/docs/mud/concepts/", "/lib/docs/mud/important/","/lib/docs/helpdir/"})
 
-#define creator_dirs ({ "/doc/lfun/", "/doc/efun/", "/doc/coder/",\
-"/doc/driver/lpc/types/", "/doc/driver/applies/", \
-"/doc/driver/concepts/", "/doc/driver/lpc/constructs/", })
+#define creator_dirs ({ "/lib/docs/lfun/", "/lib/docs/efun/", "/lib/docs/coder/",\
+"/lib/docs/driver/lpc/types/", "/lib/docs/driver/applies/", \
+"/lib/docs/driver/concepts/", "/lib/docs/driver/lpc/constructs/", })
 
 
 static int compare_strings(string a, string b)
@@ -35,21 +35,21 @@ int do_help(string str)
   {
     s = "%^GREEN%^Temas importants%^RESET%^:\n";
     s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
-      implode(get_dir("/doc/mud/importante/"), "\n"));
+      implode(get_dir("/lib/docs/mud/importante/"), "\n"));
 
     s += "%^GREEN%^Conceptos generales del juego%^RESET%^:\n";
     s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
-      implode(get_dir("/doc/mud/concepts/"), "\n"));
+      implode(get_dir("/lib/docs/mud/concepts/"), "\n"));
 
     s += "%^GREEN%^Otros temas%^RESET%^:\n";
     s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
-      implode(get_dir("/doc/helpdir/"), "\n"));
+      implode(get_dir("/lib/docs/helpdir/"), "\n"));
 
     if (this_object()->query_coder())
     {
       s += "%^GREEN%^Ayuda de comandos de programadores%^RESET%^:\n";
       s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
-        implode(get_dir("/doc/coder/"), "\n"));
+        implode(get_dir("/lib/docs/coder/"), "\n"));
 
       s += "%^GREEN%^Ayuda de programación%^RESET%^:\n";
       
@@ -58,7 +58,7 @@ int do_help(string str)
       for (i = 0; i < sizeof(creator_dirs); i++)
       {
         // Este ya lo hemos mostrado antes
-        if (creator_dirs[i] == "/doc/coder/")
+        if (creator_dirs[i] == "/lib/docs/coder/")
           continue;
         // Si no es un directorio, nos lo saltamos
         if (file_size(creator_dirs[i]) != -2)
@@ -264,7 +264,7 @@ string create_help(string str)
         return creator_dirs[i]+str;
       }
   
-  cross_ref = read_file("/doc/cross_ref");
+  cross_ref = read_file("/lib/docs/cross_ref");
   cross_ref = explode(cross_ref, "%");
   
   if ((i=member_array(str,cross_ref))==-1)
