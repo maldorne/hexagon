@@ -59,3 +59,25 @@ static nomask object handler(string name)
 
   return nil;
 }
+
+// analog to the previous ones, but returns a document
+static nomask string doc(string name)
+{
+  string path;
+
+  // first int the game docs directory, it overrides the lib one
+  catch 
+  {
+    if (file_exists("/game/docs/" + name))
+    {
+      return "/game/docs/" + name;
+    }
+
+    if (file_exists("/lib/docs/" + name))
+    {
+      return "/lib/docs/" + name;
+    }
+  }
+
+  return "";
+}

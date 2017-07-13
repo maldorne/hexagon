@@ -109,12 +109,12 @@ nomask void logon(object pl)
   _player = pl;
 
   write("Versión de LPmud: " + version() + "\n" +
-        "Versión de Mudlib: " + MUDLIB_VERSION + "\n\n"/* + 
+        "Versión de Mudlib: " + MUDLIB_VERSION + "\n"/* + 
         "Último parche: " + PATCH_VERSION + "\n\n"*/);
 
   call_out("time_out", LOGIN_TIMEOUT);
 
-  cat(WELCOME_MESSAGE);
+  cat(doc(WELCOME_MESSAGE));
 
   // TODO check shut object to avoid login near a shutdown
   // if (find_object("/obj/shut")) 

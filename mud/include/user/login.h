@@ -15,12 +15,12 @@
 #define CODER_SLOTS 5
 
 #ifndef _PRIMARY_MUD
-#define WELCOME_MESSAGE "/doc/welcome_devel.txt"
+#define WELCOME_MESSAGE "welcome_devel.txt"
 #else
-#define WELCOME_MESSAGE "/doc/welcome.txt"
+#define WELCOME_MESSAGE "welcome.txt"
 #endif
 
-#define OPTIONS_MESSAGE "/doc/login_options.txt"
+#define OPTIONS_MESSAGE "login_options.txt"
 
 #endif
 
