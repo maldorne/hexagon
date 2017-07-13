@@ -1,0 +1,13 @@
+Usage : ls [directory]
+
+ls is used to list the files in a directory.  Directories have a '/' appended
+to them.  If no directory is given, it will default to your current directory.
+You can also specify patterns to match to so that not all files will be listed.
+
+Examples:
+
+ls /std
+ls /std/living/l*.c
+ls /log/F*
+ls examples/*.c
+ls

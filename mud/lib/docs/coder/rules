@@ -1,0 +1,110 @@
+                --* RULES FOR CREATORS *--
+
+1: NEVER MAKE THINGS THAT DO NOT BELONG IN THE SETTING OF THIS MUD. 
+   This includes known items/monsters/characters from other worlds even
+   if that's also AD&D. Also includes things that we compare with our
+   own world. Both in descriptions, as comparisons and otherwise.
+
+   Reason for this rule: If things from other settings pop up the entire
+   athmosphere of the game is undermined.
+
+2: NEVER MAKE SUPER-THINGS (armours/items/weapons/spells/monsters etc.)
+   This includes all things that are not balanced with the rest of the 
+   excisting things in the game. This also extends to your private
+   use and private directory.
+
+   Reason for this rule: If the game is not balanced the fun for the
+   players is greatly reduced, tho they may love to have such items.
+   The reasons why you are not allowed to make such items even for your
+   own use are that:
+      1: The items has a tendency to get into the possession of players
+         whether the creator inteded it so or not. Possible reasons are
+         that you drop them as you log out or other creators clone them
+         and gives them to players (reason for demotion).
+      2: Your private directory is open for all to read and clone things
+         from, so they may be misused.
+      3: When such an item appears in the game there is no question as
+         to who cloned it and gave it away. It's simply always the fault
+         of the one who made it.
+
+3: NEVER HELP PLAYERS. This includes giving away money and other things,
+   transportig them where they want to go, try to fix bugs that bothers
+   them and giving away info that is obviously meant to be hidden. Also
+   never CALL functions to raise lower stats/hp/ability scores/gp/etc 
+   on players/monsters or to other advantages/disadvantages. This also 
+   includes changing their titles/race/etc.
+
+   This does not include answering questions that they need answers to
+   to completely understand something in the game.
+
+   Reason for this rule: Obviously helping players ruins the challenge 
+   and fun of the game. If they get things too easily the joy of getting
+   it is greatly dimished. Also it feels very unfair to the ones who
+   work/play a lot to receive an advantage another has gotten for free.
+   
+   What to do instead: Tell any lord what the problem is, and he'll act
+   according to what we've agreed upon in PR-meetings. Also he'll know
+   how to fix things safely without creating bugs. Examples of this are
+   trying to add a level to any skill of a player or changing their
+   guilds or race. NEVER do this.
+
+4: NEVER SHOUT OR OTHERWISE SPREAD YOUR BAD FEELINGS ABOUT OTHERS.
+   If there is a problem with either a player or another creator,
+   it should be discussed in a lord-meeting. We'll decide what to do
+   about it there, and possibly call in the "accuser and guilty" for
+   an interview. This includes shouting and chat'ing words that are
+   bound to insult people for religious, racial, sexual or other
+   similar reasons.
+
+   Reason for this rule. When the creators (the ones people look up to)
+   here start spreading ill temper the players are bound to pick up on
+   it, and this will make the mud a very unpleasant place to be. Also
+   most things we disagree and get angry with each other for are due to
+   misunderstandings. After a short discussion most things are settled.
+
+5  USE A TEST-CHARACTER FOR TESTING.  You're allowed to have ONE character
+   besides your creator-character for testing things.  Use it for this 
+   purpose and for adventuring.  When used for adventuring, the above rules
+   for player interference still counts.  When you test new items, ALWAYS
+   do this on your test character, and not on players.
+
+   Reason for this rule:  When a player gets hurt due to your actions you
+   will not be allowed to reinstate him, and if he gains more benefits than
+   you meant to give you'll not be allowed to remove it again.  We need to
+   have a common policy in how to rule what should be done in such instances,
+   so to keep confusion to a minimum, only lords are allowed to compensate.
+
+6  NEVER MAKE THINGS THAT KILLS PLAYERS WITHOUT PROPER WARNING.  If you make
+   a very powerful monster or a room that is likely to kill a player, let
+   them be warned somehow before they're dead.
+ 
+   Reason for this rule:  When players die because of their own stupidity, 
+   that is of course fair enough, but if it happens without them having
+   ample reason for suspecting a "trap" it ruins the fun of gaming.
+
+7  GIVE JUST REWARDS FOR ACTIONS BY THE PLAYERS.  If a monster or quest is 
+   very easy to complete, don't give huge rewards.  Most monsters shouldn't
+   have any items on them, only the ones that are hard to beat.
+
+   Reason for this rule:  When the game is balanced everything is fun.  When
+   you get a big reward for doing just a simple thing the harder quests/
+   monsters lose their whole reason for being there.  Players need to feel 
+   that they're progressing towards something (the reason for a level system).
+   If they get it all from the start, there's nothing to look forward to.
+
+8  READ THE DOCS.  The docs provide information on what functions you can use, 
+   and some hints to how things are supposed to work.  It will enable you to
+   make better code than if you don't read them.
+
+   Reason for this rule:  We have changes and added some function to make the 
+   game run faster and more smoothly.  If you use ...say 2.4.5 code it may work,
+   but not as fast or well as it would using our new functions.  Also it will
+   help you code things faster and above all in an easier way.     
+
+ 9  DON'T WANDER AROUND IN AN OPEN AREA OF THE MUD, ESPECIALLY IN A 
+    DOMAIN YOU ARE NOT WORKING FOR.
+     Reason for this rule:  You can disrupt any order or theme of the mud just
+     by your presense being seen by mortals.  Interaction with NPCs
+     can severly disable or cripple critical quests and can quickly
+     get you demoted.  Do not fight NPCs, walk around talking to players,
+     or any other interaction in the open areas of the mud.  

@@ -1,0 +1,14 @@
+Usage : homedir [directory]
+
+Your homedir is the directory that you will start in when you first log into
+the mud and also the directory you will get to when you type cd with no
+pathname.  The homedir is different to ~.  ~ is /home/<yourname>/.  It is always
+this and cannot be changed.  If you set your homedir to /home/<yourname>/ then
+it will act the same as if you were using ~.
+
+Examples:
+
+homedir
+homedir /d/FR/daggerford
+homedir /std/living
+homedir ~

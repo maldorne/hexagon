@@ -1,0 +1,6 @@
+string this_verb()
+
+Returns the verb (as defined by add_verb() or add_xverb()) that
+initiated the call to this function.
+
+See also add_action(), add_verb(), add_xverb().

@@ -1,0 +1,26 @@
+/** Function added to room.c by Bivins on FR-MUD 1/28/93 2am **/
+shield_it(string str, string waitpunk)
+
+This function in room.c can ban anyone except gods from entering/ porting
+into a room.  I hope to make it to where the shield is just from teleporting,
+but right now it is shield from entering the room period. It should be put it
+the room's init function.
+ The str variable can be filled by the following:
+  "players"  - keeps players out.
+  "creators" - keeps creators (patrons) and players out.
+  "demigods" - keeps demigods out..(Only a god has the right
+                                                      to use the demigod setting.)
+The waitpunk variable can be filled by:
+  any room filename, ie "/d/fr/daggerford/ladyluck"
+- This setting is where it will send the person that fails to pass
+   through the shield.
+
+example:
+
+void init() {
+shield_it("players","/d/fr/daggerford/ladyluck");
+::init();
+}
+/* This will bounce any player that trys to port/walk into the room to
+ladyluck, instead of the desired room. It will allow anyone above a
+player into the room, and give them a success message. */

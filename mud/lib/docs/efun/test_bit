@@ -1,0 +1,7 @@
+test_bit
+
+int test_bit(string str, int n)
+
+Return 0 or 1 of bit n was set in string str.
+
+See also: set_bit, clear_bit.
