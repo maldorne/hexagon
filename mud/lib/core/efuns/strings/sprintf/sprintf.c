@@ -306,7 +306,7 @@ private string align (string this, int width, int precision, mapping options,
       alt = options;
       alt["#"] = nil;
 
-      this += " " + align(cell, max_length+1, precision, alt, padding);
+      this += " " + align(cell, max_length, precision, alt, padding);
         // cell + give_padding(max_length - strlen(cell) - 2, padding) + " ";
       done++;
 
