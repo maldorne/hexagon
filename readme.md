@@ -11,7 +11,7 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### How to use or test the mudlib
 
-These instructions assume you have some knowledge about compiling code under a Unix enviroment (Unix, Linux, OS X, etc). If that is not the case, I recommend to follow the instructions about [How to install the environment in a virtual machine](install_in_vm.md) instead, which are suitable for any operating system (including Windows).
+These instructions assume you have some knowledge about compiling code under a Unix enviroment (Unix, Linux, OS X, etc).
 
 DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tree/master/src/host/win32) as noticed in its own documentation, but I've never tried. Any feedback or documentation about this would be appreciated.
 
