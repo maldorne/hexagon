@@ -33,9 +33,9 @@ int do_help(string str)
   
   if (!strlen(str)) 
   {
-    s = "%^GREEN%^Temas importants%^RESET%^:\n";
+    s = "%^GREEN%^Temas importantes%^RESET%^:\n";
     s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
-      implode(get_dir("/lib/docs/mud/importante/"), "\n"));
+      implode(get_dir("/lib/docs/mud/important/"), "\n"));
 
     s += "%^GREEN%^Conceptos generales del juego%^RESET%^:\n";
     s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),

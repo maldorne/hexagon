@@ -3,9 +3,6 @@
 #include <areas/weather.h>
 #include <areas/calendar.h>
 
-#include "strings/sprintf/time.h"
-#include "strings/sprintf/time.c"
-
 // uptime - return the number of seconds elapsed since the last driver reboot
 // int uptime();
 // This function returns the number of seconds since the last driver reboot.
@@ -41,29 +38,29 @@ nomask static int uptime()
 //         int     LT_GMTOFF       Seconds after GMT (UTC)
 //         string  LT_ZONE         Timezone name
 
-// TODO localtime
 static mixed * localtime(int timestamp)
 {
   mixed * result;
 
   result = allocate(10);
 
-  result[LT_SEC] = second(timestamp);
-  result[LT_MIN] = minute(timestamp);
-  result[LT_HOUR] = hour(timestamp);
-  result[LT_MDAY] = day(timestamp);
-  result[LT_MON] = month(timestamp, 2);
-  result[LT_YEAR] = year(timestamp);
-  result[LT_WDAY] = weekday(timestamp, 2);
-  result[LT_YDAY] = day_of_year(timestamp);
+  result[LT_SEC]  = handler("time")->second(timestamp);
+  result[LT_MIN]  = handler("time")->minute(timestamp);
+  result[LT_HOUR] = handler("time")->hour(timestamp);
+  result[LT_MDAY] = handler("time")->day(timestamp);
+  result[LT_MON]  = handler("time")->month(timestamp, 2);
+  result[LT_YEAR] = handler("time")->year(timestamp);
+  result[LT_WDAY] = handler("time")->weekday(timestamp, 2);
+  result[LT_YDAY] = handler("time")->day_of_year(timestamp);
   result[LT_GMTOFF] = 0;
-  result[LT_ZONE] = "CET";
+  result[LT_ZONE] = handler("time")->timezone(timestamp);;
 
   return result;
 }
 
 /*
  * Different modes:
+ *  - flag = -1: just call the kfun
  *  - no flag or flag = 0: reduced datetime for logging:
  *    "Lun 21 Abr 2003 15:58:0"
  *  - flag = 1: generic real-world time (i.e. for the who command):
@@ -83,6 +80,8 @@ static mixed * localtime(int timestamp)
  */
 static string ctime(int time, varargs int flag)
 {
+  if (flag && (flag == -1))
+    return ::ctime(time);
+
   return handler(CALENDAR_HANDLER)->ctime(time, flag);
 } 
-

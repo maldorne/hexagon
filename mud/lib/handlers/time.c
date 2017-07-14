@@ -16,58 +16,85 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-# include "config.h"
-# include "time.h"
+#ifndef _SP_TIME_H_
+#define _SP_TIME_H_
 
-private mixed weekday (int time, int arg) {
+#define WEEKDAYS ([ "Sun" : "Sunday",    "Mon" : "Monday", "Tue" : "Tuesday", \
+                    "Wed" : "Wednesday", "Thu" : "Thursday", \
+                    "Fri" : "Friday",    "Sat" : "Saterday" ])
+#define WEEK   ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" })
+#define MONTHS ([ "Jan" : "January", "Feb" : "February", "Mar" : "March", \
+                  "Apr" : "April",   "May" : "May",      "Jun" : "June", \
+                  "Jul" : "July",    "Aug" : "August",   "Sep" : "September", \
+                  "Oct" : "October", "Nov" : "November", "Dec" : "December" ])
+#define YEAR ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun", \
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" })
+#define YEAR_IN_DAYS ({ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 })
+
+#define FIRST_DST_CONVERSION_YEAR   1970  /* When did we get DST?? */
+#define SECOND_DST_CONVERSION_YEAR  1996  /* New rules in 1996.    */
+ 
+#define TZ   "MET"
+#define DSTZ "METDST"                            
+
+#define AM   "am"
+#define PM   "pm"
+#define NOON  12
+
+#endif
+
+// # include "config.h"
+#define  __TIME_ZONE__ 
+
+mixed weekday (int time, int arg) {
   return (arg == 2
-              ? index (ctime (time) [0 .. 2], WEEK)
-              : arg == 1 ? WEEKDAYS [ctime (time) [0 .. 2]]
-                         : ctime (time) [0 .. 2]);
+              ? index (ctime (time, -1) [0 .. 2], WEEK)
+              : arg == 1 ? WEEKDAYS [ctime (time, -1) [0 .. 2]]
+                         : ctime (time, -1) [0 .. 2]);
 }
 
-private mixed month (int time, int arg) {
+mixed month (int time, int arg) {
   return (arg == 2
-              ? index (ctime (time) [4 .. 6], YEAR)
-              : arg == 1 ? MONTHS [ctime (time) [4 .. 6]]
-                         : ctime (time) [4 .. 6]);
+              ? index (ctime (time, -1) [4 .. 6], YEAR)
+              : arg == 1 ? MONTHS [ctime (time, -1) [4 .. 6]]
+                         : ctime (time, -1) [4 .. 6]);
 }
 
-private int day (int time) {
+int day (int time) {
   int d;
-  sscanf (ctime (time), "%*s %*s %d %*s %*d", d);
+  sscanf (ctime (time, -1), "%*s %*s %d %*s %*d", d);
   return (d);
 }
 
-private string ttime (int time) {
+string ttime (int time) {
   string t;
-  sscanf (ctime (time), "%*s %*s %*d %s %*d", t);
+  sscanf (ctime (time, -1), "%*s %*s %*d %s %*d", t);
   return (t);
 }
 
-private string date (int time) {
-  return (ctime (time) [0 .. 10] + ctime (time) [20 .. 23]);
+string date (int time) {
+  return (ctime (time, -1) [0 .. 10] + ctime (time, -1) [20 .. 23]);
 }
 
-private int year (int time) {
+int year (int time) {
   int y;
-  sscanf (ctime (time), "%*s %*s %*d %*s %d", y);
+  sscanf (ctime (time, -1), "%*s %*s %*d %*s %d", y);
   return (y);
 }
 
-private int hour (int time) {
+int hour (int time) {
   int h;
   sscanf (ttime (time), "%d:%*d:%*d", h);
   return (h);
 }
 
-private int minute (int time) {
+int minute (int time) {
   int m;
   sscanf (ttime (time), "%*d:%d:%*d", m);
   return (m);
 }
 
-private int second (int time) {
+int second (int time) {
   int s;
   sscanf (ttime (time), "%*d:%*d:%d", s);
   return (s);
@@ -81,7 +108,7 @@ private int second (int time) {
 /* The scedule will not hold in the UK and Ireland.                      */
 /* I haven't tested all possibilities... Mail me if you find any bugs.   */
 /* It looks complicated, but really, it isn't. It's just one expression! */
-private string timezone (int time) {
+string timezone (int time) {
   int mm, dd, ww;
   return (year (time) < FIRST_DST_CONVERSION_YEAR ||
              (mm = month (time, 2) + 1) < 3 ||
@@ -110,8 +137,8 @@ private string timezone (int time) {
                                 : hour (time) <= 1  /* Last Sunday */
                                     ? DSTZ          /* Before 2.00 */
                                     : hour (time) == 2
-                                        ? ctime (time ()) ==
-                                          ctime (time () + 3600)
+                                        ? ctime (time (), -1) ==
+                                          ctime (time () + 3600, -1)
                                             ? DSTZ  /* First time between */
                                                     /* 2.00 and 3.00 */
                                             : TZ    /* Second time... */
@@ -126,8 +153,8 @@ private string timezone (int time) {
                                 : hour (time) <= 1  /* Last Sunday */
                                     ? DSTZ          /* Before 2.00 */
                                     : hour (time) == 2
-                                        ? ctime (time ()) ==
-                                          ctime (time () + 3600)
+                                        ? ctime (time (), -1) ==
+                                          ctime (time () + 3600, -1)
                                             ? DSTZ  /* First time between */
                                                     /* 2.00 and 3.00 */
                                             : TZ    /* Second time... */
@@ -135,11 +162,11 @@ private string timezone (int time) {
 }
 # endif
 
-private int leap_year (int year) {
+int leap_year (int year) {
   return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
 }
 
-private int day_of_year (int time) {
+int day_of_year (int time) {
   int mm, dd, i, doy;
   for (i = 0, mm = month (time, 2); i < mm; doy += YEAR_IN_DAYS [i ++]);
   return (doy + (dd = day (time)) +
@@ -147,7 +174,7 @@ private int day_of_year (int time) {
 }
 
 
-private int week_number (int time, int monday) {
+int week_number (int time, int monday) {
   int doy, wn;
   wn = (doy = day_of_year (time) - 1) / 7;
   if (weekday (time, 2) <= doy % 7) {wn ++;}

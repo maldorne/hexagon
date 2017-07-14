@@ -21,10 +21,13 @@
 # include "config.h"
 # include <type.h>
 # include "macros.h"
-# ifdef   __TIME_CONVERSION__
-# include "time.h"
-# include "time.c"
-# endif
+
+// not used anymore, now the time related functions are
+// in /lib/handlers/time.c, neverbot 07/17
+// # ifdef   __TIME_CONVERSION__
+// # include "time.h"
+// # include "time.c"
+// # endif
 
 
 # include "sym_names.h"
@@ -345,9 +348,9 @@ private string numerical (int n, int base, int width, int precision,
   else {digits = n + "";}
   sign = (n < 0 ? "-" : options ["+"] ? "+" : options [" "] ? " " : "");
   header = (options ["#"] ? (base == 8 ? "0" : base == 16 ? "0x" : "") : "");
-# ifdef __TIME_CONVERSION__
-  if (precision <= 0) {precision = options ["T"];}
-# endif
+// # ifdef __TIME_CONVERSION__
+//   if (precision <= 0) {precision = options ["T"];}
+// # endif
   if (precision > 0) {
     digits = give_padding (precision - strlen (digits), "0") + digits;
   }
@@ -695,98 +698,98 @@ NOTE      case "%S":
                                 exp);
             exp = 0;  /* Don't leave this out! */
 # endif              
-# ifdef __TIME_CONVERSION__
-          /* Time related conversions. */
-          Case "@a":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (weekday (args [j], 0), width, precision,
-                             options, padding);
-          Case "@A":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (weekday (args [j], 1), width, precision,
-                             options, padding);
-          Case "@b":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (month (args [j], 0), width, precision,
-                             options, padding);
-          Case "@B":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (month (args [j], 1), width, precision,
-                             options, padding);
-          Case "@c":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (ctime (args [j]), width, precision, options,
-                             padding);
-          Case "@d":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (day (args [j]), BASE, width, precision,
-                                 options + ([ "T" : 2 ]), padding);
-          Case "@H":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (hour (args [j]), BASE, width, precision,
-                                 options + ([ "T" : 2 ]), padding);
-          Case "@I": {
-            int h;
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical ((h = hour (args [j])) ? h % NOON : NOON, BASE,
-                                  width, precision, options + ([ "T" : 2 ]),
-                                  padding);
-          }
-          Case "@j":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (day_of_year (args [j]), BASE, width, precision,
-                                 options + ([ "T" : 3 ]), padding);
-          Case "@m":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (month (args [j], 2) + 1, BASE, width,
-                                 precision, options + ([ "T" : 2 ]), padding);
-          Case "@M":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (minute (args [j]), BASE, width, precision,
-                                 options + ([ "T" : 2 ]), padding);
-          Case "@p":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (hour (args [j]) < NOON ? AM : PM,
-                             width, precision, options, padding);
-          Case "@S":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (second (args [j]), BASE, width, precision,
-                                 options + ([ "T" : 2 ]), padding);
-          Case "@U":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (week_number (args [j], 0), BASE, width,
-                                 precision, options + ([ "T" : 2 ]), padding);
-          Case "@w":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (weekday (args [j], 2), BASE, width, precision,
-                                 options + ([ "T" : 1 ]), padding);
-          Case "@W":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (week_number (args [j], 1), BASE, width,
-                                 precision, options + ([ "T" : 2 ]), padding);
-          Case "@x":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (date (args [j]), width, precision,
-                             options, padding);
-          Case "@X":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (ttime (args [j]), width, precision,
-                             options, padding);
-          Case "@y":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (year (args [j]) % 100, BASE, width, precision,
-                                 options + ([ "T" : 2 ]), padding);
-          Case "@Y":
-            TYPECHECK (int, args [j], j + 2);
-            result += numerical (year (args [j]), BASE, width, precision,
-                                 options, padding);
-# ifdef __TIME_ZONE__
-          Case "@Z":
-            TYPECHECK (int, args [j], j + 2);
-            result += align (timezone (args [j]), width, precision,
-                             options, padding);
-# endif
-# endif       
+// # ifdef __TIME_CONVERSION__
+//           /* Time related conversions. */
+//           Case "@a":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (weekday (args [j], 0), width, precision,
+//                              options, padding);
+//           Case "@A":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (weekday (args [j], 1), width, precision,
+//                              options, padding);
+//           Case "@b":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (month (args [j], 0), width, precision,
+//                              options, padding);
+//           Case "@B":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (month (args [j], 1), width, precision,
+//                              options, padding);
+//           Case "@c":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (ctime (args [j]), width, precision, options,
+//                              padding);
+//           Case "@d":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (day (args [j]), BASE, width, precision,
+//                                  options + ([ "T" : 2 ]), padding);
+//           Case "@H":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (hour (args [j]), BASE, width, precision,
+//                                  options + ([ "T" : 2 ]), padding);
+//           Case "@I": {
+//             int h;
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical ((h = hour (args [j])) ? h % NOON : NOON, BASE,
+//                                   width, precision, options + ([ "T" : 2 ]),
+//                                   padding);
+//           }
+//           Case "@j":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (day_of_year (args [j]), BASE, width, precision,
+//                                  options + ([ "T" : 3 ]), padding);
+//           Case "@m":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (month (args [j], 2) + 1, BASE, width,
+//                                  precision, options + ([ "T" : 2 ]), padding);
+//           Case "@M":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (minute (args [j]), BASE, width, precision,
+//                                  options + ([ "T" : 2 ]), padding);
+//           Case "@p":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (hour (args [j]) < NOON ? AM : PM,
+//                              width, precision, options, padding);
+//           Case "@S":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (second (args [j]), BASE, width, precision,
+//                                  options + ([ "T" : 2 ]), padding);
+//           Case "@U":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (week_number (args [j], 0), BASE, width,
+//                                  precision, options + ([ "T" : 2 ]), padding);
+//           Case "@w":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (weekday (args [j], 2), BASE, width, precision,
+//                                  options + ([ "T" : 1 ]), padding);
+//           Case "@W":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (week_number (args [j], 1), BASE, width,
+//                                  precision, options + ([ "T" : 2 ]), padding);
+//           Case "@x":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (date (args [j]), width, precision,
+//                              options, padding);
+//           Case "@X":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (ttime (args [j]), width, precision,
+//                              options, padding);
+//           Case "@y":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (year (args [j]) % 100, BASE, width, precision,
+//                                  options + ([ "T" : 2 ]), padding);
+//           Case "@Y":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += numerical (year (args [j]), BASE, width, precision,
+//                                  options, padding);
+// # ifdef __TIME_ZONE__
+//           Case "@Z":
+//             TYPECHECK (int, args [j], j + 2);
+//             result += align (timezone (args [j]), width, precision,
+//                              options, padding);
+// # endif
+// # endif       
           Default :
             error ("Unknown conversation character " + cur);
         }
