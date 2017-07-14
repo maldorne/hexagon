@@ -41,11 +41,16 @@ DESCRIPTION
                        added.
       '0': (numerical,float) use  '0' in  stead of  ' ' as  a padding char
                              when aligning. Default is a space.
+      New hashtag (table mode, neverbot 07/2017):
+      '#': (string) table mode, the string will be exploded using "\n" and
+                    every piece will be a cell inside a table.
+      Old hashtag (disabled):
       '#': (numerical) Specifies  alternative output.  Octal numbers  will
                        have a leading "0",  hexadecimal  numbers a leading
                        "0x" (if  conversion  character  is  'x')  or  "0X"
                        (conversion character is 'X').
            (float) Force printing of decimal dot, even if precision is 0.
+
       '`': (string) reverse the  string before further processing it.  The
                     reversal  will  be  done  before  calling  lower_case/
                     upper_case/capitalize,   or   padding/truncating   the
@@ -181,6 +186,7 @@ DESCRIPTION
          %: (none)
               print a '%' symbol. No argument is converted.
 
+    The conversation characters are disabled (neverbot 07/2017)
     @ Conversation  characters:  They all  are time-related.  The argument
          passed  should  be  the  number  of  seconds  after  Jan 1, 1970,
          0:00:00 GMT. Passing time () gives the current time.

@@ -272,6 +272,66 @@ private string align (string this, int width, int precision, mapping options,
                       string padding) 
 {
   int sz;
+
+  // added column mode, neverbot 07/17
+  if (options ["#"])
+  {
+    string * pieces;
+    string cell;
+    int max_length, i, j, len, columns, lines, remainder, done;
+    mapping alt;
+
+    pieces = explode(this, "\n");
+    max_length = 0;
+
+    for (i = 0; i < sizeof(pieces); i++)
+      if ((len = strlen(pieces[i])) > max_length)
+        max_length = len;
+
+    columns = width / (max_length + 1);
+    lines = sizeof(pieces) / columns;
+    remainder = sizeof(pieces) % columns;
+
+    if (remainder > 1)
+      lines ++;
+
+    this = "";
+    done = 0;
+    i = 0; // pointer through the full list of pieces
+    j = 0; // current column
+    while (done < sizeof(pieces))
+    {
+      cell = pieces[i];
+
+      alt = options;
+      alt["#"] = nil;
+
+      this += " " + align(cell, max_length+1, precision, alt, padding);
+        // cell + give_padding(max_length - strlen(cell) - 2, padding) + " ";
+      done++;
+
+      // next column
+      j++;
+      if (j >= columns)
+      {
+        j = 0;
+        this += "\n";
+      }
+      
+      // increment the inner pointer
+      i += lines;
+
+      // columns with one less element 
+      if (j > remainder)
+        i--;
+      
+      if (i >= sizeof(pieces))
+        i -= sizeof(pieces);
+    }
+
+    return this;
+  }
+
   if (options ["`"]) {this = reverse (this);}
   if (options ["~"]) {this = flip_case (this);}
   if (options ["<"]) {this = _lower_case (this);}
@@ -575,35 +635,47 @@ static string sprintf (string format, mixed args...) {
 
   padding = " ";
   for (i = 0, sz = sizeof (chunks), sz_args = sizeof (args), result = "";
-       i < sz; i ++) {
-    if (!CONV_CHAR [chunks [i] [0]]) {result += chunks [i];}
-    else {
-      if (chunks [i] [0 .. 1] == "%%" || chunks [i] [0 .. 1] == "@@") {
+       i < sz; i ++) 
+  {
+    if (!CONV_CHAR [chunks [i] [0]]) 
+    {
+      result += chunks [i];
+    }
+    else 
+    {
+      if (chunks [i] [0 .. 1] == "%%" || chunks [i] [0 .. 1] == "@@") 
+      {
         result += chunks [i] [1 .. 1];
       }
-      else {
+      else 
+      {
         width = precision = 0;
         ARGCOUNTCHECK (j, sz_args);
         switch (sscanf (chunks [i] [2 ..], "%s,%d,%d",
-                        flags, width, precision)) {
+                        flags, width, precision)) 
+        {
           case 3: if (!precision) {precision = -2;}
 # if 0
 NOTE      case 2: if (!width) {width = -2;} /* Reserved for future use? */
 # endif
         }
-        if (width == -1) {
+        if (width == -1) 
+        {
           TYPECHECK (int, args [j], j + 2);
           width = args [j ++];
           ARGCOUNTCHECK (j, sz_args);
         }
-        if (precision == -1) {
+        if (precision == -1) 
+        {
           TYPECHECK (int, args [j], j + 2);
           precision = args [j ++];
           ARGCOUNTCHECK (j, sz_args);
         }
 
         options = mkmapping (explode (flags, ""), explode (flags, ""));
-        switch (cur = chunks [i] [.. 1]) {
+
+        switch (cur = chunks [i] [.. 1]) 
+        {
           case "%A":
           case "%a": {
             int k, sk;

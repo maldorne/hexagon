@@ -34,21 +34,21 @@ int do_help(string str)
   if (!strlen(str)) 
   {
     s = "%^GREEN%^Temas importantes%^RESET%^:\n";
-    s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
+    s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
       implode(get_dir("/lib/docs/mud/important/"), "\n"));
 
     s += "%^GREEN%^Conceptos generales del juego%^RESET%^:\n";
-    s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
+    s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
       implode(get_dir("/lib/docs/mud/concepts/"), "\n"));
 
     s += "%^GREEN%^Otros temas%^RESET%^:\n";
-    s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
+    s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
       implode(get_dir("/lib/docs/helpdir/"), "\n"));
 
     if (this_object()->query_coder())
     {
       s += "%^GREEN%^Ayuda de comandos de programadores%^RESET%^:\n";
-      s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
+      s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
         implode(get_dir("/lib/docs/coder/"), "\n"));
 
       s += "%^GREEN%^Ayuda de programación%^RESET%^:\n";
@@ -68,7 +68,7 @@ int do_help(string str)
     
       aux = sort_array(aux, "compare_strings");
     
-      s += sprintf("\n  %-#*s\n\n", (int)this_player()->query_cols(),
+      s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
         implode(aux, "\n"));
     }
 
