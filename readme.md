@@ -17,7 +17,7 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
 
 #### Instructions
 
-1. Download. Be sure the `driver/dgd` submodule is downloaded too.
+1. **Download**. Be sure the `driver/dgd` submodule is downloaded too.
    In command line, you can do both things with:
 
    `git clone --recursive git://github.com/houseofmaldorne/hexagon.git`
@@ -46,7 +46,7 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
         `NETWORK_EXTENSIONS` flag, the mudlib should work fine without it.
 4. Edit the `driver/config.dgd` file, changing the directory field to the absolute path of the 
    `mud` directory (must end in `/whatever/mud` without an ending slash)
-5. Execute `./mud.sh`
+5. **Execute** `./mud.sh`
 6. `telnet localhost 6047` to connect and see if everything is working.
 7. By default you will have an administrator account created, with username `admin` and password `administrator`.
 
