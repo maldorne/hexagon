@@ -33,9 +33,10 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
         does not reset all non-static variables that do not hold object 
         values when restoring the object. 
         This is the default mode in MudOS.
-	  * Compiling and installing the executable (`make` and `make install`).
-	  * Creating a default `config.dgd` file.
-	  * Nothing more. As a side note: if you are using a version of DGD minor 
+      * Compiling and installing the executable (`make` and `make install`).
+      * Creating a default `config.dgd` file.
+      * Creating an empty `tmp` directory, if needed.
+      * Nothing more. As a side note: if you are using a version of DGD minor 
         than 1.6 (i.e. 1.5.x), you can also activate the flag
         `NETWORK_EXTENSIONS` in `dgd/src/Makefile`, to allow connections 
         from the mud to the outer world. From version 1.6 this package does 
