@@ -398,7 +398,7 @@ string long(string str, int dark)
   // if (!exit_string)
   exit_string = query_dirs_string();
 
-  if (!str || (str == ""))
+  if (!strlen(str))
   {    
     return( 
            sprintf("\n   %-=*s\n", (this_player()?this_player()->query_cols()-3:76),

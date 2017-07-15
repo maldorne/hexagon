@@ -1,5 +1,6 @@
 
 #include "/lib/core/efuns/strings/full_explode.c"
+#include "/lib/core/efuns/strings/visible_strlen.c"
 #include "/lib/core/efuns/strings/sprintf/sprintf.c"
 
 // prototypes
@@ -14,9 +15,8 @@ static string printf (string format, mixed args...)
   return sprintf(format, args);
 }
 
-
 // To simulate the member_array(character, string)
-int at(int character, string str)
+static int at(int character, string str)
 {
   int i;
   
@@ -30,7 +30,7 @@ int at(int character, string str)
   return -1;  
 }
 
-string replace_string(string str, string foo, string bar)
+static string replace_string(string str, string foo, string bar)
 {
   return implode(full_explode(str, foo), bar);
 
@@ -55,7 +55,7 @@ string replace_string(string str, string foo, string bar)
   // return result;
 }
 
-string replace(string str, mixed bing, varargs string rep) 
+static string replace(string str, mixed bing, varargs string rep) 
 {
   int i;
 
@@ -68,7 +68,7 @@ string replace(string str, mixed bing, varargs string rep)
   return replace_string(str, bing, rep);
 }
 
-string extract(string str, int start, varargs int end) 
+static string extract(string str, int start, varargs int end) 
 {
   if (end)
     return str[start..end];
@@ -76,7 +76,7 @@ string extract(string str, int start, varargs int end)
     return str[start..];
 } 
 
-string trim(string str) 
+static string trim(string str) 
 {
   if (strlen(str) == 0)
     return str;
@@ -102,7 +102,7 @@ string trim(string str)
   return str;
 }
 
-int strcmp(string a, string b)
+static int strcmp(string a, string b)
 {
   int i, aa, bb, len_a, len_b;
 
@@ -145,7 +145,7 @@ int strcmp(string a, string b)
 // The integer offset of the first (last) match is returned.  -1 is returned
 // if there was no match, or an error occurred (bad args, etc).
 
-int strsrch( string str, mixed substr, varargs int flag )
+static int strsrch( string str, mixed substr, varargs int flag )
 {
   string tmp1, tmp2;
 
@@ -199,7 +199,7 @@ int strsrch( string str, mixed substr, varargs int flag )
 // wraps text automatically
 // created by Pallando@Nightmare
 
-string wrap(string str, varargs int width) 
+static string wrap(string str, varargs int width) 
 {
   return (width ? sprintf("%-=" + width + "s", str + "\n") : 
     sprintf("%-=75s", str + "\n"));
@@ -210,7 +210,7 @@ string wrap(string str, varargs int width)
 // makes a string a certain length
 // created by Descartes of Borg 23 december 1992
 
-string arrange_string(string str, int x) 
+static string arrange_string(string str, int x) 
 {
     int i, y;
 
@@ -233,7 +233,7 @@ string arrange_string(string str, int x)
 }
 
 // what the hell would need this???
-// int vowel(int i) 
+// static int vowel(int i) 
 // {
 //   return (i == 'a' || i == 'e' || i == 'i' || i == 'o' || i == 'u');
 // }
@@ -241,7 +241,7 @@ string arrange_string(string str, int x)
 
 // spanish characters, neverbot 4/03
 
-string lower_case(string str)
+static string lower_case(string str)
 {
   int first_char;
 
@@ -267,7 +267,7 @@ string lower_case(string str)
   return str;
 }
 
-string capitalize(string str)
+static string capitalize(string str)
 {
   int first_char;
 
@@ -293,13 +293,13 @@ string capitalize(string str)
   return str;
 }
 
-string upper_case(string str)
+static string upper_case(string str)
 {
   return capitalize(str);
 }
 
 // Taniwha 1995, since the efun one doesn't
-string pluralize(string str)
+static string pluralize(string str)
 {
   if (!str || str == "") 
     return "objects";
@@ -309,7 +309,7 @@ string pluralize(string str)
 // needed in a spanish-language mud
 // it could change only the accents or both the accents and the ñ
 
-string replace_spanish_characters(string str, varargs int flag_enye)
+static string replace_spanish_characters(string str, varargs int flag_enye)
 {
 	int i;
 	string ret;
@@ -339,7 +339,7 @@ string replace_spanish_characters(string str, varargs int flag_enye)
 
 // format_page()
 // Tweaked by Radix for who command : MArch 4, 1997
-string format_page(string *items, int columns) 
+static string format_page(string *items, int columns) 
 {
   int width, i, j, x;
   string ret;
