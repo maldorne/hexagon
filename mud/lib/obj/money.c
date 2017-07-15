@@ -62,7 +62,7 @@ int do_help(string str)
   for (i=0;i<sizeof(values);i+=2)
     str += sprintf("%10-s : %4d %s\n", values[i], values[i+1], values[0]);
 
-  write(printf("%-*s\n", this_player()->query_cols(), str));
+  printf("%-*s\n", this_player()->query_cols(), str);
   return 1;
 }
 

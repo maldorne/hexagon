@@ -100,7 +100,7 @@ int show_spells(string str)
   lista = m_indices(spells);
   tell_object(this_player(), "Conoces los siguientes hechizos:\n");
   
-  write(printf("%#-*s\n", this_player()->query_cols(), implode(lista, "\n")));
+  printf("%#-*s\n", this_player()->query_cols(), implode(lista, "\n"));
   return 1;
 }
 

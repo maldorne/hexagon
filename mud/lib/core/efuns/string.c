@@ -9,10 +9,9 @@
 string chr(int c);
 
 
-// patch
-static string printf (string format, mixed args...) 
+static void printf(string format, mixed args...) 
 {
-  return sprintf(format, args);
+  write(sprintf(format, args));
 }
 
 // To simulate the member_array(character, string)
