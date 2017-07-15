@@ -32,7 +32,7 @@ Common calls and operations over the basic types.
 | `replace_string`        | :white_check_mark: |  |
 | `sprintf`               | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license). Used in the form `static string sprintf (string format, mixed args...)` as there are no way to modify strings passed as arguments. Expanded to accept strings with multiple lines. |
 | `printf`                | :white_check_mark: | alias for `sprintf` |
-| `strlen`                | :white_check_mark: | provided by dgd |
+| `strlen`                | :white_check_mark: | provided by dgd, added `visible_strlen` to count only visible/printable characters |
 | `strcmp`                | :white_check_mark: |  |
 | `strsrch`               | :white_check_mark: |  |
 | **arrays**              |  |  |
