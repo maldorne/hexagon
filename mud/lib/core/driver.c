@@ -251,7 +251,6 @@ static mixed include_file(string file, string path)
 }
 
 // Error handling
-// void set_error_manager(object ob) { error_h = ob; }
 
 static void runtime_error(string error, int caught, int ticks) 
 {
@@ -311,94 +310,6 @@ static int touch(object obj, string func)
   return FALSE;
 }
 
-
-
-
-
-
-
-
-// Object handler
-
-//   The given object has just been cloned.  Called just before the object
-//   is initialized with create(1).
-static void clone(string owner, object obj) 
-{ 
-  log_driver(" + clone: <" + object_name(obj) + "> " + owner + "\n");
-  object_h->clone(owner, obj); 
-}
-
-//   The given object is about to be destructed.
-static void destruct(string owner, object obj) 
-{ 
-  log_driver(" + destruct: <" + object_name(obj) + "> " + owner + "\n");
-  object_h->destruct(owner, obj); 
-}
-
-//   The given inheritable object is about to be destructed.
-static void destruct_lib(string owner, string path) 
-{ 
-  log_driver(" + destruct_lib: " + path + " " + owner + "\n");
-  object_h->destruct_lib(owner, path); 
-}
-
-
-
-
-
-
-//   The given object is about to be compiled.
-static void compiling(string path) 
-{ 
-  log_driver(" + compiling: " + path + "\n");
-}
-
-//   The given object has just been compiled.  If the source array is not
-//   empty, it was compiled from those strings.  Called just before the
-//   object is initialized with create(0).
-static void compile(string owner, object obj, string *source, string inherited...) 
-{ 
-  log_driver(" + compile: ");
-  print_object(obj);
-}
-
-//   The given inheritable object has just been compiled.  If the source
-//   array is not empty, it was compiled from those strings.
-static void compile_lib(string owner, string path, string *source, string inherited...) 
-{ 
-  log_driver(" + compile_lib: " + path + "\n");
-}
-
-//   An attempt to compile the given object has failed.
-static void compile_failed(string owner, string path) 
-{ 
-  log_driver(" + compile_failed: " + path + "\n");
-}
-
-//   The last reference to the given program has been removed.
-static void remove_program(string path, int timestamp, int index)
-{ 
-  log_driver(" + remove_program: " + path + "\n");
-}
-
-//   Return a non-zero value if `path' is not a legal first argument
-//   for call_other().
-static int forbid_call(string path) 
-{ 
-  log_driver(" + forbid_call: " + path + "\n");
-
-  return FALSE;
-}
-
-//   Return a non-zero value if inheritance of `path' by `from' is not
-//   allowed.  The flag `priv' indicates that inheritance is private.
-// static int forbid_inherit(string from, string path, int priv) 
-// { 
-//   log_driver(" + forbid_inherit: " + path + " from " + from + "\n");
-
-//   return FALSE;
-// }
-
 // get an object for call_other's first (string) argument
 static object call_object(string path)
 {
@@ -408,4 +319,10 @@ static object call_object(string path)
     return ob;
 
   return compile_object(path);
+}
+
+// The last reference to the given program has been removed.
+static void remove_program(string path, int timestamp, int index)
+{ 
+  log_driver(" + remove_program: " + path + "\n");
 }
