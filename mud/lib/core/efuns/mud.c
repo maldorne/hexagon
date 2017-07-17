@@ -7,5 +7,6 @@ static nomask string mud_name()
 
 static nomask string version() 
 { 
-  return handler("config")->config_driver_version(); 
+  return status()[0];
 }
+
