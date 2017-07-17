@@ -114,7 +114,7 @@ int create_board(string board, int priva) {
   if (priva)
     priv[board] = priva;
   save_me();
-  write("Creado tablon "+board+".\n");
+  write("Creado tablón "+board+".\n");
   return 1;
 } /* create_board() */
  
@@ -131,7 +131,7 @@ int add_allowed(string board, string name) {
     return 0;
   security[board] += ({ name });
   save_me();
-  write("Anyadido "+name+" a la lista de seguridad de "+board+".\n");
+  write("Añadido "+name+" a la lista de seguridad de "+board+".\n");
   return 1;
 } /* add_allowed() */
  
@@ -244,8 +244,8 @@ int set_timeout(string board, int timeout)
   }
   timeouts[board][T_TIMEOUT] = timeout;
   save_me();
-  write("Los mensajes se borraran automaticamente tras "+timeout+
-        " dias en "+board+".\n");
+  write("Los mensajes se borrarán automáticamente tras "+timeout+
+        " días en "+board+".\n");
   return 1;
 } /* set_timeout() */
  
@@ -263,7 +263,7 @@ int set_minimum(string board, int min) {
   }
   timeouts[board][T_MIN] = min;
   save_me();
-  write("El minimo numero de mensajes sera "+min+" para el tablon "+board+".\n");
+  write("El mínimo número de mensajes será "+min+" para el tablón "+board+".\n");
   return 1;
 } /* set_minimum() */
  
@@ -281,7 +281,7 @@ int set_maximum(string board, int max) {
   }
   timeouts[board][T_MAX] = max;
   save_me();
-  write("El maximo numero de mensajes sera "+max+" para el tablon "+board+".\n");
+  write("El máximo número de mensajes será "+max+" para el tablón "+board+".\n");
   return 1;
 } /* set_maximum() */
  
@@ -295,7 +295,7 @@ int set_archive(string board, string file) {
     return 0; /* not allowed to delete the notes */
   archives[board] = file;
   save_me();
-  write("El nombre del archivo ahora sera "+file+" para el tablon "+board+".\n");
+  write("El nombre del archivo ahora será "+file+" para el tablón "+board+".\n");
   return 1;
 } /* set_archive() */
  
@@ -346,8 +346,8 @@ void expire_boards()
         zap_message(nam, 0);
         num++;
       }
-      event(users(), "inform", "Borrando automaticamente "+num+" menajes "+
-                               "del tablon "+nam, "message");
+      event(users(), "inform", "Borrando automáticamente "+num+" mensajes "+
+                               "del tablón "+nam, "message");
     }
   }
   if (!find_call_out("expire_boards"))

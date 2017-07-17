@@ -636,7 +636,7 @@ nomask void begin2(int new_player)
   _player->move_player_to_start(invis_wish, new_player);
 
   // Añadido por neverbot, esto deberia andar por aqui
-  cat("/doc/news.txt");
+  cat(doc("news.txt"));
 
   // do not show the first prompt, a command will be issued 
   // in move_player_to_start and after that the prompt will be
