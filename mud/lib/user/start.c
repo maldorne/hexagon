@@ -109,6 +109,9 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
     move(find_object(last_pos));
   }
 
+  // update the current prompt
+  parse_prompt();
+
   if (query_coder())
   {
     event(users(), "inform", query_cap_name()+(strlen(query_gtitle()) ? " "+query_gtitle() : "")+

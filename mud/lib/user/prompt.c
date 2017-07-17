@@ -23,7 +23,7 @@ void parse_prompt();
 
 void create()
 {
-  prompt_string = "$n > ";
+  prompt_string = "> ";
   prompt = ({ });
   parse_prompt();
 }
@@ -136,8 +136,8 @@ mixed parse_prompt_element(string str)
     case "~":
       return ({ "@query_current_path",  str[1..] });
 
-    case "/":
-      return ({ "@short_path",  str[1..] });
+    // case "/":
+    //   return ({ "@short_path",  str[1..] });
     }
   }
   return ({ str });
@@ -172,7 +172,7 @@ void parse_prompt()
   for( i=1; i<sizeof(p); i++ )
     prompt += parse_prompt_element(p[i]);
 
-  prompt -= ({ 0 });
+  prompt -= ({ "" });
 }
 
 int set_prompt(string str)
@@ -199,7 +199,25 @@ void show_prompt(varargs string prefix)
     //   s += (string)evaluate(prompt[i]);
 
     if (prompt[i][0..0] == "@")
-      s += call_other(this_object(), prompt[i][1..]);
+    {
+      // safety first
+      if ((prompt[i][1..] == "query_name") ||
+          (prompt[i][1..] == "query_hp") ||
+          (prompt[i][1..] == "query_gp") ||
+          (this_object()->query_coder() && (prompt[i][1..] == "query_current_path")) 
+          )
+      {
+        if (prompt[i][1..] == "query_current_path")
+          s += call_other(this_object()->query_role(), prompt[i][1..]);
+        else
+          s += call_other(this_object(), prompt[i][1..]);
+      }
+      else
+      {
+        s += prompt[i][1..];
+      }
+
+    }
     else
       s += prompt[i];
   }
@@ -210,9 +228,8 @@ void show_prompt(varargs string prefix)
     do_prompt_write(s);
 }
 
-// debugging 
-// string query_prompt_string() { return prompt_string; }
-// mixed query_prompt() { return prompt; }
+string query_prompt_string() { return prompt_string; }
+mixed query_current_prompt() { return prompt; }
 
 mixed * stats() 
 {
