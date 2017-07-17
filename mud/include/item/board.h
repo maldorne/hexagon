@@ -1,6 +1,6 @@
 
 #define NEWS_RC "news rc"
-#define BOARD_FILE "/save/boards"
+#define BOARD_FILE "/save/boards.o"
 #define BOARD_DIR "/save/boards/"
 #define BOARD_HAND "/lib/handlers/boards"
 
