@@ -4,8 +4,11 @@
 !/save/accounts/a/admin@ciudadcapital.net.o
 !/save/players/a/admin.o
 
-# some save files
-/save/weather.o
+# save files
+/save/*.o
+
+# administrator home files
+/home/admin/
 
 # only initial migration
 /lib/user/migrations/*
@@ -25,3 +28,10 @@
 !/game/obj/jobs/.gitkeep
 /game/obj/races/*
 !/game/obj/races/.gitkeep
+
+# ignore game documents
+/game/docs
+
+# ignore specific game handlers and tables
+/game/handlers
+/game/tables
