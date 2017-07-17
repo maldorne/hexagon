@@ -5,9 +5,6 @@ static string print_object(mixed ob);
 static nomask void write(string str);
 static nomask void stderr(string str);
 
-
-#include "/lib/core/efuns/mud.c"
-
 // neverbot, 03/14
 #include "/lib/core/efuns/types.c"
 #include "/lib/core/efuns/string.c"
@@ -43,6 +40,8 @@ static nomask void stderr(string str);
 // users, children, etc
 #include "/lib/core/efuns/collections.c"
 #include "/lib/core/efuns/singletons.c"
+// mud name, version nombres, etc
+#include "/lib/core/efuns/mud.c"
 
 // neverbot 21/4/2003 
 #include "/lib/core/efuns/time.c"

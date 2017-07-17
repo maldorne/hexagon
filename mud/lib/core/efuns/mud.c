@@ -1,19 +1,11 @@
 
 
-#ifdef MUD_NAME
-static nomask string mud_name() { return capitalize(MUD_NAME); }
-#else
-static nomask string mud_name() { return "Hexagon mudlib"; }
-#endif
+static nomask string mud_name() 
+{
+  return handler("config")->config_mud_name(); 
+}
 
-// #ifdef VERSION
-// string version() { return VERSION; }
-// #else
-// #ifdef __VERSION__
-// string version() { return __VERSION__; }
-// #else
-// string version() { return "Desconocida"; }
-// #endif
-// #endif
-
-static nomask string version() { return status()[0]; }
+static nomask string version() 
+{ 
+  return handler("config")->config_driver_version(); 
+}

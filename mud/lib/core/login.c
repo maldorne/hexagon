@@ -271,7 +271,7 @@ nomask void logon_option(string str)
     ret = sprintf("\n%-*s\n", _player->query_cols(), ret);
     write( ret );   
     
-    write("Introduce el nombre que tendrá tu cuenta: ");
+    write("Introduce tu dirección de email: ");
     input_to("create_account");
     return;
   }
