@@ -1,0 +1,4 @@
+
+#define LANG_LPMUD_VERSION "LPmud version: "
+#define LANG_MUDLIB_VERSION "Mudlib version: "
+#define LANG_PATCH_VERSON "Last patch applied: "

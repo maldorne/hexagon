@@ -18,6 +18,7 @@ inherit "/lib/core/object";
 #include <user/user.h>
 #include <areas/common.h>
 #include <user/player.h>
+#include <language.h>
 
 static object _player;
 
@@ -108,9 +109,9 @@ nomask void logon(object pl)
 
   _player = pl;
 
-  write("Versión de LPmud: " + version() + "\n" +
-        "Versión de Mudlib: " + MUDLIB_VERSION + "\n"/* + 
-        "Último parche: " + PATCH_VERSION + "\n\n"*/);
+  write(LANG_LPMUD_VERSION + version() + "\n" +
+        LANG_MUDLIB_VERSION + MUDLIB_VERSION + "\n"/* + 
+        LANG_PATCH_VERSION + PATCH_VERSION + "\n\n"*/);
 
   call_out("time_out", LOGIN_TIMEOUT);
 

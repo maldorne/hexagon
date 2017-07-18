@@ -49,6 +49,8 @@ static nomask void write(string str);
 #include "/lib/core/efuns/objects/file_name.c"
 #include "/lib/core/efuns/conversions/to_string.c"
 #include "/lib/core/efuns/conversions/print_object.c"
+#include "/lib/core/efuns/paths/path.c"
+// #include "/lib/core/efuns/singletons.c"
 
 
 static object user_h;
@@ -242,12 +244,22 @@ static object inherit_program(string from, string path, int priv)
   return ob;
 }
 
-static mixed include_file(string file, string path)
+static mixed include_file(string includer, string include)
 { 
-  if (path[0] != '/')
-    path = resolve_path(file + "/../" + path);
 
-  return path;
+  if (include == "/include/language.h")
+  {
+    log_driver(" +++++++ include_file: " + includer + " path " + include + "\n");
+    include = path(includer) + ".lang.en";
+    log_driver(" +++++++ include_file: " + includer + " path " + include + "\n");
+  }
+  else
+  {
+    if (include[0] != '/')
+      include = resolve_path(includer + "/../" + include);
+  }
+
+  return include;
 }
 
 // Error handling

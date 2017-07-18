@@ -3,6 +3,7 @@
 
 #include "paths/resolve_path.c"
 #include "paths/get_path.c"
+#include "paths/path.c"
 
 // idea taken from melville mudlib
 static nomask int is_absolute_path(string str) 
@@ -28,20 +29,6 @@ string get_path_file_name(string path)
     return words[0];
 
   return words[sizeof(words)-1];
-}
-
-string get_path_only(string path)
-{
-  string * words; 
-  words = explode(path, "/");
-  
-  if (sizeof(words) == 0)
-    return "";
-
-  if (sizeof(words) == 1)
-    return "/" + words[0] + "/";
-
-  return "/" + implode(words[0..sizeof(words)-2], "/") + "/";
 }
 
 string * get_files(string str) 
