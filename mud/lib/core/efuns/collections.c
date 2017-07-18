@@ -55,7 +55,7 @@ static nomask object * users()
     if (all[i]->query_invis() == 2) 
       all -= ({ all[i] });
 
-  return all;
+  return all -= ({ nil });
 }
 
 static nomask object * coders()
