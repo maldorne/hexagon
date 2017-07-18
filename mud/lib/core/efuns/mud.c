@@ -9,4 +9,3 @@ static nomask string version()
 { 
   return status()[0];
 }
-
