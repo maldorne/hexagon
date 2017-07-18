@@ -31,6 +31,7 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
+  tell_object(me, "Ok, prompt cambiado.\n");
   me->set_prompt(str);
   me->set_trivial_action();
   return 1;
