@@ -27,10 +27,9 @@ And having access to some kind of command-line terminal.
     `git clone git@github.com:houseofmaldorne/hexagon.git` or, if you don't have git installed (why would you?), 
     just download it from github as a zip file from [the project page](https://github.com/houseofmaldorne/hexagon) with the big green button that says *Clone or download*. 
 
-2. Go to the directory where you placed the contents of that zip file, using the terminal and de command `cd`, 
-    with something like (depends of where you place it)
+2. Go to the directory where you placed the contents of that zip file, using the terminal and the command `cd`:
 
-    In Windows it would be something like `cd C:\Users\myuser\Downloads\something`. You can use the `dir` command to see the contents of your current directory. Try, you won't break anything. In Mac it would be something like `cd /Users/yourusername/Downloads/something`.
+    In Windows it would be something like `cd C:\Users\myuser\Downloads\something`. You can use the `dir` command to see the contents of your current directory. Try, you won't break anything. In Mac OS it would be something like `cd /Users/myusername/Downloads/something`.
 
 3. Go to the `provisioning` directory and install the virtual machine with:
     
