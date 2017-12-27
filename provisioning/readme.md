@@ -42,15 +42,9 @@ And having access to some kind of command-line terminal.
     + Install needed packages packages
     + Initial configuration of the project
     + Start the mud so you can test it
-    
-4. Optional: add to you `/etc/hosts` file:
-
-    `192.168.10.192 hexagon.dev`
-    
-    And the application should now be reachable from your host machine at telnet://hexagon.dev:6047
-    If you want to use a different ip, it's defined in `Vagrantfile`
 
 The app could be tested in `telnet://192.168.10.192:6047/` 
+If you want to use a different ip, it's defined in `Vagrantfile`
 
 ### Recreating the virtual machine (something went wrong?)
 
