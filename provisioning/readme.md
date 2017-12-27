@@ -12,7 +12,7 @@ So, how to do this?
 
 ### Initial steps
 
-Software required to be installed: just these two things that allow installing and configuring virtual machines, the same for any operating system: [VirtualBox](https://www.virtualbox.org/wiki/Downloads) && [Vagrant](https://www.vagrantup.com/downloads.html)
+Software required to be installed: just these two things that allow installing and configuring virtual machines, the same for any operating system: [VirtualBox](https://www.virtualbox.org/wiki/Downloads) & [Vagrant](https://www.vagrantup.com/downloads.html).
 
 And having access to some kind of command-line terminal. 
  * In Windows, execute (Windows Key + R) the command `cmd`. 
@@ -24,7 +24,13 @@ And having access to some kind of command-line terminal.
 
 1. Download this repository to your local/host machine in your preferred directory, with:
 
-    `git clone git@github.com:houseofmaldorne/hexagon.git`
+    `git clone git@github.com:houseofmaldorne/hexagon.git` or, if you don't have git installed (why would you?), 
+    just download it from github as a zip file from [the project page](https://github.com/houseofmaldorne/hexagon) with the big green button that says *Clone or download*. 
+
+2. Go to the directory where you placed the contents of that zip file, using the terminal and de command `cd`, 
+    with something like (depends of where you place it)
+
+    In Windows it would be something like `cd C:\Users\myuser\Downloads\something`. You can use the `dir` command to see the contents of your current directory. Try, you won't break anything. In Mac it would be something like `cd /Users/yourusername/Downloads/something`.
 
 3. Go to the `provisioning` directory and install the virtual machine with:
     
