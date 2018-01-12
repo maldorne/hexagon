@@ -1,5 +1,6 @@
 
 #include "output/stderr.c"
+#include "output/debug.c"
 #include "output/fix_string.c"
 #include "output/percentage_bar.c"
 #include "output/write.c"
