@@ -58,6 +58,7 @@ static object object_h;
 
 static object mudos;
 static object secure;
+static object debugger;
 
 static nomask void initialize()
 {
@@ -78,6 +79,7 @@ static nomask void initialize()
   // global object in charge of heart_beats, init calls, etc
   ::call_other(mudos    = load_object(MUDOS_PATH), "???");
   ::call_other(secure   = load_object(SECURE_OB), "???");
+  ::call_other(debugger = load_object(DEBUGGER_OB), "???");
   ::call_other(user_h   = load_object(USER_HANDLER), "???");
   ::call_other(living_h = load_object(LIVING_HANDLER), "???");
   ::call_other(object_h = load_object(OBJECT_HANDLER), "???");
@@ -103,6 +105,8 @@ nomask void _stderr(string str)
 nomask object mudos() { return mudos; }
 // return the secure global object
 nomask object secure() { return secure; }
+// return the debugger global object
+nomask object debugger() { return debugger; }
 // get a new login object
 nomask object login() 
 {
