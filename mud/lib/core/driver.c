@@ -75,11 +75,11 @@ static nomask void initialize()
   load_object(AUTO);
 
   ::call_other(error_h  = load_object(ERROR_HANDLER), "???"); // obviously, must be the first
+  ::call_other(debugger = load_object(DEBUGGER_OB), "???");
 
   // global object in charge of heart_beats, init calls, etc
   ::call_other(mudos    = load_object(MUDOS_PATH), "???");
   ::call_other(secure   = load_object(SECURE_OB), "???");
-  ::call_other(debugger = load_object(DEBUGGER_OB), "???");
   ::call_other(user_h   = load_object(USER_HANDLER), "???");
   ::call_other(living_h = load_object(LIVING_HANDLER), "???");
   ::call_other(object_h = load_object(OBJECT_HANDLER), "???");

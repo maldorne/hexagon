@@ -24,14 +24,22 @@ void log(string type, string message)
   object * listeners;
   int i;
 
-  listeners = _listeners[type];
-
-  for (i = 0; i < sizeof(listeners); i++)
+  if (undefinedp(_listeners[type])) 
   {
-    tell_object(listeners[i], "Debug (" + type + "): " + message);
+    _listeners[type] = ({ });
+  }
+  else
+  {
+    listeners = _listeners[type];
+
+    for (i = 0; i < sizeof(listeners); i++)
+    {
+      // TODO improve log
+      tell_object(listeners[i], "Debug (" + type + "): " + message);
+    }
   }
 
 #ifdef USE_STANDARD_LOG
-  stderr(message);
+  stderr(sprintf(" %-8s || ", type) + message);
 #endif
 }
