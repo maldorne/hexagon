@@ -261,7 +261,7 @@ static void runtime_error(string error, int caught, int ticks)
   string ret;
 
   if (!error_h)
-    stderr(" - runtime_error: " + error + "\n");
+    log_driver(" - runtime_error: " + error + "\n");
   else
     ret = error_h->runtime_error(error, caught, ticks);
 
@@ -277,8 +277,8 @@ static void compile_error(string file, int line, string error)
   string ret;
 
   if (!error_h)
-    stderr(" - compile_error in file " + file + ", line " + line + "\n" +
-           "   Error: " + error + "\n");
+    log_driver(" - compile_error in file " + file + ", line " + line + "\n" +
+               "   Error: " + error + "\n");
   else
     ret = error_h->compile_error(file, line, error);
 
@@ -309,7 +309,7 @@ static string atomic_error(string error, int atom, mixed **trace)
 // call.
 static int touch(object obj, string func) 
 {
-  stderr(" - touch object " + object_name(obj) + ", function " + func + "\n");
+  log_driver(" - touch object " + object_name(obj) + ", function " + func + "\n");
 
   return FALSE;
 }
