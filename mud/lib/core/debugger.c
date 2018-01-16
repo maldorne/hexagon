@@ -40,6 +40,10 @@ void log(string type, string message)
   }
 
 #ifdef USE_STANDARD_LOG
+#ifdef USE_STANDARD_LOG_TYPE
   stderr(sprintf(" %-8s || ", type) + message);
+#else
+  stderr(message);
+#endif
 #endif
 }
