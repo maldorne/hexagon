@@ -41,7 +41,8 @@ int set_initiator_object(object ob)
 {
   if (!mudlib_privileges()) 
   {
-    stderr(" *** illegal set_initiator_object with <" + object_name(ob) + ">\n");
+    if (objectp(ob))
+      stderr(" *** illegal set_initiator_object with <" + object_name(ob) + ">\n");
     return 0;
   }
   
@@ -53,7 +54,8 @@ int set_initiator_player(object player)
 {
   if (!mudlib_privileges()) 
   {
-    stderr(" *** illegal set_initiator_player with <" + object_name(player) + ">\n");
+    if (objectp(player))
+      stderr(" *** illegal set_initiator_player with <" + object_name(player) + ">\n");
     return 0;
   }
   
