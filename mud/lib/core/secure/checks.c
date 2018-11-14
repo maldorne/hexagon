@@ -505,6 +505,9 @@ int valid_email(string str)
 {
   int i;
   string * pieces;
+
+  if (!strlen(str))
+    return 0;
   
   // first character must be a letter
   if (str[0] < 'a' || str[0] > 'z')
