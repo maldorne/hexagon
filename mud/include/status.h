@@ -27,7 +27,7 @@
 # define ST_ARRAYSIZE	21	/* max array/mapping size */
 # define ST_STACKDEPTH	22	/* remaining stack depth */
 # define ST_TICKS	23	/* remaining ticks */
-# define ST_DATAGRAMPORTS	24	/* datagram ports */
+# define ST_DATAGRAMPORTS 24	/* datagram ports */
 # define ST_TELNETPORTS	25	/* telnet ports */
 # define ST_BINARYPORTS	26	/* binary ports */
 
