@@ -344,6 +344,11 @@ static void receive_message(string str)
         show_prompt();
       }
 
+      // the object destructed itself
+      if (!this_object()) {
+        return;
+      }
+
       MUDOS->set_initiator_player(nil);
       MUDOS->set_initiator_object(nil);
 
