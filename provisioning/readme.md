@@ -29,7 +29,7 @@ And having access to some kind of command-line terminal.
 
 2. Go to the directory where you placed the contents of that zip file, using the terminal and the command `cd`:
 
-    In Windows it would be something like `cd C:\Users\myuser\Downloads\something`. You can use the `dir` command to see the contents of your current directory. Try, you won't break anything. In Mac OS it would be something like `cd /Users/myusername/Downloads/something`.
+    In Windows it would be something like `cd C:\Users\myuser\Downloads\something`. You can use the `dir` command to see the contents of your current directory. Try, you won't break anything. In Mac OS it would be something like `cd /Users/myusername/Downloads/something`. You can use the `ls` command to see the contents of your current directory.
 
 3. Go to the `provisioning` directory and install the virtual machine with:
     
@@ -39,11 +39,11 @@ And having access to some kind of command-line terminal.
 
     This will:
     
-    + Install needed packages packages
-    + Initial configuration of the project
+    + Install needed packages
+    + Set initial configuration of the project
     + Start the mud so you can test it
 
-The app could be tested in `telnet://192.168.10.192:6047/` 
+The app could be tested in `[telnet://192.168.10.192:6047/](telnet://192.168.10.192:6047/)` 
 If you want to use a different ip, it's defined in `Vagrantfile`
 
 ### Recreating the virtual machine (something went wrong?)
@@ -58,4 +58,4 @@ Once you have the development enviroment up and running, any change could be res
 
     `vagrant up --provision`
 
-    In a pair of minutes everything will be reinstalled: apt packages, etc.
+    In a pair of minutes everything will be reinstalled: packages, configuration, etc.

@@ -50,6 +50,12 @@
 #define FTP_VERSION "Ciudad Capital Mud (Desarrollo) - FTPD"
 #endif
 
+// define to print every debugger log in the console
+#define USE_STANDARD_LOG
+// prepend debug type before standard log
+// only used if USE_STANDARD_LOG is defined
+#define USE_STANDARD_LOG_TYPE
+
 // Definir para utilizar funciones de alineamiento
 #define USE_ALIGNMENT
 

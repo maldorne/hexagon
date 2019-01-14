@@ -7,7 +7,7 @@
 # define FLT_ROUNDS	1			/* round to nearest */
 # define FLT_EPSILON	7.2759576142E-12	/* smallest x: 1.0 + x != 1.0 */
 # define FLT_DIG	11			/* decimal digits of precision*/
-# define FLT_MANT_DIG	36			/* binary digits of precision */
+# define FLT_MANT_DIG	37			/* binary digits of precision */
 # define FLT_MIN	2.22507385851E-308	/* positive minimum */
 # define FLT_MIN_EXP	(-1021)			/* minimum binary exponent */
 # define FLT_MIN_10_EXP	(-307)			/* minimum decimal exponent */

@@ -7,6 +7,9 @@
 # save files
 /save/*.o
 
+# log files
+/log/*
+
 # administrator home files
 /home/admin/
 

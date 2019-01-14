@@ -60,6 +60,7 @@ static object object_h;
 
 static object mudos;
 static object secure;
+static object debugger;
 
 static nomask void initialize()
 {
@@ -76,6 +77,7 @@ static nomask void initialize()
   load_object(AUTO);
 
   ::call_other(error_h  = load_object(ERROR_HANDLER), "???"); // obviously, must be the first
+  ::call_other(debugger = load_object(DEBUGGER_OB), "???");
 
   // global object in charge of heart_beats, init calls, etc
   ::call_other(mudos    = load_object(MUDOS_PATH), "???");
@@ -105,6 +107,8 @@ nomask void _stderr(string str)
 nomask object mudos() { return mudos; }
 // return the secure global object
 nomask object secure() { return secure; }
+// return the debugger global object
+nomask object debugger() { return debugger; }
 // get a new login object
 nomask object login() 
 {
@@ -269,7 +273,7 @@ static void runtime_error(string error, int caught, int ticks)
   string ret;
 
   if (!error_h)
-    stderr(" - runtime_error: " + error + "\n");
+    log_driver(" - runtime_error: " + error + "\n");
   else
     ret = error_h->runtime_error(error, caught, ticks);
 
@@ -285,8 +289,8 @@ static void compile_error(string file, int line, string error)
   string ret;
 
   if (!error_h)
-    stderr(" - compile_error in file " + file + ", line " + line + "\n" +
-           "   Error: " + error + "\n");
+    log_driver(" - compile_error in file " + file + ", line " + line + "\n" +
+               "   Error: " + error + "\n");
   else
     ret = error_h->compile_error(file, line, error);
 
@@ -317,7 +321,7 @@ static string atomic_error(string error, int atom, mixed **trace)
 // call.
 static int touch(object obj, string func) 
 {
-  stderr(" - touch object " + object_name(obj) + ", function " + func + "\n");
+  log_driver(" - touch object " + object_name(obj) + ", function " + func + "\n");
 
   return FALSE;
 }

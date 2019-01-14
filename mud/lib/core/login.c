@@ -652,7 +652,7 @@ void create_account(string str)
 {
   if (!SECURE->valid_email(str)) 
   {
-    write("Introduce una dirección de email válida: ");
+    write("\nNo, introduce una dirección de email válida: ");
     input_to("create_account", 1);
     return;
   }
