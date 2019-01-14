@@ -11,6 +11,7 @@
 #include <living/living.h>
 #include <user/terminal.h>
 #include <mud/secure.h>
+#include <mud/config.h>
 
 
 // ************************************************************
@@ -49,6 +50,8 @@ static nomask void write(string str);
 #include "/lib/core/efuns/objects/file_name.c"
 #include "/lib/core/efuns/conversions/to_string.c"
 #include "/lib/core/efuns/conversions/print_object.c"
+#include "/lib/core/efuns/paths/path.c"
+// #include "/lib/core/efuns/singletons.c"
 
 
 static object user_h;
@@ -246,12 +249,22 @@ static object inherit_program(string from, string path, int priv)
   return ob;
 }
 
-static mixed include_file(string file, string path)
+static mixed include_file(string includer, string include)
 { 
-  if (path[0] != '/')
-    path = resolve_path(file + "/../" + path);
+  // multilanguage options, when we try to include the general language header file
+  // with an #include <language.h>,
+  // we will include a file from our current directory: .lang.en, .lang.es, etc
+  if (include == "/include/language.h")
+  {
+    include = path(includer) + ".lang." + GLOBAL_COMPILE_LANG;
+  }
+  else
+  {
+    if (include[0] != '/')
+      include = resolve_path(includer + "/../" + include);
+  }
 
-  return path;
+  return include;
 }
 
 // Error handling

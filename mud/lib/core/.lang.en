@@ -1,0 +1,14 @@
+
+// login.c
+
+#define _LANG_LPMUD_VERSION "LPmud version: "
+#define _LANG_MUDLIB_VERSION "Mudlib version: "
+#define _LANG_PATCH_VERSON "Last patch applied: "
+#define _LANG_LANGUAGE_VERSION "english version"
+
+#define _LANG_WORLD_STILL_BEING_CREATED "The world is still being created. Try again in a minute.\n"
+#define _LANG_TOO_MANY_PLAYERS "Too many players connected. Try again in a minute.\n"
+#define _LANG_ENTER_AN_OPTION "Enter the chosen option: "
+#define _LANG_TIMED_OUT "Timed out.\n"
+#define _LANG_COME_AGAIN_SOON "Come again soon!\n"
+#define _LANG_PLAYER_ACCESS_FORBIDDEN "Player access is not allowed at the moment.\n"
