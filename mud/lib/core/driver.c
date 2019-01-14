@@ -11,6 +11,7 @@
 #include <living/living.h>
 #include <user/terminal.h>
 #include <mud/secure.h>
+#include <mud/config.h>
 
 
 // ************************************************************
@@ -250,12 +251,12 @@ static object inherit_program(string from, string path, int priv)
 
 static mixed include_file(string includer, string include)
 { 
-
+  // multilanguage options, when we try to include the general language header file
+  // with an #include <language.h>,
+  // we will include a file from our current directory: .lang.en, .lang.es, etc
   if (include == "/include/language.h")
   {
-    log_driver(" +++++++ include_file: " + includer + " path " + include + "\n");
-    include = path(includer) + ".lang.en";
-    log_driver(" +++++++ include_file: " + includer + " path " + include + "\n");
+    include = path(includer) + ".lang." + GLOBAL_COMPILE_LANG;
   }
   else
   {

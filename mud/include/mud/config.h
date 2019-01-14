@@ -5,30 +5,41 @@
 
 #include <status.h>
 
+/*
+ * Language
+ * 
+ * every time we include the language header file
+ * #include <language.h>
+ * a .lang.<language>.h from the current directory will be included instead
+ *
+ * currently supported languages: es, en
+ */
+#define GLOBAL_COMPILE_LANG "en"
+
 /* 
- * Opciones de salvado común 
- *   (si esta activado, todos los objetos importantes se
- *    guardan en /save/{shops, pubs, vaults, etc})
+ * Common save options 
+ *   (if defined, every important object will be saved in
+ *    /save/{ shops, pubs, vaults, etc })
  */
 #define COMMON_SAVE
 
-// definir para impedir la entrada a players
+// define to forbid player logons
 #undef PLAYER_LOCKOUT
 
 /* 
- * Opciones Multimud
+ * Multimud options
  */
 
-// Descomentar una de estas dos opciones segun el mud en el que nos encontremos
-// _PRIMARY_MUD para el puerto de juego
-// _DEVELOPMENT_MUD para el puerto de desarrollo/testing
-// (obviamente, dejad descomentada solo una de las opciones)
+// Undefine one of these two options depending the mud we are on
+// _PRIMARY_MUD for the game port
+// _DEVELOPMENT_MUD for the development/testing port
+// (obviously, let one of them defined)
 
 #define MULTIMUD
 #define _PRIMARY_MUD
 #undef _DEVELOPMENT_MUD
 
-// Para /net/remote_cre.c (canal cre comunicado)
+// for /net/remote_cre.c (shared channel)
 #define ALLOWED_MUDS ({"CC","CC_DEV"})
 
 #ifdef _PRIMARY_MUD
@@ -37,7 +48,19 @@
 #define THIS_MUD "CC_DEV"
 #endif
 
-// Para /include/ftp.h (puerto del servidor ftp)
+// define to print every debugger log in the console
+#define USE_STANDARD_LOG
+// prepend debug type before standard log
+// only used if USE_STANDARD_LOG is defined
+#define USE_STANDARD_LOG_TYPE
+
+// Definir para utilizar funciones de alineamiento
+#define USE_ALIGNMENT
+
+
+// old defines
+
+// for /include/ftp.h (ftp server port)
 // TELNET_PORT will only be used if the driver is compiled
 // with -DNETWORK_EXTENSIONS
 #ifdef _PRIMARY_MUD
@@ -50,13 +73,5 @@
 #define FTP_VERSION "Ciudad Capital Mud (Desarrollo) - FTPD"
 #endif
 
-// define to print every debugger log in the console
-#define USE_STANDARD_LOG
-// prepend debug type before standard log
-// only used if USE_STANDARD_LOG is defined
-#define USE_STANDARD_LOG_TYPE
-
-// Definir para utilizar funciones de alineamiento
-#define USE_ALIGNMENT
 
 #endif
