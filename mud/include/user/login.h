@@ -14,10 +14,10 @@
 #define MAX_LEN 11
 #define CODER_SLOTS 5
 
-#ifndef _PRIMARY_MUD
-#define WELCOME_MESSAGE "welcome_devel.txt"
-#else
+#ifdef _PRIMARY_MUD
 #define WELCOME_MESSAGE "welcome.txt"
+#else
+#define WELCOME_MESSAGE "welcome_devel.txt"
 #endif
 
 #define LOGIN_OPTIONS_MESSAGE "login_options.txt"

@@ -52,7 +52,6 @@ void create_account3(string str);
 void create_account4();
 
 
-
 void create() 
 {
   ::create();
@@ -92,7 +91,7 @@ nomask void time_out()
   if (!_player)
     return;
 
-  write("Se terminó el tiempo.\n");
+  write(_LANG_TIMED_OUT);
   destruct(_player);
   destruct(this_object());
 }
@@ -109,9 +108,9 @@ nomask void logon(object pl)
 
   _player = pl;
 
-  write(LANG_LPMUD_VERSION + version() + "\n" +
-        LANG_MUDLIB_VERSION + MUDLIB_VERSION + "\n"/* + 
-        LANG_PATCH_VERSION + PATCH_VERSION + "\n\n"*/);
+  write(_LANG_LPMUD_VERSION + version() + "\n" +
+        _LANG_MUDLIB_VERSION + MUDLIB_VERSION + " [ " + _LANG_LANGUAGE_VERSION + " ]\n"/* + 
+        _LANG_PATCH_VERSION + PATCH_VERSION + "\n\n"*/);
 
   call_out("time_out", LOGIN_TIMEOUT);
 
@@ -138,28 +137,28 @@ nomask void logon(object pl)
   // added from old login.c, neverbot 21/01/03
   if (uptime() < MIN_UPTIME_LOGIN_TIME) 
   {
-    write("El mundo aún se está formando, inténtalo de nuevo en unos minutos.\n");
+    write(_LANG_WORLD_STILL_BEING_CREATED);
     disconnect(1);
     return;
   }
 
   if (sizeof(users()) > MAX_PLAYERS) 
   {
-    write("Hay demasiados jugadores conectados, inténtalo dentro de unos minutos.\n");
+    write(_LANG_TOO_MANY_PLAYERS);
     disconnect(1);
     return;
   }
 
   show_options();
 
-  write("Introduce la opción elegida: ");
+  write(_LANG_ENTER_AN_OPTION);
   input_to("logon_option");
 }
 
 static nomask void disconnect(varargs int silence)
 {
   if (!silence)
-    write("¡Vuelve dentro de poco!\n"); 
+    write(_LANG_COME_AGAIN_SOON); 
 
   destruct(_player);
   destruct(this_object());     
@@ -167,7 +166,7 @@ static nomask void disconnect(varargs int silence)
 
 nomask void show_finger(string who)
 {
-  write("Hacemos un finger\n");
+  write("finger\n");
 
   /*  
   string ret = "/secure/finger.c"->finger_info(who, this_object());
@@ -187,7 +186,7 @@ nomask void show_finger(string who)
 
 nomask void show_who()
 {
-  write("Hacemos un who\n");
+  write("who\n");
   /*
   object who = load_object("/cmds/player/who.c");
   string ret = "";
@@ -215,7 +214,7 @@ nomask void logon_option(string str)
 
   if (!strlen(str)) 
   {
-    write("¡Vuelve dentro de poco!\n");
+    write(_LANG_COME_AGAIN_SOON);
     destruct(_player);
     destruct(this_object());
     return;
@@ -227,7 +226,7 @@ nomask void logon_option(string str)
   // This is a part of the lockout..
   if ((str == "invitado") || (str == "guest"))
   {
-    write("El acceso a jugadores no está permitido en estos momentos.\n");
+    write(_LANG_PLAYER_ACCESS_FORBIDDEN);
     destruct(_player);
     destruct(this_object());
     return;
@@ -235,7 +234,7 @@ nomask void logon_option(string str)
 
   if (!read_file("/home/"+str+"/workroom.c")) 
   {
-    write("El acceso a jugadores no está permitido en estos momentos");
+    write(_LANG_PLAYER_ACCESS_FORBIDDEN);
     destruct(_player);
     destruct(this_object());
   }
@@ -248,7 +247,7 @@ nomask void logon_option(string str)
     show_finger(list[1]);
 
     show_options();
-    write("Introduce la opción elegida: ");
+    write(_LANG_ENTER_AN_OPTION);
     input_to("logon_option");
     return;
   }
@@ -258,7 +257,7 @@ nomask void logon_option(string str)
     show_who();
 
     show_options();
-    write("Introduce la opción elegida: ");
+    write(_LANG_ENTER_AN_OPTION);
     input_to("logon_option");
     return;
   }
@@ -357,7 +356,7 @@ nomask void logon_option(string str)
 
     show_options();
 
-    write("Introduce la opción elegida: ");
+    write(_LANG_ENTER_AN_OPTION);
     input_to("logon_option");
     return;
   }   
@@ -480,7 +479,7 @@ nomask void logon_player_name_2(string str, int flag)
 
     if (str == "") 
     {
-      write("¡Vuelve dentro de poco!\n");
+      write(_LANG_COME_AGAIN_SOON);
       destruct(_player);
       destruct(this_object());
       return ;
@@ -535,7 +534,7 @@ nomask void logon_account(string str)
 
   if (!strlen(str)) 
   {
-    write("¡Vuelve dentro de poco!\n");
+    write(_LANG_COME_AGAIN_SOON);
     destruct(_player);
     destruct(this_object());
     return;
@@ -701,7 +700,7 @@ void create_account2(string str)
 {
   if (!strlen(str)) 
   {
-    write("¡Vuelve dentro de poco!\n");
+    write(_LANG_COME_AGAIN_SOON);
     destruct(_player);
     destruct(this_object());
     return ;

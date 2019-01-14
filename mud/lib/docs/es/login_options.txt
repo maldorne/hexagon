@@ -1,0 +1,5 @@
+Opciones: %^BOLD%^GREEN%^<email o nombre de personaje>%^RESET%^ para seguir jugando.
+          %^BOLD%^crear%^RESET%^ para crear una nueva cuenta.
+          %^BOLD%^invitado%^RESET%^ para probar el juego temporalmente.
+          %^BOLD%^finger <nombre>%^RESET%^ para obtener datos sobre otro jugador.
+          %^BOLD%^who%^RESET%^ para ver la lista de jugadores conectados.

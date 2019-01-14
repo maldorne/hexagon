@@ -3,6 +3,7 @@
 // tables and handlers
 
 #include <kernel.h>
+#include <mud/config.h>
 
 static nomask object table(string name) 
 {
@@ -61,21 +62,28 @@ static nomask object handler(string name)
 }
 
 // analog to the previous ones, but returns a document
+// important: the documents are checked in the lib directory _first_
+// if not found then the game directory will be checked
 static nomask string doc(string name)
 {
   string path;
 
-  // first int the game docs directory, it overrides the lib one
+  // first int the lib docs directory, it overrides the game one
   catch 
   {
+    if (file_exists("/lib/docs/" + GLOBAL_COMPILE_LANG + "/" + name))
+    {
+      return "/lib/docs/" + GLOBAL_COMPILE_LANG + "/" + name;
+    }
+
+    if ((GLOBAL_COMPILE_LANG != "en") && file_exists("/lib/docs/en/" + name))
+    {
+      return "/lib/docs/en/" + name;
+    }
+
     if (file_exists("/game/docs/" + name))
     {
       return "/game/docs/" + name;
-    }
-
-    if (file_exists("/lib/docs/" + name))
-    {
-      return "/lib/docs/" + name;
     }
   }
 
