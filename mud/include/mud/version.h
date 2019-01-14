@@ -1,3 +1,3 @@
 
-#define MUDLIB_VERSION "Hexagon Mudlib v17.07"
+#define MUDLIB_VERSION "Hexagon Mudlib v19.01"
 
