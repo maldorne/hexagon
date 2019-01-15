@@ -6,9 +6,31 @@
 #define _LANG_PATCH_VERSON "Last patch applied: "
 #define _LANG_LANGUAGE_VERSION "english version"
 
+#define _LANG_WHO_COMMAND "who"
+#define _LANG_CREATE_COMMAND "create"
+#define _LANG_FINGER_COMMAND "finger"
+
 #define _LANG_WORLD_STILL_BEING_CREATED "The world is still being created. Try again in a minute.\n"
 #define _LANG_TOO_MANY_PLAYERS "Too many players connected. Try again in a minute.\n"
 #define _LANG_ENTER_AN_OPTION "Enter the chosen option: "
 #define _LANG_TIMED_OUT "Timed out.\n"
-#define _LANG_COME_AGAIN_SOON "Come again soon!\n"
+// #define _LANG_COME_AGAIN_SOON "Come again soon!\n"
+#define _LANG_OPTION_STRING_TOO_SHORT "Option selected is too short, the minimum are " + MIN_LEN + " characters.\n"
+#define _LANG_INVALID_CHARACTER "Invalid character '" + str[tmp..tmp] + "' in (" + str + ").\n"
 #define _LANG_PLAYER_ACCESS_FORBIDDEN "Player access is not allowed at the moment.\n"
+#define _LANG_ANSWER_YES_NO "You must answer yes or no (y/n): "
+#define _LANG_YES_OPTIONS_ARRAY ({ 'y', 'Y' })
+#define _LANG_NO_OPTIONS_ARRAY ({ 'n', 'N' })
+#define _LANG_TRY_AGAIN "Ok, try again.\n"
+
+#define _LANG_ENTER_EMAIL "Enter your email: "
+#define _LANG_ENTER_VALID_EMAIL "\nEnter a valid email: "
+#define _LANG_USED_EMAIL "Sorry, but that address is already in use.\n" + \
+      "Please, enter a different email: "
+#define _LANG_ACCOUNT_RECOMMEND "If your already have an account in " + mud_name() + ", we really " + \
+      "recommend to create your " + \
+      "different characters in the same account, because that has a lot of benefits when " + \
+      "sharing items, resources, achievements, etc.\n"
+#define _LANG_ACCOUNT_NAME_CHOSEN "You have chosen '" + account_name + "' as your account name, are you sure? (y/n): "
+#define _LANG_DEFINE_ACCOUNT_PASSWORD "Enter the new password for your account: "
+#define _LANG_DEFINE_ACCOUNT_PASSWORD_REPEAT "Repeat the password to check there are no errors: "

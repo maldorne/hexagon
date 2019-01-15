@@ -7,12 +7,12 @@
 // #define MIN_UPTIME_LOGIN_TIME 20
 #define MIN_UPTIME_LOGIN_TIME 1
 #define MAX_PLAYERS 50
+#define CODER_SLOTS 5
 
-// From /lib/core/user/login
+// from /lib/core/user/login
 #define MAX_RETRIES 3
 #define MIN_LEN 3
 #define MAX_LEN 11
-#define CODER_SLOTS 5
 
 #ifdef _PRIMARY_MUD
 #define WELCOME_MESSAGE "welcome.txt"

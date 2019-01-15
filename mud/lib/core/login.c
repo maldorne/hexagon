@@ -41,8 +41,8 @@ nomask void show_options();
 nomask void logon_player_name(string str, int flag);
 nomask void logon_player_name_2(string str, int flag);
 nomask void logon_account(string str);
-nomask void begin(int new_player); 
-nomask void begin2(int new_player); 
+nomask void begin(int new_player);
+nomask void begin2(int new_player);
 nomask void time_out();
 nomask void disconnect(varargs int silence);
 
@@ -52,7 +52,7 @@ void create_account3(string str);
 void create_account4();
 
 
-void create() 
+void create()
 {
   ::create();
 
@@ -64,9 +64,9 @@ void create()
   gender = 1;
   invis_wish = -1;
   seteuid(ROOT);
-} 
+}
 
-nomask int test_user(string str) 
+nomask int test_user(string str)
 {
   string tmp;
   object user;
@@ -83,7 +83,7 @@ nomask int test_user(string str)
   return result;
 }
 
-nomask void time_out() 
+nomask void time_out()
 {
   if (validated == TRUE)
     return;
@@ -102,14 +102,14 @@ nomask void time_out()
 //   destruct(this_object());
 // }
 
-nomask void logon(object pl) 
+nomask void logon(object pl)
 {
   int tim;
 
   _player = pl;
 
   write(_LANG_LPMUD_VERSION + version() + "\n" +
-        _LANG_MUDLIB_VERSION + MUDLIB_VERSION + " [ " + _LANG_LANGUAGE_VERSION + " ]\n"/* + 
+        _LANG_MUDLIB_VERSION + MUDLIB_VERSION + " [ " + _LANG_LANGUAGE_VERSION + " ]\n"/* +
         _LANG_PATCH_VERSION + PATCH_VERSION + "\n\n"*/);
 
   call_out("time_out", LOGIN_TIMEOUT);
@@ -117,7 +117,7 @@ nomask void logon(object pl)
   cat(doc(WELCOME_MESSAGE));
 
   // TODO check shut object to avoid login near a shutdown
-  // if (find_object("/obj/shut")) 
+  // if (find_object("/obj/shut"))
   // {
   //   tim = (int)"/obj/shut"->query_time_to_crash();
   //   if ((tim > 0) && (tim < 120))
@@ -126,8 +126,8 @@ nomask void logon(object pl)
   //     dest_me();
   //     return;
   //   }
-  //   else 
-  //   { 
+  //   else
+  //   {
   //     int mins;
   //     mins = (tim/60);
   //     write("El juego se reiniciará en "+mins+" minuto"+((tim<2)?"":"s")+".\n");
@@ -135,14 +135,14 @@ nomask void logon(object pl)
   // }
 
   // added from old login.c, neverbot 21/01/03
-  if (uptime() < MIN_UPTIME_LOGIN_TIME) 
+  if (uptime() < MIN_UPTIME_LOGIN_TIME)
   {
     write(_LANG_WORLD_STILL_BEING_CREATED);
     disconnect(1);
     return;
   }
 
-  if (sizeof(users()) > MAX_PLAYERS) 
+  if (sizeof(users()) > MAX_PLAYERS - CODER_SLOTS)
   {
     write(_LANG_TOO_MANY_PLAYERS);
     disconnect(1);
@@ -157,18 +157,18 @@ nomask void logon(object pl)
 
 static nomask void disconnect(varargs int silence)
 {
-  if (!silence)
-    write(_LANG_COME_AGAIN_SOON); 
+  // if (!silence)
+  //   write(_LANG_COME_AGAIN_SOON);
 
   destruct(_player);
-  destruct(this_object());     
+  destruct(this_object());
 }
 
 nomask void show_finger(string who)
 {
-  write("finger\n");
+  write(_LANG_FINGER_COMMAND + "\n");
 
-  /*  
+  /*
   string ret = "/secure/finger.c"->finger_info(who, this_object());
 
   if (!ret || (ret == ""))
@@ -186,7 +186,7 @@ nomask void show_finger(string who)
 
 nomask void show_who()
 {
-  write("who\n");
+  write(_LANG_WHO_COMMAND + "\n");
   /*
   object who = load_object("/cmds/player/who.c");
   string ret = "";
@@ -207,14 +207,14 @@ nomask void show_options()
   cat(doc(LOGIN_OPTIONS_MESSAGE));
 }
 
-nomask void logon_option(string str) 
+nomask void logon_option(string str)
 {
   string * list;
   int tmp;
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
-    write(_LANG_COME_AGAIN_SOON);
+    // write(_LANG_COME_AGAIN_SOON);
     destruct(_player);
     destruct(this_object());
     return;
@@ -222,27 +222,9 @@ nomask void logon_option(string str)
 
   str = lower_case(str);
 
-#ifdef PLAYER_LOCKOUT
-  // This is a part of the lockout..
-  if ((str == "invitado") || (str == "guest"))
-  {
-    write(_LANG_PLAYER_ACCESS_FORBIDDEN);
-    destruct(_player);
-    destruct(this_object());
-    return;
-  }
-
-  if (!read_file("/home/"+str+"/workroom.c")) 
-  {
-    write(_LANG_PLAYER_ACCESS_FORBIDDEN);
-    destruct(_player);
-    destruct(this_object());
-  }
-#endif
-
   // new options, neverbot 02/2006
   list = explode(str, " ");
-  if ((sizeof(list) >= 2) && (list[0] == "finger"))
+  if ((sizeof(list) >= 2) && (list[0] == _LANG_FINGER_COMMAND))
   {
     show_finger(list[1]);
 
@@ -252,7 +234,7 @@ nomask void logon_option(string str)
     return;
   }
 
-  if (str == "who")
+  if (str == _LANG_WHO_COMMAND)
   {
     show_who();
 
@@ -262,33 +244,49 @@ nomask void logon_option(string str)
     return;
   }
 
-  if (str == "crear")
+#ifdef PLAYER_LOCKOUT
+  // if (member_array(str, ({ "invitado", "guest" }) != -1)
+  // {
+  //   write(_LANG_PLAYER_ACCESS_FORBIDDEN);
+  //   destruct(_player);
+  //   destruct(this_object());
+  //   return;
+  // }
+
+  if (!read_file("/home/" + str + "/workroom.c"))
+  {
+    write(_LANG_PLAYER_ACCESS_FORBIDDEN);
+    destruct(_player);
+    destruct(this_object());
+    return;
+  }
+#endif
+
+  if (str == _LANG_CREATE_COMMAND)
   {
     string ret;
-    ret = "Si ya tienes otra cuenta en "+mud_name()+", recomendamos encarecidamente que crees tus " +
-      "distintos personajes dentro de la misma cuenta, ya que esto tiene muchas ventajas a la " +
-      "hora de compartir objetos, recursos, etc.\n";
+    ret = _LANG_ACCOUNT_RECOMMEND;
     ret = sprintf("\n%-*s\n", _player->query_cols(), ret);
-    write( ret );   
-    
-    write("Introduce tu dirección de email: ");
+    write( ret );
+
+    write(_LANG_ENTER_EMAIL);
     input_to("create_account");
     return;
   }
 
   // from the old login.c, neverbot 21/01/03
   // More of Hamlet's cute crap.
-  if(str[0] == '#') 
+  if (str[0] == '#')
   {
     invis_wish = 0;
     str = str[1..];
   }
-  else if(str[0] == '*') 
+  else if (str[0] == '*')
   {
     invis_wish = 1;
     str = str[1..];
   }
-  else if(str[0] == '@') 
+  else if (str[0] == '@')
   {
     invis_wish = 2;
     str = str[1..];
@@ -299,8 +297,8 @@ nomask void logon_option(string str)
   // query_player_ob() should only be passed 1 as its 2nd argument HERE!
   //   It's a big mistake to pass a second arg at all anywhere else. - Hamlet
   player_ob = (string)"/secure/bastards"->query_player_ob(str, 1);
-  // changed next line to be stringp - Hamlet 
-  if (!stringp(player_ob)) 
+  // changed next line to be stringp - Hamlet
+  if (!stringp(player_ob))
   {
     write("Lo sentimos, pero ese nombre no está permitido.\n");
     destruct(_player);
@@ -309,42 +307,32 @@ nomask void logon_option(string str)
   }
   */
 
-  // A hack while login_handler is being looked at -- Hamlet
-  if(sizeof(users()) > MAX_PLAYERS - CODER_SLOTS) 
-  {
-    write("Hay demasiados jugadores conectados, inténtalo en unos minutos.\n");
-    destruct(_player);
-    destruct(this_object());
-    return;
-  }
-  // End hack
-
   // TODO guest login
   // if ((str == "invitado") || (str == "guest"))
   //   return guest_login();
 
   // now we accept emails as accounts names
-  // if (strlen(str) > MAX_LEN) 
+  // if (strlen(str) > MAX_LEN)
   // {
   //   write("El nombre es demasiado largo, el máximo son 11 caracteres.\n");
-  //   write("Introduce el nombre de la cuenta: ");
+  //   write(_LANG_ENTER_AN_OPTION);
   //   input_to("logon_option");
   //   return;
   // }
 
   // added by neverbot 21/01/03
-  if (strlen(str) < MIN_LEN) 
+  if (strlen(str) < MIN_LEN)
   {
-    write("El nombre es demasiado corto, el mínimo son 3 caracteres.\n");
-    write("Introduce el nombre de la cuenta: ");
+    write(_LANG_OPTION_STRING_TOO_SHORT);
+    write(_LANG_ENTER_AN_OPTION);
     input_to("logon_option");
     return;
   }
 
-  if (((tmp = SECURE->valid_user_name(str)) != -1) && !SECURE->valid_email(str)) 
+  if (((tmp = SECURE->valid_user_name(str)) != -1) && !SECURE->valid_email(str))
   {
-    write("Caracter inválido '"+str[tmp..tmp]+"' en ("+str+").\n\n");
-    write("Introduce el nombre de la cuenta: ");
+    write(_LANG_INVALID_CHARACTER);
+    write(_LANG_ENTER_AN_OPTION);
     input_to("logon_option");
     return;
   }
@@ -359,28 +347,28 @@ nomask void logon_option(string str)
     write(_LANG_ENTER_AN_OPTION);
     input_to("logon_option");
     return;
-  }   
+  }
 
   // Si hemos introducido el nombre de un personaje
   if (file_size("/save/players/"+str[0..0]+"/"+str+".o") > 0)
   {
-    // flag para indicar que estamos haciendo login directamente con el nombre 
+    // flag para indicar que estamos haciendo login directamente con el nombre
     // del personaje
-    logon_player_name(str, 0); 
+    logon_player_name(str, 0);
   }
   // hemos introducido el nombre de cuenta
-  else 
+  else
   {
     if (!_player->set_account(str))
     {
       write("No existe una cuenta con ese nombre.\n");
-      write("Introduce el nombre de la cuenta: ");
+      write(_LANG_ENTER_AN_OPTION);
       input_to("logon_option");
       return;
     }
 
     account = _player->query_account();
-  
+
     write("Introduce la contraseña asociada a tu cuenta: ");
     input_to("logon_account", 1);
   }
@@ -388,7 +376,7 @@ nomask void logon_option(string str)
 
 // si flag == 0, hacemos login directamente con el nombre del player
 // si flag == 1, hacemos login con el nombre de cuenta
-nomask void logon_player_name(string str, int flag) 
+nomask void logon_player_name(string str, int flag)
 {
   string * list;
   string chosen;
@@ -408,20 +396,20 @@ nomask void logon_player_name(string str, int flag)
     }
 
     list = account->query_player_list();
-      
+
     // existant character name
     if ((value = member_array(str, list)) != -1)
       chosen = list[value];
-    else 
+    else
     {
       value = atoi(str);
       // list goes from 1 to n, the array from 0 to n-1
       value--;
-  
+
       if ((value >= 0) && (value < sizeof(list)))
         chosen = list[value];
     }
-  
+
     // none of the account characters
     if (chosen == "")
     {
@@ -435,10 +423,10 @@ nomask void logon_player_name(string str, int flag)
   {
     chosen = str;
   }
-  
+
   name = chosen;
   _player->set_name(name);
-  
+
   // try to restore the character
   if (!_player->restore_me())
   {
@@ -447,7 +435,7 @@ nomask void logon_player_name(string str, int flag)
     destruct(this_object());
     return;
   }
-  
+
   // login with the character name
   if (flag == 0)
   {
@@ -458,7 +446,7 @@ nomask void logon_player_name(string str, int flag)
     }
 
     password = account->query_password();
-    
+
     write("Introduce tu contraseña: ");
     input_to("logon_player_name_2", 1, 0);
     return;
@@ -477,9 +465,10 @@ nomask void logon_player_name_2(string str, int flag)
   {
     write("\n");
 
-    if (str == "") 
+    if (str == "")
     {
-      write(_LANG_COME_AGAIN_SOON);
+      // not needed, will be done in user->disconnect()
+      // write(_LANG_COME_AGAIN_SOON);
       destruct(_player);
       destruct(this_object());
       return ;
@@ -487,9 +476,9 @@ nomask void logon_player_name_2(string str, int flag)
 
     str = crypt(str, password);
 
-    if (password && str != password) 
+    if (password && str != password)
     {
-      if (++no_times > MAX_RETRIES) 
+      if (++no_times > MAX_RETRIES)
       {
           write("Demasiados reintentos...\n"+
             "No estarás haciendo nada malo, ¿verdad?\n");
@@ -519,7 +508,7 @@ nomask void logon_player_name_2(string str, int flag)
     input_to("try_throw_out");
     return;
   }
-  
+
   begin(0);
 
 } /* logon_player_name() */
@@ -532,9 +521,9 @@ nomask void logon_account(string str)
   password = account->query_password();
   write("\n");
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
-    write(_LANG_COME_AGAIN_SOON);
+    // write(_LANG_COME_AGAIN_SOON);
     destruct(_player);
     destruct(this_object());
     return;
@@ -542,9 +531,9 @@ nomask void logon_account(string str)
 
   str = crypt(str, password);
 
-  if (password && (str != password)) 
+  if (password && (str != password))
   {
-    if (++no_times > MAX_RETRIES) 
+    if (++no_times > MAX_RETRIES)
     {
       write("Demasiados reintentos...\n"+
             "No estarás haciendo nada malo, ¿verdad?");
@@ -562,9 +551,9 @@ nomask void logon_account(string str)
   // Llegados aqui el password es correcto
 
   list = account->query_player_list();
-  
+
   write("Tienes disponibles en esta cuenta los siguientes personajes:\n");
-  
+
   for (tmp = 0; tmp < sizeof(list); tmp++)
     write("   " + ((string)(tmp+1)) + ") " + capitalize(list[tmp]) + "\n");
 
@@ -575,7 +564,7 @@ nomask void logon_account(string str)
 
 } /* logon_account() */
 
-nomask void begin(int new_pl) 
+nomask void begin(int new_pl)
 {
   string player_ob;
 
@@ -583,7 +572,7 @@ nomask void begin(int new_pl)
 
 // Solo si estamos utilizando varios servidores y este no es el de desarrollo:
 #ifdef MULTIMUD
-#ifndef CCMUD_DEVEL   
+#ifndef CCMUD_DEVEL
   if (coder && !SECURE->query_admin(name))
   {
     write("Los programadores no tienen permitido el acceso a este puerto, prueba en el 5000.\n");
@@ -594,11 +583,11 @@ nomask void begin(int new_pl)
 #endif
 #endif
 
-  // if (!find_object(player_ob)) 
+  // if (!find_object(player_ob))
   // {
   //   write("Por favor espera... cargando el personaje.\n");
   //   call_out("begin2", 0, new_pl);
-  // } 
+  // }
   // else
 
   write("Por favor espera... cargando el personaje.\n");
@@ -606,7 +595,7 @@ nomask void begin(int new_pl)
 
 } /* begin() */
 
-nomask void begin2(int new_player) 
+nomask void begin2(int new_player)
 {
   object room;
 
@@ -619,16 +608,16 @@ nomask void begin2(int new_player)
   validated = TRUE;
   write("¡Te has conectado! Bienvenido a "+mud_name()+"\n");
 
-  if (query_property(GUEST_PROP)) 
+  if (query_property(GUEST_PROP))
     _player->add_property(GUEST_PROP, 1);
 
   // set user privileges
   _player->set_role(_player->query_role_name());
 
   /* Hamlet stuff */
-  if(!coder)
+  if (!coder)
     invis_wish = -1;
-  else if( (invis_wish == 2) && !SECURE->query_admin(name) )
+  else if ( (invis_wish == 2) && !SECURE->query_admin(name) )
     invis_wish = 1;
 
   // room = load_object(CODER_COMMON_ROOM);
@@ -638,7 +627,7 @@ nomask void begin2(int new_player)
   // Añadido por neverbot, esto deberia andar por aqui
   cat(doc("news.txt"));
 
-  // do not show the first prompt, a command will be issued 
+  // do not show the first prompt, a command will be issued
   // in move_player_to_start and after that the prompt will be
   // shown
   _player->set_no_prompt();
@@ -649,91 +638,98 @@ nomask void begin2(int new_player)
 
 void create_account(string str)
 {
-  if (!SECURE->valid_email(str)) 
+  if (!strlen(str))
   {
-    write("\nNo, introduce una dirección de email válida: ");
+    // write(_LANG_COME_AGAIN_SOON);
+    destruct(_player);
+    destruct(this_object());
+    return;
+  }
+
+  if (!SECURE->valid_email(str))
+  {
+    write(_LANG_ENTER_VALID_EMAIL);
     input_to("create_account", 1);
     return;
   }
 
-  if (file_size("/save/accounts/"+str[0..0]+"/"+str+".o") > 0)
+  if (file_size("/save/accounts/" + str[0..0] + "/" + str + ".o") > 0)
   {
-    write("Lo sentimos, pero esa direción ya está utilizada.\n");
-    write("Por favor, introduce otra dirección de email: ");
+    write(_LANG_USED_EMAIL);
     input_to("create_account", 1);
     return ;
   }
 
   account_name = str;
 
-  write("Has escogido como nombre de cuenta: '"+account_name+"', ¿estás seguro? (s/n): ");
+  write(_LANG_ACCOUNT_NAME_CHOSEN);
   input_to("check_account_name");
 }
 
-int check_account_name(string str) 
+int check_account_name(string str)
 {
-  str = implode(explode(str," "),"");
+  str = implode(explode(str, " "), "");
 
   if (strlen(str))
   {
-    if ((str[0] == 's') || (str[0] == 'S')) 
+    if (member_array(str[0], _LANG_YES_OPTIONS_ARRAY) != -1)
     {
-      write("De acuerdo, introduce la contraseña que estará asociada a tu cuenta: ");  
+      write(_LANG_DEFINE_ACCOUNT_PASSWORD);
       input_to("create_account2",1);
       return 1;
-    } 
-    else if ((str[0] == 'n') || (str[0] == 'N')) 
+    }
+    else if (member_array(str[0], _LANG_NO_OPTIONS_ARRAY) != -1)
     {
-      write("De acuerdo, inténtalo de nuevo.\n");
-      write("Introduce una dirección de email válida: ");
+      write(_LANG_TRY_AGAIN);
+      write(_LANG_ENTER_VALID_EMAIL);
       input_to("create_account",1);
       return 1;
     }
   }
 
-  write("Debes responder sí o no (s/n): ");
+  write(_LANG_ANSWER_YES_NO);
   input_to("check_account_name", 1);
   return 1;
 } /* check_account_name() */
 
 void create_account2(string str)
 {
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
-    write(_LANG_COME_AGAIN_SOON);
+    // write(_LANG_COME_AGAIN_SOON);
     destruct(_player);
     destruct(this_object());
     return ;
   }
 
   password = crypt(str, password);
-  
-  write("Repite la contraseña para confirmar que no hay ningún error: ");
-  input_to("create_account3",1);  
+
+  write(_LANG_DEFINE_ACCOUNT_PASSWORD_REPEAT);
+  input_to("create_account3",1);
 }
 
 void create_account3(string str)
 {
   string tmppasswd;
-  
-  if (!strlen(str)) 
+
+  if (!strlen(str))
   {
     write("De acuerdo, contraseña borrada. Volvemos a empezar.\n"+
-      "Introduce la contraseña que estará asociada a tu cuenta: ");
+      _LANG_DEFINE_ACCOUNT_PASSWORD);
     input_to("create_account2",1);
     return;
   }
 
   tmppasswd = crypt(str, password);
-  
+
   if (password != tmppasswd)
   {
     write("Las contraseñas son distintas. Volvemos a empezar.\n"+
-      "Introduce la contraseña que estará asociada a tu cuenta: ");
+      _LANG_DEFINE_ACCOUNT_PASSWORD);
     input_to("create_account2",1);
-    return;   
+    return;
   }
-  
+
   create_account4();
 }
 
@@ -746,7 +742,7 @@ void create_account4()
   account->set_password(password);
   // account->add_player(name);
   account->update_last_connection();
-    
+
   write("\n   %^BOLD%^Nueva cuenta creada con el nombre '"+account_name+"'.%^RESET%^\n\n");
 
   _player->set_account_ob(account);
@@ -754,13 +750,13 @@ void create_account4()
   write("Pasamos ahora a crear el primer personaje de la cuenta.\n");
   write("Introduce el nombre de tu nuevo personaje: ");
   input_to("create_player",1);
-  return; 
+  return;
 }
 
 void create_player(string str)
 {
   int tmp;
-  
+
   if ((tmp = SECURE->valid_user_name(str)) != -1)
   {
     write("Caracter inválido '"+str[tmp..tmp]+"' en ("+str+").\n\n");
@@ -769,7 +765,7 @@ void create_player(string str)
     return;
   }
 
-  if (strlen(str) > MAX_LEN) 
+  if (strlen(str) > MAX_LEN)
   {
     write("El nombre es demasiado largo, el máximo son 11 caracteres.\n");
     write("Introduce el nombre de tu nuevo personaje: ");
@@ -777,7 +773,7 @@ void create_player(string str)
     return;
   }
 
-  if (strlen(str) < MIN_LEN) 
+  if (strlen(str) < MIN_LEN)
   {
     write("El nombre es demasiado corto, el mínimo son 3 caracteres.\n");
     write("Introduce el nombre de tu nuevo personaje: ");
@@ -800,31 +796,31 @@ void create_player(string str)
   input_to("check_player_name");
 }
 
-int check_player_name(string str) 
+int check_player_name(string str)
 {
   str = implode(explode(str," "),"");
 
-  if ((str[0] == 's') || (str[0] == 'S')) 
+  if ((str[0] == 's') || (str[0] == 'S'))
   {
     write("¿Tu personaje es hombre o mujer? (h/m): ");
     input_to("get_sex");
     return 1;
   }
-  else if ((str[0] == 'n') || (str[0] == 'N')) 
+  else if ((str[0] == 'n') || (str[0] == 'N'))
   {
-    write("De acuerdo, inténtalo de nuevo.\n");
+    write(_LANG_TRY_AGAIN);
     write("Introduce el nombre de tu personaje: ");
     input_to("create_player");
     return 1;
   }
 
-  write("Debes responder sí o no (s/n): ");
+  write(_LANG_ANSWER_YES_NO);
   input_to("check_player_name");
   return 1;
 
 } /* check_player_name() */
 
-void get_sex(string str) 
+void get_sex(string str)
 {
   int i;
   str = lower_case(str);
@@ -835,7 +831,7 @@ void get_sex(string str)
     input_to("get_sex");
     return;
   }
-  
+
   i = str[0];
 
   if ((i == 'h') || (i == 'H'))
@@ -848,7 +844,7 @@ void get_sex(string str)
     _player->set_gender(2);
     gender = 2;
   }
-  else 
+  else
   {
     write("Inténtalo con hombre o mujer (h/m): ");
     input_to("get_sex");
@@ -864,9 +860,9 @@ void get_sex(string str)
   begin(!query_property(GUEST_PROP));
 }
 
-mixed * stats() 
+mixed * stats()
 {
-  return ({ 
+  return ({
     ({ "Login validated", validated, }),
           });
 }

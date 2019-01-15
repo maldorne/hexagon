@@ -10,6 +10,7 @@
 #include <common/properties.h>
 #include <basic/money.h>
 #include <user/hud.h>
+#include <language.h>
 
 inherit history     "/lib/user/history";
 inherit alias       "/lib/user/alias";
@@ -217,7 +218,7 @@ static void open()
 static nomask void disconnect(varargs int silence)
 {
   if (!silence)
-    write("¡Vuelve dentro de poco!\n");  
+    write(_LANG_COME_AGAIN_SOON);
 }
 
 // called from the driver
