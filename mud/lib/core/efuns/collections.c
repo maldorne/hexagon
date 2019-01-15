@@ -52,7 +52,7 @@ static nomask object * users()
     return all;
 
   for (i = 0; i < sizeof(all); i++)
-    if (all[i]->query_invis() == 2) 
+    if (all[i] && (all[i]->query_invis() == 2)) 
       all -= ({ all[i] });
 
   return all -= ({ nil });
@@ -68,7 +68,7 @@ static nomask object * coders()
   result = ({ });
 
   for (i = 0; i < sizeof(all); i++)
-    if (all[i]->query_coder())
+    if (all[i] && all[i]->query_coder())
       result += ({ all[i] });
 
   return result;
