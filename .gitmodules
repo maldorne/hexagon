@@ -1,3 +1,4 @@
 [submodule "driver/dgd"]
-	path = driver/dgd
-	url = https://github.com/dworkin/dgd.git
+  path = driver/dgd
+  url = https://github.com/dworkin/dgd.git
+  ignore = dirty
