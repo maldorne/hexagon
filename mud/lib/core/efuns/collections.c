@@ -4,10 +4,10 @@
 // TODO children
 
 // Raskolnikov Nov 96
-object * children(string name) 
+object * children(string name)
 {
   //  int i;
-  //  object *obs; 
+  //  object *obs;
   //  string *block_list;
 
   //  block_list = ({
@@ -20,7 +20,7 @@ object * children(string name)
   //  obs = ::children(name);
   //  if(this_player() && this_player()->query_admin())
   //    return obs;
-  
+
   //  for (i = 0; i < sizeof(obs); i++)
   //    if (member_array(obs[i], block_list))
   //      if(obs[i]->query_invis() == 2)
@@ -41,18 +41,18 @@ static nomask object * users()
   object * all;
   int i;
 
-  if (!this_object()) 
+  if (!this_object())
     return ({ });
-  else if (object_name(this_object()) == USER_HANDLER) 
+  else if (object_name(this_object()) == USER_HANDLER)
     all = ::users();
-  else 
+  else
     all = ::find_object(USER_HANDLER)->query_users();
 
   if (this_player() && this_player()->query_admin())
-    return all;
+    return all -= ({ nil });
 
   for (i = 0; i < sizeof(all); i++)
-    if (all[i] && (all[i]->query_invis() == 2)) 
+    if (all[i] && (all[i]->query_invis() == 2))
       all -= ({ all[i] });
 
   return all -= ({ nil });
