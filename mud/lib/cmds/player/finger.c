@@ -4,60 +4,62 @@
 
 inherit CMD_BASE;
 
-void setup()   
+void setup()
 {
   position = 0;
 }
 
-string query_usage()   
+string query_usage()
 {
   return "finger <nombre>";
 }
 
-static int cmd(string str, object me, string verb) 
+static int cmd(string str, object me, string verb)
 {
   string ret, ttl;
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
     object *obs;
     string type;
     int i;
     obs = users();
-    
+
     write(sprintf("%-12.12s    %-20.20s %-20.20s %-20.20s\n",
         "Nombre", "Nombre real", "Domicilio", "Cumpleaños"));
-    
+
     for (i = 0; i < sizeof(obs); i++)
     {
       string euid;
       string rnstr;
       string pname;
-  
-      if (obs[i]->query_invis() && !this_player()->query_coder())  
+
+      if (obs[i]->query_invis() && !this_player()->query_coder())
       	continue;
-      
+
       if ((int)obs[i]->query_invis() > 1 && !this_player()->query_administrator())
       	continue;
-      
-      type = (obs[i]->query_earmuffs() ? "e" : " ");
+
+      // type = (obs[i]->query_earmuffs() ? "e" : " ");
       euid = geteuid(obs[i]);
-      rnstr = (string)obs[i]->query_account_real_name();
-      pname = obs[i]->query_cap_name();
       type = obs[i]->query_object_type();
-  
-      if (rnstr && rnstr[0..0] == ":")
-      	if (!MASTER->valid_read("/save/players/"+pname[0..0]+"/"+pname,
-            geteuid(this_player(1))))
-          rnstr = "-";
 
       if (obs[i]->query_name() != "logon")
       {
         if (obs[i]->query_object_type() != "X")
         {
           string r;
+
+          rnstr = (string)obs[i]->query_account_real_name();
+          pname = obs[i]->query_cap_name();
+
+          if (rnstr && rnstr[0..0] == ":")
+            if (!MASTER->valid_read("/save/players/"+pname[0..0]+"/"+pname,
+                geteuid(this_player(1))))
+              rnstr = "-";
+
           r = sprintf("%-12.12s %2.2s %-20.20s %-20.20s %-20.20s\n",
-            (obs[i]->query_invis()?"("+obs[i]->query_cap_name()+")":""+obs[i]->query_cap_name()),
+            (obs[i]->query_invis() ? "(" + obs[i]->query_cap_name() + ")" : "" + obs[i]->query_cap_name()),
             type,
             (rnstr?rnstr:" "),
             ((ret = obs[i]->query_account_location())?ret:" "),
@@ -66,11 +68,12 @@ static int cmd(string str, object me, string verb)
         }
       }
     }
+
     return 1;
-  }	
+  }
 
   str = (string)this_player()->expand_nickname(str);
-  
+
   if ("/lib/core/secure/bastards.c"->query_banish_reason(str))
   {
     string retval;
@@ -89,22 +92,22 @@ static int cmd(string str, object me, string verb)
 
   ret = (string)"/lib/core/secure/finger"->finger_info(str, me);
 
-  if (strlen(ret)) 
+  if (strlen(ret))
   {
     write(sprintf("%p%|*s\n\n", '-', this_player()->query_cols()+18, ttl));
     write(ret);
     write(sprintf("\n%p%|*s\n\n", '-', this_player()->query_cols()+18, ttl));
     return 1;
-  } 
+  }
   /*
   else if (me->query_coder() &&
-      sscanf(str, "%s@%s", mud, mud) == 2) 
+      sscanf(str, "%s@%s", mud, mud) == 2)
   {
     "/net/daemon/out_finger"->do_finger(str);
     return 1;
   }
   */
-  else 
+  else
   {
     notify_fail("Nadie con el nombre " + str + " ha visitado "+mud_name()+".\n");
     return 0;
