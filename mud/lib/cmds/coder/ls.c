@@ -1,5 +1,5 @@
 /*
- * this does an ls, now that get_dir has been written 
+ * this does an ls, now that get_dir has been written
  * Modified by Turrican 13-7-95 with nicked code from TMI-2's ftpd.
  * - Added different options.
  * Modified by Dyraen@Rod, made external. 5-Nov-95
@@ -26,28 +26,28 @@
 inherit CMD_BASE;
 
 object tp;
- 
+
 void setup() {
   position = CODER_CMD;
 }
- 
+
 string query_usage() {
   return "-ahcdflopCF [directorio|archivo]";
 }
- 
+
 string query_short_help() {
   return "Lista los archivos en el directorio actual.";
 }
 
-string dir_entry(string path, string name, int mask, object me) 
+string dir_entry(string path, string name, int mask, object me)
 {
-  int size; 
+  int size;
   string *obs;
   string tmp, h_size;
 
   size = file_size(get_path(path + name));
 
-  if (size == -2) 
+  if (size == -2)
   {
     obs = get_dir((tmp = get_path(path + name)) +
           (tmp == "/"?"":"/"));
@@ -61,10 +61,10 @@ string dir_entry(string path, string name, int mask, object me)
       name += "/";
 
     return "[    "[0..4 - strlen(size + "]")] + size + "] " + name;
-  } 
-  else 
+  }
+  else
   {
-    // if (virtual_find_object(path+name)) 
+    // if (virtual_find_object(path+name))
     // {
     //   if (mask & MASK_F)
     //     name += "*";
@@ -82,21 +82,21 @@ string dir_entry(string path, string name, int mask, object me)
         h_size = "" + (size/1024) + "K";
       else
         h_size = "" + size + "B";
-    }    
+    }
 
     return "     "[0..5 - strlen(h_size)] + h_size + " " + name;
   }
 } /* dir_entry() */
- 
-int ls(string str, int mask, object me) 
+
+int ls(string str, int mask, object me)
 {
   mixed *direc;
   string *bit, *bing, bong, path;
   int i, j, size;
   string h_size;
- 
+
   seteuid(geteuid(me));
-  path = str; 
+  path = str;
 
   if (file_size(str) == -2 && str[strlen(str)-1] != '/' && !(mask & MASK_D))
     path += "/";
@@ -106,24 +106,24 @@ int ls(string str, int mask, object me)
 
   direc = get_dir(path);
 
-  if (!direc) 
+  if (!direc)
   {
     notify_fail("No files.\n");
     return 0;
   }
 
-  if (!sizeof(direc)) 
+  if (!sizeof(direc))
   {
     notify_fail("No files.\n");
     return 0;
   }
 
-  if (file_size(path) == -2) 
+  if (file_size(path) == -2)
   {
     if (path[strlen(path)-1] != '/')
       path += "/";
-  } 
-  else 
+  }
+  else
   {
     bit = explode(path, "/");
     bit = bit[0..sizeof(bit)-2];
@@ -140,18 +140,18 @@ int ls(string str, int mask, object me)
 
   // moved after filter_array, neverbot 05/2006
   bing = allocate(sizeof(direc));
-  j = sizeof(direc); 
+  j = sizeof(direc);
 
-  if (!(mask & MASK_C) && !(mask & MASK_L)) 
+  if (!(mask & MASK_C) && !(mask & MASK_L))
   {
-    if (!(mask & MASK_F) && !(mask & MASK_O)) 
+    if (!(mask & MASK_F) && !(mask & MASK_O))
     {
       bong = sprintf("%-*s", me->query_cols(), implode(direc, "\n"));
       bing = explode(bong, "\n");
     }
-    else 
+    else
     {
-      for (i=0; i < j; i++) 
+      for (i=0; i < j; i++)
       {
         if (file_size(path+direc[i]) == -2 || direc[i] == "..")
           if (mask & MASK_O)
@@ -175,41 +175,41 @@ int ls(string str, int mask, object me)
       }
     }
     bong = implode(bing, "\n");
-  } 
-  else if (!(mask & MASK_L)) 
+  }
+  else if (!(mask & MASK_L))
   {
-    j = sizeof(direc);     
+    j = sizeof(direc);
 
-    for ( i = 0; i < j; i++ ) 
+    for ( i = 0; i < j; i++ )
     {
-      if ( strlen( direc[ i ] ) > 35 ) 
+      if ( strlen( direc[ i ] ) > 35 )
       {
         write(dir_entry(path, direc[i], mask, me) + "\n");
         bing = delete(bing, i, 1);
         direc = delete(direc, i--, 1);
         j--;
         continue;
-      } 
-      else 
+      }
+      else
         bing[i] = dir_entry(path, direc[i], mask, me) + "\n";
     }
 
     bong = sprintf("%#-*s", me->query_cols(), implode(bing, ""));
 
-    if (mask & MASK_O) 
+    if (mask & MASK_O)
     {
-      // Boy, it's hard to work with colors and sprintf. *sigh* 
+      // Boy, it's hard to work with colors and sprintf. *sigh*
       // *especially* in column mode :-(
       i = j;
-      while (i--) 
+      while (i--)
       {
         if (file_size(path+direc[i]) == -2 || direc[i] == "..")
-          bong = replace_string(bong, " "+direc[i], 
+          bong = replace_string(bong, " "+direc[i],
             // sprintf(" %s%s%s", "%^GREEN%^", direc[i], "%^RESET%^"));
             " %^GREEN%^" + direc[i] + "%^RESET%^");
 
         // else if (virtual_find_object(path+direc[i]))
-        //   bong = replace_string(bong, " "+direc[i], 
+        //   bong = replace_string(bong, " "+direc[i],
         //     sprintf(" %s%s%s", "%^MAGENTA%^", direc[i], "%^RESET%^"));
         //     " %^MAGENTA%^" + direc[i] + "%^RESET%^");
 
@@ -220,15 +220,15 @@ int ls(string str, int mask, object me)
             " %^WHITE%^" + direc[i] + "%^RESET%^");
       }
     }
-  } 
-  else 
+  }
+  else
   {
     string tmp, tmp2, fname;
     int *count;
     object loaded;
 
     // if path is a directory get contents
-    if ( file_size( str ) == -2 && !(mask & MASK_D)) 
+    if ( file_size( str ) == -2 && !(mask & MASK_D))
     {
         if ( str[ strlen( str ) - 1 ] == '/' )
             str += "*";
@@ -256,25 +256,25 @@ int ls(string str, int mask, object me)
     if (i >= 0)
         str = str[0..i];
 
-    for (i = 0; i < size; i++) 
+    for (i = 0; i < size; i++)
     {
       reset_eval_cost();
 
-      // process timestamp 
+      // process timestamp
       // tmp2 = ctime((direc[i])[2], 0); // get last modified timestamp
       // shorter date string, neverbot 23/11/03
 
       tmp2 = ctime(direc[i][2], 4); // get last modified timestamp
-      if ((direc[i])[2] + (604800) < time()) 
+      if ((direc[i])[2] + (604800) < time())
         tmp = tmp2;
-      else 
+      else
         tmp = sprintf("%s", ctime(direc[i][2], 4)); // shorter date string
         // tmp = sprintf("%s", ctime(direc[i][2], 0));
         // tmp = sprintf("%s %s", ctime(direc[i][2]), tmp2[10..16]);
 
       j = (direc[i])[1];   /* get filesize */
 
-      if (j == -2) 
+      if (j == -2)
       {
         count[i] = 1;
 
@@ -301,18 +301,18 @@ int ls(string str, int mask, object me)
           (FPERM->query_fperms(str+direc[i][0])?
           FPERM->query_fperms(str+direc[i][0])[0]:CREATOR_D), DOMAIN_D,
           */
-          CREATOR, // capitalize(CREATOR), 
+          CREATOR, // capitalize(CREATOR),
           DOMAIN, // capitalize(DOMAIN),
           sizeof(get_dir(get_path(sprintf("%s%s/*", str, direc[i][0])))),
-          tmp, 
+          tmp,
           (mask & MASK_O?"%^GREEN%^":""),
           (direc[i][0]), (mask & MASK_O?"%^RESET%^":""),
           (mask & MASK_F?"/":"")));
-      } 
-      else 
+      }
+      else
       {
         /* file */
-        
+
         // file-size, human-readable, Folken 05/06
         h_size = "" + j;
         if (mask & MASK_H)
@@ -322,17 +322,17 @@ int ls(string str, int mask, object me)
           else if (j > 1024)
             h_size = j /1024+ "K";
         }
-        
+
         count[i] = 0;
 
         fname = (""+direc[i][0]);
         if (strlen(fname) > 19)
           fname = fname[0..19];
-        
+
         // loaded = virtual_find_object(str+direc[i][0]);
         loaded = find_object(str+direc[i][0]);
         bit[i] = sprintf("%-*s", (me->query_cols()+
-          ((mask & MASK_O) && loaded?19:0)), 
+          ((mask & MASK_O) && loaded?19:0)),
           sprintf("-rw%c%c%c-%c%c-   1 %-8.8s %-8.8s %6s %12s %s%s%s%s",
           (loaded ? 'x' : '-'),
           (SECURE->valid_read(sprintf("%s/%s", str, direc[i][0]),
@@ -345,14 +345,14 @@ int ls(string str, int mask, object me)
                               NOBODY_EUID, "get_dir")?'w':'-'),
           /*
           (FPERM->query_fperms(str+direc[i][0])?
-          FPERM->query_fperms(str+direc[i][0])[0]:CREATOR),DOMAIN, j, tmp, 
+          FPERM->query_fperms(str+direc[i][0])[0]:CREATOR),DOMAIN, j, tmp,
           */
-          CREATOR, // capitalize(CREATOR), 
-          DOMAIN, // capitalize(DOMAIN), 
-          h_size, 
+          CREATOR, // capitalize(CREATOR),
+          DOMAIN, // capitalize(DOMAIN),
+          h_size,
           tmp,
           ((mask & MASK_O) && loaded?"%^MAGENTA%^":""),
-          fname, 
+          fname,
           ((mask & MASK_O) && loaded?"%^RESET%^":""),
           (loaded?(mask & MASK_F?"*":""):"")));
       }
@@ -368,14 +368,14 @@ int ls(string str, int mask, object me)
   return 1;
 } /* ls() */
 
-int check_dots(mixed arg, int flag) 
+int check_dots(mixed arg, int flag)
 {
   // if (flag)
   //   return (arg[0][0..0] != "." );
   return (arg[0..0] != "." );
 }
 
-int is_dir(mixed arg, string path) 
+int is_dir(mixed arg, string path)
 {
   // if (!tp)
   //   return (file_size(get_path(sprintf("%s/%s", path, arg))) == -2);
@@ -383,20 +383,20 @@ int is_dir(mixed arg, string path)
     return (file_size(get_path(sprintf("%s/%s", path, arg))) == -2);
 }
 
-static int cmd(string str, object me, string verb) 
+static int cmd(string str, object me, string verb)
 {
   string flags;
   int mask, i;
 
   tp = me;
 
-  if (!strlen(str)) 
+  if (!strlen(str))
     str = "";
-  
+
   if ( (sscanf(str,"-%s %s", flags, str) == 2) ||
        (sscanf(str,"-%s", flags) == 1) )
     for (i=0;i<strlen(flags);i++)
-      switch(flags[i..i]) 
+      switch(flags[i..i])
       {
         case "a": mask |= MASK_A;
                   break;
@@ -420,10 +420,10 @@ static int cmd(string str, object me, string verb)
                   break;
       }
 
-  if (!mask) 
+  if (!mask)
     mask = 42;
 
-  if (strlen(str) && (str[0..0] == "-")) 
+  if (strlen(str) && (str[0..0] == "-"))
     str = "";
 
   str = get_path(str);

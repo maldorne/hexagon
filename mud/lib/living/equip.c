@@ -1,6 +1,6 @@
 /*
  * Archivo que une wear.c y hold.c
- * Tambien incluye el antiguo /global/living/armour.c, ahora eliminado (anteriormente 
+ * Tambien incluye el antiguo /global/living/armour.c, ahora eliminado (anteriormente
  *  hold y wear se unian en armour.c)
  *
  * Tambien se incluye aqui la funcion query_living_contents, del antiguo
@@ -12,7 +12,6 @@
  * Autoequiparse extraido, ahora en consent.c, Folken 08/09
  */
 
-#include <user/player.h>
 #include <basic/money.h>
 #include <living/equip.h>
 
@@ -25,7 +24,7 @@ void create()
   hold::create();
 }
 
-void equip_commands() 
+void equip_commands()
 {
   add_action("do_equip",  "equipar");
   add_action("do_equip",  "equiparse");
@@ -39,14 +38,14 @@ void recalc_max_dex_bon()
 
   max = 100;
 
-  // Creamos una lista con todos los objetos empuñados y vestidos
+  // create a list with every wielded and worn object
   obs = this_object()->query_weapons_wielded() - ({ 0 });
   obs += this_object()->query_worn_ob() - ({ 0 });
-  
+
   for (i = 0; i < sizeof(obs); i++)
-    // Nos aseguramos de que el objeto tendra la funcion query_max_dex_bon
-    //  (todas las armaduras y armas la tienen).
-    if ((obs[i]->query_armour() || obs[i]->query_weapon()) && 
+    // be sure the object has the query_max_dex_bon function
+    //  (every armour and weapon have it)
+    if ((obs[i]->query_armour() || obs[i]->query_weapon()) &&
        (obs[i]->query_max_dex_bon() != -1) &&
        (obs[i]->query_max_dex_bon() < max))
       max = obs[i]->query_max_dex_bon();
@@ -58,18 +57,18 @@ void recalc_max_dex_bon()
 }
 
 mapping query_total_equip_ac()
-{ 
-  // return query_total_worn_ac() + query_total_held_ac(); 
-  // Tenemos que sumar los mappings:
+{
+  // return query_total_worn_ac() + query_total_held_ac();
+  // add the mappings
   int i;
   mapping ret;
   string * types;
-  
+
   ret = ([ ]);
   types = keys(query_total_worn_ac());
 
   for (i = 0; i < sizeof(types); i++){
-    ret[types[i]] = query_total_worn_ac()[types[i]] + 
+    ret[types[i]] = query_total_worn_ac()[types[i]] +
                     query_total_held_ac()[types[i]];
   }
   return ret;
@@ -105,7 +104,7 @@ int do_equip(string str)
    int i, j;
 
    // Assum going to tell us something about the autoequip
-   if (strlen(str)) 
+   if (strlen(str))
    {
       // Now in consent
       // if (str == "off") {
@@ -132,13 +131,13 @@ int do_equip(string str)
    // Split into holdables and wearables
    for (i = 0; i < sizeof(obs); i++)
    {
-     if (!interactive(this_object()) && obs[i]->query_static_property(PC_GAVE_NPC_PROPERTY)) 
+     if (!interactive(this_object()) && obs[i]->query_static_property(PC_GAVE_NPC_PROPERTY))
       continue;
 
      if ( (obs[i]->query_holdable()) && !obs[i]->query_in_use() )
        holds += ({ obs[i] });
 
-     // Items can be both not_holdable & not_wearable, so we have to 
+     // Items can be both not_holdable & not_wearable, so we have to
      // check both.
      if ((obs[i]->query_wearable()) && !obs[i]->query_in_use() )
        wears += ({ obs[i] });
@@ -146,7 +145,7 @@ int do_equip(string str)
 
    // First of all, take care of holdables.
    // The 'if' here is to save a few for-loop checks later
-   if (sizeof(holds)) 
+   if (sizeof(holds))
    {
      object *wpns, *harms;
 
@@ -155,13 +154,13 @@ int do_equip(string str)
      for (i = 0; i < sizeof(holds); i++)
        if (holds[i]->query_weapon())
          wpns += ({ holds[i] });
-       // Weapons can have AC, but they are taken care of by the above 
+       // Weapons can have AC, but they are taken care of by the above
        // else if (holds[i]->query_ac_type()) // Folken
        else if (holds[i]->query_ac() && !holds[i]->query_armour())
          harms += ({ holds[i] });
 
      holds = holds - wpns - harms;
-     
+
      // Wield a weapon, remember to check if it's actually wielded
      // as it may be a twohanded weapon (or worse) and the person
      // may only have 1 hand. I.e. a loop...
@@ -189,21 +188,21 @@ int do_equip(string str)
      // not. Need another function in hold.c for that.
      // As the number of objects in someone inv tend to be low, this ain't
      // too bad...
-     for (j = 0; j < sizeof(wpns); j++) 
+     for (j = 0; j < sizeof(wpns); j++)
              this_object()->hold_ob(wpns[j]);
 
      // More holdable armour, same problem as above.
-     for (j = 0; j < sizeof(harms); j++) 
+     for (j = 0; j < sizeof(harms); j++)
              this_object()->hold_ob(harms[j]);
 
      // holding rest of junk (torches, whatever)
-     for (j = 0; j < sizeof(holds); j++) 
+     for (j = 0; j < sizeof(holds); j++)
              this_object()->hold_ob(holds[j]);
 
      // End of the line for holdable objects. Either we've got
      // no hands left or no holdable objects left.
    }
-   
+
    // Then put some clothes/armour on the naked critter.
    if (sizeof(wears))
    {
@@ -217,13 +216,13 @@ int do_equip(string str)
         warms += ({ wears[i] });
      // Subtract one from the other to split the original array
      wears -= warms;
-     
+
      // First of all, we burn through the loop of wearable armour
-     for ( j = 0; j < sizeof(warms); j++) 
+     for ( j = 0; j < sizeof(warms); j++)
        this_object()->wear_ob(warms[j]);
-    
+
     // Then anything without ac.
-    for ( j = 0; j < sizeof(wears); j++) 
+    for ( j = 0; j < sizeof(wears); j++)
      this_object()->wear_ob(wears[j]);
     // End of line here as well.
     // No more objects to wear or no more slots free.
@@ -238,9 +237,9 @@ int do_equip(string str)
 
 private int sort(object s1, object s2)
 {
-  if (s1->query_armour_type()>s2->query_armour_type()) 
+  if (s1->query_armour_type()>s2->query_armour_type())
     return 1;
-  if (s1->query_armour_type()<s2->query_armour_type()) 
+  if (s1->query_armour_type()<s2->query_armour_type())
     return -1;
   return 0;
 }
@@ -272,19 +271,19 @@ string query_living_contents(int self)
   // Tipos de Armaduras existentes
   string * armour_type_locations;
 
-  armour_type_locations = ({ 
-          BODY_OBJECT,      
-          SHIELD_OBJECT,    
-          HEAD_OBJECT,      
-          FEET_OBJECT,      
-          NECK_OBJECT,      
-          SHOULDERS_OBJECT, 
-          FINGER_OBJECT,    
-          HANDS_OBJECT,     
-          ARM_OBJECT,       
-          BELT_OBJECT,      
-          LEGS_OBJECT,      
-          PENDANT_OBJECT,   
+  armour_type_locations = ({
+          BODY_OBJECT,
+          SHIELD_OBJECT,
+          HEAD_OBJECT,
+          FEET_OBJECT,
+          NECK_OBJECT,
+          SHOULDERS_OBJECT,
+          FINGER_OBJECT,
+          HANDS_OBJECT,
+          ARM_OBJECT,
+          BELT_OBJECT,
+          LEGS_OBJECT,
+          PENDANT_OBJECT,
           // This one must be the last
           TIED_OBJECT, // Wearable in a non specific position
           // UNIDENTIFIED_OBJECT,  // Unidentified object
@@ -305,14 +304,14 @@ string query_living_contents(int self)
   held -= wpn;
   worn = sort_array(worn, "sort");
   money = present(MONEY_NAME, this_object()); // Dinero
-  carry = all_inventory(this_object()) - wpn - held 
+  carry = all_inventory(this_object()) - wpn - held
           - worn - ({ money });               // Resto de objetos
   carry = filter(carry, "filter_short");      // Elimino objetos "ocultos",
                                               // quedandonos solo con los que
                                               // responden a la funcion
                                               // query_short
 
-  if (sizeof(wpn))  
+  if (sizeof(wpn))
     strs += ({ sprintf( "%-11s", "Empuñando"), capitalize(query_multiple_short(wpn, 1)) + "."});
 
   // Supondremos que la primera arma esta en la derecha y la segunda
@@ -329,9 +328,9 @@ string query_living_contents(int self)
   //   }
   // }
 
-  if (sizeof(held)) 
+  if (sizeof(held))
     strs += ({ sprintf( "%-11s", "Sosteniendo"), capitalize(query_multiple_short(held, 1)) + "."});
-          
+
   if (sizeof(worn))
   {
     // Quito los objetos de tipo 0
@@ -339,14 +338,14 @@ string query_living_contents(int self)
     ret   = query_multiple_short(wpn, 1);
     worn -= wpn;
 
-    if (ret != "") 
+    if (ret != "")
       ret += ".";
 
     strs += ({ sprintf( "%-11s", "Llevando"), ret });
 
     col = 0;
     wpn = ({ });
-    
+
     for (i = 0; i < sizeof(armour_type_locations); i++)
     {
       wpn = ({ });
@@ -355,7 +354,7 @@ string query_living_contents(int self)
         if (worn[j]->query_armour_type() == i+1)
         {
           wpn += ({ worn[j] });
-        }     
+        }
       }
       if (sizeof(wpn))
       {
@@ -366,14 +365,14 @@ string query_living_contents(int self)
       }
     }
   }
-  
-  if (sizeof(carry) && (self != 2))  
+
+  if (sizeof(carry) && (self != 2))
     strs += ({ sprintf( "%-11s", "Cargando"), query_multiple_short(carry, 1) + "." });
             // sprintf(
-            //         "%-=*s", 
-            //         (this_object()?(this_object()->query_cols()):79), 
-            //         query_multiple_short(carry) + "." 
-            //        ); 
+            //         "%-=*s",
+            //         (this_object()?(this_object()->query_cols()):79),
+            //         query_multiple_short(carry) + "."
+            //        );
 
   // col = this_player()?(this_player()->query_cols()-13):79-13;
 
@@ -396,12 +395,12 @@ string query_living_contents(int self)
       s += "No llevas dinero encima.";
     else
       s += sprintf(
-           "%-*s", 
-           (this_player()?(this_player()->query_cols()):79), 
-           "Llevas encima " + ret+".");     
+           "%-*s",
+           (this_player()?(this_player()->query_cols()):79),
+           "Llevas encima " + ret+".");
   }
-  else  
-    if (money) 
+  else
+    if (money)
     {
       switch(money->query_number_coins())
       {
@@ -411,15 +410,15 @@ string query_living_contents(int self)
         default:       s += "¡Lleva una bolsa de monedas a punto de reventar!";
       }
     }
-  
+
   // Evitamos un retorno de carro de mas cuando un jugador/npc
   //  no lleva nada en el inventario
-  if (s != "") 
+  if (s != "")
     s += "\n";
   return s;
 }
 
-mixed stats() 
+mixed stats()
 {
   return wear::stats() + hold::stats();
 }

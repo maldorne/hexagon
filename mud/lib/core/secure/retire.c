@@ -1,6 +1,6 @@
 /* The first attempt on a Retire command.
- * It will make the players able to delete their own charachters. 
- * Baldrick march '94 
+ * It will make the players able to delete their own charachters.
+ * Baldrick march '94
  * Put it in /secure/master and add it to master.c (#include).
  * Add an add_action and a call in player.c (test on force!)
  * Moved to /cmds and translated by neverbot 4/2003
@@ -9,7 +9,7 @@
 
 #include <files/post.h>
 #include <basic/money.h>
-#include <user/player.h>
+#include <user/user.h>
 
 #define MAX_RETRYS 1
 
@@ -22,7 +22,7 @@ int no_times;
 static int put_password(string str);
 static int do_retirejob(string name);
 
-int try_retire(object who) 
+int try_retire(object who)
 {
   if(who->query_coder())
   {
@@ -38,9 +38,9 @@ int try_retire(object who)
 
   input_to("put_password", 1);
   return 1;
-} 
+}
 
-int test_password(string name, string pass) 
+int test_password(string name, string pass)
 {
   string tmp;
   string account_name;
@@ -50,34 +50,34 @@ int test_password(string name, string pass)
   if (!stringp(name) || strlen(name) < 2 || sscanf(name, "%s %s", tmp, tmp)
     || name[0] == '.' || sscanf(name, "%s..%s", tmp,tmp))
     return 0;
-  
-  // now with accounts, neverbot 12/2010  
+
+  // now with accounts, neverbot 12/2010
   // if (!restore_object("/save/players/"+name[0..0]+"/"+name,1))
   if (!restore_object("/save/accounts/"+account_name[0..0]+"/"+account_name))
     return 0;
-    
+
   return crypt(pass, password) == password;
 } /* test_password() */
 
-static int put_password(string str) 
+static int put_password(string str)
 {
     // string bing;
   string playername;
 
   playername = this_player()->query_name();
-  
-  if (!str || str == "") 
+
+  if (!str || str == "")
   {
     write("Sin contraseña no puedes retirarte.\n");
     return 0;
-  } 
-  
+  }
+
   if (!test_password(playername, str))
   {
     write("Contraseña equivocada, no puedes retirarte.\n");
     return 0;
-  } 
-  
+  }
+
   do_retirejob(playername);
   return 1;
 } /* put_password() */
@@ -89,7 +89,7 @@ static int put_password(string str)
 static int do_retirejob(string name)
 {
   object acc;
-  
+
   // remove exploration data
   if (file_size("/save/explorers/" + name[0..0] + "/" + name + ".o"))
     rm ("/save/explorers/" + name[0..0] + "/" + name + ".o");
@@ -103,7 +103,7 @@ static int do_retirejob(string name)
   acc->restore_me(this_player()->query_account_name());
   acc->remove_player(name);
   acc->update_last_connection();
-  
+
   // last but not least, remove the character
   rm ("/save/players/" + name[0..0] + "/" + name + ".o");
 
@@ -123,11 +123,11 @@ static int do_retirejob(string name)
 
   write("Ahora eres un invitado.\n"+
     "Sal del juego para eliminar definitivamente el personaje.\n");
-    
+
   /* Wonerflug1997, adding a log til someone fixes the bug */
   log_file("retirar", this_player()->query_cap_name()+" se ha retirado, "+
     ctime(time(), 4)+".\n");
-    
+
   return 0;
 } /* do_retire */
 

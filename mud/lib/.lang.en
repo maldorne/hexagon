@@ -1,4 +1,4 @@
 
 // user.c
 
-#define _LANG_COME_AGAIN_SOON "\nCome again soon!\n"
+#define _LANG_DISCONNECTED "\nDisconnected.\n"

@@ -9,7 +9,7 @@
 inherit "/lib/room";
 
 #include <living/races.h>
-#include <user/player.h>
+#include <user/user.h>
 
 #define PATH "/doc/races/"
 // TODO /game races
@@ -39,7 +39,7 @@ void obtain_data()
   // get every file and directory in /lib/obj/races
   race_files = get_dir(OBS);
   for (i = 0; i < sizeof(race_files); i++)
-  { 
+  {
     if (ob = clone_object(OBS + race_files[i]))
     {
       if (ob->query_is_race_ob() && (ob->query_name() != "desconocido") &&
@@ -51,16 +51,16 @@ void obtain_data()
         // races += ({ ob->query_name() });
         // descripciones += ({ ob->query_desc() });
       }
-    } 
+    }
   }
 }
 
 void setup()
 {
   int num_races;
-  
+
   obtain_data();
-  
+
   num_races = map_sizeof(races);
 
   set_light((LHUMANH - LHUMANL)/2);
@@ -78,7 +78,7 @@ void setup()
     "%^BOLD%^Escribe <mirar cofres> para tener más información.%^RESET%^\n");
 
   add_item( "plataforma", "Te encuentras en una plataforma de divina luz que flota en "+
-    "mitad de una nada de absoluta oscuridad.\n");  
+    "mitad de una nada de absoluta oscuridad.\n");
   add_item(({"cofres","cofre","efigie","efigies"}), "Puedes ver a tu alrededor pequeños cofres con las "+
     "efigies de seres de las más diversas razas de "+mud_name()+". Concretamente "+
     "observas dibujos de un "+query_multiple_short(keys(races))+".\n"+
@@ -137,13 +137,13 @@ void event_enter(object who, varargs string msg, object from, mixed avoid)
 int do_open_chest(string str)
 {
   string * lista;
-  
+
   if (!str || (str == ""))
   {
     tell_object(this_player(), "¿Abrir el qué?\n");
     return 1;
   }
-  
+
   lista = explode(str, " ");
 
   if (sizeof(lista) < 2)
@@ -152,7 +152,7 @@ int do_open_chest(string str)
     return 1;
   }
 
-  if ((lista[0] != "cofre") || 
+  if ((lista[0] != "cofre") ||
   (member_array(lista[1], keys(races)) == -1))
   {
     tell_object(this_player(), "¿Abrir el qué?\n");
@@ -189,10 +189,10 @@ int do_open_chest(string str)
     this_player()->set_race_ob(OBS + lista[1]);
     log_file(LOG, this_player()->query_cap_name() + ": "+
       lista[1] + " " + ctime(time(),4) + "\n");
-  } 
+  }
 
   // Nuevo sistema de alineamiento, Folken 6/03
-  // Aqui solo llegamos si no hay subraza (en caso de subraza el 
+  // Aqui solo llegamos si no hay subraza (en caso de subraza el
   // alineamiento se establece en /game/areas/start/inicio_2.c
   this_player()->set_ext_align((this_player()->query_race_ob())->query_ext_align());
 

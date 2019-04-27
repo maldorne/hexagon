@@ -1,10 +1,10 @@
 
-#define CURRENT_DIR "Current directory"
-#define WRONG_DIR "Wrong directory"
-#define AMBIGUOUS_DIRECTORY "Ambiguous directory.\n"
-#define NONEXISTANT_DIRECTORY "Non existant directory.\n"
+#define _LANG_CURRENT_DIR "Current directory"
+#define _LANG_WRONG_DIR "Wrong directory"
+#define _LANG_AMBIGUOUS_DIRECTORY "Ambiguous directory.\n"
+#define _LANG_NONEXISTANT_DIRECTORY "Non existant directory.\n"
 
-#define CD_ERROR_WIZ "Error: wrong wiz_present call, impossible cd.\n"
+#define _LANG_CD_ERROR_WIZ "Error: wrong wiz_present call, impossible cd.\n"
 
-#define NO_HOMEDIR "You have no homedir. Use 'homedir <directory>' to set it.\n"
-#define HOMEDIR_SET "Homedir set to '"+home_dir+"'.\n"
+#define _LANG_NO_HOMEDIR "You have no homedir. Use 'homedir <directory>' to set it.\n"
+#define _LANG_HOMEDIR_SET "Homedir set to '"+home_dir+"'.\n"

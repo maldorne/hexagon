@@ -9,7 +9,7 @@
  * deity_ob      - Religion que profesa
  * city_ob       - Ciudadania
  * class_ob      - Clase (gremio "generico")
- * 
+ *
  * El archivo deja de ser guild-race.c para pasar a ser groups_obs.c (No se a quien
  * se le ocurrio poner un '-' en medio de un nombre de archivo, ya que hace imposible
  * cosas como guild-race::funcion() y similares.
@@ -17,7 +17,7 @@
  *
  * Modificado el antiguo guild_joined, para mantener registro de guilds a los que
  * el jugador ha pertenecido. neverbot 18/7/03
- * 
+ *
  * Extraido todo lo relacionado con los antiguos comandos (gr_commands)
  *  para crear nuevo sistema de dotes (feats.c), neverbot 11/10/08
  *
@@ -27,7 +27,8 @@
  * Renamed as social.c, neverbot 10/2016
  */
 
-#include <user/player.h>
+#include <user/user.h>
+#include <living/living.h>
 #include <living/social.h>
 #include <living/races.h>
 #include <mud/secure.h>
@@ -62,8 +63,8 @@ void create()
   class_level = 0;
   job_level = 0;
   job_xp = 0;
-  total_job_xp = 0;    
-  
+  total_job_xp = 0;
+
   feats::create();
   specs::create();
 }
@@ -73,7 +74,7 @@ void set_social_object_list(string * list)
 {
   // allow the login process (and migrations) to change this
   if (!SECURE->valid_progname("/lib/core/login"))
-    return;  
+    return;
 
   social_object_list = list;
 }
@@ -94,7 +95,7 @@ void start_player()
     catch(social_object_list[GROUP_OB]->start_player(this_object()));
   if (social_object_list[RACEG_OB])
     catch(social_object_list[RACEG_OB]->start_player(this_object()));
-  if (social_object_list[JOB_OB]) 
+  if (social_object_list[JOB_OB])
     catch(social_object_list[JOB_OB]->start_player(this_object()));
   if (social_object_list[DEITY_OB])
     catch(social_object_list[DEITY_OB]->start_player(this_object()));
@@ -102,7 +103,7 @@ void start_player()
     catch(social_object_list[CITY_OB]->start_player(this_object()));
   if (social_object_list[CLASS_OB])
     catch(social_object_list[CLASS_OB]->start_player(this_object()));
-} 
+}
 
 string query_gtitle()
 {
@@ -116,24 +117,24 @@ string query_gtitle()
   return "";
 }
 
-void set_race_ob(string str) 
+void set_race_ob(string str)
 {
   // string frog;
-    
-  if (!strlen(str)) 
+
+  if (!strlen(str))
     str = VALID_RACES_PATHS[0] + "unknown";
-  
+
   // if ( sscanf(str, "/%s", frog)==1)
   //   str = extract(str, 1);
 
-  if ((str[0..strlen(VALID_RACES_PATHS[0])-1] != VALID_RACES_PATHS[0]) && 
+  if ((str[0..strlen(VALID_RACES_PATHS[0])-1] != VALID_RACES_PATHS[0]) &&
       (str[0..strlen(VALID_RACES_PATHS[1])-1] != VALID_RACES_PATHS[1]))
   {
     write("Illegal path for set_race_ob.\n");
     return;
   }
 
-  if ( (file_size(str) < 0) && (file_size(str+".c") < 0) ) 
+  if ( (file_size(str) < 0) && (file_size(str+".c") < 0) )
   {
     tell_object(this_object(),"El intento de set_race_ob no ha funcionado. "+
       "Díselo a alguien que pueda arreglarlo.\n");
@@ -179,7 +180,7 @@ void set_race_ob(string str)
 
   this_object()->set_weight(social_object_list[RACE_OB]->query_race_weight());
   social_object_list[RACE_OB]->set_racial_bonuses(this_object());
-  
+
   // Problema: con subrazas esto añade el alias "Humano (Velan)" por ejemplo
   // this_object()->add_alias(lower_case(this_object()->query_race()));
   if (social_object_list[RACE_OB]->query_base_race())
@@ -195,7 +196,7 @@ void set_race_ob(string str)
     this_object()->add_alias(lower_case(this_object()->query_race_name()));
   }
 
-  // if (this_object()->query_player()) 
+  // if (this_object()->query_player())
   //  this_object()->add_alias("*"+lower_case(this_object()->query_race())+"*");
 
   // neverbot, nuevo sistema de alinamiento
@@ -208,7 +209,7 @@ void set_race_ob(string str)
   return;
 } /* set_race_ob() */
 
-void set_race(string str) 
+void set_race(string str)
 {
   set_race_ob(VALID_RACES_PATHS[1] + str);
 }
@@ -216,30 +217,30 @@ void set_race(string str)
 string query_race_ob() { return social_object_list[RACE_OB]; }
 
 // Nuevo sistema de subrazas, neverbot 6/03
-string query_base_race_name() 
-{ 
+string query_base_race_name()
+{
   object ob;
   if (social_object_list[RACE_OB])
     if (ob = load_object(social_object_list[RACE_OB]->query_base_race()))
-        return (string)ob->query_name(); 
+        return (string)ob->query_name();
   return "";
 }
 
-string query_base_race_ob() 
-{ 
+string query_base_race_ob()
+{
   string str;
   if (social_object_list[RACE_OB])
     if (str = social_object_list[RACE_OB]->query_base_race())
-        return str; 
+        return str;
   return "";
 }
 
 // Cambio: Ahora el query_race_name devuelve el name de la raza
 // y query_race devuelve su short!! neverbot 6/03
-string query_race_name() 
-{ 
+string query_race_name()
+{
   if (social_object_list[RACE_OB])
-    return ((string)social_object_list[RACE_OB]->query_name()); 
+    return ((string)social_object_list[RACE_OB]->query_name());
   else
     return "Sin Raza";
 }
@@ -265,16 +266,16 @@ int query_race_size()
 //  Nuevo objeto para la Clase, neverbot 6/03
 // *****************************************
 
-void set_class_ob(string str) 
+void set_class_ob(string str)
 {
-  if (!stringp(str)) 
+  if (!stringp(str))
   {
     social_object_list[CLASS_OB] = nil;
     return;
   }
-  
+
   if ( (file_size(str) < 0) && (file_size(str+".c") < 0) )
-    return; 
+    return;
 
   social_object_list[CLASS_OB] = str;
   this_object()->set_xp(0);
@@ -282,7 +283,7 @@ void set_class_ob(string str)
   class_level = 1;
 } /* set_class_ob() */
 
-void set_class(string str) 
+void set_class(string str)
 {
   set_class_ob("/lib/obj/classes/"+str);
 }
@@ -315,16 +316,16 @@ void set_guild_joined(mapping map)
 {
   // allow the login process (and migrations) to change this
   if (!SECURE->valid_progname("/lib/core/login"))
-    return;  
+    return;
 
   guild_joined = map;
 }
 
-void set_guild_ob(string str) 
+void set_guild_ob(string str)
 {
   mixed * values;
   string old_guild;
-  int old_level; 
+  int old_level;
 
   old_guild = social_object_list[GUILD_OB];
   old_level = this_object()->query_guild_level();
@@ -341,18 +342,18 @@ void set_guild_ob(string str)
   }
 
   // Abandonar un guild
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
     // Eliminamos la especializacion si la tuviera
     this_object()->reset_guild_spec();
-    
+
     social_object_list[GUILD_OB] = nil;
     guild_level = 0;
     return;
   }
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
-    return; 
+    return;
 
   // Asignamos el gremio nuevo
   social_object_list[GUILD_OB] = str;
@@ -370,9 +371,9 @@ void set_guild_ob(string str)
     values = guild_joined[str];
     guild_level = values[0];
   }
-  
+
   // Eliminamos la especializacion si la tuviera
-  this_object()->reset_guild_spec();  
+  this_object()->reset_guild_spec();
 
   // Inicializacion del player
   // Esto solo ocurre la primera vez
@@ -382,7 +383,7 @@ void set_guild_ob(string str)
 
 } /* set_guild_ob() */
 
-void set_guild(string str) 
+void set_guild(string str)
 {
   set_guild_ob("/lib/obj/guilds/"+str);
 }
@@ -406,8 +407,8 @@ string query_guild()
 }
 
 // This is for groups such as Blades of Balance, Silver Fists, Hellfire Cult.
-// These groups should be highly elite and interacial/interguild.  Should 
-// have a special focus or meaning in their organization. - Radix 1996 
+// These groups should be highly elite and interacial/interguild.  Should
+// have a special focus or meaning in their organization. - Radix 1996
 void set_group_ob(string str)
 {
   // string tmp;
@@ -429,7 +430,7 @@ void set_group_ob(string str)
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
-    
+
   social_object_list[GROUP_OB] = str;
   social_object_list[GROUP_OB]->start_player(this_object());
   return;
@@ -475,7 +476,7 @@ void set_race_group_ob(string str)
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
-  
+
   social_object_list[RACEG_OB] = str;
   social_object_list[RACEG_OB]->start_player(this_object());
   return;
@@ -500,7 +501,7 @@ mixed query_locations()
 }
 
 mixed obtain_location()
-{ 
+{
   if (social_object_list[RACE_OB])
     return social_object_list[RACE_OB]->obtain_location();
   else return 0;
@@ -513,7 +514,7 @@ void set_job_joined(mapping map)
 {
   // allow the login process (and migrations) to change this
   if (!SECURE->valid_progname("/lib/core/login"))
-    return;  
+    return;
 
   job_joined = map;
 }
@@ -522,7 +523,7 @@ void set_job_joined(mapping map)
 void set_job_ob(string str)
 {
   // string tmp;
-  string old_job; 
+  string old_job;
   mixed * values;
 
   old_job = social_object_list[JOB_OB];
@@ -537,12 +538,12 @@ void set_job_ob(string str)
                               time(),
                               });
   }
-  
+
   if (!strlen(str))
   {
     // Eliminamos la especializacion si la tuviera
     this_object()->reset_job_spec();
-    
+
     social_object_list[JOB_OB] = nil;
     job_level = 0;
     return;
@@ -562,10 +563,10 @@ void set_job_ob(string str)
     return;
 
   old_job = social_object_list[JOB_OB];
-  
+
   social_object_list[JOB_OB] = str;
   job_xp = 0;
-  
+
   // Si es uno en el que no hemos estado nunca
   if (undefinedp(job_joined[str]))
   {
@@ -616,10 +617,10 @@ void logit_job(string what,int amount)
 int adjust_job_level(int i)
 {
   object ranking;
-  
+
   /* Those over lvl 100 is either immortals or cheat.. Noone needa it anyway.
    * Baldrick.     */
-  if ((job_level + i) > 100) 
+  if ((job_level + i) > 100)
   {
     notify_fail("Olvídalo.\n");
     return 0;
@@ -637,57 +638,57 @@ int adjust_job_level(int i)
   // Log para players
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
   {
-    log_file(LOG_ADJUST_JOB_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() + 
+    log_file(LOG_ADJUST_JOB_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() +
            " ajusto "+i+" niveles ["+query_job_ob()+"], quedandose en "+job_level+"\n");
 
       // Ajuste de los rankings para players
     ranking = load_object(RANKING_OB);
-  
+
     if (ranking)
       ranking->update(this_object());
   }
 }
 
 int query_job_level() { return job_level; }
-int set_job_level(int i) 
-{ 
+int set_job_level(int i)
+{
   if (!query_job_ob())
   {
     job_level = 0;
-    return 0;            
+    return 0;
   }
-  
-  job_level = i; 
-  return job_level; 
+
+  job_level = i;
+  return job_level;
 }
 
-// Nivel maximo de todos los oficios en los que ha estado 
+// Nivel maximo de todos los oficios en los que ha estado
 int query_max_job_level()
 {
-  string* list; 
+  string* list;
   int i;
   int res;
 
   res = job_level;
   list = keys(job_joined);
-  
+
   // job_joined[job_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
   for (i = 0; i < sizeof(list); i++)
     // El oficio actual estara almacenado con un nivel antiguo
     if (list[i] != query_job_ob())
       if (job_joined[list[i]][0] > res)
         res = job_joined[list[i]][0];
-      
-  return res;    
+
+  return res;
 }
 
-int adjust_job_xp(int i) 
+int adjust_job_xp(int i)
 {
   string player_job;
   int next_level;
 
   if (i > JOB_XP_LIMIT) logit_job(LOG_JOB_XP,i);
-    if (i > 0) 
+    if (i > 0)
     {
       i = (100 - (this_object()->query_wimpy()) ) * i / 100;
       total_job_xp += i;
@@ -696,7 +697,7 @@ int adjust_job_xp(int i)
   job_xp += i;
 
   player_job = query_job_ob();
-  if (player_job && (i > 0)) 
+  if (player_job && (i > 0))
   {
     next_level = player_job->query_next_level_xp(this_object());
     if ((job_xp > next_level) &&
@@ -711,13 +712,13 @@ int adjust_job_xp(int i)
     return job_xp;
 } /* adjust_job_xp() */
 
-int set_job_xp(int i) 
+int set_job_xp(int i)
 {
-  if ( (i - job_xp) > JOB_XP_LIMIT) 
+  if ( (i - job_xp) > JOB_XP_LIMIT)
     logit_job(LOG_JOB_XP,(i - job_xp));
-  if ( (job_xp - i) > JOB_XP_LIMIT) 
+  if ( (job_xp - i) > JOB_XP_LIMIT)
     logit_job(LOG_JOB_XP, -(job_xp - i));
-  if (i == -1 || !i) 
+  if (i == -1 || !i)
     logit_job(LOG_JOB_XP, i);
   job_xp = i;
   return job_xp;
@@ -738,7 +739,7 @@ void set_deity_ob(string str)
   //  if (sscanf(str,"/%s", tmp) == 1)
   //  str = extract(str,1);
 
-  if ((str[0..strlen("/lib/obj/deities")-1] != "/lib/obj/deities") && 
+  if ((str[0..strlen("/lib/obj/deities")-1] != "/lib/obj/deities") &&
       (str[0..strlen("/game/obj/deities")-1] != "/game/obj/deities"))
   {
     write("Illegal path in set_deity_ob.\n");
@@ -747,7 +748,7 @@ void set_deity_ob(string str)
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
-  
+
   social_object_list[DEITY_OB] = str;
   social_object_list[DEITY_OB]->start_player(this_object());
   return;
@@ -788,7 +789,7 @@ void set_city_ob(string str)
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
-    
+
   social_object_list[CITY_OB] = str;
   social_object_list[CITY_OB]->start_player(this_object());
   return;
@@ -806,7 +807,7 @@ string query_city_name()
 string query_city(){ return query_city_name(); }
 string query_citizenship(){ return query_city_name(); }
 
-int query_citizen() 
+int query_citizen()
 {
   if (social_object_list[CITY_OB])
     return 1;
@@ -819,10 +820,10 @@ int query_level(){ return class_level; }
 int adjust_level(int i)
 {
   object ranking;
-  
-  // Those over lvl 100 is either immortals or cheat.. Noone needa it anyway. 
+
+  // Those over lvl 100 is either immortals or cheat.. Noone needa it anyway.
   // Baldrick.
-  if ((class_level + i) > 100) 
+  if ((class_level + i) > 100)
   {
     notify_fail("Olvídalo.\n");
     return 0;
@@ -833,13 +834,13 @@ int adjust_level(int i)
     query_class_ob()->new_levels(i, this_object());
 
   // Mensaje de subida de nivel (excepto la primera subida que es automatica)
-  if ((class_level >= 5) && (i > 0)) 
+  if ((class_level >= 5) && (i > 0))
   {
     tell_player(this_object(), "¡Subes de nivel!");
 
     // Log para players
     if (interactive(this_object()))
-      log_file(LOG_ADJUST_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() + 
+      log_file(LOG_ADJUST_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() +
            " ajusto "+i+" niveles ["+query_class_ob()+"], quedandose en "+class_level+"\n");
   }
 
@@ -849,7 +850,7 @@ int adjust_level(int i)
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
   {
     ranking = load_object(RANKING_OB);
-  
+
     if (ranking)
       ranking->update(this_object());
   }
@@ -859,7 +860,7 @@ int adjust_level(int i)
 
 int query_class_level(){ return query_level(); }
 int query_guild_level(){ return guild_level; }
-// Nivel maximo de todos los gremios en los que ha estado 
+// Nivel maximo de todos los gremios en los que ha estado
 int query_max_guild_level()
 {
   string * list;
@@ -867,7 +868,7 @@ int query_max_guild_level()
 
   res = guild_level;
   list = keys(guild_joined);
-  
+
   // guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
   for (i = 0; i < sizeof(list); i++)
     // El gremio actual estara almacenado con un nivel antiguo
@@ -875,17 +876,17 @@ int query_max_guild_level()
       if (guild_joined[list[i]][0] > res)
         res = guild_joined[list[i]][0];
 
-  return res;    
+  return res;
 }
 
 int adjust_class_level(int i){ return adjust_level(i); }
 int adjust_guild_level(int i)
 {
   object ranking;
-  
+
   /* Those over lvl 100 is either immortals or cheat.. Noone needa it anyway.
    * Baldrick.     */
-  if ((guild_level + i) > 100) 
+  if ((guild_level + i) > 100)
   {
     notify_fail("Olvídalo.\n");
     return 0;
@@ -896,20 +897,20 @@ int adjust_guild_level(int i)
     query_guild_ob()->new_levels(i, this_object());
 
   // Mensaje de subida de nivel (excepto la primera subida que es automatica)
-  if ((guild_level >= 1) && (i > 0)) 
+  if ((guild_level >= 1) && (i > 0))
     tell_player(this_object(), "¡Subes tu nivel de gremio!");
 
   guild_level += i;
-  
+
   // Log para players
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
   {
-    log_file(LOG_ADJUST_GUILD_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() + 
+    log_file(LOG_ADJUST_GUILD_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() +
            " ajusto "+i+" niveles ["+query_guild_ob()+"], quedandose en "+guild_level+"\n");
 
       // Ajuste de los rankings para players
     ranking = load_object(RANKING_OB);
-  
+
     if (ranking)
       ranking->update(this_object());
   }
@@ -940,15 +941,15 @@ mapping query_xp_types()
   return ([ ]);
 }
 
-mixed * stats() 
+mixed * stats()
 {
   mixed * ret;
-  ret = ({ 
+  ret = ({
     ({"Social Object List", social_object_list, }),
     ({"Guild Joined", guild_joined, }),
     ({"Job Joined", job_joined, }),
-    ({"Guild Level", guild_level, }),             
-    ({"Class Level", class_level, }),                          
+    ({"Guild Level", guild_level, }),
+    ({"Class Level", class_level, }),
     ({"Total Job Xp", total_job_xp, }),
     ({"Job Xp", job_xp, }),
     ({"Job Level", job_level, }),

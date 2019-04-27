@@ -1,7 +1,7 @@
 
 #include <common/properties.h>
 #include <basic/communicate.h>
-#include <user/player.h>
+#include <user/user.h>
 
 // all the posible events will be called from
 // the event efun:
@@ -17,7 +17,7 @@ void event_write(object caller, string msg)
 
   msg = fix_string(msg);
 
-  // only will do if interactive(this_object())  
+  // only will do if interactive(this_object())
   this_object()->catch_tell(msg);
 }
 
@@ -28,11 +28,11 @@ void event_say(object caller, string msg, varargs mixed avoid)
 
   if (avoid)
   {
-    if (pointerp(avoid)) 
+    if (pointerp(avoid))
     {
       if (member_array(this_object(), avoid) != -1)
         return;
-    } 
+    }
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -51,49 +51,49 @@ void event_inform(object caller, string msg, string type, varargs mixed avoid)
 
   if (avoid)
   {
-    if (pointerp(avoid)) 
+    if (pointerp(avoid))
     {
       if (member_array(this_object(), avoid) != -1)
         return;
-    } 
+    }
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
 
   on = (string *)this_object()->query_property(INFORM_PROP);
-  
-  if (!on) 
+
+  if (!on)
     on = ({ });
-  
+
   // TODO inform properties
-  // if (this_object()->query_property(NO_INFORM) || 
-  //    (caller->query_invis() && !this_object()->query_coder()) || 
-  //    ((int)caller->query_invis() == 2 && !this_object()->query_admin()) || 
+  // if (this_object()->query_property(NO_INFORM) ||
+  //    (caller->query_invis() && !this_object()->query_coder()) ||
+  //    ((int)caller->query_invis() == 2 && !this_object()->query_admin()) ||
   //    !sizeof(on))
   // {
   //     return;
   // }
-  
-  // if (member_array(type, on) == -1) 
+
+  // if (member_array(type, on) == -1)
   //   return;
-  
+
   msg = fix_string("\n[" + msg + "]\n\n");
 
   this_object()->catch_tell(msg);
 }
 
-void event_enter(object ob, varargs string msg, object from, mixed avoid) 
+void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
   if (msg && !strlen(msg))
     return;
 
   if (avoid)
   {
-    if (pointerp(avoid)) 
+    if (pointerp(avoid))
     {
       if (member_array(this_object(), avoid) != -1)
         return;
-    } 
+    }
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -101,18 +101,18 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
   stderr(" * event_enter " + object_name(this_object()) + "\n");
 }
 
-void event_exit(object ob, varargs string msg, object dest, mixed avoid) 
+void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 {
   if (msg && !strlen(msg))
     return;
 
   if (avoid)
   {
-    if (pointerp(avoid)) 
+    if (pointerp(avoid))
     {
       if (member_array(this_object(), avoid) != -1)
         return;
-    } 
+    }
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -124,11 +124,11 @@ void event_login(object ob, varargs mixed avoid)
 {
   if (avoid)
   {
-    if (pointerp(avoid)) 
+    if (pointerp(avoid))
     {
       if (member_array(this_object(), avoid) != -1)
         return;
-    } 
+    }
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -150,16 +150,16 @@ void event_person_say(object ob, string start, string msg, string lang, int spea
 
   msg = fix_string(msg);
 
-  if (member_array(lang, this_object()->query_languages()) == -1) 
+  if (member_array(lang, this_object()->query_languages()) == -1)
   {
     mixed str;
 
     if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((str = (mixed)str->garble_say(start, msg))) 
+      if ((str = (mixed)str->garble_say(start, msg)))
       {
         start = str[0];
         msg = str[1];
-      } 
+      }
       else
         return;
     else
@@ -169,7 +169,7 @@ void event_person_say(object ob, string start, string msg, string lang, int spea
   if (lang != "comun")
     start = start[0..strlen(start)-3]+" en "+lang+": ";
 
-  if (ob == this_object()) 
+  if (ob == this_object())
     return;
 
   tmp = start + msg;
@@ -199,16 +199,16 @@ void event_person_tell(object ob, string start, string msg, string lang)
 
   msg = fix_string(msg);
 
-  if (member_array(lang, this_object()->query_languages()) == -1) 
+  if (member_array(lang, this_object()->query_languages()) == -1)
   {
     mixed str;
 
     if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((str = (mixed)str->garble_say(start, msg))) 
+      if ((str = (mixed)str->garble_say(start, msg)))
       {
         start = str[0];
         msg = str[1];
-      } 
+      }
       else
         return;
     else
@@ -223,7 +223,7 @@ void event_person_tell(object ob, string start, string msg, string lang)
      Firestorm 9/3/93
   */
 
-  if (interactive(this_object()) && 
+  if (interactive(this_object()) &&
      (id = this_object()->query_idle()) > TELL_WARN_TIME)
   {
     str = ({  });
@@ -249,7 +249,7 @@ void event_person_tell(object ob, string start, string msg, string lang)
       "y puede tardar un poco en contestar.\n");
   }
 
-  if (this_object()->query_static_property(AWAY_PROP)) 
+  if (this_object()->query_static_property(AWAY_PROP))
   {
     tell_object(this_player(), this_object()->query_cap_name()+" está ocupad"+this_object()->query_vocal()+
       ", razón: \"%^RED%^"+
@@ -261,10 +261,10 @@ void event_person_tell(object ob, string start, string msg, string lang)
   // if (ob && interactive(ob))
   this_object()->add_past_g(tmp);
 
-  this_object()->catch_tell("\n" + tmp + "\n");  
+  this_object()->catch_tell("\n" + tmp + "\n");
 }
 
-void event_person_whisper(object ob, string start, string msg, 
+void event_person_whisper(object ob, string start, string msg,
                           object * obs, string lang)
 {
   string oblue;
@@ -277,16 +277,16 @@ void event_person_whisper(object ob, string start, string msg,
   if (this_object() == ob)
     return;
 
-  if (member_array(lang, this_object()->query_languages()) == -1) 
+  if (member_array(lang, this_object()->query_languages()) == -1)
   {
     mixed str;
 
     if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((str = (mixed)str->garble_say(start, msg))) 
+      if ((str = (mixed)str->garble_say(start, msg)))
       {
         start = str[0];
         msg = str[1];
-      } 
+      }
       else
         return;
     else
@@ -308,13 +308,13 @@ void event_person_whisper(object ob, string start, string msg,
     tmp = fix_string(start + " a " + query_multiple_short(obs) +
           oblue[0..strlen(oblue)-3] + ".");
   }
-  else if (sizeof(obs) == 1) 
+  else if (sizeof(obs) == 1)
   {
     start = replace_string(start, "susurra", "te susurra");
     tmp = fix_string(start + oblue + msg);
     this_object()->add_past_g( tmp );
   }
-  else 
+  else
   {
     start = replace_string(start, "susurra", "te susurra");
     tmp = fix_string(start + " a ti y a " +
@@ -323,33 +323,33 @@ void event_person_whisper(object ob, string start, string msg,
     this_object()->add_past_g( tmp );
   }
 
-  this_object()->catch_tell("\n" + tmp + "\n");  
+  this_object()->catch_tell("\n" + tmp + "\n");
 }
 
 void event_person_shout(object ob, string start, string msg, string lang)
 {
   string tmp;
 
-  if (ob == this_object()) 
+  if (ob == this_object())
     return;
-  
-  if (this_object()->query_earmuffs() == 1 && 
+
+  if (this_object()->query_earmuffs() == 1 &&
     ((string)ob->query_verb() != "coders!") &&
-    ((string)ob->query_verb() != "shout!")) 
-    return; 
+    ((string)ob->query_verb() != "shout!"))
+    return;
 
   msg = fix_string(msg);
 
-  if (member_array(lang, this_object()->query_languages()) == -1) 
+  if (member_array(lang, this_object()->query_languages()) == -1)
   {
     mixed str;
 
     if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((str = (mixed)str->garble_say(start, msg))) 
+      if ((str = (mixed)str->garble_say(start, msg)))
       {
         start = str[0];
         msg = str[1];
-      } 
+      }
       else
         return;
     else
@@ -363,8 +363,8 @@ void event_person_shout(object ob, string start, string msg, string lang)
 
   // if (ob && interactive(ob))
   this_object()->add_past_g( tmp );
-  
-  this_object()->catch_tell("\n" + tmp + "\n");  
+
+  this_object()->catch_tell("\n" + tmp + "\n");
 }
 
 void event_creator_tell(object ob, string start, string msg)
@@ -378,12 +378,12 @@ nomask void event_god_inform(object ob, string start, string msg)
 
   msg = fix_string("\n" + start + " " + msg);
 
-  // only will do if interactive(this_object())  
-  this_object()->catch_tell(msg);  
+  // only will do if interactive(this_object())
+  this_object()->catch_tell(msg);
 }
 
 void event_inter_creator_tell(object ob, string mname, string pname,
-                              string msg, object ig, int emote) 
+                              string msg, object ig, int emote)
 {
 }
 
@@ -394,21 +394,21 @@ void event_player_echo(object ob, string msg)
 
   if (this_object()->query_admin())
     msg = ob->query_cap_name()+" echo's:\n" + msg;
-  
+
   msg = fix_string("\n" + msg);
 
-  // only will do if interactive(this_object())  
-  this_object()->catch_tell(msg);  
+  // only will do if interactive(this_object())
+  this_object()->catch_tell(msg);
 }
 
-void event_player_echo_to(object ob, string msg) 
+void event_player_echo_to(object ob, string msg)
 {
   if (this_object()->query_admin())
     msg = ob->query_cap_name()+" echo to's:\n" + msg;
 
   msg = fix_string("\n" + msg);
 
-  // only will do if interactive(this_object())  
+  // only will do if interactive(this_object())
   this_object()->catch_tell(msg);
 }
 
@@ -422,7 +422,7 @@ void event_player_emote_all(object ob, string msg)
 
   msg = fix_string("\n" + msg);
 
-  // only will do if interactive(this_object())  
+  // only will do if interactive(this_object())
   this_object()->catch_tell(msg);
 }
 
@@ -430,14 +430,14 @@ void event_death(object caller, varargs object killer, object * attackers, mixed
 {
   if (avoid)
   {
-    if (pointerp(avoid)) 
+    if (pointerp(avoid))
     {
       if (member_array(this_object(), avoid) != -1)
         return;
-    } 
+    }
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
-  
+
   stderr(" * event_death " + object_name(this_object()) + "\n");
 }

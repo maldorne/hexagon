@@ -27,13 +27,13 @@ string get_nomulti_string(string site, string userid);
 mapping query_suspended() { return suspended; }
 mapping query_banished() { return banished; }
 
-void create() 
+void create()
 {
-  names = ({ "root", 
+  names = ({ "root",
              "/global/player",
-             "failsafe", 
+             "failsafe",
              "/global/failsafe", });
-  
+
   def = "/global/player";
   seteuid(ROOT);
   access = ([ ]);
@@ -45,22 +45,22 @@ void create()
 
 int check_access(object ob, int existing)
 {
-  switch (query_access(explode(query_ip_number(ob), "."), 
-    ob->query_ident())) 
-  {  
+  switch (query_access(explode(query_ip_number(ob), "."),
+    ob->query_ident()))
+  {
     case NO_NEW :
-      if (!existing) 
+      if (!existing)
       {
         write("Site banned for new players.\n");
         return NO_NEW;
       }
       else
         return ACCESS;
-    
+
     case NO_ACCESS :
       write("Site banned for all players.\n");
       return NO_ACCESS;
-    
+
     case NO_GUEST :
       if ((ob->query_name() == "guest") || (ob->query_name() == "invitado"))
       {
@@ -69,28 +69,28 @@ int check_access(object ob, int existing)
       }
       else
         return ACCESS;
-    
+
     case NO_CODERS :
-      if (ob->query_coder()) 
+      if (ob->query_coder())
       {
         write("Site banned for immortals.\n");
         return NO_CODERS;
       }
       else
         return ACCESS;
-    
+
     case NO_PLAYERS :
-      if (!ob->query_coder()) 
+      if (!ob->query_coder())
       {
         write("Site banned for players.\n");
         return NO_PLAYERS;
       }
       else
         return ACCESS;
-    
+
     case ACCESS :
       return ACCESS;
-    
+
     case NO_MULTIPLAY:
       ob->add_static_property("NOMULTI",
         get_nomulti_string(query_ip_number(ob),
@@ -101,7 +101,7 @@ int check_access(object ob, int existing)
   }
 } /* check_access() */
 
-/* 
+/*
   The flag skips the initial check for query_coder().  This is
   needed for the first call to the fcn, when restore_object() hasn't
   been called yet.  Only purpose of this first call is to determine
@@ -124,23 +124,23 @@ string query_player_ob(string name, varargs int flag)
   //   return "";
   // }
 
-  if (member_array(name, get_dir("/d/")) != -1) 
+  if (member_array(name, get_dir("/d/")) != -1)
   {
     write("Es el nombre de un dominio.\n");
     return "";
   }
 
   i = member_array(name, names);
-  if (i != -1) 
+  if (i != -1)
     return names[i+1];
-  
+
   if (!undefinedp(banished[name]))
   {
     write("Este nombre está prohibido, razón:\n\t"+banished[name]+".\nDebes escoger otro.\n");
     return "";
   }
-    
-  if (!undefinedp(suspended[name]) && suspended[name] > time()) 
+
+  if (!undefinedp(suspended[name]) && suspended[name] > time())
   {
     write("Este usuario ha sido suspendido hasta: "+ctime(suspended[name])+".\n");
     return "";
@@ -148,7 +148,7 @@ string query_player_ob(string name, varargs int flag)
 
   suspended = m_delete(suspended, name);
   /*
-  if ("secure/master"->query_admin(name)) 
+  if ("secure/master"->query_admin(name))
   {
   return "global/lord";
   }
@@ -164,8 +164,8 @@ string query_player_ob(string name, varargs int flag)
     return "";
 
   /* I hope this is the right place to put this code in.
-  * Baldrick, sept '93 
-  * Added more files, oct '95. 
+  * Baldrick, sept '93
+  * Added more files, oct '95.
   * First, a check if the player is a creator..
   * to be sure it isn't a new player using a non-existing .o
   */
@@ -192,7 +192,7 @@ mapping query_all_access() { return access + ([ ]); }
 * Look up the address and find out if it is nice and floppy
 * Adress is of the format ({ "130", "95", "100", "2" })
 */
-int query_access(string *address, string ident) 
+int query_access(string *address, string ident)
 {
   mixed rest;
 
@@ -203,8 +203,8 @@ int query_access(string *address, string ident)
     return DEFAULT;
 
   address = address[1..4];
-  
-  while (sizeof(address)) 
+
+  while (sizeof(address))
   {
     if (!rest[address[0]])
       if (!rest["*"])
@@ -225,12 +225,12 @@ int query_access(string *address, string ident)
   return DEFAULT;
 } /* query_access() */
 
-static mixed add_access(mixed bing, string *address, string ident, int level) 
+static mixed add_access(mixed bing, string *address, string ident, int level)
 {
   if (!mappingp(bing))
     bing = ([ ]);
 
-  if (!sizeof(address)) 
+  if (!sizeof(address))
   {
     if (!level)
       bing = m_delete(bing, ident);
@@ -249,7 +249,7 @@ static mixed add_access(mixed bing, string *address, string ident, int level)
   return bing;
 } /* add_access() */
 
-int change_access(string *address, string ident, int level, string reason) 
+int change_access(string *address, string ident, int level, string reason)
 {
   if (!SECURE->high_programmer(geteuid(previous_object())) ||
   this_player() != this_player(1)) {
@@ -284,7 +284,7 @@ int change_access(string *address, string ident, int level, string reason)
   return 1;
 } /* check_access() */
 
-int suspend_person(string str, int tim) 
+int suspend_person(string str, int tim)
 {
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
@@ -297,7 +297,7 @@ int suspend_person(string str, int tim)
   return 1;
 } /* suspend_person() */
 
-int unsuspend_person(string str) 
+int unsuspend_person(string str)
 {
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
@@ -310,8 +310,8 @@ int unsuspend_person(string str)
   return 1;
 } /* unsuspend_person() */
 
-/* Banish code: 
-* Added by Baldrick for simplifying banishing.. 
+/* Banish code:
+* Added by Baldrick for simplifying banishing..
 */
 int banish_playername(string str, string reason)
 {
@@ -323,7 +323,7 @@ int banish_playername(string str, string reason)
   */
   banished[str] = reason;
   save_object(file_name(this_object()),1);
-  write_file("/log/BANISHED", str+" banished because of " + reason + 
+  write_file("/log/BANISHED", str+" banished because of " + reason +
     " by "+this_player()->query_name()+".\n");
   return 1;
 } /* banish player name */
@@ -365,5 +365,5 @@ string get_nomulti_string(string site, string userid) {
   if (acc["*"])
     userid = "*";
 
-  return userid + "@" + implode(ret, ".");    
+  return userid + "@" + implode(ret, ".");
 }

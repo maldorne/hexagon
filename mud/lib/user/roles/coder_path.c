@@ -39,7 +39,7 @@ string query_path() { return current_path; }
 
 int what_dir(string str)
 {
-  write(CURRENT_DIR + ": '"+current_path+"'.\n");
+  write(_LANG_CURRENT_DIR + ": '"+current_path+"'.\n");
   return 1;
 }
 
@@ -64,7 +64,7 @@ int change_dir(string str)
   {
     if (!strlen(home_dir))
     {
-      notify_fail(NO_HOMEDIR);
+      notify_fail(_LANG_NO_HOMEDIR);
       return 0;
     }
 
@@ -86,7 +86,7 @@ int change_dir(string str)
 
   if (sizeof(dirnames) > 1)
   {
-    notify_fail(AMBIGUOUS_DIRECTORY);
+    notify_fail(_LANG_AMBIGUOUS_DIRECTORY);
     return 0;
   }
 
@@ -96,7 +96,7 @@ int change_dir(string str)
 
     if (!sizeof(obs))
     {
-      notify_fail(NONEXISTANT_DIRECTORY);
+      notify_fail(_LANG_NONEXISTANT_DIRECTORY);
       return 0;
     }
 
@@ -110,7 +110,7 @@ int change_dir(string str)
 
       if (!stringp(tmp))
       {
-        notify_fail(CD_ERROR_WIZ);
+        notify_fail(_LANG_CD_ERROR_WIZ);
         return 0;
       }
 
@@ -124,7 +124,7 @@ int change_dir(string str)
     // Radix
     if (!sizeof(dirnames))
     {
-      notify_fail(NONEXISTANT_DIRECTORY);
+      notify_fail(_LANG_NONEXISTANT_DIRECTORY);
       return 0;
     }
   }
@@ -132,7 +132,7 @@ int change_dir(string str)
   str = dirnames[0];
 
   if (file_size(str) != -2)
-    write(WRONG_DIR + ": '" + str + "'.\n");
+    write(_LANG_WRONG_DIR + ": '" + str + "'.\n");
   else
     current_path = str;
 
@@ -148,7 +148,7 @@ int set_home_dir(string str)
   if (str)
     home_dir = get_path(str);
 
-  write(HOMEDIR_SET);
+  write(_LANG_HOMEDIR_SET);
   return 1;
 }
 
