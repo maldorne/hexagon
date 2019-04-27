@@ -1,0 +1,2 @@
+
+#define _LANG_LAST_CONNECTION "Your last connection was from '"+last_on_from+"'.\n"

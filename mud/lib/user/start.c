@@ -5,13 +5,14 @@
 #include <living/consents.h>
 #include <living/death.h>
 #include <basic/communicate.h>
+#include <language.h>
 
 // prototypes
 void do_first_look();
 void start_player();
 
 
-void move_player_to_start(varargs int going_invis, int is_new_player) 
+void move_player_to_start(varargs int going_invis, int is_new_player)
 {
   object tmp;
   // object obb = find_object(OMIQ_H);
@@ -34,7 +35,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
                               query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
   else
     log_file("enter", sprintf("Enter : %-15s %s [%s]\n",
-                              name, ctime(time(),4), 
+                              name, ctime(time(),4),
                               query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
 
   /* Nos olvidamos de omiqs, neverbot 4/2003
@@ -62,7 +63,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
     set_cols(79);
 
   if (last_on_from && query_coder())
-    tell_object(this_object(), "Tu última conexión fue desde '"+last_on_from+"'.\n");
+    tell_object(this_object(), _LANG_LAST_CONNECTION);
 
   last_on_from = query_ip_name(this_object())+" ("+
                  query_ip_number(this_object())+")";
@@ -89,7 +90,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
   CHAT_HANDLER->init_player_channels(query_property(CHANNELS_PROPERTY), this_object());
   // channel_init();
 
-  if (!strlen(last_pos) || 
+  if (!strlen(last_pos) ||
       catch(last = load_object(last_pos)) ||
       !last)
   {
@@ -120,7 +121,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
   else
   {
     event(users(), "inform", query_cap_name()+" entra"+
-                            (query_property(GUEST_PROP)?(" como invitad"+G_CHAR):"")+ 
+                            (query_property(GUEST_PROP)?(" como invitad"+G_CHAR):"")+
                             " en " + mud_name()+
                             (is_new_player ? " (%^GREEN%^BOLD%^Nuev"+G_CHAR+" jugador"+
                               (query_gender()==2?"a":"")+
@@ -131,24 +132,24 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
     event(environment(this_object()), "login", this_object());
 
   call_out("do_first_look", 0);
-  
+
   if (query_property(PASSED_OUT_PROP))
     call_out("remove_property", 10+random(30), PASSED_OUT_PROP);
-  
+
   // TODO mail
   /*
   mail_stat = (mapping)POSTAL_D->mail_status(query_name());
-  if (mail_stat["unread"]) 
+  if (mail_stat["unread"])
   {
     if (mail_stat["total"] == 1)
         write("\n\t >>> ¡Tu único correo está por leer! <<<\n");
-    else 
+    else
         write("\n\t >>> ¡"+mail_stat["unread"]+" de tus "+
             mail_stat["total"]+" correos están por leer! <<<\n");
   }
   */
 
-  if (query_dead()) 
+  if (query_dead())
   {
     tmp = clone_object(DEATH_SHADOW);
     if (tmp)
@@ -169,7 +170,7 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
     if (file_size("/home/" + name + "/" + PLAYER_ERROR_LOG) > 0)
       write("\nTienes informes de errores en /home/"+name+"/"+PLAYER_ERROR_LOG+"\n");
 
-  // ident stuff.  -- Hamlet 
+  // ident stuff.  -- Hamlet
   // if (!catch(load_object("/net/identd")))
   //  IDENTD->do_ident(this_object(), this_object());
 } /* move_player_to_start() */
@@ -177,11 +178,11 @@ void move_player_to_start(varargs int going_invis, int is_new_player)
 void do_first_look()
 {
   int i, j;
-  int * has; 
+  int * has;
   object * obs;
   object ob;
 
-  has = allocate_int(sizeof(MUST_HAVE)); 
+  has = allocate_int(sizeof(MUST_HAVE));
 
   for (i = 0; i < sizeof(has); i++)
     has[i] = 0;
@@ -197,7 +198,7 @@ void do_first_look()
     // Comprobamos los objetos que todo player debe llevar siempre
     //  (solo pueden haberse perdido por algun error del salvado o carga de la ficha)
     obs = all_inventory(this_object());
-    
+
     for (i = 0; i < sizeof(MUST_HAVE); i++)
       for (j = 0; j < sizeof(obs); j++)
         if (base_name(obs[j]) == MUST_HAVE[i])
@@ -212,13 +213,13 @@ void do_first_look()
         {
           ob->move(this_object());
           tell_object(this_object(), "Por algún error has debido perder tu "+ob->query_name()+". "+
-              "Otr"+ob->query_vocal()+" nuev"+ob->query_vocal()+" te es concedid"+ob->query_vocal()+".\n\n");                
+              "Otr"+ob->query_vocal()+" nuev"+ob->query_vocal()+" te es concedid"+ob->query_vocal()+".\n\n");
         }
       }
   }
 }
 
-void start_player() 
+void start_player()
 {
   int lockout;
 
@@ -227,7 +228,7 @@ void start_player()
   // player migrations
   if (this_object()->update_player())
     tell_player(this_object(), "Tu ficha ha sido actualizada.\n");
- 
+
   living::start_player();
 
   // TODO move this to living::start_player
@@ -240,7 +241,7 @@ void start_player()
   // weather_commands();
   // editor_commands();
   // alias_commands();
-  // nickname_commands(); 
+  // nickname_commands();
   // recipes_commands();
 
   reset_all();
@@ -248,8 +249,8 @@ void start_player()
   call_out("do_load_auto", 0);
 
   add_timed_property(LOADING_PROP, 1, 50);
-  
-  // Helpless (relatively) for a while after you log in, you can run... 
+
+  // Helpless (relatively) for a while after you log in, you can run...
   // but you can't hide.
   // Added to make it very undesirable to log out
   if ( query_property(PACIFY_PROP) )
@@ -270,10 +271,10 @@ void start_player()
 
 } /* start_player() */
 
-int do_load_auto() 
+int do_load_auto()
 {
   object ranking;
-  
+
   load_auto_load(auto_load, this_object());
 
   reset_hands();
@@ -286,7 +287,7 @@ int do_load_auto()
     else
       load_mount();
   }
-    
+
   remove_timed_property(LOADING_PROP);
   call_out("do_auto_equip",3);
 
