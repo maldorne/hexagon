@@ -1,5 +1,7 @@
-// old content of /global/path.c 
+// old content of /global/path.c
 // neverbot 3/2009
+
+#include <language.h>
 
 static string home_dir;
 static string current_path;
@@ -35,9 +37,9 @@ string query_home_dir() { return home_dir; }
 string query_current_path() { return current_path; }
 string query_path() { return current_path; }
 
-int what_dir(string str) 
+int what_dir(string str)
 {
-  write("Directorio actual: '"+current_path+"'.\n");
+  write(CURRENT_DIR + ": '"+current_path+"'.\n");
   return 1;
 }
 
@@ -46,7 +48,7 @@ int what_dir(string str)
 // December 15, 1995
 int change_dir(string str)
 {
-  string *filenames;
+  string *dirnames, *filenames;
   object *obs;
   string tmp;
   string *arr;
@@ -55,71 +57,82 @@ int change_dir(string str)
   arr = ({ });
   tmp = "";
 
-  if (this_player(1) != this_player()) 
+  if (this_player(1) != this_player())
     return 0;
 
   if (!strlen(str))
   {
-    if (!strlen(home_dir)) 
+    if (!strlen(home_dir))
     {
-      notify_fail("No tienes homedir. Usa 'homedir <directorio>' para establecerlo.\n");
+      notify_fail(NO_HOMEDIR);
       return 0;
     }
 
     str = home_dir;
   }
 
-  filenames = get_files(str);
+  // no ambiguities in 'cd ..', ever
+  if (str == "..") {
+    dirnames = ({ get_path(str) });
+  } else {
+    dirnames = get_files(str);
+    // fix to avoid "ambiguous directory" messages
+    filenames = get_cfiles(str);
 
-  if (sizeof(filenames) > 1) 
+    if (sizeof(filenames)) {
+      dirnames = dirnames - filenames;
+    }
+  }
+
+  if (sizeof(dirnames) > 1)
   {
-    notify_fail("Directorio ambiguo.\n");
+    notify_fail(AMBIGUOUS_DIRECTORY);
     return 0;
   }
 
-  if (!sizeof(filenames))
+  if (!sizeof(dirnames))
   {
     obs = wiz_present(str, this_player());
 
     if (!sizeof(obs))
     {
-      notify_fail("Directorio inexistente.\n");
+      notify_fail(NONEXISTANT_DIRECTORY);
       return 0;
     }
 
     // Added 'cd <immortal>' changes your path to their path
     // Radix
     if (interactive(obs[0]) && obs[0]->query_coder())
-      filenames = get_files(obs[0]->query_path());
+      dirnames = get_files(obs[0]->query_path());
     else
     {
       tmp = base_name(obs[0]);
 
       if (!stringp(tmp))
       {
-        notify_fail("Error: call a wiz_present erróneo, cd imposible.\n");
+        notify_fail(CD_ERROR_WIZ);
         return 0;
       }
 
-      arr = explode(tmp,"/");
-      str = implode(arr[0..sizeof(arr)-2],"/");
-      filenames = get_files("/"+str);
+      arr = explode(tmp, "/");
+      str = implode(arr[0..sizeof(arr)-2], "/");
+      dirnames = get_files("/" + str);
     }
 
     // Unlikely a loaded object won't have a dir, but leave it
     // to a bastard to do such things...
     // Radix
-    if (!sizeof(filenames))
+    if (!sizeof(dirnames))
     {
-      notify_fail("Directorio inexistente.\n");
+      notify_fail(NONEXISTANT_DIRECTORY);
       return 0;
     }
   }
 
-  str = filenames[0];
-  
+  str = dirnames[0];
+
   if (file_size(str) != -2)
-    write("Directorio erróneo: '" + str + "'.\n");
+    write(WRONG_DIR + ": '" + str + "'.\n");
   else
     current_path = str;
 
@@ -127,23 +140,23 @@ int change_dir(string str)
   return 1;
 }
 
-int set_home_dir(string str) 
+int set_home_dir(string str)
 {
-  if (this_player(1) != this_object()->query_player()) 
+  if (this_player(1) != this_object()->query_player())
     return 0;
 
-  if (str) 
+  if (str)
     home_dir = get_path(str);
 
-  write("Homedir establecido en '"+home_dir+"'.\n");
+  write(HOMEDIR_SET);
   return 1;
-} 
+}
 
-mixed stats() 
+mixed stats()
 {
-  return ({ 
+  return ({
           ({"(role) Home Dir", home_dir, }),
           ({"(role) Current Path", current_path, }),
           });
 }
-            
+

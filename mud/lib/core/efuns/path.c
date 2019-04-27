@@ -6,12 +6,12 @@
 #include "paths/path.c"
 
 // idea taken from melville mudlib
-static nomask int is_absolute_path(string str) 
+static nomask int is_absolute_path(string str)
 {
-  if (!str || (str == "")) 
+  if (!str || (str == ""))
     return -1;
 
-  if ((str[0] == '/') || (str[0] == '~')) 
+  if ((str[0] == '/') || (str[0] == '~'))
     return 1;
 
   return -1;
@@ -19,7 +19,7 @@ static nomask int is_absolute_path(string str)
 
 string get_path_file_name(string path)
 {
-  string * words; 
+  string * words;
   words = explode(path, "/");
 
   if (sizeof(words) == 0)
@@ -31,7 +31,7 @@ string get_path_file_name(string path)
   return words[sizeof(words)-1];
 }
 
-string * get_files(string str) 
+string * get_files(string str)
 {
   int loop, count;
   string *filenames, rmpath, temp1, temp2, *names, *files;
@@ -39,17 +39,17 @@ string * get_files(string str)
 
   names = explode(str, " ") - ({ "" });
 
-  if (sizeof(names) == 0) 
+  if (sizeof(names) == 0)
     return ({ });
-  
+
   filenames = ({ });
-  
-  for (count = 0; count < sizeof(names); count++) 
+
+  for (count = 0; count < sizeof(names); count++)
   {
     str = names[count];
     str = rmpath = get_path(str);
-  
-    if (rmpath == "/") 
+
+    if (rmpath == "/")
     {
       filenames += ({ "/" });
       continue;
@@ -57,10 +57,10 @@ string * get_files(string str)
 
     if (!strlen(rmpath))
       rmpath = "/";
-    if (!strlen(str)) 
+    if (!strlen(str))
       str = "/";
 
-    if (sscanf(rmpath, "%s/%s", temp1, temp2) == 2) 
+    if (sscanf(rmpath, "%s/%s", temp1, temp2) == 2)
     {
       string * path_elements;
 
@@ -76,21 +76,21 @@ string * get_files(string str)
       seteuid((string)MUDOS->get_root_uid());
 
     files = get_dir(str);
-    
+
     // seteuid("");
     seteuid(oldeiud);
 
-    if (files) 
+    if (files)
     {
       int loop2;
-      for (loop2 = 0; loop2 < sizeof(files); loop2++) 
+      for (loop2 = 0; loop2 < sizeof(files); loop2++)
       {
         filenames += ({ rmpath + "/" + files[loop2] });
       }
     }
   }
 
-  for (loop = 0; loop < sizeof(filenames); loop++) 
+  for (loop = 0; loop < sizeof(filenames); loop++)
   {
     if (filenames[loop][0] != '/') {
       filenames[loop] = "/" + filenames[loop];
@@ -101,21 +101,27 @@ string * get_files(string str)
 }
 
 // Changed to be *.* so as to handle virtual wombles as well
-string *get_cfiles(string str) 
+string *get_cfiles(string str)
 {
   int loop;
   string temp, *names, temp2;
 
   names = explode(str, " ") - ({ "" });
 
-  for (loop = 0; loop < sizeof(names); loop++) 
+  for (loop = 0; loop < sizeof(names); loop++)
   {
-    if (sscanf(names[loop], "%s.%s", temp, temp2) != 2) 
+    if (sscanf(names[loop], "%s.%s", temp, temp2) != 2)
     {
       names[loop] += ".c";
+    } else if (names[loop] == ".") {
+      names[loop] = "*.c";
+    } else if (names[loop] == "..") {
+      names[loop] = "";
     }
   }
-  
+
+  names -= ({ "" });
+
   str = implode(names, " ");
   return get_files(str);
 }
