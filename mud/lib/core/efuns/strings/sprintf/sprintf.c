@@ -207,11 +207,11 @@ private string anything (mixed this) {
   }
 }
 
-private string give_padding (int n, string pad) 
+private string give_padding (int n, string pad)
 {
   string padding;
 
-  if (n <= 0) 
+  if (n <= 0)
     return ("");
 
   padding = pad;
@@ -243,7 +243,7 @@ private string multi_line(string this, int width, int margin)
       if ((i == 0) && (word_length > width))
         pieces[i] = pieces[i][0..width-1];
 
-      if ((i != 0) && 
+      if ((i != 0) &&
           (line_length + word_length > width))
       {
         new_this += "\n";
@@ -273,7 +273,7 @@ private string multi_line(string this, int width, int margin)
 
 /* Apply flags, width & precision to string. */
 private string align (string this, int width, int precision, mapping options,
-                      string padding, int margin) 
+                      string padding, int margin)
 {
   int sz;
 
@@ -303,10 +303,10 @@ private string align (string this, int width, int precision, mapping options,
     done = 0;
     i = 0; // pointer through the full list of pieces
     j = 0; // current column
-    
+
     while (done < sizeof(pieces))
     {
-      cell = pieces[i];
+      cell = pieces[i+j];
 
       alt = options;
       alt["#"] = nil;
@@ -319,21 +319,12 @@ private string align (string this, int width, int precision, mapping options,
       j++;
       if (j >= columns)
       {
+        i += j;
         j = 0;
         this += "\n";
         if (margin > 0)
           this += give_padding(margin, " ");
       }
-      
-      // increment the inner pointer
-      i += lines;
-
-      // columns with one less element 
-      if (j > remainder)
-        i--;
-      
-      if (i >= sizeof(pieces))
-        i -= sizeof(pieces);
     }
 
     return this;
@@ -349,7 +340,7 @@ private string align (string this, int width, int precision, mapping options,
   // sz = strlen(ANSI_D->strip_colors (this));
   sz = strlen (this);
 
-  if (options ["-"]) 
+  if (options ["-"])
   {
     if (strlen(this) < width)
     {
@@ -361,14 +352,14 @@ private string align (string this, int width, int precision, mapping options,
     else
       this = multi_line(this, width, margin);
   }
-  else 
+  else
   {
-    if (options ["|"]) 
+    if (options ["|"])
     {
       this = give_padding ((width + 1 - sz) / 2, padding) + this +
              give_padding ((width - sz) / 2, padding);
     }
-    else 
+    else
     {
       this = give_padding (width - sz, padding) + this;
     }
@@ -407,7 +398,7 @@ private string convert_to_base (int i, int base) {
 
 
 
-private string numerical (int n, int base, int width, int precision, 
+private string numerical (int n, int base, int width, int precision,
                           mapping options, string padding) {
   string digits, sign, header, this;
   int    sz;
@@ -526,7 +517,7 @@ private string do_float (float x, int width, int precision,
     for (i = strlen (f_res); f_res [-- i] == '0';);
     f_res = (i ? f_res [.. i] : options ["#"] ? "." : "");
   }
-  
+
 
   /* Build string for exponent part. */
   if (exponent & 1) {
@@ -643,39 +634,39 @@ static string sprintf (string format, mixed args...) {
   padding = " ";
 
   for (i = 0, sz = sizeof (chunks), sz_args = sizeof (args), result = "";
-       i < sz; i ++) 
+       i < sz; i ++)
   {
     margin = 0;
 
-    if (!CONV_CHAR [chunks [i] [0]]) 
+    if (!CONV_CHAR [chunks [i] [0]])
     {
       result += chunks [i];
     }
-    else 
+    else
     {
-      if (chunks [i] [0 .. 1] == "%%" || chunks [i] [0 .. 1] == "@@") 
+      if (chunks [i] [0 .. 1] == "%%" || chunks [i] [0 .. 1] == "@@")
       {
         result += chunks [i] [1 .. 1];
       }
-      else 
+      else
       {
         width = precision = 0;
         ARGCOUNTCHECK (j, sz_args);
         switch (sscanf (chunks [i] [2 ..], "%s,%d,%d",
-                        flags, width, precision)) 
+                        flags, width, precision))
         {
           case 3: if (!precision) {precision = -2;}
 # if 0
 NOTE      case 2: if (!width) {width = -2;} /* Reserved for future use? */
 # endif
         }
-        if (width == -1) 
+        if (width == -1)
         {
           TYPECHECK (int, args [j], j + 2);
           width = args [j ++];
           ARGCOUNTCHECK (j, sz_args);
         }
-        if (precision == -1) 
+        if (precision == -1)
         {
           TYPECHECK (int, args [j], j + 2);
           precision = args [j ++];
@@ -690,7 +681,7 @@ NOTE      case 2: if (!width) {width = -2;} /* Reserved for future use? */
             margin += visible_strlen(chunks[k]);
         }
 
-        switch (cur = chunks [i] [.. 1]) 
+        switch (cur = chunks [i] [.. 1])
         {
           case "%A":
           case "%a": {
@@ -743,7 +734,7 @@ NOTE      case 2: if (!width) {width = -2;} /* Reserved for future use? */
             TYPECHECK (char, args [j], j + 2);
             padding = "X";
             padding [0] = args [j];
-          Case "%Q": 
+          Case "%Q":
             TYPECHECK (object, args [j], j + 2);
             query_object = args [j];
           Case "%q": {
@@ -773,19 +764,19 @@ NOTE      case "%S":
           Case "%y":
             result += align (anything (args [j]), width, precision,
                              options, padding, margin);
-# ifdef __FLOATS__       
+# ifdef __FLOATS__
           /* Bit 0 for exp, bit 1 for uppercase, bit 2 for conditional exp */
-          Case "%G": 
+          Case "%G":
           case "%g": exp |= 4;
           case "%E": if (cur != "%g") {exp |= 2;}
           case "%e": exp |= 1;
-          case "%f": 
+          case "%f":
             if (intp (args [j])) {args [j] = (float) args [j];}
             TYPECHECK (float, args [j], j + 2);
             result += do_float (args [j], width, precision, options, padding,
                                 exp);
             exp = 0;  /* Don't leave this out! */
-# endif              
+# endif
 // # ifdef __TIME_CONVERSION__
 //           /* Time related conversions. */
 //           Case "@a":
@@ -877,14 +868,14 @@ NOTE      case "%S":
 //             result += align (timezone (args [j]), width, precision,
 //                              options, padding, margin);
 // # endif
-// # endif       
+// # endif
           Default :
             error ("Unknown conversation character " + cur);
         }
         j ++;
       }
     }
-  } 
+  }
 # ifdef __CLOSE_TO_C__
   out [0] = result;
   return (strlen(ANSI_D->strip_colors (result)));
