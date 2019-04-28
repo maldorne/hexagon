@@ -221,7 +221,10 @@ static void open()
 // called from the driver
 static void close(mixed arg)
 {
-  write(_LANG_DISCONNECTED);
+  // use tell_object insted of write, the reason of the disconnection
+  // could be in a different user (ie: a reconnection)
+  tell_object(this_object(), _LANG_DISCONNECTED);
+  // write(_LANG_DISCONNECTED);
 }
 
 nomask int restore_me()

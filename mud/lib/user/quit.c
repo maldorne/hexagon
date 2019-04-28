@@ -12,17 +12,17 @@ int really_quit()
   aux = "";
   secure = 0;
 
-  // quit_destination added by neverbot, 03/09  
+  // quit_destination added by neverbot, 03/09
   while (environment(this_object()) &&
-        (aux = environment(this_object())->query_quit_destination()) && 
+        (aux = environment(this_object())->query_quit_destination()) &&
         (secure < 10))
   {
     if (load_object(aux))
       this_object()->move(aux);
     secure++;
   }
-  
-  if (secure != 0) 
+
+  if (secure != 0)
   {
     tell_object(this_object(), "En tu localización previa no es posible salir, "+
         "has sido movido a la más cercana (vuelve a intentarlo aquí si aún "+
@@ -34,7 +34,7 @@ int really_quit()
 
   traverse_timed_properties();
   last_log_on = time();
-  
+
   this_object()->adjust_online_time(time() - ontime);
 
   // This should send the time the player was on to an object which keeps
@@ -50,7 +50,7 @@ int really_quit()
                                 query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
     else
       log_file("enter", sprintf("Exit  : %-15s %s [%s]\n",
-                                name, ctime(time(),4), 
+                                name, ctime(time(),4),
                                 query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
   }
 
@@ -98,15 +98,15 @@ int really_quit()
   if (query_name() != DEF_NAME)
   {
     if ( !this_object()->query_hidden() )
-      tell_room( environment(this_object()), this_object()->query_cap_name() + 
-        " sale de "+mud_name()+".\n");
+      tell_room( environment(this_object()), this_object()->query_cap_name() +
+        " sale de "+mud_name()+".\n", ({ this_object() }));
 
     if ( this_object()->query_coder() )
       event(users(), "inform", this_object()->query_cap_name() +
                                " sale de " + mud_name(), "logon-coders",
                                all_inventory(environment(this_object())));
     else
-      event(users(), "inform", this_object()->query_cap_name() + 
+      event(users(), "inform", this_object()->query_cap_name() +
                                " sale de " + mud_name(), "logon",
                                all_inventory(environment(this_object())));
   }
@@ -115,7 +115,7 @@ int really_quit()
   i = 0;
 
   this_object()->save_me();
-  
+
   // TODO mounts
   // mounts, neverbot 07/05
   // save_mount();
@@ -127,7 +127,7 @@ int really_quit()
       money->dest_me();
 
   frog = first_inventory(this_object());
-  while (frog) 
+  while (frog)
   {
     frog2 = next_inventory(frog);
 
@@ -152,7 +152,7 @@ int really_quit()
 
   transfer_all_to(environment());
   ob = all_inventory(this_object());
-  
+
   for (i = 0; i < sizeof(ob); i++)
     ob[i]->dest_me();
 
@@ -167,14 +167,14 @@ int really_quit()
 
 void continue_quit(int a, object here)
 {
-  if (this_object()->query_is_fighting()) 
+  if (this_object()->query_is_fighting())
   {
     tell_object(this_object(), "Debes terminar primero tus combates.\n "+
         "Escribe '%^BOLD%^detener combates%^RESET%^' para terminarlos lo antes posible.\n");
     return;
   }
 
-  if (environment(this_object()) != here) 
+  if (environment(this_object()) != here)
   {
     tell_object(this_object(),"Si no paras de moverte será imposible buscar un buen lugar "+
         "para salir del juego.\n");
@@ -199,13 +199,13 @@ int quit()
   }
 
   tell_object(this_object(), "Saliendo...\n");
-  
-  if (this_object()->query_coder()) 
+
+  if (this_object()->query_coder())
   {
     this_object()->really_quit();
     return 1;
   }
-  
+
   tell_room(environment(this_object()), this_object()->query_cap_name()+
       " busca un lugar cómodo para salir del juego.\n", ({this_object()}));
 
@@ -217,6 +217,6 @@ int quit()
   }
   else
     call_out("continue_quit", 0, 5, environment(this_object()));
-  
+
   return 1;
-} 
+}
