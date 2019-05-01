@@ -2,7 +2,7 @@
 // Player account
 //   neverbot 12/2010
 
-#include <user/user.h>
+#include <account/account.h>
 #include <mud/secure.h>
 
 string account_name;
@@ -50,7 +50,7 @@ int set_account_ob(object account)
     return 0;
 
   _account = account;
-  
+
   return 1;
 }
 
@@ -89,7 +89,7 @@ void set_account_birthday(string str)
   _account->update_last_connection();
 }
 
-mixed * stats() 
+mixed * stats()
 {
   return (_account ? _account->stats() : ({ }));
 }

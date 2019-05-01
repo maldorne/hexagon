@@ -1,0 +1,10 @@
+
+// account_commands.c
+
+#define _LANG_ACCOUNT_COMMANDS "" + \
+        "Account commands:\n" + \
+        "   %^BOLD%^GREEN%^<character name>%^RESET%^ to continue playing.\n" + \
+        "   %^BOLD%^players%^RESET%^ to list all your characters.\n" + \
+        "   %^BOLD%^create%^RESET%^ to create a new player character.\n" + \
+        "   %^BOLD%^games%^RESET%^ to list available games.\n" + \
+        "   %^BOLD%^password%^RESET%^ to change your password.\n"

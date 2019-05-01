@@ -1,6 +1,7 @@
 
 #include <mud/secure.h>
 #include <areas/calendar.h>
+#include <language.h>
 
 static string tmppassword;
 
@@ -15,32 +16,37 @@ void account_commands()
   add_action("change_password", ({ "password" , "passwd", "contraseña", "contrasenya" }));
 }
 
+void show_commands()
+{
+  write(_LANG_ACCOUNT_COMMANDS);
+}
+
 int change_password2(mixed pass);
 
-int change_password(string str) 
+int change_password(string str)
 {
   write("Por favor, introduce tu antigua contraseña: ");
   input_to("change_password2", 1);
   return 1;
 }
 
-int change_password2(mixed pass) 
+int change_password2(mixed pass)
 {
   string str;
   string password;
-  
+
   if (!strlen(pass))
   {
     write("Cancelando...\n");
     return 1;
   }
-  
+
   password = this_object()->query_password();
-  
-  if (password) 
+
+  if (password)
   {
     str = crypt(pass, password);
-    if (str != password) 
+    if (str != password)
     {
       write("Contraseña incorrecta. Cancelando...\n");
       return 1;
@@ -55,25 +61,25 @@ int change_password2(mixed pass)
   write("Introduce la nueva contraseña: ");
   input_to("change_password3",1);
   return 1;
-} 
+}
 
-int change_password3(string pass) 
+int change_password3(string pass)
 {
   if (strlen(pass) < 6)
   {
     write("La contraseña debe tener al menos seis caracteres.\nCancelando...\n");
     return 1;
   }
-  
+
   tmppassword = pass;
   write("Por favor, introdúcela de nuevo: ");
   input_to("change_password4",1);
   return 1;
 }
 
-int change_password4(string pass) 
+int change_password4(string pass)
 {
-  if (tmppassword != pass) 
+  if (tmppassword != pass)
   {
     write("Las contraseñas no coinciden. Cancelando...\n");
     return 1;
@@ -84,7 +90,7 @@ int change_password4(string pass)
   return 1;
 }
 
-int chfn(string str) 
+int chfn(string str)
 {
   write("Cambiando los datos personales de tu cuenta.\n");
   write("Si no introduces algún dato, se tomará la opción por defecto (entre corchetes).\n");
@@ -95,7 +101,7 @@ int chfn(string str)
   return 1;
 }
 
-int real_name(string str) 
+int real_name(string str)
 {
   if (strlen(str))
   {
@@ -122,7 +128,7 @@ int real_name(string str)
   return 1;
 } /* real_name() */
 
-int get_where(string str) 
+int get_where(string str)
 {
   if (strlen(str))
   {
@@ -141,14 +147,14 @@ int get_where(string str)
   {
     write("Ok, lugar de residencia sin modificar.\n");
   }
-  
+
   write("\nIntroduce tu fecha de cumpleaños (ddmm) ["+this_object()->query_birthday()+"]\n"+
     "('ninguna' para borrarla): ");
   input_to("birthday");
   return 1;
 } /* get_where() */
 
-void birthday(string str) 
+void birthday(string str)
 {
   if (strlen(str))
   {
@@ -178,12 +184,12 @@ void birthday(string str)
 
   return;
 
-  // remove email change for now, it's set with 
+  // remove email change for now, it's set with
   // the account and cannot be changed
 
   // write("\nIntroduce tu dirección de email ["+this_object()->query_email()+"]\n"+
   //   "('ninguna' para borrarla): ");
-    
+
   // write("\nPuedes anteponer el símbolo ':' delante, y así sólo los administradores "+
   //     "podrán verlo.\n");
   // input_to("set_email");
@@ -191,7 +197,7 @@ void birthday(string str)
 } /* birthday() */
 
 /*
-int set_email(string str) 
+int set_email(string str)
 {
   if (strlen(str))
   {
@@ -211,7 +217,7 @@ int set_email(string str)
         write("Dirección de email inválida, se deja sin modificar.\n");
         return 1;
       }
-        
+
       if (str[0..0] == ":")
         write("Tu dirección de email sólo será visible por administradores.\n");
 
@@ -226,9 +232,8 @@ int set_email(string str)
   return 1;
 }
 */
-  
-mixed stats() 
+
+mixed stats()
 {
   return ({ });
 }
-            

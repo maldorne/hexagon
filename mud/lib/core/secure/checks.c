@@ -14,7 +14,7 @@ nomask int valid_progname(string progname)
 
   for (i = sizeof(trace) - 1; i >= 0; i--)
     if (trace[i][TRACE_PROGNAME] == progname)
-      return 1;  
+      return 1;
 
   return 0;
 }
@@ -29,39 +29,39 @@ nomask int valid_progname(string progname)
  * Returns:         True if exec() is allowed.
  */
 /*
-nomask int valid_exec(string name) 
+nomask int valid_exec(string name)
 {
   if (name == "/lib/core/login.c")
     return 1;
 
   return -1;
-} 
+}
 */
 
 // nomask int valid_load(string path, mixed euid, string func) { return 1; }
 
-nomask int valid_hide(object ob) 
+nomask int valid_hide(object ob)
 {
   return SECURE->is_administrator(geteuid(ob));
 }
 
-nomask int valid_ident(string euid) 
+nomask int valid_ident(string euid)
 {
   return SECURE->is_administrator(euid);
-} 
+}
 
-nomask int valid_link(string from, string to) 
+nomask int valid_link(string from, string to)
 {
   return -1;
 }
 
-nomask int valid_override(string file, string func) 
+nomask int valid_override(string file, string func)
 {
   string *bing;
 
   bing = explode(file, "/") - ({ "", "." });
 
-  switch (bing[0]) 
+  switch (bing[0])
   {
     case "secure" :
       return 1;
@@ -74,37 +74,37 @@ nomask int valid_override(string file, string func)
     default :
       return -1;
   }
-} 
+}
 
 // Read permisions for all of the objects in the game.
 // This IS fun.
 // But seems to be buggy, fix nov '95, Baldrick.
 
-nomask int valid_read(string path, mixed euid, varargs string func) 
+nomask int valid_read(string path, mixed euid, varargs string func)
 {
   string *bing;
   mixed master;
   int i;
 
-  if (func == "restore_object") 
+  if (func == "restore_object")
     return 1;
   if (func == "file_size")
     return 1;
 
-  if (objectp(euid)) 
+  if (objectp(euid))
     euid = geteuid(euid);
 
-  if (SECURE->is_administrator(euid)) 
+  if (SECURE->is_administrator(euid))
     return 1;
-  
+
   bing = explode(path, "/");
-  
+
   if (bing)
     bing = bing - ({ "", ".", "*" });
   else
     return 1;
 
-  if (!sizeof(bing)) 
+  if (!sizeof(bing))
     return 1;
 
   if (euid == TMP_EUID)
@@ -122,12 +122,12 @@ nomask int valid_read(string path, mixed euid, varargs string func)
     }
   }
 
-  if (SECURE->check_permission(euid, bing, READ_MASK)) 
+  if (SECURE->check_permission(euid, bing, READ_MASK))
     return 1;
 
-  switch (bing[0]) 
+  switch (bing[0])
   {
-    case "log": 
+    case "log":
       // logs for shops, vaults, etc
       if ((sizeof(bing) >= 2) && (bing[1] == "common"))
         return 1;
@@ -141,9 +141,9 @@ nomask int valid_read(string path, mixed euid, varargs string func)
       if (sizeof(bing) < 3)
         return 1;
 
-      if ((sizeof(bing) >= 3) && (bing[2] == euid)) 
+      if ((sizeof(bing) >= 3) && (bing[2] == euid))
         return 1;
-      
+
       master = "/" + bing[0] + "/" + bing[1] + "/" + bing[2] + "/master.c";
 
       // Bits down to master->valid_read fixed by Wonderflug, nov 95
@@ -158,7 +158,7 @@ nomask int valid_read(string path, mixed euid, varargs string func)
       }
 
       if (!find_object(master) && !SECURE->get_checked_master()[master]
-          && catch(master->dead_frogs())) 
+          && catch(master->dead_frogs()))
       {
         /* this is the case the master.c exists but does not load */
         SECURE->get_checked_master()[master] = 1;
@@ -171,9 +171,9 @@ nomask int valid_read(string path, mixed euid, varargs string func)
       if (sizeof(bing) < 2)
         return 1;
 
-      if ((sizeof(bing) >= 2) && (bing[1] == euid)) 
+      if ((sizeof(bing) >= 2) && (bing[1] == euid))
         return 1;
-      
+
       master = "/" + bing[0] + "/" + bing[1] + "/master.c";
 
       // Bits down to master->valid_read fixed by Wonderflug, nov 95
@@ -188,7 +188,7 @@ nomask int valid_read(string path, mixed euid, varargs string func)
       }
 
       if (!find_object(master) && !SECURE->get_checked_master()[master]
-          && catch(master->dead_frogs())) 
+          && catch(master->dead_frogs()))
       {
         /* this is the case the master.c exists but does not load */
         SECURE->get_checked_master()[master] = 1;
@@ -198,12 +198,12 @@ nomask int valid_read(string path, mixed euid, varargs string func)
       return (int) master->valid_read(bing, euid, func);
 
     case "save":
-      if (sizeof(bing) >= 2 && bing[1] == "players") 
+      if (sizeof(bing) >= 2 && bing[1] == "players")
         return (SECURE->check_permission(euid, bing, READ_MASK));
-      if (sizeof(bing) >= 2 && bing[1] == "accounts") 
+      if (sizeof(bing) >= 2 && bing[1] == "accounts")
         return (SECURE->check_permission(euid, bing, READ_MASK));
 
-      if (sizeof(bing) >= 2 && bing[1] == "post") 
+      if (sizeof(bing) >= 2 && bing[1] == "post")
         return (euid == MAIL_EUID);
 
       return (euid == ROOM_EUID);
@@ -213,7 +213,7 @@ nomask int valid_read(string path, mixed euid, varargs string func)
       {
         object handler;
         handler = load_object("/cmds/handlers/cmd_handler.c");
-        
+
         if (!handler)
           return 0;
 
@@ -226,11 +226,11 @@ nomask int valid_read(string path, mixed euid, varargs string func)
           else
             euid = geteuid(previous_object());
         }
-        
-        if (member_array("/"+bing[0]+"/"+bing[1]+"/", 
+
+        if (member_array("/"+bing[0]+"/"+bing[1]+"/",
           handler->query_available_directories_by_euid(euid)) == -1)
           return 0;
-        
+
         return 1;
       }
       else
@@ -244,18 +244,18 @@ nomask int valid_read(string path, mixed euid, varargs string func)
 nomask int valid_save_binary(string file)
 {
   string *path;
- 
+
   if (!file || file=="")
     return 0;
- 
+
   // if (file_name(previous_object()) == "/global/virtual/compiler")
   //   return 0;
- 
+
   path = explode(file, "/") - ({ "" });
- 
+
   if (!sizeof(path))
     return 0;
- 
+
   switch(path[0])
   {
     case "home":
@@ -263,26 +263,26 @@ nomask int valid_save_binary(string file)
     case "open":
     case "d":
       return 0;
-   
+
     case "secure":
     case "std":
     case "global":
     case "net":
       return 1;
-   
+
     case "obj":
       if (sizeof(path)==2)
         return 1;
-   
+
       if (path[1] == "armours" || path[1] == "weapons")
         return 0;
-   
+
       return 1;
   }
   return 0;
 }
 
-nomask int valid_seteuid(object ob, string euid) 
+nomask int valid_seteuid(object ob, string euid)
 {
   string current;
   string crea;
@@ -293,40 +293,40 @@ nomask int valid_seteuid(object ob, string euid)
   if (!strlen(euid))
     return 1;
 
-  if ((current == ROOT) || 
+  if ((current == ROOT) ||
       (current == BACKBONE) ||
       (current == euid))
   {
     return 1;
   }
-  
-  if ((base_name(ob) == USER_OB) && 
+
+  if ((base_name(ob) == USER_OB) &&
       (ob->query_coder()))
     return (euid == ob->query_name());
 
   if (geteuid(initial_object()) == euid)
     return 1;
 
-  // if (euid == TMP_EUID) 
+  // if (euid == TMP_EUID)
   //   return 1;
-  
+
   crea = SECURE->creator_file(file_name(ob));
 
-  if ((crea == ROOT) || 
-      (crea == BACKBONE) || 
-      (crea == euid)) 
+  if ((crea == ROOT) ||
+      (crea == BACKBONE) ||
+      (crea == euid))
   {
     return 1;
   }
 
   return 0;
-} 
+}
 
 /*
  * The master object is asked if it is ok to shadow object ob. Use
  * previous_object() to find out who is asking.
  */
-nomask int valid_shadow(object ob) 
+nomask int valid_shadow(object ob)
 {
   if (ob->query_prevent_shadow(previous_object()))
     return 0;
@@ -339,7 +339,7 @@ nomask int valid_shadow(object ob)
   //         !sscanf(file_name(ob), "/secure/%s", dummy));
 }
 
-nomask int valid_socket(object ob, string func, mixed *info) 
+nomask int valid_socket(object ob, string func, mixed *info)
 {
   return TRUE;
 }
@@ -355,20 +355,20 @@ nomask int valid_socket(object ob, string func, mixed *info)
  * any access is done to them.  This is a very flexible system,
  * but perhaps a little hard for some people to use.
  */
- 
-#define PLAYEROBS ({ "/lib/user", "/lib/core/login", "/lib/user/accounts/player_account" })
- 
-nomask int valid_write(string path, mixed euid, string func) 
+
+#define PLAYEROBS ({ "/lib/user", "/lib/core/login", "/lib/account" })
+
+nomask int valid_write(string path, mixed euid, string func)
 {
   string *bing;
   mixed master;
 
-  if (objectp(euid)) 
+  if (objectp(euid))
     euid = geteuid(euid);
-  
-  if (SECURE->is_administrator(euid)) 
+
+  if (SECURE->is_administrator(euid))
     return 1;
-  
+
   bing = explode(path, "/");
 
   if (sizeof(bing))
@@ -378,46 +378,46 @@ nomask int valid_write(string path, mixed euid, string func)
 
   /* Little patch to plug a security leak -- Wahooka */
   if (func == "save_object" && (sizeof(bing) >= 2) &&
-     (bing[0] == "save") && (bing[1] == "players")) 
+     (bing[0] == "save") && (bing[1] == "players"))
   {
-    if (member_array(base_name(previous_object()), PLAYEROBS) != -1) 
+    if (member_array(base_name(previous_object()), PLAYEROBS) != -1)
       return 1;
     return 0;
   }
   else if (func == "save_object" && (sizeof(bing) >= 2) &&
-          (bing[0] == "save") && (bing[1] == "accounts")) 
+          (bing[0] == "save") && (bing[1] == "accounts"))
   {
-    if (member_array(base_name(previous_object()), PLAYEROBS) != -1) 
+    if (member_array(base_name(previous_object()), PLAYEROBS) != -1)
       return 1;
     return 0;
   }
-  else if (func == "save_object" && bing[0] == "secure") 
+  else if (func == "save_object" && bing[0] == "secure")
   {
-    if (SECURE->is_administrator(euid)) 
+    if (SECURE->is_administrator(euid))
       return 1;
-    else 
+    else
       return 0;
   }
-  else if (func == "save_object") 
+  else if (func == "save_object")
     return 1;
 
-  if (euid == TMP_EUID) 
+  if (euid == TMP_EUID)
   {
-    if (bing[0] == "tmp") 
+    if (bing[0] == "tmp")
       return 1;
-    if (sizeof(bing) > 1 && bing[1] == "dungeons") 
+    if (sizeof(bing) > 1 && bing[1] == "dungeons")
       return 1;
     return 0;
   }
 
   // if (bing[sizeof(bing)-1] == ERROR_LOG) return 1;
-  if ((sizeof(bing) == 0) || (bing[sizeof(bing)-1] == ERROR_LOG)) 
+  if ((sizeof(bing) == 0) || (bing[sizeof(bing)-1] == ERROR_LOG))
     return 1;
 
-  if (SECURE->check_permission(euid, bing, WRITE_MASK)) 
+  if (SECURE->check_permission(euid, bing, WRITE_MASK))
     return 1;
-  
-  switch (bing[0]) 
+
+  switch (bing[0])
   {
     case "log":
       if (func == "log_file")
@@ -437,13 +437,13 @@ nomask int valid_write(string path, mixed euid, string func)
       break;
 
     case "home":
-      if (bing[1] == euid) 
+      if (bing[1] == euid)
         return 1;
-        
+
       master = "/" + bing[0] + "/" + bing[1] + "/master.c";
-        
+
       if (find_object(master) && !SECURE->get_checked_master()[master]
-            && !catch(master->dead_frogs())) 
+            && !catch(master->dead_frogs()))
       {
         return (find_object(master) == previous_object() ||
                find_object(master)->valid_write(bing, euid, func));
@@ -460,11 +460,11 @@ nomask int valid_write(string path, mixed euid, string func)
       if ((sizeof(bing) >= 3) &&
           (bing[2] == euid))
         return 1;
-        
+
       master = "/" + bing[0] + "/" + bing[1] + "/" + bing[2] + "/master.c";
-        
+
       if (find_object(master) && !SECURE->get_checked_master()[master]
-            && !catch(master->dead_frogs())) 
+            && !catch(master->dead_frogs()))
       {
         return (find_object(master) == previous_object() ||
                find_object(master)->valid_write(bing, euid, func));
@@ -479,9 +479,9 @@ nomask int valid_write(string path, mixed euid, string func)
         return 0;
       if ((sizeof(bing) >= 2) && (bing[1] == "accounts"))
         return 0;
-    
+
       if (euid == ROOM_EUID ||
-         (euid == "mailer" && sizeof(bing) == 3 && bing[1] == "post")) 
+         (euid == "mailer" && sizeof(bing) == 3 && bing[1] == "post"))
         return 1;
   }
 
@@ -491,60 +491,60 @@ nomask int valid_write(string path, mixed euid, string func)
 // used in login
 // returned value -1 means the name is ok
 // other value is the index of the wrong character inside the string
-nomask int valid_user_name(string str) 
+nomask int valid_user_name(string str)
 {
   int i;
   for (i = 0; i < strlen(str); i++)
-    if (str[i] < 'a' || str[i] > 'z') 
+    if (str[i] < 'a' || str[i] > 'z')
       return i;
   return -1;
 }
 
 // used in login
-int valid_email(string str) 
+int valid_email(string str)
 {
   int i;
   string * pieces;
 
   if (!strlen(str))
     return 0;
-  
+
   // first character must be a letter
   if (str[0] < 'a' || str[0] > 'z')
     return 0;
-  
+
   // only letters, numbers, @ and dots
   for (i = 0; i < strlen(str); i++)
   {
-    if (str[i] >= 'a' && str[i] <= 'z') 
+    if (str[i] >= 'a' && str[i] <= 'z')
       continue;
-    if (str[i] >= 'A' && str[i] <= 'Z') 
+    if (str[i] >= 'A' && str[i] <= 'Z')
       continue;
-    if (str[i] >= '0' && str[i] <= '9') 
+    if (str[i] >= '0' && str[i] <= '9')
       continue;
 
-    if (str[i] == '@') 
-      continue; 
-    if (str[i] == '.') 
+    if (str[i] == '@')
       continue;
-    
+    if (str[i] == '.')
+      continue;
+
     return 0;
   }
-      
+
   pieces = explode(str, "@");
   if (sizeof(pieces) != 2)
     return 0;
-    
+
   pieces = explode(pieces[1], ".");
   if (sizeof(pieces) < 2)
     return 0;
-    
+
   return 1;
 }
 
 // checked for ccmud, neverbot 07/05
 
-nomask int valid_snoop(object snooper, object snoopee, object pobj) 
+nomask int valid_snoop(object snooper, object snoopee, object pobj)
 {
   return -1;
   /*
@@ -557,9 +557,9 @@ nomask int valid_snoop(object snooper, object snoopee, object pobj)
       snoopee->query_cap_name()+" ya está siendo snoopeado.\n");
     return 0;
   }
-  if (snooper->query_snoopee()) 
+  if (snooper->query_snoopee())
   {
-    if (!snooper->query_property("quiet snoop")) 
+    if (!snooper->query_property("quiet snoop"))
     {
         event(users(), "inform", snooper->query_cap_name()+" deja de snoopear a "+
           snooper->query_snoopee()->query_name(), "snoop");
@@ -567,7 +567,7 @@ nomask int valid_snoop(object snooper, object snoopee, object pobj)
           snooper->query_cap_name()+" deja de snoopearte.\n");
     } else {
         event(users(), "inform", snooper->query_cap_name()+" deja de qsnoopear a "+
-          snooper->query_snoopee()->query_name(), "snoop"); 
+          snooper->query_snoopee()->query_name(), "snoop");
         snooper->remove_property("quiet snoop");
     }
     snooper->set_snoopee(0);
@@ -581,7 +581,7 @@ nomask int valid_snoop(object snooper, object snoopee, object pobj)
     return 0;
   if (pobj == this_object()) {
     event(users(), "inform", snooper->query_cap_name()+" comienza a qsnoopear a "+
-      snoopee->query_name(), "snoop"); 
+      snoopee->query_name(), "snoop");
     return 1;
   }
   if (query_verb() == "qsnoop" && query_admin(geteuid(snooper)))
@@ -589,8 +589,8 @@ nomask int valid_snoop(object snooper, object snoopee, object pobj)
     tell_object(snooper, "Comienzas a qsnoopear a "+
       snoopee->query_cap_name()+".\n");
     snooper->add_property("quiet snoop", 1);
-  } 
-  else 
+  }
+  else
   {
     tell_object(snoopee, "Estás siendo snoopeado por "+
       snooper->query_cap_name()+".\n");
@@ -653,7 +653,7 @@ void snoop_reason(string str) {
 
 int valid_adjust_xp(object prev, object this, int i)
 {
-  if (i < 1) 
+  if (i < 1)
     return 1;
 
   if (prev->query_coder() && this->query_coder())
@@ -666,13 +666,13 @@ int valid_adjust_xp(object prev, object this, int i)
   if ((!prev->query_npc() && !prev->is_player()) ||
      (immortal_create_me(prev)) )
   {
-    log_file("adjust_xp", "File: " + base_name(prev) + 
-             "\n\tcreated by: " + prev->query_create_me() + 
-             " adjusting: " + this->query_cap_name() + 
-             "\n\tamount: " + i + 
+    log_file("adjust_xp", "File: " + base_name(prev) +
+             "\n\tcreated by: " + prev->query_create_me() +
+             " adjusting: " + this->query_cap_name() +
+             "\n\tamount: " + i +
              " (this_player() = " + this_player()->query_cap_name() + ") "+ctime(time(), 4)+".\n");
     return 0;
-  /* 
+  /*
   sprintf("%O - %s - %d - %s\n",
      prev,
      this->query_name(),
