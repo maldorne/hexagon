@@ -57,5 +57,5 @@
 #define _LANG_CODERS_FORBIDDEN "Coder access is not allowed to this port.\n"
 
 #define _LANG_WAIT_LOADING "Please wait... loading your character.\n"
-#define _LANG_CONNECTED_WELCOME "You are connected! Welcome to "+mud_name()+".\n\n"
+#define _LANG_CONNECTED_WELCOME "%^BOLD%^You are connected! Welcome to "+mud_name()+".%^RESET%^\n"
 #define _LANG_HAS_RECONNECTED _user->query_cap_name() + " has reconnected.\n"

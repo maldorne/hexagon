@@ -9,7 +9,7 @@ void start(varargs int going_invis, int is_new_player)
     set_cols(79);
 
   if (last_on_from && query_coder())
-    tell_object(this_object(), _LANG_LAST_CONNECTION);
+    write(_LANG_LAST_CONNECTION);
 
   last_on_from = query_ip_name(this_object())+" ("+
                  query_ip_number(this_object())+")";
