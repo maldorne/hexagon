@@ -22,6 +22,7 @@ static mixed  redirect_input_args;     // optional arguments passed to the funct
 static int timestamp;     // last input time
 static int echo;          // input echo
 
+int start_time;           // time of first connection
 int last_connected;
 string last_on_from;      // last ip the user connected from
 
@@ -79,13 +80,16 @@ void create()
 
   seteuid(PLAYER_EUID);
 
-  timestamp    = 0;
-  echo         = 1;
-  last_on_from = "";
-  hud          = HUD_DIFFICULTY;
+  timestamp      = 0;
+  echo           = 1;
+  hud            = HUD_DIFFICULTY;
 
-  save_counter = 0;
-  last_command = time();
+  start_time     = time();
+  last_connected = time();
+  last_on_from   = "";
+
+  save_counter   = 0;
+  last_command   = time();
 
   redirect_input_ob       = nil;
   redirect_input_function = "";
@@ -433,6 +437,8 @@ void remove_player(string name)
   save_me();
 }
 
+string query_last_on_from() { return last_on_from; }
+int query_start_time() { return start_time; }
 int query_last_connection() { return last_connected; }
 void update_last_connection()
 {

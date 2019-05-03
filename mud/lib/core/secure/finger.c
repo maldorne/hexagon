@@ -111,12 +111,10 @@ int query_gender() { return gender; }
 
 string finger_info(string name, varargs object me)
 {
-  string retval, nick, *bing;
-  object ob;
-  mapping mail_stat;
   int i;
-  object table;
-  object account;
+  string retval, nick, *bing;
+  object ob, table, user;
+  mapping mail_stat;
   string birth_day, real_name, where, email;
 
   table = table("finger_table");
@@ -155,16 +153,21 @@ string finger_info(string name, varargs object me)
   restore_object("/save/players/"+name[0..0]+"/"+name+".o",1);
 
   // New account system, neverbot 12/2010
+  // separation in users and players, now account info is in the user, neverbot 05/2019
   if (strlen(account_name))
   {
-    account = clone_object("/lib/user/account.c");
-    if (account && account->restore_me(account_name))
+    user = clone_object("/lib/user.c");
+    if (user && user->restore_me(account_name))
     {
-      real_name = account->query_real_name();
-      birth_day = account->query_birthday();
-      where = account->query_location();
-      email = account->query_account_name();
+      real_name = user->query_real_name();
+      birth_day = user->query_birthday();
+      where = user->query_location();
+      email = account_name;
+      start_time = user->query_start_time();
+      last_on_from = user->query_last_on_from();
     }
+    else
+      return "";
   }
 
   if (strlen(real_name))
@@ -213,7 +216,11 @@ string finger_info(string name, varargs object me)
   // else if (home_dir)
   //   retval += "\n";
   if (strlen(where))
-    retval += sprintf("   %-35s", "Ciudad: "+where[0..65]+"\n");
+  {
+    if (strlen(where) > 65)
+      where = where[..65];
+    retval += sprintf("   %-35s", "Ciudad: "+where+"\n");
+  }
 
   if ((role_name == "player") && sizeof(social_object_list))
   {
