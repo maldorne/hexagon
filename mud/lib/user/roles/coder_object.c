@@ -1,6 +1,7 @@
 
 #include <mud/secure.h>
 #include <areas/common.h>
+#include <language.h>
 
 // prototypes
 object *wiz_present(string str, object onobj, varargs int nogoout);
@@ -41,7 +42,7 @@ static void role_commands()
   add_action("find_shadows", "shadows");
 }
 
-static int do_update(object *ov) 
+static int do_update(object *ov)
 {
   string pname;
   int dummy;
@@ -53,23 +54,23 @@ static int do_update(object *ov)
   string itemname;
   object thing;
 
-  if (this_player(1) != this_object()->query_player()) 
+  if (this_player(1) != this_user()->player())
     return 0;
 
   // Easy way to preload something...
   ROOM_VOID->bingle_bingle();
 
   rsv = find_object(ROOM_VOID); // RSV = Room Slash Void
-  if (!rsv) 
-  { 
+  if (!rsv)
+  {
     // Die in horror
-    notify_fail("¡La habitación en el vacío ha desaparecido!\n");
+    notify_fail(_LANG_CODER_OBJECT_NO_RSV);
     return 0;
   }
 
-  for (i = 0; i < sizeof(ov); i++) 
+  for (i = 0; i < sizeof(ov); i++)
   {
-    if (!ov[i]) 
+    if (!ov[i])
         continue;
 
     env = environment(ov[i]);
@@ -78,8 +79,7 @@ static int do_update(object *ov)
     // Added logging of "update <player>"  Radix, Dec 15, 1995
     if (interactive(ov[i]))
     {
-      write("Tu NO updateas a '" + ov[i]->query_cap_name() + 
-            "', (no se pueden updatear objetos interactive()).\n");
+      notify_fail(_LANG_CODER_OBJECT_DO_NOT_UPDATE);
       return 0;
     }
 
@@ -87,12 +87,12 @@ static int do_update(object *ov)
     {
       if (interactive(ov[i]) || interactive(invent[j]) )
         invent[j]->move(rsv);
-      else 
+      else
         invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
     }
 
     pname = file_name(ov[i]);
-    if (sscanf(pname, "%s#%d", pname, dummy) != 2) 
+    if (sscanf(pname, "%s#%d", pname, dummy) != 2)
     {
       // Next three Hamlet's
       load_junk = "/lib/core/basic/auto_load"->create_update_auto_load(ov[i]);
@@ -100,53 +100,53 @@ static int do_update(object *ov)
       itemname = ov[i]->query_short();
 
       ov[i]->dest_me();
-      if (ov[i]) 
+      if (ov[i])
           ov[i]->dwep();
-      if (ov[i]) 
+      if (ov[i])
           destruct(ov[i]);
 
       // file_size("/secure/master");     Struck me as senseless.
       // Uh, you just dested it.  obviously it's not there...
       // if (!ov[i])
       //   ov[i] = find_object(pname);
-      
+
       catch(call_other(pname, "??"));
       ov[i] = find_object(pname);
-    } 
-    else 
+    }
+    else
     {
       loaded = find_object(pname);
 
       // Next three Hamlet's
-      if (loaded) 
+      if (loaded)
       {
         load_junk = "/lib/core/basic/auto_load"->create_update_auto_load(loaded);
         totell = environment(loaded);
         itemname = loaded->query_short();
       }
 
-      if (loaded) 
+      if (loaded)
         loaded->dest_me();
-      if (loaded) 
+      if (loaded)
         loaded->dwep();
-      if (loaded) 
+      if (loaded)
         destruct(loaded);
 
       // These are Hamlet's too
       catch(loaded = load_object(pname));
       if (loaded)
         loaded->move(totell);
-      else 
-      { 
-        // Damn thing didn't reload... Oops... 
-        if (totell) 
+      else
+      {
+        // Damn thing didn't reload... Oops...
+        if (totell)
         {
           if (interactive(totell))
             if (strlen(itemname))
-              tell_object(totell,"Ups. Tu "+itemname+" acaba de romperse.\n");
+              tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
           else
-            tell_object(totell,"Ups. Algo que tenías acaba de romperse.\n");
-          thing = clone_object( "/obj/misc/iou" );
+            tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
+          thing = clone_object( "/lib/obj/iou" );
           thing->add_auto_string( load_junk );
           thing->move( totell );
         }
@@ -154,27 +154,27 @@ static int do_update(object *ov)
 
       catch(dup = clone_object(pname));
 
-      if (dup && ov[i]) 
+      if (dup && ov[i])
       {
         ov[i]->dest_me();
-        if (ov[i]) 
+        if (ov[i])
             ov[i]->dwep();
-        if (ov[i]) 
+        if (ov[i])
             destruct(ov[i]);
         ov[i] = dup;
       }
     }
 
-    if (!ov[i]) 
+    if (!ov[i])
     {
-      if (totell) 
+      if (totell)
       {
         if (interactive(totell))
           if (strlen(itemname))
-            tell_object(totell,"Ups. Tu "+itemname+" acaba de romperse.\n");
+            tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
         else
-          tell_object(totell, "Ups. Algo que tenías acaba de romperse.\n");
-        thing = clone_object( "/obj/misc/iou" );
+          tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
+        thing = clone_object( "/lib/obj/iou" );
         thing->add_auto_string( load_junk );
         thing->move( totell );
       }
@@ -182,95 +182,89 @@ static int do_update(object *ov)
     }
 
     for (j = 0; j < sizeof(invent); j++)
-      if (invent[j]) 
+      if (invent[j])
         invent[j]->move(ov[i]);
 
-    if (env) 
+    if (env)
       ov[i]->move(env);
 
-    write("Updated: " + desc_f_object(ov[i]) + ".\n");
+    write(_LANG_CODER_OBJECT_UPDATED + desc_f_object(ov[i]) + ".\n");
   }
 
   return 1;
 } /* do_update() */
 
-int update(string str) 
+int update(string str)
 {
   string tring, *filenames, err;
   object ob, *val, *obs;
   int loop;
 
-  notify_fail("No existe tal objeto.\n");
+  notify_fail(_LANG_CODER_OBJECT_DONT_EXIST);
   tring = str;
 
-  if (this_player(1) != this_player()) 
-    return 0;
+  // if (this_player(1) != this_player())
+  //   return 0;
 
-  if (!strlen(str) || str == "here") 
+  if (!strlen(str) || (member_array(str, _LANG_CODER_OBJECT_HERE) != -1))
   {
-    str = file_name(environment(this_player()));
-    sscanf(str, "%s#%d", str, loop);
-    filenames = ({ "/" + str });
-    str = "here";
+    str = _LANG_CODER_OBJECT_HERE[0];
+    filenames = ({ base_name(environment(this_player())) });
   }
-  else 
-  {
+  else
     filenames = get_cfiles(str);
-  }
-  
-  if (sizeof(filenames) == 0) 
+
+  if (sizeof(filenames) == 0)
   {
     val = wiz_present(tring, this_player());
-    
-    if (!sizeof(val)) 
+
+    if (!sizeof(val))
     {
-      notify_fail("No hay archivos/objetos coincidentes.\n");
+      notify_fail(_LANG_CODER_OBJECT_NO_OBJECTS);
       return 0;
     }
-    
+
     return do_update(val);
   }
-  
+
   obs = ({ });
-  
-  for (loop = 0; loop < sizeof(filenames); loop++) 
+
+  for (loop = 0; loop < sizeof(filenames); loop++)
   {
     str = filenames[loop];
     ob = load_object(str);
 
-    if (!ob) 
+    if (!ob)
     {
-      if (file_size(str) >= 0) 
+      if (file_size(str) >= 0)
       {
         // stop trying to do this, if load_object did not work, this
-        // won't work either. 
+        // won't work either.
         //    neverbot 01/2017
-        // if (!(err = catch(str->bing_with_me())))
-        //   write(str + " cargado.\n");
-        // else
-        //   write("No se pudo cargar " + str + ", error:\n\t" + err + ".\n");
-        write("No se pudo cargar " + str + ".\n");
+        // if (err = catch(str->bing_with_me()))
+        //   write(_LANG_CODER_OBJECT_CANNOT_LOAD + str + ", error:\n\t" + err + ".\n");
+        write(_LANG_CODER_OBJECT_CANNOT_LOAD);
       }
-      else 
+      else
       {
         val = wiz_present(tring, this_player());
         obs += val;
       }
     }
-    else 
+    else
     {
       obs += ({ ob });
     }
   }
-  
+
   if (!obs)
     return 0;
   else
     return do_update(obs);
-        
+
 } /* update() */
 
-int do_a_call(string str) 
+int do_a_call(string str)
 {
   /* call fish(x,y,z) object */
   mixed * args;
@@ -283,10 +277,10 @@ int do_a_call(string str)
   string f, file;
   int i;
 
-  if (this_player(1) != this_player()) 
+  if (this_player(1) != this_player())
     return 0;
-  
-  if (!strlen(str)) 
+
+  if (!strlen(str))
   {
     notify_fail("Sintaxis: call lfun(arg[,arg[,arg...]]) objeto[s]\n");
     return 0;
@@ -297,7 +291,7 @@ int do_a_call(string str)
 
   s = explode("&"+str+"&", ")");
 
-  if (sizeof(s) < 2 || sscanf(s[0], "%s(%s", s1, s2) != 2) 
+  if (sizeof(s) < 2 || sscanf(s[0], "%s(%s", s1, s2) != 2)
   {
     notify_fail("Sintaxis: call lfun(arg[,arg[,arg...]]) objeto[s]\n");
     return 0;
@@ -307,28 +301,28 @@ int do_a_call(string str)
   s[0] = s2;
   args = parse_args(implode(s, ")"), ")");
 
-  if (!sizeof(args)) 
+  if (!sizeof(args))
     return 1;
-  
+
   argv = args[0];
   os = args[1][0..strlen(args[1])-2];
- 
-  while (strlen(os) && os[0] == ' ') 
+
+  while (strlen(os) && os[0] == ' ')
     os = os[1..];
-  
+
   notify_fail("No puedo encontrar el objeto "+os+".\n");
   ov = wiz_present(os, this_player());
 
-  if (!sizeof(ov)) 
+  if (!sizeof(ov))
     return 0;
 
-  // if (sizeof(argv) < 6) 
+  // if (sizeof(argv) < 6)
   //   argv += allocate(6 - sizeof(argv));
 
-  for (i = 0; i < sizeof(ov); i++) 
+  for (i = 0; i < sizeof(ov); i++)
   {
     fish = ov[i];
-    
+
     if (fish != this_player() && fish->query_coder() && !this_player()->query_admin())
     {
       log_file("call_prog", (string)this_player()->query_cap_name()+
@@ -337,18 +331,18 @@ int do_a_call(string str)
         "grabado.\n");
       return 0;
     }
-    
-    while (shad = shadow(fish, 0)) 
+
+    while (shad = shadow(fish, 0))
     {
       fish = shad;
-      if (f = function_exists(fn, fish)) 
+      if (f = function_exists(fn, fish))
         file = f;
     }
 
-    if (!file || !strlen(file)) 
+    if (!file || !strlen(file))
       file = function_exists(fn, ov[i]);
-    
-    if (file && strlen(file)) 
+
+    if (file && strlen(file))
     {
       string error;
 
@@ -388,37 +382,37 @@ int do_a_call(string str)
       // }
 
       inform_of_call(ov[i], ({ fn }) + argv);
-  
+
       if ( ov[i] && interactive(ov[i]) && !ov[i]->query_coder() )
         log_file("call_player",(string)this_player()->query_cap_name()+" calls '"+str+
           "' -- player "+(string)ov[i]->query_name()+" ["+ctime(time(),4)+"]\n");
-      
+
       write("*** Función en '"+ desc_object(ov[i])+"' encontrada en "+ file+ " ***\n");
       write("Returned: " + to_string(retobj) + "\n");
       // printf("%O\n", retobj);
-    } 
+    }
     else
       write("*** Función en '"+desc_object(ov[i])+"' no encontrada ***\n");
-    
+
     file = "";
   }
 
   return 1;
 } /* do_a_call() */
 
-// returns true if s is a 'yes' equiv response 
-int affirmative(string s) 
+// returns true if s is a 'yes' equiv response
+int affirmative(string s)
 {
   s = lower_case(s);
   return (s == "y" || s == "s" || s == "si" || s == "ok" || s == "please");
 } /* affirmative() */
 
-void ask_dest() 
+void ask_dest()
 {
-  if (!pointerp(dest_obj) || objn >= sizeof(dest_obj)) 
+  if (!pointerp(dest_obj) || objn >= sizeof(dest_obj))
   {
     write("No hay más cosas por destruir.\n");
-    dest_obj = ({ }); // wipe array to free memory 
+    dest_obj = ({ }); // wipe array to free memory
     return;
   }
 
@@ -431,15 +425,15 @@ void dest_answer(string s)
 {
   string err, shrt;
 
-  if (affirmative(s)) 
+  if (affirmative(s))
   {
-    if (majd) 
+    if (majd)
     {
       shrt = (string)dest_obj[objn]->short();
       err = catch(dest_obj[objn]->dwep());
       write("DWEP falló: " + err + "\n");
-    
-      if (dest_obj[objn]) 
+
+      if (dest_obj[objn])
       {
         write("Este objeto no quiere ser destruido.\n");
         err = catch(destruct(dest_obj[objn]));
@@ -447,10 +441,10 @@ void dest_answer(string s)
       }
 
       majd = 0;
-      
-      if (dest_obj[objn]) 
+
+      if (dest_obj[objn])
         write("No se pudo destruir.\n");
-      else 
+      else
       {
         say((string)this_player()->query_cap_name()+" destruye "+
           (shrt ? shrt : "algo") +".\n");
@@ -460,13 +454,13 @@ void dest_answer(string s)
       objn++;
       ask_dest();
       return;
-    } 
-    else 
+    }
+    else
     {
       err = catch(dest_obj[objn]->dest_me());
       write("dest_me falló: " + err + "\n");
-    
-      if (dest_obj[objn]) 
+
+      if (dest_obj[objn])
       {
         write("Este objeto no desea ser destruido, ¿aún deseas hacerlo?");
         majd = 1;
@@ -479,8 +473,8 @@ void dest_answer(string s)
       ask_dest();
       return;
     }
-  } 
-  else if (s == "q" || s == "quit") 
+  }
+  else if (s == "q" || s == "quit")
   {
     write("Ok. No se destruiran más objetos.\n");
     dest_obj = ({ });
@@ -493,7 +487,7 @@ void dest_answer(string s)
   return;
 } /* dest_answer() */
 
-int do_dest(string str) 
+int do_dest(string str)
 {
   object *ob;
   int i;
@@ -501,7 +495,7 @@ int do_dest(string str)
 
   dest_obj = ({ });
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
     notify_fail("¿Destruir el qué?\n");
     return 0;
@@ -509,10 +503,10 @@ int do_dest(string str)
 
   notify_fail("No puedo encontrar '" + str + "' para destruir.\n");
 
-  if (sscanf(str, "query %s", qstr) == 1) 
+  if (sscanf(str, "query %s", qstr) == 1)
   {
     dest_obj = wiz_present(qstr, this_player());
-    if (!sizeof(dest_obj)) 
+    if (!sizeof(dest_obj))
       return 0;
     objn = 0;
     majd = 0; // MAJOR dest needed
@@ -521,23 +515,23 @@ int do_dest(string str)
   }
 
   ob = wiz_present(str, this_player());
-  
-  if (!sizeof(ob)) 
+
+  if (!sizeof(ob))
     return 0;
 
   for (i = 0; i < sizeof(ob); i++)
   {
-    if (interactive(ob[i]) && (sizeof(ob) !=1 || 
+    if (interactive(ob[i]) && (sizeof(ob) !=1 ||
       MASTER->high_programmer(geteuid(ob[i]))))
     {
-      write("No destruyes a " + ob[i]->query_cap_name() + 
+      write("No destruyes a " + ob[i]->query_cap_name() +
             " (no puedes destruir objetos interactive).\n");
       continue;
     }
     // if (interactive(ob[i]) && !(this_player()->query_admin() || this_player()->query_thane()))
     if (interactive(ob[i]) && !(this_player()->query_admin()) )
     {
-      log_file("dest", "["+ctime(time(), 4)+"] " + 
+      log_file("dest", "["+ctime(time(), 4)+"] " +
         this_player()->query_cap_name()+" tried (unsuccessfully) to dest the interactive object '"+
         ob[i]->query_cap_name()+"'.\n");
       write("Lo siento, no te está permitido destruir a "+ob[i]->query_cap_name()+".\n");
@@ -550,12 +544,12 @@ int do_dest(string str)
     if ( ob[i] && ob[i]->query_cap_name() && environment(ob[i]) )
     {
       // log_file("dest",(string)this_player(1)->query_cap_name()+
-      log_file("dest",  "["+ctime(time(), 4)+"] " + 
+      log_file("dest",  "["+ctime(time(), 4)+"] " +
         (string)this_player()->query_cap_name()+
         " dest'ed "+ob[i]->query_cap_name() + /* " de "+
         environment(ob[i])->query_short() + */ " en " +
         file_name(environment(ob[i]))+"\n");
-      
+
       event(users(), "inform", (string)this_player()->query_cap_name() +
         " destruye "+ob[i]->query_cap_name() + /* " de "+
         environment(ob[i])->query_short() + */ " en "+
@@ -563,7 +557,7 @@ int do_dest(string str)
     }
 
     err = catch(ob[i]->dest_me());
-    
+
     if (err)
       write("dest_me falló: " + err + "\n");
 
@@ -576,19 +570,19 @@ int do_dest(string str)
         (shrt ? shrt : "algo") + ".\n");
     }
   }
-  
-  if (sizeof(dest_obj) > 0) 
+
+  if (sizeof(dest_obj) > 0)
   {
     objn = 0;
     majd = 0;
     ask_dest();
     return 1;
   }
-  
+
   return 1;
 } /* dest() */
 
-int get_creator(string str) 
+int get_creator(string str)
 {
   object * ov;
   int i;
@@ -596,47 +590,47 @@ int get_creator(string str)
   notify_fail("Creator of what?\n");
   ov = wiz_present(str,this_player());
 
-  if (!sizeof(ov)) 
+  if (!sizeof(ov))
     return 0;
 
-  for (i = 0; i < sizeof(ov); i++) 
+  for (i = 0; i < sizeof(ov); i++)
   {
     write("Creator of " + desc_object(ov[i]) + ": " +
-          SECURE->creator_file (file_name(ov[i])) + 
-          ", uid: " + getuid(ov[i]) + 
+          SECURE->creator_file (file_name(ov[i])) +
+          ", uid: " + getuid(ov[i]) +
           ", euid: " + geteuid(ov[i]) + "\n");
   }
 
   return 1;
 } /* get_creator() */
 
-int get_inv(string str) 
+int get_inv(string str)
 {
   object *ov, obj;
   int i;
 
   // thanks for the great error message!
-  notify_fail("¿Inventario de qué?\n"); 
+  notify_fail("¿Inventario de qué?\n");
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
     ov = ({ this_player() });
-  } 
-  else 
+  }
+  else
   {
     sscanf(str, "de %s", str);
     ov = wiz_present(str, this_player());
   }
 
-  if (!sizeof(ov)) 
+  if (!sizeof(ov))
     return 0;
 
-  for (i = 0; i < sizeof(ov); i++) 
+  for (i = 0; i < sizeof(ov); i++)
   {
-    if (!ov[i]) 
+    if (!ov[i])
       continue;
-    
-    if ( (interactive(ov[i])) && !(ov[i]->query_coder()) && 
+
+    if ( (interactive(ov[i])) && !(ov[i]->query_coder()) &&
        !(this_object()->query_admin()) && !(ov[i] == this_object()))
     {
       log_file("inv", this_object()->query_cap_name()+" intentó ver el inventario del interactive: "+
@@ -649,8 +643,8 @@ int get_inv(string str)
           desc_object(environment(ov[i])) + ":\n");
 
     obj = first_inventory(ov[i]);
-    
-    while (obj) 
+
+    while (obj)
     {
       write("  " + desc_f_object(obj) + "\n");
       obj = next_inventory(obj);
@@ -664,7 +658,7 @@ int get_inv(string str)
 /*
 protected int parse_frogs(string str) {
   mixed junk;
-  
+
   if (this_player(1) != this_object()) return 0;
   // We are not as such looking for an end thingy of any sort...
   junk = parse_args(str, ";");
@@ -683,7 +677,7 @@ int show_stats(string str) {
   mixed *ob1;
   string s,bing;
   int i,j;
-  
+
   bing = "";
   ob = wiz_present(str, this_object());
   if (!sizeof(ob)) {
@@ -697,7 +691,7 @@ int show_stats(string str) {
   //  write("You are not allowed to stat "+ob[j]->query_cap_name()+".\n");
   // continue;
   // }
-  
+
   ob1 =ob[j]->stats();
   if (!pointerp(ob1))
   continue;
@@ -706,7 +700,7 @@ int show_stats(string str) {
   if (ob1[i])
   if (ob1[i][0])
   s += ob1[i][0] + ": "+ob1[i][1]+"\n";
-  
+
   bing += sprintf("%-*#s\n\n\n", this_object()->query_cols(), s);
   }
   this_object()->more_string(bing);
@@ -717,38 +711,38 @@ int show_stats(string str) {
 /*
 int upgrade_player() {
   object ob;
-  
+
   ob = clone_object("/secure/upgrade");
   ob->new_player(this_object());
   return 1;
 } upgrade_player() */
 
 
-int trans(string str) 
+int trans(string str)
 {
   object *obs;
   int i;
 
-  if (this_player(1) != this_object()->query_player()) 
+  if (this_player(1) != this_object()->query_player())
     return 0;
 
-  if (!strlen(str) || !(sizeof(obs = wiz_present(str, this_player())))) 
+  if (!strlen(str) || !(sizeof(obs = wiz_present(str, this_player()))))
   {
     write("¿Transportar a quién?\n");
     return 1;
   }
 
-  for (i = 0; i < sizeof(obs); i++) 
+  for (i = 0; i < sizeof(obs); i++)
   {
-    if (environment(obs[i]) == environment(this_player())) 
+    if (environment(obs[i]) == environment(this_player()))
     {
       write(desc_object(obs[i])+" ya está aquí.\n");
       continue;
     }
 
     /*
-    if (interactive(obs[i]) && 
-       !(this_player()->query_thane() || this_player()->query_admin()) && 
+    if (interactive(obs[i]) &&
+       !(this_player()->query_thane() || this_player()->query_admin()) &&
        !(obs[i]->query_property("test_char"))
     {
       log_file("BUSTED",this_player()->query_cap_name()+" tried to illegally trans "+obs[i]->query_cap_name()+".\n");
@@ -761,7 +755,7 @@ int trans(string str)
       log_file("trans", (string)this_player(1)->query_cap_name()+" (trans'ed) "+
         obs[i]->query_cap_name()+" from "+file_name(environment(obs[i]))+
         " to "+file_name(environment(this_player()))+" ["+ctime(time(),4)+"]\n");
-    
+
     tell_object(obs[i], "\nEres transferido mágicamente a algún lugar.\n\n");
     write("Transfieres a " + obs[i]->query_cap_name() + " hasta aquí.\n");
     obs[i]->move_living("X", environment(this_player()));
@@ -770,7 +764,7 @@ int trans(string str)
   return 1;
 } /* trans() */
 
-int whereis(string str) 
+int whereis(string str)
 {
   object *ov,e;
   int i;
@@ -778,18 +772,18 @@ int whereis(string str)
   notify_fail("¿Dónde esta el qué?\n");
   ov = wiz_present(str, this_player());
 
-  if (!sizeof(ov)) 
+  if (!sizeof(ov))
     return 0;
 
-  for (i = 0; i < sizeof(ov); i++) 
+  for (i = 0; i < sizeof(ov); i++)
   {
-    if (ov[i]->query_invis() > 1) 
+    if (ov[i]->query_invis() > 1)
       continue;
 
     if (interactive(ov[i]))
       if (!(this_player()->query_admin() || this_player()->query_thane()))
-      { 
-        log_file("whereis", this_player()->query_cap_name()+" attempted to locate interactive: " + 
+      {
+        log_file("whereis", this_player()->query_cap_name()+" attempted to locate interactive: " +
                             ov[i]->query_cap_name()+" ["+ctime(time(),4)+"]\n");
         write("Lo siento, no te está permitido localizar jugadores.\n");
         continue;
@@ -804,7 +798,7 @@ int whereis(string str)
   return 1;
 } /* whereis() */
 
-int get_pathof(string str) 
+int get_pathof(string str)
 {
   object *ov;
   int i;
@@ -812,12 +806,12 @@ int get_pathof(string str)
   notify_fail("¿Path de qué?\n");
   ov = wiz_present(str,this_player());
 
-  if (!sizeof(ov)) 
+  if (!sizeof(ov))
     return 0;
 
-  for (i = 0; i < sizeof(ov); i++) 
+  for (i = 0; i < sizeof(ov); i++)
   {
-    if (!ov[i]) 
+    if (!ov[i])
       continue;
     /*
     if (sizeof(ov) > 1) {
@@ -834,7 +828,7 @@ int get_pathof(string str)
 } /* get_pathof() */
 
 /* added by Dank Mar 3 '93.  also added query_prev() to move.c */
-int goback(string str) 
+int goback(string str)
 {
   object ob;
 
@@ -849,7 +843,7 @@ int goback(string str)
   return 1;
 }
 
-int do_find(string str) 
+int do_find(string str)
 {
   string func, thing, s, ping;
   object *obs, fish;
@@ -857,7 +851,7 @@ int do_find(string str)
 
   notify_fail("Sintaxis: find funcion() <objeto(s)>\n");
 
-  if (!strlen(str)) 
+  if (!strlen(str))
     return 0;
 
   if (sscanf(str, "%s() %s", func, thing) != 2)
@@ -866,7 +860,7 @@ int do_find(string str)
 
   obs = wiz_present(thing, this_player());
 
-  if (!sizeof(obs)) 
+  if (!sizeof(obs))
   {
     notify_fail("No se encontró '" + thing + "'.\n");
     return 0;
@@ -874,15 +868,15 @@ int do_find(string str)
 
   s = "";
 
-  for (i = 0; i < sizeof(obs); i++) 
+  for (i = 0; i < sizeof(obs); i++)
   {
     if (ping = function_exists(func, obs[i]))
       s += "*** " + desc_object(obs[i])+": "+func+"() encontrada en " + ping + " ***\n";
     else
       s += "*** " + desc_object(obs[i]) + ": " + func + "() no encontrada ***\n";
-    
+
     fish = obs[i];
-    
+
     while(fish = shadow(fish, 0))
       if (function_exists(func, fish))
         s += "      Shadowed por " + file_name(fish) + "\n";
@@ -892,17 +886,17 @@ int do_find(string str)
   return 1;
 } /* do_find() */
 
-int do_debug(string str) 
+int do_debug(string str)
 {
   object *obs;
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
     notify_fail("Sintaxis: " + query_verb() + " <objeto>\n");
     return 0;
   }
 
-  if (!sizeof(obs = wiz_present(str, this_player()))) 
+  if (!sizeof(obs = wiz_present(str, this_player())))
   {
     notify_fail("Objeto " + str + " no encontrado.\n");
     return 0;
@@ -912,24 +906,24 @@ int do_debug(string str)
   return 1;
 } /* do_debug() */
 
-int find_shadows(string s) 
+int find_shadows(string s)
 {
   object *objs, *shadows;
   object nobj;
   int i, j;
 
-  if (!strlen(s)) 
+  if (!strlen(s))
     s = "me";
 
   objs = wiz_present(s, this_player());
 
-  if (sizeof(objs) == 0) 
+  if (sizeof(objs) == 0)
   {
     notify_fail("No puedo encontrar el objeto.\n");
     return 0;
   }
 
-  for (i = 0; i < sizeof(objs); i++) 
+  for (i = 0; i < sizeof(objs); i++)
   {
     shadows = objs[i]->_query_shadows();
 
@@ -939,25 +933,25 @@ int find_shadows(string s)
     // while (nobj = shadow(nobj, 0))
     //   shadows += ({ nobj });
 
-    if (!sizeof(shadows)) 
+    if (!sizeof(shadows))
     {
       write(desc_f_object(objs[i]) + " no esta siendo shadowed.\n");
-    } 
-    else 
+    }
+    else
     {
       write(desc_f_object(objs[i]) + " esta siendo shadowed por:\n");
-    
+
       for (j = 0; j < sizeof(shadows); j++)
         write("    " + file_name(shadows[j]) + "\n");
     }
   }
-  
+
   return 1;
 } /* find_shadows() */
 
-mixed stats() 
+mixed stats()
 {
-  return ({ 
+  return ({
           });
 }
-            
+
