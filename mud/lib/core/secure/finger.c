@@ -20,18 +20,18 @@ string last_pos;
 string * social_object_list;
 string role_name;
 
-string make_string(mixed *al) 
+string make_string(mixed *al)
 {
   string str;
 
   str = (string)"/global/player/alias.c"->alias_string(al);
   sscanf(str, "%s $*$", str);
   return str;
-} 
+}
 
-string banish_finger(string name) 
+string banish_finger(string name)
 {
-  string retval; 
+  string retval;
   // string time, ban_by;
   string *file;
 
@@ -49,7 +49,7 @@ string banish_finger(string name)
   return retval;
 } /* banish_finger() */
 
-string domain_finger(string name) 
+string domain_finger(string name)
 {
   string ret, master;
   string *nombres;
@@ -95,11 +95,11 @@ string domain_finger(string name)
      if (i != sizeof(nombres) - 1)
       ret += ", ";
     }
-    ret += ".\n";      
+    ret += ".\n";
   }
 
   if (master->query_info())
-  ret += sprintf("  %-=*s", (int)this_player()->query_cols() - 3, 
+  ret += sprintf("  %-=*s", (int)this_user()->query_cols() - 3,
          (string)master->query_info());
   else
   ret += "El dominio no tiene información disponible.\n";
@@ -109,7 +109,7 @@ string domain_finger(string name)
 // Para poder utilizar las funciones con gender pasando este objeto como parametro
 int query_gender() { return gender; }
 
-string finger_info(string name, varargs object me) 
+string finger_info(string name, varargs object me)
 {
   string retval, nick, *bing;
   object ob;
@@ -134,7 +134,7 @@ string finger_info(string name, varargs object me)
 
   if (!"/lib/core/login"->test_user(name))
     return "";
-  
+
   title = "";
   birth_day = "";
   last_log_on = 0;
@@ -167,9 +167,9 @@ string finger_info(string name, varargs object me)
     }
   }
 
-  if (strlen(real_name)) 
+  if (strlen(real_name))
   {
-    if (real_name[0] == ':') 
+    if (real_name[0] == ':')
     {
       if (MASTER->valid_read("/save/players/"+name[0..0]+"/"+name+".o", geteuid(me)))
       retval = sprintf("   %-35s%-35s\n", "Nombre: "
@@ -181,7 +181,7 @@ string finger_info(string name, varargs object me)
   }
 
   if (!retval)
-    retval =  sprintf("   %-35s%-35s\n", "Nombre: "+capitalize(name), 
+    retval =  sprintf("   %-35s%-35s\n", "Nombre: "+capitalize(name),
           "Nombre real: "+(real_name?real_name:"???"));
   if (birth_day)
     retval += sprintf("   %-35s", "Cumpleaños: " + birth_day);
@@ -192,13 +192,13 @@ string finger_info(string name, varargs object me)
   {
     // Algunos clientes (zmud) meten como primer caracter uno de
     //  control, por si acaso tambien comprobamos el caracter 1
-    if ((email[0] == ':') || (email[1] == ':')) 
+    if ((email[0] == ':') || (email[1] == ':'))
     {
       if ((base_name(me) != "/lib/core/login") &&
           (MASTER->valid_read("/save/players/"+name[0..0]+"/"+name,
           geteuid(me))) )
         retval += "E-mail: "+email+"\n";
-    } 
+    }
     else
       retval += "E-mail: "+email+"\n";
   }
@@ -217,13 +217,13 @@ string finger_info(string name, varargs object me)
 
   if ((role_name == "player") && sizeof(social_object_list))
   {
-    if (social_object_list[0]) 
-      retval+= "   %^GREEN%^Es un"+(gender==2?"a ":" ") + 
+    if (social_object_list[0])
+      retval+= "   %^GREEN%^Es un"+(gender==2?"a ":" ") +
            social_object_list[0]->query_race_gender_string(this_object(), 1)+"%^RESET%^. ";
 
-    if (social_object_list[1] && me && me->query_coder()) 
+    if (social_object_list[1] && me && me->query_coder())
     {
-      if ( (file_size(social_object_list[1]) > 0) || 
+      if ( (file_size(social_object_list[1]) > 0) ||
         (file_size(social_object_list[1]+".c") > 0) )
       retval += "   Es miembro del gremio "
            + social_object_list[1]->short()+".\n";
@@ -231,10 +231,10 @@ string finger_info(string name, varargs object me)
       retval += "   Es miembro de un gremio que no existe.\n";
     }
     else
-      retval += "\n"; 
+      retval += "\n";
   }
 
-  if ((role_name != "player")) 
+  if ((role_name != "player"))
   {
     string * domains;
     domains = ({ });
@@ -242,57 +242,57 @@ string finger_info(string name, varargs object me)
     retval += "   %^GREEN%^Es un"+(gender==2?"a":"")+
               " programador"+(gender==2?"a":"")+" en "+
               mud_name()+"%^RESET%^.\n";
-      
+
     // if (me && me->query_coder())
     //       retval += sprintf("%35s", "Directorio raíz: "+home_dir+"\n");
 
     // Find out which domains they are a member of...
     bing = get_dir("/d/");
-    
+
     for (i = 0; i < sizeof(bing); i++)
     {
       if (file_size("/d/"+bing[i]) == -2)
       {
-        if ((string)("/d/"+bing[i]+"/master")->query_dom_lord()==name) 
+        if ((string)("/d/"+bing[i]+"/master")->query_dom_lord()==name)
         {
           domains += ({ bing[i] });
           bing = delete(bing, i, 1);
           i--;
-        } 
-        else if (!("/d/"+bing[i]+"/master")->query_member(name)) 
+        }
+        else if (!("/d/"+bing[i]+"/master")->query_member(name))
         {
           bing = delete(bing, i, 1);
           i--;
-        } 
-        else 
+        }
+        else
         {
           // bing[i] = capitalize(bing[i]);
         }
       }
     }
-    
+
     if (sizeof(domains))
     {
       if (table)
         for (i = 0; i < sizeof(domains); i++)
           domains[i] = table->get_nice_name(domains[i]);
-      
-      retval += sprintf("\n   %-=*s", this_player()->query_cols() - 3, 
+
+      retval += sprintf("\n   %-=*s", this_user()->query_cols() - 3,
         "Es " + (gender==2?"la":"el") + " coordinador" + (gender==2?"a":"") +
         (sizeof(domains)==1?" del dominio ":" de los dominios " ) +
         query_multiple_short(domains, 0) + ".\n");
     }
-      
+
     if (!sizeof(bing) && sizeof(domains))
       retval += "   No es miembro de ningún otro dominio.\n";
     else if (!sizeof(bing))
       retval += "\n   No es miembro de ningún dominio.\n";
     else
-    {    
+    {
       retval += "\n   Es miembro de";
       if (sizeof(bing) == 1)
         retval += "l dominio de "  ;
-      else 
+      else
        retval += " los dominios de "  ;
 
       if (table)
@@ -304,28 +304,28 @@ string finger_info(string name, varargs object me)
     }
     // Added by Radix, July 1996
     bing = ({ });
-    
-    /*  
+
+    /*
     catch(bing = "/d/grupos/master"->query_patronages(name));
     if (sizeof(bing))
       retval += "Es el Patrón de "+implode(bing,", ")+".\n";
-    */  
+    */
   }
 
   retval += "\n";
 
   if (start_time)
-    retval += "   Se conectó por primera vez el "+ctime(start_time,1)+".\n";   
-  
+    retval += "   Se conectó por primera vez el "+ctime(start_time,1)+".\n";
+
   time_on = -time_on;
-  retval += "   %^GREEN%^Tiene ";   
+  retval += "   %^GREEN%^Tiene ";
   if (time_on > 86400)
     retval += sprintf("%d día"+((time_on/86400==1)?"":"s")+", ",
               time_on/86400);
   if (time_on > 3600)
     retval += sprintf("%d hora"+((time_on/3600==1)?"":"s")+", ",
                (time_on/3600)%24);
-  
+
   retval += sprintf("%d minuto"+(((time_on/60)%60==1)?"":"s")+
             " y %d segundo"+((time_on%60==1)?"":"s")+
             " de antigüedad",
@@ -333,18 +333,18 @@ string finger_info(string name, varargs object me)
   retval += "%^RESET%^.\n";
 
   if ((ob=find_living(name)) && (function_exists("is_player",ob)) &&
-    (!ob->query_coder() || !ob->query_invis()) 
+    (!ob->query_coder() || !ob->query_invis())
     && (!ob->query_hidden()))
-  {  
+  {
     retval += "   Conectad"+(gender==2?"a":"o")+" desde el "+ctime(last_log_on)+".\n";
   }
-  else 
+  else
   {
     int tmp_time, sec, min, hour, day;
 
     // Should be a nice number...
     tmp_time = time()-last_log_on;
-    if (!tmp_time) 
+    if (!tmp_time)
     {
       sec = min = hour = day = 0;
     }
@@ -359,7 +359,7 @@ string finger_info(string name, varargs object me)
     else if (tmp_time < 24*60*60) // Hours...
       retval += (hour = tmp_time/(60*60))+" hora"+
               (hour<2?"":"s")+((min = (tmp_time/60)%60)?" y "+
-               min+" minuto"+(min<2?"":"s"):"")+".\n"; 
+               min+" minuto"+(min<2?"":"s"):"")+".\n";
     else // Days...
       retval += (day = tmp_time/(24*60*60))+" día"+
                (day<2?"":"s")+((hour = (tmp_time/(60*60))%24)?" y "+
@@ -369,17 +369,17 @@ string finger_info(string name, varargs object me)
   }
 
   if (ob && (!ob->query_coder() || !ob->query_invis()))
-    if (interactive(ob))
+    if (interactive(ob) && ob->user())
     {
-      if ((ob->query_idle()) > 0)
-        retval += "   Inactiv"+(gender==2?"a":"o")+" desde hace "+((ob->query_idle())/60)+
-          " minuto"+(((ob->query_idle())/60 == 1)?"":"s")+" y "+
-          ((ob->query_idle())%60)+" segundo"+
-          (((ob->query_idle())%60 == 1)?"":"s")+".\n";
+      if ((ob->user()->query_idle()) > 0)
+        retval += "   Inactiv"+(gender==2?"a":"o")+" desde hace "+((ob->user()->query_idle())/60)+
+          " minuto"+(((ob->user()->query_idle())/60 == 1)?"":"s")+" y "+
+          ((ob->user()->query_idle())%60)+" segundo"+
+          (((ob->user()->query_idle())%60 == 1)?"":"s")+".\n";
     }
     else if (function_exists("is_player", ob))
       retval += "%^GREEN%^Conexión caída%^RESET%^.\n";
-  
+
   // if (me && MASTER->query_admin(me->query_name()) && ident)
   // retval += ident + "@";
 
@@ -391,11 +391,11 @@ string finger_info(string name, varargs object me)
   // retval += (string)MAILER->finger_mail(name);
   mail_stat = (mapping)"/lib/handlers/postal"->mail_status(name);
 
-  if (!mail_stat["total"]) 
+  if (!mail_stat["total"])
   {
     // retval += "\n   No tiene correo.\n";
-  } 
-  else 
+  }
+  else
   {
     retval += "\n   Tiene "+mail_stat["total"]+" Mud-Mail"+
             ((mail_stat["total"]==1)?"":"s");

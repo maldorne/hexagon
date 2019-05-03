@@ -69,17 +69,17 @@ void create()
 nomask int test_user(string str)
 {
   string tmp;
-  object user;
+  object player;
   int result;
 
   if (!stringp(str) || sscanf(str, "%s ",tmp))
     return 0;
 
-  user = clone_object("/lib/user.c");
-  user->set_name(str);
-  result = user->restore_me();
+  player = clone_object("/lib/player.c");
+  player->set_name(str);
+  result = player->restore_me();
 
-  user->dest_me();
+  player->dest_me();
   return result;
 }
 
