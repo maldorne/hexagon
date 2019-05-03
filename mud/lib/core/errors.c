@@ -1,16 +1,16 @@
 
 // * void runtime_error(string error, int caught, mixed **trace)
 //     A runtime error has occurred.
-// 
+//
 // * void atomic_error(string error, int atom, mixed **trace)
 //     A runtime error has occurred in atomic code.
-// 
+//
 // * void compile_error(string file, int line, string error)
 //     A compile-time error has occurred.
 
 #include <kernel.h>
 
-nomask string runtime_error(string error, int caught, int ticks) 
+nomask string runtime_error(string error, int caught, int ticks)
 {
   mixed **trace;
   string progname, objname, function, str;
@@ -26,17 +26,17 @@ nomask string runtime_error(string error, int caught, int ticks)
 
   trace = call_trace();
 
-  if ((sz = sizeof(trace) - 1) != 0) 
+  if ((sz = sizeof(trace) - 1) != 0)
   {
-    for (i = 0; i < sz; i++) 
+    for (i = 0; i < sz; i++)
     {
       progname = trace[i][1];
       function = trace[i][2];
 
       // I'm not sure what this is catching: bad object to call_other maybe?
-      // if (progname == AUTO && strlen(function) > 3) 
+      // if (progname == AUTO && strlen(function) > 3)
       // {
-      //   switch (function[0 .. 2]) 
+      //   switch (function[0 .. 2])
       //   {
       //     // case "bad":
       //     //   progname = trace[i - 1][1];
@@ -52,9 +52,9 @@ nomask string runtime_error(string error, int caught, int ticks)
       objname  = trace[i][0];
       line     = trace[i][3];
 
-      if (line == 0) 
+      if (line == 0)
         str = "    ";
-      else 
+      else
       {
         str = "    " + line;
         str = str[strlen(str) - 4 ..];
@@ -63,15 +63,15 @@ nomask string runtime_error(string error, int caught, int ticks)
       str += " " + function + " ";
       len = strlen(function);
 
-      if (len < 22) 
+      if (len < 22)
         str += "                      "[len ..];
 
       str += " " + progname;
 
-      if (progname != objname) 
+      if (progname != objname)
       {
         len = strlen(progname);
-        if (len < strlen(objname) && progname == objname[.. len - 1]) 
+        if (len < strlen(objname) && progname == objname[.. len - 1])
           str += " (" + objname[len ..] + ")";
         else
           str += " (" + objname + ")";
@@ -79,9 +79,8 @@ nomask string runtime_error(string error, int caught, int ticks)
 
       // call_other is masked ("because of reasons"... shadows)
       // remove those messages from the error trace
-      if (function == "call_other" && 
-          progname == "/lib/core/auto" &&
-          line == 49)
+      if (function == "call_other" &&
+          progname == "/lib/core/auto")
         continue;
 
       long_err += str+"\n";
@@ -91,7 +90,7 @@ nomask string runtime_error(string error, int caught, int ticks)
   short_err += "" + progname + ", line " +line + ", function "+function+" (object: "+ objname + ")\n";
 
 // Use long or short logs in the driver stderr
-#ifdef DRIVER_LONG_LOGS  
+#ifdef DRIVER_LONG_LOGS
   return long_err;
 #else
   return short_err;
