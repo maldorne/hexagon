@@ -1,6 +1,6 @@
 
-/* 
- *  Object auto-inherited by every object in the mud, 
+/*
+ *  Object auto-inherited by every object in the mud,
  *  equivalent to the master.c in MudOS
  */
 
@@ -13,8 +13,8 @@
 
 #include "/lib/core/efuns.c"
 
-// default high-level create function 
-void create() { }    
+// default high-level create function
+void create() { }
 
 // Name of this function defined in dgd config file
 nomask void _auto_create()
@@ -27,7 +27,7 @@ nomask void _auto_create()
   _shadows = ({ });
   _is_shadowing = 0;
 
-  rlimits (-1; -1) 
+  rlimits (-1; -1)
   {
     object_name = object_name(this_object());
 
@@ -37,15 +37,15 @@ nomask void _auto_create()
     // owner = creator;
 
     clone = (sscanf(object_name, "%s#%d", class_name, number) > 1);
-    
+
     // stderr(" - create: "+object_name+" "+creator+":"+owner+"\n");
     stderr(" - create: "+object_name+" : "+getuid()+"\n");
 
     // Register object in object handler
-    // if (clone) or if (number >= 0) 
+    // if (clone) or if (number >= 0)
     // {
-    // } 
-    // else 
+    // }
+    // else
     // {
     // }
 

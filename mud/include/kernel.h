@@ -14,9 +14,9 @@
 // Longer logs in the driver stderr
 #define DRIVER_LONG_LOGS
 
-#define ERROR_HANDLER  "/lib/core/errors"
-#define USER_HANDLER   "/lib/core/users"
-#define OBJECT_HANDLER "/lib/core/objects"
+#define ERROR_HANDLER     "/lib/core/errors"
+#define USER_HANDLER      "/lib/core/users"
+#define OBJECT_HANDLER    "/lib/core/objects"
 #define SINGLETON_HANDLER "/lib/core/singletons"
 
 // driver messages

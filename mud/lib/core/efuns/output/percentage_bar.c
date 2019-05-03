@@ -1,7 +1,8 @@
-// Funcion util para multiples comandos
-// neverbot 08/05, basada en el comando score 
 
-string percentage_bar(int value) 
+// useful for different commands
+// neverbot 08/05, based on the score command
+
+string percentage_bar(int value)
 {
   string str;
   string aux_1, aux_2;
@@ -10,11 +11,11 @@ string percentage_bar(int value)
   aux_1 = "********************";
   aux_2 = "                    ";
 
-  if (value < 1) 
+  if (value < 1)
     value = 1;
-  if (value > 100) 
+  if (value > 100)
     value = 100;
-  
+
   i = (20 * value)/100;
 
   str = aux_1[0..i-1] + aux_2[i..19];
