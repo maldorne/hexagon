@@ -14,6 +14,9 @@ private string _uid;
 
 nomask string getuid( varargs object ob )
 {
+  if (ob && ob->query_player())
+    ob = ob->user();
+
   if (ob)
     return ob->getuid();
 
@@ -41,18 +44,11 @@ static nomask int setuid(string id)
 
 nomask string geteuid( varargs object ob )
 {
-  if (ob)
-  {
-    // if (ob->query_player())
-    // {
-    //   object user;
-    //   user = ob->user();
-    //   if (user)
-    //     return user->geteuid();
-    // }
+  if (ob && ob->query_player())
+    ob = ob->user();
 
+  if (ob)
     return ob->geteuid();
-  }
 
   return _euid;
 }
