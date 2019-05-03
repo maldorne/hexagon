@@ -19,7 +19,7 @@ void create()
 static void start_role(object user)
 {
   object player;
-  player = user->query_player_ob();
+  player = user->player();
 
   if (player)
     home_dir = "/home/" + player->query_name();

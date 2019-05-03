@@ -34,7 +34,7 @@ int set_role(string name)
   if (!interactive(this_object()))
     return 0;
 
-  player = this_object()->query_player_ob();
+  player = this_object()->player();
 
   switch(name)
   {

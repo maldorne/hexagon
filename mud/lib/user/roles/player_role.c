@@ -44,7 +44,7 @@ nomask int set_user(object ob)
 nomask int save(string str)
 {
   object player;
-  player = _user->query_player_ob();
+  player = _user->player();
 
   catch(player->save_me());
   catch(_user->save_me());

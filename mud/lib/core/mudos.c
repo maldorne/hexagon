@@ -67,7 +67,7 @@ int set_initiator_user(object user)
 
   initiator_user = user;
 
-  if (!user || !(initiator_player = user->query_player_ob()))
+  if (!user || !(initiator_player = user->player()))
     initiator_player = nil;
 
   // stderr(

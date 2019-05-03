@@ -138,8 +138,8 @@ nomask int valid_password(string pass)
   return 1;
 }
 
-nomask object query_player_ob() { return _player; }
-
+nomask int query_player() { return 1; }
+nomask object player() { return _player; }
 nomask int set_player_ob(object ob)
 {
   // for safety reasons, we allow set_player_ob only to be called from /lib/core/login
@@ -204,10 +204,14 @@ nomask void save_me()
   save_object(USERS_SAVE_DIR + account_name[0..0] + "/" + account_name + ".o", 1);
 }
 
-nomask int restore_me()
+nomask int restore_me(varargs string account)
 {
-  if (!SECURE->valid_progname("/lib/core/login"))
+  if (!SECURE->valid_progname("/lib/core/login") &&
+      !SECURE->valid_progname("/lib/core/secure/finger"))
     return 0;
+
+  if (account)
+    account_name = account;
 
   if (!account_name || (account_name == ""))
     return 0;
@@ -361,15 +365,15 @@ static void receive_message(string str)
 //   {
 //     if (name == "guest" || name == "root")
 //     {
-//       say(query_cap_name()+" es engullid"+G_CHAR+" por una nube de lógica.\n");
+//       say(query_cap_name()+" es engullid"+G_CHAR+" por una nube de lÃ³gica.\n");
 //       quit();
 //     }
 //     else if (!net_dead)
 //     {
-//       say(query_cap_name()+" se vuelve blanc"+G_CHAR+" y sólid"+G_CHAR+" al tiempo que se "+
+//       say(query_cap_name()+" se vuelve blanc"+G_CHAR+" y sÃ³lid"+G_CHAR+" al tiempo que se "+
 //         "convierte en una estatua.\n");
 //       event(users(), "inform", query_cap_name() + " ha perdido " +
-//         query_possessive() + " conexión", "conexiones");
+//         query_possessive() + " conexiÃ³n", "conexiones");
 //       save_me();
 //       quit();
 //       net_dead = 1;

@@ -35,7 +35,7 @@ static int cmd(string str, object me, string verb)
       string pname;
       object player;
 
-      player = obs[i]->query_player_ob();
+      player = obs[i]->player();
 
       if (obs[i]->query_invis() && !this_player()->query_coder())
         continue;

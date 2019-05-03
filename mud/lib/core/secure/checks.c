@@ -241,7 +241,7 @@ nomask int valid_read(string path, mixed euid, varargs string func)
   return 1;
 } /* valid_read() */
 
-/* this stuff added by asmodean, stolen from sojan, who stole it from chrisy */
+// this stuff added by asmodean, stolen from sojan, who stole it from chrisy
 nomask int valid_save_binary(string file)
 {
   string *path;
@@ -306,7 +306,7 @@ nomask int valid_seteuid(object ob, string euid)
       (ob->query_coder()))
   {
     object player;
-    player = ob->query_player_ob();
+    player = ob->player();
     return ((euid == ob->query_name()) ||
             (euid == player->query_name()));
   }
@@ -383,7 +383,7 @@ nomask int valid_write(string path, mixed euid, string func)
   else
     return 0;
 
-  /* Little patch to plug a security leak -- Wahooka */
+  // Little patch to plug a security leak -- Wahooka
   if (func == "save_object" && (sizeof(bing) >= 2) &&
      (bing[0] == "save") && (bing[1] == "players"))
   {
