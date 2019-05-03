@@ -38,10 +38,10 @@ static int cmd(string str, object me, string verb)
       player = obs[i]->query_player_ob();
 
       if (obs[i]->query_invis() && !this_player()->query_coder())
-      	continue;
+        continue;
 
       if ((int)obs[i]->query_invis() > 1 && !this_player()->query_administrator())
-      	continue;
+        continue;
 
       // type = (obs[i]->query_earmuffs() ? "e" : " ");
       euid = geteuid(obs[i]);
@@ -97,9 +97,9 @@ static int cmd(string str, object me, string verb)
 
   if (strlen(ret))
   {
-    write(sprintf("%p%|*s\n\n", '-', this_player()->query_cols()+18, ttl));
+    write(sprintf("%p%|*s\n\n", '-', this_user()->query_cols()+18, ttl));
     write(ret);
-    write(sprintf("\n%p%|*s\n\n", '-', this_player()->query_cols()+18, ttl));
+    write(sprintf("\n%p%|*s\n\n", '-', this_user()->query_cols()+18, ttl));
     return 1;
   }
   /*

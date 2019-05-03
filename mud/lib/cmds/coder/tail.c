@@ -10,7 +10,7 @@ void setup()
   position = 1;
 }
 
-static int cmd(string str, object me, string verb) 
+static int cmd(string str, object me, string verb)
 {
   string file, *filename, text;
   int range, lineas;
@@ -18,74 +18,74 @@ static int cmd(string str, object me, string verb)
 
   content = "";
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
     notify_fail("Uso: tail [-<número de líneas>] <fichero>\n");
     return 0;
   }
 
-  if (sscanf(str, "-%d %s", range, file) == 2) 
+  if (sscanf(str, "-%d %s", range, file) == 2)
   {
     filename = get_files(file);
-    
-    if (!sizeof(filename)) 
+
+    if (!sizeof(filename))
     {
       notify_fail("Fichero no válido.\n");
       return 0;
     }
-    
-    if (range < 0) 
+
+    if (range < 0)
     {
       notify_fail("Rango no válido: "+range+"\n");
       return 0;
     }
-    
-    if (!range) 
+
+    if (!range)
       range = 20;
-    
+
     content = read_file(filename[0]);
-    
+
     if (!content)
     {
       notify_fail("No se pudo leer el fichero... ¿demasiado largo?\n");
       return 0;
     }
-    
+
     lineas = sizeof(explode(content,"\n"));
     text = read_file_line(filename[0], lineas-range, lineas);
-    // printf("%-=*s", this_player()->query_cols(), text);
+    // printf("%-=*s", this_user()->query_cols(), text);
     tell_object(me, text);
     return 1;
   }
-  else 
+  else
   {
     sscanf(str, "%s", file);
     filename = get_files(file);
-    
-    if (!sizeof(filename)) 
+
+    if (!sizeof(filename))
     {
       notify_fail("Fichero no válido.\n");
       return 0;
     }
-    
+
     content = read_file(filename[0]);
-    
+
     if (!content)
     {
       notify_fail("No se pudo leer el fichero... ¿demasiado largo?\n");
       return 0;
     }
-    
+
     lineas = sizeof(explode(content,"\n"));
     range = 20;
     text = read_file_line(filename[0], lineas-range, lineas);
-    // printf("%-=*s", this_player()->query_cols(), text);
+    // printf("%-=*s", this_user()->query_cols(), text);
     tell_object(me, text);
     return 1;
   }
 } /* head_file() */
 
-string query_short_help() 
+string query_short_help()
 {
   return "Muestra las últimas líneas de un archivo.";
   /*
@@ -95,7 +95,7 @@ string query_short_help()
   */
 }
 
-string query_usage() 
+string query_usage()
 {
   return "tail -rango|fichero";
 }

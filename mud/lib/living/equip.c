@@ -374,7 +374,7 @@ string query_living_contents(int self)
             //         query_multiple_short(carry) + "."
             //        );
 
-  // col = this_player()?(this_player()->query_cols()-13):79-13;
+  // col = this_player()?(this_user()->query_cols()-13):79-13;
 
   for (i = 0; i < sizeof(strs); i++)
   {
@@ -396,7 +396,7 @@ string query_living_contents(int self)
     else
       s += sprintf(
            "%-*s",
-           (this_player()?(this_player()->query_cols()):79),
+           (this_player()?(this_user()->query_cols()):79),
            "Llevas encima " + ret+".");
   }
   else

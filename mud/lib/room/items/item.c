@@ -12,7 +12,7 @@ int *cur_desc;
 
 int is_room_item() { return 1; }
 
-void create() 
+void create()
 {
     adjs = ({ });
     lng = ({ "" });
@@ -25,7 +25,7 @@ void create()
     other_things = ([ "smell" : 0, "taste" : 0, "read" : 0 ]);
 } /* create() */
 
-string short() 
+string short()
 {
   string *ret;
   int i;
@@ -37,7 +37,7 @@ string short()
   return query_multiple_short(ret);
 } /* short() */
 
-string *pretty_short() 
+string *pretty_short()
 {
   string *ret;
   int i;
@@ -48,7 +48,7 @@ string *pretty_short()
   return ret;
 } /* pretty_short() */
 
-string query_plural() 
+string query_plural()
 {
   string *ret;
   int i;
@@ -59,7 +59,7 @@ string query_plural()
   return query_multiple_short(ret);
 } /* query_plural() */
 
-string *pretty_plural() 
+string *pretty_plural()
 {
   string *ret;
   int i;
@@ -77,7 +77,7 @@ string long(varargs string s, int dark)
 
   ret = "";
 
-  for (i = 0; i < sizeof(cur_desc); i++) 
+  for (i = 0; i < sizeof(cur_desc); i++)
   {
     if (!lng[cur_desc[i]])
       continue;
@@ -89,7 +89,7 @@ string long(varargs string s, int dark)
     return "Error en el objeto, comunícaselo a un programador.\n";
 
   return sprintf("%-*s",
-    (this_player()->query_cols()?this_player()->query_cols():79),
+    (this_user()->query_cols()?this_user()->query_cols():79),
     "   "+ret);
 } /* long() */
 
@@ -107,46 +107,46 @@ string *query_shrt() { return shrt; }
 int drop() { return 1; }
 int get() { return 1; }
 
-void setup_item(mixed nam, mixed long, varargs int no_plural) 
+void setup_item(mixed nam, mixed long, varargs int no_plural)
 {
   string *bits, s, real_long;
   int i;
 
-  if (pointerp(long)) 
+  if (pointerp(long))
   {
     real_long = "No ves nada destacable.\n";
     for (i=0;i<sizeof(long);i+=2)
-      if (long[i] != "long") 
+      if (long[i] != "long")
       {
         if (!other_things[long[i]])
           other_things[long[i]] = ([ sizeof(lng) : long[i+1] ]);
         else
           other_things[long[i]][sizeof(lng)]  = long[i+1];
-      } else 
+      } else
       {
         real_long = long[i+1];
       }
     long = real_long;
   }
 
-  if (pointerp(nam)) 
+  if (pointerp(nam))
   {
     if (sizeof(nam) > 0)
       shrt += ({ nam[0] });
-    for (i=0;i<sizeof(nam);i++) 
+    for (i=0;i<sizeof(nam);i++)
     {
       bits = explode(nam[i], " ");
       name += ({ (s=bits[sizeof(bits)-1]) });
-      if (!verb[s]) 
+      if (!verb[s])
       {
         verb[s] = ({ bits[0..sizeof(bits)-2], sizeof(lng) });
         if (!no_plural)
           plural[(s=pluralize(s))] = ({ bits[0..sizeof(bits)-2], sizeof(lng) });
-      } else 
+      } else
       {
         verb[s] += ({ bits[0..sizeof(bits)-2], sizeof(lng) });
         if (!no_plural)
-          plural[(s=pluralize(s))] += 
+          plural[(s=pluralize(s))] +=
                    ({ bits[0..sizeof(bits)-2], sizeof(lng) });
       }
       if (no_plural)
@@ -161,12 +161,12 @@ void setup_item(mixed nam, mixed long, varargs int no_plural)
   shrt += ({ nam });
   bits = explode(nam, " ");
   name += ({ (s=bits[sizeof(bits)-1]) });
-  if (!verb[s]) 
+  if (!verb[s])
   {
     verb[s] = ({ bits[0..sizeof(bits)-2], sizeof(lng) });
     if (!no_plural)
       plural[(s=pluralize(s))] = ({ bits[0..sizeof(bits)-2], sizeof(lng) });
-  } else 
+  } else
   {
     /* Dey are both existant... */
     verb[s] += ({ bits[0..sizeof(bits)-2], sizeof(lng) });
@@ -181,23 +181,23 @@ void setup_item(mixed nam, mixed long, varargs int no_plural)
   lng += ({ long });
 } /* setup_item() */
 
-int modify_item(string str, mixed long) 
+int modify_item(string str, mixed long)
 {
   int i, j;
 
   if ((j = member_array(str, shrt)) == -1)
     return 0;
   /* Got a match... */
-  if (pointerp(long)) 
+  if (pointerp(long))
   {
     for (i=0;i<sizeof(long);i+=2)
-      if (long[i] != "long") 
+      if (long[i] != "long")
       {
         if (!other_things[long[i]])
           other_things[long[i]] = ([ sizeof(lng) : long[i+1] ]);
         else
           other_things[long[i]][sizeof(lng)]  = long[i+1];
-      } else 
+      } else
       {
         lng[j] = long[i+1];
       }
@@ -207,7 +207,7 @@ int modify_item(string str, mixed long)
   return 1;
 }
 
-int remove_item(string str, string new_long) 
+int remove_item(string str, string new_long)
 {
   int i;
 
@@ -221,24 +221,24 @@ int remove_item(string str, string new_long)
 // string *parse_command_plural_id_list() { return plu; }
 // string *parse_command_adjectiv_id_list() { return adjs; }
 
-object query_parse_id(mixed *arr) 
+object query_parse_id(mixed *arr)
 {
   string *bits;
   mixed stuff;
   int i, j;
 
-  // all case 
-  if (arr[P_THING] == 0) 
+  // all case
+  if (arr[P_THING] == 0)
   {
     bits = explode(arr[P_STR], " ");
 
     if (!(stuff = plural[bits[sizeof(bits)-1]]))
       if (!(stuff = verb[bits[sizeof(bits)-1]]))
         return nil;
-    
+
     cur_desc = ({ });
-    
-    for (j = 0 ;j < sizeof(stuff); j+=2) 
+
+    for (j = 0 ;j < sizeof(stuff); j+=2)
     {
       for (i = 0; i < sizeof(bits)-2; i++)
         if (member_array(bits[i], stuff[j]) == -1)
@@ -253,15 +253,15 @@ object query_parse_id(mixed *arr)
     return this_object();
   }
 
-  if (arr[P_THING] < 0) 
-  { 
+  if (arr[P_THING] < 0)
+  {
     // specific object case
     bits = explode(arr[P_STR], " ");
 
     if (!(stuff = verb[bits[sizeof(bits)-1]]))
       return nil;
 
-    for (j = 0; j < sizeof(stuff); j+=2) 
+    for (j = 0; j < sizeof(stuff); j+=2)
     {
       for (i = 0; i < sizeof(bits)-2; i++)
         if (member_array(bits[i], stuff[j]) == -1)
@@ -287,8 +287,8 @@ object query_parse_id(mixed *arr)
       return nil;
 
   cur_desc = ({ });
-  
-  for (j = 0; j < sizeof(stuff); j+=2) 
+
+  for (j = 0; j < sizeof(stuff); j+=2)
   {
     for (i = 0; i < sizeof(bits)-2; i++)
       if (member_array(bits[i], stuff[j]) == -1)
@@ -299,8 +299,8 @@ object query_parse_id(mixed *arr)
 
     cur_desc += ({ stuff[j+1] });
     arr[P_THING]--;
-    
-    if (arr[P_THING] <= 0) 
+
+    if (arr[P_THING] <= 0)
     {
       arr[P_THING] = -10786;
       return this_object();
@@ -310,7 +310,7 @@ object query_parse_id(mixed *arr)
   return this_object();
 }
 
-void dest_me() 
+void dest_me()
 {
   destruct(this_object());
   return ;
@@ -324,7 +324,7 @@ void dwep()
 
 int move() { return 1; }
 
-int command_control(string command) 
+int command_control(string command)
 {
   int i;
 

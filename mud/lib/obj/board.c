@@ -107,13 +107,13 @@ int subjects(string str, int dark)
   for (i=0;i<sizeof(stuff);i++)
   {
     if (news_rc[board_name] < stuff[i][B_TIME])
-      ret += sprintf("N %2d: %-=*s\n", i+1, (int)this_player()->query_cols()-6,
+      ret += sprintf("N %2d: %-=*s\n", i+1, (int)this_user()->query_cols()-6,
              stuff[i][B_SUBJECT]+" ("+
              ((!this_player()->query_coder() &&
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
              " "+the_date(stuff[i][B_TIME])+")");
     else
-      ret += sprintf("  %2d: %-=*s\n", i+1, (int)this_player()->query_cols()-6,
+      ret += sprintf("  %2d: %-=*s\n", i+1, (int)this_user()->query_cols()-6,
              stuff[i][B_SUBJECT]+" ("+
              ((!this_player()->query_coder() &&
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
@@ -139,7 +139,7 @@ string long(string str, int dark)
     ret += "El tablón de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n";
 
   ret += "Comandos:\n";
-  ret += sprintf("%#-*s\n\n", this_player()->query_cols(),
+  ret += sprintf("%#-*s\n\n", this_user()->query_cols(),
                             "leer [número de nota]\nescribir <tema>\n"+
                             "temas\nborrar <número de nota>\n"+
                             "responder <número de nota>\nmudmail <número de nota>\n");
@@ -156,7 +156,7 @@ string long(string str, int dark)
   {
     if (news_rc[board_name] < stuff[i][B_TIME])
     {
-      ret += sprintf("N %2d: %-=*s\n", i+1, (int)this_player()->query_cols()-6,
+      ret += sprintf("N %2d: %-=*s\n", i+1, (int)this_user()->query_cols()-6,
              stuff[i][B_SUBJECT]+" ("+
              ((!this_player()->query_coder() &&
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
@@ -164,7 +164,7 @@ string long(string str, int dark)
       newones +=1;
     }
     else if (news_rc[board_name] < stuff[i][B_TIME]+(2*24*60*60))
-      ret += sprintf("  %2d: %-=*s\n", i+1, (int)this_player()->query_cols()-6,
+      ret += sprintf("  %2d: %-=*s\n", i+1, (int)this_user()->query_cols()-6,
              stuff[i][B_SUBJECT]+" ("+
              ((!this_player()->query_coder() &&
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
@@ -242,7 +242,7 @@ int read(string str)
             }
   }
 
-  mensaje = sprintf("  %-=*s\n", (int)this_player()->query_cols() - 2, mensaje);
+  mensaje = sprintf("  %-=*s\n", (int)this_user()->query_cols() - 2, mensaje);
 
   string_more(sprintf("Nota #%d escrita por %s el %s\nTítulo: '%s'\n\n",
               num+1, "%^GREEN%^" +
@@ -250,7 +250,7 @@ int read(string str)
                  sizeof(get_files("/home/"+stuff[num][B_NAME])))?"Administrador":capitalize(stuff[num][B_NAME])) +
               "%^RESET%^",
               ctime(stuff[num][B_TIME]),
-              "%^GREEN%^"+stuff[num][B_SUBJECT][0..(int)this_player()->query_cols()-10]+"%^RESET%^")+
+              "%^GREEN%^"+stuff[num][B_SUBJECT][0..(int)this_user()->query_cols()-10]+"%^RESET%^")+
               mensaje,
               "[Nota "+(num+1)+"]");
   return 1;

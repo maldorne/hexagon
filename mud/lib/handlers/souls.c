@@ -9,7 +9,7 @@ inherit "/lib/core/object";
 
 /*
  * Traduccion para CcMud, neverbot 02/2006
- * 
+ *
  * ok format...
  * name ({ your st, everyone st })
  * or (one arg version ie sigh)
@@ -35,7 +35,7 @@ string lastarg, calc_long, global_adj;
 mapping get_messages(object me, string verb, string str, mixed valid_targets);
 mapping query_soul_data() { return ([ ]) + soul_data; }
 
-void create() 
+void create()
 {
   ::create();
   set_name("emociones");
@@ -57,7 +57,7 @@ void create()
 }
 
 // string query_long()
-string query_soul_list() 
+string query_soul_list()
 {
   int i;
   string s, s1, s2, bit;
@@ -70,11 +70,11 @@ string query_soul_list()
     "   + significa que puede usarse tanto con seres vivos como de modo independiente.\n"+
     "Número total de emociones: "+m_sizeof(soul_data)+".\n\n";
 
-  if (strlen(calc_long)) 
+  if (strlen(calc_long))
   {
-    s += sprintf("  %#-*s\n", this_player()->query_cols(), calc_long);
+    s += sprintf("  %#-*s\n", this_user()->query_cols(), calc_long);
     // s += "\nUtiliza el comando \"emocion\" para informar de posibles errores.\n";
-    return s; 
+    return s;
   }
 
   cmds   = m_indices(soul_data);
@@ -82,7 +82,7 @@ string query_soul_list()
   calc_long = "";
   cmds = sort_array(cmds);
 
-  for (i = 0; i < sizeof(cmds);i ++) 
+  for (i = 0; i < sizeof(cmds);i ++)
   {
     // bit = cmds[i];
     values = soul_data[cmds[i]];
@@ -91,9 +91,9 @@ string query_soul_list()
       bit += "#";
     else
       bit += " ";
-    if (sizeof(values[1]) == 3) 
+    if (sizeof(values[1]) == 3)
       bit += "*";
-    else if (sizeof(values[1]) == 5) 
+    else if (sizeof(values[1]) == 5)
       bit += "+";
     else
       bit += " ";
@@ -101,7 +101,7 @@ string query_soul_list()
   }
 
 
-  s += sprintf("  %#-*s\n", this_player()->query_cols(), calc_long);
+  s += sprintf("  %#-*s\n", this_user()->query_cols(), calc_long);
   // s += "\nUtiliza el comando \"emocion\" para informar de posibles errores.\n";
 
   return s;
@@ -125,7 +125,7 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
   str = s;
   s4 = "";
   while (sscanf(str,"%s$%s$%s",s1,s2,s3) == 3)
-    switch (s2) 
+    switch (s2)
   {
   case "mcname" :
     str = s1+me->query_cap_name()+s3;
@@ -167,20 +167,20 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
     str = s1+lastarg+s3;
     break;
   case "mhcname" :
-    if (uhn) 
+    if (uhn)
     {
       // str = s1+ob->query_cap_name()+"'s"+s3;
       str = s1+ob->query_cap_name()+s3;
       break;
     }
   case "hcname" :
-    if (uhn) 
+    if (uhn)
     {
       str = s1+ob->query_cap_name()+s3;
       break;
     }
   case "hname" :
-    if (uhn) 
+    if (uhn)
     {
       str = s1+ob->query_name()+s3;
       break;
@@ -196,14 +196,14 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
 
   str = s4+str;
 
-  while (sscanf(str,"%s$force#%s#%d$%s",s1,s2,i,s3)==4) 
+  while (sscanf(str,"%s$force#%s#%d$%s",s1,s2,i,s3)==4)
   {
     call_out("do_force", i, ({s2, ob}));
     str = s1+s3;
   }
 
-  while (sscanf(str,"%s$arg:%s$%s",s1,s2,s3)==3) 
-    if (arg == "?") 
+  while (sscanf(str,"%s$arg:%s$%s",s1,s2,s3)==3)
+    if (arg == "?")
     {
       string *yellow;
 
@@ -211,23 +211,23 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
       lastarg = yellow[random(sizeof(yellow))];
       str = s1+lastarg+s3;
       lastarg = replace(lastarg, "tu", me->query_possessive());
-    } 
-    else if (s2 == "#") 
+    }
+    else if (s2 == "#")
     {
       lastarg = replace(arg, "tus", me->query_possessive());
       str = s1+arg+s3;
-    } 
-    else if (sscanf(","+s2+global_adj+",","%s,"+arg+"%s,%s",s2,s4,s5)==3) 
+    }
+    else if (sscanf(","+s2+global_adj+",","%s,"+arg+"%s,%s",s2,s4,s5)==3)
     {
       str = s1+arg+s4+s3;
       lastarg = replace(arg+s4, "su", me->query_possessive());
-    } 
-    else if (sscanf(","+s2+",", "%s,#,%s", s2, s4) == 2) 
+    }
+    else if (sscanf(","+s2+",", "%s,#,%s", s2, s4) == 2)
     {
       str = s1+arg+s3;
       lastarg = replace(arg, "sus", me->query_possessive());
-    } 
-    else 
+    }
+    else
     {
       // Cadogan by hand of Radix...
       notify_fail("No puedes hacer eso. Escribe \"ayuda <emoción>\" "+
@@ -237,7 +237,7 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
       return "";
     }
 
-  while (sscanf(str,"%s$ifarg:%s~$%s",s1,s2,s3)==3) 
+  while (sscanf(str,"%s$ifarg:%s~$%s",s1,s2,s3)==3)
   {
     string estr;
 
@@ -255,7 +255,7 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
 /* Bishop with valid targets, needed for channel code */
 object* find_all_liv(string str, object me, varargs object *valid_targets)
 {
-  mixed ob; 
+  mixed ob;
   object *ret;
   int i;
 
@@ -276,12 +276,12 @@ object* find_all_liv(string str, object me, varargs object *valid_targets)
     /* Bishop - forgot to return!  Soul anyone on mud via channel, bad bad bad! */
     return ret;
   }
-  
+
   /* Wonder how the players will like this one, the thieves surely will..
    * removing the pssibility to soul all in a room
    * Baldrick, jan '95 (Hmm.. this years first change..:=)
    */
-  
+
   // Flode changed this fix - 280898
   // if (str == "all" || str[0..0] == "0")
   // if (search_for_all(str, me))
@@ -313,10 +313,10 @@ object* find_all_liv(string str, object me, varargs object *valid_targets)
       && member_array(ob[i], ret) == -1)
       ret += ({ ob[i] });
 
-  if (sizeof(ret)) 
+  if (sizeof(ret))
     return ret;
 
-  /* Will add an attemt to hide invis people in the room 
+  /* Will add an attemt to hide invis people in the room
    * Baldrick, dec '94
    * Fixed above attempt, Wonderflug oct '95
    */
@@ -335,7 +335,7 @@ object* find_all_liv(string str, object me, varargs object *valid_targets)
   return ret;
 } /* find_all_liv() */
 
-string get_name(object ob) 
+string get_name(object ob)
 {
   return (string)ob->query_cap_name();
 }
@@ -349,19 +349,19 @@ int soul_command(string verb, string str, object m)
   object *told, *env;
   int i;
   mixed * keys;
-  
+
   /* set up whoever is doing this soul */
   if ( m )
     me = m;
   else if ( previous_object() )
     me = previous_object();
-  else 
+  else
     me = this_player();
-  
+
   lastarg = "";
 
   msgs = get_messages(me, verb, str, ({ }));
-  
+
   if (!msgs["status"])
     return 0;
   if (stringp(msgs["status"]))
@@ -369,17 +369,17 @@ int soul_command(string verb, string str, object m)
     tell_object(me, msgs["status"]);
     return 1;
   }
-  
+
   told = ({ });
   env = ({ });
 
   /* Who is being told? */
-  // foreach(target,msg in msgs) 
+  // foreach(target,msg in msgs)
   // {
   //   if (objectp(target))
   //     told += ({ target });
   // }
-  
+
   keys = map_indices(msgs);
 
   for (i = 0; i < sizeof(keys); i++)
@@ -393,7 +393,7 @@ int soul_command(string verb, string str, object m)
    * told. Tell it (hidden check) and then add to told environments
    * so we don't spam.  Add past to interactives, and soul_acts(Radix)
    */
-  // foreach(target,msg in msgs) 
+  // foreach(target,msg in msgs)
   for (i = 0; i < sizeof(keys); i++)
   {
     target = keys[i];
@@ -442,11 +442,11 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
  */
 mapping get_messages(object me, string verb, string str, mixed valid_targets)
 {
-  mapping ret; 
+  mapping ret;
 
   ret = real_get(me, verb, str, valid_targets);
 
-  if (ret["status"])  
+  if (ret["status"])
   {
     mixed * k;
     mixed key_t;
@@ -461,7 +461,7 @@ mapping get_messages(object me, string verb, string str, mixed valid_targets)
       key_t = k[i];
 
       if (stringp(ret[key_t]) && strlen(v = (string)ret[key_t]) >= 3)
-        if (v[strlen(v)-1] == '\n') 
+        if (v[strlen(v)-1] == '\n')
         {
           character = v[strlen(v)-3];
           if ((character == ',') || (character == '.') || (character == '?') || (character == '!'))
@@ -495,32 +495,32 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
 
   if (!data)
     return (["status":0]);
-  
+
   /* this used?
   if (str && sizeof(data[1]) == 2 && data[1][0] != '#')
   return (["status": "No matter how hard you try, you fail to manage "+
      "this.\n" ]);
    */
-  /* this if/else/for/switch parses the string passed by the player into 
+  /* this if/else/for/switch parses the string passed by the player into
    * object bits and string bits, according to how the specific soul
    * expects the string.  each pair of elements in data[0] represents
    * a different way of parsing things
    */
-  
-  if (!data[0] || !str || !strlen(str)) 
+
+  if (!data[0] || !str || !strlen(str))
   {
     liv = 0;
     other = "";
-  } 
+  }
   else
   for (j = 0; j < sizeof(data[0]); j += 2)
-    switch (data[0][j]) 
+    switch (data[0][j])
     {
     case 0 :
       if (lvl > 1)
         break;
       if (sscanf(str, data[0][j+1], s1)==1
-        && (sizeof((tmp_ob = find_all_liv(s1, me, valid_targets))))) 
+        && (sizeof((tmp_ob = find_all_liv(s1, me, valid_targets)))))
       {
         lvl = 1;
         other = "";
@@ -535,7 +535,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
       if (lvl > 2)
         break;
       if (sscanf(str, data[0][j+1], s1, s2)==2
-        && (sizeof((tmp_ob = find_all_liv(s2, me, valid_targets))))) 
+        && (sizeof((tmp_ob = find_all_liv(s2, me, valid_targets)))))
       {
         lvl = 2;
         liv = s2;
@@ -543,7 +543,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
         if (data[0][j+1] != "%s %s")
           lvl++;
         ob = tmp_ob;
-      } 
+      }
       else
         livfail = s2;
       break;
@@ -552,7 +552,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
       if (lvl > 2)
         break;
       if (sscanf(str, data[0][j+1], s1, s2) ==2
-        && (sizeof((tmp_ob = find_all_liv(s1, me, valid_targets))))) 
+        && (sizeof((tmp_ob = find_all_liv(s1, me, valid_targets)))))
       {
         lvl = 2;
         liv = s1;
@@ -568,7 +568,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
     case 3 :
       if (lvl > 0)
         break;
-      if (sscanf(str, data[0][j+1], s1) == 1) 
+      if (sscanf(str, data[0][j+1], s1) == 1)
       {
         other = s1;
         liv = 0;
@@ -576,54 +576,54 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
       }
       break;
   }
-  
-  if (liv) 
+
+  if (liv)
   {
     /* The soul has been directed at someone.  The string of someone's
      * is now in liv; ob may be an array of objects corresponding to them.
      * Extra stuff they typed is in other.
     */
     string mine, his, every;
-    
+
     str = other;
-    if (!sizeof(ob)) 
+    if (!sizeof(ob))
     {
       return (["status":"Lo siento, pero '"+liv+"' no está conectado.\n"]);
     }
-    
+
     /* Get the strings that will be parsed. */
-    if (sizeof(data[1])==3) 
+    if (sizeof(data[1])==3)
     {
       mine = data[1][0];
       his = data[1][1];
       every = data[1][2];
-    } 
-    else if (sizeof(data[1])==5) 
+    }
+    else if (sizeof(data[1])==5)
     {
       mine = data[1][2];
       his = data[1][3];
       every = data[1][4];
-    } 
-    else 
+    }
+    else
     {
       return (["status":"No puedes utilizar ese comando de emoción "+
             "de esa forma.\n"]);
     }
-    
+
     if (sizeof(ob) == 1)
     {
       /* Signal success */
       ret["status"] = 1;
-     
+
       /* To me */
       ret[me] = parse_string(mine, me, ob[0], str, 1);
-     
+
       /* If we can't parse, error is generated in parse
        * and we just return an error */
       if (!strlen(ret[me]))
         return (["status":0]);
       ret[me]+=".";
-     
+
       /* To our one target */
       /* Bishop - we don't want to parse it if a channel (valid targets set)
        * because we don't care!  Only show 3rd party, and this can create
@@ -631,11 +631,11 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
        */
       if (!sizeof(valid_targets))
         ret[ob[0]] = parse_string(his, me, ob[0], str, 1)+".";
-     
+
       /* To everyone who can hear me */
       ret["default"] = parse_string(every, me, ob[0], str, 1)+".";
     }
-    else 
+    else
     {
       ret["status"] = 1;
       s2 = parse_string(mine, me, ob, str, 0);
@@ -660,7 +660,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
            ({
             "$hcname$",
             implode(tmp_ob - ({ get_name(ob[i])}),", ")+" y tu",
-            "$mhcname$", 
+            "$mhcname$",
             implode(tmp_ob - ({ get_name(ob[i])}),", ")+" y tus",
            }))+ ".\n";
       }
@@ -700,9 +700,9 @@ void do_force(mixed* str){
     str[1]->soul_com_force(str[0]);
 }
 
-void add_soul_command(string name, mixed format, mixed thingo) 
+void add_soul_command(string name, mixed format, mixed thingo)
 {
-  if (soul_data[name]) 
+  if (soul_data[name])
     return;
 
   if (format && !pointerp(format))
@@ -726,33 +726,33 @@ int query_soul_command_exist(string name)
   return 0;
 }
 
-void delete_soul_command(string name) 
+void delete_soul_command(string name)
 {
   soul_data = m_delete(soul_data, name);
 }
 
-string help_soul(string str) 
+string help_soul(string str)
 {
   int j, off;
   string s1, s2, s3, ret, ret_aux, *bit;
   mixed *data;
 
   data = soul_data[str];
-  if (!data) 
+  if (!data)
     return "";
 
   ret = "";
   ret_aux = "";
 
-  if (!pointerp(data[0])) 
+  if (!pointerp(data[0]))
     return "El comando de emoción '"+str+"' no tiene parámetros opcionales.\n";
 
-  for (j = 0; j < sizeof(data[0]);j += 2) 
+  for (j = 0; j < sizeof(data[0]);j += 2)
   {
     bit = explode(" " + data[0][j+1]+" ","%s");
-    switch (data[0][j]) 
+    switch (data[0][j])
     {
-    case 0: 
+    case 0:
       ret += str+bit[0]+"<persona>"+bit[1];
       break;
     case 2:
@@ -769,9 +769,9 @@ string help_soul(string str)
   }
 
   ret = "Sintaxis del comando de emoción %^BOLD%^'"+str+"'%^RESET%^:\n"+
-  sprintf("  %-#*s\n\n", this_player()->query_cols(), ret);
+  sprintf("  %-#*s\n\n", this_user()->query_cols(), ret);
 
-  if (sizeof(data[1]) == 2 || sizeof(data[1]) == 5) 
+  if (sizeof(data[1]) == 2 || sizeof(data[1]) == 5)
   {
     ret += "Sin aplicarlo a seres vivos:\n";
     bit = ({ });
@@ -779,7 +779,7 @@ string help_soul(string str)
       bit = explode(s2,",");
     if (s2 == "#")
       ret_aux = "Puede utilizarse cualquier texto como argumento.\n";
-    else if (sscanf(data[1][0], "%s$ifarg:%s~$%s", s1, s2, s3) == 3) 
+    else if (sscanf(data[1][0], "%s$ifarg:%s~$%s", s1, s2, s3) == 3)
       ret_aux += "Puede utilizarse sin argumentos.\n"+
         "Los argumentos posibles son: "+implode(bit,", ")+".\n";
     else if (!sizeof(bit))
@@ -788,7 +788,7 @@ string help_soul(string str)
       ret_aux += "Los argumentos posibles son: "+implode(bit,", ")+".\n";
 
     if (this_player())
-      ret_aux = sprintf("  %-=*s\n",(int)this_player()->query_cols()-2, ret_aux); 
+      ret_aux = sprintf("  %-=*s\n",(int)this_user()->query_cols()-2, ret_aux);
 
     ret += ret_aux;
     off = 2;
@@ -796,7 +796,7 @@ string help_soul(string str)
 
   ret_aux = "";
 
-  if (sizeof(data[1]) == 3 || sizeof(data[1]) == 5) 
+  if (sizeof(data[1]) == 3 || sizeof(data[1]) == 5)
   {
     ret += "Aplicándolo a seres vivos:\n";
     bit = ({ });
@@ -804,7 +804,7 @@ string help_soul(string str)
       bit = explode(s2,",");
     if (s2 == "#")
       ret_aux = "Puede utilizarse cualquier texto como argumento.\n";
-    else if (sscanf(data[1][off+0], "%s$ifarg:%s~$%s", s1, s2, s3) == 3) 
+    else if (sscanf(data[1][off+0], "%s$ifarg:%s~$%s", s1, s2, s3) == 3)
       ret_aux += "Puede utilizarse sin argumentos.\n"+
         "Los argumentos posibles son: "+implode(bit,", ")+".\n";
     else if (!sizeof(bit))
@@ -812,7 +812,7 @@ string help_soul(string str)
     else
       ret_aux += "Los argumentos posibles son: "+implode(bit,", ")+".\n";
     if (this_player())
-      ret_aux = sprintf("  %-=*s\n",(int)this_player()->query_cols()-2, ret_aux);
+      ret_aux = sprintf("  %-=*s\n",(int)this_user()->query_cols()-2, ret_aux);
 
     ret += ret_aux;
     off = 2;

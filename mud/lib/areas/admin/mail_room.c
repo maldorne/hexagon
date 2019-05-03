@@ -74,7 +74,7 @@ int do_list(string str) {
 
   if (!str) {
     strs = MAIL_TRACK->query_mailing_lists();
-    printf("Current mailing lists: %-=*s", (int)this_player()->query_cols()-24,
+    printf("Current mailing lists: %-=*s", (int)this_user()->query_cols()-24,
                                            implode(strs, ", ")+".\n");
   } else {
     strs = MAIL_TRACK->query_members(str);
@@ -88,7 +88,7 @@ int do_list(string str) {
         strs[j] = "*"+strs[j];
       else
         strs += ({ "*"+cont[i] });
-    printf(str+": %-=*s", (int)this_player()->query_cols()-strlen(str)-3,
+    printf(str+": %-=*s", (int)this_user()->query_cols()-strlen(str)-3,
                           implode(strs, ", ")+".\n");
   }
   return 1;

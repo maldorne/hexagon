@@ -23,7 +23,7 @@ void reset()
                 ({ "white",
        "The ground heaves in a major convulsion and a mound of paper falls onto\n"+
        "You from the ceiling saying:\n#query_cloud" }) });
-  */       
+  */
 
   leverarr = ({ ({ "lluvia",
        "La habitación gira y un pequeño pedazo de papel sale del "+
@@ -59,7 +59,7 @@ void reset()
 void setup()
 {
   set_short("Habitación de control del clima");
-  set_long("Este es el centro de control del clima para todo " + mud_name() + 
+  set_long("Este es el centro de control del clima para todo " + mud_name() +
            ". En el suelo debería estar el controlador en sí mismo, y "+
            "tirados alrededor están un montón de luces parpadeantes, controles y palancas. "+
            "Tienes la extraña sensación de que realmente no sirven para nada, y "+
@@ -71,8 +71,8 @@ void setup()
   add_item( ({ "controles", "control" }), "Algunos controles sin aparente utilidad.\n");
   add_item( ({ "palancas", "palanca" }), "Palancas multicolor instaladas en el suelo. "+
              "Puedes ver una palancas etiquetadas como lluvia, nubes, estacion, dia, fecha, luna y temperatura.\n");
-  
-  add_exit("sudoeste", ADMIN + "admin3.c", "standard"); 
+
+  add_exit("sudoeste", ADMIN + "admin3.c", "standard");
 
   add_property(NO_CLEAN_UP_PROP, 1);
 
@@ -82,10 +82,10 @@ void setup()
   add_item("levers",
            "The levers are large multicolour protuberances which are scattered around the\n"+
            "room in random profusion.\n");
-  */  
+  */
 }
 
-void init() 
+void init()
 {
   ::init();
   add_action("do_pull","tirar");
@@ -93,7 +93,7 @@ void init()
 }
 
 
-int do_pull(string str) 
+int do_pull(string str)
 {
   int i;
   string type,rand;
@@ -115,7 +115,7 @@ int do_pull(string str)
       }
     }
   }
-  
+
   if (!lever) {
     notify_fail("Tienes que escoger una de las palancas existentes.\n");
     return 0;
@@ -123,15 +123,15 @@ int do_pull(string str)
 
   // weather = present("tiempo", this_object());
   // weather = find_object(WEATHER);
-  
+
   if (!handler(WEATHER_HANDLER)) {
     notify_fail("¡¡Ups, el controlador del tiempo no está en esta habitación!!\n");
     return 0;
   }
-  
+
   sscanf(lever[1], "%s#%s", type, rand);
 
-  type = sprintf("%*-=s", this_player()->query_cols(), type);
+  type = sprintf("%*-=s", this_user()->query_cols(), type);
 
   tell_object(this_player(), type);
   // this_player()->print_object(call_other(handler(WEATHER_HANDLER), rand));
@@ -143,11 +143,11 @@ int do_pull(string str)
   return 1;
 }
 
-int do_push(string str) 
+int do_push(string str)
 {
   string lever;
   int i;
-  string type; 
+  string type;
   // string bing;
 
   if (str == "palancas")

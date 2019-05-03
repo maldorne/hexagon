@@ -20,7 +20,7 @@ static int compare_strings(string a, string b)
   return -1;
 }
 
-int do_help(string str) 
+int do_help(string str)
 {
   string s, text;
   string * files;
@@ -30,31 +30,31 @@ int do_help(string str)
 
   files = ({ });
   aux = ({ });
-  
-  if (!strlen(str)) 
+
+  if (!strlen(str))
   {
     s = "%^GREEN%^Temas importantes%^RESET%^:\n";
-    s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
+    s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
       implode(get_dir("/lib/docs/mud/important/"), "\n"));
 
     s += "%^GREEN%^Conceptos generales del juego%^RESET%^:\n";
-    s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
+    s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
       implode(get_dir("/lib/docs/mud/concepts/"), "\n"));
 
     s += "%^GREEN%^Otros temas%^RESET%^:\n";
-    s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
+    s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
       implode(get_dir("/lib/docs/helpdir/"), "\n"));
 
     if (this_object()->query_coder())
     {
       s += "%^GREEN%^Ayuda de comandos de programadores%^RESET%^:\n";
-      s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
+      s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
         implode(get_dir("/lib/docs/coder/"), "\n"));
 
       s += "%^GREEN%^Ayuda de programación%^RESET%^:\n";
-      
+
       aux = ({ });
-        
+
       for (i = 0; i < sizeof(creator_dirs); i++)
       {
         // Este ya lo hemos mostrado antes
@@ -65,10 +65,10 @@ int do_help(string str)
           continue;
         aux += get_dir(creator_dirs[i]);
       }
-    
+
       aux = sort_array(aux, "compare_strings");
-    
-      s += sprintf("\n%-#*s\n\n", (int)this_player()->query_cols(),
+
+      s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
         implode(aux, "\n"));
     }
 
@@ -78,8 +78,8 @@ int do_help(string str)
 
     return 1;
   }
-  
-  if (sscanf(str, "hechizo %s", s) == 1 ) 
+
+  if (sscanf(str, "hechizo %s", s) == 1 )
   {
     if ((text = this_object()->help_spell(s)) && strlen(text))
       write(text);
@@ -87,14 +87,14 @@ int do_help(string str)
       write("No conoces ese hechizo.\n");
     return 1;
   }
-  
+
   if ((text = this_object()->help_spell(str)) && strlen(text))
   {
     write(text);
     return 1;
   }
 
-  if (sscanf(str, "dote %s", s) == 1 ) 
+  if (sscanf(str, "dote %s", s) == 1 )
   {
     if ((text = this_object()->help_feat(s)) && strlen(text))
       write(text);
@@ -102,13 +102,13 @@ int do_help(string str)
       write("No conoces esa dote.\n");
     return 1;
   }
-  
+
   if ((text = this_object()->help_feat(str)) && strlen(text))
   {
     write(text);
     return 1;
   }
-  
+
   // Comprobamos si es un comando de cmds
   ob = load_object(CMD_HANDLER);
   if (ob)
@@ -125,28 +125,28 @@ int do_help(string str)
         if (ob = load_object(text))
         {
           write("Ayuda sobre el comando '" + str + "':\n");
-          write( ((ob->query_short_help())?(ob->query_short_help()):("No hay ningún texto de ayuda concreto.")) 
+          write( ((ob->query_short_help())?(ob->query_short_help()):("No hay ningún texto de ayuda concreto."))
             + "\n\n");
           return 1;
         }
       }
     }
   }
-  
+
   // Ya no hay 'mirar soul', neverbot 02/2006
   if (( str == "emocion") || (str == "emoción") || (str == "emociones"))
   {
     s = SOUL_OBJECT->query_soul_list();
     if (!strlen(s))
       write("No hay ayuda sobre eso.\n");
-    else 
+    else
       this_object()->more_string(s, "[Emociones]");
     return 1;
   }
-  
+
   aux = ({ });
-  
-  // Rellenamos un array de la forma 
+
+  // Rellenamos un array de la forma
   // nombre_de_archivo_i, directorio_del_archivo_i, i+1, i+1, i+2, i+2, etc
   for (i = 0; i < sizeof(help_dirs); i++)
   {
@@ -166,75 +166,75 @@ int do_help(string str)
       for (j = 0; j < sizeof(aux); j++)
         files += ({ aux[j], creator_dirs[i] });
     }
-  
+
   // La ayuda se corresponde con un nombre de archivo
   if ((i = member_array(str, files)) != -1)
   {
     s = "%^GREEN%^Ayuda de: "+str + "%^RESET%^\n\n";
     s += read_file(files[i+1] + files[i]);
-    
+
     this_object()->more_string(s + "\n", "[Ayuda]");
     return 1;
   }
-  
+
   // Por ultimo comprobamos si la ayuda existe sobre un objeto del inventario
   {
     object * objs;
     int flag, loop;
     flag = 0;
     objs = find_match(str, this_player());
-    
+
     // Si no tenemos objetos en el inventario que se correspondan con el nombre,
     // por último probamos con la ayuda de las emociones
-    if (!sizeof(objs)) 
+    if (!sizeof(objs))
     {
       s = (string)SOUL_OBJECT->help_soul(str);
-      
-      if (!strlen(s)) 
+
+      if (!strlen(s))
       {
         notify_fail("Lo siento, no hay ayuda sobre "+str+".\n");
         return 0;
       }
-      
-      s = sprintf("%-=*s", this_player()->query_cols(), s);
+
+      s = sprintf("%-=*s", this_user()->query_cols(), s);
       this_player()->set_finish_func("end_of_help");
       this_player()->more_string(s);
       return 1;
     }
-    
-    for(loop = 0; loop < sizeof(objs); loop++) 
-    {     
-      if(text = (string)objs[loop]->get_help()) 
+
+    for(loop = 0; loop < sizeof(objs); loop++)
+    {
+      if(text = (string)objs[loop]->get_help())
       {
         write("Ayuda sobre " + objs[loop]->query_name() + ":\n" + text + "\n\n");
         flag = 1;
       }
     }
-    
-    if(!flag) 
+
+    if(!flag)
     {
       if(sizeof(objs) > 1)
         write("No hay ayuda sobre estos objetos.\n");
       else
         write("No hay ayuda sobre este objeto.\n");
     }
-    
+
     return 1;
   }
-  
+
   notify_fail("No hay ayuda sobre "+str+".\n");
   return 0;
 
 } /* do_help() */
 
-int end_of_help() 
+int end_of_help()
 {
   return 1;
 }
 
 
 /*
-string search_help(string str) 
+string search_help(string str)
 {
   if (file_size(NROFF_DIR+str+".o") > 0)
     return NROFF_DIR+str;
@@ -242,13 +242,13 @@ string search_help(string str)
     return CNROFF_DIR+str;
 }
 
-string create_help(string str) 
+string create_help(string str)
 {
   int i;
   mixed cross_ref;
 
   for (i = 0;i < sizeof(help_dirs); i++)
-    if (file_size(help_dirs[i]+str)>0) 
+    if (file_size(help_dirs[i]+str)>0)
     {
       NROFF_HAND->create_help(help_dirs[i], str);
       return NROFF_DIR+str;
@@ -257,25 +257,25 @@ string create_help(string str)
 
   if (this_player()->query_coder())
     for (i = 0;i < sizeof(creator_dirs); i++)
-      if (file_size(creator_dirs[i]+str)>0) 
+      if (file_size(creator_dirs[i]+str)>0)
       {
         NROFF_HAND->create_chelp(creator_dirs[i], str);
         return CNROFF_DIR+str;
         return creator_dirs[i]+str;
       }
-  
+
   cross_ref = read_file("/lib/docs/cross_ref");
   cross_ref = explode(cross_ref, "%");
-  
+
   if ((i=member_array(str,cross_ref))==-1)
     return 0;
-  
+
   return extract(cross_ref[i+1],0,strlen(cross_ref[i+1])-2);
   // use extract, not explode
 }
 */
 
-mixed stats() 
+mixed stats()
 {
   return ({ });
 }

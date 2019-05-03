@@ -2,16 +2,16 @@
  * The great and wonderful alias driver by me ;)
  * pinkfish.
  */
- 
+
 mapping map_nicknames;
- 
+
 
 void create()
 {
   map_nicknames = ([ ]);
 }
 
-void init() 
+void init()
 {
   add_action("delete_nickname", "quitarapodo");
   add_action("delete_nickname", "dnick");
@@ -26,11 +26,11 @@ void init()
 
 string *query_nicknames() { return keys(map_nicknames) + ({ }); }
 
-int add_nickname(string str) 
+int add_nickname(string str)
 {
   string s1,s2;
- 
-  if (sscanf(str,"%s %s",s1,s2)!=2) 
+
+  if (sscanf(str,"%s %s",s1,s2)!=2)
   {
     notify_fail("Sintaxis: apodo <apodo> <nombre>\n");
     return 0;
@@ -39,7 +39,7 @@ int add_nickname(string str)
   if (!map_nicknames)
     map_nicknames = ([ ]);
 
-  if (!map_nicknames[s1]) 
+  if (!map_nicknames[s1])
   {
     map_nicknames[s1] = s2;
     write("Apodo '"+s1+"' añadido como '"+s2+"'.\n");
@@ -50,12 +50,12 @@ int add_nickname(string str)
   map_nicknames[s1] = s2;
   return 1;
 }
- 
-string expand_nickname(string str) 
+
+string expand_nickname(string str)
 {
   string *array;
   int i;
- 
+
   if (stringp(str))
     array = explode(lower_case(str)," ");
   else
@@ -70,13 +70,13 @@ string expand_nickname(string str)
 
   return implode(array," ");
 }
- 
-int delete_nickname(string str) 
+
+int delete_nickname(string str)
 {
   if (!map_nicknames)
     map_nicknames = ([ ]);
 
-  if (!map_nicknames[str]) 
+  if (!map_nicknames[str])
   {
     notify_fail("Ese apodo no existe.\n");
     return 0;
@@ -86,12 +86,12 @@ int delete_nickname(string str)
   write("Apodo borrado: "+str+"\n");
   return 1;
 }
- 
-int print_nicknames() 
+
+int print_nicknames()
 {
   int i, cols;
   string str, str1, str2, bit, *tmp;
- 
+
   bit = "";
   str1 = "";
   str2 = "";
@@ -100,13 +100,13 @@ int print_nicknames()
     map_nicknames = ([ ]);
 
   tmp = m_indices(map_nicknames);
-  cols = (int)this_player()->query_cols();
+  cols = (int)this_user()->query_cols();
 
   tell_object(this_player(), "------------------------------------------------------\n");
   tell_object(this_player(), "  Lista de apodos:\n");
   tell_object(this_player(), "------------------------------------------------------\n\n");
 
-  for (i = 0; i < sizeof(tmp); i++) 
+  for (i = 0; i < sizeof(tmp); i++)
   {
     str = tmp[i]+": "+map_nicknames[tmp[i]]+"  ";
 
@@ -130,23 +130,23 @@ int print_nicknames()
 
   return 1;
 }
- 
-int nickname(string str) 
+
+int nickname(string str)
 {
   string s1,s2;
- 
+
   if ((!strlen(str)) && !map_sizeof(map_nicknames))
   {
     notify_fail("No tienes apodos definidos.\n");
     return 0;
   }
-  
+
   if (!strlen(str))
     return print_nicknames();
- 
-  if (sscanf(str,"%s %s",s1,s2)!=2) 
+
+  if (sscanf(str,"%s %s",s1,s2)!=2)
   {
-    if (!map_nicknames[str]) 
+    if (!map_nicknames[str])
     {
       notify_fail("Ese apodo no existe.\n");
       return 0;
@@ -155,7 +155,7 @@ int nickname(string str)
     write("El apodo '"+str+"' equivale a '"+map_nicknames[str]+"'.\n");
     return 1;
   }
-  
+
   return add_nickname(str);
 }
 
@@ -179,9 +179,9 @@ int flushnicks(string str)
 }
 */
 
-mixed * stats() 
+mixed * stats()
 {
-  return ({ 
+  return ({
     ({ "Nicknames", map_nicknames, }),
           });
 }

@@ -7,7 +7,7 @@
 
 inherit "/lib/room.c";
 
-void setup() 
+void setup()
 {
 // string *doms, com;
 // int i;
@@ -35,7 +35,7 @@ void setup()
 	seteuid(ROOT);
 } /* setup() */
 
-void init() 
+void init()
 {
 	::init();
 	add_action("list", "list");
@@ -45,10 +45,10 @@ void init()
 	add_action("do_project", "project");
 } /* init() */
 
-int list(string arg) 
+int list(string arg)
 {
 	string *members, *domains, mast;
-	int i; 
+	int i;
 	int cols;
 
 	if (this_player() != this_player(1))
@@ -67,7 +67,7 @@ int list(string arg)
 			write(capitalize((string)mast->query_dom_lord()) + " is the lord of " +
 				arg + ".\nMembers         Project\n");
 			members = (string *)mast->query_members();
-			cols = (int)this_player()->query_cols();
+			cols = (int)this_user()->query_cols();
 			for (i=0;i<sizeof(members);i++)
 				printf("%-20s %*-=s\n", members[i], cols-16,
 				mast->query_project(members[i]));
@@ -97,7 +97,7 @@ int create_domain(string arg) {
 	}
 	if(!((MASTER->high_programmer(geteuid(previous_object()))) &&
 		(previous_object()->query_administrator())))
-	{ 
+	{
 		notify_fail("You lack the Power of Change on this scale!\n");
 		return 0;
 	}
@@ -189,7 +189,7 @@ int do_project(string arg) {
 	}
 	cre = (string)this_player()->expand_nickname(cre);
 	mast = "d/" + dom + "/master";
-	if(!mast->query_dom_manip()) 
+	if(!mast->query_dom_manip())
 	{
 		notify_fail("You are not the Lord of that domain.\n");
 		return 0;
@@ -199,7 +199,7 @@ int do_project(string arg) {
 			capitalize(cre) + " in the domain " + dom + "\n");
 		return 0;
 	}
-	write("Project for " + capitalize(cre) + " set to " + project + 
+	write("Project for " + capitalize(cre) + " set to " + project +
 		" in the domain " + dom + ".\n");
 	return 1;
 } /* do_project() */

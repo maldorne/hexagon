@@ -5,7 +5,7 @@
 
     Algunos cambios respecto al sistema anterior:
      - Las protecciones magicas se cuentan al lanzar el hechizo
-       (ver /std/spells/base.c), con la diferencia de que ahora no se 
+       (ver /std/spells/base.c), con la diferencia de que ahora no se
        re-calculan en la funcion spell_damage();
      - En la funcion spell_damage se contaban las resistencias para hacer
        el calculo de un critico/pifia en el hechizo. (Es decir, se restaba
@@ -20,12 +20,12 @@
        int spell_damage(int damage, string type, object caster);
           * Para los hechizos normales, donde caster es el formulador del hechizo
             target->spell_damage(damage,type,caster);
-       int spell_damage(int damage, string type)             
+       int spell_damage(int damage, string type)
           * Para hacer daño de un tipo determinado (agua, fuego, etc) contando
             las resistencias magicas del personaje :)
             target->spell_damage(damage,type);
-    
-    Por neverbot 7/2001        
+
+    Por neverbot 7/2001
  *** *******************************************************************************/
 
 #include <living/spells.h>
@@ -37,12 +37,12 @@ mixed neutral_spheres;
 
 /* spells.c original por Baldrick, julio '93
  *
- * Este archivo mantiene la lista de hechizos que cada personaje conoce, 
+ * Este archivo mantiene la lista de hechizos que cada personaje conoce,
  * y las acciones para comprobar los conocimientos de nuestras escuelas/esferas,
  * mas el util comando 'formular' :)
  */
 
-void create() 
+void create()
 {
   spells = ([ ]);
   minor_spheres = ({ });
@@ -50,7 +50,7 @@ void create()
   major_spheres = ({ });
 }
 
-void spell_commands() 
+void spell_commands()
 {
   add_action("show_spells",  "hechizos");
   add_action("show_spheres", "esferas");
@@ -59,39 +59,39 @@ void spell_commands()
 }
 
 /*  Si el hechizo tiene una funcion help(), imprimira el string que se
- *  devuelve aqui. 
+ *  devuelve aqui.
  */
-string help_spell(string str) 
+string help_spell(string str)
 {
   object guild;
   string spell_dir;
 
   if (!mappingp(spells))
     spells = ([ ]);
-  
+
   if (!map_sizeof(spells))
     return "";
-  
+
   if (!spells[str])
     return "";
-  
+
   guild = this_player()->query_guild_ob();
   spell_dir = guild->query_spell_directory();
 
   return ((string)(spell_dir+spells[str][S_OBJECT])->help(str));
 }
- 
+
 /*
  * Listado de los hechizos que conoce el personaje:
  */
-int show_spells(string str) 
+int show_spells(string str)
 {
   string *lista;
 
   if (!mappingp(spells))
     spells = ([ ]);
 
-  if (!map_sizeof(spells)) 
+  if (!map_sizeof(spells))
   {
     tell_object(this_player(), "No conoces ningún hechizo.\n");
     return 1;
@@ -99,13 +99,13 @@ int show_spells(string str)
 
   lista = m_indices(spells);
   tell_object(this_player(), "Conoces los siguientes hechizos:\n");
-  
-  printf("%#-*s\n", this_player()->query_cols(), implode(lista, "\n"));
+
+  printf("%#-*s\n", this_user()->query_cols(), implode(lista, "\n"));
   return 1;
 }
 
 /* Formulara el hechizo despues de un round de formulacion. */
-int cast(string str) 
+int cast(string str)
 {
   int i, j;
   string *s,s1;
@@ -117,31 +117,31 @@ int cast(string str)
   if (!mappingp(spells))
     spells = ([ ]);
 
-  if (!map_sizeof(spells)) 
+  if (!map_sizeof(spells))
   {
     tell_object(this_player(),"No conoces ningún hechizo.\n");
     return 1;
   }
 
-  /* Comprobaremos estas propiedades en cada uno de los hb_spell del hechizo, 
+  /* Comprobaremos estas propiedades en cada uno de los hb_spell del hechizo,
      asi que en el primer turno del hechizo parariamos.
      Podemos ahorrarnos estas comprobaciones.
      neverbot 7/01
-     
+
   if ( this_player()->query_property("nocast") )
   {
     tell_object(this_player(), "Parece que ahora no puedes reunir el poder "
       "necesario para formular el hechizo.\n");
     return 1;
   }
- 
+
   if (environment(this_player())->query_property("nocast"))
   {
     tell_object(this_player(),"Los poderes misticos parecen ser demasiado "
       "debiles aqui y la magia no afecta.\n");
     return 1;
   }
- 
+
   */
 
   if ( this_player()->query_property(PROPERTY_STILLCASTING) )
@@ -150,8 +150,8 @@ int cast(string str)
       "algún tiempo.\n");
     return 1;
   }
-  
-  if (!strlen(str)) 
+
+  if (!strlen(str))
   {
     notify_fail("Uso: formular <hechizo> [<objetivo>]\n");
     return 0;
@@ -174,9 +174,9 @@ int cast(string str)
     Esto puede ser un problema con los magos guerreros, en el 23 estaba limitado,
     asi que quiza habria que comprobar aqui el material del que esta fabricada
     la armadura del formulador.
-    neverbot 
+    neverbot
   ** ******************************************************************************/
-  
+
   // PENDIENTE: Actualizar con el sistema de malus a la hora de formular segun
   // el equipo puesto
   if (armours = this_player()->query_worn_ob())
@@ -190,44 +190,44 @@ int cast(string str)
       }
     }
    }
-  
+
   s = explode(str, " ");
   s1 = s[0];
   j = 1;
   while (!spells[s1] && j < sizeof(s))
     s1 = implode(s[0..j++], " ");
-  
-  if (!spells[s1]) 
+
+  if (!spells[s1])
   {
     notify_fail("No conoces ningún hechizo llamado '"+str+"'.\n");
     return 0;
   }
-  
+
   /* ok we found our spell...
    * cast it...
    * Or, at least try to ;)
    */
   /* the Spell_dir is used to reduce space in the spellarray */
-  
+
   spell_dir = guild->query_spell_directory();
-  
+
   /*** Para solucion de problemas, añadido por neverbot para hacerlo igual que en el
        mud original ***/
-  if (this_player()->query_coder()) 
+  if (this_player()->query_coder())
      tell_object(this_player(),"DEBUG: El archivo es: "+spell_dir + spells[s1][S_OBJECT]+".\n");
-     
+
   return (int)call_other(spell_dir + spells[s1][S_OBJECT], "cast_spell", implode(s[j..sizeof(s)], " "));
-} 
+}
 /* Cast */
 
 mixed query_spells() { return spells; }
 
-int add_spell(string name, mixed ob) 
+int add_spell(string name, mixed ob)
 {
   int i;
   mapping tmp;
 
-  if (pointerp(spells)) 
+  if (pointerp(spells))
   {
     tmp = ([ ]);
     for (i=0;i<sizeof(spells);i+=2)
@@ -242,27 +242,27 @@ int add_spell(string name, mixed ob)
   return 1;
 }
 
-int remove_spell(string name) 
+int remove_spell(string name)
 {
   spells = m_delete(spells, name);
   return 1;
 }
 
-int reset_spellarray() 
+int reset_spellarray()
 {
   spells = ([ ]);
   // write ("Bing.\n");
   return 1;
 }
 
-int query_spell(string type) 
+int query_spell(string type)
 {
-  if (!mappingp(spells)) 
+  if (!mappingp(spells))
     return 0;
   return spells[type];
 }
 
-/* the sphere code.. added by Baldrick october '93 to use by 
+/* the sphere code.. added by Baldrick october '93 to use by
  * add_spell code in the guilds..*
  * Fubaring by Wonderflug, August 95.
  */
@@ -291,8 +291,8 @@ int add_sphere(string name, string power)
       /* For backward compatibility. */
       neutral_spheres += ({ name, });
       break;
-  }      
-  
+  }
+
   return 1;
 }
 
@@ -361,17 +361,17 @@ int reset_spheres()
 
 /* Devolvemos el conjunto de los tres niveles:
  */
-mixed query_spheres() 
+mixed query_spheres()
 {
   return minor_spheres + major_spheres + neutral_spheres + ({ });
-} 
+}
 
 /* Extensiones */
 mixed query_minor_spheres() { return minor_spheres + ({ }); }
 mixed query_neutral_spheres() { return neutral_spheres + ({ }); }
 mixed query_major_spheres() { return major_spheres + ({ }); }
 
-/* Devolvemos el poder de la esfera como 'int' 
+/* Devolvemos el poder de la esfera como 'int'
      0: el personaje no conoce esa esfera
      1: la conoce a 'menor'
      2: la conoce a 'neutral'
@@ -427,23 +427,23 @@ mixed query_sphere_level(string name)
   return 0;
 }
 
-/*  Si name es un string (una sola esfera), devolvemos 
+/*  Si name es un string (una sola esfera), devolvemos
        query_sphere_level() (nivel de la esfera)
-    Si es un array, devolvemos el nivel de la esfera con mayor nivel de la lista.       
+    Si es un array, devolvemos el nivel de la esfera con mayor nivel de la lista.
 */
 mixed query_sphere_power(mixed name)
 {
   int i;
   int max;
-  
-  if (stringp(name)) 
+
+  if (stringp(name))
     return query_sphere_level(name);
   if (arrayp(name))
   {
     max = 0;
     for (i = 0;i<sizeof(name);i++)
     {
-      if (query_sphere(name[i])>max) 
+      if (query_sphere(name[i])>max)
         max = query_sphere(name[i]);
     }
     switch(max)
@@ -455,7 +455,7 @@ mixed query_sphere_power(mixed name)
     }
   }
   return 0;
-}   
+}
 
 int show_spheres(string str)
 {
@@ -465,7 +465,7 @@ int show_spheres(string str)
   // neverbot, 02/2006
   if (!mappingp(spells))
     spells = ([ ]);
-  if (!map_sizeof(spells)) 
+  if (!map_sizeof(spells))
     return 0;
 
   guild = this_player()->query_guild_ob();
@@ -488,7 +488,7 @@ int show_spheres(string str)
     tell_object(this_player(), neutral_spheres[i]+" (Neutral)\n");
   for ( i=0; i<sizeof(major_spheres); i++, written++ )
     tell_object(this_player(), major_spheres[i]+" (Mayor)\n");
- 
+
   if (!written)
   {
     notify_fail("No conoces ninguna esfera.\n");
@@ -496,9 +496,9 @@ int show_spheres(string str)
   }
   return written;
 } /* int show spheres..*/
- 
+
 int show_schools(string str)
-{ 
+{
   object guild;
   int written, i;
 
@@ -540,28 +540,28 @@ int spell_damage(int damage, string type, object caster)
   int prot;
   int original;
 
-  original = damage; 
+  original = damage;
   prot = this_object()->query_res(type);
-  
+
   // Debug de informacion a los inmortales (neverbot 7/01)
   if ((prot != 0) && this_object()->query_coder())
      tell_object(this_object(), "DEBUG (spell_damage): Aplicada resistencia mágica "+
                "contra '"+type+"' ("+prot+"%).\n");
-  
+
   // Calculamos al modificacion al daño segun resistencias:
   damage = (damage * (100 - prot)) / 100;
-  
+
   if (original > 0 && damage == 0)
     damage = 1;
   if (original < 0 && damage == 0)
     damage = -1;
-  
-  if (!caster) 
+
+  if (!caster)
   {
     return (this_object()->query_hp() - this_object()->adjust_hp(-damage) );
-    // return 1;  
-  } 
-  else 
+    // return 1;
+  }
+  else
     return (this_object()->query_hp() - this_object()->adjust_hp(-damage, caster) );
   //return 1;
 }
@@ -573,9 +573,9 @@ int spell_damage(int damage, string type, object caster)
 int query_res(string tipo)
 {
   return this_object()->query_resistance(tipo);
-} 
+}
 
-mixed *stats() 
+mixed *stats()
 {
   return ({
     ({ "Spells", spells }),

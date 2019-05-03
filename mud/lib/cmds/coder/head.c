@@ -9,60 +9,60 @@ void setup()
   position = 1;
 }
 
-static int cmd(string str, object me, string verb) 
+static int cmd(string str, object me, string verb)
 {
   string file, *filename, text;
   int range;
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
     notify_fail("Usage : head -range|file\n");
     return 0;
   }
 
-  if (sscanf(str, "-%d %s", range, file) == 2) 
+  if (sscanf(str, "-%d %s", range, file) == 2)
   {
     filename = get_files(file);
 
-    if (!sizeof(filename)) 
+    if (!sizeof(filename))
     {
       notify_fail("Invalid file\n");
       return 0;
     }
-    
-    if (range < 0) 
+
+    if (range < 0)
     {
       notify_fail("Invalid range : "+range+"\n");
       return 0;
     }
 
-    if (!range) 
+    if (!range)
       range = 10;
 
     text = read_file_line(filename[0], 0, range);
-    // printf("%-=*s", this_player()->query_cols(), text);
+    // printf("%-=*s", this_user()->query_cols(), text);
     tell_object(me, text + "\n");
     return 1;
   }
-  else 
+  else
   {
     sscanf(str, "%s", file);
     filename = get_files(file);
-    
-    if (!sizeof(filename)) 
+
+    if (!sizeof(filename))
     {
       notify_fail("Fichero inválido.\n");
       return 0;
     }
 
     text = read_file_line(filename[0], 0, 10);
-    // printf("%-=*s", this_player()->query_cols(), text);
+    // printf("%-=*s", this_user()->query_cols(), text);
     tell_object(me, text + "\n");
     return 1;
   }
 } /* head_file() */
 
-string query_short_help() 
+string query_short_help()
 {
   return "Devuelve las primeras líneas de un archivo.";
   /*

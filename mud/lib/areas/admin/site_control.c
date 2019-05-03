@@ -10,7 +10,7 @@ inherit "/lib/room.c";
 void setup() {
 //  string *doms, com;
 //  int i;
-  
+
   set_light(100);
   set_short("Site access control room");
   set_long("This room allows Demi-Gods and higher to easily remove "+
@@ -38,11 +38,11 @@ add_exit("norte", ADMIN+"admin3","standard");
   seteuid("Admin");
 } /* setup() */
 
-void init() 
+void init()
 {
   ::init();
   // YES, should be lord, certainly NOT high programmer.
-  if (MASTER->query_lord(geteuid(previous_object()))) 
+  if (MASTER->query_lord(geteuid(previous_object())))
   {
     add_action("do_site_banish", "site*banish"); /* Site banishing... */
     add_action("do_access", "access"); /* Show the current access list. */
@@ -112,7 +112,7 @@ int do_access() {
     return 0;
   }
 
-  print_access("", bing, 0, (int)this_player()->query_cols());
+  print_access("", bing, 0, (int)this_user()->query_cols());
   return 1;
 } /* do_access() */
 
