@@ -1,4 +1,5 @@
 
+#include <kernel.h>
 #include <living/living.h>
 #include <user/user.h>
 
@@ -14,7 +15,7 @@
 nomask void enable_commands()
 {
   // TODO check npcs too
-  if (base_name(previous_object()) != USER_HANDLER)
+  if (base_name(previous_object()) != LOGIN_OB)
     return;
 
   _living = 1;

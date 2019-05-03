@@ -1,2 +1,20 @@
 
-#define _LANG_LAST_CONNECTION "Your last connection was from '"+last_on_from+"'.\n"
+// more_string.c
+
+#define _LANG_MORE_STRING_MORE "[More]"
+#define _LANG_MORE_STRING_STAT_LINE "$N > from $T to $B of $S ($%%) - h for help. "
+#define _LANG_MORE_STRING_NOT_FOUND "Sorry, "+s1+" not found.\n"
+#define _LANG_MORE_STRING_HELP_NOT_FOUND "Cannot find the help document. " + \
+                             "Please tell somebody to fix this.\n"
+#define _LANG_MORE_STRING_EMPTY_STRING "Empty string.\n"
+
+
+// commands.c
+
+#define _LANG_ACCOUNT_COMMANDS "" + \
+        "Account commands:\n" + \
+        "   %^BOLD%^GREEN%^<character name>%^RESET%^ to continue playing.\n" + \
+        "   %^BOLD%^players%^RESET%^ to list all your characters.\n" + \
+        "   %^BOLD%^create%^RESET%^ to create a new player character.\n" + \
+        "   %^BOLD%^games%^RESET%^ to list available games.\n" + \
+        "   %^BOLD%^password%^RESET%^ to change your password.\n"

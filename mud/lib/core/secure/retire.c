@@ -9,7 +9,8 @@
 
 #include <files/post.h>
 #include <basic/money.h>
-#include <user/user.h>
+// #include <user/user.h>
+#include <user/player.h>
 
 #define MAX_RETRYS 1
 

@@ -4,17 +4,23 @@
 
 #include <kernel.h>
 #include <user/user.h>
+#include <user/player.h>
 #include <mud/config.h>
 
-static mapping users;
+static mapping _users;
+static mapping _players;
 
-void create() 
+void create()
 {
   ::create();
-  users = ([ ]);
-  
-  if (!find_object(USER_OB)) 
+  _users = ([ ]);
+  _players = ([ ]);
+
+  if (!find_object(USER_OB))
     compile_object(USER_OB);
+
+  if (!find_object(PLAYER_OB))
+    compile_object(PLAYER_OB);
 
 #ifdef __NETWORK_EXTENSIONS__
   open_port("telnet", TELNET_PORT);
@@ -22,84 +28,127 @@ void create()
 }
 
 // called only from this object, in 'new_connection'
-static void add_new_user(object ob) 
+static void add_new_user(object ob)
 {
   string id;
 
-  // if (base_name(previous_object()) != USER_OB) 
+  // if (base_name(previous_object()) != USER_OB)
   //   return;
 
   id = file_name(ob);
 
-  users += ([ id : allocate(2) ]);
+  _users += ([ id : allocate(4) ]);
 
   // values[0] = the user object
   // values[1] = the user name
-  users[id][0] = ob;
-  users[id][1] = "";
+  // values[2] = the player object
+  // values[3] = the player name
+  _users[id][0] = ob;
+  _users[id][1] = "";
+  _users[id][2] = nil;
+  _users[id][3] = "";
 }
 
-void remove_user(object ob) 
+void remove_user(object ob)
 {
   string id;
 
-  // if (base_name(previous_object()) != USER_OB) 
+  // if (base_name(previous_object()) != USER_OB)
   //   return;
 
   id = file_name(ob);
 
-  users[id] = nil;
+  _players[_users[id][3]] = nil;
+  _users[id] = nil;
 }
 
 object * query_users()
 {
-  string * ids;
   int i;
+  string * ids;
   object * result;
 
-  ids = m_indices(users);
+  ids = m_indices(_users);
   result = ({ });
 
   for (i = 0; i < sizeof(ids); i++)
-    result += ({ users[ids[i]][0] });
+    result += ({ _users[ids[i]][0] });
+
+  return result;
+}
+
+object * query_players()
+{
+  int i;
+  string * ids;
+  object * result;
+
+  ids = m_indices(_users);
+  result = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+    result += ({ _users[ids[i]][2] });
 
   return result;
 }
 
 string * query_user_names()
 {
-  string * ids;
   int i;
+  string * ids;
   string * result;
 
-  ids = m_indices(users);
+  ids = m_indices(_users);
   result = ({ });
 
   for (i = 0; i < sizeof(ids); i++)
-    result += ({ users[ids[i]][1] });
+    result += ({ _users[ids[i]][1] });
 
   return result;
 }
 
-mapping query_user_data() 
+string * query_player_names()
 {
-  return users;
+  int i;
+  string * ids;
+  string * result;
+
+  ids = m_indices(_users);
+  result = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+    result += ({ _users[ids[i]][3] });
+
+  return result;
 }
 
-string * query_user_ids() 
+mapping query_user_data()
 {
-  return m_indices(users);
+  return _users;
 }
 
-object find_user(string id) 
+string * query_user_ids()
 {
-  if (!users[id])
+  return m_indices(_users);
+}
+
+object find_user(string id)
+{
+  if (!_users[id])
     return nil;
-  
-  return users[id];
+
+  return _users[id];
 }
 
-int update_user(object ob)
+object find_player(string name)
+{
+  if (!_players[name])
+    return nil;
+
+  return _players[name];
+}
+
+int update_user(object user, object player)
 {
   string id;
 
@@ -107,16 +156,24 @@ int update_user(object ob)
   if (base_name(previous_object()) != "/lib/core/login")
     return -1;
 
-  id = file_name(ob);
+  id = file_name(user);
 
-  if (!users[id])
+  if (!_users[id])
     return -1;
 
-  // cannot change names of already logged-in players
-  if (users[id][1] != "")
+  // cannot change names of already logged-in users
+  if (_users[id][1] != "")
     return -1;
 
-  users[id][1] = ob->query_name();
+  _users[id][1] = user->query_account_name();
+
+  if (player)
+  {
+    _users[id][2] = player;
+    _users[id][3] = player->query_name();
+
+    _players[player->query_name()] = player;
+  }
 
   return 1;
 }

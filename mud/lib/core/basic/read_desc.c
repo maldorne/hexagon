@@ -20,7 +20,8 @@ void create()
 
 void init()
 {
-  ::init();
+  // not necessary, would be called inheriting through object.c
+  // ::init();
   add_action("do_read", "leer");
 }
 
@@ -36,9 +37,9 @@ int query_cur_size() { return cur_size; }
 * calling this is very rude unless you are createing the object as it
 * erases all of the writing off it.
 */
-void set_read_mess(mixed str, varargs string lang, int size) 
+void set_read_mess(mixed str, varargs string lang, int size)
 {
-  if (pointerp(str)) 
+  if (pointerp(str))
   {
     read_mess = str;
     return;
@@ -58,19 +59,19 @@ void set_read_mess(mixed str, varargs string lang, int size)
 string *query_read_mess() { return read_mess; }
 
 /* This adds a new messages onto the object. */
-mixed add_read_mess(mixed str, string type, string lang, int size) 
+mixed add_read_mess(mixed str, string type, string lang, int size)
 {
   int de_size;
 
   /* fail! */
-  if (cur_size >= max_size) 
+  if (cur_size >= max_size)
     return "";
-  if (!size) 
+  if (!size)
     size = 1;
 
   de_size = size*((int)LANGUAGE_HANDLER->query_language_size(lang, str));
 
-  if (cur_size + de_size > max_size) 
+  if (cur_size + de_size > max_size)
   {
     /* Try and squidge the text on somehow... */
     str = (string)LANGUAGE_HANDLER->squidge_text(lang, str,
@@ -96,11 +97,11 @@ mixed add_read_mess(mixed str, string type, string lang, int size)
 * Using the type and or language is a very dodgy way of doing this.  Using
 * a combination is much better.
 */
-int remove_read_mess(string str, string type, string lang) 
+int remove_read_mess(string str, string type, string lang)
 {
   int i;
 
-  for (i = 0; i < sizeof(read_mess); i++) 
+  for (i = 0; i < sizeof(read_mess); i++)
   {
     if (str && read_mess[i][READ_STR] != str)
       continue;
@@ -144,7 +145,7 @@ int remove_read_mess(string str, string type, string lang)
 * Yeppers, this actually reads the object.  Handles reading of actual
 * messages and labels.
 */
-int do_read(string what) 
+int do_read(string what)
 {
   string s1, s2, s3, str, str2;
   // neverbot 4/2003
@@ -157,20 +158,20 @@ int do_read(string what)
     return 0;
   }
 
-  if (!read_mess) 
+  if (!read_mess)
     return 0;
 
-  if (read_mess) 
+  if (read_mess)
   {
-    for (i = 0; i < sizeof(read_mess); i++) 
+    for (i = 0; i < sizeof(read_mess); i++)
     {
       str = read_mess[i][READ_STR];
 
       /* Its not a string when we are dealing with magical writing */
-      if (stringp(str)) 
+      if (stringp(str))
       {
         str2 = "";
-        while (sscanf(str, "%s$$%s$$%s", s1, s2, s3) == 3) 
+        while (sscanf(str, "%s$$%s$$%s", s1, s2, s3) == 3)
         {
           str2 += s1 + read_file(s2);
           str = s3;
@@ -185,8 +186,8 @@ int do_read(string what)
           read_mess[i][READ_TYPE],
           read_mess[i][READ_LANG],
           read_mess[i][READ_SIZE]);
-      } 
-      else 
+      }
+      else
       {
         /* It magic!  She blinded me with science! */
         /*
@@ -223,10 +224,10 @@ int do_read(string what)
   */
 
   // neverbot 4/2003
-  if (strlen(ret)) 
+  if (strlen(ret))
   {
     // ret = sprintf("%*-=s",
-    //           (this_player()?this_player()->query_cols():79),
+    //           (this_user()?this_user()->query_cols():79),
     //           ret);
     // write(ret);
     tell_object(this_player(), ret);
@@ -236,7 +237,7 @@ int do_read(string what)
 } /* do_read() */
 
 /* Modify the long if we have something written on us */
-string long(varargs string str, int dark) 
+string long(varargs string str, int dark)
 {
   /*
   if (read_mess)

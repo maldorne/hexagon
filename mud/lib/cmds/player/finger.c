@@ -33,6 +33,9 @@ static int cmd(string str, object me, string verb)
       string euid;
       string rnstr;
       string pname;
+      object player;
+
+      player = obs[i]->query_player_ob();
 
       if (obs[i]->query_invis() && !this_player()->query_coder())
       	continue;
@@ -50,8 +53,8 @@ static int cmd(string str, object me, string verb)
         {
           string r;
 
-          rnstr = (string)obs[i]->query_account_real_name();
-          pname = obs[i]->query_cap_name();
+          rnstr = (string)obs[i]->query_real_name();
+          pname = player->query_cap_name();
 
           if (rnstr && rnstr[0..0] == ":")
             if (!MASTER->valid_read("/save/players/"+pname[0..0]+"/"+pname,
@@ -59,11 +62,11 @@ static int cmd(string str, object me, string verb)
               rnstr = "-";
 
           r = sprintf("%-12.12s %2.2s %-20.20s %-20.20s %-20.20s\n",
-            (obs[i]->query_invis() ? "(" + obs[i]->query_cap_name() + ")" : "" + obs[i]->query_cap_name()),
+            (obs[i]->query_invis() ? "(" + player->query_cap_name() + ")" : "" + player->query_cap_name()),
             type,
             (rnstr?rnstr:" "),
-            ((ret = obs[i]->query_account_location())?ret:" "),
-            ((ret = (string)obs[i]->query_account_birthday())?ret:" "));
+            ((ret = obs[i]->query_location())?ret:" "),
+            ((ret = (string)obs[i]->query_birthday())?ret:" "));
           write(r);
         }
       }

@@ -70,8 +70,8 @@ string * get_files(string str)
 
     oldeiud = geteuid();
 
-    if (this_player() != nil)
-      seteuid(geteuid(this_player(1)));
+    if (this_user() != nil)
+      seteuid(geteuid(this_user()));
     else
       seteuid((string)MUDOS->get_root_uid());
 

@@ -25,6 +25,8 @@ string query_role_name() { return role_name; }
 
 int set_role(string name)
 {
+  object player;
+
   // for safety reasons, we allow set_role only to be called from /lib/core/login
   if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
@@ -32,40 +34,42 @@ int set_role(string name)
   if (!interactive(this_object()))
     return 0;
 
+  player = this_object()->query_player_ob();
+
   switch(name)
   {
     case ADMIN_ROLE:
       role_name = name;
       _role = clone_object(ADMIN_ROLE_OB);
-      _role->set_player(this_object());
+      _role->set_user(this_object());
 
       // euid as coder
-      seteuid(this_object()->query_name());
+      seteuid(player->query_name());
       break;
 
     case MANAGER_ROLE:
       role_name = name;
       _role = clone_object(MANAGER_ROLE_OB);
-      _role->set_player(this_object());
+      _role->set_user(this_object());
 
       // euid as coder
-      seteuid(this_object()->query_name());
+      seteuid(player->query_name());
       break;
 
     case CODER_ROLE:
       role_name = name;
       _role = clone_object(CODER_ROLE_OB);
-      _role->set_player(this_object());
+      _role->set_user(this_object());
 
       // euid as coder
-      seteuid(this_object()->query_name());     
+      seteuid(player->query_name());
       break;
 
     case PLAYER_ROLE:
     default:
       role_name = PLAYER_ROLE;
       _role = clone_object(PLAYER_ROLE_OB);
-      _role->set_player(this_object());
+      _role->set_user(this_object());
       break;
   }
 
@@ -75,11 +79,11 @@ int set_role(string name)
 int query_admin()         { return role_name == ADMIN_ROLE; }
 int query_administrator() { return query_admin(); }
 int query_manager()       { return role_name == MANAGER_ROLE ||
-                                   query_administrator(); 
+                                   query_administrator();
                           }
-int query_coder()         { return (role_name == CODER_ROLE) || 
-                                    query_manager() || 
-                                    query_administrator(); 
+int query_coder()         { return (role_name == CODER_ROLE) ||
+                                    query_manager() ||
+                                    query_administrator();
                           }
 
 string query_object_type()
@@ -105,10 +109,10 @@ string query_object_type()
   return PLAYER_ROLE;
 } /* query_object_type() */
 
-nomask int set_invis(int i) 
+nomask int set_invis(int i)
 {
   if (query_coder())
-  { 
+  {
     if (i)
         invis = 1;
     else
@@ -130,9 +134,9 @@ nomask string query_path()
   return "";
 }
 
-mixed * stats() 
+mixed * stats()
 {
-  return (_role ? _role->stats() : ({ })) + ({ 
+  return (_role ? _role->stats() : ({ })) + ({
     ({ "Role Name" , role_name }),
         });
 }

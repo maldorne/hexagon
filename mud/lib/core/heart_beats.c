@@ -17,7 +17,7 @@ void create()
   _hb_object_list = ({ });
   _hb_handle = -1;
 
-  debug("hbs", " ───> heart_beat creation\n");    
+  debug("hbs", " ───> heart_beat creation\n");
 
   _hb_handle = call_out("_heart_beat", HEART_BEAT_TIME);
 }
@@ -26,7 +26,7 @@ nomask void _heart_beat()
 {
   int i;
 
-  if (!mudlib_privileges()) 
+  if (!mudlib_privileges())
   {
     debug("hbs", "Illegal _heart_beat\n");
     return;
@@ -48,24 +48,28 @@ nomask void _heart_beat()
       continue;
     }
 
-    set_initiator_player(nil);
-
     if (living(ob))
       set_initiator_object(ob);
     else
       set_initiator_object(nil);
 
-    rlimits(MAX_HB_DEPTH ; MAX_HB_TICKS) 
+    if (interactive(ob))
+      set_initiator_player(ob);
+    else
+      set_initiator_player(nil);
+
+    rlimits(MAX_HB_DEPTH ; MAX_HB_TICKS)
     {
       result = catch(call_other(ob, "heart_beat"));
     }
 
     set_initiator_object(nil);
+    set_initiator_player(nil);
 
     // turn off heart beat in the object
     if (result)
     {
-      debug("hbs", "  └─> heart_beat error in " + object_name(ob) + ":\n      " + 
+      debug("hbs", "  └─> heart_beat error in " + object_name(ob) + ":\n      " +
                                             result + "\n");
       _hb_object_list -= ({ _hb_object_list[i] });
       i--;
@@ -113,16 +117,16 @@ nomask int remove_hb_object(object ob)
   return 1;
 }
 
-// nomask void perform_heart_beat() 
+// nomask void perform_heart_beat()
 // {
 //   string error;
 
-//   if (previous_object() && previous_object() != this_object()) 
+//   if (previous_object() && previous_object() != this_object())
 //     return;
 
 //   error = catch(this_object()->heart_beat());
-  
-//   if (error) 
+
+//   if (error)
 //   {
 //     set_heart_beat(0);
 //     return;

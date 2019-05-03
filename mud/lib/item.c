@@ -1,7 +1,7 @@
-/* Item.c 
+/* Item.c
  * Made by Baldrick.
  * to be used instead of /std/object on *EVERY* object that can be carried.
- * 
+ *
  * Right now it's only armour.c and weapon.c that inherits it.
  * and for now that's the only one needing it..
  * unless you have any wear / wieldable items.. the should also inherit this
@@ -20,17 +20,17 @@
  * Si necesitamos que sea para una raza, gremio, deidad determinada, etc,
  *  simplemente tenemos que hacerle un set_guild("nombre del gremio"), set_race, etc
  *  o genero con set_needed_gender(1 o 2).
- * Se puede hacer el objeto para un unico jugador mediante el 
+ * Se puede hacer el objeto para un unico jugador mediante el
  *  add_property("player", nombre);
  * Se puede hacer el objeto de quest mediante add_property("property", propiedad)
  *  y solo lo podran utilizar los jugadores que tengan la property <propiedad>
  * Si se le pone la propiedad CURSED_PROP (ver properties.h), no se podra quitar o
- *  desempuñar, y dara el mensaje el mensaje devuelto por el 
+ *  desempuñar, y dara el mensaje el mensaje devuelto por el
  *  objeto->query_property(CURSED_PROP). Se pueden poner una lista de dos mensajes en lugar
  *  de un solo string, y dara el segundo mensaje a la room donde esta el personaje.
  * Mismo funcionamiento con las propiedades "messon" y "messoff" para dar mensajes
  *  al equiparse y desequiparse.
- * Eliminadas las propiedades para subir caracteristicas, ac o thac0... lo dejaremos 
+ * Eliminadas las propiedades para subir caracteristicas, ac o thac0... lo dejaremos
  *  para la gente que sepa utilizar las funciones de bonos temporales de combate y
  *  similares en lugar de permitir que cualquier programador meta objetos poderosos.
  *
@@ -44,7 +44,7 @@
  */
 
 inherit obj       "/lib/core/object";
-// Añadidas algunas propiedades que solo tendria un objeto living, como 
+// Añadidas algunas propiedades que solo tendria un objeto living, como
 // alineamiento o genero.
 inherit alignment "/lib/core/basic/alignment";
 inherit gender    "/lib/core/basic/gender";
@@ -95,16 +95,16 @@ void init()
   read_desc::init();
 }
 
-void set_holdable(int i) 
-{ 
-  holdable = i; 
+void set_holdable(int i)
+{
+  holdable = i;
   if (wearable && holdable)
     wearable = 0;
 }
 
-void set_wearable(int i) 
-{ 
-  wearable = i; 
+void set_wearable(int i)
+{
+  wearable = i;
   if (wearable && holdable)
     holdable = 0;
 }
@@ -114,8 +114,8 @@ int query_wearable() { return wearable; }
 int query_in_use() { return in_use; }
 
 /* Sizes.. This will be used in wield and wear and later also by containers.
- * Will have it here and not in /std/object because the roomsize is something 
- * else.. 
+ * Will have it here and not in /std/object because the roomsize is something
+ * else..
  * Baldrick aug '95.
  */
 void set_size(int i)
@@ -132,10 +132,10 @@ int adjust_size(int i)
 int query_size()
 {
     return size;
-} 
+}
 
 /* Hamlet Sep 1995 */
-void set_hands_needed(int i) 
+void set_hands_needed(int i)
 {
     hands = i;
 }
@@ -151,8 +151,8 @@ int query_hands_needed() { return hands; }
 string long(varargs string s, int dark)
 {
   string cond, xtra;
-  if ((this_object()->query_weapon()) || 
-      (this_object()->query_armour()) || 
+  if ((this_object()->query_weapon()) ||
+      (this_object()->query_armour()) ||
       (this_object()->query_shield()) )
   {
     cond = cond_string();
@@ -160,18 +160,18 @@ string long(varargs string s, int dark)
 
   xtra = calc_extra_look();
 
-  if (!cond) 
+  if (!cond)
     cond = "";
-  if (!xtra) 
+  if (!xtra)
     xtra = "";
-  
+
   // return obj::long() + read_desc::long() + xtra + cond;
 
-  return( 
-         sprintf("\n  %-*s\n", (this_player()?this_player()->query_cols()-2:77),
+  return(
+         sprintf("\n  %-*s\n", (this_user()?this_user()->query_cols()-2:77),
                  "   " + obj::long()) +
                  read_desc::long() + xtra + cond
-        );    
+        );
 }
 
 /* **************************
@@ -183,7 +183,7 @@ string long(varargs string s, int dark)
 // Move hack so that wearables/holdables will leave the wear/hold
 // arrays of living creatures.
 
-int move(mixed dest, varargs mixed messout, mixed messin) 
+int move(mixed dest, varargs mixed messout, mixed messin)
 {
   object ob;
   int i;
@@ -192,7 +192,7 @@ int move(mixed dest, varargs mixed messout, mixed messin)
   unused_it = 0;  /* Hamlet's nastiness */
 
   /* Next line is Hamlet's and it's ugly, but needed */
-  if (this_object()->query_in_use()) 
+  if (this_object()->query_in_use())
   {
     this_object()->set_in_use(0);
     unused_it = 1;
@@ -207,16 +207,16 @@ int move(mixed dest, varargs mixed messout, mixed messin)
       ob->unhold_ob(this_object());
     else if (this_object()->query_wearable()) /* hamlet fixed me */
       ob->unwear_ob(this_object());
-  } 
-  
-  if (i && unused_it)  
+  }
+
+  if (i && unused_it)
     this_object()->set_in_use(1); /* Hamlet */
-  
+
   return i;
 }
 
 /* Added april '95 by Baldrick, does the same as the move, just for dest_me
- * Not sure if it will work tho 
+ * Not sure if it will work tho
  */
 void dest_me()
 {
@@ -243,16 +243,16 @@ int set_in_use(int i)
 
   count = 0;
   in_use = i;
-  
+
   // Taniwha, see if there is any cute stuff
   /*
   if ( (!(sizeof(map_prop) || sizeof(timed_prop) ||
-         sizeof(query_static_properties())) && 
+         sizeof(query_static_properties())) &&
        (this_object()->query_align() == 0) )) return i;
   */
   // Comprobacion de alineamiento contrario en objetos, idea de Iolo@Rl
   if ( ((this_object()->query_align()<0) && (environment(this_object())->query_align()>100)) ||
-        ((this_object()->query_align()>100) && (environment(this_object())->query_align()<0)) ) 
+        ((this_object()->query_align()>100) && (environment(this_object())->query_align()<0)) )
   {
     tell_object(environment(this_object()),"Sientes un extraño remordimiento al coger "+
                (this_object()->query_gender()?(this_object()->query_article()+" "):"tu")+
@@ -349,7 +349,7 @@ int set_in_use(int i)
         return 0;
       }
     }
-   
+
     // Comprobacion del genero de quien se lo pone
     if (gender_needed > 0)
     {
@@ -367,10 +367,10 @@ int set_in_use(int i)
        (environment(this_object())->query_name() != this_object()->query_property("player")))
     {
       tell_object(environment(this_object()),"No puedes usar "+(string)this_object()->short()+
-         ", ya que ha sido diseñado específicamente para otra persona.\n");    
+         ", ya que ha sido diseñado específicamente para otra persona.\n");
       return 0;
-    } 
-   
+    }
+
     // quest item, tagged when got
     if (this_object()->query_property("property") &&
        (!environment(this_object())->query_property(this_object()->query_property("property"))))
@@ -382,7 +382,7 @@ int set_in_use(int i)
 
     str = this_object()->query_property("messon");
 
-    if (stringp(str)) 
+    if (stringp(str))
       tell_object(environment(this_object()), str +".\n"); // single string, tell wearer
     else if (pointerp(str)) // array, wearer + tell_room
     {
@@ -392,11 +392,11 @@ int set_in_use(int i)
           tell_room(environment(environment(this_object())),str[1]+".\n",environment(this_object()));
       }
     }
-   
+
     for (count = 0; count < sizeof(RESISTANCES); count++)
     {
-      if (query_property(RESISTANCES[count])) 
-         environment(this_object())->adjust_tmp_resistance(RESISTANCES[count], 
+      if (query_property(RESISTANCES[count]))
+         environment(this_object())->adjust_tmp_resistance(RESISTANCES[count],
                                          query_property(RESISTANCES[count]) );
     }
 
@@ -407,7 +407,7 @@ int set_in_use(int i)
 
     if (str)
     {
-      if (stringp(str)) 
+      if (stringp(str))
         tell_object(environment(this_object()),str+".\n");
       else if (pointerp(str))
       {
@@ -423,7 +423,7 @@ int set_in_use(int i)
 
     str = this_object()->query_property("messoff");
 
-    if (stringp(str)) 
+    if (stringp(str))
        tell_object(environment(this_object()),str+".\n");
     else if (pointerp(str))
     {
@@ -432,12 +432,12 @@ int set_in_use(int i)
       {
         tell_room(environment(environment(this_object())),str[1]+".\n",environment(this_object()));
       }
-    }  
+    }
 
     for (count = 0; count < sizeof(RESISTANCES); count++)
     {
-      if (query_property(RESISTANCES[count])) 
-        environment(this_object())->adjust_tmp_resistance(RESISTANCES[count], 
+      if (query_property(RESISTANCES[count]))
+        environment(this_object())->adjust_tmp_resistance(RESISTANCES[count],
                                             -(query_property(RESISTANCES[count])) );
     }
   }
@@ -460,13 +460,13 @@ void set_city(string str){ list[CITY_OB] = str; }
 void set_job(string str){ list[JOB_OB] = str; }
 
 
-mapping query_dynamic_auto_load() 
+mapping query_dynamic_auto_load()
 {
-  return obj::query_dynamic_auto_load() + 
+  return obj::query_dynamic_auto_load() +
           ( (cond != MAX_COND) ? ([ "condition" : cond, ]) : ([ ]) );
 }
- 
-void init_dynamic_arg(mapping args) 
+
+void init_dynamic_arg(mapping args)
 {
   if (undefinedp(args["condition"]))
     cond = MAX_COND;
@@ -481,12 +481,12 @@ mixed stats()
 {
   mixed * ret;
 
-  ret = obj::stats() + 
-    alignment::stats() + 
-    gender::stats() + 
-    condition::stats() + 
+  ret = obj::stats() +
+    alignment::stats() +
+    gender::stats() +
+    condition::stats() +
     read_desc::stats();
-    
+
   ret += ({
      ({ "Wearable", wearable, }),
      ({ "Holdable", holdable, }),
@@ -494,7 +494,7 @@ mixed stats()
      ({ "Hands", hands, }),
      ({ "In Use", in_use, }),
      ({ "Gender Needed", gender_needed, }),
-     ({ "Data List", list, }),         
+     ({ "Data List", list, }),
          });
   return ret;
 }

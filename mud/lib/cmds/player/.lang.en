@@ -1,0 +1,13 @@
+
+// common
+
+#define _LANG_CMD_NOTHING_HERE "Nothing with the name '"+arg+"' is here.\n"
+
+// look.c
+
+#define _LANG_CMD_LOOK "look"
+#define _LANG_CMD_LOOK_SYNTAX "look [<something>]"
+#define _LANG_CMD_LOOK_HELP "Shows the description of an item or (by default) " + \
+                    "the localization you are in at the moment."
+#define _LANG_CMD_LOOK_NO_ENVIRONMENT "You are nowhere... you can't see a thing.\n"
+#define _LANG_CMD_LOOK_BLINDED "You can't see a thing. ¡You are blinded!\n"

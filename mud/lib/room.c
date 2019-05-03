@@ -72,7 +72,7 @@ string query_where_dir(string direc)
 {
   int i;
   for (i = 0; i < sizeof(dest_other); i += 2)
-    if (dest_other[i] == direc) 
+    if (dest_other[i] == direc)
       return (string)dest_other[i+1][ROOM_DEST];
   return "";
 }
@@ -81,7 +81,7 @@ string query_dir_where(string where)
 {
   int i;
   for (i = 0; i < sizeof(dest_other); i += 2)
-  	if (dest_other[i+1][ROOM_DEST] == where) 
+  	if (dest_other[i+1][ROOM_DEST] == where)
   		return (string)dest_other[i];
   return "";
 }
@@ -95,8 +95,8 @@ string set_login_room(string room)
 void event_login(object ob, varargs mixed avoid)
 {
   ::event_login(ob, avoid);
-  
-  if (stringp(loginroom) && ob) 
+
+  if (stringp(loginroom) && ob)
     ob->move(loginroom);
 }
 
@@ -116,11 +116,11 @@ object *add_hidden_object(object ob)
 
 string query_contents(varargs string str, object *ob)
 {
-  if (!hidden_objects) 
+  if (!hidden_objects)
     hidden_objects = ({ });
   if (ob)
     ob -= hidden_objects;
-  else 
+  else
     ob = all_inventory(this_object()) - hidden_objects;
   return ::query_contents(str, ob);
 }
@@ -166,7 +166,7 @@ void reset()
   guard::reset();
 }
 
-void set_exit_color(string which) 
+void set_exit_color(string which)
 {
   exit_color = ROOM_HAND->exit_string_color(which);
 }
@@ -174,7 +174,7 @@ void set_exit_color(string which)
 void add_clone( string the_file, int how_many, varargs int flags)
 {
   // if ( !how_many ) how_many = 1;
-  if ( !how_many ) 
+  if ( !how_many )
   	return;
 
   if ( !stringp(the_file) )
@@ -229,7 +229,7 @@ string query_dark_mess(int lvl)
 
 void set_dark_mess(string str) { dark_mess = str; }
 
-void create() 
+void create()
 {
   string *inh;
   dest_other = ({ });
@@ -258,18 +258,18 @@ void create()
   contents::create();
   desc::create();
   events::create();
-  
+
   property::create();
   senses::create();
   guard::create();
   navigation::create();
   diplomacy::create();
-    
+
   add_property("location", "inside");
   this_object()->setup();
   reset();
 
-  // if (replaceable(this_object())) 
+  // if (replaceable(this_object()))
   // {
   //   inh = inherit_list(this_object());
   //   if (sizeof(inh) == 1)
@@ -278,28 +278,28 @@ void create()
     start_clean_up();
   //   replace_program(inh[0]);
   // }
-} 
+}
 
 string expand_alias(string str);
 
 // moved glance code to the command  (:   Radix 1996
-string short(varargs int dark) 
+string short(varargs int dark)
 {
   return ::short(dark);
-} 
+}
 
-int id(string str) 
+int id(string str)
 {
   return 0;
   // str = expand_alias(str);
   // return items[str];
-} 
+}
 
 string expand_alias(string str)
 {
   str = EXIT_HAND->expand_alias(aliases,str);
   return str;
-} 
+}
 
 //  Thanks to viewers like you this function [insert name here]
 //     has been moved to your local exit_handler [Piper 1/5/96]
@@ -325,14 +325,14 @@ string query_short_exit_string()
       return short_exit_string;
   if (!dest_direc || sizeof(dest_direc)==0)
       dest_direc = ({ });
-      
+
   dirs = ({ });
-  for (i = 0; i < sizeof(dest_other); i += 2) 
+  for (i = 0; i < sizeof(dest_other); i += 2)
   {
     door = query_doors(dest_other[i]);
-    if (door) 
+    if (door)
     {
-      if (door->is_open()) 
+      if (door->is_open())
       {
         if ((ret = SHORTEN[dest_other[i]]))
             dirs += ({ "-"+ret+"-" });
@@ -350,17 +350,17 @@ string query_short_exit_string()
     else
     {
       add = 0;
-      if (dest_other[i+1][ROOM_OBV]) 
+      if (dest_other[i+1][ROOM_OBV])
       {
         no += 1;
         add = 1;
-      } 
-      else if (stringp(dest_other[i+1][ROOM_OBV])) 
+      }
+      else if (stringp(dest_other[i+1][ROOM_OBV]))
       {
         nostore = 1;
         add = (int)call_other(this_object(),dest_other[i+1][ROOM_OBV]);
-      } 
-      else if (pointerp(dest_other[i+1][ROOM_OBV])) 
+      }
+      else if (pointerp(dest_other[i+1][ROOM_OBV]))
       {
         nostore = 1;
         add = (int)call_other(dest_other[i+1][ROOM_OBV][0],dest_other[i+1][ROOM_OBV][1]);
@@ -373,7 +373,7 @@ string query_short_exit_string()
           dirs += ({ dest_other[i] });
     }
   }
-  if (sizeof(dirs)==0) 
+  if (sizeof(dirs)==0)
   {
     if (nostore)
         return exit_color+" [ninguna]%^RESET%^";
@@ -388,7 +388,7 @@ string long(string str, int dark)
 {
   if (dark)
     return "   "+query_dark_mess(dark)+"\n";
-  
+
   // Comentado por neverbot 6/03
   // Se pierde velocidad, pero necesitamos que el exit_string se actualice,
   //  ya que ahora tambien en el long se pueden ver las puertas cerradas y
@@ -399,20 +399,20 @@ string long(string str, int dark)
   exit_string = query_dirs_string();
 
   if (!strlen(str))
-  {    
-    return( 
-           sprintf("\n   %-=*s\n", (this_player()?this_player()->query_cols()-3:76),
+  {
+    return(
+           sprintf("\n   %-=*s\n", (this_user()?this_user()->query_cols()-3:76),
                    "   "+ ::long(str, dark)) +
-           exit_string + "\n" + 
-           query_contents("") 
+           exit_string + "\n" +
+           query_contents("")
         );
   }
 
   str = expand_alias(str);
   return items[str];
-} 
+}
 
-void init() 
+void init()
 {
   int i, j;
   mapping done;
@@ -421,28 +421,28 @@ void init()
     return;
 
   done = ([ ]);
-  for (i = 0; i < sizeof(dest_direc); i++) 
+  for (i = 0; i < sizeof(dest_direc); i++)
   {
     if (!done[dest_direc[i]])
       add_action("do_exit_command", dest_direc[i]);
-    
+
     done[dest_direc[i]] = 1;
-    
-    if ((j = member_array(dest_direc[i], aliases)) != -1) 
+
+    if ((j = member_array(dest_direc[i], aliases)) != -1)
     {
       string *al;
       al = aliases;
 
-      do 
+      do
       {
-        if (!(j%2)) 
+        if (!(j%2))
         {
-          if (!done[al[j+1]]) 
+          if (!done[al[j+1]])
           {
             add_action("do_exit_command", al[j+1]);
             done[al[j+1]] = 1;
           }
-        } 
+        }
         else
             j++;
 
@@ -506,9 +506,9 @@ nomask mixed *query_dest_dir() {
 
 mixed *query_dest_other() { return dest_other; }
 
-void set_zone(string str) { room_zone = str; } 
+void set_zone(string str) { room_zone = str; }
 
-string query_zone() 
+string query_zone()
 {
 #ifdef FAST_CLEAN_UP
   // monsters call this to move, but may not actually come here,
@@ -521,7 +521,7 @@ string query_zone()
 #endif
 
   return room_zone;
-} 
+}
 
 // this function puts the directions into the thingy list
 // I am sure you know what I mean
@@ -574,7 +574,7 @@ mixed add_exit(string direc, mixed dest, string type,
 // Query for exit type... [Piper 12/24/95]
 string query_ex_type(string direc)
 {
-  if (!exit_map[direc]) 
+  if (!exit_map[direc])
     return nil;
   return exit_map[direc][1];
 }
@@ -584,21 +584,21 @@ int query_special_exit(string direc)
   int i;
   for(i = 0; i < sizeof(dest_other); i+=2)
     if (dest_other[i]==direc)
-      if (dest_other[i+1][ROOM_FUNC]) 
+      if (dest_other[i+1][ROOM_FUNC])
         return 1;
-  
-  if (query_ex_type(direc)=="door" || query_ex_type(direc)=="gate") 
+
+  if (query_ex_type(direc)=="door" || query_ex_type(direc)=="gate")
     return 2;
-  
+
   return 0;
 }
 
 // Query for the exit material [Piper 12/24/95]
 string query_ex_material(string direc)
 {
-  if (!exit_map[direc]) 
+  if (!exit_map[direc])
   	return nil;
-  
+
   return exit_map[direc][2];
 }
 
@@ -660,10 +660,10 @@ int remove_exit(string direc)
   return(1);
 }
 
-int query_exit(string direc) 
+int query_exit(string direc)
 {
   return (member_array(direc, dest_other) != -1);
-} 
+}
 
 int query_size(string direc)
 {
@@ -695,8 +695,8 @@ int do_exit_command(string str, varargs mixed verb, object ob)
 #ifdef FAST_CLEAN_UP
   old_call_out = remove_call_out( clean_up_handle );  // multiple folks in room
 
-  if ( old_call_out > 0 && 
-       old_call_out < FAST_CLEAN_UP && 
+  if ( old_call_out > 0 &&
+       old_call_out < FAST_CLEAN_UP &&
       (time() - room_create_time) < FAST_CLEAN_UP )
   {
     // was merely passing through {Laggard}
@@ -723,7 +723,7 @@ int do_exit_command(string str, varargs mixed verb, object ob)
 // Ok we have done all the exit junk, now for the item bits and pieces
 // share and enjoy your plastic pal who is fun to be with
 
-int add_item(mixed id, string desc) 
+int add_item(mixed id, string desc)
 {
   object ob;
 
@@ -731,22 +731,22 @@ int add_item(mixed id, string desc)
   items = ([ ]);
 
   ob = items["The object"];
-  if (!ob) 
+  if (!ob)
   {
     // Object must call seteuid() prior to calling clone_object()
     // seteuid("tmp");
     ob = clone_object(ITEM_OBJECT);
     items["The object"] = ob;
   }
-  
+
   // Flag final para evitar el pluralize automatico, neverbot 05/09
   ob->setup_item(id, desc, 1);
   return 1;
-} 
+}
 
 // Ok.  Remove item is nasty :(  But....  We will add it.
 // It will remove all things that reference the given desc.
-int remove_item(string str) 
+int remove_item(string str)
 {
   object ob;
 
@@ -757,11 +757,11 @@ int remove_item(string str)
   if (!ob)
     return 0;
   return (int)ob->remove_item(str);
-} 
+}
 
 
 // Change all descs...  It does a match and goes wimble.
-int modify_item(string str, string new_desc) 
+int modify_item(string str, string new_desc)
 {
   object ob;
 
@@ -772,12 +772,12 @@ int modify_item(string str, string new_desc)
   if (!ob)
     return 0;
   return (int)ob->modify_item(str, new_desc);
-} 
+}
 
 mapping query_items() { return items; }
 
 // The alias junk
-int add_alias(mixed name,string str) 
+int add_alias(mixed name,string str)
 {
   int i;
 
@@ -792,9 +792,9 @@ int add_alias(mixed name,string str)
 
   aliases += ({ str, name });
   return 1;
-} 
+}
 
-int modify_alias(string str,string name) 
+int modify_alias(string str,string name)
 {
   int i;
 
@@ -806,9 +806,9 @@ int modify_alias(string str,string name)
 
   aliases[i+1] = name;
   return 1;
-} 
+}
 
-int remove_alias(string str) 
+int remove_alias(string str)
 {
   int i;
 
@@ -820,7 +820,7 @@ int remove_alias(string str)
 
   aliases = delete(aliases, i, 2);
   return 1;
-} 
+}
 
 int query_no_writing() { return 1; }
 
@@ -832,13 +832,13 @@ static int empty_room(object ob)
 
   if (!environment(ob))
     return 1;
-  
+
   // TEMP fix I think, - Radix
   if (!environment(ob)->query_property("location"))
     return 0;
-  
+
   olist = all_inventory(environment(ob));
-  
+
   for( i = 0; i < sizeof(olist) ; i++)
   {
     if (interactive(olist[i]))
@@ -848,7 +848,7 @@ static int empty_room(object ob)
   return 1; // dest it
 }
 
-void dest_me() 
+void dest_me()
 {
   object *arr;
   int i;
@@ -864,8 +864,8 @@ void dest_me()
   // Isthar@Aurora 10-dec-1994, destruct everything here
   arr = all_inventory(this_object());
   arr -= ({ 0});
-  
-  for (i = 0; i < sizeof(arr); i++) 
+
+  for (i = 0; i < sizeof(arr); i++)
   {
     if (interactive(arr[i]))
         arr[i]->move(ROOM_VOID);
@@ -880,13 +880,13 @@ void dest_me()
       if (empty_room(room_clones[i]))
           room_clones[i]->dest_me();
   }
-  
+
   guard::dest_me();
   navigation::dest_me();
   diplomacy::dest_me();
-  
+
   destruct(this_object());
-} 
+}
 
 // function called by the driver before swapping.
 int clean_up( int flag )
@@ -898,9 +898,9 @@ int clean_up( int flag )
 	i = sizeof( arr );
   elapsed_time = time() - room_create_time;
 
-  if (this_object()->query_property(NO_CLEAN_UP_PROP))  
+  if (this_object()->query_property(NO_CLEAN_UP_PROP))
   	return 1;
-  if (this_object()->query_property("corpse_here"))  
+  if (this_object()->query_property("corpse_here"))
   	return 1;
 
   // check for inherited room
@@ -978,9 +978,9 @@ int clean_up_room( int flag )
 	arr = deep_inventory( this_object() );
   i = sizeof( arr );
 
-  if (this_object()->query_property(NO_CLEAN_UP_PROP))  
+  if (this_object()->query_property(NO_CLEAN_UP_PROP))
   	return 1;
-  if (this_object()->query_property("corpse_here"))  
+  if (this_object()->query_property("corpse_here"))
   	return 1;
 
   if (room_stabilize)
@@ -1021,13 +1021,13 @@ int clean_up_room( int flag )
 }
 #endif
 
-object * find_inv_match(string str) 
+object * find_inv_match(string str)
 {
   if (!sizeof(hidden_objects))
     return (object *)all_inventory(this_object()) + m_values(items);
 
   return (object *)all_inventory(this_object()) + (object *)hidden_objects + m_values(items);
-} 
+}
 
 // * add_sign(string long, string read_mess, string short, string name)
 // * [short and name are optional]
@@ -1039,23 +1039,23 @@ object * find_inv_match(string str)
 // * This facility was removed by Taniwha 1995, as recent driver and
 // * lib changes means thats these objects are scavenged as "dead" now
 
-object add_sign(string long, string mess, varargs string short, string sname) 
+object add_sign(string long, string mess, varargs string short, string sname)
 {
   object sign;
 
   sign = clone_object("/lib/item.c");
 
-  if (!sname) 
+  if (!sname)
       sname = "cartel";
-      
+
   sign->set_name(sname);
   sign->set_main_plural(pluralize(sname));
-  
+
   if (short)
       sign->set_short(short);
-  else 
+  else
       sign->set_short("Cartel");
-      
+
   sign->set_long(long);
   sign->set_read_mess(mess);
   sign->reset_get();
@@ -1082,9 +1082,9 @@ mixed query_door(mixed dest)
           if (!pointerp(bing))
               return bing;
   return 0;
-} 
+}
 
-mixed stats() 
+mixed stats()
 {
   mixed *exits;
   int i;
@@ -1097,14 +1097,14 @@ mixed stats()
   return ({
     ({ "Location (property)", query_property("location"), }),
     ({ "Move Zone", room_zone }),
-          }) + exits + 
-      property::stats() + 
-      light::stats() + 
-      desc::stats() + 
-      guard::stats() + 
-      navigation::stats() + 
+          }) + exits +
+      property::stats() +
+      light::stats() +
+      desc::stats() +
+      guard::stats() +
+      navigation::stats() +
       diplomacy::stats();
-} 
+}
 
 int query_decay() { return 10; }
 
@@ -1127,7 +1127,7 @@ int renew_exits()
   }
   exit_string = query_dirs_string();
   reset_short_exit_string();
-} 
+}
 
 // Here lies the dig stuff... much smaller and little used
 // Piper [1/26/96]
@@ -1180,7 +1180,7 @@ object add_door(string dir)
   return door;
 }
 
-object query_doors(string dir) 
+object query_doors(string dir)
 {
   object *aux;
   int i;

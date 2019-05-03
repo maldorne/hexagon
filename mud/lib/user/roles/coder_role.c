@@ -27,10 +27,10 @@ void create()
   comm::create();
 }
 
-static void start_role(object player)
+static void start_role(object user)
 {
-  base::start_role(player);
-  path::start_role(player);
+  base::start_role(user);
+  path::start_role(user);
 }
 
 static void role_commands()
@@ -43,22 +43,22 @@ static void role_commands()
   obj::role_commands();
   info::role_commands();
   comm::role_commands();
-} 
+}
 
-// int review() 
+// int review()
 // {
 //   player::review();
 //   coder_info_comm::review();
 //   return 1;
-// } 
+// }
 
 
-mixed stats() 
+mixed stats()
 {
-  return ({ }) + base::stats() + 
-                 path::stats() + 
-                 editor::stats() + 
+  return ({ }) + base::stats() +
+                 path::stats() +
+                 editor::stats() +
                  obj::stats() +
-                 info::stats() + 
+                 info::stats() +
                  comm::stats();
 }

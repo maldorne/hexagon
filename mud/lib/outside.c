@@ -31,7 +31,7 @@ void set_light_change(string s) { light_change = s; }
 string query_light_change() { return light_change; }
 */
 
-void create() 
+void create()
 {
   // dark_long = "Está oscuro.\n";
   dark_long = "";
@@ -40,7 +40,7 @@ void create()
   add_property("location", "outside");
 } /* create() */
 
-string short(int dark) 
+string short(int dark)
 {
   if (dark)
     return query_dark_mess(dark);
@@ -48,9 +48,9 @@ string short(int dark)
     return ::short();
 } /* short() */
 
-string long(string str, int dark) 
+string long(string str, int dark)
 {
-  string s, ret; 
+  string s, ret;
   // string aux;
 
   ret = "";
@@ -61,16 +61,16 @@ string long(string str, int dark)
         call_other(this_object(), light_change, current_day);
   }
   */
-  
-  if (this_player()) 
+
+  if (this_player())
     dark = (int)this_player()->check_dark(query_light());
-  
+
   if (!strlen(str))
   {
     // aux = "Es de día.\n";
     // Coordenadas eliminadas, neverbot
     // if ( pointerp(co_ord) && !handler(WEATHER_HANDLER)->query_day())
-    
+
     /* night... */
     if (!handler(WEATHER_HANDLER)->query_day())
     {
@@ -95,23 +95,23 @@ string long(string str, int dark)
            if ( night_long )
              ret += night_long;
            else
-             ret += sprintf("\n   %-=*s\n", (this_player()?this_player()->query_cols():79), "   "+query_long());
+             ret += sprintf("\n   %-=*s\n", (this_user()?this_user()->query_cols():79), "   "+query_long());
            break;
         case 1..3:  /* too dark */
-           	if (dark_long && (dark_long != "")) 
+           	if (dark_long && (dark_long != ""))
               return ret + dark_long + ::query_dark_mess(dark) + ((query_dirs_string()!="")?".\n":"");
 	        return ret + ::query_dark_mess(dark)+ ((query_dirs_string()!="")?".\n":"");
         case 4..6:  /* too bright */
            return ret + ::query_dark_mess(dark)+ ".\nA pesar de esta luz parece ser de noche.\n";
       }
-    } 
+    }
     /* day ... */
     else
     {
       switch(dark) /* O.K. how much can we see daytime */
       {
         default: /* can see anyway */
-            ret += sprintf("\n   %-=*s\n", (this_player()?this_player()->query_cols():79), "   "+query_long());
+            ret += sprintf("\n   %-=*s\n", (this_user()?this_user()->query_cols():79), "   "+query_long());
         break;
         case 1..3:  /* too dark */
             return ::query_dark_mess(dark)+"\nA pesar de esta oscuridad parece ser de día.\n";
@@ -124,15 +124,15 @@ string long(string str, int dark)
 
     if (s && s != "")
       ret += s;
-    
+
     ret += (string)handler(WEATHER_HANDLER)->weather_string(this_object());
-    
-    if (!exit_string) 
+
+    if (!exit_string)
       query_dirs_string();
 
     if (exit_string)
 	    ret += exit_string+"\n";
-    
+
     /* Return the long + the contents of the room. */
     return ret + query_contents("");
   }
@@ -141,7 +141,7 @@ string long(string str, int dark)
 } /* long() */
 
 /* percentage system */
-int query_light() 
+int query_light()
 {
   int i;
 #ifdef TESTING

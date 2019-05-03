@@ -1,14 +1,15 @@
 
 #include <mud/mudos.h>
 
-static nomask mixed call_other(mixed obj, string func, mixed args...) 
+static nomask mixed call_other(mixed obj, string func, mixed args...)
 {
   object * shadows;
 
   if (!obj || !objectp(obj))
     return ::call_other(obj, func, args...);
 
-  // ::call_other(DRIVER, "log_driver", " - masked call_other: <"+object_name(obj)+">\n");
+  // ::call_other(DRIVER, "log_driver", " - masked call_other: <" +
+  //   object_name(obj) + "> " + func + "\n");
 
   shadows = ::call_other(obj, "_query_shadows");
 
@@ -25,7 +26,7 @@ static nomask mixed call_other(mixed obj, string func, mixed args...)
         break;
     }
 
-    // from last shadow (more "external") to the older one 
+    // from last shadow (more "external") to the older one
     // (more "internal", near the shadowed object)
     for (i = j - 1; i >= 0; i--)
     {
@@ -35,7 +36,7 @@ static nomask mixed call_other(mixed obj, string func, mixed args...)
       // conditions
       // 1) the shadow is not calling itself (infinite loop)
       // 2) the shadow has the function implemented (not inherited)
-      // 3) the shadow is not calling another previous shadow 
+      // 3) the shadow is not calling another previous shadow
       //    (because of the outer for loop)
 
       if (file == function_object(func, shadows[i]))
@@ -47,14 +48,14 @@ static nomask mixed call_other(mixed obj, string func, mixed args...)
   }
 
   return ::call_other(obj, func, args...);
-} 
+}
 
 // call any local function, may be static (driver objects only)
 // idea taken from mudos_alike_4_dgd mudlib
 
-nomask mixed __call_other(string func, varargs mixed args...) 
+nomask mixed __call_other(string func, varargs mixed args...)
 {
-  if (!mudlib_privileges()) 
+  if (!mudlib_privileges())
   {
     stderr(" *** illegal __call_other on <" + object_name(this_object()) + ">, func: " + func + " \n");
     return nil;
@@ -69,7 +70,7 @@ nomask mixed __call_other(string func, varargs mixed args...)
 // name of a function in this_object().  The call will take place 'delay'
 // seconds later, with the arguments 'arg' and following provided.
 
-static nomask int call_out(string func, int delay, varargs mixed args...) 
+static nomask int call_out(string func, int delay, varargs mixed args...)
 {
   int ret;
 

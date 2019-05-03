@@ -42,8 +42,18 @@ static nomask int setuid(string id)
 nomask string geteuid( varargs object ob )
 {
   if (ob)
+  {
+    // if (ob->query_player())
+    // {
+    //   object user;
+    //   user = ob->user();
+    //   if (user)
+    //     return user->geteuid();
+    // }
+
     return ob->geteuid();
-  
+  }
+
   return _euid;
 }
 
@@ -76,9 +86,9 @@ static nomask int seteuid( string id )
       (SECURE->valid_seteuid(this_object(), id)))
   {
     if (_euid != id)
-      stderr(" *** seteuid changed in " + object_name(this_object()) + 
+      stderr(" *** seteuid changed in " + object_name(this_object()) +
              " from " + (strlen(_euid) ? _euid : "<empty>") + " to " + id + "\n");
-    
+
     _euid = id;
     return 1;
   }

@@ -5,6 +5,7 @@
 
 #include <common/properties.h>
 #include <areas/weather.h>
+#include <language.h>
 
 #define DEFAULT_TIME 10
 
@@ -18,13 +19,12 @@ void setup()
 
 string query_usage()
 {
-  return "mirar [a] [<objeto>]";
+  return _LANG_CMD_LOOK_SYNTAX;
 }
 
 string query_short_help()
 {
-  return "Devuelve la descripción larga de un objeto o (por defecto) la "+
-    "habitación donde te encuentras.";
+  return _LANG_CMD_LOOK_HELP;
 }
 
 static int cmd(string arg, object me, string verb)
@@ -38,17 +38,17 @@ static int cmd(string arg, object me, string verb)
 
   if (!here)
   {
-    write("Estás en el limbo... perdona pero no puedes ver nada.\n");
+    write(_LANG_CMD_LOOK_NO_ENVIRONMENT);
     return 1;
   }
 
   if (me->query_timed_property(BLIND_PROP) && me->query_coder() == 0)
   {
-    write("No puedes ver nada. ¡Estás cegado!\n");
+    write(_LANG_CMD_LOOK_BLINDED);
     return 1;
   }
 
-  // Antes incluido en /global/pweath.c, ahora aqui, Folken 11/03
+  // included from /global/pweath.c, now here, neverbot 11/03
   /*
   if ((arg == "sol") || (arg == "luna") || (arg == "lunas") || (arg == "clima") ||
   (arg == "tiempo")){
@@ -91,7 +91,7 @@ static int cmd(string arg, object me, string verb)
   }
   */
 
-  // Fin del codigo de /global/pweath.c
+  // enf of /global/pweath.c
 
   dark = me->check_dark((int)here->query_light());
 
@@ -104,7 +104,7 @@ static int cmd(string arg, object me, string verb)
         ret += here->short(dark)+".\n";
 
     ret += here->long(arg, dark); //+"\n";
-    
+
     write(ret);
 
     // me->adjust_time_left(-LOOK_TIME);
@@ -120,19 +120,19 @@ static int cmd(string arg, object me, string verb)
 
   if (!sizeof(ob))
   {
-    notify_fail("Nada con el nombre "+arg+" está aquí.\n");
+    notify_fail(_LANG_CMD_NOTHING_HERE);
     return 0;
   }
 
-  // for (i=sizeof(ob)-1;i>=0;i--) 
-  //   if (ob[i]->query_hide_shadow() && ob[i]->query_name()!=me->query_name()) 
-  //     ob=delete(ob,i,1);
+  // for (i = sizeof(ob)-1; i >= 0; i--)
+  //   if (ob[i]->query_hide_shadow() && ob[i]->query_name()!=me->query_name())
+  //     ob = delete(ob,i,1);
 
-  if (living(ob[0]) && 
-  	  ob[0]->query_coder() && ob[0]->query_invis() && 
+  if (living(ob[0]) &&
+  	  ob[0]->query_coder() && ob[0]->query_invis() &&
   	  !me->query_coder())
   {
-    notify_fail("Nada con el nombre "+arg+" está aquí.\n");
+    notify_fail(_LANG_CMD_NOTHING_HERE);
     return 0;
   }
 
@@ -153,7 +153,6 @@ static int cmd(string arg, object me, string verb)
     // me->adjust_time_left(-EXAMINE_ITEM_TIME);
   }
 
-  // me->do_efun_write(ret);
-  me->more_string(ret, "Mirar");
+  me->user()->more_string(ret, capitalize(_LANG_CMD_LOOK));
   return 1;
 }

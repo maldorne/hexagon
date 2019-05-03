@@ -31,13 +31,13 @@
       "recommend to create your " + \
       "different characters in the same account, because that has a lot of benefits when " + \
       "sharing items, resources, achievements, etc.\n"
-#define _LANG_ACCOUNT_NAME_CHOSEN "You have chosen '" + account_name + "' as your account name, are you sure? (y/n): "
+#define _LANG_ACCOUNT_NAME_CHOSEN "You have chosen '" + user_name + "' as your account name, are you sure? (y/n): "
 #define _LANG_DEFINE_ACCOUNT_PASSWORD "Enter the new password for your account: "
 #define _LANG_DEFINE_ACCOUNT_PASSWORD_REPEAT "Repeat the password to check there are no errors: "
 #define _LANG_ACCOUNT_REPEAT "Let's try again."
 #define _LANG_ACCOUNT_PASSWORD_REMOVED "Ok, Password removed."
 #define _LANG_ACCOUNT_DIFFERENT_PASSWORDS "The passwords are not the same."
-#define _LANG_NEW_ACCOUNT_CREATED "\n   %^BOLD%^New account created with name '" + account_name + "'.%^RESET%^\n\n"
+#define _LANG_NEW_ACCOUNT_CREATED "\n   %^BOLD%^New account created with name '" + user_name + "'.%^RESET%^\n\n"
 
 #define _LANG_NONEXISTANT_ACCOUNT "There is no account with that name.\n"
 #define _LANG_NONEXISTANT_ACCOUNT_OR_CHARACTER "There is no account or character with that name.\n"
@@ -52,9 +52,10 @@
 #define _LANG_TYPE_THE_NEW_CHARACTER_NAME "Type the name of your new character: "
 #define _LANG_UNKNOWN_CHARACTER "Unknown character name or number, please type it again: "
 #define _LANG_CHARACTER_RESTORE_ERROR "Error, the character could not be restored.\n"
+#define _LANG_ACCOUNT_RESTORE_ERROR "Error, your account could not be restored.\n"
 #define _LANG_ALREADY_PLAYING "You are already playing, should I dump the other copy? (y/n): "
 #define _LANG_CODERS_FORBIDDEN "Coder access is not allowed to this port.\n"
 
 #define _LANG_WAIT_LOADING "Please wait... loading your character.\n"
 #define _LANG_CONNECTED_WELCOME "You are connected! Welcome to "+mud_name()+".\n\n"
-#define _LANG_HAS_RECONNECTED _player->query_cap_name() + " has reconnected.\n"
+#define _LANG_HAS_RECONNECTED _user->query_cap_name() + " has reconnected.\n"

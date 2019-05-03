@@ -4,18 +4,18 @@
 // actions available
 static mapping _actions;
 
-mapping query_actions() 
-{ 
-  if (!_actions) 
+mapping query_actions()
+{
+  if (!_actions)
     _actions = ([ ]);
-  return _actions; 
+  return _actions;
 }
 
-nomask void add_action(string function, mixed verbs) 
+nomask void add_action(string function, mixed verbs)
 {
-  if (!_actions) 
+  if (!_actions)
     _actions = ([ ]);
-  
+
   if (arrayp(verbs))
   {
     int i;
@@ -36,9 +36,9 @@ nomask int action_exist(string verb)
 
 nomask string query_action(string verb)
 {
-  if (!_actions) 
+  if (!_actions)
     _actions = ([ ]);
-  
+
   return _actions[verb];
 }
 
@@ -47,7 +47,7 @@ static nomask string query_verb()
   return MUDOS->query_current_verb();
 }
 
-static nomask void notify_fail(string str) 
+static nomask void notify_fail(string str)
 {
   MUDOS->set_notify_fail_msg(str);
 }
@@ -65,6 +65,7 @@ int command(string action)
   string verb, params;
   object * targets;
   object env;
+  object user;
   int i, found;
 
   stderr(" * command <" + object_name(this_object()) + "> to do <" + action + ">\n");
@@ -75,7 +76,7 @@ int command(string action)
     return 0;
 
   verb = words[0];
-  
+
   if (sizeof(words) > 1)
     params = implode(words[1..], " ");
   else
@@ -83,23 +84,25 @@ int command(string action)
 
   targets = ({ });
   found = FALSE;
+  user = this_object()->user();
 
   // priority for looking actions
-  // first, our role (user privileges)
-  if (this_object()->query_role())
-    targets += ({ this_object()->query_role() });
+  // first, the user object (our connection)
+  // account commands, etc
+  if (user)
+    targets += ({ user });
 
-  // account actions (password, etc)
-  if (this_object()->query_account())
-    targets += ({ this_object()->query_account() });
+  // our role (user privileges)
+  if (user && user->query_role())
+    targets += ({ user->query_role() });
 
-  // second, our own user ob
+  // second, our own player ob
   targets += ({ this_object() });
 
   // third, our environment and other items in there
   if (env = environment(this_object()))
-    targets += ({ env }) + 
-               all_inventory(env) - 
+    targets += ({ env }) +
+               all_inventory(env) -
                ({ this_object() });
 
   // last, our inventory
@@ -110,20 +113,18 @@ int command(string action)
   for (i = 0; i < sizeof(targets); i++)
   {
     string func, error;
-
     error = catch(func = targets[i]->query_action(verb));
 
     if ((!error) && (func != nil))
     {
       mixed result;
-
       result = call_other(targets[i], func, params);
-      
+
       if (result == nil)
       {
         write("Se ha producido un error.\n");
         notify_fail("");
-        stderr(" * command: wrong action function for <" + func + "> in " + 
+        stderr(" * command: wrong action function for <" + func + "> in " +
                object_name(targets[i]) + "\n");
         // stderr("   -> " + error + "\n");
       }
@@ -150,9 +151,10 @@ int command(string action)
 // to 0).  The third is the object that defined the action.  The fourth
 // is the function to be called ("&#60;function&#62;" if it is a function pointer).
 
-mixed ** commands(varargs object ob) 
+mixed ** commands(varargs object ob)
 {
   object * targets;
+  object user;
   mapping actions;
   string * verbs;
   mixed ** result;
@@ -163,17 +165,19 @@ mixed ** commands(varargs object ob)
 
   result = ({ });
   targets = ({ });
+  user = ob->user();
 
-  if (ob->query_role())
-    targets += ({ ob->query_role() });
+  if (user)
+    targets += ({ user });
 
-  if (ob->query_account())
-    targets += ({ ob->query_account() });
+  if (user && user->query_role())
+    targets += ({ user->query_role() });
 
   if (environment(ob))
     targets += ({ environment(ob) }) +
-                  all_inventory(environment(ob)) +
-                  all_inventory(ob);
+                  all_inventory(environment(ob));
+
+  targets += all_inventory(ob);
 
   actions = ([ ]);
 

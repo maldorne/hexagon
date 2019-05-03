@@ -1,5 +1,5 @@
 
-/* 
+/*
   (I think this was originally by Pinkfish)
    Mods by Hamlet, Aug 1997.
     * Fixed screen-size issues.
@@ -8,7 +8,7 @@
     * Added quite a few commands.
     * Wrote /doc/more.help
 
-  Notes:  Should probably change searches to regexp 
+  Notes:  Should probably change searches to regexp
           Terrible hack in string_display_file() needs fixed...
             format now and send raw to player at the end, instead
             of double-formatting.
@@ -16,6 +16,8 @@
             Convert more_file.c to inherit this to do the brunt of the
             work, probably.
 */
+
+#include <language.h>
 
 private int fsize,
             topl,
@@ -29,14 +31,14 @@ private mixed finish_func;
 
 void call_finish_func(string str);
 
-void create() 
+void create()
 {
   fsize = 0;
   topl = 0;
   used = 0;
 }
 
-int string_display_file() 
+int string_display_file()
 {
   int botl, i, j, tmp;
   string out;
@@ -48,18 +50,18 @@ int string_display_file()
   botl = topl + ROWS;
 
   i = topl;
-  
+
   tmp = sizeof(explode(sprintf("%-=*s", cols, the_bit[topl]), "\n")) - 1;
 
   if (tmp >= 0)
     j = tmp;
 
-  while((i+j)<botl && i<fsize) 
+  while((i+j)<botl && i<fsize)
   {
     out += the_bit[i] + "\n";
- 
+
     if ((i+1) < fsize) {
-      tmp = sizeof(explode(sprintf("%-=*s", cols, the_bit[i+1]), "\n")) - 1;  
+      tmp = sizeof(explode(sprintf("%-=*s", cols, the_bit[i+1]), "\n")) - 1;
                 /* ^^^^ Extra lines it's gonna wrap. Terrible hack. */
       if (tmp > 0)
         j += tmp;
@@ -68,14 +70,14 @@ int string_display_file()
     i++;
   }
 
-  /* The first line is longer than a screen. */
-  if (i == topl) 
+  // The first line is longer than a screen.
+  if (i == topl)
   {
     out += the_bit[i] + "\n";
     i++;
   }
 
-  // Ahora arreglado en otro sitio, lo dejo por si es de utilidad en un futuro
+  // Now this is fixed outside from here
   // Little hack, neverbot 10/04
   // out = sprintf("%-=*s\n", cols, out);
 
@@ -84,26 +86,26 @@ int string_display_file()
   return (i - topl);
 }
 
-void more_string_status_line() 
+void more_string_status_line()
 {
   string *frog;
   string s;
   int i, percentage;
 
   if (!strlen(stat_line))
-    stat_line = "$N > desde $T hasta $B de $S ($%%) - h para ayuda. ";
+    stat_line = _LANG_MORE_STRING_STAT_LINE;
 
   s = "";
   frog = explode(stat_line, "$");
 
-  for (i = 0; i < sizeof(frog); i++) 
+  for (i = 0; i < sizeof(frog); i++)
   {
-    if (frog[i] == "") 
+    if (frog[i] == "")
     {
       s += "$";
       i ++;
-    } 
-    else switch (frog[i][0]) 
+    }
+    else switch (frog[i][0])
     {
       case 'N' :
         s += more_bit+frog[i][1..];
@@ -120,9 +122,9 @@ void more_string_status_line()
           s += topl+frog[i][1..];
         break;
 
-      case '%' : 
+      case '%' :
         percentage = ((topl)*100)/fsize;
-        if (percentage > 100) 
+        if (percentage > 100)
           percentage = 100;
         s += percentage+frog[i][1..];
         break;
@@ -137,7 +139,7 @@ void more_string_status_line()
   return;
 }
 
-void string_next_page(string str) 
+void string_next_page(string str)
 {
   int num,
       noargs,
@@ -163,7 +165,7 @@ void string_next_page(string str)
   }
 
   /* case statements WEEEEEE */
-  switch(str) 
+  switch(str)
   {
     case "" :
     case "f" :
@@ -175,7 +177,7 @@ void string_next_page(string str)
     case "b" :
                if (noargs)
                  num = 1;
-               topl -= (ROWS * (num + 1)); 
+               topl -= (ROWS * (num + 1));
                redraw = 1;
                break;
     case " " :
@@ -193,12 +195,12 @@ void string_next_page(string str)
                topl -= used;
                redraw = 1;
                break;
-    case "s" : 
+    case "s" :
                topl += num;
                redraw = 1;
                break;
     case "q" :
-    case "Q" : 
+    case "Q" :
                call_finish_func(str);
                return;
     case "g" :
@@ -225,7 +227,7 @@ void string_next_page(string str)
                    if (num--<=0)
                      break;
                if (i==fsize)
-                 write("Lo siento, "+s1+" no encontrado.\n");
+                 write(_LANG_MORE_STRING_NOT_FOUND);
                else {
                  topl = i-3;
                  redraw = 1;
@@ -242,7 +244,7 @@ void string_next_page(string str)
                    if (num--<=0)
                      break;
                if (i<0)
-                 write("Perdon, "+s1+" no encontrado.\n");
+                 write(_LANG_MORE_STRING_NOT_FOUND);
                else {
                  topl = i-3;
                  redraw = 1;
@@ -250,12 +252,10 @@ void string_next_page(string str)
                break;
     case "?" :
     case "h" :
-               if (file_size("/doc/creator/more") > 0)
-                 tell_object(this_object(), read_file("/doc/creator/more"));
+               if (file_size(doc("coder/more")) > 0)
+                 tell_object(this_object(), read_file(doc("coder/more")));
                else
-                 tell_object(this_object(), 
-                             "El documento de ayuda " +
-                             "no está. Busca a alguien que lo arregle.\n");
+                 tell_object(this_object(), _LANG_MORE_STRING_HELP_NOT_FOUND);
                break;
   }
 
@@ -264,30 +264,29 @@ void string_next_page(string str)
   else if (topl >= fsize)
     topl = fsize - ROWS;
 
-  if (redraw) 
+  if (redraw)
   {
     used = string_display_file();
-    topl += used; 
+    topl += used;
   }
 
-  if (topl < fsize) 
+  if (topl < fsize)
   {
     more_string_status_line();
     input_to("string_next_page");
-  } 
+  }
   else
     call_finish_func("");
 }
 
-int more_string(mixed str, varargs string bity, string more_fmt) 
+int more_string(mixed str, varargs string bity, string more_fmt)
 {
   if (bity)
     more_bit = bity;
   else
-    // more_bit = "--- MORE";
-    more_bit = "[Sigue]";
+    more_bit = _LANG_MORE_STRING_MORE;
   last_search = "";
- 
+
   if (more_fmt)
     stat_line = more_fmt;
   else
@@ -300,31 +299,31 @@ int more_string(mixed str, varargs string bity, string more_fmt)
   }
   */
 
-  if (!pointerp(str)) 
+  if (!pointerp(str))
     the_bit = explode(str,"\n");
   fsize = sizeof(the_bit);
 
-  if (fsize == 0) 
+  if (fsize == 0)
   {
-    notify_fail("Cadena vacia.\n");
+    notify_fail(_LANG_MORE_STRING_EMPTY_STRING);
     return 0;
   }
 
   topl = 0;
   used = string_display_file();
   topl += used;
-  if (topl < fsize) 
+  if (topl < fsize)
   {
     more_string_status_line();
     input_to("string_next_page");
-  } 
-  else 
+  }
+  else
     call_finish_func("");
 
   return 1;
 }
 
-int set_finish_func(mixed str, varargs object ob) 
+int set_finish_func(mixed str, varargs object ob)
 {
   finish_func = str;
 
@@ -335,11 +334,11 @@ int set_finish_func(mixed str, varargs object ob)
     finish_ob = ob;
 }
 
-void call_finish_func(string str) 
+void call_finish_func(string str)
 {
   mixed f_func;
 
-  if (finish_func) 
+  if (finish_func)
   {
     f_func = finish_func;
     finish_func = 0;

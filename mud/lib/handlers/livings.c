@@ -9,7 +9,7 @@
 
 static mapping _livings;
 
-void create() 
+void create()
 {
   ::create();
   _livings = ([ ]);
@@ -17,10 +17,10 @@ void create()
 
 mapping query_livings_mapping() { return _livings; }
 
-object * query_livings() 
+object * query_livings()
 {
-  string * indices;
   int i;
+  string * indices;
   object * result;
 
   result = ({ });
@@ -30,15 +30,15 @@ object * query_livings()
   for (i = 0; i < sizeof(indices); i++)
     result += _livings[indices[i]];
 
-  return result; 
+  return result;
 }
 
-void _set_living_name(object ob, string name) 
-{  
-  // TODO check it's a user object or it inherits from npc object
+void _set_living_name(object ob, string name)
+{
+  // TODO check it's a player object or it inherits from npc object
 
   // stderr("TEST " + name + " " + to_string(previous_objects()) + "\n");
-  // if ((base_name(previous_object()) != USER_OB) &&
+  // if ((base_name(previous_object()) != PLAYER_OB) &&
   //     (base_name(previous_object()) != NPC_OB) )
   //   return;
 
@@ -66,11 +66,11 @@ void remove_living(object ob)
     m_delete(_livings, ob->query_name());
 }
 
-object _find_living(string name) 
+object _find_living(string name)
 {
   if (!_livings[name])
     return nil;
 
-  // if (sizeof(_livings[name]) > 1) 
+  // if (sizeof(_livings[name]) > 1)
   return _livings[name][0];
 }

@@ -4,6 +4,7 @@
 #include <files/log.h>
 #include <mud/secure.h>
 #include <user/user.h>
+#include <user/player.h>
 
 nomask int valid_progname(string progname)
 {
@@ -300,9 +301,15 @@ nomask int valid_seteuid(object ob, string euid)
     return 1;
   }
 
-  if ((base_name(ob) == USER_OB) &&
+  if (((base_name(ob) == USER_OB) ||
+       (base_name(ob) == PLAYER_OB)) &&
       (ob->query_coder()))
-    return (euid == ob->query_name());
+  {
+    object player;
+    player = ob->query_player_ob();
+    return ((euid == ob->query_name()) ||
+            (euid == player->query_name()));
+  }
 
   if (geteuid(initial_object()) == euid)
     return 1;
@@ -356,7 +363,7 @@ nomask int valid_socket(object ob, string func, mixed *info)
  * but perhaps a little hard for some people to use.
  */
 
-#define PLAYEROBS ({ "/lib/user", "/lib/core/login", "/lib/account" })
+#define PLAYEROBS ({ "/lib/player", "/lib/core/login", "/lib/user" })
 
 nomask int valid_write(string path, mixed euid, string func)
 {

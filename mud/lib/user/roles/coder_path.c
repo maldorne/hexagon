@@ -16,8 +16,11 @@ void create()
   current_path = "";
 }
 
-static void start_role(object player)
+static void start_role(object user)
 {
+  object player;
+  player = user->query_player_ob();
+
   if (player)
     home_dir = "/home/" + player->query_name();
   else
@@ -103,7 +106,11 @@ int change_dir(string str)
     // Added 'cd <immortal>' changes your path to their path
     // Radix
     if (interactive(obs[0]) && obs[0]->query_coder())
-      dirnames = get_files(obs[0]->query_path());
+    {
+      object user;
+      user = obs[0]->user();
+      dirnames = get_files(user->query_path());
+    }
     else
     {
       tmp = base_name(obs[0]);
@@ -142,7 +149,7 @@ int change_dir(string str)
 
 int set_home_dir(string str)
 {
-  if (this_player(1) != this_object()->query_player())
+  if (this_player(1) != this_player())
     return 0;
 
   if (str)

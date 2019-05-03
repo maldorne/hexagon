@@ -82,14 +82,14 @@ int move(varargs object dest)
   if (member_array(dest, deep_inventory()) != -1)
     return MOVE_LIB_LOOP;
 
-  stderr(" * move <" + object_name(this_object()) + 
-         (_environment ? ("> from <" + object_name(_environment)) : "") + 
-         "> to <" + object_name(dest) + ">\n");
+  stderr(" * move <" + object_name(this_object()) +
+         (_environment ? ("> from <" + object_name(_environment)) : "") +
+         "> to <" + object_name(dest) + "> " + (living(this_object()) ? "(living)" : "") + "\n");
 
   // update inventories and current environment
   if (_environment)
     _environment->_inv_remove(this_object());
-  
+
   _environment = dest;
 
   if (_environment)
@@ -122,14 +122,16 @@ int move(varargs object dest)
 
   // stderr("   - M before, this_object():\n    " + to_string(this_object()) + " \n");
   // stderr("   - M before, this_player():\n    " + to_string(this_player()) + " \n");
-  // stderr("   - M before, this_player(1):\n    " + to_string(this_player(1)) + " \n");
+  // stderr("   - M before, this_player(1):\n   " + to_string(this_player(1)) + " \n");
+  // stderr("   - M before, this_user():\n      " + to_string(this_user()) + " \n");
 
   // call out own init() from all living objects in dest
-  map_array(filter_array(contents, "living", MUDOS), 
+  map_array(filter_array(contents, "living", MUDOS),
             "do_init", MUDOS, old_this_player);
 
-  // restore this_player()
-  MUDOS->set_initiator_object(old_this_player);
+  // restore this_player(), only changed when moving living objects
+  if (living(this_object()))
+    MUDOS->set_initiator_object(old_this_player);
 
   return MOVE_OK;
 }
@@ -170,7 +172,7 @@ void move_object(mixed dest)
 // will immediately become zero.  move_or_destruct() is called in all the
 // objects inside of the object being destructed.
 
-nomask int destruct(varargs object ob) 
+nomask int destruct(varargs object ob)
 {
   object env;
   object * shadows;
@@ -183,7 +185,7 @@ nomask int destruct(varargs object ob)
 
   // destruct all objects shadowing this object
   shadows = ob->_query_shadows();
-  
+
   for (i = 0; i < sizeof(shadows); i++)
     destruct(shadows[i]);
 
@@ -203,7 +205,7 @@ nomask int destruct(varargs object ob)
   }
 
   ::destruct_object(ob);
-  
+
   return 1;
   // return (this_object() == nil);
 }
@@ -211,22 +213,22 @@ nomask int destruct(varargs object ob)
 // Called if the environment is dested and there is no where else
 // to go...
 
-void destruct_environment_of(object ob) 
+void destruct_environment_of(object ob)
 {
   object env;
 
   env = environment(ob);
-  if (env) 
+  if (env)
   {
       string *a;
       a = (string *)env->query_dest_dir();
 
-      if (catch(ob->move_living(a[0], a[1], "stumbles"))) 
+      if (catch(ob->move_living(a[0], a[1], "stumbles")))
       {
         ob->move_living("void", ROOM_VOID, "is sucked into the");
       }
   }
-} 
+}
 
 // object array all_inventory( object ob );
 // Returns an array of the objects contained inside of 'ob'.  If 'ob' is
@@ -336,7 +338,7 @@ nomask object next_inventory(object ob)
   return list[i+1];
 }
 
-mixed query_strange_inventory(mixed arr) 
+mixed query_strange_inventory(mixed arr)
 {
   mixed inv;
   object ob;
@@ -344,7 +346,7 @@ mixed query_strange_inventory(mixed arr)
   int i,k;
 
   inv = ({ });
-  for (k = 0; k < sizeof(arr); k++) 
+  for (k = 0; k < sizeof(arr); k++)
   {
     ob = arr[k];
 
@@ -385,7 +387,7 @@ int id(string str)
 // If `ob' is given, then the search is done in the inventory of `ob', otherwise
 // the object is searched for in the inventory of the current object, and
 // in the inventory of the environment of the current object.
-nomask object present(mixed str, varargs object ob) 
+nomask object present(mixed str, varargs object ob)
 {
   object * where;
   string what;
@@ -414,7 +416,7 @@ nomask object present(mixed str, varargs object ob)
   if (ob && objectp(ob))
     where = all_inventory(ob);
   else
-    where = all_inventory(this_object()) + 
+    where = all_inventory(this_object()) +
             all_inventory(environment(this_object()));
 
   if (strlen(str))

@@ -2,28 +2,28 @@
 #include "arrays/member_array.c"
 
 
-static nomask int index(mixed element, mixed * arr) 
+static nomask int index(mixed element, mixed * arr)
 {
   return member_array(element, arr);
 }
 
-static nomask mixed * delete(mixed * arr, int start, int len) 
+static nomask mixed * delete(mixed * arr, int start, int len)
 {
   if (start < 0)
     return arr;
-  
+
   if (start + len >= sizeof(arr))
     return arr[..start - 1];
 
   return arr[..start - 1] + arr[start + len..];
-} 
+}
 
-static nomask mixed * slice_array(mixed * arr, int start, int fin) 
+static nomask mixed * slice_array(mixed * arr, int start, int fin)
 {
   return arr[start..fin];
-} 
+}
 
-static nomask mixed * insert(mixed * arr, mixed el, int pos) 
+static nomask mixed * insert(mixed * arr, mixed el, int pos)
 {
   if (!sizeof(arr))
     return ({ el });
@@ -35,7 +35,7 @@ static nomask mixed * insert(mixed * arr, mixed el, int pos)
     return ({ el }) + arr;
 
   return arr[..pos-1] + ({ el }) + arr[pos..];
-} 
+}
 
 static nomask mixed * shift_left(mixed * arr)
 {
@@ -47,18 +47,18 @@ static nomask mixed * shift_right(mixed * arr)
 	return ({ }) + arr[0..sizeof(arr)-2];
 }
 
-static nomask mixed * exclude_array(mixed *arr, int from, varargs int to) 
+static nomask mixed * exclude_array(mixed *arr, int from, varargs int to)
 {
   mixed *bottom, *top;
 
   bottom = ({});
   top = ({});
 
-  if (!to) 
+  if (!to)
     to = from;
-  if (from > 0) 
+  if (from > 0)
     bottom = arr[0..from -1];
-  if (to < sizeof(arr)-1) 
+  if (to < sizeof(arr)-1)
     top = arr[to+1..sizeof(arr)-1];
 
   return bottom + top;
@@ -69,26 +69,26 @@ static nomask mixed * exclude_array(mixed *arr, int from, varargs int to)
 // takes any array and returns an array with no repeat members
 // created by Descartes of Borg 930822
 
-static nomask mixed * unique_array(mixed *arr) 
+static nomask mixed * unique_array(mixed *arr)
 {
   mapping borg;
   int i;
 
   i = sizeof(arr);
   borg = ([]);
-  
-  while(i--) 
+
+  while(i--)
     borg[arr[i]] = 1;
   return map_indices(borg);
 }
 
-static nomask int atoi(string str) 
+static nomask int atoi(string str)
 {
   int x;
 
-  if (!stringp(str)) 
+  if (!stringp(str))
     return 0;
-  else 
+  else
     sscanf(str, "%d", x);
   return x;
 }
@@ -101,11 +101,11 @@ static nomask string itoa(int i)
 }
 
 // by Dank Mar 11 93.  max may be a reserved word, so maxi is safer
-static int maxi(int *arr) 
+static int maxi(int *arr)
 {
   int i, j;
 
-  if (!sizeof(arr)) 
+  if (!sizeof(arr))
     return 0;
 
   j = arr[0];
@@ -117,11 +117,11 @@ static int maxi(int *arr)
   return j;
 }
 
-static int mini(int *arr) 
+static int mini(int *arr)
 {
   int i, j;
 
-  if (!sizeof(arr)) 
+  if (!sizeof(arr))
     return 0;
 
   j = arr[0];
@@ -133,7 +133,7 @@ static int mini(int *arr)
   return j;
 }
 
-static nomask mixed * array_copy(mixed * what) 
+static nomask mixed * array_copy(mixed * what)
 {
   mixed result;
 
@@ -145,17 +145,17 @@ static nomask mixed * array_copy(mixed * what)
   return result;
 }
 
-// map elements in an array 
-static nomask mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed args...) 
+// map elements in an array
+static nomask mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed args...)
 {
   int i;
   mixed * result;
 
   result = allocate(sizeof(arr));
 
-  for (i= 0; i < sizeof(arr); i++)
+  for (i = 0; i < sizeof(arr); i++)
     result[i] = (call_other(ob, func, arr[i], args...));
-  
+
   return result;
 }
 
@@ -182,8 +182,8 @@ static nomask mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed
 // Arrays of arrays are sorted by sorting based on the first element,
 // making database sorts possible.
 
-static nomask mixed * sort_array(mixed * arr, 
-  varargs string fun, mixed ob, int dir) 
+static nomask mixed * sort_array(mixed * arr,
+  varargs string fun, mixed ob, int dir)
 {
   return "/lib/handlers/sort"->bubblesort(arr, fun, ob, dir);
   // return "/lib/handlers/sort"->quicksort(arr, fun, ob, dir);

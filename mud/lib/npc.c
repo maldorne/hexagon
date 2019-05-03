@@ -1,5 +1,5 @@
 /*
- * Baldrick, Wonderflug, Taniwha 1996, moved "brains" to handler object. 
+ * Baldrick, Wonderflug, Taniwha 1996, moved "brains" to handler object.
  * Not for effiency, just to allow more flexibility.
  *
  * Revision para CcMud, neverbot 6/03
@@ -7,7 +7,7 @@
  *
  * Extraidas funcionalidades de loved/hated/aggressive, etc
  *   a /global/npc/friends.c
- * Extraidas funcionalidades de chat y talk 
+ * Extraidas funcionalidades de chat y talk
  *   a /global/npc/chatter.c
  * neverbot 04/2009
  */
@@ -133,7 +133,7 @@ void create()
         dest_me();
     return;
   }
-  
+
   // ****************************** Fin seccion timed
 
 } /* create() */
@@ -181,7 +181,7 @@ void add_clone(string what,int num)
 void attack_by(object ob)
 {
   // For NPC's remember the man who shot my paw ;) Taniwha 1995
-  if (p_memory && interactive(ob) && 
+  if (p_memory && interactive(ob) &&
       (ob->query_level() > MIN_PLAYER_LEVEL) &&
       (member_array(ob->query_name(), p_attack_list) == -1) )
   {
@@ -221,9 +221,9 @@ void do_move_after(int bing);
 int query_cols() { return 79; }
 
 // This can be masked to get more limbs..
-// int query_limbs() 
+// int query_limbs()
 // {
-//  object ob = load_object(query_race_ob()); 
+//  object ob = load_object(query_race_ob());
 //  if (ob)
 //      return ob->query_limbs();
 //  return 2;
@@ -238,7 +238,7 @@ void set_name(string n)
   set_short(capitalize(name));
   set_long("No puedes ver nada destacable.\n");
   set_living_name(n);
-} 
+}
 
 string long(string str, int dark)
 {
@@ -246,8 +246,8 @@ string long(string str, int dark)
   object ob;
 
   s = sprintf(
-    "\n  %-=*s\n", 
-    (this_player()?this_player()->query_cols()-2:79), 
+    "\n  %-=*s\n",
+    (this_user()?this_user()->query_cols()-2:79),
     "   " + query_long()
     );
 
@@ -280,7 +280,7 @@ void init_equip() { call_out("do_equip", 0, 0); }
 //   else
 //     write(printf("Parametro inválido para do_command %O en monster %O, env %O.\n", str,
 //           this_object(), environment()));
-// } 
+// }
 
 void init()
 {
@@ -295,9 +295,9 @@ void init()
   ::init();
 }
 
-void event_enter(object ob, varargs string mess, object from, mixed avoid) 
+void event_enter(object ob, varargs string mess, object from, mixed avoid)
 {
-  if (!ob) 
+  if (!ob)
     return;
 
   // Taniwha 1995, I remember you you bastard, you attacked me then logged off
@@ -312,7 +312,7 @@ void event_enter(object ob, varargs string mess, object from, mixed avoid)
     // }
     return;
   }
-  
+
   do_aggressive_check(ob);
 }
 
@@ -325,7 +325,7 @@ int check_anyone_here()
     return 0;
   arr = all_inventory(environment());
   arr -= ({ this_object() });
-  
+
   for (i = 0; i < sizeof(arr); i++)
     // El heart_beat debe continuar tambien si hay otros npcs en la room
       // if (arr[i] && interactive(arr[i]))
@@ -373,7 +373,7 @@ int check_heart_beat()
     set_heart_beat(0);
     protecting = 0;
   }
-} 
+}
 
 /* Does the move after thingie called in heart_beat
 * Wonderflug, cut this down to nothing :)
@@ -393,7 +393,7 @@ void move_after_heart_beat()
   return;
 } /* void move_after */
 
-/* 
+/*
  * This code is *ugly* and it has to be possible to make it cleaner and faster!
  *   Hrmf..
  * Well, actually done that now, moved a lot of the stuff in it to their
@@ -433,7 +433,7 @@ void heart_beat()
   check_heart_beat();
 } /* void heart_beat */
 
-void set_random_stats(int low, int max) 
+void set_random_stats(int low, int max)
 {
   set_str(random(low, max));
   set_dex(random(low, max));
@@ -449,13 +449,13 @@ int set_guild_level(int i)
 {
   if (i < 1)
     i = 1;
-      
+
   adjust_guild_level(i - query_guild_level());
-  return query_guild_level();                  
+  return query_guild_level();
 }
 
 int set_level(int i)
-{ 
+{
   if (i > MIN_MONSTER_LEVEL)
     p_memory = 1;
   if (i < 1)
@@ -470,7 +470,7 @@ int set_level(int i)
   set_gp(query_max_gp());
 
   // Elimina bonos temporales a stats, bonificadores y resistencias (solo las temporales!!)
-  reset_all(); 
+  reset_all();
 
   // Ranking de jugadores, tambien para npcs, neverbot 06/10
   // Solo para npcs unicos
@@ -483,21 +483,21 @@ int set_level(int i)
 // Funcion que añade al npc al ranking de niveles mas altos
 void check_ranking()
 {
-  object ranking; 
-  
+  object ranking;
+
   // Solo objetos clonados
   if (!environment(this_object()))
     return;
-  
+
   ranking = load_object(RANKING_OB);
 
   if (ranking)
-    ranking->update(this_object()); 
+    ranking->update(this_object());
 }
 
 int set_class_level(int i) { return set_level(i); }
 
-void add_move_zone(mixed zone) 
+void add_move_zone(mixed zone)
 {
   int i;
 
@@ -541,7 +541,7 @@ void remove_move_zone(mixed zone)
 }
 
 string *query_enter_commands() { return enter_commands; }
-int add_enter_commands(mixed str) 
+int add_enter_commands(mixed str)
 {
   if (stringp(str))
     enter_commands += ({ str });
@@ -555,13 +555,13 @@ int reset_enter_commands()
   enter_commands = ({ });
 }
 
-int move_living(string dir, string dest, mixed message, mixed enter) 
+int move_living(string dir, string dest, mixed message, mixed enter)
 {
   int i, j;
 
   i = ::move_living(dir, dest, message, enter);
   protecting = 0;
-  
+
   if (i)
   {
     for (j = 0; j < sizeof(enter_commands); j++)
@@ -573,7 +573,7 @@ int move_living(string dir, string dest, mixed message, mixed enter)
 }
 
 mixed query_move_after() { return move_after; }
-void do_move_after(int bing) 
+void do_move_after(int bing)
 {
   mixed *direcs, *direcstemp;
   int i, dd, bong;
@@ -594,7 +594,7 @@ void do_move_after(int bing)
       direcs += direcstemp[dd..dd+1];
     }
   }
-  while (!bong && sizeof(direcs)) 
+  while (!bong && sizeof(direcs))
   {
     i = random(sizeof(direcs)/2)*2;
 
@@ -607,7 +607,7 @@ void do_move_after(int bing)
       {
         direcs = delete(direcs, i, 2);
         continue;
-      } 
+      }
 
     queue_action(direcs[i]);
     bong = 1;
@@ -617,8 +617,8 @@ void do_move_after(int bing)
 } /* do_move_after() */
 
 // Added by Wonderflug.  To fix add_protect.
-void event_death(object caller, varargs object killer, 
-                                        object * attackers, 
+void event_death(object caller, varargs object killer,
+                                        object * attackers,
                                         mixed avoid)
 {
   if ( caller == this_object() )
@@ -627,7 +627,7 @@ void event_death(object caller, varargs object killer,
     protecting = 0;
 }
 
-void event_fight_in_progress(object one, object two) 
+void event_fight_in_progress(object one, object two)
 {
   if (join_fights)
   {
@@ -637,21 +637,21 @@ void event_fight_in_progress(object one, object two)
   }
 }
 
-void event_exit(object ob, varargs string mess, object dest, mixed avoid) 
-// void event_exit(object ob, string mess, mixed dest) 
+void event_exit(object ob, varargs string mess, object dest, mixed avoid)
+// void event_exit(object ob, string mess, mixed dest)
 {
   mixed *bing;
   int i;
   string zone, file;
 
-  if (!move_after) // we dont move :( 
+  if (!move_after) // we dont move :(
     return;
 
   // follow the suckers.
   if (member_array(ob, attacker_list) != -1)
   {
     bing = (mixed *)environment()->query_dest_dir();
-    
+
     // if ((i = member_array(dest, bing)) == -1)
     // {
       // if (!objectp(dest))
@@ -699,7 +699,7 @@ void dest_me()
   ::dest_me();
 }
 
-mixed *stats() 
+mixed *stats()
 {
   mixed * zone;
   mixed * ret;
@@ -718,6 +718,6 @@ mixed *stats()
           ({ "Move After-rand", query_move_after()[1] }),
         });
 
-  return ret + friends::stats() + chatter::stats() + 
+  return ret + friends::stats() + chatter::stats() +
       npc_combat::stats() + npc_timed::stats();
 }

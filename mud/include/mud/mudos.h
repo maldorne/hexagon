@@ -23,5 +23,6 @@
 #define CALL_OUT_STACK_TIME   3
 #define CALL_OUT_STACK_ARG    4
 #define CALL_OUT_STACK_TP     5
+#define CALL_OUT_STACK_TU     6
 
 #endif

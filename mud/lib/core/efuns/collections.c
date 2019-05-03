@@ -41,9 +41,11 @@ static nomask object * users()
   object * all;
   int i;
 
-  if (!this_object())
-    return ({ });
-  else if (object_name(this_object()) == USER_HANDLER)
+  // if (!this_object())
+  //   return ({ });
+  // else
+
+  if (object_name(this_object()) == USER_HANDLER)
     all = ::users();
   else
     all = ::find_object(USER_HANDLER)->query_users();
@@ -55,6 +57,13 @@ static nomask object * users()
     if (all[i] && (all[i]->query_invis() == 2))
       all -= ({ all[i] });
 
+  return all -= ({ nil });
+}
+
+static nomask object * players()
+{
+  object * all;
+  all = ::find_object(USER_HANDLER)->query_players();
   return all -= ({ nil });
 }
 

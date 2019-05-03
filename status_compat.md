@@ -1,9 +1,9 @@
 # Current status: MudOS compatibility
 
-List of MudOS `efun` functions and their implementation in `Hexagon Mudlib`. 
+List of MudOS `efun` functions and their implementation in `Hexagon Mudlib`.
 
-Be aware: most of the functions 
-listed here are already implemented and working, but as I've just started working in this 
+Be aware: most of the functions
+listed here are already implemented and working, but as I've just started working in this
 document recently, I'll update every entry as I test each function.
 
 ## Basic Types
@@ -99,11 +99,12 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `set_living_name`       | :white_check_mark: |  |
 | `living`                | :white_check_mark: |  |
 | `find_living`           | :white_check_mark: |  |
-| `find_player`           |  |  |
+| `find_player`           | :white_check_mark: |  |
 | `livings`               | :white_check_mark: |  |
 | `set_heart_beat`        | :white_check_mark: |  |
 | `query_heart_beat`      | :white_check_mark: |  |
-| `users`                 | :white_check_mark: | provided by dgd |
+| `users`                 | :white_check_mark: | provided by dgd, masked to use user handler. `players` added to obtain the list of player objects. |
+| `players`               | :white_check_mark: | needed after separating users in two different objects: `user` manages connections, input and output, and `player` manages the in-game avatar |
 | `objects`               |  |  |
 | `children`              |  |  |
 

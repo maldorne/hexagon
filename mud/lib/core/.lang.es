@@ -31,13 +31,13 @@
       "encarecidamente que crees tus " + \
       "distintos personajes dentro de la misma cuenta, ya que esto tiene muchas ventajas a la " + \
       "hora de compartir objetos, recursos, logros, etc.\n"
-#define _LANG_ACCOUNT_NAME_CHOSEN "Has escogido como nombre de cuenta: '" + account_name + "', ¿estás seguro? (s/n): "
+#define _LANG_ACCOUNT_NAME_CHOSEN "Has escogido como nombre de cuenta: '" + user_name + "', ¿estás seguro? (s/n): "
 #define _LANG_DEFINE_ACCOUNT_PASSWORD "Introduce la contraseña que estará asociada a tu cuenta: "
 #define _LANG_DEFINE_ACCOUNT_PASSWORD_REPEAT "Repite la contraseña para confirmar que no hay ningún error: "
 #define _LANG_ACCOUNT_REPEAT "Volvamos a empezar."
 #define _LANG_ACCOUNT_PASSWORD_REMOVED "De acuerdo, contraseña borrada."
 #define _LANG_ACCOUNT_DIFFERENT_PASSWORDS "Las contraseñas son distintas."
-#define _LANG_NEW_ACCOUNT_CREATED "\n   %^BOLD%^Nueva cuenta creada con el nombre '" + account_name + "'.%^RESET%^\n\n"
+#define _LANG_NEW_ACCOUNT_CREATED "\n   %^BOLD%^Nueva cuenta creada con el nombre '" + user_name + "'.%^RESET%^\n\n"
 
 #define _LANG_NONEXISTANT_ACCOUNT "No existe una cuenta con ese nombre.\n"
 #define _LANG_NONEXISTANT_ACCOUNT_OR_CHARACTER "No existe ninguna cuenta o personaje con ese nombre.\n"
@@ -52,9 +52,10 @@
 #define _LANG_TYPE_THE_NEW_CHARACTER_NAME "Introduce el nombre de tu nuevo personaje: "
 #define _LANG_UNKNOWN_CHARACTER "No conozco a ese personaje, vuelve a introducir el nombre o número: "
 #define _LANG_CHARACTER_RESTORE_ERROR "Error, no se ha podido recuperar el personaje.\n"
+#define _LANG_ACCOUNT_RESTORE_ERROR "Error, no se ha podido recuperar tu cuenta.\n"
 #define _LANG_ALREADY_PLAYING "Ya estás jugando, ¿tiro la otra copia del personaje? (s/n): "
 #define _LANG_CODERS_FORBIDDEN "Los programadores no tienen permitido el acceso a este puerto.\n"
 
 #define _LANG_WAIT_LOADING "Por favor espera... cargando el personaje.\n"
 #define _LANG_CONNECTED_WELCOME "¡Te has conectado! Bienvenido a "+mud_name()+".\n\n"
-#define _LANG_HAS_RECONNECTED _player->query_cap_name() + " se ha reconectado.\n"
+#define _LANG_HAS_RECONNECTED _user->query_cap_name() + " se ha reconectado.\n"

@@ -94,6 +94,11 @@ int ls(string str, int mask, object me)
   string *bit, *bing, bong, path;
   int i, j, size;
   string h_size;
+  object user;
+  int cols;
+
+  user = me->user();
+  cols = user->query_cols();
 
   seteuid(geteuid(me));
   path = str;
@@ -146,7 +151,7 @@ int ls(string str, int mask, object me)
   {
     if (!(mask & MASK_F) && !(mask & MASK_O))
     {
-      bong = sprintf("%-*s", me->query_cols(), implode(direc, "\n"));
+      bong = sprintf("%-*s", cols, implode(direc, "\n"));
       bing = explode(bong, "\n");
     }
     else
@@ -156,22 +161,22 @@ int ls(string str, int mask, object me)
         if (file_size(path+direc[i]) == -2 || direc[i] == "..")
           if (mask & MASK_O)
             bing[i] = sprintf("%s%-*s", "%^GREEN%^",
-              (int)me->query_cols()+8, direc[i]+"%^RESET%^"+
+              (int)cols+8, direc[i]+"%^RESET%^"+
               (mask & MASK_F?"/":""));
           else
-            bing[i] = sprintf("%-*s", me->query_cols(), direc[i]+"/");
+            bing[i] = sprintf("%-*s", cols, direc[i]+"/");
 
         // else if (virtual_find_object(path+direc[i]))
         //   if (mask & MASK_O)
         //     bing[i] = sprintf("%s%-=*s", "%^MAGENTA%^",
-        //       (int)me->query_cols()-1, direc[i]+"%^RESET%^"+
+        //       (int)cols-1, direc[i]+"%^RESET%^"+
         //       (mask & MASK_F?"*":""));
         //   else
-        //     bing[i] = sprintf("%-=*s", me->query_cols(),
+        //     bing[i] = sprintf("%-=*s", cols,
         //       direc[i]+"*");
 
         else
-          bing[i] = sprintf("%-*s", me->query_cols(), direc[i]);
+          bing[i] = sprintf("%-*s", cols, direc[i]);
       }
     }
     bong = implode(bing, "\n");
@@ -194,7 +199,7 @@ int ls(string str, int mask, object me)
         bing[i] = dir_entry(path, direc[i], mask, me) + "\n";
     }
 
-    bong = sprintf("%#-*s", me->query_cols(), implode(bing, ""));
+    bong = sprintf("%#-*s", cols, implode(bing, ""));
 
     if (mask & MASK_O)
     {
@@ -280,7 +285,7 @@ int ls(string str, int mask, object me)
 
         /* directory */
 
-        bit[i] = sprintf("%-*s", (me->query_cols()+
+        bit[i] = sprintf("%-*s", (cols+
           (mask & MASK_O?17:0)),
           sprintf("drwxr%cx%c%c%c %3d %-8.8s %-8.8s [%4d] %12s %s%s%s%s",
           (SECURE->valid_write(sprintf("%s%s/fl.uff", str, direc[i][0]),
@@ -331,7 +336,7 @@ int ls(string str, int mask, object me)
 
         // loaded = virtual_find_object(str+direc[i][0]);
         loaded = find_object(str+direc[i][0]);
-        bit[i] = sprintf("%-*s", (me->query_cols()+
+        bit[i] = sprintf("%-*s", (cols+
           ((mask & MASK_O) && loaded?19:0)),
           sprintf("-rw%c%c%c-%c%c-   1 %-8.8s %-8.8s %6s %12s %s%s%s%s",
           (loaded ? 'x' : '-'),

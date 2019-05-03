@@ -20,21 +20,21 @@ void create()
   readonly = ({ "informacion" });
   board_name = "informacion";
   being_written = ([ ]);
-  reset_get();  
+  reset_get();
 }
 
-void setup() 
+void setup()
 {
   set_name("tablón de notas");
   add_alias("tablon");
   add_alias("tablón");
-  
+
   set_short("Tablón de Notas");
   set_main_plural("Tablones");
   add_plural("tablones");
-} 
+}
 
-void init() 
+void init()
 {
   add_action("read", "leer");
   add_action("post", "escribir");
@@ -42,9 +42,10 @@ void init()
   add_action("followup", "responder");
   add_action("reply", "mudmail");
   add_action("subjects", "temas");
-} 
+  ::init();
+}
 
-string query_plural() 
+string query_plural()
 {
   mixed *stuff;
 
@@ -54,9 +55,9 @@ string query_plural()
     case 1:  return pluralize(::short(0))+" [ 1 nota ]";
   }
    return pluralize(::short(0))+" [ "+sizeof(stuff)+" notas ]";
-} 
+}
 
-string short(varargs int dark) 
+string short(varargs int dark)
 {
   mixed *stuff;
   int pending;
@@ -70,20 +71,20 @@ string short(varargs int dark)
     case 1:  return ::short(dark)+" [ 1 nota ]";
     default:
     if (pending)
-      return ::short(dark)+ " [ "+sizeof(stuff)+" notas (" + 
+      return ::short(dark)+ " [ "+sizeof(stuff)+" notas (" +
                             ((pending == 1)?("una"):query_num(pending, 20)) +
                             " sin leer) ]";
     else
-      return ::short(dark)+" [ "+sizeof(stuff)+" notas ]";    
+      return ::short(dark)+" [ "+sizeof(stuff)+" notas ]";
   }
 }
 
-string the_date(int i) 
+string the_date(int i)
 {
   return ctime(i)[4..9];
 }
 
-int subjects(string str, int dark) 
+int subjects(string str, int dark)
 {
   int i;
   mixed *stuff;
@@ -100,7 +101,7 @@ int subjects(string str, int dark)
     news_rc = ([ ]);
   ret = "";
 
-  if (this_player()->query_coder()) 
+  if (this_player()->query_coder())
     ret += "El tablón de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n\n";
 
   for (i=0;i<sizeof(stuff);i++)
@@ -108,13 +109,13 @@ int subjects(string str, int dark)
     if (news_rc[board_name] < stuff[i][B_TIME])
       ret += sprintf("N %2d: %-=*s\n", i+1, (int)this_player()->query_cols()-6,
              stuff[i][B_SUBJECT]+" ("+
-             ((!this_player()->query_coder() && 
+             ((!this_player()->query_coder() &&
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
              " "+the_date(stuff[i][B_TIME])+")");
-    else 
+    else
       ret += sprintf("  %2d: %-=*s\n", i+1, (int)this_player()->query_cols()-6,
              stuff[i][B_SUBJECT]+" ("+
-             ((!this_player()->query_coder() && 
+             ((!this_player()->query_coder() &&
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
              " "+the_date(stuff[i][B_TIME])+")");
   }
@@ -123,7 +124,7 @@ int subjects(string str, int dark)
   return 1;
 } /* subjects() */
 
-string long(string str, int dark) 
+string long(string str, int dark)
 {
   int i,newones;
   mixed *stuff;
@@ -133,10 +134,10 @@ string long(string str, int dark)
   ret = "";
 
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
-  
-  if (this_player()->query_coder()) 
+
+  if (this_player()->query_coder())
     ret += "El tablón de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n";
-  
+
   ret += "Comandos:\n";
   ret += sprintf("%#-*s\n\n", this_player()->query_cols(),
                             "leer [número de nota]\nescribir <tema>\n"+
@@ -153,30 +154,30 @@ string long(string str, int dark)
 
   for (i=0;i<sizeof(stuff);i++)
   {
-    if (news_rc[board_name] < stuff[i][B_TIME]) 
+    if (news_rc[board_name] < stuff[i][B_TIME])
     {
       ret += sprintf("N %2d: %-=*s\n", i+1, (int)this_player()->query_cols()-6,
              stuff[i][B_SUBJECT]+" ("+
-             ((!this_player()->query_coder() && 
+             ((!this_player()->query_coder() &&
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
              " "+the_date(stuff[i][B_TIME])+")");
       newones +=1;
-    } 
+    }
     else if (news_rc[board_name] < stuff[i][B_TIME]+(2*24*60*60))
       ret += sprintf("  %2d: %-=*s\n", i+1, (int)this_player()->query_cols()-6,
              stuff[i][B_SUBJECT]+" ("+
-             ((!this_player()->query_coder() && 
+             ((!this_player()->query_coder() &&
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
              " "+the_date(stuff[i][B_TIME])+")");
   }
-  
-  if (!newones) 
+
+  if (!newones)
     ret += "\nNo hay nuevas notas.\n";
-    
+
   return ret;
 } /* long() */
 
-void string_more(string arg, string prompt) 
+void string_more(string arg, string prompt)
 {
   /* changed to our more_string
 
@@ -191,13 +192,13 @@ void string_more(string arg, string prompt)
   this_player()->more_string(arg, prompt);
 } /* string_more() */
 
-int read(string str) 
+int read(string str)
 {
   int num, i;
   mixed stuff;
   mapping news_rc;
   string mensaje,lang;
-  
+
   notify_fail("Sintaxis: leer <número de nota>\n");
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   news_rc = (mapping)this_player()->query_property(NEWS_RC);
@@ -219,7 +220,7 @@ int read(string str)
     return 0;
   }
   num --;
-  if (news_rc[board_name] < stuff[num][B_TIME]) 
+  if (news_rc[board_name] < stuff[num][B_TIME])
   {
     news_rc[board_name] = stuff[num][B_TIME];
     this_player()->add_property(NEWS_RC, news_rc);
@@ -227,27 +228,27 @@ int read(string str)
   mensaje = BOARD_HAND->get_message(board_name, num);
   lang = BOARD_HAND->get_language(board_name,num);
 
-  if (!lang) 
+  if (!lang)
       lang="comun";
-      
-  if (member_array(lang, this_player()->query_languages()) == -1) 
+
+  if (member_array(lang, this_player()->query_languages()) == -1)
   {
        mixed stri;
-                
+
        if ((stri = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-            if ((stri = (mixed)stri->garble_say("",mensaje))) 
+            if ((stri = (mixed)stri->garble_say("",mensaje)))
             {
                  mensaje = stri[1];
-            } 
-  } 
-  
-  mensaje = sprintf("  %-=*s\n", (int)this_player()->query_cols() - 2, mensaje);                                                                  
+            }
+  }
 
-  string_more(sprintf("Nota #%d escrita por %s el %s\nTítulo: '%s'\n\n", 
-              num+1, "%^GREEN%^" + 
-              ((!this_player()->query_coder() && 
+  mensaje = sprintf("  %-=*s\n", (int)this_player()->query_cols() - 2, mensaje);
+
+  string_more(sprintf("Nota #%d escrita por %s el %s\nTítulo: '%s'\n\n",
+              num+1, "%^GREEN%^" +
+              ((!this_player()->query_coder() &&
                  sizeof(get_files("/home/"+stuff[num][B_NAME])))?"Administrador":capitalize(stuff[num][B_NAME])) +
-              "%^RESET%^", 
+              "%^RESET%^",
               ctime(stuff[num][B_TIME]),
               "%^GREEN%^"+stuff[num][B_SUBJECT][0..(int)this_player()->query_cols()-10]+"%^RESET%^")+
               mensaje,
@@ -255,7 +256,7 @@ int read(string str)
   return 1;
 } /* read() */
 
-int post(string str) 
+int post(string str)
 {
   if ( (member_array(board_name,readonly) != -1) && !this_player()->query_coder())
   {
@@ -278,7 +279,7 @@ int post(string str)
   return 1;
 } /* post() */
 
-void end_of_thing(string body) 
+void end_of_thing(string body)
 {
   if (body && (body != "") && being_written[this_player()->query_name()])
     if (!BOARD_HAND->add_message(board_name, this_player()->query_name(),
@@ -331,7 +332,7 @@ int eat(string str) {
   return 1;
 } /* eat() */
 
-int followup(string str) 
+int followup(string str)
 {
   int num, i;
   mixed stuff;
@@ -360,7 +361,7 @@ int followup(string str)
   return 1;
 } /* followup() */
 
-int reply(string str) 
+int reply(string str)
 {
   int num;
   mixed stuff;
@@ -397,20 +398,20 @@ int reply(string str)
   return 1;
 } /* reply() */
 
-void set_board_name(string str) 
+void set_board_name(string str)
 {
   str = lower_case(str);
   board_name = str;
   BOARD_HAND->create_board(board_name, 0);
 }
 
-void set_datafile(string str) 
+void set_datafile(string str)
 {
   set_board_name(str);
   /*board_name = str;*/
 }
 
-int query_new_messages() 
+int query_new_messages()
 {
   mixed *notes;
   mapping news_rc;
@@ -425,13 +426,13 @@ int query_new_messages()
 
   notes = (mixed *)BOARD_HAND->get_subjects(board_name);
 
-  if (!sizeof(notes)) 
+  if (!sizeof(notes))
     return 0;
 
   if (undefinedp(news_rc[board_name]))
   {
       news_rc[board_name] = this_player()->query_start_time();
-      this_player()->add_property(NEWS_RC, news_rc);      
+      this_player()->add_property(NEWS_RC, news_rc);
   }
 
   // Cambiado por neverbot, 02/2006

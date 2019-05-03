@@ -21,13 +21,13 @@ void retire_user(string who);
 void age_mail(string who);
 void flush_files();
 
-void create() 
+void create()
 {
   seteuid("Root");
   box_info = ({});
   my_groups = ([]);
 
-  mud_groups = ([ 
+  mud_groups = ([
     "programadores": ({
       "folken", "sirio", "delie", "kundor", "brak", "derengarth",
     }) ,
@@ -39,9 +39,9 @@ void create()
   // catch(mud_groups["patrones"] = "/d/oficios/master"->query_patrons());
 }
 
-int valid_access(string func) 
+int valid_access(string func)
 {
-  if(geteuid(previous_object()) == "Root") 
+  if(geteuid(previous_object()) == "Root")
   return 1;
 
   if(member_array(base_name(previous_object()), TRUSTED_MAILERS) != -1)
@@ -55,16 +55,16 @@ int valid_access(string func)
   return 0;
 }
 
-void update_post_box(string who) 
+void update_post_box(string who)
 {
-  if (file == DIR_POSTAL+"/"+who) 
+  if (file == DIR_POSTAL+"/"+who)
     return;
 
-  if (file && file != "") 
+  if (file && file != "")
   {
-    if(!sizeof(box_info) && !m_sizeof(my_groups)) 
+    if(!sizeof(box_info) && !m_sizeof(my_groups))
       rm(file+".o");
-    else 
+    else
       save_object(file);
   }
 
@@ -80,7 +80,7 @@ void retire_user(string who)
   mapping m;
   int i;
 
-  if(!who) 
+  if(!who)
     return;
   who = lower_case(who);
 
@@ -100,13 +100,13 @@ void retire_user(string who)
   return;
 }
 
-string *post_mail(mapping borg) 
+string *post_mail(mapping borg)
 {
   string *local, *remote;
 
-  if (!valid_access("post mail")) 
+  if (!valid_access("post mail"))
     return ({});
-  if (!borg["from"]) 
+  if (!borg["from"])
     return ({});
 
   update_post_box(borg["from"]);
@@ -120,141 +120,141 @@ string *post_mail(mapping borg)
   return local+remote;
 }
 
-int remote_mail(string who, mapping borg) 
+int remote_mail(string who, mapping borg)
 {
   string pl, mud;
 
-  if (sscanf(who, "%s@%s", pl, mud) != 2) 
+  if (sscanf(who, "%s@%s", pl, mud) != 2)
     return 0;
   MAIL_S->remote_mail(pl, mud, borg);
     return 1;
 }
 
-string *expand_list(string *who) 
+string *expand_list(string *who)
 {
   string *full;
   string a,b;
   int i;
 
   full = ({});
-  if (!(i=sizeof(who))) 
+  if (!(i=sizeof(who)))
     return ({});
 
-  while (i--) 
+  while (i--)
   {
-  if (!who[i] || who[i] == "" || !stringp(who[i])) 
+  if (!who[i] || who[i] == "" || !stringp(who[i]))
     continue;
   if (sscanf((who[i]=lower_case(who[i])), "%s@%s", a, b) == 2)
     full += ({ who[i] });
-  else if (user_exists(who[i])) 
+  else if (player_exists(who[i]))
     full += ({ who[i] });
   else if (mud_groups[who[i]] || my_groups[who[i]])
     full += expand_group(who[i]);
-  else 
+  else
     write("No existe el usuario o grupo: "+capitalize(who[i])+".\n");
   }
   return full;
 }
 
-string *expand_group(string grp) 
+string *expand_group(string grp)
 {
   string *ret, *g;
   string a, b;
   int i;
 
-  if (mud_groups[grp]) 
+  if (mud_groups[grp])
     g = mud_groups[grp];
-  else if (my_groups[grp]) 
+  else if (my_groups[grp])
     g = my_groups[grp];
-  else 
+  else
     return ({});
 
   i = sizeof(g);
   ret = ({});
 
-  while (i--) 
+  while (i--)
   {
-    if (sscanf(g[i], "%s@%s", a, b) ==2) 
+    if (sscanf(g[i], "%s@%s", a, b) ==2)
       ret += ({ g[i] });
-    else if (user_exists(g[i])) 
+    else if (player_exists(g[i]))
       ret += ({ g[i] });
-    else 
+    else
       write("No existe el usuario: "+capitalize(g[i])+".\n");
   }
   return ret;
 }
 
-void add_post(string *local, mapping borg) 
+void add_post(string *local, mapping borg)
 {
   int i;
 
-  if (!valid_access("add post")) 
+  if (!valid_access("add post"))
     return;
-  if (!(i=sizeof(local))) 
+  if (!(i=sizeof(local)))
     return;
-  
+
   borg["id"] = (string)LETTER_D->create_message(borg["message"],local);
   borg["read"] = 0;
   map_delete(borg, "message");
 
-  while(i--) 
+  while(i--)
   {
     update_post_box(local[i]);
     box_info += ({ borg });
   }
 }
 
-void remove_post(string who, string id) 
+void remove_post(string who, string id)
 {
   int x;
 
-  if(!valid_access("remove post")) 
+  if(!valid_access("remove post"))
    return;
 
   update_post_box(who = lower_case(who));
 
-  if((x = get_post_number(id)) == -1) 
+  if((x = get_post_number(id)) == -1)
     return;
-  
+
   LETTER_D->delete_message(id, who);
   box_info = exclude_array(box_info, x);
 }
 
-static int get_post_number(string id) 
+static int get_post_number(string id)
 {
   int i;
 
   i = sizeof(box_info);
-  while(i--) 
-    if(box_info[i]["id"] == id) 
+  while(i--)
+    if(box_info[i]["id"] == id)
       return i;
   return -1;
 }
 
-mapping mail_status(string who) 
+mapping mail_status(string who)
 {
   int un, tot, i;
 
   update_post_box(who = lower_case(who));
   i = sizeof(box_info);
 
-  while(i--) 
+  while(i--)
   {
     tot++;
-    if(!box_info[i]["read"]) 
+    if(!box_info[i]["read"])
       un++;
   }
   return ([ "unread":un, "total":tot ]);
 }
 
-void notify_online(string *who, string from, string sub) 
+void notify_online(string *who, string from, string sub)
 {
   object ob, mail;
   string str;
   int i;
 
   i = sizeof(who);
-  while (i--) 
+  while (i--)
   {
     if (!(ob = find_player(who[i])) ||
       ((str=(string)ob->getenv("MAIL_MSG")) == "ignore"))
@@ -268,29 +268,29 @@ void notify_online(string *who, string from, string sub)
     //tell_object(ob,str);
     tell_object(ob,wrap(str,(int)ob->query_cols()) );
     //tell_object(ob, wrap(str, (int)ob->getenv("screen")));
-    if (mail=present(POST_ID, ob)) 
+    if (mail=present(POST_ID, ob))
       mail->reset_post();
   }
 }
 
-mapping add_group(string who, string group, string *in_group) 
+mapping add_group(string who, string group, string *in_group)
 {
   string a, b;
   int i;
 
-  if (!valid_access("add group")) 
+  if (!valid_access("add group"))
     return ([]);
-  
+
   update_post_box(who = lower_case(who));
-  if (!my_groups) 
+  if (!my_groups)
     my_groups = ([]);
-  if (!my_groups[group]) 
+  if (!my_groups[group])
     my_groups[group] = ({});
   i = sizeof(in_group);
 
-  while (i--) 
+  while (i--)
   {
-    if (user_exists(in_group[i] = lower_case(in_group[i])))
+    if (player_exists(in_group[i] = lower_case(in_group[i])))
       my_groups[group] += ({ in_group[i] });
     if (sscanf(in_group[i], "%s@%s", a, b) == 2)
       my_groups[group] += ({ in_group[i] });
@@ -298,38 +298,38 @@ mapping add_group(string who, string group, string *in_group)
   return my_groups;
 }
 
-mapping remove_group(string who, string group, string *out_group) 
+mapping remove_group(string who, string group, string *out_group)
 {
   int i;
 
-  if (!valid_access("remove group")) 
+  if (!valid_access("remove group"))
     return ([]);
   update_post_box(who = lower_case(who));
 
-  if (!my_groups) 
+  if (!my_groups)
     return ([]);
-  if (!my_groups[group]) 
+  if (!my_groups[group])
     return my_groups;
   i = sizeof(my_groups[group]);
 
-  while (i--) 
+  while (i--)
    my_groups[group] -= ({ my_groups[group][i] });
 
-  if (!m_sizeof(my_groups)) 
+  if (!m_sizeof(my_groups))
     map_delete(my_groups, group);
   return my_groups;
 }
 
-void mark_read(string who, string id) 
+void mark_read(string who, string id)
 {
   int i;
 
-  if (!valid_access("mark read")) 
+  if (!valid_access("mark read"))
     return;
   update_post_box(who = lower_case(who));
   i = sizeof(box_info);
-  while (i--) 
-    if (id == box_info[i]["id"]) 
+  while (i--)
+    if (id == box_info[i]["id"])
       box_info[i]["read"] = 1;
 }
 
@@ -340,7 +340,7 @@ void age_mail(string who)
   mapping m;
   int i;
 
-  if (!valid_access("age mail")) 
+  if (!valid_access("age mail"))
     return;
 
   update_post_box(who);
@@ -370,28 +370,28 @@ void age_mail(string who)
 }
 
 mapping query_mud_groups() { return mud_groups; }
-int query_mailing_list(string which) 
+int query_mailing_list(string which)
 {
-  if (!which)  
+  if (!which)
     return 1;
-  if (mud_groups[which])  
+  if (mud_groups[which])
     return 1;
   return 0;
 }
 
-void flush_files() 
+void flush_files()
 {
-  if (!sizeof(box_info) && !m_sizeof(my_groups)) 
+  if (!sizeof(box_info) && !m_sizeof(my_groups))
     rm(file+".o");
-  else 
+  else
     save_object(file);
 }
 
-string read_sig(string who) 
+string read_sig(string who)
 {
-  if (file_exists("/home/"+who+"/.sig")) 
+  if (file_exists("/home/"+who+"/.sig"))
     return read_file("/home/"+who+"/.sig");
-  else 
+  else
     return "";
 }
 

@@ -27,7 +27,7 @@
  * Renamed as social.c, neverbot 10/2016
  */
 
-#include <user/user.h>
+#include <user/player.h>
 #include <living/living.h>
 #include <living/social.h>
 #include <living/races.h>

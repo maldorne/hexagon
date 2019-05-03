@@ -2,7 +2,7 @@
 #include <mud/secure.h>
 #include <user/roles.h>
 
-static object _player;
+static object _user;
 
 void create()
 {
@@ -20,54 +20,60 @@ void role_commands()
   add_action("quit", ({ "quit", "salir" }));
 }
 
-static void start_role(object player)
+static void start_role(object user)
 {
-  
+
 }
 
-static nomask object query_player() { return _player; }
+static nomask object user() { return _user; }
 
-nomask int set_player(object ob)
+nomask int set_user(object ob)
 {
-  // for safety reasons, we allow set_player only to be called from /lib/core/login
+  // for safety reasons, we allow set_user only to be called from /lib/core/login
   if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
-  _player = ob;
+  _user = ob;
 
-  start_role(_player);
+  start_role(_user);
   role_commands();
 
   return 1;
 }
 
-nomask int save(string str) 
+nomask int save(string str)
 {
-  return _player->save_me();
+  object player;
+  player = _user->query_player_ob();
+
+  catch(player->save_me());
+  catch(_user->save_me());
+
+  return 1;
 }
 
 nomask int quit(string str)
 {
-  return _player->quit();
+  return _user->quit();
 }
 
-nomask int help_func(string str) 
+nomask int help_func(string str)
 {
-  return _player->do_help(str);
+  return _user->do_help(str);
 }
 
 nomask int do_clear_screen(string str)
 {
-  // if( this_player(1) != this_player() )  
+  // if( this_player(1) != this_player() )
   //   return 0;
 
-  tell_object(this_player(), sprintf("%c[H%c[2J\n", 27, 27));
+  tell_object(this_user(), sprintf("%c[H%c[2J\n", 27, 27));
   return 1;
 }
 
-mixed * stats() 
+mixed * stats()
 {
-  return ({ 
+  return ({
           });
 }
 

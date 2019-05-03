@@ -9,9 +9,12 @@ int interactive(object ob)
   if (!ob)
     return 0;
 
-  if (!living(ob))
+  if (ob->query_player())
+    ob = ob->user();
+
+  if (!ob->query_user())
     return 0;
-  
+
   if (query_ip_number(ob) == nil)
     return 0;
 

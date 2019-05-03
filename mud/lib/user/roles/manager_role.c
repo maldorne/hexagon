@@ -8,18 +8,18 @@ void create()
   base::create();
 }
 
-static void start_role(object player)
+static void start_role(object user)
 {
-  base::start_role(player);
+  base::start_role(user);
 }
 
 static void role_commands()
 {
   // player and coder commands
   base::role_commands();
-} 
+}
 
-mixed stats() 
+mixed stats()
 {
   return ({ }) + base::stats();
 }
