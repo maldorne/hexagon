@@ -27,18 +27,20 @@ static nomask int file_size(string path)
     dir = get_dir(path);
     i = sizeof(dir[0]);
 
-    while (i--) 
+    while (i--)
     {
-      if (dir[0][i] == base) 
+      if (dir[0][i] == base)
       {
+
+stderr(to_string(dir));
         return dir[1][i];
       }
     }
-    
+
     return -1;
 }
 
-static nomask int file_length(string file_name) 
+static nomask int file_length(string file_name)
 {
   return file_size(file_name);
 }
@@ -51,27 +53,27 @@ static nomask int file_length(string file_name)
 // int file_exists(string str) {
 //     int ret;
 //     // seteuid(geteuid(previous_object()));
-//     if (file_size(str) > -1) 
+//     if (file_size(str) > -1)
 //       ret = 1;
-//     else 
+//     else
 //       ret = 0;
 //     // seteuid(0);
 //     return ret;
 // }
 
-static nomask int file_exists(string str) 
+static nomask int file_exists(string str)
 {
   mixed * content;
   int * sizes;
 
   content = get_dir(str);
   sizes = content[1];
-  
+
   // no files
-  if (!sizes || (sizeof(sizes) == 0)) 
+  if (!sizes || (sizeof(sizes) == 0))
     return 0;
 
-  if (sizes[0] == -2) 
+  if (sizes[0] == -2)
     return -1;
 
   return 1;
@@ -86,14 +88,14 @@ static nomask int file_exists(string str)
 //   string s;
 //   object me;
 //   // Fix by wonderflug.
-//   if ( this_player() ) 
+//   if ( this_player() )
 //     me = this_player();
 //   else
 //     me = previous_object();
-//   // if(!"/lib/core/master.c"->valid_read(file, geteuid(me), "read_file") || 
+//   // if(!"/lib/core/master.c"->valid_read(file, geteuid(me), "read_file") ||
 //   //   file_length(file) <= 0)
 //   //   return 0;
-//   if (!num)  
+//   if (!num)
 //    num = file_length(file);
 //   s = read_file(file, start, num);
 //   if (me->query_player())
@@ -106,19 +108,19 @@ static nomask int file_exists(string str)
 //   return 1;
 // }
 
-static nomask int cat(string file) 
+static nomask int cat(string file)
 {
   int i;
   string * lines;
 
   i = file_exists(file);
-  if (i == 0) 
+  if (i == 0)
   {
     write("No such file.\n");
     return 0;
   }
 
-  if (i == -1) 
+  if (i == -1)
   {
     write("That file is a directory.\n");
     return 0;
@@ -126,10 +128,10 @@ static nomask int cat(string file)
 
   lines = full_explode(read_file(file), "\n");
 
-  if (sizeof(lines) > MAX_CAT_LINES) 
+  if (sizeof(lines) > MAX_CAT_LINES)
     lines = lines[0..MAX_CAT_LINES-1];
-  
-  for (i = 0; i < sizeof(lines); i++) 
+
+  for (i = 0; i < sizeof(lines); i++)
       write(lines[i]+"\n");
 
   return 1;
@@ -186,12 +188,12 @@ static nomask int cp(string src, string dst)
     chunk = read_file(src, offset, 57344);
 
     // some error, should not happen
-    if (typeof(chunk) != T_STRING) 
+    if (typeof(chunk) != T_STRING)
       return -1;
 
     n = write_file(dst, chunk);
 
-    if (n <= 0) 
+    if (n <= 0)
     {
       // should not happen
       return -1;
@@ -208,10 +210,10 @@ static nomask int cp(string src, string dst)
 // mixed array get_dir(string dir);
 // mixed array get_dir(string dir, int flag);
 
-// If `dir' is a filename ('*' and '?' wildcards are supported), an array of 
-// strings is returned containing all filenames that match the specification. 
+// If `dir' is a filename ('*' and '?' wildcards are supported), an array of
+// strings is returned containing all filenames that match the specification.
 // If `dir' is a directory name (ending with a slash--ie: "/u/", "/adm/", etc),
-// all filenames in that directory are returned.  
+// all filenames in that directory are returned.
 
 // If called with a second argument equal to -1, get_dir will return an array
 // of subarrays, where the format of each subarray is:
@@ -219,9 +221,9 @@ static nomask int cp(string src, string dst)
 //   ({ filename, size_of_file, last_time_file_touched })
 
 // Where filename is a string and last_time_file_touched is an integer being
-// number of seconds since January 1, 1970 (same format as time()).  The 
-// size_of_file element is the same value that is returned by file_size(); the 
-// size of the file in bytes, or -2 if it's a directory.  
+// number of seconds since January 1, 1970 (same format as time()).  The
+// size_of_file element is the same value that is returned by file_size(); the
+// size of the file in bytes, or -2 if it's a directory.
 
 static nomask mixed * get_dir(string dir, varargs int flag)
 {
