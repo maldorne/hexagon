@@ -28,14 +28,8 @@ static nomask int file_size(string path)
     i = sizeof(dir[0]);
 
     while (i--)
-    {
       if (dir[0][i] == base)
-      {
-
-stderr(to_string(dir));
         return dir[1][i];
-      }
-    }
 
     return -1;
 }
