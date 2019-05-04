@@ -5,19 +5,9 @@
 
 #include <status.h>
 
-/*
- * Language
- * 
- * every time we include the language header file
- * #include <language.h>
- * a .lang.<language>.h from the current directory will be included instead
- *
- * currently supported languages: es, en
- */
-#define GLOBAL_COMPILE_LANG "en"
 
-/* 
- * Common save options 
+/*
+ * Common save options
  *   (if defined, every important object will be saved in
  *    /save/{ shops, pubs, vaults, etc })
  */
@@ -26,7 +16,7 @@
 // define to forbid player logons
 #undef PLAYER_LOCKOUT
 
-/* 
+/*
  * Multimud options
  */
 

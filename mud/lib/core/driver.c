@@ -1,5 +1,5 @@
 
-/* 
+/*
  *  Interface between the mudlib and DGD
  */
 
@@ -12,6 +12,7 @@
 #include <user/terminal.h>
 #include <mud/secure.h>
 #include <mud/config.h>
+#include <mud/translations.h>
 
 
 // ************************************************************
@@ -111,13 +112,13 @@ nomask object secure() { return secure; }
 // return the debugger global object
 nomask object debugger() { return debugger; }
 // get a new login object
-nomask object login() 
+nomask object login()
 {
   object login;
 
   login = clone_object(find_object(LOGIN_OB));
 
-  return login; 
+  return login;
 }
 
 nomask void log_driver(string str)
@@ -125,7 +126,7 @@ nomask void log_driver(string str)
   _stderr(str);
 }
 
-static nomask void write(string str) 
+static nomask void write(string str)
 {
   object user;
 
@@ -157,8 +158,8 @@ static nomask void inform_user(string str, int message_type)
       write("\nSe ha producido un error.\n");
 
       if (strlen(mudos->query_current_command()))
-        write("El intento de hacer '%^RED%^" + 
-              mudos->query_current_command() + 
+        write("El intento de hacer '%^RED%^" +
+              mudos->query_current_command() +
               "%^RESET%^' no funcionó.\n");
       this_player()->show_prompt("\n");
 
@@ -173,13 +174,13 @@ static nomask void inform_user(string str, int message_type)
 }
 
 // The driver object cannot clone objects
-nomask object clone_object(mixed what, varargs string uid) 
+nomask object clone_object(mixed what, varargs string uid)
 {
   log_driver("Attempt to clone object from driver, avoided\n");
   return nil;
 }
 
-// nomask object compile_object(string path) 
+// nomask object compile_object(string path)
 // {
 //   log_driver("Attempt to compile object from driver, avoided\n");
 //   return nil;
@@ -203,7 +204,7 @@ static string object_type(string file, string type)
   string str;
 
   str = resolve_path(file);
-  
+
   log_driver(" ~ object_type: " + file + " = " + str + "\n");
 
   return str;
@@ -216,7 +217,7 @@ static string object_type(string file, string type)
 
 static int compile_rlimits(string objname)
 {
-  // unlimited resource usage for kernel objects 
+  // unlimited resource usage for kernel objects
   // return sscanf(objname, "/lib/core/%*s");
   return TRUE;
 }
@@ -227,14 +228,14 @@ static object inherit_program(string from, string path, int priv)
   object ob;
   string err;
 
-  if ((i = strlen(path)) >= 2 && path[i - 2 ..] == ".c") 
+  if ((i = strlen(path)) >= 2 && path[i - 2 ..] == ".c")
     path = path[0 .. i - 3];
 
   ob = ::find_object(path);
 
   if (ob)
     return ob;
-  
+
   log_driver(" + inherit_program: " + path + " from " + from + "\n");
 
   log_driver(" - compile_object: " + path + " (from driver)\n");
@@ -245,12 +246,12 @@ static object inherit_program(string from, string path, int priv)
     log_driver(" + inherit_program error: " + err + "\n");
     inform_user(" + inherit_program error\n   compile_object returned: " + err + "\n", DRIVER_COMPILE_ERROR);
   }
-    
+
   return ob;
 }
 
 static mixed include_file(string includer, string include)
-{ 
+{
   // multilanguage options, when we try to include the general language header file
   // with an #include <language.h>,
   // we will include a file from our current directory: .lang.en, .lang.es, etc
@@ -269,7 +270,7 @@ static mixed include_file(string includer, string include)
 
 // Error handling
 
-static void runtime_error(string error, int caught, int ticks) 
+static void runtime_error(string error, int caught, int ticks)
 {
   string ret;
 
@@ -320,7 +321,7 @@ static string atomic_error(string error, int atom, mixed **trace)
 // given function called in it.  A non-zero return value indicates that the
 // object's "untouched" status should be preserved through the following
 // call.
-static int touch(object obj, string func) 
+static int touch(object obj, string func)
 {
   log_driver(" - touch object " + object_name(obj) + ", function " + func + "\n");
 
@@ -340,6 +341,6 @@ static object call_object(string path)
 
 // The last reference to the given program has been removed.
 static void remove_program(string path, int timestamp, int index)
-{ 
+{
   log_driver(" + remove_program: " + path + "\n");
 }

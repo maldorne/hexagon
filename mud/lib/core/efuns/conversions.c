@@ -6,9 +6,9 @@
 private string number_as_string_aux(int n);
 string number_as_string(int n);
 
-string query_num(int n, int limit) 
+string query_num(int n, int limit)
 {
-  if (limit && n>limit) 
+  if (limit && n>limit)
     return "montones de"; /* this is a little pointless ... */
   return number_as_string(n);
 }
@@ -18,32 +18,32 @@ string number_as_string(int n)
   string ret;
   int i;
 
-  if (n < 0) 
+  if (n < 0)
     return "miles de"; /* fo wraps... */
-  if (n > 99999) 
+  if (n > 99999)
     return "miles de"; /* sorry 'bout the hard limit */
 
   ret = nil;
 
-  if ((i = n/1000)) 
+  if ((i = n/1000))
   {
     n = n%1000;
-    if (i==1) 
+    if (i==1)
       ret = "mil";
     else
       ret = number_as_string_aux(i) + " mil";
-    if (!n) 
+    if (!n)
       return ret;
   }
 
-  if ((i = n/100)) 
+  if ((i = n/100))
   {
     n = n%100;
-    if (!ret) 
+    if (!ret)
       ret="";
-    else 
+    else
       ret += " ";
-    
+
     switch (i)
     {
       case 1: if (!n) ret += "cien"; else ret += "ciento"; break;
@@ -57,7 +57,7 @@ string number_as_string(int n)
       case 9: ret += "novecientos"; break;
     }
 
-    if (!n) 
+    if (!n)
       return ret;
   }
 
@@ -67,17 +67,17 @@ string number_as_string(int n)
   return number_as_string_aux(n);
 } /* query_num() */
 
-private string number_as_string_aux(int n) 
+private string number_as_string_aux(int n)
 {
   string ret;
 
-  if (!n) 
+  if (!n)
     return "cero";
 
-  if (n > 99) 
+  if (n > 99)
     return "muchos";
-  
-  if (n<30 && n>9) 
+
+  if (n<30 && n>9)
     return ({ "diez", "once", "doce", "trece",
               "catorce", "quince", "dieciséis", "diecisiete",
               "dieciocho", "diecinueve", "veinte",
@@ -88,7 +88,7 @@ private string number_as_string_aux(int n)
   ret = ({ "", "", "", "treinta", "cuarenta", "cincuenta", "sesenta",
            "setenta", "ochenta", "noventa"})[n/10];
 
-  if ((n = n%10)&&(ret!="")) 
+  if ((n = n%10)&&(ret!=""))
     ret += " y ";
 
   return ret + ({ "", "un", "dos", "tres", "cuatro", "cinco", "seis",
@@ -96,20 +96,21 @@ private string number_as_string_aux(int n)
 } /* number_as_string() */
 
 
-string query_multiple_short(mixed *obs, varargs int flag) 
+// flag = use pretty_short() if is a list of objects instead of just short()
+string query_multiple_short(mixed *obs, varargs int flag)
 {
   int i, j, k;
   string * str;
   mixed * bity;
 
   bity = ({ });
-  for (i = 0; i < sizeof(obs); i++) 
+  for (i = 0; i < sizeof(obs); i++)
   {
-    if (!stringp(obs[i])) 
+    if (!stringp(obs[i]))
     {
-      if (!pointerp(obs[i])) 
-      // like a string.  First bit is the string.
-      // second the object 
+      if (!pointerp(obs[i]))
+      // like a string. First bit is the string.
+      // second the object
       {
         if (objectp(obs[i]))
         {
@@ -119,21 +120,21 @@ string query_multiple_short(mixed *obs, varargs int flag)
             str = ({ (string)obs[i]->short() });
         }
       }
-      else 
+      else
       {
         str = obs[i][0];
         obs[i] = obs[i][1];
       }
-    } 
+    }
     else
       str = ({ obs[i] });
-      
+
     if (!str) // ignore invis objects
       continue;
-      
+
     if (stringp(str))
       str = ({ str });
-      
+
     for (j=0;j<sizeof(str);j++)
       if ((k=member_array(str[j], bity)) == -1)
         bity += ({ str[j], ({ obs[i] }) });
@@ -143,7 +144,7 @@ string query_multiple_short(mixed *obs, varargs int flag)
 
   str = ({ });
 
-  for (i = 0; i < sizeof(bity); i+=2) 
+  for (i = 0; i < sizeof(bity); i+=2)
   {
     j = sizeof(bity[i+1]);
     if (stringp(bity[i+1][0]))
@@ -153,11 +154,10 @@ string query_multiple_short(mixed *obs, varargs int flag)
         str += ({ (query_num(j,20)+
           " "+pluralize(bity[i])) });
     else if (j == 1)
-    /* Propiedad determinate eliminada
-    if (bity[i+1][0]->query_property("determinate"))
-    str += ({ bity[i+1][0]->query_property("determinate")+bity[i] });
-    else
-    */
+    // determinate property removed
+    // if (bity[i+1][0]->query_property("determinate"))
+    //   str += ({ bity[i+1][0]->query_property("determinate")+bity[i] });
+    // else
       // str += ({ add_a(bity[i]) });
       str += ({ bity[i] });
     else
@@ -170,16 +170,13 @@ string query_multiple_short(mixed *obs, varargs int flag)
           " "+bity[i+1][0]->query_plural(bity[i])) });
     }
   }
-  
+
   if (!sizeof(str))
     return "";
-    
+
   if (sizeof(str) == 1)
     return str[0];
-    
-  if (lower_case(str[sizeof(str)-1][0..0]) == "i")
-    return implode(str[0..sizeof(str)-2],", ")+" e "+str[sizeof(str)-1];
-  else
-    return implode(str[0..sizeof(str)-2],", ")+" y "+str[sizeof(str)-1];
-}
+
+  return implode(str[0..sizeof(str)-2],", ")+" "+_LANG_AND+" "+str[sizeof(str)-1];
+} /* query_multiple_short() */
 

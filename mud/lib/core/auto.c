@@ -10,6 +10,7 @@
 #include <trace.h>
 
 #include <mud/version.h>
+#include <mud/translations.h>
 
 #include "/lib/core/efuns.c"
 
