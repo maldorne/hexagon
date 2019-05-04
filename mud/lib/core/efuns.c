@@ -7,6 +7,7 @@ static nomask void stderr(string str);
 
 // neverbot, 03/14
 #include "/lib/core/efuns/types.c"
+#include "/lib/core/efuns/math.c"
 #include "/lib/core/efuns/string.c"
 #include "/lib/core/efuns/mapping.c"
 #include "/lib/core/efuns/array.c"
@@ -43,7 +44,7 @@ static nomask void stderr(string str);
 // mud name, version nombres, etc
 #include "/lib/core/efuns/mud.c"
 
-// neverbot 21/4/2003 
+// neverbot 21/4/2003
 #include "/lib/core/efuns/time.c"
 #include "/lib/core/efuns/log.c"
 
@@ -56,5 +57,4 @@ static nomask void stderr(string str);
 
 #include "/lib/core/efuns/domains.c"
 #include "/lib/core/efuns/path.c"
-#include "/lib/core/efuns/math.c"
 #include "/lib/core/efuns/net.c"

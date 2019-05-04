@@ -9,7 +9,7 @@
 string chr(int c);
 
 
-static void printf(string format, mixed args...) 
+static void printf(string format, mixed args...)
 {
   write(sprintf(format, args));
 }
@@ -18,15 +18,15 @@ static void printf(string format, mixed args...)
 static int at(int character, string str)
 {
   int i;
-  
-  if (!character || !str) 
+
+  if (!character || !str)
    return -1;
-  
+
   for (i = 0; i < strlen(str); i++)
     if (character == str[i])
-      return i; 
+      return i;
 
-  return -1;  
+  return -1;
 }
 
 static string replace_string(string str, string foo, string bar)
@@ -54,11 +54,11 @@ static string replace_string(string str, string foo, string bar)
   // return result;
 }
 
-static string replace(string str, mixed bing, varargs string rep) 
+static string replace(string str, mixed bing, varargs string rep)
 {
   int i;
 
-  if (pointerp(bing)) 
+  if (pointerp(bing))
   {
     for (i = 0; i < sizeof(bing); i+=2)
       str = replace_string(str, bing[i], bing[i+1]);
@@ -67,15 +67,15 @@ static string replace(string str, mixed bing, varargs string rep)
   return replace_string(str, bing, rep);
 }
 
-static string extract(string str, int start, varargs int end) 
+static string extract(string str, int start, varargs int end)
 {
   if (end)
     return str[start..end];
   else
     return str[start..];
-} 
+}
 
-static string trim(string str) 
+static string trim(string str)
 {
   if (strlen(str) == 0)
     return str;
@@ -96,7 +96,7 @@ static string trim(string str)
     if (strlen(str) == 1)
       return str;
     str = str[1..strlen(str)-1];
-  }  
+  }
 
   return str;
 }
@@ -113,7 +113,7 @@ static int strcmp(string a, string b)
   {
     aa = a[i];
     bb = b[i];
-    
+
     if (aa > bb)
       return -1;
     else if (aa < bb)
@@ -135,10 +135,10 @@ static int strcmp(string a, string b)
 // strsrch - search for substrings in a string
 // int strsrch( string str, string substr | int char, int flag );
 
-// strsrch() searches for the first occurance of the string 'substr' in the 
-// string 'str'.  The last occurance of 'substr' can be found by passing '-1' 
-// as the 3rd argument (which is optional).  If the second argument is an 
-// integer, that character is found (like C's strchr()/strrchr().)  The empty 
+// strsrch() searches for the first occurance of the string 'substr' in the
+// string 'str'.  The last occurance of 'substr' can be found by passing '-1'
+// as the 3rd argument (which is optional).  If the second argument is an
+// integer, that character is found (like C's strchr()/strrchr().)  The empty
 // string or null value cannot be searched for.
 
 // The integer offset of the first (last) match is returned.  -1 is returned
@@ -157,7 +157,7 @@ static int strsrch( string str, mixed substr, varargs int flag )
   if (flag >= 0)
   {
     int substr_len, i;
-    
+
     substr_len = strlen(substr);
     i = -substr_len;
 
@@ -187,7 +187,7 @@ static int strsrch( string str, mixed substr, varargs int flag )
     return strlen(implode(arr[..sizeof(arr)-2], substr));
   }
 
-  if (sscanf(str, "%s" + substr + "%s", tmp1, tmp2) >= 1) 
+  if (sscanf(str, "%s" + substr + "%s", tmp1, tmp2) >= 1)
     return strlen(tmp1) + strlen(substr);
 
   return -1;
@@ -198,9 +198,9 @@ static int strsrch( string str, mixed substr, varargs int flag )
 // wraps text automatically
 // created by Pallando@Nightmare
 
-static string wrap(string str, varargs int width) 
+static string wrap(string str, varargs int width)
 {
-  return (width ? sprintf("%-=" + width + "s", str + "\n") : 
+  return (width ? sprintf("%-=" + width + "s", str + "\n") :
     sprintf("%-=75s", str + "\n"));
 }
 
@@ -209,30 +209,30 @@ static string wrap(string str, varargs int width)
 // makes a string a certain length
 // created by Descartes of Borg 23 december 1992
 
-static string arrange_string(string str, int x) 
+static string arrange_string(string str, int x)
 {
     int i, y;
 
-    if (!str || str == "") 
+    if (!str || str == "")
       return "";
-    if (!x) 
+    if (!x)
       return "";
-    if (intp(str)) 
+    if (intp(str))
       str = str+"";
 
     y = strlen(str);
 
-    if (y>x) 
+    if (y>x)
       return str[0..(x-1)];
 
-    for (i=y; i<x; i++) 
+    for (i=y; i<x; i++)
       str += " ";
 
     return str;
 }
 
 // what the hell would need this???
-// static int vowel(int i) 
+// static int vowel(int i)
 // {
 //   return (i == 'a' || i == 'e' || i == 'i' || i == 'o' || i == 'u');
 // }
@@ -248,7 +248,7 @@ static string lower_case(string str)
     return str;
 
   first_char = str[0];
-  
+
   switch(first_char)
   {
     case 'Á': str[0] = 'á'; break;
@@ -274,7 +274,7 @@ static string capitalize(string str)
     return str;
 
   first_char = str[0];
-  
+
   switch(first_char)
   {
     case 'á': str[0] = 'Á'; break;
@@ -300,7 +300,7 @@ static string upper_case(string str)
 // Taniwha 1995, since the efun one doesn't
 static string pluralize(string str)
 {
-  if (!str || str == "") 
+  if (!str || str == "")
     return "objects";
   else return (str + "s");
 }
@@ -313,7 +313,7 @@ static string replace_spanish_characters(string str, varargs int flag_enye)
 	int i;
 	string ret;
 	ret = "";
-	
+
 	for (i = 0; i < strlen(str); i++)
 	{
 		switch(str[i..i])
@@ -338,12 +338,12 @@ static string replace_spanish_characters(string str, varargs int flag_enye)
 
 // format_page()
 // Tweaked by Radix for who command : MArch 4, 1997
-static string format_page(string *items, int columns) 
+static string format_page(string *items, int columns)
 {
   int width, i, j, x;
   string ret;
 
-  if (!columns) 
+  if (!columns)
     columns = 2;
 
   ret = "";
@@ -352,12 +352,12 @@ static string format_page(string *items, int columns)
     width = 75/columns;
   else
     width = this_user()->query_cols() / columns;
- 
-  for (i = 0, x = sizeof(items); i < x; i += columns) 
+
+  for (i = 0, x = sizeof(items); i < x; i += columns)
   {
-    for (j = 0; j < columns; j++) 
+    for (j = 0; j < columns; j++)
     {
-      if(i + j >= x) 
+      if(i + j >= x)
         break;
       // ret += arrange_string(items[i+j], width);
       // changed to improve presentation, neverbot 02/05
@@ -368,24 +368,39 @@ static string format_page(string *items, int columns)
   return ret;
 }
 
-// idea taken from the melville mudlib
-static nomask string pad(string str, int size, varargs int justify) 
+// string pad(string str, int len, int padchar)
+// Left or right justify str to len chars. If padchar is not specified,
+// defaults to ' '. Default is left justify. To specify right justification,
+// make len negative. str can also be a number.
+
+static nomask string pad(string str, int size, varargs string char)
 {
   int i, len;
+  string padding;
 
+  if (size == 0)
+    return str;
+
+  padding = (char ? char[0..0] : " ");
   len = strlen(str);
-  if (len >= size) 
-    return str[0..size-1];
-  
-  len = size-len;
-  
-  for (i = 0; i < len; i++) 
+
+  if (size >= 0)
   {
-    if (justify) 
-      str = " " + str;
-    else 
-      str += " ";
+    if (len >= size)
+      return str[0..size-1];
+
+    for (i = 0; i < size-len; i++)
+      str += padding;
   }
+  else
+  {
+    if (len >= abs(size))
+      return str[len-abs(size)..len-1];
+
+    for (i = 0; i < abs(size)-len; i++)
+      str = padding + str;
+  }
+
   return str;
 }
 

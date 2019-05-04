@@ -35,6 +35,7 @@ Common calls and operations over the basic types.
 | `strlen`                | :white_check_mark: | provided by dgd, added `visible_strlen` to count only visible/printable characters |
 | `strcmp`                | :white_check_mark: |  |
 | `strsrch`               | :white_check_mark: |  |
+| `pad`                   | :white_check_mark: |  |
 | **arrays**              |  |  |
 | `sizeof`                | :white_check_mark: | provided by dgd |
 | `explode`               | :white_check_mark: | provided by dgd, also added `full_explode` |
