@@ -6,6 +6,8 @@
 
 #include <mud/mail.h>
 #include <mud/secure.h>
+#include <areas/calendar.h>
+#include <language.h>
 
 string account_name;
 
@@ -24,7 +26,7 @@ string make_string(mixed *al)
 {
   string str;
 
-  str = (string)"/global/player/alias.c"->alias_string(al);
+  str = (string)"/lib/player/alias.c"->alias_string(al);
   sscanf(str, "%s $*$", str);
   return str;
 }
@@ -51,62 +53,70 @@ string banish_finger(string name)
 
 string domain_finger(string name)
 {
-  string ret, master;
-  string *nombres;
   int i;
-  object table;
-  table = table("finger_table");
+  string ret, *names;
+  object master, table;
 
-  master = "/d/"+name+"/master";
+  table = table("finger_table");
+  master = load_object("/game/areas/"+name+"/master");
+
+  if (!master)
+    return _LANG_FINGER_DOMAIN_NOT_FOUND;
 
   if (table)
-    ret =  "Dominio de %^BOLD%^" + table->get_nice_name(name) + "%^RESET%^.\n";
+    name = table->get_nice_name(name);
   else
-    ret =  "Dominio de %^BOLD%^" + capitalize(name) + "%^RESET%^.\n";
+    name = capitalize(name);
+
+  ret =  _LANG_FINGER_DOMAIN_HEADER;
 
   if (master->query_dom_lord() != "")
-    ret += "El coordinador de este dominio es "+
-        capitalize(master->query_dom_lord())+".\n";
+    ret += _LANG_FINGER_DOMAIN_MANAGER;
   else
-    ret += "Este dominio no tiene coordinador asignado.\n";
+    ret += _LANG_FINGER_DOMAIN_NO_MANAGER;
 
   // + implode((string *)master->query_members(), ", ")+".\n";
   // Esto cambiado para que siempre compruebe si siguen existiendo
-  nombres = (string *)master->query_members();
+  names = (string *)master->query_members();
   // Eliminamos de la lista el thane del dominio
-  nombres -= ({ master->query_dom_lord() });
+  names -= ({ master->query_dom_lord() });
 
-  if (sizeof(nombres))
+  if (sizeof(names))
   {
-    if (sizeof(nombres) == 1)
-    ret += "El único programador del dominio es ";
+    if (sizeof(names) == 1)
+      ret += _LANG_FINGER_DOMAIN_ONLY_CODER;
     else
-    ret += "Los programadores actuales del dominio son: ";
+      ret += _LANG_FINGER_DOMAIN_CODERS;
+
     i = 0;
-    while( i< sizeof(nombres) ){
-    if (file_size("/save/players/"+nombres[i][0..0]+
-            "/"+nombres[i]+".o") == -1)
-      delete(nombres, i, 1);
-    else
-      i++;
+
+    while (i < sizeof(names))
+    {
+      if (file_size("/save/players/"+names[i][0..0]+"/"+names[i]+".o") == -1)
+        delete(names, i, 1);
+      else
+        i++;
     }
-    for(i = 0; i< sizeof(nombres); i++){
-     ret += capitalize(nombres[i]);
-     if (i != sizeof(nombres) - 1)
-      ret += ", ";
+
+    for (i = 0; i< sizeof(names); i++)
+    {
+      ret += capitalize(names[i]);
+      if (i != sizeof(names) - 1)
+        ret += ", ";
     }
     ret += ".\n";
   }
 
   if (master->query_info())
-  ret += sprintf("  %-=*s", (int)this_user()->query_cols() - 3,
-         (string)master->query_info());
+    ret += sprintf("  %-=*s", (int)this_user()->query_cols() - 3,
+           (string)master->query_info());
   else
-  ret += "El dominio no tiene información disponible.\n";
+    ret += _LANG_FINGER_DOMAIN_NO_INFO;
+
   return ret;
 } /* domain_finger() */
 
-// Para poder utilizar las funciones con gender pasando este objeto como parametro
+// to be able to use gender functions when passing the finger object as a parameter
 int query_gender() { return gender; }
 
 string finger_info(string name, varargs object me)
@@ -122,12 +132,12 @@ string finger_info(string name, varargs object me)
   if (nick)
    name = nick;
 
-  seteuid("Root");
+  seteuid("root");
 
   if (table && (table->get_domain_name(name) != name))
     return domain_finger(table->get_domain_name(name));
 
-  if (file_size("/d/"+name) == -2)
+  if (file_size("/game/areas/"+name) == -2)
     return domain_finger(name);
 
   if (!"/lib/core/login"->test_user(name))
@@ -175,67 +185,68 @@ string finger_info(string name, varargs object me)
     if (real_name[0] == ':')
     {
       if (MASTER->valid_read("/save/players/"+name[0..0]+"/"+name+".o", geteuid(me)))
-      retval = sprintf("   %-35s%-35s\n", "Nombre: "
-               +capitalize(name),"Nombre real: "+real_name);
+        retval = sprintf("   %-35s%-35s\n", _LANG_FINGER_NAME +
+          capitalize(name), _LANG_FINGER_REAL_NAME + real_name);
       else
-      retval = sprintf("   %-35s%-35s\n", "Nombre: "+
-            capitalize(name), "Nombre Real: ???");
+        retval = sprintf("   %-35s%-35s\n", "Nombre: "+
+          capitalize(name), _LANG_FINGER_REAL_NAME + "???");
     }
   }
 
   if (!retval)
-    retval =  sprintf("   %-35s%-35s\n", "Nombre: "+capitalize(name),
-          "Nombre real: "+(real_name?real_name:"???"));
+    retval =  sprintf("   %-35s%-35s\n", _LANG_FINGER_NAME + capitalize(name),
+          _LANG_FINGER_REAL_NAME + (real_name?real_name:"???"));
   if (birth_day)
-    retval += sprintf("   %-35s", "Cumpleaños: " + birth_day);
+  {
+    birth_day = handler(CALENDAR_HANDLER)->convert_birthday(birth_day);
+    retval += sprintf("   %-35s", _LANG_FINGER_BIRTHDAY + birth_day);
+  }
 
   if (me && me->query_coder())
   {
   if (strlen(email))
   {
-    // Algunos clientes (zmud) meten como primer caracter uno de
-    //  control, por si acaso tambien comprobamos el caracter 1
+    // some clientes (zmud) introduce a control character first in the string
+    // when the input includes the '@'
+    // just in case, check the first character too
     if ((email[0] == ':') || (email[1] == ':'))
     {
       if ((base_name(me) != "/lib/core/login") &&
-          (MASTER->valid_read("/save/players/"+name[0..0]+"/"+name,
-          geteuid(me))) )
-        retval += "E-mail: "+email+"\n";
+          (MASTER->valid_read("/save/players/"+name[0..0]+"/"+name, geteuid(me))) )
+        retval += _LANG_FINGER_EMAIL+email+"\n";
     }
     else
-      retval += "E-mail: "+email+"\n";
+      retval += _LANG_FINGER_EMAIL+email+"\n";
   }
   else if (birth_day)
     retval += "\n";
   }
 
-  // Modificado por neverbot, a los jugadores no les importa el
-  // directorio de los inmos
+  // changed by neverbot, players wont see the coders home directories
   // if (home_dir)
   //   retval += sprintf("%35s", "Home directory : "+home_dir);
   // else if (home_dir)
   //   retval += "\n";
+
   if (strlen(where))
   {
     if (strlen(where) > 65)
       where = where[..65];
-    retval += sprintf("   %-35s", "Ciudad: "+where+"\n");
+    retval += sprintf("   %-35s", _LANG_FINGER_PLACE+where+"\n");
   }
 
   if ((role_name == "player") && sizeof(social_object_list))
   {
     if (social_object_list[0])
-      retval+= "   %^GREEN%^Es un"+(gender==2?"a ":" ") +
-           social_object_list[0]->query_race_gender_string(this_object(), 1)+"%^RESET%^. ";
+      retval+= _LANG_FINGER_RACE_GENDER;
 
     if (social_object_list[1] && me && me->query_coder())
     {
       if ( (file_size(social_object_list[1]) > 0) ||
-        (file_size(social_object_list[1]+".c") > 0) )
-      retval += "   Es miembro del gremio "
-           + social_object_list[1]->short()+".\n";
+           (file_size(social_object_list[1]+".c") > 0) )
+        retval += _LANG_FINGER_GUILD;
       else
-      retval += "   Es miembro de un gremio que no existe.\n";
+        retval += _LANG_FINGER_WRONG_GUILD;
     }
     else
       retval += "\n";
@@ -246,27 +257,26 @@ string finger_info(string name, varargs object me)
     string * domains;
     domains = ({ });
 
-    retval += "   %^GREEN%^Es un"+(gender==2?"a":"")+
-              " programador"+(gender==2?"a":"")+" en "+
-              mud_name()+"%^RESET%^.\n";
+    retval += _LANG_FINGER_CODER;
 
     // if (me && me->query_coder())
     //       retval += sprintf("%35s", "Directorio raíz: "+home_dir+"\n");
 
     // Find out which domains they are a member of...
-    bing = get_dir("/d/");
+    bing = get_dir("/game/areas/");
 
     for (i = 0; i < sizeof(bing); i++)
     {
-      if (file_size("/d/"+bing[i]) == -2)
+      if ((file_size("/game/areas/"+bing[i]) == -2) &&
+           file_size("/game/areas/"+bing[i]+"/master") > 0)
       {
-        if ((string)("/d/"+bing[i]+"/master")->query_dom_lord()==name)
+        if ((string)("/game/areas/"+bing[i]+"/master")->query_dom_lord()==name)
         {
           domains += ({ bing[i] });
           bing = delete(bing, i, 1);
           i--;
         }
-        else if (!("/d/"+bing[i]+"/master")->query_member(name))
+        else if (!("/game/areas/"+bing[i]+"/master")->query_member(name))
         {
           bing = delete(bing, i, 1);
           i--;
@@ -284,135 +294,88 @@ string finger_info(string name, varargs object me)
         for (i = 0; i < sizeof(domains); i++)
           domains[i] = table->get_nice_name(domains[i]);
 
-      retval += sprintf("\n   %-=*s", this_user()->query_cols() - 3,
-        "Es " + (gender==2?"la":"el") + " coordinador" + (gender==2?"a":"") +
-        (sizeof(domains)==1?" del dominio ":" de los dominios " ) +
-        query_multiple_short(domains, 0) + ".\n");
+      retval += sprintf("\n   %-=*s", this_user()->query_cols() - 3, _LANG_FINGER_MANAGER);
     }
 
     if (!sizeof(bing) && sizeof(domains))
-      retval += "   No es miembro de ningún otro dominio.\n";
+      retval += _LANG_FINGER_MANAGER_ONLY;
     else if (!sizeof(bing))
-      retval += "\n   No es miembro de ningún dominio.\n";
+      retval += _LANG_FINGER_NO_MEMBER;
     else
     {
-      retval += "\n   Es miembro de";
-      if (sizeof(bing) == 1)
-        retval += "l dominio de "  ;
-      else
-       retval += " los dominios de "  ;
-
       if (table)
         for (i = 0; i < sizeof(bing); i++)
           bing[i] = table->get_nice_name(bing[i]);
 
-      retval += (string)implode(bing, ", ");
-      retval += ".\n";
+      retval += _LANG_FINGER_MEMBER_OF;
     }
+
     // Added by Radix, July 1996
     bing = ({ });
 
-    /*
-    catch(bing = "/d/grupos/master"->query_patronages(name));
-    if (sizeof(bing))
-      retval += "Es el Patrón de "+implode(bing,", ")+".\n";
-    */
+    // catch(bing = "/game/groups/master"->query_patronages(name));
+    // if (sizeof(bing))
+    //   retval += "Es el Patrón de "+implode(bing,", ")+".\n";
   }
 
   retval += "\n";
 
   if (start_time)
-    retval += "   Se conectó por primera vez el "+ctime(start_time,1)+".\n";
+    retval += _LANG_FINGER_FIRST_ON + ctime(start_time, 1) + ".\n";
 
   time_on = -time_on;
-  retval += "   %^GREEN%^Tiene ";
-  if (time_on > 86400)
-    retval += sprintf("%d día"+((time_on/86400==1)?"":"s")+", ",
-              time_on/86400);
-  if (time_on > 3600)
-    retval += sprintf("%d hora"+((time_on/3600==1)?"":"s")+", ",
-               (time_on/3600)%24);
+  retval += _LANG_FINGER_TIME_ON;
 
-  retval += sprintf("%d minuto"+(((time_on/60)%60==1)?"":"s")+
-            " y %d segundo"+((time_on%60==1)?"":"s")+
-            " de antigüedad",
-          (time_on/60)%60, time_on%60);
-  retval += "%^RESET%^.\n";
-
-  if ((ob=find_living(name)) && (function_exists("is_player",ob)) &&
-    (!ob->query_coder() || !ob->query_invis())
-    && (!ob->query_hidden()))
+  if ((ob = find_living(name)) && (ob->query_player()) &&
+     (!ob->query_coder() || !ob->query_invis()) &&
+     (!ob->query_hidden()))
   {
-    retval += "   Conectad"+(gender==2?"a":"o")+" desde el "+ctime(last_log_on)+".\n";
+    retval += _LANG_FINGER_CONNECTED_SINCE;
   }
   else
   {
-    int tmp_time, sec, min, hour, day;
+    int tmp_time;
 
-    // Should be a nice number...
-    tmp_time = time()-last_log_on;
+    // should be a nice number...
+    tmp_time = time() - last_log_on;
     if (!tmp_time)
-    {
-      sec = min = hour = day = 0;
-    }
+      tmp_time = 0;
 
-    retval += "   Se conectó por última vez hace ";
-    if (tmp_time < 60)
-      retval += tmp_time+" segundos.\n";
-    else if (tmp_time < 60*60) // One minute
-      retval += (tmp_time/60)+" minuto"+(tmp_time<120?"":"s")+
-              (tmp_time%60?" y "+(tmp_time%60)+" segundo"+
-              ((tmp_time%60 < 2)?"":"s"):"")+".\n";
-    else if (tmp_time < 24*60*60) // Hours...
-      retval += (hour = tmp_time/(60*60))+" hora"+
-              (hour<2?"":"s")+((min = (tmp_time/60)%60)?" y "+
-               min+" minuto"+(min<2?"":"s"):"")+".\n";
-    else // Days...
-      retval += (day = tmp_time/(24*60*60))+" día"+
-               (day<2?"":"s")+((hour = (tmp_time/(60*60))%24)?" y "+
-               hour+" hora"+(hour<2?"":"s"):"")+
-               ".\n";
-      // retval += "Last logged on "+ctime(last_log_on, 1)+"\n";
+    retval += _LANG_FINGER_LAST_ON;
   }
 
-  if (ob && (!ob->query_coder() || !ob->query_invis()))
-    if (interactive(ob) && ob->user())
-    {
-      if ((ob->user()->query_idle()) > 0)
-        retval += "   Inactiv"+(gender==2?"a":"o")+" desde hace "+((ob->user()->query_idle())/60)+
-          " minuto"+(((ob->user()->query_idle())/60 == 1)?"":"s")+" y "+
-          ((ob->user()->query_idle())%60)+" segundo"+
-          (((ob->user()->query_idle())%60 == 1)?"":"s")+".\n";
-    }
-    else if (function_exists("is_player", ob))
-      retval += "%^GREEN%^Conexión caída%^RESET%^.\n";
+  if (ob && (!ob->query_coder() || !ob->query_invis()) &&
+      interactive(ob) && ob->user())
+  {
+    if ((ob->user()->query_idle()) > 0)
+      retval += _LANG_FINGER_IDLE_TIME;
+  }
 
   // if (me && MASTER->query_admin(me->query_name()) && ident)
   // retval += ident + "@";
 
   if (me && MASTER->query_admin(me->query_name()) && last_on_from)
-    retval += "\n   Última conexión desde: " + last_on_from + "\n";
+    retval += _LANG_FINGER_LAST_CONNECTION_FROM + last_on_from + ".\n";
   if (me && MASTER->query_admin(me->query_name()) && last_pos)
-    retval += "   Última posición: "+last_pos+"\n";
+    retval += _LANG_FINGER_LAST_POSITION + last_pos + ".\n";
 
   // retval += (string)MAILER->finger_mail(name);
   mail_stat = (mapping)"/lib/handlers/postal"->mail_status(name);
 
   if (!mail_stat["total"])
   {
-    // retval += "\n   No tiene correo.\n";
+    retval += _LANG_FINGER_MAIL_NO_MAIL;
   }
   else
   {
-    retval += "\n   Tiene "+mail_stat["total"]+" Mud-Mail"+
-            ((mail_stat["total"]==1)?"":"s");
+    retval += _LANG_FINGER_MAIL_NUM_MAILS;
     if (mail_stat["unread"])
-      retval += ", "+mail_stat["unread"]+" sin leer.\n";
+      retval += _LANG_FINGER_MAIL_UNREAD_MAILS;
     else
       retval += ".\n";
   }
 
-  // Alias section
+  // alias section
   {
     string file_name;
     file_name = "/home/"+lower_case(name)+"/.plan";
@@ -420,14 +383,9 @@ string finger_info(string name, varargs object me)
     if (!mappingp(aliases))
       aliases = ([ ]);
 
-    //   if (aliases[".proyecto"])
-    // //retval += "Project: "+make_string(aliases[".project"])+"\n";
-    // retval += "\n   Proyecto:\n   " + implode(explode(make_string(aliases[".proyecto"]),
-    //   ";"), "\n   ") + "%^RESET%^\n";
-
     if ((role_name != "player") && (file_size(file_name) >= 0))
     {
-      retval += "\n   Plan:\n";
+      retval += "\n"+_LANG_FINGER_PLAN+"\n";
       for (i = 1; i <= 10; i++)
       {
         string line;
@@ -440,7 +398,7 @@ string finger_info(string name, varargs object me)
       retval += "%^RESET%^\n";
     }
     else if (aliases[".plan"])
-      retval += "\n   Plan:\n   " + implode(explode(make_string(aliases[".plan"]),
+      retval += "\n"+_LANG_FINGER_PLAN+"\n   " + implode(explode(make_string(aliases[".plan"]),
         ";"), "\n   ") + "%^RESET%^\n";
   }
 
