@@ -145,6 +145,7 @@ static int cmd(string str, object me, string verb)
   if (!check_file())
     return 1;
 
+  error = 0;
   show = 0;
   dont_overwrite = 0;
   dont_remove = 0;
@@ -195,12 +196,13 @@ static int cmd(string str, object me, string verb)
     destruct(ob);
 
   // try to load the lpc_exec.c file
-  error = catch(ret = load_object(file)->main(arg));
+  // error = catch(ret = load_object(file)->main(arg));
+  ret = load_object(file)->main(arg);
 
   if (error)
     write(sprintf("\nAn error occurred: %s\n", error));
   else
-    write("Result:\n\n" + to_string(ret) + "\n");
+    write("Result:\n" + to_string(ret) + "\n");
 
   if ((ob = find_object(file)))
     destruct(ob);
