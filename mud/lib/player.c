@@ -12,9 +12,9 @@
 
 inherit living      "/lib/living/living";
 
-inherit events      "/lib/core/basic/events";
 inherit auto_load   "/lib/core/basic/auto_load";
 
+inherit events      "/lib/player/events";
 inherit history     "/lib/player/history";
 inherit alias       "/lib/player/alias";
 inherit nickname    "/lib/player/nickname";
@@ -129,6 +129,12 @@ nomask int query_coder()
 {
   if (_user)
     return _user->query_coder();
+  return 0;
+}
+nomask int query_admin()
+{
+  if (_user)
+    return _user->query_admin();
   return 0;
 }
 

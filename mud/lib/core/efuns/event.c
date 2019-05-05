@@ -2,10 +2,9 @@
  *  sibbis@suvangi donated this for Rd's use. Many thanks goes
  *  out to him for his generosity.
  *  And Baldrick didn't even ask Sibbis, guess that makes us closer to even.
- *
  */
 
-void event( mixed obs, string event_name, mixed arg... )
+static void event( mixed obs, string event_name, mixed arg... )
 {
   object who;
   object * event_obs;
@@ -13,23 +12,21 @@ void event( mixed obs, string event_name, mixed arg... )
 
   who = previous_object();
 
-  if( arrayp( obs ) )
+  if (arrayp( obs ))
   {
     event_obs = obs;
-  } 
-  else 
+  }
+  else if (objectp( obs ))
   {
-    if( objectp( obs ) )
-    {
-      event_obs = ({ obs }) + all_inventory( obs );
-      
-      // if( obs != who )
-      //   event_obs -= ({ who });
-    } 
-    else 
-    {
-      return;
-    }
+    event_obs = ({ obs }) + all_inventory( obs );
+
+    // avoid duplicates
+    if (obs != who)
+      event_obs -= ({ who });
+  }
+  else
+  {
+    return;
   }
 
   for (i = 0; i < sizeof(event_obs); i++)

@@ -24,6 +24,8 @@
 #define TIME_BETWEEN_SAVES 450
 
 #define MAX_TELL_HIS 10
+// with an idle time > TELL_WARN_TIME, show a warning to other users
+// when trying to communicate
 #define TELL_WARN_TIME 120
 #define ROUND_TIME 40
 #define DEFAULT_TIME 10

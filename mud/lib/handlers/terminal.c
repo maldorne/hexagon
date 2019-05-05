@@ -145,7 +145,7 @@ void create() {
                          ]),
           "freedom" : ([ "RESET" : ESC("G0"),
                          // not working with new sprintf conversion characters
-                         // not sure how to fix, although maybe noone uses 
+                         // not sure how to fix, although maybe noone uses
                          // freedom term anymore...
                          // "BOLD" : ESC("G@"),
                          "BOLD" : ESC("G@@"),
@@ -290,9 +290,9 @@ void create() {
           ]);
 }
 
-mixed set_term_type(string str) 
+mixed set_term_type(string str)
 {
-  if (!terms[str]) 
+  if (!terms[str])
   {
     tell_object(this_player(), "No existe el tipo de terminal '"+str+"', se usará dumb.\n");
     str = "dumb";
@@ -300,7 +300,7 @@ mixed set_term_type(string str)
   return terms[str];
 }
 
-string *query_term_types() 
+string *query_term_types()
 {
   return m_indices(terms);
 }
@@ -314,63 +314,63 @@ string fix_enye_mode(string mess)
   string ret;
 
   ret = "";
-  
+
   for (i = 0; i < strlen(mess); i++)
   {
     switch(mess[i..i])
-    { 
+    {
       case "ñ": ret += "ny"; break;
       case "Ñ": ret += "Ny"; break;
-      
+
       case "¡": break;
       case "¿": break;
 
-      case "á": 
-      case "ä":       
-      case "â":       
+      case "á":
+      case "ä":
+      case "â":
         ret += "a"; break;
-      case "é": 
-      case "ë":       
-      case "ê":       
+      case "é":
+      case "ë":
+      case "ê":
         ret += "e"; break;
-      case "í": 
-      case "ï": 
-      case "î": 
+      case "í":
+      case "ï":
+      case "î":
         ret += "i"; break;
-      case "ó": 
-      case "ö": 
-      case "ô": 
+      case "ó":
+      case "ö":
+      case "ô":
         ret += "o"; break;
-      case "ú": 
-      case "ü": 
-      case "û": 
+      case "ú":
+      case "ü":
+      case "û":
         ret += "u"; break;
-    
-      case "Á": 
-      case "Ä":       
-      case "Â":       
+
+      case "Á":
+      case "Ä":
+      case "Â":
         ret += "A"; break;
-      case "É": 
-      case "Ë":       
-      case "Ê":       
+      case "É":
+      case "Ë":
+      case "Ê":
         ret += "E"; break;
-      case "Í": 
-      case "Ï": 
-      case "Î": 
+      case "Í":
+      case "Ï":
+      case "Î":
         ret += "I"; break;
-      case "Ó": 
-      case "Ö": 
-      case "Ô": 
+      case "Ó":
+      case "Ö":
+      case "Ô":
         ret += "O"; break;
-      case "Ú": 
-      case "Ü": 
-      case "Û": 
+      case "Ú":
+      case "Ü":
+      case "Û":
         ret += "U"; break;
       default:
         ret += mess[i..i];
     }
   }
-  
+
     return ret;
 }
 
@@ -381,18 +381,18 @@ string _fix_string(string ret, varargs object user)
   string term_name;
   mapping colour_map;
 
+  if (!stringp(ret) || ret == "")
+    return ret;
+
   if (user && interactive(user))
     term_name = user->query_term_name();
 
-  if (!term_name) 
+  if (!term_name)
     // term_name = "dumb";
     // ansi by default
     term_name = "ansi";
 
   colour_map = set_term_type(term_name);
-
-  if (!stringp(ret) || ret == "")
-    return ret;
 
   // ret += "%^RESET%^";
 
@@ -404,7 +404,7 @@ string _fix_string(string ret, varargs object user)
   st = explode(ret, "%^");
   ret = "";
 
-  for (i = 0; i < sizeof(st); i++) 
+  for (i = 0; i < sizeof(st); i++)
   {
     if (colour_map[st[i]])
       ret += colour_map[st[i]];
@@ -413,4 +413,4 @@ string _fix_string(string ret, varargs object user)
   }
 
   return ret + colour_map["RESET"];
-} 
+}

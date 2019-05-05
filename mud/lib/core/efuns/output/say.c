@@ -13,7 +13,7 @@
 // an array of objects, all those objects are excluded from receiving the
 // message.
 
-static nomask void say(string str, varargs mixed avoid) 
+static nomask void say(string str, varargs mixed avoid)
 {
   mixed * must_avoid;
   object where;
@@ -26,7 +26,7 @@ static nomask void say(string str, varargs mixed avoid)
   else
     must_avoid = ({ this_player() });
 
-  if (!avoid) 
+  if (!avoid)
     avoid = must_avoid;
   else
   {
@@ -59,4 +59,4 @@ static nomask void say(string str, varargs mixed avoid)
   }
 
   event(where, "say", str, avoid);
-} 
+}

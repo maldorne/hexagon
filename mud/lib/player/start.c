@@ -47,10 +47,6 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
 
   // restore_object("/save/players/"+name[0..0]+"/"+name,1);
 
-  // Aragorn fix
-  // TODO cuando este global/events, fix_string tirara de esta variable en
-  //  vez de consultar siempre el term_handler?
-  // colour_map = 0;
   set_short(capitalize(name));
 
   if (time_on < -5000*24*60*60)

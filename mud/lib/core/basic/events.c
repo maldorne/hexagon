@@ -3,6 +3,11 @@
 #include <basic/communicate.h>
 #include <user/user.h>
 
+
+void create()
+{
+}
+
 // all the posible events will be called from
 // the event efun:
 //   call_other( event_obs, "event_"+ event_name, who, arg... ) ;
@@ -28,11 +33,8 @@ void event_say(object caller, string msg, varargs mixed avoid)
 
   if (avoid)
   {
-    if (pointerp(avoid))
-    {
-      if (member_array(this_object(), avoid) != -1)
-        return;
-    }
+    if (pointerp(avoid) && (member_array(this_object(), avoid) != -1))
+      return;
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -51,11 +53,8 @@ void event_inform(object caller, string msg, string type, varargs mixed avoid)
 
   if (avoid)
   {
-    if (pointerp(avoid))
-    {
-      if (member_array(this_object(), avoid) != -1)
-        return;
-    }
+    if (pointerp(avoid) && (member_array(this_object(), avoid) != -1))
+      return;
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -65,17 +64,16 @@ void event_inform(object caller, string msg, string type, varargs mixed avoid)
   if (!on)
     on = ({ });
 
-  // TODO inform properties
-  // if (this_object()->query_property(NO_INFORM) ||
-  //    (caller->query_invis() && !this_object()->query_coder()) ||
-  //    ((int)caller->query_invis() == 2 && !this_object()->query_admin()) ||
-  //    !sizeof(on))
-  // {
-  //     return;
-  // }
+  if (this_object()->query_property(NO_INFORM) ||
+     (caller->query_invis() && !this_object()->query_coder()) ||
+     (caller->query_user() && caller->user()->query_invis() == 2 && !this_object()->query_admin()) ||
+     !sizeof(on))
+  {
+    return;
+  }
 
-  // if (member_array(type, on) == -1)
-  //   return;
+  if (member_array(type, on) == -1)
+    return;
 
   msg = fix_string("\n[" + msg + "]\n\n");
 
@@ -89,11 +87,8 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
 
   if (avoid)
   {
-    if (pointerp(avoid))
-    {
-      if (member_array(this_object(), avoid) != -1)
-        return;
-    }
+    if (pointerp(avoid) && (member_array(this_object(), avoid) != -1))
+      return;
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -108,11 +103,8 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 
   if (avoid)
   {
-    if (pointerp(avoid))
-    {
-      if (member_array(this_object(), avoid) != -1)
-        return;
-    }
+    if (pointerp(avoid) && (member_array(this_object(), avoid) != -1))
+      return;
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -124,11 +116,8 @@ void event_login(object ob, varargs mixed avoid)
 {
   if (avoid)
   {
-    if (pointerp(avoid))
-    {
-      if (member_array(this_object(), avoid) != -1)
-        return;
-    }
+    if (pointerp(avoid) && (member_array(this_object(), avoid) != -1))
+      return;
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
@@ -430,14 +419,16 @@ void event_death(object caller, varargs object killer, object * attackers, mixed
 {
   if (avoid)
   {
-    if (pointerp(avoid))
-    {
-      if (member_array(this_object(), avoid) != -1)
-        return;
-    }
+    if (pointerp(avoid) && (member_array(this_object(), avoid) != -1))
+      return;
     else if (objectp(avoid) && (avoid == this_object()))
       return;
   }
 
   stderr(" * event_death " + object_name(this_object()) + "\n");
+}
+
+mixed stats()
+{
+  return ({ });
 }

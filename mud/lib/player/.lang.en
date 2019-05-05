@@ -1,2 +1,7 @@
 
+// events.c
+
+#define _LANG_EVENTS_SOMEBODY_ARRIVES "You notice somebody arrived here.\n"
+#define _LANG_EVENTS_SOMEBODY_LEAVES "You notice somebody leaves.\n"
+
 // start.c

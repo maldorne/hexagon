@@ -1,9 +1,8 @@
 
-// Nuevo sistema de alineamiento, Folken 6/03
+// new alignment system, neverbot 6/03
 
-// Devuelve si dos personas son o no enemigas
-//  pasando como parametros sus dos alineamientos
-//  (externos)
+// returns if two livings are or aren't enemies
+// passing their numeric alignments as parameters
 int query_enemies(int attacker, int defender){
 
   if (attacker == defender)

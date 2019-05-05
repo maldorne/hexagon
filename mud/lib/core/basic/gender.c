@@ -1,4 +1,4 @@
-/* 
+/*
  * Retocado por neverbot@Cc, Abril 04
  *
  * Dejado gender 0 unicamente para los objetos (y unicamente cuando no haya
@@ -7,7 +7,7 @@
 
 int gender;
 
-// Añadidos create y stats, neverbot 4/03
+// create and stats added, neverbot 4/03
 void create()
 {
   gender = 1;
@@ -22,9 +22,9 @@ int query_male() { return gender == 1; }
 /* It should not be used in new source files. */
 int query_neuter() { return !gender; }
 
-string query_gender_string() 
+string query_gender_string()
 {
-  switch (gender) 
+  switch (gender)
   {
     // case 0: return "asexual";
     case 1: return "varón";
@@ -34,27 +34,27 @@ string query_gender_string()
   }
 }
 
-string query_gender_title() 
+string query_gender_title()
 {
-  switch (gender) 
+  switch (gender)
   {
     case 1: return "señor";
     case 2: return "señora";
     default: return "ente";
   }
 }
- 
-string query_objective() 
+
+string query_objective()
 {
-  switch (gender) 
+  switch (gender)
   {
     case 1: return "el";
     case 2: return "ella";
     default: return "el";
   }
 }
- 
-string query_possessive() 
+
+string query_possessive()
 {
   return "su";
   /*
@@ -65,10 +65,10 @@ string query_possessive()
   }
   */
 }
- 
-string query_pronoun() 
+
+string query_pronoun()
 {
-  switch (gender) 
+  switch (gender)
   {
     case 1: return "él";
     case 2: return "ella";
@@ -78,7 +78,7 @@ string query_pronoun()
 
 // Bugfix by Aragorn 22/1/94
 // Cambiado por neverbot, solo puede recibir int.
-void set_gender(int arg) 
+void set_gender(int arg)
 {
   // Añadido para el genero de los objetos (espero que no
   // se use en mas sitios!!)
@@ -90,7 +90,7 @@ void set_gender(int arg)
       write("No se puede hacer eso (género ilegal).\n");
       return;
     }
-      
+
     gender = 0;
     return;
   }
@@ -119,7 +119,7 @@ string query_vocal()
 {
    if (gender == 1) return "o";
    return "a";
-} 
+}
 
 // neverbot, 7/03
 string query_demonstrative()
