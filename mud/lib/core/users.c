@@ -153,7 +153,7 @@ int update_user(object user, object player)
   string id;
 
   // only the login object can do this (from /lib/core/login.c)
-  if (base_name(previous_object()) != "/lib/core/login")
+  if (base_name(previous_object(1)) != "/lib/core/login")
     return -1;
 
   id = file_name(user);

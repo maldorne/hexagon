@@ -1,20 +1,28 @@
 
+#include <trace.h>
+
 static nomask object * previous_objects()
 {
-  object prev;
+  int i;
+  mixed ** trace, last;
   object * result;
-  int step;
-
   result = ({ });
-  step = 0;
 
-  prev = previous_object(step);
+  trace = call_trace();
 
-  while (prev != nil)
+  for (i = sizeof(trace) - 1; i >= 0; i--)
   {
-    result += ({ prev });
-    step++;
-    prev = previous_object(step);
+    if (!last)
+      last = trace[i][TRACE_OBJNAME];
+    else if (trace[i][TRACE_OBJNAME] == last)
+      continue;
+
+    if (objectp(trace[i][TRACE_OBJNAME]))
+      result += ({ trace[i][TRACE_OBJNAME] });
+    else
+      result += ({ find_object(trace[i][TRACE_OBJNAME]) });
+
+    last = trace[i][TRACE_OBJNAME];
   }
 
   return result;

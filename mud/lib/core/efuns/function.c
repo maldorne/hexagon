@@ -9,8 +9,8 @@ static nomask object * all_previous_objects()
 }
 
 // previous_object - returns the object(s) that called the current function
-// object previous_object(); 
-// mixed previous_object(int x); 
+// object previous_object();
+// mixed previous_object(int x);
 
 // Returns an object pointer to the object, if any, that called current function.
 // Note that local function calls do not set previous_object() to the current
@@ -22,15 +22,34 @@ static nomask object * all_previous_objects()
 
 static nomask mixed previous_object(varargs int number)
 {
+  // if (undefinedp(number))
+  //   return ::previous_object();
+  // else if (number != -1)
+  //   return ::previous_object(number);
+  // else
+  // return previous_objects();
+
+  // fix, neverbot 05/19,
+  // ::previous_object does not store every call_other
+  // but the call_trace() do, so we'll use our
+  // previous_objects() efun, which uses call_trace
+
+  object * prevs;
+  prevs = previous_objects();
+
   if (undefinedp(number))
-    return ::previous_object();
-  else if (number != -1)
-    return ::previous_object(number);
-  else
-    return previous_objects();
+    return prevs[0];
+
+  if (number == -1)
+    return prevs;
+
+  if ((number >= 0) && (number < sizeof(prevs)))
+    return prevs[number];
+
+  return nil;
 }
 
-static nomask string previous_function() 
+static nomask string previous_function()
 {
   mixed * trace;
 
@@ -38,10 +57,10 @@ static nomask string previous_function()
 
   // last element = this function
   // second to last element = the function that requested previous_function()
-  // third to last element is the function before that: that's the one we want   
-  if (sizeof(trace) < 3) 
+  // third to last element is the function before that: that's the one we want
+  if (sizeof(trace) < 3)
     return nil;
-  
+
   // second element is the function name
   return trace[sizeof(trace) - 3][2];
 }
@@ -51,12 +70,12 @@ static nomask string previous_function()
  * not an object. But the object has to be loaded here. Return 0 if this
  * feature isn't wanted.
  */
-// string get_simul_efun() 
+// string get_simul_efun()
 // {
 //   string fname;
 //   fname = "/secure/simul_efun";
-  
-//   if (catch(call_other(fname, "??"))) 
+
+//   if (catch(call_other(fname, "??")))
 //   {
 //     write("Failed to load " + fname + "\n");
 //     shutdown();
