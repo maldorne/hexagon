@@ -1,4 +1,23 @@
 
+// communicate.c
+
+#define _LANG_COMM_ROWS "filas"
+#define _LANG_COMM_COLS "columnas"
+#define _LANG_COMM_ROWS_SYNTAX "Filas actualmente ajustadas a " + rows + ".\n"+query_verb() + \
+        " <número> para cambiarlas.\n"
+#define _LANG_COMM_ROWS_WRONG "Número incorrecto de filas (debe ser mayor o igual a 10).\n"
+#define _LANG_COMM_ROWS_SET "Filas ajustadas a " + val + ".\n"
+#define _LANG_COMM_COLS_SYNTAX "Columnas actualmente ajustadas a " + cols + ".\n"+query_verb() + \
+        " <número> para cambiarlas.\n"
+#define _LANG_COMM_COLS_WRONG "Número incorrecto de columnas (debe estar entre 35 y 200).\n"
+#define _LANG_COMM_COLS_SET "Columnas ajustadas a " + val + ".\n"
+
+#define _LANG_COMM_INFORM "informar"
+#define _LANG_COMM_EARMUFFS "tapones"
+#define _LANG_COMM_TERMINAL "terminal"
+#define _LANG_COMM_BLOCK "bloquear"
+#define _LANG_COMM_UNBLOCK "desbloquear"
+
 // more_string.c
 
 #define _LANG_MORE_STRING_MORE "[Sigue]"
@@ -7,7 +26,6 @@
 #define _LANG_MORE_STRING_HELP_NOT_FOUND "El documento de ayuda " + \
                              "no está. Busca a alguien que lo arregle.\n"
 #define _LANG_MORE_STRING_EMPTY_STRING "Cadena vacia.\n"
-
 
 // commands.c
 

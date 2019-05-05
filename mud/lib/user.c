@@ -8,6 +8,7 @@
 inherit obj         "/lib/core/object";
 inherit commands    "/lib/user/commands.c";
 inherit output      "/lib/user/output";
+inherit communicate "/lib/user/communicate";
 inherit help        "/lib/user/help";
 inherit prompt      "/lib/user/prompt";
 inherit role        "/lib/user/role";
@@ -46,9 +47,6 @@ static int last_command;  // time of last command
 // TMP DEBUG, REMOVE!!!
 // string query_name() { return "neverbot"; }
 // string short(varargs int dark) { return "neverbot"; }
-int query_cols() { return 79; }
-int query_rows() { return 100; }
-void set_cols(int i) { }
 int query_verbose() { return 1; }
 // END TMP DEBUG
 
@@ -64,6 +62,7 @@ int query_verbose() { return 1; }
 void create()
 {
   output::create();
+  communicate::create();
   more_string::create();
   more_file::create();
   help::create();
@@ -464,6 +463,7 @@ mixed * stats()
     ({ "Hud", hud }),
           }) + help::stats() +
                output::stats() +
+               communicate::stats() +
                prompt::stats() +
                role::stats() +
                commands::stats() +

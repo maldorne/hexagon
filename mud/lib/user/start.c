@@ -8,6 +8,8 @@ void start(varargs int going_invis, int is_new_player)
   if (!query_cols())
     set_cols(79);
 
+  colour_map = ([ ]);
+
   if (last_on_from && query_coder())
     write(_LANG_LAST_CONNECTION);
 

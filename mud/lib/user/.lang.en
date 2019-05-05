@@ -1,4 +1,23 @@
 
+// communicate.c
+
+#define _LANG_COMM_ROWS "rows"
+#define _LANG_COMM_COLS "columns"
+#define _LANG_COMM_ROWS_SYNTAX "Rows currently set to  " + rows + ".\n"+query_verb() + \
+        " <number> to change it.\n"
+#define _LANG_COMM_ROWS_WRONG "Wrong number of rows (must be 10 or more).\n"
+#define _LANG_COMM_ROWS_SET "Rows set to " + val + ".\n"
+#define _LANG_COMM_COLS_SYNTAX "Columns currently set to " + cols + ".\n"+query_verb() + \
+        " <number> to change it.\n"
+#define _LANG_COMM_COLS_WRONG "Wrong number of columns (must be from 35 to 200).\n"
+#define _LANG_COMM_COLS_SET "Columns set to " + val + ".\n"
+
+#define _LANG_COMM_INFORM "inform"
+#define _LANG_COMM_EARMUFFS "earmuffs"
+#define _LANG_COMM_TERMINAL "terminal"
+#define _LANG_COMM_BLOCK "block"
+#define _LANG_COMM_UNBLOCK "unblock"
+
 // more_string.c
 
 #define _LANG_MORE_STRING_MORE "[More]"
@@ -7,7 +26,6 @@
 #define _LANG_MORE_STRING_HELP_NOT_FOUND "Cannot find the help document. " + \
                              "Please tell somebody to fix this.\n"
 #define _LANG_MORE_STRING_EMPTY_STRING "Empty string.\n"
-
 
 // commands.c
 
