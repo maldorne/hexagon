@@ -1,50 +1,49 @@
 /*
- *  Nuevo sistema de alineamiento para Ciudad Capital, Folken 27/Abril/03
+ *  new alignment system for ccmud, neverbot 27/Abril/03
  *
- *  Para eliminar los funcionamientos por grupos (como entrar a una ciudad o
- *  como saber si eres bueno o malo simplemente por raza, grupo o gremio), vamos
- *  a tener un doble sistema de alineamiento: alineamiento real y alineamiento
- *  externo:
- *   - real: El verdadero alineamiento del personaje, como es y como actua
- *           en el mundo. Cambiara segun ataquemos o matemos a otras personas (hacia
- *           malo) o cuando ayudemos a otras (adorando a un dios del bien... 
- *           quien sabe).
- *   - externo: Como ven al personaje las demas personas. Independientemente de que
- *           sea bueno o malo, la gente siempre vera a un drow o goblin como malo. Esto
- *           se puede variar  teniendo una raza u otra, un gremio u otro, o llevando
- *           puestos determinado tipo de ropajes (un humano quiza pareciera bueno, pero
- *           llevando una armadura del caos siempre le veran como malo). Tambien cambiara
- *           con el tiempo si el personaje comienza a ser conocido (un asesino famoso
- *           acabara siendo reconocido siempre como malo, auque sea de una raza buena).
- *           Lo mediremos mediante dos variables:
- *             * externo_fijo: raza, ser o no famoso, gremio, etc.
- *             * externo_temporal: ropas que lleves, armas empuñadas, hechizos, etc.
+ *  to avoid checking social/group belongings (like not allowing
+ *  entrance to a city just because of you race, guild, etc), we are going
+ *  to use a double alignment: the real one (inner) and the perceived
+ *  one (extern):
+ *  - real: the true alignment of the character/npc/item, how they act.
+ *          Will change when attacking or killing other characters
+ *          (towards evil) or helping others (towards good).
+ *  - extern: how the character is perceived by the others. Regardless
+ *          they are good or evil, others will see a drow or goblin
+ *          as an evil character. This will change if the character
+ *          is really known or famous, with a costume, etc. Will be
+ *          measured with two variables:
+ *           * fixed extern: race, fame, guild, etc.
+ *           * temporal extern: costumes, weapons wieldad, spells, etc.
  */
 
 #include <basic/alignment.h>
 
-// Definidas como private, no quiero que nadie ande tocando el
-//  alineamiento de los personajes.
 private int real_align;
 private int ext_align;
 private int tmp_ext_align;
 
+void create()
+{
+  real_align = 0;
+  ext_align = 0;
+  tmp_ext_align = 0;
+}
 
 // -----------------------------------
-// Funciones para el alineamiento real
+//  real alignment functions
 // -----------------------------------
+
 void set_real_align(int i)
 {
-  if (i > MAX_ALIGN_INT) 
+  if (i > MAX_ALIGN_INT)
     i = MAX_ALIGN_INT;
-  if (i < -MAX_ALIGN_INT) 
+  if (i < -MAX_ALIGN_INT)
     i = -MAX_ALIGN_INT;
   real_align = i;
 }
 int adjust_real_align(int i)
 {
-  // Llamando a la funcion set no nos olvidamos de la comprobacion
-  //  de maximo y minimo
   set_real_align(real_align + i);
   return (real_align);
 }
@@ -54,41 +53,41 @@ int query_real_align()
 }
 
 // --------------------------------------
-// Funciones para el alineamiento externo
+//  perceived alignment functions
 // --------------------------------------
+
 void set_ext_align(int i)
 {
-  if (i > MAX_ALIGN_INT) 
+  if (i > MAX_ALIGN_INT)
     i = MAX_ALIGN_INT;
-  if (i < -MAX_ALIGN_INT) 
+  if (i < -MAX_ALIGN_INT)
     i = -MAX_ALIGN_INT;
   ext_align = i;
 }
 int adjust_ext_align(int i)
 {
-  // Llamando a la funcion set no nos olvidamos de la comprobacion
-  //  de maximo y minimo
   set_ext_align(ext_align + i);
   return (ext_align);
 }
-// Con el alineamiento externo devolvemos tb el temporal!!!
+
 int query_ext_align()
 {
   return ext_align + tmp_ext_align;
 }
 
 // -----------------------------------------------
-// Funciones para el alineamiento externo temporal
+//  tmp perceived alignment functions
 // -----------------------------------------------
+
 int adjust_tmp_ext_align(int i)
 {
-  if ((i + tmp_ext_align) > MAX_ALIGN_INT) 
+  if ((i + tmp_ext_align) > MAX_ALIGN_INT)
   {
     tmp_ext_align = MAX_ALIGN_INT;
     return (tmp_ext_align);
   }
 
-  if ((i + tmp_ext_align) < -MAX_ALIGN_INT) 
+  if ((i + tmp_ext_align) < -MAX_ALIGN_INT)
   {
     tmp_ext_align = -MAX_ALIGN_INT;
     return (tmp_ext_align);
@@ -100,30 +99,11 @@ int adjust_tmp_ext_align(int i)
 
 int query_tmp_ext_align() { return tmp_ext_align; }
 
-// Añadida funcion create :)
-void create()
-{
-  real_align = 0;
-  ext_align = 0;
-  tmp_ext_align = 0;
-}
-
-// Stats añadidos, Folken 4/03
-mixed stats()
-{
-  return ({ 
-    ({ "Real Align", real_align }),
-    ({ "Ext Align", ext_align }),
-    ({ "Tmp Ext Align (nosave)", tmp_ext_align }),
-    });
-}
-
-// Funciones de la antigua /table/alignment_table.c
-// Esta funcion cambiada por Folken, 6/03
+// old /table/alignment_table.c, neverbot, 6/03
 private string query_aux_align_string(int i)
 {
-  // El MAX es 10k
-  switch(i) 
+  // MAX is 10k
+  switch(i)
   {
     case -MAX_ALIGN_INT..-5001: return ("demoníaco"); break;
     case -5000..-2001:          return ("diabólico"); break;
@@ -136,8 +116,8 @@ private string query_aux_align_string(int i)
     case 1001..2000:            return ("muy bueno"); break;
     case 2001..5000:            return ("extremadamente bueno"); break;
     case 5001..MAX_ALIGN_INT:   return ("angélico");  break;
-    
-    default:                    return ("neutral");   break;            
+
+    default:                    return ("neutral");   break;
   }
   return ("?????????");
 }
@@ -153,4 +133,14 @@ string query_align_string()
   ret += capitalize(query_aux_align_string(query_real_align()));
 
   return ret + "\n";
+}
+
+// stats added, neverbot 4/03
+mixed stats()
+{
+  return ({
+    ({ "Real Align", real_align }),
+    ({ "Ext Align", ext_align }),
+    ({ "Tmp Ext Align (nosave)", tmp_ext_align }),
+    });
 }
