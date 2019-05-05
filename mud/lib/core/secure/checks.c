@@ -225,7 +225,7 @@ nomask int valid_read(string path, mixed euid, varargs string func)
           if (this_player())
             euid = geteuid(this_player());
           else
-            euid = geteuid(previous_object());
+            euid = geteuid(initial_object());
         }
 
         if (member_array("/"+bing[0]+"/"+bing[1]+"/",

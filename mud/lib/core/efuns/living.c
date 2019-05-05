@@ -15,7 +15,7 @@
 nomask void enable_commands()
 {
   // TODO check npcs too
-  if (base_name(previous_object()) != LOGIN_OB)
+  if (base_name(previous_object(1)) != LOGIN_OB)
     return;
 
   _living = 1;

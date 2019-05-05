@@ -1,7 +1,7 @@
 
 // /global/cmd/cmd.c -- Inherit for object-based commands
 
-// Added verb, Baldrick dec '97 
+// Added verb, Baldrick dec '97
 // Added query_cmdp to return function pointer, 980626 Skullslayer
 // Ported to dgd, neverbot aug '15
 
@@ -55,7 +55,7 @@ int _cmd(string tail, object thisob, string verb)
   string euid;
   int ret;
 
-  if (previous_object() != find_object(CMD_HANDLER))
+  if (previous_object(1) != find_object(CMD_HANDLER))
     return 0;
 
   command_giver = thisob;
@@ -90,7 +90,7 @@ int _cmd(string tail, object thisob, string verb)
 
   // neverbot, 21/02/04
   // cmds should not be executed if we have a passed out
-  if (thisob->query_timed_property_exists(PASSED_OUT_PROP) )
+  if ((position == PLAYER_CMD) && thisob->query_timed_property_exists(PASSED_OUT_PROP) )
   {
     notify_fail(thisob->query_timed_property(PASSED_OUT_PROP));
     return 0;
