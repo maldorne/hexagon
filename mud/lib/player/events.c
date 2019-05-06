@@ -9,6 +9,7 @@
 #include <living/language.h>
 #include <user/hud.h>
 #include <user/user.h>
+#include <language.h>
 
 inherit events "/lib/core/basic/events.c";
 

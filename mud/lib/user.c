@@ -181,11 +181,13 @@ static void open()
 {
   timestamp = time();
 
+  stderr(" ~~~ user::open()\n");
   MUDOS->set_initiator_user(this_object());
   MUDOS->set_initiator_object(this_object());
 
   LOGIN->logon(this_object());
 
+  stderr(" ~~~ end user::open()\n");
   MUDOS->set_initiator_user(nil);
   MUDOS->set_initiator_object(nil);
 }
@@ -264,6 +266,7 @@ static void receive_message(string str)
     // input_to redirection
     if (redirect_input_ob)
     {
+      stderr(" ~~~ user::receive_message() with input_to()\n");
       // to have this_player() inside an input_to redirection
       MUDOS->set_initiator_user(this_object());
       MUDOS->set_initiator_object(this_object());
@@ -289,8 +292,9 @@ static void receive_message(string str)
         return;
       }
 
-      MUDOS->set_initiator_user(nil);
+      stderr(" ~~~ end user::receive_message() with input_to()\n");
       MUDOS->set_initiator_object(nil);
+      MUDOS->set_initiator_user(nil);
 
       return;
     }
@@ -312,6 +316,7 @@ static void receive_message(string str)
       return;
     }
 
+    stderr(" ~~~ user::receive_message()\n");
     // the new line has content, so we have a new this_player()
     MUDOS->set_initiator_user(this_object());
     MUDOS->set_initiator_object(this_object());
@@ -356,6 +361,7 @@ static void receive_message(string str)
     if (!this_object())
       return;
 
+    stderr(" ~~~ end user::receive_message()\n");
     MUDOS->set_initiator_user(nil);
     MUDOS->set_initiator_object(nil);
 

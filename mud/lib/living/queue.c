@@ -509,6 +509,8 @@ private int perform_next_action()
 
     // save this_player to restore it afterwards
     old_this_player = this_player();
+
+    stderr(" ~~~ queue::perform_next_action()\n");
     // set this_object as currect this_player
     MUDOS->set_initiator_object(this_object());
 
@@ -573,6 +575,7 @@ private int perform_next_action()
     // restore previous verb
     MUDOS->set_current_verb(old_verb);
 
+    stderr(" ~~~ end queue::perform_next_action()\n");
     // restore this_player()
     MUDOS->set_initiator_object(old_this_player);
 

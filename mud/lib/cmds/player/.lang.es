@@ -3,7 +3,6 @@
 
 #define _LANG_CMD_NOTHING_HERE "No hay nada con el nombre '"+arg+"' aquí.\n"
 
-
 // look.c
 
 #define _LANG_CMD_LOOK "mirar"

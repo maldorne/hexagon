@@ -18,6 +18,10 @@ private static mixed ** call_outs;
 
 void create()
 {
+  initiator_user = nil;
+  initiator_player = nil;
+  initiator_object = nil;
+
   current_verb = "";
   current_command = "";
   notify_fail_msg = "";
@@ -37,6 +41,20 @@ void set_current_command(string v) { current_command = v; }
 string query_notify_fail_msg() { return notify_fail_msg; }
 void set_notify_fail_msg(string msg) { notify_fail_msg = msg; }
 
+// useful for logging
+private _change_initiator_object(object ob) {
+  stderr(" @@@@@@@@@ new initiator_object: " + to_string(ob));
+  initiator_object = ob;
+}
+private _change_initiator_player(object ob) {
+  stderr(" @@@@@@@@@ new initiator_player: " + to_string(ob));
+  initiator_player = ob;
+}
+private _change_initiator_user(object ob) {
+  stderr(" @@@@@@@@@ new initiator_user: " + to_string(ob));
+  initiator_user = ob;
+}
+
 int set_initiator_object(object ob)
 {
   if (!mudlib_privileges())
@@ -45,13 +63,8 @@ int set_initiator_object(object ob)
       stderr(" *** illegal set_initiator_object with <" + object_name(ob) + ">\n");
     return 0;
   }
-  initiator_object = ob;
 
-  // stderr(
-  //   " 1 initiator_object: " + to_string(initiator_object) +
-  //   " 1 initiator_player: " + to_string(initiator_player) +
-  //   " 1 initiator_user: " + to_string(initiator_user)
-  //   );
+  _change_initiator_object(ob);
 
   return 1;
 }
@@ -65,16 +78,12 @@ int set_initiator_user(object user)
     return 0;
   }
 
-  initiator_user = user;
+  _change_initiator_user(user);
 
-  if (!user || !(initiator_player = user->player()))
-    initiator_player = nil;
-
-  // stderr(
-  //   " 2 initiator_object: " + to_string(initiator_object) +
-  //   " 2 initiator_player: " + to_string(initiator_player) +
-  //   " 2 initiator_user: " + to_string(initiator_user)
-  //   );
+  if (!user || !user->player())
+    _change_initiator_player(nil);
+  else
+    _change_initiator_player(user->player());
 
   return 1;
 }
@@ -88,15 +97,10 @@ int set_initiator_player(object player)
     return 0;
   }
 
-  initiator_player = player;
-  if (!player || !(initiator_user = player->user()))
-    initiator_user = nil;
+  _change_initiator_player(player);
 
-  // stderr(
-  //   " 3 initiator_object: " + to_string(initiator_object) +
-  //   " 3 initiator_player: " + to_string(initiator_player) +
-  //   " 3 initiator_user: " + to_string(initiator_user)
-  //   );
+  if (!player || !player->user())
+    _change_initiator_user(nil);
 
   return 1;
 }
@@ -105,13 +109,13 @@ object this_player(varargs int i)
 {
   if (i && (i == 1))
   {
-    if (initiator_player)
-      return initiator_player;
+    // if (initiator_player)
+    //   return initiator_player;
+    // return initiator_object;
     return initiator_user;
   }
 
   return initiator_object;
-  // return initiator_player;
 }
 
 object this_user()
@@ -125,24 +129,22 @@ object this_user()
 // call init in ob2 with ob1 as this_player()
 void do_init(object ob1, object ob2)
 {
+  object old_this_user, old_this_player;
+
   if (!mudlib_privileges())
   {
     stderr(" *** illegal do_init with <" + object_name(ob1) + "> and <" + object_name(ob2) + ">\n");
     return;
   }
 
-  initiator_player = ob1;
-  if (!(initiator_user = ob1->user()))
-    initiator_user = nil;
+  old_this_player = initiator_player;
+  old_this_user = initiator_user;
 
-  // stderr(
-  //   " 4 this_object() es : " + to_string(this_object()) +
-  //   " 4 initiator_object: " + to_string(initiator_object) +
-  //   " 4 initiator_player: " + to_string(initiator_player) +
-  //   " 4 initiator_user: " + to_string(initiator_user)
-  //   );
+  stderr(" ~~~ mudos::do_init()\n");
+  set_initiator_object(ob1);
+  set_initiator_player(ob1);
 
-  catch(call_other(ob2, "__call_other", "init"));
+  call_other(ob2, "__call_other", "init");
 }
 
 static void _purge_call_out_stack()
@@ -211,10 +213,39 @@ int _store_call_out(object ob, int handle, string func, int delay, varargs mixed
 }
 
 // this function will be called when the call_out is done
-int _call_out(object ob, string func, varargs mixed args...)
+int _call_out(object ob, object player, object user, string func, varargs mixed args...)
 {
-  // TODO testing new centralized call_outs !!!!!!
-  ob->func(args);
+  object old_this_object, old_this_player, old_this_user;
+
+  stderr(" *** coming back from call_out func <" + func + "> on object <" + object_name(ob) + ">\n");
+
+  // stderr(to_string(initial_object()));
+  // stderr("object " + to_string(ob));
+  // stderr("player " + to_string(player));
+  // stderr("user " + to_string(user));
+  // stderr("args " + to_string(args));
+
+  // every time we modify or check the list, we purge the pending call_out
+  _purge_call_out_stack();
+
+  // preserve current context
+  old_this_object = initiator_object;
+  old_this_player = initiator_player;
+  old_this_user = initiator_user;
+
+  stderr(" ~~~ mudos::call_out()\n");
+  // restore the context when the call_out was programmed
+  _change_initiator_object(ob);
+  _change_initiator_player(player);
+  _change_initiator_user(user);
+
+  catch(call_other(ob, func, args...));
+
+  stderr(" ~~~ end mudos::call_out()\n");
+  // restore current context
+  _change_initiator_object(old_this_object);
+  _change_initiator_player(old_this_player);
+  _change_initiator_user(old_this_user);
 }
 
 int _remove_call_out(object ob, int handle)

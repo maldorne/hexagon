@@ -75,17 +75,17 @@ static nomask int call_out(string func, int delay, varargs mixed args...)
   int ret;
 
   // the real call_out
-  ret = ::call_out("__call_out", delay, this_object(), func, args...);
+  ret = ::call_out("__call_out", delay, this_object(), this_player(), this_user(), func, args...);
 
   if (ret)
-    MUDOS->_store_call_out(this_object(), ret, func, delay, args);
+    MUDOS->_store_call_out(this_object(), ret, func, delay, args...);
 
   return ret;
 }
 
-nomask int __call_out(object ob, string func, varargs mixed args...)
+nomask int __call_out(object ob, object player, object user, string func, varargs mixed args...)
 {
-  return MUDOS->_call_out(ob, func, args...);
+  return MUDOS->_call_out(ob, player, user, func, args...);
 }
 
 // remove_call_out - remove a pending call_out

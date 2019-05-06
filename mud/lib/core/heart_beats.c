@@ -11,6 +11,7 @@ private static int _hb_handle;
 // prototypes
 int set_initiator_object(object ob);
 int set_initiator_player(object player);
+int set_initiator_user(object user);
 
 void create()
 {
@@ -48,23 +49,25 @@ nomask void _heart_beat()
       continue;
     }
 
+    stderr(" ~~~ mudos::_heart_beat() for <"+object_name(ob)+">\n");
     if (living(ob))
       set_initiator_object(ob);
     else
       set_initiator_object(nil);
 
     if (interactive(ob))
-      set_initiator_player(ob);
+      set_initiator_user(ob->user());
     else
-      set_initiator_player(nil);
+      set_initiator_user(nil);
 
     rlimits(MAX_HB_DEPTH ; MAX_HB_TICKS)
     {
       result = catch(call_other(ob, "heart_beat"));
     }
 
+    stderr(" ~~~ end mudos::_heart_beat() for <"+object_name(ob)+">\n");
     set_initiator_object(nil);
-    set_initiator_player(nil);
+    set_initiator_user(nil);
 
     // turn off heart beat in the object
     if (result)

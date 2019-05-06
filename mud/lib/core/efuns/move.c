@@ -62,7 +62,7 @@ nomask int _inv_remove(object ob)
 int move(varargs object dest)
 {
   object * contents;
-  object old_this_player;
+  object old_this_player, old_this_user;
   int i;
 
   // if we are doing something like ob->move(),
@@ -99,12 +99,14 @@ int move(varargs object dest)
 
   // save this_player to restore it afterwards
   old_this_player = this_player();
+  // old_this_user = this_user();
 
   // get all objects in the new environment
   contents = all_inventory(_environment);
 
   if (living(this_object()))
   {
+    stderr(" ~~~ move of a living\n");
     MUDOS->set_initiator_object(this_object());
 
     // call init in the environment
@@ -120,18 +122,20 @@ int move(varargs object dest)
     MUDOS->do_init(_environment, this_object());
   }
 
-  // stderr("   - M before, this_object():\n    " + to_string(this_object()) + " \n");
-  // stderr("   - M before, this_player():\n    " + to_string(this_player()) + " \n");
-  // stderr("   - M before, this_player(1):\n   " + to_string(this_player(1)) + " \n");
-  // stderr("   - M before, this_user():\n      " + to_string(this_user()) + " \n");
+  stderr("   - M before, this_object():\n    "  + to_string(this_object()));
+  stderr("   - M before, this_player():\n    "  + to_string(this_player()));
+  stderr("   - M before, this_player(1):\n    " + to_string(this_player(1)));
+  stderr("   - M before, this_user():\n    "    + to_string(this_user()));
 
   // call out own init() from all living objects in dest
   map_array(filter_array(contents, "living", MUDOS),
             "do_init", MUDOS, old_this_player);
 
-  // restore this_player(), only changed when moving living objects
   if (living(this_object()))
+  {
+    stderr(" ~~~ end move of a living\n");
     MUDOS->set_initiator_object(old_this_player);
+  }
 
   return MOVE_OK;
 }
