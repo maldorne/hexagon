@@ -184,7 +184,7 @@ mixed ** query_call_out_stack()
   return call_outs;
 }
 
-int _call_out(object ob, int handle, string func, int delay, varargs mixed args...)
+int _store_call_out(object ob, int handle, string func, int delay, varargs mixed args...)
 {
   int i, time;
 
@@ -206,6 +206,15 @@ int _call_out(object ob, int handle, string func, int delay, varargs mixed args.
   // stderr("CALL_OUT: " + to_string(call_outs) + "\n");
 
   call_outs = insert(call_outs, ({ ob, handle, func, time, args, this_player(), this_user() }), i+1);
+
+  return handle;
+}
+
+// this function will be called when the call_out is done
+int _call_out(object ob, string func, varargs mixed args...)
+{
+  // TODO testing new centralized call_outs !!!!!!
+  ob->func(args);
 }
 
 int _remove_call_out(object ob, int handle)
