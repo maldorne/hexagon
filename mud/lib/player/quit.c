@@ -1,5 +1,6 @@
 
 #include <mud/time.h>
+#include <language.h>
 
 int really_quit()
 {
@@ -8,9 +9,12 @@ int really_quit()
   int i;
   int secure;
   string aux;
+  object user;
 
   aux = "";
   secure = 0;
+
+  user = this_object()->user();
 
   // quit_destination added by neverbot, 03/09
   while (environment(this_object()) &&
@@ -24,9 +28,7 @@ int really_quit()
 
   if (secure != 0)
   {
-    tell_object(this_object(), "En tu localización previa no es posible salir, "+
-        "has sido movido a la más cercana (vuelve a intentarlo aquí si aún "+
-        "deseas desconectar).\n");
+    write(_LANG_QUIT_BEEN_MOVED);
     this_object()->do_look();
     this_object()->save_me();
     return 1;
@@ -38,20 +40,21 @@ int really_quit()
   this_object()->adjust_online_time(time() - ontime);
 
   // This should send the time the player was on to an object which keeps
-  // track of total hours played (non-immortal) Anirudh - March 17, 1996
-  // if (!this_object()->query_coder())
-    TIMEKEEPER->add_time(time() - ontime);
+  // track of total hours played Anirudh - March 17, 1996
+  TIMEKEEPER->add_time(time() - ontime);
 
   if (this_object()->query_name() != DEF_NAME)
   {
     if (this_object()->query_property(GUEST_PROP))
       log_file("enter", sprintf("Exit  : %-15s %s (guest) [%s]\n",
-                                name, ctime(time(),4),
-                                query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
+                                name, ctime(time(), 4),
+                                query_ip_number(user)+
+                                  " ("+query_ip_name(user)+")"));
     else
       log_file("enter", sprintf("Exit  : %-15s %s [%s]\n",
-                                name, ctime(time(),4),
-                                query_ip_number(this_object())+" ("+query_ip_name(this_object())+")"));
+                                name, ctime(time(), 4),
+                                query_ip_number(user)+
+                                  " ("+query_ip_name(user)+")"));
   }
 
   // TODO editor
@@ -77,8 +80,8 @@ int really_quit()
 
   // curses_quit();
 
-  // Antes del save_me, movemos todos los objetos que no vamos a grabar a
-  // la room del jugador
+  // before save_me, move every item we are not going to save to
+  // the player's room
   if (environment(this_object()))
   {
     ob = deep_inventory(this_object());
@@ -87,27 +90,23 @@ int really_quit()
       if (ob[i]->query_no_save_object())
       {
         ob[i]->move(environment(this_object()));
-        tell_object(this_object(), "Dejas tu "+ob[i]->short()+".\n");
+        write(_LANG_QUIT_DROP_ITEM);
       }
     }
   }
 
-  // write("Thanks for playing see you next time.\n");
-  tell_player(this_object(), "Gracias por jugar, ¡hasta la próxima!\n");
+  tell_player(this_object(), _LANG_QUIT_THANKS);
 
   if (query_name() != DEF_NAME)
   {
     if ( !this_object()->query_hidden() )
-      tell_room( environment(this_object()), this_object()->query_cap_name() +
-        " sale de "+mud_name()+".\n", ({ this_object() }));
+      tell_room( environment(this_object()), _LANG_QUIT_ENV_QUIT, ({ this_object() }));
 
     if ( this_object()->query_coder() )
-      event(users(), "inform", this_object()->query_cap_name() +
-                               " sale de " + mud_name(), "logon-coders",
+      event(users(), "inform", _LANG_QUIT_INFORM_CODERS, "logon-coders",
                                all_inventory(environment(this_object())));
     else
-      event(users(), "inform", this_object()->query_cap_name() +
-                               " sale de " + mud_name(), "logon",
+      event(users(), "inform", _LANG_QUIT_INFORM_PLAYERS, "logon",
                                all_inventory(environment(this_object())));
   }
 
@@ -133,12 +132,12 @@ int really_quit()
 
     // if (frog)
 
-    // hack para los objetos unicos... si los destruimos con la funcion
-    // dest_me el handler no los almacenara como grabados en la ficha
-    // de un player, sino como destruidos.
+    // hack for unique items... if we destroy them with the dest_me function
+    // the handler won't save them as stored in the players inventory, but as
+    // destroyed, and we don't want that
     if (frog->query_unique_object())
     {
-      tell_object(find_living("folken"), "Dest unique del objeto "+frog->short()+".\n");
+      // tell_object(find_living("neverbot"), "Dest unique of item "+frog->short()+".\n");
       frog->dest_unique();
     }
     else if (frog->query_auto_load() ||
@@ -157,27 +156,29 @@ int really_quit()
     ob[i]->dest_me();
 
   // TODO safety here?
-  find_object(USER_HANDLER)->remove_user(this_object());
+  // this remove will be done at the end of the user->dest_me()
+  // find_object(USER_HANDLER)->remove_user(user);
   find_object(LIVING_HANDLER)->remove_living(this_object());
 
-  this_object()->dest_me();
+  // the player object will be destroyed from the user->dest_me()
+  // so beyond this line, no code will be safe
+  user->dest_me();
+  // this_object()->dest_me();
 
   return 1;
-} /* really quit() */
+} /* really_quit() */
 
 void continue_quit(int a, object here)
 {
   if (this_object()->query_is_fighting())
   {
-    tell_object(this_object(), "Debes terminar primero tus combates.\n "+
-        "Escribe '%^BOLD%^detener combates%^RESET%^' para terminarlos lo antes posible.\n");
+    write(_LANG_QUIT_STOP_COMBAT_FIRST);
     return;
   }
 
   if (environment(this_object()) != here)
   {
-    tell_object(this_object(),"Si no paras de moverte será imposible buscar un buen lugar "+
-        "para salir del juego.\n");
+    write(_LANG_QUIT_STOP_MOVING_FIRST);
     return;
   }
 
@@ -194,11 +195,11 @@ int quit()
 {
   if (query_loading() || query_property(LOADING_PROP))
   {
-    notify_fail("Todavía se esta cargando tu equipo, espera a que termine el proceso.\n");
+    notify_fail(_LANG_QUIT_LOADING);
     return 0;
   }
 
-  tell_object(this_object(), "Saliendo...\n");
+  write(_LANG_QUIT_EXITING);
 
   if (this_object()->query_coder())
   {
@@ -206,13 +207,11 @@ int quit()
     return 1;
   }
 
-  tell_room(environment(this_object()), this_object()->query_cap_name()+
-      " busca un lugar cómodo para salir del juego.\n", ({this_object()}));
+  tell_room(environment(this_object()), _LANG_QUIT_ENV_MSG, ({ this_object() }));
 
   if (this_object()->query_is_fighting())
   {
-    tell_object(this_object(),"Debes terminar primero tus combates.\n"+
-        "Escribe '%^BOLD%^detener combates%^RESET%^' para terminarlos lo antes posible.\n");
+    write(_LANG_QUIT_STOP_COMBAT_FIRST);
     this_object()->save_me();
   }
   else

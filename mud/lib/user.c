@@ -353,8 +353,8 @@ static void receive_message(string str)
     if ( _player && !_player->exec_alias(verb, params) )
     {
       // if no alias found, continue
-      _player->action_check( str );
-      _player->lower_check( str );
+      if (_player) _player->action_check( str );
+      if (_player) _player->lower_check( str );
     }
 
     // the object destructed itself

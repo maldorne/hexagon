@@ -54,7 +54,10 @@ nomask int save(string str)
 
 nomask int quit(string str)
 {
-  return _user->quit();
+  object player;
+  player = _user->player();
+
+  return player->quit();
 }
 
 nomask int help_func(string str)
@@ -67,7 +70,8 @@ nomask int do_clear_screen(string str)
   // if( this_player(1) != this_player() )
   //   return 0;
 
-  tell_object(this_user(), sprintf("%c[H%c[2J\n", 27, 27));
+  write(sprintf("%c[H%c[2J\n", 27, 27));
+  this_user()->write_prompt();
   return 1;
 }
 
