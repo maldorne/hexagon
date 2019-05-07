@@ -138,7 +138,7 @@ string * query_user_ids()
   return m_indices(_users);
 }
 
-// looks for the user using the account name (email)
+// looks for the user using the account name (email) or the player name
 object find_user(string id)
 {
   // if (!_users[id])
@@ -151,7 +151,8 @@ object find_user(string id)
   ids = m_indices(_users);
 
   for (i = 0; i < sizeof(ids); i++)
-    if (_users[ids[i]][_USER_NAME_POS] == id)
+    if ((_users[ids[i]][_USER_NAME_POS] == id) ||
+        (_users[ids[i]][_PLAYER_NAME_POS] == id))
       return _users[ids[i]][_USER_OB_POS];
 
   return nil;

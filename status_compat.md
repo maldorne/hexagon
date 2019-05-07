@@ -103,7 +103,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `living`                | :white_check_mark: |  |
 | `find_living`           | :white_check_mark: |  |
 | `find_player`           | :white_check_mark: |  |
-| `find_user`             | :white_check_mark: | :new: added after separating the `user` and `player` objects. Receives account name/email as parameter. See `users` and `players`. |
+| `find_user`             | :white_check_mark: | :new: added after separating the `user` and `player` objects. Works with player name or account name/email as parameter. See `users` and `players`. |
 | `livings`               | :white_check_mark: |  |
 | `set_heart_beat`        | :white_check_mark: |  |
 | `query_heart_beat`      | :white_check_mark: |  |
