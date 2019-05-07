@@ -4,7 +4,7 @@
 // Return non-zero if 'ob' is an interactive player. 0 will be returned
 // if he is link dead.
 
-int interactive(object ob)
+static int interactive(object ob)
 {
   if (!ob)
     return 0;

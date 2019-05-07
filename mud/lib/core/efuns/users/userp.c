@@ -3,7 +3,7 @@
 // int userp( object );
 // Returns 1 if the arg was once interactive.
 
-int userp(object ob)
+static int userp(object ob)
 {
   return interactive(ob);
 }

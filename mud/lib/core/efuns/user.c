@@ -6,7 +6,7 @@
 #include "users/userp.c"
 #include "users/catch_tell.c"
 
-object real_this_player()
+static object real_this_player()
 {
   object * list;
   int i;
@@ -32,9 +32,9 @@ object real_this_player()
 // returns true if there is such a player
 // created by Descartes of Borg 930822
 
-int file_exists(string str);
+static int file_exists(string str);
 
-int player_exists(string str)
+static int player_exists(string str)
 {
   int ret;
 
@@ -44,7 +44,7 @@ int player_exists(string str)
   return ret;
 }
 
-int user_exists(string str)
+static int user_exists(string str)
 {
   int ret;
 
@@ -54,7 +54,7 @@ int user_exists(string str)
   return ret;
 }
 
-object find_player(string str)
+static object find_player(string str)
 {
   object handler;
   handler = find_object(USER_HANDLER);
@@ -62,7 +62,7 @@ object find_player(string str)
   return handler->find_player(str);
 }
 
-object find_user(string str)
+static object find_user(string str)
 {
   object handler;
   handler = find_object(USER_HANDLER);

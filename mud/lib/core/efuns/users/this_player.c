@@ -7,12 +7,12 @@
 // This means it will return the player who initiated the force, or whatever.
 // Useful for security checking in sensative functions.
 
-object this_player(varargs int i)
+static object this_player(varargs int i)
 {
   return MUDOS->this_player(i);
 }
 
-object this_user()
+static object this_user()
 {
   return MUDOS->this_user();
 }
@@ -20,7 +20,7 @@ object this_user()
 // this_interactive - return the object representing the current player
 // object this_interactive();
 
-object this_interactive()
+static object this_interactive()
 {
   return this_user();
 }
