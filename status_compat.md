@@ -25,7 +25,7 @@ Common calls and operations over the basic types.
 | `objectp`               | :white_check_mark: |  |
 | `classp`                | :heavy_minus_sign: | nonexistant in dgd |
 | `mapp`                  | :white_check_mark: | alias for `mappingp` |
-| `userp`                 | :white_check_mark: |  |
+| `userp`                 | :white_check_mark: | alias for `interactive` |
 | **strings**             |  |  |
 | `capitalize`            | :white_check_mark: |  |
 | `lower_case`            | :white_check_mark: |  |
@@ -98,7 +98,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `notify_fail`           | :white_check_mark: |  |
 | `enable_commands`       | :white_check_mark: |  |
 | `disable_commands`      |  |  |
-| `interactive`           | :white_check_mark: |  |
+| `interactive`           | :white_check_mark: | works with both `user` and `player` objects |
 | `set_living_name`       | :white_check_mark: |  |
 | `living`                | :white_check_mark: |  |
 | `find_living`           | :white_check_mark: |  |
