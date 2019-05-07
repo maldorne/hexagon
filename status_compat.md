@@ -1,6 +1,6 @@
 # Current status: MudOS compatibility
 
-List of MudOS `efun` functions and their implementation in `Hexagon Mudlib`.
+List of MudOS `efun` functions and their implementation in `Hexagon Mudlib`, and some new useful functions.
 
 Be aware: most of the functions
 listed here are already implemented and working, but as I've just started working in this
@@ -36,6 +36,8 @@ Common calls and operations over the basic types.
 | `strcmp`                | :white_check_mark: |  |
 | `strsrch`               | :white_check_mark: |  |
 | `pad`                   | :white_check_mark: |  |
+| `chr`                   | :white_check_mark: | char/int to string conversion |
+| `ord`                   | :white_check_mark: | string to char/int conversion |
 | **arrays**              |  |  |
 | `sizeof`                | :white_check_mark: | provided by dgd |
 | `explode`               | :white_check_mark: | provided by dgd, also added `full_explode` |
