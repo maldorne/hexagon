@@ -543,6 +543,10 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
 
   write(_LANG_WAIT_LOADING);
 
+  // every user obejct will have the same name
+  // if name != "object", that will mean the user has finished the login process
+  _user->set_name("user");
+
   _player->set_living_name(_player->query_name()); // both for players and npcs
 
   // store the user name in the user handler

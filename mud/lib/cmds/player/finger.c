@@ -1,6 +1,8 @@
 
 #include <mud/cmd.h>
 #include <mud/secure.h>
+#include <areas/calendar.h>
+#include <language.h>
 
 inherit CMD_BASE;
 
@@ -11,7 +13,7 @@ void setup()
 
 string query_usage()
 {
-  return "finger <nombre>";
+  return _LANG_FINGER_SYNTAX;
 }
 
 static int cmd(string str, object me, string verb)
@@ -26,7 +28,7 @@ static int cmd(string str, object me, string verb)
     obs = users();
 
     write(sprintf("%-12.12s    %-20.20s %-20.20s %-20.20s\n",
-        "Nombre", "Nombre real", "Domicilio", "Cumpleaños"));
+        _LANG_FINGER_NAME, _LANG_FINGER_REAL_NAME, _LANG_FINGER_CITY, _LANG_FINGER_BIRTHDAY));
 
     for (i = 0; i < sizeof(obs); i++)
     {
@@ -34,41 +36,55 @@ static int cmd(string str, object me, string verb)
       string rnstr;
       string pname;
       object player;
+      object user;
 
+      user = obs[i];
       player = obs[i]->player();
 
-      if (obs[i]->query_invis() && !this_player()->query_coder())
+      if (user->query_invis() && !this_user()->query_coder())
         continue;
 
-      if ((int)obs[i]->query_invis() > 1 && !this_player()->query_administrator())
+      if (user->query_invis() > 1 && !this_user()->query_administrator())
         continue;
 
       // type = (obs[i]->query_earmuffs() ? "e" : " ");
-      euid = geteuid(obs[i]);
-      type = obs[i]->query_object_type();
+      euid = geteuid(user);
+      type = user->query_object_type();
 
-      if (obs[i]->query_name() != "logon")
+      if (user->query_object_type() != "X")
       {
-        if (obs[i]->query_object_type() != "X")
-        {
-          string r;
+        string r, birthday, name;
 
-          rnstr = (string)obs[i]->query_real_name();
-          pname = player->query_cap_name();
+        rnstr = (string)user->query_real_name();
+        pname = player->query_cap_name();
+        name  = player->query_name();
 
-          if (rnstr && rnstr[0..0] == ":")
-            if (!MASTER->valid_read("/save/players/"+pname[0..0]+"/"+pname,
-                geteuid(this_player(1))))
-              rnstr = "-";
+        if (rnstr && rnstr[0..0] == ":")
+          if (!MASTER->valid_read("/save/players/"+name[0..0]+"/"+name,
+              geteuid(this_user())))
+            rnstr = "-";
 
-          r = sprintf("%-12.12s %2.2s %-20.20s %-20.20s %-20.20s\n",
-            (obs[i]->query_invis() ? "(" + player->query_cap_name() + ")" : "" + player->query_cap_name()),
-            type,
-            (rnstr?rnstr:" "),
-            ((ret = obs[i]->query_location())?ret:" "),
-            ((ret = (string)obs[i]->query_birthday())?ret:" "));
-          write(r);
-        }
+        if (user->query_birthday())
+          birthday = handler(CALENDAR_HANDLER)->convert_birthday(user->query_birthday());
+        else
+          birthday = "";
+
+        r = sprintf("%-12.12s %2.2s %-20.20s %-20.20s %-20.20s\n",
+          (user->query_invis() ? "(" + player->query_cap_name() + ")" : "" + player->query_cap_name()),
+          type,
+          (rnstr?rnstr:" "),
+          ((ret = user->query_location())?ret:" "),
+          birthday);
+
+        write(r);
+      }
+      else
+      {
+        string r;
+        r = sprintf("%-12.12s %2.2s\n",
+          "login",
+          type);
+        write(r);
       }
     }
 
@@ -87,19 +103,18 @@ static int cmd(string str, object me, string verb)
     // retval += "Sin plan.\nSin futuro.\n";
 
     ret = "/lib/core/secure/bastards.c"->query_banish_reason(str);
-    write(retval+"Prohibido por: '"+capitalize(ret)+"'\n");
+    write(retval + "Prohibido por: '" + capitalize(ret) + "'\n");
     return 1;
   }
 
-  ttl = "======] %^GREEN%^"+mud_name()+"%^RESET%^ [======";
+  ttl = "===] %^GREEN%^"+mud_name()+"%^RESET%^ [===";
 
   ret = (string)"/lib/core/secure/finger"->finger_info(str, me);
 
   if (strlen(ret))
   {
-    write(sprintf("%p%|*s\n\n", '-', this_user()->query_cols()+18, ttl));
+    ret = handler("frames")->frame(ret, ttl, this_user()->query_cols());
     write(ret);
-    write(sprintf("\n%p%|*s\n\n", '-', this_user()->query_cols()+18, ttl));
     return 1;
   }
   /*

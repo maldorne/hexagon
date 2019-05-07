@@ -88,11 +88,17 @@ int query_coder()         { return (role_name == CODER_ROLE) ||
 
 string query_object_type()
 {
-  string name;
-  name = this_object()->query_name();
+  // string name;
 
-  if (!strlen(name) || (name == DEF_NAME))
+  // not yet logged in
+  if (this_object()->query_name() == "object")
     return "X";
+
+  // if (this_object()->player())
+  //   name = this_object()->player()->query_name();
+
+  // if (!name || !strlen(name) || (name == DEF_NAME))
+  //   return "X";
 
   switch(role_name)
   {

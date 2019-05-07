@@ -11,3 +11,11 @@
                     "the localization you are in at the moment."
 #define _LANG_CMD_LOOK_NO_ENVIRONMENT "You are nowhere... you can't see a thing.\n"
 #define _LANG_CMD_LOOK_BLINDED "You can't see a thing. ¡You are blinded!\n"
+
+// finger.c
+
+#define _LANG_FINGER_SYNTAX "finger <name>"
+#define _LANG_FINGER_NAME "Name"
+#define _LANG_FINGER_REAL_NAME "Real name"
+#define _LANG_FINGER_CITY "City"
+#define _LANG_FINGER_BIRTHDAY "Birthday"
