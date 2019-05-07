@@ -41,6 +41,10 @@ static int cmd(string str, object me, string verb)
       user = obs[i];
       player = obs[i]->player();
 
+      // should not happen... EVER!
+      if (!player)
+        continue;
+
       if (user->query_invis() && !this_user()->query_coder())
         continue;
 
