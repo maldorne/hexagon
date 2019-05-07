@@ -2,6 +2,9 @@ map_prop ([0|])
 timed_prop ([0|])
 create_me "object"
 monitor 1
+cols 80
+rows 25
+term_name "ansi"
 prompt_string "> "
 role_name "admin"
 start_time 1556911440
