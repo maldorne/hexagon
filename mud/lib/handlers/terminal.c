@@ -377,9 +377,11 @@ string fix_enye_mode(string mess)
 string _fix_string(string ret, varargs object user)
 {
   string *st;
-  int i;
+  int i, modified;
   string term_name;
   mapping colour_map;
+
+  modified = false;
 
   if (!stringp(ret) || ret == "")
     return ret;
@@ -407,10 +409,16 @@ string _fix_string(string ret, varargs object user)
   for (i = 0; i < sizeof(st); i++)
   {
     if (colour_map[st[i]])
+    {
       ret += colour_map[st[i]];
+      modified = true;
+    }
     else
       ret += st[i];
   }
 
-  return ret + colour_map["RESET"];
+  if (modified)
+    ret += colour_map["RESET"];
+
+  return ret;
 }
