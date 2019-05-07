@@ -254,5 +254,5 @@ The general idea of how the `this_player` value is being stored in a central obj
 | :----: | ------- |
 | :white_check_mark:            | Already added and tested. |
 | :new:                         | Not present in MudOS, added for `Hexagon Mudlib`. |
-| :negative_squared_cross_mark: | Not included/necessary. |
-| :heavy_minus_sign:            | Non existant in DGD, not necessary to implement. |
+| :negative_squared_cross_mark: | Not included/necessary. |
+| :heavy_minus_sign:            | Non existant in DGD, not necessary to implement. |
