@@ -303,6 +303,8 @@ string ctime(int time, varargs int flag)
   result = "";
   info = localtime(time);
 
+stderr(to_string(info));
+
   if (!flag || (flag == 0))
   {
     result = day(info[LT_WDAY])[0..2];
@@ -320,7 +322,7 @@ string ctime(int time, varargs int flag)
   else if (flag == 2)
   {
     result = "" + PAD(info[LT_MDAY]) +
-             PAD(info[LT_MON]+1);
+             PAD((info[LT_MON]+1));
     result += ("" + (string)info[LT_YEAR])[2..3];
   }
   else if (flag == 3)
@@ -330,7 +332,7 @@ string ctime(int time, varargs int flag)
   else if (flag == 4)
   {
     result = "" + PAD(info[LT_MDAY]) + "/" +
-             PAD(info[LT_MON]+1) + "/";
+             PAD((info[LT_MON]+1)) + "/";
     result += ("" + (string)info[LT_YEAR])[2..3];
     result += " " + PAD(info[LT_HOUR]) + ":" +
               PAD(info[LT_MIN]) + ":" +
