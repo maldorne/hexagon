@@ -103,11 +103,12 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `living`                | :white_check_mark: |  |
 | `find_living`           | :white_check_mark: |  |
 | `find_player`           | :white_check_mark: |  |
+| `find_user`             | :white_check_mark: | :new: added after separating the `user` and `player` objects. Receives account name/email as parameter. See `users` and `players`. |
 | `livings`               | :white_check_mark: |  |
 | `set_heart_beat`        | :white_check_mark: |  |
 | `query_heart_beat`      | :white_check_mark: |  |
 | `users`                 | :white_check_mark: | provided by dgd, masked to use user handler. `players` added to obtain the list of player objects. |
-| `players`               | :white_check_mark: | needed after separating users in two different objects: `user` manages connections, input and output, and `player` manages the in-game avatar |
+| `players`               | :white_check_mark: | :new: needed after separating users in two different objects: `user` manages connections, input and output, and `player` manages the in-game avatar |
 | `objects`               |  |  |
 | `children`              |  |  |
 
