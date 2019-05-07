@@ -303,8 +303,6 @@ string ctime(int time, varargs int flag)
   result = "";
   info = localtime(time);
 
-stderr(to_string(info));
-
   if (!flag || (flag == 0))
   {
     result = day(info[LT_WDAY])[0..2];
