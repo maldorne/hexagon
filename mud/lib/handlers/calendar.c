@@ -274,7 +274,7 @@ int valid_birthday(string str)
 // }
 
 // static nomask string pad(string str, int size, varargs string char)
-#define PAD(x) pad(""+x, 2, "0")
+#define PAD(x) pad(""+x, -2, "0")
 
 /*
  * Different modes:
