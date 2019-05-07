@@ -38,11 +38,11 @@
 
 - [ ] **Full inheritance tree from the original `ccmudlib`**
 
-    - [x] **coder, manager, administrator** to the different user roles. **Done**. 
+    - [x] **coder, manager, administrator** to the different user roles. **Done**.
 
     - [x] **living** to `/lib/living/living.c`. **Done**.
 
-    - [ ] **player** to `/lib/user.c`
+    - [x] **player** to `/lib/player.c` (avatar in-game handling) and `/lib/user.c` (user account, connection, input and output)
 
     - [x] **item** to `/lib/item.c`. **Done**.
 
@@ -52,3 +52,6 @@
 
     **Done**.
 
+- [x] **Separate the user object in user and player**
+
+    **Done**. Now there are two different linked objects, the `player` handles every in-game situation, while the `user` handles the connection, account info, input and output.
