@@ -7,7 +7,7 @@
 // int uptime();
 // This function returns the number of seconds since the last driver reboot.
 
-nomask static int uptime()
+static nomask int uptime()
 {
   return status()[ST_UPTIME];
 }
@@ -84,4 +84,4 @@ static string ctime(int time, varargs int flag)
     return ::ctime(time);
 
   return handler(CALENDAR_HANDLER)->ctime(time, flag);
-} 
+}
