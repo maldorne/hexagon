@@ -54,7 +54,7 @@ static int do_update(object *ov)
   string itemname;
   object thing;
 
-  if (this_player(1) != this_user()->player())
+  if (this_player(1) != this_user())
     return 0;
 
   // Easy way to preload something...
@@ -277,7 +277,7 @@ int do_a_call(string str)
   string f, file;
   int i;
 
-  if (this_player(1) != this_player())
+  if (this_player(1) != this_user())
     return 0;
 
   if (!strlen(str))
