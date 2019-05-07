@@ -1,5 +1,6 @@
+
 /** coded by Raskolnikov July 1996 **/
-/** Vaeleth... tail algo mas flexible **/
+/** Vaeleth... tail more flexible **/
 
 #include <mud/cmd.h>
 
@@ -10,17 +11,27 @@ void setup()
   position = 1;
 }
 
+string query_usage()
+{
+  return "tail [-<number of lines>] <files>\n";
+}
+
+string query_short_help()
+{
+  return "Shows the last lines of a file.";
+}
+
 static int cmd(string str, object me, string verb)
 {
   string file, *filename, text;
   int range, lineas;
-  string content;
+  string content, err;
 
   content = "";
 
   if (!strlen(str))
   {
-    notify_fail("Uso: tail [-<número de líneas>] <fichero>\n");
+    notify_fail("Syntax: tail [-<number of lines>] <files>\n");
     return 0;
   }
 
@@ -30,31 +41,31 @@ static int cmd(string str, object me, string verb)
 
     if (!sizeof(filename))
     {
-      notify_fail("Fichero no válido.\n");
+      notify_fail("That file does not exist.\n");
       return 0;
     }
 
     if (range < 0)
     {
-      notify_fail("Rango no válido: "+range+"\n");
+      notify_fail("Invalid range: "+range+"\n");
       return 0;
     }
 
     if (!range)
       range = 20;
 
-    content = read_file(filename[0]);
+    err = catch(content = read_file(filename[0]));
 
-    if (!content)
+    if (err || !content)
     {
-      notify_fail("No se pudo leer el fichero... ¿demasiado largo?\n");
+      notify_fail("Unable to read the file... maybe too long?\n");
       return 0;
     }
 
     lineas = sizeof(explode(content,"\n"));
     text = read_file_line(filename[0], lineas-range, lineas);
-    // printf("%-=*s", this_user()->query_cols(), text);
-    tell_object(me, text);
+
+    write(text);
     return 1;
   }
   else
@@ -64,38 +75,24 @@ static int cmd(string str, object me, string verb)
 
     if (!sizeof(filename))
     {
-      notify_fail("Fichero no válido.\n");
+      notify_fail("That file does not exist.\n");
       return 0;
     }
 
-    content = read_file(filename[0]);
+    err = catch(content = read_file(filename[0]));
 
-    if (!content)
+    if (err || !content)
     {
-      notify_fail("No se pudo leer el fichero... ¿demasiado largo?\n");
+      notify_fail("Unable to read the file... maybe too long?\n");
       return 0;
     }
 
     lineas = sizeof(explode(content,"\n"));
     range = 20;
     text = read_file_line(filename[0], lineas-range, lineas);
-    // printf("%-=*s", this_user()->query_cols(), text);
-    tell_object(me, text);
+
+    write(text);
     return 1;
   }
 } /* head_file() */
 
-string query_short_help()
-{
-  return "Muestra las últimas líneas de un archivo.";
-  /*
-  return "Este comando permite al usuario ver el final de "
-    "un fichero, concretamente el rango de líneas especificado "
-    "o bien las últimas 20 líneas del fichero que se quiera visualizar.\n";
-  */
-}
-
-string query_usage()
-{
-  return "tail -rango|fichero";
-}
