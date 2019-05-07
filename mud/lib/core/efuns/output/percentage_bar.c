@@ -2,7 +2,7 @@
 // useful for different commands
 // neverbot 08/05, based on the score command
 
-string percentage_bar(int value)
+static string percentage_bar(int value)
 {
   string str;
   string aux_1, aux_2;

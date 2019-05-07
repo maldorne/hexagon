@@ -1,5 +1,5 @@
 
-string read_file(string file, varargs int offset, int size)
+static string read_file(string file, varargs int offset, int size)
 {
   if (!SECURE->valid_read(file, geteuid(), previous_function()))
     return "";
@@ -16,7 +16,7 @@ string read_file(string file, varargs int offset, int size)
 // will fail.  If the second and third arguments are omitted, the entire file
 // is returned.
 
-string read_bytes(string file, varargs int start, int length)
+static string read_bytes(string file, varargs int start, int length)
 {
   // returns characters, not bytes
   return read_file(file, start, length);
@@ -33,7 +33,7 @@ string read_bytes(string file, varargs int start, int length)
 // will return 0 if you try to read past the end of the file, or if you try to
 // read from a nonpositive line.
 
-string read_file_line(string file, varargs int start_line, int number_of_lines)
+static string read_file_line(string file, varargs int start_line, int number_of_lines)
 {
   int i, current_line, where, line_count;
   string read, ret;

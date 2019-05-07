@@ -6,7 +6,7 @@
 // failure or success.  If flag is 1, write_file overwrites instead of
 // appending.
 
-int write_file(string file, string str, varargs int offset)
+static int write_file(string file, string str, varargs int offset)
 {
   if (!SECURE->valid_write(file, geteuid(), previous_function()))
     return 0;

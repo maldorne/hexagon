@@ -1,6 +1,6 @@
 
 // char to string
-string chr(int c)
+static string chr(int c)
 {
   string s;
 

@@ -1,9 +1,9 @@
 
-string path(string full_path)
+static string path(string full_path)
 {
-  string * words; 
+  string * words;
   words = explode(full_path, "/");
-  
+
   if (sizeof(words) == 0)
     return "";
 

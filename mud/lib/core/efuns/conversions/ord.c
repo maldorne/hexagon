@@ -1,6 +1,6 @@
 
 // string to char
-int ord(string c)
+static int ord(string c)
 {
   int tmp;
 

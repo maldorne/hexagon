@@ -1,6 +1,6 @@
 
 // old /global/path.c, now moved to simul_efuns, neverbot 03/2009
-string get_path(varargs string str)
+static string get_path(varargs string str)
 {
   string *array, *array1, temp;
   int i;
