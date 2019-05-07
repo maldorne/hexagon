@@ -83,6 +83,9 @@ string get_create_me(string tmp)
 
   obj = initial_object();
 
+  if (obj->query_player())
+    obj = obj->user();
+
   // for (i = sizeof(obj)-1; i > -1; --i)
   //    if (obj[i]->query_coder())
   //       return geteuid(obj[i]);
