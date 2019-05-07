@@ -263,8 +263,6 @@ int ls(string str, int mask, object me)
 
     for (i = 0; i < size; i++)
     {
-      reset_eval_cost();
-
       // process timestamp
       // tmp2 = ctime((direc[i])[2], 0); // get last modified timestamp
       // shorter date string, neverbot 23/11/03

@@ -18,10 +18,10 @@ static nomask int eval_cost()
 // reset_eval_cost() resets the evaluation cost remaining to the maximum
 // evaluation cost.
 
-static nomask void reset_eval_cost()
-{
+// static nomask void reset_eval_cost()
+// {
 
-}
+// }
 
 // set_eval_limit - set the maximum evaluation cost
 // void set_eval_limit( int );
@@ -31,25 +31,25 @@ static nomask void reset_eval_cost()
 // and the maximum cost is returned.  set_eval_limit(-1) returns the
 // remaining evaluation cost.
 
+/*
 static nomask int set_eval_limit(int limit)
 {
-  /*
-  if (limit == -1)
-  {
-    // just info
-    return eval_cost();
-  }
-  // set to the max
-  else if (limit == 0)
-  {
-    // something here...
-    return eval_cost();
-  }
-  */
+  // if (limit == -1)
+  // {
+  //   // just info
+  //   return eval_cost();
+  // }
+  // // set to the max
+  // else if (limit == 0)
+  // {
+  //   // something here...
+  //   return eval_cost();
+  // }
 
   // something here
   return eval_cost();
 }
+*/
 
 // idea taken from the DGD mailing list
 // https://mail.dworkin.nl/pipermail/dgd/2003-March/003279.html
@@ -63,9 +63,9 @@ static nomask string memory_status()
   mixed *status;
 
   status = status();
-  return "MEMORY STATUS: static: " + 
+  return "MEMORY STATUS: static: " +
          kb_memory(status[ST_SMEMSIZE], status[ST_SMEMUSED]) +
-         " dynamic: " + 
+         " dynamic: " +
          kb_memory(status[ST_DMEMSIZE], status[ST_DMEMUSED]) +
          "\n";
 }
@@ -90,6 +90,6 @@ static nomask int memory_info(varargs object ob)
     return status[O_PROGSIZE] + status[O_DATASIZE];
   }
 
-  status = status();  
+  status = status();
   return status[ST_SMEMSIZE] + status[ST_DMEMSIZE];
 }

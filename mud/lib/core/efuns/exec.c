@@ -1,6 +1,7 @@
 
 // Massive security hole.  filled by Hamlet.
-int exec(object dest, object source) 
+/*
+int exec(object dest, object source)
 {
   // string fname;
   // int obnum;
@@ -14,3 +15,4 @@ int exec(object dest, object source)
 
   return 0;
 }
+*/

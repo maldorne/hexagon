@@ -180,8 +180,8 @@ The general idea of how the `this_player` value is being stored in a central obj
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `eval_cost`             | :white_check_mark: | uses `status`  |
-| `reset_eval_cost`       | :white_check_mark: | dummy function |
-| `set_eval_limit`        | :white_check_mark: | dummy function |
+| `reset_eval_cost`       | :white_check_mark: | dummy function, commented |
+| `set_eval_limit`        | :white_check_mark: | dummy function, commented |
 
 ## Others
 | Function | Status | Comments |
@@ -213,7 +213,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `test_bit`              |  |  |
 | `set_bit`               |  |  |
 | `next_bit`              |  |  |
-| `exec`                  | :heavy_minus_sign: | dummy function |
+| `exec`                  | :heavy_minus_sign: | dummy function, commented |
 | `set_hide`              |  |  |
 | `throw`                 |  |  |
 | `error`                 |  |  |

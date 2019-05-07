@@ -5,16 +5,16 @@
 #include "conversions/print_object.c"
 
 private string number_as_string_aux(int n);
-string number_as_string(int n);
+static string number_as_string(int n);
 
-string query_num(int n, int limit)
+static string query_num(int n, int limit)
 {
   if (limit && n>limit)
     return "montones de"; /* this is a little pointless ... */
   return number_as_string(n);
 }
 
-string number_as_string(int n)
+static string number_as_string(int n)
 {
   string ret;
   int i;
@@ -98,7 +98,7 @@ private string number_as_string_aux(int n)
 
 
 // flag = use pretty_short() if is a list of objects instead of just short()
-string query_multiple_short(mixed *obs, varargs int flag)
+static string query_multiple_short(mixed *obs, varargs int flag)
 {
   int i, j, k;
   string * str;

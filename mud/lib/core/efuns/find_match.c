@@ -1,9 +1,9 @@
 
-/* 
+/*
  * If anyone can tell me what this does...
  * I would be most apprecative, Pinkfish... Yes yes ok i did write it.
- * 
- * muhahaha filtering out parse stuff...Raskolnikov Nov 96 
+ *
+ * muhahaha filtering out parse stuff...Raskolnikov Nov 96
  * If you're going to fix this, might as get rid of the
  *   "him", "her", and "it" shit too - Radix
  *   Flode - 240897
@@ -23,13 +23,13 @@
 //   "things",
 // });
 
-int not_hidden(object ob, varargs mixed extra...) 
+static int not_hidden(object ob, varargs mixed extra...)
 {
-  return (ob && 
-         !ob->query_hide_shadow() && 
-         !ob->query_invis() && 
-         !ob->query_hidden_object() && 
-         !(ob->is_money() && ob->query_number_coins() == 0) ); 
+  return (ob &&
+         !ob->query_hide_shadow() &&
+         !ob->query_invis() &&
+         !ob->query_hidden_object() &&
+         !(ob->is_money() && ob->query_number_coins() == 0) );
 }
 
 /*
@@ -37,7 +37,7 @@ static int local_atoi(string str)
 {
   int x;
 
-  if (!stringp(str)) 
+  if (!stringp(str))
     return 0;
   else sscanf(str, "%d", x);
     return x;
@@ -49,7 +49,7 @@ static int remove_ints(string s)
 }
 */
 
-static mixed find_match(string str, mixed ob, varargs int no_hidden) 
+static mixed find_match(string str, mixed ob, varargs int no_hidden)
 {
   object * list;
   string * id_list;
@@ -63,26 +63,26 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   id_list = ({ });
   id_list_plurals = ({ });
   result = ({ });
-  
+
   if (!ob || intp(ob))
     return ({ });
-      
+
   if (!strlen(str))
     return ({ });
-      
-  if (stringp(ob)) 
+
+  if (stringp(ob))
   {
     ob->dummy();
     ob = find_object(ob);
   }
-  
-  if (!pointerp(ob)) 
+
+  if (!pointerp(ob))
   {
     list = (object *)ob->find_inv_match(str);
     if (!list || !sizeof(list))
       return ({ });
   }
-  else 
+  else
   {
     for (i = 0; i < sizeof(ob); i++)
       list += (object *)ob[i]->find_inv_match(str);
@@ -93,11 +93,11 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   }
 
   if (no_hidden)
-    list = filter(list, "not_hidden", this_object());    
+    list = filter(list, "not_hidden", this_object());
 
   bits = explode(implode(explode(str, " y "), ","), ",");
-  
-  for (j = 0; j < sizeof(bits); j++) 
+
+  for (j = 0; j < sizeof(bits); j++)
   {
     aux = bits[j];
 
@@ -106,7 +106,7 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
 
     for (i = 0; i < sizeof(list); i++)
     {
-      id_list = ({ list[i]->query_name(), list[i]->query_short(), }) + 
+      id_list = ({ list[i]->query_name(), list[i]->query_short(), }) +
                   (list[i]->query_alias() ? list[i]->query_alias() : ({ }));
 
       id_list_plurals = ({ list[i]->query_main_plural(), }) +
@@ -120,44 +120,44 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
 
       else if (list[i]->query_parse_id( ({ 0, aux}) ))
         result += ({ list[i] });
-    } 
+    }
   }
 
-  return result;    
+  return result;
 
-  /* 
+  /*
   mixed *arr, test, *ret;
   int i, bing, j;
   // int num, top, bot;
   string nick, *bits;
-  // string type; 
+  // string type;
   mapping rabbit;
 
   string * id_list_common;
-  string * id_list_common_plurals; 
+  string * id_list_common_plurals;
 
   id_list_common = this_object()->parse_command_id_list();
   id_list_common_plurals = this_object()->parse_command_plural_id_list();
 
   if (!ob || intp(ob))
     return ({ });
-      
+
   if (!strlen(str))
     return ({ });
-      
-  if (stringp(ob)) 
+
+  if (stringp(ob))
   {
     ob->dummy();
     ob = find_object(ob);
   }
-  
-  if (!pointerp(ob)) 
+
+  if (!pointerp(ob))
   {
     ob = (mixed)ob->find_inv_match(str);
     if (!ob)
       return ({ });
   }
-  else 
+  else
   {
     arr = ({ });
     for (i = 0; i < sizeof(ob); i++)
@@ -165,14 +165,14 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
         arr += test;
     ob = arr;
   }
-  
+
   if (no_hidden)
     ob = filter(ob, "not_hidden", this_object());
 
   bits = explode(implode(explode(str, " y "), ","), ",");
   ret = ({ });
-  
-  for (j = 0; j < sizeof(bits); j++) 
+
+  for (j = 0; j < sizeof(bits); j++)
   {
 
 
@@ -195,15 +195,15 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
       str = nick;
 
     test = explode(str, " ");
-    
-    if (!sizeof(test)) 
+
+    if (!sizeof(test))
       test = ({ "" });
-      
+
     sscanf(test[sizeof(test)-1], "%d", bing);
 
     test = ({ });
     rest = ({ });
-    
+
     // Elementos por partes (2/3 de algo) eliminados
     // if (sscanf(str, "%d/%d de %s", top, bot, str) != 3)
     //     top = bot = 1;
@@ -211,9 +211,9 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
     //     top = 1;
     // if (bot < top)
     //     bot = top;
-    
+
     // block parse stuff
-    // if (member_array(str, parse_blocks) == -1) 
+    // if (member_array(str, parse_blocks) == -1)
     // {
 
     parse_command(str, ob, "%i", test);
@@ -227,13 +227,13 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
     // haya espadas largas y cortas, las devuelve todas. Probablemente por dentro
     // separe el primer parametro con un explode("espada larga", " ") y compruebe
     // palabra por palabra sobre la lista de objetos.
-    
+
     // El siguiente if elimina de los resultados devueltos por parse_command aquellos
     // que no responden al string str (bien sea por name, main_plural, alias o plurals)
-    
+
     if ((str != "todo") && (str != "all") && !test[1]->is_money() && !test[1]->is_room_item())
     {
-      int p; 
+      int p;
       string * id_list;
       string * id_list_plurals;
       object * filtered = ({ });
@@ -245,7 +245,7 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
       // tell_object(find_living("folken"), "nick = "+nick+"\n");
 
       for(p = 1; p < sizeof(test); p++)
-      {  
+      {
         id_list = ({ test[p]->query_name(), test[p]->query_short(), });
         id_list_plurals = ({ test[p]->query_main_plural(),  });
 
@@ -255,24 +255,24 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
         if (sizeof(test[p]->query_plurals()))
           id_list_plurals += test[p]->query_plurals();
 
-        if ((member_array(nick, id_list) == -1) && 
+        if ((member_array(nick, id_list) == -1) &&
             (member_array(nick, id_list_common) == -1) &&
-            (member_array(nick, id_list_plurals) == -1) && 
+            (member_array(nick, id_list_plurals) == -1) &&
             (member_array(nick, id_list_common_plurals) == -1))
 
           test[0]--;
         else
           filtered += ({ test[p], });
       }
-      
+
       test = ({ (test[0]<0?0:test[0]) }) + filtered;
-      
+
       // for(p = 0; p<sizeof(test);p++)
       //  tell_object(find_living("folken"), "test["+p+"] = "+(objectp(test[p])?test[p]->short():test[p])+"\n");
     }
 
     // {
-    // int p; 
+    // int p;
     // for(p = 0; p<sizeof(test);p++)
     // tell_object(find_living("folken"), "test["+p+"] = "+(objectp(test[p])?test[p]->short():test[p])+"\n");
     // }
@@ -286,14 +286,14 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
       rabbit[test[i]] = 1;
 
     // {
-    // int p; 
+    // int p;
     // for(p = 0; p<sizeof(keys(rabbit));p++)
     // tell_object(find_living("folken"), "keys(rabbit)["+p+"] = "+keys(rabbit)[p]->short()+"\n");
     // }
 
-    arr = map_array(keys(rabbit), 
+    arr = map_array(keys(rabbit),
             "query_simul_efun_id",
-            this_object(), 
+            this_object(),
             ({ test[0], str }));
 
     arr += rest;
@@ -301,15 +301,15 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
 
     // }
   }
-  
+
   return ret - ({ 0 });
   */
-} 
+}
 
 // auxiliar functions
 /*
-object query_simul_efun_id(object ob, mixed *arr) 
-{ 
+object query_simul_efun_id(object ob, mixed *arr)
+{
   mixed ret;
   ret = (mixed)ob->query_parse_id(arr);
 
@@ -318,11 +318,11 @@ object query_simul_efun_id(object ob, mixed *arr)
 
   rest += ret[1..sizeof(ret)];
   return ret[0];
-} 
+}
 */
 
 /*
-object query_frac_simul_efun_id(object ob, mixed *arr) 
+object query_frac_simul_efun_id(object ob, mixed *arr)
 {
   mixed ret;
   ret = (mixed)ob->query_frac_parse_id(arr);
@@ -330,31 +330,31 @@ object query_frac_simul_efun_id(object ob, mixed *arr)
       return ret;
   rest += ret[1..sizeof(ret)];
   return ret[0];
-} 
+}
 */
 
 // objective search functions, originally in the spell system
 
-mixed find_unique_match(string find, mixed inx, varargs int no_ghost) 
+static mixed find_unique_match(string find, mixed inx, varargs int no_ghost)
 {
   mixed *olist;
   int i, j;
   olist = find_match(find, inx, 1);
-  
+
   if (no_ghost)
     for (i = sizeof(olist) - 1; i >= 0; i--)
       if (olist[i]->query_dead())
         olist = delete(olist, i, 1);
-              
+
   for (i = 0; i < sizeof(olist); i++)
     for (j = sizeof(olist)-1; j > i; j--)
-      if (olist[j] == olist[i]) 
+      if (olist[j] == olist[i])
         olist = delete(olist,j,1);
 
   return olist;
 }
 
-mixed find_one_match(string find, mixed inx, varargs int no_ghost) 
+static mixed find_one_match(string find, mixed inx, varargs int no_ghost)
 {
   mixed *olist;
   int i;
