@@ -10,7 +10,7 @@
 // `snoopee' if successful in the two-argument case, and `snooper' if it was
 // successful in the single-argument case.  A return of 0 indicates failure.
 
-nomask int snoop(object sno, varargs object snop) 
+static nomask int snoop(object sno, varargs object snop)
 {
   // end snooping
   // if (!snop)
@@ -20,7 +20,7 @@ nomask int snoop(object sno, varargs object snop)
 
   // TODO snoop
   /*
-  if (SECURE->valid_snoop(sno, snop, this_player(1))) 
+  if (SECURE->valid_snoop(sno, snop, this_player(1)))
   {
     if (!snop)
       efun::snoop(sno);
@@ -33,3 +33,5 @@ nomask int snoop(object sno, varargs object snop)
   return 0;
 }
 
+// TODO query_snoop
+// object query_snoop(object);

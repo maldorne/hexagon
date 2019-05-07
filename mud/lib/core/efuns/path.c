@@ -17,7 +17,7 @@ static nomask int is_absolute_path(string str)
   return -1;
 }
 
-string get_path_file_name(string path)
+static string get_path_file_name(string path)
 {
   string * words;
   words = explode(path, "/");
@@ -31,7 +31,7 @@ string get_path_file_name(string path)
   return words[sizeof(words)-1];
 }
 
-string * get_files(string str)
+static string * get_files(string str)
 {
   int loop, count;
   string *filenames, rmpath, temp1, temp2, *names, *files;
@@ -101,7 +101,7 @@ string * get_files(string str)
 }
 
 // Changed to be *.* so as to handle virtual wombles as well
-string *get_cfiles(string str)
+static string *get_cfiles(string str)
 {
   int loop;
   string temp, *names, temp2;

@@ -176,7 +176,7 @@ void move_object(mixed dest)
 // will immediately become zero.  move_or_destruct() is called in all the
 // objects inside of the object being destructed.
 
-nomask int destruct(varargs object ob)
+static nomask int destruct(varargs object ob)
 {
   object env;
   object * shadows;
@@ -217,7 +217,7 @@ nomask int destruct(varargs object ob)
 // Called if the environment is dested and there is no where else
 // to go...
 
-void destruct_environment_of(object ob)
+static void destruct_environment_of(object ob)
 {
   object env;
 
@@ -391,7 +391,7 @@ int id(string str)
 // If `ob' is given, then the search is done in the inventory of `ob', otherwise
 // the object is searched for in the inventory of the current object, and
 // in the inventory of the environment of the current object.
-nomask object present(mixed str, varargs object ob)
+static nomask object present(mixed str, varargs object ob)
 {
   object * where;
   string what;

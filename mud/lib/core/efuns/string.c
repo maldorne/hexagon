@@ -6,7 +6,7 @@
 // prototypes
 
 // defined in /lib/core/efuns/conversions.c
-string chr(int c);
+static string chr(int c);
 
 
 static void printf(string format, mixed args...)

@@ -1,5 +1,5 @@
 
-mixed process_value(string func)
+static mixed process_value(string func)
 {
   int tmp;
   string arg;
@@ -25,7 +25,7 @@ mixed process_value(string func)
   return call_other(obj, func, explode(arg, "|")...);
 }
 
-string process_string(string str)
+static string process_string(string str)
 {
   int pr_start, il;
   string * parts;
