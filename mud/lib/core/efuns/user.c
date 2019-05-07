@@ -62,6 +62,14 @@ object find_player(string str)
   return handler->find_player(str);
 }
 
+object find_user(string str)
+{
+  object handler;
+  handler = find_object(USER_HANDLER);
+
+  return handler->find_user(str);
+}
+
 /*
 object find_player(string str)
 {
