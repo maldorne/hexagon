@@ -100,7 +100,7 @@ static int cmd(string arg, object me, string verb)
     if (me->query_coder())
       ret = file_name(here)+"\n";
 
-    if(!dark)
+    if (!dark)
         ret += here->short(dark)+".\n";
 
     ret += here->long(arg, dark); //+"\n";

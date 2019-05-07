@@ -1,5 +1,6 @@
 
 #include "conversions/chr.c"
+#include "conversions/ord.c"
 #include "conversions/to_string.c"
 #include "conversions/print_object.c"
 
