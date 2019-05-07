@@ -19,25 +19,25 @@ Common calls and operations over the basic types.
 | `floatp`                | :white_check_mark: |  |
 | `stringp`               | :white_check_mark: |  |
 | `virtualp`              |  |  |
-| `functionp`             | - | nonexistant in dgd |
+| `functionp`             | :heavy_minus_sign: | nonexistant in dgd |
 | `pointerp`              | :white_check_mark: | alias for `arrayp` |
 | `arrayp`                | :white_check_mark: |  |
 | `objectp`               | :white_check_mark: |  |
-| `classp`                | - | nonexistant in dgd |
+| `classp`                | :heavy_minus_sign: | nonexistant in dgd |
 | `mapp`                  | :white_check_mark: | alias for `mappingp` |
 | `userp`                 | :white_check_mark: |  |
 | **strings**             |  |  |
 | `capitalize`            | :white_check_mark: |  |
 | `lower_case`            | :white_check_mark: |  |
 | `replace_string`        | :white_check_mark: |  |
-| `sprintf`               | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license). Used in the form `static string sprintf (string format, mixed args...)` as there are no way to modify strings passed as arguments. Expanded to accept strings with multiple lines. |
+| `sprintf`               | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license). Used in the form `static string sprintf (string format, mixed args...)` as there are no way to modify strings passed as arguments. Expanded to accept strings with multiple lines. Expanded to accept table/column mode with the `#` modifier.  |
 | `printf`                | :white_check_mark: | alias for `write(sprintf(...));` |
 | `strlen`                | :white_check_mark: | provided by dgd, added `visible_strlen` to count only visible/printable characters |
 | `strcmp`                | :white_check_mark: |  |
 | `strsrch`               | :white_check_mark: |  |
 | `pad`                   | :white_check_mark: |  |
-| `chr`                   | :white_check_mark: | char/int to string conversion |
-| `ord`                   | :white_check_mark: | string to char/int conversion |
+| `chr`                   | :white_check_mark: | :new: char/int to string conversion |
+| `ord`                   | :white_check_mark: | :new: string to char/int conversion |
 | **arrays**              |  |  |
 | `sizeof`                | :white_check_mark: | provided by dgd |
 | `explode`               | :white_check_mark: | provided by dgd, also added `full_explode` |
@@ -71,7 +71,7 @@ Common calls and operations over the basic types.
 | Function | Status | Comments |
 | -------- | :------: | -------- |
 | `clone_object`          | :white_check_mark: | provided by dgd, extended |
-| `new`                   | - | provided by dgd, different behaviour, use `clone_object` instead |
+| `new`                   | :heavy_minus_sign: | provided by dgd, different behaviour, use `clone_object` instead |
 | `destruct`              | :white_check_mark: | alias for `destruct_object` |
 | `find_object`           | :white_check_mark: | provided by dgd |
 | `load_object`           | :white_check_mark: | extended alias for `compile_object` |
@@ -157,7 +157,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `rename`                | :white_check_mark: | alias for `rename_file`, masked for permissions |
 | `file_size`             | :white_check_mark: | Mikael Lind's example code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
 | `cp`                    | :white_check_mark: |  |
-| `link`                  | - | nonexistant in dgd |
+| `link`                  | :heavy_minus_sign: | nonexistant in dgd |
 | `mkdir`                 | :white_check_mark: |  |
 | `rm`                    | :white_check_mark: |  |
 | `rmdir`                 | :white_check_mark: |  |
@@ -212,7 +212,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `test_bit`              |  |  |
 | `set_bit`               |  |  |
 | `next_bit`              |  |  |
-| `exec`                  | - | dummy function |
+| `exec`                  | :heavy_minus_sign: | dummy function |
 | `set_hide`              |  |  |
 | `throw`                 |  |  |
 | `error`                 |  |  |
@@ -223,7 +223,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `in_input`              |  |  |
 | `master`                |  |  |
 | `memory_info`           | :white_check_mark: |  |
-| `cache_stats`           | - | nonexistant in dgd |
+| `cache_stats`           | :heavy_minus_sign: | nonexistant in dgd |
 | `malloc_status`         |  |  |
 | `query_load_average`    |  |  |
 | `mud_status`            |  |  |
@@ -246,5 +246,13 @@ The general idea of how the `this_player` value is being stored in a central obj
 ## Other optional MudOS packages
 | Function | Package | Status | Comments |
 | -------- | :------: | :------: | -------- |
-| `domain_stats`         | PACKAGE_MUDLIB_STATS | :heavy_multiplication_x: | Not used |
-| `author_stats`         | PACKAGE_MUDLIB_STATS | :heavy_multiplication_x: | Not used |
+| `domain_stats`         | PACKAGE_MUDLIB_STATS | :negative_squared_cross_mark: | Not used |
+| `author_stats`         | PACKAGE_MUDLIB_STATS | :negative_squared_cross_mark: | Not used |
+
+## Legend
+| Symbol | Meaning |
+| :----: | ------- |
+| :white_check_mark:            | Already added and tested. |
+| :new:                         | Not present in MudOS, added for `Hexagon Mudlib`. |
+| :negative_squared_cross_mark: | Not included/necessary. |
+| :heavy_minus_sign:            | Non existant in DGD, not necessary to implement. |
