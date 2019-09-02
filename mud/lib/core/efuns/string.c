@@ -403,4 +403,3 @@ static nomask string pad(string str, int size, varargs string char)
 
   return str;
 }
-

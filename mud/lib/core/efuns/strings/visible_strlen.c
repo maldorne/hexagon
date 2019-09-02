@@ -23,8 +23,30 @@ static int visible_strlen(string str)
 
       continue;
     }
+    // international characters áÁöû, etc
+    else if (str[i] == 195)
+    {
+      // advance just one character, á == 195 161, é == 195 169, etc
+      continue;
+    }
 
     result++;
+  }
+
+  return result;
+}
+
+static string char_codes(string str)
+{
+  int i, length;
+  string result;
+
+  result = "";
+  length = strlen(str);
+
+  for (i = 0; i < length; i++)
+  {
+    result += "" + str[i] + " ";
   }
 
   return result;
