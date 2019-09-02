@@ -1,7 +1,7 @@
 
 // calendar
 
-#define _LANG_CALENDAR_DAY "dÃ­a"
+#define _LANG_CALENDAR_DAY "día"
 #define _LANG_CALENDAR_HOUR "hora"
 #define _LANG_CALENDAR_MINUTE "minuto"
 #define _LANG_CALENDAR_SECOND "segundo"
@@ -9,10 +9,10 @@
 #define _LANG_CALENDAR_SUNDAY "Domingo"
 #define _LANG_CALENDAR_MONDAY "Lunes"
 #define _LANG_CALENDAR_TUESDAY "Martes"
-#define _LANG_CALENDAR_WEDNESDAY "MiÃ©rcoles"
+#define _LANG_CALENDAR_WEDNESDAY "Miércoles"
 #define _LANG_CALENDAR_THURSDAY "Jueves"
 #define _LANG_CALENDAR_FRIDAY "Viernes"
-#define _LANG_CALENDAR_SATURDAY "SÃ¡bado"
+#define _LANG_CALENDAR_SATURDAY "Sábado"
 
 #define _LANG_CALENDAR_JANUARY "Enero"
 #define _LANG_CALENDAR_FEBRUARY "Febrero"
@@ -50,7 +50,5 @@
 #define _LANG_CALENDAR_INTL_DECEMBER "December"
 
 #define _LANG_CALENDAR_BIRTHDAY_STRING ordinal(day)+" de "+month(month-1)
-#define _LANG_CALENDAR_LONG_DATETIME day(info[LT_WDAY])+" "+pad(info[LT_MDAY])+" de "+ \
+#define _LANG_CALENDAR_LONG_DATETIME day(info[LT_WDAY])+" "+ordinal(info[LT_MDAY])+" de "+ \
             month(info[LT_MON])+" de "+info[LT_YEAR]
-
-
