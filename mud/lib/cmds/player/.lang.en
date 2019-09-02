@@ -19,3 +19,16 @@
 #define _LANG_FINGER_REAL_NAME "Real name"
 #define _LANG_FINGER_CITY "City"
 #define _LANG_FINGER_BIRTHDAY "Birthday"
+
+// whoami
+
+#define _LANG_WHOAMI_HELP "Shows information about my own character."
+#define _LANG_WHOAMI_CLASS_FIRST "   Class:\n"
+#define _LANG_WHOAMI_CLASS_EACH "     " +  ordinal(me->query_level()) + " level " + \
+                    (me->query_class_ob())->query_short()
+#define _LANG_WHOAMI_GUILD_FIRST "   Guilds:\n"
+#define _LANG_WHOAMI_GUILD_EACH "     " +  ordinal(guilds[g_names[i]][0]) + " level " + \
+                    capitalize(g_names[i]->query_short())
+#define _LANG_WHOAMI_JOB_FIRST "   Jobs:\n"
+#define _LANG_WHOAMI_JOB_EACH "     " +  ordinal(jobs[j_names[i]][0]) + " level " + \
+                    capitalize(j_names[i]->query_short())
