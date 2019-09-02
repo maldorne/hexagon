@@ -20,10 +20,15 @@
  *  - Added who <my name>, same behaviour as whoami.
  *  - new guild_joined, 18/7/03
  *
+ * Translated for Hexagon mudlib, neverbot 09/2019
+ *  - removed whoami feature again
  */
 
 #include <mud/cmd.h>
 #include <living/races.h>
+#include <common/properties.h>
+#include <user/player.h>
+#include <language.h>
 
 inherit CMD_BASE;
 
@@ -35,16 +40,25 @@ inherit CMD_BASE;
   "aenur", \
 })
 
-void setup() {
+
+void setup()
+{
   position = 0;
 }
 
-string query_usage() {
-  return "command";
+string query_usage()
+{
+  return "who";
+}
+
+string query_short_help()
+{
+  return _LANG_WHO_HELP;
 }
 
 // Sorted and race functions - Radix 1996
-int compare_obs(object ob1, object ob2) {
+int compare_obs(object ob1, object ob2)
+{
   string s1, s2;
   s1 = ob1->query_name();
   s2 = ob2->query_name();
@@ -57,72 +71,35 @@ int compare_obs(object ob1, object ob2) {
   return -1;
 }
 
-int query_valid_race(string race) {
+int query_valid_race(string race)
+{
   return member_array(lower_case(race), RACES) != -1;
 }
 
-int query_inmortal(object me) {
+int query_inmortal(object me)
+{
   return me->query_coder();
 }
 
-int no_coders(object me) {
+int no_coders(object me)
+{
   return !(me->query_coder());
 }
 
 // base_race added, for the subrace/culture system, neverbot 6/03
-int compare_race(object ob, string str) {
+int compare_race(object ob, string str)
+{
   return ((lower_case(ob->query_race_name()) == str) ||
     (lower_case(ob->query_base_race_name()) == str));
 }
 
-int remove_logon(object ob) {
+int remove_logon(object ob)
+{
   return (!(ob->query_short() == "logon"));
 }
 
-string who_am_i(object player) {
-  mapping guilds, jobs;
-  string ret;
-  string *g_names, *j_names;
-  int i;
-
-  guilds = player->query_guild_joined();
-  jobs = player->query_job_joined();
-  g_names = keys(guilds);
-  j_names = keys(jobs);
-
-  ret = player->query_cap_name() + " " +
-    player->query_article() + " " +
-    player->query_race_name() + ":\n";
-
-  if (player->query_class_ob()) {
-    ret += "   Clase:\n     " + (player->query_class_ob())->query_short() +
-      " de nivel " + player->query_level() + ".\n";
-  }
-
-  for (i = 0; i < sizeof(g_names); i++) {
-    if (i == 0)
-      ret += "   Gremios:\n";
-    if (!load_object(g_names[i]))
-      continue;
-    ret += "     " + capitalize(g_names[i]->query_short());
-    ret += " de nivel " + guilds[g_names[i]][0] + ".\n";
-  }
-
-  for (i = 0; i < sizeof(j_names); i++) {
-    if (i == 0)
-      ret += "   Oficios:\n";
-    if (!load_object(j_names[i]))
-      continue;
-    ret += "     " + capitalize(j_names[i]->query_short());
-    ret += " de nivel " + jobs[j_names[i]][0] + ".\n";
-  }
-
-  // ret += ".\n";
-  return ret;
-}
-
-string who_string(int width, int cre, string str) {
-
+string who_string(int width, int cre, string str)
+{
   object * arr, * arr_aux, user;
   int i, num_people, num_disconnected_people;
   int creators, what;
@@ -134,42 +111,36 @@ string who_string(int width, int cre, string str) {
 
   if (!strlen(str))
     what = 0;
-  else if (str == "programadores"[0..strlen(str) - 1])
+  else if (str == _LANG_WHO_OPTION_CODERS)
     what = 1;
-  else if (str == "jugadores"[0..strlen(str) - 1])
+  else if (str == _LANG_WHO_OPTION_PLAYERS)
     what = 2;
-  else if (str == this_player()->query_name() ||
-    this_player()->expand_nickname(str) == this_player()->query_name())
-    what = 4;
   else if (query_valid_race(str))
     what = 3;
   else
-    return "Sintaxis: who\n" +
-      "          who programadores\n" +
-      "          who jugadores\n" +
-      "          who <raza|cultura>\n" +
-      "          who <mi nombre>\n";
-
-  if (what == 4) {
-    return who_am_i(this_player());
-  }
+    return _LANG_WHO_HELP;
 
   arr = players();
   arr = filter_array(arr, "remove_logon", this_object());
 
-  if (what == 1) {
+  if (what == 1)
+  {
     arr = filter_array(arr, "query_inmortal", this_object());
-  } else if (what == 3) {
+  }
+  else if (what == 3)
+  {
     // if we want to filter by an specific race, we can use
     // the query_race_name function
     // filter coders, neverbot 21/01/03
     arr = filter_array(arr, "no_coders", this_object());
     arr = filter_array(arr, "compare_race", this_object(), lower_case(str));
     race = str;
-    str = "jugadores";
-  } else {
+    str = _LANG_WHO_OPTION_PLAYERS;
+  }
+  else
+  {
     arr = sort_array(arr, "compare_obs", this_object());
-    race = "jugadores";
+    race = _LANG_WHO_OPTION_PLAYERS;
   }
 
   creators = num_people = 0;
@@ -177,7 +148,7 @@ string who_string(int width, int cre, string str) {
 
   prt = "\n";
   prt += sprintf("%p%|*s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
-  prt += sprintf("%|*s\n", width, "Hoy es " + ctime(time()) + " en el mundo real", width);
+  prt += sprintf("%|*s\n", width, _LANG_WHO_REAL_WORLD_DATE, width);
   prt += sprintf("%|*s\n", width, ctime(time(), 3), width);
 
   // traverse the player list
@@ -185,17 +156,21 @@ string who_string(int width, int cre, string str) {
   // if what == 2 only players
   // if what == 3 only players of an specific race
   // if !what coders + players
-  for (i = 0; i < sizeof(arr); i++) {
+  for (i = 0; i < sizeof(arr); i++)
+  {
     // get the user object
     user = arr[i]->user();
 
     if (!(tmp = (string) arr[i]->query_short()))
       continue;
 
-    if (arr[i]->query_coder()) {
-      if (!what || what == 1) {
+    if (arr[i]->query_coder())
+    {
+      if (!what || what == 1)
+      {
         // Here it denies to show "super invis"
-        if (user->query_invis() > 1) {
+        if (user->query_invis() > 1)
+        {
           if (!this_player()->query_administrator())
             continue;
         }
@@ -209,35 +184,42 @@ string who_string(int width, int cre, string str) {
         s = "";
         nam = tmp;
 
-        if (cre && (tmp = arr[i]->query_in_editor())) {
+        if (cre && (tmp = arr[i]->query_in_editor()))
+        {
           // only admins see this
           if (stringp(tmp))
             if (this_player()->query_admin())
-              s += " %^GREEN%^(Editando: " + (string) tmp + ")%^RESET%^";
+              s += _LANG_WHO_EDITING_MSG;
 
         }
 
         if (tmp = (string) arr[i]->query_gtitle())
           s += ", " + tmp;
+
         // if (tmp = (string) arr[i]->query_title())
         //   s += ", " + tmp;
+
         if (tmp = arr[i]->query_extitle())
           s += " (" + tmp + ")";
-        if (cre && arr[i]->query_property("ausente"))
-          s += " (%^WHITE%^%^BOLD%^Ausente%^RESET%^)";
+
+        if (cre && arr[i]->query_property(AWAY_PROP))
+          s += _LANG_WHO_AWAY_MSG;
+
         if (user->query_idle() > 120)
-          s += " (%^CYAN%^%^BOLD%^Inactivo: " + (user->query_idle() / 60) + "%^RESET%^)";
+          s += _LANG_WHO_IDLE_MSG;
 
         // imm += sprintf(" %s%*-=s", nam, width, s) + "%^RESET%^\n";
         imm += sprintf(" %s%-*s", nam, width, s) + "%^RESET%^\n";
 
-        if (!user->query_invis() || cre) {
+        if (!user->query_invis() || cre)
+        {
           creators++;
         }
       }
     } // if (query_coder)
     else // is not a coder
       if (what != 1) // have to show players
+
     {
       tmp = (string) arr[i]->query_short() + " " +
         (arr[i]->query_race_ob() ?
@@ -250,83 +232,87 @@ string who_string(int width, int cre, string str) {
       s = "";
       nam = tmp;
 
-      if (arr[i]->query_property("guest"))
-        s += " invitad" + ((arr[i]->query_gender() == 2) ? "a" : "o") + " en " + mud_name();
+      if (arr[i]->query_property(GUEST_PROP))
+        s += _LANG_WHO_GUEST_MSG;
       if (tmp = (string) arr[i]->query_extitle())
         s += " (" + tmp + ")";
       if (user->query_idle() > 120)
-        s += " (%^GREEN%^Inactivo: " + (user->query_idle() / 60) + "%^RESET%^)";
+        s += _LANG_WHO_IDLE_MSG;
 
       play += sprintf("          %*-=s", width - 10, nam + s) + "\n";
       num_people++;
     }
   } // for
 
-  if (!what || (what == 1)) {
+  if (!what || (what == 1))
+  {
     // coders
-    ttl = fix_string("] %^BOLD%^WHITE%^Programadores%^RESET%^ [");
+    ttl = fix_string("] %^BOLD%^WHITE%^" + capitalize(_LANG_WHO_OPTION_CODERS) + "%^RESET%^ [");
 
     // show only if we have found coders
-    if (creators) {
+    if (creators)
+    {
       prt += sprintf("%p%|*s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
       prt += imm;
     }
   }
 
   // players
-  if (what != 1) {
-    if (what == 3) {
+  if (what != 1)
+  {
+    if (what == 3)
+    {
       ttl = fix_string("] %^BOLD%^WHITE%^" + capitalize(race) + "%^RESET%^ [");
-    } else {
-      ttl = fix_string("] %^BOLD%^WHITE%^Jugadores%^RESET%^ [");
     }
-    if (num_people) {
+    else
+    {
+      ttl = fix_string("] %^BOLD%^WHITE%^" + capitalize(_LANG_WHO_OPTION_PLAYERS) + "%^RESET%^ [");
+    }
+    if (num_people)
+    {
       prt += sprintf("%p%*|s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
       prt += play;
     }
   }
 
   // only coders
-  if (what == 1) {
+  if (what == 1)
+  {
     if (!creators)
-      tmp = "> %^GREEN%^No hay programadores conectados%^RESET%^ <";
+      tmp = _LANG_WHO_NO_CODERS_MSG;
     else
-      tmp = "> %^GREEN%^Hay " + query_num(creators, 100) + " programador" +
-        (creators < 2 ? "" : "es") + " en " + mud_name() + "%^RESET%^ <";
+      tmp = _LANG_WHO_ONLY_CODERS_MSG;
   }
   // only players
-  else if (what == 2 || what == 3) {
+  else if (what == 2 || what == 3)
+  {
     if (!num_people)
-      tmp = "> %^GREEN%^No hay jugadores conectados%^RESET%^ <";
+      tmp = _LANG_WHO_NO_PLAYERS_MSG;
     else if (cre && num_people == 1)
-      tmp = "> %^GREEN%^Es el único que está conectado en " + mud_name() + "%^RESET%^ <";
+      tmp = _LANG_WHO_IS_THE_ONLY_ONE;
     else if (num_people == 1)
-      tmp = "> %^GREEN%^Eres el único que está conectado en " + mud_name() + "%^RESET%^ <";
+      tmp = _LANG_WHO_YOU_ARE_THE_ONLY_ONE;
     else
-      tmp = "> %^GREEN%^Hay " + query_num(num_people, 100) + " jugador" + (num_people < 2 ? "" : "es") +
-      " en " + mud_name() + "%^RESET%^ <";
+      tmp = _LANG_WHO_ONLY_PLAYERS_MSG;
   }
   // what == 0, coders + players
-  else {
+  else
+  {
     // uncanny case... except we are in invis 2 and we are the only one coder connected
     if (!num_people && !creators)
-      tmp = "> %^GREEN%^No hay jugadores conectados%^RESET%^ <";
+      tmp = _LANG_WHO_NO_PLAYERS_MSG;
 
     else if (num_people + creators == 1)
-      tmp = "> %^GREEN%^Eres el único que está conectado en " + mud_name() + "%^RESET%^ <";
+      tmp = _LANG_WHO_YOU_ARE_THE_ONLY_ONE;
 
     else if (!creators && num_people)
-      tmp = "> %^GREEN%^Hay " + query_num(num_people, 100) + " jugador" + (num_people < 2 ? "" : "es") +
-      " en " + mud_name() + "%^RESET%^ <";
+      tmp = _LANG_WHO_ONLY_PLAYERS_MSG;
 
     else if (!num_people && creators)
-      tmp = "> %^GREEN%^Hay " + query_num(creators, 100) + " programador" +
-      (creators < 2 ? "" : "es") + " en " + mud_name() + "%^RESET%^ <";
+      tmp = _LANG_WHO_ONLY_CODERS_MSG;
 
     else
-      tmp = "> %^GREEN%^Hay " + query_num(creators, 100) + " programador" +
-      (creators < 2 ? "" : "es") + " y " + query_num(num_people, 100) + " jugador" +
-      (num_people < 2 ? "" : "es") + " en " + mud_name() + "%^RESET%^ <";
+      tmp = _LANG_WHO_MULTIPLE_MSG;
   }
 
   tmp = fix_string(tmp);
@@ -337,24 +323,25 @@ string who_string(int width, int cre, string str) {
 
   // A�adido por Folken, para comprobar gente con la conexion caida
   // (no salen en users())
-  if (this_player()->query_coder()) {
+  if (this_player()->query_coder())
+  {
     // Todos los objectos con enable_commands() llamado
     arr_aux = livings();
     // Quitamos los del who
     arr_aux -= users();
     num_disconnected_people = 0;
-    for (i = 0; i < sizeof(arr_aux); i++) {
-      if (arr_aux[i]->query_player() && (arr_aux[i]->query_invis() != 2)) {
+    for (i = 0; i < sizeof(arr_aux); i++)
+    {
+      if (arr_aux[i]->query_player() && (arr_aux[i]->query_invis() != 2))
+      {
         // prt += sprintf("          %*-=s", width, capitalize(arr_aux[i]->query_name())) + "\n";
         prt += sprintf("          %-*s", width, capitalize(arr_aux[i]->query_name())) + "\n";
         num_disconnected_people++;
       }
     }
-    if (num_disconnected_people > 0) {
-      tmp = (num_disconnected_people == 1) ?
-          ("> %^GREEN%^Un personaje con la conexión caída%^RESET%^ <") :
-          ("> %^GREEN%^" + capitalize(number_as_string(num_disconnected_people)) + " personajes con la conexión caída%^RESET%^ <");
-      tmp = fix_string(tmp);
+    if (num_disconnected_people > 0)
+    {
+      tmp = fix_string(_LANG_WHO_DISCONNECTED_MSG);
       prt += sprintf("%p%|*s\n", '-', width + (strlen(tmp) - visible_strlen(tmp)), tmp);
     }
   }
@@ -362,14 +349,16 @@ string who_string(int width, int cre, string str) {
   return prt;
 } /* who_string() */
 
-int do_who(string str) {
+int do_who(string str)
+{
   tell_object(this_player(),
     who_string((int) this_user()->query_cols(),
       this_player()->query_coder(), str));
   return 1;
 }
 
-int cmd(string str, object me, string verb) {
+int cmd(string str, object me, string verb)
+{
   write(who_string((int) me->user()->query_cols(),
     (int) me->query_coder(), str));
   // me->set_trivial_action();
