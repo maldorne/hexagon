@@ -73,10 +73,10 @@ static string query_multiple_short(mixed *obs, varargs int flag)
     {
       if (flag)
         str += ({ (query_num(j,20)+
-          " "+bity[i+1][0]->pretty_plural(bity[i])) });
+          " "+bity[i+1][0]->pretty_plural()) });
       else
         str += ({ (query_num(j,20)+
-          " "+bity[i+1][0]->query_plural(bity[i])) });
+          " "+bity[i+1][0]->query_plural()) });
     }
   }
 
