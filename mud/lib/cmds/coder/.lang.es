@@ -4,6 +4,7 @@
 #define _LANG_CMD_FILE "Archivo"
 #define _LANG_CMD_FILE_DOES_NOT_EXIST "No existe ese archivo.\n"
 #define _LANG_CMD_CANNOT_READ_FILE "No se ha podido leer ese archivo.\n"
+#define _LANG_CMD_NO_FILES "No hay archivos coincidentes.\n"
 
 // uptime
 
@@ -18,3 +19,19 @@
 #define _LANG_CAT_WHAT "¿Cat de qué archivo?\n"
 #define _LANG_CAT_ASTERISK "¿cat *? ¡Olvídalo!\n"
 #define _LANG_CAT_TRUNCATED "\n ----- TRUNCADO ----- \n\n"
+
+// clone
+
+#define _LANG_CLONE_WHAT "¿Clonar que?\n"
+#define _LANG_CLONE_ERROR_IN "Error en "
+#define _LANG_CLONE_ERROR_MAYBE_UNIQUE "Error, no se ha podido clonar el objeto (¿objeto único?).\n"
+#define _LANG_CLONE_OK_YOU "Ok. Objeto " + file_name(ob) + " clonado en " + \
+        (environment(ob) == this_player() ? "ti" : \
+        (environment(ob) == environment(this_player()) ? "este lugar" : \
+          this_player()->desc_object(ob))) + \
+        ".\n"
+#define _LANG_CLONE_OK_ENV this_player()->query_cap_name() + " busca " + \
+        (string)ob->query_numeral() + " " + \
+        ((string)ob->query_short() ? (string)ob->query_short() : "objeto") + \
+        " en otra dimensión.\n"
+#define _LANG_CLONE_ERROR "Error, no se ha podido clonar el objeto.\n"

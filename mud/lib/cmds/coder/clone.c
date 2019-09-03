@@ -1,6 +1,7 @@
-// Traducido por neverbot 01
+// Translated by neverbot 01, again in 09/2019
 
 #include <mud/cmd.h>
+#include <language.h>
 
 inherit CMD_BASE;
 
@@ -9,78 +10,67 @@ void setup()
   position = 1;
 }
 
-static int cmd(string str, object me, string verb) 
+static int cmd(string str, object me, string verb)
 {
   object ob;
   string err, *filenames;
   int loop, mov;
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
-    notify_fail("¿Clonar que?\n");
+    notify_fail(_LANG_CLONE_WHAT);
     return 0;
   }
 
   filenames = get_files(str);
-  if (!sizeof(filenames))  
+  if (!sizeof(filenames))
   {
-    notify_fail("No hay archivos coincidentes.\n");
+    notify_fail(_LANG_CMD_NO_FILES);
     return 0;
   }
 
-  for(loop = 0; loop < sizeof(filenames); loop++) 
+  for(loop = 0; loop < sizeof(filenames); loop++)
   {
     str = filenames[loop];
-    if (file_size(str) < 0 && file_size(str + ".c") < 0) 
+    if (file_size(str) < 0 && file_size(str + ".c") < 0)
     {
-      notify_fail("No hay archivos coincidentes.\n");
+      notify_fail(_LANG_CMD_NO_FILES);
       return 0;
     }
- 
+
     // err = catch(ob = clone_object(str));
     // if (err)
-    //   tell_object(this_player(), "Error in clone_object():\n   " + err + "\n"); 
- 
+    //   write(_LANG_CLONE_ERROR_IN + " clone_object():\n   " + err + "\n");
+
     ob = clone_object(str);
 
-    if (ob) 
+    if (ob)
     {
       err = catch((mov = (int)ob->move(this_player())));
       if (err)
-        tell_object(this_player(), "Error in move(this_player()):\n   " + err + "\n");
+        write(_LANG_CLONE_ERROR_IN + " move(this_player()):\n   " + err + "\n");
 
-      if (err || mov) 
+      if (err || mov)
       {
         err = catch(ob->move(environment(this_player())));
         if (err)
-          tell_object(this_player(), "Error in move(environment()):\n   " + err + "\n");
+          write(_LANG_CLONE_ERROR_IN + " move(environment()):\n   " + err + "\n");
       }
 
-      // Añadido por neverbot, los objetos unicos pueden ser destruidos durante el move
+      // added by neverbot, unique objects could be destroyed during move
       if (!ob)
       {
-        tell_object(this_player(),"Error, no se ha podido clonar el objeto (¿objeto único?).\n");
+        write(_LANG_CLONE_ERROR_MAYBE_UNIQUE);
         return 1;
       }
 
-      tell_object(this_player(), "Ok.  Objeto "+file_name(ob)+" clonado en "+
-        (environment(ob)==this_player() ? "ti" :
-        (environment(ob)==environment(this_player()) ? "este lugar" :
-          this_player()->desc_object(ob)))+
-        ".\n");
-
-      tell_room(environment(this_player()),this_player()->query_cap_name() + 
-        // " busca " + ((int)ob->query_genero()?"una ":"un ") +
-        " busca su "+
-        ((string)ob->query_short()?(string)ob->query_short():"objeto") +
-        " en otra dimensión.\n",({this_player()}));
-    } 
-    else 
+      write(_LANG_CLONE_OK_YOU);
+      tell_room(environment(this_player()), _LANG_CLONE_OK_ENV, ({ this_player() }));
+    }
+    else
     {
-      tell_object(this_player(),"Error, no se ha podido clonar el objeto.\n");
+      write(_LANG_CLONE_ERROR);
     }
   }
   return 1;
-} /* clone() */
-
-
+}
