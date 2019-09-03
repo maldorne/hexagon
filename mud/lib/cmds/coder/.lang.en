@@ -1,0 +1,8 @@
+
+// uptime
+
+#define _LANG_UPTIME_SINCE "The mud has been up for:\n\t"
+#define _LANG_UPTIME_DAY "day"
+#define _LANG_UPTIME_HOUR "hour"
+#define _LANG_UPTIME_MINUTE "minute"
+#define _LANG_UPTIME_SECOND "second"
