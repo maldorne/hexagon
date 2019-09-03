@@ -203,7 +203,7 @@ int update(string str)
   notify_fail(_LANG_CODER_OBJECT_DONT_EXIST);
   tring = str;
 
-  // if (this_player(1) != this_player())
+  // if (this_player(1) != this_user())
   //   return 0;
 
   if (!strlen(str) || (member_array(str, _LANG_CODER_OBJECT_HERE) != -1))

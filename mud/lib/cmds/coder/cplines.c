@@ -14,7 +14,7 @@ protected int cmd(string str, object me, string verb) {
     string *sfile, sfname, *dfile, dfname, lines;
     int sstart, send, slength;
 
-    if (this_player(1) != this_player()) return 0;
+    if (this_player(1) != this_user()) return 0;
 
     if(!str) {
 	notify_fail("Usage : cplines source <start> <end> destination\n");

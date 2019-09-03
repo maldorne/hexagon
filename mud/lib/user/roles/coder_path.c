@@ -60,7 +60,7 @@ int change_dir(string str)
   arr = ({ });
   tmp = "";
 
-  if (this_player(1) != this_player())
+  if (this_player(1) != this_user())
     return 0;
 
   if (!strlen(str))
@@ -149,7 +149,7 @@ int change_dir(string str)
 
 int set_home_dir(string str)
 {
-  if (this_player(1) != this_player())
+  if (this_player(1) != this_user())
     return 0;
 
   if (str)

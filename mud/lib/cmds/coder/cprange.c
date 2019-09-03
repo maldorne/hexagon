@@ -14,7 +14,7 @@ protected int cmd(string str, object me, string verb) {
     string *filename, fname, text, wfile;
     int minint, numtimes, loop;
 
-    if (this_player(1) != this_player()) return 0;
+    if (this_player(1) != this_user()) return 0;
 
     if(!str) {
 	notify_fail("Usage : cprange file | minint | numtimes\n");

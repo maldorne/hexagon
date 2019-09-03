@@ -138,7 +138,7 @@ static int cmd(string str, object me, string verb)
   if (!this_player())
     return 0;
 
-  if (this_player(1) != this_player()->user())
+  if (this_player(1) != this_user())
     return 0;
 
   // seteuid(geteuid(this_player()));

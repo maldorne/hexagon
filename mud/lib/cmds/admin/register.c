@@ -8,7 +8,7 @@ position = 1;
 protected int cmd(string str, object me, string verb) {
    object player;
 
-  if (this_player(1) != this_player()) return 0;
+  if (this_player(1) != this_user()) return 0;
     if (!str) {
        notify_fail("Usage: register player\n");
        return 0;
@@ -38,5 +38,5 @@ protected int cmd(string str, object me, string verb) {
     tell_object(player,"You are now registered. Enjoy your time here.\n");
     return 1;
 } /* register player */
- 
+
 
