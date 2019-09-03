@@ -18,6 +18,9 @@
 !/lib/user/migrations/base_migration.c
 !/lib/user/migrations/0001.c
 
+# ignore packages
+/packages/*
+
 # ignore areas
 /game/areas/*
 !/game/areas/start
