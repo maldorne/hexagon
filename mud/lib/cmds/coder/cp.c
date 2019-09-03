@@ -8,15 +8,15 @@ void setup()
   position = 1;
 }
 
-static int cmd(string str, object me, string verb) 
+static int cmd(string str, object me, string verb)
 {
   string *filenames, text, dest, *fnames;
   int loop, fs;
 
-  if (this_player(1) != this_player()) 
+  if (this_player(1) != this_user())
     return 0;
 
-  if (!strlen(str)) 
+  if (!strlen(str))
   {
     notify_fail("Uso: cp fichero [fichero|dir...]\n");
     return 0;
@@ -25,7 +25,7 @@ static int cmd(string str, object me, string verb)
   fnames = explode(str, " ");
   filenames = get_files(implode(fnames[0..sizeof(fnames) -2], "/"));
 
-  if (!sizeof(filenames)) 
+  if (!sizeof(filenames))
   {
     notify_fail("Sintaxis: cp fichero [fichero|dir...]\n");
     return 0;
@@ -34,17 +34,17 @@ static int cmd(string str, object me, string verb)
   dest = fnames[sizeof(fnames) - 1];
   dest = get_path(dest);
 
-  if (!dest) 
+  if (!dest)
   {
     tell_object(this_player(),"Necesitas especificar un destino.\n");
     return 1;
   }
 
-  for(loop = 0; loop < sizeof(filenames); loop++) 
+  for(loop = 0; loop < sizeof(filenames); loop++)
   {
     str = filenames[loop];
     text = read_file(str);
-    if (!text) 
+    if (!text)
     {
       tell_object(this_player(),"Fichero inexistente: " + str + "\n");
       continue;
@@ -52,14 +52,14 @@ static int cmd(string str, object me, string verb)
 
     fs = file_size(dest);
 
-    if (fs == -2) 
+    if (fs == -2)
     {
       string *names;
 
       names = explode(str, "/");
       fs = file_size(dest + "/" + names[sizeof(names) - 1]);
 
-      if (fs != -1) 
+      if (fs != -1)
       {
         tell_object(this_player(),"Fichero existente: "+dest+"/"+
           names[sizeof(names) - 1] + "\n");
@@ -68,9 +68,9 @@ static int cmd(string str, object me, string verb)
 
       write_file(dest + "/" + names[sizeof(names) - 1], text);
     }
-    else 
+    else
     {
-      if (fs != -1) 
+      if (fs != -1)
       {
         tell_object(this_player(),"Fichero existente: " + dest + "\n");
         continue;

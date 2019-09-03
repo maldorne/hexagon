@@ -631,7 +631,7 @@ void snoop_reason(string str) {
     object snooper;
 
     snooper = this_player();
-    if (this_player(1) != this_player()) {
+    if (this_player(1) != this_user()) {
   write("No puedes forzar a alguien a hacer esto...\n");
   return ;
     }

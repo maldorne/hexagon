@@ -72,11 +72,6 @@ int _cmd(string tail, object thisob, string verb)
         return 0;
       break;
 
-    case MANAGER_CMD:
-      if (!thisob->query_manager())
-        return 0;
-      break;
-
     case CODER_CMD:
       if (!thisob->query_coder())
         return 0;

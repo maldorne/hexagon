@@ -67,7 +67,7 @@ nomask int help_func(string str)
 
 nomask int do_clear_screen(string str)
 {
-  // if( this_player(1) != this_player() )
+  // if( this_player(1) != this_user() )
   //   return 0;
 
   write(sprintf("%c[H%c[2J\n", 27, 27));
