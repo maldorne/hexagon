@@ -335,7 +335,7 @@ string who_string(int width, int cre, string str)
       if (!arr_aux[i]->player())
       {
         if (this_user()->query_coder()) {
-          prt += sprintf("          %-*s", width, arr_aux[i]->query_email()) + "\n";
+          prt += sprintf("          %-*s", width, arr_aux[i]->query_account_name()) + "\n";
         }
         num_disconnected_people++;
       }
