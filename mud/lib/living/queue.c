@@ -24,6 +24,7 @@
 #include <living/queue.h>
 #include <mud/cmd.h>
 #include <kernel.h>
+#include <language.h>
 
 /*
  * These must be saved in permanent storage; in fact, these should be
@@ -551,9 +552,7 @@ private int perform_next_action()
               if (strlen(fail_msg))
                 tell_object(this_object(), fail_msg);
               else
-                tell_object(this_object(), "El intento de hacer '%^RED%^" +
-                                            curr_act +
-                                           "%^RESET%^' no funcionó.\n");
+                tell_object(this_object(), _LANG_DIDNT_WORK);
 
             }
           }

@@ -158,9 +158,7 @@ static nomask void inform_user(string str, int message_type)
       write("\nSe ha producido un error.\n");
 
       if (strlen(mudos->query_current_command()))
-        write("El intento de hacer '%^RED%^" +
-              mudos->query_current_command() +
-              "%^RESET%^' no funcionó.\n");
+        write(_LANG_DIDNT_WORK);
       this_player()->show_prompt("\n");
 
       break;
