@@ -1,7 +1,7 @@
 
 // this is the admin/lord role object
 
-inherit base "/lib/user/roles/manager_role.c";
+inherit base "/lib/user/roles/coder_role.c";
 
 void create()
 {
@@ -15,7 +15,7 @@ static void start_role(object user)
 
 static void role_commands()
 {
-  // player and coder and manager commands
+  // player and coder commands
   base::role_commands();
 }
 

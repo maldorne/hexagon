@@ -25,8 +25,6 @@ void create()
       "/game/cmds/player/":  ({PLAYER_CMD,  "Player"}),
        "/lib/cmds/coder/":   ({CODER_CMD,   "Coder"}),
       "/game/cmds/coder/":   ({CODER_CMD,   "Coder"}),
-       "/lib/cmds/manager/": ({MANAGER_CMD, "Project Manager"}),
-      "/game/cmds/manager/": ({MANAGER_CMD, "Project Manager"}),
        "/lib/cmds/admin/":   ({ADMIN_CMD,   "Administrator"}),
       "/game/cmds/admin/":   ({ADMIN_CMD,   "Administrator"}),
       // "/net/cmds/":              ({0,   "InterMUD network"}),
@@ -107,8 +105,6 @@ string * query_available_cmds(object player)
     perms += ({ PLAYER_CMD, });
   if (player->query_coder())
     perms += ({ CODER_CMD, });
-  if (player->query_manager())
-    perms += ({ MANAGER_CMD, });
   if (player->query_admin())
     perms += ({ ADMIN_CMD, });
 
@@ -149,11 +145,6 @@ string * query_available_directories(object player)
     result += ({
                 "/lib/cmds/coder/",
                 "/game/cmds/coder/"
-              });
-  if (player->query_manager())
-    result += ({
-                "/lib/cmds/manager/",
-                "/game/cmds/manager/"
               });
   if (player->query_admin())
   {
@@ -215,11 +206,6 @@ mapping query_available_cmds_by_category(object player)
     directories["/game/cmds/coder/"] = ({  });
     // directories["/net/cmds/"] = ({  });
     // directories["/lib/cmds/handlers/cmds/"] = ({  });
-  }
-  if (player->query_manager())
-  {
-    directories["/lib/cmds/manager/"] = ({  });
-    directories["/game/cmds/manager/"] = ({  });
   }
   if (player->query_admin())
   {
@@ -305,10 +291,6 @@ int cmd(string verb, string tail, object thisob)
   {
     case ADMIN_CMD:
       if (!thisob->query_admin())
-        return 0;
-      break;
-    case MANAGER_CMD:
-      if (!thisob->query_manager())
         return 0;
       break;
     case CODER_CMD:

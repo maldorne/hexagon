@@ -47,15 +47,6 @@ int set_role(string name)
       seteuid(player->query_name());
       break;
 
-    case MANAGER_ROLE:
-      role_name = name;
-      _role = clone_object(MANAGER_ROLE_OB);
-      _role->set_user(this_object());
-
-      // euid as coder
-      seteuid(player->query_name());
-      break;
-
     case CODER_ROLE:
       role_name = name;
       _role = clone_object(CODER_ROLE_OB);
@@ -78,13 +69,7 @@ int set_role(string name)
 
 int query_admin()         { return role_name == ADMIN_ROLE; }
 int query_administrator() { return query_admin(); }
-int query_manager()       { return role_name == MANAGER_ROLE ||
-                                   query_administrator();
-                          }
-int query_coder()         { return (role_name == CODER_ROLE) ||
-                                    query_manager() ||
-                                    query_administrator();
-                          }
+int query_coder()         { return (role_name == CODER_ROLE || role_name == ADMIN_ROLE); }
 
 string query_object_type()
 {
@@ -92,7 +77,7 @@ string query_object_type()
 
   // not yet logged in
   if (this_object()->query_name() == "object")
-    return "X";
+    return O_CONNECTED;
 
   // if (this_object()->player())
   //   name = this_object()->player()->query_name();
@@ -106,8 +91,6 @@ string query_object_type()
       return O_PLAYER;
     case CODER_ROLE:
       return O_CODER;
-    case MANAGER_ROLE:
-      return O_MANAGER;
     case ADMIN_ROLE:
       return O_ADMINISTRATOR;
   }

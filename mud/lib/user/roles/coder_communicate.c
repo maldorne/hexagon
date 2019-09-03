@@ -69,7 +69,7 @@ int do_echo(string str)
       str+" ["+ctime(time(), 4)+"]\n");
 
   str += "%^RESET%^";
-  
+
   write("Envías a "+file_name(environment(this_player()))+" el echo:\n" + str + "\n");
   event(environment(this_player()), "player_echo", str + "\n");
 
@@ -94,7 +94,7 @@ int do_echo_to(string str)
     return 0;
   }
 
-  if (sscanf(str, "%s %s", who, what) != 2) 
+  if (sscanf(str, "%s %s", who, what) != 2)
   {
     notify_fail("Sintaxis: echoto <jugador> <texto>\n");
     return 0;
@@ -103,16 +103,16 @@ int do_echo_to(string str)
   who = lower_case(who);
   who = (string)this_player()->expand_nickname(who);
   ob = find_player(who);
-  
+
   if (!ob)
   {
     notify_fail("No se ha podido encontrar a '"+who+"'.\n");
     return 0;
   }
-  
+
   log_file("echoes", this_player()->query_cap_name()+
     " echoto's "+who+": " +what+" ["+ctime(time(),4)+"]\n");
-  
+
   what += "%^RESET%^";
   write("Haces echo a " + who + ":\n" + what + "\n");
   event(ob, "player_echo_to", what + "\n");
@@ -129,16 +129,15 @@ int do_emote_all(string str)
   }
 
   // Radix cause Piper & Taniwha wanted it...
-  if ((this_player(1)->query_object_type() == O_CODER) ||
-      (this_player(1)->query_object_type() == O_MANAGER))
+  if (this_player(1)->query_object_type() == O_CODER)
   {
     notify_fail("Emoteall sólo esta disponible para administradores.\n");
     return(0);
   }
-  
+
   log_file("echoes", this_player()->query_cap_name()+
     " emotealls: "+str+" ["+ctime(time(), 4)+"]\n");
-  
+
   str += "%^RESET%^";
   write("Envías el emoteall:\n" + this_player()->query_cap_name() + " " + str + "\n");
   event(users(), "player_emote_all", this_player()->query_cap_name() + " " + str + "\n");
@@ -182,9 +181,8 @@ int do_inter_creator_tell(string str)
   return 1;
 } */
 
-mixed stats() 
+mixed stats()
 {
-  return ({ 
+  return ({
           });
 }
-            
