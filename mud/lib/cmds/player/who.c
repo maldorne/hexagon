@@ -318,27 +318,29 @@ string who_string(int width, int cre, string str)
   tmp = fix_string(tmp);
   prt += sprintf("%p%|*s\n", '-', width + (strlen(tmp) - visible_strlen(tmp)), tmp);
 
-  //     tmp ="> Total gente conectada: "+number+" <";
-  //  prt += sprintf("%*'-'|s\n", width+0, tmp);
-
-  // A�adido por Folken, para comprobar gente con la conexion caida
-  // (no salen en users())
+  // added by neverbot, to check disconnected people
+  // (they won't appear in users users())
   if (this_player()->query_coder())
   {
-    // Todos los objectos con enable_commands() llamado
-    arr_aux = livings();
-    // Quitamos los del who
-    arr_aux -= users();
+    // every object with enable_commands()
+    // arr_aux = livings();
+    // remove the users appearing in the who
+    // arr_aux -= players();
+
+    arr_aux = users();
     num_disconnected_people = 0;
+
     for (i = 0; i < sizeof(arr_aux); i++)
     {
-      if (arr_aux[i]->query_player() && (arr_aux[i]->query_invis() != 2))
+      if (!arr_aux[i]->player())
       {
-        // prt += sprintf("          %*-=s", width, capitalize(arr_aux[i]->query_name())) + "\n";
-        prt += sprintf("          %-*s", width, capitalize(arr_aux[i]->query_name())) + "\n";
+        if (this_user()->query_coder()) {
+          prt += sprintf("          %-*s", width, arr_aux[i]->query_email()) + "\n";
+        }
         num_disconnected_people++;
       }
     }
+
     if (num_disconnected_people > 0)
     {
       tmp = fix_string(_LANG_WHO_DISCONNECTED_MSG);
