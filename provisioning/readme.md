@@ -43,7 +43,7 @@ And having access to some kind of command-line terminal.
     + Set initial configuration of the project
     + Start the mud so you can test it
 
-The app could be tested in `[telnet://192.168.10.192:6047/](telnet://192.168.10.192:6047/)` 
+The app could be tested in [`telnet://192.168.10.192:6047/`](telnet://192.168.10.192:6047/)
 If you want to use a different ip, it's defined in `Vagrantfile`
 
 ### Recreating the virtual machine (something went wrong?)
