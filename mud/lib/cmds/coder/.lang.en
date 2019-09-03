@@ -1,4 +1,10 @@
 
+// common
+
+#define _LANG_CMD_FILE "File"
+#define _LANG_CMD_FILE_DOES_NOT_EXIST "That file does not exist.\n"
+#define _LANG_CMD_CANNOT_READ_FILE "Cannot read that file.\n"
+
 // uptime
 
 #define _LANG_UPTIME_SINCE "The mud has been up for:\n\t"
@@ -6,3 +12,9 @@
 #define _LANG_UPTIME_HOUR "hour"
 #define _LANG_UPTIME_MINUTE "minute"
 #define _LANG_UPTIME_SECOND "second"
+
+// cat
+
+#define _LANG_CAT_WHAT "cat of what file?\n"
+#define _LANG_CAT_ASTERISK "cat *? Forget about it.\n"
+#define _LANG_CAT_TRUNCATED "\n ----- TRUNCATED ----- \n\n"
