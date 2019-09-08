@@ -199,8 +199,8 @@ string who_string(int width, int cre, string str)
         // if (tmp = (string) arr[i]->query_title())
         //   s += ", " + tmp;
 
-        if (tmp = arr[i]->query_extitle())
-          s += " (" + tmp + ")";
+        // if (tmp = arr[i]->query_extitle())
+        //   s += " (" + tmp + ")";
 
         if (cre && arr[i]->query_property(AWAY_PROP))
           s += _LANG_WHO_AWAY_MSG;
@@ -234,12 +234,15 @@ string who_string(int width, int cre, string str)
 
       if (arr[i]->query_property(GUEST_PROP))
         s += _LANG_WHO_GUEST_MSG;
-      if (tmp = (string) arr[i]->query_extitle())
-        s += " (" + tmp + ")";
+
+      // if (tmp = (string) arr[i]->query_extitle())
+      //   s += " (" + tmp + ")";
+
       if (user->query_idle() > 120)
         s += _LANG_WHO_IDLE_MSG;
 
-      play += sprintf("          %*-=s", width - 10, nam + s) + "\n";
+      // play += sprintf("          %*-=s", width - 10, nam + s) + "\n";
+      play += sprintf(" %s%-*s", nam, width, s) + "\n";
       num_people++;
     }
   } // for
@@ -270,7 +273,7 @@ string who_string(int width, int cre, string str)
     }
     if (num_people)
     {
-      prt += sprintf("%p%*|s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
+      prt += sprintf("%p%|*s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
       prt += play;
     }
   }
