@@ -11,8 +11,7 @@
 
 // texts.en
 
-#define _LANG_DIDNT_WORK "The attempt of doing '%^RED%^" + \
-              mudos->query_current_command() + "%^RESET%^' didn't work.\n"
+#define _LANG_DIDNT_WORK "The attempt of doing that didn't work.\n"
 
 #define _LANG_AND "and"
 
