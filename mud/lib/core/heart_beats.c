@@ -65,12 +65,12 @@ nomask void _heart_beat()
       result = catch(call_other(ob, "heart_beat"));
     }
 
-    stderr(" ~~~ end mudos::_heart_beat() for <"+object_name(ob)+">\n");
+    stderr(" ~~~ end mudos::_heart_beat() for "+(ob ? ("<"+object_name(ob)+">") : "nil")+"\n");
     set_initiator_object(nil);
     set_initiator_user(nil);
 
     // turn off heart beat in the object
-    if (result)
+    if (ob && result)
     {
       debug("hbs", "  └─> heart_beat error in " + object_name(ob) + ":\n      " +
                                             result + "\n");
