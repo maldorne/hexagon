@@ -6,6 +6,7 @@
 */
 
 #include <room/room.h>
+#include <basic/light.h>
 #include <mud/secure.h>
 #include <areas/common.h>
 
@@ -81,8 +82,8 @@ string query_dir_where(string where)
 {
   int i;
   for (i = 0; i < sizeof(dest_other); i += 2)
-  	if (dest_other[i+1][ROOM_DEST] == where)
-  		return (string)dest_other[i];
+    if (dest_other[i+1][ROOM_DEST] == where)
+      return (string)dest_other[i];
   return "";
 }
 
@@ -175,7 +176,7 @@ void add_clone( string the_file, int how_many, varargs int flags)
 {
   // if ( !how_many ) how_many = 1;
   if ( !how_many )
-  	return;
+    return;
 
   if ( !stringp(the_file) )
   {
@@ -264,6 +265,10 @@ void create()
   guard::create();
   navigation::create();
   diplomacy::create();
+
+  // default light value for every room, will be changed
+  // in the setup() if needed
+  set_light(BASE_ROOM_LIGHT_VALUE);
 
   add_property("location", "inside");
   this_object()->setup();
@@ -536,7 +541,7 @@ string expand_direc(string str) {
 //  Externalized exit portions of room.c (Piper 12/24/95)
 //      Now look in exit_handler.c
 mixed add_exit(string direc, mixed dest, string type,
-							 varargs string material)
+               varargs string material)
 {
   mixed *m;
   object door;
@@ -597,7 +602,7 @@ int query_special_exit(string direc)
 string query_ex_material(string direc)
 {
   if (!exit_map[direc])
-  	return nil;
+    return nil;
 
   return exit_map[direc][2];
 }
@@ -895,13 +900,13 @@ int clean_up( int flag )
   int i, elapsed_time;
 
   arr = deep_inventory( this_object() );
-	i = sizeof( arr );
+  i = sizeof( arr );
   elapsed_time = time() - room_create_time;
 
   if (this_object()->query_property(NO_CLEAN_UP_PROP))
-  	return 1;
+    return 1;
   if (this_object()->query_property("corpse_here"))
-  	return 1;
+    return 1;
 
   // check for inherited room
   if ( flag )
@@ -972,16 +977,16 @@ int clean_up_room( int flag )
   object * arr;
   int i, elapsed_time;
 
+  if (this_object()->query_property(NO_CLEAN_UP_PROP))
+    return 1;
+  if (this_object()->query_property("corpse_here"))
+    return 1;
+
   stderr(" ~ clean_up_room check " + object_name(this_object()) + "\n");
 
   elapsed_time = time() - room_init_time;
-	arr = deep_inventory( this_object() );
+  arr = deep_inventory( this_object() );
   i = sizeof( arr );
-
-  if (this_object()->query_property(NO_CLEAN_UP_PROP))
-  	return 1;
-  if (this_object()->query_property("corpse_here"))
-  	return 1;
 
   if (room_stabilize)
     return 0;
