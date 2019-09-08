@@ -43,15 +43,15 @@ void set_notify_fail_msg(string msg) { notify_fail_msg = msg; }
 
 // useful for logging
 private _change_initiator_object(object ob) {
-  stderr(" @@@@@@@@@ new initiator_object: " + to_string(ob));
+  // stderr(" @@@@@@@@@ new initiator_object: " + to_string(ob));
   initiator_object = ob;
 }
 private _change_initiator_player(object ob) {
-  stderr(" @@@@@@@@@ new initiator_player: " + to_string(ob));
+  // stderr(" @@@@@@@@@ new initiator_player: " + to_string(ob));
   initiator_player = ob;
 }
 private _change_initiator_user(object ob) {
-  stderr(" @@@@@@@@@ new initiator_user: " + to_string(ob));
+  // stderr(" @@@@@@@@@ new initiator_user: " + to_string(ob));
   initiator_user = ob;
 }
 

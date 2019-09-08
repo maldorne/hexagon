@@ -16,6 +16,7 @@
 #define TMP_EUID     "tmp"
 #define NETWORK_EUID "network"
 #define MAIL_EUID    "mailer"
+#define LOGIN_EUID   "login"
 #define PLAYER_EUID  "player"
 #define NOBODY_EUID  "nobody"
 
@@ -38,11 +39,5 @@
 #define READ_MASK 1
 #define WRITE_MASK 2
 #define GRANT_MASK 4
-
-// Command positions
-#define PLAYER_CMD 1
-#define CODER_CMD 2
-#define COORDINATOR_CMD 3
-#define ADMINISTRATOR_CMD 4
 
 // #endif

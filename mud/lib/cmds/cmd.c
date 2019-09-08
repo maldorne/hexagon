@@ -81,6 +81,10 @@ int _cmd(string tail, object thisob, string verb)
       if (!thisob->query_player())
         return 0;
       break;
+
+    case LOGIN_CMD:
+      // always allowed
+      break;
   }
 
   // neverbot, 21/02/04

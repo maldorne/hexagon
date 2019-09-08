@@ -20,6 +20,7 @@ static string current_verb;  // Used by query_verb() efun
 void create()
 {
   cmd_dirs = ([
+       "/lib/cmds/login/":   ({LOGIN_CMD,   "Player"}),
       // "/lib/cmds/living/": ({LIVING_CMD, "Player"}),
        "/lib/cmds/player/":  ({PLAYER_CMD,  "Player"}),
       "/game/cmds/player/":  ({PLAYER_CMD,  "Player"}),
@@ -100,7 +101,8 @@ string * query_available_cmds(object player)
   if (!player)
     return nil;
 
-  // Obtenemos los permisos que el objeto tiene
+  // get all object permissions
+  perms += ({ LOGIN_CMD, });
   if (player->query_player())
     perms += ({ PLAYER_CMD, });
   if (player->query_coder())
@@ -108,18 +110,17 @@ string * query_available_cmds(object player)
   if (player->query_admin())
     perms += ({ ADMIN_CMD, });
 
-  // Obtenemos todos los posibles directorios de comandos
+  // get every possible cmd directories
   aux = keys(cmd_dirs);
 
-  // Filtramos los directorios de comandos segun los permisos de nuestro objeto
+  // filter directories with our object permissions
   for (i = 0; i < sizeof(aux); i++)
   {
     if (member_array(cmd_dirs[aux[i]][0], perms) != -1)
       dirs += ({ aux[i] });
   }
 
-  // dirs ahora contiene los directorios de cmds a los que el objeto tiene acceso
-
+  // dirs now has the directories the object has access to
   aux = keys(cmd_hash);
 
   for (i = 0; i < sizeof(aux); i++)
@@ -135,6 +136,8 @@ string * query_available_directories(object player)
 {
   string * result;
   result = ({ });
+
+  result += ({ "/lib/cmds/login/", });
 
   if (player->query_player())
     result += ({
@@ -185,7 +188,7 @@ mapping query_available_cmds_by_category(object player)
   if (!player)
     return nil;
 
-  // Obtenemos todos los posibles tipos de comandos
+  // get all possible cmd types
   aux = keys(cmd_dirs);
 
   for (i = 0; i < sizeof(aux); i++)
@@ -195,11 +198,14 @@ mapping query_available_cmds_by_category(object player)
     // directories[aux[i]] = ({ });
   }
 
+  directories["/lib/cmds/login/"] = ({  });
+
   if (player->query_player())
   {
     directories["/lib/cmds/player/"] = ({  });
     directories["/game/cmds/player/"] = ({  });
   }
+
   if (player->query_coder())
   {
     directories["/lib/cmds/coder/"] = ({  });
@@ -207,14 +213,15 @@ mapping query_available_cmds_by_category(object player)
     // directories["/net/cmds/"] = ({  });
     // directories["/lib/cmds/handlers/cmds/"] = ({  });
   }
+
   if (player->query_admin())
   {
     directories["/lib/cmds/admin/"] = ({  });
     directories["/game/cmds/admin/"] = ({  });
   }
 
-  // En categories tenemos una lista de listas, donde cada una
-  // contiene el tipo de comando y el directorio de dichos comandos
+  // in categories we have a list of lists, where each one
+  // contains the type of cmd and its directories
 
   aux = keys(cmd_hash);
 
@@ -222,9 +229,8 @@ mapping query_available_cmds_by_category(object player)
     if (!undefinedp(directories[cmd_hash[aux[i]]["dir"]]))
       directories[cmd_hash[aux[i]]["dir"]] += ({ cmd_hash[aux[i]]["file"], });
 
-  // Tenemos en directories un mapping donde cada clave es un directorio
-  // para comandos y cada entrada una lista con los paths completos
-  // de todos los comandos bajo ese directorio
+  // in directories we have a mapping where each key is a cmd directory
+  // and each value is a list with full paths of every cmd in that directory
 
   aux = keys(directories);
 
@@ -240,11 +246,11 @@ mapping query_available_cmds_by_category(object player)
     }
   }
 
-  // Tenemos en result un mapping donde cada clave es el tipo de comando
-  // (Jugador, Administrador, etc) y cada entrada una lista con los paths
-  // completos a todos los comandos de ese tipo
+  // in result we have a mapping where each key is the cmd type
+  // (player, admin, etc) and each value is a list with the full paths
+  // of every cmd of that type
 
-  // Por ultimo filtramos si hay algun tipo de comando con una lista vacia
+  // last, filter if there is any cmd type being an empty list
 
   aux = keys(result);
   for (i = 0; i < sizeof(aux); i++)
@@ -300,6 +306,9 @@ int cmd(string verb, string tail, object thisob)
     case PLAYER_CMD:
       if (!thisob->query_player())
         return 0;
+      break;
+    // always allow
+    case LOGIN_CMD:
       break;
   }
 
