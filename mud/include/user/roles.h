@@ -14,3 +14,4 @@
 #define O_CODER "C"
 #define O_PLAYER " "
 #define O_LOGIN "X"
+#define O_LOGGED "L"

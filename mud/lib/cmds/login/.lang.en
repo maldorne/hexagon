@@ -3,9 +3,11 @@
 
 #define _LANG_FINGER_SYNTAX "finger <name>"
 #define _LANG_FINGER_NAME "Name"
+#define _LANG_FINGER_ACCOUNT "Account"
 #define _LANG_FINGER_REAL_NAME "Real name"
 #define _LANG_FINGER_CITY "City"
 #define _LANG_FINGER_BIRTHDAY "Birthday"
+#define _LANG_FINGER_NOBODY "Nobody with the name " + str + " has visited "+mud_name()+".\n"
 
 // who
 

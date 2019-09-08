@@ -2,6 +2,7 @@
 #include <mud/cmd.h>
 #include <mud/secure.h>
 #include <areas/calendar.h>
+#include <user/roles.h>
 #include <language.h>
 
 inherit CMD_BASE;
@@ -27,14 +28,23 @@ static int cmd(string str, object me, string verb)
     int i;
     obs = users();
 
-    write(sprintf("%-12.12s    %-20.20s %-20.20s %-20.20s\n",
-        _LANG_FINGER_NAME, _LANG_FINGER_REAL_NAME, _LANG_FINGER_CITY, _LANG_FINGER_BIRTHDAY));
+    if (me->query_coder())
+    {
+      write(sprintf("%-12.12s    %-30.30s %-20.20s %-20.20s\n",
+          _LANG_FINGER_NAME, _LANG_FINGER_ACCOUNT, _LANG_FINGER_REAL_NAME,
+          _LANG_FINGER_CITY, _LANG_FINGER_BIRTHDAY));
+    }
+    else
+    {
+      write(sprintf("%-12.12s    %-20.20s %-20.20s\n",
+          _LANG_FINGER_NAME, _LANG_FINGER_REAL_NAME,
+          _LANG_FINGER_CITY, _LANG_FINGER_BIRTHDAY));
+    }
 
     for (i = 0; i < sizeof(obs); i++)
     {
       string euid;
       string rnstr;
-      string pname;
       object player;
       object user;
 
@@ -55,40 +65,75 @@ static int cmd(string str, object me, string verb)
       euid = geteuid(user);
       type = user->query_object_type();
 
-      if (user->query_object_type() != "X")
+      switch(user->query_object_type())
       {
-        string r, birthday, name;
+        // not logged yet
+        case O_LOGIN:
+          {
+            string r;
+            r = sprintf("%-12.12s %2.2s\n",
+              "login",
+              type);
+            write(r);
+          }
+          break;
+        // logged without a character
+        case O_LOGGED:
+          {
+            string r;
+            if (me->query_coder())
+            {
+              r = sprintf("%-12.12s %2.2s %-30.30s\n",
+                "logged",
+                type,
+                user->query_account_name());
+            }
+            else
+            {
+              r = sprintf("%-12.12s %2.2s\n",
+                "logged",
+                type);
+            }
+            write(r);
+          }
+          break;
+        // full logged-in, with a character object
+        default:
+          {
+            string r, name;
 
-        rnstr = (string)user->query_real_name();
-        pname = player->query_cap_name();
-        name  = player->query_name();
+            rnstr = (string)user->query_real_name();
+            name  = player->query_name();
 
-        if (rnstr && rnstr[0..0] == ":")
-          if (!MASTER->valid_read("/save/players/"+name[0..0]+"/"+name,
-              geteuid(this_user())))
-            rnstr = "-";
+            if (rnstr && rnstr[0..0] == ":")
+              if (!MASTER->valid_read("/save/players/"+name[0..0]+"/"+name,
+                  geteuid(this_user())))
+                rnstr = "-";
 
-        if (user->query_birthday())
-          birthday = handler(CALENDAR_HANDLER)->convert_birthday(user->query_birthday());
-        else
-          birthday = "";
+            if (me->query_coder())
+            {
+              r = sprintf("%-12.12s %2.2s %-30.30s %-20.20s %-20.20s\n",
+                (user->query_invis() ?
+                  "(" + lower_case(player->query_cap_name()) + ")" :
+                  "" + lower_case(player->query_cap_name())),
+                type,
+                user->query_account_name(),
+                (rnstr?rnstr:" "),
+                ((ret = user->query_location())?ret:" "));
+            }
+            else
+            {
+              r = sprintf("%-12.12s %2.2s %-20.20s %-20.20s\n",
+                (user->query_invis() ?
+                  "(" + lower_case(player->query_cap_name()) + ")" :
+                  "" + lower_case(player->query_cap_name())),
+                type,
+                (rnstr?rnstr:" "),
+                ((ret = user->query_location())?ret:" "));
+            }
 
-        r = sprintf("%-12.12s %2.2s %-20.20s %-20.20s %-20.20s\n",
-          (user->query_invis() ? "(" + player->query_cap_name() + ")" : "" + player->query_cap_name()),
-          type,
-          (rnstr?rnstr:" "),
-          ((ret = user->query_location())?ret:" "),
-          birthday);
-
-        write(r);
-      }
-      else
-      {
-        string r;
-        r = sprintf("%-12.12s %2.2s\n",
-          "login",
-          type);
-        write(r);
+            write(r);
+          }
       }
     }
 
@@ -131,7 +176,7 @@ static int cmd(string str, object me, string verb)
   */
   else
   {
-    notify_fail("Nadie con el nombre " + str + " ha visitado "+mud_name()+".\n");
+    notify_fail(_LANG_FINGER_NOBODY);
     return 0;
   }
 }
