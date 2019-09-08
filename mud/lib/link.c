@@ -104,16 +104,13 @@ void heart_beat()
 {
   ob::heart_beat();
 
-  stderr("   ++++++++ this_object()  : " + object_name(this_object()) + "\n");
+  // stderr("   ++++++++ this_object()  : " + object_name(this_object()) + "\n");
   // stderr("   + this_player()  : " + (this_player() ? object_name(this_player()) : "nil") + "\n");
   // stderr("   + this_player(1) : " + (this_player(1) ? object_name(this_player(1)) : "nil") + "\n");
   // stderr("   + this_user()    : " + (this_user() ? object_name(this_user()) : "nil") + "\n");
 
   if (!_user || (_user->player() != this_object()))
-  {
-    stderr("   ++++++++ ME DESTROIGO  : " + object_name(this_object()) + "\n");
     dest_me();
-  }
 }
 
 mixed * stats()
