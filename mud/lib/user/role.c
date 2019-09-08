@@ -10,7 +10,7 @@ int invis;
 
 void create()
 {
-  role_name = PLAYER_ROLE;
+  role_name = LOGIN_ROLE;
   invis = 0;
 }
 
@@ -57,9 +57,15 @@ int set_role(string name)
       break;
 
     case PLAYER_ROLE:
-    default:
       role_name = PLAYER_ROLE;
       _role = clone_object(PLAYER_ROLE_OB);
+      _role->set_user(this_object());
+      break;
+
+    case LOGIN_ROLE:
+    default:
+      role_name = LOGIN_ROLE;
+      _role = clone_object(LOGIN_ROLE_OB);
       _role->set_user(this_object());
       break;
   }
@@ -73,20 +79,20 @@ int query_coder()         { return (role_name == CODER_ROLE || role_name == ADMI
 
 string query_object_type()
 {
-  // string name;
-
-  // not yet logged in
+  // not yet logged in with a character
   if (this_object()->query_name() == "object")
-    return O_CONNECTED;
+  {
+    // logged with a login role, player is a /lib/link object
+    if (this_object()->player() && (this_object()->player()->query_name() == "logged"))
+      return O_LOGGED;
 
-  // if (this_object()->player())
-  //   name = this_object()->player()->query_name();
-
-  // if (!name || !strlen(name) || (name == DEF_NAME))
-  //   return "X";
+    return O_LOGIN;
+  }
 
   switch(role_name)
   {
+    case LOGIN_ROLE:
+      return O_LOGGED;
     case PLAYER_ROLE:
       return O_PLAYER;
     case CODER_ROLE:
@@ -96,7 +102,7 @@ string query_object_type()
   }
 
   return PLAYER_ROLE;
-} /* query_object_type() */
+}
 
 nomask int set_invis(int i)
 {

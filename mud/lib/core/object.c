@@ -1,5 +1,5 @@
 /*
-    /std/object.c 
+    /std/object.c
     Previous hacks by Dank and Pinkfish
     Baldrick cleaned after them.
     Hamlet fixed timed properties.
@@ -19,13 +19,13 @@ inherit desc       "/lib/core/basic/desc";
 inherit events     "/lib/core/basic/events";
 
 string create_me;
- 
-void create() 
+
+void create()
 {
   create_me = DEF_NAME;
   id::create();
   property::create();
-  misc::create(); 
+  misc::create();
   extra_look::create();
   desc::create();
 
@@ -38,16 +38,16 @@ void create()
 
 // moved here, be sure every object has an init function somewhere
 // neverbot 8/2008
-void init() 
+void init()
 {
-  ::init();	
-} 
+  ::init();
+}
 
 nomask string query_create_me() { return create_me; }
 
-void set_name(string str) 
+void set_name(string str)
 {
-  if (name && name != DEF_NAME) 
+  if (name && name != DEF_NAME)
     return;
   name = str;
   if (!short_d)
@@ -67,46 +67,46 @@ mixed *query_init_data() {
       desc::query_init_data() +
       // misc::query_init_data() +
       id::query_init_data();
-} 
+}
 */
 
 // This is here till I can delete it...  ie the new system is functioning.
-mapping int_query_static_auto_load() 
+mapping int_query_static_auto_load()
 {
-  return ([ 
-            "weight"      : weight, "light" : light, 
-            "short"       : short_d, 
-            "long"        : long_d, 
-            "alias"       : alias, 
-            "plural"      : plurals, "name" : name, 
-            "main plural" : plural_d, 
-            "value"       : value 
+  return ([
+            "weight"      : weight, "light" : light,
+            "short"       : short_d,
+            "long"        : long_d,
+            "alias"       : alias,
+            "plural"      : plurals, "name" : name,
+            "main plural" : plural_d,
+            "value"       : value
           ]);
-} 
+}
 
-mixed query_static_auto_load() 
+mixed query_static_auto_load()
 {
   if (base_name(this_object()) == "/lib/core/object")
     return int_query_static_auto_load();
   return ([ ]);
-} 
+}
 
-mapping query_dynamic_auto_load() 
+mapping query_dynamic_auto_load()
 {
   mapping res;
   res = ([ ]);
-  
+
   if (m_sizeof(map_prop))
     res += ([ "properties" : map_prop, ]);
   if (m_sizeof(timed_prop))
     res += ([ "timed" : freeze_timed_properties(timed_prop), ]);
   if ((create_me != DEF_NAME) && (create_me != capitalize(DEF_NAME)))
     res += ([ "cloned by" : create_me, ]);
-    
-  return res;
-} 
 
-void init_static_arg(mapping bing) 
+  return res;
+}
+
+void init_static_arg(mapping bing)
 {
   if (!undefinedp(bing["name"]))
     set_name(bing["name"]);
@@ -126,9 +126,9 @@ void init_static_arg(mapping bing)
     set_main_plural(bing["main plural"]);
   if (!undefinedp(bing["value"]))
     set_value(bing["value"]);
-} 
+}
 
-void init_dynamic_arg(mapping args) 
+void init_dynamic_arg(mapping args)
 {
   if (args["properties"])
     map_prop = args["properties"];
@@ -139,9 +139,9 @@ void init_dynamic_arg(mapping args)
     create_me = args["cloned by"];
   else
     create_me = DEF_NAME;
-} 
+}
 
-void init_arg(mixed *bing) 
+void init_arg(mixed *bing)
 {
   if (sizeof(bing) < 10)
     return ;
@@ -162,18 +162,18 @@ int clean_up()
   object env, *contents;
   int i;
 
-  if (userp(this_object())) 
+  if (userp(this_object()))
     return 1; /* don't clean_up players */
   env = environment();
-  if (env && userp(env)) 
+  if (env && userp(env))
     return 1; /* carried ob */
   if (env && environment(env))
     return (int)environment(env)->clean_up(); /* recurse */
-  
+
   contents = deep_inventory(this_object());
   if (contents) {
     for (i=0;i<sizeof(contents);i++)
-      if (userp(contents[i])) 
+      if (userp(contents[i]))
         return 1; /* holding a user */
   }
   if (!env) {
@@ -184,7 +184,7 @@ int clean_up()
   return 1; /* try again later... */
 }
 
-mixed * stats() 
+mixed * stats()
 {
   return id::stats() +
          property::stats() +

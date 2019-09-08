@@ -38,7 +38,7 @@ string hud;
 
 static int save_counter;  // each reset counter
 static int last_command;  // time of last command
-static int _net_dead;      // has lost connection?
+static int _net_dead;     // has lost connection?
 
 // TMP DEBUG, REMOVE!!!
 // stats

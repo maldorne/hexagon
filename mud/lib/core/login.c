@@ -14,6 +14,7 @@ inherit "/lib/core/object";
 #include <mud/access.h>
 #include <mud/version.h>
 #include <mud/patch_version.h>
+#include <mud/cmd.h>
 #include <user/login.h>
 #include <user/user.h>
 #include <user/player.h>
@@ -105,8 +106,15 @@ nomask void time_out()
 nomask void logon(object u)
 {
   // int tim;
-
   _user = u;
+  // objects cannot change name once is set, so DONT do this
+  // _user->set_name("login");
+
+  // temporary "player" object while not using a character
+  _player = clone_object(LOGIN_OB);
+
+  // will link back player -> user, too
+  _user->set_player_ob(_player);
 
   write(_LANG_LPMUD_VERSION + version() + "\n" +
         _LANG_MUDLIB_VERSION + MUDLIB_VERSION + " [ " + _LANG_LANGUAGE_VERSION + " ]\n"/* +
@@ -198,44 +206,6 @@ nomask void restore_player(string character_name)
   _user->set_player_ob(_player);
 }
 
-nomask void show_finger(string who)
-{
-  write(_LANG_FINGER_COMMAND + "\n");
-
-  /*
-  string ret = "/secure/finger.c"->finger_info(who, this_object());
-
-  if (!ret || (ret == ""))
-  {
-    write("\nNo hay ningún jugador con el nombre '"+who+"'.\n\n");
-    return;
-  }
-  ret = "\n--------------------------------------------------------------------------\n"+
-        ret +
-        "--------------------------------------------------------------------------\n\n";
-
-  write( "/global/events.c"->fix_string(ret) );
-  */
-}
-
-nomask void show_who()
-{
-  write(_LANG_WHO_COMMAND + "\n");
-  /*
-  object who = load_object("/cmds/player/who.c");
-  string ret = "";
-
-  if (!who)
-  {
-    write("Ha habido un error con el comando.\n");
-    return;
-  }
-
-  ret = who->who_string(79, 0, 0) + "\n\n";
-  write( "/global/events.c"->fix_string(ret) );
-  */
-}
-
 nomask void show_options()
 {
   write("\n");
@@ -246,7 +216,9 @@ nomask void show_options()
 
 nomask void logon_option(string str)
 {
-  string * list;
+  string * exploded_args;
+  mapping available_cmd_info;
+  string * available_cmds;
   int tmp;
 
   if (!strlen(str))
@@ -256,19 +228,21 @@ nomask void logon_option(string str)
   }
 
   str = lower_case(str);
+  exploded_args = explode(str, " ");
+
+  available_cmd_info = CMD_HANDLER->query_hash_by_category(LOGIN_CMD);
+  available_cmds = keys(available_cmd_info);
 
   // new options, neverbot 02/2006
-  list = explode(str, " ");
-  if ((sizeof(list) >= 2) && (list[0] == _LANG_FINGER_COMMAND))
+  // execute cmd avaibale to login roles, neverbot 09/2019
+  if (member_array(exploded_args[0], available_cmds) != -1)
   {
-    show_finger(list[1]);
-    show_options();
-    return;
-  }
+    string args;
+    int result;
+    args = (sizeof(exploded_args) > 1) ? implode(exploded_args[1..], " ") : "";
 
-  if (str == _LANG_WHO_COMMAND)
-  {
-    show_who();
+    result = (int)CMD_HANDLER->cmd(exploded_args[0], args, _user);
+
     show_options();
     return;
   }
@@ -418,6 +392,11 @@ nomask void logon_with_user_name(string password)
   }
 
   // from here the password is ok
+
+  // set the name of the player object (which is of type /lib/link.c)
+  // to "mark" it as already logged
+  // important: once a name is set, cannot be undone
+  _player->set_name("logged");
 
   list = _user->query_player_list();
 
