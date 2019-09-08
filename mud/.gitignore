@@ -21,23 +21,6 @@
 # ignore packages
 /packages/*
 
-# ignore areas
-/game/areas/*
-!/game/areas/start
-
-# game specific social objects
-/game/obj/citizenships/*
-!/game/obj/citizenships/.gitkeep
-/game/obj/deities/*
-!/game/obj/deities/.gitkeep
-/game/obj/jobs/*
-!/game/obj/jobs/.gitkeep
-/game/obj/races/*
-!/game/obj/races/.gitkeep
-
-# ignore game documents
-/game/docs
-
-# ignore specific game handlers and tables
-/game/handlers
-/game/tables
+# ignore games, except the common ones
+/games/*
+!/games/hexagon/
