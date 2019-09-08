@@ -20,16 +20,16 @@ static string current_verb;  // Used by query_verb() efun
 void create()
 {
   cmd_dirs = ([
-       "/lib/cmds/login/":   ({LOGIN_CMD,   "Player"}),
-      // "/lib/cmds/living/": ({LIVING_CMD, "Player"}),
-       "/lib/cmds/player/":  ({PLAYER_CMD,  "Player"}),
-      "/game/cmds/player/":  ({PLAYER_CMD,  "Player"}),
-       "/lib/cmds/coder/":   ({CODER_CMD,   "Coder"}),
-      "/game/cmds/coder/":   ({CODER_CMD,   "Coder"}),
-       "/lib/cmds/admin/":   ({ADMIN_CMD,   "Administrator"}),
-      "/game/cmds/admin/":   ({ADMIN_CMD,   "Administrator"}),
-      // "/net/cmds/":              ({0,   "InterMUD network"}),
-      // "/lib/cmds/handler/cmds/": ({0,   "Command handler"}),
+       "/lib/cmds/login/":   ({ LOGIN_CMD,   "Login" }),
+      // "/lib/cmds/living/": ({ LIVING_CMD, "Player" }),
+       "/lib/cmds/player/":  ({ PLAYER_CMD,  "Player" }),
+      "/game/cmds/player/":  ({ PLAYER_CMD,  "Player" }),
+       "/lib/cmds/coder/":   ({ CODER_CMD,   "Coder" }),
+      "/game/cmds/coder/":   ({ CODER_CMD,   "Coder" }),
+       "/lib/cmds/admin/":   ({ ADMIN_CMD,   "Administrator" }),
+      "/game/cmds/admin/":   ({ ADMIN_CMD,   "Administrator" }),
+      // "/net/cmds/":              ({ 0,   "InterMUD network" }),
+      // "/lib/cmds/handler/cmds/": ({ 0,   "Command handler" }),
     ]);
 
   cmd_hash = ([ ]);
@@ -53,6 +53,12 @@ int clean_up()
 
 // The simul for query_verb() queries this if efun::query_verb() == 0
 string query_current_verb() { return current_verb; }
+
+mapping query_cmds() { return cmd_dirs; }
+mapping query_hash() { return cmd_hash; }
+string query_last_dir() { return last_dir; }
+mapping query_aliases() { return cmd_aliases; }
+string query_alias(string verb) { return cmd_aliases[verb]; }
 
 // The real code :)
 string find_cmd(string verb)
@@ -172,7 +178,27 @@ string * query_available_directories_by_euid(string euid)
   return query_available_directories(user);
 }
 
-mapping query_available_cmds_by_category(object player)
+// show the cmd hash info for object player
+// of the category type = filter
+mapping query_hash_by_category(int filter)
+{
+  string * aux;
+  mapping result;
+  int i;
+
+  result = ([ ]);
+  aux = keys(cmd_hash);
+
+  for (i = 0; i < sizeof(aux); i++)
+    if (cmd_hash[aux[i]]["category"] == filter)
+      result[aux[i]] = cmd_hash[aux[i]];
+
+  return result;
+}
+
+// if filter is provided, show only the available cmds for object player
+// of the category type = filter
+mapping query_available_cmds_by_category(object player, varargs int filter)
 {
   int i, j;
   string * aux;
@@ -193,6 +219,9 @@ mapping query_available_cmds_by_category(object player)
 
   for (i = 0; i < sizeof(aux); i++)
   {
+    if (filter && (cmd_dirs[aux[i]][0] != filter))
+      continue;
+
     if (member_array(cmd_dirs[aux[i]][1], categories) == -1)
       categories += ({ ({ cmd_dirs[aux[i]][1], aux[i] }) });
     // directories[aux[i]] = ({ });
@@ -378,6 +407,7 @@ int cmd_make_hash(int verbose)
         ([
         "file":         paths[i]+s+".c",
         "count":        0,
+        "category":     cmd_dirs[paths[i]][0],
         "dir":          paths[i],
         ]);
       count++;
@@ -413,14 +443,12 @@ int cmd_make_hash(int verbose)
   }
 
   seteuid(CMD_EUID);
+
+  if (verbose)
+    write("Total: "+count+" commands\n");
+
   return count;
 }
-
-mapping query_cmds() { return cmd_dirs; }
-mapping query_hash() { return cmd_hash; }
-string query_last_dir() { return last_dir; }
-mapping query_aliases() { return cmd_aliases; }
-string query_alias(string verb) { return cmd_aliases[verb]; }
 
 string query_unaliased_cmd(string verb)
 {
