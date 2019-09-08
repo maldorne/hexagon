@@ -1,17 +1,12 @@
 
-#include <kernel.h>
-#include <basic/id.h>
 #include <user/player.h>
 #include <user/roles.h>
+#include <user/login.h>
 #include <mud/secure.h>
-#include <living/living.h>
-#include <common/properties.h>
-#include <basic/money.h>
-#include <user/hud.h>
-#include <language.h>
 
-inherit object      "/lib/core/object";
-inherit history     "/lib/player/history";
+
+inherit history "/lib/player/history";
+inherit ob "/lib/core/object";
 
 static object _user;      // the user/account object that handles the connection
 string account_name;      // user email, used to find the owner account
@@ -28,7 +23,7 @@ nomask int save_me();
 void create()
 {
   history::create();
-  object::create();
+  ob::create();
 
   seteuid(LOGIN_EUID);
 
@@ -45,10 +40,10 @@ void create()
 void init()
 {
   history::init();
-
-  object::init();
+  ob::init();
 }
 
+nomask int query_link() { return 1; }
 nomask int query_player() { return 0; }
 nomask int query_user() { return 0; }
 nomask object user() { return _user; }
@@ -96,17 +91,29 @@ void dest_me()
   //   find_object(USER_HANDLER)->remove_user(this_object());
 
   // main dest_me
-  object::dest_me();
+  ob::dest_me();
+}
+
+// do not allow movement of this kind of "avatar"
+int move(mixed dest, varargs mixed messin, mixed messout)
+{
+  return ob::move(LOGIN_LOUNGE, messin, messout);
 }
 
 void heart_beat()
 {
+  ob::heart_beat();
+
   stderr("   ++++++++ this_object()  : " + object_name(this_object()) + "\n");
   // stderr("   + this_player()  : " + (this_player() ? object_name(this_player()) : "nil") + "\n");
   // stderr("   + this_player(1) : " + (this_player(1) ? object_name(this_player(1)) : "nil") + "\n");
   // stderr("   + this_user()    : " + (this_user() ? object_name(this_user()) : "nil") + "\n");
 
-  object::heart_beat();
+  if (!_user || (_user->player() != this_object()))
+  {
+    stderr("   ++++++++ ME DESTROIGO  : " + object_name(this_object()) + "\n");
+    dest_me();
+  }
 }
 
 mixed * stats()
@@ -115,5 +122,5 @@ mixed * stats()
     ({ "Account Name", account_name }),
     ({ "Role Name", role_name }),
           }) + history::stats() +
-               object::stats();
+               ob::stats();
 }

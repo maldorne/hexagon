@@ -9,6 +9,10 @@
 #define MAX_PLAYERS 50
 #define CODER_SLOTS 5
 
+// destination room to leave there the /lib/link objects
+#define LOGIN_LOUNGE "/games/hexagon/areas/login_lounge.c"
+#define LINK_OB "/lib/link.c"
+
 // from /lib/core/user/login
 #define MAX_RETRIES 3
 #define MIN_LEN 3

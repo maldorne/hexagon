@@ -104,6 +104,8 @@ void init()
   // ::init();
 }
 
+nomask int query_link() { return 0; }
+nomask int query_player() { return 0; }
 nomask int query_user() { return 1; }
 nomask object user() { return this_object(); }
 // total time connected
@@ -141,7 +143,6 @@ nomask int valid_password(string pass)
   return 1;
 }
 
-nomask int query_player() { return 1; }
 nomask object player() { return _player; }
 nomask int set_player_ob(object ob)
 {
@@ -287,11 +288,6 @@ static void receive_message(string str)
         show_prompt();
       }
 
-      // the object destructed itself
-      if (!this_object()) {
-        return;
-      }
-
       stderr(" ~~~ end user::receive_message() with input_to()\n");
       MUDOS->set_initiator_object(nil);
       MUDOS->set_initiator_user(nil);
@@ -324,7 +320,7 @@ static void receive_message(string str)
     if ( strlen(str) > INPUT_MAX_STRLEN )
     {
       str = str[ 0..INPUT_MAX_STRLEN ];
-      write("Comando demasiado largo - procesando de todas formas.\n");
+      write(_LANG_USER_COMMAND_TOO_LONG);
     }
 
     // Ok, my stuff: (Baldrick)
@@ -350,16 +346,14 @@ static void receive_message(string str)
       verb = str;
 
     // First the aliases
-    if ( _player && !_player->exec_alias(verb, params) )
+    if ( _player &&
+        !_player->query_link() &&
+        !_player->exec_alias(verb, params) )
     {
       // if no alias found, continue
       if (_player) _player->action_check( str );
       if (_player) _player->lower_check( str );
     }
-
-    // the object destructed itself
-    if (!this_object())
-      return;
 
     stderr(" ~~~ end user::receive_message()\n");
     MUDOS->set_initiator_user(nil);

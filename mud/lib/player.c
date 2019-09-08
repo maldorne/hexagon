@@ -122,6 +122,7 @@ void init()
   living::init();
 }
 
+nomask int query_link() { return 0; }
 nomask int query_player() { return 1; }
 nomask int query_user() { return 0; }
 nomask object user() { return _user; }
@@ -260,30 +261,30 @@ nomask int save_me()
 
 void heart_beat()
 {
-  // stderr("   + this_object()  : " + object_name(this_object()) + "\n");
+  stderr("   + this_object()  : " + object_name(this_object()) + "\n");
   // stderr("   + this_player()  : " + (this_player() ? object_name(this_player()) : "nil") + "\n");
   // stderr("   + this_player(1) : " + (this_player(1) ? object_name(this_player(1)) : "nil") + "\n");
   // stderr("   + this_user()    : " + (this_user() ? object_name(this_user()) : "nil") + "\n");
 
-  if (this_player() && !interactive(this_player()) )
-  {
-    if (name == "guest" || name == "root")
-    {
-      say(query_cap_name()+" es engullid"+G_CHAR+" por una nube de lógica.\n");
-      quit();
-    }
-    else if (!_net_dead)
-    {
-      say(query_cap_name()+" se vuelve blanc"+G_CHAR+" y sólid"+G_CHAR+" al tiempo que se "+
-        "convierte en una estatua.\n");
-      event(users(), "inform", query_cap_name() + " ha perdido " +
-        query_possessive() + " conexión", "conexiones");
-      save_me();
-      quit();
-      _net_dead = 1;
-    }
-    // last_command = time() - user()->query_idle();
-  }
+  // if (this_player() && !interactive(this_player()) )
+  // {
+  //   if (name == "guest" || name == "root")
+  //   {
+  //     say(query_cap_name()+" es engullid"+G_CHAR+" por una nube de lógica.\n");
+  //     quit();
+  //   }
+  //   else if (!_net_dead)
+  //   {
+  //     say(query_cap_name()+" se vuelve blanc"+G_CHAR+" y sólid"+G_CHAR+" al tiempo que se "+
+  //       "convierte en una estatua.\n");
+  //     event(users(), "inform", query_cap_name() + " ha perdido " +
+  //       query_possessive() + " conexión", "conexiones");
+  //     save_me();
+  //     quit();
+  //     _net_dead = 1;
+  //   }
+  //   // last_command = time() - user()->query_idle();
+  // }
 
   // query_idle cannot be called on non interactive objects,
   // so this should be after the previous if, neverbot 7/05

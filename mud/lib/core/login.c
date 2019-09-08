@@ -111,10 +111,15 @@ nomask void logon(object u)
   // _user->set_name("login");
 
   // temporary "player" object while not using a character
-  _player = clone_object(LOGIN_OB);
+  // this object will destroy itself when not needed
+  _player = clone_object(LINK_OB);
 
+  // before the _player->move or everything will explode
   // will link back player -> user, too
   _user->set_player_ob(_player);
+
+  // masked move function, will be moved to its proper place
+  _player->move("whereever");
 
   write(_LANG_LPMUD_VERSION + version() + "\n" +
         _LANG_MUDLIB_VERSION + MUDLIB_VERSION + " [ " + _LANG_LANGUAGE_VERSION + " ]\n"/* +

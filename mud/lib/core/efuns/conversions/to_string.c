@@ -3,7 +3,7 @@
 
 // Extracted from the old /global/basic/print_object.c, neverbot
 // (and heavily improved)
-static string to_string(mixed ob, varargs int offset, string pre) 
+static string to_string(mixed ob, varargs int offset, string pre)
 {
   int i;
   string ret;
@@ -15,7 +15,7 @@ static string to_string(mixed ob, varargs int offset, string pre)
   else
     ret += TO_STRING_PADDING[0..offset];
 
-  if (intp(ob)) 
+  if (intp(ob))
   {
     ret += ob + "\n";
     return ret; // "int";
@@ -23,30 +23,30 @@ static string to_string(mixed ob, varargs int offset, string pre)
   else if (floatp(ob))
   {
     ret += ob + "f\n";
-    return ret; // "float";    
+    return ret; // "float";
   }
-  else if (stringp(ob)) 
+  else if (stringp(ob))
   {
     ret += "\"" + ob + "\"\n";
     return ret; // "string";
   }
-  else if (objectp(ob)) 
+  else if (objectp(ob))
   {
-    if (interactive(ob)) 
+    if (interactive(ob))
     {
       ret += "<" + file_name(ob) + ">\n";
       return ret; // "user object";
-    }    
+    }
 
     ret += "<" + file_name(ob) + ">\n";
-    
+
     // if (ob->short())
     //   ret += "(short) " + ob->short() + "\n";
     // else if (ob->query_name())
     //   ret += "(name)  " + ob->query_name() + "\n";
     // else
     //   ret += "(argghhhh)\n";
-    
+
     return ret; // "object";
   }
   else if (mappingp(ob))
@@ -57,7 +57,7 @@ static string to_string(mixed ob, varargs int offset, string pre)
     {
       mixed * keys;
       keys = map_indices(ob);
-      
+
       ret += "([ -- size " + sizeof(keys) + "\n";
 
       for (i = 0; i < sizeof(keys); i++)
@@ -75,21 +75,21 @@ static string to_string(mixed ob, varargs int offset, string pre)
     }
     return ret; // "mapping";
   }
-  else if (arrayp(ob)) 
+  else if (arrayp(ob))
   {
     if (!sizeof(ob))
       ret += "({ })\n";
-    else 
+    else
     {
       ret += "({ -- size " + sizeof(ob) + "\n";
-      
+
       for (i = 0; i < sizeof(ob); i++)
       {
         ret += to_string(ob[i], offset + 5, ""+i+". ");
         // if (i < sizeof(ob)-1)
         //   ret += "\n";
       }
-      
+
       ret += TO_STRING_PADDING[0..offset] + "})\n";
     }
     return ret; // "array";

@@ -5,15 +5,15 @@ static int light, int_light;
 
 void create()
 {
-	light = 0;
-	int_light = 0;
+  light = 0;
+  int_light = 0;
 }
 
 int query_light() {
   return light + int_light;
 }
 
-int query_my_light() { 
+int query_my_light() {
   return light;
 }
 
@@ -53,7 +53,7 @@ int set_light(int i) {
   return (light = i);
 }
 
-mixed *stats() {
+mixed * stats() {
   return ({
     ({ "Light (nosave)", light }),
     ({ "Int Light (nosave)", int_light }),
@@ -64,6 +64,6 @@ mixed *stats() {
 /*
 mixed *query_init_data() {
    return ({ "light", light, "set_light/p/" });
-} 
+}
 */
 /* query_init_data() */

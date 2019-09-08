@@ -1,5 +1,5 @@
 
-#define PLAYER_OB "/lib/player"
+#define PLAYER_OB "/lib/player.c"
 #define PLAYERS_SAVE_DIR "/save/players/"
 
 // #define LOADING "loading" // Ahora en properties.h
