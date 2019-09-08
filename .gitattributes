@@ -1,4 +1,5 @@
 *.c linguist-language=C
+*.h linguist-language=C
 *.o linguist-language=C
 *.lang.es linguist-language=C
 *.lang.en linguist-language=C
