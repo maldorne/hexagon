@@ -1,0 +1,4 @@
+map_prop ([0|])
+timed_prop ([0|])
+create_me "admin"
+year_list ([1|0:({3|"gato","furioso",1,}),])
