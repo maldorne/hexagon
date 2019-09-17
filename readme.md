@@ -11,7 +11,7 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### How to use or test the mudlib
 
-Take a look to the [installing instructions](install/readme.md), it explains how to install,
+Take a look to the [installation instructions](install/readme.md), it explains how to install,
 configure and execute the Hexagon mudlib using different methods.
 * a) [Compiling it yourself](install/readme.md): Compiling the DGD driver and
   executing it in a Unix environment (Unix, Linux, OS X, etc)

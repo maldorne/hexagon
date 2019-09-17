@@ -1,3 +1,5 @@
+Installation instructions
+=========================
 
 These instructions assume you have some knowledge about compiling code under a Unix enviroment (Unix, Linux, OS X, etc). **If it's not the case**, ignore all these instructions below, and just go to the [Hexagon Virtual Machine how-to document](vm/readme.md), the instructions are much shorter and, hopefully, easy to follow for a non-developer.
 
