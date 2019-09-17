@@ -6,8 +6,8 @@ and other MudOS-alike mud libraries (like the ones from _Final
 Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd) mud driver.
 
 ### More detailed information about the project
-* Current project status and roadmap in the [roadmap document](roadmap.md).
-* Detailed compatibility information about every function in the [compatibility document](compatibility.md).
+* Current project status and roadmap in the [roadmap document](docs/roadmap.md).
+* Detailed compatibility information about every function in the [compatibility document](docs/compatibility.md).
 
 ### How to use or test the mudlib
 
