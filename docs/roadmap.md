@@ -2,7 +2,7 @@
 
 - [ ] **MudOS compatibility layer**
 
-    Being done, see the [MudOS compatibility status document](status_compat.md) for more detailed information about each function.
+    Being done, see the [MudOS compatibility status document](compatibility.md) for more detailed information about each function.
 
 - [x] Include the **AuroraMud command (cmds) system**
 
@@ -10,7 +10,7 @@
 
 - [x] **Test and document** the current status of the project
 
-    Being done, as you can see both in this document and in the [MudOS compatibility status document](status_compat.md).
+    Being done, as you can see both in this document and in the [MudOS compatibility status document](compatibility.md).
 
 - [x] **heart_beats** management
 
