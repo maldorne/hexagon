@@ -5,7 +5,7 @@ os=${OSTYPE//[0-9.]/}
 cd driver/dgd/src
 
 if [[ $os == darwin ]]
-then 
+then
   sed -i '' '968,974 s/^/\/\//' ./kfun/file.cpp
   sed -i '' -e 's/# -DSLASHSLASH/-DSLASHSLASH #/g' Makefile
 else
@@ -17,12 +17,12 @@ make
 make install
 cd ../../..
 
-if [ ! -f driver/config.dgd ]; 
+if [ ! -f ./config.dgd ];
 then
-  cp driver/config.example.dgd driver/config.dgd
+  cp driver/config.example.dgd ./config.dgd
 fi
 
-if [ ! -d driver/dgd/tmp ]; 
+if [ ! -d driver/dgd/tmp ];
 then
   mkdir driver/dgd/tmp
 fi

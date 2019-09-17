@@ -13,7 +13,7 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
    `git clone --recursive git://github.com/houseofmaldorne/hexagon.git`
 2. `cd hexagon`
 3. **Compile and install the DGD driver**:
-   1. `./install.sh`
+   1. `./install/install.sh`
 
       This script will edit certain files of the driver, and launch
       the compilation process. If you want to know, just in case, it does:
@@ -34,8 +34,8 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
         If you use an older driver but you are not going to use things like ftp
         servers, remote channels, etc, you don't need to use the
         `NETWORK_EXTENSIONS` flag, the mudlib should work fine without it.
-4. Edit the `driver/config.dgd` file, changing the directory field to the absolute path of the
-   `mud` directory (must end in `/whatever/mud` without an ending slash)
+4. Edit the `./config.dgd` file, changing the directory field to the absolute path of the
+   `mudlib` directory (must end in `/whatever/mudlib` without an ending slash)
 5. **Execute** `./mud.sh`
 6. `telnet localhost 6047` to connect and see if everything is working.
 7. By default you will have an administrator account created, with username `admin` and password `administrator`.
