@@ -5,7 +5,7 @@ A project to make the original [ccmudlib](http://www.ciudadcapital.net)
 and other MudOS-alike mud libraries (like the ones from _Final
 Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd) mud driver.
 
-Next milestone *[v19.10 Anduin](docs/roadmap.md#current-milestone-v1910-anduin)*
+Next milestone *[v19.10 Anduin](docs/roadmap.md#current-milestone-v1910-anduin)*.
 
 ### More detailed information about the project
 * Current project status and roadmap in the [roadmap document](docs/roadmap.md).
