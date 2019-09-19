@@ -22,7 +22,7 @@ Set of features not yet started, but planned.
 
 | Status | Title | Description |
 | :----: | :---- | ----------- | 
-|        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/commands. |
+|        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command. |
 
 ## Previous milestones
 
