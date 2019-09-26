@@ -10,7 +10,7 @@ Set of features we are currently working on.
 | :white_check_mark: | **`this_player()` and `this_user()` review** | Full review of the initiator objects, during heartbeats, `call_out`, login, `move` and input/command execution. |
 | :white_check_mark: | **User and player objects** | Separate the `user` object in `user` and `player`. Now there are two different linked objects, the `player` handles every in-game situation, while the `user` handles the connection, account info, input and output. |
 |                    | **Login user type** | Basic user type to handle the connection with an account, creations of player characters, etc. |
-|                    |  | :heavy_minus_sign: Allow execution of certain type of commands (`who`, `finger`, etc) during the login process. |
+| :white_check_mark: |  | :heavy_minus_sign: Allow execution of certain type of commands (`who`, `finger`, etc) during the login process. |
 |                    |  | :heavy_minus_sign: Full review of the login process. Simplify the `login` object refactoring anything possible to the new login commands. |
 |                    |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character. |
 | :white_check_mark: | **`visible_strlen`** | Be able to calculate the real length of a string having in mind only the characters visible to the player. |
@@ -34,7 +34,7 @@ After version 19.05, we started working with milestones, prior to that, we only 
 | :----: | :---- | ----------- | 
 | :white_check_mark: | **MudOS compatibility** | Being done, see the [MudOS compatibility status document](compatibility.md) for more detailed information about each function. |
 | :white_check_mark: | **Cmds system** | Include an implementation of the **AuroraMud command (cmds) system**. This will help test and debug everything as new commands are ported. |
-| :white_check_mark: | **Test and document** | Test and document the current status of the project. We use this document and in the [MudOS compatibility status document](compatibility.md). |
+| :white_check_mark: | **Test and document** | Test and document the current status of the project. We use this document and the [MudOS compatibility status document](compatibility.md). |
 | :white_check_mark: | **Heartbeats** | Handling of the object "turns" and pending actions. |
 | :white_check_mark: | **Rooms and movement** | Environments, inventories, `move` functions, move commands between rooms. `init` function calling. |
 | :white_check_mark: | **Actions and `this_player()`** | Actions, `init` function calling, `this_player()`, `query_verb()` and `notify_fail()`. |
