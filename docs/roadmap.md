@@ -16,12 +16,13 @@ Set of features we are currently working on.
 | :white_check_mark: | **`visible_strlen`** | Be able to calculate the real length of a string having in mind only the characters visible to the player. |
 | :white_check_mark: | **Deprecate manager user** | Remove code related to the `manager` user type. We have enough information with `coder` and `administrator`. |
 
-## Next milestone: v19.?? Beregost
+## Next milestone: [v19.11 Beregost](https://github.com/houseofmaldorne/hexagon/milestone/2)
 
 Set of features not yet started, but planned.
 
 | Status | Title | Description |
-| :----: | :---- | ----------- | 
+| :----: | :---- | ----------- |
+|        | **Product Identity** | Logo and banner for the `readme.md` home document. |
 |        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command. |
 
 ## Previous milestones
