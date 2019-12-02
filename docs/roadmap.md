@@ -1,6 +1,6 @@
 # Project status and roadmap
 
-## Current milestone: [v19.11 Anduin](https://github.com/houseofmaldorne/hexagon/milestone/1)
+## Current milestone: [v19.12 Anduin](https://github.com/houseofmaldorne/hexagon/milestone/1)
 
 Set of features we are currently working on. 
 
@@ -16,7 +16,7 @@ Set of features we are currently working on.
 | :white_check_mark: | **`visible_strlen`** | Be able to calculate the real length of a string having in mind only the characters visible to the player [[#2](https://github.com/houseofmaldorne/hexagon/issues/2)]. |
 | :white_check_mark: | **Deprecate manager user** | Remove code related to the `manager` user type. We have enough information with `coder` and `administrator`. |
 
-## Next milestone: [v19.12 Beregost](https://github.com/houseofmaldorne/hexagon/milestone/2)
+## Next milestone: [v20.01 Beregost](https://github.com/houseofmaldorne/hexagon/milestone/2)
 
 Set of features not yet started, but planned.
 
