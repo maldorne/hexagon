@@ -1,2 +1,8 @@
 # your own config file
 config.dgd
+
+mudlib/tmp/*
+!mudlib/tmp/.gitkeep
+
+mudlib/log/*
+!mudlib/log/.gitkeep
