@@ -19,10 +19,10 @@ cd ../../..
 
 if [ ! -f ./config.dgd ];
 then
-  cp driver/config.example.dgd ./config.dgd
+  cp ./driver/config.example.dgd ./config.dgd
 fi
 
-if [ ! -d driver/dgd/tmp ];
+if [ ! -d ./mudlib/tmp ];
 then
-  mkdir driver/dgd/tmp
+  mkdir ./mudlib/tmp
 fi
