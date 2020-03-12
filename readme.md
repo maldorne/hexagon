@@ -27,6 +27,6 @@ configure and execute the Hexagon mudlib using different methods.
   executing it in a Unix environment (Unix, Linux, OS X, etc)
 * b) [Using a virtual machine](install/vm/readme.md): Install a VirtualBox
   virtual machine already configured using vagrant.
-* c) Using a Docker container (document yet to be written).
+* c) ~~Using a Docker container~~ (document yet to be written).
 
 
