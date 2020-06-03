@@ -1,8 +1,11 @@
+<p align="center">
+  <img width="300" alt="hexagon logo" src="/assets/hexagon_logo.png">
+</p>
+
 Hexagon mudlib
 ==============
 
-[![DGD](https://img.shields.io/badge/DGD-1.6.6-green.svg)](https://github.com/dworkin/dgd) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-green.svg)](https://conventionalcommits.org)
-
+[![DGD](https://img.shields.io/badge/DGD-1.6.6-green.svg)](https://github.com/dworkin/dgd)
 
 A project to make the original _ccmudlib_ and other MudOS-alike mud libraries (like the ones from _Final
 Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd) mud driver.
@@ -13,7 +16,7 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### Current status
 
-Next milestone *[v19.12 Anduin](docs/roadmap.md#current-milestone-v1912-anduin)*.
+Next milestone *[v20.06 Anduin](docs/roadmap.md#current-milestone-v2006-anduin)*.
 
 ### More detailed information about the project
 * Current project status and roadmap in the [roadmap document](docs/roadmap.md).
