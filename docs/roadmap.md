@@ -22,7 +22,7 @@ Set of features not yet started, but planned.
 
 | Status | Title | Description |
 | :----: | :---- | ----------- |
-|        | **Product Identity** | Logo and banner for the `readme.md` home document [[#5](https://github.com/houseofmaldorne/hexagon/issues/5)]. |
+| :white_check_mark: | **Product Identity** | Logo and banner for the `readme.md` home document [[#5](https://github.com/houseofmaldorne/hexagon/issues/5)]. |
 |        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command. |
 |        | **Multi Game** | Finish the multigame features to allow hosting different games in the same server. |
 
