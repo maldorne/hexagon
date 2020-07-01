@@ -16,7 +16,7 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### Current status
 
-Next milestone *[v20.06 Anduin](docs/roadmap.md#current-milestone-v2006-anduin)*.
+Next milestone *[v20.07 Anduin](docs/roadmap.md#current-milestone-v2007-anduin)*.
 
 ### More detailed information about the project
 * Current project status and roadmap in the [roadmap document](docs/roadmap.md).
