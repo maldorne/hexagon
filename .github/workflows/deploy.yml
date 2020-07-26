@@ -10,8 +10,8 @@ jobs:
     steps:
     - name: Checkout git repository
       uses: actions/checkout@v2
-      # with:
-      #   submodules: true
+      with:
+        submodules: true
 
     - name: Synchronize git repository
       uses: houseofmaldorne/rsync-deploy@v2.0
