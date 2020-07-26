@@ -20,7 +20,7 @@ jobs:
         REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
         REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
         FOLDER: "./"
-        EXCLUDE_LIST: "./.github/workflows/exclude.txt"
+        EXCLUDE_LIST: ".github/workflows/exclude.txt"
 
     - name: Finishing sync
       run: echo Sync finished!
