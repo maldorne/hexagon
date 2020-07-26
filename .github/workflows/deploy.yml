@@ -12,7 +12,7 @@ jobs:
       uses: actions/checkout@v2
        
     - name: Synchronize git repository to hosting server
-      uses: houseofmaldorne/rsync-deploy@v2.1
+      uses: houseofmaldorne/rsync-deploy@v2.2
       env:
         DEPLOY_KEY: ${{ secrets.REMOTE_SSH_KEY }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
