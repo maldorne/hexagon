@@ -5,6 +5,8 @@
 .gitignore
 *DS_Store
 *.o
+config.dgd
+driver/
 save/
 log/
 include/float.h
