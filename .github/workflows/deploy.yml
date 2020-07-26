@@ -11,19 +11,8 @@ jobs:
     - name: Checkout git repository
       uses: actions/checkout@v2
 
-# - name: deploy to server
-#   uses: AEnterprise/rsync-deploy@v1.0
-#   env:
-#     DEPLOY_KEY: ${{ secrets.REMOTE_SSH_KEY }}
-#     ARGS: "-e -c -r --delete"
-#     SERVER_PORT: ${{ secrets.REMOTE_PORT }}
-#     FOLDER: "./"
-#     SERVER_IP: ${{ secrets.REMOTE_SERVER }}
-#     USERNAME: ${{ secrets.REMOTE_USER }}
-#     SERVER_DESTINATION: ${{ secrets.REMOTE_PATH }}
-
-    - name: Synchronize git repository to hosting server
-      uses: houseofmaldorne/rsync-deploy@v2.0
+    - name: Synchronize git repository
+      uses: houseofmaldorne/rsync-deploy@v2.1
       env:
         DEPLOY_KEY: ${{ secrets.REMOTE_SSH_KEY }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
@@ -31,6 +20,7 @@ jobs:
         REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
         REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
         FOLDER: "./"
+        EXCLUDE_FILES: "./.github/workflows/exclude.txt"
 
     - name: Finishing sync
       run: echo Sync finished!
