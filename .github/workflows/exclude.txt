@@ -2,6 +2,7 @@
 .github
 .gitattributes
 .gitmodules
+.gitignore
 *DS_Store
 *.o
 save/
