@@ -1,12 +1,7 @@
-.git
-.github
-.gitattributes
-.gitmodules
-.gitignore
 *DS_Store
 *.o
 config.dgd
-driver/
+hexagon.dgd
 save/
 log/
 include/float.h
