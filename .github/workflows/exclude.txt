@@ -1,6 +1,7 @@
 .git
 .github
 .gitattributes
+.gitmodules
 *DS_Store
 *.o
 save/
