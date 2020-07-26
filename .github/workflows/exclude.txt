@@ -1,0 +1,13 @@
+.git
+.github
+.gitattributes
+*DS_Store
+*.o
+save/
+log/
+include/float.h
+include/kfun.h
+include/limits.h
+include/status.h
+include/trace.h
+include/type.h
