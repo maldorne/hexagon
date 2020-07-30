@@ -119,6 +119,7 @@ void init()
   nickname::init();
   weather::init();
 
+  // main inherit last
   living::init();
 }
 

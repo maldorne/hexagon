@@ -36,3 +36,15 @@
         "   %^BOLD%^create%^RESET%^ to create a new player character.\n" + \
         "   %^BOLD%^games%^RESET%^ to list available games.\n" + \
         "   %^BOLD%^password%^RESET%^ to change your password.\n"
+
+// security
+
+#define _LANG_COMM_PASSWORD ({ "password" })
+#define _LANG_OLD_PASSWORD "Please, type your old password: "
+#define _LANG_CANCELLING "Cancelling...\n"
+#define _LANG_WRONG_PASSWORD "Wrong password."
+#define _LANG_UNKNOWN_PASSWORD_ERROR "There is some problem with your account password.\n"
+#define _LANG_NEW_PASSWORD "Please, type your new password: "
+#define _LANG_PASSWORD_CONDITIONS "Your password must have at least six characters."
+#define _LANG_REPEAT_PASSWORD "Please, type the password again: "
+

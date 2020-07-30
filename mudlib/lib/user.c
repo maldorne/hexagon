@@ -6,7 +6,7 @@
 #include <language.h>
 
 inherit obj         "/lib/core/object";
-inherit commands    "/lib/user/commands.c";
+inherit security    "/lib/user/security";
 inherit output      "/lib/user/output";
 inherit communicate "/lib/user/communicate";
 inherit help        "/lib/user/help";
@@ -31,8 +31,6 @@ static object _player;    // player avatar
 
 // user account info
 string account_name;      // user email
-string password;
-static string tmp_password;
 
 string real_name;
 string birthday;
@@ -67,7 +65,7 @@ void create()
   more_file::create();
   help::create();
   prompt::create();
-  commands::create();
+  security::create();
   role::create();
   obj::create();
 
@@ -101,7 +99,10 @@ void create()
 
 void init()
 {
-  // ::init();
+  security::init();
+
+  // main inherit last
+  obj::init();
 }
 
 nomask int query_link() { return 0; }
@@ -123,24 +124,6 @@ void dest_me()
 
   role::dest_me();
   obj::dest_me();
-}
-
-// void account_commands()
-// {
-//   commands::account_commands();
-// }
-
-nomask int valid_password(string pass)
-{
-  if (!strlen(pass))
-    return 0;
-
-  pass = crypt(pass, password);
-
-  if (pass != password)
-    return 0;
-
-  return 1;
 }
 
 nomask object player() { return _player; }
@@ -405,13 +388,6 @@ void set_account_name(string str)
 }
 
 string query_account_name() { return account_name; }
-void set_password(string str)
-{
-  password = str;
-  save_me();
-}
-
-string query_password() { return password; }
 string query_email() { return account_name; }
 void set_real_name(string str) { real_name = str; }
 string query_real_name() { return real_name; }
@@ -466,6 +442,6 @@ mixed * stats()
                communicate::stats() +
                prompt::stats() +
                role::stats() +
-               commands::stats() +
+               security::stats() +
                obj::stats();
 }

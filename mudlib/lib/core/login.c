@@ -118,6 +118,10 @@ nomask void logon(object u)
   // will link back player -> user, too
   _user->set_player_ob(_player);
 
+  // first init call to have commands available
+  // (user object won't move so its init won't be called)
+  _user->init();
+
   // masked move function, will be moved to its proper place
   _player->move("whereever");
 
