@@ -1,3 +1,6 @@
+# operating system files
+.DS_Store
+
 # your own config file
 config.dgd
 
