@@ -3,91 +3,19 @@
 #include <areas/calendar.h>
 #include <language.h>
 
-static string tmppassword;
-
 void create()
 {
 }
 
 void account_commands()
 {
-  add_action("chfn", ({ "datos", "chfn" }));
   // add_action("set_email", "email");
-  add_action("change_password", ({ "password" , "passwd", "contraseña", "contrasenya" }));
+  add_action("chfn", ({ "datos", "chfn" }));
 }
 
 void show_commands()
 {
   write(_LANG_ACCOUNT_COMMANDS);
-}
-
-int change_password2(mixed pass);
-
-int change_password(string str)
-{
-  write("Por favor, introduce tu antigua contraseña: ");
-  input_to("change_password2", 1);
-  return 1;
-}
-
-int change_password2(mixed pass)
-{
-  string str;
-  string password;
-
-  if (!strlen(pass))
-  {
-    write("Cancelando...\n");
-    return 1;
-  }
-
-  password = this_object()->query_password();
-
-  if (password)
-  {
-    str = crypt(pass, password);
-    if (str != password)
-    {
-      write("Contraseña incorrecta. Cancelando...\n");
-      return 1;
-    }
-  }
-  else
-  {
-    write("Hay algún problema con la contraseña de tu cuenta.\n");
-    return 1;
-  }
-
-  write("Introduce la nueva contraseña: ");
-  input_to("change_password3",1);
-  return 1;
-}
-
-int change_password3(string pass)
-{
-  if (strlen(pass) < 6)
-  {
-    write("La contraseña debe tener al menos seis caracteres.\nCancelando...\n");
-    return 1;
-  }
-
-  tmppassword = pass;
-  write("Por favor, introdúcela de nuevo: ");
-  input_to("change_password4",1);
-  return 1;
-}
-
-int change_password4(string pass)
-{
-  if (tmppassword != pass)
-  {
-    write("Las contraseñas no coinciden. Cancelando...\n");
-    return 1;
-  }
-
-  this_object()->set_password( crypt(pass, "") );
-  write("Ok.\n");
-  return 1;
 }
 
 int chfn(string str)
