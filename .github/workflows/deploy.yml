@@ -15,6 +15,7 @@ jobs:
 
     - name: Compile driver
       run: |
+        cd ${{ github.workspace }}
         cd hexagon
         ./install/install.sh
 
