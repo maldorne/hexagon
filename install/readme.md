@@ -38,4 +38,4 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
    `mudlib` directory (must end in `/whatever/mudlib` without an ending slash)
 5. **Execute** `./mud.sh`
 6. `telnet localhost 6047` to connect and see if everything is working.
-7. By default you will have an administrator account created, with username `admin` and password `administrator`.
+7. By default you will have an administrator account created, with username `admin`, email `admin@maldorne.org` and password `hexagon`.
