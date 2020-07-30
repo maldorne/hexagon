@@ -52,8 +52,7 @@ int change_password2(mixed pass)
 
   if (password)
   {
-    str = crypt(pass, password);
-    if (str != password)
+    if (!valid_password(pass))
     {
       write(_LANG_WRONG_PASSWORD + " " + _LANG_CANCELLING);
       return 1;
