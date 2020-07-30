@@ -15,8 +15,8 @@ jobs:
 
     - name: Compile driver
       run: |
-        cd install
-        ./install.sh
+        cd hexagon
+        ./install/install.sh
 
     - name: Synchronize git repository
       uses: houseofmaldorne/rsync-deploy@v2.0
