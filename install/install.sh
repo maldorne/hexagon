@@ -6,10 +6,10 @@ cd driver/dgd/src
 
 if [[ $os == darwin ]]
 then
-  sed -i '' '968,974 s/^/\/\//' ./kfun/file.cpp
+  sed -i '' '433,468 s/^/\/\//' ./kfun/file.cpp
   sed -i '' -e 's/# -DSLASHSLASH/-DSLASHSLASH #/g' Makefile
 else
-  sed -i '968,974 s/^/\/\//' ./kfun/file.cpp
+  sed -i '433,468 s/^/\/\//' ./kfun/file.cpp
   sed -i -e 's/# -DSLASHSLASH/-DSLASHSLASH #/g' Makefile
 fi
 
