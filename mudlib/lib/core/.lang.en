@@ -4,7 +4,7 @@
 #define _LANG_LPMUD_VERSION "LPmud version: "
 #define _LANG_MUDLIB_VERSION "Mudlib version: "
 #define _LANG_PATCH_VERSON "Last patch applied: "
-#define _LANG_LANGUAGE_VERSION "english version"
+#define _LANG_LANGUAGE_VERSION "english"
 
 #define _LANG_WHO_COMMAND "who"
 #define _LANG_CREATE_COMMAND "create"
