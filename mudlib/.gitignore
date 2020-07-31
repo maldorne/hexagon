@@ -1,5 +1,5 @@
 # ignore players and accounts
-/save/accounts/*
+/save/users/*
 /save/players/*
 !/save/users/a/admin@maldorne.org.o
 !/save/players/a/admin.o
