@@ -9,3 +9,5 @@ mudlib/tmp/*
 
 mudlib/log/*
 !mudlib/log/.gitkeep
+
+driver/extensions
