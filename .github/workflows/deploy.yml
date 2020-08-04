@@ -18,6 +18,12 @@ jobs:
         cd ${{ github.workspace }}
         ./install/install.sh
 
+    - name: Copy driver documentation
+      run: |
+        cd ${{ github.workspace }}
+        cp -R ./driver/dgd/lpc-doc/* ./mudlib/docs/en/driver/
+        cp -R ./driver/dgd/lpc-doc/* ./mudlib/docs/es/driver/
+
     - name: Synchronize with hosting
       uses: houseofmaldorne/rsync-deploy@v2.0
       env:
