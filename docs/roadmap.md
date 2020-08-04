@@ -26,6 +26,7 @@ Set of features not yet started, but planned.
 |        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command. |
 |        | **Multi Game** | Finish the multigame features to allow hosting different games in the same server. |
 | :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/houseofmaldorne/hexagon/issues/6)]. |
+|        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
 
 ## Previous milestones
 
