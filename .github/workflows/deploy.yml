@@ -11,7 +11,7 @@ jobs:
     - name: Checkout git repository
       uses: actions/checkout@v2
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Compile driver
       run: |
