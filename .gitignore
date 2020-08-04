@@ -11,3 +11,5 @@ mudlib/log/*
 !mudlib/log/.gitkeep
 
 driver/extensions
+driver/*.dgd
+!driver/config.example.dgd
