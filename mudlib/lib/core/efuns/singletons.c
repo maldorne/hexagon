@@ -71,14 +71,14 @@ static nomask string doc(string name)
   // first int the lib docs directory, it overrides the game one
   catch 
   {
-    if (file_exists("/lib/docs/" + GLOBAL_COMPILE_LANG + "/" + name))
+    if (file_exists("/docs/" + GLOBAL_COMPILE_LANG + "/" + name))
     {
-      return "/lib/docs/" + GLOBAL_COMPILE_LANG + "/" + name;
+      return "/docs/" + GLOBAL_COMPILE_LANG + "/" + name;
     }
 
-    if ((GLOBAL_COMPILE_LANG != "en") && file_exists("/lib/docs/en/" + name))
+    if ((GLOBAL_COMPILE_LANG != "en") && file_exists("/docs/en/" + name))
     {
-      return "/lib/docs/en/" + name;
+      return "/docs/en/" + name;
     }
 
     if (file_exists("/game/docs/" + name))
