@@ -1,0 +1,10 @@
+This project contains the documentation for LPC, a programming language for
+DGD and Hydra.
+
+Everything in the repository can be shown on the web.  For instance, this file
+is available as:
+
+    https://raw.github.com/dworkin/lpc-doc/master/README
+
+As long as HTML documents use relative paths, links will work both in your
+own repository and on Github.

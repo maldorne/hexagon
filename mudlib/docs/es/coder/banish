@@ -1,0 +1,23 @@
+Usage: ban*ish <name> <reason>
+       ban*ish list <reason>
+       ban*ish query <name>
+
+Banishes a name from being used by a player. The valid reasons can be seen
+by just typing 'banish' without any arguments.
+The second form of the command tells you what names, if any, are banished
+because of <reason>. The last form tells you if a certain name has been
+banished, and if so, why.
+
+Reasons:
+  npc - banish the name of any unique (named) creature (eg fred, hrun)
+  race - banish races as being names (eg orc, elf, fox, etc) similar to above.
+  god - the gods of the land (eg Tymora)
+  deadplayer - these are dead players (run out of lives) do NOT use this reason
+
+  badplayer - banish a player who has been naughty, you have to move/delete
+              the player file first, thus you have to be a high-lord to do this
+
+  confusing - such as 'you' 'all' etc.
+
+See also:
+unbanish

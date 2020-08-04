@@ -1,0 +1,7 @@
+int index(array, target {, offset} )
+any * or string array;
+any item;
+int offset;
+
+Returns position of target inside array. If target is not in array, returns
+-1. If offset is specified, search is from <offset> to end of array.

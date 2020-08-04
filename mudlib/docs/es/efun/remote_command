@@ -1,0 +1,7 @@
+status remote_command()
+
+returns 1 if the function calling remote_command has been accessed via
+calling the function command("cmd",ob) on any object that is not equal
+to this_player().
+
+See also this_player(), command().

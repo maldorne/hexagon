@@ -1,0 +1,9 @@
+any *files(string str)
+
+Returns an array containing files specified by regular expression str.
+Should understand '*', '?', '..' and '.'
+Caveat: if you pass it an exact pattern (eg "myfile.c") it will not
+return anything. This is present in 3.0.41, at least. It may be fixed
+later.\
+
+Returns 0 if no match.

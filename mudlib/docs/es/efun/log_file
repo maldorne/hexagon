@@ -1,0 +1,11 @@
+.DT
+log_file
+FR-MUD's efun help
+log_file
+
+void log_file(string file, string message)
+.SP 5 5
+Append a message to a log file. All log files are in the directory /log.
+
+/log is automatically prepended to the file name.
+.EP
