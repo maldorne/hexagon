@@ -33,6 +33,13 @@ nomask void _heart_beat()
     return;
   }
 
+  // first thing in business, 
+  // queue the next _heart_beat execution, just in case there is 
+  // some error during this execution
+  _hb_handle = call_out("_heart_beat", HEART_BEAT_TIME);
+
+  debug("hbs", " ───> heart_beat cycle\n");
+  debug("hbs", to_string(_hb_object_list));
   debug("hbs", " ───> heart_beat cycle\n");
 
   for (i = 0; i < sizeof(_hb_object_list); i++)
@@ -79,9 +86,6 @@ nomask void _heart_beat()
       call_other(ob, "set_heart_beat", 0);
     }
   }
-
-  // queue the next _heart_beat execution
-  _hb_handle = call_out("_heart_beat", HEART_BEAT_TIME);
 }
 
 nomask int hb_object_index(object ob)
