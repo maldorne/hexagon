@@ -41,4 +41,9 @@
 #define _LANG_CMD_HELP "ayuda"
 #define _LANG_CMD_HELP_HELP "Muestra la ayuda disponible para un tema en particular."
 
+// characters
 
+#define _LANG_CMD_CHARACTERS "personajes"
+#define _LANG_CMD_CHARACTERS_HELP "Muestra todos los personajes disponibles en tu cuenta."
+#define _LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT "Tienes disponibles en esta cuenta los siguientes personajes:\n"
+#define _LANG_CMD_CHARACTERS_NO_LOGIN "Debes hacer login primero."
