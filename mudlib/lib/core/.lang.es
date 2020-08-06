@@ -9,6 +9,9 @@
 #define _LANG_WHO_COMMAND "who"
 #define _LANG_CREATE_COMMAND "crear"
 #define _LANG_FINGER_COMMAND "finger"
+#define _LANG_LOGIN_CMDS_OPTIONS "Opciones: "
+
+
 
 #define _LANG_WORLD_STILL_BEING_CREATED "El mundo aún se está formando, inténtalo de nuevo en unos minutos.\n"
 #define _LANG_TOO_MANY_PLAYERS "Hay demasiados jugadores conectados, inténtalo dentro de unos minutos.\n"
@@ -45,7 +48,6 @@
 #define _LANG_TYPE_CHARACTER_PASSWORD "Introduce la contraseña de tu personaje: "
 #define _LANG_WRONG_PASSWORD "Password incorrecto.\n"
 #define _LANG_TOO_MANY_RETRIES "Demasiados reintentos...\nNo estarás haciendo nada malo, ¿verdad?\n"
-#define _LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT "Tienes disponibles en esta cuenta los siguientes personajes:\n"
 #define _LANG_CHOOSE_ACCOUNT_CHARACTER "\nEscribe su nombre (o número) para empezar a jugar.\n" + \
       "   ('nuevo' para crear un nuevo personaje)\n> \n"
 #define _LANG_CHOOSE_NEW "nuevo"

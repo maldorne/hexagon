@@ -217,9 +217,25 @@ nomask void restore_player(string character_name)
 
 nomask void show_options()
 {
-  write("\n");
-  cat(doc(LOGIN_OPTIONS_MESSAGE));
-  write(_LANG_ENTER_AN_OPTION);
+  string ret;
+
+  ret = "\n" + _LANG_LOGIN_CMDS_OPTIONS + "\n";
+
+  if (!strlen(_user->query_account_name())) {
+    ret += "  %^BOLD%^GREEN%^<email>%^RESET%^ para hacer login con tu cuenta.\n";
+    ret += "  %^BOLD%^crear%^RESET%^ para crear una nueva cuenta.\n";
+    ret += "  %^BOLD%^invitado%^RESET%^ para probar el juego temporalmente.\n";
+  } else {
+    ret += "  %^BOLD%^GREEN%^<nombre de personaje>%^RESET%^ para seguir jugando.\n";
+    ret += "  %^BOLD%^crear%^RESET%^ para crear una nuevo personaje jugador.\n";
+    ret += "  %^BOLD%^characters%^RESET%^ para ver todos tus personajes disponibles.\n";
+  }
+
+  ret += "  %^BOLD%^finger <nombre>%^RESET%^ para obtener datos sobre otro jugador.\n";
+  ret += "  %^BOLD%^who%^RESET%^ para ver la lista de jugadores conectados.\n";
+
+  // cat(doc(LOGIN_OPTIONS_MESSAGE));
+  write(ret + "\n" + _LANG_ENTER_AN_OPTION);
   input_to("logon_option");
 }
 
@@ -407,15 +423,17 @@ nomask void logon_with_user_name(string password)
   // important: once a name is set, cannot be undone
   _player->set_name("logged");
 
-  list = _user->query_player_list();
+  show_options();
 
-  write(_LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT);
+  // list = _user->query_player_list();
 
-  for (tmp = 0; tmp < sizeof(list); tmp++)
-    write("   " + ((string)(tmp + 1)) + ") " + capitalize(list[tmp]) + "\n");
+  // write(_LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT);
 
-  write(_LANG_CHOOSE_ACCOUNT_CHARACTER);
-  input_to("choose_character", 0, list);
+  // for (tmp = 0; tmp < sizeof(list); tmp++)
+  //   write("   " + ((string)(tmp + 1)) + ") " + capitalize(list[tmp]) + "\n");
+
+  // write(_LANG_CHOOSE_ACCOUNT_CHARACTER);
+  // input_to("choose_character", 0, list);
 } /* logon_with_user_name() */
 
 nomask void choose_character(string str, string * list)
@@ -716,6 +734,8 @@ void create_user4()
   _user->save_me();
 
   write(_LANG_NEW_ACCOUNT_CREATED);
+
+  show_options();
 
   // from here the user object will take control of inputs
   return;
