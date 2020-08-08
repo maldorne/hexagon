@@ -3,6 +3,7 @@
 #include <user/input.h>
 #include <mud/secure.h>
 #include <user/hud.h>
+#include <user/login.h>
 #include <language.h>
 
 inherit obj         "/lib/core/object";
@@ -105,6 +106,12 @@ void init()
   obj::init();
 }
 
+// do not allow movement of the user object
+int move(mixed dest, varargs mixed messin, mixed messout)
+{
+  return obj::move(LOGIN_LOUNGE, messin, messout);
+}
+
 nomask int query_link() { return 0; }
 nomask int query_player() { return 0; }
 nomask int query_user() { return 1; }
@@ -139,7 +146,7 @@ nomask int set_player_ob(object ob)
   return 1;
 }
 
-// Called from the input_to efun
+// called from the input_to efun
 nomask int set_input_to(object obj, string func, varargs int flag, mixed args...)
 {
   if (redirect_input_ob == nil)
