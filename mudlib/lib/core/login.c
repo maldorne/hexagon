@@ -20,6 +20,8 @@ inherit "/lib/core/object";
 #include <user/player.h>
 #include <areas/common.h>
 #include <user/user.h>
+// some common translations
+#include <mud/translations.h>
 #include <language.h>
 
 static object _user;   // connection object
@@ -260,11 +262,13 @@ nomask void logon_option(string str)
   // execute cmd avaibale to login roles, neverbot 09/2019
   if (member_array(exploded_args[0], available_cmds) != -1)
   {
-    string args;
+    string args, err;
     int result;
     args = (sizeof(exploded_args) > 1) ? implode(exploded_args[1..], " ") : "";
 
-    result = (int)CMD_HANDLER->cmd(exploded_args[0], args, _user);
+    err = catch(result = (int)CMD_HANDLER->cmd(exploded_args[0], args, _user));
+    if (err)
+      write(_LANG_ERROR_HAPPENED);
 
     show_options();
     return;
@@ -617,13 +621,9 @@ nomask void try_throw_out(string str)
   begin(0, TRUE, env);
 } /* try_throw_out() */
 
-
-
-
-
-
-
-
+// *******************************************************
+//  create user account
+// *******************************************************
 
 void create_user(string str)
 {
@@ -738,6 +738,10 @@ void create_user4()
   // from here the user object will take control of inputs
   return;
 }
+
+// *******************************************************
+//  create player character
+// *******************************************************
 
 void create_player(string str)
 {

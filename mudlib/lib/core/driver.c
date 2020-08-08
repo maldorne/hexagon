@@ -155,7 +155,7 @@ static nomask void inform_user(string str, int message_type)
   {
     case DRIVER_RUNTIME_ERROR:
 
-      write("\nSe ha producido un error.\n");
+      write(_LANG_ERROR_HAPPENED);
 
       if (strlen(mudos->query_current_command()))
         write(_LANG_DIDNT_WORK);
@@ -255,7 +255,7 @@ static mixed include_file(string includer, string include)
   // we will include a file from our current directory: .lang.en, .lang.es, etc
   if (include == "/include/language.h")
   {
-    include = path(includer) + ".lang." + GLOBAL_COMPILE_LANG;
+    include = path(includer) + ".lang." + GLOBAL_COMPILE_LANG + ".h";
   }
   else
   {

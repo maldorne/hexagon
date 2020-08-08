@@ -11,6 +11,7 @@
 
 // texts.en
 
+#define _LANG_ERROR_HAPPENED "An error happened.\n"
 #define _LANG_DIDNT_WORK "The attempt of doing that didn't work.\n"
 
 #define _LANG_AND "and"

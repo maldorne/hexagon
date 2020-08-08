@@ -15,4 +15,4 @@
  * include_file call
  */
 #define GLOBAL_COMPILE_LANG "en"
-#include <mud/texts.en>
+#include <mud/texts.en.h>
