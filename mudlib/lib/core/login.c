@@ -49,12 +49,6 @@ nomask void try_throw_out(string str);
 nomask void time_out();
 nomask void disconnect(varargs int silence);
 
-void create_user(string str);
-void create_user2(string str);
-void create_user3(string str);
-void create_user4();
-
-
 void create()
 {
   ::create();
@@ -184,8 +178,7 @@ nomask void restore_user(string user_name)
   if (!_user->restore_me(user_name))
   {
     write(_LANG_NONEXISTANT_ACCOUNT);
-    destruct(_user);
-    show_options();
+    disconnect(1);
     return;
   }
 }
@@ -221,7 +214,7 @@ nomask void show_options()
 
   ret = "\n" + _LANG_LOGIN_CMDS_OPTIONS + "\n";
 
-  if (!strlen(_user->query_account_name())) {
+  if (!validated) {
     ret += "  %^BOLD%^GREEN%^<email>%^RESET%^ para hacer login con tu cuenta.\n";
     ret += "  %^BOLD%^crear%^RESET%^ para crear una nueva cuenta.\n";
     ret += "  %^BOLD%^invitado%^RESET%^ para probar el juego temporalmente.\n";
@@ -370,17 +363,37 @@ nomask void logon_option(string str)
   // the input is a character name
   if (file_size("/save/players/" + str[0..0] + "/" + str + ".o") > 0)
   {
-    restore_player(str);
-    write(_LANG_TYPE_CHARACTER_PASSWORD);
-    // flag to show it's a character name
-    input_to("logon_with_player_name", 1, 0);
+    // if already logged, don't need to input password again
+    if (validated) {
+      string * list;
+      list = _user->query_player_list();
+
+      // our own character, load auto
+      if (member_array(str, list) != -1) {
+        restore_player(str);
+        logon_with_player_name("", 1);
+        return;
+      }
+
+      write(_LANG_NONEXISTANT_ACCOUNT_OR_CHARACTER);
+      show_options();
+      return;
+
+    } else {
+      restore_player(str);
+      write(_LANG_TYPE_CHARACTER_PASSWORD);
+      // flag to show it's a character name
+      input_to("logon_with_player_name", 1, 0);
+      return;
+    }
   }
   // the input is an user name
-  else if (file_size("/save/users/" + str[0..0] + "/" + str + ".o") > 0)
+  else if (!validated && file_size("/save/users/" + str[0..0] + "/" + str + ".o") > 0)
   {
     restore_user(str);
     write(_LANG_TYPE_ACCOUNT_PASSWORD);
     input_to("logon_with_user_name", 1);
+    return;
   }
   else
   {
@@ -408,7 +421,6 @@ nomask void logon_with_user_name(string password)
     if (++no_times >= MAX_RETRIES)
     {
       write(_LANG_TOO_MANY_RETRIES);
-      destruct(_user);
       disconnect(1);
       return;
     }
@@ -419,6 +431,7 @@ nomask void logon_with_user_name(string password)
   }
 
   // from here the password is ok
+  validated = TRUE;
 
   // set the name of the player object (which is of type /lib/link.c)
   // to "mark" it as already logged
@@ -436,7 +449,7 @@ nomask void logon_with_user_name(string password)
 
   // write(_LANG_CHOOSE_ACCOUNT_CHARACTER);
   // input_to("choose_character", 0, list);
-} /* logon_with_user_name() */
+}
 
 nomask void choose_character(string str, string * list)
 {
@@ -484,7 +497,7 @@ nomask void choose_character(string str, string * list)
 }
 
 // if flag == 0, login with the player name
-// if flag == 1, we come from the user login
+// if flag == 1, we come from the user login, already authenticated
 nomask void logon_with_player_name(string password, int flag)
 {
   // login with the character name
@@ -527,7 +540,7 @@ nomask void logon_with_player_name(string password, int flag)
   }
 
   begin(0);
-} /* logon_with_player_name() */
+}
 
 nomask void begin(int is_new_player, varargs int reconnected, object destination)
 {
@@ -589,7 +602,7 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   _user->set_no_prompt();
 
   destruct(this_object());
-} /* begin() */
+}
 
 nomask void try_throw_out(string str)
 {
@@ -619,11 +632,16 @@ nomask void try_throw_out(string str)
     _user->query_cap_name() + " reconnected", "link-death");
 
   begin(0, TRUE, env);
-} /* try_throw_out() */
+}
 
 // *******************************************************
 //  create user account
 // *******************************************************
+
+void create_user(string str);
+void create_user2(string str);
+void create_user3(string str);
+void create_user4();
 
 void create_user(string str)
 {
