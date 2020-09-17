@@ -211,7 +211,7 @@ nomask int save_me()
   if (query_loading() || query_property(LOADING_PROP))
     return 0;
 
-  if (query_property(GUEST_PROP))
+  if (user()->query_property(GUEST_PROP))
   {
     tell_object(this_object(), "Ups, l"+G_CHAR+"s invitad"+G_CHAR+"s no pueden salvar...\n");
     return 0;

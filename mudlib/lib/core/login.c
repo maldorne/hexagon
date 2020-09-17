@@ -89,8 +89,7 @@ nomask void time_out()
     return;
 
   write(_LANG_TIMED_OUT);
-  destruct(_user);
-  destruct(this_object());
+  disconnect(1);
 }
 
 // nomask void quit()
@@ -215,17 +214,17 @@ nomask void show_options()
   ret = "\n" + _LANG_LOGIN_CMDS_OPTIONS + "\n";
 
   if (!validated) {
-    ret += "  %^BOLD%^GREEN%^<email>%^RESET%^ para hacer login con tu cuenta.\n";
-    ret += "  %^BOLD%^crear%^RESET%^ para crear una nueva cuenta.\n";
-    ret += "  %^BOLD%^invitado%^RESET%^ para probar el juego temporalmente.\n";
+    ret += "  " + _LANG_OPTIONS_ACCOUNT_LOGIN + "\n";
+    ret += "  " + _LANG_OPTIONS_CREATE_ACCOUNT + "\n";
+    ret += "  " + _LANG_OPTIONS_GUEST_LOGIN + "\n";
   } else {
-    ret += "  %^BOLD%^GREEN%^<nombre de personaje>%^RESET%^ para seguir jugando.\n";
-    ret += "  %^BOLD%^crear%^RESET%^ para crear una nuevo personaje jugador.\n";
-    ret += "  %^BOLD%^characters%^RESET%^ para ver todos tus personajes disponibles.\n";
+    ret += "  " + _LANG_OPTIONS_CHARACTER_LOGIN + "\n";
+    ret += "  " + _LANG_OPTIONS_CREATE_CHARACTER + "\n";
+    ret += "  " + _LANG_OPTIONS_LIST_CHARACTERS + "\n";
   }
 
-  ret += "  %^BOLD%^finger <nombre>%^RESET%^ para obtener datos sobre otro jugador.\n";
-  ret += "  %^BOLD%^who%^RESET%^ para ver la lista de jugadores conectados.\n";
+  ret += "  " + _LANG_OPTIONS_CMD_FINGER + "\n";
+  ret += "  " + _LANG_OPTIONS_CMD_WHO + "\n";
 
   // cat(doc(LOGIN_OPTIONS_MESSAGE));
   write(ret + "\n" + _LANG_ENTER_AN_OPTION);
@@ -286,14 +285,25 @@ nomask void logon_option(string str)
 
   if (str == _LANG_CREATE_COMMAND)
   {
-    string ret;
-    ret = _LANG_ACCOUNT_RECOMMEND;
-    ret = sprintf("\n%-*s\n", _user->query_cols(), ret);
-    write( ret );
+    // if not validated yet, we are creating a new user account
+    if (!validated)
+    {
+      string ret;
+      ret = _LANG_ACCOUNT_RECOMMEND;
+      ret = sprintf("\n%-*s\n", _user->query_cols(), ret);
+      write( ret );
 
-    write(_LANG_ENTER_EMAIL);
-    input_to("create_user");
-    return;
+      write(_LANG_ENTER_EMAIL);
+      input_to("create_user");
+      return;
+    } 
+    // already logged with a user account, let's create a new character
+    else
+    {
+      write(_LANG_TYPE_THE_NEW_CHARACTER_NAME);
+      input_to("create_player");
+      return;      
+    }
   }
 
   // from here we know we are trying to log in
@@ -355,7 +365,7 @@ nomask void logon_option(string str)
 
   if (((tmp = SECURE->valid_user_name(str)) != -1) && !SECURE->valid_email(str))
   {
-    write(_LANG_INVALID_CHARACTER);
+    write(_LANG_INVALID_CHARACTER_OR_EMAIL);
     show_options();
     return;
   }
@@ -564,7 +574,7 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
 
   write(_LANG_WAIT_LOADING);
 
-  // every user obejct will have the same name
+  // every user object will have the same name
   // if name != "object", that will mean the user has finished the login process
   _user->set_name("user");
 
@@ -573,7 +583,6 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   // store the user name in the user handler
   find_object(USER_HANDLER)->update_user(_user, _player);
 
-  validated = TRUE;
   write(_LANG_CONNECTED_WELCOME);
 
   // CHECK
@@ -647,9 +656,7 @@ void create_user(string str)
 {
   if (!strlen(str))
   {
-    // write(_LANG_COME_AGAIN_SOON);
-    destruct(_user);
-    destruct(this_object());
+    disconnect();
     return;
   }
 
@@ -703,10 +710,8 @@ void create_user2(string str)
 {
   if (!strlen(str))
   {
-    // write(_LANG_COME_AGAIN_SOON);
-    destruct(_user);
-    destruct(this_object());
-    return ;
+    disconnect();
+    return;
   }
 
   password = crypt(str, password);
@@ -749,17 +754,21 @@ void create_user4()
   _user->update_last_connection();
   _user->save_me();
 
+  // from here the account is ok
+  validated = TRUE;
+
   write(_LANG_NEW_ACCOUNT_CREATED);
 
+  // now we have to choose a new command, 
+  // probably create a new character
   show_options();
-
-  // from here the user object will take control of inputs
-  return;
 }
 
 // *******************************************************
 //  create player character
 // *******************************************************
+
+void create_player2();
 
 void create_player(string str)
 {
@@ -767,57 +776,55 @@ void create_player(string str)
 
   if ((tmp = SECURE->valid_user_name(str)) != -1)
   {
-    write("Caracter inválido '"+str[tmp..tmp]+"' en ("+str+").\n\n");
-    write("Introduce el nombre de tu nuevo personaje: ");
+    write(_LANG_INVALID_USER_NAME);
+    write(_LANG_TYPE_THE_NEW_CHARACTER_NAME);
     input_to("create_player");
     return;
   }
 
   if (strlen(str) > MAX_LEN)
   {
-    write("El nombre es demasiado largo, el máximo son 11 caracteres.\n");
-    write("Introduce el nombre de tu nuevo personaje: ");
+    write(_LANG_CHARACTER_NAME_TOO_LONG);
+    write(_LANG_TYPE_THE_NEW_CHARACTER_NAME);
     input_to("create_player");
     return;
   }
 
   if (strlen(str) < MIN_LEN)
   {
-    write("El nombre es demasiado corto, el mínimo son 3 caracteres.\n");
-    write("Introduce el nombre de tu nuevo personaje: ");
+    write(_LANG_CHARACTER_NAME_TOO_SHORT);
+    write(_LANG_TYPE_THE_NEW_CHARACTER_NAME);
     input_to("create_player");
     return;
   }
 
-  if ((file_size("/save/players/"+str[0..0]+"/"+str+".o") > 0) ||
-      (file_size("/save/users/"+str[0..0]+"/"+str+".o") > 0))
+  if (file_size("/save/players/"+str[0..0]+"/"+str+".o") > 0)
   {
-    write("Lo sentimos, pero ese nombre ya está utilizado.\n");
-    write("Por favor, introduce otro nombre: ");
+    write(_LANG_USED_CHARACTER_NAME);
     input_to("create_player");
     return ;
   }
 
   name = str;
 
-  write("Has escogido como nombre: '"+name+"', ¿estás seguro? (s/n): ");
+  write(_LANG_CHARACTER_NAME_CHOSEN);
   input_to("check_player_name");
 }
 
 int check_player_name(string str)
 {
-  str = implode(explode(str," "),"");
+  str = implode(explode(str, " "), "");
 
-  if ((str[0] == 's') || (str[0] == 'S'))
+  if (member_array(str[0], _LANG_YES_OPTIONS_ARRAY) != -1)
   {
-    write("¿Tu personaje es hombre o mujer? (h/m): ");
+    write(_LANG_CHOOSE_CHARACTER_GENDER);
     input_to("get_sex");
     return 1;
   }
-  else if ((str[0] == 'n') || (str[0] == 'N'))
+  else if (member_array(str[0], _LANG_NO_OPTIONS_ARRAY) != -1)
   {
     write(_LANG_TRY_AGAIN);
-    write("Introduce el nombre de tu personaje: ");
+    write(_LANG_TYPE_THE_NEW_CHARACTER_NAME);
     input_to("create_player");
     return 1;
   }
@@ -825,45 +832,63 @@ int check_player_name(string str)
   write(_LANG_ANSWER_YES_NO);
   input_to("check_player_name");
   return 1;
-
-} /* check_player_name() */
+}
 
 void get_sex(string str)
 {
   int i;
-  str = lower_case(str);
+  str = implode(explode(str, " "), "");
 
   if (!strlen(str))
   {
-    write("Inténtalo con hombre o mujer (h/m): ");
+    write(_LANG_ANSWER_CHOOSE_AN_OPTION + "\n" + _LANG_CHOOSE_CHARACTER_GENDER);
     input_to("get_sex");
     return;
   }
 
   i = str[0];
 
-  if ((i == 'h') || (i == 'H'))
+  if (member_array(i, _LANG_GENDER_MAN_OPTIONS_ARRAY) != -1)
   {
-    _user->set_gender(1);
     gender = 1;
   }
-  else if ((i== 'm')  || (i == 'M'))
+  else if (member_array(i, _LANG_GENDER_WOMAN_OPTIONS_ARRAY) != -1)
   {
-    _user->set_gender(2);
     gender = 2;
   }
   else
   {
-    write("Inténtalo con hombre o mujer (h/m): ");
+    write(_LANG_ANSWER_CHOOSE_AN_OPTION + "\n" + _LANG_CHOOSE_CHARACTER_GENDER);
     input_to("get_sex");
     return;
   }
 
-  if (!query_property(GUEST_PROP))
-  {
-    _user->save_me();
-    _user->add_player(name);
-  }
+  create_player2();
+}
+
+void create_player2()
+{
+  object old_player;
+  old_player = _player;
+
+  // end of the process, we create a new player object
+  _player = clone_object(PLAYER_OB);
+  _player->set_name(name);
+  _player->set_gender(gender);
+
+  // destruct the link object
+  destruct(old_player);
+
+  // will link back player -> user, too
+  _user->set_player_ob(_player);
+  _user->add_player(name);
+  _user->save_me();
+
+  // save the _user first, and then the _player, 
+  // any message printed without a user will prompt an error, and 
+  // even this save_me will print messages
+  _player->save_me();
+
 
   begin(!query_property(GUEST_PROP));
 }
@@ -874,5 +899,3 @@ mixed * stats()
     ({ "Login validated", validated, }),
           });
 }
-
-

@@ -10,8 +10,8 @@
 
 // starting position for new players
 // TODO this will change with multiple games
-#define START_POS "/game/areas/start/start"
-#define ENTRY_POS "/d/ciudad_capital/barrio_antiguo/rooms/calzada02"
+#define START_POS "/games/ciudad-capital/areas/start/start.c"
+
 // Taniwha 14/09/1995 how long shall we disable guild commands
 // and spells after login
 #define LOGINLOCK 20

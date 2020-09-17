@@ -9,10 +9,16 @@
 #define _LANG_WHO_COMMAND "who"
 #define _LANG_CREATE_COMMAND "create"
 #define _LANG_FINGER_COMMAND "finger"
+
 #define _LANG_LOGIN_CMDS_OPTIONS "Options: "
-
-
-
+#define _LANG_OPTIONS_ACCOUNT_LOGIN "%^BOLD%^GREEN%^<email>%^RESET%^ to login with your account."
+#define _LANG_OPTIONS_CREATE_ACCOUNT "%^BOLD%^create%^RESET%^ to create a new account."
+#define _LANG_OPTIONS_GUEST_LOGIN "%^BOLD%^guest%^RESET%^ to temporarily test the game."
+#define _LANG_OPTIONS_CHARACTER_LOGIN "%^BOLD%^GREEN%^<character name>%^RESET%^ to play again."
+#define _LANG_OPTIONS_CREATE_CHARACTER "%^BOLD%^create%^RESET%^ to create a new player character."
+#define _LANG_OPTIONS_LIST_CHARACTERS "%^BOLD%^characters%^RESET%^ to list all your available characters."
+#define _LANG_OPTIONS_CMD_FINGER "%^BOLD%^finger <name>%^RESET%^ to get information about other player."
+#define _LANG_OPTIONS_CMD_WHO "%^BOLD%^who%^RESET%^ to see the list of connected players."
 
 #define _LANG_WORLD_STILL_BEING_CREATED "The world is still being created. Try again in a minute.\n"
 #define _LANG_TOO_MANY_PLAYERS "Too many players connected. Try again in a minute.\n"
@@ -20,7 +26,7 @@
 #define _LANG_TIMED_OUT "Timed out.\n"
 #define _LANG_COME_AGAIN_SOON "\nCome again soon!\n"
 #define _LANG_OPTION_STRING_TOO_SHORT "Option selected is too short, the minimum are " + MIN_LEN + " characters.\n"
-#define _LANG_INVALID_CHARACTER "Invalid character '" + str[tmp..tmp] + "' in (" + str + ").\n"
+#define _LANG_INVALID_CHARACTER_OR_EMAIL "Invalid user name or email" + (tmp >= 0) ? " (wrong character '" + str[tmp..tmp] + "' in '" + str + "').\n" : ".\n"
 #define _LANG_PLAYER_ACCESS_FORBIDDEN "Player access is not allowed at the moment.\n"
 #define _LANG_ANSWER_YES_NO "You must answer yes or no (y/n): "
 #define _LANG_YES_OPTIONS_ARRAY ({ 'y', 'Y' })
@@ -58,6 +64,18 @@
 #define _LANG_ACCOUNT_RESTORE_ERROR "Error, your account could not be restored.\n"
 #define _LANG_ALREADY_PLAYING "You are already playing, should I dump the other copy? (y/n): "
 #define _LANG_CODERS_FORBIDDEN "Coder access is not allowed to this port.\n"
+
+#define _LANG_INVALID_USER_NAME "Wrong character '"+str[tmp..tmp]+"' in ("+str+").\n\n" 
+#define _LANG_CHARACTER_NAME_TOO_LONG "The name is too long, max "+MAX_LEN+" characters.\n"
+#define _LANG_CHARACTER_NAME_TOO_SHORT "The name is too short, min "+MIN_LEN+" characters.\n"
+#define _LANG_USED_CHARACTER_NAME "Sorry, but that character name is already in use.\n" + \
+      "Please, enter a different name for your new character: "
+#define _LANG_CHARACTER_NAME_CHOSEN "You have chosen '" + name + "' as your character name, are you sure? (y/n): "
+#define _LANG_CHOOSE_CHARACTER_GENDER "Your character is man or woman? (m/w): "
+#define _LANG_GENDER_MAN_OPTIONS_ARRAY ({ 'm', 'M' })
+#define _LANG_GENDER_WOMAN_OPTIONS_ARRAY ({ 'w', 'W' })
+#define _LANG_ANSWER_CHOOSE_AN_OPTION "You must answer one of the available options."
+
 
 #define _LANG_WAIT_LOADING "Please wait... loading your character.\n"
 #define _LANG_CONNECTED_WELCOME "%^BOLD%^You are connected! Welcome to "+mud_name()+".%^RESET%^\n"
