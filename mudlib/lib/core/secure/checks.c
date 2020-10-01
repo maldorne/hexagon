@@ -385,16 +385,13 @@ nomask int valid_write(string path, mixed euid, string func)
 
   // Little patch to plug a security leak -- Wahooka
   if (func == "save_object" && (sizeof(bing) >= 2) &&
-     (bing[0] == "save") && (bing[1] == "players"))
+     (bing[0] == "save") && (bing[1] == "players" || bing[1] == "users"))
   {
-    if (member_array(base_name(previous_object()), PLAYEROBS) != -1)
-      return 1;
-    return 0;
-  }
-  else if (func == "save_object" && (sizeof(bing) >= 2) &&
-          (bing[0] == "save") && (bing[1] == "accounts"))
-  {
-    if (member_array(base_name(previous_object()), PLAYEROBS) != -1)
+    object * stack;
+    stack = previous_object(-1);
+
+    // check the action was started by a player object
+    if (member_array(base_name(stack[sizeof(stack) - 1]), PLAYEROBS) != -1)
       return 1;
     return 0;
   }
@@ -484,7 +481,7 @@ nomask int valid_write(string path, mixed euid, string func)
       if ((sizeof(bing) >= 2) && (bing[1] == "players"))
         // return query_admin(euid);
         return 0;
-      if ((sizeof(bing) >= 2) && (bing[1] == "accounts"))
+      if ((sizeof(bing) >= 2) && (bing[1] == "users"))
         return 0;
 
       if (euid == ROOM_EUID ||

@@ -158,8 +158,8 @@ void set_account_name(string str)
 
   if (account_name != "")
     return; // changing account name is not allowed
+
   account_name = str;
-  save_me();
 }
 
 string query_role_name() { return role_name; }

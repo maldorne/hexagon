@@ -704,7 +704,7 @@ int check_user_name(string str)
   write(_LANG_ANSWER_YES_NO);
   input_to("check_user_name");
   return 1;
-} /* check_user_name() */
+}
 
 void create_user2(string str)
 {
@@ -875,10 +875,12 @@ void create_player2()
   _player = clone_object(PLAYER_OB);
   _player->set_name(name);
   _player->set_gender(gender);
+  _player->set_account_name(user_name);
 
   // destruct the link object
   destruct(old_player);
 
+  _user->set_account_name(user_name);
   // will link back player -> user, too
   _user->set_player_ob(_player);
   _user->add_player(name);
