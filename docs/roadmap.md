@@ -11,7 +11,7 @@ Set of features we are currently working on.
 |        | **Multi Game** | Finish the multigame features to allow hosting different games in the same server. |
 |        |  | :heavy_minus_sign: Default test area as game example. |
 | :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/houseofmaldorne/hexagon/issues/6)]. |
-|        | **Login** | Basic user type to handle the connection with an account, creations of player characters, etc. |
+|        | **Login** | Some improvements in the login process, pending since the last milestone. |
 |        |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. |
 |        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
 
@@ -28,7 +28,7 @@ Set of features not yet started, but planned.
 | :white_check_mark: | **Multilanguage** | Allow multilanguage games. The language will be loaded in compilation time, using header files located automatically by the driver. |
 | :white_check_mark: | **`this_player()` and `this_user()` review** | Full review of the initiator objects, during heartbeats, `call_out`, login, `move` and input/command execution. |
 | :white_check_mark: | **User and player objects** | Separate the `user` object in `user` and `player`. Now there are two different linked objects, the `player` handles every in-game situation, while the `user` handles the connection, account info, input and output. |
-|                    | **Login user type** | Basic user type to handle the connection with an account, creations of player characters, etc. |
+| :white_check_mark: | **Login user type** | Basic user type to handle the connection with an account, creations of player characters, etc. |
 | :white_check_mark: |  | :heavy_minus_sign: Allow execution of certain type of commands (`who`, `finger`, etc) during the login process. |
 | :white_check_mark: |  | :heavy_minus_sign: Full review of the login process. Simplify the `login` object refactoring anything possible to the new login commands [[#1](https://github.com/houseofmaldorne/hexagon/issues/1)]. |
 |        :x:         |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. Moved to next milestone. |
