@@ -172,14 +172,16 @@ static nomask void disconnect(varargs int silence)
   destruct(this_object());
 }
 
-nomask void restore_user(string user_name)
+nomask void restore_user(string account_name)
 {
-  if (!_user->restore_me(user_name))
+  if (!_user->restore_me(account_name))
   {
     write(_LANG_NONEXISTANT_ACCOUNT);
     disconnect(1);
     return;
   }
+
+  user_name = account_name;
 }
 
 nomask void restore_player(string character_name)

@@ -409,14 +409,13 @@ void add_player(string name)
 {
   if (member_array(name, player_list) != -1)
     return;
+
   player_list += ({ name });
-  save_me();
 }
 
 void remove_player(string name)
 {
   player_list -= ({ name });
-  save_me();
 }
 
 string query_last_on_from() { return last_on_from; }
