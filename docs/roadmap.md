@@ -1,8 +1,27 @@
 # Project status and roadmap
 
-## Current milestone: [v20.09 Anduin](https://github.com/houseofmaldorne/hexagon/milestone/1)
+## Current milestone: [v20.10 Beregost](https://github.com/houseofmaldorne/hexagon/milestone/2)
 
 Set of features we are currently working on. 
+
+| Status | Title | Description |
+| :----: | :---- | ----------- |
+| :white_check_mark: | **Product Identity** | Logo and banner for the `readme.md` home document [[#5](https://github.com/houseofmaldorne/hexagon/issues/5)]. |
+|        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command. |
+|        | **Multi Game** | Finish the multigame features to allow hosting different games in the same server. |
+|        |  | :heavy_minus_sign: Default test area as game example. |
+| :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/houseofmaldorne/hexagon/issues/6)]. |
+|        | **Login** | Basic user type to handle the connection with an account, creations of player characters, etc. |
+|        |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. |
+|        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
+
+## Next milestone: 
+
+Set of features not yet started, but planned.
+
+## Previous milestones
+
+### [v20.09 Anduin](https://github.com/houseofmaldorne/hexagon/milestone/1)
 
 | Status | Title | Description |
 | :----: | :---- | ----------- | 
@@ -11,24 +30,11 @@ Set of features we are currently working on.
 | :white_check_mark: | **User and player objects** | Separate the `user` object in `user` and `player`. Now there are two different linked objects, the `player` handles every in-game situation, while the `user` handles the connection, account info, input and output. |
 |                    | **Login user type** | Basic user type to handle the connection with an account, creations of player characters, etc. |
 | :white_check_mark: |  | :heavy_minus_sign: Allow execution of certain type of commands (`who`, `finger`, etc) during the login process. |
-|                    |  | :heavy_minus_sign: Full review of the login process. Simplify the `login` object refactoring anything possible to the new login commands [[#1](https://github.com/houseofmaldorne/hexagon/issues/1)]. |
-|                    |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. |
+| :white_check_mark: |  | :heavy_minus_sign: Full review of the login process. Simplify the `login` object refactoring anything possible to the new login commands [[#1](https://github.com/houseofmaldorne/hexagon/issues/1)]. |
+|        :x:         |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. Moved to next milestone. |
 | :white_check_mark: | **`visible_strlen`** | Be able to calculate the real length of a string having in mind only the characters visible to the player [[#2](https://github.com/houseofmaldorne/hexagon/issues/2)]. |
 | :white_check_mark: | **Deprecate manager user** | Remove code related to the `manager` user type. We have enough information with `coder` and `administrator`. |
 
-## Next milestone: [v20.10 Beregost](https://github.com/houseofmaldorne/hexagon/milestone/2)
-
-Set of features not yet started, but planned.
-
-| Status | Title | Description |
-| :----: | :---- | ----------- |
-| :white_check_mark: | **Product Identity** | Logo and banner for the `readme.md` home document [[#5](https://github.com/houseofmaldorne/hexagon/issues/5)]. |
-|        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command. |
-|        | **Multi Game** | Finish the multigame features to allow hosting different games in the same server. |
-| :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/houseofmaldorne/hexagon/issues/6)]. |
-|        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
-
-## Previous milestones
 
 ### Up to [v19.05](https://github.com/houseofmaldorne/hexagon/tree/19.05)
 
