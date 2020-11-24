@@ -17,7 +17,7 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### Current status
 
-Next milestone *[v20.10 Beregost](docs/roadmap.md#current-milestone-v2010-beregost)*.
+Next milestone *[v20.12 Beregost](docs/roadmap.md#current-milestone-v2012-beregost)*.
 
 ### More detailed information about the project
 * Current project status and roadmap in the [roadmap document](docs/roadmap.md).

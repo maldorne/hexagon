@@ -1,6 +1,6 @@
 # Project status and roadmap
 
-## Current milestone: [v20.10 Beregost](https://github.com/houseofmaldorne/hexagon/milestone/2)
+## Current milestone: [v20.12 Beregost](https://github.com/houseofmaldorne/hexagon/milestone/2)
 
 Set of features we are currently working on. 
 
