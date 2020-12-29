@@ -32,6 +32,7 @@ jobs:
         mkdir hexagon
         mv en hexagon/
         cd hexagon
+        mv en/.git* .
         cp -R en es
         sed -i '18,19 s/en/es/g' es/mudlib/include/mud/translations.h
 
