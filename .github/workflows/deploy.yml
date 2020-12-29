@@ -28,7 +28,7 @@ jobs:
       run: |
         cd ${{ github.workspace }}
         mkdir en
-        cp -R * en/
+        mv * en/
         cp -R en/ es/
         sed -i '18,19 s/en/es/g' es/mudlib/include/mud/translations.h
 
