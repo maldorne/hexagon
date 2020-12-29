@@ -27,8 +27,11 @@ jobs:
     - name: Duplicate code for english and spanish servers
       run: |
         cd ${{ github.workspace }}
-        mkdir en
-        mv !(en) en
+        cd ..
+        mv hexagon en
+        mkdir hexagon
+        mv en hexagon/
+        cd hexagon
         cp -R en es
         sed -i '18,19 s/en/es/g' es/mudlib/include/mud/translations.h
 
