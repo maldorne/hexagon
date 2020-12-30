@@ -2,6 +2,8 @@
 
 List of commands available to every player, depending of its user type/role (`player`, `coder`, `admin`, and the common type `login` always available, even in the login screen before choosing a player character).
 
+**Be aware**: most of the commands listed here are already implemented and working (might not be translated), but as I've just started working in this document recently, I'll update every entry as I test each command.
+
 ## Login
 
 | Command | Working in Hexagon | Translated en/es | Help available | Notes |
@@ -9,7 +11,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | characters | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | finger     | :white_check_mark: | :white_check_mark: | :x: |    |
 | help       | :white_check_mark: | :x: | :white_check_mark: |    |
-| who        | :white_check_mark: | :white_check_mark: | Have to improve | The weather time (depends of the game) has to be translated yet. |
+| who        | :white_check_mark: | :white_check_mark: |   | The weather time (depends of the game) has to be translated yet. Help is half done. |
 
 ## Admin
 
