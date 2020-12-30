@@ -403,3 +403,35 @@ static nomask string pad(string str, int size, varargs string char)
 
   return str;
 }
+
+static nomask string slugify(string str)
+{
+  int i, length;
+  string result;
+
+  result = "";
+  length = strlen(str);
+
+  for (i = 0; i < length; i++)
+  {
+    // upper case characters
+    if ((str[i] >= 65) && (str[i] <= 90))
+    {
+      // convert to lower case
+      result += chr(str[i] + 32);
+    }
+    // lower case characters
+    else if (((str[i] >= 97) && (str[i] <= 122)) ||
+             // numbers
+             ((str[i] >= 48) && (str[i] <= 57)) ) 
+    {
+      result += str[i..i];
+    }
+    else
+    {
+      result += "-";
+    }
+  }
+
+  return result;
+}
