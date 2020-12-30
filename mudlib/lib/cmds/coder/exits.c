@@ -85,7 +85,7 @@ static int cmd (string str, object me, string verb)
         {
         for(a = 0; a < sizeof(dirs); a+=2) 
         {
-          // printf("%-10s -> ", dirs[a][0..8]);
+          // printf("%-10s -> ", extract(dirs[a],0,8));
           sscanf(dirs[a+1],"%s.c", dirs[a+1]);
             // dirs[a+1] = dirs[a+1]+".c";
           // write( dirs[a+1]+"\n");
@@ -95,15 +95,15 @@ static int cmd (string str, object me, string verb)
         {
           string ppp, match;
           int j;
-          // printf("%-10s: ",dirs[a][0..8]);
+          // printf("%-10s: ",extract(dirs[a],0,8));
 
           if (file_size(dirs[a+1]+".c") == -1) 
-            ret += "Archivo ("+short_file_name(files[i])+") salida ("+dirs[a][0..8]+") lleva a archivo inexistente ("+short_file_name(dirs[a+1])+").\n";
+            ret += "Archivo ("+short_file_name(files[i])+") salida ("+extract(dirs[a],0,8)+") lleva a archivo inexistente ("+short_file_name(dirs[a+1])+").\n";
             // write(dirs[a+1]+G+" no existe"+RE+".\n");
           else 
           {
             if (ppp = catch(dirs2 = dirs[a+1]->query_dest_dir())) 
-              ret += "Archivo ("+short_file_name(files[i])+") salida ("+dirs[a][0..8]+") lleva a archivo que no carga ("+short_file_name(dirs[a+1])+").\n";
+              ret += "Archivo ("+short_file_name(files[i])+") salida ("+extract(dirs[a],0,8)+") lleva a archivo que no carga ("+short_file_name(dirs[a+1])+").\n";
               // write(dirs[a+1]+G+" no carga"+RE+".\n");
             else 
             {
@@ -117,13 +117,13 @@ static int cmd (string str, object me, string verb)
                 }
 
               if (!match || match == "")
-                ret += "Archivo ("+short_file_name(files[i])+") salida ("+dirs[a][0..8]+") lleva a archivo que no "+
+                ret += "Archivo ("+short_file_name(files[i])+") salida ("+extract(dirs[a],0,8)+") lleva a archivo que no "+
                   "tiene salida de vuelta ("+short_file_name(dirs[a+1])+").\n";
                 // write(dirs[a+1]+ R+" no tiene salida aquí"+RE+".\n");
               else 
               {
               if (contrarios[dirs[a]] != match)
-                  ret += "Archivo ("+short_file_name(files[i])+") salida ("+dirs[a][0..8]+") lleva a archivo "+
+                  ret += "Archivo ("+short_file_name(files[i])+") salida ("+extract(dirs[a],0,8)+") lleva a archivo "+
                     "("+short_file_name(dirs[a+1])+") cuya salida de vuelta no corresponde ("+match+").\n";
                 //write(dirs[a+1]+ " -> "+C+match[0..8]+""+RE+".\n");
               }
