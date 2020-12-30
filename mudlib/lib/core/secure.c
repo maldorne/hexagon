@@ -67,7 +67,6 @@ int query_admin(string str)
 // for compatibility
 int high_programmer(string str) { return query_admin(str); }
 
-
 int check_permission(string euid, string *path, int mask);
 
 string get_root_uid() { return ROOT; }
