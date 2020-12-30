@@ -24,7 +24,7 @@ Set of features not yet started, but planned.
 | Status | Title | Description |
 | :----: | :---- | ----------- |
 |        | **Documentation** | Review and full translation of every `lib/cmds` command. |
-| :white_check_mark: |  | Add compatibility and status list in the repository ([done](docs/commands.md)). |
+| :white_check_mark: |  | Add compatibility and status list in the repository ([done](commands.md)). |
 |        |  | Test and translate every command. |
 
 
