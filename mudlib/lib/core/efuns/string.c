@@ -69,10 +69,23 @@ static string replace(string str, mixed bing, varargs string rep)
 
 static string extract(string str, int start, varargs int end)
 {
-  if (end)
-    return str[start..end];
-  else
-    return str[start..];
+  int length;
+
+  length = strlen(str);
+
+  if (start >= length)
+    return "";
+  if (start < 0)
+    start = 0;
+  
+  if (!end)
+    end = length - 1;
+  else if (end < 0)
+    end = 0;
+  else if (end >= length)
+    end = length - 1;
+
+  return str[start..end];
 }
 
 static string trim(string str)
