@@ -11,14 +11,9 @@ void setup()
   position = 0;
 }
 
-string query_usage()
+string query_help()
 {
-  return _LANG_CMD_HELP;
-}
-
-string query_short_help()
-{
-  return _LANG_CMD_HELP_HELP;
+  return _LANG_CMD_HELP + "\n\n" + _LANG_CMD_HELP_HELP;
 }
 
 static int cmd (string arg, object me, string verb)

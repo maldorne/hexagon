@@ -12,9 +12,9 @@ void setup()
   position = 0;
 }
 
-string query_usage()
+string query_help()
 {
-  return _LANG_FINGER_SYNTAX;
+  return _LANG_FINGER_SYNTAX + "\n\n" + _LANG_FINGER_HELP;
 }
 
 static int cmd(string str, object me, string verb)

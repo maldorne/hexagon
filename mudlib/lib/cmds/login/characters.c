@@ -11,12 +11,7 @@ void setup()
   position = 0;
 }
 
-string query_usage()
-{
-  return _LANG_CMD_CHARACTERS;
-}
-
-string query_short_help()
+string query_help()
 {
   return _LANG_CMD_CHARACTERS_HELP;
 }

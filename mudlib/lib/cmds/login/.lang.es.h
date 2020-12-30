@@ -1,7 +1,8 @@
 
 // finger.c
 
-#define _LANG_FINGER_SYNTAX "finger <nombre>"
+#define _LANG_FINGER_SYNTAX "Sintaxis: finger <nombre>"
+#define _LANG_FINGER_HELP "Muestra información acerca del personaje jugador indicado."
 #define _LANG_FINGER_NAME "Nombre"
 #define _LANG_FINGER_ACCOUNT "Cuenta"
 #define _LANG_FINGER_REAL_NAME "Nombre real"
@@ -11,10 +12,11 @@
 
 // who
 
-#define _LANG_WHO_HELP "Sintaxis: who\n" + \
-                       "          who programadores\n" + \
-                       "          who jugadores\n" + \
-                      "          who <raza|cultura>\n"
+#define _LANG_WHO_SYNTAX "Sintaxis: who\n" + \
+                         "          who programadores\n" + \
+                         "          who jugadores\n" + \
+                         "          who <raza|cultura>\n"
+#define _LANG_WHO_HELP "Muestra un listado de los personajes conectados."
 #define _LANG_WHO_OPTION_CODERS "programadores"
 #define _LANG_WHO_OPTION_PLAYERS "jugadores"
 #define _LANG_WHO_REAL_WORLD_DATE "Hoy es " + ctime(time()) + " en el mundo real"
@@ -38,12 +40,12 @@
 
 // help
 
-#define _LANG_CMD_HELP "ayuda"
+#define _LANG_CMD_HELP "Sintaxis: ayuda"
 #define _LANG_CMD_HELP_HELP "Muestra la ayuda disponible para un tema en particular."
 
 // characters
 
-#define _LANG_CMD_CHARACTERS "personajes"
+#define _LANG_CMD_CHARACTERS "Sintaxis: personajes"
 #define _LANG_CMD_CHARACTERS_HELP "Muestra todos los personajes disponibles en tu cuenta."
 #define _LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT "Tienes disponibles en esta cuenta los siguientes personajes:\n"
 #define _LANG_CMD_CHARACTERS_NO_LOGIN "Debes hacer login primero."

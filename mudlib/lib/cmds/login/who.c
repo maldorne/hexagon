@@ -40,20 +40,14 @@ inherit CMD_BASE;
   "aenur", \
 })
 
-
 void setup()
 {
   position = 0;
 }
 
-string query_usage()
+string query_help()
 {
-  return "who";
-}
-
-string query_short_help()
-{
-  return _LANG_WHO_HELP;
+  return _LANG_WHO_SYNTAX + "\n\n" + _LANG_WHO_HELP;
 }
 
 // Sorted and race functions - Radix 1996

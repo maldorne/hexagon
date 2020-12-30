@@ -9,9 +9,9 @@ List of commands available to every player, depending of its user type/role (`pl
 | Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | characters | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| finger     | :white_check_mark: | :white_check_mark: | :x: |    |
+| finger     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | help       | :white_check_mark: | :x: | :white_check_mark: |    |
-| who        | :white_check_mark: | :white_check_mark: |   | The weather time (depends of the game) has to be translated yet. Help is half done. |
+| who        | :white_check_mark: | :white_check_mark: | :white_check_mark: | The weather time (depends of the game) has to be translated yet. |
 
 ## Admin
 
@@ -81,7 +81,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | invisible    |          |          |    |    |
 | ioulist      |          |          |    |    |
 | load         |          |          |    |    |
-| ls           |          |          |    |    |
+| ls           | :white_check_mark: | :white_check_mark: | :white_check_mark: | Does not show loaded files in color yet. |
 | mail         |          |          |    |    |
 | malloc       |          |          |    |    |
 | man          |          |          |    |    |
