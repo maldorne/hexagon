@@ -47,7 +47,7 @@ void setup()
 
 string query_help()
 {
-  return _LANG_WHO_SYNTAX + "\n\n" + _LANG_WHO_HELP;
+  return _LANG_WHO_SYNTAX + "\n" + _LANG_WHO_HELP;
 }
 
 // Sorted and race functions - Radix 1996

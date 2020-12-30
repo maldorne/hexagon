@@ -1,7 +1,5 @@
 
-
 #define MAX_CAT_LINES 100
-
 
 // get_dir indices
 # define GDIR_FILES 0 /* array of filenames */
@@ -17,4 +15,3 @@
 #define MASK_O 32
 #define MASK_P 64
 #define MASK_H 128
-

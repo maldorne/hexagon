@@ -9,7 +9,7 @@
 #include <mud/secure.h>
 #include <files/file.h>
 
-#define FPERM "/secure/fperm"
+// #define FPERM "/secure/fperm"
 #define CREATOR (SECURE->author_file(sprintf("%s/%s", str, direc[i][0]))? \
                 SECURE->author_file(sprintf("%s/%s", str, direc[i][0])): \
                 "mud")
@@ -31,12 +31,17 @@ void setup() {
   position = CODER_CMD;
 }
 
-string query_usage() {
-  return "-ahcdflopCF [directorio|archivo]";
-}
-
-string query_short_help() {
-  return "Lista los archivos en el directorio actual.";
+string query_help() {
+  return "Syntax: ls -ahcdflopCF [directory|file]\n\n" +
+         "Options: -a includes hidden files.\n" +
+         "         -h shows sizes in human readable format.\n" +
+         "         -c -C list in columns (by default).\n" +
+         "         -d show only directories.\n" +
+         "         -f -F extended info in file/directory names.\n" +
+         "         -l list full data and permissions for every file and directory.\n" +
+         "         -o use colors.\n" +
+         "         -p paginated (for long listings).\n\n" +
+         "List files in current or given directory.";
 }
 
 string dir_entry(string path, string name, int mask, object me)
@@ -71,7 +76,7 @@ string dir_entry(string path, string name, int mask, object me)
     // }
 
     // size = (size / 1024) + 1;
-    // file-size, human-readable, Folken 05/06
+    // file-size, human-readable, neverbot 05/06
     h_size = "" + size;
 
     if (mask & MASK_H){
@@ -156,9 +161,9 @@ int ls(string str, int mask, object me)
     }
     else
     {
-      for (i=0; i < j; i++)
+      for (i = 0; i < j; i++)
       {
-        if (file_size(path+direc[i]) == -2 || direc[i] == "..")
+        if (file_size(path + direc[i]) == -2 || direc[i] == "..")
           if (mask & MASK_O)
             bing[i] = sprintf("%s%-*s", "%^GREEN%^",
               (int)cols+8, direc[i]+"%^RESET%^"+
@@ -316,7 +321,7 @@ int ls(string str, int mask, object me)
       {
         /* file */
 
-        // file-size, human-readable, Folken 05/06
+        // file-size, human-readable, neverbot 05/06
         h_size = "" + j;
         if (mask & MASK_H)
         {
@@ -333,7 +338,7 @@ int ls(string str, int mask, object me)
           fname = fname[0..19];
 
         // loaded = virtual_find_object(str+direc[i][0]);
-        loaded = find_object(str+direc[i][0]);
+        loaded = find_object(str + direc[i][0]);
         bit[i] = sprintf("%-*s", (cols+
           ((mask & MASK_O) && loaded?19:0)),
           sprintf("-rw%c%c%c-%c%c-   1 %-8.8s %-8.8s %6s %12s %s%s%s%s",
@@ -373,8 +378,8 @@ int ls(string str, int mask, object me)
 
 int check_dots(mixed arg, int flag)
 {
-  // if (flag)
-  //   return (arg[0][0..0] != "." );
+  if (flag)
+    return (arg[0][0..0] != "." );
   return (arg[0..0] != "." );
 }
 
@@ -398,7 +403,9 @@ static int cmd(string str, object me, string verb)
 
   if ( (sscanf(str,"-%s %s", flags, str) == 2) ||
        (sscanf(str,"-%s", flags) == 1) )
-    for (i=0;i<strlen(flags);i++)
+  {
+    for (i = 0; i < strlen(flags); i++)
+    {
       switch(flags[i..i])
       {
         case "a": mask |= MASK_A;
@@ -422,9 +429,19 @@ static int cmd(string str, object me, string verb)
         default:
                   break;
       }
+    }
+  }
 
+  // default values if no flags used:
+  //   2 -c
+  //   8 -f
+  //  16 -l
+  //  32 -o
+  // 128 -h 
   if (!mask)
-    mask = 42;
+  {
+    mask = 2 + 8 + 16 + 32 + 128;
+  }
 
   if (strlen(str) && (str[0..0] == "-"))
     str = "";
