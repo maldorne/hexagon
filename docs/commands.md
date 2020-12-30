@@ -77,7 +77,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | goto         |          |          |    |    |
 | grep         |          |          |    |    |
 | head         |          |          |    |    |
-| home         |          |          |    |    |
+| home         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | invisible    |          |          |    |    |
 | ioulist      |          |          |    |    |
 | load         |          |          |    |    |
