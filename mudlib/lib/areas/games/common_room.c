@@ -8,9 +8,12 @@
  *  Updated to common game room for Hexagon, neverbot 12/2020
 */
 
+#include <areas/common.h>
+
 inherit "/lib/room.c";
 
 string game_name;
+object door, board;
 
 int do_list(string arg);
 int add_creator(string arg);
@@ -24,6 +27,33 @@ void init()
   add_action("add_creator", "add");
   add_action("remove_creator", "remove");
   add_action("set_project", "project");
+
+  door = add_exit("common", CODER_COMMON_ROOM, "door");  
+  if (door){
+    door->set_init_status(0);
+    door->set_dir_other_side(game_name);
+  }
+
+  // back exit
+  door = "/home/common"->add_exit(game_name, "/games/"+game_name+"/common.c", "door");
+  if (door){
+    door->set_init_status(0);
+    door->set_dir_other_side("common");
+  }
+  "/home/common"->renew_exits();
+
+  board = clone_object("/lib/obj/board.c");
+  board->set_datafile(game_name + "-common");
+  board->move(this_object());
+}
+
+void dest_me()
+{
+  if (door)
+    door->dest_me();
+  if (board)
+    board->dest_me();
+  ::dest_me();
 }
 
 string query_game_name() { return game_name; }
