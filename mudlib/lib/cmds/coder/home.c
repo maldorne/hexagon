@@ -29,11 +29,11 @@ static int cmd(string str,object me, string verb)
     notify_fail("That person hasn't got a workroom!\n");
     return 0;
   }
-  // else if (file_size("/d/" + me->expand_nickname(str)+"/common.c") > 0) 
-  // {
-  //   me->move_living("X","/d/" + me->expand_nickname(str)+"/common");
-  //   return 1;
-  // }
+  else if (file_size("/games/" + me->expand_nickname(str)+"/common.c") > 0) 
+  {
+    me->move_living("X","/games/" + me->expand_nickname(str)+"/common");
+    return 1;
+  }
   else 
   {
     notify_fail(capitalize(me->expand_nickname(str))+
