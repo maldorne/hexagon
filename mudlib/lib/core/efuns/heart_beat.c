@@ -6,6 +6,8 @@
 // in between calls to heart_beat(), however your local administrator may have
 // the system configured to treat any 'flag' above 1 as 1.
 
+#include <mud/config.h>
+
 private static int _hb_status;
 
 nomask void set_heart_beat(int flag) 
@@ -30,7 +32,10 @@ nomask int query_heart_beat()
 
 void heart_beat()
 {
-  debug("hbs", "  └─> heart_beat in " + object_name(this_object()) + "\n");
-  // debug("hbs", " ~ sizeof call_out stack: " + (MUDOS->query_call_out_stack_size()) + " time: "+time()+"\n");
-  // debug("hbs", " ~ call_out stack: " + to_string(MUDOS->query_call_out_stack()) + "\n");
+  if (CONFIG_LOG_HEART_BEATS)
+  {
+    debug("hbs", "  └─> heart_beat in " + object_name(this_object()) + "\n");
+    // debug("hbs", " ~ sizeof call_out stack: " + (MUDOS->query_call_out_stack_size()) + " time: "+time()+"\n");
+    // debug("hbs", " ~ call_out stack: " + to_string(MUDOS->query_call_out_stack()) + "\n");
+  }
 }
