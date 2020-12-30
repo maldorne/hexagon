@@ -27,10 +27,16 @@ void init()
   add_action("add_creator", "add");
   add_action("remove_creator", "remove");
   add_action("set_project", "project");
+}
+
+void create()
+{
+  ::create();
 
   door = add_exit("common", CODER_COMMON_ROOM, "door");  
   if (door){
     door->set_init_status(0);
+    door->reset_message();
     door->set_dir_other_side(game_name);
   }
 
@@ -38,6 +44,7 @@ void init()
   door = "/home/common"->add_exit(game_name, "/games/"+game_name+"/common.c", "door");
   if (door){
     door->set_init_status(0);
+    door->reset_message();
     door->set_dir_other_side("common");
   }
   "/home/common"->renew_exits();

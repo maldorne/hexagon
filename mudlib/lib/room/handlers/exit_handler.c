@@ -1,9 +1,10 @@
 // External exit_handler for room.c...  should make it less "fat"
 //      room.c references these functions below [Piper 12/24/95]
-// Algunos retoques, neverbot 6/03
-// Añadidas nearest_exits, 04/2009
-// Sistema de guardias protectores de salidas, neverbot 15/04/2009
+// Some changes, neverbot 6/03
+// nearest_exits added, 04/2009
+// npc guards protecting exits added, neverbot 15/04/2009
 
+#include <language.h>
 #include <room/room.h>
 #include <basic/material.h>
 #include <common/properties.h>
@@ -62,8 +63,8 @@ mixed* add_exit(mapping door_control, mapping exit_map,
                 string direc, mixed dest, string type, string material)
 {
   mixed *stuff;
-  //  string exit_string, 
-  //  short_exit_string;
+  // string exit_string, 
+  // short_exit_string;
 
   // tell_object(find_living("neverbot"), "Direccion: "+direc+" Tipo: "+type+"\n");
 
@@ -89,10 +90,10 @@ mixed* add_exit(mapping door_control, mapping exit_map,
   if(member_array(direc, dest_other) != -1)
       return ({ });
 
-  // En stuff almacenamos:
-  // ({ dest (room de destino) + 
-  //    ({ array con las estadisticas del tipo de salida }) +
-  //    direccion contraria (norte ->sur)
+  // In stuff we store:
+  // ({ dest (destination room) + 
+  //    ({ array with data about the exit type }) +
+  //    back direction (north <-> south)
   //  })
   stuff = ({dest}) + ROOM_HAND->query_exit_type(type, direc);
 
@@ -121,10 +122,10 @@ mixed* modify_exit(mapping door_control,
                 string direc, mixed *data)
 {
   int i, j;
-  if ((i=member_array(direc, dest_other)) == -1)
+  if ((i = member_array(direc, dest_other)) == -1)
           return ({ });
  
-  for (j=0;j<sizeof(data);j+=2)
+  for (j = 0; j < sizeof(data); j += 2)
     switch (lower_case(data[j])) {
       case "message" :
         dest_other[i+1][ROOM_MESS] = data[j+1];
@@ -303,42 +304,31 @@ int do_exit_command(mapping door_control,
     }
   }
 
-  // Las monturas no pueden pasar por salidas tipo rope ni door
+  // mounts cannot use exits with types rope nor door
   if (ob->query_ride() && 
       (room_ob->query_ex_type(dest_direc[i]) == "rope" || 
        room_ob->query_ex_type(dest_direc[i]) == "door" ) )
       return 0;
 
-  door = room_ob->query_doors(dest_direc[i]);
+  door = room_ob->query_door_ob(dest_direc[i]);
 
   if (door && !door->is_open()) 
   {    
     string fail_msg;
     fail_msg = "";
 
-    // Nuevo sistema de personalizacion de puertas, 
-    // neverbot 10/03
+    // door customization, neverbot 10/03
     if (door->query_reset_message())
-      notify_fail("La puerta hacia "+dest_direc[i]+" está cerrada.\n");
+      notify_fail(_LANG_EXITS_IS_CLOSED);
     else if (door->query_known_exit(dest_direc[i]))
-      notify_fail("La puerta "+dest_direc[i]+" está cerrada.\n");
-    else 
-    {
-      if(door->query_gender() == 1) // male
-        fail_msg += (door->query_number())?("Los "):("El ");
-      else
-        fail_msg += (door->query_number())?("Las "):("La ");
-      fail_msg += dest_direc[i] + " está"+((door->query_number())?("n"):(""));
-      if(door->query_gender() == 1) // male
-        fail_msg += (door->query_number())?(" cerrados.\n"):(" cerrado.\n");
-      else
-        fail_msg += (door->query_number())?(" cerradas.\n"):(" cerrada.\n");
-      notify_fail(fail_msg);
-    }
+      notify_fail(_LANG_EXITS_IS_CLOSED_KNOWN);
+    else       
+      notify_fail(_LANG_EXITS_IS_CLOSED_CUSTOM);
+    
     return 0;
   }
 
-  // Comprobamos si la salida tiene guardias asignados
+  // check if the door ghas guards
   if (sizeof(guards = room_ob->query_guards()) )
   {
     int j, k;
@@ -351,11 +341,11 @@ int do_exit_command(mapping door_control,
       list = guards[j];
       for (k = 0; k < sizeof(list); k+=2)
       {
-        // Si esta el guardia y esta protegiendo la salida escogida
+        // if guard is present and is protecting that exit
         if (list[k] && (list[k+1] == dest_direc[i]) &&
             (environment(list[k]) == room_ob))
         {  
-          // El npc impide el paso
+          // npc does not allow
           if (!list[k]->guardian_check(ob) )
           {
             if (ob->query_timed_property(file_name(list[k]) + "_guard_lock") )
@@ -364,7 +354,7 @@ int do_exit_command(mapping door_control,
                 return 0;
             }
             
-            // Azar de percepcion del guardia contra destreza del invasor
+            // random guard perception agains character dexterity
             if (list[k]->query_level() + list[k]->query_per() + random(list[k]->query_per()) >= 
                 ob->query_level() + ob->query_dex() + random(ob->query_dex()))
             { 
@@ -387,8 +377,8 @@ int do_exit_command(mapping door_control,
         }
       }
       
-      // si nos hemos colado a un guardia, no seguimos comprobando los demas
-      // en otro caso se podria ver el mensaje de "te cuelas" seguido del "te descubre"
+      // if we avoid _one_ guard, do not check other guards
+      // so we don't see 'you sneak' followed by a 'you have been caught'
       if (sneak)
         break;
     }
@@ -423,15 +413,15 @@ int do_exit_command(mapping door_control,
   // visited places, neverbot 08/2010
   if (result)
   {
-    // prototipo de la funcion:
+    // prototype:
     // void add_visited(string file_name, string direction, int is_stealth, 
     //        int is_mounted, string mount_name)
     ob->add_visited(
-      file_name(room_ob), // room que ha visitado
-      dest_direc[i],      // direccion que ha tomado
-      0,                  // flag estaba sigilando
-      ob->query_riding(), // flag iba montado
-      (ob->query_riding()?ob->query_mount()->query_name():"") // nombre de la montura usada
+      file_name(room_ob), // visited room
+      dest_direc[i],      // direction taken
+      0,                  // flag was sneaking
+      ob->query_riding(), // flag was mountes
+      (ob->query_riding()?ob->query_mount()->query_name():"") // name of the used mount
       );
   }
 
@@ -461,15 +451,13 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
 
   for (i=0; i < size; i+=2)
   {
-    // Modificado el sistema para que las salidas se vean igual que
-    //  con el short_exit_string, neverbot 6/03
-
-    door = room_ob->query_doors(dest_other[i]);
+    // same look as with the short_exit_string, neverbot 6/03
+    door = room_ob->query_door_ob(dest_other[i]);
     if (door) {
       if (door->is_open()) 
-         dirs+= ({ "-"+dest_other[i]+"-" });
+         dirs+= ({ "-" + dest_other[i] + "-" });
       else 
-         dirs+= ({ "("+dest_other[i]+")" });
+         dirs+= ({ "(" + dest_other[i] + ")" });
     }
     else {
       add = 0;
@@ -478,10 +466,10 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
         add = 1;
       } else if (stringp(dest_other[i+1][ROOM_OBV])) {
         nostore = 1;
-        add = (int)call_other(this_object(),dest_other[i+1][ROOM_OBV]);
+        add = (int)call_other(this_object(), dest_other[i+1][ROOM_OBV]);
       } else if (pointerp(dest_other[i+1][ROOM_OBV])) {
         nostore = 1;
-        add = (int)call_other(dest_other[i+1][ROOM_OBV][0],dest_other[i+1][ROOM_OBV][1]);
+        add = (int)call_other(dest_other[i+1][ROOM_OBV][0], dest_other[i+1][ROOM_OBV][1]);
       }
       if (!add)
         continue;
@@ -489,37 +477,27 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
     }
   }
 
-  if (sizeof(dirs)==0) {
+  if (sizeof(dirs) == 0) {
     if (nostore)
-      // return exit_color+"There are no obvious exits.%^RESET%^";
-    // exit_string = exit_color+"There are no obvious exits.%^RESET%^";
-      return exit_color+"No puedes ver ninguna salida%^RESET%^";
-    exit_string = exit_color+"No puedes ver ninguna salida%^RESET%^";
+      return exit_color + _LANG_EXITS_CANNOT_SEE_EXITS + "%^RESET%^";
+    exit_string = exit_color + _LANG_EXITS_CANNOT_SEE_EXITS + "%^RESET%^";
     return exit_string;
   }
-  if (sizeof(dirs)==1) {
+
+  if (sizeof(dirs) == 1) {
     if (nostore)
-      // return exit_color+"There is one obvious exit: "+dirs[0]+".%^RESET%^";
-    // exit_string = exit_color+"There is one obvious exit: "+dirs[0]+".%^RESET%^";
-      return exit_color+"Puedes ver una salida: "+dirs[0]+"%^RESET%^";
-    exit_string = exit_color+"Puedes ver una salida: "+dirs[0]+"%^RESET%^";
+      return exit_color + _LANG_EXITS_ONE_EXIT + dirs[0] + "%^RESET%^";
+    exit_string = exit_color + _LANG_EXITS_ONE_EXIT + dirs[0] + "%^RESET%^";
  
     return exit_string;
   }
-  ret = " y "+dirs[sizeof(dirs)-1]+"";
+
+  ret = _LANG_EXITS_AND + dirs[sizeof(dirs)-1] + "";
   dirs = delete(dirs,sizeof(dirs)-1, 1);
   if (nostore)
-  /*
-    return exit_color+"There are "+query_num(sizeof(dirs)+1, 0)+
-           " obvious exits : "+implode(dirs,", ")+ret+"%^RESET%^";
-  exit_string = exit_color+"There are "+query_num(sizeof(dirs)+1, 0)+
-                " obvious exits : "+implode(dirs,", ")+ret+"%^RESET%^";
-  */
-    return exit_color+"Puedes ver "+query_num(sizeof(dirs)+1, 0)+
-           " salidas: "+implode(dirs,", ")+ret+"%^RESET%^";
+    return exit_color + _LANG_EXITS_MULTIPLE_EXITS + implode(dirs,", ") + ret + "%^RESET%^";
+  exit_string = exit_color + _LANG_EXITS_MULTIPLE_EXITS + implode(dirs,", ") + ret + "%^RESET%^";
 
-  exit_string = exit_color+"Puedes ver "+query_num(sizeof(dirs)+1, 0)+
-                " salidas: "+implode(dirs,", ")+ret+"%^RESET%^";
   return exit_string;
 } /* query_dirs_string() */
 

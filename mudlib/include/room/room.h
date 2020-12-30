@@ -40,3 +40,4 @@
 "sudeste":({"sur","este","noreste","sudoeste",}),\
 "sudoeste":({"oeste","sur","sudeste","noroeste",}),\
 ])
+
