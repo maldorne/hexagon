@@ -146,4 +146,5 @@ List of commands available to every player, depending of its user type/role (`pl
 | Symbol | Meaning |
 | :----: | ------- |
 | :white_check_mark:            | Already tested. |
-| :negative_squared_cross_mark: | Not included/necessary or not working at the moment. |
+| :negative_squared_cross_mark: | Not included/necessary. |
+| :x:                           | Not working at the moment. |
