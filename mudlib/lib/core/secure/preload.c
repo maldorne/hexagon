@@ -19,7 +19,7 @@ void add_preload(string file)
 
     save_object(SECURE_SAVE_PATH);
   }
-} /* add_preload() */
+}
 
 void remove_preload(string file) {
   int i;
@@ -38,7 +38,7 @@ void remove_preload(string file) {
       }
     }
   }
-} /* remove_preload() */
+}
 
 void add_call_out_preload(string file) 
 {
@@ -56,7 +56,7 @@ void add_call_out_preload(string file)
 
     save_object(SECURE_SAVE_PATH);
   }
-} /* add_call_out_preload() */
+}
 
 void remove_call_out_preload(string file) 
 {
@@ -75,7 +75,7 @@ void remove_call_out_preload(string file)
       }
     }
   }
-} /* remove_call_out_preload() */
+}
 
 string *epilog() 
 {
@@ -89,7 +89,7 @@ string *epilog()
 
   // Wonderflug 96, Making secure
   return ( preload ? preload + ({ }) : ({ }) );
-} /* epilog() */
+} 
 
 void preload(string file) 
 {
@@ -100,7 +100,7 @@ void preload(string file)
   if ((e = catch(load_object(file)->dummy()))) 
     write("      "+e+"\n");
 
-} /* preload() */
+}
 
 void load_secure_object() 
 {
@@ -111,4 +111,4 @@ void load_secure_object()
     restore_object(SECURE_SAVE_PATH);
     epilog();
   }
-} /* load_secure_object() */
+}

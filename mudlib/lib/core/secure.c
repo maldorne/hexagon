@@ -25,6 +25,7 @@ void create()
   done = FALSE;
   snoop_list = ([ ]);
 
+  // from /lib/core/secure/preload.c, included below
   call_out("load_secure_object", 0);
 }
 
@@ -122,5 +123,3 @@ void uncheck_master(string str)
   if(!this_player() || !is_administrator(geteuid(this_player(1)))) return;
   map_delete(checked_master, str);
 }
-
-
