@@ -17,12 +17,14 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### Current status
 
-Current version *[v20.09 Anduin](releases/tag/20.09)*.
+Current version *[v20.09 Anduin](https://github.com/houseofmaldorne/hexagon/releases/tag/20.09)*.
+
 Next milestone *[v20.12 Beregost](docs/roadmap.md#current-milestone-v2012-beregost)*.
 
 ### More detailed information about the project
 * Current project status and roadmap in the [roadmap document](docs/roadmap.md).
 * Detailed compatibility information about every function in the [compatibility document](docs/compatibility.md).
+* Compatibility about every command from old mudlibs in the [commands document](docs/commands.md).
 
 ### How to use or test the mudlib
 
