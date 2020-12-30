@@ -17,6 +17,7 @@ inherit misc       "/lib/core/basic/misc";
 inherit extra_look "/lib/core/basic/extra_look";
 inherit desc       "/lib/core/basic/desc";
 inherit events     "/lib/core/basic/events";
+inherit gender     "/lib/core/basic/gender";
 
 string create_me;
 
@@ -28,6 +29,8 @@ void create()
   misc::create();
   extra_look::create();
   desc::create();
+  gender::create(); // neverbot
+  set_gender(0); // by default in objects/items
 
   // done in the auto object
   // seteuid(SECURE->creator_file(file_name(this_object())));
@@ -190,6 +193,7 @@ mixed * stats()
          property::stats() +
          misc::stats() +
          extra_look::stats() +
+         gender::stats() +
          desc::stats() +
             ({
               ({ "Cloned By", create_me, }),

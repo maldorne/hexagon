@@ -44,10 +44,7 @@
  */
 
 inherit obj       "/lib/core/object";
-// Añadidas algunas propiedades que solo tendria un objeto living, como
-// alineamiento o genero.
 inherit alignment "/lib/core/basic/alignment";
-inherit gender    "/lib/core/basic/gender";
 inherit condition "/lib/core/basic/condition";
 inherit read_desc "/lib/core/basic/read_desc";
 
@@ -72,11 +69,7 @@ void create()
   int i;
   holdable = wearable = 0;
   size = 0;                 // Fix by Wonderflug
-
-  gender::create(); // neverbot
-  set_gender(0); // Para asegurarnos de que no ponemos un genero equivocado
   gender_needed = 0;
-
   hands = 1;
 
   list = allocate(NUM_SOCIAL_OBJECTS);
@@ -483,7 +476,6 @@ mixed stats()
 
   ret = obj::stats() +
     alignment::stats() +
-    gender::stats() +
     condition::stats() +
     read_desc::stats();
 
