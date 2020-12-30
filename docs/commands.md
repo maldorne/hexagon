@@ -81,7 +81,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | invisible    |          |          |    |    |
 | ioulist      |          |          |    |    |
 | load         |          |          |    |    |
-| ls           | :white_check_mark: | :white_check_mark: | :white_check_mark: | Does not show loaded files in color yet. |
+| ls           | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | mail         |          |          |    |    |
 | malloc       |          |          |    |    |
 | man          |          |          |    |    |
