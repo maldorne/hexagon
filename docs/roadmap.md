@@ -15,9 +15,18 @@ Set of features we are currently working on.
 |        |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. |
 |        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
 
-## Next milestone: 
+## Next milestones: 
 
 Set of features not yet started, but planned.
+
+### [v21.?? Castle Black]
+
+| Status | Title | Description |
+| :----: | :---- | ----------- |
+|        | **Documentation** | Review and full translation of every `lib/cmds` command. |
+| :white_check_mark: |  | Add compatibility and status list in the repository ([done](docs/commands.md)). |
+|        |  | Test and translate every command. |
+
 
 ## Previous milestones
 
