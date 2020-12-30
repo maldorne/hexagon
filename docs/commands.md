@@ -71,8 +71,8 @@ List of commands available to every player, depending of its user type/role (`pl
 | cprange      |          |          |    |    |
 | discard      |          |          |    |    |
 | du           |          |          |    |    |
-| exec         |          |          |    |    |
-| exits        |          |          |    |    |
+| exec         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
+| exits        | :white_check_mark: |          |    |    |
 | ftpwho       |          |          |    |    |
 | goto         |          |          |    |    |
 | grep         |          |          |    |    |

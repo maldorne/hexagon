@@ -23,7 +23,7 @@ private int show, dont_overwrite, dont_remove;
 private mixed arg;
 
 private string parse_args(string str);
-private void usage();
+string query_help();
 private string defines();
 private string vars();
 private string before();
@@ -154,7 +154,7 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    usage();
+    write(query_help());
     return 1;
   }
 
@@ -236,7 +236,7 @@ private string parse_args(string str)
       if ((sscanf(str, "\"%s\" %s", arg, str) != 2) &&
           (sscanf(str, "%s %s", arg, str) != 2))
       {
-        usage();
+        write(query_help());
         return nil;
       }
     }
@@ -244,19 +244,19 @@ private string parse_args(string str)
   return str;
 }
 
-private void usage()
+string query_help()
 {
-  write("Syntax: exec [-flags] <code>\n");
-  write("[Allows to test one line of LPC code]\n\n");
-  write("Executes the line of code inside a main() function in the file\n");
-  write(" "+CODER_FILE+" (it will be removed afterwards)\n");
-  write("flags:  s: shows the file after being generated\n");
-  write("        d: do not overwrite the file if it exists\n");
-  write("        p: do not remove the file after the execution\n");
-  write("        a <arg>: passes the argument 'arg' when calling main()\n");
-  write("                 (must be the last flag)\n");
-  write("\nThe following macros can be used: \n"+defines()+"\n");
-  write("ie: exec object *a; a=users(); for(int i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n");
+  return "Syntax: exec [-flags] <code>\n" +
+         "[Allows to test one line of LPC code]\n\n" +
+         "Executes the line of code inside a main() function in the file\n" +
+         " "+CODER_FILE+" (it will be removed afterwards)\n" +
+         "flags:  s: shows the file after being generated\n" +
+         "        d: do not overthe file if it exists\n" +
+         "        p: do not remove the file after the execution\n" +
+         "        a <arg>: passes the argument 'arg' when calling main()\n" +
+         "                 (must be the last flag)\n" +
+         "\nThe following macros can be used: \n"+defines()+"\n" +
+         "ie: exec object *a; a=users(); for(int i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n";
 }
 
 // Code to include in the generated file
