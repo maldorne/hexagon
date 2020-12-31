@@ -68,6 +68,81 @@ string query_where_dir(string direc);
 int modify_door(string direc, mixed *data);
 
 int query_room() { return 1; }
+void set_dark_mess(string str) { dark_mess = str; }
+void start_clean_up();
+string query_short_exit_string();
+object * query_hidden_objects() { return hidden_objects; }
+
+// moved glance code to the command (: Radix 1996
+string short(varargs int dark)
+{
+  return ::short(dark);
+}
+
+int id(string str)
+{
+  return 0;
+  // str = expand_alias(str);
+  // return items[str];
+}
+
+void create()
+{
+  string *inh;
+  dest_other = ({ });
+  dest_direc = ({ });
+  door_locks = ([ ]);
+  room_clones = ({ });
+
+  // dig_where = ({ });
+  // dig_exit = ({ });
+
+  exit_map = ([ ]);
+  items = ([ ]);
+  aliases = ({ });
+  destables = ({ });
+  hidden_objects = ({ });
+  door_control = ([ ]);
+  room_zone = "nowhere";
+  exit_color = "%^BOLD%^%^CYAN%^";
+  set_dark_mess("Está demasiado oscuro para poder ver");
+
+  exit_string = "";
+  short_exit_string = "";
+
+  // seteuid(SECURE->creator_file(file_name(this_object())));
+  // seteuid(ROOM_EUID);
+
+  light::create();
+  property::create();
+  contents::create();
+  desc::create();
+  events::create();
+
+  property::create();
+  senses::create();
+  guard::create();
+  navigation::create();
+  diplomacy::create();
+
+  // default light value for every room, will be changed
+  // in the setup() if needed
+  set_light(BASE_ROOM_LIGHT_VALUE);
+
+  add_property("location", "inside");
+  this_object()->setup();
+  reset();
+
+  // if (replaceable(this_object()))
+  // {
+  //   inh = inherit_list(this_object());
+  //   if (sizeof(inh) == 1)
+    room_create_time = time();
+    clean_up_handle = 0;
+    start_clean_up();
+  //   replace_program(inh[0]);
+  // }
+}
 
 string query_where_dir(string direc)
 {
@@ -100,10 +175,6 @@ void event_login(object ob, varargs mixed avoid)
   if (stringp(loginroom) && ob)
     ob->move(loginroom);
 }
-
-void start_clean_up();
-string query_short_exit_string();
-object * query_hidden_objects() { return hidden_objects; }
 
 int test_add(object ob, int flag) { return 1; }
 int test_remove(object ob, int flag) { return 1; }
@@ -228,78 +299,6 @@ string query_dark_mess(int lvl)
   }
 }
 
-void set_dark_mess(string str) { dark_mess = str; }
-
-void create()
-{
-  string *inh;
-  dest_other = ({ });
-  dest_direc = ({ });
-  door_locks = ([ ]);
-  room_clones = ({ });
-
-  // dig_where = ({ });
-  // dig_exit = ({ });
-
-  exit_map = ([ ]);
-  items = ([ ]);
-  aliases = ({ });
-  destables = ({ });
-  hidden_objects = ({ });
-  door_control = ([ ]);
-  room_zone = "nowhere";
-  exit_color = "%^BOLD%^%^CYAN%^";
-  set_dark_mess("Está demasiado oscuro para poder ver");
-
-  // seteuid(SECURE->creator_file(file_name(this_object())));
-  // seteuid(ROOM_EUID);
-
-  light::create();
-  property::create();
-  contents::create();
-  desc::create();
-  events::create();
-
-  property::create();
-  senses::create();
-  guard::create();
-  navigation::create();
-  diplomacy::create();
-
-  // default light value for every room, will be changed
-  // in the setup() if needed
-  set_light(BASE_ROOM_LIGHT_VALUE);
-
-  add_property("location", "inside");
-  this_object()->setup();
-  reset();
-
-  // if (replaceable(this_object()))
-  // {
-  //   inh = inherit_list(this_object());
-  //   if (sizeof(inh) == 1)
-    room_create_time = time();
-    clean_up_handle = 0;
-    start_clean_up();
-  //   replace_program(inh[0]);
-  // }
-}
-
-string expand_alias(string str);
-
-// moved glance code to the command  (:   Radix 1996
-string short(varargs int dark)
-{
-  return ::short(dark);
-}
-
-int id(string str)
-{
-  return 0;
-  // str = expand_alias(str);
-  // return items[str];
-}
-
 string expand_alias(string str)
 {
   str = EXIT_HAND->expand_alias(aliases,str);
@@ -326,30 +325,33 @@ string query_short_exit_string()
   int no, i, nostore, add;
   object door;
 
-  if (short_exit_string)
-      return short_exit_string;
-  if (!dest_direc || sizeof(dest_direc)==0)
-      dest_direc = ({ });
+  if (strlen(short_exit_string))
+    return short_exit_string;
+
+  if (!dest_direc || sizeof(dest_direc) == 0)
+    dest_direc = ({ });
 
   dirs = ({ });
+
   for (i = 0; i < sizeof(dest_other); i += 2)
   {
     door = query_door_ob(dest_other[i]);
+
     if (door)
     {
       if (door->is_open())
       {
-        if ((ret = SHORTEN[dest_other[i]]))
-            dirs += ({ "-"+ret+"-" });
+        if (ret = EXIT_HAND->query_shorten(dest_other[i]))
+          dirs += ({ "-"+ret+"-" });
         else
-            dirs += ({ "-"+dest_other[i]+"-" });
+          dirs += ({ "-"+dest_other[i]+"-" });
       }
       else
       {
-        if ((ret = SHORTEN[dest_other[i]]))
-            dirs += ({ "("+ret+")" });
+        if (ret = EXIT_HAND->query_shorten(dest_other[i]))
+          dirs += ({ "("+ret+")" });
         else
-            dirs += ({ "("+dest_other[i]+")" });
+          dirs += ({ "("+dest_other[i]+")" });
       }
     }
     else
@@ -363,30 +365,36 @@ string query_short_exit_string()
       else if (stringp(dest_other[i+1][ROOM_OBV]))
       {
         nostore = 1;
-        add = (int)call_other(this_object(),dest_other[i+1][ROOM_OBV]);
+        add = (int)call_other(this_object(), dest_other[i+1][ROOM_OBV]);
       }
       else if (pointerp(dest_other[i+1][ROOM_OBV]))
       {
         nostore = 1;
-        add = (int)call_other(dest_other[i+1][ROOM_OBV][0],dest_other[i+1][ROOM_OBV][1]);
+        add = (int)call_other(dest_other[i+1][ROOM_OBV][0], dest_other[i+1][ROOM_OBV][1]);
       }
+
       if (!add)
-          continue;
-      if ((ret = SHORTEN[dest_other[i]]))
-          dirs += ({ ret });
+        continue;
+
+      if (ret = EXIT_HAND->query_shorten(dest_other[i]))
+        dirs += ({ ret });
       else
-          dirs += ({ dest_other[i] });
+        dirs += ({ dest_other[i] });
     }
   }
-  if (sizeof(dirs)==0)
+
+  if (sizeof(dirs) == 0)
   {
     if (nostore)
-        return exit_color+" [ninguna]%^RESET%^";
-    return short_exit_string = exit_color+" [ninguna]%^RESET%^";
+      return exit_color+" [ninguna]%^RESET%^";
+
+    return short_exit_string = exit_color + " [ninguna]%^RESET%^";
   }
+
   if (nostore)
-      return exit_color+" ["+implode(dirs,",")+"]%^RESET%^";
-  return short_exit_string  = exit_color+" ["+implode(dirs,",")+"]%^RESET%^";
+    return exit_color + " [" + implode(dirs, ",") + "]%^RESET%^";
+
+  return short_exit_string = exit_color + " [" + implode(dirs, ",") + "]%^RESET%^";
 }
 
 string long(string str, int dark)
@@ -550,6 +558,7 @@ mixed add_exit(string direc, mixed dest, string type,
     direc, dest, type, material);                 // & data
 
   short_exit_string = "";
+  exit_string = "";
 
   if (sizeof(m) > 0)
   {
@@ -559,17 +568,19 @@ mixed add_exit(string direc, mixed dest, string type,
     dest_direc = m[3];
     hidden_objects = m[4];
     exit_string = query_dirs_string();
-    reset_short_exit_string(); // neverbot
+    short_exit_string = query_short_exit_string();
 
     // new door system for ccmud, just with calling add_exit
     // with door exit type, the door object will be added
-    if ((type == "door") || (type == "gate")){
+    if ((type == "door") || (type == "gate"))
+    {
       door = add_door(direc);
       return door;
     }
 
     return 1;
   }
+
   return 0;
 }
 

@@ -4,11 +4,11 @@
  *
  */
 
+inherit "/lib/core/object.c";
+
 #include <language.h>
 #include <mud/translations.h>
 #include <room/room.h>
-
-inherit "/lib/core/object.c";
 
 string dest,           // door direction
        dir_other_side, // direction we come from the other side (north -> south)
