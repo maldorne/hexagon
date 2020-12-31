@@ -1,269 +1,270 @@
 #define CREATOR "admin"
+
 /**
- * Workroom para inmortales sin experiencia. Aqui intentare que 
- * podais encontrar las cosas mas basicas que se pueden hacer con una
- * room.  Tambien incluye algunas cosas un poco mas avanzadas.
- * Fairiel : 7 agosto, 2000 
- * Puertas añadidas por Folken, 25 octubre 2003
+ * Workroom for newbie coders. Here we can find the most basic features 
+ * that can be included in a room, and some more advanced things to learn.
+ * 
+ * Radix : September 27, 1995
+ * Lummen : 18 Sept, 1997
+ * Fairiel : 7 Aug, 2000 
+ * doors added, neverbot, 25 Oct 2003
+ * Translated and updated for Hexagon, neverbot 12/2020
  */
 
 /**
- * Para hacer una room, siempre tienes que heredar de otro archivo.
- * Segun el tipo de room que quieras, deberas heredar de un archivo
- * o de otro.Los archivos de los cuales puedes heredar se encuentran
- * en /std/ , y son:
- * room.c        -> para hacer habitaciones de interior.
- * outside.c     -> para hacer habitaciones en el exterior.
- * forest.c      -> para hacer habitaciones que se encuentran en un bosque
- *                  o similar (pantano, etc). 
- * underground.c -> para hacer habitaciones que se encuentren en
- *                  la suboscuridad.
- * uwater.c      -> para hacer habitaciones que se encuentran debajo del
- *                  agua.
+ * The base features of a room will be inherited from other more generic
+ * file. Depending of the type of room you want, you can inherit from:
+ *  /lib/room.c        -> indoors rooms.
+ *  /lib/outside.c     -> outdoors rooms, with weather, sun, etc.
+ *  /lib/forest.c      -> forest type areas. 
+ *  /lib/underground.c -> tunnels, sewers, etc.
  */
 inherit "/lib/room.c";
 
-/**
- * Para añadir puertas simples, basta con que el add_exit indique en su tipo
- * de salida que ésta debe ser "door" (ver mas abajo los add_exit).
- * Si queremos que las puertas hagan algo especial, por ejemplo que originalmente
- * aparezcan cerradas, debemos definirlas aqui para poder trabajar con ellas
- * mas adelante.
- */
-static object door1, door2, trampilla;
+#include <mud/translations.h>
 
+// this variables and definitions will be used below
+static object door1, door2;
+static object trapdoor;
+
+#define PROPERTY_CLEANED "room_cleaned"
+
+// the setup() function is the main point of every room or npc.
+// Will be called during the room creation and here we define every 
+// feature of the room that will be different from the basic/generic
+// room inherited
 void setup()
 {
-  set_short("Habitación de Trabajo de "+capitalize(CREATOR));
-  
-  set_long("Ésta es la habitación donde realizas aquellas actividades de "+
-     "creación basicas de un inmortal. Puedes ver un viejo sillón al "+
-     "fondo de la habitación junto a una enorme mesa. Una pequeña "+
-     "lámpara proporciona luz a la habitación, momento en el cual te "+
-     "das cuenta de que tal vez necesite una limpieza.\n");
-  
-  /**
-   * Selecciona el nivel de luz en la habitacion. ("help light") 
-   * para mas detalles.
-   */
+  set_short(capitalize(CREATOR) + "'s workroom");
+
+  set_long("The workroom you find yourself standing in has a new layer " +
+    "of paint. A normal assortment of dusty furniture is " +
+    "arranged around the room. The most important being the " +
+    "large desk and old chair against the far wall facing you. " +
+    "Hanging from the ceiling, a small lamp gives ample light for " +
+    "the room. With some consideration, you decide the room " +
+    "is in need of cleaning.\n");
+
+  // sets the level of light in the room. "help light" for details
   set_light(80);
   
-  /**
-   * add_item() es usado para describir todos los objetos que aparecen en
-   * tu descripcion.
-   */
-  add_item("habitacion","La habitación desprende un olor que te envuelve "+
-     "y te hace sentir extraño. Los muros parecen estar recien pintados.\n");
+  // add_item() is used to describe all nouns you have in descriptions
+  add_item("workroom", "The workroom surrounds you with the smell " +
+    "of a fresh coat of paint. The walls glisten in the light.\n");
+
+  add_item("wall", "All four walls are white freshly coated with " +
+    "paint.\n");
+
+  add_item("paint", "The entire room has been painted with a new " +
+    "coat of paint The paint upon the walls reflects light from " +
+    "lamp hanging from the center of the room.\n");
   
-  add_item("pared","Los cuatro muros de color blanco estan sin decorar "+
-     "todavía.\n");
-  add_item("pintura","Hace pocas horas que los muros han sido pintados de "+
-     "blanco por lo que es mejor no arrimarse a ellos.\n");
+  // you can also give many items the same description using an 
+  // array of words, or maybe use when you want to be able to look
+  // at the same thing with single or plural words
+  add_item(({ "furniture", "desk", "chair" }), "Facing you against " +
+    "the far wall, a large desk and chair are set. The desk and " +
+    "chair have a large layer of dust covering their entire " +
+    "surface. The chair has nearly worn through and perhaps " +
+    "is in need of repair.\n");
+
+  add_item(({ "ceiling", "lamp", "small lamp" }),
+    "Hanging from the center of the room's ceiling, a small " +
+    "oil lamp burns continuously emitting ample lighting for " +
+    "for the room.\n");
+
+  // senses added by Sojan. This adds even more life to your rooms.
+  // this is completely optional and is not very usual 
+  add_smell(({ "room", "workroom", "air" }), "Here we put what the " +
+    "player would get when they typed 'smell room'. They should " +
+    "smell the paint in the air of course.\n");
+
+  add_feel("desk", "Here we would put what the player would " +
+    "get when they typed 'touch desk'.\n");
+
+  add_taste("paint", "You lick the paint from the wall and soon " +
+    "realize this was a major mistake... get this by typing " +
+    "'taste paint'.\n");
+
+  add_sound(({ "room", "workroom" }), "You hear a rumbling noise " +
+    "coming from above. Get this by typing 'listen room'.\n");
   
-  /** Puedes darle a varios objetos la misma descripcion */
-  add_item(({"mesa","sillon"}),"Medio tapado con un trapo para que "+
-     "no se manche mientras se pintaba la habitación, da una sensación "+
-     "de soledad y misterio.\n");
+  // Remember, when describing your future rooms, always describe
+  // everything as richly as possible (not half-baked like these)
+
+  // The following is used to "clone" objects into rooms.
+  // These objects can range from npcs and monsters to weapons.
+  // A separate file (much like this workroom) will be required
+  // so we use the function add_clone to bring them into your rooms.
+  // Its used with add_clone(file, num_of_clones);
   
-  add_item(({"lampara","lampara pequeña"}),
-     "En el centro de la habitación hay una lámpara que cuelga. Esta prende "+
-     "continuamente aceite con lo que consigue emitir un radio de luz "+
-     "considerable.\n");
-  
-  /** Añade caracteristicas reales a tu habitacion */
-  add_smell(({"habitacion","aire"}),"Puedes oler la pintura recien "+
-      "usada en las pareces.\n");
-  
-  add_feel("mesa","Sientes la suavidad del fantástico roble con el que "+
-     "han hecho la mesa.\n");
-  
-  add_sound("habitacion","El único sonido que llega hasta tus oidos es "+
-      "el latido de tu corazón.\n");
-  
-  // En el futuro, tus habitaciones deben de poseer descripciones completas
-  // sin que puedan quedarse a medias... 
-  
-  /**
-   * Para incluir objetos en las habitaciones se usara la funcion add_clone(), 
-   * para mas detalles man add_clone..
-   * Estos objetos pueden ser armas, npcs o cualquier otro objeto.
-   * En general se encontraran en ficheros diferentes a los que hacemos una
-   * llamada con la funcion add_clone(dir,num).
-   */
   add_clone("/lib/obj/coders/button.c", 1);
   
-  /**
-   * Aqui se describe las salidas que pudiera tener tu habitcion
-   * add_exit(direccion, destino, tipo)
-   * direccion: Sera lo que aparezca en el rotulo de direcciones
-   * destino: Direccion donde te movera esa salida
-   * tipo: El tipo de salida tiene que ver con una escalera, puerta, etc..
-   * Leer /doc/roomgen/exit_type_help para mas informacion, o mirad
-   * man add_exits. Aqui vienen muy bien detalladas.
-   * Las salidas comunes (norte, sur, etc) deben ponerse en castellano.
-   *
-   * Si usamos puertas y queremos hacer con ellas algo diferente a su 
-   * funcionamiento por defecto, almacenamos en un objeto lo que nos
-   * devuelve la funcion add_exit y, si es correcto, llamamos a sus
-   * funciones (ver /std/room/door.c para mas informacion).
-   */
-  
-  door1 = add_exit("comun","/home/common","door");
-  if (door1){
-    door1->set_init_status(0);
-    // Asi nos dara el mensaje de 'abres la puerta hacia xxx'
-    door1->reset_message();
-    door1->set_dir_other_side(CREATOR);
+  // Here are the exits from your room
+  // add_exit(direction, destination, type)
+  //   direction - What they must type to leave that direction
+  //   destination - The room they will be moved to (its full path + filename)
+  //   type - The exit type, can be "path", "corridor", "door"...
+
+  // default door (can be open/closed) will be added to the room
+  // every time we use the exit type "door"
+  // add_exit(DIR_EAST, "/home/" + CREATOR + "/somewhere.c", "door");
+
+  // you can add here any other exists that are useful to you
+  // the rest of the setup() function is some advanced examples
+  // about how to add and modify exits
+
+  // if we want to use doors to do something different, add_exit
+  // will return the door object. We use the variables defined at the
+  // beginning of the file and we can modify them afterwards. Take a 
+  // look to /lib/room/items/door.c
+
+  door1 = add_exit(DIR_COMMON, "/home/common.c", "door");
+  if (door1)
+  {
+    door1->set_init_status(0); // initially closed
+    door1->reset_message();    // use a generic message
+    door1->set_dir_other_side(CREATOR); // name of the exit to come back
   }
 
-  // Esto es necesario para añadir la salida de common a tu habitacion
-  door2 = "/home/common"->add_exit( CREATOR,"/home/"+CREATOR+"/workroom","door");
-  if (door2){
+  // we can add another door in the common room to be able to come back
+  door2 = "/home/common.c"->add_exit(CREATOR, "/home/" + CREATOR + "/workroom.c", "door");
+  if (door2)
+  {
     door2->set_init_status(0);
-    // Asi nos dara el mensaje de 'abres la puerta hacia xxx'
     door2->reset_message();
-    door2->set_dir_other_side("comun");
-  }    
-  "/home/common"->renew_exits();
-
-  // Asi es como añadimos una puerta 'por defecto'
-  add_exit("este", "/home/"+CREATOR+"/workroom2.c", "door");
+    door2->set_dir_other_side(DIR_COMMON);
+  }
+  // after modifying the exits outside of the setup() of our own room, 
+  // a renew_exits is needed 
+  "/home/common.c"->renew_exits();
 }
 
-/**
- * La funcion init se llama automaticamente cuando se carga
- * en memoria el objeto (room, npc o lo que sea)
- * Aqui es donde tienes que definir las funciones extra.
- * man init para mas ayuda.
- */
+// the init function will be called every time an object 
+// is moved to the same environment as any other, so this place is
+// generally speaking only used to add actions
 void init()
 {
-  /**
-   * Muy importante esta linea. Aqui llamais al init()
-   * del archivo del que heredamos, y es importante.
-   * No os olvideis de esta linea.
-   */
+  // very important, include the call to the init() function
+  // of the inherited file. Without it every action of the
+  // standar room will not be available when we enter this room
   ::init();
-  /**
-   * La funcion add_action ata un comando verbal a una 
-   * funcion local, definida en la room. El primer
-   * parametro es el nombre de la funcion local, 
-   * y el segundo el nombre del comando verbal.
-   * man add_action para mas ayuda.
-   * Se pueden definir tantas funciones locales como se 
-   * deseen.
-   */
-  add_action("limpiar_mesa","limpiar");
-  add_action("mover_mesa","mover");
+
+  // the add_action function binds a command to a local 
+  // function in this file
+  add_action("do_clean", "clean");
+  add_action("do_move", ({ "move", "push" }));
 }
 
-/**
- * Funcion local. El int delante indica que hemos de
- * devolver un entero.
- * El string str que se le pasa, es lo que escribimos
- * despues del comando verbal
- */
-int limpiar_mesa(string str)
+// the functions binded to actions will be in the form:
+// int function_name(string something)
+//   we must return an int value
+//     0 - could not do the action
+//     1 - was done right
+// we can have multiple objects with the same action
+// (push the table, push an npc, etc). If we return a 0 the mud will 
+// search for the same action in other objects.
+int do_clean(string str)
 {
-  if(str=="mesa")
+  if (!strlen(str))
   {
-    /**
-     * Jugamos con las propiedades. Le preguntamos si ya 
-     * hemos limpiado la mesa
-     */
-    if( this_object()->query_timed_property("LIMPIA")==0 ){
-      /**
-       * Cuando limpiamos la mesa, le añadimos
-       * una timed property para que le de tiempo
-       * a ensuciarse y no estar limpiandola todo 
-       * el rato XD joer, que somos inmortales :P
-       * Para mas ayuda:
-       * man add_timed_property, query_timed_property
-       * man add_property, query_property
-       * man add_static_property, query_static_property
-       */
-      this_object()->add_timed_property("LIMPIA",1,1000);
-      /**
-       * Con esta funcion modificamos la descripcion de un item 
-       * ya existente.
-       * man modify_item
-       */
-      modify_item("mesa","La mesa parece haber sido limpiada recientemente.\n");
-      tell_object(this_player(),"Empiezas a limpiar la mesa y "+
-            "encuentras un papel en ella.\n");
-      tell_room(this_object(),this_player()->query_cap_name()+" limpia la mesa "+
-          "encontrando en ella un papel.\n",this_player());
-      /**
-       * Aqui usa una funcion distinta para clonar cosas.
-       * Clone object solo clona el objeto.  Para que salga aqui lo
-       * tienes que traer con el  ->move(this_object())
-       */
-      clone_object("/obj/misc/newcreator_paper.c")->move(this_object());
-      /**
-       * Devolvemos 1 porque la accion ha sido hecha con exito
-       */
-      return(1);
+    // notify_fail will NOT show the error message right now. As
+    // we return a 0, the next object will be tried. If some object
+    // returns 1, the nofity fail will not be used. If every object 
+    // (maybe only this one) returns 0, the last notify fail will
+    // be used.
+    notify_fail("Clean what?\n");
+    return 0;
+  }
+
+  if ((str == "room") || (str == "desk"))
+  {
+    // we can store any kind of value in any kind of object
+    // using properties. the timed ones will disappear after some time.
+    // when we clean the room we will store a property, so if we don't have
+    // it now, we now it has not been cleaned lately
+    if (query_timed_property(PROPERTY_CLEANED) == 0)
+    {
+      // if we haven't clean the room, do it now
+
+      // store a property for 1000 seconds
+      add_timed_property(PROPERTY_CLEANED, 1, 1000);
+
+      // we can modify the description of an existing item
+      modify_item("desk", "The desk seems to have been clean recently.\n");
+
+      // we can give messages to the player that starts the action (this_player())
+      // with tell_object or to every object inside this room with tell_room
+      tell_object(this_player(), "You clean the desk and find a paper on it.\n");
+      tell_room(this_object(), this_player()->query_cap_name() + " cleans the desk " +
+          "finding a paper on it.\n", this_player());
+      // the last parameter in tell_room is the object or list of objects to exclude.
+      // As we already notified the player with tell_object, we want the tell_room
+      // to nofify every OTHER player in the room.
+
+      // we can clone an item and move it to this room
+      clone_object("/lib/areas/admin/items/newcreator_paper.c")->move(this_object());
+
+      // we return 1 because the action was finished right
+      return 1;
     }
-    /**
-     * Lo que sale cuando ya has limpiado la mesa una vez
-     */
-    tell_object(this_player(),"Ya has limpiado la mesa.\n");
-    return(1);
+
+    // you have already clean the room
+    tell_object(this_player(), "You already did that.\n");
+    // important: this counts as finish the action right, too. If we 
+    // return a 0, the system will try to do the action in other object, but
+    // we know we have already found it
+    return 1;
   }
-  /**
-   * Los mensajes de error siempre se dan con notify_fail
-   */
-  notify_fail("Nada en esta habitación necesita limpiarse excepto la mesa.\n");
-  /**
-   * Devolvemos 0 por que no hemos realizado la accion que
-   * deseabamos
-   */
-  return(0);
+
+  notify_fail("Clean what? Maybe you want to 'clean room'.\n");
+  // return 0 because this was not the object we were trying to "clean",
+  return 0;
 }
 
-int mover_mesa(string str)
+int do_move(string str)
 {
-  if(str=="mesa")
+  if (!strlen(str))
   {
-    tell_object(this_player(),"Mueves la mesa descubriendo una "+
-      "trampilla debajo de esta.\n");
-    tell_room(this_object(),this_player()->query_cap_name()+" mueve la mesa.\n",
+    notify_fail("Move what?\n");
+    return 0;
+  }  
+
+  if (str == "desk")
+  {
+    tell_object(this_player(), "You move the desk, finding a trapdoor " +
+      "on the floor.\n");
+    tell_room(this_object(), this_player()->query_cap_name()+" moves the desk.\n",
       this_player());
-    trampilla = add_exit("trampilla","/room/void.c","door");
-    trampilla->set_gender(2);
-    /**
-     * Como modificamos las salidas en una room ya cargada
-     * hay que actualizar las salidas. Se hace con renew_exits()
-     * man renew_exits para mas ayuda
-     */
+    trapdoor = add_exit("trapdoor", "/lib/areas/admin/development.c", "door");
+    trapdoor->set_init_status(0);
+
+    // trapdoor->set_gender(2); <- for spanish language, not needed in english
+    
+    // when we modify the exits of an already existing room, we need to 
+    // call renew_exits()
     renew_exits();
-    /**
-     * Introduccion para impedir el paso en salidas.
-     * La funcion encargada de esto es modify_exit
-     * En este caso, le indicamos que queremos
-     * modificar la salida "trampilla" con una funcion
-     * "function" que se llama "permiso" y que debemos
-     * definir. Si devuelve 0, impide el paso.  En caso
-     * contrario deja pasar. La funcion modify_exit
-     * tiene muchas mas utilidades. Para verlas con mas 
-     * detalle, man modify_exit
-     */
-    modify_exit("trampilla",({"function","permiso"}));
-    return(1);
+    // we can use this basic system to check exists and see if a player
+    // is allowed to use it. We will modify the exit "trapdoor"
+    // using a local function called "is_allowed". If it returns 0,
+    // the player is not allowed
+    modify_exit("trapdoor", ({ "function", "is_allowed" }));
+    return 1;
   }
-  notify_fail("¿Mover qué?\n");
-  return(0);
+
+  notify_fail("Move what? Maybe you want to 'move desk'.\n");
+  return 0;
 }
 
-/**
- * Funcion definida para ver quien puede pasar.
- * Solo si eres inmortal te deja pasar XD
- */
-int permiso(){
-  if(this_player()->query_creator()){
-    tell_object(this_player(),"¡Pasa, Oh inmortal!\n");
-    return(1);
+// example local function to allow using an exit
+// you can use it only if your are a coder
+int is_allowed(string str, object ob, string special_mess)
+{
+  if (ob->query_coder())
+  {
+    return 1;
   }
-  notify_fail("¡¡¡Un mortal no puede entrar aquí!!!\n");
-  return(0);
+
+  notify_fail("Only coders can use this exit.\n");
+  return 0;
 }
