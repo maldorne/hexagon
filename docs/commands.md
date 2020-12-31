@@ -63,7 +63,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | armaduras    |          |          |    |    |
 | backup       |          |          |    |    |
-| cat          |          |          |    |    |
+| cat          | :white_check_mark: | :white_check_mark: |    |    |
 | clone        |          |          |    |    |
 | compare      |          |          |    |    |
 | cp           |          |          |    |    |
@@ -74,9 +74,9 @@ List of commands available to every player, depending of its user type/role (`pl
 | exec         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | exits        | :white_check_mark: |          |    |    |
 | ftpwho       |          |          |    |    |
-| goto         |          |          |    |    |
-| grep         |          |          |    |    |
-| head         |          |          |    |    |
+| goto         | :white_check_mark: |          |    |    |
+| grep         | :white_check_mark: |          |    |    |
+| head         | :white_check_mark: |          |    |    |
 | home         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | invisible    |          |          |    |    |
 | ioulist      |          |          |    |    |
@@ -86,7 +86,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | malloc       |          |          |    |    |
 | man          |          |          |    |    |
 | mkdir        |          |          |    |    |
-| more         |          |          |    |    |
+| more         | :white_check_mark: | :white_check_mark: |    |    |
 | mudlist      |          |          |    |    |
 | multi        |          |          |    |    |
 | mv           |          |          |    |    |
@@ -97,8 +97,8 @@ List of commands available to every player, depending of its user type/role (`pl
 | rm           |          |          |    |    |
 | rmdir        |          |          |    |    |
 | sar          |          |          |    |    |
-| tail         |          |          |    |    |
-| uptime       |          |          |    |    |
+| tail         | :white_check_mark: | :white_check_mark: |    |    |
+| uptime       | :white_check_mark: | :white_check_mark: |    |    |
 | visible      |          |          |    |    |
 | wget         |          |          |    |    |
 
