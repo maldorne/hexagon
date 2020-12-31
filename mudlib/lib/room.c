@@ -35,7 +35,7 @@ private static int clean_up_handle;
 object *query_hidden_objects();
 string query_dirs_string();
 
-object query_doors(string dir);
+object query_door_ob(string dir);
 object add_door(string dir);
 
 static mixed *room_clones;
@@ -334,7 +334,7 @@ string query_short_exit_string()
   dirs = ({ });
   for (i = 0; i < sizeof(dest_other); i += 2)
   {
-    door = query_doors(dest_other[i]);
+    door = query_door_ob(dest_other[i]);
     if (door)
     {
       if (door->is_open())
@@ -394,12 +394,9 @@ string long(string str, int dark)
   if (dark)
     return "   "+query_dark_mess(dark)+"\n";
 
-  // Comentado por neverbot 6/03
-  // Se pierde velocidad, pero necesitamos que el exit_string se actualice,
-  //  ya que ahora tambien en el long se pueden ver las puertas cerradas y
-  //  abiertas (el metodo es peor pero con un glance se recalculan siempre,
-  //  y todo el mundo se mueve en brief, asi que no creo que esto afecte
-  //  demasiado).
+  // commented by neverbot 6/03
+  // is slower, but we need exit_string to be updated, because now
+  // we can see open/closed doors in the long description
   // if (!exit_string)
   exit_string = query_dirs_string();
 
@@ -457,7 +454,7 @@ void init()
     }
   }
 
-  // add_action("do_dig","cavar");
+  // add_action("do_dig", "cavar");
 
   hidden_objects -= ({ 0 });
 
@@ -564,14 +561,14 @@ mixed add_exit(string direc, mixed dest, string type,
     exit_string = query_dirs_string();
     reset_short_exit_string(); // neverbot
 
-    // New door system for ccmud, just with calling add_exit
+    // new door system for ccmud, just with calling add_exit
     // with door exit type, the door object will be added
     if ((type == "door") || (type == "gate")){
       door = add_door(direc);
       return door;
     }
 
-    return(1);
+    return 1;
   }
   return 0;
 }
@@ -639,17 +636,16 @@ int remove_exit(string direc)
   // is an idiot.  Checked door_map.  Doormap contains nothing.
   // Fixed by Wonderflug.
   if ( member_array(direc, dest_other) == -1 )
-      return(0);
+    return 0;
 
   m = EXIT_HAND->remove_exit(door_control,exit_map,dest_other,
       dest_direc,hidden_objects,direc);
 
-  // Destruimos el objeto de la puerta si la puerta desaparece,
-  // no es una solucion muy elegante pero no se me ocurre otra cosa :(
+  // destroy the door object if it the exit is removed
   // neverbot 6/03
-  door = query_doors(direc);
+  door = query_door_ob(direc);
   if (door)
-      door->dest_me();
+    door->dest_me();
 
   if (sizeof(m))
   {
@@ -662,7 +658,7 @@ int remove_exit(string direc)
   exit_string = query_dirs_string(); // Update the exit string
   reset_short_exit_string();  //so glance works, Anirudh
 
-  return(1);
+  return 1;
 }
 
 int query_exit(string direc)
@@ -763,7 +759,6 @@ int remove_item(string str)
     return 0;
   return (int)ob->remove_item(str);
 }
-
 
 // Change all descs...  It does a match and goes wimble.
 int modify_item(string str, string new_desc)
@@ -965,7 +960,7 @@ int clean_up( int flag )
 #endif
 
   dest_me();
-  return 0;    // don't call back
+  return 0; // don't call back
 }
 
 #ifdef FAST_CLEAN_UP
@@ -998,7 +993,7 @@ int clean_up_room( int flag )
   while( i-- )
   {
     if ( userp( arr[i] ) || (arr[i]->query_property(NO_CLEAN_UP_PROP))
-    ||  (living( arr[i] ) &&  elapsed_time < SLOW_CLEAN_UP) )
+    ||  (living( arr[i] ) && elapsed_time < SLOW_CLEAN_UP) )
     {
       // we do a call_out to kill the room later if we can ;)
       clean_up_handle = call_out( "clean_up_room", SLOW_CLEAN_UP, 0 );
@@ -1022,7 +1017,7 @@ int clean_up_room( int flag )
   stderr(" ~ clean_up_room " + object_name(this_object()) + " (done)\n");
 
   dest_me();
-  return 0;    // don't call back
+  return 0; // don't call back
 }
 #endif
 
@@ -1116,8 +1111,8 @@ int query_decay() { return 10; }
 // Number of move points used by an attack...
 int attack_speed() { return 15; }
 
-//This is the function to include IF you add_exit with a
-//  add_action, while other players are in the same room as
+// This is the function to include IF you add_exit with a
+// add_action, while other players are in the same room as
 // the add_action triggerer...  Piper (9/29/95)
 int renew_exits()
 {
@@ -1160,8 +1155,7 @@ int do_dig(string direc){
 }
 */
 
-// Funciones retocadas para las puertas, basadas en el sistema
-// de Iolo@Rl
+// new functions for the door system, based in an original idea from Iolo@Rl
 object add_door(string dir)
 {
   object door;
@@ -1185,7 +1179,7 @@ object add_door(string dir)
   return door;
 }
 
-object query_doors(string dir)
+object query_door_ob(string dir)
 {
   object *aux;
   int i;

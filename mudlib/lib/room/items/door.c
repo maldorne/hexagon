@@ -5,6 +5,7 @@
  */
 
 #include <language.h>
+#include <mud/translations.h>
 #include <room/room.h>
 
 inherit "/lib/core/object.c";

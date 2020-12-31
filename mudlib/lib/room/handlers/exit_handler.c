@@ -175,7 +175,7 @@ mixed* modify_exit(mapping door_control,
     }
  
   // return ({ door_control,doors_in,dest_other,hidden_objects });
-  return ({ door_control,dest_other,hidden_objects });
+  return ({ door_control, dest_other, hidden_objects });
 } /* modify_exit() */
 
 // remove_exit (check "undoor" above.. this is easier... go figure) [Piper]

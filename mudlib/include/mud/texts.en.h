@@ -101,3 +101,18 @@ string ordinal(int number)
 #define _LANG_NUMBERS_700 "seven hundred" + ((!n) ? "" : " and")
 #define _LANG_NUMBERS_800 "eight hundred" + ((!n) ? "" : " and")
 #define _LANG_NUMBERS_900 "nine hundred" + ((!n) ? "" : " and")
+
+#define DIR_DOWN      "down"
+#define DIR_UP        "up"
+#define DIR_IN        "inside"
+#define DIR_OUT       "outside"
+#define DIR_NORTH     "north"
+#define DIR_SOUTH     "south"
+#define DIR_EAST      "east"
+#define DIR_WEST      "west"
+#define DIR_SOUTHWEST "southwest"
+#define DIR_SOUTHEAST "southeast"
+#define DIR_NORTHEAST "northeast"
+#define DIR_NORTHWEST "northwest"
+#define DIR_COMMON    "common"
+

@@ -1,19 +1,6 @@
 
 // door.c
 
-#define DIR_DOWN      "abajo"
-#define DIR_UP        "arriba"
-#define DIR_IN        "dentro"
-#define DIR_OUT       "fuera"
-#define DIR_NORTH     "norte"
-#define DIR_SOUTH     "sur"
-#define DIR_EAST      "este"
-#define DIR_WEST      "oeste"
-#define DIR_SOUTHWEST "sudoeste"
-#define DIR_SOUTHEAST "sudeste"
-#define DIR_NORTHEAST "noreste"
-#define DIR_NORTHWEST "noroeste"
-
 #define _LANG_DOOR_LONG "Es una puerta.\n"
 #define _LANG_DOOR_OPEN_ACTIONS ({ "abrir" })
 #define _LANG_DOOR_CLOSE_ACTIONS ({ "cerrar" })

@@ -78,3 +78,18 @@ string ordinal(int number)
 #define _LANG_NUMBERS_700 "setecientos"
 #define _LANG_NUMBERS_800 "ochocientos"
 #define _LANG_NUMBERS_900 "novecientos"
+
+#define DIR_DOWN      "abajo"
+#define DIR_UP        "arriba"
+#define DIR_IN        "dentro"
+#define DIR_OUT       "fuera"
+#define DIR_NORTH     "norte"
+#define DIR_SOUTH     "sur"
+#define DIR_EAST      "este"
+#define DIR_WEST      "oeste"
+#define DIR_SOUTHWEST "sudoeste"
+#define DIR_SOUTHEAST "sudeste"
+#define DIR_NORTHEAST "noreste"
+#define DIR_NORTHWEST "noroeste"
+#define DIR_COMMON    "comun"
+

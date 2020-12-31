@@ -8,6 +8,7 @@
  *  Updated to common game room for Hexagon, neverbot 12/2020
 */
 
+#include <mud/translations.h>
 #include <areas/common.h>
 
 inherit "/lib/room.c";
@@ -33,7 +34,7 @@ void create()
 {
   ::create();
 
-  door = add_exit("common", CODER_COMMON_ROOM, "door");  
+  door = add_exit(DIR_COMMON, CODER_COMMON_ROOM, "door");  
   if (door){
     door->set_init_status(0);
     door->reset_message();
@@ -45,7 +46,7 @@ void create()
   if (door){
     door->set_init_status(0);
     door->reset_message();
-    door->set_dir_other_side("common");
+    door->set_dir_other_side(DIR_COMMON);
   }
   "/home/common"->renew_exits();
 

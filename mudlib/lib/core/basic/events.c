@@ -13,7 +13,7 @@ void create()
 //   call_other( event_obs, "event_"+ event_name, who, arg... ) ;
 
 // show general info to the object
-// used from tell_object and tell_room
+// used from write() and also from tell_object()
 
 void event_write(object caller, string msg)
 {
@@ -28,6 +28,10 @@ void event_write(object caller, string msg)
   // only will do if interactive(this_object())
   this_object()->catch_tell(msg);
 }
+
+// show general info to the object, this message is also sent to 
+// every object in the same environment
+// used from say() and also from tell_room()
 
 void event_say(object caller, string msg, varargs mixed avoid)
 {
