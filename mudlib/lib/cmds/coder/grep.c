@@ -107,7 +107,7 @@ static int cmd(mixed str, object me, string verb)
 
           err = catch ( str = read_file(files[i], j, NUMBER_OF_LINES) );
 
-          if (strlen(err))
+          if (err && strlen(err))
             break;
         }
       }

@@ -47,7 +47,7 @@ static int cmd (string arg, object me, string verb)
   if (!strlen(arg))
   {
     if (me->query_coder())
-       tell_object(me,file_name(here)+"\n");
+       tell_object(me, file_name(here) + "\n");
 
     ret = "";
 
@@ -106,7 +106,7 @@ static int cmd (string arg, object me, string verb)
         tell_object(me, capitalize(ob[i]->query_cap_name())+
           ", ¡Eres tú mismo!\n");
       else
-        tell_object(me,ob[i]->short(dark)+".\n");
+        tell_object(me, ob[i]->short(dark) + ".\n");
     return 1;
   }
   else
