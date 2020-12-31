@@ -98,7 +98,7 @@ void setup()
   // so we use the function add_clone to bring them into your rooms.
   // Its used with add_clone(file, num_of_clones);
   
-  add_clone("/lib/obj/coders/button.c", 1);
+  add_clone("/lib/areas/admin/items/button.c", 1);
   
   // Here are the exits from your room
   // add_exit(direction, destination, type)
