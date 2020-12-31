@@ -23,7 +23,7 @@ Next milestone *[v20.12 Beregost](docs/roadmap.md#current-milestone-v2012-berego
 
 ### More detailed information about the project
 * Current project status and roadmap in the [roadmap document](docs/roadmap.md).
-* Detailed compatibility information about every function in the [compatibility document](docs/compatibility.md).
+* Detailed compatibility information with every MudOS function (its _efuns_) in the [compatibility document](docs/compatibility.md).
 * Compatibility about every command from old mudlibs in the [commands document](docs/commands.md).
 
 ### How to use or test the mudlib
