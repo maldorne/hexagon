@@ -46,7 +46,7 @@ void set_read_mess(mixed str, varargs string lang, int size)
   }
 
   if (!lang)
-    lang = "comun";
+    lang = STD_LANG;
   if (!size)
     size = 1;
 

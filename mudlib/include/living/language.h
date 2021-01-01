@@ -11,6 +11,8 @@
 #define READ_LANG 2
 #define READ_SIZE 3
 
-// #define STD_LANG "common"
+#define STD_LANG "common"
 #define NOSHOUT_LOCK "noshout_lock"
 #define SHOUT_LOGFILE "shouts"
+
+

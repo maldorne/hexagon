@@ -2,6 +2,8 @@
 
 inherit "/lib/item.c";
 
+#include <living/language.h>
+
 void setup()
 {
   set_name("paper");
@@ -13,7 +15,7 @@ void setup()
     "comments about how to create and modify basic rooms, and you can " +
     "find even more info inside the \"/docs\" directory or using " +
     "the \"man\" and \"help\" commands.\n\n" +
-    "\t\t Have fun!!\n", "common", 1);
+    "\t\t Have fun!!\n", STD_LANG);
 
   set_value(0);
   set_weight(0);
