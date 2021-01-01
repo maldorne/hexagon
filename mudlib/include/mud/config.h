@@ -5,10 +5,22 @@
 
 #include <status.h>
 
-// new defines for hexagon mudlib
+// log features
 
 #define CONFIG_LOG_HEART_BEATS FALSE
 #define CONFIG_LOG_CALL_OUTS FALSE
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // old defines

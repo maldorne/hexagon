@@ -2,7 +2,7 @@
 
 static nomask string mud_name() 
 {
-  return handler("config")->config_mud_name(); 
+  return "Hexagon";
 }
 
 static nomask string version() 

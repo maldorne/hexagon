@@ -20,8 +20,7 @@ inherit "/lib/core/object";
 #include <user/player.h>
 #include <areas/common.h>
 #include <user/user.h>
-// some common translations
-#include <mud/translations.h>
+#include <translations/common.h>
 #include <language.h>
 
 static object _user;   // connection object

@@ -34,7 +34,7 @@ jobs:
         cd hexagon
         mv en/.git* .
         cp -R en es
-        sed -i '17,18 s/en/es/g' es/mudlib/include/mud/translations.h
+        sed -i '27,28 s/en/es/g' es/mudlib/include/mud/translations.h
 
     - name: Synchronize with hosting
       uses: houseofmaldorne/rsync-deploy@v2.0
