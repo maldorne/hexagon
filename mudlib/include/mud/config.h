@@ -5,8 +5,17 @@
 
 #include <status.h>
 
-// log features
+// ----------------------------------------------------------------------
+//  log features
+// ----------------------------------------------------------------------
 
+// define to print every debugger log in the terminal
+#define DEBUGGER_USE_STANDARD_LOG
+// prepend debug type before standard log
+// only used if USE_STANDARD_LOG is defined
+#define DEBUGGER_USE_STANDARD_LOG_TYPE
+
+// specific logs that will be printed only in the terminal
 #define CONFIG_LOG_HEART_BEATS FALSE
 #define CONFIG_LOG_CALL_OUTS FALSE
 
@@ -22,8 +31,9 @@
 
 
 
-
-// old defines
+// ----------------------------------------------------------------------
+//  old defines
+// ----------------------------------------------------------------------
 
 /*
  * Common save options
@@ -56,12 +66,6 @@
 #else
 #define THIS_MUD "CC_DEV"
 #endif
-
-// define to print every debugger log in the console
-#define USE_STANDARD_LOG
-// prepend debug type before standard log
-// only used if USE_STANDARD_LOG is defined
-#define USE_STANDARD_LOG_TYPE
 
 // Definir para utilizar funciones de alineamiento
 #define USE_ALIGNMENT
