@@ -2,13 +2,10 @@
  * Baldrick, Wonderflug, Taniwha 1996, moved "brains" to handler object.
  * Not for effiency, just to allow more flexibility.
  *
- * Revision para CcMud, neverbot 6/03
+ * Reviewed for CcMud, neverbot 6/03
  *
- *
- * Extraidas funcionalidades de loved/hated/aggressive, etc
- *   a /global/npc/friends.c
- * Extraidas funcionalidades de chat y talk
- *   a /global/npc/chatter.c
+ * features about loved/hated/aggressive, etc moved to a /global/npc/friends.c
+ * features about chat and talk moved to /global/npc/chatter.c
  * neverbot 04/2009
  */
 
@@ -34,21 +31,19 @@ mixed move_after;      /* ({ minimum time, Add'l random time }) */
 int move_when;         /* how many hbs we shall move */
 
 string *move_zones,    /* zones that i may wander into */
-*enter_commands;       /* Commands to be done upon entering a room */
+*enter_commands;       /* commands to be done upon entering a room */
 
-static int hbcheck;    /* A little patch to avoid slaughtering cowards */
-static int only_one;   /* Sólo puede clonarse si es el unico que existe
-                en el mud (no puede haber dos) */
+static int hbcheck;    /* a little patch to avoid slaughtering cowards */
+static int only_one;   /* can only be clone once */
 
 static int _follow_move_handle;
-/*** End of local variables ***/
+
 
 nomask int query_player() { return 0; }
 int query_concentrate_valid() { return 1; }
 int query_npc() { return 1; }
 int query_monster() { return 1; }
 nomask int query_coder() { return 0; }
-
 // Para el sistema de guardianes de salidas
 int guardian_check(object ob) { return 1; }
 
@@ -74,8 +69,11 @@ void create()
   npc_timed::create();
   living::create();
 
-  if (!this_object()->query_race())
-    set_race_ob("/obj/races/desconocida");
+  // every monster need a race, assign a default one
+  // in other case -> this should not happen, please remember
+  // to assign a race to every monster!!!
+  if (!query_race_ob())
+    set_race_ob("/lib/obj/races/unknown.c");
 
   combat_counter = 0;
 
