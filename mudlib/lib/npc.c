@@ -14,6 +14,7 @@
 
 #include <areas/weather.h>
 #include <npc/npc.h>
+#include <living/living.h>
 
 inherit living     "/lib/living/living.c";
 inherit friends    "/lib/npc/friends.c";
@@ -410,7 +411,7 @@ void heart_beat()
   /* This is the attack part.
    * it runs when the monsie is in fight.
    */
-  if ( sizeof(attacker_list) || sizeof(call_outed) || sizeof(query_effects()) )
+  if ( (sizeof(attacker_list) || sizeof(call_outed)) && sizeof(query_effects()) )
   {
     MONSTER_HAND->effect_heart_beat(this_object(), attacker_list, query_attack_effects());
     chatter(achat_chance, achat_string);

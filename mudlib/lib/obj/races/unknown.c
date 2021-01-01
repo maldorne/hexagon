@@ -1,55 +1,56 @@
 
-// Nuevas razas para Cc, Folken 4/2003
+// New races for Cc, neverbot 4/2003
+
 #include <living/races.h>
+#include <living/language.h>
+#include <translations/races.h>
+#include <language.h>
 
 inherit STD_RACE;
 
 void setup()
 {
-  // 2 brazos
   set_limbs(2);
-  // Tamaño medio
-  set_race_size(STD_S);
-  set_long("Un ser informe, la viva imagen de la incertidumbre.\n");
-  set_name("desconocido");
-  set_short("Desconocido");
-  set_light_limits(LHUMANL, LHUMANH);
-}
+  // from 0 (very small) - 5 (human) - 10 (very big)
+  set_body_size(5);
+  set_name(_LANG_RACES_UNKNOWN_NAME);
+  set_short(capitalize(_LANG_RACES_UNKNOWN_NAME));
+  set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 
-int query_skill_bonus(int lvl, string skill)
-{
-  return 0;
+  // do not allow new players with this race
+  set_playable(0);
 }
 
 string query_desc(object ob)
 {
-  return "Es algo realmente extraño, no sabrías ni decir si hembra o "+
-      "macho.\n";
+  return _LANG_RACES_UNKNOWN_DESC;
+}
+
+void start_player(object ob)
+{ 
+  ob->setmin(_LANG_RACES_MSG_IN_STD);
+  ob->setmout(_LANG_RACES_MSG_OUT_STD);
+}
+
+void set_racial_bonuses(object ob)
+{
+  ob->adjust_bonus_cha(2);
 }
 
 string * query_initial_languages()
 {
-  return ({ "comun" });
+  return ({ STD_LANG });
 }
 
 int query_race_weight()
 {
-  return HUMAN_W;
+  return STD_WEIGHT;
 }
 
 string query_race_gender_string(object player, varargs int flag)
 {
   if (!flag)
-  {
-    if (player->query_gender()==2)
-      return "la desconocida";
-    return "el desconocido";
-  }
+    return player->query_article() + " " + _LANG_RACES_UNKNOWN_GENDER_STRING;
   else
-  {
-    if (player->query_gender()==2)
-      return "desconocida";
-    return "desconocido";
-  }
+    return _LANG_RACES_UNKNOWN_GENDER_STRING;
 }
-

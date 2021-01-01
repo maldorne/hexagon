@@ -9,8 +9,8 @@ void setup()
   set_limbs(0);
   // from 0 (very small) - 5 (human) - 10 (very big)
   set_body_size(2);
-  set_name(_LANG_RACES_ANIMAL_NAME);
-  set_short(capitalize(_LANG_RACES_ANIMAL_NAME));  
+  set_name(_LANG_RACES_REPTILE_NAME);
+  set_short(capitalize(_LANG_RACES_REPTILE_NAME));
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 
   // do not allow new players with this race
@@ -19,7 +19,7 @@ void setup()
 
 string query_desc(object ob)
 {
-  return _LANG_RACES_ANIMAL_DESC;
+  return _LANG_RACES_REPTILE_DESC;
 }
 
 void start_player(object ob) 
@@ -50,8 +50,7 @@ string query_race_gender_string(object player, varargs int flag)
 
 string * query_locations()
 {
-  return ({ _LANG_RACES_LOCATIONS_HEAD, _LANG_RACES_LOCATIONS_BODY, 
-    _LANG_RACES_LOCATIONS_TAIL, _LANG_RACES_LOCATIONS_ANIMAL_LEG });
+  return ({ _LANG_RACES_LOCATIONS_HEAD, _LANG_RACES_LOCATIONS_BODY, _LANG_RACES_LOCATIONS_TAIL, });
 }
 
 // returns enough info to hit in a body location
@@ -60,13 +59,12 @@ mixed obtain_location()
   float mult; // damage multiplier
   string name; // location name
 
-  switch (random(20)) 
+  switch (random(15)) 
   {
     case 0:      mult = 2.0; name = _LANG_RACES_LOCATIONS_HEAD; break;
     case 1..10:  mult = 1.0; name = _LANG_RACES_LOCATIONS_BODY; break;
-    case 11..12: mult = 0.5; name = _LANG_RACES_LOCATIONS_TAIL; break;
-    case 13..20: mult = 1.0; name = _LANG_RACES_LOCATIONS_ANIMAL_LEG; break;
+    case 11..15: mult = 0.5; name = _LANG_RACES_LOCATIONS_TAIL; break;
   }
 
-  return ({ mult, name, _LANG_RACES_ANIMAL_BODY });
+  return ({ mult, name, _LANG_RACES_REPTILE_BODY });
 }

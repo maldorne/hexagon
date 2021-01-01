@@ -1,5 +1,7 @@
 
 #define STD_RACE    "/lib/race.c"
+#define STD_CULTURE "/lib/culture.c"
+#define VALID_RACES_PATHS  ({ "/lib/obj/races/" })
 
 // old light_defs.h
 #define L_B_H 1000
@@ -12,13 +14,6 @@
 
 // old race_weights.h
 #define STD_WEIGHT 1750
-
-
-// old defines
-
-#define STD_SUBRACE "/lib/subrace.c"
-
-#define VALID_RACES_PATHS  ({ "/lib/obj/races/", "/game/obj/races" })
 
 // Tamaños para las razas, desde 1 (diminuto), 5 (humano) hasta 10 (enorme)
 // #define ELF_S 5

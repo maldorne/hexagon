@@ -3,29 +3,41 @@
 // based in ccmudlib human, by neverbot 4/2003
 
 #include <living/races.h>
+#include <living/language.h>
+#include <language.h>
 
 inherit STD_RACE;
 
 void setup()
 {
-  // 2 brazos
   set_limbs(2);
-  // Tamaño medio
-  set_race_size(HUMAN_S);
-  set_long("La raza humana es la más común en "+mud_name()+".\n");
-  set_name("humano");
-  set_short("Humano");
-  set_light_limits(LHUMANL, LHUMANH);
+  // from 0 (very small) - 5 (human) - 10 (very big)
+  set_body_size(5);
+  set_name(_LANG_RACES_HUMAN_NAME);
+  set_short(capitalize(_LANG_RACES_HUMAN_NAME));
+  set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
   
-  // set_subraces( ({"velan", "tresio", }) );
-  // If you have subraces, the init_room will be set in each of them
-  set_init_room("/game/areas/ciudad-capital/someplace.c");
+  set_cultures( ({"velan", "tresio" }) );
+
+  // If you have different cultures, the init_room will be set in each of them
+  set_init_room("/games/demo-fantasy/rooms/1.c");
 }
 
-void start_player(object ob) 
+string query_desc(object ob)
+{
+  if (ob)
+  {
+    if ((int)ob->query_gender() == 1)
+      return _LANG_RACES_UNKNOWN_DESC_MALE;
+    return _LANG_RACES_UNKNOWN_DESC_FEMALE;
+  }
+  return "";
+}
+
+void start_player(object ob)
 { 
-  ob->setmin("@$N llega desde $F.");
-  ob->setmout("@$N se va hacia $T.");
+  ob->setmin(_LANG_RACES_MSG_IN_STD);
+  ob->setmout(_LANG_RACES_MSG_OUT_STD);
 }
 
 void set_racial_bonuses(object ob)
@@ -33,40 +45,20 @@ void set_racial_bonuses(object ob)
   ob->adjust_bonus_cha(2);
 }
 
-string query_desc(object ob)
-{
-  if(ob)
-  {
-    if ((int)ob->query_gender() == 1)
-      return "Un joven y apuesto humano.\n";
-    return "Una joven y atractiva humana de aspecto calmado.\n";
-  }
-  return "";
-}
-
 string * query_initial_languages()
 {
-  return ({ "comun" });
+  return ({ STD_LANG });
 }
 
 int query_race_weight()
 {
-  return HUMAN_W;
+  return STD_WEIGHT;
 }
 
 string query_race_gender_string(object player, varargs int flag)
 {
   if (!flag)
-  {
-    if (player->query_gender() == 2)
-      return "la humana";
-    return "el humano";
-  }
+    return player->query_article() + " " + _LANG_RACES_HUMAN_GENDER_STRING;
   else
-  {
-    if (player->query_gender() == 2)
-      return "humana";
-    return "humano";
-  }
+    return _LANG_RACES_HUMAN_GENDER_STRING;
 }
- 

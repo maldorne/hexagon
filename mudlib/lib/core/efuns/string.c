@@ -313,7 +313,7 @@ static string upper_case(string str)
 // Taniwha 1995, since the efun one doesn't
 static string pluralize(string str)
 {
-  if (!str || str == "")
+  if (!strlen(str))
     return "objects";
   else return (str + "s");
 }
