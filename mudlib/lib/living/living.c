@@ -149,7 +149,7 @@ int query_total_ac(varargs string type)
 
   // Bonificador al AC por tamaño (de la raza)
   // Tamaño 5 == humano
-  if (this_object()->query_race_size() <= 3)
+  if (this_object()->query_body_size() <= 3)
     ret += 1;
 
   return ret;

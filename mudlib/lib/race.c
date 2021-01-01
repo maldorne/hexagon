@@ -16,7 +16,7 @@ static int min_light_limit;
 static int max_light_limit;
 
 // Añadido un standard para cualquier raza, neverbot 2/2002
-int race_size; // 1 menor - 5 humano - 9 mayor
+int body_size; // 1 menor - 5 humano - 9 mayor
 // Nuevo sistema de alineamiento, neverbot 6/03
 int ext_align;
 // Numero de brazos
@@ -35,7 +35,7 @@ void create()
 {
   reset_get();
 
-  race_size = 5; // This is used as a standard 'human' size
+  body_size = 5; // This is used as a standard 'human' size
   limbs = 2;
   is_playable = 1;
   subraces = ({ });
@@ -89,8 +89,8 @@ int query_light_limitl() {
   return min_light_limit;
 }
 
-void set_race_size(int i) { race_size = i; }
-int query_race_size() { return race_size; }
+void set_body_size(int i) { body_size = i; }
+int query_body_size() { return body_size; }
 
 string * query_subraces(){ return subraces; }
 void set_subraces(string * list){ subraces = list; }
@@ -209,18 +209,21 @@ void race_heartbeat(object player)
 }
 
 // Funciones añadidas para hacer todo mas personalizable, neverbot 4/2003
-string * query_initial_languages(){
+string * query_initial_languages()
+{
   return ({ });
 }
 
-int query_race_weight(){
-  return STD_W;
+int query_race_weight()
+{
+  return STD_WEIGHT;
 }
 
 // Sistema de Localizaciones de Iolo para Rl, cambiado y adaptado por neverbot
 //  para Cc, 4/2003
 // Por defecto en una raza dejamos las localizaciones de un ser humanoide!
-string * query_locations(){
+string * query_locations()
+{
   return ({"la cabeza","el pecho","un brazo","una pierna","una mano","un pie"});
 }
 

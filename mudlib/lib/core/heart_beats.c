@@ -91,6 +91,7 @@ nomask void _heart_beat()
                                             result + "\n");
       _hb_object_list -= ({ _hb_object_list[i] });
       i--;
+      // will try to remove the object from _hb_object_list, better safe than sorry
       call_other(ob, "set_heart_beat", 0);
     }
   }

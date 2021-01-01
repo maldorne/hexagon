@@ -254,13 +254,13 @@ string query_race()
 } /* query_race() */
 
 // neverbot 6/03
-int query_race_size()
+int query_body_size()
 {
   if (social_object_list[RACE_OB])
-    return (int)social_object_list[RACE_OB]->query_race_size();
+    return (int)social_object_list[RACE_OB]->query_body_size();
   else
     return 5; // Tamaño estandar (humano)
-} /* query_race_size() */
+} /* query_body_size() */
 
 // *****************************************
 //  Nuevo objeto para la Clase, neverbot 6/03

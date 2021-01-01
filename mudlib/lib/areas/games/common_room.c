@@ -8,10 +8,10 @@
  *  Updated to common game room for Hexagon, neverbot 12/2020
 */
 
+inherit "/lib/room.c";
+
 #include <mud/translations.h>
 #include <areas/common.h>
-
-inherit "/lib/room.c";
 
 string game_name;
 object door, board;
