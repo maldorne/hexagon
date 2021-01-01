@@ -4,9 +4,9 @@
 
 #define ADMIN "/lib/areas/admin/"
 
-inherit "/lib/room";
+#include <translations/exits.h>
 
-#include <mud/translations.h>
+inherit "/lib/room";
 
 object board;
 

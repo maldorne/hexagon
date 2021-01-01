@@ -7,7 +7,7 @@
 inherit "/lib/core/object.c";
 
 #include <language.h>
-#include <mud/translations.h>
+#include <translations/exits.h>
 #include <room/room.h>
 
 string dest,           // door direction

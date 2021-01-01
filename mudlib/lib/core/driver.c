@@ -257,11 +257,22 @@ static mixed include_file(string includer, string include)
   {
     include = path(includer) + ".lang." + GLOBAL_COMPILE_LANG + ".h";
   }
+  // files in /include/translations will be copied for every language, if we include 
+  // <translations/blabla.h>, we will change it to something like  <translations/blabla.en.h>
+  else if ( (strlen(include) > 21) && (include[0..21] == "/include/translations/"))
+  {
+    string file_name;
+    file_name = include[22..]; // get only the filename
+    file_name = file_name[0..strlen(file_name) - 3]; // remove the file extension
+    include = "/include/translations/" + file_name + "." + GLOBAL_COMPILE_LANG + ".h";
+  }
   else
   {
     if (include[0] != '/')
       include = resolve_path(includer + "/../" + include);
   }
+
+  // log_driver(" + include_file: " + include + "\n");
 
   return include;
 }

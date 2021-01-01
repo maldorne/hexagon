@@ -21,7 +21,7 @@
  */
 inherit "/lib/room.c";
 
-#include <mud/translations.h>
+#include <translations/exits.h>
 
 // this variables and definitions will be used below
 static object door1, door2;

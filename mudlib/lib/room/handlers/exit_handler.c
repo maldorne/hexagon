@@ -8,7 +8,7 @@
 #include <room/room.h>
 #include <basic/material.h>
 #include <common/properties.h>
-#include <mud/translations.h>
+#include <translations/exits.h>
 
 mapping shorten;
 mapping nearest_exits;
