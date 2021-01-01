@@ -1,46 +1,42 @@
 /*
- * Nuevas puertas para CcMud, neverbot 6/03
- * Modificacion de la idea original de Iolo@Rl
+ * New doors for  CcMud, neverbot 6/03
+ * Modification of an original idea from Iolo@Rl
  *
- * query_hidden_object() devuelve 1, asi nos saltamos
- *  los find_match, neverbot 2/06
- * Solucionado error que cargaba otras rooms al destruir una
- *  con puertas (añadido flag a query_other_side_door para
- *  evitar el repop), neverbot 12/06
  */
-
-#include <room/room.h>
 
 inherit "/lib/core/object.c";
 
-string dest,		// la direccion de la puerta
-       dir_other_side,	// Direccion desde la que se viene por la otra puerta (norte -> sur)
-       s_dest;		// direccion destino reducida (norte -> n)
+#include <language.h>
+#include <translations/exits.h>
+#include <room/room.h>
 
-int status,    	// 0 - cerrada, 1 - abierta
-    init_status,	// estado inicial (0 - cerrada, 1 - abierta)
-    breakable,		// se puede romper
-    lockable,		// se puede cerrar con llave
-    lock_status,  // 0 - cerrada con llave, 1 - sin cerrar con llave (puede o no estar abierta!!)
-    max_hps, hps;	// Estado de la puerta (y del otro lado)
+string dest,           // door direction
+       dir_other_side, // direction we come from the other side (north -> south)
+       s_dest;         // door direction reduced, if able (north -> n)
 
-int gender,       // Genero de la puerta 
-    number,       // Numero de la puerta (0 == singular, 1 == plural)
-    reset_msg;		// Ignoramos el mensaje por genero y numero y utilizamos
-    			      // un mensaje del tipo 'abres la puerta hacia xxx'
+int status,            // 0 - closed, 1 - open
+    init_status,       // initial status (0 - closed, 1 - open)
+    breakable,         // can be broken
+    lockable,          // can be locked
+    lock_status,       // 0 - locked, 1 - unlocked (can be open or closed!!)
+    init_lock_status,  // initial lock status (0 - closed, 1 - open)    
+    max_hps, hps;      // door health (same as the other side)
 
-string * keys;		// Array con los nombres de las llaves que pueden
-         			//  abrir/cerrar la puerta
+int number,       // 0 == single, 1 == many)
+    reset_msg;    // ignore the message with gender and number (if the current language
+                  // has such things) and use a generic one like 'you open the door to xxx'
+
+string * keys;    // names of the keys than can lock/unlock the door
 
 object query_other_side_door(int flag);
 
-// Añadido para regenerar el estado de las puertas si hacemos un 
-//  update, por ejemplo (en otro caso al updatear la puerta de nuestra
-//  room vuelve al estado original, pero no la otra).
+// added to regenerate the health of the doors, ie after an update 
+// we need this to avoid the two doors having inconsistent info
 // neverbot, 7/03
 void dest_me()
 {
   object other_door;
+
   if (environment(this_object()))
   {
     other_door = query_other_side_door(0);
@@ -52,84 +48,87 @@ void dest_me()
 
 void create()
 {
-	dest = "";
-	s_dest = "";
-	dir_other_side = "";
-	status = 1;
-	init_status = 1;
-	breakable = 1;
-	max_hps = 1000;
-	hps = 1000;
-  lockable = 0;
-  lock_status = 0;
-  keys = ({ });
-  gender = 1; // male
-  number = 0; // single
+  dest = "";
+  s_dest = "";
+  dir_other_side = "";
   reset_msg = 0;
-	::create();
+
+  status = 1;
+  init_status = 1;
+
+  lockable = 0;
+  lock_status = 1;
+  init_lock_status = 1;
+  keys = ({ });
+
+  breakable = 1;
+  max_hps = 1000;
+  hps = 1000;
+
+  number = 0; // single
+  ::create();
 }
 
-void setup() {
+void setup()
+{
   set_name("");
   reset_get();
   reset_drop();
-  set_long("Es una puerta.\n");
+  set_long(_LANG_DOOR_LONG);
 }
 
+// query_hidden_object() returns 1, so we avoid find_match, neverbot 2/06
 int query_hidden_object() { return 1; }
 
-// Añadida para tener un short si miramos las puertas
-/* Eliminada, si tiene short aparece en la room!!!
-string short(int dark){
-  if ((this_player()->query_verb() == "mirar") || 
-      (this_player()->query_verb() == "ojear"))
-      return "Puerta hacia " + dest;
-  else
-    return ::short(dark);
-}
-*/
-
-// Nuevo funcionamiento para limpiar de codigo room.c, ahora todo
-//  lo relacionado con abrir y/o cerrar va aqui
-void init(){
+void init()
+{
   ::init();
-  add_action("open","abrir");  
-  add_action("close","cerrar");
+  add_action("do_open", _LANG_DOOR_OPEN_ACTIONS);  
+  add_action("do_close", _LANG_DOOR_CLOSE_ACTIONS);
+  add_action("do_lock", _LANG_DOOR_LOCK_ACTIONS);  
+  add_action("do_unlock", _LANG_DOOR_UNLOCK_ACTIONS);
 }
 
 int query_status() { return status; }
-void set_status(int i) { 
-  if (i == 0){
+// 0 - closed, 1 - open
+void set_status(int i) 
+{ 
+  if (i == 0)
     status = 0; 
-  }
-  else {
+  else
+  {
     status = 1;
     lock_status = 1;
   }
-  // Obligamos a que la proxima vez que se pida el exit_string en
-  //  la room haya que recalcularlo (hemos cambiado la puerta de cerrada
-  //  a abierta)
+
+  // force an update the next time the exit_string is queried
+  // (we have change the door from closed to open or open to closed)
   environment(this_object())->reset_short_exit_string();
   environment(this_object())->query_dirs_string();
 }
 
 int query_init_status() { return init_status; }
-void set_init_status(int i) { 
+void set_init_status(int i)
+{ 
   if (i == 0) 
     init_status = 0; 
-  else init_status = 1;
+  else 
+    init_status = 1;
   set_status(init_status);
 }
 
-int breakable() { return breakable; }
-void set_breakable(int i) {
+int query_breakable() { return breakable; }
+void set_breakable(int i)
+{
   if (i == 0) 
     breakable = 0;
-  else breakable = 1;
+  else 
+    breakable = 1;
 }
 
 int query_lockable() { return lockable; }
-void set_lockable(int i) {
+void set_lockable(int i)
+{
   if (i == 0){
     lockable = 0;
     lock_status = 0;
@@ -141,62 +140,89 @@ void set_lockable(int i) {
 }
 
 int query_lock_status() { return lock_status; }
-void set_lock_status(int i) {
-  if (i == 0){
+void set_lock_status(int i)
+{
+  if (i == 0)
+  {
+    status = 0;
     lock_status = 0;
   }
-  else lock_status = 1;
+  else
+    lock_status = 1;
 }
+
+int query_init_lock_status() { return init_lock_status; }
+void set_init_lock_status(int i)
+{ 
+  if (i == 0) 
+    init_lock_status = 0; 
+  else 
+    init_lock_status = 1;
+  set_lock_status(init_lock_status);
+}
+      
+void set_number(int i)
+{ 
+  if (i == 0)
+    number = i;
+  else
+    number = 1; 
+}
+int query_number() { return number; }
+void reset_message() { reset_msg = 1; }
+int query_reset_message() { return reset_msg; }
 
 int query_door() { return 1; }
 int is_open() { return status; }
 
-// Con el nuevo sistema de mensajes personalizados, hay algunas direcciones
-// de uso comun que no funcionan todo lo bien que deberian, nos encargamos de 
-// ellas aqui, neverbot 10/03
-void set_dest(string str) { 
+// with the new custom messages, some directions are not so common,
+// we manage them here, neverbot 10/03
+void set_dest(string str)
+{ 
+  // with these directions, we force the message to reset always
+  // so we won't see 'open the door to down', etc
+  if ((str == DIR_IN) || (str == DIR_OUT) ||
+      (str == DIR_UP) || (str == DIR_DOWN))
+  {
+    reset_msg = 1;
+  }
 
-        // Forzamos a que con estas direcciones siempre se resetee
-        // el mensaje personalizado de apertura, cierre, etc
-        // De este modo nos saldra 'abres la puerta hacia xxx'
-	if ((str == "dentro") || (str == "fuera") ||
-	    (str == "arriba") || (str == "abajo")){
-	   reset_msg = 1;
-	}
-
-	// Hacemos que se puedan abrir o cerrar las puertas con sus
-	// versiones reducidas (norte -> n, etc)
-    s_dest = EXIT_HAND->query_reduced_exit_name(str);
-	dest = str; 
+  // doors can be open/close with the reduced direction (north -> n, etc)
+  s_dest = EXIT_HAND->query_reduced_exit_name(str);
+  dest = str; 
 }
+
 string query_short_dest() { return s_dest; }
 string query_dest() { return dest; }
 void set_dir_other_side(string str) { dir_other_side = str; }
 string query_dir_other_side() { return dir_other_side; }
 string * query_keys() { return keys; }
-void set_keys(string * list) { 
+void set_keys(string * list)
+{ 
    keys = list; 
    set_lockable(1);
 }
-void add_key(string str) { 
+void add_key(string str)
+{ 
   keys += ({ str }); 
   set_lockable(1);
 }
 
-int query_known_exit(string name){
+int query_known_exit(string name)
+{
   switch(name){
-    case "abajo":
-    case "arriba":
-    case "dentro":
-    case "fuera":
-    case "norte":
-    case "sur":
-    case "este":
-    case "oeste":
-    case "sudoeste":
-    case "sudeste":
-    case "noreste":
-    case "noroeste":
+    case DIR_DOWN:
+    case DIR_UP:
+    case DIR_IN:
+    case DIR_OUT:
+    case DIR_NORTH:
+    case DIR_SOUTH:
+    case DIR_EAST:
+    case DIR_WEST:
+    case DIR_SOUTHWEST:
+    case DIR_SOUTHEAST:
+    case DIR_NORTHEAST:
+    case DIR_NORTHWEST:
       return 1;
     default:
       return 0;
@@ -206,221 +232,236 @@ int query_known_exit(string name){
 void open_msg(string door, object ob, int flag);
 void close_msg(string door, object ob, int flag);
 
-int open(varargs string str) 
+int do_unlock(varargs string str)
 {
-  object other_door;
   int find, i, aux;
   object * obs;
   string key;
-  string ex;
 
   if (this_player()->query_dead())
   {
-      notify_fail("Estando muerto tienes poco control sobre el mundo material.\n");
-      return 0;
+    notify_fail(_LANG_DOOR_NOT_DEAD);
+    return 0;
   }
 
-  // Si no estamos abriendo ESTA puerta
-  if (!str || (str == "") || ((str != dest) && (str != s_dest)))
+  // if we are not opening THIS door
+  if (!strlen(str) || ((str != dest) && (str != s_dest)))
     return 0;
 
-  // Si ya esta abierta no la podemos abrir
-  if (this_object()->query_status() == 1) 
-    return 0;
-  else {
+  if (lock_status == 1) 
+  {
+    notify_fail(_LANG_DOOR_NOT_LOCKED);
+    return 0;    
+  }
 
-    // Si se puede cerrar con llave y ESTÁ cerrada con llave:
-    if ((lockable) && (lock_status == 0)){
-      find = -1;
-      obs = deep_inventory(this_player());
-      for(i = 0; i < sizeof(obs); i++){
-        if (obs[i]->query_key()){
-          key = file_name(obs[i]);
-          // Esto no deberia darse nunca...
-          aux = strsrch(key, "#");
-          if (aux != -1)
-             key = extract(key, 0, aux - 1);
-          if (member_array(key, keys) != -1){
-             find = i;
-             break;
-          }
-        }
+  find = -1;
+  obs = deep_inventory(this_player());
+
+  // auto search for the right key
+  for (i = 0; i < sizeof(obs); i++)
+  {
+    if (obs[i]->query_key())
+    {
+      key = file_name(obs[i]);
+      // this should not happen...
+      aux = strsrch(key, "#");
+      if (aux != -1)
+        key = extract(key, 0, aux - 1);
+      if (member_array(key, keys) != -1)
+      {
+        find = i;
+        break;
       }
-      if (find == -1){
-      	if (reset_msg){
-          notify_fail("La puerta hacia " + dest  + " está cerrada con llave.\n");
-          return 0;
-        }
-        if (query_known_exit(dest)){
-          notify_fail("La puerta " + dest  + " está cerrada con llave.\n");
-          return 0;
-        }
-        ex = "";
-        if (gender == 1) { // male
-          ex += (!number)?("El "):("Los ");
-        } else {
-          ex += (!number)?("La "):("Las ");
-        }
-        ex += dest;
-        if (gender == 1) { // male
-          ex += (!number)?(" está cerrado con llave"):(" están cerrados con llave");
-        } else {
-          ex += (!number)?(" está cerrada con llave"):(" están cerradas con llave");
-        }
-        ex += ".\n";
-        notify_fail(ex);
+    }
+  }
+
+  if (find == -1)
+  {
+    if (reset_msg)
+    {
+      notify_fail(_LANG_DOOR_IS_LOCKED);
+    }
+    else if (query_known_exit(dest))
+    {
+      notify_fail(_LANG_DOOR_IS_LOCKED_KNOWN);
+    }
+    else
+    {
+      notify_fail(_LANG_DOOR_IS_LOCKED_CUSTOM);
+    }
+
+    return 0;
+  } 
+
+  tell_object(this_player(), _LANG_DOOR_USE_TO_UNLOCK);
+  return 1;
+}
+
+int do_open(varargs string str) 
+{
+  object other_door;
+
+  if (this_player()->query_dead())
+  {
+    notify_fail(_LANG_DOOR_NOT_DEAD);
+    return 0;
+  }
+
+  // if we are not opening THIS door
+  if (!strlen(str) || ((str != dest) && (str != s_dest)))
+    return 0;
+
+  // already open
+  if (query_status() == 1)
+  {
+    if (reset_msg)
+    {
+      notify_fail(_LANG_DOOR_OPEN_ALREADY);
+    }
+    else if (query_known_exit(dest))
+    {
+      notify_fail(_LANG_DOOR_OPEN_ALREADY_KNOWN);
+    }
+    else 
+    {
+      notify_fail(_LANG_DOOR_OPEN_ALREADY_CUSTOM);
+    }
+
+    return 0;
+  }
+  else
+  {
+    // can be locked and IS locked
+    if ((lockable) && (lock_status == 0))
+    {
+      // try to auto unlock
+      if (!do_unlock(dest))
         return 0;
-
-      } else {
-        tell_object(this_player(), "Utilizas tu " + obs[i]->short() + ".\n");
-      }
     }
 
     set_status(1);
     
     open_msg(dest, this_player(), 0); 
-    // tell_object(this_player(), "Abres la puerta "+dest+".\n");
-    // tell_room(environment(this_object()), this_player()->query_cap_name() +
-    //           " abre la puerta "+dest+".\n", ({ this_player() }));
-    
+
     other_door = query_other_side_door(1);    
-    if (other_door && !other_door->is_open()) {
+    if (other_door && !other_door->is_open())
+    {
       other_door->set_status(1);
       open_msg(dir_other_side, other_door, 1);
-      // tell_room(environment(other_door), 
-      //   "Alguien abre la puerta "+dir_other_side+" desde el otro lado.\n");
     }
     return 1; 
   }
 }
 
-/*
- * Funcion que muestra el mensaje de apertura de puerta
- *  Si flag == 0:
- *   - Abres la puerta door + 
- *   - ob abre la puerta door
- *  Si flag == 1:
- *   - Alguien abre la puerta door desde el otro lado
- */
-void open_msg(string door, object ob, int flag){
+int do_lock(varargs string str)
+{
+  int find, i, aux;
+  object * obs;
+  string key;
+  object other_door;
 
-  string ex1, ex2;
-
-  if (flag == 0){
-    if (reset_msg){
-      tell_object(ob, "Abres la puerta hacia "+door+".\n");
-      tell_room(environment(ob), ob->query_cap_name() +
-              " abre la puerta hacia "+door+".\n", ({ ob }));
-      return;
-    }
-  	
-    if (query_known_exit(door)){
-      tell_object(ob, "Abres la puerta "+door+".\n");
-      tell_room(environment(ob), ob->query_cap_name() +
-              " abre la puerta "+door+".\n", ({ ob }));
-      return;
-    }
-
-    ex1 = "Abres ";
-    ex2 = ob->query_cap_name() + " abre ";
-
-    if (gender == 1) { // male
-        ex1 += (!number)?("el "):("los ");
-        ex2 += (!number)?("el "):("los ");
-    } else {
-        ex1 += (!number)?("la "):("las ");
-        ex2 += (!number)?("la "):("las ");
-    }
-    ex1 += door + ".\n";
-    ex2 += door + ".\n";
-    
-    tell_object(ob, ex1);
-    tell_room(environment(ob), ex2, ({ ob }) );
-
+  // cannot be locked
+  if (!lockable)
+  {
+    notify_fail(_LANG_DOOR_CANNOT_BE_LOCKED);
+    return 0;
   }
-  else{
-    if (reset_msg){
-      tell_room(environment(ob), 
-        "Alguien abre la puerta hacia "+door+" desde el otro lado.\n");
-      return;
+
+  // if can be locked and IS locked 
+  if (lock_status == 0)
+  {
+    if (reset_msg)
+    {
+      notify_fail(_LANG_DOOR_LOCK_ALREADY);
     }
-    if (query_known_exit(door)){
-      tell_room(environment(ob), 
-        "Alguien abre la puerta "+door+" desde el otro lado.\n");
-      return;
+    else if (query_known_exit(dest))
+    {
+      notify_fail(_LANG_DOOR_LOCK_ALREADY_KNOWN);
+    }
+    else
+    {
+      notify_fail(_LANG_DOOR_LOCK_ALREADY_CUSTOM);
     }
 
-    ex1 = "Alguien abre ";
-    if (gender == 1) { // male
-          ex1 += (!number)?("el "):("los ");
-    } else {
-          ex1 += (!number)?("la "):("las ");
-    }
-    ex1 += door + " desde el otro lado.\n";
-    
-    tell_room(environment(ob), ex1);
+    return 0;
   }
+
+  // was not locked
+  if (lock_status == 1)
+  {
+    find = -1;
+    obs = all_inventory(this_player());
+  
+    // auto search for the right key
+    for (i = 0; i < sizeof(obs); i++)
+    {
+      if (obs[i]->query_key())
+      {
+        key = file_name(obs[i]);
+        // this should not happen...
+        aux = strsrch(key, "#");
+        if (aux != -1)
+           key = extract(key, 0, aux - 1);
+        if (member_array(key, keys) != -1)
+        {
+           find = i;
+           break;
+        }
+      }
+    }
+
+    if (find == -1)
+    {
+      notify_fail(_LANG_DOOR_NEED_A_KEY);
+      return 0;
+    }
+    
+    set_lock_status(0);
+
+    tell_object(this_player(), _LANG_DOOR_USE_TO_LOCK);
+
+    // message to the room, to all players including this_player()
+    if (reset_msg)
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK);
+    }
+    else if (query_known_exit(dest))
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK_KNOWN);
+    }
+    else 
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK_CUSTOM);
+    }
+
+    // other side messages
+    other_door = query_other_side_door(1);
+
+    if (other_door) 
+    {
+      other_door->set_lock_status(0);
+      
+      if (reset_msg)
+      {
+        tell_room(environment(other_door), _LANG_DOOR_OTHER_SIDE_LOCK);
+      }
+      else if (query_known_exit(dir_other_side))
+      {
+        tell_room(environment(other_door), _LANG_DOOR_OTHER_SIDE_LOCK_KNOWN);
+      }
+      else 
+      {
+        tell_room(environment(other_door), _LANG_DOOR_OTHER_SIDE_LOCK_CUSTOM);
+      }
+    }
+
+    return 1;
+  }
+
+  return 0;
 }
 
-void close_msg(string door, object ob, int flag){
-  string ex1, ex2;
-
-  if (flag == 0){
-    if (reset_msg){
-      tell_object(ob, "Cierras la puerta hacia "+door+".\n");
-      tell_room(environment(ob), ob->query_cap_name() +
-              " cierra la puerta hacia "+door+".\n", ({ ob }));
-      return;
-    }
-    if (query_known_exit(door)){
-      tell_object(ob, "Cierras la puerta "+door+".\n");
-      tell_room(environment(ob), ob->query_cap_name() +
-              " cierra la puerta "+door+".\n", ({ ob }));
-      return;
-    }
-
-    ex1 = "Cierras ";
-    ex2 = ob->query_cap_name() + " cierra ";
-
-    if (gender == 1) { // male
-          ex1 += (!number)?("el "):("los ");
-          ex2 += (!number)?("el "):("los ");
-    } else {
-          ex1 += (!number)?("la "):("las ");
-          ex2 += (!number)?("la "):("las ");
-    }
-    ex1 += door + ".\n";
-    ex2 += door + ".\n";
-    
-    tell_object(ob, ex1);
-    tell_room(environment(ob), ex2, ({ ob }) );
-
-  }
-  else{
-    if (reset_msg){
-      tell_room(environment(ob), 
-        "Alguien cierra la puerta hacia "+door+" desde el otro lado.\n");
-      return;
-    }
-    if (query_known_exit(door)){
-      tell_room(environment(ob), 
-        "Alguien cierra la puerta "+door+" desde el otro lado.\n");
-      return;
-    }
-
-    ex1 = "Alguien cierra ";
-    if (gender == 1) { // male
-          ex1 += (!number)?("el "):("los ");
-    } else {
-          ex1 += (!number)?("la "):("las ");
-    }
-    ex1 += door + " desde el otro lado.\n";
-    
-    tell_room(environment(ob), ex1);
-  }
-}
-
-int close(varargs string str) 
+int do_close(varargs string str) 
 { 
   object other_door;
   string * list;
@@ -431,215 +472,166 @@ int close(varargs string str)
   
   if (this_player()->query_dead())
   {
-      notify_fail("Estando muerto tienes poco control sobre el mundo material.\n");
-      return 0;
+    notify_fail(_LANG_DOOR_NOT_DEAD);
+    return 0;
   }
 
-  if (!str || (str == "") || (str == " "))
+  if (!strlen(str))
     return 0;
 
-  list = explode(str, " ");
-  str = list[0];
-  
-  // Si no estamos cerrando ESTA puerta
+  // if we are not closing THIS door
   if ((str != dest) && (str != s_dest))
     return 0;
 
-  if (this_object()->is_broken()){
-        if (reset_msg){
-          notify_fail("La puerta hacia " + dest  + " está rota, no puedes cerrarla.\n");
-          return 0;
-        }
-        if (query_known_exit(dest)){
-          notify_fail("La puerta " + dest  + " está rota, no puedes cerrarla.\n");
-          return 0;
-        }
-        ex = "";
-        if (gender == 1) { // male
-          ex += (!number)?("El "):("Los ");
-        } else {
-          ex += (!number)?("La "):("Las ");
-        }
-        ex += dest;
-        if (gender == 1) { // male
-          ex += (!number)?(" está roto, no puedes cerrarlo"):(" están rotos, no puedes cerrarlos");
-        } else {
-          ex += (!number)?(" está rota, no puedes cerrarla"):(" están rotas, no puedes cerrarlas");
-        }
-        ex += ".\n";
-        notify_fail(ex);
-        return 0;
-  }
-
-  if ((sizeof(list) >= 3) && (list[1] == "con") && (list[2] == "llave")){
-
-    // Si se puede cerrar con llave y ESTÁ cerrada con llave:
-    if ((lockable) && (lock_status == 0)){
-        if (reset_msg){
-          notify_fail("La puerta hacia " + dest  + " ya está cerrada con llave.\n");
-          return 0;
-        }
-        if (query_known_exit(dest)){
-          notify_fail("La puerta " + dest  + " ya está cerrada con llave.\n");
-          return 0;
-        }
-        ex = "";
-        if (gender == 1) { // male
-          ex += (!number)?("El "):("Los ");
-        } else {
-          ex += (!number)?("La "):("Las ");
-        }
-        ex += dest;
-        if (gender == 1) { // male
-          ex += (!number)?(" ya está cerrado"):(" ya están cerrados");
-        } else {
-          ex += (!number)?(" ya está cerrada"):(" ya están cerradas");
-        }
-        ex += " con llave.\n";
-        notify_fail(ex);
-        return 0;
-
+  if (this_object()->is_broken())
+  {
+    if (reset_msg)
+    {
+      notify_fail(_LANG_DOOR_BROKEN);
+    }
+    else if (query_known_exit(dest))
+    {
+      notify_fail(_LANG_DOOR_BROKEN_KNOWN);
+    }
+    else
+    {
+      notify_fail(_LANG_DOOR_BROKEN_CUSTOM);
     }
 
-    if ((lockable) && (lock_status == 1)){
-      find = -1;
-      obs = all_inventory(this_player());
-      for(i = 0; i < sizeof(obs); i++){
-        if (obs[i]->query_key()){
-          key = file_name(obs[i]);
-          // Esto no deberia darse nunca...
-          aux = strsrch(key, "#");
-          if (aux != -1)
-             key = extract(key, 0, aux - 1);
-          if (member_array(key, keys) != -1){
-             find = i;
-             break;
-          }
-        }
-      }
-      if (find == -1){
-        // notify_fail("No tienes la llave necesaria para cerrar la puerta " + dest + ".\n");
-        notify_fail("No tienes la llave necesaria.\n");
-        return 0;
-      } else {
-        tell_object(this_player(), "Utilizas tu " + obs[i]->short() + ".\n");
-        lock_status = 0;
-      }
-    }
+    return 0;
   }
 
-  if (!query_status()){
-    other_door = query_other_side_door(1);
-    if (lockable && (lock_status == 0)){
-      if (reset_msg){
-        tell_room(environment(this_object()),
-           "Oyes un chasquido en la cerradura de la puerta hacia "+dest+".\n");
-      }
-      else
-      if (query_known_exit(dest)){
-        tell_room(environment(this_object()),
-           "Oyes un chasquido en la cerradura de la puerta "+dest+".\n");
-      }
-      else {
-        ex = "Oyes un chasquido en la cerradura ";
-        if (gender == 1) { // male
-          ex += (!number)?("del "):("de los ");
-        } else {
-          ex += (!number)?("de la "):("de las ");
-        }
-        ex += dest + ".\n";
-        tell_room(environment(this_object()), ex);
-      }
-      if (other_door) {
-         other_door->set_lock_status(0);
-         if (reset_msg){
-           tell_room(environment(other_door),
-              "Oyes un chasquido en la cerradura de la puerta hacia "+dir_other_side+".\n");
-         }
-         else
-         if (query_known_exit(dir_other_side)){
-           tell_room(environment(other_door),
-              "Oyes un chasquido en la cerradura de la puerta "+dir_other_side+".\n");
-         }
-         else {
-           ex = "Oyes un chasquido en la cerradura ";
-           if (gender == 1) { // male
-             ex += (!number)?("del "):("de los ");
-           } else {
-             ex += (!number)?("de la "):("de las ");
-           }
-           ex += dir_other_side + ".\n";
-           tell_room(environment(other_door), ex);
-         }
-      }
-    } else {
-      if (reset_msg){
-        tell_object(this_player(), "La puerta hacia " + dest + " ya está cerrada.\n");
-      }
-      else
-      if (query_known_exit(dest)){
-        tell_object(this_player(), "La puerta " + dest + " ya está cerrada.\n");
-      }
-      else {
-        ex = "";
-        if (gender == 1) { // male
-          ex += (!number)?("El "):("Los ");
-        } else {
-          ex += (!number)?("La "):("Las ");
-        }
-        ex += dest + " ya está"   +((!number)?(""):("n"));
-        if (gender == 1) { // male
-          ex += (!number)?(" cerrado.\n"):(" cerrados.\n");
-        } else {
-          ex += (!number)?(" cerrada.\n"):(" cerradas.\n");
-        }
-        tell_object(this_player(), ex);
-      }
+  // initially closed
+  if (!query_status())
+  {
+    if (reset_msg)
+    {
+      tell_object(this_player(), _LANG_DOOR_CLOSED_ALREADY);
     }
-    return 1;
+    else if (query_known_exit(dest))
+    {
+      tell_object(this_player(), _LANG_DOOR_CLOSED_ALREADY_KNOWN);
+    }
+    else 
+    {
+      tell_object(this_player(), _LANG_DOOR_CLOSED_ALREADY_CUSTOM);
+    }
   }
-  else {
-    
+  // initially open
+  else 
+  {
     set_status(0);
     close_msg(dest, this_player(), 0);
-    // tell_object(this_player(), "Cierras la puerta "+dest+".\n");
-    // tell_room(environment(this_object()), this_player()->query_cap_name() +
-    //           " cierra la puerta "+dest+".\n", ({ this_player() }));
+
     other_door = query_other_side_door(1);
-    if (other_door && other_door->is_open()) {
+
+    if (other_door && other_door->is_open()) 
+    {
       other_door->set_status(0);
       close_msg(dir_other_side, other_door, 1);
-      // tell_room(environment(other_door),
-      //    "Alguien cierra la puerta "+dir_other_side+" desde el otro lado.\n");
-      if (lockable && lock_status == 0){
-         other_door->set_lock_status(0);
-         if (reset_msg){
-           tell_room(environment(other_door),
-              "Oyes un chasquido en la cerradura de la puerta hacia "+dir_other_side+".\n");
-         }
-         else
-         if (query_known_exit(dir_other_side)){
-           tell_room(environment(other_door),
-              "Oyes un chasquido en la cerradura de la puerta "+dir_other_side+".\n");
-         }
-         else {
-           ex = "Oyes un chasquido en la cerradura ";
-           if (gender == 1) { // male
-             ex += (!number)?("del "):("de los ");
-           } else {
-             ex += (!number)?("de la "):("de las ");
-           }
-           ex += dir_other_side + ".\n";
-           tell_room(environment(other_door), ex);
-         }
-      }
     }
-    return 1;
+  }
+
+  list = explode(str, " ");
+  str = list[0];
+
+  if (_LANG_DOOR_VERB_TO_LOCK_USED)
+  {
+    if (!do_lock(dest))
+      return 0;
+  }
+
+  return 1;
+}
+
+/*
+ * shows the open message
+ *  if flag == 0:
+ *   - You open the door + 
+ *   - ob opens the door
+ *  if flag == 1:
+ *   - Somebody opens the door from the other side
+ */
+void open_msg(string door, object ob, int flag)
+{
+  if (flag == 0)
+  {
+    if (reset_msg)
+    {
+      tell_object(ob, _LANG_DOOR_YOU_OPEN);
+      tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS, ({ ob }));
+      return;
+    }
+    
+    if (query_known_exit(door))
+    {
+      tell_object(ob, _LANG_DOOR_YOU_OPEN_KNOWN);
+      tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS_KNOWN, ({ ob }));
+      return;
+    }
+
+    tell_object(ob, _LANG_DOOR_YOU_OPEN_CUSTOM);
+    tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS_CUSTOM, ({ ob }) );
+  }
+  else
+  {
+    if (reset_msg)
+    {
+      tell_room(environment(ob), _LANG_DOOR_SOMEBODY_OPENS);
+      return;
+    }
+
+    if (query_known_exit(door))
+    {
+      tell_room(environment(ob), _LANG_DOOR_SOMEBODY_OPENS_KNOWN);
+      return;
+    }
+    
+    tell_room(environment(ob), _LANG_DOOR_SOMEBODY_OPENS_CUSTOM);
+  }
+}
+
+void close_msg(string door, object ob, int flag)
+{
+  if (flag == 0)
+  {
+    if (reset_msg)
+    {
+      tell_object(ob, _LANG_DOOR_YOU_CLOSE);
+      tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES, ({ ob }));
+      return;
+    }
+
+    if (query_known_exit(door))
+    {
+      tell_object(ob, _LANG_DOOR_YOU_CLOSE_KNOWN);
+      tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES_KNOWN, ({ ob }));
+      return;
+    }
+
+    tell_object(ob, _LANG_DOOR_YOU_CLOSE_CUSTOM);
+    tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES_CUSTOM, ({ ob }) );
+  }
+  else
+  {
+    if (reset_msg){
+      tell_room(environment(ob), _LANG_DOOR_SOMEBODY_CLOSES);
+      return;
+    }
+
+    if (query_known_exit(door))
+    {
+      tell_room(environment(ob), _LANG_DOOR_SOMEBODY_CLOSES_KNOWN);
+      return;
+    }
+
+    tell_room(environment(ob), _LANG_DOOR_SOMEBODY_CLOSES_CUSTOM);
   }
 }
 
 int query_max_hps() { return max_hps; }
-void set_max_hps(int i) {
+void set_max_hps(int i)
+{
   object other_door;
 
   max_hps = i;
@@ -653,83 +645,80 @@ void set_max_hps(int i) {
 }
 
 int query_hps() { return hps; }
-void adjust_hps(int i) { 
+void adjust_hps(int i)
+{ 
   this_object()->set_hps(this_object()->query_hps() + i);
 }
-void set_hps(int i) { 
- object other_door;
 
- if (this_object()->query_hps() < 0) 
+void set_hps(int i)
+{ 
+  object other_door;
+ 
+  if (this_object()->query_hps() < 0) 
     return;
- if (i <= max_hps) 
-   hps = i; 
- else 
-   return;
- 
- other_door = query_other_side_door(1);
- if (other_door && 
-    (other_door->query_hps() != this_object()->query_hps()) )
-   other_door->set_hps(i);   
- 
- if (this_object()->query_hps() < 0) 
-   this_object()->do_break();
+  if (i <= max_hps) 
+    hps = i; 
+  else 
+    return;
+  
+  other_door = query_other_side_door(1);
+  if (other_door && 
+     (other_door->query_hps() != this_object()->query_hps()) )
+    other_door->set_hps(i);   
+  
+  if (this_object()->query_hps() < 0) 
+    this_object()->do_break();
 }
 
-void do_damage(int i) { 
+void do_damage(int i)
+{ 
   if ((i > 0) && 
       (!this_object()->is_open()) && 
-      this_object()->breakable()) 
+      this_object()->query_breakable()) 
     this_object()->adjust_hps(-i);
 }
 
-void do_break() {
+void do_break()
+{
+  if (reset_msg)
+  {
+     tell_room(environment(this_object()), _LANG_DOOR_BREAKS);
+  }
+  else if (query_known_exit(dest))
+  {
+    tell_room(environment(this_object()), _LANG_DOOR_BREAKS_KNOWN);
+  }
+  else
+  {
+    tell_room(environment(this_object()), _LANG_DOOR_BREAKS_CUSTOM);
+  }
 
- string ex;
-
- if (reset_msg){
-    tell_room(environment(this_object()),"La puerta hacia "+dest+" se rompe en mil pedazos.\n");
- }
- if (query_known_exit(dest)){
-   tell_room(environment(this_object()),"La puerta "+dest+" se rompe en mil pedazos.\n");
- }
- else {
-   ex = "";
-   if (gender == 1) { // male
-     ex += (!number)?("El "):("Los ");
-   } else {
-     ex += (!number)?("La "):("Las ");
-   }
-   ex += dest + " se rompe"+((!number)?(""):("n"))+" en mil pedazos.\n";
-   tell_room(environment(this_object()), ex);
- }
-
- this_object()->open();
+  // open it
+  set_status(1);
 }
 
-int is_broken() { 
+int is_broken()
+{ 
   if (this_object()->query_hps() < 0) 
     return 1; 
   else 
     return 0; 
 }
 
-string health_string() {
-  switch ( (query_hps() * 100) / query_max_hps()) {
-    case 100:    return ("Está en perfecto estado."); break;
-    case 80..99: return ("Está un poco estropeada."); break;
-    case 60..79: return ("No está en buen estado."); break;
-    case 40..59: return ("Parece estar en mal estado."); break;
-    case 20..39: return ("Está en mal estado."); break;
-    case 0..19:  return ("Casi no se tiene en pie."); break;
-    default: return ("Está rota."); break;
-  }
-  return "";
+string health_string()
+{
+  int intervals, our_interval;
+
+  intervals = sizeof(_LANG_DOOR_HEALTH_STATUSES);
+  our_interval = (query_hps() * intervals) / query_max_hps();
+
+  return _LANG_DOOR_HEALTH_STATUSES[our_interval >= intervals ? intervals - 1 : our_interval];
 }
 
-// Si flag==1 cargamos la otra room para asegurarnos de obtener su objeto door
-// Si flag==0 no la cargamos (estamos destruyendo cosas)
-object query_other_side_door(int flag) {
-  
+// if flag==1 we load the other room to be sure to have the door object
+// if flag==0 we do not load (we are destroying things)
+object query_other_side_door(int flag)
+{  
   mixed *exits;
   object other_room, other_door;
   int i;
@@ -752,99 +741,63 @@ object query_other_side_door(int flag) {
   }
    
   if (other_room) {
-    other_door = other_room->query_doors(dir_other_side);
+    other_door = other_room->query_door_ob(dir_other_side);
   }
   return (other_door);
 }
      
-void repop() {
-  
-  string ex;
-  set_max_hps(query_max_hps());
-
-  if (!query_status() && (init_status == 1)){
-    // tell_room(environment(this_object()), "La puerta "+dest+" se abre lentamente.\n");
-
-    if (reset_msg){
-      tell_room(environment(this_object()), "La puerta hacia "+dest+" se abre lentamente.\n");    	
+void repop()
+{  
+  if (!query_status() && (init_status == 1))
+  {
+    if (reset_msg)
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OPENS);
     }
-    else if (query_known_exit(dest)){
-      tell_room(environment(this_object()), "La puerta "+dest+" se abre lentamente.\n");
+    else if (query_known_exit(dest))
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OPENS_KNOWN);
     }
-    else {
-      ex = "";
-      if (gender == 1) { // male
-        ex += (!number)?("El "):("Los ");
-      } else {
-        ex += (!number)?("La "):("Las ");
-      }
-      ex += dest + " se abre"+((!number)?(""):("n"))+" lentamente.\n";
-      tell_room(environment(this_object()), ex);
+    else 
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OPENS_CUSTOM);
     }
   }
-  if (query_status() && (init_status == 0)){
-    // tell_room(environment(this_object()),"La puerta "+dest+" se cierra lentamente.\n");
 
-    if (reset_msg){
-       tell_room(environment(this_object()),"La puerta hacia "+dest+" se cierra lentamente.\n");
+  if (query_status() && (init_status == 0))
+  {
+    if (reset_msg)
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_CLOSES);
     }
-    else if (query_known_exit(dest)){
-       tell_room(environment(this_object()),"La puerta "+dest+" se cierra lentamente.\n");
+    else if (query_known_exit(dest))
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_CLOSES_KNOWN);
     }
-    else {
-      ex = "";
-      if (gender == 1) { // male
-        ex += (!number)?("El "):("Los ");
-      } else {
-        ex += (!number)?("La "):("Las ");
-      }
-      ex += dest + " se cierra"+((!number)?(""):("n"))+" lentamente.\n";
-      tell_room(environment(this_object()), ex);
+    else 
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_CLOSES_CUSTOM);
     }
   }
     
   set_status(init_status);
+  set_hps(query_max_hps());
 
-  if (!is_open() && query_lockable()) {
-    // tell_room(environment(this_object()),"Oyes un chasquido en la cerradura de la puerta "+dest+".\n");
-    if (reset_msg){
-      tell_room(environment(this_object()),"Oyes un chasquido en la cerradura de la puerta hacia "+dest+".\n");
+  if (!is_open() && !query_init_lock_status()) 
+  {
+    if (reset_msg)
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK);
+    }
+    else if (query_known_exit(dest))
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK_KNOWN);
     }
     else
-    if (query_known_exit(dest)){
-      tell_room(environment(this_object()),"Oyes un chasquido en la cerradura de la puerta "+dest+".\n");
+    {
+      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK_CUSTOM);
     }
-    else {
-      ex = "Oyes un chasquido en la cerradura ";
-      if (gender == 1) { // male
-        ex += (!number)?("del "):("de los ");
-      } else {
-        ex += (!number)?("de la "):("de las ");
-      }
-      ex += dest + ".\n";
-      tell_room(environment(this_object()), ex);
-    }
-    lock_status = init_status;
+    
+    set_lock_status(init_lock_status);
   }
 }  
-      
-void set_gender(int i) { 
-  if (i == 2) 
-    // female
-    gender = 2;
-  else
-    // male
-    gender = 1; 
-}
-
-void set_number(int i) { 
-  if (i == 0)
-    number = i;
-  else
-    number = 1; 
-}
-
-int query_gender() { return gender; }
-int query_number() { return number; }
-void reset_message() { reset_msg = 1; }
-int query_reset_message() { return reset_msg; }

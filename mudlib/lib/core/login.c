@@ -20,8 +20,7 @@ inherit "/lib/core/object";
 #include <user/player.h>
 #include <areas/common.h>
 #include <user/user.h>
-// some common translations
-#include <mud/translations.h>
+#include <translations/common.h>
 #include <language.h>
 
 static object _user;   // connection object
@@ -30,7 +29,7 @@ static object _player; // avatar object
 static int validated;
 static string password, user_name;
 // static int cols;
-static int gender;
+static int chosen_gender;
 static int coder;
 // static int app_coder;
 static int no_times;
@@ -58,7 +57,7 @@ void create()
   no_times = 0;
   coder = 0;
   password = "";
-  gender = 1;
+  chosen_gender = 1;
   invis_wish = -1;
   seteuid(ROOT);
 }
@@ -852,11 +851,11 @@ void get_sex(string str)
 
   if (member_array(i, _LANG_GENDER_MAN_OPTIONS_ARRAY) != -1)
   {
-    gender = 1;
+    chosen_gender = 1;
   }
   else if (member_array(i, _LANG_GENDER_WOMAN_OPTIONS_ARRAY) != -1)
   {
-    gender = 2;
+    chosen_gender = 2;
   }
   else
   {
@@ -876,7 +875,7 @@ void create_player2()
   // end of the process, we create a new player object
   _player = clone_object(PLAYER_OB);
   _player->set_name(name);
-  _player->set_gender(gender);
+  _player->set_gender(chosen_gender);
   _player->set_account_name(user_name);
 
   // destruct the link object

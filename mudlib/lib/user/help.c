@@ -125,7 +125,7 @@ int do_help(string str)
         if (ob = load_object(text))
         {
           write("Ayuda sobre el comando '" + str + "':\n");
-          write( ((ob->query_short_help())?(ob->query_short_help()):("No hay ningún texto de ayuda concreto."))
+          write( ((ob->query_help())?(ob->query_help()):("No hay ningún texto de ayuda concreto."))
             + "\n\n");
           return 1;
         }

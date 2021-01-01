@@ -24,7 +24,7 @@ string query_short_help()
 static int cmd(string str, object me, string verb)
 {
   string file, *filename, text;
-  int range, lineas;
+  int range, lines;
   string content, err;
 
   content = "";
@@ -47,7 +47,7 @@ static int cmd(string str, object me, string verb)
 
     if (range < 0)
     {
-      notify_fail("Invalid range: "+range+"\n");
+      notify_fail("Invalid range: " + range + "\n");
       return 0;
     }
 
@@ -62,8 +62,8 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
-    lineas = sizeof(explode(content,"\n"));
-    text = read_file_line(filename[0], lineas-range, lineas);
+    lines = sizeof(explode(content, "\n"));
+    text = read_file_line(filename[0], lines - range, lines);
 
     write(text);
     return 1;
@@ -87,12 +87,11 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
-    lineas = sizeof(explode(content,"\n"));
+    lines = sizeof(explode(content, "\n"));
     range = 20;
-    text = read_file_line(filename[0], lineas-range, lineas);
+    text = read_file_line(filename[0], (lines - range < 0 ? 0 : lines - range), lines);
 
     write(text);
     return 1;
   }
-} /* head_file() */
-
+}

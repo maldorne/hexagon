@@ -1,21 +1,21 @@
-// Standard domain master object
-// Radix May 10, 1996
-// Version 1.4
+// Standard game master object
 
+// Radix May 10, 1996, Version 1.4
 // Bashed from DW lib by Baldrick for FRMud
 // Hacked and made more secure - Hamlet 1996
 // Made base object and easily settable sub-dir perms - Radix 1996
 // Added better error logging for domains - Quark 1996
 // locked out domain masters at Baldrick's request ... Raskolnikov 96
+// Converted to game object for Hexagon, neverbot 12/2020
 
 int open_read, open_write;
-string DOM_LORD, DOMAIN;
+string game_coordinator, game_name;
 mapping read_perms, write_perms, dir_owners;
 string finger_info;
 mixed members;
 
-static void set_domain(string dom) { DOMAIN = dom; }
-static void set_domain_lord(string lord) { DOM_LORD = lord; }
+static void set_game_name(string dom) { game_name = dom; }
+static void set_game_coordinator(string lord) { game_coordinator = lord; }
 static void set_open_read(int i) { open_read = i; }
 static void set_open_write(int i) { open_write = i; }
 static void set_finger_info(string info) { finger_info = info; }
@@ -27,7 +27,7 @@ static void setup_perms() { return; }
 int query_open_read() { return open_read; }
 int query_open_write() { return open_write; }
 int query_prevent_shadow() { return 1; }
-string query_dom_lord() { return DOM_LORD; }
+string query_dom_lord() { return game_coordinator; }
 string query_info() { return finger_info; }
 
 void create()
@@ -49,8 +49,7 @@ void create()
   {
     map = ([ ]);
     for (i=0;i<sizeof(members);i++)
-      // map[members[i]] = "No Project";
-      map[members[i]] = "Sin Proyecto";
+      map[members[i]] = "No Project";
       members = map;
     }
 }
@@ -72,7 +71,7 @@ int query_dom_manip(varargs string euid)
     ("/lib/core/secure"->query_admin(euid) &&
      "/lib/core/secure"->high_programmer(geteuid(this_player()))))
     return 1;
-  if(lower_case(euid) == DOMAIN)  return 1;
+  if(lower_case(euid) == game_name)  return 1;
     return 0;
 }
 
@@ -151,7 +150,7 @@ int valid_write(string *path, string euid, string funct)
     return 1;
   if(query_dom_manip(euid))
     return 1;
-  if(euid == "Dom: "+DOMAIN)
+  if(euid == "Dom: "+game_name)
     return 1;
   i = query_restricted(write_perms, path, euid);
   if(i < 0)
@@ -196,7 +195,7 @@ int set_project(string name, string pro)
 
 int query_member(string name)
 {
-  return !undefinedp(members[name]) || name == DOM_LORD;
+  return !undefinedp(members[name]) || name == game_coordinator;
 } /* query_member() */
 
 string query_project(string name)
@@ -208,7 +207,7 @@ string query_project(string name)
 
 void smart_log(string error, string where)
 {
-  write_file("d/"+DOMAIN+"/player_reports", error);
+  write_file("d/"+game_name+"/player_reports", error);
 } /* smart_log() */
 
 string log_who(string where)
@@ -219,7 +218,7 @@ string log_who(string where)
   if(stringp(dir_owners[where]))
     return dir_owners[where];
 
-  return DOM_LORD;
+  return game_coordinator;
 } /* log_who() */
 
 string author_file(string *str)
@@ -228,12 +227,12 @@ string author_file(string *str)
   // switch (str[1])
   // {
   //   case "fr" :
-  //     return DOM_LORD;
+  //     return game_coordinator;
   //   default:
   //     return "baldrick";
   // }
 
-  return DOM_LORD; // neverbot
+  return game_coordinator; // neverbot
 } /* author_file() */
 
 

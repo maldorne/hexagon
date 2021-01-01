@@ -109,10 +109,22 @@ string query_article()
   return "el";
 }
 
+string query_article_plural()
+{
+  if (gender == 2) return "las";
+  return "los";
+}
+
 string query_numeral()
 {
    if (gender == 1) return "un";
    return "una";
+}
+
+string query_numeral_plural()
+{
+   if (gender == 1) return "unos";
+   return "unas";
 }
 
 string query_vocal()

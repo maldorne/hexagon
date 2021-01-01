@@ -8,15 +8,15 @@ current_unarmed_style "pelea"
 unarmed_ability 50
 known_weapon_masteries ([0|])
 current_weapon_mastery ""
-max_hp 1
-max_gp 1
-hp 1
-gp 1
+max_hp 100
+max_gp 100
+hp 100
+gp 100
 map_prop ([1|"channels":({1|"coders",}),])
 timed_prop ([0|])
 create_me "object"
-msgout "@$N se va hacia $T."
-msgin "@$N llega desde $F."
+msgout "@$N goes towards $T."
+msgin "@$N arrives from $F."
 mmsgout "@$N desaparece en una nube de humo."
 mmsgin "@$N aparece del suelo."
 known_feats ({0|})

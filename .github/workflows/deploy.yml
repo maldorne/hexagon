@@ -24,6 +24,18 @@ jobs:
         cp -R ./driver/dgd/lpc-doc/* ./mudlib/docs/en/driver/
         cp -R ./driver/dgd/lpc-doc/* ./mudlib/docs/es/driver/
 
+    - name: Duplicate code for english and spanish servers
+      run: |
+        cd ${{ github.workspace }}
+        cd ..
+        mv hexagon en
+        mkdir hexagon
+        mv en hexagon/
+        cd hexagon
+        mv en/.git* .
+        cp -R en es
+        sed -i '27,28 s/en/es/g' es/mudlib/include/mud/translations.h
+
     - name: Synchronize with hosting
       uses: houseofmaldorne/rsync-deploy@v2.0
       env:

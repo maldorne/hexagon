@@ -4,7 +4,7 @@
  * looks a lot better that way.
  * Hope it will work, Baldrick, june '96
  *
- * Añadido armed_combat, Folken 6/03
+ * Añadido armed_combat, neverbot 6/03
  *
  */
 
@@ -122,7 +122,7 @@ void heart_beat()
 
   if (sizeof(attacker_list) && 
       this_object()->query_wimpy() && 
-     (this_object()->query_hp() < this_object()->query_max_hp()*this_object()->query_wimpy()/100))
+     (this_object()->query_hp() < this_object()->query_max_hp() * this_object()->query_wimpy() / 100))
   {
     this_object()->run_away();
   }
@@ -185,13 +185,14 @@ void attack()
   string his_name;
   object ob, *ww;
   int bare_hands;
-  int my_xp;
+  int my_xp, my_xp_percentage;
   object * away_attackers;
 
   i = 0;
   away_attackers = ({ });
   bare_hands = 0;
-  my_xp = 0;  
+  my_xp = 0; 
+  my_xp_percentage = 0; 
 
   if (!attacker_list)
     attacker_list = ({ });
@@ -205,9 +206,10 @@ void attack()
       return;
     }
 
-    if (!attacker_list[i])     // dw have they died unexpectedly? 
-      attacker_list = delete(attacker_list,i,1);
+    if (!attacker_list[i]) // dw have they died unexpectedly? 
+      attacker_list = delete(attacker_list, i, 1);
     else
+    {
       // dw I will put all the ones not in the correct environ in a new list.
       if (environment(attacker_list[i]) != environment(this_object())) 
       {
@@ -218,10 +220,11 @@ void attack()
           call_outed = ({ attacker_list[i] });
         else
           call_outed += ({ attacker_list[i] });
-        attacker_list = delete(attacker_list,i,1);
+        attacker_list = delete(attacker_list, i, 1);
       } 
       else
         i++;
+    }
   }
 
   if (sizeof(away_attackers) > 0)
@@ -230,7 +233,8 @@ void attack()
 
   // dw check the not correct environ list to see if any one has come back.  
   i = 0;
-  while (i<sizeof(call_outed))
+  while (i < sizeof(call_outed))
+  {
     if (!call_outed[i])
       call_outed = delete(call_outed,i,1);
     else if (environment(this_object()) == environment(call_outed[i])) 
@@ -240,19 +244,22 @@ void attack()
     } 
     else
       i++;
-    // dw not hitting anyone... do spell effects anyway... 
+  }
+  
+  // dw not hitting anyone... do spell effects anyway... 
   if (!sizeof(attacker_list)) 
   {
     attackee = nil;
     return;
   }
+
   // dw choose a random person from the attacker list; they're in correct env.
   if ( concentrate )
   {
     if ( member_array( concentrate, attacker_list ) == -1 )
     {
       // attackee = attacker_list[random(sizeof(attacker_list))];
-      // Aggro, Folken 01/2013
+      // Aggro, neverbot 01/2013
       attackee = this_object()->query_main_aggro_doer();
       concentrate = nil;
     }
@@ -265,9 +272,11 @@ void attack()
     }
   }
   else
+  {
     // attackee = attacker_list[random(sizeof(attacker_list))];
-    // Aggro, Folken 01/2013
+    // Aggro, neverbot 01/2013
     attackee = this_object()->query_main_aggro_doer();
+  }
 
   // dw Check to see if they are being protected.
   if (protector && member_array(protector, attacker_list) != -1) 
@@ -332,25 +341,30 @@ void attack()
   }
 
   att_level = (int)this_object()->query_level();
-  att_level = att_level?att_level:1;
+  att_level = att_level ? att_level : 1;
+
+  if (map_sizeof(this_object()->query_xp_types()) == 0)
+    my_xp_percentage = 100;
+  else if (bare_hands)
+  {
+    // tell_object(this_object(), "[Debug unarmed_combat_xp]: damage: " + dam + " total: " + my_xp + " final: ");
+    my_xp_percentage = this_object()->query_xp_types()[UNARMED_COMBAT_XP];
+    // tell_object(this_object(), "" + my_xp + "(" + my_xp_percentage + ")% \n");
+  }
+  else
+  {
+    // tell_object(this_object(), "[Debug armed_combat_xp]: damage: " + dam + " total: " + my_xp + " final: ");
+    my_xp_percentage = this_object()->query_xp_types()[ARMED_COMBAT_XP];
+    // tell_object(this_object(), "" + my_xp + "(" + my_xp_percentage + ")%\n");
+  }
 
   // Solo ajustamos la xp con objetivos de nivel similar o mayor
   if (his_att_lvl + 2 >= att_level)
   {
-    // Tipos de xp, Folken 07/04
+    // xp types, neverbot 07/04
     my_xp = dam * (his_att_lvl/att_level);
-    if (bare_hands)
-  {
-     // tell_object(this_object(), "[Debug unarmed_combat_xp]: damage: " + dam + " total: " + my_xp + " final: ");
-     my_xp = (my_xp * ( this_object()->query_xp_types()[UNARMED_COMBAT_XP] )) / 100;
-     // tell_object(this_object(), "" + my_xp + "(" + this_object()->query_xp_types()[UNARMED_COMBAT_XP] + ")% \n");
-    }
-    else
-  {
-     // tell_object(this_object(), "[Debug armed_combat_xp]: damage: " + dam + " total: " + my_xp + " final: ");
-     my_xp = (my_xp * ( this_object()->query_xp_types()[ARMED_COMBAT_XP] )) / 100;
-     // tell_object(this_object(), "" + my_xp + "(" + this_object()->query_xp_types()[ARMED_COMBAT_XP] + ")%\n");
-    }
+    my_xp = (my_xp * my_xp_percentage ) / 100;
+
     this_object()->adjust_xp(my_xp);
   }
 

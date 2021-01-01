@@ -16,7 +16,7 @@ inherit "/lib/core/object.c";
 // Lista de años ya nombrados (lo unico que se guarda al salvar el handler)
 mapping year_list;
 
-// implemented in /include/mud/translations.h
+// implemented in /include/translations/common.*.h
 string ordinal(int number);
 
 void create()

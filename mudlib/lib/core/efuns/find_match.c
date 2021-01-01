@@ -23,15 +23,6 @@
 //   "things",
 // });
 
-static int not_hidden(object ob, varargs mixed extra...)
-{
-  return (ob &&
-         !ob->query_hide_shadow() &&
-         !ob->query_invis() &&
-         !ob->query_hidden_object() &&
-         !(ob->is_money() && ob->query_number_coins() == 0) );
-}
-
 /*
 static int local_atoi(string str)
 {
@@ -48,6 +39,15 @@ static int remove_ints(string s)
   return (local_atoi(s) == 0);
 }
 */
+
+int not_hidden(object ob, varargs mixed extra...)
+{
+  return (objectp(ob) &&
+         !ob->query_hide_shadow() &&
+         !ob->query_invis() &&
+         !ob->query_hidden_object() &&
+         !(ob->is_money() && ob->query_number_coins() == 0) );
+}
 
 static mixed find_match(string str, mixed ob, varargs int no_hidden)
 {
@@ -93,7 +93,7 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   }
 
   if (no_hidden)
-    list = filter(list, "not_hidden", this_object());
+    list = filter_array(list, "not_hidden", this_object());
 
   bits = explode(implode(explode(str, " y "), ","), ",");
 
@@ -174,17 +174,6 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
 
   for (j = 0; j < sizeof(bits); j++)
   {
-
-
-
-
-
-
-
-
-
-
-
     str = bits[j];
     nick = (string)this_object()->expand_nickname(str);
 

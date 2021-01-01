@@ -2,10 +2,6 @@
 
 List of MudOS `efun` functions and their implementation in `Hexagon Mudlib`, and some new useful functions.
 
-Be aware: most of the functions
-listed here are already implemented and working, but as I've just started working in this
-document recently, I'll update every entry as I test each function.
-
 ## Basic Types
 
 Common calls and operations over the basic types.
@@ -52,6 +48,7 @@ Common calls and operations over the basic types.
 | `filter`                | :white_check_mark: |  |
 | `filter_array`          | :white_check_mark: |  |
 | **mappings**            |  |  |
+| `m_sizeof`              | :white_check_mark: | alias for `map_sizeof` |
 | `values`                | :white_check_mark: | alias for `map_values` |
 | `keys`                  | :white_check_mark: | alias for `map_indices` |
 | `map_delete`            | :white_check_mark: |  |

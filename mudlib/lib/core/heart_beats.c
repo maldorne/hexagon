@@ -1,5 +1,6 @@
 
 #include <mud/mudos.h>
+#include <mud/config.h>
 
 // number of seconds between calls to the heart_beat function
 // do not touch this
@@ -38,9 +39,12 @@ nomask void _heart_beat()
   // some error during this execution
   _hb_handle = call_out("_heart_beat", HEART_BEAT_TIME);
 
-  debug("hbs", " ───> heart_beat cycle\n");
-  debug("hbs", to_string(_hb_object_list));
-  debug("hbs", " ───> heart_beat cycle\n");
+  if (CONFIG_LOG_HEART_BEATS)
+  {
+    debug("hbs", " ───> heart_beat cycle\n");
+    debug("hbs", to_string(_hb_object_list));
+    debug("hbs", " ───> heart_beat cycle\n");
+  }
 
   for (i = 0; i < sizeof(_hb_object_list); i++)
   {
@@ -56,7 +60,9 @@ nomask void _heart_beat()
       continue;
     }
 
-    stderr(" ~~~ mudos::_heart_beat() for <"+object_name(ob)+">\n");
+    if (CONFIG_LOG_HEART_BEATS)
+      stderr(" ~~~ mudos::_heart_beat() for <"+object_name(ob)+">\n");
+
     if (living(ob))
       set_initiator_object(ob);
     else
@@ -72,7 +78,9 @@ nomask void _heart_beat()
       result = catch(call_other(ob, "heart_beat"));
     }
 
-    stderr(" ~~~ end mudos::_heart_beat() for "+(ob ? ("<"+object_name(ob)+">") : "nil")+"\n");
+    if (CONFIG_LOG_HEART_BEATS)
+      stderr(" ~~~ end mudos::_heart_beat() for "+(ob ? ("<"+object_name(ob)+">") : "nil")+"\n");
+  
     set_initiator_object(nil);
     set_initiator_user(nil);
 
@@ -83,6 +91,7 @@ nomask void _heart_beat()
                                             result + "\n");
       _hb_object_list -= ({ _hb_object_list[i] });
       i--;
+      // will try to remove the object from _hb_object_list, better safe than sorry
       call_other(ob, "set_heart_beat", 0);
     }
   }

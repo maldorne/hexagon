@@ -30,6 +30,6 @@ static void event( mixed obs, string event_name, mixed arg... )
   }
 
   for (i = 0; i < sizeof(event_obs); i++)
-    call_other( event_obs[i], "event_"+ event_name, who, arg... );
+    call_other( event_obs[i], "event_" + event_name, who, arg... );
 }
 

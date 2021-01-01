@@ -127,14 +127,13 @@ void set_race_ob(string str)
   // if ( sscanf(str, "/%s", frog)==1)
   //   str = extract(str, 1);
 
-  if ((str[0..strlen(VALID_RACES_PATHS[0])-1] != VALID_RACES_PATHS[0]) &&
-      (str[0..strlen(VALID_RACES_PATHS[1])-1] != VALID_RACES_PATHS[1]))
+  if (str[0..strlen(VALID_RACES_PATHS[0])-1] != VALID_RACES_PATHS[0])
   {
     write("Illegal path for set_race_ob.\n");
     return;
   }
 
-  if ( (file_size(str) < 0) && (file_size(str+".c") < 0) )
+  if ( (file_size(str) < 0) && (file_size(str + ".c") < 0) )
   {
     tell_object(this_object(),"El intento de set_race_ob no ha funcionado. "+
       "Díselo a alguien que pueda arreglarlo.\n");
@@ -211,7 +210,8 @@ void set_race_ob(string str)
 
 void set_race(string str)
 {
-  set_race_ob(VALID_RACES_PATHS[1] + str);
+  if (arrayp(VALID_RACES_PATHS) && (sizeof(VALID_RACES_PATHS) >= 1))
+    set_race_ob(VALID_RACES_PATHS[0] + str);
 }
 
 string query_race_ob() { return social_object_list[RACE_OB]; }
@@ -254,13 +254,13 @@ string query_race()
 } /* query_race() */
 
 // neverbot 6/03
-int query_race_size()
+int query_body_size()
 {
   if (social_object_list[RACE_OB])
-    return (int)social_object_list[RACE_OB]->query_race_size();
+    return (int)social_object_list[RACE_OB]->query_body_size();
   else
     return 5; // Tamaño estandar (humano)
-} /* query_race_size() */
+} /* query_body_size() */
 
 // *****************************************
 //  Nuevo objeto para la Clase, neverbot 6/03
@@ -274,7 +274,7 @@ void set_class_ob(string str)
     return;
   }
 
-  if ( (file_size(str) < 0) && (file_size(str+".c") < 0) )
+  if ( (file_size(str) < 0) && (file_size(str + ".c") < 0) )
     return;
 
   social_object_list[CLASS_OB] = str;

@@ -13,10 +13,13 @@ void create()
 //   call_other( event_obs, "event_"+ event_name, who, arg... ) ;
 
 // show general info to the object
-// used from tell_object and tell_room
+// used from write() and also from tell_object()
 
 void event_write(object caller, string msg)
 {
+  if (!interactive(this_object()))
+    return;
+
   if (!strlen(msg))
     return;
 
@@ -26,8 +29,15 @@ void event_write(object caller, string msg)
   this_object()->catch_tell(msg);
 }
 
+// show general info to the object, this message is also sent to 
+// every object in the same environment
+// used from say() and also from tell_room()
+
 void event_say(object caller, string msg, varargs mixed avoid)
 {
+  if (!interactive(this_object()))
+    return;
+
   if (!strlen(msg))
     return;
 
@@ -47,6 +57,9 @@ void event_say(object caller, string msg, varargs mixed avoid)
 void event_inform(object caller, string msg, string type, varargs mixed avoid)
 {
   string * on;
+
+  if (!interactive(this_object()))
+    return;
 
   if (!strlen(msg))
     return;
@@ -114,6 +127,9 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 
 void event_login(object ob, varargs mixed avoid)
 {
+  if (!interactive(this_object()))
+    return;
+
   if (avoid)
   {
     if (pointerp(avoid) && (member_array(this_object(), avoid) != -1))
@@ -362,12 +378,14 @@ void event_creator_tell(object ob, string start, string msg)
 
 nomask void event_god_inform(object ob, string start, string msg)
 {
+  if (!interactive(this_object()))
+    return;
+
   if (!strlen(msg))
     return;
 
   msg = fix_string("\n" + start + " " + msg);
 
-  // only will do if interactive(this_object())
   this_object()->catch_tell(msg);
 }
 
@@ -378,6 +396,9 @@ void event_inter_creator_tell(object ob, string mname, string pname,
 
 void event_player_echo(object ob, string msg)
 {
+  if (!interactive(this_object()))
+    return;
+
   if (ob == this_object())
     return;
 
@@ -392,6 +413,9 @@ void event_player_echo(object ob, string msg)
 
 void event_player_echo_to(object ob, string msg)
 {
+  if (!interactive(this_object()))
+    return;
+
   if (this_object()->query_admin())
     msg = ob->query_cap_name()+" echo to's:\n" + msg;
 
@@ -403,6 +427,9 @@ void event_player_echo_to(object ob, string msg)
 
 void event_player_emote_all(object ob, string msg)
 {
+  if (!interactive(this_object()))
+    return;
+
   if (ob == this_object())
     return;
 

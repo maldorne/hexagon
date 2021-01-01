@@ -1,18 +1,31 @@
+
 #include <living/races.h>
+#include <language.h>
 
 inherit STD_RACE;
 
 void setup()
 {
   set_limbs(0);
-  set_race_size(2);
+  // from 0 (very small) - 5 (human) - 10 (very big)
+  set_body_size(2);
+  set_name(_LANG_RACES_ANIMAL_NAME);
+  set_short(capitalize(_LANG_RACES_ANIMAL_NAME));  
+  set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 
-  set_long("Un animal salvaje.\n");
-  set_name("animal");
-  set_short("Animal");
-  set_light_limits(LHUMANL, LHUMANH);
-
+  // do not allow new players with this race
   set_playable(0);
+}
+
+string query_desc(object ob)
+{
+  return _LANG_RACES_ANIMAL_DESC;
+}
+
+void start_player(object ob) 
+{ 
+  ob->setmin(_LANG_RACES_MSG_IN_SLITHER);
+  ob->setmout(_LANG_RACES_MSG_OUT_SLITHER);
 }
 
 void set_racial_bonuses(object ob)
@@ -20,17 +33,14 @@ void set_racial_bonuses(object ob)
   return;
 }
 
-string query_desc(object ob)
+string * query_initial_languages()
 {
-  return "Un pequeño animal salvaje.\n";
+  return ({ });
 }
 
-string * query_initial_languages(){
-  return ({  });
-}
-
-int query_race_weight(){
-    return HUMAN_W/2;
+int query_race_weight()
+{
+  return STD_WEIGHT/2;
 }
 
 string query_race_gender_string(object player, varargs int flag)
@@ -40,28 +50,23 @@ string query_race_gender_string(object player, varargs int flag)
 
 string * query_locations()
 {
-  return ({"la cabeza","el cuerpo","la cola","una pata",});
+  return ({ _LANG_RACES_LOCATIONS_HEAD, _LANG_RACES_LOCATIONS_BODY, 
+    _LANG_RACES_LOCATIONS_TAIL, _LANG_RACES_LOCATIONS_ANIMAL_LEG });
 }
 
-// Funcion que devuelve datos suficientes para obtener un lugar en el que golpear
-// a un ser de la raza en cuestion.
+// returns enough info to hit in a body location
 mixed obtain_location()
 {
-    float mult; // multiplicador al daño
-    string name; // nombre de la localizacion
+  float mult; // damage multiplier
+  string name; // location name
 
-    switch (random(20)) 
-    {
-      case 0:      mult = 2.0;  name = "la cabeza";   break;
-      case 1..10:  mult = 1.0;  name = "el cuerpo";   break;
-      case 11..12: mult = 0.5;  name = "la cola";     break;
-      case 13..20: mult = 1.0;  name = "una pata";    break;
-    }
+  switch (random(20)) 
+  {
+    case 0:      mult = 2.0; name = _LANG_RACES_LOCATIONS_HEAD; break;
+    case 1..10:  mult = 1.0; name = _LANG_RACES_LOCATIONS_BODY; break;
+    case 11..12: mult = 0.5; name = _LANG_RACES_LOCATIONS_TAIL; break;
+    case 13..20: mult = 1.0; name = _LANG_RACES_LOCATIONS_ANIMAL_LEG; break;
+  }
 
-    /* Devolvemos: 
-     * el multiplicador al daño por golpear en este lugar
-     * el nombre del lugar en el que golpeamos
-     * el tipo de 'cuerpo'
-     */
-    return ({ mult, name, "animal" });
+  return ({ mult, name, _LANG_RACES_ANIMAL_BODY });
 }

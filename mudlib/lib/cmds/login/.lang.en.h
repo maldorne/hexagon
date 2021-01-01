@@ -1,7 +1,8 @@
 
 // finger.c
 
-#define _LANG_FINGER_SYNTAX "finger <name>"
+#define _LANG_FINGER_SYNTAX "Syntax: sfinger <name>"
+#define _LANG_FINGER_HELP "Shows information about a player character."
 #define _LANG_FINGER_NAME "Name"
 #define _LANG_FINGER_ACCOUNT "Account"
 #define _LANG_FINGER_REAL_NAME "Real name"
@@ -11,10 +12,11 @@
 
 // who
 
-#define _LANG_WHO_HELP "Syntax: who\n" + \
+#define _LANG_WHO_SYNTAX "Syntax: who\n" + \
                        "        who coders\n" + \
                        "        who players\n" + \
                        "        who <race or culture>\n"
+#define _LANG_WHO_HELP "Shows a list of the connected characters."
 #define _LANG_WHO_OPTION_CODERS "coders"
 #define _LANG_WHO_OPTION_PLAYERS "players"
 #define _LANG_WHO_REAL_WORLD_DATE "Today is " + ctime(time()) + " in the real world"
@@ -38,12 +40,12 @@
 
 // help
 
-#define _LANG_CMD_HELP "help"
+#define _LANG_CMD_HELP "Syntax: help"
 #define _LANG_CMD_HELP_HELP "Shows the available help for a particular topic."
 
 // characters
 
-#define _LANG_CMD_CHARACTERS "characters"
+#define _LANG_CMD_CHARACTERS "Syntax: characters"
 #define _LANG_CMD_CHARACTERS_HELP "Show every character available in your account."
 #define _LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT "You have the following characters available in your account:\n"
 #define _LANG_CMD_CHARACTERS_NO_LOGIN "You must login first."

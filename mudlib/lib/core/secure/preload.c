@@ -8,6 +8,9 @@ void add_preload(string file)
   if (previous_object() == this_object() ||
       is_administrator(geteuid(initial_object()))) 
   {
+    if (!file_exists(file))
+      return;
+
     if (!sizeof(preload)) 
     {
       preload = ({ file });
@@ -19,7 +22,7 @@ void add_preload(string file)
 
     save_object(SECURE_SAVE_PATH);
   }
-} /* add_preload() */
+}
 
 void remove_preload(string file) {
   int i;
@@ -38,13 +41,16 @@ void remove_preload(string file) {
       }
     }
   }
-} /* remove_preload() */
+}
 
 void add_call_out_preload(string file) 
 {
   if (previous_object() == this_object() ||
       is_administrator(geteuid(initial_object()))) 
   {
+    if (!file_exists(file))
+      return;
+
     if (!sizeof(call_out_preload)) 
     {
       call_out_preload = ({ file });
@@ -56,7 +62,7 @@ void add_call_out_preload(string file)
 
     save_object(SECURE_SAVE_PATH);
   }
-} /* add_call_out_preload() */
+}
 
 void remove_call_out_preload(string file) 
 {
@@ -75,40 +81,38 @@ void remove_call_out_preload(string file)
       }
     }
   }
-} /* remove_call_out_preload() */
+}
 
-string *epilog() 
-{
-  int i;
-
-  // if (!sizeof(preload)) 
-  //   load_secure_object();
-
-  for (i = 0; i < sizeof(call_out_preload); i++)
-    call_out("preload", 2, call_out_preload[i]);
-
-  // Wonderflug 96, Making secure
-  return ( preload ? preload + ({ }) : ({ }) );
-} /* epilog() */
-
-void preload(string file) 
+nomask void _preload(string file) 
 {
   string e;
 
-  stderr(" ~ preloading: "+file+".\n");
+  if (!file_exists(file))
+  {
+    stderr(" ~ preloading: " + file + " (file does not exist).\n");
+    return;
+  }
+
+  stderr(" ~ preloading: " + file + ".\n");
 
   if ((e = catch(load_object(file)->dummy()))) 
     write("      "+e+"\n");
+}
 
-} /* preload() */
-
-void load_secure_object() 
+nomask void load_secure_object() 
 {
   if (!done) 
   {
-    done = 1;
+    int i;
+  
+    done = TRUE;
     seteuid(ROOT);
     restore_object(SECURE_SAVE_PATH);
-    epilog();
+
+    for (i = 0; i < sizeof(preload); i++)
+      call_out("_preload", 0, preload[i]);
+
+    for (i = 0; i < sizeof(call_out_preload); i++)
+      call_out("_preload", 2, call_out_preload[i]);
   }
-} /* load_secure_object() */
+}

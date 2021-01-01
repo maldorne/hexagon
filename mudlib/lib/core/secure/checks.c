@@ -203,7 +203,6 @@ nomask int valid_read(string path, mixed euid, varargs string func)
         return (SECURE->check_permission(euid, bing, READ_MASK));
       if (sizeof(bing) >= 2 && bing[1] == "accounts")
         return (SECURE->check_permission(euid, bing, READ_MASK));
-
       if (sizeof(bing) >= 2 && bing[1] == "post")
         return (euid == MAIL_EUID);
 

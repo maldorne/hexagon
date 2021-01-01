@@ -21,9 +21,11 @@ void setup()
 	position = 1;
 }
 
-string query_short_help()
+string query_help()
 {
-	return "Reemplaza un texto por otro en uno o varios archivos.";
+	return "Syntax: sar -s $<text to look for>$ $<text to exchange with>$ <file(s)>\n" + 
+				 "            -s for silent output\n\n" +
+				 "Exchanges a piece of text with another, in one or multiple files.";
 }
 
 static int cmd(string str, object me, string verb)
@@ -44,7 +46,7 @@ static int cmd(string str, object me, string verb)
 		}
 		else
 		{
-			notify_fail("Sintaxis: sar [-s] $texto a buscar$ $texto nuevo$ <archivo(s)>\n");
+			notify_fail("Syntax: sar [-s] $<text to look for>$ $<text to exchange with>$ <file(s)>\n");
 			return 0;
 		}
 	}
@@ -57,12 +59,12 @@ static int cmd(string str, object me, string verb)
 	
 	if (!sizeof(files))
 	{
-		notify_fail("Archivo(s) " + s3 + " no encontrados.\n");
+		notify_fail("Files(s) " + s3 + " not found.\n");
 		return 0;
 	}
 	
 	if (silent)
-		write("Buscando en los archivos...\n");
+		write("Searching files...\n");
 	
 	for (i = 0; i < sizeof(files); i++)
 	{
@@ -70,7 +72,7 @@ static int cmd(string str, object me, string verb)
 			continue;
 			
 		if (!silent)
-			write("Buscando en el archivo '"+files[i]+"'.\n");
+			write("Searching in file '"+files[i]+"'.\n");
 			
 		s4 = read_file(files[i]);
 		
@@ -81,12 +83,11 @@ static int cmd(string str, object me, string verb)
 			write_file(files[i], s4);
 		}
 		else
-			write("... fallo: El archivo '"+files[i]+"' no se ha podido leer.\n");
+			write("... fail: The file '"+files[i]+"' could not be read.\n");
 	}
 	
 	if (silent)
-		write("\t... terminado.\n");
+		write("\t... finished.\n");
 		
 	return 1;
 }
-

@@ -11,13 +11,23 @@ Set of features we are currently working on.
 |        | **Multi Game** | Finish the multigame features to allow hosting different games in the same server. |
 |        |  | :heavy_minus_sign: Default test area as game example. |
 | :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/houseofmaldorne/hexagon/issues/6)]. |
+| :white_check_mark: |  | :heavy_minus_sign: Deploy simultaneously to both english and spanish servers. |
 |        | **Login** | Some improvements in the login process, pending since the last milestone. |
 |        |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. |
 |        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
 
-## Next milestone: 
+## Next milestones: 
 
 Set of features not yet started, but planned.
+
+### [v21.?? Castle Black]
+
+| Status | Title | Description |
+| :----: | :---- | ----------- |
+|        | **Documentation** | Review and full translation of every `lib/cmds` command. |
+| :white_check_mark: |  | :heavy_minus_sign: Add compatibility and status list in the repository ([done](commands.md)). |
+|        |  | :heavy_minus_sign: Test and translate every command. |
+
 
 ## Previous milestones
 

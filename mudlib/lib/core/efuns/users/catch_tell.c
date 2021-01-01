@@ -11,6 +11,14 @@
 
 void catch_tell( string message )
 {
-  if (interactive(this_object()))
-    this_object()->send_message(message);
+  object destination;
+
+  destination = this_object();
+
+  // do not catch_tell over player objects, use the user object
+  if (destination->query_player())
+    destination = destination->user();
+  
+  if (interactive(destination))
+    destination->send_message(message);
 }

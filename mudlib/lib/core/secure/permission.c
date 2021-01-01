@@ -79,7 +79,7 @@ int check_permission(string euid, string *path, int mask)
     }
   }
   return 0;
-} /* check_perminssion() */
+}
 
 mapping query_permissions() { return permissions + ([ ]); }
 
@@ -97,7 +97,7 @@ int add_permission(string euid, string path, int mask)
     return 1;
   }
   return 0;
-} /* add_permission() */
+}
 
 int add_read_permission(string euid, string path) 
 {
@@ -107,7 +107,7 @@ int add_read_permission(string euid, string path)
     return 1;
   }
   return 0;
-} /* add_read_permission() */
+}
 
 int add_write_permission(string euid, string path) 
 {
@@ -117,7 +117,7 @@ int add_write_permission(string euid, string path)
     return 1;
   }
   return 0;
-} /* add_write_permission() */
+}
 
 int add_grant_permission(string euid, string path) 
 {
@@ -127,7 +127,7 @@ int add_grant_permission(string euid, string path)
     return 1;
   }
   return 0;
-} /* add_grant_permission() */
+}
 
 int remove_permission(string euid, string path, int mask) 
 {
@@ -148,7 +148,7 @@ int remove_permission(string euid, string path, int mask)
     return 1;
   }
   return 0;
-} /* remove_permission() */
+}
 
 int remove_read_permission(string euid, string path) 
 {
@@ -158,7 +158,7 @@ int remove_read_permission(string euid, string path)
     return 1;
   }
   return 0;
-} /* remove_read_permission() */
+}
 
 int remove_write_permission(string euid, string path) 
 {
@@ -168,7 +168,7 @@ int remove_write_permission(string euid, string path)
     return 1;
   }
   return 0;
-} /* remove_write_permission() */
+}
 
 int remove_grant_permission(string euid, string path) 
 {
@@ -178,5 +178,4 @@ int remove_grant_permission(string euid, string path)
     return 1;
   }
   return 0;
-} /* remove_write_permission() */
-
+}

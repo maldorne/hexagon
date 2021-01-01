@@ -4,6 +4,8 @@
 
 #define ADMIN "/lib/areas/admin/"
 
+#include <translations/exits.h>
+
 inherit "/lib/room";
 
 object board;
@@ -35,15 +37,15 @@ void reset()
 void setup() 
 {
   set_light(60);
-  set_short("Habitación común de los programadores");
-  set_long("Esta habitación es en la que los programadores de "+mud_name()+
-        " se reúnen para discutir temas de cualquier tipo concernientes al juego. "+
-        "Utiliza el tablón para poner cualquier nota y dejar tus opiniones sobre "+
-        "cualquier tema de discusión actual, también es tu mud... \n");
+  set_short("Coder's common room");
+  set_long("Here the coders of "+mud_name()+ " " +
+        "meet to talk about anything related to the game. " +
+        "Use the board to leave a note and write yout thoughts about any current issue, " +
+        "it is your mud too... \n");
 
   // add_exit("cc", "/d/ciudad_capital/common", "standard");
-  add_exit("sur", ADMIN + "admin1", "standard");
-  add_exit("norte", ADMIN + "meeting.c", "standard");
+  add_exit(DIR_SOUTH, ADMIN + "admin1", "standard");
+  add_exit(DIR_NORTH, ADMIN + "meeting.c", "standard");
 }
 
 void dest_me() 

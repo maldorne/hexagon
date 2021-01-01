@@ -6,6 +6,7 @@
  */
 
 #include <mud/mudos.h>
+#include <mud/config.h>
 
 inherit hb "/lib/core/heart_beats";
 
@@ -217,7 +218,8 @@ int _call_out(object ob, object player, object user, string func, varargs mixed 
 {
   object old_this_object, old_this_player, old_this_user;
 
-  stderr(" *** coming back from call_out func <" + func + "> on object <" + object_name(ob) + ">\n");
+  if (CONFIG_LOG_CALL_OUTS)
+    stderr(" *** coming back from call_out func <" + func + "> on object <" + object_name(ob) + ">\n");
 
   // stderr(to_string(initial_object()));
   // stderr("object " + to_string(ob));
@@ -233,7 +235,9 @@ int _call_out(object ob, object player, object user, string func, varargs mixed 
   old_this_player = initiator_player;
   old_this_user = initiator_user;
 
-  stderr(" ~~~ mudos::call_out()\n");
+  if (CONFIG_LOG_CALL_OUTS)
+    stderr(" ~~~ mudos::call_out()\n");
+
   // restore the context when the call_out was programmed
   _change_initiator_object(ob);
   _change_initiator_player(player);
@@ -241,7 +245,9 @@ int _call_out(object ob, object player, object user, string func, varargs mixed 
 
   catch(call_other(ob, func, args...));
 
-  stderr(" ~~~ end mudos::call_out()\n");
+  if (CONFIG_LOG_CALL_OUTS)
+    stderr(" ~~~ end mudos::call_out()\n");
+
   // restore current context
   _change_initiator_object(old_this_object);
   _change_initiator_player(old_this_player);

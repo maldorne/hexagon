@@ -87,8 +87,8 @@ void create()
 int unarmed_attack(object def, object att)
 {
   mixed *att_val;
-  mixed danyo;
-  int danyo_absorbido, j, percent;
+  mixed damage;
+  int absorbed_damage, j, percent;
   object * obs;
   
   attacker = att;
@@ -98,16 +98,16 @@ int unarmed_attack(object def, object att)
 
   if (att_val[0] == HIT) 
   {
-    danyo = recalc_damage(att_val[1]);
-    danyo_absorbido = 0;
+    damage = recalc_damage(att_val[1]);
+    absorbed_damage = 0;
 
     // Buscamos el objeto que protege para ver cuanto daño absorbe
-    if (danyo[1] != "")
+    if (damage[1] != "")
     {
       obs = defender->query_worn_ob();
       for (j = 0; j < sizeof(obs); j++)
       {
-        if (obs[j]->query_localization() == danyo[1])
+        if (obs[j]->query_localization() == damage[1])
         {
           // Calculamos cuanto % de daño absorbe la armadura
           if (obs[j]->query_ac() + obs[j]->query_blunt_bon() > 0) 
@@ -117,7 +117,7 @@ int unarmed_attack(object def, object att)
               else
                 percent = (obs[j]->query_ac() + obs[j]->query_blunt_bon())*10;
 
-              danyo_absorbido = danyo[0]*percent/100;
+              absorbed_damage = damage[0]*percent/100;
           }
           break;
         }
@@ -125,9 +125,9 @@ int unarmed_attack(object def, object att)
     }
  
     // Aplicamos el daño definitivo
-    defender->adjust_hp(-(danyo[0] - danyo_absorbido), attacker);
+    defender->adjust_hp(-(damage[0] - absorbed_damage), attacker);
 
-    write_message(danyo[0],danyo[1], attacker, defender);
+    write_message(damage[0],damage[1], attacker, defender);
 
     // Sistema de aprendizaje de estilos desarmados, neverbot 7/03
     num_unarmed_hits++;
@@ -143,7 +143,7 @@ int unarmed_attack(object def, object att)
   {
     if (att_val[0] == DODGE)
     {
-      danyo = ({ 0 });
+      damage = ({ 0 });
       tell_object(attacker,defender->query_cap_name()+" logra esquivar tu ataque.\n");
       tell_object(defender,attacker->query_cap_name()+" intenta golpearte pero logras "+
          "esquivar su ataque.\n");
@@ -154,7 +154,7 @@ int unarmed_attack(object def, object att)
     else
     {
       // att_val[0] == MISS
-      danyo = ({ 0 });
+      damage = ({ 0 });
       tell_object(att,def->query_cap_name()+" logra bloquear tu ataque.\n");
       tell_object(def,att->query_cap_name()+" intenta golpearte pero logras "+
          "bloquear su ataque.\n");
@@ -162,10 +162,10 @@ int unarmed_attack(object def, object att)
          def->query_cap_name()+" pero "+defender->query_demonstrative()+" para el ataque.\n",({att,def}));
     }
   }
-  return danyo[0];
+  return damage[0];
 } /* unarmed_attack */
 
-mixed *workout_attack(string unarmed_type)
+mixed * workout_attack(string unarmed_type)
 {
   string happen;
   int result, attackerwc, defenderac, damage_done;
@@ -549,16 +549,16 @@ mixed *recalc_damage(int i)
 // Sistema de mensajes generalizado con tecnicas, neverbot 4/03
 void write_message(int damage, string local, object att, object defdr)
 {
-  string sitio;
+  string place;
 
   if (!local || local=="") 
-    sitio = "";
+    place = "";
   else 
-    sitio = " en " + local;
+    place = " en " + local;
   
   if (sizeof(messages) != 3)  
     messages = UNARMED_BASE->query_messages(current_unarmed_style, unarmed_ability, att);
-
+  
   if (sizeof(messages) != 3)
   {
     tell_object(att, "Parece que ha habido algún problema con tus técnicas de combate, "+
@@ -569,20 +569,20 @@ void write_message(int damage, string local, object att, object defdr)
   // Si son strings, damos mensajes simples
   if (stringp(messages[0]))
   {
-    tell_object(att, ATT+capitalize(messages[0])+" a "+defdr->query_cap_name()+sitio+".\n");  
-    tell_object(defdr, DFF+att->query_cap_name()+" "+messages[1]+sitio+".\n");
+    tell_object(att, ATT+capitalize(messages[0])+" a "+defdr->query_cap_name()+place+".\n");  
+    tell_object(defdr, DFF+att->query_cap_name()+" "+messages[1]+place+".\n");
     tell_room(environment(att),att->query_cap_name()+" "+messages[2]+" a "+defdr->query_cap_name()+
-        sitio+".\n",({att,defdr}));
+        place+".\n",({att,defdr}));
   }
   else // cada elemento de messages es a su vez una lista de mensajes
   {
     int i;
     i = random(sizeof(messages[0]));
 
-    tell_object(att, ATT+capitalize(messages[0][i])+" a "+defdr->query_cap_name()+sitio+".\n");  
-    tell_object(defdr, DFF+att->query_cap_name()+" "+messages[1][i]+sitio+".\n");
+    tell_object(att, ATT+capitalize(messages[0][i])+" a "+defdr->query_cap_name()+place+".\n");  
+    tell_object(defdr, DFF+att->query_cap_name()+" "+messages[1][i]+place+".\n");
     tell_room(environment(att),att->query_cap_name()+" "+messages[2][i]+" a "+defdr->query_cap_name()+
-        sitio+".\n", ({att, defdr}));      
+        place+".\n", ({att, defdr}));      
   }
   
   return;
