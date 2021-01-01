@@ -2,7 +2,7 @@
 
 inherit "/lib/item.c";
 
-#include <living/language.h>
+#include <translations/language.h>
 
 void setup()
 {

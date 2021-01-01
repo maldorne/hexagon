@@ -8,6 +8,7 @@
 
 /* this one also contians info on read_messages... */
 #include <basic/communicate.h>
+#include <translations/language.h>
 
 static mixed *read_mess;
 static int max_size, cur_size;

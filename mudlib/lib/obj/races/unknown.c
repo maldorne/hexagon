@@ -2,7 +2,7 @@
 // New races for Cc, neverbot 4/2003
 
 #include <living/races.h>
-#include <living/language.h>
+#include <translations/language.h>
 #include <translations/races.h>
 #include <language.h>
 

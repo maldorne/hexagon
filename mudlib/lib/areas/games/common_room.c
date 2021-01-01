@@ -10,7 +10,7 @@
 
 inherit "/lib/room.c";
 
-#include <mud/translations.h>
+#include <translations/exits.h>
 #include <areas/common.h>
 
 string game_name;

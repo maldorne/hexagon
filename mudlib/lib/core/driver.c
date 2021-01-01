@@ -11,9 +11,7 @@
 #include <living/living.h>
 #include <user/terminal.h>
 #include <mud/secure.h>
-#include <mud/config.h>
 #include <mud/translations.h>
-
 
 // ************************************************************
 //  Function prototypes

@@ -3,7 +3,7 @@
 // based in ccmudlib human, by neverbot 4/2003
 
 #include <living/races.h>
-#include <living/language.h>
+#include <translations/language.h>
 #include <language.h>
 
 inherit STD_RACE;
