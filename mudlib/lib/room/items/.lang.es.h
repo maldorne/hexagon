@@ -21,7 +21,7 @@
 
 #define _LANG_DOOR_OPEN_ALREADY "La puerta hacia " + dest + " ya está abierta.\n"
 #define _LANG_DOOR_OPEN_ALREADY_KNOWN "La puerta " + dest + " ya está abierta.\n"
-#define _LANG_DOOR_OPEN_ALREADY_CUSTOM capitalize(((!number) ? query_article() : query_article_plural()) + \ 
+#define _LANG_DOOR_OPEN_ALREADY_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) + \
                                   " " + dest + ((!number) ? (" ya está abiert" + query_vocal()) : \
                                                             (" ya están abiert" + query_vocal() + "s"))
 
@@ -70,7 +70,7 @@
 
 #define _LANG_DOOR_CLOSED_ALREADY "La puerta hacia " + dest + " ya está cerrada.\n"
 #define _LANG_DOOR_CLOSED_ALREADY_KNOWN "La puerta " + dest + " ya está cerrada.\n"
-#define _LANG_DOOR_CLOSED_ALREADY_CUSTOM capitalize(((!number) ? query_article() : query_article_plural()) + \ 
+#define _LANG_DOOR_CLOSED_ALREADY_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) + \
                                   " " + dest + ((!number) ? (" ya está cerrad" + query_vocal()) : \
                                                             (" ya están cerrad" + query_vocal() + "s"))
 
@@ -92,7 +92,7 @@
 #define _LANG_DOOR_BREAKS "La puerta hacia " + dest + " se rompe en mil pedazos.\n"
 #define _LANG_DOOR_BREAKS_KNOWN "La puerta " + dest + " se rompe en mil pedazos.\n"
 #define _LANG_DOOR_BREAKS_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) + \
-                                   " " + dest + " se rompe"+((!number)?(""):("n"))+" en mil pedazos.\n";
+                                   " " + dest + " se rompe" + ((!number) ? "" : "n")+" en mil pedazos.\n"
 
 #define _LANG_DOOR_HEALTH_STATUSES ({ "En perfecto estado", "Un poco estropeada", \
                                    "No está en buen estado", "En mal estado", \
