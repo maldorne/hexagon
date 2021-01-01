@@ -48,6 +48,7 @@ Common calls and operations over the basic types.
 | `filter`                | :white_check_mark: |  |
 | `filter_array`          | :white_check_mark: |  |
 | **mappings**            |  |  |
+| `m_sizeof`              | :white_check_mark: | alias for `map_sizeof` |
 | `values`                | :white_check_mark: | alias for `map_values` |
 | `keys`                  | :white_check_mark: | alias for `map_indices` |
 | `map_delete`            | :white_check_mark: |  |

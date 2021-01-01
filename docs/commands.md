@@ -94,9 +94,9 @@ List of commands available to every player, depending of its user type/role (`pl
 | peace        |          |          |    |    |
 | resistencias |          |          |    |    |
 | restore      |          |          |    |    |
-| rm           |          |          |    |    |
+| rm           | :white_check_mark: | :white_check_mark: |    |    |
 | rmdir        |          |          |    |    |
-| sar          |          |          |    |    |
+| sar          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | tail         | :white_check_mark: | :white_check_mark: |    |    |
 | uptime       | :white_check_mark: | :white_check_mark: |    |    |
 | visible      |          |          |    |    |
