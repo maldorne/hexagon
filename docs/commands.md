@@ -91,7 +91,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | multi        |          |          |    |    |
 | mv           |          |          |    |    |
 | nls          |          |          |    |    |
-| peace        |          |          |    |    |
+| peace        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | resistencias |          |          |    |    |
 | restore      |          |          |    |    |
 | rm           | :white_check_mark: | :white_check_mark: |    |    |

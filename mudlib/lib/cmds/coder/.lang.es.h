@@ -47,3 +47,11 @@
 #define _LANG_COMPARE_INVALID_WHICH "Valor inválido para -<which_file>.\n\nOpciones:\n" + \
       "-1 para file1\n-2 para file2\n-3 o ningún valor para ambos\n"
 #define _LANG_COMPARE_NOT_A_FILE "No es un archivo: "
+
+// peace
+
+#define _LANG_PEACE_MESSAGES_MINE "Alzas tu mano y exclamas: " + \
+      "%^YELLOW%^¡Dejad de luchar, mortales!%^RESET%^\n"
+#define _LANG_PEACE_MESSAGES_OTHERS this_player()->query_cap_name() + \
+        " alza su mano y exclama: %^YELLOW%^¡Dejad de luchar, mortales!" + \
+        "%^RESET%^\n"

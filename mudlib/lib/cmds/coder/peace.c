@@ -1,9 +1,15 @@
-// qatt del antiguo domain_communicator. 
-// Hecho comando por neverbot 2001
+// qatt from the old domain_communicator. 
+// cmds-ized by neverbot 2001
 
 #include <mud/cmd.h>
+#include <language.h>
 
 inherit CMD_BASE;
+
+string query_help() 
+{
+  return "Syntax: immediately stops current combats in your environment.";
+}
 
 static int cmd(string str, object me, string verb) 
 {
@@ -35,11 +41,7 @@ static int cmd(string str, object me, string verb)
     }
   }
 
-  tell_object(this_player(),"Alzas tu mano y exclamas: "+
-      "%^YELLOW%^¡Dejad de luchar, mortales!%^RESET%^\n");
-  
-  tell_room(environment(this_player()), this_player()->query_cap_name()+
-        " alza su mano y exclama: %^YELLOW%^¡Dejad de luchar, mortales!"+ 
-        "%^RESET%^\n", ({this_player()}));
+  tell_object(this_player(), _LANG_PEACE_MESSAGES_MINE);
+  tell_room(environment(this_player()), _LANG_PEACE_MESSAGES_OTHERS, ({ this_player() }));
   return 1;
 }
