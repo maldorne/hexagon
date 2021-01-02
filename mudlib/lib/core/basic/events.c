@@ -2,7 +2,7 @@
 #include <common/properties.h>
 #include <basic/communicate.h>
 #include <user/user.h>
-
+#include <translations/language.h>
 
 void create()
 {
@@ -171,7 +171,7 @@ void event_person_say(object ob, string start, string msg, string lang, int spea
       return;
   }
   // else
-  if (lang != "comun")
+  if (lang != STD_LANG)
     start = start[0..strlen(start)-3]+" en "+lang+": ";
 
   if (ob == this_object())
@@ -220,7 +220,7 @@ void event_person_tell(object ob, string start, string msg, string lang)
       return;
   }
   // else
-  if (lang != "comun")
+  if (lang != STD_LANG)
     start = start[0..strlen(start)-3]+" en "+lang+": ";
 
   /* The following block of code was added to tell players that the target
@@ -298,10 +298,10 @@ void event_person_whisper(object ob, string start, string msg,
       return;
   }
   // else
-  // if (lang != "comun")
+  // if (lang != STD_LANG)
   //   start = start[0..strlen(start)-3]+" en "+lang+": ";
   // else {
-  if (lang != "comun")
+  if (lang != STD_LANG)
     oblue = " en "+lang+": ";
   else
     // if (!stringp(oblue))
@@ -361,7 +361,7 @@ void event_person_shout(object ob, string start, string msg, string lang)
       return;
   }
   // else
-  if (lang != "comun")
+  if (lang != STD_LANG)
     start = start[0..strlen(start)-3]+" en "+lang+": ";
 
   tmp = start + msg;

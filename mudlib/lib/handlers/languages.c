@@ -11,14 +11,16 @@
  */
 
 #include <basic/communicate.h>
+#include <translations/language.h>
 
 
 mapping languages;
 
-void create() {
+void create()
+{
   languages = 
   ([
-    "comun" :         ({ L_SPOKEN|L_WRITTEN|L_DISTANCE, LANGUAGES_PATH+"common", 10 }),
+    STD_LANG :        ({ L_SPOKEN|L_WRITTEN|L_DISTANCE, LANGUAGES_PATH+"common", 10 }),
     "thieves' cant" : ({ L_SPOKEN, LANGUAGES_PATH+"cant", 100 }),
     "grunt" :         ({ L_SPOKEN, LANGUAGES_PATH+"grunt", 100 }),
     "wizard spells" : ({ L_WRITTEN|L_MAGIC|L_SIZED, LANGUAGES_PATH+"wizard_lang", 100 }),
@@ -50,20 +52,23 @@ void create() {
   ]);
 } /* create() */
 
-int query_language_spoken(string str) {
+int query_language_spoken(string str)
+{
   if (!languages[str])
     return 0;
   return languages[str][0]&L_SPOKEN;
 } /* query_language_spoken() */
 
-int query_language_written(string str) {
+int query_language_written(string str)
+{
   if (!languages[str])
     return 0;
   return languages[str][0]&L_WRITTEN;
 } /* query_language_written() */
 
 /* Distance languages can be used with tell and shout */
-int query_language_distance(string str) {
+int query_language_distance(string str)
+{
   if (!languages[str])
     return 0;
   return languages[str][0]&L_DISTANCE;
@@ -75,20 +80,23 @@ int query_language_distance(string str) {
  * spells are written in.
  *
  */
-int query_language_magic(string str) {
+int query_language_magic(string str)
+{
   if (!languages[str])
     return 0;
   return languages[str][0]&L_MAGIC;
 } /* query_language_magic() */
 
-int query_language_size(string str) {
+int query_language_size(string str)
+{
   if (!languages[str])
     return 0;
   return languages[str][2];
 } /* query_language_size() */
 
 /* This is called to resize the text if it doesnt fit... */
-mixed squidge_text(string lang, mixed str, int size) {
+mixed squidge_text(string lang, mixed str, int size)
+{
   if (!languages[lang])
     return 0; /* Don't add it... */
   if (!(languages[lang][0]&L_MAGIC))
@@ -96,26 +104,31 @@ mixed squidge_text(string lang, mixed str, int size) {
   return (mixed)languages[lang][1]->squidge_text(str, size);
 } /* squish_text() */
 
-int add_language(string name, int flags, mixed ob, int size) {
+int add_language(string name, int flags, mixed ob, int size)
+{
   languages[name] = ({ flags, ob, size });
 } /* add_language() */
 
-int query_flags(string name) {
+int query_flags(string name)
+{
   if (!languages[name])
     return 0;
   return languages[name][0];
 } /* query_flags() */
 
-mixed query_garble_object(string name) {
+mixed query_garble_object(string name)
+{
   if (!languages[name])
     return 0;
   return languages[name][1];
 } /* query_garble_object() */
 
-string *query_languages() {
+string *query_languages()
+{
   return m_indices(languages);
 } /* query_languages() */
 
-int test_language(string str) {
+int test_language(string str)
+{
   return pointerp(languages[str]);
 } /* test_language() */
