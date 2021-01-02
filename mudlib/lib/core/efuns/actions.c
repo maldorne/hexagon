@@ -51,12 +51,12 @@ nomask void add_private_action(string function, mixed verbs)
     _private_actions[verbs] = function;
 }
 
-nomask int action_exist(string verb)
-{
-  if (_actions[verb])
-    return 1;
-  return 0;
-}
+// nomask int action_exist(string verb)
+// {
+//   if (_actions[verb])
+//     return 1;
+//   return 0;
+// }
 
 nomask string query_action(string verb)
 {
