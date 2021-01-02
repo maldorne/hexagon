@@ -1,10 +1,10 @@
 
-// Codigo extraido de monster.c, neverbot 04/2009
+// code taken from monster.c, neverbot 04/2009
 
 #include <npc/npc.h>
 
 mixed *chat_string,    /* ({ ({ int chances }), ({ chat strings }) }) */
-    *achat_string;     /* ({ ({ int chances }), ({ chat strings }) }) */
+      *achat_string;   /* ({ ({ int chances }), ({ chat strings }) }) */
 int chat_chance,       /* Chance of chatting any given round */
     achat_chance,      /* Chance of doing an attack chat any round */    
     in_talk;           /* So stuff I say doesn't get catch_talk'd */
@@ -26,7 +26,7 @@ void create()
   in_talk = 0;    
 }
 
-void load_chat(int chance, string *c_s)
+void load_chat(int chance, mixed * c_s)
 {
   int i;
   for (i = 0; i < sizeof(c_s); i+=2)
@@ -62,17 +62,17 @@ void remove_chat_string(mixed chat)
   int i;
 
   if (pointerp(chat))
-      for (i = 0; i < sizeof(chat); i++)
-          remove_chat_string(chat[i]);
+    for (i = 0; i < sizeof(chat); i++)
+      remove_chat_string(chat[i]);
   else
-      if ((i = member_array(chat, chat_string[1])) != -1)
-      {
-        chat_string[0] -= chat_string[1][i-1];
-        chat_string[1] = delete(chat_string[1], i-1, 2);
-      }
+    if ((i = member_array(chat, chat_string[1])) != -1)
+    {
+      chat_string[0] -= chat_string[1][i-1];
+      chat_string[1] = delete(chat_string[1], i-1, 2);
+    }
 }
 
-void load_a_chat(int chance, string *c_s) 
+void load_a_chat(int chance, mixed * c_s) 
 {
   int i;
   for (i = 0; i < sizeof(c_s); i+=2)
@@ -93,14 +93,14 @@ void add_achat_string(mixed weight, mixed chat)
   int i;
 
   if (pointerp(weight))
-      for (i=0;i<sizeof(weight);i+=2)
-          add_achat_string(weight[i], weight[i+1]);
+    for (i=0;i<sizeof(weight);i+=2)
+      add_achat_string(weight[i], weight[i+1]);
   else
-      if (member_array(chat, achat_string[1]) == -1)
-      {
-        achat_string[1] += ({ chat });
-        achat_string[0] += weight;
-      }
+    if (member_array(chat, achat_string[1]) == -1)
+    {
+      achat_string[1] += ({ chat });
+      achat_string[0] += weight;
+    }
 }
 
 void remove_achat_string(mixed chat) 
@@ -108,14 +108,14 @@ void remove_achat_string(mixed chat)
   int i;
 
   if (pointerp(chat))
-      for ( i = 0; i < sizeof(chat); i++)
+    for ( i = 0; i < sizeof(chat); i++)
       remove_achat_string(chat[i]);
   else
-      if ((i = member_array(chat, achat_string[1])) != -1)
-      {
-        achat_string[0] -= achat_string[1][i-1];
-        achat_string[1] = delete(achat_string[1], i-1, 1);
-      }
+    if ((i = member_array(chat, achat_string[1])) != -1)
+    {
+      achat_string[0] -= achat_string[1][i-1];
+      achat_string[1] = delete(achat_string[1], i-1, 1);
+    }
 }
 
 void expand_mon_string(string str)
@@ -163,7 +163,7 @@ void remove_talk_string(string cat)
  {
   int i;
 
-  if ((i=member_array(cat, talk_string)) == -1)
+  if ((i = member_array(cat, talk_string)) == -1)
     return ;
   talk_string = delete(talk_string, i, 2);
 }
