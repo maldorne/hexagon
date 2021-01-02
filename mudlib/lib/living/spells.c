@@ -52,10 +52,10 @@ void create()
 
 void spell_commands()
 {
-  add_action("show_spells",  "hechizos");
-  add_action("show_spheres", "esferas");
-  add_action("show_schools", "escuelas");
-  add_action("cast",         "formular");
+  add_private_action("show_spells",  "hechizos");
+  add_private_action("show_spheres", "esferas");
+  add_private_action("show_schools", "escuelas");
+  add_private_action("cast",         "formular");
 }
 
 /*  Si el hechizo tiene una funcion help(), imprimira el string que se

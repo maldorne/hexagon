@@ -75,8 +75,8 @@ void feats_commands()
   string * pieces;
   string aux;
 
-  add_action("list_feats", "dotes");
-  add_action("list_feats", "habilidades");
+  add_private_action("list_feats", "dotes");
+  add_private_action("list_feats", "habilidades");
   
   for (i = 0; i < sizeof(known_feats); i++) 
   {
@@ -98,19 +98,19 @@ void feats_commands()
     if (!objectp(feat_ob))
       continue;
     
-    // Importante: si la dote es de varias palabras, el add_action es
+    // Importante: si la dote es de varias palabras, el add_private_action es
     // unicamente sobre la primera, cuando ejecutemos el comando
     // tendremos que comprobar si las siguientes tambien se corresponden
     
     pieces = explode(known_feats[i], " ");
     
-    add_action("do_feat", pieces[0]);
+    add_private_action("do_feat", pieces[0]);
 
     // Tambien damos la accion sin acentos ni otros simbolos
     if ((aux = FEATS_TABLE->feat_translate_to_action(pieces[0])) != "")
-      add_action("do_feat", aux);
+      add_private_action("do_feat", aux);
     
-    // tell_object(find_living("folken"), "[FEAT] add_action(do_feat, "+pieces[0]+")\n");
+    // tell_object(find_living("folken"), "[FEAT] add_private_action(do_feat, "+pieces[0]+")\n");
   }
 }
 

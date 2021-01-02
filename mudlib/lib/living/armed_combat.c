@@ -43,8 +43,8 @@ mapping query_known_weapon_masteries();
 
 void armed_combat_commands()
 {
-    add_action("do_weapon_masteries", "maestrias");
-    add_action("do_weapon_masteries", "maestrías");
+  add_private_action("do_weapon_masteries", "maestrias");
+  add_private_action("do_weapon_masteries", "maestrías");
 }
 
 void create()

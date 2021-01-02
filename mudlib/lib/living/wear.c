@@ -65,12 +65,12 @@ void create()
 
 void wear_commands()
 {
-  add_action("do_wear",   "ponerse");
-  add_action("do_wear",   "ponerme");
-  add_action("do_wear",   "vestir");
-  add_action("do_unwear", "desvestir");
-  add_action("do_unwear", "quitarse");
-  add_action("do_unwear", "quitarme");
+  add_private_action("do_wear",   "ponerse");
+  add_private_action("do_wear",   "ponerme");
+  add_private_action("do_wear",   "vestir");
+  add_private_action("do_unwear", "desvestir");
+  add_private_action("do_unwear", "quitarse");
+  add_private_action("do_unwear", "quitarme");
 }
 
 object * query_worn_ob(varargs int type)

@@ -674,7 +674,7 @@ nomask int action_check(string str)
   if (!strlen(str))
     return 0;
 
-  // this is ridiculous.  MudOS will not show these strings as equal.
+  // this is ridiculous. MudOS will not show these strings as equal.
   if ( str == command_in_progress )
     return 0;
 
@@ -739,26 +739,22 @@ nomask int action_check(string str)
       print_object(actionq);
       return 1;
 
-    case "actions":
-      {
-        object * targets;
-        mapping actions;
-        int i;
+    // case "actions":
+    //   {
+    //     object * targets;
+    //     mapping actions;
+    //     int i;
 
-        targets = ({ this_object()->query_role(),
-                     this_object()->query_account(),
-                     environment(this_object()) }) +
-                     all_inventory(environment(this_object())) +
-                     all_inventory(this_object());
-        actions = ([ ]);
+    //     targets = targets(this_object());
+    //     actions = ([ ]);
 
-        for (i = 0; i < sizeof(targets); i++)
-          if (targets[i])
-            actions += targets[i]->query_actions();
+    //     for (i = 0; i < sizeof(targets); i++)
+    //       if (targets[i])
+    //         actions[base_name(targets[i])] = targets[i]->query_actions();
 
-        print_object(actions);
-      }
-      return 1;
+    //     print_object(actions);
+    //   }
+    //   return 1;
   }
 
   if ( query_heart_beat() == 0 )

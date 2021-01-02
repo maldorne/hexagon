@@ -13,8 +13,8 @@
 // neverbot starts: 12/10/03
 
 int social_points, max_social_points;
-string *languages,
-cur_lang;
+    string *languages,
+    cur_lang;
 
 static int social_hb_num; // heart_beat counter
 
@@ -23,31 +23,28 @@ string drunk_speech(string str);
 
 void communicate_commands() 
 {
-  // add_action("do_say","say");
-  add_action("do_say", "decir");
+  // add_private_action("do_say","say");
+  add_private_action("do_say", "decir");
 
-  // add_action("do_loud_say", "lsay");
-  // add_action("do_loud_say", "ldecir");
+  add_private_action("do_tell", "tell");
 
-  add_action("do_tell", "tell");
+  // add_private_action("do_whisper", "whisper");
+  add_private_action("do_whisper", "susurrar");
 
-  // add_action("do_whisper", "whisper");
-  add_action("do_whisper", "susurrar");
-
-  // add_action("set_language", "speak");
-  add_action("set_language", "hablar");
+  // add_private_action("set_language", "speak");
+  add_private_action("set_language", "hablar");
 
   // deactivated for a while
-  // add_action("do_emote", ({ "emote", "emocion"}));
+  // add_private_action("do_emote", ({ "emote", "emocion"}));
 
-  // add_action("do_shout", "shout");
-  add_action("do_shout", "gritar");
+  // add_private_action("do_shout", "shout");
+  add_private_action("do_shout", "gritar");
 
-  add_action("do_channels", "emergencia");
-  add_action("do_channels", "gremio");
-  add_action("do_channels", "clan");
-  add_action("do_channels", "aventurero");
-  add_action("do_channels", "raza");
+  add_private_action("do_channels", "emergencia");
+  add_private_action("do_channels", "gremio");
+  add_private_action("do_channels", "clan");
+  add_private_action("do_channels", "aventurero");
+  add_private_action("do_channels", "raza");
 } 
 
 // neverbot 6/03
@@ -186,10 +183,6 @@ int do_say(string arg, varargs int no_echo)
 {
   string word;
 
-  // neverbot, 16/10/03
-  if (this_player() && (this_object() != this_player()) ) 
-    return 0;
-
   // Taniwha, sanity/ no debug errors
   if (!environment(this_object()))
   {
@@ -206,7 +199,7 @@ int do_say(string arg, varargs int no_echo)
   }
    
   // neverbot
-  if (!cur_lang || (cur_lang == ""))
+  if (!strlen(cur_lang))
   {
     notify_fail("Debes seleccionar un idioma para hablar.\n");
     return 0;
@@ -217,6 +210,7 @@ int do_say(string arg, varargs int no_echo)
     notify_fail(capitalize(cur_lang)+" no es un lenguaje hablado.\n");
     return 0;
   }
+
   word = query_word_type(arg);
   
   if (this_object()->query_volume(D_ALCOHOL))
@@ -238,51 +232,10 @@ int do_say(string arg, varargs int no_echo)
   return 1;
 } 
 
-/*
-// Esto suele dar problemas porque los programadores no suelen recordar que hay
-// varias formas de hablar. Eliminamos el lsay y asi nos eliminamos esos problemas
-// neverbot 10/03
-
-int do_loud_say(string arg){
-    string word;
-
-    if (!arg) 
-  arg = "";
-    if (arg == "" || arg == " ") {
-  notify_fail("Sintaxis: ldecir <algo>\n");
-  return 0;
-    }
-    if (!LANGUAGE_HANDLER->query_language_spoken(cur_lang)) {
-  notify_fail(capitalize(cur_lang)+" no es un lenguaje hablado.\n");
-  return 0;
-    }
-
-    // neverbot, 16/10/03
-    if ((!this_object()) || (this_player() && (this_object() != this_player()) ) ){
-      return 0;
-    }
-
-    word = query_word_type(arg); 
-    if (this_object()->query_volume(D_ALCOHOL))
-  arg = drunk_speech(arg);
-    event(environment(), "person_say", this_object()->query_cap_name()+
-      " " + word + " en alto: ", 
-      arg, cur_lang);
-    if (cur_lang != "comun") word += " en "+cur_lang;
-    my_mess(capitalize(word) + "s en alto: ", arg);
-    this_player()->adjust_time_left(-5);
-    return 1;
-}
-*/
-
 int do_tell(string arg, varargs object ob, int silent) 
 {
-    string str, rest, word;
+  string str, rest, word;
   // string person, mud;
-
-  // neverbot, 16/10/03
-  if (this_player() && (this_object() != this_player()) ) 
-      return 0;
 
   if (!strlen(arg) && !ob) 
   {
@@ -393,10 +346,6 @@ int do_whisper(string str)
   string s, s2, *bits;
   int i;
 
-  // neverbot, 16/10/03
-  if (this_player() && (this_object() != this_player()) )
-    return 0;
-
   if (!strlen(str))
   {
     notify_fail("Sintaxis: susurrar [a] <persona> <texto>\n");
@@ -470,18 +419,11 @@ int do_emote(string arg)
 {
   string str;
 
-  /* my_file_name extraida de aqui para ponerla en player.c
-     PENDIENTE: Comprobar emotes, ahora cualquier puede hacerlos
-      (sin quest ni nada de eso :) 
-  if (my_file_name=="/global/player"&&!this_player()->query_property("emote")) {
+  if (!this_object()->query_coder() && !this_player()->query_property("emote"))
+  {
     notify_fail(NOT_ALLOWED);
     return 0;
   }
-  */
-
-  // neverbot, 16/10/03
-  if (this_player() && (this_object() != this_player()) )
-    return 0;
  
   if (!strlen(arg))
     arg = "";
@@ -518,10 +460,6 @@ int do_shout(string str)
   string s1, s;
   object* usrs;
   usrs = users();
-
-  // neverbot, 16/10/03
-  if (this_player() && (this_object() != this_player()) )
-    return 0;
 
   if (!strlen(str)) 
   {
@@ -712,7 +650,7 @@ int set_language(string str)
 
   if (!strlen(str))
   {
-    if (!cur_lang || (cur_lang == ""))
+    if (!strlen(cur_lang))
       res = "Debes seleccionar un idioma para hablar.\n";
     else
       res = "Ahora hablas en '" + cur_lang + "'.\n";
@@ -770,10 +708,10 @@ string * query_languages()
 int query_known_language(string lang)
 {
   if (!lang) 
-    return(0);
+    return 0;
   if (member_array(lang,languages) != -1) 
-    return(1);
-  return(0);
+    return 1;
+  return 0;
 }
 
 mixed stats() 

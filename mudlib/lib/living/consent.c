@@ -12,7 +12,7 @@ void create()
 
 void consent_commands() 
 { 
-  add_action("change_consent", "consentir"); 
+  add_private_action("change_consent", "consentir"); 
 }
 
 mixed query_valid_consents() { return CONSENT_TYPES; }

@@ -17,9 +17,9 @@
 
 void handle_commands()
 {
-  add_action("do_take", _LANG_HANDLE_GET_VERBS);
-  add_action("do_give", _LANG_HANDLE_GIVE_VERBS);
-  add_action("do_drop", _LANG_HANDLE_DROP_VERBS);
+  add_private_action("do_take", _LANG_HANDLE_GET_VERBS);
+  add_private_action("do_give", _LANG_HANDLE_GIVE_VERBS);
+  add_private_action("do_drop", _LANG_HANDLE_DROP_VERBS);
 }
 
 void create()

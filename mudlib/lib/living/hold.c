@@ -61,12 +61,12 @@ void create()
 
 void hold_commands() 
 {
-  add_action("do_hold",   "empunyar");
-  add_action("do_hold",   "empuñar");
-  add_action("do_hold",   "sostener");
-  add_action("do_unhold", "desempunyar");
-  add_action("do_unhold", "desempuñar");
-  add_action("do_unhold", "soltar");
+  add_private_action("do_hold",   "empunyar");
+  add_private_action("do_hold",   "empuñar");
+  add_private_action("do_hold",   "sostener");
+  add_private_action("do_unhold", "desempunyar");
+  add_private_action("do_unhold", "desempuñar");
+  add_private_action("do_unhold", "soltar");
 }
 
 // Support functions for the rest of the player object.

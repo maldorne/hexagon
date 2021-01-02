@@ -3,11 +3,19 @@
 
 // actions available
 static mapping _actions;
+// actions that can only be activated by the same object
+static mapping _private_actions;
 
-mapping query_actions()
+nomask mapping query_actions()
 {
   if (!_actions)
     _actions = ([ ]);
+  if (!_private_actions)
+    _private_actions = ([ ]);
+
+  if (this_player() && (this_object() == this_player()))
+    return _actions + _private_actions;
+
   return _actions;
 }
 
@@ -27,6 +35,22 @@ nomask void add_action(string function, mixed verbs)
     _actions[verbs] = function;
 }
 
+nomask void add_private_action(string function, mixed verbs)
+{
+  if (!_private_actions)
+    _private_actions = ([ ]);
+
+  if (arrayp(verbs))
+  {
+    int i;
+
+    for (i = 0; i < sizeof(verbs); i++)
+      _private_actions[verbs[i]] = function;
+  }
+  else if (stringp(verbs))
+    _private_actions[verbs] = function;
+}
+
 nomask int action_exist(string verb)
 {
   if (_actions[verb])
@@ -38,6 +62,10 @@ nomask string query_action(string verb)
 {
   if (!_actions)
     _actions = ([ ]);
+
+  if (this_player() && (this_object() == this_player()))
+    if (!undefinedp(_private_actions[verb]))
+      return _private_actions[verb];
 
   return _actions[verb];
 }
@@ -52,6 +80,42 @@ static nomask void notify_fail(string str)
   MUDOS->set_notify_fail_msg(str);
 }
 
+// returns the list of every object where inputs from object ob
+// will search for available actions
+nomask object * targets(varargs object ob)
+{
+  object user;
+  object * targets;
+  object env;
+
+  targets = ({ });
+  user = ob->user();
+
+  // priority for looking actions
+  // first, the user object (our connection)
+  // account commands, etc
+  if (user)
+    targets += ({ user });
+
+  // our role (user privileges)
+  if (user && user->query_role())
+    targets += ({ user->query_role() });
+
+  // second, our own player ob
+  targets += ({ ob });
+
+  // third, our environment and other items in there
+  if (env = environment(ob))
+    targets += ({ env }) +
+               all_inventory(env) -
+               ({ ob });
+
+  // last, our inventory
+  targets += all_inventory(ob);
+
+  return targets;
+}
+
 // Execute 'action' for the object this_object() as a command (matching against
 // add_actions and such).  The object must have called enable_commands() for
 // this to have any effect.
@@ -64,7 +128,6 @@ int command(string action)
   string * words;
   string verb, params;
   object * targets;
-  object env;
   object user;
   int i, found;
 
@@ -82,31 +145,8 @@ int command(string action)
   else
     params = "";
 
-  targets = ({ });
+  targets = targets(this_object());
   found = FALSE;
-  user = this_object()->user();
-
-  // priority for looking actions
-  // first, the user object (our connection)
-  // account commands, etc
-  if (user)
-    targets += ({ user });
-
-  // our role (user privileges)
-  if (user && user->query_role())
-    targets += ({ user->query_role() });
-
-  // second, our own player ob
-  targets += ({ this_object() });
-
-  // third, our environment and other items in there
-  if (env = environment(this_object()))
-    targets += ({ env }) +
-               all_inventory(env) -
-               ({ this_object() });
-
-  // last, our inventory
-  targets += all_inventory(this_object());
 
   stderr(" * command targets <" + to_string(targets) + ">\n");
 
@@ -154,7 +194,6 @@ int command(string action)
 mixed ** commands(varargs object ob)
 {
   object * targets;
-  object user;
   mapping actions;
   string * verbs;
   mixed ** result;
@@ -164,21 +203,7 @@ mixed ** commands(varargs object ob)
     ob = this_object();
 
   result = ({ });
-  targets = ({ });
-  user = ob->user();
-
-  if (user)
-    targets += ({ user });
-
-  if (user && user->query_role())
-    targets += ({ user->query_role() });
-
-  if (environment(ob))
-    targets += ({ environment(ob) }) +
-                  all_inventory(environment(ob));
-
-  targets += all_inventory(ob);
-
+  targets = targets(ob);
   actions = ([ ]);
 
   for (i = 0; i < sizeof(targets); i++)

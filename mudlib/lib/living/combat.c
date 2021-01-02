@@ -60,10 +60,10 @@ int query_is_moving() { return is_moving; }
 
 void combat_commands() 
 {
-  add_action("do_protect", "proteger");
-  add_action("do_unprotect", "desproteger");
-  add_action("do_combat_role", "actitud");
-  add_action("do_combat_mode", "combate");
+  add_private_action("do_protect", "proteger");
+  add_private_action("do_unprotect", "desproteger");
+  add_private_action("do_combat_role", "actitud");
+  add_private_action("do_combat_mode", "combate");
 
   armed_combat_commands();
   unarmed_combat_commands();
