@@ -19,6 +19,8 @@ nomask mapping query_actions()
   return _actions;
 }
 
+// these actions can be activated from the same object, 
+// other objects in the same environment, etc
 nomask void add_action(string function, mixed verbs)
 {
   if (!_actions)
@@ -35,6 +37,7 @@ nomask void add_action(string function, mixed verbs)
     _actions[verbs] = function;
 }
 
+// these actions can be activated only  from the same object
 nomask void add_private_action(string function, mixed verbs)
 {
   if (!_private_actions)
