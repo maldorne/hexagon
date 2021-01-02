@@ -243,7 +243,7 @@ void set_exit_color(string which)
   exit_color = ROOM_HAND->exit_string_color(which);
 }
 
-void add_clone( string the_file, int how_many, varargs int flags)
+void add_clone(string the_file, int how_many, varargs int flags)
 {
   // if ( !how_many ) how_many = 1;
   if ( !how_many )
@@ -266,8 +266,11 @@ void add_clone( string the_file, int how_many, varargs int flags)
     // make space for objects in array
     room_clones += ({ 0 });
   }
-  // last, for backward processing.
-  if (flags) room_clones += ({ flags });
+  
+  // last, for backward processing
+  if (flags)
+    room_clones += ({ flags });
+
   room_clones += ({ the_file });
 }
 

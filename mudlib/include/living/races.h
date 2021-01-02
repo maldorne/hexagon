@@ -2,6 +2,7 @@
 #define STD_RACE    "/lib/race.c"
 #define STD_CULTURE "/lib/culture.c"
 #define VALID_RACES_PATHS  ({ "/lib/obj/races/" })
+#define DEFAULT_RACE_OB "/lib/obj/races/unknown.c" 
 
 // old light_defs.h
 #define L_B_H 1000

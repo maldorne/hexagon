@@ -15,6 +15,8 @@ Set of features we are currently working on.
 |        | **Login** | Some improvements in the login process, pending since the last milestone. |
 |        |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. |
 |        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
+| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib` |
+| :white_check_mark: |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 
 ## Next milestones: 
 
@@ -66,5 +68,5 @@ After version 19.05, we started working with milestones, prior to that, we only 
 | :white_check_mark: |  | :heavy_minus_sign: **living** to `/lib/living/living.c`. |
 | :white_check_mark: |  | :heavy_minus_sign: **player** to `/lib/player.c` (avatar in-game handling) and `/lib/user.c` (user account, connection, input and output) |
 | :white_check_mark: |  | :heavy_minus_sign: **item** to `/lib/item.c`. |
-|         :x:        |  | :heavy_minus_sign: **monster** to `/lib/npc.c` |
+|         :x:        |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 | :white_check_mark: | **Migrations** | User migrations to update user data. |
