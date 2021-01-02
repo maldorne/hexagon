@@ -95,11 +95,11 @@ void dest_me()
       destruct(obs[i]);
 
   // if this object is a user, do not destruct it right now,
-  // just flag it and it will be destroyed at the end of the next receive_message
+  // just flag it and it will be destroyed after processing everything
   if (this_object()->query_user() && 
       query_ip_number(this_object()))
   {
-    this_object()->postpone_destruction();
+    call_out("dwep", 0);
   }
   else
     destruct(this_object());
@@ -112,7 +112,8 @@ void dest_me()
  */
 nomask mixed dwep()
 {
-  ::destruct(this_object());
+  destruct(this_object());
+  // ::destruct(this_object());
   return "Destruct With Extreme Prejuce";
 }
 

@@ -892,7 +892,6 @@ void create_player2()
   // even this save_me will print messages
   _player->save_me();
 
-
   begin(!query_property(GUEST_PROP));
 }
 

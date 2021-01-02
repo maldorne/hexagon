@@ -43,13 +43,6 @@ string hud;
 static int save_counter;  // each reset counter
 static int last_command;  // time of last command
 
-private int _destruct_after_msg; // easy way of postponing destruction of this object
-static void postpone_destruction()
-{ 
-  // TODO check only a user can destruct itself
-  _destruct_after_msg = TRUE; 
-}
-
 // TMP DEBUG, REMOVE!!!
 // string query_name() { return "neverbot"; }
 // string short(varargs int dark) { return "neverbot"; }
@@ -100,8 +93,6 @@ void create()
   redirect_input_function = "";
   redirect_input_args     = ({ });
 
-  _destruct_after_msg = FALSE;
-
   // the player object will have the heart_beat
   // if (clonep(this_object()))
   //   set_heart_beat(1);
@@ -130,9 +121,8 @@ nomask int query_timestamp() { return timestamp; }
 
 void dest_me()
 {
-  if (_player) {
+  if (_player)
     catch(_player->dest_me());
-  }
 
   // remove the user from the user handler
   if (clonep(this_object()))
@@ -355,11 +345,6 @@ static void receive_message(string str)
     stderr(" ~~~ end user::receive_message()\n");
     MUDOS->set_initiator_user(nil);
     MUDOS->set_initiator_object(nil);
-
-    // postponing the destruction of the user object, so we can
-    // be sure that the previous initiator functions had been called
-    if (_destruct_after_msg)
-      destruct(this_object());
 
   } // rlimits
 }

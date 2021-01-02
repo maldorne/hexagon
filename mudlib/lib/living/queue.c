@@ -118,6 +118,8 @@ void debug_resetq() { actionq = ({ }); }
 /* debug of course */
 int query_bits_per_beat() { return 10; }
 
+string query_command_in_progress() { return command_in_progress; }
+
 // string query_verb()
 // {
 //   if ( strlen(temp_verb) > 0)

@@ -723,9 +723,6 @@ int trans(string str)
   object *obs;
   int i;
 
-  if (this_player(1) != this_object()->query_player())
-    return 0;
-
   if (!strlen(str) || !(sizeof(obs = wiz_present(str, this_player()))))
   {
     write("¿Transportar a quién?\n");
