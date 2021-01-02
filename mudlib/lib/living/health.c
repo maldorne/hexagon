@@ -77,9 +77,12 @@ int set_wimpy(int i)
 {
   int j;
   j = this_object()->query_property(FEAR_PROP);
-  if (i < j) i = j;
-  if (i <0 || i > 100)
+
+  if (i < j) 
+    i = j;
+  if (i < 0 || i > 100)
     return -1;
+  
   return (wimpy = i);
 }
 

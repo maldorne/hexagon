@@ -56,7 +56,7 @@ void event_say(object caller, string msg, varargs mixed avoid)
 
 void event_inform(object caller, string msg, string type, varargs mixed avoid)
 {
-  string * on;
+  mixed on;
 
   if (!interactive(this_object()))
     return;
@@ -72,9 +72,9 @@ void event_inform(object caller, string msg, string type, varargs mixed avoid)
       return;
   }
 
-  on = (string *)this_object()->query_property(INFORM_PROP);
+  on = this_object()->query_property(INFORM_PROP);
 
-  if (!on)
+  if (!on || !arrayp(on))
     on = ({ });
 
   if (this_object()->query_property(NO_INFORM) ||

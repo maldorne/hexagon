@@ -285,7 +285,7 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   object from_where;
   from_where = environment();
 
-  if (!from_where)
+  if (!from_where && query_property("clonedin"))
     from_where = find_player(query_property("clonedin"));
 
   if (environment() )

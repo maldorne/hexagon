@@ -104,6 +104,8 @@ mixed query_old_property(string str)
     return 0;
   if (!map_prop)
     map_prop = ([ ]);
+  if (undefinedp(map_prop[str]))
+    return 0;
   return map_prop[str];
 }
 
@@ -114,6 +116,8 @@ mixed query_static_property(string str)
     return 0;
   if (!static_map_prop)
     static_map_prop = ([ ]);
+  if (undefinedp(static_map_prop[str]))
+    return 0;
   return static_map_prop[str];
 }
 
