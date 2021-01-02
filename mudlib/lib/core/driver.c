@@ -146,6 +146,12 @@ static nomask void write(string str)
 
 static nomask void inform_user(string str, int message_type)
 {
+  // if there is a problem during user disconnection, this_player does not
+  // exist anymore and we can have an "Error within runtime_error" 
+  // message... we do not want that
+  if (!this_player())
+    return;
+
   if (this_player()->query_coder())
     write(str);
 
