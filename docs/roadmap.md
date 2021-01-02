@@ -15,7 +15,7 @@ Set of features we are currently working on.
 |        | **Login** | Some improvements in the login process, pending since the last milestone. |
 |        |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/houseofmaldorne/hexagon/issues/4)]. |
 |        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
-| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib` |
+| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib`, some files pending review since the [v19.05](https://github.com/houseofmaldorne/hexagon/tree/19.05) milestone. |
 | :white_check_mark: |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 
 ## Next milestones: 
