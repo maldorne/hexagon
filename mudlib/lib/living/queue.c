@@ -22,6 +22,7 @@
  */
 
 #include <living/queue.h>
+#include <translations/exits.h>
 #include <mud/cmd.h>
 #include <kernel.h>
 #include <language.h>
