@@ -15,6 +15,9 @@ void catch_tell( string message )
 
   destination = this_object();
 
+  // if (!destination)
+  //   return;
+
   // do not catch_tell over player objects, use the user object
   if (destination->query_player())
     destination = destination->user();

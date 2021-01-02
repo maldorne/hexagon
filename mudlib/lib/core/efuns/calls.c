@@ -5,7 +5,10 @@ static nomask mixed call_other(mixed obj, string func, mixed args...)
 {
   object * shadows;
 
-  if (!obj || !objectp(obj))
+  if (!stringp(obj) && !objectp(obj))
+    return nil;
+
+  if (stringp(obj))
     return ::call_other(obj, func, args...);
 
   // ::call_other(DRIVER, "log_driver", " - masked call_other: <" +

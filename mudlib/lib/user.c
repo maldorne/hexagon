@@ -43,6 +43,13 @@ string hud;
 static int save_counter;  // each reset counter
 static int last_command;  // time of last command
 
+private int _destruct_after_msg; // easy way of postponing destruction of this object
+static void postpone_destruction()
+{ 
+  // TODO check only a user can destruct itself
+  _destruct_after_msg = TRUE; 
+}
+
 // TMP DEBUG, REMOVE!!!
 // string query_name() { return "neverbot"; }
 // string short(varargs int dark) { return "neverbot"; }
@@ -92,6 +99,8 @@ void create()
   redirect_input_ob       = nil;
   redirect_input_function = "";
   redirect_input_args     = ({ });
+
+  _destruct_after_msg = FALSE;
 
   // the player object will have the heart_beat
   // if (clonep(this_object()))
@@ -184,12 +193,10 @@ static void open()
 }
 
 // called from the driver
-static void close(mixed arg)
+static void close(int flag) 
 {
-  // use tell_object insted of write, the reason of the disconnection
-  // could be in a different user (ie: a reconnection)
-  tell_object(this_object(), _LANG_DISCONNECTED);
-  // write(_LANG_DISCONNECTED);
+  // if (flag) 
+  catch_tell(_LANG_DISCONNECTED);
 }
 
 nomask void save_me()
@@ -348,6 +355,11 @@ static void receive_message(string str)
     stderr(" ~~~ end user::receive_message()\n");
     MUDOS->set_initiator_user(nil);
     MUDOS->set_initiator_object(nil);
+
+    // postponing the destruction of the user object, so we can
+    // be sure that the previous initiator functions had been called
+    if (_destruct_after_msg)
+      destruct(this_object());
 
   } // rlimits
 }

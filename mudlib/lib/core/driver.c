@@ -100,6 +100,7 @@ nomask void _stderr(string str)
   if (!str)
     return;
 
+  // when called from the driver object, it will print in the stderr
   send_message(str);
 }
 

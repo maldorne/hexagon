@@ -345,8 +345,9 @@ private int aq_add( mixed val )
   action_forcedq += ({ aq_determine_forced() });
 
   // Hack so monster's HB's are started if they do something.
-  if ( !(this_object()->query_player())
-    && !query_heart_beat() )
+  if ( !(this_object()->query_player()) && 
+       !(this_object()->query_user()) &&
+       !query_heart_beat() )
     set_heart_beat(1);
 
   return AQ_OK;
@@ -561,13 +562,6 @@ private int perform_next_action()
       }
     }
 
-    // the object destructed itself
-    if (!this_object())
-    {
-      actionq = ({ });
-      return 0;
-    }
-
     // restore previous notify_fail message
     // (might have change during the execution of the action)
     MUDOS->set_notify_fail_msg(old_notify_fail);
@@ -580,6 +574,13 @@ private int perform_next_action()
     MUDOS->set_initiator_object(old_this_player);
 
     command_in_progress = "";
+
+    // the object destructed itself
+    if (!this_object())
+    {
+      actionq = ({ });
+      return 0;
+    }
   }
   else
   {

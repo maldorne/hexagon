@@ -94,7 +94,15 @@ void dest_me()
     if ( obs[i] )
       destruct(obs[i]);
 
-  destruct(this_object());
+  // if this object is a user, do not destruct it right now,
+  // just flag it and it will be destroyed at the end of the next receive_message
+  if (this_object()->query_user() && 
+      query_ip_number(this_object()))
+  {
+    this_object()->postpone_destruction();
+  }
+  else
+    destruct(this_object());
 }
 
 /* Do not I repeat do not mask this function.
