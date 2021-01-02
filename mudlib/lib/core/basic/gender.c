@@ -1,9 +1,11 @@
 /*
- * Retocado por neverbot@Cc, Abril 04
+ * Edited by neverbot@Cc, Apr 04
  *
- * Dejado gender 0 unicamente para los objetos (y unicamente cuando no haya
- *  sido definido su genero).
+ * gender 0 only for items (and only by default if no other gender has been set).
+ * this is needed for languages different than english
  */
+
+#include <language.h>
 
 int gender;
 
@@ -26,11 +28,9 @@ string query_gender_string()
 {
   switch (gender)
   {
-    // case 0: return "asexual";
-    case 1: return "varón";
-    case 2: return "mujer";
-    // case 3: return "bisexual";
-    default: return "varón";
+    case 2: return _LANG_GENDER_FEMALE;
+    default:
+    case 1: return _LANG_GENDER_MALE;
   }
 }
 
@@ -38,9 +38,9 @@ string query_gender_title()
 {
   switch (gender)
   {
-    case 1: return "señor";
-    case 2: return "señora";
-    default: return "ente";
+    case 2: return _LANG_GENDER_TITLE_FEMALE;
+    default:
+    case 1: return _LANG_GENDER_TITLE_MALE;
   }
 }
 
@@ -48,99 +48,101 @@ string query_objective()
 {
   switch (gender)
   {
-    case 1: return "el";
-    case 2: return "ella";
-    default: return "el";
+    case 2: return _LANG_GENDER_OBJECTIVE_FEMALE;
+    case 1: return _LANG_GENDER_OBJECTIVE_MALE;
+    default: return _LANG_GENDER_OBJECTIVE_NEUTRAL;
   }
 }
 
 string query_possessive()
 {
-  return "su";
-  /*
-  switch (gender) {
-    case 1: return "su";
-    case 2: return "su";
-    default: return "su";
+  switch (gender)
+  {
+    case 2: return _LANG_GENDER_POSSESSIVE_FEMALE;
+    case 1: return _LANG_GENDER_POSSESSIVE_MALE;
+    default: return _LANG_GENDER_POSSESSIVE_NEUTRAL;
   }
-  */
 }
 
 string query_pronoun()
 {
   switch (gender)
   {
-    case 1: return "él";
-    case 2: return "ella";
-    default: return "él";
+    case 1: return _LANG_GENDER_PRONOUN_MALE;
+    case 2: return _LANG_GENDER_PRONOUN_FEMALE;
+    default: return _LANG_GENDER_PRONOUN_NEUTRAL;
   }
 }
 
 // Bugfix by Aragorn 22/1/94
-// Cambiado por neverbot, solo puede recibir int.
+// change by neverbot, can only receive an int.
 void set_gender(int arg)
 {
-  // Añadido para el genero de los objetos (espero que no
-  // se use en mas sitios!!)
+  // added for gender in objects 
   if (arg == 0)
   {
-    // if (interactive(this_object())){
+    // if (interactive(this_object()))
     if (living(this_object()))
-    {
-      write("No se puede hacer eso (género ilegal).\n");
       return;
-    }
 
     gender = 0;
     return;
   }
 
-  if (arg < 1)
+  if (arg <= 1)
     gender = 1;
-  else if (arg > 2)
+  else if (arg >= 2)
     gender = 2;
-  else
-    gender = arg;
+  // else
+  //   gender = arg;
 }
 
 string query_article()
 {
-  if (gender == 2) return "la";
-  return "el";
+  if (gender == 2)
+    return _LANG_GENDER_ARTICLE_FEMALE;
+  return _LANG_GENDER_ARTICLE_MALE;
 }
 
 string query_article_plural()
 {
-  if (gender == 2) return "las";
-  return "los";
+  if (gender == 2)
+    return _LANG_GENDER_ARTICLE_PLURAL_FEMALE;
+  return _LANG_GENDER_ARTICLE_PLURAL_MALE;
 }
 
 string query_numeral()
 {
-   if (gender == 1) return "un";
-   return "una";
+   if (gender == 2)
+    return _LANG_GENDER_NUMERAL_FEMALE;
+   return _LANG_GENDER_NUMERAL_MALE;
 }
 
 string query_numeral_plural()
 {
-   if (gender == 1) return "unos";
-   return "unas";
+   if (gender == 2)
+    return _LANG_GENDER_NUMERAL_PLURAL_FEMALE;
+   return _LANG_GENDER_NUMERAL_PLURAL_MALE;
 }
 
+// makes sense for languages with gender in sustantives
+// not used in english
 string query_vocal()
 {
-   if (gender == 1) return "o";
-   return "a";
+   if (gender == 2)
+    return _LANG_GENDER_VOCAL_FEMALE;
+   return _LANG_GENDER_VOCAL_MALE;
 }
 
 // neverbot, 7/03
 string query_demonstrative()
 {
-   if (gender == 1) return "este";
-   return "esta";
+   if (gender == 2)
+    return _LANG_GENDER_DEMONSTRATIVE_FEMALE;
+   return _LANG_GENDER_DEMONSTRATIVE_MALE;
 }
 
 mixed stats()
 {
-  return ({ ({"Gender", gender, }), });
+  return ({ ({ "Gender", gender, }), });
 }

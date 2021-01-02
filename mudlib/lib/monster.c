@@ -251,7 +251,7 @@ string long(string str, int dark)
   // the article ("human" instead of "the human")
   if (ob = load_object(this_object()->query_race_ob()))
     if (ob->query_race_gender_string(this_object(), 1) != "")
-      s += capitalize(query_pronoun())+" es "+query_numeral()+ " " +
+      s += capitalize(query_pronoun()) + _LANG_RACES_IS + query_numeral()+ " " +
            ob->query_race_gender_string(this_object(), 1) + ".\n";
 
   // s += capitalize(query_pronoun())+" "+health_string(0)+".\n";

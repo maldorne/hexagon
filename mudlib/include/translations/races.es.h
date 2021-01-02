@@ -1,4 +1,6 @@
 
+#define _LANG_RACES_IS " es "
+
 // move messages
 
 #define _LANG_RACES_MSG_IN_STD "@$N llega desde $F."
