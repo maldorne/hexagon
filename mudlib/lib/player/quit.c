@@ -85,7 +85,7 @@ int really_quit()
   if (environment(this_object()))
   {
     ob = deep_inventory(this_object());
-    for(i = 0; i < sizeof(ob); i++)
+    for (i = 0; i < sizeof(ob); i++)
     {
       if (ob[i]->query_no_save_object())
       {
