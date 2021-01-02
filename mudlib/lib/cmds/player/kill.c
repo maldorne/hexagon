@@ -1,5 +1,6 @@
 
-/* kill command from player.c externalized by Baldrick.
+/* 
+ * kill command from player.c externalized by Baldrick.
  */
 
 #include <mud/cmd.h>
@@ -30,7 +31,7 @@ static int cmd (string str, object me, string verb)
   // list[string "singular"] = ({ int cuantos, string "plural", })
   mapping list;
   string *res;
-  string mess;
+  mixed mess;
 
   list = ([ ]);
   res = ({ });

@@ -1,4 +1,4 @@
-// discard.c traduccion neverbot 01/01
+// discard.c translated by neverbot 01/01
 
 #include <mud/cmd.h>
 
@@ -9,7 +9,7 @@ void setup()
   position = 1;
 }
 
-/* This is for querying about objects who don't want to be destructed */
+// This is for querying about objects who don't want to be destructed
 static object discard_obj;
 
 static int cmd(string str, object me, string verb) 
@@ -20,24 +20,32 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str)) 
   {
-    notify_fail("¿Descartar el qué?\n");
+    notify_fail("Discard what?\n");
     return 0;
   }
 
   file_names = get_files(str);
 
-  for(loop = 0; loop < sizeof(file_names); loop++) 
+  if (!sizeof(file_names))
+  {
+    notify_fail("File " + str + " cannot be found.\n");
+    return 0;
+  }
+
+  for (loop = 0; loop < sizeof(file_names); loop++) 
   {
     str = file_names[loop];
     discard_obj = find_object(str);
 
     if (!discard_obj) 
     {
-      if (file_size(str) < 0) 
-        notify_fail("No existe el fichero " + str + "\n");
+      if (file_size(str) < 0)
+      {
+        write("File " + str + " does not exist.\n");
+      }
       else 
       {
-        tell_object(me, str + " no esta cargado.\n");
+        tell_object(me, str + "is not loaded.\n");
       }
       continue;
     }

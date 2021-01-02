@@ -2,6 +2,7 @@
 // Comando que muestra un mapa de la zona actual, neverbot@CcMud, 02/2010
 
 #include <mud/cmd.h>
+#include <translations/exits.h>
 
 inherit CMD_BASE;
 
@@ -63,13 +64,13 @@ private int query_room_type(object room, object player)
     else if (inv[i]->query_guard() && (inv[i]->query_citizenship() == player->query_citizenship()))
       return GUARD_ROOM;
   
-  if ((member_array("dentro", room->query_direc()) != -1) ||
-    (member_array("fuera", room->query_direc()) != -1))
+  if ((member_array(DIR_IN, room->query_direc()) != -1) ||
+    (member_array(DIR_OUT, room->query_direc()) != -1))
     return DOOR_ROOM;
 
-  if (member_array("arriba", room->query_direc()) != -1)
+  if (member_array(DIR_UP, room->query_direc()) != -1)
     return UP_ROOM;
-  if (member_array("abajo", room->query_direc()) != -1)
+  if (member_array(DIR_DOWN, room->query_direc()) != -1)
     return DOWN_ROOM;
   if (room->query_coast())
     return COAST_ROOM;
@@ -140,7 +141,7 @@ static int cmd (string str, object me, string verb)
 
       switch (dest_dir[i])
       {
-        case "sur":        
+        case DIR_SOUTH:        
           // Si aun no nos salimos del mapa
           if (current[POSITION_Y_COORD] + 1 < MAX_Y)
             map[current[POSITION_Y_COORD]+1][current[POSITION_X_COORD]] = VERTICAL_EXIT;
@@ -151,7 +152,7 @@ static int cmd (string str, object me, string verb)
             y = current[POSITION_Y_COORD]+2;
           }
           break;
-        case "norte":
+        case DIR_NORTH:
           // Si aun no nos salimos del mapa
           if (current[POSITION_Y_COORD] - 1 >= 0)
             map[current[POSITION_Y_COORD]-1][current[POSITION_X_COORD]] = VERTICAL_EXIT;
@@ -162,7 +163,7 @@ static int cmd (string str, object me, string verb)
             y = current[POSITION_Y_COORD]-2;
           }
           break;
-        case "este":
+        case DIR_EAST:
           // Si aun no nos salimos del mapa
           if (current[POSITION_X_COORD] + 1 < MAX_X)
             map[current[POSITION_Y_COORD]][current[POSITION_X_COORD]+1] = HORIZONTAL_EXIT;
@@ -173,7 +174,7 @@ static int cmd (string str, object me, string verb)
             y = current[POSITION_Y_COORD];
           }
           break;
-        case "oeste":
+        case DIR_WEST:
           // Si aun no nos salimos del mapa
           if (current[POSITION_X_COORD] - 1 >= 0)
             map[current[POSITION_Y_COORD]][current[POSITION_X_COORD]-1] = HORIZONTAL_EXIT;
@@ -184,7 +185,7 @@ static int cmd (string str, object me, string verb)
             y = current[POSITION_Y_COORD];
           }
           break;
-        case "noroeste":
+        case DIR_NORTHWEST:
           // Si aun no nos salimos del mapa
           if ((current[POSITION_X_COORD] - 1 >= 0) && (current[POSITION_Y_COORD] - 1 >= 0))
             map[current[POSITION_Y_COORD]-1][current[POSITION_X_COORD]-1] = BACKSLASH_EXIT;
@@ -195,7 +196,7 @@ static int cmd (string str, object me, string verb)
             y = current[POSITION_Y_COORD]-2;
           }
           break;
-        case "noreste":
+        case DIR_NORTHEAST:
           // Si aun no nos salimos del mapa
           if ((current[POSITION_X_COORD] + 1 < MAX_X) && (current[POSITION_Y_COORD] - 1 >= 0))
             map[current[POSITION_Y_COORD]-1][current[POSITION_X_COORD]+1] = SLASH_EXIT;
@@ -206,7 +207,7 @@ static int cmd (string str, object me, string verb)
             y = current[POSITION_Y_COORD]-2;
           }
           break;
-        case "sudoeste":
+        case DIR_SOUTHWEST:
           // Si aun no nos salimos del mapa
           if ((current[POSITION_X_COORD] - 1 >= 0) && (current[POSITION_Y_COORD] + 1 < MAX_Y))
             map[current[POSITION_Y_COORD]+1][current[POSITION_X_COORD]-1] = SLASH_EXIT;
@@ -217,7 +218,7 @@ static int cmd (string str, object me, string verb)
             y = current[POSITION_Y_COORD]+2;
           }
           break;
-        case "sudeste":
+        case DIR_SOUTHEAST:
           // Si aun no nos salimos del mapa
           if ((current[POSITION_X_COORD] + 1 < MAX_X) && (current[POSITION_Y_COORD] + 1 < MAX_Y))
             map[current[POSITION_Y_COORD]+1][current[POSITION_X_COORD]+1] = BACKSLASH_EXIT;
