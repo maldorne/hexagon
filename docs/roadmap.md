@@ -7,7 +7,7 @@ Set of features we are currently working on.
 | Status | Title | Description |
 | :----: | :---- | ----------- |
 | :white_check_mark: | **Product Identity** | Logo and banner for the `readme.md` home document [[#5](https://github.com/houseofmaldorne/hexagon/issues/5)]. |
-|        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command. |
+|        | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command [[#9](https://github.com/houseofmaldorne/hexagon/issues/9)]. |
 |        | **Multi Game** | Finish the multigame features to allow hosting different games in the same server. |
 |        |  | :heavy_minus_sign: Default test area as game example. |
 | :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/houseofmaldorne/hexagon/issues/6)]. |
@@ -22,7 +22,7 @@ Set of features we are currently working on.
 
 Set of features not yet started, but planned.
 
-### [v21.?? Castle Black]
+### [v21.03 Castle Black](https://github.com/houseofmaldorne/hexagon/milestone/3)
 
 | Status | Title | Description |
 | :----: | :---- | ----------- |
