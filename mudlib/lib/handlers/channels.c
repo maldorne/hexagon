@@ -62,11 +62,11 @@ int open_channel(string channel, object ob)
   return 1;
 }
 
-void init_player_channels(string *chans, object player) 
+void init_player_channels(mixed chans, object player) 
 {
   int i;
 
-  if (nullp(chans))
+  if (undefinedp(chans) || !arrayp(chans))
     chans = ({ });
 
   for (i = 0; i < sizeof(chans); i++) 
