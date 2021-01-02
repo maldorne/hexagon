@@ -129,24 +129,35 @@ void expand_mon_string(string str)
 
   switch( str[0] )
   {
-    case '\'' : 
-        str = "decir " + str[1..]; break;
+    // case '\'' : 
+    //   str = "decir " + str[1..]; break;
     // case '\"' : 
     //  str = "lsay " + str[1..<1]; break;
+    
+    case '\'' : 
+      // let's try a new way... do not queue command just for chatting
+      this_object()->do_say(str[1..]);
+      special = 1;
+      break;
+    
     case ':'  :
-        tell_room(environment(this_object()), this_object()->query_cap_name() + " " +
-                (string)MONSTER_HAND->expand_string(this_object(), str[1..], 0, 0) + "\n");
-        special = 1;
-        break;
+      str = this_object()->query_cap_name() + " " +
+              (string)MONSTER_HAND->expand_string(this_object(), str[1..]) + "\n";
+      tell_room(environment(this_object()), str, ({ this_object() }));
+      special = 1;
+      break;
+    
     case '@':
-            tell_room(environment(this_object()), str[1..]+"\n", this_object());
-            special = 1;
-            break;            
+      tell_room(environment(this_object()), str[1..] + "\n", this_object());
+      special = 1;
+      break;            
+    
     case '#'  :
-        call_other(this_object(), str[1..]);
-        special = 1;
-        break;
+      call_other(this_object(), str[1..]);
+      special = 1;
+      break;
   }
+
   if (!special) 
     this_object()->queue_action(str);
 }
