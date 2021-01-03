@@ -5,7 +5,7 @@
 /* Grimbrand wrote some mean nasty additions Jan 1996. */
 /* yes... the code needs optimized.  I'm lazy, what can I say? */
 /* Hamlet added ident stuff, Jan 1996 */
-/* Radix changed virtual_file_name to simul real_file_name, Jan 22, 1996 */
+/* Radix changed virtual_file_name to simul base_name, Jan 22, 1996 */
 
 #include <standard.h>
 #include <cmd.h>
@@ -41,7 +41,7 @@ protected int cmd(string str, object me, string verb) {
     else
       info[(i*4)+2]   = query_ip_name(players[i]);
     if(environment(players[i]))
-      info[(i*4)+3] = real_file_name(environment(players[i]));
+      info[(i*4)+3] = base_name(environment(players[i]));
     else
       info[(i*4)+3] = "No environment";
   }

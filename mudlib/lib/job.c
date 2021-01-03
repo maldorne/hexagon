@@ -104,7 +104,7 @@ void new_levels(int lvl, object ob)
             if (interactive(ob))
                 secure_log_file("jobs", "[" + ctime(time(),4) + "] " + 
 					ob->query_cap_name() + 
-                    " sube "+gps+" pgs ("+real_file_name(this_object())+") "+
+                    " sube "+gps+" pgs ("+base_name(this_object())+") "+
 					"(a nivel "+(ob->query_job_level()+lvl)+").\n");
         }
     }

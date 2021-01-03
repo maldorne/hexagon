@@ -180,7 +180,7 @@ void log_death(string filename, object attacker)
 	}
 
 #ifdef COMMON_SAVE	
-	log_file("common/npcs/"+implode(explode(real_file_name(this_object()), "/"), "_") + "_log", log);	
+	log_file("common/npcs/"+implode(explode(base_name(this_object()), "/"), "_") + "_log", log);	
 #else	
 	write_file(filename, log);	
 #endif
