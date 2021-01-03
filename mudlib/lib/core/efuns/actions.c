@@ -1,5 +1,6 @@
 
 #include <kernel.h>
+#include <mud/translations.h>
 
 // actions available
 static mapping _actions;
@@ -169,7 +170,7 @@ int command(string action)
       {
         stderr(" * command: wrong action function for <" + func + "> in " +
                object_name(targets[i]) + "\n   " + err + "\n");
-        write("Se ha producido un error.\n");
+        write(_LANG_ERROR_HAPPENED);
         notify_fail("");
       }
       // should not happen?
