@@ -17,9 +17,9 @@ nomask string runtime_error(string error, int caught, int ticks)
     return nil;
 
   if (LOG_FULL_TRACE)
-    return show_trace();
+    return error + ", trace:\n" + show_trace();
   else
-    return last_call();
+    return error + ", in:\n" + last_call();
 }
 
 string atomic_error(string error, int atom, mixed **trace)
