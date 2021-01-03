@@ -167,17 +167,22 @@ int command(string action)
       err = catch(result = call_other(targets[i], func, params));
 
       if (err)
-      {
-        stderr(" * command: wrong action function for <" + func + "> in " +
-               object_name(targets[i]) + "\n   " + err + "\n");
+      { 
+        stderr(" * error in action function <" + func + "> in " +
+               object_name(targets[i]) + ":\n   " + err + "\n");
+      
+        if (this_player() && this_player()->query_coder()) 
+          write("Error in action function <" + func + ">: " + err + "\n");
+
         write(_LANG_ERROR_HAPPENED);
         notify_fail("");
       }
-      // should not happen?
-      // else if (result == nil)
-      // {
-      // }
-      else if (result) // function executed
+      else if (result == nil)
+      {
+        stderr(" * action function <" + func + "> does not exist in " +
+               object_name(targets[i]) + "\n");
+      }
+      else if (result) // function executed, result != 0
       {
         found = TRUE;
         break;
