@@ -161,19 +161,22 @@ int command(string action)
     if ((!error) && (func != nil))
     {
       mixed result;
-      result = call_other(targets[i], func, params);
+      string err;
 
-      if (result == nil)
+      err = catch(result = call_other(targets[i], func, params));
+
+      if (err)
       {
+        stderr(" * command: wrong action function for <" + func + "> in " +
+               object_name(targets[i]) + "\n   " + err + "\n");
         write("Se ha producido un error.\n");
         notify_fail("");
-        stderr(" * command: wrong action function for <" + func + "> in " +
-               object_name(targets[i]) + "\n");
-        // stderr("   -> " + error + "\n");
       }
-
-      // function executed
-      if (result)
+      // should not happen?
+      // else if (result == nil)
+      // {
+      // }
+      else if (result) // function executed
       {
         found = TRUE;
         break;

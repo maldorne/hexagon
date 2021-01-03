@@ -6,7 +6,10 @@ static nomask mixed call_other(mixed obj, string func, mixed args...)
   object * shadows;
 
   if (!stringp(obj) && !objectp(obj))
+  {
+    error("illegal call_other on <" + object_name(this_object()) + ">, target object not provided.");
     return nil;
+  }
 
   if (stringp(obj))
     return ::call_other(obj, func, args...);
