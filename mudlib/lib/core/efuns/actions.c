@@ -1,6 +1,7 @@
 
 #include <kernel.h>
 #include <mud/translations.h>
+#include <mud/config.h>
 
 // actions available
 static mapping _actions;
@@ -162,20 +163,34 @@ int command(string action)
     if ((!error) && (func != nil))
     {
       mixed result;
-      string err;
 
-      err = catch(result = call_other(targets[i], func, params));
+      error = catch(result = call_other(targets[i], func, params));
 
-      if (err)
+      if (error)
       { 
-        stderr(" * error in action function <" + func + "> in " +
-               object_name(targets[i]) + ":\n   " + err + "\n");
-      
-        if (this_player() && this_player()->query_coder()) 
-          write("Error in action function <" + func + ">: " + err + "\n");
+        if (LOG_CAUGHT_ERRORS)
+        {
+          // this will appear in the stderr just after the call trace
+          stderr(" * error in action function <" + func + "> in " +
+                 object_name(targets[i]) + "\n");
+        }
+        else
+        {
+          // print some information about the error anyways (won't have
+          // the full call trace)
+          stderr(" * error in action function <" + func + "> in " +
+                 object_name(targets[i]) + ":\n   " + error + "\n");
+        
+          // inform the coder, the error has been caught so the driver
+          // won't inform about anything
+          if (this_player() && this_player()->query_coder()) 
+            write("Error in action function <" + func + ">: " + error + "\n");
 
-        write(_LANG_ERROR_HAPPENED);
-        notify_fail("");
+          write(_LANG_ERROR_HAPPENED);
+        }
+
+        MUDOS->set_notify_fail_msg("");
+        break;
       }
       else if (result == nil)
       {

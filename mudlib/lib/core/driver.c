@@ -162,9 +162,13 @@ static nomask void inform_user(string str, int message_type)
 
       write(_LANG_ERROR_HAPPENED);
 
-      if (strlen(mudos->query_current_command()))
+      // if we are executing a command, the queue will
+      // print the necessary information
+      if (!strlen(mudos->query_current_command()))
+      {
         write(_LANG_DIDNT_WORK);
-      this_player()->show_prompt("\n");
+        this_user()->write_prompt();
+      }
 
       break;
 

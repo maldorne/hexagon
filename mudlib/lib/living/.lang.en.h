@@ -1,7 +1,7 @@
 
 // queue
 
-#define _LANG_DIDNT_WORK "The attempt of doing '%^RED%^" + \
+#define _LANG_QUEUE_DIDNT_WORK "The attempt of doing '%^RED%^" + \
                             curr_act + "%^RESET%^' didn't work.\n"
 
 // handle

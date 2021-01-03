@@ -267,6 +267,7 @@ int query_busy()
   }
   else if ( trivial_actions_performed > MAXIMUM_COMMANDS_PER_HB )
     return NON_INTERRUPTABLE_BUSY;
+
   return NOT_BUSY;
 }
 
@@ -556,8 +557,9 @@ private int perform_next_action()
               if (strlen(fail_msg))
                 tell_object(this_object(), fail_msg);
               else
-                tell_object(this_object(), _LANG_DIDNT_WORK);
+                tell_object(this_object(), _LANG_QUEUE_DIDNT_WORK);
 
+              this_user()->write_prompt();
             }
           }
         }

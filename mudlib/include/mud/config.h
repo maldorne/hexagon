@@ -19,7 +19,14 @@
 #define CONFIG_LOG_HEART_BEATS FALSE
 #define CONFIG_LOG_CALL_OUTS FALSE
 
+// ----------------------------------------------------------------------
+//  error features
+// ----------------------------------------------------------------------
 
+// true: messages from caught errors will have more information
+// false: to avoid printing in stderr and showing to coders the full 
+// trace when errors are caught
+#define LOG_CAUGHT_ERRORS TRUE
 
 
 

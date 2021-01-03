@@ -21,8 +21,8 @@ static void role_commands()
 {
   add_action("update", "update");
   add_action("do_a_call", "call");
-  add_action("get_creator","coder");
-  add_action("get_inv","inv");
+  add_action("get_creator", "coder");
+  add_action("get_inv", "inv");
 
   // add_action("parse_frogs", ";*");
   // add_action("show_stats", "stat");

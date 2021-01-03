@@ -1,32 +1,11 @@
 
-// * void runtime_error(string error, int caught, mixed **trace)
-//     A runtime error has occurred.
-//
-// * void atomic_error(string error, int atom, mixed **trace)
-//     A runtime error has occurred in atomic code.
-//
-// * void compile_error(string file, int line, string error)
-//     A compile-time error has occurred.
-
-#include <kernel.h>
-#include <mud/config.h>
-
-nomask string runtime_error(string error, int caught, int ticks)
+static nomask string show_trace()
 {
   mixed **trace;
-  string progname, objname, function, str;
-  string long_err, short_err;
+  string progname, objname, function, str, result;
   int i, sz, line, len;
-  object player;
 
-  if (!LOG_CAUGHT_ERRORS && caught)
-    return nil;
-
-  short_err = error + "\n";
-  long_err = error + "\n";
-
-  long_err = show_trace();
-/*
+  result = "";
   trace = call_trace();
 
   if ((sz = sizeof(trace) - 1) != 0)
@@ -86,33 +65,15 @@ nomask string runtime_error(string error, int caught, int ticks)
           progname == "/lib/core/auto")
         continue;
 
-      long_err += str+"\n";
+      // when we are using this efun from the error handler, we can 
+      // ignore the last entry
+      if (function == "runtime_error" &&
+          progname == "/lib/core/errors")
+        continue;
+
+      result += str + "\n";
     }
-    
-    short_err += "" + progname + ", line " + line + ", function " + function + 
-      " (object: " + objname + ")\n";
-  }
-*/
+  } 
 
-// Use long or short logs in the driver stderr
-#ifdef DRIVER_LONG_LOGS
-  return long_err;
-#else
-  return short_err;
-#endif
+  return result; 
 }
-
-string atomic_error(string error, int atom, mixed **trace)
-{
-  return "lib > core > handlers > errors :: atomic_error\n";
-  // load_object(DRIVER)->driver_message("An atomic error happened!");
-}
-
-string compile_error(string file, int line, string error)
-{
-  return file + ", " + line + ": " + error + "\n";
-}
-
-
-
-
