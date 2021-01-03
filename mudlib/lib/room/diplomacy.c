@@ -31,7 +31,7 @@ object query_diplomacy_info()
     return nil;
 
   // Only rooms and directories in domains will have diplomacy data
-  if (!is_in_domain(this_object()))
+  if (!is_in_game(this_object()))
     return nil;
 
   return handler->query_diplomacy_info_by_path(base_name(this_object()));
@@ -46,7 +46,7 @@ string query_diplomacy_name()
     return "";
 
   // Only rooms and directories in domains will have diplomacy data
-  if (!is_in_domain(this_object()))
+  if (!is_in_game(this_object()))
     return "";
 
   return handler->query_diplomacy_name(base_name(this_object()));  
@@ -66,7 +66,7 @@ void set_point_of_interest(int type)
     return;
 
   // Only rooms and directories in domains will have diplomacy data
-  if (!is_in_domain(this_object()))
+  if (!is_in_game(this_object()))
     return;
 
   switch(type)

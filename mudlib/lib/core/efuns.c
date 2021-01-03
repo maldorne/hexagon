@@ -56,6 +56,6 @@ static nomask void stderr(string str);
 // Hamlet patch
 #include "/lib/core/efuns/exec.c"
 
-#include "/lib/core/efuns/domains.c"
+#include "/lib/core/efuns/games.c"
 #include "/lib/core/efuns/path.c"
 #include "/lib/core/efuns/net.c"

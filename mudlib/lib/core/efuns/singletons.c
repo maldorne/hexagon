@@ -3,7 +3,7 @@
 // tables and handlers
 
 #include <kernel.h>
-#include <mud/config.h>
+#include <mud/translations.h>
 
 static nomask object table(string name) 
 {
