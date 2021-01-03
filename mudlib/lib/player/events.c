@@ -6,7 +6,7 @@
 
 #include <user/inform.h>
 #include <common/properties.h>
-#include <living/language.h>
+#include <basic/communicate.h>
 #include <user/hud.h>
 #include <user/user.h>
 #include <language.h>
