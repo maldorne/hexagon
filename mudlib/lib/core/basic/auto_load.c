@@ -216,7 +216,7 @@ void reset_stuff()
 }
 
 /* Hamlet added me -- I'm used for the 'update' command. */
-string *create_update_auto_load(object ob)
+string * create_update_auto_load(object ob)
 {
   string s, s1, s3;
   mixed auto_string;
@@ -224,8 +224,10 @@ string *create_update_auto_load(object ob)
 
   if (!ob) return ({ });
 
-  catch(s = (string)ob->query_static_auto_load());
-  catch(s3 = (string)ob->query_dynamic_auto_load());
+  if (function_exists("query_static_auto_load", ob))
+    catch(s = (string)ob->query_static_auto_load());
+  if (function_exists("query_dynamic_auto_load", ob))
+    catch(s3 = (string)ob->query_dynamic_auto_load());
 
   if (!s && !s3)
     return ({ });

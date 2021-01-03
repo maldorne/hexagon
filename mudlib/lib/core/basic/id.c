@@ -15,9 +15,9 @@ void set_name(string str) { name = str; }
 string query_name() { return name; }
 string query_cap_name() 
 {
-   if(!name)
-     return "Alguien";
-   return capitalize(name);
+  if (!name)
+   return "Alguien";
+  return capitalize(name);
 } 
 
 void create() 
@@ -41,6 +41,7 @@ void add_alias(mixed str)
     alias += str;
     return ;
   }
+
   if (member_array(str, alias) == -1)
     alias += ({ str });
 }

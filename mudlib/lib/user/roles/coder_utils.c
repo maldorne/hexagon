@@ -5,15 +5,15 @@ object *wiz_present(string str, object onobj, varargs int nogoout);
 
 static string desc_object(mixed o)
 {
-  string str;
+  mixed str;
 
   if (!o)
-    return "** Espacio-Vacio **";
+    return "** Null-space **";
 
-  if (!catch(str = (string)o->short()) && strlen(str))
+  if (!catch(str = o->short()) && stringp(str) && strlen(str))
     return str;
 
-  if (!catch(str = (string)o->query_name()) && strlen(str))
+  if (!catch(str = o->query_name()) && stringp(str) && strlen(str))
     return str;
 
   return file_name(o);
