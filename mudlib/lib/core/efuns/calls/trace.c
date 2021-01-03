@@ -77,3 +77,66 @@ static nomask string show_trace()
 
   return result; 
 }
+
+static nomask string last_call()
+{
+  mixed **trace;
+  string progname, objname, function, result;
+  int i, sz, line, len;
+
+  result = "";
+  trace = call_trace();
+
+  if ((sz = sizeof(trace) - 1) != 0)
+  {
+    // start from the end
+    for (i = sz - 1; i >= 0; i--)
+    {
+      progname = trace[i][1];
+      function = trace[i][2];
+
+      if (progname == "/lib/core/driver")
+        continue;
+
+      if (function == "runtime_error" &&
+          progname == "/lib/core/errors")
+        continue;
+
+      if (function == "call_other" &&
+          progname == "/lib/core/auto")
+        continue;
+
+      objname  = trace[i][0];
+      line     = trace[i][3];
+
+      if (line == 0)
+        result = "    ";
+      else
+      {
+        result = "    " + line;
+        result = result[strlen(result) - 4 ..];
+      }
+
+      result += " " + function + " ";
+      len = strlen(function);
+
+      if (len < 22)
+        result += "                      "[len ..];
+
+      result += " " + progname;
+
+      if (progname != objname)
+      {
+        len = strlen(progname);
+        if (len < strlen(objname) && progname == objname[.. len - 1])
+          result += " (" + objname[len ..] + ")";
+        else
+          result += " (" + objname + ")";
+      }
+
+      return result + "\n";
+    }
+  } 
+
+  return result; 
+}

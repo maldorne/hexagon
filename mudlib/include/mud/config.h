@@ -28,6 +28,9 @@
 // trace when errors are caught
 #define LOG_CAUGHT_ERRORS TRUE
 
+// when loggin info of an error (stderr or to a coder)
+// show the full trace or only the line where the error occurred
+#define LOG_FULL_TRACE FALSE
 
 
 
