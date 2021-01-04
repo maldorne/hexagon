@@ -31,3 +31,14 @@
 #define _LANG_GENDER_VOCAL_MALE ""
 #define _LANG_GENDER_DEMONSTRATIVE_FEMALE "she"
 #define _LANG_GENDER_DEMONSTRATIVE_MALE "he"
+
+// read_desc.c
+
+#define _LANG_READ_CMDS ({ "read" })
+#define _LANG_READ_READ_WHAT "Read what?\n"
+#define _LANG_READ_SOMETHING_WRITTEN "Looks that there's something written on "+this_object()->query_pronoun()+".\n"
+
+// auto_load.c
+
+#define _LANG_AUTO_LOAD_SOMETHING_WRONG "Ooops something broke.\n"
+#define _LANG_AUTO_LOAD_DROP_SOMETHING "Oops, you dropped something.\n"

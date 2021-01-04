@@ -1,0 +1,8 @@
+                                                          
+                     Vault Information                    
+                                                          
+    - 'list' to get a list of all stored items.           
+    - 'deposit <item>' to store an item.                  
+    - 'retrieve <item>' to get an item from the vault.    
+    - 'logs' to see the activity registry.                
+                                                          

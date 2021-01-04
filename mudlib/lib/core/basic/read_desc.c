@@ -1,14 +1,14 @@
 /* Wonderflug 96, got rid of global initialization in declaration,
  * added a create()
  *
- * Antiguamente esto se heredaba en object.c y todos los objetos del mud
- *  tenian esta funcionalidad. Extraido ahora de la cadena de herencias y solo
- *  disponible en item.c, neverbot 24/08/2008
+ * This was inherited in object.c and every object in the mud had this feature.
+ *  Now it is only available in item.c, neverbot 24/08/2008
  */
 
 /* this one also contians info on read_messages... */
 #include <basic/communicate.h>
 #include <translations/language.h>
+#include <language.h>
 
 static mixed *read_mess;
 static int max_size, cur_size;
@@ -21,9 +21,9 @@ void create()
 
 void init()
 {
-  // not necessary, would be called inheriting through object.c
+  // does not inherit from anywhere
   // ::init();
-  add_action("do_read", "leer");
+  add_action("do_read", _LANG_READ_CMDS);
 }
 
 mixed add_read_mess(mixed str, string type, string lang, int size);
@@ -35,12 +35,12 @@ void set_cur_size(int siz) { cur_size = siz; }
 int query_cur_size() { return cur_size; }
 
 /*
-* calling this is very rude unless you are createing the object as it
-* erases all of the writing off it.
-*/
+ * calling this is very rude unless you are createing the object as it
+ * erases all of the writing off it.
+ */
 void set_read_mess(mixed str, varargs string lang, int size)
 {
-  if (pointerp(str))
+  if (arrayp(str))
   {
     read_mess = str;
     return;
@@ -51,11 +51,11 @@ void set_read_mess(mixed str, varargs string lang, int size)
   if (!size)
     size = 1;
 
-  if (strlen(str))
+  if (stringp(str) && strlen(str))
     read_mess = ({ ({ str, "", lang, size }) });
   else
     read_mess = ({ });
-} /* set_read_mess() */
+}
 
 string *query_read_mess() { return read_mess; }
 
@@ -89,15 +89,15 @@ mixed add_read_mess(mixed str, string type, string lang, int size)
   else
     read_mess += ({ ({ str, type, lang, size }) });
   return str;
-} /* add_read_mess() */
+}
 
 /*
-* If you know the actual message or the language or the type you can remove
-* that message.
-*
-* Using the type and or language is a very dodgy way of doing this.  Using
-* a combination is much better.
-*/
+ * If you know the actual message or the language or the type you can remove
+ * that message.
+ *
+ * Using the type and or language is a very dodgy way of doing this.  Using
+ * a combination is much better.
+ */
 int remove_read_mess(string str, string type, string lang)
 {
   int i;
@@ -116,36 +116,37 @@ int remove_read_mess(string str, string type, string lang)
     read_mess = delete(read_mess, i, 1);
     return 1;
   }
-  /* Nup.  We traversed it all...  and there was nothing! */
+  
+  // Nup.  We traversed it all...  and there was nothing!
   return 0;
-} /* remove_read_mess() */
+}
 
 /*
-* This is used by the do_read procedure to create the message that
-* you will end up reading.  Useful huh?
-*
-* string create_read_array(object ob)
-* {
-*    mixed *bing;
-*    int i;
-*    string ret;
-*
-*    bing = (mixed *)ob->query_read_mess();
-*    ret = "";
-*    if (!bing || !sizeof(bing)) return "No hay nada escrito en "+ob->short()+".\n";
-*    for (i=0;i<sizeof(bing);i++)
-*      ret += (string)this_player()->read_message(bing[i][READ_STR],
-*                                                 bing[i][READ_TYPE],
-*                                                 bing[i][READ_LANG],
-*                                                 bing[i][READ_SIZE]);
-*    return ret;
-* }
-*/
+ * This is used by the do_read procedure to create the message that
+ * you will end up reading.  Useful huh?
+ *
+ * string create_read_array(object ob)
+ * {
+ *    mixed *bing;
+ *    int i;
+ *    string ret;
+ *
+ *    bing = (mixed *)ob->query_read_mess();
+ *    ret = "";
+ *    if (!bing || !sizeof(bing)) return "No hay nada escrito en "+ob->short()+".\n";
+ *    for (i=0;i<sizeof(bing);i++)
+ *      ret += (string)this_player()->read_message(bing[i][READ_STR],
+ *                                                 bing[i][READ_TYPE],
+ *                                                 bing[i][READ_LANG],
+ *                                                 bing[i][READ_SIZE]);
+ *    return ret;
+ * }
+ */
 
 /*
-* Yeppers, this actually reads the object.  Handles reading of actual
-* messages and labels.
-*/
+ * Yeppers, this actually reads the object.  Handles reading of actual
+ * messages and labels.
+ */
 int do_read(string what)
 {
   string s1, s2, s3, str, str2;
@@ -155,7 +156,7 @@ int do_read(string what)
 
   if (!this_object()->id(what))
   {
-    notify_fail("¿Leer el qué?\n");
+    notify_fail(_LANG_READ_READ_WHAT);
     return 0;
   }
 
@@ -177,12 +178,7 @@ int do_read(string what)
           str2 += s1 + read_file(s2);
           str = s3;
         }
-        /*
-        write((string)this_player()->read_message(str2 + str,
-        read_mess[i][READ_TYPE],
-        read_mess[i][READ_LANG],
-        read_mess[i][READ_SIZE]));
-        */
+
         ret = (string)this_player()->read_message(str2 + str,
           read_mess[i][READ_TYPE],
           read_mess[i][READ_LANG],
@@ -191,12 +187,6 @@ int do_read(string what)
       else
       {
         /* It magic!  She blinded me with science! */
-        /*
-        write((string)this_player()->read_message(str,
-        read_mess[i][READ_TYPE],
-        read_mess[i][READ_LANG],
-        read_mess[i][READ_SIZE]));
-        */
         ret = (string)this_player()->read_message(str,
           read_mess[i][READ_TYPE],
           read_mess[i][READ_LANG],
@@ -227,9 +217,7 @@ int do_read(string what)
   // neverbot 4/2003
   if (strlen(ret))
   {
-    // ret = sprintf("%*-=s",
-    //           (this_user()?this_user()->query_cols():79),
-    //           ret);
+    // ret = sprintf("%*-=s", (this_user()?this_user()->query_cols():79), ret);
     // write(ret);
     tell_object(this_player(), ret);
   }
@@ -240,24 +228,10 @@ int do_read(string what)
 /* Modify the long if we have something written on us */
 string long(varargs string str, int dark)
 {
-  /*
   if (read_mess)
-    return ::long(str) + "Parece que tiene algo escrito.\n";
-  return ::long(str, dark);
-  */
-  if (read_mess)
-    return "Parece que tiene algo escrito.\n";
+    return _LANG_READ_SOMETHING_WRITTEN;
   return "";
 }
-
-/* global/basic/read_desc: */
-/*
-mixed *query_init_data()
-{
-return ::query_init_data() +
-({ "read_mess", read_mess, "set_read_mess/P0/P2/","" });
-}
-*/
 
 // Stats añadido
 mixed stats()

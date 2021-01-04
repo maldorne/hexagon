@@ -24,6 +24,7 @@
 #define STYLE_UP_PAD 10
 #define STYLE_DOWN_PAD 11
 
+inherit "/lib/core/object.c";
 
 mapping styles;
 
@@ -68,8 +69,24 @@ string frame(string content, varargs string title, int width, int height, string
   // colors, etc
   title = fix_string(title);
 
+  lines = explode(content, "\n");
+
   if (!width)
-    width = DEFAULT_WIDTH;
+  {
+    int max_length, len;
+    max_length = 0;
+
+    // width = DEFAULT_WIDTH;
+    for (i = 0; i < sizeof(lines); i++)
+    {
+      if ((len = strlen(lines[i])) > max_length)
+        max_length = len;
+    }
+
+    write("max_length " + max_length + "\n");
+
+    width = max_length;
+  }
 
   if (!height)
     height = DEFAULT_HEIGHT;
@@ -90,8 +107,6 @@ string frame(string content, varargs string title, int width, int height, string
       width - (style[STYLE_EXTRA_WIDTH] + style[STYLE_EXTRA_WIDTH_PADDING]) * 2,
       "");
   }
-
-  lines = explode(content, "\n");
 
   for (i = 0; i < sizeof(lines); i++)
   {

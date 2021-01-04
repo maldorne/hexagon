@@ -9,6 +9,7 @@
 #include <basic/light.h>
 #include <mud/secure.h>
 #include <areas/common.h>
+#include <language.h>
 
 inherit light    "/lib/core/basic/light";
 inherit property "/lib/core/basic/property";
@@ -1043,35 +1044,32 @@ object * find_inv_match(string str)
   return (object *)all_inventory(this_object()) + (object *)hidden_objects + m_values(items);
 }
 
-// * add_sign(string long, string read_mess, string short, string name)
-// * [short and name are optional]
-// * This file can be inherited and will return a sign that can be used
-// * by a room or object in any way it sees fit.  This function was the
-// * brainchild of Wyrm - 7 Feb '92
-// * If the short is left out.. The sign isnt moved into the room,
-// * but it can still be looked at and read.
-// * This facility was removed by Taniwha 1995, as recent driver and
-// * lib changes means thats these objects are scavenged as "dead" now
-
-object add_sign(string long, string mess, varargs string short, string sname)
+/* 
+ * add_sign(string long, string read_mess, string lang, string short, string name)
+ *   [lang, short and name are optional]
+ * This function will return a sign that can be used by a room in any way it sees fit.
+ * This function was the brainchild of Wyrm - 7 Feb '92
+ * Added language, neverbot 01/2021
+ */
+object add_sign(string long, string mess, varargs string lang, string short, string sname)
 {
   object sign;
 
   sign = clone_object("/lib/item.c");
 
   if (!sname)
-      sname = "cartel";
+    sname = _LANG_DEFAULT_SIGN_NAME;
 
   sign->set_name(sname);
   sign->set_main_plural(pluralize(sname));
 
-  if (short)
-      sign->set_short(short);
-  else
-      sign->set_short("Cartel");
+  if (!short)
+    short = capitalize(_LANG_DEFAULT_SIGN_NAME);
+  
+  sign->set_short(short);
 
   sign->set_long(long);
-  sign->set_read_mess(mess);
+  sign->set_read_mess(handler("frames")->frame(mess, "", 65), lang);
   sign->reset_get();
   //if (short && short != "")
   sign->move(this_object());

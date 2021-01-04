@@ -31,3 +31,14 @@
 #define _LANG_GENDER_VOCAL_MALE "o"
 #define _LANG_GENDER_DEMONSTRATIVE_FEMALE "esta"
 #define _LANG_GENDER_DEMONSTRATIVE_MALE "este"
+
+// read_desc.c
+
+#define _LANG_READ_CMDS ({ "leer" })
+#define _LANG_READ_READ_WHAT "¿Leer el qué?\n"
+#define _LANG_READ_SOMETHING_WRITTEN "Parece que tiene algo escrito.\n"
+
+// auto_load.c
+
+#define _LANG_AUTO_LOAD_SOMETHING_WRONG "¡Ups, algo se ha roto!\n"
+#define _LANG_AUTO_LOAD_DROP_SOMETHING "Ups, se te ha caído algo.\n"

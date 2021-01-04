@@ -571,7 +571,7 @@ void add_language(string lang)
 {
   int i;
 
-  if (!LANGUAGE_HANDLER->test_language(lang))
+  if (!LANGUAGE_HANDLER->language_exists(lang))
     return ;
 
   if (!languages)

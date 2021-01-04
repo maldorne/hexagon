@@ -126,7 +126,7 @@ static nomask int cat(string file)
     lines = lines[0..MAX_CAT_LINES-1];
 
   for (i = 0; i < sizeof(lines); i++)
-      write(lines[i]+"\n");
+    write(lines[i] + "\n");
 
   return 1;
 }
