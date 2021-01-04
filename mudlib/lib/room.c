@@ -9,6 +9,7 @@
 #include <basic/light.h>
 #include <mud/secure.h>
 #include <areas/common.h>
+#include <common/frames.h>
 #include <language.h>
 
 inherit light    "/lib/core/basic/light";
@@ -1045,13 +1046,15 @@ object * find_inv_match(string str)
 }
 
 /* 
- * add_sign(string long, string read_mess, string lang, string short, string name)
- *   [lang, short and name are optional]
+ * add_sign(string long, string read_mess, 
+ *          string lang, string frame_style, string short, string name)
+ *   [lang, frame_style, short and name are optional]
  * This function will return a sign that can be used by a room in any way it sees fit.
  * This function was the brainchild of Wyrm - 7 Feb '92
  * Added language, neverbot 01/2021
  */
-object add_sign(string long, string mess, varargs string lang, string short, string sname)
+object add_sign(string long, string mess, 
+  varargs string lang, string frame_style, string short, string sname)
 {
   object sign;
 
@@ -1066,13 +1069,17 @@ object add_sign(string long, string mess, varargs string lang, string short, str
   if (!short)
     short = capitalize(_LANG_DEFAULT_SIGN_NAME);
   
-  sign->set_short(short);
+  if (!frame_style)
+    frame_style = DEFAULT_FRAME_STYLE;
 
+  sign->set_short(short);
   sign->set_long(long);
-  sign->set_read_mess(handler("frames")->frame(mess, "", 65), lang);
   sign->reset_get();
   //if (short && short != "")
   sign->move(this_object());
+  // hack, set messages after moving, so the item is IN a game
+  // and knows what language handler to use
+  sign->set_read_mess(mess, lang, 0, frame_style);
   //else
   //  hidden_objects += ({ sign });
   destables += ({ sign });

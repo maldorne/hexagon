@@ -7,7 +7,12 @@ static string game_name(object ob)
 
   // if it is a player, we use the room they are in to know
   // what game are they playing
-  if (ob->query_player())
+  // if (ob->query_player())
+  //   ob = environment(ob);
+
+  // changed, everything with an environment uses it as its game
+  // neverbot 01/2021
+  if (environment(ob))
     ob = environment(ob);
 
   fname = file_name(ob);

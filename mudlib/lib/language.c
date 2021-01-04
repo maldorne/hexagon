@@ -12,19 +12,19 @@ string long()
   return _LANG_LANGUAGE_DEFAULT_DESC;
 }
 
-mixed garble_tell(string start, string mess)
+string garbler(string mess);
+
+// called from the language handler, receives the full message 
+// to "translate" and the start piece "says: ", "exclaims: ", etc
+mixed garble(string start, string mess)
 {
-  return ({ start, mess });
+  return ({ start, garbler(mess) });
 }
 
-mixed garble_shout(string start, string mess)
+// called from this object, "translates" the real message to show
+string garbler(string mess)
 {
-  return ({ start, mess });
-}
-
-mixed garble_say(string start, string mess)
-{
-  return ({ start, mess });
+  return mess;
 }
 
 string scramble_word(string word, int total_distortion)

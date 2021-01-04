@@ -76,7 +76,7 @@ void create()
 
   ::create();
 
-  add_sign(_LANG_VAULTS_SIGN_SHORT, read_file(doc("help/vaults")), "goblin");
+  add_sign(_LANG_VAULTS_SIGN_LONG, read_file(doc("help/vaults")), "goblin");
 
   game_name = game_name(this_object());   
   dirs = explode(base_name(this_object()), "/");

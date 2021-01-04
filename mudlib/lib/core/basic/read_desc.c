@@ -26,7 +26,7 @@ void init()
   add_action("do_read", _LANG_READ_CMDS);
 }
 
-mixed add_read_mess(mixed str, string type, string lang, int size);
+mixed add_read_mess(mixed str, varargs string lang, int size, string frame_style);
 
 void set_max_size(int siz) { max_size = siz; }
 int query_max_size() { return max_size; }
@@ -38,7 +38,7 @@ int query_cur_size() { return cur_size; }
  * calling this is very rude unless you are createing the object as it
  * erases all of the writing off it.
  */
-void set_read_mess(mixed str, varargs string lang, int size)
+void set_read_mess(mixed str, varargs string lang, int size, string frame_style)
 {
   if (arrayp(str))
   {
@@ -50,9 +50,14 @@ void set_read_mess(mixed str, varargs string lang, int size)
     lang = STD_LANG;
   if (!size)
     size = 1;
+  if (!frame_style)
+    frame_style = "";
 
-  if (stringp(str) && strlen(str))
-    read_mess = ({ ({ str, "", lang, size }) });
+  // only allow read_mess with written languages
+  if (!handler("languages")->query_language_written(lang))
+    read_mess = ({ });
+  else if (stringp(str) && strlen(str))
+    read_mess = ({ ({ str, lang, size, frame_style }) });
   else
     read_mess = ({ });
 }
@@ -60,17 +65,28 @@ void set_read_mess(mixed str, varargs string lang, int size)
 string *query_read_mess() { return read_mess; }
 
 /* This adds a new messages onto the object. */
-mixed add_read_mess(mixed str, string type, string lang, int size)
+mixed add_read_mess(mixed str, varargs string lang, int size, string frame_style)
 {
   int de_size;
+  object handler;
+
+  handler = handler("languages");
+
+  // only allow read_mess with written languages
+  if (!handler->query_language_written(lang))
+    return "";
 
   /* fail! */
   if (cur_size >= max_size)
     return "";
+  if (!lang)
+    lang = STD_LANG;
   if (!size)
     size = 1;
+  if (!frame_style)
+    frame_style = "";
 
-  de_size = size*((int)LANGUAGE_HANDLER->query_language_size(lang, str));
+  de_size = size*(handler->query_language_size(lang, str));
 
   if (cur_size + de_size > max_size)
   {
@@ -81,24 +97,24 @@ mixed add_read_mess(mixed str, string type, string lang, int size)
     if (!strlen(str))
       return "";
 
-    cur_size += size*((int)LANGUAGE_HANDLER->query_language_size(lang, str));
+    cur_size += size*(handler->query_language_size(lang, str));
   }
 
   if (!read_mess)
-    read_mess = ({ ({ str, type, lang, size }) });
+    read_mess = ({ ({ str, lang, size, frame_style }) });
   else
-    read_mess += ({ ({ str, type, lang, size }) });
+    read_mess += ({ ({ str, lang, size, frame_style }) });
   return str;
 }
 
 /*
- * If you know the actual message or the language or the type you can remove
+ * If you know the actual message or the language you can remove
  * that message.
  *
- * Using the type and or language is a very dodgy way of doing this.  Using
+ * Using the language is a very dodgy way of doing this. Using
  * a combination is much better.
  */
-int remove_read_mess(string str, string type, string lang)
+int remove_read_mess(string str, string lang)
 {
   int i;
 
@@ -106,13 +122,11 @@ int remove_read_mess(string str, string type, string lang)
   {
     if (str && read_mess[i][READ_STR] != str)
       continue;
-    if (type && read_mess[i][READ_TYPE] != type)
-      continue;
     if (lang && read_mess[i][READ_LANG] != lang)
       continue;
 
     cur_size -= read_mess[i][READ_SIZE] *
-              ((int)LANGUAGE_HANDLER->query_language_size(lang, read_mess[i][READ_STR]));
+              (handler("languages")->query_language_size(lang, read_mess[i][READ_STR]));
     read_mess = delete(read_mess, i, 1);
     return 1;
   }
@@ -136,16 +150,16 @@ int remove_read_mess(string str, string type, string lang)
  *    if (!bing || !sizeof(bing)) return "No hay nada escrito en "+ob->short()+".\n";
  *    for (i=0;i<sizeof(bing);i++)
  *      ret += (string)this_player()->read_message(bing[i][READ_STR],
- *                                                 bing[i][READ_TYPE],
  *                                                 bing[i][READ_LANG],
- *                                                 bing[i][READ_SIZE]);
+ *                                                 bing[i][READ_SIZE],
+ *                                                 bing[i][READ_FRAME]);
  *    return ret;
  * }
  */
 
 /*
- * Yeppers, this actually reads the object.  Handles reading of actual
- * messages and labels.
+ * Yeppers, this actually reads the object. Handles reading of actual
+ * messages.
  */
 int do_read(string what)
 {
@@ -180,39 +194,20 @@ int do_read(string what)
         }
 
         ret = (string)this_player()->read_message(str2 + str,
-          read_mess[i][READ_TYPE],
           read_mess[i][READ_LANG],
-          read_mess[i][READ_SIZE]);
+          read_mess[i][READ_SIZE],
+          read_mess[i][READ_FRAME]);
       }
       else
       {
         /* It magic!  She blinded me with science! */
         ret = (string)this_player()->read_message(str,
-          read_mess[i][READ_TYPE],
           read_mess[i][READ_LANG],
-          read_mess[i][READ_SIZE]);
+          read_mess[i][READ_SIZE],
+          read_mess[i][READ_FRAME]);
       }
     }
   }
-
-  /*
-  * Ok...  now we stick all the label info in...
-  * All this stuff is useless
-  *
-  * labels = labels - ({ 0 });
-  * if (sizeof(labels))
-  * {
-  *   str = implode(map_array("create_read_array", this_object()), "");
-  *   write(str);
-  *   if (!read_mess)
-  *     if ((s1 = (string)this_object()->query_property("read id")))
-  *       return query_multiple_short(labels)+" en "+s1;
-  *     else
-  *       return query_multiple_short(labels)+" en "+short(0);
-  * }
-  * if ((s1 = (string)this_object()->query_property("read id")))
-  *   return s1;
-  */
 
   // neverbot 4/2003
   if (strlen(ret))
@@ -233,7 +228,7 @@ string long(varargs string str, int dark)
   return "";
 }
 
-// Stats añadido
+// stats added
 mixed stats()
 {
   return ({

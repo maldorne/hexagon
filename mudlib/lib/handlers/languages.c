@@ -1,12 +1,11 @@
 
 /*
- * The language handler.  This will keep track of the info on languages
+ * The language handler. This will keep track of the info on languages
  * Each language can be a written language a spoken language and have
  * a garble object.
  *
- * The function garble_say, garble_tell, garble_shout and
- * garble_written shoud be defined on the garbling object.
- * They should return the entire string to print.  So if the
+ * The function garble shoud be defined on the garbling object.
+ * It should return the entire string to print. So if the
  * routine returns 0 nothing is printed.
  */
 
@@ -31,26 +30,26 @@ void create()
   ]);
 } /* create() */
 
-int query_language_spoken(string str)
+int query_language_spoken(string lang)
 {
-  if (!languages[str])
+  if (undefinedp(languages[lang]))
     return 0;
-  return languages[str][0]&L_SPOKEN;
+  return (TRUE && languages[lang][0]&L_SPOKEN);
 }
 
-int query_language_written(string str)
+int query_language_written(string lang)
 {
-  if (!languages[str])
+  if (undefinedp(languages[lang]))
     return 0;
-  return languages[str][0]&L_WRITTEN;
+  return (TRUE && languages[lang][0]&L_WRITTEN);
 }
 
 /* Distance languages can be used with tell and shout */
-int query_language_distance(string str)
+int query_language_distance(string lang)
 {
-  if (!languages[str])
+  if (undefinedp(languages[lang]))
     return 0;
-  return languages[str][0]&L_DISTANCE;
+  return (TRUE && languages[lang][0]&L_DISTANCE);
 }
 
 /*
@@ -59,24 +58,24 @@ int query_language_distance(string str)
  * spells are written in.
  *
  */
-int query_language_magic(string str)
+int query_language_magic(string lang)
 {
-  if (!languages[str])
+  if (undefinedp(languages[lang]))
     return 0;
-  return languages[str][0]&L_MAGIC;
+  return (TRUE && languages[lang][0]&L_MAGIC);
 }
 
-int query_language_size(string str)
+int query_language_size(string lang)
 {
-  if (!languages[str])
+  if (undefinedp(languages[lang]))
     return 0;
-  return languages[str][2];
+  return languages[lang][2];
 }
 
 /* This is called to resize the text if it doesnt fit... */
 mixed squidge_text(string lang, mixed str, int size)
 {
-  if (!languages[lang])
+  if (undefinedp(languages[lang]))
     return 0; /* Don't add it... */
 
   if (!(languages[lang][0]&L_MAGIC))
@@ -85,23 +84,23 @@ mixed squidge_text(string lang, mixed str, int size)
   return (mixed)languages[lang][1]->squidge_text(str, size);
 }
 
-int add_language(string name, int flags, mixed ob, int size)
+int add_language(string lang, int flags, mixed ob, int size)
 {
-  languages[name] = ({ flags, ob, size });
+  languages[lang] = ({ flags, ob, size });
 }
 
-int query_flags(string name)
+int query_flags(string lang)
 {
-  if (!languages[name])
+  if (undefinedp(languages[lang]))
     return 0;
-  return languages[name][0];
+  return languages[lang][0];
 }
 
-mixed query_garble_object(string name)
+mixed query_garble_object(string lang)
 {
-  if (!languages[name])
+  if (undefinedp(languages[lang]))
     return 0;
-  return languages[name][1];
+  return languages[lang][1];
 }
 
 string *query_languages()
@@ -109,9 +108,9 @@ string *query_languages()
   return m_indices(languages);
 }
 
-int language_exists(string str)
+int language_exists(string lang)
 {
-  return arrayp(languages[str]);
+  return arrayp(languages[lang]);
 }
 
 string garble(string text, string lang)
