@@ -13,7 +13,7 @@
 
 string file_name(object ob)
 {
-  if (!ob) 
-    ob = this_object();
-  return object_name(ob);
+  // if (!ob) 
+  //   ob = this_object();
+  return ::object_name(ob);
 }

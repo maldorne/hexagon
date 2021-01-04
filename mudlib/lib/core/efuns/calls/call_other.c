@@ -5,7 +5,11 @@ static nomask mixed call_other(mixed obj, string func, mixed args...)
 
   if (!stringp(obj) && !objectp(obj))
   {
-    error("illegal call_other on <" + object_name(this_object()) + ">, target object not provided.");
+    if (this_object())
+      error("illegal call_other on <" + object_name(this_object()) + ">, target object not provided");
+    else
+      error("illegal call_other, target object not provided, and this_object() does not exist");
+
     return nil;
   }
 

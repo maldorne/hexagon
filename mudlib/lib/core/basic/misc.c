@@ -23,9 +23,8 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   if (stringp(dest))
     dest = load_object(dest);
 
-  // Taniwha 1995, maybe log this ?
-  if (!dest || !objectp(dest))
-    return 0;  
+  if (!objectp(dest))
+    return MOVE_EMPTY_DEST;  
 
   from = environment();
 

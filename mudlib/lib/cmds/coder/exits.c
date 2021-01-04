@@ -161,7 +161,7 @@ static int cmd(string str, object me, string verb)
     {
       string error, match;
       int j;
-      ret += sprintf("  %-8s -> ", dirs[a][0..]);
+      ret += sprintf("  %-9s -> ", dirs[a][0..]);
       sscanf(dirs[a+1], "%s.c", dirs[a+1]); // remove the extension
 
       ret += dirs[a+1] + " ";

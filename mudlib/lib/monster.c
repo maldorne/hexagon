@@ -262,7 +262,7 @@ string long(string str, int dark)
 }
 
 void init_command(string str) { call_out("do_command", 0, str); }
-void init_equip() { call_out("do_equip", 0, 0); }
+void init_equip() { call_out("do_equip", 0, ""); }
 
 // int do_command(string str)
 // {
