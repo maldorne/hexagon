@@ -9,7 +9,7 @@ static nomask void stderr(string str);
 
 static int interactive(object ob)
 {
-  if (!ob)
+  if (undefinedp(ob))
     return 0;
 
   if (ob->query_link() || ob->query_player())
@@ -17,7 +17,8 @@ static int interactive(object ob)
     ob = ob->user();
   }
 
-  if (!ob->query_user())
+  // the user related to the player is gone?
+  if (undefinedp(ob) || !ob->query_user())
     return 0;
 
   if (query_ip_number(ob) == nil)

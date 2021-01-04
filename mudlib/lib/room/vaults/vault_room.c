@@ -47,6 +47,7 @@ inherit "/lib/room.c";
 #include <basic/move.h>
 #include <room/storage.h>
 #include <language.h>
+#include <translations/language.h>
 // #include "/secure/config.h"
 
 #define FILE_SIZE 30000 // change, you die
@@ -76,7 +77,7 @@ void create()
 
   ::create();
 
-  add_sign(_LANG_VAULTS_SIGN_LONG, read_file(doc("help/vaults")), "goblin");
+  add_sign(_LANG_VAULTS_SIGN_LONG, read_file(doc("help/vaults")), STD_LANG);
 
   game_name = game_name(this_object());   
   dirs = explode(base_name(this_object()), "/");

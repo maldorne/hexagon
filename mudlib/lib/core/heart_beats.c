@@ -41,9 +41,8 @@ nomask void _heart_beat()
 
   if (CONFIG_LOG_HEART_BEATS)
   {
-    debug("hbs", " ───> heart_beat cycle\n");
+    debug("hbs", " ───> new heart_beat cycle\n");
     debug("hbs", to_string(_hb_object_list));
-    debug("hbs", " ───> heart_beat cycle\n");
   }
 
   for (i = 0; i < sizeof(_hb_object_list); i++)
@@ -53,7 +52,7 @@ nomask void _heart_beat()
 
     ob = _hb_object_list[i];
 
-    if (!ob)
+    if (undefinedp(ob))
     {
       _hb_object_list -= ({ ob });
       i--;

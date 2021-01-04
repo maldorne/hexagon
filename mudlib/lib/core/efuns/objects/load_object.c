@@ -9,7 +9,7 @@ static nomask object load_object(string name)
 {
   object obj;
 
-  if (!name)
+  if (undefinedp(name) || !strlen(name))
     return nil;
 
   // if name has a trailing .c, let's get rid of it.

@@ -99,10 +99,10 @@ int really_quit()
 
   if (query_name() != DEF_NAME)
   {
-    if ( !this_object()->query_hidden() )
-      tell_room( environment(this_object()), _LANG_QUIT_ENV_QUIT, ({ this_object() }));
+    if (!this_object()->query_hidden())
+      tell_room(environment(this_object()), _LANG_QUIT_ENV_QUIT, ({ this_object() }));
 
-    if ( this_object()->query_coder() )
+    if (this_object()->query_coder())
       event(users(), "inform", _LANG_QUIT_INFORM_CODERS, "logon-coders",
                                all_inventory(environment(this_object())));
     else

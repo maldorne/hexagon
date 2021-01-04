@@ -485,7 +485,7 @@ private int perform_next_action()
 
   curr_act = aq_decapitate();
 
-  if ( intp(curr_act) )  /* it can't be good */
+  if (intp(curr_act)) /* it can't be good */
     return 0;
 
   curr_forced = action_forcedq[0];

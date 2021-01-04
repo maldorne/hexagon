@@ -1,5 +1,5 @@
 
-inherit "/lib/core/object";
+inherit "/lib/core/object.c";
 
 string last_wrote;
 int daily_time, running_time;
