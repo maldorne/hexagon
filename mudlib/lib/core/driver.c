@@ -12,6 +12,7 @@
 #include <user/terminal.h>
 #include <mud/secure.h>
 #include <mud/translations.h>
+#include <mud/config.h>
 
 // ************************************************************
 //  Function prototypes
@@ -245,13 +246,23 @@ static object inherit_program(string from, string path, int priv)
 
   log_driver(" + inherit_program: " + path + " from " + from + "\n");
 
+  // the minimal read_file is the only kfun available to know 
+  // if the file exists
+  if (::read_file(path + ".c", 0, 1) == nil)
+  {
+    log_driver(" + file does not exist\n");
+    return nil;
+  }
+
   log_driver(" - compile_object: " + path + " (from driver)\n");
   err = catch(ob = ::compile_object(path));
 
   if (err)
   {
     log_driver(" + inherit_program error: " + err + "\n");
-    inform_user(" + inherit_program error\n   compile_object returned: " + err + "\n", DRIVER_COMPILE_ERROR);
+    // if caught errors are logged, this is redundant
+    if (!LOG_CAUGHT_ERRORS)
+      inform_user(" + inherit_program error\n   compile_object returned: " + err + "\n", DRIVER_COMPILE_ERROR);
   }
 
   return ob;
