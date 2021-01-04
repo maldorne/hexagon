@@ -73,15 +73,6 @@ void dest_me()
   ::dest_me();
 }
 
-/*
-mixed *query_init_data() {
-   return light::query_init_data() +
-          move::query_init_data() +
-      ({ "weight", weight, "set_weight/p/",
-         "value", value, "set_value/p/" });
-} 
-*/
-
 mixed stats()
 {
   return move::stats() + 

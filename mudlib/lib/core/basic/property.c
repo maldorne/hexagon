@@ -250,13 +250,6 @@ int add_timed_properties(mapping map)
   timed_prop += map;
 }
 
-/* global/basic/property: */
-/*
-mixed *query_init_data() {
-   return ({ "properties",map_prop,"add_properties/p/","timed",timed_prop,"add_timed_properties/p/"});
-} 
-*/
-
 mixed query_property(string str) 
 {
   if (!strlen(str))

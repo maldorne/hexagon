@@ -200,17 +200,6 @@ object query_frac_parse_id(mixed *arr)
 }
 */
 
-/* global/basic/id: */
-/*
-mixed *query_init_data() {
-   return ({ "name", name, "set_name/p/",
-             "alias", alias, "add_alias/p/",
-             "adjectives", adjectives, "add_adjective/p/",
-             "plurals", plurals, "add_plurals/p/" });
-} 
-*/
-/* query_init_data() */
-
 // stats added
 mixed stats()
 {

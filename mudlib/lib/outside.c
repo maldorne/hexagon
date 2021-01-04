@@ -158,12 +158,6 @@ int query_outside()
   return 1;
 }
 
-/*
-mixed *query_init_data(){
-   return extra_look::query_init_data()+room::query_init_data();
-}
-*/
-
 mixed * stats()
 {
 	return room::stats() + extra_look::stats();

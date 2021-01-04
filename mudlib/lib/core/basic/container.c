@@ -144,16 +144,6 @@ object * find_inv_match(string str)
   return all_inventory(this_object());
 }
 
-mixed *query_init_data()
-{
-  return
-  // object::query_init_data() +
-  ({
-    "max weight", max_weight, "set_max_weight",
-    "prevent insert", prevent_insert, "set_prevent_insert",
-  });
-}
-
 mapping int_query_static_auto_load()
 {
   mapping tmp;

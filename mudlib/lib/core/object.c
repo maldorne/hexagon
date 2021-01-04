@@ -63,13 +63,6 @@ int query_shield() { return 0; }
 int query_room() { return 0; }
 
 /*
-mixed *query_init_data() {
-   return
-      property::query_init_data() +
-      extra_look::query_init_data() +
-      desc::query_init_data() +
-      // misc::query_init_data() +
-      id::query_init_data();
 }
 */
 

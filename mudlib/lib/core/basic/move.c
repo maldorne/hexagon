@@ -117,13 +117,6 @@ nomask mixed dwep()
   return "Destruct With Extreme Prejuce";
 }
 
-/* global/basic/move: */
-/*
-mixed *query_init_data() {
-   return ({ "move", move_flag, "set_move_flag/p/" });
-}
-*/
-
 mixed stats()
 {
   return ({
