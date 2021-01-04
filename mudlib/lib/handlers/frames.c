@@ -6,23 +6,7 @@
  *
  */
 
-#define DEFAULT_FRAME_STYLE "default"
-#define DEFAULT_WIDTH 79
-#define DEFAULT_HEIGHT 0
-
-// positions inside the style definition array
-#define STYLE_EXTRA_WIDTH 0
-#define STYLE_EXTRA_HEIGHT 1
-#define STYLE_EXTRA_WIDTH_PADDING 2
-#define STYLE_EXTRA_HEIGHT_PADDING 3
-#define STYLE_LEFT_PAD 4
-#define STYLE_RIGHT_PAD 5
-#define STYLE_UP_LEFT_CORNER 6
-#define STYLE_UP_RIGHT_CORNER 7
-#define STYLE_DOWN_RIGHT_CORNER 8
-#define STYLE_DOWN_LEFT_CORNER 9
-#define STYLE_UP_PAD 10
-#define STYLE_DOWN_PAD 11
+#include <common/frames.h>
 
 inherit "/lib/core/object.c";
 
@@ -30,6 +14,7 @@ mapping styles;
 
 void create()
 {
+  ::create();
   styles = ([ ]);
 
   // each style is defined by an array of:
@@ -83,9 +68,7 @@ string frame(string content, varargs string title, int width, int height, string
         max_length = len;
     }
 
-    write("max_length " + max_length + "\n");
-
-    width = max_length;
+    width = max_length + (style[STYLE_EXTRA_WIDTH] + style[STYLE_EXTRA_WIDTH_PADDING]) * 2;
   }
 
   if (!height)
