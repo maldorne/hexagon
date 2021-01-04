@@ -84,8 +84,8 @@ void create()
   // every game vault is saved inside their own game "save" directory
   if (strlen(game_name))
   {
-    save_file = "/games/" + game_name + "/save/vaults/" + implode(dirs, "-") + "-save";
-    vault_log = "/games/" + game_name + "/log/vaults/" + implode(dirs, "-") + "-log";
+    save_file = "/games/" + game_name + "/save/vaults/" + implode(dirs[2..], "-") + "-save";
+    vault_log = "/games/" + game_name + "/log/vaults/" + implode(dirs[2..], "-") + "-log";
   }
 }
 
@@ -193,7 +193,7 @@ int do_deposit(string str)
         continue;
       }
 
-      if ((int)all[i]->query_auto_load())
+      if (all[i]->query_auto_load())
       {
         tell_object(this_player(), "Al intentar depositar tu " + all[i]->query_short() + " " +
           "en el baúl, desaparece dejando una nube de humo en su lugar.\n");
@@ -203,7 +203,7 @@ int do_deposit(string str)
         continue;
       }
 
-      if ((int)all[i]->query_no_save_object())
+      if (all[i]->query_no_save_object())
       {
         tell_object(this_player(), "No puedes depositar en un baúl tu " + all[i]->query_short() + ", " +
                 "estos objetos no se pueden salvar.\n");
@@ -211,7 +211,7 @@ int do_deposit(string str)
         continue;
       }
   
-      if ((int)all[i]->is_money())
+      if (all[i]->is_money())
       {
         tell_object(this_player(), "Busca un banco si quieres almacenar dinero.\n");
         // checked -= ({ all[i] });
@@ -225,7 +225,7 @@ int do_deposit(string str)
         // !all[i]->query_scroll() && !all[i]->query_wand())
       {
       */
-      if ( !all[i]->query_value() )
+      if (!all[i]->query_value())
       {
         tell_object(this_player(), "No puedes depositar en un baúl tu " + all[i]->query_short() + ", estos " +
                 "objetos no están permitidos en baules.\n");
@@ -244,15 +244,9 @@ int do_deposit(string str)
            all[i]->query_short()+" en el baúl.\n", ({ this_player() }));
 
         log = this_player()->query_cap_name()+
-           " depositó:  "+all[i]->query_name()+" ("+ctime(time(), 4)+")\n";
-#ifdef COMMON_SAVE
-        if (is_in_game(this_object()))
-           log_file(query_vault_log(), log);
-        else   
-           write_file(query_vault_log(), log);
-#else
+           " deposit: "+all[i]->query_name()+" ("+ctime(time(), 4)+")\n";
+
         write_file(query_vault_log(), log);
-#endif
       }
       else
       {
