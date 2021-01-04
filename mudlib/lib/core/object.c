@@ -63,96 +63,71 @@ int query_shield() { return 0; }
 int query_room() { return 0; }
 
 /*
-}
-*/
-
-// This is here till I can delete it...  ie the new system is functioning.
-mapping int_query_static_auto_load()
+ * This returns a mapping of all the data that is associated with the object.
+ * The mapping can then be saved in the player object, is the idea.
+ * However for many derived objects we don't need all the info, eg
+ * a domain object will set all the name/short/plurals etc itself;
+ * so we need not save all that info for a derived object, and so don't
+ * return it at all if derived is nonzero (ie it is a derived object).
+ */
+mapping query_auto_load_attributes() 
 {
-  return ([
-            "weight"      : weight, "light" : light,
-            "short"       : short_d,
-            "long"        : long_d,
-            "alias"       : alias,
-            "plural"      : plurals, "name" : name,
-            "main plural" : plural_d,
-            "value"       : value
-          ]);
+  // return 
+  //   ([ 
+  //     "weight" : weight, 
+  //     "light" : light, 
+  //     "short" : short_d, 
+  //     "long" : long_d, 
+  //     "alias" : alias, 
+  //     "plural" : plurals, 
+  //     "name" : name, 
+  //     "main plural" : plural_d, 
+  //     "value" : value,
+  //     "properties" : map_prop,
+  //     "timed"     : freeze_timed_properties(timed_prop), /* Hamlet */
+  //     "cloned by" : create_me,
+  //   ]);
+  return
+    ((create_me != DEF_NAME) ? ([ "cloned by"  : create_me ]) : ([ ])) + 
+    ((map_sizeof(map_prop)) ? ([ "properties" : map_prop ]) : ([ ])) + 
+    ((map_sizeof(timed_prop)) ? ([ "timed" : freeze_timed_properties(timed_prop) ]) : ([ ]));
 }
 
-mixed query_static_auto_load()
+/*
+ * In loading, we need not discriminate between derived/underived objects;
+ * either the mapping entries are there are they aren't.
+ */
+
+void init_auto_load_attributes(mapping attribute_map)
 {
-  if (base_name(this_object()) == "/lib/core/object")
-    return int_query_static_auto_load();
-  return ([ ]);
+  // if (!undefinedp(attribute_map["weight"]))
+  //   set_weight(attribute_map["weight"]);
+  // if (!undefinedp(attribute_map["light"]))
+  //   set_light(attribute_map["light"]);
+  // if (!undefinedp(attribute_map["short"]))
+  //   set_short(attribute_map["short"]);
+  // if (!undefinedp(attribute_map["long"]))
+  //   set_long(attribute_map["long"]);
+  // if (attribute_map["alias"])
+  //   set_aliases(attribute_map["alias"]);
+  // if (attribute_map["plural"])
+  //   set_plurals(attribute_map["plural"]);
+  // if (!undefinedp(attribute_map["name"]))
+  //   set_name(attribute_map["name"]);
+  // if (!undefinedp(attribute_map["main plural"]))
+  //   set_main_plural(attribute_map["main plural"]);
+  // if (!undefinedp(attribute_map["value"]))
+  //   set_value(attribute_map["value"]);
+
+  if (attribute_map["properties"])
+    map_prop = attribute_map["properties"];
+  if (attribute_map["timed"])
+    timed_prop = thaw_timed_properties(attribute_map["timed"]);
+  if (attribute_map["cloned by"])
+    create_me = attribute_map["cloned by"];
 }
 
-mapping query_dynamic_auto_load()
-{
-  mapping res;
-  res = ([ ]);
-
-  if (m_sizeof(map_prop))
-    res += ([ "properties" : map_prop, ]);
-  if (m_sizeof(timed_prop))
-    res += ([ "timed" : freeze_timed_properties(timed_prop), ]);
-  if ((create_me != DEF_NAME) && (create_me != capitalize(DEF_NAME)))
-    res += ([ "cloned by" : create_me, ]);
-
-  return res;
-}
-
-void init_static_arg(mapping bing)
-{
-  if (!undefinedp(bing["name"]))
-    set_name(bing["name"]);
-  if (!undefinedp(bing["weight"]))
-    set_weight(bing["weight"]);
-  if (!undefinedp(bing["light"]))
-    set_light(bing["light"]);
-  if (!undefinedp(bing["short"]))
-    set_short(bing["short"]);
-  if (!undefinedp(bing["long"]))
-    set_long(bing["long"]);
-  if (!undefinedp(bing["alias"]))
-    set_aliases(bing["alias"]);
-  if (!undefinedp(bing["plural"]))
-    set_plurals(bing["plural"]);
-  if (!undefinedp(bing["main plural"]))
-    set_main_plural(bing["main plural"]);
-  if (!undefinedp(bing["value"]))
-    set_value(bing["value"]);
-}
-
-void init_dynamic_arg(mapping args)
-{
-  if (args["properties"])
-    map_prop = args["properties"];
-  if (args["timed"])
-    timed_prop = thaw_timed_properties(args["timed"]);
-
-  if (args["cloned by"])
-    create_me = args["cloned by"];
-  else
-    create_me = DEF_NAME;
-}
-
-void init_arg(mixed *bing)
-{
-  if (sizeof(bing) < 10)
-    return ;
-  set_light(bing[1]);
-  short_d = bing[2];
-  long_d = bing[3];
-  set_aliases(bing[5]);
-  set_plurals(bing[6]);
-  set_weight(bing[8]);
-  set_name(bing[9]);
-  map_prop = bing[10];
-  value = bing[12];
-}
-
- // The following is from the TMI-2 Lib. Asmodean Put it here
+// The following is from the TMI-2 Lib. Asmodean Put it here
 int clean_up()
 {
   object env, *contents;

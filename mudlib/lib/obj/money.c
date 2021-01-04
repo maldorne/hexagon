@@ -289,7 +289,7 @@ int move(mixed dest, varargs mixed messin, mixed messout)
     from_where = find_player(query_property("clonedin"));
 
   if (environment() )
-    environment()->fix_my_loc_weight_later();
+    environment()->fix_my_contents_weight_later();
 
   j = (int)::move(dest, messin, messout);
 
@@ -342,7 +342,7 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   set_weight(query_number_coins()/WEIGHTDIV);
 
   if (environment() )
-    environment()->fix_my_loc_weight_later();
+    environment()->fix_my_contents_weight_later();
 
   return MOVE_OK;
 }

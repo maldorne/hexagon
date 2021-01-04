@@ -209,7 +209,7 @@ nomask int save_me()
   // if (!SECURE->valid_progname("/lib/core/login"))
   //   return 0;
 
-  if (query_loading() || query_property(LOADING_PROP))
+  if (query_property(LOADING_PROP))
     return 0;
 
   if (user()->query_property(GUEST_PROP))

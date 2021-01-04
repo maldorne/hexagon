@@ -140,8 +140,7 @@ int really_quit()
       // tell_object(find_living("neverbot"), "Dest unique of item "+frog->short()+".\n");
       frog->dest_unique();
     }
-    else if (frog->query_auto_load() ||
-             frog->query_static_auto_load())
+    else if (frog->query_auto_load())
     {
       frog->dest_me();
     }
@@ -193,7 +192,7 @@ void continue_quit(int a, object here)
 
 int quit()
 {
-  if (query_loading() || query_property(LOADING_PROP))
+  if (query_property(LOADING_PROP))
   {
     notify_fail(_LANG_QUIT_LOADING);
     return 0;

@@ -26,6 +26,7 @@ void create()
 {
   acting = 0;
   destination_path = "";
+  destination_name = "";
   ::create();
   set_name("piedra de hogar");
   set_short("%^MAGENTA%^Piedra de Hogar%^RESET%^");
@@ -47,7 +48,7 @@ void create()
 string long(string s, int dark)
 {
   return ::long(s, dark) +
-    (stringp(destination_name)?"Tu piedra está marcada en: "+destination_name+".\n":"Tu piedra no está marcada aún.\n");
+    (strlen(destination_name)?"Tu piedra está marcada en: "+destination_name+".\n":"Tu piedra no está marcada aún.\n");
 }
 
 void init()
@@ -315,21 +316,19 @@ mixed * stats()
     });
 }
 
-mapping query_dynamic_auto_load()
+mapping query_auto_load_attributes()
 {
-  return ::query_dynamic_auto_load() + ([
-      "destination_path" : destination_path,
-      "destination_name" : destination_name,
-    ]);
+  return ([ "::" : ::query_auto_load_attributes() ]) + 
+      ((strlen(destination_path)) ? ([ "destination path" : destination_path ]) : ([ ])) + 
+      ((strlen(destination_name)) ? ([ "destination name" : destination_name ]) : ([ ]));
 }
 
-void init_dynamic_arg(mapping args)
+void init_auto_load_attributes(mapping attribute_map)
 {
-  if (args["destination_path"])
-    destination_path = args["destination_path"];
-  if (args["destination_name"])
-    destination_name = args["destination_name"];
-
- ::init_dynamic_arg(args);
+  if (!undefinedp(attribute_map["destination path"]))
+    destination_path = attribute_map["destination path"];
+  if (!undefinedp(attribute_map["destination name"]))
+    destination_name = attribute_map["destination name"];
+  if (!undefinedp(attribute_map["::"]))
+    ::init_auto_load_attributes(attribute_map["::"]);
 }
-

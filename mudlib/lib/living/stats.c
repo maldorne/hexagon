@@ -276,7 +276,7 @@ void reset_carry_cap()
   int old_cap, cap, st;
   object ob, ob1;
 
-  old_cap = (int)this_object()->query_loc_weight();
+  old_cap = (int)this_object()->query_contents_weight();
   st = this_object()->query_str(); // fix encumb bug with extreme strength
 
   if (st < 8)

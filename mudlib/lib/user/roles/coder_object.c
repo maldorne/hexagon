@@ -92,10 +92,10 @@ static int do_update(object *ov)
     }
 
     pname = file_name(ov[i]);
-    if (sscanf(pname, "%s#%d", pname, dummy) != 2)
+    if (sscanf(pname, "%s#%d", pname, dummy) != 2) // a room? a handler? something not cloned
     {
       // Next three Hamlet's
-      load_junk = "/lib/core/basic/auto_load"->create_update_auto_load(ov[i]);
+      load_junk = "/lib/core/basic/auto_load"->create_object_auto_load(ov[i]);
       totell = environment(ov[i]);
       itemname = ov[i]->query_short();
 
@@ -120,7 +120,7 @@ static int do_update(object *ov)
       // Next three Hamlet's
       if (loaded)
       {
-        load_junk = "/lib/core/basic/auto_load"->create_update_auto_load(loaded);
+        load_junk = "/lib/core/basic/auto_load"->create_object_auto_load(loaded);
         totell = environment(loaded);
         itemname = loaded->query_short();
       }
@@ -134,6 +134,7 @@ static int do_update(object *ov)
 
       // These are Hamlet's too
       catch(loaded = load_object(pname));
+
       if (loaded)
         loaded->move(totell);
       else
@@ -146,8 +147,8 @@ static int do_update(object *ov)
               tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
           else
             tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
-          thing = clone_object( "/lib/obj/iou" );
-          thing->add_auto_string( load_junk );
+          thing = clone_object("/lib/obj/iou");
+          thing->add_auto_string(load_junk);
           thing->move( totell );
         }
       }
@@ -174,8 +175,8 @@ static int do_update(object *ov)
             tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
         else
           tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
-        thing = clone_object( "/lib/obj/iou" );
-        thing->add_auto_string( load_junk );
+        thing = clone_object("/lib/obj/iou");
+        thing->add_auto_string(load_junk);
         thing->move( totell );
       }
       continue;

@@ -46,8 +46,8 @@ quests_done ([0|])
 account_name "admin@maldorne.org"
 role_name "admin"
 last_pos "/home/admin/workroom"
-auto_load ({3|1,"/lib/obj/hearthstone",({2|([0|]),([2|"cloned by":"admin","destination_path":"",]),}),})
 time_on -40219
 ontime 1567975830
 last_log_on 1567975906
+auto_load ({1|({2|"/lib/obj/hearthstone",([1|"::":([1|"::":([1|"cloned by":"admin",]),]),]),}),})
 hud "dificultad"
