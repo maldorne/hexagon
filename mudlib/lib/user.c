@@ -135,12 +135,22 @@ void dest_me()
 nomask object player() { return _player; }
 nomask int set_player_ob(object ob)
 {
+  object old_player;
+
+  // do we have an old player object?
+  // this happens on login when we change from a link object to 
+  // a player object
+  old_player = _player;
+
   // for safety reasons, we allow set_player_ob only to be called from /lib/core/login
   if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
   _player = ob;
   _player->set_user_ob(this_object());
+
+  if (objectp(old_player))
+    catch(old_player->dest_me());
 
   return 1;
 }
