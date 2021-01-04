@@ -1,3 +1,4 @@
+
 inherit "/lib/core/object.c";
 inherit "/lib/core/basic/auto_load.c";
 
@@ -47,20 +48,10 @@ string stat()
   return "Damned if I know really.\n";
 }
 
-mapping query_static_auto_load()
-{
-  return ([ "auto_string" : auto_string ]);
-}
-
-void init_static_arg(mapping stuff)
-{
-  auto_string = stuff["auto_string"];
-}
-
 void init()
 {
-  add_action("try_loading","reclaim");
-  add_action("inspect","inspect");
+  add_action("try_loading", "reclaim");
+  add_action("inspect", "inspect");
 }
 
 mixed add_auto_string(mixed str)
@@ -118,3 +109,29 @@ string query_file()
   query_path();
   return file;
 }
+
+mapping query_auto_load_attributes()
+{
+  return ([ 
+      "::" : ::query_auto_load_attributes(),
+      "auto string" : auto_string
+    ]);
+}
+
+void init_auto_load_attributes(mapping attribute_map)
+{
+  if (!undefinedp(attribute_map["auto string"]))
+    auto_string = attribute_map["auto string"];
+  if (!undefinedp(attribute_map["::"]))
+    ::init_auto_load_attributes(attribute_map["::"]);
+} 
+
+// mapping query_static_auto_load()
+// {
+//   return ([ "auto_string" : auto_string ]);
+// }
+
+// void init_static_arg(mapping stuff)
+// {
+//   auto_string = stuff["auto_string"];
+// }

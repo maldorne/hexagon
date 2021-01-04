@@ -98,7 +98,6 @@ void make_iou(mixed bad_strob, object dest)
  * Loads all the strobs in auto_load into dest.
  * Returns all those objects that loaded.
  */
-
 object * load_auto_load(mixed* auto_load, object dest) 
 {
   object ob, *obs;
@@ -107,7 +106,7 @@ object * load_auto_load(mixed* auto_load, object dest)
   if (!auto_load || !sizeof(auto_load))
     return ({ });
 
-  auto_load -= ({ 0 });
+  auto_load -= ({ nil });
   obs = allocate(sizeof(auto_load));
   
   for (i = 0; i < sizeof(auto_load); i++)
@@ -137,7 +136,7 @@ object * load_auto_load(mixed* auto_load, object dest)
     }
   }
 
-  obs -= ({ 0 });
+  obs -= ({ nil });
   return obs;
 } /* load_auto_load() */
 
