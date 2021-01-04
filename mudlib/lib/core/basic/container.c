@@ -11,7 +11,7 @@ inherit contents "/lib/core/basic/contents"; // old cute_look.c
 
 static int max_weight;       /* maximum allowable weight, 0 = no limit */
 static int contents_weight;  /* current contained weight */
-int weight_reduction;
+static int weight_reduction;
 
 
 void create()
@@ -166,7 +166,7 @@ mixed stats()
 {
   return ::stats() + ({
       ({ "Contents Weight (nosave)", contents_weight, }),
-      ({ "Max Weight", max_weight, }),
-      ({ "Weight Reduction", weight_reduction, }),
+      ({ "Max Weight (nosave)", max_weight, }),
+      ({ "Weight Reduction (nosave)", weight_reduction, }),
     });
 }
