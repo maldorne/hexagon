@@ -1,5 +1,5 @@
 
-#define TO_STRING_PADDING "                       "
+#define TO_STRING_PADDING "                                               "
 
 // Extracted from the old /global/basic/print_object.c, neverbot
 // (and heavily improved)
