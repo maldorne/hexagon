@@ -455,11 +455,11 @@ nomask int valid_write(string path, mixed euid, string func)
       SECURE->get_checked_master()[master] = 1;
       break;
 
-    case "game":
+    case "games":
       if (sizeof(bing) <= 2)
         return 0;
 
-      // game/{areas,quests/permission
+      // games/<game_name>/whatever
       if ((sizeof(bing) >= 3) &&
           (bing[2] == euid))
         return 1;
