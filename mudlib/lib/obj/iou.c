@@ -1,5 +1,5 @@
 
-inherit "/lib/core/object.c";
+inherit "/lib/item.c";
 inherit "/lib/core/basic/auto_load.c";
 
 mixed auto_string;
@@ -7,42 +7,41 @@ string file; // Raskolnikov
 
 string stat();
 
-#define ETP this_player()
-
 void setup()
 {
   set_name("iou");
-  add_alias("IOU");
   set_short("IOU");
+  set_main_plural("IOUs");
+  add_plural("ious");
   set_long("This is an IOU for an item that went missing for some unknown reason, " +
-    "probably something obscure to do with gods meddling with things wat man is " +
-    "not meant to know of. (The buggers have been messing with the fabric of reality again.). " +
+    "probably something obscure to do with gods meddling with things that man is " +
+    "not meant to know of (The buggers have been messing with the fabric of reality again). " +
     "Hang onto it, and you never know, it might be reclaimed.\n" +
-    "\"reclaim\" to try to reclaim on the IOU.\n" +
-    "\"inspect iou\" to try to read the fine print on the IOU.\n");
+    "      \"reclaim\" to try to reclaim on the IOU.\n" +
+    "      \"inspect iou\" to try to read the fine print on the IOU.\n");
 }
 
 string stat()
 {
-  string *path;
+  string * path;
 
-  if (!sizeof(auto_string)) 
+  if (!arrayp(auto_string) || !sizeof(auto_string)) 
     return "Nothing, totally useless, throw it away";
 
-  path = explode(auto_string[1],"/");
+  path = explode(auto_string[0], "/");
 
   if (sizeof(path) < 3) 
     return "Something wierd wat mortal man was not meant to mess with.\n";
   
-  switch(path[0])
+  switch (path[0])
   {
-    case "w":
+    case "home":
       call_out("dest_me",2,0);
       return "Some gods toy, which aught not be in the hands of mortals.\n";
-    case "d":
-      return "It's for an item from the domain of "+path[1]+" and it's called "+path[sizeof(path)-1]+"\n";
+    case "games":
+      return "It's for an item from the game "+path[1]+" and it's called "+path[sizeof(path)-1]+".\n";
     default:
-      return "It's for some generic object know as "+path[sizeof(path)-1]+"\n";
+      return "It's for some generic object know as "+path[sizeof(path)-1]+".\n";
   }
 
   return "Damned if I know really.\n";
@@ -62,7 +61,7 @@ mixed add_auto_string(mixed str)
 
 mixed add_object(object ob)
 {
-  auto_string = create_auto_load( ({ob }) );
+  auto_string = create_auto_load( ({ ob }) );
   return auto_string;
 }
 
@@ -78,15 +77,19 @@ int inspect(string str)
 int try_loading(string str)
 {
   object *olist;
-  notify_fail("Nothing happens.\n");
 
   if (auto_string)
   {
-    olist = load_auto_load(auto_string,ETP);
+    olist = load_auto_load(({ auto_string }), this_player());
+    
     if (sizeof(olist))
       write("A small demon hands you something and runs off with the IOU\n");
+    else
+      write("Nothing seems to happen.\n");
   }
 
+  // if this did not work, a new iou would have been created, so
+  // we destroy the current one 
   dest_me();
   return 1;
 }
@@ -125,13 +128,3 @@ void init_auto_load_attributes(mapping attribute_map)
   if (!undefinedp(attribute_map["::"]))
     ::init_auto_load_attributes(attribute_map["::"]);
 } 
-
-// mapping query_static_auto_load()
-// {
-//   return ([ "auto_string" : auto_string ]);
-// }
-
-// void init_static_arg(mapping stuff)
-// {
-//   auto_string = stuff["auto_string"];
-// }

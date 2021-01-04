@@ -83,7 +83,7 @@ void make_iou(mixed bad_strob, object dest)
 
   log_file("loader", "["+ctime(time(), 4)+"] "+ 
     (string)dest->query_cap_name()+" had ["+(string)bad_strob[FILENAME]+
-    "] refuse to load .\n");
+    "] refuse to load.\n");
 
   catch( iou = clone_object("/lib/obj/iou.c") );
 
@@ -147,7 +147,7 @@ void auto_clone(object ob, mapping attribute_map, object dest)
 
   if (!ob)
   {
-    tell_object(this_object(), _LANG_AUTO_LOAD_SOMETHING_WRONG);
+    tell_object(this_player(), _LANG_AUTO_LOAD_SOMETHING_WRONG);
     return;
   }
 
@@ -159,15 +159,15 @@ void auto_clone(object ob, mapping attribute_map, object dest)
     /* ob or dest don't exist, or couldn't move ob into dest */
     if (ob)
     {
-      log_file("loader",
-        (string)this_object()->query_name()+" dropped a ["+
-        (string)ob->query_name()+"], move_ret="+move_ret+".\n");
+      log_file("loader", "["+ctime(time(), 4)+"] "+ 
+        (string)this_player()->query_name()+" dropped a ["+
+        (string)ob->query_name()+"].\n"); //, move_ret="+move_ret+".\n");
 
       /* if we can't move to environment, well, too bad */
-      ob->move( environment(this_object()) );
+      ob->move(environment(this_player()));
     }
 
-    tell_object(this_object(), _LANG_AUTO_LOAD_DROP_SOMETHING);
+    tell_object(this_player(), _LANG_AUTO_LOAD_DROP_SOMETHING);
   }
 } /* auto_clone() */
 
@@ -188,14 +188,13 @@ mixed * create_object_auto_load(object ob)
 
   attribute_map = ob->query_auto_load_attributes();
 
-  if (!attribute_map )
+  if (!attribute_map)
     return ({ });
 
-  if ( sscanf(file_name(ob), "%s#%d", obj_filename, j) == 2)
+  if (sscanf(file_name(ob), "%s#%d", obj_filename, j) == 2)
     strob = ({ obj_filename, attribute_map });
   else
     strob = ({ file_name(ob), attribute_map });
 
   return strob;
 } /* create_update_auto_load() */
-
