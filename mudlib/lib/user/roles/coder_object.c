@@ -195,9 +195,9 @@ static int do_update(object *ov)
       continue;
     }
     // neverbot 01/2021
+    // hope this works :/
     else
     {
-      // "/lib/core/basic/auto_load"->load_auto_load(({ load_junk }), ov[i]);
       ov[i]->init_auto_load_attributes(attributes);
     }
 
