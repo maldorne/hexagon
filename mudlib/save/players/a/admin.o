@@ -34,9 +34,9 @@ neutral_spheres ({0|})
 consents ([0|])
 social_points 107
 max_social_points 107
-languages ({1|"comun",})
-cur_lang "comun"
 hb_counter 6643
+languages ({1|"common",})
+cur_lang "common"
 aliases ([0|])
 map_aliases ([0|])
 map_nicknames ([0|])
