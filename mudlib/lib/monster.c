@@ -81,6 +81,10 @@ void create()
   if (!query_race_ob())
     set_race_ob(DEFAULT_RACE_OB);
 
+  // same for classes, neverbot 01/2021
+  if (!query_class_ob())
+    set_class_ob(DEFAULT_CLASS_OB);
+
   combat_counter = 0;
 
   if (this_object()->query_weight() == 0)
@@ -455,6 +459,10 @@ int set_level(int i)
     p_memory = 1;
   if (i < 1)
     i = 1;
+
+  // without a class, the adjust level won't work
+  if (!query_class_ob())
+    set_class_ob(DEFAULT_CLASS_OB);
 
   adjust_class_level(i - query_class_level());
 
