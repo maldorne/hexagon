@@ -75,7 +75,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | exits        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | ftpwho       |          |          |    |    |
 | goto         | :white_check_mark: |          |    |    |
-| grep         | :white_check_mark: |          |    |    |
+| grep         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | head         | :white_check_mark: |          |    |    |
 | home         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | invisible    |          |          |    |    |
