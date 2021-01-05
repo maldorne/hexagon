@@ -45,8 +45,6 @@ static nomask object find_living(string name)
 
 nomask void set_living_name(string name)
 {
-stderr("@@@@@@@@@@@@@@@@@@@@@@ set_living_name " + name +"\n");
-
   if (interactive(this_object()) &&
      (base_name(previous_object(1)) != LOGIN_OB))
     return;
