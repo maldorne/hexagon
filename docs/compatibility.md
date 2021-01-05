@@ -95,8 +95,8 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `command`               | :white_check_mark: |  |
 | `commands`              | :white_check_mark: |  |
 | `notify_fail`           | :white_check_mark: |  |
-| `enable_commands`       | :white_check_mark: |  |
-| `disable_commands`      |  |  |
+| `enable_commands`       | :negative_squared_cross_mark: | not needed, everything is done inside `set_living_name`, dummy function, commented |
+| `disable_commands`      | :negative_squared_cross_mark: | dummy function, commented |
 | `interactive`           | :white_check_mark: | works with both `user` and `player` objects |
 | `set_living_name`       | :white_check_mark: |  |
 | `living`                | :white_check_mark: |  |

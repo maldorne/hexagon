@@ -44,7 +44,6 @@ void setup()
 
   set_name("heraldo");
   set_living_name("heraldo");
-  enable_commands();
   set_short("El Heraldo de los Dioses");
   set_long("Un magnífico ejemplar de Ángel femenino esta aquí esperando " +
            "a que los Dioses le indiquen cuando llegará una nueva Era.\n");

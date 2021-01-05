@@ -74,9 +74,12 @@ void create()
   // setup is, so it must be the last create call
   movement::create();
 
-  // every living has enable_commands activated,
-  // so it will respond to living()
-  enable_commands();
+  // every living has enable_commands activated, so it will respond to living()
+  // no, this will be done when set_living_name() is called on a living object, 
+  // enable_commands does not exist anymore. Now this happens:
+  //  - on a player: from the login object
+  //  - on a npc: when set_name is called
+  // enable_commands();
 
   equip_commands();
   hold_commands();

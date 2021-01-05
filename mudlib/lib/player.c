@@ -90,9 +90,6 @@ void create()
 
   seteuid(PLAYER_EUID);
 
-  // already done in living
-  // enable_commands();
-
   account_name = "";
   // player role by default
   role_name    = PLAYER_ROLE;

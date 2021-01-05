@@ -122,10 +122,10 @@ nomask object * targets(varargs object ob)
 }
 
 // Execute 'action' for the object this_object() as a command (matching against
-// add_actions and such).  The object must have called enable_commands() for
+// add_actions and such). The object must have called enable_commands() for
 // this to have any effect.
 // In case of failure, 0 is returned, otherwise a numeric value is returned,
-// which is the LPC "evaluation cost" of the command.  Bigger numbers mean
+// which is the LPC "evaluation cost" of the command. Bigger numbers mean
 // higher cost, but the whole scale is subjective and unreliable.
 
 int command(string action)
@@ -135,6 +135,9 @@ int command(string action)
   object * targets;
   object user;
   int i, found;
+
+  if (!living(this_object()))
+    return 0;
 
   stderr(" * command <" + object_name(this_object()) + "> to do <" + action + ">\n");
 
@@ -212,10 +215,10 @@ int command(string action)
 // array commands();
 
 // Returns an array of an array of 4 items describing the actions that
-// are available to this_object().  The first item is the command
-// itself (as passed to add_action()).  The second is the set of
+// are available to this_object(). The first item is the command
+// itself (as passed to add_action()). The second is the set of
 // flags (passed to add_action as the third argument, often defaulted
-// to 0).  The third is the object that defined the action.  The fourth
+// to 0). The third is the object that defined the action. The fourth
 // is the function to be called ("&#60;function&#62;" if it is a function pointer).
 
 mixed ** commands(varargs object ob)
