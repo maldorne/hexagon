@@ -17,6 +17,9 @@ void create()
 
 void event_write(object caller, string msg)
 {
+  int cols;
+  string * pieces;
+
   if (!interactive(this_object()))
     return;
 
@@ -24,6 +27,22 @@ void event_write(object caller, string msg)
     return;
 
   msg = fix_string(msg);
+
+  // if we have \n inside the message, let's assume it has
+  // already been prepared, so we do not need to sprintf again
+  pieces = explode(msg, "\n");
+
+  if (sizeof(pieces) == 1)
+  {
+    cols = 79;
+
+    // width fix, ignore the control characters used for colors
+    if (userp(this_object())) 
+      if (this_object()->query_cols())
+        cols = this_object()->query_cols() + (strlen(msg) - visible_strlen(msg));
+
+    msg = sprintf("%-*s", cols, msg);
+  }
 
   // only will do if interactive(this_object())
   this_object()->catch_tell(msg);
@@ -49,7 +68,7 @@ void event_say(object caller, string msg, varargs mixed avoid)
       return;
   }
 
-  msg = fix_string("\n" + msg);
+  msg = fix_string(msg);
 
   this_object()->catch_tell(msg);
 }

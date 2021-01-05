@@ -1,14 +1,13 @@
 
 // write() - send a message to current player
 // void write( mixed str );
-// Write a message `str' to current player. `str' can also be a number, which
-// will be translated to a string.
+// Write a message `str' to current player.
 
 static nomask void write(string str)
 {
   object user;
 
-  if (nullp(str))
+  if (undefinedp(str))
     return;
 
   user = this_user();
