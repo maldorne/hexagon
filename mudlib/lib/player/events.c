@@ -20,11 +20,9 @@ void create()
 
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
-  string new_name;
-
   ::event_enter(ob, msg, from, avoid);
 
-  if (msg && !strlen(msg))
+  if (undefinedp(msg) || !strlen(msg))
     return;
 
   // items added to our inventory also trigger event_enter
@@ -43,9 +41,17 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
   {
     if (this_object()->check_dark(environment(this_object())->query_light()) == 0)
     {
+      string color, new_name;
+      
       // change player appereance from /table/hud_table.c, neverbot 10/04
-      new_name = (string)HUD->query_colored_name(this_object(), ob, ob->query_cap_name(), 1);
-      msg = replace_string(msg, ob->query_cap_name(), new_name);
+      color = (string)HUD->query_color(this_object(), ob);
+      new_name = (string)HUD->query_name_changed(this_object(), ob);
+
+      if (strlen(color))
+        msg = replace_string(msg, ob->query_cap_name(), 
+          color + new_name + "%^RESET%^");
+      else
+        msg = replace_string(msg, ob->query_cap_name(), new_name);
 
       write(msg);
     }
@@ -56,11 +62,9 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
 
 void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 {
-  string new_name;
-
   ::event_exit(ob, msg, dest, avoid);
 
-  if (!msg || !strlen(msg))
+  if (undefinedp(msg) || !strlen(msg))
     return;
 
   // items added to our inventory also trigger event_enter
@@ -79,9 +83,17 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
   {
     if (this_object()->check_dark(environment(this_object())->query_light()) == 0)
     {
+      string color, new_name;
+      
       // change player appereance from /table/hud_table.c, neverbot 10/04
-      new_name = (string)HUD->query_colored_name(this_object(), ob, ob->query_cap_name(), 1);
-      msg = replace_string(msg, ob->query_cap_name(), new_name);
+      color = (string)HUD->query_color(this_object(), ob);
+      new_name = (string)HUD->query_name_changed(this_object(), ob);
+
+      if (strlen(color))
+        msg = replace_string(msg, ob->query_cap_name(), 
+          color + new_name + "%^RESET%^");
+      else
+        msg = replace_string(msg, ob->query_cap_name(), new_name);
 
       write(msg);
     }

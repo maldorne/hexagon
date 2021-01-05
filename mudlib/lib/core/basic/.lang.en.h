@@ -42,3 +42,8 @@
 
 #define _LANG_AUTO_LOAD_SOMETHING_WRONG "Ooops something broke.\n"
 #define _LANG_AUTO_LOAD_DROP_SOMETHING "Oops, you dropped something.\n"
+
+// contents.c
+
+#define _LANG_CONTENTS_ARE_HERE "are here.\n"
+#define _LANG_CONTENTS_IS_HERE "is here.\n"

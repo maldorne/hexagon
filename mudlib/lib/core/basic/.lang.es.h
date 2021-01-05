@@ -1,5 +1,5 @@
 
-// gender
+// gender.c
 
 #define _LANG_GENDER_MALE "varón"
 #define _LANG_GENDER_FEMALE "mujer"
@@ -42,3 +42,8 @@
 
 #define _LANG_AUTO_LOAD_SOMETHING_WRONG "¡Ups, algo se ha roto!\n"
 #define _LANG_AUTO_LOAD_DROP_SOMETHING "Ups, se te ha caído algo.\n"
+
+// contents.c
+
+#define _LANG_CONTENTS_ARE_HERE "están aquí.\n"
+#define _LANG_CONTENTS_IS_HERE "está aquí.\n"
