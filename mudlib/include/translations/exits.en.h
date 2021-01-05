@@ -1,4 +1,6 @@
 
+#define DIR_SOME_PLACE "somewhere"
+
 #define DIR_DOWN      "down"
 #define DIR_UP        "up"
 #define DIR_IN        "inside"
@@ -59,4 +61,16 @@
    DIR_IN        : DIR_OUT, \
    DIR_OUT       : DIR_IN, \
    DIR_STAIRS    : DIR_STAIRS, \
+])
+
+#define EXIT_ARTICLES ([ \
+   DIR_NORTH     : "the", \
+   DIR_SOUTH     : "the", \
+   DIR_WEST      : "the", \
+   DIR_EAST      : "the", \
+   DIR_NORTHWEST : "the", \
+   DIR_SOUTHEAST : "the", \
+   DIR_NORTHEAST : "the", \
+   DIR_SOUTHWEST : "the", \
+   DIR_STAIRS    : "the", \
 ])

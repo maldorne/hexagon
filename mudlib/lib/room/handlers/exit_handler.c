@@ -86,7 +86,7 @@ string expand_direc(string str)
 {
   string s1,s2;
   
-  if(sscanf(str,"%s %s",s1,s2) == 2)  
+  if (sscanf(str,"%s %s",s1,s2) == 2)  
     return s1;
   return str;
 }  /* expand_direc() */
@@ -101,7 +101,7 @@ mixed* add_exit(mapping door_control, mapping exit_map,
 
   // tell_object(find_living("neverbot"), "Direccion: "+direc+" Tipo: "+type+"\n");
 
-  if(!material) {
+  if (!material) {
    switch(type) {
     case "gate" :
       material = S_METAL;
@@ -115,12 +115,12 @@ mixed* add_exit(mapping door_control, mapping exit_map,
    }
   }
 
-  if(!exit_map) 
+  if (!exit_map) 
     exit_map = ([ ]);
   
   exit_map[direc] = ({ dest, type, material });
   
-  if(member_array(direc, dest_other) != -1)
+  if (member_array(direc, dest_other) != -1)
       return ({ });
 
   // In stuff we store:
@@ -128,13 +128,13 @@ mixed* add_exit(mapping door_control, mapping exit_map,
   //    ({ array with data about the exit type }) +
   //    back direction (north <-> south)
   //  })
-  stuff = ({dest}) + ROOM_HAND->query_exit_type(type, direc);
+  stuff = ({ dest }) + ROOM_HAND->query_exit_type(type, direc);
 
   dest_other += ({ direc, stuff });
   dest_direc += ({ expand_direc(direc) });
   // exit_string = 0;
   // short_exit_string = 0;
-  if((stuff = (mixed)ROOM_HAND->query_door_type(type, direc, dest)))
+  if ((stuff = (mixed)ROOM_HAND->query_door_type(type, direc, dest)))
   {
     //  door_control[direc] = ({ clone_object(DOOR_OBJECT) });
     //  door_control[direc][0]->setup_door(direc,this_object(),dest,stuff);
