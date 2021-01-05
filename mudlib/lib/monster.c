@@ -233,7 +233,7 @@ void set_name(string n)
   if (name && name != "object")
     return;
   name = n;
-  // add_plural(pluralize(name));
+
   set_short(capitalize(name));
   set_long(_LANG_RACES_UNKNOWN_DESC);
   set_living_name(n);
@@ -644,9 +644,9 @@ void event_fight_in_progress(object one, object two)
 {
   if (join_fights)
   {
-    attacker_list -= ({ 0 });
-    pile_in(one,two);
-    pile_in(two,one);
+    attacker_list -= ({ nil });
+    pile_in(one, two);
+    pile_in(two, one);
   }
 }
 
@@ -710,7 +710,7 @@ void dest_me()
   ::dest_me();
 }
 
-mixed *stats()
+mixed * stats()
 {
   mixed * zone;
   mixed * ret;
