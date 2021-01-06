@@ -266,7 +266,7 @@ void add_clone(string the_file, int how_many, varargs int flags)
   while ( how_many-- > 0 )
   {
     // make space for objects in array
-    room_clones += ({ 0 });
+    room_clones += ({ nil });
   }
   
   // last, for backward processing
@@ -469,7 +469,7 @@ void init()
 
   // add_action("do_dig", "cavar");
 
-  hidden_objects -= ({ 0 });
+  hidden_objects -= ({ nil });
 
   for (i = 0; i < sizeof(hidden_objects); i++)
     hidden_objects[i]->init();

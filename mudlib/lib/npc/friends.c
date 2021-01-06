@@ -2,6 +2,7 @@
 // code taken from monster.c, neverbot 04/2009
 
 #include <npc/npc.h>
+#include <language.h>
 
 mapping loved;          /* How do I love thee, let me count the ways */
 mapping hated;          /* ditto hated */
@@ -44,7 +45,7 @@ mapping add_hated(string type, mixed targets)
   return hated;
 }
 
-mapping  add_loved(string type, mixed targets)
+mapping add_loved(string type, mixed targets)
 {
   loved[type] = targets;
   return loved;
@@ -57,14 +58,13 @@ void pile_in(object ob, object ob1)
     if (!this_object()->query_attacker_list() ||
         member_array(ob, this_object()->query_attacker_list()) == -1)
     {
-      if (!this_object()->query_attacker_list())
+      if (!sizeof(this_object()->query_attacker_list()))
       {
         if (stringp(join_fight_mess))
           tell_room(environment(this_object()),
               (string)MONSTER_HAND->expand_string(this_object(), join_fight_mess, this_object(), ob));
         else 
-          tell_room(environment(this_object()),"¡" + this_object()->query_cap_name() + 
-              " se une a la batalla!\n");
+          tell_room(environment(this_object()), _LANG_FRIENDS_PILE_IN);
       }
 
       this_object()->attack_ob(ob);
@@ -77,8 +77,7 @@ void pile_in(object ob, object ob1)
   {
     if (!interactive(ob) && member_array(ob->query_name(), this_object()->query_protect()) != -1)
     {
-      tell_room(environment(this_object()), capitalize(this_object()->query_short()) + 
-          " se une a la batalla y protege a " + ob->query_short() + ".\n");
+      tell_room(environment(this_object()), _LANG_FRIENDS_PILE_IN_PROTECTING);
       this_object()->attack_ob(ob1);
       this_object()->set_protecting(1);
     }

@@ -50,7 +50,7 @@ protected int cmd(string str, object me, string verb)
 	
 	/*	
 	hidden_objects = environment(me)->query_hidden_objects();
-	hidden_objects -= ({ 0 });
+	hidden_objects -= ({ nil });
 	
 	// Añadimos lo que se haya escondido sin informar a la room
 	aux = all_inventory(environment(me));

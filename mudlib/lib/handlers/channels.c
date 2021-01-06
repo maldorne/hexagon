@@ -415,7 +415,7 @@ void do_channel(string verb, string str, varargs string name, string mud, int fl
   }
 
   if (channels[verb] && sizeof(channels[verb])) // Taniwha 01/05/97, make sure it exists
-    channels[verb] -= ({ 0 });
+    channels[verb] -= ({ nil });
   else 
     channels[verb] = ({ });
 

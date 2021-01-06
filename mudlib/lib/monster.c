@@ -629,7 +629,7 @@ void do_move_after(int bing)
   } /* while */
 } /* do_move_after() */
 
-// Added by Wonderflug.  To fix add_protect.
+// Added by Wonderflug. To fix add_protect.
 void event_death(object caller, varargs object killer,
                                         object * attackers,
                                         mixed avoid)

@@ -2,7 +2,7 @@
 #include <living/death.h>
 
 /* second life routine... handles the player dieing. */
-int second_life(object corpse, object initiator) 
+nomask int second_life(object corpse, object initiator) 
 {
   string str;
   int i, no_dec;

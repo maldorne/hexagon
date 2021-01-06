@@ -86,7 +86,7 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   {
     for (i = 0; i < sizeof(ob); i++)
       list += (object *)ob[i]->find_inv_match(str);
-    list -= ({ 0 });
+    list -= ({ nil });
 
     if (!sizeof(list))
       return ({ });
@@ -291,7 +291,7 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
     // }
   }
 
-  return ret - ({ 0 });
+  return ret - ({ nil });
   */
 }
 

@@ -10,12 +10,13 @@
 
 #include <common/properties.h>
 #include <user/xp.h>
-
+#include <user/hud.h>
 #include <living/combat.h>
 #include <living/consents.h>
+#include <language.h>
 
-inherit unarmed_combat "/lib/living/unarmed_combat";
-inherit armed_combat   "/lib/living/armed_combat";
+inherit unarmed_combat "/lib/living/unarmed_combat.c";
+inherit armed_combat   "/lib/living/armed_combat.c";
 
 static object attackee;
 static object *attacker_list, *call_outed, protector;
@@ -141,8 +142,8 @@ int query_fighting()
 {
   int i;
 
-  attacker_list -= ({0});
-  call_outed -= ({0});
+  attacker_list -= ({ nil });
+  call_outed -= ({ nil });
   for (i=0;i<sizeof(attacker_list);i++)
   {
     if (interactive(attacker_list[i]))
@@ -390,8 +391,15 @@ void attack_by(object ob)
   if (member_array(ob, attacker_list) == -1 &&
       member_array(ob, call_outed) == -1) 
   {
-    tell_object(this_object(), "Estás siendo atacado por " + 
-      ob->query_short() + ".\n");
+    string color, name;
+    name = ob->query_short();
+
+    // change player appereance from /table/hud_table.c, neverbot 01/2020
+    color = (string)HUD->query_color(this_object(), ob);
+
+    name = strlen(color) ? color + name  + "%^RESET%^" : name;
+
+    tell_object(this_object(), _LANG_COMBAT_BEING_ATTACKED);
 
     attacker_list += ({ ob });
   }
@@ -453,13 +461,13 @@ int stop_fight(object ob, varargs int silent)
 
 mixed *query_attacker_list()
 {
-  attacker_list -= ({0});
+  attacker_list -= ({ nil });
   return attacker_list;
 }
 
 mixed *query_call_outed()
 {
-  call_outed -= ({0});
+  call_outed -= ({ nil });
   return call_outed;
 }
 

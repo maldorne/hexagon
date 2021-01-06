@@ -108,7 +108,7 @@ mixed * query_shields_held()
 
   result = ({ });
 
-  held_ob -= ({ 0 });
+  held_ob -= ({ nil });
 
   for (i = 0; i < sizeof(held_ob); i++)
     if (held_ob[i]->query_shield())
@@ -138,7 +138,7 @@ void reset_hands()
 {
   int i;
 
-  held_ob -= ({ 0 });
+  held_ob -= ({ nil });
 
   // Unhold everything
   for (i = 0; i < sizeof(held_ob); i++)
@@ -396,7 +396,7 @@ int do_hold(string woo)
     if (!boo[i]->id(woo)) 
       boo[i] = nil;
     
-  boo -= ({ 0 });
+  boo -= ({ nil });
 
   if (!sizeof(boo))
   {
@@ -450,7 +450,7 @@ int do_unhold(string woo)
     if (!boo[i]->id(woo)) 
       boo[i] = nil;
     
-  boo -= ({ 0 });
+  boo -= ({ nil });
 
   // As nasty as it gets but I'm just trying to get it to work 
   // right now. Speedups later.

@@ -404,7 +404,7 @@ int do_wear(string woo)
     if (!boo[i]->id(woo))
       boo[i] = nil;
 
-  boo -= ({ 0 });
+  boo -= ({ nil });
 
   if (!sizeof(boo))
   {
@@ -465,7 +465,7 @@ int do_unwear(string woo)
     if (!boo[i]->id(woo))
       boo[i] = nil;
 
-  boo -= ({ 0 });
+  boo -= ({ nil });
 
   // As nasty as it gets but I'm just trying to get it to work
   // right now. Speedups later.

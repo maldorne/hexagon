@@ -245,7 +245,7 @@ nomask object * all_inventory(varargs object ob)
 
   if (arrayp(_inventory))
   {
-    // _inventory -= ({ 0 });
+    // _inventory -= ({ nil });
     // return array_copy(_inventory);
     return _inventory;
   }

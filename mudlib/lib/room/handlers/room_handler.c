@@ -80,7 +80,7 @@ int remove_exit_type(string type)
 
 mixed * query_door_type(string type, string direc, string dest)
 {
-  if (!door_types[type])
+  if (undefinedp(door_types[type]))
     return door_types["gate"];
 
   /* If there isnt a door on the other side.  We don't join. 

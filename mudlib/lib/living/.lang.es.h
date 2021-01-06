@@ -33,3 +33,8 @@
 #define _LANG_HANDLE_PUT_PREP "en"
 #define _LANG_HANDLE_GIVE_PREP "a"
 #define _LANG_HANDLE_GIVE_CANNOT "No se puede encontrar "+person+".\n"
+
+// combat.c
+
+#define _LANG_COMBAT_BEING_ATTACKED "%^BOLD%^Estás siendo atacado por %^RESET%^" + \
+                        name + "%^BOLD%^.%^RESET%^\n\n"
