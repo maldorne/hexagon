@@ -1,16 +1,28 @@
 
 #include <kernel.h>
+#include <mud/translations.h>
+#include <mud/config.h>
 
 // actions available
 static mapping _actions;
+// actions that can only be activated by the same object
+static mapping _private_actions;
 
-mapping query_actions()
+nomask mapping query_actions()
 {
   if (!_actions)
     _actions = ([ ]);
+  if (!_private_actions)
+    _private_actions = ([ ]);
+
+  if (this_player() && (this_object() == this_player()))
+    return _actions + _private_actions;
+
   return _actions;
 }
 
+// these actions can be activated from the same object, 
+// other objects in the same environment, etc
 nomask void add_action(string function, mixed verbs)
 {
   if (!_actions)
@@ -27,17 +39,38 @@ nomask void add_action(string function, mixed verbs)
     _actions[verbs] = function;
 }
 
-nomask int action_exist(string verb)
+// these actions can be activated only  from the same object
+nomask void add_private_action(string function, mixed verbs)
 {
-  if (_actions[verb])
-    return 1;
-  return 0;
+  if (!_private_actions)
+    _private_actions = ([ ]);
+
+  if (arrayp(verbs))
+  {
+    int i;
+
+    for (i = 0; i < sizeof(verbs); i++)
+      _private_actions[verbs[i]] = function;
+  }
+  else if (stringp(verbs))
+    _private_actions[verbs] = function;
 }
+
+// nomask int action_exist(string verb)
+// {
+//   if (_actions[verb])
+//     return 1;
+//   return 0;
+// }
 
 nomask string query_action(string verb)
 {
   if (!_actions)
     _actions = ([ ]);
+
+  if (this_player() && (this_object() == this_player()))
+    if (!undefinedp(_private_actions[verb]))
+      return _private_actions[verb];
 
   return _actions[verb];
 }
@@ -52,11 +85,47 @@ static nomask void notify_fail(string str)
   MUDOS->set_notify_fail_msg(str);
 }
 
+// returns the list of every object where inputs from object ob
+// will search for available actions
+nomask object * targets(varargs object ob)
+{
+  object user;
+  object * targets;
+  object env;
+
+  targets = ({ });
+  user = ob->user();
+
+  // priority for looking actions
+  // first, the user object (our connection)
+  // account commands, etc
+  if (user)
+    targets += ({ user });
+
+  // our role (user privileges)
+  if (user && user->query_role())
+    targets += ({ user->query_role() });
+
+  // second, our own player ob
+  targets += ({ ob });
+
+  // third, our environment and other items in there
+  if (env = environment(ob))
+    targets += ({ env }) +
+               all_inventory(env) -
+               ({ ob });
+
+  // last, our inventory
+  targets += all_inventory(ob);
+
+  return targets;
+}
+
 // Execute 'action' for the object this_object() as a command (matching against
-// add_actions and such).  The object must have called enable_commands() for
+// add_actions and such). The object must have called enable_commands() for
 // this to have any effect.
 // In case of failure, 0 is returned, otherwise a numeric value is returned,
-// which is the LPC "evaluation cost" of the command.  Bigger numbers mean
+// which is the LPC "evaluation cost" of the command. Bigger numbers mean
 // higher cost, but the whole scale is subjective and unreliable.
 
 int command(string action)
@@ -64,9 +133,11 @@ int command(string action)
   string * words;
   string verb, params;
   object * targets;
-  object env;
   object user;
   int i, found;
+
+  if (!living(this_object()))
+    return 0;
 
   stderr(" * command <" + object_name(this_object()) + "> to do <" + action + ">\n");
 
@@ -82,31 +153,8 @@ int command(string action)
   else
     params = "";
 
-  targets = ({ });
+  targets = targets(this_object());
   found = FALSE;
-  user = this_object()->user();
-
-  // priority for looking actions
-  // first, the user object (our connection)
-  // account commands, etc
-  if (user)
-    targets += ({ user });
-
-  // our role (user privileges)
-  if (user && user->query_role())
-    targets += ({ user->query_role() });
-
-  // second, our own player ob
-  targets += ({ this_object() });
-
-  // third, our environment and other items in there
-  if (env = environment(this_object()))
-    targets += ({ env }) +
-               all_inventory(env) -
-               ({ this_object() });
-
-  // last, our inventory
-  targets += all_inventory(this_object());
 
   stderr(" * command targets <" + to_string(targets) + ">\n");
 
@@ -118,19 +166,41 @@ int command(string action)
     if ((!error) && (func != nil))
     {
       mixed result;
-      result = call_other(targets[i], func, params);
 
-      if (result == nil)
-      {
-        write("Se ha producido un error.\n");
-        notify_fail("");
-        stderr(" * command: wrong action function for <" + func + "> in " +
-               object_name(targets[i]) + "\n");
-        // stderr("   -> " + error + "\n");
+      error = catch(result = call_other(targets[i], func, params));
+
+      if (error)
+      { 
+        if (LOG_CAUGHT_ERRORS)
+        {
+          // this will appear in the stderr just after the call trace
+          stderr(" * error in action function <" + func + "> in " +
+                 object_name(targets[i]) + "\n");
+        }
+        else
+        {
+          // print some information about the error anyways (won't have
+          // the full call trace)
+          stderr(" * error in action function <" + func + "> in " +
+                 object_name(targets[i]) + ":\n   " + error + "\n");
+        
+          // inform the coder, the error has been caught so the driver
+          // won't inform about anything
+          if (this_player() && this_player()->query_coder()) 
+            write("Error in action function <" + func + ">: " + error + "\n");
+
+          write(_LANG_ERROR_HAPPENED);
+        }
+
+        MUDOS->set_notify_fail_msg("");
+        break;
       }
-
-      // function executed
-      if (result)
+      else if (result == nil)
+      {
+        stderr(" * action function <" + func + "> does not exist in " +
+               object_name(targets[i]) + "\n");
+      }
+      else if (result) // function executed, result != 0
       {
         found = TRUE;
         break;
@@ -145,16 +215,15 @@ int command(string action)
 // array commands();
 
 // Returns an array of an array of 4 items describing the actions that
-// are available to this_object().  The first item is the command
-// itself (as passed to add_action()).  The second is the set of
+// are available to this_object(). The first item is the command
+// itself (as passed to add_action()). The second is the set of
 // flags (passed to add_action as the third argument, often defaulted
-// to 0).  The third is the object that defined the action.  The fourth
+// to 0). The third is the object that defined the action. The fourth
 // is the function to be called ("&#60;function&#62;" if it is a function pointer).
 
 mixed ** commands(varargs object ob)
 {
   object * targets;
-  object user;
   mapping actions;
   string * verbs;
   mixed ** result;
@@ -164,21 +233,7 @@ mixed ** commands(varargs object ob)
     ob = this_object();
 
   result = ({ });
-  targets = ({ });
-  user = ob->user();
-
-  if (user)
-    targets += ({ user });
-
-  if (user && user->query_role())
-    targets += ({ user->query_role() });
-
-  if (environment(ob))
-    targets += ({ environment(ob) }) +
-                  all_inventory(environment(ob));
-
-  targets += all_inventory(ob);
-
+  targets = targets(ob);
   actions = ([ ]);
 
   for (i = 0; i < sizeof(targets); i++)

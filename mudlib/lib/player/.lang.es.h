@@ -25,3 +25,15 @@
 #define _LANG_QUIT_INFORM_CODERS this_object()->query_cap_name()+" sale de "+mud_name()
 #define _LANG_QUIT_INFORM_PLAYERS this_object()->query_cap_name()+" sale de "+mud_name()
 #define _LANG_QUIT_ENV_QUIT this_object()->query_cap_name()+" sale de "+mud_name()+".\n"
+
+// read.c
+
+#define _LANG_READ "Lees:\n" + str +"\n"
+#define _LANG_READ_IN_LANGUAGE "Lees un texto escrito en " + lang + ":\n" + str + "\n"
+#define _LANG_READ_UNABLE_WITH_GARBLE "No eres capaz de entender el siguiente texto:\n" + \
+        str + (lang ? "\nParece escrito en " + lang + "." : "") + "\n"
+#define _LANG_READ_WHAT "Habrías jurado que habia algo escrito aquí...\n"; 
+#define _LANG_READ_UNABLE_WITHOUT_GARBLE "No eres capaz de entender el texto" + \
+        (lang ? ", parece escrito en " + lang : "") + ".\n"
+#define _LANG_READ_IMPOSSIBLE "Todo " + mud_name() + " tiembla al encontrar una escritura mágica que no " + \
+        "tiene forma de ser interpretada.\n"

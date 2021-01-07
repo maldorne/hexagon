@@ -85,7 +85,7 @@ int really_quit()
   if (environment(this_object()))
   {
     ob = deep_inventory(this_object());
-    for(i = 0; i < sizeof(ob); i++)
+    for (i = 0; i < sizeof(ob); i++)
     {
       if (ob[i]->query_no_save_object())
       {
@@ -99,10 +99,10 @@ int really_quit()
 
   if (query_name() != DEF_NAME)
   {
-    if ( !this_object()->query_hidden() )
-      tell_room( environment(this_object()), _LANG_QUIT_ENV_QUIT, ({ this_object() }));
+    if (!this_object()->query_hidden())
+      tell_room(environment(this_object()), _LANG_QUIT_ENV_QUIT, ({ this_object() }));
 
-    if ( this_object()->query_coder() )
+    if (this_object()->query_coder())
       event(users(), "inform", _LANG_QUIT_INFORM_CODERS, "logon-coders",
                                all_inventory(environment(this_object())));
     else
@@ -140,8 +140,7 @@ int really_quit()
       // tell_object(find_living("neverbot"), "Dest unique of item "+frog->short()+".\n");
       frog->dest_unique();
     }
-    else if (frog->query_auto_load() ||
-             frog->query_static_auto_load())
+    else if (frog->query_auto_load())
     {
       frog->dest_me();
     }
@@ -193,7 +192,7 @@ void continue_quit(int a, object here)
 
 int quit()
 {
-  if (query_loading() || query_property(LOADING_PROP))
+  if (query_property(LOADING_PROP))
   {
     notify_fail(_LANG_QUIT_LOADING);
     return 0;

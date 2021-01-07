@@ -1,40 +1,30 @@
 
 // messages
 
-#define _LANG_ERROR_HAPPENED "An error happened.\n"
+#define _LANG_ERROR_HAPPENED "An error occurred.\n"
 #define _LANG_DIDNT_WORK "The attempt of doing that didn't work.\n"
 
 #define _LANG_AND "and"
 
 // numbers
 
-string ordinal(int number)
-{
-  string retval;
-
-  switch(number)
-  {
-    case 11:
-      retval = "11th"; break;
-    case 12:
-      retval = "12th"; break;
-    case 13:
-      retval = "13th"; break;
-    default:
-    switch(number%10)
-    {
-      case 1:
-      retval = number+"st"; break;
-      case 2:
-      retval = number+"nd"; break;
-      case 3:
-      retval = number+"rd"; break;
-      default:
-      retval = number+"th";
-    }
+#define _LANG_ORDINAL_CONVERSION switch(number) { case 11: \
+    case 12: \
+    case 13: \
+      return "" + number + "th"; \
+    default: \
+    switch (number%10) \
+    { \
+      case 1: \
+      return "" + number + "st"; \
+      case 2: \
+      return "" + number + "nd"; \
+      case 3: \
+      return "" + number + "rd"; \
+      default: \
+      return "" + number + "th"; \
+    } \
   }
-  return retval;
-}
 
 #define _LANG_NUMBERS_THOUSANDS_OF "thousands of"
 #define _LANG_NUMBERS_LOADS_OF "loads of"

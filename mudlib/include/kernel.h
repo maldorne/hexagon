@@ -5,11 +5,12 @@
 #define DRIVER "/lib/core/driver"
 #define AUTO   "/lib/core/auto"
 
-#define MUDOS_PATH  "/lib/core/mudos"
-#define MUDOS find_object(DRIVER)->mudos()
+#define MUDOS_PATH "/lib/core/mudos"
+#define MUDOS      "/lib/core/mudos"
+// #define MUDOS find_object(DRIVER)->mudos()
 
 #define LOGIN find_object(DRIVER)->login()
-#define LOGIN_OB  "/lib/core/login"
+#define LOGIN_OB "/lib/core/login"
 
 // Longer logs in the driver stderr
 #define DRIVER_LONG_LOGS

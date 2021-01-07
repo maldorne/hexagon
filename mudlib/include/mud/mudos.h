@@ -6,8 +6,8 @@
 
 #define is_mudlib(f) (strlen(f) >= 5 && (f)[0..4] == "/lib/")
 
-#define mudlib_privileges() (nullp(initial_object()) || \
-                             (is_mudlib(object_name(initial_object()))))
+#define mudlib_privileges() (undefinedp(initial_object()) || \
+                            (is_mudlib(object_name(initial_object()))))
 
 #define is_auto_object()    (previous_program() == AUTO && \
                              previous_function() != "call_other")

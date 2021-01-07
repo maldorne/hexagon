@@ -303,7 +303,7 @@ static int cmd (string name, object who, string verb)
   info+="Estado:\t\t"+capitalize(me->volume_string())+"\n";
 
   info+="Cobardía:\t( "+me->query_wimpy()+" )%\t\t";    
-  info+="Carga:\t\t"+me->query_loc_weight()+" ( "+me->query_max_weight()+" )\n";
+  info+="Carga:\t\t"+me->query_contents_weight()+" ( "+me->query_max_weight()+" )\n";
 
   info+="Combate:\t"+capitalize(me->query_combat_mode_string())+
         ((strlen(me->query_combat_mode_string()) > 5)?"\t":"\t\t");    

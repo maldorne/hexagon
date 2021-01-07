@@ -49,7 +49,7 @@ void _set_living_name(object ob, string name)
   if (_livings["object"])
     _livings["object"] -= ({ ob });
 
-  if (!_livings[name])
+  if (undefinedp(_livings[name]))
     _livings[name] = ({ ob });
   else
     _livings[name] = _livings[name] + ({ ob });
@@ -57,7 +57,7 @@ void _set_living_name(object ob, string name)
 
 void remove_living(object ob)
 {
-  if (!_livings[ob->query_name()])
+  if (undefinedp(_livings[ob->query_name()]))
     return;
 
   _livings[ob->query_name()] -= ({ ob });
@@ -68,9 +68,29 @@ void remove_living(object ob)
 
 object _find_living(string name)
 {
-  if (!_livings[name])
+  if (undefinedp(_livings[name]))
     return nil;
 
   // if (sizeof(_livings[name]) > 1)
   return _livings[name][0];
+}
+
+int _is_in_livings(object ob)
+{
+  object * list;
+  string name;
+  int i;
+
+  name = ob->query_name();
+
+  if (undefinedp(_livings[name]))
+    return FALSE;
+
+  list = _livings[name];
+
+  for (i = 0; i < sizeof(list); i++)
+    if (list[i] == ob)
+      return TRUE;
+
+  return FALSE;
 }

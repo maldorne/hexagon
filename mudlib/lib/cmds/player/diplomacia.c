@@ -71,10 +71,10 @@ protected int cmd (string str, object me, string verb)
   ret = "";
 
   // Only rooms and directories in domains will have diplomacy data
-  if (!is_in_domain(environment(me)))
+  if (!is_in_game(environment(me)))
     return 1;
 
-  zone = handler->query_diplomacy_name(real_file_name(environment(me)));
+  zone = handler->query_diplomacy_name(base_name(environment(me)));
 
   if (member_array(zone, ZONES) == -1)
   {

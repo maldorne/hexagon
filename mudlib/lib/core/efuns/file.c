@@ -2,9 +2,6 @@
 #include <files/file.h>
 #include <mud/secure.h>
 
-#include "files/write_file.c"
-#include "files/read_file.c"
-
 // file_size - get the size of a file
 // int file_size( string file );
 // file_size() returns the size of file 'file' in bytes.  Size -1
@@ -18,6 +15,9 @@ static nomask int file_size(string path)
     int i;
     mixed **dir;
     string *comps, base;
+
+    if (!strlen(path))
+      return 0;
 
     if (path == "/")
       return -2;
@@ -33,6 +33,9 @@ static nomask int file_size(string path)
 
     return -1;
 }
+
+#include "files/write_file.c"
+#include "files/read_file.c"
 
 static nomask int file_length(string file_name)
 {
@@ -126,7 +129,7 @@ static nomask int cat(string file)
     lines = lines[0..MAX_CAT_LINES-1];
 
   for (i = 0; i < sizeof(lines); i++)
-      write(lines[i]+"\n");
+    write(lines[i] + "\n");
 
   return 1;
 }

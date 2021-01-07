@@ -12,6 +12,7 @@
 #include <user/terminal.h>
 #include <mud/secure.h>
 #include <mud/translations.h>
+#include <mud/config.h>
 
 // ************************************************************
 //  Function prototypes
@@ -100,6 +101,7 @@ nomask void _stderr(string str)
   if (!str)
     return;
 
+  // when called from the driver object, it will print in the stderr
   send_message(str);
 }
 
@@ -146,7 +148,13 @@ static nomask void write(string str)
 
 static nomask void inform_user(string str, int message_type)
 {
-  if (this_player()->query_coder())
+  // if there is a problem during user disconnection, this_user does not
+  // exist anymore and we can have an "Error within runtime_error" 
+  // message... we do not want that
+  if (!this_user())
+    return;
+
+  if (this_user()->query_coder())
     write(str);
 
   switch(message_type)
@@ -155,9 +163,13 @@ static nomask void inform_user(string str, int message_type)
 
       write(_LANG_ERROR_HAPPENED);
 
-      if (strlen(mudos->query_current_command()))
+      // if we are executing a command, the queue will
+      // print the necessary information
+      if (!strlen(mudos->query_current_command()))
+      {
         write(_LANG_DIDNT_WORK);
-      this_player()->show_prompt("\n");
+        this_user()->write_prompt();
+      }
 
       break;
 
@@ -234,13 +246,23 @@ static object inherit_program(string from, string path, int priv)
 
   log_driver(" + inherit_program: " + path + " from " + from + "\n");
 
+  // the minimal read_file is the only kfun available to know 
+  // if the file exists
+  if (::read_file(path + ".c", 0, 1) == nil)
+  {
+    log_driver(" + file does not exist\n");
+    return nil;
+  }
+
   log_driver(" - compile_object: " + path + " (from driver)\n");
   err = catch(ob = ::compile_object(path));
 
   if (err)
   {
     log_driver(" + inherit_program error: " + err + "\n");
-    inform_user(" + inherit_program error\n   compile_object returned: " + err + "\n", DRIVER_COMPILE_ERROR);
+    // if caught errors are logged, this is redundant
+    if (!LOG_CAUGHT_ERRORS)
+      inform_user(" + inherit_program error\n   compile_object returned: " + err + "\n", DRIVER_COMPILE_ERROR);
   }
 
   return ob;

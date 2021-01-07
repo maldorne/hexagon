@@ -267,7 +267,7 @@ object* find_all_liv(string str, object me, varargs object *valid_targets)
 
   if (sizeof(valid_targets))
   {
-    valid_targets -= ({ 0 });
+    valid_targets -= ({ nil });
     for (i = 0; i < sizeof(valid_targets); i++)
     {
      if (valid_targets[i]->id(str))

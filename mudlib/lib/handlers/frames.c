@@ -6,29 +6,15 @@
  *
  */
 
-#define DEFAULT_FRAME_STYLE "default"
-#define DEFAULT_WIDTH 79
-#define DEFAULT_HEIGHT 0
+#include <common/frames.h>
 
-// positions inside the style definition array
-#define STYLE_EXTRA_WIDTH 0
-#define STYLE_EXTRA_HEIGHT 1
-#define STYLE_EXTRA_WIDTH_PADDING 2
-#define STYLE_EXTRA_HEIGHT_PADDING 3
-#define STYLE_LEFT_PAD 4
-#define STYLE_RIGHT_PAD 5
-#define STYLE_UP_LEFT_CORNER 6
-#define STYLE_UP_RIGHT_CORNER 7
-#define STYLE_DOWN_RIGHT_CORNER 8
-#define STYLE_DOWN_LEFT_CORNER 9
-#define STYLE_UP_PAD 10
-#define STYLE_DOWN_PAD 11
-
+inherit "/lib/core/object.c";
 
 mapping styles;
 
 void create()
 {
+  ::create();
   styles = ([ ]);
 
   // each style is defined by an array of:
@@ -68,8 +54,22 @@ string frame(string content, varargs string title, int width, int height, string
   // colors, etc
   title = fix_string(title);
 
+  lines = explode(content, "\n");
+
   if (!width)
-    width = DEFAULT_WIDTH;
+  {
+    int max_length, len;
+    max_length = 0;
+
+    // width = DEFAULT_WIDTH;
+    for (i = 0; i < sizeof(lines); i++)
+    {
+      if ((len = strlen(lines[i])) > max_length)
+        max_length = len;
+    }
+
+    width = max_length + (style[STYLE_EXTRA_WIDTH] + style[STYLE_EXTRA_WIDTH_PADDING]) * 2;
+  }
 
   if (!height)
     height = DEFAULT_HEIGHT;
@@ -90,8 +90,6 @@ string frame(string content, varargs string title, int width, int height, string
       width - (style[STYLE_EXTRA_WIDTH] + style[STYLE_EXTRA_WIDTH_PADDING]) * 2,
       "");
   }
-
-  lines = explode(content, "\n");
 
   for (i = 0; i < sizeof(lines); i++)
   {

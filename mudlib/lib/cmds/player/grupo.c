@@ -327,7 +327,7 @@ protected int cmd (string str, object me, string verb)
            obs = ({ });
     }
 
-    obs -= ({ 0 });
+    obs -= ({ nil });
 
     for (i = 0, cont = 0, contno = 0; i < sizeof(obs); i++)
     {
@@ -621,7 +621,7 @@ protected int cmd (string str, object me, string verb)
          }      
      }
      
-     foll -= ({ 0 });
+     foll -= ({ nil });
      foll -= exito;
      foll -= atras;
      
@@ -792,7 +792,7 @@ protected int cmd (string str, object me, string verb)
         }
     }
      
-    foll -= ({ 0 });
+    foll -= ({ nil });
     foll -= exito;
 
     exito += ({ me });

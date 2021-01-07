@@ -64,13 +64,16 @@ static void actual_death(object killer);
 
 int do_death(object killed_by) 
 {
-  int i, dead_xp, tot;
+  int i, dead_xp;
+  // int total;
   int aln_at, aln_df;
   float xp_adj;
   mapping damage_done;
   int att_level;
   int attackers, attacker_xp, aux_attacker_xp;
   object *attacker_list, *call_outed;
+
+  attacker_xp = 0;
 
   /* Added to maybe fix an annoying bug..
    * The dead on login bug..
@@ -120,8 +123,8 @@ int do_death(object killed_by)
    * pop up and screw things up royally.  Monsters not dying, that sort of thing.
    * --WF, apr 95
    */
-  attacker_list -= ({ 0 });
-  call_outed -= ({ 0 });
+  attacker_list -= ({ nil });
+  call_outed -= ({ nil });
 
   att_level = (int)this_object()->query_level();
   damage_done = (mapping)this_object()->query_damage_done();
@@ -132,10 +135,13 @@ int do_death(object killed_by)
   for (i = 0; i < sizeof(attacker_list); i++)
   {
     attacker_list[i]->stop_fight(this_object());
-    tot += damage_done[attacker_list[i]];
+
+    // if (!undefinedp(damage_done[attacker_list[i]]))
+    //   total += damage_done[attacker_list[i]];
+
     // Las monturas no quitan xp, neverbot 05/2009
     if (!attacker_list[i]->query_ride())
-        attackers++;
+      attackers++;
   }
   
   for (i = 0; i < sizeof(call_outed); i++)
@@ -153,8 +159,8 @@ int do_death(object killed_by)
             this_object()->query_cap_name()+" "+
              "has lost '"+dead_xp+"' xp dying.\n");
 
-  if (!tot) 
-    tot = 1;
+  // if (!total) 
+  //   total = 1;
 
   /* this gives the total for each attacker.. */
   if (dead_xp != 0)
@@ -185,8 +191,14 @@ int do_death(object killed_by)
       }
       else
       {
-        // Tipos de xp, neverbot 07/04
-        aux_attacker_xp = attacker_xp * attacker_list[i]->query_xp_types()[KILL_XP] / 100;
+        mapping xp_types;
+        int percentage;
+
+        xp_types = attacker_list[i]->query_xp_types();
+        percentage = undefinedp(xp_types[KILL_XP]) ? 100 : xp_types[KILL_XP];
+
+        // xp types, neverbot 07/04
+        aux_attacker_xp = attacker_xp * percentage / 100;
 
         // tell_object( attacker_list[i], "[Debug kill_xp]: attacker_xp: " + attacker_xp + 
         //                " aux_attacker_xp: " + aux_attacker_xp + "\n");
@@ -261,7 +273,7 @@ int do_death(object killed_by)
   }
   else
     tell_room(environment(this_object()),this_object()->query_cap_name()+
-        " ha muerto horriblemente.\n");
+      " ha muerto horriblemente.\n");
 
   if (environment())
     event(environment(), "death", killed_by, attacker_list, this_object());
@@ -386,8 +398,11 @@ object make_corpse()
   return corpse;
 } /* Make corpse */
 
-//? shouldnt need to call this... so make it static, just in case 
 
+// default function for every living, will be masked in player.c
+int second_life(object corpse, object initiator) { return 0; }
+
+// shouldnt need to call this... so make it static, just in case 
 static void actual_death(object initiator)
 {
   object ob, ob2;

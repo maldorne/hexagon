@@ -1,16 +1,19 @@
 /* this is the room handler... it keeps track of all sorts of silly
  * things...
  * 
- * Añadida salida "rope", Folken 05/2009
+ * added "rope" type exit, neverbot 05/2009
  */
+
+#include <translations/exits.h>
 
 mapping exit_types;
 mapping door_types;
 mapping opposite;
 mapping opp_dirs;
 
-/* ({ mess, obv, size, func }) */
-void create() {
+void create() 
+{
+  /* ({ mess, obv, size, func }) */
   exit_types = ([
    "standard" :({ 0, 1,  10, 0 }),
    "corridor" :({ 0, 1,  10, 0 }),
@@ -22,34 +25,16 @@ void create() {
    "gate"     :({ 0, 1,  15, 0 }),
    "road"     :({ 0, 1,  30, 0 }),
    "path"     :({ 0, 1,  20, 0 }),
-   "rope"     :({ 0, 1,   5, 0 }), // cuerdas, escalas, etc.
+   "rope"     :({ 0, 1,   5, 0 }), // ropes, etc
   ]);
+ 
   door_types = ([
     "door"    :({ 0, 0, "generic_key", 100 }),
     "secret"  :({ 0, 0, "generic_key", 100 }),
     "gate"    :({ 1, 0, "generic_key", 100 }),
   ]);
-  opposite = ([ "norte":({0,"el sur"}), "sur":({0,"el norte"}),
-                "este":({0,"el oeste"}),  "oeste":({0,"el este"}),
-                "noreste":({0,"el sudoeste"}),
-                "noroeste":({0,"el sudeste"}),
-                "sudeste":({0,"el noroeste"}),
-                "sudoeste":({0,"el noreste"}),
-                "arriba":({0,"abajo"}), "abajo":({0,"arriba"}),
-                "fuera":({0,"dentro"}), "dentro":({0,"fuera"}),
-                "salida":({0,"la entrada"}), "entrada":({0,"la salida"}), 
-                "escaleras":({0,"las escaleras"}), ]);
 
-  opp_dirs = ([ "norte":"sur", "sur":"norte",
-                "este":"oeste",  "oeste":"este",
-                "noreste":"sudoeste",
-                "noroeste":"sudeste",
-                "sudeste":"noroeste",
-                "sudoeste":"noreste",
-                "arriba":"abajo", "abajo":"arriba",
-                "fuera":"dentro", "dentro":"fuera",
-                "salida":"entrada", "entrada":"salida", 
-                "escaleras":"escaleras", ]);
+  opp_dirs = OPPOSITES;
 }
 
 string query_opposite(string str)
@@ -62,30 +47,24 @@ string query_opposite(string str)
   return opp_dirs[str];
 }
 
-string query_exit_dir(string str){
-  switch(str){
-    case "norte":
-    case "sur":
-    case "este":
-    case "oeste":
-    case "noroeste":
-    case "noreste":
-    case "sudoeste":
-    case "sudeste":
-       return "el " + str;
-    case "escaleras":
-       return "las " + str;
-    case "entrada":
-    case "salida":
-       return "la " + str;
-    default:
-       return str;
-  }
+string query_exit_article(string str)
+{
+  if (undefinedp(EXIT_ARTICLES[str]))
+    return "";
+   return EXIT_ARTICLES[str];
+}
+
+string query_exit_dir(string str)
+{
+  string article;
+  if (strlen(article = query_exit_article(str)))
+    return article + " " + str;
   return str;
 }
 
 int add_exit_type(string type, mixed message, mixed obvious, int size,
-                  mixed func) {
+                  mixed func)
+{
   if (exit_types[type])
     return 0;
 
@@ -93,14 +72,15 @@ int add_exit_type(string type, mixed message, mixed obvious, int size,
   return 1;
 }
 
-int remove_exit_type(string type) {
+int remove_exit_type(string type)
+{
   exit_types = m_delete(exit_types, type);
   return 1;
 }
 
-mixed *query_door_type(string type, string direc, string dest) {
-
-  if (!door_types[type])
+mixed * query_door_type(string type, string direc, string dest)
+{
+  if (undefinedp(door_types[type]))
     return door_types["gate"];
 
   /* If there isnt a door on the other side.  We don't join. 
@@ -113,7 +93,7 @@ mixed *query_door_type(string type, string direc, string dest) {
 void check_door(mixed bing) {
   mixed frog;
 
-   if( stringp(bing[2]) && !find_object(bing[2]))
+   if ( stringp(bing[2]) && !find_object(bing[2]))
     if (catch(call_other(bing[2], "??"))) { **** room failed to load. ****
       bing[0]->modify_exit(bing[1], ({ "undoor", 0 }));
       return ;
@@ -131,36 +111,52 @@ void check_door(mixed bing) {
 }
 */
 
-mixed *query_exit_type(string type, string dir) {
+mixed * query_exit_type(string type, string dir)
+{
   mixed s;
+  string article;
 
-  if (!(s = opposite[dir])) {
-   /* Commented out...
-      log_file("BAD_DIRS", "Type: " + type + ", Dir: " + dir + ", Caller: " +
-      file_name(previous_object()) + ".\n\n");
-   */
-    s = ({ 0, "algún sitio" });
+  if (!(s = opp_dirs[dir]))
+  {
+    // Commented out...
+    // log_file("BAD_DIRS", "Type: " + type + ", Dir: " + dir + ", Caller: " +
+    // file_name(previous_object()) + ".\n\n");
+    s = ({ 0, DIR_SOME_PLACE });
   }
+  else
+  {
+    article = query_exit_article(s);
+  
+    if (strlen(article))
+      s = article + " " + s;
+  }
+
   if (!exit_types[type])
-    return exit_types["standard"] + ({ s });
-  return exit_types[type] + ({ s });
+    return exit_types["standard"] + ({ ({ 0, s }) });
+
+  return exit_types[type] + ({ ({ 0, s }) });
 }
 
 /* Hamlet.  Colors for the exit string. */
-string exit_string_color(string which) {
+string exit_string_color(string which) 
+{
   int i;
   string exit_color;
   string *allowed_colors;
 
   exit_color = "%^BOLD%^%^CYAN%^";
-  allowed_colors = ({"red","%^RED%^","yellow","%^YELLOW%^",
-                     "green","%^GREEN%^","cyan","%^CYAN%^",
-                     "blue","%^BLUE%^","magenta","%^MAGENTA%^",
-                     "white","%^WHITE%^","orange","%^ORANGE%^"
+  allowed_colors = ({ "red","%^RED%^","yellow","%^YELLOW%^",
+                      "green","%^GREEN%^","cyan","%^CYAN%^",
+                      "blue","%^BLUE%^","magenta","%^MAGENTA%^",
+                      "white","%^WHITE%^","orange","%^ORANGE%^"
                      });
-  if((i = member_array(which,allowed_colors)) == -1)
+
+  if ((i = member_array(which,allowed_colors)) == -1)
     return exit_color;
-  if(i%2 == 0)  i++;
-  exit_color = "%^BOLD%^"+allowed_colors[i];
+
+  if (i%2 == 0)
+    i++;
+  exit_color = "%^BOLD%^" + allowed_colors[i];
+
   return exit_color;
 }

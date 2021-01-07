@@ -60,15 +60,6 @@ mixed pretty_plural()
   return query_plural();
 }
 
-/* global/basic/desc: */
-/*
-mixed *query_init_data() {
-return  ({ "short", short_d, "set_short/p/",
-         "long", long_d, "set_long/p/",
-         "main_plural", plural_d, "set_main_plural/p/" });
-} 
-*/
-
 // Stats added
 mixed stats()
 {

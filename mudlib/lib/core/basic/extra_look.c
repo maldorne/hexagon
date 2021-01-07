@@ -55,13 +55,6 @@ object * query_extra_look_list()
 	return extra_looks;
 }
 
-/* global/basic/extra_look: */
-/*
-mixed *query_init_data() {
-return ({ "extra_look", extra_looks, "add_extra_look/P/" });
-}
-*/
-
 // stats añadido
 mixed stats()
 {

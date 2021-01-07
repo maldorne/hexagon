@@ -1,9 +1,9 @@
-// Antiguo chkexits por Radiks
-// Cambiado a exits por neverbot 2001
-// Añadido parametros para poder comprobar que las salidas son correctas
-//  en una serie de archivos (por ejemplo exits *), neverbot 04/2009
+// Old chkexits by Radiks
+// Moved to exits por neverbot 2001
+// Parameters added to check specific files (i.e. exits *), neverbot 04/2009
 
 #include <mud/cmd.h>
+#include <translations/exits.h>
 
 inherit CMD_BASE;
 
@@ -12,6 +12,13 @@ inherit CMD_BASE;
 #define C   "%^BOLD%^CYAN%^"
 #define G   "%^BOLD%^GREEN%^"
 
+string query_help()
+{
+  return "Syntax: exits [files]\n" +
+         "        (no files to check your current environment)\n\n" +
+         "Checks the exits of a room or multiple rooms.\n";
+}
+
 string short_file_name(string file_name)
 {
   string * pieces;
@@ -19,33 +26,25 @@ string short_file_name(string file_name)
   return pieces[sizeof(pieces)-1];
 }
 
-static int cmd (string str, object me, string verb)
+static int cmd(string str, object me, string verb)
 {
   mixed *dirs,dirs2;
-  string aqui;     // nombre de la room environment
+  string here; // environment name
   int a;
   string * files;
   string ret;
-  mapping contrarios;
+  object user;
   
   ret = "";
   files = ({ });
   
-  contrarios = 
-       (["norte":"sur","sur":"norte","oeste":"este",
-       "este":"oeste","noroeste":"sudeste",
-       "sudeste":"noroeste","noreste":"sudoeste",
-       "sudoeste":"noreste","arriba":"abajo","abajo":"arriba",
-       "dentro":"fuera","fuera":"dentro", "escaleras":"escaleras"]);
-
   if (!environment(me)) 
   {
-    write("¡Sin entorno (environment) no puedes hacer eso!\n");
+    write("You can't do that without an environment\n");
     return 1;
   }
   
-  
-  if (str && str != "")
+  if (strlen(str))
   {
     files = get_files(str);
     if (sizeof(files))
@@ -56,21 +55,15 @@ static int cmd (string str, object me, string verb)
       
       for (i = 0; i < sizeof(files); i++)
       {
-        if (err = catch(ob = load_object(files[i])) ) 
+        if ((err = catch(ob = load_object(files[i])) ) || (!ob)) 
         {
-          ret += "Archivo ("+short_file_name(files[i])+") no carga.\n";
+          ret += "File ("+short_file_name(files[i])+") cannot be loaded.\n";
           continue;
         }
 
-        if (!ob) 
-        {
-          ret += "Archivo ("+short_file_name(files[i])+") no carga.\n";
-          continue;
-        }
-        
         if (!ob->query_room())
         {
-          ret += "Archivo ("+short_file_name(files[i])+") no es una room.\n";
+          ret += "File ("+short_file_name(files[i])+") is not a room.\n";
           continue;
         }
         
@@ -78,142 +71,180 @@ static int cmd (string str, object me, string verb)
         
         if (!sizeof(dirs)) 
         {
-          ret += "Archivo ("+short_file_name(files[i])+") no tiene salidas.\n";
-            continue;
+          ret += "File ("+short_file_name(files[i])+") has no exits.\n";
+          continue;
         } 
         else 
         {
-        for(a = 0; a < sizeof(dirs); a+=2) 
-        {
-          // printf("%-10s -> ", extract(dirs[a],0,8));
-          sscanf(dirs[a+1],"%s.c", dirs[a+1]);
-            // dirs[a+1] = dirs[a+1]+".c";
-          // write( dirs[a+1]+"\n");
-        }
-
-        for(a = 0; a < sizeof(dirs); a+=2) 
-        {
-          string ppp, match;
-          int j;
-          // printf("%-10s: ",extract(dirs[a],0,8));
-
-          if (file_size(dirs[a+1]+".c") == -1) 
-            ret += "Archivo ("+short_file_name(files[i])+") salida ("+extract(dirs[a],0,8)+") lleva a archivo inexistente ("+short_file_name(dirs[a+1])+").\n";
-            // write(dirs[a+1]+G+" no existe"+RE+".\n");
-          else 
+          for (a = 0; a < sizeof(dirs); a+=2) 
           {
-            if (ppp = catch(dirs2 = dirs[a+1]->query_dest_dir())) 
-              ret += "Archivo ("+short_file_name(files[i])+") salida ("+extract(dirs[a],0,8)+") lleva a archivo que no carga ("+short_file_name(dirs[a+1])+").\n";
-              // write(dirs[a+1]+G+" no carga"+RE+".\n");
+            // printf("%-10s -> ", extract(dirs[a],0,8));
+            sscanf(dirs[a+1], "%s.c", dirs[a+1]);
+            // dirs[a+1] = dirs[a+1] + ".c";
+            // write(dirs[a+1]+"\n");
+          }
+
+          for (a = 0; a < sizeof(dirs); a+=2) 
+          {
+            string error, match;
+            int j;
+            // printf("%-10s: ",extract(dirs[a],0,8));
+
+            if (file_size(dirs[a+1] + ".c") == -1) 
+              ret += "File (" + short_file_name(files[i]) + ") exit (" + extract(dirs[a], 0, 8) + 
+                ") goes to non existant file (" + short_file_name(dirs[a+1]) + ").\n";
             else 
             {
-              match = "";
-              if (sizeof(dirs2))
-                for(j=0;j<sizeof(dirs2);j=j+2) 
-                {
-                  sscanf(dirs2[j+1],"%s.c",dirs2[j+1]); 
-                  if (file_name(ob)==dirs2[j+1])
-                    match = dirs2[j];
-                }
-
-              if (!match || match == "")
-                ret += "Archivo ("+short_file_name(files[i])+") salida ("+extract(dirs[a],0,8)+") lleva a archivo que no "+
-                  "tiene salida de vuelta ("+short_file_name(dirs[a+1])+").\n";
-                // write(dirs[a+1]+ R+" no tiene salida aquí"+RE+".\n");
+              if (error = catch(dirs2 = dirs[a+1]->query_dest_dir())) 
+                ret += "File (" + short_file_name(files[i]) + ") exit (" + extract(dirs[a], 0, 8) + 
+                  ") goes to file that cannot be loaded (" + short_file_name(dirs[a+1]) + ").\n";
               else 
               {
-              if (contrarios[dirs[a]] != match)
-                  ret += "Archivo ("+short_file_name(files[i])+") salida ("+extract(dirs[a],0,8)+") lleva a archivo "+
-                    "("+short_file_name(dirs[a+1])+") cuya salida de vuelta no corresponde ("+match+").\n";
-                //write(dirs[a+1]+ " -> "+C+match[0..8]+""+RE+".\n");
-              }
-              }
+                match = "";
+                if (sizeof(dirs2))
+                  for (j = 0; j < sizeof(dirs2); j = j+2) 
+                  {
+                    sscanf(dirs2[j+1], "%s.c", dirs2[j+1]); 
+                    if (file_name(ob) == dirs2[j+1])
+                      match = dirs2[j];
+                  }
+
+                if (!match || match == "")
+                  ret += "File (" + short_file_name(files[i]) + ") exit (" + extract(dirs[a], 0, 8) + 
+                    ") goes to a file that does not come back (" + short_file_name(dirs[a+1]) + ").\n";
+                else 
+                {
+                  if (OPPOSITES[dirs[a]] != match)
+                    ret += "File (" + short_file_name(files[i]) + ") exit (" + extract(dirs[a], 0, 8) + 
+                      ") goes to file (" + short_file_name(dirs[a+1]) + ") with wrong backwards exit (" + match + ").\n";
+                }
+                }
+            }
           }
-        }
         }          
       }
-      if (ret == "")
-        write( "Las salidas de todas las rooms son correctas.\n");
+
+      if (!strlen(ret))
+        write("All exits in every room are right.\n");
       else
-        write( ret);
+        write(ret);
       return 1;
     }
     else // !sizeof(files)
     {
-      write( "Sintaxis: exits (sin parámetros para comprobar tu room actual), o\n"+
-        "      exits <archivos> (para comprobar una serie de ficheros)\n");
+      write(query_help());
       return 1;      
     }
   }
-  
-  aqui = file_name(environment(me));
 
-  write("----------------------------------------------------\n");
-  write(" Nombre:  "+aqui+"\t");
-  write(" Tamaño: "+file_size(aqui+".c")+" bytes\n");
-  write("-- Salidas: ----------------------------------------\n");
+  // from here we are checking only our current environment
+  
+  here = file_name(environment(me));
+  user = me->user();
+
+
+  ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
+  ret += " File name:  "+here+"\t";
+  ret += " Size: "+file_size(here+".c")+" bytes\n";
+  ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
   
   dirs = environment(me)->query_dest_dir();
   
   if (!sizeof(dirs)) 
   {
-    write("No hay salidas en esta habitación.\n");
+    ret += "This room has no exits.\n";
+
   } 
   else 
   {
-    for(a = 0; a < sizeof(dirs) ;a += 2) 
+    for (a = 0; a < sizeof(dirs); a += 2) 
     {
-      write(sprintf("%-10s -> ", dirs[a][0..]));
-      sscanf(dirs[a+1],"%s.c",dirs[a+1]);
-            // dirs[a+1] = dirs[a+1]+".c";
-      write(dirs[a+1]+"\n");
-    }
-  
-    write("-- Estado de las salidas: --------------------------\n");
-  
-  for(a = 0;a < sizeof(dirs);a += 2) 
-  {
-    string ppp,match;
-    int j;
-    write(sprintf("%-10s: ", dirs[a][0..]));
-      
-    if (file_size(dirs[a+1]+".c") == -1) 
-    {
-      write(dirs[a+1]+G+" no existe"+RE+".\n");
-    } 
-    else 
-    {
-      if (ppp = catch(dirs2 = dirs[a+1]->query_dest_dir())) 
+      string error, match;
+      int j;
+      ret += sprintf("  %-9s -> ", dirs[a][0..]);
+      sscanf(dirs[a+1], "%s.c", dirs[a+1]); // remove the extension
+
+      ret += dirs[a+1] + " ";
+
+      if (file_size(dirs[a+1] + ".c") == -1) 
       {
-        write(dirs[a+1]+G+" no carga"+RE+".\n");
-        //write(ppp);
+        ret += "" + R + "does not exist" + RE + ".\n";
       } 
-      else 
+      else if (error = catch(dirs2 = dirs[a+1]->query_dest_dir()))
+      {
+        ret += "" + R + "does not load" + RE + ".\n";
+      }
+      else
       {
         match = "";
         if (sizeof(dirs2))
-          for(j=0;j<sizeof(dirs2);j=j+2) 
+        {
+          for(j = 0; j < sizeof(dirs2); j = j+2) 
           {
-            sscanf(dirs2[j+1],"%s.c",dirs2[j+1]); 
-            if (file_name(environment(me))==dirs2[j+1])
+            sscanf(dirs2[j+1], "%s.c", dirs2[j+1]); // remove the extension
+            if (file_name(environment(me)) == dirs2[j+1])
               match = dirs2[j];
           }
+        }
 
-        if (!match || match == "")
-          write(dirs[a+1]+ R+" no tiene salida aquí"+RE+".\n");
+        if (!strlen(match))
+          ret += dirs[a+1] + R + " has not backwards exit" + RE + ".\n";
         else 
         {
-        if (contrarios[dirs[a]] == match)
-          write("Ok.\n");
+          if (OPPOSITES[dirs[a]] == match)
+            ret += "" + G + "is ok" + RE + " (" + match + ").\n";
           else
-          write(dirs[a+1]+ " -> "+C+match[0..]+""+RE+".\n");
+            ret += " -> " + C + match[0..] + "" + RE + ".\n";
         }
-        }
+      }
     }
+    
+    /*
+    for (a = 0; a < sizeof(dirs); a += 2) 
+    {
+      string error, match;
+      int j;
+      write(sprintf("%-10s: ", dirs[a][0..]));
+        
+      if (file_size(dirs[a+1] + ".c") == -1) 
+      {
+        write(dirs[a+1]+G+" no existe"+RE+".\n");
+      } 
+      else 
+      {
+        if (error = catch(dirs2 = dirs[a+1]->query_dest_dir())) 
+        {
+          write(dirs[a+1]+G+" no carga"+RE+".\n");
+          //write(error);
+        } 
+        else 
+        {
+          match = "";
+          if (sizeof(dirs2))
+            for (j=0;j<sizeof(dirs2);j=j+2) 
+            {
+              sscanf(dirs2[j+1],"%s.c",dirs2[j+1]); 
+              if (file_name(environment(me))==dirs2[j+1])
+                match = dirs2[j];
+            }
+
+          if (!match || match == "")
+            write(dirs[a+1]+ R+" no tiene salida aquí"+RE+".\n");
+          else 
+          {
+          if (OPPOSITES[dirs[a]] == match)
+            write("Ok.\n");
+            else
+            write(dirs[a+1]+ " -> "+C+match[0..]+""+RE+".\n");
+          }
+        }
+      }
+    }
+    */
   }
-  }
-  
-  write("----------------------------------------------------\n");
+
+  ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
+  write(ret);
 
   return 1;
 }

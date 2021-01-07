@@ -115,7 +115,7 @@ protected int cmd(string str, object me, string verb)
 			ob = load_object(my_groups[i]);
 			if (!ob) 
 				continue;
-			group_name = real_file_name(ob);
+			group_name = base_name(ob);
 			
 			if (undefinedp(rank[group_name]))
 				continue;

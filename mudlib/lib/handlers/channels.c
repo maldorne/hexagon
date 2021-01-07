@@ -62,11 +62,11 @@ int open_channel(string channel, object ob)
   return 1;
 }
 
-void init_player_channels(string *chans, object player) 
+void init_player_channels(mixed chans, object player) 
 {
   int i;
 
-  if (nullp(chans))
+  if (undefinedp(chans) || !arrayp(chans))
     chans = ({ });
 
   for (i = 0; i < sizeof(chans); i++) 
@@ -415,7 +415,7 @@ void do_channel(string verb, string str, varargs string name, string mud, int fl
   }
 
   if (channels[verb] && sizeof(channels[verb])) // Taniwha 01/05/97, make sure it exists
-    channels[verb] -= ({ 0 });
+    channels[verb] -= ({ nil });
   else 
     channels[verb] = ({ });
 

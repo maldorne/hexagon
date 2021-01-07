@@ -104,6 +104,8 @@ mixed query_old_property(string str)
     return 0;
   if (!map_prop)
     map_prop = ([ ]);
+  if (undefinedp(map_prop[str]))
+    return 0;
   return map_prop[str];
 }
 
@@ -114,6 +116,8 @@ mixed query_static_property(string str)
     return 0;
   if (!static_map_prop)
     static_map_prop = ([ ]);
+  if (undefinedp(static_map_prop[str]))
+    return 0;
   return static_map_prop[str];
 }
 
@@ -245,13 +249,6 @@ int add_timed_properties(mapping map)
 {
   timed_prop += map;
 }
-
-/* global/basic/property: */
-/*
-mixed *query_init_data() {
-   return ({ "properties",map_prop,"add_properties/p/","timed",timed_prop,"add_timed_properties/p/"});
-} 
-*/
 
 mixed query_property(string str) 
 {

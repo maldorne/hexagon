@@ -20,12 +20,11 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   int i;
   object from;
 
-  // Taniwha 1995, maybe log this ?
-  if (!dest)
-    return 0;
+  if (stringp(dest))
+    dest = load_object(dest);
 
   if (!objectp(dest))
-    dest = load_object(dest);
+    return MOVE_EMPTY_DEST;  
 
   from = environment();
 
@@ -72,15 +71,6 @@ void dest_me()
   
   ::dest_me();
 }
-
-/*
-mixed *query_init_data() {
-   return light::query_init_data() +
-          move::query_init_data() +
-      ({ "weight", weight, "set_weight/p/",
-         "value", value, "set_value/p/" });
-} 
-*/
 
 mixed stats()
 {

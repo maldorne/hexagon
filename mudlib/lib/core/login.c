@@ -579,7 +579,7 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   // if name != "object", that will mean the user has finished the login process
   _user->set_name("user");
 
-  _player->set_living_name(_player->query_name()); // both for players and npcs
+  _player->set_living_name(_player->query_name()); // this is done both for players and npcs
 
   // store the user name in the user handler
   find_object(USER_HANDLER)->update_user(_user, _player);
@@ -891,7 +891,6 @@ void create_player2()
   // any message printed without a user will prompt an error, and 
   // even this save_me will print messages
   _player->save_me();
-
 
   begin(!query_property(GUEST_PROP));
 }

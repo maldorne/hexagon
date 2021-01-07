@@ -68,8 +68,8 @@ int adjust_unarmed_ability(string style, int i);
 
 void unarmed_combat_commands()
 {
-  add_action("do_combat_styles", "estilo");
-  add_action("do_combat_styles", "estilos");
+  add_private_action("do_combat_styles", "estilo");
+  add_private_action("do_combat_styles", "estilos");
 }
 
 void create()

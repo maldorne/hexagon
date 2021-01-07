@@ -25,7 +25,7 @@ protected int cmd (string arg, object me, string verb)
 {
 	int now;
 	int max;
-	now=me->query_loc_weight();
+	now=me->query_contents_weight();
 	max=me->query_max_weight();
 	write("Tu inventario actual pesa "+now+" y puedes cargar "+
 		"como mucho "+max+", gracias a tu fuerza.\n");

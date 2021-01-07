@@ -2,7 +2,7 @@
 #include <common/properties.h>
 #include <basic/communicate.h>
 #include <user/user.h>
-
+#include <translations/language.h>
 
 void create()
 {
@@ -17,6 +17,9 @@ void create()
 
 void event_write(object caller, string msg)
 {
+  int cols;
+  string * pieces;
+
   if (!interactive(this_object()))
     return;
 
@@ -24,6 +27,22 @@ void event_write(object caller, string msg)
     return;
 
   msg = fix_string(msg);
+
+  // if we have \n inside the message, let's assume it has
+  // already been prepared, so we do not need to sprintf again
+  pieces = explode(msg, "\n");
+
+  if (sizeof(pieces) == 1)
+  {
+    cols = 79;
+
+    // width fix, ignore the control characters used for colors
+    if (userp(this_object())) 
+      if (this_object()->query_cols())
+        cols = this_object()->query_cols() + (strlen(msg) - visible_strlen(msg));
+
+    msg = sprintf("%-*s", cols, msg);
+  }
 
   // only will do if interactive(this_object())
   this_object()->catch_tell(msg);
@@ -49,14 +68,14 @@ void event_say(object caller, string msg, varargs mixed avoid)
       return;
   }
 
-  msg = fix_string("\n" + msg);
+  msg = fix_string(msg);
 
   this_object()->catch_tell(msg);
 }
 
 void event_inform(object caller, string msg, string type, varargs mixed avoid)
 {
-  string * on;
+  mixed on;
 
   if (!interactive(this_object()))
     return;
@@ -72,9 +91,9 @@ void event_inform(object caller, string msg, string type, varargs mixed avoid)
       return;
   }
 
-  on = (string *)this_object()->query_property(INFORM_PROP);
+  on = this_object()->query_property(INFORM_PROP);
 
-  if (!on)
+  if (!on || !arrayp(on))
     on = ({ });
 
   if (this_object()->query_property(NO_INFORM) ||
@@ -171,7 +190,7 @@ void event_person_say(object ob, string start, string msg, string lang, int spea
       return;
   }
   // else
-  if (lang != "comun")
+  if (lang != STD_LANG)
     start = start[0..strlen(start)-3]+" en "+lang+": ";
 
   if (ob == this_object())
@@ -220,7 +239,7 @@ void event_person_tell(object ob, string start, string msg, string lang)
       return;
   }
   // else
-  if (lang != "comun")
+  if (lang != STD_LANG)
     start = start[0..strlen(start)-3]+" en "+lang+": ";
 
   /* The following block of code was added to tell players that the target
@@ -298,10 +317,10 @@ void event_person_whisper(object ob, string start, string msg,
       return;
   }
   // else
-  // if (lang != "comun")
+  // if (lang != STD_LANG)
   //   start = start[0..strlen(start)-3]+" en "+lang+": ";
   // else {
-  if (lang != "comun")
+  if (lang != STD_LANG)
     oblue = " en "+lang+": ";
   else
     // if (!stringp(oblue))
@@ -361,7 +380,7 @@ void event_person_shout(object ob, string start, string msg, string lang)
       return;
   }
   // else
-  if (lang != "comun")
+  if (lang != STD_LANG)
     start = start[0..strlen(start)-3]+" en "+lang+": ";
 
   tmp = start + msg;

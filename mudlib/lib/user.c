@@ -121,9 +121,8 @@ nomask int query_timestamp() { return timestamp; }
 
 void dest_me()
 {
-  if (_player) {
+  if (_player)
     catch(_player->dest_me());
-  }
 
   // remove the user from the user handler
   if (clonep(this_object()))
@@ -136,12 +135,22 @@ void dest_me()
 nomask object player() { return _player; }
 nomask int set_player_ob(object ob)
 {
+  object old_player;
+
+  // do we have an old player object?
+  // this happens on login when we change from a link object to 
+  // a player object
+  old_player = _player;
+
   // for safety reasons, we allow set_player_ob only to be called from /lib/core/login
   if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
   _player = ob;
   _player->set_user_ob(this_object());
+
+  if (objectp(old_player))
+    catch(old_player->dest_me());
 
   return 1;
 }
@@ -184,12 +193,10 @@ static void open()
 }
 
 // called from the driver
-static void close(mixed arg)
+static void close(int flag) 
 {
-  // use tell_object insted of write, the reason of the disconnection
-  // could be in a different user (ie: a reconnection)
-  tell_object(this_object(), _LANG_DISCONNECTED);
-  // write(_LANG_DISCONNECTED);
+  // if (flag) 
+  catch_tell(_LANG_DISCONNECTED);
 }
 
 nomask void save_me()

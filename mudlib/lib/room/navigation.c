@@ -32,7 +32,7 @@ object query_navigation_handler()
     return nil;
 
   // Only rooms and directories in domains will have navigation data
-  if (!is_in_domain(this_object()))
+  if (!is_in_game(this_object()))
     return nil;
 
   return handler->query_navigation_handler(base_name(this_object()));

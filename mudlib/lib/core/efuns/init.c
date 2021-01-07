@@ -9,7 +9,7 @@
 // * causes each living object in the inventory of "B" to call init() in
 //   "A".  regardless of whether "A" is living or not.
 
-// Note: an object is considered to be living if enable_commands() has
+// Note: an object is considered to be living if set_living_name() has
 // been called by that object.
 
 // Typically, the init() function in an object is used to call add_action()

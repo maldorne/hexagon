@@ -452,22 +452,24 @@ void set_deity(string str){ list[DEITY_OB] = str; }
 void set_city(string str){ list[CITY_OB] = str; }
 void set_job(string str){ list[JOB_OB] = str; }
 
-
-mapping query_dynamic_auto_load()
+mapping query_auto_load_attributes()
 {
-  return obj::query_dynamic_auto_load() +
-          ( (cond != MAX_COND) ? ([ "condition" : cond, ]) : ([ ]) );
+  return ([ 
+      "::" : ::query_auto_load_attributes() 
+    ]) + 
+    ((cond != MAX_COND) ? ([ "condition" : cond ]) : ([ ]));
 }
 
-void init_dynamic_arg(mapping args)
+void init_auto_load_attributes(mapping attribute_map)
 {
-  if (undefinedp(args["condition"]))
-    cond = MAX_COND;
+  if (!undefinedp(attribute_map["condition"]))
+    cond = attribute_map["condition"];
   else
-    cond = args["condition"];
+    cond = MAX_COND;
 
-  obj::init_dynamic_arg(args);
-}
+  if (!undefinedp(attribute_map["::"]))
+    ::init_auto_load_attributes(attribute_map["::"]);
+} 
 
 // Funcion stats() añadida
 mixed stats()

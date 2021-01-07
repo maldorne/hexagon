@@ -47,12 +47,6 @@ mixed * stats(){
 int query_corpse() { return 1; }
 string query_owner() { return owner; }
 
-int prevent_insert() 
-{
-  write("El cuerpo es demasiado grande.\n");
-  return 1;
-}
-
 /* Next function is Hamlet's.  Decides whether undead are allowed
    in the room
 */

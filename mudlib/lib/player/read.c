@@ -1,38 +1,48 @@
 
 #include <basic/communicate.h>
+#include <language.h>
 
 void create()
 {
 
 }
 
-string read_message(string str, string type, string lang, varargs int size) 
+string read_message(string str, string lang, varargs int size, string frame_style)
 {
   mixed bing;
+  object languages, frames;
 
+  languages = handler("languages");
+  frames = handler("frames");
+
+  // if we do not speak the language
   if (member_array(lang, this_object()->query_languages()) == -1)
-    if ((bing = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((bing = (mixed)bing->garble_say(str, previous_object())))
-        return "No puedes leer este texto "+bing+
-          (lang?" escrito en "+lang:"")+"\n";
-      else
-        return "Hubieras jurado que habia algo escrito aquí...\n"; /* Invisible text... */
-    else
-      return "No puedes leer este texto "+(lang?" escrito en "+lang:"")+"\n";
-  
-  if (LANGUAGE_HANDLER->query_language_magic(lang))
-    if ((bing = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      return (string)bing->magical_text(str, previous_object());
-    else 
+  {
+    if (languages->language_exists(lang))
     {
-      return "El MUD tiembla al encontrar una escritura mágica que puedes leer, "+
-        "pero no encontrar intérprete para ella.\n";
+      str = languages->garble(str, lang);
+      if (strlen(frame_style))
+        str = frames->frame(str, "", 0, 0, frame_style);
+
+      return _LANG_READ_UNABLE_WITH_GARBLE;
     }
 
-  if (!lang)
-    return "Lees:\n" + str +"\n";
+    return _LANG_READ_UNABLE_WITHOUT_GARBLE;
+  }
   
-  return "Lees un texto escrito en " + lang + ":\n" + str + "\n";
+  if (languages->query_language_magic(lang))
+    if ((bing = (mixed)languages->query_garble_object(lang)))
+      return (string)bing->magical_text(str, previous_object());
+    else 
+      return _LANG_READ_IMPOSSIBLE;
+
+  if (strlen(frame_style))
+    str = frames->frame(str, "", 0, 0, frame_style);
+
+  if (!lang)
+    return _LANG_READ;
+  
+  return _LANG_READ_IN_LANGUAGE;
 }
 
 mixed *stats() 

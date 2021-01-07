@@ -21,8 +21,8 @@ static void role_commands()
 {
   add_action("update", "update");
   add_action("do_a_call", "call");
-  add_action("get_creator","coder");
-  add_action("get_inv","inv");
+  add_action("get_creator", "coder");
+  add_action("get_inv", "inv");
 
   // add_action("parse_frogs", ";*");
   // add_action("show_stats", "stat");
@@ -50,7 +50,8 @@ static int do_update(object *ov)
   object *invent, rsv, env, dup, loaded;
   // next three Hamlet's
   object totell;
-  string *load_junk;
+  mixed * load_junk;
+  mapping attributes;
   string itemname;
   object thing;
 
@@ -71,7 +72,7 @@ static int do_update(object *ov)
   for (i = 0; i < sizeof(ov); i++)
   {
     if (!ov[i])
-        continue;
+      continue;
 
     env = environment(ov[i]);
     invent = all_inventory(ov[i]);
@@ -83,27 +84,28 @@ static int do_update(object *ov)
       return 0;
     }
 
-    for (j = 0; j < sizeof(invent); j++)
-    {
-      if (interactive(ov[i]) || interactive(invent[j]) )
-        invent[j]->move(rsv);
-      else
-        invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
-    }
-
     pname = file_name(ov[i]);
-    if (sscanf(pname, "%s#%d", pname, dummy) != 2)
+    if (sscanf(pname, "%s#%d", pname, dummy) != 2) // a room? a handler? something not cloned
     {
       // Next three Hamlet's
-      load_junk = "/lib/core/basic/auto_load"->create_update_auto_load(ov[i]);
+      load_junk = "/lib/core/basic/auto_load"->create_object_auto_load(ov[i]);
       totell = environment(ov[i]);
       itemname = ov[i]->query_short();
+      attributes = ov[i]->query_auto_load_attributes();
+
+      for (j = 0; j < sizeof(invent); j++)
+      {
+        if (interactive(invent[j]))
+          invent[j]->move(rsv);
+        else
+          invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
+      }
 
       ov[i]->dest_me();
       if (ov[i])
-          ov[i]->dwep();
+        ov[i]->dwep();
       if (ov[i])
-          destruct(ov[i]);
+        destruct(ov[i]);
 
       // file_size("/secure/master");     Struck me as senseless.
       // Uh, you just dested it.  obviously it's not there...
@@ -120,9 +122,20 @@ static int do_update(object *ov)
       // Next three Hamlet's
       if (loaded)
       {
-        load_junk = "/lib/core/basic/auto_load"->create_update_auto_load(loaded);
+        load_junk = "/lib/core/basic/auto_load"->create_object_auto_load(loaded);
         totell = environment(loaded);
         itemname = loaded->query_short();
+        attributes = ov[i]->query_auto_load_attributes();
+      }
+
+      for (j = 0; j < sizeof(invent); j++)
+      {
+        // should not happen here, a cloned object should not have 
+        // interactive objects inside it
+        if (interactive(invent[j]))
+          invent[j]->move(rsv);
+        else
+          invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
       }
 
       if (loaded)
@@ -134,6 +147,7 @@ static int do_update(object *ov)
 
       // These are Hamlet's too
       catch(loaded = load_object(pname));
+
       if (loaded)
         loaded->move(totell);
       else
@@ -146,8 +160,8 @@ static int do_update(object *ov)
               tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
           else
             tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
-          thing = clone_object( "/lib/obj/iou" );
-          thing->add_auto_string( load_junk );
+          thing = clone_object("/lib/obj/iou");
+          thing->add_auto_string(load_junk);
           thing->move( totell );
         }
       }
@@ -158,9 +172,9 @@ static int do_update(object *ov)
       {
         ov[i]->dest_me();
         if (ov[i])
-            ov[i]->dwep();
+          ov[i]->dwep();
         if (ov[i])
-            destruct(ov[i]);
+          destruct(ov[i]);
         ov[i] = dup;
       }
     }
@@ -174,17 +188,25 @@ static int do_update(object *ov)
             tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
         else
           tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
-        thing = clone_object( "/lib/obj/iou" );
-        thing->add_auto_string( load_junk );
+        thing = clone_object("/lib/obj/iou");
+        thing->add_auto_string(load_junk);
         thing->move( totell );
       }
       continue;
     }
+    // neverbot 01/2021
+    // hope this works :/
+    else
+    {
+      ov[i]->init_auto_load_attributes(attributes);
+    }
 
+    // just players in this list
     for (j = 0; j < sizeof(invent); j++)
       if (invent[j])
         invent[j]->move(ov[i]);
 
+    // updating something in our inventory?
     if (env)
       ov[i]->move(env);
 
@@ -722,9 +744,6 @@ int trans(string str)
 {
   object *obs;
   int i;
-
-  if (this_player(1) != this_object()->query_player())
-    return 0;
 
   if (!strlen(str) || !(sizeof(obs = wiz_present(str, this_player()))))
   {

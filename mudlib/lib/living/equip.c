@@ -26,8 +26,8 @@ void create()
 
 void equip_commands()
 {
-  add_action("do_equip",  "equipar");
-  add_action("do_equip",  "equiparse");
+  add_private_action("do_equip", "equipar");
+  add_private_action("do_equip", "equiparse");
 }
 
 void recalc_max_dex_bon()
@@ -39,8 +39,8 @@ void recalc_max_dex_bon()
   max = 100;
 
   // create a list with every wielded and worn object
-  obs = this_object()->query_weapons_wielded() - ({ 0 });
-  obs += this_object()->query_worn_ob() - ({ 0 });
+  obs = this_object()->query_weapons_wielded() - ({ nil });
+  obs += this_object()->query_worn_ob() - ({ nil });
 
   for (i = 0; i < sizeof(obs); i++)
     // be sure the object has the query_max_dex_bon function
@@ -297,9 +297,9 @@ string query_living_contents(int self)
   held = this_object()->query_held_ob();          // Every held object (includes weapons)
   worn = this_object()->query_worn_ob();          // Worn objects
 
-  if (!pointerp(wpn))  wpn  = ({ }); else wpn  -= ({ 0 });
-  if (!pointerp(held)) held = ({ }); else held -= ({ 0 });
-  if (!pointerp(worn)) worn = ({ }); else worn -= ({ 0 });
+  if (!pointerp(wpn))  wpn  = ({ }); else wpn  -= ({ nil });
+  if (!pointerp(held)) held = ({ }); else held -= ({ nil });
+  if (!pointerp(worn)) worn = ({ }); else worn -= ({ nil });
 
   held -= wpn;
   worn = sort_array(worn, "sort");

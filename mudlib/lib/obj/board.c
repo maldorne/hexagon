@@ -414,14 +414,15 @@ void set_datafile(string str)
 int query_new_messages()
 {
   mixed *notes;
-  mapping news_rc;
+  mixed news_rc;
   int i;
   int number;
 
   number = 0;
 
-  news_rc = (mapping)this_player()->query_property(NEWS_RC);
-  if (!news_rc)
+  news_rc = this_player()->query_property(NEWS_RC);
+
+  if (!news_rc || !mappingp(news_rc))
     news_rc = ([ ]);
 
   notes = (mixed *)BOARD_HAND->get_subjects(board_name);

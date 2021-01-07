@@ -1,0 +1,12 @@
+     _______________________________________________________________ 
+    |\_____________________________________________________________/|
+    | |                                                           | | 
+    | |               Información sobre los baúles                | | 
+    | |                                                           | | 
+    | |   - 'listar' para ver qué objetos están almacenados.      | | 
+    | |   - 'depositar <objeto>' para almacenarlo en el baúl.     | | 
+    | |   - 'recuperar <objeto>' para sacar un objeto del baúl.   | | 
+    | |   - 'logs' para ver el registro de actividades.           | | 
+    | |                                                           | | 
+    | |___________________________________________________________| | 
+    |/_____________________________________________________________\|

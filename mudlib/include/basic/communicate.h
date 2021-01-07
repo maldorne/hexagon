@@ -12,9 +12,9 @@
 #define L_SIZED 16
  
 #define READ_STR 0
-#define READ_TYPE 1
-#define READ_LANG 2
-#define READ_SIZE 3
+#define READ_LANG 1
+#define READ_SIZE 2
+#define READ_FRAME 3
 
 #define NOSHOUT_LOCK "noshout_lock"
 #define SHOUT_LOGFILE "shouts"

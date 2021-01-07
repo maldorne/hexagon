@@ -68,7 +68,7 @@ void write_prompt()
   } 
   */
 
-  switch( this_object()->query_busy() )
+  switch( this_object()->player()->query_busy() )
   {
     case NON_INTERRUPTABLE_BUSY:
       do_prompt_write("] ");
@@ -87,7 +87,7 @@ void write_prompt()
  */
 string query_busy_string()
 {
-  switch( this_object()->query_busy() )
+  switch( this_object()->player()->query_busy() )
   {
     case NON_INTERRUPTABLE_BUSY:
       return "* ";

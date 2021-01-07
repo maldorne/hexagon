@@ -319,7 +319,6 @@ string who_string(int width, int cre, string str)
   // (they won't appear in users users())
   if (this_player()->query_coder())
   {
-    // every object with enable_commands()
     // arr_aux = livings();
     // remove the users appearing in the who
     // arr_aux -= players();

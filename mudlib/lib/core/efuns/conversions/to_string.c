@@ -1,5 +1,5 @@
 
-#define TO_STRING_PADDING "                       "
+#define TO_STRING_PADDING "                                               "
 
 // Extracted from the old /global/basic/print_object.c, neverbot
 // (and heavily improved)
@@ -15,7 +15,12 @@ static string to_string(mixed ob, varargs int offset, string pre)
   else
     ret += TO_STRING_PADDING[0..offset];
 
-  if (intp(ob))
+  if (undefinedp(ob))
+  {
+    ret += "nil\n";
+    return ret; // "nil";
+  }
+  else if (intp(ob))
   {
     ret += ob + "\n";
     return ret; // "int";
@@ -93,11 +98,6 @@ static string to_string(mixed ob, varargs int offset, string pre)
       ret += TO_STRING_PADDING[0..offset] + "})\n";
     }
     return ret; // "array";
-  }
-  else if (undefinedp(ob))
-  {
-    ret += "nil\n";
-    return ret; // "nil";
   }
 
   return ret; // "oh dear";

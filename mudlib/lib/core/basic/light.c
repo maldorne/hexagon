@@ -60,10 +60,3 @@ mixed * stats() {
     // ({ "opaco", this_object()->query_property(OPAQUE) }),
      });
 }
-
-/*
-mixed *query_init_data() {
-   return ({ "light", light, "set_light/p/" });
-}
-*/
-/* query_init_data() */

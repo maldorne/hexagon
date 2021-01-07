@@ -44,7 +44,6 @@ void setup()
 
   set_name("heraldo");
   set_living_name("heraldo");
-  enable_commands();
   set_short("El Heraldo de los Dioses");
   set_long("Un magnífico ejemplar de Ángel femenino esta aquí esperando " +
            "a que los Dioses le indiquen cuando llegará una nueva Era.\n");
@@ -213,15 +212,14 @@ void end_it_all()
     call_out("force_quit", 0, obs[i]);
   
   closed = 1;
-  call_out("blue",5);
-} /* end_it_all() */
+  call_out("blue", 5);
+}
  
 void force_quit(object ob) 
 {
-   if (ob)
-   // changed to really_quit - Radix
-   ob->really_quit();
-} /* force_quit() */
+  if (ob && ob->player())
+    ob->player()->really_quit(); // changed to really_quit - Radix
+}
  
 void blue() 
 {
@@ -232,7 +230,7 @@ void blue()
   handler(WEATHER_HANDLER)->save_weather();
 
   shutdown(0);
-} /* blue() */
+}
  
 int query_time_to_crash() 
 { 

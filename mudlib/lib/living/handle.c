@@ -17,9 +17,9 @@
 
 void handle_commands()
 {
-  add_action("do_take", _LANG_HANDLE_GET_VERBS);
-  add_action("do_give", _LANG_HANDLE_GIVE_VERBS);
-  add_action("do_drop", _LANG_HANDLE_DROP_VERBS);
+  add_private_action("do_take", _LANG_HANDLE_GET_VERBS);
+  add_private_action("do_give", _LANG_HANDLE_GIVE_VERBS);
+  add_private_action("do_drop", _LANG_HANDLE_DROP_VERBS);
 }
 
 void create()
@@ -37,7 +37,7 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
 
   // Added to get rid of one more auto_load bug..
   // Baldrick, nov '94
-  if (this_object()->query_loading() || this_object()->query_property(LOADING_PROP))
+  if (this_object()->query_property(LOADING_PROP))
   {
     notify_fail(_LANG_HANDLE_WAIT_LOADING);
     return 0;
@@ -213,7 +213,7 @@ int do_drop(string str)
 
   // Added to get rid of one more auto_load bug..
   // Baldrick, nov '94
-  if (this_object()->query_loading() || this_object()->query_property(LOADING_PROP))
+  if (this_object()->query_property(LOADING_PROP))
   {
     notify_fail(_LANG_HANDLE_WAIT_LOADING);
     return 0;
@@ -328,7 +328,7 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
 
   // Added to get rid of one more auto_load bug..
   // Baldrick, nov '94
-  if (this_object()->query_loading() || this_object()->query_property(LOADING_PROP))
+  if (this_object()->query_property(LOADING_PROP))
   {
     notify_fail(_LANG_HANDLE_WAIT_LOADING);
     return 0;

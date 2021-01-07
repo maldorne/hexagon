@@ -36,22 +36,5 @@
 #define INTERRUPTABLE_BUSY     1
 #define NOT_BUSY               0
 
-/* Some common aliases */
-#define EXPANSION ([     \
-     "n"  : "norte",     \
-     "s"  : "sur",       \
-     "e"  : "este",      \
-     "ne" : "noreste",   \
-     "no" : "noroeste",  \
-     "se" : "sudeste",   \
-     "so" : "sudoeste",  \
-     "ar" : "arriba",    \
-     "ab" : "abajo",     \
-     "o"  : "oeste",     \
-     "de" : "dentro",    \
-     "fu" : "fuera",     \
-     "es" : "escaleras", \
-  ])
-
 #endif
 

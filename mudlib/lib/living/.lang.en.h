@@ -1,7 +1,7 @@
 
 // queue
 
-#define _LANG_DIDNT_WORK "The attempt of doing '%^RED%^" + \
+#define _LANG_QUEUE_DIDNT_WORK "The attempt of doing '%^RED%^" + \
                             curr_act + "%^RESET%^' didn't work.\n"
 
 // handle
@@ -34,3 +34,8 @@
 #define _LANG_HANDLE_PUT_PREP "in"
 #define _LANG_HANDLE_GIVE_PREP "to"
 #define _LANG_HANDLE_GIVE_CANNOT "Cannot find "+person+".\n"
+
+// combat.c
+
+#define _LANG_COMBAT_BEING_ATTACKED "%^BOLD%^You are being attacked by %^RESET%^" + \
+                        name + "%^BOLD%^.%^RESET%^\n\n"

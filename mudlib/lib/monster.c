@@ -11,7 +11,11 @@
 
 #include <areas/weather.h>
 #include <npc/npc.h>
+#include <translations/language.h>
+#include <translations/races.h>
 #include <living/living.h>
+#include <living/races.h>
+#include <language.h>
 
 inherit living     "/lib/living/living.c";
 inherit friends    "/lib/npc/friends.c";
@@ -34,7 +38,7 @@ string *move_zones,    /* zones that i may wander into */
 *enter_commands;       /* commands to be done upon entering a room */
 
 static int hbcheck;    /* a little patch to avoid slaughtering cowards */
-static int only_one;   /* can only be clone once */
+static int only_one;   /* can be cloned only once */
 
 static int _follow_move_handle;
 
@@ -44,7 +48,7 @@ int query_concentrate_valid() { return 1; }
 int query_npc() { return 1; }
 int query_monster() { return 1; }
 nomask int query_coder() { return 0; }
-// Para el sistema de guardianes de salidas
+// for the guard system
 int guardian_check(object ob) { return 1; }
 
 void create()
@@ -60,46 +64,50 @@ void create()
   enter_commands = ({ });
   only_one = 0;
 
-  add_language("comun");
-  set_language("comun");
+  add_language(STD_LANG);
+  set_language(STD_LANG);
 
   friends::create();
   chatter::create();
   npc_combat::create();
   npc_timed::create();
+  // setup() call is inside this create(),
+  // so this has to be the last one
   living::create();
 
   // every monster need a race, assign a default one
   // in other case -> this should not happen, please remember
   // to assign a race to every monster!!!
   if (!query_race_ob())
-    set_race_ob("/lib/obj/races/unknown.c");
+    set_race_ob(DEFAULT_RACE_OB);
+
+  // same for classes, neverbot 01/2021
+  if (!query_class_ob())
+    set_class_ob(DEFAULT_CLASS_OB);
 
   combat_counter = 0;
 
   if (this_object()->query_weight() == 0)
     set_weight(1500);
 
-  // Si debe ser único y hay más, tenemos que destruirlo
+  // if has to be unique and there is any other, this clone
+  // has to be destroyed
+  /*
   if (only_one)
   {
-    // obtenemos el nombre de archivo de este objeto
     aux = base_name(this_object());
-
-    // Comprobamos cuantos hay clonados
     obs = children(aux);
 
     if (sizeof(obs))
       for (i = 0; i < sizeof(obs); i++)
       {
-        // De la lista de clonados eliminamos el objeto en memoria (si lo hay)
-        // (el que no tiene # en el nombre)
+        // remove memory blueprint from the cloned list
         if (strsrch(file_name(obs[i]), "#") == -1)
             obs -= ({ obs[i] });
       }
 
-    // Llegados a este punto este objeto ya responde a children (al menos habra uno
-    // en la lista... si hay mas no podemos clonar)
+    // this object is included too in the children() call, so we will 
+    // have at least one
     if (sizeof(obs) > 1)
     {
       // this_object()->dest_me();
@@ -107,37 +115,24 @@ void create()
       return;
     }
   }
+  */
 
-  // ****************************** Timed npcs, para mas informacion, /global/npc/npc_timed.c
-
-  // Una vez aqui ya hemos ejecutado el setup del npc
-  //  (is_timed estara actualizado!!)
-  // Añadido: Solo hacemos el dest si el nombre del objeto lleva '#'
-  //  en otro caso solo lo estamos cargando en memoria (update por ejemplo).
-
-  if (is_timed && this_object() && (  strsrch(file_name(this_object()), "#") != -1 ) )
+  // timed npcs, for more information, /lib/npc/npc_timed.c
+  if ((is_timed || is_night_timed) && (strsrch(file_name(this_object()), "#") != -1 ))
   {
     time = handler(WEATHER_HANDLER)->query_date_data()[0];
-    // Si no es su hora no clonamos el npc
-    if ((time < init_hour) || (time > end_hour))
-        dest_me();
-    return;
+
+    // if it is not the time, we do not clone the npc
+    if ((is_timed && (time < init_hour) || (time > end_hour)) ||
+        (is_night_timed && (time < init_hour) && (time > end_hour)))
+    {
+      dest_me();
+      return;
+    }
   }
-
-  if (is_night_timed && this_object() && (  strsrch(file_name(this_object()), "#") != -1 ) )
-  {
-    time = handler(WEATHER_HANDLER)->query_date_data()[0];
-    // Si no es su hora no clonamos el npc
-    if ((time < init_hour) && (time > end_hour))
-        dest_me();
-    return;
-  }
-
-  // ****************************** Fin seccion timed
-
 } /* create() */
 
-// Para que sólo exista un único npc igual en el mud al mismo tiempo.
+// only one copy of this npc at the same time
 int query_only_one(){ return only_one; }
 void set_only_one(int value)
 {
@@ -153,25 +148,30 @@ int do_death(object killer)
 }
 
 // Taniwha 1996. Simply for the convenience of it
-void add_clone(string what,int num)
+void add_clone(string what, varargs int how_many)
 {
   object ob;
   int i;
-  if (!num) num = 1;
-  for(i = 0; i < num; i++)
+
+  if (!how_many) 
+    how_many = 1;
+
+  for (i = 0; i < how_many; i++)
   {
     ob = clone_object(what);
     if (ob)
     {
-      if (ob->move(this_object()))
+      if (ob->move(this_object())) // move ok returns 0
       {
         if (ob && environment(this_object()) )
         {
-          tell_room(environment(this_object()), query_cap_name()+" intenta sostener su "+ob->query_name()+
-              " pero finalmente tiene que soltarlo.\n");
+          tell_room(environment(this_object()), _LANG_MONSTER_CANNOT_CLONE);
           ob->move(environment(this_object()));
         }
-        else ob->dest_me();
+        else
+        {
+          ob->dest_me();
+        }
       }
     }
   }
@@ -233,9 +233,9 @@ void set_name(string n)
   if (name && name != "object")
     return;
   name = n;
-  // add_plural(pluralize(name));
+
   set_short(capitalize(name));
-  set_long("No puedes ver nada destacable.\n");
+  set_long(_LANG_RACES_UNKNOWN_DESC);
   set_living_name(n);
 }
 
@@ -251,11 +251,11 @@ string long(string str, int dark)
     );
 
   // neverbot, 7/03
-  // Con el 1 de query_race_gender_string nos ahorramos el articulo
-  // (en lugar de 'la humana', devuelve unicamente 'humana')
+  // query_race_gender_string flag returns the string without
+  // the article ("human" instead of "the human")
   if (ob = load_object(this_object()->query_race_ob()))
     if (ob->query_race_gender_string(this_object(), 1) != "")
-      s += capitalize(query_pronoun())+" es "+query_numeral()+ " " +
+      s += capitalize(query_pronoun()) + _LANG_RACES_IS + query_numeral()+ " " +
            ob->query_race_gender_string(this_object(), 1) + ".\n";
 
   // s += capitalize(query_pronoun())+" "+health_string(0)+".\n";
@@ -266,7 +266,7 @@ string long(string str, int dark)
 }
 
 void init_command(string str) { call_out("do_command", 0, str); }
-void init_equip() { call_out("do_equip", 0, 0); }
+void init_equip() { call_out("do_equip", 0, ""); }
 
 // int do_command(string str)
 // {
@@ -326,7 +326,7 @@ int check_anyone_here()
   arr -= ({ this_object() });
 
   for (i = 0; i < sizeof(arr); i++)
-    // El heart_beat debe continuar tambien si hay otros npcs en la room
+    // heart_beat has to continue if there are other npcs in the room
       // if (arr[i] && interactive(arr[i]))
     if (arr[i] && living(arr[i]))
       return 1;
@@ -375,8 +375,8 @@ int check_heart_beat()
 }
 
 /* Does the move after thingie called in heart_beat
-* Wonderflug, cut this down to nothing :)
-*/
+ * Wonderflug, cut this down to nothing :)
+ */
 void move_after_heart_beat()
 {
   // Taniwha 07 02 97, can't handle the crap uptimes.
@@ -390,7 +390,7 @@ void move_after_heart_beat()
     move_when = (move_after[0] + random(move_after[1]) );
   }
   return;
-} /* void move_after */
+}
 
 /*
  * This code is *ugly* and it has to be possible to make it cleaner and faster!
@@ -430,7 +430,7 @@ void heart_beat()
    * variables. this is to lessen the cpu.
    */
   check_heart_beat();
-} /* void heart_beat */
+}
 
 void set_random_stats(int low, int max)
 {
@@ -460,6 +460,10 @@ int set_level(int i)
   if (i < 1)
     i = 1;
 
+  // without a class, the adjust level won't work
+  if (!query_class_ob())
+    set_class_ob(DEFAULT_CLASS_OB);
+
   adjust_class_level(i - query_class_level());
 
   set_max_hp(query_con() * query_level());
@@ -468,23 +472,25 @@ int set_level(int i)
   set_max_gp(query_gp_main_stat() * query_level());
   set_gp(query_max_gp());
 
-  // Elimina bonos temporales a stats, bonificadores y resistencias (solo las temporales!!)
+  // removes tmp bonuses (only the tmp ones!)
   reset_all();
 
-  // Ranking de jugadores, tambien para npcs, neverbot 06/10
-  // Solo para npcs unicos
-  if (query_only_one())
-    call_out("check_ranking", 5);
+  // player ranking for unique npcs too, neverbot 06/10
+  call_out("check_ranking", 5);
 
   return query_class_level();
 }
 
-// Funcion que añade al npc al ranking de niveles mas altos
+// check if we have to add this npc to the ranking
 void check_ranking()
 {
   object ranking;
 
-  // Solo objetos clonados
+  // only unique npcs
+  if (!query_only_one())
+    return;
+
+  // only cloned objects
   if (!environment(this_object()))
     return;
 
@@ -580,42 +586,50 @@ void do_move_after(int bing)
 
   if (!environment(this_object()))
   {
-    call_out("dest_me",0);
+    call_out("dest_me", 0);
     return;
   }
 
   direcstemp = (string *)environment()->query_dest_dir();
-  direcs = ({});
-  for(dd=0;dd<sizeof(direcstemp);dd+=2)
+  direcs = ({ });
+
+  for (dd = 0; dd < sizeof(direcstemp); dd += 2)
   {
-    if (find_object(direcstemp[dd+1]))
+    if (find_object(direcstemp[dd + 1]))
     {
-      direcs += direcstemp[dd..dd+1];
+      direcs += direcstemp[dd..dd + 1];
     }
   }
+
   while (!bong && sizeof(direcs))
   {
     i = random(sizeof(direcs)/2)*2;
 
     bong = 0;
+
     if (bing > 1)
-      catch(bong = (int)direcs[i+1]->query_property("no throw out"));
-    catch(zone = (string)direcs[i+1]->query_zone());
+      catch(bong = (int)direcs[i + 1]->query_property("no throw out"));
+
+    catch(zone = (string)direcs[i + 1]->query_zone());
+
     if (sizeof(move_zones) || bong)
+    {
       if (bong || member_array(zone, move_zones) == -1)
       {
         direcs = delete(direcs, i, 2);
         continue;
       }
+    }
 
     queue_action(direcs[i]);
     bong = 1;
+
     if (!bong)
-        direcs = delete(direcs, i, 2);
+      direcs = delete(direcs, i, 2);
   } /* while */
 } /* do_move_after() */
 
-// Added by Wonderflug.  To fix add_protect.
+// Added by Wonderflug. To fix add_protect.
 void event_death(object caller, varargs object killer,
                                         object * attackers,
                                         mixed avoid)
@@ -630,14 +644,13 @@ void event_fight_in_progress(object one, object two)
 {
   if (join_fights)
   {
-    attacker_list -= ({ 0 });
-    pile_in(one,two);
-    pile_in(two,one);
+    attacker_list -= ({ nil });
+    pile_in(one, two);
+    pile_in(two, one);
   }
 }
 
 void event_exit(object ob, varargs string mess, object dest, mixed avoid)
-// void event_exit(object ob, string mess, mixed dest)
 {
   mixed *bing;
   int i;
@@ -664,11 +677,13 @@ void event_exit(object ob, varargs string mess, object dest, mixed avoid)
     zone = (string)dest->query_move_zone();
 
     if (move_zones && sizeof(move_zones))
+    {
       if (member_array(zone, move_zones) == -1)
       {
         return; /* If we are suppose to wander in move_zones.. dont go
                   * where we are not supposed to... get stuck */
       }
+    }
 
     remove_call_out(_follow_move_handle);
     _follow_move_handle = call_out("do_follow_move", 2 + random(query_follow_speed()), bing[i-1]);
@@ -688,17 +703,14 @@ return ::clean_up(used);
 
 void dest_me()
 {
-  // Extraemos el objeto de weather.c
+  // remove the object from de weather.c
   if (query_timed_npc())
-  {
     handler(WEATHER_HANDLER)->unnotify_me(this_object());
-    // destruct(this_object());
-  }
 
   ::dest_me();
 }
 
-mixed *stats()
+mixed * stats()
 {
   mixed * zone;
   mixed * ret;
@@ -707,15 +719,15 @@ mixed *stats()
   zone = ({ });
 
   for (i = 0; i < sizeof(move_zones); i++)
-    zone += ({ ({ "Move zone "+i, move_zones[i] }) });
+    zone += ({ ({ "Move zone " + i, move_zones[i] }) });
 
   ret = living::stats() + zone;
 
   if (query_move_after())
-      ret += ({
-          ({ "Move After-fix", query_move_after()[0] }),
-          ({ "Move After-rand", query_move_after()[1] }),
-        });
+    ret += ({
+        ({ "Move After-fix", query_move_after()[0] }),
+        ({ "Move After-rand", query_move_after()[1] }),
+      });
 
   return ret + friends::stats() + chatter::stats() +
       npc_combat::stats() + npc_timed::stats();

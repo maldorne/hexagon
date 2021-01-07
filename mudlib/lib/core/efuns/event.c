@@ -12,13 +12,13 @@ static void event( mixed obs, string event_name, mixed arg... )
 
   who = previous_object();
 
-  if (arrayp( obs ))
+  if (arrayp(obs))
   {
     event_obs = obs;
   }
-  else if (objectp( obs ))
+  else if (objectp(obs))
   {
-    event_obs = ({ obs }) + all_inventory( obs );
+    event_obs = ({ obs }) + all_inventory(obs);
 
     // avoid duplicates
     if (obs != who)
