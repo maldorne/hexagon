@@ -119,21 +119,33 @@ string query_gtitle()
 
 void set_race_ob(string str)
 {
-  // string frog;
+  string * valid_races_dirs;
+  int i, valid;
 
-  if (!strlen(str))
-    str = VALID_RACES_PATHS[0] + "unknown";
+  if (undefinedp(str) || !strlen(str))
+    str = DEFAULT_RACE_DIR + "unknown";
 
-  // if ( sscanf(str, "/%s", frog)==1)
-  //   str = extract(str, 1);
+  // for any object, the valid directories are the common one, and the specific for its game
+  valid_races_dirs = ({ DEFAULT_RACE_DIR, game_root(this_object()) + "obj/races/" });
+  valid = FALSE;
 
-  if (str[0..strlen(VALID_RACES_PATHS[0])-1] != VALID_RACES_PATHS[0])
+  for (i = 0; i < sizeof(valid_races_dirs); i++)
   {
-    write("Illegal path for set_race_ob.\n");
+    if (extract(str, 0, strlen(valid_races_dirs[i]) - 1) == valid_races_dirs[i])
+    {
+      valid = TRUE;
+      break;
+    }
+  }
+
+  if (!valid)
+  {
+    if (this_player() && this_player()->query_coder())
+      tell_object(this_player(), "Illegal path for set_race_ob.\n");
     return;
   }
 
-  if ( (file_size(str) < 0) && (file_size(str + ".c") < 0) )
+  if ((file_size(str) < 0) && (file_size(str + ".c") < 0))
   {
     tell_object(this_object(),"El intento de set_race_ob no ha funcionado. "+
       "Díselo a alguien que pueda arreglarlo.\n");
@@ -205,14 +217,9 @@ void set_race_ob(string str)
 
   social_object_list[RACE_OB]->start_player(this_object());
 
-  return;
 } /* set_race_ob() */
 
-void set_race(string str)
-{
-  if (arrayp(VALID_RACES_PATHS) && (sizeof(VALID_RACES_PATHS) >= 1))
-    set_race_ob(VALID_RACES_PATHS[0] + str);
-}
+void set_race(string str) { set_race_ob(DEFAULT_RACE_DIR + str); }
 
 string query_race_ob() { return social_object_list[RACE_OB]; }
 
