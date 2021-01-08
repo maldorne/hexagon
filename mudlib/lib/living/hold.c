@@ -36,7 +36,7 @@ mapping query_total_held_ac(){ return held_ac; }
 
 int query_held_ac(string tipo)
 {
-  if(member_array(tipo, keys(held_ac)) != -1)
+  if (member_array(tipo, keys(held_ac)) != -1)
     return held_ac[tipo];
   return 0;
 }
@@ -151,7 +151,7 @@ void reset_hands()
   if (free_hands_left == 0)
     free_hands_left = 1;
 
-  held_ob = allocate_int(free_hands_left);
+  held_ob = allocate(free_hands_left);
 }
 
 // The free_hand_left is a quickie, easier to have an int than go through
@@ -172,9 +172,9 @@ int unhold_ob(object ob)
   }
 
   // Taniwha 1996
-  if(ob->set_in_use(0) == 0)    
+  if (ob->set_in_use(0) == 0)    
   {
-    held_ob[slot] = 0;
+    held_ob[slot] = nil;
 
     // Not really needed but good for speed.
     // sanity check should be run against held_ob array every so often
@@ -208,11 +208,11 @@ int hold_ob(object ob)
   // Check to make sure weapon is an allowed weapon
 
   // Taniwha 1995, make it work ...
-  if(ob->query_weapon())    
+  if (ob->query_weapon())    
   {
     gobj = this_object()->query_guild_ob();
 
-    if( gobj && !gobj->query_legal_weapon(ob->query_weapon_name()))
+    if ( gobj && !gobj->query_legal_weapon(ob->query_weapon_name()))
     {
       tell_object(this_object(),"Careces de la habilidad necesaria "+
                   "para empuñar este arma.\n");
@@ -220,11 +220,11 @@ int hold_ob(object ob)
     }
   }
   
-  if(ob->query_shield())    
+  if (ob->query_shield())    
   {
     gobj = this_object()->query_guild_ob();
 
-    if( gobj && !gobj->query_legal_armour(ob->query_shield_name()))
+    if ( gobj && !gobj->query_legal_armour(ob->query_shield_name()))
     {
       tell_object(this_object(),"Careces de la habilidad necesaria "+
                   "para llevar este equipo.\n");
@@ -252,7 +252,7 @@ int hold_ob(object ob)
   }
   
   // Taniwha 1996
-  if(!ob->set_in_use(1)) 
+  if (!ob->set_in_use(1)) 
     return 0;
   
   held_ob[slot] = ob;
