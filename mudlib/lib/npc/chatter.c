@@ -141,14 +141,14 @@ void expand_mon_string(string str)
       break;
     
     case ':'  :
-      str = this_object()->query_cap_name() + " " +
+      str = "\n" + this_object()->query_cap_name() + " " +
               (string)MONSTER_HAND->expand_string(this_object(), str[1..]) + "\n";
       tell_room(environment(this_object()), str, ({ this_object() }));
       special = 1;
       break;
     
     case '@':
-      tell_room(environment(this_object()), str[1..] + "\n", this_object());
+      tell_room(environment(this_object()), "\n" + str[1..] + "\n", ({ this_object()} ));
       special = 1;
       break;            
     
