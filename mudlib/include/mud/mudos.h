@@ -23,12 +23,16 @@
 #define CALL_OUT_STACK_TIME   3
 #define CALL_OUT_STACK_ARG    4
 
-// for the context passed between call_out calls
-#define CALL_OUT_CONTEXT_TO 0
-#define CALL_OUT_CONTEXT_TP 1
-#define CALL_OUT_CONTEXT_TU 2
-#define CALL_OUT_CONTEXT_VERB 3
-#define CALL_OUT_CONTEXT_COMMAND 4
+// execution context
+// array length
+#define EXECUTION_CONTEXT_LENGTH 6
+// positions
+#define EXECUTION_CONTEXT_TO 0
+#define EXECUTION_CONTEXT_TP 1
+#define EXECUTION_CONTEXT_TU 2
+#define EXECUTION_CONTEXT_VERB 3
+#define EXECUTION_CONTEXT_COMMAND 4
+#define EXECUTION_CONTEXT_NOTIFY_MSG 5
 
 
 #endif

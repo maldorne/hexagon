@@ -519,22 +519,20 @@ private int perform_next_action()
     old_this_player = this_player();
     old_verb = MUDOS->query_current_verb();
     old_command = MUDOS->query_current_command();
+    // save current notify_fail message
+    // will be changed (presumably) during the execution
+    // of this action
+    old_notify_fail = MUDOS->query_notify_fail_msg();
 
     // set this_object as currect this_player
     MUDOS->set_initiator_object(this_object());
     MUDOS->set_current_verb(verb);
     MUDOS->set_current_command(curr_act);
-
-    // save current notify_fail message
-    // will be changed (presumably) during the execution
-    // of this action
-    old_notify_fail = MUDOS->query_notify_fail_msg();
     MUDOS->set_notify_fail_msg("");
 
     // The real command chain
-
     // add_action commands
-    if (!command( curr_act ))
+    if (!command(curr_act))
     {
       // TODO
       if (!this_object()->do_gr_command(verb, t))
@@ -569,14 +567,13 @@ private int perform_next_action()
     // restore previous notify_fail message
     // (might have change during the execution of the action)
     MUDOS->set_notify_fail_msg(old_notify_fail);
-
     // restore previous verb
     MUDOS->set_current_verb(old_verb);
     MUDOS->set_current_command(old_command);
-
-    stderr(" ~~~ end queue::perform_next_action()\n");
     // restore this_player()
     MUDOS->set_initiator_object(old_this_player);
+
+    stderr(" ~~~ end queue::perform_next_action()\n");
 
     command_in_progress = "";
 

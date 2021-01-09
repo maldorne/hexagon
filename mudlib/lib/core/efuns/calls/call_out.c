@@ -12,13 +12,7 @@ static nomask int call_out(string func, int delay, varargs mixed args...)
   int ret;
   mixed * context;
 
-  context = ({
-    this_object(),
-    this_player(),
-    this_user(),
-    MUDOS->query_current_verb(),
-    MUDOS->query_current_command(),
-  });
+  context = MUDOS->query_execution_context();
 
   // the real call_out
   // int call_out(string function, mixed delay, mixed args...)
@@ -32,7 +26,7 @@ static nomask int call_out(string func, int delay, varargs mixed args...)
 
 nomask int __call_out(mixed * context, string func, varargs mixed args...)
 {
-  return MUDOS->_call_out(context, func, args...);
+  return MUDOS->_call_out(this_object(), context, func, args...);
 }
 
 // remove_call_out - remove a pending call_out

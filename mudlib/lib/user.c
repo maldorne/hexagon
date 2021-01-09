@@ -179,17 +179,27 @@ nomask int set_input_to(object obj, string func, varargs int flag, mixed args...
 // called from the driver
 static void open()
 {
+  mixed * old_context;
+
   timestamp = time();
 
   stderr(" ~~~ user::open()\n");
+
+  // preserve current context
+  old_context = MUDOS->query_execution_context();;
+
+  MUDOS->set_current_verb("");
+  MUDOS->set_current_command("");
+  MUDOS->set_notify_fail_msg("");
   MUDOS->set_initiator_user(this_object());
   MUDOS->set_initiator_object(this_object());
 
   LOGIN->logon(this_object());
 
+  // restore the context when the connection happened
+  MUDOS->restore_execution_context(old_context);
+
   stderr(" ~~~ end user::open()\n");
-  MUDOS->set_initiator_user(nil);
-  MUDOS->set_initiator_object(nil);
 }
 
 // called from the driver
@@ -248,6 +258,7 @@ static void receive_message(string str)
   string verb;
   string params;
   string * pieces;
+  mixed * old_context;
   int i;
 
   rlimits (MAX_USER_DEPTH; MAX_USER_TICKS)
@@ -265,6 +276,14 @@ static void receive_message(string str)
     if (redirect_input_ob)
     {
       stderr(" ~~~ user::receive_message() with input_to()\n");
+
+      // the new line has content, so we have a new this_player()
+      // preserve current context
+      old_context = MUDOS->query_execution_context();
+
+      MUDOS->set_current_verb("");
+      MUDOS->set_current_command("");
+      MUDOS->set_notify_fail_msg("");
       // to have this_player() inside an input_to redirection
       MUDOS->set_initiator_user(this_object());
       MUDOS->set_initiator_object(this_object());
@@ -285,10 +304,10 @@ static void receive_message(string str)
         show_prompt();
       }
 
-      stderr(" ~~~ end user::receive_message() with input_to()\n");
-      MUDOS->set_initiator_object(nil);
-      MUDOS->set_initiator_user(nil);
+      // restore the context when the input was redirected
+      MUDOS->restore_execution_context(old_context);
 
+      stderr(" ~~~ end user::receive_message() with input_to()\n");
       return;
     }
 
@@ -310,7 +329,14 @@ static void receive_message(string str)
     }
 
     stderr(" ~~~ user::receive_message()\n");
+
     // the new line has content, so we have a new this_player()
+    // preserve current context
+    old_context = MUDOS->query_execution_context();
+
+    MUDOS->set_current_verb("");
+    MUDOS->set_current_command("");
+    MUDOS->set_notify_fail_msg("");
     MUDOS->set_initiator_user(this_object());
     MUDOS->set_initiator_object(this_object());
 
@@ -352,10 +378,10 @@ static void receive_message(string str)
       if (_player) _player->lower_check( str );
     }
 
-    stderr(" ~~~ end user::receive_message()\n");
-    MUDOS->set_initiator_user(nil);
-    MUDOS->set_initiator_object(nil);
+    // restore the context when the message was received
+    MUDOS->restore_execution_context(old_context);
 
+    stderr(" ~~~ end user::receive_message()\n");
   } // rlimits
 }
 
