@@ -214,7 +214,7 @@ int _store_call_out(object ob, int handle, string func, int delay, varargs mixed
       break;
   }
 
-  call_outs = insert(call_outs, ({ ob, handle, func, time, args, this_player(), this_user() }), i+1);
+  call_outs = insert(call_outs, ({ ob, handle, func, time, args }), i+1);
 
   if (CONFIG_LOG_CALL_OUTS)
   {
@@ -227,9 +227,17 @@ int _store_call_out(object ob, int handle, string func, int delay, varargs mixed
 }
 
 // this function will be called when the call_out is done
-int _call_out(object ob, object player, object user, string func, varargs mixed args...)
+int _call_out(mixed * context, string func, varargs mixed args...)
 {
+  object ob, player, user;
   object old_this_object, old_this_player, old_this_user;
+  string verb, command, old_verb, old_command;
+
+  ob      = context[CALL_OUT_CONTEXT_TO];
+  player  = context[CALL_OUT_CONTEXT_TP];
+  user    = context[CALL_OUT_CONTEXT_TU];
+  verb    = context[CALL_OUT_CONTEXT_VERB];
+  command = context[CALL_OUT_CONTEXT_COMMAND];
 
   if (CONFIG_LOG_CALL_OUTS)
   {
@@ -248,11 +256,15 @@ int _call_out(object ob, object player, object user, string func, varargs mixed 
   old_this_object = initiator_object;
   old_this_player = initiator_player;
   old_this_user = initiator_user;
+  old_verb = current_verb;
+  old_command = current_command;
 
   // restore the context when the call_out was programmed
   _change_initiator_object(ob);
   _change_initiator_player(player);
   _change_initiator_user(user);
+  set_current_verb(verb);
+  set_current_command(command);
 
   catch(call_other(ob, func, args...));
 
@@ -263,6 +275,8 @@ int _call_out(object ob, object player, object user, string func, varargs mixed 
   _change_initiator_object(old_this_object);
   _change_initiator_player(old_this_player);
   _change_initiator_user(old_this_user);
+  set_current_verb(old_verb);
+  set_current_command(old_command);
 }
 
 int _remove_call_out(object ob, int handle)

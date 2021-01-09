@@ -433,7 +433,7 @@ private int do_cmd(string cmd)
 private int perform_next_action()
 {
   mixed curr_act;
-  string verb, t, old_notify_fail, old_verb;
+  string verb, t, old_notify_fail, old_verb, old_command;
   object old_this_player;
 
   show_prompt = 1;
@@ -503,7 +503,7 @@ private int perform_next_action()
   // if (evaluate(curr_act) == curr_act)
   // {
 
-  if (stringp( curr_act ))
+  if (stringp(curr_act))
   {
     command_in_progress = curr_act;
     time_adjusted = 0;
@@ -513,15 +513,15 @@ private int perform_next_action()
     if (!verb)
       verb = curr_act;
 
-    // save this_player to restore it afterwards
-    old_this_player = this_player();
-
     stderr(" ~~~ queue::perform_next_action()\n");
+
+    // save current context to restore it afterwards
+    old_this_player = this_player();
+    old_verb = MUDOS->query_current_verb();
+    old_command = MUDOS->query_current_command();
+
     // set this_object as currect this_player
     MUDOS->set_initiator_object(this_object());
-
-    // save current verb being used
-    old_verb = MUDOS->query_current_verb();
     MUDOS->set_current_verb(verb);
     MUDOS->set_current_command(curr_act);
 
@@ -572,6 +572,7 @@ private int perform_next_action()
 
     // restore previous verb
     MUDOS->set_current_verb(old_verb);
+    MUDOS->set_current_command(old_command);
 
     stderr(" ~~~ end queue::perform_next_action()\n");
     // restore this_player()
