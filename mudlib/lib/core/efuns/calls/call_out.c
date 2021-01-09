@@ -3,8 +3,8 @@
 
 // call_out - delayed function call in same object
 // void call_out( function fun, int delay, mixed arg, ... );
-// Set up a call to 'fun'.  If fun is a string, it is interpreted as the
-// name of a function in this_object().  The call will take place 'delay'
+// Set up a call to 'fun'. If fun is a string, it is interpreted as the
+// name of a function in this_object(). The call will take place 'delay'
 // seconds later, with the arguments 'arg' and following provided.
 
 static nomask int call_out(string func, int delay, varargs mixed args...)

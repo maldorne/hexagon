@@ -133,8 +133,8 @@ int move(varargs object dest)
 
   if (living(this_object()))
   {
-    stderr(" ~~~ end move of a living\n");
     MUDOS->set_initiator_object(old_this_player);
+    stderr(" ~~~ end move of a living\n");
   }
 
   return MOVE_OK;

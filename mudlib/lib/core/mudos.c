@@ -43,16 +43,24 @@ string query_notify_fail_msg() { return notify_fail_msg; }
 void set_notify_fail_msg(string msg) { notify_fail_msg = msg; }
 
 // useful for logging
-private _change_initiator_object(object ob) {
-  // stderr(" @@@@@@@@@ new initiator_object: " + to_string(ob));
+private _change_initiator_object(object ob)
+{
+  if (CONFIG_LOG_INITIATOR_OBJECTS)
+    stderr(" @@@@@@@@@ new initiator_object: " + to_string(ob));
   initiator_object = ob;
 }
-private _change_initiator_player(object ob) {
-  // stderr(" @@@@@@@@@ new initiator_player: " + to_string(ob));
+
+private _change_initiator_player(object ob)
+{
+  if (CONFIG_LOG_INITIATOR_OBJECTS)
+    stderr(" @@@@@@@@@ new initiator_player: " + to_string(ob));
   initiator_player = ob;
 }
-private _change_initiator_user(object ob) {
-  // stderr(" @@@@@@@@@ new initiator_user: " + to_string(ob));
+
+private _change_initiator_user(object ob)
+{
+  if (CONFIG_LOG_INITIATOR_OBJECTS)
+    stderr(" @@@@@@@@@ new initiator_user: " + to_string(ob));
   initiator_user = ob;
 }
 
@@ -81,7 +89,7 @@ int set_initiator_user(object user)
 
   _change_initiator_user(user);
 
-  if (!user || !user->player())
+  if (!objectp(user) || !user->player())
     _change_initiator_player(nil);
   else
     _change_initiator_player(user->player());
@@ -100,8 +108,8 @@ int set_initiator_player(object player)
 
   _change_initiator_player(player);
 
-  if (!player || !player->user())
-    _change_initiator_user(nil);
+  // if (!objectp(player) || !player->user())
+  //   _change_initiator_user(nil);
 
   return 1;
 }
@@ -206,9 +214,14 @@ int _store_call_out(object ob, int handle, string func, int delay, varargs mixed
       break;
   }
 
-  // stderr("CALL_OUT: " + to_string(call_outs) + "\n");
-
   call_outs = insert(call_outs, ({ ob, handle, func, time, args, this_player(), this_user() }), i+1);
+
+  if (CONFIG_LOG_CALL_OUTS)
+  {
+    stderr(" *** stored call_out func <" + func + "> on object <" + object_name(ob) + ">\n");
+    // stderr("     info stored: " + to_string(({ ob, handle, func, time, args, this_player(), this_user() })) + "\n");
+    // stderr(" *** all stored call_outs: " + to_string(call_outs) + "\n");
+  }
 
   return handle;
 }
@@ -219,13 +232,14 @@ int _call_out(object ob, object player, object user, string func, varargs mixed 
   object old_this_object, old_this_player, old_this_user;
 
   if (CONFIG_LOG_CALL_OUTS)
-    stderr(" *** coming back from call_out func <" + func + "> on object <" + object_name(ob) + ">\n");
-
-  // stderr(to_string(initial_object()));
-  // stderr("object " + to_string(ob));
-  // stderr("player " + to_string(player));
-  // stderr("user " + to_string(user));
-  // stderr("args " + to_string(args));
+  {
+    stderr(" ~~~ mudos::call_out() func <" + func + "> on object <" + object_name(ob) + ">\n");
+    // stderr(to_string(initial_object()));
+    // stderr("object " + to_string(ob));
+    // stderr("player " + to_string(player));
+    // stderr("user " + to_string(user));
+    // stderr("args " + to_string(args));
+  }
 
   // every time we modify or check the list, we purge the pending call_out
   _purge_call_out_stack();
@@ -234,9 +248,6 @@ int _call_out(object ob, object player, object user, string func, varargs mixed 
   old_this_object = initiator_object;
   old_this_player = initiator_player;
   old_this_user = initiator_user;
-
-  if (CONFIG_LOG_CALL_OUTS)
-    stderr(" ~~~ mudos::call_out()\n");
 
   // restore the context when the call_out was programmed
   _change_initiator_object(ob);
