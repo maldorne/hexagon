@@ -23,13 +23,9 @@
 
 #define _LANG_RACES_HUMANOID_BODY "humanoid"
 
-#define _LANG_RACES_UNKNOWN_NAME "unknown"
-#define _LANG_RACES_UNKNOWN_DESC "A small being, nothing special to stand out.\n"
-#define _LANG_RACES_UNKNOWN_GENDER_STRING "unknown"
-
 #define _LANG_RACES_HUMAN_NAME "human"
-#define _LANG_RACES_UNKNOWN_DESC_MALE "A handsome human man.\n";
-#define _LANG_RACES_UNKNOWN_DESC_FEMALE "A beautiful human woman.\n"
+#define _LANG_RACES_HUMAN_DESC_MALE "A handsome human man.\n";
+#define _LANG_RACES_HUMAN_DESC_FEMALE "A beautiful human woman.\n"
 #define _LANG_RACES_HUMAN_GENDER_STRING "human"
 
 #define _LANG_RACES_ANIMAL_NAME "animal"

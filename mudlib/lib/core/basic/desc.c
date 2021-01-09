@@ -1,4 +1,6 @@
 
+#include <language.h>
+
 static string short_d,
        plural_d,
        long_d;
@@ -14,10 +16,10 @@ void create()
 // anyway - Radix, Wonderflug fixed his drool : Jan 11, 1997
 void set_short(string str)
 {
-   if(stringp(str)) 
-      str = replace_string(str,"\n","");
-   short_d = str;
-   return;
+  if (stringp(str)) 
+    str = replace_string(str,"\n","");
+  short_d = str;
+  return;
 }
 
 void set_long(string str) { long_d = str; }
@@ -40,7 +42,7 @@ string pretty_short(varargs int dark)
 string long(varargs string str, int dark) 
 {
   if (!query_long())
-    return "No ves nada particularmente interesante.\n";
+    return _LANG_NO_LONG;
         
   return query_long();
 }

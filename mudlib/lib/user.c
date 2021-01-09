@@ -447,7 +447,7 @@ mixed * stats()
 {
   return ({
     ({ "Account Name", account_name }),
-    ({ "Timestamp", timestamp, }),
+    ({ "Timestamp (nosave)", timestamp, }),
     ({ "Last On From", last_on_from }),
     ({ "Hud", hud }),
           }) + help::stats() +

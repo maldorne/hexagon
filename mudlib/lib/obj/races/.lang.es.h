@@ -23,13 +23,9 @@
 
 #define _LANG_RACES_HUMANOID_BODY "humanoide"
 
-#define _LANG_RACES_UNKNOWN_NAME "desconocido"
-#define _LANG_RACES_UNKNOWN_DESC "Un pequeño ser del que no puedes destacar nada en particular.\n"
-#define _LANG_RACES_UNKNOWN_GENDER_STRING "desconocid" + player->query_vocal()
-
 #define _LANG_RACES_HUMAN_NAME "humano"
-#define _LANG_RACES_UNKNOWN_DESC_MALE "Un apuesto humano.\n";
-#define _LANG_RACES_UNKNOWN_DESC_FEMALE "Una atractiva humana.\n"      
+#define _LANG_RACES_HUMAN_DESC_MALE "Un apuesto humano.\n";
+#define _LANG_RACES_HUMAN_DESC_FEMALE "Una atractiva humana.\n"      
 #define _LANG_RACES_HUMAN_GENDER_STRING "human" + player->query_vocal()
 
 #define _LANG_RACES_ANIMAL_NAME "animal"

@@ -111,7 +111,9 @@ string query_article_plural()
   return _LANG_GENDER_ARTICLE_PLURAL_MALE;
 }
 
-string query_numeral()
+// if next word is provided, the numeral will depend of the
+// first letter of the next word: "a elf" -> "an elf"
+string query_numeral(varargs string next_word)
 {
    if (gender == 2)
     return _LANG_GENDER_NUMERAL_FEMALE;

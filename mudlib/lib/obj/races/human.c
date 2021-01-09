@@ -17,7 +17,7 @@ void setup()
   set_short(capitalize(_LANG_RACES_HUMAN_NAME));
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
   
-  set_cultures( ({"velan", "tresio" }) );
+  set_cultures( ({ "velan", "tresio" }) );
 
   // If you have different cultures, the init_room will be set in each of them
   set_init_room("/games/demo-fantasy/rooms/1.c");
@@ -28,8 +28,8 @@ string query_desc(object ob)
   if (ob)
   {
     if ((int)ob->query_gender() == 1)
-      return _LANG_RACES_UNKNOWN_DESC_MALE;
-    return _LANG_RACES_UNKNOWN_DESC_FEMALE;
+      return _LANG_RACES_HUMAN_DESC_MALE;
+    return _LANG_RACES_HUMAN_DESC_FEMALE;
   }
   return "";
 }
