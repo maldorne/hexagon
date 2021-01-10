@@ -67,29 +67,29 @@ string * query_broad_nearest_directions(string dir)
   return ({ }) + broad_nearest_exits[dir];
 }
 
-string expand_alias(mixed *aliases,string str)
+string expand_alias(mixed *aliases, string str)
 {
   int i;
  
   if (!aliases)
     return str;
  
-  if ((i=member_array(str,aliases))==-1)
+  if ((i = member_array(str, aliases)) == -1)
     return str;
  
   if (i%2)
     return aliases[i-1];
   return str;
-} /* expand_alias() */
+}
 
 string expand_direc(string str)
 {
   string s1,s2;
   
-  if (sscanf(str,"%s %s",s1,s2) == 2)  
+  if (sscanf(str, "%s %s", s1, s2) == 2)  
     return s1;
   return str;
-}  /* expand_direc() */
+}
 
 mixed* add_exit(mapping door_control, mapping exit_map,
                 varargs mixed *dest_other, string *dest_direc, object *hidden_objects, 
@@ -101,18 +101,20 @@ mixed* add_exit(mapping door_control, mapping exit_map,
 
   // tell_object(find_living("neverbot"), "Direccion: "+direc+" Tipo: "+type+"\n");
 
-  if (!material) {
-   switch(type) {
-    case "gate" :
-      material = S_METAL;
-      break;
-    case "door" :
-      material = S_MADERA;
-      break;
-    default :
-      material = DESCONOCIDO;
-      break; 
-   }
+  if (!material) 
+  {
+    switch(type)
+    {
+      case "gate" :
+        material = S_METAL;
+        break;
+      case "door" :
+        material = S_MADERA;
+        break;
+      default :
+        material = DESCONOCIDO;
+        break; 
+    }
   }
 
   if (!exit_map) 
@@ -156,10 +158,12 @@ mixed* modify_exit(mapping door_control,
 {
   int i, j;
   if ((i = member_array(direc, dest_other)) == -1)
-          return ({ });
+    return ({ });
  
   for (j = 0; j < sizeof(data); j += 2)
-    switch (lower_case(data[j])) {
+  {
+    switch (lower_case(data[j]))
+    {
       case "message" :
         dest_other[i+1][ROOM_MESS] = data[j+1];
         break;
@@ -206,10 +210,10 @@ mixed* modify_exit(mapping door_control,
 //      door_control = m_delete(door_control, direc);
 //      break;
     }
+  }
  
-  // return ({ door_control,doors_in,dest_other,hidden_objects });
   return ({ door_control, dest_other, hidden_objects });
-} /* modify_exit() */
+}
 
 // remove_exit (check "undoor" above.. this is easier... go figure) [Piper]
 
@@ -239,35 +243,30 @@ mixed* remove_exit(mapping door_control,
 
   return ({ door_control, exit_map, dest_other,
             dest_direc, hidden_objects });
-} /* remove_exit() */
+}
 
 mixed *query_size(mixed *dest_other, string direc, object room_ob)
 {
   int i;
  
-  if ((i=member_array(direc, dest_other))==-1)
+  if ((i = member_array(direc, dest_other)) == -1)
     return ({ });
+
   if (stringp(dest_other[i+1][ROOM_SIZE]))
   {   
     i = call_other(room_ob, dest_other[i+1][ROOM_SIZE]); 
     return ({ });
   }
+
   if (pointerp(dest_other[i+1][ROOM_SIZE]))
   {
     i = call_other(dest_other[i+1][ROOM_SIZE][0],
                       dest_other[i+1][ROOM_SIZE][1]);
     return ({ });
   }
-  return dest_other[i+1][ROOM_SIZE];
-} /* query_size() */
 
-/*
-int do_exit_command(mapping door_control, mapping door_locks,
-                    mapping exit_map, mixed *dest_direc,
-                    mixed *dest_other, mixed *aliases,
-                    string str, mixed verb, object ob,
-                    object foll, object room_ob)
-*/
+  return dest_other[i+1][ROOM_SIZE];
+}
 
 int do_exit_command(mapping door_control,
                     mapping exit_map, mixed *dest_direc,
@@ -482,7 +481,7 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
   dirs = ({ });
   size = sizeof(dest_other);
 
-  for (i=0; i < size; i+=2)
+  for (i = 0; i < size; i+=2)
   {
     // same look as with the short_exit_string, neverbot 6/03
     door = room_ob->query_door_ob(dest_other[i]);
@@ -533,10 +532,3 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
 
   return exit_string;
 } /* query_dirs_string() */
-
-string query_reduced_exit_name(string str){
-  if (shorten[str])
-    return shorten[str];
-  else
-    return str;
-}

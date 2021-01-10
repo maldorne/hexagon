@@ -18,7 +18,7 @@
 // specific logs that will be printed only in the terminal
 // these are useful only for mudlib debugging
 #define CONFIG_LOG_HEART_BEATS FALSE
-#define CONFIG_LOG_CALL_OUTS TRUE
+#define CONFIG_LOG_CALL_OUTS FALSE
 #define CONFIG_LOG_INITIATOR_OBJECTS FALSE
 
 // ----------------------------------------------------------------------

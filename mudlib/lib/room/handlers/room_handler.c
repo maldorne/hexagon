@@ -128,13 +128,13 @@ mixed * query_exit_type(string type, string dir)
     article = query_exit_article(s);
   
     if (strlen(article))
-      s = article + " " + s;
+      s = ({ 0, article + " " + s });
   }
 
   if (!exit_types[type])
-    return exit_types["standard"] + ({ ({ 0, s }) });
+    return exit_types["standard"] + ({ s });
 
-  return exit_types[type] + ({ ({ 0, s }) });
+  return exit_types[type] + ({ s });
 }
 
 /* Hamlet.  Colors for the exit string. */

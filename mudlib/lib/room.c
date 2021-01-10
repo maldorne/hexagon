@@ -509,13 +509,15 @@ string * query_aliases() { return aliases; } // neverbot, debugging
 
 // It IS useful to get directions + where they go to
 // BTW this is not a frog.
-nomask mixed *query_dest_dir() {
+nomask mixed *query_dest_dir()
+{
   int i;
   string *retval;
 
   retval = ({ });
-  for (i=0;i<sizeof(dest_other);i+=2)
-  retval += ({ dest_other[i], dest_other[i+1][ROOM_DEST] });
+  for (i = 0; i < sizeof(dest_other); i += 2)
+    retval += ({ dest_other[i], dest_other[i+1][ROOM_DEST] });
+
   return  retval;
 }
 
@@ -540,11 +542,12 @@ string query_zone()
 
 // this function puts the directions into the thingy list
 // I am sure you know what I mean
-string expand_direc(string str) {
+string expand_direc(string str)
+{
   string s1,s2;
 
-  if (sscanf(str,"%s %s",s1,s2)==2)
-  return s1;
+  if (sscanf(str,"%s %s",s1,s2) == 2)
+    return s1;
   return str;
 }
 
@@ -556,7 +559,9 @@ mixed add_exit(string direc, mixed dest, string type,
   mixed *m;
   object door;
 
-  if (!dest_other) dest_other = ({ });
+  if (!dest_other) 
+    dest_other = ({ });
+  
   m = EXIT_HAND->add_exit(door_control, exit_map, // mappings
     dest_other, dest_direc, hidden_objects,       // arrays
     // direc, dest, room_ob, type, material);     // & data
