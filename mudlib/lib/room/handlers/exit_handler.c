@@ -95,11 +95,7 @@ mixed* add_exit(mapping door_control, mapping exit_map,
                 varargs mixed *dest_other, string *dest_direc, object *hidden_objects, 
                 string direc, mixed dest, string type, string material)
 {
-  mixed *stuff;
-  // string exit_string, 
-  // short_exit_string;
-
-  // tell_object(find_living("neverbot"), "Direccion: "+direc+" Tipo: "+type+"\n");
+  mixed * stuff;
 
   if (!material) 
   {
@@ -122,8 +118,9 @@ mixed* add_exit(mapping door_control, mapping exit_map,
   
   exit_map[direc] = ({ dest, type, material });
   
+  // the exit already exists
   if (member_array(direc, dest_other) != -1)
-      return ({ });
+    return ({ });
 
   // In stuff we store:
   // ({ dest (destination room) + 
@@ -134,8 +131,7 @@ mixed* add_exit(mapping door_control, mapping exit_map,
 
   dest_other += ({ direc, stuff });
   dest_direc += ({ expand_direc(direc) });
-  // exit_string = 0;
-  // short_exit_string = 0;
+
   if ((stuff = (mixed)ROOM_HAND->query_door_type(type, direc, dest)))
   {
     //  door_control[direc] = ({ clone_object(DOOR_OBJECT) });
