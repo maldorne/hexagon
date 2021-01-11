@@ -205,7 +205,7 @@ int do_say(string arg, varargs int no_echo)
     return 0;
   }
    
-  if (!LANGUAGE_HANDLER->query_language_spoken(cur_lang)) 
+  if (!handler("languages")->query_language_spoken(cur_lang)) 
   {
     notify_fail(capitalize(cur_lang)+" no es un lenguaje hablado.\n");
     return 0;
@@ -260,13 +260,13 @@ int do_tell(string arg, varargs object ob, int silent)
     return 0;
   }
 
-  if (!LANGUAGE_HANDLER->query_language_spoken(cur_lang)) 
+  if (!handler("languages")->query_language_spoken(cur_lang)) 
   {
     notify_fail(capitalize(cur_lang)+" no es un idioma hablada.\n");
     return 0;
   }
 
-  if (!LANGUAGE_HANDLER->query_language_distance(cur_lang)) 
+  if (!handler("languages")->query_language_distance(cur_lang)) 
   {
     notify_fail(capitalize(cur_lang)+" no puede ser hablado a distancia.\n");
     return 0;
@@ -359,7 +359,7 @@ int do_whisper(string str)
     return 0;
   }
 
-  if (!LANGUAGE_HANDLER->query_language_spoken(cur_lang)) 
+  if (!handler("languages")->query_language_spoken(cur_lang)) 
   {
     notify_fail(capitalize(cur_lang)+" no es un lenguaje hablado.\n");
     return 0;
@@ -493,13 +493,13 @@ int do_shout(string str)
     return 0;
   }
 
-  if (!LANGUAGE_HANDLER->query_language_spoken(cur_lang)) 
+  if (!handler("languages")->query_language_spoken(cur_lang)) 
   {
     notify_fail(capitalize(cur_lang)+" no es un idioma hablado.\n");
     return 0;
   }
   
-  if (!LANGUAGE_HANDLER->query_language_distance(cur_lang)) 
+  if (!handler("languages")->query_language_distance(cur_lang)) 
   {
     notify_fail(capitalize(cur_lang)+" no se puede hablar a distancia.\n");
     return 0;
@@ -571,7 +571,7 @@ void add_language(string lang)
 {
   int i;
 
-  if (!LANGUAGE_HANDLER->language_exists(lang))
+  if (!handler("languages")->language_exists(lang))
     return ;
 
   if (!languages)
