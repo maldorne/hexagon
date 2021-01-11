@@ -672,6 +672,8 @@ void event_exit(object ob, varargs string mess, object dest, mixed avoid)
   int i;
   string zone, file;
 
+  ::event_exit(ob, mess, dest, avoid);
+
   if (!move_after) // we dont move :(
     return;
 

@@ -288,6 +288,7 @@ int do_exit_command(mapping door_control,
     if (!sscanf(verb, "%s %s", verb, str) !=2)
        str = "";
   }
+
   if (!ob)
     ob = this_player();
 
