@@ -7,8 +7,13 @@
 # save files
 /save/*.o
 
+# tmp files
+/tmp/*
+!/tmp/.gitkeep
+
 # log files
 /log/*
+!/log/.gitkeep
 
 # administrator home files
 /home/admin/
