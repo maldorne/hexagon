@@ -22,7 +22,17 @@
 #define CALL_OUT_STACK_FUNC   2
 #define CALL_OUT_STACK_TIME   3
 #define CALL_OUT_STACK_ARG    4
-#define CALL_OUT_STACK_TP     5
-#define CALL_OUT_STACK_TU     6
+
+// execution context
+// array length
+#define EXECUTION_CONTEXT_LENGTH 6
+// positions
+#define EXECUTION_CONTEXT_TO 0
+#define EXECUTION_CONTEXT_TP 1
+#define EXECUTION_CONTEXT_TU 2
+#define EXECUTION_CONTEXT_VERB 3
+#define EXECUTION_CONTEXT_COMMAND 4
+#define EXECUTION_CONTEXT_NOTIFY_MSG 5
+
 
 #endif

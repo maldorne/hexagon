@@ -42,21 +42,21 @@ object add_door(string dir);
 
 static mixed *room_clones;
 static mapping items,
-exit_map,
-door_locks,
-door_control;
+               exit_map,
+               door_locks,
+               door_control;
 
 static string exit_string,
-short_exit_string,
-room_zone,
-dark_mess,
-// *dig_where,
-// *dig_exit,
-*dest_direc,
-*aliases;
+              short_exit_string,
+              room_zone,
+              dark_mess,
+              // * dig_where,
+              // * dig_exit,
+              * dest_direc,
+              * aliases;
 
-static mixed *dest_other;
-object *destables, *hidden_objects;
+static mixed * dest_other;
+object * destables, * hidden_objects;
 
 static string exit_color;
 static string loginroom;
@@ -509,13 +509,15 @@ string * query_aliases() { return aliases; } // neverbot, debugging
 
 // It IS useful to get directions + where they go to
 // BTW this is not a frog.
-nomask mixed *query_dest_dir() {
+nomask mixed *query_dest_dir()
+{
   int i;
   string *retval;
 
   retval = ({ });
-  for (i=0;i<sizeof(dest_other);i+=2)
-  retval += ({ dest_other[i], dest_other[i+1][ROOM_DEST] });
+  for (i = 0; i < sizeof(dest_other); i += 2)
+    retval += ({ dest_other[i], dest_other[i+1][ROOM_DEST] });
+
   return  retval;
 }
 
@@ -540,11 +542,12 @@ string query_zone()
 
 // this function puts the directions into the thingy list
 // I am sure you know what I mean
-string expand_direc(string str) {
+string expand_direc(string str)
+{
   string s1,s2;
 
-  if (sscanf(str,"%s %s",s1,s2)==2)
-  return s1;
+  if (sscanf(str,"%s %s",s1,s2) == 2)
+    return s1;
   return str;
 }
 
@@ -556,10 +559,11 @@ mixed add_exit(string direc, mixed dest, string type,
   mixed *m;
   object door;
 
-  if (!dest_other) dest_other = ({ });
+  if (!arrayp(dest_other) || !sizeof(dest_other)) 
+    dest_other = ({ });
+
   m = EXIT_HAND->add_exit(door_control, exit_map, // mappings
     dest_other, dest_direc, hidden_objects,       // arrays
-    // direc, dest, room_ob, type, material);     // & data
     direc, dest, type, material);                 // & data
 
   short_exit_string = "";
@@ -584,6 +588,14 @@ mixed add_exit(string direc, mixed dest, string type,
     }
 
     return 1;
+  }
+  // the only case the exit handler returns ({ }) is 
+  // because the exit already existed 
+  else
+  {
+    // return the door object if it already existed
+    if (door = query_door_ob(direc))
+      return door;
   }
 
   return 0;
@@ -1093,13 +1105,14 @@ mixed query_door(mixed dest)
   mixed bing;
 
   if ((bing = door_control[dest]))
-      if (!pointerp(bing))
-          return bing;
+    if (!pointerp(bing))
+      return bing;
 
   if (objectp(dest))
-      if ((bing = door_control[file_name(dest)]))
-          if (!pointerp(bing))
-              return bing;
+    if ((bing = door_control[file_name(dest)]))
+      if (!pointerp(bing))
+        return bing;
+
   return 0;
 }
 
@@ -1109,9 +1122,9 @@ mixed stats()
   int i;
 
   exits = ({ });
-  for (i=0;i<sizeof(dest_other);i+=2)
-        exits += ({ ({ "Direction", dest_other[i], }),
-                    ({ "Destination", dest_other[i+1][ROOM_DEST] }) });
+  for (i = 0; i < sizeof(dest_other); i += 2)
+    exits += ({ ({ "Direction", dest_other[i], }),
+                ({ "Destination", dest_other[i+1][ROOM_DEST] }) });
 
   return ({
     ({ "Location (property)", query_property("location"), }),

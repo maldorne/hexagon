@@ -17,15 +17,15 @@ timed_prop ([0|])
 create_me "object"
 msgout "@$N goes towards $T."
 msgin "@$N arrives from $F."
-mmsgout "@$N desaparece en una nube de humo."
-mmsgin "@$N aparece del suelo."
+mmsgout "@$N disappears in a cloud of smoke."
+mmsgin "@$N appears from somewhere."
 known_feats ({0|})
 feat_list ([0|])
 spec_object_list ({8|nil,nil,nil,nil,nil,nil,nil,nil,})
 guild_joined ([0|])
 job_joined ([0|])
 class_level 1
-social_object_list ({8|"/lib/obj/races/unknown",nil,nil,nil,nil,nil,nil,nil,})
+social_object_list ({8|"/lib/obj/races/unknown",nil,nil,nil,nil,nil,nil,"/lib/obj/classes/fighter",})
 mount_file_name ""
 spells ([0|])
 minor_spheres ({0|})

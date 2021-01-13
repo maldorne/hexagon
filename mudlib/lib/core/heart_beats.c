@@ -13,6 +13,9 @@ private static int _hb_handle;
 int set_initiator_object(object ob);
 int set_initiator_player(object player);
 int set_initiator_user(object user);
+void set_current_verb(string v);
+void set_current_command(string v);
+void set_notify_fail_msg(string msg);
 
 void create()
 {
@@ -62,6 +65,7 @@ nomask void _heart_beat()
     if (CONFIG_LOG_HEART_BEATS)
       stderr(" ~~~ mudos::_heart_beat() for <"+object_name(ob)+">\n");
 
+    // purge the current execution context before every heart_beat
     if (living(ob))
       set_initiator_object(ob);
     else
@@ -72,16 +76,21 @@ nomask void _heart_beat()
     else
       set_initiator_user(nil);
 
+    set_current_verb("");
+    set_current_command("");
+    set_notify_fail_msg("");
+    // end purging
+
     rlimits(MAX_HB_DEPTH ; MAX_HB_TICKS)
     {
       result = catch(call_other(ob, "heart_beat"));
     }
-
-    if (CONFIG_LOG_HEART_BEATS)
-      stderr(" ~~~ end mudos::_heart_beat() for "+(ob ? ("<"+object_name(ob)+">") : "nil")+"\n");
   
     set_initiator_object(nil);
     set_initiator_user(nil);
+
+    if (CONFIG_LOG_HEART_BEATS)
+      stderr(" ~~~ end mudos::_heart_beat() for "+(ob ? ("<"+object_name(ob)+">") : "nil")+"\n");
 
     // turn off heart beat in the object
     if (ob && result)

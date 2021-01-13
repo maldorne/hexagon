@@ -15,23 +15,23 @@ void create()
 {
   /* ({ mess, obv, size, func }) */
   exit_types = ([
-   "standard" :({ 0, 1,  10, 0 }),
-   "corridor" :({ 0, 1,  10, 0 }),
-   "plain"    :({ 0, 1, 100, 0 }), // very large
-   "door"     :({ 0, 1,   5, 0 }),
-   "stair"    :({ 0, 1,   5, 0 }), // going up? 
-   "hidden"   :({ 0, 0,   5, 0 }), // hidden non door exit 
-   "secret"   :({ 0, 0,   5, 0 }), // secret door 
-   "gate"     :({ 0, 1,  15, 0 }),
-   "road"     :({ 0, 1,  30, 0 }),
-   "path"     :({ 0, 1,  20, 0 }),
-   "rope"     :({ 0, 1,   5, 0 }), // ropes, etc
+   "standard" : ({ 0, 1,  10, 0 }),
+   "corridor" : ({ 0, 1,  10, 0 }),
+   "plain"    : ({ 0, 1, 100, 0 }), // very large
+   "door"     : ({ 0, 1,   5, 0 }),
+   "stair"    : ({ 0, 1,   5, 0 }), // going up? 
+   "hidden"   : ({ 0, 0,   5, 0 }), // hidden non door exit 
+   "secret"   : ({ 0, 0,   5, 0 }), // secret door 
+   "gate"     : ({ 0, 1,  15, 0 }),
+   "road"     : ({ 0, 1,  30, 0 }),
+   "path"     : ({ 0, 1,  20, 0 }),
+   "rope"     : ({ 0, 1,   5, 0 }), // ropes, etc
   ]);
  
   door_types = ([
-    "door"    :({ 0, 0, "generic_key", 100 }),
-    "secret"  :({ 0, 0, "generic_key", 100 }),
-    "gate"    :({ 1, 0, "generic_key", 100 }),
+    "door"    : ({ 0, 0, "generic_key", 100 }),
+    "secret"  : ({ 0, 0, "generic_key", 100 }),
+    "gate"    : ({ 1, 0, "generic_key", 100 }),
   ]);
 
   opp_dirs = OPPOSITES;
@@ -128,13 +128,13 @@ mixed * query_exit_type(string type, string dir)
     article = query_exit_article(s);
   
     if (strlen(article))
-      s = article + " " + s;
+      s = ({ 0, article + " " + s });
   }
 
   if (!exit_types[type])
-    return exit_types["standard"] + ({ ({ 0, s }) });
+    return exit_types["standard"] + ({ s });
 
-  return exit_types[type] + ({ ({ 0, s }) });
+  return exit_types[type] + ({ s });
 }
 
 /* Hamlet.  Colors for the exit string. */

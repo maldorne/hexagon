@@ -1,7 +1,9 @@
 
 #define STD_RACE    "/lib/race.c"
 #define STD_CULTURE "/lib/culture.c"
-#define VALID_RACES_PATHS  ({ "/lib/obj/races/" })
+
+#define DEFAULT_RACE_DIR "/lib/obj/races/"
+
 #define DEFAULT_RACE_OB "/lib/obj/races/unknown.c"
 #define DEFAULT_CLASS_OB "/lib/obj/classes/fighter.c"
 

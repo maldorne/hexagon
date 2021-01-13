@@ -101,7 +101,7 @@ object * query_worn_ob(varargs int type)
 void reset_types()
 {
   int e;
-  armour_types = allocate (MAXTYPES);
+  armour_types = allocate(MAXTYPES);
 
   for (e = 0; e < MAXTYPES; e++)
     armour_types[e] = 0;

@@ -1,19 +1,20 @@
 
 #include <room/room.h>
 #include <basic/move.h>
+#include <translations/exits.h>
+#include <translations/races.h>
 
 // from here we inherit object.c
 inherit container "/lib/core/basic/container";
 
 string msgout, msgin, mmsgout, mmsgin;
-// static int in_move;
 
 void create()
 {
-  msgout = "@$N se va hacia $T.";
-  msgin = "@$N llega desde $F.";
-  mmsgout = "@$N desaparece en una nube de humo.";
-  mmsgin = "@$N aparece del suelo.";
+  msgout = _LANG_RACES_MSG_IN_STD;
+  msgin = _LANG_RACES_MSG_OUT_STD;
+  mmsgout = _LANG_RACES_MMSG_IN_STD;
+  mmsgin = _LANG_RACES_MMSG_OUT_STD;
 
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
@@ -25,29 +26,10 @@ string * query_move_messages()
   return ({ msgout, msgin, mmsgout, mmsgin });
 }
 
-int setmin(string str)
-{
-  msgin = str;
-  return 1;
-}
-
-int setmout(string str)
-{
-  msgout = str;
-  return 1;
-}
-
-int setmmin(string str)
-{
-  mmsgin = str;
-  return 1;
-}
-
-int setmmout(string str)
-{
-  mmsgout = str;
-  return 1;
-}
+void setmin(string str) { msgin = str; }
+void setmout(string str) { msgout = str; }
+void setmmin(string str) { mmsgin = str; }
+void setmmout(string str) { mmsgout = str; }
 
 int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 {
@@ -59,14 +41,14 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   if (!msgout)
   {
-    msgout = "@$N se va hacia $T.";
-    msgin = "@$N llega desde $F.";
+    msgout = _LANG_RACES_MSG_IN_STD;
+    msgin = _LANG_RACES_MSG_OUT_STD;
   }
 
   if (!mmsgout)
   {
-    mmsgout = "@$N desaparece en una nube de humo.";
-    mmsgin = "@$N aparece del suelo.";
+    mmsgout = _LANG_RACES_MMSG_IN_STD;
+    mmsgin = _LANG_RACES_MMSG_OUT_STD;
   }
 
   last = environment();
@@ -79,7 +61,7 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   }
 
   // little fix, neverbot 7/03
-  // norte -> el norte, entrada -> la entrada, escaleras -> las escaleras, etc
+  // north -> the north, etc
   aux = ROOM_HAND->query_exit_dir(dir);
 
   if (!my_short || my_short == "" || (stringp(message) && message == "none"))
@@ -95,13 +77,13 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   else
   {
     if (!enter || !pointerp(enter))
-      enter = ({ 0, "algún sitio" });
+      enter = ({ 0, DIR_SOME_PLACE });
 
     if (pointerp(message))
       message = message[0];
 
-    leave = implode(explode(implode(explode((message?message:msgout), "$N"),
-              my_short), "$T"), aux)+"\n";
+    leave = implode(explode(implode(explode((message ? message : msgout), "$N"),
+              my_short), "$T"), aux) + "\n";
 
     switch (enter[0])
     {
@@ -136,15 +118,6 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   return 1;
 } /* move_player() */
-
-// int query_in_move() { return in_move; }
-
-// int abort_move_player(string dir)
-// {
-//   tell_object(this_object(), "Dejas de moverte hacia "+dir+".\n");
-//   in_move = 0;
-//   return 1;
-// }
 
 mixed * stats()
 {

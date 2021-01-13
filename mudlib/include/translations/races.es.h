@@ -5,6 +5,11 @@
 
 #define _LANG_RACES_MSG_IN_STD "@$N llega desde $F."
 #define _LANG_RACES_MSG_OUT_STD "@$N se va hacia $T."
+#define _LANG_RACES_MMSG_IN_STD "@$N aparece del suelo."
+#define _LANG_RACES_MMSG_OUT_STD "@$N desaparece en una nube de humo."
+
+#define _LANG_RACES_MSG_IN_SLITHER "@$N llega reptando desde $F."
+#define _LANG_RACES_MSG_OUT_SLITHER "@$N repta hacia $T."
 
 // body locations
 

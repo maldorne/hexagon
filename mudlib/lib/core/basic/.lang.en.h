@@ -23,8 +23,12 @@
 #define _LANG_GENDER_ARTICLE_MALE "the"
 #define _LANG_GENDER_ARTICLE_PLURAL_FEMALE "the"
 #define _LANG_GENDER_ARTICLE_PLURAL_MALE "the"
-#define _LANG_GENDER_NUMERAL_FEMALE "a"
-#define _LANG_GENDER_NUMERAL_MALE "a"
+#define _LANG_GENDER_NUMERAL_FEMALE ((!undefinedp(next_word) && \
+                                member_array(lower_case(next_word)[0..0], ({ "a", "e", "i", "o", "u" })) != -1) ? \
+                                "an" : "a")
+#define _LANG_GENDER_NUMERAL_MALE ((!undefinedp(next_word) && \
+                                member_array(lower_case(next_word)[0..0], ({ "a", "e", "i", "o", "u" })) != -1) ? \
+                                "an" : "a")
 #define _LANG_GENDER_NUMERAL_PLURAL_FEMALE "some"
 #define _LANG_GENDER_NUMERAL_PLURAL_MALE "some"
 #define _LANG_GENDER_VOCAL_FEMALE ""
@@ -47,3 +51,7 @@
 
 #define _LANG_CONTENTS_ARE_HERE "are here.\n"
 #define _LANG_CONTENTS_IS_HERE "is here.\n"
+
+// desc.c
+
+#define _LANG_NO_LONG "Nothing particularly interesting.\n"

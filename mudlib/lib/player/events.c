@@ -53,10 +53,10 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
       else
         msg = replace_string(msg, ob->query_cap_name(), new_name);
 
-      write(msg);
+      tell_object(this_object(), msg);
     }
     else
-      write(_LANG_EVENTS_SOMEBODY_ARRIVES);
+      tell_object(this_object(), _LANG_EVENTS_SOMEBODY_ARRIVES);
   }
 }
 
@@ -95,10 +95,10 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
       else
         msg = replace_string(msg, ob->query_cap_name(), new_name);
 
-      write(msg);
+      tell_object(this_object(), msg);
     }
     else
-      write(_LANG_EVENTS_SOMEBODY_LEAVES);
+      tell_object(this_object(), _LANG_EVENTS_SOMEBODY_LEAVES);
   }
 }
 

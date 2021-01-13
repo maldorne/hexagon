@@ -63,7 +63,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | armaduras    |          |          |    |    |
 | backup       |          |          |    |    |
-| cat          | :white_check_mark: | :white_check_mark: |    |    |
+| cat          | :white_check_mark: | :white_check_mark: | :x: |    |
 | clone        |          |          |    |    |
 | compare      |          |          |    |    |
 | cp           |          |          |    |    |
@@ -74,9 +74,9 @@ List of commands available to every player, depending of its user type/role (`pl
 | exec         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | exits        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | ftpwho       |          |          |    |    |
-| goto         | :white_check_mark: |          |    |    |
+| goto         | :white_check_mark: | :x: | :x: |    |
 | grep         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| head         | :white_check_mark: |          |    |    |
+| head         | :white_check_mark: | :x: | :x: |    |
 | home         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | invisible    |          |          |    |    |
 | ioulist      |          |          |    |    |
@@ -86,19 +86,19 @@ List of commands available to every player, depending of its user type/role (`pl
 | malloc       |          |          |    |    |
 | man          |          |          |    |    |
 | mkdir        |          |          |    |    |
-| more         | :white_check_mark: | :white_check_mark: |    |    |
+| more         | :white_check_mark: | :white_check_mark: | :x: |    |
 | mudlist      |          |          |    |    |
 | multi        |          |          |    |    |
 | mv           |          |          |    |    |
 | nls          |          |          |    |    |
 | peace        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | resistencias |          |          |    |    |
-| restore      |          |          |    |    |
-| rm           | :white_check_mark: | :white_check_mark: |    |    |
+| restore      | :white_check_mark: | :x: | :x: |    |
+| rm           | :white_check_mark: | :white_check_mark: | :x: |    |
 | rmdir        |          |          |    |    |
 | sar          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| tail         | :white_check_mark: | :white_check_mark: |    |    |
-| uptime       | :white_check_mark: | :white_check_mark: |    |    |
+| tail         | :white_check_mark: | :white_check_mark: | :x: |    |
+| uptime       | :white_check_mark: | :white_check_mark: | :x: |    |
 | visible      |          |          |    |    |
 | wget         |          |          |    |    |
 

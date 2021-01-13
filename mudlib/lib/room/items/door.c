@@ -188,7 +188,7 @@ void set_dest(string str)
   }
 
   // doors can be open/close with the reduced direction (north -> n, etc)
-  s_dest = EXIT_HAND->query_reduced_exit_name(str);
+  s_dest = EXIT_HAND->query_shorten(str);
   dest = str; 
 }
 
