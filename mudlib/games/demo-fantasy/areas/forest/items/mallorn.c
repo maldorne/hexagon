@@ -103,7 +103,7 @@ void salida3()
      TP->add_timed_property("passed out","Aun estas conmocionado por el viaje.\n",1,4);
      cosas=find_match("libros",this_player());
      
-     if(!sizeof(cosas))         /* Si esta vacio. */
+     if(!sizeof(cosas))         //Si esta vacio.
         return 1;
      else
      {

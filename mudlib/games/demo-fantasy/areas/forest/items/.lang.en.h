@@ -1,7 +1,7 @@
 
 #define _LANG_MALLORN_ALIASES ({ "tree" })
 #define _LANG_MALLORN_PLURALS ({ "trees", "mallorns" })
-#define _LANG_MALLORN_PLURALS "This is a tree with very special characteristics. " + \
+#define _LANG_MALLORN_LONG "This is a tree with very special characteristics. " + \
         "It was brought from across the sea by elves. Its enormous size and height " + \
         "give it a mystical and mysterious air. In the crown of this type of tree " + \
         "there is a beautiful little flower commonly called the flower of light. " + \
