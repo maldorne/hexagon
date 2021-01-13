@@ -4,6 +4,7 @@
 
 #include <living/races.h>
 #include <translations/language.h>
+#include <translations/races.h>
 #include <language.h>
 
 inherit STD_RACE;
