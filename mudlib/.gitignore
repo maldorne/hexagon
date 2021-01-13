@@ -29,3 +29,7 @@
 # ignore games, except the common ones
 /games/*
 !/games/hexagon/
+
+!/games/demo-fantasy/
+/games/demo-fantasy/log
+/games/demo-fantasy/save
