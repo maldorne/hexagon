@@ -8,6 +8,9 @@
 #define _LANG_RACES_MMSG_IN_STD "@$N appears from somewhere."
 #define _LANG_RACES_MMSG_OUT_STD "@$N disappears in a cloud of smoke."
 
+#define _LANG_RACES_MSG_IN_SLITHER "@$N comes slithering from $F."
+#define _LANG_RACES_MSG_OUT_SLITHER "@$N slithers towards $T."
+
 // body locations
 
 #define _LANG_RACES_LOCATIONS_HEAD "the head"

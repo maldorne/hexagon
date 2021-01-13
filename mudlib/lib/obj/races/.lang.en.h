@@ -1,27 +1,5 @@
 
-// move messages
-
-#define _LANG_RACES_MSG_IN_STD "@$N arrives from $F."
-#define _LANG_RACES_MSG_OUT_STD "@$N goes towards $T."
-
-#define _LANG_RACES_MSG_IN_SLITHER "@$N comes slithering from $F."
-#define _LANG_RACES_MSG_OUT_SLITHER "@$N slithers towards $T."
-
-// body locations
-
-#define _LANG_RACES_LOCATIONS_HEAD "the head"
-#define _LANG_RACES_LOCATIONS_BODY "the body"
-#define _LANG_RACES_LOCATIONS_TAIL "the tail"
-#define _LANG_RACES_LOCATIONS_ANIMAL_LEG "a leg"
-#define _LANG_RACES_LOCATIONS_CHEST "the chest"
-#define _LANG_RACES_LOCATIONS_ARM "an arm"
-#define _LANG_RACES_LOCATIONS_LEG "a leg"
-#define _LANG_RACES_LOCATIONS_HAND "a hand"
-#define _LANG_RACES_LOCATIONS_FOOT "a foot"
-
 // races
-
-#define _LANG_RACES_HUMANOID_BODY "humanoid"
 
 #define _LANG_RACES_HUMAN_NAME "human"
 #define _LANG_RACES_HUMAN_DESC_MALE "A handsome human man.\n";

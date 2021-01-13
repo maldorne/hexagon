@@ -1,6 +1,7 @@
 
 #include <living/races.h>
 #include <language.h>
+#include <translations/races.h>
 
 inherit STD_RACE;
 
@@ -24,8 +25,8 @@ string query_desc(object ob)
 
 void start_player(object ob) 
 { 
-  ob->setmin(_LANG_RACES_MSG_IN_SLITHER);
-  ob->setmout(_LANG_RACES_MSG_OUT_SLITHER);
+  ob->setmin(_LANG_RACES_MSG_IN_STD);
+  ob->setmout(_LANG_RACES_MSG_OUT_STD);
 }
 
 void set_racial_bonuses(object ob)
