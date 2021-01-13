@@ -275,20 +275,21 @@ int query_body_size()
 
 void set_class_ob(string str)
 {
-  if (!stringp(str))
+  // if str has a trailing .c, let's get rid of it.
+  if (strlen(str) > 2 && str[strlen(str)-2..strlen(str)-1] == ".c")
+    str = str[0..strlen(str)-3];
+
+  if (!load_object(str))
   {
     social_object_list[CLASS_OB] = nil;
     return;
   }
 
-  if ( (file_size(str) < 0) && (file_size(str + ".c") < 0) )
-    return;
-
   social_object_list[CLASS_OB] = str;
   this_object()->set_xp(0);
   this_object()->set_extreme_str(0);
   class_level = 1;
-} /* set_class_ob() */
+}
 
 void set_class(string str)
 {
