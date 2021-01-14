@@ -9,7 +9,7 @@ Set of features we are currently working on.
 | :white_check_mark: | **Product Identity** | Logo and banner for the `readme.md` home document [[#5](https://github.com/houseofmaldorne/hexagon/issues/5)]. |
 | :white_check_mark: | **Improve `query_verb()`** | Same treatment as the initiator objects to be sure we will never lose the original verb/command [[#9](https://github.com/houseofmaldorne/hexagon/issues/9)]. Done with a full review and improvement of the `mudos.c` inner state, now using `query_execution_context()` and `restore_execution_context()`. |
 |        | **Multi Game** | Finish the multigame features to allow hosting different games in the same server. |
-|        |  | :heavy_minus_sign: Default test area as game example. |
+| :white_check_mark: |  | :heavy_minus_sign: Default test area as game example (`/games/demo-fantasy`). |
 | :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/houseofmaldorne/hexagon/issues/6)]. |
 | :white_check_mark: |  | :heavy_minus_sign: Deploy simultaneously to both english and spanish servers. |
 | :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib`, some files pending review since the [v19.05](https://github.com/houseofmaldorne/hexagon/tree/19.05) milestone. |
