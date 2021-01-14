@@ -28,7 +28,7 @@ Set of features not yet started, but planned.
 |        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/houseofmaldorne/hexagon/issues/7)]. |
 |        | **Documentation** | Review and full translation of every `lib/cmds` command. |
 | :white_check_mark: |  | :heavy_minus_sign: Add compatibility and status list in the repository ([done](commands.md)). |
-|        |  | :heavy_minus_sign: Test and translate every command. |
+|        |  | :heavy_minus_sign: Test and translate every command, by user type: `login` [[#13](https://github.com/houseofmaldorne/hexagon/issues/13)], `player` [[#14](https://github.com/houseofmaldorne/hexagon/issues/14)], `coder` [[#15](https://github.com/houseofmaldorne/hexagon/issues/15)], `admin` [[#16](https://github.com/houseofmaldorne/hexagon/issues/16)].  |
 
 
 ## Previous milestones
