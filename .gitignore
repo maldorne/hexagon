@@ -1,12 +1,8 @@
 # operating system files
 .DS_Store
 
-# your own config file
-config.dgd
-
-driver/extensions
-driver/*.dgd
-!driver/config.example.dgd
+# DGD config files
+*.dgd
 
 # ide and editor files
 .sublime-project
