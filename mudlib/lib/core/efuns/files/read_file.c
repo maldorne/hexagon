@@ -35,7 +35,7 @@ static string read_bytes(string file, varargs int start, int length)
 
 static string read_file_line(string file, varargs int start_line, int number_of_lines)
 {
-  int i, current_line, where, line_count;
+  int i, current_line, where, line_count, size;
   string read, ret;
 
   if (start_line < 0)
@@ -48,6 +48,7 @@ static string read_file_line(string file, varargs int start_line, int number_of_
   current_line = 1;
   line_count = 0;
   where = 0;
+  size = file_size(file);
 
   if (!number_of_lines)
     number_of_lines = 1;
@@ -55,17 +56,17 @@ static string read_file_line(string file, varargs int start_line, int number_of_
   catch
   {
     if (start_line)
-      while ((read = ::read_file(file, where, 1)) && (current_line < start_line))
+      while ((read = ::read_file(file, where, 1)) && (current_line < start_line) && (where < size))
       {
         where++;
         if (read == "\n")
           current_line++;
       }
 
-    while ((read = ::read_file(file, where, 1)) && (line_count < number_of_lines))
+    while ((read = ::read_file(file, where, 1)) && (line_count < number_of_lines) && (where < size))
     {
       ret += read;
-      where ++;
+      where++;
 
       if (read == "\n")
         line_count++;
