@@ -150,26 +150,26 @@ void parse_prompt()
 
   /* Need to reset this first */
   prompt = ({ });
-  if ( strlen(prompt_string) <= 0 )
+  if (strlen(prompt_string) <= 0)
   {
     return ;
   }
 
   p = explode( prompt_string, "$" );
 
-  if ( sizeof(p) < 1 )
+  if (sizeof(p) < 1)
   {
     /* this only happens with a string of all $'s */
     prompt = ({ prompt_string });
     return ;
   }
   
-  if ( prompt_string[0] == '$' )
+  if (prompt_string[0] == '$')
     prompt += parse_prompt_element(p[0]);
   else
     prompt = ({ p[0] });
   
-  for( i=1; i<sizeof(p); i++ )
+  for (i = 1; i < sizeof(p); i++)
     prompt += parse_prompt_element(p[i]);
 
   prompt -= ({ "" });
@@ -210,7 +210,7 @@ void show_prompt(varargs string prefix)
         if (prompt[i][1..] == "query_current_path")
           s += call_other(this_object()->query_role(), prompt[i][1..]);
         else
-          s += call_other(this_object(), prompt[i][1..]);
+          s += call_other(this_object()->player(), prompt[i][1..]);
       }
       else
       {
@@ -221,6 +221,10 @@ void show_prompt(varargs string prefix)
     else
       s += prompt[i];
   }
+
+  // always a trailing space
+  if (strlen(s))
+    s += " ";
 
   if (prefix)
     do_prompt_write(prefix + s);

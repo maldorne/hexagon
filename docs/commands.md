@@ -124,17 +124,17 @@ List of commands available to every player, depending of its user type/role (`pl
 | enterrar      |          |          |    |    |
 | equipo        |          |          |    |    |
 | estado        |          |          |    |    |
-| glance        |          |          |    |    |
+| glance        | :white_check_mark: |          |    |    |
 | grope         |          |          |    |    |
 | grupo         |          |          |    |    |
 | inventory     |          |          |    |    |
 | kill          |          |          |    |    |
-| look          |          |          |    |    |
+| look          | :white_check_mark: |          |    |    |
 | map           |          |          |    |    |
 | modo          |          |          |    |    |
 | monitor       |          |          |    |    |
 | past          |          |          |    |    |
-| prompt        |          |          |    |    |
+| prompt        | :white_check_mark: |          |    |    |
 | quests        |          |          |    |    |
 | ranking       |          |          |    |    |
 | retirar       |          |          |    |    |
