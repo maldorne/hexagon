@@ -4,5 +4,8 @@
 # DGD config files
 *.dgd
 
+# local scripts
+*.sh
+
 # ide and editor files
 .sublime-project
