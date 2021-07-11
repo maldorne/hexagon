@@ -224,7 +224,7 @@ void show_prompt(varargs string prefix)
 
   // always a trailing space
   if (strlen(s))
-    s += " ";
+    s = "\n" + s + " ";
 
   if (prefix)
     do_prompt_write(prefix + s);

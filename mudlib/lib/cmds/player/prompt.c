@@ -28,7 +28,7 @@ static int cmd(string str, object me, string verb)
            (user->query_coder() ? 
            "     $~ -> path actual\n"
              : "");
-    ret += "Ejemplo: 'prompt $n ($h) >' mostrará en cada línea:\n" + 
+    ret += "Ejemplo: 'prompt $n ($h)' mostrará en cada línea:\n" + 
            "     " + me->query_name()+" (" + me->query_hp()+") >\n";
     tell_object(me, ret);
     return 1;
