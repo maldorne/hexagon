@@ -666,28 +666,28 @@ int valid_adjust_xp(object prev, object this, int i)
     return 1;
 
   if (interactive(this)) // neverbot
-  if ((!prev->query_npc() && !prev->is_player()) ||
-     (immortal_create_me(prev)) )
-  {
-    log_file("adjust_xp", "File: " + base_name(prev) +
-             "\n\tcreated by: " + prev->query_create_me() +
-             " adjusting: " + this->query_cap_name() +
-             "\n\tamount: " + i +
-             " (this_player() = " + this_player()->query_cap_name() + ") "+ctime(time(), 4)+".\n");
-    return 0;
-  /*
-  sprintf("%O - %s - %d - %s\n",
-     prev,
-     this->query_name(),
-     i,
-     this_player()->query_name()));
+    if ((!prev->query_npc() && !prev->query_player()) ||
+       (immortal_create_me(prev)) )
+    {
+      log_file("adjust_xp", "File: " + base_name(prev) +
+               "\n\tcreated by: " + prev->query_create_me() +
+               " adjusting: " + this->query_cap_name() +
+               "\n\tamount: " + i +
+               " (this_player() = " + this_player()->query_cap_name() + ") "+ctime(time(), 4)+".\n");
+      return 0;
+      /*
+      sprintf("%O - %s - %d - %s\n",
+         prev,
+         this->query_name(),
+         i,
+         this_player()->query_name()));
 
-  log_file("ADJUST", "XP: create_me "+origin->query_create_me()+
-     " "+base_name(origin)+" calling "+base_name(destination)+
-     " for "+amt+"\n");
+      log_file("ADJUST", "XP: create_me "+origin->query_create_me()+
+         " "+base_name(origin)+" calling "+base_name(destination)+
+         " for "+amt+"\n");
 
-  */
-  }
+      */
+      }
 
   return 1;
 }

@@ -68,7 +68,7 @@ void write_prompt()
   } 
   */
 
-  switch( this_object()->player()->query_busy() )
+  switch (this_object()->player()->query_busy())
   {
     case NON_INTERRUPTABLE_BUSY:
       do_prompt_write("] ");
@@ -87,7 +87,7 @@ void write_prompt()
  */
 string query_busy_string()
 {
-  switch( this_object()->player()->query_busy() )
+  switch (this_object()->player()->query_busy())
   {
     case NON_INTERRUPTABLE_BUSY:
       return "* ";
@@ -103,7 +103,7 @@ string query_busy_string()
  */
 mixed parse_prompt_element(string str)
 {
-  switch( str[0..0] )
+  switch (str[0..0])
   {
     case "h":
       return ({ "@query_hp", str[1..] });
@@ -131,7 +131,7 @@ mixed parse_prompt_element(string str)
 
   if (this_object()->query_coder()) 
   {
-    switch( str[0..0] )
+    switch (str[0..0])
     {
     case "~":
       return ({ "@query_current_path",  str[1..] });

@@ -120,7 +120,7 @@ int do_help(string str)
     if ((ob->query_hash()[text]) && (text = ob->query_hash()[text]["file"]))
     {
       // Comprobamos si el jugador tiene permiso sobre el cmd
-      if (member_array(text, ob->query_available_cmds(this_object())) != -1)
+      if (member_array(text, ob->query_available_cmds(this_object()->player())) != -1)
       {
         if (ob = load_object(text))
         {

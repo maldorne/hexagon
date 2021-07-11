@@ -1,7 +1,7 @@
 
 // finger.c
 
-#define _LANG_FINGER_SYNTAX "Syntax: sfinger <name>"
+#define _LANG_FINGER_SYNTAX "Syntax: finger <name>"
 #define _LANG_FINGER_HELP "Shows information about a player character."
 #define _LANG_FINGER_NAME "Name"
 #define _LANG_FINGER_ACCOUNT "Account"

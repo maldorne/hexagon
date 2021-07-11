@@ -6,7 +6,7 @@ List of commands available to every player, depending of its user type/role (`pl
 
 ## Login (see issue [#13](https://github.com/houseofmaldorne/hexagon/issues/13))
 
-| Command | Working in Hexagon | Translated en/es | Help available | Notes |
+| Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | characters | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | finger     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
@@ -15,7 +15,7 @@ List of commands available to every player, depending of its user type/role (`pl
 
 ## Admin (see issue [#16](https://github.com/houseofmaldorne/hexagon/issues/16))
 
-| Command | Working in Hexagon | Translated en/es | Help available | Notes |
+| Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | ban        |          |          |    |    |
 | clonein    |          |          |    |    |
@@ -59,7 +59,7 @@ List of commands available to every player, depending of its user type/role (`pl
 
 ## Coder (see issue [#15](https://github.com/houseofmaldorne/hexagon/issues/15))
 
-| Command | Working in Hexagon | Translated en/es | Help available | Notes |
+| Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | armaduras    |          |          |    |    |
 | backup       |          |          |    |    |
@@ -104,7 +104,7 @@ List of commands available to every player, depending of its user type/role (`pl
 
 ## Player (see issue [#14](https://github.com/houseofmaldorne/hexagon/issues/14))
 
-| Command | Working in Hexagon | Translated en/es | Help available | Notes |
+| Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | apuntador     |          |          |    |    |
 | ausente       |          |          |    |    |
@@ -134,7 +134,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | modo          |          |          |    |    |
 | monitor       |          |          |    |    |
 | past          |          |          |    |    |
-| prompt        | :white_check_mark: |          |    |    |
+| prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | quests        |          |          |    |    |
 | ranking       |          |          |    |    |
 | retirar       |          |          |    |    |
