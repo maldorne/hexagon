@@ -23,7 +23,7 @@ void parse_prompt();
 
 void create()
 {
-  prompt_string = "> ";
+  prompt_string = "";
   prompt = ({ });
   parse_prompt();
 }
