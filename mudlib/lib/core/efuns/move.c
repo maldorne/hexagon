@@ -104,7 +104,8 @@ int move(varargs object dest)
   // get all objects in the new environment
   contents = all_inventory(_environment);
 
-  if (living(this_object()))
+  // living: players, npcs, interactive: user obs
+  if (living(this_object()) || interactive(this_object()))
   {
     stderr(" ~~~ move of a living\n");
     MUDOS->set_initiator_object(this_object());
