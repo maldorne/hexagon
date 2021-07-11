@@ -1,7 +1,6 @@
 
 #include <mud/cmd.h>
 
-
 inherit CMD_BASE;
 
 string query_help()

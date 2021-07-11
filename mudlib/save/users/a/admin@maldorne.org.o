@@ -6,7 +6,7 @@ monitor 1
 cols 80
 rows 25
 term_name "ansi"
-prompt_string "> "
+prompt_string ""
 role_name "admin"
 start_time 1556911440
 last_connected 1476302343

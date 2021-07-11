@@ -423,7 +423,7 @@ private int do_cmd(string cmd)
   if (!t)
     t = "";
 
-  return (int)CMD_HANDLER->cmd(verb, t, this_object());
+  return CMD_HANDLER->cmd(verb, t, this_object());
 }
 
 // * This looks for an action to perform and does it if there's one waiting
@@ -556,13 +556,14 @@ private int perform_next_action()
                 tell_object(this_object(), fail_msg);
               else
                 tell_object(this_object(), _LANG_QUEUE_DIDNT_WORK);
-
-              this_user()->write_prompt();
             }
           }
         }
       }
     }
+
+    this_user()->show_prompt();
+    this_user()->write_prompt();
 
     // restore previous notify_fail message
     // (might have change during the execution of the action)
@@ -691,15 +692,15 @@ nomask int action_check(string str)
     // case ';'  : str = "parse "+ str[1..<1]; break;
   }
 
-  if ( (tmp = EXPANSION[str]) )
+  if ((tmp = EXPANSION[str]))
     str = tmp;
 
   // check for some special queue-affecting commands
-  switch( str )
+  switch (str)
   {
     case "restart":
     case "reiniciar":
-      if ( query_heart_beat() )
+      if (query_heart_beat())
         tell_object(this_object(),
           // "No necesitas que tu heartbeat sea reseteado.\n");
           "No necesitas reiniciar tu personaje en estos momentos.\n");
@@ -710,37 +711,37 @@ nomask int action_check(string str)
         set_heart_beat(1);
         catch(this_object()->flush_spell_effects());
       }
+
+      this_user()->show_prompt();
+      this_user()->write_prompt();
       return 1;
 
     case "stop":
     case "parar":
-      if ( sizeof(actionq) != 0 )
-          aq_delete_user_actions();
-        tell_object(this_object(), "Cola de comandos borrada.\n");
-        // "(stop-fight parara los ataques si es lo que querias)\n");
+      if (sizeof(actionq) != 0)
+        aq_delete_user_actions();
+      tell_object(this_object(), "Cola de comandos borrada.\n");
+      // "(stop-fight parara los ataques si es lo que querias)\n");
+      this_user()->show_prompt();
+      this_user()->write_prompt();
       return 1;
 
     case "abort":
     case "abortar":
-      if ( !ia_in_progress )
-      {
+      if (!ia_in_progress)
         tell_object(this_object(), "No estás en medio de una acción que "+
           "pueda ser abortada.\n");
-        return 1;
-      }
-      abort_interruptable_action();
+      else
+        abort_interruptable_action();
+      this_user()->show_prompt();
+      this_user()->write_prompt();
       return 1;
-    /*
-    case "huir":
-        environment(this_object())->do_random_move_command();
-        return 1;
-    */
 
     // some testing commands
 
-    case "aq":
-      print_object(actionq);
-      return 1;
+    // case "aq":
+    //   print_object(actionq);
+    //   return 1;
 
     // case "actions":
     //   {

@@ -323,8 +323,8 @@ static void receive_message(string str)
 
     if ( !strlen(str) || str == "\n" )
     {
-      // \n added before the prompt
-      show_prompt("\n");
+      show_prompt();
+      write_prompt();
       return;
     }
 

@@ -98,10 +98,10 @@ static int cmd(string arg, object me, string verb)
   if (!stringp(arg) || !strlen(arg))
   {
     if (me->query_coder())
-      ret = file_name(here)+"\n";
+      ret = file_name(here) + ".c\n";
 
     if (!dark)
-        ret += here->short(dark)+".\n";
+        ret += here->short(dark) + ".\n";
 
     ret += here->long(arg, dark); //+"\n";
 

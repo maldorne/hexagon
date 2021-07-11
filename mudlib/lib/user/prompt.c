@@ -23,7 +23,7 @@ void parse_prompt();
 
 void create()
 {
-  prompt_string = "> ";
+  prompt_string = "";
   prompt = ({ });
   parse_prompt();
 }
@@ -68,7 +68,7 @@ void write_prompt()
   } 
   */
 
-  switch( this_object()->player()->query_busy() )
+  switch (this_object()->player()->query_busy())
   {
     case NON_INTERRUPTABLE_BUSY:
       do_prompt_write("] ");
@@ -87,7 +87,7 @@ void write_prompt()
  */
 string query_busy_string()
 {
-  switch( this_object()->player()->query_busy() )
+  switch (this_object()->player()->query_busy())
   {
     case NON_INTERRUPTABLE_BUSY:
       return "* ";
@@ -103,7 +103,7 @@ string query_busy_string()
  */
 mixed parse_prompt_element(string str)
 {
-  switch( str[0..0] )
+  switch (str[0..0])
   {
     case "h":
       return ({ "@query_hp", str[1..] });
@@ -131,7 +131,7 @@ mixed parse_prompt_element(string str)
 
   if (this_object()->query_coder()) 
   {
-    switch( str[0..0] )
+    switch (str[0..0])
     {
     case "~":
       return ({ "@query_current_path",  str[1..] });
@@ -150,26 +150,26 @@ void parse_prompt()
 
   /* Need to reset this first */
   prompt = ({ });
-  if ( strlen(prompt_string) <= 0 )
+  if (strlen(prompt_string) <= 0)
   {
     return ;
   }
 
   p = explode( prompt_string, "$" );
 
-  if ( sizeof(p) < 1 )
+  if (sizeof(p) < 1)
   {
     /* this only happens with a string of all $'s */
     prompt = ({ prompt_string });
     return ;
   }
   
-  if ( prompt_string[0] == '$' )
+  if (prompt_string[0] == '$')
     prompt += parse_prompt_element(p[0]);
   else
     prompt = ({ p[0] });
   
-  for( i=1; i<sizeof(p); i++ )
+  for (i = 1; i < sizeof(p); i++)
     prompt += parse_prompt_element(p[i]);
 
   prompt -= ({ "" });
@@ -210,7 +210,7 @@ void show_prompt(varargs string prefix)
         if (prompt[i][1..] == "query_current_path")
           s += call_other(this_object()->query_role(), prompt[i][1..]);
         else
-          s += call_other(this_object(), prompt[i][1..]);
+          s += call_other(this_object()->player(), prompt[i][1..]);
       }
       else
       {
@@ -221,6 +221,10 @@ void show_prompt(varargs string prefix)
     else
       s += prompt[i];
   }
+
+  // always a trailing space
+  if (strlen(s))
+    s = "\n" + s + " ";
 
   if (prefix)
     do_prompt_write(prefix + s);

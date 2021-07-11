@@ -16,7 +16,7 @@ string query_help()
   return _LANG_CMD_HELP + "\n\n" + _LANG_CMD_HELP_HELP;
 }
 
-static int cmd (string arg, object me, string verb)
+static int cmd(string arg, object me, string verb)
 {
   return me->user()->do_help(arg);
 }
