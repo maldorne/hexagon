@@ -10,7 +10,7 @@
 
 #define _LANG_NADUK_SQUARE_SHORT "Naduk Square"
 #define _LANG_NADUK_SQUARE_LONG "You are in the most important place in Naduk, where " + \
-     "The people of this town usually celebrate their holidays. Apparently, " + \
+     "the people of this town usually celebrate their holidays. Apparently, " + \
      "it is said that one day the gods appeared in this same square " + \
      "to congratulate his mayor for his great peace work with the " + \
      "neighboring town. That is why a large fountain was built, in which " + \
