@@ -1,4 +1,23 @@
 
+#define _LANG_YES_OPTIONS_ARRAY ({ 's', 'S' })
+#define _LANG_NO_OPTIONS_ARRAY ({ 'n', 'N' })
+
+// alias.c 
+
+#define _LANG_ALIAS_SEMICOLON_NOT_ALLOWED "\";\" no permitido en los alias.\n"
+#define _LANG_ALIAS_CONFIRM_FLUSH "Esto borrará todos tus alias, ¿estás seguro? (s/n)\n"
+#define _LANG_ALIAS_FLUSHED "Ok, alias borrados.\n"
+#define _LANG_ALIAS_OK "Ok.\n"
+#define _LANG_ALIAS_NO_ALIAS "No has definido ningún alias aún.\n"
+#define _LANG_ALIAS_NO_ALIAS_WITH_THAT "No has definido aún ningún alias con '"+str+"'.\n"
+#define _LANG_ALIAS_TOO_MANY "Demasiados alias definidos, ya no puedes añadir más.\n"
+#define _LANG_ALIAS_TOO_LONG "Alias demasiado largo.\n"
+#define _LANG_ALIAS_NOT_ALLOWED "Eso no está permitido.\n"
+#define _LANG_ALIAS_CHANGED "Ok, establecido el alias '" + s1 + "'.\n"
+#define _LANG_ALIAS_SYNTAX "Sintaxis: " + query_verb() + " <alias>\n"
+#define _LANG_ALIAS_REMOVED "Ok, borrado el alias '" + str + "'.\n"
+#define _LANG_ALIAS_NO_RECURSIVE "¿Alias recursivos? Eso no está permitido.\n"
+
 // events.c
 
 #define _LANG_EVENTS_SOMEBODY_ARRIVES "Notas que alguien llega a tu posición.\n"

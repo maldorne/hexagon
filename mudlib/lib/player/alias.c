@@ -1,26 +1,29 @@
 
 #include <user/alias.h>
+#include <language.h>
 
 int convert();
 
 mapping aliases, map_aliases;
-static mapping doing_alias;
+// static mapping doing_alias;
+
+mapping query_aliases() { return aliases; }
 
 void create()
 {
   aliases = ([ ]);
   map_aliases = ([ ]);
-  doing_alias = ([ ]);
+  // doing_alias = ([ ]);
 }
 
 void init()
 {
   add_action("alias", "alias");
   add_action("unalias", "unalias");
-  add_action("flushalias","flushalias");
+  add_action("flushalias", "flushalias");
 }
 
-mixed *compile_alias(string str)
+mixed * _compile_alias(string str)
 {
   mixed *ret;
   int i, space;
@@ -28,22 +31,23 @@ mixed *compile_alias(string str)
   int tmp, gumby, nodollar;
   mixed *ifargs;
 
-  str = implode(explode(str," ")," ");
-  /* Quick hack.. Baldrick. */
+  str = implode(explode(str, " "), " ");
+  
+  // Quick hack.. Baldrick.
   //if (!this_player()->query_coder())
-  if (0)
-  {
-    frog = explode(str,";");
-    if (sizeof(frog) > 1)
-    {
-      tell_object(this_player(),"\";\" no permitido en los alias\n");
-      return ({ });
-    }
-  }
-  else
-    str = implode(explode(str,";"), "$new_line$");
+  // if (0)
+  // {
+  //   frog = explode(str, ";");
+  //   if (sizeof(frog) > 1)
+  //   {
+  //     tell_object(this_player(), _LANG_ALIAS_SEMICOLON_NOT_ALLOWED);
+  //     return ({ });
+  //   }
+  // }
+  // else
+  str = implode(explode(str, ";"), "$new_line$");
 
-  str = "&"+str+"&";
+  str = "&" + str + "&";
   frog = explode(str, "$");
 
   if (frog[0] == "&")
@@ -63,6 +67,7 @@ mixed *compile_alias(string str)
   nodollar = 1;
 
   for (i = 0; i < sizeof(frog); i++)
+  {
     if (frog[i] == "new_line")
     {
       ret += ({ NEW_LINE });
@@ -103,16 +108,16 @@ mixed *compile_alias(string str)
         gumby = 1;
       }
       else if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && !space)
-        ret[sizeof(ret)-1] += "$"+frog[i];
+        ret[sizeof(ret)-1] += "$" + frog[i];
       else if (nodollar)
       {
         ret += ({ frog[i] });
         nodollar = 0;
       }
       else
-        ret += ({ "$"+frog[i] });
+        ret += ({ "$" + frog[i] });
     }
-    else if (frog[i][0..2] == "arg")
+    else if ((strlen(frog[i]) >= 3) && (frog[i][0..2] == "arg"))
     {
       if (sscanf(frog[i], "arg%d:%s", tmp, s1) == 2)
       {
@@ -129,14 +134,14 @@ mixed *compile_alias(string str)
         nodollar = 1;
       }
       else if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && !space)
-        ret[sizeof(ret)-1] += "$"+frog[i];
+        ret[sizeof(ret)-1] += "$" + frog[i];
       else if (nodollar)
       {
         ret += ({ frog[i] });
         nodollar = 0;
       }
       else
-        ret += ({ "$"+frog[i] });
+        ret += ({ "$" + frog[i] });
 
       gumby = 1;
       space = 0;
@@ -183,7 +188,7 @@ mixed *compile_alias(string str)
     else
     {
       if (!nodollar)
-        frog[i] = "$"+frog[i];
+        frog[i] = "$" + frog[i];
       nodollar = 0;
       space = 0;
       if (strlen(frog[i]) && frog[i][strlen(frog[i])-1] == '~')
@@ -209,6 +214,7 @@ mixed *compile_alias(string str)
       if (space)
         space = 2;
     }
+  }
 
   if (!gumby)
   {
@@ -248,15 +254,15 @@ string alias_string(mixed *al)
                          break;
         case ALL_ARGS  : str += "$*$";
                          break;
-        case ONE_ARG   : str += "$"+num+"$";
+        case ONE_ARG   : str += "$" + num + "$";
                          break;
-        case TO_ARG    : str += "$*"+num+"$";
+        case TO_ARG    : str += "$*" + num + "$";
                          break;
-        case FROM_ARG  : str += "$"+num+"*$";
+        case FROM_ARG  : str += "$" + num + "*$";
                          break;
-        case ALL_ARG   : str += "$arg:"+al[++i]+"$";
+        case ALL_ARG   : str += "$arg:" + al[++i] + "$";
                          break;
-        case ARG_THING : str += "$arg"+num+":"+al[++i]+"$";
+        case ARG_THING : str += "$arg" + num + ":" + al[++i] + "$";
                          break;
         case ELSE_THING :
                          str += "$else$";
@@ -266,7 +272,7 @@ string alias_string(mixed *al)
                          add_thing += ({ i+1+al[++i] });
                          break;
         case IFARG_THING :
-                         str += "$ifarg"+num+":";
+                         str += "$ifarg" + num + ":";
                          add_thing += ({ i+1+al[++i] });
                          break;
       }
@@ -280,21 +286,21 @@ string alias_string(mixed *al)
 
 int flushalias(string str)
 {
-  write("Esto borrará todos tus alias, ¿estás seguro? (s/n)\n");
-  input_to("flushem",0);
+  write(_LANG_ALIAS_CONFIRM_FLUSH);
+  input_to("_flushem", 0);
   return 1;
 }
 
-static int flushem(string str)
+int _flushem(string str)
 {
-  if (str == "S" || str == "s")
+  if (member_array(str[0], _LANG_NO_OPTIONS_ARRAY) != -1)
   {
     aliases = ([ ]);
     map_aliases = ([ ]);
-    write("Alias borrados.\n");
+    write(_LANG_ALIAS_FLUSHED);
   }
   else
-    write("En otra ocasión entonces.\n");
+    write(_LANG_ALIAS_OK);
 
   return 1;
 }
@@ -307,9 +313,9 @@ int print_aliases()
   /* ahh well here goes the clean. you dont want to know what used to
    * be here ;)
    */
-  if (!m_sizeof(aliases))
+  if (!map_sizeof(aliases))
   {
-    notify_fail("Ningún alias definido.\n");
+    notify_fail(_LANG_ALIAS_NO_ALIAS);
     return 0;
   }
 
@@ -323,14 +329,14 @@ int print_aliases()
   for (i = 0; i < sizeof(tmp); i++)
   {
     bing = alias_string(aliases[tmp[i]]);
-    str = tmp[i]+": "+bing;
+    str = tmp[i] + ": " + bing;
     if (strlen(str)>39)
-      ret += sprintf(tmp[i]+": %-*s\n", (int)this_user()->query_cols()-
+      ret += sprintf(tmp[i] + ": %-*s\n", (int)this_user()->query_cols()-
                                       strlen(tmp[i])-2, bing);
     else if (strlen(str)>19)
-      str1 += str+"\n";
+      str1 += str + "\n";
     else
-      str2 += str+"\n";
+      str2 += str + "\n";
   }
 
   if (strlen(str1))
@@ -344,7 +350,7 @@ int print_aliases()
   return 1;
 }
 
-static int alias(string str, varargs int bing)
+int alias(string str, varargs int bing)
 {
   string s1, s2;
   mixed *boos;
@@ -362,7 +368,7 @@ static int alias(string str, varargs int bing)
   {
     if (!aliases[str])
     {
-      notify_fail("No hay ningún alias '"+str+"' definido.\n");
+      notify_fail(_LANG_ALIAS_NO_ALIAS_WITH_THAT);
       return 0;
     }
 
@@ -381,44 +387,30 @@ static int alias(string str, varargs int bing)
    */
   if (!this_player()->query_coder())
   {
-    if (m_sizeof(aliases) > MAXALIAS )
+    if (map_sizeof(aliases) > MAXALIAS )
     {
-       write("Demasiados alias.\n");
-       return 1;
+      write(_LANG_ALIAS_TOO_MANY);
+      return 1;
     }
     if (strlen(s2) > MAXALIASLEN)
     {
-      tell_object(this_player(),"Alias demasiado largo.\n");
+      write(_LANG_ALIAS_TOO_LONG);
       return 1;
     }
   }
 
-  if (!aliases[s1])
+  if (!sizeof(boos = _compile_alias(s2)))
   {
-    if (!sizeof(boos = compile_alias(s2)))
-    {
-      notify_fail("Eso ya no está permitido.\n");
-      return 0;
-    }
-
-    aliases[s1] = boos;
-    write("Incluido el alias '"+s1+"'.\n");
+    notify_fail(_LANG_ALIAS_NOT_ALLOWED);
+    return 0;
   }
-  else
-  {
-    if (!sizeof(boos = compile_alias(s2)))
-    {
-      notify_fail("Eso ya no está permitido.\n");
-      return 0;
-    }
 
-    aliases[s1] = boos;
-    write("Cambiado el alias '"+s1+"'.\n");
-  }
+  aliases[s1] = boos;
+  write(_LANG_ALIAS_CHANGED);
   return 1;
 }
 
-static int unalias(string str)
+int unalias(string str)
 {
   if (!mappingp(aliases))
     aliases = ([ ]);
@@ -427,73 +419,57 @@ static int unalias(string str)
 
   if (!str)
   {
-    notify_fail("Sintaxis: "+query_verb()+" <alias>\n");
+    notify_fail(_LANG_ALIAS_SYNTAX);
     return 0;
   }
 
   if (!aliases[str])
   {
-    notify_fail("El alias '"+str+"' no existe, no puedes eliminarlo.\n");
+    notify_fail(_LANG_ALIAS_NO_ALIAS_WITH_THAT);
     return 0;
   }
 
-  aliases = m_delete(aliases, str);
-  write("Borrado alias '"+str+"'.\n");
+  aliases = map_delete(aliases, str);
+  write(_LANG_ALIAS_REMOVED);
   return 1;
 }
 
-void test_remove_alias(string str)
-{
-  aliases = m_delete(aliases,str);
-}
-
-mapping query_aliases() { return aliases; }
-
-static int exec_alias(string verb, string args)
+int exec_alias(string verb, string args)
 {
   int i, num;
   string *bits, line;
   mixed stuff;
 
-  /* Moved to process input
-  if (verb[0] == '.')
-  {
-    this_object()->set_trivial_action();
-    if (args)
-      this_object()->action_check(expand_history(verb[1..100])+args);
-    else
-      this_object()->action_check(expand_history(verb[1..100]));
-    return 1;
-  }
-  */
-
   if (!mappingp(aliases))
-      aliases = ([ ]);
+    aliases = ([ ]);
 
-  if (!aliases[verb])
-      return 0;
-
-  if (!doing_alias)
-      doing_alias = ([ ]);
-
-  if (doing_alias[verb])
-  {
-    notify_fail("¿Alias recursivos? Eso no está permitido.\n");
+  if (undefinedp(aliases[verb]))
     return 0;
-  }
 
-  doing_alias[verb] = 1;
-  // in_alias_command = 1;
+  // if (!mappingp(doing_alias))
+  //   doing_alias = ([ ]);
+
+  // if (!undefinedp(doing_alias[verb]))
+  // {
+  //   notify_fail(_LANG_ALIAS_NO_RECURSIVE);
+  //   return 0;
+  // }
+
+  // doing_alias[verb] = 1;
   this_object()->set_in_alias_command(1);
 
-  call_out("remove_alias_thing", 0, verb);
+  call_out("_remove_alias_thing", 1, verb);
+
   stuff = aliases[verb];
   line = "";
+  
   if (!args)
     args = "";
-  bits = explode(verb+" "+args, " ");
+  
+  bits = explode(verb + " " + args, " ");
 
-  for (i=0;i<sizeof(stuff);i++)
+  for (i = 0; i < sizeof(stuff); i++)
+  {
     if (stringp(stuff[i]))
       line += stuff[i];
     else
@@ -502,10 +478,8 @@ static int exec_alias(string verb, string args)
       switch (stuff[i] - num)
       {
         case NEW_LINE :
-          /* command queue don't like trailing spaces */
+          // command queue don't like trailing spaces
           line = trim(line);
-          // while (line != "" && line[<1] == ' ')
-          //   line = line[0..<2];
           this_object()->action_check(line);
           line = "";
           break;
@@ -552,28 +526,24 @@ static int exec_alias(string verb, string args)
           break;
       }
     }
-  // command queue don't like trailing spaces
-  // while (line != "" && line[<1] == ' ')
-  //   line = line[0..<2];
-  line = trim(line);
+  }
 
-  ///  if (line != "") check(line);
+  // command queue don't like trailing spaces
+  line = trim(line);
 
   if (line != "")
     this_object()->action_check(line);
 
-  doing_alias = m_delete(doing_alias, verb);
-  // in_alias_command = 0;
+  // doing_alias = map_delete(doing_alias, verb);
   this_object()->set_in_alias_command(0);
   this_object()->set_trivial_action();
   return 1;
 }
 
-void remove_alias_thing(string verb)
+void _remove_alias_thing(string verb)
 {
-  // in_alias_command = 0;
   this_object()->set_in_alias_command(0);
-  doing_alias = m_delete(doing_alias, verb);
+  // doing_alias = map_delete(doing_alias, verb);
 }
 
 int convert()
@@ -581,10 +551,10 @@ int convert()
   int i;
   string *str;
 
-  str = m_indices(map_aliases);
+  str = map_indices(map_aliases);
 
-  for (i=0;i<sizeof(str);i++)
-    alias(str[i]+" "+map_aliases[str[i]], 1);
+  for (i = 0; i < sizeof(str); i++)
+    alias(str[i] + " " + map_aliases[str[i]], 1);
 
   map_aliases = ([ ]);
   return 1;
