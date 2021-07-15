@@ -145,14 +145,14 @@ static int cmd(string str, object me, string verb)
   if ("/lib/core/secure/bastards.c"->query_banish_reason(str))
   {
     string retval;
-    retval = sprintf("%35-s%35-s\n", "Nombre : "+str, "(tiene prohibido el acceso)");
+    retval = sprintf("%35-s%35-s\n", _LANG_FINGER_NAME + ": " + str, _LANG_FINGER_FORBIDDEN);
 
     // retval += "No tiene muchos segundos reales de edad.\n";
     // retval += "Nunca tuvo correo (ni lo tendra...).\n";
     // retval += "Sin plan.\nSin futuro.\n";
 
     ret = "/lib/core/secure/bastards.c"->query_banish_reason(str);
-    write(retval + "Prohibido por: '" + capitalize(ret) + "'\n");
+    write(retval + _LANG_FINGER_FORBIDDEN_REASON);
     return 1;
   }
 

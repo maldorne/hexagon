@@ -9,6 +9,8 @@
 #define _LANG_FINGER_CITY "City"
 #define _LANG_FINGER_BIRTHDAY "Birthday"
 #define _LANG_FINGER_NOBODY "Nobody with the name " + str + " has visited "+mud_name()+".\n"
+#define _LANG_FINGER_FORBIDDEN "(access forbidden)"
+#define _LANG_FINGER_FORBIDDEN_REASON "Forbidden because of: '" + capitalize(ret) + "'\n"
 
 // who
 
