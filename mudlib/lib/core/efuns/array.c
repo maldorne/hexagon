@@ -182,6 +182,10 @@ static nomask mixed * map_array(mixed *arr, string func, mixed ob, varargs mixed
 // Arrays of arrays are sorted by sorting based on the first element,
 // making database sorts possible.
 
+// test:
+// exec return sort_array(({ "a", "c", "b" })) ascending order
+// exec return sort_array(({ "a", "c", "b" }), nil, nil, -1) descending order
+
 static nomask mixed * sort_array(mixed * arr,
   varargs string fun, mixed ob, int dir)
 {

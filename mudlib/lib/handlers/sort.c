@@ -18,7 +18,7 @@ static int sort_int_des(int int1, int int2) { return int2-int1; }
 static int sort_float_asc(float f1, float f2) { return (int)(f1-f2); }
 static int sort_float_des(float f1, float f2) { return (int)(f2-f1); }
 
-string choose_sort_function(mixed type)
+string choose_default_sort_function(mixed type)
 {
   switch (typeof(type)) 
   {
@@ -42,15 +42,15 @@ mixed * bubblesort(mixed * arr, varargs string fun, mixed ob, int dir)
   int i, j, sz;
   mixed * result, a, b, pivot;
 
-  result = array_copy(arr);
-
-  if (sizeof(arr) == 0)
+  if (sizeof(arr) <= 1)
     return result;
+
+  result = array_copy(arr);
 
   if (!fun)
   {
     // check for pre-defined sort_array types 
-    fun = choose_sort_function(arr[0]);
+    fun = choose_default_sort_function(arr[0]);
     if (!strlen(fun))
       return result;
     ob = this_object();
@@ -62,8 +62,8 @@ mixed * bubblesort(mixed * arr, varargs string fun, mixed ob, int dir)
   i = sizeof(result);
   a = result[sz = --i];
 
-  // ascending
-  if (dir >= 0)
+  // descending
+  if (!undefinedp(dir) && (dir < 0))
   {
     while (--i >= 0) 
     {
@@ -89,7 +89,7 @@ mixed * bubblesort(mixed * arr, varargs string fun, mixed ob, int dir)
       }
     }
   }
-  // descending
+  // ascending
   else 
   {
     while (--i >= 0) 
@@ -121,15 +121,15 @@ mixed * quicksort(mixed *arr, varargs mixed fun, mixed ob, int dir)
   int stack_size, min, max, low, high, pivot;
   mixed *result, stack, a;
 
-  result = array_copy(arr);
-
-  if (sizeof(arr) == 0)
+  if (sizeof(arr) <= 1)
     return result;
+
+  result = array_copy(arr);
 
   if (!fun)
   {
     // check for pre-defined sort_array types 
-    fun = choose_sort_function(arr[0]);
+    fun = choose_default_sort_function(arr[0]);
     if (!strlen(fun))
       return result;
     ob = this_object();
@@ -141,7 +141,8 @@ mixed * quicksort(mixed *arr, varargs mixed fun, mixed ob, int dir)
   stack = ({ 0, sizeof(result)-1 });
   stack_size = 2;
 
-  if (dir >= 0) 
+  // descending
+  if (!undefinedp(dir) && (dir < 0))
   {
     while (stack_size >= 2) 
     {
@@ -184,6 +185,7 @@ mixed * quicksort(mixed *arr, varargs mixed fun, mixed ob, int dir)
       }
     }
   }
+  // ascending
   else 
   {
     while (stack_size >= 2) 
