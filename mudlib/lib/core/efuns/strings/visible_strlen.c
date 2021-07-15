@@ -18,7 +18,7 @@ static int visible_strlen(string str)
     if (str[i] == 27)
     {
       // advance until the end of the control characters
-      while ((str[i] != 'm') && (i < length))
+      while ((i < length) && (str[i] != 'm'))
         i++;
 
       continue;
