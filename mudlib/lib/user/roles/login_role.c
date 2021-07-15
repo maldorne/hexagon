@@ -64,7 +64,6 @@ nomask int do_clear_screen(string str)
   //   return 0;
 
   write(sprintf("%c[H%c[2J\n", 27, 27));
-  this_user()->write_prompt();
   return 1;
 }
 
