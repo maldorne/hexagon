@@ -603,8 +603,9 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   _player->start(invis_wish, is_new_player, reconnected, destination);
 
   // added by neverbot, this should be here somewhere
-  if (!reconnected)
-    cat(doc("news.txt"));
+  // removed again by neverbot, we don't have news for now
+  // if (!reconnected)
+  //   cat(doc("news.txt"));
 
   // do not show the first prompt, a command will be issued
   // in move_player_to_start and after that the prompt will be
