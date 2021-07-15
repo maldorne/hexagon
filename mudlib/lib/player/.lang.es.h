@@ -4,6 +4,7 @@
 
 // alias.c 
 
+#define _LANG_ALIAS_LIST_HEADER "Lista de alias definidos:\n"
 #define _LANG_ALIAS_SEMICOLON_NOT_ALLOWED "\";\" no permitido en los alias.\n"
 #define _LANG_ALIAS_CONFIRM_FLUSH "Esto borrará todos tus alias, ¿estás seguro? (s/n)\n"
 #define _LANG_ALIAS_FLUSHED "Ok, alias borrados.\n"

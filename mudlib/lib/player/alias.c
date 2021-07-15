@@ -18,9 +18,9 @@ void create()
 
 void init()
 {
-  add_action("alias", "alias");
-  add_action("unalias", "unalias");
-  add_action("flushalias", "flushalias");
+  add_action("do_alias", "alias");
+  add_action("do_unalias", "unalias");
+  add_action("do_flushalias", "flushalias");
 }
 
 mixed * _compile_alias(string str)
@@ -284,7 +284,7 @@ string alias_string(mixed *al)
   return str;
 }
 
-int flushalias(string str)
+int do_flushalias(string str)
 {
   write(_LANG_ALIAS_CONFIRM_FLUSH);
   input_to("_flushem", 0);
@@ -305,18 +305,17 @@ int _flushem(string str)
   return 1;
 }
 
-int print_aliases()
+string _print_aliases()
 {
   int i;
   string str,str1,str2, *tmp, bing, ret;
 
-  /* ahh well here goes the clean. you dont want to know what used to
-   * be here ;)
-   */
+  // ahh well here goes the clean. you dont want to know what used to
+  // be here ;)
   if (!map_sizeof(aliases))
   {
     notify_fail(_LANG_ALIAS_NO_ALIAS);
-    return 0;
+    return "";
   }
 
   str1 = "";
@@ -330,10 +329,10 @@ int print_aliases()
   {
     bing = alias_string(aliases[tmp[i]]);
     str = tmp[i] + ": " + bing;
-    if (strlen(str)>39)
+    if (strlen(str) > 39)
       ret += sprintf(tmp[i] + ": %-*s\n", (int)this_user()->query_cols()-
-                                      strlen(tmp[i])-2, bing);
-    else if (strlen(str)>19)
+                                      strlen(tmp[i]) - 2, bing);
+    else if (strlen(str) > 19)
       str1 += str + "\n";
     else
       str2 += str + "\n";
@@ -345,12 +344,10 @@ int print_aliases()
   if (strlen(str2))
     ret += sprintf("%-#*s\n", this_user()->query_cols(), str2);
 
-  write(ret);
-
-  return 1;
+  return ret;
 }
 
-int alias(string str, varargs int bing)
+int do_alias(string str, varargs int bing)
 {
   string s1, s2;
   mixed *boos;
@@ -362,7 +359,15 @@ int alias(string str, varargs int bing)
     convert();
 
   if (!strlen(str))
-    return print_aliases();
+  {
+    string line;
+    line = sprintf("%p%|*s\n", '-', this_user()->query_cols(), "");
+
+    write(line + " * " + _LANG_ALIAS_LIST_HEADER + line);
+    write(_print_aliases());
+    write(line);
+    return 1;
+  }
 
   if (sscanf(str, "%s %s", s1, s2) != 2)
   {
@@ -410,7 +415,7 @@ int alias(string str, varargs int bing)
   return 1;
 }
 
-int unalias(string str)
+int do_unalias(string str)
 {
   if (!mappingp(aliases))
     aliases = ([ ]);
@@ -554,7 +559,7 @@ int convert()
   str = map_indices(map_aliases);
 
   for (i = 0; i < sizeof(str); i++)
-    alias(str[i] + " " + map_aliases[str[i]], 1);
+    do_alias(str[i] + " " + map_aliases[str[i]], 1);
 
   map_aliases = ([ ]);
   return 1;
