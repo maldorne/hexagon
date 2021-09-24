@@ -2,7 +2,7 @@
 #include <user/alias.h>
 #include <language.h>
 
-int convert();
+// int convert();
 
 mapping aliases, map_aliases;
 // static mapping doing_alias;
@@ -347,7 +347,7 @@ string _print_aliases()
   return ret;
 }
 
-int do_alias(string str, varargs int bing)
+int do_alias(string str /*, varargs int bing */)
 {
   string s1, s2;
   mixed *boos;
@@ -355,8 +355,8 @@ int do_alias(string str, varargs int bing)
   if (!mappingp(aliases))
     aliases = ([ ]);
 
-  if (map_aliases && !bing)
-    convert();
+  // if (map_aliases && !bing)
+  //   convert();
 
   if (!strlen(str))
   {
@@ -378,7 +378,7 @@ int do_alias(string str, varargs int bing)
     }
 
     write(sprintf("%s: %-=*s\n", str, (int)this_user()->query_cols() -
-                          strlen(str) -2, alias_string(aliases[str])));
+                          strlen(str) - 2, alias_string(aliases[str])));
     return 1;
   }
 
@@ -419,8 +419,9 @@ int do_unalias(string str)
 {
   if (!mappingp(aliases))
     aliases = ([ ]);
-  if (map_aliases)
-    convert();
+
+  // if (map_aliases)
+  //   convert();
 
   if (!str)
   {
@@ -551,19 +552,19 @@ void _remove_alias_thing(string verb)
   // doing_alias = map_delete(doing_alias, verb);
 }
 
-int convert()
-{
-  int i;
-  string *str;
+// int convert()
+// {
+//   int i;
+//   string *str;
 
-  str = map_indices(map_aliases);
+//   str = map_indices(map_aliases);
 
-  for (i = 0; i < sizeof(str); i++)
-    do_alias(str[i] + " " + map_aliases[str[i]], 1);
+//   for (i = 0; i < sizeof(str); i++)
+//     do_alias(str[i] + " " + map_aliases[str[i]], 1);
 
-  map_aliases = ([ ]);
-  return 1;
-}
+//   map_aliases = ([ ]);
+//   return 1;
+// }
 
 mixed * stats()
 {
