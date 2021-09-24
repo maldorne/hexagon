@@ -13,7 +13,7 @@
 
 #define _LANG_NPCS_ORC_NAME "orco"
 #define _LANG_NPCS_ORC_LONG "Un enorme humanoide de piel verdosa, fornido y amenazante.\n"
-#define _LANG_NPCS_ORC_CHAT ({ "':gruñe.", \
+#define _LANG_NPCS_ORC_CHAT ({ ":gruñe.", \
                                ":escupe en el suelo.", \
                                ":maldice el nombre de $lname$.", \
                                ":te mira maliciosamente con sus ojos inyectados en sangre.", })
