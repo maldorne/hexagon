@@ -1,16 +1,14 @@
 
 #include <basic/communicate.h>
-#include <translations/language.h>
 #include <living/drinks.h>
+
+#include <translations/language.h>
+#include <language.h>
+
 // #include <player.h>
 // #include <chat.h>
 // #include <inet.h>
 // #include <network.h>
-
-
-// TODO: Este archivo hay que retocarlo entero para comprobar los
-//  idiomas, comandos de comunicacion, etc
-// neverbot starts: 12/10/03
 
 int social_points, max_social_points;
     string *languages,
@@ -23,22 +21,15 @@ string drunk_speech(string str);
 
 void communicate_commands() 
 {
-  // add_private_action("do_say","say");
-  add_private_action("do_say", "decir");
-
-  add_private_action("do_tell", "tell");
-
-  // add_private_action("do_whisper", "whisper");
-  add_private_action("do_whisper", "susurrar");
-
-  // add_private_action("set_language", "speak");
-  add_private_action("set_language", "hablar");
+  add_private_action("do_say", _LANG_SAY_VERBS);
+  add_private_action("do_tell", _LANG_TELL_VERBS);
+  add_private_action("do_whisper", _LANG_WHISPER_VERBS);
+  add_private_action("set_language", _LANG_SPEAK_VERBS);
+  add_private_action("do_shout", _LANG_SHOUT_VERBS);
 
   // deactivated for a while
   // add_private_action("do_emote", ({ "emote", "emocion"}));
 
-  // add_private_action("do_shout", "shout");
-  add_private_action("do_shout", "gritar");
 
   add_private_action("do_channels", "emergencia");
   add_private_action("do_channels", "gremio");
@@ -115,23 +106,20 @@ int hard_adjust_social_points(int num) {
 } 
 */
 
-string query_word_type(string str, varargs string def)
+string * query_word_type(string str)
 {
   int i;
 
-  for (i = strlen(str)-1; str[i] == ' '; i--);
+  for (i = strlen(str) - 1; str[i] == ' '; i--);
 
   switch (str[i]) 
   {
     case '!' : 
-      return "exclama";
+      return ({ _LANG_COMM_I_EXCLAIM, _LANG_COMM_THEY_EXCLAIM });
     case '?' : 
-      return "pregunta";
+      return ({ _LANG_COMM_I_ASK, _LANG_COMM_THEY_ASK });
     default:   
-      if (def)
-        return def;
-      else
-        return "dice";
+      return ({ _LANG_COMM_I_SAY, _LANG_COMM_THEY_SAY });
   }
 } 
 
@@ -181,60 +169,59 @@ void my_mess(string fish, string erk)
 
 int do_say(string arg, varargs int no_echo) 
 {
-  string word;
+  string * words, word;
 
   // Taniwha, sanity/ no debug errors
   if (!environment(this_object()))
   {
-    notify_fail("En el vacío nadie puede decir u oir nada.\n");
+    notify_fail(_LANG_COMMS_NO_ENV);
     return 0;
   }
 
-  if (!strlen(arg)) 
-    arg = "";
-  if (arg == "" || arg == " ") 
+  if (!strlen(arg) || arg == " ")
   {
-    notify_fail("Sintaxis: decir <algo>\n");
+    notify_fail(_LANG_COMMS_SYNTAX);
     return 0;
   }
    
   // neverbot
   if (!strlen(cur_lang))
   {
-    notify_fail("Debes seleccionar un idioma para hablar.\n");
+    notify_fail(_LANG_COMMS_NO_CURRENT_LANG);
     return 0;
   }
    
   if (!handler("languages")->query_language_spoken(cur_lang)) 
   {
-    notify_fail(capitalize(cur_lang)+" no es un lenguaje hablado.\n");
+    notify_fail(capitalize(cur_lang) + " " + _LANG_COMMS_NO_SPOKEN_LANG);
     return 0;
   }
 
-  word = query_word_type(arg);
+  words = query_word_type(arg);
   
   if (this_object()->query_volume(D_ALCOHOL))
     arg = drunk_speech(arg);
 
   event(environment(this_object()), "person_say", this_object()->query_cap_name()+
-      " " + word +": ", arg, cur_lang, this_object()->query_int());
+      " " + words[1], arg, cur_lang);
 
   if (!no_echo) 
   {
     if (cur_lang != STD_LANG)
-      word += "s en " + cur_lang + ": ";
+      word = words[0] + " " + _LANG_PREPOSITION + " " + cur_lang + ": ";
     else
-      word += "s: ";
+      word = words[0] + ": ";
+
     my_mess(capitalize(word), arg);
   }
 
-  // this_player()->adjust_time_left(-5);
   return 1;
 } 
 
 int do_tell(string arg, varargs object ob, int silent) 
 {
   string str, rest, word;
+  string * words;
   // string person, mud;
 
   if (!strlen(arg) && !ob) 
@@ -290,6 +277,7 @@ int do_tell(string arg, varargs object ob, int silent)
       return 0;
     }
   }
+
   if (ob == this_player()) 
   {
     notify_fail("¿Otra vez hablando solo?\n");
@@ -307,7 +295,8 @@ int do_tell(string arg, varargs object ob, int silent)
     notify_fail(NO_POWER);
     return 0;
   }
-  word = query_word_type(rest, "");
+  
+  words = query_word_type(rest);
   
   if (word != "")
     word = " " + word + "ndo";

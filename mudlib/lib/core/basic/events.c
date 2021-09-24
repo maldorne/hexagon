@@ -168,44 +168,49 @@ void event_soul(object ob, string msg, varargs mixed avoid)
     this_object()->catch_tell(msg + "\n");
 }
 
-void event_person_say(object ob, string start, string msg, string lang, int speaker)
+void event_person_say(object ob, string start, string msg, string lang)
 {
   string tmp;
 
+  if (!interactive(this_object()))
+    return;
+
+  if (ob == this_object())
+    return;
+
   msg = fix_string(msg);
 
+  // if the listener does not speak the language
   if (member_array(lang, this_object()->query_languages()) == -1)
   {
     mixed str;
 
-    if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((str = (mixed)str->garble_say(start, msg)))
+    if ((str = (mixed)handler("languages")->query_garble_object(lang)))
+      if ((str = (mixed)str->garble(start, msg)))
       {
-        start = str[0];
+        start = str[0] + ": ";
         msg = str[1];
       }
       else
         return;
     else
       return;
+  } 
+  else
+  {
+    if (lang != STD_LANG)
+      start += " " + _LANG_PREPOSITION + " " + lang + ": ";
+    else
+      start += ": ";
   }
-  // else
-  if (lang != STD_LANG)
-    start = start[0..strlen(start)-3]+" en "+lang+": ";
-
-  if (ob == this_object())
-    return;
 
   tmp = start + msg;
-
-  // "Distorsion" por el entorno :?
-  // if (!this_object()->query_coder())
-  // msg = "/std/language"->scramble_sentence(msg, speaker, this_object()->query_int());
 
   if (ob && interactive(ob))
     this_object()->add_past_g(tmp);
 
-  this_object()->catch_tell("\n" + tmp + "\n");
+  if (interactive(this_object()))
+    this_object()->catch_tell("\n" + tmp + "\n");
 }
 
 void event_person_tell(object ob, string start, string msg, string lang)
@@ -227,8 +232,8 @@ void event_person_tell(object ob, string start, string msg, string lang)
   {
     mixed str;
 
-    if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((str = (mixed)str->garble_say(start, msg)))
+    if ((str = (mixed)handler("languages")->query_garble_object(lang)))
+      if ((str = (mixed)str->garble(start, msg)))
       {
         start = str[0];
         msg = str[1];
@@ -305,8 +310,8 @@ void event_person_whisper(object ob, string start, string msg,
   {
     mixed str;
 
-    if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((str = (mixed)str->garble_say(start, msg)))
+    if ((str = (mixed)handler("languages")->query_garble_object(lang)))
+      if ((str = (mixed)str->garble(start, msg)))
       {
         start = str[0];
         msg = str[1];
@@ -368,8 +373,8 @@ void event_person_shout(object ob, string start, string msg, string lang)
   {
     mixed str;
 
-    if ((str = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-      if ((str = (mixed)str->garble_say(start, msg)))
+    if ((str = (mixed)handler("languages")->query_garble_object(lang)))
+      if ((str = (mixed)str->garble(start, msg)))
       {
         start = str[0];
         msg = str[1];

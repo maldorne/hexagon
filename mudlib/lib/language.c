@@ -15,7 +15,7 @@ string long()
 string garbler(string mess);
 
 // called from the language handler, receives the full message 
-// to "translate" and the start piece "says: ", "exclaims: ", etc
+// to "translate" and the start piece "xxx says", "xxx exclaims", etc
 mixed garble(string start, string mess)
 {
   return ({ start, garbler(mess) });

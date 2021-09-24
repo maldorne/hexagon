@@ -51,3 +51,5 @@
 // desc.c
 
 #define _LANG_NO_LONG "No ves nada particularmente interesante.\n"
+
+// events.c

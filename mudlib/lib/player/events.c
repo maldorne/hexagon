@@ -148,51 +148,6 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 //   do_efun_write(str);
 // } /* event_soul() */
 
-// void event_person_say(object ob, string start, string mess, string lang, int speaker)
-// {
-//   string tmp;
-
-//   mess = fix_string(mess);
-
-//   if (member_array(lang, this_object()->query_languages()) == -1) {
-//     mixed str;
-
-//     if ((str = (mixed)LANGUAGE_HAND->query_garble_object(lang)))
-//     if ((str = (mixed)str->garble_say(start, mess))) {
-//       start = str[0];
-//       mess = str[1];
-//     } else
-//     return ;
-//     else
-//     return ;
-//   }
-//   // else
-//   if (lang != "comun")
-//   start = start[0..strlen(start)-3]+" en "+lang+": ";
-
-//   if (ob == this_object()) return;
-
-//   tmp = start + mess;
-//   // tmp = fix_string(tmp+ "\n");
-
-//   // "Distorsion" por el entorno :?
-//   // if (!this_object()->query_coder())
-//   // mess = "/std/language"->scramble_sentence(mess, speaker, this_object()->query_int());
-
-//   if (ob && interactive(ob))
-//   this_object()->add_past_g(tmp);
-
-//   tmp += "\n";
-
-//   // sprintf añadido, neverbot 7/03
-//   // A ver si asi los mensajes no se salen del ancho de pantalla!!
-//   // tmp = sprintf("%*-=s", (this_object()->query_cols()?this_object()->query_cols():79), tmp);
-
-//   write(tmp);
-
-//   // write(fix_string(start + mess + "\n"));
-// } /* event_person_say() */
-
 // void event_person_tell(object ob, string start, string mess, string lang)
 // {
 //   int id;

@@ -1,4 +1,25 @@
 
+// communicate.c
+
+#define _LANG_SAY_VERBS ({ "decir" })
+#define _LANG_TELL_VERBS ({ "tell" })
+#define _LANG_WHISPER_VERBS ({ "susurrar" })
+#define _LANG_SPEAK_VERBS ({ "hablar" })
+#define _LANG_SHOUT_VERBS ({ "gritar" })
+#define _LANG_COMMNS_LANG_PREP "en"
+#define _LANG_COMMS_SYNTAX "Sintaxis: " + query_verb() + " <algo>\n"
+#define _LANG_COMMS_NO_CURRENT_LANG "Debes seleccionar qué idioma hablas.\n" + \
+                                    "Usa el comando '"+_LANG_SPEAK_VERBS[0]+"'.\n"
+
+#define _LANG_COMM_I_EXCLAIM "exclamas"
+#define _LANG_COMM_I_ASK "preguntas"
+#define _LANG_COMM_I_SAY "dices"
+#define _LANG_COMM_THEY_EXCLAIM "exclama"
+#define _LANG_COMM_THEY_ASK "pregunta"
+#define _LANG_COMM_THEY_SAY "dice"
+#define _LANG_COMMS_NO_ENV "En el vacío nadie puede decir u oir nada.\n"
+#define _LANG_COMMS_NO_SPOKEN_LANG "no es un lenguaje hablado.\n"
+
 // queue
 
 #define _LANG_QUEUE_DIDNT_WORK "El intento de hacer '%^RED%^" + \

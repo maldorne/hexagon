@@ -1,13 +1,13 @@
 
 // code taken from monster.c, neverbot 04/2009
 
-#include <npc/npc.h>
+#include <language.h>
 
 mixed *chat_string,    /* ({ ({ int chances }), ({ chat strings }) }) */
       *achat_string;   /* ({ ({ int chances }), ({ chat strings }) }) */
 int chat_chance,       /* Chance of chatting any given round */
-    achat_chance,      /* Chance of doing an attack chat any round */    
-    in_talk;           /* So stuff I say doesn't get catch_talk'd */
+    achat_chance;      /* Chance of doing an attack chat any round */    
+    // in_talk;        /* So stuff I say doesn't get catch_talk'd */
 
 mixed talk_string;     /* strings we shall watch for when people talk */
 static string *story;        /* The current story (set of strings) */
@@ -23,7 +23,7 @@ void create()
   talk_string = ({ });
   which_story = 0;
   story = ({ });
-  in_talk = 0;    
+  // in_talk = 0;    
 }
 
 void load_chat(int chance, mixed * c_s)
@@ -118,7 +118,177 @@ void remove_achat_string(mixed chat)
     }
 }
 
-void expand_mon_string(string str)
+// Aux function for load_chat and load_a_chat in monster.c
+// If we include in the message certain words between dollar symbols ($)
+// they will be changed: i.e. $race$ --> ob->query_race()
+string chat_expand_string(object me, string in_str, varargs object on, object attacker)
+{
+  string *str, ret;
+  int i, j, add_dollar;
+  int k,l;
+
+  object liv, *obs, ob, *attacker_list;
+
+  str = explode(in_str, "$");
+  ret = "";
+
+  // Fix by Wonderflug, only parse every SECOND argument, just tack on the 
+  // others.
+  for (i = 0; i < sizeof(str); i++)
+  {
+    if ( !( i % 2) )
+      ret += str[i];
+    else
+    {
+      switch (str[i][0])
+      {
+        case 'm' :
+          ob = me;
+          break;
+        case 'l' :
+          if (!ob)
+          {
+            if (!liv)
+            {
+              obs = all_inventory(environment(me));
+              k = sizeof(obs);
+              l = random(k);
+              for (j = 0; j < k; j++)
+              {
+                if (living(obs[l]) && obs[l] != me)
+                {
+                  liv = obs[l];
+                  break;
+                }
+                l++;
+                l %= k;
+              }
+            }
+            if (!liv) // No one here to see us blow up anyway ;) 
+              ob = me;
+            ob = liv;
+          }
+
+          if (!ob)
+          {
+            attacker_list = me->query_attacker_list();
+            
+            if (!sizeof(attacker_list))
+              break;
+            
+            if (!attacker)
+              attacker = attacker_list[random(sizeof(attacker_list))];
+            
+            ob = attacker;
+          }
+          
+        case 'o' :
+          if (!ob)
+          {
+            if (!on)
+            {
+              obs = all_inventory(environment(me));
+              k = sizeof(obs);
+              l = random(k);
+              ob = me; // should all else fail
+              for (j = 0; j < k; j++)
+              {
+                if ( obs[l] != me)
+                {
+                  on = obs[l];
+                  break;
+                }
+                l++;
+                l %= k;
+              }
+            }
+            else
+              ob = on;
+          } // if (!ob)
+
+          switch (str[i][1..1000])
+          {
+          case "name" :
+            ret += (string)ob->query_name();
+            add_dollar = 0;
+            break;
+          case "cname" :
+            ret += (string)ob->query_cap_name();
+            add_dollar = 0;
+            break;
+          case "gender" :
+            ret += (string)ob->query_gender_string();
+            add_dollar = 0;
+            break;
+          case "poss" :
+            ret += (string)ob->query_possessive();
+            add_dollar = 0;
+            break;
+          case "obj" :
+            ret += (string)ob->query_objective();
+            add_dollar = 0;
+            break;
+          case "gtitle" :
+            ret += (string)ob->query_gender_title();
+            add_dollar = 0;
+            break;
+          case "pronoun" :
+            ret += (string)ob->query_pronoun();
+            add_dollar = 0;
+            break;
+          case "race":
+            ret += (string)ob->query_race_name();
+            add_dollar =0;
+            break;
+          case "guild":
+            ret += (string)ob->query_guild_name();
+            add_dollar =0;
+            break;
+          case "group":
+            ret += (string)ob->query_group_name();
+            add_dollar =0;
+            break;
+          case "racegroup":
+            ret += (string)ob->query_race_group_name();
+            add_dollar =0;
+            break;
+          case "class":
+            ret += (string)ob->query_class_name();
+            add_dollar =0;
+            break;
+
+          default :
+            if (add_dollar)
+              ret += "$";
+            ret += str[i];
+            add_dollar = 1;
+            break;
+          } // switch str[i][1..
+
+          ob = nil;
+          break;
+
+        default :
+          if (add_dollar)
+            ret += "$";
+          ret += str[i];
+          add_dollar = 1;
+          ob = nil;
+          break;
+      }
+    }
+  }
+
+  if (ret[strlen(ret)-1] == '$')
+    ret = ret[0..strlen(ret)-2];
+  
+  if (!stringp(ret))
+    return _LANG_SEEMS_CONFUSED;
+  
+  return ret;
+}
+
+void expand_string(string str)
 {
   int special;
 
@@ -129,11 +299,6 @@ void expand_mon_string(string str)
 
   switch( str[0] )
   {
-    // case '\'' : 
-    //   str = "decir " + str[1..]; break;
-    // case '\"' : 
-    //  str = "lsay " + str[1..<1]; break;
-    
     case '\'' : 
       // let's try a new way... do not queue command just for chatting
       this_object()->do_say(str[1..]);
@@ -142,7 +307,7 @@ void expand_mon_string(string str)
     
     case ':'  :
       str = "\n" + this_object()->query_cap_name() + " " +
-              (string)MONSTER_HAND->expand_string(this_object(), str[1..]) + "\n";
+              (string)chat_expand_string(this_object(), str[1..]) + "\n";
       tell_room(environment(this_object()), str, ({ this_object() }));
       special = 1;
       break;
@@ -179,25 +344,25 @@ void remove_talk_string(string cat)
   talk_string = delete(talk_string, i, 2);
 }
 
-void catch_talk(string str)
-{
-  string s1, s2;
-  int i;
+// void catch_talk(string str)
+// {
+//   string s1, s2;
+//   int i;
 
-  if (in_talk)
-    return ;
+//   if (in_talk)
+//     return ;
 
-  in_talk = 1;
-  for (i=0;i<sizeof(talk_string);i+=2)
-    if (sscanf(str, "%s"+talk_string[i]+"%s", s1, s2))
-      if (stringp(talk_string[i+1]))
-        call_other(this_object(), talk_string[i+1], str, s1, s2);
-      else if (pointerp(talk_string[i+1]))
-        call_other(talk_string[i+1][0], talk_string[i+1][1], str, s1, s2);
-  in_talk = 0;
-}
+//   in_talk = 1;
+//   for (i=0;i<sizeof(talk_string);i+=2)
+//     if (sscanf(str, "%s"+talk_string[i]+"%s", s1, s2))
+//       if (stringp(talk_string[i+1]))
+//         call_other(this_object(), talk_string[i+1], str, s1, s2);
+//       else if (pointerp(talk_string[i+1]))
+//         call_other(talk_string[i+1][0], talk_string[i+1][1], str, s1, s2);
+//   in_talk = 0;
+// }
 
-/* does the basic chat handling */
+// does the basic chat handling
 void chatter(int chance, mixed chat)
 {
   int i, j;
@@ -211,7 +376,7 @@ void chatter(int chance, mixed chat)
   if (sizeof(story)) 
   {
     if (which_story < sizeof(story))
-      expand_mon_string(story[which_story++]);
+      expand_string(story[which_story++]);
     else
     {
       story = ({ });
@@ -227,7 +392,7 @@ void chatter(int chance, mixed chat)
     if (pointerp(chat[1][j+1]))
       story = chat[1][j+1];
     else
-      expand_mon_string(chat[1][j+1]);
+      expand_string(chat[1][j+1]);
   }
 }
     
@@ -240,7 +405,7 @@ mixed *stats()
     ({ "Achat Chance", query_achat_chance() }),
     ({ "Chat String", chat_string }),
     ({ "Achat String", achat_string }),
-    ({ "In talk (nosave)", in_talk }),
+    // ({ "In talk (nosave)", in_talk }),
     ({ "Talk String", talk_string }),
     ({ "Story (nosave)", story }),
     ({ "Which Story (nosave)", which_story }),

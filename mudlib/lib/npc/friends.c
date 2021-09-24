@@ -62,7 +62,7 @@ void pile_in(object ob, object ob1)
       {
         if (stringp(join_fight_mess))
           tell_room(environment(this_object()),
-              (string)MONSTER_HAND->expand_string(this_object(), join_fight_mess, this_object(), ob));
+              (string)this_object()->chat_expand_string(this_object(), join_fight_mess, this_object(), ob));
         else 
           tell_room(environment(this_object()), _LANG_FRIENDS_PILE_IN);
       }
@@ -91,7 +91,7 @@ void do_aggressive_check(object ob)
   {
     if (stringp(join_fight_mess) && (join_fight_mess != "") && !this_object()->query_timed_property(NO_SPAM))
     {
-      tell_room(environment(this_object()),(string)MONSTER_HAND->expand_string(this_object(),
+      tell_room(environment(this_object()),(string)this_object()->chat_expand_string(this_object(),
                                         join_fight_mess, this_object(), ob));
       this_object()->add_timed_property(NO_SPAM, 1, 10);
     }
