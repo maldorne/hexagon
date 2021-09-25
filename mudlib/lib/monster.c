@@ -422,12 +422,10 @@ void heart_beat()
 
   living::heart_beat();
 
-  /* This is the attack part.
-   * it runs when the monsie is in fight.
-   */
-  if ( (sizeof(attacker_list) || sizeof(call_outed)) && sizeof(query_effects()) )
+  // This is the attack part
+  // it runs when the monsie is in fight
+  if ( (sizeof(attacker_list) || sizeof(call_outed)) )
   {
-    MONSTER_HAND->effect_heart_beat(this_object(), attacker_list, query_attack_effects());
     chatter(achat_chance, achat_string);
   }
   else
@@ -435,16 +433,17 @@ void heart_beat()
     chatter(chat_chance, chat_string);
   }
 
+  if (sizeof(query_attack_effects()))
+    MONSTER_HAND->effect_heart_beat(this_object(), attacker_list, query_attack_effects());
+
   if (move_after && !sizeof(attacker_list))
     move_after_heart_beat();
 
-  /* No race objects have this.
-   * catch(query_race_ob()->monster_heart_beat(race, mclass, query_race_ob(), query_guild_ob()));
-   */
+  // No race objects have this
+  // catch(query_race_ob()->monster_heart_beat(race, mclass, query_race_ob(), query_guild_ob()));
 
-  /* This will start and stop the heartbeats dependant on a lot of
-   * variables. this is to lessen the cpu.
-   */
+  // This will start and stop the heartbeats dependant on a lot of
+  // variables. this is to lessen the cpu
   check_heart_beat();
 }
 
