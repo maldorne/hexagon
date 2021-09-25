@@ -9,7 +9,9 @@
 #include <basic/communicate.h>
 #include <user/hud.h>
 #include <user/user.h>
+
 #include <language.h>
+#include <translations/language.h>
 
 inherit events "/lib/core/basic/events.c";
 
@@ -147,6 +149,53 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 //   else
 //   do_efun_write(str);
 // } /* event_soul() */
+
+
+void event_person_say(object ob, string start, string msg, string lang)
+{
+  string tmp;
+
+  if (!interactive(this_object()))
+    return;
+
+  if (ob == this_object())
+    return;
+
+  msg = fix_string(msg);
+
+  // if the listener does not speak the language
+  if (member_array(lang, this_object()->query_languages()) == -1)
+  {
+    mixed str;
+
+    if ((str = (mixed)handler("languages")->query_garble_object(lang)))
+      if ((str = (mixed)str->garble(start, msg)))
+      {
+        start = str[0] + ": ";
+        msg = str[1];
+      }
+      else
+        return;
+    else
+      return;
+  } 
+  else
+  {
+    if (lang != STD_LANG)
+      start += " " + _LANG_PREPOSITION + " " + lang + ": ";
+    else
+      start += ": ";
+  }
+
+  tmp = start + msg;
+
+  if (ob && interactive(ob))
+    this_object()->add_past_g(tmp);
+
+  if (interactive(this_object()))
+    this_object()->catch_tell("\n" + tmp + "\n");
+}
+
 
 // void event_person_tell(object ob, string start, string mess, string lang)
 // {
