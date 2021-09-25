@@ -42,6 +42,8 @@ mixed * bubblesort(mixed * arr, varargs string fun, mixed ob, int dir)
   int i, j, sz;
   mixed * result, a, b, pivot;
 
+  result = ({ });
+
   if (sizeof(arr) <= 1)
     return result;
 
@@ -119,7 +121,9 @@ mixed * bubblesort(mixed * arr, varargs string fun, mixed ob, int dir)
 mixed * quicksort(mixed *arr, varargs mixed fun, mixed ob, int dir) 
 {
   int stack_size, min, max, low, high, pivot;
-  mixed *result, stack, a;
+  mixed * result, stack, a;
+
+  result = ({ });
 
   if (sizeof(arr) <= 1)
     return result;
