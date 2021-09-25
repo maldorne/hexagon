@@ -18,9 +18,9 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### Current status
 
-Current version *[v20.09 Anduin](https://github.com/houseofmaldorne/hexagon/releases/tag/20.09)*.
+Current version *[v21.09 Beregost](https://github.com/houseofmaldorne/hexagon/releases/tag/21.09)*.
 
-Next milestone *[v21.?? Beregost](docs/roadmap.md#current-milestone-v21-beregost)*.
+Next milestone *[v21.?? Castle Black](docs/roadmap.md#current-milestone-v21-castle-black)*.
 
 ### More detailed information about the project
 * Current project status and roadmap in the [roadmap document](docs/roadmap.md).
