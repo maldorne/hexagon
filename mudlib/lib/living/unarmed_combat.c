@@ -1,5 +1,7 @@
 
 #include <living/combat.h>
+#include <translations/combat.h>
+#include <language.h>
 
 /*
     Unarmed Combat for FR by Sojan
@@ -66,8 +68,7 @@ int adjust_unarmed_ability(string style, int i);
 
 void unarmed_combat_commands()
 {
-  add_private_action("do_combat_styles", "estilo");
-  add_private_action("do_combat_styles", "estilos");
+  add_private_action("do_combat_styles", _LANG_UNARMED_STYLE_COMMANDS);
 }
 
 void create()
@@ -76,21 +77,19 @@ void create()
   ovr_type = 0;
   num_unarmed_hits = 0;
   // every being has a minimum 50% in the default combat style
-  known_unarmed_styles= ([ DEF_UNARMED:50, ]);
-  current_unarmed_style = DEF_UNARMED;
+  known_unarmed_styles= ([ DEF_UNARMED_STYLE_NAME:50, ]);
+  current_unarmed_style = DEF_UNARMED_STYLE_NAME;
   unarmed_ability = 50;
   messages = ({ });
 }
 
-int unarmed_attack(object def, object att)
+int unarmed_attack(object defender, object attacker)
 {
   mixed *att_val;
   mixed damage;
   int absorbed_damage, j, percent;
   object * obs;
   
-  attacker = att;
-  defender = def;
   att_val = ({ });
   att_val = workout_attack(current_unarmed_style);
 
@@ -142,24 +141,20 @@ int unarmed_attack(object def, object att)
     if (att_val[0] == DODGE)
     {
       damage = ({ 0 });
-      tell_object(attacker, defender->query_cap_name()+" logra esquivar tu ataque.\n");
-      tell_object(defender, attacker->query_cap_name()+" intenta golpearte pero logras "+
-         "esquivar su ataque.\n");
-      tell_room(environment(attacker), attacker->query_cap_name() +
-                " trata de golpear a " + defender->query_cap_name() +
-                " pero "+defender->query_demonstrative()+" logra esquivar su ataque.\n", ({attacker, defender}));
+      tell_object(attacker, _LANG_UNARMED_DODGE_MESSAGE_ATT);
+      tell_object(defender, _LANG_UNARMED_DODGE_MESSAGE_ATT);
+      tell_room(environment(attacker), _LANG_UNARMED_DODGE_MESSAGE_ROOM, ({ attacker, defender }));
     }
     else
     {
       // att_val[0] == MISS
       damage = ({ 0 });
-      tell_object(att, def->query_cap_name()+" logra bloquear tu ataque.\n");
-      tell_object(def, att->query_cap_name()+" intenta golpearte pero logras "+
-         "bloquear su ataque.\n");
-      tell_room(environment(att), att->query_cap_name()+" trata de golpear a "+
-         def->query_cap_name()+" pero "+defender->query_demonstrative()+" para el ataque.\n",({att, def}));
+      tell_object(attacker, _LANG_UNARMED_BLOCK_MESSAGE_ATT);
+      tell_object(defender, _LANG_UNARMED_BLOCK_MESSAGE_DEF);
+      tell_room(environment(attacker), _LANG_UNARMED_BLOCK_MESSAGE_ROOM, ({ attacker, defender }));
     }
   }
+
   return damage[0];
 } // unarmed_attack
 
@@ -177,7 +172,7 @@ mixed * workout_attack(string unarmed_type)
   //  we store it the first time we need them, to avoid looking through the mapping
   if ((ovr_num == 0) || (ovr_type == 0))
   {
-    tmp = UNARMED_BASE->set_damage_dice(current_unarmed_style, this_object());
+    tmp = table("unarmed_combat")->set_damage_dice(current_unarmed_style, this_object());
     if (tmp == 0)
     {
       ovr_num = BDEFNUM;
@@ -191,7 +186,7 @@ mixed * workout_attack(string unarmed_type)
   if (roll(1, 200) < 10 )
   {
     // fumble default message, we should add more messages here someday
-    tell_object(this_object(), "¡Oh, qué torpeza!\n");
+    tell_object(this_object(), _LANG_UNARMED_DEFAULT_FUMBLE_MSG);
     return ({ FUMBLE, 0 });
   }
 
@@ -237,7 +232,7 @@ mixed * workout_attack(string unarmed_type)
     if ( roll(1, 200) < 10 ) 
     {
       // critical hit messaged added... should add messages here someday
-      tell_object(this_object(), "¡Oh, qué habilidad!\n");
+      tell_object(this_object(), _LANG_UNARMED_DEFAULT_CRITICAL_MSG);
       damage_done *= 2;
     }
   }
@@ -276,7 +271,7 @@ int set_unarmed_combat_style(string style)
 
   if (this_object()->query_dead())
   {
-     notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
+     notify_fail(_LANG_NO_NEED_WHEN_DEAD);
      return 0;
   }
 
@@ -284,28 +279,28 @@ int set_unarmed_combat_style(string style)
   {
     current_unarmed_style = style;
     // minimum ability
-    unarmed_ability = (known_unarmed_styles[style]>=MIN_UNARMED_ABILITY?known_unarmed_styles[style]:MIN_UNARMED_ABILITY);
+    unarmed_ability = (known_unarmed_styles[style] >= MIN_UNARMED_ABILITY ? known_unarmed_styles[style] : MIN_UNARMED_ABILITY);
 
     // update the dice used
-    tmp = UNARMED_BASE->set_damage_dice(current_unarmed_style, this_object());
+    tmp = table("unarmed_combat")->set_damage_dice(current_unarmed_style, this_object());
     if (tmp == 0)
     {
       ovr_num = BDEFNUM;
       ovr_type = BDEFTYPE;
     }
 
-    write("Estilo de combate desarmado: '"+style+"'. Nivel de habilidad: "+unarmed_ability+"%.\n");
+    write(_LANG_UNARMED_STYLE_INFO);
 
     // reset the counter
     reset_num_unarmed_hits();
     
     // update the messages to use
-    messages = UNARMED_BASE->query_messages(current_unarmed_style, unarmed_ability, this_object());      
+    messages = table("unarmed_combat")->query_messages(current_unarmed_style, unarmed_ability, this_object());      
     
     return 1;
   }
 
-  notify_fail("No conoces el estilo de combate '"+style+"'.\n");
+  notify_fail(_LANG_UNARMED_NOT_KNOWN);
   return 0;
 }
 
@@ -331,7 +326,7 @@ int remove_known_unarmed_style(string style)
   
   if (style == current_unarmed_style)
   {
-    current_unarmed_style = DEF_UNARMED;
+    current_unarmed_style = DEF_UNARMED_STYLE_NAME;
     unarmed_ability = MIN_UNARMED_ABILITY;
   }
 
@@ -354,7 +349,7 @@ int adjust_unarmed_ability(string style, int i)
   if (!known_unarmed_styles[style])
     return 0;
   
-  if (member_array(style, UNARMED_BASE->query_unarmed_styles()) == -1)
+  if (member_array(style, table("unarmed_combat")->query_unarmed_styles()) == -1)
     return 0;
 
   known_unarmed_styles[style] += i;
@@ -363,7 +358,7 @@ int adjust_unarmed_ability(string style, int i)
     unarmed_ability += i;
 
   if (i > 0)
-    tell_player(this_object(), "¡Has mejorado tus habilidades en "+style+"!\n");
+    tell_player(this_object(), _LANG_UNARMED_STYLE_IMPROVED);
 
   return known_unarmed_styles[style];   
 }
@@ -384,38 +379,42 @@ int do_combat_styles(string style)
 
   if (this_object()->query_dead())
   {
-    notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
+    notify_fail(_LANG_NO_NEED_WHEN_DEAD);
     return 0;
   }
 
   if (!style || (style == ""))
   {
-    line = sprintf("%*s\n", this_object()->query_cols(), "");
-    
-    ret = sprintf("%*s\n\n", this_object()->query_cols()+18, 
-      "> %^GREEN%^Conoces los siguientes estilos de lucha: %^RESET%^<");
+    int cols;
+    string header;
 
-    for (i = 0; i < sizeof(_unarmed_styles); i++){
-      ret += sprintf("\t%35-s %25|s (%s)\n", "%^BOLD%^"+capitalize(_unarmed_styles[i]) +"%^RESET%^", 
-                "["+percentage_bar(query_known_unarmed_combat_styles()[_unarmed_styles[i]])+"]",
-                ""+query_known_unarmed_combat_styles()[_unarmed_styles[i]]+"%");
+    cols = this_object()->user()->query_cols();
+    header = fix_string(_LANG_UNARMED_LIST_HEADER);
+
+    line = sprintf("%p%|*s\n", '-', cols, "");
+    ret = sprintf("%p%|*s\n\n", '-', cols + strlen(header) - visible_strlen(header), header);
+
+    for (i = 0; i < sizeof(_unarmed_styles); i++) {
+
+      ret += sprintf("\t%35s %25s (%s)\n", "%^BOLD%^" + capitalize(_unarmed_styles[i]) + "%^RESET%^", 
+                "[" + percentage_bar(query_known_unarmed_combat_styles()[_unarmed_styles[i]]) + "]",
+                "" + query_known_unarmed_combat_styles()[_unarmed_styles[i]] + "%");
     }
 
     ret += "\n" + line;
-    ret += "  Tu estilo de lucha actual es '"+query_current_unarmed_style()+"'.\n";
-    ret += "  Utiliza: estilo <nombre> para cambiarlo.\n";
+    ret += _LANG_UNARMED_LIST_FOOTER;
     ret += line;
     tell_object(this_object(), ret);
     return 1;
   }
 
-  if (member_array(style, _unarmed_styles) >- 1)
+  if (member_array(style, _unarmed_styles) != -1)
   {
     set_unarmed_combat_style(style);
   }
   else
   {
-    notify_fail("No conoces el estilo de combate '"+style+"'.\n");
+    notify_fail(_LANG_UNARMED_NOT_KNOWN);
     return 0;
   }
 
@@ -454,12 +453,11 @@ void write_message(int damage, string local, object att, object defdr)
     place = " en " + local;
   
   if (sizeof(messages) != 3)  
-    messages = UNARMED_BASE->query_messages(current_unarmed_style, unarmed_ability, att);
+    messages = table("unarmed_combat")->query_messages(current_unarmed_style, unarmed_ability, att);
   
   if (sizeof(messages) != 3)
   {
-    tell_object(att, "Parece que ha habido algún problema con tus técnicas de combate, "+
-                     "habla con algún programador.\n");
+    tell_object(att, _LANG_UNARMED_CODE_ERROR);
     return;
   }
   

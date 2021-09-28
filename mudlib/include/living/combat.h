@@ -51,16 +51,12 @@
 // ****************************************************
 // unarmed combat
 
-#define UNARMED_BASE "/lib/tables/unarmed_combat"
-
-// Tipo de estilo de combate por defecto
-#define DEF_UNARMED "pelea"
-// Porcentaje minimo de control de un estilo
+// minimum ability with a style
 #define MIN_UNARMED_ABILITY 10
-
-// Porcentaje maximo que se puede alcanzar sin maestros
+// maximum ability value learning by yourself (auto)
 #define MAX_UNARMED_AUTO_LEARN 75
 
+// default damage dice 1d6
 #define BDEFNUM 1
 #define BDEFTYPE 6
 

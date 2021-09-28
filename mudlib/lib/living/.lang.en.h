@@ -60,3 +60,31 @@
 
 #define _LANG_COMBAT_BEING_ATTACKED "%^BOLD%^You are being attacked by %^RESET%^" + \
                         name + "%^BOLD%^.%^RESET%^\n\n"
+
+// unarmed_combat.c
+
+#define _LANG_UNARMED_STYLE_COMMANDS ({ "style", "styles" })
+#define _LANG_UNARMED_DEFAULT_FUMBLE_MSG "Oh, how awkward!\n"
+#define _LANG_UNARMED_DEFAULT_CRITICAL_MSG "Oh, impressive!\n"
+#define _LANG_NO_NEED_WHEN_DEAD "In your spiritual form you do not need to know that.\n"
+#define _LANG_UNARMED_CODE_ERROR "It seems something wrong happen with your combat styles, notify it to an administrator.\n"
+
+#define _LANG_UNARMED_DODGE_MESSAGE_ATT defender->query_cap_name() + " is able to dodge your attack.\n"
+#define _LANG_UNARMED_DODGE_MESSAGE_DEF attacker->query_cap_name() + " tries to hit you, but you dodge " + attacker->query_objective() + \
+                                        " attack.\n"
+#define _LANG_UNARMED_DODGE_MESSAGE_ROOM attacker->query_cap_name() + \
+                                        " tries to hit " + defender->query_cap_name() + \
+                                        ", but "+defender->query_demonstrative()+" dodges " + attacker->query_objective() + " attack.\n"
+#define _LANG_UNARMED_BLOCK_MESSAGE_ATT defender->query_cap_name()+" is able to block your attack.\n"
+#define _LANG_UNARMED_BLOCK_MESSAGE_DEF attacker->query_cap_name()+" tries to hit you, but you block " + attacker->query_objective() + \
+                                        " attack.\n"
+#define _LANG_UNARMED_BLOCK_MESSAGE_ROOM attacker->query_cap_name()+" tries to hit " + \
+         defender->query_cap_name()+", but "+defender->query_demonstrative()+" blocks " + attacker->query_objective() + " attack.\n"
+
+#define _LANG_UNARMED_LIST_HEADER "> %^GREEN%^You know the following combat styles: %^RESET%^<"
+#define _LANG_UNARMED_LIST_FOOTER "  Your current combat style is '"+query_current_unarmed_style()+"'.\n" + \
+                                  "  Use: style <name> to change it.\n"
+#define _LANG_UNARMED_NOT_KNOWN "You don't know the combat style called '"+style+"'.\n"
+
+#define _LANG_UNARMED_STYLE_INFO "Unarmed combat style: '"+style+"'. Ability: "+unarmed_ability+"%.\n"
+#define _LANG_UNARMED_STYLE_IMPROVED "You improved your abilities with "+style+"!\n"

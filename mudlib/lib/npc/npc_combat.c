@@ -45,9 +45,9 @@ void add_attacks( string * names )
   for (i = 0; i < sizeof(names); i++)
   {
     // Si el estilo existe
-    if (UNARMED_BASE->style_exists(names[i]))
+    if (table("unarmed_combat")->style_exists(names[i]))
     {
-      tmp = UNARMED_BASE->query_messages(names[i]);
+      tmp = table("unarmed_combat")->query_messages(names[i]);
 
       // Si es una lista, la añadimos
       if (arrayp(tmp[0]))
