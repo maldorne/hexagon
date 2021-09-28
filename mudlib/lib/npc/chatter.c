@@ -206,63 +206,63 @@ string chat_expand_string(object me, string in_str, varargs object on, object at
               ob = on;
           } // if (!ob)
 
-          switch (str[i][1..1000])
+          switch (str[i][1..])
           {
-          case "name" :
-            ret += (string)ob->query_name();
-            add_dollar = 0;
-            break;
-          case "cname" :
-            ret += (string)ob->query_cap_name();
-            add_dollar = 0;
-            break;
-          case "gender" :
-            ret += (string)ob->query_gender_string();
-            add_dollar = 0;
-            break;
-          case "poss" :
-            ret += (string)ob->query_possessive();
-            add_dollar = 0;
-            break;
-          case "obj" :
-            ret += (string)ob->query_objective();
-            add_dollar = 0;
-            break;
-          case "gtitle" :
-            ret += (string)ob->query_gender_title();
-            add_dollar = 0;
-            break;
-          case "pronoun" :
-            ret += (string)ob->query_pronoun();
-            add_dollar = 0;
-            break;
-          case "race":
-            ret += (string)ob->query_race_name();
-            add_dollar =0;
-            break;
-          case "guild":
-            ret += (string)ob->query_guild_name();
-            add_dollar =0;
-            break;
-          case "group":
-            ret += (string)ob->query_group_name();
-            add_dollar =0;
-            break;
-          case "racegroup":
-            ret += (string)ob->query_race_group_name();
-            add_dollar =0;
-            break;
-          case "class":
-            ret += (string)ob->query_class_name();
-            add_dollar =0;
-            break;
+            case "name" :
+              ret += (string)ob->query_name();
+              add_dollar = 0;
+              break;
+            case "cname" :
+              ret += (string)ob->query_cap_name();
+              add_dollar = 0;
+              break;
+            case "gender" :
+              ret += (string)ob->query_gender_string();
+              add_dollar = 0;
+              break;
+            case "poss" :
+              ret += (string)ob->query_possessive();
+              add_dollar = 0;
+              break;
+            case "obj" :
+              ret += (string)ob->query_objective();
+              add_dollar = 0;
+              break;
+            case "gtitle" :
+              ret += (string)ob->query_gender_title();
+              add_dollar = 0;
+              break;
+            case "pronoun" :
+              ret += (string)ob->query_pronoun();
+              add_dollar = 0;
+              break;
+            case "race":
+              ret += (string)ob->query_race_name();
+              add_dollar =0;
+              break;
+            case "guild":
+              ret += (string)ob->query_guild_name();
+              add_dollar =0;
+              break;
+            case "group":
+              ret += (string)ob->query_group_name();
+              add_dollar =0;
+              break;
+            case "racegroup":
+              ret += (string)ob->query_race_group_name();
+              add_dollar =0;
+              break;
+            case "class":
+              ret += (string)ob->query_class_name();
+              add_dollar =0;
+              break;
 
-          default :
-            if (add_dollar)
-              ret += "$";
-            ret += str[i];
-            add_dollar = 1;
-            break;
+            default :
+              if (add_dollar)
+                ret += "$";
+              ret += str[i];
+              add_dollar = 1;
+              break;
           } // switch str[i][1..
 
           ob = nil;
