@@ -164,9 +164,6 @@ mixed * workout_attack(string unarmed_type)
   int result, attackerwc, defenderac, damage_done;
   int tmp;
 
-    stderr("-----> WTF\n");
-    stderr("-----> " + to_string(defender) + to_string(attacker) + "\n");
-
   // should not happen, neverbot 4/03
   if (!defender || !attacker)
     return ({ MISS, 0 });

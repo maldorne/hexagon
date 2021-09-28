@@ -125,9 +125,6 @@ mapping query_all_uc_info(){
 // we change the number and type of dice, neverbot 4/03
 int set_damage_dice(string style, object player)
 {
-
-    stderr("-----> " + style + to_string(player) + "\n");
-
   // if it does not exist
   if (!unarmed_combat_styles[style])
      return 0;
