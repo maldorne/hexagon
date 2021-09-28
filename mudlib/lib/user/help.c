@@ -1,15 +1,21 @@
-
 // The help module. This will (should) give help on the required thingy.
 // share and enjoy.
-// Eliminados archivos nroff, neverbot 06/2010
+// nroff files removed, neverbot 06/2010
 
 #include <mud/cmd.h>
+#include <language.h>
 
-#define help_dirs ({ "/lib/docs/mud/concepts/", "/lib/docs/mud/important/","/lib/docs/helpdir/"})
+#define help_dirs ({ "/lib/docs/mud/concepts/", \
+                     "/lib/docs/mud/important/", \
+                     "/lib/docs/helpdir/" })
 
-#define creator_dirs ({ "/lib/docs/lfun/", "/lib/docs/efun/", "/lib/docs/coder/",\
-"/lib/docs/driver/lpc/types/", "/lib/docs/driver/applies/", \
-"/lib/docs/driver/concepts/", "/lib/docs/driver/lpc/constructs/", })
+#define creator_dirs ({ "/lib/docs/lfun/", \
+                        "/lib/docs/efun/", \
+                        "/lib/docs/coder/", \
+                        "/lib/docs/driver/lpc/types/", \
+                        "/lib/docs/driver/applies/", \
+                        "/lib/docs/driver/concepts/", \
+                        "/lib/docs/driver/lpc/constructs/", })
 
 
 static int compare_strings(string a, string b)
@@ -109,24 +115,24 @@ int do_help(string str)
     return 1;
   }
 
-  // Comprobamos si es un comando de cmds
+  // check if it is a cmd
   ob = load_object(CMD_HANDLER);
   if (ob)
   {
     text = ob->query_unaliased_cmd(str);
     aux = keys(ob->query_hash());
 
-    // Lo que estamos buscando realmente _es_ un cmd
+    // what we are really looking for _is_ a cmd
     if ((ob->query_hash()[text]) && (text = ob->query_hash()[text]["file"]))
     {
-      // Comprobamos si el jugador tiene permiso sobre el cmd
+      // check if the player has permissions to run the cmd
       if (member_array(text, ob->query_available_cmds(this_object()->player())) != -1)
       {
         if (ob = load_object(text))
         {
-          write("Ayuda sobre el comando '" + str + "':\n");
-          write( ((ob->query_help())?(ob->query_help()):("No hay ningún texto de ayuda concreto."))
-            + "\n\n");
+          write(_LANG_HELP_CMD);
+          write(_LANG_CMD_SYNTAX + ob->query_usage() + "\n\n");
+          write( (ob->query_help() ? ob->query_help() : _LANG_HELP_CMD_NO_HELP) + "\n\n");
           return 1;
         }
       }

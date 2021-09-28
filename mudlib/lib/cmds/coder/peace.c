@@ -6,9 +6,14 @@
 
 inherit CMD_BASE;
 
+string query_usage()
+{
+  return "peace";
+}
+
 string query_help() 
 {
-  return "Syntax: immediately stops current combats in your environment.";
+  return "Immediately stops current combats in your environment.";
 }
 
 static int cmd(string str, object me, string verb) 

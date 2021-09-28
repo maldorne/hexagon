@@ -31,6 +31,25 @@ private string after();
 private int check_file();
 private int check_code(string str);
 
+string query_usage()
+{
+  return "exec [-flags] <code>";
+}
+
+string query_help()
+{
+  return "Allows to test one line of LPC code:\n" +
+         "Executes the line of code inside a main() function in the file\n" +
+         " "+CODER_FILE+" (it will be removed afterwards)\n" +
+         "flags:  s: shows the file after being generated\n" +
+         "        d: do not overthe file if it exists\n" +
+         "        p: do not remove the file after the execution\n" +
+         "        a <arg>: passes the argument 'arg' when calling main()\n" +
+         "                 (must be the last flag)\n" +
+         "\nThe following macros can be used: \n"+defines()+"\n" +
+         "ie: exec object *a; a=users(); for(int i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n";
+}
+
 private int check_file()
 {
   string wiz_dir;
@@ -242,21 +261,6 @@ private string parse_args(string str)
     }
   }
   return str;
-}
-
-string query_help()
-{
-  return "Syntax: exec [-flags] <code>\n" +
-         "[Allows to test one line of LPC code]\n\n" +
-         "Executes the line of code inside a main() function in the file\n" +
-         " "+CODER_FILE+" (it will be removed afterwards)\n" +
-         "flags:  s: shows the file after being generated\n" +
-         "        d: do not overthe file if it exists\n" +
-         "        p: do not remove the file after the execution\n" +
-         "        a <arg>: passes the argument 'arg' when calling main()\n" +
-         "                 (must be the last flag)\n" +
-         "\nThe following macros can be used: \n"+defines()+"\n" +
-         "ie: exec object *a; a=users(); for(int i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n";
 }
 
 // Code to include in the generated file

@@ -12,11 +12,15 @@ inherit CMD_BASE;
 #define C   "%^BOLD%^CYAN%^"
 #define G   "%^BOLD%^GREEN%^"
 
+string query_usage()
+{
+  return "exits [files]";
+}
+
 string query_help()
 {
-  return "Syntax: exits [files]\n" +
-         "        (no files to check your current environment)\n\n" +
-         "Checks the exits of a room or multiple rooms.\n";
+  return "Checks the exits of a room or multiple rooms.\n" +
+         "Input no files to check your current environment.";
 }
 
 string short_file_name(string file_name)

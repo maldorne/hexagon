@@ -1,4 +1,8 @@
 
+// common
+
+#define _LANG_CMD_SYNTAX "Syntax: "
+
 // communicate.c
 
 #define _LANG_COMM_ROWS "rows"
@@ -17,6 +21,11 @@
 #define _LANG_COMM_TERMINAL "terminal"
 #define _LANG_COMM_BLOCK "block"
 #define _LANG_COMM_UNBLOCK "unblock"
+
+// help.c
+
+#define _LANG_HELP_CMD "Help about the command '" + str + "':\n"
+#define _LANG_HELP_CMD_NO_HELP "There is no help text about that."
 
 // more_string.c
 

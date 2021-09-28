@@ -22,7 +22,7 @@ string query_usage()
   return _LANG_CMD_LOOK_SYNTAX;
 }
 
-string query_short_help()
+string query_help()
 {
   return _LANG_CMD_LOOK_HELP;
 }

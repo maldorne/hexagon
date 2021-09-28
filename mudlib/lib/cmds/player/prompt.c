@@ -4,19 +4,20 @@
 
 inherit CMD_BASE;
 
-void setup()
+
+string query_usage()
 {
-  position = 0;
+  return _LANG_PROMPT_SYNTAX;
 }
 
 string query_help()
 {
-  // local variables to use _LANG_PROMPT_SYNTAX
+  // local variables to use _LANG_PROMPT_HELP
   object me, user;
   me = this_player();
   user = me->user();
 
-  return _LANG_PROMPT_SYNTAX;
+  return _LANG_PROMPT_HELP;
 }
 
 static int cmd(string str, object me, string verb) 

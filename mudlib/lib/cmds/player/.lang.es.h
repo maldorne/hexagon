@@ -3,10 +3,23 @@
 
 #define _LANG_CMD_NOTHING_HERE "No hay nada con el nombre '"+arg+"' aquí.\n"
 
+// kill.c
+
+#define _LANG_CMD_KILL_SYNTAX "Sintaxis: atacar <objetivos>"
+#define _LANG_CMD_KILL_HELP "Comienza a atacar a los objetivos especificados."
+#define _LANG_CMD_KILL_NOT_ALLOWED "No está permitido.\n"
+#define _LANG_CMD_KILL_NOT_ALLOWED_ARRAY ({ "todo", "todos", "all", "everyone" })
+#define _LANG_CMD_KILL_NO_NEED_WHEN_DEAD "Tu estado etéreo tiene poco efecto en el mundo material.\n"
+#define _LANG_CMD_KILL_NOT_FOUND "No consigues encontrar a "+me->expand_nickname(str)+".\n"
+#define _LANG_CMD_KILL_NOT_SUICIDE "¿Te quieres suicidar?\n"
+#define _LANG_CMD_KILL_NOT_ALIVE "Intentas golpear a " + str + ", pero " + str + " no " + \
+                                 "parece darse cuenta.\n"
+#define _LANG_CMD_KILL_START "Ok. Comienzas a pelear con " + query_multiple_short(res, 0) + ".\n"
+
 // look.c
 
 #define _LANG_CMD_LOOK "mirar"
-#define _LANG_CMD_LOOK_SYNTAX "mirar [a] [<objeto>]"
+#define _LANG_CMD_LOOK_SYNTAX "Sintaxis: mirar [a] [<objeto>]"
 #define _LANG_CMD_LOOK_HELP "Devuelve la descripción de un objeto o (por defecto) " + \
                     "la localización en la que te encuentras."
 #define _LANG_CMD_LOOK_NO_ENVIRONMENT "No estás en ningún sitio... no puedes ver nada.\n"
@@ -16,7 +29,8 @@
 
 #define _LANG_PROMPT_CLEAN "borrar"
 #define _LANG_PROMPT_CURRENT "Tu prompt actual es: '" + user->query_prompt_string() + "'\n"
-#define _LANG_PROMPT_SYNTAX "Puedes cambiarlo usando 'prompt <texto>', o quitarlo con 'prompt " + \
+#define _LANG_PROMPT_SYNTAX "prompt <texto>"
+#define _LANG_PROMPT_HELP "Puedes cambiarlo usando 'prompt <texto>', o quitarlo con 'prompt " + \
            _LANG_PROMPT_CLEAN + "'.\n" + \
            "En <texto>, se aceptan los siguientes atajos:\n" + \
            "     $n -> tu nombre\n" + \

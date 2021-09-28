@@ -8,11 +8,16 @@ inherit CMD_BASE;
 
 #define NUMBER_OF_LINES 2000
 
+string query_usage()
+{
+  return "grep [-in] <pattern> <file(s)>";
+}
+
 string query_help()
 {
-  return "Syntax: grep [-in] <pattern> <file(s)>\n" + 
-         "             -n do not show the line where the pattern was found\n" + 
-         "             -i ignore case\n";
+  return "Search for a patter in one or multiple files.\n" + 
+         "Flags:  -n do not show the line where the pattern was found\n" + 
+         "        -i ignore case";
 }
 
 static int cmd(mixed str, object me, string verb) 

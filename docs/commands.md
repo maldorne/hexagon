@@ -128,8 +128,8 @@ List of commands available to every player, depending of its user type/role (`pl
 | grope         |          |          |    |    |
 | grupo         |          |          |    |    |
 | inventory     |          |          |    |    |
-| kill          |          |          |    |    |
-| look          | :white_check_mark: |          |    |    |
+| kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
+| look          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | map           |          |          |    |    |
 | modo          |          |          |    |    |
 | monitor       |          |          |    |    |

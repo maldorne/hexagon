@@ -6,8 +6,14 @@
 
 inherit CMD_BASE;
 
-void setup() {
-  position = 1;
+string query_usage()
+{
+  return "home [<person>]";
+}
+
+string query_help() 
+{
+  return "Moves you to <person>'s workroom. If no parameter is specified, takes you to your own.";
 }
 
 static int cmd(string str,object me, string verb) 
@@ -40,10 +46,4 @@ static int cmd(string str,object me, string verb)
       " doesn't exist, sorry.\n");
     return 0;
   }
-}
-
-string query_short_help() {
-  return "Syntax: home\n" +
-         "        home <person>\n\n" +
-         "Moves you to <person>'s workroom. If nothing is specified, takes you to your own.\n";
 }

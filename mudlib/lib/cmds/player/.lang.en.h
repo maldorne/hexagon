@@ -3,6 +3,19 @@
 
 #define _LANG_CMD_NOTHING_HERE "Nothing with the name '"+arg+"' is here.\n"
 
+// kill.c
+
+#define _LANG_CMD_KILL_SYNTAX "kill <targets>"
+#define _LANG_CMD_KILL_HELP "Start attacking the provided targets."
+#define _LANG_CMD_KILL_NOT_ALLOWED "Not allowed.\n"
+#define _LANG_CMD_KILL_NOT_ALLOWED_ARRAY ({ "all", "everyone" })
+#define _LANG_CMD_KILL_NO_NEED_WHEN_DEAD "In your current state your don't have effect in the material world.\n"
+#define _LANG_CMD_KILL_NOT_FOUND "You cannot find "+me->expand_nickname(str)+".\n"
+#define _LANG_CMD_KILL_NOT_SUICIDE "You want to commit suicide?\n"
+#define _LANG_CMD_KILL_NOT_ALIVE "You try to hit " + str + ", but " + str + " does not seem " + \
+                                 "to notice it.\n"
+#define _LANG_CMD_KILL_START "Ok. You start fighting with " + query_multiple_short(res, 0) + ".\n"
+
 // look.c
 
 #define _LANG_CMD_LOOK "look"
@@ -16,7 +29,8 @@
 
 #define _LANG_PROMPT_CLEAN "clean"
 #define _LANG_PROMPT_CURRENT "Your current prompt is: '" + user->query_prompt_string() + "'\n"
-#define _LANG_PROMPT_SYNTAX "You can change it using 'prompt <text>', or remove it using 'prompt " + \
+#define _LANG_PROMPT_SYNTAX "prompt <text>"
+#define _LANG_PROMPT_HELP "You can change it using 'prompt <text>', or remove it using 'prompt " + \
            _LANG_PROMPT_CLEAN + "'.\n" + \
            "In <text>, the following shortcuts are accepted:\n" + \
            "     $n -> your name\n" + \

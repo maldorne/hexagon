@@ -7,14 +7,14 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 0;
+  return _LANG_FINGER_SYNTAX;
 }
 
 string query_help()
 {
-  return _LANG_FINGER_SYNTAX + "\n\n" + _LANG_FINGER_HELP;
+  return _LANG_FINGER_HELP;
 }
 
 static int cmd(string str, object me, string verb)
