@@ -11,6 +11,7 @@
 #include <basic/alignment.h>
 #include <user/xp.h>
 #include <basic/money.h>
+#include <language.h>
 
 // Traido desde /global/living/living.c, neverbot 4/03
 int dead;
@@ -262,18 +263,12 @@ int do_death(object killed_by)
 
   if (killed_by) 
   {
-    tell_room(environment(this_object()), "\n" + 
-      killed_by->query_cap_name() +
-      " propina el golpe mortal a " +
-      this_object()->query_cap_name() + ".\n\n", ({ killed_by, this_object() }));
-    tell_player(killed_by, "Propinas el golpe mortal a "+
-      this_object()->query_cap_name()+".");
-    tell_player(this_object(), killed_by->query_cap_name() + 
-      " te propina el golpe mortal.");
+    tell_room(environment(this_object()), _LANG_DEATH_DEATH_BLOW_ROOM, ({ killed_by, this_object() }));
+    tell_player(killed_by, _LANG_DEATH_DEATH_BLOW_ATT);
+    tell_player(this_object(), _LANG_DEATH_DEATH_BLOW_DEF);
   }
   else
-    tell_room(environment(this_object()),this_object()->query_cap_name()+
-      " ha muerto horriblemente.\n");
+    tell_room(environment(this_object()), _LANG_DEATH_DEATH_BLOW_NO_KILLER);
 
   if (environment())
     event(environment(), "death", killed_by, attacker_list, this_object());
@@ -308,29 +303,28 @@ object make_corpse()
   // distinguish the effects when worn or held by a corpse...we probly don't
   // want to do this, but even if we do, I don't want to deal with it right now.
 
-  /* Un equip the player ? or corpse ? */
+  // unequip the player ? or corpse ?
   usedstuff = (mixed *)this_object()->query_held_ob();
 
   if (sizeof(usedstuff)) 
   {
-    my_mess = "Tu cuerpo pierde sus últimos alientos de vida";
-    room_mess = (string)this_object()->query_cap_name() +
-                " cae al suelo destrozad"+this_object()->query_vocal();
+    my_mess = _LANG_DEATH_CORPSE_DEF;
+    room_mess = _LANG_DEATH_CORPSE_ATT;
   } 
 
   for (i = 0; i < sizeof(usedstuff); i++)
   {
-    /* Have to use this instead. */
+    // Have to use this instead.
     if (objectp(usedstuff[i]))
     {
       object ok;
       ok = usedstuff[i];
       this_object()->unhold_ob(ok);
       ok->move(environment(this_object()));
-    } /* if (usedstuff.. */
-  } /* for.. */
+    }
+  } 
 
-  /* Reset the array (to be sure ) */
+  // Reset the array (to be sure)
   usedstuff = ({ });
 
   usedstuff = (mixed *)this_object()->query_worn_ob();
@@ -355,19 +349,17 @@ object make_corpse()
     if (objectp(usedstuff[i]))
     {
       this_object()->unwear_ob(usedstuff[i]);
-      /*Shall they loose it or keep it in the corpse I */
+      // Shall they loose it or keep it in the corpse I
 
       // usedstuff[i]->move(environment());
-    } /* if (usedstuff.. */
-  } /* for.. */
+    }
+  }
 
-  /* Let the corpse loose everything */
-  /* But they won't loose it, can put it back later tho.. */
-  /*
-  obs = all_inventory(this_object());
-  for (i=0; i<sizeof(obs); i++)
-    obs[i]->move(environment());
-  */
+  // Let the corpse loose everything
+  // But they won't loose it, can put it back later tho..
+  // obs = all_inventory(this_object());
+  // for (i=0; i<sizeof(obs); i++)
+  //   obs[i]->move(environment());
 
   if (stringp(room_mess)) 
   {
@@ -375,9 +367,8 @@ object make_corpse()
     tell_player(this_object(), my_mess+".\n");
   }
 
-  // Comprobacion añadida, para evitar que el objeto del dinero con
-  // cero monedas se lleve al cuerpo (y al coger objetos del cuerpo
-  // tengamos el molesto 'Coges  de cuerpo.'
+  // remove the money object if it is empty, to avoid moving it and seeing
+  // 'You get  from corpse.'
   money = present(MONEY_NAME, this_object());
   if ((money) && (money->query_value() == 0))
   {

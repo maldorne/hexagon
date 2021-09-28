@@ -60,6 +60,17 @@
 #define _LANG_COMBAT_BEING_ATTACKED "%^BOLD%^Estás siendo atacado por %^RESET%^" + \
                         name + "%^BOLD%^.%^RESET%^\n\n"
 
+// death.c
+
+#define _LANG_DEATH_DEATH_BLOW_ROOM "\n" + killed_by->query_cap_name() + \
+      " propina el golpe mortal a " + this_object()->query_cap_name() + ".\n\n"
+#define _LANG_DEATH_DEATH_BLOW_ATT "Propinas el golpe mortal a " + this_object()->query_cap_name() + "."
+#define _LANG_DEATH_DEATH_BLOW_DEF killed_by->query_cap_name() + " te propina el golpe mortal."
+#define _LANG_DEATH_DEATH_BLOW_NO_KILLER this_object()->query_cap_name() + \
+      " ha muerto horriblemente.\n"
+#define _LANG_DEATH_CORPSE_DEF "Tu cuerpo pierde sus últimos alientos de vida"
+#define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " cae al suelo destrozad"+this_object()->query_vocal()
+
 // unarmed_combat.c
 
 #define _LANG_UNARMED_STYLE_COMMANDS ({ "estilo", "estilos" })

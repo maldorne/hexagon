@@ -61,6 +61,17 @@
 #define _LANG_COMBAT_BEING_ATTACKED "%^BOLD%^You are being attacked by %^RESET%^" + \
                         name + "%^BOLD%^.%^RESET%^\n\n"
 
+// death.c
+
+#define _LANG_DEATH_DEATH_BLOW_ROOM "\n" + killed_by->query_cap_name() + \
+      " deals the death blow to " + this_object()->query_cap_name() + ".\n\n"
+#define _LANG_DEATH_DEATH_BLOW_ATT "You deal the death blow to " + this_object()->query_cap_name() + "."
+#define _LANG_DEATH_DEATH_BLOW_DEF killed_by->query_cap_name() + " deals you the death blow."
+#define _LANG_DEATH_DEATH_BLOW_NO_KILLER this_object()->query_cap_name() + \
+      " has died horribly.\n"
+#define _LANG_DEATH_CORPSE_DEF "Your body loses its last breaths of life"
+#define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " falls to the ground wasted"
+
 // unarmed_combat.c
 
 #define _LANG_UNARMED_STYLE_COMMANDS ({ "style", "styles" })
