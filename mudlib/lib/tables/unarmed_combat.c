@@ -1,25 +1,26 @@
 /* 
- * Nuevo sistema de estilos, Folken para Ciudad Capital, 27/4/2003
- * ([ nombre_estilo : ({ num_dados, tipo_dados, lista_mensajes }) ])
+ * New combat styles system for CcMud, neverbot 27/4/2003
+ * ([ style_name : ({ num_dice, dice_type, message_list }) ])
  *
- * La lista de mensajes es a su vez otra lista de arrays
- *   lista_inicial
- *   lista_media
- *   lista_experto
- *   lista_mas_experto
- *   ... (el numero puede ser cualquiera > 1)
+ * message_list is a list of arrays
+ *   initial list
+ *   medium list
+ *   expert list
+ *   even more expert list
+ *   ... (any number > 1)
  *
- * Se utilizara cada una dependiendo del dominio de la tecnica por parte
- *  del atacante (por ejemplo si son tres, al tener 30%, 60% y 90%, el 
- *  porcentaje al que se mostrara cada mensaje se calcula solo)
+ * The list used will depend of the style ability of the attacker
+ * i.e. if we have three lists, the messages will change with ability
+ * 33% and 66%
  *
- * Cada una de esas listas tiene 3 elementos, mensaje para el atacante, 
- *  mensaje para el defensor y mensaje para la room
+ * Every list has three elements: message for the attacker, for the
+ * defender and for the room. If any of this elements is a list, a random
+ * message will be taken from them.
  *
- * Nota: En el primero (pelea) los mensajes no cuentan. Por ser el estilo mas
- *  utilizado los mensajes estan en /std/living/unarmed_combat.c, para cargar
- *  menos la maquina con la busqueda de los mensajes
  */
+
+#include <translations/combat.h>
+#include <language.h>
 
 // save file
 // #define SAVEFILE "/save/unarmed_combat_handler"
@@ -31,36 +32,37 @@ mapping unarmed_combat_styles;
 
 void create()
 {
-  seteuid("Room");
+  // seteuid("Room");
   unarmed_combat_styles = ([ 
-    "pelea" : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
+    DEF_UNARMED_STYLE_NAME : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
          ({
-            ({ // Mensajes hasta el 33%
-               ({ "golpeas", "das un puñetazo", "magullas", }), 
-               ({ "te golpea", "te da un puñetazo", "te magulla", }), 
-               ({ "golpea", "da un puñetazo", "magulla", }), 
+            ({ // messages up to 33%
+               _LANG_UNARMED_INITIAL_ATT_MSGS, 
+               _LANG_UNARMED_INITIAL_DEF_MSGS, 
+               _LANG_UNARMED_INITIAL_ROOM_MSGS, 
             }),
-            ({ // Mensajes hasta el 66%
-                ({ "golpeas", "das un puñetazo", "magullas", "golpeas con fuerza", }), 
-                ({ "te golpea", "te da un puñetazo", "te magulla", "te golpea con fuerza", }), 
-                ({ "golpea", "da un puñetazo", "magulla", "golpea con fuerza", }), 
+            ({ // messages up to 66%
+               _LANG_UNARMED_MEDIUM_ATT_MSGS, 
+               _LANG_UNARMED_MEDIUM_DEF_MSGS, 
+               _LANG_UNARMED_MEDIUM_ROOM_MSGS, 
             }),
-            ({ // Mensajes hasta el 66%
-                ({ "golpeas", "das un puñetazo", "magullas", "golpeas con fuerza", "golpeas con furia y rabia", }), 
-                ({ "te golpea", "te da un puñetazo", "te magulla", "te golpea con fuerza", "te golpea con furia y rabia", }), 
-                ({ "golpea", "da un puñetazo", "magulla", "golpea con fuerza", "golpea con furia y rabia", }), 
+            ({ // messages from 66% to 100%
+               _LANG_UNARMED_EXPERT_ATT_MSGS, 
+               _LANG_UNARMED_EXPERT_DEF_MSGS, 
+               _LANG_UNARMED_EXPERT_ROOM_MSGS, 
             }),
-         }),
-       }),
-    "test" : ({ 1, 4, 
-         ({
-           ({ "haces daño", "te hace daño", "hace daño", }),
-           ({ "haces mucho daño", "te hace mucho daño", "hace mucho daño", }),
          }),
        }),
 
+    // "test" : ({ 1, 4, 
+    //      ({
+    //        ({ "haces daño", "te hace daño", "hace daño", }),
+    //        ({ "haces mucho daño", "te hace mucho daño", "hace mucho daño", }),
+    //      }),
+    //    }),
+
     // *****************************
-    //   Para npcs
+    //   for npcs
     // *****************************
 
     "colmillos" : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
@@ -103,7 +105,7 @@ int query_valid_attack(string attack, string style)
   return 0;
 }
 
-string *query_unarmed_styles()
+string * query_unarmed_styles()
 {
   return keys(unarmed_combat_styles);
 }
@@ -117,87 +119,49 @@ mapping query_all_uc_info(){
   return unarmed_combat_styles;
 }
 
-// Funciones añadidas:
+// added functions:
 
-// Cuando el personaje ataca por primera vez, o cuando cambia su estilo de
-//  lucha, cambiamos el numero y tipo de dados que utilizara a la hora de calcular
-//  el daño que hace, Folken 4/03
+// when the players attacks for the first time, or chages the combat style,
+// we change the number and type of dice, neverbot 4/03
 int set_damage_dice(string style, object player)
 {
-  // Si el estilo no existe 
+
+    stderr("-----> " + style + to_string(player) + "\n");
+
+  // if it does not exist
   if (!unarmed_combat_styles[style])
      return 0;
+
   player->set_damage_dice(unarmed_combat_styles[style][0], 
                           unarmed_combat_styles[style][1]);
   return 1;
 }
 
-// Funcion que devuelve los mensajes personalizados
 mixed * query_messages(string style, int ability, object att)
 {
-	int divs;
-	// int rand;
-	int list;
+  int divs;
+  // int rand;
+  int list;
 
   list = 0;
 
-	// Si no existe el estilo devolvemos la lista vacia
-	if (!unarmed_combat_styles[style])
-	   return ({ });
-	   
-	// divs almacena cuantas listas de mensajes hay
-	divs = sizeof(unarmed_combat_styles[style][2]);
-
-	// Obtenemos cual es la lista que tendremos que utilizar segun
-	//  nuestra habilidad de entre todas la que hay
-	list = ability/(100/divs);
-	
-	// Al llegar al 100% podemos salirnos del array y tener problemas
-	if (list >= divs)
-	   list = divs - 1;
-
-    // Para darle aun mas realismo, tendremos un random para ver
-    //  que lista usamos de todas las que tengamos posibles.
-    // rand = random(list + 1);
-
-    // Odio los arrays de tantas dimensiones!!!! Folken 4/03	
-	return unarmed_combat_styles[style][2][list];
-}
-
-
-/* Comentadas, Folken 6/03. Este archivo ya no funciona como handler, sino como tabla comun.
-void add_uc_style(string name, int num_dice, int dam_die, string *moves){
-  unarmed_combat_styles+=([ name : ({ num_dice, dam_die, moves }) ]);
-  save_object(SAVEFILE);
-}
-
-void remove_uc_style(string name){
-  map_delete(unarmed_combat_styles, name);
-  save_object(SAVEFILE);
-}
-*/
-
-/* This has to be redone, to take into consideration the different bonuses and
- * such.
- *
- * Con el nuevo sistema se actualizan solos los dados que utilizamos a la hora de
- *  combatir, con lo que esta funcion (que los calcula de nuevo y carga mucho a la
- *  hora de buscar repetidas veces en los mappings) ya no es necesaria, Folken 04/03
- */
-/*
-int unarmed_damage(string style, int num, int type){
-  int res;
-  // Si el estilo no existe 
+  // empty list if the style does not exist
   if (!unarmed_combat_styles[style])
-     return 0;
+     return ({ });
+     
+  // divs stores how many message lists there are
+  divs = sizeof(unarmed_combat_styles[style][2]);
 
-  // Si por defecto vamos a tirar mas dados (y de tipo mas alto que los correspondientes
-  //  al estilo de lucha que estamos usando, utilizaremos lo de por defecto.
-  if((num > unarmed_combat_styles[style][0]) && 
-     (type >= unarmed_combat_styles[style][1]))
-    res = roll(num, type);
-  else
-    res = roll(unarmed_combat_styles[style][0], unarmed_combat_styles[style][1]);
-  return res;
+  //  get the list we have to use depending of the attacker ability
+  list = ability/(100/divs);
+  
+  // check maximum when we reach 100%
+  if (list >= divs)
+     list = divs - 1;
+
+  // randomize among every available list?
+  // rand = random(list + 1);
+
+  // hate arrays with so many dimensions, neverbot 4/03  
+  return unarmed_combat_styles[style][2][list];
 }
-*/

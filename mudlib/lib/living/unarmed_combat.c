@@ -51,8 +51,8 @@ int query_num_unarmed_hits(){ return num_unarmed_hits; }
 void reset_num_unarmed_hits(){ num_unarmed_hits = 0; }
 
 int unarmed_attack(object def, object att);
-mixed *workout_attack(string unarmed_type);
-mixed *recalc_damage(int i);
+mixed * workout_attack(string unarmed_type);
+mixed * recalc_damage(int i);
 
 void write_message(int damage, string local, object att, object defdr);
 void unarmed_combat_commands();
@@ -63,8 +63,6 @@ int add_known_unarmed_style(string style, varargs int dominio);
 int remove_known_unarmed_style(string style);
 mapping query_known_unarmed_combat_styles();
 int adjust_unarmed_ability(string style, int i);
-
-// mapping valid_attack();
 
 void unarmed_combat_commands()
 {
@@ -83,13 +81,15 @@ void create()
   messages = ({ });
 }
 
-int unarmed_attack(object defender, object attacker)
+int unarmed_attack(object def, object att)
 {
   mixed *att_val;
   mixed damage;
   int absorbed_damage, j, percent;
   object * obs;
   
+  defender = def;
+  attacker = att;
   att_val = ({ });
   att_val = workout_attack(current_unarmed_style);
 
@@ -112,9 +112,9 @@ int unarmed_attack(object defender, object attacker)
               if ((obs[j]->query_ac() + obs[j]->query_blunt_bon()) > 10)
                 percent = 100;
               else
-                percent = (obs[j]->query_ac() + obs[j]->query_blunt_bon())*10;
+                percent = (obs[j]->query_ac() + obs[j]->query_blunt_bon()) * 10;
 
-              absorbed_damage = damage[0]*percent/100;
+              absorbed_damage = damage[0] * percent / 100;
           }
           break;
         }
@@ -124,7 +124,7 @@ int unarmed_attack(object defender, object attacker)
     // final damage
     defender->adjust_hp(-(damage[0] - absorbed_damage), attacker);
 
-    write_message(damage[0],damage[1], attacker, defender);
+    write_message(damage[0], damage[1], attacker, defender);
 
     // learning unarmed styles, neverbot 7/03
     num_unarmed_hits++;
@@ -142,7 +142,7 @@ int unarmed_attack(object defender, object attacker)
     {
       damage = ({ 0 });
       tell_object(attacker, _LANG_UNARMED_DODGE_MESSAGE_ATT);
-      tell_object(defender, _LANG_UNARMED_DODGE_MESSAGE_ATT);
+      tell_object(defender, _LANG_UNARMED_DODGE_MESSAGE_DEF);
       tell_room(environment(attacker), _LANG_UNARMED_DODGE_MESSAGE_ROOM, ({ attacker, defender }));
     }
     else
@@ -163,6 +163,9 @@ mixed * workout_attack(string unarmed_type)
   string happen;
   int result, attackerwc, defenderac, damage_done;
   int tmp;
+
+    stderr("-----> WTF\n");
+    stderr("-----> " + to_string(defender) + to_string(attacker) + "\n");
 
   // should not happen, neverbot 4/03
   if (!defender || !attacker)
@@ -446,11 +449,12 @@ mixed *recalc_damage(int i)
 void write_message(int damage, string local, object att, object defdr)
 {
   string place;
+  string * msgs;
 
   if (!local || local=="") 
     place = "";
   else 
-    place = " en " + local;
+    place = " " + _LANG_UNARMED_LOCALIZATION_PREP + " " + local;
   
   if (sizeof(messages) != 3)  
     messages = table("unarmed_combat")->query_messages(current_unarmed_style, unarmed_ability, att);
@@ -464,23 +468,18 @@ void write_message(int damage, string local, object att, object defdr)
   // with strings, simple messages
   if (stringp(messages[0]))
   {
-    tell_object(att, ATT + capitalize(messages[0])+" a "+defdr->query_cap_name()+place+".\n");  
-    tell_object(defdr, DFF + att->query_cap_name()+" "+messages[1]+place+".\n");
-    tell_room(environment(att), att->query_cap_name()+" "+messages[2]+" a "+defdr->query_cap_name()+
-        place+".\n",({att, defdr}));
+    msgs = messages;
   }
   else // if every element is a message list too
   {
     int i;
     i = random(sizeof(messages[0]));
-
-    tell_object(att, ATT + capitalize(messages[0][i])+" a "+defdr->query_cap_name()+place+".\n");  
-    tell_object(defdr, DFF + att->query_cap_name()+" "+messages[1][i]+place+".\n");
-    tell_room(environment(att), att->query_cap_name()+" "+messages[2][i]+" a "+defdr->query_cap_name()+
-        place+".\n", ({att, defdr}));      
+    msgs = ({ messages[0][i], messages[1][i], messages[2][i], });
   }
-  
-  return;
+
+  tell_object(att, ATT + _LANG_UNARMED_HIT_MSG_ATT);
+  tell_object(defdr, DFF + _LANG_UNARMED_HIT_MSG_DEF);
+  tell_room(environment(att), _LANG_UNARMED_HIT_MSG_ROOM, ({ att, defdr }));
 }
 
 mixed * query_messages() { return messages; }

@@ -66,6 +66,7 @@
 #define _LANG_UNARMED_STYLE_COMMANDS ({ "style", "styles" })
 #define _LANG_UNARMED_DEFAULT_FUMBLE_MSG "Oh, how awkward!\n"
 #define _LANG_UNARMED_DEFAULT_CRITICAL_MSG "Oh, impressive!\n"
+#define _LANG_UNARMED_LOCALIZATION_PREP "on"                        
 #define _LANG_NO_NEED_WHEN_DEAD "In your spiritual form you do not need to know that.\n"
 #define _LANG_UNARMED_CODE_ERROR "It seems something wrong happen with your combat styles, notify it to an administrator.\n"
 
@@ -80,6 +81,10 @@
                                         " attack.\n"
 #define _LANG_UNARMED_BLOCK_MESSAGE_ROOM attacker->query_cap_name()+" tries to hit " + \
          defender->query_cap_name()+", but "+defender->query_demonstrative()+" blocks " + attacker->query_objective() + " attack.\n"
+#define _LANG_UNARMED_HIT_MSG_ATT capitalize(msgs[0]) + " " + defdr->query_cap_name() + place + ".\n"
+#define _LANG_UNARMED_HIT_MSG_DEF att->query_cap_name() + " " + msgs[1] + place + ".\n"
+#define _LANG_UNARMED_HIT_MSG_ROOM att->query_cap_name() + " " + msgs[2] + " " + \
+                                        defdr->query_cap_name() + place + ".\n"
 
 #define _LANG_UNARMED_LIST_HEADER "> %^GREEN%^You know the following combat styles: %^RESET%^<"
 #define _LANG_UNARMED_LIST_FOOTER "  Your current combat style is '"+query_current_unarmed_style()+"'.\n" + \
