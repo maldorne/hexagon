@@ -208,18 +208,18 @@ int do_help(string str)
       return 1;
     }
 
-    for(loop = 0; loop < sizeof(objs); loop++)
+    for (loop = 0; loop < sizeof(objs); loop++)
     {
-      if(text = (string)objs[loop]->get_help())
+      if (text = (string)objs[loop]->get_help())
       {
         write("Ayuda sobre " + objs[loop]->query_name() + ":\n" + text + "\n\n");
         flag = 1;
       }
     }
 
-    if(!flag)
+    if (!flag)
     {
-      if(sizeof(objs) > 1)
+      if (sizeof(objs) > 1)
         write("No hay ayuda sobre estos objetos.\n");
       else
         write("No hay ayuda sobre este objeto.\n");

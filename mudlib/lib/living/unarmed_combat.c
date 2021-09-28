@@ -441,17 +441,48 @@ mixed *recalc_damage(int i)
   return ({hps, local[1]});
 }
 
+string * parse_messages(string * messages, string local, string att_name, string def_name)
+{
+  int i, j;
+  string * result;
+
+  result = ({ });
+
+  for (i = 0; i < sizeof(messages); i++)
+  {
+    string * pieces;
+    pieces = explode(messages[i], " ");
+    for (j = 0; j < sizeof(pieces); j++)
+    {
+      switch(pieces[j]) {
+        case "$defname":
+          pieces[j] = def_name;
+          break;
+        case "$attname":
+          pieces[j] = att_name;
+          break;
+        case "$local":
+          pieces[j] = local;
+          break;
+      }
+    }
+    result += ({ trim(implode(pieces, " ")) });
+  }
+
+  return result;
+}
+
 // Iolo@RL localization system
 // messages generated depending of the style used, neverbot 4/03
-void write_message(int damage, string local, object att, object defdr)
+void write_message(int damage, string local, object att, object def)
 {
   string place;
   string * msgs;
 
-  if (!local || local=="") 
+  if (!local || local == "") 
     place = "";
   else 
-    place = " " + _LANG_UNARMED_LOCALIZATION_PREP + " " + local;
+    place = "" + _LANG_UNARMED_LOCALIZATION_PREP + " " + local;
   
   if (sizeof(messages) != 3)  
     messages = table("unarmed_combat")->query_messages(current_unarmed_style, unarmed_ability, att);
@@ -474,9 +505,12 @@ void write_message(int damage, string local, object att, object defdr)
     msgs = ({ messages[0][i], messages[1][i], messages[2][i], });
   }
 
-  tell_object(att, ATT + _LANG_UNARMED_HIT_MSG_ATT);
-  tell_object(defdr, DFF + _LANG_UNARMED_HIT_MSG_DEF);
-  tell_room(environment(att), _LANG_UNARMED_HIT_MSG_ROOM, ({ att, defdr }));
+  // change placeholders in combat messages with the real deal
+  msgs = parse_messages(msgs, place, att->query_cap_name(), def->query_cap_name());
+
+  tell_object(att, ATT + capitalize(msgs[0]) + ".\n");
+  tell_object(def, DFF + capitalize(msgs[1]) + ".\n");
+  tell_room(environment(att), capitalize(msgs[2]) + ".\n", ({ att, def }));
 }
 
 mixed * query_messages() { return messages; }

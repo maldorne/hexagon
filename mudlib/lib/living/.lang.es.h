@@ -81,10 +81,10 @@
                                         "bloquear su ataque.\n"
 #define _LANG_UNARMED_BLOCK_MESSAGE_ROOM attacker->query_cap_name()+" trata de golpear a " + \
          defender->query_cap_name()+" pero "+defender->query_demonstrative()+" para el ataque.\n"
-#define _LANG_UNARMED_HIT_MSG_ATT capitalize(msgs[0]) + " a " + defdr->query_cap_name() + place + ".\n"
-#define _LANG_UNARMED_HIT_MSG_DEF att->query_cap_name() + " " + msgs[1] + place + ".\n"
-#define _LANG_UNARMED_HIT_MSG_ROOM att->query_cap_name() + " " + msgs[2] + " a " + \
-                                        defdr->query_cap_name() + place + ".\n"
+// #define _LANG_UNARMED_HIT_MSG_ATT capitalize(msgs[0]) + " a " + def->query_cap_name() + place + ".\n"
+// #define _LANG_UNARMED_HIT_MSG_DEF att->query_cap_name() + " " + msgs[1] + place + ".\n"
+// #define _LANG_UNARMED_HIT_MSG_ROOM att->query_cap_name() + " " + msgs[2] + " a " + \
+//                                         def->query_cap_name() + place + ".\n"
 
 #define _LANG_UNARMED_LIST_HEADER "> %^GREEN%^Conoces los siguientes estilos de lucha: %^RESET%^<"
 #define _LANG_UNARMED_LIST_FOOTER "  Tu estilo de lucha actual es '"+query_current_unarmed_style()+"'.\n" + \
