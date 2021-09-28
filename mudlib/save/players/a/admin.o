@@ -3,8 +3,8 @@ gender 1
 stats_bon ({8|0,0,0,0,0,0,0,0,})
 stats_base ({8|10,10,10,10,10,10,10,10,})
 resistances ([0|])
-known_unarmed_styles ([1|"pelea":50,])
-current_unarmed_style "pelea"
+known_unarmed_styles ([1|"fighting":50,])
+current_unarmed_style "fighting"
 unarmed_ability 50
 known_weapon_masteries ([0|])
 current_weapon_mastery ""
