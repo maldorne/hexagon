@@ -36,6 +36,11 @@
                              "Please tell somebody to fix this.\n"
 #define _LANG_MORE_STRING_EMPTY_STRING "Empty string.\n"
 
+// notifications.c
+
+#define _LANG_NO_NOTIFICATIONS "You haven't received any notification yet.\n"
+#define _LANG_PAST_NOTIFICATIONS "Past notifications"
+
 // commands.c
 
 #define _LANG_ACCOUNT_COMMANDS "" + \
