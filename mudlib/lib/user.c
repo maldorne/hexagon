@@ -6,15 +6,16 @@
 #include <user/login.h>
 #include <language.h>
 
-inherit obj         "/lib/core/object";
-inherit security    "/lib/user/security";
-inherit output      "/lib/user/output";
-inherit communicate "/lib/user/communicate";
-inherit help        "/lib/user/help";
-inherit prompt      "/lib/user/prompt";
-inherit role        "/lib/user/role";
-inherit more_string "/lib/user/more_string";
-inherit more_file   "/lib/user/more_file";
+inherit obj           "/lib/core/object";
+inherit security      "/lib/user/security";
+inherit output        "/lib/user/output";
+inherit communicate   "/lib/user/communicate";
+inherit help          "/lib/user/help";
+inherit prompt        "/lib/user/prompt";
+inherit role          "/lib/user/role";
+inherit more_string   "/lib/user/more_string";
+inherit more_file     "/lib/user/more_file";
+inherit notifications "/lib/user/notifications";
 
 // interactive object info
 static object redirect_input_ob;       // object that will catch input and
@@ -60,6 +61,7 @@ int query_verbose() { return 1; }
 
 void create()
 {
+  notifications::create();
   output::create();
   communicate::create();
   more_string::create();
@@ -101,6 +103,7 @@ void create()
 void init()
 {
   security::init();
+  notifications::init();
 
   // main inherit last
   obj::init();
@@ -482,5 +485,6 @@ mixed * stats()
                prompt::stats() +
                role::stats() +
                security::stats() +
+               notifications::stats() +
                obj::stats();
 }

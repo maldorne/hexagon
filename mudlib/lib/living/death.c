@@ -264,8 +264,13 @@ int do_death(object killed_by)
   if (killed_by) 
   {
     tell_room(environment(this_object()), _LANG_DEATH_DEATH_BLOW_ROOM, ({ killed_by, this_object() }));
-    tell_player(killed_by, _LANG_DEATH_DEATH_BLOW_ATT);
-    tell_player(this_object(), _LANG_DEATH_DEATH_BLOW_DEF);
+    
+    // user notifications
+    if (interactive(killed_by))
+      killed_by->user()->add_notification("death", _LANG_DEATH_DEATH_BLOW_ATT);
+
+    if (interactive(this_object()))
+      this_object()->user()->add_notification("death", _LANG_DEATH_DEATH_BLOW_DEF);
   }
   else
     tell_room(environment(this_object()), _LANG_DEATH_DEATH_BLOW_NO_KILLER);

@@ -36,6 +36,11 @@
                              "no está. Busca a alguien que lo arregle.\n"
 #define _LANG_MORE_STRING_EMPTY_STRING "Cadena vacia.\n"
 
+// notifications.c
+
+#define _LANG_NO_NOTIFICATIONS "No has recibido notificaciones.\n"
+#define _LANG_PAST_NOTIFICATIONS "Notificaciones anteriores"
+
 // commands.c
 
 #define _LANG_ACCOUNT_COMMANDS "" + \

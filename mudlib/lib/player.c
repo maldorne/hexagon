@@ -294,6 +294,10 @@ void heart_beat()
     last_command = time() - user()->query_idle();
 
   living::heart_beat();
+
+  // show pending notifications after the heart beat has finished
+  if (user()->query_pending_notifications())
+    user()->show_notifications();
 }
 
 void run_away()

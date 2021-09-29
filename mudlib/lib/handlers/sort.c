@@ -45,7 +45,7 @@ mixed * bubblesort(mixed * arr, varargs string fun, mixed ob, int dir)
   result = ({ });
 
   if (sizeof(arr) <= 1)
-    return result;
+    return arr;
 
   result = array_copy(arr);
 
@@ -126,7 +126,7 @@ mixed * quicksort(mixed *arr, varargs mixed fun, mixed ob, int dir)
   result = ({ });
 
   if (sizeof(arr) <= 1)
-    return result;
+    return arr;
 
   result = array_copy(arr);
 
