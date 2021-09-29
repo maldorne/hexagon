@@ -55,10 +55,6 @@ Common calls and operations over the basic types.
 | `m_delete`              | :white_check_mark: | alias for `map_delete` |
 | `m_values`              | :white_check_mark: | alias for `map_values` |
 | `m_indices`             | :white_check_mark: | alias for `map_indices` |
-| `allocate_mapping`      |  |  |
-| `unique_mapping`        |  |  |
-| `map`                   |  |  |
-| `map_mapping`           |  |  |
 | `map_array`             | :white_check_mark: |  |
 | `filter_mapping`        | :white_check_mark: |  |
 | **functions**           |  |  |
@@ -138,7 +134,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `first_inventory`       | :white_check_mark: |  |
 | `next_inventory`        | :white_check_mark: |  |
 | `id`                    | :white_check_mark: |  |
-| `present`               | :white_check_mark: |  |
+| `present`               | :white_check_mark: | available, although `find_match` is much more complete |
 | `move`                  | :white_check_mark: |  |
 | `move_object`           | :white_check_mark: | alias for `move` |
 
