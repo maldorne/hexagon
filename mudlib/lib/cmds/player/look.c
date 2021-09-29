@@ -1,5 +1,5 @@
 // look cmd from player.c, now external. Morgoth 2/Mar/95
-// mirar.c reviewed for ccmud, neverbot 4/03
+// reviewed for ccmud, neverbot 4/03
 
 #include <mud/cmd.h>
 
@@ -10,7 +10,6 @@
 #define DEFAULT_TIME 10
 
 inherit CMD_BASE;
-// inherit "/global/player/more_string.c";
 
 void setup()
 {
@@ -107,7 +106,6 @@ static int cmd(string arg, object me, string verb)
 
     write(ret);
 
-    // me->adjust_time_left(-LOOK_TIME);
     return 1;
   }
 
@@ -118,7 +116,6 @@ static int cmd(string arg, object me, string verb)
 
   ob = find_match(arg, ({ me, here }), 1 );
   ret = "";
-  // me->adjust_time_left(-DEFAULT_TIME);
 
   if (!sizeof(ob))
   {
@@ -145,14 +142,12 @@ static int cmd(string arg, object me, string verb)
       if (!ob[i]->query_player())
         ret += capitalize(ob[i]->short())+".\n";
 
-      ret += ob[i]->long(arg, dark); //+"\n";
-      // me->adjust_time_left(-EXAMINE_ITEM_TIME);
+      ret += ob[i]->long(arg, dark);
     }
   }
   else
   {
     ret += ob->long(arg, dark);
-    // me->adjust_time_left(-EXAMINE_ITEM_TIME);
   }
 
   me->user()->more_string(ret, capitalize(_LANG_CMD_LOOK));
