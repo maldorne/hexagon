@@ -112,7 +112,9 @@ static int cmd(string arg, object me, string verb)
   }
 
   sscanf(arg, "a %s", arg);
-  arg = me->expand_nickname(arg);
+  
+  // not needed, find_match does it
+  // arg = me->expand_nickname(arg);
 
   ob = find_match(arg, ({ me, here }), 1 );
   ret = "";
@@ -129,8 +131,8 @@ static int cmd(string arg, object me, string verb)
   //     ob = delete(ob,i,1);
 
   if (living(ob[0]) &&
-  	  ob[0]->query_coder() && ob[0]->query_invis() &&
-  	  !me->query_coder())
+      ob[0]->query_coder() && ob[0]->query_invis() &&
+      !me->query_coder())
   {
     notify_fail(_LANG_CMD_NOTHING_HERE);
     return 0;
