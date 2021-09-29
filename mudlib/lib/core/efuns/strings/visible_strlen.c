@@ -29,6 +29,12 @@ static int visible_strlen(string str)
       // advance just one character, á == 195 161, é == 195 169, etc
       continue;
     }
+    else if (str[i] == 226)
+    {
+      // advance two characters, ╒ = 226 149 146
+      i++;
+      continue;
+    }
 
     result++;
   }

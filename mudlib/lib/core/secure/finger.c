@@ -38,7 +38,7 @@ string banish_finger(string name)
   string *file;
 
   file = explode(read_file("/banish/"+name+".o"), "\n");
-  retval =  sprintf("%35s%35s\n", "Login name : "+name, "Real name : "+
+  retval =  sprintf("%30s%30s\n", "Login name : "+name, "Real name : "+
     "Banished");
   retval += "Not real many seconds old.\n";
   retval += "No mail ever.\n";
@@ -185,21 +185,21 @@ string finger_info(string name, varargs object me)
     if (real_name[0] == ':')
     {
       if (MASTER->valid_read("/save/players/"+name[0..0]+"/"+name+".o", geteuid(me)))
-        retval = sprintf("   %-35s%-35s\n", _LANG_FINGER_NAME +
+        retval = sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME +
           capitalize(name), _LANG_FINGER_REAL_NAME + real_name);
       else
-        retval = sprintf("   %-35s%-35s\n", "Nombre: "+
+        retval = sprintf("   %-30s%-30s\n", "Nombre: "+
           capitalize(name), _LANG_FINGER_REAL_NAME + "???");
     }
   }
 
   if (!retval)
-    retval =  sprintf("   %-35s%-35s\n", _LANG_FINGER_NAME + capitalize(name),
+    retval =  sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME + capitalize(name),
           _LANG_FINGER_REAL_NAME + (real_name?real_name:"???"));
   if (birth_day)
   {
     birth_day = handler(CALENDAR_HANDLER)->convert_birthday(birth_day);
-    retval += sprintf("   %-35s", _LANG_FINGER_BIRTHDAY + birth_day);
+    retval += sprintf("   %-30s", _LANG_FINGER_BIRTHDAY + birth_day);
   }
 
   if (me && me->query_coder())
@@ -224,7 +224,7 @@ string finger_info(string name, varargs object me)
 
   // changed by neverbot, players wont see the coders home directories
   // if (home_dir)
-  //   retval += sprintf("%35s", "Home directory : "+home_dir);
+  //   retval += sprintf("%30s", "Home directory : "+home_dir);
   // else if (home_dir)
   //   retval += "\n";
 
@@ -232,7 +232,7 @@ string finger_info(string name, varargs object me)
   {
     if (strlen(where) > 65)
       where = where[..65];
-    retval += sprintf("   %-35s", _LANG_FINGER_PLACE+where+"\n");
+    retval += sprintf("   %-30s", _LANG_FINGER_PLACE+where+"\n");
   }
 
   if ((role_name == "player") && sizeof(social_object_list))
@@ -260,7 +260,7 @@ string finger_info(string name, varargs object me)
     retval += _LANG_FINGER_CODER;
 
     // if (me && me->query_coder())
-    //       retval += sprintf("%35s", "Directorio raíz: "+home_dir+"\n");
+    //       retval += sprintf("%30s", "Directorio raíz: "+home_dir+"\n");
 
     // Find out which domains they are a member of...
     bing = get_dir("/game/areas/");
