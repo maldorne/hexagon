@@ -153,24 +153,27 @@ string frame(string content, varargs string title, int width, int height, string
 
   lines = explode(content, "\n");
 
+  for (i = 0; i < sizeof(lines); i++)
+    lines[i] = fix_string(lines[i]);
+
   if (!width)
   {
     // width = DEFAULT_WIDTH;
     int max_length, len;
     // minimum, the header of the frame
-    max_length =  visible_strlen(title) +  
+    max_length = visible_strlen(title) +  
       (visible_strlen(style[STYLE_LEFT_PAD]) + visible_strlen(style[STYLE_RIGHT_PAD])) +
       (style[STYLE_EXTRA_WIDTH_PADDING] + style[STYLE_EXTRA_WIDTH_MARGIN]) * 2;
 
     for (i = 0; i < sizeof(lines); i++)
     {
-      if ((len = strlen(lines[i])) > max_length)
+      if ((len = visible_strlen(lines[i])) > max_length)
         max_length = len;
     }
 
     width = max_length + 
-      (visible_strlen(style[STYLE_UP_LEFT_CORNER]) + visible_strlen(style[STYLE_UP_RIGHT_CORNER])) +
-      (style[STYLE_EXTRA_WIDTH_MARGIN] + style[STYLE_EXTRA_WIDTH_PADDING]) * 2;
+      (visible_strlen(style[STYLE_LEFT_PAD]) + visible_strlen(style[STYLE_RIGHT_PAD])) +
+      (style[STYLE_EXTRA_WIDTH_PADDING] + style[STYLE_EXTRA_WIDTH_MARGIN]) * 2;
   }
 
   if (!height)
@@ -208,8 +211,6 @@ string frame(string content, varargs string title, int width, int height, string
 
   for (i = 0; i < sizeof(lines); i++)
   {
-    lines[i] = fix_string(lines[i]);
-
     retval += _line(style[STYLE_LEFT_PAD],
       lines[i],
       style[STYLE_RIGHT_PAD],
