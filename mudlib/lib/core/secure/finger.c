@@ -188,7 +188,7 @@ string finger_info(string name, varargs object me)
         retval = sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME +
           capitalize(name), _LANG_FINGER_REAL_NAME + real_name);
       else
-        retval = sprintf("   %-30s%-30s\n", "Nombre: "+
+        retval = sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME +
           capitalize(name), _LANG_FINGER_REAL_NAME + "???");
     }
   }
@@ -196,6 +196,7 @@ string finger_info(string name, varargs object me)
   if (!retval)
     retval =  sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME + capitalize(name),
           _LANG_FINGER_REAL_NAME + (real_name?real_name:"???"));
+
   if (birth_day)
   {
     birth_day = handler(CALENDAR_HANDLER)->convert_birthday(birth_day);
