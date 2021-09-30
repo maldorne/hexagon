@@ -295,6 +295,8 @@ void heart_beat()
 
   living::heart_beat();
 
+  // TODO this is user stuff, move it to the user object when/if the user 
+  // has its own heart_beat
   // show pending notifications after the heart beat has finished
   if (user()->query_pending_notifications())
     user()->show_notifications();

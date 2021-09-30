@@ -16,6 +16,7 @@ inherit role          "/lib/user/role";
 inherit more_string   "/lib/user/more_string";
 inherit more_file     "/lib/user/more_file";
 inherit notifications "/lib/user/notifications";
+inherit ui            "/lib/user/ui";
 
 // interactive object info
 static object redirect_input_ob;       // object that will catch input and
@@ -62,6 +63,7 @@ int query_verbose() { return 1; }
 void create()
 {
   notifications::create();
+  ui::create();
   output::create();
   communicate::create();
   more_string::create();
@@ -104,6 +106,7 @@ void init()
 {
   security::init();
   notifications::init();
+  ui::init();
 
   // main inherit last
   obj::init();
@@ -241,6 +244,11 @@ void send_message(string str)
     return;
 
   ::send_message(str);
+
+  // redraw all the ui features is a new line is sent
+  // ony redraw if what we are sending is not the proper ui!
+  if (ui_activated() && !ui_in_use())
+    ui_redraw();
 }
 
 // called from the driver
@@ -486,5 +494,6 @@ mixed * stats()
                role::stats() +
                security::stats() +
                notifications::stats() +
+               ui::stats() +
                obj::stats();
 }

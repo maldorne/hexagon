@@ -48,6 +48,17 @@ void create()
               "" + chr(226) + chr(149) + chr(144), // "═"
               "" + chr(226) + chr(149) + chr(144), // "═"
             });
+
+  styles["sidebar"] = ({ 1, 0, 1, 0,
+              "" + chr(226) + chr(149) + chr(145), // "║"
+              "" + chr(226) + chr(149) + chr(145), // "║"
+              "" + chr(226) + chr(149) + chr(148) + chr(226) + chr(149) + chr(144), // "╔═"
+              "" + chr(226) + chr(149) + chr(144) + chr(226) + chr(149) + chr(151), // "═╗",
+              "" + chr(226) + chr(149) + chr(144) + chr(226) + chr(149) + chr(157), // "═╝",
+              "" + chr(226) + chr(149) + chr(154) + chr(226) + chr(149) + chr(144), // "╚═",
+              "" + chr(226) + chr(149) + chr(144), // "═"
+              "" + chr(226) + chr(149) + chr(144), // "═"
+            });
 }
 
 mapping query_styles() { return styles; }

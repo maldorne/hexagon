@@ -24,6 +24,10 @@
         WINDOW      unknown
  */
 
+// some tricks:
+// exec write(sprintf("%c", 7))    -> send bell to the terminal
+
+
 #define ANSI(p) sprintf("%c["+(p)+"m", 27)
 #define ESC(p) sprintf("%c"+(p), 27)
 mapping terms;
