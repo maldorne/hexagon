@@ -308,7 +308,7 @@ int _flushem(string str)
 
 string _print_aliases()
 {
-  int i;
+  int i, cols;
   string str,str1,str2, *tmp, bing, ret;
 
   // ahh well here goes the clean. you dont want to know what used to
@@ -323,8 +323,8 @@ string _print_aliases()
   str2 = "";
   ret = "";
   tmp = map_indices(aliases);
-
   tmp = sort_array(tmp);
+  cols = (int)this_user()->query_cols();
 
   for (i = 0; i < sizeof(tmp); i++)
   {
@@ -332,8 +332,7 @@ string _print_aliases()
     str = tmp[i] + ": " + bing;
 
     if (strlen(str) > 39)
-      ret += sprintf(" " + tmp[i] + ": %-*s\n", this_user()->query_cols()-
-                                                strlen(tmp[i]) - 2, bing);
+      ret += sprintf(" " + tmp[i] + ": %-*s\n", cols - strlen(tmp[i]) - 2, bing);
     else if (strlen(str) > 19)
       str1 += str + "\n";
     else
@@ -341,10 +340,10 @@ string _print_aliases()
   }
 
   if (strlen(str1))
-    ret += sprintf("%-#*s\n", this_user()->query_cols(), str1);
+    ret += sprintf("%-#*s\n", cols, str1);
 
   if (strlen(str2))
-    ret += sprintf("%-#*s\n", this_user()->query_cols(), str2);
+    ret += sprintf("%-#*s\n", cols, str2);
 
   return ret;
 }

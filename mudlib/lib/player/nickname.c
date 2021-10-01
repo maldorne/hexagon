@@ -87,14 +87,15 @@ int delete_nickname(string str)
   return 1;
 }
 
-int print_nicknames()
+string _print_nicknames()
 {
   int i, cols;
-  string str, str1, str2, bit, *tmp;
+  string str, str1, str2, bit, *tmp, ret;
 
   bit = "";
   str1 = "";
   str2 = "";
+  ret = "";
 
   if (!map_nicknames)
     map_nicknames = ([ ]);
@@ -102,33 +103,25 @@ int print_nicknames()
   tmp = m_indices(map_nicknames);
   cols = (int)this_user()->query_cols();
 
-  tell_object(this_player(), "------------------------------------------------------\n");
-  tell_object(this_player(), "  Lista de apodos:\n");
-  tell_object(this_player(), "------------------------------------------------------\n\n");
-
   for (i = 0; i < sizeof(tmp); i++)
   {
     str = tmp[i]+": "+map_nicknames[tmp[i]]+"  ";
 
-    if (strlen(str)>39)
-      printf(tmp[i]+": %-=*s\n", cols - strlen(tmp[i]), map_nicknames[tmp[i]]);
+    if (strlen(str) > 39)
+      ret += sprintf(" " + tmp[i]+": %-=*s\n", cols - strlen(tmp[i]) - 2, map_nicknames[tmp[i]]);
     else if (strlen(str) > 19)
-      str1 += str+"\n";
+      str1 += str + "\n";
     else
-      str2 += str+"\n";
+      str2 += str + "\n";
   }
 
   if (strlen(str1))
-    printf("  %-#*s\n", cols, str1);
+    ret += sprintf("%-#*s\n", cols, str1);
 
   if (strlen(str2))
-    printf("  %-#*s\n", cols, str2);
+    ret += sprintf("%-#*s\n", cols, str2);
 
-  tell_object(this_player(), "\n------------------------------------------------------\n");
-  tell_object(this_player(), "  Utiliza 'quitarapodo <nombre>' para borrarlo\n");
-  tell_object(this_player(), "------------------------------------------------------\n");
-
-  return 1;
+  return ret;
 }
 
 int nickname(string str)
@@ -142,7 +135,15 @@ int nickname(string str)
   }
 
   if (!strlen(str))
-    return print_nicknames();
+  {
+    string line;
+    line = sprintf("%p%|*s\n", '-', this_user()->query_cols(), "");
+
+    write(line + " * Lista de apodos:\n" + line);
+    write(_print_nicknames());
+    write(line + " Utiliza 'quitarapodo <nombre>' para borrarlo\n" + line);
+    return 1;
+  }
 
   if (sscanf(str,"%s %s",s1,s2)!=2)
   {
