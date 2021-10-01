@@ -61,6 +61,9 @@ void ui_redraw()
   int i; //, x, y;
   int lines_drawn;
 
+  if (!this_object()->player())
+    return;
+
   _drawing = true;
   lines_drawn = 0;
 
