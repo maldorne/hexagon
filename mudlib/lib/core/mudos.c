@@ -206,18 +206,14 @@ static void _purge_call_out_stack()
 
   for (i = 0; i < size; i++)
   {
-    if (call_outs[i][CALL_OUT_STACK_TIME] <= time)
+    if (call_outs[i][CALL_OUT_STACK_TIME] <= time ||
+        undefinedp(call_outs[i][CALL_OUT_STACK_OB]))
     {
-      if (i+1 > size)
-        call_outs = ({ });
-      else
-        call_outs = call_outs[i+1..];
+      call_outs = ((i-1 < 0) ? ({}) : call_outs[0..i-1]) + ((i+1 > size) ? ({}) : call_outs[i+1..]);
 
       i--;
       size--;
     }
-    else
-      break;
   }
 }
 
