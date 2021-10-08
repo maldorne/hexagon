@@ -13,6 +13,7 @@
 #include <mud/secure.h>
 #include <mud/translations.h>
 #include <mud/config.h>
+#include <mud/cron.h>
 
 // ************************************************************
 //  Function prototypes
@@ -87,6 +88,7 @@ static nomask void initialize()
   ::call_other(living_h = load_object(LIVING_HANDLER), "???");
   ::call_other(object_h = load_object(OBJECT_HANDLER), "???");
   ::call_other(load_object(TERM_HANDLER), "???");
+  ::call_other(load_object(CRON_HANDLER), "???");
 
   load_object(LOGIN_OB);
 

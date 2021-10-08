@@ -35,7 +35,7 @@
 #define SECOND_DST_CONVERSION_YEAR  1996  /* New rules in 1996.    */
  
 #define TZ   "MET"
-#define DSTZ "METDST"                            
+#define DSTZ "METDST"
 
 #define AM   "am"
 #define PM   "pm"
