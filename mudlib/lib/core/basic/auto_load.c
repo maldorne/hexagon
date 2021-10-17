@@ -23,13 +23,13 @@ void auto_clone(object ob, mapping attribute_map, object dest);
  * Returns a mixed array which can be converted back to objects using
  * load_auto_load
  */
-mixed* create_auto_load(object * obs)
+mixed * create_auto_load(object * obs)
 {
-  mapping attribute_map; 
-  string  obj_filename;
-  string* fname;
-  mixed*  auto_load;
-  int     i;
+  mapping  attribute_map; 
+  string   obj_filename;
+  string * fname;
+  mixed  * auto_load;
+  int      i;
 
   if (!obs) 
     return ({ });
@@ -40,7 +40,7 @@ mixed* create_auto_load(object * obs)
   obs -= ({ nil });
   auto_load = allocate(sizeof(obs));
 
-  for ( i = 0; i < sizeof(obs); i++ )
+  for (i = 0; i < sizeof(obs); i++)
   {
     /* query_auto_load returns nonzero if the object should not save.
      * this is poorly named.
@@ -98,9 +98,9 @@ void make_iou(mixed bad_strob, object dest)
  * Loads all the strobs in auto_load into dest.
  * Returns all those objects that loaded.
  */
-object * load_auto_load(mixed* auto_load, object dest) 
+object * load_auto_load(mixed * auto_load, object dest) 
 {
-  object ob, *obs;
+  object ob, * obs;
   int i;
 
   if (!auto_load || !sizeof(auto_load))
@@ -140,7 +140,6 @@ object * load_auto_load(mixed* auto_load, object dest)
   return obs;
 } /* load_auto_load() */
 
-
 void auto_clone(object ob, mapping attribute_map, object dest)
 {
   int move_ret;
@@ -179,9 +178,9 @@ void auto_clone(object ob, mapping attribute_map, object dest)
 mixed * create_object_auto_load(object ob)
 {
   mapping attribute_map;
-  mixed* strob;
-  string obj_filename;
-  int j;
+  mixed * strob;
+  string  obj_filename;
+  int     j;
 
   if (!ob) 
     return ({ });

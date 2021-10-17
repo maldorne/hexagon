@@ -18,8 +18,9 @@
 * * /lib/handlers/cron.c do_idletest
 * * /lib/handlers/cron.c net_dead_purge
 
-
 # every 23 hours, auto reboot
+# technically the only divisible by 23 hour is 23:00, so this is the same 
+# as 0 23 /something something
 0 */23 /lib/handlers/shutdown.c auto_reboot
 
 # every ten minutes, check if a reboot is needed 

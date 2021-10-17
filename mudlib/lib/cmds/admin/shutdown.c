@@ -1,7 +1,6 @@
 
 #include <mud/cmd.h>
 #include <mud/secure.h>
-#include <mud/shutdown.h>
 
 inherit CMD_BASE;
 
@@ -20,7 +19,7 @@ static int cmd(string arg, object me, string verb)
 
   if (!strlen(arg)) 
   {
-     ob = handler(SHUTDOWN_HANDLER);
+     ob = handler("shutdown");
      if (!ob || !ob->shutdown_activated())
        write("No shutdown in progress.\n\tSyntax: shutdown <minutes>\nto start one.\n");
      else

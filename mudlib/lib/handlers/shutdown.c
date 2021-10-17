@@ -12,7 +12,6 @@
  */
 
 #include <areas/weather.h>
-#include <mud/shutdown.h>
 
 inherit "/lib/core/object";
 
@@ -39,10 +38,10 @@ void create()
  
 void setup() 
 {
-  /* This stops wizzes from cloning armageddon. He only needs to be loaded */
-  if (file_name(this_object()) != SHUTDOWN_OBJECT) 
+  // This stops wizzes from cloning armageddon. He only needs to be loaded
+  if (file_name(this_object()) != "/lib/handlers/shutdown") 
   {
-    write("Este objeto no puede ser clonado.\n");
+    write("This object cannot be cloned.\n");
     dest_me();
     return;
   }
@@ -61,11 +60,11 @@ void setup()
   call_out("do_delay_prop", 0);
 
   // Radix...
-  if (this_player())
-  {
-     call_out("delayed_safety", 5, this_player()->query_cap_name());
+  // if (this_player())
+  // {
+     // call_out("delayed_safety", 5, this_player()->query_cap_name());
      // tell_room(environment(this_object()),"¡El Heraldo comienza una cuenta atrás de 5 segundos!\n");
-  }
+  // }
 }
 
 /* have this move here to get it to my weather room ;) (Sleaze) */
@@ -86,6 +85,7 @@ void do_delay_prop()
 }
  
 // More Radix stuff...
+/*
 void delayed_safety(string name)
 {
   if (!time_of_crash)
@@ -96,6 +96,7 @@ void delayed_safety(string name)
   }
   return;
 }
+*/
  
 // Radix was here
 int ishout(string str, int muff)
