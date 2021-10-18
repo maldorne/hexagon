@@ -562,8 +562,12 @@ private int perform_next_action()
       }
     }
 
-    this_user()->show_prompt();
-    this_user()->write_prompt();
+    // we always have a user, except when we are disconnecting
+    if (this_user())
+    {
+      this_user()->show_prompt();
+      this_user()->write_prompt();
+    }
 
     // restore previous notify_fail message
     // (might have change during the execution of the action)
