@@ -11,7 +11,7 @@
 
 static nomask int restore_object( string name, varargs int flag )
 {
-  stderr(" ~ restore_object: " + name + "\n");
+  debug("files", "restore_object: " + name + "\n");
 
   // DGD always set to zero all variables, so 
   // the mudos flag is ignored here

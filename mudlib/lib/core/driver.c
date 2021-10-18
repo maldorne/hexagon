@@ -37,7 +37,7 @@ static nomask void write(string str);
 // #include "/lib/core/efuns.c"
 
 #include "/lib/core/efuns/types.c"
-#include "/lib/core/efuns/output/stderr.c"
+#include "/lib/core/efuns/stderr.c"
 #include "/lib/core/efuns/users/this_player.c"
 #include "/lib/core/efuns/functions/previous_objects.c"
 #include "/lib/core/efuns/functions/initial_object.c"

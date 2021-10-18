@@ -7,6 +7,8 @@ static nomask void stderr(string str);
 
 // neverbot, 03/14
 #include "/lib/core/efuns/types.c"
+#include "/lib/core/efuns/stderr.c"
+#include "/lib/core/efuns/debug.c"
 #include "/lib/core/efuns/math.c"
 #include "/lib/core/efuns/string.c"
 #include "/lib/core/efuns/mapping.c"

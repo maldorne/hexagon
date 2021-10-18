@@ -15,7 +15,7 @@ static nomask int save_object( string name, varargs int flag )
 {
   int len;
 
-  stderr(" ~ save_object: " + name + "\n");
+  debug("files", "save_object: " + name + "\n");
 
   // always use .o extension for saved files
   len = strlen(name);
@@ -24,7 +24,7 @@ static nomask int save_object( string name, varargs int flag )
 
   if (!SECURE->valid_write(name, this_object(), "save_object"))
   {
-    stderr(" ~ save_object invalid write: " + name + " <"+object_name(this_object())+"> "+
+    debug("files", "save_object invalid write: " + name + " <"+object_name(this_object())+"> "+
       "<save_object>\n");
     return 0;
   }
