@@ -396,15 +396,7 @@ int do_wear(string woo)
     return 0;
   }
 
-  // AAArrrggghhhh find_match() doesn't work... -Aragorn
-  // boo = find_match(woo, this_object());
-  boo = all_inventory(this_object());
-
-  for (i = 0; i < sizeof(boo); i++)
-    if (!boo[i]->id(woo))
-      boo[i] = nil;
-
-  boo -= ({ nil });
+  boo = find_match(woo, this_object());
 
   if (!sizeof(boo))
   {
@@ -457,15 +449,7 @@ int do_unwear(string woo)
     return 0;
   }
 
-  // AAArrrggghhhh find_match() doesn't work... -Aragorn
-  // boo = find_match(woo, this_object());
-  boo = all_inventory(this_object());
-
-  for (i = 0; i < sizeof(boo); i++)
-    if (!boo[i]->id(woo))
-      boo[i] = nil;
-
-  boo -= ({ nil });
+  boo = find_match(woo, this_object());
 
   // As nasty as it gets but I'm just trying to get it to work
   // right now. Speedups later.
