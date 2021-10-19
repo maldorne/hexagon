@@ -4,17 +4,11 @@
 #include <basic/actions.h>
 #include <mud/cmd.h>
 
-// prototypes
-object *wiz_present(string str, object onobj, varargs int nogoout);
-static string desc_object(mixed o);
-static string desc_f_object(object o);
-
-
 void create()
 {
 }
 
-static void role_commands()
+void role_commands()
 {
   // add_action("do_gauge", "gauge");
   add_action("do_snoop", "snoop");

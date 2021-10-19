@@ -31,7 +31,7 @@ string account_name;      // user email, used to find the owner account
 string role_name;         // role this player has (player, coder, etc)
 
 string last_pos;          // file name of environment of last connection
-string * auto_load;       // inventory
+mapping auto_load;        // inventory
 int time_on;              // total time connected
 int ontime;               // session time
 int last_log_on;          // time of last log on
@@ -97,7 +97,7 @@ void create()
   time_on      = time();
   ontime       = time();
   last_log_on  = time();
-  auto_load    = ({ });
+  auto_load    = ([ ]);
   last_pos     = "";
   _net_dead    = 0;
 

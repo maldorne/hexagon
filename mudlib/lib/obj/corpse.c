@@ -14,7 +14,7 @@ int wasplayer;
 string owner, race_ob, race_name, filename;
 int decay;
 
-int query_auto_load() { return 1; }
+int avoid_auto_load() { return 1; }
 int query_no_save_object() { return 1; }
 
 void set_race_ob(string race_ob);

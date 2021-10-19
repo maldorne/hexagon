@@ -6,9 +6,9 @@
 // prototypes
 object *wiz_present(string str, object onobj, varargs int nogoout);
 void inform_of_call(object ob, mixed *argv);
-static mixed *parse_args(string str, string close);
-static string desc_object(mixed o);
-static string desc_f_object(object o);
+mixed *parse_args(string str, string close);
+string desc_object(mixed o);
+string desc_f_object(object o);
 
 private static object *dest_obj;
 private static int objn, majd;
@@ -17,9 +17,10 @@ void create()
 {
 }
 
-static void role_commands()
+void role_commands()
 {
-  add_action("update", "update");
+  add_action("do_update", "update");
+
   add_action("do_a_call", "call");
   add_action("get_creator", "coder");
   add_action("get_inv", "inv");
@@ -28,8 +29,6 @@ static void role_commands()
   // add_action("show_stats", "stat");
   // add_action("upgrade_player", "upgrade");
 
-  // add_action("dest", "destruct");
-  // add_action("dest", "destruir");
   add_action("do_dest", "dest");
 
   add_action("trans", "trans");
@@ -42,24 +41,22 @@ static void role_commands()
   add_action("find_shadows", "shadows");
 }
 
-static int do_update(object *ov)
+private int _update_objects(object *ov)
 {
-  string pname;
-  int dummy;
+  string filename;
+  int dummy, cloned;
   int i, j;
-  object *invent, rsv, env, dup, loaded;
+  object *invent, rsv, env, dup, loaded, ob;
   // next three Hamlet's
   object totell;
-  mixed * load_junk;
-  mapping attributes;
+  mapping load_junk, attributes;
   string itemname;
   object thing;
 
   if (this_player(1) != this_user())
     return 0;
 
-  // Easy way to preload something...
-  ROOM_VOID->bingle_bingle();
+  load_object(ROOM_VOID);
 
   rsv = find_object(ROOM_VOID); // RSV = Room Slash Void
   if (!rsv)
@@ -84,70 +81,45 @@ static int do_update(object *ov)
       return 0;
     }
 
-    pname = file_name(ov[i]);
-    if (sscanf(pname, "%s#%d", pname, dummy) != 2) // a room? a handler? something not cloned
+    filename = file_name(ov[i]);
+
+    if (sscanf(filename, "%s#%d", filename, dummy) != 2) // a room? a handler? something not cloned
+      cloned = false;
+    else
+      cloned = true;
+
+    if (ov[i])
     {
-      // Next three Hamlet's
-      load_junk = "/lib/core/basic/auto_load"->create_object_auto_load(ov[i]);
+      load_junk = "/lib/core/basic/auto_load"->create_auto_load( ({ ov[i] }) );
       totell = environment(ov[i]);
       itemname = ov[i]->query_short();
       attributes = ov[i]->query_auto_load_attributes();
-
-      for (j = 0; j < sizeof(invent); j++)
-      {
-        if (interactive(invent[j]))
-          invent[j]->move(rsv);
-        else
-          invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
-      }
-
-      ov[i]->dest_me();
-      if (ov[i])
-        ov[i]->dwep();
-      if (ov[i])
-        destruct(ov[i]);
-
-      // file_size("/secure/master");     Struck me as senseless.
-      // Uh, you just dested it.  obviously it's not there...
-      // if (!ov[i])
-      //   ov[i] = find_object(pname);
-
-      catch(call_other(pname, "??"));
-      ov[i] = find_object(pname);
     }
+
+    for (j = 0; j < sizeof(invent); j++)
+    {
+      if (interactive(invent[j]))
+        invent[j]->move(rsv);
+      else
+        invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
+    }
+
+    invent -= ({ nil });
+
+    if (ov[i])
+      ov[i]->dest_me();
+    if (ov[i])
+      ov[i]->dwep();
+    if (ov[i])
+      destruct(ov[i]);
+
+    // reload after destruction
+    catch(loaded = load_object(filename));
+
+    if (!cloned)
+      ov[i] = find_object(filename);
     else
     {
-      loaded = find_object(pname);
-
-      // Next three Hamlet's
-      if (loaded)
-      {
-        load_junk = "/lib/core/basic/auto_load"->create_object_auto_load(loaded);
-        totell = environment(loaded);
-        itemname = loaded->query_short();
-        attributes = ov[i]->query_auto_load_attributes();
-      }
-
-      for (j = 0; j < sizeof(invent); j++)
-      {
-        // should not happen here, a cloned object should not have 
-        // interactive objects inside it
-        if (interactive(invent[j]))
-          invent[j]->move(rsv);
-        else
-          invent[j]->dest_me(); // Taniwha 1995, so rooms stop filling when updated
-      }
-
-      if (loaded)
-        loaded->dest_me();
-      if (loaded)
-        loaded->dwep();
-      if (loaded)
-        destruct(loaded);
-
-      // These are Hamlet's too
-      catch(loaded = load_object(pname));
-
       if (loaded)
         loaded->move(totell);
       else
@@ -161,47 +133,39 @@ static int do_update(object *ov)
           else
             tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
           thing = clone_object("/lib/obj/iou");
-          thing->add_auto_string(load_junk);
+          thing->add_auto_load_info(filename, load_junk[filename]);
           thing->move( totell );
         }
       }
 
-      catch(dup = clone_object(pname));
+      catch(dup = clone_object(filename));
 
-      if (dup && ov[i])
+      ov[i] = dup;
+
+      if (!ov[i])
       {
-        ov[i]->dest_me();
-        if (ov[i])
-          ov[i]->dwep();
-        if (ov[i])
-          destruct(ov[i]);
-        ov[i] = dup;
+        if (totell)
+        {
+          if (interactive(totell))
+            if (strlen(itemname))
+              tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
+          else
+            tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
+          thing = clone_object("/lib/obj/iou");
+          thing->add_auto_load_info(filename, load_junk[filename]);
+          thing->move( totell );
+        }
+        continue;
+      }
+      // neverbot 01/2021
+      // hope this works :/
+      else
+      {
+        ov[i]->init_auto_load_attributes(attributes);
       }
     }
 
-    if (!ov[i])
-    {
-      if (totell)
-      {
-        if (interactive(totell))
-          if (strlen(itemname))
-            tell_object(totell, _LANG_CODER_OBJECT_NAME_BROKEN);
-        else
-          tell_object(totell, _LANG_CODER_OBJECT_BROKEN);
-        thing = clone_object("/lib/obj/iou");
-        thing->add_auto_string(load_junk);
-        thing->move( totell );
-      }
-      continue;
-    }
-    // neverbot 01/2021
-    // hope this works :/
-    else
-    {
-      ov[i]->init_auto_load_attributes(attributes);
-    }
-
-    // just players in this list
+    // just players in this list, every other thing was destroyed
     for (j = 0; j < sizeof(invent); j++)
       if (invent[j])
         invent[j]->move(ov[i]);
@@ -214,9 +178,9 @@ static int do_update(object *ov)
   }
 
   return 1;
-} /* do_update() */
+} /* _update_objects() */
 
-int update(string str)
+int do_update(string str)
 {
   string tring, *filenames, err;
   object ob, *val, *obs;
@@ -246,7 +210,7 @@ int update(string str)
       return 0;
     }
 
-    return do_update(val);
+    return _update_objects(val);
   }
 
   obs = ({ });
@@ -282,9 +246,9 @@ int update(string str)
   if (!obs)
     return 0;
   else
-    return do_update(obs);
+    return _update_objects(obs);
 
-} /* update() */
+} /* do_update() */
 
 int do_a_call(string str)
 {
