@@ -15,5 +15,4 @@ void setup()
   add_property("no_undead", 1);
   add_exit(DIR_EAST, ROOMS + "B8.c", "road");
   add_clone(NPCS + "goblin.c", 1);
-
 }

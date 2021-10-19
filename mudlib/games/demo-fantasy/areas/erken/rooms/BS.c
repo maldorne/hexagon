@@ -1,22 +1,23 @@
 // Created by Lummen 24-7-97
 
-#define ROOMS ROOMS + ""
-inherit "/std/shop";
+#include "../path.h"
+#include <language.h>
+
+inherit "/lib/ventures/shop.c";
 
 void setup()
 {
-  set_short("Tienda");
-  set_long("Te encuentras en una pequenya tienda del pueblo de Naduk. En este"
-           " comprar y vender toda clase de objetos que posean algun valor. Los "
-           "comandos son:\n\n"
-           "  <list>    para listar.\n"
-           "  <comprar> para comprar.\n"
-           "  <vender>  para vender.\n"
-           "  <ojear>   para examinar un objeto y ver cuanto vale.\n"
-           "  <valorar> para valorar un objeto antes de venderlo.\n\n");
+  set_short(_LANG_ERKEN_SHOP_SHORT);
+  set_long(_LANG_ERKEN_SHOP_LONG);
 
   set_light(60);
-  add_exit(DIR_OUT, ROOMS + "B6.c", "door");
-  set_store_room(ROOMS + "almacen2.c");
+  set_zone("erken");
   add_property("no_undead", 1);
+  add_exit(DIR_NORTH, ROOMS + "B6.c", "door");
+
+  // will be restocked when there are any one in the inventory
+  add_permanent_goods(BASEOBS + "armours/shirt.c", 2);
+
+  // add_clone(NPCS + "some_npc.c", 1);
+  // set_attender("some_npc");
 }
