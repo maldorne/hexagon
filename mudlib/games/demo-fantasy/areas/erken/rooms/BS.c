@@ -17,6 +17,13 @@ void setup()
 
   // will be restocked when there are any one in the inventory
   add_permanent_goods(BASEOBS + "armours/shirt.c", 2);
+  add_permanent_goods(BASEOBS + "armours/cape.c", 1);
+  add_permanent_goods(BASEOBS + "armours/trousers.c", 1);
+  add_permanent_goods(BASEOBS + "weapons/dagger.c", 2);
+  add_permanent_goods(BASEOBS + "shields/small_wooden_shield.c", 1);
+  add_permanent_goods(BASEOBS + "misc/rope.c", 1);
+  add_permanent_goods(BASEOBS + "misc/torch.c", 2);
+  add_permanent_goods(BASEOBS + "weapons/shovel.c", 1);
 
   // add_clone(NPCS + "some_npc.c", 1);
   // set_attender("some_npc");

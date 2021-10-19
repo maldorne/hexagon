@@ -34,3 +34,6 @@
           "dentro, aunque cuidadosamente " + \
           "para que pueda vivir sin problemas.\n"
 
+#define _LANG_FOREST_TOWN_SHOP_SHORT "Tienda de Elfereth"
+#define _LANG_FOREST_TOWN_SHOP_LONG "Te encuentras en una pequeña tienda del pueblo de Elfereth. En este " + \
+  "lugar puedes comprar y vender toda clase de objetos que posean algún valor.\n"

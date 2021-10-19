@@ -30,3 +30,6 @@
           "Elfereth. It is a partially emptied tree trunk, carefully carved so the tree can still live " + \
           "and grow without any problems.\n"
 
+#define _LANG_FOREST_TOWN_SHOP_SHORT "Elfereth Shop"
+#define _LANG_FOREST_TOWN_SHOP_LONG "You are in a small shop in the town of Elfereth. Here " + \
+  "you can buy or sell every kind of item with any value.\n"

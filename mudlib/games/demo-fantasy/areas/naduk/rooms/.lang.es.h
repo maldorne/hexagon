@@ -15,3 +15,7 @@
     "para felicitar a su alcalde por su gran trabajo de paz con el " + \
     "pueblo vecino. Por ello se construyó una gran fuente en la que " + \
     "se esculpió la figura de esos dioses en granito.\n"
+
+#define _LANG_NADUK_SHOP_SHORT "Tienda de Naduk"
+#define _LANG_NADUK_SHOP_LONG "Te encuentras en una pequeña tienda del pueblo de Naduk. En este " + \
+  "lugar puedes comprar y vender toda clase de objetos que posean algún valor.\n"
