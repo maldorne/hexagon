@@ -1,0 +1,5 @@
+map_prop ([0|])
+timed_prop ([0|])
+create_me "admin"
+next_shop 1
+shops ({3|"/games/demo-fantasy/areas/erken/rooms/BS","/games/demo-fantasy/areas/elfereth/rooms/z21","/games/demo-fantasy/areas/naduk/rooms/as",})

@@ -20,6 +20,7 @@
 #define CONFIG_LOG_HEART_BEATS FALSE
 #define CONFIG_LOG_CALL_OUTS FALSE
 #define CONFIG_LOG_INITIATOR_OBJECTS FALSE
+#define CONFIG_LOG_CRONTAB TRUE
 
 // ----------------------------------------------------------------------
 //  error features

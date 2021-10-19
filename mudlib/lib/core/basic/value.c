@@ -3,14 +3,10 @@
 
 // this will also handle value...
 int value;
-// int resale_value; /* Hamlet */
-// int stolen_modifier; /* Hamlet */
 
 void create() 
 {
   value = 0;
-  // resale_value = 0;
-  // stolen_modifier = 0;
 }
 
 int adjust_money(mixed amt, varargs string type) 
@@ -54,38 +50,9 @@ int query_money(string type)
 void set_value(int i) { value = i; }
 int query_value() { return value; }
 
-
-/* resale value functions by Hamlet, August 1995 */
-/* These are the price a shop will offer for an object. */
-/*
-void set_resale_value(int i) { resale_value = i; }
-int adjust_resale_value(int i) { return( resale_value += i); }
-int query_resale_value() { return resale_value; }
-
-void prevent_resale() {  resale_value = -1;  }
-void allow_resale() {  resale_value = 0;  }
-*/
-/* These are for how much the shop will offer for the item if it has
-   been stolen. -- Hamlet
-*/
-/*
-int set_stolen_modifier(int i) {
-  if(i > 100)   i = 100;
-  if(i < -1)    i = -1;
-
-  stolen_modifier = i;
-  return i;
-}
-
-int query_stolen_modifier() { return stolen_modifier; }
-void no_sell_if_stolen() { stolen_modifier = -1; }
-*/
-
 mixed stats()
 {
   return ({
             ({ "Value", value, }),
-            // ({"Resale Value", resale_value, }),
-            // ({"Stolen Modifier", stolen_modifier, }),
           });
 }

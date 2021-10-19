@@ -38,7 +38,7 @@
       (creators < 2 ? "" : "s") + " and " + query_num(num_people, 100) + " player" + \
       (num_people < 2 ? "" : "s") + " connected to " + mud_name() + "%^RESET%^ <"
 #define _LANG_WHO_DISCONNECTED_MSG "> %^GREEN%^" + capitalize(number_as_string(num_disconnected_people)) + \
-      " user"+(num_disconnected_people < 2 ? "" : "s")+" disconnected%^RESET%^ <"
+      " disconnected user"+(num_disconnected_people < 2 ? "" : "s")+"%^RESET%^ <"
 
 // help
 

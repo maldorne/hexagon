@@ -82,7 +82,7 @@ int _cmd(string tail, object thisob, string verb)
         return 0;
       break;
 
-    case LOGIN_CMD:
+    case USER_CMD:
       // always allowed
       break;
   }

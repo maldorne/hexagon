@@ -123,7 +123,7 @@ int really_quit()
 
   /* get rid of the money.... we dont want them taking it twice now do we? */
   if ((money = present(MONEY_NAME, this_object())))
-      money->dest_me();
+    money->dest_me();
 
   frog = first_inventory(this_object());
   while (frog)
@@ -137,10 +137,10 @@ int really_quit()
     // destroyed, and we don't want that
     if (frog->query_unique_object())
     {
-      // tell_object(find_living("neverbot"), "Dest unique of item "+frog->short()+".\n");
+      // debug("uniques", "Dest unique of item "+frog->short()+".\n");
       frog->dest_unique();
     }
-    else if (frog->query_auto_load())
+    else // if (frog->avoid_auto_load())
     {
       frog->dest_me();
     }

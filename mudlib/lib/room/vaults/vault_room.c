@@ -194,7 +194,7 @@ int do_deposit(string str)
         continue;
       }
 
-      if (all[i]->query_auto_load())
+      if (all[i]->avoid_auto_load())
       {
         tell_object(this_player(), "Al intentar depositar tu " + all[i]->query_short() + " " +
           "en el baúl, desaparece dejando una nube de humo en su lugar.\n");

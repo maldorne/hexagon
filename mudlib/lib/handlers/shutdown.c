@@ -12,13 +12,17 @@
  */
 
 #include <areas/weather.h>
-#include <mud/shutdown.h>
 
 inherit "/lib/core/object";
 
 #define IMUD_SERV "/net/intermud3/services"
 // #define FLAG_GAME "/d/flagomiq/handler/hand_flag"
  
+// #define REBOOT_TIME 23 * 60 * 60 * 2  // every 23 hours * 2, so its not always
+//                                       // the same time 
+#define REBOOT_MEMORY 42 * 1024 * 1024
+
+
 int shutdown_in_progress;
 int time_of_crash;
 int closed;
@@ -34,10 +38,10 @@ void create()
  
 void setup() 
 {
-  /* This stops wizzes from cloning armageddon. He only needs to be loaded */
-  if (file_name(this_object()) != SHUTDOWN_OBJECT) 
+  // This stops wizzes from cloning armageddon. He only needs to be loaded
+  if (file_name(this_object()) != "/lib/handlers/shutdown") 
   {
-    write("Este objeto no puede ser clonado.\n");
+    write("This object cannot be cloned.\n");
     dest_me();
     return;
   }
@@ -56,11 +60,11 @@ void setup()
   call_out("do_delay_prop", 0);
 
   // Radix...
-  if (this_player())
-  {
-     call_out("delayed_safety", 5, this_player()->query_cap_name());
+  // if (this_player())
+  // {
+     // call_out("delayed_safety", 5, this_player()->query_cap_name());
      // tell_room(environment(this_object()),"¡El Heraldo comienza una cuenta atrás de 5 segundos!\n");
-  }
+  // }
 }
 
 /* have this move here to get it to my weather room ;) (Sleaze) */
@@ -81,6 +85,7 @@ void do_delay_prop()
 }
  
 // More Radix stuff...
+/*
 void delayed_safety(string name)
 {
   if (!time_of_crash)
@@ -91,6 +96,7 @@ void delayed_safety(string name)
   }
   return;
 }
+*/
  
 // Radix was here
 int ishout(string str, int muff)
@@ -247,17 +253,54 @@ int clean_up()
 void dest_me() 
 {
   if (!this_player())
-  {
     log_file("game_log", "["+ctime(time())+"] Shutdown cancelled\n");
-  }
 
   closed = 0;
   
   // Radix...
   if (this_player())
-  {
     log_file("game_log", "["+ctime(time())+"] Shutdown cancelled by "+this_player()->query_cap_name()+".\n");
-    catch(find_object("/obj/handlers/timed")->reset_shutting());
-  }
+
   ::dest_me();
+}
+
+/*
+ * This function will automatically reboot the mud every REBOOT_TIME seconds
+ * Only calls a shutdown if we have been up long enough, and no shutdown
+ * is already running.
+ *
+ * Called from /lib/handlers/cron.c
+ */
+void auto_reboot() 
+{
+  if (!shutdown_in_progress) 
+  {
+    shut(10);
+
+    /*
+    shout("Armageddon crawls out from behind the bar of the "
+    "Ladyluck tavern, and seeing that the place is out of beer "
+    "he shouts: Prepare to enter primal chaos in 10!!.\n");
+    */
+    shout("El fin del mundo está a punto de sobrevenir...\nLa totalidad de la existencia " +
+        "será destruida y un nuevo mundo se reconstruirá sobre sus cenizas...\n\n\t" +
+        "%^BOLD%^Dentro de diez minutos.\n");
+    log_file("game_log", "Auto reboot en: " + ctime(time()) + "\n" +
+        "   (uptime: " + (uptime()/3600) + " horas - uso de memoria: " +
+        memory_info() + ")\n");
+  }
+}
+
+/*
+ * This function will automatically reboot the mud every if used memory 
+ * is higher than REBOOT_MEMORY.
+ *
+ * Called from /lib/handlers/cron.c
+ */
+void momery_reboot()
+{
+  if (memory_info() > REBOOT_MEMORY)
+  {
+    auto_reboot();
+  }
 }

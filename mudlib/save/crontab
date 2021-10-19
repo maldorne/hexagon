@@ -1,0 +1,28 @@
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined in a single line,
+# indicating when it will be run, the file that will be 
+# loaded, and the function that will be called in the file.
+#
+# Times are indicated using values for
+# minute (m), hour (h) or use '*' in these fields (for 'any').
+# */n for minutes or hours divisible by n
+
+# m h object function
+
+# every minute, update_ventures
+* * /lib/handlers/ventures.c update_ventures
+
+# old timed.c checks
+*/5 * /lib/handlers/cron.c do_stat_users
+* * /lib/handlers/cron.c do_idletest
+* * /lib/handlers/cron.c net_dead_purge
+
+# every 23 hours, auto reboot
+# technically the only divisible by 23 hour is 23:00, so this is the same 
+# as 0 23 /something something
+0 */23 /lib/handlers/shutdown.c auto_reboot
+
+# every ten minutes, check if a reboot is needed 
+# if we are using too much memory
+*/10 * /lib/handlers/shutdown.c memory_reboot

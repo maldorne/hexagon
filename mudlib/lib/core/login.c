@@ -248,7 +248,7 @@ nomask void logon_option(string str)
   str = lower_case(str);
   exploded_args = explode(str, " ");
 
-  available_cmd_info = CMD_HANDLER->query_hash_by_category(LOGIN_CMD);
+  available_cmd_info = CMD_HANDLER->query_hash_by_category(USER_CMD);
   available_cmds = keys(available_cmd_info);
 
   // new options, neverbot 02/2006
@@ -585,6 +585,8 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   find_object(USER_HANDLER)->update_user(_user, _player);
 
   write(_LANG_CONNECTED_WELCOME);
+  // true -> silent flag, just store as notification but do not show popup
+  _user->add_notification("login", _LANG_CONNECTED_WELCOME, true);
 
   // CHECK
   if (query_property(GUEST_PROP))

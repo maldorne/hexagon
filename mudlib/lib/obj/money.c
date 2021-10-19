@@ -20,8 +20,7 @@ int query_number_coins();
 // do not save this item in inventories!!
 // each living will have a mixed * money_array variable
 // that will be saved instead
-// if this function returns a non-empty mapping, it won't be saved
-mixed query_auto_load() { return ([ "don't save" : 1 ]); }
+mixed avoid_auto_load() { return 1; }
 
 void create()
 {

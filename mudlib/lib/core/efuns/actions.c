@@ -118,6 +118,9 @@ nomask object * targets(varargs object ob)
   // last, our inventory
   targets += all_inventory(ob);
 
+  // safety
+  targets -= ({ nil });
+
   return targets;
 }
 

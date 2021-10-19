@@ -16,6 +16,7 @@ inherit role          "/lib/user/role";
 inherit more_string   "/lib/user/more_string";
 inherit more_file     "/lib/user/more_file";
 inherit notifications "/lib/user/notifications";
+inherit ui            "/lib/user/ui";
 
 // interactive object info
 static object redirect_input_ob;       // object that will catch input and
@@ -62,6 +63,7 @@ int query_verbose() { return 1; }
 void create()
 {
   notifications::create();
+  ui::create();
   output::create();
   communicate::create();
   more_string::create();
@@ -104,6 +106,7 @@ void init()
 {
   security::init();
   notifications::init();
+  ui::init();
 
   // main inherit last
   obj::init();
@@ -195,7 +198,7 @@ static void open()
   MUDOS->set_current_command("");
   MUDOS->set_notify_fail_msg("");
   MUDOS->set_initiator_user(this_object());
-  MUDOS->set_initiator_object(this_object());
+  MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
 
   LOGIN->logon(this_object());
 
@@ -241,6 +244,11 @@ void send_message(string str)
     return;
 
   ::send_message(str);
+
+  // redraw all the ui features is a new line is sent
+  // ony redraw if what we are sending is not the proper ui!
+  if (ui_activated() && !ui_in_use())
+    ui_redraw();
 }
 
 // called from the driver
@@ -289,7 +297,7 @@ static void receive_message(string str)
       MUDOS->set_notify_fail_msg("");
       // to have this_player() inside an input_to redirection
       MUDOS->set_initiator_user(this_object());
-      MUDOS->set_initiator_object(this_object());
+      MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
 
       tmp_redirect_obj  = redirect_input_ob;
       tmp_redirect_func = redirect_input_function;
@@ -341,7 +349,7 @@ static void receive_message(string str)
     MUDOS->set_current_command("");
     MUDOS->set_notify_fail_msg("");
     MUDOS->set_initiator_user(this_object());
-    MUDOS->set_initiator_object(this_object());
+    MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
 
     if ( strlen(str) > INPUT_MAX_STRLEN )
     {
@@ -486,5 +494,6 @@ mixed * stats()
                role::stats() +
                security::stats() +
                notifications::stats() +
+               ui::stats() +
                obj::stats();
 }

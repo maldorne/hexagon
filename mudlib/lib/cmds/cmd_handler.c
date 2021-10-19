@@ -20,7 +20,7 @@ static string current_verb;  // Used by query_verb() efun
 void create()
 {
   cmd_dirs = ([
-       "/lib/cmds/login/":   ({ LOGIN_CMD,   "Login" }),
+       "/lib/cmds/user/":    ({ USER_CMD,    "User" }),
       // "/lib/cmds/living/": ({ LIVING_CMD, "Player" }),
        "/lib/cmds/player/":  ({ PLAYER_CMD,  "Player" }),
       "/game/cmds/player/":  ({ PLAYER_CMD,  "Player" }),
@@ -59,6 +59,10 @@ mapping query_hash() { return cmd_hash; }
 string query_last_dir() { return last_dir; }
 mapping query_aliases() { return cmd_aliases; }
 string query_alias(string verb) { return cmd_aliases[verb]; }
+
+void set_save_all() { save_all = 1; }
+void reset_save_all() { save_all = 0; }
+int query_save_all() { return save_all; }
 
 // The real code :)
 string find_cmd(string verb)
@@ -108,7 +112,7 @@ string * query_available_cmds(object player)
     return nil;
 
   // get all object permissions
-  perms += ({ LOGIN_CMD, });
+  perms += ({ USER_CMD, });
   if (player->query_player())
     perms += ({ PLAYER_CMD, });
   if (player->query_coder())
@@ -143,7 +147,7 @@ string * query_available_directories(object player)
   string * result;
   result = ({ });
 
-  result += ({ "/lib/cmds/login/", });
+  result += ({ "/lib/cmds/user/", });
 
   if (player->query_player())
     result += ({
@@ -227,7 +231,7 @@ mapping query_available_cmds_by_category(object player, varargs int filter)
     // directories[aux[i]] = ({ });
   }
 
-  directories["/lib/cmds/login/"] = ({  });
+  directories["/lib/cmds/user/"] = ({  });
 
   if (player->query_player())
   {
@@ -341,7 +345,7 @@ int cmd(string verb, string tail, object thisob)
         return 0;
       break;
     // always allow
-    case LOGIN_CMD:
+    case USER_CMD:
       break;
   }
 
@@ -358,7 +362,7 @@ int cmd(string verb, string tail, object thisob)
 
   if (!ob)
   {
-    notify_fail("Error cargando el comando.\n");
+    notify_fail("Error loading command.\n");
     return 0;
   }
 
@@ -394,7 +398,7 @@ int cmd_make_hash(int verbose)
   for (i = 0; i < sizeof(paths); i++)
   {
     if (verbose)
-      write("Scanning directory: "+paths[i]+"\n");
+      write("Scanning directory: " + paths[i] + "\n");
 
     files = get_dir(paths[i] + "*.c");
     // files = get_files(paths[i] + "*.c");
@@ -405,11 +409,11 @@ int cmd_make_hash(int verbose)
       s = implode(a[0..sizeof(a)-2], ".");
 
       if (verbose)
-        write("    Command: "+s+"\n");
+        write("    Command: " + s + "\n");
 
       cmd_hash[s] =
         ([
-        "file":         paths[i]+s+".c",
+        "file":         paths[i] + s + ".c",
         "count":        0,
         "category":     cmd_dirs[paths[i]][0],
         "dir":          paths[i],
@@ -475,9 +479,8 @@ int soul_com(string str, object me)
   {
     if (!load_object(SOUL_OBJECT) )
     {
-      // write("Soul errors!  Notify an immortal.\n");
       // write("Use nosoul to turn the soul back on when it is fixed.\n");
-      tell_object(me, "Error con las emociones, notifícaselo a un programador.\n");
+      tell_object(me, "Error with emotions, notify an administrator.\n");
       // me->add_property("nosoul",1);
       return 0;
     }
@@ -492,17 +495,3 @@ int soul_com(string str, object me)
 
   return 0;
 } /* soul_com() */
-
-void set_save_all()
-{
-  // if (base_name(previous_object()) == "/home/flode/fun/nastiness/nastiness")
-    save_all = 1;
-}
-
-void reset_save_all()
-{
-  // if (base_name(previous_object()) == "/home/flode/fun/nastiness/nastiness")
-    save_all = 0;
-}
-
-int query_save_all() { return save_all; }

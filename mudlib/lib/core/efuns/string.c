@@ -93,18 +93,20 @@ static string trim(string str)
   if (strlen(str) == 0)
     return str;
 
-  if ((str[strlen(str)-1] != 32 && str[strlen(str)-1] != 9) &&
-    (str[0] != 32 && str[0] != 9))
-    return str;
+  // remove characters 32 (space), 9 (tab), 10 (\n)
 
-  while (str[strlen(str)-1] == 32 || str[strlen(str)-1] == 9)
+  while (str[strlen(str)-1] == 32 ||
+         str[strlen(str)-1] == 9 ||
+         str[strlen(str)-1] == 10)
   {
     if (strlen(str) == 1)
       return str;
     str = str[0..strlen(str)-2];
   }
 
-  while (str[0] == 32 || str[0] == 9)
+  while (str[0] == 32 ||
+         str[0] == 9 ||
+         str[0] == 10)
   {
     if (strlen(str) == 1)
       return str;

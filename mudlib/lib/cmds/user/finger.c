@@ -30,7 +30,7 @@ static int cmd(string str, object me, string verb)
 
     if (me->query_coder())
     {
-      write(sprintf("%-12.12s    %-30.30s %-20.20s %-20.20s\n",
+      write(sprintf("%-12.12s    %-20.20s %-20.20s %-20.20s\n",
           _LANG_FINGER_NAME, _LANG_FINGER_ACCOUNT, _LANG_FINGER_REAL_NAME,
           _LANG_FINGER_CITY, _LANG_FINGER_BIRTHDAY));
     }
@@ -83,7 +83,7 @@ static int cmd(string str, object me, string verb)
             string r;
             if (me->query_coder())
             {
-              r = sprintf("%-12.12s %2.2s %-30.30s\n",
+              r = sprintf("%-12.12s %2.2s %-20.20s\n",
                 "logged",
                 type,
                 user->query_account_name());
@@ -112,7 +112,7 @@ static int cmd(string str, object me, string verb)
 
             if (me->query_coder())
             {
-              r = sprintf("%-12.12s %2.2s %-30.30s %-20.20s %-20.20s\n",
+              r = sprintf("%-12.12s %2.2s %-20.20s %-20.20s %-20.20s\n",
                 (user->query_invis() ?
                   "(" + lower_case(player->query_cap_name()) + ")" :
                   "" + lower_case(player->query_cap_name())),
@@ -140,7 +140,9 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  str = (string)this_player()->expand_nickname(str);
+  // players without login do not have nicknames
+  if (this_player() && !this_player()->query_link())
+    str = this_player()->expand_nickname(str);
 
   if ("/lib/core/secure/bastards.c"->query_banish_reason(str))
   {
@@ -156,7 +158,7 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  ttl = "===] %^GREEN%^"+mud_name()+"%^RESET%^ [===";
+  ttl = "%^GREEN%^"+mud_name()+"%^RESET%^";
 
   ret = (string)"/lib/core/secure/finger"->finger_info(str, me);
 

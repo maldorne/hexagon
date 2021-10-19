@@ -23,14 +23,19 @@ void init()
 
 int query_pending_notifications() { return pending_notifications == true; }
 
-void add_notification(string type, string message)
+void add_notification(string type, string message, varargs int silent)
 {
   string time;
   time = itoa(time());
   
+  // remove spaces, tabs and \n
+  message = trim(message);
+
   // notifications[time] = {( type, message, sent )}
-  notifications[time] = ({ type, message, false});
-  pending_notifications = true;
+  notifications[time] = ({ type, message, (silent ? true : false) });
+  
+  if (!silent)
+    pending_notifications = true;
 }
 
 // prototype
@@ -85,7 +90,7 @@ int show_notifications(varargs int show_all)
   }
 
   text = "";
-  title = (show_all ? "] " + _LANG_PAST_NOTIFICATIONS + " [" : "");
+  title = (show_all ? _LANG_PAST_NOTIFICATIONS : "");
 
   for (i = 0; i < sizeof(messages); i++)
     text += (sizeof(messages) > 1 ? "* " : "") + messages[i] + "\n";

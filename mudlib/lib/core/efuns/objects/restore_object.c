@@ -11,7 +11,17 @@
 
 static nomask int restore_object( string name, varargs int flag )
 {
-  stderr(" ~ restore_object: " + name + "\n");
+  int len;
+
+  // always use .o extension for saved files
+  len = strlen(name);
+  if (len < 2 || name[len - 2 ..] != ".o")
+    name += ".o";
+
+  debug("files", "restore_object: " + name + "\n");
+
+  if (!file_size(name))
+    return -1;
 
   // DGD always set to zero all variables, so 
   // the mudos flag is ignored here

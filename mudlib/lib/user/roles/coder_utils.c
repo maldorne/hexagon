@@ -82,7 +82,7 @@ static mixed *parse_args(string str, string close)
       case '\'' :
         if (sscanf(str, "'%s'%s", s1, s2) != 2)
         {
-          write("Cadena no terminada (Unterminated String).\n");
+          write("Unterminated String.\n");
           return ({ });
         }
         args += ({ replace(s1, "\\n", "\n") });
@@ -92,7 +92,7 @@ static mixed *parse_args(string str, string close)
       case '`' :
         if (sscanf(str, "`%s`%s", s1, s2) != 2)
         {
-          write("Cadena no terminada (Unterminated String).\n");
+          write("Unterminated String.\n");
           return ({ });
         }
         args += ({ replace(s1, "\\n", "\n") });
@@ -102,7 +102,7 @@ static mixed *parse_args(string str, string close)
       case '"' :
         if (sscanf(str, "\"%s\"%s", s1, s2) != 2)
         {
-          write("Cadena no terminada (Unterminated String).\n");
+          write("Unterminated String.\n");
           return ({ });
         }
         args += ({ replace(s1, "\\n", "\n") });
@@ -147,7 +147,7 @@ static mixed *parse_args(string str, string close)
       case '|' :
         if (sscanf(str, "|%s|%s", s1, s2) != 2)
         {
-          write("No se encontró la pareja de | (Unmatched)\n");
+          write("Unmatched |.\n");
           return ({ });
         }
 
@@ -167,7 +167,7 @@ static mixed *parse_args(string str, string close)
       case '-' :
         if (sscanf(str, "%d%s", i, str) != 2)
         {
-          write("Se esperaba un número (Number expected).\n");
+          write("Number expected.\n");
           return ({ });
         }
 
@@ -188,7 +188,7 @@ static mixed *parse_args(string str, string close)
             s7 = s7[1..];
           if (sscanf(s7, "%s(%s", s1, s7) != 2)
           {
-            write("Falta un '(' (expected).\nResto de la línea sin procesar '"+s7+"'.\n");
+            write("Expected '('.\nRemaining line not processed '"+s7+"'.\n");
             return ({ });
           }
 
@@ -196,7 +196,7 @@ static mixed *parse_args(string str, string close)
 
           if (!sizeof(obs))
           {
-            write("El objeto "+s6+" debe existir.\n");
+            write("Object "+s6+" must exist.\n");
             return ({ });
           }
 
@@ -279,8 +279,8 @@ static mixed *parse_args(string str, string close)
 
     if (str[0] != ',')
     {
-      write("Parse error leyendo argumentos, falta un ',' o '"+close+"' (expected).\n");
-      write("Resto de la línea no procesada '"+str+"'.\n");
+      write("Parse error reading arguments, missing ',' or '"+close+"' expected.\n");
+      write("Remaining line not processed '"+str+"'.\n");
       return ({ });
     }
 
@@ -308,8 +308,7 @@ object * wzpresent2(string str, mixed onobj)
 
   /* every fish */
 
-  if ((sscanf(str, "cada %s", s1) == 1) ||
-      (sscanf(str, "each %s", s1) == 1) )
+  if (sscanf(str, "each %s", s1) == 1)
   {
     obs2 = all_inventory(onobj);
     obs = ({ });
@@ -359,13 +358,13 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
     return ({ });
   }
 
-  if ((str == "me") || (str == "yo"))
+  if (str == "me")
     return ({ this_player() });
 
-  if ((str == "here") || (str == "aqui") || (str == "aquí"))
+  if (str == "here")
     return ({ environment(this_player()) });
 
-  if ((str == "everyone") || (str == "todos"))
+  if (str == "everyone")
     return users();
 
   if (str[0] == '/')
@@ -404,8 +403,7 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
   /* fish except fish2 */
 
   if ((sscanf(str,"%s except %s",s1,s2) == 2) ||
-      (sscanf(str,"%s but %s",s1,s2) == 2) ||
-      (sscanf(str,"%s excepto %s",s1,s2) == 2))
+      (sscanf(str,"%s but %s",s1,s2) == 2))
   {
     obs = wiz_present(s1, onobj);
     obs2= wiz_present(s2, onobj);
@@ -425,8 +423,7 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
   /* Hmm....sounds fishy to me.  Timion 97 */
 
   if ((sscanf(str,"%s on %s",s1,s2) == 2) ||
-      (sscanf(str,"%s in %s",s1,s2) == 2) ||
-      (sscanf(str,"%s en %s",s1,s2) == 2))
+      (sscanf(str,"%s in %s",s1,s2) == 2))
   {
     obs = wiz_present(s2, onobj);
 
@@ -443,8 +440,7 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
 
   /* fish and fish2 */
 
-  if ((sscanf(str,"%s and %s",s1,s2) == 2) ||
-      (sscanf(str,"%s y %s",s1,s2) == 2))
+  if (sscanf(str,"%s and %s",s1,s2) == 2)
   {
     obs  = wiz_present(s1, onobj);
     obs2 = wiz_present(s2, onobj);
@@ -456,8 +452,7 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
     return obs2;
   }
 
-  if ((sscanf(str, "player %s", s1)) ||
-      (sscanf(str, "jugador %s", s1)))
+  if (sscanf(str, "player %s", s1))
     return ({ find_player(s1) });
 
   if (!sizeof(obs2 = wzpresent2(str, onobj)) &&

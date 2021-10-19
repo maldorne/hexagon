@@ -12,7 +12,7 @@ private string _uid;
 // Returns the user id of an object.  The uid of an object is determined at
 // object creation by the creator_file() function.
 
-nomask string getuid( varargs object ob )
+nomask string getuid(varargs object ob)
 {
   if (ob && ob->query_player())
     ob = ob->user();
@@ -42,7 +42,7 @@ static nomask int setuid(string id)
 // at the time of the function variable's construction, had no euid, the
 // object's uid is stored instead.
 
-nomask string geteuid( varargs object ob )
+nomask string geteuid(varargs object ob)
 {
   if (ob && ob->query_player())
     ob = ob->user();
@@ -61,7 +61,7 @@ nomask string geteuid( varargs object ob )
 // export_uid(), and only then.
 // But, when the value is 0, no objects can be loaded or cloned by this object.
 
-static nomask int seteuid( string id )
+static nomask int seteuid(string id)
 {
   // allow seteuid("") similar to the old seteuid(0)
   // if (!stringp(id) || !strlen(id))
@@ -82,14 +82,14 @@ static nomask int seteuid( string id )
       (SECURE->valid_seteuid(this_object(), id)))
   {
     if (_euid != id)
-      stderr(" *** seteuid changed in " + object_name(this_object()) +
+      debug("uids", "seteuid changed in " + object_name(this_object()) +
              " from " + (strlen(_euid) ? _euid : "<empty>") + " to " + id + "\n");
 
     _euid = id;
     return 1;
   }
 
-  stderr(" *** seteuid invalid " + object_name(this_object()) + " " + id + "\n");
+  debug("uids", "seteuid invalid " + object_name(this_object()) + " " + id + "\n");
   // stderr(to_string(call_trace()) + "\n");
   return 0;
 }

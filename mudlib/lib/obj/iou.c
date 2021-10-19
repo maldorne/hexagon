@@ -2,7 +2,7 @@
 inherit "/lib/item.c";
 inherit "/lib/core/basic/auto_load.c";
 
-mixed auto_string;
+mapping auto_load_info;
 string file; // Raskolnikov
 
 string stat();
@@ -25,10 +25,10 @@ string stat()
 {
   string * path;
 
-  if (!arrayp(auto_string) || !sizeof(auto_string)) 
+  if (undefinedp(auto_load_info)) 
     return "Nothing, totally useless, throw it away";
 
-  path = explode(auto_string[0], "/");
+  path = explode(file, "/");
 
   if (sizeof(path) < 3) 
     return "Something wierd wat mortal man was not meant to mess with.\n";
@@ -36,7 +36,7 @@ string stat()
   switch (path[0])
   {
     case "home":
-      call_out("dest_me",2,0);
+      call_out("dest_me", 2, 0);
       return "Some gods toy, which aught not be in the hands of mortals.\n";
     case "games":
       return "It's for an item from the game "+path[1]+" and it's called "+path[sizeof(path)-1]+".\n";
@@ -53,16 +53,18 @@ void init()
   add_action("inspect", "inspect");
 }
 
-mixed add_auto_string(mixed str)
+mixed add_auto_load_info(string f, mixed str)
 {
-  auto_string = str;
-  return auto_string;
+  file = f;
+  auto_load_info = str;
+  return auto_load_info;
 }
 
 mixed add_object(object ob)
 {
-  auto_string = create_auto_load( ({ ob }) );
-  return auto_string;
+  file = base_name(ob);
+  auto_load_info = create_auto_load( ({ ob }) );
+  return auto_load_info;
 }
 
 int inspect(string str)
@@ -76,11 +78,11 @@ int inspect(string str)
 
 int try_loading(string str)
 {
-  object *olist;
+  object * olist;
 
-  if (auto_string)
+  if (!undefinedp(auto_load_info))
   {
-    olist = load_auto_load(({ auto_string }), this_player());
+    olist = load_auto_load(auto_load_info, this_player());
     
     if (sizeof(olist))
       write("A small demon hands you something and runs off with the IOU\n");
@@ -97,34 +99,18 @@ int try_loading(string str)
 // By Radix
 int query_iou_object() { return 1; }
 
-// Raskolnikov added the next 2
-string query_path() 
-{
-  string * old_path;
-  old_path = explode(auto_string[1], "/");
-  file = old_path[sizeof(old_path)-1];
-  old_path -= ({ file });
-  return "/"+implode(old_path, "/");
-}
-
-string query_file() 
-{
-  query_path();
-  return file;
-}
-
 mapping query_auto_load_attributes()
 {
   return ([ 
       "::" : ::query_auto_load_attributes(),
-      "auto string" : auto_string
+      "auto load info" : auto_load_info
     ]);
 }
 
 void init_auto_load_attributes(mapping attribute_map)
 {
-  if (!undefinedp(attribute_map["auto string"]))
-    auto_string = attribute_map["auto string"];
+  if (!undefinedp(attribute_map["auto load info"]))
+    auto_load_info = attribute_map["auto load info"];
   if (!undefinedp(attribute_map["::"]))
     ::init_auto_load_attributes(attribute_map["::"]);
 } 

@@ -15,3 +15,7 @@
      "to congratulate his mayor for his great peace work with the " + \
      "neighboring town. That is why a large fountain was built, in which " + \
      "the figure of those gods was sculpted in granite.\n"
+
+#define _LANG_NADUK_SHOP_SHORT "Naduk Shop"
+#define _LANG_NADUK_SHOP_LONG "You are in a small shop in the town of Naduk. Here " + \
+  "you can buy or sell every kind of item with any value.\n"

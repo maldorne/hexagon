@@ -13,6 +13,7 @@
 #include <mud/secure.h>
 #include <mud/translations.h>
 #include <mud/config.h>
+#include <mud/cron.h>
 
 // ************************************************************
 //  Function prototypes
@@ -36,7 +37,7 @@ static nomask void write(string str);
 // #include "/lib/core/efuns.c"
 
 #include "/lib/core/efuns/types.c"
-#include "/lib/core/efuns/output/stderr.c"
+#include "/lib/core/efuns/stderr.c"
 #include "/lib/core/efuns/users/this_player.c"
 #include "/lib/core/efuns/functions/previous_objects.c"
 #include "/lib/core/efuns/functions/initial_object.c"
@@ -87,6 +88,7 @@ static nomask void initialize()
   ::call_other(living_h = load_object(LIVING_HANDLER), "???");
   ::call_other(object_h = load_object(OBJECT_HANDLER), "???");
   ::call_other(load_object(TERM_HANDLER), "???");
+  ::call_other(load_object(CRON_HANDLER), "???");
 
   load_object(LOGIN_OB);
 

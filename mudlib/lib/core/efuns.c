@@ -7,13 +7,16 @@ static nomask void stderr(string str);
 
 // neverbot, 03/14
 #include "/lib/core/efuns/types.c"
+#include "/lib/core/efuns/stderr.c"
+#include "/lib/core/efuns/debug.c"
 #include "/lib/core/efuns/math.c"
 #include "/lib/core/efuns/string.c"
 #include "/lib/core/efuns/mapping.c"
 #include "/lib/core/efuns/array.c"
 #include "/lib/core/efuns/function.c"
-#include "/lib/core/efuns/object.c"
 #include "/lib/core/efuns/euid.c"
+#include "/lib/core/efuns/file.c"
+#include "/lib/core/efuns/object.c"
 #include "/lib/core/efuns/shadow.c"
 #include "/lib/core/efuns/user.c"
 #include "/lib/core/efuns/calls.c"
@@ -30,7 +33,6 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/event.c"
 
 #include "/lib/core/efuns/output.c"
-#include "/lib/core/efuns/file.c"
 #include "/lib/core/efuns/input.c"
 
 #include "/lib/core/efuns/heart_beat.c"

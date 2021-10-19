@@ -1,7 +1,6 @@
 
 #include <status.h>
-#include <areas/weather.h>
-#include <areas/calendar.h>
+#include <mud/time.h>
 
 // uptime - return the number of seconds elapsed since the last driver reboot
 // int uptime();
@@ -83,5 +82,5 @@ static string ctime(int time, varargs int flag)
   if (flag && (flag == -1))
     return ::ctime(time);
 
-  return handler(CALENDAR_HANDLER)->ctime(time, flag);
+  return handler("calendar")->ctime(time, flag);
 }

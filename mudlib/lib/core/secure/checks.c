@@ -41,21 +41,22 @@ nomask int valid_exec(string name)
 
 // nomask int valid_load(string path, mixed euid, string func) { return 1; }
 
-nomask int valid_hide(object ob)
-{
-  return SECURE->is_administrator(geteuid(ob));
-}
+// nomask int valid_hide(object ob)
+// {
+//   return SECURE->is_administrator(geteuid(ob));
+// }
 
-nomask int valid_ident(string euid)
-{
-  return SECURE->is_administrator(euid);
-}
+// nomask int valid_ident(string euid)
+// {
+//   return SECURE->is_administrator(euid);
+// }
 
-nomask int valid_link(string from, string to)
-{
-  return -1;
-}
+// nomask int valid_link(string from, string to)
+// {
+//   return -1;
+// }
 
+/*
 nomask int valid_override(string file, string func)
 {
   string *bing;
@@ -76,6 +77,7 @@ nomask int valid_override(string file, string func)
       return -1;
   }
 }
+*/
 
 // Read permisions for all of the objects in the game.
 // This IS fun.
@@ -241,6 +243,7 @@ nomask int valid_read(string path, mixed euid, varargs string func)
 } /* valid_read() */
 
 // this stuff added by asmodean, stolen from sojan, who stole it from chrisy
+/*
 nomask int valid_save_binary(string file)
 {
   string *path;
@@ -281,6 +284,7 @@ nomask int valid_save_binary(string file)
   }
   return 0;
 }
+*/
 
 nomask int valid_seteuid(object ob, string euid)
 {
@@ -345,11 +349,10 @@ nomask int valid_shadow(object ob)
   //         !sscanf(file_name(ob), "/secure/%s", dummy));
 }
 
-nomask int valid_socket(object ob, string func, mixed *info)
-{
-  return TRUE;
-}
-
+// nomask int valid_socket(object ob, string func, mixed *info)
+// {
+//   return TRUE;
+// }
 
 /*
  * This controls the write permisions for everything in the mud.
@@ -621,7 +624,6 @@ nomask int valid_snoop(object snooper, object snoopee, object pobj)
   */
 } /* valid_snoop() */
 
-
 /*
 void snoop_reason(string str) {
     object snooper;
@@ -652,7 +654,6 @@ void snoop_reason(string str) {
   write("Snoop falló.\n");
 }
 */
-
 
 int valid_adjust_xp(object prev, object this, int i)
 {

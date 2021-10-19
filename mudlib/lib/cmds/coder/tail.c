@@ -6,17 +6,13 @@
 
 inherit CMD_BASE;
 
-void setup()
-{
-  position = 1;
-}
 
 string query_usage()
 {
-  return "tail [-<number of lines>] <files>\n";
+  return "tail [-<number of lines>] <files>";
 }
 
-string query_short_help()
+string query_help()
 {
   return "Shows the last lines of a file.";
 }
@@ -24,10 +20,13 @@ string query_short_help()
 static int cmd(string str, object me, string verb)
 {
   string file, *filename, text;
-  int range, lines;
+  int range, offset, lines;
   string content, err;
 
   content = "";
+  text = "";
+  offset = -1;
+  lines = 0;
 
   if (!strlen(str))
   {
@@ -35,63 +34,37 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
 
-  if (sscanf(str, "-%d %s", range, file) == 2)
+  if (sscanf(str, "-%d %s", range, file) != 2)
   {
-    filename = get_files(file);
-
-    if (!sizeof(filename))
-    {
-      notify_fail("That file does not exist.\n");
-      return 0;
-    }
-
-    if (range < 0)
-    {
-      notify_fail("Invalid range: " + range + "\n");
-      return 0;
-    }
-
-    if (!range)
-      range = 20;
-
-    err = catch(content = read_file(filename[0]));
-
-    if (err || !content)
-    {
-      notify_fail("Unable to read the file... maybe too long?\n");
-      return 0;
-    }
-
-    lines = sizeof(explode(content, "\n"));
-    text = read_file_line(filename[0], lines - range, lines);
-
-    write(text);
-    return 1;
+    file = str;
   }
-  else
+
+  filename = get_files(file);
+
+  if (!sizeof(filename))
   {
-    sscanf(str, "%s", file);
-    filename = get_files(file);
-
-    if (!sizeof(filename))
-    {
-      notify_fail("That file does not exist.\n");
-      return 0;
-    }
-
-    err = catch(content = read_file(filename[0]));
-
-    if (err || !content)
-    {
-      notify_fail("Unable to read the file... maybe too long?\n");
-      return 0;
-    }
-
-    lines = sizeof(explode(content, "\n"));
-    range = 20;
-    text = read_file_line(filename[0], (lines - range < 0 ? 0 : lines - range), lines);
-
-    write(text);
-    return 1;
+    notify_fail("That file does not exist.\n");
+    return 0;
   }
+
+  if (range < 0)
+  {
+    notify_fail("Invalid range: " + range + ".\n");
+    return 0;
+  }
+
+  if (!range)
+    range = 10;
+
+  while (!err && lines <= range)
+  {
+    text = content + text;
+    err = catch(content = read_file(filename[0], offset, 1));
+    offset--;
+    if (content == "\n")
+      lines++;
+  }
+
+  write(text);
+  return 1;
 }

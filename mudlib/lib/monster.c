@@ -1,6 +1,6 @@
 /*
  * Baldrick, Wonderflug, Taniwha 1996, moved "brains" to handler object.
- * Not for effiency, just to allow more flexibility.
+ * Not for efficiency, just to allow more flexibility.
  *
  * Reviewed for CcMud, neverbot 6/03
  *

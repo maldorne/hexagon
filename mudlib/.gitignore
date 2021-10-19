@@ -6,6 +6,8 @@
 
 # save files
 /save/*.o
+/save/ventures/*.o
+!/save/ventures/ventures.o
 
 # tmp files
 /tmp/*

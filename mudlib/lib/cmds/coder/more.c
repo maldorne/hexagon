@@ -104,9 +104,18 @@ int ex_spool(string yn, string fil, int linum)
     if (linum < 1 )
       linum = 1;
   }
-
-  if ( (yn == "Q") || (yn == "q") )
+  // exiting command, from input_to
+  else if ((yn == "Q") || (yn == "q"))
+  {
+    write("Exiting...\n");
     return 1;
+  }
+  // from input_to, something not recognize has been written
+  else if (strlen(yn) && (yn != "Y") && (yn != "y")) 
+  {
+    write("Exiting...\n");
+    return 1;
+  }
 
   // for (i = 0; i < this_player()->query_rows(); linum++)
   // {
@@ -123,7 +132,7 @@ int ex_spool(string yn, string fil, int linum)
 
   s1 = read_file_line(fil, linum, this_user()->query_rows());
 
-  if ( !strlen(s1) )
+  if (!strlen(s1))
   {
     write("\n");
     return 1;
@@ -134,7 +143,7 @@ int ex_spool(string yn, string fil, int linum)
   for (i = 0; i < sizeof(lines); i++, linum++)
     write(sprintf("%4d: %s\n", linum, lines[i]));
 
-  write(sprintf("File: %s. Q to quit ", fil));
+  write(sprintf("File: %s. Q to quit", fil));
   input_to("ex_spool", 0, fil, linum);
   return 1;
 }

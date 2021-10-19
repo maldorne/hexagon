@@ -1,5 +1,6 @@
 /* Created by Lummen 16-7-97 */
 
+#include "../path.h"
 #include <language.h>
 
 inherit "/lib/monster.c";

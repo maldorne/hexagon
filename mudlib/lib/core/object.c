@@ -62,6 +62,34 @@ int query_armour() { return 0; }
 int query_shield() { return 0; }
 int query_room() { return 0; }
 
+// The following is from the TMI-2 Lib. Asmodean Put it here
+int clean_up()
+{
+  object env, *contents;
+  int i;
+
+  if (userp(this_object()))
+    return 1; /* don't clean_up players */
+  env = environment();
+  if (env && userp(env))
+    return 1; /* carried ob */
+  if (env && environment(env))
+    return (int)environment(env)->clean_up(); /* recurse */
+
+  contents = deep_inventory(this_object());
+  if (contents) {
+    for (i=0;i<sizeof(contents);i++)
+      if (userp(contents[i]))
+        return 1; /* holding a user */
+  }
+  if (!env) {
+  /* we're a room with no users inside or a lost object */
+    dest_me();
+    return 1;
+  }
+  return 1; /* try again later... */
+}
+
 /*
  * This returns a mapping of all the data that is associated with the object.
  * The mapping can then be saved in the player object, is the idea.
@@ -125,34 +153,6 @@ void init_auto_load_attributes(mapping attribute_map)
     timed_prop = thaw_timed_properties(attribute_map["timed"]);
   if (attribute_map["cloned by"])
     create_me = attribute_map["cloned by"];
-}
-
-// The following is from the TMI-2 Lib. Asmodean Put it here
-int clean_up()
-{
-  object env, *contents;
-  int i;
-
-  if (userp(this_object()))
-    return 1; /* don't clean_up players */
-  env = environment();
-  if (env && userp(env))
-    return 1; /* carried ob */
-  if (env && environment(env))
-    return (int)environment(env)->clean_up(); /* recurse */
-
-  contents = deep_inventory(this_object());
-  if (contents) {
-    for (i=0;i<sizeof(contents);i++)
-      if (userp(contents[i]))
-        return 1; /* holding a user */
-  }
-  if (!env) {
-  /* we're a room with no users inside or a lost object */
-    dest_me();
-    return 1;
-  }
-  return 1; /* try again later... */
 }
 
 mixed * stats()

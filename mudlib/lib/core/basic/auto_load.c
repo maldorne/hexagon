@@ -7,132 +7,131 @@
  * Taniwha 1995, 1996 (ad nauseum)
  * Wonderflug 1996, first real work in months, time to get this working
  * well. (and ohhhhh the bugs)
+ *
+ * changed for hexagon, using a mapping of arrays instead of an array of mappings
+ *  auto_load[file_name] = ({ attribute_map_item_1, ... attribute_map_item_n })
+ * neverbot 10/2021
  */
 
 #include <language.h>
 
-/* elements of a strob - saveable (string but not really) version
- * of an object, which is stored as a mixed array.  These are the indices.
- */
-#define FILENAME 0
-#define VARMAP   1
-
-void auto_clone(object ob, mapping attribute_map, object dest);
+void make_iou(string filename, mixed bad_info, object dest);
 
 /*
  * Returns a mixed array which can be converted back to objects using
  * load_auto_load
  */
-mixed* create_auto_load(object * obs)
+mapping create_auto_load(object * obs)
 {
-  mapping attribute_map; 
-  string  obj_filename;
-  string* fname;
-  mixed*  auto_load;
-  int     i;
+  mapping  attribute_map; 
+  string   obj_filename;
+  string * fname;
+  mapping  auto_load;
+  int      i;
 
   if (!obs) 
-    return ({ });
+    return ([ ]);
 
-  /* instead of growing the auto_load, we allocate and then subtract
-   * zeros after we're done.
-   */
   obs -= ({ nil });
-  auto_load = allocate(sizeof(obs));
+  auto_load = ([ ]);
 
-  for ( i = 0; i < sizeof(obs); i++ )
+  for (i = 0; i < sizeof(obs); i++)
   {
-    /* query_auto_load returns nonzero if the object should not save.
-     * this is poorly named.
-     */
-    if (obs[i]->query_auto_load())
+    // avoid_auto_load returns nonzero if the object should not save.
+    // formerly queyr_auto_load, this was poorly named, so I changed it, neverbot 10/2021
+    if (obs[i]->avoid_auto_load())
       continue;
 
     attribute_map = obs[i]->query_auto_load_attributes();
 
-    /* Perhaps this is too harsh */
-    if (!attribute_map)
+    // Perhaps this is too harsh
+    // if (undefinedp(attribute_map) || !map_sizeof(attribute_map))
+    // if attribute_map is empty, it just means the item is not custom, 
+    // all its values are default... but the item exists!!
+    if (undefinedp(attribute_map))
       continue;
 
-    /* obs[i] may've become null, it may not have a filename, or
-     * it may have a filename "", this protects any of that from adding
-     * it to the auto load.
-     */
+    // obs[i] may've become null, it may not have a filename, or
+    // it may have a filename "", this protects any of that from adding
+    // it to the auto load.
     if (obs[i] && (obj_filename = file_name(obs[i])) && 
       (fname = explode(obj_filename, "#")) &&
       sizeof(fname) > 0 )
     {
       obj_filename = fname[0];
-      auto_load[i] = ({ obj_filename, attribute_map });
+      if (undefinedp(auto_load[obj_filename]))
+        auto_load[obj_filename] = ({ attribute_map });
+      else 
+        auto_load[obj_filename] += ({ attribute_map });
     }
-
-    /* what is the first field used for ? */
   }
 
-  auto_load -= ({ nil });
   return auto_load;
 } /* create_auto_load() */
 
 /*
- * Creates an IOU for objects that fail to load.
- */
-
-void make_iou(mixed bad_strob, object dest)
-{
-  object iou;
-
-  log_file("loader", "["+ctime(time(), 4)+"] "+ 
-    (string)dest->query_cap_name()+" had ["+(string)bad_strob[FILENAME]+
-    "] refuse to load.\n");
-
-  catch( iou = clone_object("/lib/obj/iou.c") );
-
-  if (iou)
-  {
-    iou->add_auto_string(bad_strob);
-    catch(iou->move(dest));
-  }
-}
-
-/*
- * Loads all the strobs in auto_load into dest.
+ * Loads all the items and their values in auto_load into dest.
  * Returns all those objects that loaded.
  */
-object * load_auto_load(mixed* auto_load, object dest) 
+object * load_auto_load(mapping auto_load, object dest) 
 {
-  object ob, *obs;
-  int i;
+  object ob, * obs;
+  string * files;
+  int i, j;
 
-  if (!auto_load || !sizeof(auto_load))
+  if (undefinedp(auto_load) || !map_sizeof(auto_load))
     return ({ });
 
-  auto_load -= ({ nil });
-  obs = allocate(sizeof(auto_load));
+  obs = ({ });
+  files = keys(auto_load);
   
-  for (i = 0; i < sizeof(auto_load); i++)
+  for (i = 0; i < sizeof(files); i++)
   {
-    mixed * strob;
-    strob = auto_load[i];
-
-    if (sizeof(strob) != 2)
-      continue;
-
-    if (!stringp(strob[FILENAME]))
-      continue;
-
-    // Try to clone one
-    catch( ob = clone_object(strob[FILENAME]) );
-
-    if (ob)
+    for (j = 0; j < sizeof(auto_load[files[i]]); j++)
     {
-      auto_clone(ob, strob[VARMAP], dest);
+      // Try to clone one
+      catch( ob = clone_object(files[i]) );
+
       if (ob)
-        obs += ({ ob });
-    }
-    else
-    {
-      // And if it didn't work , give em an IOU
-      make_iou(strob, dest);
+      {
+        mapping attribute_map;
+        int move_ret;
+
+        attribute_map = auto_load[files[i]][j];
+
+        ob->init_auto_load_attributes(attribute_map);
+
+        // ob might've bit it during init, or dest might not exist
+        if (!ob || !dest || (move_ret = ob->move(dest)) )
+        {
+          // ob or dest don't exist, or couldn't move ob into dest
+          if (ob)
+          {
+            log_file("loader", "[" + ctime(time(), 4) + "] " + 
+              (string)this_player()->query_name() + " dropped a [" +
+              (string)ob->query_name() + "].\n"); //, move_ret="+move_ret+".\n");
+
+            // if we can't move to environment, well, too bad
+            ob->move(environment(this_player()));
+          }
+
+          tell_object(this_player(), _LANG_AUTO_LOAD_DROP_SOMETHING);
+        }
+
+        if (ob)
+          obs += ({ ob });
+      }
+      else
+      {
+        // And if it didn't work , give em an IOU
+        mapping iou_info;
+
+        tell_object(this_player(), _LANG_AUTO_LOAD_SOMETHING_WRONG);
+
+        // build mapping with the info of ONLY this item
+        iou_info[files[i]] = auto_load[files[i]][j];
+        make_iou(files[i], iou_info, dest);
+      }
     }
   }
 
@@ -140,61 +139,22 @@ object * load_auto_load(mixed* auto_load, object dest)
   return obs;
 } /* load_auto_load() */
 
-
-void auto_clone(object ob, mapping attribute_map, object dest)
-{
-  int move_ret;
-
-  if (!ob)
-  {
-    tell_object(this_player(), _LANG_AUTO_LOAD_SOMETHING_WRONG);
-    return;
-  }
-
-  ob->init_auto_load_attributes(attribute_map);
-
-  // ob might've bit it during init, or dest might not exist
-  if (!ob || !dest || (move_ret = ob->move(dest)) )
-  {
-    /* ob or dest don't exist, or couldn't move ob into dest */
-    if (ob)
-    {
-      log_file("loader", "["+ctime(time(), 4)+"] "+ 
-        (string)this_player()->query_name()+" dropped a ["+
-        (string)ob->query_name()+"].\n"); //, move_ret="+move_ret+".\n");
-
-      /* if we can't move to environment, well, too bad */
-      ob->move(environment(this_player()));
-    }
-
-    tell_object(this_player(), _LANG_AUTO_LOAD_DROP_SOMETHING);
-  }
-} /* auto_clone() */
-
-/* Hamlet added me -- I'm used for the 'update' command. */
-/* I changed this to create_object_auto_load, it is after all quite
- * a generally useful function, so create_update_auto_load was silly
- * --wf.
+/*
+ * Creates an IOU for objects that failed to load.
  */
-mixed * create_object_auto_load(object ob)
+void make_iou(string filename, mixed bad_info, object dest)
 {
-  mapping attribute_map;
-  mixed* strob;
-  string obj_filename;
-  int j;
+  object iou;
 
-  if (!ob) 
-    return ({ });
+  log_file("loader", "[" + ctime(time(), 4) + "] " + 
+    (string)dest->query_cap_name() + " had [" + filename + 
+    "] refuse to load.\n");
 
-  attribute_map = ob->query_auto_load_attributes();
+  catch( iou = clone_object("/lib/obj/iou.c") );
 
-  if (!attribute_map)
-    return ({ });
-
-  if (sscanf(file_name(ob), "%s#%d", obj_filename, j) == 2)
-    strob = ({ obj_filename, attribute_map });
-  else
-    strob = ({ file_name(ob), attribute_map });
-
-  return strob;
-} /* create_update_auto_load() */
+  if (iou)
+  {
+    iou->add_auto_load_info(filename, bad_info);
+    catch(iou->move(dest));
+  }
+}

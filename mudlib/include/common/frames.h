@@ -4,8 +4,8 @@
 #define DEFAULT_HEIGHT 0
 
 // positions inside the style definition array
-#define STYLE_EXTRA_WIDTH 0
-#define STYLE_EXTRA_HEIGHT 1
+#define STYLE_EXTRA_WIDTH_MARGIN 0
+#define STYLE_EXTRA_HEIGHT_MARGIN 1
 #define STYLE_EXTRA_WIDTH_PADDING 2
 #define STYLE_EXTRA_HEIGHT_PADDING 3
 #define STYLE_LEFT_PAD 4
@@ -16,3 +16,5 @@
 #define STYLE_DOWN_LEFT_CORNER 9
 #define STYLE_UP_PAD 10
 #define STYLE_DOWN_PAD 11
+#define STYLE_TITLE_LEFT 12
+#define STYLE_TITLE_RIGHT 13

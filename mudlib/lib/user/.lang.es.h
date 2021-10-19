@@ -62,3 +62,8 @@
 #define _LANG_PASSWORD_CONDITIONS "La contraseña debe tener al menos seis caracteres."
 #define _LANG_REPEAT_PASSWORD "Por favor, introdúcela de nuevo: "
 
+// ui.c
+
+#define _LANG_UI_SIDEBAR_SYNTAX "Usa sidebar <on|off> para activarla o desactivarla.\n"
+#define _LANG_UI_MAP "Mapa"
+#define _LANG_UI_STATS "Puntos"

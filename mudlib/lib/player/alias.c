@@ -99,8 +99,8 @@ mixed * _compile_alias(string str)
       {
         ret += ({ ALL_IFARG, 0, "" });
         // Needed to be separated.. not sure why. Flode - 040398
-        // frog[i] = frog[i--][6..100];
-        frog[i] = frog[i][6..100];
+        // frog[i] = frog[i--][6..];
+        frog[i] = frog[i][6..];
         i--;
         nodollar = 1;
         ifargs += ({ sizeof(ret)-2 });
@@ -130,7 +130,7 @@ mixed * _compile_alias(string str)
       }
       else if (frog[i][3] == ':')
       {
-        ret += ({ ALL_ARG, frog[i][4..100] });
+        ret += ({ ALL_ARG, frog[i][4..] });
         nodollar = 1;
       }
       else if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && !space)
@@ -165,7 +165,7 @@ mixed * _compile_alias(string str)
       nodollar = 1;
     }
     else if (strlen(frog[i]) && frog[i][0] == '*' &&
-           sscanf(frog[i][1..1000], "%d", tmp) == 1)
+           sscanf(frog[i][1..], "%d", tmp) == 1)
     {
       if (tmp < 0)
         tmp = 0;
@@ -229,9 +229,9 @@ mixed * _compile_alias(string str)
   return ret;
 }
 
-string alias_string(mixed *al)
+string alias_string(mixed * al)
 {
-  int i, num, *add_thing;
+  int i, num, * add_thing;
   string str;
 
   str = "";
@@ -250,37 +250,38 @@ string alias_string(mixed *al)
 
       switch (al[i] - num)
       {
-        case NEW_LINE  : str += ";";
-                         break;
-        case ALL_ARGS  : str += "$*$";
-                         break;
-        case ONE_ARG   : str += "$" + num + "$";
-                         break;
-        case TO_ARG    : str += "$*" + num + "$";
-                         break;
-        case FROM_ARG  : str += "$" + num + "*$";
-                         break;
-        case ALL_ARG   : str += "$arg:" + al[++i] + "$";
-                         break;
-        case ARG_THING : str += "$arg" + num + ":" + al[++i] + "$";
-                         break;
+        case NEW_LINE   : str += ";";
+                          break;
+        case ALL_ARGS   : str += "$*$";
+                          break;
+        case ONE_ARG    : str += "$" + num + "$";
+                          break;
+        case TO_ARG     : str += "$*" + num + "$";
+                          break;
+        case FROM_ARG   : str += "$" + num + "*$";
+                          break;
+        case ALL_ARG    : str += "$arg:" + al[++i] + "$";
+                          break;
+        case ARG_THING  : str += "$arg" + num + ":" + al[++i] + "$";
+                          break;
         case ELSE_THING :
-                         str += "$else$";
-                         add_thing[sizeof(add_thing)-1] = i+1+al[++i];
-                         break;
-        case ALL_IFARG : str += "$ifarg:";
-                         add_thing += ({ i+1+al[++i] });
-                         break;
-        case IFARG_THING :
-                         str += "$ifarg" + num + ":";
-                         add_thing += ({ i+1+al[++i] });
-                         break;
+                          str += "$else$";
+                          add_thing[sizeof(add_thing)-1] = i+1+al[++i];
+                          break;
+        case ALL_IFARG  : str += "$ifarg:";
+                          add_thing += ({ i+1+al[++i] });
+                          break;
+        case IFARG_THING:
+                          str += "$ifarg" + num + ":";
+                          add_thing += ({ i+1+al[++i] });
+                          break;
       }
     }
 
     if (member_array(i, add_thing) != -1)
       str += "~$";
   }
+
   return str;
 }
 
@@ -307,7 +308,7 @@ int _flushem(string str)
 
 string _print_aliases()
 {
-  int i;
+  int i, cols;
   string str,str1,str2, *tmp, bing, ret;
 
   // ahh well here goes the clean. you dont want to know what used to
@@ -322,16 +323,16 @@ string _print_aliases()
   str2 = "";
   ret = "";
   tmp = map_indices(aliases);
-
   tmp = sort_array(tmp);
+  cols = (int)this_user()->query_cols();
 
   for (i = 0; i < sizeof(tmp); i++)
   {
     bing = alias_string(aliases[tmp[i]]);
     str = tmp[i] + ": " + bing;
+
     if (strlen(str) > 39)
-      ret += sprintf(tmp[i] + ": %-*s\n", (int)this_user()->query_cols()-
-                                      strlen(tmp[i]) - 2, bing);
+      ret += sprintf(" " + tmp[i] + ": %-*s\n", cols - strlen(tmp[i]) - 2, bing);
     else if (strlen(str) > 19)
       str1 += str + "\n";
     else
@@ -339,10 +340,10 @@ string _print_aliases()
   }
 
   if (strlen(str1))
-    ret += sprintf("%-#*s\n", this_user()->query_cols(), str1);
+    ret += sprintf("%-#*s\n", cols, str1);
 
   if (strlen(str2))
-    ret += sprintf("%-#*s\n", this_user()->query_cols(), str2);
+    ret += sprintf("%-#*s\n", cols, str2);
 
   return ret;
 }
@@ -377,7 +378,7 @@ int do_alias(string str /*, varargs int bing */)
       return 0;
     }
 
-    write(sprintf("%s: %-=*s\n", str, (int)this_user()->query_cols() -
+    write(sprintf("%s: %-*s\n", str, (int)this_user()->query_cols() -
                           strlen(str) - 2, alias_string(aliases[str])));
     return 1;
   }

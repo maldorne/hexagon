@@ -5,6 +5,7 @@
 // functions to know the day of the week in a particular date,
 // and to give name to the years
 
+#include <mud/time.h>
 #include <areas/weather.h>
 #include <areas/calendar.h>
 #include <language.h>
