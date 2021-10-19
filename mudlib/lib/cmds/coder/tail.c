@@ -20,12 +20,11 @@ string query_help()
 static int cmd(string str, object me, string verb)
 {
   string file, *filename, text;
-  int range, error, offset, lines;
+  int range, offset, lines;
   string content, err;
 
   content = "";
   text = "";
-  error = false;
   offset = -1;
   lines = 0;
 
@@ -50,18 +49,18 @@ static int cmd(string str, object me, string verb)
 
   if (range < 0)
   {
-    notify_fail("Invalid range: " + range + "\n");
+    notify_fail("Invalid range: " + range + ".\n");
     return 0;
   }
 
   if (!range)
     range = 10;
 
-  while (!error && lines <= range)
+  while (!err && lines <= range)
   {
+    text = content + text;
     err = catch(content = read_file(filename[0], offset, 1));
     offset--;
-    text = content + text;
     if (content == "\n")
       lines++;
   }
