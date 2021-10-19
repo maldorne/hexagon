@@ -244,13 +244,16 @@ int set_in_use(int i)
        (this_object()->query_align() == 0) )) return i;
   */
   // Comprobacion de alineamiento contrario en objetos, idea de Iolo@Rl
-  if ( ((this_object()->query_align()<0) && (environment(this_object())->query_align()>100)) ||
-        ((this_object()->query_align()>100) && (environment(this_object())->query_align()<0)) )
+  if (intp(this_object()->query_align()))
   {
-    tell_object(environment(this_object()),"Sientes un extraño remordimiento al coger "+
-               (this_object()->query_gender()?(this_object()->query_article()+" "):"tu")+
-               this_object()->short()+". Te ves obligado a soltarlo.\n");
-    return 0;
+    if ( ((this_object()->query_align()<0) && (environment(this_object())->query_align()>100)) ||
+          ((this_object()->query_align()>100) && (environment(this_object())->query_align()<0)) )
+    {
+      tell_object(environment(this_object()),"Sientes un extraño remordimiento al coger "+
+                 (this_object()->query_gender()?(this_object()->query_article()+" "):"tu")+
+                 this_object()->short()+". Te ves obligado a soltarlo.\n");
+      return 0;
+    }
   }
 
   if (i)

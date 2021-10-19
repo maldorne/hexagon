@@ -1,9 +1,5 @@
 
-#define ARMOUR_TABLE "/table/armour_table.c"
-#define MATERIAL_TABLE "/table/material_table.c"
-
-// Tipos de AC: slashing, blunt y piercing
-// Cambiados los nombres por los de D&D 3ed
+// AC types: slashing, blunt y piercing
 #define AC_TYPES ({ "cortante", "contundente", "perforante", })
 
 // shirt
