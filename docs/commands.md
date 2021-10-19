@@ -97,7 +97,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | rm           | :white_check_mark: | :white_check_mark: | :x: |    |
 | rmdir        |          |          |    |    |
 | sar          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| tail         | :white_check_mark: | :white_check_mark: | :x: |    |
+| tail         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | uptime       | :white_check_mark: | :white_check_mark: | :x: |    |
 | visible      |          |          |    |    |
 | wget         |          |          |    |    |
