@@ -15,10 +15,8 @@ string title;
 int last_log_on, time_on, start_time, gender;
 string home_dir, last_on_from;
 mapping aliases;
-// string guild_ob;
 string ident;
 string last_pos;
-// string race_ob;
 string * social_object_list;
 string role_name;
 
@@ -129,8 +127,8 @@ string finger_info(string name, varargs object me)
 
   table = table("finger_table");
 
-  if (nick)
-   name = nick;
+  // if (nick)
+  //  name = nick;
 
   seteuid("root");
 

@@ -248,7 +248,7 @@ nomask void logon_option(string str)
   str = lower_case(str);
   exploded_args = explode(str, " ");
 
-  available_cmd_info = CMD_HANDLER->query_hash_by_category(LOGIN_CMD);
+  available_cmd_info = CMD_HANDLER->query_hash_by_category(USER_CMD);
   available_cmds = keys(available_cmd_info);
 
   // new options, neverbot 02/2006
