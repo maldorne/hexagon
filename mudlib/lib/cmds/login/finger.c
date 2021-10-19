@@ -156,7 +156,7 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  ttl = "===] %^GREEN%^"+mud_name()+"%^RESET%^ [===";
+  ttl = "%^GREEN%^"+mud_name()+"%^RESET%^";
 
   ret = (string)"/lib/core/secure/finger"->finger_info(str, me);
 
