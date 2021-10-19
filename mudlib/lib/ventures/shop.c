@@ -60,40 +60,35 @@ inherit attendable "/lib/room/attendable.c";
 // change, you die
 #define FILE_SIZE 30000
 
-// Nuevo sistema de almacenamiento, neverbot 7/03
+// new storeroom system, neverbot 7/03
 static string save_file, log_file;
 
-// Objetos que siempre debe tener la tienda
+// items the shop _must_ have
 static mapping permanent_goods;
 
 static mixed buy_mess, sell_mess, list_mess, value_mess, browse_mess;
 
 // int amount_sold, amount_bought;
-// string shop_type;
-// int stolen_modifier;  // This will be a percent value
 static int only_sell;
 static string sell_func, buy_func;
 
-// Lista de administradores de la tienda (pueden ver logs)
-string * shop_admin;
+// list of shop admins (can see logs)
+string * shop_admins;
 
-void set_admins(string *admin) { if (sizeof(admin)) shop_admin = admin; }
-string *query_shop_admins() { return shop_admin; }
+void set_admins(string * admins) { if (sizeof(admins)) shop_admins = admins; }
+string *query_shop_admins() { return shop_admins; }
 
-/* adaptive price functions, Anirudh */
-int do_weight_min(int amt, int mass, int material, int sellbuy);
+// adaptive price functions, Anirudh
 int do_cha_adjust(int amt, int cha, int updown);
-int do_race_adjust(int amt, string race, int updown);
 
-// Mantenida para compatibilidad
+// backwards compatibility
 int add_thing(string file, int amount);
 int add_permanent_goods(string file, int amount);
 mapping query_permanent_goods(){ return permanent_goods; }
 
 private int scaled_value(int n);
-int check_inv(object ob, string str);
-string shop_parse(string str, mixed ob, object client, string money, string extra);
-void do_parse(mixed arr, mixed ob, object client, string money, string extra);
+private string shop_parse(string str, mixed ob, object client, string money, string extra);
+private void do_parse(mixed arr, mixed ob, object client, string money, string extra);
 
 private string get_save_file_name();
 private string get_log_file_name();
@@ -112,18 +107,12 @@ void create_sign()
 void create() 
 {
   only_sell = 0;
-  shop_admin = ({ });
-  buy_mess = ({
-    "Compras $ob$ por $money$.\n",
-    "$client$ compra $ob$.\n" });
-  sell_mess = ({
-    "Vendes $ob$ por $money$.\n",
-    "$client$ vende $ob$.\n" });
+  shop_admins = ({ });
+  buy_mess = _LANG_SHOP_DEFAULT_BUY_MSGS;
+  sell_mess = _LANG_SHOP_DEFAULT_SELL_MSGS;
   list_mess = "$extra$";
-  value_mess = "$ob$ está valorado en $money$.\n";
-  browse_mess = "$ob$ cuesta $money$, descripción:\n$extra$";
-  // shop_type = "general";
-  // stolen_modifier = 33;  /* 33% of normal value */
+  value_mess = _LANG_SHOP_DEFAULT_VALUE_MSG;
+  browse_mess = _LANG_SHOP_DEFAULT_BROWSE_MSG;
 
   save_file = get_save_file_name();
   log_file = get_log_file_name();
@@ -134,16 +123,13 @@ void create()
   
   create_sign();
 
-  // Incluimos la tienda en la lista general de tiendas
+  // include the shop in the ventures handler
   if (base_name(this_object()) != "/lib/ventures/shop")
     handler("ventures")->include_shop(base_name(this_object()));
 }
 
 // backwards compatibility
-int add_thing(string file, int amount)
-{
-  return add_permanent_goods(file, amount);
-}
+int add_thing(string file, int amount) { return add_permanent_goods(file, amount); }
 
 //  with the new shop system, the items bought and sold are _always_ saved, so
 //  we need a way to restock some basic objects if we want them to always be
@@ -185,20 +171,14 @@ mixed query_value_mess() { return value_mess; }
 mixed query_buy_mess() { return buy_mess; }
 mixed query_browse_mess() { return browse_mess; }
 
-/* These initialize sell_func and buy_func, which are special functions
+/* 
+ * These initialize sell_func and buy_func, which are special functions
  * that can be set to run when something is bought or sold.
  */
 void set_sell_func(string str) { sell_func = str; }
 void set_buy_func(string str) { buy_func = str; }
 void sell_only() { only_sell = 1; }
 nomask int query_shop(){ return 1; }
-// int query_stolen_modifier(){ return stolen_modifier; }
-// int set_stolen_modifier(int amt) {
-//   if (amt > 100) amt = 100;
-//   if (amt < 0) amt = 0;
-//   stolen_modifier = amt;
-//   return amt;
-// }
 
 string query_save_file() { return(save_file); }
 string query_log_file() { return log_file; }
@@ -208,20 +188,15 @@ void init()
   ::init();
 
   add_action("do_list", _LANG_SHOP_VERBS_LIST);
-
-  add_action("sell", "vender");
-  add_action("buy", "comprar");
-  add_action("browse", "examinar");
-  add_action("value", "valorar");
-  
-  add_action("view_shop_log", "logs");
+  add_action("do_sell", _LANG_SHOP_VERBS_SELL);
+  add_action("do_browse", _LANG_SHOP_VERBS_BROWSE);
+  add_action("do_value", _LANG_SHOP_VERBS_VALUE);
+  add_action("do_buy", _LANG_SHOP_VERBS_BUY);
+  add_action("view_shop_log", _LANG_SHOP_VERBS_LOGS);
 }
 
 // returns 1 if the object can be sold to the shop, 0 if can not
-int check_sell(object ob)
-{
-  return 1;
-}
+int check_sell(object ob) { return 1; }
 
 int do_list(string str) 
 {
@@ -256,7 +231,6 @@ int do_list(string str)
   if (sizeof(all))
   {
     write(_LANG_SHOP_LIST_SUMMARY);
-    // list = (string *)vault->list_contents();
 
     // build a mapping like ([ name: ({ how_many, ob }) ])
     // we need only one copy of the item in ob, just to check gender, etc
@@ -304,12 +278,565 @@ int do_list(string str)
   return 1;
 }
 
+/*
+ * Now shops store items the same way as vault_rooms 
+ * neverbot 7/03
+ */
+int do_sell(string str) 
+{
+  object vault;
+  object *obs, *selling, *cannot;
+  object *prev; // list of same items already in the shop
+  mixed *m_array;
+  int i, amt, total_amt;
 
+  if (!check_open_condition())
+    return 0;
 
+  if (only_sell)
+  {
+    tell_object(this_player(), _LANG_SHOP_ONLY_SELL);
+    return 1;
+  }
 
+  if (!strlen(str))
+  {
+    notify_fail(_LANG_SHOP_SELL_SYNTAX);
+    return 0;
+  }
 
+  // same safety system as in the vault_rooms
+  if (query_property(VAULT_USE_PROP)) 
+  {
+    notify_fail(_LANG_SHOP_STORE_IN_USE);
+    return 0;
+  }
 
+  if (file_size(query_save_file()) > FILE_SIZE)
+  {
+    notify_fail(_LANG_SHOP_STORE_FULL);
+    return 0;
+  }  
 
+  obs = find_match(str, this_player());
+  if (!sizeof(obs))
+  {
+    notify_fail(_LANG_SHOP_NOTHING_TO_VERB);
+    return 0;
+  }
+  
+  // filter items by type, removing types not accepted by this, neverbot 10/09
+  obs = filter_array(obs, "check_sell");
+
+  if (!sizeof(obs))
+  {
+    notify_fail(_LANG_SHOP_NOT_THIS_TYPE);
+    return 0;
+  }
+
+  // shop inventory object
+  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault->move(this_object());
+  vault->set_save_file(save_file);
+
+  // little fix, shops do not buy items until they sell some stock
+  prev = vault->simple_find_match(obs[0]->query_main_plural());
+  
+  if (sizeof(prev) >= MAX_OBS)
+  {
+    notify_fail(_LANG_SHOP_SELL_NOT_MORE);
+    vault->dest_me();
+    return 0;
+  }
+
+  if (sizeof(obs) > MAX_OBS)
+  {
+    write(_LANG_SHOP_SELL_TOO_MANY);
+    obs = obs[0..MAX_OBS - 1];
+  }
+
+  selling = cannot = ({ });
+  amt = total_amt = 0;
+
+  for (i = 0; i < sizeof(obs); i++)
+  {
+    if ( (obs[i]->query_value() > 0) && 
+        !obs[i]->do_not_sell() &&
+        (obs[i]->query_resale_value() != -1) &&
+        // ((obs[i]->query_stolen_modifier() != -1) || !obs[i]->query_property("stolen")) && 
+        !obs[i]->query_in_use() && 
+        (environment(obs[i]) == this_player()) )
+    {
+      amt = scaled_value(obs[i]->query_value());
+      if (amt > MAX_AMOUNT)
+        amt = MAX_AMOUNT;
+
+      // Let's not let something sell back for more than it was bought for
+      if (amt > obs[i]->query_value())
+        amt = obs[i]->query_value();
+
+      /* Adjusts price by item's adaptive multiplier (in 1/10 %) */
+      /* Adjust by mudwide scale factor */
+      // TODO: value adjustments removed temporarily, neverbot 05/06
+      /*
+      amt = amt * MONEY_TRACKER->query_adj_fact(SBFLAG)/1000;
+      */
+      amt = do_cha_adjust(amt, this_player()->query_cha(), 1);
+
+      if (obs[i]->avoid_auto_load() || obs[i]->query_no_save_object())
+      {
+        write(_LANG_SHOP_SELL_NOT_THIS_TYPE);
+        vault->dest_me();
+        return 1;
+      }
+
+      obs[i]->move(vault);
+
+      log_file(query_log_file(), "[shop buys - " + ctime(time(), 4) + "] " +
+                 this_player()->query_cap_name() +
+                 " - " + obs[i]->query_short() +
+                 " - " + base_name(obs[i]) + ", price: " + amt + "\n");
+
+      total_amt += amt;
+      selling += ({ obs[i] });
+    }
+    else if (obs[i]->short())
+      cannot += ({ obs[i] });
+  }
+
+  if (!sizeof(selling))
+  {
+    if (sizeof(cannot))
+      notify_fail(_LANG_SHOP_SELL_CANNOT_SELL);
+    else
+      notify_fail(_LANG_SHOP_SELL_NOTHING);
+
+    vault->dest_me();
+    return 0;
+  }
+
+  if (sizeof(cannot))
+    write(_LANG_SHOP_SELL_CANNOT_SELL);
+
+  m_array = (mixed *)MONEY_HAND->create_money_array(total_amt);
+  this_player()->adjust_money(m_array);
+
+  do_parse(sell_mess, selling, this_player(), (string)MONEY_HAND->money_string(m_array), "");
+
+  if (sell_func)
+    call_other(this_object(), sell_func, selling, total_amt);
+
+  vault->dest_me();
+
+  // save the player inventory
+  this_player()->save_me();
+
+  return 1;
+}
+
+int do_browse(string str) 
+{
+  object *obs;
+  int i, ob_amt;
+  object vault;
+
+  if (!check_open_condition())
+    return 0;
+
+  if (!strlen(str))
+  {
+    notify_fail(_LANG_SHOP_BROWSE_SYNTAX);
+    return 0;
+  }
+
+  // same safety system as in the vault_rooms
+  if (query_property(VAULT_USE_PROP)) 
+  {
+    notify_fail(_LANG_SHOP_STORE_IN_USE);
+    return 0;
+  }
+
+  // shop inventory object
+  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault->move(this_object());
+  vault->set_save_file(save_file);
+
+  obs = vault->simple_find_match(str);
+
+  if (!sizeof(obs))
+  {
+    notify_fail(_LANG_SHOP_NOT_FOUND);
+    vault->dest_me();
+    return 0;
+  }
+
+  for (i = 0; i < sizeof(obs); i++) 
+  {
+    ob_amt = obs[i]->query_value();
+    
+    // TODO: value adjustments removed temporarily, neverbot 05/06
+    // ob_amt = ob_amt * MONEY_TRACKER->query_adj_fact(SSFLAG)/1000;
+    
+    ob_amt = do_cha_adjust(ob_amt, this_player()->query_cha(), 0);
+
+    if (ob_amt < 1)
+      ob_amt = MIN_PRICE;
+
+    do_parse(browse_mess, obs[i], this_player(), 
+      (string)MONEY_HAND->money_value_string(ob_amt),
+      (string)obs[i]->long());
+  }
+
+  vault->dest_me();
+  return 1;
+}
+
+int do_value(string str)
+{
+  object *obs;
+  int i, amt;
+
+  if (!check_open_condition())
+    return 0;
+
+  if (!strlen(str))
+  {
+    notify_fail(_LANG_SHOP_VALUE_SYNTAX);
+    return 0;
+  }
+
+  if (only_sell)
+  {
+    tell_object(this_player(), _LANG_SHOP_ONLY_SELL);
+    return 1;
+  }
+
+  obs = find_match(str, this_player());
+
+  if (!sizeof(obs))
+  {
+    notify_fail(_LANG_SHOP_NOT_FOUND);
+    return 0;
+  }
+
+  for (i = 0; i < sizeof(obs); i++)
+  {
+    amt = scaled_value(obs[i]->query_value());
+    if (amt > MAX_AMOUNT)
+      amt = MAX_AMOUNT;
+
+    // Let's not let something sell back for more than it was bought for
+    if (amt > obs[i]->query_value())
+      amt = obs[i]->query_value();
+
+    /* Adjusts price by item's adaptive multiplier (in 1/10 %) */
+    /* Adjust by mudwide scale factor */
+    // TODO: value adjustments removed temporarily, neverbot 05/06
+    /*
+    amt = amt * MONEY_TRACKER->query_adj_fact(SBFLAG)/1000;
+    */
+    amt = do_cha_adjust(amt, this_player()->query_cha(), 1);
+
+    do_parse(value_mess, obs[i], this_player(),
+      (string)MONEY_HAND->money_value_string(amt),
+      (string)(obs[i]->do_not_sell() || (obs[i]->query_resale_value() == -1)) );
+  }
+
+  return 1;
+}
+
+int do_buy(string str) 
+{
+  int i, amt, ob_amt, total_cost;
+  object *obs, *to_buy, *cannot, *too_much;
+  string s;
+  object vault;
+  mixed aux;
+
+  if (!check_open_condition())
+    return 0;
+
+  if (!strlen(str))
+  {
+    notify_fail(_LANG_SHOP_BUY_SYNTAX);
+    return 0;
+  }
+
+  // same safety system as in the vault_rooms
+  if (query_property(VAULT_USE_PROP)) 
+  {
+    notify_fail(_LANG_SHOP_STORE_IN_USE);
+    return 0;
+  }
+
+  // shop inventory object
+  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault->move(this_object());
+  vault->set_save_file(save_file);
+
+  obs = vault->simple_find_match(str);
+
+  if (!sizeof(obs))
+  {
+    notify_fail(_LANG_SHOP_NOT_FOUND);
+    vault->dest_me();
+    return 0;
+  }
+
+  if (sizeof(obs) > MAX_OBS)
+  {
+    write(_LANG_SHOP_BUY_TOO_MANY);
+    obs = obs[0..MAX_OBS - 1];
+  }
+
+  to_buy = too_much = cannot = ({ });
+
+  amt = this_player()->query_value();
+
+  while (i < sizeof(obs))
+  {
+    ob_amt = obs[i]->query_value();
+    
+    /* Adjusts price by item's adaptive multiplier (in 1/10 %) */
+    /* Adjust by mudwide scale factor */
+    // TODO: value adjustments removed temporarily, neverbot 05/06
+    /*
+    ob_amt = ob_amt * MONEY_TRACKER->query_adj_fact(SBFLAG)/1000;
+    */
+
+    ob_amt = do_cha_adjust(ob_amt, this_player()->query_cha(), 0);
+
+    if (ob_amt < 1) 
+    {
+      ob_amt = MIN_PRICE;
+      log_file("shops", "[" + ctime(time(), 4) + "]" + file_name(this_object()) + ": sells " +
+                      file_name(obs[i]) + " for 0 value to " +
+                      this_player()->query_name() + " (min price assigned of " + 
+                      MIN_PRICE + ")\n");
+    }
+
+    if (ob_amt > amt)
+    {
+      if (obs[i]->short())
+        too_much += ({ obs[i] });
+
+      obs = delete(obs, i, 1);
+      continue;
+    }
+
+    if (obs[i]->move(this_player())) 
+    {
+      cannot += ({ obs[i] });
+    }
+    else
+    {
+      amt -= ob_amt;
+      total_cost += ob_amt;
+      to_buy += ({ obs[i] });
+
+      log_file(query_log_file(), "[shop sells  - " + ctime(time(), 4) + "] " +
+                 this_player()->query_cap_name() +
+                 " - " + obs[i]->query_short() +
+                 " - " + base_name(obs[i]) + ", price: " + ob_amt + "\n");
+    }
+
+    i++;
+  }
+
+  s = "";
+
+  if (sizeof(cannot))
+    s += _LANG_SHOP_BUY_CANNOT_MOVE;
+  
+  if (sizeof(too_much))
+    s += _LANG_SHOP_BUY_TOO_EXPENSIVE;
+  
+  if (!sizeof(to_buy))
+  {
+    if (s != "")
+      notify_fail(s);
+    else
+      notify_fail(_LANG_SHOP_BUY_NOTHING);
+
+    vault->dest_me();
+    return 0;
+  } 
+  else 
+    write(s);
+
+  this_player()->pay_money( aux = MONEY_HAND->create_money_array(total_cost));
+
+  do_parse(buy_mess, to_buy, this_player(), (string)MONEY_HAND->money_string(aux), "");
+  
+  if (buy_func)
+    call_other(this_object(), buy_func, to_buy, total_cost);
+
+  vault->dest_me();
+
+  // save the player inventory
+  this_player()->save_me();
+
+  return 1;
+}
+
+int view_shop_log(string str)
+{
+  string name;
+  string tmp;
+
+  if (strlen(str)) 
+  {
+    notify_fail(_LANG_SHOP_LOGS_SYNTAX);
+    return(0);
+  }
+
+  name = this_player()->query_name();
+  
+  // only coders, shop admins, or anybody if admins == "all"
+  if (this_player()->query_coder() ||
+     (member_array(name, shop_admins) != -1) ||
+     !sizeof(shop_admins) || 
+     (shop_admins[0] == "all") )
+  {
+   tmp = read_file("/log/" + query_log_file());
+
+   if (!tmp || tmp == "")
+   {
+     tell_object(this_player(), _LANG_SHOP_LOGS_EMPTY);
+     return 1;
+   }
+
+   this_player()->more_string(tmp);
+   return 1;
+  }
+  
+  notify_fail(_LANG_SHOP_LOGS_NO_PERMISSION);
+  return 0;
+}
+
+/* 
+ * This determines how much the shopkeeper will offer for an item, according
+ * to its value.  It only gets called if set_no_resell() has not been called
+ * and resale_value has not been hand-set to something.
+ */
+private int scaled_value(int n)
+{
+  int *prates;
+  int i, tot;
+
+  tot = 0;
+  prates = PAY_RATES;
+  for (i = 0; ( (i < sizeof(prates)) && (n > prates[i]) ); i+=2);
+
+  if (i > 0)
+    i -= 2;
+  // prates[i] is now the rate-increment directly below the value.
+
+  tot = (n - prates[i]) * ((prates[i+2] / prates[i+3]) -
+    (prates[i] / prates[i+1]));
+  tot /= (prates[i+2] - prates[i]);
+  tot += (prates[i] / prates[i+1]);
+
+  // For those curious, we just defined a line segment.  Basically, we
+  // used  y - y1 = m(x - x1).  And found the y value for x = n.
+  // Read ventures.h for better explanation.
+  return tot;
+}
+
+int do_cha_adjust(int amt, int cha, int updown)
+{
+  int temp;
+
+  if (!cha) 
+    return amt;
+  if (cha > 19) 
+    cha = 19;
+
+  if (cha > AVG_CHA)
+  {
+    temp = 10 * (cha - AVG_CHA) * CHA_AD / (18 - AVG_CHA);
+    if (updown) 
+    {
+      temp = amt * (1000 + temp) / 1000 - 1;
+      if (temp < amt) 
+        return amt;
+    }
+    else 
+    {
+      temp = amt * 1000 / (1000 + temp) + 1;
+      if (temp > amt) 
+        return amt;
+    }
+    return temp;
+  }
+
+  if (cha < AVG_CHA)
+  {
+    temp = 10 * (AVG_CHA - cha) * CHA_AD / (AVG_CHA - 3);
+    if (updown)
+    {
+      temp = amt * 1000 / (1000 + temp) + 1;
+      if (temp > amt) 
+        return amt;
+    }
+    else
+    {
+      temp = amt * (1000 + temp) / 1000 - 1;
+      if (temp < amt) 
+        return amt;
+    }
+
+    return temp;
+  }
+
+  return amt;
+}
+
+// show messages after buying or selling
+private void do_parse(mixed arr, mixed ob, object client, string money, string extra) 
+{
+  if (stringp(arr))
+    write(shop_parse(arr, ob, client, money, extra));
+  else
+  {
+    write(shop_parse(arr[0], ob, client, money, extra));
+    say(shop_parse(arr[1], ob, client, money, extra));
+  }
+}
+
+private string shop_parse(string str, mixed ob, object client, string money, string extra) 
+{
+  string s1, s2, s3, rest;
+  rest = "";
+
+  while (sscanf(str,"%s$%s$%s", s1, s2, s3) == 3)
+  {
+    switch (s2) 
+    {
+      case "ob":
+        if (pointerp(ob))
+          str = s1 + query_multiple_short(ob) + s3;
+        else
+          str = s1 + ob->short() + s3;
+        break;
+      case "client":
+        str = s1 + client->query_cap_name() + s3;
+        break;
+      case "extra":
+        str = s1 + extra + s3;
+        break;
+      case "money":
+        str = s1 + money + s3;
+        break;
+      default:
+        rest = s1 + "$" + s2 + "$";
+        str = s3;
+        break;
+    }
+  }
+
+  return rest + str;
+}
 
 // ************************************************************
 //  start of ventures handler related functions
@@ -454,643 +981,3 @@ void reset_stock()
 // ************************************************************
 //  end of ventures handler related functions
 // ************************************************************
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 
-   Funcion cambiada, neverbot 7/03
-   Ahora cuando vendes a la tienda un objeto, este se almacena del mismo modo
-   en que se almacenan los objetos en los vault_room
-*/
-int sell(string str) 
-{
-
-  object vault;
-  object *obs, *selling, *cannot;
-  object *prev; // Lista de objetos iguales que YA estan en la tienda
-  mixed *m_array;
-  int i, amt, total_amt;
-
-  if (!check_open_condition())
-    return 0;
-
-  if (only_sell) {
-    tell_object(this_player(),"Esta tienda no compra mercancías.\n");
-    return 1;
-  }
-
-  if (!str || str == "") {
-    notify_fail("Sintaxis: vender <objetos>\n");
-    return 0;
-  }
-
-  obs = find_match(str, this_player());
-  if (!sizeof(obs)) {
-    notify_fail("Nada que vender.\n");
-    return 0;
-  }
-  
-  // Novedad: aliminamos los objetos de tipos que no se acepten en esta tienda, neverbot 10/09
-  obs = filter_array(obs, "check_sell" );
-
-  if (!sizeof(obs)) {
-    notify_fail("Esta tienda no admite ese tipo de objetos.\n");
-    return 0;
-  }
-
-  // Dejamos el mismo sistema de seguridad de los vault_rooms
-  if (query_property(VAULT_USE_PROP)){
-    notify_fail("El almacén está siendo utilizado, inténtalo de nuevo en unos segundos.\n");
-    return 0;
-  }
-
-  // Objeto con el inventario de la tienda
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
-  vault->move(this_object());
-  vault->set_save_file(save_file);
-
-  // Pequeño arreglo, las tiendas no compran mas objetos
-  // hasta que no se deshagan de los anteriores (exceso de stock!!)
-  prev = find_match(obs[0]->query_main_plural(), vault);
-  if (sizeof(prev) >= MAX_OBS){
-    notify_fail("Parece que ya tienen suficientes "+obs[0]->query_plural()+" en el almacén.\n");
-    vault->dest_me();
-    return 0;
-  }
-
-  if (sizeof(obs) > MAX_OBS) {
-    write("El tendero no puede cargar con todos esos objetos.\n");
-    obs = obs[0..MAX_OBS - 1];
-  }
-
-  selling = cannot = ({ });
-  amt = total_amt = 0;
-
-  for (i = 0; i < sizeof(obs); i++) {
-    if ( (obs[i]->query_value() > 0) && !obs[i]->do_not_sell() &&
-        (obs[i]->query_resale_value() != -1) &&
-        // ((obs[i]->query_stolen_modifier() != -1) || !obs[i]->query_property("stolen")) && 
-        !obs[i]->query_in_use()) {
-      /* O.K. this SHOULD check to see if the item IS in the
-      inventory before we move it */
-      if (check_inv(obs[i],str)) 
-      {
-        string log;
-        log = "";
-        /* the call other (buried) in the below is so that we can update
-           /std/shop and have all the shops prices fall in line
-           consistently */
-        amt = obs[i]->query_resale_value();
-        if (!amt) {
-          amt = scaled_value((int)obs[i]->query_value());
-          if (amt > MAX_AMOUNT)
-            amt = MAX_AMOUNT;
-        }
-
-        /* Let's not let something sell back for more than it was bought
-           for */
-        if (amt > obs[i]->query_value())
-          amt = obs[i]->query_value();
-
-        /* "hot" goods lose value!  */
-        /*
-        if (obs[i]->query_property("stolen")) {
-          if (obs[i]->query_stolen_modifier() == 0)
-            amt = amt * stolen_modifier / 100;
-          else
-            amt = amt * obs[i]->query_stolen_modifier() / 100;
-        }
-        */
-        
-        /* Adjusts price by item's adaptive multiplier (in 1/10 %) */
-        /* Adjust by mudwide scale factor */
-        // PENDIENTE: Ajustes de valor eliminados temporalmente, neverbot 05/06
-        /*
-        amt = amt * MONEY_TRACKER->query_adj_fact(SBFLAG)/1000;
-        amt = do_weight_min(amt, obs[i]->query_weight(),
-                            obs[i]->query_material(), 1);
-        amt = do_cha_adjust(amt,this_player()->query_cha(),1);
-
-        if ((amt = do_race_adjust(amt,this_player()->query_race(),1))== -101) {
-          notify_fail("Esta tienda no trata con los de tu raza.\n");
-          amt = 0;
-          vault->dest_me();
-          return 0;
-        }
-        */
-
-        /* Counts how many of each item the shop buys
-        if (!(this_player()->query_coder()) &&
-             strsrch(this_player()->query_name(), "test") == -1)
-          add_bought(obs[i]);
-        */
-
-        // Almacenamos el objeto segun el nuevo sistema, neverbot 7/03
-
-        if (file_size(query_save_file()+".o") > FILE_SIZE) {
-          write("El almacén ya está lleno, no se puede guardar nada más.\n");
-          vault->dest_me();
-          return 1;
-        }
-
-        if ((int)obs[i]->avoid_auto_load() || (int)obs[i]->query_no_save_object()) {
-          write("No puedes vender tu "+obs[i]->short()+", no pueden " +
-          "venderse este tipo de objetos.\n");
-          vault->dest_me();
-          return 1;
-        }
-
-        obs[i]->move(vault);
-        log = "[COMPRA - " + ctime(time(),4) + "] " +
-                   this_player()->query_cap_name() +
-                   " - "+obs[i]->query_short()+" - Precio: " +
-                   amt + "\n";
-        log_file(query_log_file(), log);
-
-        // Fin de nuevo sistema de almacenamiento
-
-        total_amt += amt;
-        selling += ({ obs[i] });
-        // obs[i]->being_sold();
-      }
-      else if (obs[i]->short())
-        cannot += ({ obs[i] });
-      // end of test if exists, not that this DOESN'T do the cannot that it should
-    }
-    else if (obs[i]->short())
-    cannot += ({ obs[i] });
-  }
-
-  if (!sizeof(selling)) {
-    if (sizeof(cannot))
-      notify_fail("No puedes vender "+query_multiple_short(cannot)+", tal vez lo lleves puesto, " +
-        "o simplemente sea algo que aquí no aceptan.\n");
-    else
-      notify_fail("Nada que vender.\n");
-    vault->dest_me();
-    return 0;
-  }
-
-  if (sizeof(cannot))
-    write("No puedes vender "+query_multiple_short(cannot)+", tal vez lo lleves puesto, o simplemente no lo tengas.\n");
-
-  m_array = (mixed *)MONEY_HAND->create_money_array(total_amt);
-  this_player()->adjust_money(m_array);
-  do_parse(sell_mess, selling, this_player(), 
-    (string)MONEY_HAND->money_string(m_array), "");
-  if (sell_func)
-    call_other(this_object(), sell_func, selling, total_amt);
-
-  vault->dest_me();
-
-  return 1;
-}
-
-int buy(string str) 
-{
-  int i, amt, ob_amt, total_cost;
-  object *obs, *to_buy, *cannot, *too_much;
-  string s;
-  object vault;
-  mixed aux;
-
-  if (!check_open_condition())
-    return 0;
-
-  if (!str || str == "") {
-    notify_fail("Sintaxis: comprar <objetos>\n");
-    return 0;
-  }
-
-  // Dejamos el mismo sistema de seguridad de los vault_rooms
-  if (query_property(VAULT_USE_PROP)){
-    notify_fail("El almacén está siendo utilizado, inténtalo de nuevo en unos segundos.\n");
-    return 0;
-  }
-
-  // Objeto con el inventario de la tienda
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
-  vault->move(this_object());
-  vault->set_save_file(save_file);
-
-  obs = find_match(str, vault);
-
-  if (!sizeof(obs)) {
-    notify_fail("No encuentro "+str+".\n");
-    vault->dest_me();
-    return 0;
-  }
-
-  if (sizeof(obs) > MAX_OBS) {
-    write("El tendero no puede cargar con todos los objetos.\n");
-    obs = obs[0..MAX_OBS-1];
-  }
-
-  to_buy = too_much = cannot = ({ });
-
-  amt = (int)this_player()->query_value();
-
-  while (i < sizeof(obs)) {
-
-    ob_amt = obs[i]->query_value();
-    
-    /* PENDIENTE:
-    ob_amt = ob_amt * MONEY_TRACKER->query_adj_fact(SSFLAG)/1000;
-    ob_amt = do_weight_min(ob_amt, obs[i]->query_weight(),
-                           obs[i]->query_material(),0);
-    ob_amt = do_cha_adjust(ob_amt,this_player()->query_cha(),0);
-
-    if ((ob_amt = do_race_adjust(ob_amt,this_player()->query_race(),0))== -101) {
-      notify_fail("Esta tienda no trata con los de tu raza.\n");
-      vault->dest_me();
-      return 0;
-    }
-    */
-
-    if (ob_amt < 1) 
-    {
-      ob_amt = MIN_PRICE;
-      log_file("shops", "[" + ctime(time(),4) + "]" + file_name(this_object())+": vende "+
-                      file_name(obs[i]) + " por valor 0 a " +
-                      this_player()->query_name()+" (se le asigna precio minimo = " +
-                       MIN_PRICE + ")\n");
-    }
-
-    if (ob_amt > amt) 
-    {
-      if (obs[i]->short())
-        too_much += ({ obs[i] });
-      obs = delete(obs, i, 1);
-      continue;
-    }
-
-    if (obs[i]->move(this_player())) 
-    {
-      cannot += ({ obs[i] });
-    }
-    else
-    {
-      string log;
-      log = "";
-      amt -= ob_amt;
-      total_cost += ob_amt;
-      to_buy += ({ obs[i] });
-      log = "[VENTA  - " + ctime(time(),4) + "] " +
-           this_player()->query_cap_name() +
-           " - "+obs[i]->query_short()+" - Precio: " +
-           ob_amt + "\n";
-          
-      log_file(query_log_file(), log);
-    }
-    i++;
-  }
-
-  s = "";
-  if (sizeof(cannot))
-    s += "No puedes coger "+query_multiple_short(cannot)+".\n";
-  if (sizeof(too_much))
-    s += capitalize(query_multiple_short(too_much))+" cuesta demasiado.\n";
-  if (!sizeof(to_buy)) {
-    if (s != "")
-      notify_fail(s);
-    else
-      notify_fail("Nada que comprar.\n");
-    vault->dest_me();
-    return 0;
-  } else {
-    write(s);
-  }
-
-  vault->dest_me();
-
-  this_player()->pay_money( aux = (int)MONEY_HAND->create_money_array(total_cost));
-  do_parse(buy_mess, to_buy, this_player(), (string)MONEY_HAND->money_string(aux), "");
-  if (buy_func)
-    call_other(this_object(), buy_func, to_buy, total_cost);
-
-  return 1;
-}
-
-int browse(string str) 
-{
-  object *obs;
-  int i, ob_amt;
-  object vault;
-
-  if (!check_open_condition())
-    return 0;
-
-  if (!str || str == "") {
-    notify_fail("Sintaxis: "+query_verb()+" <objetos>\n");
-    return 0;
-  }
-
-  // Dejamos el mismo sistema de seguridad de los vault_rooms
-  if (query_property(VAULT_USE_PROP)){
-    notify_fail("El almacén está siendo utilizado, inténtalo de nuevo en unos segundos.\n");
-    return 0;
-  }
-
-  // Objeto con el inventario de la tienda
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
-  vault->move(this_object());
-  vault->set_save_file(save_file);
-
-  obs = find_match(str, vault);
-
-  if (!sizeof(obs)) {
-    notify_fail("No encuentro "+str+".\n");
-    vault->dest_me();
-    return 0;
-  }
-
-  for (i = 0; i < sizeof(obs); i++) {
-    ob_amt = obs[i]->query_value();
-    
-    /* PENDIENTE:
-    ob_amt = ob_amt * MONEY_TRACKER->query_adj_fact(SSFLAG)/1000;
-    ob_amt = do_weight_min(ob_amt, obs[i]->query_weight(), obs[i]->query_material(), 0);
-    ob_amt = do_cha_adjust(ob_amt,this_player()->query_cha(),0);
-
-    if ((ob_amt = do_race_adjust(ob_amt,this_player()->query_race(),0)) == -101) {
-      notify_fail("Esta tienda no trata con los de tu raza.\n");
-      vault->dest_me();
-      return 0;
-    }
-    */
-
-    if (ob_amt < 1)
-      ob_amt = MIN_PRICE;
-
-    do_parse(browse_mess, obs[i], this_player(), 
-      (string)MONEY_HAND->money_value_string(ob_amt),
-      (string)obs[i]->long());
-    /*
-    write("Examinas "+obs[i]->short()+", cuesta "+
-    MONEY_HAND->money_string(obs[i]->query_money_array())+"\n"+
-    obs[i]->long());
-    */
-  }
-  vault->dest_me();
-  return 1;
-}
-
-int value(string str) {
-  object *obs;
-  int i, val;
-
-  if (!check_open_condition())
-    return 0;
-
-  if (only_sell) {
-    tell_object(this_player(),"Esta tienda no compra bienes.\n");
-    return 1;
-  }
-
-  if (!str || str =="") {
-    notify_fail("Sintaxis: valorar <objetos>\n");
-    return 0;
-  }
-
-  obs = find_match(str, this_player());
-
-  if (!sizeof(obs)) {
-    notify_fail("No encuentro "+str+".\n");
-    return 0;
-  }
-
-  for (i = 0; i < sizeof(obs); i++) {
-    /* the call other is so that we can change the PAY_RATES array, and
-      then just update /std/shop to immediately and consistently effect
-      all shops */
-    val = obs[i]->query_resale_value();
-
-    if (!val) {
-      val = scaled_value((int)obs[i]->query_value());
-      if (val > MAX_AMOUNT)
-        val = MAX_AMOUNT;
-    }
-
-    if (val > obs[i]->query_value())
-      val = obs[i]->query_value();
-
-    /* "hot" goods lose value!  */
-    /*
-    if (obs[i]->query_property("stolen")) {
-      if (obs[i]->query_stolen_modifier() == 0)
-        val = val * stolen_modifier / 100;
-      else
-        val = val * obs[i]->query_stolen_modifier() / 100;
-    }
-    */
-    
-    /* adjust price offered by the adaptive multiplier of the item */
-    /* PENDIENTE:
-    val = val * MONEY_TRACKER->query_adj_fact(SBFLAG)/1000;
-    val = do_weight_min(val, obs[i]->query_weight(), obs[i]->query_material(), 1);
-    val = do_cha_adjust(val, this_player()->query_cha(), 1);
-
-    if ((val = do_race_adjust(val,this_player()->query_race(),1))==-101) {
-      notify_fail("Esta tienda no trata con los de tu raza.\n");
-      return 0;
-    }
-    */
-
-    do_parse(value_mess, obs[i], this_player(),
-      (string)MONEY_HAND->money_value_string(val),
-      (string)(obs[i]->do_not_sell() || (obs[i]->query_resale_value() == -1)) );
-  }
-  return 1;
-}
-
-// Funciones auxiliares
-
-void do_parse(mixed arr, mixed ob, object client, string money, string extra) 
-{
-  if (stringp(arr))
-    write(shop_parse(arr, ob, client, money, extra));
-  else {
-    write(shop_parse(arr[0], ob, client, money, extra));
-    say(shop_parse(arr[1], ob, client, money, extra));
-  }
-}
-
-string shop_parse(string str, mixed ob, object client, string money, string extra) 
-{
-  string s1, s2, s3, rest;
-
-  rest = "";
-  while(sscanf(str,"%s$%s$%s", s1, s2, s3) == 3){
-    switch (s2) {
-      case "ob" :
-        if (pointerp(ob))
-          str = s1+query_multiple_short(ob)+s3;
-        else
-          str = s1+ob->short()+s3;
-        break;
-      case "client" :
-        str = s1+client->query_cap_name()+s3;
-        break;
-      case "extra" :
-        str = s1+extra+s3;
-        break;
-      case "money" :
-        str = s1+money+s3;
-        break;
-      default :
-        rest = s1+"$"+s2+"$";
-        str = s3;
-        break;
-    }
-  }
-  return rest+str;
-}
-
-/* The new adaptive pricing functions, keep track of buys and sells,
-   return multipliers, figure out when and how to change multipliers,
-   save and recall the shop's data */
-/*
-int do_weight_min(int amt,int mass, int material, int buysell) {
-  if (buysell) {
-    if (material == 2 && amt < mass) amt = mass;
-    else if (material == 1 && amt < mass/4) amt = mass/4;
-    else if (material == 3 && amt < mass/7) amt = mass/7;
-    else if (amt < mass/10) amt = mass/10;
-  }
-  else {
-    if (material == 2 && amt < mass*3/2) amt=mass*3/2;
-    else if (material == 1 && amt < mass*3/8 ) amt=mass*3/8;
-    else if (material == 3 && amt < mass*3/14) amt=mass*3/14;
-    else if (amt < mass*3/20) amt = mass*3/20;
-  }
-  return amt;
-}
-
-int do_cha_adjust(int amt, int cha, int updown) {
-  int temp;
-  if (!cha) return amt;
-  if (cha > 19) cha = 19;
-  if (cha > AVG_CHA) {
-    temp = 10*(cha - AVG_CHA)*CHA_AD/(18-AVG_CHA);
-    if (updown) {
-      temp = amt*(1000+temp)/1000-1;
-      if (temp < amt) return amt;
-    }
-    else {
-      temp = amt*1000/(1000+temp)+1;
-      if (temp > amt) return amt;
-    }
-    return temp;
-  }
-  if (cha < AVG_CHA) {
-    temp = 10*(AVG_CHA-cha)*CHA_AD/(AVG_CHA-3);
-    if (updown) {
-      temp = amt*1000/(1000+temp)+1;
-      if (temp > amt) return amt;
-    }
-    else {
-      temp = amt*(1000+temp)/1000-1;
-      if (temp < amt) return amt;
-    }
-    return temp;
-  }
-  return amt;
-}
-*/
-
-/* clean up the storeroom when we die */
-/*
-void dest_me(){
-  ::dest_me();
-}
-*/
-
-/* This checks the player to make sure they have the item.
-   I *think* this is a paranoia check, but I'll leave it.
-*/
-int check_inv(object thing, string str)
-{
-  int i;
-  object * inv;
-  inv = find_match(str, this_player());
-
-  for (i = 0; i < sizeof(inv); i++) {
-    if (inv[i] == thing) return(1);
-  }
-  return(0);
-}
-
-/* This determines how much the shopkeeper will offer for an item, according
-to its value.  It only gets called if set_no_resell() has not been called
-and resale_value has not been hand-set to something.
-*/
-private int scaled_value(int n)
-{
-  int *prates;
-  int i, tot;
-
-  tot = 0;
-  prates = PAY_RATES;
-  for (i = 0; ( (i < sizeof(prates)) && (n > prates[i]) ); i+=2);
-
-  if (i > 0)
-    i-=2;
-  /* prates[i] is now the rate-increment directly below the value. */
-
-  tot = (n - prates[i]) * ((prates[i+2] / prates[i+3]) -
-    (prates[i] / prates[i+1]));
-  tot /= (prates[i+2] - prates[i]);
-  tot += (prates[i] / prates[i+1]);
-
-  /* For those curious, we just defined a line segment.  Basically, we
-     used  y - y1 = m(x - x1).  And found the y value for x = n.
-     Read shop.h for better explanation.
-  */
-  return tot;
-}
-
-int view_shop_log(string str)
-{
-   string name;
-   string tmp;
- 
-   if (str) 
-   {
-      notify_fail("Sintaxis: 'logs'\n");
-      return(0);
-   }
-
-   name = this_player()->query_name();
-   
-   // Sólo si es programador, si es admin, o si admin esta puesto a 'all'
-   if (this_player()->query_coder() ||
-      member_array(name, shop_admin) != -1 ||
-      !sizeof(shop_admin) || 
-      (shop_admin[0] == "all") )
-   {
-    tmp = read_file("/log/" + query_log_file());
-
-    if (!tmp || tmp == "")
-    {
-      tell_object(this_player(), "El registro de actividades está vacío.\n");
-      return 1;
-    }
-
-    this_player()->more_string(tmp);
-    return 1;
-   }
-   
-   notify_fail("No tienes permiso para ver el registro de actividades.\n");
-   return 0;
-}

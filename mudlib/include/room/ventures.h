@@ -1,4 +1,4 @@
-// neverbot, Agosto 2008
+// neverbot, august 2008
 
 #define VENTURES_HANDLER "/lib/handlers/ventures.c"
 
@@ -28,10 +28,11 @@
                      2074000, 61, 2147483647, 2074000 \
                   })
 
-/* 100 platinum coins... ;) */
+// maximum price that will be paid in a shop
+// 100 platinum coins... ;)
 #define MAX_AMOUNT 50000
 
-/* max objects in buy/sell - to prevent over-evalling */
+// max objects in buy/sell - to prevent over-evalling
 #define MAX_OBS 8
 
 #define CHA_AD 15
