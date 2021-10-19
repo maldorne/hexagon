@@ -198,7 +198,7 @@ static void open()
   MUDOS->set_current_command("");
   MUDOS->set_notify_fail_msg("");
   MUDOS->set_initiator_user(this_object());
-  MUDOS->set_initiator_object(this_object());
+  MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
 
   LOGIN->logon(this_object());
 
@@ -297,7 +297,7 @@ static void receive_message(string str)
       MUDOS->set_notify_fail_msg("");
       // to have this_player() inside an input_to redirection
       MUDOS->set_initiator_user(this_object());
-      MUDOS->set_initiator_object(this_object());
+      MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
 
       tmp_redirect_obj  = redirect_input_ob;
       tmp_redirect_func = redirect_input_function;
@@ -349,7 +349,7 @@ static void receive_message(string str)
     MUDOS->set_current_command("");
     MUDOS->set_notify_fail_msg("");
     MUDOS->set_initiator_user(this_object());
-    MUDOS->set_initiator_object(this_object());
+    MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
 
     if ( strlen(str) > INPUT_MAX_STRLEN )
     {
