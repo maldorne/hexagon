@@ -180,8 +180,6 @@ int update_ventures()
         // how many needed (must have - already have)
         how_many_to_clone = (int)permanent_goods[current_good] - how_many_in_shop;
 
-stderr("---------> " + how_many_to_clone +" "+(int)permanent_goods[current_good] +" "+ how_many_in_shop +"\n");
-
         // update a list of pending actions, to add everything at the same time
         if (how_many_to_clone > 0)
         {
@@ -239,8 +237,6 @@ void update_pending_clones()
   shop_name = "";
   list = ({ });
   
-  stderr("--------------> " + to_string(pending_clones) + "\n");
-  
   // every item of the same shop
   while (sizeof(pending_clones) &&
         (action_info = pending_clones[0]) &&
@@ -269,8 +265,6 @@ void update_pending_clones()
     pending_clones -= ({ pending_clones[0], });
   }
   
-stderr("--------------> " + to_string(list) + "\n");
-
   // move every item in a single call
   if (shop && sizeof(list))
     shop->load_objects_from_handler(list);        
