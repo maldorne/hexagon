@@ -215,19 +215,6 @@ void start_player()
 
   living::start_player();
 
-  // TODO move this to living::start_player
-  // event_commands();
-  // finger_commands();
-  // communicate_commands();
-  // living_commands();
-  // spell_commands();
-  // // logging_commands(); // bug, typo, idea, etc...
-  // weather_commands();
-  // editor_commands();
-  // alias_commands();
-  // nickname_commands();
-  // recipes_commands();
-
   reset_all();
 
   call_out("do_load_auto", 0);

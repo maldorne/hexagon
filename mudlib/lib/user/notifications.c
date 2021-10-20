@@ -16,7 +16,7 @@ void create()
   pending_notifications = false;
 }
 
-void init()
+void notifications_commands()
 {
   add_action("do_show_notifications", "notifications");
 }

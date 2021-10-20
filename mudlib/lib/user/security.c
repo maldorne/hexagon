@@ -10,7 +10,7 @@ void create()
 {
 }
 
-void init()
+void security_commands()
 {
   add_action("change_password", _LANG_COMM_PASSWORD);
 }

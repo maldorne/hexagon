@@ -15,6 +15,7 @@ inherit prompt        "/lib/user/prompt";
 inherit role          "/lib/user/role";
 inherit more_string   "/lib/user/more_string";
 inherit more_file     "/lib/user/more_file";
+inherit account       "/lib/user/account";
 inherit notifications "/lib/user/notifications";
 inherit ui            "/lib/user/ui";
 
@@ -63,6 +64,7 @@ int query_verbose() { return 1; }
 void create()
 {
   notifications::create();
+  account::create();
   ui::create();
   output::create();
   communicate::create();
@@ -100,17 +102,19 @@ void create()
   // the player object will have the heart_beat
   // if (clonep(this_object()))
   //   set_heart_beat(1);
+
+  notifications_commands();
+  event_commands();
+  account_commands();
+  security_commands();
+  ui_commands();
 }
 
-void init()
-{
-  security::init();
-  notifications::init();
-  ui::init();
-
-  // main inherit last
-  obj::init();
-}
+// void init()
+// {
+//   // main inherit last
+//   obj::init();
+// }
 
 // do not allow movement of the user object
 int move(mixed dest, varargs mixed messin, mixed messout)

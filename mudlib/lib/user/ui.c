@@ -22,7 +22,7 @@ void create()
   sidebar = false;
 }
 
-void init()
+void ui_commands()
 {
   add_action("do_sidebar", "sidebar");
 }

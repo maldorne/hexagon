@@ -16,11 +16,11 @@ void create()
   // doing_alias = ([ ]);
 }
 
-void init()
+void alias_commands()
 {
-  add_action("do_alias", "alias");
-  add_action("do_unalias", "unalias");
-  add_action("do_flushalias", "flushalias");
+  add_private_action("do_alias", "alias");
+  add_private_action("do_unalias", "unalias");
+  add_private_action("do_flushalias", "flushalias");
 }
 
 mixed * _compile_alias(string str)
