@@ -49,7 +49,7 @@
 // read.c
 
 #define _LANG_READ "Lees:\n" + str +"\n"
-#define _LANG_READ_IN_LANGUAGE "Lees un texto escrito en " + lang + ":\n" + str + "\n"
+#define _LANG_READ_IN_LANGUAGE "Lees un texto escrito en " + lang + ":\n\n" + str + "\n"
 #define _LANG_READ_UNABLE_WITH_GARBLE "No eres capaz de entender el siguiente texto:\n" + \
         str + (lang ? "\nParece escrito en " + lang + "." : "") + "\n"
 #define _LANG_READ_WHAT "Habrías jurado que habia algo escrito aquí...\n"; 

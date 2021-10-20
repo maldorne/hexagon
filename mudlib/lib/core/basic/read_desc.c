@@ -211,11 +211,7 @@ int do_read(string what)
 
   // neverbot 4/2003
   if (strlen(ret))
-  {
-    // ret = sprintf("%*-=s", (this_user()?this_user()->query_cols():79), ret);
-    // write(ret);
-    tell_object(this_player(), ret);
-  }
+    write(ret);
 
   return 1;
 } /* do_read() */

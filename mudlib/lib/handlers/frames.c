@@ -31,6 +31,12 @@ void create()
   //    [12] -> STYLE_TITLE_LEFT
   //    [13] -> STYLE_TITLE_RIGHT
 
+  styles["simple"] = ({ 1, 1, 2, 1,
+              "|", "|",
+              "", "", "", "",
+              "-", "-",
+              "| ", " |" });
+
   styles[DEFAULT_FRAME_STYLE] = ({ 1, 1, 2, 1,
               "" + chr(226) + chr(148) + chr(130), // "│"
               "" + chr(226) + chr(148) + chr(130), // "│"
