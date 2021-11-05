@@ -54,3 +54,29 @@
 #define _LANG_SHOP_LOGS_SYNTAX "Syntax: logs\n"
 #define _LANG_SHOP_LOGS_EMPTY "The activity log is empty.\n"
 #define _LANG_SHOP_LOGS_NO_PERMISSION "You do not have permission to see the activity log.\n"
+
+// pub.c
+
+#define _LANG_PUB_SIGN_DESC "A small sign made of paper.\n"
+#define _LANG_PUB_BUY_CMDS ({ "buy" })
+#define _LANG_PUB_MENU_FOODS "Food"
+#define _LANG_PUB_MENU_DRINKS "Soft drinks"
+#define _LANG_PUB_MENU_ALCOHOL "Alcoholic beverages"
+#define _LANG_PUB_MENU_INSTRUCTIONS "Use 'buy' to ask what you want.\n"
+#define _LANG_PUB_BUY_WHAT capitalize(query_verb()) + " what?\n"
+#define _LANG_PUB_BUY_SYNTAX query_verb() + " <something> [for <player>]"
+#define _LANG_PUB_BUY_PREPOSITION "for"
+#define _LANG_BUY_FOR_NOT_HERE "That person does not seem to be here.\n"
+#define _LANG_PUB_BUY_FOR_REJECT_MSG_ME forwho->query_cap_name() + " rejects your offer.\n"
+#define _LANG_PUB_BUY_FOR_REJECT_MSG_THEIR this_player()->query_cap_name() + " invites you, but you reject the offer.\n"
+#define _LANG_PUB_BUY_FOR_REJECT_MSG_ENV this_player()->query_cap_name()+" invites " + forwho->query_cap_name() + ", but " + forwho->query_demonstrative() + " rejects the offer.\n"
+#define _LANG_PUB_BUY_ITEM_NOT_FOUND "I'm sorry, but '"+str+"' is not available.\n"
+#define _LANG_PUB_BUY_CANNOT_AFFORD "You cannot afford something so expensive.\n"
+#define _LANG_PUB_BUY_FOR_MSG_ME "You buy " + str + " for " + forwho->query_cap_name() + ".\n"
+#define _LANG_PUB_BUY_FOR_MSG_THEIR this_player()->query_cap_name() + " buys " + str + " for you.\n"
+#define _LANG_PUB_BUY_FOR_MSG_ENV this_player()->query_cap_name() + " buys " + str " for " + forwho->query_cap_name() + ".\n"
+
+#define _LANG_PUB_DEFAULT_DRINK_MESS_ME "You drink a glass of " + name
+#define _LANG_PUB_DEFAULT_DRINK_MESS_OTHERS "drinks a glass of " + name
+#define _LANG_PUB_DEFAULT_FOOD_MESS_ME "You eat a full plate of " + name
+#define _LANG_PUB_DEFAULT_FOOD_MESS_OTHERS "eats a full plate of " + name

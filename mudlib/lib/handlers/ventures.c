@@ -44,17 +44,23 @@ string * shops;
 int next_shop;
 static mixed * pending_clones;
 
-// debug
+// list of pub file paths
+string * pubs;
+
 string * query_shops_array() { return shops; }
 mixed * query_pending_clones() { return pending_clones; }
 void reset_pending_clones() { pending_clones = ({ }); }
 void reset_stock(string shop);
+
+string * query_pubs_array() { return pubs; }
 
 void create()
 {
   shops = ({ });
   pending_clones = ({ });
   next_shop = 0;
+  pubs = ({ });
+
   restore_object(SAVE_FILE, 1);
 
   ::create();
@@ -103,6 +109,16 @@ int include_shop(string path)
   if (member_array(path, shops) == -1)
   {
     shops += ({ path });
+    save_handler();
+  }
+  return 1;
+}
+
+int include_pub(string path)
+{
+  if (member_array(path, pubs) == -1)
+  {
+    pubs += ({ path });
     save_handler();
   }
   return 1;

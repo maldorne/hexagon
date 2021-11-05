@@ -1,6 +1,6 @@
 
 #include <basic/communicate.h>
-#include <living/drinks.h>
+#include <living/food.h>
 
 #include <translations/language.h>
 #include <language.h>

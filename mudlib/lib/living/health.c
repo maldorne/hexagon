@@ -1,6 +1,6 @@
 
 #include <common/properties.h>
-#include <living/drinks.h>
+#include <living/food.h>
 #include <living/combat.h>
 #include <common/quests.h>
 #include <mud/secure.h>

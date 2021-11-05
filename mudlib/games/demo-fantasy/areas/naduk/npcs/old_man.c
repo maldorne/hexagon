@@ -1,31 +1,38 @@
 // Edited by Lummen and Antiron 21-9-97
-inherit "/obj/monster";
+
+#include <language.h>
+#include "../path.h"
+
+inherit "/lib/monster.c";
 
 void setup()
 {
-  set_name("viejo");
-  set_short("Viejo");
-  set_long("Es un viejo montaraz del lugar que se encuentra descansando en "
-    "la ciudad temporalmente.\n");
-  set_race("humano");
-  set_main_plural("Viejos");
-  add_plural("viejos");
-  set_level(10);
+  set_name(_LANG_NPCS_OLD_MAN_NAME);
+  add_alias(_LANG_NPCS_OLD_MAN_ALIAS);
+  set_main_plural(capitalize(_LANG_NPCS_OLD_MAN_PLURAL));
+  add_plural(_LANG_NPCS_OLD_MAN_PLURAL);
+  add_plural(_LANG_NPCS_OLD_MAN_PLURALS);
+  
+  set_short(capitalize(_LANG_NPCS_OLD_MAN_NAME));
+  set_long(_LANG_NPCS_OLD_MAN_LONG);
+
+  set_race("human");
   set_gender(1);
+
+  set_level(10);
   set_wimpy(0);
-  set_random_stats(3,16);
-  set_al(-100);
+  set_random_stats(3, 16);
+  set_real_align(-100);
+  
   adjust_money(random(10), "copper");
+  
   load_chat(50,
   ({
-    1, "'En mis viejos tiempos era uno de los mejores escaladores de la "
-       "region. Es una lastima que se pierda una aficion tan excitante.",
-    1, "'La verdadera aventura es la de escalar los grandes Mallorns.",
-    1, "@bebe de su jarra de cerveza.",
-    1, "'La verdadera aventura es la de escalar los grandes Mallorns.",
-    1, "Viejo te dice: tienes grandes dotes fisicas para ser un excelente "
-       "escalador. Si quieres aprender solo tienes que decirmelo.",
+    1, _LANG_NPCS_OLD_MAN_CHAT[0],
+    1, _LANG_NPCS_OLD_MAN_CHAT[1],
+    1, _LANG_NPCS_OLD_MAN_CHAT[2],
   }));
-  add_clone("/baseobs/armours/cloak",1);
+
+  add_clone(BASEOBS + "/armours/cloak.c", 1);
   init_equip();
 } 

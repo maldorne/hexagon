@@ -57,3 +57,29 @@
 #define _LANG_SHOP_LOGS_SYNTAX "Sintaxis: logs\n"
 #define _LANG_SHOP_LOGS_EMPTY "El registro de actividades está vacío.\n"
 #define _LANG_SHOP_LOGS_NO_PERMISSION "No tienes permiso para ver el registro de actividades.\n"
+
+// pub.c
+
+#define _LANG_PUB_SIGN_DESC "Es un pequeño cartel de papel.\n"
+#define _LANG_PUB_BUY_CMDS ({ "comprar", "pedir" })
+#define _LANG_PUB_MENU_FOODS "Comida"
+#define _LANG_PUB_MENU_DRINKS "Bebidas"
+#define _LANG_PUB_MENU_ALCOHOL "Bebidas alcohólicas"
+#define _LANG_PUB_MENU_INSTRUCTIONS "Utiliza 'pedir' o 'comprar' para encargar lo que te interese.\n"
+#define _LANG_PUB_BUY_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"
+#define _LANG_PUB_BUY_SYNTAX query_verb() + " <algo> [para <jugador>]"
+#define _LANG_PUB_BUY_PREPOSITION "para"
+#define _LANG_BUY_FOR_NOT_HERE "Esa persona no parece estar aquí.\n"
+#define _LANG_PUB_BUY_FOR_REJECT_MSG_ME forwho->query_cap_name() + " rechaza tu oferta.\n"
+#define _LANG_PUB_BUY_FOR_REJECT_MSG_THEIR this_player()->query_cap_name() + " intenta invitarte a algo, pero lo rechazas.\n"
+#define _LANG_PUB_BUY_FOR_REJECT_MSG_ENV this_player()->query_cap_name() + " intenta invitar a " + forwho->query_cap_name() + ", pero " + forwho->query_demonstrative() + " lo rechaza.\n"
+#define _LANG_PUB_BUY_ITEM_NOT_FOUND "Lo siento, pero '"+str+"' no está disponible.\n"
+#define _LANG_PUB_BUY_CANNOT_AFFORD "No puedes permitirte algo tan caro.\n"
+#define _LANG_PUB_BUY_FOR_MSG_ME "Invitas a " + forwho->query_cap_name() + " a " + str + ".\n"
+#define _LANG_PUB_BUY_FOR_MSG_THEIR this_player()->query_cap_name() + " te invita a " + str + ".\n"
+#define _LANG_PUB_BUY_FOR_MSG_ENV this_player()->query_cap_name() + " invita a " + forwho->query_cap_name() + " a " + str + ".\n"
+
+#define _LANG_PUB_DEFAULT_DRINK_MESS_ME "Te bebes un vaso de " + name
+#define _LANG_PUB_DEFAULT_DRINK_MESS_OTHERS "se bebe un vaso de " + name
+#define _LANG_PUB_DEFAULT_FOOD_MESS_ME "Te comes un plato de " + name
+#define _LANG_PUB_DEFAULT_FOOD_MESS_OTHERS "se come un plato de " + name

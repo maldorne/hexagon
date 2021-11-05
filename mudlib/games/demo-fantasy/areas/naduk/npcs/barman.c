@@ -1,32 +1,41 @@
 // Edited by Lummen and Antiron 26-7-97
-inherit "/obj/monster";
+
+#include <language.h>
+#include "../path.h"
+
+inherit "/lib/monster.c";
 
 void setup()
 {
-  set_name("cebadilla mantecona");
-  add_alias("gordo");
-  add_alias("hombre");
-  add_alias("cebadilla");
-  set_short("Cebadilla Mantecona");
-  set_long("Es un humano bajito y gordo con cara de bonachon. Su sucio delantal"
-    " nos da una idea del trabajo que tiene que soportar en una "
-    "jornada completa.\n");
-  set_race("humano");
-  set_level(5+random(6));
+  set_name(_LANG_NPCS_BARMAN_NAME);
+  add_alias(_LANG_NPCS_BARMAN_ALIAS);
+  set_main_plural(capitalize(_LANG_NPCS_BARMAN_PLURAL));
+  add_plural(_LANG_NPCS_BARMAN_PLURAL);
+  add_plural(_LANG_NPCS_BARMAN_PLURALS);
+  
+  set_short(capitalize(_LANG_NPCS_BARMAN_NAME));
+  set_long(_LANG_NPCS_BARMAN_LONG);
+
+  set_race("human");
   set_gender(1);
+
+  set_level(5+random(6));
   set_wimpy(0);
   set_random_stats(3,14);
-  set_al(-100);
-  adjust_money(random(10),"silver");
+  set_real_align(-100);
+  
+  adjust_money(random(10), "silver");
+  
   load_chat(10,
   ({
-    1, "@te saluda cordialmente.",
-    1, "'La tortilla de patata es excelente en mi taverna.",
-    1, "'No probaras ninguna comida igual en otro lugar.",
+    1, _LANG_NPCS_BARMAN_CHAT[0],
+    1, _LANG_NPCS_BARMAN_CHAT[1],
+    1, _LANG_NPCS_BARMAN_CHAT[2],
   }));
+
   load_a_chat(30,
   ({
-    1, "'Socorro, avisad a los guardias.",
-    1, "'Arrggghhh!",
+    1, _LANG_NPCS_BARMAN_A_CHAT[0],
+    1, _LANG_NPCS_BARMAN_A_CHAT[1],
   }));
-}
+} 
