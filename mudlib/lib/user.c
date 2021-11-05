@@ -329,19 +329,12 @@ static void receive_message(string str)
     // old ccmudlib process_input content
 
     // Taniwha crash workround
-    // if ( !strsrch(str,"%^") )
+    // if ( !strsrch(str, "%^") )
     //   return;
 
     // while ( str[<1..<1] == " " )
     //    str = str[0..<2];
     str = trim(str);
-
-    if ( !strlen(str) || str == "\n" )
-    {
-      show_prompt();
-      write_prompt();
-      return;
-    }
 
     stderr(" ~~~ user::receive_message()\n");
 
@@ -354,6 +347,13 @@ static void receive_message(string str)
     MUDOS->set_notify_fail_msg("");
     MUDOS->set_initiator_user(this_object());
     MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
+
+    if ( !strlen(str) || str == "\n" )
+    {
+      show_prompt();
+      write_prompt();
+      return;
+    }
 
     if ( strlen(str) > INPUT_MAX_STRLEN )
     {
