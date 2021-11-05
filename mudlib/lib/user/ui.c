@@ -86,7 +86,7 @@ void ui_redraw()
 
     if (text)
     {
-      text = handler("frames")->frame(text, "] " + _LANG_UI_MAP + " [", 16, 0, "sidebar");
+      text = handler("frames")->frame(text, _LANG_UI_MAP, 16, 0, "sidebar");
       pieces = explode(text, "\n");
 
       _draw_lines(pieces, lines_drawn + 1, this_object()->query_cols() - 12);
@@ -104,7 +104,7 @@ void ui_redraw()
       bar(this_object()->player()->query_gp() * 100 / this_object()->player()->query_max_gp()) + 
       "\n";
 
-    text = handler("frames")->frame(text, "] " + _LANG_UI_STATS + " [", 16, 0, "sidebar");
+    text = handler("frames")->frame(text, _LANG_UI_STATS, 16, 0, "sidebar");
     pieces = explode(text, "\n");
 
     _draw_lines(pieces, lines_drawn + 1, this_object()->query_cols() - 12);

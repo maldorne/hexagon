@@ -71,7 +71,7 @@
 #define _LANG_USED_CHARACTER_NAME "Sorry, but that character name is already in use.\n" + \
       "Please, enter a different name for your new character: "
 #define _LANG_CHARACTER_NAME_CHOSEN "You have chosen '" + name + "' as your character name, are you sure? (y/n): "
-#define _LANG_CHOOSE_CHARACTER_GENDER "Your character is man or woman? (m/w): "
+#define _LANG_CHOOSE_CHARACTER_GENDER "Your character is a man or a woman? (m/w): "
 #define _LANG_GENDER_MAN_OPTIONS_ARRAY ({ 'm', 'M' })
 #define _LANG_GENDER_WOMAN_OPTIONS_ARRAY ({ 'w', 'W' })
 #define _LANG_ANSWER_CHOOSE_AN_OPTION "You must answer one of the available options."
