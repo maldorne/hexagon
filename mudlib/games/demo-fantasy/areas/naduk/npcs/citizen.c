@@ -32,7 +32,8 @@ void setup()
     set_gender(gender);
   }
 
-  set_race("human");
+  // the race object
+  set_race_ob(OBJ + "races/human.c");
   
   set_real_align(0);
   set_random_stats(3, 12);

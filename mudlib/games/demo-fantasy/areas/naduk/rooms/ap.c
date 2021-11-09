@@ -8,13 +8,13 @@ inherit "/lib/ventures/pub.c";
 
 object board;
 
-// name.type.cost.heal.volume.intox
 void setup()
 {
 
   set_short(_LANG_NADUK_PUB_SHORT);
   set_long(_LANG_NADUK_PUB_LONG);
 
+  // name.type.cost.heal.volume.intox
   add_menu_item(_LANG_NADUK_PUB_MENU_BEER, ALCOHOL, 20, 2, 10, 10);
   add_menu_item(_LANG_NADUK_PUB_MENU_BLACK_BEER, ALCOHOL, 30, 3, 10, 15);
   add_menu_item(_LANG_NADUK_PUB_MENU_WHISKEY, ALCOHOL, 100, 6, 100, 100);

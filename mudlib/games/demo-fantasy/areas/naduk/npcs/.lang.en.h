@@ -47,5 +47,5 @@
 #define _LANG_NPCS_BARMAN_CHAT ({ ":greets you cordially.", \
                                   "'The omelette is excellent.", \
                                   "'You will not taste such food elsewhere." })
-#define _LANG_NPCS_BARMAN_A_CHAT ({ "'Arrggghhh!'", \
+#define _LANG_NPCS_BARMAN_A_CHAT ({ "'Arrggghhh!", \
                                     "'Help, warn the guards!" })

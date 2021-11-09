@@ -47,5 +47,5 @@
 #define _LANG_NPCS_BARMAN_CHAT ({ ":te saluda cordialmente.", \
                                   "'La tortilla de patata es excelente.", \
                                   "'No probarás ninguna comida igual en otro lugar." })
-#define _LANG_NPCS_BARMAN_A_CHAT ({ "'¡Arrggghhh!'", \
+#define _LANG_NPCS_BARMAN_A_CHAT ({ "'¡Arrggghhh!", \
                                     "'¡Socorro, avisad a los guardias!" })

@@ -16,7 +16,8 @@ void setup()
   set_short(capitalize(_LANG_NPCS_BARMAN_NAME));
   set_long(_LANG_NPCS_BARMAN_LONG);
 
-  set_race("human");
+  // the race object
+  set_race_ob(OBJ + "races/human.c");
   set_gender(1);
 
   set_level(5+random(6));
