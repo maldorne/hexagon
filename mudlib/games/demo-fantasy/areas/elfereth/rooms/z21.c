@@ -12,7 +12,7 @@ void setup()
 
   set_light(60);
   add_property("no_undead", 1);
-  add_exit(DIR_OUT, ROOMS + "z20.c", "door");
+  add_exit(DIR_SOUTH, ROOMS + "z20.c", "door");
 
   // will be restocked when there are any one in the inventory
   add_permanent_goods(BASEOBS + "armours/shirt.c", 2);

@@ -33,3 +33,10 @@
 #define _LANG_FOREST_TOWN_SHOP_SHORT "Elfereth Shop"
 #define _LANG_FOREST_TOWN_SHOP_LONG "You are in a small shop in the town of Elfereth. Here " + \
   "you can buy or sell every kind of item with any value.\n"
+
+#define _LANG_FOREST_TOWN_PUB_SHORT "Recovery tree"
+#define _LANG_FOREST_TOWN_PUB_LONG "It's the Elfereth Village Tavern. It is an old tree whose branches " + \
+  "grow like an awning on tables built with the tree's own branches.\n"
+#define _LANG_FOREST_TOWN_PUB_MENU_MEAD "mead"
+#define _LANG_FOREST_TOWN_PUB_MENU_BERRIES "berries"
+#define _LANG_FOREST_TOWN_PUB_MENU_ROOTS "roots"
