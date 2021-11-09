@@ -10,3 +10,13 @@
 #define _LANG_ERKEN_SHOP_SHORT "Tienda"
 #define _LANG_ERKEN_SHOP_LONG "Te encuentras en una pequeña tienda del pueblo de Erken. En este " + \
   "lugar puedes comprar y vender toda clase de objetos que posean algún valor.\n"
+
+
+#define _LANG_ERKEN_PUB_SHORT "%^RED%^El Cordero Degollado%^RESET%^"
+#define _LANG_ERKEN_PUB_LONG "Una taberna pequeña, bastante sucia y generalmente no muy concurrida.\n"
+
+#define _LANG_ERKEN_PUB_MENU_LIQUOR "licor"
+#define _LANG_ERKEN_PUB_MENU_BLACK_BEER "cerveza negra"
+#define _LANG_ERKEN_PUB_MENU_WHISKEY "whisky"
+#define _LANG_ERKEN_PUB_MENU_SCHNAPPS "aguardiente"
+#define _LANG_ERKEN_PUB_MENU_RIBS "costillas"

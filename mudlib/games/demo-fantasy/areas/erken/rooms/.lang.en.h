@@ -9,3 +9,12 @@
 #define _LANG_ERKEN_SHOP_SHORT "Shop"
 #define _LANG_ERKEN_SHOP_LONG "You are in a small shop in the town of Erken. Here " + \
   "you can buy or sell every kind of item with any value.\n"
+
+#define _LANG_ERKEN_PUB_SHORT "%^RED%^The Slaughtered Lamb%^RESET%^"
+#define _LANG_ERKEN_PUB_LONG "A small tavern, quite dirty and generally not very crowded.\n"
+
+#define _LANG_ERKEN_PUB_MENU_LIQUOR "licor"
+#define _LANG_ERKEN_PUB_MENU_BLACK_BEER "cerveza negra"
+#define _LANG_ERKEN_PUB_MENU_WHISKEY "whisky"
+#define _LANG_ERKEN_PUB_MENU_SCHNAPPS "aguardiente"
+#define _LANG_ERKEN_PUB_MENU_RIBS "costillas"

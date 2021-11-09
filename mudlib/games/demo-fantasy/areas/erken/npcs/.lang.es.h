@@ -17,3 +17,15 @@
                                ":escupe en el suelo.", \
                                ":maldice el nombre de $lname$.", \
                                ":te mira maliciosamente con sus ojos inyectados en sangre.", })
+
+
+#define _LANG_NPCS_BARMAN_NAME "arak"
+// "barman" will be use by set_attender in the pub, do not change!
+#define _LANG_NPCS_BARMAN_ALIAS ({ "arak", "barman" })
+#define _LANG_NPCS_BARMAN_PLURAL "arak"
+#define _LANG_NPCS_BARMAN_PLURALS ({ "arak" })
+#define _LANG_NPCS_BARMAN_LONG "Para ser un goblin tiene una estatura bastante notable. Sus " + \
+      "efluvios corporales le destacan entre la multitud.\n"
+#define _LANG_NPCS_BARMAN_CHAT ({ ":te mira.", \
+                                  "@te escupe a los pies.", })
+#define _LANG_NPCS_BARMAN_A_CHAT ({ "'¡Arrggghhh!" })
