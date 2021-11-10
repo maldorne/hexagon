@@ -1,6 +1,9 @@
 /* 
  * New combat styles system for CcMud, neverbot 27/4/2003
- * ([ style_name : ({ num_dice, dice_type, message_list }) ])
+ * ([ style_id : ({ style_name, num_dice, dice_type, message_list }) ])
+ *
+ * style_id is just a word in english, to store with the player data
+ * style_name will be translated 
  *
  * message_list is a list of arrays
  *   initial list
@@ -20,6 +23,7 @@
  */
 
 #include <translations/combat.h>
+#include <living/combat.h>
 #include <language.h>
 
 // save file
@@ -34,7 +38,7 @@ void create()
 {
   // seteuid("Room");
   unarmed_combat_styles = ([ 
-    DEF_UNARMED_STYLE_NAME : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
+     DEF_UNARMED_STYLE_NAME : ({ _LANG_UNARMED_DEFAULT_STYLE, DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
          ({
             ({ // messages up to 33%
                _LANG_UNARMED_INITIAL_ATT_MSGS, 
@@ -100,7 +104,7 @@ void create()
 
 int query_valid_attack(string attack, string style)
 {
-  if(member_array(attack, unarmed_combat_styles[style][2])>-1)
+  if (member_array(attack, unarmed_combat_styles[style][3])>-1)
     return 1;
   return 0;
 }
@@ -110,12 +114,21 @@ string * query_unarmed_styles()
   return keys(unarmed_combat_styles);
 }
 
-int style_exists(string name)
+mixed * query_unarmed_style_info(string name)
 {
-    return (member_array(name, keys(unarmed_combat_styles)) != -1);
+  if (undefinedp(unarmed_combat_styles[name]))
+    return ({ });
+
+  return unarmed_combat_styles[name];
 }
 
-mapping query_all_uc_info(){
+int style_exists(string name)
+{
+  return (member_array(name, keys(unarmed_combat_styles)) != -1);
+}
+
+mapping query_all_uc_info()
+{
   return unarmed_combat_styles;
 }
 
@@ -129,8 +142,8 @@ int set_damage_dice(string style, object player)
   if (!unarmed_combat_styles[style])
      return 0;
 
-  player->set_damage_dice(unarmed_combat_styles[style][0], 
-                          unarmed_combat_styles[style][1]);
+  player->set_damage_dice(unarmed_combat_styles[style][1], 
+                          unarmed_combat_styles[style][2]);
   return 1;
 }
 
@@ -147,7 +160,7 @@ mixed * query_messages(string style, int ability, object att)
      return ({ });
      
   // divs stores how many message lists there are
-  divs = sizeof(unarmed_combat_styles[style][2]);
+  divs = sizeof(unarmed_combat_styles[style][3]);
 
   //  get the list we have to use depending of the attacker ability
   list = ability/(100/divs);
@@ -160,5 +173,5 @@ mixed * query_messages(string style, int ability, object att)
   // rand = random(list + 1);
 
   // hate arrays with so many dimensions, neverbot 4/03  
-  return unarmed_combat_styles[style][2][list];
+  return unarmed_combat_styles[style][3][list];
 }

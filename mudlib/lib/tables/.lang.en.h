@@ -1,5 +1,6 @@
 
 // unarmed_combat table
+#define _LANG_UNARMED_DEFAULT_STYLE "fighting"
 
 #define _LANG_UNARMED_INITIAL_ATT_MSGS ({ "you hit $defname $local", \
                                          "you punch $defname $local", \

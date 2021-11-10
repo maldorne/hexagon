@@ -1,5 +1,6 @@
 
 // unarmed_combat table
+#define _LANG_UNARMED_DEFAULT_STYLE "pelea"
 
 #define _LANG_UNARMED_INITIAL_ATT_MSGS ({ "golpeas a $defname $local", \
                                          "das un puñetazo a $defname $local", \
