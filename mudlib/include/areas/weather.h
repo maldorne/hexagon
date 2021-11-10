@@ -1,6 +1,6 @@
 
 #define WEATHER_HANDLER "weather"
-#define HOME "/lib/areas/admin/weather.c"
+#define HOME "/games/hexagon/areas/admin/weather.c"
 #define SAVE_FILE "/save/weather.o"
 #define LOG_FILE "weather"
 

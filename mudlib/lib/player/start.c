@@ -95,16 +95,17 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
         catch(last = load_object(last_pos)) ||
         !last)
     {
-      if (query_level() >= 5)
-      {
-        last_pos = MULTIEXITS_ROOM;
-        move(last_pos);
-      }
-      else
-      {
+      // TODO: MULTIEXITS_ROOM does not exist 
+      // if (query_level() >= 5)
+      // {
+      //   last_pos = MULTIEXITS_ROOM;
+      //   move(last_pos);
+      // }
+      // else
+      // {
         last_pos = START_POS;
         move(last_pos);
-      }
+      // }
     }
     else
     {
