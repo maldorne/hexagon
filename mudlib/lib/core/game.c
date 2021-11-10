@@ -8,6 +8,8 @@
 // locked out domain masters at Baldrick's request ... Raskolnikov 96
 // Converted to game object for Hexagon, neverbot 12/2020
 
+#include <language.h>
+
 int open_read, open_write;
 string game_coordinator, game_name;
 mapping read_perms, write_perms, dir_owners;
@@ -41,8 +43,7 @@ void create()
   dir_owners = ([ ]);
   open_read = 1;
   open_write = 0;
-  // finger_info = "A domain of Final Realms, ask the Thane for info.\n";
-  finger_info = "Uno de los dominios de "+mud_name()+".\n";
+  finger_info = _LANG_GAME_DEFAULT_FINGER_INFO;
   seteuid("/lib/core/secure"->creator_file(file_name(this_object())));
   restore_object(file_name(this_object()), 1);
   if (pointerp(members))
@@ -66,12 +67,12 @@ void save_me()
 // Hamlet added arg here...
 int query_dom_manip(varargs string euid)
 {
-  if(!euid) euid = geteuid(this_player(1));
-  if((euid == query_dom_lord()) ||
+  if (!euid) euid = geteuid(this_player(1));
+  if ((euid == query_dom_lord()) ||
     ("/lib/core/secure"->query_admin(euid) &&
      "/lib/core/secure"->high_programmer(geteuid(this_player()))))
     return 1;
-  if(lower_case(euid) == game_name)  return 1;
+  if (lower_case(euid) == game_name)  return 1;
     return 0;
 }
 
@@ -81,31 +82,31 @@ int query_restricted(mapping perms, string *path, string euid)
   string *checks, *step;
   int i,j,caught;
   mixed arr;
-  if(!m_sizeof(perms)) return 0;
+  if (!m_sizeof(perms)) return 0;
 
   checks = keys(perms);
-  for(i=0; i<sizeof(checks); i++)
+  for (i = 0; i < sizeof(checks); i++)
   {
     step = explode(checks[i],"/");
-    if(sizeof(step) > sizeof(path))
+    if (sizeof(step) > sizeof(path))
       continue;
     caught = 0;
-    for(j=0; j<sizeof(step); j++)
+    for (j = 0; j < sizeof(step); j++)
     {
-      if(step[j] != path[j]) break;
-      if(j == sizeof(step) -1) caught = 1;
+      if (step[j] != path[j]) break;
+      if (j == sizeof(step) -1) caught = 1;
     }
-    if(!caught) continue;
+    if (!caught) continue;
     // we have a match (I think!)
     arr = perms[checks[i]];
-    if(intp(arr))
+    if (intp(arr))
     {
-      if(arr == 1 && !members[euid]) return 1;
-      if(arr == 2 && euid != query_dom_lord()) return 1;
+      if (arr == 1 && !members[euid]) return 1;
+      if (arr == 2 && euid != query_dom_lord()) return 1;
       return -1;
     }
-    if(!stringp(arr) && sizeof(arr))
-      if(member_array(euid,arr) != -1)
+    if (!stringp(arr) && sizeof(arr))
+      if (member_array(euid,arr) != -1)
     return -1;
   }
   return 0;
@@ -114,14 +115,14 @@ int query_restricted(mapping perms, string *path, string euid)
 int valid_read(string *path, string euid, string funct)
 {
   int i;
-  if(query_dom_manip(euid))
+  if (query_dom_manip(euid))
     return 1;
   i = query_restricted(read_perms, path, euid);
-  if(i < 0)
+  if (i < 0)
     return 1;
-  if(i)
+  if (i)
     return 0;
-  if(query_open_read())
+  if (query_open_read())
     return 1;
   return (members[euid] != 0);
 }
@@ -132,7 +133,7 @@ int valid_write(string *path, string euid, string funct)
   /* lock out domain masters unless its a high programmer
    * Raskolnikov Nov 96
    */
-  if("/lib/core/secure"->query_admin(euid) &&
+  if ("/lib/core/secure"->query_admin(euid) &&
     "/lib/core/secure"->high_programmer(geteuid(this_player())))
     return 1;
   switch(path[2])
@@ -146,16 +147,16 @@ int valid_write(string *path, string euid, string funct)
       break;
   }
   /* now check open write and dom_manip ... Raskolnikov */
-  if(query_open_write())
+  if (query_open_write())
     return 1;
-  if(query_dom_manip(euid))
+  if (query_dom_manip(euid))
     return 1;
-  if(euid == "Dom: "+game_name)
+  if (euid == "Dom: "+game_name)
     return 1;
   i = query_restricted(write_perms, path, euid);
-  if(i < 0)
+  if (i < 0)
     return 1;
-  if(i)
+  if (i)
     return 0;
   return (members[euid] != 0);
 }
@@ -166,8 +167,8 @@ string *query_members() { return keys(members) + ({ }); }
 
 int add_member(string name)
 {
-  if(!query_dom_manip(geteuid(this_player(1)))) return 0;
-  if(members[name]) return 0;
+  if (!query_dom_manip(geteuid(this_player(1)))) return 0;
+  if (members[name]) return 0;
   members[name] = "No Project";
   save_me();
   return 1;
@@ -176,8 +177,8 @@ int add_member(string name)
 int remove_member(string name)
 {
   // int i;
-  if(!query_dom_manip(geteuid(this_player(1)))) return 0;
-  if(!members[name]) return 0;
+  if (!query_dom_manip(geteuid(this_player(1)))) return 0;
+  if (!members[name]) return 0;
   members = m_delete(members, name);
   save_me();
   return 1;
@@ -185,9 +186,9 @@ int remove_member(string name)
 
 int set_project(string name, string pro)
 {
-  if(!query_dom_manip(geteuid(this_player(1)))) return 0;
-  if(!members[name]) return 0;
-  if(!pro || pro == "") pro = "No Project";
+  if (!query_dom_manip(geteuid(this_player(1)))) return 0;
+  if (!members[name]) return 0;
+  if (!pro || pro == "") pro = "No Project";
   members[name] = pro;
   save_me();
   return 1;
@@ -200,7 +201,7 @@ int query_member(string name)
 
 string query_project(string name)
 {
-  if(!members[name])
+  if (!members[name])
     return "project unset";
   return members[name];
 } /* query_project() */
@@ -213,9 +214,9 @@ void smart_log(string error, string where)
 string log_who(string where)
 {
   // Quark, Sept 1996
-  if(!dir_owners) dir_owners = ([ ]);
+  if (!dir_owners) dir_owners = ([ ]);
 
-  if(stringp(dir_owners[where]))
+  if (stringp(dir_owners[where]))
     return dir_owners[where];
 
   return game_coordinator;

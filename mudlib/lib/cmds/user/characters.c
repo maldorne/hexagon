@@ -24,7 +24,8 @@ static int cmd (string arg, object me, string verb)
 
   user = me->user();
 
-  if (!strlen(me->query_account_name())) {
+  if (!strlen(me->query_account_name()))
+  {
     write(_LANG_CMD_CHARACTERS_NO_LOGIN);
     return 1;
   }

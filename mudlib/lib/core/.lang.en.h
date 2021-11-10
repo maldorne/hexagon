@@ -80,3 +80,7 @@
 #define _LANG_WAIT_LOADING "Please wait... loading your character.\n"
 #define _LANG_CONNECTED_WELCOME "%^BOLD%^You are connected! Welcome to "+mud_name()+".%^RESET%^\n"
 #define _LANG_HAS_RECONNECTED _user->query_cap_name() + " has reconnected.\n"
+
+// game.c
+
+#define _LANG_GAME_DEFAULT_FINGER_INFO "One of the games in " + mud_name() + ".\n"

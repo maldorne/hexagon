@@ -7,9 +7,15 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 1;
+  return "goto <room file path | coder name>";
+}
+
+string query_help()
+{
+  return "Teleports the coder to the given room if a file path is used, " + 
+    "or the home room of a coder if a coder room is used.";
 }
 
 static int cmd(string str, object me, string verb) 
@@ -17,7 +23,8 @@ static int cmd(string str, object me, string verb)
   object dest;
   string *names, nick;
 
-  notify_fail("¿Teleportarse a donde?\n");
+  notify_fail("Teleport where?\n");
+  
   if (!strlen(str)) 
     return 0;
 
@@ -36,6 +43,7 @@ static int cmd(string str, object me, string verb)
         notify_fail("Miras a tu alrededor y te das cuenta de que ya estas alli.\n");
         return 0;
       }
+      
       me->move_player("X", dest);
       return 1;
     } 

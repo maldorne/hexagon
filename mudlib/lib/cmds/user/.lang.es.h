@@ -51,3 +51,10 @@
 #define _LANG_CMD_CHARACTERS_HELP "Muestra todos los personajes disponibles en tu cuenta."
 #define _LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT "Tienes disponibles en esta cuenta los siguientes personajes:\n"
 #define _LANG_CMD_CHARACTERS_NO_LOGIN "Debes hacer login primero."
+
+// games
+
+#define _LANG_CMD_GAMES "juegos"
+#define _LANG_CMD_GAMES_HELP "Lista todos los juegos disponibles en " + mud_name() + "."
+#define _LANG_AVAILABLE_GAMES "Los siguientes juegos están disponibles:\n"
+#define _LANG_CMD_GAMES_NO_LOGIN "Debes hacer login primero."
