@@ -1,3 +1,4 @@
+open 1
 game_coordinator "neverbot"
 game_name "Demo Fantasy Game"
 read_perms ([0|])

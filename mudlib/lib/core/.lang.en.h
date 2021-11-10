@@ -17,6 +17,7 @@
 #define _LANG_OPTIONS_CHARACTER_LOGIN "%^BOLD%^GREEN%^<character name>%^RESET%^ to play again."
 #define _LANG_OPTIONS_CREATE_CHARACTER "%^BOLD%^create%^RESET%^ to create a new player character."
 #define _LANG_OPTIONS_LIST_CHARACTERS "%^BOLD%^characters%^RESET%^ to list all your available characters."
+#define _LANG_OPTIONS_CMD_GAMES "%^BOLD%^games%^RESET%^ to list all available games in " + mud_name() + "."
 #define _LANG_OPTIONS_CMD_FINGER "%^BOLD%^finger <name>%^RESET%^ to get information about other player."
 #define _LANG_OPTIONS_CMD_WHO "%^BOLD%^who%^RESET%^ to see the list of connected players."
 
@@ -84,3 +85,4 @@
 // game.c
 
 #define _LANG_GAME_DEFAULT_FINGER_INFO "One of the games in " + mud_name() + ".\n"
+#define _LANG_GAME_NO_PROJECT "No assigned project"

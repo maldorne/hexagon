@@ -13,5 +13,8 @@ void create()
    set_open_write(0);
    // set_finger_info("");
 
+   // open to players
+   set_open(true);
+
    save_me();
 }

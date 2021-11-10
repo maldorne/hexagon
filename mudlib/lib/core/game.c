@@ -10,6 +10,10 @@
 
 #include <language.h>
 
+// permissions for players: can they play?
+int open;
+
+// permissions for coders
 int open_read, open_write;
 string game_coordinator, game_name;
 mapping read_perms, write_perms, dir_owners;
@@ -23,27 +27,26 @@ void set_game_coordinator(string lord) { game_coordinator = lord; }
 string query_game_coordinator() { return game_coordinator; }
 // string query_dom_lord() { return game_coordinator; }
 
-void set_open_read(int i) { open_read = i; }
-int query_open_read() { return open_read; }
-
-void set_open_write(int i) { open_write = i; }
-int query_open_write() { return open_write; }
-
 void set_finger_info(string info) { finger_info = info; }
 string query_finger_info() { return finger_info; }
 // string query_info() { return finger_info; }
 
+// permissions for players
+void set_open(int value) { open = value; }
+int query_open() { return open; }
+
+// permissions for coders
+void set_open_read(int i) { open_read = i; }
+int query_open_read() { return open_read; }
+void set_open_write(int i) { open_write = i; }
+int query_open_write() { return open_write; }
 void set_read_perms(mapping i) { read_perms = i; }
 mapping query_read_perms() { return read_perms; }
-
 void set_write_perms(mapping i) { write_perms = i; }
 mapping query_write_perms() { return write_perms; }
-
 void set_dir_owners(mapping i) { dir_owners = i; }
 mapping query_dir_owners() { return dir_owners; }
-
 void setup_perms() { return; }
-int query_prevent_shadow() { return 1; }
 
 void create()
 {
@@ -57,15 +60,29 @@ void create()
   open_read = 1;
   open_write = 0;
   finger_info = _LANG_GAME_DEFAULT_FINGER_INFO;
+  // games closed by default
+  open = false;
+
   seteuid("/lib/core/secure"->creator_file(file_name(this_object())));
   restore_object(file_name(this_object()), 1);
+  
   if (pointerp(members))
   {
     map = ([ ]);
-    for (i=0;i<sizeof(members);i++)
-      map[members[i]] = "No Project";
-      members = map;
-    }
+    for (i = 0; i < sizeof(members); i++)
+      map[members[i]] = _LANG_GAME_NO_PROJECT;
+    members = map;
+  }
+}
+
+int is_available(object user)
+{
+  if (!open)
+    return false;
+
+  // TODO: logic for games only available with achievements, etc
+
+  return true;
 }
 
 void dest_me() { destruct(this_object()); }
@@ -182,7 +199,7 @@ int add_member(string name)
 {
   if (!query_dom_manip(geteuid(this_player(1)))) return 0;
   if (members[name]) return 0;
-  members[name] = "No Project";
+  members[name] = _LANG_GAME_NO_PROJECT;
   save_me();
   return 1;
 } /* add_member() */
@@ -201,7 +218,7 @@ int set_project(string name, string pro)
 {
   if (!query_dom_manip(geteuid(this_player(1)))) return 0;
   if (!members[name]) return 0;
-  if (!pro || pro == "") pro = "No Project";
+  if (!pro || pro == "") pro = _LANG_GAME_NO_PROJECT;
   members[name] = pro;
   save_me();
   return 1;

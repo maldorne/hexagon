@@ -34,20 +34,27 @@ static int cmd (string arg, object me, string verb)
   //   return 1;
   // }
 
-  write(_LANG_AVAILABLE_GAMES);
+  write(_LANG_CMD_GAMES_AVAILABLE);
 
   games = handler("games")->query_game_objects();
 
   for (i = 0; i < sizeof(games); i++)
   {
     string line;
+    int available;
+
+    available = games[i]->is_available(user);
+
+    if (!is_coder && !available)
+      continue;
 
     line = "   " + ((string)(i + 1)) + ") " + games[i]->query_game_name();
 
     if (is_coder)
-    {
       line += " (" + file_name(games[i]) + ")";
-    }
+
+    if (!available)
+      line += " (" + _LANG_CMD_GAMES_UNAVAILABLE_GAME + ")";
 
     line += "\n";
 

@@ -224,6 +224,7 @@ nomask void show_options()
     ret += "  " + _LANG_OPTIONS_LIST_CHARACTERS + "\n";
   }
 
+  ret += "  " + _LANG_OPTIONS_CMD_GAMES + "\n";
   ret += "  " + _LANG_OPTIONS_CMD_FINGER + "\n";
   ret += "  " + _LANG_OPTIONS_CMD_WHO + "\n";
 
