@@ -179,6 +179,10 @@ string frame(string content, varargs string title, int width, int height, string
   if (!style_name)
     style_name = DEFAULT_FRAME_STYLE;
 
+  // TODO: if terminal is dumb or text, do not use especial characters
+  if (handler("terminal")->is_dumb_terminal(this_user()))
+    style_name = "simple";
+
   style = styles[style_name];
 
   // unknown style, do nothing

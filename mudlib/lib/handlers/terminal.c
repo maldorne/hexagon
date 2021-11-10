@@ -27,10 +27,29 @@
 // some tricks:
 // exec write(sprintf("%c", 7))    -> send bell to the terminal
 
-
 #define ANSI(p) sprintf("%c["+(p)+"m", 27)
 #define ESC(p) sprintf("%c"+(p), 27)
+
 mapping terms;
+
+mixed set_term_type(string str)
+{
+  if (!terms[str])
+  {
+    tell_object(this_player(), "No existe el tipo de terminal '"+str+"', se usará dumb.\n");
+    str = "dumb";
+  }
+  return terms[str];
+}
+
+string * query_term_types() { return m_indices(terms); }
+
+int is_dumb_terminal(object user)
+{
+  if (member_array(user->query_term_name(), ({ "dumb", "text"}) ) != -1)
+    return true;
+  return false;
+}
 
 void create() {
   terms = ([ "dumb" : ([ "RESET" : "",
@@ -294,21 +313,6 @@ void create() {
           ]);
 }
 
-mixed set_term_type(string str)
-{
-  if (!terms[str])
-  {
-    tell_object(this_player(), "No existe el tipo de terminal '"+str+"', se usará dumb.\n");
-    str = "dumb";
-  }
-  return terms[str];
-}
-
-string *query_term_types()
-{
-  return m_indices(terms);
-}
-
 // new terms for ccmud, neverbot 7/03
 
 // change ñ's and accents to common letters
@@ -378,6 +382,7 @@ string fix_enye_mode(string mess)
     return ret;
 }
 
+// called from the fix_string efun
 string _fix_string(string ret, varargs object user)
 {
   string *st;
@@ -403,7 +408,6 @@ string _fix_string(string ret, varargs object user)
   // ret += "%^RESET%^";
 
   // new terms for ccmud, neverbot 7/03
-
   if (term_name == "ansi-enye")
     ret = fix_enye_mode(ret);
 
