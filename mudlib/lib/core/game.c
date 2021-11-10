@@ -16,21 +16,34 @@ mapping read_perms, write_perms, dir_owners;
 string finger_info;
 mixed members;
 
-static void set_game_name(string dom) { game_name = dom; }
-static void set_game_coordinator(string lord) { game_coordinator = lord; }
-static void set_open_read(int i) { open_read = i; }
-static void set_open_write(int i) { open_write = i; }
-static void set_finger_info(string info) { finger_info = info; }
-static void set_read_perms(mapping i) { read_perms = i; }
-static void set_write_perms(mapping i) { write_perms = i; }
-static void set_dir_owners(mapping i) { dir_owners = i; }
-static void setup_perms() { return; }
+void set_game_name(string dom) { game_name = dom; }
+string query_game_name() { return game_name; }
 
+void set_game_coordinator(string lord) { game_coordinator = lord; }
+string query_game_coordinator() { return game_coordinator; }
+// string query_dom_lord() { return game_coordinator; }
+
+void set_open_read(int i) { open_read = i; }
 int query_open_read() { return open_read; }
+
+void set_open_write(int i) { open_write = i; }
 int query_open_write() { return open_write; }
+
+void set_finger_info(string info) { finger_info = info; }
+string query_finger_info() { return finger_info; }
+// string query_info() { return finger_info; }
+
+void set_read_perms(mapping i) { read_perms = i; }
+mapping query_read_perms() { return read_perms; }
+
+void set_write_perms(mapping i) { write_perms = i; }
+mapping query_write_perms() { return write_perms; }
+
+void set_dir_owners(mapping i) { dir_owners = i; }
+mapping query_dir_owners() { return dir_owners; }
+
+void setup_perms() { return; }
 int query_prevent_shadow() { return 1; }
-string query_dom_lord() { return game_coordinator; }
-string query_info() { return finger_info; }
 
 void create()
 {
@@ -68,7 +81,7 @@ void save_me()
 int query_dom_manip(varargs string euid)
 {
   if (!euid) euid = geteuid(this_player(1));
-  if ((euid == query_dom_lord()) ||
+  if ((euid == query_game_coordinator()) ||
     ("/lib/core/secure"->query_admin(euid) &&
      "/lib/core/secure"->high_programmer(geteuid(this_player()))))
     return 1;
@@ -102,7 +115,7 @@ int query_restricted(mapping perms, string *path, string euid)
     if (intp(arr))
     {
       if (arr == 1 && !members[euid]) return 1;
-      if (arr == 2 && euid != query_dom_lord()) return 1;
+      if (arr == 2 && euid != query_game_coordinator()) return 1;
       return -1;
     }
     if (!stringp(arr) && sizeof(arr))

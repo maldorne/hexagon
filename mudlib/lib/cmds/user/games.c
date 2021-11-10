@@ -18,13 +18,11 @@ string query_help()
 
 static int cmd (string arg, object me, string verb)
 {
-  string * list;
   int i, is_coder;
   object user;
-  string * dirs, * pieces;
+  object * games;
 
   is_coder = false;
-
   user = me->user();
 
   if (user->player() && user->player()->query_coder())
@@ -38,26 +36,17 @@ static int cmd (string arg, object me, string verb)
 
   write(_LANG_AVAILABLE_GAMES);
 
-  dirs = get_files("/games/*");
+  games = handler("games")->query_game_objects();
 
-  for (i = 0; i < sizeof(dirs); i++)
+  for (i = 0; i < sizeof(games); i++)
   {
-    object game;
     string line;
-    
-    line = "   ";
 
-    pieces = explode(dirs[i], "/");
-    line += ((string)(i + 1)) + ") " + pieces[1];
+    line = "   " + ((string)(i + 1)) + ") " + games[i]->query_game_name();
 
-    game = load_object(dirs[i] + "/master.c");
-    
     if (is_coder)
     {
-      if (game)
-        line += " (" + file_name(game) + ")";
-      else
-        line += " (error with master file)";
+      line += " (" + file_name(games[i]) + ")";
     }
 
     line += "\n";
