@@ -272,5 +272,5 @@ void setup()
 	set_long("This room is used to create, list, and remove quests."+
 	"  It is a simple room, with a door to the north.\n");
 	set_light(100);
-	add_exit("norte",ADMIN+"admin2","standard");
+	add_exit(DIR_NORTH,ADMIN+"admin2","standard");
 }

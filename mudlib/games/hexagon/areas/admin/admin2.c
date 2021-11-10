@@ -22,10 +22,10 @@ void setup() {
 		"northern door reads: Mail Control. A identical plaque"+
 		"on the southern door reads: Quest regulation.\n");
 	set_short("Admin Hallway");
-	add_exit("norte",ADMIN+"mail_room","standard");
-	add_exit("sur",ADMIN+"quest_room","standard");
-	add_exit("este",ROOM+"admin3","road");
-	add_exit("oeste",ROOM+"admin1","road");
+	add_exit(DIR_NORTH,ADMIN+"mail_room","standard");
+	add_exit(DIR_SOUTH,ADMIN+"quest_room","standard");
+	add_exit(DIR_EAST,ROOM+"admin3","road");
+	add_exit(DIR_WEST,ROOM+"admin1","road");
 	add_item("carpet","There is none.");
 	add_item("plaque","It is made of gold and magically sealed"+
 		" to the door.\n");

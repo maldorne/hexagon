@@ -34,7 +34,7 @@ void setup() {
     "noaccess [<ident>@]<ip> <reason> : Disallow all access from a site.\n"+
     "noguest [<ident>@]<ip> <reason>  : Disallow guests from a site.\n");
 
-add_exit("norte", ADMIN+"admin3","standard");
+  add_exit(DIR_NORTH, ADMIN+"admin3","standard");
   seteuid("Admin");
 } /* setup() */
 

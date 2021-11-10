@@ -20,7 +20,7 @@ void setup() {
     "foot stool and a small table beside it. Cowering in another corner you see " +
     "a young scribe rapidly taking notes.\n");
 
-  add_exit("sur","/home/common","standard");
+  add_exit(DIR_SOUTH,"/home/common","standard");
   set_light(45);
 
   add_item("wall","These are oak paneled walls, dummy. What more would you "+

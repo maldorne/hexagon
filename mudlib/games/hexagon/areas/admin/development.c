@@ -23,7 +23,7 @@ void setup()
     "You are in the Development Office of the mud. Maps and charts of the "+
     "world adorn the panelled walls. Forms sit on a table near the door "+
     "for registration of new projects.\n");
-  add_exit("norte", ADMIN + "admin1.c","standard");
+  add_exit(DIR_NORTH, ADMIN + "admin1.c","standard");
 }
 
 void dest_me() 
