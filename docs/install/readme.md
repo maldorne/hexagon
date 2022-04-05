@@ -27,6 +27,8 @@ As you can see, the DGD project is a fork from [the original](https://github.com
     values when restoring the object.
     This is the default mode in MudOS.
 
+> As a side note: if you are using a version of DGD minor than 1.6 (i.e. 1.5.x), you can also activate the flag `NETWORK_EXTENSIONS` in `dgd/src/Makefile`, to allow connections from the mud to the outer world. From version 1.6 this package does not exist anymore. If you use an older driver but you are not going to use things like ftp servers, remote channels, etc, you don't need to use the `NETWORK_EXTENSIONS` flag, the mudlib should work fine without it.
+
 ### Compile the driver
 
 ```sh
@@ -38,17 +40,15 @@ cd ../..
 
 This will create the `dgd` executable in the `dgd/bin` directory. Now we have to copy the configuration files to the root directory.
 
-> As a side note: if you are using a version of DGD minor than 1.6 (i.e. 1.5.x), you can also activate the flag `NETWORK_EXTENSIONS` in `dgd/src/Makefile`, to allow connections from the mud to the outer world. From version 1.6 this package does not exist anymore. If you use an older driver but you are not going to use things like ftp servers, remote channels, etc, you don't need to use the `NETWORK_EXTENSIONS` flag, the mudlib should work fine without it.
-
 ## Edit the configuration files
 
 ```sh
 cp hexagon/docs/install/config.example.dgd config.dgd
 cp hexagon/docs/install/mud.sh .
-chmod o+x mud.sh
+chmod a+x mud.sh
 ```
 
-Now edit the `./config.dgd` file, changing the directory field to the absolute path of the `mudlib` directory (must end in `/whatever/mudlib` without an ending slash)
+Now edit the `./config.dgd` file, changing the directory field to the absolute path of the `hexagon/mudlib` directory (must end in `/whatever/hexagon/mudlib` without an ending slash)
 
 ## Executing the game
 
