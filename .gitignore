@@ -3,9 +3,12 @@
 
 # DGD config files
 *.dgd
+!docs/install/config.example.dgd
 
 # local scripts
 *.sh
+!docs/install/mud.sh
+!docs/install/vm/provisioning.sh
 
 # ide and editor files
 .sublime-project

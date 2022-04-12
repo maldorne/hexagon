@@ -15,6 +15,7 @@ inherit prompt        "/lib/user/prompt";
 inherit role          "/lib/user/role";
 inherit more_string   "/lib/user/more_string";
 inherit more_file     "/lib/user/more_file";
+inherit account       "/lib/user/account";
 inherit notifications "/lib/user/notifications";
 inherit ui            "/lib/user/ui";
 
@@ -63,6 +64,7 @@ int query_verbose() { return 1; }
 void create()
 {
   notifications::create();
+  account::create();
   ui::create();
   output::create();
   communicate::create();
@@ -100,17 +102,19 @@ void create()
   // the player object will have the heart_beat
   // if (clonep(this_object()))
   //   set_heart_beat(1);
+
+  notifications_commands();
+  event_commands();
+  account_commands();
+  security_commands();
+  ui_commands();
 }
 
-void init()
-{
-  security::init();
-  notifications::init();
-  ui::init();
-
-  // main inherit last
-  obj::init();
-}
+// void init()
+// {
+//   // main inherit last
+//   obj::init();
+// }
 
 // do not allow movement of the user object
 int move(mixed dest, varargs mixed messin, mixed messout)
@@ -325,19 +329,12 @@ static void receive_message(string str)
     // old ccmudlib process_input content
 
     // Taniwha crash workround
-    // if ( !strsrch(str,"%^") )
+    // if ( !strsrch(str, "%^") )
     //   return;
 
     // while ( str[<1..<1] == " " )
     //    str = str[0..<2];
     str = trim(str);
-
-    if ( !strlen(str) || str == "\n" )
-    {
-      show_prompt();
-      write_prompt();
-      return;
-    }
 
     stderr(" ~~~ user::receive_message()\n");
 
@@ -350,6 +347,13 @@ static void receive_message(string str)
     MUDOS->set_notify_fail_msg("");
     MUDOS->set_initiator_user(this_object());
     MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
+
+    if ( !strlen(str) || str == "\n" )
+    {
+      show_prompt();
+      write_prompt();
+      return;
+    }
 
     if ( strlen(str) > INPUT_MAX_STRLEN )
     {

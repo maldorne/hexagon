@@ -5,23 +5,22 @@
 
 mapping map_nicknames;
 
-
 void create()
 {
   map_nicknames = ([ ]);
 }
 
-void init()
+void nickname_commands()
 {
-  add_action("delete_nickname", "quitarapodo");
-  add_action("delete_nickname", "dnick");
+  add_private_action("delete_nickname", "quitarapodo");
+  add_private_action("delete_nickname", "dnick");
 
-  // add_action("nickname", "nickname");
-  add_action("nickname", "apodo");
-  add_action("nickname", "apodos");
-  add_action("nickname", "nick");
+  // add_private_action("nickname", "nickname");
+  add_private_action("nickname", "apodo");
+  add_private_action("nickname", "apodos");
+  add_private_action("nickname", "nick");
 
-  // add_action("flushnicknames","flushnicknames");
+  // add_private_action("flushnicknames","flushnicknames");
 }
 
 string *query_nicknames() { return keys(map_nicknames) + ({ }); }

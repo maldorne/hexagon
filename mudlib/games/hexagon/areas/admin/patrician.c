@@ -23,8 +23,8 @@ void setup()
     "Office. Several busy looking clerks are rushing around.\n"); //" You can see a "+
     // "small sign hanging on the wall.\n");
  
-  // add_exit("east", OUTSIDE, "standard");
-  add_exit("noroeste", ADMIN+"admin3.c", "standard");
+  // add_exit(DIR_EAST, OUTSIDE, "standard");
+  add_exit(DIR_NORTHWEST, ADMIN+"admin3.c", "standard");
 
   add_item("clerk",
            "There are several of them pretending to look busy here.\n");

@@ -31,6 +31,12 @@ void create()
   //    [12] -> STYLE_TITLE_LEFT
   //    [13] -> STYLE_TITLE_RIGHT
 
+  styles["simple"] = ({ 1, 1, 2, 1,
+              "|", "|",
+              "", "", "", "",
+              "-", "-",
+              "| ", " |" });
+
   styles[DEFAULT_FRAME_STYLE] = ({ 1, 1, 2, 1,
               "" + chr(226) + chr(148) + chr(130), // "│"
               "" + chr(226) + chr(148) + chr(130), // "│"
@@ -83,7 +89,6 @@ void create()
               "" + chr(226) + chr(149) + chr(154) + chr(226) + chr(149) + chr(144), // "╚═",
               "" + chr(226) + chr(149) + chr(144), // "═"
               "" + chr(226) + chr(149) + chr(144), // "═"
-              "" + chr(226) + chr(148) + chr(164) + " ", // "┤ ",
               "" + chr(226) + chr(149) + chr(161) + " ", // "╡ ",
               " " + chr(226) + chr(149) + chr(158), // " ╞" 
             });
@@ -173,6 +178,10 @@ string frame(string content, varargs string title, int width, int height, string
 
   if (!style_name)
     style_name = DEFAULT_FRAME_STYLE;
+
+  // TODO: if terminal is dumb or text, do not use especial characters
+  if (handler("terminal")->is_dumb_terminal(this_user()))
+    style_name = "simple";
 
   style = styles[style_name];
 

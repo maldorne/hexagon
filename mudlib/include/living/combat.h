@@ -51,6 +51,9 @@
 // ****************************************************
 // unarmed combat
 
+// just an id, there is no need to translate it
+#define DEF_UNARMED_STYLE_NAME "fighting"
+
 // minimum ability with a style
 #define MIN_UNARMED_ABILITY 10
 // maximum ability value learning by yourself (auto)

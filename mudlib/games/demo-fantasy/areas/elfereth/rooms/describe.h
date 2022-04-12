@@ -143,7 +143,7 @@ void create_exits(int num)
       add_exit(DIR_WEST, ROOMS + "z16.c", "path");
     break;
     case 18:
-      add_exit(DIR_EAST, ROOMS + "z19.c", "path");
+      add_exit(DIR_EAST, ROOMS + "z19.c", "door");
       add_exit(DIR_NORTHWEST, ROOMS + "z20.c", "path");
       add_exit(DIR_SOUTHWEST, ROOMS + "z14.c", "path");
       add_exit(DIR_WEST, ROOMS + "z17.c", "path");
@@ -152,7 +152,7 @@ void create_exits(int num)
       add_exit(DIR_SOUTH, ROOMS + "z17.c", "path");
       add_exit(DIR_SOUTHWEST, ROOMS + "z16.c", "path");
       add_exit(DIR_SOUTHEAST, ROOMS + "z18.c", "path");
-      add_exit(DIR_NORTH, ROOMS + "z21.c", "path");
+      add_exit(DIR_NORTH, ROOMS + "z21.c", "door");
     break;
   }
 }

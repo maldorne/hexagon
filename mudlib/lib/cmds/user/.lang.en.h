@@ -52,3 +52,10 @@
 #define _LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT "You have the following characters available in your account:\n"
 #define _LANG_CMD_CHARACTERS_NO_LOGIN "You must login first."
 
+// games
+
+#define _LANG_CMD_GAMES "games"
+#define _LANG_CMD_GAMES_HELP "List every available game in " + mud_name() + "."
+#define _LANG_CMD_GAMES_AVAILABLE "The following games are available:\n"
+#define _LANG_CMD_GAMES_NO_LOGIN "You must login first."
+#define _LANG_CMD_GAMES_UNAVAILABLE_GAME "Non playable"

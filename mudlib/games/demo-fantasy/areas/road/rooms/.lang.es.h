@@ -11,7 +11,7 @@
         "boscoso que se acerca."
 #define __ROAD_FOREST "A tu alrededor puedes observar una gran " + \
         "cantidad de árboles de distintos tamaños y formas."
-#define __ROAD_FAR_FOREST "En la distancia, no a gran distancia, puedes ver un denso bosque."
+#define __ROAD_FAR_FOREST "En la distancia, no demasiado lejos, puedes ver un denso bosque."
 
 // rooms
 

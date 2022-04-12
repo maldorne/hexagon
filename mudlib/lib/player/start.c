@@ -95,16 +95,17 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
         catch(last = load_object(last_pos)) ||
         !last)
     {
-      if (query_level() >= 5)
-      {
-        last_pos = MULTIEXITS_ROOM;
-        move(last_pos);
-      }
-      else
-      {
+      // TODO: MULTIEXITS_ROOM does not exist 
+      // if (query_level() >= 5)
+      // {
+      //   last_pos = MULTIEXITS_ROOM;
+      //   move(last_pos);
+      // }
+      // else
+      // {
         last_pos = START_POS;
         move(last_pos);
-      }
+      // }
     }
     else
     {
@@ -214,19 +215,6 @@ void start_player()
     tell_player(this_object(), "Tu ficha ha sido actualizada.\n");
 
   living::start_player();
-
-  // TODO move this to living::start_player
-  // event_commands();
-  // finger_commands();
-  // communicate_commands();
-  // living_commands();
-  // spell_commands();
-  // // logging_commands(); // bug, typo, idea, etc...
-  // weather_commands();
-  // editor_commands();
-  // alias_commands();
-  // nickname_commands();
-  // recipes_commands();
 
   reset_all();
 

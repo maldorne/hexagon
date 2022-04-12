@@ -16,7 +16,7 @@ void setup() {
 "list                       :  List all the mailing lists.\n");
 
   set_light(100);
-  add_exit("sur",ADMIN+"admin2","standard");
+  add_exit(DIR_SOUTH,ADMIN+"admin2","standard");
 } /* setup() */
 
 void init() {

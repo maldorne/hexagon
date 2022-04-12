@@ -1,0 +1,8 @@
+open 1
+game_coordinator "neverbot"
+game_name "Demo Fantasy Game"
+read_perms ([0|])
+write_perms ([0|])
+dir_owners ([0|])
+finger_info "One of the games in Hexagon.\n"
+members ([0|])

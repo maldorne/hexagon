@@ -10,7 +10,8 @@ void setup()
   set_main_plural(capitalize(pluralize(_LANG_NPCS_FARMER_NAME)));
   add_plural(pluralize(_LANG_NPCS_FARMER_NAME));
   
-  set_race("human");
+  // the race object
+  set_race_ob(OBJ + "races/human.c");
   set_gender(1);
   
   set_real_align(-200 + random(400));

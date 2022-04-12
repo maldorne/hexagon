@@ -31,7 +31,7 @@ void setup()
 	add_alias("curtain", "space");+
 	add_item("space", "Space is something that isn't really there. So how can "+
 		"you look at it ?\n");
-	add_exit("sur",ADMIN+"admin3","standard");
+	add_exit(DIR_SOUTH,ADMIN+"admin3","standard");
 	seteuid(ROOT);
 } /* setup() */
 

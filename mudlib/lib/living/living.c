@@ -12,7 +12,7 @@
  * Añadido do_death para los npcs o players de quest, neverbot 03/09
  */
 
-#include <living/drinks.h>
+#include <living/food.h>
 #include <common/quests.h>
 #include <common/properties.h>
 #include <living/combat.h>

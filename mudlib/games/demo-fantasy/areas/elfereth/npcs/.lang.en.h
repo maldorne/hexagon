@@ -33,3 +33,13 @@
 #define _LANG_NPCS_ELF_CHAT ({ "'I love the forest, I love life.", \
                                ":admires the nearest tree." })
 #define _LANG_NPCS_ELF_A_CHAT ({ "'You are one of those who enjoy killing?" })
+
+#define _LANG_NPCS_BARMAN_NAME "feleir"
+// "barman" will be used by set_attender in the pub, do not change!
+#define _LANG_NPCS_BARMAN_ALIAS ({ "feleir", "barman" })
+#define _LANG_NPCS_BARMAN_PLURAL "feleir"
+#define _LANG_NPCS_BARMAN_PLURALS ({ "feleir" })
+#define _LANG_NPCS_BARMAN_LONG "He is the best elvish cook in town.\n"
+
+#define _LANG_NPCS_BARMAN_CHAT ({ "'hmmmmmm.... I love natural food." })
+#define _LANG_NPCS_BARMAN_A_CHAT ({ "'Arrggghhh!" })

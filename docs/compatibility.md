@@ -155,7 +155,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `write_file`            | :white_check_mark: | provided by dgd, masked for permissions |
 | `write_bytes`           | :heavy_minus_sign: | nonexistant in dgd, not used |
 | `rename`                | :white_check_mark: | alias for `rename_file`, masked for permissions |
-| `file_size`             | :white_check_mark: | Mikael Lind's example code [from Phantasmal docs](http://phantasmal.sourceforge.net/DGD/external/file_size.c) |
+| `file_size`             | :white_check_mark: | Mikael Lind's example code [from the Phantasmal docs](https://github.com/dworkin/phantasmal/blob/master/website/DGD/external/file_size.c) |
 | `cp`                    | :white_check_mark: |  |
 | `link`                  | :heavy_minus_sign: | nonexistant in dgd |
 | `mkdir`                 | :white_check_mark: |  |

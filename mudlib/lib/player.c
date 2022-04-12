@@ -108,6 +108,11 @@ void create()
 
   if (clonep(this_object()))
     set_heart_beat(1);
+
+  // TODO
+  alias_commands();
+  nickname_commands();
+  // recipes_commands();
 }
 
 void init()

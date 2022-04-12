@@ -14,34 +14,35 @@ So, how to do this?
 
 Software required to be installed: just these two things that allow installing and configuring virtual machines, the same for any operating system: [VirtualBox](https://www.virtualbox.org/wiki/Downloads) & [Vagrant](https://www.vagrantup.com/downloads.html).
 
-And having access to some kind of command-line terminal. 
- * In Windows, execute (Windows Key + R) the command `cmd`. 
- * In Mac OS, open the Terminal App (or you can install [iTerm](https://www.iterm2.com/), which is even better in my opinion).
- * In any kind of Unix/Linux, you know what we are talking about (and, by the way, you should not be 
-    using the virtual machine tutorial, just install the software).
+And having access to some kind of command-line terminal.
+
+  * In Windows, execute (Windows Key + R) the command `cmd`. 
+  * In Mac OS, open the Terminal App (or you can install [iTerm](https://www.iterm2.com/), which is even better in my opinion).
+  * In any kind of Unix/Linux, you know what we are talking about (and, by the way, you should not be using the virtual machine tutorial, just install the software).
 
 ### Installation
 
 1. Download this repository to your local/host machine in your preferred directory, with:
 
-    `git clone git@github.com:houseofmaldorne/hexagon.git` or, if you don't have git installed (why would you?), 
-    just download it from github as a zip file from [the project page](https://github.com/houseofmaldorne/hexagon) with the big green button that says *Code -> Download Zip*. 
+   `git clone https://github.com/houseofmaldorne/hexagon.git` or, if you don't have git installed (why would you?), just download it from github as a zip file from [the project page](https://github.com/houseofmaldorne/hexagon) with the big green button that says *Code -> Download Zip*, and unzip it. 
 
 2. Go to the directory where you placed the contents of that zip file, using the terminal and the command `cd`:
 
-    In Windows it would be something like `cd C:\Users\myuser\Downloads\something`. You can use the `dir` command to see the contents of your current directory. Try, you won't break anything. In Mac OS it would be something like `cd /Users/myusername/Downloads/something`. You can use the `ls` command to see the contents of your current directory.
+   - In Windows it would be something like `cd C:\Users\myuser\Downloads\something`. You can use the `dir` command to see the contents of your current directory. Try, you won't break anything.
+   - In Mac OS it would be something like `cd /Users/myusername/Downloads/something`. You can use the `ls` command to see the contents of your current directory.
 
 3. Go to the `provisioning` directory and install the virtual machine with:
     
-    `cd provisioning`
+   ```sh
+   cd provisioning
+   vagrant up --provider virtualbox
+   ```
 
-    `vagrant up --provider virtualbox`
+   This will:
 
-    This will:
-    
-    + Install needed packages
-    + Set initial configuration of the project
-    + Start the mud so you can test it
+   + Install needed packages
+   + Set initial configuration of the project
+   + Start the mud so you can test it
 
 The app could be tested in [`telnet://192.168.10.192:6047/`](telnet://192.168.10.192:6047/)
 If you want to use a different ip, it's defined in `Vagrantfile`
@@ -52,10 +53,10 @@ Once you have the development enviroment up and running, any change could be res
 
 1. Destroy the virtual machine. In the virtual machine directory execute: 
 
-    `vagrant destroy`
+   `vagrant destroy`
 
 2. Reset the virtual machine:
 
-    `vagrant up --provision`
+   `vagrant up --provision`
 
-    In a pair of minutes everything will be reinstalled: packages, configuration, etc.
+   In a pair of minutes everything will be reinstalled: packages, configuration, etc.

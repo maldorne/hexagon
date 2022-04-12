@@ -2,7 +2,7 @@
  * Common coder room
  */
 
-#define ADMIN "/lib/areas/admin/"
+#define ADMIN "/games/hexagon/areas/admin/"
 
 #include <translations/exits.h>
 

@@ -1,4 +1,3 @@
-
 // void.c
 
 #define _LANG_VOID_MOVING_CREATOR "Moving you to the common room...\n"

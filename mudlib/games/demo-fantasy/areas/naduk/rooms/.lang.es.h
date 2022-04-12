@@ -19,3 +19,18 @@
 #define _LANG_NADUK_SHOP_SHORT "Tienda de Naduk"
 #define _LANG_NADUK_SHOP_LONG "Te encuentras en una pequeña tienda del pueblo de Naduk. En este " + \
   "lugar puedes comprar y vender toda clase de objetos que posean algún valor.\n"
+
+#define _LANG_NADUK_PUB_SHORT "%^YELLOW%^El Penultimo Hogar%^RESET%^"
+#define _LANG_NADUK_PUB_LONG "Una taberna famosa " + \
+    "en toda la región por su excelente tortilla de patata, " + \
+    "cremosa y deliciosa. El lugar no es excesivamente grande, " + \
+    "dispone de algunas de mesas y una barra bastante larga y no " + \
+    "muy limpia. Al fondo, en el lugar más oscuro, hay " + \
+    "una pequeña chimenea que casi nunca está encendida.\n"
+
+#define _LANG_NADUK_PUB_MENU_BEER "cerveza"
+#define _LANG_NADUK_PUB_MENU_BLACK_BEER "cerveza negra"
+#define _LANG_NADUK_PUB_MENU_WHISKEY "whisky"
+#define _LANG_NADUK_PUB_MENU_SCHNAPPS "aguardiente"
+#define _LANG_NADUK_PUB_MENU_MILK "leche"
+#define _LANG_NADUK_PUB_MENU_OMELETTE "tortilla"

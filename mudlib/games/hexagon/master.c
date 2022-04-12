@@ -1,6 +1,6 @@
 
-#define GAME_COORDINATOR "neverbot"
-#define GAME_NAME "Demo Fantasy Game"
+#define GAME_COORDINATOR "admin"
+#define GAME_NAME "Hexagon"
 
 inherit "/lib/core/game.c";
 
@@ -13,8 +13,8 @@ void create()
    set_open_write(0);
    // set_finger_info("");
 
-   // open to players
-   set_open(true);
+   // not open to players
+   set_open(false);
 
    save_me();
 }

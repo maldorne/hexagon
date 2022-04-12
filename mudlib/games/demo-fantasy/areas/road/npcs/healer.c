@@ -18,7 +18,8 @@ void setup()
   
   set_gender(1);
   
-  set_race("human");
+  // the race object
+  set_race_ob(OBJ + "races/human.c");
   set_class_ob("/lib/obj/classes/scholar.c");
   
   set_random_stats(6, 16);

@@ -72,7 +72,7 @@ void setup()
   add_item( ({ "palancas", "palanca" }), "Palancas multicolor instaladas en el suelo. "+
              "Puedes ver una palancas etiquetadas como lluvia, nubes, estacion, dia, fecha, luna y temperatura.\n");
 
-  add_exit("sudoeste", ADMIN + "admin3.c", "standard");
+  add_exit(DIR_SOUTHWEST, ADMIN + "admin3.c", "standard");
 
   add_property(NO_CLEAN_UP_PROP, 1);
 

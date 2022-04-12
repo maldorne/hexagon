@@ -37,3 +37,10 @@
 #define _LANG_FOREST_TOWN_SHOP_SHORT "Tienda de Elfereth"
 #define _LANG_FOREST_TOWN_SHOP_LONG "Te encuentras en una pequeña tienda del pueblo de Elfereth. En este " + \
   "lugar puedes comprar y vender toda clase de objetos que posean algún valor.\n"
+
+#define _LANG_FOREST_TOWN_PUB_SHORT "Árbol de la recuperación"
+#define _LANG_FOREST_TOWN_PUB_LONG "Es la taberna del poblado de Elfereth. Es un viejo árbol cuyas ramas "+ \
+  "crecen a modo de toldo sobre unas mesas construidas con las propias ramas del árbol.\n"
+#define _LANG_FOREST_TOWN_PUB_MENU_MEAD "hidromiel"
+#define _LANG_FOREST_TOWN_PUB_MENU_BERRIES "bayas"
+#define _LANG_FOREST_TOWN_PUB_MENU_ROOTS "raíces"

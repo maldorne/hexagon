@@ -388,7 +388,7 @@ string finger_info(string name, varargs object me)
       for (i = 1; i <= 10; i++)
       {
         string line;
-        line = read_file(file_name, i, 1);
+        line = read_file_line(file_name, i, 1);
         if (line == "")
           break;
         else

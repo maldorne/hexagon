@@ -26,7 +26,7 @@ void setup() {
     "  nowrite <creator> <path>     : remove write permission from the path.\n" +
     "  nogrant <creator> <path>     : remove granting privilages to the path.\n" +
     "  summary [path]               : give a list of all the read/write perms.\n");
-  add_exit("oeste",ADMIN+"admin3","standard");
+  add_exit(DIR_WEST,ADMIN+"admin3","standard");
   seteuid("Admin");
 } /* setup() */
 

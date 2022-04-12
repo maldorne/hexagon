@@ -333,9 +333,20 @@ int remove_known_unarmed_style(string style)
   return 1;
 }
 
-string query_current_unarmed_style()
+string query_current_unarmed_style_id()
 {
   return current_unarmed_style;
+}
+
+string query_current_unarmed_style()
+{
+  mixed * info;
+  info = table("unarmed_combat")->query_unarmed_style_info(current_unarmed_style);
+  
+  if (!sizeof(info))
+    return "error";
+
+  return info[0];
 }
 
 int query_current_unarmed_ability()
@@ -394,9 +405,12 @@ int do_combat_styles(string style)
     line = sprintf("%p%|*s\n", '-', cols, "");
     ret = sprintf("%p%|*s\n\n", '-', cols + strlen(header) - visible_strlen(header), header);
 
-    for (i = 0; i < sizeof(_unarmed_styles); i++) {
+    for (i = 0; i < sizeof(_unarmed_styles); i++)
+    {
+      mixed * info;
+      info = table("unarmed_combat")->query_unarmed_style_info(_unarmed_styles[i]);
 
-      ret += sprintf("\t%35s %25s (%s)\n", "%^BOLD%^" + capitalize(_unarmed_styles[i]) + "%^RESET%^", 
+      ret += sprintf("\t%35s %25s (%s)\n", "%^BOLD%^" + capitalize(info[0]) + "%^RESET%^", 
                 "[" + percentage_bar(query_known_unarmed_combat_styles()[_unarmed_styles[i]]) + "]",
                 "" + query_known_unarmed_combat_styles()[_unarmed_styles[i]] + "%");
     }

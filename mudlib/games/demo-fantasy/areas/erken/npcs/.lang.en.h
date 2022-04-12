@@ -17,3 +17,13 @@
                                ":spits.", \
                                ":curses your name.", \
                                ":looks at you maliciously with $oobj$ bloodshot eyes.", })
+
+#define _LANG_NPCS_BARMAN_NAME "arak"
+// "barman" will be use by set_attender in the pub, do not change!
+#define _LANG_NPCS_BARMAN_ALIAS ({ "arak", "barman" })
+#define _LANG_NPCS_BARMAN_PLURAL "arak"
+#define _LANG_NPCS_BARMAN_PLURALS ({ "arak" })
+#define _LANG_NPCS_BARMAN_LONG "For a goblin he is quite remarkable in stature. The smell of him is nauseating.\n"
+#define _LANG_NPCS_BARMAN_CHAT ({ ":looks at you.", \
+                                  "@spits at your feet.", })
+#define _LANG_NPCS_BARMAN_A_CHAT ({ "'Arrggghhh!" })
