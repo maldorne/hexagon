@@ -18,7 +18,7 @@ And having access to some kind of command-line terminal.
 
   * In Windows, execute (`Windows Key + r`) the command `cmd`. 
   * In Mac OS, open the Terminal App (or use `Cmd + spacebar` and type `Terminal`).
-  * In any kind of Unix/Linux, you know what we are talking about (and maybe you should just use the [normal installation guide](/docs/install/readme.md), not using the virtual machine tutorial).
+  * In any kind of Unix/Linux, you know what we are talking about (and maybe you should just use the basic [installation guide](/docs/install/readme.md), not the virtual machine tutorial).
 
 ### Installation
 
