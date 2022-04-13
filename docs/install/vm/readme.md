@@ -2,7 +2,7 @@
 
 What is this? If you know what a virtual machine is and how it works, just go to the info below. If not, a virtual machine is like a computer inside your computer. There is no need to install a lot of different developer tools, checking versions, and having in mind a lot of things that you don't know about if your computer is not used to develop software.
 
-The solution is to have a virtual machine inside your computer, with whatever operating system the original developer (me) used, that will be configured automatically, and you will connect from your *real* computer to this *fake* one, the same as if you were connecting to a remote mud in some internet server.
+The solution is to have a virtual machine inside your computer, with the same operating system the original developer used, that will be configured automatically, and you will connect from your *real* computer to this *fake* one, the same as if you were connecting to a remote mud in some internet server.
 
 In the end, if you don't like what you see, or just get bored of these things, you just remove the virtual machine and *et voilà* everything will be gone and your own computer (called *the host*) won't have changed, being the best option for non-developers.
 
