@@ -16,9 +16,9 @@ Software required to be installed: just these two things that allow installing a
 
 And having access to some kind of command-line terminal.
 
-  * In Windows, execute (Windows Key + R) the command `cmd`. 
-  * In Mac OS, open the Terminal App (or you can install [iTerm](https://www.iterm2.com/), which is even better in my opinion).
-  * In any kind of Unix/Linux, you know what we are talking about (and, by the way, you should not be using the virtual machine tutorial, just install the software).
+  * In Windows, execute (`Windows Key + r`) the command `cmd`. 
+  * In Mac OS, open the Terminal App (or use `Cmd + spacebar` and type `Terminal`).
+  * In any kind of Unix/Linux, you know what we are talking about (and maybe you should just use the [normal installation guide](/docs/install/readme.md), not using the virtual machine tutorial).
 
 ### Installation
 
