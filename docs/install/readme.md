@@ -39,7 +39,7 @@ cd ../..
 
 This will create the `dgd` executable in the `dgd/bin` directory. Now we have to copy the configuration files to the root directory.
 
-## Edit the configuration files
+### Edit the configuration files
 
 ```sh
 cp hexagon/docs/install/config.example.dgd config.dgd
@@ -49,7 +49,7 @@ chmod a+x mud.sh
 
 Now edit the `./config.dgd` file, changing the directory field to the absolute path of the `hexagon/mudlib` directory (must end in `/whatever/hexagon/mudlib` without an ending slash).
 
-## Executing the game
+### Executing the game
 
 - Run `./mud.sh` to execute the game.
 - Use `telnet localhost 6047` to connect and see if everything is working.
