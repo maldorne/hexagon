@@ -5,9 +5,9 @@
 Hexagon mudlib
 ==============
 
-[![Hexagon](https://img.shields.io/badge/Hexagon-v21.09%20Beregost-yellow)](https://github.com/houseofmaldorne/hexagon)
+[![Hexagon](https://img.shields.io/badge/Hexagon-v21.09%20Beregost-yellow)](https://github.com/maldorne/hexagon)
 [![DGD](https://img.shields.io/badge/DGD-1.6.20-green.svg)](https://github.com/dworkin/dgd)
-[![Deploy to hosting](https://github.com/houseofmaldorne/hexagon/workflows/Deploy%20to%20hosting/badge.svg)](https://github.com/houseofmaldorne/hexagon/actions)
+[![Deploy to hosting](https://github.com/maldorne/hexagon/workflows/Deploy%20to%20hosting/badge.svg)](https://github.com/maldorne/hexagon/actions)
 
 A project to make the original _ccmudlib_ and other MudOS-alike mud libraries (like the ones from _Final
 Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd) mud driver.
@@ -18,7 +18,7 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### Current status
 
-Current version *[v21.09 Beregost](https://github.com/houseofmaldorne/hexagon/releases/tag/21.09)*.
+Current version *[v21.09 Beregost](https://github.com/maldorne/hexagon/releases/tag/21.09)*.
 
 Next milestone *[v22.?? Castle Black](docs/roadmap.md#current-milestone-v22-castle-black)*.
 
