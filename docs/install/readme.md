@@ -12,8 +12,8 @@ DGD should be able to [compile under Windows](https://github.com/dworkin/dgd/tre
 In your directory of choice:
 
 ```sh
-git clone https://github.com/houseofmaldorne/hexagon.git
-git clone https://github.com/houseofmaldorne/dgd.git
+git clone https://github.com/maldorne/hexagon.git
+git clone https://github.com/maldorne/dgd.git
 ```
 
 This will create both the `dgd` and `hexagon` directories.
