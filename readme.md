@@ -5,9 +5,9 @@
 Hexagon mudlib
 ==============
 
-[![Hexagon](https://img.shields.io/badge/Hexagon-v21.09%20Beregost-yellow)](https://github.com/houseofmaldorne/hexagon)
+[![Hexagon](https://img.shields.io/badge/Hexagon-v21.09%20Beregost-yellow)](https://github.com/maldorne/hexagon)
 [![DGD](https://img.shields.io/badge/DGD-1.6.20-green.svg)](https://github.com/dworkin/dgd)
-[![Deploy to hosting](https://github.com/houseofmaldorne/hexagon/workflows/Deploy%20to%20hosting/badge.svg)](https://github.com/houseofmaldorne/hexagon/actions)
+[![Deploy to hosting](https://github.com/maldorne/hexagon/workflows/Deploy%20to%20hosting/badge.svg)](https://github.com/maldorne/hexagon/actions)
 
 A project to make the original _ccmudlib_ and other MudOS-alike mud libraries (like the ones from _Final
 Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd) mud driver.
@@ -18,7 +18,7 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### Current status
 
-Current version *[v21.09 Beregost](https://github.com/houseofmaldorne/hexagon/releases/tag/21.09)*.
+Current version *[v21.09 Beregost](https://github.com/maldorne/hexagon/releases/tag/21.09)*.
 
 Next milestone *[v22.?? Castle Black](docs/roadmap.md#current-milestone-v22-castle-black)*.
 
@@ -29,11 +29,11 @@ Next milestone *[v22.?? Castle Black](docs/roadmap.md#current-milestone-v22-cast
 
 ### How to use or test the mudlib
 
-Take a look to the [installation instructions](docs/install/readme.md), it explains how to install,
+Take a look to the [installation instructions](/docs/install/readme.md), it explains how to install,
 configure and execute the Hexagon mudlib using different methods.
-* a) [Compiling it yourself](docs/install/readme.md): Compiling the DGD driver and
+* a) [Compiling it yourself](/docs/install/readme.md): Compiling the DGD driver and
   executing it in a Unix environment (Unix, Linux, OS X, etc)
-* b) [Using a virtual machine](docs/install/vm/readme.md): Install a VirtualBox
+* b) [Using a virtual machine](/docs/install/vm/readme.md): Install a VirtualBox
   virtual machine already configured using vagrant.
 * c) ~~Using a Docker container~~ (document yet to be written).
 
