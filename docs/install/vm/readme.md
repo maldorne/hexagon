@@ -24,7 +24,7 @@ And having access to some kind of command-line terminal.
 
 1. Download this repository to your local/host machine in your preferred directory, with:
 
-   `git clone https://github.com/houseofmaldorne/hexagon.git` or, if you don't have git installed (why would you?), just download it from github as a zip file from [the project page](https://github.com/houseofmaldorne/hexagon) with the big green button that says *Code -> Download Zip*, and unzip it. 
+   `git clone https://github.com/maldorne/hexagon.git` or, if you don't have git installed (why would you?), just download it from github as a zip file from [the project page](https://github.com/maldorne/hexagon) with the big green button that says *Code -> Download Zip*, and unzip it. 
 
 2. Go to the directory where you placed the contents of that zip file, using the terminal and the command `cd`:
 

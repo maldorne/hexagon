@@ -38,7 +38,7 @@ echo "------------------------------------------------------"
 
 cd $PROJECT_PATH
 git submodule update --init --recursive
-# git clone --recursive git://github.com/houseofmaldorne/hexagon.git
+# git clone --recursive git://github.com/maldorne/hexagon.git
 
 echo "------------------------------------------------------"
 echo " $PROJECT_NAME: compiling DGD"
