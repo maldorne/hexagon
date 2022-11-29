@@ -4,7 +4,7 @@ List of commands available to every player, depending of its user type/role (`pl
 
 **Be aware**: most of the commands listed here are already implemented and working (might not be translated), but as I've just started working in this document recently, I'll update every entry as I test each command.
 
-## Login (see issue [#13](https://github.com/houseofmaldorne/hexagon/issues/13))
+## Login (see issue [#13](https://github.com/maldorne/hexagon/issues/13))
 
 | Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
@@ -13,7 +13,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | help       | :white_check_mark: | :x: | :white_check_mark: |    |
 | who        | :white_check_mark: | :white_check_mark: | :white_check_mark: | The weather time (depends of the game) has to be translated yet. |
 
-## Admin (see issue [#16](https://github.com/houseofmaldorne/hexagon/issues/16))
+## Admin (see issue [#16](https://github.com/maldorne/hexagon/issues/16))
 
 | Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
@@ -57,7 +57,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | xdate      |          |          |    |    |
 | xfinger    |          |          |    |    |
 
-## Coder (see issue [#15](https://github.com/houseofmaldorne/hexagon/issues/15))
+## Coder (see issue [#15](https://github.com/maldorne/hexagon/issues/15))
 
 | Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
@@ -102,7 +102,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | visible      |          |          |    |    |
 | wget         |          |          |    |    |
 
-## Player (see issue [#14](https://github.com/houseofmaldorne/hexagon/issues/14))
+## Player (see issue [#14](https://github.com/maldorne/hexagon/issues/14))
 
 | Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
