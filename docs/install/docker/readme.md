@@ -13,7 +13,7 @@ And having access to some kind of command-line terminal.
   * In Mac OS, open the Terminal App (or use `Cmd + spacebar` and type `Terminal`).
   * In any kind of Unix/Linux, you know what we are talking about.
 
-## How to use in a Docker container
+### How to use in a Docker container
 
 1. Build the image:
    `docker build --no-cache --ssh default -t neverbot/maldorne-hexagon .`
@@ -22,3 +22,9 @@ And having access to some kind of command-line terminal.
 3. Run the container (in interactive mode):
    `docker run --rm -ti -p 23:5000 neverbot/maldorne-hexagon`
    We are mapping the 23 port in the host machine to the 5000 port in the container, so if we execute `telnet localhost` in the host machine it will connect to the mud in the container.
+
+### Connecting to the game
+
+- Use in your local machine `telnet localhost` (it will use the default port 23) to connect to the container and see if everything is working.
+
+By default you will have an administrator account created, with username `admin`, email `admin@maldorne.org` and password `hexagon`.
