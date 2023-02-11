@@ -3,6 +3,7 @@
 
 # DGD config files
 *.dgd
+!.config.dgd
 !docs/install/config.example.dgd
 
 # local scripts
