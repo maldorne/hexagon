@@ -8,6 +8,7 @@
 
 # local scripts
 *.sh
+!start.sh
 !docs/install/mud.sh
 !docs/install/vm/provisioning.sh
 

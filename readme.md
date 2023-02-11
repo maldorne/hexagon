@@ -31,10 +31,10 @@ Next milestone *[v22.?? Castle Black](docs/roadmap.md#current-milestone-v22-cast
 
 Take a look to the [installation instructions](/docs/install/readme.md), it explains how to install,
 configure and execute the Hexagon mudlib using different methods.
-* a) [Compiling it yourself](/docs/install/readme.md): Compiling the DGD driver and
+* a) Recommended: [using a Docker container](/docs/install/docker/readme.md).
+* b) [Compiling it yourself](/docs/install/readme.md): Compiling the DGD driver and
   executing it in a Unix environment (Unix, Linux, OS X, etc)
-* b) [Using a virtual machine](/docs/install/vm/readme.md): Install a VirtualBox
+* c) [Using a virtual machine](/docs/install/vm/readme.md): Install a VirtualBox
   virtual machine already configured using vagrant.
-* c) ~~Using a Docker container~~ (document yet to be written).
 
 

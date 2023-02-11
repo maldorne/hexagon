@@ -1,6 +1,6 @@
 
-telnet_port = 6047;                    /* telnet port number */
-binary_port = 6048;                    /* binary port number */
+telnet_port = 5000;                    /* telnet port number */
+binary_port = 5001;                    /* binary port number */
                                        /* base directory (MUST be absolute) */
 directory = "/opt/mud/hexagon/mudlib";
 users = 40;                            /* max # of users */
