@@ -318,8 +318,8 @@ string draw_map(mixed * map)
       
       switch(map[i][j])
       {
-        case ROOM:               line += "[ ]"; break;
-        case COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^"; coasts = 1; break;
+        case ROOM:               line += "[ ]"; break;
+        case COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^"; coasts = 1; break;
         case DOOR_ROOM:          line += "[P]"; doors = 1; break;
         case UP_ROOM:            line += "[^]"; ups = 1; break;
         case DOWN_ROOM:          line += "[v]"; downs = 1; break;

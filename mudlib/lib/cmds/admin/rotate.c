@@ -22,7 +22,7 @@ protected int cmd(string str, object me, string verb)
 	
 	if(!str)
 	{
-		notify_fail("Sintaxis: rotate [ -espejoX | -espejoY ] <archivo(s)>\n"
+		notify_fail("Sintaxis: rotate [ -espejoX | -espejoY ] <archivo(s)>\n"
 					"          (sin flags para rotar 45º en el sentido de las agujas del reloj)\n");
 		return 0;
 	}
