@@ -3,9 +3,9 @@ FROM neverbot/maldorne-dgd:v1.6 as base
 
 USER root
 
-RUN apt-get update && apt-get install -y --force-yes git
+RUN apt-get update
 # temporary, will be removed from final image
-RUN apt-get install -y procps telnet
+RUN apt-get install -y --force-yes procps telnet
 
 # clone the full contents of the mudlib
 WORKDIR /opt/mud
