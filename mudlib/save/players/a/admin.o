@@ -43,7 +43,7 @@ map_nicknames ([0|])
 last_migration 2
 quests ([0|])
 quests_done ([0|])
-account_name "admin@maldorne.org"
+account_name "info@maldorne.org"
 role_name "admin"
 last_pos "/home/admin/workroom"
 time_on -40219
