@@ -11,8 +11,6 @@ RUN apt-get install -y procps telnet
 WORKDIR /opt/mud
 COPY --chown=mud:mud .config.dgd start.sh hexagon/
 COPY --chown=mud:mud mudlib hexagon/mudlib/
-# RUN git clone --depth 1 -b master --single-branch https://github.com/maldorne/hexagon.git hexagon
-# RUN chown -R mud:mud hexagon
 
 # reuse the same user created by the maldorne-mudos:v22.2b13 image
 USER mud
