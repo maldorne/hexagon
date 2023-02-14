@@ -1,6 +1,6 @@
 # Project status and roadmap
 
-### Current milestone: [v22.?? Castle Black](https://github.com/maldorne/hexagon/milestone/3)
+### Current milestone: [v23.03 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
 Set of features we are currently working on. 
 
