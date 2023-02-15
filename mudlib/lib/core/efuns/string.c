@@ -264,18 +264,45 @@ static string lower_case(string str)
 
   first_char = str[0];
 
-  switch(first_char)
+  // with UTF-8 encoding these are not one characters, they are two,
+  // so we can't use the single quote notation
+  // 
+  //   case 'Á': str[0] = 'á'; break;
+  //   case 'É': str[0] = 'é'; break;
+  //   case 'Í': str[0] = 'í'; break;
+  //   case 'Ó': str[0] = 'ó'; break;
+  //   case 'Ú': str[0] = 'ú'; break;
+  //   case 'Ü': str[0] = 'ü'; break;
+  //   case 'Ñ': str[0] = 'ñ'; break;
+
+  // áéíóú ÁÉÍÓÚ üÜ ñÑ
+  if (first_char == 195)
   {
-    case 'Á': str[0] = 'á'; break;
-    case 'É': str[0] = 'é'; break;
-    case 'Í': str[0] = 'í'; break;
-    case 'Ó': str[0] = 'ó'; break;
-    case 'Ú': str[0] = 'ú'; break;
-    case 'Ü': str[0] = 'ü'; break;
-    case 'Ñ': str[0] = 'ñ'; break;
-    default:
-      if ((first_char >= 65) && (first_char <= 90))
-        str[0] = first_char + 32;
+    int second_char;
+    second_char = str[1];
+  
+    switch(second_char)
+    {
+      // 'Á'
+      case 129: str = "á" + str[2..]; break;
+      // 'É'
+      case 137: str = "é" + str[2..]; break;
+      // 'Í'
+      case 141: str = "í" + str[2..]; break;
+      // 'Ó'
+      case 147: str = "ó" + str[2..]; break;
+      // 'Ú'
+      case 154: str = "ú" + str[2..]; break;
+      // 'Ü'
+      case 156: str = "ü" + str[2..]; break;
+      // 'Ñ'
+      case 145: str = "ñ" + str[2..]; break;
+    }
+  } 
+  else 
+  {
+    if ((first_char >= 65) && (first_char <= 90))
+      str[0] = first_char + 32;
   }
 
   return str;
@@ -290,16 +317,43 @@ static string capitalize(string str)
 
   first_char = str[0];
 
-  switch(first_char)
+  // with UTF-8 encoding these are not one characters, they are two,
+  // so we can't use the single quote notation
+  // 
+  //   case 'á': str[0] = 'Á'; break;
+  //   case 'é': str[0] = 'É'; break;
+  //   case 'í': str[0] = 'Í'; break;
+  //   case 'ó': str[0] = 'Ó'; break;
+  //   case 'ú': str[0] = 'Ú'; break;
+  //   case 'ü': str[0] = 'Ü'; break;
+  //   case 'ñ': str[0] = 'Ñ'; break;
+
+  // áéíóú ÁÉÍÓÚ üÜ ñÑ
+  if (first_char == 195)
   {
-    case 'á': str[0] = 'Á'; break;
-    case 'é': str[0] = 'É'; break;
-    case 'í': str[0] = 'Í'; break;
-    case 'ó': str[0] = 'Ó'; break;
-    case 'ú': str[0] = 'Ú'; break;
-    case 'ü': str[0] = 'Ü'; break;
-    case 'ñ': str[0] = 'Ñ'; break;
-    default:
+    int second_char;
+    second_char = str[1];
+  
+    switch(second_char)
+    {
+      // 'á'
+      case 161: str = "Á" + str[2..]; break;
+      // 'é'
+      case 169: str = "É" + str[2..]; break;
+      // 'í'
+      case 173: str = "Í" + str[2..]; break;
+      // 'ó'
+      case 179: str = "Ó" + str[2..]; break;
+      // 'ú'
+      case 186: str = "Ú" + str[2..]; break;
+      // 'ü'
+      case 188: str = "Ü" + str[2..]; break;
+      // 'ñ'
+      case 177: str = "Ñ" + str[2..]; break;
+    }
+  } 
+  else 
+  {
       if ((first_char >= 97) && (first_char <= 122))
         str[0] = first_char - 32;
   }
