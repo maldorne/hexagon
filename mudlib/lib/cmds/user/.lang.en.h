@@ -21,7 +21,7 @@
 #define _LANG_WHO_HELP "Shows a list of the connected characters."
 #define _LANG_WHO_OPTION_CODERS "coders"
 #define _LANG_WHO_OPTION_PLAYERS "players"
-#define _LANG_WHO_REAL_WORLD_DATE "Today is " + ctime(time()) + " in the real world"
+#define _LANG_WHO_REAL_WORLD_DATE "Today is " + ctime(time(), 5) + " in the real world"
 #define _LANG_WHO_EDITING_MSG " %^GREEN%^(Editing: " + (string)tmp + ")%^RESET%^"
 #define _LANG_WHO_AWAY_MSG " (%^WHITE%^%^BOLD%^Away%^RESET%^)"
 #define _LANG_WHO_IDLE_MSG " (%^CYAN%^%^BOLD%^Idle: " + (user->query_idle() / 60) + "%^RESET%^)"
