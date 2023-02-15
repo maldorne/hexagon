@@ -559,7 +559,7 @@ void set_damage_dice(int numdie, int dietype)
   return;
 }
 
-// stats añadido
+// stats aÃ±adido
 mixed stats() 
 {
   mixed * ret;

@@ -34,7 +34,7 @@ protected int cmd (string str, object me, string verb){
 
 	// Si llegamos aqui damos el listado de configuracion completa
 	ret =  "--------------------------------------------------------------------------\n";
-	ret += "  ConfiguraciÛn del jugador: %^BOLD%^" + me->query_cap_name()+"%^RESET%^\n";
+	ret += "  Configuraci√≥n del jugador: %^BOLD%^" + me->query_cap_name()+"%^RESET%^\n";
 	ret += "--------------------------------------------------------------------------\n";
 
 	for(i = 0; i < sizeof(categories); i++)
@@ -56,7 +56,7 @@ protected int cmd (string str, object me, string verb){
 					result = call_other(me, func_name);
 				
 				if (current_map[subcategories[j]][0] == "bool")
-					result = (result?"sÌ":"no");
+					result = (result?"s√≠":"no");
 					
 				// ret += "    " + (string)subcategories[j] + ": " + result + "\n";
 				ret += sprintf("    %18-s:%15|O     %%^GREEN%%^(%s)%%^RESET%%^\n", (string)subcategories[j], result, current_map[subcategories[j]][4]);
@@ -69,10 +69,10 @@ protected int cmd (string str, object me, string verb){
 	}
 
 	ret += "--------------------------------------------------------------------------\n";
-	ret += "  Utiliza 'configuracion <categorÌa> <subcategorÌa> <valor>' para\n";
+	ret += "  Utiliza 'configuracion <categor√≠a> <subcategor√≠a> <valor>' para\n";
 	ret += "    cambiar los valores.\n";
 	ret += "  Utiliza el comando independiente indicado en color verde para obtener\n";
-	ret += "    m·s informaciÛn sobre cualquiera de los temas.\n";
+	ret += "    m√°s informaci√≥n sobre cualquiera de los temas.\n";
 	ret += "--------------------------------------------------------------------------\n";
 
 	tell_object(me, ret);
@@ -101,8 +101,8 @@ int config(string str, object me, string verb){
 	if ( position == -1 ){
 
 		tell_object(me, "--------------------------------------------------------------------------\n");
-		tell_object(me, "  '"+words[0]+"' no es una categorÌa v·lida a configurar.\n"
-			"  Utiliza 'configuracion' sin ning˙n par·metro para ver\n  los valores que puedes ajustar.\n");
+		tell_object(me, "  '"+words[0]+"' no es una categor√≠a v√°lida a configurar.\n"
+			"  Utiliza 'configuracion' sin ning√∫n par√°metro para ver\n  los valores que puedes ajustar.\n");
 		tell_object(me, "--------------------------------------------------------------------------\n");
 		return 1;
 	}
@@ -140,9 +140,9 @@ int config(string str, object me, string verb){
 	// No es una subcategoria valida
 	if (position2 == -1){
 		tell_object(me, "--------------------------------------------------------------------------\n");
-		tell_object(me, "  '"+words[1]+"' no es una subcategorÌa v·lida dentro de '"+words[0]+"'.\n"
-			"  Utiliza 'configuracion <categorÌa> <subcategorÌa>' sin ning˙n\n"+
-			"  par·metro para ver los valores que puedes ajustar.\n");
+		tell_object(me, "  '"+words[1]+"' no es una subcategor√≠a v√°lida dentro de '"+words[0]+"'.\n"
+			"  Utiliza 'configuracion <categor√≠a> <subcategor√≠a>' sin ning√∫n\n"+
+			"  par√°metro para ver los valores que puedes ajustar.\n");
 		tell_object(me, "--------------------------------------------------------------------------\n");  	                
 		return 1;
 	}
@@ -157,10 +157,10 @@ int config(string str, object me, string verb){
 			}
 			if (current_map[words[1]][0] == "bool")
 				result = (result?"si":"no");
-			tell_object(me, "ConfiguraciÛn para "+words[0] + "/" + words[1] + " actual: [" + result + "]\n");
+			tell_object(me, "Configuraci√≥n para "+words[0] + "/" + words[1] + " actual: [" + result + "]\n");
 		}
 		else{
-			tell_object(me, "ConfiguraciÛn para "+words[0] + "/" + words[1] + " actual: Desconocido\n");
+			tell_object(me, "Configuraci√≥n para "+words[0] + "/" + words[1] + " actual: Desconocido\n");
 		}
 		check = 1;
 	}  
@@ -256,7 +256,7 @@ int config(string str, object me, string verb){
 		// Eliminado ya que muchas funciones devuelven void (que es considerado 0)
 		// if (result) 
 		if (check)
-			tell_object(me, "ConfiguraciÛn para "+words[0] + "/" + words[1] + " establecida como: [" + value + "]\n");
+			tell_object(me, "Configuraci√≥n para "+words[0] + "/" + words[1] + " establecida como: [" + value + "]\n");
 	}
 
 	// Eliminado ya que muchas funciones devuelven void (que es considerado 0)

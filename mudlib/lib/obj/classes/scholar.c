@@ -6,8 +6,8 @@ inherit "/lib/class.c";
 
 void setup()
 {
-   set_name("erúdito");
-   set_short("Erúdito");
+   set_name("erÃºdito");
+   set_short("ErÃºdito");
 
    set_combat_bonus(2); // Habilidad para el combate
 

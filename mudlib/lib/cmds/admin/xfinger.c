@@ -16,7 +16,7 @@ string query_usage() { return "xfinger [-m] [-l] <player>\n"
                        "       xfinger [-l] [<user>]@<ipname|ipnumber>"; }
 
 string query_short_help() {
-	return "Devuelve el finger est·ndar de unix de un jugador, local o remoto.";
+	return "Devuelve el finger est√°ndar de unix de un jugador, local o remoto.";
 	/*
  return "xfinger implements the standard unix 'finger' command (with "
         "frills removed).\n\n"

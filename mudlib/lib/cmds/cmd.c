@@ -97,7 +97,7 @@ int _cmd(string tail, object thisob, string verb)
 
   if (thisob->query_timed_property_exists(LOADING_PROP))
   {
-    notify_fail("Tu equipo aún se está cargando, espera un segundo.\n");
+    notify_fail("Tu equipo aÃºn se estÃ¡ cargando, espera un segundo.\n");
     return 0;
   }
 

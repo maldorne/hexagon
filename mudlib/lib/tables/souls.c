@@ -5,27 +5,27 @@
 string query_global_adj()
 {
   return ",lentamente,felizmente,tristemente,nerviosamente,"+
-     "haciendo una mueca,ampliamente,torcidamente,estúpidamente,"+
-     "condescendientemente,irónicamente,"+
+     "haciendo una mueca,ampliamente,torcidamente,estÃºpidamente,"+
+     "condescendientemente,irÃ³nicamente,"+
      "pacientemente,alegremente,ligeramente,"+
-     "excitadamente,extrañamente,"+
-     "cuidadosamente,sádicamente,de lado,"+
+     "excitadamente,extraÃ±amente,"+
+     "cuidadosamente,sÃ¡dicamente,de lado,"+
      "levemente,enfadado,"+
      "inocentemente,"+
-     "débilmente,humildemente,paradójicamente,"+
+     "dÃ©bilmente,humildemente,paradÃ³jicamente,"+
      "con dulzura,"+
-     "cariñosamente,soñador,radiantemente,entusiasmadamente,"+
-     "insolente,maniáticamente,completamente,inconscientemente,"+
+     "cariÃ±osamente,soÃ±ador,radiantemente,entusiasmadamente,"+
+     "insolente,maniÃ¡ticamente,completamente,inconscientemente,"+
      "borracho,como un loco,con gracia,con malicia,"+
      "de pasada,secamente,"+
-     "increíblemente,tranquilamente,"+
+     "increÃ­blemente,tranquilamente,"+
      "de modo diferente,protestando,triunfalmente,seductor,"+
      "suavemente,positivamente,"+
-     "demoníacamente,afectivo,con frialdad,negativamente,"+
+     "demonÃ­acamente,afectivo,con frialdad,negativamente,"+
      "perezoso,sereno,"+
      "desilusionado,con furia,"+
      "tontamente,"+
-     "espasmódicamente,"+
+     "espasmÃ³dicamente,"+
      "como un cafre,con locura,"+
      "con irreverencia,"+
      "locuazmente,verbalmente,";
@@ -36,13 +36,13 @@ mapping query_soul_data()
   return ([
   /* A */ 
   "acusar" : ({ ({ 0, "%s", 2, "%s de %s", 2, "%s %s", 3, "%s" }), ({
-     "$ifarg:Acusas a $arg:#$$else$¡El mayordomo fue el culpable!~$", 
+     "$ifarg:Acusas a $arg:#$$else$Â¡El mayordomo fue el culpable!~$", 
      "$mcname$ $ifarg:acusa a $lastarg$$else$acusa al mayordomo~$",
      "Acusas a $hcname$$ifarg: de $arg:#$~$",
      "$mcname$ te acusa$ifarg: de $lastarg$~$",
      "$mcname$ acusa a $hcname$$ifarg: de $lastarg$~$" }) }),
   "admirar" : ({ ({ 0, "%s", 2, "%s %s", 3, "%s" }), ({
-     "$ifarg:Admiras a $arg:#$$else$¡Admiras "+mud_name()+"!~$",
+     "$ifarg:Admiras a $arg:#$$else$Â¡Admiras "+mud_name()+"!~$",
      "$mcname$ $ifarg:admira $lastarg$$else$admira "+mud_name()+"~$",
      "Admiras a $hcname$$ifarg: por ser $arg:#$~$",
      "$mcname$ te admira$ifarg: por ser $lastarg$~$",
@@ -58,14 +58,14 @@ mapping query_soul_data()
       "$mcname$ te aplaude $lastarg$",
       "$mcname$ aplaude a $hcname$ $lastarg$" }) }),
   "asombrar" : ({ ({ 0, "%s" }), ({
-      "¡Estás asombrado!",
-      "¡$mcname$ está asombrado!",
+      "Â¡EstÃ¡s asombrado!",
+      "Â¡$mcname$ estÃ¡ asombrado!",
       "Asombras a $hcname$$ifarg: con tu $arg:estupidez,inteligencia"+
-      ",sabiduría$~$!",
+      ",sabidurÃ­a$~$!",
       "$mcname$ te asombra$ifarg: con $mposs$ $lastarg$~$!",
       "$mcname$ asombra a $hcname$$ifarg: con $mposs$ $lastarg$~$" }) }),
   "acariciar" : ({ ({ 0, "%s", 2, "%s %s", }), ({ 
-      "Acaricias a $hcname$$ifarg: $arg:dulcemente,con pasión y locura,"+
+      "Acaricias a $hcname$$ifarg: $arg:dulcemente,con pasiÃ³n y locura,"+
       "firmemente,seductoramente,sugestivamente,levemente,sensualmente,"+
       "educadamente,amorosamente,vigorosamente,con ansia$~$",
       "$mcname$ te acaricia$ifarg: $lastarg$~$",
@@ -74,20 +74,20 @@ mapping query_soul_data()
       "Agitas tus $arg:orejas,brazos,piernas,manos,pies$",
       "$mcname$ agita sus $arg:orejas,brazos,piernas,manos,pies$" }) }),
   "abrazar" : ({ ({ 0, "%s", 1, "%s %s", 2, "%s %s" }), ({
-      "Abrazas a $hcname$$ifarg: $arg:fuerte,cariñosamente,amigablemente,"+
+      "Abrazas a $hcname$$ifarg: $arg:fuerte,cariÃ±osamente,amigablemente,"+
       "muy fuerte,vigorosamente,desesperadamente,amorosamente,alegremente,como un oso,"+
-      "protectoramente,sensualmente,eróticamente$~$",
+      "protectoramente,sensualmente,erÃ³ticamente$~$",
       "$mcname$ te abraza $ifarg: $lastarg$~$",
       "$mcname$ abraza a $hcname$ $ifarg: $lastarg$~$" }) }),
   "asentir" : ({ ({
       0, "%s", 1, "%s a %s", 1, "%s %s", 2, "a %s %s",
       2, "%s %s", 3, "%s" }), ({
       "Asientes con la cabeza$ifarg: $arg:solemnemente,alegremente,secamente,comprensivamente,"+
-      "pacientemente,lentamente,cansadamente,sarcásticamente,sabiamente,con aprobación,"+
+      "pacientemente,lentamente,cansadamente,sarcÃ¡sticamente,sabiamente,con aprobaciÃ³n,"+
       "con conocimiento,vigorosamente,en acuerdo,en desacuerdo$~$",
       "$mcname$ asiente con la cabeza$ifarg: $lastarg$~$",
       "Asientes con la cabeza$ifarg: $arg:solemnemente,alegremente,secamente,comprensivamente,"+
-      "pacientemente,lentamente,cansadamente,sarcásticamente,sabiamente,con aprobación,"+
+      "pacientemente,lentamente,cansadamente,sarcÃ¡sticamente,sabiamente,con aprobaciÃ³n,"+
       "con conocimiento,vigorosamente,en acuerdo,en desacuerdo$~$"+
       " a $hcname$",
       "$mcname$ te asiente con la cabeza$ifarg: $lastarg$~$",
@@ -97,12 +97,12 @@ mapping query_soul_data()
       "$mcname$ te da un susto de muerte$force#miedo $mname$#2$",
       "$mcname$ le da un susto de muerte a $hcname$" }) }),
   "achuchar" : ({ ({ 0, "%s", 1, "%s %s", 2, "%s %s" }), ({
-      "Achuchas a $hcname$ $arg:cariñosamente,gentilmente,muy fuerte$",
+      "Achuchas a $hcname$ $arg:cariÃ±osamente,gentilmente,muy fuerte$",
       "$mcname$ te achucha $lastarg$",
       "$mcname$ achucha $lastarg$ a $hcname$" }) }),
   "agradecer" : ({ ({ 0, "%s", 2, "%s %s" }), ({
-      "Le agradeces a $hcname$$ifarg: $arg:profusamente,un montón,levemente,"+
-      "con reservas,solemnemente,de todo corazón$~$",
+      "Le agradeces a $hcname$$ifarg: $arg:profusamente,un montÃ³n,levemente,"+
+      "con reservas,solemnemente,de todo corazÃ³n$~$",
       "$mcname$ te lo agradece$ifarg: $lastarg$~$",
       "$mcname$ se lo agradece a $hcname$$ifarg: $lastarg$~$" }) }),
   "adorar" : ({ ({ 0, "%s", 3, "%s" }), ({
@@ -111,10 +111,10 @@ mapping query_soul_data()
       "Adoras a $hcname$",
       "$mcname$ te adora", "$mcname$ adora a $hcname$" }) }),
 /* B */
-  "berrear" : ({ 0, ({ "Berreas hasta quedarte afónico",
-                    "$mcname$ berrea hasta quedarse afónico" }) }),
+  "berrear" : ({ 0, ({ "Berreas hasta quedarte afÃ³nico",
+                    "$mcname$ berrea hasta quedarse afÃ³nico" }) }),
   "bailar" : ({ ({ 0, "%s", 0, "con %s" }), ({
-      "Te marcas un baile... ¿genial verdad?",
+      "Te marcas un baile... Â¿genial verdad?",
       "$mcname$ se marca un baile",
       "Deslizas a $hcname$ por la pista de baile",
       "$mcname$ te desliza por la pista de baile",
@@ -131,7 +131,7 @@ mapping query_soul_data()
       "$mcname$ te besa$ifarg: $lastarg$~$",
       "$mcname$ besa a $hcname$$ifarg: $lastarg$~$" }) }),
   "bostezar" : ({ ({ 3, "%s" }), ({
-      "Bostezas $arg:cansadamente,de aburrimiento,de sueño$",
+      "Bostezas $arg:cansadamente,de aburrimiento,de sueÃ±o$",
       "$mcname$ bosteza $lastarg$" }) }) ,
 /* C */
   "comprender": ({ ({ 0,"%s", 1, "%s %s", 1, "%s a %s", 2, "%s %s", 2, "%s a %s"}), ({
@@ -157,50 +157,50 @@ mapping query_soul_data()
       "$mcname$ cruza sus $lastarg$", }) }),
   "caminar" : ({ ({ 0, "%s", 3, "%s", 1, "%s %s", 2, "%s %s" }), ({
       "Caminas de un lado a otro$ifarg: $arg:nerviosamente,"+
-      "pensando,ansiosamente,con impaciencia,lentamente,rápidamente,"+
+      "pensando,ansiosamente,con impaciencia,lentamente,rÃ¡pidamente,"+
       "enfadado,esperando una respuesta,pacientemente,"+
-      "ponderando la cuestión,irritantemente,"+
+      "ponderando la cuestiÃ³n,irritantemente,"+
       "aburrido,a la pata coja$~$",
       "$mcname$ camina de un lado a otro$ifarg: $lastarg$~$",
       "Caminas $ifarg:$lastarg$~$alrededor de $hcname$ "+
-      "$arg:nerviosamente,pensando,ansiosamente,con impaciencia,lentamente,rápidamente,"+
+      "$arg:nerviosamente,pensando,ansiosamente,con impaciencia,lentamente,rÃ¡pidamente,"+
       "enfadado,esperando una respuesta,pacientemente,"+
-      "ponderando la cuestión,irritantemente,"+
+      "ponderando la cuestiÃ³n,irritantemente,"+
       "aburrido,a la pata coja$",
       "$mcname$ camina$ifarg: $lastarg$~$ a tu alrededor",
       "$mcname$ camina$ifarg: $lastarg$~$ alrededor de $hcname$",
        }) }),
   "chillar" : ({ ({ 3, "%s", 3, "de %s" }), ({
-      "$ifarg:Chillas $arg:de miedo,de pánico,de terror,de horror,de dolor,de frustración,de rabia,"+
-      "de desesperación,de alegría$$else$¡¡¡¡Arrggghhhhh!!!!~$",
-      "$mcname$ chilla$ifarg: $lastarg$$else$ a pleno pulmón~$" }) }),
+      "$ifarg:Chillas $arg:de miedo,de pÃ¡nico,de terror,de horror,de dolor,de frustraciÃ³n,de rabia,"+
+      "de desesperaciÃ³n,de alegrÃ­a$$else$Â¡Â¡Â¡Â¡Arrggghhhhh!!!!~$",
+      "$mcname$ chilla$ifarg: $lastarg$$else$ a pleno pulmÃ³n~$" }) }),
 /* D */
   "disculparse" : ({
     ({ 3, "%s", 1, "%s de %s", 1, "%s %s", 2, "%s %s", }), ({
       "Te disculpas $arg:felizmente,tristemente,reservadamente,"+
       "lentamente,levemente,secamente,"+
-      "sin necesidad,espontáneamente,por partida doble,completamente,humildemente$",
+      "sin necesidad,espontÃ¡neamente,por partida doble,completamente,humildemente$",
       "$mcname$ se disculpa $lastarg$",
       "Te disculpas $arg:felizmente,tristemente,reservadamente,"+
       "lentamente,levemente,secamente,"+
-      "sin necesidad,espontáneamente,por partida doble,completamente,humildemente$ con $hcname$",
+      "sin necesidad,espontÃ¡neamente,por partida doble,completamente,humildemente$ con $hcname$",
       "$mcname$ se disculpa $lastarg$ contigo",
       "$mcname$ pide disculpas $lastarg$ a $hcname$" }) }),
   "descojonarse" : ({ ({ 0, "%s" }), ({
-      "Te descojonas de $hcname$ hasta que se te saltan las lágrimas",
-      "$mcname$ se descojona de ti hasta que se le saltan las lágrimas",
-      "$mcname$ se descojona de $hcname$ hasta que se le saltan las lágrimas" }) }),
+      "Te descojonas de $hcname$ hasta que se te saltan las lÃ¡grimas",
+      "$mcname$ se descojona de ti hasta que se le saltan las lÃ¡grimas",
+      "$mcname$ se descojona de $hcname$ hasta que se le saltan las lÃ¡grimas" }) }),
   "despedirse" : ({ ({
       0, "%s", 0, "a %s", 0, "a %s", 2, "a %s %s", 1, "%s %s", 
       1, "%s a %s", 2, "a %s %s", 0, "a %s", 1, "%s a %s",
       2, "%s %s", 3, "%s" }), ({
-      "Dices adiós$ifarg: $arg:cansadamente,somnolientamente,perezosamente,tristemente,"+
+      "Dices adiÃ³s$ifarg: $arg:cansadamente,somnolientamente,perezosamente,tristemente,"+
       "alegremente$~$",
-      "$mcname$ dice adiós$ifarg: $lastarg$~$",
-      "Dices adiós$ifarg: $arg:cansadamente,somnolientamente,perezosamente,tristemente,"+
+      "$mcname$ dice adiÃ³s$ifarg: $lastarg$~$",
+      "Dices adiÃ³s$ifarg: $arg:cansadamente,somnolientamente,perezosamente,tristemente,"+
       "alegremente,amorosamente,y buenas noches$~$ a $hcname$",
-      "$mcname$ te dice adiós$ifarg: $lastarg$~$",
-      "$mcname$ dice adiós$ifarg: $lastarg$~$ a $hcname$" }) }),
+      "$mcname$ te dice adiÃ³s$ifarg: $lastarg$~$",
+      "$mcname$ dice adiÃ³s$ifarg: $lastarg$~$ a $hcname$" }) }),
   "despreciar" : ({ ({ 0, "%s" }), ({
       "Miras con desprecio a $hcname$, como el ser vil y rastrero que es",
       "$mcname$ te mira con desprecio, como la criatura vil y rastrera que eres",
@@ -215,7 +215,7 @@ mapping query_soul_data()
       "$mcname$ estornuda $lastarg$",
       "Estornudas $arg:violentamente,ruidosamente,silenciosamente,de repente,"+
       "inesperadamente$ salpicando a $hcname$",
-      "$mcname$ estornuda $lastarg$ salpicándote",
+      "$mcname$ estornuda $lastarg$ salpicÃ¡ndote",
       "$mcname$ estornuda $lastarg$ salpicando a $hcname$" }) }),
   "escupir" : ({ ({ 0, "%s", 0,"a %s", 3, "%s" }), ({
       "Escupes$ifarg: $arg:habilidosamente,dando asco$~$",
@@ -240,7 +240,7 @@ mapping query_soul_data()
 /* F */
   "fastidiar" : ({ ({ 0, "%s", }), ({
       "Fastidias $hcname$ hasta hacer que desee tirarse por un barranco",
-      "$mcname$ te fastidia hasta el punto en que desearías tirarte por un barranco",
+      "$mcname$ te fastidia hasta el punto en que desearÃ­as tirarte por un barranco",
       "$mcname$ fastidia a $hcname$ hasta que desea morirse", }) }),
   "flirtear" : ({ ({ 0, "%s", 1, "%s con %s", 1, "%s %s", 2, "%s %s" }), ({
       "Flirteas$ifarg: $arg:seductoramente,desvergonzadamente,"+
@@ -254,25 +254,25 @@ mapping query_soul_data()
   "gemir" : ({ ({ 3, "%s" }), ({
       "Gimes$ifarg: $arg:ruidosamente,resignadamente,de placer,"+
       "de dolor,quejumbrosamente,con voz de ultratumba,suavemente,profundamente,"+
-      "sensualmente,en agonía,de terror,por gemir$~$",
+      "sensualmente,en agonÃ­a,de terror,por gemir$~$",
       "$mcname$ gime$ifarg: $lastarg$~$" }) }),
-  "gruñir" : ({ ({
+  "gruÃ±ir" : ({ ({
       0, "%s", 0, "a %s", 1, "%s %s", 1, "%s a %s",
       2, "a %s %s", 2, "%s %s", 3, "%s" }), ({
-      "Gruñes $arg:amenazadoramente,demoníacamente,ruidosamente,inocentemente$",
-      "$mcname$ gruñe $lastarg$",
-      "Gruñes $arg:amenazadoramente,demoníacamente,ruidosamente,inocentemente$ a $hcname$",
-      "$mcname$ te gruñe $lastarg$",
-      "$mcname$ gruñe $lastarg$ a $hcname$" }) }),
-  "guiñar" : ({ ({ 0, "%s", 0, "a %s", 1, "%s a %s", 1, "%s %s",
+      "GruÃ±es $arg:amenazadoramente,demonÃ­acamente,ruidosamente,inocentemente$",
+      "$mcname$ gruÃ±e $lastarg$",
+      "GruÃ±es $arg:amenazadoramente,demonÃ­acamente,ruidosamente,inocentemente$ a $hcname$",
+      "$mcname$ te gruÃ±e $lastarg$",
+      "$mcname$ gruÃ±e $lastarg$ a $hcname$" }) }),
+  "guiÃ±ar" : ({ ({ 0, "%s", 0, "a %s", 1, "%s a %s", 1, "%s %s",
       2, "a %s %s", 2, "%s %s", 3, "%s" }), ({
-      "Guiñas un ojo$ifarg: $arg:sugestivamente,ampliamente,lentamente,ruidosamente,"+
+      "GuiÃ±as un ojo$ifarg: $arg:sugestivamente,ampliamente,lentamente,ruidosamente,"+
       "sospechosamente,seductoramente,con ganas de cachondeo$~$",
-      "$mcname$ guiña un ojo$ifarg: $lastarg$~$",
-      "Le guiñas el ojo$ifarg: $arg:sugestivamente,ampliamente,lentamente,ruidosamente,gruñonamente,"+
+      "$mcname$ guiÃ±a un ojo$ifarg: $lastarg$~$",
+      "Le guiÃ±as el ojo$ifarg: $arg:sugestivamente,ampliamente,lentamente,ruidosamente,gruÃ±onamente,"+
       "sospechosamente,seductoramente,con ganas de cachondeo$~$ a $hcname$",
-      "$mcname$ te guiña el ojo$ifarg: $lastarg$~$",
-      "$mcname$ le guiña el ojo$ifarg: $lastarg$~$ a $hcname$" }) }),
+      "$mcname$ te guiÃ±a el ojo$ifarg: $lastarg$~$",
+      "$mcname$ le guiÃ±a el ojo$ifarg: $lastarg$~$ a $hcname$" }) }),
 /* H */
 /* I */
 /* J */
@@ -287,11 +287,11 @@ mapping query_soul_data()
       "un idiota$",
       "$mcname$ ladra como $lastarg$", }) }),
   "lamer" : ({ ({ 0, "%s", 3, "%s", 1, "%s %s", 2, "%s %s" }), ({
-      "Te lames los labios$ifarg: $arg:seductoramente,sensualmente,eróticamente$~$",
+      "Te lames los labios$ifarg: $arg:seductoramente,sensualmente,erÃ³ticamente$~$",
       "$mcname$ se lame los labios$ifarg: $lastarg$~$",
-      "Lames a $hcname$$ifarg: $arg:suavemente,cariñosamente,como un perro,"+
+      "Lames a $hcname$$ifarg: $arg:suavemente,cariÃ±osamente,como un perro,"+
       "por entero,sensualmente,de forma seductora,amorosamente,"+
-      "eróticamente,suavemente$~$",
+      "erÃ³ticamente,suavemente$~$",
       "$mcname$ te lame$ifarg: $lastarg$~$",
       "$mcname$ lame a $hcname$$ifarg: $lastarg$~$" }) }),
   "llorar" : ({ ({ 3, "%s" }), ({
@@ -329,10 +329,10 @@ mapping query_soul_data()
       "Parpadeas ante $hcname$",
       "$mcname$ parpadea ante ti",
       "$mcname$ parpadea ante $hcname$" }) }),
-  "pestañear" : ({ ({ 0, "%s" }), ({
-      "Pestañeas a $hcname$",
-      "$mcname$ te pestañea",
-      "$mcname$ le pestañea a $hcname$",}) }),
+  "pestaÃ±ear" : ({ ({ 0, "%s" }), ({
+      "PestaÃ±eas a $hcname$",
+      "$mcname$ te pestaÃ±ea",
+      "$mcname$ le pestaÃ±ea a $hcname$",}) }),
   "perdonar" : ({ ({ 0, "%s", }), ({
       "Perdonas a $hcname$",
       "$mcname$ te perdona",
@@ -343,27 +343,27 @@ mapping query_soul_data()
   "protestar" : ({ ({ 3, "%s", }), ({
       "Protestas $arg:agriamente,amenazadoramente,sin ganas,"+
       "seductoramente,sugestivamente,escandalosamente,irritantemente,"+
-      "de forma devastadora,impotentemente,débilmente,acaloradamente$",
+      "de forma devastadora,impotentemente,dÃ©bilmente,acaloradamente$",
       "$mcname$ protesta $lastarg$", }) }),
   "pitorrearse" : ({ ({ 0, "%s" }), ({
       "Te pitorreas de $hcname$",
       "$mcname$ se pitorrea de ti",
       "$mcname$ se pitorrea de $hcname$" }), }),
   "ping" : ({ ({ 0, "%s" }), ({
-      "Le haces '¡¡¡PING!!!' a $hcname$", 
-      // "$mcname$ te hace '¡¡¡PING!!!'$force#alias ping_alias $mname$#2$",
-      "$mcname$ te hace '¡¡¡PING!!!'$force#esperar $mname$#2$",
-      "$mcname$ le hace '¡¡¡PING!!!' a $hcname$" })  }),
+      "Le haces 'Â¡Â¡Â¡PING!!!' a $hcname$", 
+      // "$mcname$ te hace 'Â¡Â¡Â¡PING!!!'$force#alias ping_alias $mname$#2$",
+      "$mcname$ te hace 'Â¡Â¡Â¡PING!!!'$force#esperar $mname$#2$",
+      "$mcname$ le hace 'Â¡Â¡Â¡PING!!!' a $hcname$" })  }),
   "ponderar" : ({ 0, ({
-      "Ponderas la situación",
-      "$mcname$ pondera la situación" }) }),
+      "Ponderas la situaciÃ³n",
+      "$mcname$ pondera la situaciÃ³n" }) }),
   "prometer" : ({ ({ 0, "%s" }), ({
       "Le haces una promesa a $hcname$",
       "$mcname$ te hace una promesa",
       "$mcname$ le hace una promesa a $hcname$" }) }),
   "pensar" : ({ ({ 3, "%s", }), ({
-      "Piensas $ifarg:$arg:#$$else$con cuidado para no hacerte daño~$",
-      "$mcname$ piensa $ifarg:$lastarg$$else$con cuidado para no hacerse daño~$" }) }),
+      "Piensas $ifarg:$arg:#$$else$con cuidado para no hacerte daÃ±o~$",
+      "$mcname$ piensa $ifarg:$lastarg$$else$con cuidado para no hacerse daÃ±o~$" }) }),
   "preguntarse" : ({ ({ 3, "%s" }), ({
       "Te preguntas $ifarg:$arg:#$$else$sobre la realidad y "+
       "lo aburrida que puede ser~$",
@@ -376,32 +376,32 @@ mapping query_soul_data()
       "$mcname$ te reconoce",
       "$mcname$ reconoce a $hcname$" }) }),
   "respirar" : ({ ({ 3, "%s", }), ({
-      "Respiras $arg:rápidamente,sensualmente,dolorosamente,entrecortadamente,lento,una vez,"+
+      "Respiras $arg:rÃ¡pidamente,sensualmente,dolorosamente,entrecortadamente,lento,una vez,"+
       "pesadamente,acaloradamente$",
       "Respiras $lastarg$", }) }),
   "reverencia" : ({ ({ 0, "%s", 0, "a %s", 1, "%s a %s", 1, "%s %s", 3, "%s" }), ({
-      "Haces una reverencia$ifarg: $arg:solemne,profunda,formal,rápida,leve,"+
-      "respetuosa,insolente,torpe,grácil,ágil,colorida,"+
+      "Haces una reverencia$ifarg: $arg:solemne,profunda,formal,rÃ¡pida,leve,"+
+      "respetuosa,insolente,torpe,grÃ¡cil,Ã¡gil,colorida,"+
       "sensual,conspiratoria,irrespetuosa,elegante$~$",
       "$mcname$ hace una reverencia$ifarg: $lastarg$~$",
-      "Haces una reverencia$ifarg: $arg:solemne,profunda,formal,rápida,leve,"+
-      "respetuosa,insolente,torpe,grácil,ágil,colorida"+
+      "Haces una reverencia$ifarg: $arg:solemne,profunda,formal,rÃ¡pida,leve,"+
+      "respetuosa,insolente,torpe,grÃ¡cil,Ã¡gil,colorida"+
       "sensual,conspiratoria,irrespetuosa,elegante$~$ a $hcname$",
       "$mcname$ te hace una reverencia$ifarg: $lastarg$~$",
       "$mcname$ hace una reverencia$ifarg: $lastarg$~$ a $hcname$" }) }),
   "reirse" : ({ ({
       0, "a %s", 0, "%s", 1, "%s %s", 1, "%s a %s",
       2, "a %s %s", 3, "%s"}), ({
-      "$ifarg: Te ríes $arg:malignamente,malvadamente,tranquilamente,incontroladamente,educadamente,"+
-      "de felicidad,extasiado,demoníacamente,infernalmente,"+
+      "$ifarg: Te rÃ­es $arg:malignamente,malvadamente,tranquilamente,incontroladamente,educadamente,"+
+      "de felicidad,extasiado,demonÃ­acamente,infernalmente,"+
       "discretamente$"+
-      "$else$Te ríes~$",
-      "$ifarg:$mcname$ se ríe $lastarg$$else$$mcname$ se ríe~$",
-      "Te ríes$ifarg: $arg:malignamente,malvadamente,tranquilamente,incontroladamente,educadamente,"+
-      "de felicidad,extasiado,demoníacamente,infernalmente,"+
+      "$else$Te rÃ­es~$",
+      "$ifarg:$mcname$ se rÃ­e $lastarg$$else$$mcname$ se rÃ­e~$",
+      "Te rÃ­es$ifarg: $arg:malignamente,malvadamente,tranquilamente,incontroladamente,educadamente,"+
+      "de felicidad,extasiado,demonÃ­acamente,infernalmente,"+
       "discretamente,$~$ de $hcname$",
-      "$mcname$ se ríe$ifarg: $lastarg$~$ de ti",
-      "$mcname$ se ríe$ifarg: $lastarg$~$ de $hcname$" }) }),
+      "$mcname$ se rÃ­e$ifarg: $lastarg$~$ de ti",
+      "$mcname$ se rÃ­e$ifarg: $lastarg$~$ de $hcname$" }) }),
   "roncar" : ({ ({ 0, "%s", 3, "%s" }), ({
       "$ifarg:Roncas $arg:ruidosamente,descuidadamente$"+
       "$else$Roncas con tranquilidad~$",
@@ -417,30 +417,30 @@ mapping query_soul_data()
       "$mcname$ se sonroja$ifarg: $lastarg$~$ por $hcname$" }) }),
   "saludar" : ({ ({ 0, "%s" }), ({
       "Saludas a $hcname$ $arg:con la mano,alegremente,con los brazos abiertos,"+
-      "cortesmente,histéricamente,"+
-      "reservadamente,calurosamente,fríamente,insolentemente,secamente,"+
-      "a lo loco,dando saltos de alegría,amorosamente,cariñosamente$",
+      "cortesmente,histÃ©ricamente,"+
+      "reservadamente,calurosamente,frÃ­amente,insolentemente,secamente,"+
+      "a lo loco,dando saltos de alegrÃ­a,amorosamente,cariÃ±osamente$",
       "$mcname$ te saluda $lastarg$",
       "$mcname$ saluda a $hcname$ $lastarg$", }) }),
   "sonreir" : ({ ({ 0, "%s", 0, "a %s", 1, "%s a %s", 2, "a %s %s",
       1, "%s %s", 2, "%s %s", 3, "%s" }), ({
-      "Sonríes$ifarg: $arg:malignamente,tramando algo,"+
+      "SonrÃ­es$ifarg: $arg:malignamente,tramando algo,"+
       "de oreja a oreja,"+
       "desvergonzadamente,como si fueras idiota$~$",
-      "$mcname$ sonríe$ifarg: $lastarg$~$",
-      "Sonríes$ifarg: $arg:malignamente,tramando algo,"+
+      "$mcname$ sonrÃ­e$ifarg: $lastarg$~$",
+      "SonrÃ­es$ifarg: $arg:malignamente,tramando algo,"+
       "de oreja a oreja,"+
       "desvergonzadamente,como si fuera $mnumeral$ idiota$~$ a $hcname$",
-      "$mcname$ te sonríe$ifarg: $lastarg$~$",
-      "$mcname$ le sonríe$ifarg: $lastarg$~$ a $hcname$" }) }),
+      "$mcname$ te sonrÃ­e$ifarg: $lastarg$~$",
+      "$mcname$ le sonrÃ­e$ifarg: $lastarg$~$ a $hcname$" }) }),
   "suerte" : ({ ({ 0, "%s" }), ({
       "Le deseas mucha suerte a $hcname$",
       "$mcname$ te desea mucha suerte",
       "$mcname$ desea a $hcname$ que tenga mucha suerte" }) }),
-  "señalar" : ({ ({ 0, "%s", 0, "a %s", 1, "%s a %s", 2, "a %s %s" }), ({
-      "Señalas con el dedo$ifarg: $arg:acusando,índice$~$ a $hcname$",
-      "$mcname$ te señala con el dedo$ifarg: $lastarg$~$",
-      "$mcname$ señala con el dedo$ifarg: $lastarg$~$ a $hcname$" }) }),
+  "seÃ±alar" : ({ ({ 0, "%s", 0, "a %s", 1, "%s a %s", 2, "a %s %s" }), ({
+      "SeÃ±alas con el dedo$ifarg: $arg:acusando,Ã­ndice$~$ a $hcname$",
+      "$mcname$ te seÃ±ala con el dedo$ifarg: $lastarg$~$",
+      "$mcname$ seÃ±ala con el dedo$ifarg: $lastarg$~$ a $hcname$" }) }),
   "seducir" : ({ ({ 0, "%s", 1, "%s %s", 2, "%s %s" }), ({
       "Seduces a $hcname$$ifarg: $arg:atrevidamente,desvergonzadamente,"+
       "profesionalmente,con dulzura,sensualmente,adorablemente$~$",
@@ -448,12 +448,12 @@ mapping query_soul_data()
       "$mcname$ seduce a $hcname$$ifarg: $lastarg$~$" }) }),
   "suspirar" : ({ ({ 3, "%s", 2, "%s %s", 1, "%s %s" }), ({
       "Suspiras$ifarg: $arg:profundamente,silenciosamente,desesperadamente,cansadamente,lentamente,"+
-      "soñador,suavemente,de felicidad,de amor,pesadamente,"+
-      "sarcásticamente,de alivio,con tristeza,de aburrimiento$~$",
+      "soÃ±ador,suavemente,de felicidad,de amor,pesadamente,"+
+      "sarcÃ¡sticamente,de alivio,con tristeza,de aburrimiento$~$",
       "$mcname$ suspira$ifarg: $lastarg$~$",
       "Suspiras$ifarg: $arg:profundamente,silenciosamente,desesperadamente,cansadamente,lentamente,"+
-      "soñador,suavemente,de felicidad,de amor,pesadamente,"+
-      "sarcásticamente,de alivio,con tristeza,de aburrimiento$~$ ante $hcname$",
+      "soÃ±ador,suavemente,de felicidad,de amor,pesadamente,"+
+      "sarcÃ¡sticamente,de alivio,con tristeza,de aburrimiento$~$ ante $hcname$",
       "$mcname$ suspira$ifarg: $lastarg$~$ ante ti",
       "$mcname$ suspira$ifarg: $lastarg$~$ ante $hcname$" }) }),
   "silbar" : ({ ({ 0, "%s", 1, "%s %s", 2, "%s %s", 3, "%s" }), ({
@@ -467,14 +467,14 @@ mapping query_soul_data()
 /* T */
   "toser" : ({ 0, ({ "Toses", "$mcname$ tose" }) }),
   "temblar" : ({ 0, ({
-      "Tiemblas$ifarg: de $arg:miedo,verguenza,frío,fiebre$~$",
+      "Tiemblas$ifarg: de $arg:miedo,verguenza,frÃ­o,fiebre$~$",
       "$mcname$ tiembla$ifarg: de $lastarg$~$" }) }),
   "tararear" : ({ ({ 3, "%s" }), ({
-      "Tarareas $arg:una alegre canción,muy mal,irritantemente,distraídamente,"+
+      "Tarareas $arg:una alegre canciÃ³n,muy mal,irritantemente,distraÃ­damente,"+
       "silenciosamente,ruidosamente$",
       "$mcname$ tararea $lastarg$" }), }),
   "tiritar" : ({ ({ 3, "con %s", 3, "de %s" }), ({
-      "Tiritas$ifarg: $arg:de miedo,de frío,ligeramente,#$~$",
+      "Tiritas$ifarg: $arg:de miedo,de frÃ­o,ligeramente,#$~$",
       "$mcname$ tirita$ifarg: $lastarg$~$" }) }),
   "tentar" : ({ ({ 0, "%s", 2, "%s con %s" }), ({
       "Tientas a $hcname$$ifarg: con $arg:dinero,joyas,"+

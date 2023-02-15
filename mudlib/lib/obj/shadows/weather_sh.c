@@ -10,7 +10,7 @@
 object player;
 
 int query_weather_shadow(){ return 1; }
-string extra_look() { return "Está helado de frío.\n"; }
+string extra_look() { return "EstÃ¡ helado de frÃ­o.\n"; }
 
 void destruct_weather_shadow()
 {
@@ -39,7 +39,7 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   if (random(4) == 1)
   {
-    notify_fail("El frío prácticamente te impide caminar.\n");
+    notify_fail("El frÃ­o prÃ¡cticamente te impide caminar.\n");
     return 0;
   }
   
@@ -49,7 +49,7 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   // Si ya no hace frio la destruimos
   if (handler(WEATHER_HANDLER)->query_actual_data(environment(player))[2] <= 80)
   {
-    tell_object(player, "Notas cómo tus músculos vuelven a entrar en calor al moverte.\n");
+    tell_object(player, "Notas cÃ³mo tus mÃºsculos vuelven a entrar en calor al moverte.\n");
     destruct_weather_shadow();
   }
 

@@ -2,12 +2,12 @@
 // finger.c
 
 #define _LANG_FINGER_SYNTAX "finger [<nombre>]"
-#define _LANG_FINGER_HELP "Muestra información acerca del personaje jugador indicado."
+#define _LANG_FINGER_HELP "Muestra informaciÃ³n acerca del personaje jugador indicado."
 #define _LANG_FINGER_NAME "Nombre"
 #define _LANG_FINGER_ACCOUNT "Cuenta"
 #define _LANG_FINGER_REAL_NAME "Nombre real"
 #define _LANG_FINGER_CITY "Ciudad"
-#define _LANG_FINGER_BIRTHDAY "Cumpleaños"
+#define _LANG_FINGER_BIRTHDAY "CumpleaÃ±os"
 #define _LANG_FINGER_NOBODY "Nadie con el nombre " + str + " ha visitado "+mud_name()+".\n"
 #define _LANG_FINGER_FORBIDDEN "(tiene prohibido el acceso)"
 #define _LANG_FINGER_FORBIDDEN_REASON "Prohibido por: '" + capitalize(ret) + "'\n"
@@ -28,8 +28,8 @@
 #define _LANG_WHO_GUEST_MSG " invitad" + ((arr[i]->query_gender() == 2) ? "a" : "o") + " en " + mud_name()
 #define _LANG_WHO_NO_CODERS_MSG "> %^GREEN%^No hay programadores conectados%^RESET%^ <"
 #define _LANG_WHO_NO_PLAYERS_MSG "> %^GREEN%^No hay jugadores conectados%^RESET%^ <"
-#define _LANG_WHO_IS_THE_ONLY_ONE "> %^GREEN%^Es el único que está conectado en " + mud_name() + "%^RESET%^ <"
-#define _LANG_WHO_YOU_ARE_THE_ONLY_ONE "> %^GREEN%^Eres el único que está conectado en " + mud_name() + "%^RESET%^ <"
+#define _LANG_WHO_IS_THE_ONLY_ONE "> %^GREEN%^Es el Ãºnico que estÃ¡ conectado en " + mud_name() + "%^RESET%^ <"
+#define _LANG_WHO_YOU_ARE_THE_ONLY_ONE "> %^GREEN%^Eres el Ãºnico que estÃ¡ conectado en " + mud_name() + "%^RESET%^ <"
 #define _LANG_WHO_ONLY_CODERS_MSG "> %^GREEN%^Hay " + query_num(creators, 100) + " programador" + \
         (creators < 2 ? "" : "es") + " en " + mud_name() + "%^RESET%^ <"
 #define _LANG_WHO_ONLY_PLAYERS_MSG "> %^GREEN%^Hay " + query_num(num_people, 100) + " jugador" + \
@@ -38,7 +38,7 @@
       (creators < 2 ? "" : "es") + " y " + query_num(num_people, 100) + " jugador" + \
       (num_people < 2 ? "" : "es") + " en " + mud_name() + "%^RESET%^ <"
 #define _LANG_WHO_DISCONNECTED_MSG "> %^GREEN%^" + capitalize(number_as_string(num_disconnected_people)) + \
-      " usuario"+(num_disconnected_people < 2 ? "" : "s")+" con la conexión caída%^RESET%^ <"
+      " usuario"+(num_disconnected_people < 2 ? "" : "s")+" con la conexiÃ³n caÃ­da%^RESET%^ <"
 
 // help
 
@@ -56,6 +56,6 @@
 
 #define _LANG_CMD_GAMES "juegos"
 #define _LANG_CMD_GAMES_HELP "Lista todos los juegos disponibles en " + mud_name() + "."
-#define _LANG_CMD_GAMES_AVAILABLE "Los siguientes juegos están disponibles:\n"
+#define _LANG_CMD_GAMES_AVAILABLE "Los siguientes juegos estÃ¡n disponibles:\n"
 #define _LANG_CMD_GAMES_NO_LOGIN "Debes hacer login primero."
 #define _LANG_CMD_GAMES_UNAVAILABLE_GAME "No jugable"

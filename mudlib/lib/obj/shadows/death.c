@@ -18,14 +18,14 @@ string short(varargs int dark)
 {
   if (!my_player)
     return "Sombra de muerte";
-  return "Espíritu de " + my_player->short(dark);
+  return "EspÃ­ritu de " + my_player->short(dark);
 }
 
 string query_short() 
 {
   if (!my_player)
     return "Sombra de muerte";
-  return "Espíritu de " + my_player->query_short();
+  return "EspÃ­ritu de " + my_player->query_short();
 }
 
 int set_hp(int i, varargs object hp_remover) { }
@@ -46,46 +46,46 @@ void attack() {}
 
 int attack_by(object ob) 
 {
-  tell_object(ob, "Esta persona es un espíritu, no puedes hacerle nada.\n");
+  tell_object(ob, "Esta persona es un espÃ­ritu, no puedes hacerle nada.\n");
   ob->stop_fight(my_player);
   return 1;
 }
 
 int attack_ob(object ob) 
 {
-  tell_object(my_player, "Tu mano no tiene efecto en el mundo material, ¡eres un espíritu!\n");
+  tell_object(my_player, "Tu mano no tiene efecto en el mundo material, Â¡eres un espÃ­ritu!\n");
   return 0;
 }
 
 int cast() 
 {
-  tell_object(my_player, "¿Piensas formular hechizos siendo un espíritu?\n");
+  tell_object(my_player, "Â¿Piensas formular hechizos siendo un espÃ­ritu?\n");
   return 1;
 }
 
 int do_shout() 
 {
-  tell_object(my_player, "Eres un espíritu, eso no es posible.\n");
+  tell_object(my_player, "Eres un espÃ­ritu, eso no es posible.\n");
   return 1;
 }
 
 int do_echo() 
 {
-  tell_object(my_player, "Eres un espíritu, eso no es posible.\n");
+  tell_object(my_player, "Eres un espÃ­ritu, eso no es posible.\n");
   // tell_object(my_player, "You are dead...\n");
   return 1;
 }
 
 int do_guild_command() 
 {
-  tell_object(my_player, "Eres un espíritu, eso no es posible.\n");
+  tell_object(my_player, "Eres un espÃ­ritu, eso no es posible.\n");
   // tell_object(my_player, "You are dead!\n");
   return 1;
 }
 
 int do_race_command() 
 {
-  tell_object(my_player, "Eres un espíritu, eso no es posible.\n");
+  tell_object(my_player, "Eres un espÃ­ritu, eso no es posible.\n");
   // tell_object(my_player, "You are dead!\n");
   return 1;
 }

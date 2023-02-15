@@ -61,18 +61,18 @@ static int cmd(string arg, object me, string verb)
     if (arg == "sol")
       if (WEATHER->query_day())
       {
-        write("¡Ouch, el sol es brillante!\n");
+        write("Â¡Ouch, el sol es brillante!\n");
         return 1;
       }
       else
       {
-        write("El sol no ha salido todavía, tendrás que esperar a que amanezca.\n");
+        write("El sol no ha salido todavÃ­a, tendrÃ¡s que esperar a que amanezca.\n");
         return 1;
       }
     if ((arg == "luna") || (arg == "lunas"))
       if (WEATHER->query_day())
       {
-        write("Las lunas no han aparecido todavía, prueba más tarde.\n");
+        write("Las lunas no han aparecido todavÃ­a, prueba mÃ¡s tarde.\n");
         return 1;
       }
       else if (WEATHER->moon_string() != "")
@@ -82,7 +82,7 @@ static int cmd(string arg, object me, string verb)
       }
       else
       {
-        write("Las lunas no han aparecido todavía, prueba más tarde.\n");
+        write("Las lunas no han aparecido todavÃ­a, prueba mÃ¡s tarde.\n");
         return 1;
       }
     write(WEATHER->weather_string(here));

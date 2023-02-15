@@ -11,7 +11,7 @@ protected int cmd(string str, object me, string verb) {
  int loop;
 
   if (!str) {
-    notify_fail("¿Cargar qué?\n");
+    notify_fail("Â¿Cargar quÃ©?\n");
     return 0;
   }
   filenames = get_cfiles(str);

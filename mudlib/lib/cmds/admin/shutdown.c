@@ -52,7 +52,7 @@ static int cmd(string arg, object me, string verb)
   else
   */
 
-  // Cancelar shutdown añadido por neverbot, 23/4/2003
+  // Cancelar shutdown aÃ±adido por neverbot, 23/4/2003
   if ((arg == "off") && MASTER->high_programmer(geteuid(me)))
   {
     write("Shutdown cancelled.\n");

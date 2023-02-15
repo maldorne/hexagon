@@ -5,9 +5,9 @@
  * Retoques para CcMud, neverbot 01/2006
  *  - Eliminado el canal @<texto>, ahora todos los mensajes
  *  se ponen por defecto con ese formato.
- *  - Añadido log de horas para el historial del canal.
- * Añadido canal de grupo ('aventurero'), neverbot 05/09
- * Añadidas funciones open_channel y close_channel
+ *  - AÃ±adido log de horas para el historial del canal.
+ * AÃ±adido canal de grupo ('aventurero'), neverbot 05/09
+ * AÃ±adidas funciones open_channel y close_channel
  */
 
 #include <basic/communicate.h>
@@ -185,13 +185,13 @@ string get_history(string chan)
     if (this_player() && !this_player()->query_admin() && 
       !query_channel_permission(this_player(), chan))
     {
-      tell_object(this_player(),"Intento de ver el histórico de canales a los que no tienes permiso.\n");
+      tell_object(this_player(),"Intento de ver el histÃ³rico de canales a los que no tienes permiso.\n");
       event(users(), "inform", this_player()->query_short(1)+" intento de get_history() sobre el canal "+chan, "person_cheat");
       return "";
     }
 
   if (!history[chan]) 
-    return "El canal está vacío.\n";
+    return "El canal estÃ¡ vacÃ­o.\n";
   return implode(history[chan], "\n");
 }
 
@@ -204,7 +204,7 @@ int do_chat( string str )
   {
     if (!GUILD) 
     {
-      message("No eres miembro de ningún gremio.\n","",this_player());
+      message("No eres miembro de ningÃºn gremio.\n","",this_player());
       return 1;
     }
     if (!GUILD->query_channel()) 
@@ -219,7 +219,7 @@ int do_chat( string str )
     {
     if (!GROUP) 
     {
-      message("No eres miembro de ningún clan.\n","",this_player());
+      message("No eres miembro de ningÃºn clan.\n","",this_player());
       return 1;
     }
     if (!GROUP->query_channel()) 
@@ -234,7 +234,7 @@ int do_chat( string str )
   {
     if (!RACEG) 
     {
-      message("No eres miembro de ningún grupo racial.\n","",this_player());
+      message("No eres miembro de ningÃºn grupo racial.\n","",this_player());
       return 1;
     }
     if (!RACEG->query_channel()) 
@@ -256,7 +256,7 @@ int do_chat( string str )
     
     if (str == "off" || str == "on") 
     {
-      message("No puedes abrir ni cerrar el canal de tu grupo, funciona automáticamente.\n","",this_player());
+      message("No puedes abrir ni cerrar el canal de tu grupo, funciona automÃ¡ticamente.\n","",this_player());
       return 1;
     }
   }
@@ -284,7 +284,7 @@ int do_chat( string str )
     case "off" :
       if (!query_channel_on(this_player(), verb)) 
       {
-        message("¡El canal-"+verb+" ya está desactivado!\n", "", this_player());
+        message("Â¡El canal-"+verb+" ya estÃ¡ desactivado!\n", "", this_player());
         return 0;
       }
       
@@ -294,7 +294,7 @@ int do_chat( string str )
     case "on" :
       if (query_channel_on(this_player(), verb)) 
       {
-        message("¡El canal '"+verb+"' ya está activado!\n", "", this_player());
+        message("Â¡El canal '"+verb+"' ya estÃ¡ activado!\n", "", this_player());
         return 0;
       }
     
@@ -365,12 +365,12 @@ string get_channel_help(string verb)
     verb = "<canal>";
 
   ret =
-    "\t"+verb+" <mensaje> : Envía un mensaje a la gente que escucha el canal.\n"+
+    "\t"+verb+" <mensaje> : EnvÃ­a un mensaje a la gente que escucha el canal.\n"+
     "\t"+verb+" ?     : Muestra este mensaje de ayuda.\n"+
     // "\t"+verb+" @' Emote a traves del canal.\n"
-    "\t"+verb+" !     : Ver los últimos "+number_as_string(MAX_CHANNEL_HISTORY)+" mensajes enviados al canal.\n";
+    "\t"+verb+" !     : Ver los Ãºltimos "+number_as_string(MAX_CHANNEL_HISTORY)+" mensajes enviados al canal.\n";
   if (this_player()->query_coder())
-    ret += "\t"+verb+" .     : Lista quienes están escuchando el canal.\n";
+    ret += "\t"+verb+" .     : Lista quienes estÃ¡n escuchando el canal.\n";
   return ret;
 }
 

@@ -9,7 +9,7 @@ void setup()
  
 string query_short_help()
 {
-	return "Envía un mensaje anónimo a todos los usuarios.";
+	return "EnvÃ­a un mensaje anÃ³nimo a todos los usuarios.";
 }
 
 string query_usage()

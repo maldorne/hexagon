@@ -273,20 +273,20 @@ int do_tell(string arg, varargs object ob, int silent)
       //        SERVICES_D->eventSendTell(person, mud, rest);
       //        return 1;
       // }
-      notify_fail(capitalize(str) + " no está conectado.\n");
+      notify_fail(capitalize(str) + " no estÃ¡ conectado.\n");
       return 0;
     }
   }
 
   if (ob == this_player()) 
   {
-    notify_fail("¿Otra vez hablando solo?\n");
+    notify_fail("Â¿Otra vez hablando solo?\n");
     return 0;
   }
 
   if (ob->query_player() && !interactive(ob)) 
   {
-    notify_fail(ob->query_cap_name()+" tiene caída su conexión.\n");
+    notify_fail(ob->query_cap_name()+" tiene caÃ­da su conexiÃ³n.\n");
     return 0;
   }
     
@@ -373,7 +373,7 @@ int do_whisper(string str)
   if (sizeof(obs) == 1 && obs[0] == this_player()) 
   {
     say(this_player()->query_cap_name()+" se susurra a si mismo.\n");
-    write("¿¡Susurrándote a ti mismo!?\n");
+    write("Â¿Â¡SusurrÃ¡ndote a ti mismo!?\n");
     return 1;
   }
   
@@ -471,7 +471,7 @@ int do_shout(string str)
 
   if (this_object()->query_earmuffs()) 
   {
-    notify_fail("¿Para qué gritar si no vas a oir cómo te contestan?\n");
+    notify_fail("Â¿Para quÃ© gritar si no vas a oir cÃ³mo te contestan?\n");
     return 0;
   }
 
@@ -533,7 +533,7 @@ int do_shout(string str)
   /* ahora en el event_person_shout (events.c), neverbot
   for(int i = 0; i < sizeof(usrs);i++){
   if (usrs[i] != this_object()) // neverbot
-  usrs[i]->add_past_g((string)this_object()->query_cap_name()+" gritó: "+str);
+  usrs[i]->add_past_g((string)this_object()->query_cap_name()+" gritÃ³: "+str);
   }
   */
   // str = " "+lower_case(str);
@@ -577,7 +577,7 @@ void add_language(string lang)
   }
   else
   {
-    // Si el idioma ya esta en la lista, no lo añadimos
+    // Si el idioma ya esta en la lista, no lo aÃ±adimos
     return;
 
     // while(i < sizeof(languages))
@@ -655,7 +655,7 @@ int set_language(string str)
     }
     else
     {
-      res += "No conoces ningún idioma.\n";
+      res += "No conoces ningÃºn idioma.\n";
     }
 
     notify_fail(res);

@@ -41,7 +41,7 @@ protected int cmd(string str, object me, string verb)
 	// A bit of gp to do this -- Wf, oct 95
 	if ( this_player()->adjust_gp(-1) < 0 )
 	{
-		notify_fail("Estás demasiado cansado como para ponerte a buscar ahora.\n");
+		notify_fail("EstÃ¡s demasiado cansado como para ponerte a buscar ahora.\n");
 		return 0;
 	}
 
@@ -52,14 +52,14 @@ protected int cmd(string str, object me, string verb)
 	hidden_objects = environment(me)->query_hidden_objects();
 	hidden_objects -= ({ nil });
 	
-	// Añadimos lo que se haya escondido sin informar a la room
+	// AÃ±adimos lo que se haya escondido sin informar a la room
 	aux = all_inventory(environment(me));
 	aux = filter_array(aux, (:is_hidden:));
 	hidden_objects += aux;
 
 	if(sizeof(hidden_objects) )
 	{
-		// Si queremos hacer algo con los objetos que están escondidos, lo podemos hacer aqui,
+		// Si queremos hacer algo con los objetos que estÃ¡n escondidos, lo podemos hacer aqui,
 		// Folken 10/2009
 	}
 	*/
@@ -69,7 +69,7 @@ protected int cmd(string str, object me, string verb)
 			"Remueves todo a tu alrededor buscando algo interesante.\n",
 			"Buscas esforzadamente algo por los alrededores.\n",
 			"Examinas toda la zona buscando algo que no hubieses advertido.\n",
-			"Cuidadosamente rastreas el suelo buscando algo de interés.\n" })[random(5)]);
+			"Cuidadosamente rastreas el suelo buscando algo de interÃ©s.\n" })[random(5)]);
 	
 
 	tell_room(environment(me), me->query_cap_name()+" busca algo por los alrededores.\n",

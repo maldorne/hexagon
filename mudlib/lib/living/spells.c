@@ -12,7 +12,7 @@
        la proteccion magica dos veces). El 'malus' por mala suerte (pifia)
        ya se calcula tb en el base.c, asi que dejamos spell_damage() como
        esta.
-    Como hacer daño magico a un personaje:
+    Como hacer daÃ±o magico a un personaje:
      - En el caso de ser un arma, como siempre se ha hecho:
         add_attack("ataque_secundario","water",2,2,1);   (por ejemplo)
      - En caso de ser una trampa, una accion en una room o algo similar:
@@ -21,7 +21,7 @@
           * Para los hechizos normales, donde caster es el formulador del hechizo
             target->spell_damage(damage,type,caster);
        int spell_damage(int damage, string type)
-          * Para hacer daño de un tipo determinado (agua, fuego, etc) contando
+          * Para hacer daÃ±o de un tipo determinado (agua, fuego, etc) contando
             las resistencias magicas del personaje :)
             target->spell_damage(damage,type);
 
@@ -93,7 +93,7 @@ int show_spells(string str)
 
   if (!map_sizeof(spells))
   {
-    tell_object(this_player(), "No conoces ningún hechizo.\n");
+    tell_object(this_player(), "No conoces ningÃºn hechizo.\n");
     return 1;
   }
 
@@ -113,13 +113,13 @@ int cast(string str)
   object *armours;
   string spell_dir;
 
-  // Añadido, neverbot 02/2006
+  // AÃ±adido, neverbot 02/2006
   if (!mappingp(spells))
     spells = ([ ]);
 
   if (!map_sizeof(spells))
   {
-    tell_object(this_player(),"No conoces ningún hechizo.\n");
+    tell_object(this_player(),"No conoces ningÃºn hechizo.\n");
     return 1;
   }
 
@@ -147,7 +147,7 @@ int cast(string str)
   if ( this_player()->query_property(PROPERTY_STILLCASTING) )
   {
     tell_object(this_player(), "No puedes formular otro hechizo hasta que transcurra "+
-      "algún tiempo.\n");
+      "algÃºn tiempo.\n");
     return 1;
   }
 
@@ -162,7 +162,7 @@ int cast(string str)
    */
   if (this_player()->query_dead())
   {
-    notify_fail("Los espíritus no pueden formular hechizos.\n");
+    notify_fail("Los espÃ­ritus no pueden formular hechizos.\n");
     return 0;
   }
 
@@ -199,7 +199,7 @@ int cast(string str)
 
   if (!spells[s1])
   {
-    notify_fail("No conoces ningún hechizo llamado '"+str+"'.\n");
+    notify_fail("No conoces ningÃºn hechizo llamado '"+str+"'.\n");
     return 0;
   }
 
@@ -211,7 +211,7 @@ int cast(string str)
 
   spell_dir = guild->query_spell_directory();
 
-  /*** Para solucion de problemas, añadido por neverbot para hacerlo igual que en el
+  /*** Para solucion de problemas, aÃ±adido por neverbot para hacerlo igual que en el
        mud original ***/
   if (this_player()->query_coder())
      tell_object(this_player(),"DEBUG: El archivo es: "+spell_dir + spells[s1][S_OBJECT]+".\n");
@@ -342,7 +342,7 @@ int remove_sphere(string name)
   return 1;
   }
 */
-// Añadida por neverbot 7/01
+// AÃ±adida por neverbot 7/01
 int remove_sphere(string name)
 {
   minor_spheres-=({name});
@@ -545,10 +545,10 @@ int spell_damage(int damage, string type, object caster)
 
   // Debug de informacion a los inmortales (neverbot 7/01)
   if ((prot != 0) && this_object()->query_coder())
-     tell_object(this_object(), "DEBUG (spell_damage): Aplicada resistencia mágica "+
+     tell_object(this_object(), "DEBUG (spell_damage): Aplicada resistencia mÃ¡gica "+
                "contra '"+type+"' ("+prot+"%).\n");
 
-  // Calculamos al modificacion al daño segun resistencias:
+  // Calculamos al modificacion al daÃ±o segun resistencias:
   damage = (damage * (100 - prot)) / 100;
 
   if (original > 0 && damage == 0)
@@ -566,8 +566,8 @@ int spell_damage(int damage, string type, object caster)
   //return 1;
 }
 
-// Añadida por neverbot para comprobar la resistencia de cualquier personaje o npc
-// a un tipo de daño (la usan todos los npcs de /oficios/wizards).
+// AÃ±adida por neverbot para comprobar la resistencia de cualquier personaje o npc
+// a un tipo de daÃ±o (la usan todos los npcs de /oficios/wizards).
 // Antes no habia una funcion de calculo de resistencias decente :P
 
 int query_res(string tipo)

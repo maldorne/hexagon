@@ -131,7 +131,7 @@ nomask void logon(object u)
   //   tim = (int)"/obj/shut"->query_time_to_crash();
   //   if ((tim > 0) && (tim < 120))
   //   {
-  //     write("Queda muy poco para el reinicio de "+mud_name()+", intÈntalo dentro de unos minutos.\n");
+  //     write("Queda muy poco para el reinicio de "+mud_name()+", int√©ntalo dentro de unos minutos.\n");
   //     dest_me();
   //     return;
   //   }
@@ -139,7 +139,7 @@ nomask void logon(object u)
   //   {
   //     int mins;
   //     mins = (tim/60);
-  //     write("El juego se reiniciar· en "+mins+" minuto"+((tim<2)?"":"s")+".\n");
+  //     write("El juego se reiniciar√° en "+mins+" minuto"+((tim<2)?"":"s")+".\n");
   //   }
   // }
 
@@ -337,7 +337,7 @@ nomask void logon_option(string str)
   // changed next line to be stringp - Hamlet
   if (!stringp(player_ob))
   {
-    write("Lo sentimos, pero ese nombre no est· permitido.\n");
+    write("Lo sentimos, pero ese nombre no est√° permitido.\n");
     destruct(_user);
     destruct(this_object());
     return ;
@@ -351,7 +351,7 @@ nomask void logon_option(string str)
   // now we accept emails as users names
   // if (strlen(str) > MAX_LEN)
   // {
-  //   write("El nombre es demasiado largo, el m·ximo son 11 caracteres.\n");
+  //   write("El nombre es demasiado largo, el m√°ximo son 11 caracteres.\n");
   //   write(_LANG_ENTER_AN_OPTION);
   //   input_to("logon_option");
   //   return;

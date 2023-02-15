@@ -14,7 +14,7 @@
 #define MODIFY 3
 
 // Incremento por defecto de los valores del clima
-// si el incremente calculado es muy pequeño
+// si el incremente calculado es muy pequeÃ±o
 #define DEF_INC 15
 
 // Tres lunas para Cc, Folken 6/03

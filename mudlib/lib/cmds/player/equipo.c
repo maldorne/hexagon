@@ -63,7 +63,7 @@ protected int cmd(string str, object me, string verb)
 	ret += "\n";
 
 	if (!complete)
-		ret += "Utiliza 'equipo todo' para ver el estado de todo lo que est·s cargando.\n";
+		ret += "Utiliza 'equipo todo' para ver el estado de todo lo que est√°s cargando.\n";
 
     tell_object(me, ret);
     

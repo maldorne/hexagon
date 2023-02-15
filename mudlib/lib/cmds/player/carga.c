@@ -18,7 +18,7 @@ string query_usage()
 
 string query_short_help()
 {
-	return "Muestra tu carga actual y la m·xima.";
+	return "Muestra tu carga actual y la m√°xima.";
 }
 
 protected int cmd (string arg, object me, string verb)

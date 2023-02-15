@@ -85,23 +85,23 @@
 
 
 // Mensajes iguales para todos los hechizos??
-#define MSG_NO_TARGET  "El hechizo falla, no parece haber nadie aquí con ese nombre.\n"
-#define MSG_AFECTADO   target->query_cap_name()+" ya está afectado por ese hechizo.\n"
+#define MSG_NO_TARGET  "El hechizo falla, no parece haber nadie aquÃ­ con ese nombre.\n"
+#define MSG_AFECTADO   target->query_cap_name()+" ya estÃ¡ afectado por ese hechizo.\n"
 #define MSG_SUIC_R     caster->query_cap_name()+" deja de formular un hechizo.\n"
-#define MSG_SUIC_C     "¿¡No querrás suicidarte!?\n"
-#define MSG_CAN_R      caster->query_cap_name()+" pronuncia el cántico '"+CANCION+"'.\n"
-#define MSG_CAN_C      "Pronuncias el cántico '"+CANCION+"'.\n"
+#define MSG_SUIC_C     "Â¿Â¡No querrÃ¡s suicidarte!?\n"
+#define MSG_CAN_R      caster->query_cap_name()+" pronuncia el cÃ¡ntico '"+CANCION+"'.\n"
+#define MSG_CAN_C      "Pronuncias el cÃ¡ntico '"+CANCION+"'.\n"
 #define MSG_NO_PUEDO   "No puedes formular este hechizo en este momento.\n"
 #define MSG_NO_PUEDO_R caster->query_cap_name()+" deja de formular un hechizo.\n"
 
 // Mensajes de error para no mezclar auras incompatibles
 // asi evitamos colocar distintas shadows que solapen la misma funcion:
 
-#define MSG_AURA_SPELL_DAMAGE_C   "No puedes terminar el hechizo, otro de las mismas características te lo impide.\n"
+#define MSG_AURA_SPELL_DAMAGE_C   "No puedes terminar el hechizo, otro de las mismas caracterÃ­sticas te lo impide.\n"
 #define MSG_AURA_SPELL_DAMAGE_R   caster->query_cap_name()+" deja de formular un hechizo.\n"
-#define MSG_AURA_ADJUST_HP_C      "No puedes terminar el hechizo, otro de las mismas características te lo impide.\n"
+#define MSG_AURA_ADJUST_HP_C      "No puedes terminar el hechizo, otro de las mismas caracterÃ­sticas te lo impide.\n"
 #define MSG_AURA_ADJUST_HP_R      caster->query_cap_name()+" deja de formular un hechizo.\n"
-#define MSG_AURA_WEAPON_DAMAGE_C  "No puedes terminar el hechizo, otro de las mismas características te lo impide.\n"
+#define MSG_AURA_WEAPON_DAMAGE_C  "No puedes terminar el hechizo, otro de las mismas caracterÃ­sticas te lo impide.\n"
 #define MSG_AURA_WEAPON_DAMAGE_R  caster->query_cap_name()+" deja de formular un hechizo.\n"
 
 // Propiedades para usar en varios hechizos

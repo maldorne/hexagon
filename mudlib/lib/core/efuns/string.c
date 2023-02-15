@@ -266,13 +266,13 @@ static string lower_case(string str)
 
   switch(first_char)
   {
-    case 'Á': str[0] = 'á'; break;
-    case 'É': str[0] = 'é'; break;
-    case 'Í': str[0] = 'í'; break;
-    case 'Ó': str[0] = 'ó'; break;
-    case 'Ú': str[0] = 'ú'; break;
-    case 'Ü': str[0] = 'ü'; break;
-    case 'Ñ': str[0] = 'ñ'; break;
+    case 'Ã': str[0] = 'Ã¡'; break;
+    case 'Ã‰': str[0] = 'Ã©'; break;
+    case 'Ã': str[0] = 'Ã­'; break;
+    case 'Ã“': str[0] = 'Ã³'; break;
+    case 'Ãš': str[0] = 'Ãº'; break;
+    case 'Ãœ': str[0] = 'Ã¼'; break;
+    case 'Ã‘': str[0] = 'Ã±'; break;
     default:
       if ((first_char >= 65) && (first_char <= 90))
         str[0] = first_char + 32;
@@ -292,13 +292,13 @@ static string capitalize(string str)
 
   switch(first_char)
   {
-    case 'á': str[0] = 'Á'; break;
-    case 'é': str[0] = 'É'; break;
-    case 'í': str[0] = 'Í'; break;
-    case 'ó': str[0] = 'Ó'; break;
-    case 'ú': str[0] = 'Ú'; break;
-    case 'ü': str[0] = 'Ü'; break;
-    case 'ñ': str[0] = 'Ñ'; break;
+    case 'Ã¡': str[0] = 'Ã'; break;
+    case 'Ã©': str[0] = 'Ã‰'; break;
+    case 'Ã­': str[0] = 'Ã'; break;
+    case 'Ã³': str[0] = 'Ã“'; break;
+    case 'Ãº': str[0] = 'Ãš'; break;
+    case 'Ã¼': str[0] = 'Ãœ'; break;
+    case 'Ã±': str[0] = 'Ã‘'; break;
     default:
       if ((first_char >= 97) && (first_char <= 122))
         str[0] = first_char - 32;
@@ -321,7 +321,7 @@ static string pluralize(string str)
 }
 
 // needed in a spanish-language mud
-// it could change only the accents or both the accents and the ñ
+// it could change only the accents or both the accents and the Ã±
 
 static string replace_spanish_characters(string str, varargs int flag_enye)
 {
@@ -333,18 +333,18 @@ static string replace_spanish_characters(string str, varargs int flag_enye)
 	{
 		switch(str[i..i])
 		{
-			case "á": ret += "a"; break;
-			case "é": ret += "e"; break;
-			case "í": ret += "i"; break;
-			case "ó": ret += "o"; break;
-			case "ú": ret += "u"; break;
-			case "Á": ret += "A"; break;
-			case "É": ret += "E"; break;
-			case "Í": ret += "I"; break;
-			case "Ó": ret += "O"; break;
-			case "Ú": ret += "U"; break;
-			case "ñ": ret += (flag_enye?"ny":"ñ"); break;
-			case "Ñ": ret += (flag_enye?"NY":"N"); break;
+			case "Ã¡": ret += "a"; break;
+			case "Ã©": ret += "e"; break;
+			case "Ã­": ret += "i"; break;
+			case "Ã³": ret += "o"; break;
+			case "Ãº": ret += "u"; break;
+			case "Ã": ret += "A"; break;
+			case "Ã‰": ret += "E"; break;
+			case "Ã": ret += "I"; break;
+			case "Ã“": ret += "O"; break;
+			case "Ãš": ret += "U"; break;
+			case "Ã±": ret += (flag_enye?"ny":"Ã±"); break;
+			case "Ã‘": ret += (flag_enye?"NY":"N"); break;
 			default: ret += str[i..i];
 		}
 	}

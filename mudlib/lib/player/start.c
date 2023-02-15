@@ -142,10 +142,10 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
   if (mail_stat["unread"])
   {
     if (mail_stat["total"] == 1)
-        write("\n\t >>> ¡Tu único correo está por leer! <<<\n");
+        write("\n\t >>> Â¡Tu Ãºnico correo estÃ¡ por leer! <<<\n");
     else
-        write("\n\t >>> ¡"+mail_stat["unread"]+" de tus "+
-            mail_stat["total"]+" correos están por leer! <<<\n");
+        write("\n\t >>> Â¡"+mail_stat["unread"]+" de tus "+
+            mail_stat["total"]+" correos estÃ¡n por leer! <<<\n");
   }
   */
 
@@ -197,7 +197,7 @@ void do_first_look()
         if (ob)
         {
           ob->move(this_object());
-          tell_object(this_object(), "Por algún error has debido perder tu "+ob->query_name()+". "+
+          tell_object(this_object(), "Por algÃºn error has debido perder tu "+ob->query_name()+". "+
               "Otr"+ob->query_vocal()+" nuev"+ob->query_vocal()+" te es concedid"+ob->query_vocal()+".\n\n");
         }
       }
@@ -255,7 +255,7 @@ int do_load_auto()
   if (this_object()->query_mount_file_name())
   {
     if (this_object()->query_administrator() && this_object()->query_invis() == 2)
-      tell_object(this_object(), "Tu montura no será cargada por estar en total invisibilidad.\n");
+      tell_object(this_object(), "Tu montura no serÃ¡ cargada por estar en total invisibilidad.\n");
     else
       load_mount();
   }
@@ -263,7 +263,7 @@ int do_load_auto()
   remove_timed_property(LOADING_PROP);
   call_out("do_auto_equip",3);
 
-  // Añadimos jugadores al ranking segun reconectan, neverbot 06/10
+  // AÃ±adimos jugadores al ranking segun reconectan, neverbot 06/10
   // (solo los que no son invitados)
   if (!query_property(GUEST_PROP))
   {

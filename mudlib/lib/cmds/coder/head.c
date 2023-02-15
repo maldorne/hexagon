@@ -51,7 +51,7 @@ static int cmd(string str, object me, string verb)
 
     if (!sizeof(filename))
     {
-      notify_fail("Fichero inv·lido.\n");
+      notify_fail("Fichero inv√°lido.\n");
       return 0;
     }
 
@@ -64,7 +64,7 @@ static int cmd(string str, object me, string verb)
 
 string query_short_help()
 {
-  return "Devuelve las primeras lÌneas de un archivo.";
+  return "Devuelve las primeras l√≠neas de un archivo.";
   /*
   return "This command allows the user to see the contents "
   "of file starting at the first line and ending at line range. "

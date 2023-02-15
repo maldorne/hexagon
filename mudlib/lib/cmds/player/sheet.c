@@ -10,8 +10,8 @@
 // Radix removed the spell and command lists, July 1996
 
 // Nueva ficha para CcMud, neverbot 6/03
-// Añadido sistema de clases (gremio generico), neverbot Jun'03
-// Añadido nuevo sistema de oficios y deidades, neverbot Mar'03
+// AÃ±adido sistema de clases (gremio generico), neverbot Jun'03
+// AÃ±adido nuevo sistema de oficios y deidades, neverbot Mar'03
 // Ficha modificada para Devel por neverbot Jul'01
 
 // Luck and Perception added, neverbot 03/05
@@ -38,7 +38,7 @@ string query_usage()
 
 string query_short_help()
 {
-  return "Devuelve información y características de tu personaje.";
+  return "Devuelve informaciÃ³n y caracterÃ­sticas de tu personaje.";
 }
 
 static int cmd (string name, object who, string verb)
@@ -93,7 +93,7 @@ static int cmd (string name, object who, string verb)
 
   if (me->query_dead() && !debug)
   {
-    notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
+    notify_fail("EstÃ¡s en forma espiritual, no necesitas conocer eso.\n");
     return 0;
   }
 
@@ -261,7 +261,7 @@ static int cmd (string name, object who, string verb)
 
   info="\t\t\tNombre:\t%^BOLD%^"+me->query_cap_name()+"%^RESET%^\n";
 
-  info+="Características básicas:\t";
+  info+="CaracterÃ­sticas bÃ¡sicas:\t";
   info+="Raza:\t\t"+(race?race->query_short():"Sin raza")+"\n";
 
   // Si hay algun modificador a fuerza petan las tabulaciones:
@@ -271,7 +271,7 @@ static int cmd (string name, object who, string verb)
      info+="Fuerza:\t\t"+str_stats[0]+"\t\t";
   info+="Sexo:\t\t"+capitalize(me->query_gender_string())+"\n";
   
-  info+="Constitución:\t"+str_stats[2]+"\t\t";
+  info+="ConstituciÃ³n:\t"+str_stats[2]+"\t\t";
   info+="Clase:\t\t"+(guild_class?capitalize(guild_class->query_short()+" ("+
     me->query_class_level()+")"):"Sin Clase")+"\n";
 
@@ -283,7 +283,7 @@ static int cmd (string name, object who, string verb)
   info+="Oficio:\t\t"+(job?capitalize(job->query_short()+(me->query_job_level()?(" ("+
     me->query_job_level()+")"):"")):"Sin Oficio")+"\n";
 
-  info+="Sabiduría:\t"+str_stats[3]+"\t\t";
+  info+="SabidurÃ­a:\t"+str_stats[3]+"\t\t";
   info+="Deidad:\t\t"+(deity?deity->query_short():"Sin Deidad")+"\n";
   
   info+="Carisma:\t"+str_stats[5]+"\t\t";  
@@ -295,14 +295,14 @@ static int cmd (string name, object who, string verb)
     info+="Clan:\t\t"+(group?me->query_group_name():"Sin Clan")+"\n";
 
   // Nueva caracteristica de la ficha, neverbot 03/05
-  info+="Percepción:\t"+str_stats[6]+"\t\t";  
-  info+="Ciudadanía:\t"+(city?city->query_short():"Sin Ciudadanía")+"\n";
+  info+="PercepciÃ³n:\t"+str_stats[6]+"\t\t";  
+  info+="CiudadanÃ­a:\t"+(city?city->query_short():"Sin CiudadanÃ­a")+"\n";
 
   // Nueva caracteristica de la ficha, neverbot 03/05
   info+="Voluntad:\t"+str_stats[7]+"\t\t";  
   info+="Estado:\t\t"+capitalize(me->volume_string())+"\n";
 
-  info+="Cobardía:\t( "+me->query_wimpy()+" )%\t\t";    
+  info+="CobardÃ­a:\t( "+me->query_wimpy()+" )%\t\t";    
   info+="Carga:\t\t"+me->query_contents_weight()+" ( "+me->query_max_weight()+" )\n";
 
   info+="Combate:\t"+capitalize(me->query_combat_mode_string())+
@@ -355,21 +355,21 @@ static int cmd (string name, object who, string verb)
   }
 
   if (me->query_xp() > 0)
-    info+="Experiencia (Gremio/Clase):\t"+me->query_xp()+"\n"; // Añadir coste de avanzar??
+    info+="Experiencia (Gremio/Clase):\t"+me->query_xp()+"\n"; // AÃ±adir coste de avanzar??
   if (me->query_job_ob() && (me->query_job_xp() > 0))
-    info+="Experiencia (Oficio):\t\t"+me->query_job_xp()+"\n"; // Añadir coste de avanzar??
+    info+="Experiencia (Oficio):\t\t"+me->query_job_xp()+"\n"; // AÃ±adir coste de avanzar??
 
   // if (me->query_status_points() > 0)
   //   info+="Puntos de Prestigio:\t\t"+me->query_status_points()+"\n";
 
   if (me->query_max_social_points() > 0)
     info+="Puntos Sociales:\t\t"+me->query_social_points()+" ( "+me->query_max_social_points()+" )\n";
-  info+="Puntos de Energía:\t\t"+me->query_gp()+" ( "+me->query_max_gp()+" )\n";
+  info+="Puntos de EnergÃ­a:\t\t"+me->query_gp()+" ( "+me->query_max_gp()+" )\n";
   info+="Puntos de Vida:\t\t\t"+me->query_hp()+" ( "+me->query_max_hp()+" )\n";
 
   info+="\n";
 
-  info+="También puedes usar: 'dotes', 'maestrías', 'estilos' y 'conocimientos'.\n\n";
+  info+="TambiÃ©n puedes usar: 'dotes', 'maestrÃ­as', 'estilos' y 'conocimientos'.\n\n";
 
   // printf("%-#*s\n", me->query_cols(), info);
   // printf("%s\n",info);

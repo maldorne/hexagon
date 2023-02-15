@@ -1,11 +1,11 @@
      _______________________________________________________________ 
     |\_____________________________________________________________/|
     | |                                                           | | 
-    | |               Información sobre los baúles                | | 
+    | |               InformaciÃ³n sobre los baÃºles                | | 
     | |                                                           | | 
-    | |   - 'listar' para ver qué objetos están almacenados.      | | 
-    | |   - 'depositar <objeto>' para almacenarlo en el baúl.     | | 
-    | |   - 'recuperar <objeto>' para sacar un objeto del baúl.   | | 
+    | |   - 'listar' para ver quÃ© objetos estÃ¡n almacenados.      | | 
+    | |   - 'depositar <objeto>' para almacenarlo en el baÃºl.     | | 
+    | |   - 'recuperar <objeto>' para sacar un objeto del baÃºl.   | | 
     | |   - 'logs' para ver el registro de actividades.           | | 
     | |                                                           | | 
     | |___________________________________________________________| | 

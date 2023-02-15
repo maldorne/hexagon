@@ -5,8 +5,8 @@
  * Tras mucho probar y retocar el sistema de clima antiguo, lo mejor es
  * hacer uno completo desde cero.
  * 
- * Añadida luz por las lunas durante la noche, neverbot 20/02/04
- * Añadida la nieve, solo habia lluvia y granizo :( neverbot 20/02/04
+ * AÃ±adida luz por las lunas durante la noche, neverbot 20/02/04
+ * AÃ±adida la nieve, solo habia lluvia y granizo :( neverbot 20/02/04
  */
  
 inherit "/lib/core/object.c";
@@ -16,7 +16,7 @@ inherit "/lib/core/object.c";
 // Constantes de duracion del tiempo-mud
 // Un tick dura 60 segundos (un minuto)
 // Un dia dura 60 ticks (una hora)
-// Un año son 366 dias (algo mas de dos semanas)
+// Un aÃ±o son 366 dias (algo mas de dos semanas)
 #define TICKS 60
 #define DIA 60
 #define ANYO 366
@@ -100,7 +100,7 @@ void setup()
   reset_get();
   set_name("tiempo");
   set_short("Controlador extraordinario del tiempo");
-  set_long("¡Éste es el controlador extraordinario del tiempo!\n");
+  set_long("Â¡Ã‰ste es el controlador extraordinario del tiempo!\n");
   add_alias("controlador");
   
   call_out("update_low", TICKS);
@@ -288,7 +288,7 @@ void update_low()
         }
         if (mes == 8)
         {
-           estacion = 3; // comienza el otoño
+           estacion = 3; // comienza el otoÃ±o
            check_season(0);
         }
       }
@@ -352,8 +352,8 @@ string date_string()
     ret = "Son las " + data[0] + " ";//horas ";
   
   ret += "del " + capitalize(handler(CALENDAR_HANDLER)->query_week_day_string()) + " " + (dia_del_mes + 1) + " de "+
-        // month_string()+" del año "+data[4]+". Temporada de "+capitalize(season_string());
-        capitalize(month_string())+" del año "+ handler(CALENDAR_HANDLER)->query_year_name(data[4]);
+        // month_string()+" del aÃ±o "+data[4]+". Temporada de "+capitalize(season_string());
+        capitalize(month_string())+" del aÃ±o "+ handler(CALENDAR_HANDLER)->query_year_name(data[4]);
   
   return ret;
 }
@@ -432,7 +432,7 @@ void check_season(int flag)
         zones[zone_names[i]][4] -= 20;
         zones[zone_names[i]][5] -= 20;
         break;        
-      case 3: // otoño
+      case 3: // otoÃ±o
         // solo cambiamos las medias si venimos del verano (los valores
         // deben volver a los normales)
         if (!flag)
@@ -469,7 +469,7 @@ void check_season(int flag)
 //   para asegurar que el mapping que copiemos sea el original
 void reset_zones()
 {
-  log_file(LOG_FILE, "Reseteamos las zonas climáticas " + ctime(time(), 4) + "\n");  
+  log_file(LOG_FILE, "Reseteamos las zonas climÃ¡ticas " + ctime(time(), 4) + "\n");  
   
   // El map_copy nos sirve para copiar el mapping completo (no solo
   // su direccion). De otro modo estaremos siempre modificando el mapping
@@ -482,7 +482,7 @@ void reset_zones()
   save_weather();
 }
 
-// Comprobamos todas las zonas climaticas definidas en la tabla, por si hemos añadido
+// Comprobamos todas las zonas climaticas definidas en la tabla, por si hemos aÃ±adido
 //  alguna nueva
 void check_zones()
 {
@@ -500,7 +500,7 @@ void check_zones()
   for (i = 0; i < sizeof(table_names); i++)
   {
     // Si la zona de la tabla no esta en nuestra lista
-    // de zonas, la añadimos
+    // de zonas, la aÃ±adimos
     if (member_array(table_names[i], names) == -1)
     {
       zones[table_names[i]] = table_zones[table_names[i]];
@@ -716,7 +716,7 @@ int query_darkness(object room)
   else
   {
     cuanto = 25;
-    // Comprobamos el estado de cada luna para añadir algo de luz a la noche
+    // Comprobamos el estado de cada luna para aÃ±adir algo de luz a la noche
     // la luna uno proporciona mas luz, la dos menos y la tres aun menos
     if (luna_uno == 0) // llena
       cuanto += 10;
@@ -767,7 +767,7 @@ int query_raining(object room)
   return (zones[zona][0] >= 50);
 }
 
-// Comprobada desde weather_heart_beat, para saber si debemos hacer daño por frio, etc
+// Comprobada desde weather_heart_beat, para saber si debemos hacer daÃ±o por frio, etc
 int * query_actual_data(object room)
 {
   string zona;
@@ -778,7 +778,7 @@ int * query_actual_data(object room)
 // Hora a la que amanece
 int query_dawn_time()
 {
-  // invierno, primavera, verano, otoño
+  // invierno, primavera, verano, otoÃ±o
   switch(estacion)
   {
     case 0: return 9;
@@ -792,7 +792,7 @@ int query_dawn_time()
 // Hora a la que anochece
 int query_nightfall_time()
 {
-  // invierno, primavera, verano, otoño
+  // invierno, primavera, verano, otoÃ±o
   switch(estacion)
   {
     case 0: return 20;
@@ -816,12 +816,12 @@ int query_day()
 // [0..9]  calor abrasador
 // [10..19] mucho calor
 // [20..29] caluroso
-// [30..39] clima cálido
+// [30..39] clima cÃ¡lido
 // [40..59] buena temperatura
-// [60..69] clima frío
-// [70..79] frío
-// [80..89] mucho frío
-// [>=90]   frío polar
+// [60..69] clima frÃ­o
+// [70..79] frÃ­o
+// [80..89] mucho frÃ­o
+// [>=90]   frÃ­o polar
 string temperature_string(string zona)
 {
   int cuanto;
@@ -842,22 +842,22 @@ string temperature_string(string zona)
       ret = "un clima caluroso";
       break;
     case 30..39:
-      ret = "un clima cálido";
+      ret = "un clima cÃ¡lido";
       break;
     case 40..59:
       ret = "buena temperatura";
       break;
     case 60..69:
-      ret = "un clima frío";
+      ret = "un clima frÃ­o";
       break;
     case 70..79:
-      ret = "frío";
+      ret = "frÃ­o";
       break;
     case 80..89:
-      ret = "mucho frío";
+      ret = "mucho frÃ­o";
       break;
     case 90..100:
-      ret = "un frío polar";
+      ret = "un frÃ­o polar";
       break;
   }
   return ret;
@@ -967,13 +967,13 @@ string season_string()
   return ({ "invierno", /* 0 */
       "primavera", /* 1 */
       "verano", /* 2 */
-      "otoño" })[estacion]; /* 3 */
+      "otoÃ±o" })[estacion]; /* 3 */
 }
 
 string daynight_string()
 {
   if (query_day())
-    return "día";
+    return "dÃ­a";
   else
     return "noche";
 }
@@ -1037,10 +1037,10 @@ void query_all_data()
   tell_object(this_player(), "Hora del dia: " + hora_del_dia + "\n" +
                              "Dia de la semana: " + dia_de_semana + "\n" +
                              "Dia del mes: " + dia_del_mes + "\n" +
-                             "Dia del año: " + dia_del_anyo + "\n" +
+                             "Dia del aÃ±o: " + dia_del_anyo + "\n" +
                              "Mes: " + mes + "\n" +
                              "Estacion: " + estacion + "\n" +
-                             "Año: " + anyo + "\n" +
+                             "AÃ±o: " + anyo + "\n" +
                              "Luna uno: " + luna_uno + "\n" +
                              "Luna dos: " + luna_dos + "\n" +
                              "Luna tres: " + luna_tres + "\n");

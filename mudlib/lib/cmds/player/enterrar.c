@@ -18,7 +18,7 @@ string query_usage()
 
 string query_short_help()
 { 
-  return "Este comando entierra todos los cuerpos en la habitación. Nada de los cuerpos enterrados podrá ser recuperado."; 
+  return "Este comando entierra todos los cuerpos en la habitaciÃ³n. Nada de los cuerpos enterrados podrÃ¡ ser recuperado."; 
 }
 
 protected int cmd (string str, object me, string verb)
@@ -31,13 +31,13 @@ protected int cmd (string str, object me, string verb)
 
   if(me->query_dead())
   {
-    tell_object(me,"Tú, un espíritu, ¿quieres enterrar cadáveres?\n");
+    tell_object(me,"TÃº, un espÃ­ritu, Â¿quieres enterrar cadÃ¡veres?\n");
     return 1;
   }
 
   if (environment(me) && environment(me)->query_water_environment())
   {
-    tell_object(me,"¿Quieres enterrar algo estando en el agua?\n");
+    tell_object(me,"Â¿Quieres enterrar algo estando en el agua?\n");
     return 1;
   }
 
@@ -56,7 +56,7 @@ protected int cmd (string str, object me, string verb)
       (counter > 1?"":"el cuerpo")+
       " bajo tierra.\n");
   else
-    tell_object(me,"¡No has encontrado ningún cuerpo!\n");
+    tell_object(me,"Â¡No has encontrado ningÃºn cuerpo!\n");
 
   return 1;
 }

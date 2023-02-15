@@ -60,8 +60,8 @@ void create()
 
     // "test" : ({ 1, 4, 
     //      ({
-    //        ({ "haces daño", "te hace daño", "hace daño", }),
-    //        ({ "haces mucho daño", "te hace mucho daño", "hace mucho daño", }),
+    //        ({ "haces daÃ±o", "te hace daÃ±o", "hace daÃ±o", }),
+    //        ({ "haces mucho daÃ±o", "te hace mucho daÃ±o", "hace mucho daÃ±o", }),
     //      }),
     //    }),
 
@@ -73,7 +73,7 @@ void create()
        ({ ({ "muerdes con tus colmillos", "te muerde con sus colmillos", "muerde con sus colmillos", }), }),
                 }),       
     "garras" : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
-       ({ ({ "arañas con tus garras", "te araña con sus garras", "araña con sus garras", }), }),
+       ({ ({ "araÃ±as con tus garras", "te araÃ±a con sus garras", "araÃ±a con sus garras", }), }),
                 }),       
     "pico" : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
        ({ ({ "golpeas con el pico", "te golpea con el pico", "golpea con el pico", }), }),
@@ -81,8 +81,8 @@ void create()
     "cuernos" : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
        ({ ({ "corneas", "te cornea", "cornea", }), }),
                 }),       
-    "pezuñas" : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
-       ({ ({ "golpeas con las pezuñas", "te golpea con sus pezuñas", "golpea con sus pezuñas", }), }),
+    "pezuÃ±as" : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
+       ({ ({ "golpeas con las pezuÃ±as", "te golpea con sus pezuÃ±as", "golpea con sus pezuÃ±as", }), }),
                 }),       
     "dientes" : ({ DEFAULT_NUM_DICE, DEFAULT_DICE_SIZE, 
        ({ ({ "muerdes", "te muerde", "muerde", }), }),

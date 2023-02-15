@@ -60,7 +60,7 @@ protected int cmd (string name, object quien, string verb)
     {
 	// info+="\nThac0:\t\t"+me->query_thac0()+"\t\t\t";
 	// info+="AC total:\t"+me->query_total_ac()+"\n";
-        info+="Características mágicas de '"+me->query_cap_name()+"':\n\n";
+        info+="CaracterÃ­sticas mÃ¡gicas de '"+me->query_cap_name()+"':\n\n";
 	info+="Res Acido\t(acid):\t\t"+me->query_res("acid")+" %\t";
 	info+="Res Agua\t(water):\t"+me->query_res("water")+" %\n";
 	info+="Res Aire\t(air):\t\t"+me->query_res("air")+" %\t";

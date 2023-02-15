@@ -12,7 +12,7 @@ string query_usage() { return "xdate <player>\n"
                        "       xdate @<ipname|ipnumber>"; }
 
 string query_short_help() {
-	return "Obtiene la fecha actual de la m·quina destino.";
+	return "Obtiene la fecha actual de la m√°quina destino.";
 	/*
  return "xdate asks the target machine what time it is.\n"
         "As an argument, it can take either a player's name, or ip "

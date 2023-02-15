@@ -20,7 +20,7 @@ string query_usage()
 
 string query_short_help()
 {
-  return "Muestra algunas estadÌsticas sobre tu ficha.";
+  return "Muestra algunas estad√≠sticas sobre tu ficha.";
 }
 
 static int cmd (string str, object me, string verb)
@@ -35,14 +35,14 @@ static int cmd (string str, object me, string verb)
     
   if (me->query_dead())
   {
-    notify_fail("Est·s en forma espiritual, no necesitas conocer eso.\n");
+    notify_fail("Est√°s en forma espiritual, no necesitas conocer eso.\n");
     return 0;
   }
 
   if (strlen(str) && (str != "-d"))
   {
     notify_fail("Sintaxis: puntos [-d]\n"+
-          "      (Utiliza -d o el modo extendido para las estadÌsticas detalladas).\n");
+          "      (Utiliza -d o el modo extendido para las estad√≠sticas detalladas).\n");
     return 0;
   }
     
@@ -73,7 +73,7 @@ static int cmd (string str, object me, string verb)
     points = me->query_gp();
     max_points = me->query_max_gp();
 
-    res += "Puntos de energÌa:    ";
+    res += "Puntos de energ√≠a:    ";
     percentage = (points * 100) / max_points;
     points_string = "%^BOLD%^" + points + RESET; 
     max_points_string = "%^BOLD%^" + max_points + RESET; 
@@ -141,9 +141,9 @@ static int cmd (string str, object me, string verb)
     {
       aux = (age / 31536000) % 365;
       if (aux == 1)
-        res += "un aÒo, ";
+        res += "un a√±o, ";
       else
-        res += ""+ aux + " aÒos, ";
+        res += ""+ aux + " a√±os, ";
       age = age - 31536000;
     }
 
@@ -160,9 +160,9 @@ static int cmd (string str, object me, string verb)
     {
       aux = (age / 86400) % 30;
       if (aux == 1)
-        res += "un dÌa, ";
+        res += "un d√≠a, ";
       else
-        res += ""+ aux + " dÌas, ";
+        res += ""+ aux + " d√≠as, ";
     }
 
     if (age > 3600)
@@ -184,15 +184,15 @@ static int cmd (string str, object me, string verb)
     }
 
     if (age % 60 == 1)
-      res += "un segundo de antig¸edad.\n";
+      res += "un segundo de antig√ºedad.\n";
     else
-      res += ""+ age%60 + " segundos de antig¸edad.\n";
+      res += ""+ age%60 + " segundos de antig√ºedad.\n";
 
     /*   
     if (me->query_wimpy())
-     tell_object(me, "CobardÌa puesta a "+me->query_wimpy()+"%\n");
+     tell_object(me, "Cobard√≠a puesta a "+me->query_wimpy()+"%\n");
     else
-     tell_object(me, "Est·s en modo valiente.\n");
+     tell_object(me, "Est√°s en modo valiente.\n");
     */
      
   }

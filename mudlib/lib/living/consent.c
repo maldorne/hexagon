@@ -50,28 +50,28 @@ int change_consent(string str)
     ret += "Tus consentimientos actuales son:\n";
 
     for (value = sizeof(CONSENT_TYPES); value--;)
-      ret += sprintf("%17s: %s\n", CONSENT_TYPES[value], (consents[CONSENT_TYPES[value]] ? "sÌ":"no"));
+      ret += sprintf("%17s: %s\n", CONSENT_TYPES[value], (consents[CONSENT_TYPES[value]] ? "s√≠":"no"));
             
-    ret += "\nPara cambiarlos, utiliza 'consentir <nombre> <sÌ|no>'.\n";
+    ret += "\nPara cambiarlos, utiliza 'consentir <nombre> <s√≠|no>'.\n";
 
     tell_object(this_player(), ret);
     return 1;
   }
 
-  if ((sscanf(str, "%s si", tipo) == 1) || (sscanf(str, "%s sÌ", tipo) == 1))
+  if ((sscanf(str, "%s si", tipo) == 1) || (sscanf(str, "%s s√≠", tipo) == 1))
     value = 1;
   else if (sscanf(str, "%s no", tipo) == 1)
     value = 0;
   else
   {
-    notify_fail("Tipo inv·lido de consentimiento.\nLos tipos v·lidos son: " +
+    notify_fail("Tipo inv√°lido de consentimiento.\nLos tipos v√°lidos son: " +
       query_multiple_short(CONSENT_TYPES) + ".\n");
     return 0;
   }
 
   consents[tipo] = value;
 
-  tell_object(this_object(), "Ok. Consentir "+tipo+" cambiado a "+(value ? "sÌ":"no")+".\n");
+  tell_object(this_object(), "Ok. Consentir "+tipo+" cambiado a "+(value ? "s√≠":"no")+".\n");
   return 1;
 }
 

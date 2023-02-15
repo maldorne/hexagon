@@ -15,7 +15,7 @@ void setup(){
 string query_usage() { return "man [-d] [-a] [-x] <topic>\n"; }
 
 string query_short_help() {
-	return "Muestra la p·gina del manual del tema especificado.";
+	return "Muestra la p√°gina del manual del tema especificado.";
 	/*
   return "man gives you the manual page for a given topic.\n"
          "If no argument is given, or the topic is a directory,\n"

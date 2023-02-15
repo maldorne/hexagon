@@ -11,7 +11,7 @@ void setup()
 
 protected int cmd(string str, object me, string verb) 
 {
-    string ret = "Avanzarás tu nivel de:\n";
+    string ret = "AvanzarÃ¡s tu nivel de:\n";
 
     object ob = me->query_class_ob();
     if (ob) 

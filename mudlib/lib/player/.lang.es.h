@@ -6,42 +6,42 @@
 
 #define _LANG_ALIAS_LIST_HEADER "Lista de alias definidos:\n"
 #define _LANG_ALIAS_SEMICOLON_NOT_ALLOWED "\";\" no permitido en los alias.\n"
-#define _LANG_ALIAS_CONFIRM_FLUSH "Esto borrará todos tus alias, ¿estás seguro? (s/n)\n"
+#define _LANG_ALIAS_CONFIRM_FLUSH "Esto borrarÃ¡ todos tus alias, Â¿estÃ¡s seguro? (s/n)\n"
 #define _LANG_ALIAS_FLUSHED "Ok, alias borrados.\n"
 #define _LANG_ALIAS_OK "Ok.\n"
-#define _LANG_ALIAS_NO_ALIAS "No has definido ningún alias aún.\n"
-#define _LANG_ALIAS_NO_ALIAS_WITH_THAT "No has definido aún ningún alias con '"+str+"'.\n"
-#define _LANG_ALIAS_TOO_MANY "Demasiados alias definidos, ya no puedes añadir más.\n"
+#define _LANG_ALIAS_NO_ALIAS "No has definido ningÃºn alias aÃºn.\n"
+#define _LANG_ALIAS_NO_ALIAS_WITH_THAT "No has definido aÃºn ningÃºn alias con '"+str+"'.\n"
+#define _LANG_ALIAS_TOO_MANY "Demasiados alias definidos, ya no puedes aÃ±adir mÃ¡s.\n"
 #define _LANG_ALIAS_TOO_LONG "Alias demasiado largo.\n"
-#define _LANG_ALIAS_NOT_ALLOWED "Eso no está permitido.\n"
+#define _LANG_ALIAS_NOT_ALLOWED "Eso no estÃ¡ permitido.\n"
 #define _LANG_ALIAS_CHANGED "Ok, establecido el alias '" + s1 + "'.\n"
 #define _LANG_ALIAS_SYNTAX "Sintaxis: " + query_verb() + " <alias>\n"
 #define _LANG_ALIAS_REMOVED "Ok, borrado el alias '" + str + "'.\n"
-#define _LANG_ALIAS_NO_RECURSIVE "¿Alias recursivos? Eso no está permitido.\n"
+#define _LANG_ALIAS_NO_RECURSIVE "Â¿Alias recursivos? Eso no estÃ¡ permitido.\n"
 
 // events.c
 
-#define _LANG_EVENTS_SOMEBODY_ARRIVES "Notas que alguien llega a tu posición.\n"
-#define _LANG_EVENTS_SOMEBODY_LEAVES  "Notas marcharse a uno de los que estaban aquí.\n"
+#define _LANG_EVENTS_SOMEBODY_ARRIVES "Notas que alguien llega a tu posiciÃ³n.\n"
+#define _LANG_EVENTS_SOMEBODY_LEAVES  "Notas marcharse a uno de los que estaban aquÃ­.\n"
 
 // start.c
 
 
 // quit.c
 
-#define _LANG_QUIT_LOADING "Todavía se esta cargando tu equipo, espera a que termine el proceso.\n"
+#define _LANG_QUIT_LOADING "TodavÃ­a se esta cargando tu equipo, espera a que termine el proceso.\n"
 #define _LANG_QUIT_EXITING "Saliendo...\n"
 #define _LANG_QUIT_ENV_MSG this_object()->query_cap_name()+ \
-            " busca un lugar cómodo para salir del juego.\n"
+            " busca un lugar cÃ³modo para salir del juego.\n"
 #define _LANG_QUIT_STOP_COMBAT_FIRST "Debes terminar primero tus combates.\n"+ \
         "Escribe '%^BOLD%^detener combates%^RESET%^' para terminarlos lo antes posible.\n"
-#define _LANG_QUIT_STOP_MOVING_FIRST "Si no paras de moverte será imposible buscar un buen lugar "+ \
+#define _LANG_QUIT_STOP_MOVING_FIRST "Si no paras de moverte serÃ¡ imposible buscar un buen lugar "+ \
         "para salir del juego.\n"
-#define _LANG_QUIT_BEEN_MOVED "En tu localización previa no es posible salir, "+ \
-        "has sido movido a la más cercana (vuelve a intentarlo aquí si aún "+ \
+#define _LANG_QUIT_BEEN_MOVED "En tu localizaciÃ³n previa no es posible salir, "+ \
+        "has sido movido a la mÃ¡s cercana (vuelve a intentarlo aquÃ­ si aÃºn "+ \
         "deseas desconectar).\n"
 #define _LANG_QUIT_DROP_ITEM "Dejas tu "+ob[i]->short()+".\n"
-#define _LANG_QUIT_THANKS "Gracias por jugar, ¡hasta la próxima!\n"
+#define _LANG_QUIT_THANKS "Gracias por jugar, Â¡hasta la prÃ³xima!\n"
 #define _LANG_QUIT_INFORM_CODERS this_object()->query_cap_name()+" sale de "+mud_name()
 #define _LANG_QUIT_INFORM_PLAYERS this_object()->query_cap_name()+" sale de "+mud_name()
 #define _LANG_QUIT_ENV_QUIT this_object()->query_cap_name()+" sale de "+mud_name()+".\n"
@@ -52,8 +52,8 @@
 #define _LANG_READ_IN_LANGUAGE "Lees un texto escrito en " + lang + ":\n\n" + str + "\n"
 #define _LANG_READ_UNABLE_WITH_GARBLE "No eres capaz de entender el siguiente texto:\n" + \
         str + (lang ? "\nParece escrito en " + lang + "." : "") + "\n"
-#define _LANG_READ_WHAT "Habrías jurado que habia algo escrito aquí...\n"; 
+#define _LANG_READ_WHAT "HabrÃ­as jurado que habia algo escrito aquÃ­...\n"; 
 #define _LANG_READ_UNABLE_WITHOUT_GARBLE "No eres capaz de entender el texto" + \
         (lang ? ", parece escrito en " + lang : "") + ".\n"
-#define _LANG_READ_IMPOSSIBLE "Todo " + mud_name() + " tiembla al encontrar una escritura mágica que no " + \
+#define _LANG_READ_IMPOSSIBLE "Todo " + mud_name() + " tiembla al encontrar una escritura mÃ¡gica que no " + \
         "tiene forma de ser interpretada.\n"

@@ -110,7 +110,7 @@ int do_death(object killed_by)
   if (this_object()->query_city_ob())
     catch(load_object(this_object()->query_city_ob())->on_death(this_object(), killed_by));
 
-  // Añadido por neverbot 3/2002, para el sistema de guerras entre ciudades
+  // AÃ±adido por neverbot 3/2002, para el sistema de guerras entre ciudades
   if (killed_by)
     if ( (killed_by->query_player() && this_object()->query_player()) &&
        (killed_by->query_citizen() && this_object()->query_citizen()) && 
@@ -448,14 +448,14 @@ static void actual_death(object initiator)
 
     if (!room)
     {
-      tell_object(this_object(), "Por algún oscuro deseo de los poderes divinos, "+
+      tell_object(this_object(), "Por algÃºn oscuro deseo de los poderes divinos, "+
         "tu alma debe continuar en este plano de existencia.\n");
       return;
     }
       
     tell_room(environment(this_object()), this_object()->query_cap_name()+" da un grito desgarrador "+
       "mientras su alma abandona este mundo.\n", this_object());
-    tell_object(this_object(), "Tu espíritu se eleva sobre tu cuerpo y abandona este mundo.\n");
+    tell_object(this_object(), "Tu espÃ­ritu se eleva sobre tu cuerpo y abandona este mundo.\n");
     
     this_object()->move(room);
     this_object()->do_look();

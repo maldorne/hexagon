@@ -36,7 +36,7 @@ protected int cmd(string str, object me, string verb)
 
 #else
 
-	notify_fail("PACKAGE_SOCKETS no est· compilado.\n");
+	notify_fail("PACKAGE_SOCKETS no est√° compilado.\n");
 	return 0;
 
 #endif

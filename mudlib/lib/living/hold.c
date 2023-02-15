@@ -9,7 +9,7 @@
  * Will add that in version 2...:=)
  *
  * Folken@Cc Abr'03
- * Añadidos stats.
+ * AÃ±adidos stats.
  */
 
 #include <item/armour.h>
@@ -62,10 +62,10 @@ void create()
 void hold_commands() 
 {
   add_private_action("do_hold",   "empunyar");
-  add_private_action("do_hold",   "empuñar");
+  add_private_action("do_hold",   "empuÃ±ar");
   add_private_action("do_hold",   "sostener");
   add_private_action("do_unhold", "desempunyar");
-  add_private_action("do_unhold", "desempuñar");
+  add_private_action("do_unhold", "desempuÃ±ar");
   add_private_action("do_unhold", "soltar");
 }
 
@@ -167,7 +167,7 @@ int unhold_ob(object ob)
   
   if ((slot = member_array(ob, held_ob)) == -1)     
   { 
-    notify_fail("No estás sosteniendo ese objeto.\n");
+    notify_fail("No estÃ¡s sosteniendo ese objeto.\n");
     return 0;
   }
 
@@ -215,7 +215,7 @@ int hold_ob(object ob)
     if ( gobj && !gobj->query_legal_weapon(ob->query_weapon_name()))
     {
       tell_object(this_object(),"Careces de la habilidad necesaria "+
-                  "para empuñar este arma.\n");
+                  "para empuÃ±ar este arma.\n");
       return 1;
     }
   }
@@ -237,7 +237,7 @@ int hold_ob(object ob)
   if (this_object()->query_free_hands_left() < weap_hands) 
   {
     if (ob->query_weapon())
-        notify_fail("No tienes suficientes manos libres para empuñar este arma.\n");
+        notify_fail("No tienes suficientes manos libres para empuÃ±ar este arma.\n");
     else
         notify_fail("No tienes suficientes manos libres para sostener este escudo.\n");
     return 0;
@@ -288,7 +288,7 @@ int hold_ob(object ob)
   free_hands_left -= weap_hands; 
 
   if (ob->query_weapon())
-    tell_object(this_object(), "Empuñas tu " + (string)ob->short() + ".\n");
+    tell_object(this_object(), "EmpuÃ±as tu " + (string)ob->short() + ".\n");
   else
     tell_object(this_object(), "Sostienes tu " + (string)ob->short() + ".\n");
   
@@ -384,7 +384,7 @@ int do_hold(string woo)
 
   if (!strlen(woo))
   {
-    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    notify_fail("Â¿"+capitalize(query_verb()) + " el quÃ©?\n");
     return 0;
   }
 
@@ -410,7 +410,7 @@ int do_hold(string woo)
   // Somehow, this is not working...
   if (!sizeof(boo))
   {
-    notify_fail("¡Ya estás sosteniendo eso!\n");
+    notify_fail("Â¡Ya estÃ¡s sosteniendo eso!\n");
     return 0;
   }
 
@@ -422,7 +422,7 @@ int do_hold(string woo)
   
   if (boo[0]->query_in_use())
   {
-    notify_fail("Ya lo estás usando.\n");
+    notify_fail("Ya lo estÃ¡s usando.\n");
     return 0;
   }
 
@@ -438,7 +438,7 @@ int do_unhold(string woo)
 
   if (!strlen(woo))
   {
-    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    notify_fail("Â¿"+capitalize(query_verb()) + " el quÃ©?\n");
     return 0;
   }
 
@@ -467,7 +467,7 @@ int do_unhold(string woo)
   return unhold_ob(boo[0]);
 }
 
-// stats añadido, algunos archivos con stats no llegan a devolver nada
+// stats aÃ±adido, algunos archivos con stats no llegan a devolver nada
 mixed stats() {
   return ({ ({"Held ob", held_ob, }),
             ({"Free Hands Left", free_hands_left, }),

@@ -16,7 +16,7 @@ void setup() {
 string query_usage() { return "resolve <address>\n"; }
 
 string query_short_help() {
-	return "Convierte una dirección IP en un nombre DNS, y viceversa.";
+	return "Convierte una direcciÃ³n IP en un nombre DNS, y viceversa.";
 	/*
     return "Resolve converts a numeric IP address to an alphabetic one, "
     "and vice versa.\n\n"

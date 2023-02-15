@@ -118,7 +118,7 @@ static int cmd( string str, object me, string verb)
       write( "Imposible crear archivo: "+backup+"\n" );
     }
   }
-  // Añadido neverbot 4/03
+  // AÃ±adido neverbot 4/03
   me->set_trivial_action();
   return 1 ;
 }

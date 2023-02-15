@@ -83,7 +83,7 @@ protected int cmd(string str, object me, string verb)
 
 	if (!ob)
 	{
-		notify_fail("Hay algún error con la clasificación.\n");
+		notify_fail("Hay algÃºn error con la clasificaciÃ³n.\n");
 		return 0;
 	}
 	
@@ -133,7 +133,7 @@ protected int cmd(string str, object me, string verb)
 		if (!complete)
 			ret += "  Usa 'ranking todos' para ver todos los grupos existentes.\n";
 			
-		ret += "    (sólo programadores)\n";
+		ret += "    (sÃ³lo programadores)\n";
 	}
 
     tell_object(me, ret);

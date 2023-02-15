@@ -14,8 +14,8 @@
  * Rings will be multipple.  Maybe add an amount_heads ? :=)
  * It won't be any problem to add new types later.
  *
- * Añadido bonificador maximo por destreza segun la armadura.
- * Añadido penalizador a las habilidades segun la armadura.
+ * AÃ±adido bonificador maximo por destreza segun la armadura.
+ * AÃ±adido penalizador a las habilidades segun la armadura.
  */
 
 #include <common/properties.h>
@@ -216,8 +216,8 @@ int wear_ob(object ob)
   /* Made a query_holdable in living.c.. */
   if (this_object()->query_property(LOADING_PROP))
   {
-    notify_fail("Tu equipamiento todavía está cargándose, te es imposible "+
-                "ponértelo.\n");
+    notify_fail("Tu equipamiento todavÃ­a estÃ¡ cargÃ¡ndose, te es imposible "+
+                "ponÃ©rtelo.\n");
     return 0;
   }
 
@@ -232,7 +232,7 @@ int wear_ob(object ob)
   if (local && local[2] &&
       (local[2] != ob->query_body_type())) {
     tell_object(this_object(),"Este equipo no se ajusta bien a tu cuerpo, "+
-        "ha sido diseñado para otro tipo de persona.\n");
+        "ha sido diseÃ±ado para otro tipo de persona.\n");
     return 1;
   }
 
@@ -245,7 +245,7 @@ int wear_ob(object ob)
     return 1;
   }
 
-  notify_fail("Ya tienes puesto un objeto de las mismas características.\n");
+  notify_fail("Ya tienes puesto un objeto de las mismas caracterÃ­sticas.\n");
 
   thisone = base_name(ob);
 
@@ -276,7 +276,7 @@ int wear_ob(object ob)
 
   if (!(aux = ob->query_size()))
   {
-    notify_fail("Este objeto tiene un fallo (no tiene tamaño), pide ayuda a un programador.\n");
+    notify_fail("Este objeto tiene un fallo (no tiene tamaÃ±o), pide ayuda a un programador.\n");
     return 0;
   }
 
@@ -343,7 +343,7 @@ int wear_ob(object ob)
         {
           // Sumamos cuantas piezas de este conjunto llevamos
           found += 1;
-          // tell_object(find_living("folken"), "-- añadimos al set: " + file_name(worn_objects[position]) + "\n");
+          // tell_object(find_living("folken"), "-- aÃ±adimos al set: " + file_name(worn_objects[position]) + "\n");
 
           // Guardamos los objetos reales (no nombres de archivo) que forman el conjunto
           set += ({ worn_objects[position] });
@@ -374,7 +374,7 @@ int wear_ob(object ob)
         // En el primer minuto de conexion no cuenta
         if (time() - this_object()->query_last_log_on() > 60)
             if (this_object()->query_time_remaining(PASSED_OUT_PROP) < aux/6)
-                this_object()->add_timed_property(PASSED_OUT_PROP, "Todavía estás "+
+                this_object()->add_timed_property(PASSED_OUT_PROP, "TodavÃ­a estÃ¡s "+
                   "intentando ponerte tu "+ob->short()+".\n", aux/6);
     return 1;
   }
@@ -392,7 +392,7 @@ int do_wear(string woo)
 
   if (!strlen(woo))
   {
-    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    notify_fail("Â¿"+capitalize(query_verb()) + " el quÃ©?\n");
     return 0;
   }
 
@@ -413,7 +413,7 @@ int do_wear(string woo)
   {
     if (!boo[0]->query_wearable())
     {
-      notify_fail("¡Este objeto no se puede vestir!\n");
+      notify_fail("Â¡Este objeto no se puede vestir!\n");
       return 0;
     }
 
@@ -425,7 +425,7 @@ int do_wear(string woo)
 
     if (size = boo[0]->query_size() == 0)
     {
-      notify_fail("Ese objeto no tiene tamaño definido, díselo a alguien que pueda arreglarlo.\n");
+      notify_fail("Ese objeto no tiene tamaÃ±o definido, dÃ­selo a alguien que pueda arreglarlo.\n");
       return 0;
     }
 
@@ -445,7 +445,7 @@ int do_unwear(string woo)
 
   if (!strlen(woo))
   {
-    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    notify_fail("Â¿"+capitalize(query_verb()) + " el quÃ©?\n");
     return 0;
   }
 

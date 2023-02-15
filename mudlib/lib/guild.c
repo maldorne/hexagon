@@ -3,7 +3,7 @@
  * Eliminados skills y especializaciones de armas de este sistema
  * Folken 13/7/03
  * 
- * Añadido sistema de subida de niveles de gremio por quests, 
+ * AÃ±adido sistema de subida de niveles de gremio por quests, 
  * Folken 29/07/2010
  */
 
@@ -318,7 +318,7 @@ int asign_guild_quest(object pl, int level)
     {
       result = pl->add_quest(quests[i]);
       if (result)
-        tell_player(pl, "Tienes una nueva misión de gremio.\n");
+        tell_player(pl, "Tienes una nueva misiÃ³n de gremio.\n");
       break;
     }
   }
@@ -326,7 +326,7 @@ int asign_guild_quest(object pl, int level)
   return result;
 }
 
-// Se llama cuando el living se alista, para añadir dotes, etc
+// Se llama cuando el living se alista, para aÃ±adir dotes, etc
 int join_player(object pl)
 {
   // Asignamos la primera quest (la correspondiente para subir a nivel 2)

@@ -11,7 +11,7 @@
  *  Cambio en el sistema: cambiamos estilos por maestrias. La maestria es 
  *   es una especializacion en el tipo de arma que se esta utilizando
  *   (* weapon->query_weapon_family() *)
- *   Asi el aprendizaje es mas sencillo, con empuñar un arma se empieza a
+ *   Asi el aprendizaje es mas sencillo, con empuÃ±ar un arma se empieza a
  *   practicar. Folken 09/2012
  */
 
@@ -44,7 +44,7 @@ mapping query_known_weapon_masteries();
 void armed_combat_commands()
 {
   add_private_action("do_weapon_masteries", "maestrias");
-  add_private_action("do_weapon_masteries", "maestrías");
+  add_private_action("do_weapon_masteries", "maestrÃ­as");
 }
 
 void create()
@@ -78,7 +78,7 @@ int set_weapon_mastery(string mastery)
   // no tenemos la maestria
   else
   {
-    notify_fail("No conoces la maestría "+mastery+".\n");
+    notify_fail("No conoces la maestrÃ­a "+mastery+".\n");
     return 0;
   }
 
@@ -92,13 +92,13 @@ int add_weapon_mastery(string mastery, varargs int value)
 
   if (!table)
   {
-    notify_fail("La tabla de armas tiene un error. Notifícalo a un programador.\n");
+    notify_fail("La tabla de armas tiene un error. NotifÃ­calo a un programador.\n");
     return 0;
   }
 
   if (member_array(mastery, table->query_weapon_masteries()) == -1 )
   {
-    notify_fail("La maestría que vas a utilizar tiene un error.\n");
+    notify_fail("La maestrÃ­a que vas a utilizar tiene un error.\n");
     return 0;
   }
   
@@ -107,7 +107,7 @@ int add_weapon_mastery(string mastery, varargs int value)
 
   if (!known_weapon_masteries[mastery])
   {
-    tell_player(this_object(), "¡Has ganado la maestría con el tipo de arma '"+mastery+"'!\n");
+    tell_player(this_object(), "Â¡Has ganado la maestrÃ­a con el tipo de arma '"+mastery+"'!\n");
   }
   else
   {
@@ -165,7 +165,7 @@ int adjust_current_mastery_value(string mastery, int i)
           ((current_mastery_value > 20) && (current_mastery_value <= 50) && (current_mastery_value % 5 == 0)) ||
           (current_mastery_value > 50) )    
     
-      tell_player(this_object(), "¡Has mejorado tu maestría con "+mastery+"!\n");
+      tell_player(this_object(), "Â¡Has mejorado tu maestrÃ­a con "+mastery+"!\n");
    }
 
    return known_weapon_masteries[mastery];   
@@ -217,11 +217,11 @@ int do_weapon_masteries(string mastery)
 
   if (this_object()->query_dead())
   {
-     notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
+     notify_fail("EstÃ¡s en forma espiritual, no necesitas conocer eso.\n");
      return 0;
   }
 
-  ret = sprintf("%*'-'|s\n\n", this_object()->query_cols()+18, "> %^GREEN%^Posees las siguientes maestrías con armas: %^RESET%^<");
+  ret = sprintf("%*'-'|s\n\n", this_object()->query_cols()+18, "> %^GREEN%^Posees las siguientes maestrÃ­as con armas: %^RESET%^<");
 
   for (i = 0; i < sizeof(masteries); i++)
   {
@@ -237,7 +237,7 @@ int do_weapon_masteries(string mastery)
   
 }
 
-// stats añadido
+// stats aÃ±adido
 mixed stats() 
 {
   mixed * ret;

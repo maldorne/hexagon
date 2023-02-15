@@ -16,7 +16,7 @@ void role_commands()
   add_action("grim_snoop", "qsnoop");  
 
   /* Added by Jada aug '94, blame him if it won't work */
-  add_action("do_title", ({ "title", "titulo", "tÌtulo" }));
+  add_action("do_title", ({ "title", "titulo", "t√≠tulo" }));
   /* Adds for new commandsystem.. */
   add_action("comm_info", "cominfo");
 } 
@@ -53,9 +53,9 @@ int grim_snoop(string str)
     
     if (targ->query_admin())
     {
-      tell_object(targ,"Una voz demonÌaca retumba en tu mente, diciendo:\n  "+
+      tell_object(targ,"Una voz demon√≠aca retumba en tu mente, diciendo:\n  "+
         this_player()->query_cap_name()+" ha intentado "+
-        "snoopearte silenciosamente, mi seÒor.\n");
+        "snoopearte silenciosamente, mi se√±or.\n");
       return 1;
     }
     
@@ -69,8 +69,8 @@ int grim_snoop(string str)
     return 1;
   }
   
-  write("Una voz demonÌaca irrumpe en tu mente:\n  "+
-    "°No tienes el poder ni la habilidad para intentar semejante cosa!\n");
+  write("Una voz demon√≠aca irrumpe en tu mente:\n  "+
+    "¬°No tienes el poder ni la habilidad para intentar semejante cosa!\n");
   return 1;
 }
 
@@ -97,8 +97,8 @@ int do_snoop(string str)
   if (!this_player()->query_admin() && targ->query_admin()) 
   {
     tell_object(targ, "Un bonito pato aparece frente a ti.\n"+
-      "El Pato dice: °Cuac! "+this_player()->query_cap_name()+
-      " est· intentando snoopearte, mi seÒor.\n");
+      "El Pato dice: ¬°Cuac! "+this_player()->query_cap_name()+
+      " est√° intentando snoopearte, mi se√±or.\n");
     return 1;
   }
 
@@ -126,7 +126,7 @@ int do_snoop(string str)
 //   }
   
 //   eval_cost = command(str);
-//   write("\nEl comando '" + str + "' usÛ: " + eval_cost + " ciclos de CPU.\n");
+//   write("\nEl comando '" + str + "' us√≥: " + eval_cost + " ciclos de CPU.\n");
 //   return 1;
 // } 
 
@@ -138,16 +138,16 @@ int do_title(string str)
   if (!strlen(str))
   {
     if (title) 
-      write("Tu tÌtulo es: "+title+"\n");
+      write("Tu t√≠tulo es: "+title+"\n");
     else
-      write("No tienes tÌtulo.\n");
+      write("No tienes t√≠tulo.\n");
       
     write("Sintaxis: titulo <texto>\n"+
           "          titulo -c para borrarlo\n");
   }
   else if (str == "-c")
   {
-    write("Borrando tu tÌtulo.\n");
+    write("Borrando tu t√≠tulo.\n");
     this_player()->set_title("");
     return 1;
   }
@@ -226,7 +226,7 @@ int comm_info(string str)
     
     num_comms = sizeof(comms);
     
-    // AÒadimos los comandos de /cmds, neverbot 01/2010
+    // A√±adimos los comandos de /cmds, neverbot 01/2010
     comms = CMD_HANDLER->query_available_cmds(this_player());
     num_comms += sizeof(comms);
     
@@ -240,7 +240,7 @@ int comm_info(string str)
     i += j;
     
     // TODO add souls here
-    // AÒadimos los souls, neverbot 01/2010
+    // A√±adimos los souls, neverbot 01/2010
     /*
     comms = keys("/obj/handlers/soul.c"->query_soul_data());
     num_comms += sizeof(comms);
@@ -279,7 +279,7 @@ int comm_info(string str)
     
     num_comms = sizeof(comms);
 
-    // AÒadimos los comandos de /cmds, neverbot 01/2010
+    // A√±adimos los comandos de /cmds, neverbot 01/2010
     comms = CMD_HANDLER->query_available_cmds(this_player());
     num_comms += sizeof(comms);   
     
@@ -299,7 +299,7 @@ int comm_info(string str)
     }
     
     // TODO add souls
-    // AÒadimos los souls, neverbot 01/2010
+    // A√±adimos los souls, neverbot 01/2010
     /*
     comms = keys("/obj/handlers/soul.c"->query_soul_data());
     num_comms += sizeof(comms);

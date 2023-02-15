@@ -21,7 +21,7 @@
  * Extraido todo lo relacionado con los antiguos comandos (gr_commands)
  *  para crear nuevo sistema de dotes (feats.c), neverbot 11/10/08
  *
- * Añadido nuevo sistema de especialidades para cada uno de los grupos sociales
+ * AÃ±adido nuevo sistema de especialidades para cada uno de los grupos sociales
  *  neverbot 20/10/2012
  *
  * Renamed as social.c, neverbot 10/2016
@@ -36,7 +36,7 @@
 inherit feats "/lib/living/feats";
 inherit specs "/lib/living/specs";
 
-// guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
+// guild_joined[guild_ob] = ({ nivel, 1Âº vez alistado, ultima vez abandonado, })
 mapping guild_joined;
 mapping job_joined;
 
@@ -113,7 +113,7 @@ string query_gtitle()
      !catch((str = (string)social_object_list[GUILD_OB]->query_title(this_object()))))
     return str;
 
-  // return "(su gremio no tiene título)";
+  // return "(su gremio no tiene tÃ­tulo)";
   return "";
 }
 
@@ -148,7 +148,7 @@ void set_race_ob(string str)
   if ((file_size(str) < 0) && (file_size(str + ".c") < 0))
   {
     tell_object(this_object(),"El intento de set_race_ob no ha funcionado. "+
-      "Díselo a alguien que pueda arreglarlo.\n");
+      "DÃ­selo a alguien que pueda arreglarlo.\n");
     return;
   }
 
@@ -192,13 +192,13 @@ void set_race_ob(string str)
   this_object()->set_weight(social_object_list[RACE_OB]->query_race_weight());
   social_object_list[RACE_OB]->set_racial_bonuses(this_object());
 
-  // Problema: con subrazas esto añade el alias "Humano (Velan)" por ejemplo
+  // Problema: con subrazas esto aÃ±ade el alias "Humano (Velan)" por ejemplo
   // this_object()->add_alias(lower_case(this_object()->query_race()));
   if (social_object_list[RACE_OB]->query_base_race())
   {
-    // Añadimos subraza
+    // AÃ±adimos subraza
     this_object()->add_alias(lower_case(this_object()->query_race_name()));
-    // Añadimos raza base
+    // AÃ±adimos raza base
     this_object()->add_alias(lower_case(this_object()->query_base_race_name()));
   }
   else
@@ -266,7 +266,7 @@ int query_body_size()
   if (social_object_list[RACE_OB])
     return (int)social_object_list[RACE_OB]->query_body_size();
   else
-    return 5; // Tamaño estandar (humano)
+    return 5; // TamaÃ±o estandar (humano)
 } /* query_body_size() */
 
 // *****************************************
@@ -316,7 +316,7 @@ string query_class()
 
 // *****************************************
 
-// guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
+// guild_joined[guild_ob] = ({ nivel, 1Âº vez alistado, ultima vez abandonado, })
 
 mapping query_guild_joined(){ return guild_joined; }
 
@@ -630,7 +630,7 @@ int adjust_job_level(int i)
    * Baldrick.     */
   if ((job_level + i) > 100)
   {
-    notify_fail("Olvídalo.\n");
+    notify_fail("OlvÃ­dalo.\n");
     return 0;
   }
 
@@ -639,7 +639,7 @@ int adjust_job_level(int i)
     (query_job_ob())->new_levels(i, this_object());
 
   if (i >= 1)
-    tell_player(this_object(), "¡Subes tu nivel de oficio!\n");
+    tell_player(this_object(), "Â¡Subes tu nivel de oficio!\n");
 
   job_level += i;
 
@@ -680,7 +680,7 @@ int query_max_job_level()
   res = job_level;
   list = keys(job_joined);
 
-  // job_joined[job_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
+  // job_joined[job_ob] = ({ nivel, 1Âº vez alistado, ultima vez abandonado, })
   for (i = 0; i < sizeof(list); i++)
     // El oficio actual estara almacenado con un nivel antiguo
     if (list[i] != query_job_ob())
@@ -810,7 +810,7 @@ string query_city_name()
   if (social_object_list[CITY_OB])
     return ((string)social_object_list[CITY_OB]->query_short());
   else
-    return ("Sin Ciudadanía");
+    return ("Sin CiudadanÃ­a");
 }
 string query_city(){ return query_city_name(); }
 string query_citizenship(){ return query_city_name(); }
@@ -833,7 +833,7 @@ int adjust_level(int i)
   // Baldrick.
   if ((class_level + i) > 100)
   {
-    notify_fail("Olvídalo.\n");
+    notify_fail("OlvÃ­dalo.\n");
     return 0;
   }
 
@@ -844,7 +844,7 @@ int adjust_level(int i)
   // Mensaje de subida de nivel (excepto la primera subida que es automatica)
   if ((class_level >= 5) && (i > 0))
   {
-    tell_player(this_object(), "¡Subes de nivel!");
+    tell_player(this_object(), "Â¡Subes de nivel!");
 
     // Log para players
     if (interactive(this_object()))
@@ -877,7 +877,7 @@ int query_max_guild_level()
   res = guild_level;
   list = keys(guild_joined);
 
-  // guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
+  // guild_joined[guild_ob] = ({ nivel, 1Âº vez alistado, ultima vez abandonado, })
   for (i = 0; i < sizeof(list); i++)
     // El gremio actual estara almacenado con un nivel antiguo
     if (list[i] != query_guild_ob())
@@ -896,7 +896,7 @@ int adjust_guild_level(int i)
    * Baldrick.     */
   if ((guild_level + i) > 100)
   {
-    notify_fail("Olvídalo.\n");
+    notify_fail("OlvÃ­dalo.\n");
     return 0;
   }
 
@@ -906,7 +906,7 @@ int adjust_guild_level(int i)
 
   // Mensaje de subida de nivel (excepto la primera subida que es automatica)
   if ((guild_level >= 1) && (i > 0))
-    tell_player(this_object(), "¡Subes tu nivel de gremio!");
+    tell_player(this_object(), "Â¡Subes tu nivel de gremio!");
 
   guild_level += i;
 

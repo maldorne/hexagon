@@ -24,7 +24,7 @@ string query_usage()
 
 string query_short_help()
 {
-        return "Establece el porcentaje de vida a partir de la cual tu personaje intentar· huir.";
+        return "Establece el porcentaje de vida a partir de la cual tu personaje intentar√° huir.";
 }
 
 string wimpy_str(object me)

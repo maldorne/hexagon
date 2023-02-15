@@ -105,7 +105,7 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
           " no quiere que le den nada.\n");
         tell_object(per[j], this_object()->query_cap_name() +
           " ha intentado darte algo, pero no te interesa aceptar cosas.\n" +
-          "\t(escribe 'consentir dar sí' si quieres cambiarlo).\n");
+          "\t(escribe 'consentir dar sÃ­' si quieres cambiarlo).\n");
         continue;
       }
     }
@@ -182,19 +182,19 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
             break;
           default:
             tell_room(environment(), per[j]->short()+ ({
-              " está incomodado por la carga adicional.\n",
-              " sucumbe momentáneamente bajo el peso de la carga.\n",
+              " estÃ¡ incomodado por la carga adicional.\n",
+              " sucumbe momentÃ¡neamente bajo el peso de la carga.\n",
               " se tambalea mientras "+per[j]->query_pronoun()+" coge la carga.\n"
               })[(max/25)-1], ({ per[j] }) );
             tell_object(per[j], ({
               "Durante unos momentos te incomoda la carga adicional.\n",
-              "Sucumbes momentáneamente bajo el peso de la carga.\n",
+              "Sucumbes momentÃ¡neamente bajo el peso de la carga.\n",
               "Te tambaleas al coger la carga. A duras penas puedes con ella.\n"
               })[(max/25)-1]);
         }
 
         this_object()->add_timed_property(PASSED_OUT_PROP,
-          "Todavía estas intentando coger la carga.\n", max/TIME_DIV);
+          "TodavÃ­a estas intentando coger la carga.\n", max/TIME_DIV);
       }
     }
 
@@ -235,7 +235,7 @@ int do_drop(string str)
   ob = find_match(str, this_object(), 1);
   if (!sizeof(ob))
   {
-    notify_fail("No ves ningún "+str+" que dejar.\n");
+    notify_fail("No ves ningÃºn "+str+" que dejar.\n");
     return 0;
   }
 
@@ -372,7 +372,7 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
       
       if (!sizeof(dest))
       {
-        notify_fail("No encuentras ningún "+s2+" por aquí.\n");
+        notify_fail("No encuentras ningÃºn "+s2+" por aquÃ­.\n");
         return 0;
       }
     }
@@ -387,7 +387,7 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
           str = aux+"monedas";
           if (!sizeof(dest))
           {
-            notify_fail("No encuentras ningún "+s2+" por aquí.\n");
+            notify_fail("No encuentras ningÃºn "+s2+" por aquÃ­.\n");
             return 0;
           }
         }

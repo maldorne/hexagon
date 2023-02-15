@@ -1,6 +1,6 @@
 /* 
- * Revision de la armadura básica para CcMud, Folken 19/06/03
- * Añadidos sistemas de equipos de multiples piezas, Folken 07/10
+ * Revision de la armadura bÃ¡sica para CcMud, Folken 19/06/03
+ * AÃ±adidos sistemas de equipos de multiples piezas, Folken 07/10
  * 
  */
 
@@ -182,7 +182,7 @@ int hit_armour(int dam)
   int res;
   res = this_object()->adjust_cond(-1);
   if ((res <= 0) && interactive(environment(this_object())) )
-    tell_player(environment(this_object()), "¡Tu "+query_short()+" se rompe en mil pedazos!\n");
+    tell_player(environment(this_object()), "Â¡Tu "+query_short()+" se rompe en mil pedazos!\n");
     return res;
 }
 
@@ -214,7 +214,7 @@ void set_pieces(string name, string * list)
   }
   
   // Si el nombre de archivo del objeto actual no esta en la lista de todas las piezas,
-  // la añadimos para evitar errores
+  // la aÃ±adimos para evitar errores
   name = base_name(this_object());
   
   if (member_array(name, piece_list) == -1)

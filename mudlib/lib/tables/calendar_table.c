@@ -14,7 +14,7 @@ void create()
   // names and gender of that name (only makes sense in
   //  languages with gender, obviously)
   name_list = ({ "rata", 2,
-                 "dragón", 1,
+                 "dragÃ³n", 1,
                  "caballo", 1,
                  });
 
@@ -36,10 +36,10 @@ string query_week_day_string(int num_day)
   {
     case 0: return "lunes";
     case 1: return "martes";
-    case 2: return "miércoles";
+    case 2: return "miÃ©rcoles";
     case 3: return "jueves";
     case 4: return "viernes";
-    case 5: return "sábado";
+    case 5: return "sÃ¡bado";
     default:
     case 6: return "domingo";
   }

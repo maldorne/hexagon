@@ -57,7 +57,7 @@ int do_help(string str)
       s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
         implode(get_dir("/lib/docs/coder/"), "\n"));
 
-      s += "%^GREEN%^Ayuda de programación%^RESET%^:\n";
+      s += "%^GREEN%^Ayuda de programaciÃ³n%^RESET%^:\n";
 
       aux = ({ });
 
@@ -140,7 +140,7 @@ int do_help(string str)
   }
 
   // Ya no hay 'mirar soul', neverbot 02/2006
-  if (( str == "emocion") || (str == "emoción") || (str == "emociones"))
+  if (( str == "emocion") || (str == "emociÃ³n") || (str == "emociones"))
   {
     s = SOUL_OBJECT->query_soul_list();
     if (!strlen(s))
@@ -191,7 +191,7 @@ int do_help(string str)
     objs = find_match(str, this_player());
 
     // Si no tenemos objetos en el inventario que se correspondan con el nombre,
-    // por último probamos con la ayuda de las emociones
+    // por Ãºltimo probamos con la ayuda de las emociones
     if (!sizeof(objs))
     {
       s = (string)SOUL_OBJECT->help_soul(str);

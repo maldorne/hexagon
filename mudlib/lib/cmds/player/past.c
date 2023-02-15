@@ -15,7 +15,7 @@ string query_usage()
 
 string query_short_help()
 {
-	return "Te muestra lo que te hayan dicho últimamente.";
+	return "Te muestra lo que te hayan dicho Ãºltimamente.";
 }
 
 static int cmd(string name, object me, string verb)

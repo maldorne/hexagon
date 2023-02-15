@@ -313,7 +313,7 @@ protected int cmd(string name, object ob, string verb)
 
 	if (!file)
 	{
-		notify_fail("El archivo "+name+" no existe, abortando ejecución.\n");
+		notify_fail("El archivo "+name+" no existe, abortando ejecuciÃ³n.\n");
 		return 0;   
 	}
 	

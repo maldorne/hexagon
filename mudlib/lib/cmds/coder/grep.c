@@ -1,4 +1,4 @@
-// - Añadido define para el numero maximo de lineas y subido de 
+// - AÃ±adido define para el numero maximo de lineas y subido de 
 //   900 a 2000 y arreglos varios.
 //   neverbot 08/2008
 

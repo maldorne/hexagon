@@ -23,7 +23,7 @@ static int cmd(string str, object me, string verb)
   {
     tell_object(me, "Sintaxis: stats <nombre o id> <filtro-1 filtro-2 filtro-n>\n" + 
       "  Para mostrar todos los stats de un objeto\n" + 
-      "  (o sólo aquellos cuyo nombre contenga algunas de las palabras de 'filtros')\n");
+      "  (o sÃ³lo aquellos cuyo nombre contenga algunas de las palabras de 'filtros')\n");
     return 1;
   }
 
@@ -84,7 +84,7 @@ static int cmd(string str, object me, string verb)
   }
 
   tell_object(me, ret);
-  tell_object(me, "\nUtiliza exec para más información, por ejemplo:\n  exec return find_living(\""+me->query_name()+"\")->stats()[ <indice> ]\n  para más información.\n");
+  tell_object(me, "\nUtiliza exec para mÃ¡s informaciÃ³n, por ejemplo:\n  exec return find_living(\""+me->query_name()+"\")->stats()[ <indice> ]\n  para mÃ¡s informaciÃ³n.\n");
 
   return 1;
 }

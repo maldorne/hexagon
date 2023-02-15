@@ -49,7 +49,7 @@ void add_attacks( string * names )
     {
       tmp = table("unarmed_combat")->query_messages(names[i]);
 
-      // Si es una lista, la añadimos
+      // Si es una lista, la aÃ±adimos
       if (arrayp(tmp[0]))
       {
         messages[0] += tmp[0];
