@@ -17,3 +17,7 @@
 // language.c
 
 #define _LANG_LANGUAGE_DEFAULT_DESC "Es el lenguaje habitual, hablado por la mayoría.\n"
+
+// player.c
+
+#define _LANG_PLAYER_SAVING "Salvando...\n"

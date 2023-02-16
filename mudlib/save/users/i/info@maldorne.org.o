@@ -10,7 +10,7 @@ prompt_string ""
 role_name "admin"
 start_time 1556911440
 last_connected 1476302343
-last_on_from "localhost (::1)"
+last_on_from "localhost (127.0.0.1)"
 account_name "info@maldorne.org"
 real_name "Administrator"
 birthday "0101"

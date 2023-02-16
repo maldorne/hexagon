@@ -38,4 +38,4 @@ create = "_auto_create";
 
 array_size = 10000;  /* max array size */
 objects = 10000;     /* max # of objects */
-call_outs = 1000;   /* max # of call_outs */
+call_outs = 1000;    /* max # of call_outs */
