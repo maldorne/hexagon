@@ -1,6 +1,7 @@
 // Edited by Lummen and Antiron 24-7-97
 
 #include <language.h>
+#include "../path.h"
 
 inherit "/lib/monster.c";
 
