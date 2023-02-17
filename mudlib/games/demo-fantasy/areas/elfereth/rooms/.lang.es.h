@@ -1,7 +1,7 @@
 
 #define _LANG_PATH_SHORT "Camino a Elfereth"
 #define _LANG_PATH_LONG "Un camino de tierra lleva a la Ciudad " + \
-      "élfica de Elfereth, construída " + \
+      "élfica de Elfereth, construida " + \
       "en las copas de los árboles del Bosque de Elrhair. Es famosa por la " + \
       "gente hospitalaria que vive en ella, todos de buen corazón y " + \
       "amables. El camino atraviesa el bosque que sirve " + \
