@@ -596,7 +596,7 @@ int get_inv(string str)
   int i;
 
   // thanks for the great error message!
-  notify_fail("¿Inventario de qué?\n");
+  notify_fail("Inventory of what?\n");
 
   if (!strlen(str))
   {
@@ -604,7 +604,7 @@ int get_inv(string str)
   }
   else
   {
-    sscanf(str, "de %s", str);
+    sscanf(str, "of %s", str);
     ov = wiz_present(str, this_player());
   }
 
@@ -619,14 +619,14 @@ int get_inv(string str)
     if ( (interactive(ov[i])) && !(ov[i]->query_coder()) &&
        !(this_object()->query_admin()) && !(ov[i] == this_object()))
     {
-      log_file("inv", this_object()->query_cap_name()+" intentó ver el inventario del interactive: "+
+      log_file("inv", this_object()->query_cap_name()+" tried to view the inventory of interactive object: "+
                       ov[i]->query_cap_name()+" ["+ctime(time(), 4)+"]\n");
-      write("No te está permitido ver el inventario de "+ov[i]->query_cap_name()+".\n");
+      write("You are not allowed to view the inventory of "+ov[i]->query_cap_name()+".\n");
       continue;
     }
 
-    write("Inventario de " + desc_object(ov[i]) + " en " +
-          desc_object(environment(ov[i])) + ":\n");
+    write("Inventory of " + desc_object(ov[i]) + ":\n");
+      // " en " + desc_object(environment(ov[i])) + ":\n");
 
     obj = first_inventory(ov[i]);
 
