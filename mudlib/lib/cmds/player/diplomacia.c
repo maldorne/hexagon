@@ -48,7 +48,7 @@ protected int cmd (string str, object me, string verb)
   {
     info = handler->query_diplomacy_info(citizenship);
 
-    ret += "Eres " + me->query_numeral() + " ciudadan" + me->query_vocal() + " de " + citizenship;
+    ret += "Eres " + me->query_numeral() + " ciudadan" + me->query_vowel() + " de " + citizenship;
 
     if (info[0] != citizenship)
       ret += ", parte del Reino de " + info[0] + ".\n\n";

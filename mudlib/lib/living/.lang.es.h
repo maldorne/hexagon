@@ -69,7 +69,7 @@
 #define _LANG_DEATH_DEATH_BLOW_NO_KILLER this_object()->query_cap_name() + \
       " ha muerto horriblemente.\n"
 #define _LANG_DEATH_CORPSE_DEF "Tu cuerpo pierde sus últimos alientos de vida"
-#define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " cae al suelo destrozad"+this_object()->query_vocal()
+#define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " cae al suelo destrozad"+this_object()->query_vowel()
 
 // unarmed_combat.c
 

@@ -152,10 +152,10 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
     str = s1+ob->query_possessive()+s3;
     break;
   case "mvocal" :
-    str = s1+me->query_vocal()+s3;
+    str = s1+me->query_vowel()+s3;
     break;
   case "hvocal" :
-    str = s1+ob->query_vocal()+s3;
+    str = s1+ob->query_vowel()+s3;
     break;
   case "mnumeral" :
     str = s1+me->query_numeral()+s3;

@@ -48,7 +48,7 @@ protected int cmd(string str, object me, string verb)
 	{
 	  if (obs[i]->query_dead())
         ret += sprintf("%17s: %s\n",
-                       capitalize(obs[i]->query_name()), "Está muert"+obs[i]->query_vocal()+".");
+                       capitalize(obs[i]->query_name()), "Está muert"+obs[i]->query_vowel()+".");
       else if (/* (obs[i] != me) && */ function_exists("health_string", obs[i]) && 
            (obs[i]->query_player() || obs[i]->query_npc() ) )
         ret += sprintf("%17s: %s\n",

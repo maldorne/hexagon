@@ -31,8 +31,8 @@
                                 "an" : "a")
 #define _LANG_GENDER_NUMERAL_PLURAL_FEMALE "some"
 #define _LANG_GENDER_NUMERAL_PLURAL_MALE "some"
-#define _LANG_GENDER_VOCAL_FEMALE ""
-#define _LANG_GENDER_VOCAL_MALE ""
+#define _LANG_GENDER_VOWEL_FEMALE ""
+#define _LANG_GENDER_VOWEL_MALE ""
 #define _LANG_GENDER_DEMONSTRATIVE_FEMALE "she"
 #define _LANG_GENDER_DEMONSTRATIVE_MALE "he"
 

@@ -26,7 +26,7 @@ string query_file_name() { return filename; }
 
 string query_article() { return "el"; }
 string query_numeral() { return "un"; }
-string query_vocal() { return "o"; }
+string query_vowel() { return "o"; }
 
 void create()
 {

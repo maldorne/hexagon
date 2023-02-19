@@ -74,7 +74,7 @@ protected int cmd (string arg, object me, string verb)
 	    if((int)obs[i]->query_coder() )
 	    {
 			tell_object(me,"Atacar a "+obs[i]->query_numeral()+" programador"+
-				((obs[i]->query_vocal()=="a")?"a":"")+" no es recomendable.\n");
+				((obs[i]->query_vowel()=="a")?"a":"")+" no es recomendable.\n");
 			ok = 1;
 			continue;
 	    }

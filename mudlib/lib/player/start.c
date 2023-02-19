@@ -198,7 +198,7 @@ void do_first_look()
         {
           ob->move(this_object());
           tell_object(this_object(), "Por algún error has debido perder tu "+ob->query_name()+". "+
-              "Otr"+ob->query_vocal()+" nuev"+ob->query_vocal()+" te es concedid"+ob->query_vocal()+".\n\n");
+              "Otr"+ob->query_vowel()+" nuev"+ob->query_vowel()+" te es concedid"+ob->query_vowel()+".\n\n");
         }
       }
   }

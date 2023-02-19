@@ -228,7 +228,7 @@ void event_person_tell(object ob, string start, string msg, string lang)
       str += ({ (id%60) + " segundos" });
 
     tell_object(this_player(), this_object()->query_cap_name() + " ha estado inactiv"+
-      this_object()->query_vocal()+" durante "+
+      this_object()->query_vowel()+" durante "+
       query_multiple_short(str) + ".\n");
   }
 
@@ -240,7 +240,7 @@ void event_person_tell(object ob, string start, string msg, string lang)
 
   if (this_object()->query_static_property(AWAY_PROP))
   {
-    tell_object(this_player(), this_object()->query_cap_name()+" está ocupad"+this_object()->query_vocal()+
+    tell_object(this_player(), this_object()->query_cap_name()+" está ocupad"+this_object()->query_vowel()+
       ", razón: \"%^RED%^"+
       (string)this_object()->query_static_property(AWAY_PROP)+"%^RESET%^\"\n");
   }
