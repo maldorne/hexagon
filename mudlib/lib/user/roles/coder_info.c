@@ -157,7 +157,7 @@ int do_title(string str)
   return 1;
 }
 
-string do_find_comm(string func, object ob) 
+string _do_find_comm(string func, object ob) 
 {
   string s, ping;
   object fish;
@@ -165,9 +165,9 @@ string do_find_comm(string func, object ob)
   s = "";
   
   if (ping = function_exists(func, ob))
-    s += " encontrado en " + ping;
+    s += " found in " + ping;
   else
-    s += " no encontrado";
+    s += " not found";
     
   fish = ob;
   
@@ -189,18 +189,13 @@ int comm_info(string str)
 
   num_comms = 0;
 
-  if (strlen(str)) 
+  if (sscanf(str, "%s %s", s1, s2) && strlen(s2)) 
   {
-    sscanf(str, "%s %s", s1, s2);
-
-    if (s2) 
-    {
-      s2 = this_player()->expand_nickname(s2);
-      on = find_player(s2);
-      str = s1;
-    }
+    s2 = this_player()->expand_nickname(s2);
+    on = find_player(s2);
+    str = s1;
   }
-  
+
   if (on)
     // comms = on->query_commands();
     comms = commands(on);
@@ -209,69 +204,59 @@ int comm_info(string str)
 
   text = "";
   
-  if (!strlen(str) || str == "0")
+  if (!strlen(str))
   {
     for (i = 0; i < sizeof(comms); i++) 
     {
-      // See below, wonderflug
-      // if ((string)comms[i][C_NAME..C_NAME] == "") comms[i][C_NAME..C_NAME] = "*";
-      xtra = do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
-      /* write(i+". "+comms[i][C_NAME]+"["+comms[i][C_DATA]+"] "+
-        file_name((object)comms[i][C_OBJ])+"->"+comms[i][C_FUNC]+"()"+
-        xtra);*/
-      text += i+". "+comms[i][C_NAME]+"["+comms[i][C_DATA]+"] "+
-        base_name((object)comms[i][C_OBJ])+"->"+comms[i][C_FUNC]+"()"+
+      xtra = _do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
+      text += i + ". " + comms[i][C_NAME] + " " + // "[" + comms[i][C_DATA] + "] " +
+        base_name((object)comms[i][C_OBJ]) + "->" + comms[i][C_FUNC] + "()" +
         xtra;
     }
-    
+
     num_comms = sizeof(comms);
     
-    // Añadimos los comandos de /cmds, neverbot 01/2010
+    // add /cmds commands, neverbot 01/2010
     comms = CMD_HANDLER->query_available_cmds(this_player());
     num_comms += sizeof(comms);
-    
+
     for (j = 0; j < sizeof(comms); j++) 
     {
       text += "" + (i+j) + ". " + explode(explode(comms[j], "/")[3], ".")[0] + " " + 
-        explode(comms[j], ".")[0] + "->cmd() encontrado en " +
+        explode(comms[j], ".")[0] + "->cmd() found in " +
         comms[j] + "\n"; 
     }
     
     i += j;
     
     // TODO add souls here
-    // Añadimos los souls, neverbot 01/2010
+    // add souls, neverbot 01/2010
     /*
     comms = keys("/obj/handlers/soul.c"->query_soul_data());
     num_comms += sizeof(comms);
     
     for (j = 0; j < sizeof(comms); j++) 
     {
-      text += "" + (i+j) + ". " + comms[j] + " soul encontrada en /obj/handlers/soul.c\n"; 
+      text += "" + (i+j) + ". " + comms[j] + " soul command found in /obj/handlers/soul.c\n"; 
     }
     */
   
     if (on)
-      write("Buscando en " + on->query_name() + "... " + num_comms + " comandos.\n");
+      write("Searching in " + on->query_name() + "... " + num_comms + " commands.\n");
     else
-      write("Buscando... " + num_comms + " comandos.\n");
+      write("Searching... " + num_comms + " commands.\n");
     
-    this_player()->more_string(text);
+    this_user()->more_string(text);
   }
-  else // buscamos un comando concreto
+  else // looking for a specific command
   {
-    text = "";
-
     for (i = 0; i < sizeof(comms); i++)
     {
-      // We don't match '*', and besides this buggers it somehow.
-      // Wonderflug
-      // if ((string)comms[i][C_NAME] == "") (string)comms[i][C_NAME..C_NAME] = "*";
       if (str == (string)comms[i][C_NAME]) 
       {
-        xtra = do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
-        text = comms[i][C_NAME]+"["+comms[i][C_DATA]+"] "+
-          base_name((object)comms[i][C_OBJ])+"->"+comms[i][C_FUNC]+"()"+
+        xtra = _do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
+        text = comms[i][C_NAME] + " " + // "[" + comms[i][C_DATA] + "] " +
+          base_name((object)comms[i][C_OBJ]) + "->" + comms[i][C_FUNC] + "()" +
           xtra;
         break;
       }
@@ -291,7 +276,7 @@ int comm_info(string str)
         if (str == explode(explode(comms[j], "/")[3], ".")[0])
         {
           text = explode(explode(comms[j], "/")[3], ".")[0] + " " + 
-            explode(comms[j], ".")[0] + "->cmd() encontrado en " +
+            explode(comms[j], ".")[0] + "->cmd() found in " +
             comms[j] + "\n"; 
           break;
         }
@@ -299,30 +284,30 @@ int comm_info(string str)
     }
     
     // TODO add souls
-    // Añadimos los souls, neverbot 01/2010
+    // add souls, neverbot 01/2010
     /*
     comms = keys("/obj/handlers/soul.c"->query_soul_data());
     num_comms += sizeof(comms);
         
-    // Si no se ha encontrado, buscamos en los souls
+    // if not found, search in the soul commands
     if (text == "")
     {     
       for (j = 0; j < sizeof(comms); j++) 
       {
         if (str == comms[j])
         {
-          text += "" + (i+j) + ". " + comms[j] + " soul encontrada en /obj/handlers/soul.c\n"; 
+          text += "" + (i+j) + ". " + comms[j] + " soul command found in /obj/handlers/soul.c\n"; 
           break;
         }
       }
     } 
     */
-    
+
     if (on)
-      write("Buscando en " + on->query_name() + "... " + num_comms + " comandos.\n");
+      write("Searching in " + on->query_name() + "... " + num_comms + " commands.\n");
     else
-      write("Buscando... " + num_comms + " comandos.\n"); 
-  
+      write("Searching... " + num_comms + " commands.\n");
+    
     write(text);  
   }
   return 1;
