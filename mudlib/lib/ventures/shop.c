@@ -634,7 +634,7 @@ int do_buy(string str)
       total_cost += ob_amt;
       to_buy += ({ obs[i] });
 
-      log_file(query_log_file(), "[shop sells  - " + ctime(time(), 4) + "] " +
+      log_file(query_log_file(), "[shop sells - " + ctime(time(), 4) + "] " +
                  this_player()->query_cap_name() +
                  " - " + obs[i]->query_short() +
                  " - " + base_name(obs[i]) + ", price: " + ob_amt + "\n");
