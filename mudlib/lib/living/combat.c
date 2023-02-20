@@ -200,9 +200,9 @@ void attack()
 
   while (i < sizeof(attacker_list)) 
   {
-    if (this_object()->query_timed_property(PASSED_OUT_PROP))
+    if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
     {
-      tell_object(this_object(),"Estás demasiado aturdido como "+
+      tell_object(this_object(), "Estás demasiado aturdido como "+
             "para devolver los golpes.\n");
       return;
     }
