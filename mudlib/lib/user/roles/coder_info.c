@@ -209,7 +209,7 @@ int comm_info(string str)
     for (i = 0; i < sizeof(comms); i++) 
     {
       xtra = _do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
-      text += i + ". " + comms[i][C_NAME] + " " + // "[" + comms[i][C_DATA] + "] " +
+      text += (i+1) + ". " + comms[i][C_NAME] + " " + // "[" + comms[i][C_DATA] + "] " +
         base_name((object)comms[i][C_OBJ]) + "->" + comms[i][C_FUNC] + "()" +
         xtra;
     }
@@ -222,7 +222,7 @@ int comm_info(string str)
 
     for (j = 0; j < sizeof(comms); j++) 
     {
-      text += "" + (i+j) + ". " + explode(explode(comms[j], "/")[3], ".")[0] + " " + 
+      text += "" + (i+j+1) + ". " + explode(explode(comms[j], "/")[3], ".")[0] + " " + 
         explode(comms[j], ".")[0] + "->cmd() found in " +
         comms[j] + "\n"; 
     }
@@ -237,7 +237,7 @@ int comm_info(string str)
     
     for (j = 0; j < sizeof(comms); j++) 
     {
-      text += "" + (i+j) + ". " + comms[j] + " soul command found in /obj/handlers/soul.c\n"; 
+      text += "" + (i+j+1) + ". " + comms[j] + " soul command found in /obj/handlers/soul.c\n"; 
     }
     */
   
