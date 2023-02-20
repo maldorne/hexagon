@@ -40,8 +40,8 @@ void _add_held_ac(object ob)
 {
   int i;
 
-  // weapons do not add ac
-  if (ob->query_weapon())
+  // ignore items with no ac
+  if (undefinedp(ob->query_ac()))
     return;
 
   for (i = 0; i < sizeof(AC_TYPES); i++)
@@ -52,8 +52,8 @@ void _remove_held_ac(object ob)
 {
   int i;
 
-  // weapons do not add ac
-  if (ob->query_weapon())
+  // ignore items with no ac
+  if (undefinedp(ob->query_ac()))
     return;
 
   for (i = 0; i < sizeof(AC_TYPES); i++)

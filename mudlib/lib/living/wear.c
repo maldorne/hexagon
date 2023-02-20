@@ -46,6 +46,11 @@ int query_worn_ac(int type) { return worn_ac[type]; }
 void _add_worn_ac(object ob)
 {
   int i;
+
+  // ignore items with no ac
+  if (undefinedp(ob->query_ac()))
+    return;
+
   for (i = 0; i < sizeof(AC_TYPES); i++)
     worn_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]);
 }
@@ -53,6 +58,11 @@ void _add_worn_ac(object ob)
 void _remove_worn_ac(object ob)
 {
   int i;
+
+  // ignore items with no ac
+  if (undefinedp(ob->query_ac()))
+    return;
+
   for (i = 0; i < sizeof(AC_TYPES); i++)
     worn_ac[AC_TYPES[i]] -= (ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]));
 }
