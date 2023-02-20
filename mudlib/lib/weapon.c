@@ -123,7 +123,7 @@ void set_enchant(int i)
     i = 6;
   if (i < -3)
     i = -3;
-  // El daño añadido por el enchant ya se cuenta en weapon_attack
+  // damage because of enchant is already added in weapon_attack
   // roll_add += (i - enchant);
   enchant = i;
 } 
@@ -134,9 +134,8 @@ void dest_me()
   ::dest_me();
 }
 
-// Cambiado por neverbot, 6/03
-// Estaria bien comprobar que esto no hace que las armas se estropeen
-// demasiado rapido ni demasiado lento.
+// change by neverbot, 6/03
+// we should check if this won't make weapons ruin too fast nor too slow
 int hit_weapon(int dam)
 {
 	int res;
@@ -204,8 +203,8 @@ void init_auto_load_attributes(mapping args)
 //   old weapon_logic.c
 // *************************************************
 
-mapping remove_attack(string name){ return attacks = m_delete(attacks, name); }
-mapping query_attacks(){ return attacks; }
+mapping remove_attack(string name) { return attacks = m_delete(attacks, name); }
+mapping query_attacks() { return attacks; }
 
 void add_attack(string name,   // to index
                 int type,      // piercing, blunt, slashing
@@ -230,7 +229,7 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
   damage_done = 0;
 
   // luck factor
-  if (roll(1, 200) < 10 )
+  if (roll(1, 200) < 10)
   {
     // fumble message added
     tell_object(this_object(), "¡Oh, qué torpeza!\n");
@@ -239,23 +238,22 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
 
   attackerwc = (int)attacker->query_total_wc();
 
-  // Penalizador por el uso de equipo (se aplica al AC pero solo para el caso
-  //  de calcular si se impacta o no)
-  // Importante, tenemos en cuenta el tipo de arma con el que actuamos!!
+  // check defender AC to know it we hit or not
+  // important to check the type of protection against this type of weapon
   defenderac = defender->query_total_ac(type) + defender->query_skill_malus();
   
-  // Idea sacada del sistema de bonificaciones de Iolo para Rl, cuantos
-  // mas atacantes tengas, mas leches te caen.
-  //   1 o 2 atacantes, misma AC
-  //   3 o 4 atacantes, se reduce a la mitad
-  //   5 o 6 atacantes, se reduce a un tercio, ...  
+  // idea taken from the localization system by Iolo@Rl, the more attackers you
+  // have, the more hits you will receive
+  //   1 or 2 attackers, same AC
+  //   3 or 4 attackers, half AC
+  //   5 or 6 attackers, one third of the ac ...  
 
   // if ( sizeof(defender->query_attacker_list()) > 2)
   //   defenderac = (defenderac / (sizeof(defender->query_attacker_list()) / 2));
 
-  // Cambiado por neverbot, 10/2009. No depende de tu numero de atacantes, sino de la diferencia
-  // entre tus atacantes y los de tu contrario. Asi evitamos que la AC se modifique en batallas campales
-  // 6 vs 6, por ejemplo.
+  // changed by neverbot, 10/2009. It does not depend of the number of attackers, but the difference
+  // between your attackers and your oponent's. This way we avoid modifiying the AC in big battles 
+  // like 6 vs 6
   {
     int ac_diff;
     ac_diff = sizeof(defender->query_attacker_list()) - sizeof(attacker->query_attacker_list());
@@ -263,59 +261,59 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
     	defenderac = (defenderac / (ac_diff / 2));	
   }
 
-  // A la habilidad del atacante (desarmado) le sumamos el factor suerte para
-  // ambos jugadores (1d10), y le restamos el AC del defensor.
+  // attacker ability plus some luck (1d10), minus deffender ac.
   result = ((attackerwc + roll(1, 10)) - defenderac);
 
   if (result >= 1)
   {
-      happen = HIT;
-      damage_done = (int)roll(rolls, dice) + roll_add + 
-                    this_object()->query_enchant() +
-                    (int)attacker->query_damage_bonus() + 
-                    (int)attacker->query_stat_bonus_to_str();
+    happen = HIT;
+    damage_done = (int)roll(rolls, dice) + roll_add + 
+                  this_object()->query_enchant() +
+                  (int)attacker->query_damage_bonus() + 
+                  (int)attacker->query_stat_bonus_to_str();
 
-      if (damage_done <= 0)
-        damage_done = 1;
+    if (damage_done <= 0)
+      damage_done = 1;
 
-      // Luck factor
-      if ( roll(1, 200) < 10 ) {
-        // Mensaje de critico añadido
-        tell_object(this_object(), "¡Oh, qué habilidad!\n");
-        damage_done *= multiplier;
-      }
+    // luck factor
+    if (roll(1, 200) < 10) 
+    {
+      // critical hit message added
+      tell_object(this_object(), "¡Oh, qué habilidad!\n");
+      damage_done *= multiplier;
+    }
 
-      // Sistema de aprendizaje de maestrias, neverbot 08/05, modificado 09/2012
+    // masteries auto-learning system, neverbot 08/05, modified 09/2012
 
-      // Ignore ranged weapons (you can hit with them in melee combat, but that should
-      // not improve your "bow" mastery)
-      if (!this_object()->query_ranged_weapon())
-        attacker->adjust_num_armed_hits(1, this_object()->query_weapon_family());
+    // ignore ranged weapons (you can hit with them in melee combat, but that should
+    // not improve your "bow" mastery)
+    if (!this_object()->query_ranged_weapon())
+      attacker->adjust_num_armed_hits(1, this_object()->query_weapon_family());
   }
   else
   {
-      // Calculamos si el fallo ha sido porque el defensor esquiva o 
-      // porque el atacante falla (el resultado es irrelevante excepto a terminos
-      // "narrativos", solo influira en el tipo de mensajes que se le 
-      // darán a cada uno)
-      result = ((attacker->query_level() + 
-                 attacker->query_dex() + 
-                 attacker->query_skill_malus()) + 
-                 roll(1,10)) -
-               ((defender->query_level() + 
-                 defender->query_dex() + 
-                 defender->query_skill_malus()) + 
-                 roll(1,10));
-    
-      if (result < 0){
-          happen = DODGE;
-          damage_done = 0;
-      }
-      else
-      {
-          happen = MISS;
-          damage_done = 0;
-      }
+    // calculate if the miss was because of the defender dodging or because the attacker
+    // fails (the result is irrelevant except in "narrative", we will change the messages
+    // shown)
+    result = ((attacker->query_level() + 
+               attacker->query_dex() + 
+               attacker->query_skill_malus()) + 
+               roll(1,10)) -
+             ((defender->query_level() + 
+               defender->query_dex() + 
+               defender->query_skill_malus()) + 
+               roll(1,10));
+  
+    if (result < 0)
+    {
+      happen = DODGE;
+      damage_done = 0;
+    }
+    else
+    {
+      happen = MISS;
+      damage_done = 0;
+    }
   }
 
   return ({ happen, damage_done });
@@ -361,20 +359,20 @@ mixed _query_message(int damage,
   switch (attack_type) 
   {
     case SLASHING:
-        msg_me += "Cortas";
-        msg_him += " te corta";
-        msg_env += " corta";
-        break;
+      msg_me += "Cortas";
+      msg_him += " te corta";
+      msg_env += " corta";
+      break;
     case PIERCING: 
-        msg_me +="Perforas";
-        msg_him +=" te perfora";
-        msg_env +=" perfora";
-        break;
+      msg_me +="Perforas";
+      msg_him +=" te perfora";
+      msg_env +=" perfora";
+      break;
     case BLUNT:     
-        msg_me += "Golpeas";
-        msg_him += " te golpea";
-        msg_env += " golpea";
-        break;
+      msg_me += "Golpeas";
+      msg_him += " te golpea";
+      msg_env += " golpea";
+      break;
     // case RES_FIRE:     
     //     msg_me += "Quemas";
     //     msg_him += " te quema";
@@ -388,29 +386,29 @@ mixed _query_message(int damage,
     //     relative = 0;
     //     break;
     default:
-        msg_me += "Golpeas";
-        msg_him += " te golpea";
-        msg_env += " golpea";
-        break;
+      msg_me += "Golpeas";
+      msg_him += " te golpea";
+      msg_env += " golpea";
+      break;
   }
  
   aux = "";
 
   if (relative)
   {
-      if (damage <= 0) 
-          aux = " sin efecto";
-      else 
-          switch (damage) 
+    if (damage <= 0) 
+      aux = " sin efecto";
+    else 
+      switch (damage) 
       {
-          case 1..4:   aux = " débilmente";                 break;
-          case 5..8:   aux = " con poca fuerza";            break;
-          case 9..12:  aux = "";                            break;
-          case 13..16: aux = " con fuerza";                 break;
-          case 17..21: aux = " con mucha fuerza";           break;
-          case 22..28: aux = " violentamente";              break;
-          case 29..60: aux = " con una increíble fuerza";   break;
-          default: aux =     " con una fuerza sobrehumana"; break;
+        case 1..4:   aux = " débilmente";                 break;
+        case 5..8:   aux = " con poca fuerza";            break;
+        case 9..12:  aux = "";                            break;
+        case 13..16: aux = " con fuerza";                 break;
+        case 17..21: aux = " con mucha fuerza";           break;
+        case 22..28: aux = " violentamente";              break;
+        case 29..60: aux = " con una increíble fuerza";   break;
+        default: aux =     " con una fuerza sobrehumana"; break;
       }
   }
  
@@ -418,37 +416,37 @@ mixed _query_message(int damage,
   msg_him += aux;
   msg_env += aux;
 
-  // Si tenemos el objeto en el que golpeamos:
+  // if we have the object that hits
   if (where)
   {
-      if (relative)
-      {
-          msg_me += " a "+defender->query_cap_name()+" en su "+where->query_name();
-          msg_him+= " en tu "+where->query_name();
-          msg_env+= " a "+defender->query_cap_name()+" en su "+where->query_name();
-      }
-      else
-      {
-          msg_me += " "+where->query_article()+" "+where->query_name()+" de "+defender->query_cap_name();
-          msg_him+= " "+where->query_article()+" "+where->query_name();
-          msg_env+= " "+where->query_article()+" "+where->query_name()+" de "+defender->query_cap_name();
-      }
+    if (relative)
+    {
+      msg_me += " a "+defender->query_cap_name()+" en su "+where->query_name();
+      msg_him+= " en tu "+where->query_name();
+      msg_env+= " a "+defender->query_cap_name()+" en su "+where->query_name();
+    }
+    else
+    {
+      msg_me += " "+where->query_article()+" "+where->query_name()+" de "+defender->query_cap_name();
+      msg_him+= " "+where->query_article()+" "+where->query_name();
+      msg_env+= " "+where->query_article()+" "+where->query_name()+" de "+defender->query_cap_name();
+    }
   }
-  // Si no tenemos el objeto pero tenemos la localizacion:
+  // do not have the object but we have the localization
   else if (localization && (localization != ""))
   {
-      msg_me+=  " a "+defender->query_cap_name() + " en "+localization;
-      msg_him+= " en "+localization;
-      msg_env+= " a "+defender->query_cap_name() + " en "+localization;
+    msg_me+=  " a "+defender->query_cap_name() + " en "+localization;
+    msg_him+= " en "+localization;
+    msg_env+= " a "+defender->query_cap_name() + " en "+localization;
   }
-  // No tenemos el objeto ni la localizacion
+  // do not have object nor localization
   else
   {
-      msg_me+=  " a "+defender->query_cap_name();
-      msg_env+= " a "+defender->query_cap_name();
+    msg_me+=  " a "+defender->query_cap_name();
+    msg_env+= " a "+defender->query_cap_name();
   }
 
- // el daño relativo
+ // relative damage
  /* 
  i = to_int( (100*(defender->query_hp()-damage))/defender->query_max_hp());
  
@@ -504,7 +502,6 @@ void _write_message(int damage,          // damage from the hit
   return;
 } /* _write_message */
 
-
 int weapon_attack(object def, object att)
 {
   mixed *att_val;
@@ -522,10 +519,9 @@ int weapon_attack(object def, object att)
   ret = 0;
   where = nil;
   
-  // Bucle añadido, neverbot 6/03
-  // Con armas exoticas hacemos el doble de ataques (hacha orca, espada doble, etc)
-  // CUIDADO!!: Si añadimos un segundo ataque a la tabla este tambien ocurrira dos
-  //  veces (espero no ver ningun arma exotica y ademas magica ... )
+  // loop added, neverbot 6/03
+  // with exotic weapons we do double number of attacks (two handed sword, etc)
+  // WARNING!!: if we add a second attack to the table, it will happen twice too
   for (k = 0; k < num_of_attacks; k++)
   for (i = 0; i < sizeof(attack_names); i++)
   {  
@@ -539,19 +535,19 @@ int weapon_attack(object def, object att)
       damage = recalc_damage(att_val[1]);
       absorbed_damage = 0;
 
-      // Buscamos el objeto que protege para estropearlo
-      if (damage[1] != ""){
+      // look for the protection item to ruin it
+      if (damage[1] != "")
+      {
         obs = defender->query_worn_ob();
         for (j = 0; j < sizeof(obs); j++)
         {
           if (obs[j]->query_localization() == damage[1])
           {
-            // Si encontramos la armadura que protege la zona donde
-            // hemos golpeado, estropeamos ambos objetos (si no hay armadura
-            // el arma tampoco se deberia estropear).
+            // if we found the armour protecting the localization, ruin both objects 
+            // if we did not found the armour, do not ruin the weapon
             where = obs[j];
 
-            // Calculamos cuanto % de daño absorbe la armadura
+            // calculate damage percentage absorbed by the armour
             if (obs[j]->query_total_ac_against(attacks[attack_names[i]][0]) > 0) 
             {
               if (obs[j]->query_total_ac_against(attacks[attack_names[i]][0]) > 10)
@@ -562,8 +558,8 @@ int weapon_attack(object def, object att)
               absorbed_damage = damage[0]*percent/100;
             }
             
-            // Si la armadura no ha absorbido nada (equipo sin ac), hacemos todos
-            // los hps de daño y ADEMAS estropeamos la armadura
+            // if the armour did not absorbed anything (equiment without ac)
+            // we make full damage AND ruin the armour
             where->hit_armour((absorbed_damage > 0)?absorbed_damage:1);
             this_object()->hit_weapon(1);
             break;
@@ -573,7 +569,7 @@ int weapon_attack(object def, object att)
 
       // tell_object(find_living("neverbot"), "@@ "+attacker->query_cap_name()+": "+
       //                                         absorbed_damage+"/"+damage[0]+"\n");
-      // Aplicamos el daño definitivo
+      // apply final damage
       defender->adjust_hp(-(damage[0] - absorbed_damage), attacker);
 
       if (where)
@@ -597,7 +593,7 @@ int weapon_attack(object def, object att)
         continue;
       }
 
-      // Pifia
+      // fumble
       if (att_val[0] == FUMBLE)
       {
         tell_object(attacker,"Te haces un lío con tu arma y no consigues golpear a "+defender->query_cap_name()+".\n");
@@ -608,17 +604,17 @@ int weapon_attack(object def, object att)
         continue;
       }
 
-      // Llegados aqui att_val[0] debe ser MISS (fallo)
-      // Para darle mas "emocion" si el contrario lleva armas o escudos, damos 
-      // mensajes de que para el ataque con el arma o escudo en alguna ocasion
+      // up to this point att_val[0] should be MISS
+      // to show more "flavour": if the defender has weapons or shields, show a message
+      // like they parry the attack
 
       obs = defender->query_held_ob();
       obs -= ({ 0 });
       
-      // El defensor bloquea
+      // defender parries
       if (sizeof(obs) && (random(3) == 0))
       {
-        // Cogemos un objeto al azar
+        // take a random item
         where = obs[random(sizeof(obs))];
         tell_object(attacker,defender->query_cap_name()+" bloquea tu ataque con su " +
                     where->query_name()+".\n");
@@ -630,7 +626,7 @@ int weapon_attack(object def, object att)
                     where->query_name()+".\n", 
                     ({attacker,defender}));
                   
-        // Estropeamos ambos objetos
+        // ruin both items
         if (where->query_weapon())
           where->hit_weapon(1);
         else if (where->query_armour())
@@ -641,7 +637,7 @@ int weapon_attack(object def, object att)
           where->adjust_cond(-1);
         this_object()->hit_weapon(1);
       }
-      else // El atacante no golpea
+      else // attacker fails
       {
         tell_object(attacker,"No consigues golpear a "+defender->query_cap_name()+".\n");
         tell_object(defender,attacker->query_cap_name()+" no consigue golpearte.\n");
