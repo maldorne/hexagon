@@ -6,7 +6,7 @@
 
 #include <language.h>
 #include <room/room.h>
-#include <basic/material.h>
+#include <item/material.h>
 #include <common/properties.h>
 #include <translations/exits.h>
 
@@ -102,13 +102,13 @@ mixed* add_exit(mapping door_control, mapping exit_map,
     switch(type)
     {
       case "gate" :
-        material = S_METAL;
+        material = METAL;
         break;
       case "door" :
-        material = S_MADERA;
+        material = WOOD;
         break;
       default :
-        material = DESCONOCIDO;
+        material = UNKNOWN;
         break; 
     }
   }
