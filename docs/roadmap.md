@@ -13,8 +13,11 @@ Set of features we are currently working on.
 | :white_check_mark: |  | :heavy_minus_sign: Add compatibility and status list in the repository ([done](commands.md)). |
 |        |  | :heavy_minus_sign: Test and translate every command, by user type: `login` [[#13](https://github.com/maldorne/hexagon/issues/13)], `player` [[#14](https://github.com/maldorne/hexagon/issues/14)], `coder` [[#15](https://github.com/maldorne/hexagon/issues/15)], `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)].  |
 | :white_check_mark: | **Containers** | Dockerfile to execute the mud inside a container, and related documentation. |
-| :white_check_mark: | **Encoding** | Review files in the repository, not all of them are using the same encoding. [[#20](https://github.com/maldorne/hexagon/issues/20)] |
-
+| :white_check_mark: | **Encoding** | Review files in the repository, not all of them are using the same encoding [[#20](https://github.com/maldorne/hexagon/issues/20)]. |
+|        | **Basic objects** | Full inheritance tree from the original `ccmudlib`, objects related to combat [[#21](https://github.com/maldorne/hexagon/issues/21)]. |
+| :white_check_mark: |  | :heavy_minus_sign: `weapon.c` |
+|        |  | :heavy_minus_sign: `armour.c` |
+|        |  | :heavy_minus_sign: `shield.c` |
 
 ## Next milestones: 
 
