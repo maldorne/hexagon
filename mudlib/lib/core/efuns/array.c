@@ -135,14 +135,10 @@ static int mini(int *arr)
 
 static nomask mixed * array_copy(mixed * what)
 {
-  mixed result;
-
   if (typeof(what) != T_ARRAY)
     return ({ });
 
-  result = what[..];
-
-  return result;
+  return what[..];
 }
 
 // map elements in an array

@@ -246,9 +246,10 @@ nomask object * all_inventory(varargs object ob)
 
   if (arrayp(_inventory))
   {
-    // _inventory -= ({ nil });
     // return array_copy(_inventory);
-    return _inventory;
+    // not necessary to do the array_copy, the substraction already 
+    // build a new array
+    return _inventory - ({ nil });
   }
   else
   {
