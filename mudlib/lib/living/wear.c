@@ -14,13 +14,13 @@
  * Rings will be multipple.  Maybe add an amount_heads ? :=)
  * It won't be any problem to add new types later.
  *
- * Añadido bonificador maximo por destreza segun la armadura.
- * Añadido penalizador a las habilidades segun la armadura.
+ * max dex bon added, skill malus added, neverbot
  */
 
 #include <common/properties.h>
 #include <item/armour.h>
 #include <living/combat.h> // ac types for clothing
+#include <language.h>
 
 #define MAXTYPES 20
 
@@ -43,7 +43,7 @@ int set_max_dex_bon(int i) { return max_dex_bon = i; }
 int * query_total_worn_ac() { return worn_ac; }
 int query_worn_ac(int type) { return worn_ac[type]; }
 
-void _add_worn_ac(object ob)
+private void _add_worn_ac(object ob)
 {
   int i;
 
@@ -55,7 +55,7 @@ void _add_worn_ac(object ob)
     worn_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]);
 }
 
-void _remove_worn_ac(object ob)
+private void _remove_worn_ac(object ob)
 {
   int i;
 
@@ -80,12 +80,8 @@ void create()
 
 void wear_commands()
 {
-  add_private_action("do_wear",   "ponerse");
-  add_private_action("do_wear",   "ponerme");
-  add_private_action("do_wear",   "vestir");
-  add_private_action("do_unwear", "desvestir");
-  add_private_action("do_unwear", "quitarse");
-  add_private_action("do_unwear", "quitarme");
+  add_private_action("do_wear",   _LANG_WEAR_VERBS);
+  add_private_action("do_unwear", _LANG_UNWEAR_VERBS);
 }
 
 object * query_worn_ob(varargs int type)
@@ -95,20 +91,20 @@ object * query_worn_ob(varargs int type)
 
   ret = ({ });
 
-  // Si esta fuera de rango no devuelvo nada.
+  // out of range there are no items
   if (type < -1 || type > 14)
     return ({ });
 
-  // Si no especifico tipo devuelvo todos.
+  // if no type passed, return everything
   if (!type)
     return worn_objects;
 
   if (type == -1)
-    type = 0; // para poder ver los objetos sin tipo
+    type = 0; // to view items without type
 
   for (i = 0; i < sizeof(worn_objects); i++)
-     if (worn_objects[i] && worn_objects[i]->query_armour_type()==type)
-        ret += ({ worn_objects[i] });
+    if (worn_objects[i] && worn_objects[i]->query_armour_type()==type)
+      ret += ({ worn_objects[i] });
 
   return ret;
 }
@@ -135,12 +131,11 @@ int unwear_ob(object ob)
 
   if (member_array(ob, worn_objects) == -1)
   {
-    notify_fail("No puedes quitarte algo que no lleves puesto.\n");
+    notify_fail(_LANG_UNWEAR_NOT_WEARING);
     return 0;
   }
 
-  tell_object(this_object(), "Empiezas a quitarte tu "+ ob->short() + ".\n");
-
+  tell_object(this_object(), _LANG_UNWEAR_START);
   return do_unwear_ob(ob);
 }
 
@@ -153,7 +148,7 @@ int do_unwear_ob(object ob)
   {
     worn_objects -= ({ ob });
     armour_types[ob->query_armour_type()]--;
-    tell_object(this_object(),"Te quitas tu "+ob->query_short()+".\n");
+    // tell_object(this_object(), _LANG_UNWEAR_END);
 
     // new ac system, neverbot 06/03
     _remove_worn_ac(ob);
@@ -176,18 +171,17 @@ int do_unwear_ob(object ob)
       main_piece = ob->query_main_piece();
       main_object = nil;
 
-      // Buscamos el objeto principal del conjunto
+      // look for the main piece
       if (base_name(ob) == main_piece)
-        main_object = ob; // La pieza que nos estamos quitando es la principal
+        main_object = ob; // the piece we are unwearing is the main piece
       else
       {
-        // La pieza principal es otra distinta a la que nos estamos quitando,
-        // la buscamos entre el equipo que llevamos puesto
+        // the main piece is another one
+        // look through the wear
         int i;
         for (i = 0; i < sizeof(worn_objects); i++)
         {
-          // tell_object(find_living("folken"), "-- buscando main: " + file_name(worn_objects[i]) + "\n");
-
+          // tell_object(find_living("neverbot"), "-- looking for main: " + file_name(worn_objects[i]) + "\n");
           if (base_name(worn_objects[i]) == main_piece)
           {
             main_object = worn_objects[i];
@@ -196,23 +190,19 @@ int do_unwear_ob(object ob)
         }
       }
 
-      // Si la pieza principal del conjunto existe y la llevamos puesta
-      // (y solo si tenemos puesto el conjunto completo)
+      // if the main piece exists and we are wearing it
+      // (and only if we are wearing the full set)
       if (main_object && sizeof(main_object->query_piece_object_list()))
       {
-        // tell_object(find_living("folken"), "-- main es: " + file_name(main_object) + "\n");
-
+        // tell_object(find_living("neverbot"), "-- main is: " + file_name(main_object) + "\n");
         main_object->set_piece_object_list( 0 );
-
-        tell_object(this_object(), "%^BOLD%^Dejas de llevar el conjunto completo de: " +
-              main_object->query_piece_set_name() + ".%^RESET%^\n");
-
+        tell_object(this_object(), _LANG_UNWEAR_FULL_SET);
         main_object->complete_set_off(this_object());
       }
     }
   }
   else
-    tell_object(this_object(),"No puedes quitarte tu "+ob->query_short()+".\n");
+    tell_object(this_object(), _LANG_CANNOT_UNWEAR_MSG);
 
   return 1;
 }
@@ -229,50 +219,48 @@ int wear_ob(object ob)
   /* Made a query_holdable in living.c.. */
   if (this_object()->query_property(LOADING_PROP))
   {
-    notify_fail("Tu equipamiento todavía está cargándose, te es imposible "+
-                "ponértelo.\n");
+    notify_fail(_LANG_WEAR_STILL_LOADING);
     return 0;
   }
 
-  if (this_object()->query_timed_property_exists(PASSED_OUT_PROP) && (query_verb()!= "equipar"))
+  if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
   {
     notify_fail(this_object()->query_timed_property(PASSED_OUT_PROP));
     return 0;
   }
 
-  // Sistema de localizaciones de Iolo, adaptado para Cc, Folken 4/03
+  // localization system adapted to CcMud, neverbot 4/03
   local = this_object()->obtain_location();
-  if (local && local[2] &&
-      (local[2] != ob->query_body_type())) {
-    tell_object(this_object(),"Este equipo no se ajusta bien a tu cuerpo, "+
-        "ha sido diseñado para otro tipo de persona.\n");
-    return 1;
-  }
 
-  if (this_object()->query_guild_ob() &&
-     !this_object()->query_guild_ob()->
-      query_legal_armour(ob->query_armour_name()))
+  if (local && local[2] && (local[2] != ob->query_body_type())) 
   {
-    tell_object(this_object(),"Este objeto no se corresponde con "+
-      "los permitidos en tu gremio.\n");
-    return 1;
+    notify_fail(_LANG_WEAR_WRONG_BODY_TYPE);
+    return 0;
   }
 
-  notify_fail("Ya tienes puesto un objeto de las mismas características.\n");
+  // if (this_object()->query_guild_ob() &&
+  //    !this_object()->query_guild_ob()->
+  //     query_legal_armour(ob->query_armour_name()))
+  // {
+  //   tell_object(this_object(), "cannot wear.\n");
+  //   return 1;
+  // }
+
+  notify_fail(_LANG_WEAR_SAME_TYPE);
 
   thisone = base_name(ob);
 
-  // Only one copy of each object (i.e. can't wear the same ring in each hand)
+  // only one copy of each object (i.e. can't wear the same ring in each hand)
   for (i = 0; i < sizeof(worn_objects); i++)
   {
     if (thisone == base_name(worn_objects[i]))
         return 0;
   }
 
-  // Max 4 amulet/necklace (type 5)
-  // Max 2 rings, so in case they are magic, only one type of magic per hand (type 7)
-  // Max two pendants (type 12)
-  // Max 4 tied objects (bagpack, quiver, etc) (type 13)
+  // max 4 amulet/necklace (type 5)
+  // max 2 rings, so in case they are magic, only one type of magic per hand (type 7)
+  // max two pendants (type 12)
+  // max 4 tied objects (bagpack, quiver, etc) (type 13)
   a_type = (int)ob->query_armour_type();
   aux = 1;
   switch(a_type)
@@ -289,7 +277,7 @@ int wear_ob(object ob)
 
   if (!(aux = ob->query_size()))
   {
-    notify_fail("Este objeto tiene un fallo (no tiene tamaño), pide ayuda a un programador.\n");
+    notify_fail(_LANG_WEAR_NO_SIZE);
     return 0;
   }
 
@@ -298,28 +286,27 @@ int wear_ob(object ob)
     worn_objects += ({ ob });
     armour_types[a_type]++;
     // aux = aux / 5;
-    tell_object(this_object(), "Comienzas a ponerte tu "+ob->short()+".\n");
+    tell_object(this_object(), _LANG_WEAR_START);
 
     // new ac system, neverbot 06/03
     _add_worn_ac(ob);
 
-    // Actualizamos el bonificador maximo de destreza
+    // update max dex bonus
     if (max_dex_bon < 0)
        max_dex_bon = ob->query_max_dex_bon();
     else
        if ((ob->query_max_dex_bon() != -1) && (ob->query_max_dex_bon() < max_dex_bon))
          max_dex_bon = ob->query_max_dex_bon();
 
-    // Actualizamos el penalizador a las habilidades
+    // update skill malus
     skill_malus += ob->query_skill_malus();
-    // Siempre negativo o inexistente
+    // always negative or zero
     if (skill_malus > 0)
       skill_malus = 0;
 
-    // Sistema de equipo por piezas
-    // Este trozo de codigo me parece de todo menos optimo, incluye recorrer dos listas (cortas, eso si)
-    // y se puede mejorar. Lo dejo como trabajo futuro ya que es algo que se va a ejecutar en pocas ocasiones
-    // (cada vez que un personaje se pone una prenda que forme parte de un conjunto)
+    // sets of items, neverbot
+    // TO DO
+    // this code is not optimal, it traverses two (short) lists and can be improved
     if (ob->query_pieces())
     {
       object main;
@@ -337,62 +324,58 @@ int wear_ob(object ob)
 
       if (ob->query_main_piece() && (main = load_object(ob->query_main_piece())) )
       {
-        // Guardamos los nombres de archivo de los objetos que llevamos equipados
+        // store the file names of worn items
         for (i = 0; i < sizeof(worn_objects); i++)
         {
           wearing += ({ base_name(worn_objects[i]) });
-          // tell_object(find_living("folken"), "-- llevando: " + base_name(worn_objects[i]) + "\n");
+          // tell_object(find_living("neverbot"), "-- wearing: " + base_name(worn_objects[i]) + "\n");
         }
 
         pieces = main->query_piece_list();
 
         for (i = 0; i < sizeof(pieces); i++)
         {
-          // tell_object(find_living("folken"), "-- comparando: " + pieces[i] + "\n");
+          // tell_object(find_living("neverbot"), "-- comparing: " + pieces[i] + "\n");
 
           if ((position = member_array(pieces[i], wearing)) != -1)
           {
-            // Sumamos cuantas piezas de este conjunto llevamos
+            // how many pieces of the set we are wearing
             found += 1;
-            // tell_object(find_living("folken"), "-- añadimos al set: " + file_name(worn_objects[position]) + "\n");
+            // tell_object(find_living("neverbot"), "-- add to the set: " + file_name(worn_objects[position]) + "\n");
 
-            // Guardamos los objetos reales (no nombres de archivo) que forman el conjunto
+            // store real objects (not file names) of the set
             set += ({ worn_objects[position] });
 
-            // Apuntamos en que posicion de la lista 'set' esta la pieza central del equipo
+            // index of the main piece if the set
             if (worn_objects[position]->is_main_piece())
               central_piece = sizeof(set) - 1;
           }
           else
-            // Nos falta una, dejamos de buscar el resto de piezas de equipo
+            // not present, stop searching
             break;
         }
 
         if ( (found > 0) && (found == sizeof(pieces)) )
         {
           set[central_piece]->set_piece_object_list(set);
-
-          tell_object(this_object(), "%^BOLD%^Te pones el conjunto completo de: " +
-                main->query_piece_set_name() + ".%^RESET%^\n");
-
+          tell_object(this_object(), _LANG_WEAR_FULL_SET);
           set[central_piece]->complete_set_on(this_object());
         }
       }
     }
 
-    // Solo players
+    // only for players
     if (this_object()->query_player())
-        // En el primer minuto de conexion no cuenta
-        if (time() - this_object()->query_last_log_on() > 60)
-            if (this_object()->query_time_remaining(PASSED_OUT_PROP) < aux/6)
-                this_object()->add_timed_property(PASSED_OUT_PROP, "Todavía estás "+
-                  "intentando ponerte tu "+ob->short()+".\n", aux/6);
+      // not in the first minute of the connection (usually they equip)
+      if (time() - this_object()->query_last_log_on() > 60)
+        if (this_object()->query_time_remaining(PASSED_OUT_PROP) < aux/6)
+            this_object()->add_timed_property(PASSED_OUT_PROP, _LANG_WEAR_PASSED_OUT_MSG, aux/6);
+
     return 1;
   }
 
-  notify_fail("No puedes ponerte tu "+ob->short()+".\n");
+  notify_fail(_LANG_CANNOT_WEAR_MSG);
   return 0;
-
 } /* wear_ob */
 
 int do_wear(string woo)
@@ -403,7 +386,7 @@ int do_wear(string woo)
 
   if (!strlen(woo))
   {
-    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    notify_fail(_LANG_WEAR_WHAT);
     return 0;
   }
 
@@ -411,7 +394,7 @@ int do_wear(string woo)
 
   if (!sizeof(boo))
   {
-    notify_fail("No llevas eso en tu inventario.\n");
+    notify_fail(_LANG_WEAR_NOT_IN_INV);
     return 0;
   }
 
@@ -424,19 +407,19 @@ int do_wear(string woo)
   {
     if (!boo[0]->query_wearable())
     {
-      notify_fail("¡Este objeto no se puede vestir!\n");
+      notify_fail(_LANG_WEAR_NOT_WEARABLE);
       return 0;
     }
 
     if (boo[0]->query_in_use())
     {
-      notify_fail("Ya lo llevas puesto.\n");
+      notify_fail(_LANG_WEAR_ALREADY_WEARING);
       return 0;
     }
 
     if (size = boo[0]->query_size() == 0)
     {
-      notify_fail("Ese objeto no tiene tamaño definido, díselo a alguien que pueda arreglarlo.\n");
+      notify_fail(_LANG_WEAR_NO_SIZE);
       return 0;
     }
 
@@ -456,7 +439,7 @@ int do_unwear(string woo)
 
   if (!strlen(woo))
   {
-    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    notify_fail(_LANG_UNWEAR_WHAT);
     return 0;
   }
 
@@ -469,7 +452,7 @@ int do_unwear(string woo)
 
   if (!sizeof(boo))
   {
-    notify_fail("No llevas eso en tu inventario.\n");
+    notify_fail(_LANG_WEAR_NOT_IN_INV);
     return 0;
   }
 

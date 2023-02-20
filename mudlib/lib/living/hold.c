@@ -36,7 +36,7 @@ int query_dual_wield_penalty();
 int * query_total_held_ac() { return held_ac; }
 int query_held_ac(int type) { return held_ac[type]; }
 
-void _add_held_ac(object ob)
+private void _add_held_ac(object ob)
 {
   int i;
 
@@ -48,7 +48,7 @@ void _add_held_ac(object ob)
     held_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]);
 }
 
-void _remove_held_ac(object ob)
+private void _remove_held_ac(object ob)
 {
   int i;
 

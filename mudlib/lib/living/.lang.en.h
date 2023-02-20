@@ -120,3 +120,31 @@
 #define _LANG_HOLD_NOT_HOLDING "You are not holding that.\n"
 #define _LANG_UNHOLD_MSG "You stop holding your " + ob->query_name() + ".\n"
 #define _LANG_CANNOT_UNHOLD_MSG "You cannot unhold your " + ob->query_name() + ".\n"
+
+// wear.c
+
+#define _LANG_WEAR_VERBS ({ "wear" })
+#define _LANG_WEAR_WHAT capitalize(query_verb()) + " what?\n"
+#define _LANG_WEAR_NOT_IN_INV "You don't have that in your inventory.\n"
+#define _LANG_WEAR_ALREADY_WEARING "You are already wearing that!\n"
+#define _LANG_WEAR_NOT_WEARABLE "That item is not wearable!\n"
+#define _LANG_WEAR_STILL_LOADING "Your inventory is still loading, cannot wear it yet.\n"
+#define _LANG_WEAR_WRONG_BODY_TYPE "This item does not fit well to your body, " + \
+              "you cannot wear it.\n"
+#define _LANG_WEAR_SAME_TYPE "You are already wearing an item of the same type.\n"
+#define _LANG_WEAR_NO_SIZE "This object has an error (has no size), please tell a coder.\n"
+#define _LANG_WEAR_START "You start wearing your " + ob->query_name() + ".\n"
+// #define _LANG_WEAR_END "You put on your " + ob->query_name() + ".\n"
+#define _LANG_WEAR_FULL_SET "%^BOLD%^You start wearing the full set: " + \
+                main->query_piece_set_name() + ".%^RESET%^\n"
+#define _LANG_WEAR_PASSED_OUT_MSG "You are still trying to wear your " + ob->query_name() + ".\n"
+#define _LANG_CANNOT_WEAR_MSG "You cannot wear your " + ob->query_name() + ".\n"
+
+#define _LANG_UNWEAR_VERBS ({ "unwear" })
+#define _LANG_UNWEAR_WHAT capitalize(query_verb()) + " what?\n"
+#define _LANG_UNWEAR_NOT_WEARING "You cannot unwear something you are not wearing.\n"
+#define _LANG_UNWEAR_START "You take off your " + ob->query_name() + ".\n"
+// #define _LANG_UNWEAR_END "You take off your " + ob->query_name() + ".\n"
+#define _LANG_UNWEAR_FULL_SET "%^BOLD%^You stop wearing the full set: " + \
+              main_object->query_piece_set_name() + ".%^RESET%^\n"
+#define _LANG_CANNOT_UNWEAR_MSG "You cannot unwear your " + ob->query_name() + ".\n"

@@ -120,3 +120,31 @@
 #define _LANG_HOLD_NOT_HOLDING "No estás sosteniendo ese objeto.\n"
 #define _LANG_UNHOLD_MSG "Dejas de sostener tu " + ob->query_name() + ".\n"
 #define _LANG_CANNOT_UNHOLD_MSG "No puedes dejar de sostener tu " + ob->query_name() + ".\n"
+
+// wear.c
+
+#define _LANG_WEAR_VERBS ({ "ponerse", "ponerme", "vestir" })
+#define _LANG_WEAR_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"
+#define _LANG_WEAR_NOT_IN_INV "No llevas eso en tu inventario.\n"
+#define _LANG_WEAR_ALREADY_WEARING "¡Ya llevas eso puesto!\n"
+#define _LANG_WEAR_NOT_WEARABLE "¡Este objeto no se puede vestir!\n"
+#define _LANG_WEAR_STILL_LOADING "Tu equipamiento todavía está cargándose, aún no puedes ponértelo.\n"
+#define _LANG_WEAR_WRONG_BODY_TYPE "Este equipo no se ajusta bien a tu cuerpo, " + \
+              "no puedes ponértelo.\n"
+#define _LANG_WEAR_SAME_TYPE "Ya tienes puesto un objeto del mismo tipo.\n"
+#define _LANG_WEAR_NO_SIZE "Este objeto tiene un fallo (no tiene tamaño), pide ayuda a un programador.\n"
+#define _LANG_WEAR_START "Empiezas a ponerte tu " + ob->query_name() + ".\n"
+// #define _LANG_WEAR_END "Terminas de ponerte tu " + ob->query_name() + ".\n"
+#define _LANG_WEAR_FULL_SET "%^BOLD%^Te pones el conjunto completo de: " + \
+                main->query_piece_set_name() + ".%^RESET%^\n"
+#define _LANG_WEAR_PASSED_OUT_MSG "Todavía estás intentando ponerte tu " + ob->query_name() + ".\n"
+#define _LANG_CANNOT_WEAR_MSG "No puedes ponerte tu " + ob->query_name() + ".\n"
+
+#define _LANG_UNWEAR_VERBS ({ "quitarse", "quitarme", "desvestir" })
+#define _LANG_UNWEAR_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"                
+#define _LANG_UNWEAR_NOT_WEARING "No puedes quitarte algo que no lleves puesto.\n"
+#define _LANG_UNWEAR_START "Te quitas tu " + ob->query_name() + ".\n"
+// #define _LANG_UNWEAR_END "Te quitas tu " + ob->query_name() + ".\n"
+#define _LANG_UNWEAR_FULL_SET "%^BOLD%^Dejas de llevar el conjunto completo de: " + \
+              main_object->query_piece_set_name() + ".%^RESET%^\n"
+#define _LANG_CANNOT_UNWEAR_MSG "No puedes quitarte tu " + ob->query_name() + ".\n"
