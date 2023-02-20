@@ -149,11 +149,11 @@ string query_attack_type_name(int type)
 {
   switch (type)
   {
-    case 1:
+    case SLASHING:
       return SLASHING_STR;
-    case 2:
+    case BLUNT:
       return BLUNT_STR;
-    case 3:
+    case PIERCING:
       return PIERCING_STR;
     default:
       return SLASHING_STR;

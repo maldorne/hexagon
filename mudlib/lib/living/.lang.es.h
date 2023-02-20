@@ -113,8 +113,10 @@
 #define _LANG_HOLD_ALREADY_HOLDING "¡Ya estás sosteniendo eso!\n"
 #define _LANG_HOLD_CANNOT_HOLD "No puedes sostener eso.\n"
 #define _LANG_HOLD_HANDS_NEEDED "No tienes suficientes manos libres para sostener eso.\n"
+#define _LANG_HOLD_MSG "Sostienes tu " + ob->query_name() + ".\n"
 
 #define _LANG_UNHOLD_VERBS ({ "desempuñar", "desempunyar", "soltar" })
+#define _LANG_UNHOLD_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"
 #define _LANG_HOLD_NOT_HOLDING "No estás sosteniendo ese objeto.\n"
 #define _LANG_UNHOLD_MSG "Dejas de sostener tu " + (string)ob->query_short() + ".\n"
 #define _LANG_CANNOT_UNHOLD_MSG "No puedes dejar de sostener tu " + (string)ob->query_short() + ".\n"

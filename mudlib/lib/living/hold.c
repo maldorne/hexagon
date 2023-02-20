@@ -292,11 +292,7 @@ int hold_ob(object ob)
   
   free_hands_left -= weap_hands; 
 
-  if (ob->query_weapon())
-    tell_object(this_object(), "Empuñas tu " + (string)ob->short() + ".\n");
-  else
-    tell_object(this_object(), "Sostienes tu " + (string)ob->short() + ".\n");
-  
+  tell_object(this_object(), _LANG_HOLD_MSG);  
   return 1;
 }
 
@@ -353,18 +349,16 @@ int _find_empty_slot(object ob, mixed *h)
     // Later, differenciate between the various integer values in the 
     // slots for amputated hands, cursed hands etc
     // For now, just assume a !0 slot is a no-no
-
-    else 
-      if (h[i]) 
-      {
-        // No continue here, just subtract one from the good-counter.
-        // This allows a three handed monster to wield a twohanded weapon
-        // even though the middle hand is gone. This will also have to 
-        // depend on the integer given at some point. I.e. can't do it
-        // if the hand in between is cursed, but no problem if it's 
-        // amputated etc.
-        good -= 1;
-      } 
+    else if (h[i]) 
+    {
+      // No continue here, just subtract one from the good-counter.
+      // This allows a three handed monster to wield a twohanded weapon
+      // even though the middle hand is gone. This will also have to 
+      // depend on the integer given at some point. I.e. can't do it
+      // if the hand in between is cursed, but no problem if it's 
+      // amputated etc.
+      good -= 1;
+    } 
 
     // Now we have to remember what slot we actually started off in
     // so we can return that to the calling function.
@@ -378,6 +372,7 @@ int _find_empty_slot(object ob, mixed *h)
     if (good == nh) 
       return start_slot;
   }
+
   return -1;
 }
 
@@ -436,7 +431,7 @@ int do_unhold(string woo)
 
   if (!strlen(woo))
   {
-    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    notify_fail(_LANG_UNHOLD_WHAT);
     return 0;
   }
 
@@ -457,7 +452,7 @@ int do_unhold(string woo)
 
   if (!sizeof(boo))
   {
-    notify_fail("No tienes eso en tu inventario.\n"); 
+    notify_fail(_LANG_HOLD_NOT_IN_INV);
     return 0;
   }
   // At the moment you can only unhold one thing at the time. -Aragorn
