@@ -118,5 +118,5 @@
 #define _LANG_UNHOLD_VERBS ({ "unhold" })
 #define _LANG_UNHOLD_WHAT capitalize(query_verb()) + " what?\n"
 #define _LANG_HOLD_NOT_HOLDING "You are not holding that.\n"
-#define _LANG_UNHOLD_MSG "You stop holding your " + (string)ob->query_short() + ".\n"
-#define _LANG_CANNOT_UNHOLD_MSG "You cannot unhold your " + (string)ob->query_short() + ".\n"
+#define _LANG_UNHOLD_MSG "You stop holding your " + ob->query_name() + ".\n"
+#define _LANG_CANNOT_UNHOLD_MSG "You cannot unhold your " + ob->query_name() + ".\n"
