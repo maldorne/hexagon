@@ -18,11 +18,9 @@ inherit item "/lib/item.c";
 #include <basic/move.h>
 #include <living/combat.h>
 #include <basic/condition.h>
+#include <item/item.h>
 #include <item/weapon.h>
 #include <item/material.h>
-
-#define COST_TO_FIX 9
-#define SIZE 8
 
 int enchant;
 
@@ -112,9 +110,9 @@ void set_base_weapon(string lookup)
 void set_value(int i)
 {
   if (enchant <= 0)
-    ::set_value(basic_cost + (MAX_COND - cond) * COST_TO_FIX);
+    ::set_value(basic_cost + (MAX_COND - cond) * COST_MULTIPLIER_TO_FIX_WEAPON);
   else
-    ::set_value(ench_basic_cost * enchant + (MAX_COND - cond) * COST_TO_FIX);
+    ::set_value(ench_basic_cost * enchant + (MAX_COND - cond) * COST_MULTIPLIER_TO_FIX_WEAPON);
 }
 
 void set_enchant(int i)
