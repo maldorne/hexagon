@@ -13,6 +13,7 @@
  */
 
 #include <basic/money.h>
+#include <common/properties.h>
 #include <living/equip.h>
 #include <living/combat.h> // ac types
 
@@ -98,135 +99,138 @@ int query_equip_ac(int tipo) { return query_held_ac(tipo) + query_worn_ac(tipo);
  */
 int do_equip(string str)
 {
-   object *obs, *holds, *wears;
-   int i, j;
+  object *obs, *holds, *wears;
+  int i, j;
 
-   // Assum going to tell us something about the autoequip
-   if (strlen(str))
-   {
-      // Now in consent
-      // if (str == "off") {
-      //    this_object()->remove_property(AUTOEQUIP_PROP);
-      //    tell_object(this_object(),"Equiparte automáticamente al entrar desactivado.\n");
-      // } else if (str == "on") {
-      //    this_object()->add_property(AUTOEQUIP_PROP, 1);
-      //    tell_object(this_object(),"Equiparte automáticamente al entrar activado.\n");
-      // } else
-      //    tell_object(this_object(),"Sintaxis: equipar [on|off].\n"+
-      //                              "         (opcionales: on/off son para equiparte automáticamente al entrar).\n");
-      tell_object(this_object(),"Sintaxis: equipar o equiparse.\n"+
-                                "Para equiparse automáticamente al entrar, utiliza 'consentir'.\n");
-      return 1;
-   }
+  // Assum going to tell us something about the autoequip
+  if (strlen(str))
+  {
+     // Now in consent
+     // if (str == "off") {
+     //    this_object()->remove_property(AUTOEQUIP_PROP);
+     //    tell_object(this_object(),"Equiparte automáticamente al entrar desactivado.\n");
+     // } else if (str == "on") {
+     //    this_object()->add_property(AUTOEQUIP_PROP, 1);
+     //    tell_object(this_object(),"Equiparte automáticamente al entrar activado.\n");
+     // } else
+     //    tell_object(this_object(),"Sintaxis: equipar [on|off].\n"+
+     //                              "         (opcionales: on/off son para equiparte automáticamente al entrar).\n");
+     tell_object(this_object(),"Sintaxis: equipar o equiparse.\n"+
+                               "Para equiparse automáticamente al entrar, utiliza 'consentir'.\n");
+     return 1;
+  }
 
-   // Don't blow your top, the empty array is a shared array. No memory wasted.
-   holds = wears = ({ });
+  if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
+  {
+    notify_fail(this_object()->query_timed_property(PASSED_OUT_PROP));
+    return 0;
+  }
 
-   // Get the objects from the player, we don't care about what he's got
-   // in various containers
-   obs = all_inventory(this_object());
+  // Don't blow your top, the empty array is a shared array. No memory wasted.
+  holds = wears = ({ });
+  // Get the objects from the player, we don't care about what he's got
+  // in various containers
+  obs = all_inventory(this_object());
 
-   // Split into holdables and wearables
-   for (i = 0; i < sizeof(obs); i++)
-   {
-     if (!interactive(this_object()) && obs[i]->query_static_property(PC_GAVE_NPC_PROPERTY))
-      continue;
+  // Split into holdables and wearables
+  for (i = 0; i < sizeof(obs); i++)
+  {
+    if (!interactive(this_object()) && obs[i]->query_static_property(PC_GAVE_NPC_PROPERTY))
+     continue;
+    if ( (obs[i]->query_holdable()) && !obs[i]->query_in_use() )
+      holds += ({ obs[i] });
+    // Items can be both not_holdable & not_wearable, so we have to
+    // check both.
+    if ((obs[i]->query_wearable()) && !obs[i]->query_in_use() )
+      wears += ({ obs[i] });
+  }
 
-     if ( (obs[i]->query_holdable()) && !obs[i]->query_in_use() )
-       holds += ({ obs[i] });
+  // First of all, take care of holdables.
+  // The 'if' here is to save a few for-loop checks later
+  if (sizeof(holds))
+  {
+    object *wpns, *harms;
+    wpns = harms = ({ });
 
-     // Items can be both not_holdable & not_wearable, so we have to
-     // check both.
-     if ((obs[i]->query_wearable()) && !obs[i]->query_in_use() )
-       wears += ({ obs[i] });
-   }
+    // Split in weapons, holdable armour and other objects
+    for (i = 0; i < sizeof(holds); i++)
+      if (holds[i]->query_weapon())
+        wpns += ({ holds[i] });
+      // Weapons can have AC, but they are taken care of by the above
+      // else if (holds[i]->query_ac_type()) // Folken
+      else if (holds[i]->query_ac() && !holds[i]->query_armour())
+        harms += ({ holds[i] });
 
-   // First of all, take care of holdables.
-   // The 'if' here is to save a few for-loop checks later
-   if (sizeof(holds))
-   {
-     object *wpns, *harms;
+    holds = holds - wpns - harms;
+    
+    // Wield a weapon, remember to check if it's actually wielded
+    // as it may be a twohanded weapon (or worse) and the person
+    // may only have 1 hand. I.e. a loop...
+    for (j = 0; j < sizeof(wpns); j++)
+      if (this_object()->hold_ob(wpns[j]))
+      {
+        wpns -= ({ wpns[j] });
+        break;
+      }
 
-     wpns = harms = ({ });
-     // Split in weapons, holdable armour and other objects
-     for (i = 0; i < sizeof(holds); i++)
-       if (holds[i]->query_weapon())
-         wpns += ({ holds[i] });
-       // Weapons can have AC, but they are taken care of by the above
-       // else if (holds[i]->query_ac_type()) // Folken
-       else if (holds[i]->query_ac() && !holds[i]->query_armour())
-         harms += ({ holds[i] });
+    // Time for a shield of some sort.
+    // Note the flaw in the logic:
+    //  Someone as a twohanded weapon, a onehanded weapon and a shield.
+    //  Assuming the person has 2 hands the two handed weapon _might_
+    //  get wielded. Would 1 weapon and 1 shield be better?
+    for (j = 0; j < sizeof(harms); j++)
+      if (this_object()->hold_ob(harms[j]))
+      {
+        harms -= ({ harms[j] });
+        break;
+      }
 
-     holds = holds - wpns - harms;
+    // Now just pile the rest of the objects in, starting with weapons
+    // Note that we can't really find out if the hold array is full or
+    // not. Need another function in hold.c for that.
+    // As the number of objects in someone inv tend to be low, this ain't
+    // too bad...
+    for (j = 0; j < sizeof(wpns); j++)
+      this_object()->hold_ob(wpns[j]);
+    // More holdable armour, same problem as above.
+    for (j = 0; j < sizeof(harms); j++)
+      this_object()->hold_ob(harms[j]);
+    // holding rest of junk (torches, whatever)
+    for (j = 0; j < sizeof(holds); j++)
+      this_object()->hold_ob(holds[j]);
 
-     // Wield a weapon, remember to check if it's actually wielded
-     // as it may be a twohanded weapon (or worse) and the person
-     // may only have 1 hand. I.e. a loop...
-     for (j = 0; j < sizeof(wpns); j++)
-       if (this_object()->hold_ob(wpns[j]))
-       {
-         wpns -= ({ wpns[j] });
-         break;
-        }
+    // End of the line for holdable objects. Either we've got
+    // no hands left or no holdable objects left.
+  }
 
-     // Time for a shield of some sort.
-     // Note the flaw in the logic:
-     //  Someone as a twohanded weapon, a onehanded weapon and a shield.
-     //  Assuming the person has 2 hands the two handed weapon _might_
-     //  get wielded. Would 1 weapon and 1 shield be better?
-     for (j = 0; j < sizeof(harms); j++)
-       if (this_object()->hold_ob(harms[j]))
-       {
-         harms -= ({ harms[j] });
-         break;
-       }
+  // Then put some clothes/armour on the naked critter.
+  if (sizeof(wears))
+  {
+    object *warms;
+    warms = ({ });
+    // Split in wearable armours and other wearables
+    for (i = 0; i < sizeof(wears); i++)
+     // if (wears[i]->query_ac_type())
+     if (wears[i]->query_ac())
+       warms += ({ wears[i] });
 
-     // Now just pile the rest of the objects in, starting with weapons
-     // Note that we can't really find out if the hold array is full or
-     // not. Need another function in hold.c for that.
-     // As the number of objects in someone inv tend to be low, this ain't
-     // too bad...
-     for (j = 0; j < sizeof(wpns); j++)
-             this_object()->hold_ob(wpns[j]);
+    // Subtract one from the other to split the original array
+    wears -= warms;
 
-     // More holdable armour, same problem as above.
-     for (j = 0; j < sizeof(harms); j++)
-             this_object()->hold_ob(harms[j]);
-
-     // holding rest of junk (torches, whatever)
-     for (j = 0; j < sizeof(holds); j++)
-             this_object()->hold_ob(holds[j]);
-
-     // End of the line for holdable objects. Either we've got
-     // no hands left or no holdable objects left.
-   }
-
-   // Then put some clothes/armour on the naked critter.
-   if (sizeof(wears))
-   {
-     object *warms;
-     warms = ({ });
-
-     // Split in wearable armours and other wearables
-     for (i = 0; i < sizeof(wears); i++)
-      // if (wears[i]->query_ac_type())
-      if (wears[i]->query_ac())
-        warms += ({ wears[i] });
-     // Subtract one from the other to split the original array
-     wears -= warms;
-
-     // First of all, we burn through the loop of wearable armour
-     for ( j = 0; j < sizeof(warms); j++)
-       this_object()->wear_ob(warms[j]);
-
+    // First of all, we burn through the loop of wearable armour
+    for ( j = 0; j < sizeof(warms); j++)
+      this_object()->wear_ob(warms[j]);
+    
     // Then anything without ac.
     for ( j = 0; j < sizeof(wears); j++)
-     this_object()->wear_ob(wears[j]);
+      this_object()->wear_ob(wears[j]);
+    
     // End of line here as well.
     // No more objects to wear or no more slots free.
-   }
-   // Mission accomplished
-   return 1;
+  }
+
+  // Mission accomplished
+  return 1;
 }
 
 // *************************************************************
