@@ -38,14 +38,14 @@ static int cmd(string arg, object me, string verb)
 		return 0;
 	}   
 
-	if(me->query_property(BUSCAR_PROP))
+	if(me->query_property(SEARCH_PROP))
 	{
 		notify_fail("Debes esperar un rato antes de volver a palpar de nuevo.\n");
 
 		return 0;
 	} 
 	
-	me->add_timed_property(BUSCAR_PROP,1,1);
+	me->add_timed_property(SEARCH_PROP,1,1);
 
 	if(i<3)
 	{

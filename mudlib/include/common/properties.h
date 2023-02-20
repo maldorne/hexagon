@@ -7,7 +7,7 @@
 
 #define AWAY_PROP "away"
 
-#define BUSCAR_PROP "search"
+#define SEARCH_PROP "search"
 #define BLIND_PROP "blind"
 #define SENSE_LIFE_PROP "sense_life"
 
@@ -30,11 +30,11 @@
 
 #define NO_UNDEAD "no_undead"
 
-// Propiedad para que las cosas se sequen antes en las rooms 
-// (ver /global/pweath.c)
+// things dry off faster
+// (see /global/pweath.c)
 #define WARMTH_PROP "warmth"
 
-// Propiedades relacionadas con los eventos de inform (/global/events.c)
+// related with inform events (/global/events.c)
 #define INFORM_REPRESSED "inform repressed"
 #define NO_INFORM "no_inform"
 #define INFORM_PROP "inform"
