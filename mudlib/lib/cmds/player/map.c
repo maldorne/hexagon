@@ -92,13 +92,13 @@ static int cmd (string str, object me, string verb)
  
   if (!environment(me)) 
   {
-    notify_fail("¡Sin entorno no puedes hacer eso!\n");
+    notify_fail("Â¡Sin entorno no puedes hacer eso!\n");
     return 0;
   }
 
   if (environment(me)->query_dungeon_room())
   {
-    notify_fail("Por alguna razón el mapa no funciona en un lugar como este.\n");
+    notify_fail("Por alguna razÃ³n el mapa no funciona en un lugar como este.\n");
     return 0;    
   }
   
@@ -318,8 +318,8 @@ string draw_map(mixed * map)
       
       switch(map[i][j])
       {
-        case ROOM:               line += "[ ]"; break;
-        case COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^"; coasts = 1; break;
+        case ROOM:               line += "[ ]"; break;
+        case COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^"; coasts = 1; break;
         case DOOR_ROOM:          line += "[P]"; doors = 1; break;
         case UP_ROOM:            line += "[^]"; ups = 1; break;
         case DOWN_ROOM:          line += "[v]"; downs = 1; break;
@@ -342,11 +342,11 @@ string draw_map(mixed * map)
 
   result+="     |                                                             |\n";
   result+="     |                             Leyenda:                        |\n";
-  result+="     |                               %^ORANGE%^*%^RESET%^   : Tu posición             |\n";
+  result+="     |                               %^ORANGE%^*%^RESET%^   : Tu posiciÃ³n             |\n";
   if (enemies)
   result+="     |                               %^BOLD%^RED%^*%^RESET%^   : Enemigos                |\n";
   if (adventurers)
-  result+="     |                               %^BOLD%^CYAN%^*%^RESET%^   : Compañeros de grupo     |\n";
+  result+="     |                               %^BOLD%^CYAN%^*%^RESET%^   : CompaÃ±eros de grupo     |\n";
   if (guards)
   result+="     |                               %^BOLD%^GREEN%^*%^RESET%^   : Guardias                |\n";
   if (doors)

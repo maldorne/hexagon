@@ -12,5 +12,5 @@
 #define _LANG_EXITS_IS_CLOSED_CUSTOM capitalize((!door->query_number()) ? door->query_article() : \
               door->query_article_plural()) + " " + dest_direc[i] + \
               " está"+((!door->query_number()) ? "" : "n") + \
-              (!door->query_number()) ? (" cerrad"+door->query_vocal()+".\n") : \
-              (" cerrad"+door->query_vocal()+"s.\n")
+              (!door->query_number()) ? (" cerrad"+door->query_vowel()+".\n") : \
+              (" cerrad"+door->query_vowel()+"s.\n")

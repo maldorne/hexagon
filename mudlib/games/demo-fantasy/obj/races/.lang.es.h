@@ -2,12 +2,12 @@
 #define _LANG_RACES_HUMAN_NAME "humano"
 #define _LANG_RACES_HUMAN_DESC_MALE "Un apuesto humano.\n";
 #define _LANG_RACES_HUMAN_DESC_FEMALE "Una atractiva humana.\n"      
-#define _LANG_RACES_HUMAN_GENDER_STRING "human" + player->query_vocal()
+#define _LANG_RACES_HUMAN_GENDER_STRING "human" + player->query_vowel()
 
 #define _LANG_RACES_ELF_NAME "elfo"
 #define _LANG_RACES_ELF_DESC_MALE "Un apuesto elfo.\n";
 #define _LANG_RACES_ELF_DESC_FEMALE "Una atractiva elfa.\n"      
-#define _LANG_RACES_ELF_GENDER_STRING "elf" + player->query_vocal()
+#define _LANG_RACES_ELF_GENDER_STRING "elf" + player->query_vowel()
 
 #define _LANG_RACES_GOBLIN_NAME "goblin"
 #define _LANG_RACES_GOBLIN_DESC_MALE "Un pequeño goblin.\n";

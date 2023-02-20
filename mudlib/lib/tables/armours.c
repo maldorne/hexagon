@@ -1,5 +1,7 @@
 /* 
- * Guldan'98, Iolo'02, neverbot'03 completely redone for CcMud
+ * Guldan'98
+ * Iolo'02
+ * neverbot'03 completely redone for CcMud
  *
  * The returned value is:
  *
@@ -81,7 +83,7 @@ mixed * lookup_armour_data(string name)
     case PLATE_MAIL: // placas
       return ({ 5000,  8000, 500, 20,   7, 0,-7, 40,    1, -1, 0,   1, 2, "el pecho"});
 
-    case FIELD_PLATE: // campaña
+    case FIELD_PLATE: // campaÃ±a
       return ({ 5000,  9000, 600, 20,   7, 0,-7, 40,    2, -1, 1,   1, 2, "el pecho" });
 
     case FULL_PLATE: // completa
@@ -182,9 +184,9 @@ string query_armour_type_name(int armour_type)
     case 9: 
       return "brazalete";
     case 10: 
-      return "cinturón";
+      return "cinturÃ³n";
     case 11:
-      return "pantalón";
+      return "pantalÃ³n";
     case 12:
       return "pendiente";
     case 13:

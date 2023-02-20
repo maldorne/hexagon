@@ -29,4 +29,4 @@
 
 #define _LANG_RACES_UNKNOWN_NAME "desconocido"
 #define _LANG_RACES_UNKNOWN_DESC "Un pequeño ser del que no puedes destacar nada en particular.\n"
-#define _LANG_RACES_UNKNOWN_GENDER_STRING "desconocid" + player->query_vocal()
+#define _LANG_RACES_UNKNOWN_GENDER_STRING "desconocid" + player->query_vowel()

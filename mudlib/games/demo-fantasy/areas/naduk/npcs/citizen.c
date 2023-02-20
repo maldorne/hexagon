@@ -1,6 +1,7 @@
 // Edited by Lummen and Antiron 24-7-97
 
 #include <language.h>
+#include "../path.h"
 
 inherit "/lib/monster.c";
 
@@ -40,7 +41,7 @@ void setup()
   set_wimpy(15);
   set_level(2 + random(3));
   
-  adjust_money(10+random(10), "copper");
+  adjust_money(10 + random(10), "copper");
   
   load_chat(50, ({
       1, _LANG_NPCS_CITIZEN_CHAT[0],
@@ -48,6 +49,6 @@ void setup()
     }));
 
   add_move_zone("naduk");
-  set_move_after(20+random(10),20+random(10));
+  set_move_after(20 + random(10), 20 + random(10));
 }
 

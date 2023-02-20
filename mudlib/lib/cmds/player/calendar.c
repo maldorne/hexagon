@@ -23,7 +23,7 @@ static int cmd(string str, object me, string verb)
 	
 	if (strlen(str))
 	{
-		if (str == "años" || str == "anyos")
+		if (str == "aÃ±os" || str == "anyos")
 		{
 			// date_data = ({ hora_del_dia, dia_del_anyo + 1, mes + 1, estacion + 1, anyo, dia_del_mes, });
 			int present_year;
@@ -38,7 +38,7 @@ static int cmd(string str, object me, string verb)
 		}
 		else
 		{
-			notify_fail("Sintaxis: calendario [años]\n");
+			notify_fail("Sintaxis: calendario [aÃ±os]\n");
 			return 0;
 		}
 		

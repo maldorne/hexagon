@@ -23,5 +23,5 @@ void setup()
   set_wimpy(0);
 
   add_move_zone("naduk");
-  set_move_after(20+random(10), 20+random(10));
+  set_move_after(20 + random(10), 20 + random(10));
 }

@@ -19,7 +19,7 @@ string query_usage()
 
 string query_short_help()
 {
-  return "Devuelve una descripción corta de un objeto o del lugar donde estás.";     
+  return "Devuelve una descripciÃ³n corta de un objeto o del lugar donde estÃ¡s.";     
 }
 
 static int cmd (string arg, object me, string verb)
@@ -32,13 +32,13 @@ static int cmd (string arg, object me, string verb)
 
   if (!here)
   { 
-    notify_fail("Estás en el limbo, no puedes ver nada.\n");
+    notify_fail("EstÃ¡s en el limbo, no puedes ver nada.\n");
     return 0;
   }
 
   if (me->query_property(BLIND_PROP))
   {
-    notify_fail("¡Estás cegado, no puedes ver nada!\n");
+    notify_fail("Â¡EstÃ¡s cegado, no puedes ver nada!\n");
     return 0;
   }
 
@@ -54,11 +54,11 @@ static int cmd (string arg, object me, string verb)
     switch(dark)
     {
       case 1:
-        tell_object(me, "Está demasiado oscuro como para ver algo.\n");
+        tell_object(me, "EstÃ¡ demasiado oscuro como para ver algo.\n");
         break;
 
       case 6:
-        tell_object(me, "Estás deslumbrado por la luz.\n");
+        tell_object(me, "EstÃ¡s deslumbrado por la luz.\n");
         break;
 
       case 2:
@@ -104,14 +104,14 @@ static int cmd (string arg, object me, string verb)
       // Wonderflug - Nov '95
       if (me == ob[i]) 
         tell_object(me, capitalize(ob[i]->query_cap_name())+
-          ", ¡Eres tú mismo!\n");
+          ", Â¡Eres tÃº mismo!\n");
       else
         tell_object(me, ob[i]->short(dark) + ".\n");
     return 1;
   }
   else
   {
-    tell_object(me, "No puedes encontrar ningún '"+arg+"' por aquí.\n");
+    tell_object(me, "No puedes encontrar ningÃºn '"+arg+"' por aquÃ­.\n");
     // notify_fail("No puedes encontrar "+arg+" por aqui.\n");
     return 1;
   }

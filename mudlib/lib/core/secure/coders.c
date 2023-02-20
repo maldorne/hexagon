@@ -27,7 +27,7 @@ int create_creator(string name)
 
    if(file_size("/home/"+name) != -1) 
    {
-      notify_fail("El directorio para el creador ya existe o es inválido.\n");
+      notify_fail("El directorio para el creador ya existe o es invÃ¡lido.\n");
       return 0;
    }
 
@@ -64,7 +64,7 @@ int demote_creator(string str)
       return 0;
    if(sscanf(str, "%s %s", name, reason) != 2) 
    {
-      notify_fail("Sintaxis: demote <creador> <razón>.\n");
+      notify_fail("Sintaxis: demote <creador> <razÃ³n>.\n");
       return 0;
    }
 
@@ -79,7 +79,7 @@ int demote_creator(string str)
 
    log_file("demote", name+" demoteado por "+
               previous_object()->query_cap_name()+" - "+ctime(time())+
-              "\nRazón: "+reason+"\n");
+              "\nRazÃ³n: "+reason+"\n");
 
    if(find_player(name)) 
    {
@@ -99,7 +99,7 @@ int demote_creator(string str)
    write_file("/home/oldcreators/"+name+"/DEMOTED",
               capitalize(name)+" demoteado por "+
               previous_object()->query_cap_name()+" : "+ctime(time())+
-              "\nRazón: "+reason+"\n\n");
+              "\nRazÃ³n: "+reason+"\n\n");
    return 1;
 } 
 

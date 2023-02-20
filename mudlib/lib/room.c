@@ -107,7 +107,7 @@ void create()
   door_control = ([ ]);
   room_zone = "nowhere";
   exit_color = "%^BOLD%^%^CYAN%^";
-  set_dark_mess("Est· demasiado oscuro para poder ver");
+  set_dark_mess("Est√° demasiado oscuro para poder ver");
 
   exit_string = "";
   short_exit_string = "";
@@ -290,17 +290,17 @@ string query_dark_mess(int lvl)
     case 2: /* pretty damn dark */
         return "No puedes ver mucho.\n"+ exit_string;
     case 3: /* getting dim */
-        return "Es demasiado difÌcil ver en esta oscuridad.\n"+
+        return "Es demasiado dif√≠cil ver en esta oscuridad.\n"+
         // ::short(1)+"\n" + // neverbot
         exit_string;
     case 4: /* slightly dazzled */
-        return "Est·s deslumbrado por la luz.\n" +
+        return "Est√°s deslumbrado por la luz.\n" +
         // ::short(0)+"\n" + // neverbot
         exit_string;
     case 5: /* very bright */
         return "La luz es realmente cegadora.\n"+ exit_string;
     case 6:
-        return "Est·s cegado por la luz.\n";
+        return "Est√°s cegado por la luz.\n";
   }
 }
 

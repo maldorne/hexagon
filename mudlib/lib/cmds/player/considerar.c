@@ -11,11 +11,11 @@ void setup(){
     position = 0;
 }
 string query_usage(){
-    return "Sintaxis: considerar <quiÈn>\n";
+    return "Sintaxis: considerar <qui√©n>\n";
 }
 
 string query_short_help(){
-    return "Sirve para valorar si alguien es m·s fuerte que t˙.";
+    return "Sirve para valorar si alguien es m√°s fuerte que t√∫.";
 }
 
 protected int cmd (string arg, object me, string verb)
@@ -35,7 +35,7 @@ protected int cmd (string arg, object me, string verb)
     // if(search_for_all(arg,me))
     /*
     if (arg == "todo") {
-	tell_object(me,"ø°Considerar a todo el mundo!?\n");
+	tell_object(me,"¬ø¬°Considerar a todo el mundo!?\n");
 	return 1;
     }
     */
@@ -46,7 +46,7 @@ protected int cmd (string arg, object me, string verb)
 	{
         /*
 		if (aux[i] == me) {
-		    tell_object(me,"øPara quÈ quieres considerar atacarte a ti mismo?\n");
+		    tell_object(me,"¬øPara qu√© quieres considerar atacarte a ti mismo?\n");
 		    return 1;
 		}
         // Ya se filtran con el flag de find_match
@@ -74,14 +74,14 @@ protected int cmd (string arg, object me, string verb)
 	    if((int)obs[i]->query_coder() )
 	    {
 			tell_object(me,"Atacar a "+obs[i]->query_numeral()+" programador"+
-				((obs[i]->query_vocal()=="a")?"a":"")+" no es recomendable.\n");
+				((obs[i]->query_vowel()=="a")?"a":"")+" no es recomendable.\n");
 			ok = 1;
 			continue;
 	    }
 	    /*
 	    if ( obs[i] == me )
 	    {
-		tell_object(me, "øPor quÈ quieres considerar atacarte?\n");
+		tell_object(me, "¬øPor qu√© quieres considerar atacarte?\n");
 		continue;
 	    }
 	    */
@@ -94,21 +94,21 @@ protected int cmd (string arg, object me, string verb)
 
 	    if(dif > 15 )
 	    {
-			tell_object(me,"°Ni se te ocurra atacar a "+obs[i]->query_cap_name()+", podrÌa acabar "
-				"contigo sÛlo con mirarte!\n");
+			tell_object(me,"¬°Ni se te ocurra atacar a "+obs[i]->query_cap_name()+", podr√≠a acabar "
+				"contigo s√≥lo con mirarte!\n");
 			continue;
 	    }
 
 	    if (dif > 10) 
 	    {
-			tell_object(me,"°Est·s loco si quieres atacar a "+
+			tell_object(me,"¬°Est√°s loco si quieres atacar a "+
 			  obs[i]->query_cap_name()+"!\n");
 			continue;
 	    }
 
 	    if (dif < -10) 
 	    {
-			tell_object(me,"°PodrÌas matar a "+obs[i]->query_cap_name()+" con un soplido!\n");
+			tell_object(me,"¬°Podr√≠as matar a "+obs[i]->query_cap_name()+" con un soplido!\n");
 			continue;
 	    }
 
@@ -120,17 +120,17 @@ protected int cmd (string arg, object me, string verb)
 	
 			// Fix by Aragorn, capitalized the short
 			tell_object(me, capitalize((string)obs[i]->query_cap_name())+
-			  ({" es demasiado dÈbil para molestarse en atacar.\n",
-			    " es mucho m·s dÈbil que t˙.\n",
-			    " es bastante m·s dÈbil que t˙.\n",
-			    " es m·s dÈbil que t˙.\n",
-			    " es un poco m·s dÈbil que t˙.\n",
-			    " es aproximadamente igual que t˙.\n",
-			    " es un poco m·s fuerte que t˙.\n",
-			    " es m·s fuerte que t˙.\n",
-			    " es bastante m·s fuerte que t˙.\n",
-			    " es mucho m·s fuerte que t˙.\n",
-			    " es "+(obs[i]->query_article())+" m·s fuerte de la regiÛn.\n"
+			  ({" es demasiado d√©bil para molestarse en atacar.\n",
+			    " es mucho m√°s d√©bil que t√∫.\n",
+			    " es bastante m√°s d√©bil que t√∫.\n",
+			    " es m√°s d√©bil que t√∫.\n",
+			    " es un poco m√°s d√©bil que t√∫.\n",
+			    " es aproximadamente igual que t√∫.\n",
+			    " es un poco m√°s fuerte que t√∫.\n",
+			    " es m√°s fuerte que t√∫.\n",
+			    " es bastante m√°s fuerte que t√∫.\n",
+			    " es mucho m√°s fuerte que t√∫.\n",
+			    " es "+(obs[i]->query_article())+" m√°s fuerte de la regi√≥n.\n"
 			  })[dif]);
 	    } 
 	    else 
@@ -139,11 +139,11 @@ protected int cmd (string arg, object me, string verb)
 			dif /=  5;  // 0...4
 	
 			tell_object(me, capitalize((string)obs[i]->short())+
-			  ({" es demasiado dÈbil para molestarse en atacar.\n",
-			    " es m·s dÈbil que t˙.\n",
-			    " es aproximadamente igual que t˙.\n",
-			    " es m·s fuerte que t˙.\n",
-			    " es "+(obs[i]->query_article())+" m·s fuerte de la regiÛn.\n"
+			  ({" es demasiado d√©bil para molestarse en atacar.\n",
+			    " es m√°s d√©bil que t√∫.\n",
+			    " es aproximadamente igual que t√∫.\n",
+			    " es m√°s fuerte que t√∫.\n",
+			    " es "+(obs[i]->query_article())+" m√°s fuerte de la regi√≥n.\n"
 			  })[dif]);
 	
 	    }  // end else

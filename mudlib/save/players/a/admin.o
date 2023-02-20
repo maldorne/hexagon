@@ -1,24 +1,22 @@
-money_array ({6|"platino",9,"oro",3,"bronce",3,})
+money_array ({0|})
 gender 1
 stats_bon ({8|0,0,0,0,0,0,0,0,})
-stats_base ({8|10,18,10,10,10,18,10,10,})
+stats_base ({8|10,10,10,10,10,10,10,10,})
 resistances ([0|])
 known_unarmed_styles ([1|"fighting":50,])
 current_unarmed_style "fighting"
 unarmed_ability 50
 known_weapon_masteries ([0|])
 current_weapon_mastery ""
-max_hp 172
-max_gp 154
-total_xp 240
-hp 172
-xp 240
-gp 154
+max_hp 100
+max_gp 100
+hp 100
+gp 100
 map_prop ([1|"channels":({1|"coders",}),])
-timed_prop ([1|"nofeat":({3|1,20,30307,}),])
+timed_prop ([0|])
 create_me "object"
-msgout "@$N se va hacia $T."
-msgin "@$N llega desde $F."
+msgout "@$N goes towards $T."
+msgin "@$N arrives from $F."
 mmsgout "@$N disappears in a cloud of smoke."
 mmsgin "@$N appears from somewhere."
 known_feats ({0|})
@@ -26,7 +24,7 @@ feat_list ([0|])
 spec_object_list ({8|nil,nil,nil,nil,nil,nil,nil,nil,})
 guild_joined ([0|])
 job_joined ([0|])
-class_level 10
+class_level 1
 social_object_list ({8|"/lib/obj/races/unknown",nil,nil,nil,nil,nil,nil,"/lib/obj/classes/fighter",})
 mount_file_name ""
 spells ([0|])
@@ -34,22 +32,22 @@ minor_spheres ({0|})
 major_spheres ({0|})
 neutral_spheres ({0|})
 consents ([0|])
-social_points 141
-max_social_points 141
+social_points 107
+max_social_points 107
+hb_counter 6643
 languages ({1|"common",})
 cur_lang "common"
-hb_counter 30313
-aliases ([7|"callouts":({2|"exec return call_out_info() ",512,}),"k":({2|"kill ",512,}),"l":({2|"look ",512,}),"xx":({6|"l",256,"look",256,"l ",512,}),"xxx":({3|"call set_hp(1) ",1024,"x",}),"zz":({2|"goto /games/demo-fantasy/areas/naduk/rooms/a4.c ",512,}),"zzz":({2|"goto /games/demo-fantasy/areas/erken/rooms/B1.c ",512,}),])
+aliases ([0|])
 map_aliases ([0|])
-map_nicknames ([2|"me":"admin","x":"goblin,orc",])
+map_nicknames ([0|])
 last_migration 2
 quests ([0|])
 quests_done ([0|])
-account_name "admin@maldorne.org"
+account_name "info@maldorne.org"
 role_name "admin"
-last_pos "/games/demo-fantasy/areas/elfereth/rooms/z14"
-auto_load ([2|"/games/demo-fantasy/baseobs/armours/shirt":({2|([1|"::":([1|"::":([1|"cloned by":"admin",]),]),]),([1|"::":([1|"::":([1|"cloned by":"admin",]),]),]),}),"/lib/obj/hearthstone":({1|([1|"::":([1|"::":([1|"cloned by":"admin",]),]),]),}),])
-time_on -88352
-ontime 1636571179
-last_log_on 1636571179
+last_pos "/home/admin/workroom"
+time_on -40219
+ontime 1567975830
+last_log_on 1567975906
+auto_load ([1|"/lib/obj/hearthstone":({1|([1|"::":([1|"::":([1|"cloned by":"admin",]),]),]),}),])
 hud "dificultad"

@@ -14,7 +14,7 @@ inherit "/lib/core/object.c";
 
 #define MONTH_LENGTHS ({ 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 })
 
-// Lista de años ya nombrados (lo unico que se guarda al salvar el handler)
+// Lista de aÃ±os ya nombrados (lo unico que se guarda al salvar el handler)
 mapping year_list;
 
 // implemented in /include/translations/common.*.h
@@ -41,7 +41,7 @@ void setup()
   reset_get();
   set_name("calendario");
   set_short("Calendario");
-  set_long("¡Éste es el controlador del calendario!\n");
+  set_long("Â¡Ã‰ste es el controlador del calendario!\n");
   add_alias("controlador");
   add_plural("controladores");
 
@@ -80,7 +80,7 @@ mixed * get_year(int num)
   if (!undefinedp(year_list[num]))
     return year_list[num];
 
-  // Nombre del año
+  // Nombre del aÃ±o
   rand = random(sizeof(name_list)/2) * 2;
   year[POS_YEAR_NAME] = name_list[rand];
 
@@ -114,12 +114,12 @@ string query_year_name(int num)
   else
     year = get_year(num);
 
-  if ((year[POS_YEAR_GENDER] == 1) || (year[POS_YEAR_NAME][0..0] == "a") || (year[POS_YEAR_NAME][0..0] == "á"))
+  if ((year[POS_YEAR_GENDER] == 1) || (year[POS_YEAR_NAME][0..0] == "a") || (year[POS_YEAR_NAME][0..0] == "Ã¡"))
     gender = 1;
   else
     gender = 2;
 
-  return "" + num + ", el año de" + ((gender == 1)?"l ":" la ") + capitalize(year[POS_YEAR_NAME]) + " " + year[POS_YEAR_ADJECTIVE];
+  return "" + num + ", el aÃ±o de" + ((gender == 1)?"l ":" la ") + capitalize(year[POS_YEAR_NAME]) + " " + year[POS_YEAR_ADJECTIVE];
 }
 
 int query_global_day()
@@ -130,7 +130,7 @@ int query_global_day()
 
   // return (date_data[4] - 1) * 365 + date_data[1];
 
-  // No restamos uno al numero de años porque suponemos que existio un año cero!!!
+  // No restamos uno al numero de aÃ±os porque suponemos que existio un aÃ±o cero!!!
   return date_data[4] * 365 + date_data[1];
 }
 

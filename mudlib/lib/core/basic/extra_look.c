@@ -55,7 +55,7 @@ object * query_extra_look_list()
 	return extra_looks;
 }
 
-// stats añadido
+// stats aÃ±adido
 mixed stats()
 {
 	mixed * ret;

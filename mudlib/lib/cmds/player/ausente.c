@@ -15,7 +15,7 @@ protected int cmd(string str, object me, string verb)
     if (!str)
     {
         if (!me->query_static_property(AWAY_PROP))
-           write("No has indicado ningún mensaje de ausencia.\n");
+           write("No has indicado ningÃºn mensaje de ausencia.\n");
         else
         {   
            me->remove_static_property(AWAY_PROP);

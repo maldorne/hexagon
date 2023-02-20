@@ -140,7 +140,7 @@ int job_abandon(object player)
 	return 1;
 }
 
-// Se llama cuando el jugador se alista, para añadir dotes, etc
+// Se llama cuando el jugador se alista, para aÃ±adir dotes, etc
 int join_player(object pl)
 {
 	return 1;

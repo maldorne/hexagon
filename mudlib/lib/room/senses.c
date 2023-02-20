@@ -68,7 +68,7 @@ int do_smell(string what) {
       notify_fail(smells["default"]+"\n");
       return 0;
     }
-    notify_fail("¿"+capitalize(query_verb())+" el qué?\n");
+    notify_fail("Â¿"+capitalize(query_verb())+" el quÃ©?\n");
     return 0;
   }
   write(smells[what]+"\n");
@@ -81,7 +81,7 @@ int do_taste(string what) {
       notify_fail(tastes["default"]+"\n");
       return 0;
     }
-    notify_fail("¿"+capitalize(query_verb())+" el qué?\n");
+    notify_fail("Â¿"+capitalize(query_verb())+" el quÃ©?\n");
     return 0;
   }
   write(tastes[what]+"\n");
@@ -94,7 +94,7 @@ int do_feel(string what) {
       notify_fail(feels["default"]+"\n");
       return 0;
     }
-    notify_fail("¿"+capitalize(query_verb())+" el qué?\n");
+    notify_fail("Â¿"+capitalize(query_verb())+" el quÃ©?\n");
     return 0;
   }
   write(feels[what]+"\n");
@@ -107,7 +107,7 @@ int do_listen(string what) {
       notify_fail(sounds["default"]+"\n");
       return 0;
     }
-    notify_fail("¿"+capitalize(query_verb())+" el qué?\n");
+    notify_fail("Â¿"+capitalize(query_verb())+" el quÃ©?\n");
     return 0;
   }
   write(sounds[what]+"\n");

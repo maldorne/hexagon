@@ -8,23 +8,23 @@
 
 // uptime
 
-#define _LANG_UPTIME_SINCE "El mud está en funcionamiento desde hace:\n\t"
-#define _LANG_UPTIME_DAY "día"
+#define _LANG_UPTIME_SINCE "El mud estÃ¡ en funcionamiento desde hace:\n\t"
+#define _LANG_UPTIME_DAY "dÃ­a"
 #define _LANG_UPTIME_HOUR "hora"
 #define _LANG_UPTIME_MINUTE "minuto"
 #define _LANG_UPTIME_SECOND "segundo"
 
 // cat
 
-#define _LANG_CAT_WHAT "¿Cat de qué archivo?\n"
-#define _LANG_CAT_ASTERISK "¿cat *? ¡Olvídalo!\n"
+#define _LANG_CAT_WHAT "Â¿Cat de quÃ© archivo?\n"
+#define _LANG_CAT_ASTERISK "Â¿cat *? Â¡OlvÃ­dalo!\n"
 #define _LANG_CAT_TRUNCATED "\n ----- TRUNCADO ----- \n\n"
 
 // clone
 
-#define _LANG_CLONE_WHAT "¿Clonar que?\n"
+#define _LANG_CLONE_WHAT "Â¿Clonar que?\n"
 #define _LANG_CLONE_ERROR_IN "Error en "
-#define _LANG_CLONE_ERROR_MAYBE_UNIQUE "Error, no se ha podido clonar el objeto (¿objeto único?).\n"
+#define _LANG_CLONE_ERROR_MAYBE_UNIQUE "Error, no se ha podido clonar el objeto (Â¿objeto Ãºnico?).\n"
 #define _LANG_CLONE_OK_YOU "Ok. Objeto " + file_name(ob) + " clonado en " + \
         (environment(ob) == this_player() ? "ti" : \
         (environment(ob) == environment(this_player()) ? "este lugar" : \
@@ -33,7 +33,7 @@
 #define _LANG_CLONE_OK_ENV this_player()->query_cap_name() + " busca " + \
         (string)ob->query_numeral() + " " + \
         ((string)ob->query_short() ? (string)ob->query_short() : "objeto") + \
-        " en otra dimensión.\n"
+        " en otra dimensiÃ³n.\n"
 #define _LANG_CLONE_ERROR "Error, no se ha podido clonar el objeto.\n"
 
 // compare
@@ -41,17 +41,17 @@
 #define _LANG_COMPARE_HELP "Permite comparar dos archivos. " + \
       "El comando devuelve las lineas de file1 que no se encuentran en " + \
       "file2 si which_file es igual a 1, y viceversa si which_file es igual a 2.\n\n" + \
-      "Nota: ambas diferencias de file1 y file2 serán devueltas si which_file no " + \
+      "Nota: ambas diferencias de file1 y file2 serÃ¡n devueltas si which_file no " + \
       "se especifica."
 #define _LANG_COMPARE_SYNTAX "Sintaxis: compare -<which_file> file1 file2\n"
-#define _LANG_COMPARE_INVALID_WHICH "Valor inválido para -<which_file>.\n\nOpciones:\n" + \
-      "-1 para file1\n-2 para file2\n-3 o ningún valor para ambos\n"
+#define _LANG_COMPARE_INVALID_WHICH "Valor invÃ¡lido para -<which_file>.\n\nOpciones:\n" + \
+      "-1 para file1\n-2 para file2\n-3 o ningÃºn valor para ambos\n"
 #define _LANG_COMPARE_NOT_A_FILE "No es un archivo: "
 
 // peace
 
 #define _LANG_PEACE_MESSAGES_MINE "Alzas tu mano y exclamas: " + \
-      "%^YELLOW%^¡Dejad de luchar, mortales!%^RESET%^\n"
+      "%^YELLOW%^Â¡Dejad de luchar, mortales!%^RESET%^\n"
 #define _LANG_PEACE_MESSAGES_OTHERS this_player()->query_cap_name() + \
-        " alza su mano y exclama: %^YELLOW%^¡Dejad de luchar, mortales!" + \
+        " alza su mano y exclama: %^YELLOW%^Â¡Dejad de luchar, mortales!" + \
         "%^RESET%^\n"

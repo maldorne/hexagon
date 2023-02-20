@@ -1,0 +1,61 @@
+
+#define BASIC_ATTACK_NAME "basic"
+
+#define KNIFE "cuchillo"
+#define DAGGER "daga"
+
+#define SICKLE "hoz"
+#define CLUB "club"
+#define MACE "maza"
+#define SHOVEL "pala"
+#define PICK "pico"
+#define TOOL "herramienta"
+
+#define MAZA_PESADA "maza pesada"
+#define MEDIA_LANZA "media lanza"
+#define LANZA "lanza"
+
+#define BASTON "bastón"
+#define LANZ_CORTA "lanza corta"
+
+#define PORRA "porra"
+#define ESPA_CORTA "espada corta"
+#define HACH_ARROJADIZA "hacha arrojadiza"
+#define HACH_MANO "hacha de mano"
+#define LANZ_LIGERA "lanza ligera"
+#define MART_LIGERO "martillo"
+#define HACHA "hacha"
+#define MARTILLO "martillo"
+
+#define CIMITARRA "cimitarra"
+#define ESPA_LARGA "espada larga"
+#define ESTOQUE "estoque"
+#define HACH_BATALLA "hacha de batalla"
+#define LANZ_PESADA "lanza pesada"
+#define MANG_LIGERO "mangual ligero"
+#define MART_GUERRA "martillo de guerra"
+#define PICO_PESADO "pico pesado"
+#define TRIDENTE "tridente"
+#define PICA "pica"
+#define MANGUAL "mangual"
+
+#define ALABARDA "alabarda"
+#define ALFANJON "alfanjón"
+#define ESPADON "espadón"
+#define GRAN_HACHA "gran hacha"
+#define GUADANYA "guadaña"
+#define GUJA "guja"
+#define LANZ_LARGA "lanza larga"
+#define MANG_PESADO "mangual pesado"
+#define RONCA "ronca"
+#define ESPA_DOS_MANOS "espada a dos manos"
+
+#define LATIGO "látigo"
+
+#define BAST_DOS_MANOS "bastón a dos manos"
+#define ESPA_BASTARDA "espada bastarda"
+#define MART_GANCHUDO "martillo ganchudo"
+
+#define CADENA "cadena"
+#define ESPA_DOBLE "espada doble"
+#define MANG_DOBLE "mangual doble"

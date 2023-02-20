@@ -11,24 +11,24 @@ void setup()
 
 protected int cmd(string str, object me, string verb) 
 {
-	if ((str == "si") || (str == "sí"))
+	if ((str == "si") || (str == "sÃ­"))
 	{
-		tell_object(me, "Ok, tu monitor de puntos de vida ahora está activado.\n");
+		tell_object(me, "Ok, tu monitor de puntos de vida ahora estÃ¡ activado.\n");
 		me->set_monitor(1);
 	}
 	else if (str == "no")
 	{
-		tell_object(me, "Ok, tu monitor de puntos de vida ahora está desactivado.\n");
+		tell_object(me, "Ok, tu monitor de puntos de vida ahora estÃ¡ desactivado.\n");
 		me->set_monitor(0);
 	}
 	else 
 	{
 		if (me->query_monitor())
-			tell_object(me, "Tu monitor de puntos de vida está activado.\n");
+			tell_object(me, "Tu monitor de puntos de vida estÃ¡ activado.\n");
 		else
-			tell_object(me, "Tu monitor de puntos de vida está desactivado.\n"); 
+			tell_object(me, "Tu monitor de puntos de vida estÃ¡ desactivado.\n"); 
 
-		tell_object(me, "   Utiliza 'monitor { sí | no }' para cambiarlo\n");
+		tell_object(me, "   Utiliza 'monitor { sÃ­ | no }' para cambiarlo\n");
 	}
 		
 	me->set_trivial_action();

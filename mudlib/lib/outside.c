@@ -33,7 +33,7 @@ string query_light_change() { return light_change; }
 
 void create()
 {
-  // dark_long = "Está oscuro.\n";
+  // dark_long = "EstÃ¡ oscuro.\n";
   dark_long = "";
   room::create();
   extra_look::create();
@@ -67,7 +67,7 @@ string long(string str, int dark)
 
   if (!strlen(str))
   {
-    // aux = "Es de día.\n";
+    // aux = "Es de dÃ­a.\n";
     // Coordenadas eliminadas, neverbot
     // if ( pointerp(co_ord) && !handler(WEATHER_HANDLER)->query_day())
 
@@ -78,11 +78,11 @@ string long(string str, int dark)
       aux = "Es de noche.\n";
       s = (string) handler(WEATHER_HANDLER)->moon_string();
       if (!s){
-         aux =  "Es de noche y la luna aún no ha salido.\n";
+         aux =  "Es de noche y la luna aÃºn no ha salido.\n";
       }
       else{
         if ((int)handler(WEATHER_HANDLER)->cloud_index() > 20)
-            aux = "Es de noche y la "+s+" está oculta tras las nubes.\n";
+            aux = "Es de noche y la "+s+" estÃ¡ oculta tras las nubes.\n";
 
         else if (!dark || dark > 3) // if its that dark it ain't lit up
             aux = "La luz de la "+s+" inunda el ambiente.\n";
@@ -114,7 +114,7 @@ string long(string str, int dark)
             ret += sprintf("\n   %-=*s\n", (this_user()?this_user()->query_cols():79), "   "+query_long());
         break;
         case 1..3:  /* too dark */
-            return ::query_dark_mess(dark)+"\nA pesar de esta oscuridad parece ser de día.\n";
+            return ::query_dark_mess(dark)+"\nA pesar de esta oscuridad parece ser de dÃ­a.\n";
         case 4..6:  /* too bright */
             return ::query_dark_mess(dark)+".\n";
       }

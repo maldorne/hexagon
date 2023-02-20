@@ -1,6 +1,6 @@
 /* 
- * Revision de la armadura básica para CcMud, Folken 19/06/03
- * Añadidos sistemas de equipos de multiples piezas, Folken 07/10
+ * Revision de la armadura bÃ¡sica para CcMud, Folken 19/06/03
+ * AÃ±adidos sistemas de equipos de multiples piezas, Folken 07/10
  * 
  */
 
@@ -73,7 +73,7 @@ void set_base_armour(string lookup)
   
   armour_name = lookup;
 
-  data = table("armour_table")->lookup_armour_data(lookup);
+  data = table("armours")->lookup_armour_data(lookup);
 
   basic_cost = data[0]; // Atencion!! Ahora el valor es en monedas de cobre!! (basicas)
   ench_basic_cost = data[1];
@@ -113,17 +113,18 @@ int query_armour() { return 1; }
 
 string query_armour_type_name()
 {
-  return table("armour_table")->query_armour_type_name(armour_type);
+  return table("armours")->query_armour_type_name(armour_type);
 }
 string query_material_name()
 {
-  return table("material_table")->query_material_name(material);
+  return table("materials")->query_material_name(material);
 }
 
 void set_material(int i) { material = i; }
 
 void set_body_type(string str) { body_type = str; }
 string query_body_type() { return body_type;  }
+
 void set_slashing_bon(int i) { bon_slash = i; }
 int query_slashing_bon() { return bon_slash; }
 void set_blunt_bon(int i) { bon_blunt = i; }
@@ -145,7 +146,6 @@ int query_total_ac_against(int type)
     return query_ac() + query_slashing_bon();
   return query_ac();
 }
-
 
 // Cambio importante, ahora basic_cost almacena monedas de cobre, no de oro!!!
 void set_value(int basic_cost)
@@ -182,7 +182,7 @@ int hit_armour(int dam)
   int res;
   res = this_object()->adjust_cond(-1);
   if ((res <= 0) && interactive(environment(this_object())) )
-    tell_player(environment(this_object()), "¡Tu "+query_short()+" se rompe en mil pedazos!\n");
+    tell_player(environment(this_object()), "Â¡Tu "+query_short()+" se rompe en mil pedazos!\n");
     return res;
 }
 
@@ -214,7 +214,7 @@ void set_pieces(string name, string * list)
   }
   
   // Si el nombre de archivo del objeto actual no esta en la lista de todas las piezas,
-  // la añadimos para evitar errores
+  // la aÃ±adimos para evitar errores
   name = base_name(this_object());
   
   if (member_array(name, piece_list) == -1)

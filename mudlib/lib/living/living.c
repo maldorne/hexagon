@@ -9,7 +9,7 @@
  *   a players y npcs (antiguos monster::heart_beat y player::heart_beat, 
  *   ahora living::heart_beat()), neverbot 04/09
  *
- * Añadido do_death para los npcs o players de quest, neverbot 03/09
+ * AÃ±adido do_death para los npcs o players de quest, neverbot 03/09
  */
 
 #include <living/food.h>
@@ -130,7 +130,7 @@ int adjust_money(mixed i, varargs string type) { return money::adjust_money(i, t
  * Nuevo sistema de combate para CcMud, neverbot 6/03
  * Si el jugador tiene la propiedad PASSED_OUT_PROP, tiene 5 puntos menos de AC
  */
-int query_total_ac(varargs string type)
+int query_total_ac(varargs int type)
 {
   int ret, eac, bac;
   ret = 0;
@@ -138,7 +138,7 @@ int query_total_ac(varargs string type)
   if (type)
     eac = this_object()->query_equip_ac(type);
   else
-    eac = this_object()->query_equip_ac(BLUNT_STR);
+    eac = this_object()->query_equip_ac(BLUNT);
 
   bac = this_object()->query_body_ac();
 
@@ -147,11 +147,11 @@ int query_total_ac(varargs string type)
   else
     ret += 10 + eac + bac;
 
-  // Bonificador por la caracteristica de constitucion añadido
+  // Bonificador por la caracteristica de constitucion aÃ±adido
   ret += this_object()->query_stat_bonus_to_con();
 
-  // Bonificador al AC por tamaño (de la raza)
-  // Tamaño 5 == humano
+  // Bonificador al AC por tamaÃ±o (de la raza)
+  // TamaÃ±o 5 == humano
   if (this_object()->query_body_size() <= 3)
     ret += 1;
 
@@ -184,7 +184,7 @@ int query_total_wc()
   }
   else // Luchamos con armas
   {
-    // Añadimos la dificultad de manejo de cada arma y su enchant
+    // AÃ±adimos la dificultad de manejo de cada arma y su enchant
     for (i = 0; i < sizeof(obs); i++)
     {
       ret -= obs[i]->query_difficulty();
@@ -315,7 +315,7 @@ void heart_beat()
   comm::heart_beat();
 }
 
-// Añadido para comprobar si es un npc de quest
+// AÃ±adido para comprobar si es un npc de quest
 int do_death(object killer)
 {
   if (!killer)

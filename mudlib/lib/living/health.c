@@ -54,7 +54,7 @@ void heart_beat()
     if (!(intox-1)) 
     {
       headache = 15;
-      tell_object(this_object(), "Empieza a dolerte la cabeza, quÈ alegrÌa.\n");
+      tell_object(this_object(), "Empieza a dolerte la cabeza, qu√© alegr√≠a.\n");
       hp -= 2;
       if (hp < 1)
         hp = 1;
@@ -120,7 +120,7 @@ void end_practise(object loser, object winner)
   loser->stop_fight(winner);
   winner->stop_fight(loser);    
   // 5 hbs == 10 segundos
-  loser->add_timed_property(PASSED_OUT_PROP, "Est·s inconsciente.\n", 5);
+  loser->add_timed_property(PASSED_OUT_PROP, "Est√°s inconsciente.\n", 5);
 }
 
 int adjust_aggro(int i, object aggro_doer)
@@ -338,50 +338,50 @@ int set_xp(int i)
   return xp;
 }
 
-// AÒadido self, Folken 02/2006
+// A√±adido self, Folken 02/2006
 string health_string(int self) 
 {
   if (!self)
   {
     if (hp < max_hp/20)
-      return "est· al borde la muerte";
+      return "est√° al borde la muerte";
     if (hp < max_hp/10)
-      return "est· en muy mal estado";
+      return "est√° en muy mal estado";
     if (hp < max_hp/5)
-      return "est· en mal estado";
+      return "est√° en mal estado";
     if (hp < max_hp/2)
-      return "no est· en muy buen estado";
+      return "no est√° en muy buen estado";
     if ((float)hp < (float)max_hp/1.2)
     {
       if (this_object()->query_gender() == 2) 
-        return "est· ligeramente herida";
+        return "est√° ligeramente herida";
       else
-        return "est· ligeramente herido";
+        return "est√° ligeramente herido";
     }
     if (hp == max_hp)
-      return "est· en perfecto estado";
-    return "est· en buen estado";
+      return "est√° en perfecto estado";
+    return "est√° en buen estado";
   }
   else
   {
     if (hp < max_hp/20)
-      return "Est·s al borde la muerte";
+      return "Est√°s al borde la muerte";
     if (hp < max_hp/10)
-      return "Est·s en muy mal estado";
+      return "Est√°s en muy mal estado";
     if (hp < max_hp/5)
-      return "Est·s en mal estado";
+      return "Est√°s en mal estado";
     if (hp < max_hp/2)
-      return "No est·s en muy buen estado";
+      return "No est√°s en muy buen estado";
     if ((float)hp < (float)max_hp/1.2)
     {
       if (this_object()->query_gender() == 2) 
-        return "Est·s ligeramente herida";
+        return "Est√°s ligeramente herida";
       else
-        return "Est·s ligeramente herido";
+        return "Est√°s ligeramente herido";
     }
     if (hp == max_hp)
-      return "Est·s en perfecto estado";
-    return "Est·s en buen estado";
+      return "Est√°s en perfecto estado";
+    return "Est√°s en buen estado";
   }
 }
 
@@ -437,7 +437,7 @@ string volume_string()
   return "reza por una muerte sin dolor";
 }
 
-// stats aÒadido
+// stats a√±adido
 mixed stats() 
 {
   return ({ ({"Max Hp", max_hp, }),

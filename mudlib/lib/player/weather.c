@@ -3,9 +3,9 @@
  * Algunos retoques, neverbot@CcMud
  * Renovado para el nuevo sistema climatico v3.0, neverbot@CcMud 11/03
  *
- * Añadida nieve, para el sistema climatico v3.1, neverbot 20/02/04
+ * AÃ±adida nieve, para el sistema climatico v3.1, neverbot 20/02/04
  *
- * Cambiado el daño por frio extremo, ahora solo hara daño hasta llegar al 20%
+ * Cambiado el daÃ±o por frio extremo, ahora solo hara daÃ±o hasta llegar al 20%
  *  de la vida total del player, y despues colocara una shadow que molestara al
  *  jugador pero sin llegar a matarlo. neverbot 04/09
  *
@@ -13,7 +13,7 @@
 
 #include <areas/weather.h>
 #include <common/properties.h>
-// Para los mensajes de daño por frio
+// Para los mensajes de daÃ±o por frio
 #include <living/combat.h>
 
 #define NO_SNOWMAN "there is a snowman"
@@ -66,29 +66,29 @@ string weather_extra_look(int self)
   {
     me = capitalize(this_object()->query_pronoun());
     if (wetness>90)
-        return me+" está calad"+vocal+" hasta los huesos.\n";
+        return me+" estÃ¡ calad"+vocal+" hasta los huesos.\n";
     if (wetness>70)
-        return me+" está chorreando agua por todas partes.\n";
+        return me+" estÃ¡ chorreando agua por todas partes.\n";
     if (wetness>50)
-        return me+" está bastante mojad"+vocal+".\n";
+        return me+" estÃ¡ bastante mojad"+vocal+".\n";
     if (wetness>10)
-        return me+" está mojad"+vocal+".\n";
+        return me+" estÃ¡ mojad"+vocal+".\n";
     if (wetness>0)
-        return me+" está un poco mojad"+vocal+".\n";
+        return me+" estÃ¡ un poco mojad"+vocal+".\n";
     return "";
   }
   else
   {
     if (wetness>90)
-        return "Estás calad"+vocal+" hasta los huesos.\n";
+        return "EstÃ¡s calad"+vocal+" hasta los huesos.\n";
     if (wetness>70)
-        return "Estás chorreando agua por todas partes.\n";
+        return "EstÃ¡s chorreando agua por todas partes.\n";
     if (wetness>50)
-        return "Estás bastante mojad"+vocal+".\n";
+        return "EstÃ¡s bastante mojad"+vocal+".\n";
     if (wetness>10)
-        return "Estás mojad"+vocal+".\n";
+        return "EstÃ¡s mojad"+vocal+".\n";
     if (wetness>0)
-        return "Estás un poco mojad"+vocal+".\n";
+        return "EstÃ¡s un poco mojad"+vocal+".\n";
     return "";
   }
 }
@@ -118,7 +118,7 @@ void event_weather(object who, varargs int flag, int * values)
 
   if (flag == FLAG_AMANECER)
   {
-    tell_player(this_object(), "El sol sale por el horizonte indicándote el comienzo de un nuevo día.\n");
+    tell_player(this_object(), "El sol sale por el horizonte indicÃ¡ndote el comienzo de un nuevo dÃ­a.\n");
     return;
   }
   if (flag == FLAG_ANOCHECER)
@@ -225,18 +225,18 @@ void event_weather(object who, varargs int flag, int * values)
 
   if ((values[1] >= 60) && (values[4] >= 60) &&
     (difs[1] < -15))
-    frases += ({"el viento sopla con más fuerza"});  
+    frases += ({"el viento sopla con mÃ¡s fuerza"});  
 
   // TEMPERATURA:
   if (difs[2] < -10){
-    // Si ya hacía frío
+    // Si ya hacÃ­a frÃ­o
     if (values[0] > 50)
-      frases += ({"el frío aumenta"});  
+      frases += ({"el frÃ­o aumenta"});  
     else
       frases += ({"baja un poco la temperatura"});  
   }
   else if (difs[2] > 10){
-    // Si ya hacía calor
+    // Si ya hacÃ­a calor
     if (values[0] < 50)
       frases += ({"el calor aumenta"});  
     else
@@ -245,7 +245,7 @@ void event_weather(object who, varargs int flag, int * values)
   
   ret = query_multiple_short(frases);
   if (sizeof(frases))
-    tell_player(this_object(), "Notas cómo " + ret + ".\n");
+    tell_player(this_object(), "Notas cÃ³mo " + ret + ".\n");
   return;
 
   /* try to leave it out, I don't like it tho...
@@ -282,27 +282,27 @@ int make(string str)
     }
     ob = clone_object(SNOWBALL_OB);
     ob->move(this_object());
-    write("Haces una bonita bola de nieve. Disfrútala.\n");
+    write("Haces una bonita bola de nieve. DisfrÃºtala.\n");
     return 1;
   }
-  if (str == "muñeco de nieve") {
+  if (str == "muÃ±eco de nieve") {
     if (!handler(WEATHER_HANDLER)->query_snowing()) {
-      notify_fail("Necesitas nieve para hacer un muñeco de nieve.\n");
+      notify_fail("Necesitas nieve para hacer un muÃ±eco de nieve.\n");
       return 0;
     }
 
     if (environment()->query_static_property(NO_SNOWMAN)){
-       notify_fail("¿Cuántos muñecos de nieve quieres hacer en el mismo lugar?\n");
+       notify_fail("Â¿CuÃ¡ntos muÃ±ecos de nieve quieres hacer en el mismo lugar?\n");
        return 0;
     }
     ob = clone_object(SNOWMAN_OB);
     ob->move(environment());
     // 300 hb's == 10 minutos
     environment()->add_static_property(NO_SNOWMAN, 1);
-    write("Haces un decorativo y bonito muñeco de nieve.\n");
+    write("Haces un decorativo y bonito muÃ±eco de nieve.\n");
     return 1;
   }
-  notify_fail("¡¡No puedes hacer eso!!\n");
+  notify_fail("Â¡Â¡No puedes hacer eso!!\n");
   return 0;
 }
  
@@ -326,7 +326,7 @@ int splash(string str)
   }
 
   if (!str) {
-    notify_fail("¿A quién quieres mojar?\n");
+    notify_fail("Â¿A quiÃ©n quieres mojar?\n");
     return 0;
   }
   // env = environment();
@@ -336,7 +336,7 @@ int splash(string str)
   }
   obs = find_match(str, environment());
   if (!sizeof(obs)) {
-    notify_fail(capitalize(str)+" no esta aquí... ¿A qué juegas?\n");
+    notify_fail(capitalize(str)+" no esta aquÃ­... Â¿A quÃ© juegas?\n");
     return 0;
   }
 
@@ -352,7 +352,7 @@ int splash(string str)
       }
     }
     str = query_multiple_short(obs);
-    write("Pisas enérgicamente un charco y mojas a "+str+".\n");
+    write("Pisas enÃ©rgicamente un charco y mojas a "+str+".\n");
     say(this_object()->query_cap_name()+" pisa un charco y moja a "+str+".\n", obs);
   }
   else
@@ -362,12 +362,12 @@ int splash(string str)
       if (this_object() != obs[0])
       {
       tell_object(obs[0], this_object()->query_cap_name()+" te moja.\n");
-      write("Pisas enérgicamente un charco y mojas a "+obs[0]->query_cap_name()+".\n");
+      write("Pisas enÃ©rgicamente un charco y mojas a "+obs[0]->query_cap_name()+".\n");
       say(this_object()->query_cap_name()+" pisa un charco y moja a "+obs[0]->query_cap_name()+".\n", obs);
       }
       else
       {
-      write("Pisas enérgicamente un charco y te mojas. ¿Divertido?\n");
+      write("Pisas enÃ©rgicamente un charco y te mojas. Â¿Divertido?\n");
       say(this_object()->query_cap_name()+" pisa un charco y se moja.\n", obs);
       }
     }
@@ -385,7 +385,7 @@ void weather_heart_beat()
 
   cuanto = 0, do_damage = 1, my_time = 0;
 
-  // Añadida comprobacion, si estas muerto ignoras el clima, neverbot 24/02/04  
+  // AÃ±adida comprobacion, si estas muerto ignoras el clima, neverbot 24/02/04  
   if (!this_object()->query_dead() && environment(this_object()))
   {    
     // Los event_weather que 'secan' al personaje solo se producen
@@ -399,7 +399,7 @@ void weather_heart_beat()
     
     // Hack, neverbot 12/08/05
     // Los newbies recien creados podrian morir si tienen mala suerte
-    // El clima no hace daño!!!
+    // El clima no hace daÃ±o!!!
     // Protegemos durante 12 horas de personaje, a partir de ahi el clima actua
     // normalmente :)
     my_time = this_object()->query_time_on();
@@ -430,22 +430,22 @@ void weather_heart_beat()
       if (do_damage == 0)
       {
         // if (this_object()->query_coder())
-        //  tell_object(this_object(), "DEBUG (player_weather): Proteccion 'cold' evita daño del clima.\n");
+        //  tell_object(this_object(), "DEBUG (player_weather): Proteccion 'cold' evita daÃ±o del clima.\n");
         return;      
       }
      
       // datos == ({ lluvia, viento, temperatura })
       datos = handler(WEATHER_HANDLER)->query_actual_data(environment(this_object()));
 
-      // Daño por frío
+      // DaÃ±o por frÃ­o
       if (datos[2] > 80)
       {
         cuanto = (datos[2] - 80)/6; 
         if (cuanto <= 0) 
            cuanto = 1; // cuanto = [1..3]
     
-        tell_object(this_object(), DFF+"Notas cómo el frío a tu alrededor te congela.\n");
-       // Con el 20% de vida o menos no hacemos daño, ponemos shadow
+        tell_object(this_object(), DFF+"Notas cÃ³mo el frÃ­o a tu alrededor te congela.\n");
+       // Con el 20% de vida o menos no hacemos daÃ±o, ponemos shadow
         if (this_object()->query_max_hp() / this_object()->query_hp() >= 2)
         {
           if (!this_object()->query_weather_shadow())
@@ -461,7 +461,7 @@ void weather_heart_beat()
           this_object()->spell_damage(cuanto, "cold");
       }
 
-      // Daño por granizo
+      // DaÃ±o por granizo
       if ((datos[2] > 80) && (datos[2] <= 85) && (datos[0] > 50))
       {
         cuanto = (datos[2] - 80)/6;
@@ -470,7 +470,7 @@ void weather_heart_beat()
         
         tell_object(this_object(), DFF+"El granizo te golpea con fuerza.\n");
           
-        // Con el 20% de vida o menos no hacemos daño, ponemos shadow
+        // Con el 20% de vida o menos no hacemos daÃ±o, ponemos shadow
         if (this_object()->query_max_hp() / this_object()->query_hp() >= 2)
         {
           if (!this_object()->query_weather_shadow())

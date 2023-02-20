@@ -218,7 +218,7 @@ int set_interruptable_action(int time, string message, mixed abort, mixed comple
     ia_message = "Command queued since "+message+"\n" +
      "Type 'abort' to attempt to end prematurely.\n";
   */
-  ia_message = (message?message:"Estás ocupado realizando una acción abortable.\n");
+  ia_message = (message?message:"EstÃ¡s ocupado realizando una acciÃ³n abortable.\n");
 
   ia_abort = abort;
   ia_complete = complete;
@@ -733,7 +733,7 @@ nomask int action_check(string str)
     case "abort":
     case "abortar":
       if (!ia_in_progress)
-        tell_object(this_object(), "No estás en medio de una acción que "+
+        tell_object(this_object(), "No estÃ¡s en medio de una acciÃ³n que "+
           "pueda ser abortada.\n");
       else
         abort_interruptable_action();
@@ -769,7 +769,7 @@ nomask int action_check(string str)
   {
     // tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"
     //   "No tienes heartbeat; prueba '%^BOLD%^reiniciar%^RESET%^' para intentar "
-    //   "solucionarlo.  No podrás hacer nada sin tu "
+    //   "solucionarlo.  No podrÃ¡s hacer nada sin tu "
     //   "heartbeat.\n");
     tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"+
       "Se ha producido un error. Prueba a '%^BOLD%^reiniciar%^RESET%^' para intentar "+
@@ -805,7 +805,7 @@ nomask int action_check(string str)
     // else
     // {
     //   tell_object(this_object(),
-    //     "Estás aturdido, no puedes hacer nada.\n");
+    //     "EstÃ¡s aturdido, no puedes hacer nada.\n");
     //   if (!this_object()->query_admin())
     //     return 1;
     // }
@@ -826,7 +826,7 @@ nomask int action_check(string str)
     }
     else
     {
-      tell_object(this_object(), "Estás aturdido, no puedes hacer nada.\n");
+      tell_object(this_object(), "EstÃ¡s aturdido, no puedes hacer nada.\n");
 
       if (!this_object()->query_admin())
         return 1;

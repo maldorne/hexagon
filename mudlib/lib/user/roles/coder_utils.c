@@ -303,7 +303,7 @@ object * wzpresent2(string str, mixed onobj)
     return obs;
   }
 
-  // if ((str == "all") || (str == "todo"))
+  // if ((str == "all") || (str == "todo"))
   //   return all_inventory(onobj);
 
   /* every fish */

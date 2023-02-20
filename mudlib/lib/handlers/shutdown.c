@@ -49,8 +49,8 @@ void setup()
   set_name("heraldo");
   set_living_name("heraldo");
   set_short("El Heraldo de los Dioses");
-  set_long("Un magnÌfico ejemplar de ¡ngel femenino esta aquÌ esperando " +
-           "a que los Dioses le indiquen cuando llegar· una nueva Era.\n");
+  set_long("Un magn√≠fico ejemplar de √Ångel femenino esta aqu√≠ esperando " +
+           "a que los Dioses le indiquen cuando llegar√° una nueva Era.\n");
   add_alias("shutdown");
 
   move("bing");
@@ -63,7 +63,7 @@ void setup()
   // if (this_player())
   // {
      // call_out("delayed_safety", 5, this_player()->query_cap_name());
-     // tell_room(environment(this_object()),"°El Heraldo comienza una cuenta atr·s de 5 segundos!\n");
+     // tell_room(environment(this_object()),"¬°El Heraldo comienza una cuenta atr√°s de 5 segundos!\n");
   // }
 }
 
@@ -134,12 +134,12 @@ void heart_beat()
    // "Gracefully" go down on intermud - Radix : Jan 5, 1996
   if (time_to_crash < 10)  
   {
-    ishout("El destino del mundo se decidir· en "+time_to_crash+" segundos.",0);
+    ishout("El destino del mundo se decidir√° en "+time_to_crash+" segundos.",0);
     return;
   }
   if (time_to_crash < 60 && time_to_crash % 10 < 2) 
   {
-    ishout("El destino del mundo se decidir· en "+time_to_crash+" segundos.",0);
+    ishout("El destino del mundo se decidir√° en "+time_to_crash+" segundos.",0);
     return;
   }
   if (time_to_crash % 60 > 1) 
@@ -151,11 +151,11 @@ void heart_beat()
   {
     if (time_to_crash > 3)
     {
-      ishout("El destino del mundo se decidir· en "+time_to_crash+
+      ishout("El destino del mundo se decidir√° en "+time_to_crash+
         " minutos.",1);
     }
     else
-      ishout("El destino del mundo se decidir· en "+time_to_crash+
+      ishout("El destino del mundo se decidir√° en "+time_to_crash+
         " minuto"+((time_to_crash == 1)?"":"s")+".",0);
     return;
   }
@@ -179,8 +179,8 @@ void shut(int minutes)
     return;
   }
 
-  set_long("Es un ¡ngel femenino, de belleza inconmensurable, firmemente concentrada " +
-           "en la cuenta atr·s.\n");
+  set_long("Es un √Ångel femenino, de belleza inconmensurable, firmemente concentrada " +
+           "en la cuenta atr√°s.\n");
 
   if (time_of_crash > 0)
     write("Ya estaba programado el reinicio del mud, dentro de "+
@@ -199,7 +199,7 @@ string long(string str, int dark)
 {
   if (time_of_crash && this_player()->query_coder())
    return ::long(str,dark) +
-      "El destino del mundo se decidir· en "+(time_of_crash - time())+
+      "El destino del mundo se decidir√° en "+(time_of_crash - time())+
       " segundos.\n";
 
   return ::long(str,dark);
@@ -210,7 +210,7 @@ void end_it_all()
   int i;
   object *obs;
  
-  ishout("°Mud cerr·ndose!\n", 0);
+  ishout("¬°Mud cerr√°ndose!\n", 0);
 
   obs = users();
   
@@ -282,8 +282,8 @@ void auto_reboot()
     "Ladyluck tavern, and seeing that the place is out of beer "
     "he shouts: Prepare to enter primal chaos in 10!!.\n");
     */
-    shout("El fin del mundo est· a punto de sobrevenir...\nLa totalidad de la existencia " +
-        "ser· destruida y un nuevo mundo se reconstruir· sobre sus cenizas...\n\n\t" +
+    shout("El fin del mundo est√° a punto de sobrevenir...\nLa totalidad de la existencia " +
+        "ser√° destruida y un nuevo mundo se reconstruir√° sobre sus cenizas...\n\n\t" +
         "%^BOLD%^Dentro de diez minutos.\n");
     log_file("game_log", "Auto reboot en: " + ctime(time()) + "\n" +
         "   (uptime: " + (uptime()/3600) + " horas - uso de memoria: " +

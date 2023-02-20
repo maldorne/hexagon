@@ -13,7 +13,7 @@ int stop_following(object me)
 {
 	me->add_static_property(STOP_FOLLOWING_PROP, 1);
 	// El mensaje ya lo da la dote de seguir
-	// tell_object(me, "Ok, detienes tu persecuciÛn...\n");
+	// tell_object(me, "Ok, detienes tu persecuci√≥n...\n");
 	return 1;
 }
 
@@ -27,7 +27,7 @@ int really_stop(object me)
 	obs = me->query_attacker_list() + me->query_call_outed();
 	if (!sizeof(obs)) 
 	{
-	    notify_fail("No est·s luchando con nadie.\n");
+	    notify_fail("No est√°s luchando con nadie.\n");
 	    return 0;
 	}
 	
@@ -64,17 +64,17 @@ protected int cmd(string str, object me, string verb){
     if ( !str || (str == "")) 
 	{
       notify_fail("Sintaxis: detener combates\n"
-                  "          (detendr·s tus combates pendientes).\n" 
-				  "          detener persecuciÛn\n"
-   	              "          (dejar·s de seguir a tus objetivos).\n" ); 
+                  "          (detendr√°s tus combates pendientes).\n" 
+				  "          detener persecuci√≥n\n"
+   	              "          (dejar√°s de seguir a tus objetivos).\n" ); 
       return 0;
     }
 
-	if ((str == "persecuciÛn") || (str == "persecucion"))
+	if ((str == "persecuci√≥n") || (str == "persecucion"))
 	{
 		if (!me->query_property(FOLLOWING_PROP))
 		{
-			notify_fail("No est·s siguiendo a nadie en estos momentos.\n");
+			notify_fail("No est√°s siguiendo a nadie en estos momentos.\n");
 	      	return 0;
 		}
 		
@@ -84,19 +84,19 @@ protected int cmd(string str, object me, string verb){
 	{
 	    if (!sizeof(obs))
 		{
-	      notify_fail("No est·s combatiendo con nadie en estos momentos.\n");
+	      notify_fail("No est√°s combatiendo con nadie en estos momentos.\n");
 	      return 0;
 	    }
 
-	    tell_object(me, "Parando peleas, tardar· un poco...\n");
+	    tell_object(me, "Parando peleas, tardar√° un poco...\n");
 	    call_out("really_stop", 25, me);
 	    return 1;		
 	}
 	
     notify_fail("Sintaxis: detener combates\n"
-                "          (detendr·s tus combates pendientes).\n" 
-		        "          detener persecuciÛn\n"
- 	            "          (dejar·s de seguir a tus objetivos).\n" ); 
+                "          (detendr√°s tus combates pendientes).\n" 
+		        "          detener persecuci√≥n\n"
+ 	            "          (dejar√°s de seguir a tus objetivos).\n" ); 
     return 0;	
 
 }

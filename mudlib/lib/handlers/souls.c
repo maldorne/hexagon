@@ -40,7 +40,7 @@ void create()
   ::create();
   set_name("emociones");
   set_short("Controlador de las emociones");
-  set_long("…ste es el controlador extraordinario de las emociones.\n");
+  set_long("√âste es el controlador extraordinario de las emociones.\n");
   add_alias("controlador");
   add_plural("Controladores");
   add_plural("controladores");
@@ -64,11 +64,11 @@ string query_soul_list()
   string *cmds;
   mixed  *values;
 
-  s = "…stos son los comandos de emociones disponibles:\n"+
+  s = "√âstos son los comandos de emociones disponibles:\n"+
     "   # significa que admite argumentos.\n"+
-    "   * significa que sÛlo puede utilizarse con seres vivos.\n"+
+    "   * significa que s√≥lo puede utilizarse con seres vivos.\n"+
     "   + significa que puede usarse tanto con seres vivos como de modo independiente.\n"+
-    "N˙mero total de emociones: "+m_sizeof(soul_data)+".\n\n";
+    "N√∫mero total de emociones: "+m_sizeof(soul_data)+".\n\n";
 
   if (strlen(calc_long))
   {
@@ -152,10 +152,10 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
     str = s1+ob->query_possessive()+s3;
     break;
   case "mvocal" :
-    str = s1+me->query_vocal()+s3;
+    str = s1+me->query_vowel()+s3;
     break;
   case "hvocal" :
-    str = s1+ob->query_vocal()+s3;
+    str = s1+ob->query_vowel()+s3;
     break;
   case "mnumeral" :
     str = s1+me->query_numeral()+s3;
@@ -230,7 +230,7 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
     else
     {
       // Cadogan by hand of Radix...
-      notify_fail("No puedes hacer eso. Escribe \"ayuda <emociÛn>\" "+
+      notify_fail("No puedes hacer eso. Escribe \"ayuda <emoci√≥n>\" "+
             "para ver las opciones disponibles.\n");
       //  write("You cannot do that. Available options are "+
       //    replace(s2, ",", ", ")+"\n");
@@ -405,7 +405,7 @@ int soul_command(string verb, string str, object m)
       if ((mixed)target->query_blocking() == (mixed)me->query_name())
       {
         tell_object(me, ((string)target->query_cap_name()) + " te "+
-             "est· bloqueando.\n");
+             "est√° bloqueando.\n");
         return 1;
       }
 
@@ -588,7 +588,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
     str = other;
     if (!sizeof(ob))
     {
-      return (["status":"Lo siento, pero '"+liv+"' no est· conectado.\n"]);
+      return (["status":"Lo siento, pero '"+liv+"' no est√° conectado.\n"]);
     }
 
     /* Get the strings that will be parsed. */
@@ -606,7 +606,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
     }
     else
     {
-      return (["status":"No puedes utilizar ese comando de emociÛn "+
+      return (["status":"No puedes utilizar ese comando de emoci√≥n "+
             "de esa forma.\n"]);
     }
 
@@ -745,7 +745,7 @@ string help_soul(string str)
   ret_aux = "";
 
   if (!pointerp(data[0]))
-    return "El comando de emociÛn '"+str+"' no tiene par·metros opcionales.\n";
+    return "El comando de emoci√≥n '"+str+"' no tiene par√°metros opcionales.\n";
 
   for (j = 0; j < sizeof(data[0]);j += 2)
   {
@@ -768,7 +768,7 @@ string help_soul(string str)
     ret += "\n";
   }
 
-  ret = "Sintaxis del comando de emociÛn %^BOLD%^'"+str+"'%^RESET%^:\n"+
+  ret = "Sintaxis del comando de emoci√≥n %^BOLD%^'"+str+"'%^RESET%^:\n"+
   sprintf("  %-#*s\n\n", this_user()->query_cols(), ret);
 
   if (sizeof(data[1]) == 2 || sizeof(data[1]) == 5)
@@ -798,7 +798,7 @@ string help_soul(string str)
 
   if (sizeof(data[1]) == 3 || sizeof(data[1]) == 5)
   {
-    ret += "Aplic·ndolo a seres vivos:\n";
+    ret += "Aplic√°ndolo a seres vivos:\n";
     bit = ({ });
     if (sscanf(data[1][off+0], "%s$arg:%s$%s", s1,s2,s3) == 3)
       bit = explode(s2,",");

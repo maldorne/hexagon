@@ -373,12 +373,12 @@ int do_a_call(string str)
         log_file("call_player",(string)this_player()->query_cap_name()+" calls '"+str+
           "' -- player "+(string)ov[i]->query_name()+" ["+ctime(time(),4)+"]\n");
 
-      write("*** Función en '"+ desc_object(ov[i])+"' encontrada en "+ file+ " ***\n");
+      write("*** FunciÃ³n en '"+ desc_object(ov[i])+"' encontrada en "+ file+ " ***\n");
       write("Returned: " + to_string(retobj) + "\n");
       // printf("%O\n", retobj);
     }
     else
-      write("*** Función en '"+desc_object(ov[i])+"' no encontrada ***\n");
+      write("*** FunciÃ³n en '"+desc_object(ov[i])+"' no encontrada ***\n");
 
     file = "";
   }
@@ -397,12 +397,12 @@ void ask_dest()
 {
   if (!pointerp(dest_obj) || objn >= sizeof(dest_obj))
   {
-    write("No hay más cosas por destruir.\n");
+    write("No hay mÃ¡s cosas por destruir.\n");
     dest_obj = ({ }); // wipe array to free memory
     return;
   }
 
-  write("¿Destruir " + desc_object(dest_obj[objn]) + "? ");
+  write("Â¿Destruir " + desc_object(dest_obj[objn]) + "? ");
   input_to("dest_answer");
   return;
 } /* ask_dest() */
@@ -417,13 +417,13 @@ void dest_answer(string s)
     {
       shrt = (string)dest_obj[objn]->short();
       err = catch(dest_obj[objn]->dwep());
-      write("DWEP falló: " + err + "\n");
+      write("DWEP fallÃ³: " + err + "\n");
 
       if (dest_obj[objn])
       {
         write("Este objeto no quiere ser destruido.\n");
         err = catch(destruct(dest_obj[objn]));
-        write("destruct() falló: " + err + "\n");
+        write("destruct() fallÃ³: " + err + "\n");
       }
 
       majd = 0;
@@ -444,11 +444,11 @@ void dest_answer(string s)
     else
     {
       err = catch(dest_obj[objn]->dest_me());
-      write("dest_me falló: " + err + "\n");
+      write("dest_me fallÃ³: " + err + "\n");
 
       if (dest_obj[objn])
       {
-        write("Este objeto no desea ser destruido, ¿aún deseas hacerlo?");
+        write("Este objeto no desea ser destruido, Â¿aÃºn deseas hacerlo?");
         majd = 1;
         input_to("dest_answer");
         return;
@@ -462,7 +462,7 @@ void dest_answer(string s)
   }
   else if (s == "q" || s == "quit")
   {
-    write("Ok. No se destruiran más objetos.\n");
+    write("Ok. No se destruiran mÃ¡s objetos.\n");
     dest_obj = ({ });
     return;
   }
@@ -483,7 +483,7 @@ int do_dest(string str)
 
   if (!strlen(str))
   {
-    notify_fail("¿Destruir el qué?\n");
+    notify_fail("Â¿Destruir el quÃ©?\n");
     return 0;
   }
 
@@ -520,7 +520,7 @@ int do_dest(string str)
       log_file("dest", "["+ctime(time(), 4)+"] " +
         this_player()->query_cap_name()+" tried (unsuccessfully) to dest the interactive object '"+
         ob[i]->query_cap_name()+"'.\n");
-      write("Lo siento, no te está permitido destruir a "+ob[i]->query_cap_name()+".\n");
+      write("Lo siento, no te estÃ¡ permitido destruir a "+ob[i]->query_cap_name()+".\n");
       continue;
     }
 
@@ -545,7 +545,7 @@ int do_dest(string str)
     err = catch(ob[i]->dest_me());
 
     if (err)
-      write("dest_me falló: " + err + "\n");
+      write("dest_me fallÃ³: " + err + "\n");
 
     if (ob[i])
       dest_obj += ({ ob[i] });
@@ -596,7 +596,7 @@ int get_inv(string str)
   int i;
 
   // thanks for the great error message!
-  notify_fail("¿Inventario de qué?\n");
+  notify_fail("Inventory of what?\n");
 
   if (!strlen(str))
   {
@@ -604,7 +604,7 @@ int get_inv(string str)
   }
   else
   {
-    sscanf(str, "de %s", str);
+    sscanf(str, "of %s", str);
     ov = wiz_present(str, this_player());
   }
 
@@ -619,14 +619,14 @@ int get_inv(string str)
     if ( (interactive(ov[i])) && !(ov[i]->query_coder()) &&
        !(this_object()->query_admin()) && !(ov[i] == this_object()))
     {
-      log_file("inv", this_object()->query_cap_name()+" intentó ver el inventario del interactive: "+
+      log_file("inv", this_object()->query_cap_name()+" tried to view the inventory of interactive object: "+
                       ov[i]->query_cap_name()+" ["+ctime(time(), 4)+"]\n");
-      write("No te está permitido ver el inventario de "+ov[i]->query_cap_name()+".\n");
+      write("You are not allowed to view the inventory of "+ov[i]->query_cap_name()+".\n");
       continue;
     }
 
-    write("Inventario de " + desc_object(ov[i]) + " en " +
-          desc_object(environment(ov[i])) + ":\n");
+    write("Inventory of " + desc_object(ov[i]) + ":\n");
+      // " en " + desc_object(environment(ov[i])) + ":\n");
 
     obj = first_inventory(ov[i]);
 
@@ -711,7 +711,7 @@ int trans(string str)
 
   if (!strlen(str) || !(sizeof(obs = wiz_present(str, this_player()))))
   {
-    write("¿Transportar a quién?\n");
+    write("Â¿Transportar a quiÃ©n?\n");
     return 1;
   }
 
@@ -719,7 +719,7 @@ int trans(string str)
   {
     if (environment(obs[i]) == environment(this_player()))
     {
-      write(desc_object(obs[i])+" ya está aquí.\n");
+      write(desc_object(obs[i])+" ya estÃ¡ aquÃ­.\n");
       continue;
     }
 
@@ -739,8 +739,8 @@ int trans(string str)
         obs[i]->query_cap_name()+" from "+file_name(environment(obs[i]))+
         " to "+file_name(environment(this_player()))+" ["+ctime(time(),4)+"]\n");
 
-    tell_object(obs[i], "\nEres transferido mágicamente a algún lugar.\n\n");
-    write("Transfieres a " + obs[i]->query_cap_name() + " hasta aquí.\n");
+    tell_object(obs[i], "\nEres transferido mÃ¡gicamente a algÃºn lugar.\n\n");
+    write("Transfieres a " + obs[i]->query_cap_name() + " hasta aquÃ­.\n");
     obs[i]->move_living("X", environment(this_player()));
   }
 
@@ -752,7 +752,7 @@ int whereis(string str)
   object *ov,e;
   int i;
 
-  notify_fail("¿Dónde esta el qué?\n");
+  notify_fail("Â¿DÃ³nde esta el quÃ©?\n");
   ov = wiz_present(str, this_player());
 
   if (!sizeof(ov))
@@ -768,11 +768,11 @@ int whereis(string str)
       {
         log_file("whereis", this_player()->query_cap_name()+" attempted to locate interactive: " +
                             ov[i]->query_cap_name()+" ["+ctime(time(),4)+"]\n");
-        write("Lo siento, no te está permitido localizar jugadores.\n");
+        write("Lo siento, no te estÃ¡ permitido localizar jugadores.\n");
         continue;
       }
 
-    write(desc_object(ov[i]) + " está: \n");
+    write(desc_object(ov[i]) + " estÃ¡: \n");
     e = ov[i];
     while (e = environment(e))
       write("  en " + desc_f_object(e) + "\n");
@@ -786,7 +786,7 @@ int get_pathof(string str)
   object *ov;
   int i;
 
-  notify_fail("¿Path de qué?\n");
+  notify_fail("Â¿Path de quÃ©?\n");
   ov = wiz_present(str,this_player());
 
   if (!sizeof(ov))
@@ -816,7 +816,7 @@ int goback(string str)
   object ob;
 
   if (!(ob = this_player()->query_prev()))
-    write("La localización anterior no es válida (quizá ya no está cargada en memoria).\n");
+    write("La localizaciÃ³n anterior no es vÃ¡lida (quizÃ¡ ya no estÃ¡ cargada en memoria).\n");
   else
   {
     this_player()->set_no_prompt();
@@ -845,7 +845,7 @@ int do_find(string str)
 
   if (!sizeof(obs))
   {
-    notify_fail("No se encontró '" + thing + "'.\n");
+    notify_fail("No se encontrÃ³ '" + thing + "'.\n");
     return 0;
   }
 

@@ -34,10 +34,10 @@ void create()
   add_alias("hogar");
   set_main_plural("%^MAGENTA%^Piedras de Hogar%^RESET%^");
   add_plural("piedras");
-  set_long("Es una piedra pequeña, de un color púrpura, con una extraña runa que no sabes descifrar "+
+  set_long("Es una piedra pequeÃ±a, de un color pÃºrpura, con una extraÃ±a runa que no sabes descifrar "+
     "tallada en uno de sus lados. Un aura blanquecina la rodea sin llegar a emitir luz, "+
-    "dándote la sensación de que es un objeto hermoso. Sin duda parece que posee poderes más "+
-    "allá de tu comprensión. Escribe 'ayuda piedra' para ver lo que puedes hacer con ella.\n");
+    "dÃ¡ndote la sensaciÃ³n de que es un objeto hermoso. Sin duda parece que posee poderes mÃ¡s "+
+    "allÃ¡ de tu comprensiÃ³n. Escribe 'ayuda piedra' para ver lo que puedes hacer con ella.\n");
 
   reset_drop();
 
@@ -48,7 +48,7 @@ void create()
 string long(string s, int dark)
 {
   return ::long(s, dark) +
-    (strlen(destination_name)?"Tu piedra está marcada en: "+destination_name+".\n":"Tu piedra no está marcada aún.\n");
+    (strlen(destination_name)?"Tu piedra estÃ¡ marcada en: "+destination_name+".\n":"Tu piedra no estÃ¡ marcada aÃºn.\n");
 }
 
 void init()
@@ -56,7 +56,7 @@ void init()
   add_action("do_travel", "transportar");
   add_action("do_mark", "marcar");
 
-  // Ahora la ayuda sale del sistema genérico de ayuda
+  // Ahora la ayuda sale del sistema genÃ©rico de ayuda
   // add_action("do_help", "ayuda");
   add_action("do_invoke", "invocar");
   ::init();
@@ -66,7 +66,7 @@ int do_travel(string str)
 {
   if (acting)
   {
-    notify_fail("La piedra está actuando, espera un poco.\n");
+    notify_fail("La piedra estÃ¡ actuando, espera un poco.\n");
     return 0;
   }
 
@@ -78,7 +78,7 @@ int do_travel(string str)
 
   if (this_object()->query_timed_property(LOCK_HEARTHSTONE))
   {
-    notify_fail("La piedra aún no ha acumulado suficiente energía desde la última vez.\n");
+    notify_fail("La piedra aÃºn no ha acumulado suficiente energÃ­a desde la Ãºltima vez.\n");
     return 0;
   }
 
@@ -90,13 +90,13 @@ int do_travel(string str)
     if (!stringp(race))
     {
       notify_fail("Tu piedra ha olvidado el camino a casa... "+
-        "tendrás que marcar un nuevo lugar antes de intentarlo.\n");
+        "tendrÃ¡s que marcar un nuevo lugar antes de intentarlo.\n");
       return 0;
     }
     else
     {
       tell_object(this_player(), "Tu piedra ha olvidado el camino a casa... "+
-        "pero aún recuerda su lugar de origen inicial.\n");
+        "pero aÃºn recuerda su lugar de origen inicial.\n");
       destination_path = load_object(race)->query_init_room();
     }
   }
@@ -109,7 +109,7 @@ int do_travel(string str)
 
   tell_object(this_player(), "La piedra de hogar comprende tus deseos y sus poderes se activan.\n");
   tell_room(environment(this_player()), "La piedra de hogar de "+this_player()->query_cap_name()+
-    " comienza a brillar con tonos púrpura.\n", this_player());
+    " comienza a brillar con tonos pÃºrpura.\n", this_player());
 
   acting = 1;
 
@@ -129,7 +129,7 @@ int continue_travel(object player, int count, object where)
 
   if (environment(player) != where)
   {
-  tell_object(player,"Si no paras de moverte será imposible que la piedra acumule energía "+
+  tell_object(player,"Si no paras de moverte serÃ¡ imposible que la piedra acumule energÃ­a "+
     "suficiente para transportarte.\n");
   acting = 0;
   return 1;
@@ -137,7 +137,7 @@ int continue_travel(object player, int count, object where)
 
   if (player->query_dead())
   {
-    tell_object(player, "Al morir tu piedra deja escapar la energía acumulada...\n");
+    tell_object(player, "Al morir tu piedra deja escapar la energÃ­a acumulada...\n");
     return 1;
   }
 
@@ -153,7 +153,7 @@ int continue_travel(object player, int count, object where)
       return 1;
     }
 
-    // No transportamos monturas, si no aparecerías con tu caballo en medio de
+    // No transportamos monturas, si no aparecerÃ­as con tu caballo en medio de
     // una taberna...
     if (player->query_riding())
       player->destruct_ride_shadow();
@@ -162,19 +162,19 @@ int continue_travel(object player, int count, object where)
     add_timed_property(LOCK_HEARTHSTONE, 1, LOCK_TIME);
     // Permitimos invocar a la montura tras el viaje
     remove_timed_property(LOCK_HEARTHSTONE_INVOKE);
-    tell_object(player, "\nQuedas cegado por un potente haz de luz púrpura que desprende la piedra, "+
-      "mientras notas cómo se calienta al tacto.\n\n"+
+    tell_object(player, "\nQuedas cegado por un potente haz de luz pÃºrpura que desprende la piedra, "+
+      "mientras notas cÃ³mo se calienta al tacto.\n\n"+
       "Notas como el calor de la piedra desaparece y al difuminarse el haz de luz puedes "+
-      "distinguir dónde te encuentras.\n\n");
+      "distinguir dÃ³nde te encuentras.\n\n");
     player->do_look();
     tell_room(dest, player->query_cap_name() +
-      " aparece repentinamente de entre un extraño humo púrpura.\n", player);
+      " aparece repentinamente de entre un extraÃ±o humo pÃºrpura.\n", player);
     acting = 0;
     return 1;
   }
   else
   {
-    // tell_object(player, "La piedra de hogar crepita mientras acumula energía.\n");
+    // tell_object(player, "La piedra de hogar crepita mientras acumula energÃ­a.\n");
     tell_object(player, query_short() +
       ": [%^MAGENTA%^"+sprintf("%*' '-s", NUM_SECONDS, sprintf("%*'*'s", NUM_SECONDS - count,"")) +
       "%^RESET%^]\n");
@@ -190,13 +190,13 @@ int do_mark(string str)
 
   if (str != "piedra")
   {
-    notify_fail("¿Marcar el qué? Quizá quieras 'marcar piedra'.\n");
+    notify_fail("Â¿Marcar el quÃ©? QuizÃ¡ quieras 'marcar piedra'.\n");
     return 0;
   }
 
   if (acting)
   {
-    notify_fail("La piedra está actuando, espera un poco.\n");
+    notify_fail("La piedra estÃ¡ actuando, espera un poco.\n");
     return 0;
   }
 
@@ -214,14 +214,14 @@ int do_mark(string str)
 
   if (!environment(this_player())->query_pub())
   {
-    notify_fail("Sólo puedes hacer eso en una taberna.\n");
+    notify_fail("SÃ³lo puedes hacer eso en una taberna.\n");
     return 0;
   }
 
   destination_path = base_name(environment(this_player()));
   destination_name = environment(this_player())->query_short();
 
-  tell_object(this_player(), "De acuerdo, a partir de ahora el destino de tu piedra de hogar será: "+
+  tell_object(this_player(), "De acuerdo, a partir de ahora el destino de tu piedra de hogar serÃ¡: "+
     environment(this_player())->query_short()+".\n");
   return 1;
 }
@@ -233,14 +233,14 @@ string get_help(varargs string str)
 
   // if (str != "piedra")
   // {
-  //   notify_fail("Prueba 'ayuda piedra' para más información.\n");
+  //   notify_fail("Prueba 'ayuda piedra' para mÃ¡s informaciÃ³n.\n");
   //   return 0;
   // }
 
   ret = "Puedes utilizar los siguientes comandos:\n";
   ret += "\tmarcar      - en una taberna para que tu piedra de hogar recuerde el lugar.\n";
   ret += "\ttransportar   - para que la piedra te transporte de vuelta al lugar marcado.\n";
-  ret += "\tinvocar montura - para traer a la montura a tu lado (sólo al aire libre).\n";
+  ret += "\tinvocar montura - para traer a la montura a tu lado (sÃ³lo al aire libre).\n";
 
   // tell_object(this_player(), ret + "\n");
   // return 1;
@@ -253,7 +253,7 @@ int do_invoke(string str)
 
   if (str != "montura")
   {
-    notify_fail("¿Invocar el qué? Quizá quieras 'invocar montura'.\n");
+    notify_fail("Â¿Invocar el quÃ©? QuizÃ¡ quieras 'invocar montura'.\n");
     return 0;
   }
 
@@ -265,7 +265,7 @@ int do_invoke(string str)
 
   if (!environment(this_player())->query_outside())
   {
-    notify_fail("Sólo puedes hacer eso al aire libre.\n");
+    notify_fail("SÃ³lo puedes hacer eso al aire libre.\n");
     return 0;
   }
 
@@ -277,7 +277,7 @@ int do_invoke(string str)
 
   if (this_object()->query_timed_property(LOCK_HEARTHSTONE_INVOKE))
   {
-    notify_fail("La piedra aún no ha acumulado suficiente energía desde la última vez.\n");
+    notify_fail("La piedra aÃºn no ha acumulado suficiente energÃ­a desde la Ãºltima vez.\n");
     return 0;
   }
 
@@ -285,7 +285,7 @@ int do_invoke(string str)
 
   if (environment(this_player()) == environment(ob))
   {
-    notify_fail("Tu montura ya se encuentra aquí.\n");
+    notify_fail("Tu montura ya se encuentra aquÃ­.\n");
     return 0;
   }
 

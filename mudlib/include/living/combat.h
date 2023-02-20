@@ -29,18 +29,19 @@
 // ****************************************************
 // old attacks.h
 
-#define SLASHING 1
-#define BLUNT 2
-#define PIERCING 3
+#define SLASHING 0
+#define BLUNT 1
+#define PIERCING 2
 
 #define SLASHING_STR "cortante"
 #define BLUNT_STR    "contundente"
 #define PIERCING_STR "perforante"
 
+#define AC_TYPES ({ SLASHING, BLUNT, PIERCING, })
+#define AC_TYPES_STR ({ SLASHING_STR, BLUNT_STR, PIERCING_STR, })
+
 // ****************************************************
 // armed combat
-
-#define WEAPON_TABLE "/lib/tables/weapon_table.c"
 
 // Porcentaje minimo de control de un estilo
 // #define MIN_ARMED_ABILITY 10

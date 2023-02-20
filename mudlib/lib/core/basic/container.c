@@ -83,7 +83,7 @@ void fix_my_contents_weight()
 	  // Let's be nice to the player and TELL them when they drop something :)
 	  // Anirudh
     tell_object(this_object(), "No puedes sostener todo lo que intentas llevar, " +
-      "así que dejas caer: '"+stuff[i]->query_name()+"'.\n");
+      "asÃ­ que dejas caer: '"+stuff[i]->query_name()+"'.\n");
     stuff[i]->move(environment(this_object()));
   }
 }

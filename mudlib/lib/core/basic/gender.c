@@ -129,11 +129,12 @@ string query_numeral_plural()
 
 // makes sense for languages with gender in sustantives
 // not used in english
-string query_vocal()
+// in spanish we can usually use 'a' for female, and 'o' for male
+string query_vowel()
 {
    if (gender == 2)
-    return _LANG_GENDER_VOCAL_FEMALE;
-   return _LANG_GENDER_VOCAL_MALE;
+    return _LANG_GENDER_VOWEL_FEMALE;
+   return _LANG_GENDER_VOWEL_MALE;
 }
 
 // neverbot, 7/03

@@ -1,5 +1,5 @@
    The server uses the same overall design as the LP server made by
-Lars Pensjö.  However, there are several important differences:
+Lars PensjÃ¶.  However, there are several important differences:
 it uses less memory because it is disk-based; it can dump state and later
 restart from a snapshot; it uses LPC as an internal interpreted language,
 but also offers the option of precompiling LPC objects to C, making them

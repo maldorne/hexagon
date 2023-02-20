@@ -16,7 +16,7 @@ void role_commands()
   add_action("grim_snoop", "qsnoop");  
 
   /* Added by Jada aug '94, blame him if it won't work */
-  add_action("do_title", ({ "title", "titulo", "tÌtulo" }));
+  add_action("do_title", ({ "title", "titulo", "t√≠tulo" }));
   /* Adds for new commandsystem.. */
   add_action("comm_info", "cominfo");
 } 
@@ -53,9 +53,9 @@ int grim_snoop(string str)
     
     if (targ->query_admin())
     {
-      tell_object(targ,"Una voz demonÌaca retumba en tu mente, diciendo:\n  "+
+      tell_object(targ,"Una voz demon√≠aca retumba en tu mente, diciendo:\n  "+
         this_player()->query_cap_name()+" ha intentado "+
-        "snoopearte silenciosamente, mi seÒor.\n");
+        "snoopearte silenciosamente, mi se√±or.\n");
       return 1;
     }
     
@@ -69,8 +69,8 @@ int grim_snoop(string str)
     return 1;
   }
   
-  write("Una voz demonÌaca irrumpe en tu mente:\n  "+
-    "°No tienes el poder ni la habilidad para intentar semejante cosa!\n");
+  write("Una voz demon√≠aca irrumpe en tu mente:\n  "+
+    "¬°No tienes el poder ni la habilidad para intentar semejante cosa!\n");
   return 1;
 }
 
@@ -97,8 +97,8 @@ int do_snoop(string str)
   if (!this_player()->query_admin() && targ->query_admin()) 
   {
     tell_object(targ, "Un bonito pato aparece frente a ti.\n"+
-      "El Pato dice: °Cuac! "+this_player()->query_cap_name()+
-      " est· intentando snoopearte, mi seÒor.\n");
+      "El Pato dice: ¬°Cuac! "+this_player()->query_cap_name()+
+      " est√° intentando snoopearte, mi se√±or.\n");
     return 1;
   }
 
@@ -126,7 +126,7 @@ int do_snoop(string str)
 //   }
   
 //   eval_cost = command(str);
-//   write("\nEl comando '" + str + "' usÛ: " + eval_cost + " ciclos de CPU.\n");
+//   write("\nEl comando '" + str + "' us√≥: " + eval_cost + " ciclos de CPU.\n");
 //   return 1;
 // } 
 
@@ -138,16 +138,16 @@ int do_title(string str)
   if (!strlen(str))
   {
     if (title) 
-      write("Tu tÌtulo es: "+title+"\n");
+      write("Tu t√≠tulo es: "+title+"\n");
     else
-      write("No tienes tÌtulo.\n");
+      write("No tienes t√≠tulo.\n");
       
     write("Sintaxis: titulo <texto>\n"+
           "          titulo -c para borrarlo\n");
   }
   else if (str == "-c")
   {
-    write("Borrando tu tÌtulo.\n");
+    write("Borrando tu t√≠tulo.\n");
     this_player()->set_title("");
     return 1;
   }
@@ -157,7 +157,7 @@ int do_title(string str)
   return 1;
 }
 
-string do_find_comm(string func, object ob) 
+string _do_find_comm(string func, object ob) 
 {
   string s, ping;
   object fish;
@@ -165,9 +165,9 @@ string do_find_comm(string func, object ob)
   s = "";
   
   if (ping = function_exists(func, ob))
-    s += " encontrado en " + ping;
+    s += " found in " + ping;
   else
-    s += " no encontrado";
+    s += " not found";
     
   fish = ob;
   
@@ -189,18 +189,13 @@ int comm_info(string str)
 
   num_comms = 0;
 
-  if (strlen(str)) 
+  if (sscanf(str, "%s %s", s1, s2) && strlen(s2)) 
   {
-    sscanf(str, "%s %s", s1, s2);
-
-    if (s2) 
-    {
-      s2 = this_player()->expand_nickname(s2);
-      on = find_player(s2);
-      str = s1;
-    }
+    s2 = this_player()->expand_nickname(s2);
+    on = find_player(s2);
+    str = s1;
   }
-  
+
   if (on)
     // comms = on->query_commands();
     comms = commands(on);
@@ -209,69 +204,59 @@ int comm_info(string str)
 
   text = "";
   
-  if (!strlen(str) || str == "0")
+  if (!strlen(str))
   {
     for (i = 0; i < sizeof(comms); i++) 
     {
-      // See below, wonderflug
-      // if ((string)comms[i][C_NAME..C_NAME] == "") comms[i][C_NAME..C_NAME] = "*";
-      xtra = do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
-      /* write(i+". "+comms[i][C_NAME]+"["+comms[i][C_DATA]+"] "+
-        file_name((object)comms[i][C_OBJ])+"->"+comms[i][C_FUNC]+"()"+
-        xtra);*/
-      text += i+". "+comms[i][C_NAME]+"["+comms[i][C_DATA]+"] "+
-        base_name((object)comms[i][C_OBJ])+"->"+comms[i][C_FUNC]+"()"+
+      xtra = _do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
+      text += (i+1) + ". " + comms[i][C_NAME] + " " + // "[" + comms[i][C_DATA] + "] " +
+        base_name((object)comms[i][C_OBJ]) + "->" + comms[i][C_FUNC] + "()" +
         xtra;
     }
-    
+
     num_comms = sizeof(comms);
     
-    // AÒadimos los comandos de /cmds, neverbot 01/2010
+    // add /cmds commands, neverbot 01/2010
     comms = CMD_HANDLER->query_available_cmds(this_player());
     num_comms += sizeof(comms);
-    
+
     for (j = 0; j < sizeof(comms); j++) 
     {
-      text += "" + (i+j) + ". " + explode(explode(comms[j], "/")[3], ".")[0] + " " + 
-        explode(comms[j], ".")[0] + "->cmd() encontrado en " +
+      text += "" + (i+j+1) + ". " + explode(explode(comms[j], "/")[3], ".")[0] + " " + 
+        explode(comms[j], ".")[0] + "->cmd() found in " +
         comms[j] + "\n"; 
     }
     
     i += j;
     
     // TODO add souls here
-    // AÒadimos los souls, neverbot 01/2010
+    // add souls, neverbot 01/2010
     /*
     comms = keys("/obj/handlers/soul.c"->query_soul_data());
     num_comms += sizeof(comms);
     
     for (j = 0; j < sizeof(comms); j++) 
     {
-      text += "" + (i+j) + ". " + comms[j] + " soul encontrada en /obj/handlers/soul.c\n"; 
+      text += "" + (i+j+1) + ". " + comms[j] + " soul command found in /obj/handlers/soul.c\n"; 
     }
     */
   
     if (on)
-      write("Buscando en " + on->query_name() + "... " + num_comms + " comandos.\n");
+      write("Searching in " + on->query_name() + "... " + num_comms + " commands.\n");
     else
-      write("Buscando... " + num_comms + " comandos.\n");
+      write("Searching... " + num_comms + " commands.\n");
     
-    this_player()->more_string(text);
+    this_user()->more_string(text);
   }
-  else // buscamos un comando concreto
+  else // looking for a specific command
   {
-    text = "";
-
     for (i = 0; i < sizeof(comms); i++)
     {
-      // We don't match '*', and besides this buggers it somehow.
-      // Wonderflug
-      // if ((string)comms[i][C_NAME] == "") (string)comms[i][C_NAME..C_NAME] = "*";
       if (str == (string)comms[i][C_NAME]) 
       {
-        xtra = do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
-        text = comms[i][C_NAME]+"["+comms[i][C_DATA]+"] "+
-          base_name((object)comms[i][C_OBJ])+"->"+comms[i][C_FUNC]+"()"+
+        xtra = _do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
+        text = comms[i][C_NAME] + " " + // "[" + comms[i][C_DATA] + "] " +
+          base_name((object)comms[i][C_OBJ]) + "->" + comms[i][C_FUNC] + "()" +
           xtra;
         break;
       }
@@ -279,7 +264,7 @@ int comm_info(string str)
     
     num_comms = sizeof(comms);
 
-    // AÒadimos los comandos de /cmds, neverbot 01/2010
+    // A√±adimos los comandos de /cmds, neverbot 01/2010
     comms = CMD_HANDLER->query_available_cmds(this_player());
     num_comms += sizeof(comms);   
     
@@ -291,7 +276,7 @@ int comm_info(string str)
         if (str == explode(explode(comms[j], "/")[3], ".")[0])
         {
           text = explode(explode(comms[j], "/")[3], ".")[0] + " " + 
-            explode(comms[j], ".")[0] + "->cmd() encontrado en " +
+            explode(comms[j], ".")[0] + "->cmd() found in " +
             comms[j] + "\n"; 
           break;
         }
@@ -299,30 +284,30 @@ int comm_info(string str)
     }
     
     // TODO add souls
-    // AÒadimos los souls, neverbot 01/2010
+    // add souls, neverbot 01/2010
     /*
     comms = keys("/obj/handlers/soul.c"->query_soul_data());
     num_comms += sizeof(comms);
         
-    // Si no se ha encontrado, buscamos en los souls
+    // if not found, search in the soul commands
     if (text == "")
     {     
       for (j = 0; j < sizeof(comms); j++) 
       {
         if (str == comms[j])
         {
-          text += "" + (i+j) + ". " + comms[j] + " soul encontrada en /obj/handlers/soul.c\n"; 
+          text += "" + (i+j) + ". " + comms[j] + " soul command found in /obj/handlers/soul.c\n"; 
           break;
         }
       }
     } 
     */
-    
+
     if (on)
-      write("Buscando en " + on->query_name() + "... " + num_comms + " comandos.\n");
+      write("Searching in " + on->query_name() + "... " + num_comms + " commands.\n");
     else
-      write("Buscando... " + num_comms + " comandos.\n"); 
-  
+      write("Searching... " + num_comms + " commands.\n");
+    
     write(text);  
   }
   return 1;

@@ -227,7 +227,7 @@ nomask int save_me()
   if ((this_object()->query_role_name() == PLAYER_ROLE) ||
       (member_array(query_verb(), ({ "save", "salvar", "grabar" })) != -1))
   {
-    tell_object(this_object(), "Salvando...\n");
+    tell_object(this_object(), _LANG_PLAYER_SAVING);
   }
 
   if ((ob = present(MONEY_NAME, this_object())))

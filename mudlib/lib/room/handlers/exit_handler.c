@@ -397,8 +397,8 @@ int do_exit_command(mapping door_control,
             }
             else
             {
-              tell_object(ob, list[k]->query_short() + " est· vigilando esa direcciÛn, " +
-                  "pero en un descuido te cuelas sin que se dÈ cuenta.\n");
+              tell_object(ob, list[k]->query_short() + " est√° vigilando esa direcci√≥n, " +
+                  "pero en un descuido te cuelas sin que se d√© cuenta.\n");
               sneak = 1;
               break;
             }

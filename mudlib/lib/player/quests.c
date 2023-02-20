@@ -368,7 +368,7 @@ int add_quest(string object_path, int quest_type, int how_many,
   
   if (map_sizeof(quests) >= MAX_QUESTS)
   {
-    tell_object(this_object(), "Tu registro de misiones est· lleno, no puedes aceptar ninguna m·s.\n");
+    tell_object(this_object(), "Tu registro de misiones est√° lleno, no puedes aceptar ninguna m√°s.\n");
       return 0;
   }
 
@@ -474,7 +474,7 @@ int finish_quest(string object_path, string questman_path)
   if (!has_finished_quest(object_path, questman_path))
     return 0;
   
-  // AÒadimos la quest a la lista de terminadas
+  // A√±adimos la quest a la lista de terminadas
   if (!quests_done[questman_path])
     quests_done[questman_path] = ({ object_path, });
   else

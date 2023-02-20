@@ -11,19 +11,19 @@
 #define _LANG_DOOR_IS_LOCKED "La puerta hacia " + dest  + " está cerrada con llave.\n"
 #define _LANG_DOOR_IS_LOCKED_KNOWN "La puerta " + dest  + " está cerrada con llave.\n"
 #define _LANG_DOOR_IS_LOCKED_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) + " " + \
-                                    dest + ((!number) ? " está cerrad" + query_vocal() + " con llave" : \
-                                    " están cerrad" + query_vocal() + "s con llave") + ".\n"
+                                    dest + ((!number) ? " está cerrad" + query_vowel() + " con llave" : \
+                                    " están cerrad" + query_vowel() + "s con llave") + ".\n"
 
 #define _LANG_DOOR_USE_TO_UNLOCK "Utilizas tu " + obs[i]->short() + ".\n"
 
-#define _LANG_DOOR_NOT_LOCKED "No está cerrad" + query_vocal() + " con llave.\n"
+#define _LANG_DOOR_NOT_LOCKED "No está cerrad" + query_vowel() + " con llave.\n"
 #define _LANG_DOOR_CANNOT_BE_LOCKED "No puede cerrarse con llave.\n"
 
 #define _LANG_DOOR_OPEN_ALREADY "La puerta hacia " + dest + " ya está abierta.\n"
 #define _LANG_DOOR_OPEN_ALREADY_KNOWN "La puerta " + dest + " ya está abierta.\n"
 #define _LANG_DOOR_OPEN_ALREADY_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) + \
-                                  " " + dest + ((!number) ? (" ya está abiert" + query_vocal()) : \
-                                                            (" ya están abiert" + query_vocal() + "s"))
+                                  " " + dest + ((!number) ? (" ya está abiert" + query_vowel()) : \
+                                                            (" ya están abiert" + query_vowel() + "s"))
 
 #define _LANG_DOOR_YOU_OPEN "Abres la puerta hacia " + door + ".\n"
 #define _LANG_DOOR_YOU_OPEN_KNOWN "Abres la puerta " + door + ".\n"
@@ -43,16 +43,16 @@
 #define _LANG_DOOR_BROKEN "La puerta hacia " + dest + " está rota.\n"
 #define _LANG_DOOR_BROKEN_KNOWN "La puerta " + dest + " está rota.\n"
 #define _LANG_DOOR_BROKEN_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) + \
-                                   " " + dest + ((!number) ? "está rot" + query_vocal() : \
-                                   "están rot" + query_vocal() + "s") + ".\n"
+                                   " " + dest + ((!number) ? "está rot" + query_vowel() : \
+                                   "están rot" + query_vowel() + "s") + ".\n"
 
 #define _LANG_DOOR_VERB_TO_LOCK_USED ((sizeof(list) >= 3) && (list[1] == "con") && (list[2] == "llave"))
 
 #define _LANG_DOOR_LOCK_ALREADY "La puerta hacia " + dest + " ya está cerrada con llave.\n"
 #define _LANG_DOOR_LOCK_ALREADY_KNOWN "La puerta " + dest + " ya está cerrada con llave.\n"
 #define _LANG_DOOR_LOCK_ALREADY_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) + \
-                                   " " + dest + ((!number) ? (" ya está cerrad" + query_vocal()) : \
-                                   (" ya están cerrad" + query_vocal() + "s")) + " con llave.\n"
+                                   " " + dest + ((!number) ? (" ya está cerrad" + query_vowel()) : \
+                                   (" ya están cerrad" + query_vowel() + "s")) + " con llave.\n"
 
 #define _LANG_DOOR_NEED_A_KEY "No tienes la llave necesaria.\n"
 #define _LANG_DOOR_USE_TO_LOCK "Utilizas tu " + obs[i]->short() + ".\n"
@@ -71,8 +71,8 @@
 #define _LANG_DOOR_CLOSED_ALREADY "La puerta hacia " + dest + " ya está cerrada.\n"
 #define _LANG_DOOR_CLOSED_ALREADY_KNOWN "La puerta " + dest + " ya está cerrada.\n"
 #define _LANG_DOOR_CLOSED_ALREADY_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) + \
-                                  " " + dest + ((!number) ? (" ya está cerrad" + query_vocal()) : \
-                                                            (" ya están cerrad" + query_vocal() + "s"))
+                                  " " + dest + ((!number) ? (" ya está cerrad" + query_vowel()) : \
+                                                            (" ya están cerrad" + query_vowel() + "s"))
 
 #define _LANG_DOOR_YOU_CLOSE "Cierras la puerta hacia " + door + ".\n"
 #define _LANG_DOOR_YOU_CLOSE_KNOWN "Cierras la puerta " + door + ".\n"

@@ -12,7 +12,7 @@ nomask int second_life(object corpse, object initiator)
   str = query_cap_name() + " matad"+G_CHAR+" por ";
 
   if (!sizeof(attacker_list))
-    str += initiator->query_cap_name()+" (sobre sÌ mismo, quiz· con un call)";
+    str += initiator->query_cap_name()+" (sobre s√≠ mismo, quiz√° con un call)";
   else
     for (i = 0; i < sizeof(attacker_list); i++)
       if (attacker_list[i])
@@ -78,7 +78,7 @@ void remove_ghost()
 {
   if (this_object()->query_real_con() < 1)
   {
-    tell_object(this_object(),"Algo va mal... tu constituciÛn es " +
+    tell_object(this_object(),"Algo va mal... tu constituci√≥n es " +
       "demasiado baja.\n");
     return;
   }

@@ -69,7 +69,7 @@
 #define _LANG_DEATH_DEATH_BLOW_NO_KILLER this_object()->query_cap_name() + \
       " ha muerto horriblemente.\n"
 #define _LANG_DEATH_CORPSE_DEF "Tu cuerpo pierde sus últimos alientos de vida"
-#define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " cae al suelo destrozad"+this_object()->query_vocal()
+#define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " cae al suelo destrozad"+this_object()->query_vowel()
 
 // unarmed_combat.c
 
@@ -104,3 +104,17 @@
 
 #define _LANG_UNARMED_STYLE_INFO "Estilo de combate desarmado: '"+style+"'. Nivel de habilidad: "+unarmed_ability+"%.\n"
 #define _LANG_UNARMED_STYLE_IMPROVED "¡Has mejorado tus habilidades en "+style+"!\n"
+
+// hold.c
+
+#define _LANG_HOLD_VERBS ({ "empuñar", "empunyar", "sostener" })
+#define _LANG_HOLD_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"
+#define _LANG_HOLD_NOT_IN_INV "No llevas eso en tu inventario.\n"
+#define _LANG_HOLD_ALREADY_HOLDING "¡Ya estás sosteniendo eso!\n"
+#define _LANG_HOLD_CANNOT_HOLD "No puedes sostener eso.\n"
+#define _LANG_HOLD_HANDS_NEEDED "No tienes suficientes manos libres para sostener eso.\n"
+
+#define _LANG_UNHOLD_VERBS ({ "desempuñar", "desempunyar", "soltar" })
+#define _LANG_HOLD_NOT_HOLDING "No estás sosteniendo ese objeto.\n"
+#define _LANG_UNHOLD_MSG "Dejas de sostener tu " + (string)ob->query_short() + ".\n"
+#define _LANG_CANNOT_UNHOLD_MSG "No puedes dejar de sostener tu " + (string)ob->query_short() + ".\n"

@@ -1,5 +1,5 @@
 /* 
- * Sistema generico para añadir guardianes a una salida, de modo
+ * Sistema generico para aÃ±adir guardianes a una salida, de modo
  * que impidan a npcs y jugadores salir por esa salida a menos que
  * cumplan una condicion (o el npc se mueva o desaparezca).
  * 

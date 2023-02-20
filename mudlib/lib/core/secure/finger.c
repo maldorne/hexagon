@@ -259,7 +259,7 @@ string finger_info(string name, varargs object me)
     retval += _LANG_FINGER_CODER;
 
     // if (me && me->query_coder())
-    //       retval += sprintf("%30s", "Directorio raíz: "+home_dir+"\n");
+    //       retval += sprintf("%30s", "Directorio raÃ­z: "+home_dir+"\n");
 
     // Find out which domains they are a member of...
     bing = get_dir("/game/areas/");
@@ -314,7 +314,7 @@ string finger_info(string name, varargs object me)
 
     // catch(bing = "/game/groups/master"->query_patronages(name));
     // if (sizeof(bing))
-    //   retval += "Es el Patrón de "+implode(bing,", ")+".\n";
+    //   retval += "Es el PatrÃ³n de "+implode(bing,", ")+".\n";
   }
 
   retval += "\n";

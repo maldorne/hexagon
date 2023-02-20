@@ -21,7 +21,7 @@ void show_commands()
 int chfn(string str)
 {
   write("Cambiando los datos personales de tu cuenta.\n");
-  write("Si no introduces algún dato, se tomará la opción por defecto (entre corchetes).\n");
+  write("Si no introduces algÃºn dato, se tomarÃ¡ la opciÃ³n por defecto (entre corchetes).\n");
 
   write("\nIntroduce tu nombre real ["+this_object()->query_real_name()+"]\n"+
     "('ninguno' para borrarlo): ");
@@ -76,7 +76,7 @@ int get_where(string str)
     write("Ok, lugar de residencia sin modificar.\n");
   }
 
-  write("\nIntroduce tu fecha de cumpleaños (ddmm) ["+this_object()->query_birthday()+"]\n"+
+  write("\nIntroduce tu fecha de cumpleaÃ±os (ddmm) ["+this_object()->query_birthday()+"]\n"+
     "('ninguna' para borrarla): ");
   input_to("birthday");
   return 1;
@@ -89,23 +89,23 @@ void birthday(string str)
     if ((str == "none") || (str == "ninguno") || (str == "ninguna"))
     {
       this_object()->set_birthday("");
-      write("Ok, fecha de cumpleaños borrada.\n");
+      write("Ok, fecha de cumpleaÃ±os borrada.\n");
     }
     else
     {
       if (!handler(CALENDAR_HANDLER)->valid_birthday(str))
       {
-        write("La fecha no es válida, vuelve a introducirla (ddmm): ");
+        write("La fecha no es vÃ¡lida, vuelve a introducirla (ddmm): ");
         input_to("birthday",1);
         return;
       }
       this_object()->set_birthday(str);
-      write("Ok, fecha de cumpleaños establecida como "+str+".\n");
+      write("Ok, fecha de cumpleaÃ±os establecida como "+str+".\n");
     }
   }
   else
   {
-    write("Ok, fecha de cumpleaños sin modificar.\n");
+    write("Ok, fecha de cumpleaÃ±os sin modificar.\n");
   }
 
   this_object()->save_me();
@@ -115,11 +115,11 @@ void birthday(string str)
   // remove email change for now, it's set with
   // the account and cannot be changed
 
-  // write("\nIntroduce tu dirección de email ["+this_object()->query_email()+"]\n"+
+  // write("\nIntroduce tu direcciÃ³n de email ["+this_object()->query_email()+"]\n"+
   //   "('ninguna' para borrarla): ");
 
-  // write("\nPuedes anteponer el símbolo ':' delante, y así sólo los administradores "+
-  //     "podrán verlo.\n");
+  // write("\nPuedes anteponer el sÃ­mbolo ':' delante, y asÃ­ sÃ³lo los administradores "+
+  //     "podrÃ¡n verlo.\n");
   // input_to("set_email");
 
 } /* birthday() */
@@ -132,7 +132,7 @@ int set_email(string str)
     if ((str == "none") || (str == "ninguno") || (str == "ninguna"))
     {
       this_object()->set_email("");
-      write("Ok, dirección de email borrada.\n");
+      write("Ok, direcciÃ³n de email borrada.\n");
     }
     else
     {
@@ -142,20 +142,20 @@ int set_email(string str)
 
       if (!SECURE->valid_email(str))
       {
-        write("Dirección de email inválida, se deja sin modificar.\n");
+        write("DirecciÃ³n de email invÃ¡lida, se deja sin modificar.\n");
         return 1;
       }
 
       if (str[0..0] == ":")
-        write("Tu dirección de email sólo será visible por administradores.\n");
+        write("Tu direcciÃ³n de email sÃ³lo serÃ¡ visible por administradores.\n");
 
       this_object()->set_email(str);
-      write("Ok, dirección de email establecida como "+str+".\n");
+      write("Ok, direcciÃ³n de email establecida como "+str+".\n");
     }
   }
   else
   {
-    write("Ok, dirección de email sin modificar.\n");
+    write("Ok, direcciÃ³n de email sin modificar.\n");
   }
   return 1;
 }

@@ -1,17 +1,17 @@
 
 // common
 
-#define _LANG_CMD_NOTHING_HERE "No hay nada con el nombre '"+arg+"' aquí.\n"
+#define _LANG_CMD_NOTHING_HERE "No hay nada con el nombre '"+arg+"' aquÃ­.\n"
 
 // kill.c
 
 #define _LANG_CMD_KILL_SYNTAX "Sintaxis: atacar <objetivos>"
 #define _LANG_CMD_KILL_HELP "Comienza a atacar a los objetivos especificados."
-#define _LANG_CMD_KILL_NOT_ALLOWED "No está permitido.\n"
+#define _LANG_CMD_KILL_NOT_ALLOWED "No estÃ¡ permitido.\n"
 #define _LANG_CMD_KILL_NOT_ALLOWED_ARRAY ({ "todo", "todos", "all", "everyone" })
-#define _LANG_CMD_KILL_NO_NEED_WHEN_DEAD "Tu estado etéreo tiene poco efecto en el mundo material.\n"
+#define _LANG_CMD_KILL_NO_NEED_WHEN_DEAD "Tu estado etÃ©reo tiene poco efecto en el mundo material.\n"
 #define _LANG_CMD_KILL_NOT_FOUND "No consigues encontrar a "+me->expand_nickname(str)+".\n"
-#define _LANG_CMD_KILL_NOT_SUICIDE "¿Te quieres suicidar?\n"
+#define _LANG_CMD_KILL_NOT_SUICIDE "Â¿Te quieres suicidar?\n"
 #define _LANG_CMD_KILL_NOT_ALIVE "Intentas golpear a " + str + ", pero " + str + " no " + \
                                  "parece darse cuenta.\n"
 #define _LANG_CMD_KILL_START "Ok. Comienzas a pelear con " + query_multiple_short(res, 0) + ".\n"
@@ -20,10 +20,10 @@
 
 #define _LANG_CMD_LOOK "mirar"
 #define _LANG_CMD_LOOK_SYNTAX "Sintaxis: mirar [a] [<objeto>]"
-#define _LANG_CMD_LOOK_HELP "Devuelve la descripción de un objeto o (por defecto) " + \
-                    "la localización en la que te encuentras."
-#define _LANG_CMD_LOOK_NO_ENVIRONMENT "No estás en ningún sitio... no puedes ver nada.\n"
-#define _LANG_CMD_LOOK_BLINDED "No puedes ver nada. ¡Estás cegado!\n"
+#define _LANG_CMD_LOOK_HELP "Devuelve la descripciÃ³n de un objeto o (por defecto) " + \
+                    "la localizaciÃ³n en la que te encuentras."
+#define _LANG_CMD_LOOK_NO_ENVIRONMENT "No estÃ¡s en ningÃºn sitio... no puedes ver nada.\n"
+#define _LANG_CMD_LOOK_BLINDED "No puedes ver nada. Â¡EstÃ¡s cegado!\n"
 
 // prompt
 
@@ -35,17 +35,17 @@
            "En <texto>, se aceptan los siguientes atajos:\n" + \
            "     $n -> tu nombre\n" + \
            "     $h -> tus puntos de vida actuales\n" + \
-           "     $g -> tus puntos de energía actuales\n" + \
+           "     $g -> tus puntos de energÃ­a actuales\n" + \
            "     $B -> comenzar negrita\n" + \
            "     $m -> el nombre del mud\n" + \
            (user->query_coder() ? "     $~ -> path actual\n" : "") + \
-           "\nPor ejemplo: 'prompt $n ($h)' mostrará en cada línea:\n" + \
+           "\nPor ejemplo: 'prompt $n ($h)' mostrarÃ¡ en cada lÃ­nea:\n" + \
            "     " + me->query_name() + " (" + me->query_hp() + ") >\n"
 #define _LANG_PROMPT_OK "Ok, prompt cambiado.\n"
 
 // whoami
 
-#define _LANG_WHOAMI_HELP "Muestra onformación sobre tu propio personaje."
+#define _LANG_WHOAMI_HELP "Muestra onformaciÃ³n sobre tu propio personaje."
 #define _LANG_WHOAMI_CLASS_FIRST "   Clase:\n"
 #define _LANG_WHOAMI_CLASS_EACH "     " + (me->query_class_ob())->query_short() + \
       " de nivel " + me->query_level() + ".\n"

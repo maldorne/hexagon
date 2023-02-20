@@ -33,7 +33,7 @@ protected int cmd(string str, object me, string verb)
 	if (str && str != "-l")
 	{
 		tell_object(me, "Sintaxis: comandos (para listar todos los comandos)\n"
-		                "          comandos -l (para una lista con m·s informaciÛn)\n\n");
+		                "          comandos -l (para una lista con m√°s informaci√≥n)\n\n");
 		return 1;
 	}
 	

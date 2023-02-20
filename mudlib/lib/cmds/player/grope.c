@@ -34,7 +34,7 @@ static int cmd(string arg, object me, string verb)
 
 	if(!me->query_property(BLIND_PROP) && !dark) 
 	{
-		notify_fail("Palpar los alrededores únicamente te servirá cuando estés ciego o esté muy oscuro.\n");
+		notify_fail("Palpar los alrededores Ãºnicamente te servirÃ¡ cuando estÃ©s ciego o estÃ© muy oscuro.\n");
 		return 0;
 	}   
 
@@ -60,19 +60,19 @@ static int cmd(string arg, object me, string verb)
 		
 		if(interactive(contents[j]) )
 		{
-			tell_object(me, "¡Te encuentras en medio a "+
+			tell_object(me, "Â¡Te encuentras en medio a "+
 				contents[j]->query_cap_name()+"!\n");
-			tell_object(contents[j],"¡"+me->query_cap_name()+" choca contigo.\n");
+			tell_object(contents[j],"Â¡"+me->query_cap_name()+" choca contigo.\n");
 
-			tell_room(environment(me),"¡"+me->query_cap_name()+" choca con "
+			tell_room(environment(me),"Â¡"+me->query_cap_name()+" choca con "
 				+contents[j]->query_cap_name()+".\n",({ me, contents[j]}));
 		}
 		else
 			if(contents[j]->query_npc())
 		{
-			tell_object(me, "¡Parece que te has chocado con"+
+			tell_object(me, "Â¡Parece que te has chocado con"+
 				" "+contents[j]->query_cap_name()+"!\n");
-			tell_room(environment(me),"¡"+me->query_cap_name()+" se choca con "+
+			tell_room(environment(me),"Â¡"+me->query_cap_name()+" se choca con "+
 				+contents[j]->query_cap_name()+"!\n",({ me, }));
 
 			// contents[j]->attack_ob(me);

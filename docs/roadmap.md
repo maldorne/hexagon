@@ -1,6 +1,6 @@
 # Project status and roadmap
 
-### Current milestone: [v22.?? Castle Black](https://github.com/maldorne/hexagon/milestone/3)
+### Current milestone: [v23.03 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
 Set of features we are currently working on. 
 
@@ -12,6 +12,12 @@ Set of features we are currently working on.
 |        | **Documentation** | Review and full translation of every `lib/cmds` command. |
 | :white_check_mark: |  | :heavy_minus_sign: Add compatibility and status list in the repository ([done](commands.md)). |
 |        |  | :heavy_minus_sign: Test and translate every command, by user type: `login` [[#13](https://github.com/maldorne/hexagon/issues/13)], `player` [[#14](https://github.com/maldorne/hexagon/issues/14)], `coder` [[#15](https://github.com/maldorne/hexagon/issues/15)], `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)].  |
+| :white_check_mark: | **Containers** | Dockerfile to execute the mud inside a container, and related documentation. |
+| :white_check_mark: | **Encoding** | Review files in the repository, not all of them are using the same encoding [[#20](https://github.com/maldorne/hexagon/issues/20)]. |
+|        | **Basic objects** | Full inheritance tree from the original `ccmudlib`, objects related to combat [[#21](https://github.com/maldorne/hexagon/issues/21)]. |
+| :white_check_mark: |  | :heavy_minus_sign: `weapon.c` |
+|        |  | :heavy_minus_sign: `armour.c` |
+|        |  | :heavy_minus_sign: `shield.c` |
 
 ## Next milestones: 
 
@@ -31,7 +37,7 @@ TBA.
 | :white_check_mark: |  | :heavy_minus_sign: Default test area as game example (`/games/demo-fantasy`). |
 | :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/maldorne/hexagon/issues/6)]. |
 | :white_check_mark: |  | :heavy_minus_sign: Deploy simultaneously to both english and spanish servers. |
-| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib`, some files pending review since the [v19.05](https://github.com/maldorne/hexagon/tree/19.05) milestone. |
+| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib`, some files pending review since the [v19.05](https://github.com/maldorne/hexagon/tree/19.05) milestone. |
 | :white_check_mark: |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 
 
@@ -56,16 +62,16 @@ After version 19.05, we started working with milestones, prior to that, we only 
 
 | Status | Title | Description |
 | :----: | :---- | ----------- | 
-| :white_check_mark: | **MudOS compatibility** | Being done, see the [MudOS compatibility status document](compatibility.md) for more detailed information about each function. |
-| :white_check_mark: | **Cmds system** | Include an implementation of the **AuroraMud command (cmds) system**. This will help test and debug everything as new commands are ported. |
-| :white_check_mark: | **Test and document** | Test and document the current status of the project. We use this document and the [MudOS compatibility status document](compatibility.md). |
-| :white_check_mark: | **Heartbeats** | Handling of the object "turns" and pending actions. |
-| :white_check_mark: | **Rooms and movement** | Environments, inventories, `move` functions, move commands between rooms. `init` function calling. |
-| :white_check_mark: | **Actions and `this_player()`** | Actions, `init` function calling, `this_player()`, `query_verb()` and `notify_fail()`. |
-| :white_check_mark: | **`exec` command** |  Command to execute LPC code on the fly to help test everything. |
-| :white_check_mark: | **User types and login** | Players, coders, managers, administrators, etc. and their login process. |
-| :white_check_mark: | **Shadows** | Emulate MudOS shadows. |
-| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib` |
+| :white_check_mark: | **MudOS compatibility** | Being done, see the [MudOS compatibility status document](compatibility.md) for more detailed information about each function. |
+| :white_check_mark: | **Cmds system** | Include an implementation of the **AuroraMud command (cmds) system**. This will help test and debug everything as new commands are ported. |
+| :white_check_mark: | **Test and document** | Test and document the current status of the project. We use this document and the [MudOS compatibility status document](compatibility.md). |
+| :white_check_mark: | **Heartbeats** | Handling of the object "turns" and pending actions. |
+| :white_check_mark: | **Rooms and movement** | Environments, inventories, `move` functions, move commands between rooms. `init` function calling. |
+| :white_check_mark: | **Actions and `this_player()`** | Actions, `init` function calling, `this_player()`, `query_verb()` and `notify_fail()`. |
+| :white_check_mark: | **`exec` command** |  Command to execute LPC code on the fly to help test everything. |
+| :white_check_mark: | **User types and login** | Players, coders, managers, administrators, etc. and their login process. |
+| :white_check_mark: | **Shadows** | Emulate MudOS shadows. |
+| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib` |
 | :white_check_mark: |  | :heavy_minus_sign: **coder, manager, administrator** to the different user roles. |
 | :white_check_mark: |  | :heavy_minus_sign: **living** to `/lib/living/living.c`. |
 | :white_check_mark: |  | :heavy_minus_sign: **player** to `/lib/player.c` (avatar in-game handling) and `/lib/user.c` (user account, connection, input and output) |

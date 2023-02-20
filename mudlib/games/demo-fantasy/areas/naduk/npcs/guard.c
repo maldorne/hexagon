@@ -18,12 +18,12 @@ void setup()
   set_race_ob(OBJ + "races/human.c");
   set_gender(1);
   
-  set_real_align(-100+random(50));
+  set_real_align(-100 + random(50));
   set_random_stats(3, 18);
   set_wimpy(0);
   set_level(6 + random(5));
   
-  adjust_money(100+random(400), "copper");
+  adjust_money(100 + random(400), "copper");
   
   load_chat(50, ({
       1, _LANG_NPCS_GUARD_CHAT[0],

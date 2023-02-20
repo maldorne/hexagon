@@ -1,14 +1,14 @@
-Uso: <valor><opción>
-Opciones (entre paréntesis el valor por defecto)
+Uso: <valor><opciÃ³n>
+Opciones (entre parÃ©ntesis el valor por defecto)
 
-z o (espacio en blanco) - avanzar una línea
-f (forward)  - adelantar n páginas (1)
-b (backward) - retroceder n páginas (1)
-g (goto)     - ir a la línea n (Primera línea)
-G (goto)     - ir a la línea n (Fin de archivo)
-/palabra     - buscar la línea que contenga una cadena en ella
--            - buscar la siguiente aparición de la última búsqueda
-.            - muestra una página completa hasta la posición actual
+z o (espacio en blanco) - avanzar una lÃ­nea
+f (forward)  - adelantar n pÃ¡ginas (1)
+b (backward) - retroceder n pÃ¡ginas (1)
+g (goto)     - ir a la lÃ­nea n (Primera lÃ­nea)
+G (goto)     - ir a la lÃ­nea n (Fin de archivo)
+/palabra     - buscar la lÃ­nea que contenga una cadena en ella
+-            - buscar la siguiente apariciÃ³n de la Ãºltima bÃºsqueda
+.            - muestra una pÃ¡gina completa hasta la posiciÃ³n actual
 q o Q        - salir del lector
 h o ?        - muestra esta ayuda
 

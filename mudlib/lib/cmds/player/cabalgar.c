@@ -18,7 +18,7 @@ protected int cmd (string arg, object me, string verb)
 {
 	if (!me->query_riding())
 	{
-		notify_fail("Sólo funciona si estás sobre una montura.\n");
+		notify_fail("SÃ³lo funciona si estÃ¡s sobre una montura.\n");
 		return 0;
 	}
 
@@ -31,7 +31,7 @@ protected int cmd (string arg, object me, string verb)
         }
         else
         {
-            notify_fail("¿"+capitalize(verb)+" hacia dónde?\n");
+            notify_fail("Â¿"+capitalize(verb)+" hacia dÃ³nde?\n");
             return 0;
         }
     }

@@ -1,5 +1,5 @@
-// Traducción revisada para CcMud, neverbot 7/03
-// Añadido numero de notas sin leer, neverbot 2/06
+// TraducciÃ³n revisada para CcMud, neverbot 7/03
+// AÃ±adido numero de notas sin leer, neverbot 2/06
 
 #include <mud/mail.h>
 #include <item/board.h>
@@ -25,11 +25,11 @@ void create()
 
 void setup()
 {
-  set_name("tablón de notas");
+  set_name("tablÃ³n de notas");
   add_alias("tablon");
-  add_alias("tablón");
+  add_alias("tablÃ³n");
 
-  set_short("Tablón de Notas");
+  set_short("TablÃ³n de Notas");
   set_main_plural("Tablones");
   add_plural("tablones");
 }
@@ -51,7 +51,7 @@ string query_plural()
 
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   switch (sizeof(stuff)) {
-    case 0:  return pluralize(::short(0))+" [ Vacío ]";
+    case 0:  return pluralize(::short(0))+" [ VacÃ­o ]";
     case 1:  return pluralize(::short(0))+" [ 1 nota ]";
   }
    return pluralize(::short(0))+" [ "+sizeof(stuff)+" notas ]";
@@ -67,7 +67,7 @@ string short(varargs int dark)
   pending = this_object()->query_new_messages();
 
   switch (sizeof(stuff)) {
-    case 0:  return ::short(dark)+" [ Vacío ]";
+    case 0:  return ::short(dark)+" [ VacÃ­o ]";
     case 1:  return ::short(dark)+" [ 1 nota ]";
     default:
     if (pending)
@@ -93,7 +93,7 @@ int subjects(string str, int dark)
 
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   if (!sizeof(stuff)) {
-    notify_fail("El tablón está completamente vacío.\n");
+    notify_fail("El tablÃ³n estÃ¡ completamente vacÃ­o.\n");
     return 0;
   }
   news_rc = (mapping)this_player()->query_property(NEWS_RC);
@@ -102,7 +102,7 @@ int subjects(string str, int dark)
   ret = "";
 
   if (this_player()->query_coder())
-    ret += "El tablón de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n\n";
+    ret += "El tablÃ³n de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n\n";
 
   for (i=0;i<sizeof(stuff);i++)
   {
@@ -136,15 +136,15 @@ string long(string str, int dark)
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
 
   if (this_player()->query_coder())
-    ret += "El tablón de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n";
+    ret += "El tablÃ³n de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n";
 
   ret += "Comandos:\n";
   ret += sprintf("%#-*s\n\n", this_user()->query_cols(),
-                            "leer [número de nota]\nescribir <tema>\n"+
-                            "temas\nborrar <número de nota>\n"+
-                            "responder <número de nota>\nmudmail <número de nota>\n");
+                            "leer [nÃºmero de nota]\nescribir <tema>\n"+
+                            "temas\nborrar <nÃºmero de nota>\n"+
+                            "responder <nÃºmero de nota>\nmudmail <nÃºmero de nota>\n");
   if (!sizeof(stuff))
-    return ret+"El tablón está completamente vacío.\n";
+    return ret+"El tablÃ³n estÃ¡ completamente vacÃ­o.\n";
 
   news_rc = (mapping)this_player()->query_property(NEWS_RC);
 
@@ -199,7 +199,7 @@ int read(string str)
   mapping news_rc;
   string mensaje,lang;
 
-  notify_fail("Sintaxis: leer <número de nota>\n");
+  notify_fail("Sintaxis: leer <nÃºmero de nota>\n");
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   news_rc = (mapping)this_player()->query_property(NEWS_RC);
   if (!news_rc)
@@ -216,7 +216,7 @@ int read(string str)
   } else if (sscanf(str, "%d", num) != 1)
     return 0;
   if (num < 1 || num > sizeof(stuff)) {
-    notify_fail("No hay ninguna nota con ese número.\n");
+    notify_fail("No hay ninguna nota con ese nÃºmero.\n");
     return 0;
   }
   num --;
@@ -244,7 +244,7 @@ int read(string str)
 
   mensaje = sprintf("  %-=*s\n", (int)this_user()->query_cols() - 2, mensaje);
 
-  string_more(sprintf("Nota #%d escrita por %s el %s\nTítulo: '%s'\n\n",
+  string_more(sprintf("Nota #%d escrita por %s el %s\nTÃ­tulo: '%s'\n\n",
               num+1, "%^GREEN%^" +
               ((!this_player()->query_coder() &&
                  sizeof(get_files("/home/"+stuff[num][B_NAME])))?"Administrador":capitalize(stuff[num][B_NAME])) +
@@ -260,7 +260,7 @@ int post(string str)
 {
   if ( (member_array(board_name,readonly) != -1) && !this_player()->query_coder())
   {
-    write("Sólo los programadores pueden escribir en este tablón.\n");
+    write("SÃ³lo los programadores pueden escribir en este tablÃ³n.\n");
     return 1;
   }
   notify_fail("Sintaxis: escribir <tema>\n");
@@ -300,7 +300,7 @@ void end_of_thing(string body)
 int eat(string str) {
   int num, i, eaten;
 
-  notify_fail("Sintaxis: borrar [hasta] <número de nota>\n");
+  notify_fail("Sintaxis: borrar [hasta] <nÃºmero de nota>\n");
   if (!str || (str == ""))
     return 0;
   if (sscanf(str, "hasta %d", num)) {
@@ -324,8 +324,8 @@ int eat(string str) {
     return 0;
   if (!BOARD_HAND->delete_message(board_name, num-1))
     return 0;
-  write("Arrancas y destruyes la nota número "+num+".\n");
-  say(this_player()->query_cap_name()+" arranca y destruye la nota número "+
+  write("Arrancas y destruyes la nota nÃºmero "+num+".\n");
+  say(this_player()->query_cap_name()+" arranca y destruye la nota nÃºmero "+
          num+".\n");
   event(users(), "inform", this_player()->query_cap_name()+" borra una nota "+
                            "de "+board_name, "tablones");
@@ -340,17 +340,17 @@ int followup(string str)
 
   if ( (member_array(board_name,readonly) != -1) && !this_player()->query_coder())
   {
-    write("Sólo los programadores pueden escribir en este tablón.\n");
+    write("SÃ³lo los programadores pueden escribir en este tablÃ³n.\n");
     return 1;
   }
-  notify_fail("Sintaxis: responder <número de nota>\n");
+  notify_fail("Sintaxis: responder <nÃºmero de nota>\n");
   if (!strlen(str))
     return 0;
   if (sscanf(str, "%d", num) != 1)
     return 0;
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   if (num < 1 || num > sizeof(stuff)) {
-    notify_fail("No hay ninguna nota con ese número.\n");
+    notify_fail("No hay ninguna nota con ese nÃºmero.\n");
     return 0;
   }
   if (sscanf(stuff[num-1][B_SUBJECT], "Re:#%d %s", i, s) != 2)
@@ -372,26 +372,26 @@ int reply(string str)
 
   if (this_player()->query_player())
   {
-    notify_fail("El servicio de respuesta de notas por correo está " +
+    notify_fail("El servicio de respuesta de notas por correo estÃ¡ " +
         "desactivado temporalmente. Utiliza 'responder <nota>' " +
-        "para responder dentro del propio tablón.\n");
+        "para responder dentro del propio tablÃ³n.\n");
     return 0;
   }
 
   // if (board_name=="announcements" && !this_player()->query_coder() )
   if ( (member_array(board_name, readonly) != -1) && !this_player()->query_coder())
   {
-    write("Sólo los programadores pueden escribir en este tablón.\n");
+    write("SÃ³lo los programadores pueden escribir en este tablÃ³n.\n");
     return 1;
   }
-  notify_fail("Sintaxis: mudmail <número de nota>\n");
+  notify_fail("Sintaxis: mudmail <nÃºmero de nota>\n");
   if (!strlen(str))
     return 0;
   if (sscanf(str, "%d", num) != 1)
     return 0;
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   if (num < 1 || num > sizeof(stuff)) {
-    notify_fail("No hay ninguna nota con ese número.\n");
+    notify_fail("No hay ninguna nota con ese nÃºmero.\n");
     return 0;
   }
   MAIL_TRACK->mail(stuff[num-1][B_NAME], stuff[num-1][B_SUBJECT]);

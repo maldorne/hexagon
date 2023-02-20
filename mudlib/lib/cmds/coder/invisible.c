@@ -10,7 +10,7 @@ inherit CMD_BASE;
 
 protected int cmd(string str, object me, string verb)
 {
-  // AÒadimos el mensaje de error de Sintaxis, Folken
+  // A√±adimos el mensaje de error de Sintaxis, Folken
   if (str && (str != "1")){
   	if (!me->query_administrator())
   	   notify_fail("Sintaxis: invisible.\n");
@@ -27,7 +27,7 @@ protected int cmd(string str, object me, string verb)
       // Flode, 120997 - Added the possibility to go from invis 2
       // to invis 1 the hard way
       if(str && str == "1"){
-      	    tell_object(me, "Te haces un poco m·s visible.\n");
+      	    tell_object(me, "Te haces un poco m√°s visible.\n");
 	    me->set_invis(1);
 	    return 1;
 	}
@@ -36,7 +36,7 @@ protected int cmd(string str, object me, string verb)
     */
     case 1:
       if (!me->query_administrator()){
-	notify_fail("Con tus actuales poderes no puedes hacerte m·s invisible de lo que ya eres.\n");
+	notify_fail("Con tus actuales poderes no puedes hacerte m√°s invisible de lo que ya eres.\n");
 	return 0;
       }
       /*

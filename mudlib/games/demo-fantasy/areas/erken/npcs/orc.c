@@ -22,7 +22,7 @@ void setup()
   
   set_real_align(60);
   set_random_stats(3, 18);
-  set_level(random(5)+6);
+  set_level(random(5) + 6);
   set_wimpy(0);
   
   adjust_money(random(30), "copper");

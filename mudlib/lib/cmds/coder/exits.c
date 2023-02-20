@@ -233,7 +233,7 @@ static int cmd(string str, object me, string verb)
             }
 
           if (!match || match == "")
-            write(dirs[a+1]+ R+" no tiene salida aquí"+RE+".\n");
+            write(dirs[a+1]+ R+" no tiene salida aquÃ­"+RE+".\n");
           else 
           {
           if (OPPOSITES[dirs[a]] == match)

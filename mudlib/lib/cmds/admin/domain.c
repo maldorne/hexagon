@@ -25,7 +25,7 @@ string string_stats(mapping map) {
   string *inds, str;
   int i;
 
-  write("%^BOLD%^Estadísticas%^RESET%^:\n");
+  write("%^BOLD%^EstadÃ­sticas%^RESET%^:\n");
   str = sprintf("%20-s %7|s %7|s %7|s %7|s %7|s %7|s\n",
            "Nombre", "moves", "hbs", "worth", "arr", "errors", "objects");
   inds = keys(map);

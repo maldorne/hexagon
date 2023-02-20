@@ -70,7 +70,7 @@ int do_echo(string str)
 
   str += "%^RESET%^";
 
-  write("Envías a "+file_name(environment(this_player()))+" el echo:\n" + str + "\n");
+  write("EnvÃ­as a "+file_name(environment(this_player()))+" el echo:\n" + str + "\n");
   event(environment(this_player()), "player_echo", str + "\n");
 
   return 1;
@@ -131,7 +131,7 @@ int do_emote_all(string str)
   // Radix cause Piper & Taniwha wanted it...
   if (this_player(1)->query_object_type() == O_CODER)
   {
-    notify_fail("Emoteall sólo esta disponible para administradores.\n");
+    notify_fail("Emoteall sÃ³lo esta disponible para administradores.\n");
     return(0);
   }
 
@@ -139,7 +139,7 @@ int do_emote_all(string str)
     " emotealls: "+str+" ["+ctime(time(), 4)+"]\n");
 
   str += "%^RESET%^";
-  write("Envías el emoteall:\n" + this_player()->query_cap_name() + " " + str + "\n");
+  write("EnvÃ­as el emoteall:\n" + this_player()->query_cap_name() + " " + str + "\n");
   event(users(), "player_emote_all", this_player()->query_cap_name() + " " + str + "\n");
 
   return 1;

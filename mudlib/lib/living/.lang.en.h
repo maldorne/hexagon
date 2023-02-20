@@ -104,3 +104,17 @@
 
 #define _LANG_UNARMED_STYLE_INFO "Unarmed combat style: '"+style+"'. Ability: "+unarmed_ability+"%.\n"
 #define _LANG_UNARMED_STYLE_IMPROVED "You improved your abilities with "+style+"!\n"
+
+// hold.c
+
+#define _LANG_HOLD_VERBS ({ "hold" })
+#define _LANG_HOLD_WHAT capitalize(query_verb()) + " what?\n"
+#define _LANG_HOLD_NOT_IN_INV "You don't have that in your inventory.\n"
+#define _LANG_HOLD_ALREADY_HOLDING "Already holding that!\n"
+#define _LANG_HOLD_CANNOT_HOLD "Cannot hold that.\n"
+#define _LANG_HOLD_HANDS_NEEDED "Not enough free hands to hold that.\n"
+
+#define _LANG_UNHOLD_VERBS ({ "unhold" })
+#define _LANG_HOLD_NOT_HOLDING "You are not holding that.\n"
+#define _LANG_UNHOLD_MSG "You stop holding your " + (string)ob->query_short() + ".\n"
+#define _LANG_CANNOT_UNHOLD_MSG "You cannot unhold your " + (string)ob->query_short() + ".\n"

@@ -14,11 +14,11 @@ protected int cmd(string str, object me, string verb)
 
 	if (!sizeof(obs)) 
 	{
-	    notify_fail("No est·s luchando con nadie.\n");
+	    notify_fail("No est√°s luchando con nadie.\n");
 	    return 0;
 	}
 	
-	tell_object(me, "Est·s luchando con " + query_multiple_short(obs)+".\n");
+	tell_object(me, "Est√°s luchando con " + query_multiple_short(obs)+".\n");
 
     return 1;
 }

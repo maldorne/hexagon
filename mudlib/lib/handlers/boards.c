@@ -115,7 +115,7 @@ int create_board(string board, int priva) {
   if (priva)
     priv[board] = priva;
   save_me();
-  write("Creado tablÛn "+board+".\n");
+  write("Creado tabl√≥n "+board+".\n");
   return 1;
 } /* create_board() */
 
@@ -132,7 +132,7 @@ int add_allowed(string board, string name) {
     return 0;
   security[board] += ({ name });
   save_me();
-  write("AÒadido "+name+" a la lista de seguridad de "+board+".\n");
+  write("A√±adido "+name+" a la lista de seguridad de "+board+".\n");
   return 1;
 } /* add_allowed() */
 
@@ -166,7 +166,7 @@ static int zap_message(string board, int off) {
 
     stuff = boards[board][off];
     write_file(archive,
-              sprintf("\n----\nNota #%d por %s escrita el %s\nTÌtulo: '%s'\n\n",
+              sprintf("\n----\nNota #%d por %s escrita el %s\nT√≠tulo: '%s'\n\n",
               off, capitalize(stuff[B_NAME]), ctime(stuff[B_TIME]),
               stuff[B_SUBJECT])+
               read_file(nam));
@@ -245,8 +245,8 @@ int set_timeout(string board, int timeout)
   }
   timeouts[board][T_TIMEOUT] = timeout;
   save_me();
-  write("Los mensajes se borrar·n autom·ticamente tras "+timeout+
-        " dÌas en "+board+".\n");
+  write("Los mensajes se borrar√°n autom√°ticamente tras "+timeout+
+        " d√≠as en "+board+".\n");
   return 1;
 } /* set_timeout() */
 
@@ -264,7 +264,7 @@ int set_minimum(string board, int min) {
   }
   timeouts[board][T_MIN] = min;
   save_me();
-  write("El mÌnimo n˙mero de mensajes ser· "+min+" para el tablÛn "+board+".\n");
+  write("El m√≠nimo n√∫mero de mensajes ser√° "+min+" para el tabl√≥n "+board+".\n");
   return 1;
 } /* set_minimum() */
 
@@ -282,7 +282,7 @@ int set_maximum(string board, int max) {
   }
   timeouts[board][T_MAX] = max;
   save_me();
-  write("El m·ximo n˙mero de mensajes ser· "+max+" para el tablÛn "+board+".\n");
+  write("El m√°ximo n√∫mero de mensajes ser√° "+max+" para el tabl√≥n "+board+".\n");
   return 1;
 } /* set_maximum() */
 
@@ -296,7 +296,7 @@ int set_archive(string board, string file) {
     return 0; /* not allowed to delete the notes */
   archives[board] = file;
   save_me();
-  write("El nombre del archivo ahora ser· "+file+" para el tablÛn "+board+".\n");
+  write("El nombre del archivo ahora ser√° "+file+" para el tabl√≥n "+board+".\n");
   return 1;
 } /* set_archive() */
 
@@ -347,8 +347,8 @@ void expire_boards()
         zap_message(nam, 0);
         num++;
       }
-      event(users(), "inform", "Borrando autom·ticamente "+num+" mensajes "+
-                               "del tablÛn "+nam, "message");
+      event(users(), "inform", "Borrando autom√°ticamente "+num+" mensajes "+
+                               "del tabl√≥n "+nam, "message");
     }
   }
   if (!find_call_out("expire_boards"))

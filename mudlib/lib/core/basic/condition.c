@@ -54,7 +54,7 @@ void break_me()
 string cond_string() 
 {
   string aux;
-  aux = this_object()->query_vocal();
+  aux = this_object()->query_vowel();
   /*
   if (this_object()->query_gender() == 2)
        aux = "a";

@@ -28,14 +28,14 @@ int try_retire(object who)
   if(who->query_coder())
   {
     notify_fail("Eres un programador, no puedes retirarte de este "+
-      "modo. Pregúntale a un administrador.\n");
+      "modo. PregÃºntale a un administrador.\n");
     return 0;
   }
 
-  tell_player(who, "Esto borrará el personaje con el que estás jugando.\n");
-  tell_object(who, "Asegúrate de saber lo que estás haciendo.\n" +
-    "No introduzcas la contraseña si te arrepientes.\n\n");
-  tell_object(who, "Introduce la contraseña de tu cuenta > ");
+  tell_player(who, "Esto borrarÃ¡ el personaje con el que estÃ¡s jugando.\n");
+  tell_object(who, "AsegÃºrate de saber lo que estÃ¡s haciendo.\n" +
+    "No introduzcas la contraseÃ±a si te arrepientes.\n\n");
+  tell_object(who, "Introduce la contraseÃ±a de tu cuenta > ");
 
   input_to("put_password", 1);
   return 1;
@@ -69,13 +69,13 @@ static int put_password(string str)
 
   if (!str || str == "")
   {
-    write("Sin contraseña no puedes retirarte.\n");
+    write("Sin contraseÃ±a no puedes retirarte.\n");
     return 0;
   }
 
   if (!test_password(playername, str))
   {
-    write("Contraseña equivocada, no puedes retirarte.\n");
+    write("ContraseÃ±a equivocada, no puedes retirarte.\n");
     return 0;
   }
 

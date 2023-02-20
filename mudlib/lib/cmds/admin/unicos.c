@@ -21,12 +21,12 @@ protected int cmd(string str, object me, string verb)
     names = keys(obs);
     
     ret =  "-------------------------------------------------------\n";
-    ret += "  Lista de objetos únicos del juego:\n";
+    ret += "  Lista de objetos Ãºnicos del juego:\n";
     ret += "-------------------------------------------------------\n";
     
     for (i = 0; i < sizeof(names); i++){
     	data = obs[names[i]];
-    	ret += "    %^BOLD%^"+names[i]+"%^RESET%^ está en:\n";
+    	ret += "    %^BOLD%^"+names[i]+"%^RESET%^ estÃ¡ en:\n";
     	ret += "    "+((data[0]==UNASIGNED)?("%^BOLD%^RED%^sin asignar%^RESET%^"):(data[1]))+" "+
                       ((data[0]==VAULT)    ?("(%^BOLD%^RED%^baul%^RESET%^)"):"") + "\n";
     	ret += "    desde: "+ctime(data[2],4)+"\n";

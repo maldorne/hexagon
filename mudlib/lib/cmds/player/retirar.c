@@ -19,10 +19,10 @@ protected int cmd(string str, object me, string verb)
 {
   int res = 1;
   
-  // Añadido por Folken, no puedo creer que esto no estuviera puesto :P
+  // AÃ±adido por Folken, no puedo creer que esto no estuviera puesto :P
   if (me->query_property(GUEST_PROP)){
     notify_fail("Eres un invitado en "+mud_name()+".\n"+
-                "¿Aún no tienes un personaje y ya estás pensando en retirarte?\n");
+                "Â¿AÃºn no tienes un personaje y ya estÃ¡s pensando en retirarte?\n");
     return 0;
   }
 

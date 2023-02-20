@@ -66,7 +66,7 @@ static int cmd(string str, object me, string verb)
     if (discard_obj) 
     {
       tell_object(me, "Este objeto ha sido creado con un destino importante.\n");
-      tell_object(me, "¿Estás seguro de querer hacer esto? ");
+      tell_object(me, "Â¿EstÃ¡s seguro de querer hacer esto? ");
       input_to("no_discard");
       return 1;
     }

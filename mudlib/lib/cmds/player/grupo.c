@@ -19,7 +19,7 @@
 inherit CMD_BASE;
 
 // Comandos disponibles:
-string * leader_actions = ({ "nombre", "expulsar", "atacar", "mover", "lider", "lÌder",
+string * leader_actions = ({ "nombre", "expulsar", "atacar", "mover", "lider", "l√≠der",
                              "invitar", "finalizar" });
 string * group_actions =  ({ "canal", "despedirse", "lista", "estado", "canal" });
 string * general_actions = ({ "unirse", "crear" });
@@ -46,11 +46,11 @@ protected int cmd (string str, object me, string verb)
      if (me->query_adventurer())
      {
          tell_object(me, "Perteneces al grupo '"+me->query_adventurer_group_name()+"'.\n");
-         tell_object(me, "Utiliza 'grupo ayuda' para m·s informaciÛn.\n");
+         tell_object(me, "Utiliza 'grupo ayuda' para m√°s informaci√≥n.\n");
          return 1;
      }
         
-     notify_fail("Uso: grupo <comando>\nUtiliza 'grupo ayuda' para m·s informaciÛn.\n");
+     notify_fail("Uso: grupo <comando>\nUtiliza 'grupo ayuda' para m√°s informaci√≥n.\n");
      return 0;
   }
   
@@ -67,7 +67,7 @@ protected int cmd (string str, object me, string verb)
   // Opcion no contemplada en el comando
   if (member_array(str, actions) == -1)
   {
-     notify_fail("OpciÛn incorrecta.\nUtiliza 'grupo ayuda' para m·s informaciÛn.\n");
+     notify_fail("Opci√≥n incorrecta.\nUtiliza 'grupo ayuda' para m√°s informaci√≥n.\n");
      return 0;
   }
 
@@ -83,7 +83,7 @@ protected int cmd (string str, object me, string verb)
   if (member_array(str, leader_actions) != -1 && 
      (me->query_adventurer_leader() != me))
   {
-     notify_fail("SÛlo el lÌder del grupo puede hacer eso.\n");
+     notify_fail("S√≥lo el l√≠der del grupo puede hacer eso.\n");
      return 0;
   }
 
@@ -98,10 +98,10 @@ protected int cmd (string str, object me, string verb)
   if (str == "ayuda")
   {
       string help = 
-          "En un grupo varios jugadores se reunen para afrontar objetivos en com˙n. "
+          "En un grupo varios jugadores se reunen para afrontar objetivos en com√∫n. "
           "Cada jugador puede crear su propio grupo una vez tenga al menos doce horas de juego, y " 
-          "puede invitar a m·s jugadores a que se unan a Èl. Puedes utilizar el comando "
-          "grupo seguido de los siguientes par·metros:\n\n"
+          "puede invitar a m√°s jugadores a que se unan a √©l. Puedes utilizar el comando "
+          "grupo seguido de los siguientes par√°metros:\n\n"
           " - crear <nombre>     : Para crear un grupo.\n"
           " - nombre             : Cambiar el nombre del grupo.\n"
           " - finalizar          : Para dar por terminado un grupo.\n"
@@ -110,15 +110,15 @@ protected int cmd (string str, object me, string verb)
           " - invitar <jugador>  : Invitar a otro jugador a unirse a ti.\n"
           " - unirse <jugador>   : Para unirse al grupo de <jugador>.\n"
           /*
-          " - mover <dir>        : Para mover el grupo en alguna direcciÛn.\n"
-          " - sigilar <dir>      : Para hacer que el grupo sigile en una direcciÛn.\n"
+          " - mover <dir>        : Para mover el grupo en alguna direcci√≥n.\n"
+          " - sigilar <dir>      : Para hacer que el grupo sigile en una direcci√≥n.\n"
           " - atacar <objetivo>  : Coordinar el ataque a un mismo objetivo.\n" 
           */
-          " - lÌder <miembro>    : Para cambiar de lÌder del grupo.\n"
+          " - l√≠der <miembro>    : Para cambiar de l√≠der del grupo.\n"
           " - lista              : Muestra la lista de miembros del grupo.\n"
           " - estado             : Muestra la salud de todos los miembros.\n"
           " - canal <mensaje>    : Para enviar un mensaje por el canal privado del grupo.\n"
-          "                        TambiÈn puedes usar: 'aventurero <mensaje>'\n\n";
+          "                        Tambi√©n puedes usar: 'aventurero <mensaje>'\n\n";
             
       help = sprintf("%-=*s", me->query_cols(), help);
       
@@ -153,8 +153,8 @@ protected int cmd (string str, object me, string verb)
      else
      { 
          group_name = "Grupo de " + me->query_cap_name();
-         tell_player(me, "Ok. Creas un grupo contigo como lÌder.\n");
-         tell_room(environment(me), "\n" + me->query_cap_name() + " crea un grupo con el como lÌder.\n", me);
+         tell_player(me, "Ok. Creas un grupo contigo como l√≠der.\n");
+         tell_room(environment(me), "\n" + me->query_cap_name() + " crea un grupo con el como l√≠der.\n", me);
      }     
      
      sha = clone_object(ADVENTURER_LEADER_SH);
@@ -190,7 +190,7 @@ protected int cmd (string str, object me, string verb)
   {
      if (me == me->query_adventurer_leader())
      {
-        tell_object(me, "Eres el lÌder del grupo, no puedes despedirte sin finalizarlo o ceder antes el liderazgo.\n");
+        tell_object(me, "Eres el l√≠der del grupo, no puedes despedirte sin finalizarlo o ceder antes el liderazgo.\n");
         return 1;
      }
      
@@ -311,7 +311,7 @@ protected int cmd (string str, object me, string verb)
     // Numero max de gente en el grupo (idea de Shaka&Shura). Radkar, Noviembre 2004
     if (sizeof(me->query_adventurer_list()) >= MAX_ADVENTURERS)
     {
-        notify_fail("El grupo ya est· completo.\n");
+        notify_fail("El grupo ya est√° completo.\n");
         return 0;     
     }      
 
@@ -366,14 +366,14 @@ protected int cmd (string str, object me, string verb)
       obs[i]->add_timed_property(INVITED_PROP, me->query_name(), INVITED_PROP_DURATION);
 
       tell_player(obs[i], "Has sido invitado a formar parte del grupo de "+me->query_cap_name()+".\n");
-      tell_object(obs[i], "Utiliza 'grupo unirse "+me->query_name()+"' para aceptar la invitaciÛn.\n");
+      tell_object(obs[i], "Utiliza 'grupo unirse "+me->query_name()+"' para aceptar la invitaci√≥n.\n");
 
       cont++;
     }
 
     if (!cont && !contno)
     {
-      notify_fail("No hay nadie con ese nombre aquÌ.\n");
+      notify_fail("No hay nadie con ese nombre aqu√≠.\n");
       return 0;
     }
     return 1;   
@@ -415,17 +415,17 @@ protected int cmd (string str, object me, string verb)
   }
 
   // Comando lider, Radkar Febrero 2003
-  if ((str == "lider") || (str == "lÌder"))
+  if ((str == "lider") || (str == "l√≠der"))
   {
      if (!parameter)
      {
-         notify_fail("Debes especificar quiÈn quieres que sea el nuevo lÌder.\n");
+         notify_fail("Debes especificar qui√©n quieres que sea el nuevo l√≠der.\n");
          return 0;
      }
             
      if (me->expand_nickname(parameter) == me->query_name())
      {
-         notify_fail("Ya eres el lÌder del grupo.\n");
+         notify_fail("Ya eres el l√≠der del grupo.\n");
          return 0;
      }
      
@@ -444,7 +444,7 @@ protected int cmd (string str, object me, string verb)
      
      if (!interactive(ob))
      {
-         notify_fail("SÛlo puedes cederle el liderazgo a jugadores.\n");
+         notify_fail("S√≥lo puedes cederle el liderazgo a jugadores.\n");
          return 0;
      }
 
@@ -494,7 +494,7 @@ protected int cmd (string str, object me, string verb)
       
       if (!me->query_timed_property(INVITED_PROP)) 
       {
-   	      notify_fail("No has sido invitado a formar parte de ning˙n grupo.\n");
+   	      notify_fail("No has sido invitado a formar parte de ning√∫n grupo.\n");
           return 0;
       }
       
@@ -502,7 +502,7 @@ protected int cmd (string str, object me, string verb)
        
       if (!ob)
       {
-	      notify_fail("Imposible localizar al lÌder del grupo.\n");
+	      notify_fail("Imposible localizar al l√≠der del grupo.\n");
           return 0;
       }
 
@@ -514,20 +514,20 @@ protected int cmd (string str, object me, string verb)
 
       if (!ob->query_adventurer())
       {
-          notify_fail(ob->query_cap_name() + " ya no pertenece a ning˙n grupo.\n");
+          notify_fail(ob->query_cap_name() + " ya no pertenece a ning√∫n grupo.\n");
           return 0;
       }
       
       if (ob->query_adventurer_leader() != ob)
       {
-          notify_fail(ob->query_cap_name()+" ya no es el lÌder del grupo.\n");
+          notify_fail(ob->query_cap_name()+" ya no es el l√≠der del grupo.\n");
           return 0;
       }
 
       // Numero max de gente en el grupo (idea de Shaka&Shura). Radkar, Noviembre 2004
       if (sizeof(ob->query_adventurer_list()) >= MAX_ADVENTURERS)
       {
-          notify_fail("El grupo ya est· completo.\n");
+          notify_fail("El grupo ya est√° completo.\n");
           return 0;     
       }
       

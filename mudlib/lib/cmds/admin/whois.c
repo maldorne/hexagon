@@ -18,7 +18,7 @@ string query_usage() {
 }
 
 string query_short_help() {
-	return "Implementa el comando whois est·ndar de unix.";
+	return "Implementa el comando whois est√°ndar de unix.";
 	/*
  return "whois implements the standard unix 'whois' command.\n"
         "As an argument, anything that's in a standard whois database\n"

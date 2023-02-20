@@ -2,13 +2,13 @@
 // messages
 
 #define _LANG_ERROR_HAPPENED "Se ha producido un error.\n"
-#define _LANG_DIDNT_WORK "El intento de hacer eso no funcionó.\n"
+#define _LANG_DIDNT_WORK "El intento de hacer eso no funcionÃ³.\n"
 
 #define _LANG_AND "y"
 
 // numbers
 
-#define _LANG_ORDINAL_CONVERSION  return ("" + number + "º")
+#define _LANG_ORDINAL_CONVERSION  return ("" + number + "Âº")
 
 #define _LANG_NUMBERS_THOUSANDS_OF "miles de"
 #define _LANG_NUMBERS_LOADS_OF "montones de"
@@ -23,17 +23,17 @@
 #define _LANG_NUMBERS_13 "trece"
 #define _LANG_NUMBERS_14 "catorce"
 #define _LANG_NUMBERS_15 "quince"
-#define _LANG_NUMBERS_16 "dieciséis"
+#define _LANG_NUMBERS_16 "diecisÃ©is"
 #define _LANG_NUMBERS_17 "diecisiete"
 #define _LANG_NUMBERS_18 "dieciocho"
 #define _LANG_NUMBERS_19 "diecinueve"
 #define _LANG_NUMBERS_20 "veinte"
-#define _LANG_NUMBERS_21 "veintiún"
-#define _LANG_NUMBERS_22 "veintidós"
-#define _LANG_NUMBERS_23 "veintitrés"
+#define _LANG_NUMBERS_21 "veintiÃºn"
+#define _LANG_NUMBERS_22 "veintidÃ³s"
+#define _LANG_NUMBERS_23 "veintitrÃ©s"
 #define _LANG_NUMBERS_24 "veinticuatro"
 #define _LANG_NUMBERS_25 "veinticinco"
-#define _LANG_NUMBERS_26 "veintiséis"
+#define _LANG_NUMBERS_26 "veintisÃ©is"
 #define _LANG_NUMBERS_27 "veintisiete"
 #define _LANG_NUMBERS_28 "veintiocho"
 #define _LANG_NUMBERS_29 "veintinueve"

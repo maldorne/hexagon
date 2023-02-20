@@ -86,7 +86,7 @@ string long(varargs string s, int dark)
   }
 
   if (ret == "")
-    return "Error en el objeto, comunícaselo a un programador.\n";
+    return "Error en el objeto, comunÃ­caselo a un programador.\n";
 
   return sprintf("%-*s",
     (this_user()->query_cols()?this_user()->query_cols():79),

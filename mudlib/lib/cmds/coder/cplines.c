@@ -51,7 +51,7 @@ protected int cmd(string str, object me, string verb) {
 } /* cplines() */
 
 string query_short_help() {
-	return "Copia las líneas indicadas de un archivo en el final de otro.";
+	return "Copia las lÃ­neas indicadas de un archivo en el final de otro.";
 	/*
     return "This command copies lines from source starting at "
     "<start> and ending at <end> to the end of destination.\n\n";

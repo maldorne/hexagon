@@ -55,7 +55,7 @@ void create()
 {
   menu_items = ([ ]);
   menu_aliases = ([ ]);
-  menu_header = "En el menú hay:";
+  menu_header = "En el menÃº hay:";
   display_headings = 1;
 
   ::create();
@@ -346,7 +346,7 @@ int do_buy(string str)
   // error = (int)food->move(forwho);
   // if (error) 
   // {
-  //   write("No puedes cargar con algo así.\n");
+  //   write("No puedes cargar con algo asÃ­.\n");
   //   food->dest_me();
   //   return 1;
   // }

@@ -17,3 +17,7 @@
 // language.c
 
 #define _LANG_LANGUAGE_DEFAULT_DESC "This is the normal language spoken by most creatures.\n"
+
+// player.c
+
+#define _LANG_PLAYER_SAVING "Saving...\n"
