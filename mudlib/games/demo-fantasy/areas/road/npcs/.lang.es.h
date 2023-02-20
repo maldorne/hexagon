@@ -23,7 +23,7 @@
      "podrás resucitar. Escribe 'resucitar' y hallarás respuesta.\n"
 
 #define _LANG_NPCS_FARMER_NAME "granjero"
-#define _LANG_NPCS_FARMER_LONG "Un granjero de la región. Es un hombre común "
+#define _LANG_NPCS_FARMER_LONG "Un granjero de la región. Es un hombre común " + \
     "y bastante agradable.\n" 
 #define _LANG_NPCS_FARMER_CHAT ({ ":te saluda cordialmente.", \
-                                  ":hace comentarios sobre la cosecha de maíz de este año." })
+                                  ":comenta algo sobre la cosecha de maíz de este año." })
