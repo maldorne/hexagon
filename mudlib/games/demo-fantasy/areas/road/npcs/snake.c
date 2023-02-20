@@ -14,7 +14,7 @@ void setup()
 
   set_random_stats(3, 16);
   set_race("reptile");
-  set_level(3+random(3));
+  set_level(3 + random(3));
   set_gender(2); // for spanish language
   set_real_align(-30);
 

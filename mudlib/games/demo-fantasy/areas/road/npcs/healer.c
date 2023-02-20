@@ -35,7 +35,7 @@ void setup()
     1, "'Debes ser un buen devoto."
   }));
 
-  adjust_money(5+random(5), "gold");
+  adjust_money(5 + random(5), "gold");
   add_clone(BASEOBS + "weapons/mace", 1);
   add_clone(BASEOBS + "armours/cape", 1);
   add_clone(BASEOBS + "armours/chainmail", 1);
@@ -48,7 +48,7 @@ void init()
   add_action("do_raise", _LANG_NPCS_HEALER_RAISE_COMMANDS);
   add_action("do_info", _LANG_NPCS_HEALER_INFO_COMMANDS);
 
-  // add_attack_spell(40, "pupa", ({"/std/spells/cleric/cause_lt", "cast_spell", 0}));
+  // add_attack_spell(40, "something here", ({"/std/spells/cleric/cause_lt", "cast_spell", 0}));
 
   ::init();
 } 

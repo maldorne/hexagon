@@ -41,5 +41,5 @@ void setup()
   init_equip();
 
   add_move_zone("erken");
-  set_move_after(20+random(10), 20+random(10));
+  set_move_after(20 + random(10), 20 + random(10));
 }

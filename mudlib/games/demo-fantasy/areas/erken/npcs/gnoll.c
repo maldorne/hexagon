@@ -20,7 +20,7 @@ void setup()
   
   set_real_align(-60);
   set_random_stats(3, 12);
-  set_level(random(3)+3);
+  set_level(random(3) + 3);
   set_aggressive(0);
   
   adjust_money(10, "copper");
@@ -35,5 +35,5 @@ void setup()
   init_equip();
 
   add_move_zone("goblin_road");
-  set_move_after(20+random(10), 20+random(10));
+  set_move_after(20 + random(10), 20 + random(10));
 }
