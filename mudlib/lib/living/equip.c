@@ -14,6 +14,7 @@
 
 #include <basic/money.h>
 #include <living/equip.h>
+#include <living/combat.h> // ac types
 
 inherit wear "/lib/living/wear";
 inherit hold "/lib/living/hold";
@@ -56,28 +57,25 @@ void recalc_max_dex_bon()
     this_object()->set_max_dex_bon(-1);
 }
 
-mapping query_total_equip_ac()
+int * query_total_equip_ac()
 {
-  // return query_total_worn_ac() + query_total_held_ac();
-  // add the mappings
   int i;
-  mapping ret;
-  string * types;
+  int * ret, * worn, * held;
 
-  ret = ([ ]);
-  types = keys(query_total_worn_ac());
+  worn = query_total_worn_ac();
+  held = query_total_held_ac();
 
-  for (i = 0; i < sizeof(types); i++){
-    ret[types[i]] = query_total_worn_ac()[types[i]] +
-                    query_total_held_ac()[types[i]];
+  ret = allocate_int(sizeof(AC_TYPES));
+
+  for (i = 0; i < sizeof(AC_TYPES); i++)
+  {
+    ret[i] = worn[i] + held[i];
   }
+
   return ret;
 }
 
-int query_equip_ac(string tipo)
-{
-  return query_held_ac(tipo) + query_worn_ac(tipo);
-}
+int query_equip_ac(int tipo) { return query_held_ac(tipo) + query_worn_ac(tipo); }
 
 // do_equip() by Aragorn
 //

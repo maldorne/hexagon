@@ -2,21 +2,22 @@
  * This equip code was started on by Dank.
  * It is completely rewritten by Baldrick, april '94
  *
- * Amptutated and cursed hands is removed. Will be added later.
+ * Amputated and cursed hands removed. Will be added later.
  * Dank used only tho hands, This will be "unlimited" hands.
  * so it won't be any "left" and "right" hand here.
  * Right now I am afraid shields won't work.
  * Will add that in version 2...:=)
  *
- * Folken@Cc Abr'03
- * Añadidos stats.
+ * neverbot @CcMud Apr'03, stats added
  */
 
 #include <item/armour.h>
+#include <living/combat.h> // ac types for weapons
+#include <language.h>
 
 private mixed * held_ob;
-private int     free_hands_left;
-private mapping held_ac;
+private int free_hands_left;
+private int * held_ac;
 
 // prototypes:
 void reset_hands();
@@ -24,7 +25,7 @@ object *query_held_ob() { return held_ob; }
 int query_held(object ob);
 // int is_shield(mixed ob);
 // int is_weapon(mixed ob);
-int find_empty_slot(object ob, mixed *h);
+int _find_empty_slot(object ob, mixed *h);
 mixed *query_weapons_wielded();
 mixed *query_shields_held();
 int query_free_hands_left();
@@ -32,18 +33,35 @@ int unhold_ob(object ob);
 int hold_ob(object ob);
 int shield_bonus();
 int query_dual_wield_penalty();
-mapping query_total_held_ac(){ return held_ac; }
+int * query_total_held_ac() { return held_ac; }
+int query_held_ac(int type) { return held_ac[type]; }
 
-int query_held_ac(string tipo)
+void _add_held_ac(object ob)
 {
-  if (member_array(tipo, keys(held_ac)) != -1)
-    return held_ac[tipo];
-  return 0;
+  int i;
+
+  // weapons do not add ac
+  if (ob->query_weapon())
+    return;
+
+  for (i = 0; i < sizeof(AC_TYPES); i++)
+    held_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]);
+}
+
+void _remove_held_ac(object ob)
+{
+  int i;
+
+  // weapons do not add ac
+  if (ob->query_weapon())
+    return;
+
+  for (i = 0; i < sizeof(AC_TYPES); i++)
+    held_ac[AC_TYPES[i]] -= (ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]));
 }
 
 void create() 
 {
-  int i;
   held_ob = ({ });
   free_hands_left = 0;
   
@@ -51,22 +69,14 @@ void create()
   // the race object
   // reset_hands();
 
-  held_ac = ([ ]);
-
-  for(i = 0; i < sizeof(AC_TYPES); i++)
-  {
-    held_ac[AC_TYPES[i]] = 0;
-  }
+  // allocate with zero value
+  held_ac = allocate_int(sizeof(AC_TYPES));
 }
 
 void hold_commands() 
 {
-  add_private_action("do_hold",   "empunyar");
-  add_private_action("do_hold",   "empuñar");
-  add_private_action("do_hold",   "sostener");
-  add_private_action("do_unhold", "desempunyar");
-  add_private_action("do_unhold", "desempuñar");
-  add_private_action("do_unhold", "soltar");
+  add_private_action("do_hold",   _LANG_HOLD_VERBS);
+  add_private_action("do_unhold", _LANG_UNHOLD_VERBS);
 }
 
 // Support functions for the rest of the player object.
@@ -167,7 +177,7 @@ int unhold_ob(object ob)
   
   if ((slot = member_array(ob, held_ob)) == -1)     
   { 
-    notify_fail("No estás sosteniendo ese objeto.\n");
+    notify_fail(_LANG_HOLD_NOT_HOLDING);
     return 0;
   }
 
@@ -180,21 +190,21 @@ int unhold_ob(object ob)
     // sanity check should be run against held_ob array every so often
     free_hands_left += (int)ob->query_hands_needed();
 
-    // Nuevo sistema de AC, Folken 06/03
-    held_ac[AC_TYPES[0]] -= (ob->query_ac() + ob->query_slashing_bon());
-    held_ac[AC_TYPES[1]] -= (ob->query_ac() + ob->query_blunt_bon());
-    held_ac[AC_TYPES[2]] -= (ob->query_ac() + ob->query_piercing_bon());
-    // Actualizamos el bonificador maximo de destreza
-    // (solo con armas, los escudos no afectan)
+    // new ac system, neverbot 06/03
+    _remove_held_ac(ob);
+
+    // update the max dex bon
+    // (only with weapons, not shields)
     if (ob->query_weapon())
       if (ob->query_max_dex_bon() >= 0)
         this_object()->recalc_max_dex_bon();
 
-    tell_object(this_object(), "Dejas de sostener tu " + 
-    (string)ob->query_short() + ".\n");
+    tell_object(this_object(), _LANG_UNHOLD_MSG);
   }
-  else tell_object(this_object(),"No puedes dejar de sostener tu "+
-  (string)ob->query_short() + ".\n");
+  else
+  { 
+    tell_object(this_object(), _LANG_CANNOT_UNHOLD_MSG);
+  }
 
   return 1;
 }
@@ -208,46 +218,43 @@ int hold_ob(object ob)
   // Check to make sure weapon is an allowed weapon
 
   // Taniwha 1995, make it work ...
-  if (ob->query_weapon())    
-  {
-    gobj = this_object()->query_guild_ob();
+  // if (ob->query_weapon())    
+  // {
+  //   gobj = this_object()->query_guild_ob();
 
-    if ( gobj && !gobj->query_legal_weapon(ob->query_weapon_name()))
-    {
-      tell_object(this_object(),"Careces de la habilidad necesaria "+
-                  "para empuñar este arma.\n");
-      return 1;
-    }
-  }
+  //   if ( gobj && !gobj->query_legal_weapon(ob->query_weapon_name()))
+  //   {
+  //     tell_object(this_object(),"Careces de la habilidad necesaria "+
+  //                 "para empuñar este arma.\n");
+  //     return 1;
+  //   }
+  // }
   
-  if (ob->query_shield())    
-  {
-    gobj = this_object()->query_guild_ob();
+  // if (ob->query_shield())    
+  // {
+  //   gobj = this_object()->query_guild_ob();
 
-    if ( gobj && !gobj->query_legal_armour(ob->query_shield_name()))
-    {
-      tell_object(this_object(),"Careces de la habilidad necesaria "+
-                  "para llevar este equipo.\n");
-      return 1;
-    }
-  }
+  //   if ( gobj && !gobj->query_legal_armour(ob->query_shield_name()))
+  //   {
+  //     tell_object(this_object(),"Careces de la habilidad necesaria "+
+  //                 "para llevar este equipo.\n");
+  //     return 1;
+  //   }
+  // }
 
   weap_hands = (int)ob->query_hands_needed();
 
   if (this_object()->query_free_hands_left() < weap_hands) 
   {
-    if (ob->query_weapon())
-        notify_fail("No tienes suficientes manos libres para empuñar este arma.\n");
-    else
-        notify_fail("No tienes suficientes manos libres para sostener este escudo.\n");
+    notify_fail(_LANG_HOLD_HANDS_NEEDED);
     return 0;
   }
 
-  // The find_empty_slot can check for and output things like
+  // The _find_empty_slot can check for and output things like
   // this. -A
-  if ((slot = find_empty_slot(ob, held_ob)) == -1)
+  if ((slot = _find_empty_slot(ob, held_ob)) == -1)
   {
-    notify_fail("Lo siento, no puedes sostener eso.\n");
+    notify_fail(_LANG_HOLD_CANNOT_HOLD);
     return 0;
   }
   
@@ -257,10 +264,8 @@ int hold_ob(object ob)
   
   held_ob[slot] = ob;
 
-  // Nuevo sistema de AC, Folken 06/03
-  held_ac[AC_TYPES[0]] += ob->query_ac() + ob->query_slashing_bon();
-  held_ac[AC_TYPES[1]] += ob->query_ac() + ob->query_blunt_bon();
-  held_ac[AC_TYPES[2]] += ob->query_ac() + ob->query_piercing_bon();
+  // new ac system, neverbot 06/03
+  _add_held_ac(ob);
   
   // Actualizamos el bonificador maximo de destreza
   // (solo con las armas, los escudos no lo modifican)
@@ -314,7 +319,7 @@ int query_dual_wield_penalty()
 
 // This function coded by Aragorn@NANVAENT for Final Realms
 // No guarantee whatsoever... ;-)
-int find_empty_slot(object ob, mixed *h) 
+int _find_empty_slot(object ob, mixed *h) 
 {
   int i, good, start_slot;
 
@@ -376,7 +381,6 @@ int find_empty_slot(object ob, mixed *h)
   return -1;
 }
 
-
 int do_hold(string woo)
 {
   object *boo;
@@ -384,7 +388,7 @@ int do_hold(string woo)
 
   if (!strlen(woo))
   {
-    notify_fail("¿"+capitalize(query_verb()) + " el qué?\n");
+    notify_fail(_LANG_HOLD_WHAT);
     return 0;
   }
 
@@ -400,7 +404,7 @@ int do_hold(string woo)
 
   if (!sizeof(boo))
   {
-    notify_fail("No llevas eso en tu inventario.\n");
+    notify_fail(_LANG_HOLD_NOT_IN_INV);
     return 0;
   }
 
@@ -408,21 +412,15 @@ int do_hold(string woo)
   boo -= (mixed *)this_object()->query_held_ob();
 
   // Somehow, this is not working...
-  if (!sizeof(boo))
+  if (!sizeof(boo) || boo[0]->query_in_use())
   {
-    notify_fail("¡Ya estás sosteniendo eso!\n");
+    notify_fail(_LANG_HOLD_ALREADY_HOLDING);
     return 0;
   }
 
   if (!boo[0]->query_holdable())
   {
-    notify_fail("No puedes " + query_verb() + " eso.\n");
-    return 0;
-  }
-  
-  if (boo[0]->query_in_use())
-  {
-    notify_fail("Ya lo estás usando.\n");
+    notify_fail(_LANG_HOLD_CANNOT_HOLD);
     return 0;
   }
 

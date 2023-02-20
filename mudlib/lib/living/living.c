@@ -130,7 +130,7 @@ int adjust_money(mixed i, varargs string type) { return money::adjust_money(i, t
  * Nuevo sistema de combate para CcMud, neverbot 6/03
  * Si el jugador tiene la propiedad PASSED_OUT_PROP, tiene 5 puntos menos de AC
  */
-int query_total_ac(varargs string type)
+int query_total_ac(varargs int type)
 {
   int ret, eac, bac;
   ret = 0;
@@ -138,7 +138,7 @@ int query_total_ac(varargs string type)
   if (type)
     eac = this_object()->query_equip_ac(type);
   else
-    eac = this_object()->query_equip_ac(BLUNT_STR);
+    eac = this_object()->query_equip_ac(BLUNT);
 
   bac = this_object()->query_body_ac();
 

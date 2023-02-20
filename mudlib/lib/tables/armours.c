@@ -1,5 +1,7 @@
 /* 
- * Guldan'98, Iolo'02, neverbot'03 completely redone for CcMud
+ * Guldan'98
+ * Iolo'02
+ * neverbot'03 completely redone for CcMud
  *
  * The returned value is:
  *

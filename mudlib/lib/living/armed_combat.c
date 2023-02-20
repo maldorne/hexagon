@@ -88,7 +88,7 @@ int set_weapon_mastery(string mastery)
 int add_weapon_mastery(string mastery, varargs int value)
 {
   object table;
-  table = load_object(WEAPON_TABLE);
+  table = table("weapons");
 
   if (!table)
   {
@@ -107,7 +107,7 @@ int add_weapon_mastery(string mastery, varargs int value)
 
   if (!known_weapon_masteries[mastery])
   {
-    tell_player(this_object(), "¡Has ganado la maestría con el tipo de arma '"+mastery+"'!\n");
+    tell_player(this_object(), "¡Has ganado la maestría con el tipo de arma '" + mastery + "'!\n");
   }
   else
   {
