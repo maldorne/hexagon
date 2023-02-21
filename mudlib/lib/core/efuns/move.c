@@ -122,6 +122,12 @@ int move(varargs object dest)
   {
     MUDOS->do_init(_environment, this_object());
   }
+  // moving something to a non living environment
+  else
+  {
+    // call our own init function
+    catch(init());
+  }
 
   stderr("   - M before, this_object():\n    "  + to_string(this_object()));
   stderr("   - M before, this_player():\n    "  + to_string(this_player()));

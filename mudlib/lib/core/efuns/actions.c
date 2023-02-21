@@ -87,11 +87,14 @@ static nomask void notify_fail(string str)
 
 // returns the list of every object where inputs from object ob
 // will search for available actions
-nomask object * targets(varargs object ob)
+static nomask object * targets(varargs object ob)
 {
   object user;
   object * targets;
   object env;
+
+  if (!ob)
+    ob = this_object();
 
   targets = ({ });
   user = ob->user();
@@ -131,7 +134,7 @@ nomask object * targets(varargs object ob)
 // which is the LPC "evaluation cost" of the command. Bigger numbers mean
 // higher cost, but the whole scale is subjective and unreliable.
 
-int command(string action)
+static int command(string action)
 {
   string * words;
   string verb, params;
@@ -222,9 +225,9 @@ int command(string action)
 // itself (as passed to add_action()). The second is the set of
 // flags (passed to add_action as the third argument, often defaulted
 // to 0). The third is the object that defined the action. The fourth
-// is the function to be called ("&#60;function&#62;" if it is a function pointer).
+// is the function to be called (<function> if it is a function pointer).
 
-mixed ** commands(varargs object ob)
+static mixed ** commands(varargs object ob)
 {
   object * targets;
   mapping actions;

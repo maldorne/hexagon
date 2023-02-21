@@ -196,7 +196,7 @@ int move(mixed dest, varargs mixed messout, mixed messin)
   }
 
   ob = environment(this_object());
-  i = (int)::move(dest, messout, messin);
+  i = (int)obj::move(dest, messout, messin);
 
   if (!i && unused_it && objectp(ob) && living(ob))
   {
