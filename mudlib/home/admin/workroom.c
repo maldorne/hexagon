@@ -98,7 +98,7 @@ void setup()
   // so we use the function add_clone to bring them into your rooms.
   // Its used with add_clone(file, num_of_clones);
   
-  add_clone("/lib/areas/admin/items/button.c", 1);
+  add_clone("/games/hexagon/areas/admin/items/button.c", 1);
   
   // Here are the exits from your room
   // add_exit(direction, destination, type)
@@ -203,7 +203,7 @@ int do_clean(string str)
       // to nofify every OTHER player in the room.
 
       // we can clone an item and move it to this room
-      clone_object("/lib/areas/admin/items/newcreator_paper.c")->move(this_object());
+      clone_object("/games/hexagon/areas/admin/items/newcreator_paper.c")->move(this_object());
 
       // we return 1 because the action was finished right
       return 1;
@@ -236,7 +236,7 @@ int do_move(string str)
       "on the floor.\n");
     tell_room(this_object(), this_player()->query_cap_name()+" moves the desk.\n",
       this_player());
-    trapdoor = add_exit("trapdoor", "/lib/areas/admin/development.c", "door");
+    trapdoor = add_exit("trapdoor", "/games/hexagon/areas/admin/development.c", "door");
     trapdoor->set_init_status(0);
 
     // trapdoor->set_gender(2); <- for spanish language, not needed in english
