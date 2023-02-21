@@ -4,9 +4,14 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 1;
+  return "cat [file]";
+}
+
+string query_help()
+{
+  return "Shows the contents of given file.";
 }
 
 static int cmd(string str, object me, string verb)
@@ -16,13 +21,13 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    notify_fail(_LANG_CAT_WHAT);
+    notify_fail("Cat what file?\n");
     return 0;
   }
 
   if (str == "*")
   {
-    notify_fail(_LANG_CAT_ASTERISK);
+    notify_fail("cat *? Forget about it.\n");
     return 0;
   }
 
@@ -30,7 +35,7 @@ static int cmd(string str, object me, string verb)
 
   if (!sizeof(filenames))
   {
-    notify_fail(str + ": " + _LANG_CMD_FILE_DOES_NOT_EXIST);
+    notify_fail(str + ": That file does not exist.\n");
     return 0;
   }
 
@@ -40,18 +45,18 @@ static int cmd(string str, object me, string verb)
     str = filenames[loop];
 
     if (sizeof(filenames) > 1)
-     write(_LANG_CMD_FILE + ": " + str + "\n\n");
+     write("File: " + str + "\n\n");
 
     if (file_size(str) < 8196)
     {
       result = cat(str);
       if (!result)
-        write(_LANG_CMD_CANNOT_READ_FILE);
+        write("Cannot read that file.\n");
     }
     else
     {
-      write(read_bytes(str,0,8195));
-      write(_LANG_CAT_TRUNCATED);
+      write(read_bytes(str, 0, 8195));
+      write("\n ----- TRUNCATED ----- \n\n");
     }
   }
 

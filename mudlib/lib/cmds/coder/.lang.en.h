@@ -14,12 +14,6 @@
 #define _LANG_UPTIME_MINUTE "minute"
 #define _LANG_UPTIME_SECOND "second"
 
-// cat
-
-#define _LANG_CAT_WHAT "Cat what file?\n"
-#define _LANG_CAT_ASTERISK "cat *? Forget about it.\n"
-#define _LANG_CAT_TRUNCATED "\n ----- TRUNCATED ----- \n\n"
-
 // clone
 
 #define _LANG_CLONE_WHAT "Clone what?\n"
