@@ -9,6 +9,12 @@ void setup()
   set_name("paper");
   set_short("Paper");
   set_long("It's a small piece of paper.\n");
+
+  set_main_plural("Papers");
+
+  add_alias(({ "paper", "note" }));
+  add_plural(({ "papers", "notes" }));
+  
   set_read_mess("Welcome to the coders team of " + mud_name() + ".\n" +
     "You can and should customize your own workroom to suit your needs. " +
     "In the code of these workrooms you can find examples and a lot of " +

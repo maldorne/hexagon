@@ -25,8 +25,8 @@
 #define _LANG_FINGER_MANAGER (gender==2?"She":"He")+" is the manager of the " + \
             query_multiple_short(domains, 0) + " domain"+(sizeof(domains)==1?"":"s") + ".\n"
 #define _LANG_FINGER_MANAGER_ONLY "   "+(gender==2?"She":"He")+" is not a member of any other domain.\n"
-#define _LANG_FINGER_NO_MEMBER "\n   "+(gender==2?"She":"He")+" is not a member of any domain.\n"
-#define _LANG_FINGER_MEMBER_OF "\n   "+(gender==2?"She":"He")+" is a member of the "+ \
+#define _LANG_FINGER_NO_MEMBER "   "+(gender==2?"She":"He")+" is not a member of any domain.\n"
+#define _LANG_FINGER_MEMBER_OF "   "+(gender==2?"She":"He")+" is a member of the "+ \
             (string)implode(bing, ", ")+" domain"+(sizeof(bing)==1?"":"s")+".\n"
 #define _LANG_FINGER_FIRST_ON "   Connected for the first time on "
 #define _LANG_FINGER_TIME_ON "   %^GREEN%^"+(gender==2?"She":"He")+" has " + \

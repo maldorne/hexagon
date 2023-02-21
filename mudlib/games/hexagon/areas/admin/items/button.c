@@ -10,13 +10,12 @@ void setup()
   set_name("red button");
 
   set_short("%^BOLD%^%^RED%^Red Button%^RESET%^");
-  add_alias(({ "button", "read button", "red" }));
+  add_alias(({ "button", "red button", "red" }));
 
   set_main_plural("%^BOLD%^%^RED%^Red Buttons%^RESET%^");
   add_plural(({ "buttons", "red buttons", "reds" }));
   
-  set_long(
-    "This button destroys every object in the room except players.\n" +
+  set_long("This button destroys every object in the room but players.\n" +
     "Use 'push button' to use it, but BE CAREFUL.\n");
 }
 

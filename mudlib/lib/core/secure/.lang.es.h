@@ -27,8 +27,8 @@
              (gender==2?"a":"")+(sizeof(domains)==1?" del dominio ":" de los dominios ") + \
              query_multiple_short(domains, 0) + ".\n"
 #define _LANG_FINGER_MANAGER_ONLY "   No es miembro de ningún otro dominio.\n"
-#define _LANG_FINGER_NO_MEMBER "\n   No es miembro de ningún dominio.\n"
-#define _LANG_FINGER_MEMBER_OF "\n   Es miembro de"+(sizeof(bing)==1?"l dominio":" los dominios")+ \
+#define _LANG_FINGER_NO_MEMBER "   No es miembro de ningún dominio.\n"
+#define _LANG_FINGER_MEMBER_OF "   Es miembro de"+(sizeof(bing)==1?"l dominio":" los dominios")+ \
              " de " + (string)implode(bing, ", ") +".\n"
 #define _LANG_FINGER_FIRST_ON "   Se conectó por primera vez el "
 #define _LANG_FINGER_TIME_ON "   %^GREEN%^Tiene " + \

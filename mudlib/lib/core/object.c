@@ -1,5 +1,5 @@
 /*
-    /std/object.c
+    /lib/object.c
     Previous hacks by Dank and Pinkfish
     Baldrick cleaned after them.
     Hamlet fixed timed properties.
@@ -30,7 +30,7 @@ void create()
   extra_look::create();
   desc::create();
   gender::create(); // neverbot
-  set_gender(0); // by default in objects/items
+  set_gender(0); // default in objects/items
 
   // done in the auto object
   // seteuid(SECURE->creator_file(file_name(this_object())));
