@@ -183,6 +183,7 @@ string query_armour_type_name(int armour_type)
   }
 }
 
+// returned in order of armour_type (1 to 13)
 string * query_armour_types() {
   return ({
     ARMOUR_TYPE_BODY, ARMOUR_TYPE_SHIELD, ARMOUR_TYPE_HELM, ARMOUR_TYPE_BOOT, 
