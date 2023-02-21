@@ -19,7 +19,7 @@
 // Removed alignment, neverbot 01/2013
 
 #include <mud/cmd.h>
-#include <item/armour.h>
+#include <translations/armour.h>
 #include <living/combat.h>
 
 inherit CMD_BASE;

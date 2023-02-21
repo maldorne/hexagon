@@ -18,7 +18,7 @@
  */
 
 #include <common/properties.h>
-#include <item/armour.h>
+#include <translations/armour.h>
 #include <living/combat.h> // ac types for clothing
 #include <language.h>
 

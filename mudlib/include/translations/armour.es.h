@@ -1,8 +1,9 @@
 
-#define DEFAULT_ARMOUR_NAME "armour"
-
+#define DEFAULT_ARMOUR_NAME "armadura"
 
 // old armour.h
+
+// base armour names
 
 // shirt
 #define SHIRT "camisa"
@@ -11,7 +12,7 @@
 #define LEATHER "armadura de cuero"
 #define PADDED_LEATHER "cuero acolchado"
 #define FUR "piel"
-#define SPLINT_MAIL "splint mail"
+#define SPLINT_MAIL "cota de bandas"
 // ring mail: like chain mail, but rings are not interlaced
 #define RING_MAIL "cota de anillas"
 #define STUDDED_LEATHER "cuero tachonado"
@@ -20,16 +21,10 @@
 #define BRIGANDINE "brigantina"
 #define CHAIN_MAIL "cota de mallas"
 // banded mail: chain mail reinforced with leather bands
-#define BANDED_MAIL "banded mail"
+#define BANDED_MAIL "cota de bandas y mallas"
 #define PLATE_MAIL "cota de placas"
 #define FIELD_PLATE "armadura de campaña"
 #define FULL_PLATE "armadura completa"
-
-// removed:
-// #define ELFIN_CHAIN "elfin chain"
-// #define DROW_CHAIN "drow chain"
-// #define BRONZE_PLATE "bronze plate"
-// #define DWARF_PLATE "dwarf plate"
 
 #define COWL "capucha"
 #define BONNET "cofia"
@@ -61,3 +56,36 @@
 #define PENDANT "pendiente"
 
 #define QUIVER "carcaj"
+
+
+// base armour types
+
+// type 1
+#define ARMOUR_TYPE_BODY "armadura corporal"
+// type 2 not in the armour table
+#define ARMOUR_TYPE_SHIELD "escudo"
+// type 3
+#define ARMOUR_TYPE_HELM "casco"
+// type 4
+#define ARMOUR_TYPE_BOOT "bota"
+// type 5
+#define ARMOUR_TYPE_AMULET "amuleto"
+// type 6
+#define ARMOUR_TYPE_CAPE "capa"
+// type 7
+#define ARMOUR_TYPE_RING "anillo"
+// type 8
+#define ARMOUR_TYPE_GLOVE "guante"
+// type 9
+#define ARMOUR_TYPE_BRACER "brazalete"
+// type 10
+#define ARMOUR_TYPE_BELT "cinturón"
+// type 11
+#define ARMOUR_TYPE_TROUSER "pantalón"
+// type 12
+#define ARMOUR_TYPE_PENDANT "pendiente"
+// type 13 containers
+#define ARMOUR_TYPE_MISC "equipo"
+
+// ??
+#define ARMOUR_TYPE_UNKNOWN "desconocido"

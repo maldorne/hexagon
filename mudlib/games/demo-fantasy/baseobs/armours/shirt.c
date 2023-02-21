@@ -1,6 +1,6 @@
 inherit "/lib/armour.c"; 
 
-#include <item/armour.h>
+#include <translations/armour.h>
 #include <language.h>
 
 void setup()

@@ -8,7 +8,7 @@ inherit "/lib/item.c";
 
 #include <basic/move.h>
 #include <item/item.h>
-#include <item/armour.h>
+#include <translations/armour.h>
 #include <living/combat.h>
 #include <basic/condition.h>
 

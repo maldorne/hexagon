@@ -11,7 +11,7 @@
  * neverbot @CcMud Apr'03, stats added
  */
 
-#include <item/armour.h>
+#include <translations/armour.h>
 #include <living/combat.h> // ac types for weapons
 #include <language.h>
 
