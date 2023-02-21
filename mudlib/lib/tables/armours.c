@@ -191,3 +191,14 @@ string * query_armour_types() {
     ARMOUR_TYPE_MISC, 
   });
 }
+
+// used from /lib/living/equip.c and maybe other places, to sort
+// lists of armour pieces in order
+int sort_armours(object s1, object s2)
+{
+  if (s1->query_armour_type() > s2->query_armour_type())
+    return 1;
+  if (s1->query_armour_type() < s2->query_armour_type())
+    return -1;
+  return 0;
+}

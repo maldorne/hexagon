@@ -237,15 +237,6 @@ int do_equip(string str)
 //   Antiguo /global/living/carrying.c
 // *************************************************************
 
-private int sort(object s1, object s2)
-{
-  if (s1->query_armour_type()>s2->query_armour_type())
-    return 1;
-  if (s1->query_armour_type()<s2->query_armour_type())
-    return -1;
-  return 0;
-}
-
 int filter_short(object ob, varargs mixed args...)
 {
   return (strlen(ob->query_short()));
@@ -267,8 +258,8 @@ int filter_short(object ob, varargs mixed args...)
 //     like 'His purse is fit to burst!'
 string query_living_contents(int self)
 {
-  object *wpn, *held, *worn, *carry, money;
-  string s, ret, *strs;
+  object * wpn, * held, * worn, * carry, money;
+  string s, ret, * strs;
   int i, j, col;
   // Tipos de Armaduras existentes
   string * armour_type_locations;
@@ -304,7 +295,8 @@ string query_living_contents(int self)
   if (!pointerp(worn)) worn = ({ }); else worn -= ({ nil });
 
   held -= wpn;
-  worn = sort_array(worn, "sort");
+  // use the sort function of the armour table
+  worn = sort_array(worn, "sort_armours", table("armours"));
   money = present(MONEY_NAME, this_object()); // Dinero
   carry = all_inventory(this_object()) - wpn - held
           - worn - ({ money });               // Resto de objetos
