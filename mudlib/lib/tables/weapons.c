@@ -141,7 +141,7 @@ mixed * lookup_weapon_data(string name)
     case CHAIN: // cadena 
       weapon_data = ({ 250, 2500, 150, 15,  PIERCING, 2, 4, 0,   2, 2, 4, 2, WHIP_MASTERY,       2 ,2 }); break;
     case TWO_HANDED_SWORD: // espada a dos manos
-      weapon_data = ({ 1000,10000,150, 16,  SLASHING, 1, 8, 0,   2, 2, 4, 2, TWO_HANDED_SWORD_MASTERY 2 ,2 }); break;
+      weapon_data = ({ 1000,10000,150, 16,  SLASHING, 1, 8, 0,   2, 2, 4, 2, TWO_HANDED_SWORD_MASTERY, 2 ,2 }); break;
     case SCYTHE:
       weapon_data = ({ 18, 180, 120, 13,    PIERCING, 2, 4, 0,   2, 2, 4, 4, SCYTHE_MASTERY,     2 ,1 }); break;
     case HEAVY_FLAIL: // mangual pesado
