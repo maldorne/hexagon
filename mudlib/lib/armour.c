@@ -28,7 +28,8 @@ static int basic_cost, // cost of a basic armour of this type
     spell_failure,     // spell failure chances when wearing this armour
     
     armour_type,       // armour type
-    material;          // made of
+    material,          // made of
+    default_plural;    // should be treated as plural by default (shoes, gloves, trousers, etc)
 
 static int * ac_bonus_against; // ac bonus against different types of weapons (slashing, blunt, piercing...)
 
@@ -56,6 +57,7 @@ void create()
   piece_list = ({ });
   piece_object_list = ({ });
   body_type = _LANG_RACES_HUMANOID_BODY;
+  default_plural = 0;
 
   // allocate with zero value
   ac_bonus_against = allocate_int(sizeof(AC_TYPES));
@@ -93,6 +95,9 @@ void set_base_armour(string lookup)
   
   localization = data[13]; // body localization
   body_type = _LANG_RACES_HUMANOID_BODY; // by default humanoid bodies
+
+  // maybe not used in english, useful for other languages
+  default_plural = data[14];
 
   // Ok, this slot is holdable or not, if it's not holdable, it's wearable
   set_wearable(1);
@@ -132,6 +137,9 @@ int query_max_dex_bon() { return max_dex_bon; }
 void set_max_dex_bon(int bon){ max_dex_bon = bon; }
 int query_skill_malus(){ return skill_malus; }
 int query_spell_failure(){ return spell_failure; }
+
+int query_default_plural() { return default_plural; }
+void set_default_plural(int value) { default_plural = (value ? 1 : 0); }
 
 // now basic_cost is in basic currency
 void set_value(int basic_cost)

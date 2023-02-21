@@ -37,5 +37,7 @@ void setup()
 
   add_clone(BASEOBS + "weapons/dagger", 1);
   add_clone(BASEOBS + "armours/leather", 1);
+  add_clone(BASEOBS + "armours/trousers", 1);
+  add_clone(BASEOBS + "armours/slippers", 1);
   init_equip();
 }

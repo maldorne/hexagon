@@ -133,18 +133,23 @@
               "no puedes ponértelo.\n"
 #define _LANG_WEAR_SAME_TYPE "Ya tienes puesto un objeto del mismo tipo.\n"
 #define _LANG_WEAR_NO_SIZE "Este objeto tiene un fallo (no tiene tamaño), pide ayuda a un programador.\n"
-#define _LANG_WEAR_START "Empiezas a ponerte tu " + ob->query_name() + ".\n"
-// #define _LANG_WEAR_END "Terminas de ponerte tu " + ob->query_name() + ".\n"
+#define _LANG_WEAR_START "Empiezas a ponerte " + (ob->query_default_plural() ? "tus" : "tu") + " " + \
+              ob->query_name() + ".\n"
+// #define _LANG_WEAR_END "Terminas de ponerte " + (ob->query_default_plural() ? "tus" : "tu") + " " + \
+//            ob->query_name() + ".\n"
 #define _LANG_WEAR_FULL_SET "%^BOLD%^Te pones el conjunto completo de: " + \
-                main->query_piece_set_name() + ".%^RESET%^\n"
-#define _LANG_WEAR_PASSED_OUT_MSG "Todavía estás intentando ponerte tu " + ob->query_name() + ".\n"
-#define _LANG_CANNOT_WEAR_MSG "No puedes ponerte tu " + ob->query_name() + ".\n"
+              main->query_piece_set_name() + ".%^RESET%^\n"
+#define _LANG_WEAR_PASSED_OUT_MSG "Todavía estás intentando ponerte " + (ob->query_default_plural() ? "tus" : "tu") + \
+              " " + ob->query_name() + ".\n"
+#define _LANG_CANNOT_WEAR_MSG "No puedes ponerte " + (ob->query_default_plural() ? "tus" : "tu") + \
+              " " + ob->query_name() + ".\n"
 
 #define _LANG_UNWEAR_VERBS ({ "quitarse", "quitarme", "desvestir" })
 #define _LANG_UNWEAR_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"                
 #define _LANG_UNWEAR_NOT_WEARING "No puedes quitarte algo que no lleves puesto.\n"
-#define _LANG_UNWEAR_START "Te quitas tu " + ob->query_name() + ".\n"
-// #define _LANG_UNWEAR_END "Te quitas tu " + ob->query_name() + ".\n"
+#define _LANG_UNWEAR_START "Te quitas " + (ob->query_default_plural() ? "tus" : "tu") + " " + ob->query_name() + ".\n"
+// #define _LANG_UNWEAR_END "Te quitas " + (ob->query_default_plural() ? "tus" : "tu") + " " + ob->query_name() + ".\n"
 #define _LANG_UNWEAR_FULL_SET "%^BOLD%^Dejas de llevar el conjunto completo de: " + \
               main_object->query_piece_set_name() + ".%^RESET%^\n"
-#define _LANG_CANNOT_UNWEAR_MSG "No puedes quitarte tu " + ob->query_name() + ".\n"
+#define _LANG_CANNOT_UNWEAR_MSG "No puedes quitarte " + (ob->query_default_plural() ? "tus" : "tu") + " " + \
+              ob->query_name() + ".\n"
