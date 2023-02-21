@@ -6,29 +6,12 @@
 #define _LANG_CMD_CANNOT_READ_FILE "No se ha podido leer ese archivo.\n"
 #define _LANG_CMD_NO_FILES "No hay archivos coincidentes.\n"
 
-// uptime
-
-#define _LANG_UPTIME_SINCE "El mud está en funcionamiento desde hace:\n\t"
-#define _LANG_UPTIME_DAY "día"
-#define _LANG_UPTIME_HOUR "hora"
-#define _LANG_UPTIME_MINUTE "minuto"
-#define _LANG_UPTIME_SECOND "segundo"
-
 // clone
 
-#define _LANG_CLONE_WHAT "¿Clonar que?\n"
-#define _LANG_CLONE_ERROR_IN "Error en "
-#define _LANG_CLONE_ERROR_MAYBE_UNIQUE "Error, no se ha podido clonar el objeto (¿objeto único?).\n"
-#define _LANG_CLONE_OK_YOU "Ok. Objeto " + file_name(ob) + " clonado en " + \
-        (environment(ob) == this_player() ? "ti" : \
-        (environment(ob) == environment(this_player()) ? "este lugar" : \
-          this_player()->desc_object(ob))) + \
-        ".\n"
 #define _LANG_CLONE_OK_ENV this_player()->query_cap_name() + " busca " + \
         (string)ob->query_numeral() + " " + \
         ((string)ob->query_short() ? (string)ob->query_short() : "objeto") + \
         " en otra dimensión.\n"
-#define _LANG_CLONE_ERROR "Error, no se ha podido clonar el objeto.\n"
 
 // compare
 

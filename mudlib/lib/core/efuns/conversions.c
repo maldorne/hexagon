@@ -45,11 +45,11 @@ static string query_multiple_short(mixed *obs, varargs int flag)
     if (stringp(str))
       str = ({ str });
 
-    for (j=0;j<sizeof(str);j++)
-      if ((k=member_array(str[j], bity)) == -1)
+    for (j = 0; j < sizeof(str); j++)
+      if ((k = member_array(str[j], bity)) == -1)
         bity += ({ str[j], ({ obs[i] }) });
       else
-        bity[k+1] = ({ obs[i] })+bity[k+1];
+        bity[k + 1] = ({ obs[i] }) + bity[k + 1];
   }
 
   str = ({ });
@@ -58,26 +58,23 @@ static string query_multiple_short(mixed *obs, varargs int flag)
   {
     j = sizeof(bity[i+1]);
     if (stringp(bity[i+1][0]))
-      if (j==1)
+      if (j == 1)
         str += ({ bity[i] });
       else
-        str += ({ (query_num(j,20)+
-          " "+pluralize(bity[i])) });
+        str += ({ (query_num(j, 20) + " " + pluralize(bity[i])) });
     else if (j == 1)
     // determinate property removed
     // if (bity[i+1][0]->query_property("determinate"))
-    //   str += ({ bity[i+1][0]->query_property("determinate")+bity[i] });
+    //   str += ({ bity[i + 1][0]->query_property("determinate") + bity[i] });
     // else
       // str += ({ add_a(bity[i]) });
       str += ({ bity[i] });
     else
     {
       if (flag)
-        str += ({ (query_num(j,20)+
-          " "+bity[i+1][0]->pretty_plural()) });
+        str += ({ (query_num(j, 20) + " " + bity[i + 1][0]->pretty_plural()) });
       else
-        str += ({ (query_num(j,20)+
-          " "+bity[i+1][0]->query_plural()) });
+        str += ({ (query_num(j, 20) + " " + bity[i + 1][0]->query_plural()) });
     }
   }
 
@@ -87,6 +84,6 @@ static string query_multiple_short(mixed *obs, varargs int flag)
   if (sizeof(str) == 1)
     return str[0];
 
-  return implode(str[0..sizeof(str)-2],", ")+" "+_LANG_AND+" "+str[sizeof(str)-1];
+  return implode(str[0..sizeof(str)-2], ", ") + " " + _LANG_AND + " " + str[sizeof(str) - 1];
 } /* query_multiple_short() */
 

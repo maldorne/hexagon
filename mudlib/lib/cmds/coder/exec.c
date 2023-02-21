@@ -173,7 +173,7 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    write(query_help());
+    write("Syntax: " + query_usage() + "\n\n");
     return 1;
   }
 

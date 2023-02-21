@@ -29,8 +29,8 @@ static int cmd(mixed str, object me, string verb)
 
   if (!strlen(str)) 
   {
-    notify_fail(query_help()); 
-    return 0;
+    write("Syntax: " + query_usage() + "\n\n");
+    return 1;
   }
 
   num = 1;

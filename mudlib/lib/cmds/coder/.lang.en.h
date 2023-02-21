@@ -6,28 +6,11 @@
 #define _LANG_CMD_CANNOT_READ_FILE "Cannot read that file.\n"
 #define _LANG_CMD_NO_FILES "There are no files with that name.\n"
 
-// uptime
-
-#define _LANG_UPTIME_SINCE "The mud has been up for:\n\t"
-#define _LANG_UPTIME_DAY "day"
-#define _LANG_UPTIME_HOUR "hour"
-#define _LANG_UPTIME_MINUTE "minute"
-#define _LANG_UPTIME_SECOND "second"
-
 // clone
 
-#define _LANG_CLONE_WHAT "Clone what?\n"
-#define _LANG_CLONE_ERROR_IN "Error in "
-#define _LANG_CLONE_ERROR_MAYBE_UNIQUE "Error, could not clone object (maybe unique?).\n"
-#define _LANG_CLONE_OK_YOU "Ok. Object " + file_name(ob) + " cloned in " + \
-        (environment(ob) == this_player() ? "you" : \
-        (environment(ob) == environment(this_player()) ? "this place" : \
-          this_player()->desc_object(ob))) + \
-        ".\n"
 #define _LANG_CLONE_OK_ENV this_player()->query_cap_name() + " looks for a " + \
         ((string)ob->query_short() ? (string)ob->query_short() : "object") + \
         " in other dimension.\n"
-#define _LANG_CLONE_ERROR "Error, the object could not be cloned.\n"
 
 // compare
 

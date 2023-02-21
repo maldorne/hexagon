@@ -3,70 +3,75 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 1;
+  return "rm <file>";
+}
+
+string query_help() 
+{
+  return "Removes given file.";
 }
 
 static int cmd(string str, object me, string verb)
 {
-    int fsize, loop;
-    string *filenames;
+  int fsize, loop;
+  string *filenames;
 
-    if (this_player(1) != this_user())
-      return 0;
+  if (this_player(1) != this_user())
+    return 0;
 
-    if (!strlen(str))
+  if (!strlen(str))
+  {
+    write("Syntax: " + query_usage() + "\n\n");
+    return 1;
+  }
+
+  filenames = get_files(str);
+
+  if (!sizeof(filenames))
+  {
+    notify_fail("The file '" + str + "' does not exist.\n");
+    return 0;
+  }
+
+  for(loop = 0; loop < sizeof(filenames); loop++)
+  {
+    string temp, temp2;
+
+    temp2 = "";
+    str = filenames[loop];
+
+    if((sscanf(str, "%s/.%s", temp, temp2) && (temp2 == "")) ||
+        sscanf(str, "%s/..%s", temp, temp2) && (temp2 == "") )
     {
-      notify_fail("Syntax: rm <file> [file ...]\n");
-      return 0;
+      continue;
     }
 
-    filenames = get_files(str);
+    fsize = file_size(str);
 
-    if (!sizeof(filenames))
+    if (fsize == -1)
     {
-      notify_fail("The file '" + str + "' does not exist.\n");
-      return 0;
+       notify_fail("File or directory does not exist.\n");
+       return 0;
     }
 
-    for(loop = 0; loop < sizeof(filenames); loop++)
+    if (fsize == -2)
     {
-      string temp, temp2;
-
-      temp2 = "";
-      str = filenames[loop];
-
-      if((sscanf(str, "%s/.%s", temp, temp2) && (temp2 == "")) ||
-          sscanf(str, "%s/..%s", temp, temp2) && (temp2 == "") )
+      if (!rmdir(str))
       {
-        continue;
-      }
-
-      fsize = file_size(str);
-
-      if (fsize == -1)
-      {
-         notify_fail("File or directory does not exist.\n");
-         return 0;
-      }
-
-      if (fsize == -2)
-      {
-        if (!rmdir(str))
-        {
-          notify_fail("Unable to remove directory: '" + str + "'.\n");
-          return 0;
-        }
-      }
-      else if (!rm(str))
-      {
-        notify_fail("Unable to remove the file.\n");
+        notify_fail("Unable to remove directory: '" + str + "'.\n");
         return 0;
       }
     }
+    else if (!rm(str))
+    {
+      notify_fail("Unable to remove the file.\n");
+      return 0;
+    }
+  }
 
-    write("Ok.\n");
-    return 1;
+  write("Ok.\n");
+  return 1;
 } /* rm_files() */
 

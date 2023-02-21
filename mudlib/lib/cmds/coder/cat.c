@@ -21,8 +21,8 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    notify_fail("Cat what file?\n");
-    return 0;
+    write("Syntax: " + query_usage() + "\n\n");
+    return 1;
   }
 
   if (str == "*")

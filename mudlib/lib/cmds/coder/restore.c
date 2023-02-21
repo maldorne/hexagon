@@ -3,6 +3,16 @@
 
 inherit CMD_BASE;
 
+string query_usage()
+{
+  return "restore";
+}
+
+string query_help() 
+{
+  return "Your health points and guild points are restored.";
+}
+
 static int cmd(string str, object me, string verb) 
 {
   if (!me->query_coder())
@@ -14,11 +24,11 @@ static int cmd(string str, object me, string verb)
   me->set_hp(me->query_max_hp());
   me->set_gp(me->query_max_gp());
 
-  tell_object(this_player(),"%^YELLOW%^Tu vida y energía se recuperan.%^RESET%^\n");
+  tell_object(this_player(),"%^YELLOW%^Your health and stamina are restored.%^RESET%^\n");
   
-  tell_room(environment(this_player()), 
-        "%^YELLOW%^La vida y energía de " + this_player()->query_cap_name()+
-        " se recuperan.%^RESET%^\n", ({this_player()}));
+  // tell_room(environment(this_player()), 
+  //       "%^YELLOW%^The health and stamina of " + this_player()->query_cap_name()+
+  //       " are restored.%^RESET%^\n", ({this_player()}));
   
   return 1;
 }

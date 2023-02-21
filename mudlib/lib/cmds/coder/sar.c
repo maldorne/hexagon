@@ -1,4 +1,3 @@
-
 /*
   Nanvaent Industries International
 
@@ -33,6 +32,12 @@ static int cmd(string str, object me, string verb)
   string *files;
   string s1, s2, s3, s4, s5;
   int silent;
+
+  if (!strlen(str))
+  {
+    write("Syntax: " + query_usage() + "\n\n");
+    return 1;
+  }
 
   silent = 0;
   

@@ -5,9 +5,16 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 1;
+  return "clone <file path>";
+}
+
+string query_help()
+{
+  return "Creates a clone given the path of a file.\n" +
+     "If the object can be moved to your inventory, it will be placed there, " +
+     "in your environment in other case.";
 }
 
 static int cmd(string str, object me, string verb)
@@ -18,23 +25,24 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    notify_fail(_LANG_CLONE_WHAT);
-    return 0;
+    write("Syntax: " + query_usage() + "\n\n");
+    return 1;
   }
 
   filenames = get_files(str);
   if (!sizeof(filenames))
   {
-    notify_fail(_LANG_CMD_NO_FILES);
+    notify_fail("There are no files with that name.\n");
     return 0;
   }
 
-  for(loop = 0; loop < sizeof(filenames); loop++)
+  for (loop = 0; loop < sizeof(filenames); loop++)
   {
     str = filenames[loop];
+
     if (file_size(str) < 0 && file_size(str + ".c") < 0)
     {
-      notify_fail(_LANG_CMD_NO_FILES);
+      notify_fail("There are no files with that name.\n");
       return 0;
     }
 
@@ -48,28 +56,32 @@ static int cmd(string str, object me, string verb)
     {
       err = catch((mov = (int)ob->move(this_player())));
       if (err)
-        write(_LANG_CLONE_ERROR_IN + " move(this_player()):\n   " + err + "\n");
+        write("Error in move(this_player()):\n   " + err + "\n");
 
       if (err || mov)
       {
         err = catch(ob->move(environment(this_player())));
         if (err)
-          write(_LANG_CLONE_ERROR_IN + " move(environment()):\n   " + err + "\n");
+          write("Error in move(environment()):\n   " + err + "\n");
       }
 
       // added by neverbot, unique objects could be destroyed during move
       if (!ob)
       {
-        write(_LANG_CLONE_ERROR_MAYBE_UNIQUE);
+        write("Error, could not clone object (maybe unique?).\n");
         return 1;
       }
 
-      write(_LANG_CLONE_OK_YOU);
+      write("Ok. Object " + file_name(ob) + " cloned in " +
+        (environment(ob) == this_player() ? "you" :
+        (environment(ob) == environment(this_player()) ? "this place" :
+          this_player()->desc_object(ob))) +
+        ".\n");
       tell_room(environment(this_player()), _LANG_CLONE_OK_ENV, ({ this_player() }));
     }
     else
     {
-      write(_LANG_CLONE_ERROR);
+      write("Error, the object could not be cloned.\n");
     }
   }
   return 1;

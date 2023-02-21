@@ -4,9 +4,14 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 1;
+  return "uptime";
+}
+
+string query_help()
+{
+  return "Shows for how long the mud server has been functioning.";
 }
 
 static int cmd(string str, object me, string verb)
@@ -14,22 +19,22 @@ static int cmd(string str, object me, string verb)
   int tim, num;
   string *bits;
 
-  write(_LANG_UPTIME_SINCE);
+  write("The mud has been up for:\n\t");
 
   tim = uptime();
   bits = ({ });
 
   if (tim > 60*60*24)
-    bits += ({ (num=tim/(60*60*24)) + " " + _LANG_UPTIME_DAY + (num == 1 ? "" : "s") });
+    bits += ({ (num=tim/(60*60*24)) + " " + "day" + (num == 1 ? "" : "s") });
 
   if (tim > 60*60 && tim%(60*60*24))
-    bits += ({ (num=(tim/(60*60))%24) + " " + _LANG_UPTIME_HOUR + (num == 1 ? "" : "s") });
+    bits += ({ (num=(tim/(60*60))%24) + " " + "hour" + (num == 1 ? "" : "s") });
 
   if (tim > 60 && tim%(60*60))
-    bits += ({ (num=(tim/60)%60) + " " + _LANG_UPTIME_MINUTE + (num == 1 ? "" : "s") });
+    bits += ({ (num=(tim/60)%60) + " " + "minute" + (num == 1 ? "" : "s") });
 
   if (tim%60)
-    bits += ({ (num=tim%60) + " " + _LANG_UPTIME_SECOND + (num == 1 ? "" : "s") });
+    bits += ({ (num=tim%60) + " " + "second" + (num == 1 ? "" : "s") });
 
   if (sizeof(bits) > 1)
   {

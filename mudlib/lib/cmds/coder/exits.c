@@ -136,7 +136,7 @@ static int cmd(string str, object me, string verb)
     }
     else // !sizeof(files)
     {
-      write(query_help());
+      write("Syntax: " + query_usage() + "\n\n");
       return 1;      
     }
   }

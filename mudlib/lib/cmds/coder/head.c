@@ -4,9 +4,18 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 1;
+  return "head [-range] <file>";
+}
+
+string query_help()
+{
+  return "This command allows the user to see the contents " +
+    "of file starting at the first line and ending at line range. " +
+    "A default of 10 lines is returned if range is not specified.\n\n" +
+    "Ex. head -20 /lib/room.c\n" +
+    "will return the first 20 lines of the file room.c.";
 }
 
 static int cmd(string str, object me, string verb)
@@ -16,8 +25,8 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    notify_fail("Usage : head -range|file\n");
-    return 0;
+    write("Syntax: " + query_usage() + "\n\n");
+    return 1;
   }
 
   if (sscanf(str, "-%d %s", range, file) == 2)
@@ -51,7 +60,7 @@ static int cmd(string str, object me, string verb)
 
     if (!sizeof(filename))
     {
-      notify_fail("Fichero inválido.\n");
+      notify_fail("Invalid file\n");
       return 0;
     }
 
@@ -61,20 +70,3 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 } /* head_file() */
-
-string query_short_help()
-{
-  return "Devuelve las primeras líneas de un archivo.";
-  /*
-  return "This command allows the user to see the contents "
-  "of file starting at the first line and ending at line range. "
-  " A default of 10 lines is returned if range is not specified.\n\n"
-  "Ex. head -20 /std/room.c.\n"
-  "will return the first 20 lines of the file room.c.\n\n"
-  "Note: Thextension must be specified.";
-  */
-}
-
-string query_usage() {
-  return "head -range|file";
-}

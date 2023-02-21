@@ -1,11 +1,9 @@
-
 /** coded by Raskolnikov July 1996 **/
 /** Vaeleth... tail more flexible **/
 
 #include <mud/cmd.h>
 
 inherit CMD_BASE;
-
 
 string query_usage()
 {
@@ -14,7 +12,10 @@ string query_usage()
 
 string query_help()
 {
-  return "Shows the last lines of a file.";
+  return "Shows the last lines of a file.\n" +
+    "A default of 10 lines is returned if range is not specified.\n\n" +
+    "Ex. tail -20 /lib/room.c\n" +
+    "will return the last 20 lines of the file room.c.";
 }
 
 static int cmd(string str, object me, string verb)
@@ -30,8 +31,8 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    notify_fail("Syntax: tail [-<number of lines>] <files>\n");
-    return 0;
+    write("Syntax: " + query_usage() + "\n\n");
+    return 1;
   }
 
   if (sscanf(str, "-%d %s", range, file) != 2)

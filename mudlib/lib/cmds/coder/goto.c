@@ -26,7 +26,10 @@ static int cmd(string str, object me, string verb)
   notify_fail("goto where?\n");
   
   if (!strlen(str)) 
-    return 0;
+  {
+    write("Syntax: " + query_usage() + "\n\n");    
+    return 1;
+  }
 
   if (!me->query_administrator())
     me->set_invis(0);
