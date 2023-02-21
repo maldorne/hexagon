@@ -3,9 +3,15 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 0;
+  return "stats <nombre or id> [filter-1 filter-2 ... filter-n]";
+}
+
+string query_help()
+{
+  return "Shows all stats of given object\n" + 
+         "(or only those which name contains some of the filter key words)\n";
 }
 
 static int cmd(string str, object me, string verb) 
@@ -19,11 +25,15 @@ static int cmd(string str, object me, string verb)
 
   ret = "";
 
+  if (!this_player())
+    return 0;
+
+  if (this_player(1) != this_user())
+    return 0;
+
   if (!strlen(str))
   {
-    tell_object(me, "Sintaxis: stats <nombre o id> <filtro-1 filtro-2 filtro-n>\n" + 
-      "  Para mostrar todos los stats de un objeto\n" + 
-      "  (o sólo aquellos cuyo nombre contenga algunas de las palabras de 'filtros')\n");
+    write(query_help());
     return 1;
   }
 
@@ -44,7 +54,7 @@ static int cmd(string str, object me, string verb)
 
   if (!ob)
   {
-    tell_object(me, "No se ha podido encontrar el objeto o jugador '" + str + "'.\n");
+    tell_object(me, "Cannot find object or player '" + str + "'.\n");
     return 1;
   }
 
@@ -59,7 +69,7 @@ static int cmd(string str, object me, string verb)
 
     if (sizeof(params))
     {
-      // filtramos los stats por palabras clave
+      // filter stats by key words
       for (j = 0; j < sizeof(words); j++)
         if (member_array(lower_case(words[j]), params) != -1)
           found = 1;
@@ -79,13 +89,12 @@ static int cmd(string str, object me, string verb)
       else
         ret += ":\n";
 
-      ret += to_string(my_stats[i][1]) + "\n";
+      ret += to_string(my_stats[i][1]); // + "\n";
     }
   }
 
   tell_object(me, ret);
-  tell_object(me, "\nUtiliza exec para más información, por ejemplo:\n  exec return find_living(\""+me->query_name()+"\")->stats()[ <indice> ]\n  para más información.\n");
-
+  tell_object(me, "\nUse exec for more information, i.e.:\n  exec return find_living(\""+me->query_name()+"\")->stats()[ <index> ]\n");
   return 1;
 }
 
