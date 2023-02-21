@@ -45,7 +45,7 @@ private void _add_held_ac(object ob)
     return;
 
   for (i = 0; i < sizeof(AC_TYPES); i++)
-    held_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]);
+    held_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_ac_against(AC_TYPES[i]);
 }
 
 private void _remove_held_ac(object ob)
@@ -57,7 +57,7 @@ private void _remove_held_ac(object ob)
     return;
 
   for (i = 0; i < sizeof(AC_TYPES); i++)
-    held_ac[AC_TYPES[i]] -= (ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]));
+    held_ac[AC_TYPES[i]] -= (ob->query_ac() + ob->query_ac_against(AC_TYPES[i]));
 }
 
 void create() 

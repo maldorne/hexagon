@@ -33,6 +33,7 @@
  */
 
 #include <item/armour.h>
+#include <translations/races.h>
 
 mixed * lookup_armour_data(string name) 
 {
@@ -74,9 +75,6 @@ mixed * lookup_armour_data(string name)
     case CHAIN_MAIL: // Mallas
       return ({  750,  6000, 400, 17,   5, 2,-5, 30,    3, 0, -1,   1, 2, "el pecho" });
 
-    //case BRONZE_PLATE: // placas bronce
-    //  return ({ 3000,  7000, 450, 20,   5, 3,-4, 35,    1, -1, 0,   1, 2, "el pecho" });
-
     case BANDED_MAIL: // Bandas
       return ({ 2000,  7000, 350, 18,   5, 3,-4, 35,    1, -1, 0,   1, 2, "el pecho" });
 
@@ -116,17 +114,17 @@ mixed * lookup_armour_data(string name)
     // type  5:
     case AMULET:
     case NECKLACE:
-      return ({  10,  1000,   5, 1,    0,-1, 0, 0,      0, 0, 0,   5, 2, "nada" });
+      return ({  10,  1000,   5, 1,    0,-1, 0, 0,      0, 0, 0,   5, 2, _LANG_RACES_LOCATIONS_NOTHING });
 
     // type  6:
     case CAPE:
-      return ({  50,  1000,  10, 10,   0,-1,-1, 5,      0, 0, 0,   6, 4, "nada" });
+      return ({  50,  1000,  10, 10,   0,-1,-1, 5,      0, 0, 0,   6, 4, _LANG_RACES_LOCATIONS_NOTHING });
     case CLOAK:
-      return ({  50,  1000,  15, 11,   1,-1,-1, 5,      0, 0, 0,   6, 3, "nada" });
+      return ({  50,  1000,  15, 11,   1,-1,-1, 5,      0, 0, 0,   6, 3, _LANG_RACES_LOCATIONS_NOTHING });
 
     // type  7: 
     case RING:
-      return ({  10,  1000, 5, 1,     0,-1, 0, 0,      0, 0, 0,   7, 2, "nada" });
+      return ({  10,  1000, 5, 1,     0,-1, 0, 0,      0, 0, 0,   7, 2, _LANG_RACES_LOCATIONS_NOTHING });
 
     // type  8: 
     case GLOVES:
@@ -141,7 +139,7 @@ mixed * lookup_armour_data(string name)
 
     // type  10:
     case BELT:
-      return ({  20,  1000,   5, 2,    0,-1, 0, 0,      0, 0, 0,   10, 3, "nada" });
+      return ({  20,  1000,   5, 2,    0,-1, 0, 0,      0, 0, 0,   10, 3, _LANG_RACES_LOCATIONS_NOTHING });
 
     // type 11:
     case TROUSERS:
@@ -149,13 +147,13 @@ mixed * lookup_armour_data(string name)
 
     // type 12:
     case PENDANT:
-      return ({  10,  1000,   5, 1,   0,-1, 0, 0,      0, 0, 0,   12, 2, "nada" });
+      return ({  10,  1000,   5, 1,   0,-1, 0, 0,      0, 0, 0,   12, 2, _LANG_RACES_LOCATIONS_NOTHING });
       
     // type 13: containers
     case BAGPACK:
-      return ({  100, 1000,  10, 6,     0,-1, 0, 0,     0, 0, 0,  13, 3, "nada" });
+      return ({  100, 1000,  10, 6,     0,-1, 0, 0,     0, 0, 0,  13, 3, _LANG_RACES_LOCATIONS_NOTHING });
     case QUIVER:
-      return ({  100, 1000,  10, 6,     0,-1, 0, 0,     0, 0, 0,  13, 3, "nada" });
+      return ({  100, 1000,  10, 6,     0,-1, 0, 0,     0, 0, 0,  13, 3, _LANG_RACES_LOCATIONS_NOTHING });
   }
   return ({});
 }

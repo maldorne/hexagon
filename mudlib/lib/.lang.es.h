@@ -21,3 +21,14 @@
 // player.c
 
 #define _LANG_PLAYER_SAVING "Salvando...\n"
+
+// item.c
+
+#define _LANG_ITEM_BREAKS "¡Tu " + query_name() + " se rompe en mil pedazos!\n"
+
+// armour.c
+
+#define _LANG_DESC_IS_SET_PIECE "   Este objeto forma parte del conjunto: " + \
+              main_piece->query_piece_set_name() + ".\n"
+#define _LANG_DESC_IS_MAIN_SET_PIECE "   Este objeto es la pieza central del conjunto '" + \
+              main_piece->query_piece_set_name() + "', compuesto de "

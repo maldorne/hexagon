@@ -13,6 +13,7 @@
 
 // body locations
 
+#define _LANG_RACES_LOCATIONS_NOTHING "nada"
 #define _LANG_RACES_LOCATIONS_HEAD "la cabeza"
 #define _LANG_RACES_LOCATIONS_BODY "el cuerpo"
 #define _LANG_RACES_LOCATIONS_TAIL "la cola"

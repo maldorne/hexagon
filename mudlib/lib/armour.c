@@ -1,6 +1,6 @@
 /* 
- * Revision de la armadura básica para CcMud, Folken 19/06/03
- * Añadidos sistemas de equipos de multiples piezas, Folken 07/10
+ * basic armour review for CcMud, neverbot 19/06/03
+ * armour sets with multiple pieces, neverbot 07/10
  * 
  */
 
@@ -13,50 +13,52 @@ inherit "/lib/item.c";
 #include <basic/condition.h>
 
 #include <translations/races.h>
+#include <translations/common.h>
+#include <language.h>
 
 int enchant;
 
 /* Valores de /table/armour_table */
-static int basic_cost, // Coste de una armadura basica de este tipo
-    ench_basic_cost,   // Coste de una armadura de este tipo con enchant
+static int basic_cost, // cost of a basic armour of this type 
+    ench_basic_cost,   // cost of a basic armour of this type with enchant
 
-    armour_ac,     // AC que proporciona la armadura
-    max_dex_bon,   // Bonificador maximo de destreza que se admite con esta
-                   //   armadura
-    skill_malus,   // Penalizador a las habilidades
-    spell_failure, // Probabilidad de fallo de conjuro arcano
+    armour_ac,         // ac given by the armour
+    max_dex_bon,       // max dex bon when wearing this armour
+    skill_malus,       // skill malus when wearing this armour
+    spell_failure,     // spell failure chances when wearing this armour
     
-    bon_slash,     // Bonificador a la AC contra armas cortantes
-    bon_blunt,     // Bonificador a la AC contra armas de golpe
-    bon_pierc,     // Bonificador a la AC contra armas punzantes
-    armour_type,   // Tipo de armadura
-    material;      // Material del que esta fabricado
+    armour_type,       // armour type
+    material;          // made of
 
-static string localization; // Zona del cuerpo que protege
-static string armour_name;  // Nombre del tipo de armadura
-string body_type;           // Tipo de cuerpo para el que vale la armadura
+static int * ac_bonus_against; // ac bonus against different types of weapons (slashing, blunt, piercing...)
 
-// Variables para el sistema de conjuntos de armaduras
-static private string main_piece;     // Path de la pieza de equipo principal de este conjunto de armaduras
-static private string piece_set_name; // Nombre del conjunto de todas las piezas (p ej: armadura completa, armadura de placas, etc)
-static private string * piece_list;   // Lista de paths de todas las piezas que componen el conjunto
-static private object * piece_object_list;  
-                    // Lista de objetos que componen el conjunto 
-                    // (solo se rellena cuando nos podemos el conjunto completo, y se vacia en cuanto
-                    //  nos quitamos cualquiera de las piezas)
+static string localization; // body area this armour protects
+static string armour_name;  // armour type (name)
+string body_type;           // body type this armour fits on
+
+// for the armour sets
+static private string main_piece;          // path of the main set piece
+static private string piece_set_name;      // name of the set
+static private string * piece_list;        // path list of every piece
+static private object * piece_object_list; // list of cloned objects
+                                           //  - will only be set when we wear the full set
+                                           //  - will be empty as soon as we unwear at least one piece
 
 void set_value(int i);
 
 void create()
 {
-  localization = "nada";
-  armour_name = "armadura";
+  localization = _LANG_RACES_LOCATIONS_NOTHING;
+  armour_name = DEFAULT_ARMOUR_NAME;
   enchant = 0;
   main_piece = "";
   piece_set_name = "";
   piece_list = ({ });
   piece_object_list = ({ });
   body_type = _LANG_RACES_HUMANOID_BODY;
+
+  // allocate with zero value
+  ac_bonus_against = allocate_int(sizeof(AC_TYPES));
 
   ::create();
 } 
@@ -73,7 +75,7 @@ void set_base_armour(string lookup)
 
   data = table("armours")->lookup_armour_data(lookup);
 
-  basic_cost = data[0]; // Atencion!! Ahora el valor es en monedas de cobre!! (basicas)
+  basic_cost = data[0]; // the value is in basic currency
   ench_basic_cost = data[1];
   set_weight(data[2]);
   set_size(data[3]);
@@ -82,32 +84,35 @@ void set_base_armour(string lookup)
   skill_malus = data[6];
   spell_failure = data[7];
 
-  bon_slash = data[8];
-  bon_blunt = data[9];
-  bon_pierc = data[10];
+  ac_bonus_against[SLASHING] = data[8];
+  ac_bonus_against[BLUNT] = data[9];
+  ac_bonus_against[PIERCING] = data[10];
 
   armour_type = data [11];
   material = data [12];
   
-  localization = data[13]; // Zona del cuerpo que protege
-  body_type = _LANG_RACES_HUMANOID_BODY; // Las armaduras por defecto son para cuerpos humanoides
+  localization = data[13]; // body localization
+  body_type = _LANG_RACES_HUMANOID_BODY; // by default humanoid bodies
 
   // Ok, this slot is holdable or not, if it's not holdable, it's wearable
   set_wearable(1);
   set_value(basic_cost);
 }
 
+int query_armour() { return 1; } 
 /* This just returns the basearmour name -- Hamlet */
-string query_armour_name() {  return armour_name; }
-
-int query_ac() { return (armour_ac + enchant); }
-int query_armour_ac() { return query_ac(); }
-
+string query_armour_name() { return armour_name; }
 int query_armour_type() { return armour_type; }
 int query_material() { return material; }
 string query_localization() { return localization; }
-int query_enchant(){ return enchant; }
-int query_armour() { return 1; } 
+int query_enchant() { return enchant; }
+
+int query_ac() { return (armour_ac + enchant); }
+int query_armour_ac() { return query_ac(); }
+int query_ac_against(int type) { return query_ac() + ac_bonus_against[type]; }
+
+int query_ac_bon_against(int type) { return ac_bonus_against[type]; }
+void set_ac_bon_against(int type, int value) { ac_bonus_against[type] = value; }
 
 string query_armour_type_name()
 {
@@ -123,29 +128,12 @@ void set_material(int i) { material = i; }
 void set_body_type(string str) { body_type = str; }
 string query_body_type() { return body_type;  }
 
-void set_slashing_bon(int i) { bon_slash = i; }
-int query_slashing_bon() { return bon_slash; }
-void set_blunt_bon(int i) { bon_blunt = i; }
-int query_blunt_bon() { return bon_blunt; }
-void set_piercing_bon(int i) { bon_pierc = i; }
-int query_piercing_bon() { return bon_pierc; }
 int query_max_dex_bon() { return max_dex_bon; }
 void set_max_dex_bon(int bon){ max_dex_bon = bon; }
 int query_skill_malus(){ return skill_malus; }
 int query_spell_failure(){ return spell_failure; }
 
-int query_total_ac_against(int type)
-{
-  if (type == BLUNT)
-    return query_ac() + query_blunt_bon();
-  if (type == PIERCING)
-    return query_ac() + query_piercing_bon();
-  if (type == SLASHING)
-    return query_ac() + query_slashing_bon();
-  return query_ac();
-}
-
-// Cambio importante, ahora basic_cost almacena monedas de cobre, no de oro!!!
+// now basic_cost is in basic currency
 void set_value(int basic_cost)
 {
   /* Make this simpler later.. 
@@ -172,18 +160,6 @@ void set_enchant(int i)
   set_value(0);
 }
 
-// Cambiado por Folken, 6/03
-// Estaria bien comprobar que esto no hace que las armaduras se estropeen
-// demasiado rapido ni demasiado lento.
-int hit_armour(int dam)
-{
-  int res;
-  res = this_object()->adjust_cond(-1);
-  if ((res <= 0) && interactive(environment(this_object())) )
-    tell_player(environment(this_object()), "¡Tu "+query_short()+" se rompe en mil pedazos!\n");
-    return res;
-}
-
 void set_main_piece(string path) 
 { 
   object main;
@@ -200,9 +176,8 @@ void set_pieces(string name, string * list)
   piece_set_name = name;
   // piece_list = list;
 
-  // Guardamos en piece_list los nombres de archivo tal y como salen de base_name
-  // para evitar comparaciones con y sin el .c final
-  // No guardamos en la lista los objetos que no cargan
+  // store in piece_list the file names 
+  // do not store items which do not load
   for (i = 0; i < sizeof(list); i++)
   {
     ob = load_object(list[i]);
@@ -211,8 +186,7 @@ void set_pieces(string name, string * list)
       piece_list += ({ base_name(ob) });
   }
   
-  // Si el nombre de archivo del objeto actual no esta en la lista de todas las piezas,
-  // la añadimos para evitar errores
+  // if current item file name is not in the list, we add it to avoid errors
   name = base_name(this_object());
   
   if (member_array(name, piece_list) == -1)
@@ -260,9 +234,9 @@ void set_piece_object_list(object * list)
 }
 object * query_piece_object_list() { return piece_object_list; }
 
-// Estas funciones se llamaran cuando se vista un conjunto de piezas completo
-// Deben sobreescribirse en la pieza central del equipo (indicada mediante set_main_piece
-//  en todos las demas piezas)
+// these functions will be called when the full set is worn/unworn
+// they must be overwritten in the main set piece (indicated by set_main_piece 
+// in every other piece)
 int complete_set_on(object player) 
 { 
   return 1; 
@@ -272,8 +246,7 @@ int complete_set_off(object player)
   return 1; 
 }
 
-
-// Modificacion de la descripcion si son piezas de equipo
+// description modified if it is a set piece
 // string long(string s, int dark)
 string query_long()
 {
@@ -289,20 +262,16 @@ string query_long()
     return ::query_long();
   
   if (!is_main_piece())
-  {
-      return ::query_long() + 
-          "   Este objeto forma parte del conjunto: " + main_piece->query_piece_set_name() + ".\n";
-  }
+    return ::query_long() + _LANG_DESC_IS_SET_PIECE;
   
   pieces = main_piece->query_piece_list();
   
   ret = ::query_long();
-  ret += "   Este objeto es la pieza central del conjunto '" + 
-    main_piece->query_piece_set_name() + "', compuesto de ";
+  ret += _LANG_DESC_IS_MAIN_SET_PIECE;
 
   for (i = 0; i < sizeof(pieces); i++)
   {
-    // Reutilizamos la variable main_piece
+    // reuse variable
     main_piece = load_object(pieces[i]);
     if (!main_piece)
       continue;
@@ -310,13 +279,12 @@ string query_long()
     if (i < sizeof(pieces) - 2)
       ret += ", ";
     else if (i == sizeof(pieces) - 2)
-      ret += " y ";
+      ret += " " + _LANG_AND + " ";
     else 
       ret += ".\n";
   }
   
   // ret = sprintf("%-=*s", (this_player()?this_player()->query_cols():79), ret);
-  
   return ret;
 }
 
@@ -355,9 +323,7 @@ mixed * stats()
         ({ "Max Dex Bon (nosave)", max_dex_bon, }),
         ({ "Skill Malus (nosave)", skill_malus, }),
         ({ "Spell Failure (nosave)", spell_failure, }),
-        ({ "Bon Slash (nosave)", bon_slash, }),
-        ({ "Bon Blunt (nosave)", bon_blunt, }),
-        ({ "Bon Pierc (nosave)", bon_pierc, }),
+        ({ "Ac Bonus Against (nosave)", ac_bonus_against, }),
         ({ "Armour Type (nosave)", armour_type, }),
         ({ "Material (nosave)", material, }),
         ({ "Localization (nosave)", localization, }),

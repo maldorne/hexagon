@@ -52,7 +52,7 @@ private void _add_worn_ac(object ob)
     return;
 
   for (i = 0; i < sizeof(AC_TYPES); i++)
-    worn_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]);
+    worn_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_ac_against(AC_TYPES[i]);
 }
 
 private void _remove_worn_ac(object ob)
@@ -64,7 +64,7 @@ private void _remove_worn_ac(object ob)
     return;
 
   for (i = 0; i < sizeof(AC_TYPES); i++)
-    worn_ac[AC_TYPES[i]] -= (ob->query_ac() + ob->query_total_ac_against(AC_TYPES[i]));
+    worn_ac[AC_TYPES[i]] -= (ob->query_ac() + ob->query_ac_against(AC_TYPES[i]));
 }
 
 void create()

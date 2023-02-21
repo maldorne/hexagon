@@ -41,6 +41,9 @@
  *    add_property( "tipo resistencia", porcentaje);
  *    Los tipos de resistencias están en /include/resistances.h
  *    neverbot 13/17/2009
+ * 
+ * hit_item() added, old hit_weapon, hit_armour, hit_shield removed, neverbot 02/2023
+ * 
  */
 
 inherit obj       "/lib/core/object";
@@ -55,6 +58,7 @@ inherit read_desc "/lib/core/basic/read_desc";
 #include <basic/condition.h>
 #include <living/social.h>
 #include <basic/resistances.h>
+#include <language.h>
 
 int wearable;
 int holdable;
@@ -454,6 +458,19 @@ void set_group(string str){ list[GROUP_OB] = str; }
 void set_deity(string str){ list[DEITY_OB] = str; }
 void set_city(string str){ list[CITY_OB] = str; }
 void set_job(string str){ list[JOB_OB] = str; }
+
+// added by neverbot, 6/03
+// we should check if this won't make weapons ruin too fast nor too slow
+int hit_item(varargs int damage)
+{
+  int res;
+  res = this_object()->adjust_cond(-1);
+
+  if ((res <= 0) && interactive(environment(this_object())) )
+    tell_player(environment(this_object()), _LANG_ITEM_BREAKS);
+  
+  return res;
+}
 
 mapping query_auto_load_attributes()
 {

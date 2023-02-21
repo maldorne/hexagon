@@ -21,3 +21,14 @@
 // player.c
 
 #define _LANG_PLAYER_SAVING "Saving...\n"
+
+// item.c
+
+#define _LANG_ITEM_BREAKS "Your " + query_name() + " breaks in a thousand pieces!\n"
+
+// armour.c
+
+#define _LANG_DESC_IS_SET_PIECE "   This item is part of the set: " + \
+              main_piece->query_piece_set_name() + ".\n"
+#define _LANG_DESC_IS_MAIN_SET_PIECE "   This item is the main piece of the '" + \
+              main_piece->query_piece_set_name() + "' set, made up of "

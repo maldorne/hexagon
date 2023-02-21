@@ -132,17 +132,6 @@ void dest_me()
   ::dest_me();
 }
 
-// change by neverbot, 6/03
-// we should check if this won't make weapons ruin too fast nor too slow
-int hit_weapon(int dam)
-{
-	int res;
-  res = this_object()->adjust_cond(-1);
-	if ((res <= 0) && interactive(environment(this_object())) )
-		tell_player(environment(this_object()), "¡Tu "+query_short()+" se rompe en mil pedazos!\n");
-  	return res;
-}
-
 string query_attack_type_name(int type)
 {
   switch (type)
@@ -546,20 +535,20 @@ int weapon_attack(object def, object att)
             where = obs[j];
 
             // calculate damage percentage absorbed by the armour
-            if (obs[j]->query_total_ac_against(attacks[attack_names[i]][0]) > 0) 
+            if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 0) 
             {
-              if (obs[j]->query_total_ac_against(attacks[attack_names[i]][0]) > 10)
+              if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 10)
                 percent = 100;
               else
-                percent = obs[j]->query_total_ac_against()*10;
+                percent = obs[j]->query_ac_against()*10;
                
               absorbed_damage = damage[0]*percent/100;
             }
             
             // if the armour did not absorbed anything (equiment without ac)
             // we make full damage AND ruin the armour
-            where->hit_armour((absorbed_damage > 0)?absorbed_damage:1);
-            this_object()->hit_weapon(1);
+            where->hit_item((absorbed_damage > 0)?absorbed_damage:1);
+            this_object()->hit_item(1);
             break;
           }
         }
@@ -625,15 +614,8 @@ int weapon_attack(object def, object att)
                     ({attacker,defender}));
                   
         // ruin both items
-        if (where->query_weapon())
-          where->hit_weapon(1);
-        else if (where->query_armour())
-          where->hit_armour(1);
-        else if (where->query_shield())
-          where->hit_shield(1);
-        else
-          where->adjust_cond(-1);
-        this_object()->hit_weapon(1);
+        where->hit_item(1);
+        this_object()->hit_item(1);
       }
       else // attacker fails
       {

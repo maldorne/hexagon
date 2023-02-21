@@ -1,4 +1,7 @@
 
+#define DEFAULT_ARMOUR_NAME "armour"
+
+
 // old armour.h
 
 // shirt

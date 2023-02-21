@@ -13,6 +13,7 @@
 
 // body locations
 
+#define _LANG_RACES_LOCATIONS_NOTHING "nothing"
 #define _LANG_RACES_LOCATIONS_HEAD "the head"
 #define _LANG_RACES_LOCATIONS_BODY "the body"
 #define _LANG_RACES_LOCATIONS_TAIL "the tail"
