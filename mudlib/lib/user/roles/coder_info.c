@@ -255,10 +255,10 @@ int comm_info(string str)
       if (str == (string)comms[i][C_NAME]) 
       {
         xtra = _do_find_comm((string)comms[i][C_FUNC], (object)comms[i][C_OBJ]);
-        text = comms[i][C_NAME] + " " + // "[" + comms[i][C_DATA] + "] " +
+        text += comms[i][C_NAME] + " " + // "[" + comms[i][C_DATA] + "] " +
           base_name((object)comms[i][C_OBJ]) + "->" + comms[i][C_FUNC] + "()" +
           xtra;
-        break;
+        // break;
       }
     }
     
