@@ -47,7 +47,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | snetstat   |          |          |    |    |
 | snoopers   |          |          |    |    |
 | sockets    |          |          |    |    |
-| stats      |          |          |    |    |
+| stats      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | status     |          |          |    |    |
 | su         |          |          |    |    |
 | suspend    |          |          |    |    |
@@ -63,42 +63,42 @@ List of commands available to every player, depending of its user type/role (`pl
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | armaduras    |          |          |    |    |
 | backup       |          |          |    |    |
-| cat          | :white_check_mark: | :white_check_mark: | :x: |    |
-| clone        |          |          |    |    |
+| cat          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| clone        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | compare      |          |          |    |    |
 | cp           |          |          |    |    |
 | cplines      |          |          |    |    |
 | cprange      |          |          |    |    |
 | discard      |          |          |    |    |
 | du           |          |          |    |    |
-| exec         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| exits        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
+| exec         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| exits        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | ftpwho       |          |          |    |    |
-| goto         | :white_check_mark: | :x: | :x: |    |
-| grep         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| head         | :white_check_mark: | :x: | :x: |    |
-| home         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
+| goto         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| grep         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| head         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| home         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | invisible    |          |          |    |    |
 | ioulist      |          |          |    |    |
 | load         |          |          |    |    |
-| ls           | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
+| ls           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | mail         |          |          |    |    |
 | malloc       |          |          |    |    |
 | man          |          |          |    |    |
 | mkdir        |          |          |    |    |
-| more         | :white_check_mark: | :white_check_mark: | :x: |    |
+| more         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | mudlist      |          |          |    |    |
 | multi        |          |          |    |    |
 | mv           |          |          |    |    |
 | nls          |          |          |    |    |
 | peace        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | resistencias |          |          |    |    |
-| restore      | :white_check_mark: | :x: | :x: |    |
-| rm           | :white_check_mark: | :white_check_mark: | :x: |    |
+| restore      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| rm           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | rmdir        |          |          |    |    |
-| sar          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| tail         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| uptime       | :white_check_mark: | :white_check_mark: | :x: |    |
+| sar          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| tail         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| uptime       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | visible      |          |          |    |    |
 | wget         |          |          |    |    |
 
@@ -147,6 +147,6 @@ List of commands available to every player, depending of its user type/role (`pl
 
 | Symbol | Meaning |
 | :----: | ------- |
-| :white_check_mark:            | Already tested. |
-| :negative_squared_cross_mark: | Not included/necessary. |
-| :x:                           | Not at the moment. |
+| :white_check_mark: | Already tested. |
+| :heavy_minus_sign: | Not included/necessary. |
+| :x:                | Not at the moment. |
