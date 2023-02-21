@@ -1,5 +1,5 @@
 
-#define BASIC_ATTACK_NAME "basic"
+#define BASIC_ATTACK_NAME "básico"
 
 #define KNIFE "cuchillo"
 #define DAGGER "daga"
@@ -50,20 +50,19 @@
 #define HEAVY_FLAIL "mangual pesado"
 
 // masteries
-#define DAGGER_MASTERY "dagger"
-// #define TOOL_MASTERY "tool"
-#define MACE_MASTERY "mace"
-#define SPEAR_MASTERY "spear"
-#define PICK_MASTERY "pick"
-#define STAFF_MASTERY "staff"
-#define SHORT_SWORD_MASTERY "short sword"
-#define AXE_MASTERY "axe"
-#define HAMMER_MASTERY "hammer"
-#define LONG_SWORD_MASTERY "long sword"
-#define FLAIL_MASTERY "flail"
-#define SCYTHE_MASTERY "scythe"
-#define WHIP_MASTERY "whip"
-#define TWO_HANDED_SWORD_MASTERY "two handed sword"
+#define DAGGER_MASTERY "dagas"
+#define MACE_MASTERY "mazas"
+#define SPEAR_MASTERY "lanzas"
+#define PICK_MASTERY "picos"
+#define STAFF_MASTERY "bastones"
+#define SHORT_SWORD_MASTERY "espadas cortas"
+#define AXE_MASTERY "hachas"
+#define HAMMER_MASTERY "martillos"
+#define LONG_SWORD_MASTERY "espadas largas"
+#define FLAIL_MASTERY "manguales"
+#define SCYTHE_MASTERY "guadañas"
+#define WHIP_MASTERY "látigos"
+#define TWO_HANDED_SWORD_MASTERY "espadas a dos manos"
 
 #define WEAPON_MASTERIES ({ DAGGER_MASTERY, MACE_MASTERY, SPEAR_MASTERY, STAFF_MASTERY, \
 	SHORT_SWORD_MASTERY, AXE_MASTERY, HAMMER_MASTERY, LONG_SWORD_MASTERY, PICK_MASTERY, \

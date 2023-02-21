@@ -1,6 +1,6 @@
 inherit "/lib/weapon.c"; 
 
-#include <item/weapon.h>
+#include <translations/weapon.h>
 #include <language.h>
 
 void setup()

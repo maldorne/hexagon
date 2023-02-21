@@ -19,7 +19,7 @@ inherit item "/lib/item.c";
 #include <living/combat.h>
 #include <basic/condition.h>
 #include <item/item.h>
-#include <item/weapon.h>
+#include <translations/weapon.h>
 #include <item/material.h>
 
 int enchant;

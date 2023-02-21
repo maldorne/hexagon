@@ -28,7 +28,7 @@
  *     (two-handed staff, etc)
  */
 
-#include <item/weapon.h>
+#include <translations/weapon.h>
 #include <living/combat.h>
 // #include <resistances.h>
 // #include <attacks.h>
