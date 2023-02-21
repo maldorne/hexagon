@@ -3,7 +3,6 @@
 
 #define _LANG_LPMUD_VERSION "Versión de LPmud: "
 #define _LANG_MUDLIB_VERSION "Versión de Mudlib: "
-#define _LANG_PATCH_VERSON "Último parche: "
 #define _LANG_LANGUAGE_VERSION "español"
 
 #define _LANG_WHO_COMMAND "who"

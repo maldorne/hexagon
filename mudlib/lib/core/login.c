@@ -13,7 +13,6 @@ inherit "/lib/core/object";
 #include <mud/secure.h>
 #include <mud/access.h>
 #include <mud/version.h>
-#include <mud/patch_version.h>
 #include <mud/cmd.h>
 #include <user/login.h>
 #include <user/user.h>
@@ -118,8 +117,7 @@ nomask void logon(object u)
   _player->move("whereever");
 
   write(_LANG_LPMUD_VERSION + version() + "\n" +
-        _LANG_MUDLIB_VERSION + MUDLIB_VERSION + " [ " + _LANG_LANGUAGE_VERSION + " ]\n"/* +
-        _LANG_PATCH_VERSION + PATCH_VERSION + "\n\n"*/);
+        _LANG_MUDLIB_VERSION + MUDLIB_VERSION + " [ " + _LANG_LANGUAGE_VERSION + " ]\n");
 
   call_out("time_out", LOGIN_TIMEOUT);
 

@@ -1,6 +1,5 @@
 
 #include <mud/secure.h>
-#include <mud/patch_version.h>
 #include <mud/config.h>
 #include <mud/version.h>
 #include <files/log.h>
