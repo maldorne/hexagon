@@ -39,5 +39,6 @@ void setup()
 
   add_clone(BASEOBS + "/armours/chainmail.c", 1);
   add_clone(BASEOBS + "/weapons/long_sword.c", 1);
+  add_clone(BASEOBS + "/shields/small_wooden_shield.c", 1);
   init_equip();
 }
