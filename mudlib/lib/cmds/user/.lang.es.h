@@ -42,8 +42,9 @@
 
 // help
 
-#define _LANG_CMD_HELP "ayuda"
-#define _LANG_CMD_HELP_HELP "Muestra la ayuda disponible para un tema en particular."
+#define _LANG_CMD_HELP "ayuda [< tema | comando >]"
+#define _LANG_CMD_HELP_HELP "Muestra la ayuda disponible para un tema o comando en particular, o la lista de " + \
+      "todos los temas si no se proporciona uno concreto."
 
 // characters
 
