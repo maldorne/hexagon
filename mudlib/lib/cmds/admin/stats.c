@@ -94,7 +94,8 @@ static int cmd(string str, object me, string verb)
   }
 
   tell_object(me, ret);
-  tell_object(me, "\nUse exec for more information, i.e.:\n  exec return find_living(\""+me->query_name()+"\")->stats()[ <index> ]\n");
+  tell_object(me, "\nUse exec for more information, i.e.:\n  exec return find_living(\"" + 
+    me->query_name() + "\")->stats()[ <index> ]\n");
   return 1;
 }
 

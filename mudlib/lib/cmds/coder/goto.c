@@ -15,7 +15,7 @@ string query_usage()
 string query_help()
 {
   return "Teleports the coder to the given room if a file path is used, " + 
-    "or the home room of a coder if a coder room is used.";
+    "or the current room of a coder if a coder name is used.";
 }
 
 static int cmd(string str, object me, string verb) 
@@ -23,7 +23,7 @@ static int cmd(string str, object me, string verb)
   object dest;
   string *names, nick;
 
-  notify_fail("Teleport where?\n");
+  notify_fail("goto where?\n");
   
   if (!strlen(str)) 
     return 0;
@@ -38,9 +38,9 @@ static int cmd(string str, object me, string verb)
   {
     if (dest = environment(dest)) 
     {
-      if (dest == environment()) 
+      if (dest == environment(me)) 
       {
-        notify_fail("Miras a tu alrededor y te das cuenta de que ya estas alli.\n");
+        notify_fail("You look around you and notice you are already there.\n");
         return 0;
       }
       
@@ -49,7 +49,7 @@ static int cmd(string str, object me, string verb)
     } 
     else 
     {
-      notify_fail(capitalize(nick) + " no se encuentra en ninguna localizacion.\n");
+      notify_fail(capitalize(nick) + " has no environment.\n");
       return 0;
     }
   } 
@@ -63,7 +63,7 @@ static int cmd(string str, object me, string verb)
     } 
     else 
     {
-      notify_fail("No existe esa room.\n");
+      notify_fail("That room does not exist.\n");
       return 0;
     }
 
@@ -75,19 +75,19 @@ static int cmd(string str, object me, string verb)
 
     if (!dest) 
     {
-      notify_fail("Fallo al cargar '"+str+"'\n");
+      notify_fail("Error loading '"+str+"'\n");
       return 0;
     } 
     else if (!dest->query_property("location")) 
     {
-      notify_fail("No es una room: '"+str+"'\n");
+      notify_fail("That is not a room: '"+str+"'\n");
       return 0;
     } 
     else 
     {
-      if (dest == environment()) 
+      if (dest == environment(me)) 
       {
-        notify_fail("Miras a tu alrededor y te das cuenta de que ya estas alli.\n");
+        notify_fail("You look around you and notice you are already there.\n");
         return 0;
       }
 
@@ -96,5 +96,4 @@ static int cmd(string str, object me, string verb)
       return 1;
     }
   }
-} /* teleport() */
-
+}
