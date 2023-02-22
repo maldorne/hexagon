@@ -26,8 +26,6 @@ As you can see, the DGD project is a fork from [the original](https://github.com
     does not reset all non-static variables that do not hold object
     values when restoring the object. This is the default mode in MudOS.
 
-> As a side note: if you are using a version of DGD minor than 1.6 (i.e. 1.5.x), you can also activate the flag `NETWORK_EXTENSIONS` in `dgd/src/Makefile`, to allow connections from the mud to the outer world. From version 1.6 this package does not exist anymore. If you use an older driver but you are not going to use things like ftp servers, remote channels, etc, you don't need to use the `NETWORK_EXTENSIONS` flag, the mudlib should work fine without it.
-
 ### Compile the driver
 
 ```sh

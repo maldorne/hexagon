@@ -59,6 +59,7 @@ static object user_h;
 static object living_h;
 static object error_h;
 static object object_h;
+static object binary_h;
 
 static object mudos;
 static object secure;
@@ -72,9 +73,6 @@ static nomask void initialize()
 
   log_driver("[" + date + "] ** " + status()[ST_VERSION] + "\n");
   log_driver("Initializing...\n");
-#ifdef __NETWORK_EXTENSIONS__
-  log_driver("Network extensions in use.\n");
-#endif
 
   load_object(AUTO);
 
@@ -87,6 +85,7 @@ static nomask void initialize()
   ::call_other(user_h   = load_object(USER_HANDLER), "???");
   ::call_other(living_h = load_object(LIVING_HANDLER), "???");
   ::call_other(object_h = load_object(OBJECT_HANDLER), "???");
+  ::call_other(binary_h = load_object(BINARY_HANDLER), "???");
   ::call_other(load_object(TERM_HANDLER), "???");
   ::call_other(load_object(CRON_HANDLER), "???");
 
@@ -196,18 +195,23 @@ nomask object clone_object(mixed what, varargs string uid)
 //   return nil;
 // }
 
-#ifndef __NETWORK_EXTENSIONS__
-static object telnet_connect(int port)
+static object telnet_connect(int port_index)
 {
-  object user;
-
+  int port;
+  port = status()[ST_TELNETPORTS][port_index];
   log_driver(" ~ telnet_connect: " + port + "\n");
 
-  user = user_h->new_connection();
-
-  return user;
+  return user_h->new_connection();
 }
-#endif
+
+static object binary_connect(int port_index)
+{
+  int port;
+  port = status()[ST_BINARYPORTS][port_index];
+  log_driver(" ~ binary_connect: " + port + "\n");
+
+  return binary_h->new_connection(port);
+}
 
 static string object_type(string file, string type)
 {

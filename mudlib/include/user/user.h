@@ -13,24 +13,8 @@
 // taken from old player.c, neverbot 4/2003
 // ------------
 
-#define IDENTD "/net/identd"
-#define NUM_MAX_OBJ 50 // Numero maximo de objetos
-#define MIN_AGE 1800
-// -------------
-
-#define NO_LINE_PROP "no new line"
-#define RACE_STD "/obj/races/desconocida"
-#define MAX_IDLE 900
-#define TIME_BETWEEN_SAVES 450
-
-#define MAX_TELL_HIS 10
 // with an idle time > TELL_WARN_TIME, show a warning to other users
 // when trying to communicate
 #define TELL_WARN_TIME 120
-#define ROUND_TIME 40
-#define DEFAULT_TIME 10
-
-// En language.h
-// #define LANGUAGE_HAND "/obj/handlers/languages"
 
 #endif
