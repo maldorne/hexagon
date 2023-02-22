@@ -6,9 +6,9 @@
 
 inherit CMD_BASE;
 
-void setup()
+string query_usage()
 {
-  position = 0;
+  return _LANG_CMD_GAMES_SYNTAX;
 }
 
 string query_help()

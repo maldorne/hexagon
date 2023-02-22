@@ -56,6 +56,7 @@
 // games
 
 #define _LANG_CMD_GAMES "juegos"
+#define _LANG_CMD_GAMES_SYNTAX "juegos"
 #define _LANG_CMD_GAMES_HELP "Lista todos los juegos disponibles en " + mud_name() + "."
 #define _LANG_CMD_GAMES_AVAILABLE "Los siguientes juegos están disponibles:\n"
 #define _LANG_CMD_GAMES_NO_LOGIN "Debes hacer login primero."
