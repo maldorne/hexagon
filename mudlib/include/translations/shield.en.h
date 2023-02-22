@@ -1,5 +1,5 @@
 
-#define BASIC_NAME "escudo"
+#define BASIC_NAME "shield"
 
 #define SMALL_WOODEN_SHIELD "small wooden shield"
 #define HEAVY_WOODEN_SHIELD "heavy wooden shield"
