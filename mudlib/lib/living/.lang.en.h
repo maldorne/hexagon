@@ -107,7 +107,7 @@
 
 // hold.c
 
-#define _LANG_HOLD_VERBS ({ "hold" })
+#define _LANG_HOLD_VERBS ({ "hold", "wield" })
 #define _LANG_HOLD_WHAT capitalize(query_verb()) + " what?\n"
 #define _LANG_HOLD_NOT_IN_INV "You don't have that in your inventory.\n"
 #define _LANG_HOLD_ALREADY_HOLDING "Already holding that!\n"
@@ -148,3 +148,22 @@
 #define _LANG_UNWEAR_FULL_SET "%^BOLD%^You stop wearing the full set: " + \
               main_object->query_piece_set_name() + ".%^RESET%^\n"
 #define _LANG_CANNOT_UNWEAR_MSG "You cannot unwear your " + ob->query_name() + ".\n"
+
+// equip.c
+
+#define _LANG_EQUIP_VERBS ({ "equip" })
+#define _LANG_EQUIP_SYNTAX "Syntax: equip\n" + \
+              "To equip automatically at login, use 'configuration'.\n"
+#define _LANG_EQUIP_WIELDING "Weilding"
+#define _LANG_EQUIP_HOLDING "Holding"
+#define _LANG_EQUIP_WEARING "Wearing"
+#define _LANG_EQUIP_TIED "Tied"
+#define _LANG_EQUIP_CARRYING "Carrying"
+#define _LANG_EQUIP_EMPTY_HANDS "Your hands are empty."
+#define _LANG_EQUIP_NO_MONEY "You have no money."
+#define _LANG_EQUIP_MONEY "You are carrying " + ret + "."
+#define _LANG_EQUIP_OTHER_MONEY_1 "Seems to have no money."
+#define _LANG_EQUIP_OTHER_MONEY_2 "Does not seem to carry a lot of money."
+#define _LANG_EQUIP_OTHER_MONEY_3 "Seems to have money enough."
+#define _LANG_EQUIP_OTHER_MONEY_4 "Look like carrying a lot of money!"
+

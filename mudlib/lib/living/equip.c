@@ -1,21 +1,23 @@
 /*
- * Archivo que une wear.c y hold.c
- * Tambien incluye el antiguo /global/living/armour.c, ahora eliminado (anteriormente
- *  hold y wear se unian en armour.c)
+ * This file merges wear.c and hold.c
+ * 
+ * old /global/living/armour.c now here too (long time ago hold and wear were 
+ * inherited in armour.c)
  *
- * Tambien se incluye aqui la funcion query_living_contents, del antiguo
- *  /global/living/carrying.c, ahora eliminado.
+ * query_living_contents added here from /global/living/carrying.c, 
+ * now removed
  *
- * Nuevo sistema de combate para CcMud
- * Folken@Cc, 06/03
+ * new combat system for CcMud
+ * neverbot@Cc, 06/03
  *
- * Autoequiparse extraido, ahora en consent.c, Folken 08/09
+ * autoequip removed from here, now in consent.c, neverbot 08/09
  */
 
 #include <basic/money.h>
 #include <common/properties.h>
-#include <living/equip.h>
+#include <translations/equip.h>
 #include <living/combat.h> // ac types
+#include <language.h>
 
 inherit wear "/lib/living/wear";
 inherit hold "/lib/living/hold";
@@ -28,8 +30,7 @@ void create()
 
 void equip_commands()
 {
-  add_private_action("do_equip", "equipar");
-  add_private_action("do_equip", "equiparse");
+  add_private_action("do_equip", _LANG_EQUIP_VERBS);
 }
 
 void recalc_max_dex_bon()
@@ -93,10 +94,10 @@ int query_equip_ac(int tipo) { return query_held_ac(tipo) + query_worn_ac(tipo);
 // This means we're going to have a _lot_ of arrays here to do a basic
 // job. Luckily equip is only called every blue moon. :-)
 
-/* Ok, Aragorn is finished, time for me to clean it up and fix the bugs,
- * he forgot to put query_wearable & query_holdable in here, so everything is..
- * He had holdable, but not wearable..
- */
+// Ok, Aragorn is finished, time for me to clean it up and fix the bugs,
+// he forgot to put query_wearable & query_holdable in here, so everything is..
+// He had holdable, but not wearable..
+
 int do_equip(string str)
 {
   object *obs, *holds, *wears;
@@ -105,18 +106,9 @@ int do_equip(string str)
   // Assum going to tell us something about the autoequip
   if (strlen(str))
   {
-     // Now in consent
-     // if (str == "off") {
-     //    this_object()->remove_property(AUTOEQUIP_PROP);
-     //    tell_object(this_object(),"Equiparte automáticamente al entrar desactivado.\n");
-     // } else if (str == "on") {
-     //    this_object()->add_property(AUTOEQUIP_PROP, 1);
-     //    tell_object(this_object(),"Equiparte automáticamente al entrar activado.\n");
-     // } else
-     //    tell_object(this_object(),"Sintaxis: equipar [on|off].\n"+
-     //                              "         (opcionales: on/off son para equiparte automáticamente al entrar).\n");
-     tell_object(this_object(),"Sintaxis: equipar o equiparse.\n"+
-                               "Para equiparse automáticamente al entrar, utiliza 'consentir'.\n");
+     // Now in configuration
+     // if (str == "off") ...
+     tell_object(this_object(), _LANG_EQUIP_SYNTAX);
      return 1;
   }
 
@@ -157,7 +149,7 @@ int do_equip(string str)
       if (holds[i]->query_weapon())
         wpns += ({ holds[i] });
       // Weapons can have AC, but they are taken care of by the above
-      // else if (holds[i]->query_ac_type()) // Folken
+      // else if (holds[i]->query_ac_type()) // neverbot
       else if (holds[i]->query_ac() && !holds[i]->query_armour())
         harms += ({ holds[i] });
 
@@ -234,7 +226,7 @@ int do_equip(string str)
 }
 
 // *************************************************************
-//   Antiguo /global/living/carrying.c
+//  old /global/living/carrying.c
 // *************************************************************
 
 int filter_short(object ob, varargs mixed args...)
@@ -261,7 +253,7 @@ string query_living_contents(int self)
   object * wpn, * held, * worn, * carry, money;
   string s, ret, * strs;
   int i, j, col;
-  // Tipos de Armaduras existentes
+  // types of existing armours 
   string * armour_type_locations;
 
   armour_type_locations = ({
@@ -297,37 +289,33 @@ string query_living_contents(int self)
   held -= wpn;
   // use the sort function of the armour table
   worn = sort_array(worn, "sort_armours", table("armours"));
-  money = present(MONEY_NAME, this_object()); // Dinero
-  carry = all_inventory(this_object()) - wpn - held
-          - worn - ({ money });               // Resto de objetos
-  carry = filter(carry, "filter_short");      // Elimino objetos "ocultos",
-                                              // quedandonos solo con los que
-                                              // responden a la funcion
-                                              // query_short
+  money = present(MONEY_NAME, this_object()); // money
+  carry = all_inventory(this_object()) - wpn - held - worn - ({ money }); // rest of items
+  carry = filter(carry, "filter_short");      // remove hidden items, remain only those responding
+                                              // to query_short
 
   if (sizeof(wpn))
-    strs += ({ sprintf( "%-11s", "Empuñando"), capitalize(query_multiple_short(wpn, 1)) + "."});
+    strs += ({ sprintf( "%-11s", _LANG_EQUIP_WIELDING), capitalize(query_multiple_short(wpn, 1)) + "."});
 
-  // Supondremos que la primera arma esta en la derecha y la segunda
-  // en la izquierda:
+  // Guess first weapon is in the right/main hand and second in the left/seconday hand:
   // if (sizeof(wpn)){
   //   if (sizeof(wpn) == 2){
-  //      strs+=({"Empuñando  ", capitalize(wpn[0]->pretty_short())+
-  //                       " (mano derecha).\n             "+
+  //      strs+=({_LANG_EQUIP_WIELDING, capitalize(wpn[0]->pretty_short())+
+  //                       " (right hand).\n             "+
   //                       capitalize(wpn[1]->pretty_short())+
-  //                       " (mano izquierda)."});
+  //                       " (left hand)."});
   //   }
   //   else{
-  //     strs += ({"Empuñando  ",  query_multiple_short(wpn, 1) + "."});
+  //     strs += ({_LANG_EQUIP_WIELDING,  query_multiple_short(wpn, 1) + "."});
   //   }
   // }
 
   if (sizeof(held))
-    strs += ({ sprintf( "%-11s", "Sosteniendo"), capitalize(query_multiple_short(held, 1)) + "."});
+    strs += ({ sprintf( "%-11s", _LANG_EQUIP_HOLDING), capitalize(query_multiple_short(held, 1)) + "."});
 
   if (sizeof(worn))
   {
-    // Quito los objetos de tipo 0
+    // remove items with type 0
     wpn   = this_object()->query_worn_ob(-1);
     ret   = query_multiple_short(wpn, 1);
     worn -= wpn;
@@ -335,7 +323,7 @@ string query_living_contents(int self)
     if (ret != "")
       ret += ".";
 
-    strs += ({ sprintf( "%-11s", "Llevando"), ret });
+    strs += ({ sprintf( "%-11s", _LANG_EQUIP_WEARING), ret });
 
     col = 0;
     wpn = ({ });
@@ -355,58 +343,46 @@ string query_living_contents(int self)
         if (armour_type_locations[i] != TIED_OBJECT)
           strs += ({ sprintf( "%-11s", " * " + armour_type_locations[i] ), query_multiple_short(wpn, 1) + ".", });
         else
-          strs += ({ sprintf( "%-11s", "Atados"), query_multiple_short(wpn, 1) + ".", });
+          strs += ({ sprintf( "%-11s", _LANG_EQUIP_TIED), query_multiple_short(wpn, 1) + ".", });
       }
     }
   }
 
   if (sizeof(carry) && (self != 2))
-    strs += ({ sprintf( "%-11s", "Cargando"), query_multiple_short(carry, 1) + "." });
-            // sprintf(
-            //         "%-=*s",
-            //         (this_object()?(this_object()->query_cols()):79),
-            //         query_multiple_short(carry) + "."
-            //        );
-
-  // col = this_player()?(this_user()->query_cols()-13):79-13;
+    strs += ({ sprintf( "%-11s", _LANG_EQUIP_CARRYING), query_multiple_short(carry, 1) + "." });
 
   for (i = 0; i < sizeof(strs); i++)
   {
     s += strs[i] + ": " + strs[++i] + "\n";
-      // s += sprintf("%11-=s: %-=*s", strs[i], col,
-      //           capitalize(strs[++i])) + "\n";
+    // s += sprintf("%11-=s: %-=*s", strs[i], col,
+    //           capitalize(strs[++i])) + "\n";
   }
 
   if (self == 1)
   {
     if (!sizeof(strs))
-    {
-      s = "Estás con las manos vacías.\n";
-    }
-    ret = (money?money->short(0):"");
+      s = _LANG_EQUIP_EMPTY_HANDS;
+
+    ret = (money ? money->short(0) : "");
 
     if (!strlen(ret))
-      s += "No llevas dinero encima.";
+      s += _LANG_EQUIP_NO_MONEY;
     else
-      s += sprintf(
-           "%-*s",
-           (this_player()?(this_user()->query_cols()):79),
-           "Llevas encima " + ret+".");
+      s += sprintf("%-*s", this_user()->query_cols(), _LANG_EQUIP_MONEY);
   }
   else
     if (money)
     {
       switch(money->query_number_coins())
       {
-        case 0..5:     s += "No parece llevar dinero encima.";     break;
-        case 6..50:    s += "Apenas parece llevar dinero encima."; break;
-        case 51..300:  s += "Parece estar cargado de monedas.";       break;
-        default:       s += "¡Lleva una bolsa de monedas a punto de reventar!";
+        case 0..5:     s += _LANG_EQUIP_OTHER_MONEY_1; break;
+        case 6..50:    s += _LANG_EQUIP_OTHER_MONEY_2; break;
+        case 51..300:  s += _LANG_EQUIP_OTHER_MONEY_3; break;
+        default:       s += _LANG_EQUIP_OTHER_MONEY_4;
       }
     }
 
-  // Evitamos un retorno de carro de mas cuando un jugador/npc
-  //  no lleva nada en el inventario
+  // avoid extra line when empty inventory
   if (s != "")
     s += "\n";
   return s;

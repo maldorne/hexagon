@@ -11,7 +11,6 @@
 #include <common/properties.h>
 #include <basic/money.h>
 #include <living/consents.h>
-#include <living/equip.h>
 
 #define TIME_DIV 10
 

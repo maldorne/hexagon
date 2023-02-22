@@ -153,3 +153,22 @@
               main_object->query_piece_set_name() + ".%^RESET%^\n"
 #define _LANG_CANNOT_UNWEAR_MSG "No puedes quitarte " + (ob->query_default_plural() ? "tus" : "tu") + " " + \
               ob->query_name() + ".\n"
+
+// equip.c
+
+#define _LANG_EQUIP_VERBS ({ "equipar", "equiparse" })
+#define _LANG_EQUIP_SYNTAX "Sintaxis: equipar o equiparse.\n" + \
+              "Para equiparse automáticamente al conectar, utiliza 'configuración'.\n"
+#define _LANG_EQUIP_WIELDING "Empuñando"
+#define _LANG_EQUIP_HOLDING "Sosteniendo"
+#define _LANG_EQUIP_WEARING "Llevando"
+#define _LANG_EQUIP_TIED "Atados"
+#define _LANG_EQUIP_CARRYING "Cargando"
+#define _LANG_EQUIP_EMPTY_HANDS "Estás con las manos vacías."
+#define _LANG_EQUIP_NO_MONEY "No llevas dinero encima."
+#define _LANG_EQUIP_MONEY "Llevas encima " + ret + "."
+#define _LANG_EQUIP_OTHER_MONEY_1 "No parece llevar dinero encima."
+#define _LANG_EQUIP_OTHER_MONEY_2 "Apenas parece llevar dinero encima."
+#define _LANG_EQUIP_OTHER_MONEY_3 "Parece estar cargado de monedas."
+#define _LANG_EQUIP_OTHER_MONEY_4 "¡Lleva una bolsa de monedas a punto de reventar!"
+

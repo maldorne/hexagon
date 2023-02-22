@@ -15,7 +15,3 @@
 // Identify objects equipped/worn 
 #define TIED_OBJECT          "Atados"
 #define UNIDENTIFIED_OBJECT  "????"
-
-
-#define PC_GAVE_NPC_PROPERTY "pc_gave_npc"
-

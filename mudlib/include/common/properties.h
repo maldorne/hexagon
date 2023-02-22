@@ -39,4 +39,6 @@
 #define NO_INFORM "no_inform"
 #define INFORM_PROP "inform"
 
+#define PC_GAVE_NPC_PROPERTY "pc_gave_npc"
+
 #endif
