@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# list all files but .git and assets directories
-# find . \( -path ./.git -prune -o -path ./assets -prune \) -o -print -execdir file -b --mime-encoding {} \;
+# this script has been tested and used in MacOS Ventura 13.2
+# it needs the command 'sponge' (brew install sponge in macos)
+# 
+# it will probably work in other flavours of unix/linux, although iconv arguments
+# might be different (test them) and installing sponge will be done with
+# their proper package managers
 
 # we need sponge to be installed
 if ! command -v sponge &> /dev/null
