@@ -172,3 +172,36 @@
 #define _LANG_EQUIP_OTHER_MONEY_3 "Parece estar cargado de monedas."
 #define _LANG_EQUIP_OTHER_MONEY_4 "¡Lleva una bolsa de monedas a punto de reventar!"
 
+// health
+
+#define _LANG_HEALTH_DRUNK_PASSES "Se te pasa el dolor de cabeza.\n"
+#define _LANG_HEALTH_DRUNK_STARTS "Empieza a dolerte la cabeza, qué alegría.\n"
+#define _LANG_HEALTH_PRACTICE_LOSER "El golpe de "+winner->query_cap_name()+" te deja incapacitado. Caes al suelo inconsciente.\n"
+#define _LANG_HEALTH_PRACTICE_WINNER "Tu contrincante cae inconsciente, has ganado la pelea.\n"
+#define _LANG_HEALTH_PRACTICE_PASSED_PROP "Estás inconsciente.\n"
+
+#define _LANG_HEALTH_YOU_ARE "Estás"
+#define _LANG_HEALTH_THEY_ARE "Está"
+#define _LANG_HEALTH_DEATH_THRESHOLD "al borde la muerte"
+#define _LANG_HEALTH_CRITICAL_THRESHOLD "en muy mal estado"
+#define _LANG_HEALTH_BAD_THRESHOLD "en mal estado"
+#define _LANG_HEALTH_FAIR_THRESHOLD "algo herid" + this_object()->query_vowel()
+#define _LANG_HEALTH_SLIGHTLY_INJURED "ligeramente herid" + this_object()->query_vowel()
+#define _LANG_HEALTH_PERFECT_HEALTH "en perfecto estado"
+#define _LANG_HEALTH_GOOD_HEALTH "en buen estado"
+
+#define _LANG_HEALTH_VOLUME_SOBER "sobrio"
+#define _LANG_HEALTH_VOLUME_HAPPY "alegre"
+#define _LANG_HEALTH_VOLUME_DRUNK "ciego"
+#define _LANG_HEALTH_VOLUME_VERY_DRUNK "muy ciego"
+#define _LANG_HEALTH_VOLUME_DEAD_DRUNK "muerto para el mundo"
+#define _LANG_HEALTH_VOLUME_NEAR_DEATH "cerca de la muerte"
+#define _LANG_HEALTH_VOLUME_PRAYING_FOR_DEATH "reza por una muerte sin dolor"
+
+#define _LANG_VOLUME_SOBER 
+#define _LANG_VOLUME_HAPPY 
+#define _LANG_VOLUME_BLIND 
+#define _LANG_VOLUME_VERY_BLIND 
+#define _LANG_VOLUME_DEAD_TO_WORLD 
+#define _LANG_VOLUME_NEAR_DEATH 
+#define _LANG_VOLUME_PRAY_FOR_PAINLESS_DEATH 

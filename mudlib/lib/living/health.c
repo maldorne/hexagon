@@ -5,6 +5,7 @@
 #include <common/quests.h>
 #include <mud/secure.h>
 #include <user/xp.h>
+#include <language.h>
 
 int max_hp, max_gp, total_xp, wimpy;
 int hp, xp, gp;
@@ -40,12 +41,12 @@ void heart_beat()
   // TODO -> review drunk.c
   // if (drunk_heart_beat(intox) > 0)
 
-  /* handle intoxication dispersion by our selves...
-   * they just handle hp recival and sp recival...     */
+  // handle intoxication dispersion by our selves...
+  // they just handle hp recival and sp recival... 
   if (headache)
     if (!--headache) 
     {
-      tell_object(this_object(), "Se te pasa el dolor de cabeza.\n");
+      tell_object(this_object(), _LANG_HEALTH_DRUNK_PASSES);
       headache = 0;
     }
 
@@ -54,7 +55,7 @@ void heart_beat()
     if (!(intox-1)) 
     {
       headache = 15;
-      tell_object(this_object(), "Empieza a dolerte la cabeza, qué alegría.\n");
+      tell_object(this_object(), _LANG_HEALTH_DRUNK_STARTS);
       hp -= 2;
       if (hp < 1)
         hp = 1;
@@ -115,12 +116,14 @@ int set_hp(int i, varargs object hp_remover)
 
 void end_practise(object loser, object winner)
 {
-  tell_player(loser, "El golpe de "+winner->query_cap_name()+" te deja incapacitado. Caes al suelo inconsciente.\n");
-  tell_player(winner, "Tu contrincante cae inconsciente, has ganado la pelea.\n");
+  tell_player(loser, _LANG_HEALTH_PRACTICE_LOSER);
+  tell_player(winner, _LANG_HEALTH_PRACTICE_WINNER);
+  
   loser->stop_fight(winner);
   winner->stop_fight(loser);    
-  // 5 hbs == 10 segundos
-  loser->add_timed_property(PASSED_OUT_PROP, "Estás inconsciente.\n", 5);
+  
+  // 5 hbs == 10 seconds
+  loser->add_timed_property(PASSED_OUT_PROP, _LANG_HEALTH_PRACTICE_PASSED_PROP, 5);
 }
 
 int adjust_aggro(int i, object aggro_doer)
@@ -141,7 +144,7 @@ object query_main_aggro_doer()
   
   doer = nil;
   atts = this_object()->query_attacker_list();
-  max = 0; // Los valores de aggro son negativos!!
+  max = 0; // aggro values are negative!
 
   for (i = 0; i < sizeof(atts); i++)
   {
@@ -152,7 +155,7 @@ object query_main_aggro_doer()
     }
   }
 
-  // En el caso de que este comenzando combates
+  // in case they are starting combat
   if (sizeof(atts) && !doer)
     doer = atts[0];
 
@@ -164,7 +167,7 @@ int adjust_hp(int i, varargs object hp_remover)
   int color;
   hp += i;
 
-  color = 1;    // for color on hp monitor - Radix
+  color = 1; // for color on hp monitor - Radix
 
   if (hp_remover && !(int)hp_remover->query_dead() )
   {
@@ -184,7 +187,7 @@ int adjust_hp(int i, varargs object hp_remover)
 
   if ( hp < 0 ) /* eeek we died! */
   {
-    // Combate seguro, damos por terminado el entrenamiento
+    // safe combat, we finish the practice
     if ( // (sizeof(this_object()->query_attacker_list()) == 1) &&  
       hp_remover && (hp_remover->query_combat_mode() == SAFE_COMBAT))
     {
@@ -193,16 +196,16 @@ int adjust_hp(int i, varargs object hp_remover)
       hp_remover->stop_fight(this_object());
       call_out("end_practise", 0, this_object(), hp_remover);
       
-      // Quests de vencer en pelea (combate no letal)
+      // quests of winning in combat (non lethal)
       if (hp_remover->is_doing_quest(base_name(this_object()), TYPE_BEAT) )
         hp_remover->update_quest(base_name(this_object()));
       else if (hp_remover->is_doing_quest_from_name(this_object()->query_short(), TYPE_BEAT) )
         hp_remover->update_quest_from_name(this_object()->query_short());
     }
-    else // combate no seguro, ha muerto
+    else // non safe combat, they die
     {
       if (i > 0 && hp_remover == this_object() ) 
-        call_out("do_death", 0, nil); /* NOT this object, use attacker list */
+        call_out("do_death", 0, nil); // NOT this object, use attacker list
       else
         call_out("do_death", 0, hp_remover);
     }   
@@ -261,7 +264,7 @@ void logit(string what, int amount)
   }
 }
 
-// Nuevo sistema de ajuste automatico de niveles, Folken 7/03
+// new auto-adjust level advancing system, neverbot 7/03
 int adjust_xp(int i)
 {
   object ob;
@@ -285,8 +288,8 @@ int adjust_xp(int i)
   xp += i;
 
   /* 
-  // Cambiado, ahora la subida de nivel de gremios es por quest,
-  // Folken 06/2010
+  // changed, now guild advancing is via quest
+  // neverbot 06/2010
   
   ob = this_object()->query_guild_ob();
   if (ob && (i > 0)) 
@@ -318,7 +321,7 @@ int adjust_xp(int i)
   return xp;
 }
 
-/* int set_xp(int i) { xp = i; return xp; } */
+// int set_xp(int i) { xp = i; return xp; }
 int set_xp(int i) 
 {
   // Radix : Aug 1997
@@ -338,50 +341,32 @@ int set_xp(int i)
   return xp;
 }
 
-// Añadido self, Folken 02/2006
+// self added, neverbot 02/2006
 string health_string(int self) 
 {
+  string ret;
+  
+    if (hp < max_hp/20)
+      ret = _LANG_HEALTH_DEATH_THRESHOLD;
+    if (hp < max_hp/10)
+      ret = _LANG_HEALTH_CRITICAL_THRESHOLD;
+    if (hp < max_hp/5)
+      ret = _LANG_HEALTH_BAD_THRESHOLD;
+    if (hp < max_hp/2)
+      ret = _LANG_HEALTH_FAIR_THRESHOLD;
+    if ((float)hp < (float)max_hp/1.2)
+      ret = _LANG_HEALTH_SLIGHTLY_INJURED;
+    if (hp == max_hp)
+      ret = _LANG_HEALTH_PERFECT_HEALTH;
+    ret = _LANG_HEALTH_GOOD_HEALTH;
+
   if (!self)
   {
-    if (hp < max_hp/20)
-      return "está al borde la muerte";
-    if (hp < max_hp/10)
-      return "está en muy mal estado";
-    if (hp < max_hp/5)
-      return "está en mal estado";
-    if (hp < max_hp/2)
-      return "no está en muy buen estado";
-    if ((float)hp < (float)max_hp/1.2)
-    {
-      if (this_object()->query_gender() == 2) 
-        return "está ligeramente herida";
-      else
-        return "está ligeramente herido";
-    }
-    if (hp == max_hp)
-      return "está en perfecto estado";
-    return "está en buen estado";
+    return _LANG_HEALTH_THEY_ARE + " " + ret;
   }
   else
   {
-    if (hp < max_hp/20)
-      return "Estás al borde la muerte";
-    if (hp < max_hp/10)
-      return "Estás en muy mal estado";
-    if (hp < max_hp/5)
-      return "Estás en mal estado";
-    if (hp < max_hp/2)
-      return "No estás en muy buen estado";
-    if ((float)hp < (float)max_hp/1.2)
-    {
-      if (this_object()->query_gender() == 2) 
-        return "Estás ligeramente herida";
-      else
-        return "Estás ligeramente herido";
-    }
-    if (hp == max_hp)
-      return "Estás en perfecto estado";
-    return "Estás en buen estado";
+    return _LANG_HEALTH_YOU_ARE + " " + ret;
   }
 }
 
@@ -423,18 +408,18 @@ string volume_string()
   i = 0;
 
   if (drink_info[i]<= 0)
-    return "sobrio";
+    return _LANG_HEALTH_VOLUME_SOBER;
   if (drink_info[i] <= 50)
-    return "alegre";
+    return _LANG_HEALTH_VOLUME_HAPPY;
   if (drink_info[i] <= 100)
-    return "ciego";
+    return _LANG_HEALTH_VOLUME_DRUNK;
   if (drink_info[i] <= 500)
-    return "muy ciego";
+    return _LANG_HEALTH_VOLUME_VERY_DRUNK;
   if (drink_info[i] <= 2000)
-    return "muerto para el mundo";
+    return _LANG_HEALTH_VOLUME_DEAD_DRUNK;
   if (drink_info[i] <= 6000)
-    return "cerca de la muerte";
-  return "reza por una muerte sin dolor";
+    return _LANG_HEALTH_VOLUME_NEAR_DEATH;
+  return _LANG_HEALTH_VOLUME_PRAYING_FOR_DEATH;
 }
 
 // stats añadido

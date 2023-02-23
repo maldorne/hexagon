@@ -167,3 +167,30 @@
 #define _LANG_EQUIP_OTHER_MONEY_3 "Seems to have money enough."
 #define _LANG_EQUIP_OTHER_MONEY_4 "Look like carrying a lot of money!"
 
+
+// health
+
+#define _LANG_HEALTH_DRUNK_PASSES "The headache passes.\n"
+#define _LANG_HEALTH_DRUNK_STARTS "Your head starts to hurt, how delightful.\n"
+#define _LANG_HEALTH_PRACTICE_LOSER "The blow from " + winner->query_cap_name() + " leaves you incapacitated. " + \
+              "You fall to the ground unconscious.\n"
+#define _LANG_HEALTH_PRACTICE_WINNER "Your opponent falls unconscious, you have won the fight.\n"
+#define _LANG_HEALTH_PRACTICE_PASSED_PROP "You are unconscious.\n"
+
+#define _LANG_HEALTH_YOU_ARE "You are"
+#define _LANG_HEALTH_THEY_ARE this_object()->query_pronoun() + " is"
+#define _LANG_HEALTH_DEATH_THRESHOLD "at death's door"
+#define _LANG_HEALTH_CRITICAL_THRESHOLD "in critical condition"
+#define _LANG_HEALTH_BAD_THRESHOLD "in bad shape"
+#define _LANG_HEALTH_FAIR_THRESHOLD "slightly injured"
+#define _LANG_HEALTH_SLIGHTLY_INJURED "lightly injured"
+#define _LANG_HEALTH_PERFECT_HEALTH "in perfect health"
+#define _LANG_HEALTH_GOOD_HEALTH "in good shape"
+
+#define _LANG_HEALTH_VOLUME_SOBER "sober"
+#define _LANG_HEALTH_VOLUME_HAPPY "happy"
+#define _LANG_HEALTH_VOLUME_DRUNK "blind"
+#define _LANG_HEALTH_VOLUME_VERY_DRUNK "very blind"
+#define _LANG_HEALTH_VOLUME_DEAD_DRUNK "dead to the world"
+#define _LANG_HEALTH_VOLUME_NEAR_DEATH "near death"
+#define _LANG_HEALTH_VOLUME_PRAYING_FOR_DEATH "pray for a painless death"
