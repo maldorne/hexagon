@@ -20,9 +20,9 @@ void setup()
   set_race_ob(OBJ + "races/human.c");
   set_gender(1);
 
-  set_level(5+random(6));
+  set_level(5 + random(6));
   set_wimpy(0);
-  set_random_stats(3,14);
+  set_random_stats(3, 14);
   set_real_align(-100);
   
   adjust_money(random(10), "silver");

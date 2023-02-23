@@ -29,3 +29,11 @@
 #define _LANG_NPCS_BARMAN_CHAT ({ ":te mira.", \
                                   "@te escupe a los pies.", })
 #define _LANG_NPCS_BARMAN_A_CHAT ({ "'¡Arrggghhh!" })
+
+#define _LANG_NPCS_ASSASSIN_NAME "kael"
+#define _LANG_NPCS_ASSASSIN_ALIAS "asesino"
+#define _LANG_NPCS_ASSASSIN_MAIN_PLURAL "Asesinos"
+#define _LANG_NPCS_ASSASSIN_PLURALS ({ "asesinos" })
+#define _LANG_NPCS_ASSASSIN_SHORT "Kael, el Asesino"
+#define _LANG_NPCS_ASSASSIN_LONG "Kael es un hombre oscuro, sombrío, vestido completamente de negro. " + \
+                     "Se mueve silenciosamente y parece estar observando todos tus movimientos.\n"
