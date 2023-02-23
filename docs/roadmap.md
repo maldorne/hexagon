@@ -18,6 +18,7 @@ Set of features we are currently working on.
 | :white_check_mark: |  | :heavy_minus_sign: `weapon.c` |
 | :white_check_mark: |  | :heavy_minus_sign: `armour.c` |
 | :white_check_mark: |  | :heavy_minus_sign: `shield.c` |
+| :white_check_mark: | **Basic binary connections** | Start working with binary connections to allow future development of httpd, ftpd, etc [[#22](https://github.com/maldorne/hexagon/issues/22)]. |
 
 ## Next milestones: 
 
