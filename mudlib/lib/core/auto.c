@@ -54,3 +54,12 @@ nomask void _auto_create()
 
   create();
 }
+
+// will be included in stats() in object.c
+mixed * uids()
+{
+  return ({
+            ({ "uid", _uid, }),
+            ({ "euid", _euid, }),
+          });
+}
