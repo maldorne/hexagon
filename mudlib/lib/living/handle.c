@@ -216,7 +216,6 @@ int do_drop(string str)
     return 0;
   }
 
-
   if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
   {
     notify_fail(this_object()->query_timed_property(PASSED_OUT_PROP));

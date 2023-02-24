@@ -361,7 +361,7 @@ string query_living_contents(int self)
   if (self == 1)
   {
     if (!sizeof(strs))
-      s = _LANG_EQUIP_EMPTY_HANDS;
+      s = _LANG_EQUIP_EMPTY_HANDS + "\n";
 
     ret = (money ? money->short(0) : "");
 
