@@ -157,7 +157,8 @@ void init_auto_load_attributes(mapping attribute_map)
 
 mixed * stats()
 {
-  return id::stats() +
+  return uids() +
+         id::stats() +
          property::stats() +
          misc::stats() +
          extra_look::stats() +
