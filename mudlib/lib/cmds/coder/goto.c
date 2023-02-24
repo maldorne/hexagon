@@ -9,13 +9,13 @@ inherit CMD_BASE;
 
 string query_usage()
 {
-  return "goto <room file path | coder name>";
+  return "goto <room file path | user name>";
 }
 
 string query_help()
 {
   return "Teleports the coder to the given room if a file path is used, " + 
-    "or the current room of a coder if a coder name is used.";
+    "or the current room of a user if a user name is used.";
 }
 
 static int cmd(string str, object me, string verb) 
@@ -47,7 +47,7 @@ static int cmd(string str, object me, string verb)
         return 0;
       }
       
-      me->move_player("X", dest);
+      me->move_living("X", dest);
       return 1;
     } 
     else 
