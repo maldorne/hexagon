@@ -1,6 +1,5 @@
 
-
-static string game_name(object ob)
+static nomask string game_name(object ob)
 {
   string fname;
   string * words;
@@ -26,7 +25,7 @@ static string game_name(object ob)
   return "";
 }
 
-static string game_root(varargs object ob)
+static nomask string game_root(varargs object ob)
 {
   string ret;
 
@@ -41,7 +40,22 @@ static string game_root(varargs object ob)
   return "/games/" + ret + "/";
 }
 
-static int is_in_game(object ob)
+static nomask string game_save_dir(varargs object ob)
+{
+  string ret;
+
+  if (!ob)
+    ob = this_object();
+
+  ret = game_name(ob);
+
+  if (!strlen(ret))
+    return "/save/";
+
+  return "/save/games/" + ret + "/";
+}
+
+static nomask int is_in_game(object ob)
 {
   if (explode(base_name(ob), "/")[0] == "games")
     return 1;
