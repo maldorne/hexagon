@@ -352,6 +352,18 @@ static string atomic_error(string error, int atom, mixed **trace)
   return ret;
 }
 
+// If an object A is loaded, A inherits B, B inherits C, and the
+// version of C inherited by B is out of date, recompile(B) will be
+// called in the driver object.  If B should actually be recompiled
+// (inheriting the new version of C from B), the driver object must
+// destruct B; if this is done, A will inherit the most recent
+// versions of B and C.
+void recompile(object obj)
+{
+  log_driver(" - trying to recompile object " + object_name(obj) + "\n");
+}
+
+
 // An object which has been marked by call_touch() is about to have the
 // given function called in it.  A non-zero return value indicates that the
 // object's "untouched" status should be preserved through the following

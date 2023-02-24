@@ -374,9 +374,11 @@ static string pluralize(string str)
   else return (str + "s");
 }
 
-// needed in a spanish-language mud
-// it could change only the accents or both the accents and the ñ
+// removed, this won't work with utf-8 _and_ is not really needed
 
+// ¿needed? in a spanish-language mud
+// it could change only the accents or both the accents and the ñ
+/*
 static string replace_spanish_characters(string str, varargs int flag_enye)
 {
 	int i;
@@ -404,6 +406,7 @@ static string replace_spanish_characters(string str, varargs int flag_enye)
 	}
 	return ret;
 }
+*/
 
 // format_page()
 // Tweaked by Radix for who command : MArch 4, 1997

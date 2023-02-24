@@ -4,7 +4,7 @@
 // move messages
 
 #define _LANG_RACES_MSG_IN_STD "@$N arrives from $F."
-#define _LANG_RACES_MSG_OUT_STD "@$N goes towards $T."
+#define _LANG_RACES_MSG_OUT_STD "@$N goes to $T."
 #define _LANG_RACES_MMSG_IN_STD "@$N appears from somewhere."
 #define _LANG_RACES_MMSG_OUT_STD "@$N disappears in a cloud of smoke."
 
