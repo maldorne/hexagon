@@ -38,7 +38,7 @@
 
 #define _LANG_HANDLE_GET_SYNTAX "Sintaxis: "+query_verb()+" <objeto> [de <objeto>]\n"
 #define _LANG_HANDLE_GET_PREP "de"
-#define _LANG_HANDLE_GET_CANNOT "No encuentras ningún "+s2+" por aquí.\n"
+#define _LANG_HANDLE_GET_CANNOT_FIND "No encuentras ningún "+s2+" por aquí.\n"
 #define _LANG_HANDLE_GET_NOTHING "Nada que "+query_verb()+".\n"
 #define _LANG_HANDLE_GET_MESSAGES ({ "Coges", "Coges con un poco de dificultad", \
           "Te las arreglas como puedes para coger", \
@@ -48,12 +48,38 @@
             "se las arregla como puede para coger", \
             "tiene muchas dificultades para coger", \
             "usa toda su fuerza y a duras penas logra coger" })
+#define _LANG_HANDLE_GET_COINS_MATCH "%smonedas de %s"
 
 #define _LANG_HANDLE_GIVE_SYNTAX "Sintaxis: "+query_verb()+" <objeto> <a/en> <objeto>\n"
 #define _LANG_HANDLE_PUT_VERB "poner"
 #define _LANG_HANDLE_PUT_PREP "en"
 #define _LANG_HANDLE_GIVE_PREP "a"
-#define _LANG_HANDLE_GIVE_CANNOT "No se puede encontrar "+person+".\n"
+#define _LANG_HANDLE_TAKE_PREP "de"
+#define _LANG_HANDLE_GIVE_CANNOT_FIND "No se puede encontrar "+person+".\n"
+#define _LANG_HANDLE_NO_PER "Nada que "+query_verb()+con+per[j]->short()+".\n"
+#define _LANG_HANDLE_REFUSE " no quiere que le den nada.\n"
+#define _LANG_HANDLE_REFUSE_GIVE " ha intentado darte algo, pero no te interesa aceptar cosas.\n" + \
+            "\t(escribe 'consentir dar sí' si quieres cambiarlo).\n"
+#define _LANG_HANDLE_GIVE_ME ((query_verb()=="dar")?"Das":"Pones")
+#define _LANG_HANDLE_GIVE_ROOM ((query_verb()=="dar")?"da":"pone")
+#define _LANG_HANDLE_GIVE_THEY "te da"
+
+#define _LANG_HANDLE_CANNOT "No puedes"
+
+#define _LANG_HANDLE_WEIGHT_LIGHT_THEM " está incomodado por la carga adicional.\n"
+#define _LANG_HANDLE_WEIGHT_MEDIUM_THEM " sucumbe momentáneamente bajo el peso de la carga.\n"
+#define _LANG_HANDLE_WEIGHT_HEAVY_THEM " se tambalea mientras coge la carga.\n"
+#define _LANG_HANDLE_WEIGHT_HEAVIER_THEM " se hunde al recibir tanto peso.\n"
+#define _LANG_HANDLE_WEIGHT_LIGHT_ME "Durante unos momentos te incomoda la carga adicional.\n"
+#define _LANG_HANDLE_WEIGHT_MEDIUM_ME "Sucumbes momentáneamente bajo el peso de la carga.\n"
+#define _LANG_HANDLE_WEIGHT_HEAVY_ME "Te tambaleas al coger la carga. A duras penas puedes con ella.\n"
+#define _LANG_HANDLE_WEIGHT_HEAVIER_ME "Te hundes bajo un peso que apenas puedes cargar.\n"
+#define _LANG_HANDLE_PASSED_OUT_MSG "Todavía estas intentando coger la carga.\n"
+
+#define _LANG_HANDLE_DROP_SYNTAX "Sintaxis: "+query_verb()+" <objeto(s)>\n"
+#define _LANG_HANDLE_DROP_CANNOT_FIND "No ves ningún "+str+" que dejar.\n"
+#define _LANG_HANDLE_DROP_THEY "deja"
+#define _LANG_HANDLE_DROP_ME "Dejas"
 
 // combat.c
 

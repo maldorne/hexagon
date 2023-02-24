@@ -11,6 +11,7 @@
 #include <common/properties.h>
 #include <basic/money.h>
 #include <living/consents.h>
+#include <translations/money.h>
 
 #define TIME_DIV 10
 
@@ -48,7 +49,8 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
     return 0;
   }
 
-  if (!strlen(str) && !verb)
+
+  if (!strlen(str))
   {
     notify_fail(_LANG_HANDLE_GIVE_SYNTAX);
     return 0;
@@ -67,20 +69,17 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
   }
   else
   {
-    if (sscanf(str, "%s a %s", thing, person) != 2)
+    if (sscanf(str, "%s" + con + "%s", thing, person) != 2)
     {
-      if (sscanf(str, "%s en %s", thing, person) != 2)
-      {
-        notify_fail(_LANG_HANDLE_GIVE_SYNTAX);
-        return 0;
-      }
+      notify_fail(_LANG_HANDLE_GIVE_SYNTAX);
+      return 0;
     }
 
     obs = find_match(person, ({ this_object(), environment() }), 1);
 
     if (!sizeof(obs))
     {
-      notify_fail(_LANG_HANDLE_GIVE_CANNOT);
+      notify_fail(_LANG_HANDLE_GIVE_CANNOT_FIND);
       return 0;
     }
 
@@ -100,11 +99,10 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
     {
       if (!per[j]->query_consent(GIVE_CONS))
       {
-        tell_object(this_object(), per[j]->query_cap_name() +
-          " no quiere que le den nada.\n");
-        tell_object(per[j], this_object()->query_cap_name() +
-          " ha intentado darte algo, pero no te interesa aceptar cosas.\n" +
-          "\t(escribe 'consentir dar sí' si quieres cambiarlo).\n");
+        tell_object(this_object(), per[j]->query_cap_name() + 
+          _LANG_HANDLE_REFUSE);
+        tell_object(per[j], this_object()->query_cap_name() + 
+          _LANG_HANDLE_REFUSE_GIVE);
         continue;
       }
     }
@@ -114,7 +112,7 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
 
     if (!sizeof(obs))
     {
-      write("Nada que "+query_verb()+con+per[j]->short()+".\n");
+      write(_LANG_HANDLE_NO_PER);
       continue;
     }
 
@@ -152,14 +150,14 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
 
     if (sizeof(ret))
     {
-      sh = query_multiple_short(ret, 1); // flag 1 para usar pretty_short
-      tell_object(this_object(), ((query_verb()=="dar")?"Das ":"Pones ")+sh+con+
-        (string)per[j]->short()+".\n");
-      tell_room(environment(this_object()), capitalize((string)this_object()->short())+
-        " "+((query_verb()=="dar")?"da ":"pone ")+
-        sh+con+(string)per[j]->short()+".\n", ({ per[j] }) );
-      tell_object(per[j], capitalize((string)this_object()->short())+
-        " te da "+sh+".\n");
+      sh = query_multiple_short(ret, 1); // flag 1 to use pretty_short
+      tell_object(this_object(), _LANG_HANDLE_GIVE_ME + " " + 
+        sh + con + (string)per[j]->short() + ".\n");
+      tell_room(environment(this_object()), capitalize((string)this_object()->short()) +
+        " " + _LANG_HANDLE_GIVE_ROOM + " " + 
+        sh + con + (string)per[j]->short() + ".\n", ({ per[j] }) );
+      tell_object(per[j], capitalize((string)this_object()->short()) + " " +
+        _LANG_HANDLE_GIVE_THEY + " " + sh + ".\n");
 
       max = (int)per[j]->query_max_weight();
 
@@ -174,40 +172,40 @@ int do_give(string str, varargs string verb, object *bing, string bing2, int blu
           case 0..25:
             break;
           case 95..100:
-            tell_room(environment(),
-              per[j]->short()+" se tambalea al recibir tanto peso.\n", ({per[j] }) );
-            tell_object(per[j],
-              "Te hundes bajo un peso que apenas puedes cargar.\n");
+            tell_room(environment(), per[j]->short() + 
+              _LANG_HANDLE_WEIGHT_HEAVY_THEM, ({per[j] }));
+            tell_object(per[j], _LANG_HANDLE_WEIGHT_HEAVIER_ME);
             break;
           default:
             tell_room(environment(), per[j]->short()+ ({
-              " está incomodado por la carga adicional.\n",
-              " sucumbe momentáneamente bajo el peso de la carga.\n",
-              " se tambalea mientras "+per[j]->query_pronoun()+" coge la carga.\n"
+                _LANG_HANDLE_WEIGHT_LIGHT_THEM,
+                _LANG_HANDLE_WEIGHT_MEDIUM_THEM,
+                _LANG_HANDLE_WEIGHT_HEAVY_THEM
               })[(max/25)-1], ({ per[j] }) );
             tell_object(per[j], ({
-              "Durante unos momentos te incomoda la carga adicional.\n",
-              "Sucumbes momentáneamente bajo el peso de la carga.\n",
-              "Te tambaleas al coger la carga. A duras penas puedes con ella.\n"
+                _LANG_HANDLE_WEIGHT_LIGHT_ME,
+                _LANG_HANDLE_WEIGHT_MEDIUM_ME,
+                _LANG_HANDLE_WEIGHT_HEAVY_ME
               })[(max/25)-1]);
         }
 
-        this_object()->add_timed_property(PASSED_OUT_PROP,
-          "Todavía estas intentando coger la carga.\n", max/TIME_DIV);
+        this_object()->add_timed_property(PASSED_OUT_PROP, 
+          _LANG_HANDLE_PASSED_OUT_MSG, max/TIME_DIV);
       }
     }
 
     if (sizeof(fail))
-      write("No puedes "+query_verb()+" "+query_multiple_short(fail, 1)+
-        con+per[j]->short()+".\n");
+      write(_LANG_HANDLE_CANNOT + " " + query_verb() + " " + 
+        query_multiple_short(fail, 1) + con + per[j]->short() + ".\n");
   }
+
   return 1;
 }
 
 int do_drop(string str)
 {
   int i, num;
-  object *ob, *ret, *fail;
+  object * ob, * ret, * fail;
   string sh;
 
   // Added to get rid of one more auto_load bug..
@@ -227,14 +225,14 @@ int do_drop(string str)
 
   if (!strlen(str))
   {
-    notify_fail("Sintaxis: "+query_verb()+" <objeto(s)>\n");
+    notify_fail(_LANG_HANDLE_DROP_SYNTAX);
     return 0;
   }
 
   ob = find_match(str, this_object(), 1);
   if (!sizeof(ob))
   {
-    notify_fail("No ves ningún "+str+" que dejar.\n");
+    notify_fail(_LANG_HANDLE_DROP_CANNOT_FIND);
     return 0;
   }
 
@@ -246,10 +244,9 @@ int do_drop(string str)
     if (!ob[i]->short())
       continue;
 
-    /* Add by Baldrick, so the players will unhold the object they drop..
-     * This method is *NOT* good, but faster than the hard way..
-     * but we should do it the hard way, later.
-     */
+    // Add by Baldrick, so the players will unhold the object they drop..
+    // This method is *NOT* good, but faster than the hard way..
+    // but we should do it the hard way, later.
     if (!ob[i]->query_property(CURSED_PROP))
     {
       if (ob[i]->query_in_use() && ob[i]->query_holdable() )
@@ -269,10 +266,8 @@ int do_drop(string str)
 
   if (sizeof(ret))
   {
-    // hack: si haces un dejar 2 platinos,3 cobres, el primer objeto money ya
-    // lleva la descripcion de todas las monedas que estas dejando (los objetos money
-    // se van acumulando en uno solo)
-
+    // if you do 'drop 2 platinum,3 copper', the first money object 
+    // already has the description and value of every coin dropped
     int j, has_money;
     object * new_ret;
 
@@ -281,7 +276,7 @@ int do_drop(string str)
 
     for (j = 0; j < sizeof(ret); j++)
     {
-      // Filtramos los objetos money excepto el primero
+      // filter money items but the first one
       if (ret[j])
         if (ret[j]->is_money())
         {
@@ -298,21 +293,24 @@ int do_drop(string str)
     sh = query_multiple_short(new_ret, 1);
 
     if (!this_object()->query_hidden())
-      say(capitalize((string)this_object()->short())+" deja "+sh+".\n");
+      tell_room(environment(), capitalize((string)this_object()->short()) + 
+        " " + _LANG_HANDLE_DROP_THEY + " " + sh + ".\n");
 
-    write("Dejas "+sh+".\n");
+    write(_LANG_HANDLE_DROP_ME + " " + sh + ".\n");
   }
 
   if (sizeof(fail))
-    write("No puedes dejar "+query_multiple_short(fail, 1)+".\n");
+    write(_LANG_HANDLE_CANNOT + " " + query_verb() + " " + 
+      query_multiple_short(fail, 1) + ".\n");
 
-  num += sizeof(fail)+sizeof(ret);
+  // num += sizeof(fail) + sizeof(ret);
 
-  if (!num)
-  {
-    notify_fail("No puedes dejar "+str+".\n");
-    return 0;
-  }
+  // if (!num)
+  // {
+  //   notify_fail("No puedes dejar "+str+".\n");
+  //   return 0;
+  // }
+
   return 1;
 }
 
@@ -363,45 +361,31 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
   {
     dest = ({ environment() });
 
-    /* Caso 1 */
-    if (sscanf(str, "%smonedas de %s de %s", aux, str2, s2) == 3)
+    // this hack only makes sense for spanish language, will
+    // never happen in english
+    if (sscanf(str, _LANG_HANDLE_GET_COINS_MATCH, aux, s2) == 2 )
     {
-      dest = find_match(s2, ({environment(), this_object() }), 1);
-      str = aux + "monedas de " + str2;
-      
-      if (!sizeof(dest))
+      if (member_array(s2, MONEY_HAND->query_values()) == -1)
       {
-        notify_fail("No encuentras ningún "+s2+" por aquí.\n");
-        return 0;
-      }
-    }
-    /* Caso 2 */
-    else
-    {
-      if (sscanf(str,"%smonedas de %s",aux,s2) == 2 )
-      {
-        if (member_array(s2, MONEY_HAND->query_values()) == -1)
+        dest = find_match(s2, ({ environment(), this_object() }), 1);
+        str = aux + pluralize(COIN_BASE_NAME);
+        if (!sizeof(dest))
         {
-          dest = find_match(s2, ({ environment(), this_object() }), 1);
-          str = aux+"monedas";
-          if (!sizeof(dest))
-          {
-            notify_fail("No encuentras ningún "+s2+" por aquí.\n");
-            return 0;
-          }
+          notify_fail(_LANG_HANDLE_GET_CANNOT_FIND);
+          return 0;
         }
       }
-      else
+    }
+    else
+    {
+      if (sscanf(str, "%s " + _LANG_HANDLE_GET_PREP + " %s", str, s2) == 2)
       {
-        if (sscanf(str, "%s " + _LANG_HANDLE_GET_PREP + " %s", str, s2) == 2)
+        /* since we only allow one lvl anyway... (*/
+        dest = find_match(s2, ({ environment(), this_object() }), 1);
+        if (!sizeof(dest))
         {
-          /* since we only allow one lvl anyway... (*/
-          dest = find_match(s2, ({ environment(), this_object() }), 1);
-          if (!sizeof(dest))
-          {
-            notify_fail(_LANG_HANDLE_GET_CANNOT);
-            return 0;
-          }
+          notify_fail(_LANG_HANDLE_GET_CANNOT_FIND);
+          return 0;
         }
       }
     }
@@ -449,8 +433,8 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
           _LANG_HANDLE_GET_PREP + " " + (string)dest[i]->short() + ".\n");
 
         if (!this_object()->query_hidden())
-          say((string)this_object()->query_cap_name() + " " + 
-            _LANG_HANDLE_GET_MESSAGES_OTHERS[j] + " " + sh + " " + 
+          tell_room(environment(), (string)this_object()->query_cap_name() + 
+            " " + _LANG_HANDLE_GET_MESSAGES_OTHERS[j] + " " + sh + " " + 
             _LANG_HANDLE_GET_PREP + " " + (string)dest[i]->short() + ".\n");
 
         num += sizeof(ret[j]);
@@ -459,13 +443,13 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
 
     if (tot)
     {
-    /*
-    this_object()->adjust_time_left(-tot/TIME_DIV);
-    if (this_object()->query_time_left() < 0) {
-      this_object()->set_interupt_command("get_put_interupt", this_object(),
-      ({ tot, ret_a, "Coges", "de", dest, i, str }));
-    }
-    */
+      /*
+      this_object()->adjust_time_left(-tot/TIME_DIV);
+      if (this_object()->query_time_left() < 0) {
+        this_object()->set_interupt_command("get_put_interupt", this_object(),
+        ({ tot, ret_a, "Coges", "de", dest, i, str }));
+      }
+      */
       max = (int)this_object()->query_max_weight();
       if (max && tot)
       {

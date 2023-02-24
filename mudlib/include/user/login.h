@@ -18,12 +18,7 @@
 #define MIN_LEN 3
 #define MAX_LEN 11
 
-#ifdef _PRIMARY_MUD
 #define WELCOME_MESSAGE "welcome.txt"
-#else
-#define WELCOME_MESSAGE "welcome_devel.txt"
-#endif
-
 #define LOGIN_OPTIONS_MESSAGE "login_options.txt"
 
 #endif
