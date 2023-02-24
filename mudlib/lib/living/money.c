@@ -4,6 +4,7 @@
 //
 
 #include <basic/money.h>
+#include <translations/money.h>
 
 mixed * money_array;
 
@@ -65,7 +66,7 @@ int adjust_money(mixed i, varargs string type)
 
     if (tmp && tmp != val) 
     {
-      ob->adjust_money(tmp-val,BASE_COIN);
+      ob->adjust_money(tmp-val, BASE_COIN);
       val = tmp;
     }
   }

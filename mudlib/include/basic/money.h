@@ -4,7 +4,6 @@
 #define MONEY_ALIAS   "Some Money For Me"
 #define MONEY_TRACKER "/lib/handlers/money_tracker"
 
-#define BASE_COIN "copper"
 #define MONEY_NAME "Some Money For Me"
 
 #define BANK_HANDLER "/obj/handlers/bank_handler"
