@@ -610,7 +610,7 @@ void do_move_after(int bing)
 
   for (dd = 0; dd < sizeof(direcstemp); dd += 2)
   {
-    if (find_object(direcstemp[dd + 1]))
+    if (load_object(direcstemp[dd + 1]))
     {
       direcs += direcstemp[dd..dd + 1];
     }

@@ -24,16 +24,13 @@ void setup()
   set_random_stats(6, 18);
   
   add_move_zone("erken");
-  set_move_after(10, 40);
+  
+  // (a, b) after a + random(b) heart_beats
+  set_move_after(10, 10);
+  set_heart_beat(1);
 
   add_clone(BASEOBS + "weapons/dagger.c", 1);
   add_clone(BASEOBS + "armours/leather.c", 1);
-
-
-  
-  // set_skill("sword", 100);
-  // set_skill("parry", 100);
-
 
   // set_skill("dodge", 100);
   // set_skill("knife", 100);
