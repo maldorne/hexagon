@@ -41,14 +41,14 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   if (!msgout)
   {
-    msgout = _LANG_RACES_MSG_IN_STD;
-    msgin = _LANG_RACES_MSG_OUT_STD;
+    msgin = _LANG_RACES_MSG_IN_STD;
+    msgout = _LANG_RACES_MSG_OUT_STD;
   }
 
   if (!mmsgout)
   {
-    mmsgout = _LANG_RACES_MMSG_IN_STD;
-    mmsgin = _LANG_RACES_MMSG_OUT_STD;
+    mmsgin = _LANG_RACES_MMSG_IN_STD;
+    mmsgout = _LANG_RACES_MMSG_OUT_STD;
   }
 
   last = environment();
