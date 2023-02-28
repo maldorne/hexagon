@@ -4,6 +4,7 @@
 // Added verb, Baldrick dec '97
 // Added query_cmdp to return function pointer, 980626 Skullslayer
 // Ported to dgd, neverbot aug '15
+// multilanguage: only execute cmds with aliases, neverbot feb 2023
 
 #pragma optimize
 
@@ -13,12 +14,17 @@
 
 static int position, dodest, doclone;
 static object command_giver;
+static string * aliases, usage, help;
 
 void create()
 {
   position = 0;
   dodest = 0;
   doclone = 0;
+
+  aliases = ({ });
+  usage = "";
+  help = "";
 
   seteuid(getuid());
   this_object()->setup();
@@ -36,20 +42,16 @@ void clean_up()
 
 void setup() { return; }
 
-/* Added by Baldrick.
- * using this_player ain't good.
-int notify_fail(string fa)
-  {
-  this_player()->set_notified(1);
-  fail_msg = fa;
-  return 0;
-}
-*/
-
 static int cmd(string tail, object thisob, string verb) { return 0; }
 
-string query_usage() { return ""; }
-string query_short_help() { return ""; }
+void set_usage(string str) { usage = str; }
+string query_usage() { return usage; }
+
+void set_help(string str) { help = str; }
+string query_help() { return help; }
+
+string * query_aliases() { return aliases; }
+void set_aliases(string * alias) { aliases = alias; }
 
 int _cmd(string tail, object thisob, string verb)
 {
@@ -69,7 +71,7 @@ int _cmd(string tail, object thisob, string verb)
   switch(position)
   {
     case ADMIN_CMD:
-      if (!thisob->query_admin() && !thisob->query_highlord(euid))
+      if (!thisob->query_admin())
         return 0;
       break;
 

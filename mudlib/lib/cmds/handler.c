@@ -22,7 +22,6 @@ void create()
 {
   cmd_dirs = ([
        "/lib/cmds/user/"   : ({ USER_CMD,    "User" }),
-      // "/lib/cmds/living/": ({ LIVING_CMD, "Player" }),
        "/lib/cmds/player/" : ({ PLAYER_CMD,  "Player" }),
       "/game/cmds/player/" : ({ PLAYER_CMD,  "Player" }),
        "/lib/cmds/coder/"  : ({ CODER_CMD,   "Coder" }),
@@ -320,10 +319,12 @@ int cmd(string verb, string tail, object thisob)
   euid = geteuid(thisob);
   s = cmd_aliases[verb];
 
-  if (stringp(s) && (s != ""))
-    verb = s;
+  if (!s)
+    return 0;
 
-  s = find_cmd(verb);
+  verb = s;
+
+  s = find_cmd(s);
 
   if (!s)
     return 0;
@@ -387,7 +388,7 @@ int cmd_make_hash(int verbose)
   // paths, and also works out the command aliases from the
   // _CMD_ALIASES file in each directory.
 
-  string *paths, *files, s, *a;
+  string * paths, * files, s, * a, err;
   int i, j, k, l, count;
 
   seteuid(ROOT);
@@ -406,47 +407,47 @@ int cmd_make_hash(int verbose)
 
     for (j = 0; j < sizeof(files); j++)
     {
+      object cmd;
+      string * aliases;
+
+      err = catch(cmd = load_object(paths[i] + files[j]));
+
+      // we are not using cmds that don't load
+      if (!cmd)
+      {
+        if (verbose)
+          write("Error loading: " + paths[i] + files[j] + "\n");
+        continue;
+      }
+
       a = explode(files[j], ".");
       s = implode(a[0..sizeof(a)-2], ".");
 
       if (verbose)
-        write("    Command: " + s + "\n");
+        write("  Command: " + s + "\n");
 
       cmd_hash[s] =
         ([
-        "file":         paths[i] + s + ".c",
-        "count":        0,
-        "category":     cmd_dirs[paths[i]][0],
-        "dir":          paths[i],
+          "file":     base_name(cmd),
+          "count":    0,
+          "category": cmd_dirs[paths[i]][0],
+          "dir":      paths[i],
         ]);
       count++;
-    }
 
-    s = read_file(paths[i]+"_CMD_ALIASES");
+      // multilanguage: only execute cmds with provided aliases
+      aliases = cmd->query_aliases();
 
-    // if (stringp(s) && s!=0 && s!="")
-    if (stringp(s) && (s != ""))
-    {
-      a = explode(s, "\n");
-      for (j = 0; j < sizeof(a); j++)
+      // if we do not have any alias, as a fallback use the filename
+      if (sizeof(aliases) == 0)
+        aliases = ({ s });
+
+      for (k = 0; k < sizeof(aliases); k++)
       {
-        k = 0;
-        files = explode(replace(a[j],"\t", " "), " ");
+        if (verbose && (aliases[k] != s))
+          write("    Alias: " + aliases[k] + "\n");
 
-        if (sizeof(files) && files[0] == "alias")
-          k++;
-
-        if (sizeof(files) > k)
-        {
-          for (l = k+1; l < sizeof(files); l++)
-            if (files[l] != files[k])
-            {
-              if (verbose) write("    Alias "+
-                files[l]+" to "+
-                files[k]+"\n");
-              cmd_aliases[files[l]]= files[k];
-            }
-        }
+        cmd_aliases[aliases[k]] = s;
       }
     }
   }

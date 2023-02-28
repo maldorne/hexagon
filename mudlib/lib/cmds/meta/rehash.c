@@ -4,15 +4,12 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "rehash [-v]";
-}
-
-string query_help()
-{
-  return "Causes command handler to rehash.\n" +
-         "   -v  to use verbose mode.\n";
+  set_aliases(({ "rehash" }));
+  set_usage("rehash [-v]");
+  set_help("Causes command handler to rehash.\n" +
+           "   -v  to use verbose mode.\n");
 }
 
 static int cmd(string tail, object me, string verb)

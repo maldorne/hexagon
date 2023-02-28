@@ -3,6 +3,7 @@
 
 #include <files/log.h>
 #include <mud/secure.h>
+#include <mud/cmd.h>
 #include <user/user.h>
 #include <user/player.h>
 
@@ -214,7 +215,7 @@ nomask int valid_read(string path, mixed euid, varargs string func)
       if (sizeof(bing) >= 2)
       {
         object handler;
-        handler = load_object("/cmds/handlers/cmd_handler.c");
+        handler = load_object(CMD_HANDLER);
 
         if (!handler)
           return 0;

@@ -4,7 +4,7 @@
 #define SOUL_OBJECT "/lib/handlers/souls"
 #define SOUL_DATA   "/lib/tables/souls"
 
-#define CMD_HANDLER "/lib/cmds/cmd_handler"
+#define CMD_HANDLER "/lib/cmds/handler"
 #define CMD_BASE    "/lib/cmds/cmd"
 
 // command positions
