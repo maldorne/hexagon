@@ -91,3 +91,16 @@ static nomask string doc(string name)
 
   return "";
 }
+
+static nomask object package(string name) 
+{
+  object ob;
+
+  catch 
+  {
+    if (ob = load_object("/packages/" + name + "/master.c"))
+      return ob;
+  }
+
+  return nil;
+}

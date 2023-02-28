@@ -174,6 +174,11 @@ void add_clone(string what, varargs int how_many)
         }
       }
     }
+    else
+    {
+      if (package("issues"))
+        package("issues")->add_issue("Cannot clone " + what, this_object());
+    }
   }
 }
 
