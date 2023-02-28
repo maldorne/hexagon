@@ -523,6 +523,7 @@ int cmd_make_hash(int verbose)
             "count":    0,
             "category": type,
             "dir":      path + "/",
+            "package":  packages[i],
           ]);
         count++;
 

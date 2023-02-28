@@ -43,6 +43,9 @@ static int cmd(string str, object me, string verb)
     if (cmds[i] != aliases[cmds[i]])
       line += ", alias of " + aliases[cmds[i]];
 
+    if (hash[aliases[cmds[i]]]["package"])
+      line += " (package " + hash[aliases[cmds[i]]]["package"] + ")";
+
     line += "\n";
 
     lines += ({ line });
