@@ -54,7 +54,7 @@ int clean_up()
 // The simul for query_verb() queries this if efun::query_verb() == 0
 string query_current_verb() { return current_verb; }
 
-mapping query_cmds() { return cmd_dirs; }
+mapping query_cmd_dirs() { return cmd_dirs; }
 mapping query_hash() { return cmd_hash; }
 string query_last_dir() { return last_dir; }
 mapping query_aliases() { return cmd_aliases; }
@@ -329,8 +329,6 @@ int cmd(string verb, string tail, object thisob)
   if (!s)
     return 0;
 
-  // write("Executing cmd <"+s+"> with args <"+tail+">\n");
-
   // Check their position now...
   switch(cmd_dirs[last_dir][0])
   {
@@ -388,8 +386,9 @@ int cmd_make_hash(int verbose)
   // paths, and also works out the command aliases from the
   // _CMD_ALIASES file in each directory.
 
-  string * paths, * files, s, * a, err;
+  string * paths, * packages, * files, s, * a, err, * aliases;
   int i, j, k, l, count;
+  object cmd;
 
   seteuid(ROOT);
   cmd_hash = ([ ]);
@@ -407,16 +406,17 @@ int cmd_make_hash(int verbose)
 
     for (j = 0; j < sizeof(files); j++)
     {
-      object cmd;
-      string * aliases;
-
       err = catch(cmd = load_object(paths[i] + files[j]));
 
       // we are not using cmds that don't load
-      if (!cmd)
+      if (err || !cmd)
       {
         if (verbose)
           write("Error loading: " + paths[i] + files[j] + "\n");
+
+        if (package("issues"))
+          package("issues")->add_issue("Cmd " + paths[i] + files[j] + " does not load", this_object());
+
         continue;
       }
 
@@ -448,6 +448,101 @@ int cmd_make_hash(int verbose)
           write("    Alias: " + aliases[k] + "\n");
 
         cmd_aliases[aliases[k]] = s;
+      }
+    }
+  }
+
+  // now, load cmds from packages
+  packages = get_dir("/packages/*");
+
+  for (i = 0; i < sizeof(packages); i++)
+  {
+    string * directories;
+
+    // not loadable packages
+    if (!package(packages[i]))
+      continue;
+
+    directories = get_dir("/packages/" + packages[i] + "/cmds/*");
+
+    // this package does not provide cmds
+    if (!sizeof(directories))
+      continue;
+
+    for (j = 0; j < sizeof(directories); j++)
+    {
+      int type;
+      string path;
+
+      switch(directories[j])
+      {
+        case "admin":
+          type = ADMIN_CMD;
+          break;
+        case "coder":
+          type = CODER_CMD;
+          break;
+        case "player":
+          type = PLAYER_CMD;
+          break;
+        case "user":
+          type = USER_CMD;
+          break;
+        default:
+          continue;
+      }
+
+      path = "/packages/" + packages[i] + "/cmds/" + directories[j];
+
+      if (verbose)
+        write("Scanning directory: " + path + "\n");
+
+      files = get_dir(path + "/*.c");
+
+      for (k = 0; k < sizeof(files); k++)
+      {
+        err = catch(cmd = load_object(path + "/" + files[k]));
+
+        // we are not using cmds that don't load
+        if (err || !cmd)
+        {
+          if (verbose)
+            write("Error loading: " + path + "/" + files[k] + "\n");
+          continue;
+        }
+
+        a = explode(files[k], ".");
+        s = implode(a[0..sizeof(a)-2], ".");
+
+        if (verbose)
+          write("  Package command: " + s + "\n");
+
+        cmd_hash[s] =
+          ([
+            "file":     base_name(cmd),
+            "count":    0,
+            "category": type,
+            "dir":      path + "/",
+          ]);
+        count++;
+
+        // add the directory to the cmd_dirs mapping
+        cmd_dirs[path + "/"] = ({ type, "Package (" + packages[i] + ")" });
+
+        // multilanguage: only execute cmds with provided aliases
+        aliases = cmd->query_aliases();
+
+        // if we do not have any alias, as a fallback use the filename
+        if (sizeof(aliases) == 0)
+          aliases = ({ s });
+
+        for (l = 0; l < sizeof(aliases); l++)
+        {
+          if (verbose && (aliases[l] != s))
+            write("    Package command alias: " + aliases[l] + "\n");
+
+          cmd_aliases[aliases[l]] = s;
+        }
       }
     }
   }
