@@ -13,17 +13,9 @@ inherit CMD_BASE;
 
 void setup()
 {
-  position = 0;
-}
-
-string query_usage()
-{
-  return _LANG_CMD_LOOK_SYNTAX;
-}
-
-string query_help()
-{
-  return _LANG_CMD_LOOK_HELP;
+  set_aliases(_LANG_CMD_LOOK_ALIAS);
+  set_usage(_LANG_CMD_LOOK_SYNTAX);
+  set_help(_LANG_CMD_LOOK_HELP);
 }
 
 static int cmd(string arg, object me, string verb)
@@ -150,6 +142,6 @@ static int cmd(string arg, object me, string verb)
     ret += ob->long(arg, dark);
   }
 
-  me->user()->more_string(ret, capitalize(_LANG_CMD_LOOK));
+  me->user()->more_string(ret, capitalize(_LANG_CMD_LOOK_ALIAS[0]));
   return 1;
 }

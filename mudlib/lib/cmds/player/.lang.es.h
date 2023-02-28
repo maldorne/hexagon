@@ -18,7 +18,7 @@
 
 // look.c
 
-#define _LANG_CMD_LOOK "mirar"
+#define _LANG_CMD_LOOK_ALIAS ({ "mirar" })
 #define _LANG_CMD_LOOK_SYNTAX "Sintaxis: mirar [a] [<objeto>]"
 #define _LANG_CMD_LOOK_HELP "Devuelve la descripción de un objeto o (por defecto) " + \
                     "la localización en la que te encuentras."
@@ -55,3 +55,11 @@
 #define _LANG_WHOAMI_JOB_FIRST "   Oficios:\n"
 #define _LANG_WHOAMI_JOB_EACH "     " + capitalize(j_names[i]->query_short()) + \
       " de nivel " + jobs[j_names[i]][0] + ".\n";
+
+
+// commands
+
+#define _LANG_CMD_COMMANDS_ALIAS ({ "comandos "})
+#define _LANG_CMD_COMMANDS_SYNTAX "comandos [-l]"
+#define _LANG_CMD_COMMANDS_HELP "Muestra todos los comandos que tienes disponibles.\n" + \
+                                "comandos -l para una lista con más información."

@@ -18,7 +18,7 @@
 
 // look.c
 
-#define _LANG_CMD_LOOK "look"
+#define _LANG_CMD_LOOK_ALIAS ({ "look" })
 #define _LANG_CMD_LOOK_SYNTAX "look [<something>]"
 #define _LANG_CMD_LOOK_HELP "Shows the description of an item or (by default) " + \
                     "the localization you are in at the moment."
@@ -55,3 +55,10 @@
 #define _LANG_WHOAMI_JOB_FIRST "   Jobs:\n"
 #define _LANG_WHOAMI_JOB_EACH "     " +  ordinal(jobs[j_names[i]][0]) + " level " + \
                     capitalize(j_names[i]->query_short())
+
+// commands
+
+#define _LANG_CMD_COMMANDS_ALIAS ({ "commands" })
+#define _LANG_CMD_COMMANDS_SYNTAX "commands [-l]"
+#define _LANG_CMD_COMMANDS_HELP "Show every command available.\n" + \
+                                "commands -l to include more information.\n"

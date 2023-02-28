@@ -5,6 +5,7 @@
 #define _LANG_DIDNT_WORK "The attempt of doing that didn't work.\n"
 
 #define _LANG_AND "and"
+#define _LANG_SYNTAX "Syntax"
 
 // numbers
 

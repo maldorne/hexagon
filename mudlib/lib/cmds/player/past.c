@@ -10,7 +10,7 @@ void setup()
 
 string query_usage()
 {
-	return "commands";
+	return "past";
 }
 
 string query_short_help()
