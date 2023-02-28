@@ -108,7 +108,7 @@ void more_string_status_line()
     else switch (frog[i][0])
     {
       case 'N' :
-        s += more_bit+frog[i][1..];
+        s += "["+more_bit+"]"+frog[i][1..];
         break;
 
       case 'T' :

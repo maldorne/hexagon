@@ -34,7 +34,7 @@ static int cmd(string str, object me, string verb)
 			for (i = 0; i <= present_year; i++ )
 				ret += "\t" + handler(CALENDAR_HANDLER)->query_year_name(i) + "\n";
 			
-			me->more_string(ret, "[Calendario]");
+			me->more_string(ret, "Calendario");
 		}
 		else
 		{

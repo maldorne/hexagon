@@ -80,7 +80,7 @@ int do_help(string str)
 
     s += "\nSintaxis: ayuda <tema>\n";
 
-    this_object()->more_string(s + "\n", "[Ayuda]");
+    this_object()->more_string(s + "\n", "Ayuda");
 
     return 1;
   }
@@ -146,7 +146,7 @@ int do_help(string str)
     if (!strlen(s))
       write("No hay ayuda sobre eso.\n");
     else
-      this_object()->more_string(s, "[Emociones]");
+      this_object()->more_string(s, "Emociones");
     return 1;
   }
 
@@ -179,7 +179,7 @@ int do_help(string str)
     s = "%^GREEN%^Ayuda de: "+str + "%^RESET%^\n\n";
     s += read_file(files[i+1] + files[i]);
 
-    this_object()->more_string(s + "\n", "[Ayuda]");
+    this_object()->more_string(s + "\n", "Ayuda");
     return 1;
   }
 

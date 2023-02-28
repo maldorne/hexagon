@@ -120,7 +120,7 @@ int subjects(string str, int dark)
              " "+the_date(stuff[i][B_TIME])+")");
   }
   this_player()->set_finish_func(0);
-  this_player()->more_string(ret, "[Temas]");
+  this_player()->more_string(ret, "Temas");
   return 1;
 } /* subjects() */
 
