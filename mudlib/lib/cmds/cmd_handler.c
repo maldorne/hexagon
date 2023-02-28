@@ -6,6 +6,7 @@
 
 #include <mud/cmd.h>
 #include <mud/secure.h>
+#include <language.h>
 
 int cmd_make_hash(int i);
 int soul_com(string str, object me);
@@ -20,16 +21,16 @@ static string current_verb;  // Used by query_verb() efun
 void create()
 {
   cmd_dirs = ([
-       "/lib/cmds/user/":    ({ USER_CMD,    "User" }),
+       "/lib/cmds/user/"   : ({ USER_CMD,    "User" }),
       // "/lib/cmds/living/": ({ LIVING_CMD, "Player" }),
-       "/lib/cmds/player/":  ({ PLAYER_CMD,  "Player" }),
-      "/game/cmds/player/":  ({ PLAYER_CMD,  "Player" }),
-       "/lib/cmds/coder/":   ({ CODER_CMD,   "Coder" }),
-      "/game/cmds/coder/":   ({ CODER_CMD,   "Coder" }),
-       "/lib/cmds/admin/":   ({ ADMIN_CMD,   "Administrator" }),
-      "/game/cmds/admin/":   ({ ADMIN_CMD,   "Administrator" }),
+       "/lib/cmds/player/" : ({ PLAYER_CMD,  "Player" }),
+      "/game/cmds/player/" : ({ PLAYER_CMD,  "Player" }),
+       "/lib/cmds/coder/"  : ({ CODER_CMD,   "Coder" }),
+      "/game/cmds/coder/"  : ({ CODER_CMD,   "Coder" }),
+       "/lib/cmds/admin/"  : ({ ADMIN_CMD,   "Administrator" }),
+      "/game/cmds/admin/"  : ({ ADMIN_CMD,   "Administrator" }),
       // "/net/cmds/":              ({ 0,   "InterMUD network" }),
-      // "/lib/cmds/handler/cmds/": ({ 0,   "Command handler" }),
+      "/lib/cmds/meta/"    : ({ ADMIN_CMD,   "Command handler" }),
     ]);
 
   cmd_hash = ([ ]);
@@ -164,7 +165,7 @@ string * query_available_directories(object player)
     result += ({
                 "/lib/cmds/admin/",
                 "/game/cmds/admin/",
-                // "/lib/cmds/handler/cmds/",
+                "/lib/cmds/meta/",
                 // "/net/cmds/"
               });
   }
@@ -244,13 +245,13 @@ mapping query_available_cmds_by_category(object player, varargs int filter)
     directories["/lib/cmds/coder/"] = ({  });
     directories["/game/cmds/coder/"] = ({  });
     // directories["/net/cmds/"] = ({  });
-    // directories["/lib/cmds/handlers/cmds/"] = ({  });
   }
 
   if (player->query_admin())
   {
     directories["/lib/cmds/admin/"] = ({  });
     directories["/game/cmds/admin/"] = ({  });
+    directories["/lib/cmds/meta/"] = ({  });
   }
 
   // in categories we have a list of lists, where each one
@@ -362,7 +363,7 @@ int cmd(string verb, string tail, object thisob)
 
   if (!ob)
   {
-    notify_fail("Error loading command.\n");
+    notify_fail(_LANG_CMD_ERROR_LOADING);
     return 0;
   }
 
@@ -480,7 +481,7 @@ int soul_com(string str, object me)
     if (!load_object(SOUL_OBJECT) )
     {
       // write("Use nosoul to turn the soul back on when it is fixed.\n");
-      tell_object(me, "Error with emotions, notify an administrator.\n");
+      tell_object(me, _LANG_CMD_NO_SOULS);
       // me->add_property("nosoul",1);
       return 0;
     }

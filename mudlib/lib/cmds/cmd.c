@@ -9,6 +9,7 @@
 
 #include <mud/cmd.h>
 #include <common/properties.h>
+#include <language.h>
 
 static int position, dodest, doclone;
 static object command_giver;
@@ -97,7 +98,7 @@ int _cmd(string tail, object thisob, string verb)
 
   if (thisob->query_timed_property_exists(LOADING_PROP))
   {
-    notify_fail("Tu equipo aún se está cargando, espera un segundo.\n");
+    notify_fail(_LANG_WAIT_LOADING);
     return 0;
   }
 
