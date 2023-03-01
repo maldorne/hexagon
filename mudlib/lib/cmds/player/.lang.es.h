@@ -37,6 +37,7 @@
 
 // prompt
 
+#define _LANG_CMD_PROMPT_ALIAS ({ "prompt" })
 #define _LANG_PROMPT_CLEAN "borrar"
 #define _LANG_PROMPT_CURRENT "Tu prompt actual es: '" + user->query_prompt_string() + "'\n"
 #define _LANG_PROMPT_SYNTAX "prompt <texto>"
