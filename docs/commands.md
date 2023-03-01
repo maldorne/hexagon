@@ -118,7 +118,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | calendar      |          |          |    |    |
 | carga         |          |          |    |    |
 | cobardia      |          |          |    |    |
-| comandos      |          |          |    |    |
+| commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | combates      |          |          |    |    |
 | configuracion |          |          |    |    |
 | considerar    |          |          |    |    |
@@ -129,7 +129,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | enterrar      |          |          |    |    |
 | equipo        |          |          |    |    |
 | estado        |          |          |    |    |
-| glance        | :white_check_mark: |          |    |    |
+| glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | grope         |          |          |    |    |
 | grupo         |          |          |    |    |
 | inventory     |          |          |    |    |
