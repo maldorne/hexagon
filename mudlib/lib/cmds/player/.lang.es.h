@@ -6,7 +6,7 @@
 // kill.c
 
 #define _LANG_CMD_KILL_ALIAS ({ "matar", "atacar" })
-#define _LANG_CMD_KILL_SYNTAX "Sintaxis: atacar <objetivos>"
+#define _LANG_CMD_KILL_SYNTAX "atacar <objetivos>"
 #define _LANG_CMD_KILL_HELP "Comienza a atacar a los objetivos especificados."
 #define _LANG_CMD_KILL_NOT_ALLOWED "No está permitido.\n"
 #define _LANG_CMD_KILL_NOT_ALLOWED_ARRAY ({ "todo", "todos", "all", "everyone" })
@@ -20,7 +20,7 @@
 // look.c
 
 #define _LANG_CMD_LOOK_ALIAS ({ "mirar" })
-#define _LANG_CMD_LOOK_SYNTAX "Sintaxis: mirar [a] [<objeto>]"
+#define _LANG_CMD_LOOK_SYNTAX "mirar [a] [<objeto>]"
 #define _LANG_CMD_LOOK_HELP "Devuelve la descripción de un objeto o (por defecto) " + \
                     "la localización en la que te encuentras."
 #define _LANG_CMD_LOOK_NO_ENVIRONMENT "No estás en ningún sitio... no puedes ver nada.\n"
