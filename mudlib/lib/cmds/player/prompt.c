@@ -4,10 +4,11 @@
 
 inherit CMD_BASE;
 
-
-string query_usage()
+void setup()
 {
-  return _LANG_PROMPT_SYNTAX;
+  set_aliases(_LANG_CMD_KILL_ALIAS);
+  set_usage(_LANG_PROMPT_SYNTAX);
+  // set_help(_LANG_PROMPT_HELP);
 }
 
 string query_help()

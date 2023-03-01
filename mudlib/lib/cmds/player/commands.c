@@ -31,7 +31,7 @@ static int cmd(string str, object me, string verb)
   
   if (strlen(str) && str != "-l")
   {
-    write(_LANG_SYNTAX + ": " +_LANG_CMD_COMMANDS_SYNTAX);
+    write(_LANG_SYNTAX + ": " +_LANG_CMD_COMMANDS_SYNTAX + "\n");
     return 1;
   }
   

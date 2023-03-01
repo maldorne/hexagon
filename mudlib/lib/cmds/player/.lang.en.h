@@ -5,6 +5,7 @@
 
 // kill.c
 
+#define _LANG_CMD_KILL_ALIAS ({ "kill", "attack" })
 #define _LANG_CMD_KILL_SYNTAX "kill <targets>"
 #define _LANG_CMD_KILL_HELP "Start attacking the provided targets."
 #define _LANG_CMD_KILL_NOT_ALLOWED "Not allowed.\n"
@@ -39,7 +40,9 @@
 #define _LANG_PROMPT_CLEAN "clean"
 #define _LANG_PROMPT_CURRENT "Your current prompt is: '" + user->query_prompt_string() + "'\n"
 #define _LANG_PROMPT_SYNTAX "prompt <text>"
-#define _LANG_PROMPT_HELP "You can change it using 'prompt <text>', or remove it using 'prompt " + \
+
+#define _LANG_PROMPT_HELP "Changes or removes the current prompt.\n" + \
+           "You can change it using 'prompt <text>', or remove it using 'prompt " + \
            _LANG_PROMPT_CLEAN + "'.\n" + \
            "In <text>, the following shortcuts are accepted:\n" + \
            "     $n -> your name\n" + \

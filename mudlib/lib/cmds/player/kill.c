@@ -4,22 +4,15 @@
 
 #include <mud/cmd.h>
 #include <language.h>
+#include <translations/common.h>
 
 inherit CMD_BASE;
 
 void setup()
 {
-  position = 0;
-}
-
-string query_usage()
-{
-  return _LANG_CMD_KILL_SYNTAX;
-}
-
-string query_help()
-{
-  return _LANG_CMD_KILL_HELP;
+  set_aliases(_LANG_CMD_KILL_ALIAS);
+  set_usage(_LANG_CMD_KILL_SYNTAX);
+  set_help(_LANG_CMD_KILL_HELP);
 }
 
 static int cmd (string str, object me, string verb)
@@ -45,8 +38,8 @@ static int cmd (string str, object me, string verb)
 
   if (!strlen(str))
   {
-    notify_fail(_LANG_CMD_KILL_SYNTAX + "\n");
-    return 0;
+    write(_LANG_SYNTAX + ": " +_LANG_CMD_KILL_SYNTAX + "\n");
+    return 1;    
   }
 
   str = lower_case(str);
