@@ -25,6 +25,15 @@
 #define _LANG_CMD_LOOK_NO_ENVIRONMENT "You are nowhere... you can't see a thing.\n"
 #define _LANG_CMD_LOOK_BLINDED "You can't see a thing. ¡You are blinded!\n"
 
+// glance
+
+#define _LANG_CMD_GLANCE_ALIAS ({ "glance "})
+#define _LANG_CMD_GLANCE_SYNTAX "glance [<item>]"
+#define _LANG_CMD_GLANCE_HELP "Returns a short description of an item or the place where you are."
+#define _LANG_CMD_LOOK_TOO_DARK "It's too dark to see something.\n"
+#define _LANG_CMD_LOOK_TOO_BRIGHT "It's too bright, you cannot see.\n"
+#define _LANG_CMD_GLANCE_YOURSELF ", it is yourself!\n"
+
 // prompt
 
 #define _LANG_PROMPT_CLEAN "clean"

@@ -4,22 +4,15 @@
 
 #include <common/properties.h>
 #include <areas/weather.h>
+#include <language.h>
 
 inherit CMD_BASE;
 
 void setup()
 {
-  position = 0;
-}
-
-string query_usage()
-{
-  return "ojear [<objeto>]";
-}
-
-string query_short_help()
-{
-  return "Devuelve una descripción corta de un objeto o del lugar donde estás.";     
+  set_aliases(_LANG_CMD_GLANCE_ALIAS);
+  set_usage(_LANG_CMD_GLANCE_SYNTAX);
+  set_help(_LANG_CMD_GLANCE_HELP);
 }
 
 static int cmd (string arg, object me, string verb)
@@ -32,13 +25,13 @@ static int cmd (string arg, object me, string verb)
 
   if (!here)
   { 
-    notify_fail("Estás en el limbo, no puedes ver nada.\n");
+    notify_fail(_LANG_CMD_LOOK_NO_ENVIRONMENT);
     return 0;
   }
 
   if (me->query_property(BLIND_PROP))
   {
-    notify_fail("¡Estás cegado, no puedes ver nada!\n");
+    notify_fail(_LANG_CMD_LOOK_BLINDED);
     return 0;
   }
 
@@ -47,18 +40,18 @@ static int cmd (string arg, object me, string verb)
   if (!strlen(arg))
   {
     if (me->query_coder())
-       tell_object(me, file_name(here) + "\n");
+      tell_object(me, file_name(here) + "\n");
 
     ret = "";
 
     switch(dark)
     {
       case 1:
-        tell_object(me, "Está demasiado oscuro como para ver algo.\n");
+        tell_object(me, _LANG_CMD_LOOK_TOO_DARK);
         break;
 
       case 6:
-        tell_object(me, "Estás deslumbrado por la luz.\n");
+        tell_object(me, _LANG_CMD_LOOK_TOO_BRIGHT);
         break;
 
       case 2:
@@ -72,8 +65,8 @@ static int cmd (string arg, object me, string verb)
 
       case 3:
       case 4:
-        // En este caso NO se ven las salidas, pero con un 'mirar' si se ven
-        //  (representa que el mirar es mas detallado!!)
+        // in this case we do not see the exits, but they do with "look"
+        // because the look is more detailed
         if (here->query_dirs_string() != "")
           ret = (string)here->short(dark) + ".\n";
         else
@@ -92,7 +85,7 @@ static int cmd (string arg, object me, string verb)
   /*
   if (!sscanf(arg, "a %s", arg))
   {
-     notify_fail("Glance a algo!\n");
+     notify_fail("Glance something!\n");
      return 0;
   }
   */ 
@@ -103,16 +96,15 @@ static int cmd (string arg, object me, string verb)
     for (i = 0; i < sizeof(ob); i++)
       // Wonderflug - Nov '95
       if (me == ob[i]) 
-        tell_object(me, capitalize(ob[i]->query_cap_name())+
-          ", ¡Eres tú mismo!\n");
+        tell_object(me, capitalize(ob[i]->query_cap_name()) + _LANG_CMD_GLANCE_YOURSELF);
       else
         tell_object(me, ob[i]->short(dark) + ".\n");
     return 1;
   }
   else
   {
-    tell_object(me, "No puedes encontrar ningún '"+arg+"' por aquí.\n");
-    // notify_fail("No puedes encontrar "+arg+" por aqui.\n");
+    tell_object(me, _LANG_CMD_NOTHING_HERE);
+    // notify_fail(_LANG_CMD_NOTHING_HERE);
     return 1;
   }
   return 0;
