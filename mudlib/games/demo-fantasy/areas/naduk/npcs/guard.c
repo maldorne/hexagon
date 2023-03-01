@@ -37,8 +37,8 @@ void setup()
       1, _LANG_NPCS_GUARD_A_CHAT[2]
     }));
 
-  add_clone(BASEOBS + "armours/chainmail.c", 1);
-  add_clone(BASEOBS + "weapons/long_sword.c", 1);
-  add_clone(BASEOBS + "shields/small_wooden_shield.c", 1);
+  add_clone(BASEOBS + "armours/chain_mail", 1);
+  add_clone(BASEOBS + "weapons/long_sword", 1);
+  add_clone(BASEOBS + "shields/small_wooden_shield", 1);
   init_equip();
 }

@@ -36,7 +36,7 @@ void setup()
     1, _LANG_NPCS_BARMAN_A_CHAT[0],
   }));
 
-  add_clone(BASEOBS + "/weapons/club", 1);
-  add_clone(BASEOBS + "/armours/chainmail", 1);
+  add_clone(BASEOBS + "weapons/club", 1);
+  add_clone(BASEOBS + "armours/chain_mail", 1);
   init_equip();
 } 

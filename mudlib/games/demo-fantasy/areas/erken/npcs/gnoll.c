@@ -30,8 +30,8 @@ void setup()
       1, _LANG_NPCS_GNOLL_A_CHAT[1]
     }));
 
-  add_clone(BASEOBS + "weapons/hand_axe.c", 1);
-  add_clone(BASEOBS + "armours/leather.c", 1);
+  add_clone(BASEOBS + "weapons/hand_axe", 1);
+  add_clone(BASEOBS + "armours/leather", 1);
   init_equip();
 
   add_move_zone("goblin_road");

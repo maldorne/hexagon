@@ -36,7 +36,7 @@ void setup()
 
 
   add_clone(BASEOBS + "weapons/scimitar", 1);
-  add_clone(BASEOBS + "armours/chainmail", 1);
+  add_clone(BASEOBS + "armours/chain_mail", 1);
   add_clone(BASEOBS + "armours/helmet", 1);
   init_equip();
 }

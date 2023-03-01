@@ -29,8 +29,8 @@ void setup()
   set_move_after(10, 10);
   set_heart_beat(1);
 
-  add_clone(BASEOBS + "weapons/dagger.c", 1);
-  add_clone(BASEOBS + "armours/leather.c", 1);
+  add_clone(BASEOBS + "weapons/dagger", 1);
+  add_clone(BASEOBS + "armours/leather", 1);
 
   // set_skill("dodge", 100);
   // set_skill("knife", 100);

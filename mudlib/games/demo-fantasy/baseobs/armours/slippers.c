@@ -14,4 +14,7 @@ void setup()
   add_plural(pluralize(_LANG_BASEOBS_SLIPPERS));
 
   set_long(_LANG_BASEOBS_SLIPPERS_LONG);
+
+  // in spanish
+  set_gender(2);
 } 

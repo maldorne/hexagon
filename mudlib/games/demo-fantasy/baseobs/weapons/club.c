@@ -16,5 +16,5 @@ void setup()
   set_long(_LANG_BASEOBS_CLUB_LONG);
 
   // in spanish
-  set_gender(0);
+  set_gender(1);
 } 

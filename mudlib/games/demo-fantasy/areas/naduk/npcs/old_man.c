@@ -34,6 +34,6 @@ void setup()
     1, _LANG_NPCS_OLD_MAN_CHAT[2],
   }));
 
-  add_clone(BASEOBS + "armours/cloak.c", 1);
+  add_clone(BASEOBS + "armours/cloak", 1);
   init_equip();
 } 

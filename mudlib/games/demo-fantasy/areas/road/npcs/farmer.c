@@ -30,7 +30,7 @@ void setup()
       1, _LANG_NPCS_FARMER_CHAT[1]
     }));
 
-  add_clone("/baseobs/weapons/club", 1);
+  add_clone(BASEOBS + "weapons/club", 1);
   init_equip();
 }
 
