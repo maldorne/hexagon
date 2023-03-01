@@ -295,7 +295,7 @@ string query_living_contents(int self)
                                               // to query_short
 
   if (sizeof(wpn))
-    strs += ({ sprintf( "%-11s", _LANG_EQUIP_WIELDING), capitalize(query_multiple_short(wpn, 1)) + "."});
+    strs += ({ sprintf( "%-13s", _LANG_EQUIP_WIELDING), capitalize(query_multiple_short(wpn, 1)) + "."});
 
   // Guess first weapon is in the right/main hand and second in the left/seconday hand:
   // if (sizeof(wpn)){
@@ -311,7 +311,7 @@ string query_living_contents(int self)
   // }
 
   if (sizeof(held))
-    strs += ({ sprintf( "%-11s", _LANG_EQUIP_HOLDING), capitalize(query_multiple_short(held, 1)) + "."});
+    strs += ({ sprintf( "%-13s", _LANG_EQUIP_HOLDING), capitalize(query_multiple_short(held, 1)) + "."});
 
   if (sizeof(worn))
   {
@@ -323,7 +323,7 @@ string query_living_contents(int self)
     if (ret != "")
       ret += ".";
 
-    strs += ({ sprintf( "%-11s", _LANG_EQUIP_WEARING), ret });
+    strs += ({ sprintf( "%-13s", _LANG_EQUIP_WEARING), ret });
 
     col = 0;
     wpn = ({ });
@@ -341,20 +341,20 @@ string query_living_contents(int self)
       if (sizeof(wpn))
       {
         if (armour_type_locations[i] != TIED_OBJECT)
-          strs += ({ sprintf( "%-11s", " * " + armour_type_locations[i] ), query_multiple_short(wpn, 1) + ".", });
+          strs += ({ sprintf( "%-13s", " * " + armour_type_locations[i] ), query_multiple_short(wpn, 1) + ".", });
         else
-          strs += ({ sprintf( "%-11s", _LANG_EQUIP_TIED), query_multiple_short(wpn, 1) + ".", });
+          strs += ({ sprintf( "%-13s", _LANG_EQUIP_TIED), query_multiple_short(wpn, 1) + ".", });
       }
     }
   }
 
   if (sizeof(carry) && (self != 2))
-    strs += ({ sprintf( "%-11s", _LANG_EQUIP_CARRYING), query_multiple_short(carry, 1) + "." });
+    strs += ({ sprintf( "%-13s", _LANG_EQUIP_CARRYING), query_multiple_short(carry, 1) + "." });
 
   for (i = 0; i < sizeof(strs); i++)
   {
     s += strs[i] + ": " + strs[++i] + "\n";
-    // s += sprintf("%11-=s: %-=*s", strs[i], col,
+    // s += sprintf("%13-=s: %-=*s", strs[i], col,
     //           capitalize(strs[++i])) + "\n";
   }
 
