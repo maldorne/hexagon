@@ -21,15 +21,15 @@ static string current_verb;  // Used by query_verb() efun
 void create()
 {
   cmd_dirs = ([
-       "/lib/cmds/user/"   : ({ USER_CMD,    "User" }),
-       "/lib/cmds/player/" : ({ PLAYER_CMD,  "Player" }),
-      "/game/cmds/player/" : ({ PLAYER_CMD,  "Player" }),
-       "/lib/cmds/coder/"  : ({ CODER_CMD,   "Coder" }),
-      "/game/cmds/coder/"  : ({ CODER_CMD,   "Coder" }),
-       "/lib/cmds/admin/"  : ({ ADMIN_CMD,   "Administrator" }),
-      "/game/cmds/admin/"  : ({ ADMIN_CMD,   "Administrator" }),
-      // "/net/cmds/":              ({ 0,   "InterMUD network" }),
-      "/lib/cmds/meta/"    : ({ ADMIN_CMD,   "Command handler" }),
+       "/lib/cmds/user/"   : ({ USER_CMD,    CMD_CATEGORY_USER }),
+       "/lib/cmds/player/" : ({ PLAYER_CMD,  CMD_CATEGORY_PLAYER }),
+      "/game/cmds/player/" : ({ PLAYER_CMD,  CMD_CATEGORY_PLAYER }),
+       "/lib/cmds/coder/"  : ({ CODER_CMD,   CMD_CATEGORY_CODER }),
+      "/game/cmds/coder/"  : ({ CODER_CMD,   CMD_CATEGORY_CODER }),
+       "/lib/cmds/admin/"  : ({ ADMIN_CMD,   CMD_CATEGORY_ADMIN }),
+      "/game/cmds/admin/"  : ({ ADMIN_CMD,   CMD_CATEGORY_ADMIN }),
+      // "/net/cmds/":              ({ 0,   CMD_CATEGORY_NET }),
+      "/lib/cmds/meta/"    : ({ ADMIN_CMD,   CMD_CATEGORY_HANDLER }),
     ]);
 
   cmd_hash = ([ ]);

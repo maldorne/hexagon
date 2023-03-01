@@ -63,3 +63,4 @@
 #define _LANG_CMD_COMMANDS_SYNTAX "comandos [-l]"
 #define _LANG_CMD_COMMANDS_HELP "Muestra todos los comandos que tienes disponibles.\n" + \
                                 "comandos -l para una lista con más información."
+#define _LANG_CMD_COMMANDS_CATEGORY_MSG "\n%^GREEN%^Comandos de " + categories[i] + ":%^RESET%^\n"

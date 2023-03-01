@@ -62,3 +62,4 @@
 #define _LANG_CMD_COMMANDS_SYNTAX "commands [-l]"
 #define _LANG_CMD_COMMANDS_HELP "Show every command available.\n" + \
                                 "commands -l to include more information.\n"
+#define _LANG_CMD_COMMANDS_CATEGORY_MSG "\n%^GREEN%^" + capitalize(categories[i]) + " commands:%^RESET%^\n"
