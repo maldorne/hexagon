@@ -24,3 +24,9 @@
 
 #define _LANG_NO_HOMEDIR "No tienes homedir. Usa 'homedir <directorio>' para establecerlo.\n"
 #define _LANG_HOMEDIR_SET "Homedir establecido en '"+home_dir+"'.\n"
+
+// login_role
+
+#define _LANG_LOGIN_ROLE_CLEAR_ACTIONS ({ "clear", "cls" })
+#define _LANG_LOGIN_ROLE_SAVE_ACTIONS ({ "salvar", "grabar" })
+#define _LANG_LOGIN_ROLE_QUIT_ACTIONS ({ "salir" })

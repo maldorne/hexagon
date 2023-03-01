@@ -75,3 +75,12 @@
 #define _LANG_CMD_COMMANDS_HELP "Show every command available.\n" + \
                                 "commands -l to include more information.\n"
 #define _LANG_CMD_COMMANDS_CATEGORY_MSG "\n%^GREEN%^" + capitalize(categories[i]) + " commands:%^RESET%^\n"
+
+// retire
+
+#define _LANG_CMD_RETIRE_ALIAS ({ "retire" })
+#define _LANG_CMD_RETIRE_SYNTAX "retire"
+#define _LANG_CMD_RETIRE_HELP "Delete all your data and your character."
+#define _LANG_CMD_RETIRE_GUEST "You are a guest in " + mud_name() + ".\n" + \
+        "You don't have a character, so you cannot retire yet.\n"
+

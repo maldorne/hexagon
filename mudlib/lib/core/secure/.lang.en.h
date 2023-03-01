@@ -45,3 +45,14 @@
             ((mail_stat["total"]==1)?"":"s")
 #define _LANG_FINGER_MAIL_UNREAD_MAILS ", "+mail_stat["unread"]+" unread.\n"
 #define _LANG_FINGER_PLAN "   Plan: "
+
+// retire
+
+#define _LANG_TRY_RETIRE_CODER "You are a programmer, you can't retire this way. Ask an administrator.\n"
+#define _LANG_TRY_RETIRE_DELETE_WARNING "%^BOLD%^This will delete your character and all your belongings.%^RESET%^\n"
+#define _LANG_TRY_RETIRE_BE_CAREFUL "Be sure of what you are doing.\nDo not enter the password if you regret.\n\n"
+#define _LANG_TRY_RETIRE_INPUT_PASSWORD "Enter your password: "
+#define _LANG_RETIRE_NO_PASSWORD "Without password you can't retire.\n"
+#define _LANG_RETIRE_WRONG_PASSWORD "Wrong password, you can't retire.\n"
+#define _LANG_RETIRE_OK "Ok, you have deleted your character, " + name + ".\n"
+#define _LANG_RETIRE_GUEST_MSG "Now you are a guest.\nExit the game to delete your character definitively.\n"

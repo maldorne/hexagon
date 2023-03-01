@@ -6,8 +6,7 @@
 */
 
 #include <mud/secure.h>
-
-#define POSTAL_D "/obj/handlers/postal_d"
+#include <files/postal.h>
 
 int create_creator(string s);
 int demote_creator(string s);

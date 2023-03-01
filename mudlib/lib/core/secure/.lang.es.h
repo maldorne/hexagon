@@ -48,3 +48,14 @@
             ((mail_stat["total"]==1)?"":"s")
 #define _LANG_FINGER_MAIL_UNREAD_MAILS ", "+mail_stat["unread"]+" sin leer.\n"
 #define _LANG_FINGER_PLAN "   Plan: "
+
+// retire
+
+#define _LANG_TRY_RETIRE_CODER "Eres un programador, no puedes retirarte de este modo. Pregúntale a un administrador.\n"
+#define _LANG_TRY_RETIRE_DELETE_WARNING "%^BOLD%^Esto borrará el personaje con el que estás jugando.%^RESET%^\n"
+#define _LANG_TRY_RETIRE_BE_CAREFUL "Asegúrate de saber lo que estás haciendo.\nNo introduzcas la contraseña si te arrepientes.\n\n"
+#define _LANG_TRY_RETIRE_INPUT_PASSWORD "Introduce la contraseña de tu cuenta: "
+#define _LANG_RETIRE_NO_PASSWORD "Sin contraseña no puedes retirarte.\n"
+#define _LANG_RETIRE_WRONG_PASSWORD "Contraseña equivocada, no puedes retirarte.\n"
+#define _LANG_RETIRE_OK "Ok, has borrado tu ficha, " + name + ".\n"
+#define _LANG_RETIRE_GUEST_MSG "Ahora eres un invitado.\nSal del juego para eliminar definitivamente el personaje.\n"

@@ -11,7 +11,6 @@ Trying to fix NO_NEW and add NO_GUEST
 
 // TODO mail
 // #include "mail.h"
-// #define POSTAL_D "/obj/handlers/postal_d"
 
 static string *names;
 static string def;

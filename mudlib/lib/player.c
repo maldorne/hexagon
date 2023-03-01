@@ -214,9 +214,9 @@ nomask int save_me()
   if (query_property(LOADING_PROP))
     return 0;
 
-  if (user()->query_property(GUEST_PROP))
+  if (query_property(GUEST_PROP))
   {
-    tell_object(this_object(), "Ups, l"+G_CHAR+"s invitad"+G_CHAR+"s no pueden salvar...\n");
+    tell_object(this_object(), _LANG_PLAYER_NO_GUEST_SAVE);
     return 0;
   }
 
@@ -225,7 +225,7 @@ nomask int save_me()
     return 0;
 
   if ((this_object()->query_role_name() == PLAYER_ROLE) ||
-      (member_array(query_verb(), ({ "save", "salvar", "grabar" })) != -1))
+      (member_array(query_verb(), _LANG_PLAYER_SAVE_ACTIONS) != -1))
   {
     tell_object(this_object(), _LANG_PLAYER_SAVING);
   }
@@ -309,13 +309,13 @@ void heart_beat()
 
 void run_away()
 {
-  mixed *direcs;
+  mixed * direcs;
   int i, bong;
 
   if ( this_object()->query_property(PASSED_OUT_PROP) )
   {
-    tell_object(this_object(),"No estás en condiciones de salir corriendo.\n");
-    return ;
+    tell_object(this_object(), _LANG_PLAYER_NOT_IN_CONDITIONS);
+    return;
   }
 
   direcs = (mixed *)environment()->query_dest_dir();
@@ -323,15 +323,16 @@ void run_away()
   while (!bong && sizeof(direcs))
   {
     i = random(sizeof(direcs)/2)*2;
+
     bong = this_object()->insert_action(direcs[i]);
+
     if (!bong)
       direcs = delete(direcs, i, 2);
     else
-      write("Ves a tus pies correr ante ti.\n");
+      write(_LANG_PLAYER_SEE_FEET_RUNNING);
   }
   if (!bong)
-    write("Intentaste escapar, pero no has encontrado "+
-      "ninguna salida.\n");
+    write(_LANG_PLAYER_FAILED_ESCAPE);
 }
 
 /* old glance(), neverbot 21/4/2003 */

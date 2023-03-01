@@ -68,7 +68,6 @@
 #define _LANG_WHOAMI_JOB_EACH "     " + capitalize(j_names[i]->query_short()) + \
       " de nivel " + jobs[j_names[i]][0] + ".\n";
 
-
 // commands
 
 #define _LANG_CMD_COMMANDS_ALIAS ({ "comandos "})
@@ -76,3 +75,11 @@
 #define _LANG_CMD_COMMANDS_HELP "Muestra todos los comandos que tienes disponibles.\n" + \
                                 "comandos -l para una lista con más información."
 #define _LANG_CMD_COMMANDS_CATEGORY_MSG "\n%^GREEN%^Comandos de " + categories[i] + ":%^RESET%^\n"
+
+// retire
+
+#define _LANG_CMD_RETIRE_ALIAS ({ "retirar" })
+#define _LANG_CMD_RETIRE_SYNTAX "retirar"
+#define _LANG_CMD_RETIRE_HELP "Borra todos los datos y elimina tu personaje."
+#define _LANG_CMD_RETIRE_GUEST "Eres un invitado en " + mud_name() + ".\n" + \
+        "¿Aún no tienes un personaje y ya estás pensando en retirarte?\n"

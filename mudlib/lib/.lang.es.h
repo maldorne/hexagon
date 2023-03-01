@@ -21,6 +21,11 @@
 // player.c
 
 #define _LANG_PLAYER_SAVING "Salvando...\n"
+#define _LANG_PLAYER_NO_GUEST_SAVE "Ups, l"+G_CHAR+"s invitad"+G_CHAR+"s no pueden salvar...\n"
+#define _LANG_PLAYER_SAVE_ACTIONS ({ "salvar", "grabar" })
+#define _LANG_PLAYER_NOT_IN_CONDITIONS "No estás en condiciones de salir corriendo.\n"
+#define _LANG_PLAYER_SEE_FEET_RUNNING "Ves a tus pies correr ante ti.\n"
+#define _LANG_PLAYER_FAILED_ESCAPE "Intentaste escapar, pero no has encontrado ninguna salida.\n"
 
 // item.c
 

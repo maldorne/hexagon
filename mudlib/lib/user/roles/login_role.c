@@ -1,6 +1,7 @@
 
 #include <mud/secure.h>
 #include <user/roles.h>
+#include <language.h>
 
 static object _user;
 
@@ -12,10 +13,9 @@ void create()
 
 void role_commands()
 {
-  add_action("do_clear_screen", "clear");
-
-  add_action("save", ({ "save", "salvar", "grabar" }));
-  add_action("quit", ({ "quit", "salir" }));
+  add_action("do_clear_screen", _LANG_LOGIN_ROLE_CLEAR_ACTIONS);
+  add_action("save", _LANG_LOGIN_ROLE_SAVE_ACTIONS);
+  add_action("quit", _LANG_LOGIN_ROLE_QUIT_ACTIONS);
 }
 
 static void start_role(object user)
