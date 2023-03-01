@@ -28,7 +28,7 @@
 
 // glance
 
-#define _LANG_CMD_GLANCE_ALIAS ({ "ojear "})
+#define _LANG_CMD_GLANCE_ALIAS ({ "ojear" })
 #define _LANG_CMD_GLANCE_SYNTAX "ojear [<objeto>]"
 #define _LANG_CMD_GLANCE_HELP "Devuelve una descripción corta de un objeto o del lugar donde estás."
 #define _LANG_CMD_LOOK_TOO_DARK "Está demasiado oscuro como para ver algo.\n"

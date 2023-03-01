@@ -28,7 +28,7 @@
 
 // glance
 
-#define _LANG_CMD_GLANCE_ALIAS ({ "glance "})
+#define _LANG_CMD_GLANCE_ALIAS ({ "glance" })
 #define _LANG_CMD_GLANCE_SYNTAX "glance [<item>]"
 #define _LANG_CMD_GLANCE_HELP "Returns a short description of an item or the place where you are."
 #define _LANG_CMD_LOOK_TOO_DARK "It's too dark to see something.\n"
