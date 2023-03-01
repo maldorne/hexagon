@@ -52,3 +52,15 @@
 #define _LANG_CALENDAR_BIRTHDAY_STRING month(month-1)+" the "+ordinal(day)
 #define _LANG_CALENDAR_LONG_DATETIME day(info[LT_WDAY])+", "+month(info[LT_MON])+" the "+ordinal(info[LT_MDAY])+ \
             " "+info[LT_YEAR]
+
+// postal
+
+#define _LANG_POSTAL_GROUP_CODERS "coders"
+#define _LANG_POSTAL_GROUP_ADMINS "admins"
+#define _LANG_POSTAL_GROUP_PATRONS "patrons"
+#define _LANG_POSTAL_DOES_NOT_EXIST_USER_OR_GROUP "The user or group does not exist: "+capitalize(who[i])+".\n"
+#define _LANG_POSTAL_DOES_NOT_EXIST_USER "The user does not exist: "+capitalize(g[i])+".\n"
+#define _LANG_POSTAL_NEW_MAIL "  New mail has arrived from $N\n  Subject: $S"
+#define _LANG_POSTAL_OLD_MAIL_1 "Old mail #"+low+"\n"
+#define _LANG_POSTAL_OLD_MAIL_2 "Old mails #"+low+" and "+"#"+high+"\n"
+#define _LANG_POSTAL_OLD_MAIL_3 "Old mails from #"+low+" to "+"#"+high+"\n"

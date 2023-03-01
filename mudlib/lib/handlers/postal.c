@@ -4,7 +4,9 @@
 //    "radix",
 // Added retire_user and age_mail : Radix - March 6, 1997
 
-#include <files/post.h>
+#include <mud/secure.h>
+#include <files/postal.h>
+#include <language.h>
 
 mapping *box_info;
 mapping my_groups;
@@ -23,28 +25,28 @@ void flush_files();
 
 void create()
 {
-  seteuid("Root");
+  seteuid(ROOT);
   box_info = ({});
   my_groups = ([]);
 
   mud_groups = ([
-    "programadores": ({
-      "folken", "sirio", "delie", "kundor", "brak", "derengarth",
+    _LANG_POSTAL_GROUP_CODERS: ({
+      "admin",
     }) ,
-    "administradores": ({
-      "folken",
+    _LANG_POSTAL_GROUP_ADMINS: ({
+      "admin",
     }) ,
   ]);
-  // Eliminado hasta que haya oficios definidos, neverbot 17/01/03
-  // catch(mud_groups["patrones"] = "/d/oficios/master"->query_patrons());
+  // Removed until guilds are defined, neverbot 17/01/03
+  // catch(mud_groups[_LANG_POSTAL_GROUP_PATRONS] = "/d/oficios/master"->query_patrons());
 }
 
 int valid_access(string func)
 {
-  if(geteuid(previous_object()) == "Root")
+  if (geteuid(previous_object()) == ROOT)
   return 1;
 
-  if(member_array(base_name(previous_object()), TRUSTED_MAILERS) != -1)
+  if (member_array(base_name(previous_object()), TRUSTED_MAILERS) != -1)
   return 1;
 
   log_file("illegal", "attempt to access postal daemon function "+func+" by "+
@@ -62,7 +64,7 @@ void update_post_box(string who)
 
   if (file && file != "")
   {
-    if(!sizeof(box_info) && !m_sizeof(my_groups))
+    if (!sizeof(box_info) && !m_sizeof(my_groups))
       rm(file+".o");
     else
       save_object(file);
@@ -80,11 +82,11 @@ void retire_user(string who)
   mapping m;
   int i;
 
-  if(!who)
+  if (!who)
     return;
   who = lower_case(who);
 
-  //  if(this_player() && !this_player()->query_admin() &&
+  //  if (this_player() && !this_player()->query_admin() &&
   //  this_player()->query_name() != who)
   //  return;
   update_post_box(who);
@@ -130,7 +132,7 @@ int remote_mail(string who, mapping borg)
     return 1;
 }
 
-string *expand_list(string *who)
+string * expand_list(string *who)
 {
   string *full;
   string a,b;
@@ -151,12 +153,12 @@ string *expand_list(string *who)
   else if (mud_groups[who[i]] || my_groups[who[i]])
     full += expand_group(who[i]);
   else
-    write("No existe el usuario o grupo: "+capitalize(who[i])+".\n");
+    write(_LANG_POSTAL_DOES_NOT_EXIST_USER_OR_GROUP);
   }
   return full;
 }
 
-string *expand_group(string grp)
+string * expand_group(string grp)
 {
   string *ret, *g;
   string a, b;
@@ -179,7 +181,7 @@ string *expand_group(string grp)
     else if (player_exists(g[i]))
       ret += ({ g[i] });
     else
-      write("No existe el usuario: "+capitalize(g[i])+".\n");
+      write(_LANG_POSTAL_DOES_NOT_EXIST_USER);
   }
   return ret;
 }
@@ -208,12 +210,12 @@ void remove_post(string who, string id)
 {
   int x;
 
-  if(!valid_access("remove post"))
+  if (!valid_access("remove post"))
    return;
 
   update_post_box(who = lower_case(who));
 
-  if((x = get_post_number(id)) == -1)
+  if ((x = get_post_number(id)) == -1)
     return;
 
   LETTER_D->delete_message(id, who);
@@ -226,7 +228,7 @@ static int get_post_number(string id)
 
   i = sizeof(box_info);
   while(i--)
-    if(box_info[i]["id"] == id)
+    if (box_info[i]["id"] == id)
       return i;
   return -1;
 }
@@ -241,7 +243,7 @@ mapping mail_status(string who)
   while(i--)
   {
     tot++;
-    if(!box_info[i]["read"])
+    if (!box_info[i]["read"])
       un++;
   }
   return ([ "unread":un, "total":tot ]);
@@ -259,8 +261,9 @@ void notify_online(string *who, string from, string sub)
     if (!(ob = find_player(who[i])) ||
       ((str=(string)ob->getenv("MAIL_MSG")) == "ignore"))
       continue;
+
     if (!str || str == "")
-      str = "  Nuevo mail ha llegado desde $N\n  Asunto: $S";
+      str = _LANG_POSTAL_NEW_MAIL;
 
     str = replace_string(str, "$N", capitalize(from));
     str = replace_string(str, "$S", sub);
@@ -357,14 +360,11 @@ void age_mail(string who)
   if (low)
   {
     if (low == high)
-      tell_object(find_player(who),"Mail antigüo #"+low+"\n");
+      tell_object(find_player(who),_LANG_POSTAL_OLD_MAIL_1);
+    else if (low + 1 == high)
+      tell_object(find_player(who),_LANG_POSTAL_OLD_MAIL_2);
     else
-    if (low + 1 == high)
-      tell_object(find_player(who),"Mails antigüos #"+low+" y "+
-        "#"+high+"\n");
-    else
-      tell_object(find_player(who),"Mails antigüos #"+low+" hasta"+
-        " #"+high+"\n");
+      tell_object(find_player(who),_LANG_POSTAL_OLD_MAIL_3);
   }
   return;
 }

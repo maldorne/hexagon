@@ -21,7 +21,7 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
     return;
 
   // some stupid test to make sure that the previous object is /secure/login.
-  // seteuid("Root");
+  // seteuid(ROOT);
   // set_name(bong);
 
   if (!reconnected)

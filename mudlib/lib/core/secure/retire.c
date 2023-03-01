@@ -7,7 +7,7 @@
  * Here we only do the security checks
  */
 
-#include <files/post.h>
+#include <files/postal.h>
 #include <basic/money.h>
 // #include <user/user.h>
 #include <user/player.h>
