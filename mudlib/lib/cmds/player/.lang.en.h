@@ -91,7 +91,9 @@
 #define _LANG_CMD_CONFIG_HELP "Sets various player configuration values."
 #define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'"+str+"' is not a valid category to configure.\n"
 #define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'"+str+"' is not a valid topic to configure.\n"
-#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  Topics available in " + title + ":\n"
+#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  Topics available in %^BOLD%^" + title + "%^RESET%^:\n"
 #define _LANG_CMD_CONFIG_FOR_USER this_player()->query_cap_name() + " configuration"
 #define _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR "Current configuration for "
 #define _LANG_CMD_CONFIG_UNKNOWN "Unknown"
+#define _LANG_CMD_CONFIG_USE_COMMANDS "\n  Between brackets you can see the specific command\n" + \
+        "  that you can use to get more information.\n"

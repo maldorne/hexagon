@@ -124,10 +124,12 @@ private string show_category(string title, string category)
       if (current_map[topics[i]][CONFIG_POS_TYPE] == "bool")
         result = (result ? _LANG_YES : _LANG_NO);
       
-      ret += sprintf("    %18s : %15s\n", (string)topics[i], (string)result);
+      ret += sprintf("    %18s : %15s", (string)topics[i], (string)result);
     }
     else
-      ret += sprintf("    %18s : %15s\n", (string)topics[i], "Desconocido");
+      ret += sprintf("    %18s : %15s", (string)topics[i], _LANG_CMD_CONFIG_UNKNOWN);
+
+    ret += "    [ %^GREEN%^" + current_map[topics[i]][CONFIG_POS_COMMAND] + "%^BOLD%^ ]\n";
   }
 
   return ret;
@@ -151,6 +153,8 @@ int show_all_config()
     ret += show_category(CONFIG_TABLE->query_config_translations()[categories[i]][0], 
         categories[i]);
   }
+
+  ret += _LANG_CMD_CONFIG_USE_COMMANDS;
 
   ret = handler("frames")->frame(ret, _LANG_CMD_CONFIG_FOR_USER, 
                                  this_user()->query_cols());

@@ -91,7 +91,9 @@
 #define _LANG_CMD_CONFIG_HELP "Establece diversos valores de configuración del jugador."
 #define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'"+str+"' no es una categoría válida a configurar.\n"
 #define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'"+str+"' no es un tema válido a configurar.\n"
-#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  Valores configurables dentro de "+title+":\n"
+#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  Valores configurables dentro de %^BOLD%^"+title+"%^RESET%^:\n"
 #define _LANG_CMD_CONFIG_FOR_USER "Configuración de " + this_player()->query_cap_name()
 #define _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR "Configuración actual para "
 #define _LANG_CMD_CONFIG_UNKNOWN "Desconocido"
+#define _LANG_CMD_CONFIG_USE_COMMANDS "\n. Entre corchetes se indica el comando específico\n" + \
+        "  que puedes usar para obtener más información.\n"
