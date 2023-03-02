@@ -306,7 +306,13 @@ int check_earmuffs(string type) {
 int query_inform(string what)
 {
   string * on;
+
+  // first we check if the property exists
+  if (!this_object()->query_property(INFORM_PROP))
+    return 0;
+    
   on = (string *)this_object()->query_property(INFORM_PROP);
+
   if (member_array(what, on) == -1)
     return 0;
   else
