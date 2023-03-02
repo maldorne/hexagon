@@ -5,6 +5,12 @@
 
 #include <status.h>
 
+// do not use the cron handler on start
+// usually this will be set to TRUE,
+// set to FALSE just for easier debugging purposes
+// (less objects loaded, less messages in stderr, etc)
+#define CONFIG_USE_CRON FALSE
+
 // ----------------------------------------------------------------------
 //  log features
 // ----------------------------------------------------------------------
@@ -20,7 +26,7 @@
 #define CONFIG_LOG_HEART_BEATS FALSE
 #define CONFIG_LOG_CALL_OUTS FALSE
 #define CONFIG_LOG_INITIATOR_OBJECTS FALSE
-#define CONFIG_LOG_CRONTAB TRUE
+#define CONFIG_LOG_CRONTAB FALSE
 
 // ----------------------------------------------------------------------
 //  error features

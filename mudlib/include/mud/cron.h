@@ -1,5 +1,5 @@
 
-#define CRON_HANDLER "/lib/handlers/cron.c"
+#define CRON_HANDLER "/lib/handlers/cron"
 #define CRONTAB "/save/crontab"
 
 #define CRONTAB_MINUTES 0

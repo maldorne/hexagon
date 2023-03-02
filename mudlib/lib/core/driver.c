@@ -87,7 +87,9 @@ static nomask void initialize()
   ::call_other(object_h = load_object(OBJECT_HANDLER), "???");
   ::call_other(binary_h = load_object(BINARY_HANDLER), "???");
   ::call_other(load_object(TERM_HANDLER), "???");
-  ::call_other(load_object(CRON_HANDLER), "???");
+
+  if (CONFIG_USE_CRON)
+    ::call_other(load_object(CRON_HANDLER), "???");
 
   load_object(LOGIN_OB);
 
