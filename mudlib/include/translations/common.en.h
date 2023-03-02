@@ -7,6 +7,12 @@
 #define _LANG_AND "and"
 #define _LANG_SYNTAX "Syntax"
 
+#define _LANG_YES "yes"
+#define _LANG_NO "no"
+
+#define _LANG_AFFIRMATIVE_OPTIONS ({ "y", "yes", "yeah", "yep", "yup", "sure", "ok", "okay" })
+#define _LANG_NEGATIVE_OPTIONS ({ "n", "no", "not", "don't", "dont", "nope" })
+
 // numbers
 
 #define _LANG_ORDINAL_CONVERSION switch(number) { case 11: \

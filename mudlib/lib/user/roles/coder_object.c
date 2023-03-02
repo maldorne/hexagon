@@ -386,13 +386,6 @@ int do_a_call(string str)
   return 1;
 } /* do_a_call() */
 
-// returns true if s is a 'yes' equiv response
-int affirmative(string s)
-{
-  s = lower_case(s);
-  return (s == "y" || s == "s" || s == "si" || s == "ok" || s == "please");
-} /* affirmative() */
-
 void ask_dest()
 {
   if (!pointerp(dest_obj) || objn >= sizeof(dest_obj))

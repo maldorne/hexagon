@@ -7,6 +7,12 @@
 #define _LANG_AND "y"
 #define _LANG_SYNTAX "Sintaxis"
 
+#define _LANG_YES "sí"
+#define _LANG_NO "no"
+
+#define _LANG_AFFIRMATIVE_OPTIONS ({ "s", "sí", "si", "ok", "okay", "okey" })
+#define _LANG_NEGATIVE_OPTIONS ({ "n", "no", "nope" })
+
 // numbers
 
 #define _LANG_ORDINAL_CONVERSION  return ("" + number + "º")

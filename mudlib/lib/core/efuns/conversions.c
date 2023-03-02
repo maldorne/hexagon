@@ -3,8 +3,25 @@
 #include "conversions/ord.c"
 #include "conversions/ordinal.c"
 #include "conversions/to_string.c"
+#include "conversions/to_int.c"
 #include "conversions/print_object.c"
 #include "conversions/number_as_string.c"
+
+#include <mud/translations.h>
+
+// returns true if s is a 'yes' equiv response
+int affirmative(string s)
+{
+  // s = lower_case(s);
+  return (member_array(s, _LANG_AFFIRMATIVE_OPTIONS) != -1);
+}
+
+// returns true if s is a 'no' equiv response
+int negative(string s)
+{
+  // s = lower_case(s);
+  return (member_array(s, _LANG_NEGATIVE_OPTIONS ) != -1);
+}
 
 // flag = use pretty_short() if is a list of objects instead of just short()
 static string query_multiple_short(mixed *obs, varargs int flag)
