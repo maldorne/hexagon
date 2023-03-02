@@ -84,3 +84,14 @@
 #define _LANG_CMD_RETIRE_GUEST "You are a guest in " + mud_name() + ".\n" + \
         "You don't have a character, so you cannot retire yet.\n"
 
+// configuration
+
+#define _LANG_CMD_CONFIG_ALIAS ({ "configuration", "config" })
+#define _LANG_CMD_CONFIG_SYNTAX "configuration <category> <subcategory> <value>"
+#define _LANG_CMD_CONFIG_HELP "Sets various player configuration values."
+#define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'"+str+"' is not a valid category to configure.\n"
+#define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'"+str+"' is not a valid topic to configure.\n"
+#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  Topics available in " + title + ":\n"
+#define _LANG_CMD_CONFIG_FOR_USER this_player()->query_cap_name() + " configuration"
+#define _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR "Current configuration for "
+#define _LANG_CMD_CONFIG_UNKNOWN "Unknown"

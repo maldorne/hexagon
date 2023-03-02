@@ -49,3 +49,18 @@
                                          "$attname hits $defname hard $local", \
                                          "$attanme hits $defname with fury $local", \
                                          })
+
+// configurations
+
+#define _LANG_CONFIG_TERMINAL ({ "terminal", "term" })
+#define _LANG_CONFIG_INFO ({ "information", "info" })
+#define _LANG_CONFIG_ENVIRONMENT ({ "environment", "env" })
+
+#define _LANG_CONFIG_TOPIC_TERM "type"
+#define _LANG_CONFIG_TOPIC_COLS "columns"
+#define _LANG_CONFIG_TOPIC_ROWS "rows"
+#define _LANG_CONFIG_TOPIC_MONITOR "monitor"
+#define _LANG_CONFIG_TOPIC_VERBOSE "verbose"
+#define _LANG_CONFIG_TOPIC_LOGON "logon"
+#define _LANG_CONFIG_TOPIC_HUD "hud"
+#define _LANG_CONFIG_TOPIC_STUN "stun"

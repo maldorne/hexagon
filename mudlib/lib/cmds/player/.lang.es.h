@@ -83,3 +83,15 @@
 #define _LANG_CMD_RETIRE_HELP "Borra todos los datos y elimina tu personaje."
 #define _LANG_CMD_RETIRE_GUEST "Eres un invitado en " + mud_name() + ".\n" + \
         "¿Aún no tienes un personaje y ya estás pensando en retirarte?\n"
+
+// configuration
+
+#define _LANG_CMD_CONFIG_ALIAS ({ "configuracion", "configuración", "config" })
+#define _LANG_CMD_CONFIG_SYNTAX "configuracion <categoría> <subcategoría> <valor>"
+#define _LANG_CMD_CONFIG_HELP "Establece diversos valores de configuración del jugador."
+#define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'"+str+"' no es una categoría válida a configurar.\n"
+#define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'"+str+"' no es un tema válido a configurar.\n"
+#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  Valores configurables dentro de "+title+":\n"
+#define _LANG_CMD_CONFIG_FOR_USER "Configuración de " + this_player()->query_cap_name()
+#define _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR "Configuración actual para "
+#define _LANG_CMD_CONFIG_UNKNOWN "Desconocido"

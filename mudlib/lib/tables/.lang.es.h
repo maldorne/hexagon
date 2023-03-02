@@ -49,3 +49,18 @@
                                          "$attname golpea a $defname con fuerza $local", \
                                          "$attanme golpea a $defname con furia y rabia $local", \
                                          })
+
+// configurations
+
+#define _LANG_CONFIG_TERMINAL ({ "terminal", "term" })
+#define _LANG_CONFIG_INFO ({ "información", "informacion", "info", })
+#define _LANG_CONFIG_ENVIRONMENT ({ "entorno", "ambiente" })
+
+#define _LANG_CONFIG_TOPIC_TERM "tipo"
+#define _LANG_CONFIG_TOPIC_COLS "columnas"
+#define _LANG_CONFIG_TOPIC_ROWS "filas"
+#define _LANG_CONFIG_TOPIC_MONITOR "monitor"
+#define _LANG_CONFIG_TOPIC_VERBOSE "detallada"
+#define _LANG_CONFIG_TOPIC_LOGON "logon"
+#define _LANG_CONFIG_TOPIC_HUD "apuntador"
+#define _LANG_CONFIG_TOPIC_STUN "incapacitar"
