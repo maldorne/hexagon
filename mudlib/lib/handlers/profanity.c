@@ -11,7 +11,7 @@
    'bad thing' should always be entirely lowercase.
 */
 
-string *bad_words;
+string * bad_words;
 int fsize;
 
 void read_init_file();
@@ -43,9 +43,9 @@ string clean_language(string str)
   {
     if ( (loc = strsrch(lowered, bad_words[i])) != -1 ) 
     {
-      str = str[0..loc-1] + bad_words[i+1] + 
+      str = str[0..loc-1] + bad_words[i + 1] + 
             str[loc+strlen(bad_words[i])..strlen(str)-1];
-      lowered = lowered[0..loc-1] + bad_words[i+1] + 
+      lowered = lowered[0..loc-1] + bad_words[i + 1] + 
             lowered[loc+strlen(bad_words[i])..strlen(lowered)-1];
     }
     else
@@ -81,15 +81,15 @@ void read_init_file()
 
   j = 0;  /* paranoia */
 
-  for (i=0;i<sizeof(lines);i++) 
+  for (i = 0; i < sizeof(lines); i++) 
   {
     pair = explode(lines[i], "->");
 
     if (sizeof(pair) != 2) /* Skip it */
       continue;
 
-    bad_words[j] = lower_case(implode((explode(pair[0], " ") - ({""})), " "));
-    bad_words[j+1] = implode((explode(pair[1], " ") - ({""})), " ");
+    bad_words[j] = lower_case(implode((explode(pair[0], " ") - ({ "" })), " "));
+    bad_words[j+1] = implode((explode(pair[1], " ") - ({ "" })), " ");
 
     if (bad_words[j] == bad_words[j+1])  /* remove this pair, it's bad */
       continue;
