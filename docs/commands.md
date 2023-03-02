@@ -120,7 +120,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | cobardia      |          |          |    |    |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | combates      |          |          |    |    |
-| configuracion |          |          |    |    |
+| configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | considerar    |          |          |    |    |
 | coste         |          |          |    |    |
 | detener       |          |          |    |    |
