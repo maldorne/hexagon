@@ -377,14 +377,14 @@ int weapon_attack(object def, object att)
               if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 10)
                 percent = 100;
               else
-                percent = obs[j]->query_ac_against()*10;
+                percent = obs[j]->query_ac_against(attacks[attack_names[i]][0]) * 10;
                
-              absorbed_damage = damage[0]*percent/100;
+              absorbed_damage = damage[0] * percent / 100;
             }
             
             // if the armour did not absorbed anything (equiment without ac)
             // we make full damage AND ruin the armour
-            where->hit_item((absorbed_damage > 0)?absorbed_damage:1);
+            where->hit_item((absorbed_damage > 0) ? absorbed_damage : 1);
             this_object()->hit_item(1);
             break;
           }
