@@ -2,7 +2,7 @@
  * Ok, this time it's this code I will walk through...
  * Baldrick, april '94
  * Death.c removed from combat.c to make it cleaner.
- * Retocado para Cc, neverbot 4/2003
+ * Reviewed for Cc, neverbot 4/2003
  *
  */
 
@@ -13,7 +13,7 @@
 #include <basic/money.h>
 #include <language.h>
 
-// Traido desde /global/living/living.c, neverbot 4/03
+// bring from /global/living/living.c, neverbot 4/03
 int dead;
 
 void create()
@@ -89,7 +89,7 @@ int do_death(object killed_by)
   if (!xp_adj) 
     xp_adj = 1.0;
 
-  // Informamos al atacante de que ha habido una victima
+  // inform the attacker of the death
   if (killed_by)
     killed_by->do_kill(this_object());
 
@@ -110,7 +110,7 @@ int do_death(object killed_by)
   if (this_object()->query_city_ob())
     catch(load_object(this_object()->query_city_ob())->on_death(this_object(), killed_by));
 
-  // Añadido por neverbot 3/2002, para el sistema de guerras entre ciudades
+  // added by neverbot 3/2002, for the system of wars between cities
   if (killed_by)
     if ( (killed_by->query_player() && this_object()->query_player()) &&
        (killed_by->query_citizen() && this_object()->query_citizen()) && 
@@ -140,7 +140,7 @@ int do_death(object killed_by)
     // if (!undefinedp(damage_done[attacker_list[i]]))
     //   total += damage_done[attacker_list[i]];
 
-    // Las monturas no quitan xp, neverbot 05/2009
+    // mounts do not remove xp, neverbot 05/2009
     if (!attacker_list[i]->query_ride())
       attackers++;
   }
@@ -152,7 +152,7 @@ int do_death(object killed_by)
    * It is the victims XP, so it can be added to the killer..
    * Smart, and nice.. 
    */
-  // Cambiado, ahora no se pierde toda la xp, sino un tercio
+  // changed, now you do not lose all your xp, but a third of it
   dead_xp = (int)this_object()->query_xp() / 3;
 
   if (interactive(this_object()) && dead_xp)
@@ -171,7 +171,7 @@ int do_death(object killed_by)
     // death statistic keeper... Anirudh
     attacker_xp += (int)((float)this_object()->query_kill_xp() * xp_adj/(float)attackers);
 
-  /* Que hace esto aqui?? El pk deberia dar xp... neverbot 2/04
+  /* what is this for? pk should give xp... neverbot 2/04
   if (interactive(this_object())) 
     attacker_xp = 0;
   */
@@ -184,8 +184,8 @@ int do_death(object killed_by)
     
     if (function_exists("adjust_xp", attacker_list[i]))
     {
-      // Matar npcs/save/players de menor nivel no da xp, neverbot 07/04
-      // Cambiado por un margen de hasta 2 niveles de diferencia, 03/09
+      // killing npcs/players of lower level does not give xp, neverbot 07/04
+      // changed for a margin of 2 levels, 03/09
       if (this_object()->query_level() + 2 < attacker_list[i]->query_level() )
       {
         aux_attacker_xp = 0;
@@ -208,12 +208,11 @@ int do_death(object killed_by)
       }
     
       /* -----------------------------------------------
-       * PENDIENTE: Alineamiento, mejorar esto con el tiempo
-       * neverbot, nuevo sistema de ajuste de alineamiento
-       * Aqui habra que hacer todas las comprobaciones 
-       *  cuando alguien muere, ajustes de alineamiento 
-       *  de los atacantes (real o externo si hay o no
-       *  testigos, etc).
+       * PENDING: alignment, improve this with time
+       * neverbot, new alignment adjustment system
+       * here we have to do all the checks when someone
+       * dies, alignment adjustments of attackers (real
+       * or external if there are or not witnesses, etc).
        ----------------------------------------------- */
     
       aln_at = attacker_list[i]->query_ext_align();
@@ -221,30 +220,30 @@ int do_death(object killed_by)
 
       if (ALIGN_TABLE->query_enemies(aln_at, aln_df))
       {
-        // A los malos les hacemos un 10% del alin de su 
-        //  victima mas malos, a los buenos solo el 5% de
-        //  su victima mas buenos (un bueno matando de por
-        //  si ya es ilogico).
+        // we make evil people 10% of the alignment of
+        // their victim more evil, and good people just 5% of the
+        // alignment of their victim more good (a good person 
+        // killing is already ilogical).
 
-        // Atacante bueno, victima malo
+        // attacker is good, victim is evil
         if (aln_at > 100)
           attacker_list[i]->adjust_real_align(-aln_df/20);
         else // Atacante malo, victima bueno
           attacker_list[i]->adjust_real_align(-aln_df/10);
        
       }
-      // No son enemigos, hay que hacer algo malo :(
+      // they are no enemies, we have to do something bad :(
       else
       {
-        // El atacante es bueno
+        // attacker is good
         if (aln_at > 100)
         {
           attacker_list[i]->adjust_real_align(-100);
-          // Poco a poco tambien baja el alineamiento externo
+          // time after time the external alignment goes down
           if (aln_df > 100)
             attacker_list[i]->adjust_ext_align(-5);
         }
-        else // El atacante es malo
+        else // attacker is evil
           attacker_list[i]->adjust_real_align(50);
       }
     }
@@ -438,31 +437,30 @@ static void actual_death(object initiator)
     object room;
     if (this_object()->query_real_align() < 0)
       room = load_object(LIMBO_ENTRANCE);
-      // room = load_object(HELL_ENTRANCE); PENDIENTE: Cielo e infierno completos
+      // room = load_object(HELL_ENTRANCE); Pending: heaven and hell
     else
       room = load_object(LIMBO_ENTRANCE);
-      // room = load_object(HEAVEN_ENTRANCE); PENDIENTE: Cielo e infierno completos
+      // room = load_object(HEAVEN_ENTRANCE); Pending: heaven and hell
 
     if (!room)
     {
-      tell_object(this_object(), "Por algún oscuro deseo de los poderes divinos, "+
-        "tu alma debe continuar en este plano de existencia.\n");
+      tell_object(this_object(), _LANG_DEATH_MESSAGE_NO_ROOM);
       return;
     }
       
-    tell_room(environment(this_object()), this_object()->query_cap_name()+" da un grito desgarrador "+
-      "mientras su alma abandona este mundo.\n", this_object());
-    tell_object(this_object(), "Tu espíritu se eleva sobre tu cuerpo y abandona este mundo.\n");
+    tell_room(environment(this_object()), this_object()->query_cap_name() + 
+              _LANG_DEATH_MESSAGE_ROOM, this_object());
+    tell_object(this_object(), _LANG_DEATH_MESSAGE_YOU);
     
     this_object()->move(room);
     this_object()->do_look();
 
     if (this_object()->query_real_align() < 0)
-      tell_room(room, this_object()->query_cap_name() + " llega al infierno para ser "+
-        "castigado por sus pecados en vida.\n", this_object());
-    else // PENDIENTE: hacer tambien el cielo :P
-      tell_room(room, this_object()->query_cap_name() + " llega al infierno para ser "+
-        "castigado por sus pecados en vida.\n", this_object());
+      tell_room(room, this_object()->query_cap_name() + 
+                _LANG_DEATH_MESSAGE_ROOM_AFTER, this_object());
+    else // Pending: make heaven :P
+      tell_room(room, this_object()->query_cap_name() + 
+                _LANG_DEATH_MESSAGE_ROOM_AFTER, this_object());
   }
                            
 } /* void actual death */

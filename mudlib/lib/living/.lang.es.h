@@ -106,6 +106,11 @@
 #define _LANG_HANDLE_MY_MESS_BELONGINGS "Tus pertenencias caen de tus manos"
 #define _LANG_HANDLE_ROOM_MESS_BELONGINGS "Las pertenencias de "+this_object()->query_cap_name()+" caen de sus manos"
 
+#define _LANG_DEATH_MESSAGE_NO_ROOM "Por algún oscuro deseo de los poderes divinos, tu alma debe continuar en este plano de existencia.\n"
+#define _LANG_DEATH_MESSAGE_ROOM " da un grito desgarrador mientras su alma abandona este mundo.\n"
+#define _LANG_DEATH_MESSAGE_YOU "Tu espíritu se eleva sobre tu cuerpo y abandona este mundo.\n"
+#define _LANG_DEATH_MESSAGE_ROOM_AFTER " llega al infierno para ser castigado por sus pecados en vida.\n"
+
 // unarmed_combat.c
 
 #define _LANG_UNARMED_STYLE_COMMANDS ({ "estilo", "estilos" })
