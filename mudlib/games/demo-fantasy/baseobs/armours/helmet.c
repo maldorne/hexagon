@@ -6,6 +6,7 @@ inherit "/lib/armour.c";
 void setup()
 { 
   set_base_armour(HELMET);
+  add_alias(HELMET);
 
   set_name(_LANG_BASEOBS_HELMET);
   set_short(capitalize(_LANG_BASEOBS_HELMET));

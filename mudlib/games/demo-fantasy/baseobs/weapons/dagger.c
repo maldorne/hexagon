@@ -6,6 +6,7 @@ inherit "/lib/weapon.c";
 void setup()
 { 
   set_base_weapon(DAGGER);
+  add_alias(DAGGER);
 
   set_name(_LANG_BASEOBS_DAGGER);
   set_short(capitalize(_LANG_BASEOBS_DAGGER));

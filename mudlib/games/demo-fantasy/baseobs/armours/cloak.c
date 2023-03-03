@@ -6,6 +6,7 @@ inherit "/lib/armour.c";
 void setup()
 { 
   set_base_armour(CLOAK);
+  add_alias(CLOAK);
 
   set_name(_LANG_BASEOBS_CLOAK);
   set_short(capitalize(_LANG_BASEOBS_CLOAK));

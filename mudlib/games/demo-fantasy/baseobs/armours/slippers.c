@@ -6,6 +6,7 @@ inherit "/lib/armour.c";
 void setup()
 { 
   set_base_armour(SLIPPERS);
+  add_alias(SLIPPERS);
 
   set_name(_LANG_BASEOBS_SLIPPERS);
   set_short(capitalize(_LANG_BASEOBS_SLIPPERS));

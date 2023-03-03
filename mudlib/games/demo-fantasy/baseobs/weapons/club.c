@@ -6,6 +6,7 @@ inherit "/lib/weapon.c";
 void setup()
 { 
   set_base_weapon(CLUB);
+  add_alias(CLUB);
 
   set_name(_LANG_BASEOBS_CLUB);
   set_short(capitalize(_LANG_BASEOBS_CLUB));

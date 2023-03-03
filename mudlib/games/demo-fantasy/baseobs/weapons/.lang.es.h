@@ -13,3 +13,5 @@
 
 #define _LANG_BASEOBS_HAND_AXE "hacha de mano"
 #define _LANG_BASEOBS_HAND_AXE_LONG "Un haz de mano, pequeña pero afilada.\n"
+#define _LANG_BASEOBS_HAND_AXE_ALIASES ({ "hacha", "mano" })
+#define _LANG_BASEOBS_HAND_AXE_PLURALS ({ "hachas de mano", "hachas" })

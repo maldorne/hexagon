@@ -12,9 +12,13 @@
 #define _LANG_BASEOBS_CHAIN_MAIL "chain mail"
 #define _LANG_BASEOBS_CHAIN_MAIL_LONG "An armour made of small metal rings linked " + \
       "together forming a mesh.\n"
+#define _LANG_BASEOBS_CHAIN_MAIL_ALIASES ({ "chain", "mail" })
+#define _LANG_BASEOBS_CHAIN_MAIL_PLURALS ({ "chain mails", "mails", "chains" })
 
 #define _LANG_BASEOBS_HELMET "helmet"
 #define _LANG_BASEOBS_HELMET_LONG "A metal helmet, a bit dented but functional.\n"
 
 #define _LANG_BASEOBS_LEATHER "leather armour"
 #define _LANG_BASEOBS_LEATHER_LONG "An armour made of leather pieces sewn together.\n"
+#define _LANG_BASEOBS_LEATHER_ALIASES ({ "armour", "leather" })
+#define _LANG_BASEOBS_LEATHER_PLURALS ({ "leather armours", "armours", "leathers" })

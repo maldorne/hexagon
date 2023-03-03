@@ -6,6 +6,7 @@ inherit "/lib/armour.c";
 void setup()
 { 
   set_base_armour(SHIRT);
+  add_alias(SHIRT);
 
   set_name(_LANG_BASEOBS_SHIRT);
   set_short(capitalize(_LANG_BASEOBS_SHIRT));

@@ -6,6 +6,7 @@ inherit "/lib/weapon.c";
 void setup()
 { 
   set_base_weapon(SCIMITAR);
+  add_alias(SCIMITAR);
 
   set_name(_LANG_BASEOBS_SCIMITAR);
   set_short(capitalize(_LANG_BASEOBS_SCIMITAR));
