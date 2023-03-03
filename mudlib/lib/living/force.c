@@ -5,8 +5,9 @@
  * it will be used to be more in the style of asking things to do things,
  * rather than the making things do things without asking them first.
  *
- * neverbot limpiando codigo. Dejo el do_force_on_me y lo necesario, elimino las
- * variables y la posibilidad de impedir forces. Quito el add_action force tambien.
+ * neverbot cleaning code, i leave the do_force_on_me
+ * remove variables and the possibility of preventing forces
+ * remove the force action too
  */
 
 #define LOG_FORCE "force" 

@@ -1,15 +1,15 @@
 /* 
- * Funciones de ciudadania extraidas, neverbot 4/2003
- * Nuevo alineamiento, neverbot 27/4/03
- * Eliminado it_them
- * Mejorada la herencia en general, neverbot 6/03
- * Nuevo sistema de combate para CcMud, neverbot 6/03
+ * citizenship functions extracted, neverbot 4/2003
+ * new alignment, neverbot 27/4/03
+ * it_them removed
+ * inheritance improved in general, neverbot 6/03
+ * new combat system for CcMud, neverbot 6/03
  *
- * Traida a este archivo la logica necesaria para recuperar vida, haciendola comun
- *   a players y npcs (antiguos monster::heart_beat y player::heart_beat, 
- *   ahora living::heart_beat()), neverbot 04/09
+ * bring to his file the needed logic for recovering life, making it common
+ * to players and npcs (old monster::heart_beat and player::heart_beat,
+ * now living::heart_beat()), neverbot 04/09
  *
- * Añadido do_death para los npcs o players de quest, neverbot 03/09
+ * do_death added for npcs and players, neverbot 03/09
  */
 
 #include <living/food.h>
@@ -127,8 +127,8 @@ int adjust_money(mixed i, varargs string type) { return money::adjust_money(i, t
 // end resolving multiple instances
 
 /* 
- * Nuevo sistema de combate para CcMud, neverbot 6/03
- * Si el jugador tiene la propiedad PASSED_OUT_PROP, tiene 5 puntos menos de AC
+ * New combat system for CcMud, neverbot 6/03
+ * if the player has the PASSED_OUT_PROP, he has 5 less AC points
  */
 int query_total_ac(varargs int type)
 {
@@ -147,11 +147,11 @@ int query_total_ac(varargs int type)
   else
     ret += 10 + eac + bac;
 
-  // Bonificador por la caracteristica de constitucion añadido
+  // bonus by constitution characteristic added
   ret += this_object()->query_stat_bonus_to_con();
 
-  // Bonificador al AC por tamaño (de la raza)
-  // Tamaño 5 == humano
+  // bonus to ac by (race) size
+  // size 5 == humano
   if (this_object()->query_body_size() <= 3)
     ret += 1;
 
@@ -159,7 +159,7 @@ int query_total_ac(varargs int type)
 }
 
 /*
- * Nuevo sistema de combate para CcMud, neverbot 6/03
+ * New combat system for CcMud, neverbot 6/03
  */
 int query_total_wc()
 {
@@ -177,37 +177,37 @@ int query_total_wc()
   if (guild_class = this_object()->query_class_ob())
     ret += guild_class->query_combat_bonus();
 
-  // Si estamos desarmados el coeficiente es diferente
+  // if we are unarmed, the coeficient is different
   if (sizeof(obs) == 0)
   {
     ret += this_object()->query_current_unarmed_ability() / 10;
   }
-  else // Luchamos con armas
+  else // fighting with weapons
   {
-    // Añadimos la dificultad de manejo de cada arma y su enchant
+    // add the difficulty of the weapon and its enchant
     for (i = 0; i < sizeof(obs); i++)
     {
       ret -= obs[i]->query_difficulty();
       ret += obs[i]->query_enchant();
     }
 
-    // Bonificador por la maestria actual 
+    // bonus by current mastery
     mastery = this_object()->query_current_mastery_value() / 10;
     
     if (mastery <= 0) mastery = 1;
 
-    // Con multi-arma dividimos el coeficiente!!!
-    // PENDIENTE: Cuando haya alguna habilidad de combate con
-    //  varias armas habria que mejorar esto
+    // with multiple weapons we divide the mastery value
+    // Pending: when we have combat skills with multiple weapons,
+    // improve this
     mastery = mastery/sizeof(obs);
     
     ret += mastery;
   }
 
-  // Sumamos un bonificador por el nivel
-  // Cada 5 niveles (de la clase) un punto mas de wc
-  // PENDIENTE: Comprobar que no se suben demasiados niveles, si finalmente se
-  // permiten muchos niveles de clase, cambiar la division / 10
+  // add the bonus for the level
+  // every 5 class levels, a wc point is added
+  // Pending: check if we don't add too many levels, if we allow many
+  // class levels, change the division / 10
   ret += this_object()->query_level() / 5;
   return ret;
 }
@@ -238,7 +238,7 @@ void heal_gp(int i, int intox)
   return;
 }
 
-/* Hamlet -- this is so noncombat rooms can keep players from healing */
+// Hamlet -- this is so noncombat rooms can keep players from healing
 void set_no_heal() { no_heal = 1; }
 void set_heal() { no_heal = 0; }
 
@@ -259,7 +259,7 @@ void heart_beat()
   if (query_race_ob() && !(hb_counter & 31) )
     query_race_ob()->race_heartbeat(this_object());
 
-  // Clima solo a players
+  // weather only for players
   if (this_object()->query_player() && 
      ((hb_counter%5) == 0) && 
       environment(this_object()))
@@ -271,7 +271,7 @@ void heart_beat()
   // if (!(hb_counter & 31))
   //   this_object()->curses_heart_beat();
 
-  /* Sistema de regeneracion de vida actualizado, neverbot@Cc, 13/7/03 */
+  // hp regen system updated, neverbot@Cc, 13/7/03
   if ((hp_counter + query_con()) >= 22 + random(10))
     regen_hp = 1;
   if ((gp_counter + query_gp_main_stat()) >= 22 + random(10))
@@ -286,8 +286,8 @@ void heart_beat()
 
     if (query_race_ob())
     {
-      // Comprobacion racial (si la raza esta en condiciones de subir vida)
-      //  ej: drows solo en suboscuridad, etc...
+      // racial check (if the race is in a condition to regen hp)
+      //  ie: drows only in the underdark, etc...
       if (regen_hp && query_race_ob()->query_regen_hp(this_object()))
         heal_hp(regen_hp);
       if (regen_gp && query_race_ob()->query_regen_gp(this_object()))
@@ -315,14 +315,12 @@ void heart_beat()
   comm::heart_beat();
 }
 
-// Añadido para comprobar si es un npc de quest
-int do_death(object killer)
+// added to check if it is a quest npc
+int do_death(varargs object killer)
 {
   if (!killer)
     return ::do_death(killer);
   
-  // Debemos actualizar _antes_ del do_death, o este objeto ya 
-  // se habra destruido
   if (killer->is_doing_quest(base_name(this_object()), TYPE_KILL) )
     killer->update_quest(base_name(this_object()));
   else if (killer->is_doing_quest_from_name(this_object()->query_short(), TYPE_KILL) )
