@@ -29,6 +29,7 @@
  */
 
 #include <translations/weapon.h>
+#include <translations/combat.h>
 #include <living/combat.h>
 // #include <resistances.h>
 // #include <attacks.h>
