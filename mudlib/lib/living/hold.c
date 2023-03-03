@@ -175,6 +175,12 @@ int unhold_ob(object ob)
 {
   int slot;
   
+  if (this_object()->query_dead())
+  {
+    notify_fail(_LANG_CANNOT_DO_WHEN_DEAD);
+    return 0;
+  }
+  
   if ((slot = member_array(ob, held_ob)) == -1)     
   { 
     notify_fail(_LANG_HOLD_NOT_HOLDING);
@@ -214,6 +220,12 @@ int hold_ob(object ob)
   int weap_hands; // hands the weapon needs.
   int slot;
   object gobj;
+
+  if (this_object()->query_dead())
+  {
+    notify_fail(_LANG_CANNOT_DO_WHEN_DEAD);
+    return 0;
+  }
 
   // Check to make sure weapon is an allowed weapon
 

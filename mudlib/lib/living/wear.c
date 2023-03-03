@@ -384,6 +384,12 @@ int do_wear(string woo)
   int i;
   int size;
 
+  if (this_object()->query_dead())
+  {
+    notify_fail(_LANG_CANNOT_DO_WHEN_DEAD);
+    return 0;
+  }
+
   if (!strlen(woo))
   {
     notify_fail(_LANG_WEAR_WHAT);
@@ -437,6 +443,12 @@ int do_unwear(string woo)
   object *boo;
   int i;
 
+  if (this_object()->query_dead())
+  {
+    notify_fail(_LANG_CANNOT_DO_WHEN_DEAD);
+    return 0;
+  }
+  
   if (!strlen(woo))
   {
     notify_fail(_LANG_UNWEAR_WHAT);

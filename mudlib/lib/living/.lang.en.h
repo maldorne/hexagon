@@ -1,4 +1,8 @@
 
+// common
+
+#define _LANG_CANNOT_DO_WHEN_DEAD "You cannot do that while you are dead.\n"
+
 // communicate.c
 
 #define _LANG_SAY_VERBS ({ "say" })

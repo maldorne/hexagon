@@ -103,6 +103,12 @@ int do_equip(string str)
   object *obs, *holds, *wears;
   int i, j;
 
+  if (this_object()->query_dead())
+  {
+    notify_fail(_LANG_CANNOT_DO_WHEN_DEAD);
+    return 0;
+  }
+
   // Assum going to tell us something about the autoequip
   if (strlen(str))
   {
