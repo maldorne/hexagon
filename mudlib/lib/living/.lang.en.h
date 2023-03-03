@@ -100,6 +100,11 @@
 #define _LANG_DEATH_CORPSE_DEF "Your body loses its last breaths of life"
 #define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " falls to the ground wasted"
 
+#define _LANG_HANDLE_MY_MESS_WEAPONS ", and your weapons fall to the ground."
+#define _LANG_HANDLE_ROOM_MESS_WEAPONS ", and "+this_object()->query_posessive()+" weapons fall to the ground."
+#define _LANG_HANDLE_MY_MESS_BELONGINGS "Your belongings fall from your hands"
+#define _LANG_HANDLE_ROOM_MESS_BELONGINGS this_object()->query_cap_name()+"'s belongings fall from "+this_object()->query_possessive()+" hands"
+
 // unarmed_combat.c
 
 #define _LANG_UNARMED_STYLE_COMMANDS ({ "style", "styles" })

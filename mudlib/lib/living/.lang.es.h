@@ -97,6 +97,11 @@
 #define _LANG_DEATH_CORPSE_DEF "Tu cuerpo pierde sus últimos alientos de vida"
 #define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " cae al suelo destrozad"+this_object()->query_vowel()
 
+#define _LANG_HANDLE_MY_MESS_WEAPONS ", y tus armas caen al suelo."
+#define _LANG_HANDLE_ROOM_MESS_WEAPONS ", y sus armas caen de sus manos y chocan contra el suelo"
+#define _LANG_HANDLE_MY_MESS_BELONGINGS "Tus pertenencias caen de tus manos"
+#define _LANG_HANDLE_ROOM_MESS_BELONGINGS "Las pertenencias de "+this_object()->query_cap_name()+" caen de sus manos"
+
 // unarmed_combat.c
 
 #define _LANG_UNARMED_STYLE_COMMANDS ({ "estilo", "estilos" })

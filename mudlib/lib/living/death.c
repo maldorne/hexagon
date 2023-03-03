@@ -337,16 +337,13 @@ object make_corpse()
   if (sizeof(usedstuff))
     if (stringp(my_mess)) 
     {
-      my_mess += ", y tus armas caen al suelo.";
-      room_mess += ", y sus" + 
-                   " armas caen de sus" +
-                   " manos y chocan contra el suelo";
+      my_mess += _LANG_HANDLE_MY_MESS_WEAPONS;
+      room_mess += _LANG_HANDLE_ROOM_MESS_WEAPONS;
     } 
     else 
     {
-      my_mess += "Tus pertenencias caen de tus manos";
-      room_mess += "Las pertenencias de "+this_object()->query_cap_name() + 
-                   " caen de sus manos";
+      my_mess += _LANG_HANDLE_MY_MESS_BELONGINGS;
+      room_mess += _LANG_HANDLE_ROOM_MESS_BELONGINGS;
     }
 
   for (i = 0; i < sizeof(usedstuff); i++)
