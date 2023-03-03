@@ -54,7 +54,7 @@ void create()
 
 // Dummy for now, allows death curses etc.
 // taniwha 1996
-void on_death(object player, object killer) { }
+void on_death(object player, varargs object killer) { }
 void on_kill(object player, object victim) { }
 
 int query_playable() { return is_playable; }

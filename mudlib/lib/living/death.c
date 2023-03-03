@@ -63,7 +63,7 @@ int do_kill(object victim)
 // prototypes:
 static void actual_death(object killer);
 
-int do_death(object killed_by) 
+int do_death(varargs object killed_by) 
 {
   int i, dead_xp;
   // int total;
@@ -389,7 +389,6 @@ object make_corpse()
   return corpse;
 } /* Make corpse */
 
-
 // default function for every living, will be masked in player.c
 int second_life(object corpse, object initiator) { return 0; }
 
@@ -404,13 +403,8 @@ static void actual_death(object initiator)
   corp = make_corpse();
 
   // dw if second_life returns false... do stupid things... 
-
   if (!((int)this_object()->second_life(corp, initiator))) 
   {
-    // already done in make_corpse
-    // if (corp)
-    //   corp->move(environment(this_object()));
-
     // dw dest the ones that stick around... 
     // This is slightly useless now, the stuff is in the corpse
     // Good for the stuff that for some reason couldn't be moved tho

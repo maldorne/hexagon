@@ -38,7 +38,7 @@ nomask int second_life(object corpse, object initiator)
 
   remove_call_outed();
 
-  tell_room(environment(this_object(), _LANG_DEATH_KILLED));
+  tell_room(environment(this_object()), _LANG_DEATH_KILLED);
 
   hp = 0;
   gp = 0;
@@ -91,7 +91,7 @@ void remove_ghost()
   }
 
   tell_object(this_object(), _LANG_DEATH_RAISED_ME);
-  tell_room(environment(this_object(), _LANG_DEATH_RAISED_ROOM));
+  tell_room(environment(this_object()), _LANG_DEATH_RAISED_ROOM);
 
   this_object()->dest_death_shadow();
 

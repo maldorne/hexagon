@@ -80,7 +80,7 @@ void start_player(object pl)
          pl->add_known_command(class_commands[i]);
 }
 
-void on_death(object player, object killer)
+void on_death(object player, varargs object killer)
 {
 }
 

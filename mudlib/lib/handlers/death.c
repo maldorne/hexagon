@@ -557,7 +557,7 @@ void mud_death(object victim, object enemy)
    return;
 }
 
-float update_statistics(object victim, object enemy)
+float update_statistics(object victim, varargs object enemy)
 {
    string create_name;
 
@@ -592,5 +592,6 @@ float update_statistics(object victim, object enemy)
       if (interactive(victim) && interactive(enemy))
          catch(PKHAND->update_player_killed(victim, enemy));
   }
+  
   return 1.0;
 }

@@ -44,7 +44,7 @@ void start_player(object pl)
 */         
 }
 
-void on_death(object player, object killer)
+void on_death(object player, varargs object killer)
 {
 }
 
