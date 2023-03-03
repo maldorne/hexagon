@@ -54,6 +54,6 @@
 #define _LANG_WEAPON_PARRY_MSG_DEFENDER " intenta golpearte pero logras bloquear su ataque con tu ";
 #define _LANG_WEAPON_PARRY_MSG_ROOM " trata de golpear a ";
 #define _LANG_WEAPON_PARRY_MSG_ROOM_END " pero "+defender->query_demonstrative()+" bloquea el ataque con su ";
-#define _LANG_WEAPON_NO_HIT "No consigues golpear a"
+#define _LANG_WEAPON_NO_HIT "No consigues golpear a "
 #define _LANG_WEAPON_NOT_HIT " no consigue golpearte."
 #define _LANG_WEAPON_NO_HIT_ROOM " no consigue golpear a "

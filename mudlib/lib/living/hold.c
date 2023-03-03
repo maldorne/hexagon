@@ -12,7 +12,7 @@
  */
 
 #include <translations/armour.h>
-#include <living/combat.h> // ac types for weapons
+#include <translations/combat.h> // ac types for clothing
 #include <language.h>
 
 private mixed * held_ob;

@@ -14,6 +14,7 @@ inherit "/lib/item.c";
 
 #include <translations/races.h>
 #include <translations/common.h>
+#include <translations/combat.h> // ac types
 #include <language.h>
 
 int enchant;

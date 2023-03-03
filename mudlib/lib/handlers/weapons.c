@@ -20,6 +20,8 @@ mixed query_message(int damage,
   msg_me = msg_him = msg_env = "";
   msg_him = msg_env = attacker->query_cap_name();
  
+  // 1. you pierce
+
   switch (attack_type) 
   {
     case SLASHING:
@@ -56,6 +58,48 @@ mixed query_message(int damage,
       break;
   }
 
+  // 2. you pierce john
+
+  msg_me  += _LANG_WEAPONS_WHO_ME;
+  msg_him += _LANG_WEAPONS_WHO_HIM;
+  msg_env += _LANG_WEAPONS_WHO_ENV;
+
+  // if we have the object that hits
+  if (where)
+  {
+    if (relative)
+    {
+      // 3. you pierce john in his armour
+
+      msg_me  += _LANG_WEAPONS_WHERE_RELATIVE_ME;
+      msg_him += _LANG_WEAPONS_WHERE_RELATIVE_HIM;
+      msg_env += _LANG_WEAPONS_WHERE_RELATIVE_ENV;
+    }
+    else
+    {
+      // 3. you burn john's armour
+
+      msg_me  += _LANG_WEAPONS_WHERE_ME;
+      msg_him += _LANG_WEAPONS_WHERE_HIM;
+      msg_env += _LANG_WEAPONS_WHERE_ENV;
+    }
+  }
+  // do not have the object but we have the localization
+  else if (localization && (localization != ""))
+  {
+    // 3. you pierce john in his arm
+
+    msg_me  += _LANG_WEAPONS_LOC_ME;
+    msg_him += _LANG_WEAPONS_LOC_HIM;
+    msg_env += _LANG_WEAPONS_LOC_ENV;
+  }
+  // do not have object nor localization
+  // else
+  // {
+  //   msg_me  += _LANG_WEAPONS_NO_LOC_ME;
+  //   msg_env += _LANG_WEAPONS_NO_LOC_ENV;
+  // }
+
   aux = "";
 
   if (relative)
@@ -76,39 +120,11 @@ mixed query_message(int damage,
       }
   }
 
-  msg_me += aux;
+  // 4. you pierce john in his armour weakly
+
+  msg_me  += aux;
   msg_him += aux;
   msg_env += aux;
-
-  // if we have the object that hits
-  if (where)
-  {
-    if (relative)
-    {
-      msg_me  += _LANG_WEAPONS_WHERE_RELATIVE_ME;
-      msg_him += _LANG_WEAPONS_WHERE_RELATIVE_HIM;
-      msg_env += _LANG_WEAPONS_WHERE_RELATIVE_ENV;
-    }
-    else
-    {
-      msg_me  += _LANG_WEAPONS_WHERE_ME;
-      msg_him += _LANG_WEAPONS_WHERE_HIM;
-      msg_env += _LANG_WEAPONS_WHERE_ENV;
-    }
-  }
-  // do not have the object but we have the localization
-  else if (localization && (localization != ""))
-  {
-    msg_me  += _LANG_WEAPONS_LOC_ME;
-    msg_him += _LANG_WEAPONS_LOC_HIM;
-    msg_env += _LANG_WEAPONS_LOC_ENV;
-  }
-  // do not have object nor localization
-  else
-  {
-    msg_me  += _LANG_WEAPONS_NO_LOC_ME;
-    msg_env += _LANG_WEAPONS_NO_LOC_ENV;
-  }
 
   // relative damage
   i = (100 * (defender->query_hp() - damage)) / defender->query_max_hp();
@@ -141,9 +157,11 @@ mixed query_message(int damage,
       }
   }
 
-  msg_me  += ".\n";
-  msg_him += ".\n";
-  msg_env += ".\n";
+  // 5. you pierce john in his armour weakly, making only scratches
+
+  msg_me  += aux + ".\n";
+  msg_him += aux + ".\n";
+  msg_env += aux + ".\n";
 
   return ({ msg_me, msg_him, msg_env });  
 }

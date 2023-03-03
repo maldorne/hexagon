@@ -15,7 +15,7 @@
 #include <living/food.h>
 #include <common/quests.h>
 #include <common/properties.h>
-#include <living/combat.h>
+#include <translations/combat.h>
 
 inherit alignment "/lib/core/basic/alignment";
 inherit death     "/lib/living/death";

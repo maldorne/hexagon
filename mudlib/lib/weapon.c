@@ -454,7 +454,7 @@ int weapon_attack(object def, object att)
       }
       else // attacker fails
       {
-        tell_object(attacker, _LANG_WEAPON_NO_HIT + " " + defender->query_cap_name() + ".\n");
+        tell_object(attacker, _LANG_WEAPON_NO_HIT + defender->query_cap_name() + ".\n");
         tell_object(defender, attacker->query_cap_name() + _LANG_WEAPON_NOT_HIT + "\n");
         tell_room(environment(attacker), attacker->query_cap_name() + 
                   _LANG_WEAPON_NO_HIT_ROOM + defender->query_cap_name() + 

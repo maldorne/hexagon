@@ -16,7 +16,7 @@
 #include <basic/money.h>
 #include <common/properties.h>
 #include <translations/equip.h>
-#include <living/combat.h> // ac types
+#include <translations/combat.h> // ac types
 #include <language.h>
 
 inherit wear "/lib/living/wear";

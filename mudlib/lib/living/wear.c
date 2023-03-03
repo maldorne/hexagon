@@ -19,7 +19,7 @@
 
 #include <common/properties.h>
 #include <translations/armour.h>
-#include <living/combat.h> // ac types for clothing
+#include <translations/combat.h> // ac types for clothing
 #include <language.h>
 
 #define MAXTYPES 20

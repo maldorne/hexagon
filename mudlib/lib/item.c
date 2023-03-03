@@ -57,7 +57,7 @@ inherit read_desc "/lib/core/basic/read_desc";
 #include <common/properties.h>
 #include <basic/condition.h>
 #include <living/social.h>
-#include <basic/resistances.h>
+#include <translations/combat.h> // resistances definitions
 #include <language.h>
 
 int wearable;

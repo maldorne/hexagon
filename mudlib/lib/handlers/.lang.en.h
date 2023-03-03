@@ -93,32 +93,36 @@
 #define _LANG_WEAPONS_INCREDIBLE_FORCE " with an incredible force"
 #define _LANG_WEAPONS_SUPERHUMAN_FORCE " with a superhuman force"
 
-#define _LANG_WEAPONS_WHERE_RELATIVE_ME " "+defender->query_cap_name()+" in "+defender->query_possessive()+" "+where->query_name()
+#define _LANG_WEAPONS_WHO_ME " "+defender->query_cap_name()
+#define _LANG_WEAPONS_WHO_HIM ""
+#define _LANG_WEAPONS_WHO_ENV " "+defender->query_cap_name()
+
+#define _LANG_WEAPONS_WHERE_RELATIVE_ME " in "+defender->query_possessive()+" "+where->query_name()
 #define _LANG_WEAPONS_WHERE_RELATIVE_HIM " in your "+where->query_name()
-#define _LANG_WEAPONS_WHERE_RELATIVE_ENV " "+defender->query_cap_name()+" in "+defender->query_possessive()+" "+where->query_name()
+#define _LANG_WEAPONS_WHERE_RELATIVE_ENV " in "+defender->query_possessive()+" "+where->query_name()
 
 #define _LANG_WEAPONS_WHERE_ME " "+defender->query_cap_name() + "'s " + where->query_name()
 #define _LANG_WEAPONS_WHERE_HIM "r "+where->query_name()
 #define _LANG_WEAPONS_WHERE_ENV " "+defender->query_cap_name() + "'s " + where->query_name()
 
-#define _LANG_WEAPONS_LOC_ME " "+defender->query_cap_name() + " on "+localization
+#define _LANG_WEAPONS_LOC_ME " on "+localization
 #define _LANG_WEAPONS_LOC_HIM " on "+localization
-#define _LANG_WEAPONS_LOC_ENV " "+defender->query_cap_name() + " on "+localization
+#define _LANG_WEAPONS_LOC_ENV " on "+localization
 
-#define _LANG_WEAPONS_NO_LOC_ME " "+defender->query_cap_name()
-#define _LANG_WEAPONS_NO_LOC_ENV " "+defender->query_cap_name()
+// #define _LANG_WEAPONS_NO_LOC_ME " "+defender->query_cap_name()
+// #define _LANG_WEAPONS_NO_LOC_ENV " "+defender->query_cap_name()
 
-#define _LANG_WEAPONS_SLASHING_MSG_1 " making serious cuts"
-#define _LANG_WEAPONS_SLASHING_MSG_2 " provoking terrible bleeding"
-#define _LANG_WEAPONS_SLASHING_MSG_3 " making deep cuts"
-#define _LANG_WEAPONS_SLASHING_MSG_4 " leaving a bleeding wound"
-#define _LANG_WEAPONS_SLASHING_MSG_5 " leaving a light wound"
-#define _LANG_WEAPONS_SLASHING_MSG_6 " making only scratches"
-#define _LANG_WEAPONS_SLASHING_MSG_7 " leaving a mortal wound"
-#define _LANG_WEAPONS_NON_SLASHING_MSG_1 " leaving serious internal wounds"
-#define _LANG_WEAPONS_NON_SLASHING_MSG_2 " making a terrible wound"
-#define _LANG_WEAPONS_NON_SLASHING_MSG_3 " provoking terrible pain"
-#define _LANG_WEAPONS_NON_SLASHING_MSG_4 " provoking great pain"
-#define _LANG_WEAPONS_NON_SLASHING_MSG_5 " provoking serious pain"
-#define _LANG_WEAPONS_NON_SLASHING_MSG_6 " provoking light pain"
-#define _LANG_WEAPONS_NON_SLASHING_MSG_7 " provoking mortal wounds"
+#define _LANG_WEAPONS_SLASHING_MSG_1 ", making serious cuts"
+#define _LANG_WEAPONS_SLASHING_MSG_2 ", provoking terrible bleeding"
+#define _LANG_WEAPONS_SLASHING_MSG_3 ", making deep cuts"
+#define _LANG_WEAPONS_SLASHING_MSG_4 ", leaving a bleeding wound"
+#define _LANG_WEAPONS_SLASHING_MSG_5 ", leaving a light wound"
+#define _LANG_WEAPONS_SLASHING_MSG_6 ", making only scratches"
+#define _LANG_WEAPONS_SLASHING_MSG_7 ", leaving a mortal wound"
+#define _LANG_WEAPONS_NON_SLASHING_MSG_1 ", leaving serious internal wounds"
+#define _LANG_WEAPONS_NON_SLASHING_MSG_2 ", making a terrible wound"
+#define _LANG_WEAPONS_NON_SLASHING_MSG_3 ", provoking terrible pain"
+#define _LANG_WEAPONS_NON_SLASHING_MSG_4 ", provoking great pain"
+#define _LANG_WEAPONS_NON_SLASHING_MSG_5 ", provoking serious pain"
+#define _LANG_WEAPONS_NON_SLASHING_MSG_6 ", provoking light pain"
+#define _LANG_WEAPONS_NON_SLASHING_MSG_7 ", provoking mortal wounds"
