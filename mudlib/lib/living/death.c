@@ -32,7 +32,7 @@ int query_dead()
   return dead;
 }
 
-/* For compatibility: */
+// For compatibility: 
 int query_alive()
 {
   return !dead;
@@ -76,10 +76,9 @@ int do_death(varargs object killed_by)
 
   attacker_xp = 0;
 
-  /* Added to maybe fix an annoying bug..
-   * The dead on login bug..
-   * Baldrick, April '95.
-   */
+  // Added to maybe fix an annoying bug..
+  // The dead on login bug..
+  // Baldrick, April '95.
   if (this_object()->query_property(LOADING_PROP))
     return 0;
 
@@ -120,10 +119,9 @@ int do_death(varargs object killed_by)
   attacker_list = this_object()->query_attacker_list();
   call_outed = this_object()->query_call_outed();
 
-  /* Added this because 0's in the attacker/call outed list sometimes
-   * pop up and screw things up royally.  Monsters not dying, that sort of thing.
-   * --WF, apr 95
-   */
+  // Added this because 0's in the attacker/call outed list sometimes
+  // pop up and screw things up royally.  Monsters not dying, that sort of thing.
+  // --WF, apr 95
   attacker_list -= ({ nil });
   call_outed -= ({ nil });
 
@@ -148,10 +146,9 @@ int do_death(varargs object killed_by)
   for (i = 0; i < sizeof(call_outed); i++)
     call_outed[i]->stop_fight(this_object());
 
-  /* ??? where is this from ???  
-   * It is the victims XP, so it can be added to the killer..
-   * Smart, and nice.. 
-   */
+  // ??? where is this from ???  
+  // It is the victims XP, so it can be added to the killer..
+  // Smart, and nice.. 
   // changed, now you do not lose all your xp, but a third of it
   dead_xp = (int)this_object()->query_xp() / 3;
 
@@ -163,7 +160,7 @@ int do_death(varargs object killed_by)
   // if (!total) 
   //   total = 1;
 
-  /* this gives the total for each attacker.. */
+  // this gives the total for each attacker..
   if (dead_xp != 0)
     attacker_xp = dead_xp / 20;
   if (attackers)
@@ -171,12 +168,11 @@ int do_death(varargs object killed_by)
     // death statistic keeper... Anirudh
     attacker_xp += (int)((float)this_object()->query_kill_xp() * xp_adj/(float)attackers);
 
-  /* what is this for? pk should give xp... neverbot 2/04
-  if (interactive(this_object())) 
-    attacker_xp = 0;
-  */
+  // what is this for? pk should give xp... neverbot 2/04
+  // if (interactive(this_object())) 
+  //   attacker_xp = 0;
 
-  /* Deliver the XP.. */
+  // Deliver the XP..
   for (i = 0; i < sizeof(attacker_list); i++) 
   {
     if (!attacker_list[i]) 
@@ -254,10 +250,8 @@ int do_death(varargs object killed_by)
   if (this_object()->query_riding())
     this_object()->destruct_ride_shadow();
   
-  /*
-  if (OMIQ_HAND->omiq_in_progress() && interactive(this_object()))
-    this_object()->add_property("OMIQ_KILLED",1);
-  */
+  // if (OMIQ_HAND->omiq_in_progress() && interactive(this_object()))
+  //   this_object()->add_property("OMIQ_KILLED",1);
 
   if (killed_by) 
   {
@@ -350,7 +344,6 @@ object make_corpse()
     {
       this_object()->unwear_ob(usedstuff[i]);
       // Shall they loose it or keep it in the corpse I
-
       // usedstuff[i]->move(environment());
     }
   }
@@ -363,8 +356,10 @@ object make_corpse()
 
   if (stringp(room_mess)) 
   {
-    tell_room(environment(this_object()),room_mess+".\n", this_object());
-    tell_player(this_object(), my_mess+".\n");
+    tell_room(environment(this_object()), room_mess + ".\n", this_object());
+    
+    if (this_object()->user())
+      this_object()->user()->add_notification("death", my_mess + ".\n");
   }
 
   // remove the money object if it is empty, to avoid moving it and seeing
@@ -375,7 +370,7 @@ object make_corpse()
     money->dest_me();
   }
 
-  // AS for now, the corpse contains the remaining stuff.
+  // as for now, the corpse contains the remaining stuff.
   // all_inventory(this_object())->move(corpse);
   {
     object * inv;
