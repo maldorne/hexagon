@@ -270,8 +270,6 @@ string query_race_ob()
   return race_ob;
 }
 
-string query_possessive() { return "su"; }
-
 /* Converted from call_outs to heartbeats by Baldrick. after a look at Aragorns
    code on RD sept '93 */
 void heart_beat()

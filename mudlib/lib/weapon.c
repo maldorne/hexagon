@@ -432,7 +432,7 @@ int weapon_attack(object def, object att)
       // like they parry the attack
 
       obs = defender->query_held_ob();
-      obs -= ({ 0 });
+      obs -= ({ nil });
 
       // defender parries
       if (sizeof(obs) && (random(3) == 0))
