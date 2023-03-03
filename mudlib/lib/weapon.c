@@ -22,27 +22,27 @@ inherit item "/lib/item.c";
 #include <translations/weapon.h>
 #include <translations/combat.h>
 #include <item/material.h>
+#include <language.h>
 
 int enchant;
 
-static int basic_cost, // Coste de un arma basica de este tipo.
-  ench_basic_cost,     // Coste de un arma basica de este tipo con enchant.
+static int basic_cost, // cost of a basic weapon of this type
+  ench_basic_cost,     // cost of a basic weapon of this type with enchant
 
-  attack_type,         // Tipo de Ataque, 1 cortante, 2 aplastante y 3 punzante
-  material,            // Material del que esta fabricado el arma
-  difficulty,          // Dificultad de manejo
-  max_dex_bon,         // Bonificador a la destreza maximo si se esta utilizando
-                       // este arma
-  multiplier,          // Multiplicador al daño si hacemos critico.
-  num_of_attacks,      // Numero de ataques (generalmente uno, solo seran dos en
-                       //   armas exoticas como espadas dobles, etc).
+  attack_type,         // attack type, 1 slashing, 2 blunt, 3 piercing
+  material,            // material of the weapon
+  difficulty,          // difficulty of handling
+  max_dex_bon,         // max dex bonus if using this weapon
+  multiplier,          // multiplier to damage if we do a critical hit
+  num_of_attacks,      // number of attacks (usually one, only two in exotic
+                       //   weapons like double swords, etc)
   hands_needed;
 
-static string weapon_name,        // weapon name
-              weapon_family;      // weapon family (to check masteries)
+static string weapon_name,   // weapon name
+              weapon_family; // weapon family (to check masteries)
 
-static object attacker, defender; // atacante y defensor
-mapping attacks;                  // ataques del arma
+static object attacker, defender;
+mapping attacks;
 
 
 void create() 
@@ -75,9 +75,9 @@ int query_num_of_attacks() { return num_of_attacks; }
 
 int query_hands_needed() { return hands_needed; }
 
-// Añadida para armas de rango, neverbot 12/2006
-// En cualquier otro arma no deberia ser necesario, saca estos datos
-// directamente de la tabla de armas.
+// added for ranged weapons, neverbot 12/2006
+// in any other weapon it should not be needed, it would take this data
+// directly from the weapon table
 void set_hands_needed(int h) { hands_needed = h; }
 // void set_twohanded(int flag) { twohanded = flag; }
 // int query_twohanded() { return twohanded; }
@@ -220,7 +220,7 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
   if (roll(1, 200) < 10)
   {
     // fumble message added
-    tell_object(this_object(), "¡Oh, qué torpeza!\n");
+    tell_object(this_object(), _LANG_WEAPON_FUMBLE_MSG);
     return ({ FUMBLE, 0 });
   }
 
@@ -267,7 +267,7 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
     if (roll(1, 200) < 10) 
     {
       // critical hit message added
-      tell_object(this_object(), "¡Oh, qué habilidad!\n");
+      tell_object(this_object(), _LANG_WEAPON_CRITICAL_MSG);
       damage_done *= multiplier;
     }
 
@@ -325,170 +325,6 @@ mixed * recalc_damage(int i)
 
   return ({ hps, local[1] });
 }
-
-// *************************************************
-//   old weapon_table.c
-// *************************************************
-
-mixed _query_message(int damage, 
-                     int attack_type,
-                     string localization, 
-                     object attacker, 
-                     object defender,
-                     varargs object where)
-{
-  string msg_me, msg_him, msg_env, aux;
-  int relative;
-
-  relative = 1;
-  msg_me = msg_him = msg_env = "";
-  msg_him = msg_env = attacker->query_cap_name();
- 
-  switch (attack_type) 
-  {
-    case SLASHING:
-      msg_me += "Cortas";
-      msg_him += " te corta";
-      msg_env += " corta";
-      break;
-    case PIERCING: 
-      msg_me +="Perforas";
-      msg_him +=" te perfora";
-      msg_env +=" perfora";
-      break;
-    case BLUNT:     
-      msg_me += "Golpeas";
-      msg_him += " te golpea";
-      msg_env += " golpea";
-      break;
-    // case RES_FIRE:     
-    //     msg_me += "Quemas";
-    //     msg_him += " te quema";
-    //     msg_env += " quema";
-    //     relative = 0;
-    //     break;
-    // case RES_COLD:     
-    //     msg_me += "Congelas";
-    //     msg_him += " te congela";
-    //     msg_env += " congela";
-    //     relative = 0;
-    //     break;
-    default:
-      msg_me += "Golpeas";
-      msg_him += " te golpea";
-      msg_env += " golpea";
-      break;
-  }
- 
-  aux = "";
-
-  if (relative)
-  {
-    if (damage <= 0) 
-      aux = " sin efecto";
-    else 
-      switch (damage) 
-      {
-        case 1..4:   aux = " débilmente";                 break;
-        case 5..8:   aux = " con poca fuerza";            break;
-        case 9..12:  aux = "";                            break;
-        case 13..16: aux = " con fuerza";                 break;
-        case 17..21: aux = " con mucha fuerza";           break;
-        case 22..28: aux = " violentamente";              break;
-        case 29..60: aux = " con una increíble fuerza";   break;
-        default: aux =     " con una fuerza sobrehumana"; break;
-      }
-  }
- 
-  msg_me += aux;
-  msg_him += aux;
-  msg_env += aux;
-
-  // if we have the object that hits
-  if (where)
-  {
-    if (relative)
-    {
-      msg_me += " a "+defender->query_cap_name()+" en su "+where->query_name();
-      msg_him+= " en tu "+where->query_name();
-      msg_env+= " a "+defender->query_cap_name()+" en su "+where->query_name();
-    }
-    else
-    {
-      msg_me += " "+where->query_article()+" "+where->query_name()+" de "+defender->query_cap_name();
-      msg_him+= " "+where->query_article()+" "+where->query_name();
-      msg_env+= " "+where->query_article()+" "+where->query_name()+" de "+defender->query_cap_name();
-    }
-  }
-  // do not have the object but we have the localization
-  else if (localization && (localization != ""))
-  {
-    msg_me+=  " a "+defender->query_cap_name() + " en "+localization;
-    msg_him+= " en "+localization;
-    msg_env+= " a "+defender->query_cap_name() + " en "+localization;
-  }
-  // do not have object nor localization
-  else
-  {
-    msg_me+=  " a "+defender->query_cap_name();
-    msg_env+= " a "+defender->query_cap_name();
-  }
-
- // relative damage
- /* 
- i = to_int( (100*(defender->query_hp()-damage))/defender->query_max_hp());
- 
- if (damage<=0) aux = "";
- else switch (type) {
-   case "slashing": 
-      switch(i) {
-        case 0..10 : aux =  " haciendo graves cortes";       break;
-        case 11..25: aux =  " dejando severas heridas";      break;
-        case 26..40: aux =  " haciendo profundas heridas";   break;
-        case 41..60: aux =  " dejando una sangrante herida"; break;
-        case 61..80: aux =  " dejando una ligera herida";    break;
-        case 81..100: aux = " haciendo solo rasgunyos";      break;
-        default: aux =      " dejando una herida mortal";    break;
-      }
-   default: 
-     switch (i) {
-       case 0..10 : aux =  " dejando graves heridas internas"; break;
-       case 11..25: aux =  " haciendo graves heridas";         break;
-       case 26..40: aux =  " provocando un terrible dolor";    break;
-       case 41..60: aux =  " provocando grandes dolores";      break;
-       case 61..80: aux =  " provocando serios hematomas";     break;
-       case 81..100: aux = " provocando ligeros moratones";    break;
-       default: aux =      " provocando mortales heridas";     break;
-    }
- }
- */
- 
-  msg_me  += ".\n";
-  msg_him += ".\n";
-  msg_env += ".\n";
-
-  return ({ msg_me, msg_him, msg_env });  
-}
-
-void _write_message(int damage,          // damage from the hit
-                   int attack_type,      // attack type (slashing, etc)
-                   string localization,  // localization in the body
-                   object attacker,      // 
-                   object defender,      // 
-                   varargs object where) // armour piece that receives the hit
-{
-  mixed *messages;
-  if (where)
-    messages = _query_message(damage, attack_type, localization, attacker, defender, where);
-  else
-    messages = _query_message(damage, attack_type, localization, attacker, defender);  
-
-  tell_room(environment(attacker), messages[2], ({attacker,defender}));
-  tell_object(attacker, ATT + messages[0]);
-  tell_object(defender, DFF + messages[1]);
-
-  return;
-} /* _write_message */
 
 int weapon_attack(object def, object att)
 {
@@ -561,10 +397,10 @@ int weapon_attack(object def, object att)
       defender->adjust_hp(-(damage[0] - absorbed_damage), attacker);
 
       if (where)
-        _write_message(damage[0], attacks[attack_names[i]][0], 
+        handler("weapons")->write_message(damage[0], attacks[attack_names[i]][0], 
                        damage[1], attacker, defender, where);
       else
-        _write_message(damage[0], attacks[attack_names[i]][0], 
+        handler("weapons")->write_message(damage[0], attacks[attack_names[i]][0], 
                        damage[1], attacker, defender);
       ret += damage[0];
     }
@@ -572,23 +408,22 @@ int weapon_attack(object def, object att)
     {
       if (att_val[0] == DODGE)
       {
-        tell_object(attacker,defender->query_cap_name()+" logra esquivar tu ataque.\n");
-        tell_object(defender,attacker->query_cap_name()+" intenta golpearte pero logras " +
-           "esquivar su ataque.\n");
+        tell_object(attacker, defender->query_cap_name() + _LANG_WEAPON_DODGE_MSG_ATTACKER);
+        tell_object(defender, attacker->query_cap_name() + _LANG_WEAPON_DODGE_MSG_DEFENDER);
         tell_room(environment(attacker), attacker->query_cap_name() + 
-                  " trata de golpear a " + defender->query_cap_name() + 
-                  " pero "+defender->query_demonstrative()+" logra esquivar su ataque.\n", ({attacker,defender}));
+                  _LANG_WEAPON_DODGE_MSG_ROOM + defender->query_cap_name() + 
+                  _LANG_WEAPON_DODGE_MSG_ROOM_END, ({attacker, defender}));
         continue;
       }
 
       // fumble
       if (att_val[0] == FUMBLE)
       {
-        tell_object(attacker,"Te haces un lío con tu arma y no consigues golpear a "+defender->query_cap_name()+".\n");
-        tell_object(defender,attacker->query_cap_name()+" se hace un lío con su arma y no consigue golpearte.\n");
+        tell_object(attacker, _LANG_WEAPON_FUMBLE_MSG_ATTACKER + defender->query_cap_name() + ".\n");
+        tell_object(defender, attacker->query_cap_name() + _LANG_WEAPON_FUMBLE_MSG_DEFENDER);
         tell_room(environment(attacker), attacker->query_cap_name() + 
-                  " se hace un lío con su arma y no consigue golpear a " +
-                  defender->query_cap_name() + ".\n", ({attacker,defender}));
+                  _LANG_WEAPON_FUMBLE_MSG_ROOM + defender->query_cap_name() + 
+                  ".\n", ({attacker, defender}));
         continue;
       }
 
@@ -598,33 +433,32 @@ int weapon_attack(object def, object att)
 
       obs = defender->query_held_ob();
       obs -= ({ 0 });
-      
+
       // defender parries
       if (sizeof(obs) && (random(3) == 0))
       {
         // take a random item
         where = obs[random(sizeof(obs))];
-        tell_object(attacker,defender->query_cap_name()+" bloquea tu ataque con su " +
-                    where->query_name()+".\n");
-        tell_object(defender,attacker->query_cap_name()+" intenta golpearte pero logras " +
-                    "bloquear su ataque con tu "+where->query_name()+".\n");
+        tell_object(attacker, defender->query_cap_name() + _LANG_WEAPON_PARRY_MSG_ATTACKER +
+                    where->query_name() + ".\n");
+        tell_object(defender, attacker->query_cap_name() + _LANG_WEAPON_PARRY_MSG_DEFENDER +
+                    where->query_name() + ".\n");
         tell_room(environment(attacker), attacker->query_cap_name() + 
-                    " trata de golpear a " + defender->query_cap_name() + 
-                    " pero "+defender->query_demonstrative()+" bloquea el ataque con su " +
-                    where->query_name()+".\n", 
-                    ({attacker,defender}));
-                  
+                    _LANG_WEAPON_PARRY_MSG_ROOM + defender->query_cap_name() + 
+                    _LANG_WEAPON_PARRY_MSG_ROOM_END + where->query_name() + ".\n", 
+                    ({attacker, defender}));
+                    
         // ruin both items
         where->hit_item(1);
         this_object()->hit_item(1);
       }
       else // attacker fails
       {
-        tell_object(attacker,"No consigues golpear a "+defender->query_cap_name()+".\n");
-        tell_object(defender,attacker->query_cap_name()+" no consigue golpearte.\n");
+        tell_object(attacker, _LANG_WEAPON_NO_HIT + " " + defender->query_cap_name() + ".\n");
+        tell_object(defender, attacker->query_cap_name() + _LANG_WEAPON_NOT_HIT + "\n");
         tell_room(environment(attacker), attacker->query_cap_name() + 
-                  " no consigue golpear a " + defender->query_cap_name() + 
-                  ".\n", ({attacker,defender}));
+                  _LANG_WEAPON_NO_HIT_ROOM + defender->query_cap_name() + 
+                  ".\n", ({attacker, defender}));
       }
     }
   }

@@ -37,3 +37,23 @@
               main_piece->query_piece_set_name() + ".\n"
 #define _LANG_DESC_IS_MAIN_SET_PIECE "   This item is the main piece of the '" + \
               main_piece->query_piece_set_name() + "' set, made up of "
+
+// weapon.c
+
+#define _LANG_WEAPON_FUMBLE_MSG "Oh, what a blunder!\n"
+#define _LANG_WEAPON_CRITICAL_MSG "Oh, what skill!\n"
+
+#define _LANG_WEAPON_DODGE_MSG_ATTACKER " gets out of the way of your attack.\n"
+#define _LANG_WEAPON_DODGE_MSG_DEFENDER " tries to hit you but you get out of the way.\n"
+#define _LANG_WEAPON_DODGE_MSG_ROOM " tries to hit "
+#define _LANG_WEAPON_DODGE_MSG_ROOM_END " but "+defender->query_demonstrative()+" gets out of the way.\n"
+#define _LANG_WEAPON_FUMBLE_MSG_ATTACKER "You make a blunder and are unable to hit "
+#define _LANG_WEAPON_FUMBLE_MSG_DEFENDER " makes a blunder and is unable to hit you.\n"
+#define _LANG_WEAPON_FUMBLE_MSG_ROOM " makes a blunder and is unable to hit "
+#define _LANG_WEAPON_PARRY_MSG_ATTACKER " parries your attack with your "
+#define _LANG_WEAPON_PARRY_MSG_DEFENDER " tries to hit you but you parry the attack with your "
+#define _LANG_WEAPON_PARRY_MSG_ROOM " tries to hit "
+#define _LANG_WEAPON_PARRY_MSG_ROOM_END " but "+defender->query_demonstrative()+" parries the attack with "+defender->query_possessive()+" "
+#define _LANG_WEAPON_NO_HIT "You are unable to hit "
+#define _LANG_WEAPON_NOT_HIT " is not able to hit you.\n"
+#define _LANG_WEAPON_NO_HIT_ROOM " is not able to hit "
