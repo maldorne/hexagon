@@ -66,7 +66,7 @@ Coder commands will be only in english, except texts shown to the players, which
 
 | Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
-| armaduras    |          |          |    |    |
+| armours      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | backup       |          |          |    |    |
 | cat          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | clone        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
