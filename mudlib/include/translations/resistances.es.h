@@ -17,6 +17,7 @@
 #define RES_STONE      "tierra"
 #define RES_CHAOS      "caos"
 
-#define RESISTANCES ({ "ácido", "aire", "electricidad", "frío", "magia", \
-"psiónica", "proyectiles", "veneno", "ley", "agua", "bien", \
-"enfermedad", "fuego", "mal", "muerte", "tierra", "caos", })
+#define RESISTANCES ({ RES_ACID, RES_AIR, RES_ELECTRICAL, \
+    RES_COLD, RES_MAGIC, RES_PSIONIC, RES_MISSILES, \
+    RES_POISON, RES_LAW, RES_WATER, RES_GOOD, RES_DISEASE, \
+    RES_FIRE, RES_EVIL, RES_DEATH, RES_STONE, RES_CHAOS, })
