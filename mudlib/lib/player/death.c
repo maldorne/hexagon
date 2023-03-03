@@ -65,6 +65,39 @@ nomask int second_life(object corpse, object initiator)
 
   // info to raise: we have information about our body
   tmp->set_my_corpse(corpse);
+
+  // move to heaven or hell, or wherever
+  // if (!this_object()->query_coder()) 
+  {
+    object room;
+    if (this_object()->query_real_align() < 0)
+      room = load_object(LIMBO_ENTRANCE);
+      // room = load_object(HELL_ENTRANCE); Pending: heaven and hell
+    else
+      room = load_object(LIMBO_ENTRANCE);
+      // room = load_object(HEAVEN_ENTRANCE); Pending: heaven and hell
+
+    if (!room)
+    {
+      tell_object(this_object(), _LANG_DEATH_MESSAGE_NO_ROOM);
+      return 1;
+    }
+      
+    tell_room(environment(this_object()), this_object()->query_cap_name() + 
+              _LANG_DEATH_MESSAGE_ROOM, this_object());
+    tell_object(this_object(), _LANG_DEATH_MESSAGE_YOU);
+    
+    this_object()->move(room);
+    this_object()->do_look();
+
+    if (this_object()->query_real_align() < 0)
+      tell_room(room, this_object()->query_cap_name() + 
+                _LANG_DEATH_MESSAGE_ROOM_AFTER, this_object());
+    else // Pending: make heaven :P
+      tell_room(room, this_object()->query_cap_name() + 
+                _LANG_DEATH_MESSAGE_ROOM_AFTER, this_object());
+  }
+
   return 1;
 }
 

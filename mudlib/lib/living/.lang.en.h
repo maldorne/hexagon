@@ -109,11 +109,6 @@
 #define _LANG_HANDLE_MY_MESS_BELONGINGS "Your belongings fall from your hands"
 #define _LANG_HANDLE_ROOM_MESS_BELONGINGS this_object()->query_cap_name()+"'s belongings fall from "+this_object()->query_possessive()+" hands"
 
-#define _LANG_DEATH_MESSAGE_NO_ROOM "Because of some dark desire of the gods, your soul must continue in this plane of existence.\n"
-#define _LANG_DEATH_MESSAGE_ROOM " shouts a scream of agony as his soul leaves this world.\n"
-#define _LANG_DEATH_MESSAGE_YOU "Your spirit rises above your body and leaves this world.\n"
-#define _LANG_DEATH_MESSAGE_ROOM_AFTER " arrives to hell to be punished for his sins in life.\n"
-
 // unarmed_combat.c
 
 #define _LANG_UNARMED_STYLE_COMMANDS ({ "style", "styles" })

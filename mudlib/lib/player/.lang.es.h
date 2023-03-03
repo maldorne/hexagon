@@ -66,3 +66,8 @@
 #define _LANG_DEATH_CON_TOO_LOW "Algo va mal... tu constitución es demasiado baja.\n"
 #define _LANG_DEATH_RAISED_ME "Recuperas tu forma mortal.\n"
 #define _LANG_DEATH_RAISED_ROOM query_cap_name() + " recupera su forma mortal.\n"
+
+#define _LANG_DEATH_MESSAGE_NO_ROOM "Por algún oscuro deseo de los poderes divinos, tu alma debe continuar en este plano de existencia.\n"
+#define _LANG_DEATH_MESSAGE_ROOM " da un grito desgarrador mientras su alma abandona este mundo.\n"
+#define _LANG_DEATH_MESSAGE_YOU "Tu espíritu se eleva sobre tu cuerpo y abandona este mundo.\n"
+#define _LANG_DEATH_MESSAGE_ROOM_AFTER " llega al infierno para ser castigado por sus pecados en vida.\n"
