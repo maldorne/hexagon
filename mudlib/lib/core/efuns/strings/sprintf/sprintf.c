@@ -404,7 +404,8 @@ private string numerical (int n, int base, int width, int precision,
   int    sz;
   if (base != BASE) {digits = convert_to_base ((n < 0 ? -n : n), base);}
   else {digits = n + "";}
-  sign = (n < 0 ? "-" : options ["+"] ? "+" : options [" "] ? " " : "");
+  // sign = (n < 0 ? "-" : options ["+"] ? "+" : options [" "] ? " " : "");
+  sign = (n < 0 ? "" : options ["+"] ? "+" : options [" "] ? " " : "");
   header = (options ["#"] ? (base == 8 ? "0" : base == 16 ? "0x" : "") : "");
 // # ifdef __TIME_CONVERSION__
 //   if (precision <= 0) {precision = options ["T"];}
