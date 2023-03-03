@@ -129,7 +129,8 @@ mixed query_static_property(string str)
  */
 mixed query_timed_property(string str) 
 {
-  int val, i;
+  mixed val;
+  int i;
 
   if (!strlen(str))
     return 0;
