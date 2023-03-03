@@ -107,12 +107,12 @@ int unarmed_attack(object def, object att)
         if (obs[j]->query_localization() == damage[1])
         {
           // % of damage taken by the armour
-          if (obs[j]->query_ac() + obs[j]->query_blunt_bon() > 0) 
+          if (obs[j]->query_ac() + obs[j]->query_ac_bon_against(BLUNT) > 0) 
           {
-              if ((obs[j]->query_ac() + obs[j]->query_blunt_bon()) > 10)
+              if ((obs[j]->query_ac() + obs[j]->query_ac_bon_against(BLUNT)) > 10)
                 percent = 100;
               else
-                percent = (obs[j]->query_ac() + obs[j]->query_blunt_bon()) * 10;
+                percent = (obs[j]->query_ac() + obs[j]->query_ac_bon_against(BLUNT)) * 10;
 
               absorbed_damage = damage[0] * percent / 100;
           }
