@@ -140,7 +140,7 @@ int do_death(object killed_by)
     // if (!undefinedp(damage_done[attacker_list[i]]))
     //   total += damage_done[attacker_list[i]];
 
-    // mounts do not remove xp, neverbot 05/2009
+    // mounts do not count to quit xp, neverbot 05/2009
     if (!attacker_list[i]->query_ride())
       attackers++;
   }
@@ -228,9 +228,8 @@ int do_death(object killed_by)
         // attacker is good, victim is evil
         if (aln_at > 100)
           attacker_list[i]->adjust_real_align(-aln_df/20);
-        else // Atacante malo, victima bueno
+        else // attacker is evil, victim is good
           attacker_list[i]->adjust_real_align(-aln_df/10);
-       
       }
       // they are no enemies, we have to do something bad :(
       else

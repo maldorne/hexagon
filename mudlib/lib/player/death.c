@@ -1,5 +1,6 @@
 
 #include <living/death.h>
+#include <language.h>
 
 /* second life routine... handles the player dieing. */
 nomask int second_life(object corpse, object initiator) 
@@ -9,10 +10,10 @@ nomask int second_life(object corpse, object initiator)
   object tmp;
   object * fightings;
 
-  str = query_cap_name() + " matad"+G_CHAR+" por ";
+  str = _LANG_DEATH_KILLED_BY;
 
   if (!sizeof(attacker_list))
-    str += initiator->query_cap_name()+" (sobre sí mismo, quizá con un call)";
+    str += initiator->query_cap_name() + " " + _LANG_DEATH_KILLED_HIMSELF;
   else
     for (i = 0; i < sizeof(attacker_list); i++)
       if (attacker_list[i])
@@ -37,19 +38,12 @@ nomask int second_life(object corpse, object initiator)
 
   remove_call_outed();
 
-  say(query_cap_name()+" ha muerto.\n");
-  // El save_me deberia ser despues de ajustar puntos de vida y xp,
-  // save_me();
+  tell_room(environment(this_object(), _LANG_DEATH_KILLED));
+
   hp = 0;
   gp = 0;
 
-  // total_xp -= xp;
-  // xp = 0;
-  
-  // Cambiado, solo quitamos un tercio de la xp que lleve encima, neverbot 04/2009
-  // changed again, do not lose xp, neverbot 10/2016
-  // xp -= xp / 3;
-
+  // save after changing stats
   this_object()->save_me();
 
   // DEATH_CHAR->person_died(query_name());
@@ -69,7 +63,7 @@ nomask int second_life(object corpse, object initiator)
   tmp = clone_object(DEATH_SHADOW);
   tmp->setup_shadow(this_object());
 
-  // Info para resucitar: tenemos informacion sobre cual es nuestro cuerpo
+  // info to raise: we have information about our body
   tmp->set_my_corpse(corpse);
   return 1;
 }
@@ -78,8 +72,7 @@ void remove_ghost()
 {
   if (this_object()->query_real_con() < 1)
   {
-    tell_object(this_object(),"Algo va mal... tu constitución es " +
-      "demasiado baja.\n");
+    tell_object(this_object(), _LANG_DEATH_CON_TOO_LOW);
     return;
   }
   
@@ -97,8 +90,8 @@ void remove_ghost()
     // if (this_object()->query_level() > 9) this_object()->adjust_con(-1);
   }
 
-  tell_object(this_object(), "Recuperas tu forma mortal.\n");
-  say(query_cap_name() + " recupera su forma mortal.\n");
+  tell_object(this_object(), _LANG_DEATH_RAISED_ME);
+  tell_room(environment(this_object(), _LANG_DEATH_RAISED_ROOM));
 
   this_object()->dest_death_shadow();
 

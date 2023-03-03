@@ -57,3 +57,12 @@
         (lang ? ", it seems written in " + lang : "") + ".\n"
 #define _LANG_READ_IMPOSSIBLE "All of " + mud_name() + " trembles when you find a magical text " + \
         "without any way to be interpreted.\n"
+
+// death
+
+#define _LANG_DEATH_KILLED_BY query_cap_name() + " killed by "
+#define _LANG_DEATH_KILLED_HIMSELF "(killed by himself, maybe with a call)"
+#define _LANG_DEATH_KILLED query_cap_name() + " has died.\n"
+#define _LANG_DEATH_CON_TOO_LOW "Something is wrong... your constitution is too low.\n"
+#define _LANG_DEATH_RAISED_ME "You recover your mortal form.\n"
+#define _LANG_DEATH_RAISED_ROOM query_cap_name() + " recover his mortal form.\n"
