@@ -40,7 +40,7 @@ static int cmd (string str, object me, string verb)
   ret += "  Info about the armours worn by "+who->query_cap_name()+"\n";
   ret += "--------------------------------------------------------------------------\n";
   
-  ret += sprintf("%-20s %|10s %|15s %|4s %|4s %|4s %|4s\n",
+  ret += sprintf("  %-18s %|10s %|15s %|4s %|4s %|4s %|4s\n",
            "Name", "Protects", "Type", "Ac +", "Slash", "Blunt", "Piercing");
   ret += "--------------------------------------------------------------------------\n";
   
@@ -48,7 +48,7 @@ static int cmd (string str, object me, string verb)
     
     if (equip[i]->query_localization()) {
 
-       ret += sprintf("%-20s %|10s %|15s |%4d |%4d |%4d |%4d\n",
+       ret += sprintf("  %-18s %|10s %|15s |%4d |%4d |%4d |%4d\n",
            equip[i]->query_name(), 
            equip[i]->query_localization(),
            equip[i]->query_armour_type_name(),

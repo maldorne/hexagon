@@ -356,10 +356,10 @@ object make_corpse()
 
   if (stringp(room_mess)) 
   {
-    tell_room(environment(this_object()), room_mess + ".\n", this_object());
+    tell_room(environment(this_object()), room_mess + "\n", this_object());
     
     if (this_object()->user())
-      this_object()->user()->add_notification("death", my_mess + ".\n");
+      this_object()->user()->add_notification("death", my_mess);
   }
 
   // remove the money object if it is empty, to avoid moving it and seeing
