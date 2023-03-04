@@ -37,12 +37,15 @@ static string percentage_bar(int value)
 // useful for different commands
 // neverbot 09/21, based on the score command
 
-static string bar(int value)
+static string bar(int value, varargs int length)
 {
   string result, full_character, empty_character;
   int i, j;
 
   result = "";
+
+  if (!length)
+    length = 10;
 
   // exec return char_codes("░")
 
@@ -59,10 +62,10 @@ static string bar(int value)
   if (value > 100)
     value = 100;
 
-  j = (10 * value)/100;
+  j = (length * value)/100;
 
   result += "%^BOLD%^RED%^";
-  for (i = 0; i < 10; i++)
+  for (i = 0; i < length; i++)
   {
     if (i < j && i == 2)
       result += "%^MAGENTA%^";

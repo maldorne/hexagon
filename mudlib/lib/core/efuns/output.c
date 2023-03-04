@@ -1,6 +1,6 @@
 
 #include "output/fix_string.c"
-#include "output/percentage_bar.c"
+#include "output/bars.c"
 #include "output/write.c"
 #include "output/say.c"
 #include "output/message.c"
