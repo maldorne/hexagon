@@ -1,5 +1,5 @@
 /*
- *  new alignment system for ccmud, neverbot 27/Abril/03
+ *  new alignment system for ccmud, neverbot 27/april/03
  *
  *  to avoid checking social/group belongings (like not allowing
  *  entrance to a city just because of you race, guild, etc), we are going
@@ -100,7 +100,7 @@ int adjust_tmp_ext_align(int i)
 int query_tmp_ext_align() { return tmp_ext_align; }
 
 // old /table/alignment_table.c, neverbot, 6/03
-private string query_aux_align_string(int i)
+private string _query_aux_align_string(int i)
 {
   // MAX is 10k
   switch(i)
@@ -122,18 +122,8 @@ private string query_aux_align_string(int i)
   return ("?????????");
 }
 
-string query_align_string()
-{
-  string ret;
-
-  ret = "Alineamiento externo (pareces):\t";
-
-  ret += capitalize(query_aux_align_string(query_ext_align()));
-  ret += "\nAlineamiento interno (eres):\t";
-  ret += capitalize(query_aux_align_string(query_real_align()));
-
-  return ret + "\n";
-}
+string query_real_align_string() { return _query_aux_align_string(real_align); }
+string query_ext_align_string() { return _query_aux_align_string(ext_align); }
 
 // stats added, neverbot 4/03
 mixed stats()
