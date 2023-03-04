@@ -2,6 +2,7 @@
 // common
 
 #define _LANG_CMD_NOTHING_HERE "No hay nada con el nombre '"+arg+"' aquí.\n"
+#define _LANG_CMD_DEAD "Estás en forma espiritual, no necesitas conocer eso.\n"
 
 // kill.c
 
@@ -83,6 +84,14 @@
 #define _LANG_CMD_RETIRE_HELP "Borra todos los datos y elimina tu personaje."
 #define _LANG_CMD_RETIRE_GUEST "Eres un invitado en " + mud_name() + ".\n" + \
         "¿Aún no tienes un personaje y ya estás pensando en retirarte?\n"
+
+// score
+
+#define _LANG_CMD_SCORE_ALIAS ({ "puntos", "score" })
+#define _LANG_CMD_SCORE_SYNTAX "puntos [-d]"
+#define _LANG_CMD_SCORE_HELP "Muestra algunos datos sencillos sobre tu personaje.\n" + \
+        "Usa -d para una información algo más detallada."
+#define _LANG_CMD_SCORE_AGE "Tienes " + seconds_to_time_string(age) + " de edad.\n";
 
 // configuration
 

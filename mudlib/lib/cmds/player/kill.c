@@ -39,7 +39,7 @@ static int cmd (string str, object me, string verb)
   if (!strlen(str))
   {
     write(_LANG_SYNTAX + ": " +_LANG_CMD_KILL_SYNTAX + "\n");
-    return 1;    
+    return 1;
   }
 
   str = lower_case(str);

@@ -6,6 +6,7 @@
 
 #define _LANG_AND "y"
 #define _LANG_SYNTAX "Sintaxis"
+#define _LANG_OF "de"
 
 #define _LANG_YES "sí"
 #define _LANG_NO "no"

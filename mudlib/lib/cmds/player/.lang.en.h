@@ -2,6 +2,7 @@
 // common
 
 #define _LANG_CMD_NOTHING_HERE "Nothing with the name '"+arg+"' is here.\n"
+#define _LANG_CMD_DEAD "You are in spiritual form, you don't need to know that.\n"
 
 // kill.c
 
@@ -83,6 +84,14 @@
 #define _LANG_CMD_RETIRE_HELP "Delete all your data and your character."
 #define _LANG_CMD_RETIRE_GUEST "You are a guest in " + mud_name() + ".\n" + \
         "You don't have a character, so you cannot retire yet.\n"
+
+// score
+
+#define _LANG_CMD_SCORE_ALIAS ({ "score" })
+#define _LANG_CMD_SCORE_SYNTAX "score [-d]"
+#define _LANG_CMD_SCORE_HELP "Show some basic information about your character.\n" + \
+        "Use -d to get more detailed information.\n"
+#define _LANG_CMD_SCORE_AGE "You are " + seconds_to_time_string(age) + " old.\n";
 
 // configuration
 

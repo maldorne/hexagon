@@ -1,27 +1,22 @@
-// Score para Ciudad capital, basado en el de Fradess para RlMud
-// pero muy simplificado
+// Score for CcMud, based on the one by Fradess for RlMud
+// but very simplified
 //  neverbot 06/03
 
 #include <mud/cmd.h>
-
-#define RESET "%^RESET%^"
+#include <translations/stats.h>
+#include <translations/common.h>
+#include <language.h>
 
 inherit CMD_BASE;
 
 void setup()
 {
-  position = 0;
+  set_aliases(_LANG_CMD_SCORE_ALIAS);
+  set_usage(_LANG_CMD_SCORE_SYNTAX);
+  set_help(_LANG_CMD_SCORE_HELP);
 }
 
-string query_usage()
-{
-  return "puntos [-d]";
-}
-
-string query_short_help()
-{
-  return "Muestra algunas estadísticas sobre tu ficha.";
-}
+#define RESET "%^RESET%^"
 
 static int cmd (string str, object me, string verb)
 {
@@ -35,15 +30,14 @@ static int cmd (string str, object me, string verb)
     
   if (me->query_dead())
   {
-    notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
+    notify_fail(_LANG_CMD_DEAD);
     return 0;
   }
 
   if (strlen(str) && (str != "-d"))
   {
-    notify_fail("Sintaxis: puntos [-d]\n"+
-          "      (Utiliza -d o el modo extendido para las estadísticas detalladas).\n");
-    return 0;
+    write(_LANG_SYNTAX + ": " +_LANG_CMD_SCORE_SYNTAX + "\n");
+    return 1;
   }
     
   color = "%^BOLD%^";
@@ -63,156 +57,99 @@ static int cmd (string str, object me, string verb)
 
   if ( (str == "-d") || me->query_verbose() ) 
   {
-    res += "Puntos de vida:       ";
     percentage = (points * 100) / max_points;
+    res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_HEALTH_POINTS_LONG) + ":", percentage);
     points_string = color + points + RESET; 
     max_points_string = "%^BOLD%^%^GREEN%^" + max_points + RESET;      
-    res += "["+percentage_bar(percentage)+"] ("+points_string+" de "+max_points_string+")"+
-      (max_points>99?"\t":"\t\t")+"("+percentage+" %)\n";
+    res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
+      _LANG_OF + " " + max_points_string + ")\n";
   
     points = me->query_gp();
     max_points = me->query_max_gp();
-
-    res += "Puntos de energía:    ";
     percentage = (points * 100) / max_points;
+
+    res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_GUILD_POINTS_LONG) + ":", percentage);
     points_string = "%^BOLD%^" + points + RESET; 
     max_points_string = "%^BOLD%^" + max_points + RESET; 
-    res += "["+percentage_bar(percentage)+"] ("+points_string+" de "+max_points_string+")"+
-      (max_points>99?"\t":"\t\t")+"("+percentage+" %)\n";
+    res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
+      _LANG_OF + " " + max_points_string + ")\n";
     
     points = me->query_social_points();
     max_points = me->query_max_social_points();
-
-    res += "Puntos sociales:      ";
     percentage = (points * 100) / max_points;
+
+    res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_SOCIAL_POINTS_LONG) + ":", percentage);
     points_string = "%^BOLD%^" + points  + RESET; 
     max_points_string = "%^BOLD%^" + max_points  + RESET; 
-    res += "["+percentage_bar(percentage)+"] ("+points_string+" de "+max_points_string+")"+
-      (max_points>99?"\t":"\t\t")+"("+percentage+" %)\n";
+    res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
+      _LANG_OF + " " + max_points_string + ")\n";
 
     ob = load_object(me->query_class_ob());
     if (ob)
     {
       points = me->query_xp();
       max_points = ob->query_next_level_xp(me);
-
-      res += "Experiencia (clase):  ";
       percentage = (points * 100) / max_points;
+
+      res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_CLASS_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
       max_points_string = "%^BOLD%^" + max_points  + RESET; 
-      res += "["+percentage_bar(percentage)+"] ("+points_string+" de "+max_points_string+")"+
-        (max_points>99?"\t":"\t\t")+"("+percentage+" %)\n";
-     }    
+      res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
+        _LANG_OF + " " + max_points_string + ")\n";
+    }    
 
     ob = load_object(me->query_guild_ob());
     if (ob)
     {
       points = me->query_xp();
       max_points = ob->query_next_level_xp(me);
-
-      res += "Experiencia (gremio): ";
       percentage = (points * 100) / max_points;
+
+      res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_GUILD_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
       max_points_string = "%^BOLD%^" + max_points  + RESET; 
-      res += "["+percentage_bar(percentage)+"] ("+points_string+" de "+max_points_string+")"+
-        (max_points>99?"\t":"\t\t")+"("+percentage+" %)\n";
+      res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
+        _LANG_OF + " " + max_points_string + ")\n";
     }    
-
 
     ob = load_object(me->query_job_ob());
     if (ob)
     {
       points = me->query_job_xp();
       max_points = ob->query_next_level_xp(me);
-
-      res += "Experiencia (oficio): ";
       percentage = (points * 100) / max_points;
+
+      res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_JOB_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
       max_points_string = "%^BOLD%^" + max_points  + RESET; 
-      res += "["+percentage_bar(percentage)+"] ("+points_string+" de "+max_points_string+")"+
-        (max_points>99?"\t":"\t\t")+"("+percentage+" %)\n";
+      res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
+        _LANG_OF + " " + max_points_string + ")\n";
     }    
 
-    res += "Tienes ";
     age = me->query_time_on();
     age = -age;
 
-    if (age > 31536000)
-    {
-      aux = (age / 31536000) % 365;
-      if (aux == 1)
-        res += "un año, ";
-      else
-        res += ""+ aux + " años, ";
-      age = age - 31536000;
-    }
-
-    if (age > 2592000)
-    {
-      aux = (age / 2592000) % 12;
-      if (aux == 1)
-        res += "un mes, ";
-      else
-        res += ""+ aux + " meses, ";
-    }
-
-    if (age > 86400)
-    {
-      aux = (age / 86400) % 30;
-      if (aux == 1)
-        res += "un día, ";
-      else
-        res += ""+ aux + " días, ";
-    }
-
-    if (age > 3600)
-    {
-      aux = (age / 3600) % 24;
-      if (aux == 1)
-        res += "una hora, ";
-      else
-        res += ""+ aux + " horas, ";
-    }
-
-    if (age > 60)
-    {
-      aux = (age / 60) % 60;
-      if (aux == 1)
-        res += "un minuto y ";
-      else
-        res += ""+ aux + " minutos y ";
-    }
-
-    if (age % 60 == 1)
-      res += "un segundo de antigüedad.\n";
-    else
-      res += ""+ age%60 + " segundos de antigüedad.\n";
-
-    /*   
-    if (me->query_wimpy())
-     tell_object(me, "Cobardía puesta a "+me->query_wimpy()+"%\n");
-    else
-     tell_object(me, "Estás en modo valiente.\n");
-    */
-     
+    res += _LANG_CMD_SCORE_AGE;
   }
   else
   {
-    res = "Pv: " + color + points + RESET + " (" + color + max_points + RESET + ")";
+    res = _LANG_HEALTH_POINTS_SHORT + ": " + color + points + RESET + 
+          " (" + color + max_points + RESET + ")";
 
     points = me->query_gp();
     max_points = me->query_max_gp();
 
-    res += "  Pe: %^BOLD%^" + points + RESET + " (%^BOLD%^" + max_points + RESET + ")";
-    res += "  Pexp: %^BOLD%^" + me->query_xp() + RESET;
+    res += "  " + _LANG_GUILD_POINTS_SHORT + ": %^BOLD%^" + points + RESET + 
+           " (%^BOLD%^" + max_points + RESET + ")";
+    
+    res += "  " + _LANG_XP_CLASS_SHORT + ": %^BOLD%^" + me->query_xp() + RESET;
 
     points = me->query_social_points();
     max_points = me->query_max_social_points();
     
-    res += "  Psoc: "+ points + " (" + max_points + ")\n";
+    res += "  " + _LANG_SOCIAL_POINTS_SHORT + ": "+ points + " (" + max_points + ")\n";
   }
 
   write(res);
-   
   return 1;
 }
