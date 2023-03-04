@@ -90,7 +90,7 @@
 #define _LANG_CMD_SCORE_ALIAS ({ "score" })
 #define _LANG_CMD_SCORE_SYNTAX "score [-d]"
 #define _LANG_CMD_SCORE_HELP "Show some basic information about your character.\n" + \
-        "Use -d to get more detailed information.\n"
+        "Use -d to get more detailed information."
 #define _LANG_CMD_SCORE_AGE "You are " + seconds_to_time_string(age) + " old.\n";
 
 // configuration

@@ -43,17 +43,17 @@
 #define _LANG_WEAPON_FUMBLE_MSG "¡Oh, qué torpeza!\n"
 #define _LANG_WEAPON_CRITICAL_MSG "¡Oh, qué habilidad!\n"
 
-#define _LANG_WEAPON_DODGE_MSG_ATTACKER " logra esquivar tu ataque.\n";
-#define _LANG_WEAPON_DODGE_MSG_DEFENDER " intenta golpearte pero logras esquivar su ataque.\n";
-#define _LANG_WEAPON_DODGE_MSG_ROOM " trata de golpear a ";
-#define _LANG_WEAPON_DODGE_MSG_ROOM_END " pero "+defender->query_demonstrative()+" logra esquivar su ataque.\n";
-#define _LANG_WEAPON_FUMBLE_MSG_ATTACKER "Te haces un lío con tu arma y no consigues golpear a ";
-#define _LANG_WEAPON_FUMBLE_MSG_DEFENDER " se hace un lío con su arma y no consigue golpearte.\n";
-#define _LANG_WEAPON_FUMBLE_MSG_ROOM " se hace un lío con su arma y no consigue golpear a ";
-#define _LANG_WEAPON_PARRY_MSG_ATTACKER " bloquea tu ataque con su ";
-#define _LANG_WEAPON_PARRY_MSG_DEFENDER " intenta golpearte pero logras bloquear su ataque con tu ";
-#define _LANG_WEAPON_PARRY_MSG_ROOM " trata de golpear a ";
-#define _LANG_WEAPON_PARRY_MSG_ROOM_END " pero "+defender->query_demonstrative()+" bloquea el ataque con su ";
+#define _LANG_WEAPON_DODGE_MSG_ATTACKER " logra esquivar tu ataque.\n"
+#define _LANG_WEAPON_DODGE_MSG_DEFENDER " intenta golpearte pero logras esquivar su ataque.\n"
+#define _LANG_WEAPON_DODGE_MSG_ROOM " trata de golpear a "
+#define _LANG_WEAPON_DODGE_MSG_ROOM_END " pero "+defender->query_demonstrative()+" logra esquivar su ataque.\n"
+#define _LANG_WEAPON_FUMBLE_MSG_ATTACKER "Te haces un lío con tu arma y no consigues golpear a "
+#define _LANG_WEAPON_FUMBLE_MSG_DEFENDER " se hace un lío con su arma y no consigue golpearte.\n"
+#define _LANG_WEAPON_FUMBLE_MSG_ROOM " se hace un lío con su arma y no consigue golpear a "
+#define _LANG_WEAPON_PARRY_MSG_ATTACKER " bloquea tu ataque con su "
+#define _LANG_WEAPON_PARRY_MSG_DEFENDER " intenta golpearte pero logras bloquear su ataque con tu "
+#define _LANG_WEAPON_PARRY_MSG_ROOM " trata de golpear a "
+#define _LANG_WEAPON_PARRY_MSG_ROOM_END " pero "+defender->query_demonstrative()+" bloquea el ataque con su "
 #define _LANG_WEAPON_NO_HIT "No consigues golpear a "
 #define _LANG_WEAPON_NOT_HIT " no consigue golpearte."
 #define _LANG_WEAPON_NO_HIT_ROOM " no consigue golpear a "

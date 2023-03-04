@@ -179,7 +179,7 @@
 #define _LANG_CANNOT_WEAR_MSG "No puedes ponerte " + (ob->query_default_plural() ? "tus" : "tu") + \
               " " + ob->query_name() + ".\n"
 
-#define _LANG_UNWEAR_VERBS ({ "quitarse", "quitarme", "desvestir" })
+#define _LANG_UNWEAR_VERBS ({ "quitar",  "quitarse", "quitarme", "desvestir" })
 #define _LANG_UNWEAR_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"                
 #define _LANG_UNWEAR_NOT_WEARING "No puedes quitarte algo que no lleves puesto.\n"
 #define _LANG_UNWEAR_START "Te quitas " + (ob->query_default_plural() ? "tus" : "tu") + " " + ob->query_name() + ".\n"
