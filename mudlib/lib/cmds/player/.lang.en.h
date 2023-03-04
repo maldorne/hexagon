@@ -106,3 +106,15 @@
 #define _LANG_CMD_CONFIG_UNKNOWN "Unknown"
 #define _LANG_CMD_CONFIG_USE_COMMANDS "\n  Between brackets you can see the specific command\n" + \
         "  that you can use to get more information.\n"
+
+// sheet
+
+#define _LANG_CMD_SHEET_ALIAS ({ "sheet" })
+#define _LANG_CMD_SHEET_SYNTAX "sheet"
+#define _LANG_CMD_SHEET_HELP "Show extended information about your character."
+
+#define _LANG_CMD_SHEET_NAME "Name"
+#define _LANG_CMD_SHEET_CANNOT_FIND "Sorry, but I cannot find any '"+name+"'.\n"
+#define _LANG_CMD_SHEET_BASIC_CHARACTERISTICS "Basic characteristics"
+#define _LANG_CMD_SHEET_CAN_ALSO_USE "You can also use: 'skills', 'masteries' and " + \
+        "'styles'.\n"
