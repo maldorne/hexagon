@@ -1,6 +1,7 @@
 
 #include <status.h>
 #include <mud/time.h>
+#include <mud/translations.h>
 
 // uptime - return the number of seconds elapsed since the last driver reboot
 // int uptime();
@@ -83,4 +84,120 @@ static string ctime(int time, varargs int flag)
     return ::ctime(time);
 
   return handler("calendar")->ctime(time, flag);
+}
+
+// taken from calendar handler, neverbot 03/2023
+string seconds_to_time_string(int seconds)
+{
+  string * values;
+  values = ({ });
+
+  if (seconds > 86400)
+    values += ({ sprintf("%d " + _LANG_TIME_DAY + 
+                         ((seconds/86400 == 1) ? "" : "s"),
+                           seconds/86400) });
+
+  seconds = seconds % 86400;
+  if (seconds > 3600)
+    values += ({ sprintf("%d " + _LANG_TIME_HOUR + 
+                         ((seconds/3600 == 1) ? "" : "s"),
+                           seconds/3600) });
+
+  seconds = seconds % 3600;
+  if (seconds > 60)
+    values += ({ sprintf("%d " + _LANG_TIME_MINUTE + 
+                         (((seconds/60)%60 == 1) ? "" : "s"),
+                           (seconds/60)%60) });
+
+  seconds = seconds % 60;
+  values += ({ sprintf("%d " + _LANG_TIME_SECOND + 
+                       ((seconds%60 == 1) ? "" : "s"),
+                           seconds%60) });
+
+  return query_multiple_short(values);
+}
+
+/*
+ * We'll try to do a simul_efun to wrap the ctime and make it
+ * always return information in spanish, with different modes
+ * for real-world time or mud time, neverbot 4/2003
+ *
+ * Added date and time inside the mud, Folken 6/03
+ *  (takes info from the weather handler, ignoring the time
+ *   passed as parameter)
+ *
+ * Added english/international formatted date, for ftpd compatibility,
+ *   neverbot 12/04
+ *
+ * Added format with only the time, neverbot 1/06
+ */
+
+string day(int num)
+{
+  switch(num)
+  {
+    case 0: return _LANG_TIME_SUNDAY;
+    case 1: return _LANG_TIME_MONDAY;
+    case 2: return _LANG_TIME_TUESDAY;
+    case 3: return _LANG_TIME_WEDNESDAY;
+    case 4: return _LANG_TIME_THURSDAY;
+    case 5: return _LANG_TIME_FRIDAY;
+    default:
+    case 6: return _LANG_TIME_SATURDAY;
+  }
+}
+
+string intl_day(int num)
+{
+  switch(num)
+  {
+   case 0: return _LANG_TIME_INTL_SUNDAY;
+   case 1: return _LANG_TIME_INTL_MONDAY;
+   case 2: return _LANG_TIME_INTL_TUESDAY;
+   case 3: return _LANG_TIME_INTL_WEDNESDAY;
+   case 4: return _LANG_TIME_INTL_THURSDAY;
+   case 5: return _LANG_TIME_INTL_FRIDAY;
+   default:
+   case 6: return _LANG_TIME_INTL_SATURDAY;
+  }
+}
+
+string month(int num)
+{
+ switch(num)
+ {
+  case 0:  return _LANG_TIME_JANUARY;
+  case 1:  return _LANG_TIME_FEBRUARY;
+  case 2:  return _LANG_TIME_MARCH;
+  case 3:  return _LANG_TIME_APRIL;
+  case 4:  return _LANG_TIME_MAY;
+  case 5:  return _LANG_TIME_JUNE;
+  case 6:  return _LANG_TIME_JULY;
+  case 7:  return _LANG_TIME_AUGUST;
+  case 8:  return _LANG_TIME_SEPTEMBER;
+  case 9:  return _LANG_TIME_OCTOBER;
+  case 10: return _LANG_TIME_NOVEMBER;
+  default:
+  case 11: return _LANG_TIME_DECEMBER;
+  }
+}
+
+string intl_month(int num)
+{
+ switch(num)
+ {
+  case 0:  return _LANG_TIME_INTL_JANUARY;
+  case 1:  return _LANG_TIME_INTL_FEBRUARY;
+  case 2:  return _LANG_TIME_INTL_MARCH;
+  case 3:  return _LANG_TIME_INTL_APRIL;
+  case 4:  return _LANG_TIME_INTL_MAY;
+  case 5:  return _LANG_TIME_INTL_JUNE;
+  case 6:  return _LANG_TIME_INTL_JULY;
+  case 7:  return _LANG_TIME_INTL_AUGUST;
+  case 8:  return _LANG_TIME_INTL_SEPTEMBER;
+  case 9:  return _LANG_TIME_INTL_OCTOBER;
+  case 10: return _LANG_TIME_INTL_NOVEMBER;
+  default:
+  case 11: return _LANG_TIME_INTL_DECEMBER;
+  }
 }

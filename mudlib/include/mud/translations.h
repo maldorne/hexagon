@@ -26,3 +26,4 @@
 
 #define GLOBAL_COMPILE_LANG "en"
 #include <translations/common.en.h>
+#include <translations/time.en.h>

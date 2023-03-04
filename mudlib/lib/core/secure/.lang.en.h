@@ -30,13 +30,13 @@
             (string)implode(bing, ", ")+" domain"+(sizeof(bing)==1?"":"s")+".\n"
 #define _LANG_FINGER_FIRST_ON "   Connected for the first time on "
 #define _LANG_FINGER_TIME_ON "   %^GREEN%^"+(gender==2?"She":"He")+" has " + \
-            handler(CALENDAR_HANDLER)->seconds_to_time_string(time_on) + \
+            seconds_to_time_string(time_on) + \
             " of playing time%^RESET%^.\n"
 #define _LANG_FINGER_CONNECTED_SINCE "   Connected since "+ctime(last_log_on, 1)+".\n"
 #define _LANG_FINGER_LAST_ON "   Last logged on " + \
-            handler(CALENDAR_HANDLER)->seconds_to_time_string(tmp_time) + " ago.\n"
+            seconds_to_time_string(tmp_time) + " ago.\n"
 #define _LANG_FINGER_IDLE_TIME "   %^GREEN%^Idle since "+ \
-            handler(CALENDAR_HANDLER)->seconds_to_time_string(ob->user()->query_idle()) + \
+            seconds_to_time_string(ob->user()->query_idle()) + \
             " ago%^RESET%^.\n"
 #define _LANG_FINGER_LAST_CONNECTION_FROM "   Last connection from: "
 #define _LANG_FINGER_LAST_POSITION "   Last position: "

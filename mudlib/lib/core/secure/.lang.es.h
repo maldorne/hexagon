@@ -32,14 +32,14 @@
              " de " + (string)implode(bing, ", ") +".\n"
 #define _LANG_FINGER_FIRST_ON "   Se conectó por primera vez el "
 #define _LANG_FINGER_TIME_ON "   %^GREEN%^Tiene " + \
-            handler(CALENDAR_HANDLER)->seconds_to_time_string(time_on) + \
+            seconds_to_time_string(time_on) + \
             " de antigüedad%^RESET%^.\n"
 #define _LANG_FINGER_CONNECTED_SINCE "   Conectad"+(gender==2?"a":"o")+" desde el " + \
             ctime(last_log_on, 1)+".\n"
 #define _LANG_FINGER_LAST_ON "   Se conectó por última vez hace " + \
-            handler(CALENDAR_HANDLER)->seconds_to_time_string(tmp_time) + ".\n"
+            seconds_to_time_string(tmp_time) + ".\n"
 #define _LANG_FINGER_IDLE_TIME "   %^GREEN%^Inactiv"+(gender==2?"a":"o")+" desde hace "+ \
-            handler(CALENDAR_HANDLER)->seconds_to_time_string(ob->user()->query_idle()) + \
+            seconds_to_time_string(ob->user()->query_idle()) + \
             "%^RESET%^.\n"
 #define _LANG_FINGER_LAST_CONNECTION_FROM "   Última conexión desde: "
 #define _LANG_FINGER_LAST_POSITION "   Última posición: "

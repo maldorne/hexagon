@@ -6,6 +6,7 @@
 // and to give name to the years
 
 #include <mud/time.h>
+#include <translations/time.h>
 #include <areas/weather.h>
 #include <areas/calendar.h>
 #include <language.h>
@@ -149,91 +150,6 @@ string query_week_day_string(varargs int num_day)
   return table(CALENDAR_TABLE)->query_week_day_string(num_day);
 }
 
-/*
- * We'll try to do a simul_efun to wrap the ctime and make it
- * always return information in spanish, with different modes
- * for real-world time or mud time, neverbot 4/2003
- *
- * Added date and time inside the mud, Folken 6/03
- *  (takes info from the weather handler, ignoring the time
- *   passed as parameter)
- *
- * Added english/international formatted date, for ftpd compatibility,
- *   neverbot 12/04
- *
- * Added format with only the time, neverbot 1/06
- */
-
-string day(int num)
-{
-  switch(num)
-  {
-    case 0: return _LANG_CALENDAR_SUNDAY;
-    case 1: return _LANG_CALENDAR_MONDAY;
-    case 2: return _LANG_CALENDAR_TUESDAY;
-    case 3: return _LANG_CALENDAR_WEDNESDAY;
-    case 4: return _LANG_CALENDAR_THURSDAY;
-    case 5: return _LANG_CALENDAR_FRIDAY;
-    default:
-    case 6: return _LANG_CALENDAR_SATURDAY;
-  }
-}
-
-string intl_day(int num)
-{
-  switch(num)
-  {
-   case 0: return _LANG_CALENDAR_INTL_SUNDAY;
-   case 1: return _LANG_CALENDAR_INTL_MONDAY;
-   case 2: return _LANG_CALENDAR_INTL_TUESDAY;
-   case 3: return _LANG_CALENDAR_INTL_WEDNESDAY;
-   case 4: return _LANG_CALENDAR_INTL_THURSDAY;
-   case 5: return _LANG_CALENDAR_INTL_FRIDAY;
-   default:
-   case 6: return _LANG_CALENDAR_INTL_SATURDAY;
-  }
-}
-
-string month(int num)
-{
- switch(num)
- {
-  case 0:  return _LANG_CALENDAR_JANUARY;
-  case 1:  return _LANG_CALENDAR_FEBRUARY;
-  case 2:  return _LANG_CALENDAR_MARCH;
-  case 3:  return _LANG_CALENDAR_APRIL;
-  case 4:  return _LANG_CALENDAR_MAY;
-  case 5:  return _LANG_CALENDAR_JUNE;
-  case 6:  return _LANG_CALENDAR_JULY;
-  case 7:  return _LANG_CALENDAR_AUGUST;
-  case 8:  return _LANG_CALENDAR_SEPTEMBER;
-  case 9:  return _LANG_CALENDAR_OCTOBER;
-  case 10: return _LANG_CALENDAR_NOVEMBER;
-  default:
-  case 11: return _LANG_CALENDAR_DECEMBER;
-  }
-}
-
-string intl_month(int num)
-{
- switch(num)
- {
-  case 0:  return _LANG_CALENDAR_INTL_JANUARY;
-  case 1:  return _LANG_CALENDAR_INTL_FEBRUARY;
-  case 2:  return _LANG_CALENDAR_INTL_MARCH;
-  case 3:  return _LANG_CALENDAR_INTL_APRIL;
-  case 4:  return _LANG_CALENDAR_INTL_MAY;
-  case 5:  return _LANG_CALENDAR_INTL_JUNE;
-  case 6:  return _LANG_CALENDAR_INTL_JULY;
-  case 7:  return _LANG_CALENDAR_INTL_AUGUST;
-  case 8:  return _LANG_CALENDAR_INTL_SEPTEMBER;
-  case 9:  return _LANG_CALENDAR_INTL_OCTOBER;
-  case 10: return _LANG_CALENDAR_INTL_NOVEMBER;
-  default:
-  case 11: return _LANG_CALENDAR_INTL_DECEMBER;
-  }
-}
-
 string convert_birthday(string str)
 {
   // we assume it is 4 characters long 'ddmm'
@@ -365,33 +281,3 @@ string ctime(int time, varargs int flag)
   }
   return result;
 }
-
-string seconds_to_time_string(int seconds)
-{
-  string * values;
-  values = ({ });
-
-  if (seconds > 86400)
-    values += ({ sprintf("%d "+_LANG_CALENDAR_DAY+((seconds/86400==1)?"":"s"),
-                          seconds/86400) });
-
-  seconds = seconds % 86400;
-
-  if (seconds > 3600)
-    values += ({ sprintf("%d "+_LANG_CALENDAR_HOUR+((seconds/3600==1)?"":"s"),
-                              seconds/3600) });
-
-  seconds = seconds % 3600;
-
-  if (seconds > 60)
-    values += ({ sprintf("%d "+_LANG_CALENDAR_MINUTE+(((seconds/60)%60==1)?"":"s"),
-                              (seconds/60)%60) });
-
-  seconds = seconds % 60;
-
-  values += ({ sprintf("%d "+_LANG_CALENDAR_SECOND+((seconds%60==1)?"":"s"),
-                        seconds%60) });
-
-  return query_multiple_short(values);
-}
-
