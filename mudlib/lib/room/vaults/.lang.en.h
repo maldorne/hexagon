@@ -8,3 +8,7 @@
 #define _LANG_VAULTS_CMDS_RETRIEVE ({ "retrieve" })
 #define _LANG_VAULTS_CMDS_LIST ({ "list" })
 #define _LANG_VAULTS_CMDS_LOGS ({ "logs" })
+
+#define _LANG_VAULTS_LOG_EMPTY "The log is empty.\n"
+#define _LANG_VAULTS_LOG_PERMISSION "You don't have permission to view the log.\n"
+#define _LANG_VAULT_IN_USE "The vault is in use, please try again in a few seconds.\n"

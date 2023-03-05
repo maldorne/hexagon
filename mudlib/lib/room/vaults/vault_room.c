@@ -48,6 +48,7 @@ inherit "/lib/room.c";
 #include <room/storage.h>
 #include <language.h>
 #include <translations/language.h>
+#include <translations/common.h>
 // #include "/secure/config.h"
 
 #define FILE_SIZE 30000 // change, you die
@@ -83,8 +84,8 @@ void create()
   dirs = explode(base_name(this_object()), "/");
 
   // every game vault is saved inside their own game "save" directory
-  save_file = save_dir + "/vaults/" + implode(dirs[2..], "-") + "-save";
-  vault_log = save_dir + "/vaults/" + implode(dirs[2..], "-") + "-log";
+  save_file = save_dir + "vaults/" + implode(dirs[2..], "-") + "-save";
+  vault_log = save_dir + "vaults/" + implode(dirs[2..], "-") + "-log";
 }
 
 void setup()
@@ -110,32 +111,31 @@ int view_vault_log(string str)
  
   if (strlen(str)) 
   {
-    notify_fail("Sintaxis: 'logs'\n");
+    notify_fail(_LANG_SYNTAX + ": 'logs'\n");
     return 0;
   }
 
   name = this_player()->query_name();
   
-  // Sólo si es programador, si es admin, o si admin esta puesto a 'all'
+  // only if you are a coder, admin, or if all are allowed
   if (this_player()->query_coder() ||
     member_array(name,vault_admins) != -1 ||
     !sizeof(vault_admins) || 
     (vault_admins[0] == "all") )
   {
-   
     tmp = read_file(query_vault_log());
 
-    if (!strlen(tmp))
+    if (!tmp || !strlen(tmp))
     {
-       tell_object(this_player(), "El registro de actividades está vacío.\n");
-       return 1;
+      tell_object(this_player(), _LANG_VAULTS_LOG_EMPTY);
+      return 1;
     }
 
     this_player()->more_string(tmp);
     return 1;
   }
   
-  notify_fail("No tienes permiso para ver el registro de actividades.\n");
+  notify_fail(_LANG_VAULTS_LOG_PERMISSION);
   return 0;
 }
 
@@ -147,7 +147,7 @@ int do_deposit(string str)
   int i;
   int ret;
  
-  vault = clone_object(VAULT_FILES_PATH+"vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
   /* Added by Timion, 06 NOV 97
     To prevent deposits in vault during CTF
   if ("/global/omiq.c"->flag_in_progress())
@@ -160,7 +160,7 @@ int do_deposit(string str)
  
   if (query_property(VAULT_USE_PROP))
   {
-    notify_fail("El baúl está siendo usado, inténtalo de nuevo en unos segundos.\n");
+    notify_fail(_LANG_VAULT_IN_USE);
     vault->dest_me();
     return 0;
   }
@@ -182,7 +182,7 @@ int do_deposit(string str)
     
     for (i = 0; i < sizeof(all); i++)
     {
-        // Como es posible que esto no estuviera YA????
+      // how is it possible this wasn't here already???
       if ((int)all[i]->query_in_use())
       {
         tell_object(this_player(), "No puedes depositar en un baúl tu " + all[i]->query_short() + ", lo llevas " +
@@ -215,6 +215,7 @@ int do_deposit(string str)
         // checked -= ({ all[i] });
         continue;
       }
+
       // This is here for a REASON, if you change it you had better
       // pray I don't find it - Radix
       /*
@@ -223,6 +224,7 @@ int do_deposit(string str)
         // !all[i]->query_scroll() && !all[i]->query_wand())
       {
       */
+
       if (!all[i]->query_value())
       {
         tell_object(this_player(), "No puedes depositar en un baúl tu " + all[i]->query_short() + ", estos " +
@@ -273,7 +275,7 @@ int do_retrieve(string str)
 
   if (query_property(VAULT_USE_PROP))
   {
-    notify_fail("El baúl está siendo usado, inténtalo de nuevo en unos segundos.\n");
+    notify_fail(_LANG_VAULT_IN_USE);
     vault->dest_me();
     return 0;
   }
@@ -334,13 +336,13 @@ int do_list(string str)
   string tmp;  // Radix Nov 29, 1997
   int capacity;
 
-  // Separamos los objetos por categorías, neverbot 08/07/04
-  // cada entrada del mapping es un array con los objetos correspondientes
+  // separate items by category, neverbot 08/07/04
+  // every mapping entry is an array with the corresponding objects
   mapping objects;
   
   vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
   
-  // Set the order to show
+  // set the order to show
   list = ({ "Armas", "Armaduras", "Escudos", "Hierbas", "Pieles", "Otros", });
 
   objects = ([ ]);
@@ -353,7 +355,7 @@ int do_list(string str)
 
   if (query_property(VAULT_USE_PROP))
   {
-    notify_fail("El baúl está siendo usado, inténtalo de nuevo en unos segundos.\n");
+    notify_fail(_LANG_VAULT_IN_USE);
     vault->dest_me();
     return 0;
   }
