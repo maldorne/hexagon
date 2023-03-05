@@ -136,7 +136,6 @@ Coder commands will be only in english, except texts shown to the players, which
 | kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | look          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | map           |          |          |    |    |
-| modo          |          |          |    |    |
 | monitor       |          |          |    |    |
 | past          |          |          |    |    |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
@@ -146,6 +145,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | score         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | sheet         |          |          |    |    |
 | time          |          |          |    |    |
+| verbose       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | whoami        |          |          |    |    |
 
 ## Legend
