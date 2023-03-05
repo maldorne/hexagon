@@ -106,6 +106,7 @@
 #define _LANG_CMD_CONFIG_UNKNOWN "Unknown"
 #define _LANG_CMD_CONFIG_USE_COMMANDS "\n  Between brackets you can see the specific command\n" + \
         "  that you can use to get more information.\n"
+#define _LANG_CMD_CONFIG_HINT "  Use '" + _LANG_CMD_CONFIG_SYNTAX + "'\n  to change the values.\n"
 
 // sheet
 

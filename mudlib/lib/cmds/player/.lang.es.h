@@ -106,6 +106,7 @@
 #define _LANG_CMD_CONFIG_UNKNOWN "Desconocido"
 #define _LANG_CMD_CONFIG_USE_COMMANDS "\n. Entre corchetes se indica el comando específico\n" + \
         "  que puedes usar para obtener más información.\n"
+#define _LANG_CMD_CONFIG_HINT "  Usa '" + _LANG_CMD_CONFIG_SYNTAX + "'\n  para cambiar los valores.\n"
 
 // sheet
 

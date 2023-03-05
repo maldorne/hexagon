@@ -152,6 +152,8 @@ int show_all_config()
 
   ret += _LANG_CMD_CONFIG_USE_COMMANDS;
 
+  ret += "\n" + _LANG_CMD_CONFIG_HINT;
+
   ret = handler("frames")->frame(ret, _LANG_CMD_CONFIG_FOR_USER, 
                                  this_user()->query_cols());
   write(ret);
