@@ -57,15 +57,11 @@ private string set_topic_value(string category, string topic, mixed value)
 
   config = CONFIG_TABLE->query_config_data();
   current_map = config[category];
-  write(to_string(topic));
-  write(to_string(category));
-  write(to_string(current_map));
-  write(to_string(current_map[topic]));
   func_name = current_map[topic][CONFIG_POS_SET_FUNC];
   
   if (function_exists(func_name, this_user()))
   {
-    switch(current_map[topic][CONFIG_POS_PARAM])
+    switch(current_map[topic][CONFIG_POS_TYPE])
     {
       case "string":
         if (current_map[topic][CONFIG_POS_PARAM] != "")
