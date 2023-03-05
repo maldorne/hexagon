@@ -55,7 +55,7 @@ static int cmd (string str, object me, string verb)
        color += "%^RED%^";
   }
 
-  if ( (str == "-d") || me->query_verbose() ) 
+  if ( (str == "-d") || me->user()->query_verbose() ) 
   {
     percentage = (points * 100) / max_points;
     res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_HEALTH_POINTS_LONG) + ":", percentage);

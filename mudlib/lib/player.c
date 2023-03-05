@@ -352,7 +352,7 @@ int do_glance(varargs string arg)
 /* old look_me(), neverbot 21/4/2003 */
 int do_look(varargs string arg)
 {
-  if (!this_object()->query_verbose())
+  if (!user()->query_verbose())
     return do_glance(arg);
 
   // already in the cmd
