@@ -29,7 +29,7 @@
 #define _LANG_NPCS_BARMAN_A_CHAT ({ "'Arrggghhh!" })
 
 #define _LANG_NPCS_ASSASSIN_NAME "kael"
-#define _LANG_NPCS_ASSASSIN_ALIAS "assassin"
+#define _LANG_NPCS_ASSASSIN_ALIAS ({ "Kael", "assassin" })
 #define _LANG_NPCS_ASSASSIN_MAIN_PLURAL "Assassins"
 #define _LANG_NPCS_ASSASSIN_PLURALS ({ "assassins" })
 #define _LANG_NPCS_ASSASSIN_SHORT "Kael, the Assassin"

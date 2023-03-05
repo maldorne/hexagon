@@ -10,7 +10,7 @@
                                    ":sonríe amablemente." })
 
 #define _LANG_NPCS_HEALER_NAME "thran"
-#define _LANG_NPCS_HEALER_SHORT "Thran el Clérigo"
+#define _LANG_NPCS_HEALER_SHORT "Thran, el Clérigo"
 #define _LANG_NPCS_HEALER_ALIASES ({ "Thran", "clérigo", "clerigo" })
 #define _LANG_NPCS_HEALER_PLURAL "Clérigos"
 #define _LANG_NPCS_HEALER_PLURAL_ALIASES ({ "clérigos", "clérigos" })
@@ -20,7 +20,14 @@
 #define _LANG_NPCS_HEALER_RAISE_COMMANDS ({ "resucitar", "resucitarme" })
 #define _LANG_NPCS_HEALER_INFO_COMMANDS ({ "info", "información", "informacion" })
 #define _LANG_NPCS_HEALER_INFO "Uhmm, si tu devoción hacia el Dios Lummen es pura " + \
-     "podrás resucitar. Escribe 'resucitar' y hallarás respuesta.\n"
+    "podrás resucitar. Escribe 'resucitar' y hallarás respuesta.\n"
+#define _LANG_NPCS_HEALER_CHAT ({ "'Si deseas saber como volver a tu forma mortal escribe 'info'.", \
+    ":realiza una oracion al dios Lummen.", \
+    "'Debes ser un buen devoto." })
+#define _LANG_NPCS_HEALER_RAISE_NO "¿Por qué quieres resucitar si no lo necesitas?\n"
+#define _LANG_NPCS_HEALER_RAISE_TOO_SOON "Resucitaste hace poco, tendrás que esperar un poco más.\n"
+#define _LANG_NPCS_HEALER_RAISE_YES_ME "Thran levanta sus manos invocando los poderes de los Dioses, y apareces de nuevo en tu forma mortal.\n"
+#define _LANG_NPCS_HEALER_RAISE_YES_ROOM this_player()->query_cap_name()+" aparece de nuevo en su forma mortal.\n"
 
 #define _LANG_NPCS_FARMER_NAME "granjero"
 #define _LANG_NPCS_FARMER_LONG "Un granjero de la región. Es un hombre común " + \

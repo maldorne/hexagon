@@ -22,3 +22,6 @@
 #define _LANG_BASEOBS_LEATHER_LONG "An armour made of leather pieces sewn together.\n"
 #define _LANG_BASEOBS_LEATHER_ALIASES ({ "armour", "leather" })
 #define _LANG_BASEOBS_LEATHER_PLURALS ({ "leather armours", "armours", "leathers" })
+
+#define _LANG_BASEOBS_CAPE "cape"
+#define _LANG_BASEOBS_CAPE_LONG "A cape made of thin cloth, with a high collar.\n"

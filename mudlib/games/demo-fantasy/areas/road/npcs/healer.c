@@ -30,15 +30,15 @@ void setup()
   set_hp(1000);
 
   load_chat(50, ({
-    1, "'Si deseas saber como volver a tu forma mortal escribe 'info'.",
-    1, ":realiza una oracion al dios Lummen.",
-    1, "'Debes ser un buen devoto."
+    1, _LANG_NPCS_HEALER_CHAT[0],
+    1, _LANG_NPCS_HEALER_CHAT[1],
+    1, _LANG_NPCS_HEALER_CHAT[2]
   }));
 
   adjust_money(5 + random(5), "gold");
   add_clone(BASEOBS + "weapons/mace", 1);
   add_clone(BASEOBS + "armours/cape", 1);
-  add_clone(BASEOBS + "armours/chainmail", 1);
+  add_clone(BASEOBS + "armours/chain_mail", 1);
 
   init_equip();
 }
@@ -59,49 +59,24 @@ int do_info(string str)
   return 1;
 }
 
-/*
 int do_raise(string str)
 {
-  string nombre;
-  object *quien, pc;
-
-  if(!str) return 0;
-  
-  nombre=this_player()->query_name();
-  if (str=="me" || str=="mi" || str==nombre)
-    pc=this_player();
-  else
+  if (this_player()->query_timed_property("thran_raise_abuse")) 
   {
-   quien=find_match(str,this_object());
-   if(!sizeof(quien)) return 0;
-   pc=quien[0];
-   if(!find_living(str)) return 0;
+    do_say(_LANG_NPCS_HEALER_RAISE_TOO_SOON);
+    return 1; 
   }
-  
-  if (pc->query_timed_property("NO_RESUCITAR")) {
-  tell_object(pc, "Thran te dice: Intentas tomarme el pelo?, tu resucitaste " + 
-    "hace poco... tendras que esperar mas tiempo.\n");
-  return 1; 
-  }
-  if (pc->query_dead()==0)
-{
-    if(pc==this_player())
-      tell_object(pc, "Porque me preguntas si quieres resucitar si no lo " + 
-          "necesitas ?.\n");
-    else
-     tell_object(pc, "Porque me preguntas si quieres resucitarle si no lo " + 
-        "necesita ?.\n");
+
+  if (!this_player()->query_dead())
+  {
+    do_say(_LANG_NPCS_HEALER_RAISE_NO);
     return 1;
   }
-  else if(priest)
-   {
-     tell_object(pc, "\nEl clerigo levanta las manos invocando los poderes de los Dioses" + 
-    ", y apareces de nuevo en tu forma mortal!.\n");
-     tell_room(environment(pc), pc->query_cap_name()+" aparece en su forma mortal.\n", pc);
-     pc->remove_ghost();
-     pc->adjust_max_lives(1);
-     pc->add_timed_property("NO_RESUCITAR", 1, 100);
-    }
+
+  tell_object(this_player(), _LANG_NPCS_HEALER_RAISE_YES_ME);
+  tell_room(environment(this_player()), _LANG_NPCS_HEALER_RAISE_YES_ROOM, this_player());
+  
+  this_player()->remove_ghost();
+  this_player()->add_timed_property("thran_raise_abuse", 1, 100);
   return 1;
 }
-*/

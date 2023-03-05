@@ -17,3 +17,8 @@
 #define _LANG_BASEOBS_HAND_AXE_LONG "A hand axe, small but sharp.\n"
 #define _LANG_BASEOBS_HAND_AXE_ALIASES ({ "axe", "hand" })
 #define _LANG_BASEOBS_HAND_AXE_PLURALS ({ "hand axes", "axes" })
+
+#define _LANG_BASEOBS_LIGHT_MACE "light mace"
+#define _LANG_BASEOBS_LIGHT_MACE_LONG "A mace of small size, although heavy.\n"
+#define _LANG_BASEOBS_LIGHT_MACE_ALIASES ({ "mace", "light" })
+#define _LANG_BASEOBS_LIGHT_MACE_PLURALS ({ "light maces", "maces" })

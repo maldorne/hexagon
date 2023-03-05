@@ -18,7 +18,7 @@ void setup()
 
  add_exit(DIR_EAST, ROOMS + "vault.c", "door");
 
- door = add_exit(DIR_OUT, ROOMS + "1.c", "door");
+ door = add_exit(DIR_WEST, ROOMS + "1.c", "door");
  if (door)
   door->set_init_status(0);
 }

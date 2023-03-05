@@ -22,3 +22,6 @@
 #define _LANG_BASEOBS_LEATHER_LONG "Una armadura fabricada con piezas de cuero cosidas.\n"
 #define _LANG_BASEOBS_LEATHER_ALIASES ({ "armadura", "cuero" })
 #define _LANG_BASEOBS_LEATHER_PLURALS ({ "armaduras de cuero", "armaduras", "cueros" })
+
+#define _LANG_BASEOBS_CAPE "capa"
+#define _LANG_BASEOBS_CAPE_LONG "Una capa de tela fina, con un cuello alto.\n"

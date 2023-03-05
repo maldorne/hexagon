@@ -31,7 +31,7 @@
 #define _LANG_NPCS_BARMAN_A_CHAT ({ "'¡Arrggghhh!" })
 
 #define _LANG_NPCS_ASSASSIN_NAME "kael"
-#define _LANG_NPCS_ASSASSIN_ALIAS "asesino"
+#define _LANG_NPCS_ASSASSIN_ALIAS ({ "Kael", "asesino" })
 #define _LANG_NPCS_ASSASSIN_MAIN_PLURAL "Asesinos"
 #define _LANG_NPCS_ASSASSIN_PLURALS ({ "asesinos" })
 #define _LANG_NPCS_ASSASSIN_SHORT "Kael, el Asesino"

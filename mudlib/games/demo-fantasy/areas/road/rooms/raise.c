@@ -14,7 +14,7 @@ void setup()
   add_item(_LANG_RAISEROOM_ALTAR, _LANG_RAISEROOM_ALTAR_DESC);
 
   set_light(60);
-  add_exit(DIR_OUT, ROOMS + "4.c", "door");
+  add_exit(DIR_SOUTH, ROOMS + "4.c", "door");
   add_property("no_undead", 1);
 
   add_clone(NPCS + "healer.c", 1);
