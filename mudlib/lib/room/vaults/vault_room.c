@@ -68,7 +68,7 @@ string *query_vault_admins() { return vault_admins; }
  
 void create()
 {
-  string game_name;
+  string save_dir;
 
   dirs = ({ });
   save_file = file_name(this_object()) + "-save";
@@ -79,15 +79,12 @@ void create()
 
   add_sign(_LANG_VAULTS_SIGN_LONG, read_file(doc("help/vaults")), STD_LANG);
 
-  game_name = game_name(this_object());   
+  save_dir = game_save_dir(this_object());   
   dirs = explode(base_name(this_object()), "/");
 
   // every game vault is saved inside their own game "save" directory
-  if (strlen(game_name))
-  {
-    save_file = "/games/" + game_name + "/save/vaults/" + implode(dirs[2..], "-") + "-save";
-    vault_log = "/games/" + game_name + "/log/vaults/" + implode(dirs[2..], "-") + "-log";
-  }
+  save_file = save_dir + "/vaults/" + implode(dirs[2..], "-") + "-save";
+  vault_log = save_dir + "/vaults/" + implode(dirs[2..], "-") + "-log";
 }
 
 void setup()
