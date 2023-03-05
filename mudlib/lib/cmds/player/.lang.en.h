@@ -118,3 +118,13 @@
 #define _LANG_CMD_SHEET_BASIC_CHARACTERISTICS "Basic characteristics"
 #define _LANG_CMD_SHEET_CAN_ALSO_USE "You can also use: 'skills', 'masteries' and " + \
         "'styles'.\n"
+
+// verbose
+
+#define _LANG_CMD_VERBOSE_ALIAS ({ "verbose" })
+#define _LANG_CMD_VERBOSE_SYNTAX "verbose <yes|no>"
+#define _LANG_CMD_VERBOSE_HELP "Configures longer descriptions for various actions.\n"
+#define _LANG_CMD_VERBOSE_ON "Ok, you are using verbose mode.\n"
+#define _LANG_CMD_VERBOSE_OFF "Ok, you are not using verbose mode.\n"
+#define _LANG_CMD_VERBOSE_CURRENT_ON "You are currently using verbose mode.\n"
+#define _LANG_CMD_VERBOSE_CURRENT_OFF "You are currently not using verbose mode.\n"

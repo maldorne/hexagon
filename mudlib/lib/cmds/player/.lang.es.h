@@ -118,3 +118,13 @@
 #define _LANG_CMD_SHEET_BASIC_CHARACTERISTICS "Características básicas"
 #define _LANG_CMD_SHEET_CAN_ALSO_USE "También puedes usar: 'habilidades', " + \
         "'maestrías' y 'estilos'.\n"
+
+// verbose
+
+#define _LANG_CMD_VERBOSE_ALIAS ({ "detalle", "verbose" })
+#define _LANG_CMD_VERBOSE_SYNTAX "detalle <sí|no>"
+#define _LANG_CMD_VERBOSE_HELP "Configura descripciones más largas por defecto.\n"
+#define _LANG_CMD_VERBOSE_ON "Ok, estás en modo detallado.\n"
+#define _LANG_CMD_VERBOSE_OFF "Ok, estás en modo abreviado.\n"
+#define _LANG_CMD_VERBOSE_CURRENT_ON "Estás en modo detallado.\n"
+#define _LANG_CMD_VERBOSE_CURRENT_OFF "Estás en modo abreviado.\n"
