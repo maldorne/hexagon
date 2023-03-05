@@ -46,14 +46,7 @@ string hud;
 static int save_counter;  // each reset counter
 static int last_command;  // time of last command
 
-// TMP DEBUG, REMOVE!!!
-// string query_name() { return "neverbot"; }
-// string short(varargs int dark) { return "neverbot"; }
-int query_verbose() { return 1; }
-// END TMP DEBUG
-
 #include "/lib/user/start.c"
-
 
 // Function prototypes
 // static void open();

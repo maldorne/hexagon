@@ -1,14 +1,19 @@
 
 
 int monitor;
+int verbose;
 
 void create()
 {
   monitor = 1;
+  verbose = 0;
 }
 
 void set_monitor(int m) { monitor = m; }
 int query_monitor() { return monitor; }
+
+void set_verbose(int v) { verbose = v; }
+int query_verbose() { return verbose; }
 
 // change this function to show health the same way as with the
 // score cmd, neverbot 12/05
@@ -61,5 +66,8 @@ void display_monitor(int use_colors)
 
 mixed * stats()
 {
-  return ({ });
+  return ({ 
+    ({ "Monitor", monitor, }),
+    ({ "Verbose", verbose, }),
+  });
 }
