@@ -200,19 +200,54 @@ mapping query_hash_by_category(int filter)
   return result;
 }
 
+private string query_category_name(int category)
+{
+  switch(category)
+  {
+    case USER_CMD:
+      return CMD_CATEGORY_USER;
+    case PLAYER_CMD:
+      return CMD_CATEGORY_PLAYER;
+    case CODER_CMD:
+      return CMD_CATEGORY_CODER;
+    case ADMIN_CMD:
+      return CMD_CATEGORY_ADMIN;
+    default:
+      // should not happen?
+      return CMD_CATEGORY_PLAYER;
+  }     
+}
+
+private int query_category_type(string category)
+{
+  switch(category)
+  {
+    case CMD_CATEGORY_USER:
+      return USER_CMD;
+    case CMD_CATEGORY_PLAYER:
+      return PLAYER_CMD;
+    case CMD_CATEGORY_CODER:
+      return CODER_CMD;
+    case CMD_CATEGORY_ADMIN:
+    case "admin":
+      return ADMIN_CMD;
+    default:
+      // should not happen?
+      return PLAYER_CMD;
+  }     
+}
+
 // if filter is provided, show only the available cmds for object player
 // of the category type = filter
 mapping query_available_cmds_by_category(object player, varargs int filter)
 {
-  int i, j;
+  int i;
   string * aux;
   mixed * categories;
-  mapping directories;
   mapping result;
 
   aux = ({ });
   categories = ({ });
-  directories = ([ ]);
   result = ([ ]);
 
   if (!player)
@@ -227,74 +262,29 @@ mapping query_available_cmds_by_category(object player, varargs int filter)
       continue;
 
     if (member_array(cmd_dirs[aux[i]][1], categories) == -1)
-      categories += ({ ({ cmd_dirs[aux[i]][1], aux[i] }) });
+      categories += ({ cmd_dirs[aux[i]][1] });
     // directories[aux[i]] = ({ });
   }
 
-  directories["/lib/cmds/user/"] = ({  });
-
-  if (player->query_player())
-  {
-    directories["/lib/cmds/player/"] = ({  });
-    directories["/game/cmds/player/"] = ({  });
-  }
-
-  if (player->query_coder())
-  {
-    directories["/lib/cmds/coder/"] = ({  });
-    directories["/game/cmds/coder/"] = ({  });
-    // directories["/net/cmds/"] = ({  });
-  }
-
-  if (player->query_admin())
-  {
-    directories["/lib/cmds/admin/"] = ({  });
-    directories["/game/cmds/admin/"] = ({  });
-    directories["/lib/cmds/meta/"] = ({  });
-  }
-
-  // in categories we have a list of lists, where each one
-  // contains the type of cmd and its directories
-
   aux = keys(cmd_hash);
 
-  for (i = 0; i < sizeof(aux); i++)
-    if (!undefinedp(directories[cmd_hash[aux[i]]["dir"]]))
-      directories[cmd_hash[aux[i]]["dir"]] += ({ cmd_hash[aux[i]]["file"], });
-
-  // in directories we have a mapping where each key is a cmd directory
-  // and each value is a list with full paths of every cmd in that directory
-
-  aux = keys(directories);
-
+  // get all possible cmds and put them in its cagory
   for (i = 0; i < sizeof(aux); i++)
   {
-    for (j = 0; j < sizeof(categories); j++)
-    {
-      if (aux[i] == categories[j][1])
-      {
-        result[categories[j][0]] = directories[aux[i]];
-        break;
-      }
-    }
+    string category;
+
+    category = query_category_name(cmd_hash[aux[i]]["category"]);
+
+    if (undefinedp(result[category]))
+        result[category] = ({ });
+
+    result[category] += ({ cmd_hash[aux[i]]["file"], });
   }
-
-  // in result we have a mapping where each key is the cmd type
-  // (player, admin, etc) and each value is a list with the full paths
-  // of every cmd of that type
-
-  // last, filter if there is any cmd type being an empty list
-
-  aux = keys(result);
-  for (i = 0; i < sizeof(aux); i++)
-    if (result[aux[i]] == ({ }))
-      map_delete(result, aux[i]);
 
   return result;
 }
 
 // called from /lib/living/queue.c, in perform_next_action()
-
 int cmd(string verb, string tail, object thisob)
 {
   object ob;
@@ -474,23 +464,7 @@ int cmd_make_hash(int verbose)
       int type;
       string path;
 
-      switch(directories[j])
-      {
-        case "admin":
-          type = ADMIN_CMD;
-          break;
-        case "coder":
-          type = CODER_CMD;
-          break;
-        case "player":
-          type = PLAYER_CMD;
-          break;
-        case "user":
-          type = USER_CMD;
-          break;
-        default:
-          continue;
-      }
+      type = query_category_type(directories[j]);
 
       path = "/packages/" + packages[i] + "/cmds/" + directories[j];
 
@@ -528,7 +502,7 @@ int cmd_make_hash(int verbose)
         count++;
 
         // add the directory to the cmd_dirs mapping
-        cmd_dirs[path + "/"] = ({ type, "Package (" + packages[i] + ")" });
+        cmd_dirs[path + "/"] = ({ type, query_category_name(type) });
 
         // multilanguage: only execute cmds with provided aliases
         aliases = cmd->query_aliases();
