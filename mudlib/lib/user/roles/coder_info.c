@@ -222,8 +222,11 @@ int comm_info(string str)
 
     for (j = 0; j < sizeof(comms); j++) 
     {
-      text += "" + (i+j+1) + ". " + explode(explode(comms[j], "/")[3], ".")[0] + " " + 
-        explode(comms[j], ".")[0] + "->cmd() found in " +
+      string * pieces;
+      pieces = explode(comms[j], "/");      
+
+      text += "" + (i+j+1) + ". " + pieces[sizeof(pieces)-1] + " " + comms[j] + 
+        "->cmd() found in " +
         comms[j] + "\n"; 
     }
     
@@ -264,19 +267,21 @@ int comm_info(string str)
     
     num_comms = sizeof(comms);
 
-    // Añadimos los comandos de /cmds, neverbot 01/2010
+    // add /cmds commands, neverbot 01/2010
     comms = CMD_HANDLER->query_available_cmds(this_player());
     num_comms += sizeof(comms);   
     
-    // Si no se ha encontrado, buscamos en los cmds
+    // if we haven't found it, search in the cmds
     if (text == "")
     {     
       for (j = 0; j < sizeof(comms); j++) 
       {
-        if (str == explode(explode(comms[j], "/")[3], ".")[0])
+        string * pieces;
+        pieces = explode(comms[j], "/");
+
+        if (str == pieces[sizeof(pieces)-1])
         {
-          text = explode(explode(comms[j], "/")[3], ".")[0] + " " + 
-            explode(comms[j], ".")[0] + "->cmd() found in " +
+          text = pieces[sizeof(pieces)-1] + " " + comms[j] + "->cmd() found in " +
             comms[j] + "\n"; 
           break;
         }
