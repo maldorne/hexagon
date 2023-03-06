@@ -6,7 +6,9 @@ inherit CMD_BASE;
 
 void setup()
 {
-  position = 1;
+  set_aliases(({ "discard" }));
+  set_usage("discard <file>");
+  set_help("Discard a file from memory.");
 }
 
 // This is for querying about objects who don't want to be destructed
@@ -45,34 +47,34 @@ static int cmd(string str, object me, string verb)
       }
       else 
       {
-        tell_object(me, str + "is not loaded.\n");
+        write(str + "is not loaded.\n");
       }
       continue;
     }
 
     /* Hamlet's addition */
-    if(environment(discard_obj)) 
+    if (environment(discard_obj)) 
     {
-      tell_object(me,str + " tiene un entorno(environment). No es posible "+
-        "descartarlo.\n");
+      write(str + " has an environment. It's not possible to " +
+        "discard it.\n");
       continue;
     }
 
     err = catch(discard_obj->dest_me());
 
     if (err)
-      tell_object(this_player(), "Error in dest_me():\n   " + err + "\n");
+      write("Error in dest_me():\n   " + err + "\n");
 
     if (discard_obj) 
     {
-      tell_object(me, "Este objeto ha sido creado con un destino importante.\n");
-      tell_object(me, "¿Estás seguro de querer hacer esto? ");
+      write("This object seems to have been created with a special purpose.\n");
+      write("Are you sure you want to discard it? ");
       input_to("no_discard");
       return 1;
     }
   }
 
-  tell_object(me, "Ok.\n");
+  write("Ok.\n");
   return 1;
 } /* discard() */
 
@@ -84,21 +86,21 @@ void no_discard(string s)
   {
     err = catch(discard_obj->dwep());
     if (err)
-      tell_object(this_player(), "Error in DWEP():\n   " + err + "\n");
+      write("Error in dwep():\n   " + err + "\n");
 
     if (discard_obj) 
     {
-      tell_object(this_player(), "Este objeto NO quiere ser descartado.\n");
+      write("This object does not want to be discarded.\n");
       destruct(discard_obj);
 
       if (discard_obj) 
       {
-        tell_object(this_player(), "No ha sido destruido.\n");
+        write("Destroying it has not been possible.\n");
         return;
       }
     }
   }
   
-  tell_object(this_player(),"Ok.\n");
+  write("Ok.\n");
   discard_obj = nil;
 } /* no_discard() */
