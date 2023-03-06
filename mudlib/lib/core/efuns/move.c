@@ -166,7 +166,7 @@ nomask object environment(varargs object ob)
 // Move the current object into the object 'dest'.  dest should either be
 // a filename or an object.
 
-void move_object(mixed dest)
+void move_object(object dest)
 {
   // if the move function exists in this object, move
   // if (function_object("move", this_object()))
