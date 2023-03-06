@@ -15,11 +15,11 @@ Common calls and operations over the basic types.
 | `floatp`                | :white_check_mark: |  |
 | `stringp`               | :white_check_mark: |  |
 | `virtualp`              |  |  |
-| `functionp`             | :heavy_minus_sign: | nonexistant in dgd |
+| `functionp`             | :heavy_minus_sign: | nonexistent in dgd |
 | `pointerp`              | :white_check_mark: | alias for `arrayp` |
 | `arrayp`                | :white_check_mark: |  |
 | `objectp`               | :white_check_mark: |  |
-| `classp`                | :heavy_minus_sign: | nonexistant in dgd |
+| `classp`                | :heavy_minus_sign: | nonexistent in dgd |
 | `mapp`                  | :white_check_mark: | alias for `mappingp` |
 | `userp`                 | :white_check_mark: | alias for `interactive` |
 | **strings**             |  |  |
@@ -55,10 +55,10 @@ Common calls and operations over the basic types.
 | `m_delete`              | :white_check_mark: | alias for `map_delete` |
 | `m_values`              | :white_check_mark: | alias for `map_values` |
 | `m_indices`             | :white_check_mark: | alias for `map_indices` |
-| `allocate_mapping`      | :heavy_minus_sign: | nonexistant in dgd, not used |
-| `unique_mapping`        | :heavy_minus_sign: | nonexistant in dgd, not used |
-| `map`                   | :heavy_minus_sign: | nonexistant in dgd, not used |
-| `map_mapping`           | :heavy_minus_sign: | nonexistant in dgd, not used |
+| `allocate_mapping`      | :heavy_minus_sign: | nonexistent in dgd, not used |
+| `unique_mapping`        | :heavy_minus_sign: | nonexistent in dgd, not used |
+| `map`                   | :heavy_minus_sign: | nonexistent in dgd, not used |
+| `map_mapping`           | :heavy_minus_sign: | nonexistent in dgd, not used |
 | `map_array`             | :white_check_mark: |  |
 | `filter_mapping`        | :white_check_mark: |  |
 | **functions**           |  |  |
@@ -149,15 +149,15 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `restore_object`        | :white_check_mark: |  |
 | `save_object`           | :white_check_mark: |  |
 | `get_dir`               | :white_check_mark: | masked to mimic MudOS behaviour |
-| `match_path`            | :heavy_minus_sign: | nonexistant in dgd, not used |
+| `match_path`            | :heavy_minus_sign: | nonexistent in dgd, not used |
 | `read_file`             | :white_check_mark: | The DGD version reads one character at a time. The MudOS version reads one line. Use `read_file_line` for this last behaviour. |
 | `read_bytes`            | :white_check_mark: | alias for `read_file` |
 | `write_file`            | :white_check_mark: | provided by dgd, masked for permissions |
-| `write_bytes`           | :heavy_minus_sign: | nonexistant in dgd, not used |
+| `write_bytes`           | :heavy_minus_sign: | nonexistent in dgd, not used |
 | `rename`                | :white_check_mark: | alias for `rename_file`, masked for permissions |
 | `file_size`             | :white_check_mark: | Mikael Lind's example code [from the Phantasmal docs](https://github.com/dworkin/phantasmal/blob/master/website/DGD/external/file_size.c) |
 | `cp`                    | :white_check_mark: |  |
-| `link`                  | :heavy_minus_sign: | nonexistant in dgd |
+| `link`                  | :heavy_minus_sign: | nonexistent in dgd |
 | `mkdir`                 | :white_check_mark: |  |
 | `rm`                    | :white_check_mark: |  |
 | `rmdir`                 | :white_check_mark: |  |
@@ -199,7 +199,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `random`                | :white_check_mark: | provided by dgd |
 | `shadow`                | :white_check_mark: |  |
 | `query_shadowing`       | :white_check_mark: |  |
-| `bind`                  |  |  |
+| `bind`                  | :heavy_minus_sign: | nonexistent in dgd |
 | `save_variable`         |  |  |
 | `restore_variable`      |  |  |
 | `call_stack`            |  |  |
@@ -223,7 +223,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `in_input`              |  |  |
 | `master`                |  |  |
 | `memory_info`           | :white_check_mark: |  |
-| `cache_stats`           | :heavy_minus_sign: | nonexistant in dgd |
+| `cache_stats`           | :heavy_minus_sign: | nonexistent in dgd |
 | `malloc_status`         |  |  |
 | `query_load_average`    |  |  |
 | `mud_status`            |  |  |
