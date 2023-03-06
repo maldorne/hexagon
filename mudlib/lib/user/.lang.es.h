@@ -29,7 +29,7 @@
 
 // more_string.c
 
-#define _LANG_MORE_STRING_MORE "[Sigue]"
+#define _LANG_MORE_STRING_MORE "Sigue"
 #define _LANG_MORE_STRING_STAT_LINE "$N > desde $T hasta $B de $S ($%%) - h para ayuda. "
 #define _LANG_MORE_STRING_NOT_FOUND "Lo siento, "+s1+" no encontrado.\n"
 #define _LANG_MORE_STRING_HELP_NOT_FOUND "El documento de ayuda " + \
