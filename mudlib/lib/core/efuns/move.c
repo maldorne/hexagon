@@ -189,10 +189,10 @@ static nomask int destruct(varargs object ob)
   object * shadows;
   int i;
 
-  stderr(" - destruct: <" + object_name(ob) + ">\n");
-
   if (!ob)
     ob = this_object();
+
+  stderr(" - destruct: <" + object_name(ob) + ">\n");
 
   // destruct all objects shadowing this object
   shadows = ob->_query_shadows();
