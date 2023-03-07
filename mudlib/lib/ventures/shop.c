@@ -142,6 +142,11 @@ int add_permanent_goods(string file, int amount)
   if (!ob)
   {
     debug("shops", " invalid add_permanent_goods in " + file_name(this_object()) + " : " + file + "\n");
+  
+    // create new issue, same message as npcs equipment
+    if (package("issues"))
+      package("issues")->add_issue("Cannot clone " + file, this_object());
+  
     return 0;
   }
   
