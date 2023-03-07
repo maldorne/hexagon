@@ -11,9 +11,10 @@
 // number is unique for each cloned object.  'ob' defaults to this_object()
 // if not specified.
 
-string file_name(object ob)
+string file_name(varargs object ob)
 {
-  // if (!ob) 
-  //   ob = this_object();
+  if (!ob) 
+    ob = this_object();
+
   return ::object_name(ob);
 }

@@ -11,7 +11,7 @@ void do_tests()
   for (i = 0; i < 5; i++)
   {
     ASSERT(sizeof(all_inventory()) == s + i);
-    clone_object(file_name(this_object()));
+    clone_object(file_name());
   }
 
   ASSERT(filter(all_inventory(this_object()), "is_all_inv_test", this_object()));
@@ -27,7 +27,7 @@ void create()
   if (clonep()) 
   {
     string s;
-    s = file_name(this_object());
+    s = file_name();
     sscanf(s, "%s#%*d", s);    
     move(find_object(s));
   }
