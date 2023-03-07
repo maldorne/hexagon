@@ -1,5 +1,6 @@
 
 #include <mud/cmd.h>
+#include <mud/config.h>
 #include "../../src/test.h"
 
 inherit CMD_BASE;
@@ -11,7 +12,7 @@ void setup()
   set_help("Execute a test suite.");
 }
 
-int main(string fun);
+private int main(string fun);
 
 int remove_files(mixed file_info, varargs mixed args...)
 {
@@ -19,17 +20,19 @@ int remove_files(mixed file_info, varargs mixed args...)
   return (file_info[1] == -2) && (file_info[0][0] != '.');
 }
 
-int recurse(string dir) 
+private int recurse(string dir) 
 {
   mixed leaks;
   string * files;
   mixed * subdirs;
   int i, j;
 
+  write("Testing directory: " + dir + "\n");
+
   files = get_dir(dir + "*.c");
   
   for (i = 0; i < sizeof(files); i++)
-  main(dir + files[i]);
+    main(dir + files[i]);
   
   subdirs = filter(get_dir(dir + "*", -1), "remove_files", this_object());
 
@@ -64,15 +67,22 @@ int recurse(string dir)
   return 1;
 }
 
-int main(string file)
+private int main(string file)
 {
   string leaks, error;
   object tp, ob;
   mixed result;
 
   tp = this_player();
+
+  // there are no tests in the test handler
+  if (file == TEST_H)
+    return 1;
+
+  write("%^BOLD%^Testing file: " + file + " ...%^RESET%^\n");
   
-  write("Testing: " + file + "...\n");
+  // increment test counters
+  START_TEST();
 
   // if (!file || !strlen(file) || file == "") 
   // {
@@ -86,17 +96,23 @@ int main(string file)
     destruct(find_object(file));
 
   error = catch(ob = load_object(file));
-  if (error) return 0;
+  if (error || !ob) 
+  {
+    write("%^BOLD%^RED%^File do not load.%^RESET%^\n");
+    FAIL_TEST();
+    return 1;
+  }
   
   error = catch(result = ob->do_tests());
+  
   if (error) 
   {
-    write("Errors catched.\n");
-    return 0;
+    write("%^BOLD%^Warning: error in test catched, won't continue with this file tests.%^RESET%^\n");
+    FAIL_TEST();
   }
 
   if (tp != this_player())
-    error("Bad this_player() after calling " + file + "\n");
+    write("%^BOLD%^RED%^Bad this_player() after file: " + file + "%^RESET%^\n");
 
 #if defined(__DEBUGMALLOC_EXTENSIONS__) && defined(__CHECK_MEMORY__)
 
@@ -114,9 +130,42 @@ int main(string file)
   return 1;
 }
 
+private string show_stats()
+{
+  string res;
+  int * stats;
+
+  res = "\n";
+  stats = find_object(TEST_H)->query_stats();
+
+  res += "Total test files: " + stats[0] + "\n";
+  if (stats[1] > 0)
+    res += "%^BOLD%^RED%^Total test files failed: " + stats[1] + "%^RESET%^\n";
+
+  res += "Total asserts attempted: " + stats[2] + "\n";
+  res += "Total asserts passed: " + stats[3] + "\n";
+  
+  if (stats[2] != stats[3])
+    res += "%^BOLD%^RED%^Total asserts failed: " + (stats[2]-stats[3]) + "%^RESET%^\n";
+
+  return handler("frames")->frame(res, "Test results");
+}
+
 static int cmd(string str, object me, string verb)
 {
   int result;
+  object hand;
+
+  hand = load_object(TEST_H);
+
+  if (!hand)
+  {
+    write("Cannot load test handler.\n");
+    return 1;
+  }
+
+  if (LOG_CAUGHT_ERRORS)
+    write("%^BOLD%^Warning: LOG_CAUGHT_ERRORS is set to TRUE, test results will be full of catch traces.%^RESET%^\n");
 
   if (strlen(str))
   {
@@ -124,14 +173,22 @@ static int cmd(string str, object me, string verb)
 
     // it is a file
     if (result == 1)
-      return main(str);
+      main(str);
     // it is a directory
-    if (result == -1)
-      return recurse(str);
-
-    write("Syntax: test [ <file | directory> ]\n");
-    return 1;
+    else if (result == -1)
+      recurse(str);
+    else 
+      write("Syntax: test [ <file | directory> ]\n");
+  }
+  else
+  {
+    recurse("/packages/test/src/");
   }
 
-  return recurse("/packages/test/src/");
+  write("\n" + show_stats());
+  
+  if (hand)
+    destruct(hand);
+  
+  return 1;
 }
