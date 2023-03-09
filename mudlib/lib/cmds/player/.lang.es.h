@@ -95,7 +95,7 @@
 
 // configuration
 
-#define _LANG_CMD_CONFIG_ALIAS ({ "configuracion", "configuración", "config" })
+#define _LANG_CMD_CONFIG_ALIAS ({ "configuracion", "configuración", "config", "settings" })
 #define _LANG_CMD_CONFIG_SYNTAX "configuracion <categoría> <tema> <valor>"
 #define _LANG_CMD_CONFIG_HELP "Establece diversos valores de configuración del jugador."
 #define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'"+str+"' no es una categoría válida a configurar.\n"
