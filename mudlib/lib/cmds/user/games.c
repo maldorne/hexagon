@@ -21,6 +21,7 @@ static int cmd (string arg, object me, string verb)
   int i, is_coder;
   object user;
   object * games;
+  string ret;
 
   is_coder = false;
   user = me->user();
@@ -34,7 +35,7 @@ static int cmd (string arg, object me, string verb)
   //   return 1;
   // }
 
-  write(_LANG_CMD_GAMES_AVAILABLE);
+  ret = _LANG_CMD_GAMES_AVAILABLE + "\n";
 
   games = handler("games")->query_game_objects();
 
@@ -58,8 +59,9 @@ static int cmd (string arg, object me, string verb)
 
     line += "\n";
 
-    write(line);
+    ret += line;
   }
 
+  write(handler("frames")->frame(ret));
   return 1;
 }

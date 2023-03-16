@@ -18,7 +18,7 @@ string query_help()
 
 static int cmd (string arg, object me, string verb)
 {
-  string * list;
+  string * list, ret;
   int i;
   object user;
 
@@ -32,10 +32,12 @@ static int cmd (string arg, object me, string verb)
 
   list = user->query_player_list();
 
-  write(_LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT);
+  ret = _LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT + "\n";
 
   for (i = 0; i < sizeof(list); i++)
-    write("   " + ((string)(i + 1)) + ") " + capitalize(list[i]) + "\n");
+    ret += "   " + ((string)(i + 1)) + ") " + capitalize(list[i]) + "\n";
+
+  write(handler("frames")->frame(ret));
 
   return 1;
 }
