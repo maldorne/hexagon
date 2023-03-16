@@ -13,8 +13,8 @@ void create()
 {
   msgout = _LANG_RACES_MSG_IN_STD;
   msgin = _LANG_RACES_MSG_OUT_STD;
-  mmsgout = _LANG_RACES_MMSG_IN_STD;
-  mmsgin = _LANG_RACES_MMSG_OUT_STD;
+  mmsgout = _LANG_RACES_MMSG_OUT_STD;
+  mmsgin = _LANG_RACES_MMSG_IN_STD;
 
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
