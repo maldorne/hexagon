@@ -142,6 +142,12 @@ nomask int query_admin()
     return _user->query_admin();
   return 0;
 }
+nomask int query_invis()
+{
+  if (_user)
+    return _user->query_invis();
+  return 0;
+}
 
 nomask void set_user_ob(object ob)
 {
