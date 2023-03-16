@@ -12,6 +12,9 @@
 #define _LANG_CODER_OBJECT_NAME_BROKEN "Ups. Your "+itemname+" just broke.\n"
 #define _LANG_CODER_OBJECT_BROKEN "Ups. Something you had just broke.\n"
 #define _LANG_CODER_OBJECT_UPDATED "Updated: "
+#define _LANG_CODER_DESTROYS (string)this_player()->query_cap_name() + " destroys " + \
+          (shrt ? shrt : "something") + ".\n"
+#define _LANG_CODER_TRANS_THEY "\nYou are transferred to some place.\n\n"
 
 // coder_path
 
