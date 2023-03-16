@@ -13,6 +13,7 @@
 // room.c
 
 #define _LANG_DEFAULT_SIGN_NAME "cartel"
+#define _LANG_NO_EXITS "sin salidas"
 
 // language.c
 

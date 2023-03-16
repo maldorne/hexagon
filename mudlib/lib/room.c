@@ -391,9 +391,9 @@ string query_short_exit_string()
   if (sizeof(dirs) == 0)
   {
     if (nostore)
-      return exit_color+" [ninguna]%^RESET%^";
+      return exit_color + " [" + _LANG_NO_EXITS + "]%^RESET%^";
 
-    return short_exit_string = exit_color + " [ninguna]%^RESET%^";
+    return short_exit_string = exit_color + " [" + _LANG_NO_EXITS + "]%^RESET%^";
   }
 
   if (nostore)

@@ -13,6 +13,7 @@
 // room.c
 
 #define _LANG_DEFAULT_SIGN_NAME "sign"
+#define _LANG_NO_EXITS "no exits"
 
 // language.c
 
