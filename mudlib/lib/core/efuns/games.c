@@ -4,15 +4,13 @@ static nomask string game_name(object ob)
   string fname;
   string * words;
 
+  if (!ob)
+    return "";
+
   // if it is a player, we use the room they are in to know
   // what game are they playing
-  // if (ob->query_player())
-  //   ob = environment(ob);
-
-  // changed, everything with an environment uses it as its game
-  // neverbot 01/2021
-  if (environment(ob))
-    ob = environment(ob);
+  if (ob->query_player())
+    return game_name(environment(ob));
 
   fname = file_name(ob);
   words = explode(fname, "/");
