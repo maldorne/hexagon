@@ -5,8 +5,10 @@ int verbose;
 
 void create()
 {
+  // by default, health points monitor on
   monitor = 1;
-  verbose = 0;
+  // by default, verbose mode on
+  verbose = 1;
 }
 
 void set_monitor(int m) { monitor = m; }
