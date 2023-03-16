@@ -725,7 +725,7 @@ int trans(string str)
     */
 
     if (environment(obs[i]) && (!obs[i]->query_coder()))
-      log_file("trans", (string)this_player(1)->query_cap_name()+" (trans'ed) "+
+      log_file("trans", (string)this_player(1)->player()->query_cap_name()+" (trans'ed) "+
         obs[i]->query_cap_name()+" from "+file_name(environment(obs[i]))+
         " to "+file_name(environment(this_player()))+" ["+ctime(time(),4)+"]\n");
 

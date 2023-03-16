@@ -88,6 +88,10 @@ private static mixed ia_abort;     /* function/message on abort              */
 private static mixed ia_complete;  /* function/message on complete           */
 private static string ia_message;  /* message on any command not an abort    */
 
+// prototypes
+nomask int insert_action(mixed val);
+nomask int queue_action(mixed val);
+
 void create()
 {
   ia_show_interrupt = 1;
@@ -399,7 +403,14 @@ private int aq_delete_user_actions()
 
 nomask int do_command(string cmd)
 {
-  call_out("action_check", 0, cmd);
+  // call_out will store the current this_player, etc, and will 
+  // execute the function after restoring the context... so
+  // if something initiated by player A makes a do_command in player B,
+  // will be executed with this_player == A, which could be catastrophic
+  // let's change it by a queue_action, and let's see what happen
+  // call_out("action_check", 0, cmd);
+
+  return queue_action(cmd);
 }
 
 // The do_cmd is a part of the external command handling system.
@@ -621,8 +632,6 @@ private int perform_next_action()
 
 /*
  * The outside interface for inserting actions to the head of the queue.
- *
- * consider using do_command instead of this, neverbot 10/16
  */
 nomask int insert_action( mixed val ) { return aq_insert( val ); }
 nomask int queue_action( mixed val ) { return aq_add( val ); }
@@ -640,15 +649,15 @@ void act()
 {
   trivial_actions_performed = 0;
 
-  if ( time_left < max_time )
+  if (time_left < max_time)
   {
     time_left += this_object()->query_bits_per_beat();
     time_left = ( time_left > max_time ) ? max_time : time_left;
   }
 
-  while( perform_next_action() )
+  while (perform_next_action())
   {
-    if ( show_prompt && this_object() )
+    if (show_prompt && this_object())
     {
       this_object()->show_prompt();
       this_object()->write_prompt();
@@ -683,12 +692,12 @@ nomask int action_check(string str)
     return 0;
 
   // this is ridiculous. MudOS will not show these strings as equal.
-  if ( str == command_in_progress )
+  if (str == command_in_progress)
     return 0;
 
   // Expand some common aliases
   // * Moved from process_input.
-  switch( str[0] )
+  switch (str[0])
   {
     case '\'' : str = "decir "   + str[1..]; break;
     case ':'  : str = "emocion " + str[1..]; break;
@@ -765,7 +774,7 @@ nomask int action_check(string str)
     //   return 1;
   }
 
-  if ( query_heart_beat() == 0 )
+  if (query_heart_beat() == 0)
   {
     // tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"
     //   "No tienes heartbeat; prueba '%^BOLD%^reiniciar%^RESET%^' para intentar "
@@ -776,14 +785,14 @@ nomask int action_check(string str)
       "solucionarlo.\n");
   }
 
-  if ( sizeof(actionq) >= AQ_MAX_ACTIONS )
+  if (sizeof(actionq) >= AQ_MAX_ACTIONS)
   {
     tell_object(this_object(), "Ya hay demasiados comandos en la cola; "+
       "ignorando '"+str+"'.\n");
     return 1;
   }
 
-  if ( this_object()->action_blocked() )
+  if (this_object()->action_blocked())
   {
     // Wonderflug, Dec 95, making this more flexible --
     // * can specify the string that the block puts out.
@@ -842,12 +851,12 @@ nomask int action_check(string str)
   // The latency is too much, so we've added a check to see
   // * if it's ok to execute the command right away.
 
-  if ( (i = aq_add( str )) != AQ_OK )
+  if ((i = aq_add( str )) != AQ_OK)
   {
     tell_object(this_object(), "Error insertando en la cola de comandos '"
       + str + "', " + i + "\n");
   }
-  else if ( ia_in_progress && query_show_interrupt() )
+  else if (ia_in_progress && query_show_interrupt())
   {
     tell_object(this_object(), ia_message);
   }
@@ -858,15 +867,15 @@ nomask int action_check(string str)
     // * iteration of the loop into an if.
 
     // if ( ( sizeof(actionq) >= 1 )
-    if ( ( sizeof(actionq) >= 1 ) && ( time_left > 0 ) &&
-         ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
+    if ((sizeof(actionq) >= 1) && (time_left > 0) &&
+        (trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB))
     {
       perform_next_action();
     }
 
     // while ( sizeof(actionq) >= 1
-    while ( sizeof(actionq) >= 1 && (time_left > 0) &&
-          ( trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB ) )
+    while (sizeof(actionq) >= 1 && (time_left > 0) &&
+          (trivial_actions_performed < MAXIMUM_COMMANDS_PER_HB))
     {
       this_object()->show_prompt();
       this_object()->write_prompt();
