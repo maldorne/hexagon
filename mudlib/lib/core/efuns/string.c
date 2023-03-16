@@ -371,7 +371,10 @@ static string pluralize(string str)
 {
   if (!strlen(str))
     return "objects";
-  else return (str + "s");
+  else if (extract(str, strlen(str) - 1) == "s")
+    return str;
+  else
+    return (str + "s");
 }
 
 // removed, this won't work with utf-8 _and_ is not really needed
