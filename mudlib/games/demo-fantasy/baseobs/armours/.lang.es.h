@@ -25,3 +25,6 @@
 
 #define _LANG_BASEOBS_CAPE "capa"
 #define _LANG_BASEOBS_CAPE_LONG "Una capa de tela fina, con un cuello alto.\n"
+
+#define _LANG_BASEOBS_TROUSERS "pantalones"
+#define _LANG_BASEOBS_TROUSERS_LONG "Unos pantalones de tela, no demasiado cómodo.\n"

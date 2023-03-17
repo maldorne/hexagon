@@ -25,3 +25,6 @@
 
 #define _LANG_BASEOBS_CAPE "cape"
 #define _LANG_BASEOBS_CAPE_LONG "A cape made of thin cloth, with a high collar.\n"
+
+#define _LANG_BASEOBS_TROUSERS "trousers"
+#define _LANG_BASEOBS_TROUSERS_LONG "A pair of trousers made of cloth, not very comfy.\n"

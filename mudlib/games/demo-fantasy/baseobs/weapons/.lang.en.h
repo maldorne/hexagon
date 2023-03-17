@@ -22,3 +22,9 @@
 #define _LANG_BASEOBS_LIGHT_MACE_LONG "A mace of small size, although heavy.\n"
 #define _LANG_BASEOBS_LIGHT_MACE_ALIASES ({ "mace", "light" })
 #define _LANG_BASEOBS_LIGHT_MACE_PLURALS ({ "light maces", "maces" })
+
+#define _LANG_BASEOBS_STAFF "staff"
+#define _LANG_BASEOBS_STAFF_LONG "A wooden staff of medium size.\n"
+#define _LANG_BASEOBS_STAFF_ALIASES ({ "staff" })
+#define _LANG_BASEOBS_STAFF_PLURALS ({ "staves", "staffs" })
+
