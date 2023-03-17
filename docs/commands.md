@@ -132,6 +132,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | grope         |          |          |    |    |
 | grupo         |          |          |    |    |
+| inform        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | inventory     |          |          |    |    |
 | kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | look          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
