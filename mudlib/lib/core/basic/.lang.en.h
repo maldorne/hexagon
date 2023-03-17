@@ -59,3 +59,5 @@
 #define _LANG_NO_LONG "Nothing particularly interesting.\n"
 
 // events.c
+
+#define _LANG_EVENTS_ENTERS " enters "

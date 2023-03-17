@@ -5,6 +5,8 @@
 
 #include <status.h>
 
+#define MUD_NAME "Hexagon"
+
 // do not use the cron handler on start
 // usually this will be set to TRUE,
 // set to FALSE just for easier debugging purposes
@@ -35,7 +37,7 @@
 // true: messages from caught errors will have more information
 // false: to avoid printing in stderr and showing to coders the full 
 // trace when errors are caught
-#define LOG_CAUGHT_ERRORS FALSE
+#define LOG_CAUGHT_ERRORS TRUE
 
 // when loggin info of an error (stderr or to a coder)
 // show the full trace or only the line where the error occurred

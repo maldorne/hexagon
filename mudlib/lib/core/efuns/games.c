@@ -1,15 +1,17 @@
 
-static nomask string game_name(object ob)
+#include <mud/config.h>
+
+static nomask string game_name(varargs object ob)
 {
   string fname;
   string * words;
 
   if (!ob)
-    return "";
+    ob = this_object();
 
   // if it is a player, we use the room they are in to know
   // what game are they playing
-  if (ob->query_player())
+  if (ob->query_player() && environment(ob))
     return game_name(environment(ob));
 
   fname = file_name(ob);
@@ -65,6 +67,21 @@ static nomask object game_master_object(object ob)
     return nil;
 
   return master;
+}
+
+static nomask string game_pretty_name(varargs object ob)
+{
+  object master;
+
+  if (!ob)
+    ob = this_object();
+
+  master = game_master_object(ob);
+
+  if (master)
+    return master->query_game_name();
+  else
+    return MUD_NAME;
 }
 
 static nomask int is_in_game(object ob)

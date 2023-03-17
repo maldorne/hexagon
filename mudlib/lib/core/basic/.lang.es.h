@@ -55,3 +55,5 @@
 #define _LANG_NO_LONG "No ves nada particularmente interesante.\n"
 
 // events.c
+
+#define _LANG_EVENTS_ENTERS " entra en "

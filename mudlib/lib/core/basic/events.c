@@ -3,6 +3,7 @@
 #include <basic/communicate.h>
 #include <user/user.h>
 #include <translations/language.h>
+#include <language.h>
 
 void create()
 {
@@ -157,7 +158,8 @@ void event_login(object ob, varargs mixed avoid)
       return;
   }
 
-  this_object()->catch_tell(ob->query_cap_name() + " entra en "+mud_name() + ".\n");
+  this_object()->catch_tell("[" + ob->query_cap_name() + _LANG_EVENTS_ENTERS + 
+                            game_pretty_name(this_object()) + "]\n");
 }
 
 void event_soul(object ob, string msg, varargs mixed avoid)

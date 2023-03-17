@@ -24,11 +24,11 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
   {
     if (query_property(GUEST_PROP))
       log_file("enter", sprintf("Enter : %-15s %s (guest) [%s]\n",
-                          name, ctime(time(),4),
+                          name, ctime(time(), 4),
                           query_ip_number(this_user())+" ("+query_ip_name(this_user())+")"));
     else
       log_file("enter", sprintf("Enter : %-15s %s [%s]\n",
-                          name, ctime(time(),4),
+                          name, ctime(time(), 4),
                           query_ip_number(this_user())+" ("+query_ip_name(this_user())+")"));
   }
 
