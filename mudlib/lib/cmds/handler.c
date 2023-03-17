@@ -241,7 +241,7 @@ private int query_category_type(string category)
 // of the category type = filter
 mapping query_available_cmds_by_category(object player, varargs int filter)
 {
-  int i;
+  int i, * perms;
   string * aux;
   mixed * categories;
   mapping result;
@@ -249,15 +249,28 @@ mapping query_available_cmds_by_category(object player, varargs int filter)
   aux = ({ });
   categories = ({ });
   result = ([ ]);
+  perms = ({ });
 
   if (!player)
     return nil;
+
+  // get all object permissions
+  perms += ({ USER_CMD, });
+  if (player->query_player())
+    perms += ({ PLAYER_CMD, });
+  if (player->query_coder())
+    perms += ({ CODER_CMD, });
+  if (player->query_admin())
+    perms += ({ ADMIN_CMD, });
 
   // get all possible cmd types
   aux = keys(cmd_dirs);
 
   for (i = 0; i < sizeof(aux); i++)
   {
+    if (member_array(cmd_dirs[aux[i]][0], perms) == -1)
+      continue;
+
     if (filter && (cmd_dirs[aux[i]][0] != filter))
       continue;
 
@@ -268,15 +281,18 @@ mapping query_available_cmds_by_category(object player, varargs int filter)
 
   aux = keys(cmd_hash);
 
-  // get all possible cmds and put them in its cagory
+  // get all possible cmds and put them in its category
   for (i = 0; i < sizeof(aux); i++)
   {
     string category;
 
     category = query_category_name(cmd_hash[aux[i]]["category"]);
 
+    if (member_array(category, categories) == -1)
+      continue;
+
     if (undefinedp(result[category]))
-        result[category] = ({ });
+      result[category] = ({ });
 
     result[category] += ({ cmd_hash[aux[i]]["file"], });
   }
