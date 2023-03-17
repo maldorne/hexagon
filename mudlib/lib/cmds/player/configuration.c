@@ -125,7 +125,7 @@ private string show_category(string title, string category)
     else
       ret += sprintf("    %18s : %15s", (string)topics[i], _LANG_CMD_CONFIG_UNKNOWN);
 
-    ret += "    [ %^GREEN%^" + current_map[topics[i]][CONFIG_POS_COMMAND] + "%^BOLD%^ ]\n";
+    ret += "    [ %^GREEN%^" + current_map[topics[i]][CONFIG_POS_COMMAND] + "%^RESET%^ ]\n";
   }
 
   return ret;
