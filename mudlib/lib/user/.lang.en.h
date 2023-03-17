@@ -16,7 +16,6 @@
 #define _LANG_COMM_COLS_WRONG "Wrong number of columns (must be from 35 to 200).\n"
 #define _LANG_COMM_COLS_SET "Columns set to " + val + ".\n"
 
-#define _LANG_COMM_INFORM "inform"
 #define _LANG_COMM_EARMUFFS "earmuffs"
 #define _LANG_COMM_TERMINAL "terminal"
 #define _LANG_COMM_BLOCK "block"

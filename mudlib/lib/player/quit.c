@@ -1,5 +1,6 @@
 
 #include <mud/time.h>
+#include <translations/inform.h>
 #include <language.h>
 
 int really_quit()
@@ -100,14 +101,17 @@ int really_quit()
   if (query_name() != DEF_NAME)
   {
     if (!this_object()->query_hidden())
-      tell_room(environment(this_object()), _LANG_QUIT_ENV_QUIT, ({ this_object() }));
+      tell_room(environment(this_object()), 
+                implode(explode(this_object()->query_mmout(), "$N"), 
+                        this_object()->query_cap_name())[1..], 
+                ({ this_object() }));
 
     if (this_object()->query_coder())
-      event(users(), "inform", _LANG_QUIT_INFORM_CODERS, "logon-coders",
-                               all_inventory(environment(this_object())));
+      event(users(), "inform", _LANG_QUIT_INFORM_CODERS, 
+            INFORM_EVENT_LOGOFF_CODERS, this_object());
     else
-      event(users(), "inform", _LANG_QUIT_INFORM_PLAYERS, "logon",
-                               all_inventory(environment(this_object())));
+      event(users(), "inform", _LANG_QUIT_INFORM_PLAYERS, 
+            INFORM_EVENT_LOGOFF, this_object());
   }
 
   ob = ({ });

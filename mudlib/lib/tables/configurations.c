@@ -1,6 +1,7 @@
 // neverbot 10/2004
  
 #include <user/configuration.h>
+#include <translations/inform.h>
 #include <language.h>
 
 // Every entry in the mapping is a new mapping with all the pairs
@@ -50,7 +51,7 @@ mapping query_config_data()
           _LANG_CONFIG_TOPIC_LOGON:   ({ "bool",
                                          "query_inform", 
                                          "set_inform", 
-                                         "logon",   
+                                         INFORM_EVENT_LOGON,   
                                        _LANG_CONFIG_CMD_INFORM, }),
         ]),
       

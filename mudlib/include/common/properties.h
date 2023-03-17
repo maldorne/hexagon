@@ -34,10 +34,9 @@
 // (see /global/pweath.c)
 #define WARMTH_PROP "warmth"
 
-// related with inform events (/global/events.c)
-#define INFORM_REPRESSED "inform repressed"
+// related with inform events
+// #define INFORM_REPRESSED "inform repressed"
 #define NO_INFORM "no_inform"
-#define INFORM_PROP "inform"
 
 #define PC_GAVE_NPC_PROPERTY "pc_gave_npc"
 

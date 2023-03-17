@@ -28,10 +28,10 @@
 
 #define _LANG_START_INFORM_CODER query_cap_name() + \
                 (strlen(query_gtitle()) ? " " + query_gtitle() : "") + \
-                " entra en " + mud_name()
+                " entra en " + game_pretty_name(this_object())
 #define _LANG_START_INFORM_PLAYER query_cap_name() + " entra " + \
                 (query_property(GUEST_PROP) ? ("como invitad" + G_CHAR + " ") : "") + \
-                "en " + mud_name() + \
+                "en " + game_pretty_name(this_object()) + \
                 (is_new_player ? " (%^GREEN%^BOLD%^Nuev" + G_CHAR + " jugador" + \
                   (query_gender() == 2 ? "a" : "") + "%^RESET%^)" : "")
 #define _LANG_NEW_MANDATORY_ITEM "Por algún error has debido perder tu " + ob->query_name() + ". " + \
@@ -54,7 +54,6 @@
 #define _LANG_QUIT_THANKS "Gracias por jugar, ¡hasta la próxima!\n"
 #define _LANG_QUIT_INFORM_CODERS this_object()->query_cap_name()+" sale de "+mud_name()
 #define _LANG_QUIT_INFORM_PLAYERS this_object()->query_cap_name()+" sale de "+mud_name()
-#define _LANG_QUIT_ENV_QUIT this_object()->query_cap_name()+" sale de "+mud_name()+".\n"
 
 // read.c
 

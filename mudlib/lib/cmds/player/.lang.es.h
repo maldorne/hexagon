@@ -129,3 +129,19 @@
 #define _LANG_CMD_VERBOSE_OFF "Ok, estás en modo abreviado.\n"
 #define _LANG_CMD_VERBOSE_CURRENT_ON "Estás en modo detallado.\n"
 #define _LANG_CMD_VERBOSE_CURRENT_OFF "Estás en modo abreviado.\n"
+
+// inform
+
+#define _LANG_CMD_INFORM_ALIAS ({ "informar", "información", "informacion", "inform" })
+#define _LANG_CMD_INFORM_SYNTAX "informar [evento <sí|no>]"
+#define _LANG_CMD_INFORM_HELP "Muestra los ajustes de información automática sobre eventos.\n"
+#define _LANG_INFORM_HEADER "Estado de los eventos de información:\n"
+#define _LANG_INFORM_BLOCKED "Todos los eventos están siendo reprimidos.\n" + \
+      "Utiliza 'informar sí' para desbloquearlos.\n"
+#define _LANG_INFORM_EVENTS_UNBLOCKED "Bloqueo de los eventos eliminado.\n"
+#define _LANG_INFORM_EVENTS_BLOCKED "Bloqueo de todos los eventos añadido.\n"
+#define _LANG_INFORM_ALL_ON "Todos los eventos activados.\n"
+#define _LANG_INFORM_ALL_OFF "Todos los eventos desactivados.\n"
+#define _LANG_INFORM_UNKNOWN_EVENT "Tipo de evento desconocido.\n"
+#define _LANG_INFORM_ON "Eventos de tipo '" + frog[0] + "' activados.\n"
+#define _LANG_INFORM_OFF "Eventos de tipo '" + frog[0] + "' desactivados.\n"

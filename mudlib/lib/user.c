@@ -10,6 +10,7 @@ inherit obj           "/lib/core/object";
 inherit security      "/lib/user/security";
 inherit output        "/lib/user/output";
 inherit communicate   "/lib/user/communicate";
+inherit inform        "/lib/user/inform";
 inherit help          "/lib/user/help";
 inherit prompt        "/lib/user/prompt";
 inherit role          "/lib/user/role";
@@ -61,6 +62,7 @@ void create()
   ui::create();
   output::create();
   communicate::create();
+  inform::create();
   more_string::create();
   more_file::create();
   help::create();
@@ -487,6 +489,7 @@ mixed * stats()
           }) + help::stats() +
                output::stats() +
                communicate::stats() +
+               inform::stats() +
                prompt::stats() +
                role::stats() +
                security::stats() +

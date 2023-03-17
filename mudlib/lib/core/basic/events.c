@@ -76,8 +76,6 @@ void event_say(object caller, string msg, varargs mixed avoid)
 
 void event_inform(object caller, string msg, string type, varargs mixed avoid)
 {
-  mixed on;
-
   if (!interactive(this_object()))
     return;
 
@@ -92,20 +90,14 @@ void event_inform(object caller, string msg, string type, varargs mixed avoid)
       return;
   }
 
-  on = this_object()->query_property(INFORM_PROP);
-
-  if (!on || !arrayp(on))
-    on = ({ });
-
   if (this_object()->query_property(NO_INFORM) ||
      (caller->query_invis() && !this_object()->query_coder()) ||
-     (caller->query_user() && caller->user()->query_invis() == 2 && !this_object()->query_admin()) ||
-     !sizeof(on))
+     (caller->query_user() && caller->user()->query_invis() == 2 && !this_object()->query_admin()))
   {
     return;
   }
 
-  if (member_array(type, on) == -1)
+  if (!this_object()->user()->query_inform(type))
     return;
 
   msg = fix_string("\n[" + msg + "]\n\n");
@@ -158,8 +150,11 @@ void event_login(object ob, varargs mixed avoid)
       return;
   }
 
-  this_object()->catch_tell("[" + ob->query_cap_name() + _LANG_EVENTS_ENTERS + 
-                            game_pretty_name(this_object()) + "]\n");
+  stderr(" * event_login " + object_name(this_object()) + "\n");
+
+  // this information is given in the event_inform, not needed here
+  // this_object()->catch_tell("[" + ob->query_cap_name() + _LANG_EVENTS_ENTERS + 
+  //                           game_pretty_name(this_object()) + "]\n");
 }
 
 void event_soul(object ob, string msg, varargs mixed avoid)

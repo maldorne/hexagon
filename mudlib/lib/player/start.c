@@ -5,6 +5,7 @@
 #include <living/death.h>
 #include <basic/communicate.h>
 #include <translations/races.h>
+#include <translations/inform.h>
 #include <language.h>
 
 // prototypes
@@ -96,21 +97,17 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
     }
 
     if (query_coder())
-    {
       event(users(), "inform", _LANG_START_INFORM_CODER, 
-            "logon-coders", this_object());
-    }
+            INFORM_EVENT_LOGON_CODERS, this_object()->user());
     else
-    {
       event(users(), "inform", _LANG_START_INFORM_PLAYER, 
-            "logon", this_object());
-    }
+            INFORM_EVENT_LOGON, this_object()->user());
 
     if (user()->query_invis() < 2)
       event(environment(this_object()), "login", this_object());
 
     if (query_property(PASSED_OUT_PROP))
-      call_out("remove_property", 10 + random(30), PASSED_OUT_PROP);
+      call_out("remove_property", 20, PASSED_OUT_PROP);
   }
 
   // check items we have lost from our inventory

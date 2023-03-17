@@ -13,6 +13,8 @@
 
 #define _LANG_AFFIRMATIVE_OPTIONS ({ "y", "yes", "yeah", "yep", "yup", "sure", "ok", "okay", "on" })
 #define _LANG_NEGATIVE_OPTIONS ({ "n", "no", "not", "don't", "dont", "nope", "off" })
+#define _LANG_ALL_OPTIONS ({ "all" })
+#define _LANG_NONE_OPTIONS ({ "none" })
 
 // numbers
 

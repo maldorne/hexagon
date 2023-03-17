@@ -16,11 +16,10 @@
 #define _LANG_COMM_COLS_WRONG "Número incorrecto de columnas (debe estar entre 35 y 200).\n"
 #define _LANG_COMM_COLS_SET "Columnas ajustadas a " + val + ".\n"
 
-#define _LANG_COMM_INFORM "informar"
 #define _LANG_COMM_EARMUFFS "tapones"
 #define _LANG_COMM_TERMINAL "terminal"
-#define _LANG_COMM_BLOCK "bloquear"
-#define _LANG_COMM_UNBLOCK "desbloquear"
+#define _LANG_COMM_BLOCK ({ "bloquear", "block" })
+#define _LANG_COMM_UNBLOCK ({ "desbloquear", "unblock" })
 
 // help.c
 

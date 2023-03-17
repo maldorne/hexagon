@@ -4,7 +4,6 @@
  *  some changes and improvements for ccmud, neverbot 10/04
  */
 
-#include <user/inform.h>
 #include <common/properties.h>
 #include <basic/communicate.h>
 #include <user/hud.h>

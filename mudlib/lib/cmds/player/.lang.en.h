@@ -129,3 +129,19 @@
 #define _LANG_CMD_VERBOSE_OFF "Ok, you are not using verbose mode.\n"
 #define _LANG_CMD_VERBOSE_CURRENT_ON "You are currently using verbose mode.\n"
 #define _LANG_CMD_VERBOSE_CURRENT_OFF "You are currently not using verbose mode.\n"
+
+// inform
+
+#define _LANG_CMD_INFORM_ALIAS ({ "inform" })
+#define _LANG_CMD_INFORM_SYNTAX "inform [event <yes|no>]"
+#define _LANG_CMD_INFORM_HELP "Shows your automatic event information settings.\n"
+#define _LANG_INFORM_HEADER "Status of automatic events information:\n"
+#define _LANG_INFORM_BLOCKED "Every event is being repressed.\n" + \
+        "Use 'inform yes' to unblock them.\n"
+#define _LANG_INFORM_EVENTS_UNBLOCKED "Events are unblocked.\n"
+#define _LANG_INFORM_EVENTS_BLOCKED "Events are blocked.\n"
+#define _LANG_INFORM_ALL_ON "Every event is being informed.\n"
+#define _LANG_INFORM_ALL_OFF "Every event is being blocked.\n"
+#define _LANG_INFORM_UNKNOWN_EVENT "Event type unknown.\n"
+#define _LANG_INFORM_ON "Events of type '" + frog[0] + "' are being informed.\n"
+#define _LANG_INFORM_OFF "Events of type '" + frog[0] + "' are being blocked.\n"
