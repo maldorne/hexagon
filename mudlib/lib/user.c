@@ -242,7 +242,7 @@ void send_message(string str)
 
   ::send_message(str);
 
-  // redraw all the ui features is a new line is sent
+  // redraw all the ui features if a new line is sent
   // ony redraw if what we are sending is not the proper ui!
   if (ui_activated() && !ui_in_use())
     ui_redraw();

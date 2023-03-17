@@ -239,6 +239,10 @@ nomask void logon_option(string str)
   string * available_cmds;
   int tmp;
 
+  // most clients hide local echo in the two first inputs (username and password)
+  // force print a new line to avoid confusion
+  write("\n");
+
   if (!strlen(str))
   {
     disconnect();
@@ -561,7 +565,7 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   // TODO: move query_player_ob checks here somehow
   // player_ob = SECURE->query_player_ob(name);
 
-  write(_LANG_WAIT_LOADING);
+  write("\n" + _LANG_WAIT_LOADING);
 
   // every user object will have the same name
   // if name != "object", that will mean the user has finished the login process
