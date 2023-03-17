@@ -26,10 +26,15 @@ string * query_move_messages()
   return ({ msgout, msgin, mmsgout, mmsgin });
 }
 
-void setmin(string str) { msgin = str; }
-void setmout(string str) { msgout = str; }
-void setmmin(string str) { mmsgin = str; }
-void setmmout(string str) { mmsgout = str; }
+void set_min(string str) { msgin = str; }
+void set_mout(string str) { msgout = str; }
+void set_mmin(string str) { mmsgin = str; }
+void set_mmout(string str) { mmsgout = str; }
+
+string query_min() { return msgin; }
+string query_mout() { return msgout; }
+string query_mmin() { return mmsgin; }
+string query_mmout() { return mmsgout; }
 
 int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 {
