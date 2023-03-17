@@ -1,6 +1,5 @@
-open 1
 game_coordinator "neverbot"
-game_name "Demo Fantasy Game"
+open 1
 read_perms ([0|])
 write_perms ([0|])
 dir_owners ([0|])

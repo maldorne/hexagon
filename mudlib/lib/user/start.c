@@ -23,9 +23,5 @@ void start(varargs int going_invis, int is_new_player)
   // update the current prompt
   parse_prompt();
 
-  if (query_coder())
-    if (file_size("/home/" + name + "/" + PLAYER_ERROR_LOG) > 0)
-      write("\nTienes informes de errores en /home/"+name+"/"+PLAYER_ERROR_LOG+"\n");
-
   // commands::show_commands();
 }

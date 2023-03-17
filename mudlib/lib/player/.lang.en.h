@@ -26,6 +26,14 @@
 
 // start.c
 
+#define _LANG_START_INFORM_CODER query_cap_name() + \
+                (strlen(query_gtitle()) ? " " + query_gtitle() : "") + \
+                " enters " + mud_name()
+#define _LANG_START_INFORM_PLAYER query_cap_name() + " enters " + mud_name() + \
+                (query_property(GUEST_PROP) ? (" as a guest") : "") + \
+                (is_new_player ? " (%^GREEN%^BOLD%^New player%^RESET%^)" : "")
+#define _LANG_NEW_MANDATORY_ITEM "Because of some error, you have lost your " + \
+                ob->query_name() + ". A new one is given to you.\n"
 
 // quit.c
 

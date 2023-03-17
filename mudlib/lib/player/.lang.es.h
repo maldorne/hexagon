@@ -26,6 +26,16 @@
 
 // start.c
 
+#define _LANG_START_INFORM_CODER query_cap_name() + \
+                (strlen(query_gtitle()) ? " " + query_gtitle() : "") + \
+                " entra en " + mud_name()
+#define _LANG_START_INFORM_PLAYER query_cap_name() + " entra " + \
+                (query_property(GUEST_PROP) ? ("como invitad" + G_CHAR + " ") : "") + \
+                "en " + mud_name() + \
+                (is_new_player ? " (%^GREEN%^BOLD%^Nuev" + G_CHAR + " jugador" + \
+                  (query_gender() == 2 ? "a" : "") + "%^RESET%^)" : "")
+#define _LANG_NEW_MANDATORY_ITEM "Por algún error has debido perder tu " + ob->query_name() + ". " + \
+              "Otr" + ob->query_vowel() + " nuev" + ob->query_vowel() + " te es concedid" + ob->query_vowel() + ".\n"
 
 // quit.c
 

@@ -53,6 +53,20 @@ static nomask string game_save_dir(varargs object ob)
   return "/save/games/" + ret + "/";
 }
 
+static nomask object game_master_object(object ob)
+{
+  object master;
+  string path;
+
+  path = game_root(ob);
+  master = load_object(path + "master.c");
+
+  if (!master)
+    return nil;
+
+  return master;
+}
+
 static nomask int is_in_game(object ob)
 {
   if (explode(base_name(ob), "/")[0] == "games")

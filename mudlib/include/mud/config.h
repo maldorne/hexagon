@@ -35,7 +35,7 @@
 // true: messages from caught errors will have more information
 // false: to avoid printing in stderr and showing to coders the full 
 // trace when errors are caught
-#define LOG_CAUGHT_ERRORS TRUE
+#define LOG_CAUGHT_ERRORS FALSE
 
 // when loggin info of an error (stderr or to a coder)
 // show the full trace or only the line where the error occurred

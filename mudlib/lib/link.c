@@ -1,4 +1,8 @@
 
+// link.c is the type of object that is created when a user logs in.
+// is equivalent to a player object, but it is not saved.
+// Once the user logs in, the link object is replaced by a player object.
+
 #include <user/player.h>
 #include <user/roles.h>
 #include <user/login.h>
@@ -59,6 +63,11 @@ nomask int query_admin()
     return _user->query_admin();
   return 0;
 }
+nomask int save_me()
+{
+  // we don't save link objects
+  return 1;
+}
 
 nomask void set_user_ob(object ob)
 {
@@ -78,8 +87,9 @@ void set_account_name(string str)
 
   if (account_name != "")
     return; // changing account name is not allowed
+  
   account_name = str;
-  save_me();
+  // save_me();
 }
 
 string query_role_name() { return role_name; }

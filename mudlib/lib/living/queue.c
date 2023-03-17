@@ -407,10 +407,10 @@ nomask int do_command(string cmd)
   // execute the function after restoring the context... so
   // if something initiated by player A makes a do_command in player B,
   // will be executed with this_player == A, which could be catastrophic
-  // let's change it by a queue_action, and let's see what happen
+  // let's change it by a insert_action, and let's see what happen
   // call_out("action_check", 0, cmd);
 
-  return queue_action(cmd);
+  return insert_action(cmd);
 }
 
 // The do_cmd is a part of the external command handling system.

@@ -11,4 +11,3 @@
 #define _LANG_VOID_COMMANDS ({ "update", "up", "look", "glance" })
 #define _LANG_VOID_EXIT_NAME "out"
 #define _LANG_VOID_ERROR "This should not happen, ever."
-          

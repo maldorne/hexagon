@@ -59,7 +59,10 @@ static int cmd (string arg, object me, string verb)
 
     line += "\n";
 
-    ret += line;
+    if (games[i]->query_game_short_description())
+      line += "      " + games[i]->query_game_short_description() + "\n";
+
+    ret += line + "\n";
   }
 
   write(handler("frames")->frame(ret));

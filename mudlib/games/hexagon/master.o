@@ -1,5 +1,4 @@
 game_coordinator "admin"
-game_name "Hexagon"
 read_perms ([0|])
 write_perms ([0|])
 dir_owners ([0|])

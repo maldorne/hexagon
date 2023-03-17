@@ -9,8 +9,8 @@
 // On login:
 
 // starting position for new players
-// TODO this will change with multiple games
-#define START_POS "/games/ciudad-capital/areas/start/start.c"
+// here they will choose the game for the newly created character
+#define START_POS "/games/hexagon/areas/start/begin.c"
 
 // Taniwha 14/09/1995 how long shall we disable guild commands
 // and spells after login

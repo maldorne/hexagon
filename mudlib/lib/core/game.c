@@ -10,18 +10,26 @@
 
 #include <language.h>
 
+// game description
+string game_coordinator;
+static string game_name, game_short_desc, game_long_desc;
 // permissions for players: can they play?
 int open;
 
 // permissions for coders
 int open_read, open_write;
-string game_coordinator, game_name;
-mapping read_perms, write_perms, dir_owners;
+mapping read_perms, 
+        write_perms, 
+        dir_owners;
 string finger_info;
 mixed members;
 
 void set_game_name(string dom) { game_name = dom; }
 string query_game_name() { return game_name; }
+void set_game_short_description(string desc) { game_short_desc = desc; }
+string query_game_short_description() { return game_short_desc; }
+void set_game_long_description(string desc) { game_long_desc = desc; }
+string query_game_long_description() { return game_long_desc; }
 
 void set_game_coordinator(string lord) { game_coordinator = lord; }
 string query_game_coordinator() { return game_coordinator; }
@@ -52,6 +60,11 @@ void create()
 {
   int i;
   mapping map;
+
+  game_coordinator = "";
+  game_name = "";
+  game_short_desc = "";
+  game_long_desc = "";
 
   members = ([ ]);
   read_perms = ([ ]);

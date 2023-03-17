@@ -4,25 +4,21 @@
 #include <living/consents.h>
 #include <living/death.h>
 #include <basic/communicate.h>
+#include <translations/races.h>
 #include <language.h>
 
 // prototypes
-void do_first_look();
-void start_player();
+nomask void start_player();
+nomask void check_mandatory_inventory();
 
-void start(varargs int going_invis, int is_new_player, int reconnected, object destination)
+nomask void start(varargs int going_invis, int is_new_player, int reconnected, object destination)
 {
   object tmp;
-  // object obb = find_object(OMIQ_H);
   mapping mail_stat;
   object last;
 
   if (!SECURE->valid_progname("/lib/core/login"))
     return;
-
-  // some stupid test to make sure that the previous object is /secure/login.
-  // seteuid(ROOT);
-  // set_name(bong);
 
   if (!reconnected)
   {
@@ -35,17 +31,6 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
                           name, ctime(time(),4),
                           query_ip_number(this_user())+" ("+query_ip_name(this_user())+")"));
   }
-
-  /* Nos olvidamos de omiqs, neverbot 4/2003
-  if (OMIQ_HAND->flag_in_progress() &&
-  (file_size("/save/playertmp/"+name+".o") > 0)) {
-  tell_object(this_object(), "Restaurando tu ficha temporal de flag omiq...\n");
-  restore_object("/save/playertmp/"+name,1);
-  }
-  else
-  */
-
-  // restore_object("/save/players/"+name[0..0]+"/"+name,1);
 
   set_short(capitalize(name));
 
@@ -60,13 +45,13 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
   if (!msgin || msgin[0] != '@')
     msgin = msgout = mmsgin = mmsgout = "";
   if (!msgin)
-    msgin = "@$N llega desde $F.";
+    msgin = _LANG_RACES_MSG_IN_STD;
   if (!msgout)
-    msgout = "@$N se va hacia $T.";
+    msgout = _LANG_RACES_MSG_OUT_STD;
   if (!mmsgin)
-    mmsgin = "@$N aparece de la nada.";
+    mmsgin = _LANG_RACES_MMSG_IN_STD;
   if (!mmsgout)
-    mmsgout = "@$N desaparece en una nube de humo.";
+    mmsgout = _LANG_RACES_MMSG_OUT_STD;
 
   CHAT_HANDLER->init_player_channels(query_property(CHANNELS_PROPERTY), this_object());
   // channel_init();
@@ -86,8 +71,7 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
   // move the player to its initial destination
   if (reconnected)
   {
-    move(destination);
-    call_out("do_first_look", 0);
+    move_living("X", destination);
   }
   else
   {
@@ -99,42 +83,38 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
       // if (query_level() >= 5)
       // {
       //   last_pos = MULTIEXITS_ROOM;
-      //   move(last_pos);
+      //   move_living("X", last_pos);
       // }
       // else
       // {
-        last_pos = START_POS;
-        move(last_pos);
+        move_living("X", START_POS);
       // }
     }
     else
     {
-      move(find_object(last_pos));
+      move_living("X", last_pos);
     }
 
     if (query_coder())
     {
-      event(users(), "inform", query_cap_name()+(strlen(query_gtitle()) ? " "+query_gtitle() : "")+
-                     " entra en "+mud_name(), "logon-coders", this_object());
+      event(users(), "inform", _LANG_START_INFORM_CODER, 
+            "logon-coders", this_object());
     }
     else
     {
-      event(users(), "inform", query_cap_name()+" entra"+
-                     (query_property(GUEST_PROP)?(" como invitad"+G_CHAR):"")+
-                     " en " + mud_name()+
-                     (is_new_player ? " (%^GREEN%^BOLD%^Nuev"+G_CHAR+" jugador"+
-                       (query_gender()==2?"a":"")+
-                     "%^RESET%^)":""), "logon", this_object());
+      event(users(), "inform", _LANG_START_INFORM_PLAYER, 
+            "logon", this_object());
     }
 
     if (user()->query_invis() < 2)
       event(environment(this_object()), "login", this_object());
 
-    call_out("do_first_look", 0);
-
     if (query_property(PASSED_OUT_PROP))
       call_out("remove_property", 10 + random(30), PASSED_OUT_PROP);
   }
+
+  // check items we have lost from our inventory
+  call_out("check_mandatory_inventory", 1);
 
   // TODO mail
   /*
@@ -160,7 +140,7 @@ void start(varargs int going_invis, int is_new_player, int reconnected, object d
   //  IDENTD->do_ident(this_object(), this_object());
 } /* start() */
 
-void do_first_look()
+nomask void check_mandatory_inventory()
 {
   int i, j;
   int * has;
@@ -169,19 +149,11 @@ void do_first_look()
 
   has = allocate_int(sizeof(MUST_HAVE));
 
-  for (i = 0; i < sizeof(has); i++)
-    has[i] = 0;
-
-  if (user()->query_verbose())
-    do_command("look");
-  else
-    do_command("glance");
-
-  // Si estamos creando el personaje, su nivel es cero, no debemos hacer esto
+  // if we are creating the character, his level is zero, we must not do this
   if (query_level() >= 1)
   {
-    // Comprobamos los objetos que todo player debe llevar siempre
-    //  (solo pueden haberse perdido por algun error del salvado o carga de la ficha)
+    // check the items every player must always have
+    // (they can be lost by some error in saving or loading the character)
     obs = all_inventory(this_object());
 
     for (i = 0; i < sizeof(MUST_HAVE); i++)
@@ -197,14 +169,13 @@ void do_first_look()
         if (ob)
         {
           ob->move(this_object());
-          tell_object(this_object(), "Por algún error has debido perder tu "+ob->query_name()+". "+
-              "Otr"+ob->query_vowel()+" nuev"+ob->query_vowel()+" te es concedid"+ob->query_vowel()+".\n\n");
+          this_object()->user()->add_notification("inventory", _LANG_NEW_MANDATORY_ITEM);
         }
       }
   }
 }
 
-void start_player()
+nomask void start_player()
 {
   int lockout;
 
@@ -225,7 +196,7 @@ void start_player()
   // Helpless (relatively) for a while after you log in, you can run...
   // but you can't hide.
   // Added to make it very undesirable to log out
-  if ( query_property(PACIFY_PROP) )
+  if (query_property(PACIFY_PROP))
     lockout = LOGINLOCK * 10;
   else
     lockout = LOGINLOCK;

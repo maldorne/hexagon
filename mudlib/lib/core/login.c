@@ -111,8 +111,9 @@ nomask void logon(object u)
   // will link back player -> user, too
   _user->set_player_ob(_player);
 
-  // masked move functions, will be moved to their proper places
-  // this will make the first init call to have commands available
+  // masked move functions, the user and link objects will be moved to their 
+  // proper places 
+  // also, this will make the first init call to have commands available
   _user->move("whereever");
   _player->move("whereever");
 
@@ -560,18 +561,6 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   // TODO: move query_player_ob checks here somehow
   // player_ob = SECURE->query_player_ob(name);
 
-// only if we are using multiple servers and this is not the development one
-#ifdef MULTIMUD
-#ifndef CCMUD_DEVEL
-  if (coder && !SECURE->query_admin(name))
-  {
-    write(_LANG_CODERS_FORBIDDEN);
-    disconnect(1);
-    return;
-  }
-#endif
-#endif
-
   write(_LANG_WAIT_LOADING);
 
   // every user object will have the same name
@@ -583,7 +572,8 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   // store the user name in the user handler
   find_object(USER_HANDLER)->update_user(_user, _player);
 
-  write(_LANG_CONNECTED_WELCOME);
+  write(_LANG_CONNECTED_WELCOME + "\n");
+
   // true -> silent flag, just store as notification but do not show popup
   _user->add_notification("login", _LANG_CONNECTED_WELCOME, true);
 
@@ -776,6 +766,12 @@ void create_player2();
 void create_player(string str)
 {
   int tmp;
+
+  if (!strlen(str))
+  {
+    disconnect();
+    return;
+  }
 
   if ((tmp = SECURE->valid_user_name(str)) != -1)
   {
