@@ -6,40 +6,41 @@
  * and for now that's the only one needing it..
  * unless you have any wear / wieldable items.. the should also inherit this
  *
- * Modificado por neverbot@Cc, Abril/03, para generalizar e incluir aqui funciones
- *  de otros archivos (/std/basic/item_misc.c).
+ * Modified by neverbot@Cc, April/03, to generalize and include functions from 
+ * other files (/std/basic/item_misc.c).
  *
- * Eliminado el /obj/handlers/item_handler.c, por cambiar la forma en que se
- *  comprueban los gremios, razas, deidades, etc del item, neverbot 4/03
- * Ahora el item tiene una lista de strings que se corresponden con los query_name
- *  de cada objeto del living (query_guild_name, query_race_name, etc), en lugar
- *  de funcionar mediante propiedades.
+ * Removed /obj/handlers/item_handler.c, to change the way guilds, races, 
+ *  deities, etc. of the item are checked, neverbot 4/03
+ * Now the item has a list of strings that correspond to the query_name of 
+ *  each living object (query_guild_name, query_race_name, etc.), instead of 
+ *  working through properties.
  *
- * Como personalizar objetos:
+ * How to customize objects:
  *
- * Si necesitamos que sea para una raza, gremio, deidad determinada, etc,
- *  simplemente tenemos que hacerle un set_guild("nombre del gremio"), set_race, etc
- *  o genero con set_needed_gender(1 o 2).
- * Se puede hacer el objeto para un unico jugador mediante el
- *  add_property("player", nombre);
- * Se puede hacer el objeto de quest mediante add_property("property", propiedad)
- *  y solo lo podran utilizar los jugadores que tengan la property <propiedad>
- * Si se le pone la propiedad CURSED_PROP (ver properties.h), no se podra quitar o
- *  desempuñar, y dara el mensaje el mensaje devuelto por el
- *  objeto->query_property(CURSED_PROP). Se pueden poner una lista de dos mensajes en lugar
- *  de un solo string, y dara el segundo mensaje a la room donde esta el personaje.
- * Mismo funcionamiento con las propiedades "messon" y "messoff" para dar mensajes
- *  al equiparse y desequiparse.
- * Eliminadas las propiedades para subir caracteristicas, ac o thac0... lo dejaremos
- *  para la gente que sepa utilizar las funciones de bonos temporales de combate y
- *  similares en lugar de permitir que cualquier programador meta objetos poderosos.
+ * If we need it to be for a specific race, guild, deity, etc., we just have 
+ *  to set_guild("guild name"), set_race, etc., or gender with set_needed_gender(1 or 2).
+ * The object can be made for a single player by using 
+ *  add_property("player", name);
+ * The object can be made for a quest by adding the property 
+ *  add_property("property", property) and only players who have the property 
+ *  <property> can use it.
+ * If the CURSED_PROP property is set (see properties.h), it cannot be removed 
+ *  or wielded, and the message returned by object->query_property(CURSED_PROP) 
+ *  will be displayed. A list of two messages can be used instead of a single 
+ *  string, and the second message will be displayed in the room where the 
+ *  character is located.
+ * The same applies to the "messon" and "messoff" properties for giving messages 
+ *  when equipping and unequipping.
+ * Removed properties for increasing stats, ac or thac0... we will leave that 
+ *  for people who know how to use temporary combat bonuses and similar 
+ *  functions instead of allowing any programmer to create powerful objects.
  *
- * Añadida herencia de read_desc, antiguamente en todos los objetos del mud, ahora
- *  solo en items. neverbot 24/08/2008
+ * Added inheritance of read_desc, formerly in all objects in the mud, now 
+ *  only in items. neverbot 24/08/2008
  *
- * Añadidas resistencias magicas a los objetos mediante properties
- *    add_property( "tipo resistencia", porcentaje);
- *    Los tipos de resistencias están en /include/resistances.h
+ * Added magical resistances to objects through properties
+ *    add_property("resistance type", percentage);
+ *    Resistance types are in /include/resistances.h
  *    neverbot 13/17/2009
  * 
  * hit_item() added, old hit_weapon, hit_armour, hit_shield removed, neverbot 02/2023
@@ -51,8 +52,8 @@ inherit alignment "/lib/core/basic/alignment";
 inherit condition "/lib/core/basic/condition";
 inherit read_desc "/lib/core/basic/read_desc";
 
-// Incluido para que los items tengan el mismo numero de objetos que un
-//  living (race, race_group, guild, etc).
+// included so items have the same nomber of social objects than a living
+//  (race, race_group, guild, etc).
 #include <living/living.h>
 #include <common/properties.h>
 #include <basic/condition.h>
@@ -66,7 +67,7 @@ int size;
 int hands;  /* Hamlet */
 int in_use;
 int gender_needed;
-string * list; // Lista de nombres (similar a la lista de objetos de un living).
+string * list; // name list (similar to the object list of a living)
 
 void create()
 {
@@ -167,10 +168,9 @@ string long(varargs string s, int dark)
 }
 
 /* **************************
- *  Antiguo archivo /std/basic/item_misc.c añadido aqui, no se utilizaba
- *  en ningun otro lugar, neverbot 4/03
- * **************************
- */
+ *  old /std/basic/item_misc.c added here, it was not being used
+ *  anywhere else, neverbot 4/03
+ * **************************/
 
 // Move hack so that wearables/holdables will leave the wear/hold
 // arrays of living creatures.
@@ -226,8 +226,8 @@ void dest_me()
 
 // Major hack, Taniwha 1996, most of it is in HANDLER
 // To clean up adding resistances on magic stuff, stat mods etc
-// Eliminado el handler para realizar aqui las comprobaciones, neverbot 4/03
-// (cambiado el funcionamiento general de gremios/razas/etc para objetos).
+// handler removed to do here the checks, neverbot 4/03
+// (changed the way guilds/races/etc are handeled for objects).
 int set_in_use(int i)
 {
   mixed str;
@@ -242,7 +242,7 @@ int set_in_use(int i)
          sizeof(query_static_properties())) &&
        (this_object()->query_align() == 0) )) return i;
   */
-  // Comprobacion de alineamiento contrario en objetos, idea de Iolo@Rl
+  // check contrary alignment in items, idea of Iolo@Rl
   if (intp(this_object()->query_align()))
   {
     if ( ((this_object()->query_align()<0) && (environment(this_object())->query_align()>100)) ||
@@ -257,7 +257,7 @@ int set_in_use(int i)
 
   if (i)
   {
-    // Comprobacion de raza
+    // check race
     if (list[RACE_OB] != NULL_SOCIAL_VALUE)
     {
       if (list[RACE_OB] != environment(this_object())->query_race_name())
@@ -268,7 +268,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobacion de clase
+    // check class
     if (list[CLASS_OB] != NULL_SOCIAL_VALUE)
     {
       if (list[CLASS_OB] != environment(this_object())->query_class_name())
@@ -279,7 +279,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobacion de gremio
+    // check guild
     if (list[GUILD_OB] != NULL_SOCIAL_VALUE)
     {
       if (list[GUILD_OB] != environment(this_object())->query_guild_name())
@@ -290,7 +290,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobacion de oficio
+    // check job
     if (list[JOB_OB] != NULL_SOCIAL_VALUE)
     {
       if (list[JOB_OB] != environment(this_object())->query_job_name())
@@ -301,7 +301,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobacion de grupo racial
+    // check race group
     if (list[RACEG_OB] != NULL_SOCIAL_VALUE)
     {
       if (list[RACEG_OB] != environment(this_object())->query_race_group_name())
@@ -312,7 +312,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobacion de clan
+    // check clan
     if (list[GROUP_OB] != NULL_SOCIAL_VALUE)
     {
       if (list[GROUP_OB] != environment(this_object())->query_group_name())
@@ -323,7 +323,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobacion de deidad
+    // check deity
     if (list[DEITY_OB] != NULL_SOCIAL_VALUE)
     {
       if (list[DEITY_OB] != environment(this_object())->query_deity_name())
@@ -334,7 +334,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobacion de ciudadania
+    // check citizenship
     if (list[CITY_OB] != NULL_SOCIAL_VALUE)
     {
       if (list[CITY_OB] != environment(this_object())->query_city_name())
@@ -345,7 +345,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobacion del genero de quien se lo pone
+    // check gender of wearer/wielder
     if (gender_needed > 0)
     {
       if (gender_needed != environment(this_object())->query_gender() )
@@ -356,7 +356,7 @@ int set_in_use(int i)
       }
     }
 
-    // Comprobaciones extraidas del antiguo item_handler.c
+    // checks taken from the old item_handler.c
     // individual player
     if (this_object()->query_property("player") &&
        (environment(this_object())->query_name() != this_object()->query_property("player")))
@@ -395,7 +395,7 @@ int set_in_use(int i)
                                          query_property(RESISTANCES[count]) );
     }
 
-  } // Fin si nos lo estamos poniendo
+  } // end we are wearing
   else  // unwearing
   {
     str = this_object()->query_property(CURSED_PROP);
@@ -441,7 +441,7 @@ int set_in_use(int i)
   return in_use;
 } /* set_in_use() */
 
-// Funciones de personalizacion de objetos
+// functions for item personalization
 int query_gender_needed(){ return gender_needed; }
 void set_gender_needed(int i){ gender_needed = i; }
 
@@ -486,7 +486,6 @@ void init_auto_load_attributes(mapping attribute_map)
     ::init_auto_load_attributes(attribute_map["::"]);
 } 
 
-// Funcion stats() añadida
 mixed stats()
 {
   mixed * ret;
