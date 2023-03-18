@@ -50,8 +50,8 @@
         "still want to quit).\n"
 #define _LANG_QUIT_DROP_ITEM "You drop your "+ob[i]->short()+".\n"
 #define _LANG_QUIT_THANKS "Thanks for playing, see you next time!\n"
-#define _LANG_QUIT_INFORM_CODERS this_object()->query_cap_name()+" quits "+mud_name()
-#define _LANG_QUIT_INFORM_PLAYERS this_object()->query_cap_name()+" quits "+mud_name()
+#define _LANG_QUIT_INFORM_CODERS this_object()->query_cap_name()+" quits "+game_pretty_name(this_object())
+#define _LANG_QUIT_INFORM_PLAYERS this_object()->query_cap_name()+" quits "+game_pretty_name(this_object())
 
 // read.c
 
