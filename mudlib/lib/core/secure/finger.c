@@ -106,8 +106,7 @@ string domain_finger(string name)
   }
 
   if (master->query_info())
-    ret += sprintf("  %-=*s", (int)this_user()->query_cols() - 3,
-           (string)master->query_info());
+    ret += wrap((string)master->query_info(), this_user()->query_cols(), 1);
   else
     ret += _LANG_FINGER_DOMAIN_NO_INFO;
 
@@ -293,7 +292,7 @@ string finger_info(string name, varargs object me)
         for (i = 0; i < sizeof(domains); i++)
           domains[i] = table->get_nice_name(domains[i]);
 
-      retval += sprintf("\n   %-=*s", this_user()->query_cols() - 3, _LANG_FINGER_MANAGER);
+      retval += wrap(_LANG_FINGER_MANAGER, this_user()->query_cols(), 1);
     }
 
     if (!sizeof(bing) && sizeof(domains))

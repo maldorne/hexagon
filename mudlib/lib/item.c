@@ -162,13 +162,8 @@ string long(varargs string s, int dark)
   if (!xtra)
     xtra = "";
 
-  // return obj::long() + read_desc::long() + xtra + cond;
-
-  return(
-         sprintf("\n   %-*s\n", (this_user()?this_user()->query_cols()-3:77),
-                 "   " + obj::long()) +
-                 read_desc::long() + xtra + cond
-        );
+  return wrap(obj::long(), (this_user() ? this_user()->query_cols() : 80), 1) + 
+         read_desc::long() + xtra + cond;
 }
 
 /* **************************

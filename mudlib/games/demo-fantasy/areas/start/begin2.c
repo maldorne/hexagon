@@ -105,8 +105,9 @@ int do_look(string str)
     return 0;
 
   ret = _LANG_START2_CHEST_RACE + "\n";
-  ret += sprintf("\n   %-=*s", this_user()->query_cols()-3, "   " + 
-                 (string)races[lower_case(r)] + " " + _LANG_START2_HINTS[1] + "\n\n");
+  // flag to prettify the output
+  ret += wrap((string)races[lower_case(r)] + " " + _LANG_START2_HINTS[1] + "\n", 
+              this_user()->query_cols(), 1);
 
   write(ret);
   return 1;

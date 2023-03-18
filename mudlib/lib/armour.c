@@ -293,7 +293,6 @@ string query_long()
       ret += ".\n";
   }
   
-  // ret = sprintf("%-=*s", (this_player()?this_player()->query_cols():79), ret);
   return ret;
 }
 

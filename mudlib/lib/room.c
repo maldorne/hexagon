@@ -182,7 +182,7 @@ int test_add(object ob, int flag) { return 1; }
 int test_remove(object ob, int flag) { return 1; }
 int add_weight(int n) { return 1; }
 
-object *add_hidden_object(object ob)
+object * add_hidden_object(object ob)
 {
   hidden_objects += ({ob});
   return hidden_objects;
@@ -405,7 +405,7 @@ string query_short_exit_string()
 string long(string str, int dark)
 {
   if (dark)
-    return "   "+query_dark_mess(dark)+"\n";
+    return "   " + query_dark_mess(dark) + "\n";
 
   // commented by neverbot 6/03
   // is slower, but we need exit_string to be updated, because now
@@ -414,14 +414,9 @@ string long(string str, int dark)
   exit_string = query_dirs_string();
 
   if (!strlen(str))
-  {
-    return(
-           sprintf("\n   %-=*s\n", (this_user()?this_user()->query_cols()-3:76),
-                   "   "+ ::long(str, dark)) +
-           exit_string + "\n" +
-           query_contents("")
-        );
-  }
+    return wrap(::long(str, dark), 
+                (this_user() ? this_user()->query_cols() : 80), 1) + 
+           exit_string + "\n" + query_contents("");
 
   str = expand_alias(str);
   return items[str];

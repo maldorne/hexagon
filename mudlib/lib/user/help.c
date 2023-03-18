@@ -202,7 +202,7 @@ int do_help(string str)
         return 0;
       }
 
-      s = sprintf("%-=*s", this_user()->query_cols(), s);
+      s = wrap(s);
       this_player()->set_finish_func("end_of_help");
       this_player()->more_string(s);
       return 1;

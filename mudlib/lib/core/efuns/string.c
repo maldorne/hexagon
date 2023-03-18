@@ -212,11 +212,18 @@ static int strsrch( string str, mixed substr, varargs int flag )
 // from the RotD Mudlib
 // wraps text automatically
 // created by Pallando@Nightmare
+// expanded by neverbot@hexagon
 
-static string wrap(string str, varargs int width)
+static string wrap(string str, varargs int width, int prettify)
 {
-  return (width ? sprintf("%-=" + width + "s", str + "\n") :
-    sprintf("%-=75s", str + "\n"));
+  string cols;
+
+  cols = (width ? (string)width : "80");
+
+  if (!prettify)
+    return sprintf("%-=" + cols + "s", str + "\n");
+  else
+    return sprintf("\n   %-=" + cols + "s", "   " + str + "\n");
 }
 
 // /adm/simul_efun/arrange_string.c
