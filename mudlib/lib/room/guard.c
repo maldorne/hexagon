@@ -7,18 +7,18 @@
  */
 
 // files[i] = ({ file_name, cuantos, })
-static mixed * files;
+static mixed * guard_files;
 // Lista de objetos ya clonados
 static mixed * guards;
 
 void create()
 {
-  files = ({ });
+  guard_files = ({ });
   guards = ({ });
 }
 
 mixed * query_guards() { return guards; }
-mixed * query_files() { return files; }
+mixed * query_files() { return guard_files; }
 
 int add_guard(string file_name, int howmany, string direction)
 {
@@ -44,19 +44,19 @@ int add_guard(string file_name, int howmany, string direction)
         return 0;
     */
   
-  if (!files)
-    files = ({ });
+  if (!guard_files)
+    guard_files = ({ });
   if (!guards)
     guards = ({ });
 
-  // Cada elemento de files es una tuple ({ archivo, cuantos, direccion })
-  files += ({ ({ file_name, howmany, direction, }) });
+  // Cada elemento de guard_files es una tuple ({ archivo, cuantos, direccion })
+  guard_files += ({ ({ file_name, howmany, direction, }) });
   
   // Dejamos espacio para los nuevos guardias
   for (i = 0; i < howmany; i++)
     list += ({ 0, direction, });
 
-  // guards[i] es la lista de objetos que se corresponden con el filename files[i][0]
+  // guards[i] es la lista de objetos que se corresponden con el filename guard_files[i][0]
   guards += ({ list });
   
   return howmany;
@@ -67,14 +67,14 @@ void reset()
   int i, j;
     
   // Recorremos todos los archivos de guardias
-  for (i = 0; i < sizeof(files); i++)
+  for (i = 0; i < sizeof(guard_files); i++)
   {
     // Cada uno de los guardias (pueden ser varios del mismo tipo)
-    for (j = 0; j < files[i][1]; j++)
+    for (j = 0; j < guard_files[i][1]; j++)
     {
       if (!guards[i][j*2])
       {
-        guards[i][j*2] = clone_object(files[i][0]);
+        guards[i][j*2] = clone_object(guard_files[i][0]);
         guards[i][j*2]->move(this_object());
       }
     }
@@ -97,13 +97,13 @@ void dest_me()
   }
   
   guards = ({ });
-  files = ({ });
+  guard_files = ({ });
 }
 
 mixed * stats() 
 {
   return ({
         ({ "Guards", guards, }),
-        ({ "Guard files", files, }),
+        ({ "Guard files", guard_files, }),
           }); 
 } 

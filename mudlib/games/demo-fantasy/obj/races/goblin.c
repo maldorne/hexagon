@@ -13,6 +13,7 @@ void setup()
   set_body_size(3);
   set_name(_LANG_RACES_GOBLIN_NAME);
   set_short(capitalize(_LANG_RACES_GOBLIN_NAME));
+  set_long(_LANG_RACES_GOBLIN_DESC);  
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 
   // If you have different cultures, the init_room will be set in each of them

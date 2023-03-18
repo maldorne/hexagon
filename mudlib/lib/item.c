@@ -165,7 +165,7 @@ string long(varargs string s, int dark)
   // return obj::long() + read_desc::long() + xtra + cond;
 
   return(
-         sprintf("\n  %-*s\n", (this_user()?this_user()->query_cols()-2:77),
+         sprintf("\n   %-*s\n", (this_user()?this_user()->query_cols()-3:77),
                  "   " + obj::long()) +
                  read_desc::long() + xtra + cond
         );
