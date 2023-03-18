@@ -34,10 +34,11 @@
 //  error features
 // ----------------------------------------------------------------------
 
-// true: messages from caught errors will have more information
-// false: to avoid printing in stderr and showing to coders the full 
-// trace when errors are caught
+// false: show caught errors in stderr
 #define LOG_CAUGHT_ERRORS TRUE
+
+// false: show caught errors to user
+#define SHOW_CAUGHT_ERRORS FALSE
 
 // when loggin info of an error (stderr or to a coder)
 // show the full trace or only the line where the error occurred

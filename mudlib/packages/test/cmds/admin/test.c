@@ -164,8 +164,8 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  if (LOG_CAUGHT_ERRORS)
-    write("%^BOLD%^Warning: LOG_CAUGHT_ERRORS is set to TRUE, test results will be full of catch traces.%^RESET%^\n");
+  if (SHOW_CAUGHT_ERRORS)
+    write("%^BOLD%^Warning: SHOW_CAUGHT_ERRORS is set to TRUE, test results will be full of catch traces.%^RESET%^\n");
 
   if (strlen(str))
   {

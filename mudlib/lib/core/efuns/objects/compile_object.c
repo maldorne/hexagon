@@ -42,8 +42,8 @@ static nomask object compile_object(string path, varargs string source...)
              "                   " + err + "\n");
       initial = initial_object();
 
-      // if LOG_CAUGHT_ERRORS this information would be redundant
-      if (!LOG_CAUGHT_ERRORS && initial && initial->query_coder())
+      // if SHOW_CAUGHT_ERRORS this information would be redundant
+      if (!SHOW_CAUGHT_ERRORS && initial && initial->query_coder())
         write(err + "\n");
     }
     else

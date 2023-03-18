@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# usage:
+# execute "../scripts/encoding.sh" from the mudlib root directory
+# 
 # this script has been tested and used in MacOS Ventura 13.2
 # it needs the command 'sponge' (brew install sponge in macos)
 # 

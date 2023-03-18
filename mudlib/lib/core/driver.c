@@ -318,11 +318,11 @@ static void runtime_error(string error, int caught, int ticks)
   else
     ret = error_h->runtime_error(error, caught, ticks);
 
-  if (!ret || !strlen(ret))
-    return;
+  if (!caught || LOG_CAUGHT_ERRORS)
+    log_driver(ret);
 
-  log_driver(ret);
-  inform_user(ret, DRIVER_RUNTIME_ERROR);
+  if (!caught || SHOW_CAUGHT_ERRORS)
+    inform_user(ret, DRIVER_RUNTIME_ERROR);
 }
 
 static void compile_error(string file, int line, string error)

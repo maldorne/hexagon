@@ -13,13 +13,14 @@
 
 nomask string runtime_error(string error, int caught, int ticks)
 {
-  if (!LOG_CAUGHT_ERRORS && caught)
-    return nil;
+  string head;
+
+  head = "--- error" + (caught ? " (caught)" : "") + " ---\n";
 
   if (LOG_FULL_TRACE)
-    return error + ", trace:\n" + show_trace();
+    return head + error + ", trace:\n" + show_trace() + "---\n";
   else
-    return error + ", in:\n" + last_call();
+    return head + error + ", in:\n" + last_call() + "---\n";
 }
 
 string atomic_error(string error, int atom, mixed **trace)
