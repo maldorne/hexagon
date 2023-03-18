@@ -21,7 +21,7 @@
 #define _LANG_SWORD_DESC "Una espada brillante y pulida, de un extraño metal que no " + \
     "sabes reconocer. Parece contener en su interior toda la " + \
     "fuerza y la energía de los guerreros de antaño. " + \
-    "Con una espada como ésta cualquier guerrero podría marcar su " + \
+    "Con una espada como ésta cualquiera podría marcar su " + \
     "propio destino, viajando hasta lugares donde sólo " + \
     "la ley del acero puede tenerse en cuenta...\n" + \
     "\n%^BOLD%^Si coges la espada te convertirás en un guerrero.%^RESET%^\n"
@@ -51,3 +51,43 @@
     "del universo y promete transformarte en un gran erudito, cambiando " + \
     "para siempre el curso de tu vida...\n" + \
     "\n%^BOLD%^Si coges el libro te convertirás en un erudito.%^RESET%^\n"
+
+// orb.c
+
+#define _LANG_ORB_NAME "orbe"
+#define _LANG_ORB_DESC "Un orbe de color rojizo, con sutiles formas vaporosas " + \
+    "moviéndose dentro, dándole una apariencia mágica y " + \
+    "misteriosa que te atrae. Parece que el orbe puede comunicarse " + \
+    "contigo de alguna forma primitiva y desconocida, directamente " + \
+    "a tu mente... te dice que quizá deberías 'ajustar'.\n"
+#define _LANG_ADJUST_VERBS ({ "ajustar" })
+#define _LANG_ORB_ALREADY_ADJUSTED "Ya has ajustado la ficha con anterioridad... " + \
+      "¿Cómo has llegado hasta aquí?\n"
+#define _LANG_ORB_RACIAL_BONUSES "\n    Fue: %-+2d  Des: %-+2d  Con: %-+2d  Int: %-+2d\n" + \
+    "    Sab: %-+2d  Car: %-+2d  Per: %-+2d  Vol: %-+2d\n\n"
+#define _LANG_ORB_ADJUST_TXT "\nVas a utilizar un método de asignación de puntos predefinidos para terminar de " + \
+    "crear tu personaje. %^BOLD%^RED%^Lo único que tienes que seleccionar%^RESET%^ es el orden " + \
+    "de todos sus atributos de mayor a menor importancia para " + this_player()->query_objective() + \
+    ". Estos atributos son:\n\n" + \
+    "    %^BOLD%^CYAN%^Fue%^RESET%^rza\n    %^BOLD%^CYAN%^Des%^RESET%^treza\n    %^BOLD%^CYAN%^Con%^RESET%^stitución\n    %^BOLD%^CYAN%^Int%^RESET%^eligencia\n" + \
+    "    %^BOLD%^CYAN%^Sab%^RESET%^iduría\n    %^BOLD%^CYAN%^Car%^RESET%^isma\n    %^BOLD%^CYAN%^Per%^RESET%^cepción\n    %^BOLD%^CYAN%^Vol%^RESET%^untad\n\n" + \
+    "La importancia de cada uno de estos atributos dependerá de cómo quieras que sea " + \
+    "tu personaje en el futuro, e influirán de un modo muy importante en muchos " + \
+    "aspectos del juego. " + \
+    "Tus bonificadores por la raza que has escogido son:\n " + racial_bonuses + \
+    "Por favor, introduce el orden de importancia (de mayor a menor).\n" + \
+    "Por ejemplo: %^BOLD%^fue con des per int car vol sab%^RESET%^\n\n" + \
+    "Escribe 'c' o 'cancelar' en cualquier momento para abandonar el ajuste\n" + \
+    "de las características."
+#define _LANG_ORB_ADJUST_ORDER "\nOrden: "
+#define _LANG_ORB_ADJUST_INVALID "Ese orden no es válido.\n"
+#define _LANG_ORB_ADJUST_TRY_AGAIN "Prueba otra vez con " + \
+      "un patrón de la forma: %^BOLD%^fue con des per int car vol sab%^RESET%^\n"
+#define _LANG_ORB_ADJUST_CANCELLED "Ajustar cancelado.\n"
+#define _LANG_ORB_ADJUST_EIGHT "Debes incluir los ocho atributos.\n"
+#define _LANG_ORB_ADJUST_CONFIRM "Has seleccionado: "+spew+"\n\n¿Es correcto? " + \
+    "(sí/no/cancelar) "
+#define _LANG_ATTRIBUTES ({ "fue", "des", "con", "int", "sab", "car", "per", "vol" })
+#define _LANG_ORB_ADJUST_OK "Ok, tus atributos serán:\n"
+#define _LANG_ORB_ADJUST_CONGRATS "¡Enhorabuena! La generación de atributos " + \
+    "ha sido completada. Tu personaje ya está completo, puedes comenzar a jugar."

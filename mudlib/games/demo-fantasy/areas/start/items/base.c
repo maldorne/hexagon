@@ -2,8 +2,7 @@
 
 #include <user/player.h>
 #include <language.h>
-
-#define NEXT_ROOM "/games/demo-fantasy/areas/start/begin2.c"
+#include "../path.h"
 
 inherit "/lib/item.c";
 
@@ -81,7 +80,7 @@ int do_choose(string str)
       write(message);
     }
     
-    this_player()->move_living("X", NEXT_ROOM);
+    this_player()->move_living("X", CHOOSE_RACE_ROOM);
     return 1;
   }
   

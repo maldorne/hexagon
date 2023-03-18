@@ -191,7 +191,7 @@ void dest_me()
 
 void reset()
 {
-  if(save_counter > 0)
+  if (save_counter > 0)
   {
     update_tmps();
     save_me();

@@ -43,3 +43,14 @@
 #define _LANG_START2_CHEST_NOT_FOUND "Open what? Maybe you would like to 'open chest <race>'.\n"
 #define _LANG_START2_OPEN_MSG "You open the chest with the portrait of some "+r+", noting how it " + \
     "begins to draw you in before you lose consciousness.\n"
+
+// begin3.c
+
+#define _LANG_START3_SHORT "%^BOLD%^Emerald %^GREEN%^Cave%^RESET%^"
+#define _LANG_START3_LONG "You wake up in a strange place, in a cave with stone " + \
+          "walls and a rock ceiling. In the center, you can see a small reddish " + \
+          "orb at a low height from the ground. You are struck by the way " + \
+          "the orb appears to be floating, as if it were a transparent " + \
+          "crystal ball without any kind of support."
+#define _LANG_START3_HINTS ({ "This orb is here to help you finish the creation process.", \
+          "Type 'adjust' to customize your character's features." })

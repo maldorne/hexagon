@@ -47,3 +47,15 @@
 #define _LANG_START2_OPEN_MSG "Te acercas al cofre con la efigie dorada de " + \
     "un "+r+" y lo abres con cuidado, notando como comienza " + \
     "a atraerte hacia su interior antes de perder la consciencia.\n"
+
+// begin3.c
+
+#define _LANG_START3_SHORT "%^BOLD%^Cueva %^GREEN%^esmeralda%^RESET%^"
+#define _LANG_START3_LONG "Despiertas en un lugar extraño, en una cueva " + \
+          "con paredes de piedra y techo de roca. En el centro puedes " + \
+          "ver un pequeño orbe rojizo a escasa altura del suelo. " + \
+          "Llama tu atención la forma en que el orbe parece estar " + \
+          "flotando, como si fuera una bola de cristal transparente " + \
+          "sin ningún tipo de soporte."
+#define _LANG_START3_HINTS ({ "Este orbe está aquí para ayudarte a terminar el proceso de creación.", \
+          "Escribe 'ajustar' para personalizar las características de tu personaje." })

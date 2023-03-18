@@ -8,8 +8,7 @@ inherit "/lib/room";
 #include <living/races.h>
 #include <common/properties.h>
 #include <language.h>
-
-#define ITEMS "/games/demo-fantasy/areas/start/items/"
+#include "path.h"
 
 object sword, key, book;
 

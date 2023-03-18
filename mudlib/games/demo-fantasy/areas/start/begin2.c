@@ -1,6 +1,6 @@
 /*
  * start room for the demo-fantasy game
- * here the new players have to choose a class
+ * here the new players have to choose a race
  */
 
 inherit "/lib/room";
@@ -8,9 +8,7 @@ inherit "/lib/room";
 #include <living/races.h>
 #include <common/properties.h>
 #include <language.h>
-
-#define RACES_PATH "/games/demo-fantasy/obj/races/"
-#define NEXT_ROOM "/games/demo-fantasy/areas/start/begin3.c"
+#include "path.h"
 
 int i, num_races;
 object ob;
@@ -129,7 +127,8 @@ int do_open(string str)
     return 0;
   }
 
-  if (!this_player()->query_race_ob())
+  if (!this_player()->query_race_ob() || 
+       this_player()->query_race_ob() == "/lib/obj/races/unknown")
   {
     this_player()->set_race_ob(RACES_PATH + lower_case(r) + ".c");
     log_file("races", this_player()->query_cap_name() + ": "+
@@ -138,6 +137,6 @@ int do_open(string str)
 
   write(_LANG_START2_OPEN_MSG);
 
-  this_player()->move_living("X", NEXT_ROOM);
+  this_player()->move_living("X", ADJUST_ROOM);
   return 1;
 }

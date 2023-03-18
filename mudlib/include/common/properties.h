@@ -36,9 +36,11 @@
 #define WARMTH_PROP "warmth"
 
 // related with inform events
-// #define INFORM_REPRESSED "inform repressed"
 #define NO_INFORM "no_inform"
 
 #define PC_GAVE_NPC_PROPERTY "pc_gave_npc"
+
+// initial character adjust
+#define ORIGINAL_ADJUST_PROP "original adjust"
 
 #endif
