@@ -6,6 +6,7 @@
 inherit "/lib/room";
 
 #include <living/races.h>
+#include <common/properties.h>
 #include <language.h>
 
 #define ITEMS "/games/demo-fantasy/areas/start/items/"
@@ -17,6 +18,9 @@ void setup()
   set_light((LIGHT_STD_HIGH - LIGHT_STD_LOW)/2);
   set_short(game_master_object(this_object())->query_game_name() + ": " + _LANG_START_SHORT);
   set_long(_LANG_START_LONG + " " + implode(_LANG_START_HINTS, " ") + "\n");
+
+  add_property(NOFEAT_PROP, 1);
+  add_property(NOKILL_PROP, 1);
 }
 
 int show_hints(object who)

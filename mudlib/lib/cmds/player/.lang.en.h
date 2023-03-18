@@ -17,6 +17,7 @@
 #define _LANG_CMD_KILL_NOT_ALIVE "You try to hit " + str + ", but " + str + " does not seem " + \
                                  "to notice it.\n"
 #define _LANG_CMD_KILL_START "Ok. You start fighting with " + query_multiple_short(res, 0) + ".\n"
+#define _LANG_CMD_KILL_NO_FIGHT "You cannot fight here.\n"
 
 // look.c
 

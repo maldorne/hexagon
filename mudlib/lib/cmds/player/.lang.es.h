@@ -17,6 +17,7 @@
 #define _LANG_CMD_KILL_NOT_ALIVE "Intentas golpear a " + str + ", pero " + str + " no " + \
                                  "parece darse cuenta.\n"
 #define _LANG_CMD_KILL_START "Ok. Comienzas a pelear con " + query_multiple_short(res, 0) + ".\n"
+#define _LANG_CMD_KILL_NO_FIGHT "No puedes atacar a nadie en este lugar.\n"
 
 // look.c
 

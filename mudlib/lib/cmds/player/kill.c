@@ -5,6 +5,7 @@
 #include <mud/cmd.h>
 #include <language.h>
 #include <translations/common.h>
+#include <common/properties.h>
 
 inherit CMD_BASE;
 
@@ -36,6 +37,12 @@ static int cmd (string str, object me, string verb)
     return 0;
   }
 
+  if (environment(me)->query_property(NOKILL_PROP))
+  {
+    notify_fail(_LANG_CMD_KILL_NO_FIGHT);
+    return 0;
+  }
+
   if (!strlen(str))
   {
     write(_LANG_SYNTAX + ": " +_LANG_CMD_KILL_SYNTAX + "\n");
@@ -51,7 +58,7 @@ static int cmd (string str, object me, string verb)
   }
 
   // Fix by Wonderflug. Ghosts shouldn't attack :)
-  if ( me->query_dead() )
+  if (me->query_dead())
   {
     notify_fail(_LANG_CMD_KILL_NO_NEED_WHEN_DEAD);
     return 0;
@@ -114,7 +121,7 @@ static int cmd (string str, object me, string verb)
     }
   }
 
-  for( i = 0; i < sizeof(keys(list)); i ++)
+  for (i = 0; i < sizeof(keys(list)); i++)
   {
     if (list[keys(list)[i]][0]!=1)
       res += ({ query_num(list[keys(list)[i]][0], 5)+" "+list[keys(list)[i]][1] });
