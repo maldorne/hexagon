@@ -15,7 +15,7 @@ gp 100
 map_prop ([1|"channels":({1|"coders",}),])
 timed_prop ([0|])
 create_me "object"
-msgout "@$N goes towards $T."
+msgout "@$N goes to $T."
 msgin "@$N arrives from $F."
 mmsgout "@$N disappears in a cloud of smoke."
 mmsgin "@$N appears from somewhere."

@@ -43,6 +43,7 @@ void setup()
 
   // do not reset_get, or the orb could not be moved to player inventory
   // reset_get();
+  reset_drop();
   set_weight(1);
 
   set_long(_LANG_ORB_DESC);
