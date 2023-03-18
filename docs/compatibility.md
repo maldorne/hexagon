@@ -174,6 +174,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `receive`               | :heavy_minus_sign: | `receive_message` in the user object |
 | `message`               | :white_check_mark: |  |
 | `input_to`              | :white_check_mark: | accepts optional parameters `input_to(func, flag, args...)` |
+| `in_input`              | :white_check_mark: |  |
 
 
 ## Driver configuration
@@ -223,7 +224,6 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `shallow_inherit_list`  |  |  |
 | `stat`                  |  |  |
 | `in_edit`               |  |  |
-| `in_input`              |  |  |
 | `master`                |  |  |
 | `memory_info`           | :white_check_mark: |  |
 | `cache_stats`           | :heavy_minus_sign: | nonexistent in dgd |
