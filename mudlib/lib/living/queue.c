@@ -100,9 +100,9 @@ void create()
   action_forcedq = ({ });
   curr_forced = -1;
 
-  if ( undefinedp(max_time) )
+  if (undefinedp(max_time))
     max_time = this_object()->query_bits_per_beat();
-  if ( undefinedp(default_time) )
+  if (undefinedp(default_time))
     default_time = max_time;
 
   command_in_progress = "";
@@ -175,7 +175,7 @@ int set_show_interrupt(int i)
 int query_max_time() { return max_time; }
 int set_max_time(int i)
 {
-  if ( i < 0 )
+  if (i < 0)
     return max_time = 0;
   else
     return max_time = i;
@@ -186,7 +186,7 @@ int set_default_action_time(int i) { return default_time = i; }
 
 int query_action_pending()
 {
-  return ( (sizeof(actionq) != 0) || ia_in_progress);
+  return ((sizeof(actionq) != 0) || ia_in_progress);
 }
 
 void set_notified(int fi) { notified = fi; }
@@ -199,15 +199,15 @@ void set_trivial_action()
 
 int set_interruptable_action(int time, string message, mixed abort, mixed complete)
 {
-  if ( ia_in_progress )
+  if (ia_in_progress)
     return AQ_ERROR;
 
   // if ( !stringp(abort) && !functionp(abort) )
-  if ( !stringp(abort) )
+  if (!stringp(abort))
     return AQ_ERROR;
 
   ia_in_progress = 1;
-  this_object()->adjust_time_left( -time );
+  this_object()->adjust_time_left(-time);
   // this_object()->adjust_time_left();
 
   /* Hmm, is this one nessesary?
@@ -234,18 +234,18 @@ int abort_interruptable_action()
 {
   string ret;
 
-  if ( !ia_in_progress )
+  if (!ia_in_progress)
     return AQ_OK;
 
-  // if ( functionp( ia_abort ) && !evaluate(ia_abort) )
+  // if (functionp(ia_abort) && !evaluate(ia_abort))
   //   return AQ_ERROR;
-  // else if ( stringp( ia_abort ) )
-  //   tell_object( this_object(), ia_abort );
+  // else if (stringp(ia_abort))
+  //   tell_object(this_object(), ia_abort);
 
-  if (! (ret = evaluate(ia_abort) ))
+  if (!(ret = evaluate(ia_abort)))
     return AQ_ERROR;
   else
-    tell_object( this_object(), ret );
+    tell_object(this_object(), ret);
 
   ia_in_progress = 0;
   ia_abort = 0;
@@ -264,7 +264,7 @@ int query_busy()
   // if ( time_left < 0 )
   if (sizeof(actionq) && (time_left < 0))
   {
-    if ( ia_in_progress )
+    if (ia_in_progress)
       return INTERRUPTABLE_BUSY;
     else
       return NON_INTERRUPTABLE_BUSY;
@@ -292,7 +292,7 @@ void set_no_prompt() { show_prompt = 0; }
 private int aq_determine_forced()
 {
   /* this_user() determines it for sure, if set */
-  if ( this_user() )
+  if (this_user())
   {
     if ( this_user() == this_object() )
       return 0;
@@ -301,14 +301,14 @@ private int aq_determine_forced()
   }
 
   /* if this_player is set, and not this_object, we know it IS forced */
-  if ( this_player() && this_player() != this_object() )
+  if (this_player() && this_player() != this_object())
     return 1;
 
   /* if this_player is this_object, or this_player isn't set, use
    * the current forced status; note if it's -1 then of course we are
    * being forced.
    */
-  if ( curr_forced == 0 )
+  if (curr_forced == 0)
     return 0;
   else
     return 1;
@@ -319,10 +319,10 @@ private int aq_determine_forced()
  */
 private int aq_insert( mixed val )
 {
-  // if ( !stringp( val ) && !functionp( val ) )
-  if ( !stringp( val ) )
+  // if (!stringp( val ) && !functionp( val ))
+  if (!stringp( val ))
     return AQ_ERROR;
-  if ( sizeof( actionq ) >= AQ_MAX_ACTIONS )
+  if (sizeof( actionq ) >= AQ_MAX_ACTIONS)
     return AQ_FULL;
 
   actionq = ({ val }) + actionq;
@@ -330,8 +330,7 @@ private int aq_insert( mixed val )
 
   /* Hack so monster's HB's are started if they do something.
    */
-  if ( !(this_object()->query_player())
-    && !query_heart_beat() )
+  if (!(this_object()->query_player()) && !query_heart_beat())
     set_heart_beat(1);
 
   return AQ_OK;
@@ -342,19 +341,19 @@ private int aq_insert( mixed val )
 private int aq_add( mixed val )
 {
   // if ( !stringp( val ) && !functionp( val ) )
-  if ( !stringp( val ) )
+  if (!stringp( val ))
     return AQ_ERROR;
 
-  if ( sizeof( actionq ) >= AQ_MAX_ACTIONS )
+  if (sizeof(actionq) >= AQ_MAX_ACTIONS)
     return AQ_FULL;
 
   actionq += ({ val });
   action_forcedq += ({ aq_determine_forced() });
 
   // Hack so monster's HB's are started if they do something.
-  if ( !(this_object()->query_player()) && 
-       !(this_object()->query_user()) &&
-       !query_heart_beat() )
+  if (!(this_object()->query_player()) && 
+      !(this_object()->query_user()) &&
+      !query_heart_beat())
     set_heart_beat(1);
 
   return AQ_OK;
@@ -367,7 +366,7 @@ private mixed aq_decapitate()
 {
   mixed ret;
 
-  if ( !sizeof(actionq) )
+  if (!sizeof(actionq))
     return AQ_EMPTY;
 
   ret = actionq[0];
@@ -387,9 +386,9 @@ private int aq_delete_user_actions()
 
   newq = ({ });
   new_fq = ({ });
-  for( i=0; i<sizeof(actionq); i++ )
-    // if ( functionp(actionq[i]) )
-    if ( stringp(actionq[i]) )
+  for (i = 0; i < sizeof(actionq); i++)
+    // if (functionp(actionq[i]))
+    if (stringp(actionq[i]))
     {
       newq += ({ actionq[i] });
       new_fq += ({ action_forcedq[i] });
@@ -448,8 +447,8 @@ private int perform_next_action()
   object old_this_player;
 
   show_prompt = 1;
-  // if ( ia_in_progress )
-  if ( ia_in_progress && time_left >= 0 )
+  // if (ia_in_progress)
+  if (ia_in_progress && time_left >= 0)
   {
     string ret;
 
@@ -474,20 +473,21 @@ private int perform_next_action()
   if (time_left < 0 || trivial_actions_performed > MAXIMUM_COMMANDS_PER_HB )
     return 0;
 
-  if ( sizeof(actionq) == 0 )
+  if (sizeof(actionq) == 0)
   {
     // neverbot commented this 4/2003
     /*
-    if ( this_object()->query_in_combat() )  {
-        mixed act = this_object()->determine_action() ;
+    if (this_object()->query_in_combat())  
+    {
+      mixed act = this_object()->determine_action();
 
-        if ( !(stringp(act) || functionp(act))
-          || aq_insert( act ) != AQ_OK )
-        {
-      tell_object(this_object(),
-        "perform_next_action: determine_action buggered up\n");
-      return 0;
-        }
+      if (!(stringp(act) || functionp(act))
+        || aq_insert(act) != AQ_OK)
+      {
+        tell_object(this_object(),
+          "perform_next_action: determine_action buggered up\n");
+        return 0;
+      }
     }
     else
     */
@@ -574,7 +574,7 @@ private int perform_next_action()
     }
 
     // we always have a user, except when we are disconnecting
-    if (this_user())
+    if (this_user() && !this_user()->query_input_to())
     {
       this_user()->show_prompt();
       this_user()->write_prompt();
@@ -887,7 +887,7 @@ nomask int action_check(string str)
   if (!this_object())
     return 0;
 
-  if ( show_prompt )
+  if (show_prompt)
     this_object()->show_prompt();
 
   return 1;

@@ -49,12 +49,6 @@ static int last_command;  // time of last command
 
 #include "/lib/user/start.c"
 
-// Function prototypes
-// static void open();
-// static void close(varargs mixed dest);
-// static void receive_message(string str);
-// nomask int set_input_to(object obj, string func, varargs int flag, mixed arg)
-
 void create()
 {
   notifications::create();
@@ -179,6 +173,11 @@ nomask int set_input_to(object obj, string func, varargs int flag, mixed args...
   }
 
   return FALSE;
+}
+
+nomask int query_input_to()
+{
+  return (redirect_input_ob != nil);
 }
 
 // called from the driver
@@ -308,10 +307,11 @@ static void receive_message(string str)
 
       call_other(tmp_redirect_obj, tmp_redirect_func, str, tmp_redirect_args...);
 
-      if (!redirect_input_ob &&
-          this_object() && this_object()->query_show_prompt())
+      if (!redirect_input_ob) 
+        // && this_object() && this_object()->query_show_prompt())
       {
         show_prompt();
+        write_prompt();
       }
 
       // restore the context when the input was redirected
@@ -343,16 +343,17 @@ static void receive_message(string str)
     MUDOS->set_initiator_user(this_object());
     MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
 
-    if ( !strlen(str) || str == "\n" )
+    // if we sent an empty line, we don't want to do anything
+    if (!strlen(str) || str == "\n")
     {
       show_prompt();
       write_prompt();
       return;
     }
 
-    if ( strlen(str) > INPUT_MAX_STRLEN )
+    if (strlen(str) > INPUT_MAX_STRLEN)
     {
-      str = str[ 0..INPUT_MAX_STRLEN ];
+      str = str[0..INPUT_MAX_STRLEN];
       write(_LANG_USER_COMMAND_TOO_LONG);
     }
 
@@ -379,13 +380,13 @@ static void receive_message(string str)
       verb = str;
 
     // First the aliases
-    if ( _player &&
-        !_player->query_link() &&
-        !_player->exec_alias(verb, params) )
+    if (_player &&
+       !_player->query_link() &&
+       !_player->exec_alias(verb, params))
     {
       // if no alias found, continue
-      if (_player) _player->action_check( str );
-      if (_player) _player->lower_check( str );
+      if (_player) _player->action_check(str);
+      if (_player) _player->lower_check(str);
     }
 
     // restore the context when the message was received
