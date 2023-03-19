@@ -38,11 +38,11 @@ mapping query_config_data()
         ]),
 
       "info": ([
-          _LANG_CONFIG_TOPIC_MONITOR: ({ "bool",
-                                         "query_monitor", 
-                                         "set_monitor", 
-                                         "", 
-                                         _LANG_CONFIG_CMD_MONITOR, }),
+          _LANG_CONFIG_TOPIC_HEALTH: ({ "bool",
+                                         "query_inform", 
+                                         "set_inform", 
+                                         INFORM_EVENT_HEALTH, 
+                                         _LANG_CONFIG_CMD_INFORM, }),
           _LANG_CONFIG_TOPIC_VERBOSE: ({ "bool",
                                          "query_verbose", 
                                          "set_verbose", 
@@ -52,7 +52,7 @@ mapping query_config_data()
                                          "query_inform", 
                                          "set_inform", 
                                          INFORM_EVENT_LOGON,   
-                                       _LANG_CONFIG_CMD_INFORM, }),
+                                         _LANG_CONFIG_CMD_INFORM, }),
         ]),
       
       "environment": ([

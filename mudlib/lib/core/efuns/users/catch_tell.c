@@ -9,7 +9,7 @@
 // any way desired.  This is a useful way to have flexible earmuffs, or
 // to support intelligent clients.
 
-void catch_tell( string message )
+void catch_tell(string message)
 {
   object destination;
 

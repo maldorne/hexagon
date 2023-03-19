@@ -8,7 +8,6 @@
 
 inherit obj           "/lib/core/object";
 inherit security      "/lib/user/security";
-inherit output        "/lib/user/output";
 inherit communicate   "/lib/user/communicate";
 inherit inform        "/lib/user/inform";
 inherit help          "/lib/user/help";
@@ -43,6 +42,7 @@ string location;
 string * player_list;
 
 string hud;
+int brief;                // brief/verbose mode
 
 static int save_counter;  // each reset counter
 static int last_command;  // time of last command
@@ -54,7 +54,6 @@ void create()
   notifications::create();
   account::create();
   ui::create();
-  output::create();
   communicate::create();
   inform::create();
   more_string::create();
@@ -76,6 +75,7 @@ void create()
   timestamp      = 0;
   echo           = 1;
   hud            = HUD_DIFFICULTY;
+  brief          = 0; // by default, verbose mode on
 
   start_time     = time();
   last_connected = time();
@@ -117,6 +117,8 @@ nomask int query_user() { return 1; }
 nomask object user() { return this_object(); }
 // total time connected
 nomask int query_timestamp() { return timestamp; }
+void set_verbose(int v) { brief = !v; }
+int query_verbose() { return !brief; }
 
 void dest_me()
 {
@@ -487,8 +489,8 @@ mixed * stats()
     ({ "Timestamp (nosave)", timestamp, }),
     ({ "Last On From", last_on_from }),
     ({ "Hud", hud }),
+    ({ "Verbose", !brief, }),
           }) + help::stats() +
-               output::stats() +
                communicate::stats() +
                inform::stats() +
                prompt::stats() +

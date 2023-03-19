@@ -59,7 +59,7 @@
 #define _LANG_CONFIG_TOPIC_TERM "tipo"
 #define _LANG_CONFIG_TOPIC_COLS "columnas"
 #define _LANG_CONFIG_TOPIC_ROWS "filas"
-#define _LANG_CONFIG_TOPIC_MONITOR "monitor"
+#define _LANG_CONFIG_TOPIC_HEALTH "salud"
 #define _LANG_CONFIG_TOPIC_VERBOSE "detallada"
 #define _LANG_CONFIG_TOPIC_LOGON "logon"
 #define _LANG_CONFIG_TOPIC_HUD "apuntador"

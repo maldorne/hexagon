@@ -192,9 +192,12 @@ void event_person_say(object ob, string start, string msg, string lang)
     this_object()->add_past_g(tmp);
 
   if (interactive(this_object()))
-    this_object()->catch_tell("\n" + tmp + "\n");
-}
+  {
+    tmp = wrap(tmp, this_object()->user()->query_cols());
+    this_object()->catch_tell("\n" + tmp);
+  }
 
+}
 
 // void event_person_tell(object ob, string start, string mess, string lang)
 // {

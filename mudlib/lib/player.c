@@ -24,7 +24,7 @@ inherit past        "/lib/player/past";
 inherit quests      "/lib/player/quests";
 inherit weather     "/lib/player/weather";
 inherit read        "/lib/player/read";
-
+inherit health      "/lib/player/health";
 
 static object _user;      // the user/account object that handles the connection
 string account_name;      // user email, used to find the owner account
@@ -42,9 +42,6 @@ static int last_command;  // time of last command
 static int _net_dead;     // has lost connection?
 
 // TMP DEBUG, REMOVE!!!
-// stats
-void load_mount();
-
 
 int check_dark(int light)
 {
@@ -65,7 +62,6 @@ nomask int save_me();
 #include "/lib/player/death.c"
 #include "/lib/player/quit.c"
 
-
 void create()
 {
   // avoid calling create() on already cloned players
@@ -84,6 +80,7 @@ void create()
   quests::create();
   weather::create();
   read::create();
+  health::create();
 
   // must be the last one
   living::create();
@@ -371,7 +368,7 @@ int do_look(varargs string arg)
   return do_command("look " + arg);
 }
 
-// Funciones para el apuntador (forma de percibir a otros personajes)
+// functions for the hud (how to perceive other characters)
 string query_hud() { return hud; }
 void set_hud(string type) { if (member_array(type, HUD_TYPES) != -1) hud = type; }
 
@@ -393,5 +390,6 @@ mixed * stats()
                past::stats() +
                quests::stats() +
                weather::stats() +
-               read::stats();
+               read::stats() +
+               health::stats();
 }
