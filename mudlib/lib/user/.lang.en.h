@@ -25,6 +25,11 @@
 
 #define _LANG_HELP_CMD "Help about the command '" + str + "':\n"
 #define _LANG_HELP_CMD_NO_HELP "There is no help text about that."
+#define _LANG_HELP_SYNTAX "Syntax: help [<topic | command>]\n"
+#define _LANG_HELP_NAME "help"
+#define _LANG_HELP_NO_HELP_ABOUT "Sorry, there is no help about "+str+".\n"
+#define _LANG_HELP_HELP_ABOUT "Help about " + objs[loop]->query_name() + ":\n" + text + "\n\n"
+#define _LANG_HELP_NO_HELP_FOR_ITEM "There is no help about "+((sizeof(objs) > 1) ? "those items":"that item")+".\n"
 
 // more_string.c
 

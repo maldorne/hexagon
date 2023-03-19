@@ -10,7 +10,7 @@ List of commands available to every player, depending of its user type/role (`pl
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | characters | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | finger     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| help       | :white_check_mark: | :x: | :white_check_mark: | The basic help command is translated, but its contents depend of several files not yet reviewed (see issue [#7](https://github.com/maldorne/hexagon/issues/7)). |
+| help       | :white_check_mark: | :white_check_mark: | :white_check_mark: | Pending organizing some docuemnts, but the help command is working (see issue [#7](https://github.com/maldorne/hexagon/issues/7)). |
 | who        | :white_check_mark: | :white_check_mark: | :white_check_mark: | The weather time (depends of the game) has to be translated yet. |
 | games      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 

@@ -25,6 +25,11 @@
 
 #define _LANG_HELP_CMD "Ayuda sobre el comando '" + str + "':\n"
 #define _LANG_HELP_CMD_NO_HELP "No hay ningún texto de ayuda concreto."
+#define _LANG_HELP_SYNTAX "Sintaxis: ayuda [<tema | comando>]\n"
+#define _LANG_HELP_NAME "ayuda"
+#define _LANG_HELP_NO_HELP_ABOUT "Lo siento, no hay ayuda sobre "+str+".\n"
+#define _LANG_HELP_HELP_ABOUT "Ayuda sobre " + objs[loop]->query_name() + ":\n" + text + "\n\n"
+#define _LANG_HELP_NO_HELP_FOR_ITEM "No hay ayuda sobre "+((sizeof(objs) > 1) ? "estos objetos":"este objeto")+".\n"
 
 // more_string.c
 

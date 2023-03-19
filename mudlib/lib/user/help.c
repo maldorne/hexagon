@@ -39,6 +39,8 @@ int do_help(string str)
 
   if (!strlen(str))
   {
+    s = "";
+    /*
     s = "%^GREEN%^Temas importantes%^RESET%^:\n";
     s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
       implode(get_dir("/lib/docs/mud/important/"), "\n"));
@@ -77,14 +79,15 @@ int do_help(string str)
       s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
         implode(aux, "\n"));
     }
+    */
 
-    s += "\nSintaxis: ayuda <tema>\n";
+    s += _LANG_HELP_SYNTAX;
 
-    this_object()->more_string(s + "\n", "Ayuda");
-
+    this_object()->more_string(s + "\n", capitalize(_LANG_HELP_NAME));
     return 1;
   }
 
+  /*
   if (sscanf(str, "hechizo %s", s) == 1 )
   {
     if ((text = this_object()->help_spell(s)) && strlen(text))
@@ -114,6 +117,7 @@ int do_help(string str)
     write(text);
     return 1;
   }
+  */
 
   // check if it is a cmd
   ob = load_object(CMD_HANDLER);
@@ -139,6 +143,7 @@ int do_help(string str)
     }
   }
 
+  /*
   // Ya no hay 'mirar soul', neverbot 02/2006
   if (( str == "emocion") || (str == "emoción") || (str == "emociones"))
   {
@@ -149,11 +154,13 @@ int do_help(string str)
       this_object()->more_string(s, "Emociones");
     return 1;
   }
+  */
 
+  /*
   aux = ({ });
 
-  // Rellenamos un array de la forma
-  // nombre_de_archivo_i, directorio_del_archivo_i, i+1, i+1, i+2, i+2, etc
+  // fill an array in the form 
+  // file_name_i, directory_of_file_i, i+1, i+1, i+2, i+2, etc
   for (i = 0; i < sizeof(help_dirs); i++)
   {
     if (file_size(help_dirs[i]) != -2)
@@ -173,7 +180,7 @@ int do_help(string str)
         files += ({ aux[j], creator_dirs[i] });
     }
 
-  // La ayuda se corresponde con un nombre de archivo
+  // the help corresponds to a file name
   if ((i = member_array(str, files)) != -1)
   {
     s = "%^GREEN%^Ayuda de: "+str + "%^RESET%^\n\n";
@@ -182,23 +189,24 @@ int do_help(string str)
     this_object()->more_string(s + "\n", "Ayuda");
     return 1;
   }
+  */
 
-  // Por ultimo comprobamos si la ayuda existe sobre un objeto del inventario
+  // finally we check if the help about some inventory item exists
   {
     object * objs;
     int flag, loop;
     flag = 0;
     objs = find_match(str, this_player());
 
-    // Si no tenemos objetos en el inventario que se correspondan con el nombre,
-    // por último probamos con la ayuda de las emociones
+    // if we do not have items in the inventory that match the name,
+    // finally we try with the help of the emotions
     if (!sizeof(objs))
     {
       s = (string)SOUL_OBJECT->help_soul(str);
 
       if (!strlen(s))
       {
-        notify_fail("Lo siento, no hay ayuda sobre "+str+".\n");
+        notify_fail(_LANG_HELP_NO_HELP_ABOUT);
         return 0;
       }
 
@@ -212,23 +220,18 @@ int do_help(string str)
     {
       if (text = (string)objs[loop]->get_help())
       {
-        write("Ayuda sobre " + objs[loop]->query_name() + ":\n" + text + "\n\n");
+        write(_LANG_HELP_HELP_ABOUT);
         flag = 1;
       }
     }
 
     if (!flag)
-    {
-      if (sizeof(objs) > 1)
-        write("No hay ayuda sobre estos objetos.\n");
-      else
-        write("No hay ayuda sobre este objeto.\n");
-    }
+      write(_LANG_HELP_NO_HELP_FOR_ITEM);
 
     return 1;
   }
 
-  notify_fail("No hay ayuda sobre "+str+".\n");
+  notify_fail(_LANG_HELP_NO_HELP_ABOUT);
   return 0;
 
 } /* do_help() */
