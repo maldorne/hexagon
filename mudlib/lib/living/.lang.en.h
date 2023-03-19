@@ -101,13 +101,13 @@
 #define _LANG_DEATH_DEATH_BLOW_DEF killed_by->query_cap_name() + " deals you the death blow."
 #define _LANG_DEATH_DEATH_BLOW_NO_KILLER this_object()->query_cap_name() + \
       " has died horribly.\n"
-#define _LANG_DEATH_CORPSE_DEF "Your body loses its last breaths of life."
-#define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " falls to the ground wasted."
+#define _LANG_DEATH_CORPSE_DEF "Your body loses its last breaths of life"
+#define _LANG_DEATH_CORPSE_ATT this_object()->query_cap_name() + " falls to the ground wasted"
 
-#define _LANG_HANDLE_MY_MESS_WEAPONS ", and your weapons fall to the ground."
-#define _LANG_HANDLE_ROOM_MESS_WEAPONS ", and "+this_object()->query_possessive()+" weapons fall to the ground."
-#define _LANG_HANDLE_MY_MESS_BELONGINGS "Your belongings fall from your hands."
-#define _LANG_HANDLE_ROOM_MESS_BELONGINGS this_object()->query_cap_name()+"'s belongings fall from "+this_object()->query_possessive()+" hands."
+#define _LANG_HANDLE_MY_MESS_WEAPONS ", and your weapons fall to the ground"
+#define _LANG_HANDLE_ROOM_MESS_WEAPONS ", and "+this_object()->query_possessive()+" weapons fall to the ground"
+#define _LANG_HANDLE_MY_MESS_BELONGINGS "Your belongings fall from your hands"
+#define _LANG_HANDLE_ROOM_MESS_BELONGINGS this_object()->query_cap_name()+"'s belongings fall from "+this_object()->query_possessive()+" hands"
 
 // unarmed_combat.c
 
@@ -119,16 +119,16 @@
 #define _LANG_UNARMED_CODE_ERROR "It seems something wrong happen with your combat styles, notify it to an administrator.\n"
 
 #define _LANG_UNARMED_DODGE_MESSAGE_ATT defender->query_cap_name() + " is able to dodge your attack.\n"
-#define _LANG_UNARMED_DODGE_MESSAGE_DEF attacker->query_cap_name() + " tries to hit you, but you dodge " + attacker->query_objective() + \
+#define _LANG_UNARMED_DODGE_MESSAGE_DEF attacker->query_cap_name() + " tries to hit you, but you dodge " + attacker->query_possessive() + \
                                         " attack.\n"
 #define _LANG_UNARMED_DODGE_MESSAGE_ROOM attacker->query_cap_name() + \
                                         " tries to hit " + defender->query_cap_name() + \
-                                        ", but "+defender->query_demonstrative()+" dodges " + attacker->query_objective() + " attack.\n"
+                                        ", but "+defender->query_demonstrative()+" dodges " + attacker->query_possessive() + " attack.\n"
 #define _LANG_UNARMED_BLOCK_MESSAGE_ATT defender->query_cap_name()+" is able to block your attack.\n"
-#define _LANG_UNARMED_BLOCK_MESSAGE_DEF attacker->query_cap_name()+" tries to hit you, but you block " + attacker->query_objective() + \
+#define _LANG_UNARMED_BLOCK_MESSAGE_DEF attacker->query_cap_name()+" tries to hit you, but you block " + attacker->query_possessive() + \
                                         " attack.\n"
 #define _LANG_UNARMED_BLOCK_MESSAGE_ROOM attacker->query_cap_name()+" tries to hit " + \
-         defender->query_cap_name()+", but "+defender->query_demonstrative()+" blocks " + attacker->query_objective() + " attack.\n"
+         defender->query_cap_name()+", but "+defender->query_demonstrative()+" blocks " + attacker->query_possessive() + " attack.\n"
 // #define _LANG_UNARMED_HIT_MSG_ATT capitalize(msgs[0]) + " " + def->query_cap_name() + place + ".\n"
 // #define _LANG_UNARMED_HIT_MSG_DEF att->query_cap_name() + " " + msgs[1] + place + ".\n"
 // #define _LANG_UNARMED_HIT_MSG_ROOM att->query_cap_name() + " " + msgs[2] + " " + \

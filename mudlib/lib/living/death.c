@@ -327,7 +327,7 @@ object make_corpse()
   usedstuff = (mixed *)this_object()->query_worn_ob();
 
   if (sizeof(usedstuff))
-    if (stringp(my_mess)) 
+    if (strlen(my_mess)) 
     {
       my_mess += _LANG_HANDLE_MY_MESS_WEAPONS;
       room_mess += _LANG_HANDLE_ROOM_MESS_WEAPONS;
@@ -337,6 +337,9 @@ object make_corpse()
       my_mess += _LANG_HANDLE_MY_MESS_BELONGINGS;
       room_mess += _LANG_HANDLE_ROOM_MESS_BELONGINGS;
     }
+
+  my_mess += ".";
+  room_mess += ".";
 
   for (i = 0; i < sizeof(usedstuff); i++)
   {
