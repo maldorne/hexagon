@@ -117,7 +117,9 @@ int really_quit()
   ob = ({ });
   i = 0;
 
+  // save both the player and user object
   this_object()->save_me();
+  user->save_me();
 
   // TODO mounts
   // mounts, neverbot 07/05
