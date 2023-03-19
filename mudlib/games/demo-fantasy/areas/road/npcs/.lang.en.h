@@ -30,6 +30,6 @@
 #define _LANG_NPCS_HEALER_RAISE_YES_ROOM this_player()->query_cap_name()+" recovers "+this_player()->query_possessive()+" mortal form.\n"
 
 #define _LANG_NPCS_FARMER_NAME "farmer"
-#define _LANG_NPCS_FARMER_LONG "A farmer from the area. Seems a nice man\n" 
+#define _LANG_NPCS_FARMER_LONG "A farmer from the area. Seems a nice man.\n" 
 #define _LANG_NPCS_FARMER_CHAT ({ ":greets you cordially.", \
                                   ":makes comments about this year's corn crop." })
