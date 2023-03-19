@@ -2,8 +2,8 @@
 
 // common parts of descriptions
 
-#define __ROAD_LONG "You are in a cobble stone road."
-#define __ROAD_MOUNTAINS "On the horizon you can see " + \
+#define __ROAD_LONG "You are on a cobblestone road."
+#define __ROAD_MOUNTAINS "On the horizon, you can see " + \
         "a mountainous landscape."
 #define __ROAD_NO_TREES "This area has no trees, and you can only find bushes and weeds."
 #define __ROAD_NEAR_FOREST "On the horizon you can see a beautiful wooded landscape near you."
