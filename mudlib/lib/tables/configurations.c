@@ -14,7 +14,7 @@
 //  command        : command that can be used outside the configuration menu
 
 
-// string * categories = ({ "terminal", "info", "environment" });
+// string * categories = ({ "terminal", "info", "player" });
 
 mapping query_config_data() 
 { 
@@ -55,7 +55,7 @@ mapping query_config_data()
                                          _LANG_CONFIG_CMD_INFORM, }),
         ]),
       
-      "environment": ([
+      "player": ([
           _LANG_CONFIG_TOPIC_HUD:     ({ "string",
                                          "query_hud", 
                                          "set_hud", 
@@ -75,7 +75,7 @@ mapping query_config_translations()
   return ([
     "terminal" :    _LANG_CONFIG_TERMINAL,
     "info" :        _LANG_CONFIG_INFO,
-    "environment" : _LANG_CONFIG_ENVIRONMENT,
+    "player" :      _LANG_CONFIG_PLAYER,
   ]);
 }
 

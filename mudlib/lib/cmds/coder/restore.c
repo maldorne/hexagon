@@ -10,7 +10,7 @@ string query_usage()
 
 string query_help() 
 {
-  return "Your health points and guild points are restored.";
+  return "Your health points and energy points are restored.";
 }
 
 static int cmd(string str, object me, string verb) 

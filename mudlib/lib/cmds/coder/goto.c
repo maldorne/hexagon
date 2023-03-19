@@ -14,7 +14,8 @@ string query_usage()
 
 string query_help()
 {
-  return "Teleports the coder to the given room if a file path is used, " + 
+  return "Teleports the coder to a given destination.\nYou will be moved " +
+    "to the given room if a file path is used, " + 
     "or the current room of a user if a user name is used.";
 }
 

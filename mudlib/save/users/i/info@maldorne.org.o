@@ -2,12 +2,10 @@ map_prop ([0|])
 timed_prop ([0|])
 create_me "object"
 password "myMs2H71RBzAY"
-monitor 1
-verbose 1
 cols 80
-rows 25
+rows 50
 term_name "ansi"
-informs ([2|"logoff":1,"logon":1,])
+informs ([3|"health":1,"logoff":1,"logon":1,])
 prompt_string ""
 role_name "admin"
 start_time 1556911440
@@ -19,3 +17,4 @@ birthday "0101"
 location "Madrid"
 player_list ({1|"admin",})
 hud "dificultad"
+brief 1

@@ -136,7 +136,7 @@ int do_help(string str)
         {
           write(_LANG_HELP_CMD);
           write(_LANG_CMD_SYNTAX + ob->query_usage() + "\n\n");
-          write( (ob->query_help() ? ob->query_help() : _LANG_HELP_CMD_NO_HELP) + "\n\n");
+          write( (ob->query_help() ? wrap(ob->query_help()) : _LANG_HELP_CMD_NO_HELP) + "\n\n");
           return 1;
         }
       }

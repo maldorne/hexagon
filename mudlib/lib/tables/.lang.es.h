@@ -54,7 +54,7 @@
 
 #define _LANG_CONFIG_TERMINAL ({ "terminal", "term" })
 #define _LANG_CONFIG_INFO ({ "información", "informacion", "info", })
-#define _LANG_CONFIG_ENVIRONMENT ({ "entorno", "ambiente" })
+#define _LANG_CONFIG_PLAYER ({ "jugador" })
 
 #define _LANG_CONFIG_TOPIC_TERM "tipo"
 #define _LANG_CONFIG_TOPIC_COLS "columnas"

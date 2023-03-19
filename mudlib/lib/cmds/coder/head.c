@@ -11,8 +11,8 @@ string query_usage()
 
 string query_help()
 {
-  return "This command allows the user to see the contents " +
-    "of file starting at the first line and ending at line range. " +
+  return "See the contents " +
+    "of file starting at the first line and ending at line range.\n" +
     "A default of 10 lines is returned if range is not specified.\n\n" +
     "Ex. head -20 /lib/room.c\n" +
     "will return the first 20 lines of the file room.c.";
