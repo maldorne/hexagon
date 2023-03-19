@@ -1,16 +1,18 @@
 /*
- * Piedra de Hogar para Ciudad Capital...
- * Obviamente si, es el mismo concepto de World of Warcraft
+ * Hearthstone for Ciudad Capital
+ * Obviously based on World of Warcraft
  *
- * Folken 17/04/09
+ * neverbot 17/04/09
  */
+
+#include <language.h>
 
 inherit "/lib/item.c";
 
 #define NUM_SECONDS 10
 #define LOCK_HEARTHSTONE "hearthstone_lock_property"
 #define LOCK_HEARTHSTONE_INVOKE "hearthstone_invoke_lock_property"
-// 2 segundos = 1 hb, 1 hora = 3600 segundos = 1800 hbs
+// 2 seconds = 1 hb, 1 hour = 3600 seconds = 1800 hbs
 #define LOCK_TIME 1800
 
 static int acting;
@@ -27,17 +29,16 @@ void create()
   acting = 0;
   destination_path = "";
   destination_name = "";
+  
   ::create();
-  set_name("piedra de hogar");
-  set_short("%^MAGENTA%^Piedra de Hogar%^RESET%^");
-  add_alias("piedra");
-  add_alias("hogar");
-  set_main_plural("%^MAGENTA%^Piedras de Hogar%^RESET%^");
-  add_plural("piedras");
-  set_long("Es una piedra pequeña, de un color púrpura, con una extraña runa que no sabes descifrar "+
-    "tallada en uno de sus lados. Un aura blanquecina la rodea sin llegar a emitir luz, "+
-    "dándote la sensación de que es un objeto hermoso. Sin duda parece que posee poderes más "+
-    "allá de tu comprensión. Escribe 'ayuda piedra' para ver lo que puedes hacer con ella.\n");
+  
+  set_name(_LANG_HEARTHSTONE_NAME);
+  set_short(_LANG_HEARTHSTONE_SHORT);
+  add_alias(_LANG_HEARTHSTONE_ALIAS);
+
+  set_main_plural(_LANG_HEARTHSTONE_PLURAL);
+  add_plural(_LANG_HEARTHSTONE_PLURALS);
+  set_long(_LANG_HEARTHSTONE_LONG);
 
   reset_drop();
 
@@ -45,20 +46,19 @@ void create()
   set_weight(1);
 }
 
+string get_help(varargs string str) { return _LANG_HEARTHSTONE_HELP; }
+
 string long(string s, int dark)
 {
-  return ::long(s, dark) +
-    (strlen(destination_name)?"Tu piedra está marcada en: "+destination_name+".\n":"Tu piedra no está marcada aún.\n");
+  return ::long(s, dark) + _LANG_HEARTHSTONE_MARK_INFO;
 }
 
 void init()
 {
-  add_action("do_travel", "transportar");
-  add_action("do_mark", "marcar");
+  add_action("do_travel", _LANG_HEARTHSTONE_TRANSPORT_VERBS);
+  add_action("do_mark", _LANG_HEARTHSTONE_MARK_VERBS);
+  add_action("do_invoke", _LANG_HEARTHSTONE_INVOKE_VERBS);
 
-  // Ahora la ayuda sale del sistema genérico de ayuda
-  // add_action("do_help", "ayuda");
-  add_action("do_invoke", "invocar");
   ::init();
 }
 
@@ -66,19 +66,25 @@ int do_travel(string str)
 {
   if (acting)
   {
-    notify_fail("La piedra está actuando, espera un poco.\n");
+    notify_fail(_LANG_HEARTHSTONE_ACTING);
     return 0;
   }
 
   if (this_player()->query_dead())
   {
-    notify_fail("Estando muerto no puedes hacer eso.\n");
+    notify_fail(_LANG_HEARTHSTONE_DEAD);
+    return 0;
+  }
+
+  if (this_player()->query_fighting())
+  {
+    notify_fail(_LANG_HEARTHSTONE_COMBATS);
     return 0;
   }
 
   if (this_object()->query_timed_property(LOCK_HEARTHSTONE))
   {
-    notify_fail("La piedra aún no ha acumulado suficiente energía desde la última vez.\n");
+    notify_fail(_LANG_HEARTHSTONE_LOCKED);
     return 0;
   }
 
@@ -89,27 +95,18 @@ int do_travel(string str)
 
     if (!stringp(race))
     {
-      notify_fail("Tu piedra ha olvidado el camino a casa... "+
-        "tendrás que marcar un nuevo lugar antes de intentarlo.\n");
+      notify_fail(_LANG_HEARTHSTONE_FORGOTTEN);
       return 0;
     }
     else
     {
-      tell_object(this_player(), "Tu piedra ha olvidado el camino a casa... "+
-        "pero aún recuerda su lugar de origen inicial.\n");
+      tell_object(this_player(), _LANG_HEARTHSTONE_ORIGIN);
       destination_path = load_object(race)->query_init_room();
     }
   }
 
-  if (this_player()->query_fighting())
-  {
-    notify_fail("Debes terminar primero tus combates.\n");
-    return 0;
-  }
-
-  tell_object(this_player(), "La piedra de hogar comprende tus deseos y sus poderes se activan.\n");
-  tell_room(environment(this_player()), "La piedra de hogar de "+this_player()->query_cap_name()+
-    " comienza a brillar con tonos púrpura.\n", this_player());
+  tell_object(this_player(), _LANG_HEARTHSTONE_MSG_ME);
+  tell_room(environment(this_player()), _LANG_HEARTHSTONE_MSG_ROOM, this_player());
 
   acting = 1;
 
@@ -121,23 +118,21 @@ int continue_travel(object player, int count, object where)
 {
   if (player->query_fighting())
   {
-  tell_object(player, "Debes terminar primero tus combates.\n "+
-    "Escribe '%^BOLD%^detener combates%^RESET%^' para terminarlos lo antes posible.\n");
-  acting = 0;
-  return 1;
+    tell_object(player, _LANG_HEARTHSTONE_COMBATS);
+    acting = 0;
+    return 1;
   }
 
   if (environment(player) != where)
   {
-  tell_object(player,"Si no paras de moverte será imposible que la piedra acumule energía "+
-    "suficiente para transportarte.\n");
-  acting = 0;
-  return 1;
+    tell_object(player, _LANG_HEARTHSTONE_MOVE);
+    acting = 0;
+    return 1;
   }
 
   if (player->query_dead())
   {
-    tell_object(player, "Al morir tu piedra deja escapar la energía acumulada...\n");
+    tell_object(player, _LANG_HEARTHSTONE_DEAD2);
     return 1;
   }
 
@@ -148,136 +143,114 @@ int continue_travel(object player, int count, object where)
 
     if (!dest)
     {
-      tell_object(player, "Algo ha ido mal.\n");
+      tell_object(player, _LANG_HEARTHSTONE_ERROR);
       acting = 0;
       return 1;
     }
 
-    // No transportamos monturas, si no aparecerías con tu caballo en medio de
-    // una taberna...
+    // do not transport mounts, if not you would appear with your horse in the
+    // middle of a tavern...
     if (player->query_riding())
       player->destruct_ride_shadow();
 
     player->move(dest);
     add_timed_property(LOCK_HEARTHSTONE, 1, LOCK_TIME);
-    // Permitimos invocar a la montura tras el viaje
+    
+    // allow invoke after travel
     remove_timed_property(LOCK_HEARTHSTONE_INVOKE);
-    tell_object(player, "\nQuedas cegado por un potente haz de luz púrpura que desprende la piedra, "+
-      "mientras notas cómo se calienta al tacto.\n\n"+
-      "Notas como el calor de la piedra desaparece y al difuminarse el haz de luz puedes "+
-      "distinguir dónde te encuentras.\n\n");
+    
+    tell_object(player, _LANG_HEARTHSTONE_TRANSPORT_ME);
     player->do_look();
-    tell_room(dest, player->query_cap_name() +
-      " aparece repentinamente de entre un extraño humo púrpura.\n", player);
+    
+    tell_room(dest, player->query_cap_name() + 
+              _LANG_HEARTHSTONE_TRANSPORT_ROOM, player);
+    
     acting = 0;
     return 1;
   }
   else
   {
-    // tell_object(player, "La piedra de hogar crepita mientras acumula energía.\n");
-    tell_object(player, query_short() +
-      ": [%^MAGENTA%^"+sprintf("%*' '-s", NUM_SECONDS, sprintf("%*'*'s", NUM_SECONDS - count,"")) +
+    tell_object(player, query_short() + ": [%^MAGENTA%^" + 
+      sprintf("%*' '-s", NUM_SECONDS, sprintf("%*'*'s", NUM_SECONDS - count, "")) +
       "%^RESET%^]\n");
   }
 
   call_out("continue_travel", 1, player, count-1, environment(player));
   return 1;
-
 }
 
 int do_mark(string str)
 {
-
-  if (str != "piedra")
+  if (!id(str))
   {
-    notify_fail("¿Marcar el qué? Quizá quieras 'marcar piedra'.\n");
+    notify_fail(_LANG_HEARTHSTONE_MARK_FAIL);
     return 0;
   }
 
   if (acting)
   {
-    notify_fail("La piedra está actuando, espera un poco.\n");
+    notify_fail(_LANG_HEARTHSTONE_ACTING);
     return 0;
   }
 
   if (this_player()->query_dead())
   {
-    notify_fail("Estando muerto no puedes hacer eso.\n");
+    notify_fail(_LANG_HEARTHSTONE_DEAD);
     return 0;
   }
 
   if (this_player()->query_fighting())
   {
-    notify_fail("Debes terminar primero tus combates.\n");
+    notify_fail(_LANG_HEARTHSTONE_COMBATS);
     return 0;
   }
 
   if (!environment(this_player())->query_pub())
   {
-    notify_fail("Sólo puedes hacer eso en una taberna.\n");
+    notify_fail(_LANG_HEARTHSTONE_NOT_INN_FAIL);
     return 0;
   }
 
   destination_path = base_name(environment(this_player()));
   destination_name = environment(this_player())->query_short();
 
-  tell_object(this_player(), "De acuerdo, a partir de ahora el destino de tu piedra de hogar será: "+
-    environment(this_player())->query_short()+".\n");
+  tell_object(this_player(), _LANG_HEARTHSTONE_DESTINATION +
+    environment(this_player())->query_short() + ".\n");
   return 1;
-}
-
-
-string get_help(varargs string str)
-{
-  string ret;
-
-  // if (str != "piedra")
-  // {
-  //   notify_fail("Prueba 'ayuda piedra' para más información.\n");
-  //   return 0;
-  // }
-
-  ret = "Puedes utilizar los siguientes comandos:\n";
-  ret += "\tmarcar      - en una taberna para que tu piedra de hogar recuerde el lugar.\n";
-  ret += "\ttransportar   - para que la piedra te transporte de vuelta al lugar marcado.\n";
-  ret += "\tinvocar montura - para traer a la montura a tu lado (sólo al aire libre).\n";
-
-  // tell_object(this_player(), ret + "\n");
-  // return 1;
-  return ret;
 }
 
 int do_invoke(string str)
 {
   object ob;
 
-  if (str != "montura")
+  // we are trying to invoke the mount
+  if (member_array(str, _LANG_HEARTHSTONE_INVOKE_NAMES) == -1)
   {
-    notify_fail("¿Invocar el qué? Quizá quieras 'invocar montura'.\n");
+    notify_fail(_LANG_HEARTHSTONE_INVOKE_WHAT);
     return 0;
   }
 
   if (!this_player()->query_mount())
   {
-    notify_fail("Debes tener una montura para eso.\n");
+    notify_fail(_LANG_HEARTHSTONE_INVOKE_NO_MOUNT);
     return 0;
   }
 
   if (!environment(this_player())->query_outside())
   {
-    notify_fail("Sólo puedes hacer eso al aire libre.\n");
+    notify_fail(_LANG_HEARTHSTONE_INVOKE_OUTSIDE);
     return 0;
   }
 
   if (environment(this_player())->query_water_environment())
   {
-    notify_fail("Hacer eso en el agua no es muy recomendable.\n");
+    notify_fail(_LANG_HEARTHSTONE_INVOKE_NO_WATER);
     return 0;
   }
 
   if (this_object()->query_timed_property(LOCK_HEARTHSTONE_INVOKE))
   {
-    notify_fail("La piedra aún no ha acumulado suficiente energía desde la última vez.\n");
+    notify_fail(_LANG_HEARTHSTONE_LOCKED);
     return 0;
   }
 
@@ -285,7 +258,7 @@ int do_invoke(string str)
 
   if (environment(this_player()) == environment(ob))
   {
-    notify_fail("Tu montura ya se encuentra aquí.\n");
+    notify_fail(_LANG_HEARTHSTONE_INVOKE_MOUNT_HERE);
     return 0;
   }
 
@@ -293,9 +266,8 @@ int do_invoke(string str)
   ob->unride();
   ob->move(environment(this_player()));
 
-  tell_player(this_player(), "Tu montura aparece a tu lado.\n");
-  tell_room(environment(this_player()), "La montura de "+this_player()->query_cap_name()+
-    " aparece a su lado.\n", this_player())  ;
+  tell_player(this_player(), _LANG_HEARTHSTONE_INVOKE_MSG_ME);
+  tell_room(environment(this_player()), _LANG_HEARTHSTONE_INVOKE_MSG_ROOM, this_player())  ;
 
   // Con esto impedimos que invoque a la montura hasta la proxima vez que pueda transportarse
   //  (ya que lo logico es transportarse + invocar montura cuando encuentre un lugar apropiado)
