@@ -27,6 +27,7 @@
 #define _LANG_PLAYER_NOT_IN_CONDITIONS "No estás en condiciones de salir corriendo.\n"
 #define _LANG_PLAYER_SEE_FEET_RUNNING "Ves a tus pies correr ante ti.\n"
 #define _LANG_PLAYER_FAILED_ESCAPE "Intentaste escapar, pero no has encontrado ninguna salida.\n"
+#define _LANG_PLAYER_PLURAL "personas que se parecen a " + str
 
 // item.c
 

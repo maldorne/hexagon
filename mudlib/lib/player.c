@@ -155,6 +155,14 @@ nomask void set_user_ob(object ob)
   _user = ob;
 }
 
+void set_name(string str)
+{
+  // default plural "persons that look like x"
+  set_main_plural(capitalize(_LANG_PLAYER_PLURAL));
+  add_plural(_LANG_PLAYER_PLURAL);
+  ::set_name(str);
+}
+
 string query_account_name() { return account_name; }
 void set_account_name(string str)
 {
