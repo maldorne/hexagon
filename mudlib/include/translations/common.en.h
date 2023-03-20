@@ -94,3 +94,11 @@
 #define _LANG_NUMBERS_700 "seven hundred" + ((!n) ? "" : " and")
 #define _LANG_NUMBERS_800 "eight hundred" + ((!n) ? "" : " and")
 #define _LANG_NUMBERS_900 "nine hundred" + ((!n) ? "" : " and")
+
+// pluralize
+
+#define _LANG_PLURALIZE(s) if (!strlen(s)) return "objetos"; \
+  else if (extract(s, strlen(s) - 1) == "s") return s; \
+  else if (extract(s, strlen(s) - 1) == "y") return s[..strlen(s)-2] + "ies"; \
+  else return (s + "s");
+

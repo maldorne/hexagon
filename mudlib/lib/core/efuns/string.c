@@ -1,4 +1,6 @@
 
+#include <mud/translations.h>
+
 #include "/lib/core/efuns/strings/full_explode.c"
 #include "/lib/core/efuns/strings/visible_strlen.c"
 #include "/lib/core/efuns/strings/sprintf/sprintf.c"
@@ -373,15 +375,9 @@ static string upper_case(string str)
   return capitalize(str);
 }
 
-// Taniwha 1995, since the efun one doesn't
 static string pluralize(string str)
 {
-  if (!strlen(str))
-    return "objects";
-  else if (extract(str, strlen(str) - 1) == "s")
-    return str;
-  else
-    return (str + "s");
+  _LANG_PLURALIZE(str);
 }
 
 // removed, this won't work with utf-8 _and_ is not really needed

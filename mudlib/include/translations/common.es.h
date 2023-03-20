@@ -78,3 +78,10 @@
 #define _LANG_NUMBERS_700 "setecientos"
 #define _LANG_NUMBERS_800 "ochocientos"
 #define _LANG_NUMBERS_900 "novecientos"
+
+// pluralize
+
+#define _LANG_PLURALIZE(s) if (!strlen(s)) return "objetos"; \
+  else if (extract(s, strlen(s) - 1) == "s") return s; \
+  else return (s + "s");
+
