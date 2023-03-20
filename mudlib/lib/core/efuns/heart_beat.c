@@ -22,7 +22,7 @@ nomask void set_heart_beat(int flag)
   }
 
   _hb_status = 1;
-  MUDOS->add_hb_object(this_object());
+  MUDOS->add_hb_object(this_object(), flag);
 }
 
 nomask int query_heart_beat()

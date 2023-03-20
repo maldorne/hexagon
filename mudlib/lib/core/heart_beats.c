@@ -6,7 +6,18 @@
 // do not touch this
 #define HEART_BEAT_TIME 2
 
-private static object * _hb_object_list;
+// every item in the _hb_object_list is an array of three elements
+// ({ 
+//   object, // the object that has a heart beat
+//   int,    // how many heart_beats to wait before calling its heart_beat
+//   int     // how many heart_beats have passed since the last call
+// })
+#define POS_OBJECT 0
+#define POS_INTERVAL 1
+#define POS_COUNTER 2
+
+
+private static mixed * _hb_object_list;
 private static int _hb_handle;
 
 // prototypes
@@ -53,14 +64,23 @@ nomask void _heart_beat()
     object ob;
     string result;
 
-    ob = _hb_object_list[i];
+    ob = _hb_object_list[i][POS_OBJECT];
 
+    // remove the items that have been destructed
     if (undefinedp(ob))
     {
-      _hb_object_list -= ({ ob });
+      // _hb_object_list -= ({ ob });
+      _hb_object_list = delete(_hb_object_list, i, 1);
       i--;
       continue;
     }
+
+    // if the current item has not reached the interval yet, skip it
+    if (++_hb_object_list[i][POS_COUNTER] % _hb_object_list[i][POS_INTERVAL] != 0)
+      continue;
+
+    // reset the counter
+    _hb_object_list[i][POS_COUNTER] = 0;
 
     if (CONFIG_LOG_HEART_BEATS)
       stderr(" ~~~ mudos::_heart_beat() for <"+object_name(ob)+">\n");
@@ -97,7 +117,8 @@ nomask void _heart_beat()
     {
       debug("hbs", "  └─> heart_beat error in " + object_name(ob) + ":\n      " +
                                             result + "\n");
-      _hb_object_list -= ({ _hb_object_list[i] });
+      // _hb_object_list -= ({ ob });
+      _hb_object_list = delete(_hb_object_list, i, 1);
       i--;
       // will try to remove the object from _hb_object_list, better safe than sorry
       call_other(ob, "set_heart_beat", 0);
@@ -110,17 +131,17 @@ nomask int hb_object_index(object ob)
   int i;
 
   for (i = 0; i < sizeof(_hb_object_list); i++)
-    if (_hb_object_list[i] == ob)
+    if (_hb_object_list[i][POS_OBJECT] == ob)
       return i;
 
   return -1;
 }
 
-nomask int add_hb_object(object ob)
+nomask int add_hb_object(object ob, int time)
 {
   if (hb_object_index(ob) == -1)
   {
-    _hb_object_list += ({ ob });
+    _hb_object_list += ({ ({ ob, time, 0 }) });
     return 1;
   }
 
@@ -129,14 +150,15 @@ nomask int add_hb_object(object ob)
 
 nomask int remove_hb_object(object ob)
 {
-  // int i;
+  int i;
 
-  // i = hb_object_index(ob);
+  i = hb_object_index(ob);
 
-  // if (i == -1)
-  //   return 0;
+  if (i == -1)
+    return 0;
 
-  _hb_object_list -= ({ ob });
+  // _hb_object_list -= ({ ob });
+  _hb_object_list = delete(_hb_object_list, i, 1);
 
   return 1;
 }
