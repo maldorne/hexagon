@@ -12,26 +12,9 @@ static nomask string show_trace()
   {
     for (i = 0; i < sz; i++)
     {
+      objname  = trace[i][0];
       progname = trace[i][1];
       function = trace[i][2];
-
-      // I'm not sure what this is catching: bad object to call_other maybe?
-      // if (progname == AUTO && strlen(function) > 3)
-      // {
-      //   switch (function[0 .. 2])
-      //   {
-      //     // case "bad":
-      //     //   progname = trace[i - 1][1];
-      //     //   function = trace[i - 1][2];
-      //     case "_F_":
-      //     case "_Q_":
-      //       continue;
-      //     default:
-      //       break;
-      //   }
-      // }
-
-      objname  = trace[i][0];
       line     = trace[i][3];
 
       if (line == 0)
@@ -68,7 +51,7 @@ static nomask string show_trace()
       // when we are using this efun from the error handler, we can 
       // ignore the last entry
       if (function == "runtime_error" &&
-          progname == "/lib/core/errors")
+         (progname == "/lib/core/errors" || progname == "/lib/core/driver"))
         continue;
 
       result += str + "\n";
