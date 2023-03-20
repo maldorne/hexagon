@@ -1,33 +1,35 @@
-#include <basic/parse.h>
 
-string *lng,
-       *shrt,
-       *adjs,
-       *plu,
-       *name;
+#include <basic/parse.h>
+#include <language.h>
+
+string * lng,
+       * shrt,
+       * adjs,
+       * plu,
+       * name;
 mapping verb,
         plural,
         other_things;
-int *cur_desc;
+int * cur_desc;
 
 int is_room_item() { return 1; }
 
 void create()
 {
-    adjs = ({ });
-    lng = ({ "" });
-    shrt = ({ "" });
-    plu = ({ });
-    name = ({ });
-    verb = ([ ]);
-    plural = ([ ]);
-    cur_desc = ({ });
-    other_things = ([ "smell" : 0, "taste" : 0, "read" : 0 ]);
+  adjs = ({ });
+  lng = ({ "" });
+  shrt = ({ "" });
+  plu = ({ });
+  name = ({ });
+  verb = ([ ]);
+  plural = ([ ]);
+  cur_desc = ({ });
+  other_things = ([ "smell" : 0, "taste" : 0, "read" : 0 ]);
 } /* create() */
 
 string short()
 {
-  string *ret;
+  string * ret;
   int i;
 
   ret = ({ });
@@ -37,20 +39,20 @@ string short()
   return query_multiple_short(ret);
 } /* short() */
 
-string *pretty_short()
+string * pretty_short()
 {
-  string *ret;
+  string * ret;
   int i;
 
   ret = ({ });
-  for (i=0;i<sizeof(cur_desc);i++)
+  for (i = 0; i < sizeof(cur_desc); i++)
     ret += ({ shrt[cur_desc[i]] });
   return ret;
 } /* pretty_short() */
 
 string query_plural()
 {
-  string *ret;
+  string * ret;
   int i;
 
   ret = ({ });
@@ -59,13 +61,13 @@ string query_plural()
   return query_multiple_short(ret);
 } /* query_plural() */
 
-string *pretty_plural()
+string * pretty_plural()
 {
-  string *ret;
+  string * ret;
   int i;
 
   ret = ({ });
-  for (i = 0; i < sizeof(cur_desc);i++)
+  for (i = 0; i < sizeof(cur_desc); i++)
     ret += ({ pluralize(shrt[cur_desc[i]]) });
   return ret;
 } /* query_plural() */
@@ -86,36 +88,33 @@ string long(varargs string s, int dark)
   }
 
   if (ret == "")
-    return "Error en el objeto, comunícaselo a un programador.\n";
+    return _LANG_ITEM_ERROR;
 
-  return sprintf("%-*s",
-    (this_user()->query_cols()?this_user()->query_cols():79),
-    "   "+ret);
+  return wrap(ret, this_user() ? this_user()->query_cols() : 80, 1);
 } /* long() */
 
-/*
-void set_long(string s) { lng[cur_desc] = s; }
-string query_long() { return lng[cur_desc]; }
- */
-int *query_cur_desc() { return cur_desc; }
+// void set_long(string s) { lng[cur_desc] = s; }
+// string query_long() { return lng[cur_desc]; }
+
+int * query_cur_desc() { return cur_desc; }
 mapping query_verbs() { return verb; }
 string * query_plurals() { return map_indices(plural) + map_values(plural); }
 
-string *query_lng() { return lng; }
-string *query_shrt() { return shrt; }
+string * query_lng() { return lng; }
+string * query_shrt() { return shrt; }
 
 int drop() { return 1; }
 int get() { return 1; }
 
 void setup_item(mixed nam, mixed long, varargs int no_plural)
 {
-  string *bits, s, real_long;
+  string * bits, s, real_long;
   int i;
 
   if (pointerp(long))
   {
-    real_long = "No ves nada destacable.\n";
-    for (i=0;i<sizeof(long);i+=2)
+    real_long = _LANG_ITEM_NOTHING_IMPORTANT;
+    for (i = 0; i < sizeof(long);i+=2)
       if (long[i] != "long")
       {
         if (!other_things[long[i]])
@@ -133,7 +132,7 @@ void setup_item(mixed nam, mixed long, varargs int no_plural)
   {
     if (sizeof(nam) > 0)
       shrt += ({ nam[0] });
-    for (i=0;i<sizeof(nam);i++)
+    for (i = 0; i < sizeof(nam); i++)
     {
       bits = explode(nam[i], " ");
       name += ({ (s=bits[sizeof(bits)-1]) });
@@ -190,7 +189,7 @@ int modify_item(string str, mixed long)
   /* Got a match... */
   if (pointerp(long))
   {
-    for (i=0;i<sizeof(long);i+=2)
+    for (i = 0; i < sizeof(long);i+=2)
       if (long[i] != "long")
       {
         if (!other_things[long[i]])
@@ -322,7 +321,8 @@ void dwep()
   return ;
 } /* dwep() */
 
-int move() { return 1; }
+int move(mixed dest, varargs mixed messin, mixed messout) { return 1; }
+// int move() { return 1; }
 
 int command_control(string command)
 {
@@ -330,7 +330,7 @@ int command_control(string command)
 
   if (!other_things[command])
     return 0;
-  for (i=0;i<sizeof(cur_desc);i++)
+  for (i = 0; i < sizeof(cur_desc); i++)
     if (other_things[command][cur_desc[i]])
       write(process_string(other_things[command][cur_desc[i]]));
     else

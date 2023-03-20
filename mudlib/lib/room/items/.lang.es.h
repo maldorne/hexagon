@@ -106,3 +106,8 @@
 #define _LANG_DOOR_CLOSES_KNOWN "La puerta " + dest + " se cierra lentamente.\n"
 #define _LANG_DOOR_CLOSES_CUSTOM capitalize((!number) ? query_article() : query_article_plural()) +  " " + \
                         dest + " se cierra" + ((!number) ? "" : "n") + " lentamente.\n"
+
+// item.c
+
+#define _LANG_ITEM_NOTHING_IMPORTANT "No ves nada destacable.\n"
+#define _LANG_ITEM_ERROR "Error en el objeto, comunícaselo a un programador.\n"

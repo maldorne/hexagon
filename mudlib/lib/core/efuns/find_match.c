@@ -28,6 +28,13 @@ int not_hidden(object ob, varargs mixed extra...)
          !(ob->is_money() && ob->query_number_coins() == 0) );
 }
 
+// filter items which responds to dynamic ids, like the room items
+// function not_dynamic_ids;
+int not_dynamic_ids(object ob, varargs mixed extra...)
+{
+  return (!ob->is_room_item());
+}
+
 static mixed find_match(string str, mixed ob, varargs int no_hidden)
 {
   object * list;
@@ -76,7 +83,11 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
 
   // get all, get *, get all from x, ...
   if (member_array(str, _LANG_ALL_OPTIONS) != -1)
+  {
+    list = filter_array(list, "not_dynamic_ids", this_object());
+    stderr(to_string(list));
     return list;
+  }
 
   bits = explode(implode(explode(str, " " + _LANG_AND + " "), ","), ",");
 

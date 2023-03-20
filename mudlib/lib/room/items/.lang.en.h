@@ -80,3 +80,8 @@
 #define _LANG_DOOR_CLOSES "The " + dest + " door closes slowly.\n"
 #define _LANG_DOOR_CLOSES_KNOWN "The " + dest + " door closes slowly.\n"
 #define _LANG_DOOR_CLOSES_CUSTOM "The " + dest + " closes slowly.\n"
+
+// item.c
+
+#define _LANG_ITEM_NOTHING_IMPORTANT "You don't see anything important.\n"
+#define _LANG_ITEM_ERROR "Error in the object, report it to a coder.\n"
