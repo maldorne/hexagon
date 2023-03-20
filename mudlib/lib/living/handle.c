@@ -379,8 +379,9 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
     {
       if (sscanf(str, "%s " + _LANG_HANDLE_GET_PREP + " %s", str, s2) == 2)
       {
-        /* since we only allow one lvl anyway... (*/
+        // since we only allow one lvl anyway... 
         dest = find_match(s2, ({ environment(), this_object() }), 1);
+
         if (!sizeof(dest))
         {
           notify_fail(_LANG_HANDLE_GET_CANNOT_FIND);

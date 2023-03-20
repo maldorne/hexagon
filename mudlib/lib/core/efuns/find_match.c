@@ -74,6 +74,10 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   if (no_hidden)
     list = filter_array(list, "not_hidden", this_object());
 
+  // get all, get *, get all from x, ...
+  if (member_array(str, _LANG_ALL_OPTIONS) != -1)
+    return list;
+
   bits = explode(implode(explode(str, " " + _LANG_AND + " "), ","), ",");
 
   for (j = 0; j < sizeof(bits); j++)
