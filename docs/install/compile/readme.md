@@ -22,8 +22,6 @@ As you can see, the DGD project is a fork from [the original](https://github.com
 
   * Allow `//` comments by default, uncommenting the `-DSLASHSLASH` flag
     in `dgd/src/Makefile`.
-  * Allow the use of closures by default, uncommenting the `-DCLOSURES` flag
-    in `dgd/src/Makefile`.
   * Change the inner working of the `restore_object` kfun, so it
     does not reset all non-static variables that do not hold object
     values when restoring the object. This is the default mode in MudOS.

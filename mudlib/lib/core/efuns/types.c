@@ -80,13 +80,13 @@ static nomask int undefinedp(mixed what)
 
 // i think DGD does not provide a type for function pointers, 
 // it identify them as objects... let's try with this for now
-static nomask int functionp(mixed what)
-{
-  if (typeof(what) == T_OBJECT)
-    return 1;
+// static nomask int functionp(mixed what)
+// {
+//   if (typeof(what) == T_OBJECT)
+//     return 1;
 
-  return 0;
-}
+//   return 0;
+// }
 
 // int userp(mixed what)
 // defined in efuns/user.c

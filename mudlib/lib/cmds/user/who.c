@@ -34,10 +34,8 @@ inherit CMD_BASE;
 
 // TODO: this shouldn`t be hard coded here
 #define RACES ({ \
-  "humano", \
-  "tresio", \
-  "velan", \
-  "aenur", \
+  "human", \
+  "elf", \
 })
 
 string query_usage()
