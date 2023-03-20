@@ -142,7 +142,7 @@ void set_only_one(int value)
     only_one = 0;
 }
 
-int do_death(object killer)
+int do_death(varargs object killer)
 {
   return ::do_death(killer);
 }
