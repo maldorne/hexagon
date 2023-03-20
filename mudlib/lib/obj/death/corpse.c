@@ -1,5 +1,6 @@
 
 #include <common/properties.h>
+#include <living/death.h>
 #include <translations/common.h>
 #include <language.h>
 
@@ -10,11 +11,11 @@ inherit equip     "/lib/living/equip";
 #define DECAY_TIME 60
 #define RAISE_CHANCE 25
 #define PC_RAISE_CHANCE 50
-#define PATH "/lib/obj/"
 
 int wasplayer;
 string owner, race_ob, race_name, filename;
-int decay;
+static int decay;
+static object original;
 
 // prototypes
 void decay();
@@ -34,11 +35,12 @@ void create()
   container::create();
   equip::create();
   owner = _LANG_CORPSE_SOMEBODY;
-  race_name = ""; // "unknown";
-  race_ob = ""; // "/lib/obj/races/unknown";
+  race_name = "";
+  race_ob = "";
   filename = "";
   decay = 10;
   wasplayer = 0;
+  original = nil;
 
   set_gender(1); // for spanish language
 }
@@ -74,7 +76,6 @@ string query_race_ob() { return race_ob; }
 // code on RD sept '93
 void heart_beat()
 {
-  tell_object(find_living("admin"), "Heartbeat in "+query_short()+"\n");
   decay();
 }
 
@@ -100,9 +101,12 @@ void setup()
 void set_owner(string n, object ob) 
 {
   owner = n;
+  original = ob;
   
   set_name(_LANG_CORPSE_OF + n);
-  set_short(capitalize(_LANG_CORPSE_OF) + n);
+  set_short(capitalize(_LANG_CORPSE_OF) + capitalize(n));
+  add_alias(_LANG_CORPSE_OF + capitalize(n));
+
   if (ob && ob->query_main_plural())
   {
     set_main_plural(capitalize(_LANG_CORPSES_OF) + ob->query_main_plural());
@@ -184,22 +188,28 @@ void raise_me(object ob)
   int i;
 
   i = random(100);
+  
   if (i <= 50)
-    cow = clone_object(PATH + "death/skeleton.c");
+    cow = clone_object(UNDEAD_OBS_PATH + "skeleton.c");
+  else if (i <= 80)
+    cow = clone_object(UNDEAD_OBS_PATH + "zombie.c");
+  else if (i <= 90)
+    cow = clone_object(UNDEAD_OBS_PATH + "wraith.c");
+  else if (i <= 98)
+    cow = clone_object(UNDEAD_OBS_PATH + "specter.c");
   else
-  if (i <= 80)
-    cow = clone_object(PATH + "death/zombie.c");
-  else
-  if (i <= 90)
-    cow = clone_object(PATH + "death/wraith.c");
-  else
-  if (i <= 98)
-    cow = clone_object(PATH + "death/specter.c");
-  else
-    cow = clone_object(PATH + "death/lich.c");
+    cow = clone_object(UNDEAD_OBS_PATH + "lich.c");
 
   if (owner)
+  {
     cow->set_short(cow->query_short() + " " + _LANG_OF + " " + owner);
+    
+    if (original)
+    {
+      cow->set_gender(original->query_gender());
+      cow->set_friend(original);
+    }
+  }
     
   stuff = all_inventory(ob);
     
@@ -220,9 +230,6 @@ void decay()
   object *obs;
   int i;
   decay -= 1;
-
-  tell_object(find_living("admin"), "Decay in "+query_short()+" " + decay + "\n");
-
   
   if (!strlen(race_name))
   {
@@ -258,17 +265,18 @@ void decay()
     raise_me(this_object());
     return;
   }
-  /* dump the equip */
-  if (wasplayer) 
-  {
-    obs = all_inventory(this_object());
-    for (i = 0; i < sizeof(obs); i++)
-    {
-      if (obs[i]) obs[i]->move(environment(this_object()));
-    }
-  }
   
-  dest_me();
+  // /* dump the equip */
+  // if (wasplayer) 
+  // {
+  //   obs = all_inventory(this_object());
+  //   for (i = 0; i < sizeof(obs); i++)
+  //   {
+  //     if (obs[i]) obs[i]->move(environment(this_object()));
+  //   }
+  // }
+  
+  // dest_me();
 }
 
 mixed * stats(){

@@ -54,21 +54,3 @@
 #define _LANG_HEARTHSTONE_INVOKE_MOUNT_HERE "Your mount is already here.\n"
 #define _LANG_HEARTHSTONE_INVOKE_MSG_ME "Your mount appears by your side.\n"
 #define _LANG_HEARTHSTONE_INVOKE_MSG_ROOM "The mount of "+this_player()->query_cap_name()+" appears by their side.\n"
-
-// corpse.c
-
-#define _LANG_CORPSE_SOMEBODY "somebody"
-#define _LANG_CORPSE_NAME "corpse"
-#define _LANG_CORPSE_ALIASES ({ "corpse", "body", "remains" })
-#define _LANG_CORPSE_PLURALS ({ "corpses", "bodies", "remains" })
-#define _LANG_CORPSE_DESC "It is a corpse.\n"
-
-#define _LANG_CORPSE_OF "corpse of "
-#define _LANG_CORPSES_OF "corpses of "
-#define _LANG_CORPSE_DESC_OF "This is the dead body of "+capitalize(n)+".\n"
-#define _LANG_CORPSE_RAISE_MSG "You hear the howling of a tortured spirit.\n" + \
-    "Suddenly, a " + cow->query_name() + " rises from the dead.\n"
-#define _LANG_CORPSE_UNKNOWN_BEIGN "unknown beign"
-#define _LANG_CORPSE_REMAINS "remains of "+query_name()
-#define _LANG_CORPSE_ROTTEN_REMAINS "rotten remains of a "+query_name()
-#define _LANG_CORPSE_REMAINS_DESC "This is the dead body of a "+race_name+".\n"

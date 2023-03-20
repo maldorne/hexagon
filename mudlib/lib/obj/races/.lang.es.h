@@ -13,3 +13,7 @@
 #define _LANG_RACES_REPTILE_NAME "reptil"
 #define _LANG_RACES_REPTILE_DESC "Un pequeño reptil salvaje.\n"
 #define _LANG_RACES_REPTILE_BODY "reptil"
+
+#define _LANG_RACES_UNDEAD_NAME "no muerto"
+#define _LANG_RACES_UNDEAD_DESC "Un ser animado, traído de vuelta desde el mundo de los muertos.\n"
+#define _LANG_RACES_UNDEAD_GENDER_STRING "no muert" + player->query_vowel()

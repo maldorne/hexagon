@@ -29,7 +29,10 @@
 #define FLIPPED_PROP "flipped"
 #define STONED_PROP "stoned"
 
+// do not allow creation of undead npcs in a room
 #define NO_UNDEAD "no_undead"
+// this npc is undead
+#define UNDEAD "undead"
 
 // things dry off faster
 // (see /global/pweath.c)

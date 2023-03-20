@@ -13,3 +13,7 @@
 #define _LANG_RACES_REPTILE_NAME "reptile"
 #define _LANG_RACES_REPTILE_DESC "A small wild reptile.\n"
 #define _LANG_RACES_REPTILE_BODY "reptile"
+
+#define _LANG_RACES_UNDEAD_NAME "undead"
+#define _LANG_RACES_UNDEAD_DESC "An animate being, bring back from the dead.\n"
+#define _LANG_RACES_UNDEAD_GENDER_STRING "undead"

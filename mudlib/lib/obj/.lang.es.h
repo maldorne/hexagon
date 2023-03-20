@@ -54,21 +54,3 @@
 #define _LANG_HEARTHSTONE_INVOKE_MOUNT_HERE "Tu montura ya se encuentra aquí.\n"
 #define _LANG_HEARTHSTONE_INVOKE_MSG_ME "Tu montura aparece a tu lado.\n"
 #define _LANG_HEARTHSTONE_INVOKE_MSG_ROOM "La montura de "+this_player()->query_cap_name()+" aparece a su lado.\n"
-
-// corpse.c
-
-#define _LANG_CORPSE_SOMEBODY "alguien"
-#define _LANG_CORPSE_NAME "cuerpo"
-#define _LANG_CORPSE_ALIASES ({ "cuerpo", "cadáver", "cadaver", "restos" })
-#define _LANG_CORPSE_PLURALS ({ "cuerpos", "cadáveres", "cadaveres", "restos" })
-#define _LANG_CORPSE_DESC "Es un cadáver.\n"
-
-#define _LANG_CORPSE_OF "cuerpo de "
-#define _LANG_CORPSES_OF "cuerpos de "
-#define _LANG_CORPSE_DESC_OF "Este es el cuerpo muerto de "+capitalize(n)+".\n"
-#define _LANG_CORPSE_RAISE_MSG "Escuchas el aullido de un espíritu torturado.\n" + \
-    "De repente, un " + cow->query_name() + " se levanta de entre los muertos.\n"
-#define _LANG_CORPSE_UNKNOWN_BEIGN "ser desconocido"
-#define _LANG_CORPSE_REMAINS "restos de "+query_name()
-#define _LANG_CORPSE_ROTTEN_REMAINS "restos putrefactos de un "+query_name()
-#define _LANG_CORPSE_REMAINS_DESC "Este es el cuerpo muerto de un "+race_name+".\n"
