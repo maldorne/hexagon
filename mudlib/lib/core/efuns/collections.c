@@ -80,6 +80,7 @@ static nomask object * players()
   return all -= ({ nil });
 }
 
+/*
 static nomask object * coders()
 {
   object * all;
@@ -95,3 +96,4 @@ static nomask object * coders()
 
   return result;
 }
+*/

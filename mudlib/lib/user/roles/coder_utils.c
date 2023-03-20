@@ -54,8 +54,8 @@ void inform_of_call(object ob, mixed *argv)
   }
 
   if (ob)
-    event(coders(), "inform", str + ") on " + desc_object(ob),
-                    "calls", this_object());
+    event(filter_array(users(), "coders", FILTERS), 
+          "inform", str + ") on " + desc_object(ob), "calls", this_object());
 
 } /* inform_of_call() */
 

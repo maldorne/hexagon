@@ -134,7 +134,7 @@ int move(varargs object dest)
   stderr("   - M before, this_player(1):\n    " + to_string(this_player(1)));
   stderr("   - M before, this_user():\n    "    + to_string(this_user()));
 
-  // call out own init() from all living objects in dest
+  // call our own init() from all living objects in dest
   map_array(filter_array(contents, "living", MUDOS),
             "do_init", MUDOS, old_this_player);
 

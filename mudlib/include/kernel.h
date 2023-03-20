@@ -7,6 +7,7 @@
 
 #define MUDOS_PATH "/lib/core/mudos"
 #define MUDOS      "/lib/core/mudos"
+#define FILTERS    "/lib/core/filters"
 // #define MUDOS find_object(DRIVER)->mudos()
 
 #define LOGIN find_object(DRIVER)->login()

@@ -19,22 +19,6 @@
  *   neverbot 09/2021
  */
 
-int not_hidden(object ob, varargs mixed extra...)
-{
-  return (objectp(ob) &&
-         !ob->query_hide_shadow() &&
-         !ob->query_invis() &&
-         !ob->query_hidden_object() &&
-         !(ob->is_money() && ob->query_number_coins() == 0) );
-}
-
-// filter items which responds to dynamic ids, like the room items
-// function not_dynamic_ids;
-int not_dynamic_ids(object ob, varargs mixed extra...)
-{
-  return (!ob->is_room_item());
-}
-
 static mixed find_match(string str, mixed ob, varargs int no_hidden)
 {
   object * list;
@@ -79,12 +63,12 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
   }
 
   if (no_hidden)
-    list = filter_array(list, "not_hidden", this_object());
+    list = filter_array(list, "not_hidden", FILTERS);
 
   // get all, get *, get all from x, ...
   if (member_array(str, _LANG_ALL_OPTIONS) != -1)
   {
-    list = filter_array(list, "not_dynamic_ids", this_object());
+    list = filter_array(list, "not_dynamic_ids", FILTERS);
     stderr(to_string(list));
     return list;
   }
