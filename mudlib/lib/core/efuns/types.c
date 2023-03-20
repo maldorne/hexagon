@@ -78,9 +78,14 @@ static nomask int undefinedp(mixed what)
   return 0;
 }
 
-static nomask int nullp(mixed what)
+// i think DGD does not provide a type for function pointers, 
+// it identify them as objects... let's try with this for now
+static nomask int functionp(mixed what)
 {
-  return undefinedp(what);
+  if (typeof(what) == T_OBJECT)
+    return 1;
+
+  return 0;
 }
 
 // int userp(mixed what)

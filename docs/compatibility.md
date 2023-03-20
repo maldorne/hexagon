@@ -11,7 +11,6 @@ Common calls and operations over the basic types.
 | `clonep`                | :white_check_mark: |  |
 | `intp`                  | :white_check_mark: |  |
 | `undefinedp`            | :white_check_mark: |  |
-| `nullp`                 | :white_check_mark: | alias for `undefinedp` |
 | `floatp`                | :white_check_mark: |  |
 | `stringp`               | :white_check_mark: |  |
 | `virtualp`              |  |  |

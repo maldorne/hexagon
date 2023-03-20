@@ -135,7 +135,7 @@ static nomask void write(string str)
 {
   object user;
 
-  if (nullp(str))
+  if (undefinedp(str))
     return;
 
   user = this_user();
