@@ -20,7 +20,9 @@ This will create both the `dgd` and `hexagon` directories.
 
 As you can see, the DGD project is a fork from [the original](https://github.com/dworkin/dgd), but the differences are minimal:
 
-  * Allow `//` comments, uncommenting the `-DSLASHSLASH` flag
+  * Allow `//` comments by default, uncommenting the `-DSLASHSLASH` flag
+    in `dgd/src/Makefile`.
+  * Allow the use of closures by default, uncommenting the `-DCLOSURES` flag
     in `dgd/src/Makefile`.
   * Change the inner working of the `restore_object` kfun, so it
     does not reset all non-static variables that do not hold object

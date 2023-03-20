@@ -2,7 +2,7 @@
 static nomask string show_trace()
 {
   mixed **trace;
-  string progname, objname, function, str, result;
+  string progname, objname, func, str, result;
   int i, sz, line, len;
 
   result = "";
@@ -14,7 +14,7 @@ static nomask string show_trace()
     {
       objname  = trace[i][0];
       progname = trace[i][1];
-      function = trace[i][2];
+      func     = trace[i][2];
       line     = trace[i][3];
 
       if (line == 0)
@@ -25,8 +25,8 @@ static nomask string show_trace()
         str = str[strlen(str) - 4 ..];
       }
 
-      str += " " + function + " ";
-      len = strlen(function);
+      str += " " + func + " ";
+      len = strlen(func);
 
       if (len < 22)
         str += "                      "[len ..];
@@ -44,13 +44,13 @@ static nomask string show_trace()
 
       // call_other is masked ("because of reasons"... shadows)
       // remove those messages from the error trace
-      if (function == "call_other" &&
+      if (func == "call_other" &&
           progname == "/lib/core/auto")
         continue;
 
       // when we are using this efun from the error handler, we can 
       // ignore the last entry
-      if (function == "runtime_error" &&
+      if (func == "runtime_error" &&
          (progname == "/lib/core/errors" || progname == "/lib/core/driver"))
         continue;
 
@@ -64,7 +64,7 @@ static nomask string show_trace()
 static nomask string last_call()
 {
   mixed **trace;
-  string progname, objname, function, result;
+  string progname, objname, func, result;
   int i, sz, line, len;
 
   result = "";
@@ -76,16 +76,16 @@ static nomask string last_call()
     for (i = sz - 1; i >= 0; i--)
     {
       progname = trace[i][1];
-      function = trace[i][2];
+      func = trace[i][2];
 
       if (progname == "/lib/core/driver")
         continue;
 
-      if (function == "runtime_error" &&
+      if (func == "runtime_error" &&
           progname == "/lib/core/errors")
         continue;
 
-      if (function == "call_other" &&
+      if (func == "call_other" &&
           progname == "/lib/core/auto")
         continue;
 
@@ -100,8 +100,8 @@ static nomask string last_call()
         result = result[strlen(result) - 4 ..];
       }
 
-      result += " " + function + " ";
-      len = strlen(function);
+      result += " " + func + " ";
+      len = strlen(func);
 
       if (len < 22)
         result += "                      "[len ..];

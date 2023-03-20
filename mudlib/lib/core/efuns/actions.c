@@ -23,7 +23,7 @@ nomask mapping query_actions()
 
 // these actions can be activated from the same object, 
 // other objects in the same environment, etc
-nomask void add_action(string function, mixed verbs)
+nomask void add_action(string func, mixed verbs)
 {
   if (!_actions)
     _actions = ([ ]);
@@ -33,14 +33,14 @@ nomask void add_action(string function, mixed verbs)
     int i;
 
     for (i = 0; i < sizeof(verbs); i++)
-      _actions[verbs[i]] = function;
+      _actions[verbs[i]] = func;
   }
   else if (stringp(verbs))
-    _actions[verbs] = function;
+    _actions[verbs] = func;
 }
 
 // these actions can be activated only  from the same object
-nomask void add_private_action(string function, mixed verbs)
+nomask void add_private_action(string func, mixed verbs)
 {
   if (!_private_actions)
     _private_actions = ([ ]);
@@ -50,10 +50,10 @@ nomask void add_private_action(string function, mixed verbs)
     int i;
 
     for (i = 0; i < sizeof(verbs); i++)
-      _private_actions[verbs[i]] = function;
+      _private_actions[verbs[i]] = func;
   }
   else if (stringp(verbs))
-    _private_actions[verbs] = function;
+    _private_actions[verbs] = func;
 }
 
 // nomask int action_exist(string verb)
