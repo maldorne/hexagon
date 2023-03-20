@@ -1,4 +1,5 @@
 
+#include <kernel.h>
 
 // prototypes
 object *wiz_present(string str, object onobj, varargs int nogoout);
