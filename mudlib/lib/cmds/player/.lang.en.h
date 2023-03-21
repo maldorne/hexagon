@@ -151,8 +151,8 @@
 
 #define _LANG_CMD_BURY_ALIAS ({ "bury" })
 #define _LANG_CMD_BURY_SYNTAX "bury"
-#define _LANG_CMD_BURY_HELP "Buries every corpse in your location." + \
-        "Nothing of the corpses will be recoverable."
+#define _LANG_CMD_BURY_HELP "Buries every corpse in your location. " + \
+        "Nothing from the corpses will be recoverable."
 #define _LANG_CMD_BURY_DEAD "You, a spirit, cannot bury corpses.\n"
 #define _LANG_CMD_BURY_WATER "Do you want to bury something in the water?\n"
 #define _LANG_CMD_BURY_MSG "You bury " + (counter == 1 ? "the corpse" : "the corpses") + ".\n"

@@ -113,6 +113,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | apuntador     |          |          |    |    |
 | ausente       |          |          |    |    |
+| bury          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | buscar        |          |          |    |    |
 | cabalgar      |          |          |    |    |
 | calendar      |          |          |    |    |
@@ -126,7 +127,6 @@ Coder commands will be only in english, except texts shown to the players, which
 | detener       |          |          |    |    |
 | dinero        |          |          |    |    |
 | diplomacia    |          |          |    |    |
-| enterrar      |          |          |    |    |
 | equipo        |          |          |    |    |
 | estado        |          |          |    |    |
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
