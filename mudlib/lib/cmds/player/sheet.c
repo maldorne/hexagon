@@ -36,7 +36,7 @@ void setup()
   set_help(_LANG_CMD_SHEET_HELP);
 }
 
-static int cmd (string name, object me, string verb)
+static int cmd(string name, object me, string verb)
 {
   int debug;
   int i, aux, diff_ac;
@@ -373,7 +373,7 @@ static int cmd (string name, object me, string verb)
 
   // cheack if all ac are the same
   diff_ac = 0;
-  for(i = 0; i < sizeof(AC_TYPES); i++)
+  for (i = 0; i < sizeof(AC_TYPES); i++)
   {
     for (aux = 0; aux < i; aux++)
     {

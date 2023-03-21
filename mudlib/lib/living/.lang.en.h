@@ -92,6 +92,12 @@
 
 #define _LANG_COMBAT_BEING_ATTACKED "%^BOLD%^You are being attacked by %^RESET%^" + \
                         name + "%^BOLD%^.%^RESET%^\n\n"
+#define _LANG_COMBAT_PASSED_OUT_MSG "You are too stunned to fight back.\n"
+#define _LANG_COMBAT_CHASING "You are chasing "
+#define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ME "You have killed "+his_name+".\n"
+#define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ROOM this_object()->query_cap_name() + \
+            " has killed "+his_name+".\n"
+#define _LANG_COMBAT_STOP_CHASING "You stop chasing "
 
 // death.c
 
@@ -191,7 +197,7 @@
 #define _LANG_EQUIP_VERBS ({ "equip" })
 #define _LANG_EQUIP_SYNTAX "Syntax: equip\n" + \
               "To equip automatically at login, use 'configuration'.\n"
-#define _LANG_EQUIP_WIELDING "Weilding"
+#define _LANG_EQUIP_WIELDING "Wielding"
 #define _LANG_EQUIP_HOLDING "Holding"
 #define _LANG_EQUIP_WEARING "Wearing"
 #define _LANG_EQUIP_TIED "Tied"
@@ -203,7 +209,6 @@
 #define _LANG_EQUIP_OTHER_MONEY_2 "Does not seem to carry a lot of money."
 #define _LANG_EQUIP_OTHER_MONEY_3 "Seems to have money enough."
 #define _LANG_EQUIP_OTHER_MONEY_4 "Look like carrying a lot of money!"
-
 
 // health
 

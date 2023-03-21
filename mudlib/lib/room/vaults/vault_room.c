@@ -146,6 +146,12 @@ int do_deposit(string str)
   // object * checked;
   int i;
   int ret;
+
+  if (!strlen(str))
+  {
+    notify_fail("¿Depositar qué?\n");
+    return 0;
+  }
  
   vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
   /* Added by Timion, 06 NOV 97
@@ -271,7 +277,13 @@ int do_retrieve(string str)
   object *all;
   int i;
 
-  vault = clone_object(VAULT_FILES_PATH+"vault_obj.c");
+  if (!strlen(str))
+  {
+    notify_fail("¿Recuperar qué?\n");
+    return 0;
+  }
+
+  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
 
   if (query_property(VAULT_USE_PROP))
   {
@@ -287,7 +299,7 @@ int do_retrieve(string str)
   
   if (sizeof(all))
   {
-    for(i = 0; i < sizeof(all); i++)
+    for (i = 0; i < sizeof(all); i++)
     {
       if (this_player()->query_contents_weight() + all[i]->query_weight() <
         this_player()->query_max_weight())
@@ -371,7 +383,7 @@ int do_list(string str)
     tell_object(this_player(), "Hay "+sizeof(all)+" objetos almacenados en este baúl:\n\n");
     list = (string *)vault->list_contents();
     tmp = "";
-    for(i = 0; i < sizeof(list); i++)
+    for (i = 0; i < sizeof(list); i++)
       tmp += list[i]+"\n";
     
     this_player()->more_string(tmp);
@@ -383,7 +395,7 @@ int do_list(string str)
     // Ordenamos los objetos por categorias
     /* 
     // Sistema pre-agrupar por mismo nombre
-    for(i = 0; i < sizeof(all); i++)
+    for (i = 0; i < sizeof(all); i++)
     {
        if (all[i]->query_weapon())
           objects["Armas"] += ({ all[i] });
@@ -396,7 +408,7 @@ int do_list(string str)
     }
     */
 
-    for(i = 0; i < sizeof(all); i++)
+    for (i = 0; i < sizeof(all); i++)
     {
       int position;
       position = 0;
@@ -485,7 +497,7 @@ int do_list(string str)
     tmp += "  Se está utilizando un "+capacity+"% de la capacidad del baúl.\n"; 
     tmp += "-------------------------------------------------------\n\n";
     
-    this_player()->more_string(tmp);
+    this_user()->more_string(tmp);
     
   }
   else

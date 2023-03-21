@@ -15,6 +15,14 @@
 #define _LANG_DEFAULT_SIGN_NAME "sign"
 #define _LANG_NO_EXITS "no exits"
 
+#define _LANG_ROOM_TOO_DARK "It is too dark to see anything."
+#define _LANG_ROOM_LIGHT_DEF "Hmm, you can't see very well. " + dark_mess + "\n"
+#define _LANG_ROOM_LIGHT_2 "You can't see much.\n"+ exit_string
+#define _LANG_ROOM_LIGHT_3 "It's too hard to see in this darkness.\n"+::short(1)+".\n"+exit_string
+#define _LANG_ROOM_LIGHT_4 "You are blinded by the light.\n"+::short(0)+".\n"+exit_string
+#define _LANG_ROOM_LIGHT_5 "The light is really blinding.\n"+exit_string
+#define _LANG_ROOM_LIGHT_6 "You are blinded by the light.\n"
+
 // language.c
 
 #define _LANG_LANGUAGE_DEFAULT_DESC "This is the normal language spoken by most creatures.\n"
@@ -52,10 +60,10 @@
 #define _LANG_WEAPON_FUMBLE_MSG_ATTACKER "You make a blunder and are unable to hit "
 #define _LANG_WEAPON_FUMBLE_MSG_DEFENDER " makes a blunder and is unable to hit you.\n"
 #define _LANG_WEAPON_FUMBLE_MSG_ROOM " makes a blunder and is unable to hit "
-#define _LANG_WEAPON_PARRY_MSG_ATTACKER " parries your attack with your "
+#define _LANG_WEAPON_PARRY_MSG_ATTACKER " parries your attack with "+defender->query_possessive()+" "
 #define _LANG_WEAPON_PARRY_MSG_DEFENDER " tries to hit you but you parry the attack with your "
 #define _LANG_WEAPON_PARRY_MSG_ROOM " tries to hit "
 #define _LANG_WEAPON_PARRY_MSG_ROOM_END " but "+defender->query_demonstrative()+" parries the attack with "+defender->query_possessive()+" "
 #define _LANG_WEAPON_NO_HIT "You are unable to hit "
-#define _LANG_WEAPON_NOT_HIT " is not able to hit you.\n"
+#define _LANG_WEAPON_NOT_HIT " is not able to hit you."
 #define _LANG_WEAPON_NO_HIT_ROOM " is not able to hit "

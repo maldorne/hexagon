@@ -10,7 +10,7 @@
 #define _LANG_CMD_KILL_SYNTAX "atacar <objetivos>"
 #define _LANG_CMD_KILL_HELP "Comienza a atacar a los objetivos especificados."
 #define _LANG_CMD_KILL_NOT_ALLOWED "No está permitido.\n"
-#define _LANG_CMD_KILL_NOT_ALLOWED_ARRAY ({ "todo", "todos", "all", "everyone" })
+#define _LANG_CMD_KILL_NOT_ALLOWED_ARRAY ({ "todo", "todos", "all", "everyone", "*" })
 #define _LANG_CMD_KILL_NO_NEED_WHEN_DEAD "Tu estado etéreo tiene poco efecto en el mundo material.\n"
 #define _LANG_CMD_KILL_NOT_FOUND "No consigues encontrar a "+me->expand_nickname(str)+".\n"
 #define _LANG_CMD_KILL_NOT_SUICIDE "¿Te quieres suicidar?\n"

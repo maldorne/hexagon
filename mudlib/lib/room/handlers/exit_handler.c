@@ -295,9 +295,7 @@ int do_exit_command(mapping door_control,
   // cannot move in passed out
   if (ob->query_property(PASSED_OUT_PROP))
   {
-    // do not give an error message, because we will be giving clues
-    // about which are the "right" exits (the ones returning an error)
-    // notify_fail(ob->query_timed_property(PASSED_OUT_PROP));
+    notify_fail(ob->query_timed_property(PASSED_OUT_PROP));
     return 0;
   }
 

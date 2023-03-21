@@ -89,6 +89,13 @@
 
 #define _LANG_COMBAT_BEING_ATTACKED "%^BOLD%^Estás siendo atacado por %^RESET%^" + \
                         name + "%^BOLD%^.%^RESET%^\n\n"
+#define _LANG_COMBAT_PASSED_OUT_MSG "Estás demasiado aturdido como " + \
+            "para devolver los golpes.\n"
+#define _LANG_COMBAT_CHASING "Estás persiguiendo a " 
+#define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ME "Has matado a "+his_name+"\n"
+#define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ROOM this_object()->query_cap_name() + \
+            " ha matado a "+his_name+"\n"
+#define _LANG_COMBAT_STOP_CHASING "Dejas de perseguir a "
 
 // death.c
 

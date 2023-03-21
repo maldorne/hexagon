@@ -202,8 +202,7 @@ void attack()
   {
     if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
     {
-      tell_object(this_object(), "Estás demasiado aturdido como "+
-            "para devolver los golpes.\n");
+      tell_object(this_object(), _LANG_COMBAT_PASSED_OUT_MSG);
       return;
     }
 
@@ -229,8 +228,8 @@ void attack()
   }
 
   if (sizeof(away_attackers) > 0)
-    tell_object(this_object(), "Estás persiguiendo a " 
-             + query_multiple_short(away_attackers) + ".\n");
+    tell_object(this_object(), _LANG_COMBAT_CHASING +
+                query_multiple_short(away_attackers) + ".\n");
 
   // dw check the not correct environ list to see if any one has come back.  
   i = 0;
@@ -255,9 +254,9 @@ void attack()
   }
 
   // dw choose a random person from the attacker list; they're in correct env.
-  if ( concentrate )
+  if (concentrate)
   {
-    if ( member_array( concentrate, attacker_list ) == -1 )
+    if (member_array( concentrate, attacker_list ) == -1)
     {
       // attackee = attacker_list[random(sizeof(attacker_list))];
       // Aggro, neverbot 01/2013
@@ -336,9 +335,9 @@ void attack()
 
   if (!attackee) 
   {
-    tell_object(this_object(),"Has matado a "+his_name+"\n");
-    tell_room(environment(this_object()),this_object()->query_cap_name()+
-       " ha matado a "+his_name+"\n");
+    tell_object(this_object(), _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ME);
+    tell_room(environment(this_object()), _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ROOM,
+              ({ this_object() }));
   }
 
   att_level = (int)this_object()->query_level();
@@ -450,7 +449,7 @@ int stop_fight(object ob, varargs int silent)
   if ((i = member_array(ob, call_outed)) != -1) 
   {
     if (!silent)
-      tell_object(this_object(), "Dejas de perseguir a " + 
+      tell_object(this_object(), _LANG_COMBAT_STOP_CHASING + 
         call_outed[i]->short(0) + ".\n");
     
     call_outed = delete(call_outed, i, 1);
@@ -459,13 +458,13 @@ int stop_fight(object ob, varargs int silent)
     attacker_list = delete(attacker_list, i, 1);
 }
 
-mixed *query_attacker_list()
+mixed * query_attacker_list()
 {
   attacker_list -= ({ nil });
   return attacker_list;
 }
 
-mixed *query_call_outed()
+mixed * query_call_outed()
 {
   call_outed -= ({ nil });
   return call_outed;
@@ -477,14 +476,14 @@ int query_is_fighting()
 }
 
 /** added by Raskolnikov Oct 96 **/
-mixed *remove_call_outed()
+mixed * remove_call_outed()
 {
   call_outed = ({ });
   return call_outed;
 }
 
 /** added by Raskolnikov Oct 96 **/
-mixed *reset_attacker_list()
+mixed * reset_attacker_list()
 {
   attacker_list = ({ });
   return attacker_list;

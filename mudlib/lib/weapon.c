@@ -243,10 +243,11 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
   // between your attackers and your oponent's. This way we avoid modifiying the AC in big battles 
   // like 6 vs 6
   {
-    int ac_diff;
-    ac_diff = sizeof(defender->query_attacker_list()) - sizeof(attacker->query_attacker_list());
-  	if (ac_diff >= 2)
-    	defenderac = (defenderac / (ac_diff / 2));	
+    int atts_diff;
+    atts_diff = sizeof(defender->query_attacker_list()) - sizeof(attacker->query_attacker_list());
+  	// if there are two more people in one group
+    if (atts_diff >= 2)
+    	defenderac = (defenderac / ((atts_diff + 2) / 2));	
   }
 
   // attacker ability plus some luck (1d10), minus deffender ac.

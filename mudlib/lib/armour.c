@@ -19,7 +19,7 @@ inherit "/lib/item.c";
 
 int enchant;
 
-/* Valores de /table/armour_table */
+/* values from /lib/tables/armours */
 static int basic_cost, // cost of a basic armour of this type 
     ench_basic_cost,   // cost of a basic armour of this type with enchant
 
@@ -328,10 +328,11 @@ mixed * stats()
         ({ "Enchant", enchant, }),
         ({ "Basic Cost (nosave)", basic_cost, }),
         ({ "Ench Basic Cost (nosave)", ench_basic_cost, }),
+        ({ "Ac (nosave)", armour_ac, }),
+        ({ "Ac Bonus Against (nosave)", ac_bonus_against, }),
         ({ "Max Dex Bon (nosave)", max_dex_bon, }),
         ({ "Skill Malus (nosave)", skill_malus, }),
         ({ "Spell Failure (nosave)", spell_failure, }),
-        ({ "Ac Bonus Against (nosave)", ac_bonus_against, }),
         ({ "Armour Type (nosave)", armour_type, }),
         ({ "Material (nosave)", material, }),
         ({ "Localization (nosave)", localization, }),

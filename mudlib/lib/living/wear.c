@@ -52,7 +52,7 @@ private void _add_worn_ac(object ob)
     return;
 
   for (i = 0; i < sizeof(AC_TYPES); i++)
-    worn_ac[AC_TYPES[i]] += ob->query_ac() + ob->query_ac_against(AC_TYPES[i]);
+    worn_ac[AC_TYPES[i]] += ob->query_ac_against(AC_TYPES[i]);
 }
 
 private void _remove_worn_ac(object ob)
@@ -64,7 +64,7 @@ private void _remove_worn_ac(object ob)
     return;
 
   for (i = 0; i < sizeof(AC_TYPES); i++)
-    worn_ac[AC_TYPES[i]] -= (ob->query_ac() + ob->query_ac_against(AC_TYPES[i]));
+    worn_ac[AC_TYPES[i]] -= ob->query_ac_against(AC_TYPES[i]);
 }
 
 void create()
@@ -254,7 +254,7 @@ int wear_ob(object ob)
   for (i = 0; i < sizeof(worn_objects); i++)
   {
     if (thisone == base_name(worn_objects[i]))
-        return 0;
+      return 0;
   }
 
   // max 4 amulet/necklace (type 5)
@@ -273,7 +273,7 @@ int wear_ob(object ob)
   }
 
   if (!aux)
-      return 0;
+    return 0;
 
   if (!(aux = ob->query_size()))
   {
@@ -293,10 +293,10 @@ int wear_ob(object ob)
 
     // update max dex bonus
     if (max_dex_bon < 0)
-       max_dex_bon = ob->query_max_dex_bon();
+      max_dex_bon = ob->query_max_dex_bon();
     else
-       if ((ob->query_max_dex_bon() != -1) && (ob->query_max_dex_bon() < max_dex_bon))
-         max_dex_bon = ob->query_max_dex_bon();
+      if ((ob->query_max_dex_bon() != -1) && (ob->query_max_dex_bon() < max_dex_bon))
+        max_dex_bon = ob->query_max_dex_bon();
 
     // update skill malus
     skill_malus += ob->query_skill_malus();

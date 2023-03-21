@@ -107,7 +107,7 @@ void create()
   door_control = ([ ]);
   room_zone = "nowhere";
   exit_color = "%^BOLD%^%^CYAN%^";
-  set_dark_mess("Está demasiado oscuro para poder ver");
+  set_dark_mess(_LANG_ROOM_TOO_DARK);
 
   exit_string = "";
   short_exit_string = "";
@@ -247,11 +247,10 @@ void set_exit_color(string which)
 
 void add_clone(string the_file, int how_many, varargs int flags)
 {
-  // if ( !how_many ) how_many = 1;
-  if ( !how_many )
+  if (!how_many)
     return;
 
-  if ( !stringp(the_file) )
+  if (!stringp(the_file))
   {
     log_file("room.log", "(add_clone) bad clone file: " + the_file
     + ", " + file_name(this_object())
@@ -260,10 +259,10 @@ void add_clone(string the_file, int how_many, varargs int flags)
   }
 
   // don't make array unless we have something to put in it!
-  if ( !room_clones )
+  if (!room_clones)
     room_clones = ({ });
 
-  while ( how_many-- > 0 )
+  while (how_many-- > 0)
   {
     // make space for objects in array
     room_clones += ({ nil });
@@ -281,26 +280,24 @@ mixed *query_room_clones() { return room_clones; }
 string query_dark_mess(int lvl)
 {
   if (!exit_string)
-      exit_string = query_dirs_string();
-  switch(lvl)    {
+    exit_string = query_dirs_string();
+  
+  switch(lvl)
+  {
     default:
-        return "Hmm, no ves bien. " + dark_mess + "\n";
+      return _LANG_ROOM_LIGHT_DEF;
     case 1: /* Total blackout */
-        return dark_mess;
+      return dark_mess;
     case 2: /* pretty damn dark */
-        return "No puedes ver mucho.\n"+ exit_string;
+      return _LANG_ROOM_LIGHT_2;
     case 3: /* getting dim */
-        return "Es demasiado difícil ver en esta oscuridad.\n"+
-        // ::short(1)+"\n" + // neverbot
-        exit_string;
+      return _LANG_ROOM_LIGHT_3;
     case 4: /* slightly dazzled */
-        return "Estás deslumbrado por la luz.\n" +
-        // ::short(0)+"\n" + // neverbot
-        exit_string;
+      return _LANG_ROOM_LIGHT_4;
     case 5: /* very bright */
-        return "La luz es realmente cegadora.\n"+ exit_string;
+      return _LANG_ROOM_LIGHT_5;
     case 6:
-        return "Estás cegado por la luz.\n";
+      return _LANG_ROOM_LIGHT_6;
   }
 }
 
@@ -405,7 +402,7 @@ string query_short_exit_string()
 string long(string str, int dark)
 {
   if (dark)
-    return "   " + query_dark_mess(dark) + "\n";
+    return query_dark_mess(dark) + "\n";
 
   // commented by neverbot 6/03
   // is slower, but we need exit_string to be updated, because now
@@ -415,8 +412,8 @@ string long(string str, int dark)
 
   if (!strlen(str))
     return wrap(::long(str, dark), 
-                (this_user() ? this_user()->query_cols() : 80), 1) + 
-           exit_string + "\n" + query_contents("");
+               (this_user() ? this_user()->query_cols() : 80), 1) + 
+                exit_string + "\n" + query_contents("");
 
   str = expand_alias(str);
   return items[str];
@@ -608,11 +605,11 @@ int query_special_exit(string direc)
 {
   int i;
   for(i = 0; i < sizeof(dest_other); i+=2)
-    if (dest_other[i]==direc)
+    if (dest_other[i] == direc)
       if (dest_other[i+1][ROOM_FUNC])
         return 1;
 
-  if (query_ex_type(direc)=="door" || query_ex_type(direc)=="gate")
+  if (query_ex_type(direc) == "door" || query_ex_type(direc) == "gate")
     return 2;
 
   return 0;

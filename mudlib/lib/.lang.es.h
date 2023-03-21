@@ -15,6 +15,14 @@
 #define _LANG_DEFAULT_SIGN_NAME "cartel"
 #define _LANG_NO_EXITS "sin salidas"
 
+#define _LANG_ROOM_TOO_DARK "Está demasiado oscuro para poder ver"
+#define _LANG_ROOM_LIGHT_DEF "Hmm, no ves bien. " + dark_mess + "\n"
+#define _LANG_ROOM_LIGHT_2 "No puedes ver mucho.\n"+ exit_string
+#define _LANG_ROOM_LIGHT_3 "Es demasiado difícil ver en esta oscuridad.\n"+::short(1)+".\n"+exit_string
+#define _LANG_ROOM_LIGHT_4 "Estás deslumbrado por la luz.\n"+::short(0)+".\n"+exit_string
+#define _LANG_ROOM_LIGHT_5 "La luz es realmente cegadora.\n"+ exit_string
+#define _LANG_ROOM_LIGHT_6 "Estás cegado por la luz.\n"
+
 // language.c
 
 #define _LANG_LANGUAGE_DEFAULT_DESC "Es el lenguaje habitual, hablado por la mayoría.\n"

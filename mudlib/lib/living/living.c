@@ -135,10 +135,10 @@ int query_total_ac(varargs int type)
   int ret, eac, bac;
   ret = 0;
 
-  if (type)
-    eac = this_object()->query_equip_ac(type);
-  else
+  if (undefinedp(type))
     eac = this_object()->query_equip_ac(BLUNT);
+  else
+    eac = this_object()->query_equip_ac(type);
 
   bac = this_object()->query_body_ac();
 

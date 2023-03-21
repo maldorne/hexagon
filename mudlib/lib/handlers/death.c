@@ -359,14 +359,18 @@ float update_npc_died(object npc, object player)
      return 1.0;
   load_this_ob();
   tmp = data[domname];
+  
   if (!tmp) 
      tmp = ([ ]);
-  vals = tmp[obname];
-  if (!vals) vals = ({0,0,0,0,0,0,0,0,0,0,0,0});
   
+  vals = tmp[obname];
+  
+  if (!vals) 
+    vals = ({ 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0 });  
+
   if (!(player->query_coder()) && 
     strsrch(player->query_name(),"test") == -1) {
-  time_now = TIMEKEEPER->query_running_time()/60.0;
+  time_now = ((float)TIMEKEEPER->query_running_time())/60.0;
   if (!vals[9]) vals[9] = time_now;
   time_since = time_now - vals[9];
   if (time_since < 0.0) time_since = 0.0;
@@ -482,10 +486,14 @@ void update_player_died(object npc, object player)
      return;
   load_this_ob();
   tmp = data[domname];
+
   if (!tmp) 
      tmp = ([ ]);
+
   vals = tmp[obname];
-  if (!vals) vals = ({0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0});
+
+  if (!vals) 
+    vals = ({ 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0 });
   
   time_now = TIMEKEEPER->query_running_time()/60.0;
   if (!vals[3]) vals[3] = time_now;

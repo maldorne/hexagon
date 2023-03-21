@@ -29,6 +29,8 @@ void create()
     compile_object(PLAYER_OB);
 }
 
+mixed * info() { return ({ _users, _players }); }
+
 // called only from this object, in 'new_connection'
 static void add_new_user(object ob)
 {

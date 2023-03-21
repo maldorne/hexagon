@@ -52,7 +52,7 @@ void _set_living_name(object ob, string name)
   if (undefinedp(_livings[name]))
     _livings[name] = ({ ob });
   else
-    _livings[name] = _livings[name] + ({ ob });
+    _livings[name] = _livings[name] + ({ ob }) - ({ nil });
 }
 
 void remove_living(object ob)
@@ -71,8 +71,12 @@ object _find_living(string name)
   if (undefinedp(_livings[name]))
     return nil;
 
-  // if (sizeof(_livings[name]) > 1)
-  return _livings[name][0];
+  _livings[name] -= ({ nil });
+
+  if (sizeof(_livings[name]) > 1)
+    return _livings[name][0];
+
+  return nil;
 }
 
 int _is_in_livings(object ob)
