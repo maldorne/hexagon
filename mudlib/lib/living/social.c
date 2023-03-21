@@ -1,37 +1,38 @@
 /*
  * By Radix - 1996 for FRMud
- * race_ob       - Raza
- * guild_ob      - Gremio
- * group_ob      - Clanes (Special Interest Groups)
- * race_group_ob - Grupos Raciales (Clanes enanos, Tribus Orcas, Casas Drow, ...)
- * Nuevos CcMud:
- * job_ob        - Oficio
- * deity_ob      - Religion que profesa
- * city_ob       - Ciudadania
- * class_ob      - Clase (gremio "generico")
+ * race_ob       - Race
+ * guild_ob      - Guild
+ * group_ob      - Clans (Special Interest Groups)
+ * race_group_ob - Racial Groups (Dwarf Clans, Orc Tribes, Drow Houses, ...)
+ * New CcMud:
+ * job_ob        - Profession
+ * deity_ob      - Religion
+ * city_ob       - Citizenship
+ * class_ob      - Class (generic guild)
  *
- * El archivo deja de ser guild-race.c para pasar a ser groups_obs.c (No se a quien
- * se le ocurrio poner un '-' en medio de un nombre de archivo, ya que hace imposible
- * cosas como guild-race::funcion() y similares.
- * neverbot@Cc, 23/4/2003
+ * The file is no longer guild-race.c but has been renamed to groups_obs.c 
+ * (I don't know who came up with putting a hyphen in a file name, as it makes things 
+ * like guild-race::function() impossible. neverbot@Cc, 23/4/2003)
  *
- * Modificado el antiguo guild_joined, para mantener registro de guilds a los que
- * el jugador ha pertenecido. neverbot 18/7/03
+ * Modified the old guild_joined to keep track of all guilds the player has belonged to.
+ * neverbot 18/7/03
  *
- * Extraido todo lo relacionado con los antiguos comandos (gr_commands)
- *  para crear nuevo sistema de dotes (feats.c), neverbot 11/10/08
+ * Extracted everything related to the old commands (gr_commands) to create 
+ * a new system of feats (feats.c), neverbot 11/10/08
  *
- * Añadido nuevo sistema de especialidades para cada uno de los grupos sociales
- *  neverbot 20/10/2012
+ * Added a new system of specialties for each of the social groups.
+ * neverbot 20/10/2012
  *
  * Renamed as social.c, neverbot 10/2016
  */
+
 
 #include <user/player.h>
 #include <living/living.h>
 #include <living/social.h>
 #include <living/races.h>
 #include <mud/secure.h>
+#include <language.h>
 
 inherit feats "/lib/living/feats";
 inherit specs "/lib/living/specs";
@@ -43,14 +44,14 @@ mapping job_joined;
 int class_level;
 int guild_level;
 
-// Tenemos demasiadas variables globales, asi que todos los xx_ob los
-// meto en un solo array, neverbot 3/2002
+// we have too many global variables, so I put all the xx_ob in a single array
+// neverbot 3/2002
 string * social_object_list;
 // string race_ob, guild_ob;
 // string group_ob, race_group_ob;
 // string job_ob, deity_ob;
 
-// Oficios
+// jobs
 int total_job_xp, job_xp;
 int job_level;
 
@@ -83,7 +84,7 @@ void social_commands()
 {
   feats_commands();
   specs_commands();
-} /* groups_commands(), antes race_guild_commands() */
+}
 
 void start_player()
 {
@@ -113,7 +114,6 @@ string query_gtitle()
      !catch((str = (string)social_object_list[GUILD_OB]->query_title(this_object()))))
     return str;
 
-  // return "(su gremio no tiene título)";
   return "";
 }
 
@@ -822,7 +822,7 @@ int query_citizen()
   return 0;
 }
 
-// Antes en player.c, ahora aqui (util para monster.c tambien :), neverbot 6/03)
+// this was in player.c, now here (useful for monster.c too), neverbot 6/03
 int query_level(){ return class_level; }
 
 int adjust_level(int i)
@@ -833,28 +833,27 @@ int adjust_level(int i)
   // Baldrick.
   if ((class_level + i) > 100)
   {
-    notify_fail("Olvídalo.\n");
+    notify_fail(_LANG_SOCIAL_FORGET_ABOUT_IT);
     return 0;
   }
 
-  // Las funciones new_levels deben llamarse antes de ajustar el nivel!!
+  // the new_levels functions must be called before the level is adjusted!!
   if (query_class_ob())
     query_class_ob()->new_levels(i, this_object());
 
-  // Mensaje de subida de nivel (excepto la primera subida que es automatica)
-  if ((class_level >= 5) && (i > 0))
+  // message about level up (except the first one, which is automatic)
+  if (interactive(this_object()) && (class_level >= 5) && (i > 0))
   {
-    tell_player(this_object(), "¡Subes de nivel!");
+    this_object()->user()->add_notification("player", _LANG_SOCIAL_LEVEL_UP);
 
-    // Log para players
-    if (interactive(this_object()))
-      log_file(LOG_ADJUST_LEVEL, "["+ctime(time(),4)+"] "+this_object()->query_cap_name() +
-           " ajusto "+i+" niveles ["+query_class_ob()+"], quedandose en "+class_level+"\n");
+    log_file(LOG_ADJUST_LEVEL, "[" + ctime(time(), 4) + "] " + 
+             this_object()->query_cap_name() + " adjusted " + i + 
+             " levels [" + query_class_ob() + "], up to level " + class_level + "\n");
   }
 
   class_level += i;
 
-  // Ajuste de los rankings para players
+  // adjust player rank
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
   {
     ranking = load_object(RANKING_OB);
@@ -868,7 +867,7 @@ int adjust_level(int i)
 
 int query_class_level(){ return query_level(); }
 int query_guild_level(){ return guild_level; }
-// Nivel maximo de todos los gremios en los que ha estado
+// max level of all guilds he has been
 int query_max_guild_level()
 {
   string * list;
@@ -879,7 +878,7 @@ int query_max_guild_level()
 
   // guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
   for (i = 0; i < sizeof(list); i++)
-    // El gremio actual estara almacenado con un nivel antiguo
+    // the current guild will be stored with an old level
     if (list[i] != query_guild_ob())
       if (guild_joined[list[i]][0] > res)
         res = guild_joined[list[i]][0];

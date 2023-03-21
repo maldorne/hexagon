@@ -236,3 +236,8 @@
 #define _LANG_HEALTH_VOLUME_DEAD_DRUNK "dead to the world"
 #define _LANG_HEALTH_VOLUME_NEAR_DEATH "near death"
 #define _LANG_HEALTH_VOLUME_PRAYING_FOR_DEATH "pray for a painless death"
+
+// social.c
+
+#define _LANG_SOCIAL_FORGET_ABOUT_IT "Forget about it.\n"
+#define _LANG_SOCIAL_LEVEL_UP "Level up!"

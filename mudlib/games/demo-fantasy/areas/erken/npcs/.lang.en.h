@@ -16,7 +16,7 @@
 #define _LANG_NPCS_ORC_CHAT ({ ":grunts.", \
                                ":spits.", \
                                ":curses your name.", \
-                               ":looks at you maliciously with $oobj$ bloodshot eyes.", })
+                               ":looks at you maliciously with $oposs$ bloodshot eyes.", })
 
 #define _LANG_NPCS_BARMAN_NAME "arak"
 // "barman" will be use by set_attender in the pub, do not change!

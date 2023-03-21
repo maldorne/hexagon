@@ -96,7 +96,8 @@ int show_notifications(varargs int show_all)
     text += (sizeof(messages) > 1 ? "* " : "") + messages[i] + "\n";
 
   text = handler("frames")->frame(text, title, 0, 0, "notifications");
-  write("\n" + text + "\n");
+  
+  this_user()->more_string("\n" + text + "\n");
 
   pending_notifications = false;
   return 1;

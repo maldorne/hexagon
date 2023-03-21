@@ -240,10 +240,7 @@
 #define _LANG_HEALTH_VOLUME_NEAR_DEATH "cerca de la muerte"
 #define _LANG_HEALTH_VOLUME_PRAYING_FOR_DEATH "reza por una muerte sin dolor"
 
-#define _LANG_VOLUME_SOBER 
-#define _LANG_VOLUME_HAPPY 
-#define _LANG_VOLUME_BLIND 
-#define _LANG_VOLUME_VERY_BLIND 
-#define _LANG_VOLUME_DEAD_TO_WORLD 
-#define _LANG_VOLUME_NEAR_DEATH 
-#define _LANG_VOLUME_PRAY_FOR_PAINLESS_DEATH 
+// social.c
+
+#define _LANG_SOCIAL_FORGET_ABOUT_IT "Olvídalo.\n"
+#define _LANG_SOCIAL_LEVEL_UP "¡Subes de nivel!"
