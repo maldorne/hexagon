@@ -157,3 +157,13 @@
 #define _LANG_CMD_BURY_WATER "Do you want to bury something in the water?\n"
 #define _LANG_CMD_BURY_MSG "You bury " + (counter == 1 ? "the corpse" : "the corpses") + ".\n"
 #define _LANG_CMD_BURY_NO "You haven't found any corpses.\n"
+
+// cost
+
+#define _LANG_CMD_COST_ALIAS ({ "cost" })
+#define _LANG_CMD_COST_SYNTAX "cost"
+#define _LANG_CMD_COST_HELP "Shows your current experience and how much you need to advance your level."
+#define _LANG_CMD_COST_INTRO "You will advance your level in your:\n"
+#define _LANG_CMD_COST_CLASS "   - Class with: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ experience points (you have "+me->query_xp()+").\n"
+#define _LANG_CMD_COST_GUILD "   - Guild with: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ experience points (you have "+me->query_xp()+").\n"
+#define _LANG_CMD_COST_JOB   "   - Job   with: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ job experience points (you have "+me->query_job_xp()+").\n"

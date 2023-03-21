@@ -123,7 +123,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | combates      |          |          |    |    |
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | considerar    |          |          |    |    |
-| coste         |          |          |    |    |
+| cost          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | detener       |          |          |    |    |
 | dinero        |          |          |    |    |
 | diplomacia    |          |          |    |    |

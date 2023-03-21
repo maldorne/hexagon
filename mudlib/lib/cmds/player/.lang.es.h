@@ -156,3 +156,13 @@
 #define _LANG_CMD_BURY_WATER "¿Quieres enterrar algo estando en el agua?\n"
 #define _LANG_CMD_BURY_MSG "Entierras " + (counter == 1 ? "el cuerpo" : "los cuerpos") + " bajo tierra.\n"
 #define _LANG_CMD_BURY_NO "¡No has encontrado ningún cuerpo!\n"
+
+// cost
+
+#define _LANG_CMD_COST_ALIAS ({ "coste" })
+#define _LANG_CMD_COST_SYNTAX "coste"
+#define _LANG_CMD_COST_HELP "Muestra tu experiencia actual y cuánto te falta para subir de nivel."
+#define _LANG_CMD_COST_INTRO "Avanzarás tu nivel de:\n"
+#define _LANG_CMD_COST_CLASS "   - Clase  con: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ puntos (llevas "+me->query_xp()+").\n"
+#define _LANG_CMD_COST_GUILD "   - Gremio con: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ puntos (llevas "+me->query_xp()+").\n"
+#define _LANG_CMD_COST_JOB "   - Oficio con: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ puntos de oficio (llevas "+me->query_job_xp()+").\n"
