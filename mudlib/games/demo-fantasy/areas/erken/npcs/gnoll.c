@@ -20,6 +20,7 @@ void setup()
   
   set_real_align(-60);
   set_random_stats(3, 12);
+  set_con(15);
   set_level(random(3) + 3);
   set_aggressive(0);
   

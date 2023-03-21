@@ -22,13 +22,13 @@ void setup()
   set_race_ob(OBJ + "races/human.c");
   set_class_ob("/lib/obj/classes/scholar.c");
   
-  set_random_stats(6, 16);
-  set_level(16);
+  set_random_stats(12, 17);
+  set_level(12);
   set_gender(1);
-  set_real_align(-100);
-  set_max_hp(1000);
-  set_hp(1000);
-
+  
+  set_real_align(100);
+  set_ext_align(100);
+  
   load_chat(50, ({
     1, _LANG_NPCS_HEALER_CHAT[0],
     1, _LANG_NPCS_HEALER_CHAT[1],

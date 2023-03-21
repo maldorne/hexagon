@@ -21,8 +21,10 @@ void setup()
   set_gender(random(2) + 1);
   
   set_real_align(60);
-  set_random_stats(3, 18);
-  set_level(random(5) + 6);
+  set_random_stats(10, 18);
+  set_con(17);
+  set_str(16);
+  set_level(random(3) + 8);
   set_wimpy(0);
   
   adjust_money(random(30), "copper");

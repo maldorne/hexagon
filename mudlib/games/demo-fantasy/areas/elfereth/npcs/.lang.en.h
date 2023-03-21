@@ -32,7 +32,7 @@
 #define _LANG_NPCS_ELF_LONG "A handsome elf from the Elrhair forest.\n" 
 #define _LANG_NPCS_ELF_CHAT ({ "'I love the forest, I love life.", \
                                ":admires the nearest tree." })
-#define _LANG_NPCS_ELF_A_CHAT ({ "'You are one of those who enjoy killing?" })
+#define _LANG_NPCS_ELF_A_CHAT ({ "'Are you one of those who enjoy killing?" })
 
 #define _LANG_NPCS_BARMAN_NAME "feleir"
 // "barman" will be used by set_attender in the pub, do not change!
