@@ -125,7 +125,7 @@
 
 #define _LANG_CMD_VERBOSE_ALIAS ({ "verbose" })
 #define _LANG_CMD_VERBOSE_SYNTAX "verbose <yes|no>"
-#define _LANG_CMD_VERBOSE_HELP "Configures longer descriptions for various actions.\n"
+#define _LANG_CMD_VERBOSE_HELP "Configures longer descriptions for various actions."
 #define _LANG_CMD_VERBOSE_ON "Ok, you are using verbose mode.\n"
 #define _LANG_CMD_VERBOSE_OFF "Ok, you are not using verbose mode.\n"
 #define _LANG_CMD_VERBOSE_CURRENT_ON "You are currently using verbose mode.\n"
@@ -135,7 +135,7 @@
 
 #define _LANG_CMD_INFORM_ALIAS ({ "inform" })
 #define _LANG_CMD_INFORM_SYNTAX "inform [event <yes|no>]"
-#define _LANG_CMD_INFORM_HELP "Shows your automatic event information settings.\n"
+#define _LANG_CMD_INFORM_HELP "Shows your automatic event information settings."
 #define _LANG_INFORM_HEADER "Status of automatic events information:\n"
 #define _LANG_INFORM_BLOCKED "Every event is being repressed.\n" + \
         "Use 'inform yes' to unblock them.\n"
@@ -146,3 +146,14 @@
 #define _LANG_INFORM_UNKNOWN_EVENT "Event type unknown.\n"
 #define _LANG_INFORM_ON "Events of type '" + frog[0] + "' are being informed.\n"
 #define _LANG_INFORM_OFF "Events of type '" + frog[0] + "' are being blocked.\n"
+
+// bury
+
+#define _LANG_CMD_BURY_ALIAS ({ "bury" })
+#define _LANG_CMD_BURY_SYNTAX "bury"
+#define _LANG_CMD_BURY_HELP "Buries every corpse in your location." + \
+        "Nothing of the corpses will be recoverable."
+#define _LANG_CMD_BURY_DEAD "You, a spirit, cannot bury corpses.\n"
+#define _LANG_CMD_BURY_WATER "Do you want to bury something in the water?\n"
+#define _LANG_CMD_BURY_MSG "You bury " + (counter == 1 ? "the corpse" : "the corpses") + ".\n"
+#define _LANG_CMD_BURY_NO "You haven't found any corpses.\n"

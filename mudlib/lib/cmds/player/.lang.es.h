@@ -125,7 +125,7 @@
 
 #define _LANG_CMD_VERBOSE_ALIAS ({ "detalle", "verbose" })
 #define _LANG_CMD_VERBOSE_SYNTAX "detalle <sí|no>"
-#define _LANG_CMD_VERBOSE_HELP "Configura descripciones más largas por defecto.\n"
+#define _LANG_CMD_VERBOSE_HELP "Configura descripciones más largas por defecto."
 #define _LANG_CMD_VERBOSE_ON "Ok, estás en modo detallado.\n"
 #define _LANG_CMD_VERBOSE_OFF "Ok, estás en modo abreviado.\n"
 #define _LANG_CMD_VERBOSE_CURRENT_ON "Estás en modo detallado.\n"
@@ -135,7 +135,7 @@
 
 #define _LANG_CMD_INFORM_ALIAS ({ "informar", "información", "informacion", "inform" })
 #define _LANG_CMD_INFORM_SYNTAX "informar [evento <sí|no>]"
-#define _LANG_CMD_INFORM_HELP "Muestra los ajustes de información automática sobre eventos.\n"
+#define _LANG_CMD_INFORM_HELP "Muestra los ajustes de información automática sobre eventos."
 #define _LANG_INFORM_HEADER "Estado de los eventos de información:\n"
 #define _LANG_INFORM_BLOCKED "Todos los eventos están siendo reprimidos.\n" + \
       "Utiliza 'informar sí' para desbloquearlos.\n"
@@ -146,3 +146,13 @@
 #define _LANG_INFORM_UNKNOWN_EVENT "Tipo de evento desconocido.\n"
 #define _LANG_INFORM_ON "Eventos de tipo '" + frog[0] + "' activados.\n"
 #define _LANG_INFORM_OFF "Eventos de tipo '" + frog[0] + "' desactivados.\n"
+
+// bury
+
+#define _LANG_CMD_BURY_ALIAS ({ "enterrar" })
+#define _LANG_CMD_BURY_SYNTAX "enterrar"
+#define _LANG_CMD_BURY_HELP "Elimina todos los cuerpos en tu localización. Nada de los cuerpos enterrados podrá ser recuperado."
+#define _LANG_CMD_BURY_DEAD "Tú, un espíritu, ¿quieres enterrar cadáveres?\n"
+#define _LANG_CMD_BURY_WATER "¿Quieres enterrar algo estando en el agua?\n"
+#define _LANG_CMD_BURY_MSG "Entierras " + (counter == 1 ? "el cuerpo" : "los cuerpos") + " bajo tierra.\n"
+#define _LANG_CMD_BURY_NO "¡No has encontrado ningún cuerpo!\n"
