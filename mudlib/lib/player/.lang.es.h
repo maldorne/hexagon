@@ -51,7 +51,7 @@
         "has sido movido a la más cercana (vuelve a intentarlo aquí si aún "+ \
         "deseas desconectar).\n"
 #define _LANG_QUIT_DROP_ITEM "Dejas tu "+ob[i]->short()+".\n"
-#define _LANG_QUIT_THANKS "Gracias por jugar, ¡hasta la próxima!\n"
+#define _LANG_QUIT_THANKS "%^BOLD%^Gracias por jugar, ¡hasta la próxima!%^RESET%^\n"
 #define _LANG_QUIT_INFORM_CODERS this_object()->query_cap_name()+" sale de "+mud_name()
 #define _LANG_QUIT_INFORM_PLAYERS this_object()->query_cap_name()+" sale de "+mud_name()
 

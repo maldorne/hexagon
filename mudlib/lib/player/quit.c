@@ -96,7 +96,7 @@ int really_quit()
     }
   }
 
-  tell_player(this_object(), _LANG_QUIT_THANKS);
+  tell_object(this_object(), _LANG_QUIT_THANKS);
 
   if (query_name() != DEF_NAME)
   {
