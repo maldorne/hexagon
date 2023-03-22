@@ -1,6 +1,12 @@
 # Project status and roadmap
 
-### Current milestone: [v1.23.03 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
+## Future versions: 
+
+Set of features not yet started, but planned.
+
+TBA.
+
+## Current version being worked on: [v1.23.03 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
 Set of features we are currently working on. 
 
@@ -20,15 +26,9 @@ Set of features we are currently working on.
 | :white_check_mark: |  | :heavy_minus_sign: `shield.c` |
 | :white_check_mark: | **Basic binary connections** | Start working with binary connections to allow future development of httpd, ftpd, etc [[#22](https://github.com/maldorne/hexagon/issues/22)]. |
 
-## Next milestones: 
+## Previous versions/milestones
 
-Set of features not yet started, but planned.
-
-TBA.
-
-## Previous milestones
-
-### [v1.21.09 Beregost](https://github.com/maldorne/hexagon/milestone/2)
+### [v1.21.09 Beregost](https://github.com/maldorne/hexagon/releases/tag/1.21.09)
 
 | Status | Title | Description |
 | :----: | :---- | ----------- |
@@ -42,7 +42,7 @@ TBA.
 | :white_check_mark: |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 
 
-### [v1.20.09 Anduin](https://github.com/maldorne/hexagon/milestone/1)
+### [v1.20.09 Anduin](https://github.com/maldorne/hexagon/releases/tag/1.20.09)
 
 | Status | Title | Description |
 | :----: | :---- | ----------- | 
@@ -79,3 +79,5 @@ After version 1.19.05, we started working with milestones, prior to that, we onl
 | :white_check_mark: |  | :heavy_minus_sign: **item** to `/lib/item.c`. |
 |         :x:        |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 | :white_check_mark: | **Migrations** | User migrations to update user data. |
+
+For more information about the different versions of the project, take a look to the [about page in maldorne.org](https://maldorne.org/about/).
