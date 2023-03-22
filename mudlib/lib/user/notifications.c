@@ -2,17 +2,18 @@
 #include <user/notifications.h>
 #include <language.h>
 
+#define MAX_NOTIFICATIONS 100
 
-// notifications[time] = ({ type, message })
-static mapping notifications;
+// notifications = ({ time, type, message })
+static mixed * notifications;
 // are there any notification pending?
 static int pending_notifications;
 
-mapping query_notifications() { return notifications; }
+mixed * query_notifications() { return notifications; }
 
 void create()
 {
-  notifications = ([ ]);
+  notifications = ({ });
   pending_notifications = false;
 }
 
@@ -26,13 +27,20 @@ int query_pending_notifications() { return pending_notifications == true; }
 void add_notification(string type, string message, varargs int silent)
 {
   string time;
+
+  // only store the last notifications, a player can be playing for a lot of time
+  if (sizeof(notifications) > MAX_NOTIFICATIONS)
+  {
+    // remove the oldest notification
+    notifications = notifications[1..];
+  }
+
   time = itoa(time());
   
   // remove spaces, tabs and \n
   message = trim(message);
 
-  // notifications[time] = {( type, message, sent )}
-  notifications[time] = ({ type, message, (silent ? true : false) });
+  notifications += ({ ({ time, type, message, (silent ? true : false) }) });
   
   if (!silent)
     pending_notifications = true;
@@ -56,36 +64,31 @@ int show_notifications(varargs int show_all)
   if (!pending_notifications && !show_all)
     return 1;
 
-  if (!mappingp(notifications))
-    notifications = ([ ]);
+  if (!arrayp(notifications))
+    notifications = ({ });
 
-  if (!map_sizeof(notifications))
+  if (!sizeof(notifications))
   {
     write(_LANG_NO_NOTIFICATIONS);
     return 1;
   }
 
-  times = keys(notifications);
   messages = ({ });
 
-  // sort by time, just in case the mapping does not return
-  // the keys ordered
-  times = sort_array(times);
-
-  for (i = 0; i < sizeof(times); i++)
+  for (i = 0; i < sizeof(notifications); i++)
   {
     if (show_all)
     {
       int itime;
-      itime = atoi(times[i]);
+      itime = atoi(notifications[i][NOTIFICATION_TIME]);
 
-      messages += ({ ctime(itime, 7) + " - " + notifications[times[i]][NOTIFICATION_MSG]});
-      notifications[times[i]][NOTIFICATION_SENT] = true;
+      messages += ({ ctime(itime, 7) + " - " + notifications[i][NOTIFICATION_MSG]});
+      notifications[i][NOTIFICATION_SENT] = true;
     }
-    else if (!notifications[times[i]][NOTIFICATION_SENT])
+    else if (!notifications[i][NOTIFICATION_SENT])
     {
-      messages += ({ notifications[times[i]][NOTIFICATION_MSG] });
-      notifications[times[i]][NOTIFICATION_SENT] = true;
+      messages += ({ notifications[i][NOTIFICATION_MSG] });
+      notifications[i][NOTIFICATION_SENT] = true;
     }
   }
 
@@ -97,7 +100,7 @@ int show_notifications(varargs int show_all)
 
   text = handler("frames")->frame(text, title, 0, 0, "notifications");
   
-  this_user()->more_string("\n" + text + "\n");
+  this_user()->more_string("\n\n" + text + "\n");
 
   pending_notifications = false;
   return 1;
