@@ -124,7 +124,6 @@ Coder commands will be only in english, except texts shown to the players, which
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | considerar    |          |          |    |    |
 | cost          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| detener       |          |          |    |    |
 | dinero        |          |          |    |    |
 | diplomacia    |          |          |    |    |
 | equipo        |          |          |    |    |
@@ -141,6 +140,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | past          |          |          |    |    |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | quests        |          |          |    |    |
+| stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | ranking       |          |          |    |    |
 | retire        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | score         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
