@@ -1,7 +1,8 @@
 
 #include <basic/communicate.h>
 #include <living/food.h>
-
+#include <user/user.h>
+#include <common/properties.h>
 #include <translations/language.h>
 #include <translations/common.h>
 #include <language.h>
@@ -21,11 +22,11 @@ string drunk_speech(string str);
 
 void communicate_commands() 
 {
-  add_private_action("do_say", _LANG_SAY_VERBS);
-  add_private_action("do_tell", _LANG_TELL_VERBS);
-  add_private_action("do_whisper", _LANG_WHISPER_VERBS);
+  add_private_action("do_say",       _LANG_SAY_VERBS);
+  add_private_action("do_tell",      _LANG_TELL_VERBS);
+  add_private_action("do_whisper",   _LANG_WHISPER_VERBS);
   add_private_action("set_language", _LANG_SPEAK_VERBS);
-  add_private_action("do_shout", _LANG_SHOUT_VERBS);
+  add_private_action("do_shout",     _LANG_SHOUT_VERBS);
 
   // deactivated for a while
   // add_private_action("do_emote", ({ "emote", "emocion"}));
@@ -99,12 +100,6 @@ int adjust_social_points(int num)
   return -1;
 }
 
-/*
-int hard_adjust_social_points(int num) {
-  social_points += num;
-} 
-*/
-
 string * query_word_type(string str)
 {
   int i;
@@ -131,9 +126,9 @@ string query_shout_word_type(string str)
   switch (str[i]) 
   {
     case '!' : 
-      return " exclamando";
+      return _LANG_COMM_EXCLAIMING;
     case '?' : 
-      return " preguntando";
+      return _LANG_COMM_ASKING;
     default:   
       return "";
   }
@@ -147,9 +142,9 @@ string query_whisper_word_type(string str)
   switch (str[i]) 
   {
     case '!' : 
-      return " apresuradamente";
+      return "";
     case '?' : 
-      return " dubitativo";
+      return _LANG_COMM_ASKING;
     default:   
       return "";
   }
@@ -164,6 +159,69 @@ void my_mess(string fish, string erk)
     return;
 
   tell_object(this_object(), fish + erk + "\n");
+}
+
+void their_mess(object ob, string start, string msg, string lang)
+{
+  int id;
+  mixed str;
+  string tmp;
+
+  // TODO blocks
+  // if (ob && !ob->query_coder() && ob->query_name() == block)
+  // {
+  //   tell_object(this_object(), "Esta persona está bloqueando tus mensajes.\n");
+  //   return;
+  // }
+
+  msg = fix_string(msg);
+
+  if (member_array(lang, ob->query_languages()) == -1)
+  {
+    mixed str;
+
+    if ((str = (mixed)handler("languages")->query_garble_object(lang)))
+      if ((str = (mixed)str->garble(start, msg)))
+      {
+        start = str[0];
+        msg = str[1];
+      }
+      else
+        return;
+    else
+      return;
+  }
+
+  // The following block of code was added to tell players that the target
+  //  is idle and may not reply for a period of time.
+  //  Firestorm 9/3/93
+  if (interactive(ob) && ob->query_idle() &&
+     (id = ob->query_idle()) > TELL_WARN_TIME)
+  {
+    tell_object(this_object(), ob->query_cap_name() + " ha estado inactiv"+
+      ob->query_vowel()+" durante "+
+      seconds_to_time_string(id) + ".\n");
+  }
+
+  if (ob->query_in_editor())
+  {
+    tell_object(this_object(), ob->query_cap_name() + " está editando un fichero "+
+      "y puede tardar un poco en contestar.\n");
+  }
+
+  if (ob->query_static_property(AWAY_PROP))
+  {
+    tell_object(this_object(), ob->query_cap_name()+" está ocupad"+ob->query_vowel()+
+      ", razón: \"%^RED%^"+
+      (string)ob->query_static_property(AWAY_PROP)+"%^RESET%^\"\n");
+  }
+
+  tmp = start + msg;
+
+  // if (ob && interactive(ob))
+  ob->add_past_g(tmp);
+
+  ob->catch_tell("\n" + tmp + "\n");
 }
 
 int do_say(string arg, varargs int no_echo) 
@@ -306,7 +364,7 @@ int do_tell(string arg, varargs object ob, int silent)
   
   if (words[2] != _LANG_COMM_ASKING) 
   {
-    ob->event_person_tell(this_object(), this_object()->query_cap_name() + " " +
+    their_mess(ob, this_object()->query_cap_name() + " " +
               _LANG_TELL_MSG_THEM + 
               (words[2] == _LANG_COMM_EXCLAIMING ? " " + words[2] : "") +
                ": ", rest, cur_lang);
@@ -319,7 +377,7 @@ int do_tell(string arg, varargs object ob, int silent)
   } 
   else 
   {
-    ob->event_person_tell(this_object(), this_object()->query_cap_name() + " " +
+    their_mess(ob, this_object()->query_cap_name() + " " +
               _LANG_TELL_MSG_ASK_THEM + ": ", rest, cur_lang);
 
     if (!silent)
