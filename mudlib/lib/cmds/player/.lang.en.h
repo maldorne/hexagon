@@ -208,3 +208,14 @@
 #define _LANG_CMD_MONEY_ON_BANK "In ["+bank->query_short()+"] you have the following amount:\n   "
 #define _LANG_CMD_MONEY_ON_BANK_EMPTY "In ["+bank->query_short()+"] you have an account with no money.\n"
 #define _LANG_CMD_MONEY_TOTAL "\nIn total, you have:\n   " + MONEY_HAND->money_value_string(total) + "\n"
+
+// condition
+
+#define _LANG_CMD_CONDITION_ALIAS ({ "condition" })
+#define _LANG_CMD_CONDITION_SYNTAX "condition [<name> | all]"
+#define _LANG_CMD_CONDITION_HELP "Shows the health status of a character or of all the characters in the location."
+#define _LANG_CMD_CONDITION_OPTIONS "Syntax: 'condition' to check your health status, or\n" + \
+                                    "        'condition <name>' to check the health status of another, or\n" + \
+                                    "        'condition all' to check the health status of all the characters in the location.\n"
+#define _LANG_CMD_CONDITION_IS_DEAD "Is dead."
+#define _LANG_CMD_CONDITION_HEADER "Health status of:\n"

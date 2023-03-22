@@ -206,3 +206,14 @@
 #define _LANG_CMD_MONEY_ON_BANK "En ["+bank->query_short()+"] tienes almacenado:\n   "
 #define _LANG_CMD_MONEY_ON_BANK_EMPTY "En ["+bank->query_short()+"] tienes una cuenta abierta sin fondos.\n"
 #define _LANG_CMD_MONEY_TOTAL "\nEn total, tienes acumulado:\n   "+MONEY_HAND->money_value_string(total) + ".\n"
+
+// condition
+
+#define _LANG_CMD_CONDITION_ALIAS ({ "estado" })
+#define _LANG_CMD_CONDITION_SYNTAX "estado [<name> | todos]"
+#define _LANG_CMD_CONDITION_HELP "Muestra el estado de salud de un personaje o de todos los personajes en la localización."
+#define _LANG_CMD_CONDITION_OPTIONS "Sintaxis: 'estado' para comprobar tu estado de salud, o\n" + \
+                                    "          'estado <nombre>' para ver el estado de otro, o\n" + \
+                                    "          'estado todos' para comprobar a todos los de tu entorno.\n"
+#define _LANG_CMD_CONDITION_IS_DEAD "Está muert"+obs[i]->query_vowel()+"."
+#define _LANG_CMD_CONDITION_HEADER "Estado en que se encuentran:\n"

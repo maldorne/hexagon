@@ -120,13 +120,13 @@ Coder commands will be only in english, except texts shown to the players, which
 | calendar      |          |          |    |    |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | combates      |          |          |    |    |
+| condition     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | considerar    |          |          |    |    |
 | cost          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | diplomacia    |          |          |    |    |
 | encumbrance   | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | equipo        |          |          |    |    |
-| estado        |          |          |    |    |
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | grope         |          |          |    |    |
 | grupo         |          |          |    |    |
@@ -136,7 +136,6 @@ Coder commands will be only in english, except texts shown to the players, which
 | look          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | map           |          |          |    |    |
 | money         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| monitor       |          |          |    |    |
 | past          |          |          |    |    |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | quests        |          |          |    |    |
