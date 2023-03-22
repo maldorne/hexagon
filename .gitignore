@@ -15,3 +15,4 @@
 
 # ide and editor files
 .sublime-project
+.vscode
