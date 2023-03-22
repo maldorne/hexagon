@@ -73,7 +73,7 @@ object _find_living(string name)
 
   _livings[name] -= ({ nil });
 
-  if (sizeof(_livings[name]) > 1)
+  if (sizeof(_livings[name]) > 0)
     return _livings[name][0];
 
   return nil;
