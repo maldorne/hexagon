@@ -140,11 +140,11 @@ Coder commands will be only in english, except texts shown to the players, which
 | past          |          |          |    |    |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | quests        |          |          |    |    |
-| stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | ranking       |          |          |    |    |
 | retire        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | score         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | sheet         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
+| stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | time          |          |          |    |    |
 | verbose       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | whoami        |          |          |    |    |
