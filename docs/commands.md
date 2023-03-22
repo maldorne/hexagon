@@ -117,7 +117,6 @@ Coder commands will be only in english, except texts shown to the players, which
 | buscar        |          |          |    |    |
 | cabalgar      |          |          |    |    |
 | calendar      |          |          |    |    |
-| carga         |          |          |    |    |
 | cobardia      |          |          |    |    |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | combates      |          |          |    |    |
@@ -127,6 +126,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | dinero        |          |          |    |    |
 | diplomacia    |          |          |    |    |
 | equipo        |          |          |    |    |
+| encumbrance   | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | estado        |          |          |    |    |
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | grope         |          |          |    |    |

@@ -180,3 +180,11 @@
 #define _LANG_CMD_STOP_FIGHT_OPTIONS ({ "fights" })
 #define _LANG_CMD_STOP_FIGHTS_OK "Ok. Stopping fights, it will take a while...\n"
 #define _LANG_CMD_STOP_ALREADY_STOPPING "You already are stopping fights, be patient.\n"
+
+// encumbrance
+
+#define _LANG_CMD_ENCUMBRANCE_ALIAS ({ "encumbrance"})
+#define _LANG_CMD_ENCUMBRANCE_SYNTAX "encumbrance"
+#define _LANG_CMD_ENCUMBRANCE_HELP "Shows your current and maximum encumbrance."
+#define _LANG_CMD_ENCUMBRANCE_MSG "You current inventory weight is "+now+" and you can carry "+max+" thanks to your strength.\n"
+

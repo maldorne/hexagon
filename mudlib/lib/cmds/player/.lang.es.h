@@ -179,3 +179,10 @@
 #define _LANG_CMD_STOP_FIGHT_OPTIONS ({ "combates", "peleas" })
 #define _LANG_CMD_STOP_FIGHTS_OK "Ok. Deteniendo combates, tardará un poco...\n"
 #define _LANG_CMD_STOP_ALREADY_STOPPING "Ya estás intentando detener los combates, espera un poco.\n"
+
+// encumbrance
+
+#define _LANG_CMD_ENCUMBRANCE_ALIAS ({ "carga" })
+#define _LANG_CMD_ENCUMBRANCE_SYNTAX "carga"
+#define _LANG_CMD_ENCUMBRANCE_HELP "Muestra tu carga actual y máxima."
+#define _LANG_CMD_ENCUMBRANCE_MSG "Tu inventario actual pesa "+now+" y puedes cargar como mucho "+max+", gracias a tu fuerza.\n"
