@@ -1,6 +1,6 @@
 # Project status and roadmap
 
-### Current milestone: [v23.03 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
+### Current milestone: [v1.23.03 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
 Set of features we are currently working on. 
 
@@ -28,7 +28,7 @@ TBA.
 
 ## Previous milestones
 
-### [v21.09 Beregost](https://github.com/maldorne/hexagon/milestone/2)
+### [v1.21.09 Beregost](https://github.com/maldorne/hexagon/milestone/2)
 
 | Status | Title | Description |
 | :----: | :---- | ----------- |
@@ -42,7 +42,7 @@ TBA.
 | :white_check_mark: |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 
 
-### [v20.09 Anduin](https://github.com/maldorne/hexagon/milestone/1)
+### [v1.20.09 Anduin](https://github.com/maldorne/hexagon/milestone/1)
 
 | Status | Title | Description |
 | :----: | :---- | ----------- | 
@@ -57,9 +57,9 @@ TBA.
 | :white_check_mark: | **Deprecate manager user** | Remove code related to the `manager` user type. We have enough information with `coder` and `administrator`. |
 
 
-### Up to [v19.05](https://github.com/maldorne/hexagon/tree/19.05)
+### Up to [v1.19.05](https://github.com/maldorne/hexagon/releases/tag/1.19.05)
 
-After version 19.05, we started working with milestones, prior to that, we only had a list of tasks to be done. The global list stays here for historical reasons.
+After version 1.19.05, we started working with milestones, prior to that, we only had a list of tasks to be done. The global list stays here for historical reasons.
 
 | Status | Title | Description |
 | :----: | :---- | ----------- | 
