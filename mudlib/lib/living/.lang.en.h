@@ -21,8 +21,24 @@
 #define _LANG_COMM_THEY_EXCLAIM "exclaims"
 #define _LANG_COMM_THEY_ASK "asks"
 #define _LANG_COMM_THEY_SAY "says"
+#define _LANG_COMM_EXCLAIMING "exclaiming"
+#define _LANG_COMM_ASKING "asking"
+#define _LANG_COMM_SAYING "saying"
 #define _LANG_COMMS_NO_ENV "In this emptyness nobody can say or hear a thing.\n"
 #define _LANG_COMMS_NO_SPOKEN_LANG "is not a language that could be spoken.\n"
+
+#define _LANG_TELL_SYNTAX "Syntax: tell <who> <message>\n"
+#define _LANG_TELL_NO_LANGUAGE "You must select a language to speak, use 'speak' for that.\n"
+#define _LANG_TELL_LANG_NOT_SPOKEN " is not a language that could be spoken.\n"
+#define _LANG_TELL_LANG_NOT_DISTANCE " is not a language that could be spoken at a distance.\n"
+#define _LANG_TELL_CANNOT_FIND "Cannot find '" + capitalize(str) + "' around here.\n"
+#define _LANG_TELL_YOURSELF "Speaking to yourself is not very useful.\n"
+#define _LANG_TELL_NO_CONNECTION ob->query_cap_name() + " has " + \
+                                  ob->query_possessive() + " connection down.\n"
+#define _LANG_TELL_MSG_THEM "tells you"
+#define _LANG_TELL_MSG_ME "You tell"
+#define _LANG_TELL_MSG_ASK_THEM "asks you"
+#define _LANG_TELL_MSG_ASK_ME "You ask"
 
 // queue
 

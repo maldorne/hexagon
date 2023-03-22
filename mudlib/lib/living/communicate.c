@@ -3,6 +3,7 @@
 #include <living/food.h>
 
 #include <translations/language.h>
+#include <translations/common.h>
 #include <language.h>
 
 // #include <player.h>
@@ -16,7 +17,6 @@ int social_points, max_social_points;
 
 static int social_hb_num; // heart_beat counter
 
-
 string drunk_speech(string str);
 
 void communicate_commands() 
@@ -29,7 +29,6 @@ void communicate_commands()
 
   // deactivated for a while
   // add_private_action("do_emote", ({ "emote", "emocion"}));
-
 
   add_private_action("do_channels", "emergencia");
   add_private_action("do_channels", "gremio");
@@ -115,11 +114,11 @@ string * query_word_type(string str)
   switch (str[i]) 
   {
     case '!' : 
-      return ({ _LANG_COMM_I_EXCLAIM, _LANG_COMM_THEY_EXCLAIM });
+      return ({ _LANG_COMM_I_EXCLAIM, _LANG_COMM_THEY_EXCLAIM, _LANG_COMM_EXCLAIMING });
     case '?' : 
-      return ({ _LANG_COMM_I_ASK, _LANG_COMM_THEY_ASK });
+      return ({ _LANG_COMM_I_ASK, _LANG_COMM_THEY_ASK, _LANG_COMM_ASKING });
     default:   
-      return ({ _LANG_COMM_I_SAY, _LANG_COMM_THEY_SAY });
+      return ({ _LANG_COMM_I_SAY, _LANG_COMM_THEY_SAY, _LANG_COMM_SAYING });
   }
 } 
 
@@ -220,42 +219,43 @@ int do_say(string arg, varargs int no_echo)
 
 int do_tell(string arg, varargs object ob, int silent) 
 {
-  string str, rest, word;
+  string str, rest;
   string * words;
   // string person, mud;
 
   if (!strlen(arg) && !ob) 
   {
-    notify_fail("Sintaxis: tell <quien> <mensaje>\n");
+    notify_fail(_LANG_TELL_SYNTAX);
     return 0;
   }
 
   if (!ob) 
   {
-    if (sscanf(arg,"%s %s", str, rest)!=2) 
+    if (sscanf(arg, "%s %s", str, rest) != 2) 
     {
-      notify_fail("Sintaxis: tell <quien> <mensaje>\n");
+      notify_fail(_LANG_TELL_SYNTAX);
       return 0;
     }
-  } else
+  } 
+  else
     rest = arg;
 
   // neverbot
-  if (!cur_lang || (cur_lang == ""))
+  if (!strlen(cur_lang))
   {
-    notify_fail("Debes seleccionar un idioma para hablar.\n");
+    notify_fail(_LANG_TELL_NO_LANGUAGE);
     return 0;
   }
 
   if (!handler("languages")->query_language_spoken(cur_lang)) 
   {
-    notify_fail(capitalize(cur_lang)+" no es un idioma hablada.\n");
+    notify_fail(capitalize(cur_lang) + _LANG_TELL_LANG_NOT_SPOKEN);
     return 0;
   }
 
   if (!handler("languages")->query_language_distance(cur_lang)) 
   {
-    notify_fail(capitalize(cur_lang)+" no puede ser hablado a distancia.\n");
+    notify_fail(capitalize(cur_lang) + _LANG_TELL_LANG_NOT_DISTANCE);
     return 0;
   }
 
@@ -264,33 +264,36 @@ int do_tell(string arg, varargs object ob, int silent)
     str = lower_case(str);
     str = (string)this_object()->expand_nickname(str);
     ob = find_player(str);
+    
     if (!ob)
       ob = find_living(str);
+    
     if (!ob) 
     {
       // Might be intermud...
-      // if (this_object()->query_coder() && sscanf(str, "%s@%s", person, mud) == 2) {
+      // if (this_object()->query_coder() && sscanf(str, "%s@%s", person, mud) == 2) 
+      // {
       //        SERVICES_D->eventSendTell(person, mud, rest);
       //        return 1;
       // }
-      notify_fail(capitalize(str) + " no está conectado.\n");
+      notify_fail(_LANG_TELL_CANNOT_FIND);
       return 0;
     }
   }
 
   if (ob == this_player()) 
   {
-    notify_fail("¿Otra vez hablando solo?\n");
+    notify_fail(_LANG_TELL_YOURSELF);
     return 0;
   }
 
-  if (ob->query_player() && !interactive(ob)) 
+  if (ob->query_player() && !interactive(ob))
   {
-    notify_fail(ob->query_cap_name()+" tiene caída su conexión.\n");
+    notify_fail(_LANG_TELL_NO_CONNECTION);
     return 0;
   }
     
-  if (adjust_social_points(-TELL_COST) < 0) 
+  if (adjust_social_points(-TELL_COST) < 0)
   {
     notify_fail(NO_POWER);
     return 0;
@@ -298,34 +301,33 @@ int do_tell(string arg, varargs object ob, int silent)
   
   words = query_word_type(rest);
   
-  if (word != "")
-    word = " " + word + "ndo";
-  
   if (this_object()->query_volume(D_ALCOHOL))
     arg = drunk_speech(arg);
   
-  if (word != " preguntando") 
+  if (words[2] != _LANG_COMM_ASKING) 
   {
-    ob->event_person_tell(this_object(), this_object()->query_cap_name()+
-              " te dice" + word + ": ", rest, cur_lang);
+    ob->event_person_tell(this_object(), this_object()->query_cap_name() + " " +
+              _LANG_TELL_MSG_THEM + 
+              (words[2] == _LANG_COMM_EXCLAIMING ? " " + words[2] : "") +
+               ": ", rest, cur_lang);
 
-    if (cur_lang != STD_LANG) 
-      word += " en "+cur_lang;
-  
     if (!silent)
-      my_mess("Dices a " +  ob->query_cap_name() + word + ": ", rest );
+      my_mess(_LANG_TELL_MSG_ME + " " +  ob->query_cap_name() + 
+              (words[2] == _LANG_COMM_EXCLAIMING ? " " + words[2] : "") +
+              (cur_lang != STD_LANG ? " " + _LANG_IN + " " + cur_lang : "") +
+               ": ", rest);
   } 
   else 
   {
-    ob->event_person_tell(this_object(), this_object()->query_cap_name()+
-              " te pregunta: ", rest, cur_lang);
-    // if (cur_lang != STD_LANG) 
-    //  word += " en "+cur_lang;
+    ob->event_person_tell(this_object(), this_object()->query_cap_name() + " " +
+              _LANG_TELL_MSG_ASK_THEM + ": ", rest, cur_lang);
+
     if (!silent)
-      my_mess("Preguntas a " + ob->query_cap_name()+": ", rest);
+      my_mess(_LANG_TELL_MSG_ASK_ME + " " + ob->query_cap_name() + 
+              (cur_lang != STD_LANG ? " " + _LANG_IN + " " + cur_lang : "") +
+              ": ", rest);
   }
   
-  // this_player()->adjust_time_left(-5);
   return 1;
 } 
 

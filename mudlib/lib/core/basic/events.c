@@ -209,24 +209,12 @@ void event_person_tell(object ob, string start, string msg, string lang)
      Firestorm 9/3/93
   */
 
-  if (interactive(this_object()) &&
+  if (interactive(this_object()) && this_object()->query_idle() &&
      (id = this_object()->query_idle()) > TELL_WARN_TIME)
   {
-    str = ({  });
-    /* Need to use some neato formulas to convert to standard time -- FS */
-    // This needs cleaned up, a simul_efun does this... have to come back
-    // Radix
-
-    if (id/(60*60))
-      str += ({ (id/(60*60)) + " horas" });
-    if ((id/60)%60)
-      str += ({ ((id/60)%60) + " minutos" });
-    if (id%60)
-      str += ({ (id%60) + " segundos" });
-
     tell_object(this_player(), this_object()->query_cap_name() + " ha estado inactiv"+
       this_object()->query_vowel()+" durante "+
-      query_multiple_short(str) + ".\n");
+      seconds_to_time_string(id) + ".\n");
   }
 
   if (this_object()->query_in_editor())

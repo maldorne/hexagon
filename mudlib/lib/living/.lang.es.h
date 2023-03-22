@@ -21,8 +21,23 @@
 #define _LANG_COMM_THEY_EXCLAIM "exclama"
 #define _LANG_COMM_THEY_ASK "pregunta"
 #define _LANG_COMM_THEY_SAY "dice"
+#define _LANG_COMM_EXCLAIMING "exclamando"
+#define _LANG_COMM_ASKING "preguntando"
+#define _LANG_COMM_SAYING "diciendo"
 #define _LANG_COMMS_NO_ENV "En el vacío nadie puede decir u oir nada.\n"
 #define _LANG_COMMS_NO_SPOKEN_LANG "no es un lenguaje hablado.\n"
+
+#define _LANG_TELL_SYNTAX "Sintaxis: tell <quién> <mensaje>\n"
+#define _LANG_TELL_NO_LANGUAGE "Debes seleccionar un idioma para hablar, usa 'hablar' para eso.\n"
+#define _LANG_TELL_LANG_NOT_SPOKEN " no es un idioma hablado.\n"
+#define _LANG_TELL_LANG_NOT_DISTANCE " no puede ser hablado a distancia.\n"
+#define _LANG_TELL_CANNOT_FIND "No puedo encontrar a '" + capitalize(str) + "'.\n"
+#define _LANG_TELL_YOURSELF "¿Otra vez hablando solo?\n"
+#define _LANG_TELL_NO_CONNECTION ob->query_cap_name() + " tiene caída su conexión.\n"
+#define _LANG_TELL_MSG_THEM "te dice"
+#define _LANG_TELL_MSG_ME "Dices a"
+#define _LANG_TELL_MSG_ASK_THEM "te pregunta"
+#define _LANG_TELL_MSG_ASK_ME "Preguntas a"
 
 // queue
 
