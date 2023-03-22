@@ -217,3 +217,11 @@
                                     "          'estado todos' para comprobar a todos los de tu entorno.\n"
 #define _LANG_CMD_CONDITION_IS_DEAD "Está muert"+obs[i]->query_vowel()+"."
 #define _LANG_CMD_CONDITION_HEADER "Estado en que se encuentran:\n"
+
+// combats
+
+#define _LANG_CMD_COMBATS_ALIAS ({ "combates" })
+#define _LANG_CMD_COMBATS_SYNTAX "combates"
+#define _LANG_CMD_COMBATS_HELP "Muestra a los personajes con los que estás luchando."
+#define _LANG_CMD_COMBATS_NOBODY "No estás luchando con nadie.\n"
+#define _LANG_CMD_COMBATS_MSG "Estás luchando con " + query_multiple_short(obs)+".\n"

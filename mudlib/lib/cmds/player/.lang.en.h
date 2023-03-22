@@ -219,3 +219,11 @@
                                     "        'condition all' to check the health status of all the characters in the location.\n"
 #define _LANG_CMD_CONDITION_IS_DEAD "Is dead."
 #define _LANG_CMD_CONDITION_HEADER "Health status of:\n"
+
+// combats
+
+#define _LANG_CMD_COMBATS_ALIAS ({ "combats" })
+#define _LANG_CMD_COMBATS_SYNTAX "combats"
+#define _LANG_CMD_COMBATS_HELP "Shows the characters you are fighting with."
+#define _LANG_CMD_COMBATS_NOBODY "You are not fighting with anyone.\n"
+#define _LANG_CMD_COMBATS_MSG "You are fighting with " + query_multiple_short(obs)+".\n"

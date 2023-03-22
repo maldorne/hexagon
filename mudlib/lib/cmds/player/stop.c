@@ -42,7 +42,7 @@ int really_stop(object me)
   for (i = 0; i < sizeof(obs); i++)
     me->stop_fight(obs[i], 1); // 1 = silent mode
 
-  me->user()->add_notification("player", _LANG_CMD_STOP_MSG);
+  tell_object(me, _LANG_CMD_STOP_MSG);
   return 1;
 
   /*

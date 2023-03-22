@@ -119,7 +119,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | cabalgar      |          |          |    |    |
 | calendar      |          |          |    |    |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| combates      |          |          |    |    |
+| combats       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | condition     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | considerar    |          |          |    |    |
