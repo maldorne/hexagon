@@ -136,7 +136,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | look          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | map           |          |          |    |    |
 | money         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| past          |          |          |    |    |
+| past          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | quests        |          |          |    |    |
 | ranking       |          |          |    |    |
