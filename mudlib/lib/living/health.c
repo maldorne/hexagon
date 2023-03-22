@@ -81,8 +81,10 @@ int set_wimpy(int i)
 
   if (i < j) 
     i = j;
-  if (i < 0 || i > 100)
-    return -1;
+  if (i < 0)
+    i = 0;
+  if (i > 100)
+    i = 100;
   
   return (wimpy = i);
 }

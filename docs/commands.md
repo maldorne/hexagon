@@ -113,11 +113,11 @@ Coder commands will be only in english, except texts shown to the players, which
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | apuntador     |          |          |    |    |
 | ausente       |          |          |    |    |
+| bravery       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | bury          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | buscar        |          |          |    |    |
 | cabalgar      |          |          |    |    |
 | calendar      |          |          |    |    |
-| cobardia      |          |          |    |    |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | combates      |          |          |    |    |
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |

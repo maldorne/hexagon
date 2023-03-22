@@ -356,7 +356,7 @@ static int cmd(string name, object me, string verb)
 
 
   info += sprintf("%-15s ( %-3d%% ) %7s", capitalize(_LANG_STATS_BRAVERY) + ":",
-                  100 - target->query_wimpy(),
+                  target->query_wimpy(),
                   "");
   info += sprintf("%-15s %d (of %d)", capitalize(_LANG_STATS_ENCUMBRANCE) + ":",
                   target->query_contents_weight(),

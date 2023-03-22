@@ -186,3 +186,13 @@
 #define _LANG_CMD_ENCUMBRANCE_SYNTAX "carga"
 #define _LANG_CMD_ENCUMBRANCE_HELP "Muestra tu carga actual y máxima."
 #define _LANG_CMD_ENCUMBRANCE_MSG "Tu inventario actual pesa "+now+" y puedes cargar como mucho "+max+", gracias a tu fuerza.\n"
+
+// bravery
+
+#define _LANG_CMD_BRAVERY_ALIAS ({ "valentía", "valentia", "valor" })
+#define _LANG_CMD_BRAVERY_SYNTAX "valentía <num>"
+#define _LANG_CMD_BRAVERY_HELP "Establece el porcentaje de vida que, una vez perdido, hará que tu personaje intente huir."
+#define _LANG_CMD_BRAVERY_NO_NUMBER "Debes introducir un numero.\n"
+#define _LANG_CMD_BRAVERY_NO_VALID "Debes poner un numero entre 0 y 100. Actualmente seleccionado a ("+me->query_wimpy()+")%."+"\n"
+#define _LANG_CMD_BRAVERY_100 "Ok. Estás en modo valiente.\n"
+#define _LANG_CMD_BRAVERY_MSG "Ok. Tu valentía te hará no huir hasta que hayas perdido un "+wimpy+"% de tus puntos de vida.\n"
