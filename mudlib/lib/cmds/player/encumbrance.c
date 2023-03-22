@@ -1,7 +1,6 @@
 
 // encumbrance cmd from player.c, now external. Morgoth 2/Mar/95
 
-
 #include <mud/cmd.h>
 #include <language.h>
 

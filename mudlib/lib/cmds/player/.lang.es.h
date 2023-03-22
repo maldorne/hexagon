@@ -193,6 +193,16 @@
 #define _LANG_CMD_BRAVERY_SYNTAX "valentía <num>"
 #define _LANG_CMD_BRAVERY_HELP "Establece el porcentaje de vida que, una vez perdido, hará que tu personaje intente huir."
 #define _LANG_CMD_BRAVERY_NO_NUMBER "Debes introducir un numero.\n"
-#define _LANG_CMD_BRAVERY_NO_VALID "Debes poner un numero entre 0 y 100. Actualmente seleccionado a ("+me->query_wimpy()+")%."+"\n"
+#define _LANG_CMD_BRAVERY_NO_VALID "Debes introducir un numero entre 0 y 100. Actualmente seleccionado a ( "+me->query_wimpy()+" % )."+"\n"
 #define _LANG_CMD_BRAVERY_100 "Ok. Estás en modo valiente.\n"
 #define _LANG_CMD_BRAVERY_MSG "Ok. Tu valentía te hará no huir hasta que hayas perdido un "+wimpy+"% de tus puntos de vida.\n"
+
+// money
+
+#define _LANG_CMD_MONEY_ALIAS ({ "dinero" })
+#define _LANG_CMD_MONEY_SYNTAX "dinero"
+#define _LANG_CMD_MONEY_HELP "Muestra la cantidad de dinero que llevas encima y que tienes en los bancos."
+#define _LANG_CMD_MONEY_ON_YOU "Llevas encima monedas por valor de:\n   " + MONEY_HAND->money_value_string(value) + "\n\n"
+#define _LANG_CMD_MONEY_ON_BANK "En ["+bank->query_short()+"] tienes almacenado:\n   "
+#define _LANG_CMD_MONEY_ON_BANK_EMPTY "En ["+bank->query_short()+"] tienes una cuenta abierta sin fondos.\n"
+#define _LANG_CMD_MONEY_TOTAL "\nEn total, tienes acumulado:\n   "+MONEY_HAND->money_value_string(total) + ".\n"

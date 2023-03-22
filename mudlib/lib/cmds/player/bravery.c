@@ -24,7 +24,7 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    write(_LANG_SYNTAX + ": " +_LANG_CMD_BRAVERY_SYNTAX + "\n");
+    write(_LANG_SYNTAX + ": " +_LANG_CMD_BRAVERY_SYNTAX + "\n" + _LANG_CMD_BRAVERY_NO_VALID);
     return 1;
   }
 
