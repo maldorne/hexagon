@@ -64,7 +64,7 @@ int add_timed_property(string var, mixed val, int time)
   if (!timed_prop)
     timed_prop = ([ ]);
   i = this_object()->query_hb_counter();
-  timed_prop[var] = ({val, time, i});
+  timed_prop[var] = ({ val, time, i});
   return 1;
 }
 
@@ -150,9 +150,9 @@ mixed query_timed_property(string str)
   val = timed_prop[str][0];
   return val;
 }
+
 /* Added Taniwha 1995, by popular demand, time remaining */
 /* Could do clever stuff like check for static & normals if it falls through */
-
 int query_time_remaining(string str) 
 {
   int i;

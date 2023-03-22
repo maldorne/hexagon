@@ -2,10 +2,6 @@
 #include <mud/mudos.h>
 #include <mud/config.h>
 
-// number of seconds between calls to the heart_beat function
-// do not touch this
-#define HEART_BEAT_TIME 2
-
 // every item in the _hb_object_list is an array of three elements
 // ({ 
 //   object, // the object that has a heart beat

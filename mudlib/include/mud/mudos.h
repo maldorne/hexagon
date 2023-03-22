@@ -12,6 +12,9 @@
 #define is_auto_object()    (previous_program() == AUTO && \
                              previous_function() != "call_other")
 
+// number of seconds between calls to the heart_beat function
+// do not touch this
+#define HEART_BEAT_TIME 2
 // rlimits of every heart_beat in any object
 #define MAX_HB_DEPTH 100
 #define MAX_HB_TICKS 1000000

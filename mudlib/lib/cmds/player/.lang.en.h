@@ -167,3 +167,16 @@
 #define _LANG_CMD_COST_CLASS "   - Class with: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ experience points (you have "+me->query_xp()+").\n"
 #define _LANG_CMD_COST_GUILD "   - Guild with: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ experience points (you have "+me->query_xp()+").\n"
 #define _LANG_CMD_COST_JOB   "   - Job   with: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ job experience points (you have "+me->query_job_xp()+").\n"
+
+// stop
+
+#define _LANG_CMD_STOP_ALIAS ({ "stop" })
+#define _LANG_CMD_STOP_SYNTAX "stop <fights | follows>"
+#define _LANG_CMD_STOP_HELP "Stops your pending fights or chases."
+#define _LANG_CMD_STOP_NOT_FIGHTING "You are not fighting with anyone.\n"
+#define _LANG_CMD_STOP_MSG "You stop fighting with " + query_multiple_short(obs)+".\n"
+#define _LANG_CMD_STOP_FOLLOW_OPTIONS ({ "follow", "follows", "following", "followings", "chase", "chases", "chasings" })
+#define _LANG_CMD_STOP_NOT_FOLLOWING "You are not following anyone.\n"
+#define _LANG_CMD_STOP_FIGHT_OPTIONS ({ "fights" })
+#define _LANG_CMD_STOP_FIGHTS_OK "Ok. Stopping fights, it will take a while...\n"
+#define _LANG_CMD_STOP_ALREADY_STOPPING "You already are stopping fights, be patient.\n"

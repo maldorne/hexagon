@@ -166,3 +166,16 @@
 #define _LANG_CMD_COST_CLASS "   - Clase  con: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ puntos (llevas "+me->query_xp()+").\n"
 #define _LANG_CMD_COST_GUILD "   - Gremio con: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ puntos (llevas "+me->query_xp()+").\n"
 #define _LANG_CMD_COST_JOB "   - Oficio con: %^BOLD%^" + ob->query_next_level_xp(me) + "%^RESET%^ puntos de oficio (llevas "+me->query_job_xp()+").\n"
+
+// stop
+
+#define _LANG_CMD_STOP_ALIAS ({ "detener", "stop" })
+#define _LANG_CMD_STOP_SYNTAX "detener <combates | persecuciones>"
+#define _LANG_CMD_STOP_HELP "Detiene tus combates pendientes o persecuciones en marcha."
+#define _LANG_CMD_STOP_NOT_FIGHTING "No estás luchando con nadie.\n"
+#define _LANG_CMD_STOP_MSG "Has dejado de luchar con " + query_multiple_short(obs)+".\n"
+#define _LANG_CMD_STOP_FOLLOW_OPTIONS ({ "persecuciones", "persecución", "persecucion", "seguir" })
+#define _LANG_CMD_STOP_NOT_FOLLOWING "No estás siguiendo a nadie en estos momentos.\n"
+#define _LANG_CMD_STOP_FIGHT_OPTIONS ({ "combates", "peleas" })
+#define _LANG_CMD_STOP_FIGHTS_OK "Ok. Deteniendo combates, tardará un poco...\n"
+#define _LANG_CMD_STOP_ALREADY_STOPPING "Ya estás intentando detener los combates, espera un poco.\n"
