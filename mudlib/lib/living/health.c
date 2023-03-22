@@ -349,31 +349,28 @@ string health_string(int self)
 {
   string ret;
   
-    if (hp < max_hp/20)
-      ret = _LANG_HEALTH_DEATH_THRESHOLD;
-    if (hp < max_hp/10)
-      ret = _LANG_HEALTH_CRITICAL_THRESHOLD;
-    if (hp < max_hp/5)
-      ret = _LANG_HEALTH_BAD_THRESHOLD;
-    if (hp < max_hp/2)
-      ret = _LANG_HEALTH_FAIR_THRESHOLD;
-    if ((float)hp < (float)max_hp/1.2)
-      ret = _LANG_HEALTH_SLIGHTLY_INJURED;
-    if (hp == max_hp)
-      ret = _LANG_HEALTH_PERFECT_HEALTH;
+  if (hp < max_hp/20)
+    ret = _LANG_HEALTH_DEATH_THRESHOLD;
+  else if (hp < max_hp/10)
+    ret = _LANG_HEALTH_CRITICAL_THRESHOLD;
+  else if (hp < max_hp/5)
+    ret = _LANG_HEALTH_BAD_THRESHOLD;
+  else if (hp < max_hp/2)
+    ret = _LANG_HEALTH_FAIR_THRESHOLD;
+  else if ((float)hp < (float)max_hp/1.2)
+    ret = _LANG_HEALTH_SLIGHTLY_INJURED;
+  else if (hp == max_hp)
+    ret = _LANG_HEALTH_PERFECT_HEALTH;
+  else 
     ret = _LANG_HEALTH_GOOD_HEALTH;
 
   if (!self)
-  {
     return _LANG_HEALTH_THEY_ARE + " " + ret;
-  }
   else
-  {
     return _LANG_HEALTH_YOU_ARE + " " + ret;
-  }
 }
 
-// Funciones relativas a bebidas
+// functions related to drinks
 int adjust_volume(int type, int amt) 
 {
   if (!pointerp(drink_info))
@@ -425,7 +422,6 @@ string volume_string()
   return _LANG_HEALTH_VOLUME_PRAYING_FOR_DEATH;
 }
 
-// stats añadido
 mixed stats() 
 {
   return ({ ({"Max Hp", max_hp, }),

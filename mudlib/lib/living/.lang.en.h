@@ -242,7 +242,7 @@
 #define _LANG_HEALTH_BAD_THRESHOLD "in bad shape"
 #define _LANG_HEALTH_FAIR_THRESHOLD "slightly injured"
 #define _LANG_HEALTH_SLIGHTLY_INJURED "lightly injured"
-#define _LANG_HEALTH_PERFECT_HEALTH "in perfect health"
+#define _LANG_HEALTH_PERFECT_HEALTH "in perfect health condition"
 #define _LANG_HEALTH_GOOD_HEALTH "in good shape"
 
 #define _LANG_HEALTH_VOLUME_SOBER "sober"
