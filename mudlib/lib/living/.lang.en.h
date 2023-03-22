@@ -28,6 +28,22 @@
 
 #define _LANG_QUEUE_DIDNT_WORK "The attempt of doing '%^RED%^" + \
                             curr_act + "%^RESET%^' didn't work.\n"
+#define _LANG_QUEUE_RESTART_OPTIONS ({ "restart" })
+#define _LANG_QUEUE_HALT_OPTIONS ({ "halt" })
+#define _LANG_QUEUE_ABORT_OPTIONS ({ "abort" })
+#define _LANG_QUEUE_DONT_NEED_RESET "You don't need to restart your character at this moment.\n"
+#define _LANG_QUEUE_RESET_MSG "Trying to restart your character...\n"
+#define _LANG_QUEUE_HALT_MSG "Command queue deleted.\n"
+#define _LANG_QUEUE_NO_ABORT "You are not in the middle of an action that can be aborted.\n"
+#define _LANG_QUEUE_RESTART_WARNING "%^BOLD%^ALERT%^RESET%^:\n" + \
+      "There has been an error. Try to '%^BOLD%^restart%^RESET%^' your character to " + \
+      "solve it.\n"
+#define _LANG_QUEUE_TOO_MANY "Too many commands in the queue; ignoring '"+str+"'.\n"
+#define _LANG_QUEUE_BLOCKED_MSG "You are busy, can't do anything.\n"
+#define _LANG_QUEUE_ERROR_INSERTING "Error inserting in the command queue '"+str+"', "+i+"\n"
+#define _LANG_QUEUE_VERB_SAY "say"
+#define _LANG_QUEUE_VERB_EMOTE "emotion"
+#define _LANG_QUEUE_ABORT_MSG "You are busy doing an abortable action.\n"
 
 // handle
 

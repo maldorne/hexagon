@@ -28,6 +28,22 @@
 
 #define _LANG_QUEUE_DIDNT_WORK "El intento de hacer '%^RED%^" + \
                             curr_act + "%^RESET%^' no funcionó.\n"
+#define _LANG_QUEUE_RESTART_OPTIONS ({ "restart", "reiniciar" })
+#define _LANG_QUEUE_HALT_OPTIONS ({ "halt", "parar" })
+#define _LANG_QUEUE_ABORT_OPTIONS ({ "abort", "abortar" })
+#define _LANG_QUEUE_DONT_NEED_RESET "No necesitas reiniciar tu personaje en estos momentos.\n"
+#define _LANG_QUEUE_RESET_MSG "Intentando reiniciar tu personaje...\n"
+#define _LANG_QUEUE_HALT_MSG "Cola de comandos borrada.\n"
+#define _LANG_QUEUE_NO_ABORT "No estás en medio de una acción que pueda ser abortada.\n"
+#define _LANG_QUEUE_RESTART_WARNING "%^BOLD%^ALERTA%^RESET%^:\n" + \
+      "Se ha producido un error. Prueba a '%^BOLD%^reiniciar%^RESET%^' para intentar " + \
+      "solucionarlo.\n"
+#define _LANG_QUEUE_TOO_MANY "Ya hay demasiados comandos en la cola; ignorando '"+str+"'.\n"
+#define _LANG_QUEUE_BLOCKED_MSG "Estás aturdido, no puedes hacer nada.\n"
+#define _LANG_QUEUE_ERROR_INSERTING "Error insertando en la cola de comandos '" + str + "', " + i + "\n"
+#define _LANG_QUEUE_VERB_SAY "decir"
+#define _LANG_QUEUE_VERB_EMOTE "emocion"
+#define _LANG_QUEUE_ABORT_MSG "Estás ocupado realizando una acción abortable.\n"
 
 // handle
 

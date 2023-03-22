@@ -222,7 +222,7 @@ int set_interruptable_action(int time, string message, mixed abort, mixed comple
     ia_message = "Command queued since "+message+"\n" +
      "Type 'abort' to attempt to end prematurely.\n";
   */
-  ia_message = (message?message:"Estás ocupado realizando una acción abortable.\n");
+  ia_message = (message ? message : _LANG_QUEUE_ABORT_MSG);
 
   ia_abort = abort;
   ia_complete = complete;
@@ -381,11 +381,12 @@ private mixed aq_decapitate()
 private int aq_delete_user_actions()
 {
   int i;
-  mixed* newq;
-  int* new_fq;
+  mixed * newq;
+  int * new_fq;
 
   newq = ({ });
   new_fq = ({ });
+
   for (i = 0; i < sizeof(actionq); i++)
     // if (functionp(actionq[i]))
     if (stringp(actionq[i]))
@@ -699,8 +700,8 @@ nomask int action_check(string str)
   // * Moved from process_input.
   switch (str[0])
   {
-    case '\'' : str = "decir "   + str[1..]; break;
-    case ':'  : str = "emocion " + str[1..]; break;
+    case '\'' : str = _LANG_QUEUE_VERB_SAY   + " " + str[1..]; break;
+    case ':'  : str = _LANG_QUEUE_VERB_EMOTE + " " + str[1..]; break;
     // case '\"' : str = "lsay "+  str[1..<1]; break;
     // case ';'  : str = "parse "+ str[1..<1]; break;
   }
@@ -709,86 +710,74 @@ nomask int action_check(string str)
     str = tmp;
 
   // check for some special queue-affecting commands
-  switch (str)
+
+  if (member_array(str, _LANG_QUEUE_RESTART_OPTIONS) != -1)
   {
-    case "restart":
-    case "reiniciar":
-      if (query_heart_beat())
-        tell_object(this_object(),
-          // "No necesitas que tu heartbeat sea reseteado.\n");
-          "No necesitas reiniciar tu personaje en estos momentos.\n");
-      else
-      {
-        tell_object(this_object(), "Intentando reiniciar tu personaje...\n");
-        actionq = ({ }); // will get cascading failure without this
-        set_heart_beat(1);
-        catch(this_object()->flush_spell_effects());
-      }
+    if (query_heart_beat())
+      tell_object(this_object(), _LANG_QUEUE_DONT_NEED_RESET);
+    else
+    {
+      tell_object(this_object(), _LANG_QUEUE_RESET_MSG);
+      actionq = ({ }); // will get cascading failure without this
+      set_heart_beat(1);
+      catch(this_object()->flush_spell_effects());
+    }
 
-      this_user()->show_prompt();
-      this_user()->write_prompt();
-      return 1;
-
-    case "stop":
-    case "parar":
-      if (sizeof(actionq) != 0)
-        aq_delete_user_actions();
-      tell_object(this_object(), "Cola de comandos borrada.\n");
-      // "(stop-fight parara los ataques si es lo que querias)\n");
-      this_user()->show_prompt();
-      this_user()->write_prompt();
-      return 1;
-
-    case "abort":
-    case "abortar":
-      if (!ia_in_progress)
-        tell_object(this_object(), "No estás en medio de una acción que "+
-          "pueda ser abortada.\n");
-      else
-        abort_interruptable_action();
-      this_user()->show_prompt();
-      this_user()->write_prompt();
-      return 1;
-
-    // some testing commands
-
-    // case "aq":
-    //   print_object(actionq);
-    //   return 1;
-
-    // case "actions":
-    //   {
-    //     object * targets;
-    //     mapping actions;
-    //     int i;
-
-    //     targets = targets(this_object());
-    //     actions = ([ ]);
-
-    //     for (i = 0; i < sizeof(targets); i++)
-    //       if (targets[i])
-    //         actions[base_name(targets[i])] = targets[i]->query_actions();
-
-    //     print_object(actions);
-    //   }
-    //   return 1;
+    this_user()->show_prompt();
+    this_user()->write_prompt();
+    return 1;
   }
+  else if (member_array(str, _LANG_QUEUE_HALT_OPTIONS) != -1)
+  {
+    if (sizeof(actionq) != 0)
+      aq_delete_user_actions();
+    tell_object(this_object(), _LANG_QUEUE_HALT_MSG);
+    this_user()->show_prompt();
+    this_user()->write_prompt();
+    return 1;
+  }
+  else if (member_array(str, _LANG_QUEUE_ABORT_OPTIONS) != -1)
+  {
+    if (!ia_in_progress)
+      tell_object(this_object(), _LANG_QUEUE_NO_ABORT);
+    else
+      abort_interruptable_action();
+    this_user()->show_prompt();
+    this_user()->write_prompt();
+    return 1;
+  }
+
+  // some testing commands
+
+  // case "aq":
+  //   print_object(actionq);
+  //   return 1;
+
+  // case "actions":
+  //   {
+  //     object * targets;
+  //     mapping actions;
+  //     int i;
+
+  //     targets = targets(this_object());
+  //     actions = ([ ]);
+
+  //     for (i = 0; i < sizeof(targets); i++)
+  //       if (targets[i])
+  //         actions[base_name(targets[i])] = targets[i]->query_actions();
+
+  //     print_object(actions);
+  //   }
+  //   return 1;
 
   if (query_heart_beat() == 0)
   {
-    // tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"
-    //   "No tienes heartbeat; prueba '%^BOLD%^reiniciar%^RESET%^' para intentar "
-    //   "solucionarlo.  No podrás hacer nada sin tu "
-    //   "heartbeat.\n");
-    tell_object(this_object(),"%^BOLD%^ALERTA%^RESET%^:\n"+
-      "Se ha producido un error. Prueba a '%^BOLD%^reiniciar%^RESET%^' para intentar "+
-      "solucionarlo.\n");
+    tell_object(this_object(), _LANG_QUEUE_RESTART_WARNING);
   }
 
   if (sizeof(actionq) >= AQ_MAX_ACTIONS)
   {
-    tell_object(this_object(), "Ya hay demasiados comandos en la cola; "+
-      "ignorando '"+str+"'.\n");
+    tell_object(this_object(), _LANG_QUEUE_TOO_MANY);
     return 1;
   }
 
@@ -835,7 +824,7 @@ nomask int action_check(string str)
     }
     else
     {
-      tell_object(this_object(), "Estás aturdido, no puedes hacer nada.\n");
+      tell_object(this_object(), _LANG_QUEUE_BLOCKED_MSG);
 
       if (!this_object()->query_admin())
         return 1;
@@ -853,8 +842,7 @@ nomask int action_check(string str)
 
   if ((i = aq_add( str )) != AQ_OK)
   {
-    tell_object(this_object(), "Error insertando en la cola de comandos '"
-      + str + "', " + i + "\n");
+    tell_object(this_object(), _LANG_QUEUE_ERROR_INSERTING);
   }
   else if (ia_in_progress && query_show_interrupt())
   {
