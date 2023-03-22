@@ -225,3 +225,9 @@
 #define _LANG_CMD_COMBATS_HELP "Muestra a los personajes con los que estás luchando."
 #define _LANG_CMD_COMBATS_NOBODY "No estás luchando con nadie.\n"
 #define _LANG_CMD_COMBATS_MSG "Estás luchando con " + query_multiple_short(obs)+".\n"
+
+// past
+
+#define _LANG_CMD_PAST_ALIAS ({ "pasado", "past" })
+#define _LANG_CMD_PAST_SYNTAX "pasado"
+#define _LANG_CMD_PAST_HELP "Muestra el historial de lo que otros personajes te han dicho."

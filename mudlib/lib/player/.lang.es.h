@@ -80,3 +80,8 @@
 #define _LANG_DEATH_MESSAGE_ROOM " da un grito desgarrador mientras su alma abandona este mundo.\n"
 #define _LANG_DEATH_MESSAGE_YOU "Tu espíritu se eleva sobre tu cuerpo y abandona este mundo.\n"
 #define _LANG_DEATH_MESSAGE_ROOM_AFTER " llega al infierno para ser castigado por sus pecados en vida.\n"
+
+// past.c
+
+#define _LANG_PAST_NOTHING "No te han dicho nada de momento.\n"
+#define _LANG_PAST_HEADER "Historial de conversaciones:\n"

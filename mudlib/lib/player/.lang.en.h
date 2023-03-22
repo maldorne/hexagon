@@ -78,3 +78,8 @@
 #define _LANG_DEATH_MESSAGE_ROOM " shouts a scream of agony as his soul leaves this world.\n"
 #define _LANG_DEATH_MESSAGE_YOU "Your spirit rises above your body and leaves this world.\n"
 #define _LANG_DEATH_MESSAGE_ROOM_AFTER " arrives to hell to be punished for his sins in life.\n"
+
+// past.c
+
+#define _LANG_PAST_NOTHING "Nobody has talked to you yet.\n"
+#define _LANG_PAST_HEADER "History of conversations:\n"

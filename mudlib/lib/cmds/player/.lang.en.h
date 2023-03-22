@@ -227,3 +227,9 @@
 #define _LANG_CMD_COMBATS_HELP "Shows the characters you are fighting with."
 #define _LANG_CMD_COMBATS_NOBODY "You are not fighting with anyone.\n"
 #define _LANG_CMD_COMBATS_MSG "You are fighting with " + query_multiple_short(obs)+".\n"
+
+// past
+
+#define _LANG_CMD_PAST_ALIAS ({ "past" })
+#define _LANG_CMD_PAST_SYNTAX "past"
+#define _LANG_CMD_PAST_HELP "Shows the history of what other characters have said to you."
