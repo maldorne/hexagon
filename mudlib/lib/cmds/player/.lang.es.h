@@ -59,7 +59,9 @@
 
 // whoami
 
-#define _LANG_WHOAMI_HELP "Muestra onformación sobre tu propio personaje."
+#define _LANG_CMD_WHOAMI_ALIAS ({ "whoami", "yo", "quiensoy" })
+#define _LANG_CMD_WHOAMI_SYNTAX "whoami"
+#define _LANG_CMD_WHOAMI_HELP "Muestra información sobre tu propio personaje."
 #define _LANG_WHOAMI_CLASS_FIRST "   Clase:\n"
 #define _LANG_WHOAMI_CLASS_EACH "     " + (me->query_class_ob())->query_short() + \
       " de nivel " + me->query_level() + ".\n"
@@ -72,7 +74,7 @@
 
 // commands
 
-#define _LANG_CMD_COMMANDS_ALIAS ({ "comandos "})
+#define _LANG_CMD_COMMANDS_ALIAS ({ "comandos" })
 #define _LANG_CMD_COMMANDS_SYNTAX "comandos [-l]"
 #define _LANG_CMD_COMMANDS_HELP "Muestra todos los comandos que tienes disponibles.\n" + \
                                 "comandos -l para una lista con más información."

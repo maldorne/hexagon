@@ -130,7 +130,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | grope         |          |          |    |    |
 | grupo         |          |          |    |    |
 | inform        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| inventory     |          |          |    |    |
+| inventory     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | look          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | map           |          |          |    |    |
@@ -145,7 +145,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | time          |          |          |    |    |
 | verbose       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| whoami        |          |          |    |    |
+| whoami        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | wimpy         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 
 ## Legend

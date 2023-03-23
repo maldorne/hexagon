@@ -5,6 +5,7 @@
  *   neverbot, 09/2019
  */
 
+
 #include <mud/cmd.h>
 #include <language.h>
 
@@ -12,17 +13,9 @@ inherit CMD_BASE;
 
 void setup()
 {
-  position = 0;
-}
-
-string query_usage()
-{
-  return "whoami";
-}
-
-string query_short_help()
-{
-  return _LANG_WHOAMI_HELP;
+  set_aliases(_LANG_CMD_WHOAMI_ALIAS);
+  set_usage(_LANG_CMD_WHOAMI_SYNTAX);
+  set_help(_LANG_CMD_WHOAMI_HELP);
 }
 
 static int cmd (string str, object me, string verb)
@@ -69,9 +62,8 @@ static int cmd (string str, object me, string verb)
     ret += _LANG_WHOAMI_JOB_EACH;
   }
 
-  // ret += ".\n";
-  write(ret);
+  write(handler("frames")->frame(ret + "\n"));
 
-  // me->set_trivial_action();
+  me->set_trivial_action();
   return 1;
 }

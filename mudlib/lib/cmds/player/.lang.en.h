@@ -59,7 +59,9 @@
 
 // whoami
 
-#define _LANG_WHOAMI_HELP "Shows information about my own character."
+#define _LANG_CMD_WHOAMI_ALIAS ({ "whoami" })
+#define _LANG_CMD_WHOAMI_SYNTAX "whoami"
+#define _LANG_CMD_WHOAMI_HELP "Shows information about your own character."
 #define _LANG_WHOAMI_CLASS_FIRST "   Class:\n"
 #define _LANG_WHOAMI_CLASS_EACH "     " +  ordinal(me->query_level()) + " level " + \
                     (me->query_class_ob())->query_short()
