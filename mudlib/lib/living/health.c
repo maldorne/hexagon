@@ -284,7 +284,7 @@ int adjust_xp(int i)
 
   if (i > 0) 
   {
-    i = (100-wimpy)*i/100;
+    i = wimpy * i / 100;
     total_xp += i;
   }
 

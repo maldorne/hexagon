@@ -358,7 +358,7 @@ void attack()
     // tell_object(this_object(), "" + my_xp + "(" + my_xp_percentage + ")%\n");
   }
 
-  // Solo ajustamos la xp con objetivos de nivel similar o mayor
+  // only adjust xp with targets of similar or higher level
   if (his_att_lvl + 2 >= att_level)
   {
     // xp types, neverbot 07/04
