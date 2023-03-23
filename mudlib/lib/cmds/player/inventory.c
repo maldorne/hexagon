@@ -1,18 +1,21 @@
 
 #include <mud/cmd.h>
+#include <language.h>
 
 inherit CMD_BASE;
 
 void setup()
 {
-  position = 0;
+  set_aliases(_LANG_CMD_INVENTORY_ALIAS);
+  set_usage(_LANG_CMD_INVENTORY_SYNTAX);
+  set_help(_LANG_CMD_INVENTORY_HELP);
 }
 
 static int cmd(string str, object me, string verb) 
 {
   if (me->query_dead())
   {
-    notify_fail("Estando muerto no necesitas conocer eso.\n");
+    notify_fail(_LANG_CMD_DEAD);
     return 0;
   }
 

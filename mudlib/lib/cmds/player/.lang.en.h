@@ -232,3 +232,9 @@
 #define _LANG_CMD_PAST_ALIAS ({ "past" })
 #define _LANG_CMD_PAST_SYNTAX "past"
 #define _LANG_CMD_PAST_HELP "Shows the history of what other characters have said to you."
+
+// inventory
+
+#define _LANG_CMD_INVENTORY_ALIAS ({ "inventory" })
+#define _LANG_CMD_INVENTORY_SYNTAX "inventory"
+#define _LANG_CMD_INVENTORY_HELP "Shows the inventory of your character."
