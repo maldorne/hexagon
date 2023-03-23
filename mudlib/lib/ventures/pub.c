@@ -209,7 +209,7 @@ int do_buy(string str)
 {
   int volume, intox, heal, type,forplay;
   int i;
-  //mixed *cost;
+  // mixed *cost;
   int cost;
   // I hope cost didn't need to be mixed :)   Anirudh
   string *list;
@@ -389,20 +389,20 @@ void dest_me()
   ::dest_me();
 }
 
-void event_fight_in_progress() 
+void event_fight_in_progress(object who, object * fighters) 
 {
-  mixed *dest;
+  mixed * dest;
   object ob;
   int i;
 
   dest = query_dest_dir();
 
-  // Llamamos al event_pub_brawl en todas las rooms de alrededor
-  // Util si queremos organizar una buena pelea
+  // we call the event_pub_brawl in all the rooms around
+  // useful if we want to organize a good fight
   for (i = 1; i < sizeof(dest); i += 2)
     if (objectp(dest[i]))
       event(dest[i], "pub_brawl", this_object());
-  else
-    if (ob = find_object(dest[i]))
-      event(ob,"pub_brawl", this_object());
+    else
+      if (ob = find_object(dest[i]))
+        event(ob,"pub_brawl", this_object());
 }

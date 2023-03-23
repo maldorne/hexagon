@@ -32,9 +32,6 @@
 #define _LANG_PLAYER_SAVING "Saving...\n"
 #define _LANG_PLAYER_NO_GUEST_SAVE "Oops, guests can't save...\n"
 #define _LANG_PLAYER_SAVE_ACTIONS ({ "save" })
-#define _LANG_PLAYER_NOT_IN_CONDITIONS "You are not in conditions to run away.\n"
-#define _LANG_PLAYER_SEE_FEET_RUNNING "You see your feet running before you.\n"
-#define _LANG_PLAYER_FAILED_ESCAPE "You tried to escape, but you couldn't find any exit.\n"
 #define _LANG_PLAYER_PLURAL "persons that look like " + str
 
 // item.c

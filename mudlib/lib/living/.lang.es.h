@@ -275,3 +275,11 @@
 
 #define _LANG_SOCIAL_FORGET_ABOUT_IT "Olvídalo.\n"
 #define _LANG_SOCIAL_LEVEL_UP "¡Subes de nivel!"
+
+// movement.c
+
+#define _LANG_RUN_AWAY_NOT_IN_CONDITIONS "No estás en condiciones de salir corriendo.\n"
+#define _LANG_RUN_AWAY_SEE_FEET_RUNNING "Ves a tus pies correr ante ti.\n"
+#define _LANG_RUN_AWAY_RUN_AWAY "%^BOLD%^Intentas huir hacia " + ROOM_HAND->query_exit_dir(direcs[i]) + ".%^RESET%^\n"
+#define _LANG_RUN_AWAY_RUN_AWAY_ROOM "%^BOLD" + this_object()->query_cap_name() + " huye atemorizado.%^RESET%^\n"
+#define _LANG_RUN_AWAY_FAILED_ESCAPE "Intentaste escapar, pero no has encontrado ninguna salida.\n"

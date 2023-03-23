@@ -360,14 +360,6 @@ void set_move_after(int after, int rand)
   move_when = (move_after[0] + random(move_after[1]));
 }
 
-void run_away(varargs int bing)
-{
-  if (bing)
-    do_move_after(bing+1);
-  else
-    do_move_after(1);
-}
-
 int query_hb_counter() { return hb_counter; }
 int query_hb_diff(int oldv)
 {
@@ -660,13 +652,18 @@ void event_death(object caller, varargs object killer,
     protecting = 0;
 }
 
-void event_fight_in_progress(object one, object two)
+/**
+ * called when a fight starts in the room
+ * @param ob the object that send the event (can be ignored)
+ * @param fighters the two fighters involved in the fight
+ */
+void event_fight_in_progress(object ob, object * fighters)
 {
   if (join_fights)
   {
     attacker_list -= ({ nil });
-    pile_in(one, two);
-    pile_in(two, one);
+    pile_in(fighters[0], fighters[1]);
+    pile_in(fighters[1], fighters[0]);
   }
 }
 

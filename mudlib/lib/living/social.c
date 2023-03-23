@@ -698,7 +698,7 @@ int adjust_job_xp(int i)
   if (i > JOB_XP_LIMIT) logit_job(LOG_JOB_XP,i);
     if (i > 0)
     {
-      i = (100 - (this_object()->query_wimpy()) ) * i / 100;
+      i = this_object()->query_bravery() * i / 100;
       total_job_xp += i;
     }
 

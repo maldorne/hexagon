@@ -188,16 +188,15 @@
 #define _LANG_CMD_ENCUMBRANCE_HELP "Shows your current and maximum encumbrance."
 #define _LANG_CMD_ENCUMBRANCE_MSG "You current inventory weight is "+now+" and you can carry "+max+" thanks to your strength.\n"
 
+// wimpy
 
-// bravery
-
-#define _LANG_CMD_BRAVERY_ALIAS ({ "bravery", "wimpy" })
-#define _LANG_CMD_BRAVERY_SYNTAX "bravery <num>"
-#define _LANG_CMD_BRAVERY_HELP "Sets the percentage of life that, once lost, will make your character try to run away."
-#define _LANG_CMD_BRAVERY_NO_NUMBER "You have to put a number.\n"
-#define _LANG_CMD_BRAVERY_NO_VALID "You have to put a number between 0 and 100. Currently set to ( "+me->query_wimpy()+" % ).\n"
-#define _LANG_CMD_BRAVERY_100 "Ok. You are now in brave mode.\n"
-#define _LANG_CMD_BRAVERY_MSG "Ok. Your bravery will make you run away when you have lost "+wimpy+"% of your life.\n"
+#define _LANG_CMD_WIMPY_ALIAS ({ "wimpy" })
+#define _LANG_CMD_WIMPY_SYNTAX "wimpy <num>"
+#define _LANG_CMD_WIMPY_HELP "Sets the percentage of life you have to be at to make your character try to run away."
+#define _LANG_CMD_WIMPY_NO_NUMBER "You have to put a number.\n"
+#define _LANG_CMD_WIMPY_NO_VALID "You have to put a number between 0 and 100. Currently set to ( "+me->query_wimpy()+" % ).\n"
+#define _LANG_CMD_WIMPY_BRAVE "Ok. You are now in brave mode.\n"
+#define _LANG_CMD_WIMPY_MSG "Ok. Your bravery will make you not to run away until you below "+wimpy+"% of your life.\n"
 
 // money
 

@@ -36,7 +36,7 @@
 
 #define _LANG_FOREST_TOWN_PUB_SHORT "Recovery tree"
 #define _LANG_FOREST_TOWN_PUB_LONG "It's the Elfereth Village Tavern. It is an old tree whose branches " + \
-  "grow like an awning on tables built with the tree's own branches.\n"
+  "grow like an awning over tables also built with the same branches.\n"
 #define _LANG_FOREST_TOWN_PUB_MENU_MEAD "mead"
 #define _LANG_FOREST_TOWN_PUB_MENU_BERRIES "berries"
 #define _LANG_FOREST_TOWN_PUB_MENU_ROOTS "roots"

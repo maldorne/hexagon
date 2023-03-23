@@ -119,7 +119,6 @@
 #define _LANG_HANDLE_DROP_THEY "drops"
 #define _LANG_HANDLE_DROP_ME "You drop"
 
-
 // combat.c
 
 #define _LANG_COMBAT_BEING_ATTACKED "%^BOLD%^You are being attacked by %^RESET%^" + \
@@ -273,3 +272,11 @@
 
 #define _LANG_SOCIAL_FORGET_ABOUT_IT "Forget about it.\n"
 #define _LANG_SOCIAL_LEVEL_UP "Level up!"
+
+// movement.c
+
+#define _LANG_RUN_AWAY_NOT_IN_CONDITIONS "You are not in conditions to run away.\n"
+#define _LANG_RUN_AWAY_SEE_FEET_RUNNING "You see your feet running before you.\n"
+#define _LANG_RUN_AWAY_RUN_AWAY "%^BOLD%^You try to run away towards " + ROOM_HAND->query_exit_dir(direcs[i]) + ".%^RESET%^\n"
+#define _LANG_RUN_AWAY_RUN_AWAY_ROOM "%^BOLD%^" + this_object()->query_cap_name() + " runs away in fear.%^RESET%^\n"
+#define _LANG_RUN_AWAY_FAILED_ESCAPE "You tried to escape, but you couldn't find any exit.\n"

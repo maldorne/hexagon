@@ -91,6 +91,9 @@ void create()
 
 void attack();
 
+/**
+ * heart_beat features related to combat
+ */
 void heart_beat()
 {
   // Added a combat_counter, so the combat aren't that quick.
@@ -130,13 +133,6 @@ void heart_beat()
 }
 
 object query_attackee() { return attackee; }
-
-int filter_hidden(object ob)
-{
-  if (ob->query_hide_shadow()) 
-    return 0;
-  return 1;
-}
 
 int query_fighting()
 {
@@ -368,7 +364,7 @@ void attack()
     this_object()->adjust_xp(my_xp);
   }
 
-  event(environment(this_object()), "fight_in_progress", attackee);
+  event(environment(this_object()), "fight_in_progress", ({ attackee, this_object() }));
 }
 
 void attack_by(object ob) 
@@ -491,14 +487,15 @@ mixed * reset_attacker_list()
 
 mixed add_attacker_list(object ob)
 {
-    if (member_array(ob, call_outed)>-1)
-    {
-        call_outed-=({ob});
-        attacker_list+=({ob});
-    }
-    else
-      attacker_list+=({ob});
-    return attacker_list;
+  if (member_array(ob, call_outed) > -1)
+  {
+    call_outed -= ({ ob });
+    attacker_list += ({ ob });
+  }
+  else
+    attacker_list += ({ ob });
+
+  return attacker_list;
 }
 
 // dw Sets up protection matrixes.
@@ -523,10 +520,9 @@ int do_protect(string str)
   }
   */
   
+  // flag to filter hidden
   obs = find_match(str, environment(this_object()), 1);
   
-  // No necesario con el flag de find match
-  // obs = filter_array(obs,"filter_hidden");
   if (!sizeof(obs)) 
   {
     notify_fail("¿Proteger a quién?\n");

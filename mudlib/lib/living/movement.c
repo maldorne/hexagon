@@ -3,6 +3,8 @@
 #include <basic/move.h>
 #include <translations/exits.h>
 #include <translations/races.h>
+#include <common/properties.h>
+#include <language.h>
 
 // from here we inherit object.c
 inherit container "/lib/core/basic/container";
@@ -123,6 +125,27 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   return 1;
 } /* move_player() */
+
+void run_away()
+{
+  mixed * direcs;
+  int i;
+
+  if (this_object()->query_property(PASSED_OUT_PROP))
+  {
+    tell_object(this_object(), _LANG_RUN_AWAY_NOT_IN_CONDITIONS);
+    return;
+  }
+
+  direcs = (mixed *)environment()->query_dest_dir();
+  i = random(sizeof(direcs)/2)*2;
+
+  tell_object(this_object(), _LANG_RUN_AWAY_RUN_AWAY);
+  tell_room(environment(this_object()), _LANG_RUN_AWAY_RUN_AWAY_ROOM, ({ this_object() }));
+  this_object()->insert_action(direcs[i]);
+  // tell_object(this_object(), _LANG_RUN_AWAY_SEE_FEET_RUNNING);
+  // write(_LANG_RUN_AWAY_FAILED_ESCAPE);
+}
 
 mixed * stats()
 {

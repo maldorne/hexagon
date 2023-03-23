@@ -113,7 +113,6 @@ Coder commands will be only in english, except texts shown to the players, which
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | apuntador     |          |          |    |    |
 | ausente       |          |          |    |    |
-| bravery       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | bury          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | buscar        |          |          |    |    |
 | cabalgar      |          |          |    |    |
@@ -147,6 +146,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | time          |          |          |    |    |
 | verbose       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | whoami        |          |          |    |    |
+| wimpy         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 
 ## Legend
 

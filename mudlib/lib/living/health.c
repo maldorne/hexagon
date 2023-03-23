@@ -81,10 +81,10 @@ int set_wimpy(int i)
 
   if (i < j) 
     i = j;
-  if (i < 0)
+  if (i <= 0)
     i = 0;
-  if (i > 100)
-    i = 100;
+  if (i >= 100)
+    i = 99;
   
   return (wimpy = i);
 }
@@ -171,7 +171,7 @@ int adjust_hp(int i, varargs object hp_remover)
 
   color = 1; // for color on hp monitor - Radix
 
-  if (hp_remover && !(int)hp_remover->query_dead() )
+  if (hp_remover && !(int)hp_remover->query_dead())
   {
     if (damage_done[hp_remover])
       damage_done[hp_remover] += i;
@@ -184,10 +184,10 @@ int adjust_hp(int i, varargs object hp_remover)
       aggro_done[hp_remover] = i;
   }
 
-  if ( hp > max_hp )
+  if (hp > max_hp)
     hp = max_hp;
 
-  if ( hp < 0 ) /* eeek we died! */
+  if (hp < 0) /* eeek we died! */
   {
     // safe combat, we finish the practice
     if ( // (sizeof(this_object()->query_attacker_list()) == 1) &&  
@@ -206,7 +206,7 @@ int adjust_hp(int i, varargs object hp_remover)
     }
     else // non safe combat, they die
     {
-      if (i > 0 && hp_remover == this_object() ) 
+      if (i > 0 && hp_remover == this_object()) 
         call_out("do_death", 0, nil); // NOT this object, use attacker list
       else
         call_out("do_death", 0, hp_remover);
@@ -230,12 +230,15 @@ int adjust_hp(int i, varargs object hp_remover)
 int set_max_gp(int i) 
 {
   if (max_gp)
-    gp = gp*i/max_gp;
+    gp = gp * i / max_gp;
   else
     gp = max_gp;
+
   max_gp = i;
-  if (gp>max_gp)
+
+  if (gp > max_gp)
     gp = max_gp;
+
   return max_gp;
 }
 
@@ -251,9 +254,12 @@ int adjust_gp(int i)
 {
   if (gp + i < 0)
     return -1;
+
   gp += i;
-  if (gp>max_gp)
+
+  if (gp > max_gp)
     gp = max_gp;
+
   return gp;
 }
 
@@ -284,7 +290,7 @@ int adjust_xp(int i)
 
   if (i > 0) 
   {
-    i = wimpy * i / 100;
+    i = (100 - wimpy) * i / 100;
     total_xp += i;
   }
 

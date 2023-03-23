@@ -318,34 +318,6 @@ void heart_beat()
     user()->show_notifications();
 }
 
-void run_away()
-{
-  mixed * direcs;
-  int i, bong;
-
-  if ( this_object()->query_property(PASSED_OUT_PROP) )
-  {
-    tell_object(this_object(), _LANG_PLAYER_NOT_IN_CONDITIONS);
-    return;
-  }
-
-  direcs = (mixed *)environment()->query_dest_dir();
-
-  while (!bong && sizeof(direcs))
-  {
-    i = random(sizeof(direcs)/2)*2;
-
-    bong = this_object()->insert_action(direcs[i]);
-
-    if (!bong)
-      direcs = delete(direcs, i, 2);
-    else
-      write(_LANG_PLAYER_SEE_FEET_RUNNING);
-  }
-  if (!bong)
-    write(_LANG_PLAYER_FAILED_ESCAPE);
-}
-
 /* old glance(), neverbot 21/4/2003 */
 int do_glance(varargs string arg)
 {

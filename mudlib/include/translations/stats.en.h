@@ -27,11 +27,10 @@
 #define _LANG_STATS_NO_GROUP "no clan"
 #define _LANG_STATS_CITIZENSHIP "citizenship"
 #define _LANG_STATS_NO_CITIZENSHIP "no citizenship"
-#define _LANG_STATS_BRAVERY "bravery"
+#define _LANG_STATS_WIMPY "wimpy"
 #define _LANG_STATS_ENCUMBRANCE "encumbrance"
 #define _LANG_STATS_COMBAT_MODE "combat mode"
 #define _LANG_STATS_COMBAT_ROLE "combat role"
-
 
 #define _LANG_STATS_STR "strength"
 #define _LANG_STATS_CON "constitution"
