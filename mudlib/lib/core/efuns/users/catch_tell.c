@@ -15,7 +15,7 @@ static nomask string fix_string(string str);
 void catch_tell(string message)
 {
   object destination;
-  string * pieces;
+  string *pieces;
 
   if (!strlen(message))
     return;
@@ -25,7 +25,7 @@ void catch_tell(string message)
   // do not catch_tell over player objects, use the user object
   if (destination->query_player())
     destination = destination->user();
-  
+
   if (!interactive(destination))
     return;
 
@@ -41,9 +41,8 @@ void catch_tell(string message)
     cols = 80;
 
     // width fix, ignore the control characters used for colors
-    if (userp(destination)) 
-      if (destination->query_cols())
-        cols = destination->query_cols() + (strlen(message) - visible_strlen(message));
+    if (userp(destination) && destination->query_cols())
+      cols = destination->query_cols() + (strlen(message) - visible_strlen(message));
 
     message = sprintf("%-*s", cols, message);
   }

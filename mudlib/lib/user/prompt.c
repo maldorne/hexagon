@@ -38,7 +38,7 @@ void create()
 private void do_prompt_write(string msg)
 {
   msg = fix_string(msg);
-  this_object()->catch_tell(msg);
+  this_object()->send_message(msg);
 }
 
 /*
