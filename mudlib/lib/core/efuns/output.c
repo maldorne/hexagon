@@ -35,7 +35,7 @@ static nomask void tell_object(object ob, string str)
   if (ob->query_player())
     ob = ob->user();
 
-  ob->event_write(previous_object(), str);
+  ob->catch_tell(str);
 }
 
 static nomask void tell_player(object player, string text)

@@ -122,20 +122,6 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 //   // write(fix_string(str));
 // } /* event_say() */
 
-// void event_write(object caller, string str)
-// {
-//   if (!str || str == "")
-//     return;
-
-//   // sprintf añadido, neverbot 7/03
-//   // A ver si asi los mensajes no se salen del ancho de pantalla!!
-//   str = fix_string(str);
-//   // str = sprintf("%*-=s", (this_object()->query_cols()?this_object()->query_cols():79), str);
-//   write(str);
-
-//   // write(fix_string(str));
-// } /* event_write() */
-
 // void do_efun_write(string str)
 // {
 //   write(fix_string(str));
@@ -148,7 +134,6 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 //   else
 //   do_efun_write(str);
 // } /* event_soul() */
-
 
 void event_person_say(object ob, string start, string msg, string lang)
 {
@@ -196,7 +181,6 @@ void event_person_say(object ob, string start, string msg, string lang)
     tmp = wrap(tmp, this_object()->user()->query_cols());
     this_object()->catch_tell("\n" + tmp);
   }
-
 }
 
 // void event_whisper(object ob, string start, string mess, object *obs,

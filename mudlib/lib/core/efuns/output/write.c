@@ -17,5 +17,5 @@ static nomask void write(string str)
 
   str = fix_string(str);
 
-  event(user, "write", str);
+  user->catch_tell(str);
 }

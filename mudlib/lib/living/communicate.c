@@ -174,6 +174,8 @@ void their_mess(object ob, string start, string msg, string lang)
   //   return;
   // }
 
+  // do the fix_string() here so that we can garble the 
+  // string after processing colors, etc
   msg = fix_string(msg);
 
   if (member_array(lang, ob->query_languages()) == -1)
@@ -221,7 +223,7 @@ void their_mess(object ob, string start, string msg, string lang)
   // if (ob && interactive(ob))
   ob->add_past_g(tmp);
 
-  ob->catch_tell("\n" + tmp + "\n");
+  tell_object(ob, "\n" + tmp + "\n");
 }
 
 int do_say(string arg, varargs int no_echo) 

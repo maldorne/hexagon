@@ -9,19 +9,47 @@
 // any way desired.  This is a useful way to have flexible earmuffs, or
 // to support intelligent clients.
 
+// prototypes
+static nomask string fix_string(string str);
+
 void catch_tell(string message)
 {
   object destination;
+  string * pieces;
+
+  if (!strlen(message))
+    return;
 
   destination = this_object();
-
-  // if (!destination)
-  //   return;
 
   // do not catch_tell over player objects, use the user object
   if (destination->query_player())
     destination = destination->user();
   
-  if (interactive(destination))
-    destination->send_message(message);
+  if (!interactive(destination))
+    return;
+
+  message = fix_string(message);
+
+  // if we have \n inside the message, let's assume it has
+  // already been prepared, so we do not need to sprintf again
+  pieces = explode(message, "\n");
+
+  if (sizeof(pieces) == 1)
+  {
+    int cols;
+    cols = 80;
+
+    // width fix, ignore the control characters used for colors
+    if (userp(destination)) 
+      if (destination->query_cols())
+        cols = destination->query_cols() + (strlen(message) - visible_strlen(message));
+
+    message = sprintf("%-*s", cols, message);
+  }
+
+  // if (!destination)
+  //   return;
+
+  destination->send_message(message);
 }
