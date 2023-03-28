@@ -11,7 +11,7 @@
 // usually this will be set to TRUE,
 // set to FALSE just for easier debugging purposes
 // (less objects loaded, less messages in stderr, etc)
-#define CONFIG_USE_CRON FALSE
+#define CONFIG_USE_CRON TRUE
 
 // ----------------------------------------------------------------------
 //  log features
