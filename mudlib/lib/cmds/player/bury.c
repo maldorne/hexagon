@@ -15,7 +15,7 @@ void setup()
   set_help(_LANG_CMD_BURY_HELP);
 }
 
-static int cmd (string str, object me, string verb)
+static int cmd(string str, object me, string verb)
 {
   object * target;
   int counter, i;
@@ -25,13 +25,23 @@ static int cmd (string str, object me, string verb)
 
   if (me->query_dead())
   {
-    tell_object(me, _LANG_CMD_BURY_DEAD);
+    write(_LANG_CMD_BURY_DEAD);
+    return 1;
+  }
+
+  if (me->query_timed_property_exists(PASSED_OUT_PROP))
+  {
+    write(me->query_timed_property(PASSED_OUT_PROP));
+    return 1;
+  }
+  {
+    write(_LANG_CMD_BURY_NOGUILD);
     return 1;
   }
 
   if (environment(me) && environment(me)->query_water_environment())
   {
-    tell_object(me, _LANG_CMD_BURY_WATER);
+    write(_LANG_CMD_BURY_WATER);
     return 1;
   }
 
@@ -46,9 +56,9 @@ static int cmd (string str, object me, string verb)
     }
 
   if (counter)
-    tell_object(me, _LANG_CMD_BURY_MSG);
+    write(_LANG_CMD_BURY_MSG);
   else
-    tell_object(me, _LANG_CMD_BURY_NO);
+    write(_LANG_CMD_BURY_NO);
 
   return 1;
 }
