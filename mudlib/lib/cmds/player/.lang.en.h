@@ -240,3 +240,12 @@
 #define _LANG_CMD_INVENTORY_ALIAS ({ "inventory" })
 #define _LANG_CMD_INVENTORY_SYNTAX "inventory"
 #define _LANG_CMD_INVENTORY_HELP "Shows the inventory of your character."
+
+// away
+
+#define _LANG_CMD_AWAY_ALIAS ({ "away" })
+#define _LANG_CMD_AWAY_SYNTAX "away [message]"
+#define _LANG_CMD_AWAY_HELP "Sets an away message so other players can see it when they talk to you."
+#define _LANG_CMD_AWAY_NONE "You have not set any away message.\n"
+#define _LANG_CMD_AWAY_REMOVED "Away message removed.\n"
+#define _LANG_CMD_AWAY_OK "Away message set to: %^BOLD%^RED%^'" + str + "'%^RESET%^.\n"

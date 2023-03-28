@@ -239,3 +239,12 @@
 #define _LANG_CMD_INVENTORY_ALIAS ({ "inventario" })
 #define _LANG_CMD_INVENTORY_SYNTAX "inventario"
 #define _LANG_CMD_INVENTORY_HELP "Muestra el inventario de tu personaje."
+
+// away
+
+#define _LANG_CMD_AWAY_ALIAS ({ "ausente", "ausencia", "away" })
+#define _LANG_CMD_AWAY_SYNTAX "ausencia [mensaje]"
+#define _LANG_CMD_AWAY_HELP "Establece un mensaje de ausencia para que los demás jugadores lo vean cuando te hablen."
+#define _LANG_CMD_AWAY_NONE "No has indicado ningún mensaje de ausencia.\n"
+#define _LANG_CMD_AWAY_REMOVED "Mensaje de ausencia borrado.\n"
+#define _LANG_CMD_AWAY_OK "Mensaje de ausencia establecido a: %^BOLD%^RED%^'" + str + "'%^RESET%^.\n"

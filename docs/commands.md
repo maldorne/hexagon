@@ -112,7 +112,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | Command | Working in Hexagon | Translated en/es | Help available | Notes |
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | apuntador     |          |          |    |    |
-| ausente       |          |          |    |    |
+| away          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | bury          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | buscar        |          |          |    |    |
 | cabalgar      |          |          |    |    |

@@ -40,6 +40,9 @@
 #define _LANG_TELL_MSG_ASK_THEM "asks you"
 #define _LANG_TELL_MSG_ASK_ME "You ask"
 
+#define _LANG_COMM_AWAY_MSG " is away, reason: '%^BOLD%^RED%^" + \
+                            (string)ob->query_static_property(AWAY_PROP) + "%^RESET%^'.\n"
+
 // queue
 
 #define _LANG_QUEUE_DIDNT_WORK "The attempt of doing '%^RED%^" + \

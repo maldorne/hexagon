@@ -39,6 +39,9 @@
 #define _LANG_TELL_MSG_ASK_THEM "te pregunta"
 #define _LANG_TELL_MSG_ASK_ME "Preguntas a"
 
+#define _LANG_COMM_AWAY_MSG " está ocupad" + ob->query_vowel() + ", razón: '%^BOLD%^RED%^" + \
+                            (string)ob->query_static_property(AWAY_PROP) + "%^RESET%^'.\n"
+
 // queue
 
 #define _LANG_QUEUE_DIDNT_WORK "El intento de hacer '%^RED%^" + \

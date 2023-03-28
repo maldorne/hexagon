@@ -212,11 +212,7 @@ void their_mess(object ob, string start, string msg, string lang)
   }
 
   if (ob->query_static_property(AWAY_PROP))
-  {
-    tell_object(this_object(), ob->query_cap_name()+" está ocupad"+ob->query_vowel()+
-      ", razón: \"%^RED%^"+
-      (string)ob->query_static_property(AWAY_PROP)+"%^RESET%^\"\n");
-  }
+    tell_object(this_object(), ob->query_cap_name() + _LANG_COMM_AWAY_MSG);
 
   tmp = start + msg;
 
