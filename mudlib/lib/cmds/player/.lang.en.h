@@ -198,7 +198,7 @@
 #define _LANG_CMD_WIMPY_NO_NUMBER "You have to put a number.\n"
 #define _LANG_CMD_WIMPY_NO_VALID "You have to put a number between 0 and 100. Currently set to ( "+me->query_wimpy()+" % ).\n"
 #define _LANG_CMD_WIMPY_BRAVE "Ok. You are now in brave mode.\n"
-#define _LANG_CMD_WIMPY_MSG "Ok. Your bravery will make you not to run away until you below "+wimpy+"% of your life.\n"
+#define _LANG_CMD_WIMPY_MSG "Ok. Your bravery will make you not to run away until you are below "+wimpy+"% of your life.\n"
 
 // money
 

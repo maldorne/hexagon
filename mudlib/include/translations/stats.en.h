@@ -47,7 +47,7 @@
 #define _LANG_STATS_SKILL_MALUS "skill malus"
 
 #define _LANG_STATS_EXT_ALIGN "external alignment (you look)"
-#define _LANG_STATS_REAL_ALIGN "internal aligment (you are)"
+#define _LANG_STATS_REAL_ALIGN "internal alignment (you are)"
 
 #define _LANG_STATS_MONEY "total money (with you)"
 #define _LANG_STATS_COIN "gold coin"
