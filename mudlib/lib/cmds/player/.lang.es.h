@@ -212,7 +212,7 @@
 // condition
 
 #define _LANG_CMD_CONDITION_ALIAS ({ "estado" })
-#define _LANG_CMD_CONDITION_SYNTAX "estado [<name> | todos]"
+#define _LANG_CMD_CONDITION_SYNTAX "estado [<nombre> | todos]"
 #define _LANG_CMD_CONDITION_HELP "Muestra el estado de salud de un personaje o de todos los personajes en la localización."
 #define _LANG_CMD_CONDITION_OPTIONS "Sintaxis: 'estado' para comprobar tu estado de salud, o\n" + \
                                     "          'estado <nombre>' para ver el estado de otro, o\n" + \
@@ -248,3 +248,33 @@
 #define _LANG_CMD_AWAY_NONE "No has indicado ningún mensaje de ausencia.\n"
 #define _LANG_CMD_AWAY_REMOVED "Mensaje de ausencia borrado.\n"
 #define _LANG_CMD_AWAY_OK "Mensaje de ausencia establecido a: %^BOLD%^RED%^'" + str + "'%^RESET%^.\n"
+
+// consider
+
+#define _LANG_CMD_CONSIDER_ALIAS ({ "considerar" })
+#define _LANG_CMD_CONSIDER_SYNTAX "considerar <nombre>"
+#define _LANG_CMD_CONSIDER_HELP "Muestra la diferencia de nivel entre tu personaje y el de otro."
+#define _LANG_CMD_CONSIDER_EXIST "Necesitas considerar algo que exista.\n"
+#define _LANG_CMD_CONSIDER_CODER "Atacar a un programador no es recomendable.\n"
+#define _LANG_CMD_CONSIDER_15 "¡Ni se te ocurra atacar a "+obs[i]->query_cap_name()+", podría acabar contigo sólo con mirarte!\n"
+#define _LANG_CMD_CONSIDER_10 "¡Estás loco si quieres atacar a "+obs[i]->query_cap_name()+"!\n"
+#define _LANG_CMD_CONSIDER_M10 "¡Podrías matar a "+obs[i]->query_cap_name()+" con un soplido!\n"
+#define _LANG_CMD_CONSIDER_NOT_THAT "No puedes considerar eso.\n"
+#define _LANG_CMD_CONSIDER_14 ({ + \
+          " es demasiado débil para molestarse en atacar.\n", + \
+          " es mucho más débil que tú.\n", + \
+          " es bastante más débil que tú.\n", + \
+          " es más débil que tú.\n", + \
+          " es un poco más débil que tú.\n", + \
+          " es aproximadamente igual que tú.\n", + \
+          " es un poco más fuerte que tú.\n", + \
+          " es más fuerte que tú.\n", + \
+          " es bastante más fuerte que tú.\n", + \
+          " es mucho más fuerte que tú.\n", + \
+          " es "+(obs[i]->query_article())+" más fuerte de la región.\n" })
+#define _LANG_CMD_CONSIDER_NOT_14 ({ + \
+          " es demasiado débil para molestarse en atacar.\n", + \
+          " es más débil que tú.\n", + \
+          " es aproximadamente igual que tú.\n", + \
+          " es más fuerte que tú.\n", + \
+          " es "+(obs[i]->query_article())+" más fuerte de la región.\n" })

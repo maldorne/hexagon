@@ -249,3 +249,33 @@
 #define _LANG_CMD_AWAY_NONE "You have not set any away message.\n"
 #define _LANG_CMD_AWAY_REMOVED "Away message removed.\n"
 #define _LANG_CMD_AWAY_OK "Away message set to: %^BOLD%^RED%^'" + str + "'%^RESET%^.\n"
+
+// consider
+
+#define _LANG_CMD_CONSIDER_ALIAS ({ "consider" })
+#define _LANG_CMD_CONSIDER_SYNTAX "consider <name>"
+#define _LANG_CMD_CONSIDER_HELP "Shows the difference of level between your character and another."
+#define _LANG_CMD_CONSIDER_EXIST "You need to consider something that exists.\n"
+#define _LANG_CMD_CONSIDER_CODER "Attacking a coder is not recommended.\n"
+#define _LANG_CMD_CONSIDER_15 "Do not even think about attacking "+obs[i]->query_cap_name()+", you would be dead in seconds.\n"
+#define _LANG_CMD_CONSIDER_10 "You are crazy if you want to attack "+obs[i]->query_cap_name()+"!\n"
+#define _LANG_CMD_CONSIDER_M10 "You could kill "+obs[i]->query_cap_name()+" with a single blow!\n"
+#define _LANG_CMD_CONSIDER_NOT_THAT "You cannot consider that.\n"
+#define _LANG_CMD_CONSIDER_14 ({ + \
+          " is too weak to bother attacking.\n", + \
+          " is much weaker than you.\n", + \
+          " is pretty weaker than you.\n", + \
+          " is weaker than you.\n", + \
+          " is a little weaker than you.\n", + \
+          " is about the same strength as you.\n", + \
+          " is a little stronger than you.\n", + \
+          " is stronger than you.\n", + \
+          " is pretty stronger than you.\n", + \
+          " is much stronger than you.\n", + \
+          " is the strongest of the region.\n" })
+#define _LANG_CMD_CONSIDER_NOT_14 ({ + \
+          " is too weak to bother attacking.\n", + \
+          " is weaker than you.\n", + \
+          " is about the same strength as you.\n", + \
+          " is stronger than you.\n", + \
+          " is the strongest of the region.\n" })

@@ -121,7 +121,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | combats       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | condition     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| considerar    |          |          |    |    |
+| consider      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | cost          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | diplomacia    |          |          |    |    |
 | encumbrance   | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
