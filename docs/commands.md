@@ -115,7 +115,6 @@ Coder commands will be only in english, except texts shown to the players, which
 | away          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | bury          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | buscar        |          |          |    |    |
-| cabalgar      |          |          |    |    |
 | calendar      |          |          |    |    |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | combats       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
@@ -144,6 +143,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | sheet         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | time          |          |          |    |    |
+| travel        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | verbose       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | whoami        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | wimpy         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |

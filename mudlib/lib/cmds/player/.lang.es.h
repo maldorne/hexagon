@@ -278,3 +278,11 @@
           " es aproximadamente igual que tú.\n", + \
           " es más fuerte que tú.\n", + \
           " es "+(obs[i]->query_article())+" más fuerte de la región.\n" })
+
+// travel
+
+#define _LANG_CMD_TRAVEL_ALIAS ({ "viajar" })
+#define _LANG_CMD_TRAVEL_SYNTAX "viajar [<dirección>]"
+#define _LANG_CMD_TRAVEL_HELP "Te permite viajar en una dirección determinada.\nNecesita que estés sobre una montura o vehículo."
+#define _LANG_CMD_TRAVEL_NO_MOUNT "Sólo funciona si estás sobre una montura o vehículo.\n"
+#define _LANG_CMD_TRAVEL_WHERE "¿"+capitalize(verb)+" hacia dónde?\n"

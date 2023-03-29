@@ -279,3 +279,11 @@
           " is about the same strength as you.\n", + \
           " is stronger than you.\n", + \
           " is the strongest of the region.\n" })
+
+// travel
+
+#define _LANG_CMD_TRAVEL_ALIAS ({ "travel" })
+#define _LANG_CMD_TRAVEL_SYNTAX "travel [<direction>]"
+#define _LANG_CMD_TRAVEL_HELP "Allows you to travel in a certain direction.\nIt needs you to be on a mount or vehicle."
+#define _LANG_CMD_TRAVEL_NO_MOUNT "It only works if you are on a mount or vehicle.\n"
+#define _LANG_CMD_TRAVEL_WHERE "Travel where?\n"
