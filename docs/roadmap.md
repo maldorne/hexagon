@@ -1,23 +1,18 @@
 # Project status and roadmap
 
-## Future versions: 
-
-Set of features not yet started, but planned.
-
-TBA.
-
 ## Current version being worked on: [v1.23.03 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
-Set of features we are currently working on. 
+When finished, this version will be renamed as `v2.0` and it will be the last `alpha` version.
+
+Set of features we are currently working on:
 
 | Status | Title | Description |
 | :----: | :---- | ----------- |
-|        | **Login** | Some improvements in the login process, pending from past milestones. |
-|        |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/maldorne/hexagon/issues/4)]. |
-|        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/maldorne/hexagon/issues/7)]. |
-|        | **Documentation** | Review and full translation of every `lib/cmds` command. |
+|        | **Commands** | Review and full translation of every `lib/cmds` command. |
 | :white_check_mark: |  | :heavy_minus_sign: Add compatibility and status list in the repository ([done](commands.md)). |
-|        |  | :heavy_minus_sign: Test and translate every command, by user type: `login` [[#13](https://github.com/maldorne/hexagon/issues/13)], `player` [[#14](https://github.com/maldorne/hexagon/issues/14)], `coder` [[#15](https://github.com/maldorne/hexagon/issues/15)], `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)].  |
+| :white_check_mark: |  | :heavy_minus_sign: Test and translate every command, by user type: `login` [[#13](https://github.com/maldorne/hexagon/issues/13)]. |
+|        |  | :heavy_minus_sign: Test and translate every command, by user type: `player` [[#14](https://github.com/maldorne/hexagon/issues/14)]. |
+|        |  | :heavy_minus_sign: Test and translate every command, by user type: `coder` [[#15](https://github.com/maldorne/hexagon/issues/15)]. |
 | :white_check_mark: | **Containers** | Dockerfile to execute the mud inside a container, and related documentation. |
 | :white_check_mark: | **Encoding** | Review files in the repository, not all of them are using the same encoding [[#20](https://github.com/maldorne/hexagon/issues/20)]. |
 | :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib`, objects related to combat [[#21](https://github.com/maldorne/hexagon/issues/21)]. |
@@ -25,6 +20,18 @@ Set of features we are currently working on.
 | :white_check_mark: |  | :heavy_minus_sign: `armour.c` |
 | :white_check_mark: |  | :heavy_minus_sign: `shield.c` |
 | :white_check_mark: | **Basic binary connections** | Start working with binary connections to allow future development of httpd, ftpd, etc [[#22](https://github.com/maldorne/hexagon/issues/22)]. |
+
+## Future versions: 
+
+### [v2.1 Daggerfall](https://github.com/maldorne/hexagon/milestone/4)
+
+Set of features not yet started, but planned.
+
+| Status | Title | Description |
+| :----: | :---- | ----------- |
+|        | **Commands** | Review and full translation of every `lib/cmds` command. |
+|        |  | :heavy_minus_sign: Test and translate every command, by user type: `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)]. |
+|        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/maldorne/hexagon/issues/7)]. |
 
 ## Previous versions/milestones
 
@@ -38,7 +45,7 @@ Set of features we are currently working on.
 | :white_check_mark: |  | :heavy_minus_sign: Default test area as game example (`/games/demo-fantasy`). |
 | :white_check_mark: | **Continuous integration** | Automatic deploy to hosting when the master branch of this project is updated [[#6](https://github.com/maldorne/hexagon/issues/6)]. |
 | :white_check_mark: |  | :heavy_minus_sign: Deploy simultaneously to both english and spanish servers. |
-| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib`, some files pending review since the [v19.05](https://github.com/maldorne/hexagon/tree/19.05) milestone. |
+| :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib`, some files pending review since the [v1.19.05](https://github.com/maldorne/hexagon/tree/19.05) milestone. |
 | :white_check_mark: |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 
 
@@ -52,7 +59,6 @@ Set of features we are currently working on.
 | :white_check_mark: | **Login user type** | Basic user type to handle the connection with an account, creations of player characters, etc. |
 | :white_check_mark: |  | :heavy_minus_sign: Allow execution of certain type of commands (`who`, `finger`, etc) during the login process. |
 | :white_check_mark: |  | :heavy_minus_sign: Full review of the login process. Simplify the `login` object refactoring anything possible to the new login commands [[#1](https://github.com/maldorne/hexagon/issues/1)]. |
-|        :x:         |  | :heavy_minus_sign: On disconnect, change the user type to allow changing to a different player character [[#4](https://github.com/maldorne/hexagon/issues/4)]. Moved to next milestone. |
 | :white_check_mark: | **`visible_strlen`** | Be able to calculate the real length of a string having in mind only the characters visible to the player [[#2](https://github.com/maldorne/hexagon/issues/2)]. |
 | :white_check_mark: | **Deprecate manager user** | Remove code related to the `manager` user type. We have enough information with `coder` and `administrator`. |
 
