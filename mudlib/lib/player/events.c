@@ -6,7 +6,7 @@
 
 #include <common/properties.h>
 #include <basic/communicate.h>
-#include <user/hud.h>
+#include <translations/pov.h>
 #include <user/user.h>
 
 #include <language.h>
@@ -44,9 +44,9 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
     {
       string color, new_name;
       
-      // change player appereance from /table/hud_table.c, neverbot 10/04
-      color = (string)HUD->query_color(this_object(), ob);
-      new_name = (string)HUD->query_name_changed(this_object(), ob);
+      // change player appereance from /handler/pov.c, neverbot 10/04
+      color = (string)POV->query_color(this_object(), ob);
+      new_name = (string)POV->query_name_changed(this_object(), ob);
 
       if (strlen(color))
         msg = replace_string(msg, ob->query_cap_name(), 
@@ -86,9 +86,9 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
     {
       string color, new_name;
       
-      // change player appereance from /table/hud_table.c, neverbot 10/04
-      color = (string)HUD->query_color(this_object(), ob);
-      new_name = (string)HUD->query_name_changed(this_object(), ob);
+      // change player appereance from /handler/pov.c, neverbot 10/04
+      color = (string)POV->query_color(this_object(), ob);
+      new_name = (string)POV->query_name_changed(this_object(), ob);
 
       if (strlen(color))
         msg = replace_string(msg, ob->query_cap_name(), 

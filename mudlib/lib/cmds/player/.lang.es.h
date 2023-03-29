@@ -107,9 +107,11 @@
 #define _LANG_CMD_CONFIG_FOR_USER "Configuración de " + this_player()->query_cap_name()
 #define _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR "Configuración actual para "
 #define _LANG_CMD_CONFIG_UNKNOWN "Desconocido"
-#define _LANG_CMD_CONFIG_USE_COMMANDS "\n. Entre corchetes se indica el comando específico\n" + \
+#define _LANG_CMD_CONFIG_USE_COMMANDS "  Entre corchetes se indica el comando específico\n" + \
         "  que puedes usar para obtener más información.\n"
 #define _LANG_CMD_CONFIG_HINT "  Usa '" + _LANG_CMD_CONFIG_SYNTAX + "'\n  para cambiar los valores.\n"
+#define _LANG_CMD_CONFIG_USER "  Recuerda que estas configuraciones son a nivel de usuario,\n" + \
+        "  por lo que son comunes a todos tus personajes.\n"
 
 // sheet
 
@@ -298,3 +300,11 @@
 #define _LANG_CMD_EQUIPMENT_ARMO "  Armaduras:\n"
 #define _LANG_CMD_EQUIPMENT_NOTHING "  No llevas nada puesto ni estás sosteniendo nada.\n"
 #define _LANG_CMD_EQUIPMENT_FOOTER "Utiliza 'equipo todo' para ver el estado de todo lo que estás cargando.\n"
+
+// pov
+
+#define _LANG_CMD_POV_ALIAS ({ "pov" })
+#define _LANG_CMD_POV_SYNTAX "pov < "+implode( POV_TYPES, " | ")+" >"
+#define _LANG_CMD_POV_HELP "Cambia la forma en que se perciben el resto de personajes del entorno."
+#define _LANG_CMD_POV_CURRENT "Tu apuntador actual es: "
+#define _LANG_CMD_POV_MSG "Ok, tipo de apuntador cambiado a '" + str + "'.\n"

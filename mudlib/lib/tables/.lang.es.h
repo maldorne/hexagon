@@ -62,7 +62,7 @@
 #define _LANG_CONFIG_TOPIC_HEALTH "salud"
 #define _LANG_CONFIG_TOPIC_VERBOSE "detallada"
 #define _LANG_CONFIG_TOPIC_LOGON "logon"
-#define _LANG_CONFIG_TOPIC_HUD "apuntador"
+#define _LANG_CONFIG_TOPIC_POV "pov"
 #define _LANG_CONFIG_TOPIC_STUN "incapacitar"
 
 #define _LANG_CONFIG_CMD_TERM "terminal"
@@ -71,5 +71,5 @@
 #define _LANG_CONFIG_CMD_MONITOR "monitor"
 #define _LANG_CONFIG_CMD_VERBOSE "modo"
 #define _LANG_CONFIG_CMD_INFORM "informar"
-#define _LANG_CONFIG_CMD_HUD "apuntador"
+#define _LANG_CONFIG_CMD_POV "pov"
 #define _LANG_CONFIG_CMD_STUN "combate"

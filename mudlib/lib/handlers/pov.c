@@ -11,14 +11,16 @@
 //    race or culture : different colors to different cultures, nations?
 
 #include <basic/alignment.h>
-#include <user/hud.h>
+#include <translations/pov.h>
 
 string query_color(object me, object he)
 {
   int al_me, al_him;
-  string hud;
+  int pov;
+  string pov_name;
 
-  hud = me->query_hud();
+  pov = me->user()->query_pov();
+  pov_name = POV_TYPES[pov];
 
   if (!me || !he || (me == he))
     return "";
@@ -26,12 +28,12 @@ string query_color(object me, object he)
   al_me = (int)me->query_real_align();
   al_him = (int)he->query_ext_align();
 
-  // color according to the type of hud
-  if (hud == HUD_ALIGNMENT && ALIGN_TABLE->query_enemies(al_me, al_him))
+  // color according to the type of pov
+  if (pov_name == POV_ALIGNMENT && ALIGN_TABLE->query_enemies(al_me, al_him))
   {
     return "%^BOLD%^RED%^";
   }
-  else if (hud == HUD_DIFFICULTY)
+  else if (pov_name == POV_DIFFICULTY)
   {
     int dif;
 

@@ -3,7 +3,7 @@
 
 // #include <alignment.h>
 
-#include <user/hud.h>
+#include <translations/pov.h>
 #include <translations/common.h>
 #include <language.h>
 
@@ -117,7 +117,7 @@ mixed query_inventory(object *obs)
 
 // important change in this function: now npcs and players are treated the same
 // both shown in the same line, and both with colors if needed, see
-// /lib/handlers.hud.c
+// /lib/handlers/pov.c
 string query_contents(string str, varargs object *obs) 
 {
   int i, j, drunk;
@@ -161,7 +161,7 @@ string query_contents(string str, varargs object *obs)
     if (j > 1)
       ret += capitalize(query_num(j, 0)) + " ";
 
-    color = (string)HUD->query_color(me, inv[1][i][0]);
+    color = (string)POV->query_color(me, inv[1][i][0]);
     aux = (j > 1) ? inv[1][i][0]->pretty_plural() : inv[1][i][0]->query_cap_name();
 
     if (strlen(color))

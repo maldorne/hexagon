@@ -10,7 +10,7 @@
 
 #include <common/properties.h>
 #include <user/xp.h>
-#include <user/hud.h>
+#include <translations/pov.h>
 #include <living/combat.h>
 #include <living/consents.h>
 #include <language.h>
@@ -389,8 +389,8 @@ void attack_by(object ob)
     string color, name;
     name = ob->query_short();
 
-    // change player appereance from /table/hud_table.c, neverbot 01/2020
-    color = (string)HUD->query_color(this_object(), ob);
+    // change player appereance from /handler/pov.c, neverbot 01/2020
+    color = (string)POV->query_color(this_object(), ob);
 
     name = strlen(color) ? color + name  + "%^RESET%^" : name;
 

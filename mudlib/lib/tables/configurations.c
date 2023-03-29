@@ -56,11 +56,11 @@ mapping query_config_data()
         ]),
       
       "player": ([
-          _LANG_CONFIG_TOPIC_HUD:     ({ "string",
-                                         "query_hud", 
-                                         "set_hud", 
+          _LANG_CONFIG_TOPIC_POV:     ({ "string",
+                                         "query_pov_name", 
+                                         "set_pov_name", 
                                          "", 
-                                         _LANG_CONFIG_CMD_HUD, }),
+                                         _LANG_CONFIG_CMD_POV, }),
           _LANG_CONFIG_TOPIC_STUN:    ({ "bool",
                                          "query_combat_mode", 
                                          "set_combat_mode", 

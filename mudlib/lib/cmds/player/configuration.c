@@ -150,9 +150,13 @@ int show_all_config()
         categories[i]);
   }
 
-  ret += _LANG_CMD_CONFIG_USE_COMMANDS;
-
   ret += "\n" + _LANG_CMD_CONFIG_HINT;
+
+  if (this_user()->query_verbose())
+  {
+    ret += "\n" + _LANG_CMD_CONFIG_USE_COMMANDS;
+    ret += "\n" + _LANG_CMD_CONFIG_USER;
+  }
 
   ret = handler("frames")->frame(ret, _LANG_CMD_CONFIG_FOR_USER, 
                                  this_user()->query_cols());

@@ -107,9 +107,11 @@
 #define _LANG_CMD_CONFIG_FOR_USER this_player()->query_cap_name() + " configuration"
 #define _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR "Current configuration for "
 #define _LANG_CMD_CONFIG_UNKNOWN "Unknown"
-#define _LANG_CMD_CONFIG_USE_COMMANDS "\n  Between brackets you can see the specific command\n" + \
+#define _LANG_CMD_CONFIG_USE_COMMANDS "  Between brackets you can see the specific command\n" + \
         "  that you can use to get more information.\n"
 #define _LANG_CMD_CONFIG_HINT "  Use '" + _LANG_CMD_CONFIG_SYNTAX + "'\n  to change the values.\n"
+#define _LANG_CMD_CONFIG_USER "  Remember these configurations are made at user-level,\n  so they are " + \
+        "common to all your characters.\n"
 
 // sheet
 
@@ -299,3 +301,11 @@
 #define _LANG_CMD_EQUIPMENT_ARMO "  Armours:\n"
 #define _LANG_CMD_EQUIPMENT_NOTHING "  You are not carrying or wearing anything.\n"
 #define _LANG_CMD_EQUIPMENT_FOOTER "Use 'equipment all' to see the status of all the equipment you are carrying.\n"
+
+// pov
+
+#define _LANG_CMD_POV_ALIAS ({ "pov" })
+#define _LANG_CMD_POV_SYNTAX "pov < "+implode( POV_TYPES, " | ")+" >"
+#define _LANG_CMD_POV_HELP "Change the way you see the other characters in your environment."
+#define _LANG_CMD_POV_CURRENT "Your current point of view is: "
+#define _LANG_CMD_POV_MSG "Ok, point of view changed to '" + str + "'.\n"

@@ -2,8 +2,8 @@
 #include <user/user.h>
 #include <user/input.h>
 #include <mud/secure.h>
-#include <user/hud.h>
 #include <user/login.h>
+#include <translations/pov.h>
 #include <language.h>
 
 inherit obj           "/lib/core/object";
@@ -41,8 +41,8 @@ string birthday;
 string location;
 string * player_list;
 
-string hud;
 int brief;                // brief/verbose mode
+int pov;                  // point of view
 
 static int save_counter;  // each reset counter
 static int last_command;  // time of last command
@@ -74,8 +74,8 @@ void create()
 
   timestamp      = 0;
   echo           = 1;
-  hud            = HUD_DIFFICULTY;
   brief          = 0; // by default, verbose mode on
+  pov            = 0; // index in the array POV_TYPES
 
   start_time     = time();
   last_connected = time();
@@ -476,11 +476,27 @@ void update_last_connection()
 // query_idle - determine how many seconds an interactive player has been idle
 // int query_idle( object ob );
 // Query how many seconds a player object (ob) has been idling.
-
 nomask int query_idle()
 {
   return time() - timestamp;
 }
+
+// functions for the point of view (pov, how to perceive other characters)
+int query_pov() { return pov; }
+void set_pov(int i) 
+{ 
+  if ((i >= 0) && (i < sizeof(POV_TYPES))) 
+    pov = i;
+}
+string query_pov_name() { return POV_TYPES[pov]; }
+void set_pov_name(string s) 
+{ 
+  int i;
+
+  if ((i = member_array(s, POV_TYPES)) != -1)
+    pov = i;
+}
+
 
 mixed * stats()
 {
@@ -488,8 +504,8 @@ mixed * stats()
     ({ "Account Name", account_name }),
     ({ "Timestamp (nosave)", timestamp, }),
     ({ "Last On From", last_on_from }),
-    ({ "Hud", hud }),
     ({ "Verbose", !brief, }),
+    ({ "Point of view (pov)", pov }),
           }) + help::stats() +
                communicate::stats() +
                inform::stats() +

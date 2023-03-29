@@ -14,8 +14,6 @@
 #include <common/properties.h>
 #include <language.h>
 
-#define HUD "hud_table.c"
-
 int earmuffs, cols, rows;
 string term_name;
 

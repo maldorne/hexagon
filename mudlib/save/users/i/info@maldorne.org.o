@@ -16,5 +16,4 @@ real_name "Administrator"
 birthday "0101"
 location "Madrid"
 player_list ({1|"admin",})
-hud "dificultad"
 brief 1

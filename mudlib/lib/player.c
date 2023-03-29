@@ -8,7 +8,6 @@
 #include <living/living.h>
 #include <common/properties.h>
 #include <basic/money.h>
-#include <user/hud.h>
 #include <language.h>
 
 inherit living      "/lib/living/living";
@@ -35,7 +34,6 @@ mapping auto_load;        // inventory
 int time_on;              // total time connected
 int ontime;               // session time
 int last_log_on;          // time of last log on
-string hud;
 
 static int save_counter;  // each reset counter
 static int last_command;  // time of last command
@@ -97,8 +95,6 @@ void create()
   auto_load    = ([ ]);
   last_pos     = "";
   _net_dead    = 0;
-
-  hud          = HUD_DIFFICULTY;
 
   save_counter = 0;
   last_command = time();
@@ -347,10 +343,6 @@ int do_look(varargs string arg)
     return do_command("look");
   return do_command("look " + arg);
 }
-
-// functions for the hud (how to perceive other characters)
-string query_hud() { return hud; }
-void set_hud(string type) { if (member_array(type, HUD_TYPES) != -1) hud = type; }
 
 mixed * stats()
 {

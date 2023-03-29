@@ -50,4 +50,3 @@ time_on -40219
 ontime 1567975830
 last_log_on 1567975906
 auto_load ([1|"/lib/obj/hearthstone":({1|([1|"::":([1|"::":([1|"cloned by":"admin",]),]),]),}),])
-hud "dificultad"
