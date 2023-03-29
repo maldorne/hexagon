@@ -286,3 +286,15 @@
 #define _LANG_CMD_TRAVEL_HELP "Te permite viajar en una dirección determinada.\nNecesita que estés sobre una montura o vehículo."
 #define _LANG_CMD_TRAVEL_NO_MOUNT "Sólo funciona si estás sobre una montura o vehículo.\n"
 #define _LANG_CMD_TRAVEL_WHERE "¿"+capitalize(verb)+" hacia dónde?\n"
+
+// equipment
+
+#define _LANG_CMD_EQUIPMENT_ALIAS ({ "equipo" })
+#define _LANG_CMD_EQUIPMENT_SYNTAX "equipo [todo]"
+#define _LANG_CMD_EQUIPMENT_HELP "Muestra el estado de tu equipo."
+#define _LANG_CMD_EQUIPMENT_HEADER "Estado de tu equipo:\n"
+#define _LANG_CMD_EQUIPMENT_WEAP "  Armas:\n"
+#define _LANG_CMD_EQUIPMENT_SHIE "  Escudos:\n"
+#define _LANG_CMD_EQUIPMENT_ARMO "  Armaduras:\n"
+#define _LANG_CMD_EQUIPMENT_NOTHING "  No llevas nada puesto ni estás sosteniendo nada.\n"
+#define _LANG_CMD_EQUIPMENT_FOOTER "Utiliza 'equipo todo' para ver el estado de todo lo que estás cargando.\n"

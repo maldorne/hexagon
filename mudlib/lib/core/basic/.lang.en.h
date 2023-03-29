@@ -61,3 +61,23 @@
 // events.c
 
 #define _LANG_EVENTS_ENTERS " enters "
+
+// condition.c
+
+#define _LANG_CONDITION_WEAP "weapon"
+#define _LANG_CONDITION_ARMO "armour"
+#define _LANG_CONDITION_SHIE "shield"
+#define _LANG_CONDITION_BROKE_MSG_ME "Your %^BOLD%^"+str+"%^RESET%^ breaks due to use.\n"
+#define _LANG_CONDITION_BROKE_MSG_ROOM "" + environment(this_object())->query_cap_name() + \
+                    "'s %^BOLD%^" + str + "%^RESET%^ breaks into a thousand pieces.\n"
+#define _LANG_CONDITION_STATUS_0 "It is in a terrible state.\n"
+#define _LANG_CONDITION_STATUS_10 "It is in very bad condition.\n"
+#define _LANG_CONDITION_STATUS_20 "It is in bad condition.\n"
+#define _LANG_CONDITION_STATUS_30 "It is in a poor condition.\n"
+#define _LANG_CONDITION_STATUS_40 "It is pretty damaged.\n"
+#define _LANG_CONDITION_STATUS_50 "It is damaged.\n"
+#define _LANG_CONDITION_STATUS_60 "It is a bit damaged.\n"
+#define _LANG_CONDITION_STATUS_70 "It is in a reasonable condition.\n"
+#define _LANG_CONDITION_STATUS_80 "It is in good condition.\n"
+#define _LANG_CONDITION_STATUS_90 "It is in very good condition.\n"
+#define _LANG_CONDITION_STATUS_DEF "It is in excellent condition.\n"

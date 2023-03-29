@@ -287,3 +287,15 @@
 #define _LANG_CMD_TRAVEL_HELP "Allows you to travel in a certain direction.\nIt needs you to be on a mount or vehicle."
 #define _LANG_CMD_TRAVEL_NO_MOUNT "It only works if you are on a mount or vehicle.\n"
 #define _LANG_CMD_TRAVEL_WHERE "Travel where?\n"
+
+// equipment
+
+#define _LANG_CMD_EQUIPMENT_ALIAS ({ "equipment" })
+#define _LANG_CMD_EQUIPMENT_SYNTAX "equipment [all]"
+#define _LANG_CMD_EQUIPMENT_HELP "Shows the current status of your equipment."
+#define _LANG_CMD_EQUIPMENT_HEADER "Status of your equipment:\n"
+#define _LANG_CMD_EQUIPMENT_WEAP "  Weapons:\n"
+#define _LANG_CMD_EQUIPMENT_SHIE "  Shields:\n"
+#define _LANG_CMD_EQUIPMENT_ARMO "  Armours:\n"
+#define _LANG_CMD_EQUIPMENT_NOTHING "  You are not carrying or wearing anything.\n"
+#define _LANG_CMD_EQUIPMENT_FOOTER "Use 'equipment all' to see the status of all the equipment you are carrying.\n"

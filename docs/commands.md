@@ -124,7 +124,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | cost          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | diplomacia    |          |          |    |    |
 | encumbrance   | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| equipo        |          |          |    |    |
+| equipment     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | grope         |          |          |    |    |
 | grupo         |          |          |    |    |

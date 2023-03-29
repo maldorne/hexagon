@@ -1,12 +1,11 @@
 /*
- * Traducido por Ishmar@Rl
- *
- * Condition.c, retocado para Cc, neverbot 4/03
- * Eliminado max_cond, neverbot 8/08
+ * condition.c, reviewed for Cc, neverbot 4/03
+ * max_cond removed, neverbot 8/08
  *
  */
 
 #include <basic/condition.h>
+#include <language.h>
 
 int cond;
 
@@ -15,39 +14,25 @@ void create()
   cond = MAX_COND;
 }
 
-/* this should be masked by the object */
+// this should be masked by the object
 void break_me()
 { 
   string str;
-  string str_aux;
 
-  // Añadido mensaje para que el player se entere de que el arma se ha roto
-  if(this_object()->query_weapon())
-  {
-    str_aux = "El";
-    str = "arma";
-  }
-  else if(this_object()->query_armour())
-  {
-    str_aux = "La";
-    str = "armadura";
-  }
-  else if(this_object()->query_shield())
-  {
-    str_aux = "El";
-    str = "escudo";
-  }
+  // add message so the player knows the weapon broke
+  if (this_object()->query_weapon())
+    str = _LANG_CONDITION_WEAP;
+  else if (this_object()->query_armour())
+    str = _LANG_CONDITION_ARMO;
+  else if (this_object()->query_shield())
+    str = _LANG_CONDITION_SHIE;
   else
-  {
-    str_aux = capitalize(this_object()->query_article());
     str = this_object()->query_name();
-  }
 
-  tell_player(this_object(), "Tu "+str+" se acaba rompiendo a causa del uso.\n");
+  tell_player(this_object(), _LANG_CONDITION_BROKE_MSG_ME);
   tell_room(environment(environment(this_object())), 
-              "%^BOLD%^" + str_aux + " " +str+" de "+
-              environment(this_object())->query_cap_name()+" se rompe a "+
-              "causa del uso.%^RESET%^\n", environment(this_object()));
+              _LANG_CONDITION_BROKE_MSG_ROOM, environment(this_object()));
+  
   this_object()->dest_me();
 }
 
@@ -65,27 +50,27 @@ string cond_string()
   switch ((100*cond)/MAX_COND) 
   {
     case 0 :
-      return "Está destrozad"+aux+".\n";
+      return _LANG_CONDITION_STATUS_0;
     case 1..10 :
-      return "Está en muy malas condiciones.\n";
+      return _LANG_CONDITION_STATUS_10;
     case 11..20 :
-      return "Está en malas condiciones.\n";
+      return _LANG_CONDITION_STATUS_20;
     case 21..30 :
-      return "Está en un estado más bien pobre.\n";
+      return _LANG_CONDITION_STATUS_30;
     case 31..40 :
-      return "Está bastante estropead"+aux+".\n";
+      return _LANG_CONDITION_STATUS_40;
     case 41..50 :
-      return "Está estropead"+aux+".\n";
+      return _LANG_CONDITION_STATUS_50;
     case 51..60 :
-      return "Está un poco estropead"+aux+".\n";
+      return _LANG_CONDITION_STATUS_60;
     case 61..70 :
-      return "Está en un estado razonable.\n";
+      return _LANG_CONDITION_STATUS_70;
     case 71..80 :
-      return "Está en buenas condiciones.\n";
+      return _LANG_CONDITION_STATUS_80;
     case 81..90 :
-      return "Está en muy buenas condiciones.\n";
+      return _LANG_CONDITION_STATUS_90;
     default :
-      return "Está en excelente estado.\n";
+      return _LANG_CONDITION_STATUS_DEF;
   }
 }
  
@@ -125,7 +110,7 @@ int query_max_condition() { return MAX_COND; }
 int set_percentage(int i) 
 {
   if (i > 100) i = 100;
-  cond = (MAX_COND*i)/100;
+  cond = (MAX_COND * i) / 100;
 }
 
 // stats añadido

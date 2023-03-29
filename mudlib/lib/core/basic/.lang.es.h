@@ -57,3 +57,23 @@
 // events.c
 
 #define _LANG_EVENTS_ENTERS " entra en "
+
+// condition.c
+
+#define _LANG_CONDITION_WEAP "arma"
+#define _LANG_CONDITION_ARMO "armadura"
+#define _LANG_CONDITION_SHIE "escudo"
+#define _LANG_CONDITION_BROKE_MSG_ME "Tu %^BOLD%^"+str+"%^RESET%^ se acaba rompiendo a causa del uso.\n")
+#define _LANG_CONDITION_BROKE_MSG_ROOM "" + capitalize(this_object()->query_article()) + \
+            "%^BOLD%^" + str + "%^RESET%^ de " + environment(this_object())->query_cap_name() + " se rompe en mil pedazos.\n"
+#define _LANG_CONDITION_STATUS_0 "Está destrozad"+aux+".\n"
+#define _LANG_CONDITION_STATUS_10 "Está en muy malas condiciones.\n"
+#define _LANG_CONDITION_STATUS_20 "Está en malas condiciones.\n"
+#define _LANG_CONDITION_STATUS_30 "Está en un estado más bien pobre.\n"
+#define _LANG_CONDITION_STATUS_40 "Está bastante estropead"+aux+".\n"
+#define _LANG_CONDITION_STATUS_50 "Está estropead"+aux+".\n"
+#define _LANG_CONDITION_STATUS_60 "Está un poco estropead"+aux+".\n"
+#define _LANG_CONDITION_STATUS_70 "Está en un estado razonable.\n"
+#define _LANG_CONDITION_STATUS_80 "Está en buenas condiciones.\n"
+#define _LANG_CONDITION_STATUS_90 "Está en muy buenas condiciones.\n"
+#define _LANG_CONDITION_STATUS_DEF "Está en excelente estado.\n"
