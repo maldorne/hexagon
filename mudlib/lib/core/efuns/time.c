@@ -58,34 +58,6 @@ static mixed * localtime(int timestamp)
   return result;
 }
 
-/*
- * Different modes:
- *  - flag = -1: just call the kfun
- *  - no flag or flag = 0: reduced datetime for logging:
- *    "Lun 21 Abr 2003 15:58:0"
- *  - flag = 1: generic real-world time (i.e. for the who command):
- *    "Lunes 21 de Abril de 2003"
- *  - flag = 2: date with 6 characters: ddmmaa
- *  - flag = 3: mud datetime (from weather.c)
- *
- *  Added to make the 'ls -la' shorter, neverbot 23/11/03
- *  - flag = 4: dd/mm/yy hh:mm:ss
- *
- *  Added real-world datetime for the "time" command
- *    neverbot 09/12/04
- *  - flag = 5:  "Lunes 21 de Abril de 2003 - hh:mm:ss"
- *
- *  Added for the sake of ftpd compatibility, neverbot 10/12/04
- *  - flag = 6:  "Fri Dec 10 hh:mm:ss aaaa"
- */
-static string ctime(int time, varargs int flag)
-{
-  if (flag && (flag == -1))
-    return ::ctime(time);
-
-  return handler("calendar")->ctime(time, flag);
-}
-
 // taken from calendar handler, neverbot 03/2023
 string seconds_to_time_string(int seconds)
 {
@@ -200,4 +172,98 @@ string intl_month(int num)
   default:
   case 11: return _LANG_TIME_INTL_DECEMBER;
   }
+}
+
+#define PAD(x) pad(""+x, -2, "0")
+
+/*
+ * Different modes:
+ *  - flag = -1: just call the kfun
+ *  - no flag or flag = 0: reduced datetime for logging:
+ *    "Lun 21 Abr 2003 15:58:0"
+ *  - flag = 1: generic real-world time (i.e. for the who command):
+ *    "Lunes 21 de Abril de 2003"
+ *  - flag = 2: date with 6 characters: ddmmaa
+ *  - flag = 3: mud datetime (from weather.c)
+ *
+ *  Added to make the 'ls -la' shorter, neverbot 23/11/03
+ *  - flag = 4: dd/mm/yy hh:mm:ss
+ *
+ *  Added real-world datetime for the "time" command
+ *    neverbot 09/12/04
+ *  - flag = 5:  "Lunes 21 de Abril de 2003 - hh:mm:ss"
+ *
+ *  Added for the sake of ftpd compatibility, neverbot 10/12/04
+ *  - flag = 6:  "Fri Dec 10 hh:mm:ss aaaa"
+ */
+static string ctime(int time, varargs int flag)
+{
+  mixed * info;
+  string result;
+
+  if (flag && (flag == -1))
+    return ::ctime(time);
+
+  result = "";
+  info = localtime(time);
+
+  if (!flag || (flag == 0))
+  {
+    result = day(info[LT_WDAY])[0..2];
+    result += " " + PAD(info[LT_MDAY]) + " " +
+              month(info[LT_MON])[0..2];
+    result += " " + info[LT_YEAR] + " ";
+    result += PAD(info[LT_HOUR]) + ":" +
+              PAD(info[LT_MIN]) + ":" +
+              PAD(info[LT_SEC]);
+  }
+  else if (flag == 1)
+  {
+    result = _LANG_TIME_LONG_DATETIME;
+  }
+  else if (flag == 2)
+  {
+    result = "" + PAD(info[LT_MDAY]) +
+             PAD((info[LT_MON]+1));
+    result += ("" + (string)info[LT_YEAR])[2..3];
+  }
+  else if (flag == 3)
+  {
+    // TO DO, return the calendar from the game the character is in
+    // result = handler(WEATHER_HANDLER)->date_string();
+  }
+  else if (flag == 4)
+  {
+    result = "" + PAD(info[LT_MDAY]) + "/" +
+             PAD((info[LT_MON]+1)) + "/";
+    result += ("" + (string)info[LT_YEAR])[2..3];
+    result += " " + PAD(info[LT_HOUR]) + ":" +
+              PAD(info[LT_MIN]) + ":" +
+              PAD(info[LT_SEC]);
+  }
+  else if (flag == 5)
+  {
+    result = _LANG_TIME_LONG_DATETIME;
+    result += " - " + PAD(info[LT_HOUR]) + ":" +
+              PAD(info[LT_MIN]) + ":" +
+              PAD(info[LT_SEC]);
+  }
+  else if (flag == 6)
+  {
+    result = intl_day(info[LT_WDAY])[0..2] + " " +
+             intl_month(info[LT_MON])[0..2];
+    result += " " + PAD(info[LT_MDAY]) + " " +
+                    PAD(info[LT_HOUR]) + ":" +
+                    PAD(info[LT_MIN]) + ":" +
+                    PAD(info[LT_SEC]) + " " +
+                    PAD(info[LT_YEAR]);
+  }
+  else if (flag == 7)
+  {
+    result = PAD(info[LT_HOUR]) + ":" +
+             PAD(info[LT_MIN]) + ":" +
+             PAD(info[LT_SEC]);
+  }
+
+  return result;
 }

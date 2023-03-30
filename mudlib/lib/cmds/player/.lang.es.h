@@ -308,3 +308,9 @@
 #define _LANG_CMD_POV_HELP "Cambia la forma en que se perciben el resto de personajes del entorno."
 #define _LANG_CMD_POV_CURRENT "Tu apuntador actual es: "
 #define _LANG_CMD_POV_MSG "Ok, tipo de apuntador cambiado a '" + str + "'.\n"
+
+// time
+
+#define _LANG_CMD_TIME_ALIAS ({ "time", "hora", "fecha" })
+#define _LANG_CMD_TIME_SYNTAX "time"
+#define _LANG_CMD_TIME_HELP "Muestra la hora actual del mundo real."

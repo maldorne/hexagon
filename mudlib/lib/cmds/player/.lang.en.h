@@ -309,3 +309,9 @@
 #define _LANG_CMD_POV_HELP "Change the way you see the other characters in your environment."
 #define _LANG_CMD_POV_CURRENT "Your current point of view is: "
 #define _LANG_CMD_POV_MSG "Ok, point of view changed to '" + str + "'.\n"
+
+// time
+
+#define _LANG_CMD_TIME_ALIAS ({ "time", "date" })
+#define _LANG_CMD_TIME_SYNTAX "time"
+#define _LANG_CMD_TIME_HELP "Shows the current time in the real world."

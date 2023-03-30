@@ -142,7 +142,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | score         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | sheet         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| time          |          |          |    |    |
+| time          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | travel        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | verbose       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | whoami        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |

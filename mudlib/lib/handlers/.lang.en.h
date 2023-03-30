@@ -1,7 +1,5 @@
 
 #define _LANG_CALENDAR_BIRTHDAY_STRING month(month-1)+" the "+ordinal(day)
-#define _LANG_CALENDAR_LONG_DATETIME day(info[LT_WDAY])+", "+month(info[LT_MON])+" the "+ordinal(info[LT_MDAY])+ \
-            " "+info[LT_YEAR]
 
 // postal
 

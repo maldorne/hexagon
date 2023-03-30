@@ -141,7 +141,8 @@ string who_string(int width, int cre, string str)
   prt = "\n";
   prt += sprintf("%p%|*s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
   prt += sprintf("%|*s\n", width, _LANG_WHO_REAL_WORLD_DATE, width);
-  prt += sprintf("%|*s\n", width, ctime(time(), 3), width);
+  // TO DO, return the calendar date from the game the character is in
+  // prt += sprintf("%|*s\n", width, ctime(time(), 3), width);
 
   // traverse the player list
   // if what == 1 only coders

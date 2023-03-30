@@ -48,3 +48,6 @@
 #define _LANG_TIME_INTL_OCTOBER "October"
 #define _LANG_TIME_INTL_NOVEMBER "November"
 #define _LANG_TIME_INTL_DECEMBER "December"
+
+#define _LANG_TIME_LONG_DATETIME day(info[LT_WDAY])+", "+month(info[LT_MON])+" the "+ordinal(info[LT_MDAY])+ \
+            ", "+info[LT_YEAR]
