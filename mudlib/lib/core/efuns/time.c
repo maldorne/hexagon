@@ -44,16 +44,16 @@ static mixed * localtime(int timestamp)
 
   result = allocate(10);
 
-  result[LT_SEC]  = handler("time")->second(timestamp);
-  result[LT_MIN]  = handler("time")->minute(timestamp);
-  result[LT_HOUR] = handler("time")->hour(timestamp);
-  result[LT_MDAY] = handler("time")->day(timestamp);
-  result[LT_MON]  = handler("time")->month(timestamp, 2);
-  result[LT_YEAR] = handler("time")->year(timestamp);
-  result[LT_WDAY] = handler("time")->weekday(timestamp, 2);
-  result[LT_YDAY] = handler("time")->day_of_year(timestamp);
+  result[LT_SEC]  = package("time")->second(timestamp);
+  result[LT_MIN]  = package("time")->minute(timestamp);
+  result[LT_HOUR] = package("time")->hour(timestamp);
+  result[LT_MDAY] = package("time")->day(timestamp);
+  result[LT_MON]  = package("time")->month(timestamp, 2);
+  result[LT_YEAR] = package("time")->year(timestamp);
+  result[LT_WDAY] = package("time")->weekday(timestamp, 2);
+  result[LT_YDAY] = package("time")->day_of_year(timestamp);
   result[LT_GMTOFF] = 0;
-  result[LT_ZONE] = handler("time")->timezone(timestamp);;
+  result[LT_ZONE] = package("time")->timezone(timestamp);;
 
   return result;
 }
