@@ -4,6 +4,7 @@
  */
 
 #include <mud/cmd.h>
+#include <common/properties.h>
 #include <language.h>
 
 inherit CMD_BASE;
@@ -32,10 +33,6 @@ static int cmd(string str, object me, string verb)
   if (me->query_timed_property_exists(PASSED_OUT_PROP))
   {
     write(me->query_timed_property(PASSED_OUT_PROP));
-    return 1;
-  }
-  {
-    write(_LANG_CMD_BURY_NOGUILD);
     return 1;
   }
 
