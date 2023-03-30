@@ -19,7 +19,11 @@ string query_color(object me, object he)
   int pov;
   string pov_name;
 
-  pov = me->user()->query_pov();
+  pov = 0;
+
+  if (userp(me))
+    pov = me->user()->query_pov();
+
   pov_name = POV_TYPES[pov];
 
   if (!me || !he || (me == he))
