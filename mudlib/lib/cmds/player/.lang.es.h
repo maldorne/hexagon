@@ -210,6 +210,7 @@
 #define _LANG_CMD_MONEY_ON_BANK "En ["+bank->query_short()+"] tienes almacenado:\n   "
 #define _LANG_CMD_MONEY_ON_BANK_EMPTY "En ["+bank->query_short()+"] tienes una cuenta abierta sin fondos.\n"
 #define _LANG_CMD_MONEY_TOTAL "\nEn total, tienes acumulado:\n   "+MONEY_HAND->money_value_string(total) + ".\n"
+#define _LANG_CMD_MONEY_ON_YOU_EMPTY "No llevas dinero encima.\n"
 
 // condition
 

@@ -31,6 +31,10 @@ static int cmd (string arg, object me, string verb)
 		str = _LANG_CMD_MONEY_ON_YOU;
 		total += value;
 	}
+  else
+  {
+    str = _LANG_CMD_MONEY_ON_YOU_EMPTY;
+  }
 	
 	for (i = 0; i < sizeof(props); i++)
 	{

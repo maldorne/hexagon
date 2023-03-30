@@ -211,6 +211,7 @@
 #define _LANG_CMD_MONEY_ON_BANK "In ["+bank->query_short()+"] you have the following amount:\n   "
 #define _LANG_CMD_MONEY_ON_BANK_EMPTY "In ["+bank->query_short()+"] you have an account with no money.\n"
 #define _LANG_CMD_MONEY_TOTAL "\nIn total, you have:\n   " + MONEY_HAND->money_value_string(total) + "\n"
+#define _LANG_CMD_MONEY_ON_YOU_EMPTY "You have no money on you.\n"
 
 // condition
 
