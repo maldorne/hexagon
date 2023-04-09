@@ -5,105 +5,94 @@
 
 #include <mud/cmd.h>
 #include <common/properties.h>
+#include <room/room.h>
+#include <language.h>
 
 inherit CMD_BASE;
 
 void setup()
 {
-	position = 0;
-}
-
-string query_usage()
-{
-	return "palpar";
-}
-
-string query_short_help()
-{
-	return "Para buscar alguna salida a tu alrededor cuando no puedas ver.";
+  set_aliases(_LANG_CMD_GROPE_ALIAS);
+  set_usage(_LANG_CMD_GROPE_SYNTAX);
+  set_help(_LANG_CMD_GROPE_HELP);
 }
 
 static int cmd(string arg, object me, string verb)
 {
-	mixed *exits, exit;
-	object *contents;
-	int i,j, dark;
+  mixed * exits, exit;
+  object * contents;
+  int i, j, dark;
 
-	i = random(10);
-	dark = me->check_dark((int)environment(me)->query_light());
+  dark = me->check_dark((int)environment(me)->query_light());
 
-	if(!me->query_property(BLIND_PROP) && !dark) 
-	{
-		notify_fail("Palpar los alrededores únicamente te servirá cuando estés ciego o esté muy oscuro.\n");
-		return 0;
-	}   
+  if (!me->query_property(BLIND_PROP) && !dark) 
+  {
+    notify_fail(_LANG_CMD_GROPE_NO_DARK);
+    return 0;
+  }   
 
-	if(me->query_property(SEARCH_PROP))
-	{
-		notify_fail("Debes esperar un rato antes de volver a palpar de nuevo.\n");
+  if (me->query_property(SEARCH_PROP))
+  {
+    notify_fail(_LANG_CMD_GROPE_LOCKOUT);
+    return 0;
+  } 
+  
+  me->add_timed_property(SEARCH_PROP, 1, 1);
 
-		return 0;
-	} 
-	
-	me->add_timed_property(SEARCH_PROP,1,1);
+  i = random(10);
 
-	if(i<3)
-	{
-		contents = all_inventory(environment(me)); 
-		j = random(sizeof(contents));
-		
-		if (contents[j] == me)
-		{
-			tell_object(me, "Buscas a tu alrededor pero no encuentras nada.\n");
-			return 1;
-		}
-		
-		if(interactive(contents[j]) )
-		{
-			tell_object(me, "¡Te encuentras en medio a "+
-				contents[j]->query_cap_name()+"!\n");
-			tell_object(contents[j],"¡"+me->query_cap_name()+" choca contigo.\n");
+  // 30% chance of not finding an exit
+  if (i < 3)
+  {
+    contents = all_inventory(environment(me)); 
+    j = random(sizeof(contents));
+    
+    if (contents[j] == me)
+    {
+      tell_object(me, _LANG_CMD_GROPE_NOTHING);
+      return 1;
+    }
+    else if (interactive(contents[j]))
+    {
+      tell_object(me, _LANG_CMD_GROPE_PLAYER_ME);
+      tell_object(contents[j], _LANG_CMD_GROPE_PLAYER_THEM);
+      tell_room(environment(me), _LANG_CMD_GROPE_PLAYER_ROOM, ({ me, contents[j] }));
+    }
+    else if (contents[j]->query_npc())
+    {
+      tell_object(me, _LANG_CMD_GROPE_NPC_ME);
+      tell_room(environment(me), _LANG_CMD_GROPE_NPC_ROOM, ({ me }));
+    }
+    // neverbot, 21/02/04
+    else if (contents[j]->query_door())
+    {
+      tell_object(me, _LANG_CMD_GROPE_DOOR_ME);
+      tell_room(environment(me), _LANG_CMD_GROPE_DOOR_ROOM, ({ me }));
+    }
+    else
+    {
+      tell_object(me, _LANG_CMD_GROPE_OTHER_ME);
+      tell_room(environment(me), _LANG_CMD_GROPE_OTHER_ROOM, ({ me }));
+    }
 
-			tell_room(environment(me),"¡"+me->query_cap_name()+" choca con "
-				+contents[j]->query_cap_name()+".\n",({ me, contents[j]}));
-		}
-		else
-			if(contents[j]->query_npc())
-		{
-			tell_object(me, "¡Parece que te has chocado con"+
-				" "+contents[j]->query_cap_name()+"!\n");
-			tell_room(environment(me),"¡"+me->query_cap_name()+" se choca con "+
-				+contents[j]->query_cap_name()+"!\n",({ me, }));
+    return 1;
+  }
+  else
+  {
+    exits = environment(me)->query_dest_dir();  
+    
+    if (sizeof(exits))
+    {
+      string dir;
+      
+      exit = exits[(random(sizeof(exits)/2))*2];
+      dir = ROOM_HAND->query_exit_dir(exit);
 
-			// contents[j]->attack_ob(me);
-		}
-		else // neverbot, 21/02/04
-			if(contents[j]->query_door())
-			{
-				tell_object(me, "Palpas a tu alrededor y encuentras una puerta hacia "+
-					+contents[j]->query_dest()+".\n");       	
-			}
-			else
-			{
-				tell_object(me,"Te golpeas contra "+contents[j]->query_cap_name()+
-					".\n");
-				tell_room(environment(me),me->query_cap_name()+" se golpea "+
-					"contra "+contents[j]->query_cap_name()+".\n");
-			}      
-		return 1;
-	}
-	else
-	{
-		exits = environment(me)->query_dest_dir();  
-		
-		if(sizeof(exits))
-		{
-			exit = exits[(random(sizeof(exits)/2))*2];
-			tell_object(me, "Palpas a tu alrededor y encuentras una salida hacia "+
-				+exit+".\n");
-			return 1;
-		}
-	}
-	notify_fail("No encuentras nada.\n");
-	return 0;
+      tell_object(me, _LANG_CMD_GROPE_MSG);
+      return 1;
+    }
+  }
+  
+  notify_fail(_LANG_CMD_GROPE_NOTHING);
+  return 0;
 }

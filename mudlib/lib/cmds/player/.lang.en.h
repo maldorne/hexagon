@@ -316,3 +316,22 @@
 #define _LANG_CMD_TIME_ALIAS ({ "time", "date" })
 #define _LANG_CMD_TIME_SYNTAX "time"
 #define _LANG_CMD_TIME_HELP "Shows the current time in the real world."
+
+// grope 
+
+#define _LANG_CMD_GROPE_ALIAS ({ "grope" })
+#define _LANG_CMD_GROPE_SYNTAX "grope"
+#define _LANG_CMD_GROPE_HELP "To search for some exit when you are blind or in the dark.\n"
+#define _LANG_CMD_GROPE_NO_DARK "Grope only works when it's dark or you are blind.\n"
+#define _LANG_CMD_GROPE_LOCKOUT "You must wait a while before groping again.\n"
+#define _LANG_CMD_GROPE_NOTHING "You grope around but you don't find anything.\n"
+#define _LANG_CMD_GROPE_PLAYER_ME "You find "+contents[j]->query_cap_name()+"!\n"
+#define _LANG_CMD_GROPE_PLAYER_THEM me->query_cap_name()+" bumps into you.\n"
+#define _LANG_CMD_GROPE_PLAYER_ROOM me->query_cap_name()+" bumps into "+contents[j]->query_cap_name()+".\n"
+#define _LANG_CMD_GROPE_NPC_ME "You bump into "+contents[j]->query_cap_name()+"!\n"
+#define _LANG_CMD_GROPE_NPC_ROOM me->query_cap_name()+" bumps into "+contents[j]->query_cap_name()+".\n"
+#define _LANG_CMD_GROPE_DOOR_ME "You grope around and find a door towards "+contents[j]->query_dest()+".\n"
+#define _LANG_CMD_GROPE_DOOR_ROOM me->query_cap_name()+" bumps into a door towards "+contents[j]->query_dest()+".\n"
+#define _LANG_CMD_GROPE_OTHER_ME "You bump into "+contents[j]->query_cap_name()+"!\n"
+#define _LANG_CMD_GROPE_OTHER_ROOM me->query_cap_name()+" bumps into "+contents[j]->query_cap_name()+".\n"
+#define _LANG_CMD_GROPE_MSG "You grope around and find a door towards " + dir + ".\n"

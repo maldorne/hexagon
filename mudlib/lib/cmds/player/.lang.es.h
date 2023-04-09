@@ -315,3 +315,22 @@
 #define _LANG_CMD_TIME_ALIAS ({ "time", "hora", "fecha" })
 #define _LANG_CMD_TIME_SYNTAX "time"
 #define _LANG_CMD_TIME_HELP "Muestra la hora actual del mundo real."
+
+// grope 
+
+#define _LANG_CMD_GROPE_ALIAS ({ "palpar" })
+#define _LANG_CMD_GROPE_SYNTAX "palpar"
+#define _LANG_CMD_GROPE_HELP "Para buscar alguna salida a tu alrededor cuando no puedas ver."
+#define _LANG_CMD_GROPE_NO_DARK "Palpar los alrededores únicamente te servirá cuando estés ciego o esté muy oscuro.\n"
+#define _LANG_CMD_GROPE_LOCKOUT "Debes esperar un rato antes de volver a palpar de nuevo.\n"
+#define _LANG_CMD_GROPE_NOTHING "Buscas a tu alrededor pero no encuentras nada.\n"
+#define _LANG_CMD_GROPE_PLAYER_ME "¡Te encuentras a " + contents[j]->query_cap_name()+"!\n"
+#define _LANG_CMD_GROPE_PLAYER_THEM "¡"+me->query_cap_name()+" choca contigo.\n"
+#define _LANG_CMD_GROPE_PLAYER_ROOM "¡"+me->query_cap_name()+" choca con "+contents[j]->query_cap_name()+".\n"
+#define _LANG_CMD_GROPE_NPC_ME "¡Parece que te has chocado con "+contents[j]->query_cap_name()+"!\n"
+#define _LANG_CMD_GROPE_NPC_ROOM "¡"+me->query_cap_name()+" se choca con "+contents[j]->query_cap_name()+"!\n"
+#define _LANG_CMD_GROPE_DOOR_ME "Palpas a tu alrededor y encuentras una puerta hacia "+contents[j]->query_dest()+".\n"
+#define _LANG_CMD_GROPE_DOOR_ROOM me->query_cap_name()+" se golpea contra la puerta hacia "+contents[j]->query_dest()+".\n"
+#define _LANG_CMD_GROPE_OTHER_ME "Te golpeas contra "+contents[j]->query_cap_name()+".\n"
+#define _LANG_CMD_GROPE_OTHER_ROOM me->query_cap_name()+" se golpea contra "+contents[j]->query_cap_name()+".\n"
+#define _LANG_CMD_GROPE_MSG "Palpas a tu alrededor y encuentras una salida hacia " + dir + ".\n"
