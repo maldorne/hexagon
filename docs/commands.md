@@ -113,20 +113,19 @@ Coder commands will be only in english, except texts shown to the players, which
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | away          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | bury          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| buscar        |          |          |    |    |
-| calendar      |          |          |    |    |
+| ~calendar~      |          |          |    | Converted to game cmd (#27) |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | combats       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | condition     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | consider      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | cost          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| diplomacia    |          |          |    |    |
+| diplomacy     |          |          |    | Postponed for now |
 | encumbrance   | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | equipment     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | grope         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| grupo         |          |          |    |    |
+| group         |          |          |    | Postponed for now |
 | inform        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | inventory     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
@@ -136,10 +135,11 @@ Coder commands will be only in english, except texts shown to the players, which
 | past          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | pov           | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| quests        |          |          |    |    |
-| ranking       |          |          |    |    |
+| quests        |          |          |    | (#26) |
+| ranking       |          |          |    | Postponed for now |
 | retire        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | score         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
+| ~search~        |          |          |    | Converted to skill (#25) |
 | sheet         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | time          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
