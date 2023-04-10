@@ -11,7 +11,7 @@ Set of features we are currently working on:
 |        | **Commands** | Review and full translation of every `lib/cmds` command. |
 | :white_check_mark: |  | :heavy_minus_sign: Add compatibility and status list in the repository ([done](commands.md)). |
 | :white_check_mark: |  | :heavy_minus_sign: Test and translate every command, by user type: `login` [[#13](https://github.com/maldorne/hexagon/issues/13)]. |
-|        |  | :heavy_minus_sign: Test and translate every command, by user type: `player` [[#14](https://github.com/maldorne/hexagon/issues/14)]. |
+| :white_check_mark: |  | :heavy_minus_sign: Test and translate every command, by user type: `player` [[#14](https://github.com/maldorne/hexagon/issues/14)]. |
 |        |  | :heavy_minus_sign: Test and translate every command, by user type: `coder` [[#15](https://github.com/maldorne/hexagon/issues/15)]. |
 | :white_check_mark: | **Containers** | Dockerfile to execute the mud inside a container, and related documentation. |
 | :white_check_mark: | **Encoding** | Review files in the repository, not all of them are using the same encoding [[#20](https://github.com/maldorne/hexagon/issues/20)]. |
