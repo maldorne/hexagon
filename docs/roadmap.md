@@ -33,6 +33,15 @@ Set of features not yet started, but planned.
 |        |  | :heavy_minus_sign: Test and translate every command, by user type: `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)]. |
 |        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/maldorne/hexagon/issues/7)]. |
 |        | **Player actions** | Review every communications action [[#23](https://github.com/maldorne/hexagon/issues/23)]. |
+|        | **Skills** | Review skill system [[#25](https://github.com/maldorne/hexagon/issues/25)]. |
+
+### [v2.2 Edoras](https://github.com/maldorne/hexagon/milestone/5)
+
+Set of features not yet started, but planned.
+
+| Status | Title | Description |
+| :----: | :---- | ----------- |
+|        | **Quests** | Review quest system [[#26](https://github.com/maldorne/hexagon/issues/26)]. |
 
 ## Previous versions/milestones
 
