@@ -335,3 +335,24 @@
 #define _LANG_CMD_GROPE_OTHER_ME "You bump into "+contents[j]->query_cap_name()+"!\n"
 #define _LANG_CMD_GROPE_OTHER_ROOM me->query_cap_name()+" bumps into "+contents[j]->query_cap_name()+".\n"
 #define _LANG_CMD_GROPE_MSG "You grope around and find a door towards " + dir + ".\n"
+
+// map
+
+#define _LANG_CMD_MAP_ALIAS ({ "map" })
+#define _LANG_CMD_MAP_SYNTAX "map"
+#define _LANG_CMD_MAP_HELP "Shows a map of your surroundings."
+#define _LANG_CMD_MAP_NO_ENV "Without an environment you cannot do that.\n"
+#define _LANG_CMD_MAP_INVALID "For some you cannot use your map here.\n"
+#define _LANG_CMD_MAP_NO_WATER "You cannot check the map while you are in the water.\n"
+#define _LANG_CMD_MAP_DOOR_LETTER "D"
+#define _LANG_CMD_MAP_LEGEND "Legend"
+#define _LANG_CMD_MAP_YOUR_POS "Your position"
+#define _LANG_CMD_MAP_ENEMIES "Enemies"
+#define _LANG_CMD_MAP_FRIENDS "Group members"
+#define _LANG_CMD_MAP_GUARDS "Guards"
+#define _LANG_CMD_MAP_DOORS "Doors"
+#define _LANG_CMD_MAP_UP_STAIRS "Stairs up"
+#define _LANG_CMD_MAP_DOWN_STAIRS "Stairs down"
+#define _LANG_CMD_MAP_NEW_QUESTS "New quests"
+#define _LANG_CMD_MAP_FINISHED_QUESTS "Finished quests"
+#define _LANG_CMD_MAP_COAST "Shore"

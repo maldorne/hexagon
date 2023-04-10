@@ -131,7 +131,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | inventory     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | look          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| map           |          |          |    |    |
+| map           | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | money         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | past          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | pov           | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |

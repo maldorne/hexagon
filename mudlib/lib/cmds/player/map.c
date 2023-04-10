@@ -1,10 +1,18 @@
 
-// Comando que muestra un mapa de la zona actual, neverbot@CcMud, 02/2010
+// cmd that shows a map of the current zone, neverbot@CcMud, 02/2010
 
 #include <mud/cmd.h>
 #include <translations/exits.h>
+#include <language.h>
 
 inherit CMD_BASE;
+
+void setup()
+{
+  set_aliases(_LANG_CMD_MAP_ALIAS);
+  set_usage(_LANG_CMD_MAP_SYNTAX);
+  set_help(_LANG_CMD_MAP_HELP);
+}
 
 // each position is an array of three elements
 // x coord, y coord, room object
@@ -19,10 +27,10 @@ inherit CMD_BASE;
 //   object room;
 // }
 
-// valen: 3, 7, 11, 15, etc (de 4 en 4)
-// PERO!!!! Si cambias esto hay que cambiar el dibujo del mapa, lo dejo
-// pendiente de construir los strings con el ancho exacto para otro dia con mas
-// ganas
+// valid: 3, 7, 11, 15, etc (4 by 4)
+// but!!! if you change this you have to change the drawing of the map, i leave
+// it pending to build the strings with the exact width for another day with more
+// energy
 #define MAX_X 15
 #define MAX_Y 15
 
@@ -48,6 +56,7 @@ private int query_room_type(object room, object player)
   object * inv;
 	object * enemies;
   int i;
+  string * exits;
 
   inv = all_inventory(room);
   enemies = player->query_attacker_list() + player->query_call_outed();
@@ -63,22 +72,26 @@ private int query_room_type(object room, object player)
       return ADVENTURER_ROOM;
     else if (inv[i]->query_guard() && (inv[i]->query_citizenship() == player->query_citizenship()))
       return GUARD_ROOM;
-  
-  if ((member_array(DIR_IN, room->query_direc()) != -1) ||
-    (member_array(DIR_OUT, room->query_direc()) != -1))
-    return DOOR_ROOM;
 
-  if (member_array(DIR_UP, room->query_direc()) != -1)
-    return UP_ROOM;
-  if (member_array(DIR_DOWN, room->query_direc()) != -1)
-    return DOWN_ROOM;
+  exits = room->query_direc();
+
+  for (i = 0; i < sizeof(exits); i++)
+  {
+    if (member_array(room->query_ex_type(exits[i]), ({ "door", "gate" })) != -1)
+      return DOOR_ROOM;
+    if (exits[i] == DIR_UP)
+      return UP_ROOM;
+    if (exits[i] == DIR_DOWN)
+      return DOWN_ROOM;
+  }
+
   if (room->query_coast())
     return COAST_ROOM;
   
   return ROOM;
 }
 
-static int cmd (string str, object me, string verb)
+static int cmd(string str, object me, string verb)
 {
   mixed * revised;
   mixed * pending;
@@ -92,23 +105,23 @@ static int cmd (string str, object me, string verb)
  
   if (!environment(me)) 
   {
-    notify_fail("¡Sin entorno no puedes hacer eso!\n");
+    notify_fail(_LANG_CMD_MAP_NO_ENV);
     return 0;
   }
 
   if (environment(me)->query_dungeon_room())
   {
-    notify_fail("Por alguna razón el mapa no funciona en un lugar como este.\n");
+    notify_fail(_LANG_CMD_MAP_INVALID);
     return 0;    
   }
   
   if (environment(me)->query_water_environment())
   {
-    notify_fail("No puedes ponerte a consultar el mapa rodeado de agua.\n");
+    notify_fail(_LANG_CMD_MAP_NO_WATER);
     return 0;  
   }
 
-  // Preparamos la estructura que almacenara el mapa (matriz de 13x13)
+  // prepare the structure that will hold the map (13x13 matrix)
   map = allocate(MAX_Y);
   for (i = 0; i < MAX_Y; i++)
   {
@@ -116,7 +129,7 @@ static int cmd (string str, object me, string verb)
     map[i] = allocate(MAX_X);
   }
   
-  // Inicializamos con la casilla central (nuestra posicion actual)
+  // initialize with the central room (our current position)
   current = allocate(3);
   current[POSITION_Y_COORD] = MAX_Y/2;
   current[POSITION_X_COORD] = MAX_X/2;
@@ -127,7 +140,7 @@ static int cmd (string str, object me, string verb)
   while (sizeof(pending))
   {
     current = pending[0];
-    dest_dir = current[POSITION_ROOM_OB]->query_dest_dir(); // salidas + destinos de current
+    dest_dir = current[POSITION_ROOM_OB]->query_dest_dir(); // exits + destinations in current
     
     for (i = 0; i < sizeof(dest_dir); i += 2)
     {
@@ -142,7 +155,7 @@ static int cmd (string str, object me, string verb)
       switch (dest_dir[i])
       {
         case DIR_SOUTH:        
-          // Si aun no nos salimos del mapa
+          // if we are still inside the map
           if (current[POSITION_Y_COORD] + 1 < MAX_Y)
             map[current[POSITION_Y_COORD]+1][current[POSITION_X_COORD]] = VERTICAL_EXIT;
           if (current[POSITION_Y_COORD] + 2 < MAX_Y)
@@ -153,7 +166,7 @@ static int cmd (string str, object me, string verb)
           }
           break;
         case DIR_NORTH:
-          // Si aun no nos salimos del mapa
+          // if we are still inside the map
           if (current[POSITION_Y_COORD] - 1 >= 0)
             map[current[POSITION_Y_COORD]-1][current[POSITION_X_COORD]] = VERTICAL_EXIT;
           if (current[POSITION_Y_COORD] - 2 >= 0)
@@ -164,7 +177,7 @@ static int cmd (string str, object me, string verb)
           }
           break;
         case DIR_EAST:
-          // Si aun no nos salimos del mapa
+          // if we are still inside the map
           if (current[POSITION_X_COORD] + 1 < MAX_X)
             map[current[POSITION_Y_COORD]][current[POSITION_X_COORD]+1] = HORIZONTAL_EXIT;
           if (current[POSITION_X_COORD] + 2 < MAX_X)
@@ -175,7 +188,7 @@ static int cmd (string str, object me, string verb)
           }
           break;
         case DIR_WEST:
-          // Si aun no nos salimos del mapa
+          // if we are still inside the map
           if (current[POSITION_X_COORD] - 1 >= 0)
             map[current[POSITION_Y_COORD]][current[POSITION_X_COORD]-1] = HORIZONTAL_EXIT;
           if (current[POSITION_X_COORD] - 2 >= 0)
@@ -186,7 +199,7 @@ static int cmd (string str, object me, string verb)
           }
           break;
         case DIR_NORTHWEST:
-          // Si aun no nos salimos del mapa
+          // if we are still inside the map
           if ((current[POSITION_X_COORD] - 1 >= 0) && (current[POSITION_Y_COORD] - 1 >= 0))
             map[current[POSITION_Y_COORD]-1][current[POSITION_X_COORD]-1] = BACKSLASH_EXIT;
           if ((current[POSITION_X_COORD] - 2 >= 0) && (current[POSITION_Y_COORD] - 2 >= 0))
@@ -197,7 +210,7 @@ static int cmd (string str, object me, string verb)
           }
           break;
         case DIR_NORTHEAST:
-          // Si aun no nos salimos del mapa
+          // if we are still inside the map
           if ((current[POSITION_X_COORD] + 1 < MAX_X) && (current[POSITION_Y_COORD] - 1 >= 0))
             map[current[POSITION_Y_COORD]-1][current[POSITION_X_COORD]+1] = SLASH_EXIT;
           if ((current[POSITION_X_COORD] + 2 < MAX_X) && (current[POSITION_Y_COORD] - 2 >= 0))
@@ -208,7 +221,7 @@ static int cmd (string str, object me, string verb)
           }
           break;
         case DIR_SOUTHWEST:
-          // Si aun no nos salimos del mapa
+          // if we are still inside the map
           if ((current[POSITION_X_COORD] - 1 >= 0) && (current[POSITION_Y_COORD] + 1 < MAX_Y))
             map[current[POSITION_Y_COORD]+1][current[POSITION_X_COORD]-1] = SLASH_EXIT;
           if ((current[POSITION_X_COORD] - 2 >= 0) && (current[POSITION_Y_COORD] + 2 < MAX_Y))
@@ -219,7 +232,7 @@ static int cmd (string str, object me, string verb)
           }
           break;
         case DIR_SOUTHEAST:
-          // Si aun no nos salimos del mapa
+          // if we are still inside the map
           if ((current[POSITION_X_COORD] + 1 < MAX_X) && (current[POSITION_Y_COORD] + 1 < MAX_Y))
             map[current[POSITION_Y_COORD]+1][current[POSITION_X_COORD]+1] = BACKSLASH_EXIT;
           if ((current[POSITION_X_COORD] + 2 < MAX_X) && (current[POSITION_Y_COORD] + 2 < MAX_Y))
@@ -235,13 +248,13 @@ static int cmd (string str, object me, string verb)
       
       if (add)
       {
-        // Creamos un nuevo pendiente
+        // create a new pending
         catch ( new_room = load_object(dest_dir[i+1]) );
         if (new_room)
         {
           int repeated;
           repeated = 0;
-          // Revisamos que no hayamos pasado ya por esta room
+          // check if we have already been here
           for (j = 0; j < sizeof(revised); j++)
             if (revised[j][POSITION_ROOM_OB] == new_room)
             {
@@ -263,7 +276,7 @@ static int cmd (string str, object me, string verb)
       }
     }
     
-    // Tras revisar todas las salidas, la marcamos como revisada
+    // after checking all the exits, we mark the current room as revised
     revised += ({ current });
     pending -= ({ current });    
   }
@@ -273,6 +286,8 @@ static int cmd (string str, object me, string verb)
   return 1;
 }
 
+string format(string str) { return sprintf("%-*s", 24, str); }
+
 string draw_map(mixed * map)
 {
   string result;
@@ -280,7 +295,7 @@ string draw_map(mixed * map)
   int i, j;
   int quests, fquests, doors, ups, downs, coasts, adventurers, guards, enemies;
 
-  // Mostramos o no en la leyenda:
+  // show or not in the legend:
   quests = 0;
   fquests = 0;
   doors = 0;
@@ -318,52 +333,67 @@ string draw_map(mixed * map)
       
       switch(map[i][j])
       {
-        case ROOM:               line += "[ ]"; break;
-        case COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^"; coasts = 1; break;
-        case DOOR_ROOM:          line += "[P]"; doors = 1; break;
-        case UP_ROOM:            line += "[^]"; ups = 1; break;
-        case DOWN_ROOM:          line += "[v]"; downs = 1; break;
-        case FINISH_QUEST_ROOM:  line += "[%^BOLD%^YELLOW%^?%^RESET%^]"; fquests = 1; break;
-        case QUEST_ROOM:         line += "[%^BOLD%^YELLOW%^!%^RESET%^]"; quests = 1; break;
-        case ADVENTURER_ROOM:    line += "[%^BOLD%^CYAN%^*%^RESET%^]"; adventurers = 1; break;
-        case GUARD_ROOM:         line += "[%^BOLD%^GREEN%^*%^RESET%^]"; guards = 1; break;
-        case ENEMY_ROOM:         line += "[%^BOLD%^RED%^*%^RESET%^]"; enemies = 1; break;
-        case HORIZONTAL_EXIT:    line += "---"; break;
-        case VERTICAL_EXIT:      line += " | "; break;
-        case SLASH_EXIT:         line += " / "; break;
-        case BACKSLASH_EXIT:     line += " \\ "; break;
-        default:                 line += "   "; break;      
+        case ROOM:               
+                    line += "[ ]"; break;
+        case COAST_ROOM:         
+                    line += "%^BLUE%^[ ]%^RESET%^"; coasts = 1; break;
+        case DOOR_ROOM:          
+                    line += "["+_LANG_CMD_MAP_DOOR_LETTER+"]"; doors = 1; break;
+        case UP_ROOM:            
+                    line += "[^]"; ups = 1; break;
+        case DOWN_ROOM:          
+                    line += "[v]"; downs = 1; break;
+        case FINISH_QUEST_ROOM:  
+                    line += "[%^BOLD%^YELLOW%^?%^RESET%^]"; fquests = 1; break;
+        case QUEST_ROOM:         
+                    line += "[%^BOLD%^YELLOW%^!%^RESET%^]"; quests = 1; break;
+        case ADVENTURER_ROOM:    
+                    line += "[%^BOLD%^CYAN%^*%^RESET%^]"; adventurers = 1; break;
+        case GUARD_ROOM:         
+                    line += "[%^BOLD%^GREEN%^*%^RESET%^]"; guards = 1; break;
+        case ENEMY_ROOM:         
+                    line += "[%^BOLD%^RED%^*%^RESET%^]"; enemies = 1; break;
+        case HORIZONTAL_EXIT:    
+                    line += "---"; break;
+        case VERTICAL_EXIT:      
+                    line += " | "; break;
+        case SLASH_EXIT:         
+                    line += " / "; break;
+        case BACKSLASH_EXIT:     
+                    line += " \\ "; break;
+        default:                 
+                    line += "   "; break;      
       }
     }
     
     result+="     |        " + line + "        |\n";
-    
   }
 
-  result+="     |                                                             |\n";
-  result+="     |                             Leyenda:                        |\n";
-  result+="     |                               %^ORANGE%^*%^RESET%^   : Tu posición             |\n";
+  result += "     |                                                             |\n";
+  result += "     |                            " + format(_LANG_CMD_MAP_LEGEND + " :") + "         |\n";
+  result += "     |                               %^ORANGE%^*%^RESET%^   : " + format(_LANG_CMD_MAP_YOUR_POS) + "|\n";
+
   if (enemies)
-  result+="     |                               %^BOLD%^RED%^*%^RESET%^   : Enemigos                |\n";
+  result += "     |                               %^BOLD%^RED%^*%^RESET%^   : " + format(_LANG_CMD_MAP_ENEMIES) + "|\n";
   if (adventurers)
-  result+="     |                               %^BOLD%^CYAN%^*%^RESET%^   : Compañeros de grupo     |\n";
+  result += "     |                               %^BOLD%^CYAN%^*%^RESET%^   : " + format(_LANG_CMD_MAP_FRIENDS) + "|\n";
   if (guards)
-  result+="     |                               %^BOLD%^GREEN%^*%^RESET%^   : Guardias                |\n";
+  result += "     |                               %^BOLD%^GREEN%^*%^RESET%^   : " + format(_LANG_CMD_MAP_GUARDS) + "|\n";
   if (doors)
-  result+="     |                               P   : Puertas                 |\n";
+  result += "     |                               "+_LANG_CMD_MAP_DOOR_LETTER+"   : " + format(_LANG_CMD_MAP_DOORS) + "|\n";
   if (ups)
-  result+="     |                               ^   : Escaleras de subida     |\n";
+  result += "     |                               ^   : " + format(_LANG_CMD_MAP_UP_STAIRS) + "|\n";
   if (downs)
-  result+="     |                               v   : Escaleras de bajada     |\n";
+  result += "     |                               v   : " + format(_LANG_CMD_MAP_DOWN_STAIRS) + "|\n";
   if (quests)
-  result+="     |                               %^BOLD%^YELLOW%^!%^RESET%^   : Misiones por hacer      |\n";
+  result += "     |                               %^BOLD%^YELLOW%^!%^RESET%^   : " + format(_LANG_CMD_MAP_NEW_QUESTS) + "|\n";
   if (fquests)
-  result+="     |                               %^BOLD%^YELLOW%^?%^RESET%^   : Misiones por entregar   |\n";
+  result += "     |                               %^BOLD%^YELLOW%^?%^RESET%^   : " + format(_LANG_CMD_MAP_FINISHED_QUESTS) + "|\n";
   if (coasts)
-  result+="     |                               %^BLUE%^[ ]%^RESET%^ : Orilla                  |\n";
-  result+="     |                                                             |\n";
-  result+="     |   __________________________________________________________|___\n";
-  result+="      \\_/_____________________________________________________________/\n\n";
+  result += "     |                               %^BLUE%^[ ]%^RESET%^ : " + format(_LANG_CMD_MAP_COAST) + "|\n";
+  result += "     |                                                             |\n";
+  result += "     |   __________________________________________________________|___\n";
+  result += "      \\_/_____________________________________________________________/\n\n";
   
   return result;
   

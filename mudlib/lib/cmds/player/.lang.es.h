@@ -334,3 +334,24 @@
 #define _LANG_CMD_GROPE_OTHER_ME "Te golpeas contra "+contents[j]->query_cap_name()+".\n"
 #define _LANG_CMD_GROPE_OTHER_ROOM me->query_cap_name()+" se golpea contra "+contents[j]->query_cap_name()+".\n"
 #define _LANG_CMD_GROPE_MSG "Palpas a tu alrededor y encuentras una salida hacia " + dir + ".\n"
+
+// map
+
+#define _LANG_CMD_MAP_ALIAS ({ "mapa" })
+#define _LANG_CMD_MAP_SYNTAX "mapa"
+#define _LANG_CMD_MAP_HELP "Muestra un mapa de tu entorno."
+#define _LANG_CMD_MAP_NO_ENV "¡Sin entorno no puedes hacer eso!\n"
+#define _LANG_CMD_MAP_INVALID "Por alguna razón el mapa no funciona en un lugar como este.\n"
+#define _LANG_CMD_MAP_NO_WATER "No puedes ponerte a consultar el mapa rodeado de agua.\n"
+#define _LANG_CMD_MAP_DOOR_LETTER "P"
+#define _LANG_CMD_MAP_LEGEND "Leyenda"
+#define _LANG_CMD_MAP_YOUR_POS "Tu posición"
+#define _LANG_CMD_MAP_ENEMIES "Enemigos"
+#define _LANG_CMD_MAP_FRIENDS "Compañeros de grupos"
+#define _LANG_CMD_MAP_GUARDS "Guardias"
+#define _LANG_CMD_MAP_DOORS "Puertas"
+#define _LANG_CMD_MAP_UP_STAIRS "Escaleras de subida"
+#define _LANG_CMD_MAP_DOWN_STAIRS "Escaleras de bajada"
+#define _LANG_CMD_MAP_NEW_QUESTS "Nuevas misiones"
+#define _LANG_CMD_MAP_FINISHED_QUESTS "Misiones terminadas"
+#define _LANG_CMD_MAP_COAST "Orilla"

@@ -604,7 +604,7 @@ string query_ex_type(string direc)
 int query_special_exit(string direc)
 {
   int i;
-  for(i = 0; i < sizeof(dest_other); i+=2)
+  for (i = 0; i < sizeof(dest_other); i+=2)
     if (dest_other[i] == direc)
       if (dest_other[i+1][ROOM_FUNC])
         return 1;
