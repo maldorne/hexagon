@@ -113,7 +113,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | away          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | bury          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| ~calendar~      |          |          |    | Converted to game cmd (#27) |
+| ~calendar~      |          |          |    | Converted to game cmd [#27](https://github.com/maldorne/hexagon/issues/27) |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | combats       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | condition     | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
@@ -135,11 +135,11 @@ Coder commands will be only in english, except texts shown to the players, which
 | past          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | pov           | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| quests        |          |          |    | (#26) |
+| quests        |          |          |    | [#26](https://github.com/maldorne/hexagon/issues/26) |
 | ranking       |          |          |    | Postponed for now |
 | retire        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | score         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| ~search~        |          |          |    | Converted to skill (#25) |
+| ~search~        |          |          |    | Converted to skill [#25](https://github.com/maldorne/hexagon/issues/25) |
 | sheet         | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | time          | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
