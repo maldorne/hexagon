@@ -74,8 +74,8 @@ Coder commands will be only in english, except texts shown to the players, which
 | compare      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | cp           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | cplines      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
-| discard      |          |          |    |    |
-| du           |          |          |    |    |
+| discard      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
+| du           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | exec         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | exits        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | ftpwho       |          |          |    |    |
