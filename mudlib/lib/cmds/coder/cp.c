@@ -1,11 +1,14 @@
 
 #include <mud/cmd.h>
+#include <translations/common.h>
 
 inherit CMD_BASE;
 
 void setup()
 {
-  position = 1;
+  set_aliases(({ "cp" }));
+  set_usage("cp <file> <destination>");
+  set_help("Copies a file to another location.");
 }
 
 static int cmd(string str, object me, string verb)
@@ -18,7 +21,7 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    notify_fail("Uso: cp fichero [fichero|dir...]\n");
+    notify_fail(_LANG_SYNTAX + ": " + query_usage() + "\n");
     return 0;
   }
 
@@ -27,7 +30,7 @@ static int cmd(string str, object me, string verb)
 
   if (!sizeof(filenames))
   {
-    notify_fail("Sintaxis: cp fichero [fichero|dir...]\n");
+    notify_fail(_LANG_SYNTAX + ": " + query_usage() + "\n");
     return 0;
   }
 
@@ -36,17 +39,17 @@ static int cmd(string str, object me, string verb)
 
   if (!dest)
   {
-    tell_object(this_player(),"Necesitas especificar un destino.\n");
+    write("You need to specify a destination.\n");
     return 1;
   }
 
-  for(loop = 0; loop < sizeof(filenames); loop++)
+  for (loop = 0; loop < sizeof(filenames); loop++)
   {
     str = filenames[loop];
     text = read_file(str);
     if (!text)
     {
-      tell_object(this_player(),"Fichero inexistente: " + str + "\n");
+      write("File does not exist: " + str + "\n");
       continue;
     }
 
@@ -61,7 +64,7 @@ static int cmd(string str, object me, string verb)
 
       if (fs != -1)
       {
-        tell_object(this_player(),"Fichero existente: "+dest+"/"+
+        write("File already exists: " + dest + "/" +
           names[sizeof(names) - 1] + "\n");
         continue;
       }
@@ -72,15 +75,16 @@ static int cmd(string str, object me, string verb)
     {
       if (fs != -1)
       {
-        tell_object(this_player(),"Fichero existente: " + dest + "\n");
+        write("File already exists: " + dest + "\n");
         continue;
       }
 
       write_file(dest, text);
     }
   }
-  tell_object(this_player(),"Ok.\n");
+
+  write("File copied.\n");
   return 1;
-} /* cp_file() */
+}
 
 
