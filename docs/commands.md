@@ -73,8 +73,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | clone        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | compare      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | cp           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
-| cplines      |          |          |    |    |
-| cprange      |          |          |    |    |
+| cplines      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | discard      |          |          |    |    |
 | du           |          |          |    |    |
 | exec         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
