@@ -2,13 +2,21 @@
 /** coded by Raskolnikov July 1996 **/
 
 #include <mud/cmd.h>
+#include <translations/common.h>
 #include <language.h>
 
 inherit CMD_BASE;
 
 void setup()
 {
-  position = 1;
+  set_aliases(({ "compare" }));
+  set_usage("compare -<which_file> file1 file2");
+  set_help("Allows the user to compare two files.\n" +
+      "The command returns the lines of file1 that were " +
+      "not found in file2 if which_file is equal to 1 and " +
+      "vice-versa if which_file is equal to 2.\n\n" +
+      "Note: both file1 and file2 differences are returned if " +
+      "which_file is not entered.");
 }
 
 static int cmd(string str, object me, string verb)
@@ -21,7 +29,7 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    notify_fail(_LANG_COMPARE_SYNTAX);
+    notify_fail(_LANG_SYNTAX + ": " + query_usage() + "\n");
     return 0;
   }
 
@@ -33,14 +41,15 @@ static int cmd(string str, object me, string verb)
     check = sscanf(str, "%s %s", file1, file2);
     if (!check || check != 2)
     {
-      notify_fail(_LANG_COMPARE_SYNTAX);
+      notify_fail(_LANG_SYNTAX + ": " + query_usage() + "\n");
       return 0;
     }
   }
 
   if ((which_file < 1) || (which_file > 3))
   {
-    notify_fail(_LANG_COMPARE_INVALID_WHICH);
+    notify_fail("Invalid -<which_file> value.\n\nOptions:\n" +
+      "-1 for file1\n-2 for file2\n-3 or nothing for both\n");
     return 0;
   }
 
@@ -51,7 +60,7 @@ static int cmd(string str, object me, string verb)
 
   if (!sizeof(filename1) || !sizeof(filename2))
   {
-    notify_fail(_LANG_CMD_FILE_DOES_NOT_EXIST);
+    notify_fail("That file does not exist.\n");
     return 0;
   }
 
@@ -60,13 +69,13 @@ static int cmd(string str, object me, string verb)
 
   if (!check1)
   {
-    notify_fail(_LANG_COMPARE_NOT_A_FILE + filename1[0]+"\n");
+    notify_fail("Not a file: " + filename1[0]+"\n");
     return 0;
   }
 
   if (!check2)
   {
-    notify_fail(_LANG_COMPARE_NOT_A_FILE + filename2[0]+"\n");
+    notify_fail("Not a file: " + filename2[0]+"\n");
     return 0;
   }
 
@@ -108,13 +117,3 @@ static int cmd(string str, object me, string verb)
     ""+output2+"\n");
   return 1;
 } /* compare_file() */
-
-string query_short_help()
-{
-    return _LANG_COMPARE_HELP;
-}
-
-string query_usage()
-{
-  return _LANG_COMPARE_SYNTAX;
-}

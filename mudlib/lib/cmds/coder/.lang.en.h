@@ -1,29 +1,9 @@
 
-// common
-
-#define _LANG_CMD_FILE "File"
-#define _LANG_CMD_FILE_DOES_NOT_EXIST "That file does not exist.\n"
-#define _LANG_CMD_CANNOT_READ_FILE "Cannot read that file.\n"
-#define _LANG_CMD_NO_FILES "There are no files with that name.\n"
-
 // clone
 
 #define _LANG_CLONE_OK_ENV this_player()->query_cap_name() + " looks for a " + \
         ((string)ob->query_short() ? (string)ob->query_short() : "object") + \
         " in other dimension.\n"
-
-// compare
-
-#define _LANG_COMPARE_HELP "This command allows the user to compare two files. " + \
-      "The command returns the lines of file1 that were " + \
-      "not found in file2 if which_file is equal to 1 and " + \
-      "vice-versa if which_file is equal to 2.\n\n" + \
-      "Note: both file1 and file2 differences are returned if " + \
-      "which_file is not entered."
-#define _LANG_COMPARE_SYNTAX "Usage : compare -<which_file> file1 file2\n"
-#define _LANG_COMPARE_INVALID_WHICH "Invalid -<which_file> value.\n\nOptions:\n" + \
-      "-1 for file1\n-2 for file2\n-3 or nothing for both\n"
-#define _LANG_COMPARE_NOT_A_FILE "Not a file: "
 
 // peace
 

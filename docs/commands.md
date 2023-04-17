@@ -68,10 +68,10 @@ Coder commands will be only in english, except texts shown to the players, which
 | ------- | :----------------: | :--------------: | :------------: |----- |
 | actions      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | armours      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
-| backup       | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
+| backup       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | cat          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | clone        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
-| compare      |          |          |    |    |
+| compare      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | cp           |          |          |    |    |
 | cplines      |          |          |    |    |
 | cprange      |          |          |    |    |
