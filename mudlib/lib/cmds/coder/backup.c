@@ -7,119 +7,85 @@
 // 06 June 96 Agamemnon  Changed to use the "cp" efun instead of read
 //            and write_file... (faster, and less chance
 //            to barf and die)
-// 25 Abril 03 neverbot Traducido y compatible con nuevo ctime()
+// 25 Abril 03 neverbot translated to spanish and compatible with new ctime()
 
 #include <mud/cmd.h>
+#include <translations/common.h>
 
 #define COL ""
 
-inherit CMD_BASE ;
+inherit CMD_BASE;
 
 void setup()
 {
-  position = 1 ;
+  set_aliases(({ "backup" }));
+  set_usage("backup <file>");
+  set_help("Creates a backup of a file.");
 }
 
-string get_date() 
-{
-  string date;
-  // int i;
-  date = ctime( time(), 2 ) ;
-  /*
-  i = member_array( date[ 3..5 ], ({ "Ene", "Feb", "Mar", "Abr", "May",
-    "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" }) ) ;
-  i++ ;
-  date = date[ 0..1 ] + i + date[ 7..8 ] ;
-  if ( strlen( date ) == 5 ) date = date[ 0..1 ] + "0" + date[2..4];
-
-  date = replace( date, " ", "0" );
-  */
-  return date;
-}
-
-static int cmd( string str, object me, string verb)
+static int cmd(string str, object me, string verb)
 {
   string *files, orig, backup, date;
   int i, ver;
 
-  if ( this_player( 0 ) != this_player( 1 ) )
+  if (!strlen(str))
   {
-    return 0 ;
-  }
-
-  if ( !strlen(str) )
-  {
-    notify_fail( "Sintaxis: backup <archivo>.\n" ) ;
+    notify_fail(_LANG_SYNTAX + ": " + query_usage() + "\n");
     return 0;
   }
 
-  date = get_date();
-  files = get_files( str );
+  date = ctime(time(), 2);
+  files = get_files(str);
 
-  if ( !sizeof( files ) ) 
+  if (!sizeof(files)) 
   {
-    // write( "Cannot find file(s): "+str+".\n" );
-    write( "No se puede encontrar el archivo: "+str+".\n" );
+    write("Cannot find file(s): " + str + ".\n");
     return 1;
   }
 
-  date = get_date();
-
-  for ( i=0; i<sizeof( files ); i++ ) 
+  for (i = 0; i < sizeof(files); i++) 
   {
     orig = files[i];
-    if ( file_size( orig ) == -1 ) 
+
+    if (file_size(orig) == -1) 
     {
-      //write( "Cannot back up file "+orig+
-      //     ": No such file or directory.\n" );
-      write( "No se puede crear el backup de "+orig+
-           ".\nNo existe el archivo o directorio.\n" );
+      write("Cannot back up file " + orig + ": No such file or directory.\n");
       continue;
     }
 
-    if ( file_size( orig ) == -2 ) 
+    if (file_size(orig) == -2) 
     {
-      // write( "Cannot backup file "+orig+
-      //     ": Is a directory.\n" );
-      write( "No se puede crear el backup de "+orig+
-           ".\nEs un directorio.\n" );
+      write("Cannot backup file " + orig + ": Is a directory.\n");
       continue;
     }
 
-    backup = orig + "." + date + "."+this_player()->query_name();
+    backup = orig + "." +  date + "." + this_player()->query_name();
 
-    if ( file_size( backup ) == -2 ) 
+    if (file_size(backup) == -2) 
     {
-      write( "No se puede crear el backup de "+orig+
-           ", ya existe (como directorio).\n");
-      // write( "Cannot backup to "+orig+
-      //    ": Is a directory.\n" );
+      write("Cannot backup to " + orig + ": It already exists as a directory.\n");
       continue;
     }
     
-    if ( file_size( backup ) != -1 ) 
+    if (file_size(backup) != -1) 
     {
-      // Arreglado problema con las versiones, funcionaba mal
-      // neverbot 4/03
+      // fix error with versioning, neverbot 4/03
       ver = 2;
-      while( file_size( backup + ".v" + ver ) > 0 ) ver++;
-      backup += ".v" + ver;
+      while (file_size(backup + ".v" +  ver) > 0) 
+        ver++;
+      backup += ".v" +  ver;
     }
 
-    if ( cp( orig, backup ) ) 
+    if (cp(orig, backup)) 
     {
-      //write( COL + "File "+orig+" backed up to "+ backup+"\n" );
-      write( COL + "Archivo "+orig+" copiado como "+ backup+"\n");
-
+      write(COL + "File " + orig + " backed up as " +  backup + "\n");
     } 
     else 
     {
-      // write( "Unable to write file : "+backup+"\n" );
-      write( "Imposible crear archivo: "+backup+"\n" );
+      write("Unable to write file : " + backup + "\n");
     }
   }
-  // Añadido neverbot 4/03
-  me->set_trivial_action();
-  return 1 ;
-}
 
+  me->set_trivial_action();
+  return 1;
+}
