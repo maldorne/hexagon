@@ -3,8 +3,6 @@
 
 inherit CMD_BASE;
 
-inherit CMD_BASE;
-
 void setup()
 {
   set_aliases(({ "actions" }));

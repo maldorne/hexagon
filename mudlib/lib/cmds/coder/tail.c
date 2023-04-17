@@ -31,7 +31,7 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str))
   {
-    write("Syntax: " + query_usage() + "\n\n");
+    write("Syntax: " + query_usage() + "\n");
     return 1;
   }
 
