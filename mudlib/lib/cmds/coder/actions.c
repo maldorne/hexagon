@@ -3,9 +3,13 @@
 
 inherit CMD_BASE;
 
-string query_help()
+inherit CMD_BASE;
+
+void setup()
 {
-  return "Prints a list of all available actions for the user.";
+  set_aliases(({ "actions" }));
+  set_usage("actions");
+  set_help("Prints a list of all available actions for the user.");
 }
 
 static int cmd(string str, object me, string verb)
@@ -29,14 +33,14 @@ static int cmd(string str, object me, string verb)
 
   for (i = 0; i < sizeof(keys_objects); i++)
   {
-    ret += keys_objects[i] + ":\n";
+    ret += keys_objects[i] + ":\n\n";
 
     keys_actions = keys(actions[keys_objects[i]]);
 
     for (j = 0; j < sizeof(keys_actions); j++)
-    {
       ret += "  " + keys_actions[j] + " -> " + actions[keys_objects[i]][keys_actions[j]] + "\n";
-    }
+
+    ret += "\n";
   }
 
   write(ret);
