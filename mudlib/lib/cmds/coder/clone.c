@@ -5,16 +5,13 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "clone <file path>";
-}
-
-string query_help()
-{
-  return "Creates a clone given the path of a file.\n" +
+  set_aliases(({ "clone" }));
+  set_usage("clone <file path>");
+  set_help("Creates a clone given the path of a file.\n" +
      "If the object can be moved to your inventory, it will be placed there, " +
-     "in your environment in other case.";
+     "in your environment in other case.");
 }
 
 static int cmd(string str, object me, string verb)

@@ -4,14 +4,11 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "cat [file]";
-}
-
-string query_help()
-{
-  return "Shows the contents of given file.";
+  set_aliases(({ "cat" }));
+  set_usage("cat <file>");
+  set_help("Shows the contents of given file.");
 }
 
 static int cmd(string str, object me, string verb)
