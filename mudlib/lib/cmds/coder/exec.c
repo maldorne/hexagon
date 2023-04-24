@@ -34,7 +34,13 @@ void setup()
 {
   set_aliases(({ "exec" }));
   set_usage("exec [-flags] <code>");
-  set_help("Allows to test one line of LPC code.\n" +
+  set_help("Allows to test one line of LPC code.\n");
+}
+
+// the content is dynamic, do not set it in the setup
+string query_help()
+{
+  return "Allows to test one line of LPC code.\n" +
          "Executes the line of code inside a main() function in the file\n" +
          " "+CODER_FILE+" (it will be removed afterwards)\n" +
          "flags:  s: shows the file after being generated\n" +
@@ -43,7 +49,7 @@ void setup()
          "        a <arg>: passes the argument 'arg' when calling main()\n" +
          "                 (must be the last flag)\n" +
          "\nThe following macros can be used: \n"+defines()+"\n" +
-         "ie: exec object *a; int i;  a=users(); for(i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n");
+         "ie: exec object *a; int i;  a=users(); for(i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n"
 }
 
 private int check_file()
