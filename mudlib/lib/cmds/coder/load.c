@@ -1,36 +1,50 @@
-#include <standard.h>
-#include <cmd.h>
+
+#include <mud/cmd.h>
+
 inherit CMD_BASE;
 
-void setup(){
-  position = 1;
+void setup()
+{
+  set_aliases(({ "load" }));
+  set_usage("load <file>");
+  set_help("Loads in memory the specified file or files.");
 }
 
-protected int cmd(string str, object me, string verb) {
- string *filenames, err;
- int loop;
+static int cmd(string str, object me, string verb)
+{
+  string *filenames, err;
+  int loop;
 
-  if (!str) {
-    notify_fail("¿Cargar qué?\n");
+  if (!strlen(str))
+  {
+    notify_fail("Load what?\n");
     return 0;
   }
+
   filenames = get_cfiles(str);
-  if (!sizeof(filenames)) {
-    notify_fail("No existe ese archivo.\n");
+
+  if (!sizeof(filenames))
+  {
+    notify_fail("File does not exist.\n");
     return 0;
   }
-  for(loop = 0; loop < sizeof(filenames); loop++) {
+
+  for (loop = 0; loop < sizeof(filenames); loop++)
+  {
     str = filenames[loop];
-    if (file_size(str)<0) {
-      write(str + ": No existe ese archivo.\n");
-       continue;
+
+    if (file_size(str)<0)
+    {
+      write(str + ": File does not exist.\n");
+      continue;
     }
+
     if (err = catch(str->load_up_with_yellow()))
-      write("No se ha podido cargar el archivo '"+str+"'.\nError: "+err+"\n");
+      write("Could not load file '"+str+"'.\nError: "+err+"\n");
     else
-      write("Archivo '"+str+"' cargado.\n");
+      write("File '"+str+"' loaded.\n");
   }
-  // write("Ok.\n");
+
   return 1;
-} /* load() */
+}
  
