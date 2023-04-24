@@ -90,7 +90,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | mail         |          |          |    |    |
 | malloc       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | man          |          |          |    |    |
-| mkdir        |          |          |    |    |
+| mkdir        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | more         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | mudlist      |          |          |    |    |
 | multi        |          |          |    |    |

@@ -5,7 +5,9 @@ inherit CMD_BASE;
 
 void setup()
 {
-  position = 1;
+  set_aliases(({ "mkdir" }));
+  set_usage("mkdir <directory>");
+  set_help("Creates a directory.");
 }
 
 static int cmd(string str, object me, string verb) 
@@ -33,7 +35,7 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
   
-  write("Ok.\n");
+  write("Ok, directory created.\n");
   return 1;
-} /* makedir() */
+}
  
