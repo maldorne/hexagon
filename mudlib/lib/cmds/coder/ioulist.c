@@ -3,6 +3,13 @@
 
 inherit CMD_BASE;
 
+void setup()
+{
+  set_aliases(({ "ioulist" }));
+  set_usage("ioulist <who>");
+  set_help("Lists IOUs in specified living object inventory.");
+}
+
 static int cmd(string name, object me, string verb)
 {
   // Quick hack of a frooble for auto_load IOUs...
@@ -26,7 +33,7 @@ static int cmd(string name, object me, string verb)
 
   all = deep_inventory(pl);
   
-  tell_object(me, "Looking...\n");
+  write("Looking...\n");
   
   for (i = 0; i < sizeof(all); i++)
   {
@@ -35,10 +42,10 @@ static int cmd(string name, object me, string verb)
       tmp = all[i]->query_auto_load_attributes();
       
       if (!undefinedp(tmp["auto string"]))
-        tell_object(me, sprintf("%s - %y\n", tmp["auto string"][0], tmp["auto string"][1]));
+        write(sprintf("%s - %y\n", tmp["auto string"][0], tmp["auto string"][1]));
     }
   }
 
-  tell_object(me, "Done.\n");
+  write("Done.\n");
   return 1;
 }

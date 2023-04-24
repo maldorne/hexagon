@@ -84,7 +84,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | head         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | home         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | invisible    |          |          |    |    |
-| ioulist      |          |          |    |    |
+| ioulist      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | load         |          |          |    |    |
 | ls           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | mail         |          |          |    |    |
