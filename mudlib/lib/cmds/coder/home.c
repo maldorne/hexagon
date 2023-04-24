@@ -6,14 +6,11 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "home [<person>]";
-}
-
-string query_help() 
-{
-  return "Moves you to <person>'s workroom. If no parameter is specified, takes you to your own.";
+  set_aliases(({ "home" }));
+  set_usage("home [<person>]");
+  set_help("Moves you to <person>'s workroom.\nIf no parameter is specified, takes you to your own.");
 }
 
 static int cmd(string str,object me, string verb) 

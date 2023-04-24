@@ -7,16 +7,13 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "goto <room file path | user name>";
-}
-
-string query_help()
-{
-  return "Teleports the coder to a given destination.\nYou will be moved " +
+  set_aliases(({ "goto" }));
+  set_usage("goto <room file path | user name>");
+  set_help("Teleports the coder to a given destination.\nYou will be moved " +
     "to the given room if a file path is used, " + 
-    "or the current room of a user if a user name is used.";
+    "or the current room of a user if a user name is used.");
 }
 
 static int cmd(string str, object me, string verb) 

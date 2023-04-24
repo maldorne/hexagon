@@ -3,14 +3,11 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "rm <file>";
-}
-
-string query_help() 
-{
-  return "Removes given file.";
+  set_aliases(({ "rm" }));
+  set_usage("rm <file>");
+  set_help("Removes given file or files.");
 }
 
 static int cmd(string str, object me, string verb)

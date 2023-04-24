@@ -27,13 +27,11 @@ inherit CMD_BASE;
 
 object tp;
 
-string query_usage()
+void setup()
 {
-  return "ls -ahcdflopCF [directory|file]";
-}
-
-string query_help() {
-  return "List files in current or given directory.\n" +
+  set_aliases(({ "ls" }));
+  set_usage("ls -ahcdflopCF [directory|file]");
+  set_help("List files in current or given directory.\n" +
          "Options: -a includes hidden files.\n" +
          "         -h shows sizes in human readable format.\n" +
          "         -c -C list in columns (by default).\n" +
@@ -41,7 +39,7 @@ string query_help() {
          "         -f -F extended info in file/directory names.\n" +
          "         -l list full data and permissions for every file and directory.\n" +
          "         -o use colors.\n" +
-         "         -p paginated (for long listings).";
+         "         -p paginated (for long listings).");
 }
 
 string dir_entry(string path, string name, int mask, object me)

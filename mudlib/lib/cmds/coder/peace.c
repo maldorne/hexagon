@@ -6,14 +6,11 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "peace";
-}
-
-string query_help() 
-{
-  return "Immediately stops current combats in your environment.";
+  set_aliases(({ "peace" }));
+  set_usage("peace");
+  set_help("Immediately stops current combats in your environment.");
 }
 
 static int cmd(string str, object me, string verb) 

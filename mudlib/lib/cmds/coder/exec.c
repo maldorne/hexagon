@@ -23,7 +23,6 @@ private int show, dont_overwrite, dont_remove;
 private mixed arg;
 
 private string parse_args(string str);
-string query_help();
 private string defines();
 private string vars();
 private string before();
@@ -31,14 +30,11 @@ private string after();
 private int check_file();
 private int check_code(string str);
 
-string query_usage()
+void setup()
 {
-  return "exec [-flags] <code>";
-}
-
-string query_help()
-{
-  return "Allows to test one line of LPC code.\n" +
+  set_aliases(({ "exec" }));
+  set_usage("exec [-flags] <code>");
+  set_help("Allows to test one line of LPC code.\n" +
          "Executes the line of code inside a main() function in the file\n" +
          " "+CODER_FILE+" (it will be removed afterwards)\n" +
          "flags:  s: shows the file after being generated\n" +
@@ -47,7 +43,7 @@ string query_help()
          "        a <arg>: passes the argument 'arg' when calling main()\n" +
          "                 (must be the last flag)\n" +
          "\nThe following macros can be used: \n"+defines()+"\n" +
-         "ie: exec object *a; int i;  a=users(); for(i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n";
+         "ie: exec object *a; int i;  a=users(); for(i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n");
 }
 
 private int check_file()

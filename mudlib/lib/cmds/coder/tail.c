@@ -5,17 +5,14 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "tail [-<number of lines>] <files>";
-}
-
-string query_help()
-{
-  return "Shows the last lines of a file.\n" +
+  set_aliases(({ "tail" }));
+  set_usage("tail [-<number of lines>] <files>");
+  set_help("Shows the last lines of a file.\n" +
     "A default of 10 lines is returned if range is not specified.\n\n" +
     "Ex. tail -20 /lib/room.c\n" +
-    "will return the last 20 lines of the file room.c.";
+    "will return the last 20 lines of the file room.c.");
 }
 
 static int cmd(string str, object me, string verb)

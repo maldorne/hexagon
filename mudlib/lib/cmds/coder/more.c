@@ -7,14 +7,11 @@ inherit CMD_BASE;
 int ex_spool(string yn,string file,int linum);
 // varargs object * wiz_present(string str,object ob,int internal);
 
-string query_usage()
+void setup()
 {
-  return "more <file>";
-}
-
-string query_help()
-{
-  return "Shows the contents of given file, paginated.";
+  set_aliases(({ "more" }));
+  set_usage("more <file>");
+  set_help("Shows the contents of given file, paginated.");
 }
 
 static int cmd(string str, object me, string verb)

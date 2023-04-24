@@ -4,18 +4,15 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "head [-range] <file>";
-}
-
-string query_help()
-{
-  return "See the contents " +
+  set_aliases(({ "head" }));
+  set_usage("head [-range] <file>");
+  set_help("See the contents " +
     "of file starting at the first line and ending at line range.\n" +
     "A default of 10 lines is returned if range is not specified.\n\n" +
     "Ex. head -20 /lib/room.c\n" +
-    "will return the first 20 lines of the file room.c.";
+    "will return the first 20 lines of the file room.c.");
 }
 
 static int cmd(string str, object me, string verb)

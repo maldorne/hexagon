@@ -6,24 +6,20 @@
   Written by  : Weazel@Nanvaent Nov 92
   Modified by : Bill@Nanvaent Jan 93
   Modified by : Bill@Nanvaent+@Discworld Mar 93
-  Modified by : Dimmak@RlMud Apr 99 para poder hacer cosas mas complejas
-  Modified by : neverbot@CcMud Feb 10 para admitir un modo 'silent' para modificar grandes listas de archivos
+  Modified by : Dimmak@RlMud Apr 99 to allow more complex things
+  Modified by : neverbot@CcMud Feb 10 to allow silent mode
 */
 
 #include <mud/cmd.h>
 
-
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "sar -s $<text to look for>$ $<text to exchange with>$ <file(s)>";
-}
-
-string query_help()
-{
-  return "Exchanges a piece of text with another, in one or multiple files.\n" + 
-         "Use -s for silent output.";
+  set_aliases(({ "sar" }));
+  set_usage("sar -s $<text to look for>$ $<text to exchange with>$ <file(s)>");
+  set_help("Exchanges a piece of text with another, in one or multiple files.\n" + 
+         "Use -s for silent output.");
 }
 
 static int cmd(string str, object me, string verb)

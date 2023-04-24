@@ -4,14 +4,11 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "uptime";
-}
-
-string query_help()
-{
-  return "Shows for how long the mud server has been functioning.";
+  set_aliases(({ "uptime" }));
+  set_usage("uptime");
+  set_help("Shows for how long the mud server has been functioning.");
 }
 
 static int cmd(string str, object me, string verb)

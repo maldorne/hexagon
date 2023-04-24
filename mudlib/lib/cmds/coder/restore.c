@@ -3,14 +3,11 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "restore";
-}
-
-string query_help() 
-{
-  return "Your health points and energy points are restored.";
+  set_aliases(({ "restore" }));
+  set_usage("restore");
+  set_help("Your health points and energy points are restored.");
 }
 
 static int cmd(string str, object me, string verb) 

@@ -12,18 +12,15 @@ inherit CMD_BASE;
 #define C   "%^BOLD%^CYAN%^"
 #define G   "%^BOLD%^GREEN%^"
 
-string query_usage()
+void setup()
 {
-  return "exits [files]";
+  set_aliases(({ "exits" }));
+  set_usage("exits [files]");
+  set_help("Checks the exits of a room or multiple rooms.\n" +
+         "Input no files to check your current environment.");
 }
 
-string query_help()
-{
-  return "Checks the exits of a room or multiple rooms.\n" +
-         "Input no files to check your current environment.";
-}
-
-string short_file_name(string file_name)
+private string short_file_name(string file_name)
 {
   string * pieces;
   pieces = explode(file_name, "/");
