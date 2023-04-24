@@ -95,7 +95,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | mudlist      |          |          |    |    |
 | multi        |          |          |    |    |
 | mv           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
-| nls          |          |          |    |    |
+| nls          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | peace        | :white_check_mark: | :white_check_mark: | :white_check_mark: |    |
 | resistencias |          |          |    |    |
 | restore      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
