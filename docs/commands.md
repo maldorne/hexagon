@@ -88,7 +88,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | load         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | ls           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | mail         |          |          |    |    |
-| malloc       |          |          |    |    |
+| malloc       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | man          |          |          |    |    |
 | mkdir        |          |          |    |    |
 | more         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
