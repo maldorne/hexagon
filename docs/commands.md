@@ -100,7 +100,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | resistencias |          |          |    |    |
 | restore      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | rm           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
-| rmdir        |          |          |    |    |
+| rmdir        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | sar          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | tail         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |
 | uptime       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |    |

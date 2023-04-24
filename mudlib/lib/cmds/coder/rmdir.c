@@ -1,11 +1,14 @@
 
 #include <mud/cmd.h>
+#include <translations/common.h>
 
 inherit CMD_BASE;
 
 void setup()
 {
-  position = 1;
+  set_aliases(({ "rmdir" }));
+  set_usage("rmdir <directory>");
+  set_help("Removes a directory.");
 }
 
 static int cmd(string str, object me, string verb) 
@@ -15,7 +18,7 @@ static int cmd(string str, object me, string verb)
 
   if (!strlen(str)) 
   {
-    notify_fail("Sintaxis: rmdir <directorio>\n");
+    notify_fail(_LANG_SYNTAX + ": " + query_usage() + "\n");
     return 0;
   }
 
@@ -23,36 +26,34 @@ static int cmd(string str, object me, string verb)
 
   if (!sizeof(filenames)) 
   {
-    notify_fail("No existe el directorio: '" + str + "'.\n");
+    notify_fail("Directory does not exist: '" + str + "'.\n");
     return 0;
   }
 
-  for(loop = 0; loop < sizeof(filenames); loop++) 
+  for (loop = 0; loop < sizeof(filenames); loop++) 
   {
     str = filenames[loop];
     fsize = file_size(str);
 
     if (fsize == -1) 
     {
-      notify_fail("No existe el directorio: '" + str + "'.\n");
+      notify_fail("Directory does not exist: '" + str + "'.\n");
       return 0;
     }
 
     if (fsize != -2) 
     {
-      notify_fail(str + " no es un directorio.\n");
+      notify_fail(str + " is not a directory.\n");
       return 0;
     }
 
     if (!rmdir(str)) 
     {
-      notify_fail("No se puede borrar el directorio: '" + str + "'.\n");
+      notify_fail("Cannot remove directory: '" + str + "'.\n");
       return 0;
     }
   }
 
-  write("Ok.\n");
+  write("Ok, directory removed.\n");
   return 1;
-} /* removedir() */
-
-
+}
