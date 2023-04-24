@@ -67,11 +67,11 @@ string dir_entry(string path, string name, int mask, object me)
   }
   else
   {
-    // if (virtual_find_object(path+name))
-    // {
-    //   if (mask & MASK_F)
-    //     name += "*";
-    // }
+    if (find_object(path+name))
+    {
+      if (mask & MASK_F)
+        name += "*";
+    }
 
     // size = (size / 1024) + 1;
     // file-size, human-readable, neverbot 05/06
@@ -169,14 +169,14 @@ int ls(string str, int mask, object me)
           else
             bing[i] = sprintf("%-*s", cols, direc[i]+"/");
 
-        // else if (virtual_find_object(path+direc[i]))
-        //   if (mask & MASK_O)
-        //     bing[i] = sprintf("%s%-=*s", "%^MAGENTA%^",
-        //       (int)cols-1, direc[i]+"%^RESET%^"+
-        //       (mask & MASK_F?"*":""));
-        //   else
-        //     bing[i] = sprintf("%-=*s", cols,
-        //       direc[i]+"*");
+        else if (find_object(path+direc[i]))
+          if (mask & MASK_O)
+            bing[i] = sprintf("%s%-=*s", "%^MAGENTA%^",
+              (int)cols-1, direc[i]+"%^RESET%^"+
+              (mask & MASK_F?"*":""));
+          else
+            bing[i] = sprintf("%-=*s", cols,
+              direc[i]+"*");
 
         else
           bing[i] = sprintf("%-*s", cols, direc[i]);
@@ -216,10 +216,10 @@ int ls(string str, int mask, object me)
             // sprintf(" %s%s%s", "%^GREEN%^", direc[i], "%^RESET%^"));
             " %^GREEN%^" + direc[i] + "%^RESET%^");
 
-        // else if (virtual_find_object(path+direc[i]))
-        //   bong = replace_string(bong, " "+direc[i],
-        //     sprintf(" %s%s%s", "%^MAGENTA%^", direc[i], "%^RESET%^"));
-        //     " %^MAGENTA%^" + direc[i] + "%^RESET%^");
+        else if (find_object(path+direc[i]))
+          bong = replace_string(bong, " "+direc[i],
+            // sprintf(" %s%s%s", "%^MAGENTA%^", direc[i], "%^RESET%^"));
+            " %^MAGENTA%^" + direc[i] + "%^RESET%^");
 
         else
           // Believe me, it's needed.
@@ -335,7 +335,6 @@ int ls(string str, int mask, object me)
         if (strlen(fname) > 19)
           fname = fname[0..19];
 
-        // loaded = virtual_find_object(str+direc[i][0]);
         loaded = find_object(str + direc[i][0]);
         bit[i] = sprintf("%-*s", (cols+
           ((mask & MASK_O) && loaded?19:0)),
@@ -438,7 +437,7 @@ static int cmd(string str, object me, string verb)
   // 128 -h 
   if (!mask)
   {
-    mask = 2 + 8 + 16 + 32 + 128;
+    mask = 2 + 8 + 32 + 128;
   }
 
   if (strlen(str) && (str[0..0] == "-"))
