@@ -745,7 +745,7 @@ void create_user3(string str)
 void create_user4()
 {
   // create the user object
-  _user->set_user_name(user_name);
+  _user->set_account_name(user_name);
   _user->set_password(password);
   // _user->add_player(name);
   _user->update_last_connection();

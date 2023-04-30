@@ -10,6 +10,14 @@ void create()
 {
 }
 
+void set_password(string str)
+{
+  password = str;
+  this_object()->save_me();
+}
+
+// string query_password() { return password; }
+
 void security_commands()
 {
   add_action("change_password", _LANG_COMM_PASSWORD);
