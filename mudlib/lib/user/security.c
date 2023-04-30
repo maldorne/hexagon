@@ -20,6 +20,12 @@ nomask int valid_password(string pass)
   if (!strlen(pass))
     return 0;
 
+  if (undefinedp(password) || !strlen(password))
+  {
+    write(_LANG_ERROR_IN_PASSWORD);
+    return 0;
+  }
+
   pass = crypt(pass, password);
 
   if (pass != password)

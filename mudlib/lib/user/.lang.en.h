@@ -65,6 +65,7 @@
 #define _LANG_NEW_PASSWORD "Please, type your new password: "
 #define _LANG_PASSWORD_CONDITIONS "Your password must have at least six characters."
 #define _LANG_REPEAT_PASSWORD "Please, type the password again: "
+#define _LANG_ERROR_IN_PASSWORD "There is an error with your password, contact an administrator.\n"
 
 // ui.c
 
