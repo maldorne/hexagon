@@ -1,144 +1,180 @@
-/* Creador (Ni idea)
-   Mostrar paths en la info Feb'2000 Goku
-   Recodificaion para eliminar multiples peticiones a users() Feb'2000 Goku
-   Mostrar Idle sobre usuarios coincidentes Feb'2000 Goku
-   Inclusion de coincidencias en environments Feb'2000 Goku
+/* 
+  command to show multiple logins from the same ip.
+  - show paths in the info Feb'2000 Goku
+  - refactoring to remove multiple calls to users() Feb'2000 Goku
+  - show idle time on matching users Feb'2000 Goku
+  - show users in the same environment Feb'2000 Goku
 */
 
-#include <standard.h>
-#include <cmd.h>
+#include <mud/cmd.h>
+#include <language.h>
+
 inherit CMD_BASE;
+
 #define BLANK "   "
 
-protected string get_ipmsg(object);
-protected string get_file_name(object);
-protected string get_filemsg(object);
+private string get_ipmsg(object ob);
+private string get_file_name(object ob);
+private string get_filemsg(object ob);
 
 void setup()
 {
-    position = 1;
+  set_aliases(({ "multi" }));
+  set_usage("multi");
+  set_help("Shows multiple logins from the same ip and other multiplaying info.");
 }
 
-protected int cmd(string str, object me, string verb)
+static int cmd(string str, object me, string verb)
 {
-    object *usuarios = users();
-    object *ips, *users_ok, env;
-    int i = 0, j=0;
-    string ip;
+  object *usrs;
+  object *ips, *users_ok, env;
+  int i, j, howmany;
+  string ip;
 
-    users_ok = ({ });
-    for(i=0;i<sizeof(usuarios);i++) {
-	users_ok += ({ usuarios[i] });
-    }
+  usrs = users();
+  users_ok = ({ });
+  i = 0;
+  j = 0;
 
-    if (!TP->query_coder()) return 0;
+  for (i = 0; i < sizeof(usrs); i++)
+    users_ok += ({ usrs[i] });
 
-    write("%^BOLD%^GREEN%^Gente con el mismo ip:%^RESET%^\n");
-    i=0;
-    while(i < sizeof(usuarios))
+  tell_object(me, "%^BOLD%^GREEN%^People with the same ip:%^RESET%^\n");
+  i = 0;
+  howmany = 0;
+  while (i < sizeof(usrs))
+  {
+    ip = query_ip_name(usrs[i]);
+    ips  = ({ });
+    j = i + 1;
+
+    while (j < sizeof(usrs))
     {
-	ip = query_ip_name(usuarios[i]);
-	ips  = ({ });
-	j = i+1;
-	while (j < sizeof(usuarios))
-	{
-            if (ip && (ip == query_ip_name(usuarios[j])))
-	    {
-		ips += ({ usuarios[j] });
-		usuarios -= ({ usuarios[j] });
-	    }
-	    j++;
-	}
-	if(sizeof(ips))
-	{
-	    write("%^BOLD%^* "+ip+" ->%^RESET%^\n");
-	    write(get_ipmsg(usuarios[i]));
-	    for (j=0;j<sizeof(ips);j++) {
-		write(get_ipmsg(ips[j]));
-	    }
-	}
-	i++;
+      if (ip && (ip == query_ip_name(usrs[j])))
+      {
+        ips += ({ usrs[j] });
+        usrs -= ({ usrs[j] });
+      }
+      j++;
     }
-    write("%^BOLD%^GREEN%^Gente con el mismo environment (party detect)%^RESET%^:\n");
-    usuarios = ({ });
-    for(i=0;i<sizeof(users_ok);i++) {
-	usuarios += ({ users_ok[i] });
-    }
-    i=0;
 
-    while(i < sizeof(usuarios))
+    if (sizeof(ips))
     {
-	env   = environment(usuarios[i]);
-	ips  = ({ });
-	j = i+1;
-	while (j < sizeof(usuarios))
-	{
-	    if (env && (env == environment(usuarios[j])) )
-	    {
-		ips += ({ usuarios[j] });
-		usuarios -= ({ usuarios[j] });
-	    }
-	    j++;
-	}
-	if(sizeof(ips))
-	{
-	    write("%^BOLD%^* "+get_file_name(usuarios[i])+" ->%^RESET%^\n");
-	    write(get_filemsg(usuarios[i]));
-	    for (j=0;j<sizeof(ips);j++) {
-		write(get_filemsg(ips[j]));
-	    }
-	}
-	i++;
+      howmany++;
+      tell_object(me, "%^BOLD%^* "+ip+" ->%^RESET%^\n");
+      tell_object(me, get_ipmsg(usrs[i]));
+      for (j = 0; j < sizeof(ips); j++) 
+        tell_object(me, get_ipmsg(ips[j]));
     }
-    write("%^BOLD%^GREEN%^Gente con el mismo login:%^RESET%^\n");
-    usuarios = ({ });
-    for(i=0;i<sizeof(users_ok);i++) {
-	usuarios += ({ users_ok[i] });
-    }
-    for (i=0; i<sizeof(usuarios)-1; i++)
+    i++;
+  }
+
+  if (howmany == 0)
+    tell_object(me, "  No players with the same ip found.\n");
+
+  tell_object(me, "%^BOLD%^GREEN%^People with the same environment (party detect):%^RESET%^\n");
+  usrs = ({ });
+
+  for (i = 0; i < sizeof(users_ok); i++) 
+    usrs += ({ users_ok[i] });
+
+  i = 0;
+  howmany = 0;
+  while (i < sizeof(usrs))
+  {
+    env = environment(usrs[i]);
+    ips = ({ });
+    j = i + 1;
+
+    while (j < sizeof(usrs))
     {
-
-	ip = usuarios[i]->query_ident();
-	for(j=i+1; j<sizeof(usuarios); j++)
-	    if (ip && (ip == usuarios[j]->query_ident()))
-		write(ip+"\t--- "+usuarios[i]->query_cap_name()+" y "+
-		  usuarios[j]->query_cap_name()+".\n");
+      if (env && (env == environment(usrs[j])) )
+      {
+        ips += ({ usrs[j] });
+        usrs -= ({ usrs[j] });
+      }
+      j++;
     }
-    return 1;
+
+    if (sizeof(ips))
+    {
+      howmany++;
+      tell_object(me, "%^BOLD%^* "+get_file_name(usrs[i])+" ->%^RESET%^\n");
+      tell_object(me, get_filemsg(usrs[i]));
+      for (j = 0; j < sizeof(ips); j++) 
+        tell_object(me, get_filemsg(ips[j]));
+    }
+    i++;
+  }
+
+  if (howmany == 0)
+    tell_object(me, "  No players with the same environment found.\n");
+
+  tell_object(me, "%^BOLD%^GREEN%^People with the same login:%^RESET%^\n");
+  usrs = ({ });
+  howmany = 0;
+
+  for (i = 0; i < sizeof(users_ok); i++) 
+    usrs += ({ users_ok[i] });
+
+  for (i = 0; i < sizeof(usrs)-1; i++)
+  {
+    ip = usrs[i]->query_ident();
+    for(j=i+1; j<sizeof(usrs); j++)
+      if (ip && (ip == usrs[j]->query_ident()))
+      {
+        howmany++;
+        tell_object(me, ip + "\t--- " + usrs[i]->query_cap_name() + " and "+
+          usrs[j]->query_cap_name()+".\n");
+      }
+  }
+
+  if (howmany == 0)
+    tell_object(me, "  No multiple logins found.\n");
+
+  return 1;
 }
 
-protected string get_ipmsg(object obj)
+private string get_ipmsg(object obj)
 {
-    string back;
+  string back;
 
-    if( query_idle(obj) > 120 ) {
-	back = sprintf("  %sIdle: %d%s %10-s%s%s\n",
-	  "%^RED%^",query_idle(obj)/60,"%^RESET%^",obj->query_cap_name(),
-	  BLANK,get_file_name(obj));
-    } else {
-	back = sprintf("          %10-s%s%s\n",obj->query_cap_name(),
-	  BLANK,get_file_name(obj));
-    }
-    return(back);
+  if (obj->query_idle() > 120) 
+  {
+    back = sprintf("  %sIdle: %d%s %-10s%s%s\n",
+      "%^RED%^", obj->query_idle()/60,"%^RESET%^", obj->player()->query_cap_name(),
+      BLANK, get_file_name(obj));
+  } 
+  else 
+  {
+    back = sprintf("      %-10s%s%s\n", obj->player()->query_cap_name(),
+      BLANK, get_file_name(obj));
+  }
+
+  return back;
 }
 
-protected string get_file_name(object obj)
+private string get_file_name(object obj)
 {
-    return (environment(obj)? virtual_file_name(environment(obj))
-      :"Esta en el limbo");
+  return (environment(obj) ? file_name(environment(obj))
+    : "no environment");
 }
 
-protected string get_filemsg(object obj)
+private string get_filemsg(object obj)
 {
-    string back;
+  string back;
 
-    if( query_idle(obj) > 120 ) {
-	back = sprintf("  %sIdle: %d%s %10-s%s%s\n",
-	  "%^RED%^",query_idle(obj)/60,"%^RESET%^",obj->query_cap_name(),
-BLANK,query_ip_name(obj));
-    } else {
-	back = sprintf("          %10-s%s%s\n",obj->query_cap_name(),
-BLANK,query_ip_name(obj));
-    }
-    return(back);
+  if (obj->query_idle() > 120) 
+  {
+    back = sprintf("  %sIdle: %d%s %-10s%s%s\n",
+      "%^RED%^", obj->query_idle()/60,"%^RESET%^", obj->player()->query_cap_name(),
+      BLANK, query_ip_name(obj));
+  } 
+  else 
+  {
+    back = sprintf("      %-10s%s%s\n", obj->player()->query_cap_name(),
+      BLANK, query_ip_name(obj));
+  }
+
+  return back;
 }
