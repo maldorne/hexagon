@@ -164,7 +164,7 @@ string who_string(int width, int cre, string str)
         // Here it denies to show "super invis"
         if (user->query_invis() > 1)
         {
-          if (!this_player()->query_administrator())
+          if (!this_player()->query_admin())
             continue;
         }
 

@@ -106,7 +106,7 @@ string query_object_type()
 
 nomask int set_invis(int i)
 {
-  if (query_coder())
+  if (!query_admin())
   {
     if (i)
         invis = 1;

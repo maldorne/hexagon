@@ -1,18 +1,29 @@
-// Comandos extraidos de global, Folken 4/2003
-#include <standard.h>
-#include <cmd.h>
+// cmds extracted from global.c, neverbot 4/2003
+
+#include <mud/cmd.h>
+#include <language.h>
 
 inherit CMD_BASE;
 
-protected int cmd (string str, object me, string verb)
+void setup()
 {
-    if(!me->query_invis()) {
-    	tell_object(me, "Ya eres visible.\n");
-	return 1;
-    }
-    tell_object(me, "Apareces.\n");
-    tell_room(environment(me), me->query_cap_name()+" aparece repentinamente de la nada.\n", me);
-    me->set_invis(0);
-    return 1;
+  set_aliases(({ "visible" }));
+  set_usage("visible");
+  set_help("Makes you visible again.");
 }
 
+static int cmd(string str, object me, string verb)
+{
+  if (!me->query_invis())
+  {
+    tell_object(me, "You are already visible.\n");
+    return 1;
+  }
+
+  tell_object(me, "You become visible.\n");
+  tell_room(environment(me), me->query_cap_name() + 
+    " appears suddenly.\n", me);
+
+  me->set_invis(0);
+  return 1;
+}

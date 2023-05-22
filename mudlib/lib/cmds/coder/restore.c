@@ -21,7 +21,7 @@ static int cmd(string str, object me, string verb)
   me->set_hp(me->query_max_hp());
   me->set_gp(me->query_max_gp());
 
-  tell_object(this_player(),"%^YELLOW%^Your health and stamina are restored.%^RESET%^\n");
+  tell_object(this_player(), "%^YELLOW%^Your health and stamina are restored.%^RESET%^\n");
   
   // tell_room(environment(this_player()), 
   //       "%^YELLOW%^The health and stamina of " + this_player()->query_cap_name()+
