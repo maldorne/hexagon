@@ -49,7 +49,7 @@ string query_help()
          "        a <arg>: passes the argument 'arg' when calling main()\n" +
          "                 (must be the last flag)\n" +
          "\nThe following macros can be used: \n"+defines()+"\n" +
-         "ie: exec object *a; int i;  a=users(); for(i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n"
+         "ie: exec object *a; int i;  a=users(); for(i=0;i<sizeof(a);i++) tell_object(a[i], \"test\");\n";
 }
 
 private int check_file()
