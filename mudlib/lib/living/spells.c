@@ -541,7 +541,7 @@ int spell_damage(int damage, string type, object caster)
   int original;
 
   original = damage;
-  prot = this_object()->query_res(type);
+  prot = this_object()->query_resistance(type);
 
   // Debug de informacion a los inmortales (neverbot 7/01)
   if ((prot != 0) && this_object()->query_coder())
@@ -564,15 +564,6 @@ int spell_damage(int damage, string type, object caster)
   else
     return (this_object()->query_hp() - this_object()->adjust_hp(-damage, caster) );
   //return 1;
-}
-
-// Añadida por neverbot para comprobar la resistencia de cualquier personaje o npc
-// a un tipo de daño (la usan todos los npcs de /oficios/wizards).
-// Antes no habia una funcion de calculo de resistencias decente :P
-
-int query_res(string tipo)
-{
-  return this_object()->query_resistance(tipo);
 }
 
 mixed *stats()

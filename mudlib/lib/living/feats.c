@@ -445,7 +445,7 @@ int feat_damage(int damage, string type, object attacker)
 {
   int prot;
   
-  prot = this_object()->query_res(type);
+  prot = this_object()->query_resistance(type);
       
   // Debug de informacion a los inmortales (Folken 7/01)
   if ((prot != 0) && this_object()->query_coder())
