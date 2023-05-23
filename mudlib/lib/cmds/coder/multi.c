@@ -7,7 +7,7 @@
 */
 
 #include <mud/cmd.h>
-#include <language.h>
+// #include <language.h>
 
 inherit CMD_BASE;
 

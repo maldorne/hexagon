@@ -106,7 +106,7 @@
 
 // Propiedades para usar en varios hechizos
 #define PROPERTY_CEGADO                "BLIND"
-#define PROPERTY_INVUL                 "invulnerable_hechizos"
+#define PROPERTY_SPELL_INVUL           "spell_invulnerability"
 #define INAUDIBLE                      "inaudible"
 #define VISION_REAL                    "vision_real"
 #define PROPERTY_ARMADURA_ESPIRITUAL   "spirit_armour"
