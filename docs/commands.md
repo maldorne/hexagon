@@ -64,47 +64,47 @@ Admin commands will be only in english, except texts shown to the players, which
 
 Coder commands will be only in english, except texts shown to the players, which will be multilanguage.
 
-| Command      | Working in Hexagon |  Translated en/es  |   Help available   | Notes                                                |
-| ------------ | :----------------: | :----------------: | :----------------: | ---------------------------------------------------- |
-| actions      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| armours      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| backup       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| cat          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| clone        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                      |
-| compare      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| cp           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| cplines      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| discard      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| du           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| exec         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| exits        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| ~ftpwho~     |                    |                    |                    | Moved to the `ftpd` package.                         |
-| goto         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| grep         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| head         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| home         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| invisible    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| ioulist      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| load         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| ls           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| mail         |                    |                    |                    | [#23](https://github.com/maldorne/hexagon/issues/23) |
-| malloc       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| man          |                    |                    |                    |                                                      |
-| mkdir        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| more         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| ~mudlist~    |                    |                    |                    | Moved to the `intermud` package.                     |
-| multi        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| mv           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| nls          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| peace        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                      |
-| resistencias |                    |                    |                    |                                                      |
-| restore      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| rm           | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| rmdir        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| sar          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| tail         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| uptime       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| visible      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| Command     | Working in Hexagon |  Translated en/es  |   Help available   | Notes                                                |
+| ----------- | :----------------: | :----------------: | :----------------: | ---------------------------------------------------- |
+| actions     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| armours     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| backup      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| cat         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| clone       | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                      |
+| compare     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| cp          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| cplines     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| discard     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| du          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| exec        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| exits       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| ~ftpwho~    |                    |                    |                    | Moved to the `ftpd` package.                         |
+| goto        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| grep        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| head        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| home        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| invisible   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| ioulist     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| load        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| ls          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| ~mail~      |                    |                    |                    | [#23](https://github.com/maldorne/hexagon/issues/23) |
+| malloc      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| ~man~       |                    |                    |                    | [#7](https://github.com/maldorne/hexagon/issues/7)   |
+| mkdir       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| more        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| ~mudlist~   |                    |                    |                    | Moved to the `intermud` package.                     |
+| multi       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| mv          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| nls         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| peace       | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                      |
+| resistances | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| restore     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| rm          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| rmdir       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| sar         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| tail        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| uptime      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| visible     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 
 ## Player (see issue [#14](https://github.com/maldorne/hexagon/issues/14))
 
@@ -119,12 +119,12 @@ Coder commands will be only in english, except texts shown to the players, which
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | consider      | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | cost          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
-| diplomacy     |                    |                    |                    | Postponed for now                                                          |
+| ~diplomacy~   |                    |                    |                    | Postponed for now                                                          |
 | encumbrance   | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | equipment     | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | grope         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
-| group         |                    |                    |                    | Postponed for now                                                          |
+| ~group~       |                    |                    |                    | Postponed for now                                                          |
 | inform        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | inventory     | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
@@ -134,8 +134,8 @@ Coder commands will be only in english, except texts shown to the players, which
 | past          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | pov           | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
-| quests        |                    |                    |                    | [#26](https://github.com/maldorne/hexagon/issues/26)                       |
-| ranking       |                    |                    |                    | Postponed for now                                                          |
+| ~quests~      |                    |                    |                    | [#26](https://github.com/maldorne/hexagon/issues/26)                       |
+| ~ranking~     |                    |                    |                    | Postponed for now                                                          |
 | retire        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | score         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | ~search~      |                    |                    |                    | Converted to skill [#25](https://github.com/maldorne/hexagon/issues/25)    |
