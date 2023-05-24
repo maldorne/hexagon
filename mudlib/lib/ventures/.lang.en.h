@@ -62,7 +62,7 @@
 #define _LANG_PUB_MENU_FOODS "Food"
 #define _LANG_PUB_MENU_DRINKS "Soft drinks"
 #define _LANG_PUB_MENU_ALCOHOL "Alcoholic beverages"
-#define _LANG_PUB_MENU_INSTRUCTIONS "Use 'buy' to ask what you want.\n"
+#define _LANG_PUB_MENU_INSTRUCTIONS "Use 'buy' to ask for what you want.\n"
 #define _LANG_PUB_BUY_WHAT capitalize(query_verb()) + " what?\n"
 #define _LANG_PUB_BUY_SYNTAX query_verb() + " <something> [for <player>]"
 #define _LANG_PUB_BUY_PREPOSITION "for"
