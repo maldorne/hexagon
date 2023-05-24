@@ -446,8 +446,12 @@ static int cmd(string name, object me, string verb)
                   target->query_hp(),
                   target->query_max_hp());
 
-  info += "\n";
-  info += _LANG_CMD_SHEET_CAN_ALSO_USE;
+
+  if (this_user()->query_verbose())
+  {
+    info += "\n";
+    info += _LANG_CMD_SHEET_CAN_ALSO_USE;
+  }
 
   info = handler("frames")->frame(info, 
                                   _LANG_CMD_SHEET_NAME + ": %^BOLD%^" + target->query_cap_name() + "%^RESET%^",
