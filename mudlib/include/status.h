@@ -38,6 +38,7 @@
 # define O_CALLOUTS	4	/* callouts in object */
 # define O_INDEX	5	/* unique ID for master object */
 # define O_UNDEFINED	6	/* undefined functions */
+# define O_SPECIAL	7	/* object has special role */
 
 # define CO_HANDLE	0	/* callout handle */
 # define CO_FUNCTION	1	/* function name */
