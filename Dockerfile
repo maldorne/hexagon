@@ -1,5 +1,5 @@
 
-FROM neverbot/maldorne-dgd:v1.6 as base
+FROM ghcr.io/maldorne/dgd:latest as base
 
 USER root
 
