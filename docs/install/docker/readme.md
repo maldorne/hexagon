@@ -26,6 +26,14 @@ And having access to some kind of command-line terminal.
 3. Or run the container in interactive mode:
 
    `docker run --rm -ti -p 23:5000 ghcr.io/maldorne/hexagon:latest`
+
+4. Push the image after building it:
+
+   `docker push ghcr.io/maldorne/hexagon:latest`
+
+5. Pull the image from the repository:
+
+   `docker pull ghcr.io/maldorne/hexagon:latest`
    
 We are mapping the 23 port in the host machine to the 5000 port in the container, so if we execute `telnet localhost` in the host machine it will connect to the mud in the container.
 
