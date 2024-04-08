@@ -16,6 +16,9 @@ dynamic_chunk = 261120;                 /* dynamic memory chunk */
 dump_file = "../mudlib/tmp/snapshot";   /* snapshot file */
 dump_interval = 3600;                   /* snapshot interval in seconds */
 
+/* if we are adding extensions, add them here */
+/* modules = ([ "<absolute path to the compiled extension>" : "" ]); */
+
 /* highest level of typechecking */
 typechecking = 2;
 
