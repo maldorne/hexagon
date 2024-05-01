@@ -93,7 +93,6 @@ After version 1.19.05, we started working with milestones, prior to that, we onl
 | :white_check_mark: |  | :heavy_minus_sign: **living** to `/lib/living/living.c`. |
 | :white_check_mark: |  | :heavy_minus_sign: **player** to `/lib/player.c` (avatar in-game handling) and `/lib/user.c` (user account, connection, input and output) |
 | :white_check_mark: |  | :heavy_minus_sign: **item** to `/lib/item.c`. |
-|         :x:        |  | :heavy_minus_sign: **monster** to `/lib/monster.c` |
 | :white_check_mark: | **Migrations** | User migrations to update user data. |
 
 For more information about the different versions of the project, take a look to the [about page in maldorne.org](https://maldorne.org/about/).
