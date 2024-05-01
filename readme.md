@@ -5,7 +5,7 @@
 Hexagon mudlib
 ==============
 
-[![Hexagon](https://img.shields.io/badge/Hexagon-v21.09%20Beregost-green)](https://github.com/maldorne/hexagon)
+[![Hexagon](https://img.shields.io/badge/Hexagon-v2.0%20Castle%20Black)](https://github.com/maldorne/hexagon)
 [![DGD](https://img.shields.io/badge/DGD-1.7.2-green.svg)](https://github.com/dworkin/dgd)
 [![Deploy to hosting](https://github.com/maldorne/hexagon/workflows/Deploy%20to%20hosting/badge.svg)](https://github.com/maldorne/hexagon/actions)
 
