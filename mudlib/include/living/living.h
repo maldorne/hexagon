@@ -1,4 +1,4 @@
 
 
-#define LIVING_HANDLER "/lib/handlers/livings"
-#define RANKING_OB "/obj/handlers/ranking.c"
+#define LIVING_HANDLER "/lib/core/livings"
+#define RANKING_OB "/obj/handlers/ranking"
