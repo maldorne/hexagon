@@ -17,7 +17,7 @@ After that is the data.
 
 This is a bin/ type command.  To invoke it, call the function main()
 
-               Enjoy,   Jubal  (Dave Ljung, DaveSource.com/GetDave.com)
+> Enjoy, Jubal (Dave Ljung, DaveSource.com/GetDave.com)
 
 This program has been successfully ported to the following drivers:
 
