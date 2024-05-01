@@ -18,6 +18,14 @@ static mapping _players;
 
 void create()
 {
+  // anti-cloning
+  if (file_name(this_object()) != "/lib/core/users") 
+  {
+    write("This object cannot be cloned.\n");
+    destruct(this_object());
+    return;
+  }
+
   ::create();
   _users = ([ ]);
   _players = ([ ]);

@@ -7,6 +7,14 @@ static mapping _handlers;
 
 void create() 
 {
+  // anti-cloning
+  if (file_name(this_object()) != "/lib/core/singletons") 
+  {
+    write("This object cannot be cloned.\n");
+    destruct(this_object());
+    return;
+  }
+
   ::create();
   _tables = ([ ]);
   _handlers = ([ ]);

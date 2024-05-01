@@ -26,6 +26,15 @@ void set_notify_fail_msg(string msg);
 
 void create()
 {
+  // anti-cloning
+  // this file will be inherited by mudos.c
+  if (file_name(this_object()) != "/lib/core/mudos") 
+  {
+    write("This object cannot be cloned.\n");
+    destruct(this_object());
+    return;
+  }
+
   _hb_object_list = ({ });
   _hb_handle = -1;
 

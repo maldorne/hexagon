@@ -20,6 +20,14 @@ private static mixed ** call_outs;
 
 void create()
 {
+  // anti-cloning
+  if (file_name(this_object()) != "/lib/core/mudos") 
+  {
+    write("This object cannot be cloned.\n");
+    destruct(this_object());
+    return;
+  }
+
   initiator_user = nil;
   initiator_player = nil;
   initiator_object = this_object(); // default on mud init
