@@ -28,6 +28,11 @@
 
 # ignore packages
 /packages/*
+!/packages/crypt
+!/packages/issues
+!/packages/test
+!/packages/time
+
 
 # ignore games, except the common ones
 /games/*
