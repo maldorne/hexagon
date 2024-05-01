@@ -37,7 +37,8 @@
 
 inherit CMD_BASE;
 
-#define MAX_ARRAY 1000
+#define CRYPT_MAX_DEPTH 100
+#define CRYPT_MAX_TICKS 10000000
 
 /* last character of header MUST be '\n' */
 /* Don't change the HEADER or else you won't be able to uncrypt files! */
@@ -283,7 +284,7 @@ int get_key2(mixed key)
 
   tmpkey = 0;
 
-  rlimits(100; 10000000)
+  rlimits(CRYPT_MAX_DEPTH; CRYPT_MAX_TICKS)
   {
     if (file_crypt(key, !crypt, name, newname))
     {
