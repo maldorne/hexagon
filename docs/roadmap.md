@@ -1,6 +1,31 @@
 # Project status and roadmap
 
-## Current version being worked on: [v1.23.03 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
+## Current version being worked on:
+
+### [v2.1 Daggerfall](https://github.com/maldorne/hexagon/milestone/4)
+
+| Status | Title | Description |
+| :----: | :---- | ----------- |
+|        | **Commands** | Review and full translation of every `lib/cmds` command. |
+|        |  | :heavy_minus_sign: Test and translate every command, by user type: `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)]. |
+|        |  | :heavy_minus_sign: Test and translate every command, by user type: `coder` [[#15](https://github.com/maldorne/hexagon/issues/15)]. |
+|        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/maldorne/hexagon/issues/7)]. |
+|        | **Player actions** | Review every communications action [[#23](https://github.com/maldorne/hexagon/issues/23)]. |
+|        | **Skills** | Review skill system [[#25](https://github.com/maldorne/hexagon/issues/25)]. |
+
+## Future versions: 
+
+Set of features not yet started, but planned.
+
+### [v2.2 Edoras](https://github.com/maldorne/hexagon/milestone/5)
+
+| Status | Title | Description |
+| :----: | :---- | ----------- |
+|        | **Quests** | Review quest system [[#26](https://github.com/maldorne/hexagon/issues/26)]. |
+
+## Previous versions/milestones
+
+### [v1.24.04 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
 When finished, this version will be renamed as `v2.0` and it will be the last `alpha` version.
 
@@ -12,7 +37,6 @@ Set of features we are currently working on:
 | :white_check_mark: |  | :heavy_minus_sign: Add compatibility and status list in the repository ([done](commands.md)). |
 | :white_check_mark: |  | :heavy_minus_sign: Test and translate every command, by user type: `login` [[#13](https://github.com/maldorne/hexagon/issues/13)]. |
 | :white_check_mark: |  | :heavy_minus_sign: Test and translate every command, by user type: `player` [[#14](https://github.com/maldorne/hexagon/issues/14)]. |
-|        |  | :heavy_minus_sign: Test and translate every command, by user type: `coder` [[#15](https://github.com/maldorne/hexagon/issues/15)]. |
 | :white_check_mark: | **Containers** | Dockerfile to execute the mud inside a container, and related documentation. |
 | :white_check_mark: | **Encoding** | Review files in the repository, not all of them are using the same encoding [[#20](https://github.com/maldorne/hexagon/issues/20)]. |
 | :white_check_mark: | **Basic objects** | Full inheritance tree from the original `ccmudlib`, objects related to combat [[#21](https://github.com/maldorne/hexagon/issues/21)]. |
@@ -20,30 +44,6 @@ Set of features we are currently working on:
 | :white_check_mark: |  | :heavy_minus_sign: `armour.c` |
 | :white_check_mark: |  | :heavy_minus_sign: `shield.c` |
 | :white_check_mark: | **Basic binary connections** | Start working with binary connections to allow future development of httpd, ftpd, etc [[#22](https://github.com/maldorne/hexagon/issues/22)]. |
-
-## Future versions: 
-
-### [v2.1 Daggerfall](https://github.com/maldorne/hexagon/milestone/4)
-
-Set of features not yet started, but planned.
-
-| Status | Title | Description |
-| :----: | :---- | ----------- |
-|        | **Commands** | Review and full translation of every `lib/cmds` command. |
-|        |  | :heavy_minus_sign: Test and translate every command, by user type: `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)]. |
-|        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/maldorne/hexagon/issues/7)]. |
-|        | **Player actions** | Review every communications action [[#23](https://github.com/maldorne/hexagon/issues/23)]. |
-|        | **Skills** | Review skill system [[#25](https://github.com/maldorne/hexagon/issues/25)]. |
-
-### [v2.2 Edoras](https://github.com/maldorne/hexagon/milestone/5)
-
-Set of features not yet started, but planned.
-
-| Status | Title | Description |
-| :----: | :---- | ----------- |
-|        | **Quests** | Review quest system [[#26](https://github.com/maldorne/hexagon/issues/26)]. |
-
-## Previous versions/milestones
 
 ### [v1.21.09 Beregost](https://github.com/maldorne/hexagon/releases/tag/1.21.09)
 
