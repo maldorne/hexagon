@@ -53,8 +53,8 @@ static string read_file_line(string file, varargs int start_line, int number_of_
   if (!number_of_lines)
     number_of_lines = 1;
 
-  catch
-  {
+  // catch
+  // {
     if (start_line)
       while ((read = ::read_file(file, where, 1)) && (current_line < start_line) && (where < size))
       {
@@ -71,7 +71,12 @@ static string read_file_line(string file, varargs int start_line, int number_of_
       if (read == "\n")
         line_count++;
     }
-  }
+  // }
+
+  // haven't reach the amount of lines desired, the file is smaller
+  // +1 because lines 0 and 1 are the first line
+  if (start_line + number_of_lines > current_line + line_count + 1)
+    error("read_file_line: Attempt to read past end of file.\n");
 
   return ret;
 }

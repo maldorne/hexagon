@@ -119,31 +119,30 @@ int ex_spool(string yn, string fil, int linum)
     return 1;
   }
 
-  // for (i = 0; i < this_player()->query_rows(); linum++)
-  // {
-  //   i++;
-  //   s1 = read_file_line(fil, linum, 1);
-  //   if ( !strlen(s1) && (s1 != "\n") )
-  //   {
-  //     write("\n");
-  //     return 1;
-  //   }
-
-  //   write(sprintf("%4d: %s", linum, s1));
-  // }
-
-  s1 = read_file_line(fil, linum, this_user()->query_rows());
-
-  if (!strlen(s1))
+  for (i = 0; i < this_user()->query_rows(); linum++)
   {
-    write("\n");
-    return 1;
+    i++;
+    
+    catch (s1 = read_file_line(fil, linum, 1));
+    
+    if (!strlen(s1))
+      break;
+
+    write(sprintf("%4d: %s", linum, s1));
   }
 
-  lines = explode(s1, "\n");
+  // s1 = read_file_line(fil, linum, this_user()->query_rows());
 
-  for (i = 0; i < sizeof(lines); i++, linum++)
-    write(sprintf("%4d: %s\n", linum, lines[i]));
+  // if (!strlen(s1))
+  // {
+  //   write("\n");
+  //   return 1;
+  // }
+
+  // lines = explode(s1, "\n");
+
+  // for (i = 0; i < sizeof(lines); i++, linum++)
+  //   write(sprintf("%4d: %s\n", linum, lines[i]));
 
   write(sprintf("File: %s. Q to quit", fil));
   input_to("ex_spool", 0, fil, linum);
