@@ -184,6 +184,14 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `reset_eval_cost`       | :white_check_mark: | dummy function, commented |
 | `set_eval_limit`        | :white_check_mark: | dummy function, commented |
 
+## Exceptions
+
+| Function | Status | Comments |
+| -------- | :----: | -------- |
+| `catch`  | :white_check_mark: | |
+| `error`  | :white_check_mark: | |
+| `throw`  | :negative_squared_cross_mark: | use `error()` in dgd |
+
 ## Others
 
 | Function | Status | Comments |
@@ -217,7 +225,6 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `next_bit`              |  |  |
 | `exec`                  | :heavy_minus_sign: | dummy function, commented |
 | `set_hide`              |  |  |
-| `throw`                 |  |  |
 | `error`                 |  |  |
 | `deep_inherit_list`     |  |  |
 | `shallow_inherit_list`  |  |  |
