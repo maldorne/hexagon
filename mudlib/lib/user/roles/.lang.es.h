@@ -9,6 +9,8 @@
 #define _LANG_CODER_OBJECT_NO_RSV "¡La habitación en el vacío ha desaparecido!\n"
 #define _LANG_CODER_OBJECT_DO_NOT_UPDATE "¡Tu NO updateas eso! " + \
                 "(no se pueden updatear objetos interactive()).\n"
+#define _LANG_CODER_OBJECT_DO_NOT_UPDATE_CORE "¡Tu NO updateas eso! " + \
+                "(no se pueden updatear objetos core.\n"
 #define _LANG_CODER_OBJECT_NAME_BROKEN "Ups. Tu "+itemname+" acaba de romperse.\n"
 #define _LANG_CODER_OBJECT_BROKEN "Ups. Algo que tenías acaba de romperse.\n"
 #define _LANG_CODER_OBJECT_UPDATED "Actualizado: "

@@ -188,17 +188,26 @@ static nomask int destruct(varargs object ob)
   object env;
   object * shadows;
   int i;
+  string ob_name;
 
   if (!ob)
     ob = this_object();
 
-  stderr(" - destruct: <" + object_name(ob) + ">\n");
+  ob_name = object_name(ob);
+
+  stderr(" - destruct: <" + ob_name + ">\n");
 
   // destruct all objects shadowing this object
   shadows = ob->_query_shadows();
 
   for (i = 0; i < sizeof(shadows); i++)
     destruct(shadows[i]);
+
+  if ((strlen(ob_name) >= 10) && (ob_name[0..9] == "/lib/core/"))
+  {
+    stderr(" *** destruct: <" + ob_name + "> error, core objects refuse to be destroyed\n");
+    return 0;
+  }
 
   // TODO destruct its inventory?
 
@@ -208,7 +217,7 @@ static nomask int destruct(varargs object ob)
   {
     if (!env->_inv_remove(ob))
     {
-      stderr(" *** destruct: <" + object_name(ob) + "> error, its environment refused to let it go\n");
+      stderr(" *** destruct: <" + ob_name + "> error, its environment refused to let it go\n");
       return 0;
     }
 

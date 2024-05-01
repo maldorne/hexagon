@@ -47,8 +47,9 @@ static int cmd(string str, object me, string verb)
       }
       else 
       {
-        write(str + "is not loaded.\n");
+        write(str + " is not loaded.\n");
       }
+
       continue;
     }
 
@@ -85,6 +86,7 @@ void no_discard(string s)
   if (this_player()->affirmative(s)) 
   {
     err = catch(discard_obj->dwep());
+    
     if (err)
       write("Error in dwep():\n   " + err + "\n");
 

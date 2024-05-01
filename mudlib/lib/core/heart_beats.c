@@ -185,3 +185,14 @@ nomask int remove_hb_object(object ob)
 
 //   _hb_handle = call_out("perform_heart_beat", HEART_BEAT_PERIOD);
 // }
+
+// avoid discard or destructions
+void dest_me()
+{
+  error("This object does not allow you to destroy it.\n");
+}
+
+void dwep()
+{
+  error("This object does not allow you to destroy it.\n");
+}

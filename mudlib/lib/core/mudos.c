@@ -381,3 +381,14 @@ mixed * _call_out_info()
 
   return ret;
 }
+
+// avoid discard or destructions
+void dest_me()
+{
+  error("This object does not allow you to destroy it.\n");
+}
+
+void dwep()
+{
+  error("This object does not allow you to destroy it.\n");
+}

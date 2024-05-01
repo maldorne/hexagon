@@ -309,18 +309,6 @@ object query_parse_id(mixed *arr)
   return this_object();
 }
 
-void dest_me()
-{
-  destruct(this_object());
-  return ;
-} /* dest_me() */
-
-void dwep()
- {
-  destruct(this_object());
-  return ;
-} /* dwep() */
-
 int move(mixed dest, varargs mixed messin, mixed messout) { return 1; }
 // int move() { return 1; }
 

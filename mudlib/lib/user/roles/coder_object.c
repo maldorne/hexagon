@@ -83,6 +83,12 @@ private int _update_objects(object *ov)
 
     filename = file_name(ov[i]);
 
+    if ((strlen(filename) >= 10) && (filename[0..9] == "/lib/core/"))
+    {
+      notify_fail(_LANG_CODER_OBJECT_DO_NOT_UPDATE_CORE);
+      return 0;
+    }
+
     if (sscanf(filename, "%s#%d", filename, dummy) != 2) // a room? a handler? something not cloned
       cloned = false;
     else
