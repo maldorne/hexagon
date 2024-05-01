@@ -95,7 +95,7 @@ static int cmd(string str, object me, string verb)
 
 int ex_spool(string yn, string fil, int linum)
 {
-  string s1;
+  string s1, err;
   string * lines;
   int i;
   mixed tnum;
@@ -123,10 +123,13 @@ int ex_spool(string yn, string fil, int linum)
   {
     i++;
     
-    catch (s1 = read_file_line(fil, linum, 1));
-    
-    if (!strlen(s1))
+    err = catch(s1 = read_file_line(fil, linum, 1));
+  
+    if (err)
+    {
+      write("\n");
       break;
+    }
 
     write(sprintf("%4d: %s", linum, s1));
   }
