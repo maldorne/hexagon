@@ -25,7 +25,7 @@
 #define _LANG_NPCS_BARMAN_PLURALS ({ "arak" })
 #define _LANG_NPCS_BARMAN_LONG "For a goblin he is quite remarkable in stature. The smell of him is nauseating.\n"
 #define _LANG_NPCS_BARMAN_CHAT ({ ":looks at you.", \
-                                  "@spits at your feet.", })
+                                  ":spits at your feet.", })
 #define _LANG_NPCS_BARMAN_A_CHAT ({ "'Arrggghhh!" })
 
 #define _LANG_NPCS_ASSASSIN_NAME "kael"

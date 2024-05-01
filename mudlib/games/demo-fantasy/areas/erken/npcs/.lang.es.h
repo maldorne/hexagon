@@ -27,7 +27,7 @@
 #define _LANG_NPCS_BARMAN_LONG "Para ser un goblin tiene una estatura bastante notable. Sus " + \
       "efluvios corporales le destacan entre la multitud.\n"
 #define _LANG_NPCS_BARMAN_CHAT ({ ":te mira.", \
-                                  "@te escupe a los pies.", })
+                                  ":te escupe a los pies.", })
 #define _LANG_NPCS_BARMAN_A_CHAT ({ "'¡Arrggghhh!" })
 
 #define _LANG_NPCS_ASSASSIN_NAME "kael"
