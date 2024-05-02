@@ -25,7 +25,7 @@ void setup()
 
   add_clone(NPCS + "barman.c", 1);
 
-  set_open_condition("barman");
+  set_attender("barman");
 }
  
 void reset()
