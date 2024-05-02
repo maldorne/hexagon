@@ -4,6 +4,7 @@
 #include "conversions/ordinal.c"
 #include "conversions/to_string.c"
 #include "conversions/to_int.c"
+#include "conversions/to_float.c"
 #include "conversions/print_object.c"
 #include "conversions/number_as_string.c"
 
