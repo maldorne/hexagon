@@ -30,6 +30,7 @@
 /packages/*
 !/packages/crypt
 !/packages/issues
+!/packages/json
 !/packages/test
 !/packages/time
 
