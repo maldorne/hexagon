@@ -33,6 +33,7 @@
 !/packages/json
 !/packages/test
 !/packages/time
+!/packages/uuid
 
 
 # ignore games, except the common ones
