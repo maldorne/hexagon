@@ -1,6 +1,12 @@
 
 # json.c
 
+Last place found:
+
+[LPCsnippets Github Repository](https://github.com/atari2600tim/LPCsnippets/blob/master/json.c).
+
+## Info
+
 LPC support functions for JSON serialization and deserialization.
 Attempts to be compatible with reasonably current FluffOS and LDMud
 drivers, with at least a gesture or two toward compatibility with
@@ -18,7 +24,7 @@ v1.0: initial release
 v1.0.1: fix for handling of \uXXXX on MudOS
 v1.0.2: define array keyword for LDMud & use it consistently
 
-## LICENSE
+## License
 
 ```
 The MIT License (MIT)
