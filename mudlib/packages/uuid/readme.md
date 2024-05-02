@@ -11,7 +11,7 @@ This is a "version 4" uuid.  This is based on random numbers, the others use tim
 https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)
 supposed to use lower case but accept upper case (so run lower_case when comparing incoming stuff)
 
-Author unknown.
+Author: ¿atari2600tim?
 
 Example:
 
