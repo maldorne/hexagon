@@ -225,7 +225,6 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `next_bit`              |  |  |
 | `exec`                  | :heavy_minus_sign: | dummy function, commented |
 | `set_hide`              |  |  |
-| `error`                 |  |  |
 | `deep_inherit_list`     |  |  |
 | `shallow_inherit_list`  |  |  |
 | `stat`                  |  |  |
