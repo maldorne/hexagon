@@ -21,11 +21,11 @@ And having access to some kind of command-line terminal.
 
 2. Run the container in background:
 
-   `docker run --rm -td -p 23:5000 ghcr.io/maldorne/hexagon:latest`
+   `docker run --rm -d -p 23:5000 --name hexagon ghcr.io/maldorne/hexagon:latest`
 
-   Or run the container in interactive mode:
+3. Connect to the container if needed:
 
-   `docker run --rm -ti -p 23:5000 ghcr.io/maldorne/hexagon:latest`
+   `docker exec -it hexagon bash`
 
 If you make changes to the image, push it after building it:
 

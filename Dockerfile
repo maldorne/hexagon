@@ -20,7 +20,7 @@ WORKDIR /opt/mud/hexagon
 RUN mv .config.dgd ../bin/config.dgd
 RUN chmod +x start.sh
 
-ENTRYPOINT ./start.sh & /bin/bash
+ENTRYPOINT ./start.sh
 
 # expose telnet mudos port
 EXPOSE 5000/tcp
