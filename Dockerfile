@@ -12,7 +12,7 @@ WORKDIR /opt/mud
 COPY --chown=mud:mud .config.dgd start.sh hexagon/
 COPY --chown=mud:mud mudlib hexagon/mudlib/
 
-# reuse the same user created by the maldorne-mudos:v22.2b13 image
+# reuse the same user created by the dgd:latest image
 USER mud
 
 # finishing touches
