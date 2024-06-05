@@ -115,7 +115,26 @@ static nomask int rm(string name)
 
 static nomask int mkdir(string dir)
 {
-  return make_dir(dir);
+  string * pieces, tmp;
+  int i;
+
+  pieces = explode(dir, "/");
+  tmp = "/";
+
+  for (i = 0; i < sizeof(pieces); i++)  {
+    tmp += pieces[i] + "/";
+
+    // is a directory already
+    if (file_exists(tmp) == -1)
+      continue;
+    // is a file
+    else if (file_exists(tmp) != 0)
+      return 0;
+    else
+      make_dir(tmp);
+  }
+
+  return 1;
 }
 
 static nomask int rmdir(string dir)
