@@ -35,6 +35,7 @@ static int cmd(string str, object me, string verb)
   nick = (string)me->expand_nickname(str);
   dest = find_living(nick);
   
+  // go to a user
   if (dest) 
   {
     if (dest = environment(dest)) 
@@ -54,6 +55,7 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
   } 
+  // go to a room
   else 
   {
     names = (string *)get_files(str);

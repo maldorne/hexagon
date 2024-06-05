@@ -14,10 +14,10 @@
 
 inherit light    "/lib/core/basic/light";
 inherit property "/lib/core/basic/property";
-inherit contents "/lib/core/basic/contents";
 inherit desc     "/lib/core/basic/desc";
 inherit events   "/lib/core/basic/events";
 
+inherit contents   "/lib/room/contents";
 inherit senses     "/lib/room/senses";
 inherit guard      "/lib/room/guard";
 inherit navigation "/lib/room/navigation";
@@ -34,7 +34,6 @@ private static int room_init_time;      // time of previous init
 private static int room_stabilize;      // don't bother call_out
 private static int clean_up_handle;
 
-object *query_hidden_objects();
 string query_dirs_string();
 
 object query_door_ob(string dir);
@@ -56,7 +55,7 @@ static string exit_string,
               * aliases;
 
 static mixed * dest_other;
-object * destables, * hidden_objects;
+object * destables;
 
 static string exit_color;
 static string loginroom;
@@ -73,7 +72,6 @@ int query_room() { return 1; }
 void set_dark_mess(string str) { dark_mess = str; }
 void start_clean_up();
 string query_short_exit_string();
-object * query_hidden_objects() { return hidden_objects; }
 
 // moved glance code to the command (: Radix 1996
 string short(varargs int dark)
@@ -103,7 +101,6 @@ void create()
   items = ([ ]);
   aliases = ({ });
   destables = ({ });
-  hidden_objects = ({ });
   door_control = ([ ]);
   room_zone = "nowhere";
   exit_color = "%^BOLD%^%^CYAN%^";
@@ -121,6 +118,7 @@ void create()
   desc::create();
   events::create();
 
+  contents::create();
   property::create();
   senses::create();
   guard::create();
@@ -182,23 +180,6 @@ int test_add(object ob, int flag) { return 1; }
 int test_remove(object ob, int flag) { return 1; }
 int add_weight(int n) { return 1; }
 
-object * add_hidden_object(object ob)
-{
-  hidden_objects += ({ob});
-  return hidden_objects;
-}
-
-string query_contents(varargs string str, object *ob)
-{
-  if (!hidden_objects)
-    hidden_objects = ({ });
-  if (ob)
-    ob -= hidden_objects;
-  else
-    ob = all_inventory(this_object()) - hidden_objects;
-  return ::query_contents(str, ob);
-}
-
 void reset()
 {
   int flags;
@@ -232,7 +213,7 @@ void reset()
         if (room_clones[i])
         {
           room_clones[i]->move(this_object());
-          if (flags == 1) add_hidden_object(room_clones[i]);
+          if (flags == 1) contents::add_hidden_object(room_clones[i]);
         }
       }
     }
@@ -461,11 +442,7 @@ void init()
 
   // add_action("do_dig", "cavar");
 
-  hidden_objects -= ({ nil });
-
-  for (i = 0; i < sizeof(hidden_objects); i++)
-    hidden_objects[i]->init();
-
+  contents::init();
   senses::init();
 
   start_clean_up();
@@ -554,9 +531,9 @@ mixed add_exit(string direc, mixed dest, string type,
   if (!arrayp(dest_other) || !sizeof(dest_other)) 
     dest_other = ({ });
 
-  m = EXIT_HAND->add_exit(door_control, exit_map, // mappings
-    dest_other, dest_direc, hidden_objects,       // arrays
-    direc, dest, type, material);                 // & data
+  m = EXIT_HAND->add_exit(door_control, exit_map,             // mappings
+    dest_other, dest_direc, contents::query_hidden_objects(), // arrays
+    direc, dest, type, material);                             // & data
 
   short_exit_string = "";
   exit_string = "";
@@ -567,7 +544,7 @@ mixed add_exit(string direc, mixed dest, string type,
     exit_map = m[1];
     dest_other = m[2];
     dest_direc = m[3];
-    hidden_objects = m[4];
+    contents::set_hidden_objects(m[4]);
     exit_string = query_dirs_string();
     short_exit_string = query_short_exit_string();
 
@@ -630,8 +607,9 @@ int modify_exit(string direc, mixed *data)
 {
   mixed *m;
 
-  m = EXIT_HAND->modify_exit(door_control,dest_other,hidden_objects,
-                direc,data);
+  m = EXIT_HAND->modify_exit(door_control, dest_other, 
+                             contents::query_hidden_objects(),
+                             direc, data);
 
   if (sizeof(m) > 0)
   {
@@ -639,7 +617,7 @@ int modify_exit(string direc, mixed *data)
     {
       door_control = m[0];
       dest_other = m[1];
-      hidden_objects = m[2];
+      contents::set_hidden_objects(m[2]);
       exit_string = query_dirs_string();
       return(1);
     }
@@ -658,8 +636,9 @@ int remove_exit(string direc)
   if ( member_array(direc, dest_other) == -1 )
     return 0;
 
-  m = EXIT_HAND->remove_exit(door_control,exit_map,dest_other,
-      dest_direc,hidden_objects,direc);
+  m = EXIT_HAND->remove_exit(door_control, exit_map, dest_other,
+                             dest_direc, contents::query_hidden_objects(), 
+                             direc);
 
   // destroy the door object if it the exit is removed
   // neverbot 6/03
@@ -673,8 +652,9 @@ int remove_exit(string direc)
     exit_map = m[1];
     dest_other = m[2];
     dest_direc = m[3];
-    hidden_objects = m[4];
+    contents::set_hidden_objects(m[4]);
   }
+
   exit_string = query_dirs_string(); // Update the exit string
   reset_short_exit_string();  //so glance works, Anirudh
 
@@ -1043,10 +1023,12 @@ int clean_up_room( int flag )
 
 object * find_inv_match(string str)
 {
-  if (!sizeof(hidden_objects))
-    return (object *)all_inventory(this_object()) + m_values(items);
+  // if (!sizeof(hidden_objects))
+  //  return (object *)all_inventory(this_object()) + m_values(items);
 
-  return (object *)all_inventory(this_object()) + (object *)hidden_objects + m_values(items);
+  return (object *)all_inventory(this_object()) + 
+         (object *)contents::query_hidden_objects() + 
+         m_values(items);
 }
 
 /* 
