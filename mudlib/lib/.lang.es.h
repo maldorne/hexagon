@@ -13,7 +13,6 @@
 // room.c
 
 #define _LANG_DEFAULT_SIGN_NAME "cartel"
-#define _LANG_NO_EXITS "sin salidas"
 
 #define _LANG_ROOM_TOO_DARK "Está demasiado oscuro para poder ver"
 #define _LANG_ROOM_LIGHT_DEF "Hmm, no ves bien. " + dark_mess + "\n"

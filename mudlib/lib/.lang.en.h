@@ -13,7 +13,6 @@
 // room.c
 
 #define _LANG_DEFAULT_SIGN_NAME "sign"
-#define _LANG_NO_EXITS "no exits"
 
 #define _LANG_ROOM_TOO_DARK "It is too dark to see anything."
 #define _LANG_ROOM_LIGHT_DEF "Hmm, you can't see very well. " + dark_mess + "\n"
