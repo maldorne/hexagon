@@ -1,9 +1,6 @@
 /*
  * Language
  *
- * This is the only file that you will need to edit to change to 
- * mud language.
- *
  * This file will and must be included ONLY from the driver and auto 
  * objects, because they are the only files that will not use the 
  * driver include_file call. After both are initilized, every include
@@ -24,6 +21,9 @@
  * Currently supported languages: es, en
  */
 
-#define GLOBAL_COMPILE_LANG "en"
-#include <translations/common.en.h>
-#include <translations/time.en.h>
+// the real includes have been moved to a file inside the /save directory
+// so we can use the same mudlib containers just changing the contents of 
+// /save, /home and /log
+
+// here GLOBAL_COMPILE_LANG is defined
+#include "/save/language.h"
