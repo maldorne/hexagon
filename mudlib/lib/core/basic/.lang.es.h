@@ -63,7 +63,7 @@
 #define _LANG_CONDITION_WEAP "arma"
 #define _LANG_CONDITION_ARMO "armadura"
 #define _LANG_CONDITION_SHIE "escudo"
-#define _LANG_CONDITION_BROKE_MSG_ME "Tu %^BOLD%^"+str+"%^RESET%^ se acaba rompiendo a causa del uso.\n")
+#define _LANG_CONDITION_BROKE_MSG_ME "Tu %^BOLD%^"+str+"%^RESET%^ se acaba rompiendo a causa del uso.\n"
 #define _LANG_CONDITION_BROKE_MSG_ROOM "" + capitalize(this_object()->query_article()) + \
             "%^BOLD%^" + str + "%^RESET%^ de " + environment(this_object())->query_cap_name() + " se rompe en mil pedazos.\n"
 #define _LANG_CONDITION_STATUS_0 "Está destrozad"+aux+".\n"
