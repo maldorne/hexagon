@@ -39,3 +39,7 @@ mudlib because we'd rather see many different mudlibs rather than just
 variations on a single mudlib (also, there are several complete
 MudOS mudlibs available and there isn't any good way to choose which
 one we would include).
+
+## Updates
+
+Conversion to Hexagon being done by neverbot (when I have time), 2023/2024...
