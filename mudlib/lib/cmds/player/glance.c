@@ -22,6 +22,7 @@ static int cmd (string arg, object me, string verb)
   string ret;
   me = me;
   here = environment(me);
+  ret = "";
 
   if (!here)
   { 
@@ -40,26 +41,35 @@ static int cmd (string arg, object me, string verb)
   if (!strlen(arg))
   {
     if (me->query_coder())
-      tell_object(me, file_name(here) + "\n");
+    {
+      ret += file_name(here);
+      if (here->query_location())
+        ret += " (location)";
+      else if (here->query_outside())
+        ret += " (room/outside)";
+      else if (here->query_room())
+        ret += " (room)";
 
-    ret = "";
+
+      ret += "\n";
+    }
 
     switch(dark)
     {
       case 1:
-        tell_object(me, _LANG_CMD_LOOK_TOO_DARK);
+        ret += _LANG_CMD_LOOK_TOO_DARK;
         break;
 
       case 6:
-        tell_object(me, _LANG_CMD_LOOK_TOO_BRIGHT);
+        ret += _LANG_CMD_LOOK_TOO_BRIGHT;
         break;
 
       case 2:
       case 5:
         if (here->query_dirs_string() != "")
-          ret = (string)here->short(dark) + ".\n";
+          ret += (string)here->short(dark) + ".\n";
         else
-          ret = (string)here->short(dark);
+          ret += (string)here->short(dark);
         //  + (string)here->query_short_exit_string() +".\n";
         break;
 
@@ -68,18 +78,18 @@ static int cmd (string arg, object me, string verb)
         // in this case we do not see the exits, but they do with "look"
         // because the look is more detailed
         if (here->query_dirs_string() != "")
-          ret = (string)here->short(dark) + ".\n";
+          ret += (string)here->short(dark) + ".\n";
         else
-          ret = (string)here->short(dark);
+          ret += (string)here->short(dark);
         break;
 
       default:
-        ret = (string)here->short(dark) + (string)here->query_short_exit_string() + ".\n" + 
-              (string)here->query_contents();
+        ret += (string)here->short(dark) + (string)here->query_short_exit_string() + ".\n" + 
+               (string)here->query_contents();
         break;
     }
     
-    tell_object(me, ret);
+    write(ret);
     return 1;
   }
   /*
@@ -96,17 +106,17 @@ static int cmd (string arg, object me, string verb)
     for (i = 0; i < sizeof(ob); i++)
       // Wonderflug - Nov '95
       if (me == ob[i]) 
-        tell_object(me, capitalize(ob[i]->query_cap_name()) + _LANG_CMD_GLANCE_YOURSELF);
+        ret += capitalize(ob[i]->query_cap_name()) + _LANG_CMD_GLANCE_YOURSELF;
       else
-        tell_object(me, ob[i]->short(dark) + ".\n");
-    return 1;
+        ret += ob[i]->short(dark) + ".\n";
   }
   else
   {
-    tell_object(me, _LANG_CMD_NOTHING_HERE);
+    ret += _LANG_CMD_NOTHING_HERE;
     // notify_fail(_LANG_CMD_NOTHING_HERE);
-    return 1;
   }
-  return 0;
+  
+  write(ret);
+  return 1;
 }
 
