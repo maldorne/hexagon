@@ -7,6 +7,8 @@
 
 #define _LANG_BASEOBS_LONG_SWORD "espada larga"
 #define _LANG_BASEOBS_LONG_SWORD_LONG "Una espada de filo doble, estrecho y largo.\n"
+#define _LANG_BASEOBS_LONG_SWORD_ALIASES ({ "espada", "larga" })
+#define _LANG_BASEOBS_LONG_SWORD_PLURALS ({ "espadas largas", "espadas", "largas" })
 
 #define _LANG_BASEOBS_SCIMITAR "cimitarra"
 #define _LANG_BASEOBS_SCIMITAR_LONG "Una cimitarra de filo largo y curvo.\n"
