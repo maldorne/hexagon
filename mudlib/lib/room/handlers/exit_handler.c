@@ -355,8 +355,10 @@ int do_exit_command(mapping door_control,
     return 0;
   }
 
-  // check if the door ghas guards
-  if (sizeof(guards = room_ob->query_guards()) )
+  guards = room_ob->query_guards();
+
+  // check if the door has guards
+  if (guards && sizeof(guards))
   {
     int j, k;
     mixed * list;

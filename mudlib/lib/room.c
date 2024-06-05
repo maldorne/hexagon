@@ -1,8 +1,12 @@
 /*
 * Taniwha 1995 uncommented clean_up
 * Baldrick started some lobotomizing. sept '96
-* Will reduce the size of this beast.
+* Will reduce the size of this beast
+*
 * CcMud revision, neverbot 6/03
+*
+* For hexagon, big refactor extracting from here exits, zone, contents, cleanup,
+*   to files in /lib/room, neverbot 06/24
 */
 
 #include <room/room.h>
@@ -12,37 +16,22 @@
 #include <common/frames.h>
 #include <language.h>
 
+inherit obj      "/lib/core/object.c";
 inherit light    "/lib/core/basic/light";
-inherit property "/lib/core/basic/property";
-inherit desc     "/lib/core/basic/desc";
-inherit events   "/lib/core/basic/events";
 
+inherit cleanup    "/lib/room/cleanup";
 inherit contents   "/lib/room/contents";
 inherit exits      "/lib/room/exits";
+inherit zone       "/lib/room/zone";
 inherit senses     "/lib/room/senses";
 inherit guard      "/lib/room/guard";
 inherit navigation "/lib/room/navigation";
 inherit diplomacy  "/lib/room/diplomacy";
 
-// debugging logs
-//#define CLEAN_UP_LOG "clean_up_room"
-//#define DOOR_LOG "room_doors.cloned"
-#define FAST_CLEAN_UP 10
-#define SLOW_CLEAN_UP 480
-
-private static int room_create_time;    // time of creation
-private static int room_init_time;      // time of previous init
-private static int room_stabilize;      // don't bother call_out
-private static int clean_up_handle;
-
-
 static mixed * room_clones;
 static mapping items;
 
-static string room_zone,
-              dark_mess;
-              // * dig_where,
-              // * dig_exit,
+static string dark_mess;
 
 object * destables;
 
@@ -53,9 +42,9 @@ string query_quit_destination() { return quit_destination; }
 void set_quit_destination(string str) { quit_destination = str; }
 
 int query_room() { return 1; }
+int query_location() { return 0; }
 
 void set_dark_mess(string str) { dark_mess = str; }
-void start_clean_up();
 
 // moved glance code to the command (: Radix 1996
 string short(varargs int dark)
@@ -72,50 +61,35 @@ int id(string str)
 
 void create()
 {
-  string *inh;
   room_clones = ({ });
-
-  // dig_where = ({ });
-  // dig_exit = ({ });
 
   items = ([ ]);
   destables = ({ });
-  room_zone = "nowhere";
   set_dark_mess(_LANG_ROOM_TOO_DARK);
 
   // seteuid(SECURE->creator_file(file_name(this_object())));
   // seteuid(ROOM_EUID);
 
   light::create();
-  property::create();
   contents::create();
-  desc::create();
-  events::create();
 
   exits::create();
   contents::create();
+  zone::create();
   senses::create();
-  guard::create();
   navigation::create();
   diplomacy::create();
+  guard::create();
+
+  obj::create();
 
   // default light value for every room, will be changed
   // in the setup() if needed
   set_light(BASE_ROOM_LIGHT_VALUE);
 
   add_property("location", "inside");
-  this_object()->setup();
-  reset();
 
-  // if (replaceable(this_object()))
-  // {
-  //   inh = inherit_list(this_object());
-  //   if (sizeof(inh) == 1)
-    room_create_time = time();
-    clean_up_handle = 0;
-    start_clean_up();
-  //   replace_program(inh[0]);
-  // }
+  reset();
 }
 
 string set_login_room(string room)
@@ -169,11 +143,13 @@ void reset()
         if (room_clones[i])
         {
           room_clones[i]->move(this_object());
-          if (flags == 1) contents::add_hidden_object(room_clones[i]);
+          if (flags == 1) 
+            contents::add_hidden_object(room_clones[i]);
         }
       }
     }
   }
+
   guard::reset();
 }
 
@@ -256,51 +232,11 @@ string long(string str, int dark)
 void init()
 {
   exits::init();
-  // add_action("do_dig", "cavar");
 
   contents::init();
   senses::init();
 
-  start_clean_up();
-}
-
-void start_clean_up()
-{
-  int old_call_out;
-#ifdef FAST_CLEAN_UP
-  // when folk in room, update timers {Laggard}
-  old_call_out = remove_call_out( clean_up_handle );
-#endif
-  room_init_time = time();
-#ifdef FAST_CLEAN_UP
-  if ( old_call_out < FAST_CLEAN_UP
-  &&  (room_init_time - room_create_time) < FAST_CLEAN_UP )
-  {
-    // was merely passing through {Laggard}
-    clean_up_handle = call_out( "clean_up_room", FAST_CLEAN_UP, 0 );
-  }
-  else if ( !room_stabilize )
-  {
-    clean_up_handle = call_out( "clean_up_room", (old_call_out < 0 ? 0 : old_call_out), 0 );
-  }
-#endif
-}
-
-void set_zone(string str) { room_zone = str; }
-
-string query_zone()
-{
-#ifdef FAST_CLEAN_UP
-  // monsters call this to move, but may not actually come here,
-  // so potential clean_up_room {Laggard}
-  if ( !room_stabilize  &&  !room_init_time )
-  {
-    room_init_time = time();
-    clean_up_handle = call_out( "clean_up_room", FAST_CLEAN_UP, 0 );
-  }
-#endif
-
-  return room_zone;
+  cleanup::init();
 }
 
 // Here is the add_item stuff, what I don't understand is why this is objects..
@@ -474,139 +410,6 @@ void dest_me()
   destruct(this_object());
 }
 
-// function called by the driver before swapping.
-int clean_up( int flag )
-{
-  object * arr;
-  int i, elapsed_time;
-
-  arr = deep_inventory( this_object() );
-  i = sizeof( arr );
-  elapsed_time = time() - room_create_time;
-
-  if (this_object()->query_property(NO_CLEAN_UP_PROP))
-    return 1;
-  if (this_object()->query_property("corpse_here"))
-    return 1;
-
-  // check for inherited room
-  if ( flag )
-  {
-#ifdef CLEAN_UP_LOG
-    log_file( CLEAN_UP_LOG, ctime( time() )
-      + " inherited "
-      + (room_init_time ? time() - room_init_time : "*0*")
-      + "/"
-      + elapsed_time
-      + " seconds ("
-      + memory_info( this_object() )
-      + " bytes) "
-      + file_name( this_object() )
-      + ".\n" );
-#endif
-    return 0;
-  }
-
-  // Loop to find if user inside the room somehow {Begosh}
-  // Also check for longer term room usage {Laggard}
-  while( i-- )
-  {
-    if ( userp( arr[i] )
-    ||  elapsed_time > SLOW_CLEAN_UP )
-    {
-#ifdef CLEAN_UP_LOG
-      log_file( CLEAN_UP_LOG, ctime( time() )
-        + " stabilized "
-        + (room_init_time ? time() - room_init_time : "*0*")
-        + "/"
-        + elapsed_time
-        + " seconds ("
-        + memory_info( this_object() )
-        + " bytes) "
-        + file_name( this_object() )
-        + ".\n" );
-#endif
-      // room is frequently used, stop cleaning up
-      room_stabilize = 1;
-      return 1;
-    }
-  }
-
-#ifdef CLEAN_UP_LOG
-  log_file( CLEAN_UP_LOG, ctime( time() )
-    + " clean_up "
-    + (room_init_time ? time() - room_init_time : "*0*")
-    + "/"
-    + elapsed_time
-    + " seconds ("
-    + memory_info( this_object() )
-    + " bytes) "
-    + file_name( this_object() )
-    + ".\n" );
-#endif
-
-  dest_me();
-  return 0; // don't call back
-}
-
-#ifdef FAST_CLEAN_UP
-// use call_out to attempt faster clean up {Laggard}
-// this is almost but not quite the same as the preceeding function.
-// the differences are not subtle.
-int clean_up_room( int flag )
-{
-  object * arr;
-  int i, elapsed_time;
-
-  if (this_object()->query_property(NO_CLEAN_UP_PROP))
-    return 1;
-  if (this_object()->query_property("corpse_here"))
-    return 1;
-
-  stderr(" ~ clean_up_room check " + object_name(this_object()) + "\n");
-
-  elapsed_time = time() - room_init_time;
-  arr = deep_inventory( this_object() );
-  i = sizeof( arr );
-
-  if (room_stabilize)
-    return 0;
-
-  remove_call_out( clean_up_handle );
-
-  // Loop to find if user inside the room somehow {Begosh}
-  // Also check for recent living (monster?) arrival {Laggard}
-  while( i-- )
-  {
-    if ( userp( arr[i] ) || (arr[i]->query_property(NO_CLEAN_UP_PROP))
-    ||  (living( arr[i] ) && elapsed_time < SLOW_CLEAN_UP) )
-    {
-      // we do a call_out to kill the room later if we can ;)
-      clean_up_handle = call_out( "clean_up_room", SLOW_CLEAN_UP, 0 );
-      return 1;
-    }
-  }
-
-#ifdef CLEAN_UP_LOG
-  log_file( CLEAN_UP_LOG, ctime( time() )
-    + " "
-    + elapsed_time
-    + "/"
-    + (time() - room_create_time)
-    + " seconds ("
-    + memory_info( this_object() )
-    + " bytes) "
-    + file_name( this_object() )
-    + ".\n" );
-#endif
-
-  stderr(" ~ clean_up_room " + object_name(this_object()) + " (done)\n");
-
-  dest_me();
-  return 0; // don't call back
-}
-#endif
-
 object * find_inv_match(string str)
 {
   // if (!sizeof(hidden_objects))
@@ -615,6 +418,12 @@ object * find_inv_match(string str)
   return (object *)all_inventory(this_object()) + 
          (object *)contents::query_hidden_objects() + 
          m_values(items);
+}
+
+// to avoid conflict, this function is inherited both from object and cleanup
+int clean_up(varargs int flag)
+{
+  return cleanup::clean_up(flag);
 }
 
 /* 
@@ -660,13 +469,9 @@ object add_sign(string long, string mess,
 
 mixed stats()
 {
-  return ({
-    ({ "Move Zone", room_zone }),
-          }) + 
+  return zone::stats() +
       exits::stats() +
-      property::stats() +
       light::stats() +
-      desc::stats() +
       guard::stats() +
       navigation::stats() +
       diplomacy::stats();

@@ -63,31 +63,37 @@ int query_shield() { return 0; }
 int query_room() { return 0; }
 
 // The following is from the TMI-2 Lib. Asmodean Put it here
-int clean_up()
+int clean_up(varargs int flag)
 {
   object env, *contents;
   int i;
 
   if (userp(this_object()))
-    return 1; /* don't clean_up players */
+    return 1; // don't clean_up players
+
   env = environment();
+
   if (env && userp(env))
-    return 1; /* carried ob */
+    return 1; // carried ob
+
   if (env && environment(env))
-    return (int)environment(env)->clean_up(); /* recurse */
+    return (int)environment(env)->clean_up(); // recurse
 
   contents = deep_inventory(this_object());
+
   if (contents) {
-    for (i=0;i<sizeof(contents);i++)
+    for (i = 0; i < sizeof(contents); i++)
       if (userp(contents[i]))
-        return 1; /* holding a user */
+        return 1; // holding a user
   }
+
+  // we're a room with no users inside or a lost object
   if (!env) {
-  /* we're a room with no users inside or a lost object */
     dest_me();
     return 1;
   }
-  return 1; /* try again later... */
+
+  return 1; // try again later...
 }
 
 /*

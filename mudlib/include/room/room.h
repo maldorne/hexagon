@@ -17,3 +17,8 @@
 #define EXIT_HAND "/lib/room/handlers/exit_handler"
 #define DIG_HAND "/lib/room/handlers/dig_handler"
 
+// debugging logs
+//#define CLEAN_UP_LOG "clean_up_room"
+//#define DOOR_LOG "room_doors.cloned"
+#define FAST_CLEAN_UP 10
+#define SLOW_CLEAN_UP 480

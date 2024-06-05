@@ -7,6 +7,8 @@ static string exit_string,
               exit_color,
               * aliases,
               * dest_direc;
+              // * dig_where,
+              // * dig_exit,
 
 static mixed * dest_other;
 
@@ -33,6 +35,8 @@ void create()
 
   exit_map = ([ ]);
 
+  // dig_where = ({ });
+  // dig_exit = ({ });
 
   exit_color = "%^BOLD%^%^CYAN%^";
 }
@@ -76,6 +80,8 @@ void init()
       } while ((j=member_array(dest_direc[i], al)) != -1);
     }
   }
+
+  // add_action("do_dig", "cavar");
 }
 
 // not particularly useful.
@@ -380,7 +386,7 @@ int query_size(string direc)
 
 int do_exit_command(string str, varargs mixed verb, object ob)
 {
-  int zip, old_call_out;
+  int zip;
   object room_ob;
 
   room_ob = this_object();
@@ -395,21 +401,8 @@ int do_exit_command(string str, varargs mixed verb, object ob)
     exit_map, dest_direc, dest_other,
     aliases, str, verb, ob, room_ob);
 
-#ifdef FAST_CLEAN_UP
-  old_call_out = remove_call_out( clean_up_handle );  // multiple folks in room
-
-  if ( old_call_out > 0 &&
-       old_call_out < FAST_CLEAN_UP &&
-      (time() - room_create_time) < FAST_CLEAN_UP )
-  {
-    // was merely passing through {Laggard}
-    clean_up_handle = call_out( "clean_up_room", FAST_CLEAN_UP, 0 );
-  }
-  else if ( !room_stabilize )
-  {
-    clean_up_handle = call_out( "clean_up_room", SLOW_CLEAN_UP, 0 );
-  }
-#endif
+  // update clean_up handle
+  this_object()->update_clean_up();
 
   // the movement shows no prompt message, the look or glance commands
   // will be queued and one of them will show it
