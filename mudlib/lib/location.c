@@ -6,6 +6,7 @@ inherit property "/lib/core/basic/property.c";
 
 inherit contents "/lib/room/contents";
 inherit exits    "/lib/room/exits";
+inherit zone     "/lib/room/zone";
 
 static object * components;
 mapping component_info;
@@ -19,11 +20,17 @@ void save_me();
 void init_original_info();
 
 
+int query_location() { return 1; }
 int query_room() { return 1; }
 // allow adding and removing objects from the inventory (is a room)
 int add_weight(int n) { return 1; }
 int test_add(object ob, int flag) { return 1; }
 int test_remove(object ob, int flag) { return 1; }
+
+// locations won't have clones, do nothing
+// leave this here so we can edit old room files, change the inherit and update
+// them to automatically make the conversion to locations
+void add_clone(string the_file, int how_many, varargs int flags) {}
 
 void create() 
 {
@@ -35,6 +42,7 @@ void create()
   property::create();
   contents::create();
   exits::create();
+  zone::create();
   // the last one
   obj::create();
 
@@ -158,6 +166,7 @@ mixed stats()
           }) +
       obj::stats() +
       property::stats() + 
+      zone::stats() + 
       exits::stats();
 
       // light::stats() +
