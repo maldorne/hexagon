@@ -538,6 +538,7 @@ nomask void logon_with_player_name(string password, int flag)
   }
 
   // from here, we have the user, the character and the password is valid
+  validated = TRUE;
 
   other_copy = find_player(_player->query_name());
 
