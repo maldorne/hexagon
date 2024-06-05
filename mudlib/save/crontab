@@ -10,8 +10,8 @@
 
 # m h object function
 
-# every minute, update_ventures
-* * /lib/handlers/ventures.c update_ventures
+# every 10 minutes, update_ventures
+10 * /lib/handlers/ventures.c update_ventures
 
 # old timed.c checks
 */5 * /lib/handlers/cron.c do_stat_users
