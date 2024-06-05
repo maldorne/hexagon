@@ -57,7 +57,7 @@
     "and unknown way, directly to your mind... it tells you that you " + \
     "should perhaps 'adjust'.\n"
 #define _LANG_ADJUST_VERBS ({ "adjust", "arrange", "rearrange" })
-#define _LANG_ORB_ALREADY_ADJUSTED "You have already adjust your character sheet.\n" + \
+#define _LANG_ORB_ALREADY_ADJUSTED "You have already adjusted your character sheet.\n" + \
     "How did you get here?\n"
 #define _LANG_ORB_RACIAL_BONUSES "\n    Str: %-+2d  Dex: %-+2d  Con: %-+2d  Int: %-+2d\n" + \
     "    Wis: %-+2d  Cha: %-+2d  Per: %-+2d  Wil: %-+2d\n\n"
