@@ -32,7 +32,15 @@ void init()
 
 void create()
 {
+  // default values
+  game_name = "hexagon";
+
   ::create();
+
+  // if we do not have a short desc after create/setup, add a default one
+  if (!strlen(query_short())) {
+    set_short("Hexagon common room");
+  }
 
   door = add_exit(DIR_COMMON, CODER_COMMON_ROOM, "door");  
   if (door){

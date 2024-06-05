@@ -1,7 +1,7 @@
 
 #define GAME_NAME "Demo Fantasy"
 
-inherit "/lib/areas/games/common_room.c";
+inherit "/games/hexagon/common.c";
 
 void setup()
 {
