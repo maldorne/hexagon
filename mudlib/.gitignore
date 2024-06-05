@@ -26,16 +26,6 @@
 !/lib/user/migrations/base_migration.c
 !/lib/user/migrations/0001.c
 
-# ignore packages
-/packages/*
-!/packages/crypt
-!/packages/issues
-!/packages/json
-!/packages/test
-!/packages/time
-!/packages/uuid
-
-
 # ignore games, except the common ones
 /games/*
 !/games/hexagon/

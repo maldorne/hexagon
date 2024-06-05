@@ -1,5 +1,5 @@
 /* 
- * This is the handler for the issue tracker. 
+ * This is the handler for the test suite. 
  */
 
 inherit "/lib/core/object.c";
