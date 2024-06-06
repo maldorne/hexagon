@@ -1,5 +1,9 @@
 
-FROM ghcr.io/maldorne/dgd:latest as base
+FROM --platform=linux/amd64 ghcr.io/maldorne/dgd:latest
+
+LABEL org.opencontainers.image.source=https://github.com/maldorne/hexagon
+LABEL org.opencontainers.image.description="Hexagon Mudlib"
+LABEL org.opencontainers.image.licenses="Pending"
 
 USER root
 
