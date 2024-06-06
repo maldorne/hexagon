@@ -60,8 +60,8 @@ static string query_multiple_short(mixed *obs, varargs int flag)
     if (!str) // ignore invis objects
       continue;
 
-    if (stringp(str))
-      str = ({ str });
+    // if (stringp(str))
+    //   str = ({ str });
 
     for (j = 0; j < sizeof(str); j++)
       if ((k = member_array(str[j], bity)) == -1)

@@ -365,7 +365,7 @@ float *mudwide_sums() {
   time_now = TIMEKEEPER->query_running_time()/60.0;
   load_this_ob();
   if (!mappingp(data)) data = ([ ]); // Taniwha
-  vals = ({ 0,0,0,0,0,0,0 });
+  vals = ({ 0.0,0.0,0.0,0.0,0.0,0.0,0.0 });
   ind = m_indices(data);
   for (i=0;i<sizeof(ind);i++) {
     tmp = explode(ind[i],"/");

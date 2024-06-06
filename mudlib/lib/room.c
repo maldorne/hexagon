@@ -385,7 +385,7 @@ void dest_me()
 
   // Isthar@Aurora 10-dec-1994, destruct everything here
   arr = all_inventory(this_object());
-  arr -= ({ 0});
+  arr -= ({ nil });
 
   for (i = 0; i < sizeof(arr); i++)
   {
