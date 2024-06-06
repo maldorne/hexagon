@@ -9,7 +9,8 @@
 # local scripts
 *.sh
 !start.sh
-!scripts/*.sh
+scripts/*.sh
+!scripts/encoding.sh
 !docs/install/mud.sh
 !docs/install/vm/provisioning.sh
 
