@@ -36,7 +36,7 @@
             " de antigüedad%^RESET%^.\n"
 #define _LANG_FINGER_CONNECTED_SINCE "   Conectad"+(gender==2?"a":"o")+" desde el " + \
             ctime(last_log_on, 1)+".\n"
-#define _LANG_FINGER_LAST_ON "   Se conectó por última vez hace " + \
+#define _LANG_FINGER_LAST_ON "   Se conectó por última vez hace:\n      " + \
             seconds_to_time_string(tmp_time) + ".\n"
 #define _LANG_FINGER_IDLE_TIME "   %^GREEN%^Inactiv"+(gender==2?"a":"o")+" desde hace "+ \
             seconds_to_time_string(ob->user()->query_idle()) + \
