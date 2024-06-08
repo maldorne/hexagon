@@ -4,10 +4,13 @@
  * neverbot 06/06/24
  */
 
-inherit "/lib/item.c";
+inherit "/lib/armour.c";
+
+#include <room/location.h>
+#include <translations/armour.h>
 
 #define BUILDER_RING_CONVERT_SYNTAX "convert < filename | dirname | here >"
-#define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n" + \
+#define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                  "Available commands:\n" + \
                  "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n"
 
@@ -23,9 +26,12 @@ void create()
   add_plural(({ "builder rings", "rings" }));
   set_long("This ring can be used by coders to help them building areas.\n");
 
+  set_base_armour(RING);
+
   reset_drop();
 
-  set_gender(2);
+  // only for spanish language
+  // set_gender(1);
   set_weight(1);
 }
 
@@ -38,11 +44,21 @@ void init()
   ::init();
 }
 
-int do_mark(string str)
+int convert_room_to_location(object room);
+
+int do_convert(string str)
 {
+  // objects (rooms) to be converted to locations
+  object * obs; 
+  object tmp;
+  string * files;
+  int i;
+
+  files = ({ });
+
   if (!str || !strlen(str))
   {
-    notify_fail("convert what?\n\n" + BUILDER_RING_CONVERT_SYNTAX + "\n");
+    notify_fail(capitalize(query_verb()) + " what?\n\n" + BUILDER_RING_CONVERT_SYNTAX + "\n");
     return 0;
   }
 
@@ -58,33 +74,90 @@ int do_mark(string str)
     return 0;
   }
 
-  tell_object(this_player(), "Something something.\n");
+  if (str == "here")
+  {
+    obs = ({ environment(this_player()) });
+  }
+  // is a directory
+  else if (file_size(str) == -2)
+  {
+    files = get_files(str + "/*");
+  }
+  else if (file_size(str) > 0)
+  {
+    files = ({ str });
+  }
+  else
+  {
+    files = get_files(str);
+
+    if (!sizeof(files))
+    {
+      notify_fail("No such file or directory.\n");
+      return 0;
+    }
+  }
+
+  if (sizeof(files) > 0)
+  {
+    for (i = 0; i < sizeof(files); i++)
+    {
+      // catch(tmp = load_object(files[i]));
+      tmp = load_object(files[i]);
+
+      if (tmp)
+        obs += ({ tmp });
+      else
+      {
+        write("Error loading " + files[i] + ".\n");
+        continue;
+      }
+    }
+  }
+
+  if (sizeof(obs) == 0)
+  {
+    notify_fail("No valid objects loaded.\n");
+    return 0;
+  }
+
+  for (i = 0; i < sizeof(obs); i++)
+  {
+    write("Converting " + file_name(obs[i]) + " ...\n");
+
+    if (!convert_room_to_location(obs[i]))
+    {
+      write("Error converting " + file_name(obs[i]) + ".\n");
+    }
+  }
+
+  write("Conversion finished.\n");
   return 1;
 }
 
-/*
-mixed * stats()
+int convert_room_to_location(object room)
 {
-  return ::stats() + ({
-      ({ "Destination Path", destination_path, }),
-      ({ "Destination Name", destination_name, }),
-    });
-}
+  object location;
+  string file_name;
 
-mapping query_auto_load_attributes()
-{
-  return ([ "::" : ::query_auto_load_attributes() ]) + 
-      ((strlen(destination_path)) ? ([ "destination path" : destination_path ]) : ([ ])) + 
-      ((strlen(destination_name)) ? ([ "destination name" : destination_name ]) : ([ ]));
-}
+  if (!room)
+    return 0;
 
-void init_auto_load_attributes(mapping attribute_map)
-{
-  if (!undefinedp(attribute_map["destination path"]))
-    destination_path = attribute_map["destination path"];
-  if (!undefinedp(attribute_map["destination name"]))
-    destination_name = attribute_map["destination name"];
-  if (!undefinedp(attribute_map["::"]))
-    ::init_auto_load_attributes(attribute_map["::"]);
+  if (!room->query_room())
+    return 0;
+
+  if (room->query_location())
+    return 0;
+
+  // what file name would a location based on this room?
+  file_name = load_object(LOCATION_HANDLER)->generate_location_file_name(room);
+
+  // new location object
+  location = clone_object(BASE_LOCATION_OBJ);
+
+  location->set_file_name(file_name);
+
+  location->save_me();
+
+  return 1;
 }
-*/
