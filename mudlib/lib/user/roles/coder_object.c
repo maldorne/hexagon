@@ -123,9 +123,9 @@ private int _update_objects(object *ov)
     catch(loaded = load_object(filename));
 
     if (!cloned)
-      ov[i] = find_object(filename);
-    else
     {
+      ov[i] = find_object(filename);
+
       if (loaded)
         loaded->move(totell);
       else
@@ -143,7 +143,9 @@ private int _update_objects(object *ov)
           thing->move( totell );
         }
       }
-
+    }
+    else
+    {
       catch(dup = clone_object(filename));
 
       ov[i] = dup;
