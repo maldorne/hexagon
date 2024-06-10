@@ -112,40 +112,25 @@ int ex_spool(string yn, string fil, int linum)
     write("Exiting...\n");
     return 1;
   }
-  // from input_to, something not recognize has been written
+  // from input_to, something not recognized has been written
   else if (strlen(yn) && (yn != "Y") && (yn != "y")) 
   {
     write("Exiting...\n");
     return 1;
   }
 
-  for (i = 0; i < this_user()->query_rows(); linum++)
-  {
-    i++;
-    
-    err = catch(s1 = read_file_line(fil, linum, 1));
-  
-    if (err)
-    {
-      write("\n");
-      break;
-    }
+  s1 = read_file_line(fil, linum, this_user()->query_rows());
 
-    write(sprintf("%4d: %s", linum, s1));
+  if (!strlen(s1))
+  {
+    write("\n");
+    return 1;
   }
 
-  // s1 = read_file_line(fil, linum, this_user()->query_rows());
+  lines = explode(s1, "\n");
 
-  // if (!strlen(s1))
-  // {
-  //   write("\n");
-  //   return 1;
-  // }
-
-  // lines = explode(s1, "\n");
-
-  // for (i = 0; i < sizeof(lines); i++, linum++)
-  //   write(sprintf("%4d: %s\n", linum, lines[i]));
+  for (i = 0; i < sizeof(lines); i++, linum++)
+    write(sprintf("%4d: %s\n", linum, lines[i]));
 
   write(sprintf("File: %s. Q to quit", fil));
   input_to("ex_spool", 0, fil, linum);
