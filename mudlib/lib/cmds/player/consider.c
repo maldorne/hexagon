@@ -25,7 +25,7 @@ static int cmd (string arg, object me, string verb)
 
   if (!strlen(arg)) 
   {
-    write(_LANG_SYNTAX + ": " +_LANG_CMD_COMMANDS_SYNTAX + "\n");
+    write(_LANG_SYNTAX + ": " +_LANG_CMD_CONSIDER_SYNTAX + "\n");
     return 1;
   }
 
