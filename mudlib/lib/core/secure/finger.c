@@ -386,13 +386,9 @@ string finger_info(string name, varargs object me)
       retval += "\n"+_LANG_FINGER_PLAN+"\n";
       for (i = 1; i <= 10; i++)
       {
-        string line, err;
-
-        err = catch(line = read_file_line(file_name, i, 1));
-      
-        if (err)
-          break;
-        else if (line == "")
+        string line;
+        line = read_file_line(file_name, i, 1);
+        if (line == "")
           break;
         else
           retval += "   "+line;
