@@ -44,17 +44,17 @@ static int cmd(string str, object me, string verb)
     if (sizeof(filenames) > 1)
      write("File: " + str + "\n\n");
 
-    if (file_size(str) < 8196)
-    {
+    // if (file_size(str) < 8196)
+    // {
       result = cat(str);
       if (!result)
         write("Cannot read that file.\n");
-    }
-    else
-    {
-      write(read_bytes(str, 0, 8195));
-      write("\n ----- TRUNCATED ----- \n\n");
-    }
+    // }
+    // else
+    // {
+    //   write(read_bytes(str, 0, 8195));
+    //   write("\n ----- TRUNCATED ----- \n\n");
+    // }
   }
 
   return 1;

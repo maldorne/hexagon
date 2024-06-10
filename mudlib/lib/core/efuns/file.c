@@ -76,7 +76,7 @@ static nomask int file_exists(string str)
 
 static nomask int cat(string file)
 {
-  int i;
+  int i, num_lines;
   string * lines;
 
   i = file_exists(file);
@@ -93,12 +93,24 @@ static nomask int cat(string file)
   }
 
   lines = full_explode(read_file(file), "\n");
+  num_lines = sizeof(lines);
 
-  if (sizeof(lines) > MAX_CAT_LINES)
+  if (num_lines > MAX_CAT_LINES)
+  {
     lines = lines[0..MAX_CAT_LINES-1];
+    num_lines = MAX_CAT_LINES;
+  }
 
-  for (i = 0; i < sizeof(lines); i++)
-    write(lines[i] + "\n");
+  for (i = 0; i < num_lines; i++)
+  {
+    // we should not use write here, don't want to fix strings or line 
+    // lengths when showing the contents of a file
+    // write(lines[i] + "\n");
+    this_user()->send_message(lines[i] + "\n");
+  }
+
+  if (num_lines == MAX_CAT_LINES)
+    write("\n ----- TRUNCATED ----- \n\n");
 
   return 1;
 }
