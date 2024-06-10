@@ -1,14 +1,14 @@
-Uso: <valor><opción>
-Opciones (entre paréntesis el valor por defecto)
+Use: <option> <value> 
+Options (in brackets the default value)
 
-z o (espacio en blanco) - avanzar una línea
-f (forward)  - adelantar n páginas (1)
-b (backward) - retroceder n páginas (1)
-g (goto)     - ir a la línea n (Primera línea)
-G (goto)     - ir a la línea n (Fin de archivo)
-/palabra     - buscar la línea que contenga una cadena en ella
--            - buscar la siguiente aparición de la última búsqueda
-.            - muestra una página completa hasta la posición actual
-q o Q        - salir del lector
-h o ?        - muestra esta ayuda
+z or (space) - line forward
+f (forward)  - n pages forward (1)
+b (backward) - n pages backwards (1)
+g (goto)     - go to line n (first line)
+G (goto)     - go to line n (end of file)
+/word        - search a line that contains word
+-            - search the next appearance of the last searched word
+.            - show a full page up to the current position
+q o Q        - quit
+h o ?        - shows this help
 
