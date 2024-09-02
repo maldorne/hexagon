@@ -12,7 +12,7 @@
 #define _LANG_YES "sí"
 #define _LANG_NO "no"
 
-#define _LANG_AFFIRMATIVE_OPTIONS ({ "s", "sí", "si", "ok", "okay", "okey", "on" })
+#define _LANG_AFFIRMATIVE_OPTIONS ({ "s", "sí", "si", "ok", "okay", "okey", "on", "y", "yes" })
 #define _LANG_NEGATIVE_OPTIONS ({ "n", "no", "nope", "off" })
 #define _LANG_ALL_OPTIONS ({ "todo", "*" })
 #define _LANG_NONE_OPTIONS ({ "nada" })
