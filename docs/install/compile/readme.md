@@ -24,7 +24,8 @@ As you can see, the DGD project is a fork from [the original](https://github.com
     in `dgd/src/Makefile`.
   * Change the inner working of the `restore_object` kfun, so it
     does not reset all non-static variables that do not hold object
-    values when restoring the object. This is the default mode in MudOS.
+    values when restoring the object. This is the default mode in MudOS. To change this, 
+    in the file `src/kfun/file.cpp` there are some lines commented in the function `kf_restore_object`.
 
 ### Compile the driver
 
