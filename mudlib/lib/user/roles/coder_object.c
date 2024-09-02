@@ -410,20 +410,24 @@ void ask_dest()
 void dest_answer(string s)
 {
   string err, shrt;
+  int value;
 
   if (affirmative(s))
   {
     if (majd)
     {
-      shrt = (string)dest_obj[objn]->short();
+      catch(shrt = (string)dest_obj[objn]->short());
       err = catch(dest_obj[objn]->dwep());
       write("DWEP failed: " + err + "\n");
 
       if (dest_obj[objn])
       {
         write("This object does not want to be destroyed.\n");
-        err = catch(destruct(dest_obj[objn]));
-        write("destruct() failed: " + err + "\n");
+        err = catch(value = destruct(dest_obj[objn]));
+        if (err)
+          write("destruct() failed with error: " + err + "\n");
+        else
+          write("destruct() failed with value: " + value + "\n");
       }
 
       majd = 0;
