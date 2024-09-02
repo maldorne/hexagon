@@ -49,13 +49,13 @@ void create()
   // init_original_info();
 
   // don't save/restore the location if it's the location.c object itself
-  if (base_name(this_object()) != "/lib/location")
-  {
-    if (file_size(query_file_name()) >= 0)
-      restore_object(query_file_name());
-    else
-      save_me();
-  }
+  // if (base_name(this_object()) != "/lib/location")
+  // {
+  //   if (file_size(query_file_name()) >= 0)
+  //     restore_object(query_file_name());
+  //   else
+  //     save_me();
+  // }
 
   // allow goto command to work
   add_property("location", 1);
@@ -127,6 +127,10 @@ string long(string str, int dark)
 string query_file_name() { return file_name; }
 void set_file_name(string name)
 {
+  // try to restore the object from the file
+  if (file_size(name) >= 0)
+    restore_object(name);
+
   file_name = name;
   save_me();
 }
@@ -153,6 +157,11 @@ void save_me()
 
   // save_object(path);
 }
+
+string query_original_short() { return _original_short; }
+void set_original_short(string str) { _original_short = str; }
+string query_original_long() { return _original_long; }
+void set_original_long(string str) { _original_long = str; }
 
 mixed stats()
 {

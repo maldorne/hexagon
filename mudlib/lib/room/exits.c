@@ -84,11 +84,9 @@ void init()
   // add_action("do_dig", "cavar");
 }
 
-// not particularly useful.
-// But here just the same, great for debugging purposes.
 string *query_direc() { return dest_direc; }
-mapping query_exit_map() { return exit_map; } // neverbot, debugging
-string * query_aliases() { return aliases; } // neverbot, debugging
+mapping query_exit_map() { return exit_map; }
+string * query_aliases() { return aliases; }
 
 // It IS useful to get directions + where they go to
 // BTW this is not a frog.

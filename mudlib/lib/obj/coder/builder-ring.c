@@ -74,6 +74,7 @@ int do_convert(string str)
     return 0;
   }
 
+  // converting our environment
   if (str == "here")
   {
     obs = ({ environment(this_player()) });
@@ -83,13 +84,15 @@ int do_convert(string str)
   {
     files = get_files(str + "/*");
   }
+  // is a file
   else if (file_size(str) > 0)
   {
     files = ({ str });
   }
+  // is a file pattern (maybe using "*")
   else
   {
-    files = get_files(str);
+    files = get_cfiles(str);
 
     if (!sizeof(files))
     {
@@ -98,6 +101,7 @@ int do_convert(string str)
     }
   }
 
+  // load the objects in the file list
   if (sizeof(files) > 0)
   {
     for (i = 0; i < sizeof(files); i++)
@@ -121,6 +125,7 @@ int do_convert(string str)
     return 0;
   }
 
+  // convert the rooms to locations
   for (i = 0; i < sizeof(obs); i++)
   {
     write("Converting " + file_name(obs[i]) + " ...\n");
@@ -138,7 +143,9 @@ int do_convert(string str)
 int convert_room_to_location(object room)
 {
   object location;
-  string file_name;
+  string file_name, * exits;
+  mapping exit_map;;
+  int i;
 
   if (!room)
     return 0;
@@ -155,9 +162,24 @@ int convert_room_to_location(object room)
   // new location object
   location = clone_object(BASE_LOCATION_OBJ);
 
+  // will try to load the .o if it exists
   location->set_file_name(file_name);
+
+  location->set_original_short(room->short());
+  location->set_original_long(room->long());
+
+  exit_map = room->query_exit_map();
+  exits = keys(exit_map);
+
+  for (i = 0; i < sizeof(exits); i++)
+  {
+    location->add_exit(exits[i], exit_map[exits[i]]);
+  }
+
+
 
   location->save_me();
 
   return 1;
 }
+
