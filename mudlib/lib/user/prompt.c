@@ -37,8 +37,12 @@ void create()
 //   neverbot 10/2016
 private void do_prompt_write(string msg)
 {
-  msg = fix_string(msg);
-  this_object()->send_message(msg);
+  // if just disconnected, there is no this_object
+  if (this_object())
+  {
+    msg = fix_string(msg);
+    this_object()->send_message(msg);
+  }
 }
 
 /*
