@@ -38,7 +38,7 @@ void create()
   access = ([ ]);
   suspended = ([ ]);
   banished = ([ ]);
-  restore_object(file_name(this_object()), 1);
+  restore_object(SECURE_SAVE_PATH, 1);
   preferred = ({ });
 } /* create() */
 
@@ -262,7 +262,7 @@ int change_access(string *address, string ident, int level, string reason)
   access = add_access(access, address, ident, level);
   if (!access)
     access = ([ ]);
-  save_object(file_name(this_object()),1);
+  save_object(SECURE_SAVE_PATH, 1);
   switch (level) {
     case NO_NEW :
     reason = "no new for "+reason;
@@ -290,7 +290,7 @@ int suspend_person(string str, int tim)
   if (file_size("/save/players/"+str[0..0]+"/"+str+".o") < 0)
     return 0;
   suspended[str] = time()+tim;
-  save_object(file_name(this_object()),1);
+  save_object(SECURE_SAVE_PATH, 1);
   write_file("/log/SUSPEND", str+" suspended until "+ctime(time()+tim)+
     " by "+this_player()->query_name()+".\n");
   return 1;
@@ -301,7 +301,7 @@ int unsuspend_person(string str)
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
   suspended = m_delete(suspended, str);
-  save_object(file_name(this_object()),1);
+  save_object(SECURE_SAVE_PATH, 1);
   // Radix...
   write_file("/log/SUSPEND", str+" unsuspended by "+
     this_player()->query_name()+".\n");
@@ -321,7 +321,7 @@ int banish_playername(string str, string reason)
   return 0;
   */
   banished[str] = reason;
-  save_object(file_name(this_object()),1);
+  save_object(SECURE_SAVE_PATH, 1);
   write_file("/log/BANISHED", str+" banished because of " + reason +
     " by "+this_player()->query_name()+".\n");
   return 1;
@@ -332,7 +332,7 @@ int unbanish_playername(string str)
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
   banished = m_delete(banished, str);
-  save_object(file_name(this_object()),1);
+  save_object(SECURE_SAVE_PATH, 1);
   write_file("/log/BANISHED", str+" unbanished.\n");
   return 1;
 } /* unbanish playername */

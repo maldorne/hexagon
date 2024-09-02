@@ -12,7 +12,7 @@ static mapping _livings;
 void create()
 {
   // anti-cloning
-  if (file_name(this_object()) != "/lib/core/livings") 
+  if (file_name(this_object()) != "/lib/core/secure/livings") 
   {
     write("This object cannot be cloned.\n");
     destruct(this_object());

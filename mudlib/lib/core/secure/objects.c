@@ -23,7 +23,7 @@
 void create()
 {
   // anti-cloning
-  if (file_name(this_object()) != "/lib/core/objects") 
+  if (file_name(this_object()) != "/lib/core/secure/objects") 
   {
     write("This object cannot be cloned.\n");
     destruct(this_object());

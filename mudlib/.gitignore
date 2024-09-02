@@ -10,6 +10,7 @@
 !/save/ventures/ventures.o
 /save/issues/issues.o
 /save/games/*
+!/save/secure/secure.o
 
 # tmp files
 /tmp/*

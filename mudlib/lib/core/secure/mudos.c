@@ -8,7 +8,7 @@
 #include <mud/mudos.h>
 #include <mud/config.h>
 
-inherit hb "/lib/core/heart_beats";
+inherit hb "/lib/core/secure/heart_beats";
 
 // current execution context
 private static object initiator_user, initiator_player, initiator_object;
@@ -21,7 +21,7 @@ private static mixed ** call_outs;
 void create()
 {
   // anti-cloning
-  if (file_name(this_object()) != "/lib/core/mudos") 
+  if (file_name(this_object()) != "/lib/core/secure/mudos") 
   {
     write("This object cannot be cloned.\n");
     destruct(this_object());

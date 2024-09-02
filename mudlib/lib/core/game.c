@@ -8,6 +8,7 @@
 // locked out domain masters at Baldrick's request ... Raskolnikov 96
 // Converted to game object for Hexagon, neverbot 12/2020
 
+#include <mud/secure.h>
 #include <language.h>
 
 // game description
@@ -76,7 +77,7 @@ void create()
   // games closed by default
   open = false;
 
-  seteuid("/lib/core/secure"->creator_file(file_name(this_object())));
+  seteuid(SECURE_OB->creator_file(file_name(this_object())));
   restore_object(file_name(this_object()), 1);
   
   if (pointerp(members))
@@ -102,9 +103,9 @@ void dest_me() { destruct(this_object()); }
 
 void save_me()
 {
-  seteuid("/lib/core/secure"->get_root_uid());
+  seteuid(SECURE_OB->get_root_uid());
   save_object(file_name(this_object()), 1);
-  seteuid("/lib/core/secure"->creator_file(file_name(this_object())));
+  seteuid(SECURE_OB->creator_file(file_name(this_object())));
 }
 
 // Hamlet added arg here...
@@ -112,8 +113,8 @@ int query_dom_manip(varargs string euid)
 {
   if (!euid) euid = geteuid(this_player(1));
   if ((euid == query_game_coordinator()) ||
-    ("/lib/core/secure"->query_admin(euid) &&
-     "/lib/core/secure"->high_programmer(geteuid(this_player()))))
+    (SECURE_OB->query_admin(euid) &&
+     SECURE_OB->high_programmer(geteuid(this_player()))))
     return 1;
   if (lower_case(euid) == game_name)  return 1;
     return 0;
@@ -176,8 +177,8 @@ int valid_write(string *path, string euid, string funct)
   /* lock out domain masters unless its a high programmer
    * Raskolnikov Nov 96
    */
-  if ("/lib/core/secure"->query_admin(euid) &&
-    "/lib/core/secure"->high_programmer(geteuid(this_player())))
+  if (SECURE_OB->query_admin(euid) &&
+    SECURE_OB->high_programmer(geteuid(this_player())))
     return 1;
   switch(path[2])
   {

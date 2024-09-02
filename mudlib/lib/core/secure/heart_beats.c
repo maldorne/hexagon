@@ -28,7 +28,7 @@ void create()
 {
   // anti-cloning
   // this file will be inherited by mudos.c
-  if (file_name(this_object()) != "/lib/core/mudos") 
+  if (file_name(this_object()) != "/lib/core/secure/mudos") 
   {
     write("This object cannot be cloned.\n");
     destruct(this_object());

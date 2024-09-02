@@ -25,8 +25,8 @@
 // Objects
 // old /secure/master
 #define MASTER "/lib/core/secure"
-#define SECURE_OB "/lib/core/secure"
-#define DEBUGGER_OB "/lib/core/debugger"
+#define SECURE_OB "/lib/core/secure/secure"
+#define DEBUGGER_OB "/lib/core/secure/debugger"
 #define SECURE_SAVE_PATH "/save/secure/secure.o"
 // old /secure/ftp_access
 #define FTPACC "/lib/net/ftp_access"

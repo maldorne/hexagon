@@ -5,8 +5,8 @@
 #define DRIVER "/lib/core/driver"
 #define AUTO   "/lib/core/auto"
 
-#define MUDOS_PATH "/lib/core/mudos"
-#define MUDOS      "/lib/core/mudos"
+#define MUDOS_PATH "/lib/core/secure/mudos"
+#define MUDOS      "/lib/core/secure/mudos"
 #define FILTERS    "/lib/core/filters"
 // #define MUDOS find_object(DRIVER)->mudos()
 
@@ -17,10 +17,10 @@
 #define DRIVER_LONG_LOGS
 
 #define ERROR_HANDLER     "/lib/core/errors"
-#define USER_HANDLER      "/lib/core/users"
-#define OBJECT_HANDLER    "/lib/core/objects"
-#define SINGLETON_HANDLER "/lib/core/singletons"
-#define BINARY_HANDLER    "/lib/core/binaries"
+#define USER_HANDLER      "/lib/core/secure/users"
+#define OBJECT_HANDLER    "/lib/core/secure/objects"
+#define SINGLETON_HANDLER "/lib/core/secure/singletons"
+#define BINARY_HANDLER    "/lib/core/secure/binaries"
 
 // driver messages
 #define DRIVER_RUNTIME_ERROR 0

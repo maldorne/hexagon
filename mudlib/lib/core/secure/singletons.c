@@ -8,7 +8,7 @@ static mapping _handlers;
 void create() 
 {
   // anti-cloning
-  if (file_name(this_object()) != "/lib/core/singletons") 
+  if (file_name(this_object()) != "/lib/core/secure/singletons") 
   {
     write("This object cannot be cloned.\n");
     destruct(this_object());
