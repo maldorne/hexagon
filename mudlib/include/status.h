@@ -30,6 +30,7 @@
 # define ST_DATAGRAMPORTS 24	/* datagram ports */
 # define ST_TELNETPORTS	25	/* telnet ports */
 # define ST_BINARYPORTS	26	/* binary ports */
+# define ST_NUSERS	27	/* # users */
 
 # define O_COMPILETIME	0	/* time of compilation */
 # define O_PROGSIZE	1	/* program size of object */
