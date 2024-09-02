@@ -9,6 +9,7 @@
 #include <common/properties.h>
 #include <basic/money.h>
 #include <language.h>
+#include <translations/cmds.h>
 
 inherit living      "/lib/living/living";
 
@@ -321,8 +322,7 @@ void heart_beat()
 }
 
 /* old glance(), neverbot 21/4/2003 */
-int do_glance(varargs string arg)
-{
+int do_glance(varargs string arg) {
   // already in the cmd
   // if (this_object()->query_coder())
   //   if (!strlen(arg) && environment())
@@ -330,13 +330,12 @@ int do_glance(varargs string arg)
 
   // Externalized - Radix
   if (!arg || !strlen(arg))
-      return do_command("glance");
-  return do_command("glance " +arg);
+    return do_command(CMD_GLANCE_NAME);
+  return do_command(CMD_GLANCE_NAME + " " + arg);
 }
 
 /* old look_me(), neverbot 21/4/2003 */
-int do_look(varargs string arg)
-{
+int do_look(varargs string arg) {
   if (!user()->query_verbose())
     return do_glance(arg);
 
@@ -346,8 +345,8 @@ int do_look(varargs string arg)
   //     write(object_name(environment()) + "\n");
 
   if (!arg || !strlen(arg))
-    return do_command("look");
-  return do_command("look " + arg);
+    return do_command(CMD_LOOK_NAME);
+  return do_command(CMD_LOOK_NAME + " " + arg);
 }
 
 mixed * stats()
