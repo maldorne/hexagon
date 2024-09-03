@@ -6,7 +6,7 @@ Hexagon mudlib
 ==============
 
 [![Hexagon](https://img.shields.io/badge/Hexagon-v2.0%20Castle%20Black-green)](https://github.com/maldorne/hexagon)
-[![DGD](https://img.shields.io/badge/DGD-1.7.2-green.svg)](https://github.com/dworkin/dgd)
+[![DGD](https://img.shields.io/badge/DGD-1.7.5-green.svg)](https://github.com/dworkin/dgd)
 [![Deploy to hosting](https://github.com/maldorne/hexagon/workflows/Deploy%20to%20hosting/badge.svg)](https://github.com/maldorne/hexagon/actions)
 
 A project to make the original _ccmudlib_ and other MudOS-alike mud libraries (like the ones from _Final
