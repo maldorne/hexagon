@@ -6,7 +6,7 @@
  */
 
 // what would be the file name for a location generated from object ob?
-string generate_location_file_name(object ob)
+string get_location_file_name_from_room(object ob)
 {
   string base_dir;
   string * pieces;

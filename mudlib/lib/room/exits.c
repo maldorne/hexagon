@@ -276,6 +276,24 @@ mixed add_exit(string direc, mixed dest, string type,
   return 0;
 }
 
+// used from locations, we save the full exit map
+// and restore it when the location is loaded
+void add_exits_from_exit_map(mapping m)
+{ 
+  int i;
+  string *exit_names;
+
+  exit_names = keys(m);
+
+  for (i = 0; i < sizeof(exit_names); i++)
+  {
+    add_exit(exit_names[i], 
+             m[exit_names[i]][0], 
+             m[exit_names[i]][1], 
+             m[exit_names[i]][2]);
+  }
+}
+
 // Query for exit type... [Piper 12/24/95]
 string query_ex_type(string direc)
 {
