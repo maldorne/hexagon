@@ -181,7 +181,7 @@ string finger_info(string name, varargs object me)
   {
     if (real_name[0] == ':')
     {
-      if (MASTER->valid_read("/save/players/"+name[0..0]+"/"+name+".o", geteuid(me)))
+      if (SECURE_OB->valid_read("/save/players/"+name[0..0]+"/"+name+".o", geteuid(me)))
         retval = sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME +
           capitalize(name), _LANG_FINGER_REAL_NAME + real_name);
       else
@@ -210,7 +210,7 @@ string finger_info(string name, varargs object me)
     if ((email[0] == ':') || (email[1] == ':'))
     {
       if ((base_name(me) != "/lib/core/login") &&
-          (MASTER->valid_read("/save/players/"+name[0..0]+"/"+name, geteuid(me))) )
+          (SECURE_OB->valid_read("/save/players/"+name[0..0]+"/"+name, geteuid(me))) )
         retval += _LANG_FINGER_EMAIL+email+"\n";
     }
     else
@@ -352,9 +352,9 @@ string finger_info(string name, varargs object me)
   // if (me && MASTER->query_admin(me->query_name()) && ident)
   // retval += ident + "@";
 
-  if (me && MASTER->query_admin(me->query_name()) && last_on_from)
+  if (me && SECURE_OB->query_admin(me->query_name()) && last_on_from)
     retval += _LANG_FINGER_LAST_CONNECTION_FROM + last_on_from + ".\n";
-  if (me && MASTER->query_admin(me->query_name()) && last_pos)
+  if (me && SECURE_OB->query_admin(me->query_name()) && last_pos)
     retval += _LANG_FINGER_LAST_POSITION + last_pos + ".\n";
 
   // retval += (string)MAILER->finger_mail(name);

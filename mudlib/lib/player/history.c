@@ -34,7 +34,7 @@ static void set_in_alias_command(int val)
 int clear_history()
 {
   /* First: a high_programmer check.. */
-  if (!(MASTER->high_programmer(geteuid(this_player()))))
+  if (!(SECURE_OB->high_programmer(geteuid(this_player()))))
   {
     notify_fail ("¿Cómo dices?\n");
     return 0;
@@ -72,7 +72,7 @@ string expand_history(string arg)
   if (this_player())
   {
     if (this_player() != this_object() &&
-      !MASTER->query_admin(geteuid(this_player())))
+      !SECURE_OB->query_admin(geteuid(this_player())))
     {
       log_file("history_steal",
         "\n"+ctime(time())+":"+this_player()->query_name()+
@@ -166,7 +166,7 @@ int print_history(string arg)
   { /* a call */
     if (!interactive(this_player())) 
       return 0;
-    if (!(MASTER->query_admin(geteuid(this_player())))) 
+    if (!(SECURE_OB->query_admin(geteuid(this_player())))) 
       return 0;
   }
 

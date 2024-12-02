@@ -106,7 +106,7 @@ static int cmd(string str, object me, string verb)
             name  = player->query_name();
 
             if (rnstr && rnstr[0..0] == ":")
-              if (!MASTER->valid_read("/save/players/"+name[0..0]+"/"+name,
+              if (!SECURE_OB->valid_read("/save/players/"+name[0..0]+"/"+name,
                   geteuid(this_user())))
                 rnstr = "-";
 

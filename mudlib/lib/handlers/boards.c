@@ -21,7 +21,7 @@ void create() {
                  * can read. */
   timeouts = ([ ]);
   archives = ([ ]);
-  seteuid((string)MASTER->creator_file(file_name(this_object())));
+  seteuid((string)SECURE_OB->creator_file(file_name(this_object())));
   restore_object(BOARD_FILE,1);
   expire_boards();
 } /* create() */
@@ -31,7 +31,7 @@ string *query_boards() {
 } /* query_boards() */
 
 int query_admin(string str) {
-  return (int)MASTER->query_admin(str);
+  return (int)SECURE_OB->query_admin(str);
 } /* query_admin() */
 
 mixed get_subjects(string name) {
@@ -126,7 +126,7 @@ int add_allowed(string board, string name) {
     return 0;
   nam = (string)this_player()->query_name();
   if (member_array(nam, security[board]) == -1 &&
-      !MASTER->query_admin(nam))
+      !SECURE_OB->query_admin(nam))
     return 0;
   if (!"/lib/core/login"->test_user(name))
     return 0;
@@ -144,7 +144,7 @@ int remove_allowed(string board, string name) {
     return 0;
   nam = geteuid(previous_object());
   if ((i= member_array(name, security[board])) == -1 &&
-      !MASTER->query_admin(nam))
+      !SECURE_OB->query_admin(nam))
     return 0;
   security[board] = delete(security[board], i, 1);
   save_me();
@@ -192,7 +192,7 @@ int delete_message(string board, int off) {
 
   if (member_array(nam, security[board]) == -1 &&
       boards[board][off][B_NAME] != nam &&
-      !MASTER->query_admin(nam))
+      !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
   return zap_message(board, off);
 } /* delete_message() */
@@ -213,7 +213,7 @@ int delete_board(string board)
     return 0;
   nam = geteuid(previous_object());
   if (member_array(nam, security[board]) == -1 &&
-      !MASTER->query_admin(nam))
+      !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
   while (sizeof(boards[board]))
     delete_message(board, 0);
@@ -237,7 +237,7 @@ int set_timeout(string board, int timeout)
   if (!boards[board]) return 0;
   nam = geteuid(previous_object());
   if (member_array(nam, security[board]) == -1 &&
-      !MASTER->query_admin(nam))
+      !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
   if (!timeouts[board]) {
     timeouts[board] = ({ DEFAULT_MIN, DEFAULT_MAX, timeout });
@@ -256,7 +256,7 @@ int set_minimum(string board, int min) {
   if (!boards[board]) return 0;
   nam = geteuid(previous_object());
   if (member_array(nam, security[board]) == -1 &&
-      !MASTER->query_admin(nam))
+      !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
   if (!timeouts[board]) {
     timeouts[board] = ({ min, DEFAULT_MAX, DEFAULT_TIMEOUT });
@@ -274,7 +274,7 @@ int set_maximum(string board, int max) {
   if (!boards[board]) return 0;
   nam = geteuid(previous_object());
   if (member_array(nam, security[board]) == -1 &&
-      !MASTER->query_admin(nam))
+      !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
   if (!timeouts[board]) {
     timeouts[board] = ({ DEFAULT_MIN, max, DEFAULT_TIMEOUT });
@@ -292,7 +292,7 @@ int set_archive(string board, string file) {
   if (!boards[board]) return 0;
   nam = geteuid(previous_object());
   if (member_array(nam, security[board]) == -1 &&
-      !MASTER->query_admin(nam))
+      !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
   archives[board] = file;
   save_me();
