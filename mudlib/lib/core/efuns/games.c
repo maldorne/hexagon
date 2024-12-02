@@ -1,6 +1,19 @@
 
 #include <mud/config.h>
 
+static nomask string game_from_path(string path)
+{
+  string * words;
+  words = explode(path, "/");
+
+  if ((sizeof(words) > 2) && (words[0] == "games"))
+    return words[1];
+  if ((sizeof(words) > 3) && (words[0] == "save") && (words[1] == "games"))
+    return words[2];
+
+  return "";
+}
+
 static nomask string game_name(varargs object ob)
 {
   string fname;
@@ -14,15 +27,7 @@ static nomask string game_name(varargs object ob)
   if (ob->query_player() && environment(ob))
     return game_name(environment(ob));
 
-  fname = file_name(ob);
-  words = explode(fname, "/");
-
-  // if (member_array(dom, get_dir("/games/")) != -1)
-  //    return dom;
-  if ((sizeof(words) > 2) && (words[0] == "games"))
-    return words[1];
- 
-  return "";
+  return game_from_path(file_name(ob));
 }
 
 static nomask string game_root(varargs object ob)
