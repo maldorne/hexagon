@@ -18,5 +18,6 @@
   ║ ╚══════════════════════════════════════════════════════════╝ ║
   ╚══════════════════════════════════════════════════════════════╝
 
-            Página web: http://maldorne.org/
+            Página web: https://maldorne.org/
             Twitter:    https://twitter.com/houseofmaldorne
+            Github:     https://github.com/maldorne/
