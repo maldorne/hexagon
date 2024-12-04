@@ -7,15 +7,17 @@
 inherit "/lib/armour.c";
 
 #include <room/location.h>
-#include <areas/area.h>
+// #include <areas/area.h>
+#include <maps/maps.h>
 #include <translations/armour.h>
 
 #define BUILDER_RING_CONVERT_SYNTAX "convert < filename | dirname | here >"
-#define BUILDER_RING_LIST_AREAS_SYNTAX "areas"
+#define BUILDER_RING_LIST_SECTORS_SYNTAX "sectors"
+// #define BUILDER_RING_LIST_AREAS_SYNTAX "areas"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
                 "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_LIST_AREAS_SYNTAX + "\n"
+                "\t" + BUILDER_RING_LIST_SECTORS_SYNTAX + "\n"
   
 
 void create()
@@ -44,7 +46,7 @@ string get_help(varargs string str) { return BUILDER_RING_HELP; }
 void init()
 {
   add_action("do_convert", "convert");
-  add_action("do_list_areas", "areas");
+  add_action("do_list_map_sectors", "sectors");
 
   ::init();
 }
@@ -207,9 +209,9 @@ int convert_room_to_location(object room)
   return 1;
 }
 
-int do_list_areas(string str)
+int do_list_map_sectors(string str)
 {
-  mapping areas;
+  mapping sectors;
   string * keys;
   int i;
 
@@ -225,16 +227,16 @@ int do_list_areas(string str)
     return 0;
   }
 
-  areas = load_object(AREA_HANDLER)->query_loaded_areas();
+  sectors = load_object(MAP_HANDLER)->query_loaded_sectors();
 
-  if (!areas || !map_sizeof(areas))
+  if (!sectors || !map_sizeof(sectors))
   {
-    write("No areas loaded.\n");
+    write("No sectors loaded.\n");
     return 1;
   }
 
-  write("Areas loaded:\n");
-  keys = keys(areas);
+  write("Sectors loaded:\n");
+  keys = keys(sectors);
 
   for (i = 0; i < sizeof(keys); i++)
   {

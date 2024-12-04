@@ -20,11 +20,11 @@ object create_area(string path)
 
   stderr("🎃 create_area: " + path + "\n");
 
-  if (loaded_areas[path])
-    return loaded_areas[path];
-
   if (file_size(path) != -2) 
     mkdir(path);
+
+  if (loaded_areas[path])
+    return loaded_areas[path];
 
   area = clone_object(AREA_STORAGE_OBJECT);
 
@@ -41,39 +41,26 @@ object create_area(string path)
 
 string add_location(object location) 
 {
-  int x, y, z;
-  int area_x, area_y, area_z;
-  string path, file_name;
+  string file_name, dir_name;
   object area_storage;
 
-  if (location->query_coordinates() == nil)
-    return "";
+  stderr("🎃 areas add_location: " + location->query_file_name() + "\n");
 
-  x = location->query_coordinates()[0];
-  y = location->query_coordinates()[1];
-  z = location->query_coordinates()[2];
-
-  // every area could store 10x10x10 locations
-  area_x = x / 10;
-  area_y = y / 10;
-  area_z = z / 10;
-
-  stderr("🎃 add_location: " + location->query_file_name() + "\n");
-
-  path = "/save/games/" + game_from_path(location->query_file_name()) + 
-         "/maps/" + location->query_map_name() + "/" + 
-         area_x + "/" + area_y + "/" + area_z + "/";
-  file_name = "" + x + "_" + y + "_" + z + ".o";
+  file_name = location->query_file_name();
+  dir_name = "/" + implode(shift_right(explode(file_name, "/")), "/") + "/";
   
+  stderr("🎃 areas dir_name: " + dir_name + "\n");
+
+
   // create the area storage if it doesn't exist
-  area_storage = create_area(path);
+  area_storage = create_area(dir_name);
 
   // add the location to the area storage
-  area_storage->add_location(location->query_file_name(), x, y, z, ([ ]));
+  area_storage->add_location(location->query_file_name(), ([ ]));
 
   // write a file in path + file_name with the location data
-  remove_file(path + file_name);
-  write_file(path + file_name, location->query_file_name());
+  remove_file(file_name);
+  write_file(file_name, location->query_file_name());
 
-  return path + file_name;
+  return dir_name + file_name;
 }

@@ -9,6 +9,7 @@ inherit exits    "/lib/room/exits";
 inherit zone     "/lib/room/zone";
 
 #include <areas/area.h>
+#include <maps/maps.h>
 
 static object * components;
 mapping component_info;
@@ -249,31 +250,19 @@ void save_me()
   // save with the current exits
   _exit_map = query_exit_map();
 
-  if (file_name && strlen(file_name))
-    save_object(file_name);
-
   // try to update our coordinates (if we don't have them,
   // we will check adjacent locations)
   guess_coordinates();
 
-  // save in the area system every location with coordinates
+  // save in the map system every location with coordinates
   if (query_coordinates() != nil)
-    AREA_HANDLER->add_location(this_object());
+    MAP_HANDLER->add_location(this_object());
 
-  // string path;
+  // save it in the area system also
+  AREA_HANDLER->add_location(this_object());
 
-  // don't save the location if it's the location.c object itself
-  // if (base_name(this_object()) == "/lib/location")
-  //   return;
-
-  // path = query_file_name();
-
-  // // don't know where this location came from, 
-  // // but i'm not going to save it
-  // if (!strlen(path))
-  //   return;
-
-  // save_object(path);
+  if (file_name && strlen(file_name))
+    save_object(file_name);
 }
 
 mixed stats()

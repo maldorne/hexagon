@@ -2,12 +2,15 @@ inherit "/lib/core/object.c";
 
 // mapping in the form ([ file_name : location_data ])
 mapping locations;
+// mapping in the form ([ x_y_z : file_name ])
+mapping positions;
 // array of loaded locations
 static object * loaded_locations;
 string file_name;
 
 void create() {
   locations = ([ ]);
+  positions = ([ ]);
   loaded_locations = ({ });
   ::create();
 }
@@ -27,7 +30,7 @@ void set_file_name(string name)
   save_me();
 }
 
-// restore the area from a file
+// restore the sector from a file
 // returns 1 if the file exists and the location was restored, 0 otherwise
 int restore_from_file_name(string name)
 {
@@ -40,8 +43,9 @@ int restore_from_file_name(string name)
   return 0;
 }
 
-void add_location(string location_file_name, mapping location_data) {
+void add_location(string location_file_name, int x, int y, int z, mapping location_data) {
   locations[location_file_name] = map_copy(location_data);
+  positions["" + x + "_" + y + "_" + z] = location_file_name;
   save_me();
 }
 
