@@ -61,11 +61,11 @@ mapping query_config_data()
                                          "set_pov_name", 
                                          "", 
                                          _LANG_CONFIG_CMD_POV, }),
-          _LANG_CONFIG_TOPIC_STUN:    ({ "bool",
-                                         "query_combat_mode", 
-                                         "set_combat_mode", 
+          _LANG_CONFIG_TOPIC_COMBAT:  ({ "string",
+                                         "query_pretty_combat_mode", 
+                                         "set_pretty_combat_mode", 
                                          "", 
-                                         _LANG_CONFIG_CMD_STUN, }),
+                                         _LANG_CONFIG_CMD_COMBAT, }),
         ]),                        
     ]); 
 }

@@ -364,7 +364,7 @@ static int cmd(string name, object me, string verb)
   info += "\n";
 
   info += sprintf("%-15s %-16s", capitalize(_LANG_STATS_COMBAT_MODE) + ":",
-                  capitalize(target->query_combat_mode_string()));
+                  capitalize(target->query_pretty_combat_mode()));
   info += sprintf("%-15s %s", capitalize(_LANG_STATS_COMBAT_ROLE) + ":",
                   capitalize(target->query_combat_role_string()));
   info += "\n";

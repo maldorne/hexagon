@@ -50,3 +50,6 @@
     COLD_STR, MAGIC_STR, PSIONIC_STR, MISSILES_STR, \
     POISON_STR, LAW_STR, WATER_STR, GOOD_STR, DISEASE_STR, \
     FIRE_STR, EVIL_STR, DEATH_STR, STONE_STR, CHAOS_STR, })
+
+#define COMBAT_MODE_STRINGS ({ "letal", "no letal" })
+#define COMBAT_ROLE_STRINGS ({ "cualquiera", "ofensiva", "defensiva", "de apoyo" })

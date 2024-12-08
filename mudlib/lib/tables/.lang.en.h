@@ -63,7 +63,7 @@
 #define _LANG_CONFIG_TOPIC_VERBOSE "verbose"
 #define _LANG_CONFIG_TOPIC_LOGON "logon"
 #define _LANG_CONFIG_TOPIC_POV "pov"
-#define _LANG_CONFIG_TOPIC_STUN "stun"
+#define _LANG_CONFIG_TOPIC_COMBAT "combat"
 
 #define _LANG_CONFIG_CMD_TERM "terminal"
 #define _LANG_CONFIG_CMD_COLS "columns"
@@ -72,4 +72,4 @@
 #define _LANG_CONFIG_CMD_VERBOSE "verbose"
 #define _LANG_CONFIG_CMD_INFORM "inform"
 #define _LANG_CONFIG_CMD_POV "pov"
-#define _LANG_CONFIG_CMD_STUN "combat"
+#define _LANG_CONFIG_CMD_COMBAT "combat"

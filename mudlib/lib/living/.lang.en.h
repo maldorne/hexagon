@@ -133,6 +133,14 @@
             " has killed "+his_name+".\n"
 #define _LANG_COMBAT_STOP_CHASING "You stop chasing "
 
+#define _LANG_COMBAT_MODE_VERBS ({ "combat" })
+#define _LANG_COMBAT_MODE_CURRENT "Your current combat mode is " + \
+            COMBAT_MODE_STRINGS[query_combat_mode()] + ".\n" + \
+            "Use 'combat <mode>' to change it.\n"
+#define _LANG_COMBAT_MODE_SYNTAX "Syntax: combat <mode>\n" + \
+            "The possible modes are: " + query_multiple_short(COMBAT_MODE_STRINGS) + ".\n"
+#define _LANG_COMBAT_MODE_SET "Ok, your new combat mode will be " + COMBAT_MODE_STRINGS[i] + ".\n"
+
 // death.c
 
 #define _LANG_DEATH_DEATH_BLOW_ROOM "\n" + killed_by->query_cap_name() + \

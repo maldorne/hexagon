@@ -15,14 +15,12 @@
 // combat types
 #define MORTAL_COMBAT 0
 #define SAFE_COMBAT 1
-#define COMBAT_MODE_STRINGS ({ "letal", "no letal" })
 
 // combat role
 #define NEUTRAL_ROLE 0
 #define DPS_ROLE 1
 #define TANK_ROLE 2
 #define HEALER_ROLE 3
-#define COMBAT_ROLE_STRINGS ({ "cualquiera", "ofensiva", "defensiva", "de apoyo" })
 
 #define COMBAT_ROLE_CHANGED_PROP "combat_role_changed"
 

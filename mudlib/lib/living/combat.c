@@ -12,6 +12,7 @@
 #include <user/xp.h>
 #include <translations/pov.h>
 #include <living/combat.h>
+#include <translations/combat.h>
 #include <living/consents.h>
 #include <language.h>
 
@@ -35,10 +36,18 @@ static int is_moving; // recently moved
 int query_dodging() { return dodging; }
 int query_combat_mode() { return combat_mode; }
 void set_combat_mode(int i) { combat_mode = i; }
-string query_combat_mode_string() { return COMBAT_MODE_STRINGS[combat_mode];}
+string query_pretty_combat_mode() { return COMBAT_MODE_STRINGS[combat_mode]; }
+void set_pretty_combat_mode(string str) 
+{ 
+  int i;
+  i = member_array(str, COMBAT_MODE_STRINGS); 
+
+  if (i != -1)
+    combat_mode = i;
+}
 int query_combat_role() { return combat_role; }
 void set_combat_role(int i) { combat_role = i; }
-string query_combat_role_string() { return COMBAT_ROLE_STRINGS[combat_role];}
+string query_combat_role_string() { return COMBAT_ROLE_STRINGS[combat_role]; }
 int query_my_att_level() { return (int)this_object()->query_level(); }
 int set_concentrate(object ob)
 {
@@ -64,7 +73,7 @@ void combat_commands()
   add_private_action("do_protect", "proteger");
   add_private_action("do_unprotect", "desproteger");
   add_private_action("do_combat_role", "actitud");
-  add_private_action("do_combat_mode", "combate");
+  add_private_action("do_combat_mode", _LANG_COMBAT_MODE_VERBS);
 
   armed_combat_commands();
   unarmed_combat_commands();
@@ -679,23 +688,18 @@ int do_combat_mode(string str)
 
   if (!strlen(str))
   {
-    tell_object(this_object(), "Tu modo de combate actual es " + 
-      COMBAT_MODE_STRINGS[query_combat_mode()] + ".\n" + 
-      "Utiliza 'combate <modo>' para cambiarlo.\n");
+    tell_object(this_object(), _LANG_COMBAT_MODE_CURRENT);
     return 1;
-
   }
 
   if ((i = member_array(str, COMBAT_MODE_STRINGS)) == -1)
   {
-    notify_fail("Sintaxis: combate <modo>\n" + 
-          "Los modos posibles son: " + query_multiple_short(COMBAT_MODE_STRINGS) + 
-          ".\n");
+    notify_fail(_LANG_COMBAT_MODE_SYNTAX);
     return 0;
   }
 
   set_combat_mode(i);
-  tell_object(this_object(), "Ok, tu nuevo modo de combate será " + COMBAT_MODE_STRINGS[i] + ".\n");
+  tell_object(this_object(), _LANG_COMBAT_MODE_SET);
 
   return 1;
 }
