@@ -17,7 +17,7 @@
 #include <language.h>
 
 inherit obj      "/lib/core/object.c";
-inherit light    "/lib/core/basic/light";
+inherit light    "/lib/core/basic/light.c";
 
 inherit cleanup    "/lib/room/cleanup";
 inherit contents   "/lib/room/contents";
@@ -41,8 +41,8 @@ static string quit_destination;
 string query_quit_destination() { return quit_destination; }
 void set_quit_destination(string str) { quit_destination = str; }
 
-int query_room() { return 1; }
-int query_location() { return 0; }
+nomask int query_room() { return 1; }
+nomask int query_location() { return 0; }
 
 void set_dark_mess(string str) { dark_mess = str; }
 

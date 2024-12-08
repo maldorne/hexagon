@@ -1,6 +1,7 @@
 
 #include <room/room.h>
 #include <language.h>
+#include <room/location.h>
 
 static string exit_string,
               short_exit_string,
@@ -276,24 +277,6 @@ mixed add_exit(string direc, mixed dest, string type,
   return 0;
 }
 
-// used from locations, we save the full exit map
-// and restore it when the location is loaded
-void add_exits_from_exit_map(mapping m)
-{ 
-  int i;
-  string *exit_names;
-
-  exit_names = keys(m);
-
-  for (i = 0; i < sizeof(exit_names); i++)
-  {
-    add_exit(exit_names[i], 
-             m[exit_names[i]][0], 
-             m[exit_names[i]][1], 
-             m[exit_names[i]][2]);
-  }
-}
-
 // Query for exit type... [Piper 12/24/95]
 string query_ex_type(string direc)
 {
@@ -337,15 +320,13 @@ int modify_exit(string direc, mixed *data)
 
   if (sizeof(m) > 0)
   {
-    if (sizeof(m) > 0 )
-    {
-      door_control = m[0];
-      dest_other = m[1];
-      this_object()->set_hidden_objects(m[2]);
-      exit_string = query_dirs_string();
-      return(1);
-    }
+    door_control = m[0];
+    dest_other = m[1];
+    this_object()->set_hidden_objects(m[2]);
+    exit_string = query_dirs_string();
+    return(1);
   }
+
   return 0;
 }
 
@@ -370,7 +351,7 @@ int remove_exit(string direc)
   if (door)
     door->dest_me();
 
-  if (sizeof(m))
+  if (sizeof(m) > 0)
   {
     door_control = m[0];
     exit_map = m[1];
@@ -428,7 +409,6 @@ int do_exit_command(string str, varargs mixed verb, object ob)
   return zip;
 }
 
-
 // This is the function to include IF you add_exit with a
 // add_action, while other players are in the same room as
 // the add_action triggerer...  Piper (9/29/95)
@@ -472,6 +452,23 @@ int do_dig(string direc){
   return(1);
 }
 */
+
+// return the loaded object of the destination
+// could be a room or a loaded location
+object query_dest_object(string direc)
+{
+  string _path;
+  object _dest;
+
+  _path = query_where_dir(direc);
+
+  // if path ends in .c, it's a room
+  if (_path[strlen(_path)-2..strlen(_path)-1] == ".c")
+    return load_object(_path);
+
+  // else, it's a location
+  return load_object(LOCATION_HANDLER)->load_location(_path);
+}
 
 // new functions for the door system, based in an original idea from Iolo@Rl
 object add_door(string dir)

@@ -2,14 +2,18 @@
 // location.c
 
 inherit obj      "/lib/core/object.c";
+inherit light    "/lib/core/basic/light.c";
 inherit property "/lib/core/basic/property.c";
 
-inherit contents "/lib/room/contents";
-inherit exits    "/lib/room/exits";
-inherit zone     "/lib/room/zone";
+inherit contents "/lib/room/contents.c";
+inherit exits    "/lib/room/exits.c";
+inherit zone     "/lib/room/zone.c";
 
+#include <basic/light.h>
+#include <room/location.h>
 #include <areas/area.h>
 #include <maps/maps.h>
+#include <translations/exits.h>
 
 static object * components;
 mapping component_info;
@@ -27,10 +31,11 @@ int * coordinates;
 string query_file_name();
 void set_file_name(string filename);
 void save_me();
+void add_exits_from_exit_map(mapping m);
 // void init_original_info();
 
-int query_location() { return 1; }
-int query_room() { return 1; }
+nomask int query_location() { return 1; }
+nomask int query_room() { return 1; }
 // allow adding and removing objects from the inventory (is a room)
 int add_weight(int n) { return 1; }
 int test_add(object ob, int flag) { return 1; }
@@ -50,6 +55,7 @@ void create()
 
   coordinates = nil;
 
+  light::create();
   property::create();
   contents::create();
   exits::create();
@@ -67,6 +73,7 @@ void create()
   //   else
   //     save_me();
   // }
+  set_light(BASE_ROOM_LIGHT_VALUE);
 
   // allow goto command to work
   add_property("location", 1);
@@ -141,7 +148,12 @@ string long(string str, int dark)
     ret += component_info[component_types[i]][0]->long(str, dark);
 
   if (!ret || !strlen(ret))
-    ret = _original_long;
+    // ret = _original_long;
+    ret = wrap(_original_long, 
+                (this_user() ? this_user()->query_cols() : 80), 1); 
+                
+  exit_string = query_dirs_string();
+  ret += exit_string + "\n" + query_contents("");
 
   return ret;
 }
@@ -160,6 +172,9 @@ int restore_from_file_name(string name)
   if (file_size(name) >= 0)
   {
     restore_object(name);
+
+    add_exits_from_exit_map(_exit_map);
+
     return 1;
   }
 
@@ -172,15 +187,15 @@ void guess_coordinates()
   int i;
   string * exit_info;
 
-  if (query_coordinates() != nil)
-    return;
+  // if (query_coordinates() != nil)
+  //   return;
 
   exit_info = query_dest_dir();
 
   for (i = 0; i < sizeof(exit_info); i += 2)
   {
     object dest;
-    dest = load_object(exit_info[i + 1]);
+    dest = query_dest_object(exit_info[i]);
 
     if (dest && dest->query_coordinates() != nil)
     {
@@ -189,52 +204,52 @@ void guess_coordinates()
 
       switch (exit_info[i])
       {
-        case "north":
+        case DIR_NORTH:
           set_coordinates(dest_coords[0], 
                           dest_coords[1] - 1, 
                           dest_coords[2]);
           break;
-        case "south":
+        case DIR_SOUTH:
           set_coordinates(dest_coords[0], 
                           dest_coords[1] + 1, 
                           dest_coords[2]);
           break;
-        case "east":
+        case DIR_EAST:
           set_coordinates(dest_coords[0] - 1, 
                           dest_coords[1], 
                           dest_coords[2]);
           break;
-        case "west":
+        case DIR_WEST:
           set_coordinates(dest_coords[0] + 1, 
                           dest_coords[1], 
                           dest_coords[2]);
           break;
-        case "northwest":
+        case DIR_NORTHWEST:
           set_coordinates(dest_coords[0] + 1, 
                           dest_coords[1] - 1, 
                           dest_coords[2]);
           break;
-        case "northeast":
+        case DIR_NORTHEAST:
           set_coordinates(dest_coords[0] - 1, 
                           dest_coords[1] - 1, 
                           dest_coords[2]);
           break;
-        case "southwest":
+        case DIR_SOUTHWEST:
           set_coordinates(dest_coords[0] + 1, 
                           dest_coords[1] + 1, 
                           dest_coords[2]);
           break;
-        case "southeast":
+        case DIR_SOUTHEAST:
           set_coordinates(dest_coords[0] - 1, 
                           dest_coords[1] + 1, 
                           dest_coords[2]);
           break;          
-        case "up":
+        case DIR_UP:
           set_coordinates(dest_coords[0], 
                           dest_coords[1], 
                           dest_coords[2] - 1);
           break;
-        case "down":
+        case DIR_DOWN:
           set_coordinates(dest_coords[0], 
                           dest_coords[1], 
                           dest_coords[2] + 1);
@@ -242,6 +257,80 @@ void guess_coordinates()
       }
     }
   }
+
+  save_me();
+}
+
+// we save the full exit map
+// and restore it when the location is loaded
+void add_exits_from_exit_map(mapping m)
+{ 
+  int i;
+  string * exit_names;
+  string * exits_info;
+
+  exit_names = keys(m);
+
+  for (i = 0; i < sizeof(exit_names); i++)
+  {
+    exits_info = m[exit_names[i]];
+
+    // first remove the current exit if it exists
+    remove_exit(exit_names[i]);
+
+    add_exit(exit_names[i], 
+             exits_info[0], 
+             exits_info[1], 
+             exits_info[2]);
+  }
+}
+
+// check every exit, if it goes to a room already converted to location, 
+// change its destination to the saved location file
+int update_exits_to_locations()
+{
+  string * keys;
+  int i;
+  int exits_changed;
+
+  keys = keys(_exit_map);
+  exits_changed = 0;
+
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    object dest;
+    string dest_location_file_name;
+
+    dest = load_object(_exit_map[keys[i]][0]);
+
+    if (!dest)
+      continue;
+
+    dest_location_file_name = LOCATION_HANDLER->get_location_file_name_from_room(dest);
+
+    // if file already exists, change the exit destination
+    if ((_exit_map[keys[i]][0] != dest_location_file_name) &&
+        (file_size(dest_location_file_name) >= 0))
+    {
+      _exit_map[keys[i]][0] = dest_location_file_name;
+      exits_changed += 1;
+    }
+  }
+
+  if (exits_changed > 0)
+  {
+    add_exits_from_exit_map(map_copy(_exit_map));
+    save_me();
+  }
+
+  return exits_changed;
+}
+
+object * find_inv_match(string str)
+{
+  return (object *)all_inventory(this_object()) + 
+         (object *)contents::query_hidden_objects();
+         // m_values(items);
 }
 
 void save_me()
@@ -249,10 +338,6 @@ void save_me()
   stderr("🎃 location save_me: " + file_name + "\n");
   // save with the current exits
   _exit_map = query_exit_map();
-
-  // try to update our coordinates (if we don't have them,
-  // we will check adjacent locations)
-  guess_coordinates();
 
   // save in the map system every location with coordinates
   if (query_coordinates() != nil)
@@ -271,6 +356,7 @@ mixed stats()
     ({ "Component types", keys(component_info), }),
           }) +
       obj::stats() +
+      light::stats() +
       property::stats() + 
       zone::stats() + 
       exits::stats();

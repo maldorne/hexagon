@@ -5,6 +5,7 @@
 #include <translations/races.h>
 #include <common/properties.h>
 #include <language.h>
+#include <room/location.h>
 
 // from here we inherit object.c
 inherit container "/lib/core/basic/container";
@@ -102,6 +103,19 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
         arrive = implode(explode(enter[1], "$N"), my_short)+"\n";
         break;
     }
+  }
+
+  // locations
+  // if the destination is a .o file, we have to change the destination to the
+  // real location object
+  if (stringp(dest) && (dest[strlen(dest)-2..strlen(dest)-1] == ".o"))
+  {
+    object handler;
+
+    handler = load_object(LOCATION_HANDLER);
+    
+    if (handler)
+      dest = handler->load_location(dest);
   }
 
   if (arrive)

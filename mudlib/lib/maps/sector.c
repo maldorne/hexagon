@@ -43,23 +43,41 @@ int restore_from_file_name(string name)
   return 0;
 }
 
-void add_location(string location_file_name, int x, int y, int z, mapping location_data) {
+void add_location(string location_file_name, int x, int y, int z, mapping location_data) 
+{
   locations[location_file_name] = map_copy(location_data);
   positions["" + x + "_" + y + "_" + z] = location_file_name;
   save_me();
 }
 
-void remove_location(string location_file_name) {
+void remove_location(string location_file_name) 
+{
   map_delete(locations, location_file_name);
   save_me();
 }
 
-void add_loaded_location(object location) {
+void add_loaded_location(object location) 
+{
+  int i;
+
   loaded_locations -= ({ nil });
+
+  for (i = 0; i < sizeof(loaded_locations); i++)
+  {
+    // why are we having two objects for the same location?
+    // don't know, don't care, the last one should be the good one
+    if (loaded_locations[i]->query_file_name() == location->query_file_name())
+    {
+      loaded_locations[i] = location;
+      return;
+    }
+  }
+
   loaded_locations += ({ location });
 }
 
-object * query_loaded_locations() {
+object * query_loaded_locations() 
+{
   loaded_locations -= ({ nil });
   return loaded_locations;
 }

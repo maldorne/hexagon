@@ -449,7 +449,7 @@ int do_exit_command(mapping door_control,
       file_name(room_ob), // visited room
       dest_direc[i],      // direction taken
       0,                  // flag was sneaking
-      ob->query_riding(), // flag was mountes
+      ob->query_riding(), // flag was mounted
       (ob->query_riding()?ob->query_mount()->query_name():"") // name of the used mount
       );
   }

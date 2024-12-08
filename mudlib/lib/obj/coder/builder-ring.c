@@ -7,17 +7,19 @@
 inherit "/lib/armour.c";
 
 #include <room/location.h>
-// #include <areas/area.h>
+#include <areas/area.h>
 #include <maps/maps.h>
+#include <translations/exits.h>
 #include <translations/armour.h>
 
 #define BUILDER_RING_CONVERT_SYNTAX "convert < filename | dirname | here >"
 #define BUILDER_RING_LIST_SECTORS_SYNTAX "sectors"
-// #define BUILDER_RING_LIST_AREAS_SYNTAX "areas"
+#define BUILDER_RING_LIST_AREAS_SYNTAX "areas"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
                 "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_LIST_SECTORS_SYNTAX + "\n"
+                "\t" + BUILDER_RING_LIST_SECTORS_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_LIST_AREAS_SYNTAX + "\n"
   
 
 void create()
@@ -47,11 +49,12 @@ void init()
 {
   add_action("do_convert", "convert");
   add_action("do_list_map_sectors", "sectors");
+  add_action("do_list_areas", "areas");
 
   ::init();
 }
 
-int convert_room_to_location(object room);
+object convert_room_to_location(object room);
 
 int do_convert(string str)
 {
@@ -112,6 +115,23 @@ int do_convert(string str)
     }
   }
 
+  if (sizeof(files))
+    call_out("do_convert_files", 0, files);
+ 
+  return 1;
+} 
+
+int do_convert_files(string * files)
+{
+  object location;
+  object * locations;
+  object * obs; 
+  int num_coordinates;
+  int i;
+
+  write("Converting files to locations\n\n");
+  write(" * Loading " + sizeof(files) + " objects ...\n");
+
   // load the objects in the file list
   if (sizeof(files) > 0)
   {
@@ -135,26 +155,151 @@ int do_convert(string str)
 
   if (sizeof(obs) == 0)
   {
-    notify_fail("No valid objects loaded.\n");
-    return 0;
+    write("No valid objects loaded.\n");
+    return 1;
   }
+
+  write(" * " + sizeof(obs) + " objects loaded.\n\n");
+
+  num_coordinates = 0;
+  locations = ({ });
 
   // convert the rooms to locations
   for (i = 0; i < sizeof(obs); i++)
   {
-    write("Converting " + file_name(obs[i]) + ".c ...\n");
+    write(" * Converting " + file_name(obs[i]) + ".c ...\n");
 
-    if (!convert_room_to_location(obs[i]))
+    if (!(location = convert_room_to_location(obs[i])))
     {
-      write("Error converting " + file_name(obs[i]) + ".c.\n");
+      write("   Error converting " + file_name(obs[i]) + ".c.\n");
+    }
+    else
+    {
+      locations += ({ location });
+
+      write("   " + file_name(obs[i]) + ".c to\n     " + location->query_file_name() + "\n");
+      if (location->query_coordinates())
+      {
+        num_coordinates++;
+        write("   %^GREEN%^Coordinates%^RESET%^: " + location->query_coordinates()[0] + " " + location->query_coordinates()[1] + " " + location->query_coordinates()[2] + "\n");
+      }
+      else
+        write("   %^RED%^Coordinates%^RESET%^: none\n");
     }
   }
 
-  write("Conversion finished.\n");
+  write("\nConversion finished.\n");
+  write("  Rooms converted: " + sizeof(locations) + "\n");
+  write("  Locations with coordinates: " + num_coordinates + "\n");
+
+  if (sizeof(locations))
+  {
+    call_out("do_guess_coordinates", 0, locations);
+  }
+
   return 1;
 }
 
-int convert_room_to_location(object room)
+int do_guess_coordinates(object * locations)
+{
+  string * exits;
+  object * pending;
+  object * done;
+  object current;
+  int i;
+
+  pending = ({ });
+  done = ({ });
+  
+  write("\nTry guessing missing coordinates ...\n");
+
+  // find locations in the list with coordinates as starting points,
+  // and update every exit to the locations instead of the rooms
+  for (i = 0; i < sizeof(locations); i++)
+  {
+    // if some exit destination is to a .c file whose location
+    // already exists, we change the destination to the .o file
+    locations[i]->update_exits_to_locations();
+
+    // write("Updated exits for " + file_name(locations[i]) + " " +
+    //  + to_string(locations[i]->query_dest_dir()) + "\n");
+
+    if (locations[i]->query_coordinates())
+      pending += ({ locations[i] });
+  }
+
+  // TODO
+  // if we do not have any location with coordinates, we should check connections with
+  // other locations outside our list
+  
+  if (!sizeof(pending))
+  {
+    write("No locations with coordinates found.\n");
+    return 1;
+  }
+
+  while (sizeof(pending))
+  {
+    // write("Locations (" + sizeof(locations) + "): " + to_string(locations));
+    write("Pending (" + sizeof(pending) + ")\n"); // "): " + to_string(pending));
+    write("Done (" + sizeof(done) + + ")\n"); // "): " + to_string(done));
+
+    current = pending[0];
+
+    write("Checking " + file_name(current) + " (" +current->query_file_name() + ")\n");
+    
+    // already checked location, remove from pending
+    // and continue
+    if (member_array(current, done) != -1)
+    {
+      pending -= ({ current });
+      continue;
+    }
+
+    exits = current->query_dest_dir();
+    write("Exits: " + to_string(exits) + "\n");
+
+    for (i = 0; i < sizeof(exits); i+=2)
+    {
+      object dest;
+
+      // if it is not a valid exit for guessing coordinates
+      if (member_array(exits[i], ({ DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST, 
+                                  DIR_NORTHWEST, DIR_NORTHEAST, DIR_SOUTHWEST, DIR_SOUTHEAST, 
+                                  DIR_UP, DIR_DOWN })) == -1)
+      {
+        continue;
+      }
+
+      write("Checking exit " + exits[i] + " to " + exits[i+1] + "\n");
+      
+      dest = current->query_dest_object(exits[i]);
+
+      if (dest && dest->query_location())
+      {
+        write("Destination: " + to_string(dest) + " " + dest->query_file_name() + "\n");
+       
+        // enqueue the destination for guessing coordinates, only with locations from
+        // our original list, in other case we will remap the full game
+        if (member_array(dest, locations) != -1)
+          continue;
+          
+        pending += ({ dest });
+        write("🎃 Exits: " + to_string(dest->query_dest_dir()) + "\n");
+
+        dest->guess_coordinates();
+      }
+    }
+
+    // location done
+    pending -= ({ current });
+    done += ({ current });
+  }
+
+  return 1;
+}
+
+object convert_room_to_location(object room)
 {
   object location;
   string file_name, * exits;
@@ -162,13 +307,13 @@ int convert_room_to_location(object room)
   int i;
 
   if (!room)
-    return 0;
+    return nil;
 
   if (!room->query_room())
-    return 0;
+    return nil;
 
   if (room->query_location())
-    return 0;
+    return nil;
 
   // what file name would a location based on this room?
   file_name = load_object(LOCATION_HANDLER)->get_location_file_name_from_room(room);
@@ -188,7 +333,7 @@ int convert_room_to_location(object room)
   exit_map = room->query_exit_map();
 
   // debug: show the files to the user
-  write("Exits:\n" + to_string(exit_map) + "\n");
+  // write("Exits:\n" + to_string(exit_map) + "\n");
 
   // add exits to the location object, will be saved on next save_me()
   location->add_exits_from_exit_map(exit_map);
@@ -206,14 +351,14 @@ int convert_room_to_location(object room)
 
   location->save_me();
 
-  return 1;
+  return location;
 }
 
 int do_list_map_sectors(string str)
 {
   mapping sectors;
   string * keys;
-  int i;
+  int i, j;
 
   if (!query_in_use())
   {
@@ -240,8 +385,64 @@ int do_list_map_sectors(string str)
 
   for (i = 0; i < sizeof(keys); i++)
   {
+    object * locations;
+
     write(" - " + keys[i] + "\n");
+
+    locations = sectors[keys[i]]->query_loaded_locations();
+
+    for (j = 0; j < sizeof(locations); j++)
+    {
+      write("   - " + locations[j]->query_file_name() + "\n");
+    }
   }
 
   return 1;
 }
+
+int do_list_areas(string str)
+{
+  mapping areas;
+  string * keys;
+  int i, j;
+
+  if (!query_in_use())
+  {
+    notify_fail("You must equip the ring before using it.\n");
+    return 0;
+  }
+
+  if (!this_player()->query_coder())
+  {
+    notify_fail("You won't be able to handle the power of this ring.\n");
+    return 0;
+  }
+
+  areas = load_object(AREA_HANDLER)->query_loaded_areas();
+
+  if (!areas || !map_sizeof(areas))
+  {
+    write("No areas loaded.\n");
+    return 1;
+  }
+
+  write("Areas loaded:\n");
+  keys = keys(areas);
+
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    object * locations;
+
+    write(" - " + keys[i] + "\n");
+
+    locations = areas[keys[i]]->query_loaded_locations();
+
+    for (j = 0; j < sizeof(locations); j++)
+    {
+      write("   - " + locations[j]->query_file_name() + "\n");
+    }
+  }
+
+  return 1;
+}
+

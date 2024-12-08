@@ -18,7 +18,7 @@ object create_sector(string path)
 {
   object sector;
 
-  stderr("🎃 create_sector: " + path + "\n");
+  stderr("🎃 maps create_sector: " + path + "\n");
 
   if (file_size(path) != -2) 
     mkdir(path);
@@ -39,15 +39,17 @@ object create_sector(string path)
   return sector;
 }
 
-string add_location(object location) 
+string add_location(object location)
 {
   int x, y, z;
   int sector_x, sector_y, sector_z;
-  string path, file_name;
   object sector_storage;
+  string path, file_name;
+
+  stderr("🎃 maps add_location: " + location->query_file_name() + "\n");
 
   if (location->query_coordinates() == nil)
-    return "";
+    return nil;
 
   x = location->query_coordinates()[0];
   y = location->query_coordinates()[1];
@@ -58,18 +60,16 @@ string add_location(object location)
   sector_y = y / 10;
   sector_z = z / 10;
 
-  stderr("🎃 add_location: " + location->query_file_name() + "\n");
-
   path = "/save/games/" + game_from_path(location->query_file_name()) + 
          "/maps/" + location->query_map_name() + "/" + 
          sector_x + "/" + sector_y + "/" + sector_z + "/";
   file_name = "" + x + "_" + y + "_" + z + ".o";
-  
-  // create the sector storage if it doesn't exist
+
   sector_storage = create_sector(path);
 
   // add the location to the sector storage
   sector_storage->add_location(location->query_file_name(), x, y, z, ([ ]));
+  sector_storage->add_loaded_location(location);
 
   // write a file in path + file_name with the location data
   remove_file(path + file_name);
