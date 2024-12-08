@@ -25,6 +25,7 @@ private string show_topic_value(string category, string topic)
 {
   mapping config, current_map;
   string func_name;
+  object target;
   mixed result;
 
   config = CONFIG_TABLE->query_config_data();
@@ -32,11 +33,16 @@ private string show_topic_value(string category, string topic)
   func_name = current_map[topic][CONFIG_POS_QUERY_FUNC];
   
   if (function_exists(func_name, this_user()))
+    target = this_user();
+  else if (function_exists(func_name, this_player()))
+    target = this_player();
+
+  if (function_exists(func_name, target))
   {
     if (current_map[topic][CONFIG_POS_PARAM] != "")
-      result = call_other(this_user(), func_name, current_map[topic][CONFIG_POS_PARAM]);
+      result = call_other(target, func_name, current_map[topic][CONFIG_POS_PARAM]);
     else
-      result = call_other(this_user(), func_name);
+      result = call_other(target, func_name);
     
     if (current_map[topic][CONFIG_POS_TYPE] == "bool")
       result = (result ? _LANG_YES : _LANG_NO);
@@ -54,35 +60,41 @@ private string set_topic_value(string category, string topic, mixed value)
   mapping config, current_map;
   string func_name;
   mixed result;
+  object target;
 
   config = CONFIG_TABLE->query_config_data();
   current_map = config[category];
   func_name = current_map[topic][CONFIG_POS_SET_FUNC];
-  
+
   if (function_exists(func_name, this_user()))
+    target = this_user();
+  else if (function_exists(func_name, this_player()))
+    target = this_player();
+  
+  if (function_exists(func_name, target))
   {
     switch(current_map[topic][CONFIG_POS_TYPE])
     {
       case "string":
         if (current_map[topic][CONFIG_POS_PARAM] != "")
-          result = call_other(this_user(), func_name, 
+          result = call_other(target, func_name, 
                               current_map[topic][CONFIG_POS_PARAM], (string)value);
         else
-          result = call_other(this_user(), func_name, (string)value);
+          result = call_other(target, func_name, (string)value);
         break;
       case "int":
         if (current_map[topic][CONFIG_POS_PARAM] != "")
-          result = call_other(this_user(), func_name, 
+          result = call_other(target, func_name, 
                               current_map[topic][CONFIG_POS_PARAM], to_int(value));
         else
-          result = call_other(this_user(), func_name, to_int(value));
+          result = call_other(target, func_name, to_int(value));
         break;
       case "bool":
         if (current_map[topic][CONFIG_POS_PARAM] != "")
-          result = call_other(this_user(), func_name, 
+          result = call_other(target, func_name, 
                               current_map[topic][CONFIG_POS_PARAM], affirmative(value));
         else
-          result = call_other(this_user(), func_name, affirmative(value));
+          result = call_other(target, func_name, affirmative(value));
         break;
     }
   }
@@ -99,6 +111,7 @@ private string show_category(string title, string category)
   string * topics;
   int i;
   mixed result;
+  object target;
 
   config = CONFIG_TABLE->query_config_data();
   current_map = config[category];
@@ -109,13 +122,18 @@ private string show_category(string title, string category)
   for (i = 0; i < sizeof(topics); i++)
   {
     func_name = current_map[topics[i]][CONFIG_POS_QUERY_FUNC];
-    
+
     if (function_exists(func_name, this_user()))
+      target = this_user();
+    else if (function_exists(func_name, this_player()))
+      target = this_player();
+    
+    if (function_exists(func_name, target))
     {
       if (current_map[topics[i]][CONFIG_POS_PARAM] != "")
-        result = call_other(this_user(), func_name, current_map[topics[i]][CONFIG_POS_PARAM]);
+        result = call_other(target, func_name, current_map[topics[i]][CONFIG_POS_PARAM]);
       else
-        result = call_other(this_user(), func_name);
+        result = call_other(target, func_name);
       
       if (current_map[topics[i]][CONFIG_POS_TYPE] == "bool")
         result = (result ? _LANG_YES : _LANG_NO);
