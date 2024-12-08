@@ -88,16 +88,28 @@ static int cmd(string arg, object me, string verb)
 
   if (!stringp(arg) || !strlen(arg))
   {
+    // if (me->query_coder())
+    //   ret = file_name(here) + ".c\n";
+
     if (me->query_coder())
-      ret = file_name(here) + ".c\n";
+    {
+      ret += file_name(here);
+      if (here->query_location())
+        ret += " (location " + here->query_file_name() + ")";
+      else if (here->query_outside())
+        ret += " (room/outside)";
+      else if (here->query_room())
+        ret += " (room)";
+
+      ret += "\n";
+    }
 
     if (!dark)
-        ret += here->short(dark) + ".\n";
+      ret += here->short(dark) + ".\n";
 
     ret += here->long(arg, dark); //+"\n";
 
     write(ret);
-
     return 1;
   }
 

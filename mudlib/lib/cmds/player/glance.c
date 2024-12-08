@@ -44,12 +44,11 @@ static int cmd (string arg, object me, string verb)
     {
       ret += file_name(here);
       if (here->query_location())
-        ret += " (location)";
+        ret += " (location " + here->query_file_name() + ")";
       else if (here->query_outside())
         ret += " (room/outside)";
       else if (here->query_room())
         ret += " (room)";
-
 
       ret += "\n";
     }
