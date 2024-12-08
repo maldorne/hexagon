@@ -184,21 +184,21 @@ private string menu_text()
   {
     foods = sort_array(foods, "compare", this_object());
     menu_foods += _string_menu(foods);
-    ret += sprintf("%-=*s\n", this_user()->query_cols(), menu_foods);
+    ret += sprintf("%-=*s\n", this_user() ? this_user()->query_cols() : 79, menu_foods);
   }
 
   if (sizeof(drinks) > 0) 
   {
     drinks = sort_array(drinks, "compare", this_object());
     menu_drinks += _string_menu(drinks);
-    ret += sprintf("%-=*s\n", this_user()->query_cols(), menu_drinks);
+    ret += sprintf("%-=*s\n", this_user() ? this_user()->query_cols() : 79, menu_drinks);
   }
 
   if (sizeof(alcohols) > 0) 
   {
     alcohols = sort_array(alcohols, "compare", this_object());
     menu_alcohols += _string_menu(alcohols);
-    ret += sprintf("%-=*s\n", this_user()->query_cols(), menu_alcohols);
+    ret += sprintf("%-=*s\n", this_user() ? this_user()->query_cols() : 79, menu_alcohols);
   }
 
   return menu_foods + "\n" + menu_drinks + "\n" + menu_alcohols + "\n" +
