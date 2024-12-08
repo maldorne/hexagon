@@ -110,12 +110,21 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   // real location object
   if (stringp(dest) && (dest[strlen(dest)-2..strlen(dest)-1] == ".o"))
   {
-    object handler;
+    dest = load_object(LOCATION_HANDLER)->load_location(dest);
+  }
+  else
+  {
+    string alternative;
 
-    handler = load_object(LOCATION_HANDLER);
-    
-    if (handler)
-      dest = handler->load_location(dest);
+    if (stringp(dest))
+      dest = load_object(dest);
+
+    if (!objectp(dest))
+      return MOVE_EMPTY_DEST;  
+      
+    if ((alternative = load_object(LOCATION_HANDLER)->get_location_file_name_from_room(dest)) && 
+        (file_size(alternative) > 0))
+      dest = load_object(LOCATION_HANDLER)->load_location(alternative);
   }
 
   if (arrive)
