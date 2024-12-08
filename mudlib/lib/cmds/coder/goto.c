@@ -4,6 +4,7 @@
  */
 
 #include <mud/cmd.h>
+#include <room/location.h>
 
 inherit CMD_BASE;
 
@@ -55,7 +56,7 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
   } 
-  // go to a room
+  // go to a room or location
   else 
   {
     names = (string *)get_files(str);
@@ -72,8 +73,14 @@ static int cmd(string str, object me, string verb)
 
     if (!(dest = find_object(str))) 
     {
+      // if the file name ends in .c it's a room
+      if (str[strlen(str)-2..strlen(str)-1] == ".c")
+        catch(dest = load_object(str));
+      else // it's a location
+        dest = load_object(LOCATION_HANDLER)->load_location(str);
+
       // catch(str->come_and_see_the_stars());
-      catch(dest = load_object(str));
+      // catch(dest = load_object(str));
     }
 
     if (!dest) 
