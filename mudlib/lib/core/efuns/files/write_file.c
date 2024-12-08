@@ -14,8 +14,13 @@ static int write_file(string file, string str, varargs int offset)
   string * pieces, current;
   int i;
 
+  debug("files", "write_file: " + file + "\n");
+
   if (!SECURE->valid_write(file, geteuid(), previous_function()))
+  {
+    debug("files", "write_file invalid write: " + file + "\n");
     return 0;
+  }
 
   pieces = explode(file, "/");
   current = "";

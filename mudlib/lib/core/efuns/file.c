@@ -5,6 +5,7 @@
 #include "files/file_size.c"
 #include "files/write_file.c"
 #include "files/read_file.c"
+#include "files/remove_file.c"
 
 static nomask int file_length(string file_name)
 {
@@ -118,11 +119,6 @@ static nomask int cat(string file)
 static nomask int rename(string from, string to)
 {
   return rename_file(from, to);
-}
-
-static nomask int rm(string name)
-{
-  return remove_file(name);
 }
 
 static nomask int mkdir(string dir)
