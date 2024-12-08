@@ -83,7 +83,7 @@ static int cmd(string str, object me, string verb)
           for (a = 0; a < sizeof(dirs); a+=2) 
           {
             // printf("%-10s -> ", extract(dirs[a],0,8));
-            sscanf(dirs[a+1], "%s.c", dirs[a+1]);
+            // sscanf(dirs[a+1], "%s.c", dirs[a+1]);
             // dirs[a+1] = dirs[a+1] + ".c";
             // write(dirs[a+1]+"\n");
           }
@@ -94,7 +94,7 @@ static int cmd(string str, object me, string verb)
             int j;
             // printf("%-10s: ",extract(dirs[a],0,8));
 
-            if (file_size(dirs[a+1] + ".c") == -1) 
+            if (file_size(dirs[a+1]) == -1) 
               ret += "File (" + short_file_name(files[i]) + ") exit (" + extract(dirs[a], 0, 8) + 
                 ") goes to non existant file (" + short_file_name(dirs[a+1]) + ").\n";
             else 
@@ -108,8 +108,11 @@ static int cmd(string str, object me, string verb)
                 if (sizeof(dirs2))
                   for (j = 0; j < sizeof(dirs2); j = j+2) 
                   {
-                    sscanf(dirs2[j+1], "%s.c", dirs2[j+1]); 
-                    if (file_name(ob) == dirs2[j+1])
+                    string compare_name;
+                    compare_name = file_name(ob) + ".c";
+
+                    // sscanf(dirs2[j+1], "%s.c", dirs2[j+1]); 
+                    if (compare_name == dirs2[j+1])
                       match = dirs2[j];
                   }
 
@@ -186,7 +189,7 @@ static int cmd(string str, object me, string verb)
         else
           error = catch(dirs2 = destination->query_dest_dir());
       }
-      else if (file_size(dirs[a+1] + ".c") == -1) 
+      else if (file_size(dirs[a+1]) == -1) 
       {
         ret += "" + R + "does not exist" + RE + ".\n";
         continue;
@@ -207,7 +210,7 @@ static int cmd(string str, object me, string verb)
           if (env->query_location())
             compare_name = env->query_file_name();
           else
-            compare_name = file_name(env);
+            compare_name = file_name(env) + ".c";
 
           // sscanf(dirs2[j+1], "%s.c", dirs2[j+1]); // remove the extension
           if (compare_name == dirs2[j+1])
@@ -216,7 +219,7 @@ static int cmd(string str, object me, string verb)
       }
 
       if (!strlen(match))
-        ret += "" + R + " has not backwards exit" + RE + ".\n";
+        ret += "" + R + "has not backwards exit" + RE + ".\n";
       else 
       {
         if (OPPOSITES[dirs[a]] == match)
