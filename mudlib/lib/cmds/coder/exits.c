@@ -30,6 +30,7 @@ private string short_file_name(string file_name)
 static int cmd(string str, object me, string verb)
 {
   mixed *dirs,dirs2;
+  object env;
   string here; // environment name
   int a;
   string * files;
@@ -39,7 +40,9 @@ static int cmd(string str, object me, string verb)
   ret = "";
   files = ({ });
   
-  if (!environment(me)) 
+  env = environment(me);
+
+  if (!env) 
   {
     write("You can't do that without an environment\n");
     return 1;
@@ -140,16 +143,18 @@ static int cmd(string str, object me, string verb)
 
   // from here we are checking only our current environment
   
-  here = file_name(environment(me));
+  here = file_name(env);
   user = me->user();
 
-
   ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
-  ret += " File name:  "+here+"\t";
-  ret += " Size: "+file_size(here+".c")+" bytes\n";
+  ret += " File name:  " + here;
+  if (env->query_location())
+    ret += " (location " + env->query_file_name() + ")\n";
+  else
+    ret += "\tSize: " + file_size(here+".c") + " bytes\n";
   ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
   
-  dirs = environment(me)->query_dest_dir();
+  dirs = env->query_dest_dir();
   
   if (!sizeof(dirs)) 
   {
@@ -162,42 +167,64 @@ static int cmd(string str, object me, string verb)
     {
       string error, match;
       int j;
-      ret += sprintf("  %-9s -> ", dirs[a][0..]);
-      sscanf(dirs[a+1], "%s.c", dirs[a+1]); // remove the extension
 
+      ret += sprintf("  %-9s -> ", dirs[a][0..]);
+      // sscanf(dirs[a+1], "%s.c", dirs[a+1]); // remove the extension
       ret += dirs[a+1] + " ";
 
-      if (file_size(dirs[a+1] + ".c") == -1) 
+      // if the destination ends in .o, it's a location
+      if ((dirs[a+1][strlen(dirs[a+1])-2..strlen(dirs[a+1])-1] == ".o"))
+      {
+        object destination;
+        destination = env->query_dest_object(dirs[a]);
+
+        if (!destination)
+        {
+          ret += "" + R + "(location) does not load" + RE + ".\n";
+          continue;
+        }
+        else
+          error = catch(dirs2 = destination->query_dest_dir());
+      }
+      else if (file_size(dirs[a+1] + ".c") == -1) 
       {
         ret += "" + R + "does not exist" + RE + ".\n";
+        continue;
       } 
-      else if (error = catch(dirs2 = dirs[a+1]->query_dest_dir()))
+      else if (error = catch(dirs2 = load_object(dirs[a+1])->query_dest_dir()))
       {
         ret += "" + R + "does not load" + RE + ".\n";
+        continue;
       }
-      else
-      {
-        match = "";
-        if (sizeof(dirs2))
-        {
-          for(j = 0; j < sizeof(dirs2); j = j+2) 
-          {
-            sscanf(dirs2[j+1], "%s.c", dirs2[j+1]); // remove the extension
-            if (file_name(environment(me)) == dirs2[j+1])
-              match = dirs2[j];
-          }
-        }
 
-        if (!strlen(match))
-          ret += dirs[a+1] + R + " has not backwards exit" + RE + ".\n";
-        else 
+      match = "";
+
+      if (sizeof(dirs2))
+      {
+        string compare_name;
+        for (j = 0; j < sizeof(dirs2); j = j+2) 
         {
-          if (OPPOSITES[dirs[a]] == match)
-            ret += "" + G + "is ok" + RE + " (" + match + ").\n";
+          if (env->query_location())
+            compare_name = env->query_file_name();
           else
-            ret += " -> " + C + match[0..] + "" + RE + ".\n";
+            compare_name = file_name(env);
+
+          // sscanf(dirs2[j+1], "%s.c", dirs2[j+1]); // remove the extension
+          if (compare_name == dirs2[j+1])
+            match = dirs2[j];
         }
       }
+
+      if (!strlen(match))
+        ret += "" + R + " has not backwards exit" + RE + ".\n";
+      else 
+      {
+        if (OPPOSITES[dirs[a]] == match)
+          ret += "" + G + "is ok" + RE + " (" + match + ").\n";
+        else
+          ret += " -> " + C + match[0..] + "" + RE + ".\n";
+      }
+
     }
     
     /*
