@@ -454,7 +454,7 @@ int do_list(string str)
     // list = keys(objects);    
     
     tmp  = "-------------------------------------------------------\n";
-    tmp += "   " + _LANG_VAULTS_LIST_HEADER;
+    tmp += "  " + _LANG_VAULTS_LIST_HEADER;
     tmp += "-------------------------------------------------------\n\n";
     
     for (j = 0; j < sizeof(list); j ++)
@@ -489,7 +489,7 @@ int do_list(string str)
     */
 
     tmp += "-------------------------------------------------------\n";
-    tmp += "   " + _LANG_VAULTS_LIST_USING; 
+    tmp += "  " + _LANG_VAULTS_LIST_USING; 
     tmp += "-------------------------------------------------------\n\n";
     
     this_user()->more_string(tmp);
