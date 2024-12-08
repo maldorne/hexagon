@@ -259,7 +259,12 @@ nomask int save_me()
   // oldeuid = geteuid();
 
   if (environment())
-    last_pos = file_name(environment());
+  {
+    if (environment()->query_location())
+      last_pos = environment()->query_file_name();
+    else
+      last_pos = file_name(environment());
+  }
   else
     last_pos = START_POS;
 

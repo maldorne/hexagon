@@ -4,6 +4,7 @@
 #include <living/consents.h>
 #include <living/death.h>
 #include <basic/communicate.h>
+#include <room/location.h>
 #include <translations/races.h>
 #include <translations/inform.h>
 #include <language.h>
@@ -76,9 +77,7 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
   }
   else
   {
-    if (!strlen(last_pos) ||
-        catch(last = load_object(last_pos)) ||
-        !last)
+    if (!strlen(last_pos))
     {
       // TODO: MULTIEXITS_ROOM does not exist 
       // if (query_level() >= 5)
@@ -90,6 +89,16 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
       // {
         move_living("X", START_POS);
       // }
+    }
+    // if the last_pos ends in .o, it was a location
+    else if (last_pos[strlen(last_pos)-2..strlen(last_pos)-1] == ".o")
+    {
+      last = load_object(LOCATION_HANDLER)->load_location(last_pos);
+      
+      if (last)
+        move_living("X", last);
+      else
+        move_living("X", START_POS);
     }
     else
     {
