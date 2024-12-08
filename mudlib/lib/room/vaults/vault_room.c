@@ -149,7 +149,7 @@ int do_deposit(string str)
 
   if (!strlen(str))
   {
-    notify_fail("¿Depositar qué?\n");
+    notify_fail(_LANG_VAULT_ROOM_DEPOSIT_WHAT);
     return 0;
   }
  
@@ -179,9 +179,9 @@ int do_deposit(string str)
     vault->move(this_object());
     vault->set_save_file(save_file);
     
-    if (file_size(query_save_file()+".o") > FILE_SIZE)
+    if (file_size(query_save_file() + ".o") > FILE_SIZE)
     {
-      notify_fail("El bául está lleno, ya no puedes depositar más objetos en él.\n");
+      notify_fail(_LANG_VAULT_ROOM_DEPOSIT_FULL);
       vault->dest_me();
       return 0;
     }
@@ -191,16 +191,14 @@ int do_deposit(string str)
       // how is it possible this wasn't here already???
       if ((int)all[i]->query_in_use())
       {
-        tell_object(this_player(), "No puedes depositar en un baúl tu " + all[i]->query_short() + ", lo llevas " +
-                "puesto.\n");
+        tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_EQUIPPED);
         // checked -= ({ all[i] });
         continue;
       }
 
       if (all[i]->avoid_auto_load())
       {
-        tell_object(this_player(), "Al intentar depositar tu " + all[i]->query_short() + " " +
-          "en el baúl, desaparece dejando una nube de humo en su lugar.\n");
+        tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_AVOID);
           
         // checked -= ({ all[i] });
         all[i]->dest_me();
@@ -209,15 +207,14 @@ int do_deposit(string str)
 
       if (all[i]->query_no_save_object())
       {
-        tell_object(this_player(), "No puedes depositar en un baúl tu " + all[i]->query_short() + ", " +
-                "estos objetos no se pueden salvar.\n");
+        tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_NO_SAVE);
         // checked -= ({ all[i] });
         continue;
       }
   
       if (all[i]->is_money())
       {
-        tell_object(this_player(), "Busca un banco si quieres almacenar dinero.\n");
+        tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_MONEY);
         // checked -= ({ all[i] });
         continue;
       }
@@ -233,8 +230,7 @@ int do_deposit(string str)
 
       if (!all[i]->query_value())
       {
-        tell_object(this_player(), "No puedes depositar en un baúl tu " + all[i]->query_short() + ", estos " +
-                "objetos no están permitidos en baules.\n");
+        tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_NO_VALUE);
         // checked -= ({ all[i] });
         continue;
       }
@@ -245,18 +241,18 @@ int do_deposit(string str)
       {
         string log;
         log = "";
-        tell_object(this_player(), "Depositas tu " + all[i]->query_short()+".\n");
-        tell_room(this_object(), this_player()->query_cap_name()+" deposita "+all[i]->query_numeral()+" "+
-           all[i]->query_short()+" en el baúl.\n", ({ this_player() }));
+        tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_ME);
+        tell_room(this_object(), _LANG_VAULT_ROOM_DEPOSIT_THEM, ({ this_player() }));
 
         log = this_player()->query_cap_name()+
-           " deposit: "+all[i]->query_name()+" ("+ctime(time(), 4)+")\n";
+           " " + _LANG_VAULT_ROOM_DEPOSIT_LOG + ": " + 
+           all[i]->query_name() + " (" + ctime(time(), 4) + ")\n";
 
         write_file(query_vault_log(), log);
       }
       else
       {
-        tell_object(this_player(), "No has podido depositar en un baúl tu " + all[i]->query_short() + ".\n");
+        tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_FAILED);
         // vault->dest_me();
         // return 0;
         continue;
@@ -267,7 +263,7 @@ int do_deposit(string str)
   }
   
   vault->dest_me();
-  notify_fail("No puedes encontrar nada por el nombre de '"+str+"'.\n");
+  notify_fail(_LANG_VAULT_ROOM_DEPOSIT_NOT_FOUND);
   return 0;
 }
 
@@ -279,7 +275,7 @@ int do_retrieve(string str)
 
   if (!strlen(str))
   {
-    notify_fail("¿Recuperar qué?\n");
+    notify_fail(_LANG_VAULT_ROOM_RETRIEVE_WHAT);
     return 0;
   }
 
@@ -308,13 +304,12 @@ int do_retrieve(string str)
         
         all[i]->move(this_player());
         
-        tell_room(this_object(), (string)this_player()->query_cap_name()+" recupera "+all[i]->query_numeral()+" "+
-          all[i]->query_short()+" del baúl.\n", ({ this_player() }));
-        tell_object(this_player(), "Recuperas "+all[i]->query_numeral()+" "+all[i]->query_short()+" del baúl.\n");
+        tell_room(this_object(), _LANG_VAULT_ROOM_RETRIEVE_THEM, ({ this_player() }));
+        tell_object(this_player(), _LANG_VAULT_ROOM_RETRIEVE_ME);
 
-        log = this_player()->query_cap_name()+
-          " recuperó:  "+all[i]->query_name()+" ("+
-          ctime(time(), 4)+")\n";
+        log = this_player()->query_cap_name() +
+          " " + _LANG_VAULT_ROOM_RETRIEVE_LOG + ":  " + 
+          all[i]->query_name() + " (" + ctime(time(), 4) + ")\n";
 
 #ifdef COMMON_SAVE
         if (is_in_game(this_object()))
@@ -327,15 +322,14 @@ int do_retrieve(string str)
 
       }
       else
-        tell_object(this_player(), "No podrías cargar con todo el peso de "+all[i]->query_numeral()+" "
-                 +all[i]->query_short()+".\n");
+        tell_object(this_player(), _LANG_VAULT_ROOM_RETRIEVE_WEIGHT);
     }
     vault->dest_me();
     return 1;
   }
   
   vault->dest_me();
-  notify_fail("No puedes recuperar '"+str+"'.\n");
+  notify_fail(_LANG_VAULT_ROOM_RETRIEVE_CANNOT);
   return 0;
 }
 
@@ -355,15 +349,16 @@ int do_list(string str)
   vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
   
   // set the order to show
-  list = ({ "Armas", "Armaduras", "Escudos", "Hierbas", "Pieles", "Otros", });
+  list = ({ _LANG_VAULTS_LIST_WEAPONS, _LANG_VAULTS_LIST_ARMOURS, _LANG_VAULTS_LIST_SHIELDS, 
+          _LANG_VAULTS_LIST_HERBS, _LANG_VAULTS_LIST_SKINS, _LANG_VAULTS_LIST_OTHER, });
 
   objects = ([ ]);
-  objects["Armaduras"] = ({ });
-  objects["Armas"] = ({ });
-  objects["Escudos"] = ({ });
-  objects["Hierbas"] = ({ });
-  objects["Pieles"] = ({ });
-  objects["Otros"] = ({ });
+  objects[_LANG_VAULTS_LIST_ARMOURS] = ({ });
+  objects[_LANG_VAULTS_LIST_WEAPONS] = ({ });
+  objects[_LANG_VAULTS_LIST_SHIELDS] = ({ });
+  objects[_LANG_VAULTS_LIST_HERBS] = ({ });
+  objects[_LANG_VAULTS_LIST_SKINS] = ({ });
+  objects[_LANG_VAULTS_LIST_OTHER] = ({ });
 
   if (query_property(VAULT_USE_PROP))
   {
@@ -398,13 +393,13 @@ int do_list(string str)
     for (i = 0; i < sizeof(all); i++)
     {
        if (all[i]->query_weapon())
-          objects["Armas"] += ({ all[i] });
+          objects[_LANG_VAULTS_LIST_WEAPONS] += ({ all[i] });
        else if (all[i]->query_armour())
-          objects["Armaduras"] += ({ all[i] });
+          objects[_LANG_VAULTS_LIST_ARMOURS] += ({ all[i] });
        else if (all[i]->query_shield())
-          objects["Escudos"] += ({ all[i] });
+          objects[_LANG_VAULTS_LIST_SHIELDS] += ({ all[i] });
        else 
-          objects["Otros"] += ({ all[i] });
+          objects[_LANG_VAULTS_LIST_OTHER] += ({ all[i] });
     }
     */
 
@@ -414,59 +409,59 @@ int do_list(string str)
       position = 0;
       if (all[i]->query_weapon())
       {
-        if ((position = member_array(all[i]->query_short(), objects["Armas"])) == -1)
-            objects["Armas"] += ({ all[i]->query_short(), all[i], 1 });
+        if ((position = member_array(all[i]->query_short(), objects[_LANG_VAULTS_LIST_WEAPONS])) == -1)
+            objects[_LANG_VAULTS_LIST_WEAPONS] += ({ all[i]->query_short(), all[i], 1 });
         else
-           objects["Armas"][position+2] = objects["Armas"][position+2] + 1;
+           objects[_LANG_VAULTS_LIST_WEAPONS][position+2] = objects[_LANG_VAULTS_LIST_WEAPONS][position+2] + 1;
       }
       else if (all[i]->query_armour())
       {
-        if ((position = member_array(all[i]->query_short(), objects["Armaduras"])) == -1)
-            objects["Armaduras"] += ({ all[i]->query_short(), all[i], 1 });
+        if ((position = member_array(all[i]->query_short(), objects[_LANG_VAULTS_LIST_ARMOURS])) == -1)
+            objects[_LANG_VAULTS_LIST_ARMOURS] += ({ all[i]->query_short(), all[i], 1 });
         else
-           objects["Armaduras"][position+2] = objects["Armaduras"][position+2] + 1;   
+           objects[_LANG_VAULTS_LIST_ARMOURS][position+2] = objects[_LANG_VAULTS_LIST_ARMOURS][position+2] + 1;   
       }
       else if (all[i]->query_shield())
       {
-        if ((position = member_array(all[i]->query_short(), objects["Escudos"])) == -1)
-            objects["Escudos"] += ({ all[i]->query_short(), all[i], 1 });
+        if ((position = member_array(all[i]->query_short(), objects[_LANG_VAULTS_LIST_SHIELDS])) == -1)
+            objects[_LANG_VAULTS_LIST_SHIELDS] += ({ all[i]->query_short(), all[i], 1 });
         else
-           objects["Escudos"][position+2] = objects["Escudos"][position+2] + 1;   
+           objects[_LANG_VAULTS_LIST_SHIELDS][position+2] = objects[_LANG_VAULTS_LIST_SHIELDS][position+2] + 1;   
       }
       else if (all[i]->query_herb())
       {
-        if ((position = member_array(all[i]->query_short(), objects["Hierbas"])) == -1)
-            objects["Hierbas"] += ({ all[i]->query_short(), all[i], 1 });
+        if ((position = member_array(all[i]->query_short(), objects[_LANG_VAULTS_LIST_HERBS])) == -1)
+            objects[_LANG_VAULTS_LIST_HERBS] += ({ all[i]->query_short(), all[i], 1 });
         else
-           objects["Hierbas"][position+2] = objects["Hierbas"][position+2] + 1;   
+           objects[_LANG_VAULTS_LIST_HERBS][position+2] = objects[_LANG_VAULTS_LIST_HERBS][position+2] + 1;   
       }
       else if (all[i]->query_skin())
       {
-        if ((position = member_array(all[i]->query_short(), objects["Pieles"])) == -1)
-            objects["Pieles"] += ({ all[i]->query_short(), all[i], 1 });
+        if ((position = member_array(all[i]->query_short(), objects[_LANG_VAULTS_LIST_SKINS])) == -1)
+            objects[_LANG_VAULTS_LIST_SKINS] += ({ all[i]->query_short(), all[i], 1 });
         else
-           objects["Pieles"][position+2] = objects["Pieles"][position+2] + 1;   
+           objects[_LANG_VAULTS_LIST_SKINS][position+2] = objects[_LANG_VAULTS_LIST_SKINS][position+2] + 1;   
       }
       else 
       {
-        if ((position = member_array(all[i]->query_short(), objects["Otros"])) == -1)
-            objects["Otros"] += ({ all[i]->query_short(), all[i], 1 });
+        if ((position = member_array(all[i]->query_short(), objects[_LANG_VAULTS_LIST_OTHER])) == -1)
+            objects[_LANG_VAULTS_LIST_OTHER] += ({ all[i]->query_short(), all[i], 1 });
         else
-           objects["Otros"][position+2] = objects["Otros"][position+2] + 1;   
+           objects[_LANG_VAULTS_LIST_OTHER][position+2] = objects[_LANG_VAULTS_LIST_OTHER][position+2] + 1;   
       }
     }
     
     // list = keys(objects);    
     
     tmp  = "-------------------------------------------------------\n";
-    tmp += "  Hay " + number_as_string(sizeof(all)) + " objeto"+((sizeof(all)>1)?"s":"")+ " en el baúl.\n";
+    tmp += "   " + _LANG_VAULTS_LIST_HEADER;
     tmp += "-------------------------------------------------------\n\n";
     
     for (j = 0; j < sizeof(list); j ++)
     {
       if (sizeof(objects[list[j]]))
       {
-        tmp += "  %^BOLD%^"+list[j]+"%^RESET%^:\n";
+        tmp += "  %^BOLD%^"+capitalize(list[j])+"%^RESET%^:\n";
         for (i = 0; i < sizeof(objects[list[j]]); i+=3)
         {
           if (objects[list[j]][i+2] > 1)
@@ -494,14 +489,14 @@ int do_list(string str)
     */
 
     tmp += "-------------------------------------------------------\n";
-    tmp += "  Se está utilizando un "+capacity+"% de la capacidad del baúl.\n"; 
+    tmp += "   " + _LANG_VAULTS_LIST_USING; 
     tmp += "-------------------------------------------------------\n\n";
     
     this_user()->more_string(tmp);
     
   }
   else
-    tell_object(this_player(), "El baúl está vacío.\n");
+    tell_object(this_player(), _LANG_VAULTS_LIST_EMPTY);
 
   vault->dest_me();
   return 1;
