@@ -10,7 +10,7 @@ string query_usage()
 
 string query_help()
 {
-  return "Shows all stats of given object\n" + 
+  return "Shows all stats of given object.\n" + 
          "(or only those which name contains some of the filter key words).\n";
 }
 

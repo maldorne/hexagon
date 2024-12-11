@@ -13,14 +13,9 @@ inherit "/lib/armour.c";
 #include <translations/armour.h>
 
 #define BUILDER_RING_CONVERT_SYNTAX "convert < filename | dirname | here >"
-#define BUILDER_RING_LIST_SECTORS_SYNTAX "sectors"
-#define BUILDER_RING_LIST_AREAS_SYNTAX "areas"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
-                "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_LIST_SECTORS_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_LIST_AREAS_SYNTAX + "\n"
-  
+                "\t" + BUILDER_RING_CONVERT_SYNTAX 
 
 void create()
 {
@@ -48,9 +43,6 @@ string get_help(varargs string str) { return BUILDER_RING_HELP; }
 void init()
 {
   add_action("do_convert", "convert");
-  add_action("do_list_map_sectors", "sectors");
-  add_action("do_list_areas", "areas");
-
   ::init();
 }
 
@@ -352,96 +344,3 @@ object convert_room_to_location(object room)
 
   return location;
 }
-
-int do_list_map_sectors(string str)
-{
-  mapping sectors;
-  string * keys;
-  int i, j;
-
-  if (!query_in_use())
-  {
-    notify_fail("You must equip the ring before using it.\n");
-    return 0;
-  }
-
-  if (!this_player()->query_coder())
-  {
-    notify_fail("You won't be able to handle the power of this ring.\n");
-    return 0;
-  }
-
-  sectors = load_object(MAPS_HANDLER)->query_loaded_sectors();
-
-  if (!sectors || !map_sizeof(sectors))
-  {
-    write("No sectors loaded.\n");
-    return 1;
-  }
-
-  write("Sectors loaded:\n");
-  keys = keys(sectors);
-
-  for (i = 0; i < sizeof(keys); i++)
-  {
-    object * locations;
-
-    write(" - " + keys[i] + "\n");
-
-    locations = sectors[keys[i]]->query_loaded_locations();
-
-    for (j = 0; j < sizeof(locations); j++)
-    {
-      write("   - " + locations[j]->query_file_name() + "\n");
-    }
-  }
-
-  return 1;
-}
-
-int do_list_areas(string str)
-{
-  mapping areas;
-  string * keys;
-  int i, j;
-
-  if (!query_in_use())
-  {
-    notify_fail("You must equip the ring before using it.\n");
-    return 0;
-  }
-
-  if (!this_player()->query_coder())
-  {
-    notify_fail("You won't be able to handle the power of this ring.\n");
-    return 0;
-  }
-
-  areas = load_object(AREA_HANDLER)->query_loaded_areas();
-
-  if (!areas || !map_sizeof(areas))
-  {
-    write("No areas loaded.\n");
-    return 1;
-  }
-
-  write("Areas loaded:\n");
-  keys = keys(areas);
-
-  for (i = 0; i < sizeof(keys); i++)
-  {
-    object * locations;
-
-    write(" - " + keys[i] + "\n");
-
-    locations = areas[keys[i]]->query_loaded_locations();
-
-    for (j = 0; j < sizeof(locations); j++)
-    {
-      write("   - " + locations[j]->query_file_name() + "\n");
-    }
-  }
-
-  return 1;
-}
-
