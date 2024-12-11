@@ -193,9 +193,7 @@ int do_convert_files(string * files)
   write("  Locations with coordinates: " + num_coordinates + "\n");
 
   if (sizeof(locations))
-  {
     call_out("do_guess_coordinates", 0, locations);
-  }
 
   return 1;
 }
@@ -327,6 +325,7 @@ object convert_room_to_location(object room)
     location->set_file_name(file_name);
   }
 
+  location->set_original_room_file_name(base_name(room) + ".c");
   location->set_original_short(room->query_short());
   location->set_original_long(room->query_long());
 

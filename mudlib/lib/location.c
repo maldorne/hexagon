@@ -18,6 +18,7 @@ inherit zone     "/lib/room/zone.c";
 static object * components;
 mapping component_info;
 
+string _original_room_file_name;
 string _original_long;
 string _original_short;
 mapping _exit_map;
@@ -46,6 +47,7 @@ void create()
   components = ({ });
   component_info = ([ ]);
 
+  _original_room_file_name = "";
   _original_long = "";
   _original_short = "";
   _exit_map = ([ ]);
@@ -90,6 +92,9 @@ int id(string str)
   return 0;
 }
 
+string query_original_room_file_name() { return _original_room_file_name; }
+
+void set_original_room_file_name(string str) { _original_room_file_name = str; }
 string query_original_short() { return _original_short; }
 void set_original_short(string str) { _original_short = str; }
 string query_original_long() { return _original_long; }
@@ -353,7 +358,7 @@ void save_me()
 mixed stats()
 {
   return ({
-    ({ "Component types", keys(component_info), }),
+    ({ "Components", keys(component_info), }),
           }) +
       obj::stats() +
       light::stats() +
