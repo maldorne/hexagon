@@ -3,6 +3,7 @@
 
 #include <mud/cmd.h>
 #include <translations/exits.h>
+#include <room/location.h>
 #include <language.h>
 
 inherit CMD_BASE;
@@ -249,7 +250,13 @@ static int cmd(string str, object me, string verb)
       if (add)
       {
         // create a new pending
-        catch ( new_room = load_object(dest_dir[i+1]) );
+
+        // if the destination ends in .c, it is a room, just load it
+        if (dest_dir[i+1][strlen(dest_dir[i+1])-2..strlen(dest_dir[i+1])-1] == ".o")
+          new_room = load_object(LOCATION_HANDLER)->load_location(dest_dir[i+1]);
+        else
+          catch ( new_room = load_object(dest_dir[i+1]) );
+        
         if (new_room)
         {
           int repeated;
