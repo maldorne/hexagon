@@ -13,6 +13,6 @@ void setup()
   add_exit(DIR_NORTH, ROOMS + "1.c", "road");
   add_exit(DIR_SOUTH, ROOMS + "6.c", "road");
   add_exit(DIR_SOUTHWEST, ROOMS + "7.c", "road");
-  set_zone("road");
+  add_room_zone("naduk-road");
   add_property("no_undead", 1);
 }

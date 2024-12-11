@@ -20,6 +20,7 @@ void setup()
 
   add_exit(DIR_NORTH, ROOMS + "B5", "door");
   set_light(40);
+  add_room_zone("erken");
 
   add_property("no_undead", 1);
 

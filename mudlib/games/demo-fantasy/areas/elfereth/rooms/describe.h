@@ -28,7 +28,7 @@ void create_descriptions(int num)
       set_short(_LANG_FOREST_SHORT);
       set_long(_LANG_FOREST_LONG);
       set_light(30);
-      set_zone("forest");
+      add_room_zone("forest");
     break;
     case 17:
       set_short(_LANG_FOREST_CENTER_SHORT);

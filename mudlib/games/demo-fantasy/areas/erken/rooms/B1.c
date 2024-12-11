@@ -11,7 +11,7 @@ void setup()
   set_long(_LANG_ERKEN_LONG);
   set_light(40);
   add_item(_LANG_ERKEN_HOUSE_ITEM, _LANG_ERKEN_HOUSE_DESC);
-  set_zone("erken");
+  add_room_zone("erken");
   add_property("no_undead", 1);
   add_exit(DIR_SOUTH, ROOMS + "B2.c", "road");
   add_exit(DIR_NORTH, ROAD + "rooms/25.c", "road");

@@ -19,7 +19,7 @@ void setup()
   if (door)
     door->set_init_status(0);
 
-  set_zone("road");
+  add_room_zone("naduk-road");
   add_property("no_undead", 1);
   add_clone(NPCS + "snake.c", 1);
   // add_clone(ITEMS + "board.c", 1);

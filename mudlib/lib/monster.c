@@ -594,7 +594,7 @@ void do_move_after(int bing)
 {
   mixed *direcs, *direcstemp;
   int i, dd, bong;
-  string zone;
+  string * zones;
 
   if (!environment(this_object()))
   {
@@ -622,11 +622,11 @@ void do_move_after(int bing)
     if (bing > 1)
       catch(bong = (int)direcs[i + 1]->query_property("no throw out"));
 
-    catch(zone = (string)direcs[i + 1]->query_zone());
+    catch(zones = (string)direcs[i + 1]->query_room_zones());
 
     if (sizeof(move_zones) || bong)
     {
-      if (bong || member_array(zone, move_zones) == -1)
+      if (bong || sizeof(intersection(zones, move_zones)) > 0)
       {
         direcs = delete(direcs, i, 2);
         continue;

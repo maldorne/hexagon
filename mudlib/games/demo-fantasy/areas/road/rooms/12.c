@@ -13,7 +13,7 @@ void setup()
   add_exit(DIR_EAST, ROOMS + "13.c", "road");
   add_exit(DIR_WEST, ROOMS + "11.c", "road");
   add_exit(DIR_NORTHWEST, FOREST + "rooms/36.c", "forest");
-  set_zone("road");
+  add_room_zone("naduk-road");
   add_property("no_undead", 1);
   add_clone(NPCS + "pilgrim.c", 1);
   add_clone(NPCS + "farmer.c", 2);

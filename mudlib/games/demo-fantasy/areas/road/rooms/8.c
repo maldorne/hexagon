@@ -23,7 +23,7 @@ void setup()
     _LANG_CROSSING_SIGN_SHORT, 
     _LANG_CROSSING_SIGN_NAME);
 
-  set_zone("road");
+  add_room_zone("naduk-road");
   add_property("no_undead", 1);
   add_clone(NPCS + "farmer.c", 2);
 }

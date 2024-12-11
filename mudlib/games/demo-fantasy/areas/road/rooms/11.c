@@ -15,7 +15,7 @@ void setup()
   add_exit(DIR_NORTH, FOREST + "rooms/36.c", "forest");
   add_exit(DIR_SOUTH, FOREST + "rooms/40.c", "forest");
   add_exit(DIR_SOUTHWEST, FOREST + "rooms/39.c", "forest");
-  set_zone("road");
+  add_room_zone("naduk-road");
   add_property("no_undead", 1);
   add_clone(NPCS + "pilgrim.c", 3);
 }

@@ -117,7 +117,7 @@ int do_convert_files(string * files)
 {
   object location;
   object * locations;
-  object * obs; 
+  object * rooms; 
   int num_coordinates;
   int i;
 
@@ -128,7 +128,7 @@ int do_convert_files(string * files)
   if (sizeof(files) > 0)
   {
     object tmp;
-    obs = ({ });
+    rooms = ({ });
 
     for (i = 0; i < sizeof(files); i++)
     {
@@ -136,7 +136,7 @@ int do_convert_files(string * files)
       tmp = load_object(files[i]);
 
       if (tmp)
-        obs += ({ tmp });
+        rooms += ({ tmp });
       else
       {
         write("Error loading " + files[i] + ".\n");
@@ -145,31 +145,31 @@ int do_convert_files(string * files)
     }
   }
 
-  if (sizeof(obs) == 0)
+  if (sizeof(rooms) == 0)
   {
     write("No valid objects loaded.\n");
     return 1;
   }
 
-  write(" * " + sizeof(obs) + " objects loaded.\n\n");
+  write(" * " + sizeof(rooms) + " objects loaded.\n\n");
 
   num_coordinates = 0;
   locations = ({ });
 
   // convert the rooms to locations
-  for (i = 0; i < sizeof(obs); i++)
+  for (i = 0; i < sizeof(rooms); i++)
   {
-    write(" * Converting " + file_name(obs[i]) + ".c ...\n");
+    write(" * Converting " + file_name(rooms[i]) + ".c ...\n");
 
-    if (!(location = convert_room_to_location(obs[i])))
+    if (!(location = convert_room_to_location(rooms[i])))
     {
-      write("   Error converting " + file_name(obs[i]) + ".c.\n");
+      write("   Error converting " + file_name(rooms[i]) + ".c.\n");
     }
     else
     {
       locations += ({ location });
 
-      write("   " + file_name(obs[i]) + ".c to\n     " + location->query_file_name() + "\n");
+      write("   " + file_name(rooms[i]) + ".c to\n     " + location->query_file_name() + "\n");
       if (location->query_coordinates())
       {
         num_coordinates++;
@@ -354,6 +354,9 @@ object convert_room_to_location(object room)
   location->set_original_room_file_name(base_name(room) + ".c");
   location->set_original_short(room->query_short());
   location->set_original_long(room->query_long());
+
+  if (sizeof(room->query_room_zones()))
+    location->set_zones(room->query_room_zones());
 
   exit_map = room->query_exit_map();
 

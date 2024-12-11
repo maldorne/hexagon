@@ -29,7 +29,7 @@ void setup()
   add_item("clerk",
            "There are several of them pretending to look busy here.\n");
 
-  set_zone("patricians office");
+  add_room_zone("patricians office");
 }
  
 // void init() {

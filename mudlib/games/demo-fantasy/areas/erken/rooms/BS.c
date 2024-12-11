@@ -11,7 +11,7 @@ void setup()
   set_long(_LANG_ERKEN_SHOP_LONG);
 
   set_light(60);
-  set_zone("erken");
+  add_room_zone("erken");
   add_property("no_undead", 1);
   add_exit(DIR_NORTH, ROOMS + "B6.c", "door");
 

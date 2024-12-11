@@ -11,7 +11,7 @@ void setup()
   set_long(_LANG_FOREST_LONG);
   set_light(40);
   add_item(_LANG_FOREST_TREE_ITEMS, _LANG_FOREST_TREE_DESC);
-  set_zone("forest");  
+  add_room_zone("forest");  
   add_property("no_undead", 1);
   add_exit(DIR_SOUTHEAST, ROAD + "rooms/12.c", "road");
   add_exit(DIR_SOUTHWEST, ROAD + "rooms/10.c", "road");

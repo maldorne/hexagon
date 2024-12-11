@@ -12,6 +12,6 @@ void setup()
   set_light(60);
   add_exit(DIR_SOUTH, ROOMS + "25.c", "road");
   add_exit(DIR_NORTH, ROOMS + "24.c", "road");
-  set_zone("goblin_road");
+  add_room_zone("erken-road");
   add_property("no_undead", 1);
 }

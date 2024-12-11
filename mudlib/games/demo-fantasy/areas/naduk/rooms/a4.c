@@ -16,7 +16,7 @@ void setup()
   add_exit(DIR_NORTHWEST, ROOMS + "a6.c", "road"); 
   add_exit(DIR_SOUTHWEST, ROOMS + "a5.c", "road");
   set_light(60);
-  set_zone("naduk");
+  add_room_zone("naduk");
   add_clone(NPCS + "citizen.c", 1);
   add_clone(NPCS + "guard.c", 1);
   add_clone(ITEMS + "fountain.c", 1);
