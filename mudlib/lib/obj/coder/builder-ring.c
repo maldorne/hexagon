@@ -372,7 +372,7 @@ int do_list_map_sectors(string str)
     return 0;
   }
 
-  sectors = load_object(MAP_HANDLER)->query_loaded_sectors();
+  sectors = load_object(MAPS_HANDLER)->query_loaded_sectors();
 
   if (!sectors || !map_sizeof(sectors))
   {

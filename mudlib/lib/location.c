@@ -341,7 +341,7 @@ void save_me()
 
   // save in the map system every location with coordinates
   if (query_coordinates() != nil)
-    MAP_HANDLER->add_location(this_object());
+    MAPS_HANDLER->add_location(this_object());
 
   // save it in the area system also
   AREA_HANDLER->add_location(this_object());

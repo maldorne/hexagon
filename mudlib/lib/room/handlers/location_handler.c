@@ -53,7 +53,7 @@ object query_sector_from_location_file_name(string file_name)
   location = clone_object(BASE_LOCATION_OBJ);
   location->restore_from_file_name(file_name);
 
-  return load_object(MAP_HANDLER)->query_sector_from_location(location);
+  return load_object(MAPS_HANDLER)->query_sector_from_location(location);
 }
 
 object load_location(string file_name)
@@ -67,7 +67,7 @@ object load_location(string file_name)
   // sector = query_sector_from_location_file_name(file_name);
 
   // add the already loaded location into the sector system too
-  load_object(MAP_HANDLER)->add_location(location);
+  load_object(MAPS_HANDLER)->add_location(location);
 
   return location;
 }
