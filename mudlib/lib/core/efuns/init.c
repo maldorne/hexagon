@@ -1,7 +1,7 @@
 
 // void init();
 // When the mudlib moves an object "A" inside another object "B", the
-// driver (the move_object() efunction) does the following:
+// driver (the move() efun) does the following:
 
 // * if "A" is living, causes "A" to call the init() in "B"
 // * if "A" is living, causes "A" to call the init() in each object in

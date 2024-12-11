@@ -46,6 +46,7 @@ Common calls and operations over the basic types.
 | `unique_array`          | :white_check_mark: |  |
 | `filter`                | :white_check_mark: |  |
 | `filter_array`          | :white_check_mark: |  |
+| `intersection`          | :white_check_mark: | :new: return common elements in two arrays |
 | **mappings**            |  |  |
 | `m_sizeof`              | :white_check_mark: | alias for `map_sizeof` |
 | `values`                | :white_check_mark: | alias for `map_values` |
@@ -138,7 +139,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `id`                    | :white_check_mark: |  |
 | `present`               | :white_check_mark: | available, although `find_match` is much more complete |
 | `move`                  | :white_check_mark: |  |
-| `move_object`           | :white_check_mark: | alias for `move` |
+| `move_object`           | :white_check_mark: | alias for `move`, commented |
 
 ## Files and paths
 

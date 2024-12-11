@@ -167,6 +167,7 @@ nomask object environment(varargs object ob)
 // Move the current object into the object 'dest'.  dest should either be
 // a filename or an object.
 
+/*
 void move_object(object dest)
 {
   // if the move function exists in this object, move
@@ -174,6 +175,7 @@ void move_object(object dest)
   //   this_object()->move(dest);
   move(dest);
 }
+*/
 
 // destruct - remove an object
 // void destruct( object ob );
@@ -235,7 +237,7 @@ static nomask int destruct(varargs object ob)
 
 // Called if the environment is dested and there is no where else
 // to go...
-
+/*
 static void destruct_environment_of(object ob)
 {
   object env;
@@ -252,6 +254,7 @@ static void destruct_environment_of(object ob)
       }
   }
 }
+*/
 
 // object array all_inventory( object ob );
 // Returns an array of the objects contained inside of 'ob'.  If 'ob' is

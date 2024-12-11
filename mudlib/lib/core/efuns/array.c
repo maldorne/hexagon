@@ -1,5 +1,6 @@
 
 #include "arrays/member_array.c"
+#include "arrays/intersection.c"
 
 
 static nomask int index(mixed element, mixed * arr)
