@@ -1,16 +1,16 @@
 
 #include <room/room.h>
 
-static string room_zone;
+string * room_zones;
 
 void create()
 {
-  room_zone = "nowhere";  
+  room_zones = ({ });
 }
 
-void set_zone(string str) { room_zone = str; }
+void set_room_zones(string * str) { room_zones = str; }
 
-string query_zone()
+string * query_room_zones()
 {
 /*
 #ifdef FAST_CLEAN_UP
@@ -24,12 +24,18 @@ string query_zone()
 #endif
 */
 
-  return room_zone;
+  return room_zones;
+}
+
+void add_room_zone(string str)
+{
+  if (member_array(str, room_zones) == -1)
+    room_zones += ({ str });
 }
 
 mixed stats()
 {
   return ({
-    ({ "Move Zone", room_zone }),
+    ({ "Move Zone", room_zones }),
           });
 }
