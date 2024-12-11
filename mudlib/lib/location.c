@@ -186,11 +186,14 @@ int restore_from_file_name(string name)
   return 0;
 }
 
-void guess_coordinates()
+int guess_coordinates()
 {
   int x, y, z;
   int i;
   string * exit_info;
+  int found;
+
+  found = FALSE;
 
   // if (query_coordinates() != nil)
   //   return;
@@ -213,57 +216,69 @@ void guess_coordinates()
           set_coordinates(dest_coords[0], 
                           dest_coords[1] - 1, 
                           dest_coords[2]);
+          found = TRUE;
           break;
         case DIR_SOUTH:
           set_coordinates(dest_coords[0], 
                           dest_coords[1] + 1, 
                           dest_coords[2]);
+          found = TRUE;
           break;
         case DIR_EAST:
           set_coordinates(dest_coords[0] - 1, 
                           dest_coords[1], 
                           dest_coords[2]);
+          found = TRUE;
           break;
         case DIR_WEST:
           set_coordinates(dest_coords[0] + 1, 
                           dest_coords[1], 
                           dest_coords[2]);
+          found = TRUE;
           break;
         case DIR_NORTHWEST:
           set_coordinates(dest_coords[0] + 1, 
                           dest_coords[1] - 1, 
                           dest_coords[2]);
+          found = TRUE;
           break;
         case DIR_NORTHEAST:
           set_coordinates(dest_coords[0] - 1, 
                           dest_coords[1] - 1, 
                           dest_coords[2]);
+          found = TRUE;
           break;
         case DIR_SOUTHWEST:
           set_coordinates(dest_coords[0] + 1, 
                           dest_coords[1] + 1, 
                           dest_coords[2]);
+          found = TRUE;
           break;
         case DIR_SOUTHEAST:
           set_coordinates(dest_coords[0] - 1, 
                           dest_coords[1] + 1, 
                           dest_coords[2]);
+          found = TRUE;
           break;          
         case DIR_UP:
           set_coordinates(dest_coords[0], 
                           dest_coords[1], 
                           dest_coords[2] - 1);
+          found = TRUE;
           break;
         case DIR_DOWN:
           set_coordinates(dest_coords[0], 
                           dest_coords[1], 
                           dest_coords[2] + 1);
+          found = TRUE;
           break;
       }
     }
   }
 
   save_me();
+
+  return found;
 }
 
 // we save the full exit map

@@ -193,13 +193,18 @@ int do_convert_files(string * files)
 int do_guess_coordinates(object * locations)
 {
   string * exits;
-  object * pending;
-  object * done;
-  object current;
-  int i;
+  object current;       // location currently checking
+  object * pending;     // locations pending to guess coordinates
+  object * done;        // locations already checked
+  mapping connected;    // locations connected to a different area, ([ file_name : ({ "direction", destination }) ])
+  string * file_names;  // array with the file names of every location in this area
+  object area;
+  int i, j;
 
   pending = ({ });
   done = ({ });
+  connected = ([ ]);
+  file_names = ({ });
   
   write("\nTry guessing missing coordinates ...\n");
 
@@ -211,6 +216,11 @@ int do_guess_coordinates(object * locations)
     // already exists, we change the destination to the .o file
     locations[i]->update_exits_to_locations();
 
+    write("🔥 Checking " + file_name(locations[i]) + " (" + locations[i]->query_file_name() + ")\n");
+
+
+    file_names += ({ locations[i]->query_file_name() });
+
     // write("Updated exits for " + file_name(locations[i]) + " " +
     //  + to_string(locations[i]->query_dest_dir()) + "\n");
 
@@ -218,10 +228,34 @@ int do_guess_coordinates(object * locations)
       pending += ({ locations[i] });
   }
 
-  // TODO
-  // if we do not have any location with coordinates, we should check connections with
-  // other locations outside our list
-  
+  // get the area (the same for every location, use the first one as an example)
+  area = load_object(LOCATION_HANDLER)->query_area_from_location_file_name(locations[0]->query_file_name());
+
+  // after updating every exit, check locations connected to different areas
+  for (i = 0; i < sizeof(locations); i++)
+  {
+    exits = locations[i]->query_dest_dir();
+
+    for (j = 0; j < sizeof(exits); j+=2)
+    {
+      // if any of our locations has an exit connecting with somewhere
+      // outside our area
+      if (member_array(exits[j+1], file_names) == -1)
+      {
+        connected[locations[i]->query_file_name()] = ({ exits[j], exits[j+1] });
+
+        area->add_connection(locations[i]->query_file_name(), exits[j], exits[j+1]);
+
+        // if we can guess the coordinates from outside the area, 
+        // add this location as one of the initial ones
+        if (locations[i]->guess_coordinates())
+          pending += ({ locations[i] });
+      }
+    }
+  }
+
+  write("Connections (" + map_sizeof(connected) + "): " + to_string(connected));
+
   if (!sizeof(pending))
   {
     write("No locations with coordinates found.\n");

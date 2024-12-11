@@ -4,6 +4,8 @@ inherit "/lib/core/object.c";
 
 // mapping in the form ([ file_name : location_data ])
 mapping locations;
+// mapping in the form ([ file_name : ({ "direction", destination }) ])
+mapping connections;
 // array of loaded locations
 static object * loaded_locations;
 string file_name;
@@ -15,6 +17,7 @@ void add_loaded_location(object location);
 void create() {
   locations = ([ ]);
   loaded_locations = ({ });
+  connections = ([ ]);
   ::create();
 }
 
@@ -112,4 +115,13 @@ object * query_loaded_locations()
 {
   loaded_locations -= ({ nil });
   return loaded_locations;
+}
+
+mapping query_connections() { return connections; }
+void add_connection(string location_file_name, string direction, string destination) 
+{
+  if (!connections[location_file_name])
+    connections[location_file_name] = ({ direction, destination });
+
+  save_me();
 }
