@@ -56,9 +56,9 @@ string add_location(object location)
   z = location->query_coordinates()[2];
 
   // every sector could store 10x10x10 locations
-  sector_x = x / 10;
-  sector_y = y / 10;
-  sector_z = z / 10;
+  sector_x = x / 10 - (x < 0);
+  sector_y = y / 10 - (y < 0);
+  sector_z = z / 10 - (z < 0);
 
   path = "/save/games/" + game_from_path(location->query_file_name()) + 
          "/maps/" + location->query_map_name() + "/" + 
