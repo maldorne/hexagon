@@ -1,4 +1,5 @@
 
+#include <mud/config.h>
 #include <room/room.h>
 #include <basic/move.h>
 #include <translations/exits.h>
@@ -106,25 +107,30 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   }
 
   // locations
-  // if the destination is a .o file, we have to change the destination to the
-  // real location object
-  if (stringp(dest) && (dest[strlen(dest)-2..strlen(dest)-1] == ".o"))
+  if (CONFIG_USE_LOCATIONS)
   {
-    dest = load_object(LOCATION_HANDLER)->load_location(dest);
-  }
-  else
-  {
-    string alternative;
+    // if the destination is a .o file (location), we have to change the destination to the
+    // real location object
+    if (stringp(dest) && (dest[strlen(dest)-2..strlen(dest)-1] == ".o"))
+    {
+      dest = load_object(LOCATION_HANDLER)->load_location(dest);
+    }
+    else
+    {
+      // if the destination is a .c file (room), check if a location already exists
+      // for that room
+      string alternative;
 
-    if (stringp(dest))
-      dest = load_object(dest);
+      if (stringp(dest))
+        dest = load_object(dest);
 
-    if (!objectp(dest))
-      return MOVE_EMPTY_DEST;  
-      
-    if ((alternative = load_object(LOCATION_HANDLER)->get_location_file_name_from_room(dest)) && 
-        (file_size(alternative) > 0))
-      dest = load_object(LOCATION_HANDLER)->load_location(alternative);
+      if (!objectp(dest))
+        return MOVE_EMPTY_DEST;  
+        
+      if ((alternative = load_object(LOCATION_HANDLER)->get_location_file_name_from_room(dest)) && 
+          (file_size(alternative) > 0))
+        dest = load_object(LOCATION_HANDLER)->load_location(alternative);
+    }
   }
 
   if (arrive)

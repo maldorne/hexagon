@@ -16,6 +16,10 @@
 #include <mud/cron.h>
 #include <mud/cmd.h>
 
+#include <room/location.h>
+#include <areas/area.h>
+#include <maps/maps.h>
+
 // ************************************************************
 //  Function prototypes
 // ************************************************************
@@ -92,6 +96,13 @@ static nomask void initialize()
 
   if (CONFIG_USE_CRON)
     ::call_other(load_object(CRON_HANDLER), "???");
+
+  if (CONFIG_USE_LOCATIONS)
+  {
+    ::call_other(load_object(LOCATION_HANDLER), "???");    
+    ::call_other(load_object(AREA_HANDLER), "???");
+    ::call_other(load_object(MAPS_HANDLER), "???");
+  }
 
   load_object(LOGIN_OB);
 

@@ -13,6 +13,10 @@
 // (less objects loaded, less messages in stderr, etc)
 #define CONFIG_USE_CRON TRUE
 
+// use locations when available instead of rooms 
+// (automatic movement to location if created, etc)
+#define CONFIG_USE_LOCATIONS TRUE
+
 // ----------------------------------------------------------------------
 //  log features
 // ----------------------------------------------------------------------
