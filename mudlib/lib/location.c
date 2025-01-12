@@ -370,6 +370,27 @@ void save_me()
     save_object(file_name);
 }
 
+void dest_me()
+{
+  object * arr;
+  int i;
+
+  // similar to room.c
+  arr = all_inventory(this_object());
+  arr -= ({ nil });
+
+  for (i = 0; i < sizeof(arr); i++)
+  {
+    // important, so we do not destroy de player avatar
+    if (interactive(arr[i]))
+        arr[i]->move(ROOM_VOID);
+    else
+        arr[i]->dest_me();
+  }
+
+  destruct(this_object());
+}
+
 mixed stats()
 {
   return ({
