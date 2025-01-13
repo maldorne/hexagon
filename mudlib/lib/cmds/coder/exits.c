@@ -59,6 +59,10 @@ static int cmd(string str, object me, string verb)
       
       for (i = 0; i < sizeof(files); i++)
       {
+        // if the file extension is not .c, continue
+        if (files[i][strlen(files[i])-2..strlen(files[i])-1] != ".c")
+          continue;
+
         if ((err = catch(ob = load_object(files[i])) ) || (!ob)) 
         {
           ret += "File ("+short_file_name(files[i])+") cannot be loaded.\n";
