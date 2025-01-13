@@ -363,7 +363,8 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
     return ({ this_player() });
 
   if (str == "here")
-    return ({ environment(this_player()) });
+    // avoid returning ({ nil }) if the player has no environment
+    return ({ environment(this_player()) }) - ({ nil });
 
   if (str == "everyone")
     return users();
