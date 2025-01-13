@@ -110,7 +110,7 @@ string who_string(int width, int cre, string str)
   else if (query_valid_race(str))
     what = 3;
   else
-    return _LANG_WHO_HELP;
+    return _LANG_WHO_SYNTAX + "\n\n" + _LANG_WHO_HELP + "\n";
 
   arr = players();
   arr = filter_array(arr, "remove_logon", this_object());
