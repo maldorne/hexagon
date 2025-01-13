@@ -24,8 +24,10 @@ string _original_long;
 string _original_short;
 mapping _exit_map;
 
-string file_name;
-string map_name;
+string file_name;  // .o file of the location
+string area_name;  // path where we will find the area.o and our own file
+string map_name;   // "default", or "underdark", or "mars", use something different 
+                   // from "default" to build a new map
 
 int * coordinates;
 
@@ -54,6 +56,7 @@ void create()
   _exit_map = ([ ]);
 
   file_name = "";
+  area_name = "";
   map_name = "default";
 
   coordinates = nil;
@@ -94,7 +97,6 @@ int id(string str)
 }
 
 string query_original_room_file_name() { return _original_room_file_name; }
-
 void set_original_room_file_name(string str) { _original_room_file_name = str; }
 string query_original_short() { return _original_short; }
 void set_original_short(string str) { _original_short = str; }
@@ -164,9 +166,16 @@ string long(string str, int dark)
   return ret;
 }
 
+string query_area_name() { return area_name; }
 string query_file_name() { return file_name; }
 void set_file_name(string name)
 {
+  string * pieces;
+  pieces = explode(name, "/");
+
+  if (sizeof(pieces) >= 2)
+    area_name = "/" + implode(pieces[0..sizeof(pieces) - 2], "/") + "/";
+
   file_name = name;
   save_me();
 }

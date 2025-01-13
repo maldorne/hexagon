@@ -60,6 +60,10 @@ object load_location(string file_name)
 {
   object area, sector, location;
 
+  // if the filename does not end in .o, this is not a location
+  if (file_name[strlen(file_name) - 2..strlen(file_name) - 1] != ".o")
+    return nil;
+
   // load the location from the area system
   area = query_area_from_location_file_name(file_name);
   location = area->load_location(file_name);

@@ -190,6 +190,15 @@ int do_convert_files(string * files)
   return 1;
 }
 
+private string short_file_name(string path)
+{
+  string * parts;
+
+  parts = explode(path, "/");
+
+  return parts[sizeof(parts) - 1];
+}
+
 int do_guess_coordinates(object * locations)
 {
   string * exits;
@@ -199,15 +208,17 @@ int do_guess_coordinates(object * locations)
   mapping connected;    // locations connected to a different area, ([ file_name : ({ "direction", destination }) ])
   string * file_names;  // array with the file names of every location in this area
   object area;
+  string initial_area_name;
   int i, j;
+  string * aux;
+  string ret;
 
   pending = ({ });
   done = ({ });
   connected = ([ ]);
   file_names = ({ });
+  ret = "";
   
-  write("\nTry guessing missing coordinates ...\n");
-
   // find locations in the list with coordinates as starting points,
   // and update every exit to the locations instead of the rooms
   for (i = 0; i < sizeof(locations); i++)
@@ -216,8 +227,7 @@ int do_guess_coordinates(object * locations)
     // already exists, we change the destination to the .o file
     locations[i]->update_exits_to_locations();
 
-    write("🔥 Checking " + file_name(locations[i]) + " (" + locations[i]->query_file_name() + ")\n");
-
+    // write("Checking " + file_name(locations[i]) + " (" + locations[i]->query_file_name() + ")\n");
 
     file_names += ({ locations[i]->query_file_name() });
 
@@ -230,19 +240,35 @@ int do_guess_coordinates(object * locations)
 
   // get the area (the same for every location, use the first one as an example)
   area = load_object(LOCATION_HANDLER)->query_area_from_location_file_name(locations[0]->query_file_name());
+  initial_area_name = area->query_area_name();
+
+  ret += "\nCheck connections to different areas ...\n";
 
   // after updating every exit, check locations connected to different areas
   for (i = 0; i < sizeof(locations); i++)
   {
+    ret += "  Checking " + short_file_name(locations[i]->query_file_name()) + "\n";
+
     exits = locations[i]->query_dest_dir();
 
     for (j = 0; j < sizeof(exits); j+=2)
     {
+      object destination;
+      destination = load_object(LOCATION_HANDLER)->load_location(exits[j+1]);
+
+      // maybe this is not a location, but a room
+      if (!destination)
+        continue;
+
       // if any of our locations has an exit connecting with somewhere
       // outside our area
-      if (member_array(exits[j+1], file_names) == -1)
+      if (member_array(exits[j+1], file_names) == -1 && 
+          (locations[i]->query_area_name() != destination->query_area_name()))
       {
-        connected[locations[i]->query_file_name()] = ({ exits[j], exits[j+1] });
+        if (connected[locations[i]->query_file_name()])
+          connected[locations[i]->query_file_name()] += ({ exits[j], exits[j+1] });
+        else
+          connected[locations[i]->query_file_name()] = ({ exits[j], exits[j+1] });
 
         area->add_connection(locations[i]->query_file_name(), exits[j], exits[j+1]);
 
@@ -254,23 +280,40 @@ int do_guess_coordinates(object * locations)
     }
   }
 
-  write("Connections (" + map_sizeof(connected) + "): " + to_string(connected));
+  // log the connections
+  aux = keys(connected);
+
+  for (i = 0; i < sizeof(aux); i++)
+  {
+    ret += "  " + short_file_name(aux[i]) + ":\n";
+    for (j = 0; j < sizeof(connected[aux[i]]); j+=2)
+      ret += "    " + connected[aux[i]][j] + " -> " + short_file_name(connected[aux[i]][j+1]) + "\n";
+  }
+
+  write(ret);
+  ret = "";
+  // write("Connections (" + map_sizeof(connected) + "): " + to_string(connected));
 
   if (!sizeof(pending))
   {
-    write("No locations with coordinates found.\n");
+    write("\n  No locations with coordinates found.\n");
     return 1;
   }
 
+  ret += "\nTry guessing missing coordinates ...\n";
+  ret += "Initially we have " + sizeof(pending) + " locations with coordinates.\n";
+  write(ret);
+
   while (sizeof(pending))
   {
-    // write("Locations (" + sizeof(locations) + "): " + to_string(locations));
-    write("Pending (" + sizeof(pending) + ")\n"); // "): " + to_string(pending));
-    write("Done (" + sizeof(done) + + ")\n"); // "): " + to_string(done));
+    ret = "\n";
+    // ret += "Locations (" + sizeof(locations) + "): " + to_string(locations);
+    ret += "  Yet to check " + sizeof(pending) + ", "; // "): " + to_string(pending));
+    ret += "already done " + sizeof(done) + + "\n"; // "): " + to_string(done));
 
     current = pending[0];
 
-    write("Checking " + file_name(current) + " (" +current->query_file_name() + ")\n");
+    ret += "  Checking " +short_file_name(current->query_file_name()) + "\n";
     
     // already checked location, remove from pending
     // and continue
@@ -281,7 +324,7 @@ int do_guess_coordinates(object * locations)
     }
 
     exits = current->query_dest_dir();
-    write("Exits: " + to_string(exits) + "\n");
+    // write("Exits: " + to_string(exits) + "\n");
 
     for (i = 0; i < sizeof(exits); i+=2)
     {
@@ -295,29 +338,39 @@ int do_guess_coordinates(object * locations)
         continue;
       }
 
-      write("Checking exit " + exits[i] + " to " + exits[i+1] + "\n");
+      ret += "   - exit " + exits[i] + " to " + short_file_name(exits[i+1]);
       
       dest = current->query_dest_object(exits[i]);
 
       if (dest && dest->query_location())
       {
-        write("Destination: " + to_string(dest) + " " + dest->query_file_name() + "\n");
-       
+        int found;
+
+        // write("Destination: " + to_string(dest) + " " + dest->query_file_name() + "\n");
+        found = dest->guess_coordinates();
+
+        if (found)
+          ret += " (%^GREEN%^found%^RESET%^)";
+
         // enqueue the destination for guessing coordinates, only with locations from
         // our original list, in other case we will remap the full game
-        if (member_array(dest, locations) != -1)
+        if (member_array(dest, locations) == -1)
+        {
+          ret += " (outside area)\n";
           continue;
-          
-        pending += ({ dest });
-        write("🎃 Exits: " + to_string(dest->query_dest_dir()) + "\n");
+        }
 
-        dest->guess_coordinates();
+        pending += ({ dest });
+        // write(" Exits: " + to_string(dest->query_dest_dir()) + "\n");
       }
+
+      ret += "\n";
     }
 
     // location done
     pending -= ({ current });
     done += ({ current });
+    write(ret);
   }
 
   return 1;
