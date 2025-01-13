@@ -274,7 +274,8 @@ int do_guess_coordinates(object * locations)
 
         // if we can guess the coordinates from outside the area, 
         // add this location as one of the initial ones
-        if (locations[i]->guess_coordinates())
+        if (locations[i]->guess_coordinates() && 
+            member_array(locations[i], pending) == -1)
           pending += ({ locations[i] });
       }
     }
@@ -301,7 +302,11 @@ int do_guess_coordinates(object * locations)
   }
 
   ret += "\nTry guessing missing coordinates ...\n";
-  ret += "Initially we have " + sizeof(pending) + " locations with coordinates.\n";
+  ret += "Initially we have " + sizeof(pending) + " locations to check coordinates:\n";
+
+  for (i = 0; i < sizeof(pending); i++)
+    ret += "   - " + pending[i]->query_file_name() + "\n";
+
   write(ret);
 
   while (sizeof(pending))
@@ -342,9 +347,15 @@ int do_guess_coordinates(object * locations)
       
       dest = current->query_dest_object(exits[i]);
 
-      if (dest && dest->query_location())
+      if (dest)
       {
         int found;
+
+        if (!dest->query_location())
+        {
+          ret += " (not a location)\n";
+          continue;
+        }
 
         // write("Destination: " + to_string(dest) + " " + dest->query_file_name() + "\n");
         found = dest->guess_coordinates();
@@ -360,7 +371,9 @@ int do_guess_coordinates(object * locations)
           continue;
         }
 
-        pending += ({ dest });
+        // not peding to process and not already processed
+        if ((member_array(dest, pending) == -1) && (member_array(dest, done) == -1))
+          pending += ({ dest });
         // write(" Exits: " + to_string(dest->query_dest_dir()) + "\n");
       }
 

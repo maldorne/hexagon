@@ -60,6 +60,9 @@ object load_location(string file_name)
 {
   object area, sector, location;
 
+  if (file_size(file_name) < 0)
+    return nil;
+
   // if the filename does not end in .o, this is not a location
   if (file_name[strlen(file_name) - 2..strlen(file_name) - 1] != ".o")
     return nil;
