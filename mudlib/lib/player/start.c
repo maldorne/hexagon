@@ -12,12 +12,12 @@
 // prototypes
 nomask void start_player();
 nomask void check_mandatory_inventory();
+nomask void move_to_last_pos();
 
 nomask void start(varargs int going_invis, int is_new_player, int reconnected, object destination)
 {
   object tmp;
   mapping mail_stat;
-  object last;
 
   if (!SECURE->valid_progname("/lib/core/login"))
     return;
@@ -71,39 +71,13 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
     set_dead(1);
 
   // move the player to its initial destination
-  if (reconnected)
+  if (reconnected && destination)
   {
     move_living("X", destination);
   }
   else
   {
-    if (!strlen(last_pos))
-    {
-      // TODO: MULTIEXITS_ROOM does not exist 
-      // if (query_level() >= 5)
-      // {
-      //   last_pos = MULTIEXITS_ROOM;
-      //   move_living("X", last_pos);
-      // }
-      // else
-      // {
-        move_living("X", START_POS);
-      // }
-    }
-    // if the last_pos ends in .o, it was a location
-    else if (last_pos[strlen(last_pos)-2..strlen(last_pos)-1] == ".o")
-    {
-      last = load_object(LOCATION_HANDLER)->load_location(last_pos);
-      
-      if (last)
-        move_living("X", last);
-      else
-        move_living("X", START_POS);
-    }
-    else
-    {
-      move_living("X", last_pos);
-    }
+    move_to_last_pos();
 
     if (query_coder())
       event(users(), "inform", _LANG_START_INFORM_CODER, 
@@ -145,6 +119,41 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
   // if (!catch(load_object("/net/identd")))
   //  IDENTD->do_ident(this_object(), this_object());
 } /* start() */
+
+nomask void move_to_last_pos()
+{
+  if (!SECURE->valid_progname("/lib/core/login"))
+    return;
+
+  if (!strlen(last_pos))
+  {
+    // TODO: MULTIEXITS_ROOM does not exist 
+    // if (query_level() >= 5)
+    // {
+    //   last_pos = MULTIEXITS_ROOM;
+    //   move_living("X", last_pos);
+    // }
+    // else
+    // {
+      move_living("X", START_POS);
+    // }
+  }
+  // if the last_pos ends in .o, it was a location
+  else if (last_pos[strlen(last_pos)-2..strlen(last_pos)-1] == ".o")
+  {
+    object last;
+    last = load_object(LOCATION_HANDLER)->load_location(last_pos);
+    
+    if (last)
+      move_living("X", last);
+    else
+      move_living("X", START_POS);
+  }
+  else
+  {
+    move_living("X", last_pos);
+  }
+}
 
 nomask void check_mandatory_inventory()
 {

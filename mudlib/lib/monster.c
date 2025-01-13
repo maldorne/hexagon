@@ -15,6 +15,7 @@
 #include <translations/races.h>
 #include <living/living.h>
 #include <living/races.h>
+#include <room/location.h>
 #include <language.h>
 
 inherit living     "/lib/living/living.c";
@@ -615,14 +616,21 @@ void do_move_after(int bing)
 
   while (!bong && sizeof(direcs))
   {
-    i = random(sizeof(direcs)/2)*2;
+    object where;
 
+    i = random(sizeof(direcs)/2)*2;
     bong = 0;
 
-    if (bing > 1)
-      catch(bong = (int)direcs[i + 1]->query_property("no throw out"));
+    // if direcs[i+1] ends in .o, it's a location
+    if (direcs[i + 1][strlen(direcs[i + 1]) - 2..strlen(direcs[i + 1]) - 1] == ".o")
+      where = load_object(LOCATION_HANDLER)->load_location(direcs[i + 1]);
+    else // it's a room
+      where = load_object(direcs[i + 1]);
 
-    catch(zones = (string)direcs[i + 1]->query_room_zones());
+    if (bing > 1)
+      catch(bong = (int)where->query_property("no throw out"));
+
+    catch(zones = (string *)where->query_room_zones());
 
     if (sizeof(move_zones) || bong)
     {
