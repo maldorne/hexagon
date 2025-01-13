@@ -60,6 +60,9 @@ object load_location(string file_name)
 {
   object area, sector, location;
 
+  if (!strlen(file_name))
+    return nil;
+
   if (file_size(file_name) < 0)
     return nil;
 

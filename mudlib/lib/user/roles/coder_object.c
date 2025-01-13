@@ -86,7 +86,8 @@ private int _update_objects(object * ov)
       return 0;
     }
 
-    if (ov[i]->query_location())
+    // if we don't have a file name, it's the base location object
+    if (ov[i]->query_location() && strlen(ov[i]->query_file_name()))
     {
       filename = ov[i]->query_file_name();
       is_location = true;
