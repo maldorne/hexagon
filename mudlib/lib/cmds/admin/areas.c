@@ -7,8 +7,9 @@ inherit CMD_BASE;
 void setup()
 {
   set_aliases(({ "areas" }));
-  set_usage("areas [locations] [connections]");
+  set_usage("areas [-c] [locations] [connections]");
   set_help("List areas loaded in the location system.\n" + 
+           "If '-c' is specified, it will only show your current area.\n" + 
            "If 'locations' is specified, it will also list the locations of every area.\n" + 
            "If 'connections' is specified, it will also list their connections to other areas.\n");
 }
@@ -19,7 +20,9 @@ static int cmd(string str, object me, string verb)
   string * keys;
   int i, j;
   string * pieces;
-  int show_locations, show_connections;
+  int show_locations, show_connections, only_current;
+  string current_area_name;
+  object current_area;
   string ret;
 
   areas = load_object(AREA_HANDLER)->query_loaded_areas();
@@ -32,12 +35,21 @@ static int cmd(string str, object me, string verb)
 
   show_locations = FALSE;
   show_connections = FALSE;
+  only_current = FALSE;
   pieces = explode(str, " ");
+  current_area_name = "";
+  current_area = nil;
 
   if (member_array("locations", pieces) != -1)
     show_locations = TRUE;
   if (member_array("connections", pieces) != -1)
     show_connections = TRUE;
+  if (member_array("-c", pieces) != -1)
+  {
+    current_area = environment(this_player())->query_area();
+    current_area_name = current_area->query_area_name();
+    only_current = TRUE;
+  }
 
   ret = "Areas loaded:\n";
   keys = keys(areas);
@@ -47,6 +59,10 @@ static int cmd(string str, object me, string verb)
     object * locations;
     mapping connections;
     string * connections_keys;
+
+    // skip areas that are not the current area
+    if (only_current && keys[i] != current_area_name)
+      continue;
 
     ret += " - %^GREEN%^" + keys[i] + "%^RESET%^\n";
 

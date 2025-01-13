@@ -27,6 +27,7 @@ object create_area(string path)
     return loaded_areas[path];
 
   area = clone_object(AREA_STORAGE_OBJECT);
+  area->set_area_name(path);
 
   // will try to load the .o if it exists
   if (!area->restore_from_file_name(path + "area.o"))

@@ -9,6 +9,7 @@ mapping connections;
 // array of loaded locations
 static object * loaded_locations;
 string file_name;
+string area_name;
 
 // prototype functions
 void add_loaded_location(object location);
@@ -18,6 +19,8 @@ void create() {
   locations = ([ ]);
   loaded_locations = ({ });
   connections = ([ ]);
+  file_name = "";
+  area_name = "";
   ::create();
 }
 
@@ -34,6 +37,14 @@ void set_file_name(string name)
 {
   file_name = name;
   save_me();
+}
+
+// area_name will be set from the area handler
+string query_area_name() { return area_name; }
+void set_area_name(string name) 
+{
+  area_name = name;
+  // save_me();
 }
 
 // restore the area from a file
