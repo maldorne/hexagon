@@ -27,6 +27,10 @@ static int cmd(string str, object me, string verb)
   }
 
   filenames = get_files(str);
+
+  if (!sizeof(filenames))
+    filenames = get_files(str + ".c");
+
   if (!sizeof(filenames))
   {
     notify_fail("There are no files with that name.\n");
@@ -37,7 +41,7 @@ static int cmd(string str, object me, string verb)
   {
     str = filenames[loop];
 
-    if (file_size(str) < 0 && file_size(str + ".c") < 0)
+    if (file_size(str) < 0)
     {
       notify_fail("There are no files with that name.\n");
       return 0;
