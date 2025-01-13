@@ -58,6 +58,9 @@ object load_location(string location_file_name)
   if (member_array(location_file_name, keys(locations)) == -1)
     return nil;
 
+  // removed already dested locations
+  loaded_locations -= ({ nil });
+
   // look through loaded_locations to see if it's already loaded
   for (i = 0; i < sizeof(loaded_locations); i++)
   {

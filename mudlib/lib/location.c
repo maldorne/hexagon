@@ -12,6 +12,7 @@ inherit zone     "/lib/room/zone.c";
 #include <basic/light.h>
 #include <room/location.h>
 #include <areas/area.h>
+#include <areas/common.h>
 #include <maps/maps.h>
 #include <translations/exits.h>
 
@@ -344,6 +345,11 @@ int update_exits_to_locations()
   }
 
   return exits_changed;
+}
+
+object query_area()
+{
+  return LOCATION_HANDLER->query_area_from_location_file_name(query_file_name());
 }
 
 object * find_inv_match(string str)
