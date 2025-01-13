@@ -1,6 +1,7 @@
 
 #include <mud/secure.h>
 #include <areas/common.h>
+#include <room/location.h>
 #include <language.h>
 
 // prototypes
@@ -41,10 +42,10 @@ void role_commands()
   add_action("find_shadows", "shadows");
 }
 
-private int _update_objects(object *ov)
+private int _update_objects(object * ov)
 {
   string filename;
-  int dummy, cloned;
+  int dummy, cloned, is_location;
   int i, j;
   object *invent, rsv, env, dup, loaded, ob;
   // next three Hamlet's
@@ -77,11 +78,24 @@ private int _update_objects(object *ov)
     // Added logging of "update <player>"  Radix, Dec 15, 1995
     if (interactive(ov[i]))
     {
+      log_file("update", (string)this_player()->query_cap_name() +
+                  " tries to update interactive object: " + ov[i]->query_name() + 
+                  " [" + ctime(time(), 4) + "]\n");
+
       notify_fail(_LANG_CODER_OBJECT_DO_NOT_UPDATE);
       return 0;
     }
 
-    filename = file_name(ov[i]);
+    if (ov[i]->query_location())
+    {
+      filename = ov[i]->query_file_name();
+      is_location = true;
+    }
+    else
+    {
+      filename = file_name(ov[i]);
+      is_location = false;
+    }
 
     if ((strlen(filename) >= 10) && (filename[0..9] == "/lib/core/"))
     {
@@ -119,12 +133,20 @@ private int _update_objects(object *ov)
     if (ov[i])
       destruct(ov[i]);
 
-    // reload after destruction
-    catch(loaded = load_object(filename));
-
     if (!cloned)
     {
-      ov[i] = find_object(filename);
+      // special case first, locations are cloned but treated differently
+      if (is_location)
+      {
+        catch(loaded = load_object(LOCATION_HANDLER)->load_location(filename));
+        ov[i] = loaded;
+      }
+      else
+      {
+        // reload after destruction
+        catch(loaded = load_object(filename));        
+        ov[i] = find_object(filename);
+      }
 
       if (loaded)
         loaded->move(totell);
@@ -197,32 +219,52 @@ int do_update(string str)
   notify_fail(_LANG_CODER_OBJECT_DONT_EXIST);
   tring = str;
 
+  obs = ({ });
+  filenames = ({ });
+
   // if (this_player(1) != this_user())
   //   return 0;
 
+  // if "update here"
   if (!strlen(str) || (member_array(str, _LANG_CODER_OBJECT_HERE) != -1))
   {
     str = _LANG_CODER_OBJECT_HERE[0];
-    filenames = ({ base_name(environment(this_player())) });
+    if (environment(this_player())->query_location())
+    {
+      filenames += ({ environment(this_player())->query_file_name() });
+      obs += ({ environment(this_player()) });
+    }
+    else
+    {
+      filenames += ({ base_name(environment(this_player())) });
+      obs += ({ environment(this_player()) });
+    }
   }
   else
+  {
+    // if "update <files>"
     filenames = get_cfiles(str);
 
-  if (sizeof(filenames) == 0)
-  {
-    val = wiz_present(tring, this_player());
-
-    if (!sizeof(val))
+    // if "update <some object>"
+    if (sizeof(filenames) == 0)
     {
-      notify_fail(_LANG_CODER_OBJECT_NO_OBJECTS);
-      return 0;
-    }
+      val = wiz_present(tring, this_player());
 
-    return _update_objects(val);
+      if (!sizeof(val))
+      {
+        notify_fail(_LANG_CODER_OBJECT_NO_OBJECTS);
+        return 0;
+      }
+
+      return _update_objects(val);
+    }
   }
 
-  obs = ({ });
+  // from here, in obs we have a room or location
+  if (sizeof(obs))
+    return _update_objects(obs);
 
+  // from here, obs is empty and filenames has file paths
   for (loop = 0; loop < sizeof(filenames); loop++)
   {
     str = filenames[loop];

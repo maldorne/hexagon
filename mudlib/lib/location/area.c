@@ -69,7 +69,7 @@ object load_location(string location_file_name)
   if (member_array(location_file_name, keys(locations)) == -1)
     return nil;
 
-  // removed already dested locations
+  // removed already dest'ed locations
   loaded_locations -= ({ nil });
 
   // look through loaded_locations to see if it's already loaded
@@ -88,7 +88,7 @@ object load_location(string location_file_name)
     return nil;
 
   location->restore_from_file_name(location_file_name);
-  add_loaded_location(location);
+  loaded_locations += ({ location });
 
   return location;
 }

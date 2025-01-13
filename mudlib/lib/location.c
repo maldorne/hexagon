@@ -387,7 +387,7 @@ void dest_me()
 
   for (i = 0; i < sizeof(arr); i++)
   {
-    // important, so we do not destroy de player avatar
+    // important, so we do not destroy the player avatar
     if (interactive(arr[i]))
         arr[i]->move(ROOM_VOID);
     else
