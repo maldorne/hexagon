@@ -3,6 +3,7 @@
 #include <user/input.h>
 #include <mud/secure.h>
 #include <user/login.h>
+#include <user/player.h>
 #include <translations/pov.h>
 #include <language.h>
 
@@ -24,28 +25,29 @@ static object redirect_input_ob;       // object that will catch input and
 static string redirect_input_function; // function inside that object
 static mixed  redirect_input_args;     // optional arguments passed to the function
 
-static int timestamp;     // last input time
-static int echo;          // input echo
+static int timestamp;       // last input time
+static int echo;            // input echo
 
-int start_time;           // time of first connection
+int start_time;             // time of first connection
 int last_connected;
-string last_on_from;      // last ip the user connected from
+string last_on_from;        // last ip the user connected from
 
-static object _player;    // player avatar
+static object _player;      // player avatar
+static string _player_name; // player name
 
 // user account info
-string account_name;      // user email
+string account_name;        // user email
 
 string real_name;
 string birthday;
 string location;
 string * player_list;
 
-int brief;                // brief/verbose mode
-int pov;                  // point of view
+int brief;                  // brief/verbose mode
+int pov;                    // point of view
 
-static int save_counter;  // each reset counter
-static int last_command;  // time of last command
+static int save_counter;    // each reset counter
+static int last_command;    // time of last command
 
 #include "/lib/user/start.c"
 
@@ -63,6 +65,9 @@ void create()
   security::create();
   role::create();
   obj::create();
+
+  _player = nil;
+  _player_name = "";
 
   player_list = ({ });
   account_name = "";
@@ -149,8 +154,9 @@ nomask int set_player_ob(object ob)
 
   _player = ob;
   _player->set_user_ob(this_object());
+  _player_name = _player->query_name();
 
-  if (objectp(old_player))
+  if (objectp(old_player) && (old_player != _player))
     catch(old_player->dest_me());
 
   return 1;
@@ -281,6 +287,22 @@ static void receive_message(string str)
     {
       echo = 1;
       ::send_message(1);
+    }
+
+    // avatar object has been destroyed somehow... should not happen, but
+    // let's check just in case
+    if (!_player && _player_name)
+    {
+      stderr(" ~~~ user::receive_message() without player object, disconnecting\n");
+
+      // I tried to restore the player object here, but we have to repeat the process 
+      // done in login::begin, user::start and player::start, too many things could
+      // go wrong, so I think it is better just to disconnect the user
+
+      write(_LANG_USER_PLAYER_RESTORE_ERROR);
+      // dest_me will try to destruct both the player and user (this object) objects
+      dest_me();
+      return;
     }
 
     // input_to redirection
@@ -497,11 +519,11 @@ void set_pov_name(string s)
     pov = i;
 }
 
-
 mixed * stats()
 {
   return ({
     ({ "Account Name", account_name }),
+    ({ "Player Name (nosave)", _player_name }),
     ({ "Timestamp (nosave)", timestamp, }),
     ({ "Last On From", last_on_from }),
     ({ "Verbose", !brief, }),

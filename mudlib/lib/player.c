@@ -186,6 +186,7 @@ int query_time_on() { return time_on - time(); }
 int query_last_log_on() { return last_log_on; }
 nomask void set_ontime(int i) { ontime = i; }
 nomask int query_ontime() { return ontime; }
+nomask string query_last_pos() { return last_pos; }
 
 void dest_me()
 {

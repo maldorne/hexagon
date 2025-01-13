@@ -4,6 +4,8 @@
 #define _LANG_DISCONNECTED "Disconnected.\n"
 #define _LANG_LAST_CONNECTION "Your last connection was from '"+last_on_from+"'.\n"
 #define _LANG_USER_COMMAND_TOO_LONG "Command too long - processing anyway.\n"
+#define _LANG_USER_PLAYER_RESTORE_ERROR "Your avatar has been destroyed and could not be restored.\n" + \
+                        "Your connection will be terminated so you can log in again.\n"
 
 // monster.c
 
