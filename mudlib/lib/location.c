@@ -379,7 +379,7 @@ int update_exits_to_locations()
 
     // if file already exists, change the exit destination
     if ((_exit_map[keys[i]][0] != dest_location_file_name) &&
-        (file_size(dest_location_file_name) >= 0))
+        (file_size(dest_location_file_name) > 0))
     {
       _exit_map[keys[i]][0] = dest_location_file_name;
       exits_changed += 1;
