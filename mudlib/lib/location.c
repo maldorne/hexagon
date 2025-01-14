@@ -8,6 +8,7 @@ inherit property "/lib/core/basic/property.c";
 inherit contents "/lib/room/contents.c";
 inherit exits    "/lib/room/exits.c";
 inherit zone     "/lib/room/zone.c";
+inherit sign     "/lib/room/sign.c";
 
 #include <basic/light.h>
 #include <room/location.h>
@@ -134,7 +135,9 @@ void init_components(mapping info)
     if (!component)
       continue;
 
+    // initialize variable values
     component->init_auto_load_attributes(info[component_paths[i]]);
+    component->initialize(this_object());
     components += ({ component });
   }
 }
@@ -181,7 +184,7 @@ string short(varargs int dark)
 
 string long(string str, int dark)
 {
-  string ret;
+  string ret, aux;
   int i;
 
   ret = "";
@@ -194,8 +197,10 @@ string long(string str, int dark)
     ret = wrap(_original_long, 
                 (this_user() ? this_user()->query_cols() : 80), 1); 
 
-  if (this_player()->query_coder())
-    ret += query_components_string() + "\n";
+  aux = query_components_string();
+
+  if (this_player()->query_coder() && strlen(aux))
+    ret += aux + "\n";
 
   exit_string = query_dirs_string();
   ret += exit_string + "\n" + query_contents("");

@@ -19,14 +19,15 @@
 inherit obj      "/lib/core/object.c";
 inherit light    "/lib/core/basic/light.c";
 
-inherit cleanup    "/lib/room/cleanup";
-inherit contents   "/lib/room/contents";
-inherit exits      "/lib/room/exits";
-inherit zone       "/lib/room/zone";
-inherit senses     "/lib/room/senses";
-inherit guard      "/lib/room/guard";
-inherit navigation "/lib/room/navigation";
-inherit diplomacy  "/lib/room/diplomacy";
+inherit cleanup    "/lib/room/cleanup.c";
+inherit contents   "/lib/room/contents.c";
+inherit exits      "/lib/room/exits.c";
+inherit zone       "/lib/room/zone.c";
+inherit senses     "/lib/room/senses.c";
+inherit guard      "/lib/room/guard.c";
+inherit navigation "/lib/room/navigation.c";
+inherit diplomacy  "/lib/room/diplomacy.c";
+inherit sign       "/lib/room/sign.c";
 
 static mixed * room_clones;
 static mapping items;
@@ -347,6 +348,8 @@ int remove_alias(string str)
 int query_no_writing() { return 1; }
 
 object * query_destables() { return destables; }
+void add_destable(object ob) { destables += ({ ob }); }
+
 static int empty_room(object ob)
 {
   object *olist;
@@ -424,47 +427,6 @@ object * find_inv_match(string str)
 int clean_up(varargs int flag)
 {
   return cleanup::clean_up(flag);
-}
-
-/* 
- * add_sign(string long, string read_mess, 
- *          string lang, string frame_style, string short, string name)
- *   [lang, frame_style, short and name are optional]
- * This function will return a sign that can be used by a room in any way it sees fit.
- * This function was the brainchild of Wyrm - 7 Feb '92
- * Added language, neverbot 01/2021
- */
-object add_sign(string long, string mess, 
-  varargs string lang, string frame_style, string short, string sname)
-{
-  object sign;
-
-  sign = clone_object("/lib/item.c");
-
-  if (!sname)
-    sname = _LANG_DEFAULT_SIGN_NAME;
-
-  sign->set_name(sname);
-  sign->set_main_plural(pluralize(sname));
-
-  if (!short)
-    short = capitalize(_LANG_DEFAULT_SIGN_NAME);
-  
-  if (!frame_style)
-    frame_style = DEFAULT_FRAME_STYLE;
-
-  sign->set_short(short);
-  sign->set_long(long);
-  sign->reset_get();
-  //if (short && short != "")
-  sign->move(this_object());
-  // hack, set messages after moving, so the item is IN a game
-  // and knows what language handler to use
-  sign->set_read_mess(mess, lang, 0, frame_style);
-  //else
-  //  hidden_objects += ({ sign });
-  destables += ({ sign });
-  return sign;
 }
 
 mixed stats()

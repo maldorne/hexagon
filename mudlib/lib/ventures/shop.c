@@ -46,8 +46,9 @@
  *
  */
 
-inherit room "/lib/room.c";
+inherit room       "/lib/room.c";
 inherit attendable "/lib/room/attendable.c";
+inherit sign       "/lib/ventures/shop-sign.c";
 
 #include <basic/money.h>
 #include <basic/move.h>
@@ -92,17 +93,6 @@ private void do_parse(mixed arr, mixed ob, object client, string money, string e
 
 private string get_save_file_name();
 private string get_log_file_name();
-
-void create_sign()
-{
-	string text;
-  text = _LANG_SHOP_SIGN_INFO;
-
-  if (!only_sell)
-    text += _LANG_SHOP_SIGN_INFO_SELL;
-    
-  add_sign(_LANG_SHOP_SIGN_DESC, text);  
-}
 
 void create() 
 {
@@ -183,6 +173,7 @@ mixed query_browse_mess() { return browse_mess; }
 void set_sell_func(string str) { sell_func = str; }
 void set_buy_func(string str) { buy_func = str; }
 void sell_only() { only_sell = 1; }
+int query_only_sell() { return only_sell; }
 nomask int query_shop(){ return 1; }
 
 string query_save_file() { return(save_file); }

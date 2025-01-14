@@ -437,9 +437,9 @@ object convert_room_to_location(object room)
       "permanent_goods" : room->query_permanent_goods(),
         ]));
 
-
-
-
+  // TO DO
+  // add shop as point of interest in area
+  // add attender as vacancy in area
 
 
   location->save_me();
