@@ -113,7 +113,10 @@ int change_dir(string str)
     }
     else
     {
-      tmp = base_name(obs[0]);
+      if (obs[0]->query_location())
+        tmp = obs[0]->query_file_name();
+      else
+        tmp = base_name(obs[0]);
 
       if (!stringp(tmp))
       {
@@ -143,7 +146,7 @@ int change_dir(string str)
   else
     current_path = str;
 
-  write(current_path+"\n");
+  write(current_path + "\n");
   return 1;
 }
 
