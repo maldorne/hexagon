@@ -15,7 +15,11 @@ static nomask void log_file( string file, string text )
   if ( -1 != strsrch( file, ".." ) ) 
     return; // security error
   
-  logfile = LOG_DIR + file; // would 'sprintf' be much better here?
+  // logfile = LOG_DIR + file; // would 'sprintf' be much better here?
+
+  // do not append /log/ before
+  // let's accept now logs will go in /save/something or in /log/something
+  logfile = file;
   
   oldeiud = geteuid();
   seteuid(ROOT);
