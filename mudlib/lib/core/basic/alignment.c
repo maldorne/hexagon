@@ -126,7 +126,7 @@ string query_real_align_string() { return _query_aux_align_string(real_align); }
 string query_ext_align_string() { return _query_aux_align_string(ext_align); }
 
 // stats added, neverbot 4/03
-mixed stats()
+mixed * stats()
 {
   return ({
     ({ "Real Align", real_align }),

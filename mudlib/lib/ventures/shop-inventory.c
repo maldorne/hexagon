@@ -38,7 +38,7 @@ int add_permanent_goods(string file, int amount)
   permanent_goods[base_name(ob)] = amount;
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({
     ({ "Permanent Goods", permanent_goods }),

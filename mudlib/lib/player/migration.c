@@ -111,7 +111,7 @@ nomask int update_player()
   return 1;
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({
     ({ "Sheet Version", last_migration, }),

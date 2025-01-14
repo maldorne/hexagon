@@ -53,7 +53,7 @@ void load_mount()
   mount->move_to_saved();
 }
 
-mixed stats() 
+mixed * stats() 
 {
   return ({ 
     ({"Mount (nosave)", mount, }),

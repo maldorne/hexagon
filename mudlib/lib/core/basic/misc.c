@@ -72,7 +72,7 @@ void dest_me()
   ::dest_me();
 }
 
-mixed stats()
+mixed * stats()
 {
   return move::stats() + 
          weight::stats() +

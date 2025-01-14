@@ -53,7 +53,7 @@ static void role_commands()
 // }
 
 
-mixed stats()
+mixed * stats()
 {
   return ({ }) + base::stats() +
                  path::stats() +

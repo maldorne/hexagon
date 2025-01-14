@@ -1034,8 +1034,8 @@ int query_gp_main_stat()
   return ((query_wis() + query_int()) / 2);
 }
 
-// stats añadido, algunos archivos con stats no llegan a devolver nada
-mixed stats() 
+// stats added
+mixed * stats() 
 {
   return ({ 
      ({"Stats Base", stats_base, }),

@@ -148,7 +148,7 @@ int do_force_on_me(string str, varargs int msg)
   return 1;
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({ });
 }

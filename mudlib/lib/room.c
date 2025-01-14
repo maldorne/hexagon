@@ -429,7 +429,7 @@ int clean_up(varargs int flag)
   return cleanup::clean_up(flag);
 }
 
-mixed stats()
+mixed * stats()
 {
   return zone::stats() +
       exits::stats() +

@@ -396,7 +396,7 @@ void chatter(int chance, mixed chat)
   }
 }
     
-mixed *stats() 
+mixed * stats() 
 {
   mixed * ret;
 

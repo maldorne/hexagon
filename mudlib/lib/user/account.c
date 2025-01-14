@@ -161,7 +161,7 @@ int set_email(string str)
 }
 */
 
-mixed stats()
+mixed * stats()
 {
   return ({ });
 }

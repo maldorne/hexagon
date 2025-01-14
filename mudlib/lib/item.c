@@ -486,7 +486,7 @@ void init_auto_load_attributes(mapping attribute_map)
     ::init_auto_load_attributes(attribute_map["::"]);
 } 
 
-mixed stats()
+mixed * stats()
 {
   mixed * ret;
 

@@ -145,7 +145,7 @@ string query_demonstrative()
    return _LANG_GENDER_DEMONSTRATIVE_MALE;
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({ ({ "Gender", gender, }), });
 }

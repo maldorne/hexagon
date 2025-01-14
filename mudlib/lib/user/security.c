@@ -112,7 +112,7 @@ int change_password4(string pass)
   return 1;
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({ 
     // ({ "Password", password, }),

@@ -197,7 +197,7 @@ int pay_money(mixed *m_array)
   return val;
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({ 
       ({ "Money Array", money_array }),

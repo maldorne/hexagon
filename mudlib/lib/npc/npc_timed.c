@@ -180,7 +180,7 @@ private void set_night_time_range(int start, int end)
 	    handler(WEATHER_HANDLER)->notify_me(this_object());
 }
 
-mixed *stats() 
+mixed * stats() 
 {
 	return ({
 		({ "Is timed (nosave)", is_timed }),

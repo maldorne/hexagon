@@ -201,7 +201,7 @@ object query_frac_parse_id(mixed *arr)
 */
 
 // stats added
-mixed stats()
+mixed * stats()
 {
   return ({
             ({ "Name", name }),

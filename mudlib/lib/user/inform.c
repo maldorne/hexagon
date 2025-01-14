@@ -47,7 +47,7 @@ void set_inform(string what, int value)
   }
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({
     ({ "Informs", informs }),

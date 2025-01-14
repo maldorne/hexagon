@@ -566,7 +566,7 @@ int spell_damage(int damage, string type, object caster)
   //return 1;
 }
 
-mixed *stats()
+mixed * stats()
 {
   return ({
     ({ "Spells", spells }),

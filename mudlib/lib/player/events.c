@@ -357,7 +357,7 @@ return (int)guild->query_see_magic();
 }*/
 
 
-mixed stats()
+mixed * stats()
 {
   return ({
           }) + events::stats();

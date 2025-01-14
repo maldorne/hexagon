@@ -117,7 +117,7 @@ void fini_editor()
   in_editor = 0;
 }
 
-mixed stats() 
+mixed * stats() 
 {
   return ({ 
             ({"(role) Ed Setup", ed_setup, }),

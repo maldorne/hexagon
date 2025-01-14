@@ -19,7 +19,7 @@ static void role_commands()
   base::role_commands();
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({ }) + base::stats();
 }

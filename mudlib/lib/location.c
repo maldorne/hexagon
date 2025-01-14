@@ -450,7 +450,7 @@ void dest_me()
   destruct(this_object());
 }
 
-mixed stats()
+mixed * stats()
 {
   int i;
   mapping comp_stats;

@@ -40,7 +40,7 @@ void init_auto_load_attributes(mapping args)
   obj::init_auto_load_attributes(args);
 }
 
-mixed stats()
+mixed * stats()
 {
   // for the components stats, give just the essential info
   // return obj::stats() +

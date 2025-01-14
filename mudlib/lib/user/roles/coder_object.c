@@ -976,7 +976,7 @@ int find_shadows(string s)
   return 1;
 } /* find_shadows() */
 
-mixed stats()
+mixed * stats()
 {
   return ({
           });

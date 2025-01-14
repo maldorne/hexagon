@@ -45,7 +45,7 @@ string read_message(string str, string lang, varargs int size, string frame_styl
   return _LANG_READ_IN_LANGUAGE;
 }
 
-mixed *stats() 
+mixed * stats() 
 {
   return ({
           });

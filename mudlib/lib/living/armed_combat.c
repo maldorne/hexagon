@@ -237,8 +237,8 @@ int do_weapon_masteries(string mastery)
   
 }
 
-// stats añadido
-mixed stats() 
+// stats added
+mixed * stats() 
 {
   mixed * ret;
   ret = ({ ({"Known Armed Masteries", known_weapon_masteries, }),

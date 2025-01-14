@@ -75,7 +75,7 @@ string query_visited_direction(string room_name)
   return "";
 }
 
-mixed stats() 
+mixed * stats() 
 {
   return ({ 
     ({"Visited List (nosave)", visited_list, }),

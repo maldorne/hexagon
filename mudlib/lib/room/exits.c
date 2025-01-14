@@ -526,7 +526,7 @@ mixed query_door(mixed dest)
   return 0;
 }
 
-mixed stats()
+mixed * stats()
 {
   mixed * exits;
   int i;

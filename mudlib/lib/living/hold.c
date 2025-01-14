@@ -472,8 +472,8 @@ int do_unhold(string woo)
   return unhold_ob(boo[0]);
 }
 
-// stats añadido, algunos archivos con stats no llegan a devolver nada
-mixed stats() {
+// stats added
+mixed * stats() {
   return ({ ({"Held ob", held_ob, }),
             ({"Free Hands Left", free_hands_left, }),
             ({"Held Ac", held_ac, }),

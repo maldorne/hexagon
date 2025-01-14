@@ -33,7 +33,7 @@ void add_room_zone(string str)
     room_zones += ({ str });
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({
     ({ "Move Zone", room_zones }),

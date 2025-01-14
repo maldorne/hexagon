@@ -106,7 +106,7 @@ int print_past_g(varargs string arg)
   return 1;
 }
 
-mixed *stats() 
+mixed * stats() 
 {
   return ({
           });

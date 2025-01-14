@@ -75,7 +75,7 @@ int change_consent(string str)
   return 1;
 }
 
-mixed stats() 
+mixed * stats() 
 {
   return ({ 
       ({"Consents", consents, }),

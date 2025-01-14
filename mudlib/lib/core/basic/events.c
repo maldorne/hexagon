@@ -321,7 +321,7 @@ void event_death(object caller, varargs object killer, object * attackers, mixed
   stderr(" * event_death in " + object_name(this_object()) + " because of " + object_name(caller) + "\n");
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({ });
 }

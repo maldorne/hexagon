@@ -181,7 +181,7 @@ int do_inter_creator_tell(string str)
   return 1;
 } */
 
-mixed stats()
+mixed * stats()
 {
   return ({
           });

@@ -42,7 +42,7 @@ void init_auto_load_attributes(mapping args)
   component::init_auto_load_attributes(args);
 }
 
-mixed stats()
+mixed * stats()
 {
   return component::stats() +
         inventory::stats();

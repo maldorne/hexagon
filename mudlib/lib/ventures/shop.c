@@ -945,7 +945,7 @@ void reset_stock()
 //  end of ventures handler related functions
 // ************************************************************
 
-mixed stats()
+mixed * stats()
 {
   return inventory::stats();
 }

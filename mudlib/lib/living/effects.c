@@ -215,7 +215,7 @@ int do_call_out_effect(mixed *params)
       
 } /* do_effect() */
 
-mixed stats()
+mixed * stats()
 {
   return ({ });
 }

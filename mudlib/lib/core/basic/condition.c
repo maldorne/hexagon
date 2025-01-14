@@ -113,8 +113,8 @@ int set_percentage(int i)
   cond = (MAX_COND * i) / 100;
 }
 
-// stats añadido
-mixed stats()
+// stats added
+mixed * stats()
 {
   return ({
            ({ "Cond", cond, }),

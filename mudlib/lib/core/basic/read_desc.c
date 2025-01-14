@@ -225,7 +225,7 @@ string long(varargs string str, int dark)
 }
 
 // stats added
-mixed stats()
+mixed * stats()
 {
   return ({
     ({ "Read Mess (nosave)", read_mess, }),

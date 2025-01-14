@@ -284,7 +284,7 @@ string create_help(string str)
 }
 */
 
-mixed stats()
+mixed * stats()
 {
   return ({ });
 }

@@ -761,7 +761,7 @@ int query_known_language(string lang)
   return 0;
 }
 
-mixed stats() 
+mixed * stats() 
 {
   return ({ 
           ({"Social Points", social_points, }),

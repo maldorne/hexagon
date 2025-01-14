@@ -63,7 +63,7 @@ mixed pretty_plural()
 }
 
 // Stats added
-mixed stats()
+mixed * stats()
 {
 	return ({
 		({ "Short (nosave)", short_d, }),

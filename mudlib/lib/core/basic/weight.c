@@ -34,7 +34,7 @@ int query_weight()
   return weight;
 }
 
-mixed stats()
+mixed * stats()
 {
 	return ({
 		({"Weight (nosave)", weight, }),

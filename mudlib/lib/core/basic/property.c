@@ -349,7 +349,7 @@ varargs mixed adjust_timed_property(string str, mixed val, int time) {
 }
 */
 
-mixed stats()
+mixed * stats()
 {
   return ({
 		({ "Properties", map_prop, }),

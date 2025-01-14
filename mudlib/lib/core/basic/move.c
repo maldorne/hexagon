@@ -107,7 +107,7 @@ nomask mixed dwep()
   return "Destruct With Extreme Prejuce";
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({
     ({"Move Flag (nosave)", move_flag, }),

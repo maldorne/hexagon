@@ -704,7 +704,7 @@ int do_combat_mode(string str)
   return 1;
 }
 
-mixed stats() 
+mixed * stats() 
 {
   mixed *ret;
   ret = ({ 

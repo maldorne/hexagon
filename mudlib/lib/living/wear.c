@@ -472,7 +472,7 @@ int do_unwear(string woo)
    return unwear_ob(boo[0]);
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({
       ({"Worn Objects (nosave)", worn_objects, }),

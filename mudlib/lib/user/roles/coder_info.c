@@ -318,7 +318,7 @@ int comm_info(string str)
   return 1;
 }
 
-mixed stats() 
+mixed * stats() 
 {
   return ({ 
           });

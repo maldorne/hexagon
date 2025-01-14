@@ -394,7 +394,7 @@ string query_living_contents(int self)
   return s;
 }
 
-mixed stats()
+mixed * stats()
 {
   return wear::stats() + hold::stats();
 }

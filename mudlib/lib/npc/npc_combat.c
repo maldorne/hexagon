@@ -186,7 +186,7 @@ void log_death(string filename, object attacker)
 #endif
 }
 
-mixed *stats() 
+mixed * stats() 
 {
   int i;
   mixed * ret;

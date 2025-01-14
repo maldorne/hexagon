@@ -297,7 +297,7 @@ int check_earmuffs(string type) {
   return 1;
 } /* check_earmuffs() */
 
-mixed stats()
+mixed * stats()
 {
   return ({
     ({ "Terminal Name", term_name }),

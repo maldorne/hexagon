@@ -428,7 +428,7 @@ string volume_string()
   return _LANG_HEALTH_VOLUME_PRAYING_FOR_DEATH;
 }
 
-mixed stats() 
+mixed * stats() 
 {
   return ({ ({"Max Hp", max_hp, }),
     ({"Hp", hp, }),

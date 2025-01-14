@@ -155,7 +155,7 @@ void do_wander(int num)
   }
 }
 
-mixed *stats() 
+mixed * stats() 
 {
   return ({
     ({ "Drunkness (nosave)", drunkness }),

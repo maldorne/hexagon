@@ -162,7 +162,7 @@ int set_home_dir(string str)
   return 1;
 }
 
-mixed stats()
+mixed * stats()
 {
   return ({
           ({"(role) Home Dir", home_dir, }),

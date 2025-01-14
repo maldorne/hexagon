@@ -419,7 +419,7 @@ static void actual_death(object initiator)
   }                           
 } /* void actual death */
 
-mixed stats()
+mixed * stats()
 {
   return ({ ({ "Is Dead", dead, }), });
 }

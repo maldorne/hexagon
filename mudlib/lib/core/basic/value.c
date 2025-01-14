@@ -50,7 +50,7 @@ int query_money(string type)
 void set_value(int i) { value = i; }
 int query_value() { return value; }
 
-mixed stats()
+mixed * stats()
 {
   return ({
             ({ "Value", value, }),
