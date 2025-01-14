@@ -21,11 +21,6 @@ void initialize(object location)
 string query_type() { return type; }
 void set_type(string t) { type = t; }
 
-// string * actions_provided()
-// {
-//   return ({ });
-// }
-
 mapping query_auto_load_attributes() 
 {
   return obj::query_auto_load_attributes() +

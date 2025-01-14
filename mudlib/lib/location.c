@@ -110,6 +110,7 @@ void set_coordinates(int x, int y, int z) { coordinates = ({ x, y, z }); }
 string query_map_name() { return map_name; }
 void set_map_name(string name) { map_name = name; }
 
+object * query_components() { return components; }
 void add_component(string component_type, mapping properties)
 {
   component_info[component_type] = properties;

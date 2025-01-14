@@ -114,9 +114,15 @@ static nomask object * targets(varargs object ob)
 
   // third, our environment and other items in there
   if (env = environment(ob))
+  {
+    // if the environment is a location, check every component
+    if (env->query_location())
+      targets += env->query_components();
+
     targets += ({ env }) +
                all_inventory(env) -
                ({ ob });
+  }
 
   // last, our inventory
   targets += all_inventory(ob);
