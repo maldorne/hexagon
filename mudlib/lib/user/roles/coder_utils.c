@@ -402,6 +402,23 @@ object * wiz_present(string str, object onobj, varargs int nogoout)
     return obs;
   }
 
+  // {fish} == component of type fish your current location environment
+
+  if (str[0] == '{' && str[strlen(str) - 1] == '}')
+  {
+    ob = environment(this_player());
+
+    if (!ob->query_location())
+      return ({ });
+
+    ob = ob->query_component_by_type(extract(str,1,strlen(str) - 2));
+
+    if (!ob)
+      return ({ });
+
+    return ({ ob });
+  }
+
   /* fish except fish2 */
 
   if ((sscanf(str,"%s except %s",s1,s2) == 2) ||

@@ -111,6 +111,17 @@ string query_map_name() { return map_name; }
 void set_map_name(string name) { map_name = name; }
 
 object * query_components() { return components; }
+object query_component_by_type(string type)
+{
+  int i;
+
+  for (i = 0; i < sizeof(components); i++)
+    if (components[i]->query_type() == type)
+      return components[i];
+
+  return nil;
+}
+
 void add_component(string component_type, mapping properties)
 {
   component_info[component_type] = properties;
