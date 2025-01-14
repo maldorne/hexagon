@@ -49,6 +49,7 @@
 inherit room       "/lib/room.c";
 inherit attendable "/lib/room/attendable.c";
 inherit sign       "/lib/ventures/shop-sign.c";
+inherit inventory  "/lib/ventures/shop-inventory.c";
 
 #include <basic/money.h>
 #include <basic/move.h>
@@ -64,9 +65,6 @@ inherit sign       "/lib/ventures/shop-sign.c";
 // new storeroom system, neverbot 7/03
 static string save_file, log_file;
 
-// items the shop _must_ have
-static mapping permanent_goods;
-
 static mixed buy_mess, sell_mess, list_mess, value_mess, browse_mess;
 
 // int amount_sold, amount_bought;
@@ -81,11 +79,6 @@ string *query_shop_admins() { return shop_admins; }
 
 // adaptive price functions, Anirudh
 int do_cha_adjust(int amt, int cha, int updown);
-
-// backwards compatibility
-int add_thing(string file, int amount);
-int add_permanent_goods(string file, int amount);
-mapping query_permanent_goods(){ return permanent_goods; }
 
 private int scaled_value(int n);
 private string shop_parse(string str, mixed ob, object client, string money, string extra);
@@ -106,41 +99,15 @@ void create()
 
   save_file = get_save_file_name();
   log_file = get_log_file_name();
-  
-  permanent_goods = ([ ]);
 
-  ::create();
+  room::create();
+  inventory::create();
   
   create_sign();
 
   // include the shop in the ventures handler
   if (base_name(this_object()) != "/lib/ventures/shop")
     handler("ventures")->include_shop(base_name(this_object()));
-}
-
-// backwards compatibility
-int add_thing(string file, int amount) { return add_permanent_goods(file, amount); }
-
-//  with the new shop system, the items bought and sold are _always_ saved, so
-//  we need a way to restock some basic objects if we want them to always be
-//  available
-int add_permanent_goods(string file, int amount)
-{
-  object ob;
-  ob = load_object(file);
-  
-  if (!ob)
-  {
-    debug("shops", " invalid add_permanent_goods in " + file_name(this_object()) + " : " + file + "\n");
-  
-    // create new issue, same message as npcs equipment
-    if (package("issues"))
-      package("issues")->add_issue("Cannot clone " + file, this_object());
-  
-    return 0;
-  }
-  
-  permanent_goods[base_name(ob)] = amount;
 }
 
 private string get_save_file_name()
@@ -977,3 +944,8 @@ void reset_stock()
 // ************************************************************
 //  end of ventures handler related functions
 // ************************************************************
+
+mixed stats()
+{
+  return inventory::stats();
+}

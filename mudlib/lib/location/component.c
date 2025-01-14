@@ -1,12 +1,12 @@
 // basic component all location components will inherit from
 
-inherit "/lib/core/object.c";
+inherit obj "/lib/core/object.c";
 
 private string type;  // type of component (outside, shop, swamp, whatever)
 
 void create()
 {
-  ::create();
+  obj::create();
   type = "base";
 }
 
@@ -28,7 +28,7 @@ void set_type(string t) { type = t; }
 
 mapping query_auto_load_attributes() 
 {
-  return ::query_auto_load_attributes() +
+  return obj::query_auto_load_attributes() +
     ([ "type" : type, ]);
 }
 
@@ -37,6 +37,14 @@ void init_auto_load_attributes(mapping args)
   if (!undefinedp(args["type"]))
     type = args["type"];
 
-  ::init_auto_load_attributes(args);
+  obj::init_auto_load_attributes(args);
 }
 
+mixed stats()
+{
+  // for the components stats, give just the essential info
+  // return obj::stats() +
+  return ({
+    ({ "Component Type", type, }),
+         });
+}

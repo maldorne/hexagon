@@ -452,6 +452,14 @@ void dest_me()
 
 mixed stats()
 {
+  int i;
+  mapping comp_stats;
+  
+  comp_stats = ([ ]);
+
+  for (i = 0; i < sizeof(components); i++)
+    comp_stats["Component " + components[i]->query_type()] = components[i]->stats();
+
   return obj::stats() +
          light::stats() +
          property::stats() + 
@@ -461,6 +469,7 @@ mixed stats()
       ({ "Map Name", map_name, }),
       ({ "Coordinates", coordinates, }),
       ({ "Components (nosave)", keys(component_info), }),
+      ({ "Components stats (extra info)", comp_stats, }),
           });
 
       // light::stats() +
