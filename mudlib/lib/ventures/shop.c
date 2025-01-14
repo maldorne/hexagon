@@ -47,7 +47,7 @@
  */
 
 inherit room       "/lib/room.c";
-inherit attendable "/lib/room/attendable.c";
+inherit attendable "/lib/ventures/attendable.c";
 inherit sign       "/lib/ventures/shop-sign.c";
 inherit inventory  "/lib/ventures/shop-inventory.c";
 

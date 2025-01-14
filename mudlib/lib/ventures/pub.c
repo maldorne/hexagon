@@ -5,7 +5,7 @@
  */
 
 inherit "/lib/room.c";
-inherit "/lib/room/attendable.c";
+inherit "/lib/ventures/attendable.c";
 
 #define AUTOMATIC 1
 
