@@ -41,7 +41,10 @@ static int cmd(string str, object me, string verb)
   str = params[0];
   params -= ({ str });
 
-  ob = find_object(str);
+  if (str == "here")
+    ob = environment(me);
+  else
+    ob = find_object(str);
 
   if (!ob)
     ob = find_living(str);
