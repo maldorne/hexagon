@@ -353,9 +353,9 @@ string finger_info(string name, varargs object me)
   // retval += ident + "@";
 
   if (me && SECURE_OB->query_admin(me->query_name()) && last_on_from)
-    retval += _LANG_FINGER_LAST_CONNECTION_FROM + last_on_from + ".\n";
+    retval += _LANG_FINGER_LAST_CONNECTION_FROM;
   if (me && SECURE_OB->query_admin(me->query_name()) && last_pos)
-    retval += _LANG_FINGER_LAST_POSITION + last_pos + ".\n";
+    retval += _LANG_FINGER_LAST_POSITION;
 
   // retval += (string)MAILER->finger_mail(name);
   mail_stat = (mapping)"/lib/handlers/postal"->mail_status(name);

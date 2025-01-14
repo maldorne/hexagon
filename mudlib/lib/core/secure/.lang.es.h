@@ -41,8 +41,8 @@
 #define _LANG_FINGER_IDLE_TIME "   %^GREEN%^Inactiv"+(gender==2?"a":"o")+" desde hace "+ \
             seconds_to_time_string(ob->user()->query_idle()) + \
             "%^RESET%^.\n"
-#define _LANG_FINGER_LAST_CONNECTION_FROM "   Última conexión desde: "
-#define _LANG_FINGER_LAST_POSITION "   Última posición: "
+#define _LANG_FINGER_LAST_CONNECTION_FROM "   Última conexión desde: " + last_on_from + "\n"
+#define _LANG_FINGER_LAST_POSITION "   Última posición:\n     " + last_pos + "\n"
 #define _LANG_FINGER_MAIL_NO_MAIL "   No tiene correo.\n"
 #define _LANG_FINGER_MAIL_NUM_MAILS "   Tiene "+mail_stat["total"]+" mud-mail"+ \
             ((mail_stat["total"]==1)?"":"s")
