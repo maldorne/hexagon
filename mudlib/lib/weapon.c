@@ -179,12 +179,12 @@ mapping query_auto_load_attributes()
 
 void init_auto_load_attributes(mapping args) 
 {
-    if (!undefinedp(args["enchant"]))
-      enchant = args["enchant"];
-    if (!undefinedp(args["attacks"]))
-      attacks = args["attacks"];
- 
-    item::init_auto_load_attributes(args);
+  if (!undefinedp(args["enchant"]))
+    enchant = args["enchant"];
+  if (!undefinedp(args["attacks"]))
+    attacks = args["attacks"];
+
+  item::init_auto_load_attributes(args);
 }
 
 // *************************************************

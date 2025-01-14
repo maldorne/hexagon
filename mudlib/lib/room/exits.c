@@ -137,7 +137,7 @@ string query_dirs_string()
 
   room_ob = this_object();
   exit_string = EXIT_HAND->query_dirs_string(dest_direc,
-  dest_other, room_ob, exit_color);
+    dest_other, room_ob, exit_color);
   return exit_string;
 }
 
@@ -533,11 +533,10 @@ mixed stats()
 
   exits = ({ });
   for (i = 0; i < sizeof(dest_other); i += 2)
-    exits += ({ ({ "Direction", dest_other[i], }),
-                ({ "Destination", dest_other[i+1][ROOM_DEST] }) });
+    exits += ({ dest_other[i], dest_other[i+1][ROOM_DEST] });
 
   return ({
     ({ "Location (property)", this_object()->query_property("location"), }),
-          }) +
-      exits;
+    ({ "Exits", exits, }),
+          });
 }

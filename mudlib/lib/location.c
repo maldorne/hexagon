@@ -109,14 +109,34 @@ void set_coordinates(int x, int y, int z) { coordinates = ({ x, y, z }); }
 string query_map_name() { return map_name; }
 void set_map_name(string name) { map_name = name; }
 
-void add_component(string component_type, mixed properties)
+void add_component(string component_type, mapping properties)
 {
-  component_info[component_type] = ({ properties });
+  component_info[component_type] = properties;
 }
 
 void remove_component(string component_type)
 {
   map_delete(component_info, component_type);
+}
+
+void init_components(mapping info)
+{
+  string * component_paths;
+  int i;
+
+  component_paths = keys(info);
+
+  for (i = 0; i < sizeof(component_paths); i++)
+  {
+    object component;
+    component = clone_object("/lib/location/components/" + component_paths[i] + ".c");
+
+    if (!component)
+      continue;
+
+    component->init_auto_load_attributes(info[component_paths[i]]);
+    components += ({ component });
+  }
 }
 
 // void init_original_info()
@@ -127,16 +147,31 @@ void remove_component(string component_type)
 //     _original_long = this_object()->query_long();
 // }
 
+string query_components_string()
+{
+  int i;
+  string * types;
+
+  if (!sizeof(components))
+    return "";
+
+  types = ({ });
+
+  for (i = 0; i < sizeof(components); i++)
+    types += ({ components[i]->query_type() });
+
+  return "%^BOLD%^CYAN%^Components: " + implode(types, ", ") + ".%^RESET%^";
+}
+
 string short(varargs int dark)
 {
   string ret;
-  string * component_types;
   int i;
 
-  component_types = keys(component_info);
+  ret = "";
 
-  for (i = 0; i < sizeof(component_types); i++)
-    ret += component_info[component_types[i]][0]->short(dark);
+  for (i = 0; i < sizeof(components); i++)
+    ret += components[i]->short(dark);
 
   if (!ret || !strlen(ret))
     ret = _original_short;
@@ -147,19 +182,21 @@ string short(varargs int dark)
 string long(string str, int dark)
 {
   string ret;
-  string * component_types;
   int i;
 
-  component_types = keys(component_info);
+  ret = "";
 
-  for (i = 0; i < sizeof(component_types); i++)
-    ret += component_info[component_types[i]][0]->long(str, dark);
+  for (i = 0; i < sizeof(components); i++)
+    ret += components[i]->long(str, dark);
 
   if (!ret || !strlen(ret))
     // ret = _original_long;
     ret = wrap(_original_long, 
                 (this_user() ? this_user()->query_cols() : 80), 1); 
-                
+
+  if (this_player()->query_coder())
+    ret += query_components_string() + "\n";
+
   exit_string = query_dirs_string();
   ret += exit_string + "\n" + query_contents("");
 
@@ -189,6 +226,8 @@ int restore_from_file_name(string name)
     restore_object(name);
 
     add_exits_from_exit_map(_exit_map);
+
+    init_components(component_info);
 
     return 1;
   }
@@ -408,14 +447,16 @@ void dest_me()
 
 mixed stats()
 {
-  return ({
-    ({ "Components", keys(component_info), }),
-          }) +
-      obj::stats() +
-      light::stats() +
-      property::stats() + 
-      zone::stats() + 
-      exits::stats();
+  return obj::stats() +
+         light::stats() +
+         property::stats() + 
+         zone::stats() + 
+         exits::stats() +
+          ({
+      ({ "Map Name", map_name, }),
+      ({ "Coordinates", coordinates, }),
+      ({ "Components (nosave)", keys(component_info), }),
+          });
 
       // light::stats() +
       // desc::stats() +

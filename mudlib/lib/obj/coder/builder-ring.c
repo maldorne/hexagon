@@ -426,22 +426,21 @@ object convert_room_to_location(object room)
 
   exit_map = room->query_exit_map();
 
-  // debug: show the files to the user
   // write("Exits:\n" + to_string(exit_map) + "\n");
 
   // add exits to the location object, will be saved on next save_me()
   location->add_exits_from_exit_map(exit_map);
 
-  // for (i = 0; i < sizeof(exits); i++)
-  // {
-  //   // prototype
-  //   // mixed add_exit(string direc, mixed dest, string type,
-  //   //           varargs string material)
-  //   location->add_exit(exits[i], 
-  //                      exit_map[exits[i]][0], 
-  //                      exit_map[exits[i]][1],
-  //                      exit_map[exits[i]][2]);
-  // }
+  // add components to the location object
+  if (room->query_shop())
+    location->add_component("shop", ([ 
+      "permanent_goods" : room->query_permanent_goods(),
+        ]));
+
+
+
+
+
 
   location->save_me();
 
