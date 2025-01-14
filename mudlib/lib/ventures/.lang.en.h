@@ -1,4 +1,8 @@
 
+// attendable.c
+
+#define _LANG_ATT_NON_ATTENDABLE "For various reasons they cannot assist you at this time.\n"
+
 // shop.c
 
 #define _LANG_SHOP_SIGN_DESC "A small wooden sign.\n"

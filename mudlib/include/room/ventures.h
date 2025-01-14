@@ -44,3 +44,10 @@
 
 // absurdly high number to check results
 #define MAX_AMOUNT_OF_THINGS 10000
+
+// max file size for save file of shops
+// change, you die
+#define FILE_SIZE 30000
+
+// minimum sell price in shops
+#define MIN_PRICE 10

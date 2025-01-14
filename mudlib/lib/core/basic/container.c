@@ -3,8 +3,8 @@
 
 #include <basic/move.h>
 
-inherit obj      "/lib/core/object";
-inherit contents "/lib/core/basic/contents"; // old cute_look.c
+inherit obj      "/lib/core/object.c";
+inherit contents "/lib/core/basic/contents.c"; // old cute_look.c
 
 #define BASE_WEIGHT_REDUCTION 30
 #define DEFAULT_MAX_WEIGHT 0

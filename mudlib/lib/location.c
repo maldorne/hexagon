@@ -88,8 +88,13 @@ void create()
 
 void init()
 {
+  int i;
+
   contents::init();
   exits::init();
+
+  for (i = 0; i < sizeof(components); i++)
+    components[i]->init();
 }
 
 int id(string str)

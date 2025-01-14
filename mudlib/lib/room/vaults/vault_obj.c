@@ -33,8 +33,11 @@ void set_save_file(string file)
   auto_load = ([ ]);
 
   if (!environment() || 
-     (!environment()->query_vault_room() && !environment()->query_shop()) )
+     (!environment()->query_vault_room() && !environment()->query_shop()))
+  {
     destruct(this_object()); // die screaming
+    return;
+  }
   
   seteuid(ROOM_EUID);
   value = restore_object(savefile);
