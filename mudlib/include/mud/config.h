@@ -42,7 +42,7 @@
 #define LOG_CAUGHT_ERRORS TRUE
 
 // false: show caught errors to user
-#define SHOW_CAUGHT_ERRORS FALSE
+#define SHOW_CAUGHT_ERRORS TRUE
 
 // when loggin info of an error (stderr or to a coder)
 // show the full trace or only the line where the error occurred
