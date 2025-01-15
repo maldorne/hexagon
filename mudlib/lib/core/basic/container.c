@@ -2,6 +2,7 @@
 // addapted to ccmud, neverbot 6/03
 
 #include <basic/move.h>
+#include <language.h>
 
 inherit obj      "/lib/core/object.c";
 inherit contents "/lib/core/basic/contents.c"; // old cute_look.c
@@ -82,8 +83,7 @@ void fix_my_contents_weight()
   {
 	  // Let's be nice to the player and TELL them when they drop something :)
 	  // Anirudh
-    tell_object(this_object(), "No puedes sostener todo lo que intentas llevar, " +
-      "así que dejas caer: '"+stuff[i]->query_name()+"'.\n");
+    tell_object(this_object(), _LANG_CONTAINER_DROP);
     stuff[i]->move(environment(this_object()));
   }
 }
@@ -113,15 +113,20 @@ string long(string str, int dark)
 {
   string ret;
 
-  ret = sprintf("\n  %-=*s\n", (this_user()?this_user()->query_cols()-2:77),
-    "   " + ::long(str));
+  ret = ::long(str);
+
+  // if we do not have a description, don't fill a line 
+  // with blank characters
+  if (strlen(ret))
+    ret = sprintf("\n  %-=*s\n", (this_user()?this_user()->query_cols()-2:77),
+          "   " + ::long(str));
 
   ret += calc_extra_look();
 
   if (this_object()->query_corpse())
     ret += (string)this_object()->query_living_contents(0);
   else
-    ret += query_contents(short(dark)+" contiene:\n", all_inventory());
+    ret += query_contents(short(dark) + _LANG_CONTAINER_CONTAINS, all_inventory());
   return ret;
 }
 

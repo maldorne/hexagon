@@ -81,3 +81,9 @@
 #define _LANG_CONDITION_STATUS_80 "It is in good condition.\n"
 #define _LANG_CONDITION_STATUS_90 "It is in very good condition.\n"
 #define _LANG_CONDITION_STATUS_DEF "It is in excellent condition.\n"
+
+// container.c
+
+#define _LANG_CONTAINER_CONTAINS " contains:\n"
+#define _LANG_CONTAINER_DROP "You can't hold everything you're trying to carry, " + \
+            "so you drop your " + stuff[i]->query_name() + ".\n"

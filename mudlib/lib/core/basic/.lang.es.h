@@ -77,3 +77,9 @@
 #define _LANG_CONDITION_STATUS_80 "Está en buenas condiciones.\n"
 #define _LANG_CONDITION_STATUS_90 "Está en muy buenas condiciones.\n"
 #define _LANG_CONDITION_STATUS_DEF "Está en excelente estado.\n"
+
+// container.c
+
+#define _LANG_CONTAINER_CONTAINS " contiene:\n"
+#define _LANG_CONTAINER_DROP "No puedes sostener todo lo que intentas llevar, " + \
+            "así que dejas caer tu " + stuff[i]->query_name() + ".\n"
