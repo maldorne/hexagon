@@ -44,7 +44,7 @@ string add_location(object location)
   int x, y, z;
   int sector_x, sector_y, sector_z;
   object sector_storage;
-  string path, file_name;
+  string path, file_name, content;
 
   stderr("🎃 maps add_location: " + location->query_file_name() + "\n");
 
@@ -71,9 +71,16 @@ string add_location(object location)
   sector_storage->add_location(location->query_file_name(), x, y, z, ([ ]));
   sector_storage->add_loaded_location(location);
 
-  // write a file in path + file_name with the location data
-  remove_file(path + file_name);
-  write_file(path + file_name, location->query_file_name());
+  // update the contents of the file only if they are different to the 
+  // already stored information
+  content = read_file(path + file_name);
+
+  if (content && content != location->query_file_name())
+  {
+    // write a file in path + file_name with the location data
+    remove_file(path + file_name);
+    write_file(path + file_name, location->query_file_name());
+  }
 
   return path + file_name;
 }
