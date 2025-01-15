@@ -71,8 +71,8 @@ string * shop_admins;
 void set_admins(string * admins) { if (sizeof(admins)) shop_admins = admins; }
 string *query_shop_admins() { return shop_admins; }
 
-string get_save_file_name();
-string get_log_file_name();
+string query_save_file_name();
+string query_log_file_name();
 
 void create() 
 {
@@ -80,13 +80,10 @@ void create()
   sell_func = nil;
   buy_func = nil;
 
-  save_file = get_save_file_name();
-  log_file = get_log_file_name();
-
-  room::create();
   inventory::create();
   attendable::create();
   messages::create();
+  room::create();
   
   create_sign();
 
@@ -95,14 +92,14 @@ void create()
     handler("ventures")->include_shop(base_name(this_object()));
 }
 
-string get_save_file_name()
+string query_save_file_name()
 {
   return "/save/ventures/" + implode(explode(base_name(this_object()), "/"), "-") + "-save.o";
 }
 
-string get_log_file_name()
+string query_log_file_name()
 {
-  return "ventures/" + implode(explode(base_name(this_object()), "/"), "-") + "-log";
+  return "/save/ventures/" + implode(explode(base_name(this_object()), "/"), "-") + "-log";
 }
 
 /* 

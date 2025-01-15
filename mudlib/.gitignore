@@ -7,6 +7,7 @@
 # save files
 /save/*.o
 /save/ventures/*.o
+/save/ventures/*-log
 !/save/ventures/ventures.o
 /save/issues/issues.o
 /save/games/*
