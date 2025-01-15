@@ -433,7 +433,7 @@ object convert_room_to_location(object room)
 
   // add components to the location object
   if (room->query_shop())
-    location->add_component("shop", ([ 
+    location->add_component(LOCATION_COMPONENT_SHOP, ([ 
       "permanent_goods" : room->query_permanent_goods(),
         ]));
 
