@@ -82,6 +82,7 @@ static nomask string debug_info(int operation, object ob)
   ret += "Callouts in object     : " + (sizeof(info[O_CALLOUTS]) ? "\n"+to_string(info[O_CALLOUTS]) : "none") + "\n";
   ret += "Unique id              : " + info[O_INDEX] + "\n";
   ret += "Undefined functions    : " + (info[O_UNDEFINED] ? "\n"+to_string(info[O_UNDEFINED]) : "none") + "\n";
+  ret += "Special role           : " + (info[O_SPECIAL] ? "\n"+to_string(info[O_SPECIAL]) : "no") + "\n";
 
   return ret;
 }
