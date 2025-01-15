@@ -4,8 +4,8 @@
  * Remove moving prices, neverbot 05/2009
  */
 
-inherit "/lib/room.c";
-inherit "/lib/ventures/attendable.c";
+inherit room       "/lib/room.c";
+inherit attendable "/lib/ventures/attendable.c";
 
 #define AUTOMATIC 1
 
@@ -58,7 +58,8 @@ void create()
   menu_header = "En el menú hay:";
   display_headings = 1;
 
-  ::create();
+  attendable::create();
+  room::create();
 
   create_sign();
 
@@ -405,4 +406,10 @@ void event_fight_in_progress(object who, object * fighters)
     else
       if (ob = find_object(dest[i]))
         event(ob,"pub_brawl", this_object());
+}
+
+mixed * stats()
+{
+  return room::stats() +
+    attendable::stats();
 }

@@ -127,6 +127,7 @@ int check_sell(object ob) { return 1; }
 
 mixed * stats()
 {
-  return inventory::stats() +
+  return room::stats() +
+    inventory::stats() +
     attendable::stats();
 }
