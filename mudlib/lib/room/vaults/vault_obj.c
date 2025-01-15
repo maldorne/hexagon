@@ -23,10 +23,23 @@ void create()
 int query_vault_object() { return 1; }
 string query_savefile() { return savefile; }
 
+void save_me()
+{
+  seteuid(ROOM_EUID);
+  save_object(savefile);
+  seteuid(PLAYER_EUID);  
+}
+
+void restore_me()
+{
+  seteuid(ROOM_EUID);
+  restore_object(savefile);
+  seteuid(PLAYER_EUID);
+}
+
 void set_save_file(string file) 
 {
   object * olist;
-  int value;
   string err;
 
   savefile = file;
@@ -39,9 +52,7 @@ void set_save_file(string file)
     return;
   }
   
-  seteuid(ROOM_EUID);
-  value = restore_object(savefile);
-  seteuid(PLAYER_EUID);
+  restore_me();
 
   if (map_sizeof(auto_load))  
     olist = load_auto_load(auto_load, this_object());
@@ -70,10 +81,8 @@ void dest_me()
   else
     auto_load = ([ ]);
 
-  seteuid(ROOM_EUID);
-  save_object(savefile);
-  seteuid(PLAYER_EUID);
-
+  save_me();
+  
   // unique items, neverbot 08/07/04
   for (i = 0; i < sizeof(olist); i++)
   {
