@@ -29,6 +29,11 @@ void init()
   actions::init();
 }
 
+void dest_me() 
+{
+  inventory::dest_me();
+}
+
 // will be called after creation + init_auto_load_attributes,
 // providing de parent location object
 void initialize(object location)

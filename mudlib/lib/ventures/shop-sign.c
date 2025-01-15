@@ -1,3 +1,12 @@
+/*
+ * Changes for Hexagon, neverbot 01/2025
+ * 
+ * - shop functions refactored in several files, to be inherited both
+ *   from the shop room (/lib/ventures/shop.c) and the shop component
+ *   for locations (/lib/location/components/shop.c). More info about
+ *   previous changes in the header comments of the original shop file.
+ *
+ */
 
 #include <language.h>
 

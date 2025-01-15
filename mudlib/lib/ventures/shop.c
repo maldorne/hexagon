@@ -44,6 +44,11 @@
  *   we just have a list and the shop handler updates the inventories..
  * - stolen_modifier removed.
  *
+ * Changes for Hexagon, neverbot 01/2025
+ * - shop functions refactored in several files, to be inherited both
+ *   from the shop room (/lib/ventures/shop.c) and the shop component
+ *   for locations (/lib/location/components/shop.c). 
+ *   
  */
 
 inherit room       "/lib/room.c";
@@ -120,6 +125,11 @@ void init()
 {
   room::init();
   actions::init();
+}
+
+void dest_me() 
+{
+  inventory::dest_me();
 }
 
 // returns 1 if the object can be sold to the shop, 0 if can not

@@ -17,19 +17,21 @@
  *
  * Modified for Hexagon, made generic to handle every type 
  * of venture if needed, neverbot 10/2021
+ * 
  */
 
+#include <mud/config.h>
 #include <room/ventures.h>
+#include <room/location.h>
 
 inherit "/lib/core/object.c";
 
 #define HOME "/room/weather_room.c"
 #define SAVE_FILE "/save/ventures/ventures"
 
-// Las actualizaciones de tiendas se llaman cada minuto, cuando la lista de tiendas
-// termina vuelve a empezar por el principio. Si hemos hecho la lista completa en menos de 
-// este tiempo, no volvemos a empezar
-// 60 segundos * 60 minutos * 2 horas = 7200 segundos
+// Shop updates are called every minute, when the list of shops ends, it starts again
+// If we have done the complete list in less time, we do not start again
+// 60 seconds * 60 minutes * 2 hours = 7200 seconds
 #define UPDATE_TIME 7200
 
 // class action
@@ -144,7 +146,7 @@ int update_ventures()
   current_shop = "";
   current_good = "";
   permanent_goods_paths = ({ });
-  new_object;
+  new_object = nil;
   obs = ({ });
 
   debug("ventures", "update_ventures...\n");
@@ -157,11 +159,60 @@ int update_ventures()
 
   current_shop = shops[next_shop];
 
-  debug("ventures", "updating content of " + current_shop + "\n");
+  // code for locations
+  // check if the current_shop is a location (file ends with .o)
+  if (current_shop[strlen(current_shop) - 2..strlen(current_shop) - 1] == ".o")
+  {
+    current_shop_ob = load_object(LOCATION_HANDLER)->load_location(current_shop);
+
+    // shop location does not load, should not happen, just continue
+    if (!current_shop_ob)
+      debug("ventures", "location object for " + current_shop + " didn't load\n");
+    else
+    {
+      // get its shop component
+      current_shop_ob = current_shop_ob->query_component_by_type(LOCATION_COMPONENT_SHOP);
+
+      // shop component missing... what the hell?
+      if (!current_shop_ob)
+        debug("ventures", "shop component for location " + current_shop + " is missing\n");
+    }
+  }
+  else // is a room, not a location
+  {
+    string location_file_name;
+
+    catch(current_shop_ob = load_object(current_shop));
+
+    // do this only if we are using the location system, because it will
+    // remove rooms from the venture handler, changing them for the locations
+    if (current_shop_ob && CONFIG_USE_LOCATIONS)
+    {
+      // what would be the location if this room would have one?
+      location_file_name = load_object(LOCATION_HANDLER)->get_location_file_name_from_room(load_object(current_shop));
+
+      // the save file for the alternative location already exists
+      if (file_size(location_file_name) > 0)
+      {
+        // add the location if not already added
+        if (member_array(location_file_name, shops) == -1)
+        {
+          debug("ventures", "location shop " + location_file_name + " added as alternative to " + current_shop + "\n");
+          shops += ({ location_file_name });
+        }
+
+        // remove the old room shop
+        debug("ventures", "shop " + current_shop + " removed from handler\n");        
+        shops -= ({ current_shop });
+
+        current_shop_ob = load_object(LOCATION_HANDLER)->load_location(location_file_name);
+      }
+    }
+  }
+
+  debug("ventures", "updating content of " + current_shop + " " + trim(to_string(current_shop_ob)) + "\n");
 
   obs = ({ });
-  
-  catch(current_shop_ob = load_object(current_shop));
   
   if (!current_shop_ob)
   {
@@ -170,6 +221,11 @@ int update_ventures()
   }
   else
   {
+    // create a temporary vault so every operation here
+    // uses the same vault without having to recreate it every
+    // query_how_many_in_inventory, etc
+    current_shop_ob->create_vault();
+
     permanent_goods = current_shop_ob->query_permanent_goods();
     permanent_goods_paths = keys(permanent_goods);
     
@@ -178,18 +234,21 @@ int update_ventures()
     {
       current_good = permanent_goods_paths[i];
     
+      debug("ventures", "checking " + current_good + "\n");
+
       // check if something is wrong with the item
       if (intp(permanent_goods[current_good]) && 
-         (load_object(current_good)))
+         (new_object = load_object(current_good)))
       {
-        new_object = clone_object(current_good);
+        // new_object = clone_object(current_good);
 
         how_many_in_shop = current_shop_ob->query_how_many_in_inventory(new_object->query_main_plural());
-        
+        debug("ventures", "we have " + how_many_in_shop + " " + current_good + "\n");
+
         // if the max amount is returned, the shop is busy, we can't do anything
-        if (how_many_in_shop == MAX_AMOUNT_OF_THINGS)
+        if (how_many_in_shop >= MAX_AMOUNT_OF_THINGS)
         {
-          new_object->dest_me();
+          // new_object->dest_me();
           break;
         }
 
@@ -204,25 +263,29 @@ int update_ventures()
           pending_clones += ({ action });
         }
 
-        new_object->dest_me();
+        // new_object->dest_me();
       
       } // if the item loads
     } // for every item to add to the shop
 
-    next_shop++;
+    current_shop_ob->destroy_vault();
 
+    next_shop++;
   } // if the shop loads
 
   // call_out after checking every object
   if (sizeof(pending_clones))
+  {
+    debug("ventures", "pending clones: " + to_string(pending_clones) + "\n");
     call_out("update_pending_clones", 5);
+  }
   
   save_handler();
   
   // de-stocking every once in a while 
   // items which are not permanent_goods will be removed
-  if (random(2) == 1)
-    call_out("reset_stock", 15, current_shop);
+  // if (random(2) == 1)
+  //   call_out("reset_stock", 15, current_shop);
 
   return 1;
 }
@@ -239,7 +302,11 @@ void reset_stock(string shop)
   if (!shop_ob)
     return;
   
-  shop_ob->reset_stock();  
+  shop_ob->create_vault();
+ 
+  shop_ob->reset_stock();
+
+  shop_ob->destroy_vault();
 }
 
 void update_pending_clones()
@@ -252,7 +319,9 @@ void update_pending_clones()
 
   shop_name = "";
   list = ({ });
-  
+
+  debug("ventures", "update pending clones ...\n");
+
   // every item of the same shop
   while (sizeof(pending_clones) &&
         (action_info = pending_clones[0]) &&
@@ -260,14 +329,25 @@ void update_pending_clones()
   {
     // first action sets the shop
     if (!strlen(shop_name))
+    {
       shop_name = action_info[0];
 
+      // if the shop name ends in .o, its a location shop component
+      if (shop_name[strlen(shop_name) - 2..strlen(shop_name) - 1] == ".o")
+      {
+        shop = load_object(LOCATION_HANDLER)->load_location(shop_name);
+        if (shop)
+          shop = shop->query_component_by_type(LOCATION_COMPONENT_SHOP);
+      }
+      else
+        shop = load_object(shop_name);
+    }
     // if it is a different shop, do not update
-    if (shop_name != action_info[0])
+    else if (shop_name != action_info[0])
       break;
 
     // something does not load
-    if (!(shop = load_object(action_info[0])) || !load_object(action_info[1]))
+    if (!shop || !load_object(action_info[1]))
     {
       pending_clones -= ({ pending_clones[0], });
       continue;
@@ -280,10 +360,16 @@ void update_pending_clones()
     // remove the pending action
     pending_clones -= ({ pending_clones[0], });
   }
-  
-  // move every item in a single call
+
   if (shop && sizeof(list))
+  {
+    shop->create_vault();
+
+    // move every item in a single call
     shop->load_objects_from_handler(list);        
+
+    shop->destroy_vault();
+  }
   
   save_handler();
   
