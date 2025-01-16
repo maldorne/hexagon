@@ -382,6 +382,31 @@ string fix_enye_mode(string mess)
     return ret;
 }
 
+// clean a string of every colour_map code before fix_string,
+// to show the string without colours
+// useful for debug, tables, etc
+string clean_string(string ret, varargs object user)
+{
+  string *st;
+  mapping colour_map;
+  int i;
+
+  colour_map = set_term_type("dumb");
+
+  st = explode(ret, "%^");
+  ret = "";
+
+  for (i = 0; i < sizeof(st); i++)
+  {
+    if (colour_map[st[i]])
+      ret += colour_map[st[i]];
+    else
+      ret += st[i];
+  }
+
+  return ret;
+}
+
 // called from the fix_string efun
 string _fix_string(string ret, varargs object user)
 {
