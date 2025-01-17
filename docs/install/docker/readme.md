@@ -15,18 +15,19 @@ And having access to some kind of command-line terminal.
 
 ### How to use in a Docker container
 
-1. Build the image:
+- Use the image:
 
-   `docker build --no-cache . -t ghcr.io/maldorne/hexagon:latest`
+  - Download the image from the repository `docker pull ghcr.io/maldorne/hexagon:latest`
+  - or generate it yourself `docker build --no-cache . -t ghcr.io/maldorne/hexagon:latest`
 
-2. Run the container in background:
+- Run the container in background:
 
-   - `docker run --rm -d -p 23:5000 --name hexagon ghcr.io/maldorne/hexagon:latest`
-   - `docker stop hexagon` will stop the container.
+  - `docker run --rm -d -p 23:5000 --name hexagon ghcr.io/maldorne/hexagon:latest`
+  - `docker stop hexagon` will stop the container.
 
-3. Connect to the container if needed (it has to be running, see previous step):
+- Connect to the container if needed (it has to be running, see previous step):
 
-   `docker exec -it hexagon bash`
+  - `docker exec -it hexagon bash`
 
 If you make changes to the image, push it after building it:
 
