@@ -3,15 +3,12 @@
 
 inherit CMD_BASE;
 
-string query_usage()
+void setup()
 {
-  return "stats <nombre or id> [filter-1 filter-2 ... filter-n]";
-}
-
-string query_help()
-{
-  return "Shows all stats of given object.\n" + 
-         "(or only those which name contains some of the filter key words).\n";
+  set_aliases(({ "stats" }));
+  set_usage("stats <name or id> [filter-1 filter-2 ... filter-n]");
+  set_help("Shows all stats of given object.\n" + 
+         "(or only those which name contains some of the filter key words).\n");
 }
 
 static int cmd(string str, object me, string verb) 
