@@ -41,16 +41,16 @@ This will create the `dgd` executable in the `dgd/bin` directory. Now we have to
 ### Edit the configuration files
 
 ```sh
-cp hexagon/docs/install/config.example.dgd config.dgd
-cp hexagon/docs/install/mud.sh .
-chmod a+x mud.sh
+cp hexagon/docs/install/config.example.dgd hexagon/config.dgd
+cp hexagon/docs/install/mud.sh hexagon/
+chmod a+x hexagon/mud.sh
 ```
 
-Now edit the `./config.dgd` file, changing the directory field to the absolute path of the `hexagon/mudlib` directory (must end in `/whatever/hexagon/mudlib` without an ending slash).
+Now edit the `hexagon/config.dgd` file, changing the directory field to the absolute path of the `hexagon/mudlib` directory (must end in `/whatever/hexagon/mudlib` without an ending slash).
 
 ### Executing the game
 
-- Run `./mud.sh` to execute the game.
+- Run `hexagon/mud.sh` to execute the game.
 - Use `telnet localhost 6047` to connect and see if everything is working.
 
 By default you will have an administrator account created, with username `admin`, email `admin@maldorne.org` and password `hexagon`.
@@ -61,7 +61,7 @@ Some advanced information you will probably never need: DGD allows generating sn
 
 Inside the game, use:
 
- - `exec dump_state()` and a new `snapshot` file will be generated in `/tmp/snapshot` (if you have an older one, it will be moved to `/tmp/snapshot.old`).
- - `exec shutdown(1)` and a new `snapshot` file will be generated in `/tmp/snapshot`, _AND_ the mud will be restored using the commands provided in the `hotboot` parameters in the `config.dgd` file.
+ - `exec dump_state()` and a new `snapshot` file will be generated in `hexagon/mudlib/tmp/snapshot` (if you have an older one, it will be moved to `hexagon/mudlib/tmp/snapshot.old`).
  - If you have a snapshot file, you can start the game using `dgd <path of config file> <path of snapshot file>`, and the game will be restored using the database dump provided, and calling `restored` in the `driver` object.
- - FYI: you can also use `exec swapout()` to swap out all the objects to `/tmp/swap` and clean up memory.
+ - If you have started the game using a snapshot, you can `exec shutdown(1)` and a new `snapshot` file will be generated in `hexagon/mudlib/tmp/snapshot`, _AND_ the mud will be restored using the commands provided in the `hotboot` parameters in your `config.dgd` file.
+ - FYI: you can also use `exec swapout()` to swap out all the objects to `hexagon/mudlib/tmp/swap` and clean up memory.
