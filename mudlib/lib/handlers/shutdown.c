@@ -12,6 +12,7 @@
  */
 
 #include <areas/weather.h>
+#include <language.h>
 
 inherit "/lib/core/object";
 
@@ -22,11 +23,10 @@ inherit "/lib/core/object";
 //                                       // the same time 
 #define REBOOT_MEMORY 42 * 1024 * 1024
 
-
 int shutdown_in_progress;
 int time_of_crash;
 int closed;
-int ishout(string str, int muff);
+int ishout(string str, varargs int muff, int notification);
 void do_delay_prop();
 
 void create()
@@ -46,24 +46,24 @@ void setup()
     return;
   }
 
-  set_name("heraldo");
-  set_living_name("heraldo");
-  set_short("El Heraldo de los Dioses");
-  set_long("Un magnífico ejemplar de Ángel femenino esta aquí esperando " +
-           "a que los Dioses le indiquen cuando llegará una nueva Era.\n");
+  set_name(_LANG_SHUTDOWN_NAME);
+  set_living_name(_LANG_SHUTDOWN_NAME);
+  set_short(_LANG_SHUTDOWN_SHORT);
+  set_long(_LANG_SHUTDOWN_LONG);
   add_alias("shutdown");
 
   move("bing");
 
   reset_get();
   reset_drop();
+
   call_out("do_delay_prop", 0);
 
   // Radix...
   // if (this_player())
   // {
      // call_out("delayed_safety", 5, this_player()->query_cap_name());
-     // tell_room(environment(this_object()),"¡El Heraldo comienza una cuenta atrás de 5 segundos!\n");
+     // tell_room(environment(this_object()),"The Herald starts a countdown of 5 seconds!\n");
   // }
 }
 
@@ -99,7 +99,7 @@ void delayed_safety(string name)
 */
  
 // Radix was here
-int ishout(string str, int muff)
+int ishout(string str, varargs int muff, int notification)
 {
   object * all;
   int i;
@@ -109,8 +109,15 @@ int ishout(string str, int muff)
   for (i = 0; i < sizeof(all); i++)
   {
     if (all[i])
-      if (muff && all[i]->query_earmuffs()) continue;
-        tell_object(all[i],"\n"+str+"\n");
+    {
+      if (muff && all[i]->query_earmuffs()) 
+        continue;
+
+      if (notification)
+        all[i]->add_notification("mud", str);
+      else
+        tell_object(all[i], "\n" + str + "\n");
+    }
   }
 
   return(1);
@@ -131,17 +138,20 @@ void heart_beat()
     set_heart_beat(0);
     return;
   }
-   // "Gracefully" go down on intermud - Radix : Jan 5, 1996
+  
+  // "Gracefully" go down on intermud - Radix : Jan 5, 1996
   if (time_to_crash < 10)  
   {
-    ishout("El destino del mundo se decidirá en "+time_to_crash+" segundos.",0);
+    ishout(_LANG_SHUTDOWN_IN_SECONDS, 0);
     return;
   }
+
   if (time_to_crash < 60 && time_to_crash % 10 < 2) 
   {
-    ishout("El destino del mundo se decidirá en "+time_to_crash+" segundos.",0);
+    ishout(_LANG_SHUTDOWN_IN_SECONDS, 0);
     return;
   }
+
   if (time_to_crash % 60 > 1) 
     return;
   
@@ -149,47 +159,37 @@ void heart_beat()
   
   if (time_to_crash < 10 || !(time_to_crash % 10)) 
   {
-    if (time_to_crash > 3)
-    {
-      ishout("El destino del mundo se decidirá en "+time_to_crash+
-        " minutos.",1);
-    }
+    if (time_to_crash == 1)
+      ishout(_LANG_SHUTDOWN_IN_ONE_MINUTE, 0, 1);
     else
-      ishout("El destino del mundo se decidirá en "+time_to_crash+
-        " minuto"+((time_to_crash == 1)?"":"s")+".",0);
+      ishout(_LANG_SHUTDOWN_IN_MINUTES, 1, 1);
+
     return;
   }
 } /* heart_beat() */
  
 void shut(int minutes)
 {
-  // string fname;
-  
   if (!intp(minutes)) 
   {
-    write("Argumento incorrecto.\n");
+    write(_LANG_SHUTDOWN_WRONG_PARAM);
     return;
   }
-
-  // fname = file_name(previous_object());
 
   if (minutes < 0) 
   {
-    write("Argumento incorrecto.\n");
+    write(_LANG_SHUTDOWN_WRONG_PARAM);
     return;
   }
 
-  set_long("Es un Ángel femenino, de belleza inconmensurable, firmemente concentrada " +
-           "en la cuenta atrás.\n");
+  set_long(_LANG_SHUTDOWN_LONG2);
 
   if (time_of_crash > 0)
-    write("Ya estaba programado el reinicio del mud, dentro de "+
-      (time_of_crash - time()) + " segundos.\n");
+    write(_LANG_SHUTDOWN_ALREADY);
 
-  time_of_crash = time() + minutes*60;
+  time_of_crash = time() + minutes * 60;
 
-  write("Reinicio del mundo dentro de "+
-    (time_of_crash - time()) + " segundos.\n");
+  write(_LANG_SHUTDOWN_ACCEPT);
 
   shutdown_in_progress = 1;
   set_heart_beat(1);
@@ -198,9 +198,7 @@ void shut(int minutes)
 string long(string str, int dark) 
 {
   if (time_of_crash && this_player()->query_coder())
-   return ::long(str,dark) +
-      "El destino del mundo se decidirá en "+(time_of_crash - time())+
-      " segundos.\n";
+   return ::long(str,dark) + _LANG_SHUTDOWN_EXTRA_LONG;
 
   return ::long(str,dark);
 }
@@ -210,7 +208,7 @@ void end_it_all()
   int i;
   object *obs;
  
-  ishout("¡Mud cerrándose!\n", 0);
+  ishout(_LANG_SHUTDOWN_MUD_CLOSING, 0);
 
   obs = users();
   
@@ -252,14 +250,14 @@ int clean_up()
  
 void dest_me() 
 {
-  if (!this_player())
-    log_file("game_log", "["+ctime(time())+"] Shutdown cancelled\n");
-
   closed = 0;
   
   // Radix...
   if (this_player())
-    log_file("game_log", "["+ctime(time())+"] Shutdown cancelled by "+this_player()->query_cap_name()+".\n");
+    log_file("game_log", "[" + ctime(time()) + "] Shutdown cancelled by " + 
+             this_player()->query_cap_name() + ".\n");
+  else
+    log_file("game_log", "[" + ctime(time()) + "] Shutdown cancelled\n");
 
   ::dest_me();
 }
@@ -277,16 +275,9 @@ void auto_reboot()
   {
     shut(10);
 
-    /*
-    shout("Armageddon crawls out from behind the bar of the "
-    "Ladyluck tavern, and seeing that the place is out of beer "
-    "he shouts: Prepare to enter primal chaos in 10!!.\n");
-    */
-    shout("El fin del mundo está a punto de sobrevenir...\nLa totalidad de la existencia " +
-        "será destruida y un nuevo mundo se reconstruirá sobre sus cenizas...\n\n\t" +
-        "%^BOLD%^Dentro de diez minutos.\n");
-    log_file("game_log", "Auto reboot en: " + ctime(time()) + "\n" +
-        "   (uptime: " + (uptime()/3600) + " horas - uso de memoria: " +
+    shout(_LANG_SHUTDOWN_AUTO_REBOOT);
+    log_file("game_log", "[" + ctime(time()) + "] Auto reboot started " +
+        "(uptime: " + (uptime()/3600) + " hours - use of memory: " +
         memory_info() + ")\n");
   }
 }

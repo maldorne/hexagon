@@ -74,3 +74,20 @@
 #define _LANG_WEAPONS_NON_SLASHING_MSG_5 ", provoking serious pain"
 #define _LANG_WEAPONS_NON_SLASHING_MSG_6 ", provoking light pain"
 #define _LANG_WEAPONS_NON_SLASHING_MSG_7 ", provoking mortal wounds"
+
+// shutdown.c
+
+#define _LANG_SHUTDOWN_NAME "herald"
+#define _LANG_SHUTDOWN_SHORT "The Herald of the Gods"
+#define _LANG_SHUTDOWN_LONG "A celestial herald waiting for the Gods to tell him when a new Era will come.\n"
+#define _LANG_SHUTDOWN_LONG2 "A celestial herald, of immense beauty, firmly focused on the countdown.\n"
+#define _LANG_SHUTDOWN_EXTRA_LONG "The destiny of the world will be decided in "+(time_of_crash - time())+" seconds.\n"
+#define _LANG_SHUTDOWN_IN_SECONDS "The destiny of the world will be decided in "+time_to_crash+" seconds."
+#define _LANG_SHUTDOWN_IN_MINUTES "The destiny of the world will be decided in "+time_to_crash+" minutes."
+#define _LANG_SHUTDOWN_IN_ONE_MINUTE "The destiny of the world will be decided in 1 minute."
+#define _LANG_SHUTDOWN_WRONG_PARAM "Wrong argument.\n"
+#define _LANG_SHUTDOWN_ALREADY "The shutdown was already scheduled, within "+(time_of_crash - time())+" seconds.\n"
+#define _LANG_SHUTDOWN_ACCEPT "Shutdown scheduled, within "+(time_of_crash - time())+" seconds.\n"
+#define _LANG_SHUTDOWN_MUD_CLOSING "The mud is closing!\n"
+#define _LANG_SHUTDOWN_AUTO_REBOOT "The end of the world is coming...\nA new world will be " + \
+    "built on its ashes...\n\n\t%^BOLD%^Within ten minutes%^RESET%^.\n"

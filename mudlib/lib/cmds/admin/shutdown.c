@@ -6,7 +6,12 @@ inherit CMD_BASE;
 
 void setup()
 {
-  position = 1;
+  set_aliases(({ "shutdown" }));
+  set_usage("shutdown <time>");
+  set_help("Starts a process to shut down the mud.\n" + 
+          "Use with no arguments to see how much time is left.\n" + 
+          "Use time in minutes to specify when the mud will be shut down.\n" +
+          "Use 'shutdown off' to cancel a shutdown in progress.\n");
 }
 
 static int cmd(string arg, object me, string verb) 
@@ -19,23 +24,29 @@ static int cmd(string arg, object me, string verb)
 
   if (!strlen(arg)) 
   {
-     ob = handler("shutdown");
-     if (!ob || !ob->shutdown_activated())
-       write("No shutdown in progress.\n\tSyntax: shutdown <minutes>\nto start one.\n");
-     else
-       write("Still "+ob->query_time_to_crash()/60+" minutes left to shutdown.\n"+
-                "   'shutdown off' to cancel it.\n");
-     return 1;
+    ob = handler("shutdown");
+    if (!ob || !ob->shutdown_activated())
+      write("No shutdown in progress.\nSyntax: " + query_usage() + "\n");
+    else
+    {
+      if (ob->query_time_to_crash()/60 < 1)
+        write("Less than a minute left to shutdown.\n"+
+            "Use 'shutdown off' to cancel it.\n");
+      else        
+        write("Still "+ob->query_time_to_crash()/60+" minutes left to shutdown.\n"+
+            "Use 'shutdown off' to cancel it.\n");
+    }
+    return 1;
   }
   
   if (!SECURE_OB->high_programmer( geteuid(me) ) )
   {
-     upt = uptime();
-     if ((upt/(60*60)%24) < 3) 
-     {
-       write("It has not been 3 hours yet since mud started. Perhaps you should wait awhile.\n");
-       return 1;
-     }
+    upt = uptime();
+    if ((upt/(60*60)%24) < 3) 
+    {
+      write("It has not been 3 hours yet since mud started. Perhaps you should wait awhile.\n");
+      return 1;
+    }
   }
   
   sscanf(arg, "%d %s", tim, arg);
@@ -52,25 +63,32 @@ static int cmd(string arg, object me, string verb)
   else
   */
 
-  // Cancelar shutdown añadido por neverbot, 23/4/2003
+  // cancel shutdown added by neverbot, 23/4/2003
   if ((arg == "off") && SECURE_OB->high_programmer(geteuid(me)))
   {
-    write("Shutdown cancelled.\n");
+    ob = handler("shutdown");
+
+    if (!ob || !ob->shutdown_activated())
+      write("No shutdown in progress.\n");
+    else
+      write("Shutdown cancelled.\n");
+
     handler("shutdown")->dest_me();
     return 1;
   }
 
   if (arg != "off")
   {
-      ret += "["+ctime(time())+"] Shutdown started by: ";
-      ret += (string)me->query_name();
-      ret += "\n  ("+arg+" minutes)\n";
-      ret += "  (Memory usage: "+memory_status()+")\n";
+    ret += "["+ctime(time())+"] Shutdown started by: ";
+    ret += (string)me->query_cap_name();
+    ret += "\n  ("+arg+" minutes)\n";
+    ret += "  (Memory usage: "+memory_status()+")\n";
 
-      log_file("game_log", ret);
+    log_file("game_log", ret);
   }
   
-  write("Ok... shutting down the mud.\n");
+  // message already given from the handler
+  // write("Ok... shutting down the mud.\n");
 
   handler("shutdown")->shut(tim);
   return 1;

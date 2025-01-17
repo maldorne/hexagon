@@ -74,3 +74,26 @@
 #define _LANG_WEAPONS_NON_SLASHING_MSG_5 ", provocando serios dolores"
 #define _LANG_WEAPONS_NON_SLASHING_MSG_6 ", provocando ligeros moratones"
 #define _LANG_WEAPONS_NON_SLASHING_MSG_7 ", provocando mortales heridas"
+
+// shutdown.c
+
+#define _LANG_SHUTDOWN_NAME "heraldo"
+#define _LANG_SHUTDOWN_SHORT "El Heraldo de los Dioses"
+#define _LANG_SHUTDOWN_LONG "Un ángel celestial que está esperando " + \
+           "a que los Dioses le indiquen cuando llegará una nueva Era.\n"
+#define _LANG_SHUTDOWN_LONG2 "Un ángel celestial, de belleza inconmensurable, firmemente concentrado " + \
+           "en la cuenta atrás.\n"
+#define _LANG_SHUTDOWN_EXTRA_LONG "El destino del mundo se decidirá en "+(time_of_crash - time())+ \
+      " segundos.\n"
+#define _LANG_SHUTDOWN_IN_SECONDS "El destino del mundo se decidirá en "+time_to_crash+" segundos."
+#define _LANG_SHUTDOWN_IN_MINUTES "El destino del mundo se decidirá en "+time_to_crash+" minutos."
+#define _LANG_SHUTDOWN_IN_ONE_MINUTE "El destino del mundo se decidirá en 1 minuto."
+#define _LANG_SHUTDOWN_WRONG_PARAM "Argumento incorrecto.\n"
+#define _LANG_SHUTDOWN_ALREADY "Ya estaba programado el reinicio del mud, dentro de "+ \
+      (time_of_crash - time()) + " segundos.\n"
+#define _LANG_SHUTDOWN_ACCEPT "Reinicio del mundo dentro de "+ \
+    (time_of_crash - time()) + " segundos.\n"
+#define _LANG_SHUTDOWN_MUD_CLOSING "¡Mud cerrándose!\n"
+#define _LANG_SHUTDOWN_AUTO_REBOOT "El fin del mundo está a punto de sobrevenir...\nLa totalidad de la existencia " + \
+        "será destruida y un nuevo mundo se reconstruirá sobre sus cenizas...\n\n\t" + \
+        "%^BOLD%^Dentro de diez minutos%^RESET%^.\n"
