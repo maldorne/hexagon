@@ -31,7 +31,7 @@ And having access to some kind of command-line terminal.
 
 If you make changes to the image, push it after building it:
 
-`docker push ghcr.io/maldorne/hexagon:latest`
+`docker push ghcr.io/maldorne/hexagon:latest` but have in mind it will add to the image anything you have in the hexagon directory. It is better to rely on the automatic image creation done by the CI/CD pipeline.
 
 To update the version you have in your computer, pull the image from the repository:
 
