@@ -46,16 +46,13 @@ int really_quit()
 
   if (this_object()->query_name() != DEF_NAME)
   {
-    if (this_object()->query_property(GUEST_PROP))
-      log_file("enter", sprintf("Exit  : %-15s %s (guest) [%s]\n",
+      log_file("enter", sprintf("Exit  : %-15s %s%s [%s]\n",
                                 name, ctime(time(), 4),
-                                query_ip_number(user)+
-                                  " ("+query_ip_name(user)+")"));
-    else
-      log_file("enter", sprintf("Exit  : %-15s %s [%s]\n",
-                                name, ctime(time(), 4),
-                                query_ip_number(user)+
-                                  " ("+query_ip_name(user)+")"));
+                                (this_object()->query_property(GUEST_PROP) ? " (guest)" : ""),
+                                (query_ip_number(user) ? 
+                                 query_ip_number(user) + " (" + query_ip_name(user) + ")" : 
+                                 "no ip - reconnect after snapshot?")
+                                ));
   }
 
   // TODO editor
