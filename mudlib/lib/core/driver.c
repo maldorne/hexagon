@@ -111,6 +111,16 @@ static nomask void initialize()
   log_driver("\n[" + date + "] ** " + "Initialization complete.\n\n");
 }
 
+// Called after the system has restarted from a snapshot. The argument
+// will be 1 if connections and editor sessions were restored as well.
+static nomask void restored(varargs int hotboot)
+{
+  string date;
+  date = ::ctime(time())[4 .. 18];
+
+  log_driver("\n[" + date + "] ** " + "System restored.\n\n");
+}
+
 // Called from stderr efun (so it shouldn't be static)
 nomask void _stderr(string str)
 {
