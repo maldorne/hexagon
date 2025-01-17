@@ -21,9 +21,10 @@ And having access to some kind of command-line terminal.
 
 2. Run the container in background:
 
-   `docker run --rm -d -p 23:5000 --name hexagon ghcr.io/maldorne/hexagon:latest`
+   - `docker run --rm -d -p 23:5000 --name hexagon ghcr.io/maldorne/hexagon:latest`
+   - `docker stop hexagon` will stop the container.
 
-3. Connect to the container if needed:
+3. Connect to the container if needed (it has to be running, see previous step):
 
    `docker exec -it hexagon bash`
 

@@ -32,9 +32,9 @@ Next milestone *[v2.1 Daggerfall](docs/roadmap.md#v21-daggerfall)*.
 Take a look to the installation instructions, it explains how to install, configure and execute 
 the Hexagon mudlib using different methods:
 * a) Recommended: [using a Docker container](/docs/install/docker/readme.md).
-* b) [Compiling it yourself](/docs/install/compile/readme.md): Compiling the DGD driver and
-  executing it in a Unix environment (Unix, Linux, OS X, etc)
-* c) [Using a virtual machine](/docs/install/vm/readme.md): Install a VirtualBox
+* b) [Using a virtual machine](/docs/install/vm/readme.md): Install a VirtualBox
   virtual machine already configured using vagrant.
+* c) [Compiling it yourself](/docs/install/compile/readme.md): Compiling the DGD driver and
+  executing it in a Unix environment (Unix, Linux, OS X, etc)
 
 
