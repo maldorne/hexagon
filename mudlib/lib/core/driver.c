@@ -388,7 +388,6 @@ void recompile(object obj)
   log_driver(" - trying to recompile object " + object_name(obj) + "\n");
 }
 
-
 // An object which has been marked by call_touch() is about to have the
 // given function called in it.  A non-zero return value indicates that the
 // object's "untouched" status should be preserved through the following
