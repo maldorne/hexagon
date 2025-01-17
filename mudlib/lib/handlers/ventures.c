@@ -206,6 +206,9 @@ int update_ventures()
         shops -= ({ current_shop });
 
         current_shop_ob = load_object(LOCATION_HANDLER)->load_location(location_file_name);
+        // get its shop component
+        if (current_shop_ob)
+          current_shop_ob = current_shop_ob->query_component_by_type(LOCATION_COMPONENT_SHOP);
       }
     }
   }
