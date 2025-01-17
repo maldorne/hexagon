@@ -278,48 +278,49 @@ static void receive_message(string str)
   mixed * old_context;
   int i;
 
-  rlimits (MAX_USER_DEPTH; MAX_USER_TICKS)
+  timestamp = time();
+
+  // restore the original echo value
+  if (echo == 0)
   {
-    timestamp = time();
+    echo = 1;
+    ::send_message(1);
+  }
 
-    // restore the original echo value
-    if (echo == 0)
+  // avatar object has been destroyed somehow... should not happen, but
+  // let's check just in case
+  if (!_player && _player_name)
+  {
+    stderr(" ~~~ user::receive_message() without player object, disconnecting\n");
+
+    // I tried to restore the player object here, but we have to repeat the process 
+    // done in login::begin, user::start and player::start, too many things could
+    // go wrong, so I think it is better just to disconnect the user
+
+    write(_LANG_USER_PLAYER_RESTORE_ERROR);
+    // dest_me will try to destruct both the player and user (this object) objects
+    dest_me();
+    return;
+  }
+
+  // input_to redirection
+  if (redirect_input_ob)
+  {
+    stderr(" ~~~ user::receive_message() with input_to()\n");
+
+    // the new line has content, so we have a new this_player()
+    // preserve current context
+    old_context = MUDOS->query_execution_context();
+
+    MUDOS->set_current_verb("");
+    MUDOS->set_current_command("");
+    MUDOS->set_notify_fail_msg("");
+    // to have this_player() inside an input_to redirection
+    MUDOS->set_initiator_user(this_object());
+    MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
+
+    rlimits (MAX_USER_DEPTH; MAX_USER_TICKS)
     {
-      echo = 1;
-      ::send_message(1);
-    }
-
-    // avatar object has been destroyed somehow... should not happen, but
-    // let's check just in case
-    if (!_player && _player_name)
-    {
-      stderr(" ~~~ user::receive_message() without player object, disconnecting\n");
-
-      // I tried to restore the player object here, but we have to repeat the process 
-      // done in login::begin, user::start and player::start, too many things could
-      // go wrong, so I think it is better just to disconnect the user
-
-      write(_LANG_USER_PLAYER_RESTORE_ERROR);
-      // dest_me will try to destruct both the player and user (this object) objects
-      dest_me();
-      return;
-    }
-
-    // input_to redirection
-    if (redirect_input_ob)
-    {
-      stderr(" ~~~ user::receive_message() with input_to()\n");
-
-      // the new line has content, so we have a new this_player()
-      // preserve current context
-      old_context = MUDOS->query_execution_context();
-
-      MUDOS->set_current_verb("");
-      MUDOS->set_current_command("");
-      MUDOS->set_notify_fail_msg("");
-      // to have this_player() inside an input_to redirection
-      MUDOS->set_initiator_user(this_object());
-      MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
 
       tmp_redirect_obj  = redirect_input_ob;
       tmp_redirect_func = redirect_input_function;
@@ -338,35 +339,39 @@ static void receive_message(string str)
         write_prompt();
       }
 
-      // restore the context when the input was redirected
-      MUDOS->restore_execution_context(old_context);
+    } // rlimits
 
-      stderr(" ~~~ end user::receive_message() with input_to()\n");
-      return;
-    }
+    // restore the context when the input was redirected
+    MUDOS->restore_execution_context(old_context);
 
-    // old ccmudlib process_input content
+    stderr(" ~~~ end user::receive_message() with input_to()\n");
+    return;
+  }
 
-    // Taniwha crash workround
-    // if ( !strsrch(str, "%^") )
-    //   return;
+  // old ccmudlib process_input content
 
-    // while ( str[<1..<1] == " " )
-    //    str = str[0..<2];
-    str = trim(str);
+  // Taniwha crash workround
+  // if ( !strsrch(str, "%^") )
+  //   return;
 
-    stderr(" ~~~ user::receive_message()\n");
+  // while ( str[<1..<1] == " " )
+  //    str = str[0..<2];
+  str = trim(str);
 
-    // the new line has content, so we have a new this_player()
-    // preserve current context
-    old_context = MUDOS->query_execution_context();
+  stderr(" ~~~ user::receive_message()\n");
 
-    MUDOS->set_current_verb("");
-    MUDOS->set_current_command("");
-    MUDOS->set_notify_fail_msg("");
-    MUDOS->set_initiator_user(this_object());
-    MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
+  // the new line has content, so we have a new this_player()
+  // preserve current context
+  old_context = MUDOS->query_execution_context();
 
+  MUDOS->set_current_verb("");
+  MUDOS->set_current_command("");
+  MUDOS->set_notify_fail_msg("");
+  MUDOS->set_initiator_user(this_object());
+  MUDOS->set_initiator_object(this_object()->player() ? this_object()->player() : this_object());
+
+  rlimits (MAX_USER_DEPTH; MAX_USER_TICKS)
+  {
     // if we sent an empty line, we don't want to do anything
     if (!strlen(str) || str == "\n")
     {
@@ -412,12 +417,13 @@ static void receive_message(string str)
       if (_player) _player->action_check(str);
       if (_player) _player->lower_check(str);
     }
-
-    // restore the context when the message was received
-    MUDOS->restore_execution_context(old_context);
-
-    stderr(" ~~~ end user::receive_message()\n");
+    
   } // rlimits
+
+  // restore the context when the message was received
+  MUDOS->restore_execution_context(old_context);
+
+  stderr(" ~~~ end user::receive_message()\n");
 }
 
 // void heart_beat()
