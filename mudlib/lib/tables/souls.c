@@ -7,7 +7,7 @@
 // both languages moved to translations/souls for hexagon
 //     neverbot 01/2025
 
-#include <translations/souls.h>
+#include <translations/soul-data.h>
 
 string query_global_adj()
 {
