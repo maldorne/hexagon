@@ -1,0 +1,139 @@
+
+This is a brief help list on informational tools for the creator.
+
+stats <object>              -- Give information on object.
+whereis <player/monster>    -- Find filename of room where player/monster is.
+creator <object>            -- Find who/what created the <object>.
+pathof <object>             -- Find the file name of the <object>.
+cmds                        -- List all the commands available to you.
+shadows <object>            -- Find shadow objects shadowing <object>.
+inv <object>                -- List the actual contents of <object>.
+people                      -- List all people logged on and their locations.
+grep <filename>             -- See help file.
+du                          -- Find disk space usage of directory.
+
+Usage : stats <person>
+
+Stat is used to return information about the state of an object.  Stats works
+by calling a function stats() on the object and then printing out the returned
+information.  The person may be any living object.
+
+Examples:
+
+stats ducky
+stats longsword
+stats detritus
+
+Usage : whereis <objects>
+
+Whereis gives you the environment of the specified objects.  The objects can
+be specified using the wiz_present specifications.
+
+Examples:
+
+whereis ducky
+whereis orc
+
+Usage : creator <objects>
+
+Creator gives the creator of the file in terms of its filename and also the
+uid and euid of the object.  Objects can be specified using wiz_present
+specification.
+
+Examples:
+
+creator me
+creator all in here
+creator sword
+
+Usage : pathof <objects>
+
+Pathof is used to list the filename of an object.  You can use wiz_present
+specifications to give the objects.
+
+Examples:
+
+pathof me
+pathof everyone
+pathof every orc in here
+
+Usage : cmds
+
+Cmds is the way you have of working out what commands are available to you.
+The commands listed are all the commands made available to your player object
+from /lib/cmds.
+
+Examples:
+
+cmds
+
+Usage : shadows <objects>
+
+Shadows will list the shadows acting on an object.
+
+Examples:
+
+shadows me
+shadows player ben
+shadows duck
+
+Usage : inv [of] <objects>
+
+Inv gives you the inventory of all the objects that are specified.
+
+Examples:
+
+inv here
+inv of here
+inv me
+inv player ducky
+inv
+
+Usage : pe*ople [<player>]
+
+The People command is used to gain information about the other players on the
+MUD. Use the optional <player> arguement to get info on only one player.
+
+Field:-
+ (1) Name - prefixed by a '*' means editing.
+ (2) Position - [G]od, [H]igh Lord, [L]ord, [C]reator, [c]reator playing,
+       [A]pprentice, [a]pprentice playing - and [e]armuffed.
+ (3) Gender.
+ (4) Guild.
+ (5) Level in guild.
+ (6) Age in [D]ays, [h]ours or [m]inutes.
+ (7) Room filename and euid.
+
+See also: finger, terms, netstat, dirs, qpeople, who
+
+Usage : grep <string> <files>
+
+Grep stands for Get Regular ExPression (I think) and if it doesn't, the unix
+version will take a regular expression and search files for it.  The version on
+the mud just takes a string and tries to find all occurances of it through the
+files specified.
+
+Examples:
+
+grep frog /std/living/*.c
+grep this_player() test.c
+grep am /log/APPLICATIONS
+Usage: grep <pattern> <files>
+
+Grep is used to search through the list of files given for any occurance of 
+the pattern.  Useful if you are trying to find every file which has the
+word frog in it for instance.  The optional flag -n means that it doesnt
+print the line that the string occured on, it just prints the file name.
+
+Examples:
+
+grep frog /global/*
+
+grep -n frog *
+
+Usage : du [directory]
+
+Gives a rough calculation of disk space used by a directory.  It uses quite a
+bit of eval time, so don't bother trying to do directories with large sub
+directory structures.
+

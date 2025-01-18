@@ -1,3 +1,0 @@
-void localcmd()
-
-Prints a list of verbs that can be used at the moment.

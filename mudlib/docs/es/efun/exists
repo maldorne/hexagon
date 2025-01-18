@@ -1,5 +1,0 @@
-int exists(string path)
-
-Check if a specified file exists. 'path' can have a leading '/', or it
-can be ommitted. Returns 1 if file (or directory) exists, 0 otherwise.
-

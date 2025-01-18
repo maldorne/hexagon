@@ -1,0 +1,226 @@
+This is a brief editing help list for creators.  Share and enjoy.
+
+ls                       -- Lists the files in the present directory.
+cd <directory>           -- Change the directory to <directory>.
+more <filename>          -- Read the file, one page at a time.
+cat <filename>           -- Read the file, scrolling all at once.
+ed <filename>            -- Edit a file.
+rm <filename>            -- Remove a file.
+mkdir <directory>        -- Create a directory.
+rmdir <directory>        -- Remove a directory.
+homedir <path>           -- Set which directory you are in when you log on.
+update <filename>        -- Update a file to include the changes last made.
+load <filename>          -- Load a file.
+cp <file> <path>         -- Copy a file to another file.
+mv <file> <path>         -- Move a file to another place.
+pwd                      -- Print the present directory.
+tail <filename>          -- Read the last part of the file.
+
+Usage : ls [directory]
+
+ls is used to list the files in a directory.  Directories have a '/' appended
+to them.  If no directory is given, it will default to your current directory.
+You can also specify patterns to match to so that not all files will be listed.
+
+Examples:
+
+ls /std
+ls /std/living/l*.c
+ls /log/F*
+ls examples/*.c
+ls
+
+Usage : cd [directory]
+
+cd is used to change your current directory.  If the directory to change to
+is not specified, you will change into your homedir that is specified with the
+homedir command.  Directories can be specified relative to your current
+or absolutely from the root dir.  The two special directories exist '.' and '..'
+which have the meanings current dir, and next dir up, respectively. for more
+information on this have a look at /doc/general/filesystem.
+
+Examples:
+
+cd /
+cd /home/ducky
+cd
+cd ..
+cd examples
+
+Use: <option> <value> 
+Options (in brackets the default value)
+
+z or (space) - line forward
+f (forward)  - n pages forward (1)
+b (backward) - n pages backwards (1)
+g (goto)     - go to line n (first line)
+G (goto)     - go to line n (end of file)
+/word        - search a line that contains word
+-            - search the next appearance of the last searched word
+.            - show a full page up to the current position
+q o Q        - quit
+h o ?        - shows this help
+
+Usage : ca*t <files>
+
+Cat is used to display files.  As you cannot stop cat from inside the mud, it
+will only display the first 40 lines of the files you display.  This can be
+annoying, but if you need to see more, use the ed or more commands.  The files
+can be specified either relative to your current directory or absolute from the
+root dir.  *'s will be expanded.
+
+Examples:
+
+cat *.c
+cat /log/ENTER
+cat info
+
+Usage : rm <files|dirs>
+
+The rm command is used to remove files from the file system.  For more
+information about the file system, see /doc/general/filesystem.
+
+Examples:
+
+rm test.c
+
+rm test1.c test2.c
+
+rm test*.c
+
+rm *
+
+Usage : mkdir <directory name>
+
+mkdir creates a directory that is part of the file system.  If you need
+more information on directories see /doc/general/filesystem.
+
+Examples:
+
+mkdir /home/ducky/tmp
+
+mkdir test
+
+mkdir test/test2
+
+mkdir ~/test
+
+Usage : rmdir <directory>
+
+rmdir is the opposite of mkdir.  It is used to remove directories.  Directories
+must be empty before they can be removed.  For more information on directories
+see /doc/general/filesystem.
+
+Examples:
+
+rmdir test
+
+rmdir /home/ducky/tmp
+
+rmdir test1/test2
+
+rmdir ~/test
+
+Usage : homedir [directory]
+
+Your homedir is the directory that you will start in when you first log into
+the mud and also the directory you will get to when you type cd with no
+pathname.  The homedir is different to ~.  ~ is /home/<yourname>/.  It is always
+this and cannot be changed.  If you set your homedir to /home/<yourname>/ then
+it will act the same as if you were using ~.
+
+Examples:
+
+homedir
+homedir /d/FR/daggerford
+homedir /std/living
+homedir ~
+
+Usage : update <object specification>
+
+Update is used to bring the copy of an object that the mud is using up to date
+with the copy that is being used on disc.  It is useful when you are editting
+an object.  Before you clone the object after you make any changes, you must
+update it or the mud will not realise the change.  Certain other things are
+equivilant to updating, but it is safer if you just update while you are
+learning.
+Update destructs the existing loaded copy if there is one and then loads the
+new version for you.  If an object is not currently loaded, update will load it
+for you.
+
+Examples:
+
+update /home/ducky/test/*.c
+
+update player.new.c
+
+update test.c
+
+update liv*.c
+
+Usage : load <filenames>
+
+Load is used to take LPC objects that are files on disk, but not loaded in
+memory and load them into memory.  This is done by calling a dummy function on
+the object, forcing the mud to load the object.
+
+Examples:
+
+load fish.c
+
+load f*.c
+
+load fish
+
+load f*
+
+Usage : cp <files> <file|dir>
+
+The cp command is used to duplicate a file.  You can copy it into a different
+directory keeping the same name, or copy it to a file of a different name
+anywhere.  cp will not overwrite files, so you will have to rm the file that
+is already there if you want to replace an old copy of a file with a newer
+one.
+
+Examples:
+
+cp test1 test2
+
+cp test1 testdir
+
+cp test* testdir
+
+Usage : mv <files|dirs> <file|dir>
+
+The mv command is used to rename or move a file.  mv will take a file and move
+it into a different directory keeping the same name, or will move the file into
+a different named file anywhere in the filesystem.  For more information on the
+filesystem see /doc/general/filesystem.
+
+Examples:
+
+mv test1 test2
+
+mv test1 testdir
+
+mv test* testdir
+
+mv test1 test2 testdir
+
+Usage : pwd
+
+Prints your current directory.  All filenames not starting with a ~ or a / will
+be taken relative to your current directory.
+
+Usage : tail <files>
+
+Tail will print the last 30-40 lines of a file.  It is useful for checking
+log files, or just checking files where you know the bit you want to look at
+is on the end of the file.  The files are specified either relative to your
+current path, or absolute from the root dir and will be expanded.
+
+Examples:
+
+tail /*debug.log
+tail /log/ENTER /log/BUG /log/C*
+tail ENTER

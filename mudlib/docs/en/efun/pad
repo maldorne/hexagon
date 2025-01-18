@@ -1,5 +1,0 @@
-string pad(string str, int len, int padchar)
-
-Left or right justify str to len chars. If padchar is not specified,
-defaults to ' '. Default is left justify. To specify right justification,
-make len negative. str can also be a number.

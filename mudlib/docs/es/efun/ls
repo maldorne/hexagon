@@ -1,9 +1,0 @@
-ls
-
-void ls(string path)
-
-List files in an optional path. It is not allowed to use '.' or space in 
-the path. This function is normally connected to the @samp{ls} command that 
-a wiz have.
-
-See also: cat.

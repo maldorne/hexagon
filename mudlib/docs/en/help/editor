@@ -1,0 +1,17 @@
+Help for the line editor:
+
+I - Insert lines: This command asks for a line number
+    and will insert the new text before it.
+D - Delete line: Introduce a range of lines to delete.
+L - Show the lines written.
+M - Modify the text. Introduce a range of lines and the text to
+    substitute within those lines.
+C - Continue editing. It's basically the same as inserting at
+    the end of the text.
+E - Use the 'ed' editor. Use with caution.
+S - Exit the editor and save the text.
+Q - Exit the editor without saving the text (what you wrote will be lost).
+H - Show this help file.
+
+The line ranges are specified as 'number..number',
+    examples: 1..2, or 3..4

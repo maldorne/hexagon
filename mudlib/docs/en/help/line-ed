@@ -1,0 +1,89 @@
+
+When in 'ed', the prompt is ':'.
+
+Ed has two modes, command mode and insert mode. The insert mode has
+no prompt. You exit the insert mode by typing a single '.' on a line.
+
+All commands have the following syntax:
+
+X,Ycmd
+
+or
+Xcmd
+
+For example:
+
+1,10p
+Will print line 1 to 10.
+1,5d
+Will delete line 1 to 5.
+8p
+Will print line 8.
+A '.' is the "current line". The current line is the last line
+referenced. If you want to print last line + 10 more:
+.,.+10p
+
+Commands that use a line range:
+If no line is given, then curent line is printed.
+
+p Print line.
+d Delete line.
+l Print line with control characters.
+r file  Read in a file after the line specified.
+s Substitute patterns. See special documentation.
+z Print 10 lines.
+a Start insert mode after specified line. Exit with '.'<return>.
+i Start insert mode before specified line. Exit with '.'<return>.
+
+Commands used without line specification:
+
+q Quit. Won't work if file is changed.
+Q Quit and discard all changes if not saved.
+w Write the file out.
+w file  Write the file out with name 'file'.
+e file  Edit a file.
+
+As line numbers '.' is current line, and '$' is last line of file.
+Thus '1,$p' will always print all of the file.
+
+Substitutions are very advanced.
+
+First a simple example:
+
+s/apa/bepa/
+This will substitue the 'apa' in current line to 'bepa'.
+If an 'p' is appended, you will also immediately see the result.
+
+1,$s/apa/bepa/
+Same, but all lines in file. Only first occurence on every line.
+
+Any character can used instead of '/':
+s!apa!bepa!g
+The 'g' specifies that all occurences of apa on this line are changed to bepa.
+
+The pattern that are supposed to be replaced, can be a regular expression.
+See ed3 about that.
+
+Searching is done with:
+/hello/
+Find first line in of after current line.
+Just // will repeat the search.
+
+Theere are special characters that can be used in the pattern:
+. Match any character.
+x*  Match any numbers of x (0 or more).
+[abc] Match 'a', 'b' or 'c'.
+[0-9] Match any digit 0 - 9.
+[a-z] Match any lowercase letter.
+\x  Match 'x' where 'x' can be any character except '(' and ')'.
+
+Example:
+s/ab.d/ABCD/
+Substitute any string 'abXd' against 'ABCD' where X can be any character.
+
+How to copy from a standard file.
+
+Enter ed. Then do 'r /room/vill_green.c'. Now you have something in the
+buffer. Change it into what you want it to be. Then 'w /save/players/peter/hall.c'.
+Or 'w hall.c'.
+

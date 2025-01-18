@@ -1,4 +1,0 @@
-Usage : pwd
-
-Prints your current directory.  All filenames not starting with a ~ or a / will
-be taken relative to your current directory.
