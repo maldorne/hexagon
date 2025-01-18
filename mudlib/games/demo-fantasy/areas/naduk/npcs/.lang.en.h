@@ -30,7 +30,7 @@
 #define _LANG_NPCS_OLD_MAN_PLURALS ({ "men" })
 #define _LANG_NPCS_OLD_MAN_LONG "He is an old ranger, visiting the region for a time.\n"
 
-#define _LANG_NPCS_OLD_MAN_CHAT ({ "'In my younger years I was one of the better climbers of this region. " + \
+#define _LANG_NPCS_OLD_MAN_CHAT ({ "'In my younger years I was one of the best climbers of this region. " + \
                                    "It is a shame such a beautiful hobby is lost.", \
                                    "'The true adventure is in climbing the big Mallorns.", \
                                    "'You are in good shape to be an excellent climber. " + \
