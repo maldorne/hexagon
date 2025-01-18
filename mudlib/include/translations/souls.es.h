@@ -520,7 +520,8 @@
 
 #define SOUL_DATA_V ([ \
   "vomitar" : ({ ({ 0, "en %s", 0, "%s", 0, "sobre %s"  }), ({ \
-      "Iluminas el lugar", "$mcname$ bosteza en colores", \
+      "Iluminas el lugar con una vomitona de colores", \
+      "$mcname$ ilumina el lugar con una vomitona de colores", \
       "Vomitas sobre $hcname$", "$mcname$ vomita sobre ti", \
       "$mcname$ vomita sobre $hcname$" }) }), \
 ])

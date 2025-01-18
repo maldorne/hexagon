@@ -296,7 +296,8 @@
       "$mcname$ points$ifarg: $lastarg$~$ at you", \
       "$mcname$ points$ifarg: $lastarg$~$ at $hcname$" }) }), \
   "puke" : ({ ({ 0, "on %s", 0, "%s", 0, "at %s"  }), ({ \
-      "You brighten up the place", "$mcname$ does a technicolor yawn", \
+      "You puke a colourful rainbow of vomit", \
+      "$mcname$ pukes a colourful rainbow of vomit", \
       "You puke on $hcname$", "$mcname$ pukes on you", \
       "$mcname$ pukes on $hcname$" }) }), \
 ])
