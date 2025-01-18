@@ -18,6 +18,8 @@
 #define _LANG_NONE_OPTIONS ({ "nada" })
 #define _LANG_CANCEL_OPTIONS ({ "c", "cancelar" })
 
+#define _LANG_COMMON_POSSESSIVE_SECOND "tu"
+
 // numbers
 
 #define _LANG_ORDINAL_CONVERSION  return ("" + number + "º")

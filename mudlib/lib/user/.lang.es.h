@@ -30,6 +30,8 @@
 #define _LANG_HELP_NO_HELP_ABOUT "Lo siento, no hay ayuda sobre "+str+".\n"
 #define _LANG_HELP_HELP_ABOUT "Ayuda sobre " + objs[loop]->query_name() + ":\n" + text + "\n\n"
 #define _LANG_HELP_NO_HELP_FOR_ITEM "No hay ayuda sobre "+((sizeof(objs) > 1) ? "estos objetos":"este objeto")+".\n"
+#define _LANG_HELP_EMOTIONS ({ "emocion", "emoción", "emociones", "soul", "souls" })
+#define _LANG_HELP_MORE_EMOTIONS "Emociones"
 
 // more_string.c
 

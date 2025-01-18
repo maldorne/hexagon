@@ -4,6 +4,8 @@
 #include <areas/common.h>
 #include <areas/weather.h>
 #include <mud/cmd.h>
+#include <translations/common.h>
+#include <language.h>
 
 inherit "/lib/core/object";
 
@@ -38,12 +40,13 @@ mapping query_soul_data() { return ([ ]) + soul_data; }
 void create()
 {
   ::create();
-  set_name("emociones");
-  set_short("Controlador de las emociones");
-  set_long("Éste es el controlador extraordinario de las emociones.\n");
-  add_alias("controlador");
-  add_plural("Controladores");
-  add_plural("controladores");
+  set_name("emotions");
+  set_short("Emotion controller");
+  set_long("This is the extraordinary emotion controller.\n");
+  add_alias("controller");
+  add_alias("emotion");
+  add_plural("Controllers");
+  add_plural("controllers");
 
   calc_long = "";
   lastarg = "";
@@ -64,16 +67,11 @@ string query_soul_list()
   string *cmds;
   mixed  *values;
 
-  s = "Éstos son los comandos de emociones disponibles:\n"+
-    "   # significa que admite argumentos.\n"+
-    "   * significa que sólo puede utilizarse con seres vivos.\n"+
-    "   + significa que puede usarse tanto con seres vivos como de modo independiente.\n"+
-    "Número total de emociones: "+m_sizeof(soul_data)+".\n\n";
+  s = _LANG_SOULS_HELP_HEADER;
 
   if (strlen(calc_long))
   {
     s += sprintf("  %#-*s\n", this_user()->query_cols(), calc_long);
-    // s += "\nUtiliza el comando \"emocion\" para informar de posibles errores.\n";
     return s;
   }
 
@@ -100,10 +98,7 @@ string query_soul_list()
     calc_long += bit + " " +cmds[i]+ "\n";
   }
 
-
   s += sprintf("  %#-*s\n", this_user()->query_cols(), calc_long);
-  // s += "\nUtiliza el comando \"emocion\" para informar de posibles errores.\n";
-
   return s;
 }
 
@@ -112,13 +107,14 @@ int soul_sort(string s1, string s2) {
 }
 
 /*
-string long(string str, int dark){
+string long(string str, int dark)
+{
   return query_long();
 }
 */
 
-string parse_string(string s, object me, mixed ob, string arg, int uhn){
-
+string parse_string(string s, object me, mixed ob, string arg, int uhn)
+{
   string s1, s2, s3, s4, str, s5;
   int i;
 
@@ -196,59 +192,58 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn){
 
   str = s4+str;
 
-  while (sscanf(str,"%s$force#%s#%d$%s",s1,s2,i,s3)==4)
+  while (sscanf(str, "%s$force#%s#%d$%s", s1, s2, i, s3) == 4)
   {
     call_out("do_force", i, ({s2, ob}));
-    str = s1+s3;
+    str = s1 + s3;
   }
 
-  while (sscanf(str,"%s$arg:%s$%s",s1,s2,s3)==3)
-    if (arg == "?")
-    {
-      string *yellow;
-
-      yellow = explode(s2, ",");
-      lastarg = yellow[random(sizeof(yellow))];
-      str = s1+lastarg+s3;
-      lastarg = replace(lastarg, "tu", me->query_possessive());
-    }
-    else if (s2 == "#")
-    {
-      lastarg = replace(arg, "tus", me->query_possessive());
-      str = s1+arg+s3;
-    }
-    else if (sscanf(","+s2+global_adj+",","%s,"+arg+"%s,%s",s2,s4,s5)==3)
-    {
-      str = s1+arg+s4+s3;
-      lastarg = replace(arg+s4, "su", me->query_possessive());
-    }
-    else if (sscanf(","+s2+",", "%s,#,%s", s2, s4) == 2)
-    {
-      str = s1+arg+s3;
-      lastarg = replace(arg, "sus", me->query_possessive());
-    }
-    else
-    {
-      // Cadogan by hand of Radix...
-      notify_fail("No puedes hacer eso. Escribe \"ayuda <emoción>\" "+
-            "para ver las opciones disponibles.\n");
-      //  write("You cannot do that. Available options are "+
-      //    replace(s2, ",", ", ")+"\n");
-      return "";
-    }
-
-  while (sscanf(str,"%s$ifarg:%s~$%s",s1,s2,s3)==3)
+  while (sscanf(str, "%s$ifarg:%s~$%s", s1, s2, s3) == 3)
   {
     string estr;
 
-    sscanf(s2,"%s$else$%s",s2,estr);
+    sscanf(s2, "%s$else$%s", s2, estr);
     if (arg && arg != "")
-      str = s1+parse_string(s2,me,ob,arg, 1)+s3;
+      str = s1 + parse_string(s2, me, ob, arg, 1) + s3;
     else if (estr)
-      str = s1+parse_string(estr,me,ob,arg, 1)+s3;
+      str = s1 + parse_string(estr, me, ob, arg, 1) + s3;
     else
-      str = s1+s3;
+      str = s1 + s3;
   }
+
+  while (sscanf(str, "%s$arg:%s$%s", s1, s2, s3) == 3)
+  {
+    if (arg == "?")
+    {
+      string * yellow;
+
+      yellow = explode(s2, ",");
+      lastarg = yellow[random(sizeof(yellow))];
+      str = s1 + lastarg + s3;
+      lastarg = replace(lastarg, _LANG_COMMON_POSSESSIVE_SECOND, me->query_possessive());
+    }
+    else if (s2 == "#")
+    {
+      lastarg = replace(arg, _LANG_COMMON_POSSESSIVE_SECOND, me->query_possessive());
+      str = s1 + arg + s3;
+    }
+    else if (sscanf("," + s2 + global_adj + ",", "%s," + arg + "%s,%s", s2, s4, s5) == 3)
+    {
+      str = s1 + arg + s4 + s3;
+      lastarg = replace(arg + s4, _LANG_COMMON_POSSESSIVE_SECOND, me->query_possessive());
+    }
+    else if (sscanf("," + s2 + ",", "%s,#,%s", s2, s4) == 2)
+    {
+      str = s1 + arg + s3;
+      lastarg = replace(arg, _LANG_COMMON_POSSESSIVE_SECOND, me->query_possessive());
+    }
+    else
+    {
+      notify_fail(_LANG_SOULS_CANNOT_DO);
+      return "";
+    }
+  }
+
   return str;
 }
 
@@ -285,7 +280,7 @@ object* find_all_liv(string str, object me, varargs object *valid_targets)
   // Flode changed this fix - 280898
   // if (str == "all" || str[0..0] == "0")
   // if (search_for_all(str, me))
-  /* Ahora find_match filtra escondidos con el flag 1
+  /* Now find_match filters out invisibles with the flag 1
   if (str == "all" || str[0..0] == "0")
   {
     notify_fail("Sorry, you don't know all.\n");
@@ -293,11 +288,11 @@ object* find_all_liv(string str, object me, varargs object *valid_targets)
   }
   */
 
-  /* Usuario al azar... lo eliminamos
-  if (str == "alguien")
+  /* Random user... remove this
+  if (str == "somebody")
   {
     // Radix was, was a random() return of users() array
-    // Wonderflug, it is again.  But we filter invisibles
+    // Wonderflug, it is again. But we filter invisibles
     ret = users();
     for (i=0;i<sizeof(ret);i++)
       if ( ret[i]->query_invis() )
@@ -404,8 +399,7 @@ int soul_command(string verb, string str, object m)
       /* Flode 110599 - Why was this taken out? */
       if ((mixed)target->query_blocking() == (mixed)me->query_name())
       {
-        tell_object(me, ((string)target->query_cap_name()) + " te "+
-             "está bloqueando.\n");
+        tell_object(me, _LANG_SOULS_BLOCKING_YOU);
         return 1;
       }
 
@@ -462,21 +456,20 @@ mapping get_messages(object me, string verb, string str, mixed valid_targets)
 
       if (stringp(ret[key_t]) && strlen(v = (string)ret[key_t]) >= 3)
         if (v[strlen(v)-1] == '\n')
-        {
-          character = v[strlen(v)-3];
+        {        
+          character = v[strlen(v)-2];
           if ((character == ',') || (character == '.') || (character == '?') || (character == '!'))
-          // if (member_array(v[strlen(v)-3], ",.?!") != -1)
-            ret[key_t] = character + "\n";
+            ret[key_t] = v[0..strlen(v)-2] + "\n";
         }
         else
         {
-          character = v[strlen(v)-2];
+          character = v[strlen(v)-1];
           if ((character == ',') || (character == '.') || (character == '?') || (character == '!'))
-          // if (member_array(v[strlen(v)-2], ",.?!") != -1)
-            ret[key_t] = character;
+            ret[key_t] = v[0..strlen(v)-1];
         }
     }
   }
+
   return ret;
 }
 
@@ -588,7 +581,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
     str = other;
     if (!sizeof(ob))
     {
-      return (["status":"Lo siento, pero '"+liv+"' no está conectado.\n"]);
+      return ([ "status" : _LANG_SOULS_STATUS_NOT_CONNECTED ]);
     }
 
     /* Get the strings that will be parsed. */
@@ -606,8 +599,7 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
     }
     else
     {
-      return (["status":"No puedes utilizar ese comando de emoción "+
-            "de esa forma.\n"]);
+      return ([ "status" : _LANG_SOULS_STATUS_NOT_THAT_WAY ]);
     }
 
     if (sizeof(ob) == 1)
@@ -644,13 +636,17 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
         return (["status":0]);
 
       tmp_ob = map_array(ob, "get_name", this_object());
-      s1 = implode(tmp_ob[1..1000], ", ")+" y "+tmp_ob[0];
+      
+      s1 = implode(tmp_ob[1..1000], ", ") + " " + _LANG_AND + " " + tmp_ob[0];
       s1 = replace(s2, ({ "$hcname$", s1, "$mhcname$", s1 }));
-      ret[me] = s1+".\n";
+      
+      ret[me] = s1 + ".\n";
 
       s2 = parse_string(every, me, ob, str, 0);
       s1 = replace(s2, ({ "$hcname$", s1, "$mhcname$", s1 }));
-      ret["default"] = s1+".\n";
+      
+      ret["default"] = s1 + ".\n";
+
       /* Hm. what to do? Need a global return, can't get it.
        * Must do parsing after, but how with only a string?
        */
@@ -667,30 +663,41 @@ private mapping real_get(object me, string verb, string str, mixed valid_targets
     }
     return ret;
   } /* if (liv) */
-  else if (sizeof(data[1])==3)
+  else if (sizeof(data[1]) == 3)
   {
     if (!livfail)
-      return (["status":"No tienes el valor de hacer eso.\n"]);
+      return ([ "status" : _LANG_SOULS_STATUS_CANNOT_DO ]);
     else
-      return (["status":"No puedo encontrar a '"+livfail+"'.\n"]);
+      return ([ "status" : _LANG_SOULS_STATUS_CANNOT_FIND ]);
   }
   else
   {
+    int character;
     /* No target, just hit myself and everyone */
     ret["status"] = 1;
-    if (!strlen(other))
+
+    if (!other || !strlen(other))
       other = "";
+
     ret[me] = parse_string(data[1][0], me, ob, other, 0);
+
     if (!strlen(ret[me]))
       return (["status": 0 ]);
-    ret[me]+=".";
-    ret["default"] = parse_string(data[1][1], me, me, other, 0)+".";
+
+    // if the last character is not a dot, exclamation or interrogation
+    // mark, add a dot
+    character = ret[me][strlen(ret[me])-1];
+    
+    if (character != '.' && character != '!' && character != '?')
+      ret[me] += ".";
+
+    ret["default"] = parse_string(data[1][1], me, me, other, 0) + ".";
     return ret;
   }
 }
 
-void do_force(mixed* str){
-
+void do_force(mixed* str)
+{
   int i;
 
   if (pointerp(str[1]))
@@ -745,47 +752,50 @@ string help_soul(string str)
   ret_aux = "";
 
   if (!pointerp(data[0]))
-    return "El comando de emoción '"+str+"' no tiene parámetros opcionales.\n";
+    return _LANG_SOULS_HELP_NO_PARAMETERS;
 
   for (j = 0; j < sizeof(data[0]);j += 2)
   {
     bit = explode(" " + data[0][j+1]+" ","%s");
+
     switch (data[0][j])
     {
     case 0:
-      ret += str+bit[0]+"<persona>"+bit[1];
+      ret += str+bit[0]+_LANG_SOULS_HELP_PERSON+bit[1];
       break;
     case 2:
-      ret += str+bit[0]+"<persona>"+bit[1]+"<argumento>"+bit[2];
+      ret += str+bit[0]+_LANG_SOULS_HELP_PERSON+bit[1]+_LANG_SOULS_HELP_PARAMETER+bit[2];
       break;
     case 1:
-      ret += str+bit[0]+"<argumento>"+bit[1]+"<persona>"+bit[2];
+      ret += str+bit[0]+_LANG_SOULS_HELP_PARAMETER+bit[1]+_LANG_SOULS_HELP_PERSON+bit[2];
       break;
     case 3:
-      ret += str+bit[0]+"<argumento>"+bit[1];
+      ret += str+bit[0]+_LANG_SOULS_HELP_PARAMETER+bit[1];
       break;
     }
     ret += "\n";
   }
 
-  ret = "Sintaxis del comando de emoción %^BOLD%^'"+str+"'%^RESET%^:\n"+
-  sprintf("  %-#*s\n\n", this_user()->query_cols(), ret);
+  ret = _LANG_SOULS_HELP_SYNTAX +
+    sprintf("  %-#*s\n\n", this_user()->query_cols(), ret);
 
   if (sizeof(data[1]) == 2 || sizeof(data[1]) == 5)
   {
-    ret += "Sin aplicarlo a seres vivos:\n";
+    ret += _LANG_SOULS_HELP_NO_LIVINGS;
     bit = ({ });
-    if (sscanf(data[1][0], "%s$arg:%s$%s", s1,s2,s3) == 3)
-      bit = explode(s2,",");
+
+    if (sscanf(data[1][0], "%s$arg:%s$%s", s1, s2, s3) == 3)
+      bit = explode(s2, ",");
+
     if (s2 == "#")
-      ret_aux = "Puede utilizarse cualquier texto como argumento.\n";
+      ret_aux = _LANG_SOULS_HELP_ANY_TEXT;
     else if (sscanf(data[1][0], "%s$ifarg:%s~$%s", s1, s2, s3) == 3)
-      ret_aux += "Puede utilizarse sin argumentos.\n"+
-        "Los argumentos posibles son: "+implode(bit,", ")+".\n";
+      ret_aux += _LANG_SOULS_HELP_WITHOUT_PARAMETERS +
+        _LANG_SOULS_HELP_AVAILABLE_PARAMETERS;
     else if (!sizeof(bit))
-      ret_aux += "No tiene argumentos.\n";
+      ret_aux += _LANG_SOULS_HELP_HAS_NO_PARAMETERS;
     else
-      ret_aux += "Los argumentos posibles son: "+implode(bit,", ")+".\n";
+      ret_aux += _LANG_SOULS_HELP_AVAILABLE_PARAMETERS;
 
     if (this_player())
       ret_aux = sprintf("  %-=*s\n",(int)this_user()->query_cols()-2, ret_aux);
@@ -798,19 +808,22 @@ string help_soul(string str)
 
   if (sizeof(data[1]) == 3 || sizeof(data[1]) == 5)
   {
-    ret += "Aplicándolo a seres vivos:\n";
+    ret += _LANG_SOULS_HELP_LIVINGS;
     bit = ({ });
+
     if (sscanf(data[1][off+0], "%s$arg:%s$%s", s1,s2,s3) == 3)
       bit = explode(s2,",");
+
     if (s2 == "#")
-      ret_aux = "Puede utilizarse cualquier texto como argumento.\n";
+      ret_aux = _LANG_SOULS_HELP_ANY_TEXT;
     else if (sscanf(data[1][off+0], "%s$ifarg:%s~$%s", s1, s2, s3) == 3)
-      ret_aux += "Puede utilizarse sin argumentos.\n"+
-        "Los argumentos posibles son: "+implode(bit,", ")+".\n";
+      ret_aux += _LANG_SOULS_HELP_WITHOUT_PARAMETERS +
+        _LANG_SOULS_HELP_AVAILABLE_PARAMETERS;
     else if (!sizeof(bit))
-      ret_aux += "No tiene argumentos.\n";
+      ret_aux += _LANG_SOULS_HELP_HAS_NO_PARAMETERS;
     else
-      ret_aux += "Los argumentos posibles son: "+implode(bit,", ")+".\n";
+      ret_aux += _LANG_SOULS_HELP_AVAILABLE_PARAMETERS;
+
     if (this_player())
       ret_aux = sprintf("  %-=*s\n",(int)this_user()->query_cols()-2, ret_aux);
 

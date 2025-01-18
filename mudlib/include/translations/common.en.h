@@ -18,6 +18,8 @@
 #define _LANG_NONE_OPTIONS ({ "none" })
 #define _LANG_CANCEL_OPTIONS ({ "c", "cancel", "quit" })
 
+#define _LANG_COMMON_POSSESSIVE_SECOND "your"
+
 // numbers
 
 #define _LANG_ORDINAL_CONVERSION switch(number) { case 11: \

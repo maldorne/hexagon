@@ -143,18 +143,15 @@ int do_help(string str)
     }
   }
 
-  /*
-  // Ya no hay 'mirar soul', neverbot 02/2006
-  if (( str == "emocion") || (str == "emoción") || (str == "emociones"))
+  if (member_array(str, _LANG_HELP_EMOTIONS) != -1)
   {
     s = SOUL_OBJECT->query_soul_list();
     if (!strlen(s))
-      write("No hay ayuda sobre eso.\n");
+      write(_LANG_HELP_NO_HELP_ABOUT);
     else
-      this_object()->more_string(s, "Emociones");
+      this_object()->more_string(s, _LANG_HELP_MORE_EMOTIONS);
     return 1;
   }
-  */
 
   /*
   aux = ({ });
@@ -211,8 +208,8 @@ int do_help(string str)
       }
 
       s = wrap(s);
-      this_player()->set_finish_func("end_of_help");
-      this_player()->more_string(s);
+      this_user()->set_finish_func("end_of_help");
+      this_user()->more_string(s);
       return 1;
     }
 

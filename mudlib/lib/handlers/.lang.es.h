@@ -97,3 +97,28 @@
 #define _LANG_SHUTDOWN_AUTO_REBOOT "El fin del mundo está a punto de sobrevenir...\nLa totalidad de la existencia " + \
         "será destruida y un nuevo mundo se reconstruirá sobre sus cenizas...\n\n\t" + \
         "%^BOLD%^Dentro de diez minutos%^RESET%^.\n"
+
+// souls.c
+
+#define _LANG_SOULS_HELP_HEADER "Éstos son los comandos de emociones disponibles:\n"+ \
+      "   # significa que admite argumentos.\n"+ \
+      "   * significa que sólo puede utilizarse con seres vivos.\n"+ \
+      "   + significa que puede usarse tanto con seres vivos como de modo independiente.\n\n"+ \
+      " Número total de emociones: "+m_sizeof(soul_data)+".\n\n"
+#define _LANG_SOULS_CANNOT_DO "No puedes hacer eso. Escribe \"ayuda <emoción>\" "+ \
+            "para ver las opciones disponibles.\n"
+#define _LANG_SOULS_BLOCKING_YOU ((string)target->query_cap_name()) + " te está bloqueando.\n"
+#define _LANG_SOULS_STATUS_NOT_CONNECTED "Lo siento, pero '"+liv+"' no está conectado.\n"
+#define _LANG_SOULS_STATUS_NOT_THAT_WAY "No puedes utilizar ese comando de emoción de esa forma.\n"
+#define _LANG_SOULS_STATUS_CANNOT_DO "No tienes el valor de hacer eso.\n"
+#define _LANG_SOULS_STATUS_CANNOT_FIND "No puedo encontrar a '"+livfail+"'.\n"
+#define _LANG_SOULS_HELP_NO_PARAMETERS "El comando de emoción '"+str+"' no tiene parámetros opcionales.\n"
+#define _LANG_SOULS_HELP_PERSON "<persona>"
+#define _LANG_SOULS_HELP_PARAMETER "<argumento>"
+#define _LANG_SOULS_HELP_SYNTAX "Sintaxis del comando de emoción %^BOLD%^'"+str+"'%^RESET%^:\n"
+#define _LANG_SOULS_HELP_NO_LIVINGS "Sin aplicarlo a seres vivos:\n"
+#define _LANG_SOULS_HELP_LIVINGS "Aplicándolo a seres vivos:\n"
+#define _LANG_SOULS_HELP_ANY_TEXT "Puede utilizarse cualquier texto como argumento.\n"
+#define _LANG_SOULS_HELP_WITHOUT_PARAMETERS "Puede utilizarse sin argumentos.\n"
+#define _LANG_SOULS_HELP_AVAILABLE_PARAMETERS "Los argumentos posibles son: "+implode(bit,", ")+".\n"
+#define _LANG_SOULS_HELP_HAS_NO_PARAMETERS "No tiene argumentos.\n"
