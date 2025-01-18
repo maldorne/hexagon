@@ -291,3 +291,23 @@
 #define _LANG_RUN_AWAY_RUN_AWAY "%^BOLD%^You try to run away towards " + ROOM_HAND->query_exit_dir(direcs[i]) + ".%^RESET%^\n"
 #define _LANG_RUN_AWAY_RUN_AWAY_ROOM "%^BOLD%^" + this_object()->query_cap_name() + " runs away in fear.%^RESET%^\n"
 #define _LANG_RUN_AWAY_FAILED_ESCAPE "You tried to escape, but you couldn't find any exit.\n"
+
+// drunk.c
+
+#define _LANG_DRUNK_TRIP_YOU "You trip over and fall on your face.\n"
+#define _LANG_DRUNK_TRIP_THEY this_player()->query_cap_name() + " trips over " + \
+             "and falls on " + (string)this_object()->query_possessive() + \
+             " face.\n"
+#define _LANG_DRUNK_DROP_YOU "Weird, a " + obs[i]->short() + " that looks just " + \
+                "like your own " + obs[i]->short() + " lies on the " + \
+                "ground.\n"
+#define _LANG_DRUNK_DROP_THEY this_player()->query_cap_name() + " stumbles a bit " + \
+              "and drops " + obs[i]->short() + ".\n"
+#define _LANG_DRUNK_FALL_YOU "The ground rises up and strikes you in your face.\n"
+#define _LANG_DRUNK_FALL_THEY this_player()->query_cap_name() + " falls heavily " + \
+              "to the ground.\n"
+#define _LANG_DRUNK_PASSED_OUT_YOU "The world goes black. You have passed out.\n"
+#define _LANG_DRUNK_PASSED_OUT_THEY this_object()->query_cap_name() + \
+               " looks ill the falls on the ground and lies " + \
+               "there with a blank look on " + \
+               this_object()->query_objective() + " face.\n"

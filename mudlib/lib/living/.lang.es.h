@@ -294,3 +294,20 @@
 #define _LANG_RUN_AWAY_RUN_AWAY "%^BOLD%^Intentas huir hacia " + ROOM_HAND->query_exit_dir(direcs[i]) + ".%^RESET%^\n"
 #define _LANG_RUN_AWAY_RUN_AWAY_ROOM "%^BOLD" + this_object()->query_cap_name() + " huye atemorizado.%^RESET%^\n"
 #define _LANG_RUN_AWAY_FAILED_ESCAPE "Intentaste escapar, pero no has encontrado ninguna salida.\n"
+
+// drunk.c
+
+#define _LANG_DRUNK_TRIP_YOU "Te tropiezas y caes de bruces.\n"
+#define _LANG_DRUNK_TRIP_THEY this_player()->query_cap_name() + " tropieza y cae de bruces " + \
+              "sobre su cara.\n"
+#define _LANG_DRUNK_DROP_YOU "Qué raro, un " + obs[i]->short() + " que parece igual " + \
+              "que tu propio " + obs[i]->short() + " está en el suelo.\n"
+#define _LANG_DRUNK_DROP_THEY this_player()->query_cap_name() + " tropieza un poco y suelta " + \
+              "su " + obs[i]->short() + ".\n"
+#define _LANG_DRUNK_FALL_YOU "El suelo se levanta y te golpea en la cara.\n"
+#define _LANG_DRUNK_FALL_THEY this_player()->query_cap_name() + " se cae con fuerza " + \
+              "al suelo.\n"
+#define _LANG_DRUNK_PASSED_OUT_YOU "El mundo se vuelve oscuro de repente. Te has desmayado.\n"
+#define _LANG_DRUNK_PASSED_OUT_THEY this_object()->query_cap_name() + \
+              " parece enferm" + this_object()->query_vowel() + " y cae al suelo " + \
+              "con una mirada perdida en la cara.\n"

@@ -1,6 +1,8 @@
 
 #include <basic/move.h>
 #include <common/properties.h>
+#include <translations/souls.h>
+#include <language.h>
 
 /* The effects of being drunk.
  * It is not recomended for a good party :)
@@ -55,19 +57,19 @@ int heart_beat()
       switch (random(5)) 
       {
         case 0 :
-          this_object()->do_command("hiccup"); // hipo
+          this_object()->do_command(SOUL_CMD_HICCUP);
           break;
         case 1 :
-          this_object()->do_command("burp"); // eructar
+          this_object()->do_command(SOUL_CMD_BURP);
           break;
         case 2 :
-          this_object()->do_command("puke"); // vomitar
+          this_object()->do_command(SOUL_CMD_PUKE);
           break;
         case 3 :
-          this_object()->do_command("trip"); // tropezar
+          this_object()->do_command(SOUL_CMD_TRIP);
           break;
         case 4 :
-          this_object()->do_command("stagger"); // tambalearse
+          this_object()->do_command(SOUL_CMD_STAGGER);
           break;
       }
       break;
@@ -75,11 +77,8 @@ int heart_beat()
       switch (random(1)) 
       {
         case 0 :
-          write("You trip over and fall on your face.\n");
-          say(this_player()->query_cap_name() + " trips over " +
-             "and falls on " +
-             (string)this_object()->query_possessive() +
-             " face.\n");
+          write(_LANG_DRUNK_TRIP_YOU);
+          say(_LANG_DRUNK_TRIP_THEY);
           missing = 10 + random(10);
           return 0;
           break;
@@ -98,17 +97,13 @@ int heart_beat()
           if (!sizeof(obs))
             break;
 
-          write("Weird, a " + obs[i]->short() + " that looks just " +
-                "like your own " + obs[i]->short() + " lies on the " +
-                "ground.\n");
-          say(this_player()->query_cap_name() + " stumbles a bit " +
-              "and drops " + obs[i]->short() + ".\n");
+          write(_LANG_DRUNK_DROP_YOU);
+          say(_LANG_DRUNK_DROP_THEY);
           break;
 
         case 1 :
-          write("The ground rises up and strikes you in your face.\n");
-          say(this_player()->query_cap_name() + " falls heavily " +
-              "to the ground.\n");
+          write(_LANG_DRUNK_FALL_YOU);
+          say(_LANG_DRUNK_FALL_THEY);
           this_player()->adjust_hp(-random(3), this_player());
           break;
       }
@@ -118,13 +113,9 @@ int heart_beat()
       {
         case 0 :
           this_player()->add_property(PASSED_OUT_PROP,1);
-          call_out("remove_property",20+random(30),
-                       PASSED_OUT_PROP);
-          write("The world goes black.  You have passed out.\n");
-          say(this_object()->query_cap_name() +
-               " looks ill the falls on the ground and lies " +
-               "there with a blank look on " +
-               this_object()->query_objective() + " face.\n");
+          call_out("remove_property", 20 + random(30), PASSED_OUT_PROP);
+          write(_LANG_DRUNK_PASSED_OUT_YOU);
+          say(_LANG_DRUNK_PASSED_OUT_THEY);
           return 0;
           break;
         case 1 : /* wandering fits */
@@ -138,24 +129,32 @@ int heart_beat()
 
 void do_wander(int num) 
 {
-  string *direcs;
-  int i, bong;
+  string * direcs;
+  int i;
+  // int bong;
 
   if (num > 0)
     call_out("do_wander", 2 + random(5), --num);
 
   direcs = (mixed *)environment()->query_dest_dir();
 
-  while (!bong && sizeof(direcs)) 
-  {
+  // while (!bong && sizeof(direcs)) 
+  // {
     i = random(sizeof(direcs) / 2) * 2;
-    this_object()->add_property(UNKNOWN_MOVE_PROP, 1);
-    bong = this_object()->do_command(direcs[i]);
-    this_object()->remove_property(UNKNOWN_MOVE_PROP);
+    // with do_command the command is enqueued, so we can't
+    // check if it was executed or not, so there is no need
+    // to add this property, it will be removed before the 
+    // actual movement
+    // this_object()->add_property(UNKNOWN_MOVE_PROP, 1);
 
-    if (!bong)
-      direcs = delete(direcs, i, 2);
-  }
+    // bong = 
+      this_object()->do_command(direcs[i]);
+    
+    // this_object()->remove_property(UNKNOWN_MOVE_PROP);
+
+    // if (!bong)
+    //   direcs = delete(direcs, i, 2);
+  // }
 }
 
 mixed * stats() 
