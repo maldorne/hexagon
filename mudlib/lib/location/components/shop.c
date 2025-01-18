@@ -15,10 +15,10 @@ int test_remove(object ob, int flag) { return 1; }
 
 void create()
 {
-  component::create();
   inventory::create();
   attendable::create();
   messages::create();
+  component::create();
 
   set_type("shop");
 }
@@ -38,13 +38,10 @@ void dest_me()
 // providing de parent location object
 void initialize(object location)
 {
-  object sign;
-
   component::initialize(location);
 
   // add a sign with available commands
-  sign = create_sign(location);
-  sign->move(location);
+  create_sign(location);
 
   // force create needed directories if they do not exist
   this_object()->check_directories();

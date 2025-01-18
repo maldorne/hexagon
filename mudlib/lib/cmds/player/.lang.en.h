@@ -124,6 +124,7 @@
 #define _LANG_CMD_SHEET_BASIC_CHARACTERISTICS "Basic characteristics"
 #define _LANG_CMD_SHEET_CAN_ALSO_USE "You can also use: 'skills', 'masteries' and " + \
         "'styles'.\n"
+#define _LANG_STATS_INTOX "Intoxication"
 
 // verbose
 

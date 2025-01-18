@@ -140,7 +140,7 @@ string query_contents(string str, varargs object *obs)
   me = real_this_player();
   
   inv = query_inventory(obs);
-  drunk = me->query_volume(0);
+  drunk = me->query_intoxication();
 
   if (!sizeof(inv[0]) && !sizeof(inv[2])) 
     return ret;

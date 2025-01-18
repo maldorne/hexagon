@@ -10,8 +10,9 @@
 int max_hp, max_gp, total_xp, wimpy;
 int hp, xp, gp;
 
-private int * drink_info;
-private int display_monitor_handle;
+int * volumes;
+
+static int display_monitor_handle;
 
 static mapping damage_done;
 static mapping aggro_done;
@@ -22,7 +23,7 @@ void create()
 {
   damage_done = ([ ]);
   aggro_done = ([ ]);
-  drink_info = allocate_int(D_SIZEOF);
+  volumes = allocate_int(D_SIZEOF);
   max_gp = 1;
   max_hp = 1;
   display_monitor_handle = 0;
@@ -37,9 +38,6 @@ void heart_beat()
   int intox;
 
   intox = query_volume(D_ALCOHOL);
-
-  // TODO -> review drunk.c
-  // if (drunk_heart_beat(intox) > 0)
 
   // handle intoxication dispersion by our selves...
   // they just handle hp recival and sp recival... 
@@ -376,54 +374,64 @@ string health_string(int self)
     return _LANG_HEALTH_YOU_ARE + " " + ret;
 }
 
-// functions related to drinks
+// functions related to foods and drinks
 int adjust_volume(int type, int amt) 
-{
-  if (!pointerp(drink_info))
-    drink_info = allocate_int(D_SIZEOF);
-  if (type >= sizeof(drink_info))
+{ 
+  write("adjust_volume: " + type + " " + amt + "\n");
+
+  if (!pointerp(volumes))
+    volumes = allocate_int(D_SIZEOF);
+  if (type != D_FOOD && type != D_DRINK)
     return 0;
-  return drink_info[type] += amt;
+  return volumes[type] += amt;
 }
 
+int query_intoxication() { return volumes[D_ALCOHOL]; }
+int adjust_intox(int amt)
+{
+  write("adjust_intox: " + amt + "\n");
+
+  if (!pointerp(volumes))
+    volumes = allocate_int(D_SIZEOF);
+  return volumes[D_ALCOHOL] += amt;
+}
+
+int * query_volumes() { return volumes; }
 int query_volume(int type) 
 {
-  if (!pointerp(drink_info))
-    drink_info = allocate_int(D_SIZEOF);
-  if (type >= sizeof(drink_info))
+  if (!pointerp(volumes))
+    volumes = allocate_int(D_SIZEOF);
+  if (type >= sizeof(volumes))
     return 0;
-  return drink_info[type];
+  return volumes[type];
 }
 
 void update_volumes() 
 {
   int i;
 
-  if (!drink_info)
+  if (!volumes)
     return ;
-  for (i = 0; i < sizeof(drink_info); i++)
-    if (drink_info[i] > 0)
-    drink_info[i]--;
+  for (i = 0; i < sizeof(volumes); i++)
+    if (volumes[i] > 0)
+    volumes[i]--;
   else
-    drink_info[i] = 0;
+    volumes[i] = 0;
 }
 
-string volume_string()
+string intox_string()
 {
-  int i;
-  i = 0;
-
-  if (drink_info[i]<= 0)
+  if (volumes[D_ALCOHOL] <= 0)
     return _LANG_HEALTH_VOLUME_SOBER;
-  if (drink_info[i] <= 50)
+  if (volumes[D_ALCOHOL] <= 50)
     return _LANG_HEALTH_VOLUME_HAPPY;
-  if (drink_info[i] <= 100)
+  if (volumes[D_ALCOHOL] <= 100)
     return _LANG_HEALTH_VOLUME_DRUNK;
-  if (drink_info[i] <= 500)
+  if (volumes[D_ALCOHOL] <= 500)
     return _LANG_HEALTH_VOLUME_VERY_DRUNK;
-  if (drink_info[i] <= 2000)
+  if (volumes[D_ALCOHOL] <= 2000)
     return _LANG_HEALTH_VOLUME_DEAD_DRUNK;
-  if (drink_info[i] <= 6000)
+  if (volumes[D_ALCOHOL] <= 6000)
     return _LANG_HEALTH_VOLUME_NEAR_DEATH;
   return _LANG_HEALTH_VOLUME_PRAYING_FOR_DEATH;
 }
@@ -439,6 +447,6 @@ mixed * stats()
     ({"Wimpy", wimpy, }),
     ({"Damage Done (nosave)", damage_done, }),
     ({"Aggro Done (nosave)", aggro_done, }),
-    ({"Drink Info", drink_info, }),
+    ({"Volumes", volumes, }),
     });
 }

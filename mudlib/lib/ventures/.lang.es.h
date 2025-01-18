@@ -64,7 +64,9 @@
 
 // pub.c
 
-#define _LANG_PUB_SIGN_DESC "Es un pequeño cartel de papel.\n"
+#define _LANG_PUB_SIGN_NAME "menú"
+#define _LANG_PUB_SIGN_ALIASES ({ "menu" })
+#define _LANG_PUB_SIGN_DESC "Es un pequeño menú en papel.\n"
 #define _LANG_PUB_BUY_CMDS ({ "comprar", "pedir" })
 #define _LANG_PUB_MENU_FOODS "Comida"
 #define _LANG_PUB_MENU_DRINKS "Bebidas"
@@ -87,3 +89,4 @@
 #define _LANG_PUB_DEFAULT_DRINK_MESS_OTHERS "se bebe un vaso de " + name
 #define _LANG_PUB_DEFAULT_FOOD_MESS_ME "Te comes un plato de " + name
 #define _LANG_PUB_DEFAULT_FOOD_MESS_OTHERS "se come un plato de " + name
+#define _LANG_PUB_DEFAULT_MENU_HEADER "En el menú hay:"

@@ -20,6 +20,7 @@
 
 #include <mud/cmd.h>
 #include <mud/config.h>
+#include <living/food.h>
 #include <translations/armour.h>
 #include <translations/combat.h>
 #include <translations/stats.h>
@@ -349,9 +350,6 @@ static int cmd(string name, object me, string verb)
   info += sprintf("%-15s %-2s (%-+1d) %8s", capitalize(_LANG_STATS_WIL) + ":",
                   target->query_wil(),
                   target->query_stat_bonus_to_wil(), "");
-  // info += sprintf("%-15s %s", capitalize(_LANG_STATS_CITIZENSHIP) + ":", 
-  //                 capitalize(_LANG_STATS_NO_CITIZENSHIP));
-  // info += "Drinks:\t\t"+capitalize(target->volume_string())+"\n";
   info += "\n";
 
 
@@ -368,6 +366,10 @@ static int cmd(string name, object me, string verb)
   info += sprintf("%-15s %s", capitalize(_LANG_STATS_COMBAT_ROLE) + ":",
                   capitalize(target->query_combat_role_string()));
   info += "\n";
+
+  if (target->query_volume(D_ALCOHOL) > 50)
+    info += sprintf("%-15s %-30s\n", capitalize(_LANG_STATS_INTOX) + ":",
+                    capitalize(target->intox_string()));
 
   info += "\n";
 

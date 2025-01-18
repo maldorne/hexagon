@@ -312,6 +312,7 @@ void heart_beat()
   }
 
   health::heart_beat();
+  drunk::heart_beat();
   comm::heart_beat();
 }
 

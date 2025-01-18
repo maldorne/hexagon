@@ -254,7 +254,7 @@ int do_say(string arg, varargs int no_echo)
 
   words = query_word_type(arg);
   
-  if (this_object()->query_volume(D_ALCOHOL))
+  if (this_object()->query_intoxication())
     arg = drunk_speech(arg);
 
   event(environment(this_object()), "person_say", this_object()->query_cap_name()+
@@ -357,7 +357,7 @@ int do_tell(string arg, varargs object ob, int silent)
   
   words = query_word_type(rest);
   
-  if (this_object()->query_volume(D_ALCOHOL))
+  if (this_object()->query_intoxication())
     arg = drunk_speech(arg);
   
   if (words[2] != _LANG_COMM_ASKING) 
@@ -447,7 +447,7 @@ int do_whisper(string str)
     return 0;
   }
   
-  if (this_object()->query_volume(D_ALCOHOL))
+  if (this_object()->query_intoxication())
     s2 = drunk_speech(s2);
 
   s = query_whisper_word_type(s2);
@@ -566,7 +566,7 @@ int do_shout(string str)
 
   str = PROFANITY_HANDLER->clean_language(str);
 
-  if (this_object()->query_volume(D_ALCOHOL))
+  if (this_object()->query_intoxication())
     str = drunk_speech(str);
     
   log_file(SHOUT_LOGFILE, "[" + ctime(time(), 4) + " - " + 

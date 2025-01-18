@@ -392,7 +392,7 @@ int do_guess_coordinates(object * locations)
 object convert_room_to_location(object room)
 {
   object location;
-  string file_name, * exits;
+  string file_name, * exits, ret;
   mapping exit_map;
   int i;
 
@@ -431,16 +431,32 @@ object convert_room_to_location(object room)
   // add exits to the location object, will be saved on next save_me()
   location->add_exits_from_exit_map(exit_map);
 
+  ret = "";
+
   // add components to the location object
   if (room->query_shop())
+  {
     location->add_component(LOCATION_COMPONENT_SHOP, ([ 
       "permanent_goods" : room->query_permanent_goods(),
         ]));
+    ret += "   Adding component shop.\n";
+  }
+
+  if (room->query_pub())
+  {
+    location->add_component(LOCATION_COMPONENT_PUB, ([ 
+      "menu_items" : room->query_menu_items(),
+        ]));
+    ret += "   Adding component pub.\n";
+  }
+
+
 
   // TO DO
   // add shop as point of interest in area
   // add attender as vacancy in area
 
+  write(ret);
 
   location->save_me();
 

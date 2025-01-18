@@ -15,17 +15,20 @@ void create()
   missing = 0;
 }
 
-int drunk_heart_beat(int intox) 
+int heart_beat() 
 {
   int lvl, i, con;
+  int intox;
   object *obs;
+
+  intox = (int)this_object()->query_intoxication();
 
   if (intox <= 0)
     return 1;
 
   if (missing) 
   {
-    missing --;
+    missing--;
     return 0;
   }
 
@@ -35,13 +38,13 @@ int drunk_heart_beat(int intox)
   if (--drunkness > 0 && !missing)
     return 1;
 
-  con = (int)this_player()->query_con();
+  con = (int)this_object()->query_con();
 
-  if (random((50-con)*10) > intox)
+  if (random((50 - con) * 10) > intox)
     return 1;
 
-  drunkness = 20+random(30);
-  lvl = random(intox)/1500;
+  drunkness = 20 + random(30);
+  lvl = random(intox) / 1500;
 
   if (lvl > 3)
     lvl = 3;
@@ -52,19 +55,19 @@ int drunk_heart_beat(int intox)
       switch (random(5)) 
       {
         case 0 :
-          command("hiccup");
+          this_object()->do_command("hiccup"); // hipo
           break;
         case 1 :
-          command("burp");
+          this_object()->do_command("burp"); // eructar
           break;
         case 2 :
-          command("puke");
+          this_object()->do_command("puke"); // vomitar
           break;
         case 3 :
-          command("trip");
+          this_object()->do_command("trip"); // tropezar
           break;
         case 4 :
-          command("stagger");
+          this_object()->do_command("stagger"); // tambalearse
           break;
       }
       break;
@@ -73,11 +76,11 @@ int drunk_heart_beat(int intox)
       {
         case 0 :
           write("You trip over and fall on your face.\n");
-          say(this_player()->query_cap_name()+" trips over "+
+          say(this_player()->query_cap_name() + " trips over " +
              "and falls on " +
              (string)this_object()->query_possessive() +
              " face.\n");
-          missing = 10+random(10);
+          missing = 10 + random(10);
           return 0;
           break;
       }
@@ -95,18 +98,18 @@ int drunk_heart_beat(int intox)
           if (!sizeof(obs))
             break;
 
-          write("Weird, a "+obs[i]->short()+" that looks just "+
-                "like your own "+obs[i]->short()+" lies on the "+
+          write("Weird, a " + obs[i]->short() + " that looks just " +
+                "like your own " + obs[i]->short() + " lies on the " +
                 "ground.\n");
-          say(this_player()->query_cap_name()+" stumbles a bit "+
-              "and drops "+obs[i]->short()+".\n");
+          say(this_player()->query_cap_name() + " stumbles a bit " +
+              "and drops " + obs[i]->short() + ".\n");
           break;
 
         case 1 :
           write("The ground rises up and strikes you in your face.\n");
-          say(this_player()->query_cap_name()+" falls heavily "+
+          say(this_player()->query_cap_name() + " falls heavily " +
               "to the ground.\n");
-          this_player()->adjust_hp(-random(3),this_player());
+          this_player()->adjust_hp(-random(3), this_player());
           break;
       }
       break;
@@ -118,14 +121,14 @@ int drunk_heart_beat(int intox)
           call_out("remove_property",20+random(30),
                        PASSED_OUT_PROP);
           write("The world goes black.  You have passed out.\n");
-          say(this_object()->query_cap_name()+
-               " looks ill the falls on the ground and lies "+
-               "there with a blank look on "+
-               this_object()->query_objective()+" face.\n");
+          say(this_object()->query_cap_name() +
+               " looks ill the falls on the ground and lies " +
+               "there with a blank look on " +
+               this_object()->query_objective() + " face.\n");
           return 0;
           break;
         case 1 : /* wandering fits */
-          do_wander(5+random(10));
+          do_wander(5 + random(10));
           break;
       }
       break;
@@ -139,15 +142,15 @@ void do_wander(int num)
   int i, bong;
 
   if (num > 0)
-    call_out("do_wander", 2+random(5), --num);
+    call_out("do_wander", 2 + random(5), --num);
 
   direcs = (mixed *)environment()->query_dest_dir();
 
   while (!bong && sizeof(direcs)) 
   {
-    i = random(sizeof(direcs)/2)*2;
+    i = random(sizeof(direcs) / 2) * 2;
     this_object()->add_property(UNKNOWN_MOVE_PROP, 1);
-    bong = command(direcs[i]);
+    bong = this_object()->do_command(direcs[i]);
     this_object()->remove_property(UNKNOWN_MOVE_PROP);
 
     if (!bong)

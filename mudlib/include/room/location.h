@@ -5,3 +5,4 @@
 // location component types
 
 #define LOCATION_COMPONENT_SHOP "shop"
+#define LOCATION_COMPONENT_PUB "pub"
