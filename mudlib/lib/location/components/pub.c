@@ -26,7 +26,7 @@ void dest_me()
 }
 
 // will be called after creation + init_auto_load_attributes,
-// providing de parent location object
+// providing the parent location object
 void initialize(object location)
 {
   component::initialize(location);

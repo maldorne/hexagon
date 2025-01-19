@@ -6,25 +6,26 @@
 #include <mud/secure.h>
 #include <mud/config.h>
 #include <living/living.h>
+#include <areas/weather.h>
 #include <common/properties.h>
 #include <basic/money.h>
 #include <language.h>
 #include <translations/cmds.h>
 
-inherit living      "/lib/living/living";
+inherit living      "/lib/living/living.c";
 
-inherit auto_load   "/lib/core/basic/auto_load";
+inherit auto_load   "/lib/core/basic/auto_load.c";
 
-inherit events      "/lib/player/events";
-inherit history     "/lib/player/history";
-inherit alias       "/lib/player/alias";
-inherit nickname    "/lib/player/nickname";
-inherit migration   "/lib/player/migration";
-inherit past        "/lib/player/past";
-inherit quests      "/lib/player/quests";
-inherit weather     "/lib/player/weather";
-inherit read        "/lib/player/read";
-inherit health      "/lib/player/health";
+inherit events      "/lib/player/events.c";
+inherit history     "/lib/player/history.c";
+inherit alias       "/lib/player/alias.c";
+inherit nickname    "/lib/player/nickname.c";
+inherit migration   "/lib/player/migration.c";
+inherit past        "/lib/player/past.c";
+inherit quests      "/lib/player/quests.c";
+inherit weather     "/lib/player/weather.c";
+inherit read        "/lib/player/read.c";
+inherit health      "/lib/player/health.c";
 
 static object _user;      // the user/account object that handles the connection
 string account_name;      // user email, used to find the owner account
@@ -40,18 +41,6 @@ static int save_counter;  // each reset counter
 static int last_command;  // time of last command
 static int _net_dead;     // has lost connection?
 
-// TMP DEBUG, REMOVE!!!
-
-int check_dark(int light)
-{
-  if (this_object()->query_dead())
-    return 0;
-  if (this_object()->query_race_ob())
-    return (int)query_race_ob()->query_dark(light);
-  return 0;
-}
-// END TMP DEBUG
-
 // Function prototypes
 nomask object user();
 nomask int query_coder();
@@ -60,6 +49,7 @@ nomask int save_me();
 #include "/lib/player/start.c"
 #include "/lib/player/death.c"
 #include "/lib/player/quit.c"
+#include "/lib/player/dark.c"
 
 void create()
 {
@@ -118,6 +108,21 @@ void init()
 
   // main inherit last
   living::init();
+}
+
+int move(mixed dest, varargs mixed messin, mixed messout)
+{
+  int i;
+
+  if (environment() && (environment()->query_outside()))
+    handler(WEATHER_HANDLER)->unnotify_me(environment());
+
+  i = ::move(dest, messin, messout);
+
+  if (environment() && (environment()->query_outside()))
+    handler(WEATHER_HANDLER)->notify_me(environment());
+
+  return i;
 }
 
 nomask int query_link() { return 0; }

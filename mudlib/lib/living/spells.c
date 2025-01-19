@@ -535,7 +535,7 @@ int show_schools(string str)
   return written;
 } /* int show schools..*/
 
-int spell_damage(int damage, string type, object caster)
+int spell_damage(int damage, string type, varargs object caster)
 {
   int prot;
   int original;

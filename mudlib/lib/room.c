@@ -28,11 +28,10 @@ inherit guard      "/lib/room/guard.c";
 inherit navigation "/lib/room/navigation.c";
 inherit diplomacy  "/lib/room/diplomacy.c";
 inherit sign       "/lib/room/sign.c";
+inherit dark       "/lib/room/dark.c";
 
 static mixed * room_clones;
 static mapping items;
-
-static string dark_mess;
 
 object * destables;
 
@@ -44,14 +43,6 @@ void set_quit_destination(string str) { quit_destination = str; }
 
 nomask int query_room() { return 1; }
 nomask int query_location() { return 0; }
-
-void set_dark_mess(string str) { dark_mess = str; }
-
-// moved glance code to the command (: Radix 1996
-string short(varargs int dark)
-{
-  return ::short(dark);
-}
 
 int id(string str)
 {
@@ -66,12 +57,12 @@ void create()
 
   items = ([ ]);
   destables = ({ });
-  set_dark_mess(_LANG_ROOM_TOO_DARK);
 
   // seteuid(SECURE->creator_file(file_name(this_object())));
   // seteuid(ROOM_EUID);
 
   light::create();
+  dark::create();
   contents::create();
 
   exits::create();
@@ -184,30 +175,14 @@ void add_clone(string the_file, int how_many, varargs int flags)
   room_clones += ({ the_file });
 }
 
-mixed *query_room_clones() { return room_clones; }
+mixed * query_room_clones() { return room_clones; }
 
-string query_dark_mess(int lvl)
+string short(varargs int dark)
 {
-  if (!exit_string)
-    exit_string = query_dirs_string();
-  
-  switch(lvl)
-  {
-    default:
-      return _LANG_ROOM_LIGHT_DEF;
-    case 1: /* Total blackout */
-      return dark_mess;
-    case 2: /* pretty damn dark */
-      return _LANG_ROOM_LIGHT_2;
-    case 3: /* getting dim */
-      return _LANG_ROOM_LIGHT_3;
-    case 4: /* slightly dazzled */
-      return _LANG_ROOM_LIGHT_4;
-    case 5: /* very bright */
-      return _LANG_ROOM_LIGHT_5;
-    case 6:
-      return _LANG_ROOM_LIGHT_6;
-  }
+  if (dark)
+    return query_dark_mess(dark);
+  else
+    return ::short();
 }
 
 string long(string str, int dark)
@@ -434,6 +409,7 @@ mixed * stats()
   return zone::stats() +
       exits::stats() +
       light::stats() +
+      dark::stats() +
       guard::stats() +
       navigation::stats() +
       diplomacy::stats();

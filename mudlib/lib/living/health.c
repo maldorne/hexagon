@@ -377,8 +377,6 @@ string health_string(int self)
 // functions related to foods and drinks
 int adjust_volume(int type, int amt) 
 { 
-  write("adjust_volume: " + type + " " + amt + "\n");
-
   if (!pointerp(volumes))
     volumes = allocate_int(D_SIZEOF);
   if (type != D_FOOD && type != D_DRINK)
@@ -389,8 +387,6 @@ int adjust_volume(int type, int amt)
 int query_intoxication() { return volumes[D_ALCOHOL]; }
 int adjust_intox(int amt)
 {
-  write("adjust_intox: " + amt + "\n");
-
   if (!pointerp(volumes))
     volumes = allocate_int(D_SIZEOF);
   return volumes[D_ALCOHOL] += amt;

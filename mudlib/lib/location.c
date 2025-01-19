@@ -41,6 +41,8 @@ void add_exits_from_exit_map(mapping m);
 
 nomask int query_location() { return 1; }
 nomask int query_room() { return 1; }
+nomask int query_outside() { return !undefinedp(component_info[LOCATION_COMPONENT_OUTSIDE]); }
+
 // allow adding and removing objects from the inventory (is a room)
 int add_weight(int n) { return 1; }
 int test_add(object ob, int flag) { return 1; }
@@ -80,6 +82,7 @@ void create()
   //   else
   //     save_me();
   // }
+
   set_light(BASE_ROOM_LIGHT_VALUE);
 
   // allow goto command to work
@@ -199,30 +202,69 @@ string short(varargs int dark)
   return ret;
 }
 
-string long(string str, int dark)
+string long(varargs string str, int dark)
 {
   string ret, aux;
   int i;
 
+  // // looking to an item
+  // if (str && strlen(str))
+  // {
+  //   str = expand_alias(str);
+  //   return items[str];
+  // }
+
   ret = "";
 
+  if (this_player())
+    dark = (int)this_player()->check_dark(query_light());
+
   for (i = 0; i < sizeof(components); i++)
-    ret += components[i]->long(str, dark);
+  {
+    aux = components[i]->long(str, dark);
+
+    if (!aux || !strlen(aux))
+      continue;
+
+    // if this component says only its long() matters
+    if (components[i]->override_function("long"))
+    {
+      ret = aux; 
+      break;
+    }
+
+    ret += aux;
+  }
 
   if (!ret || !strlen(ret))
     // ret = _original_long;
     ret = wrap(_original_long, 
-                (this_user() ? this_user()->query_cols() : 80), 1); 
+                (this_user() ? this_user()->query_cols() : 79), 1); 
 
-  aux = query_components_string();
-
-  if (this_player()->query_coder() && strlen(aux))
-    ret += aux + "\n";
+  if (this_player()->query_coder())
+  {
+    aux = query_components_string();
+    if (strlen(aux))
+      ret += aux + "\n";
+  }
 
   exit_string = query_dirs_string();
   ret += exit_string + "\n" + query_contents("");
 
   return ret;
+}
+
+string calc_extra_look()
+{
+  string ret;
+  int i;
+
+  ret = "";
+
+  for (i = 0; i < sizeof(components); i++)
+    ret += components[i]->extra_look();
+
+  return ret + ::calc_extra_look();
 }
 
 string query_area_name() { return area_name; }
@@ -467,6 +509,28 @@ void dest_me()
   destruct(this_object());
 }
 
+// util function to sum the values returned by a function 
+// in every component
+int _component_sum(string func)
+{
+  int i, sum;
+  sum = 0;
+
+  for (i = 0; i < sizeof(components); i++)
+    sum += call_other(components[i], func);
+
+  return sum;
+}
+
+int query_light()
+{
+  int components_light;
+
+  components_light = _component_sum("query_light");
+
+  return light::query_light() + components_light;
+}
+
 mixed * stats()
 {
   int i;
@@ -489,7 +553,6 @@ mixed * stats()
       ({ "Components stats (extra info)", comp_stats, }),
           });
 
-      // light::stats() +
       // desc::stats() +
       // guard::stats() +
       // navigation::stats() +

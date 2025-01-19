@@ -133,13 +133,18 @@ mapping query_my_obs() { return my_obs; }
 // The object asks to be told about weather events
 void notify_me(object ob) 
 {
+  if (!my_obs[ob]) 
+    my_obs[ob] = 0;
+
   my_obs[ob]++;
 }
 
 // The object tells us it is really bored by these damn stupid weather events
 void unnotify_me(object ob) 
 {
-  if (!my_obs[ob]) return;
+
+  if (!my_obs[ob]) 
+    return;
   if (--my_obs[ob] <= 0)
     my_obs = m_delete(my_obs, ob);
 }

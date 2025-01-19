@@ -10,8 +10,8 @@ inherit contents "/lib/core/basic/contents.c"; // old cute_look.c
 #define BASE_WEIGHT_REDUCTION 30
 #define DEFAULT_MAX_WEIGHT 0
 
-static int max_weight;       /* maximum allowable weight, 0 = no limit */
-static int contents_weight;  /* current contained weight */
+static int max_weight;       // maximum allowable weight, 0 = no limit
+static int contents_weight;  // current contained weight
 static int weight_reduction;
 
 

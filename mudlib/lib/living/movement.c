@@ -134,9 +134,9 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   }
 
   if (arrive)
-    ret = container::move(dest, arrive[1..], leave[1..]);
+    ret = move(dest, arrive[1..], leave[1..]);
   else
-    ret = container::move(dest);
+    ret = move(dest);
 
   // important: MOVE_OK == 0, value != 0 means it did not move
   if (ret != MOVE_OK)
@@ -153,7 +153,7 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   //   return ({ });
 
   return 1;
-} /* move_player() */
+}
 
 void run_away()
 {

@@ -2,7 +2,7 @@
 #include <kernel.h>
 
 // prototypes
-object *wiz_present(string str, object onobj, varargs int nogoout);
+object * wiz_present(string str, object onobj, varargs int nogoout);
 
 static string desc_object(mixed o)
 {
@@ -60,7 +60,7 @@ void inform_of_call(object ob, mixed *argv)
 
 } /* inform_of_call() */
 
-static mixed *parse_args(string str, string close)
+static mixed * parse_args(string str, string close)
 {
   mixed *args, *m, *m2;
   object *obs;

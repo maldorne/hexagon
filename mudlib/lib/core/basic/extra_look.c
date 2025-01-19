@@ -1,5 +1,5 @@
 
-private static object *extra_looks;
+private static object * extra_looks;
 
 void create() 
 {
@@ -29,12 +29,13 @@ string calc_extra_look()
 			i--;
 		}
 	}
+  
 	return s1;
 }
 
 void add_extra_look(object ob) 
 {
-	if(member_array(ob, extra_looks) != -1) 
+	if (member_array(ob, extra_looks) != -1) 
 		return;
 	extra_looks += ({ ob });
 }

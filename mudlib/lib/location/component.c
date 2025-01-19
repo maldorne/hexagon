@@ -31,6 +31,24 @@ void initialize(object loc)
   location = loc;
 }
 
+// if one of the components of a location returns 1 to an override_function,
+// is indicating its result is the only one that matters
+// i.e.: long() will take into account the description of every component,
+// but if one of them returns 1 to override_function("long"), it will be only
+// its long() what will be returned
+
+int override_function(string func)
+{
+  // by default a component never overrides anything
+  return 0;
+}
+
+string extra_look()
+{
+  // default implementation, return empty string
+  return "";
+}
+
 // basic component functions
 string query_type() { return type; }
 void set_type(string t) { type = t; }
