@@ -74,6 +74,9 @@ object load_location(string file_name)
   area = query_area_from_location_file_name(file_name);
   location = area->load_location(file_name);
 
+  if (!location)
+    return nil;
+
   // sector = query_sector_from_location_file_name(file_name);
 
   // add the already loaded location into the sector system too

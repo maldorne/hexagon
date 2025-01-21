@@ -46,6 +46,9 @@ string add_location(object location)
   object sector_storage;
   string path, file_name, content;
 
+  if (!location)
+    return nil;
+
   stderr("🎃 maps add_location: " + location->query_file_name() + "\n");
 
   if (location->query_coordinates() == nil)
