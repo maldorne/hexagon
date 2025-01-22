@@ -148,7 +148,7 @@ int query_hands_needed() { return hands; }
 // Jan 18, 1996
 string long(varargs string s, int dark)
 {
-  string cond, xtra;
+  string cond, xtra, help;
   if ((this_object()->query_weapon()) ||
       (this_object()->query_armour()) ||
       (this_object()->query_shield()) )
@@ -158,13 +158,18 @@ string long(varargs string s, int dark)
 
   xtra = calc_extra_look();
 
+  if (function_exists("query_help", this_object()))
+    help = _LANG_ITEM_HAS_HELP;
+
   if (!cond)
     cond = "";
   if (!xtra)
     xtra = "";
+  if (!help)
+    help = "";
 
   return wrap(obj::long(), (this_user() ? this_user()->query_cols() : 80), 1) + 
-         read_desc::long() + xtra + cond;
+         read_desc::long() + xtra + help + cond;
 }
 
 /* **************************

@@ -28,6 +28,7 @@
 // item.c
 
 #define _LANG_ITEM_BREAKS "Your " + query_name() + " breaks in a thousand pieces!\n"
+#define _LANG_ITEM_HAS_HELP "This object has a help message available.\n"
 
 // armour.c
 
