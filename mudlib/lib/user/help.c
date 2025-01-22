@@ -215,7 +215,7 @@ int do_help(string str)
 
     for (loop = 0; loop < sizeof(objs); loop++)
     {
-      if (text = (string)objs[loop]->get_help())
+      if (text = (string)objs[loop]->query_help())
       {
         write(_LANG_HELP_HELP_ABOUT);
         flag = 1;

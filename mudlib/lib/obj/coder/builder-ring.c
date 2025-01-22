@@ -38,7 +38,7 @@ void create()
   set_weight(1);
 }
 
-string get_help(varargs string str) { return BUILDER_RING_HELP; }
+string query_help(varargs string str) { return BUILDER_RING_HELP; }
 
 void init()
 {

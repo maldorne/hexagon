@@ -46,7 +46,7 @@ void create()
   set_weight(1);
 }
 
-string get_help(varargs string str) { return _LANG_HEARTHSTONE_HELP; }
+string query_help(varargs string str) { return _LANG_HEARTHSTONE_HELP; }
 
 string long(string s, int dark)
 {
