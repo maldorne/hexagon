@@ -381,7 +381,7 @@ int wear_ob(object ob)
 int do_wear(string woo)
 {
   object *boo;
-  int i;
+  int i, has;
   int size;
 
   if (this_object()->query_dead())
@@ -396,7 +396,11 @@ int do_wear(string woo)
     return 0;
   }
 
+  has = FALSE;
   boo = find_match(woo, this_object());
+
+  if (sizeof(boo) >= 1)
+    has = TRUE;
 
   if (!sizeof(boo))
   {
@@ -435,6 +439,13 @@ int do_wear(string woo)
 
     return wear_ob(boo[0]);
   }
+
+  if (has)
+  {
+    notify_fail(_LANG_WEAR_ALREADY_WEARING);
+    return 0;
+  }
+
   return 1;
 }
 
@@ -464,7 +475,7 @@ int do_unwear(string woo)
 
   if (!sizeof(boo))
   {
-    notify_fail(_LANG_WEAR_NOT_IN_INV);
+    notify_fail(_LANG_UNWEAR_NOT_WEARING);
     return 0;
   }
 
