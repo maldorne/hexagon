@@ -604,7 +604,7 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
   //   cat(doc("news.txt"));
 
   // do not show the first prompt, a command will be issued
-  // in move_player_to_start and after that the prompt will be
+  // in user::start and after that the prompt will be
   // shown
   _user->set_no_prompt();
 

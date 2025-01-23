@@ -34,6 +34,7 @@
                 (is_new_player ? " (%^GREEN%^BOLD%^New player%^RESET%^)" : "")
 #define _LANG_NEW_MANDATORY_ITEM "Because of some error, you have lost your " + \
                 ob->query_name() + ". A new one is given to you.\n"
+#define _LANG_START_CONNECTING_GAME "You are connecting to " + master->query_game_name() + "...\n"
 
 // quit.c
 

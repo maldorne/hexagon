@@ -36,6 +36,7 @@
                   (query_gender() == 2 ? "a" : "") + "%^RESET%^)" : "")
 #define _LANG_NEW_MANDATORY_ITEM "Por algún error has debido perder tu " + ob->query_name() + ". " + \
               "Otr" + ob->query_vowel() + " nuev" + ob->query_vowel() + " te es concedid" + ob->query_vowel() + ".\n"
+#define _LANG_START_CONNECTING_GAME "Te estás conectando a " + master->query_game_name() + "...\n"
 
 // quit.c
 

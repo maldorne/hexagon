@@ -5,6 +5,7 @@
 #include <living/death.h>
 #include <basic/communicate.h>
 #include <room/location.h>
+#include <mud/translations.h>
 #include <translations/races.h>
 #include <translations/inform.h>
 #include <language.h>
@@ -40,8 +41,26 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
     time_on += time();
   if (time_on > 0)
     time_on = 0;
-
   time_on += time();
+
+  // show welcome message for the specific game
+  if (last_pos && strlen(last_pos))
+  {
+    string game, welcome, lang;
+    object master;
+
+    lang = GLOBAL_COMPILE_LANG;
+    game = game_from_path(last_pos);
+    welcome = "/games/" + game + "/docs/" + lang + "/welcome.txt";
+    master = load_object("/games/" + game + "/master.c");
+
+    if (master)
+      write(_LANG_START_CONNECTING_GAME);
+
+    if (file_exists(welcome))
+      cat(welcome);
+  }
+  
   start_player();
 
   if (!msgin || msgin[0] != '@')
