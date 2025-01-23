@@ -314,13 +314,19 @@ static mixed include_file(string includer, string include)
     include = path(includer) + ".lang." + GLOBAL_COMPILE_LANG + ".h";
   }
   // files in /include/translations will be copied for every language, if we include 
-  // <translations/blabla.h>, we will change it to something like  <translations/blabla.en.h>
+  // <translations/blabla.h>, we will change it to something like <translations/blabla.en.h>
   else if ( (strlen(include) > 21) && (include[0..21] == "/include/translations/"))
   {
-    string file_name;
+    string file_name, * pieces;
     file_name = include[22..]; // get only the filename
     file_name = file_name[0..strlen(file_name) - 3]; // remove the file extension
-    include = "/include/translations/" + file_name + "." + GLOBAL_COMPILE_LANG + ".h";
+
+    // if the file already ends in ".en", ".es", etc, do not append the language
+    pieces = explode(file_name, ".");
+    if (sizeof(pieces) > 1 && member_array(pieces[sizeof(pieces)-1], SUPPORTED_LANGUAGES) != -1)      
+      include = "/include/translations/" + file_name + ".h";
+    else
+      include = "/include/translations/" + file_name + "." + GLOBAL_COMPILE_LANG + ".h";
   }
   else
   {
