@@ -25,10 +25,8 @@ void add_preload(string file)
   }
 }
 
-string * query_preload() 
-{
-  return preload;
-}
+string * query_preload() { return preload; }
+string * query_call_out_preload() { return call_out_preload; }
 
 void remove_preload(string file)
 {
@@ -78,27 +76,28 @@ void remove_call_out_preload(string file)
   {
     if (sizeof(call_out_preload)) 
     {
-      i = member_array(file, call_out_preload);
-      if (i >= 0) 
+      if (member_array(file, call_out_preload) != -1)
       {
-        call_out_preload = delete(call_out_preload, i, 1);
+        call_out_preload -= ({ file });
         save_object(SECURE_SAVE_PATH);
       }
     }
   }
 }
 
-nomask void _preload(string file) 
+nomask void _preload(string file, varargs int delayed) 
 {
-  string e;
+  string e, d;
+
+  d = (delayed ? " (delayed)" : "");
 
   if (!file_exists(file))
   {
-    stderr(" ~ preloading: " + file + " (file does not exist).\n");
+    stderr(" ~ preloading" + d +": " + file + " (file does not exist).\n");
     return;
   }
 
-  stderr(" ~ preloading: " + file + ".\n");
+  stderr(" ~ preloading" + d +": " + file + ".\n");
 
   if ((e = catch(load_object(file)->dummy()))) 
     write("      "+e+"\n");
@@ -118,6 +117,6 @@ nomask void load_secure_object()
       call_out("_preload", 0, preload[i]);
 
     for (i = 0; i < sizeof(call_out_preload); i++)
-      call_out("_preload", 2, call_out_preload[i]);
+      call_out("_preload", 2, call_out_preload[i], TRUE);
   }
 }
