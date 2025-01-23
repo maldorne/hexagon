@@ -13,6 +13,7 @@ max_gp 100
 hp 100
 gp 100
 map_prop ([1|"channels":({1|"coders",}),])
+volumes ({3|0,0,0,})
 timed_prop ([0|])
 create_me "object"
 msgout "@$N goes to $T."
