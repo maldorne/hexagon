@@ -3,6 +3,7 @@
  * This is all the autoloading stuff.
  * please don't remove again - lynscar.
  */
+
 void add_preload(string file) 
 {
   if (previous_object() == this_object() ||
@@ -24,6 +25,11 @@ void add_preload(string file)
   }
 }
 
+string * query_preload() 
+{
+  return preload;
+}
+
 void remove_preload(string file)
 {
   int i;
@@ -33,11 +39,9 @@ void remove_preload(string file)
   {
     if (sizeof(preload)) 
     {
-      i = member_array(file, preload);
-
-      if (i >= 0) 
+      if (member_array(file, preload) != -1)
       {
-        preload = preload[0 .. i - 1] + preload[i + 1 .. 1000];
+        preload -= ({ file });
         save_object(SECURE_SAVE_PATH);
       }
     }

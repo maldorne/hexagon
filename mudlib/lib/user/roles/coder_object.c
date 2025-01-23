@@ -57,9 +57,8 @@ private int _update_objects(object * ov)
   if (this_player(1) != this_user())
     return 0;
 
-  load_object(ROOM_VOID);
+  rsv = load_object(ROOM_VOID); // RSV = Room Slash Void
 
-  rsv = find_object(ROOM_VOID); // RSV = Room Slash Void
   if (!rsv)
   {
     // Die in horror
