@@ -16,6 +16,7 @@
 #include <mud/cron.h>
 #include <mud/cmd.h>
 
+#include <room/room.h>
 #include <room/location.h>
 #include <areas/area.h>
 #include <maps/maps.h>
@@ -94,17 +95,21 @@ static nomask void initialize()
   ::call_other(load_object(TERM_HANDLER), "???");
   ::call_other(load_object(CMD_HANDLER), "???");
 
+  // some handlers will be moved to a room in their create(), preload room.c first
+    ::call_other(load_object(ROOM_OBJECT), "???");
+
   if (CONFIG_USE_CRON)
     ::call_other(load_object(CRON_HANDLER), "???");
 
   if (CONFIG_USE_LOCATIONS)
   {
+    ::call_other(load_object(BASE_LOCATION_OBJ), "???");    
     ::call_other(load_object(LOCATION_HANDLER), "???");    
     ::call_other(load_object(AREA_HANDLER), "???");
     ::call_other(load_object(MAPS_HANDLER), "???");
   }
 
-  load_object(LOGIN_OB);
+  ::call_other(load_object(LOGIN_OB), "???");
 
   date = ::ctime(time())[4 .. 18];
 

@@ -63,10 +63,9 @@ void setup()
 
   add_property("no_clean_up", 1);
 
-  call_out("read_crontab", 1); 
+  call_out("read_crontab", 10); 
 
-  // First call to be done inmediately, this creates zone guards
-  call_out("cron_step", 5); 
+  call_out("cron_step", 15); 
   // call_out("cron_step_aux", 600);
   seteuid("root");
     
