@@ -32,7 +32,7 @@ typechecking = 2;
 include_file = "/include/std.h";
 
 /* directories to search */
-include_dirs = ({ "/include", "~/include" });
+include_dirs = ({ "/include" });
 
 /* auto inherited object */
 auto_object = "/lib/core/auto";
