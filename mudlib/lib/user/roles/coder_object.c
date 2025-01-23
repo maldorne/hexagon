@@ -23,7 +23,7 @@ void role_commands()
   add_action("do_update", "update");
 
   add_action("do_a_call", "call");
-  add_action("get_creator", "coder");
+  add_action("get_creator", ({ "coder", "creator" }));
   add_action("get_inv", "inv");
 
   // add_action("parse_frogs", ";*");
@@ -619,7 +619,7 @@ int get_creator(string str)
   int i;
 
   notify_fail("Creator of what?\n");
-  ov = wiz_present(str,this_player());
+  ov = wiz_present(str, this_player());
 
   if (!sizeof(ov))
     return 0;

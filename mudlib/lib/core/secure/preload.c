@@ -24,7 +24,8 @@ void add_preload(string file)
   }
 }
 
-void remove_preload(string file) {
+void remove_preload(string file)
+{
   int i;
 
   if (previous_object() == this_object() ||

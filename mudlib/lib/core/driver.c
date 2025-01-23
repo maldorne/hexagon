@@ -86,8 +86,8 @@ static nomask void initialize()
 
   // global object in charge of heart_beats, init calls, etc
   ::call_other(mudos    = load_object(MUDOS_PATH), "???");
-  ::call_other(secure   = load_object(SECURE_OB), "???");
-  ::call_other(user_h   = load_object(USER_HANDLER), "???");
+  ::call_other(secure   = load_object(SECURE_OB), "???"); // includes preload objects
+  ::call_other(user_h   = load_object(USER_HANDLER), "???"); // includes user and player objects
   ::call_other(living_h = load_object(LIVING_HANDLER), "???");
   ::call_other(object_h = load_object(OBJECT_HANDLER), "???");
   ::call_other(binary_h = load_object(BINARY_HANDLER), "???");
