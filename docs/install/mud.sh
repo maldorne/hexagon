@@ -1,2 +1,2 @@
 #!/bin/bash
-./dgd/bin/dgd ./config.dgd
+./dgd/bin/dgd ./hexagon/config.dgd
