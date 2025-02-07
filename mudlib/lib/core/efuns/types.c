@@ -1,4 +1,6 @@
 
+#include <kfun.h>
+
 #include <type.h>
 #include <limits.h>
 
@@ -38,10 +40,10 @@ static nomask int mappingp(mixed what)
   return 0;
 }
 
-static nomask int mapp(mixed what)
-{
-  return mappingp(what);
-}
+// static nomask int mapp(mixed what)
+// {
+//   return mappingp(what);
+// }
 
 static nomask int objectp(mixed what)
 {
@@ -78,16 +80,19 @@ static nomask int undefinedp(mixed what)
   return 0;
 }
 
-// i think DGD does not provide a type for function pointers, 
-// it identify them as objects... let's try with this for now
-// static nomask int functionp(mixed what)
-// {
-//   if (typeof(what) == T_OBJECT)
-//     return 1;
+// this define will only be present in kfun.h if DGD was compiled with the 
+// -DCLOSURES flag, allowing the use of function pointers
+#ifdef KF_NEW_FUNCTION  
 
-//   return 0;
-// }
+int functionp(mixed what)
+{
+  if (typeof(what) == T_OBJECT && what<-"/builtin/function")
+    return 1;
+
+  return 0;
+}
+
+#endif 
 
 // int userp(mixed what)
 // defined in efuns/user.c
-

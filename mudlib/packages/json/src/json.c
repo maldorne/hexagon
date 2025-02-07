@@ -612,7 +612,7 @@ string json_encode(mixed value, varargs mixed * pointers) {
     return value;
   }
 
-  if (mapp(value)) {
+  if (mappingp(value)) {
     string out;
     int ix;
     string * ks;
