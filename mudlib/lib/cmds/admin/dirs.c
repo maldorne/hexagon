@@ -1,5 +1,5 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 #define PEOPLER "/obj/handlers/peopler"
 
@@ -8,7 +8,7 @@ void setup()
     position=1;
 }
 
-protected int cmd(string str, object me, string verb){
+static int cmd(string str, object me, string verb){
     if(!this_player()->query_coordinator()){
 	write("No tienes suficiente rango para ejecutar este comando.\n");
 	return 1;

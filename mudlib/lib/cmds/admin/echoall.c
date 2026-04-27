@@ -1,5 +1,5 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
   
 void setup()
@@ -17,7 +17,7 @@ string query_usage()
 	return "command";
 }
 
-protected int cmd (string str,object me, string verb)
+static int cmd(string str,object me, string verb)
 {
 /*	efun::tell_object(me, (string)me->query_short()+
  *		(me->query_gtitle()? " "+me->query_gtitle() : "")+

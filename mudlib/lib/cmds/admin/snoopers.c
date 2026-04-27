@@ -1,6 +1,9 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
+
+static object query_snooping(object ob) { return nil; }
+
 void setup()
 {
 position = 2;
@@ -20,7 +23,7 @@ int check_qsnoop(object ob) {
     return 0;
 } /* check_snoop() */
  
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   object *obs, *qobs;
 int i;
       notify_fail("No one is being snooped by anyone.\n");

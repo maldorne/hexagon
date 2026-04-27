@@ -1,12 +1,12 @@
 // In <domain> del antiguo domain_communicator. 
 // Hecho comando por Folken 2001
 
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 
 
-protected int cmd(string str, object me, string verb) 
+static int cmd(string str, object me, string verb) 
 {
     string *doms;
     object *ob;

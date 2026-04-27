@@ -1,6 +1,6 @@
 /* Hamlet, Feb 1996 */
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 
 inherit CMD_BASE;
 
@@ -8,7 +8,7 @@ void setup(){
   position = 1;
 }
 
-string query_usage() { return "xdate <player>\n"
+string query_usage() { return "xdate <player>\n" +
                        "       xdate @<ipname|ipnumber>"; }
 
 string query_short_help() {
@@ -24,7 +24,7 @@ string query_short_help() {
 	*/
  }
  
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   object xdate_cmd;
   string name;
   string data;

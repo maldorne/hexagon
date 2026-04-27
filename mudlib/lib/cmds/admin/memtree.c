@@ -1,5 +1,5 @@
 // A inherit tree with memory_info
-#include <cmd.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 
 private object SearchObject( string name ) 

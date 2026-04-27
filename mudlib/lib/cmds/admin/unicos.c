@@ -1,5 +1,5 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 
 #include <unique_objects.h>
 

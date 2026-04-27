@@ -7,8 +7,8 @@
 /* Hamlet added ident stuff, Jan 1996 */
 /* Radix changed virtual_file_name to simul base_name, Jan 22, 1996 */
 
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 
 void setup()
@@ -16,7 +16,7 @@ void setup()
   position = 1;
 }
 
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   // Use peopler code to get players - Radix, July 1996
    object *players = users();
   int sz = sizeof(players);

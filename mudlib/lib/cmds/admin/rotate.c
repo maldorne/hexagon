@@ -1,5 +1,5 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 
 inherit CMD_BASE;
 
@@ -12,7 +12,7 @@ string query_short_help()
 	return "Modifica una zona cambiando los nombres de las salidas de todas sus rooms.";
 }
 
-protected int cmd(string str, object me, string verb)
+static int cmd(string str, object me, string verb)
 {
 	int i;
 	string *files;

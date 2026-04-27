@@ -1,8 +1,8 @@
 /* Hamlet, Feb 1996 - unix-style finger.
    Hamlet, Jun 1997 - reworked, simplified code.
 */
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 
 #define XFINGERD "/net/xfingerd"
 
@@ -12,7 +12,7 @@ void setup() {
   position = 1;
 }
 
-string query_usage() { return "xfinger [-m] [-l] <player>\n"
+string query_usage() { return "xfinger [-m] [-l] <player>\n" +
                        "       xfinger [-l] [<user>]@<ipname|ipnumber>"; }
 
 string query_short_help() {
@@ -35,7 +35,7 @@ string query_short_help() {
 		*/
  }
  
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   string name, user, hostip, hostname;
   string *strbits;
   object per;

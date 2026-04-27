@@ -1,8 +1,10 @@
 /* comando para busqueda de definiciones de funciones en lpc
 * by Kimmuriel '00
 */
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
+
+#define TP this_player()
 	inherit CMD_BASE;
 
 void setup(){
@@ -23,7 +25,7 @@ int line_n,     //contador de numero de linea que estamos leyendo
                 //de linea que se le pase al inmortal no se vea afectado por las lineas
                 //que insertemos al recortar lineas
 
-void debug(string str)
+void fsearch_debug(string str)
 {
 	tell_object(TP,str+"\n"); 
 	return;
@@ -199,7 +201,7 @@ void search_pattern(string str)
 			fin[0] != 59)
 			return;
 		if(str == "dest_me();")
-			debug(fin[0]+"<-----"+llaves);      
+			fsearch_debug(fin[0]+"<-----"+llaves);      
 		if(fin[0] == 59 &&
 			llaves)
 			return;
@@ -277,7 +279,7 @@ void search_pattern(string str)
 	return;
 }
 
-protected int cmd(string name, object ob, string verb)
+static int cmd(string name, object ob, string verb)
 {
 	string file;
 	int j;
@@ -289,7 +291,7 @@ protected int cmd(string name, object ob, string verb)
 	
 	if(!name)
 	{
-		debug("Sintaxis: fsearch <fichero.c>\n");
+		fsearch_debug("Sintaxis: fsearch <fichero.c>\n");
 		return 1;
 	}
 	

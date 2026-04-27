@@ -1,6 +1,6 @@
 /** coded by Raskolnikov July 1996 **/
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 
 void setup(){
@@ -8,7 +8,7 @@ void setup(){
     position = 1;
 }
 
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
     object ob;
     string *path, dest, err;
     object *dest2;

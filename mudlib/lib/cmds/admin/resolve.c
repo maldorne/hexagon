@@ -1,8 +1,8 @@
 /* Hamlet, Jun 1997 - Resolve an IP address from numeric to alphabetic
 		      or vice versa.  Needed for testing, mostly.
 */
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 
 inherit CMD_BASE;
 
@@ -26,7 +26,7 @@ string query_short_help() {
 	*/
 }
 
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
     if(!str)
     {
 	write(query_short_help());

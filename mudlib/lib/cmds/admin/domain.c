@@ -1,12 +1,12 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 
 void setup(){
   position =1;
 }
 
-nosave mapping blue;
+static mapping blue;
 
 int stats_sort_array(string str, string str2) {
   if (blue[str]["heart_beats"] > blue[str2]["heart_beats"])
@@ -44,7 +44,7 @@ string string_stats(mapping map) {
 } /* print_stats() */
 
  
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   mapping bit;
 
   if (str)

@@ -1,7 +1,7 @@
 // /global/creator/cmds/ll.c  --  does an ll
 // Isthar@Aurora 9-jan-1995
 
-#include <cmd.h>
+#include <mud/cmd.h>
 
 inherit CMD_BASE;
 
@@ -13,7 +13,7 @@ string query_short_help() {
  return "Lista completa de los archivos en el directorio actual o en el especificado.";
 }
 
-protected int cmd(string arg, object me, string verb){
+static int cmd(string arg, object me, string verb){
 string *list;
 string euid, file;
 object obj;

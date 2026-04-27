@@ -1,8 +1,8 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
  
-protected int cmd(string input, object me, string verb)  
+static int cmd(string input, object me, string verb)  
 {
     string *doms;
     object *ob;

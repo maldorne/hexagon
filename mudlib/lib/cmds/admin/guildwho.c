@@ -1,5 +1,5 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 
 void setup()
@@ -13,7 +13,7 @@ return "command";
 }
 
 
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   object *mems;
   string g_ob, mems2;
   int cols, i;

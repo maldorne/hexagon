@@ -1,5 +1,5 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 #define OBTRACK "/obj/handlers/item_info"
 
 inherit CMD_BASE;
@@ -24,7 +24,7 @@ string query_short_help()
 	*/
 }
 
-protected int cmd(string str, object ob, string verb)
+static int cmd(string str, object ob, string verb)
 {
     object itm, *obs;
 if (!ob) return 0;

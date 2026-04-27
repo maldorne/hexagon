@@ -1,4 +1,4 @@
-#include <cmd.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 
 void setup()
@@ -6,7 +6,7 @@ void setup()
    position = 1;
 }
 
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
    string ret, env;
    object ob;
    ret = "";

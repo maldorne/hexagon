@@ -1,5 +1,5 @@
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 inherit CMD_BASE;
 
 void setup(){
@@ -7,7 +7,7 @@ void setup(){
 position = 1;
 }
 
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   if (!str || str == "") {
     notify_fail("Usage: su <name>\n");
     return 0;

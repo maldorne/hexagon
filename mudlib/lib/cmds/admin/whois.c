@@ -1,8 +1,8 @@
 /* Hamlet, Jun 1997 - unix-style whois command.
                       Get information from one of the whois servers.
 */
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 
 #define WHOISD "/net/whoisd"
 
@@ -13,7 +13,7 @@ void setup() {
 }
 
 string query_usage() { 
-  return "whois [-s <whois.server>] <data>\n"
+  return "whois [-s <whois.server>] <data>\n" +
          "       whois --servers\n"; 
 }
 
@@ -32,7 +32,7 @@ string query_short_help() {
 	*/
  }
  
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   string server;
   string *strbits;
   int SKIP_PROC;

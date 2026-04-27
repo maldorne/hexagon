@@ -1,6 +1,6 @@
 
-#include <standard.h>
-#include <cmd.h>
+#include <std.h>
+#include <mud/cmd.h>
 
 inherit CMD_BASE;
 
@@ -25,7 +25,7 @@ string query_short_help() {
 	*/
 }
 
-protected int cmd(string str, object me, string verb) {
+static int cmd(string str, object me, string verb) {
   string *args;
   string *files;
   string path;
