@@ -20,8 +20,10 @@ Admin commands will be only in english, except texts shown to the players, which
 
 | Command    | Working in Hexagon |  Translated en/es  |   Help available   | Notes |
 | ---------- | :----------------: | :----------------: | :----------------: | ----- |
+| areas      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
 | ban        |                    |                    |                    |       |
 | clonein    |                    |                    |                    |       |
+| cmds       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
 | dirs       |                    |                    |                    |       |
 | domain     |                    |                    |                    |       |
 | domainwho  |                    |                    |                    |       |
@@ -34,7 +36,7 @@ Admin commands will be only in english, except texts shown to the players, which
 | ident      |                    |                    |                    |       |
 | in         |                    |                    |                    |       |
 | ll         |                    |                    |                    |       |
-| memory     |                    |                    |                    |       |
+| memory     | :white_check_mark: | :heavy_minus_sign: |                    |       |
 | memtree    |                    |                    |                    |       |
 | money_info |                    |                    |                    |       |
 | netstat    |                    |                    |                    |       |
@@ -43,10 +45,12 @@ Admin commands will be only in english, except texts shown to the players, which
 | qc         |                    |                    |                    |       |
 | qpeople    |                    |                    |                    |       |
 | register   |                    |                    |                    |       |
+| rehash     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
 | resolve    |                    |                    |                    |       |
 | rotate     |                    |                    |                    |       |
-| shutdown   |                    |                    |                    |       |
-| singletons |                    |                    |                    |       |
+| sectors    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
+| shutdown   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
+| singletons | :white_check_mark: | :heavy_minus_sign: |                    |       |
 | snetstat   |                    |                    |                    |       |
 | snoopers   |                    |                    |                    |       |
 | sockets    |                    |                    |                    |       |
@@ -54,8 +58,10 @@ Admin commands will be only in english, except texts shown to the players, which
 | status     |                    |                    |                    |       |
 | su         |                    |                    |                    |       |
 | suspend    |                    |                    |                    |       |
+| targets    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
 | terms      |                    |                    |                    |       |
 | unicos     |                    |                    |                    |       |
+| ventures   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
 | whois      |                    |                    |                    |       |
 | xdate      |                    |                    |                    |       |
 | xfinger    |                    |                    |                    |       |
