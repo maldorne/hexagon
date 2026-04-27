@@ -12,13 +12,16 @@ private object SearchObject( string name )
 
 private void WriteObject( string str, object ob ) 
 {
-  if ( ob ) 
+  if ( ob )
   {
-    string *Inherits = inherit_list( ob );
-    int i = sizeof( Inherits );
+    string *Inherits;
+    int i;
 	object Tmp;
 	int Mem;
-    
+
+    Inherits = inherit_list( ob );
+    i = sizeof( Inherits );
+
     while ( i-- ) 
     {
 		Tmp = SearchObject( Inherits[ i ] );

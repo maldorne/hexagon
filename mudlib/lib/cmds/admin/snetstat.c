@@ -18,16 +18,22 @@ void setup()
 
 static int cmd(string str, object me, string verb) {
   // Use peopler code to get players - Radix, July 1996
-   object *players = users();
-  int sz = sizeof(players);
-  string *info = allocate(4 * sz);
-  int    *sortstuff = allocate(sz);
+  object *players;
+  int sz;
+  string *info;
+  int    *sortstuff;
   int i,j,k;
   int least, tmp;
   int relevant, hits;
   string ipn;
   object ob;
-  int LORD_PER = 0;
+  int LORD_PER;
+
+  players = users();
+  sz = sizeof(players);
+  info = allocate(4 * sz);
+  sortstuff = allocate(sz);
+  LORD_PER = 0;
 
   if("/secure/master"->query_administrator(this_player(1)->query_name()))
     LORD_PER = 1;

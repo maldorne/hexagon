@@ -8,8 +8,9 @@ static int cmd(string input, object me, string verb)
     object *ob;
     int i;
     string str;
-    int yep = 0;
+    int yep;
     string *bass;
+    yep = 0;
     ob = users();
     if(!input)
     {

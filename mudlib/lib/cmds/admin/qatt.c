@@ -9,10 +9,12 @@ static int cmd(string str, object me, string verb)
 {
     object *ob;
     int i;
-    int yep = 0;
+    int yep;
     object *fig;
     int f;
-    
+
+    yep = 0;
+
     if( !this_player()->query_coordinator() )
     {
        tell_object(this_player(),"Solo Thanes y superiores pueden usar este comando.\n");

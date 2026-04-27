@@ -25,6 +25,22 @@ string query_short_help() {
 	*/
 }
 
+static string *substring_filter(string *arr, string pattern)
+{
+  string *result;
+  int k;
+
+  result = ({});
+  if (!pattern || strlen(pattern) == 0)
+    return result;
+  for (k = 0; k < sizeof(arr); k++)
+  {
+    if (arr[k] && sizeof(explode(arr[k], pattern)) > 1)
+      result += ({ arr[k] });
+  }
+  return result;
+}
+
 static int cmd(string str, object me, string verb) {
   string *args;
   string *files;
@@ -32,9 +48,13 @@ static int cmd(string str, object me, string verb) {
   string fname;
   string *match;
   string *tmp;
-  int i = 0,j = 0;
+  int i, j;
   int MATCHED;
-  int stopper = 0;
+  int stopper;
+
+  i = 0;
+  j = 0;
+  stopper = 0;
 
   notify_fail("usage: findfile [<path>] <filename\n");
 
@@ -61,7 +81,7 @@ static int cmd(string str, object me, string verb) {
     return 1;
   }
   while(1) {
-    if(sizeof(match = regexp(files[i..sizeof(files)-1],fname))) {
+    if(sizeof(match = substring_filter(files[i..sizeof(files)-1],fname))) {
       MATCHED = 1;
       for(j=0; j<sizeof(match); j++)
         tell_object(me, match[j]+"\n");

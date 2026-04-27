@@ -39,9 +39,13 @@ static int cmd(string str, object me, string verb) {
   string name, user, hostip, hostname;
   string *strbits;
   object per;
-  int MACHINE = 0, WIDE = 0;
-  int WASMATCH = 1;
-  
+  int MACHINE, WIDE;
+  int WASMATCH;
+
+  MACHINE = 0;
+  WIDE = 0;
+  WASMATCH = 1;
+
   notify_fail("Must specify user or host.\n");
   
   if(!str)
@@ -68,7 +72,7 @@ static int cmd(string str, object me, string verb) {
       if(strlen(str) < 4) /* Switch(es) without target. */
         return 0;
       /* else */
-      str = str[3..<1];
+      str = str[3..strlen(str)-1];
     }
   }    
   
@@ -102,8 +106,8 @@ static int cmd(string str, object me, string verb) {
       }
     }
     else {
-      hostip = strbits[<1];
-      user = implode(strbits[0..<2], "@");
+      hostip = strbits[sizeof(strbits)-1];
+      user = implode(strbits[0..sizeof(strbits)-2], "@");
     }
   }
 

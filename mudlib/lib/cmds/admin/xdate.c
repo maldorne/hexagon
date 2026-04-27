@@ -29,8 +29,10 @@ static int cmd(string str, object me, string verb) {
   string name;
   string data;
   object per;
-  string extrajunk = "";
-  
+  string extrajunk;
+
+  extrajunk = "";
+
   notify_fail("Must specify user or host.\n");
   
   if(!str)

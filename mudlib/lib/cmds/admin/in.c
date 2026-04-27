@@ -12,8 +12,10 @@ static int cmd(string str, object me, string verb)
     object *ob;
     int i;
     string fname;
-    int yep = 0;
+    int yep;
     string *bass;
+
+    yep = 0;
 
     if( !this_player()->query_coordinator() )
     {

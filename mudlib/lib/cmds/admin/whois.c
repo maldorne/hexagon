@@ -60,8 +60,9 @@ static int cmd(string str, object me, string verb) {
 
   if( str[0..5] == "--serv" ) { /* They just want a server list. */
     int i;
-    string resp = "";
+    string resp;
 
+    resp = "";
     servers = WHOISD->get_servers();
     strbits = keys(servers);
 
