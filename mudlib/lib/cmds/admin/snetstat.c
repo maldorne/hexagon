@@ -89,7 +89,7 @@ static int cmd(string str, object me, string verb) {
 
     if(!ob) {
       tell_object(this_player(),
-                  "  Unable to locate "+capitalize(str)+" in the "
+                  "  Unable to locate "+capitalize(str)+" in the " +
                   "realms.\n\n");
       return 1;
     }

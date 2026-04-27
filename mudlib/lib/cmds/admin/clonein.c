@@ -34,7 +34,7 @@ if(!patron && !thane && !mudlibber && !lord && !god) {
 	return 0;
     }
     sscanf(str, "%s %s", path, dest);
-    log_file("CLONEIN", me->query_cap_name()+" intento "
+    log_file("CLONEIN", me->query_cap_name()+" intento " +
       "ejecutar clonein "+str+" "+ctime(time())+"\n");
     paths = get_cfiles(path);
     if(!sizeof(paths)) {

@@ -20,14 +20,14 @@ static int cmd(string str, object me, string verb) {
     }
     if(!player->query_desc())
     {
-        notify_fail((string)player->query_cap_name()+" does not have a description set.\n"
+        notify_fail((string)player->query_cap_name()+" does not have a description set.\n" +
         "An automatic message has been sent telling them to do it.\n"
         );
-        tell_object(player,"Sorry, but you can't be registered until "
-        "your description has been filled in.\n"
-        "Simply \"describe (what you'd want others to see when they look at you)\"\n"
-        "Then tell "+this_player()->query_cap_name()+" or another immortal when "
-        "it's done.\n"
+        tell_object(player,"Sorry, but you can't be registered until " +
+        "your description has been filled in.\n" +
+        "Simply \"describe (what you'd want others to see when they look at you)\"\n" +
+        "Then tell "+this_player()->query_cap_name()+" or another immortal when " +
+        "it's done.\n" +
         "Do a good job of it, you have to live with it.\n"
         );
         return 0;
