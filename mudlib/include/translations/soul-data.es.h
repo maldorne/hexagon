@@ -119,7 +119,7 @@
 ])
 
 #define SOUL_DATA_B ([  \
-  SOUL_CMD_HOWL : ({ 0, ({ 
+  SOUL_CMD_HOWL : ({ 0, ({ \
       "Berreas hasta quedarte afónico", \
       "$mcname$ berrea hasta quedarse afónico" }) }), \
   SOUL_CMD_DANCE : ({ ({ 0, "%s", 0, "con %s" }), ({ \
