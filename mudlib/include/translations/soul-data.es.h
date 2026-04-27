@@ -297,7 +297,7 @@
 #define SOUL_DATA_H ([  \
   SOUL_CMD_HICCUP : ({ 0, ({ /* exciting stuff */ \
       "Te da hipo", \
-      "A $mcname$ le da hipo" }) }), \  
+      "A $mcname$ le da hipo" }) }), \
 ])
 
 #define SOUL_DATA_I ([ ]) 
