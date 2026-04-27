@@ -33,5 +33,5 @@
 // login_role
 
 #define _LANG_LOGIN_ROLE_CLEAR_ACTIONS ({ "clear", "cls" })
-#define _LANG_LOGIN_ROLE_SAVE_ACTIONS ({ "salvar", "grabar" })
+#define _LANG_LOGIN_ROLE_SAVE_ACTIONS ({ "salvar", "grabar", "save" })
 #define _LANG_LOGIN_ROLE_QUIT_ACTIONS ({ "salir" })
