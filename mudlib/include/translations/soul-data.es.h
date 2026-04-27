@@ -302,7 +302,7 @@
 
 #define SOUL_DATA_I ([ ]) 
 
-#define SOUL_DATA_J ([ ]) 
+#define SOUL_DATA_J ([ \
   SOUL_CMD_OATH : ({ ({ 0, "%s" }), ({ \
       "Juras tu eterno amor por $hcname$", \
       "$mcname$ te jura amor eterno", \
@@ -354,6 +354,7 @@
       "Niegas todo lo que $hcname$ ha dicho", \
       "$mcname$ niega todo lo que has dicho", \
       "$mcname$ niega todo lo que $hcname$ ha dicho" }) }), \
+])
 
 #define SOUL_DATA_O ([ ])
 
