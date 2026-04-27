@@ -45,6 +45,11 @@ string string_stats(mapping map) {
 
  
 static int cmd(string str, object me, string verb) {
+  tell_object(me, "domain: not yet reimplemented (depends on missing domain_stats() kfun).\n");
+  return 1;
+
+/* Original body kept for reference; domain_stats() does not exist in this
+ * driver. Reimplement when an equivalent stats source is wired in.
   mapping bit;
 
   if (str)
@@ -53,5 +58,6 @@ static int cmd(string str, object me, string verb) {
     bit = domain_stats();
    me->more_string(string_stats(bit));
   return 1;
+*/
 } /* do_author() */
 

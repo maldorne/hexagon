@@ -1,7 +1,10 @@
 #include <std.h>
 #include <mud/cmd.h>
 
+/* missing in the current mudlib; restore when the unique objects handler
+ * (HANDLER, UNASIGNED, VAULT) comes back.
 #include <unique_objects.h>
+ */
 
 inherit CMD_BASE;
 
@@ -10,20 +13,24 @@ void setup()
         position = 0;
 }
 
-protected int cmd(string str, object me, string verb) 
+static int cmd(string str, object me, string verb)
 {
+  tell_object(me, "unicos: not yet reimplemented in this mudlib.\n");
+  return 1;
+
+/* Original body kept for reference; depends on <unique_objects.h> (missing).
     int i;
     string ret;
     string *names;
     mixed *data;
     mapping obs = HANDLER->query_objects();
-    
+
     names = keys(obs);
-    
+
     ret =  "-------------------------------------------------------\n";
     ret += "  Lista de objetos únicos del juego:\n";
     ret += "-------------------------------------------------------\n";
-    
+
     for (i = 0; i < sizeof(names); i++){
     	data = obs[names[i]];
     	ret += "    %^BOLD%^"+names[i]+"%^RESET%^ está en:\n";
@@ -33,8 +40,8 @@ protected int cmd(string str, object me, string verb)
         ret += "-------------------------------------------------------\n";
     }
 
-    tell_object(me, ret);    
+    tell_object(me, ret);
     me->set_trivial_action();
     return 1;
+*/
 }
-

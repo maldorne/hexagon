@@ -10,8 +10,13 @@ private object SearchObject( string name )
   return find_object( name );
 }
 
-private void WriteObject( string str, object ob ) 
+private void WriteObject( string str, object ob )
 {
+  /* DGD has no `inherit_list` efun (the inherit graph is reachable via
+   * status(O, O_INHERITLIST) but with a different shape). Leaving the
+   * recursive walk as a stub; the top-level memory line still prints. */
+
+/* Original body kept for reference:
   if ( ob )
   {
     string *Inherits;
@@ -22,17 +27,18 @@ private void WriteObject( string str, object ob )
     Inherits = inherit_list( ob );
     i = sizeof( Inherits );
 
-    while ( i-- ) 
+    while ( i-- )
     {
 		Tmp = SearchObject( Inherits[ i ] );
 		if (!Tmp)
 			continue;
-				
+
 		Mem = memory_info( Tmp );
-		printf( "%-45s %6d Bytes\n", str + Inherits[ i ], Mem ); 
+		printf( "%-45s %6d Bytes\n", str + Inherits[ i ], Mem );
 		WriteObject( "  " + str , SearchObject( Inherits[ i ] ) );
     }
   }
+*/
 }
 
 int cmd(string str, object me, string verb) 

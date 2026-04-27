@@ -32,8 +32,13 @@ static int cmd(string str, object me, string verb) {
 	write(query_short_help());
 	return 1;
     }
+    write("resolve: not yet reimplemented (depends on missing resolve() kfun).\n");
+    return 1;
+
+/* Original body kept for reference:
     handles[resolve(str, "res_cb")] = me;
     return 1;
+*/
 } /* cmd() */
 
 void res_cb(string wordaddr, string numaddr, int handle) {
