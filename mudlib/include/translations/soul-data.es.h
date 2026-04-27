@@ -220,7 +220,7 @@
       "$mcname$ mira con desprecio a $hcname$" }) }), \
   SOUL_CMD_RAVE : ({ ({ 0, "%s" }), ({ \
       "Desvarías como un loco", \
-      "$mcname$ desvaría como un loco" }) \
+      "$mcname$ desvaría como un loco" }) }), \
 ])
 
 #define SOUL_DATA_E ([  \
