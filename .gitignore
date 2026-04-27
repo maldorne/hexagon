@@ -1,9 +1,8 @@
 # operating system files
 .DS_Store
 
-# DGD config files
+# DGD config files (e.g. local config.dgd used for stand-alone development)
 *.dgd
-!.config.dgd
 !docs/install/config.example.dgd
 
 # local scripts

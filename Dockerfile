@@ -1,3 +1,10 @@
+# Dockerfile for running hexagon locally on Docker Desktop or any other
+# docker host. Bakes the mudlib and the config into the image and just runs
+# the DGD driver.
+#
+# Build:   docker build -t hexagon .
+# Run:     docker run --rm -it -p 5000:5000 hexagon
+# Connect: telnet localhost 5000  (or any mud client of your choice)
 
 FROM --platform=linux/amd64 ghcr.io/maldorne/dgd:latest
 
@@ -6,25 +13,19 @@ LABEL org.opencontainers.image.description="Hexagon Mudlib"
 LABEL org.opencontainers.image.licenses="Pending"
 
 USER root
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends procps telnet \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update
-# temporary, will be removed from final image
-RUN apt-get install -y --force-yes procps telnet
-
-# clone the full contents of the mudlib
 WORKDIR /opt/mud
-COPY --chown=mud:mud .config.dgd start.sh hexagon/
+COPY --chown=mud:mud config.hexagon start.sh hexagon/
 COPY --chown=mud:mud mudlib hexagon/mudlib/
 
-# reuse the same user created by the dgd:latest image
 USER mud
-
-# finishing touches
 WORKDIR /opt/mud/hexagon
-RUN mv .config.dgd ../bin/config.dgd
-RUN chmod +x start.sh
+RUN mv config.hexagon ../bin/config.dgd \
+ && chmod +x start.sh
 
-ENTRYPOINT ./start.sh
+ENTRYPOINT ["./start.sh"]
 
-# expose telnet mudos port
 EXPOSE 5000/tcp

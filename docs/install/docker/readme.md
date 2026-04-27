@@ -3,44 +3,56 @@
 
 ## Developer how-to (using containers)
 
+This is the recommended way to run Hexagon on your own machine for testing
+or development. The repository ships with a stand-alone `Dockerfile` at the
+project root that bakes the mudlib and the DGD driver into a single image,
+so you only need Docker installed and nothing else.
+
 ### Initial steps
 
-Software required to be installed: just the docker engine in [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+Software required: just the docker engine in [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Mac/Windows) or your distribution's docker package (Linux).
 
-And having access to some kind of command-line terminal.
+You also need a command-line terminal:
 
-  * In Windows, execute (`Windows Key + r`) the command `cmd`. 
-  * In Mac OS, open the Terminal App (or use `Cmd + spacebar` and type `Terminal`).
+  * In Windows, run (`Windows Key + r`) the command `cmd`.
+  * In macOS, open the Terminal app (or use `Cmd + spacebar` and type `Terminal`).
   * In any kind of Unix/Linux, you know what we are talking about.
 
-### How to use in a Docker container
+### Build and run
 
-- Use the image:
+Clone the repository and from its root:
 
-  - Download the image from the repository `docker pull ghcr.io/maldorne/hexagon:latest`
-  - or generate it yourself `docker build --no-cache . -t ghcr.io/maldorne/hexagon:latest`
+```sh
+docker build -t hexagon .
+docker run --rm -it -p 5000:5000 --name hexagon hexagon
+```
 
-- Run the container in background:
+`docker stop hexagon` (in another terminal) stops the container. The `--rm` flag removes it on exit so you always start clean.
 
-  - `docker run --rm -d -p 23:5000 --name hexagon ghcr.io/maldorne/hexagon:latest`
-  - `docker stop hexagon` will stop the container.
+If you prefer to expose the mud on the standard telnet port 23 instead of 5000, change the mapping:
 
-- Connect to the container if needed (it has to be running, see previous step):
+```sh
+docker run --rm -it -p 23:5000 --name hexagon hexagon
+```
 
-  - `docker exec -it hexagon bash`
+### Open a shell inside a running container
 
-If you make changes to the image, push it after building it:
-
-`docker push ghcr.io/maldorne/hexagon:latest` but have in mind it will add to the image anything you have in your `hexagon` directory. It is better to rely on the automatic image creation done by [the CI/CD pipeline](https://github.com/maldorne/hexagon/blob/develop/.github/workflows/publish-ghcr.yaml) (every time code is pushed to the `master` branch).
-
-To update the version you have in your computer, pull the image from the repository:
-
-`docker pull ghcr.io/maldorne/hexagon:latest`
-   
-We are mapping the 23 port in the host machine to the 5000 port in the container, so if we execute `telnet localhost` in the host machine it will connect to the mud in the container.
+```sh
+docker exec -it hexagon bash
+```
 
 ### Connecting to the game
 
-- Use in your local machine `telnet localhost` (it will use the default port 23) to connect to the mud inside the container and see if everything is working.
+From the host machine, use any mud client (or plain telnet) pointing at the mapped port:
 
-By default you will have an administrator account created, with username `admin`, email `admin@maldorne.org` and password `hexagon`.
+```sh
+telnet localhost 5000
+```
+
+The repository ships with a seed administrator account so you can log in immediately:
+
+| field    | value               |
+| -------- | ------------------- |
+| username | `admin`             |
+| email    | `admin@maldorne.org`|
+| password | `hexagon`           |
