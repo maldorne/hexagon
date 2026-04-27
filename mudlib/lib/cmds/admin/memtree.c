@@ -2,10 +2,10 @@
 #include <mud/cmd.h>
 inherit CMD_BASE;
 
-private object SearchObject( string name ) 
+private object SearchObject( string name )
 {
-  if ( !name ) 
-	return 0;
+  if ( !name )
+	return nil;
   catch( name -> trams() );
   return find_object( name );
 }

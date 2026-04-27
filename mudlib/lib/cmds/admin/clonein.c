@@ -10,7 +10,12 @@ void setup(){
 
 static int cmd(string str, object me, string verb) {
     object ob;
-    string *path, dest, err;
+    /* path was overloaded as both string (sscanf, get_cfiles arg) and
+     * string array (result of get_cfiles); split it in two so each has its
+     * own correct type. */
+    string path;
+    string *paths;
+    string dest, err;
     object *dest2;
     string patron, thane, mudlibber, lord, god;
 int mov;
@@ -31,13 +36,13 @@ if(!patron && !thane && !mudlibber && !lord && !god) {
     sscanf(str, "%s %s", path, dest);
     log_file("CLONEIN", me->query_cap_name()+" intento "
       "ejecutar clonein "+str+" "+ctime(time())+"\n");
-    path = get_cfiles(path);
-    if(!sizeof(path)) {
+    paths = get_cfiles(path);
+    if(!sizeof(paths)) {
 	notify_fail("Path invalido.\n");
 	return 0;
     }
-    if(file_size(path[0]) < 0 && file_size(path[0]+".c") < 0) {
-        notify_fail("Fichero inexistente: "+path[0]+"\n");
+    if(file_size(paths[0]) < 0 && file_size(paths[0]+".c") < 0) {
+        notify_fail("Fichero inexistente: "+paths[0]+"\n");
 	return 0;
     }
     dest = me->expand_nickname(dest);
@@ -46,7 +51,7 @@ if(!patron && !thane && !mudlibber && !lord && !god) {
 	notify_fail("Destino invalido : "+dest+"\n");
 	return 0;
     }
-    ob = clone_object(path[0]);
+    ob = clone_object(paths[0]);
     if (ob) {
 	err = catch((mov = (int)ob->move(dest2[0])));
 	me->handle_error(err, "move(dest)");
