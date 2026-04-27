@@ -24,7 +24,7 @@ int i;
   if (file_size(arg)==-2 && arg[strlen(arg)-1]!='/') arg+="/";
   list=get_dir(arg,-1);
   for (i=0; i<sizeof(list); i++) {
-    if (obj=virtual_find_object(file=arg+list[i][0])) {
+    if (obj=find_object(file=arg+list[i][0])) {
       euid=geteuid(obj);
       write(sprintf("%-18s","("+euid+","+sizeof(children(file))+")"));
     } else write(sprintf("%-18s","----------"));

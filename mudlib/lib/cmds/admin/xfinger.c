@@ -2,6 +2,7 @@
    Hamlet, Jun 1997 - reworked, simplified code.
 */
 #include <std.h>
+#include <kernel.h>
 #include <mud/cmd.h>
 
 #define XFINGERD "/net/xfingerd"
@@ -86,7 +87,7 @@ static int cmd(string str, object me, string verb) {
       return 0;
     }
 
-    if( !MACHINE && master()->query_administrator(geteuid(me)) ) 
+    if( !MACHINE && find_object(DRIVER)->query_administrator(geteuid(me)) )
       user = per->query_ident();
 
     hostip = query_ip_number(per);
@@ -95,14 +96,16 @@ static int cmd(string str, object me, string verb) {
   else { /* a user@host or an @host... */
     strbits = explode(str, "@");
 
-    if( !sizeof(strbits) )
-      hostip = query_host_name();
+    if( !sizeof(strbits) ) {
+      notify_fail("xfinger: cannot determine local host name in this driver; specify an explicit host or user@host.\n");
+      return 0;
+    }
     else if( sizeof(strbits) == 1 ) {
       if( str[0] == '@' )
         hostip = strbits[0];
       else {
-        hostip = query_host_name();
-        user = strbits[0];
+        notify_fail("xfinger: cannot determine local host name in this driver; specify an explicit host or user@host.\n");
+        return 0;
       }
     }
     else {

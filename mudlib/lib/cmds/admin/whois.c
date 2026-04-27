@@ -50,10 +50,10 @@ static int cmd(string str, object me, string verb) {
 
   str = implode(explode(str," ") - ({ "" }), " "); /* strip extra spaces */
 
-  if( (str[0] == '"') && (str[<1] == '"') ) {
+  if( (str[0] == '"') && (str[strlen(str)-1] == '"') ) {
     SKIP_PROC = 1;
     if(strlen(str) > 2)
-      str = str[1..<2];
+      str = str[1..strlen(str)-2];
     else
       str = "";
   }

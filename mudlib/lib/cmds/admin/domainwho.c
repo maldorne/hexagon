@@ -9,9 +9,14 @@ void setup()
 static int cmd(string str, object me, string verb) {
    string ret, env;
    object ob;
+   object *ulist;
+   int i;
+
    ret = "";
-   foreach(ob in users())
+   ulist = users();
+   for (i = 0; i < sizeof(ulist); i++)
    {
+      ob = ulist[i];
       if(!ob || !environment(ob))
          continue;
       if(ob->query_object_type() == "X")
@@ -27,6 +32,6 @@ static int cmd(string str, object me, string verb) {
 
 string short_help()
 {
-   return "Returns players that are in a specific domain and their "
+   return "Returns players that are in a specific domain and their " +
       "current environment.\n";
 }
