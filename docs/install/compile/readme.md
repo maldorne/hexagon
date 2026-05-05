@@ -18,14 +18,24 @@ git clone https://github.com/maldorne/dgd.git
 
 This will create both the `dgd` and `hexagon` directories.
 
-As you can see, the DGD project is a fork from [the original](https://github.com/dworkin/dgd), but the differences are minimal:
+As you can see, the DGD project is a fork from [the original](https://github.com/dworkin/dgd), but the differences are minimal. The
+fork adds three compile-time flags, all enabled by default in
+`dgd/src/Makefile`:
 
-  * Allow `//` comments by default, uncommenting the `-DSLASHSLASH` flag
-    in `dgd/src/Makefile`.
-  * Change the inner working of the `restore_object` kfun, so it
-    does not reset all non-static variables that do not hold object
-    values when restoring the object. This is the default mode in MudOS. To change this, 
-    in the file `src/kfun/file.cpp` there are some lines commented in the function `kf_restore_object`.
+  * **`SLASHSLASH`** — allows `//` line comments in LPC.
+  * **`PRESERVE_DEFAULTS_ON_RESTORE`** — when `restore_object()` reads a
+    `.o` file, variables that are not present in the file keep their
+    current in-memory value instead of being zeroed. This matters when
+    a savefile is older than the LPC code and a new variable was added:
+    with this flag the new variable retains the default assigned by
+    `create()` instead of becoming `0` / `0.0` / `nil`.
+  * **`SUPPORT_PROXY_PROTOCOL`** — parses [HAProxy PROXY protocol
+    v1](https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt)
+    headers on accepted TCP connections, so the driver reports real
+    client IPs when running behind a TCP reverse proxy (Traefik,
+    HAProxy, ...). Connections without a header keep working unchanged.
+
+To build vanilla upstream DGD instead, run `make DEFINES=""`.
 
 ### Compile the driver
 
@@ -51,7 +61,7 @@ Now edit the `hexagon/config.dgd` file, changing the directory field to the abso
 ### Executing the game
 
 - Run `hexagon/mud.sh` to execute the game.
-- Use `telnet localhost 6047` to connect and see if everything is working.
+- Use `telnet localhost 5000` to connect and see if everything is working.
 
 By default you will have an administrator account created, with username `admin`, email `admin@maldorne.org` and password `hexagon`.
 
