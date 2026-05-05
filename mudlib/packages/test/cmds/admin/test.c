@@ -16,8 +16,11 @@ private int main(string fun);
 
 int remove_files(mixed file_info, varargs mixed args...)
 {
-  // only directories that don't start with a dot
-  return (file_info[1] == -2) && (file_info[0][0] != '.');
+  // only directories that don't start with a dot, and skip the
+  // 'pending' subdir which holds tests not yet ready to run
+  return (file_info[1] == -2)
+      && (file_info[0][0] != '.')
+      && (file_info[0] != "pending");
 }
 
 private int recurse(string dir) 

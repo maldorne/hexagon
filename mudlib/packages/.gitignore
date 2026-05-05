@@ -14,5 +14,3 @@
 # only part of the test package, it's a work in progress
 !/test
 test/src/.old
-# add one by one by hand once they have been tested
-test/src/efuns/*.c
