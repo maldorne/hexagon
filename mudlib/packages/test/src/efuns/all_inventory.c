@@ -5,16 +5,20 @@ void do_tests()
 {
   int s, i;
   s = sizeof(all_inventory(this_object()));
-  
-  ASSERT(sizeof(all_inventory()) == s);
-  
+
+  IT("all_inventory() == all_inventory(this_object()) when called with no args",
+     sizeof(all_inventory()) == s);
+
   for (i = 0; i < 5; i++)
   {
-    ASSERT(sizeof(all_inventory()) == s + i);
+    IT("inventory grows by 1 after each clone (iteration " + i + ")",
+       sizeof(all_inventory()) == s + i);
     clone_object(file_name());
   }
 
-  ASSERT(filter(all_inventory(this_object()), "is_all_inv_test", this_object()));
+  IT("all clones are matched by a custom filter callback",
+     filter(all_inventory(this_object()),
+            "is_all_inv_test", this_object()));
 }
 
 int is_all_inv_test(mixed something, varargs mixed args...)

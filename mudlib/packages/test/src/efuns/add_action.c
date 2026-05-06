@@ -22,8 +22,9 @@ void do_tests()
 
   add_action("do_foo" , "foo");
   command("foo");
-  
-  ASSERT(called == 1);
+
+  IT("add_action callback fires when matching command is issued",
+     called == 1);
 
   REMOVE_LIVING();
 }
