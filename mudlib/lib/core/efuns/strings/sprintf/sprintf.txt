@@ -320,3 +320,102 @@ CREDITS
 BUGS
     The code is not well commented.
     The DST scheme is off for the early 70's.
+
+
+HEXAGON IMPROVEMENTS
+    The following is a running log of changes layered on top of the
+    original Schipper sprintf, kept inside the Hexagon mudlib. They
+    are described here so that future maintenance (and an eventual
+    re-implementation in C as a DGD extension) has the contract in
+    one place.
+
+    1. Table mode (# flag on string)        -- neverbot, 07/2017
+    --------------------------------------------------------------
+    The original '#' flag had two unrelated meanings depending on
+    the conversion (alternative output for numerical, '.' for float
+    even at precision 0). In the Hexagon variant '#' becomes a
+    string-only flag that asks for column/table layout: the input
+    string is split on '\n' into cells, the cells are arranged in
+    a grid whose row width is given by the field width and whose
+    column count is computed as
+
+        columns = field_width / (max_cell_width + 1)
+
+    The original numerical/float meaning of '#' is retained in the
+    parser but gated off ("Old hashtag (disabled)" in the spec
+    above); the C rewrite should keep this behaviour.
+
+    Caveat: the chosen line count is
+
+        lines     = sizeof(pieces) / columns
+        remainder = sizeof(pieces) % columns
+        if (remainder > 1) lines++;
+
+    which is "good enough" for most cases but does not always pack
+    the cells column-major in the way the user expects. Output
+    layout is therefore not asserted strictly by the test suite --
+    only that every input cell is present in the result.
+
+    2. Visible width awareness              -- neverbot, 2026
+    --------------------------------------------------------------
+    Width and padding calculations are done in *visible columns*,
+    not in bytes. ANSI CSI escape sequences (e.g. SGR colour
+    codes such as "\x1b[31m") count as zero columns; UTF-8
+    multibyte characters (Latin Supplement, Greek, Cyrillic, CJK,
+    box drawing, emoji) count as one column regardless of how
+    many bytes they occupy.
+
+    This means call sites no longer need the previously-required
+    compensation idiom:
+
+        sprintf("%*s", width + (strlen(s) - strlen(s, true)), s)
+
+    which inflated the requested field with the byte count of the
+    invisible portion. The whole mudlib has been migrated to the
+    plain form
+
+        sprintf("%*s", width, s)
+
+    See lib/core/efuns/strings/strlen.c for the column-counting
+    rules (CSI termination, UTF-8 lead byte classification, etc.).
+
+    Implementation note: the change lives entirely in the align()
+    helper of sprintf.c. The sz local is computed via
+    `strlen(this, true)`, and the "is the string already wider
+    than width?" check uses the same. Byte-level questions in the
+    same function -- "is the string empty?" and "does it end in a
+    newline?" -- still use `::strlen` (the kfun), reached implicitly
+    because LPC look-up is local-then-kfun: there is no local
+    variable shadowing them at those lines.
+
+    Limitations:
+    - Precision-based truncation (%.Ns and %_.Ns) is still byte
+      based. Truncating UTF-8 or coloured text by precision will
+      produce garbage in those edge cases. Patch when needed.
+    - East Asian fullwidth characters and combining marks are not
+      handled (every codepoint counts as one column, even when it
+      visually combines with the previous one or occupies two
+      cells). Out of scope for the LPC implementation; the C
+      rewrite may want to consult Unicode East Asian Width tables.
+
+    3. __TIME_CONVERSION__ disabled         -- neverbot, 07/2017
+    --------------------------------------------------------------
+    The '@' time conversions documented above are commented out
+    in sprintf.c and __TIME_CONVERSION__ is undefined in config.h.
+    The text remains in this document for reference. If they are
+    ever re-enabled they should be ported to use the kfun ctime()
+    rather than the package's private time helpers, which depend
+    on assumptions that no longer hold (DST tables hard-coded for
+    the 70's-90's MET timezone, etc.).
+
+    4. Re-implementation roadmap (C extension)
+    --------------------------------------------------------------
+    The current implementation is LPC and lives in sprintf.c with
+    helpers in extra.c (folded into sprintf.c). When this is moved
+    into a DGD extension (C), the contract above is what the new
+    code must satisfy. Tests under packages/test/src/efuns/sprintf.c
+    pin the relevant behaviour; a few of those tests deliberately
+    lock current LPC bugs (rot_13 fall-through, flip_case else
+    branch, "%05d" of a negative number producing "00-42"). The
+    C rewrite is expected to fix those, at which point the tests
+    should be updated to assert the corrected output.
