@@ -2,7 +2,7 @@
 #include <mud/translations.h>
 
 #include "/lib/core/efuns/strings/full_explode.c"
-#include "/lib/core/efuns/strings/visible_strlen.c"
+#include "/lib/core/efuns/strings/strlen.c"
 #include "/lib/core/efuns/strings/sprintf/sprintf.c"
 
 // prototypes

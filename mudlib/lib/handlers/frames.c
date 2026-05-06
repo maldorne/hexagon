@@ -107,7 +107,7 @@ string _header(string left, string title, string right, int width, int margin, s
   while (strlen(margin_str) < margin)
     margin_str += " ";
 
-  while (visible_strlen(margin_str + left + title + right + margin_str) < width)
+  while (strlen(margin_str + left + title + right + margin_str, true) < width)
   {
     if (odd)
     {
@@ -132,7 +132,7 @@ string _footer(string left, string right, int width, int margin, string padding_
   while (strlen(margin_str) < margin)
     margin_str += " ";
 
-  while (visible_strlen(margin_str + left + right + margin_str) < width)
+  while (strlen(margin_str + left + right + margin_str, true) < width)
     left += padding_str;
 
   return margin_str + left + right + margin_str + "\n";
@@ -146,7 +146,7 @@ string _spacer(string left, string right, int width, int margin, int padding)
   while (strlen(margin_str) < margin)
     margin_str += " ";
 
-  while (visible_strlen(margin_str + left + right + margin_str) < width)
+  while (strlen(margin_str + left + right + margin_str, true) < width)
     left += " ";
 
   return margin_str + left + right + margin_str + "\n";
@@ -163,7 +163,7 @@ string _line(string left, string content, string right, int width, int margin, i
   while (strlen(padding_str) < padding)
     padding_str += " ";
 
-  while (visible_strlen(margin_str + left + padding_str + content + padding_str + right + margin_str) < width)
+  while (strlen(margin_str + left + padding_str + content + padding_str + right + margin_str, true) < width)
     right = " " + right;
 
   return margin_str + left + padding_str + content + padding_str + right + margin_str + "\n";
@@ -209,18 +209,18 @@ string frame(string content, varargs string title, int width, int height, string
     // width = DEFAULT_WIDTH;
     int max_length, len;
     // minimum, the header of the frame
-    max_length = visible_strlen(title) +  
-      (visible_strlen(style[STYLE_LEFT_PAD]) + visible_strlen(style[STYLE_RIGHT_PAD])) +
+    max_length = strlen(title, true) +
+      (strlen(style[STYLE_LEFT_PAD], true) + strlen(style[STYLE_RIGHT_PAD], true)) +
       (style[STYLE_EXTRA_WIDTH_PADDING] + style[STYLE_EXTRA_WIDTH_MARGIN]) * 2;
 
     for (i = 0; i < sizeof(lines); i++)
     {
-      if ((len = visible_strlen(lines[i])) > max_length)
+      if ((len = strlen(lines[i], true)) > max_length)
         max_length = len;
     }
 
-    width = max_length + 
-      (visible_strlen(style[STYLE_LEFT_PAD]) + visible_strlen(style[STYLE_RIGHT_PAD])) +
+    width = max_length +
+      (strlen(style[STYLE_LEFT_PAD], true) + strlen(style[STYLE_RIGHT_PAD], true)) +
       (style[STYLE_EXTRA_WIDTH_PADDING] + style[STYLE_EXTRA_WIDTH_MARGIN]) * 2;
   }
 
