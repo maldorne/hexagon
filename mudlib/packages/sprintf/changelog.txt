@@ -1,4 +1,12 @@
 
+v 1.5.0 neverbot@hexagon, may, 2026
+
+- Width and padding computed in visible columns: ANSI CSI escapes
+  and UTF-8 multibyte characters no longer inflate the field.
+- Superseded by the dgd-extensions sprintf kfun; this LPC version
+  moved to /packages/sprintf/ as historical reference, no longer
+  loaded from auto.
+
 v 1.4.0 neverbot@ccmud, march, 2014
 
 - Making it work with DGD 1.5
