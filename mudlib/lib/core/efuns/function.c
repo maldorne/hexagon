@@ -1,6 +1,7 @@
 
 #include "functions/previous_objects.c"
 #include "functions/initial_object.c"
+#include "functions/previous_function.c"
 
 
 static nomask object * all_previous_objects()
@@ -47,22 +48,6 @@ static nomask mixed previous_object(varargs int number)
     return prevs[number];
 
   return nil;
-}
-
-static nomask string previous_function()
-{
-  mixed * trace;
-
-  trace = call_trace();
-
-  // last element = this function
-  // second to last element = the function that requested previous_function()
-  // third to last element is the function before that: that's the one we want
-  if (sizeof(trace) < 3)
-    return nil;
-
-  // second element is the function name
-  return trace[sizeof(trace) - 3][2];
 }
 
 /*
