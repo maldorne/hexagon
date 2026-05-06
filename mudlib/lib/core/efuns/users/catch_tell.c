@@ -42,7 +42,7 @@ void catch_tell(string message)
 
     // width fix, ignore the control characters used for colors
     if (userp(destination) && destination->query_cols())
-      cols = destination->query_cols() + (strlen(message) - visible_strlen(message));
+      cols = destination->query_cols();
 
     message = sprintf("%-*s", cols, message);
   }

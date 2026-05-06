@@ -403,7 +403,7 @@ int do_combat_styles(string style)
     header = fix_string(_LANG_UNARMED_LIST_HEADER);
 
     line = sprintf("%p%|*s\n", '-', cols, "");
-    ret = sprintf("%p%|*s\n\n", '-', cols + strlen(header) - visible_strlen(header), header);
+    ret = sprintf("%p%|*s\n\n", '-', cols, header);
 
     for (i = 0; i < sizeof(_unarmed_styles); i++)
     {

@@ -139,7 +139,7 @@ string who_string(int width, int cre, string str)
   s = imm = play = "";
 
   prt = "\n";
-  prt += sprintf("%p%|*s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
+  prt += sprintf("%p%|*s\n", '-', width, ttl);
   prt += sprintf("%|*s\n", width, _LANG_WHO_REAL_WORLD_DATE, width);
   // TO DO, return the calendar date from the game the character is in
   // prt += sprintf("%|*s\n", width, ctime(time(), 3), width);
@@ -248,7 +248,7 @@ string who_string(int width, int cre, string str)
     // show only if we have found coders
     if (creators)
     {
-      prt += sprintf("%p%|*s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
+      prt += sprintf("%p%|*s\n", '-', width, ttl);
       prt += imm;
     }
   }
@@ -266,7 +266,7 @@ string who_string(int width, int cre, string str)
     }
     if (num_people)
     {
-      prt += sprintf("%p%|*s\n", '-', width + (strlen(ttl) - visible_strlen(ttl)), ttl);
+      prt += sprintf("%p%|*s\n", '-', width, ttl);
       prt += play;
     }
   }
@@ -312,7 +312,7 @@ string who_string(int width, int cre, string str)
   }
 
   tmp = fix_string(tmp);
-  prt += sprintf("%p%|*s\n", '-', width + (strlen(tmp) - visible_strlen(tmp)), tmp);
+  prt += sprintf("%p%|*s\n", '-', width, tmp);
 
   // added by neverbot, to check disconnected people
   // (they won't appear in users users())
@@ -339,7 +339,7 @@ string who_string(int width, int cre, string str)
     if (num_disconnected_people > 0)
     {
       tmp = fix_string(_LANG_WHO_DISCONNECTED_MSG);
-      prt += sprintf("%p%|*s\n", '-', width + (strlen(tmp) - visible_strlen(tmp)), tmp);
+      prt += sprintf("%p%|*s\n", '-', width, tmp);
     }
   }
 

@@ -288,8 +288,9 @@ private string align (string this, int width, int precision, mapping options,
     pieces = explode(this, "\n");
     max_length = 0;
 
+    // visible width: ANSI escapes / UTF-8 do not inflate column size
     for (i = 0; i < sizeof(pieces); i++)
-      if ((len = strlen(pieces[i])) > max_length)
+      if ((len = strlen(pieces[i], true)) > max_length)
         max_length = len;
 
     columns = width / (max_length + 1);
@@ -337,12 +338,15 @@ private string align (string this, int width, int precision, mapping options,
   if (options ["="]) {this = _capitalize (this);}
   if (options ["&"]) {this = rot_13 (this);}
 
-  // sz = strlen(ANSI_D->strip_colors (this));
-  sz = strlen (this);
+  // visible width drives padding calculations -- ANSI escapes and UTF-8
+  // multibyte characters must not inflate column counts. Byte length is
+  // still used below to test "is the string empty?" and "does it end in
+  // a newline?", since those are byte-level questions.
+  sz = strlen (this, true);
 
   if (options ["-"])
   {
-    if (strlen(this) < width)
+    if (sz < width)
     {
       if (!strlen(this))
         this += give_padding (width - sz, padding);
@@ -679,7 +683,7 @@ NOTE      case 2: if (!width) {width = -2;} /* Reserved for future use? */
         for (k = 0; k < i; k++)
         {
           if (chunks[k][0..0] != "%")
-            margin += visible_strlen(chunks[k]);
+            margin += strlen(chunks[k], true);
         }
 
         switch (cur = chunks [i] [.. 1])
