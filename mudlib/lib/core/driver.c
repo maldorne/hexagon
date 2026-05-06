@@ -45,6 +45,7 @@ static nomask void write(string str);
 #include "/lib/core/efuns/types.c"
 #include "/lib/core/efuns/stderr.c"
 #include "/lib/core/efuns/users/this_player.c"
+#include "/lib/core/efuns/euid/geteuid.c"
 #include "/lib/core/efuns/functions/previous_objects.c"
 #include "/lib/core/efuns/functions/initial_object.c"
 #include "/lib/core/efuns/objects/compile_object.c"
@@ -71,6 +72,11 @@ static object mudos;
 static object secure;
 static object debugger;
 
+// runtime override for SHOW_CAUGHT_ERRORS. Setters are admin-only; used
+// by the test command's --show-caught flag and any future tooling that
+// needs to expose caught error traces for a single invocation.
+static int _show_caught_errors_runtime;
+
 static nomask void initialize()
 {
   string date;
@@ -79,6 +85,9 @@ static nomask void initialize()
 
   log_driver("[" + date + "] ** " + status()[ST_VERSION] + "\n");
   log_driver("Initializing...\n");
+
+  // seed the runtime caught-error toggle from the compile-time default
+  _show_caught_errors_runtime = SHOW_CAUGHT_ERRORS;
 
   load_object(AUTO);
 
@@ -353,7 +362,7 @@ static void runtime_error(string error, int caught, int ticks)
   if (!caught || LOG_CAUGHT_ERRORS)
     log_driver(ret);
 
-  if (!caught || SHOW_CAUGHT_ERRORS)
+  if (!caught || _show_caught_errors_runtime)
     inform_user(ret, DRIVER_RUNTIME_ERROR);
 }
 
@@ -425,4 +434,24 @@ static object call_object(string path)
 static void remove_program(string path, int timestamp, int index)
 {
   log_driver(" + remove_program: " + path + "\n");
+}
+
+// Runtime toggle for showing caught errors to the user.
+// Reads are public; writes require both the original (non-spoofable)
+// player and the immediate caller object to belong to an administrator,
+// using the canonical secure handler check used elsewhere in the mudlib.
+int query_show_caught_errors()
+{
+  return _show_caught_errors_runtime;
+}
+
+void set_show_caught_errors(int flag)
+{
+  if (!this_player() ||
+      !secure ||
+      !secure->is_administrator(geteuid(this_player(1))) ||
+      !secure->is_administrator(geteuid(previous_object())))
+    return;
+
+  _show_caught_errors_runtime = flag;
 }

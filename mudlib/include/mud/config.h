@@ -41,7 +41,10 @@
 // false: show caught errors in stderr
 #define LOG_CAUGHT_ERRORS TRUE
 
-// false: show caught errors to user
+// default: show caught errors to user. seeds the driver's runtime flag
+// at boot; can be toggled per-invocation via
+// DRIVER->set_show_caught_errors(flag) (used e.g. by the test command's
+// --show-caught flag).
 #define SHOW_CAUGHT_ERRORS TRUE
 
 // when loggin info of an error (stderr or to a coder)
