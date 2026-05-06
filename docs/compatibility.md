@@ -14,7 +14,7 @@ Common calls and operations over the basic types.
 | `floatp`                | :white_check_mark: |  |
 | `stringp`               | :white_check_mark: |  |
 | `virtualp`              |  |  |
-| `functionp`             | :heavy_minus_sign: | nonexistent in dgd |
+| `functionp`             | :white_check_mark: | available when DGD is compiled with `-DCLOSURES` (which exposes the `KF_NEW_FUNCTION` constant in `kfun.h`); the efun lives in `lib/core/efuns/types.c` and is gated on `#ifdef KF_NEW_FUNCTION` |
 | `pointerp`              | :white_check_mark: | alias for `arrayp` |
 | `arrayp`                | :white_check_mark: |  |
 | `objectp`               | :white_check_mark: |  |
