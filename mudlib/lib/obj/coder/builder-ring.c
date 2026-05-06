@@ -9,16 +9,25 @@ inherit "/lib/armour.c";
 #include <room/location.h>
 #include <areas/area.h>
 #include <maps/maps.h>
-#include <translations/exits.h>
 #include <translations/armour.h>
 
-#define BUILDER_RING_CONVERT_SYNTAX "convert < filename | dirname | here >"
+#define BUILDER_RING_BUILD_VERB ({ "build" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert" })
+#define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
+#define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
-                "\t" + BUILDER_RING_CONVERT_SYNTAX 
+                "\t" + BUILDER_RING_SELECTION_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_CONVERT_SYNTAX
+
+static string * selection;
+static mapping objects;
 
 void create()
 {
+  selection = ({ });
+  objects = ([ ]);
+
   ::create();
   
   set_name("builder ring");
@@ -32,9 +41,6 @@ void create()
   set_base_armour(RING);
 
   reset_drop();
-
-  // only for spanish language
-  // set_gender(1);
   set_weight(1);
 }
 
@@ -42,26 +48,71 @@ string query_help(varargs string str) { return BUILDER_RING_HELP; }
 
 void init()
 {
-  add_action("do_convert", "convert");
+  add_action("do_build", BUILDER_RING_BUILD_VERB);
   ::init();
 }
 
-object convert_room_to_location(object room);
+int do_selection(string str);
+int do_convert(string str);
 
-int do_convert(string str)
+static int _filter_loadable(string file)
 {
-  // objects (rooms) to be converted to locations
-  object * obs; 
-  string * files;
-  int i;
+  object what;
 
-  files = ({ });
-
-  if (!str || !strlen(str))
+  // if file ends in .c, it should be a room
+  if (file[strlen(file) - 2..] == ".c")
   {
-    notify_fail(capitalize(query_verb()) + " what?\n\n" + BUILDER_RING_CONVERT_SYNTAX + "\n");
+    catch(what = load_object(file));
+    if (what && 
+        what->query_room())
+    {
+      objects[file] = what;
+      return 1;
+    }
+
     return 0;
   }
+  else if (file[strlen(file) - 2..] == ".o")
+  {
+    what = load_object(LOCATION_HANDLER)->load_location(file);
+    if (what && what->query_location())
+    {
+      objects[file] = what;
+      return 1;
+    }
+
+    return 0;
+  }
+
+  return 0;
+}
+
+static int _filter_dot_c(string file)
+{
+  return file[strlen(file) - 2..] == ".c";
+}
+
+string pretty_selection()
+{
+  string ret;
+  int i;
+
+  ret = "Current selection:\n";
+
+  for (i = 0; i < sizeof(selection); i++)
+  ret += "  - " + selection[i] + 
+         " " + trim(to_string(objects[selection[i]])) + 
+         " (" + (objects[selection[i]]->query_location() ? "location" : "room") + ") \n";
+
+  return ret + "\n";
+}
+
+int do_build(string str)
+{
+  string * args;
+  string verb;
+
+  args = explode(str, " ");
 
   if (!query_in_use())
   {
@@ -75,40 +126,226 @@ int do_convert(string str)
     return 0;
   }
 
-  // converting our environment
-  if (str == "here")
+  if (!str || !strlen(str) || sizeof(args) < 1)
   {
-    obs = ({ environment(this_player()) });
+    notify_fail("Build what?\n");
+    return 0;
   }
-  // is a directory
-  else if (file_size(str) == -2)
+
+  verb = args[0];
+
+  if (member_array(verb, BUILDER_RING_OPTIONS) == -1)
   {
-    files = get_files(str + "/*");
+    notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
+    return 0;
   }
-  // is a file
-  else if (file_size(str) > 0)
+
+  if (sizeof(args) < 2)
   {
-    files = ({ str });
+    notify_fail("Build " + verb + " what?\n");
+    return 0;
   }
-  // is a filename in the current directory
-  else if (file_size(this_user()->query_role()->query_path() + "/" + str) > 0)
-  {
-    files = ({ this_user()->query_role()->query_path() + "/" + str });
-  }
-  // is a file pattern (maybe using "*")
+
+  // write(to_string(verb));
+  // write(to_string(implode(args[1..], " ")));
+
+  if (verb == "selection")
+    return do_selection(implode(args[1..], " "));
+  else if (verb == "convert")
+    return do_convert(implode(args[1..], " "));
   else
   {
-    files = get_cfiles(str);
+    notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
+    return 0;
+  }
 
-    if (!sizeof(files))
+  return 1;
+}
+
+int do_selection(string str)
+{
+  string * args;
+  string verb;
+  string target;
+
+  args = explode(str, " ");
+  verb = args[0];
+
+  if (sizeof(args) < 1)
+  {
+    notify_fail("What?\n");
+    return 0;
+  }
+
+  if (verb == "add")
+  {
+    if (sizeof(args) < 2)
     {
-      notify_fail("No such file or directory.\n");
+      notify_fail(capitalize(verb) + " what?\n");
       return 0;
+    }
+
+    target = args[1];
+
+    if (member_array(target, selection) != -1)
+    {
+      notify_fail("Already in the selection.\n");
+      return 0;
+    }
+
+    // converting our environment
+    if (target == "here")
+    {
+      selection += ({ base_name(environment(this_player())) });
+    }
+    else if (target == "*")
+    {
+      selection += get_files(this_user()->query_role()->query_current_path() + "/*");
+    }
+    // is a directory
+    else if (file_size(target) == -2)
+    {
+      selection += get_files(target + "/*");
+    }
+    // is a file
+    else if (file_size(target) > 0)
+    {
+      selection += ({ target });
+    }
+    // is a filename in the current directory
+    else if (file_size(this_user()->query_role()->query_path() + "/" + target) > 0)
+    {
+      selection += ({ this_user()->query_role()->query_path() + "/" + target });
+    }
+    // is a pattern in the current directory
+    else if (sizeof(get_files(this_user()->query_role()->query_path() + "/" + target)) > 0)
+    {
+      selection += get_files(this_user()->query_role()->query_path() + "/" + target);
+    }
+    // is a file pattern (maybe using "*")
+    // else
+    // {
+    //   selection += get_cfiles(target);
+    // }
+
+    selection = unique_array(selection);
+    selection = filter_array(selection, "_filter_loadable");
+
+    if (!sizeof(selection))
+    {
+      notify_fail("No loadable files found.\n");
+      return 0;
+    }
+
+    write(pretty_selection());
+  }
+  else if (verb == "remove")
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail(capitalize(verb) + " what?\n");
+      return 0;
+    }
+
+    target = args[1];
+
+    // TO DO: search in the array using wildcards (*, filenam*, etc)
+
+    if (member_array(target, selection) == -1)
+    {
+      notify_fail("Not in the selection.\n");
+      return 0;
+    }
+
+    selection -= ({ target });
+    objects = m_delete(objects, target);
+
+    write("Removed " + target + " from the selection.\n");
+  }
+  else if (verb == "clean")
+  {
+    selection = ({ });
+    objects = ([ ]);
+    write("Selection cleaned.\n");
+  }
+  else if (verb == "list")
+  {
+    if (!sizeof(selection))
+    {
+      write("No selection.\n");
+      return 1;
+    }
+
+    write(pretty_selection());
+  }
+  else
+  {
+    notify_fail("Unknown selection command.\n\n" + BUILDER_RING_SELECTION_SYNTAX + "\n");
+    return 0;
+  }
+
+  return 1;
+}
+
+int do_convert(string str)
+{
+  // objects (rooms) to be converted to locations
+  object * obs; 
+  string * files;
+  int i;
+
+  files = ({ });
+
+  stderr("🤖  do_convert: " + str + "\n");
+
+  // without arguments, use the current selection
+  if (!str || !strlen(str) || str == "selection")
+  {
+    files = selection;
+  }
+  else
+  {
+    // converting our environment
+    if (str == "here")
+    {
+      obs = ({ environment(this_player()) });
+    }
+    // is a directory
+    else if (file_size(str) == -2)
+    {
+      files = get_files(str + "/*");
+    }
+    // is a file
+    else if (file_size(str) > 0)
+    {
+      files = ({ str });
+    }
+    // is a filename in the current directory
+    else if (file_size(this_user()->query_role()->query_path() + "/" + str) > 0)
+    {
+      files = ({ this_user()->query_role()->query_path() + "/" + str });
+    }
+    // is a file pattern (maybe using "*")
+    else
+    {
+      files = get_cfiles(str);
+
+      if (!sizeof(files))
+      {
+        notify_fail("No such file or directory.\n");
+        return 0;
+      }
     }
   }
 
+  // for conversion, filter just .c files (rooms), so 
+  // we do not try to reconvert locations to locations
+  files = filter_array(files, "_filter_dot_c");
+
   if (sizeof(files))
     call_out("do_convert_files", 0, files);
+  else
+    write("No files to convert.\n");
  
   return 1;
 } 
@@ -161,7 +398,7 @@ int do_convert_files(string * files)
   {
     write(" * Converting " + file_name(rooms[i]) + ".c ...\n");
 
-    if (!(location = convert_room_to_location(rooms[i])))
+    if (!(location = load_object(LOCATION_HANDLER)->convert_room_to_location(rooms[i])))
     {
       write("   Error converting " + file_name(rooms[i]) + ".c.\n");
     }
@@ -173,7 +410,8 @@ int do_convert_files(string * files)
       if (location->query_coordinates())
       {
         num_coordinates++;
-        write("   %^GREEN%^Coordinates%^RESET%^: " + location->query_coordinates()[0] + " " + location->query_coordinates()[1] + " " + location->query_coordinates()[2] + "\n");
+        write("   %^GREEN%^Coordinates%^RESET%^: " + location->query_coordinates()[0] + 
+              " " + location->query_coordinates()[1] + " " + location->query_coordinates()[2] + "\n");
       }
       else
         write("   %^RED%^Coordinates%^RESET%^: none\n");
@@ -190,275 +428,4 @@ int do_convert_files(string * files)
   return 1;
 }
 
-private string short_file_name(string path)
-{
-  string * parts;
 
-  parts = explode(path, "/");
-
-  return parts[sizeof(parts) - 1];
-}
-
-int do_guess_coordinates(object * locations)
-{
-  string * exits;
-  object current;       // location currently checking
-  object * pending;     // locations pending to guess coordinates
-  object * done;        // locations already checked
-  mapping connected;    // locations connected to a different area, ([ file_name : ({ "direction", destination }) ])
-  string * file_names;  // array with the file names of every location in this area
-  object area;
-  string initial_area_name;
-  int i, j;
-  string * aux;
-  string ret;
-
-  pending = ({ });
-  done = ({ });
-  connected = ([ ]);
-  file_names = ({ });
-  ret = "";
-  
-  // find locations in the list with coordinates as starting points,
-  // and update every exit to the locations instead of the rooms
-  for (i = 0; i < sizeof(locations); i++)
-  {
-    // if some exit destination is to a .c file whose location
-    // already exists, we change the destination to the .o file
-    locations[i]->update_exits_to_locations();
-
-    // write("Checking " + file_name(locations[i]) + " (" + locations[i]->query_file_name() + ")\n");
-
-    file_names += ({ locations[i]->query_file_name() });
-
-    // write("Updated exits for " + file_name(locations[i]) + " " +
-    //  + to_string(locations[i]->query_dest_dir()) + "\n");
-
-    if (locations[i]->query_coordinates())
-      pending += ({ locations[i] });
-  }
-
-  // get the area (the same for every location, use the first one as an example)
-  area = load_object(LOCATION_HANDLER)->query_area_from_location_file_name(locations[0]->query_file_name());
-  initial_area_name = area->query_area_name();
-
-  ret += "\nCheck connections to different areas ...\n";
-
-  // after updating every exit, check locations connected to different areas
-  for (i = 0; i < sizeof(locations); i++)
-  {
-    ret += "  Checking " + short_file_name(locations[i]->query_file_name()) + "\n";
-
-    exits = locations[i]->query_dest_dir();
-
-    for (j = 0; j < sizeof(exits); j+=2)
-    {
-      object destination;
-      destination = load_object(LOCATION_HANDLER)->load_location(exits[j+1]);
-
-      // maybe this is not a location, but a room
-      if (!destination)
-        continue;
-
-      // if any of our locations has an exit connecting with somewhere
-      // outside our area
-      if (member_array(exits[j+1], file_names) == -1 && 
-          (locations[i]->query_area_name() != destination->query_area_name()))
-      {
-        if (connected[locations[i]->query_file_name()])
-          connected[locations[i]->query_file_name()] += ({ exits[j], exits[j+1] });
-        else
-          connected[locations[i]->query_file_name()] = ({ exits[j], exits[j+1] });
-
-        area->add_connection(locations[i]->query_file_name(), exits[j], exits[j+1]);
-
-        // if we can guess the coordinates from outside the area, 
-        // add this location as one of the initial ones
-        if (locations[i]->guess_coordinates() && 
-            member_array(locations[i], pending) == -1)
-          pending += ({ locations[i] });
-      }
-    }
-  }
-
-  // log the connections
-  aux = keys(connected);
-
-  for (i = 0; i < sizeof(aux); i++)
-  {
-    ret += "  " + short_file_name(aux[i]) + ":\n";
-    for (j = 0; j < sizeof(connected[aux[i]]); j+=2)
-      ret += "    " + connected[aux[i]][j] + " -> " + short_file_name(connected[aux[i]][j+1]) + "\n";
-  }
-
-  write(ret);
-  ret = "";
-  // write("Connections (" + map_sizeof(connected) + "): " + to_string(connected));
-
-  if (!sizeof(pending))
-  {
-    write("\n  No locations with coordinates found.\n");
-    return 1;
-  }
-
-  ret += "\nTry guessing missing coordinates ...\n";
-  ret += "Initially we have " + sizeof(pending) + " locations to check coordinates:\n";
-
-  for (i = 0; i < sizeof(pending); i++)
-    ret += "   - " + pending[i]->query_file_name() + "\n";
-
-  write(ret);
-
-  while (sizeof(pending))
-  {
-    ret = "\n";
-    // ret += "Locations (" + sizeof(locations) + "): " + to_string(locations);
-    ret += "  Yet to check " + sizeof(pending) + ", "; // "): " + to_string(pending));
-    ret += "already done " + sizeof(done) + + "\n"; // "): " + to_string(done));
-
-    current = pending[0];
-
-    ret += "  Checking " +short_file_name(current->query_file_name()) + "\n";
-    
-    // already checked location, remove from pending
-    // and continue
-    if (member_array(current, done) != -1)
-    {
-      pending -= ({ current });
-      continue;
-    }
-
-    exits = current->query_dest_dir();
-    // write("Exits: " + to_string(exits) + "\n");
-
-    for (i = 0; i < sizeof(exits); i+=2)
-    {
-      object dest;
-
-      // if it is not a valid exit for guessing coordinates
-      if (member_array(exits[i], ({ DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST, 
-                                  DIR_NORTHWEST, DIR_NORTHEAST, DIR_SOUTHWEST, DIR_SOUTHEAST, 
-                                  DIR_UP, DIR_DOWN })) == -1)
-      {
-        continue;
-      }
-
-      ret += "   - exit " + exits[i] + " to " + short_file_name(exits[i+1]);
-      
-      dest = current->query_dest_object(exits[i]);
-
-      if (dest)
-      {
-        int found;
-
-        if (!dest->query_location())
-        {
-          ret += " (not a location)\n";
-          continue;
-        }
-
-        // write("Destination: " + to_string(dest) + " " + dest->query_file_name() + "\n");
-        found = dest->guess_coordinates();
-
-        if (found)
-          ret += " (%^GREEN%^found%^RESET%^)";
-
-        // enqueue the destination for guessing coordinates, only with locations from
-        // our original list, in other case we will remap the full game
-        if (member_array(dest, locations) == -1)
-        {
-          ret += " (outside area)\n";
-          continue;
-        }
-
-        // not peding to process and not already processed
-        if ((member_array(dest, pending) == -1) && (member_array(dest, done) == -1))
-          pending += ({ dest });
-        // write(" Exits: " + to_string(dest->query_dest_dir()) + "\n");
-      }
-
-      ret += "\n";
-    }
-
-    // location done
-    pending -= ({ current });
-    done += ({ current });
-    write(ret);
-  }
-
-  return 1;
-}
-
-object convert_room_to_location(object room)
-{
-  object location;
-  string file_name, * exits, ret;
-  mapping exit_map;
-  int i;
-
-  if (!room)
-    return nil;
-
-  if (!room->query_room())
-    return nil;
-
-  if (room->query_location())
-    return nil;
-
-  // what file name would a location based on this room?
-  file_name = load_object(LOCATION_HANDLER)->get_location_file_name_from_room(room);
-
-  // new location object
-  location = clone_object(BASE_LOCATION_OBJ);
-
-  // will try to load the .o if it exists
-  if (!location->restore_from_file_name(file_name)) 
-  {
-    location->set_file_name(file_name);
-  }
-
-  location->set_original_room_file_name(base_name(room) + ".c");
-  location->set_original_short(room->query_short());
-  location->set_original_long(room->query_long());
-
-  if (sizeof(room->query_room_zones()))
-    location->set_zones(room->query_room_zones());
-
-  exit_map = room->query_exit_map();
-
-  // write("Exits:\n" + to_string(exit_map) + "\n");
-
-  // add exits to the location object, will be saved on next save_me()
-  location->add_exits_from_exit_map(exit_map);
-
-  ret = "";
-
-  // add components to the location object
-  if (room->query_shop())
-  {
-    location->add_component(LOCATION_COMPONENT_SHOP, ([ 
-      "permanent_goods" : room->query_permanent_goods(),
-        ]));
-    ret += "   Adding component shop.\n";
-  }
-
-  if (room->query_pub())
-  {
-    location->add_component(LOCATION_COMPONENT_PUB, ([ 
-      "menu_items" : room->query_menu_items(),
-        ]));
-    ret += "   Adding component pub.\n";
-  }
-
-
-
-  // TO DO
-  // add shop as point of interest in area
-  // add attender as vacancy in area
-
-  write(ret);
-
-  location->save_me();
-
-  return location;
-}
