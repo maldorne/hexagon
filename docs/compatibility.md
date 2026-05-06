@@ -169,7 +169,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `say`                   | :white_check_mark: |  |
 | `tell_object`           | :white_check_mark: |  |
 | `tell_room`             | :white_check_mark: |  |
-| `shout`                 |  |  |
+| `shout`                 | :white_check_mark: |  |
 | `receive`               | :heavy_minus_sign: | `receive_message` in the user object |
 | `message`               | :white_check_mark: |  |
 | `input_to`              | :white_check_mark: | accepts optional parameters `input_to(func, flag, args...)` |
