@@ -46,17 +46,40 @@ make install
 cd ../..
 ```
 
-This will create the `dgd` executable in the `dgd/bin` directory. Now we have to copy the configuration files to the root directory.
+This will create the `dgd` executable in the `dgd/bin` directory.
+
+### Compile the extensions
+
+The mudlib depends on the C `sprintf` kfun shipped as a `dgd-extensions` module. The LPC implementation under `mudlib/lib/core/efuns/strings/sprintf/` is disabled in favour of this kfun, so without it the auto-object will fail to compile and the mud will not boot.
+
+```sh
+cd dgd/dgd-extensions/src
+make sprintf
+cd ../../..
+```
+
+This produces `dgd/dgd-extensions/sprintf.1.5`. Take note of the absolute path to that file; you'll wire it into the config in the next step.
+
+The `dgd-extensions` repo bundles other optional kfuns too (`lower_case`, `regexp`, `dbase`, `jit`, `zlib`, `crypto`, `tls`); Hexagon does not use them, so we only build `sprintf`. If you want to experiment with any of the others, build them with their own target (e.g. `make regexp`).
 
 ### Edit the configuration files
 
 ```sh
-cp hexagon/docs/install/config.example.dgd hexagon/config.dgd
+cp hexagon/config.hexagon hexagon/config.dgd
 cp hexagon/docs/install/mud.sh hexagon/
 chmod a+x hexagon/mud.sh
 ```
 
-Now edit the `hexagon/config.dgd` file, changing the directory field to the absolute path of the `hexagon/mudlib` directory (must end in `/whatever/hexagon/mudlib` without an ending slash).
+Now edit `hexagon/config.dgd`:
+
+  * Set the `directory` field to the absolute path of `hexagon/mudlib` (must end in `/whatever/hexagon/mudlib` without a trailing slash).
+  * In the `modules =` block, replace `<absolute path to dgd-extensions>` with the absolute path you noted in the previous step. The line should end up looking like:
+
+    ```
+    modules = ([
+      "/your/path/to/dgd/dgd-extensions/sprintf.1.5" : ""
+    ]);
+    ```
 
 ### Executing the game
 

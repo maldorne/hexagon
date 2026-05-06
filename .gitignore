@@ -3,7 +3,6 @@
 
 # DGD config files (e.g. local config.dgd used for stand-alone development)
 *.dgd
-!docs/install/config.example.dgd
 
 # local scripts
 *.sh
