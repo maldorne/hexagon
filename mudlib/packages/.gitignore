@@ -8,6 +8,7 @@
 !/crypt
 !/issues
 !/json
+!/sprintf
 !/time
 !/uuid
 

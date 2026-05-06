@@ -50,7 +50,7 @@ This will create the `dgd` executable in the `dgd/bin` directory.
 
 ### Compile the extensions
 
-The mudlib depends on the C `sprintf` kfun shipped as a `dgd-extensions` module. The LPC implementation under `mudlib/lib/core/efuns/strings/sprintf/` is disabled in favour of this kfun, so without it the auto-object will fail to compile and the mud will not boot.
+The mudlib depends on the C `sprintf` kfun shipped as a `dgd-extensions` module; the legacy LPC implementation under `mudlib/packages/sprintf/` is kept as reference but not loaded. Without the kfun the auto-object will fail to compile and the mud will not boot.
 
 ```sh
 cd dgd/dgd-extensions/src

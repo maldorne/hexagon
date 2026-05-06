@@ -1,10 +1,10 @@
 
 #include "/packages/test/src/test.h"
 
-// Battery for sprintf, intended both as a regression net for the LPC
-// implementation in lib/core/efuns/strings/sprintf/sprintf.c and as a
-// behaviour-lock for the future C re-implementation. Spec lives in
-// lib/core/efuns/strings/sprintf/sprintf.txt.
+// Battery for sprintf.  sprintf is now provided by the dgd-extensions
+// C kfun; the legacy LPC implementation has been moved to
+// /packages/sprintf/ for historical reference.  The format spec lives
+// in /packages/sprintf/src/sprintf.txt.
 //
 // Out of scope (deliberate):
 //   - %r/%R (encrypt) and %q/%Q (call_other-as-function): unused in the
