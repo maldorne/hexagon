@@ -89,6 +89,7 @@
 # define KF_SIN		0
 # define KF_SINH		0
 # define KF_SIZEOF		0
+# define KF_SPRINTF		0
 # define KF_SQRT		0
 # define KF_SSCANF		2
 # define KF_SWAPOUT		0

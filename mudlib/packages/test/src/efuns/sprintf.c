@@ -43,9 +43,7 @@ void do_tests()
   TEST("%y prints any type via 'anything'");
     ASSERT(sprintf("%y", 1) == "1");
     ASSERT(sprintf("%y", "foo") == "\"foo\"");
-    // empty array prints with a double space due to "({ " + "" + " })";
-    // intentional, matches the LPC impl's anything() helper
-    ASSERT(sprintf("%y", ({ })) == "({  })");
+    ASSERT(sprintf("%y", ({ })) == "({ })");
   END_TEST();
 
   TEST("%a expands an array, repeating format for each element");
@@ -222,11 +220,7 @@ void do_tests()
 
   TEST("0 flag pads numerical conversions with zeros");
     ASSERT(sprintf("%05d", 42) == "00042");
-    // negative sign is part of the digits string, so the zeros are
-    // inserted between the sign and the magnitude in a quirky place
-    // ("00-42" instead of the C-style "-0042"). This matches the LPC
-    // impl as-is; the C rewrite should produce "-0042".
-    ASSERT(sprintf("%05d", -42) == "00-42");
+    ASSERT(sprintf("%05d", -42) == "-0042");
   END_TEST();
 
   // ---------------- string-flavour flags ----------------
@@ -235,20 +229,14 @@ void do_tests()
     ASSERT(sprintf("%`s", "abc") == "cba");
   END_TEST();
 
-  // & rot-13 and ~ flip-case are both broken in the LPC impl:
-  //   rot_13 has fall-through cases without break, so 'a'..'m' get +13
-  //   then immediately -13 (no-op), and 'n'..'z' only -13.
-  //   flip_case downcases uppercase letters but leaves lowercase
-  //   alone (the else branch references str[0] instead of str[i]).
-  // Tests here lock the *current* (buggy) output so we notice if it
-  // changes; the C rewrite is expected to make these correct.
-  TEST("& flag rot-13 the string (LPC impl is buggy: half-ROT13)");
-    ASSERT(sprintf("%&s", "abc") == "abc");        // no-op for a-m
-    ASSERT(sprintf("%&s", "nop") == "abc");        // n-z -> a-m correctly
+  TEST("& flag rot-13 the string");
+    ASSERT(sprintf("%&s", "abc") == "nop");
+    ASSERT(sprintf("%&s", "nop") == "abc");
+    ASSERT(sprintf("%&s", "Hello") == "Uryyb");
   END_TEST();
 
-  TEST("~ flag flips case (LPC impl is buggy: only down-cases)");
-    ASSERT(sprintf("%~s", "AbCd") == "abcd");
+  TEST("~ flag flips case");
+    ASSERT(sprintf("%~s", "AbCd") == "aBcD");
   END_TEST();
 
   TEST("< flag forces lower case");
@@ -304,12 +292,14 @@ void do_tests()
 
   // ---------------- %O object_name ----------------
 
-  TEST("%O prints the file_name of an object");
+  // %O is unsupported by the kfun implementation: the public DGD
+  // extension API does not expose lpc_object_getval, so the kfun cannot
+  // resolve an object's file_name from an LPC_value. The kfun raises a
+  // clear runtime error explaining the workaround. Callers should use
+  // sprintf("%s", object_name(ob)) instead.
+  TEST("%O is not supported (raises runtime error)");
     ob = this_object();
-    ASSERT(sprintf("%O", ob) == object_name(ob));
-  END_TEST();
-
-  TEST("%O errors on non-object argument");
+    ASSERT(catch(sprintf("%O", ob)));
     ASSERT(catch(sprintf("%O", 42)));
     ASSERT(catch(sprintf("%O", "foo")));
   END_TEST();

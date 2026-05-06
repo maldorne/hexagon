@@ -15,8 +15,20 @@ dynamic_chunk = 261120;                 /* dynamic memory chunk */
 dump_file = "./tmp/snapshot";           /* snapshot file */
 dump_interval = 3600;                   /* snapshot interval in seconds */
 
-/* if we are adding extensions, add them here */
-/* modules = ([ "<absolute path to the compiled extension>" : "" ]); */
+/*
+ * dgd-extensions modules.  The mudlib relies on the `sprintf` extension
+ * being loaded (the LPC sprintf in lib/core/efuns/strings/sprintf/ is
+ * disabled in favour of the C kfun); without it the auto-object will
+ * fail to compile.
+ *
+ * The path below is where `dgd/Dockerfile` stages the extension inside
+ * the container image; it is also the canonical production path.  For
+ * a local stand-alone build, edit this in your local config.dgd to the
+ * absolute path of your dgd-extensions build directory.
+ */
+modules = ([
+  "/opt/mud/extensions/sprintf.1.5" : ""
+]);
 
 hotboot = ({ "../bin/dgd",  /* hotboot binary */
              "../bin/config.dgd",      /* hotboot config file */
