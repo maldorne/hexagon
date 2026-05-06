@@ -25,7 +25,7 @@ Common calls and operations over the basic types.
 | `capitalize`            | :white_check_mark: |  |
 | `lower_case`            | :white_check_mark: |  |
 | `replace_string`        | :white_check_mark: |  |
-| `sprintf`               | :white_check_mark: | included from the [sprintf lpc package](https://github.com/dworkin/gurbalib/tree/master/contrib/Sprintf) by Haijo Schipper (GPL license). Used in the form `static string sprintf (string format, mixed args...)` as there are no way to modify strings passed as arguments. Expanded to accept strings with multiple lines. Expanded to accept table/column mode with the `#` modifier. Width and padding calculations are done in visible columns, so ANSI escapes and UTF-8 multibyte characters do not inflate field widths. See `lib/core/efuns/strings/sprintf/sprintf.txt` (HEXAGON IMPROVEMENTS section) for details. |
+| `sprintf`               | :white_check_mark: | provided as a C kfun by our [`dgd-extensions`](https://github.com/maldorne/dgd-extensions) module. Width and padding calculations are done in visible columns, so ANSI escapes and UTF-8 multibyte characters do not inflate field widths. The legacy LPC implementation is kept in `/packages/sprintf` if needed. |
 | `printf`                | :white_check_mark: | alias for `write(sprintf(...));` |
 | `strlen`                | :white_check_mark: | provided by dgd as a kfun; the mudlib masks it with an efun that adds an optional `int visible` flag (default `false`/byte length, `true` returns on-screen width skipping ANSI escapes and compensating UTF-8 multibyte) |
 | `char_codes`            | :white_check_mark: | :new: list of char ascii codes inside a string (including control characters) |
