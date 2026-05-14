@@ -11,6 +11,8 @@
  *              enclosing test as failed (if any).
  */
 
+#include <type.h>
+
 inherit "/lib/core/object.c";
 
 int num_files_attempted;
@@ -143,3 +145,42 @@ int * query_stats()
 
 int  is_verbose()           { return verbose_mode; }
 void set_verbose(int flag)  { verbose_mode = flag; }
+
+// ----- deep value equality -----------------------------------------
+//
+// LPC compares arrays and mappings by reference, so two distinct
+// aggregates with the same contents are never `==`. Tests almost
+// always want value equality instead — use EQUALS(a, b) from test.h.
+int equals(mixed a, mixed b)
+{
+  int ta, i, sz;
+  mixed * keys;
+
+  ta = typeof(a);
+  if (ta != typeof(b))
+    return 0;
+
+  switch (ta)
+  {
+    case T_ARRAY:
+      sz = sizeof(a);
+      if (sz != sizeof(b))
+        return 0;
+      for (i = 0; i < sz; i++)
+        if (!equals(a[i], b[i]))
+          return 0;
+      return 1;
+
+    case T_MAPPING:
+      keys = map_indices(a);
+      if (sizeof(keys) != sizeof(map_indices(b)))
+        return 0;
+      for (i = 0; i < sizeof(keys); i++)
+        if (!equals(a[keys[i]], b[keys[i]]))
+          return 0;
+      return 1;
+
+    default:
+      return a == b;
+  }
+}

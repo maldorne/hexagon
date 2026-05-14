@@ -104,6 +104,12 @@ runner to dump failed test titles + line numbers.
   counter but is otherwise inert.
 - `ASSERT2(x, reason);` — kept for the `fail/` subdir (files that
   must fail to load); writes the reason inline on failure.
+- `EQUALS(a, b);` — deep value equality for aggregates. LPC `==` on
+  arrays and mappings compares by reference, so use `EQUALS` when
+  you need to compare two distinct aggregates by structure: it
+  recursively walks arrays (same size, same elements in order) and
+  mappings (same keys, same values), and falls back to `==` on
+  scalars. Typical use: `ASSERT(EQUALS(json_decode(s), ({ 1, 2 })))`.
 - All macros are wrapped in `do { ... } while (0)` so they expand to
   a single statement and can safely be used as the body of a
   brace-less `for`/`if`.

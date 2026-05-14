@@ -23,6 +23,14 @@
 //   IT("allocate(-1) raises an error", catch(allocate(-1)));
 #define IT(title, x) do { TEST(title); ASSERT(x); END_TEST(); } while (0)
 
+// Deep value-equality check for aggregates. LPC `==` on arrays and
+// mappings compares by reference, so two distinct aggregates with the
+// same content are never equal. Use EQUALS to compare by structure:
+// recursively walks arrays (same size, same elements in order) and
+// mappings (same keys, same values), falling back to `==` on scalars.
+//   ASSERT(EQUALS(json_decode("[1,2]"), ({ 1, 2 })));
+#define EQUALS(a, b) find_object(TEST_H)->equals((a), (b))
+
 // Boolean check. When called inside a TEST block, a failure marks the
 // enclosing test as failed (and remembers the line for reporting).
 // When called outside any TEST block, it still counts toward the
