@@ -1,4 +1,8 @@
 
+# json-old
+
+> **Status**: unused. Kept under this name for historical reference and as a source of test cases if we ever want to compare implementations. The active JSON support for Hexagon lives in `/packages/json/`. This was a port of the Lost Souls MUD `grimoire_json` library; see the credits below.
+
 # json.c
 
 Last place found:
