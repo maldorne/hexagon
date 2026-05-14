@@ -12,6 +12,7 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/math.c"
 #include "/lib/core/efuns/string.c"
 #include "/lib/core/efuns/mapping.c"
+#include "/lib/core/efuns/json.c"
 #include "/lib/core/efuns/array.c"
 #include "/lib/core/efuns/function.c"
 #include "/lib/core/efuns/euid.c"
