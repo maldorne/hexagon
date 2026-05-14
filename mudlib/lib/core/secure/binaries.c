@@ -2,6 +2,7 @@
 // Binary connections handler
 
 #include <net/binary.h>
+#include <net/http.h>
 
 static mapping _connections;
 
@@ -15,14 +16,20 @@ void create()
 
   if (!find_object(BINARY_OB))
     compile_object(BINARY_OB);
+  if (!find_object(HTTP_OB))
+    compile_object(HTTP_OB);
 }
 
 object new_connection(int port)
 {
   object conn;
   string id;
+  string target;
 
-  conn = clone_object(find_object(BINARY_OB));
+  // route by port: 8080 → HTTP, everything else → raw binary
+  target = (port == HTTP_PORT ? HTTP_OB : BINARY_OB);
+
+  conn = clone_object(find_object(target));
   id = file_name(conn);
 
   _connections += ([ id : allocate(2) ]);
