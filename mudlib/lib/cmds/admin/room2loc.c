@@ -8,7 +8,8 @@ void setup()
 {
   set_aliases(({ "room2loc" }));
   set_usage("room2loc < filename | dirname | here >\n" +
-            "room2loc coords <location.o> <x> <y> <z>");
+            "room2loc coords <location.o> <x> <y> <z>\n" +
+            "room2loc clean [apply] <path>");
   set_help("Convert one or more legacy .c rooms into .o locations.\n" +
            "The target may be an absolute file or directory, a path\n" +
            "relative to your coder path, or 'here' for your current\n" +
@@ -22,7 +23,15 @@ void setup()
            "any location that already has coordinates. If the inference\n" +
            "discovers neighbours with their own coordinates, the map's\n" +
            "topology wins and the seed is discarded — this verb cannot\n" +
-           "override a real anchor.\n");
+           "override a real anchor.\n" +
+           "\n" +
+           "Subverb 'clean' removes every location under <path> (which\n" +
+           "may be a .c source directory or the corresponding save dir,\n" +
+           "even if the .c side has already been deleted), strips the\n" +
+           "map index entries, and trims broken exits on adjacent\n" +
+           "locations across the rest of the world. By default it is a\n" +
+           "dry-run that only prints the counts; pass 'apply' as the\n" +
+           "first word after 'clean' to actually execute.\n");
 }
 
 static int _filter_dot_c(string file)
@@ -102,6 +111,82 @@ static int do_coords(string str)
   return 1;
 }
 
+/**
+ * Preview or apply a clean of every location under `path` (and the
+ * matching map / area index entries, and broken exits in the rest of
+ * the world). Pass `apply=1` to execute; `apply=0` is a dry-run.
+ */
+static int do_clean(string path, int apply)
+{
+  string * resolved;
+  string save_dir;
+  string root_locations, root_areas;
+  mixed * preview;
+  mixed * counts;
+  string * orphans;
+  mapping adjacent_trim;
+  string * adj_keys;
+  int trim_count;
+  int i;
+
+  if (!path || !strlen(path))
+  {
+    notify_fail("Usage: room2loc clean [apply] <path>\n");
+    return 0;
+  }
+
+  resolved = load_object(LOCATION_HANDLER)->resolve_clean_scope(path);
+  save_dir = resolved[0];
+
+  if (!strlen(save_dir))
+  {
+    notify_fail("Cannot resolve '" + path + "' to a save directory.\n" +
+                "Expected '/games/<game>/areas/<rest>' or " +
+                "'/save/games/<game>/locations/areas/<rest>'.\n");
+    return 0;
+  }
+
+  root_locations = "/save/games/" + game_from_path(save_dir) + "/locations";
+  root_areas = root_locations + "/areas";
+
+  if (save_dir == root_locations || save_dir == root_areas)
+  {
+    notify_fail("Refusing to clean a root path (" + save_dir + ").\n");
+    return 0;
+  }
+
+  preview = load_object(LOCATION_HANDLER)->clean_preview(path);
+  orphans = preview[0];
+  adjacent_trim = preview[1];
+
+  adj_keys = map_indices(adjacent_trim);
+  trim_count = 0;
+  for (i = 0; i < sizeof(adj_keys); i++)
+    trim_count += sizeof(adjacent_trim[adj_keys[i]]);
+
+  if (!sizeof(orphans))
+  {
+    write("Nothing to clean under " + save_dir + ".\n");
+    return 1;
+  }
+
+  write("Clean " + (apply ? "applying" : "preview") + " for " + save_dir + "\n");
+  write("  Locations to delete: " + sizeof(orphans) + "\n");
+  write("  Adjacent locations with exits to trim: " + sizeof(adj_keys) +
+        " (" + trim_count + " exits)\n");
+
+  if (!apply)
+  {
+    write("Run 'room2loc clean apply " + path + "' to execute.\n");
+    return 1;
+  }
+
+  counts = load_object(LOCATION_HANDLER)->clean_apply(path);
+  write("Done. Removed " + counts[0] + " locations, trimmed " +
+        counts[2] + " exits on " + counts[1] + " adjacent locations.\n");
+  return 1;
+}
+
 static int cmd(string str, object me, string verb)
 {
   string * args;
@@ -117,6 +202,13 @@ static int cmd(string str, object me, string verb)
 
   if (args[0] == "coords")
     return do_coords(implode(args[1..], " "));
+
+  if (args[0] == "clean")
+  {
+    if (sizeof(args) >= 2 && args[1] == "apply")
+      return do_clean(implode(args[2..], " "), 1);
+    return do_clean(implode(args[1..], " "), 0);
+  }
 
   if (str == "here")
   {

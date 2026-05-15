@@ -50,9 +50,21 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   save_me();
 }
 
-void remove_location(string location_file_name) 
+void remove_location(string location_file_name)
 {
+  string * pos_keys;
+  int i;
+
   map_delete(locations, location_file_name);
+
+  // also strip the coords -> file_name reverse mapping
+  pos_keys = map_indices(positions);
+  for (i = 0; i < sizeof(pos_keys); i++)
+  {
+    if (positions[pos_keys[i]] == location_file_name)
+      map_delete(positions, pos_keys[i]);
+  }
+
   save_me();
 }
 

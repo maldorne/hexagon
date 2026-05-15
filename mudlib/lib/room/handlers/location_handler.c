@@ -112,7 +112,6 @@ object load_location(string file_name)
   return location;
 }
 
-
 int do_guess_coordinates(object * locations)
 {
   string * exits;
@@ -448,4 +447,302 @@ int batch_convert(string * files)
     call_out("do_guess_coordinates", 0, locations);
 
   return 1;
+}
+
+
+/**
+ * Resolve a clean scope into its save-tree directory and the matching
+ * source-tree prefix. The save-tree directory mirrors the source tree
+ * one-for-one (see `get_location_file_name_from_room`), so wherever a
+ * location's `.c` used to live in `/games/<game>/areas/<rest>/`, its
+ * `.o` is at `/save/games/<game>/locations/areas/<rest>/`.
+ *
+ * Accepts either form on input. Returns ({ save_dir, source_prefix })
+ * or ({ "", "" }) if the input does not look like an area path.
+ */
+string * resolve_clean_scope(string scope)
+{
+  string game, rest;
+
+  if (!scope || !strlen(scope))
+    return ({ "", "" });
+
+  if (scope[strlen(scope) - 1] == '/')
+    scope = scope[0..strlen(scope) - 2];
+
+  if (sscanf(scope, "/save/games/%s/locations/areas/%s", game, rest) == 2)
+    return ({ scope,
+              "/games/" + game + "/areas/" + rest });
+
+  if (sscanf(scope, "/games/%s/areas/%s", game, rest) == 2)
+    return ({ "/save/games/" + game + "/locations/areas/" + rest,
+              scope });
+
+  return ({ "", "" });
+}
+
+/**
+ * List the location `.o` files in `<save_dir>` that look like clean
+ * targets: their `_original_room_file_name` starts with the matching
+ * source prefix, OR (defensively) their own save path starts with the
+ * scope's save directory.
+ *
+ * The walk is scoped to the single directory mirroring the source — we
+ * never look elsewhere. Locations whose origin string does not match
+ * the prefix are skipped and the caller can decide whether to surface
+ * them as a warning.
+ *
+ * Returns the list of paths that should be removed.
+ */
+private string * _list_scope_orphans(string save_dir, string source_prefix)
+{
+  string * files;
+  string * orphans;
+  int i;
+
+  files = get_files(save_dir + "/*.o");
+  files -= ({ save_dir + "/area.o" });
+
+  orphans = ({ });
+
+  for (i = 0; i < sizeof(files); i++)
+  {
+    object loc;
+    string orig;
+
+    loc = load_location(files[i]);
+    if (!loc)
+      continue;
+
+    orig = loc->query_original_room_file_name();
+
+    if (starts_with(orig, source_prefix + "/") ||
+        starts_with(files[i], save_dir + "/"))
+    {
+      orphans += ({ files[i] });
+    }
+  }
+
+  return orphans;
+}
+
+private mapping _find_inbound_exits(mapping orphan_set);
+
+/**
+ * Preview the impact of cleaning `scope`. `scope` is a source-tree
+ * path (e.g. `/games/rl-aeternum/areas/forest/rooms`) or the matching
+ * save-tree path. Only the corresponding save directory is consulted
+ * for orphan discovery; each `.o` there is checked against the source
+ * prefix via `_original_room_file_name`.
+ *
+ * Inbound-exit discovery is bounded to the destinations the orphans
+ * themselves point at (see `_find_inbound_exits`), so this never
+ * walks the rest of the world even when there are many locations.
+ *
+ * Returns ({ string * orphans, mapping adjacent_trim }).
+ *   orphans       — `.o` paths inside the scope that match.
+ *   adjacent_trim — destinations-with-exits-back into the orphan set.
+ */
+mixed * clean_preview(string scope)
+{
+  string * resolved;
+  string save_dir, source_prefix;
+  string * orphans;
+  mapping orphan_set;
+  mapping adjacent_trim;
+  int i;
+
+  resolved = resolve_clean_scope(scope);
+  save_dir = resolved[0];
+  source_prefix = resolved[1];
+
+  if (!strlen(save_dir))
+    return ({ ({ }), ([ ]) });
+
+  orphans = _list_scope_orphans(save_dir, source_prefix);
+
+  adjacent_trim = ([ ]);
+
+  if (sizeof(orphans))
+  {
+    orphan_set = ([ ]);
+    for (i = 0; i < sizeof(orphans); i++)
+      orphan_set[orphans[i]] = 1;
+
+    adjacent_trim = _find_inbound_exits(orphan_set);
+  }
+
+  return ({ orphans, adjacent_trim });
+}
+
+/**
+ * Discover the locations whose exits would point at a deleted orphan
+ * once the cleanup runs. The orphans themselves know their outgoing
+ * exits; the unique destinations of those exits are exactly the
+ * locations we need to inspect, plus loading each destination once
+ * gives us its own exit list to look for the inbound back-pointer.
+ *
+ * This is bounded by `sum(outgoing_exits_per_orphan)` destinations to
+ * load — never the whole world. The two assumptions are: (1) the save
+ * tree mirrors the source tree (so an orphan's destinations live where
+ * its exit string says they live); (2) the world's exit graph is at
+ * least mostly reciprocal (if A→B exists, B→A usually does too — the
+ * standard MUD convention). Non-reciprocal exits FROM an external
+ * location to an orphan that the orphan does not know about are not
+ * trimmed; that is the explicit cost of not scanning the world.
+ *
+ * Returns a mapping ([ adjacent_path : ({ "dir1", "dir2", ... }) ])
+ * of exits to drop on each affected location.
+ */
+private mapping _find_inbound_exits(mapping orphan_set)
+{
+  string * orphans;
+  mapping affected;
+  mapping result;
+  string * affected_keys;
+  int i;
+
+  orphans = map_indices(orphan_set);
+  affected = ([ ]);
+
+  // step 1: collect unique non-orphan destinations of orphan exits
+  for (i = 0; i < sizeof(orphans); i++)
+  {
+    object orphan;
+    mixed * exits;
+    int e;
+
+    orphan = load_location(orphans[i]);
+    if (!orphan)
+      continue;
+
+    exits = orphan->query_dest_dir();
+
+    for (e = 0; e < sizeof(exits); e += 2)
+    {
+      if (orphan_set[exits[e + 1]])
+        continue;
+      affected[exits[e + 1]] = 1;
+    }
+  }
+
+  // step 2: load each affected destination and look for exits back
+  // into the orphan set
+  result = ([ ]);
+  affected_keys = map_indices(affected);
+
+  for (i = 0; i < sizeof(affected_keys); i++)
+  {
+    object loc;
+    mixed * exits;
+    string * to_drop;
+    int e;
+
+    loc = load_location(affected_keys[i]);
+    if (!loc)
+      continue;
+
+    exits = loc->query_dest_dir();
+    to_drop = ({ });
+
+    for (e = 0; e < sizeof(exits); e += 2)
+    {
+      if (orphan_set[exits[e + 1]])
+        to_drop += ({ exits[e] });
+    }
+
+    if (sizeof(to_drop))
+      result[affected_keys[i]] = to_drop;
+  }
+
+  return result;
+}
+
+/**
+ * Execute the cleanup the preview described. Two phases:
+ *  1. Trim any inbound exits in the locations adjacent to the orphans
+ *     (discovered via the orphans' own outgoing exits — see
+ *     `_find_inbound_exits`).
+ *  2. Remove the orphans themselves: drop their map index entries,
+ *     their area index entries, and the `.o` files.
+ *
+ * Returns ({ orphan_count, adjacent_count, exit_count }) — counts of
+ * the three things that happened.
+ */
+mixed * clean_apply(string scope)
+{
+  mixed * preview;
+  string * orphans;
+  mapping orphan_set;
+  mapping adjacent_trim;
+  string * adj_keys;
+  int adjacent_count, exit_count;
+  int i, j;
+
+  preview = clean_preview(scope);
+  orphans = preview[0];
+  adjacent_trim = preview[1];
+
+  if (!sizeof(orphans))
+    return ({ 0, 0, 0 });
+
+  orphan_set = ([ ]);
+  for (i = 0; i < sizeof(orphans); i++)
+    orphan_set[orphans[i]] = 1;
+
+  // phase 1: trim inbound exits on adjacent locations
+  adj_keys = map_indices(adjacent_trim);
+  adjacent_count = 0;
+  exit_count = 0;
+
+  for (i = 0; i < sizeof(adj_keys); i++)
+  {
+    object loc;
+    string * dirs;
+
+    loc = load_location(adj_keys[i]);
+    if (!loc)
+      continue;
+
+    dirs = adjacent_trim[adj_keys[i]];
+
+    for (j = 0; j < sizeof(dirs); j++)
+      loc->remove_exit(dirs[j]);
+
+    loc->save_me();
+
+    adjacent_count++;
+    exit_count += sizeof(dirs);
+  }
+
+  // phase 2: remove the orphans
+  for (i = 0; i < sizeof(orphans); i++)
+  {
+    object loc, area;
+
+    loc = load_location(orphans[i]);
+
+    if (loc)
+    {
+      if (loc->query_coordinates())
+      {
+        int * coords;
+        coords = loc->query_coordinates();
+        load_object(MAPS_HANDLER)->remove_location_from_map(
+            orphans[i], loc->query_map_name(),
+            coords[0], coords[1], coords[2]);
+      }
+
+      area = query_area_from_location_file_name(orphans[i]);
+      if (area)
+        area->remove_location(orphans[i]);
+
+      destruct(loc);
+    }
+
+    if (file_size(orphans[i]) >= 0)
+      remove_file(orphans[i]);
+  }
+
+  return ({ sizeof(orphans), adjacent_count, exit_count });
 }

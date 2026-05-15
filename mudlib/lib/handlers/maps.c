@@ -70,7 +70,7 @@ string add_location(object location)
   sector_storage->add_location(location->query_file_name(), x, y, z, ([ ]));
   sector_storage->add_loaded_location(location);
 
-  // update the contents of the file only if they are different to the 
+  // update the contents of the file only if they are different to the
   // already stored information
   content = read_file(path + file_name);
 
@@ -82,4 +82,43 @@ string add_location(object location)
   }
 
   return path + file_name;
+}
+
+/**
+ * Remove a location from the map index: drops its entry from the
+ * sector.o, deletes the per-coordinate pointer file, and forgets the
+ * sector if it ends up empty.
+ *
+ * Called by the location-cleanup pipeline (see
+ * LOCATION_HANDLER->clean_apply). The location object itself is no
+ * longer needed at this point; the caller passes its coordinates and
+ * map name explicitly so this can run even after the location has been
+ * destructed.
+ */
+int remove_location_from_map(string location_file_name, string map_name,
+                             int x, int y, int z)
+{
+  int sector_x, sector_y, sector_z;
+  string sector_path, coord_file;
+  object sector;
+
+  sector_x = x / 10 - (x < 0);
+  sector_y = y / 10 - (y < 0);
+  sector_z = z / 10 - (z < 0);
+
+  sector_path = "/save/games/" + game_from_path(location_file_name) +
+                "/maps/" + map_name + "/" +
+                sector_x + "/" + sector_y + "/" + sector_z + "/";
+  coord_file = sector_path + x + "_" + y + "_" + z + ".o";
+
+  // remove per-coordinate pointer file
+  if (file_size(coord_file) >= 0)
+    remove_file(coord_file);
+
+  // ensure the sector is loaded and tell it to drop the entry
+  sector = create_sector(sector_path);
+  if (sector)
+    sector->remove_location(location_file_name);
+
+  return 1;
 }
