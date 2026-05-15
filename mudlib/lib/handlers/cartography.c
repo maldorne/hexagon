@@ -590,27 +590,53 @@ string render_unicode(mapping view)
 
       if (i == vy && j == vx)
       {
-        line += "%^ORANGE%^◉%^RESET%^";
+        // ◉ U+25C9 fisheye (viewer)
+        line += "%^ORANGE%^" + chr(226) + chr(151) + chr(137) + "%^RESET%^";
         continue;
       }
 
       switch (type)
       {
-        case CART_ROOM:               line += "▢";                                    break;
-        case CART_COAST_ROOM:         line += "%^BLUE%^◯%^RESET%^";                   break;
-        case CART_DOOR_ROOM:          line += "▦";                                    break;
-        case CART_UP_ROOM:            line += "▲";                                    break;
-        case CART_DOWN_ROOM:          line += "▼";                                    break;
-        case CART_FINISH_QUEST_ROOM:  line += "%^BOLD%^YELLOW%^▢%^RESET%^";           break;
-        case CART_QUEST_ROOM:         line += "%^BOLD%^YELLOW%^▣%^RESET%^";           break;
-        case CART_ADVENTURER_ROOM:    line += "%^BOLD%^CYAN%^▣%^RESET%^";             break;
-        case CART_GUARD_ROOM:         line += "%^BOLD%^GREEN%^▣%^RESET%^";            break;
-        case CART_ENEMY_ROOM:         line += "%^BOLD%^RED%^▣%^RESET%^";              break;
-        case CART_HORIZONTAL_EXIT:    line += "─";                                    break;
-        case CART_VERTICAL_EXIT:      line += "│";                                    break;
-        case CART_SLASH_EXIT:         line += "╱";                                    break;
-        case CART_BACKSLASH_EXIT:     line += "╲";                                    break;
-        default:                      line += " ";                                    break;
+        case CART_ROOM:
+          // ▢ U+25A2 white square with rounded corners
+          line += chr(226) + chr(150) + chr(162);                                     break;
+        case CART_COAST_ROOM:
+          // ◯ U+25EF large circle
+          line += "%^BLUE%^" + chr(226) + chr(151) + chr(175) + "%^RESET%^";          break;
+        case CART_DOOR_ROOM:
+          // ▦ U+25A6 square with horizontal fill
+          line += chr(226) + chr(150) + chr(166);                                     break;
+        case CART_UP_ROOM:
+          // ▲ U+25B2 black up-pointing triangle
+          line += chr(226) + chr(150) + chr(178);                                     break;
+        case CART_DOWN_ROOM:
+          // ▼ U+25BC black down-pointing triangle
+          line += chr(226) + chr(150) + chr(188);                                     break;
+        case CART_FINISH_QUEST_ROOM:
+          line += "%^BOLD%^YELLOW%^" + chr(226) + chr(150) + chr(162) + "%^RESET%^"; break;
+        case CART_QUEST_ROOM:
+          // ▣ U+25A3 square containing white square
+          line += "%^BOLD%^YELLOW%^" + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+        case CART_ADVENTURER_ROOM:
+          line += "%^BOLD%^CYAN%^"   + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+        case CART_GUARD_ROOM:
+          line += "%^BOLD%^GREEN%^"  + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+        case CART_ENEMY_ROOM:
+          line += "%^BOLD%^RED%^"    + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+        case CART_HORIZONTAL_EXIT:
+          // ─ U+2500 box drawings light horizontal
+          line += chr(226) + chr(148) + chr(128);                                     break;
+        case CART_VERTICAL_EXIT:
+          // │ U+2502 box drawings light vertical
+          line += chr(226) + chr(148) + chr(130);                                     break;
+        case CART_SLASH_EXIT:
+          // ╱ U+2571 box drawings light diagonal upper right to lower left
+          line += chr(226) + chr(149) + chr(177);                                     break;
+        case CART_BACKSLASH_EXIT:
+          // ╲ U+2572 box drawings light diagonal upper left to lower right
+          line += chr(226) + chr(149) + chr(178);                                     break;
+        default:
+          line += " ";                                                                break;
       }
     }
     out += line + "\n";
