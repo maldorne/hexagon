@@ -359,3 +359,75 @@ object convert_room_to_location(object room)
   return location;
 }
 
+// Convert a batch of room files to locations, with progress output to
+// the current player. Filters out files that fail to load and reports
+// per-file outcomes. After the batch, schedules a coordinate-inference
+// pass on every successfully converted location.
+int batch_convert(string * files)
+{
+  object location;
+  object * locations;
+  object * rooms;
+  object tmp;
+  int num_coordinates;
+  int i;
+
+  write("Converting files to locations\n\n");
+  write(" * Loading " + sizeof(files) + " objects ...\n");
+
+  rooms = ({ });
+
+  for (i = 0; i < sizeof(files); i++)
+  {
+    tmp = load_object(files[i]);
+
+    if (tmp)
+      rooms += ({ tmp });
+    else
+      write("Error loading " + files[i] + ".\n");
+  }
+
+  if (sizeof(rooms) == 0)
+  {
+    write("No valid objects loaded.\n");
+    return 1;
+  }
+
+  write(" * " + sizeof(rooms) + " objects loaded.\n\n");
+
+  num_coordinates = 0;
+  locations = ({ });
+
+  for (i = 0; i < sizeof(rooms); i++)
+  {
+    write(" * Converting " + file_name(rooms[i]) + ".c ...\n");
+
+    if (!(location = convert_room_to_location(rooms[i])))
+    {
+      write("   Error converting " + file_name(rooms[i]) + ".c.\n");
+    }
+    else
+    {
+      locations += ({ location });
+
+      write("   " + file_name(rooms[i]) + ".c to\n     " + location->query_file_name() + "\n");
+      if (location->query_coordinates())
+      {
+        num_coordinates++;
+        write("   %^GREEN%^Coordinates%^RESET%^: " + location->query_coordinates()[0] +
+              " " + location->query_coordinates()[1] + " " + location->query_coordinates()[2] + "\n");
+      }
+      else
+        write("   %^RED%^Coordinates%^RESET%^: none\n");
+    }
+  }
+
+  write("\nConversion finished.\n");
+  write("  Rooms converted: " + sizeof(locations) + "\n");
+  write("  Locations with coordinates: " + num_coordinates + "\n");
+
+  if (sizeof(locations))
+    call_out("do_guess_coordinates", 0, locations);
+
+  return 1;
+}
