@@ -38,17 +38,18 @@ string query_help(varargs string str)
 {
   string out;
 
-  out = _LANG_CMD_MAP_HELP + " " +
-        "Plain `map` shows the standard chunky view. " +
-        "`map compact` packs the same map into one character per cell. " +
-        "`map unicode` keeps that density but uses proper box-drawing " +
-        "glyphs (needs a UTF-8 capable client). " +
-        "`map color` is the standard view with each room tinted by the " +
-        "area it belongs to.";
+  out = _LANG_CMD_MAP_HELP + "\n" +
+        "\n" +
+        "Variants:\n" +
+        "  map           the standard map.\n" +
+        "  map compact   a denser one-character-per-cell view.\n" +
+        "  map unicode   the same density as compact but with proper\n" +
+        "                box-drawing glyphs (needs a UTF-8 client).\n" +
+        "  map color     standard chunky boxes, each room tinted by\n" +
+        "                the area it belongs to.\n";
 
   if (this_player() && this_player()->query_coder())
-    out += " `map coords` overlays the world (x,y) coordinates of every " +
-           "location cell (coder-only).";
+    out += "  map coords    coordinates overlay (coder only).\n";
 
   return out;
 }
@@ -77,52 +78,47 @@ private mapping _scan_legend(mapping view)
   return flags;
 }
 
-// Wrap the default-style grid in the parchment border + legend.
-private string _wrap_in_frame(string grid, mapping flags)
+// Build the inner content of the parchment frame: the rendered grid,
+// a blank line, and the per-marker legend rows. The frames handler
+// wraps this in the actual scroll borders.
+private string _build_inner(string grid, mapping flags)
 {
   string out;
   string * lines;
   int i;
 
-  out  = "\n";
-  out += "    ______________________________________________________________\n";
-  out += "   /\\                                                             \\\n";
-  out += "   \\_|                                                             |\n";
+  out = "";
 
   lines = explode(grid, "\n");
   for (i = 0; i < sizeof(lines); i++)
   {
     if (i == sizeof(lines) - 1 && lines[i] == "")
       continue;
-    out += "     |        " + lines[i] + "        |\n";
+    out += lines[i] + "\n";
   }
 
-  out += "     |                                                             |\n";
-  out += "     |                            " + _format(_LANG_CMD_MAP_LEGEND + " :") + "         |\n";
-  out += "     |                               %^ORANGE%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_YOUR_POS) + "|\n";
+  out += "\n";
+  out += "                    " + _format(_LANG_CMD_MAP_LEGEND + " :") + "\n";
+  out += "                       %^ORANGE%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_YOUR_POS) + "\n";
 
   if (flags[CART_ENEMY_ROOM])
-    out += "     |                               %^BOLD%^RED%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_ENEMIES) + "|\n";
+    out += "                       %^BOLD%^RED%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_ENEMIES) + "\n";
   if (flags[CART_ADVENTURER_ROOM])
-    out += "     |                               %^BOLD%^CYAN%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_FRIENDS) + "|\n";
+    out += "                       %^BOLD%^CYAN%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_FRIENDS) + "\n";
   if (flags[CART_GUARD_ROOM])
-    out += "     |                               %^BOLD%^GREEN%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_GUARDS) + "|\n";
+    out += "                       %^BOLD%^GREEN%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_GUARDS) + "\n";
   if (flags[CART_DOOR_ROOM])
-    out += "     |                               " + _LANG_CMD_MAP_DOOR_LETTER + "   : " + _format(_LANG_CMD_MAP_DOORS) + "|\n";
+    out += "                       " + _LANG_CMD_MAP_DOOR_LETTER + "   : " + _format(_LANG_CMD_MAP_DOORS) + "\n";
   if (flags[CART_UP_ROOM])
-    out += "     |                               ^   : " + _format(_LANG_CMD_MAP_UP_STAIRS) + "|\n";
+    out += "                       ^   : " + _format(_LANG_CMD_MAP_UP_STAIRS) + "\n";
   if (flags[CART_DOWN_ROOM])
-    out += "     |                               v   : " + _format(_LANG_CMD_MAP_DOWN_STAIRS) + "|\n";
+    out += "                       v   : " + _format(_LANG_CMD_MAP_DOWN_STAIRS) + "\n";
   if (flags[CART_QUEST_ROOM])
-    out += "     |                               %^BOLD%^YELLOW%^!%^RESET%^   : " + _format(_LANG_CMD_MAP_NEW_QUESTS) + "|\n";
+    out += "                       %^BOLD%^YELLOW%^!%^RESET%^   : " + _format(_LANG_CMD_MAP_NEW_QUESTS) + "\n";
   if (flags[CART_FINISH_QUEST_ROOM])
-    out += "     |                               %^BOLD%^YELLOW%^?%^RESET%^   : " + _format(_LANG_CMD_MAP_FINISHED_QUESTS) + "|\n";
+    out += "                       %^BOLD%^YELLOW%^?%^RESET%^   : " + _format(_LANG_CMD_MAP_FINISHED_QUESTS) + "\n";
   if (flags[CART_COAST_ROOM])
-    out += "     |                               %^BLUE%^[ ]%^RESET%^ : " + _format(_LANG_CMD_MAP_COAST) + "|\n";
-
-  out += "     |                                                             |\n";
-  out += "     |   __________________________________________________________|___\n";
-  out += "      \\_/_____________________________________________________________/\n\n";
+    out += "                       %^BLUE%^[ ]%^RESET%^ : " + _format(_LANG_CMD_MAP_COAST) + "\n";
 
   return out;
 }
@@ -194,17 +190,23 @@ static int cmd(string str, object me, string verb)
       write("\n" + cart->render_unicode(view) + "\n");
       break;
     case MAP_STYLE_COLOR:
-      // same width as the default style → still fits the parchment
-      write(_wrap_in_frame(cart->render_color_by_area(view),
-                           _scan_legend(view)));
+      write("\n" +
+            handler("frames")->frame(
+              _build_inner(cart->render_color_by_area(view),
+                           _scan_legend(view)),
+              "", 0, 0, "scroll") +
+            "\n");
       break;
     case MAP_STYLE_COORDS:
       // coord cells are 8 chars wide — wraps past the parchment width
       write("\n" + cart->render_coords(view) + "\n");
       break;
     default:
-      write(_wrap_in_frame(cart->render_ascii(view),
-                           _scan_legend(view)));
+      write("\n" +
+            handler("frames")->frame(
+              _build_inner(cart->render_ascii(view), _scan_legend(view)),
+              "", 0, 0, "scroll") +
+            "\n");
       break;
   }
 
