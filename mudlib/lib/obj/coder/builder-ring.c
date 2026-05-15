@@ -55,6 +55,31 @@ void init()
 int do_selection(string str);
 int do_convert(string str);
 
+// Resolve a target string into the list of files it represents, for the
+// three cases shared by `do_selection add` and `do_convert`:
+//   * absolute directory  -> its contents
+//   * absolute file       -> the file itself
+//   * file relative to the caller's coder path
+// Returns ({ }) if `target` matches none of these — the caller decides
+// what to do with the remaining cases ("here", "*", glob patterns).
+static string * _resolve_targets(string target)
+{
+  string coder_path;
+
+  if (file_size(target) == -2)
+    return get_files(target + "/*");
+
+  if (file_size(target) > 0)
+    return ({ target });
+
+  coder_path = this_user()->query_role()->query_path();
+
+  if (file_size(coder_path + "/" + target) > 0)
+    return ({ coder_path + "/" + target });
+
+  return ({ });
+}
+
 static int _filter_loadable(string file)
 {
   object what;
@@ -165,6 +190,7 @@ int do_build(string str)
 int do_selection(string str)
 {
   string * args;
+  string * resolved;
   string verb;
   string target;
 
@@ -202,31 +228,15 @@ int do_selection(string str)
     {
       selection += get_files(this_user()->query_role()->query_current_path() + "/*");
     }
-    // is a directory
-    else if (file_size(target) == -2)
+    else if (sizeof(resolved = _resolve_targets(target)))
     {
-      selection += get_files(target + "/*");
-    }
-    // is a file
-    else if (file_size(target) > 0)
-    {
-      selection += ({ target });
-    }
-    // is a filename in the current directory
-    else if (file_size(this_user()->query_role()->query_path() + "/" + target) > 0)
-    {
-      selection += ({ this_user()->query_role()->query_path() + "/" + target });
+      selection += resolved;
     }
     // is a pattern in the current directory
     else if (sizeof(get_files(this_user()->query_role()->query_path() + "/" + target)) > 0)
     {
       selection += get_files(this_user()->query_role()->query_path() + "/" + target);
     }
-    // is a file pattern (maybe using "*")
-    // else
-    // {
-    //   selection += get_cfiles(target);
-    // }
 
     selection = unique_array(selection);
     selection = filter_array(selection, "_filter_loadable");
@@ -308,20 +318,9 @@ int do_convert(string str)
     {
       obs = ({ environment(this_player()) });
     }
-    // is a directory
-    else if (file_size(str) == -2)
+    else if (sizeof(files = _resolve_targets(str)))
     {
-      files = get_files(str + "/*");
-    }
-    // is a file
-    else if (file_size(str) > 0)
-    {
-      files = ({ str });
-    }
-    // is a filename in the current directory
-    else if (file_size(this_user()->query_role()->query_path() + "/" + str) > 0)
-    {
-      files = ({ this_user()->query_role()->query_path() + "/" + str });
+      // resolved by the shared helper
     }
     // is a file pattern (maybe using "*")
     else
