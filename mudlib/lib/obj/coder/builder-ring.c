@@ -55,6 +55,61 @@ void init()
 int do_selection(string str);
 int do_convert(string str);
 
+// Glob-style matcher for `*` (any sequence, including empty) and `?`
+// (exactly one character). Recursive backtracking; pattern and string
+// are short paths so depth is bounded.
+static int _glob_match(string pattern, string str)
+{
+  int p, s, plen, slen;
+
+  plen = strlen(pattern);
+  slen = strlen(str);
+  p = 0;
+  s = 0;
+
+  while (p < plen)
+  {
+    if (pattern[p] == '*')
+    {
+      while (p < plen && pattern[p] == '*')
+        p++;
+      if (p == plen)
+        return 1;
+      while (s <= slen)
+      {
+        if (_glob_match(pattern[p..], str[s..]))
+          return 1;
+        s++;
+      }
+      return 0;
+    }
+
+    if (s >= slen)
+      return 0;
+
+    if (pattern[p] != '?' && pattern[p] != str[s])
+      return 0;
+
+    p++;
+    s++;
+  }
+
+  return s == slen;
+}
+
+// Pattern has wildcards if it contains `*` or `?`.
+static int _has_wildcards(string pattern)
+{
+  int i, len;
+
+  len = strlen(pattern);
+  for (i = 0; i < len; i++)
+    if (pattern[i] == '*' || pattern[i] == '?')
+      return 1;
+
+  return 0;
+}
+
 static int _filter_loadable(string file)
 {
   object what;
@@ -207,6 +262,12 @@ int do_selection(string str)
     {
       selection += resolved;
     }
+    // absolute path with wildcards (resolve_targets only handles literal paths)
+    else if (target[0] == '/' && _has_wildcards(target) &&
+             sizeof(get_files(target)) > 0)
+    {
+      selection += get_files(target);
+    }
     // is a pattern in the current directory
     else if (sizeof(get_files(this_user()->query_role()->query_path() + "/" + target)) > 0)
     {
@@ -234,18 +295,52 @@ int do_selection(string str)
 
     target = args[1];
 
-    // TO DO: search in the array using wildcards (*, filenam*, etc)
-
-    if (member_array(target, selection) == -1)
+    if (_has_wildcards(target))
     {
-      notify_fail("Not in the selection.\n");
-      return 0;
+      // glob match: against the basename if pattern has no '/',
+      // against the full path otherwise
+      string * matched;
+      int by_basename;
+      int i;
+
+      by_basename = (sizeof(explode(target, "/")) == 1);
+      matched = ({ });
+
+      for (i = 0; i < sizeof(selection); i++)
+      {
+        string candidate;
+
+        candidate = (by_basename ? get_path_file_name(selection[i]) : selection[i]);
+        if (_glob_match(target, candidate))
+          matched += ({ selection[i] });
+      }
+
+      if (!sizeof(matched))
+      {
+        notify_fail("No selection entries match '" + target + "'.\n");
+        return 0;
+      }
+
+      selection -= matched;
+      for (i = 0; i < sizeof(matched); i++)
+        objects = m_delete(objects, matched[i]);
+
+      write("Removed " + sizeof(matched) + " entr" +
+            (sizeof(matched) == 1 ? "y" : "ies") + " from the selection.\n");
     }
+    else
+    {
+      if (member_array(target, selection) == -1)
+      {
+        notify_fail("Not in the selection.\n");
+        return 0;
+      }
 
-    selection -= ({ target });
-    objects = m_delete(objects, target);
+      selection -= ({ target });
+      objects = m_delete(objects, target);
 
-    write("Removed " + target + " from the selection.\n");
+      write("Removed " + target + " from the selection.\n");
+    }
   }
   else if (verb == "clean")
   {
