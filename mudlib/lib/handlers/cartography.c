@@ -557,3 +557,204 @@ string render_coords(mapping view)
 
   return out;
 }
+
+/**
+ * Box-drawing Unicode renderer: similar density to render_compact but
+ * with proper line glyphs (─ │ ╱ ╲) and filled square glyphs for
+ * rooms (▢ ◉ for the viewer, ▦ for doors, ▲/▼ for stairs, ◯ for
+ * coast). Requires a UTF-8 capable client; falls back gracefully on
+ * 8-bit terminals (the bytes are still printable, just not pretty).
+ */
+string render_unicode(mapping view)
+{
+  int width, height;
+  int ** cells;
+  int vx, vy;
+  string out, line;
+  int i, j, type;
+
+  width  = view["width"];
+  height = view["height"];
+  cells  = view["cells"];
+  vx     = view["viewer_x"];
+  vy     = view["viewer_y"];
+
+  out = "";
+
+  for (i = 0; i < height; i++)
+  {
+    line = "";
+    for (j = 0; j < width; j++)
+    {
+      type = cells[i][j];
+
+      if (i == vy && j == vx)
+      {
+        line += "%^ORANGE%^◉%^RESET%^";
+        continue;
+      }
+
+      switch (type)
+      {
+        case CART_ROOM:               line += "▢";                                    break;
+        case CART_COAST_ROOM:         line += "%^BLUE%^◯%^RESET%^";                   break;
+        case CART_DOOR_ROOM:          line += "▦";                                    break;
+        case CART_UP_ROOM:            line += "▲";                                    break;
+        case CART_DOWN_ROOM:          line += "▼";                                    break;
+        case CART_FINISH_QUEST_ROOM:  line += "%^BOLD%^YELLOW%^▢%^RESET%^";           break;
+        case CART_QUEST_ROOM:         line += "%^BOLD%^YELLOW%^▣%^RESET%^";           break;
+        case CART_ADVENTURER_ROOM:    line += "%^BOLD%^CYAN%^▣%^RESET%^";             break;
+        case CART_GUARD_ROOM:         line += "%^BOLD%^GREEN%^▣%^RESET%^";            break;
+        case CART_ENEMY_ROOM:         line += "%^BOLD%^RED%^▣%^RESET%^";              break;
+        case CART_HORIZONTAL_EXIT:    line += "─";                                    break;
+        case CART_VERTICAL_EXIT:      line += "│";                                    break;
+        case CART_SLASH_EXIT:         line += "╱";                                    break;
+        case CART_BACKSLASH_EXIT:     line += "╲";                                    break;
+        default:                      line += " ";                                    break;
+      }
+    }
+    out += line + "\n";
+  }
+
+  return out;
+}
+
+/**
+ * Color-by-area renderer: same chunky `[ ]` glyphs as render_ascii,
+ * but each room cell is tinted with a palette colour assigned to its
+ * `query_area_name()`. Lets the player see at a glance the boundary
+ * between areas without losing any of the marker information.
+ *
+ * The palette is fixed (8 colours); if more areas appear in the same
+ * view the palette wraps around. Areas are sorted by first appearance
+ * in the grid so the colour mapping is stable from one view to the
+ * next as long as the player is in the same neighbourhood.
+ */
+string render_color_by_area(mapping view)
+{
+  int width, height;
+  int ** cells;
+  object ** rooms;
+  int vx, vy;
+  string out, line;
+  string * palette;
+  mapping area_to_color;
+  int i, j, type, palette_idx;
+  string viewer_marker;
+
+  width  = view["width"];
+  height = view["height"];
+  cells  = view["cells"];
+  rooms  = view["rooms"];
+  vx     = view["viewer_x"];
+  vy     = view["viewer_y"];
+
+  // 8 distinct colours; non-bold + bold cycle. Avoid orange (used for
+  // the viewer) and red (used for enemies) so meaning stays clear.
+  palette = ({
+    "%^CYAN%^",
+    "%^GREEN%^",
+    "%^YELLOW%^",
+    "%^MAGENTA%^",
+    "%^BLUE%^",
+    "%^BOLD%^CYAN%^",
+    "%^BOLD%^GREEN%^",
+    "%^BOLD%^MAGENTA%^",
+  });
+
+  area_to_color = ([ ]);
+  palette_idx   = 0;
+
+  out = "";
+
+  for (i = 0; i < height; i++)
+  {
+    line = "";
+    for (j = 0; j < width; j++)
+    {
+      object room;
+      string area_name, tint;
+
+      type = cells[i][j];
+      room = rooms[i][j];
+
+      // pick a tint for the room cell based on its area
+      tint = "";
+      if (room)
+      {
+        area_name = room->query_area_name();
+        if (area_name)
+        {
+          if (!area_to_color[area_name])
+          {
+            area_to_color[area_name] = palette[palette_idx % sizeof(palette)];
+            palette_idx++;
+          }
+          tint = area_to_color[area_name];
+        }
+      }
+
+      if (i == vy && j == vx)
+      {
+        // the viewer keeps its orange asterisk on top of the area tint
+        if (strlen(tint))
+          line += tint + "[%^RESET%^%^ORANGE%^*%^RESET%^" + tint + "]%^RESET%^";
+        else
+          line += "[%^ORANGE%^*%^RESET%^]";
+        continue;
+      }
+
+      switch (type)
+      {
+        case CART_ROOM:
+          line += (strlen(tint) ? tint + "[ ]%^RESET%^" : "[ ]");
+          break;
+        case CART_COAST_ROOM:
+          line += "%^BLUE%^[ ]%^RESET%^";
+          break;
+        case CART_DOOR_ROOM:
+          line += (strlen(tint) ? tint + "[D]%^RESET%^" : "[D]");
+          break;
+        case CART_UP_ROOM:
+          line += (strlen(tint) ? tint + "[^]%^RESET%^" : "[^]");
+          break;
+        case CART_DOWN_ROOM:
+          line += (strlen(tint) ? tint + "[v]%^RESET%^" : "[v]");
+          break;
+        case CART_FINISH_QUEST_ROOM:
+          line += "[%^BOLD%^YELLOW%^?%^RESET%^]";
+          break;
+        case CART_QUEST_ROOM:
+          line += "[%^BOLD%^YELLOW%^!%^RESET%^]";
+          break;
+        case CART_ADVENTURER_ROOM:
+          line += "[%^BOLD%^CYAN%^*%^RESET%^]";
+          break;
+        case CART_GUARD_ROOM:
+          line += "[%^BOLD%^GREEN%^*%^RESET%^]";
+          break;
+        case CART_ENEMY_ROOM:
+          line += "[%^BOLD%^RED%^*%^RESET%^]";
+          break;
+        case CART_HORIZONTAL_EXIT:
+          line += "---";
+          break;
+        case CART_VERTICAL_EXIT:
+          line += " | ";
+          break;
+        case CART_SLASH_EXIT:
+          line += " / ";
+          break;
+        case CART_BACKSLASH_EXIT:
+          line += " \\ ";
+          break;
+        default:
+          line += "   ";
+          break;
+      }
+    }
+    out += line + "\n";
+  }
+
+  return out;
+}
