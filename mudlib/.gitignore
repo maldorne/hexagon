@@ -23,6 +23,7 @@
 
 # administrator home files
 /home/admin/
+/home/test/
 
 # only initial migration
 /lib/user/migrations/*
