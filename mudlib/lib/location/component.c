@@ -1,4 +1,19 @@
-// basic component all location components will inherit from
+// Base class every location component inherits from.
+//
+// PERSISTENCE CONTRACT
+// --------------------
+// A component owns the persistence of its own state. The parent location
+// stores a `component_info` mapping naming which components it has, but
+// does NOT serialise the components' instance variables. On restore, the
+// location re-clones the component fresh and calls
+// `init_auto_load_attributes()` on it; everything else is up to the
+// component.
+//
+// Components that hold state (shop inventory, NPC patrol schedule, quest
+// progress, ...) extend `query_auto_load_attributes()` and
+// `init_auto_load_attributes()` below to include that state. The data
+// then travels with the location's `.o` file through the `component_info`
+// channel.
 
 // inherit obj "/lib/core/object.c";
 inherit container "/lib/core/basic/container.c";
