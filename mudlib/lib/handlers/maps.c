@@ -18,9 +18,7 @@ object create_sector(string path)
 {
   object sector;
 
-  stderr("🎃 maps create_sector: " + path + "\n");
-
-  if (file_size(path) != -2) 
+  if (file_size(path) != -2)
     mkdir(path);
 
   if (loaded_sectors[path])
@@ -48,8 +46,6 @@ string add_location(object location)
 
   if (!location)
     return nil;
-
-  stderr("🎃 maps add_location: " + location->query_file_name() + "\n");
 
   if (location->query_coordinates() == nil)
     return nil;

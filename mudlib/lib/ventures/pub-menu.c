@@ -43,9 +43,6 @@ void add_menu_item(string name, string type,
 {
   int cost, min_per_heal;
 
-  stderr("🔥    add_menu_item: " + name + " " + type + " " + basecost + " " + heal + " " + volume + " " + intox + "\n");
-
-
   cost = basecost;
 
   min_per_heal = this_object()->get_min_per_heal(type, volume);

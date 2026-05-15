@@ -473,7 +473,6 @@ object * find_inv_match(string str)
 
 void save_me()
 {
-  stderr("🎃 location save_me: " + file_name + "\n");
   // save with the current exits
   _exit_map = query_exit_map();
 

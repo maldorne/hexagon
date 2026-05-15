@@ -296,8 +296,6 @@ int do_convert(string str)
 
   files = ({ });
 
-  stderr("🤖  do_convert: " + str + "\n");
-
   // without arguments, use the current selection
   if (!str || !strlen(str) || str == "selection")
   {

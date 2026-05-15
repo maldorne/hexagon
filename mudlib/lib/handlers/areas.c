@@ -18,9 +18,7 @@ object create_area(string path)
 {
   object area;
 
-  stderr("🎃 areas create_area: " + path + "\n");
-
-  if (file_size(path) != -2) 
+  if (file_size(path) != -2)
     mkdir(path);
 
   if (loaded_areas[path])
@@ -46,12 +44,8 @@ string add_location(object location)
   string file_name, dir_name;
   object area_storage;
 
-  stderr("🎃 areas add_location: " + location->query_file_name() + "\n");
-
   file_name = location->query_file_name();
   dir_name = "/" + implode(shift_right(explode(file_name, "/")), "/") + "/";
-  
-  stderr("🎃 areas dir_name: " + dir_name + "\n");
 
   // create the area storage if it doesn't exist, will return an already
   // created area if it is stored in the loaded_areas mapping
