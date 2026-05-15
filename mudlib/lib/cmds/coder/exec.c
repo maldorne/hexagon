@@ -63,7 +63,10 @@ private int check_file()
 
   if (file_size(wiz_dir) != -2)
   {
-    notify_fail("Directory: '" + wiz_dir + "' non existant.\n");
+    notify_fail("exec: your home directory '" + wiz_dir +
+                "' does not exist. Create it (mkdir " + wiz_dir +
+                ") before using exec — the temporary scratch file is " +
+                "written there.\n");
     return 0;
   }
 
@@ -165,7 +168,7 @@ static int cmd(string str, object me, string verb)
   // seteuid(geteuid(this_player()));
 
   if (!check_file())
-    return 1;
+    return 0;
 
   error = 0;
   show = 0;
