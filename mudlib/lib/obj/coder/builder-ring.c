@@ -55,31 +55,6 @@ void init()
 int do_selection(string str);
 int do_convert(string str);
 
-// Resolve a target string into the list of files it represents, for the
-// three cases shared by `do_selection add` and `do_convert`:
-//   * absolute directory  -> its contents
-//   * absolute file       -> the file itself
-//   * file relative to the caller's coder path
-// Returns ({ }) if `target` matches none of these — the caller decides
-// what to do with the remaining cases ("here", "*", glob patterns).
-static string * _resolve_targets(string target)
-{
-  string coder_path;
-
-  if (file_size(target) == -2)
-    return get_files(target + "/*");
-
-  if (file_size(target) > 0)
-    return ({ target });
-
-  coder_path = this_user()->query_role()->query_path();
-
-  if (file_size(coder_path + "/" + target) > 0)
-    return ({ coder_path + "/" + target });
-
-  return ({ });
-}
-
 static int _filter_loadable(string file)
 {
   object what;
@@ -228,7 +203,7 @@ int do_selection(string str)
     {
       selection += get_files(this_user()->query_role()->query_current_path() + "/*");
     }
-    else if (sizeof(resolved = _resolve_targets(target)))
+    else if (sizeof(resolved = load_object(LOCATION_HANDLER)->resolve_targets(target)))
     {
       selection += resolved;
     }
@@ -318,7 +293,7 @@ int do_convert(string str)
     {
       obs = ({ environment(this_player()) });
     }
-    else if (sizeof(files = _resolve_targets(str)))
+    else if (sizeof(files = load_object(LOCATION_HANDLER)->resolve_targets(str)))
     {
       // resolved by the shared helper
     }

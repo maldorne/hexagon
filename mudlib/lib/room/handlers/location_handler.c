@@ -10,6 +10,32 @@
 #include <room/location.h>
 #include <translations/exits.h>
 
+// Resolve a target string into the list of files it represents for
+// room-to-location conversion. Handles the three cases that are common
+// to every conversion entry point:
+//   * absolute directory  -> its contents
+//   * absolute file       -> the file itself
+//   * file relative to the caller's coder path
+// Returns ({ }) if `target` matches none of these; the caller decides
+// what to do with the remaining cases ("here", "*", glob patterns).
+string * resolve_targets(string target)
+{
+  string coder_path;
+
+  if (file_size(target) == -2)
+    return get_files(target + "/*");
+
+  if (file_size(target) > 0)
+    return ({ target });
+
+  coder_path = this_user()->query_role()->query_path();
+
+  if (file_size(coder_path + "/" + target) > 0)
+    return ({ coder_path + "/" + target });
+
+  return ({ });
+}
+
 // what would be the file name for a location generated from object ob?
 string get_location_file_name_from_room(object ob)
 {
