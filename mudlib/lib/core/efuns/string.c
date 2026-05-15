@@ -485,6 +485,21 @@ static nomask string pad(string str, int size, varargs string char)
   return str;
 }
 
+/**
+ * Returns 1 if `str` starts with `prefix`, 0 otherwise.
+ *
+ * Empty `prefix` matches any string. A nil string or nil prefix
+ * always returns 0. The comparison is byte-wise; no case folding.
+ */
+static nomask int starts_with(string str, string prefix)
+{
+  if (!str || !prefix)
+    return 0;
+  if (strlen(prefix) > strlen(str))
+    return 0;
+  return str[0..strlen(prefix) - 1] == prefix;
+}
+
 static nomask string slugify(string str)
 {
   int i, length;
