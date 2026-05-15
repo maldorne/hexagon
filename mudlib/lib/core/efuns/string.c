@@ -222,13 +222,36 @@ static int strsrch( string str, mixed substr, varargs int flag )
 static string wrap(string str, varargs int width, int prettify)
 {
   string cols;
+  string * lines;
+  string out;
+  int i, w;
 
-  cols = (width ? (string)width : "80");
+  w = (width ? width : 80);
+  cols = "" + w;
 
-  if (!prettify)
-    return sprintf("%-=" + cols + "s", str + "\n");
-  else
+  // Prettify mode keeps the legacy "indent + reflow as a single
+  // paragraph" behaviour. Used for display-formatted blocks that have
+  // no internal layout to preserve.
+  if (prettify)
     return sprintf("\n   %-=" + cols + "s", "   " + str + "\n");
+
+  // Default mode: respect line breaks the author put in. Each existing
+  // line is treated as a hard break and wrapped independently — only
+  // lines that exceed the column width get reflowed by sprintf %-=.
+  // This preserves leading indentation and inter-word column alignment
+  // (multiple consecutive spaces) when the author wanted them.
+  lines = explode(str, "\n");
+  out = "";
+
+  for (i = 0; i < sizeof(lines); i++)
+  {
+    if (strlen(lines[i]) <= w)
+      out += lines[i] + "\n";
+    else
+      out += sprintf("%-=" + cols + "s", lines[i]);
+  }
+
+  return out;
 }
 
 // /adm/simul_efun/arrange_string.c
