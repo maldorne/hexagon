@@ -112,14 +112,6 @@ object load_location(string file_name)
   return location;
 }
 
-private string short_file_name(string path)
-{
-  string * parts;
-
-  parts = explode(path, "/");
-
-  return parts[sizeof(parts) - 1];
-}
 
 int do_guess_coordinates(object * locations)
 {
@@ -169,7 +161,7 @@ int do_guess_coordinates(object * locations)
   // after updating every exit, check locations connected to different areas
   for (i = 0; i < sizeof(locations); i++)
   {
-    ret += "  Checking " + short_file_name(locations[i]->query_file_name()) + "\n";
+    ret += "  Checking " + get_path_file_name(locations[i]->query_file_name()) + "\n";
 
     exits = locations[i]->query_dest_dir();
 
@@ -208,9 +200,9 @@ int do_guess_coordinates(object * locations)
 
   for (i = 0; i < sizeof(aux); i++)
   {
-    ret += "  " + short_file_name(aux[i]) + ":\n";
+    ret += "  " + get_path_file_name(aux[i]) + ":\n";
     for (j = 0; j < sizeof(connected[aux[i]]); j+=2)
-      ret += "    " + connected[aux[i]][j] + " -> " + short_file_name(connected[aux[i]][j+1]) + "\n";
+      ret += "    " + connected[aux[i]][j] + " -> " + get_path_file_name(connected[aux[i]][j+1]) + "\n";
   }
 
   write(ret);
@@ -240,7 +232,7 @@ int do_guess_coordinates(object * locations)
 
     current = pending[0];
 
-    ret += "  Checking " +short_file_name(current->query_file_name()) + "\n";
+    ret += "  Checking " +get_path_file_name(current->query_file_name()) + "\n";
     
     // already checked location, remove from pending
     // and continue
@@ -265,7 +257,7 @@ int do_guess_coordinates(object * locations)
         continue;
       }
 
-      ret += "   - exit " + exits[i] + " to " + short_file_name(exits[i+1]);
+      ret += "   - exit " + exits[i] + " to " + get_path_file_name(exits[i+1]);
       
       dest = current->query_dest_object(exits[i]);
 
