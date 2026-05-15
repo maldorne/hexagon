@@ -103,6 +103,25 @@ private object _resolve_destination(string dest, int deep)
   return ob;
 }
 
+// Read a room's Z coordinate, or a sentinel (-99999) when the room
+// has no coordinate at all (legacy room, fresh location, etc). Used
+// to decide whether two rooms live on the same horizontal plane and
+// can therefore share a 2D slice of the map.
+#define CART_NO_Z (-99999)
+private int _z_of(object room)
+{
+  int * coords;
+
+  if (!room)
+    return CART_NO_Z;
+
+  coords = room->query_coordinates();
+  if (!coords || sizeof(coords) < 3)
+    return CART_NO_Z;
+
+  return coords[2];
+}
+
 /**
  * Build the map view for `viewer`. Returns a mapping shaped:
  *
@@ -112,10 +131,17 @@ private object _resolve_destination(string dest, int deep)
  *     "viewer_x":  int,                 viewer column inside the grid
  *     "viewer_y":  int,                 viewer row inside the grid
  *     "cells":     int **,              grid[y][x] == one of CART_*
+ *     "rooms":     object **,           grid[y][x] == room/location or nil
  *   ])
  *
  * Or nil if the viewer has no environment or the environment refuses
  * to render a map (dungeon / underwater rooms).
+ *
+ * The two grids are aligned: `rooms[y][x]` holds the room object that
+ * produced `cells[y][x]` for room cells, and is `nil` for empty or
+ * exit-segment cells. Renderers that only care about cell types ignore
+ * `rooms`; renderers that need coordinates (coord overlay, future
+ * pathfinding) read it.
  *
  * `options` (mapping, all optional):
  *   "deep":   1 to force loading every reachable room (slow on legacy
@@ -128,6 +154,7 @@ mapping query_map_view(object viewer, varargs mapping options)
   object env;
   int deep, width, height;
   int ** cells;
+  object ** rooms;
   mixed * pending;
   mixed * revised;
   mixed current;
@@ -151,108 +178,161 @@ mapping query_map_view(object viewer, varargs mapping options)
   width  = (intp(options["width"])  ? options["width"]  : CART_DEFAULT_WIDTH);
   height = (intp(options["height"]) ? options["height"] : CART_DEFAULT_HEIGHT);
 
-  // initialise the grid with empty cells
+  // initialise the grids with empty cells
   cells = allocate(height);
+  rooms = allocate(height);
   for (i = 0; i < height; i++)
+  {
     cells[i] = allocate_int(width);
+    rooms[i] = allocate(width);
+  }
 
   viewer_x = width / 2;
   viewer_y = height / 2;
 
-  // BFS from the viewer's environment outward through exits
-  pending = ({ });
-  revised = ({ });
-
-  current = ({ viewer_x, viewer_y, env });
-  pending += ({ current });
-  cells[viewer_y][viewer_x] = _classify_room(env, viewer, deep);
-
-  while (sizeof(pending))
+  // viewer's z plane — only neighbours at the same z are drawn. CART_NO_Z
+  // means "we cannot tell" (legacy room without coordinates), in which
+  // case we do not filter and accept the previous behaviour of mixing
+  // levels (best effort with no information).
   {
-    string * dest_dir;
+    int viewer_z;
+    viewer_z = _z_of(env);
 
-    current = pending[0];
-    dest_dir = current[2]->query_dest_dir();
+    // BFS from the viewer's environment outward through exits
+    pending = ({ });
+    revised = ({ });
 
-    for (i = 0; i < sizeof(dest_dir); i += 2)
+    current = ({ viewer_x, viewer_y, env });
+    pending += ({ current });
+    cells[viewer_y][viewer_x] = _classify_room(env, viewer, deep);
+    rooms[viewer_y][viewer_x] = env;
+
+    while (sizeof(pending))
     {
-      object new_room;
-      int add, x, y;
-      int cx, cy;
+      string * dest_dir;
 
-      cx = current[0];
-      cy = current[1];
-      add = 0;
+      current = pending[0];
+      dest_dir = current[2]->query_dest_dir();
 
-      switch (dest_dir[i])
+      for (i = 0; i < sizeof(dest_dir); i += 2)
       {
-        case DIR_NORTH:
-          if (cy - 1 >= 0)
-            cells[cy - 1][cx] = CART_VERTICAL_EXIT;
-          if (cy - 2 >= 0) { add = 1; x = cx;     y = cy - 2; }
-          break;
-        case DIR_SOUTH:
-          if (cy + 1 < height)
-            cells[cy + 1][cx] = CART_VERTICAL_EXIT;
-          if (cy + 2 < height) { add = 1; x = cx;     y = cy + 2; }
-          break;
-        case DIR_EAST:
-          if (cx + 1 < width)
-            cells[cy][cx + 1] = CART_HORIZONTAL_EXIT;
-          if (cx + 2 < width) { add = 1; x = cx + 2; y = cy;     }
-          break;
-        case DIR_WEST:
-          if (cx - 1 >= 0)
-            cells[cy][cx - 1] = CART_HORIZONTAL_EXIT;
-          if (cx - 2 >= 0) { add = 1; x = cx - 2; y = cy;     }
-          break;
-        case DIR_NORTHWEST:
-          if (cx - 1 >= 0 && cy - 1 >= 0)
-            cells[cy - 1][cx - 1] = CART_BACKSLASH_EXIT;
-          if (cx - 2 >= 0 && cy - 2 >= 0) { add = 1; x = cx - 2; y = cy - 2; }
-          break;
-        case DIR_NORTHEAST:
-          if (cx + 1 < width && cy - 1 >= 0)
-            cells[cy - 1][cx + 1] = CART_SLASH_EXIT;
-          if (cx + 2 < width && cy - 2 >= 0) { add = 1; x = cx + 2; y = cy - 2; }
-          break;
-        case DIR_SOUTHWEST:
-          if (cx - 1 >= 0 && cy + 1 < height)
-            cells[cy + 1][cx - 1] = CART_SLASH_EXIT;
-          if (cx - 2 >= 0 && cy + 2 < height) { add = 1; x = cx - 2; y = cy + 2; }
-          break;
-        case DIR_SOUTHEAST:
-          if (cx + 1 < width && cy + 1 < height)
-            cells[cy + 1][cx + 1] = CART_BACKSLASH_EXIT;
-          if (cx + 2 < width && cy + 2 < height) { add = 1; x = cx + 2; y = cy + 2; }
-          break;
-        default:
-          break;
-      }
+        object new_room;
+        int seg_x, seg_y;            // exit-segment cell coordinates
+        int dest_x, dest_y;          // destination cell coordinates
+        int seg_type;
+        int has_segment, has_dest;
+        int cx, cy;
 
-      if (!add)
-        continue;
+        cx = current[0];
+        cy = current[1];
 
-      new_room = _resolve_destination(dest_dir[i + 1], deep);
-      if (!new_room)
-        continue;
+        seg_x = seg_y = dest_x = dest_y = seg_type = 0;
+        has_segment = has_dest = 0;
 
-      // skip rooms we already placed
-      {
-        int repeated;
-        repeated = 0;
-        for (j = 0; j < sizeof(revised); j++)
-          if (revised[j][2] == new_room) { repeated = 1; break; }
-        if (repeated)
+        switch (dest_dir[i])
+        {
+          case DIR_NORTH:
+            seg_x = cx;     seg_y = cy - 1;
+            dest_x = cx;    dest_y = cy - 2;
+            seg_type = CART_VERTICAL_EXIT;
+            has_segment = (seg_y >= 0);
+            has_dest    = (dest_y >= 0);
+            break;
+          case DIR_SOUTH:
+            seg_x = cx;     seg_y = cy + 1;
+            dest_x = cx;    dest_y = cy + 2;
+            seg_type = CART_VERTICAL_EXIT;
+            has_segment = (seg_y < height);
+            has_dest    = (dest_y < height);
+            break;
+          case DIR_EAST:
+            seg_x = cx + 1; seg_y = cy;
+            dest_x = cx + 2; dest_y = cy;
+            seg_type = CART_HORIZONTAL_EXIT;
+            has_segment = (seg_x < width);
+            has_dest    = (dest_x < width);
+            break;
+          case DIR_WEST:
+            seg_x = cx - 1; seg_y = cy;
+            dest_x = cx - 2; dest_y = cy;
+            seg_type = CART_HORIZONTAL_EXIT;
+            has_segment = (seg_x >= 0);
+            has_dest    = (dest_x >= 0);
+            break;
+          case DIR_NORTHWEST:
+            seg_x = cx - 1; seg_y = cy - 1;
+            dest_x = cx - 2; dest_y = cy - 2;
+            seg_type = CART_BACKSLASH_EXIT;
+            has_segment = (seg_x >= 0 && seg_y >= 0);
+            has_dest    = (dest_x >= 0 && dest_y >= 0);
+            break;
+          case DIR_NORTHEAST:
+            seg_x = cx + 1; seg_y = cy - 1;
+            dest_x = cx + 2; dest_y = cy - 2;
+            seg_type = CART_SLASH_EXIT;
+            has_segment = (seg_x < width && seg_y >= 0);
+            has_dest    = (dest_x < width && dest_y >= 0);
+            break;
+          case DIR_SOUTHWEST:
+            seg_x = cx - 1; seg_y = cy + 1;
+            dest_x = cx - 2; dest_y = cy + 2;
+            seg_type = CART_SLASH_EXIT;
+            has_segment = (seg_x >= 0 && seg_y < height);
+            has_dest    = (dest_x >= 0 && dest_y < height);
+            break;
+          case DIR_SOUTHEAST:
+            seg_x = cx + 1; seg_y = cy + 1;
+            dest_x = cx + 2; dest_y = cy + 2;
+            seg_type = CART_BACKSLASH_EXIT;
+            has_segment = (seg_x < width && seg_y < height);
+            has_dest    = (dest_x < width && dest_y < height);
+            break;
+          default:
+            // up / down / non-cardinal — handled by the source room's
+            // CART_UP_ROOM / CART_DOWN_ROOM marker, no segment to draw
+            continue;
+        }
+
+        // Resolve destination first; if it lives on a different z plane
+        // we draw nothing (no segment, no destination cell). The source
+        // room still carries its CART_UP_ROOM / CART_DOWN_ROOM marker
+        // for any vertical exit, which is the level-transition hint.
+        new_room = _resolve_destination(dest_dir[i + 1], deep);
+        if (!new_room)
           continue;
+
+        if (viewer_z != CART_NO_Z)
+        {
+          int dest_z;
+          dest_z = _z_of(new_room);
+          if (dest_z != CART_NO_Z && dest_z != viewer_z)
+            continue;
+        }
+
+        // skip rooms we already placed
+        {
+          int repeated;
+          repeated = 0;
+          for (j = 0; j < sizeof(revised); j++)
+            if (revised[j][2] == new_room) { repeated = 1; break; }
+          if (repeated)
+            continue;
+        }
+
+        if (has_segment)
+          cells[seg_y][seg_x] = seg_type;
+
+        if (has_dest)
+        {
+          cells[dest_y][dest_x] = _classify_room(new_room, viewer, deep);
+          rooms[dest_y][dest_x] = new_room;
+          pending += ({ ({ dest_x, dest_y, new_room }) });
+        }
       }
 
-      pending += ({ ({ x, y, new_room }) });
-      cells[y][x] = _classify_room(new_room, viewer, deep);
+      revised += ({ current });
+      pending -= ({ current });
     }
-
-    revised += ({ current });
-    pending -= ({ current });
   }
 
   return ([
@@ -261,5 +341,219 @@ mapping query_map_view(object viewer, varargs mapping options)
     "viewer_x": viewer_x,
     "viewer_y": viewer_y,
     "cells":    cells,
+    "rooms":    rooms,
   ]);
+}
+
+// ---------------------------------------------------------------------------
+// Renderers
+//
+// Each renderer takes a map view (the mapping returned by
+// query_map_view) and returns a multi-line string with the bare grid
+// content — no parchment frame, no legend. The caller (the player
+// `map` command, an admin debug verb, etc.) wraps that string in
+// whatever decoration its UI demands.
+// ---------------------------------------------------------------------------
+
+/**
+ * Default renderer: the chunky `[ ]` boxes with `---`, `|`, `/`, `\`
+ * exit segments. This is the look the original `map` command had and
+ * what the player sees today.
+ */
+string render_ascii(mapping view)
+{
+  int width, height;
+  int ** cells;
+  int vx, vy;
+  string out, line;
+  int i, j, type;
+
+  width  = view["width"];
+  height = view["height"];
+  cells  = view["cells"];
+  vx     = view["viewer_x"];
+  vy     = view["viewer_y"];
+
+  out = "";
+
+  for (i = 0; i < height; i++)
+  {
+    line = "";
+    for (j = 0; j < width; j++)
+    {
+      type = cells[i][j];
+
+      if (i == vy && j == vx)
+      {
+        if (type == CART_COAST_ROOM)
+          line += "%^BLUE%^[%^ORANGE%^*%^BLUE%^]%^RESET%^";
+        else
+          line += "[%^ORANGE%^*%^RESET%^]";
+        continue;
+      }
+
+      switch (type)
+      {
+        case CART_ROOM:               line += "[ ]";                                 break;
+        case CART_COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^";                break;
+        case CART_DOOR_ROOM:          line += "[D]";                                 break;
+        case CART_UP_ROOM:            line += "[^]";                                 break;
+        case CART_DOWN_ROOM:          line += "[v]";                                 break;
+        case CART_FINISH_QUEST_ROOM:  line += "[%^BOLD%^YELLOW%^?%^RESET%^]";        break;
+        case CART_QUEST_ROOM:         line += "[%^BOLD%^YELLOW%^!%^RESET%^]";        break;
+        case CART_ADVENTURER_ROOM:    line += "[%^BOLD%^CYAN%^*%^RESET%^]";          break;
+        case CART_GUARD_ROOM:         line += "[%^BOLD%^GREEN%^*%^RESET%^]";         break;
+        case CART_ENEMY_ROOM:         line += "[%^BOLD%^RED%^*%^RESET%^]";           break;
+        case CART_HORIZONTAL_EXIT:    line += "---";                                 break;
+        case CART_VERTICAL_EXIT:      line += " | ";                                 break;
+        case CART_SLASH_EXIT:         line += " / ";                                 break;
+        case CART_BACKSLASH_EXIT:     line += " \\ ";                                break;
+        default:                      line += "   ";                                 break;
+      }
+    }
+    out += line + "\n";
+  }
+
+  return out;
+}
+
+/**
+ * Compact renderer: one character per cell. Three times denser, fits
+ * a much larger viewport in the same screen real estate. Roguelike
+ * feel.
+ *
+ *   '@'  viewer
+ *   '.'  empty cell
+ *   '#'  plain room
+ *   'D'  door room      '^'  up exit       'v'  down exit
+ *   '~'  coast          '?'  finished quest waiting to turn in
+ *   '!'  open quest     '*'  friendly group / guard       'X'  enemy
+ *   '|'  vertical exit  '-'  horizontal exit  '/'  slash  '\\' backslash
+ */
+string render_compact(mapping view)
+{
+  int width, height;
+  int ** cells;
+  int vx, vy;
+  string out, line;
+  int i, j, type;
+
+  width  = view["width"];
+  height = view["height"];
+  cells  = view["cells"];
+  vx     = view["viewer_x"];
+  vy     = view["viewer_y"];
+
+  out = "";
+
+  for (i = 0; i < height; i++)
+  {
+    line = "";
+    for (j = 0; j < width; j++)
+    {
+      type = cells[i][j];
+
+      if (i == vy && j == vx)
+      {
+        line += "%^ORANGE%^@%^RESET%^";
+        continue;
+      }
+
+      switch (type)
+      {
+        case CART_ROOM:               line += "#";                                   break;
+        case CART_COAST_ROOM:         line += "%^BLUE%^~%^RESET%^";                  break;
+        case CART_DOOR_ROOM:          line += "D";                                   break;
+        case CART_UP_ROOM:            line += "^";                                   break;
+        case CART_DOWN_ROOM:          line += "v";                                   break;
+        case CART_FINISH_QUEST_ROOM:  line += "%^BOLD%^YELLOW%^?%^RESET%^";          break;
+        case CART_QUEST_ROOM:         line += "%^BOLD%^YELLOW%^!%^RESET%^";          break;
+        case CART_ADVENTURER_ROOM:    line += "%^BOLD%^CYAN%^*%^RESET%^";            break;
+        case CART_GUARD_ROOM:         line += "%^BOLD%^GREEN%^*%^RESET%^";           break;
+        case CART_ENEMY_ROOM:         line += "%^BOLD%^RED%^X%^RESET%^";             break;
+        case CART_HORIZONTAL_EXIT:    line += "-";                                   break;
+        case CART_VERTICAL_EXIT:      line += "|";                                   break;
+        case CART_SLASH_EXIT:         line += "/";                                   break;
+        case CART_BACKSLASH_EXIT:     line += "\\";                                  break;
+        default:                      line += ".";                                   break;
+      }
+    }
+    out += line + "\n";
+  }
+
+  return out;
+}
+
+/**
+ * Coordinate overlay renderer: shows the world `(x,y)` of each
+ * room/location cell instead of an opaque glyph. Intended for coders
+ * and admins debugging conversions, sector indexes, or inferred
+ * coordinates — not for player consumption. Cells without a backing
+ * room (empty space, exit segments) are blank.
+ *
+ * Each room cell is rendered as a fixed-width "(x,y)" tag. The viewer
+ * cell shows "(*x,y)" with the leading asterisk so it stays findable
+ * in the grid.
+ */
+string render_coords(mapping view)
+{
+  int width, height;
+  int ** cells;
+  object ** rooms;
+  int vx, vy;
+  string out, line;
+  int i, j;
+
+  width  = view["width"];
+  height = view["height"];
+  cells  = view["cells"];
+  rooms  = view["rooms"];
+  vx     = view["viewer_x"];
+  vy     = view["viewer_y"];
+
+  out = "";
+
+  for (i = 0; i < height; i++)
+  {
+    line = "";
+    for (j = 0; j < width; j++)
+    {
+      object room;
+      int * coords;
+      string tag;
+      int is_viewer;
+
+      room = rooms[i][j];
+      is_viewer = (i == vy && j == vx);
+
+      if (!room)
+      {
+        // exit-segment cells get a small marker too so the topology is
+        // still readable without needing the room glyphs
+        switch (cells[i][j])
+        {
+          case CART_HORIZONTAL_EXIT:  line += "  ----  "; break;
+          case CART_VERTICAL_EXIT:    line += "    |   "; break;
+          case CART_SLASH_EXIT:       line += "    /   "; break;
+          case CART_BACKSLASH_EXIT:   line += "    \\   "; break;
+          default:                    line += "        "; break;
+        }
+        continue;
+      }
+
+      coords = room->query_coordinates();
+      if (!coords || sizeof(coords) < 2)
+        tag = (is_viewer ? "(*?,?)" : "(?, ?) ");
+      else
+        tag = (is_viewer
+               ? sprintf("(*%d,%d)", coords[0], coords[1])
+               : sprintf("(%d,%d) ", coords[0], coords[1]));
+
+      // pad/truncate to a fixed 8-char column so columns stay aligned
+      line += sprintf("%-8s", tag);
+    }
+    out += line + "\n";
+  }
+
+  return out;
 }
