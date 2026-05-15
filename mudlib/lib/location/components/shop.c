@@ -1,4 +1,6 @@
 
+#include <room/location.h>
+
 inherit component  "/lib/location/component.c";
 
 inherit sign       "/lib/ventures/shop-sign.c";
@@ -20,7 +22,7 @@ void create()
   messages::create();
   component::create();
 
-  set_type("shop");
+  set_type(LOCATION_COMPONENT_SHOP);
 }
 
 void init() 

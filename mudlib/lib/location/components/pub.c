@@ -1,4 +1,6 @@
 
+#include <room/location.h>
+
 inherit component  "/lib/location/component.c";
 inherit attendable "/lib/ventures/attendable.c";
 inherit sign       "/lib/ventures/pub-sign.c";
@@ -12,7 +14,7 @@ void create()
   menu::create();
   component::create();
 
-  set_type("pub");
+  set_type(LOCATION_COMPONENT_PUB);
 }
 
 void init() 

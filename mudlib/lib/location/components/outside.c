@@ -1,5 +1,6 @@
 
 #include <areas/weather.h>
+#include <room/location.h>
 
 inherit component  "/lib/location/component.c";
 inherit night      "/lib/room/outside-night.c";
@@ -11,7 +12,7 @@ void create()
   dark::create();
   component::create();
 
-  set_type("outside");
+  set_type(LOCATION_COMPONENT_OUTSIDE);
 }
 
 void init() 
