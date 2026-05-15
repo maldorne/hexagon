@@ -1,5 +1,22 @@
 
-// old /global/path.c, now moved to simul_efuns, neverbot 03/2009
+/**
+ * Resolves a path the way a coder typed it at the prompt.
+ *
+ * Handles:
+ *   - no argument           -> the caller's home directory
+ *   - "~"                   -> the caller's home directory
+ *   - "~/foo"               -> the caller's home directory + "/foo"
+ *   - "~name/foo"           -> "/home/name/foo"
+ *   - relative path "foo"   -> the caller's current_path + "/foo"
+ *   - absolute path "/foo"  -> "/foo"
+ * And then normalises `.` and `..` segments.
+ *
+ * Requires a logged-in user — uses `this_user()->query_role()` for the
+ * home_dir / current_path. For pure string normalisation without a
+ * user context (e.g. driver callbacks), use `resolve_path` instead.
+ *
+ * Old `/global/path.c`, moved to simul_efuns by neverbot 03/2009.
+ */
 static string get_path(varargs string str)
 {
   string *array, *array1, temp;

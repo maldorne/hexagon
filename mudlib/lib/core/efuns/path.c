@@ -5,18 +5,31 @@
 #include "paths/get_path.c"
 #include "paths/path.c"
 
-// idea taken from melville mudlib
+/**
+ * Tells whether `str` looks like an absolute mudlib path.
+ *
+ * A path is absolute when it starts with `/` (filesystem root) or `~`
+ * (a coder home reference). Returns `1` when absolute, `0` otherwise.
+ *
+ * Idea taken from the Melville mudlib.
+ */
 static nomask int is_absolute_path(string str)
 {
   if (!str || (str == ""))
-    return -1;
+    return 0;
 
   if ((str[0] == '/') || (str[0] == '~'))
     return 1;
 
-  return -1;
+  return 0;
 }
 
+/**
+ * Returns the last `/`-separated segment of `path` (the "basename").
+ *
+ * "/a/b/c.c" -> "c.c"; "noslash" -> "noslash"; "" -> "".
+ * Pair with `path()` from `paths/path.c` for the "dirname" half.
+ */
 static string get_path_file_name(string path)
 {
   string * words;
@@ -31,6 +44,20 @@ static string get_path_file_name(string path)
   return words[sizeof(words)-1];
 }
 
+/**
+ * Expands one or more space-separated file/glob patterns into a list of
+ * absolute file paths.
+ *
+ * Each pattern is first normalised through `get_path()` (so `~`, `..`
+ * and relative paths get resolved against the caller's current coder
+ * path), then DGD's `get_dir` does the `*` / `?` matching. Multiple
+ * patterns can be supplied separated by spaces.
+ *
+ * Returns an array of absolute paths (always prefixed with `/`), or
+ * `({ })` if nothing matches.
+ *
+ * Requires a logged-in user (transitively, via `get_path`).
+ */
 static string * get_files(string str)
 {
   int loop, count;
@@ -100,6 +127,14 @@ static string * get_files(string str)
   return filenames;
 }
 
+/**
+ * Like `get_files`, but auto-appends `.c` to any space-separated term
+ * that has no extension.
+ *
+ * "foo bar.h baz" -> "foo.c bar.h baz.c" -> passed to `get_files`.
+ * A lone "." becomes "*.c"; ".." is dropped. Convenient for "list all
+ * code files matching ..." prompts where typing `.c` is repetitive.
+ */
 // Changed to be *.* so as to handle virtual wombles as well
 static string *get_cfiles(string str)
 {
