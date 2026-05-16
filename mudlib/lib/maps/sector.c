@@ -23,6 +23,9 @@ void save_me() {
   save_object(file_name);
 }
 
+mapping query_positions() { return positions; }
+mapping query_locations() { return locations; }
+
 string query_file_name() { return file_name; }
 void set_file_name(string name)
 {

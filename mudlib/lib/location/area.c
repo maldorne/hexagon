@@ -39,6 +39,8 @@ void set_file_name(string name)
   save_me();
 }
 
+mapping query_locations() { return locations; }
+
 // area_name will be set from the area handler
 string query_area_name() { return area_name; }
 void set_area_name(string name) 
