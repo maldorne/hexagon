@@ -168,6 +168,38 @@ private string render_table(object env, mixed * checks)
   else
     ret += "   (" + file_size(here + ".c") + " bytes)";
   ret += "\n";
+
+  // for locations, also surface the area / map / sector context
+  if (env->query_location())
+  {
+    object area;
+    int * coords;
+    string game;
+
+    area   = env->query_area();
+    coords = env->query_coordinates();
+    game   = game_name(env);
+
+    if (strlen(game))
+      ret += " Game: " + game + "\n";
+    if (area)
+      ret += " Area: " + area->query_area_name() + "\n";
+
+    ret += " Map:  " + env->query_map_name();
+    if (coords && sizeof(coords) == 3)
+    {
+      int sx, sy, sz;
+      sx = coords[0] / 10 - (coords[0] < 0);
+      sy = coords[1] / 10 - (coords[1] < 0);
+      sz = coords[2] / 10 - (coords[2] < 0);
+      ret += "   coords (" + coords[0] + "," + coords[1] + "," + coords[2] +
+             ")   sector (" + sx + "," + sy + "," + sz + ")";
+    }
+    else
+      ret += "   (no coordinates set)";
+    ret += "\n";
+  }
+
   ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
 
   if (!sizeof(checks))
