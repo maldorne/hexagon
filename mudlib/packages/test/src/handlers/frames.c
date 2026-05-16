@@ -50,13 +50,21 @@ void do_tests()
   // simple style — exact-string assertions (pure ASCII)
   // ============================================================
 
+  // Expected (5 lines, each 19 chars, leading and trailing space margins):
+  //
+  //      +---------------+
+  //      |               |
+  //      |  Hello World  |
+  //      |               |
+  //      +---------------+
+  //
   TEST("simple: 'Hello World' renders 5 framed lines");
     lines = rows(f->frame(HW, "", 0, 0, "simple"));
     // top edge + top padding + body + bottom padding + bottom edge
     ASSERT(sizeof(lines) == 5);
-    // top edge: 1 space margin + 15 dashes + 1 space margin
-    ASSERT(lines[0] == " " + rep("-", 15) + " ");
-    // padding row: 1 margin + "|" + 2 padding + 11 spaces + 2 padding + "|" + 1 margin
+    // top edge: 1 margin + "+" + 15 dashes + "+" + 1 margin
+    ASSERT(lines[0] == " +" + rep("-", 15) + "+ ");
+    // padding row: 1 margin + "|" + 15 spaces + "|" + 1 margin
     ASSERT(lines[1] == " |" + rep(" ", 15) + "| ");
     // body row
     ASSERT(lines[2] == " |  " + HW + "  | ");
@@ -66,22 +74,48 @@ void do_tests()
     ASSERT(lines[4] == lines[0]);
   END_TEST();
 
+  // Expected (title "Title" injected near the left of the top edge):
+  //
+  //      +-| Title |-----+
+  //      |               |
+  //      |  Hello World  |
+  //      |               |
+  //      +---------------+
+  //
   TEST("simple: title is injected in the top edge");
     lines = rows(f->frame(HW, "Title", 0, 0, "simple"));
-    // top edge: " " + "" + "-" + "| Title |" + "-"*(15-9-1) + "" + " "
-    ASSERT(lines[0] == " -| Title |----- ");
+    // top edge: " " + "+" + "-" + "| Title |" + "-"*(15-9-1) + "+" + " "
+    ASSERT(lines[0] == " +-| Title |-----+ ");
     // body row unchanged
     ASSERT(lines[2] == " |  " + HW + "  | ");
   END_TEST();
 
+  // Expected (content_width forced to 20; "Hello World" is right-padded
+  // with 9 spaces inside the body):
+  //
+  //      +------------------------+
+  //      |                        |
+  //      |  Hello World           |
+  //      |                        |
+  //      +------------------------+
+  //
   TEST("simple: explicit width overrides content length");
     lines = rows(f->frame(HW, "", 20, 0, "simple"));
     // body_inner_width = 20 + 4 = 24
-    ASSERT(lines[0] == " " + rep("-", 24) + " ");
+    ASSERT(lines[0] == " +" + rep("-", 24) + "+ ");
     // body row: pad "Hello World" (11 chars) on the right to width 20
     ASSERT(lines[2] == " |  " + HW + rep(" ", 9) + "  | ");
   END_TEST();
 
+  // Expected (two body rows; width is the longest line, "Hello World"):
+  //
+  //      +---------------+
+  //      |               |
+  //      |  Hello World  |
+  //      |  Goodbye      |
+  //      |               |
+  //      +---------------+
+  //
   TEST("simple: multi-line content produces one body row per line");
     lines = rows(f->frame(HW + "\nGoodbye", "", 0, 0, "simple"));
     // top + pad + 2 body rows + pad + bottom = 6
@@ -95,6 +129,15 @@ void do_tests()
   // default style — unicode single-line glyphs
   // ============================================================
 
+  // Expected (single-line box-drawing glyphs; same shape as `simple`
+  // but with proper corners):
+  //
+  //      ┌───────────────┐
+  //      │               │
+  //      │  Hello World  │
+  //      │               │
+  //      └───────────────┘
+  //
   TEST("default: corners use the expected box-drawing glyphs");
     lines = rows(f->frame(HW, "", 0, 0, nil));
     ASSERT(sizeof(lines) == 5);
@@ -107,6 +150,14 @@ void do_tests()
   // alert / notifications / sidebar — structural checks
   // ============================================================
 
+  // Expected (double-line glyphs, padding_x = 3):
+  //
+  //      ╒═════════════════╕
+  //      ║                 ║
+  //      ║   Hello World   ║
+  //      ║                 ║
+  //      ╘═════════════════╛
+  //
   TEST("alert: emits 5 framed lines with 3-wide padding");
     lines = rows(f->frame(HW, "", 0, 0, "alert"));
     ASSERT(sizeof(lines) == 5);
@@ -114,12 +165,28 @@ void do_tests()
     ASSERT(contains(lines[2], "   " + HW + "   "));
   END_TEST();
 
+  // Expected (same as alert but the bottom-left corner is a descending
+  // pennant "╘═╕/" giving the ribbon a tail):
+  //
+  //      ╒═════════════════╕
+  //      ║                 ║
+  //      ║   Hello World   ║
+  //      ║                 ║
+  //      ╘═╕/══════════════╛
+  //
   TEST("notifications: bottom edge carries the descending pennant");
     lines = rows(f->frame(HW, "", 0, 0, "notifications"));
     // pennant tail uses '/' as the last char of the bottom-left segment
     ASSERT(contains(lines[4], "/"));
   END_TEST();
 
+  // Expected (heavy double-line glyphs, padding_x = 1, padding_y = 0 →
+  // no inner blank rows):
+  //
+  //      ╔═════════════╗
+  //      ║ Hello World ║
+  //      ╚═════════════╝
+  //
   TEST("sidebar: padding_y = 0 collapses the inner padding rows");
     lines = rows(f->frame(HW, "", 0, 0, "sidebar"));
     // top + body + bottom = 3
@@ -130,6 +197,16 @@ void do_tests()
   // scroll / parchment style — multi-row top and bottom
   // ============================================================
 
+  // Expected (parchment / pergamino: 3 top rows with diagonal offset,
+  // 1 body row with padding_x = 8, 2 bottom rows widening to the right):
+  //
+  //         _____________________________
+  //        /\                            \
+  //        \_|                            |
+  //          |        Hello World         |
+  //          |   _________________________|___
+  //           \_/____________________________/
+  //
   TEST("scroll: 3 top rows + 1 body + 2 bottom rows, padding_x = 8");
     lines = rows(f->frame(HW, "", 0, 0, "scroll"));
     ASSERT(sizeof(lines) == 6);

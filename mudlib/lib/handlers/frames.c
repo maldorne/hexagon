@@ -88,8 +88,8 @@ void create()
     "margin_x":    1,
     "body_left":   "|",
     "body_right":  "|",
-    "top":         ({ ({ "",  "-", "",  0 }) }),
-    "bottom":      ({ ({ "",  "-", "",  0 }) }),
+    "top":         ({ ({ "+", "-", "+", 0 }) }),
+    "bottom":      ({ ({ "+", "-", "+", 0 }) }),
     "title_left":  "| ",
     "title_right": " |",
   ]);
