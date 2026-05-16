@@ -70,13 +70,17 @@ string add_location(object location)
   sector_storage->add_location(location->query_file_name(), x, y, z, ([ ]));
   sector_storage->add_loaded_location(location);
 
-  // update the contents of the file only if they are different to the
-  // already stored information
+  // keep the per-coordinate pointer file in sync with the location's
+  // own file_name. Three cases:
+  //   - file missing      → create it (first time this coord is used)
+  //   - content matches   → no-op
+  //   - content differs   → rewrite
   content = read_file(path + file_name);
 
-  if (content && content != location->query_file_name())
+  if (!content)
+    write_file(path + file_name, location->query_file_name());
+  else if (content != location->query_file_name())
   {
-    // write a file in path + file_name with the location data
     remove_file(path + file_name);
     write_file(path + file_name, location->query_file_name());
   }
