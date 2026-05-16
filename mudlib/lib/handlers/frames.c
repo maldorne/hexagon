@@ -64,20 +64,20 @@ void create()
   // double-single mixed glyphs (alert / notifications style)
   dvbar  = chr(226) + chr(148) + chr(130);              // │  U+2502
   dhbar  = chr(226) + chr(149) + chr(144);              // ═  U+2550
-  dtl    = chr(226) + chr(149) + chr(146) + dhbar;      // ╒═
-  dtr    = dhbar + chr(226) + chr(149) + chr(149);      // ═╕
-  dbr    = dhbar + chr(226) + chr(149) + chr(155);      // ═╛
-  dbl    = chr(226) + chr(149) + chr(152) + dhbar;      // ╘═
+  dtl    = chr(226) + chr(149) + chr(146);              // ╒  U+2552
+  dtr    = chr(226) + chr(149) + chr(149);              // ╕  U+2555
+  dbr    = chr(226) + chr(149) + chr(155);              // ╛  U+255B
+  dbl    = chr(226) + chr(149) + chr(152);              // ╘  U+2558
   dledge = chr(226) + chr(149) + chr(161) + " ";        // ╡
   dredge = " " + chr(226) + chr(149) + chr(158);        //  ╞
 
   // double-line glyphs (sidebar style)
   vbar2  = chr(226) + chr(149) + chr(145);              // ║  U+2551
   hbar2  = chr(226) + chr(149) + chr(144);              // ═  U+2550
-  tl2    = chr(226) + chr(149) + chr(148) + hbar2;      // ╔═
-  tr2    = hbar2 + chr(226) + chr(149) + chr(151);      // ═╗
-  br2    = hbar2 + chr(226) + chr(149) + chr(157);      // ═╝
-  bl2    = chr(226) + chr(149) + chr(154) + hbar2;      // ╚═
+  tl2    = chr(226) + chr(149) + chr(148);              // ╔  U+2554
+  tr2    = chr(226) + chr(149) + chr(151);              // ╗  U+2557
+  br2    = chr(226) + chr(149) + chr(157);              // ╝  U+255D
+  bl2    = chr(226) + chr(149) + chr(154);              // ╚  U+255A
   ledge2 = chr(226) + chr(149) + chr(161) + " ";        // ╡
   redge2 = " " + chr(226) + chr(149) + chr(158);        //  ╞
 
@@ -119,7 +119,9 @@ void create()
   ]);
 
   // notifications: same as alert but the bottom-left corner has a
-  // descending pennant, "╘═╕/", giving the ribbon a "tail"
+  // descending pennant, "╘═╕/", giving the ribbon a "tail". The pennant
+  // is 3 visible chars wider than a plain corner, so the bottom row
+  // shrinks its fill by 3 to keep the right edge aligned with the body.
   styles["notifications"] = ([
     "padding_x":   3,
     "padding_y":   1,
@@ -127,10 +129,8 @@ void create()
     "body_left":   dvbar,
     "body_right":  dvbar,
     "top":         ({ ({ dtl, dhbar, dtr, 0 }) }),
-    "bottom":      ({ ({ chr(226) + chr(149) + chr(152) +
-                          dhbar +
-                          chr(226) + chr(149) + chr(149) + "/",
-                         dhbar, dbr, 0 }) }),
+    "bottom":      ({ ({ dbl + dhbar + dtr + "/",
+                         dhbar, dbr, -3 }) }),
     "title_left":  dledge,
     "title_right": dredge,
   ]);
