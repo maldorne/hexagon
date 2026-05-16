@@ -38,18 +38,10 @@ string query_help(varargs string str)
 {
   string out;
 
-  out = _LANG_CMD_MAP_HELP + "\n" +
-        "\n" +
-        "Variants:\n" +
-        "  map           the standard map.\n" +
-        "  map compact   a denser one-character-per-cell view.\n" +
-        "  map unicode   the same density as compact but with proper\n" +
-        "                box-drawing glyphs (needs a UTF-8 client).\n" +
-        "  map color     standard chunky boxes, each room tinted by\n" +
-        "                the area it belongs to.\n";
+  out = _LANG_CMD_MAP_HELP + "\n" + _LANG_CMD_MAP_VARIANTS_HELP;
 
   if (this_player() && this_player()->query_coder())
-    out += "  map coords    coordinates overlay (coder only).\n";
+    out += _LANG_CMD_MAP_VARIANTS_HELP_CODER;
 
   return out;
 }
@@ -131,28 +123,26 @@ static int cmd(string str, object me, string verb)
 
   // pick a style from the trailing argument
   style = MAP_STYLE_DEFAULT;
-  if (str)
+  if (str && strlen(str))
   {
-    if (str == "compact")
+    if (member_array(str, _LANG_CMD_MAP_OPT_COMPACT) != -1)
       style = MAP_STYLE_COMPACT;
-    else if (str == "unicode")
+    else if (member_array(str, _LANG_CMD_MAP_OPT_UNICODE) != -1)
       style = MAP_STYLE_UNICODE;
-    else if (str == "color" || str == "colour")
+    else if (member_array(str, _LANG_CMD_MAP_OPT_COLOR) != -1)
       style = MAP_STYLE_COLOR;
-    else if (str == "coords")
+    else if (member_array(str, _LANG_CMD_MAP_OPT_COORDS) != -1)
     {
       if (!me->query_coder())
       {
-        notify_fail("Unknown map variant.\n");
+        notify_fail(_LANG_CMD_MAP_UNKNOWN_VARIANT + query_help());
         return 0;
       }
       style = MAP_STYLE_COORDS;
     }
-    else if (strlen(str))
+    else
     {
-      notify_fail("Unknown map variant. Try `map`, `map compact`, " +
-                  "`map unicode`, `map color`" +
-                  (me->query_coder() ? ", or `map coords`" : "") + ".\n");
+      notify_fail(_LANG_CMD_MAP_UNKNOWN_VARIANT + query_help());
       return 0;
     }
   }

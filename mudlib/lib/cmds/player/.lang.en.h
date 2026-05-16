@@ -340,7 +340,7 @@
 // map
 
 #define _LANG_CMD_MAP_ALIAS ({ "map" })
-#define _LANG_CMD_MAP_SYNTAX "map"
+#define _LANG_CMD_MAP_SYNTAX "map [compact | unicode | color | coords]"
 #define _LANG_CMD_MAP_HELP "Shows a map of your surroundings."
 #define _LANG_CMD_MAP_NO_ENV "Without an environment you cannot do that.\n"
 #define _LANG_CMD_MAP_INVALID "For some you cannot use your map here.\n"
@@ -357,3 +357,21 @@
 #define _LANG_CMD_MAP_NEW_QUESTS "New quests"
 #define _LANG_CMD_MAP_FINISHED_QUESTS "Finished quests"
 #define _LANG_CMD_MAP_COAST "Shore"
+
+#define _LANG_CMD_MAP_OPT_COMPACT ({ "compact" })
+#define _LANG_CMD_MAP_OPT_UNICODE ({ "unicode" })
+#define _LANG_CMD_MAP_OPT_COLOR   ({ "color", "colour" })
+#define _LANG_CMD_MAP_OPT_COORDS  ({ "coords" })
+
+#define _LANG_CMD_MAP_VARIANTS_HELP \
+        "\nVariants:\n" + \
+        "  map           the standard map.\n" + \
+        "  map compact   a denser one-character-per-cell view.\n" + \
+        "  map unicode   the same density as compact but with proper\n" + \
+        "                box-drawing glyphs (needs a UTF-8 client).\n" + \
+        "  map color     standard chunky boxes, each room tinted by\n" + \
+        "                the area it belongs to.\n"
+#define _LANG_CMD_MAP_VARIANTS_HELP_CODER \
+        "  map coords    coordinates overlay (coder only).\n"
+
+#define _LANG_CMD_MAP_UNKNOWN_VARIANT "Unknown map variant.\n"
