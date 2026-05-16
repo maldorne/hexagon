@@ -32,6 +32,9 @@ string map_name;   // "default", or "underdark", or "mars", use something differ
 
 int * coordinates;
 
+int _created_at;   // Unix timestamp, stamped on first save_me(), never overwritten.
+int _last_imported_at;  // Unix timestamp, refreshed on every conversion from the source .c.
+
 // function prototypes
 string query_file_name();
 void set_file_name(string filename);
@@ -63,6 +66,9 @@ void create()
   map_name = "default";
 
   coordinates = nil;
+
+  _created_at = 0;
+  _last_imported_at = 0;
 
   light::create();
   property::create();
@@ -114,6 +120,10 @@ void set_original_long(string str) { _original_long = str; }
 
 int * query_coordinates() { return coordinates; }
 void set_coordinates(int x, int y, int z) { coordinates = ({ x, y, z }); }
+
+int query_created_at() { return _created_at; }
+int query_last_imported_at() { return _last_imported_at; }
+void stamp_last_imported_at() { _last_imported_at = time(); }
 
 string query_map_name() { return map_name; }
 void set_map_name(string name) { map_name = name; }
@@ -473,6 +483,11 @@ object * find_inv_match(string str)
 
 void save_me()
 {
+  // stamp the original-creation timestamp the first time this location
+  // is ever persisted; never overwrite it afterwards.
+  if (!_created_at)
+    _created_at = time();
+
   // save with the current exits
   _exit_map = query_exit_map();
 

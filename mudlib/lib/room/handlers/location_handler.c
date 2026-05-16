@@ -333,6 +333,7 @@ object convert_room_to_location(object room)
   location->set_original_room_file_name(base_name(room) + ".c");
   location->set_original_short(room->query_short());
   location->set_original_long(room->query_long());
+  location->stamp_last_imported_at();
 
   if (sizeof(room->query_room_zones()))
     location->set_zones(room->query_room_zones());
