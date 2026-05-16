@@ -483,17 +483,17 @@ string * resolve_clean_scope(string scope)
 }
 
 /**
- * List the location `.o` files in `<save_dir>` that look like clean
- * targets: their `_original_room_file_name` starts with the matching
- * source prefix, OR (defensively) their own save path starts with the
- * scope's save directory.
+ * List the location `.o` files in `<save_dir>` that are real orphans:
+ * conversion-derived locations whose source `.c` no longer exists.
+ *
+ * A location is in scope when `_original_room_file_name` starts with
+ * `source_prefix + "/"` (it was converted from a `.c` inside the scope
+ * directory) AND that source no longer exists on disk. Programmatically
+ * created locations (clones saved at runtime, no source `.c`) are left
+ * alone — their `_original_room_file_name` is empty.
  *
  * The walk is scoped to the single directory mirroring the source — we
- * never look elsewhere. Locations whose origin string does not match
- * the prefix are skipped and the caller can decide whether to surface
- * them as a warning.
- *
- * Returns the list of paths that should be removed.
+ * never look elsewhere.
  */
 private string * _list_scope_orphans(string save_dir, string source_prefix)
 {
@@ -517,11 +517,17 @@ private string * _list_scope_orphans(string save_dir, string source_prefix)
 
     orig = loc->query_original_room_file_name();
 
-    if (starts_with(orig, source_prefix + "/") ||
-        starts_with(files[i], save_dir + "/"))
-    {
+    // programmatic locations (no source .c): never orphans, never touch
+    if (!orig || !strlen(orig))
+      continue;
+
+    // only consider locations whose source belongs to this scope
+    if (!starts_with(orig, source_prefix + "/"))
+      continue;
+
+    // a real orphan: the source .c file no longer exists on disk
+    if (file_size(orig) < 0)
       orphans += ({ files[i] });
-    }
   }
 
   return orphans;
