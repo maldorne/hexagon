@@ -26,7 +26,7 @@ string _original_short;
 mapping _exit_map;
 
 string file_name;  // .o file of the location
-string area_name;  // path where we will find the area.o and our own file
+string area_path;  // path where we will find the area.o and our own file
 string map_name;   // "default", or "underdark", or "mars", use something different 
                    // from "default" to build a new map
 
@@ -62,7 +62,7 @@ void create()
   _exit_map = ([ ]);
 
   file_name = "";
-  area_name = "";
+  area_path = "";
   map_name = "default";
 
   coordinates = nil;
@@ -277,7 +277,27 @@ string calc_extra_look()
   return ret + ::calc_extra_look();
 }
 
-string query_area_name() { return area_name; }
+// Full save path of the area this location belongs to (the directory
+// holding the .o files of every sibling location).
+string query_area_path() { return area_path; }
+
+/**
+ * Short identifier of the location's area: everything after the
+ * "areas/" segment of the area path, with the trailing "/" stripped.
+ * Falls back to the full path if "areas/" is not present. Matches
+ * area->query_area_name() on the storage object.
+ */
+string query_area_name()
+{
+  string * parts;
+  int i;
+  parts = explode(area_path, "/") - ({ "" });
+  for (i = 0; i < sizeof(parts); i++)
+    if (parts[i] == "areas" && i + 1 < sizeof(parts))
+      return implode(parts[i + 1..], "/");
+  return area_path;
+}
+
 string query_file_name() { return file_name; }
 void set_file_name(string name)
 {
@@ -285,7 +305,7 @@ void set_file_name(string name)
   pieces = explode(name, "/");
 
   if (sizeof(pieces) >= 2)
-    area_name = "/" + implode(pieces[0..sizeof(pieces) - 2], "/") + "/";
+    area_path = "/" + implode(pieces[0..sizeof(pieces) - 2], "/") + "/";
 
   file_name = name;
   save_me();

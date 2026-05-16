@@ -9,7 +9,7 @@ mapping connections;
 // array of loaded locations
 static object * loaded_locations;
 string file_name;
-string area_name;
+string area_path;
 
 // prototype functions
 void add_loaded_location(object location);
@@ -20,7 +20,7 @@ void create() {
   loaded_locations = ({ });
   connections = ([ ]);
   file_name = "";
-  area_name = "";
+  area_path = "";
   ::create();
 }
 
@@ -41,11 +41,37 @@ void set_file_name(string name)
 
 mapping query_locations() { return locations; }
 
-// area_name will be set from the area handler
-string query_area_name() { return area_name; }
-void set_area_name(string name) 
+// The full save path of this area
+// (e.g. /save/games/rl-aeternum/locations/areas/elfereth/rooms/), set
+// by the area handler when the storage is created.
+string query_area_path() { return area_path; }
+
+/**
+ * Short identifier of the area: everything after the "areas/" segment
+ * of the storage path, with the trailing "/" stripped.
+ *
+ * For "/save/games/rl-aeternum/locations/areas/elfereth/rooms/" this
+ * returns "elfereth/rooms"; nested area trees (e.g. an inner-city
+ * sub-area) keep their inner structure in the name. Falls back to the
+ * full path if "areas/" is not present.
+ */
+string query_area_name()
 {
-  area_name = name;
+  string * parts;
+  int i;
+  parts = explode(area_path, "/") - ({ "" });
+  for (i = 0; i < sizeof(parts); i++)
+    if (parts[i] == "areas" && i + 1 < sizeof(parts))
+      return implode(parts[i + 1..], "/");
+  return area_path;
+}
+
+// Set by the area handler when the storage is created. The argument
+// is the full save path (/save/games/.../areas/<name>/...); the public
+// "area name" (the short identifier) is derived from it.
+void set_area_path(string path)
+{
+  area_path = path;
   // save_me();
 }
 
