@@ -25,6 +25,10 @@
 #define CART_ADVENTURER_ROOM    8   // a friendly group member is here
 #define CART_GUARD_ROOM         9   // friendly guard is here
 #define CART_ENEMY_ROOM        10   // hostile to the viewer is here
+#define CART_MAZE_ROOM         11   // ghost cell standing in for a maze
+                                    // location reached from a normal room;
+                                    // renderers paint it as '?' and never
+                                    // explore further from here
 
 // Exit-segment cells (the cell between two rooms). The renderer paints
 // the corresponding line glyph: '|', '---', '/' or '\'.

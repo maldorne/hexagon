@@ -322,6 +322,21 @@ mapping query_map_view(object viewer, varargs mapping options)
         if (has_segment)
           cells[seg_y][seg_x] = seg_type;
 
+        // Maze locations are opaque to cartography: we draw the segment
+        // and a '?' ghost cell where the maze begins, but never enqueue
+        // the maze room itself, so the BFS does not recurse into the
+        // labyrinth's inconsistent exit graph. Legacy rooms do not
+        // implement query_maze(), so the call returns nil there.
+        if (new_room->query_maze())
+        {
+          if (has_dest)
+          {
+            cells[dest_y][dest_x] = CART_MAZE_ROOM;
+            rooms[dest_y][dest_x] = new_room;
+          }
+          continue;
+        }
+
         if (has_dest)
         {
           cells[dest_y][dest_x] = _classify_room(new_room, viewer, deep);
@@ -404,6 +419,7 @@ string render_ascii(mapping view)
         case CART_ADVENTURER_ROOM:    line += "[%^BOLD%^CYAN%^*%^RESET%^]";          break;
         case CART_GUARD_ROOM:         line += "[%^BOLD%^GREEN%^*%^RESET%^]";         break;
         case CART_ENEMY_ROOM:         line += "[%^BOLD%^RED%^*%^RESET%^]";           break;
+        case CART_MAZE_ROOM:          line += "[%^BOLD%^MAGENTA%^?%^RESET%^]";       break;
         case CART_HORIZONTAL_EXIT:    line += "---";                                 break;
         case CART_VERTICAL_EXIT:      line += " | ";                                 break;
         case CART_SLASH_EXIT:         line += " / ";                                 break;
@@ -471,6 +487,7 @@ string render_compact(mapping view)
         case CART_ADVENTURER_ROOM:    line += "%^BOLD%^CYAN%^*%^RESET%^";            break;
         case CART_GUARD_ROOM:         line += "%^BOLD%^GREEN%^*%^RESET%^";           break;
         case CART_ENEMY_ROOM:         line += "%^BOLD%^RED%^X%^RESET%^";             break;
+        case CART_MAZE_ROOM:          line += "%^BOLD%^MAGENTA%^?%^RESET%^";         break;
         case CART_HORIZONTAL_EXIT:    line += "-";                                   break;
         case CART_VERTICAL_EXIT:      line += "|";                                   break;
         case CART_SLASH_EXIT:         line += "/";                                   break;
@@ -623,6 +640,9 @@ string render_unicode(mapping view)
           line += "%^BOLD%^GREEN%^"  + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
         case CART_ENEMY_ROOM:
           line += "%^BOLD%^RED%^"    + chr(226) + chr(150) + chr(163) + "%^RESET%^"; break;
+        case CART_MAZE_ROOM:
+          // ? — plain question mark, intentionally not a unicode glyph
+          line += "%^BOLD%^MAGENTA%^?%^RESET%^";                                      break;
         case CART_HORIZONTAL_EXIT:
           // ─ U+2500 box drawings light horizontal
           line += chr(226) + chr(148) + chr(128);                                     break;
@@ -761,6 +781,9 @@ string render_color_by_area(mapping view)
           break;
         case CART_ENEMY_ROOM:
           line += "[%^BOLD%^RED%^*%^RESET%^]";
+          break;
+        case CART_MAZE_ROOM:
+          line += "[%^BOLD%^MAGENTA%^?%^RESET%^]";
           break;
         case CART_HORIZONTAL_EXIT:
           line += "---";
