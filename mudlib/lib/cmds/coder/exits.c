@@ -180,10 +180,17 @@ private string render_table(object env, mixed * checks)
     coords = env->query_coordinates();
     game   = game_name(env);
 
-    if (strlen(game))
-      ret += " Game: " + game + "\n";
-    if (area)
-      ret += " Area: " + area->query_area_name() + "\n";
+    if (strlen(game) || area)
+    {
+      ret += " ";
+      if (strlen(game))
+        ret += "Game: " + game;
+      if (strlen(game) && area)
+        ret += "   ";
+      if (area)
+        ret += "Area: " + area->query_area_name();
+      ret += "\n";
+    }
 
     ret += " Map:  " + env->query_map_name();
     if (coords && sizeof(coords) == 3)
@@ -192,8 +199,8 @@ private string render_table(object env, mixed * checks)
       sx = coords[0] / 10 - (coords[0] < 0);
       sy = coords[1] / 10 - (coords[1] < 0);
       sz = coords[2] / 10 - (coords[2] < 0);
-      ret += "   coords (" + coords[0] + "," + coords[1] + "," + coords[2] +
-             ")   sector (" + sx + "," + sy + "," + sz + ")";
+      ret += "   Coords (" + coords[0] + "," + coords[1] + "," + coords[2] +
+             ")   Sector (" + sx + "," + sy + "," + sz + ")";
     }
     else
       ret += "   (no coordinates set)";
