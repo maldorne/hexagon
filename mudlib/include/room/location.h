@@ -7,3 +7,4 @@
 #define LOCATION_COMPONENT_SHOP "shop"
 #define LOCATION_COMPONENT_PUB "pub"
 #define LOCATION_COMPONENT_OUTSIDE "outside"
+#define LOCATION_COMPONENT_MAZE "maze"

@@ -7,6 +7,13 @@
 
 #define NO_CLEAN_UP_PROP "no_clean_up"
 
+// Marks a room/location as part of a maze. Maze rooms are intentionally
+// inconsistent (8 exits looping back into the cluster, self-loops,
+// contradictory cardinal directions); the coord-guesser and the
+// cartography renderer treat them as opaque so they neither receive
+// world coordinates nor poison the coordinates of their neighbours.
+#define MAZE_PROP "maze"
+
 #define ROOM_OBJECT "/lib/room.c"
 #define ITEM_OBJECT "/lib/room/items/item.c"
 #define DOOR_OBJECT "/lib/room/items/door.c"

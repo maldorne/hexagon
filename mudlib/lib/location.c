@@ -45,6 +45,7 @@ void add_exits_from_exit_map(mapping m);
 nomask int query_location() { return 1; }
 nomask int query_room() { return 1; }
 nomask int query_outside() { return !undefinedp(component_info[LOCATION_COMPONENT_OUTSIDE]); }
+nomask int query_maze() { return !undefinedp(component_info[LOCATION_COMPONENT_MAZE]); }
 
 // allow adding and removing objects from the inventory (is a room)
 int add_weight(int n) { return 1; }
@@ -120,6 +121,7 @@ void set_original_long(string str) { _original_long = str; }
 
 int * query_coordinates() { return coordinates; }
 void set_coordinates(int x, int y, int z) { coordinates = ({ x, y, z }); }
+void clear_coordinates() { coordinates = nil; }
 
 int query_created_at() { return _created_at; }
 int query_last_imported_at() { return _last_imported_at; }
@@ -337,6 +339,12 @@ int guess_coordinates()
   int found;
 
   found = FALSE;
+
+  // Maze locations are intentionally opaque to world coordinates:
+  // their exits are inconsistent on purpose, so we never try to place
+  // them on the map. Callers that ask for our coords get nil.
+  if (query_maze())
+    return FALSE;
 
   // if (query_coordinates() != nil)
   //   return;

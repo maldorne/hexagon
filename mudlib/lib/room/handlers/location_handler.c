@@ -8,6 +8,7 @@
 #include <areas/area.h>
 #include <maps/maps.h>
 #include <room/location.h>
+#include <room/room.h>
 #include <translations/exits.h>
 
 // Resolve a target string into the list of files it represents for
@@ -284,6 +285,14 @@ int do_guess_coordinates(object * locations)
           continue;
         }
 
+        // maze locations are intentionally opaque — never enqueue them
+        // for coordinate guessing
+        if (dest->query_maze())
+        {
+          ret += " (maze)";
+          continue;
+        }
+
         // not peding to process and not already processed
         if ((member_array(dest, pending) == -1) && (member_array(dest, done) == -1))
           pending += ({ dest });
@@ -358,10 +367,29 @@ object convert_room_to_location(object room)
 
   if (room->query_pub())
   {
-    location->add_component(LOCATION_COMPONENT_PUB, ([ 
+    location->add_component(LOCATION_COMPONENT_PUB, ([
       "menu_items" : room->query_menu_items(),
         ]));
     ret += "   Adding component pub.\n";
+  }
+
+  if (room->query_property(MAZE_PROP))
+  {
+    location->add_component(LOCATION_COMPONENT_MAZE, ([ ]));
+    ret += "   Adding component maze.\n";
+
+    // maze locations live without world coordinates on purpose; if a
+    // previous conversion stamped some (from the bogus exit graph),
+    // drop the sector index entry it created and clear the field.
+    if (location->query_coordinates() != nil)
+    {
+      int * old;
+      old = location->query_coordinates();
+      load_object(MAPS_HANDLER)->remove_location_from_map(
+        location->query_file_name(), location->query_map_name(),
+        old[0], old[1], old[2]);
+      location->clear_coordinates();
+    }
   }
 
 
