@@ -12,6 +12,7 @@ inherit sign     "/lib/room/sign.c";
 
 #include <basic/light.h>
 #include <room/location.h>
+#include <room/location_hooks.h>
 #include <areas/area.h>
 #include <areas/common.h>
 #include <maps/maps.h>
@@ -19,6 +20,12 @@ inherit sign     "/lib/room/sign.c";
 
 static object * components;
 mapping component_info;
+
+// Derived from components on init_components(). Maps a hookable
+// public function name to the ordered list of components that
+// registered for it (sorted by HOOK_PRIORITY_*, ties broken by load
+// order). Never persisted. See location-hook-system.md.
+static mapping hook_chains;
 
 string _original_room_file_name;
 string _original_long;
@@ -40,6 +47,8 @@ string query_file_name();
 void set_file_name(string filename);
 void save_me();
 void add_exits_from_exit_map(mapping m);
+mixed * run_pipeline(string func, mixed * args);
+private void rebuild_hook_chains();
 // void init_original_info();
 
 nomask int query_location() { return 1; }
@@ -56,6 +65,7 @@ void create()
 {
   components = ({ });
   component_info = ([ ]);
+  hook_chains = ([ ]);
 
   _original_room_file_name = "";
   _original_long = "";
@@ -110,6 +120,23 @@ void init()
 int id(string str)
 {
   return 0;
+}
+
+// Movement entry point. Runs the components' do_exit_command pipeline
+// (HOOK_PRIORITY_GATE → TRANSFORM → TRACE) and then calls the
+// inherited exit dispatcher with the final args.
+//
+// Pipeline hook contract: receives ({ str, verb, ob }), returns the
+// (possibly transformed) ({ str, verb, ob }). A hook can mutate the
+// verb (e.g. maze randomises among declared exits) or abort the move
+// by returning args with verb == 0 — components are atomic and do not
+// know about each other; ordering and short-circuit semantics live
+// here, in the orchestrator.
+int do_exit_command(string str, varargs mixed verb, object ob)
+{
+  mixed * args;
+  args = run_pipeline("do_exit_command", ({ str, verb, ob }));
+  return exits::do_exit_command(args[0], args[1], args[2]);
 }
 
 string query_original_room_file_name() { return _original_room_file_name; }
@@ -172,6 +199,86 @@ void init_components(mapping info)
     component->initialize(this_object());
     components += ({ component });
   }
+
+  rebuild_hook_chains();
+}
+
+// Walk the current components, ask each which functions it hooks and
+// at what priority, group by function name, sort by priority (lower
+// first). Ties keep load order — the iteration above is already in
+// component_info insertion order.
+private void rebuild_hook_chains()
+{
+  mapping by_func;  // func_name -> ({ ({ priority, component }), ... })
+  string * funcs;
+  int i, j, k;
+
+  hook_chains = ([ ]);
+  by_func = ([ ]);
+
+  for (i = 0; i < sizeof(components); i++)
+  {
+    mapping hooks;
+    string * hook_funcs;
+
+    hooks = components[i]->query_hooks();
+    if (!hooks)
+      continue;
+
+    hook_funcs = map_indices(hooks);
+    for (j = 0; j < sizeof(hook_funcs); j++)
+    {
+      if (undefinedp(by_func[hook_funcs[j]]))
+        by_func[hook_funcs[j]] = ({ });
+      by_func[hook_funcs[j]] += ({ ({ hooks[hook_funcs[j]], components[i] }) });
+    }
+  }
+
+  funcs = map_indices(by_func);
+  for (i = 0; i < sizeof(funcs); i++)
+  {
+    mixed * pairs;
+    object * chain;
+
+    // small insertion sort by priority, stable
+    pairs = by_func[funcs[i]];
+    for (j = 1; j < sizeof(pairs); j++)
+    {
+      mixed * cur;
+      cur = pairs[j];
+      k = j - 1;
+      while (k >= 0 && pairs[k][0] > cur[0])
+      {
+        pairs[k + 1] = pairs[k];
+        k -= 1;
+      }
+      pairs[k + 1] = cur;
+    }
+
+    chain = ({ });
+    for (j = 0; j < sizeof(pairs); j++)
+      chain += ({ pairs[j][1] });
+    hook_chains[funcs[i]] = chain;
+  }
+}
+
+// Pipeline dispatcher. Threads args through each registered hook in
+// priority order; every hook returns the (possibly transformed) args
+// for the next link. Returns the final args; caller is responsible
+// for invoking the inherited implementation with them.
+mixed * run_pipeline(string func, mixed * args)
+{
+  object * chain;
+  int i;
+
+  if (!hook_chains || undefinedp(hook_chains[func]))
+    return args;
+
+  chain = hook_chains[func];
+  for (i = 0; i < sizeof(chain); i++)
+    args = chain[i]->call_hook(func, args);
+
+  return args;
 }
 
 // void init_original_info()
@@ -339,12 +446,6 @@ int guess_coordinates()
   int found;
 
   found = FALSE;
-
-  // Maze locations are intentionally opaque to world coordinates:
-  // their exits are inconsistent on purpose, so we never try to place
-  // them on the map. Callers that ask for our coords get nil.
-  if (query_maze())
-    return FALSE;
 
   // if (query_coordinates() != nil)
   //   return;
