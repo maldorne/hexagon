@@ -48,6 +48,9 @@ void set_file_name(string filename);
 void save_me();
 void add_exits_from_exit_map(mapping m);
 mixed * run_pipeline(string func, mixed * args);
+mixed run_reduce(string func, mixed * args, mixed acc, string combinator);
+string _concat_string(mixed acc, mixed piece);
+int _sum_int(mixed acc, mixed piece);
 private void rebuild_hook_chains();
 // void init_original_info();
 
@@ -281,6 +284,66 @@ mixed * run_pipeline(string func, mixed * args)
   return args;
 }
 
+// Reduce dispatcher. Walks the chain in priority order, asks each
+// component for its piece (via call_hook), and folds it into the
+// accumulator with the named combinator. The accumulator is seeded
+// by the caller (typically with the inherited base value).
+//
+// A component can claim authority by returning ({ HOOK_EXCLUSIVE,
+// value }); the combinator detects the tag, discards everything it
+// had built so far, and replaces it with the tagged value. Later
+// components still run (their side effects fire) but subsequent
+// pieces are appended on top of the exclusive value following the
+// same combinator rule. If multiple components return exclusive on
+// the same call, the first one (lowest priority) wins as a baseline
+// and subsequent ones augment it — predictable, matches the old
+// "first authoritative component takes the long" behaviour.
+//
+// Combinator signature: combinator(mixed acc, mixed piece) -> mixed.
+// Combinators live as helpers in location.c so the set is small and
+// known.
+mixed run_reduce(string func, mixed * args, mixed acc, string combinator)
+{
+  object * chain;
+  int i;
+
+  if (!hook_chains || undefinedp(hook_chains[func]))
+    return acc;
+
+  chain = hook_chains[func];
+  for (i = 0; i < sizeof(chain); i++)
+  {
+    mixed piece;
+    piece = chain[i]->call_hook(func, args);
+    acc = call_other(this_object(), combinator, acc, piece);
+  }
+
+  return acc;
+}
+
+// Combinator: string concatenation. Treats nil/0 pieces as no
+// contribution. Honours HOOK_EXCLUSIVE by replacing the accumulator.
+string _concat_string(mixed acc, mixed piece)
+{
+  if (pointerp(piece) && sizeof(piece) == 2 && piece[0] == HOOK_EXCLUSIVE)
+    return piece[1];
+  if (!piece || !stringp(piece) || !strlen(piece))
+    return acc;
+  if (!acc) acc = "";
+  return acc + piece;
+}
+
+// Combinator: integer sum. HOOK_EXCLUSIVE replaces the running total
+// with the tagged integer.
+int _sum_int(mixed acc, mixed piece)
+{
+  if (pointerp(piece) && sizeof(piece) == 2 && piece[0] == HOOK_EXCLUSIVE)
+    return piece[1];
+  if (!intp(piece))
+    return acc;
+  return acc + piece;
+}
+
 // void init_original_info()
 // {
 //   if (this_object()->query_short())
@@ -305,60 +368,31 @@ string query_components_string()
   return "%^BOLD%^CYAN%^Components: " + implode(types, ", ") + ".%^RESET%^";
 }
 
+// Reduce hook contract for short/long/extra_look:
+//   args = ({ ... }), returns the contributed string piece (or "" /
+//   nil to contribute nothing). A component can take authority and
+//   replace the accumulator by returning ({ HOOK_EXCLUSIVE, piece }).
 string short(varargs int dark)
 {
   string ret;
-  int i;
-
-  ret = "";
-
-  for (i = 0; i < sizeof(components); i++)
-    ret += components[i]->short(dark);
-
+  ret = (string)run_reduce("short", ({ dark }), "", "_concat_string");
   if (!ret || !strlen(ret))
     ret = _original_short;
-
   return ret;
 }
 
 string long(varargs string str, int dark)
 {
   string ret, aux;
-  int i;
-
-  // // looking to an item
-  // if (str && strlen(str))
-  // {
-  //   str = expand_alias(str);
-  //   return items[str];
-  // }
-
-  ret = "";
 
   if (this_player())
     dark = (int)this_player()->check_dark(query_light());
 
-  for (i = 0; i < sizeof(components); i++)
-  {
-    aux = components[i]->long(str, dark);
-
-    if (!aux || !strlen(aux))
-      continue;
-
-    // if this component says only its long() matters
-    if (components[i]->override_function("long"))
-    {
-      ret = aux; 
-      break;
-    }
-
-    ret += aux;
-  }
+  ret = (string)run_reduce("long", ({ str, dark }), "", "_concat_string");
 
   if (!ret || !strlen(ret))
-    // ret = _original_long;
-    ret = wrap(_original_long, 
-                (this_user() ? this_user()->query_cols() : 79), 1); 
+    ret = wrap(_original_long,
+                (this_user() ? this_user()->query_cols() : 79), 1);
 
   if (this_player()->query_coder())
   {
@@ -375,15 +409,10 @@ string long(varargs string str, int dark)
 
 string calc_extra_look()
 {
-  string ret;
-  int i;
-
-  ret = "";
-
-  for (i = 0; i < sizeof(components); i++)
-    ret += components[i]->extra_look();
-
-  return ret + ::calc_extra_look();
+  string base;
+  base = ::calc_extra_look();
+  return (string)run_reduce("extra_look", ({ }),
+                            base ? base : "", "_concat_string");
 }
 
 // Full save path of the area this location belongs to (the directory
@@ -652,26 +681,10 @@ void dest_me()
   destruct(this_object());
 }
 
-// util function to sum the values returned by a function 
-// in every component
-int _component_sum(string func)
-{
-  int i, sum;
-  sum = 0;
-
-  for (i = 0; i < sizeof(components); i++)
-    sum += call_other(components[i], func);
-
-  return sum;
-}
-
 int query_light()
 {
-  int components_light;
-
-  components_light = _component_sum("query_light");
-
-  return light::query_light() + components_light;
+  return (int)run_reduce("query_light", ({ }),
+                         light::query_light(), "_sum_int");
 }
 
 mixed * stats()
