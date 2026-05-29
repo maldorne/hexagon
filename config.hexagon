@@ -1,6 +1,9 @@
 
 telnet_port = 5000;                     /* telnet port number */
-binary_port = ([ "*":8080 ]);           /* HTTP listener */
+/* HTTP listener. When changing this port, also update HTTP_PORT in
+   mudlib/include/net/http.h so the LPC side (binaries.c routing)
+   agrees with what the driver actually binds. */
+binary_port = ([ "*":8080 ]);
                                         /* base directory (MUST be absolute) */
 directory = "/opt/mud/hexagon/mudlib";
 users = 40;                             /* max # of users */
