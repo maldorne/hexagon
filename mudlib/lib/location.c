@@ -138,6 +138,11 @@ int id(string str)
 int do_exit_command(string str, varargs mixed verb, object ob)
 {
   mixed * args;
+  // Default the optional args the same way the inherited dispatcher
+  // would (see /lib/room/handlers/exit_handler.c) so hooks downstream
+  // always see usable values instead of having to defend against nil.
+  if (!verb) verb = query_verb();
+  if (!ob) ob = this_player();
   args = run_pipeline("do_exit_command", ({ str, verb, ob }));
   return exits::do_exit_command(args[0], args[1], args[2]);
 }
