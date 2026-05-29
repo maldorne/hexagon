@@ -322,11 +322,13 @@ mapping query_map_view(object viewer, varargs mapping options)
         if (has_segment)
           cells[seg_y][seg_x] = seg_type;
 
-        // Maze locations are opaque to cartography: we draw the segment
-        // and a '?' ghost cell where the maze begins, but never enqueue
-        // the maze room itself, so the BFS does not recurse into the
-        // labyrinth's inconsistent exit graph. Legacy rooms do not
-        // implement query_maze(), so the call returns nil there.
+        // Maze locations are deliberately opaque to cartography: we
+        // draw the connecting segment and a '?' ghost cell where the
+        // maze begins, but never enqueue the maze room itself. The
+        // map intentionally hides the labyrinth's layout — knowing
+        // it would defeat the point, since movement inside is
+        // randomised by the maze component anyway. Legacy rooms do
+        // not implement query_maze(), so the call returns nil there.
         if (new_room->query_maze())
         {
           if (has_dest)
