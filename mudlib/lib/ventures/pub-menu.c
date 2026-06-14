@@ -150,6 +150,29 @@ string query_menu_text()
          _LANG_PUB_MENU_INSTRUCTIONS;
 }
 
+// Autoload contract — only used by the location component pub.
+mapping query_auto_load_attributes()
+{
+  return ([
+    "pub_menu_items"       : menu_items,
+    "pub_menu_aliases"     : menu_aliases,
+    "pub_menu_header"      : menu_header,
+    "pub_display_headings" : display_headings,
+  ]);
+}
+
+void init_auto_load_attributes(mapping args)
+{
+  if (!undefinedp(args["pub_menu_items"]))
+    menu_items = args["pub_menu_items"];
+  if (!undefinedp(args["pub_menu_aliases"]))
+    menu_aliases = args["pub_menu_aliases"];
+  if (!undefinedp(args["pub_menu_header"]))
+    menu_header = args["pub_menu_header"];
+  if (!undefinedp(args["pub_display_headings"]))
+    display_headings = args["pub_display_headings"];
+}
+
 mixed * stats()
 {
   return ({

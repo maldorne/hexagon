@@ -46,11 +46,17 @@ void create()
     handler("ventures")->include_pub(base_name(this_object()));
 }
 
-void init() 
+void init()
 {
   room::init();
   actions::init();
 }
+
+// Empty overrides: the room pub does not use the autoload channel,
+// but the local definitions are required to resolve the
+// multiple-inheritance ambiguity from the mixins.
+mapping query_auto_load_attributes() { return ([ ]); }
+void init_auto_load_attributes(mapping args) { }
 
 void event_fight_in_progress(object who, object * fighters) 
 {

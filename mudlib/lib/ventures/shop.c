@@ -135,6 +135,12 @@ void dest_me()
 // returns 1 if the object can be sold to the shop, 0 if can not
 int check_sell(object ob) { return 1; }
 
+// Empty overrides: the room shop does not use the autoload channel,
+// but the local definitions are required to resolve the
+// multiple-inheritance ambiguity from the mixins.
+mapping query_auto_load_attributes() { return ([ ]); }
+void init_auto_load_attributes(mapping args) { }
+
 mixed * stats()
 {
   return room::stats() +

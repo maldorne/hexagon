@@ -348,11 +348,14 @@ object convert_room_to_location(object room)
 
   ret = "";
 
-  // add components to the location object
+  // add components to the location object. Keys use the mixin-namespaced
+  // names defined in /lib/ventures/*.c::query_auto_load_attributes(). The
+  // location's save_me will refresh the mapping from the live components
+  // on every subsequent save (pull-on-save model).
   if (room->query_shop())
   {
-    location->add_component(LOCATION_COMPONENT_SHOP, ([ 
-      "permanent_goods" : room->query_permanent_goods(),
+    location->add_component(LOCATION_COMPONENT_SHOP, ([
+      "shop_permanent_goods" : room->query_permanent_goods(),
         ]));
     ret += "   Adding component shop.\n";
   }
@@ -360,7 +363,7 @@ object convert_room_to_location(object room)
   if (room->query_pub())
   {
     location->add_component(LOCATION_COMPONENT_PUB, ([
-      "menu_items" : room->query_menu_items(),
+      "pub_menu_items" : room->query_menu_items(),
         ]));
     ret += "   Adding component pub.\n";
   }

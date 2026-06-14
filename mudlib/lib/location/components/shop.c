@@ -52,18 +52,23 @@ void initialize(object location)
   handler("ventures")->include_shop(location->query_file_name());
 }
 
-mapping query_auto_load_attributes() 
+// Chain autoload through every mixin that owns persistent state. Each
+// mixin namespaces its keys with its own prefix (see /lib/ventures/*.c)
+// so the merged mapping is collision-free.
+mapping query_auto_load_attributes()
 {
   return component::query_auto_load_attributes() +
-    ([ "permanent_goods" : permanent_goods, ]);
+         attendable::query_auto_load_attributes() +
+         inventory::query_auto_load_attributes() +
+         messages::query_auto_load_attributes();
 }
 
-void init_auto_load_attributes(mapping args) 
+void init_auto_load_attributes(mapping args)
 {
-  if (!undefinedp(args["permanent_goods"]))
-    permanent_goods = args["permanent_goods"];
-
   component::init_auto_load_attributes(args);
+  attendable::init_auto_load_attributes(args);
+  inventory::init_auto_load_attributes(args);
+  messages::init_auto_load_attributes(args);
 }
 
 mixed * stats()

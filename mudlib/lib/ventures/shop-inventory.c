@@ -224,6 +224,18 @@ void reset_stock()
 //  end of ventures handler related functions
 // ************************************************************
 
+// Autoload contract — only used by the location component shop.
+mapping query_auto_load_attributes()
+{
+  return ([ "shop_permanent_goods" : permanent_goods, ]);
+}
+
+void init_auto_load_attributes(mapping args)
+{
+  if (!undefinedp(args["shop_permanent_goods"]))
+    permanent_goods = args["shop_permanent_goods"];
+}
+
 mixed * stats()
 {
   return ({

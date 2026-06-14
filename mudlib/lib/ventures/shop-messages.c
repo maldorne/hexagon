@@ -37,6 +37,27 @@ mixed query_value_mess() { return value_mess; }
 mixed query_buy_mess() { return buy_mess; }
 mixed query_browse_mess() { return browse_mess; }
 
+// Autoload contract — only used by the location component shop.
+mapping query_auto_load_attributes()
+{
+  return ([
+    "shop_buy_mess"    : buy_mess,
+    "shop_sell_mess"   : sell_mess,
+    "shop_list_mess"   : list_mess,
+    "shop_value_mess"  : value_mess,
+    "shop_browse_mess" : browse_mess,
+  ]);
+}
+
+void init_auto_load_attributes(mapping args)
+{
+  if (!undefinedp(args["shop_buy_mess"]))    buy_mess    = args["shop_buy_mess"];
+  if (!undefinedp(args["shop_sell_mess"]))   sell_mess   = args["shop_sell_mess"];
+  if (!undefinedp(args["shop_list_mess"]))   list_mess   = args["shop_list_mess"];
+  if (!undefinedp(args["shop_value_mess"]))  value_mess  = args["shop_value_mess"];
+  if (!undefinedp(args["shop_browse_mess"])) browse_mess = args["shop_browse_mess"];
+}
+
 // show messages after buying or selling
 void do_parse(mixed arr, mixed ob, object client, string money, string extra) 
 {

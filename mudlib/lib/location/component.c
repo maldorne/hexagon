@@ -2,18 +2,39 @@
 //
 // PERSISTENCE CONTRACT
 // --------------------
-// A component owns the persistence of its own state. The parent location
-// stores a `component_info` mapping naming which components it has, but
-// does NOT serialise the components' instance variables. On restore, the
-// location re-clones the component fresh and calls
-// `init_auto_load_attributes()` on it; everything else is up to the
-// component.
+// The parent location is the courier; the component is the owner.
+// `location.c::component_info` is a mapping `component_type -> attrs`
+// that travels inside the location's own `.o` file. The component
+// instance itself (`static` in the location, freshly cloned on every
+// restore) is never serialised directly.
 //
-// Components that hold state (shop inventory, NPC patrol schedule, quest
-// progress, ...) extend `query_auto_load_attributes()` and
-// `init_auto_load_attributes()` below to include that state. The data
-// then travels with the location's `.o` file through the `component_info`
-// channel.
+// The flow is symmetric, pull-on-save / push-on-restore:
+//
+//   save_me()         -> for each live component, write
+//                        `component->query_auto_load_attributes()` into
+//                        `component_info[type]`, then `save_object`.
+//   restore_from_*()  -> `init_components(component_info)` clones every
+//                        listed component, calls
+//                        `component->init_auto_load_attributes(attrs)`,
+//                        then `component->initialize(this_object())`.
+//
+// Implications for component authors:
+//
+// * Declare every field that must survive a reload in
+//   `query_auto_load_attributes()` and restore it in
+//   `init_auto_load_attributes()` — pair them exactly. The location
+//   refreshes the snapshot on every `save_me()`, so you never need to
+//   call `save_me` yourself.
+// * Namespace your keys with a short prefix
+//   (`shop_permanent_goods`, `pub_menu_items`, ...) so multiple mixins
+//   composed in one component can merge their mappings without
+//   colliding. The chain in `shop.c` / `pub.c` is the canonical
+//   example.
+// * State that doesn't fit a flat mapping (large inventories, logs)
+//   should live in side files whose paths derive from
+//   `query_my_location()->query_file_name()` — never accept a path
+//   from a setter. See `shop-inventory.c::query_save_file_name()` for
+//   the pattern.
 
 // inherit obj "/lib/core/object.c";
 inherit container "/lib/core/basic/container.c";

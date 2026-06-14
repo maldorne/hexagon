@@ -52,6 +52,7 @@ mixed run_reduce(string func, mixed * args, mixed acc, string combinator);
 string _concat_string(mixed acc, mixed piece);
 int _sum_int(mixed acc, mixed piece);
 private void rebuild_hook_chains();
+private void _sync_component_info();
 // void init_original_info();
 
 nomask int query_location() { return 1; }
@@ -177,9 +178,21 @@ object query_component_by_type(string type)
   return nil;
 }
 
+// Seed (or reseed) a component's persisted attributes. Used by the
+// conversion path to push state from a legacy room into the location.
+// If the component has already been instantiated (re-conversion of an
+// existing location), the live object is also re-initialised so the
+// next pull-on-save in save_me observes the new seed instead of
+// whatever stale state the previous restore loaded.
 void add_component(string component_type, mapping properties)
 {
+  object live;
+
   component_info[component_type] = properties;
+
+  live = query_component_by_type(component_type);
+  if (live)
+    live->init_auto_load_attributes(properties);
 }
 
 void remove_component(string component_type)
@@ -644,6 +657,18 @@ object * find_inv_match(string str)
          // m_values(items);
 }
 
+// Refresh component_info from the live components before serialising.
+// Pull-on-save closes the symmetric loop with init_components → push
+// via init_auto_load_attributes on restore. See the header comment of
+// /lib/location/component.c for the full persistence contract.
+private void _sync_component_info()
+{
+  int i;
+  for (i = 0; i < sizeof(components); i++)
+    component_info[components[i]->query_type()] =
+      components[i]->query_auto_load_attributes();
+}
+
 void save_me()
 {
   // stamp the original-creation timestamp the first time this location
@@ -653,6 +678,11 @@ void save_me()
 
   // save with the current exits
   _exit_map = query_exit_map();
+
+  // pull each component's current autoload state into component_info
+  // so the next restore sees what the live objects looked like, not
+  // just the seed values from conversion.
+  _sync_component_info();
 
   // save in the map system every location with coordinates
   if (query_coordinates() != nil)
