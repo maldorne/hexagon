@@ -12,7 +12,6 @@ inherit sign     "/lib/room/sign.c";
 
 #include <basic/light.h>
 #include <room/location.h>
-#include <room/location_hooks.h>
 #include <areas/area.h>
 #include <areas/common.h>
 #include <maps/maps.h>

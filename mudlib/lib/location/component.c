@@ -73,7 +73,7 @@ void set_type(string t) { type = t; }
 
 // Hook registration. A component declares which of the location's
 // public functions it wants to participate in, and at what priority
-// bucket (see include/room/location_hooks.h). The location reads this
+// bucket (see include/room/location.h). The location reads this
 // at init_components time, builds an ordered chain per function, and
 // dispatches calls through it.
 //

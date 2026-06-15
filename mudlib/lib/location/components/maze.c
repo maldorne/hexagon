@@ -10,7 +10,6 @@
 // system this plugs into.
 
 #include <room/location.h>
-#include <room/location_hooks.h>
 
 inherit component "/lib/location/component.c";
 

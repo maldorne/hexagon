@@ -1,7 +1,6 @@
 
 #include <areas/weather.h>
 #include <room/location.h>
-#include <room/location_hooks.h>
 
 inherit component  "/lib/location/component.c";
 inherit night      "/lib/room/outside-night.c";
