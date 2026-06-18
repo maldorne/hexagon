@@ -50,6 +50,8 @@ mixed * run_pipeline(string func, mixed * args);
 mixed run_reduce(string func, mixed * args, mixed acc, string combinator);
 string _concat_string(mixed acc, mixed piece);
 int _sum_int(mixed acc, mixed piece);
+object query_component_by_type(string type);
+string query_props_string();
 private void rebuild_hook_chains();
 private void _sync_component_info();
 // void init_original_info();
@@ -120,8 +122,19 @@ void init()
     components[i]->init();
 }
 
+// Delegate id matching to the props component when present so that
+// `look chair` (and any other parser path that checks `room->id(str)`)
+// resolves to a prop instance attached to this location. The base
+// returns 0 — the fallback when no props component is attached or the
+// str does not match any prop.
 int id(string str)
 {
+  object props_comp;
+
+  props_comp = query_component_by_type(LOCATION_COMPONENT_PROPS);
+  if (props_comp && props_comp->id_matches_prop(str))
+    return 1;
+
   return 0;
 }
 
@@ -400,7 +413,7 @@ string short(varargs int dark)
 
 string long(varargs string str, int dark)
 {
-  string ret, aux;
+  string ret, aux, props_section;
 
   if (this_player())
     dark = (int)this_player()->check_dark(query_light());
@@ -419,9 +432,33 @@ string long(varargs string str, int dark)
   }
 
   exit_string = query_dirs_string();
-  ret += exit_string + "\n" + query_contents("");
+  ret += exit_string + "\n";
+
+  // Props section between exits and real inventory. Returns "" when
+  // no props component is attached or the section is empty, in which
+  // case the output stays byte-identical to before this feature.
+  props_section = query_props_string();
+  if (strlen(props_section))
+    ret += props_section + "\n";
+
+  ret += query_contents("");
 
   return ret;
+}
+
+// Asks the attached props component for its rendered section line
+// (composed by /lib/location/components/props.c::query_props_section_string,
+// which delegates per-instance work to /lib/handlers/props.c). Returns
+// "" when no props component is attached, so callers can append
+// unconditionally and locations without props pay no rendering cost.
+string query_props_string()
+{
+  object props_comp;
+
+  props_comp = query_component_by_type(LOCATION_COMPONENT_PROPS);
+  if (!props_comp) return "";
+
+  return props_comp->query_props_section_string();
 }
 
 string calc_extra_look()
