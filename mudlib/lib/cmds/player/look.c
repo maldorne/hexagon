@@ -123,6 +123,16 @@ static int cmd(string arg, object me, string verb)
 
   if (!sizeof(ob))
   {
+    // Fall through to the environment's id()/long() — lets a location
+    // surface props (and any other id()-claimed sub-target) without
+    // requiring a real inventory object.
+    if (here->id(arg))
+    {
+      me->user()->more_string(here->long(arg, dark),
+                              capitalize(_LANG_CMD_LOOK_ALIAS[0]));
+      return 1;
+    }
+
     notify_fail(_LANG_CMD_NOTHING_HERE);
     return 0;
   }

@@ -114,12 +114,40 @@ void create()
 void init()
 {
   int i;
+  object props_comp;
+  string * verbs;
 
   contents::init();
   exits::init();
 
   for (i = 0; i < sizeof(components); i++)
     components[i]->init();
+
+  // Props verbs must be registered on the LOCATION (not the component)
+  // because add_action only fires for objects in the player's
+  // environment. The component supplies the unique verb list; the
+  // location forwards each verb to the component's dispatcher.
+  props_comp = query_component_by_type(LOCATION_COMPONENT_PROPS);
+  if (props_comp)
+  {
+    verbs = props_comp->query_all_supported_verbs();
+    if (verbs)
+      for (i = 0; i < sizeof(verbs); i++)
+        add_action("_dispatch_prop_verb", verbs[i]);
+  }
+}
+
+// Forwarder for prop verbs registered on the location. Delegates to
+// the props component's do_prop_action, which knows how to match the
+// target and execute the plan.
+int _dispatch_prop_verb(string str)
+{
+  object props_comp;
+
+  props_comp = query_component_by_type(LOCATION_COMPONENT_PROPS);
+  if (!props_comp) return 0;
+
+  return props_comp->do_prop_action(str);
 }
 
 // Delegate id matching to the props component when present so that

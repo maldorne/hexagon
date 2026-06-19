@@ -338,18 +338,19 @@ int id_matches_prop(string str)
 // ************************************************************
 
 /*
- * Compute the union of verbs every attached instance supports and
- * register one add_action per unique verb. Idempotent across multiple
- * players entering (add_action is per-player, called from init()).
+ * Returns the union of verbs every attached instance supports. The
+ * location consumes this in its own init() to register the verbs on
+ * itself (add_action only fires when this_object() is in the player's
+ * environment, and the component is not).
  */
-void init()
+string * query_all_supported_verbs()
 {
   string * seen;
   int i, j;
 
-  if (!sizeof(props_instances)) return;
-
   seen = ({ });
+  if (!sizeof(props_instances)) return seen;
+
   for (i = 0; i < sizeof(props_instances); i++)
   {
     string * verbs;
@@ -361,11 +362,10 @@ void init()
 
     for (j = 0; j < sizeof(verbs); j++)
       if (member_array(verbs[j], seen) == -1)
-      {
-        add_action("do_prop_action", verbs[j]);
         seen += ({ verbs[j] });
-      }
   }
+
+  return seen;
 }
 
 // ************************************************************
@@ -409,14 +409,14 @@ int do_prop_action(string str)
 
   inst = matches[0];
 
-  // honour overrides.actions[verb] = nil (action explicitly removed)
+  // honour overrides.actions[verb] = PROP_VALUE_REMOVED (action
+  // explicitly stripped). A plain `nil` cannot signal removal because
+  // DGD deletes the mapping key on assignment.
   ov = inst[PROP_FIELD_OVERRIDES];
   if (ov)
   {
     ov_actions = ov[PROP_OVERRIDE_ACTIONS];
-    if (ov_actions &&
-        member_array(verb, map_indices(ov_actions)) != -1 &&
-        ov_actions[verb] == nil)
+    if (ov_actions && ov_actions[verb] == PROP_VALUE_REMOVED)
     {
       notify_fail(_LANG_PROPS_REMOVED_ACTION);
       return 0;
@@ -505,13 +505,14 @@ private int _execute_generic(mapping spec, mapping inst, string args)
         return 1;
       }
 
-  // 3. requires_state_unset — flag must be unset OR equal to current
-  // player's name (idempotent re-trigger)
+  // 3. requires_state_unset — block whenever the flag has a value, even
+  // when that value matches the current player. The existing-occupant
+  // message is the right feedback for "you cannot sit on a chair you
+  // are already sitting on".
   flags = spec[PROP_SPEC_REQUIRES_STATE_UNSET];
   if (flags)
     for (i = 0; i < sizeof(flags); i++)
-      if (st[flags[i]] &&
-          st[flags[i]] != this_player()->query_name())
+      if (st[flags[i]])
       {
         if (spec[PROP_SPEC_ALREADY_SET_MSG])
           write(sprintf(spec[PROP_SPEC_ALREADY_SET_MSG],

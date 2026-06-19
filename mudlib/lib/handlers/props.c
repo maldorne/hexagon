@@ -158,7 +158,6 @@ private void _scan_customs()
 
 private void _scan_dir(string dir)
 {
-  mixed * listing;
   string * files;
   string full;
   object blueprint;
@@ -167,9 +166,11 @@ private void _scan_dir(string dir)
 
   if (file_size(dir) != -2) return;   // not a directory
 
-  listing = get_dir(dir + "*.c");
-  if (!listing || sizeof(listing) < 1) return;
-  files = listing[0];
+  // The mudlib's masked get_dir (lib/core/efuns/file.c) returns a flat
+  // string array of filenames, not the raw `({ names, sizes, mtimes })`
+  // kfun tuple. Use the result directly.
+  files = get_dir(dir + "*.c");
+  if (!files || !sizeof(files)) return;
 
   for (i = 0; i < sizeof(files); i++)
   {
@@ -223,21 +224,30 @@ mixed * query_action_plan(string type, string verb)
 
   spec = entry["spec"];
   actions = spec ? spec[PROP_TYPE_ACTIONS] : nil;
-  if (!actions) return nil;
+  action_spec = actions ? actions[verb] : nil;
 
-  action_spec = actions[verb];
-  if (!action_spec) return nil;
-
-  kind = action_spec[PROP_SPEC_KIND];
-
-  if (kind == PROP_PLAN_CUSTOM)
+  if (action_spec)
   {
-    if (!entry["custom"]) return nil;
-    return ({ PROP_PLAN_CUSTOM, entry["custom"] });
+    kind = action_spec[PROP_SPEC_KIND];
+
+    if (kind == PROP_PLAN_CUSTOM)
+    {
+      if (!entry["custom"]) return nil;
+      return ({ PROP_PLAN_CUSTOM, entry["custom"] });
+    }
+
+    return ({ PROP_PLAN_GENERIC, action_spec });
   }
 
-  // default to generic
-  return ({ PROP_PLAN_GENERIC, action_spec });
+  // No table-driven spec for this verb. If a custom blueprint is
+  // attached it owns the catalogue entirely; route the verb to its
+  // handle() and let it decide. This covers pure-custom types like
+  // /lib/location/props/test_fountain.c that never appear in the
+  // table.
+  if (entry["custom"])
+    return ({ PROP_PLAN_CUSTOM, entry["custom"] });
+
+  return nil;
 }
 
 /*
@@ -434,10 +444,10 @@ string * query_supported_verbs(string type, mapping overrides)
     ret = ({ });
     for (i = 0; i < sizeof(verbs); i++)
     {
-      // a verb explicitly nil'd in overrides is removed; a verb
-      // remapped to a non-nil value stays available.
-      if (member_array(verbs[i], map_indices(override_actions)) != -1 &&
-          override_actions[verbs[i]] == nil)
+      // a verb explicitly marked PROP_VALUE_REMOVED in overrides is
+      // dropped from the supported set; any other override value
+      // (including a remapped action mapping) stays available.
+      if (override_actions[verbs[i]] == PROP_VALUE_REMOVED)
         continue;
       ret += ({ verbs[i] });
     }

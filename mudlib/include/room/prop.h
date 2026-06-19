@@ -103,4 +103,11 @@
 
 #define PROP_VALUE_PLAYER_NAME  "__player_name__"
 
+//  PROP_VALUE_REMOVED marks an action as explicitly stripped from an
+//  instance's catalogue. Stored under overrides.actions[verb] = this
+//  sentinel, the dispatcher returns _LANG_PROPS_REMOVED_ACTION when
+//  that verb fires on the instance. A plain `nil` cannot serve as the
+//  marker because DGD deletes mapping keys on assignment to nil.
+#define PROP_VALUE_REMOVED  "__removed__"
+
 #endif // PROP_H

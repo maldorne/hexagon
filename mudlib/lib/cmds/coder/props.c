@@ -74,6 +74,7 @@ static mixed _parse_value(string raw)
 
   if (!raw) return nil;
   if (raw == "nil" || raw == "0") return raw == "0" ? 0 : nil;
+  if (raw == "removed") return PROP_VALUE_REMOVED;
 
   // quoted string
   if (strlen(raw) >= 2 && raw[0] == '"' && raw[strlen(raw)-1] == '"')
