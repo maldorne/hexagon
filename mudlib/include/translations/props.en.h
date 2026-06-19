@@ -29,4 +29,45 @@
 #define _LANG_PROPS_REMOVED_ACTION    "You cannot do that with this one."
 #define _LANG_PROPS_NO_HANDLER        "Nothing happens."
 
+// ************************************************************
+//  Per-type strings — chair
+// ************************************************************
+#define _LANG_PROP_CHAIR_ID             "chair"
+#define _LANG_PROP_CHAIR_ID_ALIAS_1     "seat"
+#define _LANG_PROP_CHAIR_ID_ALIAS_2     "wooden chair"
+#define _LANG_PROP_CHAIR_SHORT          "a wooden chair"
+#define _LANG_PROP_CHAIR_LONG           "A sturdy wooden chair, sized for one."
+
+#define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tipped over)"
+#define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s is sitting on it)"
+
+#define _LANG_PROP_CHAIR_SIT_ME             "You sit on the chair."
+#define _LANG_PROP_CHAIR_SIT_OTHERS         "%s sits on the chair."
+#define _LANG_PROP_CHAIR_STAND_ME           "You stand up."
+#define _LANG_PROP_CHAIR_STAND_OTHERS       "%s stands up."
+#define _LANG_PROP_CHAIR_TIP_ME             "You tip the chair over."
+#define _LANG_PROP_CHAIR_TIP_OTHERS         "%s tips the chair over."
+#define _LANG_PROP_CHAIR_RIGHT_ME           "You right the chair."
+#define _LANG_PROP_CHAIR_RIGHT_OTHERS       "%s rights the chair."
+
+#define _LANG_PROP_CHAIR_CANT_SIT           "You can't sit on this chair right now."
+#define _LANG_PROP_CHAIR_OCCUPIED_BY        "%s is already sitting on it."
+#define _LANG_PROP_CHAIR_NOT_SITTING        "You are not sitting on this chair."
+#define _LANG_PROP_CHAIR_NAILED_OR_TIPPED   "You cannot tip this chair."
+#define _LANG_PROP_CHAIR_NOT_TIPPED         "The chair is not tipped over."
+
+// ************************************************************
+//  Per-type strings — table
+// ************************************************************
+#define _LANG_PROP_TABLE_ID             "table"
+#define _LANG_PROP_TABLE_ID_ALIAS_1     "wooden table"
+#define _LANG_PROP_TABLE_SHORT          "a wooden table"
+#define _LANG_PROP_TABLE_LONG           "A long wooden table, scarred by years of use."
+
+#define _LANG_PROP_TABLE_SMELL_ME       "The table smells of polish and old wood."
+#define _LANG_PROP_TABLE_LEAN_ME        "You lean on the table."
+#define _LANG_PROP_TABLE_LEAN_OTHERS    "%s leans on the table."
+#define _LANG_PROP_TABLE_CLIMB_ME       "You climb onto the table."
+#define _LANG_PROP_TABLE_CLIMB_OTHERS   "%s climbs onto the table."
+
 #endif // _LANG_PROPS_H_EN

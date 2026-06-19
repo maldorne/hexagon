@@ -79,12 +79,54 @@ static mixed _parse_value(string raw)
   if (strlen(raw) >= 2 && raw[0] == '"' && raw[strlen(raw)-1] == '"')
     return raw[1..strlen(raw)-2];
 
-  // try int
-  if (sscanf(raw, "%d", n) == 1 && (to_string(n) == raw ||
-                                    (raw[0] == '-' && to_string(n) == raw)))
+  // try int — round-trip check via the "" + scalar idiom so the parse
+  // accepts "42" / "-7" but rejects "42x" or "0042".
+  if (sscanf(raw, "%d", n) == 1 && ("" + n) == raw)
     return n;
 
   return raw;
+}
+
+// Forward protos for the recursive value/mapping/array formatters
+// used by `props list` and `props state`. Hand-rolled instead of
+// leaning on `to_string` (which is a debug-only pretty-printer that
+// quotes strings and emits multi-line layout).
+static string _fmt_value(mixed v);
+static string _fmt_array(mixed * arr);
+static string _fmt_map(mapping m);
+
+static string _fmt_value(mixed v)
+{
+  if (v == nil)        return "nil";
+  if (mappingp(v))     return _fmt_map(v);
+  if (pointerp(v))     return _fmt_array(v);
+  if (stringp(v))      return "\"" + v + "\"";
+  return "" + v;       // int / float scalar via concat
+}
+
+static string _fmt_array(mixed * arr)
+{
+  string * pieces;
+  int i;
+
+  pieces = ({ });
+  for (i = 0; i < sizeof(arr); i++)
+    pieces += ({ _fmt_value(arr[i]) });
+  return "[" + implode(pieces, ", ") + "]";
+}
+
+static string _fmt_map(mapping m)
+{
+  string * ks;
+  string * pieces;
+  int i;
+
+  if (!m || !m_sizeof(m)) return "{}";
+  ks = map_indices(m);
+  pieces = ({ });
+  for (i = 0; i < sizeof(ks); i++)
+    pieces += ({ ks[i] + "=" + _fmt_value(m[ks[i]]) });
+  return "{" + implode(pieces, ", ") + "}";
 }
 
 // Generate <type>_<ordinal> by counting existing instances of <type>.
@@ -197,8 +239,8 @@ static int do_list(object me)
                    i,
                    inst[PROP_FIELD_TYPE],
                    inst[PROP_FIELD_ID] ? inst[PROP_FIELD_ID] : "(none)",
-                   to_string(inst[PROP_FIELD_OVERRIDES]),
-                   to_string(inst[PROP_FIELD_STATE]));
+                   _fmt_map(inst[PROP_FIELD_OVERRIDES]),
+                   _fmt_map(inst[PROP_FIELD_STATE]));
   }
   write(out);
   return 1;
@@ -424,7 +466,7 @@ static int do_state(string args, object me)
   }
 
   write("State on " + handle + ":\n  " +
-        to_string(inst[PROP_FIELD_STATE]) + "\n");
+        _fmt_map(inst[PROP_FIELD_STATE]) + "\n");
   return 1;
 }
 

@@ -291,12 +291,13 @@ string query_render_line(string type, mapping overrides, mapping state)
       suffix = suffixes[suffix_keys[i]];
       if (!suffix || !strlen(suffix)) continue;
 
-      // if the suffix has a format directive, fill in the state value;
-      // otherwise append verbatim.
-      if (strsrch(suffix, "%s") != -1)
-        base = base + sprintf(suffix, to_string(value));
-      else
-        base = base + suffix;
+      // Always sprintf — when the suffix has no format directive the
+      // extra arg is ignored and the suffix is returned verbatim.
+      // Author-controlled language strings keep this safe (no stray %
+      // characters). The `"" +` idiom coerces int/string scalars to
+      // their natural string form (DGD: when one operand of `+` is a
+      // string, the other is rendered without quotes).
+      base = base + sprintf(suffix, "" + value);
     }
   }
 
@@ -308,8 +309,8 @@ string query_render_line(string type, mapping overrides, mapping state)
  * unconditionally; otherwise the custom blueprint may provide a
  * state-aware long; otherwise the table's long_key.
  */
-string query_long(string type, mapping overrides, mapping state,
-                  string instance_id)
+string query_type_long(string type, mapping overrides, mapping state,
+                       string instance_id)
 {
   mapping entry;
   mapping spec;
@@ -338,7 +339,7 @@ string query_long(string type, mapping overrides, mapping state,
  * chair" etc). overrides.short wins; otherwise custom; otherwise the
  * table.
  */
-string query_short(string type, mapping overrides, mapping state)
+string query_type_short(string type, mapping overrides, mapping state)
 {
   mapping entry;
   mapping spec;
@@ -456,7 +457,7 @@ string * query_known_types()
   _ensure_loaded();
 
   ret = map_indices(types);
-  return sort_array(ret, "strcmp");
+  return sort_array(ret);
 }
 
 /*

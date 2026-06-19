@@ -32,4 +32,45 @@
 #define _LANG_PROPS_REMOVED_ACTION    "No puedes hacer eso con esto."
 #define _LANG_PROPS_NO_HANDLER        "No ocurre nada."
 
+// ************************************************************
+//  Cadenas por tipo — silla
+// ************************************************************
+#define _LANG_PROP_CHAIR_ID             "silla"
+#define _LANG_PROP_CHAIR_ID_ALIAS_1     "asiento"
+#define _LANG_PROP_CHAIR_ID_ALIAS_2     "silla de madera"
+#define _LANG_PROP_CHAIR_SHORT          "una silla de madera"
+#define _LANG_PROP_CHAIR_LONG           "Una silla robusta de madera, para una persona."
+
+#define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tirada en el suelo)"
+#define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s está sentado en ella)"
+
+#define _LANG_PROP_CHAIR_SIT_ME             "Te sientas en la silla."
+#define _LANG_PROP_CHAIR_SIT_OTHERS         "%s se sienta en la silla."
+#define _LANG_PROP_CHAIR_STAND_ME           "Te levantas."
+#define _LANG_PROP_CHAIR_STAND_OTHERS       "%s se levanta."
+#define _LANG_PROP_CHAIR_TIP_ME             "Tiras la silla al suelo."
+#define _LANG_PROP_CHAIR_TIP_OTHERS         "%s tira la silla al suelo."
+#define _LANG_PROP_CHAIR_RIGHT_ME           "Levantas la silla."
+#define _LANG_PROP_CHAIR_RIGHT_OTHERS       "%s levanta la silla."
+
+#define _LANG_PROP_CHAIR_CANT_SIT           "No puedes sentarte en esta silla ahora mismo."
+#define _LANG_PROP_CHAIR_OCCUPIED_BY        "%s ya está sentado en ella."
+#define _LANG_PROP_CHAIR_NOT_SITTING        "No estás sentado en esta silla."
+#define _LANG_PROP_CHAIR_NAILED_OR_TIPPED   "No puedes tirar esta silla."
+#define _LANG_PROP_CHAIR_NOT_TIPPED         "La silla no está tirada en el suelo."
+
+// ************************************************************
+//  Cadenas por tipo — mesa
+// ************************************************************
+#define _LANG_PROP_TABLE_ID             "mesa"
+#define _LANG_PROP_TABLE_ID_ALIAS_1     "mesa de madera"
+#define _LANG_PROP_TABLE_SHORT          "una mesa de madera"
+#define _LANG_PROP_TABLE_LONG           "Una larga mesa de madera, marcada por años de uso."
+
+#define _LANG_PROP_TABLE_SMELL_ME       "La mesa huele a cera y madera vieja."
+#define _LANG_PROP_TABLE_LEAN_ME        "Te apoyas en la mesa."
+#define _LANG_PROP_TABLE_LEAN_OTHERS    "%s se apoya en la mesa."
+#define _LANG_PROP_TABLE_CLIMB_ME       "Te subes a la mesa."
+#define _LANG_PROP_TABLE_CLIMB_OTHERS   "%s se sube a la mesa."
+
 #endif // _LANG_PROPS_H_ES

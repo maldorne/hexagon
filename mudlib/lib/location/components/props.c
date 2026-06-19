@@ -311,7 +311,7 @@ mixed hook_long(mixed * args)
   inst = _find_unique_match(str);
   if (!inst) return "";
 
-  desc = handler("props")->query_long(
+  desc = handler("props")->query_type_long(
            inst[PROP_FIELD_TYPE],
            inst[PROP_FIELD_OVERRIDES],
            inst[PROP_FIELD_STATE],
@@ -515,7 +515,7 @@ private int _execute_generic(mapping spec, mapping inst, string args)
       {
         if (spec[PROP_SPEC_ALREADY_SET_MSG])
           write(sprintf(spec[PROP_SPEC_ALREADY_SET_MSG],
-                        to_string(st[flags[i]])) + "\n");
+                        "" + st[flags[i]]) + "\n");
         return 1;
       }
 
