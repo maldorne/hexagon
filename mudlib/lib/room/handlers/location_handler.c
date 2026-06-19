@@ -303,6 +303,94 @@ int do_guess_coordinates(object * locations)
   return 1;
 }
 
+// Aggregate the legacy room's add_clone calls into a path → count
+// mapping. The source storage (room.c::room_clones) encodes each
+// add_clone(path, count, [flag]) as `count` placeholders followed by an
+// optional flag int and the path string at the end. After reset() the
+// placeholders are replaced by cloned objects; this walk handles both
+// pre- and post-reset shapes by scanning the array backwards.
+static mapping _extract_original_add_clones(object room)
+{
+  mixed * raw;
+  mapping ret;
+  int i, count;
+  string current_path;
+
+  ret = ([ ]);
+
+  if (!function_exists("query_room_clones", room)) return ret;
+  raw = room->query_room_clones();
+  if (!raw || !sizeof(raw)) return ret;
+
+  current_path = nil;
+  count = 0;
+
+  for (i = sizeof(raw) - 1; i >= 0; i--)
+  {
+    if (stringp(raw[i]))
+    {
+      // commit the previous batch (if any)
+      if (current_path && count > 0)
+        ret[current_path] = (ret[current_path] ? ret[current_path] : 0) + count;
+      current_path = raw[i];
+      count = 0;
+    }
+    else if (intp(raw[i]) && raw[i] != 0)
+    {
+      // flag int — ignore for the count purpose
+    }
+    else
+    {
+      // nil (pre-reset placeholder) or cloned object (post-reset)
+      count++;
+    }
+  }
+  if (current_path && count > 0)
+    ret[current_path] = (ret[current_path] ? ret[current_path] : 0) + count;
+
+  return ret;
+}
+
+// Read the legacy room's add_item declarations back as an ordered
+// list of ({ id_or_id_array, desc }) pairs. The source room funnels
+// every add_item call into a singleton holder cloned from
+// /lib/room/items/item.c, accumulating parallel arrays for shorts
+// and longs (see lib/room/items/item.c::setup_item).
+static mixed * _extract_original_items(object room)
+{
+  mapping room_items;
+  object holder;
+  string * shorts;
+  string * longs;
+  mixed * ret;
+  int i;
+
+  ret = ({ });
+
+  if (!function_exists("query_items", room)) return ret;
+  room_items = room->query_items();
+  if (!room_items) return ret;
+
+  holder = room_items["The object"];
+  if (!holder) return ret;
+
+  shorts = holder->query_shrt();
+  longs = holder->query_lng();
+  if (!shorts || !longs) return ret;
+
+  // item.c::create() seeds shrt and lng with a leading empty
+  // placeholder; skip pairs where both fields are empty.
+  for (i = 0; i < sizeof(shorts) && i < sizeof(longs); i++)
+  {
+    if ((!shorts[i] || !strlen(shorts[i])) &&
+        (!longs[i]  || !strlen(longs[i])))
+      continue;
+    ret += ({ ({ shorts[i], longs[i] }) });
+  }
+
+  return ret;
+}
+
 object convert_room_to_location(object room)
 {
   object location;
@@ -326,7 +414,7 @@ object convert_room_to_location(object room)
   location = clone_object(BASE_LOCATION_OBJ);
 
   // will try to load the .o if it exists
-  if (!location->restore_from_file_name(file_name)) 
+  if (!location->restore_from_file_name(file_name))
   {
     location->set_file_name(file_name);
   }
@@ -334,6 +422,8 @@ object convert_room_to_location(object room)
   location->set_original_room_file_name(base_name(room) + ".c");
   location->set_original_short(room->query_short());
   location->set_original_long(room->query_long());
+  location->set_original_add_clones(_extract_original_add_clones(room));
+  location->set_original_items(_extract_original_items(room));
   location->stamp_last_imported_at();
 
   if (sizeof(room->query_room_zones()))

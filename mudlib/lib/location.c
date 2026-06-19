@@ -29,6 +29,8 @@ static mapping hook_chains;
 string _original_room_file_name;
 string _original_long;
 string _original_short;
+mapping _original_add_clones;   // path → count for each add_clone in the source room
+mixed * _original_items;         // ordered ({ id_or_id_array, desc }) from add_item
 mapping _exit_map;
 
 string file_name;  // .o file of the location
@@ -75,6 +77,8 @@ void create()
   _original_room_file_name = "";
   _original_long = "";
   _original_short = "";
+  _original_add_clones = ([ ]);
+  _original_items = ({ });
   _exit_map = ([ ]);
 
   file_name = "";
@@ -194,6 +198,11 @@ string query_original_short() { return _original_short; }
 void set_original_short(string str) { _original_short = str; }
 string query_original_long() { return _original_long; }
 void set_original_long(string str) { _original_long = str; }
+
+mapping query_original_add_clones() { return _original_add_clones; }
+void set_original_add_clones(mapping m) { _original_add_clones = m; }
+mixed * query_original_items() { return _original_items; }
+void set_original_items(mixed * a) { _original_items = a; }
 
 int * query_coordinates() { return coordinates; }
 void set_coordinates(int x, int y, int z) { coordinates = ({ x, y, z }); }
