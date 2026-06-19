@@ -190,12 +190,18 @@ object query_component_by_type(string type)
   return nil;
 }
 
-// Seed (or reseed) a component's persisted attributes. Used by the
-// conversion path to push state from a legacy room into the location.
-// If the component has already been instantiated (re-conversion of an
-// existing location), the live object is also re-initialised so the
-// next pull-on-save in save_me observes the new seed instead of
-// whatever stale state the previous restore loaded.
+// Seed (or reseed) a component's persisted attributes.
+//
+// Two callers: (a) the conversion path, which seeds state from a
+// legacy room into the location, and (b) builder cmds like `props add`
+// that attach a new component on demand. In both cases the live
+// instance must be brought up to date so subsequent reads observe the
+// seed instead of stale (or missing) data.
+//
+// If a live component of that type already exists, push the attrs
+// into it. Otherwise clone the matching blueprint, initialise it with
+// the attrs, register it on the location, and rebuild the hook chains
+// so render/dispatch sees it immediately.
 void add_component(string component_type, mapping properties)
 {
   object live;
@@ -204,7 +210,18 @@ void add_component(string component_type, mapping properties)
 
   live = query_component_by_type(component_type);
   if (live)
+  {
     live->init_auto_load_attributes(properties);
+    return;
+  }
+
+  live = clone_object("/lib/location/components/" + component_type + ".c");
+  if (!live) return;
+
+  live->init_auto_load_attributes(properties);
+  live->initialize(this_object());
+  components += ({ live });
+  rebuild_hook_chains();
 }
 
 void remove_component(string component_type)
