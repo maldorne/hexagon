@@ -314,15 +314,16 @@ mapping query_hooks()
 }
 
 /*
- * Builds the "You can: verb1, verb2." hint line for a given instance.
- * One verb per action — the canonical action id, which corresponds to
- * the first element of PROP_SPEC_VERBS when that field lands
- * (task 839723a4). Returns "" when the instance has no actions.
+ * Returns the comma-joined list of verbs accepted by this instance:
+ * `"climb, lean, smell"`. Empty string when the instance has no
+ * actions. One verb per action — the canonical action id, which
+ * matches the first element of PROP_SPEC_VERBS when that field
+ * lands (task 839723a4).
  *
- * Reused by hook_long (player-facing look), do_list and do_verbs
- * (coder cmds).
+ * Raw data shape; callers that need the player-facing hint wrap it
+ * via query_actions_hint(), coder cmds consume this directly.
  */
-string query_actions_hint(mapping inst)
+string query_action_verbs(mapping inst)
 {
   string * verbs;
 
@@ -332,12 +333,25 @@ string query_actions_hint(mapping inst)
             inst[PROP_FIELD_TYPE],
             inst[PROP_FIELD_OVERRIDES]);
 
-  if (!verbs || !sizeof(verbs))
+  if (!verbs || !sizeof(verbs)) return "";
+
+  return implode(verbs, _LANG_PROPS_LIST_SEPARATOR);
+}
+
+/*
+ * Player-facing hint line shown under `look <prop>`:
+ * `"You can: climb, lean, smell."` or the localized
+ * `_LANG_PROPS_NO_ACTIONS` when nothing is available.
+ */
+string query_actions_hint(mapping inst)
+{
+  string verbs;
+
+  verbs = query_action_verbs(inst);
+  if (!strlen(verbs))
     return _LANG_PROPS_NO_ACTIONS;
 
-  return _LANG_PROPS_YOU_CAN +
-         implode(verbs, _LANG_PROPS_LIST_SEPARATOR) +
-         _LANG_PROPS_LIST_TERMINATOR;
+  return _LANG_PROPS_YOU_CAN + verbs + _LANG_PROPS_LIST_TERMINATOR;
 }
 
 /*

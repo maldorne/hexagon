@@ -242,7 +242,7 @@ static int do_list(object me)
                    inst[PROP_FIELD_ID] ? inst[PROP_FIELD_ID] : "(none)",
                    _fmt_map(inst[PROP_FIELD_OVERRIDES]),
                    _fmt_map(inst[PROP_FIELD_STATE]),
-                   comp->query_actions_hint(inst));
+                   comp->query_action_verbs(inst));
   }
   write(out);
   return 1;
@@ -514,7 +514,7 @@ static int do_verbs(string handle, object me)
   }
 
   write("Verbs on " + handle + " (type=" + inst[PROP_FIELD_TYPE] +
-        "): " + comp->query_actions_hint(inst) + "\n");
+        "): " + comp->query_action_verbs(inst) + "\n");
   return 1;
 }
 
