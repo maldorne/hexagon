@@ -83,9 +83,22 @@ static int cmd (string arg, object me, string verb)
         break;
 
       default:
-        ret += (string)here->short(dark) + (string)here->query_short_exit_string() + ".\n" + 
-               (string)here->query_contents();
+      {
+        string props_section;
+        ret += (string)here->short(dark) +
+               (string)here->query_short_exit_string() + ".\n";
+        // Props section between exits and inventory, matching the
+        // slot it occupies in `look`. Returns "" when no props
+        // component is attached.
+        if (function_exists("query_props_string", here))
+        {
+          props_section = (string)here->query_props_string();
+          if (strlen(props_section))
+            ret += props_section + "\n";
+        }
+        ret += (string)here->query_contents();
         break;
+      }
     }
     
     write(ret);

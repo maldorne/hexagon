@@ -474,6 +474,14 @@ string long(varargs string str, int dark)
 
   ret = (string)run_reduce("long", ({ str, dark }), "", "_concat_string");
 
+  // When str is provided the caller is looking at a specific target
+  // inside the room (a prop, an item, etc), not at the room itself.
+  // Return whatever the hook chain produced and skip the room
+  // boilerplate (component banner, exits, props section, inventory)
+  // — those belong to the no-arg form only.
+  if (str && strlen(str))
+    return (ret && strlen(ret)) ? ret : "";
+
   if (!ret || !strlen(ret))
     ret = wrap(_original_long,
                 (this_user() ? this_user()->query_cols() : 79), 1);
