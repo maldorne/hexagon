@@ -73,4 +73,58 @@
 #define _LANG_PROP_TABLE_CLIMB_ME       "Te subes a la mesa."
 #define _LANG_PROP_TABLE_CLIMB_OTHERS   "%s se sube a la mesa."
 
+// ************************************************************
+//  Cadenas por tipo — estatua
+// ************************************************************
+#define _LANG_PROP_STATUE_ID            "estatua"
+#define _LANG_PROP_STATUE_ID_ALIAS_1    "idolo"
+#define _LANG_PROP_STATUE_ID_ALIAS_2    "estatua de metal"
+#define _LANG_PROP_STATUE_SHORT         "una estatua de metal"
+#define _LANG_PROP_STATUE_LONG          "Forjada en metal, representa al Dios Lummen, portador de las almas y benefactor de los sacerdotes."
+
+#define _LANG_PROP_STATUE_PRAY_ME       "Te arrodillas ante la estatua y ofreces una oración en silencio."
+#define _LANG_PROP_STATUE_PRAY_OTHERS   "%s se arrodilla ante la estatua y reza en silencio."
+
+// ************************************************************
+//  Cadenas por tipo — altar
+// ************************************************************
+#define _LANG_PROP_ALTAR_ID             "altar"
+#define _LANG_PROP_ALTAR_ID_ALIAS_1     "altar de piedra"
+#define _LANG_PROP_ALTAR_SHORT          "un altar de piedra"
+#define _LANG_PROP_ALTAR_LONG           "Un modesto altar de piedra pulida."
+
+#define _LANG_PROP_ALTAR_PRAY_ME        "Inclinas la cabeza ante el altar."
+#define _LANG_PROP_ALTAR_PRAY_OTHERS    "%s inclina la cabeza ante el altar."
+
+// ************************************************************
+//  Cadenas por tipo — fuente
+// ************************************************************
+#define _LANG_PROP_FOUNTAIN_ID          "fuente"
+#define _LANG_PROP_FOUNTAIN_ID_ALIAS_1  "fuente de piedra"
+#define _LANG_PROP_FOUNTAIN_ID_ALIAS_2  "fuente de agua"
+#define _LANG_PROP_FOUNTAIN_SHORT       "una fuente de piedra"
+#define _LANG_PROP_FOUNTAIN_LONG        "Una fuente de piedra. Agua clara burbujea suavemente en su pilón."
+
+#define _LANG_PROP_FOUNTAIN_DRINK_ME        "Bebes un poco de agua fresca de la fuente."
+#define _LANG_PROP_FOUNTAIN_DRINK_OTHERS    "%s bebe un poco de agua fresca de la fuente."
+#define _LANG_PROP_FOUNTAIN_SMELL_ME        "El agua huele levemente a musgo y a piedra fría."
+
+// ************************************************************
+//  Cadenas por tipo — chimenea
+// ************************************************************
+#define _LANG_PROP_FIREPLACE_ID          "chimenea"
+#define _LANG_PROP_FIREPLACE_ID_ALIAS_1  "hogar"
+#define _LANG_PROP_FIREPLACE_ID_ALIAS_2  "chimenea pequeña"
+#define _LANG_PROP_FIREPLACE_SHORT       "una pequeña chimenea"
+#define _LANG_PROP_FIREPLACE_LONG        "Una pequeña chimenea. No parece usarse muy a menudo; las cenizas están frías."
+
+#define _LANG_PROP_FIREPLACE_SUFFIX_LIT  " (encendida)"
+
+#define _LANG_PROP_FIREPLACE_LIGHT_ME       "Enciendes la chimenea. Las llamas cobran vida."
+#define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s enciende la chimenea."
+#define _LANG_PROP_FIREPLACE_EXT_ME         "Apagas el fuego. El hogar se oscurece."
+#define _LANG_PROP_FIREPLACE_EXT_OTHERS     "%s apaga el fuego."
+#define _LANG_PROP_FIREPLACE_ALREADY_LIT    "La chimenea ya está encendida."
+#define _LANG_PROP_FIREPLACE_NOT_LIT        "La chimenea no está encendida."
+
 #endif // _LANG_PROPS_H_ES

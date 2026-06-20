@@ -132,7 +132,7 @@ void create()
           PROP_SPEC_MSG_ME:   _LANG_PROP_TABLE_SMELL_ME,
         ]),
 
-        "lean_on": ([
+        "lean": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
           PROP_SPEC_MSG_ME:       _LANG_PROP_TABLE_LEAN_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_TABLE_LEAN_OTHERS,
@@ -142,6 +142,140 @@ void create()
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
           PROP_SPEC_MSG_ME:       _LANG_PROP_TABLE_CLIMB_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_TABLE_CLIMB_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  statue — decorative, stateless. Pray action for flavour.
+    // ------------------------------------------------------------
+    "statue": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_STATUE_ID,
+        _LANG_PROP_STATUE_ID_ALIAS_1,
+        _LANG_PROP_STATUE_ID_ALIAS_2,
+      }),
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_STATUE_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_STATUE_LONG,
+      PROP_TYPE_MATERIALS:  ({ "metal" }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "pray": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_STATUE_PRAY_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_STATUE_PRAY_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  altar — decorative, stateless. Pray action for flavour.
+    // ------------------------------------------------------------
+    "altar": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_ALTAR_ID,
+        _LANG_PROP_ALTAR_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_ALTAR_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_ALTAR_LONG,
+      PROP_TYPE_MATERIALS:  ({ "stone" }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "pray": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_ALTAR_PRAY_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_ALTAR_PRAY_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  fountain — stateless decorative + drink action. Replaces
+    //  the legacy /games/rl-aeternum/areas/naduk/items/fountain.c
+    //  cloned object (same drink semantics, no state).
+    // ------------------------------------------------------------
+    "fountain": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_FOUNTAIN_ID,
+        _LANG_PROP_FOUNTAIN_ID_ALIAS_1,
+        _LANG_PROP_FOUNTAIN_ID_ALIAS_2,
+      }),
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_FOUNTAIN_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_FOUNTAIN_LONG,
+      PROP_TYPE_MATERIALS:  ({ "stone" }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "drink": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_FOUNTAIN_DRINK_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_FOUNTAIN_DRINK_OTHERS,
+        ]),
+
+        "smell": ([
+          PROP_SPEC_KIND:     PROP_PLAN_GENERIC,
+          PROP_SPEC_MSG_ME:   _LANG_PROP_FOUNTAIN_SMELL_ME,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  fireplace — stateful (lit/unlit) with light/extinguish.
+    // ------------------------------------------------------------
+    "fireplace": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_FIREPLACE_ID,
+        _LANG_PROP_FIREPLACE_ID_ALIAS_1,
+        _LANG_PROP_FIREPLACE_ID_ALIAS_2,
+      }),
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_FIREPLACE_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_FIREPLACE_LONG,
+      PROP_TYPE_MATERIALS:  ({ "stone" }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ "lit": 0, ]),
+
+      PROP_TYPE_STATE_SUFFIXES: ([
+        "lit": _LANG_PROP_FIREPLACE_SUFFIX_LIT,
+      ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "light": ([
+          PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_REQUIRES_STATE_UNSET: ({ "lit" }),
+          PROP_SPEC_ALREADY_SET_MSG:      _LANG_PROP_FIREPLACE_ALREADY_LIT,
+          PROP_SPEC_SET_STATE:            ([ "lit": 1 ]),
+          PROP_SPEC_MSG_ME:               _LANG_PROP_FIREPLACE_LIGHT_ME,
+          PROP_SPEC_MSG_OTHERS:           _LANG_PROP_FIREPLACE_LIGHT_OTHERS,
+        ]),
+
+        "extinguish": ([
+          PROP_SPEC_KIND:             PROP_PLAN_GENERIC,
+          PROP_SPEC_REQUIRES_STATE:   ({ "lit" }),
+          PROP_SPEC_MISSING_MSG:      _LANG_PROP_FIREPLACE_NOT_LIT,
+          PROP_SPEC_CLEAR_STATE:      ({ "lit" }),
+          PROP_SPEC_MSG_ME:           _LANG_PROP_FIREPLACE_EXT_ME,
+          PROP_SPEC_MSG_OTHERS:       _LANG_PROP_FIREPLACE_EXT_OTHERS,
         ]),
 
       ]),

@@ -70,4 +70,58 @@
 #define _LANG_PROP_TABLE_CLIMB_ME       "You climb onto the table."
 #define _LANG_PROP_TABLE_CLIMB_OTHERS   "%s climbs onto the table."
 
+// ************************************************************
+//  Per-type strings — statue
+// ************************************************************
+#define _LANG_PROP_STATUE_ID            "statue"
+#define _LANG_PROP_STATUE_ID_ALIAS_1    "idol"
+#define _LANG_PROP_STATUE_ID_ALIAS_2    "metal statue"
+#define _LANG_PROP_STATUE_SHORT         "a metal statue"
+#define _LANG_PROP_STATUE_LONG          "Forged in metal, it represents the God Lummen, carrier of the souls and benefactor of the priests."
+
+#define _LANG_PROP_STATUE_PRAY_ME       "You kneel before the statue and offer a silent prayer."
+#define _LANG_PROP_STATUE_PRAY_OTHERS   "%s kneels before the statue and prays in silence."
+
+// ************************************************************
+//  Per-type strings — altar
+// ************************************************************
+#define _LANG_PROP_ALTAR_ID             "altar"
+#define _LANG_PROP_ALTAR_ID_ALIAS_1     "stone altar"
+#define _LANG_PROP_ALTAR_SHORT          "a stone altar"
+#define _LANG_PROP_ALTAR_LONG           "A modest altar of polished stone."
+
+#define _LANG_PROP_ALTAR_PRAY_ME        "You bow your head before the altar."
+#define _LANG_PROP_ALTAR_PRAY_OTHERS    "%s bows their head before the altar."
+
+// ************************************************************
+//  Per-type strings — fountain
+// ************************************************************
+#define _LANG_PROP_FOUNTAIN_ID          "fountain"
+#define _LANG_PROP_FOUNTAIN_ID_ALIAS_1  "stone fountain"
+#define _LANG_PROP_FOUNTAIN_ID_ALIAS_2  "water fountain"
+#define _LANG_PROP_FOUNTAIN_SHORT       "a stone fountain"
+#define _LANG_PROP_FOUNTAIN_LONG        "A stone fountain. Clear water bubbles gently in its basin."
+
+#define _LANG_PROP_FOUNTAIN_DRINK_ME        "You drink some fresh water from the fountain."
+#define _LANG_PROP_FOUNTAIN_DRINK_OTHERS    "%s drinks some fresh water from the fountain."
+#define _LANG_PROP_FOUNTAIN_SMELL_ME        "The water smells faintly of moss and cold stone."
+
+// ************************************************************
+//  Per-type strings — fireplace
+// ************************************************************
+#define _LANG_PROP_FIREPLACE_ID          "fireplace"
+#define _LANG_PROP_FIREPLACE_ID_ALIAS_1  "hearth"
+#define _LANG_PROP_FIREPLACE_ID_ALIAS_2  "small fireplace"
+#define _LANG_PROP_FIREPLACE_SHORT       "a small fireplace"
+#define _LANG_PROP_FIREPLACE_LONG        "A small fireplace. It does not seem to be used very often; the ashes are cold."
+
+#define _LANG_PROP_FIREPLACE_SUFFIX_LIT  " (lit)"
+
+#define _LANG_PROP_FIREPLACE_LIGHT_ME       "You light the fireplace. Flames flicker to life."
+#define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s lights the fireplace."
+#define _LANG_PROP_FIREPLACE_EXT_ME         "You extinguish the fire. The hearth goes dark."
+#define _LANG_PROP_FIREPLACE_EXT_OTHERS     "%s extinguishes the fire."
+#define _LANG_PROP_FIREPLACE_ALREADY_LIT    "The fireplace is already lit."
+#define _LANG_PROP_FIREPLACE_NOT_LIT        "The fireplace is not lit."
+
 #endif // _LANG_PROPS_H_EN
