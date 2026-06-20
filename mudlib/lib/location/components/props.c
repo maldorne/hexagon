@@ -60,7 +60,12 @@ void create()
 
 void dest_me()
 {
+  // Chain to the inherited dest_me so the clone actually destructs.
+  // Without this, `update here` (which dest_me's the location's
+  // inventory) leaves orphan props component clones lingering — each
+  // call accumulates another stale dispatcher in the same room.
   props_instances = ({ });
+  ::dest_me();
 }
 
 // The component lives inside the location's _inventory so DGD's
@@ -461,13 +466,13 @@ int do_prop_action(string str)
 
   if (!sizeof(matches))
   {
-    notify_fail(_LANG_PROPS_NO_TARGET);
+    notify_fail(_LANG_PROPS_NO_TARGET + "\n");
     return 0;
   }
 
   if (sizeof(matches) > 1)
   {
-    notify_fail(_LANG_PROPS_AMBIGUOUS_TARGET);
+    notify_fail(_LANG_PROPS_AMBIGUOUS_TARGET + "\n");
     return 0;
   }
 
@@ -482,7 +487,7 @@ int do_prop_action(string str)
     ov_actions = ov[PROP_OVERRIDE_ACTIONS];
     if (ov_actions && ov_actions[verb] == PROP_VALUE_REMOVED)
     {
-      notify_fail(_LANG_PROPS_REMOVED_ACTION);
+      notify_fail(_LANG_PROPS_REMOVED_ACTION + "\n");
       return 0;
     }
   }
@@ -490,7 +495,7 @@ int do_prop_action(string str)
   plan = handler("props")->query_action_plan(inst[PROP_FIELD_TYPE], verb);
   if (!plan || sizeof(plan) < 2)
   {
-    notify_fail(_LANG_PROPS_NO_HANDLER);
+    notify_fail(_LANG_PROPS_NO_HANDLER + "\n");
     return 0;
   }
 
