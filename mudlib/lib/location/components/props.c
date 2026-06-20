@@ -314,6 +314,33 @@ mapping query_hooks()
 }
 
 /*
+ * Builds the "You can: verb1, verb2." hint line for a given instance.
+ * One verb per action — the canonical action id, which corresponds to
+ * the first element of PROP_SPEC_VERBS when that field lands
+ * (task 839723a4). Returns "" when the instance has no actions.
+ *
+ * Reused by hook_long (player-facing look), do_list and do_verbs
+ * (coder cmds).
+ */
+string query_actions_hint(mapping inst)
+{
+  string * verbs;
+
+  if (!inst) return "";
+
+  verbs = handler("props")->query_supported_verbs(
+            inst[PROP_FIELD_TYPE],
+            inst[PROP_FIELD_OVERRIDES]);
+
+  if (!verbs || !sizeof(verbs))
+    return _LANG_PROPS_NO_ACTIONS;
+
+  return _LANG_PROPS_YOU_CAN +
+         implode(verbs, _LANG_PROPS_LIST_SEPARATOR) +
+         _LANG_PROPS_LIST_TERMINATOR;
+}
+
+/*
  * Reduce contract for long: receive ({ str, dark }).
  *
  * - No str → no contribution. The props section is rendered separately
@@ -321,13 +348,16 @@ mapping query_hooks()
  *   the exit list and the inventory. We do not duplicate it inside
  *   the long body.
  * - With a str matching an instance → return the prop's long with
- *   HOOK_EXCLUSIVE so the room body is replaced.
+ *   HOOK_EXCLUSIVE so the room body is replaced. We append a
+ *   "You can: …" hint line so the player can discover what verbs
+ *   the prop accepts.
  */
 mixed hook_long(mixed * args)
 {
   string str;
   mapping inst;
   string desc;
+  string hint;
 
   if (!args || sizeof(args) < 1) return "";
   str = args[0];
@@ -344,6 +374,10 @@ mixed hook_long(mixed * args)
            inst[PROP_FIELD_ID]);
 
   if (!desc || !strlen(desc)) return "";
+
+  hint = query_actions_hint(inst);
+  if (strlen(hint))
+    desc += "\n" + hint;
 
   return ({ HOOK_EXCLUSIVE, desc });
 }

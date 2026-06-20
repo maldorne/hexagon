@@ -236,12 +236,13 @@ static int do_list(object me)
   {
     mapping inst;
     inst = instances[i];
-    out += sprintf("  [%d] type=%s id=%s\n      overrides=%s\n      state=%s\n",
+    out += sprintf("  [%d] type=%s id=%s\n      overrides=%s\n      state=%s\n      actions=%s\n",
                    i,
                    inst[PROP_FIELD_TYPE],
                    inst[PROP_FIELD_ID] ? inst[PROP_FIELD_ID] : "(none)",
                    _fmt_map(inst[PROP_FIELD_OVERRIDES]),
-                   _fmt_map(inst[PROP_FIELD_STATE]));
+                   _fmt_map(inst[PROP_FIELD_STATE]),
+                   comp->query_actions_hint(inst));
   }
   write(out);
   return 1;
@@ -476,6 +477,47 @@ static int do_state(string args, object me)
   return 1;
 }
 
+// Print the list of verbs accepted by the matched instance. Same
+// data the player-facing "You can: …" hint uses (so what the coder
+// sees here is exactly what the player would discover via look).
+static int do_verbs(string handle, object me)
+{
+  object loc;
+  object comp;
+  mapping inst;
+
+  if (!handle || !strlen(handle))
+  {
+    notify_fail("Usage: props verbs <id|type>\n");
+    return 0;
+  }
+  if (!(loc = _here(me))) return 0;
+
+  comp = loc->query_component_by_type(LOCATION_COMPONENT_PROPS);
+  if (!comp)
+  {
+    notify_fail("No props component attached here.\n");
+    return 0;
+  }
+
+  inst = comp->query_instance_by_id(handle);
+  if (!inst)
+  {
+    mapping * matches;
+    matches = comp->query_instances_by_type(handle);
+    if (sizeof(matches)) inst = matches[0];
+  }
+  if (!inst)
+  {
+    notify_fail("No instance with id/type '" + handle + "'.\n");
+    return 0;
+  }
+
+  write("Verbs on " + handle + " (type=" + inst[PROP_FIELD_TYPE] +
+        "): " + comp->query_actions_hint(inst) + "\n");
+  return 1;
+}
+
 // ************************************************************
 //  Dispatch
 // ************************************************************
@@ -504,9 +546,10 @@ static int cmd(string str, object me, string verb)
     case "remove": return do_remove(rest, me);
     case "set":    return do_set(rest, me);
     case "state":  return do_state(rest, me);
+    case "verbs":  return do_verbs(rest, me);
     default:
       notify_fail("Unknown subverb '" + subverb + "'. " +
-                  "Try one of: list, types, add, remove, set, state.\n");
+                  "Try one of: list, types, add, remove, set, state, verbs.\n");
       return 0;
   }
 }

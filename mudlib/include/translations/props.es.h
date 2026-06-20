@@ -32,6 +32,11 @@
 #define _LANG_PROPS_REMOVED_ACTION    "No puedes hacer eso con esto."
 #define _LANG_PROPS_NO_HANDLER        "No ocurre nada."
 
+// Se añade bajo la descripción larga en `look <prop>`. Seguido por
+// la lista de verbos separada por comas. "Puedes: encender, apagar."
+#define _LANG_PROPS_YOU_CAN           "Puedes: "
+#define _LANG_PROPS_NO_ACTIONS        "No hay nada que hacer con esto."
+
 // ************************************************************
 //  Arrays de verbos por acción.
 //
