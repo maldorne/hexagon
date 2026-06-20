@@ -48,6 +48,14 @@ void create()
   component::create();
   set_type(LOCATION_COMPONENT_PROPS);
   props_instances = ({ });
+
+  // Hidden-inventory-item discipline (same pattern as
+  // /lib/room/items/door.c): empty name so pretty_short returns ""
+  // and the contents listing skips us, plus reset_get/reset_drop as
+  // a safety net.
+  set_name("");
+  reset_get();
+  reset_drop();
 }
 
 void dest_me()
@@ -55,10 +63,23 @@ void dest_me()
   props_instances = ({ });
 }
 
+// The component lives inside the location's _inventory so DGD's
+// canonical move/init pass registers our verbs for every living that
+// enters. add_action(func, verb) only routes when this_object() is in
+// the player's environment; staying in components[] alone leaves the
+// actions unreachable. This places us in BOTH lists — components[]
+// for hook dispatch and queries, _inventory for action registration.
 void initialize(object loc)
 {
   component::initialize(loc);
+  if (loc && environment(this_object()) != loc)
+    move(loc);
 }
+
+// find_match (see /lib/core/efuns/find_match.c) skips objects that
+// return 1 here. Prevents `look props`, `get props` and any other
+// id-based parser path from latching on to us.
+int query_hidden_object() { return 1; }
 
 // ************************************************************
 //  Persistence
@@ -339,9 +360,8 @@ int id_matches_prop(string str)
 
 /*
  * Returns the union of verbs every attached instance supports. The
- * location consumes this in its own init() to register the verbs on
- * itself (add_action only fires when this_object() is in the player's
- * environment, and the component is not).
+ * component itself consumes this in init() to register the verbs
+ * directly on itself; the location no longer mediates verb routing.
  */
 string * query_all_supported_verbs()
 {
@@ -366,6 +386,50 @@ string * query_all_supported_verbs()
   }
 
   return seen;
+}
+
+/*
+ * Standard DGD init() pass. Runs once per living entering the
+ * location (since the component sits in the location's _inventory,
+ * the canonical move/init dance reaches us). Registers every
+ * supported verb to dispatch through do_prop_action.
+ *
+ * add_action(func, verb) for the same (player, object, func, verb)
+ * is idempotent in DGD — calling init() repeatedly does not produce
+ * duplicate registrations.
+ */
+void init()
+{
+  string * verbs;
+  int i;
+
+  verbs = query_all_supported_verbs();
+  if (!verbs) return;
+
+  for (i = 0; i < sizeof(verbs); i++)
+    add_action("do_prop_action", verbs[i]);
+}
+
+/*
+ * Re-publish our verbs to every living already in the location after
+ * a mutation that changes the supported set (props add / remove /
+ * set on actions). Self-move within the same env triggers the
+ * canonical _inv_remove + _inv_add + init pass: every living in the
+ * location calls init() on us again (with this_player = that
+ * living), and add_action re-runs against the new verb set.
+ *
+ * Uses move() instead of the lower-level MUDOS->set_initiator_object
+ * trick so the refresh is driven by the same machinery the driver
+ * uses when an object naturally enters a room.
+ */
+void refresh_actions()
+{
+  object loc;
+
+  loc = environment(this_object());
+  if (!loc) return;
+
+  move(loc);
 }
 
 // ************************************************************

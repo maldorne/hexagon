@@ -65,6 +65,13 @@
 // ------------------------------------------------------------
 
 #define PROP_SPEC_KIND                  "kind"
+// Per-action verb array. Strings the player can type to trigger this
+// action. Always an array (single-verb actions use a one-element
+// array). Lives in the language file so each locale can have its own
+// list of synonyms. The mapping key of the action stays in English as
+// the canonical id; the dispatcher resolves the typed verb against
+// each action's PROP_SPEC_VERBS to find which canonical action runs.
+#define PROP_SPEC_VERBS                 "verbs"
 #define PROP_SPEC_BLOCKED_BY            "blocked_by"
 #define PROP_SPEC_BLOCKED_MSG           "blocked_msg"
 #define PROP_SPEC_REQUIRES_STATE        "requires_state"

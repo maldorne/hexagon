@@ -30,6 +30,33 @@
 #define _LANG_PROPS_NO_HANDLER        "Nothing happens."
 
 // ************************************************************
+//  Per-action verb arrays.
+//
+//  Every catalogue action has a per-language array of synonyms.
+//  Single-verb actions use a one-element array. The mapping key of
+//  the action in props_table.c stays in English as the canonical id;
+//  these arrays decide what the PLAYER can type to trigger it.
+// ************************************************************
+#define _LANG_PROP_CHAIR_SIT_VERBS         ({ "sit" })
+#define _LANG_PROP_CHAIR_STAND_VERBS       ({ "stand", "rise" })
+#define _LANG_PROP_CHAIR_TIP_VERBS         ({ "tip" })
+#define _LANG_PROP_CHAIR_RIGHT_VERBS       ({ "right" })
+
+#define _LANG_PROP_TABLE_SMELL_VERBS       ({ "smell", "sniff" })
+#define _LANG_PROP_TABLE_LEAN_VERBS        ({ "lean" })
+#define _LANG_PROP_TABLE_CLIMB_VERBS       ({ "climb" })
+
+#define _LANG_PROP_STATUE_PRAY_VERBS       ({ "pray" })
+
+#define _LANG_PROP_ALTAR_PRAY_VERBS        ({ "pray" })
+
+#define _LANG_PROP_FOUNTAIN_DRINK_VERBS    ({ "drink" })
+#define _LANG_PROP_FOUNTAIN_SMELL_VERBS    ({ "smell", "sniff" })
+
+#define _LANG_PROP_FIREPLACE_LIGHT_VERBS   ({ "light", "ignite" })
+#define _LANG_PROP_FIREPLACE_EXT_VERBS     ({ "extinguish", "douse", "put out" })
+
+// ************************************************************
 //  Per-type strings — chair
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "chair"

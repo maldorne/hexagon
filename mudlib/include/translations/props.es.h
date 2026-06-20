@@ -33,6 +33,34 @@
 #define _LANG_PROPS_NO_HANDLER        "No ocurre nada."
 
 // ************************************************************
+//  Arrays de verbos por acción.
+//
+//  Cada acción del catálogo tiene una lista de sinónimos por
+//  idioma. Acciones con un solo verbo usan un array de un elemento.
+//  La clave en props_table.c sigue siendo el id canónico (en
+//  inglés); estos arrays controlan qué puede teclear el JUGADOR
+//  para disparar la acción.
+// ************************************************************
+#define _LANG_PROP_CHAIR_SIT_VERBS         ({ "sentar", "sentarse" })
+#define _LANG_PROP_CHAIR_STAND_VERBS       ({ "levantar", "levantarse" })
+#define _LANG_PROP_CHAIR_TIP_VERBS         ({ "tirar", "volcar" })
+#define _LANG_PROP_CHAIR_RIGHT_VERBS       ({ "enderezar" })
+
+#define _LANG_PROP_TABLE_SMELL_VERBS       ({ "oler", "olfatear" })
+#define _LANG_PROP_TABLE_LEAN_VERBS        ({ "apoyar", "apoyarse" })
+#define _LANG_PROP_TABLE_CLIMB_VERBS       ({ "subir", "trepar" })
+
+#define _LANG_PROP_STATUE_PRAY_VERBS       ({ "rezar", "orar" })
+
+#define _LANG_PROP_ALTAR_PRAY_VERBS        ({ "rezar", "orar" })
+
+#define _LANG_PROP_FOUNTAIN_DRINK_VERBS    ({ "beber" })
+#define _LANG_PROP_FOUNTAIN_SMELL_VERBS    ({ "oler", "olfatear" })
+
+#define _LANG_PROP_FIREPLACE_LIGHT_VERBS   ({ "encender", "prender" })
+#define _LANG_PROP_FIREPLACE_EXT_VERBS     ({ "apagar", "extinguir" })
+
+// ************************************************************
 //  Cadenas por tipo — silla
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "silla"

@@ -337,6 +337,7 @@ static int do_add(string args, object me)
   }
 
   loc->save_me();
+  comp->refresh_actions();
   write("Added prop '" + type + "' (id=" + id + ").\n");
   return 1;
 }
@@ -367,6 +368,7 @@ static int do_remove(string handle, object me)
   }
 
   loc->save_me();
+  comp->refresh_actions();
   write("Removed.\n");
   return 1;
 }
@@ -410,6 +412,9 @@ static int do_set(string args, object me)
   }
 
   loc->save_me();
+  // refresh in case the set touched actions.<verb> (verb set changed).
+  // Cheap for non-action paths too; idempotent.
+  comp->refresh_actions();
   write("Set " + path + " on " + handle + ".\n");
   return 1;
 }
