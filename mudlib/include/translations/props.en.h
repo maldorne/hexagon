@@ -73,6 +73,9 @@
 #define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tipped over)"
 #define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s is sitting on it)"
 
+#define _LANG_PROP_CHAIR_LONG_TIPPED        " It lies on its side."
+#define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s is sitting on it."
+
 #define _LANG_PROP_CHAIR_SIT_ME             "You sit on the chair."
 #define _LANG_PROP_CHAIR_SIT_OTHERS         "%s sits on the chair."
 #define _LANG_PROP_CHAIR_STAND_ME           "You stand up."
@@ -148,6 +151,8 @@
 #define _LANG_PROP_FIREPLACE_LONG        "A small fireplace. It does not seem to be used very often; the ashes are cold."
 
 #define _LANG_PROP_FIREPLACE_SUFFIX_LIT  " (lit)"
+
+#define _LANG_PROP_FIREPLACE_LONG_LIT    " Flames crackle inside, casting warm light across the room."
 
 #define _LANG_PROP_FIREPLACE_LIGHT_ME       "You light the fireplace. Flames flicker to life."
 #define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s lights the fireplace."

@@ -317,14 +317,19 @@ string query_render_line(string type, mapping overrides, mapping state)
 /*
  * Full long shown on `look <prop>`. overrides.description wins
  * unconditionally; otherwise the custom blueprint may provide a
- * state-aware long; otherwise the table's long_key.
+ * state-aware long; otherwise the table's long_key plus any
+ * matching PROP_TYPE_LONG_SUFFIXES appended for truthy state fields
+ * (parallel to the state_suffixes that drive the section line).
  */
 string query_type_long(string type, mapping overrides, mapping state,
                        string instance_id)
 {
   mapping entry;
   mapping spec;
+  mapping suffixes;
+  string * keys;
   string ret;
+  int i;
 
   _ensure_loaded();
 
@@ -341,7 +346,29 @@ string query_type_long(string type, mapping overrides, mapping state,
   }
 
   spec = entry["spec"];
-  return spec ? spec[PROP_TYPE_LONG_KEY] : nil;
+  if (!spec) return nil;
+
+  ret = spec[PROP_TYPE_LONG_KEY];
+  if (!ret) return nil;
+
+  suffixes = spec[PROP_TYPE_LONG_SUFFIXES];
+  if (!suffixes || !state) return ret;
+
+  keys = map_indices(suffixes);
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    mixed value;
+    string suffix;
+    value = state[keys[i]];
+    if (!value) continue;
+    suffix = suffixes[keys[i]];
+    // sprintf returns the suffix verbatim when it has no format
+    // directive; the "" + value idiom coerces ints to strings and
+    // leaves strings untouched (no debug-style quoting).
+    ret += sprintf(suffix, "" + value);
+  }
+
+  return ret;
 }
 
 /*

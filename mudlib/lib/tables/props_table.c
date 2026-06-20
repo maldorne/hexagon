@@ -58,6 +58,11 @@ void create()
         "occupant":  _LANG_PROP_CHAIR_SUFFIX_OCCUPIED,
       ]),
 
+      PROP_TYPE_LONG_SUFFIXES: ([
+        "tipped":    _LANG_PROP_CHAIR_LONG_TIPPED,
+        "occupant":  _LANG_PROP_CHAIR_LONG_OCCUPIED,
+      ]),
+
       PROP_TYPE_ACTIONS: ([
 
         // sit: requires occupant unset (or self), sets occupant.
@@ -256,6 +261,10 @@ void create()
 
       PROP_TYPE_STATE_SUFFIXES: ([
         "lit": _LANG_PROP_FIREPLACE_SUFFIX_LIT,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES: ([
+        "lit": _LANG_PROP_FIREPLACE_LONG_LIT,
       ]),
 
       PROP_TYPE_ACTIONS: ([

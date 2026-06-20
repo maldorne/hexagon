@@ -77,6 +77,9 @@
 #define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tirada en el suelo)"
 #define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s está sentado en ella)"
 
+#define _LANG_PROP_CHAIR_LONG_TIPPED        " Está tirada en el suelo."
+#define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s está sentado en ella."
+
 #define _LANG_PROP_CHAIR_SIT_ME             "Te sientas en la silla."
 #define _LANG_PROP_CHAIR_SIT_OTHERS         "%s se sienta en la silla."
 #define _LANG_PROP_CHAIR_STAND_ME           "Te levantas."
@@ -152,6 +155,8 @@
 #define _LANG_PROP_FIREPLACE_LONG        "Una pequeña chimenea. No parece usarse muy a menudo; las cenizas están frías."
 
 #define _LANG_PROP_FIREPLACE_SUFFIX_LIT  " (encendida)"
+
+#define _LANG_PROP_FIREPLACE_LONG_LIT    " Las llamas crepitan en su interior, bañando la sala de luz cálida."
 
 #define _LANG_PROP_FIREPLACE_LIGHT_ME       "Enciendes la chimenea. Las llamas cobran vida."
 #define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s enciende la chimenea."

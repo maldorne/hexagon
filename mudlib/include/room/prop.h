@@ -96,6 +96,12 @@
 #define PROP_TYPE_MATERIALS       "materials"
 #define PROP_TYPE_DEFAULT_STATE   "default_state"
 #define PROP_TYPE_STATE_SUFFIXES  "state_suffixes"
+// Mapping `state_field -> suffix_string` appended to the long
+// description when that state field is truthy. Parallel to
+// PROP_TYPE_STATE_SUFFIXES (which targets the short / section line);
+// this one targets the body of `look <prop>`. Suffix strings may
+// contain a single %s, which gets the truthy state value.
+#define PROP_TYPE_LONG_SUFFIXES   "long_suffixes"
 #define PROP_TYPE_ACTIONS         "actions"
 
 // ------------------------------------------------------------
