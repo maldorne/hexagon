@@ -102,6 +102,13 @@
 // this one targets the body of `look <prop>`. Suffix strings may
 // contain a single %s, which gets the truthy state value.
 #define PROP_TYPE_LONG_SUFFIXES   "long_suffixes"
+// Inverse of LONG_SUFFIXES: appends when the field is FALSY or unset.
+// Use to describe the default state of a prop in its long body without
+// hardcoding it into PROP_TYPE_LONG_KEY (which should stay invariant
+// and describe only structure). Fireplace base reads "A small stone
+// fireplace."; the unset suffix appends "The ashes are cold." when
+// state.lit is 0, and the regular suffix kicks in when state.lit is 1.
+#define PROP_TYPE_LONG_SUFFIXES_UNSET   "long_suffixes_unset"
 #define PROP_TYPE_ACTIONS         "actions"
 
 // ------------------------------------------------------------

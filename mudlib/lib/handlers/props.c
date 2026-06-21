@@ -351,21 +351,39 @@ string query_type_long(string type, mapping overrides, mapping state,
   ret = spec[PROP_TYPE_LONG_KEY];
   if (!ret) return nil;
 
+  // Append truthy-state suffixes. sprintf returns the suffix
+  // verbatim when it has no format directive; the "" + value idiom
+  // coerces ints to strings and leaves strings untouched (no
+  // debug-style quoting).
   suffixes = spec[PROP_TYPE_LONG_SUFFIXES];
-  if (!suffixes || !state) return ret;
-
-  keys = map_indices(suffixes);
-  for (i = 0; i < sizeof(keys); i++)
+  if (suffixes && state)
   {
-    mixed value;
-    string suffix;
-    value = state[keys[i]];
-    if (!value) continue;
-    suffix = suffixes[keys[i]];
-    // sprintf returns the suffix verbatim when it has no format
-    // directive; the "" + value idiom coerces ints to strings and
-    // leaves strings untouched (no debug-style quoting).
-    ret += sprintf(suffix, "" + value);
+    keys = map_indices(suffixes);
+    for (i = 0; i < sizeof(keys); i++)
+    {
+      mixed value;
+      value = state[keys[i]];
+      if (!value) continue;
+      ret += sprintf(suffixes[keys[i]], "" + value);
+    }
+  }
+
+  // Append falsy/unset-state suffixes — the inverse of the above. Lets
+  // a prop describe its default state in the long body (e.g.
+  // "ashes are cold" when fireplace.lit is 0) without baking it into
+  // PROP_TYPE_LONG_KEY, which should describe only structure so a
+  // mutated state can replace the right slice of the description.
+  suffixes = spec[PROP_TYPE_LONG_SUFFIXES_UNSET];
+  if (suffixes)
+  {
+    keys = map_indices(suffixes);
+    for (i = 0; i < sizeof(keys); i++)
+    {
+      mixed value;
+      value = state ? state[keys[i]] : nil;
+      if (value) continue;
+      ret += suffixes[keys[i]];
+    }
   }
 
   return ret;

@@ -152,11 +152,12 @@
 #define _LANG_PROP_FIREPLACE_ID_ALIAS_1  "hogar"
 #define _LANG_PROP_FIREPLACE_ID_ALIAS_2  "chimenea pequeña"
 #define _LANG_PROP_FIREPLACE_SHORT       "una pequeña chimenea"
-#define _LANG_PROP_FIREPLACE_LONG        "Una pequeña chimenea. No parece usarse muy a menudo; las cenizas están frías."
+#define _LANG_PROP_FIREPLACE_LONG        "Una pequeña chimenea de piedra."
 
 #define _LANG_PROP_FIREPLACE_SUFFIX_LIT  " (encendida)"
 
 #define _LANG_PROP_FIREPLACE_LONG_LIT    " Las llamas crepitan en su interior, bañando la sala de luz cálida."
+#define _LANG_PROP_FIREPLACE_LONG_UNLIT  " Las cenizas están frías; nadie la ha encendido en bastante tiempo."
 
 #define _LANG_PROP_FIREPLACE_LIGHT_ME       "Enciendes la chimenea. Las llamas cobran vida."
 #define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s enciende la chimenea."

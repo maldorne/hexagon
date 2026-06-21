@@ -267,6 +267,10 @@ void create()
         "lit": _LANG_PROP_FIREPLACE_LONG_LIT,
       ]),
 
+      PROP_TYPE_LONG_SUFFIXES_UNSET: ([
+        "lit": _LANG_PROP_FIREPLACE_LONG_UNLIT,
+      ]),
+
       PROP_TYPE_ACTIONS: ([
 
         "light": ([

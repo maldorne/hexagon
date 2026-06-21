@@ -148,11 +148,12 @@
 #define _LANG_PROP_FIREPLACE_ID_ALIAS_1  "hearth"
 #define _LANG_PROP_FIREPLACE_ID_ALIAS_2  "small fireplace"
 #define _LANG_PROP_FIREPLACE_SHORT       "a small fireplace"
-#define _LANG_PROP_FIREPLACE_LONG        "A small fireplace. It does not seem to be used very often; the ashes are cold."
+#define _LANG_PROP_FIREPLACE_LONG        "A small fireplace built of stone."
 
 #define _LANG_PROP_FIREPLACE_SUFFIX_LIT  " (lit)"
 
 #define _LANG_PROP_FIREPLACE_LONG_LIT    " Flames crackle inside, casting warm light across the room."
+#define _LANG_PROP_FIREPLACE_LONG_UNLIT  " The ashes are cold; nobody has lit it in a while."
 
 #define _LANG_PROP_FIREPLACE_LIGHT_ME       "You light the fireplace. Flames flicker to life."
 #define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s lights the fireplace."
