@@ -14,7 +14,7 @@
 #define _LANG_PROPS_H_EN
 
 // Section header rendered at the start of the props line in look output.
-#define _LANG_PROPS_SECTION_HEADER    "You see:"
+#define _LANG_PROPS_SECTION_HEADER    "You see"
 
 // List joiners — used to compose the section line for multiple instances.
 // Final form: "<header> <a><sep><b><sep_last><c>."

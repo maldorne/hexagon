@@ -15,7 +15,7 @@
 
 // Cabecera de la sección, renderizada al inicio de la línea de props
 // en la salida de look.
-#define _LANG_PROPS_SECTION_HEADER    "Ves:"
+#define _LANG_PROPS_SECTION_HEADER    "Ves"
 
 // Separadores de lista — componen la línea de la sección cuando hay
 // varias instancias. Forma final:
