@@ -38,9 +38,9 @@
 //  Override sub-keys inside an instance's `overrides` mapping.
 //  All optional; missing keys fall back to the type defaults.
 //
-//  PROP_OVERRIDE_PROPS holds static design-time flags (e.g.
-//  "nailed", "consecrated") that the dispatcher reads alongside
-//  the runtime state when checking blocked_by.
+//  PROP_OVERRIDE_PROPS holds static design-time flags that the
+//  dispatcher reads alongside the runtime state when checking
+//  blocked_by.
 // ------------------------------------------------------------
 
 #define PROP_OVERRIDE_MATERIAL     "material"
@@ -91,8 +91,20 @@
 // ------------------------------------------------------------
 
 #define PROP_TYPE_ID_LIST         "id_list"
+// SHORT_KEY is the fully-composed short string the renderer falls back
+// to when the type doesn't declare the noun/material/gender pieces
+// needed to compose a phrase at render time. Prefer NOUN + NOUN_PLURAL
+// + GENDER + DEFAULT_MATERIAL when you can.
 #define PROP_TYPE_SHORT_KEY       "short_key"
 #define PROP_TYPE_LONG_KEY        "long_key"
+// Compositional pieces used by the renderer to build the short at
+// run time, with per-instance material override. GENDER exists
+// because some languages (notably Spanish) need it to pick the
+// right article when composing the noun phrase.
+#define PROP_TYPE_NOUN            "noun"
+#define PROP_TYPE_NOUN_PLURAL     "noun_plural"
+#define PROP_TYPE_GENDER          "gender"
+#define PROP_TYPE_DEFAULT_MATERIAL "default_material"
 #define PROP_TYPE_MATERIALS       "materials"
 #define PROP_TYPE_DEFAULT_STATE   "default_state"
 #define PROP_TYPE_STATE_SUFFIXES  "state_suffixes"
@@ -105,9 +117,7 @@
 // Inverse of LONG_SUFFIXES: appends when the field is FALSY or unset.
 // Use to describe the default state of a prop in its long body without
 // hardcoding it into PROP_TYPE_LONG_KEY (which should stay invariant
-// and describe only structure). Fireplace base reads "A small stone
-// fireplace."; the unset suffix appends "The ashes are cold." when
-// state.lit is 0, and the regular suffix kicks in when state.lit is 1.
+// and describe only structure).
 #define PROP_TYPE_LONG_SUFFIXES_UNSET   "long_suffixes_unset"
 #define PROP_TYPE_ACTIONS         "actions"
 
@@ -129,5 +139,15 @@
 //  that verb fires on the instance. A plain `nil` cannot serve as the
 //  marker because DGD deletes mapping keys on assignment to nil.
 #define PROP_VALUE_REMOVED  "__removed__"
+
+// ------------------------------------------------------------
+//  Gender values used by PROP_TYPE_GENDER. Mirrors the raw ints
+//  /lib/core/basic/gender.c reads (case 1, case 2, else). These
+//  symbolic names exist so the catalogue stays readable.
+// ------------------------------------------------------------
+
+#define GENDER_MALE     1
+#define GENDER_FEMALE   2
+#define GENDER_NEUTER   0
 
 #endif // PROP_H

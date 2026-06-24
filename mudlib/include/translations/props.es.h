@@ -1,10 +1,11 @@
 
 // props.es.h — cadenas en castellano para el subsistema de location-props.
 //
-// Solo viven aquí cadenas independientes de tipo: la cabecera de la
-// sección, los separadores de lista y los mensajes genéricos del
-// despachador. Las cadenas por tipo (_LANG_PROP_CHAIR_*,
-// _LANG_PROP_TABLE_*, ...) viajan con sus entradas / blueprints.
+// Agrupado por tipo de prop. Las cadenas independientes de tipo
+// (cabecera, joiners, mensajes del despachador) viven al inicio. Cada
+// sección de un tipo agrupa ids, sustantivo, descripciones, arrays
+// de verbos, mensajes de acción y suffixes de estado — todo lo que
+// el prop necesita.
 //
 // El código de juego usa `#include <translations/props.h>` y el
 // driver reescribe el include a .en.h / .es.h según GLOBAL_COMPILE_LANG.
@@ -12,6 +13,10 @@
 
 #ifndef _LANG_PROPS_H_ES
 #define _LANG_PROPS_H_ES
+
+// ************************************************************
+//  Cadenas independientes del tipo (despachador, joiners).
+// ************************************************************
 
 // Cabecera de la sección, renderizada al inicio de la línea de props
 // en la salida de look.
@@ -38,42 +43,14 @@
 #define _LANG_PROPS_NO_ACTIONS        "No hay nada que hacer con esto."
 
 // ************************************************************
-//  Arrays de verbos por acción.
-//
-//  Cada acción del catálogo tiene una lista de sinónimos por
-//  idioma. Acciones con un solo verbo usan un array de un elemento.
-//  La clave en props_table.c sigue siendo el id canónico (en
-//  inglés); estos arrays controlan qué puede teclear el JUGADOR
-//  para disparar la acción.
-// ************************************************************
-#define _LANG_PROP_CHAIR_SIT_VERBS         ({ "sentar", "sentarse" })
-#define _LANG_PROP_CHAIR_STAND_VERBS       ({ "levantar", "levantarse" })
-#define _LANG_PROP_CHAIR_TIP_VERBS         ({ "tirar", "volcar" })
-#define _LANG_PROP_CHAIR_RIGHT_VERBS       ({ "enderezar" })
-
-#define _LANG_PROP_TABLE_SMELL_VERBS       ({ "oler", "olfatear" })
-#define _LANG_PROP_TABLE_LEAN_VERBS        ({ "apoyarse", "apoyar" })
-#define _LANG_PROP_TABLE_CLIMB_VERBS       ({ "subir", "trepar" })
-
-#define _LANG_PROP_STATUE_PRAY_VERBS       ({ "rezar", "orar" })
-
-#define _LANG_PROP_ALTAR_PRAY_VERBS        ({ "rezar", "orar" })
-
-#define _LANG_PROP_FOUNTAIN_DRINK_VERBS    ({ "beber" })
-#define _LANG_PROP_FOUNTAIN_SMELL_VERBS    ({ "oler", "olfatear" })
-
-#define _LANG_PROP_FIREPLACE_LIGHT_VERBS   ({ "encender", "prender" })
-#define _LANG_PROP_FIREPLACE_EXT_VERBS     ({ "apagar", "extinguir" })
-
-#define _LANG_PROP_BAR_LEAN_VERBS          ({ "apoyarse", "apoyar" })
-#define _LANG_PROP_BAR_SMELL_VERBS         ({ "oler", "olfatear" })
-
-// ************************************************************
-//  Cadenas por tipo — silla
+//  silla
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "silla"
 #define _LANG_PROP_CHAIR_ID_ALIAS_1     "asiento"
-#define _LANG_PROP_CHAIR_ID_ALIAS_2     "silla de madera"
+
+#define _LANG_PROP_CHAIR_NOUN           "silla"
+#define _LANG_PROP_CHAIR_NOUN_PLURAL    "sillas"
+
 #define _LANG_PROP_CHAIR_SHORT          "una silla de madera"
 #define _LANG_PROP_CHAIR_LONG           "Una silla robusta de madera, para una persona."
 
@@ -82,6 +59,11 @@
 
 #define _LANG_PROP_CHAIR_LONG_TIPPED        " Está tirada en el suelo."
 #define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s está sentado en ella."
+
+#define _LANG_PROP_CHAIR_SIT_VERBS          ({ "sentar", "sentarse" })
+#define _LANG_PROP_CHAIR_STAND_VERBS        ({ "levantar", "levantarse" })
+#define _LANG_PROP_CHAIR_TIP_VERBS          ({ "tirar", "volcar" })
+#define _LANG_PROP_CHAIR_RIGHT_VERBS        ({ "enderezar" })
 
 #define _LANG_PROP_CHAIR_SIT_ME             "Te sientas en la silla."
 #define _LANG_PROP_CHAIR_SIT_OTHERS         "%s se sienta en la silla."
@@ -99,12 +81,19 @@
 #define _LANG_PROP_CHAIR_NOT_TIPPED         "La silla no está tirada en el suelo."
 
 // ************************************************************
-//  Cadenas por tipo — mesa
+//  mesa
 // ************************************************************
 #define _LANG_PROP_TABLE_ID             "mesa"
-#define _LANG_PROP_TABLE_ID_ALIAS_1     "mesa de madera"
+
+#define _LANG_PROP_TABLE_NOUN           "mesa"
+#define _LANG_PROP_TABLE_NOUN_PLURAL    "mesas"
+
 #define _LANG_PROP_TABLE_SHORT          "una mesa de madera"
 #define _LANG_PROP_TABLE_LONG           "Una larga mesa de madera, marcada por años de uso."
+
+#define _LANG_PROP_TABLE_SMELL_VERBS    ({ "oler", "olfatear" })
+#define _LANG_PROP_TABLE_LEAN_VERBS     ({ "apoyarse", "apoyar" })
+#define _LANG_PROP_TABLE_CLIMB_VERBS    ({ "subir", "trepar" })
 
 #define _LANG_PROP_TABLE_SMELL_ME       "La mesa huele a cera y madera vieja."
 #define _LANG_PROP_TABLE_LEAN_ME        "Te apoyas en la mesa."
@@ -113,54 +102,76 @@
 #define _LANG_PROP_TABLE_CLIMB_OTHERS   "%s se sube a la mesa."
 
 // ************************************************************
-//  Cadenas por tipo — estatua
+//  estatua
 // ************************************************************
 #define _LANG_PROP_STATUE_ID            "estatua"
 #define _LANG_PROP_STATUE_ID_ALIAS_1    "idolo"
-#define _LANG_PROP_STATUE_ID_ALIAS_2    "estatua de metal"
+
+#define _LANG_PROP_STATUE_NOUN          "estatua"
+#define _LANG_PROP_STATUE_NOUN_PLURAL   "estatuas"
+
 #define _LANG_PROP_STATUE_SHORT         "una estatua de metal"
 #define _LANG_PROP_STATUE_LONG          "Forjada en metal, representa al Dios Lummen, portador de las almas y benefactor de los sacerdotes."
+
+#define _LANG_PROP_STATUE_PRAY_VERBS    ({ "rezar", "orar" })
 
 #define _LANG_PROP_STATUE_PRAY_ME       "Te arrodillas ante la estatua y ofreces una oración en silencio."
 #define _LANG_PROP_STATUE_PRAY_OTHERS   "%s se arrodilla ante la estatua y reza en silencio."
 
 // ************************************************************
-//  Cadenas por tipo — altar
+//  altar
 // ************************************************************
 #define _LANG_PROP_ALTAR_ID             "altar"
-#define _LANG_PROP_ALTAR_ID_ALIAS_1     "altar de piedra"
+
+#define _LANG_PROP_ALTAR_NOUN           "altar"
+#define _LANG_PROP_ALTAR_NOUN_PLURAL    "altares"
+
 #define _LANG_PROP_ALTAR_SHORT          "un altar de piedra"
 #define _LANG_PROP_ALTAR_LONG           "Un modesto altar de piedra pulida."
+
+#define _LANG_PROP_ALTAR_PRAY_VERBS     ({ "rezar", "orar" })
 
 #define _LANG_PROP_ALTAR_PRAY_ME        "Inclinas la cabeza ante el altar."
 #define _LANG_PROP_ALTAR_PRAY_OTHERS    "%s inclina la cabeza ante el altar."
 
 // ************************************************************
-//  Cadenas por tipo — fuente
+//  fuente
 // ************************************************************
 #define _LANG_PROP_FOUNTAIN_ID          "fuente"
-#define _LANG_PROP_FOUNTAIN_ID_ALIAS_1  "fuente de piedra"
-#define _LANG_PROP_FOUNTAIN_ID_ALIAS_2  "fuente de agua"
+#define _LANG_PROP_FOUNTAIN_ID_ALIAS_1  "fuente de agua"
+
+#define _LANG_PROP_FOUNTAIN_NOUN        "fuente"
+#define _LANG_PROP_FOUNTAIN_NOUN_PLURAL "fuentes"
+
 #define _LANG_PROP_FOUNTAIN_SHORT       "una fuente de piedra"
 #define _LANG_PROP_FOUNTAIN_LONG        "Una fuente de piedra. Agua clara burbujea suavemente en su pilón."
 
-#define _LANG_PROP_FOUNTAIN_DRINK_ME        "Bebes un poco de agua fresca de la fuente."
-#define _LANG_PROP_FOUNTAIN_DRINK_OTHERS    "%s bebe un poco de agua fresca de la fuente."
-#define _LANG_PROP_FOUNTAIN_SMELL_ME        "El agua huele levemente a musgo y a piedra fría."
+#define _LANG_PROP_FOUNTAIN_DRINK_VERBS ({ "beber" })
+#define _LANG_PROP_FOUNTAIN_SMELL_VERBS ({ "oler", "olfatear" })
+
+#define _LANG_PROP_FOUNTAIN_DRINK_ME    "Bebes un poco de agua fresca de la fuente."
+#define _LANG_PROP_FOUNTAIN_DRINK_OTHERS "%s bebe un poco de agua fresca de la fuente."
+#define _LANG_PROP_FOUNTAIN_SMELL_ME    "El agua huele levemente a musgo y a piedra fría."
 
 // ************************************************************
-//  Cadenas por tipo — chimenea
+//  chimenea
 // ************************************************************
-#define _LANG_PROP_FIREPLACE_ID          "chimenea"
-#define _LANG_PROP_FIREPLACE_ID_ALIAS_1  "hogar"
-#define _LANG_PROP_FIREPLACE_ID_ALIAS_2  "chimenea pequeña"
-#define _LANG_PROP_FIREPLACE_SHORT       "una pequeña chimenea"
-#define _LANG_PROP_FIREPLACE_LONG        "Una pequeña chimenea de piedra."
+#define _LANG_PROP_FIREPLACE_ID         "chimenea"
+#define _LANG_PROP_FIREPLACE_ID_ALIAS_1 "hogar"
 
-#define _LANG_PROP_FIREPLACE_SUFFIX_LIT  " (encendida)"
+#define _LANG_PROP_FIREPLACE_NOUN       "chimenea"
+#define _LANG_PROP_FIREPLACE_NOUN_PLURAL "chimeneas"
 
-#define _LANG_PROP_FIREPLACE_LONG_LIT    " Las llamas crepitan en su interior, bañando la sala de luz cálida."
-#define _LANG_PROP_FIREPLACE_LONG_UNLIT  " Las cenizas están frías; nadie la ha encendido en bastante tiempo."
+#define _LANG_PROP_FIREPLACE_SHORT      "una pequeña chimenea"
+#define _LANG_PROP_FIREPLACE_LONG       "Una pequeña chimenea de piedra."
+
+#define _LANG_PROP_FIREPLACE_SUFFIX_LIT " (encendida)"
+
+#define _LANG_PROP_FIREPLACE_LONG_LIT   " Las llamas crepitan en su interior, bañando la sala de luz cálida."
+#define _LANG_PROP_FIREPLACE_LONG_UNLIT " Las cenizas están frías; nadie la ha encendido en bastante tiempo."
+
+#define _LANG_PROP_FIREPLACE_LIGHT_VERBS ({ "encender", "prender" })
+#define _LANG_PROP_FIREPLACE_EXT_VERBS  ({ "apagar", "extinguir" })
 
 #define _LANG_PROP_FIREPLACE_LIGHT_ME       "Enciendes la chimenea. Las llamas cobran vida."
 #define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s enciende la chimenea."
@@ -170,16 +181,22 @@
 #define _LANG_PROP_FIREPLACE_NOT_LIT        "La chimenea no está encendida."
 
 // ************************************************************
-//  Cadenas por tipo — barra (mostrador de taberna)
+//  barra (mostrador de taberna)
 // ************************************************************
-#define _LANG_PROP_BAR_ID                "barra"
-#define _LANG_PROP_BAR_ID_ALIAS_1        "mostrador"
-#define _LANG_PROP_BAR_ID_ALIAS_2        "barra del bar"
-#define _LANG_PROP_BAR_SHORT             "una larga barra de madera"
-#define _LANG_PROP_BAR_LONG              "Una larga barra de madera recorre la pared, su superficie marcada por años de jarras y codos. No está muy limpia."
+#define _LANG_PROP_BAR_ID               "barra"
+#define _LANG_PROP_BAR_ID_ALIAS_1       "mostrador"
 
-#define _LANG_PROP_BAR_LEAN_ME           "Te apoyas en la barra."
-#define _LANG_PROP_BAR_LEAN_OTHERS       "%s se apoya en la barra."
-#define _LANG_PROP_BAR_SMELL_ME          "La barra huele a cerveza rancia y madera vieja."
+#define _LANG_PROP_BAR_NOUN             "barra"
+#define _LANG_PROP_BAR_NOUN_PLURAL      "barras"
+
+#define _LANG_PROP_BAR_SHORT            "una larga barra de madera"
+#define _LANG_PROP_BAR_LONG             "Una larga barra de madera recorre la pared, su superficie marcada por años de jarras y codos. No está muy limpia."
+
+#define _LANG_PROP_BAR_LEAN_VERBS       ({ "apoyarse", "apoyar" })
+#define _LANG_PROP_BAR_SMELL_VERBS      ({ "oler", "olfatear" })
+
+#define _LANG_PROP_BAR_LEAN_ME          "Te apoyas en la barra."
+#define _LANG_PROP_BAR_LEAN_OTHERS      "%s se apoya en la barra."
+#define _LANG_PROP_BAR_SMELL_ME         "La barra huele a cerveza rancia y madera vieja."
 
 #endif // _LANG_PROPS_H_ES

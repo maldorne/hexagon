@@ -1,10 +1,9 @@
 
 // props.en.h — English strings for the location-props subsystem.
 //
-// Only type-agnostic strings live here: the section header, the list
-// joiners, and the generic dispatcher messages. Per-type strings
-// (_LANG_PROP_CHAIR_*, _LANG_PROP_TABLE_*, ...) ship with their
-// respective type entries / blueprints.
+// Grouped by prop type. Type-agnostic dispatcher strings live at the
+// top. Each per-type section bundles ids, noun, descriptions, verb
+// arrays, action messages, state suffixes — everything the prop needs.
 //
 // Player code should `#include <translations/props.h>` and let the
 // driver rewrite the include to .en.h / .es.h according to
@@ -12,6 +11,10 @@
 
 #ifndef _LANG_PROPS_H_EN
 #define _LANG_PROPS_H_EN
+
+// ************************************************************
+//  Type-agnostic dispatcher strings.
+// ************************************************************
 
 // Section header rendered at the start of the props line in look output.
 #define _LANG_PROPS_SECTION_HEADER    "You see"
@@ -35,45 +38,14 @@
 #define _LANG_PROPS_NO_ACTIONS        "Nothing to do with this one."
 
 // ************************************************************
-//  Per-action verb arrays.
-//
-//  Every catalogue action has a per-language array of synonyms.
-//  Single-verb actions use a one-element array. The mapping key of
-//  the action in props_table.c stays in English as the canonical id;
-//  these arrays decide what the PLAYER can type to trigger it.
-// ************************************************************
-#define _LANG_PROP_CHAIR_SIT_VERBS         ({ "sit" })
-#define _LANG_PROP_CHAIR_STAND_VERBS       ({ "stand", "rise" })
-#define _LANG_PROP_CHAIR_TIP_VERBS         ({ "tip" })
-#define _LANG_PROP_CHAIR_RIGHT_VERBS       ({ "right" })
-
-#define _LANG_PROP_TABLE_SMELL_VERBS       ({ "smell", "sniff" })
-#define _LANG_PROP_TABLE_LEAN_VERBS        ({ "lean" })
-#define _LANG_PROP_TABLE_CLIMB_VERBS       ({ "climb" })
-
-#define _LANG_PROP_STATUE_PRAY_VERBS       ({ "pray" })
-
-#define _LANG_PROP_ALTAR_PRAY_VERBS        ({ "pray" })
-
-#define _LANG_PROP_FOUNTAIN_DRINK_VERBS    ({ "drink" })
-#define _LANG_PROP_FOUNTAIN_SMELL_VERBS    ({ "smell", "sniff" })
-
-#define _LANG_PROP_FIREPLACE_LIGHT_VERBS   ({ "light", "ignite" })
-// "put out" intentionally omitted — DGD's add_action registers
-// single-word verbs only ("put" alone would collide with the global
-// `put` cmd). Re-add as a properly composed verb when we handle
-// multi-word verb dispatch.
-#define _LANG_PROP_FIREPLACE_EXT_VERBS     ({ "extinguish", "douse" })
-
-#define _LANG_PROP_BAR_LEAN_VERBS          ({ "lean" })
-#define _LANG_PROP_BAR_SMELL_VERBS         ({ "smell", "sniff" })
-
-// ************************************************************
-//  Per-type strings — chair
+//  chair
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "chair"
 #define _LANG_PROP_CHAIR_ID_ALIAS_1     "seat"
-#define _LANG_PROP_CHAIR_ID_ALIAS_2     "wooden chair"
+
+#define _LANG_PROP_CHAIR_NOUN           "chair"
+#define _LANG_PROP_CHAIR_NOUN_PLURAL    "chairs"
+
 #define _LANG_PROP_CHAIR_SHORT          "a wooden chair"
 #define _LANG_PROP_CHAIR_LONG           "A sturdy wooden chair, sized for one."
 
@@ -82,6 +54,11 @@
 
 #define _LANG_PROP_CHAIR_LONG_TIPPED        " It lies on its side."
 #define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s is sitting on it."
+
+#define _LANG_PROP_CHAIR_SIT_VERBS          ({ "sit" })
+#define _LANG_PROP_CHAIR_STAND_VERBS        ({ "stand", "rise" })
+#define _LANG_PROP_CHAIR_TIP_VERBS          ({ "tip" })
+#define _LANG_PROP_CHAIR_RIGHT_VERBS        ({ "right" })
 
 #define _LANG_PROP_CHAIR_SIT_ME             "You sit on the chair."
 #define _LANG_PROP_CHAIR_SIT_OTHERS         "%s sits on the chair."
@@ -99,12 +76,19 @@
 #define _LANG_PROP_CHAIR_NOT_TIPPED         "The chair is not tipped over."
 
 // ************************************************************
-//  Per-type strings — table
+//  table
 // ************************************************************
 #define _LANG_PROP_TABLE_ID             "table"
-#define _LANG_PROP_TABLE_ID_ALIAS_1     "wooden table"
+
+#define _LANG_PROP_TABLE_NOUN           "table"
+#define _LANG_PROP_TABLE_NOUN_PLURAL    "tables"
+
 #define _LANG_PROP_TABLE_SHORT          "a wooden table"
 #define _LANG_PROP_TABLE_LONG           "A long wooden table, scarred by years of use."
+
+#define _LANG_PROP_TABLE_SMELL_VERBS    ({ "smell", "sniff" })
+#define _LANG_PROP_TABLE_LEAN_VERBS     ({ "lean" })
+#define _LANG_PROP_TABLE_CLIMB_VERBS    ({ "climb" })
 
 #define _LANG_PROP_TABLE_SMELL_ME       "The table smells of polish and old wood."
 #define _LANG_PROP_TABLE_LEAN_ME        "You lean on the table."
@@ -113,54 +97,80 @@
 #define _LANG_PROP_TABLE_CLIMB_OTHERS   "%s climbs onto the table."
 
 // ************************************************************
-//  Per-type strings — statue
+//  statue
 // ************************************************************
 #define _LANG_PROP_STATUE_ID            "statue"
 #define _LANG_PROP_STATUE_ID_ALIAS_1    "idol"
-#define _LANG_PROP_STATUE_ID_ALIAS_2    "metal statue"
+
+#define _LANG_PROP_STATUE_NOUN          "statue"
+#define _LANG_PROP_STATUE_NOUN_PLURAL   "statues"
+
 #define _LANG_PROP_STATUE_SHORT         "a metal statue"
 #define _LANG_PROP_STATUE_LONG          "Forged in metal, it represents the God Lummen, carrier of the souls and benefactor of the priests."
+
+#define _LANG_PROP_STATUE_PRAY_VERBS    ({ "pray" })
 
 #define _LANG_PROP_STATUE_PRAY_ME       "You kneel before the statue and offer a silent prayer."
 #define _LANG_PROP_STATUE_PRAY_OTHERS   "%s kneels before the statue and prays in silence."
 
 // ************************************************************
-//  Per-type strings — altar
+//  altar
 // ************************************************************
 #define _LANG_PROP_ALTAR_ID             "altar"
-#define _LANG_PROP_ALTAR_ID_ALIAS_1     "stone altar"
+
+#define _LANG_PROP_ALTAR_NOUN           "altar"
+#define _LANG_PROP_ALTAR_NOUN_PLURAL    "altars"
+
 #define _LANG_PROP_ALTAR_SHORT          "a stone altar"
 #define _LANG_PROP_ALTAR_LONG           "A modest altar of polished stone."
+
+#define _LANG_PROP_ALTAR_PRAY_VERBS     ({ "pray" })
 
 #define _LANG_PROP_ALTAR_PRAY_ME        "You bow your head before the altar."
 #define _LANG_PROP_ALTAR_PRAY_OTHERS    "%s bows their head before the altar."
 
 // ************************************************************
-//  Per-type strings — fountain
+//  fountain
 // ************************************************************
 #define _LANG_PROP_FOUNTAIN_ID          "fountain"
-#define _LANG_PROP_FOUNTAIN_ID_ALIAS_1  "stone fountain"
-#define _LANG_PROP_FOUNTAIN_ID_ALIAS_2  "water fountain"
+#define _LANG_PROP_FOUNTAIN_ID_ALIAS_1  "water fountain"
+
+#define _LANG_PROP_FOUNTAIN_NOUN        "fountain"
+#define _LANG_PROP_FOUNTAIN_NOUN_PLURAL "fountains"
+
 #define _LANG_PROP_FOUNTAIN_SHORT       "a stone fountain"
 #define _LANG_PROP_FOUNTAIN_LONG        "A stone fountain. Clear water bubbles gently in its basin."
 
-#define _LANG_PROP_FOUNTAIN_DRINK_ME        "You drink some fresh water from the fountain."
-#define _LANG_PROP_FOUNTAIN_DRINK_OTHERS    "%s drinks some fresh water from the fountain."
-#define _LANG_PROP_FOUNTAIN_SMELL_ME        "The water smells faintly of moss and cold stone."
+#define _LANG_PROP_FOUNTAIN_DRINK_VERBS ({ "drink" })
+#define _LANG_PROP_FOUNTAIN_SMELL_VERBS ({ "smell", "sniff" })
+
+#define _LANG_PROP_FOUNTAIN_DRINK_ME    "You drink some fresh water from the fountain."
+#define _LANG_PROP_FOUNTAIN_DRINK_OTHERS "%s drinks some fresh water from the fountain."
+#define _LANG_PROP_FOUNTAIN_SMELL_ME    "The water smells faintly of moss and cold stone."
 
 // ************************************************************
-//  Per-type strings — fireplace
+//  fireplace
 // ************************************************************
-#define _LANG_PROP_FIREPLACE_ID          "fireplace"
-#define _LANG_PROP_FIREPLACE_ID_ALIAS_1  "hearth"
-#define _LANG_PROP_FIREPLACE_ID_ALIAS_2  "small fireplace"
-#define _LANG_PROP_FIREPLACE_SHORT       "a small fireplace"
-#define _LANG_PROP_FIREPLACE_LONG        "A small fireplace built of stone."
+#define _LANG_PROP_FIREPLACE_ID         "fireplace"
+#define _LANG_PROP_FIREPLACE_ID_ALIAS_1 "hearth"
 
-#define _LANG_PROP_FIREPLACE_SUFFIX_LIT  " (lit)"
+#define _LANG_PROP_FIREPLACE_NOUN       "fireplace"
+#define _LANG_PROP_FIREPLACE_NOUN_PLURAL "fireplaces"
 
-#define _LANG_PROP_FIREPLACE_LONG_LIT    " Flames crackle inside, casting warm light across the room."
-#define _LANG_PROP_FIREPLACE_LONG_UNLIT  " The ashes are cold; nobody has lit it in a while."
+#define _LANG_PROP_FIREPLACE_SHORT      "a small fireplace"
+#define _LANG_PROP_FIREPLACE_LONG       "A small fireplace built of stone."
+
+#define _LANG_PROP_FIREPLACE_SUFFIX_LIT " (lit)"
+
+#define _LANG_PROP_FIREPLACE_LONG_LIT   " Flames crackle inside, casting warm light across the room."
+#define _LANG_PROP_FIREPLACE_LONG_UNLIT " The ashes are cold; nobody has lit it in a while."
+
+#define _LANG_PROP_FIREPLACE_LIGHT_VERBS ({ "light", "ignite" })
+// "put out" intentionally omitted — DGD's add_action registers
+// single-word verbs only ("put" alone would collide with the global
+// `put` cmd). Re-add as a properly composed verb when we handle
+// multi-word verb dispatch.
+#define _LANG_PROP_FIREPLACE_EXT_VERBS  ({ "extinguish", "douse" })
 
 #define _LANG_PROP_FIREPLACE_LIGHT_ME       "You light the fireplace. Flames flicker to life."
 #define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s lights the fireplace."
@@ -170,16 +180,22 @@
 #define _LANG_PROP_FIREPLACE_NOT_LIT        "The fireplace is not lit."
 
 // ************************************************************
-//  Per-type strings — bar (tavern counter)
+//  bar (tavern counter)
 // ************************************************************
-#define _LANG_PROP_BAR_ID                "bar"
-#define _LANG_PROP_BAR_ID_ALIAS_1        "counter"
-#define _LANG_PROP_BAR_ID_ALIAS_2        "long bar"
-#define _LANG_PROP_BAR_SHORT             "a long wooden bar"
-#define _LANG_PROP_BAR_LONG              "A long wooden bar runs along the wall, its surface scarred by years of mugs and elbows. It is not very clean."
+#define _LANG_PROP_BAR_ID               "bar"
+#define _LANG_PROP_BAR_ID_ALIAS_1       "counter"
 
-#define _LANG_PROP_BAR_LEAN_ME           "You lean against the bar."
-#define _LANG_PROP_BAR_LEAN_OTHERS       "%s leans against the bar."
-#define _LANG_PROP_BAR_SMELL_ME          "The bar reeks of stale ale and old wood."
+#define _LANG_PROP_BAR_NOUN             "bar"
+#define _LANG_PROP_BAR_NOUN_PLURAL      "bars"
+
+#define _LANG_PROP_BAR_SHORT            "a long wooden bar"
+#define _LANG_PROP_BAR_LONG             "A long wooden bar runs along the wall, its surface scarred by years of mugs and elbows. It is not very clean."
+
+#define _LANG_PROP_BAR_LEAN_VERBS       ({ "lean" })
+#define _LANG_PROP_BAR_SMELL_VERBS      ({ "smell", "sniff" })
+
+#define _LANG_PROP_BAR_LEAN_ME          "You lean against the bar."
+#define _LANG_PROP_BAR_LEAN_OTHERS      "%s leans against the bar."
+#define _LANG_PROP_BAR_SMELL_ME         "The bar reeks of stale ale and old wood."
 
 #endif // _LANG_PROPS_H_EN
