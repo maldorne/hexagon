@@ -722,7 +722,7 @@ private int _execute_generic(mapping spec, mapping inst, string args)
     if (loc)
       tell_room(loc,
                 sprintf(spec[PROP_SPEC_MSG_OTHERS],
-                        this_player()->query_cap_name()),
+                        this_player()->query_cap_name()) + "\n",
                 ({ this_player() }));
   }
 
