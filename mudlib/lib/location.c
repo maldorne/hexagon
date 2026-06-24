@@ -31,6 +31,11 @@ string _original_long;
 string _original_short;
 mapping _original_add_clones;   // path → count for each add_clone in the source room
 mixed * _original_items;         // ordered ({ id_or_id_array, desc }) from add_item
+// Author-curated scene prose — what no component can infer. Composed
+// FIRST in long(); component hook_long contributions follow. Both
+// empty → fall back to _original_long for backward compat. Editable
+// inline with the `desc` cmd; persisted.
+string _specific_long;
 mapping _exit_map;
 
 string file_name;  // .o file of the location
@@ -79,6 +84,7 @@ void create()
   _original_short = "";
   _original_add_clones = ([ ]);
   _original_items = ({ });
+  _specific_long = "";
   _exit_map = ([ ]);
 
   file_name = "";
@@ -179,6 +185,9 @@ mapping query_original_add_clones() { return _original_add_clones; }
 void set_original_add_clones(mapping m) { _original_add_clones = m; }
 mixed * query_original_items() { return _original_items; }
 void set_original_items(mixed * a) { _original_items = a; }
+
+string query_specific_long() { return _specific_long; }
+void set_specific_long(string str) { _specific_long = str ? str : ""; }
 
 int * query_coordinates() { return coordinates; }
 void set_coordinates(int x, int y, int z) { coordinates = ({ x, y, z }); }
@@ -443,12 +452,12 @@ string short(varargs int dark)
 
 string long(varargs string str, int dark)
 {
-  string ret, aux, props_section;
+  string ret, aux, props_section, composed;
 
   if (this_player())
     dark = (int)this_player()->check_dark(query_light());
 
-  ret = (string)run_reduce("long", ({ str, dark }), "", "_concat_string");
+  composed = (string)run_reduce("long", ({ str, dark }), "", "_concat_string");
 
   // When str is provided the caller is looking at a specific target
   // inside the room (a prop, an item, etc), not at the room itself.
@@ -456,11 +465,23 @@ string long(varargs string str, int dark)
   // boilerplate (component banner, exits, props section, inventory)
   // — those belong to the no-arg form only.
   if (str && strlen(str))
-    return (ret && strlen(ret)) ? ret : "";
+    return (composed && strlen(composed)) ? composed : "";
 
-  if (!ret || !strlen(ret))
-    ret = wrap(_original_long,
-                (this_user() ? this_user()->query_cols() : 79), 1);
+  // Body composition (no-arg path):
+  // 1. Author-curated _specific_long sets the scene for what no
+  //    component can infer.
+  // 2. Component hook_long contributions (via the run_reduce above)
+  //    follow, joined by a single space so the result reads as prose.
+  // 3. If neither yielded anything, fall back to _original_long for
+  //    backward compatibility with unmigrated locations.
+  ret = "";
+  if (_specific_long && strlen(_specific_long))
+    ret = _specific_long;
+  if (composed && strlen(composed))
+    ret = strlen(ret) ? ret + " " + composed : composed;
+  if (!strlen(ret))
+    ret = _original_long ? _original_long : "";
+  ret = wrap(ret, (this_user() ? this_user()->query_cols() : 79), 1);
 
   if (this_player()->query_coder())
   {
