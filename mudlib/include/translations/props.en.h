@@ -59,7 +59,11 @@
 #define _LANG_PROP_FOUNTAIN_SMELL_VERBS    ({ "smell", "sniff" })
 
 #define _LANG_PROP_FIREPLACE_LIGHT_VERBS   ({ "light", "ignite" })
-#define _LANG_PROP_FIREPLACE_EXT_VERBS     ({ "extinguish", "douse", "put out" })
+// "put out" intentionally omitted — DGD's add_action registers
+// single-word verbs only ("put" alone would collide with the global
+// `put` cmd). Re-add as a properly composed verb when we handle
+// multi-word verb dispatch.
+#define _LANG_PROP_FIREPLACE_EXT_VERBS     ({ "extinguish", "douse" })
 
 // ************************************************************
 //  Per-type strings — chair

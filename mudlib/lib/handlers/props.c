@@ -448,9 +448,16 @@ string * query_id_list(string type)
 }
 
 /*
- * The verbs this type supports given the instance overrides. Custom
- * blueprint may return its own list; otherwise the table's action
- * keys minus any explicitly nilled in overrides.actions.
+ * The verbs this type supports given the instance overrides — the
+ * union of every action's PROP_SPEC_VERBS array. For each action not
+ * explicitly removed via overrides.actions, every verb in its
+ * PROP_SPEC_VERBS contributes to the result. Action keys whose spec
+ * lacks PROP_SPEC_VERBS fall back to the canonical key as the only
+ * verb (backwards compatibility for any table entry that hasn't been
+ * migrated yet).
+ *
+ * Custom blueprint may take over by returning its own list from
+ * query_supported_verbs(overrides).
  */
 string * query_supported_verbs(string type, mapping overrides)
 {
@@ -458,9 +465,9 @@ string * query_supported_verbs(string type, mapping overrides)
   mapping spec;
   mapping actions;
   mapping override_actions;
-  string * verbs;
+  string * action_keys;
   string * ret;
-  int i;
+  int i, j;
 
   _ensure_loaded();
 
@@ -479,27 +486,86 @@ string * query_supported_verbs(string type, mapping overrides)
   actions = spec[PROP_TYPE_ACTIONS];
   if (!actions) return ({ });
 
-  verbs = map_indices(actions);
-
   if (overrides)
     override_actions = overrides[PROP_OVERRIDE_ACTIONS];
 
-  if (override_actions)
+  action_keys = map_indices(actions);
+  ret = ({ });
+
+  for (i = 0; i < sizeof(action_keys); i++)
   {
-    ret = ({ });
-    for (i = 0; i < sizeof(verbs); i++)
-    {
-      // a verb explicitly marked PROP_VALUE_REMOVED in overrides is
-      // dropped from the supported set; any other override value
-      // (including a remapped action mapping) stays available.
-      if (override_actions[verbs[i]] == PROP_VALUE_REMOVED)
-        continue;
-      ret += ({ verbs[i] });
-    }
-    return ret;
+    string canonical;
+    mapping action_spec;
+    string * verbs;
+
+    canonical = action_keys[i];
+
+    // a verb explicitly marked PROP_VALUE_REMOVED in overrides is
+    // dropped from the supported set; any other override value
+    // (including a remapped action mapping) stays available.
+    if (override_actions && override_actions[canonical] == PROP_VALUE_REMOVED)
+      continue;
+
+    action_spec = actions[canonical];
+    verbs = action_spec ? action_spec[PROP_SPEC_VERBS] : nil;
+
+    // Backwards-compat: if the action doesn't declare an explicit
+    // verb array, the canonical key is the only verb.
+    if (!verbs || !sizeof(verbs))
+      verbs = ({ canonical });
+
+    for (j = 0; j < sizeof(verbs); j++)
+      if (member_array(verbs[j], ret) == -1)
+        ret += ({ verbs[j] });
   }
 
-  return verbs;
+  return ret;
+}
+
+/*
+ * Resolve a typed verb to the canonical action id for a type. Scans
+ * every action's PROP_SPEC_VERBS array; returns the action key whose
+ * verb list contains `verb`, or nil if no action accepts it. The
+ * dispatcher uses this to translate "apagar" → "extinguish" before
+ * checking overrides.actions[canonical] and dispatching the plan.
+ */
+string query_canonical_action(string type, string verb)
+{
+  mapping entry;
+  mapping spec;
+  mapping actions;
+  string * action_keys;
+  int i;
+
+  _ensure_loaded();
+
+  if (!verb || !strlen(verb)) return nil;
+
+  entry = types[type];
+  if (!entry) return nil;
+
+  spec = entry["spec"];
+  if (!spec) return nil;
+
+  actions = spec[PROP_TYPE_ACTIONS];
+  if (!actions) return nil;
+
+  action_keys = map_indices(actions);
+  for (i = 0; i < sizeof(action_keys); i++)
+  {
+    mapping action_spec;
+    string * verbs;
+
+    action_spec = actions[action_keys[i]];
+    verbs = action_spec ? action_spec[PROP_SPEC_VERBS] : nil;
+    if (!verbs || !sizeof(verbs))
+      verbs = ({ action_keys[i] });  // backwards-compat: canonical key
+
+    if (member_array(verb, verbs) != -1)
+      return action_keys[i];
+  }
+
+  return nil;
 }
 
 /*

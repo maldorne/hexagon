@@ -69,6 +69,7 @@ void create()
         // Blocked by tipped state and by overrides.props.broken.
         "sit": ([
           PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_CHAIR_SIT_VERBS,
           PROP_SPEC_BLOCKED_BY:           ({ "tipped", "broken" }),
           PROP_SPEC_BLOCKED_MSG:          _LANG_PROP_CHAIR_CANT_SIT,
           PROP_SPEC_REQUIRES_STATE_UNSET: ({ "occupant" }),
@@ -81,6 +82,7 @@ void create()
         // stand: only the current occupant can do it.
         "stand": ([
           PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_CHAIR_STAND_VERBS,
           PROP_SPEC_REQUIRES_STATE_MATCH: ([ "occupant": PROP_VALUE_PLAYER_NAME ]),
           PROP_SPEC_MISSING_MATCH_MSG:    _LANG_PROP_CHAIR_NOT_SITTING,
           PROP_SPEC_CLEAR_STATE:          ({ "occupant" }),
@@ -93,6 +95,7 @@ void create()
         // falls off).
         "tip": ([
           PROP_SPEC_KIND:           PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:          _LANG_PROP_CHAIR_TIP_VERBS,
           PROP_SPEC_BLOCKED_BY:     ({ "nailed", "tipped" }),
           PROP_SPEC_BLOCKED_MSG:    _LANG_PROP_CHAIR_NAILED_OR_TIPPED,
           PROP_SPEC_SET_STATE:      ([ "tipped": 1 ]),
@@ -104,6 +107,7 @@ void create()
         // right: undo tip. Requires tipped state.
         "right": ([
           PROP_SPEC_KIND:             PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:            _LANG_PROP_CHAIR_RIGHT_VERBS,
           PROP_SPEC_REQUIRES_STATE:   ({ "tipped" }),
           PROP_SPEC_MISSING_MSG:      _LANG_PROP_CHAIR_NOT_TIPPED,
           PROP_SPEC_CLEAR_STATE:      ({ "tipped" }),
@@ -134,17 +138,20 @@ void create()
 
         "smell": ([
           PROP_SPEC_KIND:     PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:    _LANG_PROP_TABLE_SMELL_VERBS,
           PROP_SPEC_MSG_ME:   _LANG_PROP_TABLE_SMELL_ME,
         ]),
 
         "lean": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_TABLE_LEAN_VERBS,
           PROP_SPEC_MSG_ME:       _LANG_PROP_TABLE_LEAN_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_TABLE_LEAN_OTHERS,
         ]),
 
         "climb": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_TABLE_CLIMB_VERBS,
           PROP_SPEC_MSG_ME:       _LANG_PROP_TABLE_CLIMB_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_TABLE_CLIMB_OTHERS,
         ]),
@@ -173,6 +180,7 @@ void create()
 
         "pray": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_STATUE_PRAY_VERBS,
           PROP_SPEC_MSG_ME:       _LANG_PROP_STATUE_PRAY_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_STATUE_PRAY_OTHERS,
         ]),
@@ -200,6 +208,7 @@ void create()
 
         "pray": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_ALTAR_PRAY_VERBS,
           PROP_SPEC_MSG_ME:       _LANG_PROP_ALTAR_PRAY_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_ALTAR_PRAY_OTHERS,
         ]),
@@ -230,12 +239,14 @@ void create()
 
         "drink": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_FOUNTAIN_DRINK_VERBS,
           PROP_SPEC_MSG_ME:       _LANG_PROP_FOUNTAIN_DRINK_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_FOUNTAIN_DRINK_OTHERS,
         ]),
 
         "smell": ([
           PROP_SPEC_KIND:     PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:    _LANG_PROP_FOUNTAIN_SMELL_VERBS,
           PROP_SPEC_MSG_ME:   _LANG_PROP_FOUNTAIN_SMELL_ME,
         ]),
 
@@ -275,6 +286,7 @@ void create()
 
         "light": ([
           PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_FIREPLACE_LIGHT_VERBS,
           PROP_SPEC_REQUIRES_STATE_UNSET: ({ "lit" }),
           PROP_SPEC_ALREADY_SET_MSG:      _LANG_PROP_FIREPLACE_ALREADY_LIT,
           PROP_SPEC_SET_STATE:            ([ "lit": 1 ]),
@@ -284,6 +296,7 @@ void create()
 
         "extinguish": ([
           PROP_SPEC_KIND:             PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:            _LANG_PROP_FIREPLACE_EXT_VERBS,
           PROP_SPEC_REQUIRES_STATE:   ({ "lit" }),
           PROP_SPEC_MISSING_MSG:      _LANG_PROP_FIREPLACE_NOT_LIT,
           PROP_SPEC_CLEAR_STATE:      ({ "lit" }),

@@ -500,6 +500,7 @@ void refresh_actions()
 int do_prop_action(string str)
 {
   string verb;
+  string canonical;
   mapping * matches;
   mapping inst;
   mapping ov;
@@ -508,6 +509,11 @@ int do_prop_action(string str)
   string kind;
   mixed payload;
 
+  // `verb` is what the player typed ("apagar", "encender", "light").
+  // `canonical` is the action id the catalogue knows ("extinguish",
+  // "light"). Resolution happens per-type below, after we know which
+  // prop the str matched — a verb may belong to different canonical
+  // actions across prop types.
   verb = query_verb();
 
   matches = _find_matching_instances(str);
@@ -526,21 +532,36 @@ int do_prop_action(string str)
 
   inst = matches[0];
 
-  // honour overrides.actions[verb] = PROP_VALUE_REMOVED (action
-  // explicitly stripped). A plain `nil` cannot signal removal because
-  // DGD deletes the mapping key on assignment.
+  canonical = handler("props")->query_canonical_action(
+                inst[PROP_FIELD_TYPE], verb);
+
+  // honour overrides.actions[<canonical>] = PROP_VALUE_REMOVED. The
+  // sentinel keys on the canonical action id (English) so builder
+  // overrides written once apply across every localised verb that
+  // dispatches to the same action. A plain `nil` cannot signal
+  // removal because DGD deletes mapping keys on assignment.
   ov = inst[PROP_FIELD_OVERRIDES];
-  if (ov)
+  if (ov && canonical)
   {
     ov_actions = ov[PROP_OVERRIDE_ACTIONS];
-    if (ov_actions && ov_actions[verb] == PROP_VALUE_REMOVED)
+    if (ov_actions && ov_actions[canonical] == PROP_VALUE_REMOVED)
     {
       notify_fail(_LANG_PROPS_REMOVED_ACTION + "\n");
       return 0;
     }
   }
 
-  plan = handler("props")->query_action_plan(inst[PROP_FIELD_TYPE], verb);
+  plan = canonical
+       ? handler("props")->query_action_plan(inst[PROP_FIELD_TYPE], canonical)
+       : nil;
+
+  // Fall back to the verb-keyed lookup if no canonical resolution —
+  // covers pure-custom blueprints that route through query_action_plan's
+  // "no table spec but custom present" path, where the verb is what
+  // the blueprint's handle() will receive.
+  if (!plan)
+    plan = handler("props")->query_action_plan(inst[PROP_FIELD_TYPE], verb);
+
   if (!plan || sizeof(plan) < 2)
   {
     notify_fail(_LANG_PROPS_NO_HANDLER + "\n");
