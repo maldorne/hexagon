@@ -448,18 +448,25 @@ string * query_id_list(string type)
 }
 
 /*
- * The verbs this type supports given the instance overrides — the
- * union of every action's PROP_SPEC_VERBS array. For each action not
- * explicitly removed via overrides.actions, every verb in its
- * PROP_SPEC_VERBS contributes to the result. Action keys whose spec
- * lacks PROP_SPEC_VERBS fall back to the canonical key as the only
- * verb (backwards compatibility for any table entry that hasn't been
- * migrated yet).
+ * The verbs this type supports given the instance overrides. By
+ * default returns the union of every action's PROP_SPEC_VERBS array
+ * (every synonym across every action) — what init() needs to feed
+ * `add_action` so the dispatcher recognises any verb the player may
+ * type.
+ *
+ * Pass `primary_only=1` to get one verb per action instead (the
+ * first element of each PROP_SPEC_VERBS array). Player-facing hints
+ * and coder listings use this to avoid noise from synonyms.
+ *
+ * Actions whose spec lacks PROP_SPEC_VERBS fall back to the canonical
+ * key as the only verb (backwards compat).
  *
  * Custom blueprint may take over by returning its own list from
- * query_supported_verbs(overrides).
+ * query_supported_verbs(overrides) — the primary_only mode is ignored
+ * in that path; the blueprint is authoritative.
  */
-string * query_supported_verbs(string type, mapping overrides)
+string * query_supported_verbs(string type, mapping overrides,
+                               varargs int primary_only)
 {
   mapping entry;
   mapping spec;
@@ -513,6 +520,12 @@ string * query_supported_verbs(string type, mapping overrides)
     // verb array, the canonical key is the only verb.
     if (!verbs || !sizeof(verbs))
       verbs = ({ canonical });
+
+    if (primary_only)
+    {
+      ret += ({ verbs[0] });
+      continue;
+    }
 
     for (j = 0; j < sizeof(verbs); j++)
       if (member_array(verbs[j], ret) == -1)

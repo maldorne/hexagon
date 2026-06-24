@@ -329,9 +329,14 @@ string query_action_verbs(mapping inst)
 
   if (!inst) return "";
 
+  // primary_only=1 → one verb per action (the first of each
+  // PROP_SPEC_VERBS array) so the hint doesn't echo every synonym.
+  // init() still uses the unfiltered list to register all of them
+  // with add_action.
   verbs = handler("props")->query_supported_verbs(
             inst[PROP_FIELD_TYPE],
-            inst[PROP_FIELD_OVERRIDES]);
+            inst[PROP_FIELD_OVERRIDES],
+            1);
 
   if (!verbs || !sizeof(verbs)) return "";
 
