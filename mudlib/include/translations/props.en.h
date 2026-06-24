@@ -65,6 +65,9 @@
 // multi-word verb dispatch.
 #define _LANG_PROP_FIREPLACE_EXT_VERBS     ({ "extinguish", "douse" })
 
+#define _LANG_PROP_BAR_LEAN_VERBS          ({ "lean" })
+#define _LANG_PROP_BAR_SMELL_VERBS         ({ "smell", "sniff" })
+
 // ************************************************************
 //  Per-type strings — chair
 // ************************************************************
@@ -165,5 +168,18 @@
 #define _LANG_PROP_FIREPLACE_EXT_OTHERS     "%s extinguishes the fire."
 #define _LANG_PROP_FIREPLACE_ALREADY_LIT    "The fireplace is already lit."
 #define _LANG_PROP_FIREPLACE_NOT_LIT        "The fireplace is not lit."
+
+// ************************************************************
+//  Per-type strings — bar (tavern counter)
+// ************************************************************
+#define _LANG_PROP_BAR_ID                "bar"
+#define _LANG_PROP_BAR_ID_ALIAS_1        "counter"
+#define _LANG_PROP_BAR_ID_ALIAS_2        "long bar"
+#define _LANG_PROP_BAR_SHORT             "a long wooden bar"
+#define _LANG_PROP_BAR_LONG              "A long wooden bar runs along the wall, its surface scarred by years of mugs and elbows. It is not very clean."
+
+#define _LANG_PROP_BAR_LEAN_ME           "You lean against the bar."
+#define _LANG_PROP_BAR_LEAN_OTHERS       "%s leans against the bar."
+#define _LANG_PROP_BAR_SMELL_ME          "The bar reeks of stale ale and old wood."
 
 #endif // _LANG_PROPS_H_EN

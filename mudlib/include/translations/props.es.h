@@ -65,6 +65,9 @@
 #define _LANG_PROP_FIREPLACE_LIGHT_VERBS   ({ "encender", "prender" })
 #define _LANG_PROP_FIREPLACE_EXT_VERBS     ({ "apagar", "extinguir" })
 
+#define _LANG_PROP_BAR_LEAN_VERBS          ({ "apoyarse", "apoyar" })
+#define _LANG_PROP_BAR_SMELL_VERBS         ({ "oler", "olfatear" })
+
 // ************************************************************
 //  Cadenas por tipo — silla
 // ************************************************************
@@ -165,5 +168,18 @@
 #define _LANG_PROP_FIREPLACE_EXT_OTHERS     "%s apaga el fuego."
 #define _LANG_PROP_FIREPLACE_ALREADY_LIT    "La chimenea ya está encendida."
 #define _LANG_PROP_FIREPLACE_NOT_LIT        "La chimenea no está encendida."
+
+// ************************************************************
+//  Cadenas por tipo — barra (mostrador de taberna)
+// ************************************************************
+#define _LANG_PROP_BAR_ID                "barra"
+#define _LANG_PROP_BAR_ID_ALIAS_1        "mostrador"
+#define _LANG_PROP_BAR_ID_ALIAS_2        "barra del bar"
+#define _LANG_PROP_BAR_SHORT             "una larga barra de madera"
+#define _LANG_PROP_BAR_LONG              "Una larga barra de madera recorre la pared, su superficie marcada por años de jarras y codos. No está muy limpia."
+
+#define _LANG_PROP_BAR_LEAN_ME           "Te apoyas en la barra."
+#define _LANG_PROP_BAR_LEAN_OTHERS       "%s se apoya en la barra."
+#define _LANG_PROP_BAR_SMELL_ME          "La barra huele a cerveza rancia y madera vieja."
 
 #endif // _LANG_PROPS_H_ES

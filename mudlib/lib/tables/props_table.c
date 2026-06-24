@@ -307,6 +307,41 @@ void create()
       ]),
     ]),
 
+    // ------------------------------------------------------------
+    //  bar — tavern counter. Stateless decorative.
+    // ------------------------------------------------------------
+    "bar": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_BAR_ID,
+        _LANG_PROP_BAR_ID_ALIAS_1,
+        _LANG_PROP_BAR_ID_ALIAS_2,
+      }),
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_BAR_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_BAR_LONG,
+      PROP_TYPE_MATERIALS:  ({ "wood" }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "lean": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_BAR_LEAN_VERBS,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_BAR_LEAN_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_BAR_LEAN_OTHERS,
+        ]),
+
+        "smell": ([
+          PROP_SPEC_KIND:     PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:    _LANG_PROP_BAR_SMELL_VERBS,
+          PROP_SPEC_MSG_ME:   _LANG_PROP_BAR_SMELL_ME,
+        ]),
+
+      ]),
+    ]),
+
   ]);
 }
 
