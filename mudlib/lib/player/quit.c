@@ -98,9 +98,9 @@ int really_quit()
   if (query_name() != DEF_NAME)
   {
     if (!this_object()->query_hidden())
-      tell_room(environment(this_object()), 
-                implode(explode(this_object()->query_mmout(), "$N"), 
-                        this_object()->query_cap_name())[1..], 
+      tell_room(environment(this_object()),
+                implode(explode(this_object()->query_mmout(), "$N"),
+                        this_object()->query_cap_name())[1..] + "\n",
                 ({ this_object() }));
 
     if (this_object()->query_coder())
