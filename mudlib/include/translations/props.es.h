@@ -52,7 +52,7 @@
 #define _LANG_PROP_CHAIR_RIGHT_VERBS       ({ "enderezar" })
 
 #define _LANG_PROP_TABLE_SMELL_VERBS       ({ "oler", "olfatear" })
-#define _LANG_PROP_TABLE_LEAN_VERBS        ({ "apoyar", "apoyarse" })
+#define _LANG_PROP_TABLE_LEAN_VERBS        ({ "apoyarse", "apoyar" })
 #define _LANG_PROP_TABLE_CLIMB_VERBS       ({ "subir", "trepar" })
 
 #define _LANG_PROP_STATUE_PRAY_VERBS       ({ "rezar", "orar" })
