@@ -11,12 +11,11 @@
  * the materials that need their own localised name carry an entry.
  *
  * Two forms per material:
- *   query_material_phrase(id)  → "de madera" / "wooden"
- *                                The adjectival form glued to a noun
- *                                ("silla de madera", "wooden chair").
- *   query_material_name(id)    → "madera" / "wood"
- *                                The bare noun form, when referring
- *                                to the material itself.
+ *   query_material_phrase(id)  → the adjectival form glued to a noun
+ *                                (English "wooden", Spanish "de madera").
+ *   query_material_name(id)    → the bare noun form when referring
+ *                                to the material itself (English
+ *                                "wood", Spanish "madera").
  *
  * Callers reach this via the singleton accessor `table("materials")`.
  */

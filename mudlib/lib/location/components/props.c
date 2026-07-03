@@ -426,10 +426,11 @@ private string _instance_material(mapping inst)
 }
 
 // Composes one sentence for a group of same-(type, material)
-// instances: "Una silla de madera." / "Two wooden chairs.".
-// Groups of one carry state suffixes; groups of more than one don't
-// (mixing "una silla tirada" y "una silla ocupada" en el mismo grupo
-// no leería bien — group state gets deferred to a future revision).
+// instances — one noun phrase per group, count-aware, language
+// template ordering the pieces. Groups of one carry state suffixes;
+// groups of more than one don't attempt to reconcile per-instance
+// state (would require enumerating each instance's individual
+// suffix, deferred to a future revision).
 private string _compose_group_sentence(mapping * insts)
 {
   mapping first;

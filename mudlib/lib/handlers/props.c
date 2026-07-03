@@ -393,8 +393,7 @@ string query_type_long(string type, mapping overrides, mapping state,
  * Just the state-driven suffix tail — the string composed from
  * LONG_SUFFIXES + LONG_SUFFIXES_UNSET for a given state. Reused by
  * the props component when it needs to append the state flavour to
- * a noun-phrase sentence in the room prose (chimenea encendida ->
- * "Una chimenea de piedra. Las llamas crepitan…").
+ * a noun-phrase sentence in the room prose.
  */
 string query_state_suffixes(string type, mapping state)
 {
