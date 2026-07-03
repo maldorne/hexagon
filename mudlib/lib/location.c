@@ -136,19 +136,8 @@ void init()
     components[i]->init();
 }
 
-// Delegate id matching to the props component when present so that
-// `look chair` (and any other parser path that checks `room->id(str)`)
-// resolves to a prop instance attached to this location. The base
-// returns 0 — the fallback when no props component is attached or the
-// str does not match any prop.
 int id(string str)
 {
-  object props_comp;
-
-  props_comp = query_component_by_type(LOCATION_COMPONENT_PROPS);
-  if (props_comp && props_comp->id_matches_prop(str))
-    return 1;
-
   return 0;
 }
 

@@ -43,6 +43,8 @@ private mapping  _group_instances_by_type_material();
 private string   _group_noun_phrase(mapping * insts);
 private string   _compose_group_sentence(mapping * insts);
 private string   _compose_prose();
+int              id_matches_prop(string str);
+string           query_actions_hint(mapping inst);
 
 // ************************************************************
 //  Lifecycle
@@ -86,10 +88,57 @@ void initialize(object loc)
     move(loc);
 }
 
-// find_match (see /lib/core/efuns/find_match.c) skips objects that
-// return 1 here. Prevents `look props`, `get props` and any other
-// id-based parser path from latching on to us.
-int query_hidden_object() { return 1; }
+// find_match calls this to let an object claim any id it wants
+// dynamically. The arr shape from find_match is ({ 0, id_string });
+// we say yes if any attached prop instance matches id_string. This
+// is what lets the standard parser path (`look silla`, `mirar
+// chimenea`, `present("chair", loc)`, etc.) find the component and
+// then route to our long() / actions.
+object query_parse_id(mixed * arr)
+{
+  if (!pointerp(arr) || sizeof(arr) < 2) return nil;
+  if (!stringp(arr[1])) return nil;
+  if (id_matches_prop(arr[1]))
+    return this_object();
+  return nil;
+}
+
+// Serving find_match's per-target long lookup: when a player types
+// `mirar silla` and find_match hands the component off via
+// query_parse_id, look/examine call this to render the description.
+// Delegates to the same prop resolution logic hook_long uses on the
+// str-provided branch.
+string long(varargs string str, int dark)
+{
+  mapping inst;
+  string desc, hint;
+
+  if (!str || !strlen(str)) return "";
+
+  inst = _find_unique_match(str);
+  if (!inst) return "";
+
+  desc = (string)handler("props")->query_type_long(
+           inst[PROP_FIELD_TYPE],
+           inst[PROP_FIELD_OVERRIDES],
+           inst[PROP_FIELD_STATE],
+           inst[PROP_FIELD_ID]);
+  if (!desc || !strlen(desc)) return "";
+
+  hint = query_actions_hint(inst);
+  if (strlen(hint))
+    desc += "\n" + hint;
+
+  return desc;
+}
+
+// Overridden to return "" — the component has no visible short of
+// its own; if look.c later tries to prepend one for a matched prop
+// it should skip the empty result.
+string short(varargs int dark)
+{
+  return "";
+}
 
 // ************************************************************
 //  Persistence
