@@ -390,6 +390,60 @@ string query_type_long(string type, mapping overrides, mapping state,
 }
 
 /*
+ * Just the state-driven suffix tail — the string composed from
+ * LONG_SUFFIXES + LONG_SUFFIXES_UNSET for a given state. Reused by
+ * the props component when it needs to append the state flavour to
+ * a noun-phrase sentence in the room prose (chimenea encendida ->
+ * "Una chimenea de piedra. Las llamas crepitan…").
+ */
+string query_state_suffixes(string type, mapping state)
+{
+  mapping entry;
+  mapping spec;
+  mapping suffixes;
+  string * keys;
+  string ret;
+  int i;
+
+  _ensure_loaded();
+
+  entry = types[type];
+  if (!entry) return "";
+  spec = entry["spec"];
+  if (!spec) return "";
+
+  ret = "";
+
+  suffixes = spec[PROP_TYPE_LONG_SUFFIXES];
+  if (suffixes && state)
+  {
+    keys = map_indices(suffixes);
+    for (i = 0; i < sizeof(keys); i++)
+    {
+      mixed value;
+      value = state[keys[i]];
+      if (!value) continue;
+      ret += sprintf(suffixes[keys[i]], "" + value);
+    }
+  }
+
+  suffixes = spec[PROP_TYPE_LONG_SUFFIXES_UNSET];
+  if (suffixes)
+  {
+    keys = map_indices(suffixes);
+    for (i = 0; i < sizeof(keys); i++)
+    {
+      mixed value;
+      value = state ? state[keys[i]] : nil;
+      if (value) continue;
+      ret += suffixes[keys[i]];
+    }
+  }
+
+  return ret;
+}
+
+/*
  * Short form (for nominal references in messages, "you sit on the
  * chair" etc). overrides.short wins; otherwise custom; otherwise the
  * table.
@@ -598,6 +652,22 @@ string * query_known_types()
  * Compact summary for `props list` and stats: short, materials,
  * supported_verbs, and whether the type has a custom blueprint.
  */
+/*
+ * Full type spec — the raw catalogue mapping for a type. Callers
+ * that need noun / noun_plural / gender / default_material go
+ * through here rather than expanding the summary. Returns nil for
+ * unknown types.
+ */
+mapping query_type_spec(string type)
+{
+  mapping entry;
+
+  _ensure_loaded();
+
+  entry = types[type];
+  return entry ? entry["spec"] : nil;
+}
+
 mapping query_type_summary(string type)
 {
   mapping entry;

@@ -38,6 +38,9 @@ private mapping * _find_matching_instances(string str);
 private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
 private int      _execute_generic(mapping spec, mapping inst, string args);
+private string   _instance_material(mapping inst);
+private string   _compose_group_sentence(mapping * insts);
+private string   _compose_prose();
 
 // ************************************************************
 //  Lifecycle
@@ -381,7 +384,12 @@ mixed hook_long(mixed * args)
   if (!args || sizeof(args) < 1) return "";
   str = args[0];
 
-  if (!str || !strlen(str)) return "";
+  // No target: contribute the composed prose describing every
+  // attached instance. This is what folds the "You see:" section
+  // into the room body — the location no longer inserts it as a
+  // separate line.
+  if (!str || !strlen(str))
+    return _compose_prose();
 
   inst = _find_unique_match(str);
   if (!inst) return "";
@@ -399,6 +407,135 @@ mixed hook_long(mixed * args)
     desc += "\n" + hint;
 
   return ({ HOOK_EXCLUSIVE, desc });
+}
+
+// Returns the material identifier for this instance — the
+// per-instance override.material if set, else the type's default.
+// May return "" or nil if neither is defined.
+private string _instance_material(mapping inst)
+{
+  mapping ov;
+  mapping spec;
+
+  ov = inst[PROP_FIELD_OVERRIDES];
+  if (ov && ov[PROP_OVERRIDE_MATERIAL])
+    return ov[PROP_OVERRIDE_MATERIAL];
+
+  spec = handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
+  return spec ? spec[PROP_TYPE_DEFAULT_MATERIAL] : nil;
+}
+
+// Composes one sentence for a group of same-(type, material)
+// instances: "Una silla de madera." / "Two wooden chairs.".
+// Groups of one carry state suffixes; groups of more than one don't
+// (mixing "una silla tirada" y "una silla ocupada" en el mismo grupo
+// no leería bien — group state gets deferred to a future revision).
+private string _compose_group_sentence(mapping * insts)
+{
+  mapping first;
+  mapping spec;
+  int count, gender;
+  string mat_id;
+  string material_phrase, noun, count_word, phrase;
+
+  count = sizeof(insts);
+  first = insts[0];
+  spec = handler("props")->query_type_spec(first[PROP_FIELD_TYPE]);
+  if (!spec) return "";
+
+  gender = spec[PROP_TYPE_GENDER];
+
+  mat_id = _instance_material(first);
+  if (mat_id && strlen(mat_id))
+    material_phrase = (string)table("materials")->query_material_phrase(mat_id);
+  else
+    material_phrase = "";
+
+  noun = spec[count == 1 ? PROP_TYPE_NOUN : PROP_TYPE_NOUN_PLURAL];
+  if (!noun || !strlen(noun))
+    noun = spec[PROP_TYPE_SHORT_KEY];  // last-ditch fallback
+
+  // Article for singular is gender-aware; count word for plural
+  // isn't (Spanish "dos"/"tres" and English "two"/"three" don't
+  // vary by gender).
+  if (count == 1)
+  {
+    handler("props")->set_gender(gender);
+    count_word = (string)handler("props")->query_numeral();
+  }
+  else
+  {
+    count_word = query_num(count, 99);
+  }
+
+  // Assemble via language-specific template. When the material
+  // resolves to something empty (rare: type has no default and
+  // instance has no override), skip the material slot.
+  phrase = strlen(material_phrase) ?
+             _LANG_PROPS_NOUN_PHRASE :
+             _LANG_PROPS_NOUN_PHRASE_NO_MATERIAL;
+
+  phrase = capitalize(phrase) + ".";
+
+  // Singleton groups carry the type's state-driven suffix tail — the
+  // same flavour the handler appends to query_type_long, applied here
+  // to the noun-phrase sentence. Groups of more than one don't try to
+  // reconcile per-instance state; that flavour stays exclusive to
+  // singletons for now.
+  if (count == 1)
+  {
+    string tail;
+    tail = (string)handler("props")->query_state_suffixes(
+             first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE]);
+    if (strlen(tail))
+      phrase += tail;
+  }
+
+  return phrase;
+}
+
+// Walks props_instances, groups by (type, material), delegates each
+// group to _compose_group_sentence, joins with a space, prepends a
+// leading space so the concat combinator inserts a natural separator
+// between components' contributions.
+private string _compose_prose()
+{
+  mapping groups;
+  string * keys;
+  string ret;
+  int i;
+
+  if (!sizeof(props_instances)) return "";
+
+  groups = ([ ]);
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    mapping inst;
+    string key;
+    string mat;
+
+    inst = props_instances[i];
+    mat = _instance_material(inst);
+    key = inst[PROP_FIELD_TYPE] + ":" + (mat ? mat : "");
+    if (!groups[key])
+      groups[key] = ({ });
+    groups[key] += ({ inst });
+  }
+
+  ret = "";
+  keys = map_indices(groups);
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    string sentence;
+    sentence = _compose_group_sentence(groups[keys[i]]);
+    if (!strlen(sentence)) continue;
+    if (strlen(ret))
+      ret += " " + sentence;
+    else
+      ret = sentence;
+  }
+
+  return strlen(ret) ? " " + ret : "";
 }
 
 /*

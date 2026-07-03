@@ -42,6 +42,13 @@
 #define _LANG_PROPS_YOU_CAN           "Puedes: "
 #define _LANG_PROPS_NO_ACTIONS        "No hay nada que hacer con esto."
 
+// Plantillas de frase nominal usadas por hook_long del componente
+// para describir las instancias en el cuerpo de la location.
+// Variables en scope en el call site: count_word, noun,
+// material_phrase. El orden difiere por idioma; ver props.en.h.
+#define _LANG_PROPS_NOUN_PHRASE             count_word + " " + noun + " " + material_phrase
+#define _LANG_PROPS_NOUN_PHRASE_NO_MATERIAL count_word + " " + noun
+
 // ************************************************************
 //  silla
 // ************************************************************

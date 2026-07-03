@@ -493,13 +493,10 @@ string long(varargs string str, int dark)
   exit_string = query_dirs_string();
   ret += exit_string + "\n";
 
-  // Props section between exits and real inventory. Returns "" when
-  // no props component is attached or the section is empty, in which
-  // case the output stays byte-identical to before this feature.
-  props_section = query_props_string();
-  if (strlen(props_section))
-    ret += props_section + "\n";
-
+  // Props no longer render as a separate section here — the props
+  // component's hook_long folds each instance into the room body
+  // as prose. `glance` still calls query_props_string() to get the
+  // compact list form.
   ret += query_contents("");
 
   return ret;

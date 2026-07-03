@@ -37,6 +37,13 @@
 #define _LANG_PROPS_YOU_CAN           "You can: "
 #define _LANG_PROPS_NO_ACTIONS        "Nothing to do with this one."
 
+// Noun-phrase templates consumed by the props component's hook_long
+// to describe attached instances in the location body. Variables in
+// scope at the call site: count_word, noun, material_phrase. Order
+// differs per language; see props.es.h for the mirror.
+#define _LANG_PROPS_NOUN_PHRASE             count_word + " " + material_phrase + " " + noun
+#define _LANG_PROPS_NOUN_PHRASE_NO_MATERIAL count_word + " " + noun
+
 // ************************************************************
 //  chair
 // ************************************************************
