@@ -390,6 +390,45 @@ string query_type_long(string type, mapping overrides, mapping state,
 }
 
 /*
+ * Compact state suffix used on the section line — e.g. " (lit)" or
+ * " (tipped over)". Only truthy state fields with a suffix mapping
+ * contribute. Companion to query_state_suffixes, which composes the
+ * long-form flavour tail.
+ */
+string query_short_state_suffix(string type, mapping state)
+{
+  mapping entry;
+  mapping spec;
+  mapping suffixes;
+  string * keys;
+  string ret;
+  int i;
+
+  _ensure_loaded();
+
+  entry = types[type];
+  if (!entry) return "";
+  spec = entry["spec"];
+  if (!spec) return "";
+
+  ret = "";
+  suffixes = spec[PROP_TYPE_STATE_SUFFIXES];
+  if (!suffixes || !state) return ret;
+
+  keys = map_indices(suffixes);
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    mixed value;
+    value = state[keys[i]];
+    if (!value) continue;
+    ret += sprintf(suffixes[keys[i]],
+                   stringp(value) ? value : "" + value);
+  }
+
+  return ret;
+}
+
+/*
  * Just the state-driven suffix tail — the string composed from
  * LONG_SUFFIXES + LONG_SUFFIXES_UNSET for a given state. Reused by
  * the props component when it needs to append the state flavour to

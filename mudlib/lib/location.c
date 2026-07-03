@@ -493,10 +493,15 @@ string long(varargs string str, int dark)
   exit_string = query_dirs_string();
   ret += exit_string + "\n";
 
-  // Props no longer render as a separate section here — the props
-  // component's hook_long folds each instance into the room body
-  // as prose. `glance` still calls query_props_string() to get the
-  // compact list form.
+  // Compact section line ("Ves una barra, dos sillas y una
+  // chimenea.") between the exits and the real inventory. Rich
+  // per-prop prose lives above (folded into the room body by the
+  // props component's hook_long); this line is the quick summary
+  // that also appears in `glance`.
+  props_section = query_props_string();
+  if (strlen(props_section))
+    ret += props_section + "\n";
+
   ret += query_contents("");
 
   return ret;

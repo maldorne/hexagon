@@ -39,6 +39,8 @@ private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
 private int      _execute_generic(mapping spec, mapping inst, string args);
 private string   _instance_material(mapping inst);
+private mapping  _group_instances_by_type_material();
+private string   _group_noun_phrase(mapping * insts);
 private string   _compose_group_sentence(mapping * insts);
 private string   _compose_prose();
 
@@ -274,6 +276,8 @@ mapping * query_instances_by_type(string type)
  */
 string query_props_section_string()
 {
+  mapping groups;
+  string * keys;
   string * pieces;
   int i;
   int n;
@@ -281,16 +285,33 @@ string query_props_section_string()
 
   if (!sizeof(props_instances)) return "";
 
+  groups = _group_instances_by_type_material();
+  keys = map_indices(groups);
   pieces = ({ });
-  for (i = 0; i < sizeof(props_instances); i++)
+  for (i = 0; i < sizeof(keys); i++)
   {
-    string p;
-    p = handler("props")->query_render_line(
-          props_instances[i][PROP_FIELD_TYPE],
-          props_instances[i][PROP_FIELD_OVERRIDES],
-          props_instances[i][PROP_FIELD_STATE]);
-    if (p && strlen(p))
-      pieces += ({ p });
+    mapping * insts;
+    string piece;
+
+    insts = groups[keys[i]];
+    piece = _group_noun_phrase(insts);
+    if (!strlen(piece)) continue;
+
+    // Singleton groups pick up the compact state suffix — "(lit)",
+    // "(tipped over)", "(<name> is sitting on it)". Plural groups
+    // don't try to reconcile mixed state across instances.
+    if (sizeof(insts) == 1)
+    {
+      mapping first;
+      string suf;
+      first = insts[0];
+      suf = (string)handler("props")->query_short_state_suffix(
+              first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE]);
+      if (strlen(suf))
+        piece += suf;
+    }
+
+    pieces += ({ piece });
   }
 
   n = sizeof(pieces);
@@ -425,13 +446,36 @@ private string _instance_material(mapping inst)
   return spec ? spec[PROP_TYPE_DEFAULT_MATERIAL] : nil;
 }
 
-// Composes one sentence for a group of same-(type, material)
-// instances — one noun phrase per group, count-aware, language
-// template ordering the pieces. Groups of one carry state suffixes;
-// groups of more than one don't attempt to reconcile per-instance
-// state (would require enumerating each instance's individual
-// suffix, deferred to a future revision).
-private string _compose_group_sentence(mapping * insts)
+// Groups every attached instance by (type, material) into a mapping
+// keyed by "type:material". Shared by the prose composer and the
+// section-line composer so both apply the same grouping.
+private mapping _group_instances_by_type_material()
+{
+  mapping groups;
+  int i;
+
+  groups = ([ ]);
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    mapping inst;
+    string key;
+    string mat;
+
+    inst = props_instances[i];
+    mat = _instance_material(inst);
+    key = inst[PROP_FIELD_TYPE] + ":" + (mat ? mat : "");
+    if (!groups[key])
+      groups[key] = ({ });
+    groups[key] += ({ inst });
+  }
+
+  return groups;
+}
+
+// Composes the noun phrase for a group of instances — article or
+// count word, noun (singular or plural), material phrase — via the
+// language template. No trailing period, no state suffixes.
+private string _group_noun_phrase(mapping * insts)
 {
   mapping first;
   mapping spec;
@@ -456,9 +500,6 @@ private string _compose_group_sentence(mapping * insts)
   if (!noun || !strlen(noun))
     noun = spec[PROP_TYPE_SHORT_KEY];  // last-ditch fallback
 
-  // Article for singular is gender-aware; count word for plural
-  // isn't (Spanish "dos"/"tres" and English "two"/"three" don't
-  // vary by gender).
   if (count == 1)
   {
     handler("props")->set_gender(gender);
@@ -469,30 +510,44 @@ private string _compose_group_sentence(mapping * insts)
     count_word = query_num(count, 99);
   }
 
-  // Assemble via language-specific template. When the material
-  // resolves to something empty (rare: type has no default and
-  // instance has no override), skip the material slot.
   phrase = strlen(material_phrase) ?
              _LANG_PROPS_NOUN_PHRASE :
              _LANG_PROPS_NOUN_PHRASE_NO_MATERIAL;
 
-  phrase = capitalize(phrase) + ".";
+  return phrase;
+}
 
-  // Singleton groups carry the type's state-driven suffix tail — the
-  // same flavour the handler appends to query_type_long, applied here
-  // to the noun-phrase sentence. Groups of more than one don't try to
-  // reconcile per-instance state; that flavour stays exclusive to
-  // singletons for now.
-  if (count == 1)
+// Composes one sentence for a group of same-(type, material)
+// instances. Singleton groups use the type's full long description
+// (same as `look <prop>`), which carries state suffixes. Plural
+// groups use the composed noun phrase (article/count + noun +
+// material) — reconciling per-instance state across a group is
+// deferred to a future revision.
+private string _compose_group_sentence(mapping * insts)
+{
+  mapping first;
+  string ret;
+
+  if (!sizeof(insts)) return "";
+  first = insts[0];
+
+  if (sizeof(insts) == 1)
   {
-    string tail;
-    tail = (string)handler("props")->query_state_suffixes(
-             first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE]);
-    if (strlen(tail))
-      phrase += tail;
+    ret = (string)handler("props")->query_type_long(
+            first[PROP_FIELD_TYPE],
+            first[PROP_FIELD_OVERRIDES],
+            first[PROP_FIELD_STATE],
+            first[PROP_FIELD_ID]);
+    if (!ret || !strlen(ret))
+      return "";
+    return ret;
   }
 
-  return phrase;
+  // Plural group — noun phrase with pluralised noun + terminating
+  // period.
+  ret = _group_noun_phrase(insts);
+  if (!strlen(ret)) return "";
+  return capitalize(ret) + ".";
 }
 
 // Walks props_instances, groups by (type, material), delegates each
@@ -508,21 +563,7 @@ private string _compose_prose()
 
   if (!sizeof(props_instances)) return "";
 
-  groups = ([ ]);
-  for (i = 0; i < sizeof(props_instances); i++)
-  {
-    mapping inst;
-    string key;
-    string mat;
-
-    inst = props_instances[i];
-    mat = _instance_material(inst);
-    key = inst[PROP_FIELD_TYPE] + ":" + (mat ? mat : "");
-    if (!groups[key])
-      groups[key] = ({ });
-    groups[key] += ({ inst });
-  }
-
+  groups = _group_instances_by_type_material();
   ret = "";
   keys = map_indices(groups);
   for (i = 0; i < sizeof(keys); i++)
