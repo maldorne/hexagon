@@ -44,6 +44,13 @@
 #define _LANG_PROPS_NOUN_PHRASE             count_word + " " + material_phrase + " " + noun
 #define _LANG_PROPS_NOUN_PHRASE_NO_MATERIAL count_word + " " + noun
 
+// Material-composed id template used by the props component to
+// enumerate its parser aliases. Variables in scope: id, material_phrase.
+// English glues the material adjective before the noun ("wooden
+// chair"); Spanish appends the material phrase after ("silla de
+// madera"). Same variable order, distinct concatenation per language.
+#define _LANG_PROPS_ID_WITH_MATERIAL        material_phrase + " " + id
+
 // ************************************************************
 //  chair
 // ************************************************************

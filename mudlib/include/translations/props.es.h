@@ -49,6 +49,13 @@
 #define _LANG_PROPS_NOUN_PHRASE             count_word + " " + noun + " " + material_phrase
 #define _LANG_PROPS_NOUN_PHRASE_NO_MATERIAL count_word + " " + noun
 
+// Plantilla de id compuesto con material usada por el componente
+// para enumerar sus alias en el parser. Variables en scope: id,
+// material_phrase. En castellano la frase de material va detrás
+// ("silla de madera"); en inglés delante ("wooden chair"). Mismo
+// orden de variables, distinta concatenación por idioma.
+#define _LANG_PROPS_ID_WITH_MATERIAL        id + " " + material_phrase
+
 // ************************************************************
 //  silla
 // ************************************************************

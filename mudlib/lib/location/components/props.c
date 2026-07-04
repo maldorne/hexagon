@@ -43,7 +43,6 @@ private mapping  _group_instances_by_type_material();
 private string   _group_noun_phrase(mapping * insts);
 private string   _compose_group_sentence(mapping * insts);
 private string   _compose_prose();
-int              id_matches_prop(string str);
 string           query_actions_hint(mapping inst);
 
 // ************************************************************
@@ -88,26 +87,129 @@ void initialize(object loc)
     move(loc);
 }
 
-// find_match calls this to let an object claim any id it wants
-// dynamically. The arr shape from find_match is ({ 0, id_string });
-// we say yes if any attached prop instance matches id_string. This
-// is what lets the standard parser path (`look silla`, `mirar
-// chimenea`, `present("chair", loc)`, etc.) find the component and
-// then route to our long() / actions.
-object query_parse_id(mixed * arr)
+// Enumerate every string a player can type to refer to an attached
+// prop: per-instance handles ("chair_1"), the type's id_list ("silla",
+// "asiento") and their material-composed variants ("silla de madera",
+// "wooden chair") assembled via _LANG_PROPS_ID_WITH_MATERIAL. Returned
+// dynamically so that adding / removing / re-materialising instances
+// is reflected on the next parser query without any refresh dance.
+string * query_alias()
 {
-  if (!pointerp(arr) || sizeof(arr) < 2) return nil;
-  if (!stringp(arr[1])) return nil;
-  if (id_matches_prop(arr[1]))
-    return this_object();
-  return nil;
+  string * ret;
+  int i, j;
+
+  ret = ({ });
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    mapping inst;
+    string inst_id;
+    mapping spec;
+    string * ids;
+    string material_phrase;
+    string mat_id;
+
+    inst = props_instances[i];
+
+    inst_id = inst[PROP_FIELD_ID];
+    if (inst_id && strlen(inst_id) && member_array(inst_id, ret) == -1)
+      ret += ({ inst_id });
+
+    spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
+    if (!spec) continue;
+
+    ids = (string *)handler("props")->query_id_list(inst[PROP_FIELD_TYPE]);
+    if (!ids) continue;
+
+    material_phrase = "";
+    mat_id = _instance_material(inst);
+    if (mat_id && strlen(mat_id))
+      material_phrase = (string)table("materials")->query_material_phrase(mat_id);
+
+    for (j = 0; j < sizeof(ids); j++)
+    {
+      string id;
+      id = ids[j];
+      if (member_array(id, ret) == -1)
+        ret += ({ id });
+
+      if (strlen(material_phrase))
+      {
+        string composed;
+        composed = _LANG_PROPS_ID_WITH_MATERIAL;
+        if (member_array(composed, ret) == -1)
+          ret += ({ composed });
+      }
+    }
+  }
+
+  return ret;
+}
+
+// Same shape as query_alias but sourced from PROP_TYPE_NOUN_PLURAL —
+// lets `find_match` recognise "sillas", "wooden chairs" etc.
+string * query_plurals()
+{
+  string * ret;
+  int i;
+
+  ret = ({ });
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    mapping inst;
+    mapping spec;
+    string id;
+    string material_phrase;
+    string mat_id;
+
+    inst = props_instances[i];
+    spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
+    if (!spec) continue;
+
+    id = spec[PROP_TYPE_NOUN_PLURAL];
+    if (!id || !strlen(id)) continue;
+
+    if (member_array(id, ret) == -1)
+      ret += ({ id });
+
+    material_phrase = "";
+    mat_id = _instance_material(inst);
+    if (mat_id && strlen(mat_id))
+      material_phrase = (string)table("materials")->query_material_phrase(mat_id);
+
+    if (strlen(material_phrase))
+    {
+      string composed;
+      composed = _LANG_PROPS_ID_WITH_MATERIAL;
+      if (member_array(composed, ret) == -1)
+        ret += ({ composed });
+    }
+  }
+
+  return ret;
+}
+
+// present() and other id-driven parser paths call this. The default
+// from /lib/core/basic/id.c reads private `alias` / `plurals` arrays
+// we don't populate; delegate to our dynamic accessors instead.
+int id(string str)
+{
+  if (!str || !strlen(str)) return 0;
+  if (member_array(str, query_alias()) != -1) return 1;
+  if (member_array(str, query_plurals()) != -1) return 1;
+  return 0;
+}
+
+int id_plural(string str)
+{
+  if (!str || !strlen(str)) return 0;
+  return member_array(str, query_plurals()) != -1;
 }
 
 // Serving find_match's per-target long lookup: when a player types
-// `mirar silla` and find_match hands the component off via
-// query_parse_id, look/examine call this to render the description.
-// Delegates to the same prop resolution logic hook_long uses on the
-// str-provided branch.
+// `mirar silla` and find_match matches the component (through
+// query_alias / query_plurals / id), look and examine call this to
+// render the description. Delegates to the same prop resolution
+// logic hook_long uses on the str-provided branch.
 string long(varargs string str, int dark)
 {
   mapping inst;
@@ -665,17 +767,6 @@ private string _compose_prose()
   return strlen(ret) ? " " + ret : "";
 }
 
-/*
- * Delegation point used by the location's id() to know whether a str
- * matches any attached prop instance. Wired in task #6 (render
- * integration in location.c).
- */
-int id_matches_prop(string str)
-{
-  return _find_unique_match(str) != nil ||
-         sizeof(_find_matching_instances(str)) > 0;
-}
-
 // ************************************************************
 //  Verb registration
 // ************************************************************
@@ -1005,58 +1096,52 @@ private int _str_matches_instance(string str, mapping inst)
 {
   string * ids;
   string inst_id;
-  mapping phrases;
-  string * mat_ids;
-  int i;
+  mapping spec;
+  string material_phrase;
+  string mat_id;
+  int j;
 
   if (!str || !strlen(str)) return 0;
 
   inst_id = inst[PROP_FIELD_ID];
   if (inst_id && inst_id == str) return 1;
 
-  ids = handler("props")->query_id_list(inst[PROP_FIELD_TYPE]);
-  if (ids && member_array(str, ids) != -1) return 1;
+  ids = (string *)handler("props")->query_id_list(inst[PROP_FIELD_TYPE]);
+  spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
+  if (!ids) return 0;
 
-  // Material-qualified match: the player typed something like
-  // `mirar silla de metal` (ES suffix) or `look wooden chair` (EN
-  // prefix). Walk every known material phrase, try to peel it off
-  // either end of the input, and match the remainder against the
-  // instance's ids WHEN the material id matches this instance's
-  // material.
-  phrases = (mapping)table("materials")->query_phrases();
-  if (!phrases) return 0;
+  // Bare singular id.
+  if (member_array(str, ids) != -1) return 1;
 
-  mat_ids = map_indices(phrases);
-  for (i = 0; i < sizeof(mat_ids); i++)
+  // Bare plural noun.
+  if (spec && spec[PROP_TYPE_NOUN_PLURAL] == str) return 1;
+
+  // Material-composed variants — same language macro that populates
+  // query_alias/query_plurals, so the ordering is defined once per
+  // language and consumed everywhere consistently.
+  material_phrase = "";
+  mat_id = _instance_material(inst);
+  if (mat_id && strlen(mat_id))
+    material_phrase = (string)table("materials")->query_material_phrase(mat_id);
+
+  if (!strlen(material_phrase)) return 0;
+
+  for (j = 0; j < sizeof(ids); j++)
   {
-    string phrase;
-    string base;
-    int plen;
+    string id;
+    string composed;
+    id = ids[j];
+    composed = _LANG_PROPS_ID_WITH_MATERIAL;
+    if (composed == str) return 1;
+  }
 
-    phrase = phrases[mat_ids[i]];
-    if (!phrase || !strlen(phrase)) continue;
-    plen = strlen(phrase);
-
-    // Instance carries a different material → skip this phrase.
-    if (_instance_material(inst) != mat_ids[i]) continue;
-
-    // Suffix form: "<base> <phrase>"
-    if (strlen(str) > plen + 1 &&
-        str[strlen(str) - plen ..] == phrase &&
-        str[strlen(str) - plen - 1] == ' ')
-    {
-      base = str[0 .. strlen(str) - plen - 2];
-      if (ids && member_array(base, ids) != -1) return 1;
-    }
-
-    // Prefix form: "<phrase> <base>"
-    if (strlen(str) > plen + 1 &&
-        str[0 .. plen - 1] == phrase &&
-        str[plen] == ' ')
-    {
-      base = str[plen + 1 ..];
-      if (ids && member_array(base, ids) != -1) return 1;
-    }
+  if (spec && spec[PROP_TYPE_NOUN_PLURAL])
+  {
+    string id;
+    string composed;
+    id = spec[PROP_TYPE_NOUN_PLURAL];
+    composed = _LANG_PROPS_ID_WITH_MATERIAL;
+    if (composed == str) return 1;
   }
 
   return 0;
