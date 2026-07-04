@@ -495,9 +495,34 @@ private string _instance_material(mapping inst)
   return spec ? spec[PROP_TYPE_DEFAULT_MATERIAL] : nil;
 }
 
-// Groups every attached instance by (type, material) into a mapping
-// keyed by "type:material". Shared by the prose composer and the
-// section-line composer so both apply the same grouping.
+// Canonical signature of the truthy state fields for an instance.
+// Instances with the same signature share the same visible state
+// (state suffixes look identical), so we collapse them in the same
+// group. Sorted for order-independence.
+private string _state_signature(mapping state)
+{
+  string * keys;
+  string * pairs;
+  int i;
+
+  if (!state) return "";
+
+  keys = map_indices(state);
+  pairs = ({ });
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    if (!state[keys[i]]) continue;
+    pairs += ({ keys[i] + "=" + ("" + state[keys[i]]) });
+  }
+
+  return implode(sort_array(pairs), ",");
+}
+
+// Groups every attached instance by (type, material, state
+// signature) into a mapping. Same-state siblings collapse into one
+// group so plural groups can render a shared state suffix; instances
+// with differing state land in separate groups so each keeps its
+// own flavour.
 private mapping _group_instances_by_type_material()
 {
   mapping groups;
@@ -512,7 +537,8 @@ private mapping _group_instances_by_type_material()
 
     inst = props_instances[i];
     mat = _instance_material(inst);
-    key = inst[PROP_FIELD_TYPE] + ":" + (mat ? mat : "");
+    key = inst[PROP_FIELD_TYPE] + ":" + (mat ? mat : "") + ":" +
+          _state_signature(inst[PROP_FIELD_STATE]);
     if (!groups[key])
       groups[key] = ({ });
     groups[key] += ({ inst });
@@ -566,12 +592,11 @@ private string _group_noun_phrase(mapping * insts)
   return phrase;
 }
 
-// Composes one sentence for a group of same-(type, material)
+// Composes one sentence for a group of same-(type, material, state)
 // instances. Singleton groups use the type's full long description
 // (same as `look <prop>`), which carries state suffixes. Plural
-// groups use the composed noun phrase (article/count + noun +
-// material) — reconciling per-instance state across a group is
-// deferred to a future revision.
+// groups use the composed noun phrase + a single state-suffix tail
+// (state is uniform across the group by construction).
 private string _compose_group_sentence(mapping * insts)
 {
   mapping first;
@@ -592,11 +617,22 @@ private string _compose_group_sentence(mapping * insts)
     return ret;
   }
 
-  // Plural group — noun phrase with pluralised noun + terminating
-  // period.
   ret = _group_noun_phrase(insts);
   if (!strlen(ret)) return "";
-  return capitalize(ret) + ".";
+  ret = capitalize(ret) + ".";
+
+  // Apply the type's state-suffix tail once for the whole group —
+  // every instance in this group carries the same state signature,
+  // so a single tail describes the lot.
+  {
+    string tail;
+    tail = (string)handler("props")->query_state_suffixes(
+             first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE]);
+    if (strlen(tail))
+      ret += tail;
+  }
+
+  return ret;
 }
 
 // Walks props_instances, groups by (type, material), delegates each
