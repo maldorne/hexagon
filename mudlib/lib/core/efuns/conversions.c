@@ -64,10 +64,16 @@ static string query_multiple_short(mixed *obs, varargs int flag)
     //   str = ({ str });
 
     for (j = 0; j < sizeof(str); j++)
+    {
+      // Skip objects whose short is empty — they contribute nothing
+      // to a "coger X, Y and Z" style enumeration and would leave a
+      // blank slot in the middle of the sentence.
+      if (!stringp(str[j]) || !strlen(str[j])) continue;
       if ((k = member_array(str[j], bity)) == -1)
         bity += ({ str[j], ({ obs[i] }) });
       else
         bity[k + 1] = ({ obs[i] }) + bity[k + 1];
+    }
   }
 
   str = ({ });
