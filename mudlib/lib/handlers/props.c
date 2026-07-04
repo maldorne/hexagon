@@ -315,11 +315,47 @@ string query_render_line(string type, mapping overrides, mapping state)
 }
 
 /*
+ * Substitute material tokens inside a description template.
+ *   $material_phrase$ → adjectival form ("wooden" / "de madera")
+ *   $material_name$   → bare noun form  ("wood" / "madera")
+ * The instance's material is overrides.material (if set) or the
+ * type's PROP_TYPE_DEFAULT_MATERIAL; missing material still returns
+ * something sensible via the materials table's UNKNOWN fallback.
+ * Types whose text carries no token stay verbatim.
+ */
+private string _apply_material_tokens(string str, mapping overrides,
+                                       mapping spec)
+{
+  string mat_id;
+  string phrase, name;
+
+  if (!str || !strlen(str)) return str;
+  if (strsrch(str, "$material") == -1) return str;
+
+  mat_id = nil;
+  if (overrides && overrides[PROP_OVERRIDE_MATERIAL])
+    mat_id = overrides[PROP_OVERRIDE_MATERIAL];
+  if (!mat_id && spec)
+    mat_id = spec[PROP_TYPE_DEFAULT_MATERIAL];
+
+  phrase = (string)table("materials")->query_material_phrase(mat_id);
+  name   = (string)table("materials")->query_material_name(mat_id);
+
+  if (strsrch(str, "$material_phrase$") != -1)
+    str = implode(explode(str, "$material_phrase$"), phrase);
+  if (strsrch(str, "$material_name$") != -1)
+    str = implode(explode(str, "$material_name$"), name);
+
+  return str;
+}
+
+/*
  * Full long shown on `look <prop>`. overrides.description wins
  * unconditionally; otherwise the custom blueprint may provide a
- * state-aware long; otherwise the table's long_key plus any
- * matching PROP_TYPE_LONG_SUFFIXES appended for truthy state fields
- * (parallel to the state_suffixes that drive the section line).
+ * state-aware long; otherwise the table's long_key (with material
+ * tokens substituted) plus any matching PROP_TYPE_LONG_SUFFIXES
+ * appended for truthy state fields (parallel to state_suffixes that
+ * drive the section line).
  */
 string query_type_long(string type, mapping overrides, mapping state,
                        string instance_id)
@@ -350,6 +386,8 @@ string query_type_long(string type, mapping overrides, mapping state,
 
   ret = spec[PROP_TYPE_LONG_KEY];
   if (!ret) return nil;
+
+  ret = _apply_material_tokens(ret, overrides, spec);
 
   // Append truthy-state suffixes. sprintf returns the suffix
   // verbatim when it has no format directive; the "" + value idiom
@@ -507,7 +545,8 @@ string query_type_short(string type, mapping overrides, mapping state)
   }
 
   spec = entry["spec"];
-  return spec ? spec[PROP_TYPE_SHORT_KEY] : nil;
+  if (!spec) return nil;
+  return _apply_material_tokens(spec[PROP_TYPE_SHORT_KEY], overrides, spec);
 }
 
 /*

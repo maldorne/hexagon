@@ -60,8 +60,8 @@
 #define _LANG_PROP_CHAIR_NOUN           "chair"
 #define _LANG_PROP_CHAIR_NOUN_PLURAL    "chairs"
 
-#define _LANG_PROP_CHAIR_SHORT          "a wooden chair"
-#define _LANG_PROP_CHAIR_LONG           "A sturdy wooden chair, sized for one."
+#define _LANG_PROP_CHAIR_SHORT          "a $material_phrase$ chair"
+#define _LANG_PROP_CHAIR_LONG           "A sturdy $material_phrase$ chair, sized for one."
 
 #define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tipped over)"
 #define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s is sitting on it)"
@@ -97,8 +97,8 @@
 #define _LANG_PROP_TABLE_NOUN           "table"
 #define _LANG_PROP_TABLE_NOUN_PLURAL    "tables"
 
-#define _LANG_PROP_TABLE_SHORT          "a wooden table"
-#define _LANG_PROP_TABLE_LONG           "A long wooden table, scarred by years of use."
+#define _LANG_PROP_TABLE_SHORT          "a $material_phrase$ table"
+#define _LANG_PROP_TABLE_LONG           "A long $material_phrase$ table, scarred by years of use."
 
 #define _LANG_PROP_TABLE_SMELL_VERBS    ({ "smell", "sniff" })
 #define _LANG_PROP_TABLE_LEAN_VERBS     ({ "lean" })
@@ -119,8 +119,8 @@
 #define _LANG_PROP_STATUE_NOUN          "statue"
 #define _LANG_PROP_STATUE_NOUN_PLURAL   "statues"
 
-#define _LANG_PROP_STATUE_SHORT         "a metal statue"
-#define _LANG_PROP_STATUE_LONG          "Forged in metal, it represents the God Lummen, carrier of the souls and benefactor of the priests."
+#define _LANG_PROP_STATUE_SHORT         "a $material_phrase$ statue"
+#define _LANG_PROP_STATUE_LONG          "Forged in $material_name$, it represents the God Lummen, carrier of the souls and benefactor of the priests."
 
 #define _LANG_PROP_STATUE_PRAY_VERBS    ({ "pray" })
 
@@ -152,8 +152,8 @@
 #define _LANG_PROP_FOUNTAIN_NOUN        "fountain"
 #define _LANG_PROP_FOUNTAIN_NOUN_PLURAL "fountains"
 
-#define _LANG_PROP_FOUNTAIN_SHORT       "a stone fountain"
-#define _LANG_PROP_FOUNTAIN_LONG        "A stone fountain. Clear water bubbles gently in its basin."
+#define _LANG_PROP_FOUNTAIN_SHORT       "a $material_phrase$ fountain"
+#define _LANG_PROP_FOUNTAIN_LONG        "A $material_phrase$ fountain. Clear water bubbles gently in its basin."
 
 #define _LANG_PROP_FOUNTAIN_DRINK_VERBS ({ "drink" })
 #define _LANG_PROP_FOUNTAIN_SMELL_VERBS ({ "smell", "sniff" })
@@ -172,7 +172,7 @@
 #define _LANG_PROP_FIREPLACE_NOUN_PLURAL "fireplaces"
 
 #define _LANG_PROP_FIREPLACE_SHORT      "a small fireplace"
-#define _LANG_PROP_FIREPLACE_LONG       "A small fireplace built of stone."
+#define _LANG_PROP_FIREPLACE_LONG       "A small fireplace built of $material_name$."
 
 #define _LANG_PROP_FIREPLACE_SUFFIX_LIT " (lit)"
 
@@ -202,8 +202,8 @@
 #define _LANG_PROP_BAR_NOUN             "bar"
 #define _LANG_PROP_BAR_NOUN_PLURAL      "bars"
 
-#define _LANG_PROP_BAR_SHORT            "a long wooden bar"
-#define _LANG_PROP_BAR_LONG             "A long wooden bar runs along the wall, its surface scarred by years of mugs and elbows. It is not very clean."
+#define _LANG_PROP_BAR_SHORT            "a long $material_phrase$ bar"
+#define _LANG_PROP_BAR_LONG             "A long $material_phrase$ bar runs along the wall, its surface scarred by years of mugs and elbows. It is not very clean."
 
 #define _LANG_PROP_BAR_LEAN_VERBS       ({ "lean" })
 #define _LANG_PROP_BAR_SMELL_VERBS      ({ "smell", "sniff" })

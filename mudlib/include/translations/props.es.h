@@ -65,8 +65,8 @@
 #define _LANG_PROP_CHAIR_NOUN           "silla"
 #define _LANG_PROP_CHAIR_NOUN_PLURAL    "sillas"
 
-#define _LANG_PROP_CHAIR_SHORT          "una silla de madera"
-#define _LANG_PROP_CHAIR_LONG           "Una silla robusta de madera, para una persona."
+#define _LANG_PROP_CHAIR_SHORT          "una silla $material_phrase$"
+#define _LANG_PROP_CHAIR_LONG           "Una silla robusta $material_phrase$, para una persona."
 
 #define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tirada en el suelo)"
 #define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s está sentado en ella)"
@@ -102,8 +102,8 @@
 #define _LANG_PROP_TABLE_NOUN           "mesa"
 #define _LANG_PROP_TABLE_NOUN_PLURAL    "mesas"
 
-#define _LANG_PROP_TABLE_SHORT          "una mesa de madera"
-#define _LANG_PROP_TABLE_LONG           "Una larga mesa de madera, marcada por años de uso."
+#define _LANG_PROP_TABLE_SHORT          "una mesa $material_phrase$"
+#define _LANG_PROP_TABLE_LONG           "Una larga mesa $material_phrase$, marcada por años de uso."
 
 #define _LANG_PROP_TABLE_SMELL_VERBS    ({ "oler", "olfatear" })
 #define _LANG_PROP_TABLE_LEAN_VERBS     ({ "apoyarse", "apoyar" })
@@ -124,8 +124,8 @@
 #define _LANG_PROP_STATUE_NOUN          "estatua"
 #define _LANG_PROP_STATUE_NOUN_PLURAL   "estatuas"
 
-#define _LANG_PROP_STATUE_SHORT         "una estatua de metal"
-#define _LANG_PROP_STATUE_LONG          "Forjada en metal, representa al Dios Lummen, portador de las almas y benefactor de los sacerdotes."
+#define _LANG_PROP_STATUE_SHORT         "una estatua $material_phrase$"
+#define _LANG_PROP_STATUE_LONG          "Forjada en $material_name$, representa al Dios Lummen, portador de las almas y benefactor de los sacerdotes."
 
 #define _LANG_PROP_STATUE_PRAY_VERBS    ({ "rezar", "orar" })
 
@@ -157,8 +157,8 @@
 #define _LANG_PROP_FOUNTAIN_NOUN        "fuente"
 #define _LANG_PROP_FOUNTAIN_NOUN_PLURAL "fuentes"
 
-#define _LANG_PROP_FOUNTAIN_SHORT       "una fuente de piedra"
-#define _LANG_PROP_FOUNTAIN_LONG        "Una fuente de piedra. Agua clara burbujea suavemente en su pilón."
+#define _LANG_PROP_FOUNTAIN_SHORT       "una fuente $material_phrase$"
+#define _LANG_PROP_FOUNTAIN_LONG        "Una fuente $material_phrase$. Agua clara burbujea suavemente en su pilón."
 
 #define _LANG_PROP_FOUNTAIN_DRINK_VERBS ({ "beber" })
 #define _LANG_PROP_FOUNTAIN_SMELL_VERBS ({ "oler", "olfatear" })
@@ -177,7 +177,7 @@
 #define _LANG_PROP_FIREPLACE_NOUN_PLURAL "chimeneas"
 
 #define _LANG_PROP_FIREPLACE_SHORT      "una pequeña chimenea"
-#define _LANG_PROP_FIREPLACE_LONG       "Una pequeña chimenea de piedra."
+#define _LANG_PROP_FIREPLACE_LONG       "Una pequeña chimenea $material_phrase$."
 
 #define _LANG_PROP_FIREPLACE_SUFFIX_LIT " (encendida)"
 
@@ -203,8 +203,8 @@
 #define _LANG_PROP_BAR_NOUN             "barra"
 #define _LANG_PROP_BAR_NOUN_PLURAL      "barras"
 
-#define _LANG_PROP_BAR_SHORT            "una larga barra de madera"
-#define _LANG_PROP_BAR_LONG             "Una larga barra de madera recorre la pared, su superficie marcada por años de jarras y codos. No está muy limpia."
+#define _LANG_PROP_BAR_SHORT            "una larga barra $material_phrase$"
+#define _LANG_PROP_BAR_LONG             "Una larga barra $material_phrase$ recorre la pared, su superficie marcada por años de jarras y codos. No está muy limpia."
 
 #define _LANG_PROP_BAR_LEAN_VERBS       ({ "apoyarse", "apoyar" })
 #define _LANG_PROP_BAR_SMELL_VERBS      ({ "oler", "olfatear" })
