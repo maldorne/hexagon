@@ -75,16 +75,16 @@
 #define _LANG_PROP_CHAIR_RIGHT_VERBS        ({ "right" })
 
 #define _LANG_PROP_CHAIR_SIT_ME             "You sit on the chair."
-#define _LANG_PROP_CHAIR_SIT_OTHERS         "%s sits on the chair."
+#define _LANG_PROP_CHAIR_SIT_OTHERS         "$mcname$ sits on the chair."
 #define _LANG_PROP_CHAIR_STAND_ME           "You stand up."
-#define _LANG_PROP_CHAIR_STAND_OTHERS       "%s stands up."
+#define _LANG_PROP_CHAIR_STAND_OTHERS       "$mcname$ stands up."
 #define _LANG_PROP_CHAIR_TIP_ME             "You tip the chair over."
-#define _LANG_PROP_CHAIR_TIP_OTHERS         "%s tips the chair over."
+#define _LANG_PROP_CHAIR_TIP_OTHERS         "$mcname$ tips the chair over."
 #define _LANG_PROP_CHAIR_RIGHT_ME           "You right the chair."
-#define _LANG_PROP_CHAIR_RIGHT_OTHERS       "%s rights the chair."
+#define _LANG_PROP_CHAIR_RIGHT_OTHERS       "$mcname$ rights the chair."
 
 #define _LANG_PROP_CHAIR_CANT_SIT           "You can't sit on this chair right now."
-#define _LANG_PROP_CHAIR_OCCUPIED_BY        "%s is already sitting on it."
+#define _LANG_PROP_CHAIR_OCCUPIED_BY        "$lastarg$ is already sitting on it."
 #define _LANG_PROP_CHAIR_NOT_SITTING        "You are not sitting on this chair."
 #define _LANG_PROP_CHAIR_NAILED_OR_TIPPED   "You cannot tip this chair."
 #define _LANG_PROP_CHAIR_NOT_TIPPED         "The chair is not tipped over."
@@ -106,9 +106,9 @@
 
 #define _LANG_PROP_TABLE_SMELL_ME       "The table smells of polish and old wood."
 #define _LANG_PROP_TABLE_LEAN_ME        "You lean on the table."
-#define _LANG_PROP_TABLE_LEAN_OTHERS    "%s leans on the table."
+#define _LANG_PROP_TABLE_LEAN_OTHERS    "$mcname$ leans on the table."
 #define _LANG_PROP_TABLE_CLIMB_ME       "You climb onto the table."
-#define _LANG_PROP_TABLE_CLIMB_OTHERS   "%s climbs onto the table."
+#define _LANG_PROP_TABLE_CLIMB_OTHERS   "$mcname$ climbs onto the table."
 
 // ************************************************************
 //  statue
@@ -125,7 +125,7 @@
 #define _LANG_PROP_STATUE_PRAY_VERBS    ({ "pray" })
 
 #define _LANG_PROP_STATUE_PRAY_ME       "You kneel before the statue and offer a silent prayer."
-#define _LANG_PROP_STATUE_PRAY_OTHERS   "%s kneels before the statue and prays in silence."
+#define _LANG_PROP_STATUE_PRAY_OTHERS   "$mcname$ kneels before the statue and prays in silence."
 
 // ************************************************************
 //  altar
@@ -141,7 +141,7 @@
 #define _LANG_PROP_ALTAR_PRAY_VERBS     ({ "pray" })
 
 #define _LANG_PROP_ALTAR_PRAY_ME        "You bow your head before the altar."
-#define _LANG_PROP_ALTAR_PRAY_OTHERS    "%s bows their head before the altar."
+#define _LANG_PROP_ALTAR_PRAY_OTHERS    "$mcname$ bows $mposs$ head before the altar."
 
 // ************************************************************
 //  fountain
@@ -159,7 +159,7 @@
 #define _LANG_PROP_FOUNTAIN_SMELL_VERBS ({ "smell", "sniff" })
 
 #define _LANG_PROP_FOUNTAIN_DRINK_ME    "You drink some fresh water from the fountain."
-#define _LANG_PROP_FOUNTAIN_DRINK_OTHERS "%s drinks some fresh water from the fountain."
+#define _LANG_PROP_FOUNTAIN_DRINK_OTHERS "$mcname$ drinks some fresh water from the fountain."
 #define _LANG_PROP_FOUNTAIN_SMELL_ME    "The water smells faintly of moss and cold stone."
 
 // ************************************************************
@@ -187,9 +187,9 @@
 #define _LANG_PROP_FIREPLACE_EXT_VERBS  ({ "extinguish", "douse" })
 
 #define _LANG_PROP_FIREPLACE_LIGHT_ME       "You light the fireplace. Flames flicker to life."
-#define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "%s lights the fireplace."
+#define _LANG_PROP_FIREPLACE_LIGHT_OTHERS   "$mcname$ lights the fireplace."
 #define _LANG_PROP_FIREPLACE_EXT_ME         "You extinguish the fire. The hearth goes dark."
-#define _LANG_PROP_FIREPLACE_EXT_OTHERS     "%s extinguishes the fire."
+#define _LANG_PROP_FIREPLACE_EXT_OTHERS     "$mcname$ extinguishes the fire."
 #define _LANG_PROP_FIREPLACE_ALREADY_LIT    "The fireplace is already lit."
 #define _LANG_PROP_FIREPLACE_NOT_LIT        "The fireplace is not lit."
 
@@ -209,7 +209,7 @@
 #define _LANG_PROP_BAR_SMELL_VERBS      ({ "smell", "sniff" })
 
 #define _LANG_PROP_BAR_LEAN_ME          "You lean against the bar."
-#define _LANG_PROP_BAR_LEAN_OTHERS      "%s leans against the bar."
+#define _LANG_PROP_BAR_LEAN_OTHERS      "$mcname$ leans against the bar."
 #define _LANG_PROP_BAR_SMELL_ME         "The bar reeks of stale ale and old wood."
 
 #endif // _LANG_PROPS_H_EN

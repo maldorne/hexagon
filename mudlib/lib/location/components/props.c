@@ -38,6 +38,7 @@ private mapping * _find_matching_instances(string str);
 private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
 private int      _execute_generic(mapping spec, mapping inst, string args);
+private string   _render_msg(string template, mixed arg);
 private string   _instance_material(mapping inst);
 private mapping  _group_instances_by_type_material();
 private string   _group_noun_phrase(mapping * insts);
@@ -972,6 +973,64 @@ int do_prop_action(string str)
 //  refer to "the player who triggered the action".
 // ************************************************************
 
+/*
+ * Render a prop message template. Prefers souls-style tokens
+ * ($mcname$, $mposs$, $mpronoun$, $lastarg$, …) via the souls
+ * handler so messages compose gender-agreeing prose without the
+ * single-slot `%s` constraint. Legacy templates that still carry a
+ * bare `%s` (no `$` tokens) fall back to sprintf for backward
+ * compatibility — will retire once every catalogue entry is
+ * migrated.
+ *
+ * `arg` is exposed as $lastarg$ inside the template — used for state
+ * values ("who is sitting on this chair") that souls otherwise can't
+ * see. Pass "" when the template has no state substitution.
+ */
+private string _render_msg(string template, mixed arg)
+{
+  object me;
+  string arg_str;
+
+  if (!template || !strlen(template)) return "";
+
+  arg_str = stringp(arg) ? arg : (arg == nil ? "" : ("" + arg));
+
+  // Legacy path: template uses %s, no souls tokens present. Detect
+  // via explode instead of strsrch — the latter builds an internal
+  // "%s" + substr + "%s" sscanf format that chokes when substr itself
+  // is a format directive character.
+  if (sizeof(explode(template, "$")) == 1 &&
+      sizeof(explode(template, "%s")) > 1)
+    return sprintf(template, arg_str);
+
+  // Pre-substitute $lastarg$ ourselves — souls's own $lastarg$
+  // resolves against its internal parser state (set by $arg:$ /
+  // $ifarg:$ constructs), not the arg we pass in. Doing it here
+  // makes the token behave like a straight "the caller's arg goes
+  // here" slot from the props side. Loop over every occurrence via
+  // sscanf so a leading/trailing $lastarg$ substitutes too (DGD's
+  // explode strips boundary empties).
+  {
+    string a, b;
+    while (sscanf(template, "%s$lastarg$%s", a, b) == 2)
+    {
+      // Capitalise if the token opens the sentence — arg_str is a
+      // bare lowercase player name from state, and reads badly as
+      // the first word of a message otherwise.
+      string sub;
+      sub = (a == "") ? capitalize(arg_str) : arg_str;
+      template = a + sub + b;
+    }
+  }
+
+  me = this_player();
+  if (!me) return template;
+
+  // ob defaults to me — prop templates don't reference $h*$ tokens.
+  // The souls handler is a project-wide singleton; loaded once.
+  return (string)handler("souls")->parse_string(template, me, me, arg_str, 1);
+}
+
 private int _execute_generic(mapping spec, mapping inst, string args)
 {
   mapping st;
@@ -999,7 +1058,7 @@ private int _execute_generic(mapping spec, mapping inst, string args)
       if (st[flags[i]] || (ov_props && ov_props[flags[i]]))
       {
         if (spec[PROP_SPEC_BLOCKED_MSG])
-          write(spec[PROP_SPEC_BLOCKED_MSG] + "\n");
+          write(_render_msg(spec[PROP_SPEC_BLOCKED_MSG], "") + "\n");
         return 1;
       }
 
@@ -1010,7 +1069,7 @@ private int _execute_generic(mapping spec, mapping inst, string args)
       if (!st[flags[i]])
       {
         if (spec[PROP_SPEC_MISSING_MSG])
-          write(spec[PROP_SPEC_MISSING_MSG] + "\n");
+          write(_render_msg(spec[PROP_SPEC_MISSING_MSG], "") + "\n");
         return 1;
       }
 
@@ -1024,8 +1083,8 @@ private int _execute_generic(mapping spec, mapping inst, string args)
       if (st[flags[i]])
       {
         if (spec[PROP_SPEC_ALREADY_SET_MSG])
-          write(sprintf(spec[PROP_SPEC_ALREADY_SET_MSG],
-                        "" + st[flags[i]]) + "\n");
+          write(_render_msg(spec[PROP_SPEC_ALREADY_SET_MSG],
+                            "" + st[flags[i]]) + "\n");
         return 1;
       }
 
@@ -1047,7 +1106,7 @@ private int _execute_generic(mapping spec, mapping inst, string args)
       if (st[mkeys[i]] != expected)
       {
         if (spec[PROP_SPEC_MISSING_MATCH_MSG])
-          write(spec[PROP_SPEC_MISSING_MATCH_MSG] + "\n");
+          write(_render_msg(spec[PROP_SPEC_MISSING_MATCH_MSG], "") + "\n");
         return 1;
       }
     }
@@ -1080,15 +1139,15 @@ private int _execute_generic(mapping spec, mapping inst, string args)
 
   // messages
   if (spec[PROP_SPEC_MSG_ME])
-    write(spec[PROP_SPEC_MSG_ME] + "\n");
+    write(_render_msg(spec[PROP_SPEC_MSG_ME], "") + "\n");
   if (spec[PROP_SPEC_MSG_OTHERS])
   {
     object loc;
     loc = query_my_location();
     if (loc)
       tell_room(loc,
-                sprintf(spec[PROP_SPEC_MSG_OTHERS],
-                        this_player()->query_cap_name()) + "\n",
+                _render_msg(spec[PROP_SPEC_MSG_OTHERS],
+                            this_player()->query_cap_name()) + "\n",
                 ({ this_player() }));
   }
 
