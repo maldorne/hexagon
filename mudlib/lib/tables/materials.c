@@ -82,5 +82,26 @@ string query_material_name(string id)
   return _resolve(names, id);
 }
 
+/*
+ * Reverse lookup: given a localised phrase, return the material id
+ * that produces it. Used by the props parser to detect qualifiers
+ * inside player input ("silla de metal" → "metal", "wooden chair"
+ * → "wood"). Returns nil when nothing matches.
+ */
+string query_id_from_phrase(string phrase)
+{
+  string * ids;
+  int i;
+
+  if (!phrase || !strlen(phrase)) return nil;
+
+  ids = map_indices(phrases);
+  for (i = 0; i < sizeof(ids); i++)
+    if (phrases[ids[i]] == phrase)
+      return ids[i];
+
+  return nil;
+}
+
 mapping query_phrases() { return phrases; }
 mapping query_names()   { return names; }

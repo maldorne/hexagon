@@ -969,6 +969,9 @@ private int _str_matches_instance(string str, mapping inst)
 {
   string * ids;
   string inst_id;
+  mapping phrases;
+  string * mat_ids;
+  int i;
 
   if (!str || !strlen(str)) return 0;
 
@@ -977,6 +980,48 @@ private int _str_matches_instance(string str, mapping inst)
 
   ids = handler("props")->query_id_list(inst[PROP_FIELD_TYPE]);
   if (ids && member_array(str, ids) != -1) return 1;
+
+  // Material-qualified match: the player typed something like
+  // `mirar silla de metal` (ES suffix) or `look wooden chair` (EN
+  // prefix). Walk every known material phrase, try to peel it off
+  // either end of the input, and match the remainder against the
+  // instance's ids WHEN the material id matches this instance's
+  // material.
+  phrases = (mapping)table("materials")->query_phrases();
+  if (!phrases) return 0;
+
+  mat_ids = map_indices(phrases);
+  for (i = 0; i < sizeof(mat_ids); i++)
+  {
+    string phrase;
+    string base;
+    int plen;
+
+    phrase = phrases[mat_ids[i]];
+    if (!phrase || !strlen(phrase)) continue;
+    plen = strlen(phrase);
+
+    // Instance carries a different material → skip this phrase.
+    if (_instance_material(inst) != mat_ids[i]) continue;
+
+    // Suffix form: "<base> <phrase>"
+    if (strlen(str) > plen + 1 &&
+        str[strlen(str) - plen ..] == phrase &&
+        str[strlen(str) - plen - 1] == ' ')
+    {
+      base = str[0 .. strlen(str) - plen - 2];
+      if (ids && member_array(base, ids) != -1) return 1;
+    }
+
+    // Prefix form: "<phrase> <base>"
+    if (strlen(str) > plen + 1 &&
+        str[0 .. plen - 1] == phrase &&
+        str[plen] == ' ')
+    {
+      base = str[plen + 1 ..];
+      if (ids && member_array(base, ids) != -1) return 1;
+    }
+  }
 
   return 0;
 }
