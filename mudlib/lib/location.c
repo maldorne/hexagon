@@ -11,6 +11,7 @@ inherit zone     "/lib/room/zone.c";
 inherit sign     "/lib/room/sign.c";
 
 #include <basic/light.h>
+#include <language.h>
 #include <room/location.h>
 #include <areas/area.h>
 #include <areas/common.h>
@@ -423,7 +424,8 @@ string query_components_string()
   for (i = 0; i < sizeof(components); i++)
     types += ({ components[i]->query_type() });
 
-  return "%^BOLD%^CYAN%^Components: " + implode(types, ", ") + ".%^RESET%^";
+  return "%^BOLD%^CYAN%^" + _LANG_LOCATION_COMPONENTS_HEADER + ": " +
+         implode(types, ", ") + ".%^RESET%^";
 }
 
 // Reduce hook contract for short/long/extra_look:

@@ -14,6 +14,12 @@
 
 // room.c
 
+// location.c
+
+// Header of the coder-only banner listing the location's attached
+// components. Followed by the comma-separated component types.
+#define _LANG_LOCATION_COMPONENTS_HEADER "Components"
+
 // language.c
 
 #define _LANG_LANGUAGE_DEFAULT_DESC "This is the normal language spoken by most creatures.\n"

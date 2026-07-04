@@ -14,6 +14,13 @@
 
 // room.c
 
+// location.c
+
+// Cabecera del banner (solo visible a coders) que lista los
+// componentes atachados a la location. Seguida por los tipos de
+// componente separados por comas.
+#define _LANG_LOCATION_COMPONENTS_HEADER "Componentes"
+
 // language.c
 
 #define _LANG_LANGUAGE_DEFAULT_DESC "Es el lenguaje habitual, hablado por la mayoría.\n"
