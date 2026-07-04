@@ -738,11 +738,53 @@ object query_area()
   return LOCATION_HANDLER->query_area_from_location_file_name(query_file_name());
 }
 
+// Inflate the props component's reference in the parser's candidate
+// list so the mudlib's standard numeric idiom (`silla 2`, `chair 3`)
+// resolves against composite props. The catalogue component is a
+// single LPC object but carries N prop instances; without inflation
+// find_match's `--num` decrement can never count past 1. We add
+// (num - 1) extra references for prop-matching queries, letting the
+// standard mechanism pick the N-th matching instance transparently.
+// The single-instance case (num == 0 / no trailing number) doesn't
+// need inflation and is left alone.
 object * find_inv_match(string str)
 {
-  return (object *)all_inventory(this_object()) + 
-         (object *)contents::query_hidden_objects();
-         // m_values(items);
+  object * inv;
+  object props_comp;
+
+  inv = (object *)all_inventory(this_object()) +
+        (object *)contents::query_hidden_objects();
+
+  if (!str || !strlen(str)) return inv;
+
+  props_comp = query_component_by_type(LOCATION_COMPONENT_PROPS);
+  if (!props_comp) return inv;
+
+  {
+    string aux;
+    int num;
+    int prop_count;
+
+    if (sscanf(str, "%s %d", aux, num) != 2 || num <= 1)
+      return inv;
+
+    prop_count = (int)props_comp->count_matching_props(aux);
+    if (num > prop_count) return inv;
+
+    // Extra copies so find_match's --num decrement can advance to
+    // the requested slot. The component is already in inv once
+    // (from all_inventory); add num-1 more.
+    {
+      object * extras;
+      int i;
+      extras = ({ });
+      for (i = 1; i < num; i++)
+        extras += ({ props_comp });
+      inv += extras;
+    }
+  }
+
+  return inv;
 }
 
 // Refresh component_info from the live components before serialising.

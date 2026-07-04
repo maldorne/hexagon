@@ -88,11 +88,11 @@ void initialize(object loc)
 }
 
 // Enumerate every string a player can type to refer to an attached
-// prop: per-instance handles ("chair_1"), the type's id_list ("silla",
-// "asiento") and their material-composed variants ("silla de madera",
-// "wooden chair") assembled via _LANG_PROPS_ID_WITH_MATERIAL. Returned
-// dynamically so that adding / removing / re-materialising instances
-// is reflected on the next parser query without any refresh dance.
+// prop — the type's id_list (from the registry) and its material-
+// composed variants assembled via _LANG_PROPS_ID_WITH_MATERIAL. Per-
+// instance handles (chair_1, silla_hierro, ...) are DELIBERATELY
+// omitted; those exist for the coder `props` cmd only and should
+// never surface to players as parser input.
 string * query_alias()
 {
   string * ret;
@@ -102,18 +102,12 @@ string * query_alias()
   for (i = 0; i < sizeof(props_instances); i++)
   {
     mapping inst;
-    string inst_id;
     mapping spec;
     string * ids;
     string material_phrase;
     string mat_id;
 
     inst = props_instances[i];
-
-    inst_id = inst[PROP_FIELD_ID];
-    if (inst_id && strlen(inst_id) && member_array(inst_id, ret) == -1)
-      ret += ({ inst_id });
-
     spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
     if (!spec) continue;
 
@@ -143,6 +137,23 @@ string * query_alias()
   }
 
   return ret;
+}
+
+// Count how many attached instances match `str` — used by the
+// location's find_inv_match to inflate our reference in the parser's
+// candidate list. That inflation is what lets the mudlib's standard
+// numeric-disambiguation idiom (`mirar silla 2`, `sentarse silla 3`)
+// work against a composite that carries N instances behind a single
+// LPC object. Never trims a numeric suffix itself — the location
+// strips before asking.
+int count_matching_props(string str)
+{
+  int i, n;
+  n = 0;
+  for (i = 0; i < sizeof(props_instances); i++)
+    if (_str_matches_instance(str, props_instances[i]))
+      n++;
+  return n;
 }
 
 // Same shape as query_alias but sourced from PROP_TYPE_NOUN_PLURAL —
@@ -1095,7 +1106,6 @@ private int _execute_generic(mapping spec, mapping inst, string args)
 private int _str_matches_instance(string str, mapping inst)
 {
   string * ids;
-  string inst_id;
   mapping spec;
   string material_phrase;
   string mat_id;
@@ -1103,8 +1113,9 @@ private int _str_matches_instance(string str, mapping inst)
 
   if (!str || !strlen(str)) return 0;
 
-  inst_id = inst[PROP_FIELD_ID];
-  if (inst_id && inst_id == str) return 1;
+  // Per-instance handles (chair_1, silla_hierro, …) are intentionally
+  // NOT matched here — they are coder-only. _find_by_handle serves
+  // the builder cmd path directly against PROP_FIELD_ID.
 
   ids = (string *)handler("props")->query_id_list(inst[PROP_FIELD_TYPE]);
   spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
@@ -1148,18 +1159,37 @@ private int _str_matches_instance(string str, mapping inst)
 }
 
 /*
- * Returns every attached instance whose ids include `str`. Caller
- * decides what to do with cardinality > 1.
+ * Returns every attached instance whose ids include `str`. Handles
+ * the mudlib's numeric-disambiguation idiom (`silla 2` → the 2nd
+ * matching silla) by peeling a trailing integer, filtering on the
+ * base, then narrowing to the requested slot. Caller decides what
+ * to do with cardinality > 1.
  */
 private mapping * _find_matching_instances(string str)
 {
   mapping * ret;
+  string base;
+  int num;
   int i;
 
   ret = ({ });
+  if (!str || !strlen(str)) return ret;
+
+  if (sscanf(str, "%s %d", base, num) != 2 || num <= 0)
+  {
+    base = str;
+    num = 0;
+  }
+
   for (i = 0; i < sizeof(props_instances); i++)
-    if (_str_matches_instance(str, props_instances[i]))
+    if (_str_matches_instance(base, props_instances[i]))
       ret += ({ props_instances[i] });
+
+  if (num > 0)
+  {
+    if (num > sizeof(ret)) return ({ });
+    return ({ ret[num - 1] });
+  }
 
   return ret;
 }
@@ -1170,13 +1200,9 @@ private mapping * _find_matching_instances(string str)
  */
 private mapping _find_unique_match(string str)
 {
-  int i;
-
-  for (i = 0; i < sizeof(props_instances); i++)
-    if (_str_matches_instance(str, props_instances[i]))
-      return props_instances[i];
-
-  return nil;
+  mapping * matches;
+  matches = _find_matching_instances(str);
+  return sizeof(matches) ? matches[0] : nil;
 }
 
 /*
