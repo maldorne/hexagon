@@ -205,13 +205,15 @@ void do_tests()
   //
   // When '-' flag triggers multi_line word-wrap, wrapped continuation
   // lines get indented by the visible width of the literal format-
-  // string chunks emitted since the last '\n'. That keeps continuation
-  // lines column-aligned with the first line of the field — the whole
-  // reason wrap() in /lib/core/efuns/string.c uses the idiom
+  // string chunks that precede the current directive. That keeps
+  // continuation lines column-aligned with the first line of the
+  // field — the whole reason wrap() in /lib/core/efuns/string.c uses
+  // the idiom
   //   sprintf("\n   %-=" + cols + "s", "   " + str + "\n")
   // which without a proper margin renders the room-description body
-  // one column shy on every wrap. The C-kfun plugin regressed this
-  // behaviour vs. the LPC packages/sprintf; these tests pin it down.
+  // one column shy on every wrap. Matches the LPC packages/sprintf.c
+  // convention: newline literals COUNT as one column (via strlen with
+  // visible=true), so a "\n   " literal contributes 4 to the margin.
 
   TEST("- flag: no margin when no literal precedes the directive");
     // Nothing before %-=10s → margin 0, wrap flush left.
@@ -219,17 +221,18 @@ void do_tests()
   END_TEST();
 
   TEST("- flag: hanging indent from literal chunk before directive");
-    // "\n   " precedes → margin 3 (last-newline reset), continuation
-    // indented 3 to column-align with the first line's content.
-    ASSERT(sprintf("\n   %-=20s", "one two three four five") ==
-           "\n   One two three four\n   five");
+    // "\n   " precedes → margin 4 (newline counted as one column).
+    // The trailing literal spaces of the input also survive as the
+    // FIRST-line indent, matching the LPC-visual authors rely on.
+    ASSERT(sprintf("\n   %-=20s", "   one two three four five") ==
+           "\n      One two three\n    four five");
   END_TEST();
 
-  TEST("- flag: newline in literal resets the margin");
-    // "A\nB " → the '\n' resets, leaving 2 chars ("B ") as margin.
-    // Wrap at width 6: "X y z" (5) + " w" (+2=7 > 6) → hang w on
-    // a new line prefixed by the 2-space margin.
-    ASSERT(sprintf("A\nB %-=6s", "x y z w") == "A\nB X y z\n  w");
+  TEST("- flag: newline in literal contributes to margin, does not reset");
+    // "A\nB " → margin 4 (A, \n, B, space). Wrap at width 6:
+    // "X y z" (5) + " w" (+2=7 > 6) → hang w on a new line prefixed
+    // by 4 margin spaces.
+    ASSERT(sprintf("A\nB %-=6s", "x y z w") == "A\nB X y z\n    w");
   END_TEST();
 
   TEST("- flag: hard-truncated first word still gets margin on wrap");
