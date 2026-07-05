@@ -433,8 +433,6 @@ object convert_room_to_location(object room)
 
   // write("Exits:\n" + to_string(exit_map) + "\n");
 
-  // Replace-all so a language switch on the room .c can't leave
-  // stale exits from the previous locale sitting next to the new set.
   location->set_exits_from_exit_map(exit_map);
 
   ret = "";

@@ -713,10 +713,7 @@ void add_exits_from_exit_map(mapping m)
   }
 }
 
-// Replace-all variant used by the room-to-location conversion. Wipes
-// every existing exit before applying `m`, so a language switch
-// (DIR_NORTH going from "north" to "norte", etc.) cannot leave the
-// previous localised keys as stale entries alongside the new ones.
+// Replace-all: remove every existing exit, then apply `m`.
 void set_exits_from_exit_map(mapping m)
 {
   string * exit_names;
