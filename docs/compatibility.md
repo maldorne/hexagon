@@ -87,7 +87,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `all_previous_objects`  | :white_check_mark: | alias for `previous_objects` |
 | `evaluate`              | :white_check_mark: |  |
 | `add_action`            | :white_check_mark: | :new: added `add_private_action` also, to have actions that only the same object can activate. |
-| `remove_action`         |  |  |
+| `remove_action`         | :white_check_mark: | :new: added `remove_private_action` also, symmetric to `add_private_action`. |
 | `query_verb`            | :white_check_mark: |  |
 | `command`               | :white_check_mark: |  |
 | `commands`              | :white_check_mark: |  |
