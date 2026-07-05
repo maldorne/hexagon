@@ -472,6 +472,15 @@ string long(varargs string str, int dark)
     ret = strlen(ret) ? ret + " " + composed : composed;
   if (!strlen(ret))
     ret = _original_long ? _original_long : "";
+
+  // Append the trailing newline authors of legacy rooms typically
+  // put inside their set_long("text.\n") call — wrap()'s prettify
+  // mode turns that into a blank line under the description, so the
+  // block reads as one paragraph surrounded by whitespace both
+  // above (from wrap's leading newline) and below.
+  if (strlen(ret) && ret[strlen(ret) - 1] != '\n')
+    ret += "\n";
+
   ret = wrap(ret, (this_user() ? this_user()->query_cols() : 79), 1);
 
   if (this_player()->query_coder())
