@@ -90,16 +90,17 @@ void initialize(object loc)
 }
 
 // Clear any state fields on attached instances whose value is the
-// leaving player's name. Covers occupancy-style state that would
-// otherwise persist as a ghost after the player moved away without
+// leaving living's name. Covers occupancy-style state that would
+// otherwise persist as a ghost after the living moved away without
 // running the reverse verb.
 void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 {
   string leaver;
   int i;
 
-  if (!ob || !ob->query_name()) return;
+  if (!living(ob)) return;
   leaver = ob->query_name();
+  if (!leaver || !strlen(leaver)) return;
 
   for (i = 0; i < sizeof(props_instances); i++)
   {
