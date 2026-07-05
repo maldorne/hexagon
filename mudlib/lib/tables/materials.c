@@ -29,23 +29,23 @@ private mapping names;
 void create()
 {
   phrases = ([
-    UNKNOWN:   _LANG_MATERIAL_UNKNOWN_PHRASE,
-    WOOD:      _LANG_MATERIAL_WOOD_PHRASE,
-    METAL:     _LANG_MATERIAL_METAL_PHRASE,
-    STONE:     _LANG_MATERIAL_STONE_PHRASE,
-    LEATHER:   _LANG_MATERIAL_LEATHER_PHRASE,
-    CLOTH:     _LANG_MATERIAL_CLOTH_PHRASE,
-    CRYSTAL:   _LANG_MATERIAL_CRYSTAL_PHRASE,
+    MAT_UNKNOWN:   _LANG_MATERIAL_UNKNOWN_PHRASE,
+    MAT_WOOD:      _LANG_MATERIAL_WOOD_PHRASE,
+    MAT_METAL:     _LANG_MATERIAL_METAL_PHRASE,
+    MAT_STONE:     _LANG_MATERIAL_STONE_PHRASE,
+    MAT_LEATHER:   _LANG_MATERIAL_LEATHER_PHRASE,
+    MAT_CLOTH:     _LANG_MATERIAL_CLOTH_PHRASE,
+    MAT_CRYSTAL:   _LANG_MATERIAL_CRYSTAL_PHRASE,
   ]);
 
   names = ([
-    UNKNOWN:   _LANG_MATERIAL_UNKNOWN_NAME,
-    WOOD:      _LANG_MATERIAL_WOOD_NAME,
-    METAL:     _LANG_MATERIAL_METAL_NAME,
-    STONE:     _LANG_MATERIAL_STONE_NAME,
-    LEATHER:   _LANG_MATERIAL_LEATHER_NAME,
-    CLOTH:     _LANG_MATERIAL_CLOTH_NAME,
-    CRYSTAL:   _LANG_MATERIAL_CRYSTAL_NAME,
+    MAT_UNKNOWN:   _LANG_MATERIAL_UNKNOWN_NAME,
+    MAT_WOOD:      _LANG_MATERIAL_WOOD_NAME,
+    MAT_METAL:     _LANG_MATERIAL_METAL_NAME,
+    MAT_STONE:     _LANG_MATERIAL_STONE_NAME,
+    MAT_LEATHER:   _LANG_MATERIAL_LEATHER_NAME,
+    MAT_CLOTH:     _LANG_MATERIAL_CLOTH_NAME,
+    MAT_CRYSTAL:   _LANG_MATERIAL_CRYSTAL_NAME,
   ]);
 }
 
@@ -59,7 +59,7 @@ private string _resolve(mapping table, string id)
   int i;
 
   if (!id || !strlen(id))
-    return table[UNKNOWN];
+    return table[MAT_UNKNOWN];
 
   parts = explode(id, ":");
 
@@ -69,7 +69,7 @@ private string _resolve(mapping table, string id)
     if (table[key]) return table[key];
   }
 
-  return table[UNKNOWN];
+  return table[MAT_UNKNOWN];
 }
 
 string query_material_phrase(string id)

@@ -102,14 +102,14 @@ mixed* add_exit(mapping door_control, mapping exit_map,
     switch(type)
     {
       case "gate" :
-        material = METAL;
+        material = MAT_METAL;
         break;
       case "door" :
-        material = WOOD;
+        material = MAT_WOOD;
         break;
       default :
-        material = UNKNOWN;
-        break; 
+        material = MAT_UNKNOWN;
+        break;
     }
   }
 
