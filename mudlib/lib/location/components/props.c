@@ -225,7 +225,7 @@ int id_plural(string str)
 string long(varargs string str, int dark)
 {
   mapping inst;
-  string desc, hint;
+  string desc, hint, sh;
 
   if (!str || !strlen(str)) return "";
 
@@ -243,11 +243,16 @@ string long(varargs string str, int dark)
     desc += "\n";
   desc = wrap(desc, (this_user() ? this_user()->query_cols() : 79), 1);
 
-  // Hint appended AFTER wrap so multi_line's leading-'\n' logic
-  // does not drop it to column 0.
+  sh = (string)handler("props")->query_type_short(
+         inst[PROP_FIELD_TYPE],
+         inst[PROP_FIELD_OVERRIDES],
+         inst[PROP_FIELD_STATE]);
+  if (sh && strlen(sh))
+    desc = capitalize(sh) + ".\n" + desc;
+
   hint = query_actions_hint(inst);
   if (strlen(hint))
-    desc += "    " + hint + "\n";
+    desc += hint + "\n";
 
   return desc;
 }

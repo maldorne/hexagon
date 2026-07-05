@@ -341,10 +341,13 @@ private string _apply_material_tokens(string str, mapping overrides,
   phrase = (string)table("materials")->query_material_phrase(mat_id);
   name   = (string)table("materials")->query_material_name(mat_id);
 
-  if (strsrch(str, "$material_phrase$") != -1)
-    str = implode(explode(str, "$material_phrase$"), phrase);
-  if (strsrch(str, "$material_name$") != -1)
-    str = implode(explode(str, "$material_name$"), name);
+  {
+    string a, b;
+    while (sscanf(str, "%s$material_phrase$%s", a, b) == 2)
+      str = a + phrase + b;
+    while (sscanf(str, "%s$material_name$%s", a, b) == 2)
+      str = a + name + b;
+  }
 
   return str;
 }
