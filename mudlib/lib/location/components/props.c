@@ -243,12 +243,29 @@ string long(varargs string str, int dark)
     desc += "\n";
   desc = wrap(desc, (this_user() ? this_user()->query_cols() : 79), 1);
 
-  sh = (string)handler("props")->query_type_short(
-         inst[PROP_FIELD_TYPE],
-         inst[PROP_FIELD_OVERRIDES],
-         inst[PROP_FIELD_STATE]);
-  if (sh && strlen(sh))
-    desc = capitalize(sh) + ".\n" + desc;
+  {
+    mapping spec;
+    string noun, mat_id, material_phrase, id, header;
+
+    spec = (mapping)handler("props")->query_type_spec(
+             inst[PROP_FIELD_TYPE]);
+    if (spec)
+    {
+      noun = spec[PROP_TYPE_NOUN];
+      if (noun && strlen(noun))
+      {
+        mat_id = _instance_material(inst);
+        material_phrase = (mat_id && strlen(mat_id))
+          ? (string)table("materials")->query_material_phrase(mat_id)
+          : "";
+        id = noun;
+        header = strlen(material_phrase)
+          ? _LANG_PROPS_ID_WITH_MATERIAL
+          : noun;
+        desc = capitalize(header) + ".\n" + desc;
+      }
+    }
+  }
 
   hint = query_actions_hint(inst);
   if (strlen(hint))
