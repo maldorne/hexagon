@@ -506,11 +506,18 @@ string long(varargs string str, int dark)
 string query_props_string()
 {
   object props_comp;
+  string ret;
 
   props_comp = query_component_by_type(LOCATION_COMPONENT_PROPS);
   if (!props_comp) return "";
 
-  return props_comp->query_props_section_string();
+  ret = (string)props_comp->query_props_section_string();
+  if (!strlen(ret)) return "";
+
+  // Wrap to the viewer's column width. prettify=0 (reflow mode)
+  // keeps the enumeration flush left and adds no surrounding blank
+  // lines — appropriate for a compact one-shot summary.
+  return wrap(ret, (this_user() ? this_user()->query_cols() : 79));
 }
 
 string calc_extra_look()
