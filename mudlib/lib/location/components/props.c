@@ -89,12 +89,34 @@ void initialize(object loc)
     move(loc);
 }
 
-// Enumerate every string a player can type to refer to an attached
-// prop — the type's id_list (from the registry) and its material-
-// composed variants assembled via _LANG_PROPS_ID_WITH_MATERIAL. Per-
-// instance handles (chair_1, silla_hierro, ...) are DELIBERATELY
-// omitted; those exist for the coder `props` cmd only and should
-// never surface to players as parser input.
+// Clear any state fields on attached instances whose value is the
+// leaving player's name. Covers occupancy-style state that would
+// otherwise persist as a ghost after the player moved away without
+// running the reverse verb.
+void event_exit(object ob, varargs string msg, object dest, mixed avoid)
+{
+  string leaver;
+  int i;
+
+  if (!ob || !ob->query_name()) return;
+  leaver = ob->query_name();
+
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    mapping st;
+    string * keys;
+    int j;
+
+    st = props_instances[i][PROP_FIELD_STATE];
+    if (!st) continue;
+
+    keys = map_indices(st);
+    for (j = 0; j < sizeof(keys); j++)
+      if (stringp(st[keys[j]]) && st[keys[j]] == leaver)
+        st[keys[j]] = nil;
+  }
+}
+
 string * query_alias()
 {
   string * ret;
