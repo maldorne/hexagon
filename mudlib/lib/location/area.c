@@ -41,6 +41,23 @@ void set_file_name(string name)
 
 mapping query_locations() { return locations; }
 
+// Filters the area's loaded locations down to those carrying the
+// maze component. Derived, no separate storage — the maze flag lives
+// on the location's component_info.
+object * query_maze_locations()
+{
+  object * ret;
+  int i;
+
+  ret = ({ });
+  loaded_locations -= ({ nil });
+  for (i = 0; i < sizeof(loaded_locations); i++)
+    if (loaded_locations[i]->query_component_by_type(LOCATION_COMPONENT_MAZE))
+      ret += ({ loaded_locations[i] });
+
+  return ret;
+}
+
 // The full save path of this area
 // (e.g. /save/games/rl-aeternum/locations/areas/elfereth/rooms/), set
 // by the area handler when the storage is created.

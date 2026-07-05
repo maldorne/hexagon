@@ -598,8 +598,12 @@ int guess_coordinates()
 
   found = FALSE;
 
-  // if (query_coordinates() != nil)
-  //   return;
+  // Guard against clobbering coords that were assigned deliberately —
+  // via room2loc coords, direct set_coordinates, or a previous
+  // successful inference pass. Without this a re-import silently
+  // overwrites builder-set coords.
+  if (query_coordinates() != nil)
+    return FALSE;
 
   exit_info = query_dest_dir();
 

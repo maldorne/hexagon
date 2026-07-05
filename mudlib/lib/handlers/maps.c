@@ -1,5 +1,6 @@
 
 #include <maps/maps.h>
+#include <room/location.h>
 
 mapping loaded_sectors;
 
@@ -66,8 +67,17 @@ string add_location(object location)
 
   sector_storage = create_sector(path);
 
-  // add the location to the sector storage
-  sector_storage->add_location(location->query_file_name(), x, y, z, ([ ]));
+  // Lift a "maze" flag from the location's component set so the
+  // sector can index the coord as opaque for pathfinding purposes,
+  // without callers having to reload the location afterwards.
+  {
+    mapping location_data;
+    location_data = ([ ]);
+    if (location->query_component_by_type(LOCATION_COMPONENT_MAZE))
+      location_data["maze"] = 1;
+    sector_storage->add_location(location->query_file_name(),
+                                 x, y, z, location_data);
+  }
   sector_storage->add_loaded_location(location);
 
   // keep the per-coordinate pointer file in sync with the location's
