@@ -239,9 +239,19 @@ string long(varargs string str, int dark)
            inst[PROP_FIELD_ID]);
   if (!desc || !strlen(desc)) return "";
 
+  // Same wrap idiom the location body uses — respects the viewer's
+  // column width and frames the block with a blank line above and
+  // below. look.c writes our return verbatim, so the wrap has to
+  // happen here. The action-hint line is appended AFTER the wrap so
+  // it lines up with the hanging-indent margin instead of drifting
+  // to the flush-left column when multi_line hits its leading '\n'.
+  if (desc[strlen(desc) - 1] != '\n')
+    desc += "\n";
+  desc = wrap(desc, (this_user() ? this_user()->query_cols() : 79), 1);
+
   hint = query_actions_hint(inst);
   if (strlen(hint))
-    desc += "\n" + hint;
+    desc += "    " + hint + "\n";
 
   return desc;
 }
