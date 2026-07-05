@@ -81,6 +81,18 @@ string add_location(object location)
     write_file(path + file_name, location->query_file_name());
   else if (content != location->query_file_name())
   {
+    // Two distinct locations claim the same (x, y, z). This is a
+    // data bug on the room side — the sector can only remember one
+    // pointer per coord, so the loser is dropped from coord lookup
+    // (still loadable directly, but the map won't find it). Emit a
+    // persistent trace so authors can find and fix the source.
+    string msg;
+    msg = "[" + ctime(time(), 4) + "] map=" + location->query_map_name() +
+          " coord=(" + x + "," + y + "," + z + ") collision: " +
+          content + " ↔ " + location->query_file_name() + "\n";
+    log_file("maps_collision", msg);
+    stderr("⚠️  maps: " + msg);
+
     remove_file(path + file_name);
     write_file(path + file_name, location->query_file_name());
   }
