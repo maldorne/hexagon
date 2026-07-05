@@ -35,6 +35,7 @@ private mapping * props_instances;
 // prototypes
 private mapping  _find_unique_match(string str);
 private mapping * _find_matching_instances(string str);
+private mapping * _auto_target_instances(string verb);
 private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
 private int      _execute_generic(mapping spec, mapping inst, string args);
@@ -920,6 +921,14 @@ int do_prop_action(string str)
 
   matches = _find_matching_instances(str);
 
+  // Bare-verb auto-resolve: when the player types `stand` with no
+  // target, look for an instance whose action-plan requires the
+  // player's name in one of its state fields (chair sit's stand
+  // action requires occupant == this_player). That instance is the
+  // one the player is on — reverse actions can find themselves.
+  if (!sizeof(matches) && (!str || !strlen(str)))
+    matches = _auto_target_instances(verb);
+
   if (!sizeof(matches))
   {
     notify_fail(_LANG_PROPS_NO_TARGET + "\n");
@@ -1292,6 +1301,96 @@ private mapping _find_unique_match(string str)
   mapping * matches;
   matches = _find_matching_instances(str);
   return sizeof(matches) ? matches[0] : nil;
+}
+
+/*
+ * Bare-verb auto-target lookup. For each attached instance whose
+ * type recognises `verb`, checks whether the current state would
+ * let the action fire — its REQUIRES_STATE flags are truthy and
+ * its REQUIRES_STATE_MATCH fields match (resolving
+ * PROP_VALUE_PLAYER_NAME against the caller). Covers the natural
+ * reverse-verb cases (`stand` while sitting, `extinguish` while
+ * the fireplace is lit, `right` while the chair is tipped) without
+ * a bespoke rule per type.
+ */
+private mapping * _auto_target_instances(string verb)
+{
+  mapping * ret;
+  string player_name;
+  int i;
+
+  ret = ({ });
+  if (!verb || !strlen(verb)) return ret;
+  player_name = this_player()->query_name();
+
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    mapping inst;
+    string type;
+    string canonical;
+    mixed * plan;
+    mapping spec;
+    mapping st;
+    string * required;
+    mapping match;
+    int ok;
+    int j;
+
+    mixed raw_canonical;
+    mixed raw_plan;
+
+    inst = props_instances[i];
+    type = inst[PROP_FIELD_TYPE];
+    if (!type || !strlen(type)) continue;
+
+    raw_canonical = handler("props")->query_canonical_action(type, verb);
+    if (!stringp(raw_canonical)) continue;
+    canonical = raw_canonical;
+
+    raw_plan = handler("props")->query_action_plan(type, canonical);
+    if (!pointerp(raw_plan)) continue;
+    plan = raw_plan;
+    if (sizeof(plan) < 2 || !mappingp(plan[1])) continue;
+
+    spec = plan[1];
+    st = inst[PROP_FIELD_STATE];
+
+    // The instance must satisfy every state precondition — that is
+    // exactly the "the player could type <verb> <this prop>" test.
+    // Actions without any state precondition (pray on an altar,
+    // sit on a chair, smell the bar) are excluded on purpose: they
+    // read as intentionally unspecific and shouldn't guess a target.
+    required = spec[PROP_SPEC_REQUIRES_STATE];
+    match    = spec[PROP_SPEC_REQUIRES_STATE_MATCH];
+    if (!required && !match) continue;
+
+    ok = 1;
+
+    if (required)
+      for (j = 0; ok && j < sizeof(required); j++)
+        if (!st || !st[required[j]])
+          ok = 0;
+
+    if (ok && match)
+    {
+      string * keys;
+      keys = map_indices(match);
+      for (j = 0; ok && j < sizeof(keys); j++)
+      {
+        mixed expected;
+        expected = match[keys[j]];
+        if (expected == PROP_VALUE_PLAYER_NAME)
+          expected = player_name;
+        if (!st || st[keys[j]] != expected)
+          ok = 0;
+      }
+    }
+
+    if (ok)
+      ret += ({ inst });
+  }
+
+  return ret;
 }
 
 /*
