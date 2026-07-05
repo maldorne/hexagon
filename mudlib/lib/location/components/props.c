@@ -460,16 +460,16 @@ string query_props_section_string()
     piece = _group_noun_phrase(insts);
     if (!strlen(piece)) continue;
 
-    // Singleton groups pick up the compact state suffix — "(lit)",
-    // "(tipped over)", "(<name> is sitting on it)". Plural groups
-    // don't try to reconcile mixed state across instances.
-    if (sizeof(insts) == 1)
+    // Groups collapse into one entry by construction; every instance
+    // shares the same state signature, so a single suffix (singular
+    // or plural, per group cardinality) describes the lot.
     {
       mapping first;
       string suf;
       first = insts[0];
       suf = (string)handler("props")->query_short_state_suffix(
-              first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE]);
+              first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE],
+              sizeof(insts) > 1);
       if (strlen(suf))
         piece += suf;
     }
@@ -737,11 +737,13 @@ private string _compose_group_sentence(mapping * insts)
 
   // Apply the type's state-suffix tail once for the whole group —
   // every instance in this group carries the same state signature,
-  // so a single tail describes the lot.
+  // so a single tail describes the lot. Plural flag picks the
+  // plural suffix variant when the type defines one.
   {
     string tail;
     tail = (string)handler("props")->query_state_suffixes(
-             first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE]);
+             first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE],
+             sizeof(insts) > 1);
     if (strlen(tail))
       ret += tail;
   }

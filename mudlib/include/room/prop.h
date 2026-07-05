@@ -119,6 +119,17 @@
 // hardcoding it into PROP_TYPE_LONG_KEY (which should stay invariant
 // and describe only structure).
 #define PROP_TYPE_LONG_SUFFIXES_UNSET   "long_suffixes_unset"
+
+// Plural counterparts of the three suffix maps above. Same shape
+// (state_field -> suffix_string); the renderer picks the plural
+// variant when a group carries more than one instance, and falls
+// back to the singular map when a plural variant is not defined —
+// so authors only fill these in where the singular reads badly on
+// several instances ("Está tirada" → "Están tiradas").
+#define PROP_TYPE_STATE_SUFFIXES_PLURAL      "state_suffixes_plural"
+#define PROP_TYPE_LONG_SUFFIXES_PLURAL       "long_suffixes_plural"
+#define PROP_TYPE_LONG_SUFFIXES_UNSET_PLURAL "long_suffixes_unset_plural"
+
 #define PROP_TYPE_ACTIONS         "actions"
 
 // ------------------------------------------------------------

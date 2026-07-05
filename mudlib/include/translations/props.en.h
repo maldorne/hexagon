@@ -68,6 +68,7 @@
 
 #define _LANG_PROP_CHAIR_LONG_TIPPED        " It lies on its side."
 #define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s is sitting on it."
+#define _LANG_PROP_CHAIR_LONG_TIPPED_PLURAL " They lie on their sides."
 
 #define _LANG_PROP_CHAIR_SIT_VERBS          ({ "sit" })
 #define _LANG_PROP_CHAIR_STAND_VERBS        ({ "stand", "rise" })
@@ -178,6 +179,7 @@
 
 #define _LANG_PROP_FIREPLACE_LONG_LIT   " Flames crackle inside, casting warm light across the room."
 #define _LANG_PROP_FIREPLACE_LONG_UNLIT " The ashes are cold; nobody has lit it in a while."
+#define _LANG_PROP_FIREPLACE_LONG_UNLIT_PLURAL " The ashes are cold; nobody has lit them in a while."
 
 #define _LANG_PROP_FIREPLACE_LIGHT_VERBS ({ "light", "ignite" })
 // "put out" intentionally omitted — DGD's add_action registers

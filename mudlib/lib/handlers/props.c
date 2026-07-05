@@ -431,13 +431,16 @@ string query_type_long(string type, mapping overrides, mapping state,
  * Compact state suffix used on the section line — e.g. " (lit)" or
  * " (tipped over)". Only truthy state fields with a suffix mapping
  * contribute. Companion to query_state_suffixes, which composes the
- * long-form flavour tail.
+ * long-form flavour tail. `plural` picks the plural suffix map when
+ * set, falling back to the singular one per-field.
  */
-string query_short_state_suffix(string type, mapping state)
+string query_short_state_suffix(string type, mapping state,
+                                varargs int plural)
 {
   mapping entry;
   mapping spec;
   mapping suffixes;
+  mapping suffixes_plural;
   string * keys;
   string ret;
   int i;
@@ -451,16 +454,34 @@ string query_short_state_suffix(string type, mapping state)
 
   ret = "";
   suffixes = spec[PROP_TYPE_STATE_SUFFIXES];
-  if (!suffixes || !state) return ret;
+  if (plural) suffixes_plural = spec[PROP_TYPE_STATE_SUFFIXES_PLURAL];
+  if (!suffixes && !suffixes_plural) return ret;
+  if (!state) return ret;
 
-  keys = map_indices(suffixes);
+  keys = map_indices(suffixes_plural ? suffixes_plural :
+                                       (suffixes ? suffixes : ([ ])));
+  // Also include keys that are only in the singular map — a plural
+  // variant is optional per state field.
+  if (suffixes_plural && suffixes)
+  {
+    string * skeys;
+    skeys = map_indices(suffixes);
+    for (i = 0; i < sizeof(skeys); i++)
+      if (member_array(skeys[i], keys) == -1)
+        keys += ({ skeys[i] });
+  }
+
   for (i = 0; i < sizeof(keys); i++)
   {
     mixed value;
+    string suffix;
     value = state[keys[i]];
     if (!value) continue;
-    ret += sprintf(suffixes[keys[i]],
-                   stringp(value) ? value : "" + value);
+    suffix = (suffixes_plural && suffixes_plural[keys[i]]) ?
+               suffixes_plural[keys[i]] :
+               (suffixes ? suffixes[keys[i]] : nil);
+    if (!suffix) continue;
+    ret += sprintf(suffix, stringp(value) ? value : "" + value);
   }
 
   return ret;
@@ -470,13 +491,17 @@ string query_short_state_suffix(string type, mapping state)
  * Just the state-driven suffix tail — the string composed from
  * LONG_SUFFIXES + LONG_SUFFIXES_UNSET for a given state. Reused by
  * the props component when it needs to append the state flavour to
- * a noun-phrase sentence in the room prose.
+ * a noun-phrase sentence in the room prose. `plural` picks the
+ * plural variant maps when set, falling back to the singular one
+ * per-field.
  */
-string query_state_suffixes(string type, mapping state)
+string query_state_suffixes(string type, mapping state,
+                            varargs int plural)
 {
   mapping entry;
   mapping spec;
   mapping suffixes;
+  mapping suffixes_plural;
   string * keys;
   string ret;
   int i;
@@ -491,28 +516,60 @@ string query_state_suffixes(string type, mapping state)
   ret = "";
 
   suffixes = spec[PROP_TYPE_LONG_SUFFIXES];
-  if (suffixes && state)
+  if (plural) suffixes_plural = spec[PROP_TYPE_LONG_SUFFIXES_PLURAL];
+  if ((suffixes || suffixes_plural) && state)
   {
-    keys = map_indices(suffixes);
+    keys = map_indices(suffixes_plural ? suffixes_plural :
+                                         (suffixes ? suffixes : ([ ])));
+    if (suffixes_plural && suffixes)
+    {
+      string * skeys;
+      skeys = map_indices(suffixes);
+      for (i = 0; i < sizeof(skeys); i++)
+        if (member_array(skeys[i], keys) == -1)
+          keys += ({ skeys[i] });
+    }
     for (i = 0; i < sizeof(keys); i++)
     {
       mixed value;
+      string suffix;
       value = state[keys[i]];
       if (!value) continue;
-      ret += sprintf(suffixes[keys[i]], "" + value);
+      suffix = (suffixes_plural && suffixes_plural[keys[i]]) ?
+                 suffixes_plural[keys[i]] :
+                 (suffixes ? suffixes[keys[i]] : nil);
+      if (!suffix) continue;
+      ret += sprintf(suffix, "" + value);
     }
   }
 
+  suffixes = nil;
+  suffixes_plural = nil;
   suffixes = spec[PROP_TYPE_LONG_SUFFIXES_UNSET];
-  if (suffixes)
+  if (plural) suffixes_plural = spec[PROP_TYPE_LONG_SUFFIXES_UNSET_PLURAL];
+  if (suffixes || suffixes_plural)
   {
-    keys = map_indices(suffixes);
+    keys = map_indices(suffixes_plural ? suffixes_plural :
+                                         (suffixes ? suffixes : ([ ])));
+    if (suffixes_plural && suffixes)
+    {
+      string * skeys;
+      skeys = map_indices(suffixes);
+      for (i = 0; i < sizeof(skeys); i++)
+        if (member_array(skeys[i], keys) == -1)
+          keys += ({ skeys[i] });
+    }
     for (i = 0; i < sizeof(keys); i++)
     {
       mixed value;
+      string suffix;
       value = state ? state[keys[i]] : nil;
       if (value) continue;
-      ret += suffixes[keys[i]];
+      suffix = (suffixes_plural && suffixes_plural[keys[i]]) ?
+                 suffixes_plural[keys[i]] :
+                 (suffixes ? suffixes[keys[i]] : nil);
+      if (!suffix) continue;
+      ret += suffix;
     }
   }
 

@@ -70,9 +70,11 @@
 
 #define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tirada en el suelo)"
 #define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s está sentado en ella)"
+#define _LANG_PROP_CHAIR_SUFFIX_TIPPED_PLURAL   " (tiradas en el suelo)"
 
 #define _LANG_PROP_CHAIR_LONG_TIPPED        " Está tirada en el suelo."
 #define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s está sentado en ella."
+#define _LANG_PROP_CHAIR_LONG_TIPPED_PLURAL " Están tiradas en el suelo."
 
 #define _LANG_PROP_CHAIR_SIT_VERBS          ({ "sentar", "sentarse" })
 #define _LANG_PROP_CHAIR_STAND_VERBS        ({ "levantar", "levantarse" })
@@ -183,6 +185,7 @@
 
 #define _LANG_PROP_FIREPLACE_LONG_LIT   " Las llamas crepitan en su interior, bañando la sala de luz cálida."
 #define _LANG_PROP_FIREPLACE_LONG_UNLIT " Las cenizas están frías; nadie la ha encendido en bastante tiempo."
+#define _LANG_PROP_FIREPLACE_LONG_UNLIT_PLURAL " Las cenizas están frías; nadie las ha encendido en bastante tiempo."
 
 #define _LANG_PROP_FIREPLACE_LIGHT_VERBS ({ "encender", "prender" })
 #define _LANG_PROP_FIREPLACE_EXT_VERBS  ({ "apagar", "extinguir" })
