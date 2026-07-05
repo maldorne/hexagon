@@ -100,17 +100,7 @@ int do_adjust(string str)
 
 int intro(object ob) 
 {
-  string racial_bonuses, ret;
-
-  racial_bonuses = sprintf(_LANG_ORB_RACIAL_BONUSES,
-    this_player()->query_bonus_str(),
-    this_player()->query_bonus_dex(),
-    this_player()->query_bonus_con(),
-    this_player()->query_bonus_int(),
-    this_player()->query_bonus_wis(),
-    this_player()->query_bonus_cha(),
-    this_player()->query_bonus_per(),
-    this_player()->query_bonus_wil() );
+  string ret;
 
   ret = _LANG_ORB_ADJUST_TXT;
 
