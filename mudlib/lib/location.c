@@ -54,6 +54,7 @@ string query_file_name();
 void set_file_name(string filename);
 void save_me();
 void add_exits_from_exit_map(mapping m);
+void set_exits_from_exit_map(mapping m);
 mixed * run_pipeline(string func, mixed * args);
 mixed run_reduce(string func, mixed * args, mixed acc, string combinator);
 string _concat_string(mixed acc, mixed piece);
@@ -691,7 +692,7 @@ int guess_coordinates()
 // we save the full exit map
 // and restore it when the location is loaded
 void add_exits_from_exit_map(mapping m)
-{ 
+{
   int i;
   string * exit_names;
   string * exits_info;
@@ -705,11 +706,27 @@ void add_exits_from_exit_map(mapping m)
     // first remove the current exit if it exists
     remove_exit(exit_names[i]);
 
-    add_exit(exit_names[i], 
-             exits_info[0], 
-             exits_info[1], 
+    add_exit(exit_names[i],
+             exits_info[0],
+             exits_info[1],
              exits_info[2]);
   }
+}
+
+// Replace-all variant used by the room-to-location conversion. Wipes
+// every existing exit before applying `m`, so a language switch
+// (DIR_NORTH going from "north" to "norte", etc.) cannot leave the
+// previous localised keys as stale entries alongside the new ones.
+void set_exits_from_exit_map(mapping m)
+{
+  string * exit_names;
+  int i;
+
+  exit_names = keys(_exit_map);
+  for (i = 0; i < sizeof(exit_names); i++)
+    remove_exit(exit_names[i]);
+
+  add_exits_from_exit_map(m);
 }
 
 // check every exit, if it goes to a room already converted to location, 
