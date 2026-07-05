@@ -66,7 +66,7 @@ static string query_multiple_short(mixed *obs, varargs int flag)
     for (j = 0; j < sizeof(str); j++)
     {
       // Skip objects whose short is empty — they contribute nothing
-      // to a "coger X, Y and Z" style enumeration and would leave a
+      // to an "X, Y and Z" style enumeration and would leave a
       // blank slot in the middle of the sentence.
       if (!stringp(str[j]) || !strlen(str[j])) continue;
       if ((k = member_array(str[j], bity)) == -1)
