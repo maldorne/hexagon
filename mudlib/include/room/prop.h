@@ -46,7 +46,7 @@
 #define PROP_OVERRIDE_MATERIAL     "material"
 #define PROP_OVERRIDE_DESCRIPTION  "description"
 #define PROP_OVERRIDE_SHORT        "short"
-#define PROP_OVERRIDE_ACTIONS      "actions"
+#define PROP_OVERRIDE_REMOVED_ACTIONS "removed_actions"
 #define PROP_OVERRIDE_PROPS        "props"
 
 // ------------------------------------------------------------
@@ -143,13 +143,6 @@
 // ------------------------------------------------------------
 
 #define PROP_VALUE_PLAYER_NAME  "__player_name__"
-
-//  PROP_VALUE_REMOVED marks an action as explicitly stripped from an
-//  instance's catalogue. Stored under overrides.actions[verb] = this
-//  sentinel, the dispatcher returns _LANG_PROPS_REMOVED_ACTION when
-//  that verb fires on the instance. A plain `nil` cannot serve as the
-//  marker because DGD deletes mapping keys on assignment to nil.
-#define PROP_VALUE_REMOVED  "__removed__"
 
 // ------------------------------------------------------------
 //  Gender values used by PROP_TYPE_GENDER. Mirrors the raw ints

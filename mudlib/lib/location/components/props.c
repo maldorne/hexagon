@@ -946,16 +946,15 @@ int do_prop_action(string str)
   canonical = handler("props")->query_canonical_action(
                 inst[PROP_FIELD_TYPE], verb);
 
-  // honour overrides.actions[<canonical>] = PROP_VALUE_REMOVED. The
-  // sentinel keys on the canonical action id (English) so builder
-  // overrides written once apply across every localised verb that
-  // dispatches to the same action. A plain `nil` cannot signal
-  // removal because DGD deletes mapping keys on assignment.
+  // Membership in overrides.removed_actions marks the action as
+  // stripped for this instance. The key is the canonical action id
+  // (English) so an override written once applies across every
+  // localised verb that dispatches to the same action.
   ov = inst[PROP_FIELD_OVERRIDES];
   if (ov && canonical)
   {
-    ov_actions = ov[PROP_OVERRIDE_ACTIONS];
-    if (ov_actions && ov_actions[canonical] == PROP_VALUE_REMOVED)
+    ov_actions = ov[PROP_OVERRIDE_REMOVED_ACTIONS];
+    if (ov_actions && ov_actions[canonical])
     {
       notify_fail(_LANG_PROPS_REMOVED_ACTION + "\n");
       return 0;

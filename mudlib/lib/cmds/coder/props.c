@@ -45,10 +45,11 @@ void setup()
            "  remove  Drop the first instance whose id or type\n" +
            "          matches.\n" +
            "  set     Write an override or initial state. Path is\n" +
-           "          dotted: overrides.material, overrides.props.X,\n" +
-           "          overrides.actions.X, state.X. Value parsed as\n" +
-           "          int when it looks like a number, nil for the\n" +
-           "          literal 'nil', otherwise string.\n" +
+           "          dotted: overrides.material,\n" +
+           "          overrides.props.X, overrides.removed_actions.X,\n" +
+           "          state.X. Value parsed as int when it looks\n" +
+           "          like a number, nil for the literal 'nil',\n" +
+           "          otherwise string.\n" +
            "  state   Print current runtime state of the matching\n" +
            "          instance. With 'reset' as the second token,\n" +
            "          re-applies the type's default_state (useful to\n" +
@@ -74,7 +75,6 @@ static mixed _parse_value(string raw)
 
   if (!raw) return nil;
   if (raw == "nil" || raw == "0") return raw == "0" ? 0 : nil;
-  if (raw == "removed") return PROP_VALUE_REMOVED;
 
   // quoted string
   if (strlen(raw) >= 2 && raw[0] == '"' && raw[strlen(raw)-1] == '"')

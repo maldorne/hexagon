@@ -685,7 +685,7 @@ string * query_supported_verbs(string type, mapping overrides,
   if (!actions) return ({ });
 
   if (overrides)
-    override_actions = overrides[PROP_OVERRIDE_ACTIONS];
+    override_actions = overrides[PROP_OVERRIDE_REMOVED_ACTIONS];
 
   action_keys = map_indices(actions);
   ret = ({ });
@@ -698,10 +698,9 @@ string * query_supported_verbs(string type, mapping overrides,
 
     canonical = action_keys[i];
 
-    // a verb explicitly marked PROP_VALUE_REMOVED in overrides is
-    // dropped from the supported set; any other override value
-    // (including a remapped action mapping) stays available.
-    if (override_actions && override_actions[canonical] == PROP_VALUE_REMOVED)
+    // Actions listed in overrides.removed_actions are dropped from
+    // the supported set. Truthy value = removed.
+    if (override_actions && override_actions[canonical])
       continue;
 
     action_spec = actions[canonical];
