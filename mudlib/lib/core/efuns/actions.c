@@ -56,6 +56,69 @@ nomask void add_private_action(string func, mixed verbs)
     _private_actions[verbs] = func;
 }
 
+// Symmetric partner to add_action. Removes a (verb -> func) binding
+// only when the current binding matches `func`, so a subsystem cannot
+// accidentally strip another one's registration. Returns 1 when at
+// least one binding was removed, 0 otherwise.
+nomask int remove_action(string func, mixed verbs)
+{
+  int removed;
+
+  removed = 0;
+  if (!_actions) return 0;
+
+  if (arrayp(verbs))
+  {
+    int i;
+    for (i = 0; i < sizeof(verbs); i++)
+      if (stringp(verbs[i]) && _actions[verbs[i]] == func)
+      {
+        _actions[verbs[i]] = nil;
+        removed = 1;
+      }
+  }
+  else if (stringp(verbs))
+  {
+    if (_actions[verbs] == func)
+    {
+      _actions[verbs] = nil;
+      removed = 1;
+    }
+  }
+
+  return removed;
+}
+
+// Symmetric partner to add_private_action.
+nomask int remove_private_action(string func, mixed verbs)
+{
+  int removed;
+
+  removed = 0;
+  if (!_private_actions) return 0;
+
+  if (arrayp(verbs))
+  {
+    int i;
+    for (i = 0; i < sizeof(verbs); i++)
+      if (stringp(verbs[i]) && _private_actions[verbs[i]] == func)
+      {
+        _private_actions[verbs[i]] = nil;
+        removed = 1;
+      }
+  }
+  else if (stringp(verbs))
+  {
+    if (_private_actions[verbs] == func)
+    {
+      _private_actions[verbs] = nil;
+      removed = 1;
+    }
+  }
+
+  return removed;
+}
+
 // nomask int action_exist(string verb)
 // {
 //   if (_actions[verb])
