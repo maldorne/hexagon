@@ -10,7 +10,12 @@
 /save/ventures/*-log
 !/save/ventures/ventures.o
 /save/issues/issues.o
+# ignore per-game save state, except the demo game that ships with the
+# mudlib for local testing. Real game state lives in muds-state, mounted
+# via docker volumes on the server (and via a symlink to a muds-state
+# clone in local development).
 /save/games/*
+!/save/games/demo-fantasy/
 !/save/secure/secure.o
 
 # tmp files
