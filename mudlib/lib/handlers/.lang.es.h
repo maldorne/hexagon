@@ -1,6 +1,13 @@
 
 #define _LANG_CALENDAR_BIRTHDAY_STRING day+" de "+month(month-1)
 
+// Composition of a year name. References `num`, `gender` and `year`
+// (a mixed * with POS_YEAR_NAME / POS_YEAR_ADJECTIVE indices) from
+// the caller, which is calendar.c::query_year_name().
+#define _LANG_CALENDAR_YEAR_STRING \
+  "" + num + ", el año de" + ((gender == 1) ? "l " : " la ") + \
+  capitalize(year[POS_YEAR_NAME]) + " " + year[POS_YEAR_ADJECTIVE]
+
 // weather
 
 #define _LANG_WEATHER_MONTHS ({ "enero", "febrero", "marzo", "abril", \

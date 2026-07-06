@@ -1,6 +1,14 @@
 
 #define _LANG_CALENDAR_BIRTHDAY_STRING month(month-1)+" the "+ordinal(day)
 
+// Composition of a year name. References `num`, `gender` and `year`
+// (a mixed * with POS_YEAR_NAME / POS_YEAR_ADJECTIVE indices) from
+// the caller, which is calendar.c::query_year_name(). English drops
+// the gender distinction; the adjective goes before the noun.
+#define _LANG_CALENDAR_YEAR_STRING \
+  "" + num + ", the year of the " + \
+  year[POS_YEAR_ADJECTIVE] + " " + year[POS_YEAR_NAME]
+
 // weather
 
 #define _LANG_WEATHER_MONTHS ({ "january", "february", "march", "april", \

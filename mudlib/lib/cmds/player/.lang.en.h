@@ -4,6 +4,18 @@
 #define _LANG_CMD_NOTHING_HERE "Nothing with the name '"+arg+"' is here.\n"
 #define _LANG_CMD_DEAD "You are in spiritual form, you don't need to know that.\n"
 
+// calendar.c
+
+#define _LANG_CMD_CALENDAR_ALIAS       ({ "calendar" })
+#define _LANG_CMD_CALENDAR_SYNTAX      "calendar [years]"
+#define _LANG_CMD_CALENDAR_HELP        "Shows the calendar for the current month. With the " + \
+                                       "'years' argument lists the names of every past year."
+#define _LANG_CMD_CALENDAR_ARG_YEARS   ({ "years" })
+#define _LANG_CMD_CALENDAR_ERA_HEADER  "Calendar of the current era:\n\n"
+#define _LANG_CMD_CALENDAR_TITLE       "Calendar"
+#define _LANG_CMD_CALENDAR_USAGE       "Syntax: calendar [years]\n"
+#define _LANG_CMD_CALENDAR_WEEK_HEADER "  M   T   W   T   F   S   S\n"
+
 // kill.c
 
 #define _LANG_CMD_KILL_ALIAS ({ "kill", "attack" })

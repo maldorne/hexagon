@@ -116,12 +116,14 @@ string query_year_name(int num)
   else
     year = get_year(num);
 
+  // Force the masculine "el año del" article for names starting with a
+  // stressed 'a' — "el águila", "el agua".
   if ((year[POS_YEAR_GENDER] == 1) || (year[POS_YEAR_NAME][0..0] == "a") || (year[POS_YEAR_NAME][0..0] == "á"))
     gender = 1;
   else
     gender = 2;
 
-  return "" + num + ", el año de" + ((gender == 1)?"l ":" la ") + capitalize(year[POS_YEAR_NAME]) + " " + year[POS_YEAR_ADJECTIVE];
+  return _LANG_CALENDAR_YEAR_STRING;
 }
 
 int query_global_day()
