@@ -23,13 +23,10 @@ void create()
   cmd_dirs = ([
        "/lib/cmds/user/"   : ({ USER_CMD,    CMD_CATEGORY_USER }),
        "/lib/cmds/player/" : ({ PLAYER_CMD,  CMD_CATEGORY_PLAYER }),
-      "/game/cmds/player/" : ({ PLAYER_CMD,  CMD_CATEGORY_PLAYER }),
        "/lib/cmds/coder/"  : ({ CODER_CMD,   CMD_CATEGORY_CODER }),
-      "/game/cmds/coder/"  : ({ CODER_CMD,   CMD_CATEGORY_CODER }),
        "/lib/cmds/admin/"  : ({ ADMIN_CMD,   CMD_CATEGORY_ADMIN }),
-      "/game/cmds/admin/"  : ({ ADMIN_CMD,   CMD_CATEGORY_ADMIN }),
       // "/net/cmds/":              ({ 0,   CMD_CATEGORY_NET }),
-      "/lib/cmds/meta/"    : ({ ADMIN_CMD,   CMD_CATEGORY_HANDLER }),
+       "/lib/cmds/meta/"    : ({ ADMIN_CMD,   CMD_CATEGORY_HANDLER }),
     ]);
 
   cmd_hash = ([ ]);
@@ -44,6 +41,23 @@ void create()
 void dest_me()
 {
   destruct(this_object());
+}
+
+// *_CMD levels accessible to `ob`. USER_CMD is always granted.
+private int * player_perms(object ob)
+{
+  int * perms;
+
+  perms = ({ USER_CMD, });
+
+  if (!ob)
+    return perms;
+
+  if (ob->query_player()) perms += ({ PLAYER_CMD, });
+  if (ob->query_coder())  perms += ({ CODER_CMD,  });
+  if (ob->query_admin())  perms += ({ ADMIN_CMD,  });
+
+  return perms;
 }
 
 int clean_up()
@@ -71,6 +85,33 @@ string find_cmd(string verb)
   // if not found. Remember it's location..
   string s, *dirs;
   int i;
+
+  // Per-game override: try <game_root>/cmds/<cat>/<verb>.c first.
+  if (this_player())
+  {
+    string root;
+    int * perms;
+    root = game_root(this_player());
+    if (root != "/")
+    {
+      perms = player_perms(this_player());
+      dirs = map_indices(cmd_dirs);
+      for (i = 0; i < sizeof(dirs); i++)
+      {
+        if (member_array(cmd_dirs[dirs[i]][0], perms) == -1)
+          continue;
+        if ((strlen(dirs[i]) > 10) && (dirs[i][0..9] == "/lib/cmds/"))
+        {
+          s = root + "cmds/" + dirs[i][10..] + verb;
+          if (file_size(s + ".c") > 0)
+          {
+            last_dir = dirs[i];
+            return s;
+          }
+        }
+      }
+    }
+  }
 
   if (cmd_hash[verb])
   {
@@ -111,14 +152,7 @@ string * query_available_cmds(object player)
   if (!player)
     return nil;
 
-  // get all object permissions
-  perms += ({ USER_CMD, });
-  if (player->query_player())
-    perms += ({ PLAYER_CMD, });
-  if (player->query_coder())
-    perms += ({ CODER_CMD, });
-  if (player->query_admin())
-    perms += ({ ADMIN_CMD, });
+  perms = player_perms(player);
 
   // get every possible cmd directories
   aux = keys(cmd_dirs);
@@ -254,14 +288,7 @@ mapping query_available_cmds_by_category(object player, varargs int filter)
   if (!player)
     return nil;
 
-  // get all object permissions
-  perms += ({ USER_CMD, });
-  if (player->query_player())
-    perms += ({ PLAYER_CMD, });
-  if (player->query_coder())
-    perms += ({ CODER_CMD, });
-  if (player->query_admin())
-    perms += ({ ADMIN_CMD, });
+  perms = player_perms(player);
 
   // get all possible cmd types
   aux = keys(cmd_dirs);
@@ -335,25 +362,8 @@ int cmd(string verb, string tail, object thisob)
   if (!s)
     return 0;
 
-  // Check their position now...
-  switch(cmd_dirs[last_dir][0])
-  {
-    case ADMIN_CMD:
-      if (!thisob->query_admin())
-        return 0;
-      break;
-    case CODER_CMD:
-      if (!thisob->query_coder())
-        return 0;
-      break;
-    case PLAYER_CMD:
-      if (!thisob->query_player())
-        return 0;
-      break;
-    // always allow
-    case USER_CMD:
-      break;
-  }
+  if (member_array(cmd_dirs[last_dir][0], player_perms(thisob)) == -1)
+    return 0;
 
   cmd_hash[verb]["count"]++;
 
