@@ -6,6 +6,7 @@
 // and to give name to the years
 
 #include <mud/time.h>
+#include <mud/config.h>
 #include <translations/time.h>
 #include <areas/weather.h>
 #include <areas/calendar.h>
@@ -46,13 +47,13 @@ void setup()
   add_alias("controlador");
   add_plural("controladores");
 
-  // Move esta redefinida, siempre mueve el objeto a HOME
+  // Move esta redefinida, siempre mueve el objeto a HANDLERS_HOME
   move("bing");
 }
 
 int move(mixed dest, varargs mixed messin, mixed messout)
 {
-  ::move(HOME, messin, messout);
+  ::move(HANDLERS_HOME, messin, messout);
 }
 
 void save_handler()

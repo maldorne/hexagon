@@ -11,6 +11,7 @@
  *     advancement, neverbot 7/03
  */
 
+#include <mud/config.h>
 #include <areas/weather.h>
 #include <language.h>
 
@@ -69,7 +70,7 @@ void setup()
 
 /* have this move here to get it to my weather room ;) (Sleaze) */
 int move(mixed dest, varargs mixed messin, mixed messout) {
-  ::move(HOME, messin, messout);
+  ::move(HANDLERS_HOME, messin, messout);
 }
 
 int shutdown_activated() 

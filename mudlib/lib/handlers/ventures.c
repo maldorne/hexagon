@@ -26,7 +26,6 @@
 
 inherit "/lib/core/object.c";
 
-#define HOME "/room/weather_room.c"
 #define SAVE_FILE "/save/ventures/ventures"
 
 // Shop updates are called every minute, when the list of shops ends, it starts again
@@ -85,13 +84,13 @@ void setup()
   add_alias("handler");
   add_plural("handlers");
   
-  // move masked, always move the object to HOME
+  // move masked, always move the object to HANDLERS_HOME
   move("bing");
 }
 
 int move(mixed dest, varargs mixed messin, mixed messout) 
 {
-  ::move(HOME, messin, messout);
+  ::move(HANDLERS_HOME, messin, messout);
 }
 
 void save_handler() 

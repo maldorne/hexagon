@@ -1,6 +1,8 @@
 
 #define WEATHER_HANDLER "weather"
-#define HOME "/games/hexagon/areas/admin/weather.c"
+
+// Default save file for the shared lib weather instance. Per-game
+// subclasses override query_save_file() to point elsewhere.
 #define SAVE_FILE "/save/weather.o"
 #define LOG_FILE "weather"
 
@@ -9,32 +11,17 @@
 
 #define CALENDAR_HANDLER "calendar"
 
-// Cuantas zonas climaticas modificaremos cada
-// vez que actualicemos el clima
+// Number of weather zones mutated on each update tick.
 #define MODIFY 3
 
-// Incremento por defecto de los valores del clima
-// si el incremente calculado es muy pequeño
+// Default increment when the computed delta is under the smoothing threshold.
 #define DEF_INC 15
 
-// Tres lunas para Cc, Folken 6/03
-#define WHITE_MOON "Luna %^BOLD%^blanca%^RESET%^"
-#define RED_MOON "Luna %^RED%^roja%^RESET%^"
-#define BLACK_MOON "Luna %^BOLD%^%^BLACK%^negra%^RESET%^"
-
-// Flags para el event_weather
-#define FLAG_AMANECER 1
-#define FLAG_ANOCHECER 2
-#define FLAG_CLIMA 3
+// Flags dispatched via weather_inform / event_weather.
+#define FLAG_DAWN 1
+#define FLAG_NIGHTFALL 2
+#define FLAG_CLIMATE 3
 #define FLAG_CHECK 4
-
-// Antiguo climate.h
-// #define C_TEMP 0
-// #define C_CLOUD 1
-// #define C_RAIN 2
-
-// #define C_OFFSET 0
-// #define C_WEIGHT 1
 
 #define SNOWBALL_OB "/obj/environ/snowball.c"
 #define SNOWMAN_OB "/obj/environ/snowman.c"

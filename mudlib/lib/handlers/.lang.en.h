@@ -1,6 +1,67 @@
 
 #define _LANG_CALENDAR_BIRTHDAY_STRING month(month-1)+" the "+ordinal(day)
 
+// weather
+
+#define _LANG_WEATHER_MONTHS ({ "january", "february", "march", "april", \
+                                "may", "june", "july", "august", \
+                                "september", "october", "november", \
+                                "december" })
+
+#define _LANG_WEATHER_SEASONS ({ "winter", "spring", "summer", "autumn" })
+
+#define _LANG_WEATHER_DAYNIGHT ({ "day", "night" })
+
+#define _LANG_WEATHER_MOON_PHASES ({ \
+  "full", "waning three quarters", "waning half", \
+  "waning crescent", "waning crescent", "new", "waxing crescent", \
+  "waxing crescent", "waxing half", "waxing three quarters" })
+
+// Single moon name for the shared base handler. Per-game subclasses
+// with multiple / coloured moons override moon_string() outright.
+#define _LANG_WEATHER_MOON_NAME "moon"
+
+// Full "The moon is <phase>" sentence. References `phase` from the caller.
+// "The" already handles sentence-start capitalisation.
+#define _LANG_WEATHER_MOON_STRING \
+  "The %^BOLD%^" + _LANG_WEATHER_MOON_NAME + "%^RESET%^ is " + phase + ".\n"
+
+#define _LANG_WEATHER_TEMP_SCORCHING  "scorching heat"
+#define _LANG_WEATHER_TEMP_VERY_HOT   "much heat"
+#define _LANG_WEATHER_TEMP_HOT        "a hot climate"
+#define _LANG_WEATHER_TEMP_WARM       "a warm climate"
+#define _LANG_WEATHER_TEMP_PLEASANT   "a pleasant temperature"
+#define _LANG_WEATHER_TEMP_COOL       "a cool climate"
+#define _LANG_WEATHER_TEMP_COLD       "cold"
+#define _LANG_WEATHER_TEMP_VERY_COLD  "much cold"
+#define _LANG_WEATHER_TEMP_POLAR      "polar cold"
+
+#define _LANG_WEATHER_WIND_STRONG      "a strong wind"
+#define _LANG_WEATHER_WIND_VERY_STRONG "a very strong wind"
+#define _LANG_WEATHER_WIND_BLIZZARD    "a blizzard"
+#define _LANG_WEATHER_WIND_HURRICANE   "a hurricane"
+
+#define _LANG_WEATHER_RAIN_LIGHT   "light rain"
+#define _LANG_WEATHER_RAIN_NORMAL  "rain"
+#define _LANG_WEATHER_RAIN_STORM         ({ "a storm", "hail", "snow" })
+#define _LANG_WEATHER_RAIN_STRONG_STORM  ({ "a strong storm", "heavy hail", \
+                                            "a heavy snowfall" })
+#define _LANG_WEATHER_RAIN_HEAVY_STORM   ({ "a very strong storm", "very heavy hail", \
+                                            "a very dense snowfall" })
+
+#define _LANG_WEATHER_STRING_OF   " of "
+#define _LANG_WEATHER_STRING_WITH " with "
+#define _LANG_WEATHER_STRING_SEP  ", "
+#define _LANG_WEATHER_STRING_AND  " and "
+#define _LANG_WEATHER_STRING_END  ".\n"
+
+#define _LANG_WEATHER_DATE_STRING \
+  "It is " + number_as_string(data[0]) + " o'clock" + \
+  " on " + capitalize(handler(CALENDAR_HANDLER)->query_week_day_string()) + \
+  " " + (day_of_month + 1) + " of " + \
+  capitalize(month_string()) + \
+  ", year " + handler(CALENDAR_HANDLER)->query_year_name(data[4])
+
 // postal
 
 #define _LANG_POSTAL_GROUP_CODERS "coders"

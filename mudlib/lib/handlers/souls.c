@@ -4,6 +4,7 @@
 #include <areas/common.h>
 #include <areas/weather.h>
 #include <mud/cmd.h>
+#include <mud/config.h>
 #include <translations/common.h>
 #include <language.h>
 
@@ -52,8 +53,8 @@ void create()
   lastarg = "";
 
   /* Taniwha 1995, move it here, players can't pick it up */
-  catch(load_object(HOME));
-  call_out("move", 2, HOME);
+  catch(load_object(HANDLERS_HOME));
+  call_out("move", 2, HANDLERS_HOME);
 
   global_adj = SOUL_DATA->query_global_adj();
   soul_data = SOUL_DATA->query_soul_data();

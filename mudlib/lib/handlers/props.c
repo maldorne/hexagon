@@ -32,7 +32,6 @@
 
 inherit "/lib/core/object.c";
 
-#define HOME             "/room/weather_room.c"
 #define PROPS_TABLE      "props_table"
 #define BASE_PROPS_DIR   "/lib/location/props/"
 #define PROP_BASE_FILE   "/lib/location/prop.c"
@@ -75,13 +74,13 @@ void setup()
   add_alias("handler");
   add_plural("handlers");
 
-  // move masked, always move to HOME
+  // move masked, always move to HANDLERS_HOME
   move("bing");
 }
 
 int move(mixed dest, varargs mixed messin, mixed messout)
 {
-  ::move(HOME, messin, messout);
+  ::move(HANDLERS_HOME, messin, messout);
 }
 
 // ************************************************************

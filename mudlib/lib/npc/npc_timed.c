@@ -52,10 +52,10 @@ void event_weather(object who, varargs int flag, int * values)
 	if ((!is_timed) && (!is_night_timed))
 	    return;
 
-	// estos flags informan de los cambios horarios, los demas no interesan
+	// Only the hourly-tick flags matter here.
 	if ((flag != FLAG_CHECK) &&
-	    (flag != FLAG_AMANECER) &&
-	    (flag != FLAG_ANOCHECER) )
+	    (flag != FLAG_DAWN) &&
+	    (flag != FLAG_NIGHTFALL) )
 	return;
 
 	time = handler(WEATHER_HANDLER)->query_date_data()[0];

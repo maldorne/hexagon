@@ -1,6 +1,69 @@
 
 #define _LANG_CALENDAR_BIRTHDAY_STRING day+" de "+month(month-1)
 
+// weather
+
+#define _LANG_WEATHER_MONTHS ({ "enero", "febrero", "marzo", "abril", \
+                                "mayo", "junio", "julio", "agosto", \
+                                "septiembre", "octubre", "noviembre", \
+                                "diciembre" })
+
+#define _LANG_WEATHER_SEASONS ({ "invierno", "primavera", "verano", "otoño" })
+
+#define _LANG_WEATHER_DAYNIGHT ({ "día", "noche" })
+
+#define _LANG_WEATHER_MOON_PHASES ({ \
+  "llena", "tres cuartos menguante", "media menguante", \
+  "menguante", "menguante", "nueva", "creciente", "creciente", \
+  "media creciente", "tres cuartos creciente" })
+
+// Single moon name for the shared base handler. Per-game subclasses
+// with multiple / coloured moons override moon_string() outright.
+#define _LANG_WEATHER_MOON_NAME "luna"
+
+// Full "moon <phase>" sentence. References `phase` from the caller.
+// The name is capitalized here because it is the sentence start.
+#define _LANG_WEATHER_MOON_STRING \
+  "%^BOLD%^" + capitalize(_LANG_WEATHER_MOON_NAME) + "%^RESET%^ " + phase + ".\n"
+
+#define _LANG_WEATHER_TEMP_SCORCHING  "un calor abrasador"
+#define _LANG_WEATHER_TEMP_VERY_HOT   "mucho calor"
+#define _LANG_WEATHER_TEMP_HOT        "un clima caluroso"
+#define _LANG_WEATHER_TEMP_WARM       "un clima cálido"
+#define _LANG_WEATHER_TEMP_PLEASANT   "buena temperatura"
+#define _LANG_WEATHER_TEMP_COOL       "un clima frío"
+#define _LANG_WEATHER_TEMP_COLD       "frío"
+#define _LANG_WEATHER_TEMP_VERY_COLD  "mucho frío"
+#define _LANG_WEATHER_TEMP_POLAR      "un frío polar"
+
+#define _LANG_WEATHER_WIND_STRONG      "viento fuerte"
+#define _LANG_WEATHER_WIND_VERY_STRONG "viento muy fuerte"
+#define _LANG_WEATHER_WIND_BLIZZARD    "ventisca"
+#define _LANG_WEATHER_WIND_HURRICANE   "viento huracanado"
+
+// Rain buckets. The stormy ones use ({ rain, hail, snow }) indexed by
+// the cold-mod computed in rain_string().
+#define _LANG_WEATHER_RAIN_LIGHT   "lluvia suave"
+#define _LANG_WEATHER_RAIN_NORMAL  "lluvia"
+#define _LANG_WEATHER_RAIN_STORM         ({ "tormenta", "granizo", "nieve" })
+#define _LANG_WEATHER_RAIN_STRONG_STORM  ({ "fuerte tormenta", "fuerte granizo", \
+                                            "una fuerte nevada" })
+#define _LANG_WEATHER_RAIN_HEAVY_STORM   ({ "tormenta muy fuerte", "granizo muy fuerte", \
+                                            "una nevada muy densa" })
+
+#define _LANG_WEATHER_STRING_OF   " de "
+#define _LANG_WEATHER_STRING_WITH " con "
+#define _LANG_WEATHER_STRING_SEP  ", "
+#define _LANG_WEATHER_STRING_AND  " y "
+#define _LANG_WEATHER_STRING_END  ".\n"
+
+#define _LANG_WEATHER_DATE_STRING \
+  ((data[0] == 1) ? "Es la una" : "Son las " + data[0]) + \
+  " del " + capitalize(handler(CALENDAR_HANDLER)->query_week_day_string()) + \
+  " " + (day_of_month + 1) + " de " + \
+  capitalize(month_string()) + \
+  " del año " + handler(CALENDAR_HANDLER)->query_year_name(data[4])
+
 // postal
 
 #define _LANG_POSTAL_GROUP_CODERS "programadores"

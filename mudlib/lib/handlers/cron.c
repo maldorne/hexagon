@@ -47,7 +47,7 @@ void create()
   ::create();
 }
 
-void setup() 
+void setup()
 {
   // anticloning
   if (file_name(this_object()) != "/lib/handlers/cron") {
@@ -55,7 +55,7 @@ void setup()
     dest_me();
     return;
   }
-    
+
   set_name("cron handler");
   set_short("Cron handler daemon (cron.c)");
   set_long("This is the cron handler!\n");
@@ -63,19 +63,19 @@ void setup()
 
   add_property("no_clean_up", 1);
 
-  call_out("read_crontab", 10); 
+  call_out("read_crontab", 10);
 
-  call_out("cron_step", 15); 
+  call_out("cron_step", 15);
   // call_out("cron_step_aux", 600);
   seteuid("root");
-    
-  // moved is masked, will always be moved to HOME
-  move("bing");  
+
+  // moved is masked, will always be moved to HANDLERS_HOME
+  move("bing");
 }
 
-int move(mixed dest, varargs mixed messin, mixed messout) 
+int move(mixed dest, varargs mixed messin, mixed messout)
 {
-  ::move(HOME, messin, messout);
+  ::move(HANDLERS_HOME, messin, messout);
 }
 
 void read_crontab()

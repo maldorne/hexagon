@@ -116,12 +116,12 @@ void event_weather(object who, varargs int flag, int * values)
   difs = ({ 0, 0, 0, });
   frases = ({ });
 
-  if (flag == FLAG_AMANECER)
+  if (flag == FLAG_DAWN)
   {
     tell_player(this_object(), "El sol sale por el horizonte indicándote el comienzo de un nuevo día.\n");
     return;
   }
-  if (flag == FLAG_ANOCHECER)
+  if (flag == FLAG_NIGHTFALL)
   {
     tell_player(this_object(), "El sol se pone lentamente por el horizonte.\n");
     return;

@@ -7,6 +7,11 @@
 
 #define MUD_NAME "Hexagon"
 
+// Shared parking room for singleton handlers. Handlers override move()
+// to always land here so they cannot be interacted with by accident
+// after being cloned.
+#define HANDLERS_HOME "/games/hexagon/areas/admin/weather.c"
+
 // do not use the cron handler on start
 // usually this will be set to TRUE,
 // set to FALSE just for easier debugging purposes
