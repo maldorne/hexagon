@@ -254,6 +254,7 @@ static object binary_connect(int port_index)
 
 static string object_type(string file, string type)
 {
+  stderr(" DRV_OT " + file + " " + type + "\n");
   string str;
 
   str = resolve_path(file);
@@ -270,6 +271,7 @@ static string object_type(string file, string type)
 
 static int compile_rlimits(string objname)
 {
+  stderr(" DRV_RL " + objname + "\n");
   // unlimited resource usage for kernel objects
   // return sscanf(objname, "/lib/core/%*s");
   return TRUE;
@@ -277,6 +279,7 @@ static int compile_rlimits(string objname)
 
 static object inherit_program(string from, string path, int priv)
 {
+  stderr(" DRV_INH " + path + "\n");
   int i;
   object ob;
   string err;
@@ -315,6 +318,7 @@ static object inherit_program(string from, string path, int priv)
 
 static mixed include_file(string includer, string include)
 {
+  stderr(" DRV_INC " + include + "\n");
   // multilanguage options, when we try to include the general language header file
   // with an #include <language.h>,
   // we will include a file from our current directory: .lang.en, .lang.es, etc
