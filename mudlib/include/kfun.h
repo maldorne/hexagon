@@ -25,6 +25,7 @@
 # define KF_ATAN2		0
 # define KF_BLOCK_INPUT		0
 # define KF_CALL_OUT		0
+# define KF_CALL_OUT_SUMMAND		0
 # define KF_CALL_TOUCH		0
 # define KF_CEIL		0
 # define KF_CLONE_OBJECT		0
