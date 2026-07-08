@@ -8,6 +8,7 @@ void setup()
 {
   set_aliases(({ "room2loc" }));
   set_usage("room2loc < filename | dirname | here >\n" +
+            "room2loc reload < filename | dirname | here >\n" +
             "room2loc coords <location.o> <x> <y> <z>\n" +
             "room2loc clean [apply] <path>");
   set_help("Convert one or more legacy .c rooms into .o locations.\n" +
@@ -15,6 +16,19 @@ void setup()
            "relative to your coder path, or 'here' for your current\n" +
            "room. Coordinates are guessed from the exit graph after\n" +
            "the batch finishes.\n" +
+           "\n" +
+           "Subverb 'reload' does the same conversion but first destructs\n" +
+           "any already-loaded blueprint for each target so the driver\n" +
+           "re-reads the .c from disk. Use it when you have edited the\n" +
+           "room source with the mud running and the plain 'room2loc'\n" +
+           "would otherwise convert the cached (stale) blueprint.\n" +
+           "\n" +
+           "WARNING: 'reload' destructs the room object. If a player is\n" +
+           "standing in the room, they lose their environment and get\n" +
+           "handled by the driver's rescue path (usually teleported to a\n" +
+           "safe location). Only use 'reload' when you have confirmed the\n" +
+           "affected rooms are empty. When in doubt, use plain 'room2loc'\n" +
+           "and manually 'update' each edited file first.\n" +
            "\n" +
            "Subverb 'coords' seeds an already-converted location with\n" +
            "specific (x,y,z) coordinates and re-runs coordinate inference\n" +
@@ -191,6 +205,8 @@ static int cmd(string str, object me, string verb)
 {
   string * args;
   string * files;
+  string target;
+  int reload;
 
   if (!str || !strlen(str))
   {
@@ -210,7 +226,21 @@ static int cmd(string str, object me, string verb)
     return do_clean(implode(args[1..], " "), 0);
   }
 
-  if (str == "here")
+  reload = 0;
+  if (args[0] == "reload")
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: room2loc reload < filename | dirname | here >\n");
+      return 0;
+    }
+    reload = 1;
+    target = implode(args[1..], " ");
+  }
+  else
+    target = str;
+
+  if (target == "here")
   {
     if (!environment(me))
     {
@@ -221,7 +251,7 @@ static int cmd(string str, object me, string verb)
   }
   else
   {
-    files = load_object(LOCATION_HANDLER)->resolve_targets(str);
+    files = load_object(LOCATION_HANDLER)->resolve_targets(target);
     if (!sizeof(files))
     {
       notify_fail("No such file or directory.\n");
@@ -238,7 +268,7 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  load_object(LOCATION_HANDLER)->batch_convert(files);
+  load_object(LOCATION_HANDLER)->batch_convert(files, reload);
 
   return 1;
 }

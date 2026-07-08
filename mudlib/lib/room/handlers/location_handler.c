@@ -480,7 +480,7 @@ object convert_room_to_location(object room)
 // the current player. Filters out files that fail to load and reports
 // per-file outcomes. After the batch, schedules a coordinate-inference
 // pass on every successfully converted location.
-int batch_convert(string * files)
+int batch_convert(string * files, varargs int reload)
 {
   object location;
   object * locations;
@@ -490,12 +490,25 @@ int batch_convert(string * files)
   int i;
 
   write("Converting files to locations\n\n");
-  write(" * Loading " + sizeof(files) + " objects ...\n");
+  if (reload)
+    write(" * Loading " + sizeof(files) + " objects (reload mode) ...\n");
+  else
+    write(" * Loading " + sizeof(files) + " objects ...\n");
 
   rooms = ({ });
 
   for (i = 0; i < sizeof(files); i++)
   {
+    // reload: destruct existing blueprint so load_object recompiles
+    // from disk. Caller (room2loc reload) has already accepted the
+    // risk of nuking any player still standing in the room.
+    if (reload)
+    {
+      tmp = find_object(files[i]);
+      if (tmp)
+        destruct_object(tmp);
+    }
+
     tmp = load_object(files[i]);
 
     if (tmp)
