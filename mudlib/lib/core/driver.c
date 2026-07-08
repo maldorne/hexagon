@@ -254,9 +254,9 @@ static object binary_connect(int port_index)
 
 static string object_type(string file, string type)
 {
-  stderr(" DRV_OT " + file + " " + type + "\n");
   string str;
 
+  stderr(" DRV_OT " + file + " " + type + "\n");
   str = resolve_path(file);
 
   log_driver(" ~ object_type: " + file + " = " + str + "\n");
@@ -279,10 +279,11 @@ static int compile_rlimits(string objname)
 
 static object inherit_program(string from, string path, int priv)
 {
-  stderr(" DRV_INH " + path + "\n");
   int i;
   object ob;
   string err;
+
+  stderr(" DRV_INH " + path + "\n");
 
   if ((i = strlen(path)) >= 2 && path[i - 2 ..] == ".c")
     path = path[0 .. i - 3];
