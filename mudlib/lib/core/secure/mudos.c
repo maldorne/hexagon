@@ -293,15 +293,7 @@ int _call_out(object ob, mixed * context, string func, varargs mixed args...)
   // restore the context when the call_out was programmed
   restore_execution_context(context);
 
-  {
-    mixed t0, t1;
-    float delta;
-    t0 = millitime();
-    catch(call_other(ob, func, args...));
-    t1 = millitime();
-    delta = ((float)(t1[0]-t0[0])) + (t1[1]-t0[1]);
-    stderr(" COTF " + func + " " + (ob ? object_name(ob) : "nil") + " " + delta + "\n");
-  }
+  catch(call_other(ob, func, args...));
 
   // restore current context
   restore_execution_context(old_context);

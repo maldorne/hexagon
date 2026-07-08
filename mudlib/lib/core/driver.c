@@ -256,7 +256,6 @@ static string object_type(string file, string type)
 {
   string str;
 
-  stderr(" DRV_OT " + file + " " + type + "\n");
   str = resolve_path(file);
 
   log_driver(" ~ object_type: " + file + " = " + str + "\n");
@@ -271,7 +270,6 @@ static string object_type(string file, string type)
 
 static int compile_rlimits(string objname)
 {
-  stderr(" DRV_RL " + objname + "\n");
   // unlimited resource usage for kernel objects
   // return sscanf(objname, "/lib/core/%*s");
   return TRUE;
@@ -282,8 +280,6 @@ static object inherit_program(string from, string path, int priv)
   int i;
   object ob;
   string err;
-
-  stderr(" DRV_INH " + path + "\n");
 
   if ((i = strlen(path)) >= 2 && path[i - 2 ..] == ".c")
     path = path[0 .. i - 3];
@@ -319,7 +315,6 @@ static object inherit_program(string from, string path, int priv)
 
 static mixed include_file(string includer, string include)
 {
-  stderr(" DRV_INC " + include + "\n");
   // multilanguage options, when we try to include the general language header file
   // with an #include <language.h>,
   // we will include a file from our current directory: .lang.en, .lang.es, etc
@@ -419,7 +414,8 @@ void recompile(object obj)
 // call.
 static int touch(object obj, string func)
 {
-  stderr(" DRV_TOUCH " + object_name(obj) + " " + func + "\n");
+  log_driver(" - touch object " + object_name(obj) + ", function " + func + "\n");
+
   return FALSE;
 }
 
@@ -427,8 +423,6 @@ static int touch(object obj, string func)
 static object call_object(string path)
 {
   object ob;
-
-  stderr(" DRV_CO " + path + "\n");
 
   if (ob = find_object(path))
     return ob;

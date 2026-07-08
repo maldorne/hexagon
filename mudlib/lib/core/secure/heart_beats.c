@@ -46,8 +46,6 @@ void create()
 nomask void _heart_beat()
 {
   int i;
-  mixed t0, t1;
-  float delta;
 
   if (!mudlib_privileges())
   {
@@ -66,7 +64,6 @@ nomask void _heart_beat()
     debug("hbs", to_string(_hb_object_list));
   }
 
-  stderr(" HBSZ " + sizeof(_hb_object_list) + "\n");
   for (i = 0; i < sizeof(_hb_object_list); i++)
   {
     object ob;
@@ -111,12 +108,7 @@ nomask void _heart_beat()
 
     rlimits(MAX_HB_DEPTH ; MAX_HB_TICKS)
     {
-      t0 = millitime();
       result = catch(call_other(ob, "heart_beat"));
-      t1 = millitime();
-      delta = ((float)(t1[0]-t0[0])) + (t1[1]-t0[1]);
-      if (ob && delta > 0.005)
-        stderr(" HBOB " + delta + " " + object_name(ob) + "\n");
     }
   
     set_initiator_object(nil);
