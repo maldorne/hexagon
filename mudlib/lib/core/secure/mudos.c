@@ -300,8 +300,7 @@ int _call_out(object ob, mixed * context, string func, varargs mixed args...)
     catch(call_other(ob, func, args...));
     t1 = millitime();
     delta = ((float)(t1[0]-t0[0])) + (t1[1]-t0[1]);
-    if (ob && delta > 0.001)
-      stderr(" COTM " + delta + " " + func + " " + object_name(ob) + "\n");
+    stderr(" COTF " + func + " " + (ob ? object_name(ob) : "nil") + " " + delta + "\n");
   }
 
   // restore current context
