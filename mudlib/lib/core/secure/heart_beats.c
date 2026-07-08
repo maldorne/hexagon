@@ -115,7 +115,7 @@ nomask void _heart_beat()
       result = catch(call_other(ob, "heart_beat"));
       t1 = millitime();
       delta = ((float)(t1[0]-t0[0])) + (t1[1]-t0[1]);
-      if (delta > 0.005)
+      if (ob && delta > 0.005)
         stderr(" HBOB " + delta + " " + object_name(ob) + "\n");
     }
   
