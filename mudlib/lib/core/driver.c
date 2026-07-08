@@ -414,8 +414,7 @@ void recompile(object obj)
 // call.
 static int touch(object obj, string func)
 {
-  log_driver(" - touch object " + object_name(obj) + ", function " + func + "\n");
-
+  stderr(" DRV_TOUCH " + object_name(obj) + " " + func + "\n");
   return FALSE;
 }
 
@@ -423,6 +422,8 @@ static int touch(object obj, string func)
 static object call_object(string path)
 {
   object ob;
+
+  stderr(" DRV_CO " + path + "\n");
 
   if (ob = find_object(path))
     return ob;
