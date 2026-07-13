@@ -423,10 +423,23 @@ static int touch(object obj, string func)
 static object call_object(string path)
 {
   object ob;
+  mixed * st;
 
   if (ob = find_object(path))
+  {
+    st = status(ob);
+    if (st)
+      stderr("[CALL_OBJ] path=" + path +
+             " compiletime=" + st[O_COMPILETIME] +
+             " progsize=" + st[O_PROGSIZE] +
+             " datasize=" + st[O_DATASIZE] +
+             " nsectors=" + st[O_NSECTORS] +
+             " ncallouts=" + sizeof(st[O_CALLOUTS]) +
+             " swaprate1=" + status()[ST_SWAPRATE1] + "\n");
     return ob;
+  }
 
+  stderr("[COMPILE] path=" + path + " swaprate1=" + status()[ST_SWAPRATE1] + "\n");
   return compile_object(path);
 }
 
