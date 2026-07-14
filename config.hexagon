@@ -13,8 +13,8 @@ swap_file = "./tmp/swap";               /* swap file */
 swap_size = 8192;                       /* # sectors in swap file */
 sector_size = 512;                      /* swap sector size */
 swap_fragment = 32;                     /* fragment to swap out */
-static_chunk = 64512;                   /* static memory chunk */
-dynamic_chunk = 261120;                 /* dynamic memory chunk */
+static_chunk = 262144;                  /* static memory chunk (256 KB) */
+dynamic_chunk = 1048576;                /* dynamic memory chunk (1 MB) */
 dump_file = "./tmp/snapshot";           /* snapshot file */
 dump_interval = 3600;                   /* snapshot interval in seconds */
 
