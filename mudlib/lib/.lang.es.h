@@ -2,6 +2,7 @@
 // user.c
 
 #define _LANG_DISCONNECTED "Desconectado.\n"
+#define _LANG_IDLE_KICKED "Llevas demasiado tiempo inactivo; desconectando.\n"
 #define _LANG_LAST_CONNECTION "Tu última conexión fue desde '"+last_on_from+"'.\n"
 #define _LANG_USER_COMMAND_TOO_LONG "Comando demasiado largo - procesando de todas formas.\n"
 #define _LANG_USER_PLAYER_RESTORE_ERROR "Tu avatar ha sido destruido y no ha podido ser restaurado.\n" + \

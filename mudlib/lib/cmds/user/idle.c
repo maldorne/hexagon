@@ -1,16 +1,18 @@
 
-// idle - set the linkdead grace period for this session
+// idle - set the personal idle grace period, in MINUTES
 //
-// int idle();          // show current grace period, plus bounds
-// int idle(int secs);  // set grace period (bounded to [min, max])
+// int idle();           // show current grace + allowed range
+// int idle(int mins);   // set grace (clamped to [min, max])
 //
-// While a connection is dropped the player object survives for this many
-// seconds so combat cannot be dodged by pulling the plug. The window is
-// bounded per-mudlib in /lib/user.c (LINKDEAD_MIN / LINKDEAD_MAX). A
-// reconnect within the window silently takes over the same player object
-// with all its runtime state (combat, timed props, callouts). After the
-// window expires the object is destructed and the next login loads a
-// fresh copy from disk.
+// The idle grace period drives two behaviours:
+//   * AFK auto-kick: if the interactive player sends no input for this
+//     many minutes, the session is force-quit (with save).
+//   * Linkdead grace: if the TCP connection drops, the player object
+//     survives this long so a reconnect can silently resume the same
+//     runtime state (combat, timed props, callouts). Once the grace
+//     expires, the player is destructed for good and the next login
+//     loads a fresh copy from disk.
+// Range and default live in /lib/user.c (IDLE_GRACE_MIN/MAX/DEFAULT).
 
 #include <mud/cmd.h>
 #include <language.h>
@@ -39,9 +41,9 @@ int cmd(string str, object me, string verb)
   if (!str || str == "")
   {
     tell_object(me, sprintf(_LANG_IDLE_SHOW,
-      user->query_linkdead_grace(),
-      user->query_linkdead_min(),
-      user->query_linkdead_max()));
+      user->query_idle_grace(),
+      user->query_idle_grace_min(),
+      user->query_idle_grace_max()));
     return 1;
   }
 
@@ -52,7 +54,7 @@ int cmd(string str, object me, string verb)
     return 0;
   }
 
-  value = user->set_linkdead_grace(value);
+  value = user->set_idle_grace(value);
   tell_object(me, sprintf(_LANG_IDLE_SET, value));
   return 1;
 }

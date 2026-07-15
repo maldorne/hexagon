@@ -49,27 +49,27 @@ int pov;                    // point of view
 static int save_counter;    // each reset counter
 static int last_command;    // time of last command
 
-// linkdead grace: the user object is kept alive after TCP drop so a
-// reconnect within LINKDEAD_GRACE seconds can silently take over the
-// live player object (with its runtime state: combat, timed props,
-// call_outs, inventory). If the grace expires the object destructs
-// itself and cleans up USER_HANDLER.
-// Grace period bounds (seconds) for the linkdead reconnect window.
-// LINKDEAD_MIN and LINKDEAD_MAX bracket what the `idle` command lets a
-// player pick. Default LINKDEAD_GRACE applies until the player has
-// customised it (or after a fresh login, until they touch `idle`).
-#define LINKDEAD_GRACE 300
-#define LINKDEAD_MIN   60
-#define LINKDEAD_MAX   900
+// idle grace period, in MINUTES, tunable per-user via the `idle` command.
+// Same value drives two situations:
+//   1. AFK auto-kick: if the interactive player sends no input for this
+//      many minutes, cron_step -> idle_out() force-quits the session.
+//   2. Linkdead grace: if the TCP connection drops, the user object is
+//      kept alive for this many minutes so a reconnect can take over
+//      the same player object with all its runtime state. Once the
+//      grace expires, the player is destructed for good.
+#define IDLE_GRACE_DEFAULT 10
+#define IDLE_GRACE_MIN     5
+#define IDLE_GRACE_MAX     15
 static int linkdead;
 static int linkdead_at;
 static int linkdead_handle;
-int linkdead_grace;   /* persisted, tunable via `idle` — set in create() */
+int idle_grace;   /* persisted, tunable via `idle` — set in create() */
 
 // forward declarations for functions defined later in this file but
-// called from close() above them.
+// called from close() / idle_out() above them.
 nomask void save_me();
 void dest_me();
+nomask int query_idle();
 
 #include "/lib/user/start.c"
 
@@ -90,8 +90,8 @@ void create()
 
   _player = nil;
   _player_name = "";
-  if (!linkdead_grace)
-    linkdead_grace = LINKDEAD_GRACE;
+  if (!idle_grace)
+    idle_grace = IDLE_GRACE_DEFAULT;
 
   player_list = ({ });
   account_name = "";
@@ -117,9 +117,8 @@ void create()
   redirect_input_function = "";
   redirect_input_args     = ({ });
 
-  // the player object will have the heart_beat
-  // if (clonep(this_object()))
-  //   set_heart_beat(1);
+  if (clonep(this_object()))
+    set_heart_beat(1);
 
   notifications_commands();
   event_commands();
@@ -250,7 +249,7 @@ static void close(int flag)
     return;
 
   // Natural TCP drop: persist state, mark linkdead and schedule cleanup.
-  // If the same account reconnects within LINKDEAD_GRACE seconds the
+  // If the same account reconnects within `idle_grace` minutes the
   // login flow will call reattach_to() on the new user, cancel the
   // pending timeout, and destruct this object silently.
   if (_player)
@@ -260,29 +259,50 @@ static void close(int flag)
   linkdead = 1;
   linkdead_at = time();
 
-  if (linkdead_grace < LINKDEAD_MIN)
-    linkdead_grace = LINKDEAD_MIN;
-  if (linkdead_grace > LINKDEAD_MAX)
-    linkdead_grace = LINKDEAD_MAX;
+  if (idle_grace < IDLE_GRACE_MIN)
+    idle_grace = IDLE_GRACE_MIN;
+  if (idle_grace > IDLE_GRACE_MAX)
+    idle_grace = IDLE_GRACE_MAX;
 
-  linkdead_handle = call_out("linkdead_timeout", linkdead_grace);
+  // idle_grace is stored in minutes; call_out wants seconds
+  linkdead_handle = call_out("linkdead_timeout", idle_grace * 60);
 }
 
-// Player-facing setter for the linkdead grace period (used by the `idle`
-// command). Bounded to [LINKDEAD_MIN, LINKDEAD_MAX].
-nomask int set_linkdead_grace(int seconds)
+// Player-facing setter for the idle grace period, in MINUTES
+// (used by the `idle` command). Clamped to [IDLE_GRACE_MIN, IDLE_GRACE_MAX].
+nomask int set_idle_grace(int minutes)
 {
-  if (seconds < LINKDEAD_MIN)
-    seconds = LINKDEAD_MIN;
-  if (seconds > LINKDEAD_MAX)
-    seconds = LINKDEAD_MAX;
-  linkdead_grace = seconds;
-  return linkdead_grace;
+  if (minutes < IDLE_GRACE_MIN)
+    minutes = IDLE_GRACE_MIN;
+  if (minutes > IDLE_GRACE_MAX)
+    minutes = IDLE_GRACE_MAX;
+  idle_grace = minutes;
+  return idle_grace;
 }
 
-nomask int query_linkdead_grace() { return linkdead_grace; }
-nomask int query_linkdead_min()   { return LINKDEAD_MIN; }
-nomask int query_linkdead_max()   { return LINKDEAD_MAX; }
+nomask int query_idle_grace() { return idle_grace; }
+nomask int query_idle_grace_min()   { return IDLE_GRACE_MIN; }
+nomask int query_idle_grace_max()   { return IDLE_GRACE_MAX; }
+
+// Periodic hook fired by the DGD heart_beat scheduler on this user
+// object. Drives per-user periodic work that has to happen while the
+// connection is alive.
+void heart_beat()
+{
+  if (!interactive(this_object()))
+    return;
+
+  // AFK auto-kick
+  if (query_idle() >= idle_grace * 60)
+  {
+    catch_tell(_LANG_IDLE_KICKED);
+    if (_player)
+      catch(_player->save_me());
+    catch(save_me());
+    dest_me();
+    return;
+  }
+}
 
 // linkdead getters used by the login flow to decide silent takeover vs
 // "already playing" prompt.
@@ -292,7 +312,7 @@ nomask int query_linkdead_remaining()
 {
   if (!linkdead)
     return 0;
-  return LINKDEAD_GRACE - (time() - linkdead_at);
+  return (idle_grace * 60) - (time() - linkdead_at);
 }
 
 // Fires when the grace period expires with no reconnect. Destructs the

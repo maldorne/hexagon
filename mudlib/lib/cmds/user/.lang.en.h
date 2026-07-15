@@ -63,10 +63,18 @@
 
 // idle
 
-#define _LANG_IDLE_SYNTAX "idle [<seconds>]"
-#define _LANG_IDLE_HELP "How long, in real seconds, the mud keeps your character in the world\n" + \
-                        "after your connection drops (so combat cannot be dodged by pulling the plug).\n" + \
+#define _LANG_IDLE_SYNTAX "idle [<minutes>]"
+#define _LANG_IDLE_HELP "How many minutes the mud keeps your character in the world when you\n" + \
+                        "stop being active. The same value covers two situations:\n" + \
+                        "  - If your connection stays up but you send no input for this long,\n" + \
+                        "    you are logged out and your progress is saved.\n" + \
+                        "  - If your connection drops, your character stays in the world for\n" + \
+                        "    this many minutes so you can reconnect and pick up right where\n" + \
+                        "    you left off. After that your character leaves the world and the\n" + \
+                        "    next login starts you again from your last saved state.\n" + \
+                        "Combat cannot be avoided by pulling the plug because your character\n" + \
+                        "stays in the world during that time.\n" + \
                         "Running `idle` alone shows the current value and the allowed range.\n" + \
-                        "Running `idle <seconds>` sets a new value; anything outside the range is clamped."
-#define _LANG_IDLE_SHOW "Linkdead grace is %d seconds (allowed range %d – %d).\n"
-#define _LANG_IDLE_SET "Linkdead grace set to %d seconds.\n"
+                        "Running `idle <minutes>` sets a new value; anything outside the range is clamped."
+#define _LANG_IDLE_SHOW "Idle grace is %d minutes (allowed range %d – %d).\n"
+#define _LANG_IDLE_SET "Idle grace set to %d minutes.\n"
