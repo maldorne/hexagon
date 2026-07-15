@@ -17,7 +17,6 @@ string account_name;      // user email, used to find the owner account
 string role_name;         // role this player has (player, coder, etc)
 
 static int last_command;  // time of last command
-static int _net_dead;     // has lost connection?
 
 // Function prototypes
 nomask object user();
@@ -34,7 +33,6 @@ void create()
   account_name = "";
   // player role by default
   role_name    = LOGIN_ROLE;
-  _net_dead    = 0;
   last_command = time();
 
   if (clonep(this_object()))

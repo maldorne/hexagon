@@ -61,3 +61,10 @@
 #define _LANG_CMD_GAMES_AVAILABLE "The following games are available:\n"
 #define _LANG_CMD_GAMES_NO_LOGIN "You must login first."
 #define _LANG_CMD_GAMES_UNAVAILABLE_GAME "Non playable"
+
+// idle
+
+#define _LANG_IDLE_SYNTAX "idle [<seconds>]"
+#define _LANG_IDLE_HELP "How long, in real seconds, the mud keeps your character in the world " + "after your connection drops (so combat cannot be dodged by pulling " + "the plug). Running `idle` alone shows the current value and the " + "allowed range. Running `idle <seconds>` sets a new value; anything " + "outside the range is clamped."
+#define _LANG_IDLE_SHOW "Linkdead grace is %d seconds (allowed range %d – %d).\n"
+#define _LANG_IDLE_SET "Linkdead grace set to %d seconds.\n"

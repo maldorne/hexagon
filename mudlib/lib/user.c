@@ -49,6 +49,28 @@ int pov;                    // point of view
 static int save_counter;    // each reset counter
 static int last_command;    // time of last command
 
+// linkdead grace: the user object is kept alive after TCP drop so a
+// reconnect within LINKDEAD_GRACE seconds can silently take over the
+// live player object (with its runtime state: combat, timed props,
+// call_outs, inventory). If the grace expires the object destructs
+// itself and cleans up USER_HANDLER.
+// Grace period bounds (seconds) for the linkdead reconnect window.
+// LINKDEAD_MIN and LINKDEAD_MAX bracket what the `idle` command lets a
+// player pick. Default LINKDEAD_GRACE applies until the player has
+// customised it (or after a fresh login, until they touch `idle`).
+#define LINKDEAD_GRACE 300
+#define LINKDEAD_MIN   60
+#define LINKDEAD_MAX   900
+static int linkdead;
+static int linkdead_at;
+static int linkdead_handle;
+int linkdead_grace;   /* persisted, tunable via `idle` — set in create() */
+
+// forward declarations for functions defined later in this file but
+// called from close() above them.
+nomask void save_me();
+void dest_me();
+
 #include "/lib/user/start.c"
 
 void create()
@@ -68,6 +90,8 @@ void create()
 
   _player = nil;
   _player_name = "";
+  if (!linkdead_grace)
+    linkdead_grace = LINKDEAD_GRACE;
 
   player_list = ({ });
   account_name = "";
@@ -215,10 +239,121 @@ static void open()
 }
 
 // called from the driver
-static void close(int flag) 
+static void close(int flag)
 {
-  // if (flag) 
   catch_tell(_LANG_DISCONNECTED);
+
+  // flag == 1 means DGD is already destructing this object as part of
+  // another dest chain (e.g. our own dest_me). Nothing to do here, the
+  // unwind will handle everything.
+  if (flag)
+    return;
+
+  // Natural TCP drop: persist state, mark linkdead and schedule cleanup.
+  // If the same account reconnects within LINKDEAD_GRACE seconds the
+  // login flow will call reattach_to() on the new user, cancel the
+  // pending timeout, and destruct this object silently.
+  if (_player)
+    catch(_player->save_me());
+  catch(save_me());
+
+  linkdead = 1;
+  linkdead_at = time();
+
+  if (linkdead_grace < LINKDEAD_MIN)
+    linkdead_grace = LINKDEAD_MIN;
+  if (linkdead_grace > LINKDEAD_MAX)
+    linkdead_grace = LINKDEAD_MAX;
+
+  linkdead_handle = call_out("linkdead_timeout", linkdead_grace);
+}
+
+// Player-facing setter for the linkdead grace period (used by the `idle`
+// command). Bounded to [LINKDEAD_MIN, LINKDEAD_MAX].
+nomask int set_linkdead_grace(int seconds)
+{
+  if (seconds < LINKDEAD_MIN)
+    seconds = LINKDEAD_MIN;
+  if (seconds > LINKDEAD_MAX)
+    seconds = LINKDEAD_MAX;
+  linkdead_grace = seconds;
+  return linkdead_grace;
+}
+
+nomask int query_linkdead_grace() { return linkdead_grace; }
+nomask int query_linkdead_min()   { return LINKDEAD_MIN; }
+nomask int query_linkdead_max()   { return LINKDEAD_MAX; }
+
+// linkdead getters used by the login flow to decide silent takeover vs
+// "already playing" prompt.
+nomask int query_linkdead() { return linkdead; }
+nomask int query_linkdead_at() { return linkdead_at; }
+nomask int query_linkdead_remaining()
+{
+  if (!linkdead)
+    return 0;
+  return LINKDEAD_GRACE - (time() - linkdead_at);
+}
+
+// Fires when the grace period expires with no reconnect. Destructs the
+// user + player + removes it from USER_HANDLER via the dest_me chain.
+nomask void linkdead_timeout()
+{
+  // Someone may have reconnected and cleared the flag; if so, nothing
+  // to do.
+  if (!linkdead)
+    return;
+  dest_me();
+}
+
+// Called by the login flow on the NEW user object after it detected an
+// existing linkdead player. Transfers ownership of the old player from
+// old_user to this new user and destructs old_user cleanly.
+nomask int reattach_from(object old_user)
+{
+  object old_player;
+
+  if (!SECURE->valid_progname("/lib/core/login"))
+    return 0;
+
+  if (!old_user || !old_user->query_linkdead())
+    return 0;
+
+  old_player = old_user->player();
+  if (!old_player)
+    return 0;
+
+  // Steal the player pointer BEFORE destructing old_user, so old_user's
+  // dest_me does not cascade into destroying the player.
+  _player = old_player;
+  _player_name = _player->query_name();
+  _player->set_user_ob(this_object());
+  old_user->_clear_player();
+  old_user->_clear_linkdead();
+  old_user->dest_me();
+
+  return 1;
+}
+
+// Helpers used only during reattach handoff. Guarded so nothing else can
+// call them.
+nomask void _clear_player()
+{
+  if (!SECURE->valid_progname("/lib/core/login"))
+    return;
+  _player = nil;
+  _player_name = "";
+}
+
+nomask void _clear_linkdead()
+{
+  if (!SECURE->valid_progname("/lib/core/login"))
+    return;
+  linkdead = 0;
+  linkdead_at = 0;
+  if (linkdead_handle)
+    remove_call_out(linkdead_handle);
+  linkdead_handle = 0;
 }
 
 nomask void save_me()
@@ -425,36 +560,6 @@ static void receive_message(string str)
 
   stderr(" ~~~ end user::receive_message()\n");
 }
-
-// void heart_beat()
-// {
-//   if (this_object() && !interactive(this_object()) )
-//   {
-//     if (name == "guest" || name == "root")
-//     {
-//       say(query_cap_name()+" es engullid"+G_CHAR+" por una nube de lógica.\n");
-//       quit();
-//     }
-//     else if (!net_dead)
-//     {
-//       say(query_cap_name()+" se vuelve blanc"+G_CHAR+" y sólid"+G_CHAR+" al tiempo que se "+
-//         "convierte en una estatua.\n");
-//       event(users(), "inform", query_cap_name() + " ha perdido " +
-//         query_possessive() + " conexión", "conexiones");
-//       save_me();
-//       quit();
-//       net_dead = 1;
-//     }
-//     // last_command = time() - this_object()->query_idle();
-//   }
-
-//   // query_idle no se puede ejecutar sobre objetos no interactive,
-//   // asi que saco esta linea del if anterior, neverbot 7/05
-//   if (!net_dead)
-//     last_command = time() - this_object()->query_idle();
-
-//   living::heart_beat();
-// }
 
 void set_account_name(string str)
 {

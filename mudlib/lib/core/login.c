@@ -548,8 +548,34 @@ nomask void logon_with_player_name(string password, int flag)
     return;
   }
 
+
   if (other_copy)
   {
+    object old_user;
+    object env;
+
+    old_user = other_copy->user();
+
+    // Linkdead reconnect: old user is still around holding the live
+    // player, but its socket dropped. Silent takeover — no prompt.
+    if (old_user && old_user->query_linkdead())
+    {
+      env = environment(other_copy);
+      if (_user->reattach_from(old_user))
+      {
+        // _user->_player now points at the old player; skip the fresh
+        // player clone that create_new_copy would have produced.
+        _player = other_copy;
+        tell_room(env, _LANG_HAS_RECONNECTED, ({ _user, _player }));
+        event(users() - ({ _player, 0 }), "inform",
+          _user->query_cap_name() + " reconnected", "link-death");
+        begin(0, TRUE, env);
+        return;
+      }
+      // reattach failed for some reason: fall through to the prompt.
+    }
+
+    // Genuine double-login: the other session is actively connected.
     write(_LANG_ALREADY_PLAYING);
     input_to("try_throw_out");
     return;

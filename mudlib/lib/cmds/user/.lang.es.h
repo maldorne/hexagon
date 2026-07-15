@@ -61,3 +61,10 @@
 #define _LANG_CMD_GAMES_AVAILABLE "Los siguientes juegos están disponibles:\n"
 #define _LANG_CMD_GAMES_NO_LOGIN "Debes hacer login primero."
 #define _LANG_CMD_GAMES_UNAVAILABLE_GAME "No jugable"
+
+// idle
+
+#define _LANG_IDLE_SYNTAX "idle [<segundos>]"
+#define _LANG_IDLE_HELP "Cuánto tiempo, en segundos reales, se mantiene tu personaje en el " + "mundo tras perder la conexión (para que el combate no pueda " + "evadirse desconectándose). `idle` sin argumentos muestra el valor " + "actual y el rango permitido. `idle <segundos>` fija un nuevo valor; " + "cualquier valor fuera del rango se ajusta a los límites."
+#define _LANG_IDLE_SHOW "La espera de link-dead es %d segundos (rango permitido %d – %d).\n"
+#define _LANG_IDLE_SET "Espera de link-dead ajustada a %d segundos.\n"
