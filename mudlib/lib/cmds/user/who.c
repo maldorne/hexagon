@@ -93,8 +93,8 @@ int remove_logon(object ob)
 
 string who_string(int width, int cre, string str)
 {
-  object * arr, * arr_aux, user;
-  int i, num_people, num_disconnected_people;
+  object * arr, user;
+  int i, num_people;
   int creators, what;
   string s, tmp, nam, imm, play, prt, race;
   //  mixed ee;
@@ -201,6 +201,12 @@ string who_string(int width, int cre, string str)
         if (user->query_idle() > 120)
           s += _LANG_WHO_IDLE_MSG;
 
+        // linkdead marker only after 60 s of dropped connection so a
+        // brief tcp glitch does not flag the player as disconnected
+        if (user->query_linkdead() &&
+            (time() - user->query_linkdead_at()) >= 60)
+          s += _LANG_WHO_LINKDEAD_MSG;
+
         // imm += sprintf(" %s%*-=s", nam, width, s) + "%^RESET%^\n";
         imm += sprintf(" %s%-*s", nam, width, s) + "%^RESET%^\n";
 
@@ -233,6 +239,12 @@ string who_string(int width, int cre, string str)
 
       if (user->query_idle() > 120)
         s += _LANG_WHO_IDLE_MSG;
+
+      // linkdead marker only after 60 s of dropped connection so a
+      // brief tcp glitch does not flag the player as disconnected
+      if (user->query_linkdead() &&
+          (time() - user->query_linkdead_at()) >= 60)
+        s += _LANG_WHO_LINKDEAD_MSG;
 
       // play += sprintf("          %*-=s", width - 10, nam + s) + "\n";
       play += sprintf(" %s%-*s", nam, width, s) + "\n";
@@ -314,34 +326,11 @@ string who_string(int width, int cre, string str)
   tmp = fix_string(tmp);
   prt += sprintf("%p%|*s\n", '-', width, tmp);
 
-  // added by neverbot, to check disconnected people
-  // (they won't appear in users users())
-  if (this_player()->query_coder())
-  {
-    // arr_aux = livings();
-    // remove the users appearing in the who
-    // arr_aux -= players();
-
-    arr_aux = users();
-    num_disconnected_people = 0;
-
-    for (i = 0; i < sizeof(arr_aux); i++)
-    {
-      if (!arr_aux[i]->player())
-      {
-        if (this_user()->query_coder()) {
-          prt += sprintf("          %-*s", width, arr_aux[i]->query_account_name()) + "\n";
-        }
-        num_disconnected_people++;
-      }
-    }
-
-    if (num_disconnected_people > 0)
-    {
-      tmp = fix_string(_LANG_WHO_DISCONNECTED_MSG);
-      prt += sprintf("%p%|*s\n", '-', width, tmp);
-    }
-  }
+  // NOTE: the old "Disconnected" section that printed rows of raw
+  // account emails is intentionally gone. With the linkdead grace
+  // implemented in /lib/user.c the disconnected players stay in the
+  // normal player list and get flagged inline with _LANG_WHO_LINKDEAD_MSG
+  // (see the per-player loop above). Emails no longer appear in `who`.
 
   return prt;
 } /* who_string() */

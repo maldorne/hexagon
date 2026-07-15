@@ -25,6 +25,7 @@
 #define _LANG_WHO_EDITING_MSG " %^GREEN%^(Editando: " + (string)tmp + ")%^RESET%^"
 #define _LANG_WHO_AWAY_MSG " (%^WHITE%^%^BOLD%^Ausente%^RESET%^)"
 #define _LANG_WHO_IDLE_MSG " (%^CYAN%^%^BOLD%^Inactivo: " + (user->query_idle() / 60) + "%^RESET%^)"
+#define _LANG_WHO_LINKDEAD_MSG " (%^YELLOW%^%^BOLD%^Desconectado: " + ((time() - user->query_linkdead_at()) / 60) + " min%^RESET%^)"
 #define _LANG_WHO_GUEST_MSG " invitad" + ((arr[i]->query_gender() == 2) ? "a" : "o") + " en " + mud_name()
 #define _LANG_WHO_NO_CODERS_MSG "> %^GREEN%^No hay programadores conectados%^RESET%^ <"
 #define _LANG_WHO_NO_PLAYERS_MSG "> %^GREEN%^No hay jugadores conectados%^RESET%^ <"
@@ -37,8 +38,6 @@
 #define _LANG_WHO_MULTIPLE_MSG "> %^GREEN%^Hay " + query_num(creators, 100) + " programador" + \
       (creators < 2 ? "" : "es") + " y " + query_num(num_people, 100) + " jugador" + \
       (num_people < 2 ? "" : "es") + " en " + mud_name() + "%^RESET%^ <"
-#define _LANG_WHO_DISCONNECTED_MSG "> %^GREEN%^" + capitalize(number_as_string(num_disconnected_people)) + \
-      " usuario"+(num_disconnected_people < 2 ? "" : "s")+" con la conexión caída%^RESET%^ <"
 
 // help
 
@@ -65,6 +64,9 @@
 // idle
 
 #define _LANG_IDLE_SYNTAX "idle [<segundos>]"
-#define _LANG_IDLE_HELP "Cuánto tiempo, en segundos reales, se mantiene tu personaje en el " + "mundo tras perder la conexión (para que el combate no pueda " + "evadirse desconectándose). `idle` sin argumentos muestra el valor " + "actual y el rango permitido. `idle <segundos>` fija un nuevo valor; " + "cualquier valor fuera del rango se ajusta a los límites."
+#define _LANG_IDLE_HELP "Cuánto tiempo, en segundos reales, se mantiene tu personaje en el mundo\n" + \
+                        "tras perder la conexión (para que el combate no pueda evadirse desconectándose).\n" + \
+                        "`idle` sin argumentos muestra el valor actual y el rango permitido.\n" + \
+                        "`idle <segundos>` fija un nuevo valor; cualquier valor fuera del rango se ajusta a los límites."
 #define _LANG_IDLE_SHOW "La espera de link-dead es %d segundos (rango permitido %d – %d).\n"
 #define _LANG_IDLE_SET "Espera de link-dead ajustada a %d segundos.\n"

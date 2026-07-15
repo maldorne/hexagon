@@ -25,6 +25,7 @@
 #define _LANG_WHO_EDITING_MSG " %^GREEN%^(Editing: " + (string)tmp + ")%^RESET%^"
 #define _LANG_WHO_AWAY_MSG " (%^WHITE%^%^BOLD%^Away%^RESET%^)"
 #define _LANG_WHO_IDLE_MSG " (%^CYAN%^%^BOLD%^Idle: " + (user->query_idle() / 60) + "%^RESET%^)"
+#define _LANG_WHO_LINKDEAD_MSG " (%^YELLOW%^%^BOLD%^Linkdead: " + ((time() - user->query_linkdead_at()) / 60) + " min%^RESET%^)"
 #define _LANG_WHO_GUEST_MSG " guest in " + mud_name()
 #define _LANG_WHO_NO_CODERS_MSG "> %^GREEN%^No coders connected%^RESET%^ <"
 #define _LANG_WHO_NO_PLAYERS_MSG "> %^GREEN%^No players connected%^RESET%^ <"
@@ -37,8 +38,6 @@
 #define _LANG_WHO_MULTIPLE_MSG "> %^GREEN%^ " + capitalize(query_num(creators, 100)) + " coder" + \
       (creators < 2 ? "" : "s") + " and " + query_num(num_people, 100) + " player" + \
       (num_people < 2 ? "" : "s") + " connected to " + mud_name() + "%^RESET%^ <"
-#define _LANG_WHO_DISCONNECTED_MSG "> %^GREEN%^" + capitalize(number_as_string(num_disconnected_people)) + \
-      " disconnected user"+(num_disconnected_people < 2 ? "" : "s")+"%^RESET%^ <"
 
 // help
 
@@ -65,6 +64,9 @@
 // idle
 
 #define _LANG_IDLE_SYNTAX "idle [<seconds>]"
-#define _LANG_IDLE_HELP "How long, in real seconds, the mud keeps your character in the world " + "after your connection drops (so combat cannot be dodged by pulling " + "the plug). Running `idle` alone shows the current value and the " + "allowed range. Running `idle <seconds>` sets a new value; anything " + "outside the range is clamped."
+#define _LANG_IDLE_HELP "How long, in real seconds, the mud keeps your character in the world\n" + \
+                        "after your connection drops (so combat cannot be dodged by pulling the plug).\n" + \
+                        "Running `idle` alone shows the current value and the allowed range.\n" + \
+                        "Running `idle <seconds>` sets a new value; anything outside the range is clamped."
 #define _LANG_IDLE_SHOW "Linkdead grace is %d seconds (allowed range %d – %d).\n"
 #define _LANG_IDLE_SET "Linkdead grace set to %d seconds.\n"
