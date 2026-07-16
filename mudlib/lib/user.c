@@ -248,10 +248,20 @@ static void close(int flag)
   if (flag)
     return;
 
-  // Natural TCP drop: persist state, mark linkdead and schedule cleanup.
-  // If the same account reconnects within `idle_grace` minutes the
-  // login flow will call reattach_to() on the new user, cancel the
-  // pending timeout, and destruct this object silently.
+  // Pre-login sockets have no authenticated session to preserve. Drop
+  // them immediately so their _users entry is cleaned up and does not
+  // linger for the full grace window.
+  if (!account_name || account_name == "")
+  {
+    dest_me();
+    return;
+  }
+
+  // Natural TCP drop after a completed login: persist state, mark
+  // linkdead and schedule cleanup. If the same account reconnects
+  // within `idle_grace` minutes the login flow will call reattach_from()
+  // on the new user, cancel the pending timeout, and destruct this
+  // object silently.
   if (_player)
     catch(_player->save_me());
   catch(save_me());
@@ -264,7 +274,6 @@ static void close(int flag)
   if (idle_grace > IDLE_GRACE_MAX)
     idle_grace = IDLE_GRACE_MAX;
 
-  // idle_grace is stored in minutes; call_out wants seconds
   linkdead_handle = call_out("linkdead_timeout", idle_grace * 60);
 }
 

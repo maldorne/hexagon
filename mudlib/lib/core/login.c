@@ -164,9 +164,13 @@ static nomask void disconnect(varargs int silence)
 {
   if (!silence)
     write(_LANG_COME_AGAIN_SOON);
-  if (_player)
-    destruct(_player);
-  destruct(_user);
+
+  // Route through user::dest_me so its cascade runs (destructs _player,
+  // calls USER_HANDLER::remove_user, chains role/obj dest_me). Calling
+  // destruct(_user) directly here would leak a stale entry in the
+  // _users mapping for every aborted login.
+  if (_user)
+    catch(_user->dest_me());
   destruct(this_object());
 }
 
@@ -341,7 +345,7 @@ nomask void logon_option(string str)
   if (!stringp(player_ob))
   {
     write("Lo sentimos, pero ese nombre no está permitido.\n");
-    destruct(_user);
+    if (_user) catch(_user->dest_me());
     destruct(this_object());
     return ;
   }
@@ -526,7 +530,6 @@ nomask void logon_with_player_name(string password, int flag)
       if (++no_times >= MAX_RETRIES)
       {
         write(_LANG_TOO_MANY_RETRIES);
-        destruct(_user);
         disconnect(1);
         return;
       }
