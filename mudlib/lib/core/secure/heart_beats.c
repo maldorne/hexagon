@@ -71,10 +71,12 @@ nomask void _heart_beat()
 
     ob = _hb_object_list[i][POS_OBJECT];
 
-    // remove the items that have been destructed
-    if (undefinedp(ob))
+    // Prune entries whose object was destructed. When an object dies
+    // references to it become nil (not "undefined"), so the check is
+    // !ob rather than undefinedp(ob) — which was silently letting the
+    // stale slots survive tick after tick.
+    if (!ob)
     {
-      // _hb_object_list -= ({ ob });
       _hb_object_list = delete(_hb_object_list, i, 1);
       i--;
       continue;

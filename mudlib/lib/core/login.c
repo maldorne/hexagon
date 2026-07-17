@@ -566,8 +566,11 @@ nomask void logon_with_player_name(string password, int flag)
       env = environment(other_copy);
       if (_user->reattach_from(old_user))
       {
-        // _user->_player now points at the old player; skip the fresh
-        // player clone that create_new_copy would have produced.
+        // _user->_player now points at the old player. The fresh clone
+        // that restore_player() just made is orphaned — destruct it
+        // now, otherwise it lingers with its heart_beat still ticking.
+        if (_player && _player != other_copy)
+          catch(_player->dest_me());
         _player = other_copy;
         tell_room(env, _LANG_HAS_RECONNECTED, ({ _user, _player }));
         event(users() - ({ _player, 0 }), "inform",
