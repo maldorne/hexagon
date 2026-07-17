@@ -82,15 +82,25 @@ void dest_me()
     auto_load = ([ ]);
 
   save_me();
-  
-  // unique items, neverbot 08/07/04
+
+  // Destruct every inventory item so nothing survives orphaned in memory
+  // once ::dest_me() runs below. Non-unique goods have already been
+  // serialised into auto_load and will be re-cloned on the next
+  // set_save_file(); unique items get their special dest_unique() path.
+  // Skipping this step caused ventures updates to leak a fresh copy of
+  // every permanent good each cycle (see cluster/bugs/hexagon-en-cpu-burn.md).
   for (i = 0; i < sizeof(olist); i++)
   {
-    if (olist[i] && olist[i]->query_unique_object())
-   {
+    if (!olist[i])
+      continue;
+    // unique items, neverbot 08/07/04
+    if (olist[i]->query_unique_object())
+    {
       debug("uniques", "Unique object in vault_obj, destroy.\n");
       olist[i]->dest_unique();
     }
+    else
+      olist[i]->dest_me();
   }
 
   environment()->remove_property(VAULT_USE_PROP);
