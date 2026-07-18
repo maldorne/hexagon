@@ -133,17 +133,6 @@ nomask void _heart_beat()
   }
 }
 
-// debug probes for hexagon-en CPU burn investigation
-nomask int query_hb_size()
-{
-  return sizeof(_hb_object_list);
-}
-
-nomask mixed * query_hb_list()
-{
-  return _hb_object_list;
-}
-
 nomask int hb_object_index(object ob)
 {
   int i;
