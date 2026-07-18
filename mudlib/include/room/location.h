@@ -16,7 +16,7 @@
 // Cartography-contributing components. A location that carries any of
 // these tells the sector storage what kind of terrain it occupies, so
 // the sector can classify itself (query_sector_type) and the world map
-// renderer can pick a glyph. See include/maps/sectors.h.
+// renderer can pick a glyph. See include/maps/sector.h.
 #define LOCATION_COMPONENT_CITY        "city"
 #define LOCATION_COMPONENT_ROAD        "road"
 #define LOCATION_COMPONENT_FOREST      "forest"

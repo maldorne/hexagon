@@ -1,6 +1,6 @@
 
 #include <maps/maps.h>
-#include <maps/sectors.h>
+#include <maps/sector.h>
 #include <room/location.h>
 
 mapping loaded_sectors;
@@ -72,7 +72,7 @@ string add_location(object location)
   // components from the location's component set so the sector can
   // index each coord for pathfinding and classify itself for the
   // world map renderer, without callers having to reload the location
-  // afterwards. See include/maps/sectors.h for the type taxonomy.
+  // afterwards. See include/maps/sector.h for the type taxonomy.
   {
     mapping location_data;
     string * contrib, * my_types;

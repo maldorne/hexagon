@@ -1,4 +1,4 @@
-#include <maps/sectors.h>
+#include <maps/sector.h>
 
 inherit "/lib/core/object.c";
 
@@ -14,7 +14,7 @@ mapping maze_positions;
 // in this sector carry each cartography component. Populated by
 // add_location() and decremented by remove_location(); consumers read
 // via query_sector_type() (dominant type) or query_type_counts() (raw
-// distribution). See include/maps/sectors.h for the taxonomy.
+// distribution). See include/maps/sector.h for the taxonomy.
 mapping type_counts;
 // array of loaded locations
 static object * loaded_locations;
