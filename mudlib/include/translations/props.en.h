@@ -63,8 +63,9 @@
 #define _LANG_PROP_CHAIR_SHORT          "a $material_phrase$ chair"
 #define _LANG_PROP_CHAIR_LONG           "A sturdy $material_phrase$ chair, sized for one."
 
-#define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tipped over)"
-#define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s is sitting on it)"
+#define _LANG_PROP_CHAIR_SUFFIX_TIPPED         " (tipped over)"
+#define _LANG_PROP_CHAIR_SUFFIX_TIPPED_PLURAL  " (tipped over)"
+#define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED       " (%s is sitting on it)"
 
 #define _LANG_PROP_CHAIR_LONG_TIPPED        " It lies on its side."
 #define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s is sitting on it."
