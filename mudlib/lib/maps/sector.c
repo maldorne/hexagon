@@ -97,15 +97,27 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   // Update per-type counters. A re-add for the same file is treated as
   // an update: decrement the previous contribution before adding the
   // new one so tallies stay accurate under recompiles / re-registration.
+  // Missing keys in `type_counts` read as nil, so coerce with an
+  // undefinedp guard on both the check and the arithmetic.
   old_types = (previous && previous["types"]) ? previous["types"] : ({ });
   for (i = 0; i < sizeof(old_types); i++)
-    if (type_counts[old_types[i]] > 0)
-      type_counts[old_types[i]]--;
+  {
+    int prev_count;
+    prev_count = undefinedp(type_counts[old_types[i]]) ?
+                 0 : type_counts[old_types[i]];
+    if (prev_count > 0)
+      type_counts[old_types[i]] = prev_count - 1;
+  }
 
   new_types = (location_data && location_data["types"]) ?
               location_data["types"] : ({ });
   for (i = 0; i < sizeof(new_types); i++)
-    type_counts[new_types[i]] = type_counts[new_types[i]] + 1;
+  {
+    int prev_count;
+    prev_count = undefinedp(type_counts[new_types[i]]) ?
+                 0 : type_counts[new_types[i]];
+    type_counts[new_types[i]] = prev_count + 1;
+  }
 
   save_me();
 }
@@ -122,12 +134,18 @@ void remove_location(string location_file_name)
 
   // Roll back this file's contribution to the sector-type tally BEFORE
   // dropping its entry from `locations`, since that entry is where the
-  // type list lives.
+  // type list lives. Guard the arithmetic against missing keys reading
+  // as nil.
   previous = locations[location_file_name];
   old_types = (previous && previous["types"]) ? previous["types"] : ({ });
   for (i = 0; i < sizeof(old_types); i++)
-    if (type_counts[old_types[i]] > 0)
-      type_counts[old_types[i]]--;
+  {
+    int prev_count;
+    prev_count = undefinedp(type_counts[old_types[i]]) ?
+                 0 : type_counts[old_types[i]];
+    if (prev_count > 0)
+      type_counts[old_types[i]] = prev_count - 1;
+  }
 
   map_delete(locations, location_file_name);
 
@@ -196,7 +214,7 @@ string query_sector_type()
 
   for (i = 0; i < sizeof(order); i++)
   {
-    c = type_counts[order[i]];
+    c = undefinedp(type_counts[order[i]]) ? 0 : type_counts[order[i]];
     if (c > best_count)
     {
       best_count = c;

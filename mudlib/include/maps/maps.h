@@ -18,3 +18,6 @@
 
 #define MAPS_HANDLER "/lib/handlers/maps"
 #define MAP_SECTOR_STORAGE_OBJECT "/lib/maps/sector"
+// Short name — resolved by handler() at /lib/handlers/worldmap (with
+// per-game override at /games/<game>/handlers/worldmap if present).
+#define WORLDMAP_HANDLER "worldmap"

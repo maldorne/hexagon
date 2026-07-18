@@ -387,3 +387,14 @@
         "  map coords    coordinates overlay (coder only).\n"
 
 #define _LANG_CMD_MAP_UNKNOWN_VARIANT "Unknown map variant.\n"
+
+// worldmap.c
+
+#define _LANG_CMD_WORLDMAP_ALIAS   ({ "worldmap" })
+#define _LANG_CMD_WORLDMAP_SYNTAX  "worldmap [width [height]]"
+#define _LANG_CMD_WORLDMAP_HELP    "Show a bird\047s-eye map centered on the sector you are in. " + \
+                                   "Each glyph represents one 10x10 sector; your position is marked \047@\047. " + \
+                                   "Optional width and height (default 10x10, min 3, max 80x40)."
+#define _LANG_CMD_WORLDMAP_USAGE   "Syntax: worldmap [width [height]]\n"
+#define _LANG_CMD_WORLDMAP_RANGE   "Dimensions must be between 3 and 80 wide, 3 and 40 tall.\n"
+#define _LANG_CMD_WORLDMAP_NOMAP   "You are nowhere on any world map right now.\n"
