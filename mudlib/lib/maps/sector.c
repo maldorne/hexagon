@@ -1,3 +1,5 @@
+#include <maps/sectors.h>
+
 inherit "/lib/core/object.c";
 
 // mapping in the form ([ file_name : location_data ])
@@ -8,6 +10,12 @@ mapping positions;
 // maze — kept parallel to positions so consumers can tag / skip
 // entries without a full location load.
 mapping maze_positions;
+// mapping in the form ([ sector_type : count ]) — how many locations
+// in this sector carry each cartography component. Populated by
+// add_location() and decremented by remove_location(); consumers read
+// via query_sector_type() (dominant type) or query_type_counts() (raw
+// distribution). See include/maps/sectors.h for the taxonomy.
+mapping type_counts;
 // array of loaded locations
 static object * loaded_locations;
 string file_name;
@@ -16,6 +24,7 @@ void create() {
   locations = ([ ]);
   positions = ([ ]);
   maze_positions = ([ ]);
+  type_counts = ([ ]);
   loaded_locations = ({ });
   ::create();
 }
@@ -65,10 +74,15 @@ int restore_from_file_name(string name)
 void add_location(string location_file_name, int x, int y, int z, mapping location_data)
 {
   string key;
+  mapping previous;
+  string * old_types, * new_types;
+  int i;
 
   if (!maze_positions) maze_positions = ([ ]);
+  if (!type_counts) type_counts = ([ ]);
 
   key = "" + x + "_" + y + "_" + z;
+  previous = locations[location_file_name];
   locations[location_file_name] = map_copy(location_data);
   positions[key] = location_file_name;
 
@@ -80,15 +94,40 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   else
     map_delete(maze_positions, key);
 
+  // Update per-type counters. A re-add for the same file is treated as
+  // an update: decrement the previous contribution before adding the
+  // new one so tallies stay accurate under recompiles / re-registration.
+  old_types = (previous && previous["types"]) ? previous["types"] : ({ });
+  for (i = 0; i < sizeof(old_types); i++)
+    if (type_counts[old_types[i]] > 0)
+      type_counts[old_types[i]]--;
+
+  new_types = (location_data && location_data["types"]) ?
+              location_data["types"] : ({ });
+  for (i = 0; i < sizeof(new_types); i++)
+    type_counts[new_types[i]] = type_counts[new_types[i]] + 1;
+
   save_me();
 }
 
 void remove_location(string location_file_name)
 {
   string * pos_keys;
+  mapping previous;
+  string * old_types;
   int i;
 
   if (!maze_positions) maze_positions = ([ ]);
+  if (!type_counts) type_counts = ([ ]);
+
+  // Roll back this file's contribution to the sector-type tally BEFORE
+  // dropping its entry from `locations`, since that entry is where the
+  // type list lives.
+  previous = locations[location_file_name];
+  old_types = (previous && previous["types"]) ? previous["types"] : ({ });
+  for (i = 0; i < sizeof(old_types); i++)
+    if (type_counts[old_types[i]] > 0)
+      type_counts[old_types[i]]--;
 
   map_delete(locations, location_file_name);
 
@@ -126,8 +165,44 @@ void add_loaded_location(object location)
   loaded_locations += ({ location });
 }
 
-object * query_loaded_locations() 
+object * query_loaded_locations()
 {
   loaded_locations -= ({ nil });
   return loaded_locations;
+}
+
+mapping query_type_counts()
+{
+  if (!type_counts) type_counts = ([ ]);
+  return type_counts;
+}
+
+// The sector's dominant type: whichever cartography component is
+// attached to the most locations here. Iterates SECTOR_CONTRIB_COMPONENTS
+// in priority order with a strict `>`, so ties go to the earlier entry
+// (city > road > coast > forest > underground). Returns SECTOR_TYPE_NONE
+// if no cartography component has been tallied yet.
+string query_sector_type()
+{
+  string * order;
+  string best;
+  int best_count, i, c;
+
+  if (!type_counts) type_counts = ([ ]);
+
+  order = SECTOR_CONTRIB_COMPONENTS;
+  best = SECTOR_TYPE_NONE;
+  best_count = 0;
+
+  for (i = 0; i < sizeof(order); i++)
+  {
+    c = type_counts[order[i]];
+    if (c > best_count)
+    {
+      best_count = c;
+      best = order[i];
+    }
+  }
+
+  return best;
 }

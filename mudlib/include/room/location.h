@@ -7,11 +7,21 @@
 
 // location component types
 
-#define LOCATION_COMPONENT_SHOP    "shop"
-#define LOCATION_COMPONENT_PUB     "pub"
-#define LOCATION_COMPONENT_OUTSIDE "outside"
-#define LOCATION_COMPONENT_MAZE    "maze"
-#define LOCATION_COMPONENT_PROPS   "props"
+#define LOCATION_COMPONENT_SHOP        "shop"
+#define LOCATION_COMPONENT_PUB         "pub"
+#define LOCATION_COMPONENT_OUTSIDE     "outside"
+#define LOCATION_COMPONENT_MAZE        "maze"
+#define LOCATION_COMPONENT_PROPS       "props"
+
+// Cartography-contributing components. A location that carries any of
+// these tells the sector storage what kind of terrain it occupies, so
+// the sector can classify itself (query_sector_type) and the world map
+// renderer can pick a glyph. See include/maps/sectors.h.
+#define LOCATION_COMPONENT_CITY        "city"
+#define LOCATION_COMPONENT_ROAD        "road"
+#define LOCATION_COMPONENT_FOREST      "forest"
+#define LOCATION_COMPONENT_COAST       "coast"
+#define LOCATION_COMPONENT_UNDERGROUND "underground"
 
 // ************************************************************
 //  Location component hook system

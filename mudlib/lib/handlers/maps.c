@@ -1,5 +1,6 @@
 
 #include <maps/maps.h>
+#include <maps/sectors.h>
 #include <room/location.h>
 
 mapping loaded_sectors;
@@ -67,14 +68,28 @@ string add_location(object location)
 
   sector_storage = create_sector(path);
 
-  // Lift a "maze" flag from the location's component set so the
-  // sector can index the coord as opaque for pathfinding purposes,
-  // without callers having to reload the location afterwards.
+  // Lift a "maze" flag and the set of cartography-contributing
+  // components from the location's component set so the sector can
+  // index each coord for pathfinding and classify itself for the
+  // world map renderer, without callers having to reload the location
+  // afterwards. See include/maps/sectors.h for the type taxonomy.
   {
     mapping location_data;
+    string * contrib, * my_types;
+    int i;
+
     location_data = ([ ]);
     if (location->query_component_by_type(LOCATION_COMPONENT_MAZE))
       location_data["maze"] = 1;
+
+    contrib = SECTOR_CONTRIB_COMPONENTS;
+    my_types = ({ });
+    for (i = 0; i < sizeof(contrib); i++)
+      if (location->query_component_by_type(contrib[i]))
+        my_types += ({ contrib[i] });
+    if (sizeof(my_types))
+      location_data["types"] = my_types;
+
     sector_storage->add_location(location->query_file_name(),
                                  x, y, z, location_data);
   }
