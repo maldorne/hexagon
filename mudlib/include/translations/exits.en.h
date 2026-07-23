@@ -74,3 +74,37 @@
    DIR_SOUTHWEST : "the", \
    DIR_STAIRS    : "the", \
 ])
+
+// ============================================================
+//  Language-agnostic direction canonicalisation
+//
+//  Everything written to /save must use the canonical English
+//  direction words so a game's state stays migratable between the
+//  languages the mudlib can be compiled in. DIR_TO_CANONICAL folds any
+//  direction word this language accepts (full name or shorthand) — plus
+//  the English words themselves, so legacy mixed-language data heals —
+//  down to its canonical English form. DIR_FROM_CANONICAL is the reverse
+//  used for display. See room_handler::canonical_dir / localize_dir.
+//
+//  For English these are (almost) identity; the shorthands still fold up
+//  to the full canonical word.
+// ============================================================
+
+#define DIR_TO_CANONICAL ([ \
+   "north":"north", "south":"south", "east":"east", "west":"west", \
+   "northeast":"northeast", "northwest":"northwest", \
+   "southeast":"southeast", "southwest":"southwest", \
+   "up":"up", "down":"down", "inside":"inside", "outside":"outside", \
+   "stairs":"stairs", \
+   "n":"north", "s":"south", "e":"east", "w":"west", \
+   "ne":"northeast", "nw":"northwest", "se":"southeast", "sw":"southwest", \
+   "in":"inside", "out":"outside", \
+])
+
+#define DIR_FROM_CANONICAL ([ \
+   "north":"north", "south":"south", "east":"east", "west":"west", \
+   "northeast":"northeast", "northwest":"northwest", \
+   "southeast":"southeast", "southwest":"southwest", \
+   "up":"up", "down":"down", "inside":"inside", "outside":"outside", \
+   "stairs":"stairs", \
+])

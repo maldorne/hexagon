@@ -10,6 +10,8 @@ mapping exit_types;
 mapping door_types;
 mapping opposite;
 mapping opp_dirs;
+mapping dir_to_canonical;
+mapping dir_from_canonical;
 
 void create() 
 {
@@ -35,6 +37,30 @@ void create()
   ]);
 
   opp_dirs = OPPOSITES;
+  dir_to_canonical = DIR_TO_CANONICAL;
+  dir_from_canonical = DIR_FROM_CANONICAL;
+}
+
+// Fold any direction word this language accepts (full name or
+// shorthand), or an already-canonical English word, down to the
+// canonical English direction that is stored on disk. Non-direction
+// strings (custom exit verbs) pass through unchanged so they are never
+// corrupted. See include/translations/exits.<lang>.h.
+string canonical_dir(string dir)
+{
+  if (dir && !undefinedp(dir_to_canonical[dir]))
+    return dir_to_canonical[dir];
+  return dir;
+}
+
+// Reverse of canonical_dir: a canonical English direction to the word
+// for the current language, for display and command registration.
+// Unknown input passes through unchanged.
+string localize_dir(string dir)
+{
+  if (dir && !undefinedp(dir_from_canonical[dir]))
+    return dir_from_canonical[dir];
+  return dir;
 }
 
 string query_opposite(string str)

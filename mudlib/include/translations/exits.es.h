@@ -76,3 +76,40 @@
    "entrada"     : "la", \
    "salida"      : "la", \
 ])
+
+// ============================================================
+//  Canonicalización de direcciones agnóstica al idioma
+//
+//  Todo lo que se escribe en /save debe usar las palabras de dirección
+//  canónicas en inglés para que el estado de un juego siga siendo
+//  migrable entre los idiomas en que se compila el mudlib.
+//  DIR_TO_CANONICAL pliega cualquier palabra de dirección que este
+//  idioma acepta (nombre completo o abreviatura) — más las inglesas, para
+//  que los datos heredados en idioma mezclado se normalicen — a su forma
+//  canónica inglesa. DIR_FROM_CANONICAL es el reverso, para mostrar.
+//  Ver room_handler::canonical_dir / localize_dir.
+// ============================================================
+
+#define DIR_TO_CANONICAL ([ \
+   "norte":"north", "sur":"south", "este":"east", "oeste":"west", \
+   "noreste":"northeast", "noroeste":"northwest", \
+   "sudeste":"southeast", "sudoeste":"southwest", \
+   "arriba":"up", "abajo":"down", "dentro":"inside", "fuera":"outside", \
+   "escaleras":"stairs", \
+   "n":"north", "s":"south", "e":"east", "o":"west", \
+   "ne":"northeast", "no":"northwest", "se":"southeast", "so":"southwest", \
+   "ar":"up", "ab":"down", "de":"inside", "fu":"outside", "es":"stairs", \
+   "north":"north", "south":"south", "east":"east", "west":"west", \
+   "northeast":"northeast", "northwest":"northwest", \
+   "southeast":"southeast", "southwest":"southwest", \
+   "up":"up", "down":"down", "inside":"inside", "outside":"outside", \
+   "stairs":"stairs", "in":"inside", "out":"outside", \
+])
+
+#define DIR_FROM_CANONICAL ([ \
+   "north":"norte", "south":"sur", "east":"este", "west":"oeste", \
+   "northeast":"noreste", "northwest":"noroeste", \
+   "southeast":"sudeste", "southwest":"sudoeste", \
+   "up":"arriba", "down":"abajo", "inside":"dentro", "outside":"fuera", \
+   "stairs":"escaleras", \
+])
