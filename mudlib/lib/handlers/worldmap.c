@@ -87,6 +87,13 @@ inherit "/lib/core/object.c";
 #define GLYPH_PATH_SEW    "┬"
 #define GLYPH_PATH_NSEW   "┼"
 
+// Toggle for the decorative city-wall overlay (see _overlay_city_walls).
+// Walls are a post-processing pass drawn AROUND contiguous city regions
+// to highlight where a settlement is; they do not correspond one-to-one
+// with the underlying sectors. Set to 0 to render cities as plain solid
+// blocks with no surrounding wall.
+#define WORLDMAP_CITY_WALLS 1
+
 // per-render sector cache. Reset at the top of every render(); safe
 // because DGD executes each mudlib call chain atomically — there is no
 // interleaving of two renders on the same handler.
@@ -142,60 +149,6 @@ private string neighbour_type(string game, string map_name,
   return sect->query_sector_type();
 }
 
-// Pick the box-drawing wall glyph for a city sector based on which of
-// its four cardinal neighbours are also city (interior vs edge vs
-// corner) and, where the outer neighbour is a road, promote the wall
-// to a road-join hybrid so the settlement visibly connects to it.
-private string city_glyph(string game, string map_name,
-                          int sx, int sy, int sz)
-{
-  int cn, cs, ce, cw, count;
-  int rn, rs, re, rw;
-
-  cn = (neighbour_type(game, map_name, sx, sy, sz, 0,  1) == SECTOR_TYPE_CITY);
-  cs = (neighbour_type(game, map_name, sx, sy, sz, 0, -1) == SECTOR_TYPE_CITY);
-  ce = (neighbour_type(game, map_name, sx, sy, sz, 1,  0) == SECTOR_TYPE_CITY);
-  cw = (neighbour_type(game, map_name, sx, sy, sz,-1,  0) == SECTOR_TYPE_CITY);
-
-  count = cn + cs + ce + cw;
-
-  // interior (all 4 neighbours city) — plain solid block
-  if (count == 4)
-    return GLYPH_CITY_SOLID;
-
-  // near-isolated (0-1 city neighbours) — treat as one lone block,
-  // avoids emitting single-corner protrusions for weird 1-wide clumps
-  if (count <= 1)
-    return GLYPH_CITY_SOLID;
-
-  rn = (neighbour_type(game, map_name, sx, sy, sz, 0,  1) == SECTOR_TYPE_ROAD);
-  rs = (neighbour_type(game, map_name, sx, sy, sz, 0, -1) == SECTOR_TYPE_ROAD);
-  re = (neighbour_type(game, map_name, sx, sy, sz, 1,  0) == SECTOR_TYPE_ROAD);
-  rw = (neighbour_type(game, map_name, sx, sy, sz,-1,  0) == SECTOR_TYPE_ROAD);
-
-  // three neighbours city — cell is a straight wall segment on the
-  // remaining side. The outer road, if any, promotes the plain wall.
-  if (cs && ce && cw && !cn) return rn ? GLYPH_CITY_N_ROAD : GLYPH_CITY_N;
-  if (cn && ce && cw && !cs) return rs ? GLYPH_CITY_S_ROAD : GLYPH_CITY_S;
-  if (cn && cs && cw && !ce) return re ? GLYPH_CITY_E_ROAD : GLYPH_CITY_E;
-  if (cn && cs && ce && !cw) return rw ? GLYPH_CITY_W_ROAD : GLYPH_CITY_W;
-
-  // two neighbours city — corner segments
-  if (cs && ce && !cn && !cw) return GLYPH_CITY_NW;
-  if (cs && cw && !cn && !ce) return GLYPH_CITY_NE;
-  if (cn && ce && !cs && !cw) return GLYPH_CITY_SW;
-  if (cn && cw && !cs && !ce) return GLYPH_CITY_SE;
-
-  // two neighbours forming a strip (opposite sides) — fall back on the
-  // matching straight segment
-  if (cn && cs && !ce && !cw) return GLYPH_CITY_W;
-  if (ce && cw && !cn && !cs) return GLYPH_CITY_N;
-
-  return GLYPH_CITY_SOLID;
-}
-
-// Pick the double-line box-drawing glyph for a road sector from the
-// mask of which cardinal neighbours are also road.
 // Glyph for a road/path sector, driven by its own border crossings
 // (sector->query_border_ways, the S2 data) rather than by guessing from
 // neighbour sector types. The mask (n=1, s=2, e=4, w=8) says which
@@ -283,7 +236,9 @@ private string render_cell(string game, string map_name,
 
   type = sect->query_sector_type();
 
-  if (type == SECTOR_TYPE_CITY)        return city_glyph(game, map_name, sx, sy, sz);
+  // city cells are a plain solid block; the surrounding wall is drawn
+  // later by the _overlay_city_walls post-processing pass.
+  if (type == SECTOR_TYPE_CITY)        return GLYPH_CITY_SOLID;
   if (type == SECTOR_TYPE_ROAD)        return way_glyph(sect);
   if (type == SECTOR_TYPE_FOREST)      return GLYPH_FOREST;
   if (type == SECTOR_TYPE_COAST)       return GLYPH_COAST;
@@ -292,43 +247,170 @@ private string render_cell(string game, string map_name,
   return GLYPH_EMPTY;
 }
 
+// Write a glyph into the grid, clamped to bounds and never clobbering
+// the player marker.
+private void _put(string ** grid, int w, int h, int r, int c, string g)
+{
+  if (r < 0 || r >= h || c < 0 || c >= w)
+    return;
+  if (grid[r][c] == GLYPH_PLAYER)
+    return;
+  grid[r][c] = g;
+}
+
+// Draw the border of the screen-space rectangle [top,left]..[bottom,right]
+// (top is the visually higher row). Corners + straight single-line edges.
+private void _draw_rect(string ** grid, int w, int h,
+                        int top, int left, int bottom, int right)
+{
+  int r, c;
+
+  _put(grid, w, h, top,    left,  GLYPH_CITY_NW);   // ┌
+  _put(grid, w, h, top,    right, GLYPH_CITY_NE);   // ┐
+  _put(grid, w, h, bottom, left,  GLYPH_CITY_SW);   // └
+  _put(grid, w, h, bottom, right, GLYPH_CITY_SE);   // ┘
+
+  for (c = left + 1; c < right; c++)
+  {
+    _put(grid, w, h, top,    c, GLYPH_CITY_N);      // ─
+    _put(grid, w, h, bottom, c, GLYPH_CITY_S);      // ─
+  }
+  for (r = top + 1; r < bottom; r++)
+  {
+    _put(grid, w, h, r, left,  GLYPH_CITY_W);       // │
+    _put(grid, w, h, r, right, GLYPH_CITY_E);       // │
+  }
+}
+
+// Post-processing pass: highlight every contiguous region of city
+// sectors by drawing a rectangular wall one cell outside its bounding
+// box. Deliberately decorative — the rectangle marks "there is a city
+// here", it does not trace the region's exact silhouette, so a single
+// city sector or an irregular blob both get a clean surrounding wall.
+private void _overlay_city_walls(string ** grid, int ** is_city,
+                                 int w, int h)
+{
+  int ** visited;
+  int r, c;
+
+  visited = allocate(h);
+  for (r = 0; r < h; r++)
+    visited[r] = allocate_int(w);
+
+  for (r = 0; r < h; r++)
+    for (c = 0; c < w; c++)
+    {
+      int minr, maxr, minc, maxc;
+      int * sr, * sc;
+
+      if (!is_city[r][c] || visited[r][c])
+        continue;
+
+      // flood-fill the blob (4-connectivity), tracking its bounding box
+      minr = maxr = r;
+      minc = maxc = c;
+      sr = ({ r });
+      sc = ({ c });
+      visited[r][c] = 1;
+
+      while (sizeof(sr))
+      {
+        int cr, cc, k;
+        int * dr, * dc;
+
+        cr = sr[sizeof(sr) - 1];
+        cc = sc[sizeof(sc) - 1];
+        sr = sr[0 .. sizeof(sr) - 2];
+        sc = sc[0 .. sizeof(sc) - 2];
+
+        if (cr < minr) minr = cr;
+        if (cr > maxr) maxr = cr;
+        if (cc < minc) minc = cc;
+        if (cc > maxc) maxc = cc;
+
+        dr = ({ -1, 1, 0, 0 });
+        dc = ({ 0, 0, -1, 1 });
+        for (k = 0; k < 4; k++)
+        {
+          int nr, nc;
+          nr = cr + dr[k];
+          nc = cc + dc[k];
+          if (nr >= 0 && nr < h && nc >= 0 && nc < w &&
+              is_city[nr][nc] && !visited[nr][nc])
+          {
+            visited[nr][nc] = 1;
+            sr += ({ nr });
+            sc += ({ nc });
+          }
+        }
+      }
+
+      _draw_rect(grid, w, h, minr - 1, minc - 1, maxr + 1, maxc + 1);
+    }
+}
+
 // Render a `width x height` sector viewport centred on the given world
 // coord. The viewer's sector is overlaid with '@' regardless of what
 // terrain occupies it.
 string render(int center_x, int center_y, int center_z,
               string game, string map_name, int width, int height)
 {
-  int sx0, sy0;
+  int sx0, sy0, sz0;
   int col0, row_top;
   int row_i, col;
-  int cell_sx, cell_sy;
-  string result, row;
+  string ** grid;
+  int ** is_city;
+  string result;
 
   sector_cache = ([ ]);
 
   sx0 = sector_index(center_x);
   sy0 = sector_index(center_y);
+  sz0 = sector_index(center_z);
 
   // top-left of the viewport, expressed in sector indices. `row_top`
   // is the highest y in the viewport because on screen y grows downward.
   col0    = sx0 - width / 2;
   row_top = sy0 + height / 2;
 
-  result = "";
+  // base fill: one glyph per sector, plus a parallel city mask the
+  // wall overlay reads (so it works off sector type, not the glyph,
+  // which the player marker would otherwise hide).
+  grid = allocate(height);
+  is_city = allocate(height);
   for (row_i = 0; row_i < height; row_i++)
   {
-    row = "";
+    int cell_sy;
+    grid[row_i] = allocate(width);
+    is_city[row_i] = allocate_int(width);
     cell_sy = row_top - row_i;
     for (col = 0; col < width; col++)
     {
+      int cell_sx;
+      object sect;
       cell_sx = col0 + col;
-      if (cell_sx == sx0 && cell_sy == sy0)
-        row += GLYPH_PLAYER;
-      else
-        row += render_cell(game, map_name, cell_sx, cell_sy, sector_index(center_z));
+      sect = cached_sector(game, map_name, cell_sx, cell_sy, sz0);
+      is_city[row_i][col] =
+        (sect && sect->query_sector_type() == SECTOR_TYPE_CITY);
+      grid[row_i][col] = render_cell(game, map_name, cell_sx, cell_sy, sz0);
     }
-    result += row + "\n";
   }
+
+  // player marker (before the overlay, which never overwrites it)
+  {
+    int prow, pcol;
+    prow = row_top - sy0;
+    pcol = sx0 - col0;
+    if (prow >= 0 && prow < height && pcol >= 0 && pcol < width)
+      grid[prow][pcol] = GLYPH_PLAYER;
+  }
+
+  if (WORLDMAP_CITY_WALLS)
+    _overlay_city_walls(grid, is_city, width, height);
+
+  result = "";
+  for (row_i = 0; row_i < height; row_i++)
+    result += implode(grid[row_i], "") + "\n";
 
   return result;
 }
