@@ -886,7 +886,12 @@ mixed * clean_apply(string scope)
 
 // Reindex a single area synchronously. Returns the number of locations
 // reloaded, or -1 if the area directory does not exist.
-int reindex_area(string game, string area)
+//
+// With do_save set, each loaded location is also saved back. Loading
+// alone rebuilds the in-memory sector/area indexes; saving additionally
+// rewrites the location's own .o — used to migrate persisted data to the
+// current on-disk format (e.g. canonical English exit direction keys).
+int reindex_area(string game, string area, varargs int do_save)
 {
   object area_ob;
   string area_path;
@@ -913,8 +918,15 @@ int reindex_area(string game, string area)
 
   count = 0;
   for (i = 0; i < sizeof(files); i++)
-    if (load_location(files[i]))
+  {
+    object loc;
+    if (loc = load_location(files[i]))
+    {
+      if (do_save)
+        loc->save_me();
       count++;
+    }
+  }
 
   return count;
 }
@@ -923,7 +935,8 @@ int reindex_area(string game, string area)
 // next on the following tick. Public because the call_out dispatcher
 // reaches it through call_other. initiator is notified per area so a
 // long run reports progress instead of going silent.
-void reindex_game_step(string game, string * areas, int idx, object initiator)
+void reindex_game_step(string game, string * areas, int idx, object initiator,
+                       int do_save)
 {
   int count;
 
@@ -935,18 +948,20 @@ void reindex_game_step(string game, string * areas, int idx, object initiator)
     return;
   }
 
-  count = reindex_area(game, areas[idx]);
+  count = reindex_area(game, areas[idx], do_save);
 
   if (initiator)
     tell_object(initiator, "  reindexed area '" + areas[idx] + "': " +
-                (count < 0 ? "not found" : count + " locations") + "\n");
+                (count < 0 ? "not found" : count + " locations") +
+                (do_save ? " (saved)" : "") + "\n");
 
-  call_out("reindex_game_step", 0, game, areas, idx + 1, initiator);
+  call_out("reindex_game_step", 0, game, areas, idx + 1, initiator, do_save);
 }
 
 // Kick off a game-wide reindex, one area per tick. Returns the number of
-// areas scheduled, or -1 if the game has no areas directory.
-int reindex_game(string game, object initiator)
+// areas scheduled, or -1 if the game has no areas directory. With do_save
+// set every location is also re-saved (data migration).
+int reindex_game(string game, object initiator, varargs int do_save)
 {
   string areas_root;
   string * entries, * areas;
@@ -967,7 +982,7 @@ int reindex_game(string game, object initiator)
       areas += ({ entries[i] });
 
   if (sizeof(areas))
-    call_out("reindex_game_step", 0, game, areas, 0, initiator);
+    call_out("reindex_game_step", 0, game, areas, 0, initiator, do_save);
 
   return sizeof(areas);
 }

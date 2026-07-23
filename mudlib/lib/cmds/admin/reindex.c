@@ -7,7 +7,7 @@ inherit CMD_BASE;
 void setup()
 {
   set_aliases(({ "reindex" }));
-  set_usage("reindex [ area <name> | game ]");
+  set_usage("reindex [ area <name> | game ] [save]");
   set_help(
     "Reload persisted locations so their sector.o and area.o files\n" +
     "rebuild against the current code (terrain-type tallies and\n" +
@@ -19,6 +19,12 @@ void setup()
     "                         per tick so the batch stays within the\n" +
     "                         driver's per-execution limits\n" +
     "\n" +
+    "Add 'save' as the last word to also re-save each location, not\n" +
+    "just reload it. Use this to migrate persisted data to the current\n" +
+    "on-disk format (e.g. rewriting exit direction keys to canonical\n" +
+    "English). Slower and it rewrites every .o, so only run it when a\n" +
+    "migration is actually needed.\n" +
+    "\n" +
     "Game is inferred from your current environment. Reindexing a\n" +
     "single area runs immediately; a whole game runs in the\n" +
     "background and reports each area as it finishes.\n");
@@ -28,7 +34,7 @@ static int cmd(string str, object me, string verb)
 {
   string * tokens;
   string game, area;
-  int count, areas;
+  int count, areas, do_save;
 
   game = game_name(me);
   if (!strlen(game))
@@ -40,17 +46,26 @@ static int cmd(string str, object me, string verb)
 
   tokens = explode(str ? str : "", " ") - ({ "" });
 
+  // strip a trailing 'save' flag from anywhere
+  do_save = 0;
+  if (member_array("save", tokens) != -1)
+  {
+    do_save = 1;
+    tokens -= ({ "save" });
+  }
+
   // ===== whole game, chunked across ticks =====
   if (sizeof(tokens) == 1 && tokens[0] == "game")
   {
-    areas = load_object(LOCATION_HANDLER)->reindex_game(game, me);
+    areas = load_object(LOCATION_HANDLER)->reindex_game(game, me, do_save);
     if (areas < 0)
     {
       notify_fail("Game '" + game + "' has no areas directory.\n");
       return 0;
     }
     write("Reindexing " + areas + " area" + (areas == 1 ? "" : "s") +
-          " of '" + game + "' in the background ...\n");
+          " of '" + game + "'" + (do_save ? " (with save)" : "") +
+          " in the background ...\n");
     return 1;
   }
 
@@ -80,11 +95,11 @@ static int cmd(string str, object me, string verb)
   }
   else
   {
-    notify_fail("Usage: reindex [ area <name> | game ]\n");
+    notify_fail("Usage: reindex [ area <name> | game ] [save]\n");
     return 0;
   }
 
-  count = load_object(LOCATION_HANDLER)->reindex_area(game, area);
+  count = load_object(LOCATION_HANDLER)->reindex_area(game, area, do_save);
   if (count < 0)
   {
     notify_fail("No area '" + area + "' in game '" + game + "'.\n");
@@ -92,6 +107,7 @@ static int cmd(string str, object me, string verb)
   }
 
   write("Reindexed area '" + area + "' in '" + game + "': " +
-        count + " location" + (count == 1 ? "" : "s") + ".\n");
+        count + " location" + (count == 1 ? "" : "s") +
+        (do_save ? " (saved)" : "") + ".\n");
   return 1;
 }
