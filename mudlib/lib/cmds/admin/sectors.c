@@ -32,7 +32,7 @@ static int cmd(string str, object me, string verb)
   {
     object * locations;
 
-    write(" - " + keys[i] + "\n");
+    write(" - %^GREEN%^" + keys[i] + "%^RESET%^\n");
 
     locations = sectors[keys[i]]->query_loaded_locations();
 
