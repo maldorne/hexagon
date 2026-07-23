@@ -258,94 +258,85 @@ private void _put(string ** grid, int w, int h, int r, int c, string g)
   grid[r][c] = g;
 }
 
-// Draw the border of the screen-space rectangle [top,left]..[bottom,right]
-// (top is the visually higher row). Corners + straight single-line edges.
-private void _draw_rect(string ** grid, int w, int h,
-                        int top, int left, int bottom, int right)
+// Line glyph for a wall cell, from the mask of which orthogonal
+// neighbours are also wall cells (N=1, S=2, E=4, W=8). This connects the
+// ring of wall cells into a continuous outline.
+private string _wall_glyph(int mask)
 {
-  int r, c;
-
-  _put(grid, w, h, top,    left,  GLYPH_CITY_NW);   // ┌
-  _put(grid, w, h, top,    right, GLYPH_CITY_NE);   // ┐
-  _put(grid, w, h, bottom, left,  GLYPH_CITY_SW);   // └
-  _put(grid, w, h, bottom, right, GLYPH_CITY_SE);   // ┘
-
-  for (c = left + 1; c < right; c++)
+  switch (mask)
   {
-    _put(grid, w, h, top,    c, GLYPH_CITY_N);      // ─
-    _put(grid, w, h, bottom, c, GLYPH_CITY_S);      // ─
+    case 1: case 2: case 3:  return GLYPH_CITY_W;    // │  vertical
+    case 4: case 8: case 12: return GLYPH_CITY_N;    // ─  horizontal
+    case 5:  return GLYPH_CITY_SW;    // └  N+E
+    case 6:  return GLYPH_CITY_NW;    // ┌  S+E
+    case 9:  return GLYPH_CITY_SE;    // ┘  N+W
+    case 10: return GLYPH_CITY_NE;    // ┐  S+W
+    case 7:  return GLYPH_PATH_NSE;   // ├
+    case 11: return GLYPH_PATH_NSW;   // ┤
+    case 13: return GLYPH_PATH_NEW;   // ┴
+    case 14: return GLYPH_PATH_SEW;   // ┬
+    case 15: return GLYPH_PATH_NSEW;  // ┼
   }
-  for (r = top + 1; r < bottom; r++)
-  {
-    _put(grid, w, h, r, left,  GLYPH_CITY_W);       // │
-    _put(grid, w, h, r, right, GLYPH_CITY_E);       // │
-  }
+  return GLYPH_CITY_N;                // isolated stub — arbitrary
 }
 
-// Post-processing pass: highlight every contiguous region of city
-// sectors by drawing a rectangular wall one cell outside its bounding
-// box. Deliberately decorative — the rectangle marks "there is a city
-// here", it does not trace the region's exact silhouette, so a single
-// city sector or an irregular blob both get a clean surrounding wall.
+// Post-processing pass: draw a wall that hugs the exact outline of every
+// city region. A wall cell is any non-city cell touching a city cell
+// (8-connectivity, so corners are included); its glyph connects to the
+// neighbouring wall cells, so the ring follows the silhouette — dipping
+// in and out around protrusions instead of squaring off a bounding box.
+// City sectors keep their solid fill, so there are no empty cells inside
+// the wall.
 private void _overlay_city_walls(string ** grid, int ** is_city,
                                  int w, int h)
 {
-  int ** visited;
+  int ** is_wall;
   int r, c;
 
-  visited = allocate(h);
+  // pass 1: a wall cell is a non-city cell adjacent (8-dir) to any city
+  is_wall = allocate(h);
   for (r = 0; r < h; r++)
-    visited[r] = allocate_int(w);
+  {
+    is_wall[r] = allocate_int(w);
+    for (c = 0; c < w; c++)
+    {
+      int dr, dc, touch;
 
+      if (is_city[r][c])
+        continue;
+
+      touch = 0;
+      for (dr = -1; dr <= 1 && !touch; dr++)
+        for (dc = -1; dc <= 1 && !touch; dc++)
+        {
+          int nr, nc;
+          if (!dr && !dc) continue;
+          nr = r + dr;
+          nc = c + dc;
+          if (nr >= 0 && nr < h && nc >= 0 && nc < w && is_city[nr][nc])
+            touch = 1;
+        }
+      is_wall[r][c] = touch;
+    }
+  }
+
+  // pass 2: connect the ring — each wall cell's glyph follows its
+  // orthogonal wall neighbours
   for (r = 0; r < h; r++)
     for (c = 0; c < w; c++)
     {
-      int minr, maxr, minc, maxc;
-      int * sr, * sc;
+      int mask;
 
-      if (!is_city[r][c] || visited[r][c])
+      if (!is_wall[r][c])
         continue;
 
-      // flood-fill the blob (4-connectivity), tracking its bounding box
-      minr = maxr = r;
-      minc = maxc = c;
-      sr = ({ r });
-      sc = ({ c });
-      visited[r][c] = 1;
+      mask = 0;
+      if (r - 1 >= 0 && is_wall[r - 1][c]) mask |= 1;   // N (up)
+      if (r + 1 < h  && is_wall[r + 1][c]) mask |= 2;   // S (down)
+      if (c + 1 < w  && is_wall[r][c + 1]) mask |= 4;   // E
+      if (c - 1 >= 0 && is_wall[r][c - 1]) mask |= 8;   // W
 
-      while (sizeof(sr))
-      {
-        int cr, cc, k;
-        int * dr, * dc;
-
-        cr = sr[sizeof(sr) - 1];
-        cc = sc[sizeof(sc) - 1];
-        sr = sr[0 .. sizeof(sr) - 2];
-        sc = sc[0 .. sizeof(sc) - 2];
-
-        if (cr < minr) minr = cr;
-        if (cr > maxr) maxr = cr;
-        if (cc < minc) minc = cc;
-        if (cc > maxc) maxc = cc;
-
-        dr = ({ -1, 1, 0, 0 });
-        dc = ({ 0, 0, -1, 1 });
-        for (k = 0; k < 4; k++)
-        {
-          int nr, nc;
-          nr = cr + dr[k];
-          nc = cc + dc[k];
-          if (nr >= 0 && nr < h && nc >= 0 && nc < w &&
-              is_city[nr][nc] && !visited[nr][nc])
-          {
-            visited[nr][nc] = 1;
-            sr += ({ nr });
-            sc += ({ nc });
-          }
-        }
-      }
-
-      _draw_rect(grid, w, h, minr - 1, minc - 1, maxr + 1, maxc + 1);
+      _put(grid, w, h, r, c, _wall_glyph(mask));
     }
 }
 
