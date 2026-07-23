@@ -90,6 +90,37 @@ string add_location(object location)
     if (sizeof(my_types))
       location_data["types"] = my_types;
 
+    // Lift the location's path / road exits (direction -> way_type) so
+    // the sector can answer border-crossing and pathfinding queries
+    // without reloading the location. Only the cartographic exit types
+    // (SECTOR_WAY_TYPES) are recorded; doors, stairs, etc are ignored.
+    {
+      mapping exit_map, ways;
+      string * dirs, * way_types;
+
+      exit_map = location->query_exit_map();
+      ways = ([ ]);
+      way_types = SECTOR_WAY_TYPES;
+
+      if (mappingp(exit_map))
+      {
+        dirs = map_indices(exit_map);
+        for (i = 0; i < sizeof(dirs); i++)
+        {
+          string type;
+          // exit_map[dir] = ({ dest, type, material, ... })
+          if (!arrayp(exit_map[dirs[i]]) || sizeof(exit_map[dirs[i]]) < 2)
+            continue;
+          type = exit_map[dirs[i]][1];
+          if (member_array(type, way_types) != -1)
+            ways[dirs[i]] = type;
+        }
+      }
+
+      if (map_sizeof(ways))
+        location_data["ways"] = ways;
+    }
+
     sector_storage->add_location(location->query_file_name(),
                                  x, y, z, location_data);
   }

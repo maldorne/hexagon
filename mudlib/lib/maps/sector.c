@@ -1,4 +1,5 @@
 #include <maps/sector.h>
+#include <translations/exits.h>
 
 inherit "/lib/core/object.c";
 
@@ -16,6 +17,13 @@ mapping maze_positions;
 // via query_sector_type() (dominant type) or query_type_counts() (raw
 // distribution). See include/maps/sector.h for the taxonomy.
 mapping type_counts;
+// mapping in the form ([ x_y_z : ([ direction : way_type ]) ]) — the
+// path / road exits leaving each coordinate in this sector. way_type is
+// one of SECTOR_WAY_TYPES; direction is a full exit name ("north", ...).
+// Consumers read the raw per-coordinate graph via query_way_exits()
+// (pathfinding), or the sector-border summary via query_border_ways()
+// (world map rendering). See include/maps/sector.h.
+mapping way_exits;
 // array of loaded locations
 static object * loaded_locations;
 string file_name;
@@ -25,6 +33,7 @@ void create() {
   positions = ([ ]);
   maze_positions = ([ ]);
   type_counts = ([ ]);
+  way_exits = ([ ]);
   loaded_locations = ({ });
   ::create();
 }
@@ -80,6 +89,7 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
 
   if (!maze_positions) maze_positions = ([ ]);
   if (!type_counts) type_counts = ([ ]);
+  if (!way_exits) way_exits = ([ ]);
 
   key = "" + x + "_" + y + "_" + z;
   previous = locations[location_file_name];
@@ -93,6 +103,16 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
     maze_positions[key] = 1;
   else
     map_delete(maze_positions, key);
+
+  // location_data may carry a "ways" mapping ([ direction : way_type ])
+  // holding this coordinate's path / road exits, lifted from the
+  // location's exit graph. Store it keyed by coord (or clear a stale
+  // entry when the location no longer has any).
+  if (location_data && location_data["ways"] &&
+      map_sizeof(location_data["ways"]))
+    way_exits[key] = map_copy(location_data["ways"]);
+  else
+    map_delete(way_exits, key);
 
   // Update per-type counters. A re-add for the same file is treated as
   // an update: decrement the previous contribution before adding the
@@ -131,6 +151,7 @@ void remove_location(string location_file_name)
 
   if (!maze_positions) maze_positions = ([ ]);
   if (!type_counts) type_counts = ([ ]);
+  if (!way_exits) way_exits = ([ ]);
 
   // Roll back this file's contribution to the sector-type tally BEFORE
   // dropping its entry from `locations`, since that entry is where the
@@ -157,6 +178,7 @@ void remove_location(string location_file_name)
     {
       map_delete(positions, pos_keys[i]);
       map_delete(maze_positions, pos_keys[i]);
+      map_delete(way_exits, pos_keys[i]);
     }
   }
 
@@ -223,4 +245,91 @@ string query_sector_type()
   }
 
   return best;
+}
+
+// Raw per-coordinate path / road exit graph:
+//   ([ "x_y_z" : ([ direction : way_type ]) ])
+// Intended for a pathfinder that walks the graph inside a sector. The
+// world map renderer wants the border summary below instead.
+mapping query_way_exits()
+{
+  if (!way_exits) way_exits = ([ ]);
+  return way_exits;
+}
+
+// Sector index for a single coordinate axis, matching the convention in
+// maps.c: sector n = n / 10 - (n < 0), so -1 lands in sector -1.
+private int _sector_index(int n)
+{
+  return n / 10 - (n < 0);
+}
+
+private void _record_border(mapping acc, string border, string type)
+{
+  if (!acc[border])
+    acc[border] = ({ });
+  if (member_array(type, acc[border]) == -1)
+    acc[border] += ({ type });
+}
+
+// Which cardinal borders of this sector are crossed by a path or road,
+// and of which type(s). Returns
+//   ([ "n": ({ "road" }), "e": ({ "path", "road" }), ... ])
+// including only borders that actually carry a crossing. A way crosses a
+// border when its destination coordinate (source + one step in the exit
+// direction) falls in the neighbouring sector along that axis. Diagonal
+// and vertical exits are kept in way_exits but ignored here — the border
+// glyphs are cardinal. When a border carries both types the renderer is
+// free to pick the heavier road (SECTOR_WAY_TYPES lists road first).
+mapping query_border_ways()
+{
+  mapping result;
+  string * coord_keys;
+  int i;
+
+  if (!way_exits) way_exits = ([ ]);
+  result = ([ ]);
+
+  coord_keys = map_indices(way_exits);
+  for (i = 0; i < sizeof(coord_keys); i++)
+  {
+    int x, y, z;
+    mapping ways;
+    string * dirs;
+    int j;
+
+    if (sscanf(coord_keys[i], "%d_%d_%d", x, y, z) != 3)
+      continue;
+
+    ways = way_exits[coord_keys[i]];
+    dirs = map_indices(ways);
+
+    for (j = 0; j < sizeof(dirs); j++)
+    {
+      string type;
+      type = ways[dirs[j]];
+
+      switch (dirs[j])
+      {
+        case DIR_NORTH:
+          if (_sector_index(y + 1) != _sector_index(y))
+            _record_border(result, SECTOR_BORDER_N, type);
+          break;
+        case DIR_SOUTH:
+          if (_sector_index(y - 1) != _sector_index(y))
+            _record_border(result, SECTOR_BORDER_S, type);
+          break;
+        case DIR_EAST:
+          if (_sector_index(x + 1) != _sector_index(x))
+            _record_border(result, SECTOR_BORDER_E, type);
+          break;
+        case DIR_WEST:
+          if (_sector_index(x - 1) != _sector_index(x))
+            _record_border(result, SECTOR_BORDER_W, type);
+          break;
+      }
+    }
+  }
+
+  return result;
 }

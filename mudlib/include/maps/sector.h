@@ -29,4 +29,23 @@
     SECTOR_TYPE_FOREST, SECTOR_TYPE_UNDERGROUND \
   })
 
+// Cartographic exit types — the subset of the room exit_types (see
+// lib/room/handlers/room_handler.c) that the world map draws as linear
+// connections between sectors: a path is a single line, a road a double
+// one. The sector records, per coordinate, which of its exits are of
+// these types (sector.c `way_exits`), so the renderer can draw borders
+// and a pathfinder can walk the graph. ROAD is listed first so a border
+// carrying both collapses to the heavier road glyph.
+#define SECTOR_WAY_PATH  "path"
+#define SECTOR_WAY_ROAD  "road"
+#define SECTOR_WAY_TYPES ({ SECTOR_WAY_ROAD, SECTOR_WAY_PATH })
+
+// Cardinal border keys returned by query_border_ways(). Screen y grows
+// downward but the world coord convention (see include/maps/maps.h) is
+// +y = north, +x = east.
+#define SECTOR_BORDER_N  "n"
+#define SECTOR_BORDER_S  "s"
+#define SECTOR_BORDER_E  "e"
+#define SECTOR_BORDER_W  "w"
+
 #endif // SECTORS_H
