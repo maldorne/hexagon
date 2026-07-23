@@ -247,13 +247,16 @@ private string render_cell(string game, string map_name,
   return GLYPH_EMPTY;
 }
 
-// Write a glyph into the grid, clamped to bounds and never clobbering
-// the player marker.
+// Write a wall glyph into the grid, clamped to bounds. Only blank cells
+// are painted: the player marker and any real terrain glyph (another
+// sector's fill — forest, road, a different city) show through, so the
+// wall never hides map content, it only fills the empty margin around a
+// settlement.
 private void _put(string ** grid, int w, int h, int r, int c, string g)
 {
   if (r < 0 || r >= h || c < 0 || c >= w)
     return;
-  if (grid[r][c] == GLYPH_PLAYER)
+  if (grid[r][c] != GLYPH_EMPTY)
     return;
   grid[r][c] = g;
 }
