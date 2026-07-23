@@ -83,7 +83,7 @@ string add_location(object location)
     if (location->query_component_by_type(LOCATION_COMPONENT_MAZE))
       location_data["maze"] = 1;
 
-    contrib = SECTOR_CONTRIB_COMPONENTS;
+    contrib = SECTOR_MAP_COMPONENTS;
     my_types = ({ });
     for (i = 0; i < sizeof(contrib); i++)
       if (location->query_component_by_type(contrib[i]))

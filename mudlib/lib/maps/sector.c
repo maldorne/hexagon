@@ -218,7 +218,7 @@ mapping query_type_counts()
 }
 
 // The sector's dominant type: whichever cartography component is
-// attached to the most locations here. Iterates SECTOR_CONTRIB_COMPONENTS
+// attached to the most locations here. Iterates SECTOR_MAP_COMPONENTS
 // in priority order with a strict `>`, so ties go to the earlier entry
 // (city > road > coast > forest > underground). Returns SECTOR_TYPE_NONE
 // if no cartography component has been tallied yet.
@@ -230,7 +230,7 @@ string query_sector_type()
 
   if (!type_counts) type_counts = ([ ]);
 
-  order = SECTOR_CONTRIB_COMPONENTS;
+  order = SECTOR_MAP_COMPONENTS;
   best = SECTOR_TYPE_NONE;
   best_count = 0;
 

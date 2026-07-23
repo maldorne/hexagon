@@ -225,21 +225,38 @@ private string way_glyph(object sect)
   return GLYPH_PATH_EW;
 }
 
+// Is this sector a city (holds at least one city location)?
+private int _sector_is_city(object sect)
+{
+  mapping tc;
+  if (!sect) return 0;
+  tc = sect->query_type_counts();
+  return tc && !undefinedp(tc[SECTOR_TYPE_CITY]) && tc[SECTOR_TYPE_CITY] > 0;
+}
+
+// Display priority for a sector cell (highest first):
+//   1. city        — any city presence wins; drawn as a solid block, the
+//                    surrounding wall added later by _overlay_city_walls
+//   2. road / path — if the sector has road/path exits, draw the way glyph
+//   3. majority    — otherwise the dominant remaining terrain type
 private string render_cell(string game, string map_name,
                            int sx, int sy, int sz)
 {
   object sect;
   string type;
+  mapping borders;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
   if (!sect) return GLYPH_EMPTY;
 
-  type = sect->query_sector_type();
+  if (_sector_is_city(sect))
+    return GLYPH_CITY_SOLID;
 
-  // city cells are a plain solid block; the surrounding wall is drawn
-  // later by the _overlay_city_walls post-processing pass.
-  if (type == SECTOR_TYPE_CITY)        return GLYPH_CITY_SOLID;
-  if (type == SECTOR_TYPE_ROAD)        return way_glyph(sect);
+  borders = sect->query_border_ways();
+  if (mappingp(borders) && map_sizeof(borders))
+    return way_glyph(sect);
+
+  type = sect->query_sector_type();
   if (type == SECTOR_TYPE_FOREST)      return GLYPH_FOREST;
   if (type == SECTOR_TYPE_COAST)       return GLYPH_COAST;
   if (type == SECTOR_TYPE_UNDERGROUND) return GLYPH_UNDERGROUND;
@@ -384,8 +401,7 @@ string render(int center_x, int center_y, int center_z,
       object sect;
       cell_sx = col0 + col;
       sect = cached_sector(game, map_name, cell_sx, cell_sy, sz0);
-      is_city[row_i][col] =
-        (sect && sect->query_sector_type() == SECTOR_TYPE_CITY);
+      is_city[row_i][col] = _sector_is_city(sect);
       grid[row_i][col] = render_cell(game, map_name, cell_sx, cell_sy, sz0);
     }
   }

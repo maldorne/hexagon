@@ -14,18 +14,24 @@
 // them via sector->query_sector_type() (dominant type) or
 // sector->query_type_counts() (full distribution).
 
+// The location components the world map cares about. A sector tallies how
+// many of its locations carry each one (city, forest, ...); the dominant
+// tally is the sector's map classification. These are the same component
+// types a location can hold (see include/room/location.h). Road is not
+// among them — roads are drawn from the road/path EXITS a sector has (see
+// SECTOR_WAY_* below), not from a component tally.
 #define SECTOR_TYPE_NONE        ""
 #define SECTOR_TYPE_CITY        LOCATION_COMPONENT_CITY
-#define SECTOR_TYPE_ROAD        LOCATION_COMPONENT_ROAD
 #define SECTOR_TYPE_FOREST      LOCATION_COMPONENT_FOREST
 #define SECTOR_TYPE_COAST       LOCATION_COMPONENT_COAST
 #define SECTOR_TYPE_UNDERGROUND LOCATION_COMPONENT_UNDERGROUND
 
-// Iterated in this order by query_sector_type() with strict `>`. That
-// makes the earlier entries win ties: on equal counts, city beats road,
-// road beats coast, and so on. Reflects visual salience on a world map.
-#define SECTOR_CONTRIB_COMPONENTS ({ \
-    SECTOR_TYPE_CITY, SECTOR_TYPE_ROAD, SECTOR_TYPE_COAST, \
+// Iterated in this order by query_sector_type() with strict `>`, so on
+// equal counts the earlier entry wins. This is the majority-component
+// tie-break only; the map renderer applies a separate display priority
+// (city, then road/path exits, then the majority component).
+#define SECTOR_MAP_COMPONENTS ({ \
+    SECTOR_TYPE_CITY, SECTOR_TYPE_COAST, \
     SECTOR_TYPE_FOREST, SECTOR_TYPE_UNDERGROUND \
   })
 
