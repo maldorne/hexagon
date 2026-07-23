@@ -865,3 +865,109 @@ mixed * clean_apply(string scope)
 
   return ({ sizeof(orphans), adjacent_count, exit_count });
 }
+
+// ============================================================
+//  Map reindexing
+//
+//  Loading a location re-registers it into its sector and area with the
+//  current lift logic (terrain component tallies + path/road way exits;
+//  see maps.c::add_location). Reindexing therefore just means loading
+//  every persisted location once so stale sector.o / area.o files
+//  rebuild against the code as it stands now.
+//
+//  Each load is cheap — a single restore plus the sector write — so an
+//  area-sized batch fits within one execution's rlimits (the `exits
+//  area` coder command already scans a whole area synchronously, and it
+//  does strictly more work per file). A whole game spans many areas, so
+//  reindex_game() spreads the areas across call_outs: each fires on the
+//  next tick with a fresh rlimits budget, the standard DGD idiom for a
+//  job too large for a single execution.
+// ============================================================
+
+// Reindex a single area synchronously. Returns the number of locations
+// reloaded, or -1 if the area directory does not exist.
+int reindex_area(string game, string area)
+{
+  object area_ob;
+  string area_path;
+  string * files;
+  int i, count;
+
+  // Accept the area either bare ("naduk", as `exits area` takes it) or
+  // as query_area_name() reports it ("naduk/rooms"): strip a trailing
+  // "/rooms" or "/" so the path is rebuilt exactly once.
+  while (strlen(area) && area[strlen(area) - 1] == '/')
+    area = area[0 .. strlen(area) - 2];
+  if (strlen(area) >= 6 && area[strlen(area) - 6 ..] == "/rooms")
+    area = area[0 .. strlen(area) - 7];
+
+  area_path = "/save/games/" + game + "/locations/areas/" + area + "/rooms/";
+
+  if (file_size(area_path) != -2)
+    return -1;
+
+  // the area object is the authority on which files belong to it — the
+  // same source `exits area` uses. load_location gates on it anyway.
+  area_ob = load_object(AREA_HANDLER)->create_area(area_path);
+  files = map_indices(area_ob->query_locations());
+
+  count = 0;
+  for (i = 0; i < sizeof(files); i++)
+    if (load_location(files[i]))
+      count++;
+
+  return count;
+}
+
+// One step of a game-wide reindex: reindex areas[idx], then schedule the
+// next on the following tick. Public because the call_out dispatcher
+// reaches it through call_other. initiator is notified per area so a
+// long run reports progress instead of going silent.
+void reindex_game_step(string game, string * areas, int idx, object initiator)
+{
+  int count;
+
+  if (idx >= sizeof(areas))
+  {
+    if (initiator)
+      tell_object(initiator, "Map reindex of '" + game + "' complete: " +
+                  sizeof(areas) + " areas.\n");
+    return;
+  }
+
+  count = reindex_area(game, areas[idx]);
+
+  if (initiator)
+    tell_object(initiator, "  reindexed area '" + areas[idx] + "': " +
+                (count < 0 ? "not found" : count + " locations") + "\n");
+
+  call_out("reindex_game_step", 0, game, areas, idx + 1, initiator);
+}
+
+// Kick off a game-wide reindex, one area per tick. Returns the number of
+// areas scheduled, or -1 if the game has no areas directory.
+int reindex_game(string game, object initiator)
+{
+  string areas_root;
+  string * entries, * areas;
+  int i;
+
+  areas_root = "/save/games/" + game + "/locations/areas/";
+
+  if (file_size(areas_root) != -2)
+    return -1;
+
+  entries = get_dir(areas_root + "*");
+  entries = entries ? entries : ({ });
+
+  // keep only sub-directories (each area is a dir)
+  areas = ({ });
+  for (i = 0; i < sizeof(entries); i++)
+    if (file_size(areas_root + entries[i]) == -2)
+      areas += ({ entries[i] });
+
+  if (sizeof(areas))
+    call_out("reindex_game_step", 0, game, areas, 0, initiator);
+
+  return sizeof(areas);
+}
