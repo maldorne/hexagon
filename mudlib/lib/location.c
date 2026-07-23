@@ -13,6 +13,7 @@ inherit sign     "/lib/room/sign.c";
 #include <basic/light.h>
 #include <language.h>
 #include <room/location.h>
+#include <room/room.h>
 #include <areas/area.h>
 #include <areas/common.h>
 #include <maps/maps.h>
@@ -55,6 +56,8 @@ void set_file_name(string filename);
 void save_me();
 void add_exits_from_exit_map(mapping m);
 void set_exits_from_exit_map(mapping m);
+private mapping _exit_map_to_canonical(mapping m);
+private mapping _exit_map_to_local(mapping m);
 mixed * run_pipeline(string func, mixed * args);
 mixed run_reduce(string func, mixed * args, mixed acc, string combinator);
 string _concat_string(mixed acc, mixed piece);
@@ -580,6 +583,11 @@ int restore_from_file_name(string name)
   {
     restore_object(name);
 
+    // the persisted exit map uses canonical English direction keys;
+    // bring them back to the current language before the runtime exit
+    // system consumes them.
+    _exit_map = _exit_map_to_local(_exit_map);
+
     add_exits_from_exit_map(_exit_map);
 
     init_components(component_info);
@@ -687,6 +695,42 @@ int guess_coordinates()
   save_me();
 
   return found;
+}
+
+// Direction keys are stored on disk in canonical English so a game's
+// /save tree stays migratable between the languages the mudlib compiles
+// in (see room_handler::canonical_dir / localize_dir). Runtime keeps the
+// exit map in the current language; these two helpers translate the map
+// only at the persistence boundary — canonical on the way out, localized
+// on the way back. Non-direction keys (custom exit verbs) pass through.
+private mapping _exit_map_to_canonical(mapping m)
+{
+  mapping out;
+  string * ks;
+  int i;
+
+  out = ([ ]);
+  ks = keys(m);
+  for (i = 0; i < sizeof(ks); i++)
+    out[ROOM_HAND->canonical_dir(ks[i])] = m[ks[i]];
+
+  return out;
+}
+
+private mapping _exit_map_to_local(mapping m)
+{
+  mapping out;
+  string * ks;
+  int i;
+
+  out = ([ ]);
+  ks = keys(m);
+  // canonical first so both legacy localized and English keys normalize,
+  // then localize to the current language
+  for (i = 0; i < sizeof(ks); i++)
+    out[ROOM_HAND->localize_dir(ROOM_HAND->canonical_dir(ks[i]))] = m[ks[i]];
+
+  return out;
 }
 
 // we save the full exit map
@@ -856,7 +900,16 @@ void save_me()
   AREA_HANDLER->add_location(this_object());
 
   if (file_name && strlen(file_name))
+  {
+    mapping runtime_exits;
+
+    // persist canonical English direction keys, then restore the
+    // localized runtime map so nothing downstream sees English keys.
+    runtime_exits = _exit_map;
+    _exit_map = _exit_map_to_canonical(runtime_exits);
     save_object(file_name);
+    _exit_map = runtime_exits;
+  }
 }
 
 void dest_me()
