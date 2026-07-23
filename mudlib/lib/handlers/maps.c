@@ -2,6 +2,7 @@
 #include <maps/maps.h>
 #include <maps/sector.h>
 #include <room/location.h>
+#include <room/room.h>
 
 mapping loaded_sectors;
 
@@ -112,8 +113,11 @@ string add_location(object location)
           if (!arrayp(exit_map[dirs[i]]) || sizeof(exit_map[dirs[i]]) < 2)
             continue;
           type = exit_map[dirs[i]][1];
+          // store the direction in canonical English so sector.o stays
+          // language-agnostic like the rest of /save (see
+          // room_handler::canonical_dir).
           if (member_array(type, way_types) != -1)
-            ways[dirs[i]] = type;
+            ways[ROOM_HAND->canonical_dir(dirs[i])] = type;
         }
       }
 

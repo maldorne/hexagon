@@ -48,4 +48,12 @@
 #define SECTOR_BORDER_E  "e"
 #define SECTOR_BORDER_W  "w"
 
+// Canonical (English) direction words stored in way_exits. They match
+// room_handler::canonical_dir output, so query_border_ways compares
+// against these rather than the language-dependent DIR_* macros.
+#define SECTOR_DIR_NORTH "north"
+#define SECTOR_DIR_SOUTH "south"
+#define SECTOR_DIR_EAST  "east"
+#define SECTOR_DIR_WEST  "west"
+
 #endif // SECTORS_H

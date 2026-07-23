@@ -309,21 +309,23 @@ mapping query_border_ways()
       string type;
       type = ways[dirs[j]];
 
+      // way_exits keys are canonical English (see maps.c lift), so
+      // compare against the canonical constants, not the DIR_* macros.
       switch (dirs[j])
       {
-        case DIR_NORTH:
+        case SECTOR_DIR_NORTH:
           if (_sector_index(y + 1) != _sector_index(y))
             _record_border(result, SECTOR_BORDER_N, type);
           break;
-        case DIR_SOUTH:
+        case SECTOR_DIR_SOUTH:
           if (_sector_index(y - 1) != _sector_index(y))
             _record_border(result, SECTOR_BORDER_S, type);
           break;
-        case DIR_EAST:
+        case SECTOR_DIR_EAST:
           if (_sector_index(x + 1) != _sector_index(x))
             _record_border(result, SECTOR_BORDER_E, type);
           break;
-        case DIR_WEST:
+        case SECTOR_DIR_WEST:
           if (_sector_index(x - 1) != _sector_index(x))
             _record_border(result, SECTOR_BORDER_W, type);
           break;
