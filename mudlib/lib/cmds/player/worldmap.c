@@ -47,6 +47,8 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
 
-  write(map);
+  // wrap the grid in the parchment frame, matching the location-level
+  // map command's presentation
+  write("\n" + handler("frames")->frame(map, "", 0, 0, "scroll") + "\n");
   return 1;
 }

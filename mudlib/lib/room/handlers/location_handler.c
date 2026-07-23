@@ -986,3 +986,54 @@ int reindex_game(string game, object initiator, varargs int do_save)
 
   return sizeof(areas);
 }
+
+// ============================================================
+//  Terrain tagging
+//
+//  Attach (or detach) a cartography component — city / road / forest /
+//  coast / underground — to every location of an area, then save each so
+//  the sector reclassifies. Area-sized batch, synchronous, same footing
+//  as reindex_area.
+// ============================================================
+
+// Add `type` (with `properties`) to every location of the area, or drop
+// it when do_remove is set. Returns the number of locations touched, or
+// -1 if the area directory does not exist.
+int tag_area(string game, string area, string type, mapping properties,
+             varargs int do_remove)
+{
+  object area_ob;
+  string area_path;
+  string * files;
+  int i, count;
+
+  while (strlen(area) && area[strlen(area) - 1] == '/')
+    area = area[0 .. strlen(area) - 2];
+  if (strlen(area) >= 6 && area[strlen(area) - 6 ..] == "/rooms")
+    area = area[0 .. strlen(area) - 7];
+
+  area_path = "/save/games/" + game + "/locations/areas/" + area + "/rooms/";
+
+  if (file_size(area_path) != -2)
+    return -1;
+
+  area_ob = load_object(AREA_HANDLER)->create_area(area_path);
+  files = map_indices(area_ob->query_locations());
+
+  count = 0;
+  for (i = 0; i < sizeof(files); i++)
+  {
+    object loc;
+    if (loc = load_location(files[i]))
+    {
+      if (do_remove)
+        loc->remove_component(type);
+      else
+        loc->add_component(type, properties);
+      loc->save_me();
+      count++;
+    }
+  }
+
+  return count;
+}
