@@ -1,4 +1,9 @@
 
+// Non-ASCII letters that count as word characters when split() breaks a
+// string into words. Everything else (spaces, ASCII punctuation, and
+// high-byte punctuation like ¿ ¡ « ») is treated as a separator.
+#define _LANG_WORD_CHARACTERS "áéíóúüñÁÉÍÓÚÜÑ"
+
 // messages
 
 #define _LANG_ERROR_HAPPENED "Se ha producido un error.\n"

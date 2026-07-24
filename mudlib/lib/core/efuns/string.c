@@ -523,6 +523,96 @@ static nomask int starts_with(string str, string prefix)
   return str[0..strlen(prefix) - 1] == prefix;
 }
 
+// Split a string into pieces.
+//
+//   split(str)        break into words: maximal runs of word characters,
+//                     dropping everything else. A word character is an
+//                     ASCII letter or digit, or a non-ASCII letter listed
+//                     in _LANG_WORD_CHARACTERS for the compiled language
+//                     (so accented letters and ñ stay whole while ¿ ¡ « »
+//                     and other punctuation still separate). Case kept.
+//   split(str, sep)   break on the 1-character separator `sep`, keeping
+//                     empty pieces between consecutive separators.
+//
+// Returns the pieces in order; an empty array for a nil/empty string.
+static nomask string * split(string str, varargs string separator)
+{
+  string * out;
+  string cur, wordchars;
+  int i, len, c, clen;
+
+  out = ({ });
+  cur = "";
+
+  if (!str || !strlen(str))
+    return out;
+
+  len = strlen(str);
+
+  // explicit separator: break on the given character
+  if (separator && strlen(separator))
+  {
+    string s;
+    s = separator;
+    for (i = 0; i < len; i++)
+    {
+      if (str[i] == s[0])
+      {
+        out += ({ cur });
+        cur = "";
+      }
+      else
+        cur += str[i .. i];
+    }
+    out += ({ cur });
+    return out;
+  }
+
+  // word split: ASCII alnum, plus the language's non-ASCII letters
+  wordchars = _LANG_WORD_CHARACTERS;
+
+  for (i = 0; i < len; )
+  {
+    c = str[i];
+
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9'))
+    {
+      cur += str[i .. i];
+      i++;
+    }
+    else if (c >= 128)
+    {
+      // read the whole UTF-8 character, then decide if it is a letter
+      clen = (c >= 240) ? 4 : (c >= 224) ? 3 : (c >= 192) ? 2 : 1;
+      if (i + clen > len) clen = 1;
+
+      if (strsrch(wordchars, str[i .. i + clen - 1]) != -1)
+        cur += str[i .. i + clen - 1];
+      else if (strlen(cur))
+      {
+        out += ({ cur });
+        cur = "";
+      }
+      i += clen;
+    }
+    else
+    {
+      if (strlen(cur))
+      {
+        out += ({ cur });
+        cur = "";
+      }
+      i++;
+    }
+  }
+
+  if (strlen(cur))
+    out += ({ cur });
+
+  return out;
+}
+
 static nomask string slugify(string str)
 {
   int i, length;

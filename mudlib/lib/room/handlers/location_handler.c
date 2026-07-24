@@ -463,6 +463,35 @@ object convert_room_to_location(object room)
     ret += "   Adding component maze.\n";
   }
 
+  // Props inferred from the room's items and description: the props
+  // handler matches each prop type's keywords against them and returns
+  // the types to attach. One instance of each is added to the location's
+  // props component.
+  {
+    string * inferred;
+
+    inferred = handler("props")->infer_types_from_room(
+                 location->query_original_items(),
+                 location->query_original_long());
+
+    if (sizeof(inferred))
+    {
+      object comp;
+      int k;
+
+      if (!location->query_component_by_type(LOCATION_COMPONENT_PROPS))
+        location->add_component(LOCATION_COMPONENT_PROPS,
+                                ([ "props_instances": ({ }) ]));
+
+      comp = location->query_component_by_type(LOCATION_COMPONENT_PROPS);
+      if (comp)
+        for (k = 0; k < sizeof(inferred); k++)
+          comp->add_prop_instance(inferred[k], inferred[k] + "_1", ([ ]));
+
+      ret += "   Inferred props: " + implode(inferred, ", ") + ".\n";
+    }
+  }
+
   // TO DO
   // add shop as point of interest in area
   // add attender as vacancy in area

@@ -1,4 +1,8 @@
 
+// Non-ASCII letters that count as word characters when split() breaks a
+// string into words. English has none, so any non-ASCII byte separates.
+#define _LANG_WORD_CHARACTERS ""
+
 // messages
 
 #define _LANG_ERROR_HAPPENED "An error occurred.\n"
