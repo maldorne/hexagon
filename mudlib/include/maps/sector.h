@@ -26,6 +26,14 @@
 #define SECTOR_TYPE_COAST       LOCATION_COMPONENT_COAST
 #define SECTOR_TYPE_UNDERGROUND LOCATION_COMPONENT_UNDERGROUND
 
+// A manual type a programmer can set on a sector (query_manual_type /
+// set_manual_type), used when the sector has no locations of its own to
+// derive a type from. SECTOR_TYPE_EMPTY is the placeholder left on a
+// sector emptied by `room2loc clean`: the sector.o and its folder stay so
+// the sector can later be painted a real type, but nothing is drawn for
+// it on the world map.
+#define SECTOR_TYPE_EMPTY       "empty"
+
 // Iterated in this order by query_sector_type() with strict `>`, so on
 // equal counts the earlier entry wins. This is the majority-component
 // tie-break only; the map renderer applies a separate display priority

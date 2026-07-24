@@ -24,9 +24,14 @@ mapping type_counts;
 // (pathfinding), or the sector-border summary via query_border_ways()
 // (world map rendering). See include/maps/sector.h.
 mapping way_exits;
+// a type a programmer set by hand; used only when the sector has no
+// locations to derive a type from. See query_sector_type / set_manual_type.
+string manual_type;
 // array of loaded locations
 static object * loaded_locations;
 string file_name;
+
+void save_me();
 
 void create() {
   locations = ([ ]);
@@ -34,8 +39,20 @@ void create() {
   maze_positions = ([ ]);
   type_counts = ([ ]);
   way_exits = ([ ]);
+  manual_type = SECTOR_TYPE_NONE;
   loaded_locations = ({ });
   ::create();
+}
+
+string query_manual_type()
+{
+  return manual_type ? manual_type : SECTOR_TYPE_NONE;
+}
+
+void set_manual_type(string type)
+{
+  manual_type = type ? type : SECTOR_TYPE_NONE;
+  save_me();
 }
 
 void restore_me() {
@@ -217,6 +234,20 @@ mapping query_type_counts()
   return type_counts;
 }
 
+// How many locations in this sector carry the given cartography
+// component (city, forest, ...). See include/maps/sector.h.
+int count_locations_of_type(string type)
+{
+  if (!type_counts) type_counts = ([ ]);
+  return undefinedp(type_counts[type]) ? 0 : type_counts[type];
+}
+
+// Does at least one location in this sector carry the given component.
+int has_locations_of_type(string type)
+{
+  return count_locations_of_type(type) > 0;
+}
+
 // The sector's dominant type: whichever cartography component is
 // attached to the most locations here. Iterates SECTOR_MAP_COMPONENTS
 // in priority order with a strict `>`, so ties go to the earlier entry
@@ -243,6 +274,11 @@ string query_sector_type()
       best = order[i];
     }
   }
+
+  // locations win; fall back to the programmer-set type for a sector that
+  // has none of its own (e.g. one left "empty" by a clean)
+  if (best == SECTOR_TYPE_NONE && manual_type && strlen(manual_type))
+    return manual_type;
 
   return best;
 }

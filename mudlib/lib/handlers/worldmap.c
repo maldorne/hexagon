@@ -225,15 +225,6 @@ private string way_glyph(object sect)
   return GLYPH_PATH_EW;
 }
 
-// Is this sector a city (holds at least one city location)?
-private int _sector_is_city(object sect)
-{
-  mapping tc;
-  if (!sect) return 0;
-  tc = sect->query_type_counts();
-  return tc && !undefinedp(tc[SECTOR_TYPE_CITY]) && tc[SECTOR_TYPE_CITY] > 0;
-}
-
 // Display priority for a sector cell (highest first):
 //   1. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls
@@ -249,14 +240,19 @@ private string render_cell(string game, string map_name,
   sect = cached_sector(game, map_name, sx, sy, sz);
   if (!sect) return GLYPH_EMPTY;
 
-  if (_sector_is_city(sect))
+  // a single city location paints the whole sector (present-wins), so two
+  // neighbouring cities never merge through the terrain between them
+  if (sect->has_locations_of_type(SECTOR_TYPE_CITY))
     return GLYPH_CITY_SOLID;
 
   borders = sect->query_border_ways();
   if (mappingp(borders) && map_sizeof(borders))
     return way_glyph(sect);
 
+  // query_sector_type is the majority component, or the programmer-set
+  // manual type for a sector with no locations of its own
   type = sect->query_sector_type();
+  if (type == SECTOR_TYPE_CITY)        return GLYPH_CITY_SOLID;
   if (type == SECTOR_TYPE_FOREST)      return GLYPH_FOREST;
   if (type == SECTOR_TYPE_COAST)       return GLYPH_COAST;
   if (type == SECTOR_TYPE_UNDERGROUND) return GLYPH_UNDERGROUND;
@@ -384,9 +380,9 @@ string render(int center_x, int center_y, int center_z,
   col0    = sx0 - width / 2;
   row_top = sy0 + height / 2;
 
-  // base fill: one glyph per sector, plus a parallel city mask the
-  // wall overlay reads (so it works off sector type, not the glyph,
-  // which the player marker would otherwise hide).
+  // base fill: one glyph per sector, plus a parallel city mask the wall
+  // overlay reads. The mask is captured here, before the player marker is
+  // stamped in, so a marker sitting on a city cell never breaks the wall.
   grid = allocate(height);
   is_city = allocate(height);
   for (row_i = 0; row_i < height; row_i++)
@@ -398,11 +394,11 @@ string render(int center_x, int center_y, int center_z,
     for (col = 0; col < width; col++)
     {
       int cell_sx;
-      object sect;
       cell_sx = col0 + col;
-      sect = cached_sector(game, map_name, cell_sx, cell_sy, sz0);
-      is_city[row_i][col] = _sector_is_city(sect);
       grid[row_i][col] = render_cell(game, map_name, cell_sx, cell_sy, sz0);
+      // city mask for the wall overlay, read off the freshly painted
+      // glyph — still before the player marker overwrites it below.
+      is_city[row_i][col] = grid[row_i][col] == GLYPH_CITY_SOLID;
     }
   }
 

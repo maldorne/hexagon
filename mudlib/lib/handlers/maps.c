@@ -17,12 +17,13 @@ mapping query_loaded_sectors() {
 
 // will create an sector storage in the destination directory
 // (and create such directory if it doesn't exist)
-object create_sector(string path) 
+object create_sector(string path)
 {
   object sector;
 
-  if (file_size(path) != -2)
-    mkdir(path);
+  // mkdir efun (lib/core/efuns/file.c) creates every missing level along
+  // the path, so a virgin sector deep in maps/<map>/<x>/<y>/<z>/ works.
+  mkdir(path);
 
   if (loaded_sectors[path])
     return loaded_sectors[path];
@@ -36,6 +37,31 @@ object create_sector(string path)
   }
 
   loaded_sectors[path] = sector;
+
+  return sector;
+}
+
+// Set (or clear, with SECTOR_TYPE_NONE) the manual type of the sector
+// containing world coord (x, y, z) in the given game/map. Creates the
+// sector.o if it does not exist yet, so a programmer can paint a type on
+// a virgin part of the map. Returns the sector object.
+object set_sector_manual_type(string game, string map_name,
+                              int x, int y, int z, string type)
+{
+  int sector_x, sector_y, sector_z;
+  string path;
+  object sector;
+
+  sector_x = x / 10 - (x < 0);
+  sector_y = y / 10 - (y < 0);
+  sector_z = z / 10 - (z < 0);
+
+  path = "/save/games/" + game + "/maps/" + map_name + "/" +
+         sector_x + "/" + sector_y + "/" + sector_z + "/";
+
+  sector = create_sector(path);
+  if (sector)
+    sector->set_manual_type(type);
 
   return sector;
 }
@@ -197,23 +223,13 @@ int remove_location_from_map(string location_file_name, string map_name,
   {
     sector->remove_location(location_file_name);
 
-    // if the sector holds nothing anymore, delete its file, forget it,
-    // and drop the now-empty directory — leaving no dead sector.o behind
-    if (!map_sizeof(sector->query_positions()))
-    {
-      string sector_file;
-
-      sector_file = sector->query_file_name();
-      if (sector_file && file_size(sector_file) >= 0)
-        remove_file(sector_file);
-
-      map_delete(loaded_sectors, sector_path);
-      destruct(sector);
-
-      if (file_size(sector_path) == -2 &&
-          !sizeof(get_dir(sector_path + "*")))
-        rmdir(sector_path);
-    }
+    // a sector with no locations left is not deleted: it keeps its file
+    // and folder so a programmer can still paint it a type. Mark it
+    // "empty" (unless one is already set) so it renders as blank until
+    // then. See sector.c::query_sector_type.
+    if (!map_sizeof(sector->query_positions()) &&
+        !strlen(sector->query_manual_type()))
+      sector->set_manual_type(SECTOR_TYPE_EMPTY);
   }
 
   return 1;
