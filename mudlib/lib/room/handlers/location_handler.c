@@ -485,8 +485,12 @@ object convert_room_to_location(object room)
 
       comp = location->query_component_by_type(LOCATION_COMPONENT_PROPS);
       if (comp)
+        // idempotent: only add a type not already present, so re-running
+        // the conversion never duplicates inferred props and never stomps
+        // a prop of that type added by hand.
         for (k = 0; k < sizeof(inferred); k++)
-          comp->add_prop_instance(inferred[k], inferred[k] + "_1", ([ ]));
+          if (!sizeof(comp->query_instances_by_type(inferred[k])))
+            comp->add_prop_instance(inferred[k], inferred[k] + "_1", ([ ]));
 
       ret += "   Inferred props: " + implode(inferred, ", ") + ".\n";
     }
