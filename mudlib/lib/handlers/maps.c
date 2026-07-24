@@ -194,7 +194,27 @@ int remove_location_from_map(string location_file_name, string map_name,
   // ensure the sector is loaded and tell it to drop the entry
   sector = create_sector(sector_path);
   if (sector)
+  {
     sector->remove_location(location_file_name);
+
+    // if the sector holds nothing anymore, delete its file, forget it,
+    // and drop the now-empty directory — leaving no dead sector.o behind
+    if (!map_sizeof(sector->query_positions()))
+    {
+      string sector_file;
+
+      sector_file = sector->query_file_name();
+      if (sector_file && file_size(sector_file) >= 0)
+        remove_file(sector_file);
+
+      map_delete(loaded_sectors, sector_path);
+      destruct(sector);
+
+      if (file_size(sector_path) == -2 &&
+          !sizeof(get_dir(sector_path + "*")))
+        rmdir(sector_path);
+    }
+  }
 
   return 1;
 }

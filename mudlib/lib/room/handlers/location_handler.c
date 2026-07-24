@@ -634,7 +634,12 @@ string * resolve_clean_scope(string scope)
  * The walk is scoped to the single directory mirroring the source — we
  * never look elsewhere.
  */
-private string * _list_scope_orphans(string save_dir, string source_prefix)
+// List the locations in scope to be removed. By default only orphans —
+// locations whose source .c is gone. With `all`, every location whose
+// source belongs to the scope, so the scope can be wiped and rebuilt
+// from a fresh room2loc conversion.
+private string * _list_scope_orphans(string save_dir, string source_prefix,
+                                     varargs int all)
 {
   string * files;
   string * orphans;
@@ -656,7 +661,7 @@ private string * _list_scope_orphans(string save_dir, string source_prefix)
 
     orig = loc->query_original_room_file_name();
 
-    // programmatic locations (no source .c): never orphans, never touch
+    // programmatic locations (no source .c): never touch
     if (!orig || !strlen(orig))
       continue;
 
@@ -664,8 +669,9 @@ private string * _list_scope_orphans(string save_dir, string source_prefix)
     if (!starts_with(orig, source_prefix + "/"))
       continue;
 
-    // a real orphan: the source .c file no longer exists on disk
-    if (file_size(orig) < 0)
+    // `all`: every in-scope location; otherwise only real orphans whose
+    // source .c no longer exists on disk
+    if (all || file_size(orig) < 0)
       orphans += ({ files[i] });
   }
 
@@ -689,7 +695,7 @@ private mapping _find_inbound_exits(mapping orphan_set);
  *   orphans       — `.o` paths inside the scope that match.
  *   adjacent_trim — destinations-with-exits-back into the orphan set.
  */
-mixed * clean_preview(string scope)
+mixed * clean_preview(string scope, varargs int all)
 {
   string * resolved;
   string save_dir, source_prefix;
@@ -705,7 +711,7 @@ mixed * clean_preview(string scope)
   if (!strlen(save_dir))
     return ({ ({ }), ([ ]) });
 
-  orphans = _list_scope_orphans(save_dir, source_prefix);
+  orphans = _list_scope_orphans(save_dir, source_prefix, all);
 
   adjacent_trim = ([ ]);
 
@@ -815,7 +821,7 @@ private mapping _find_inbound_exits(mapping orphan_set)
  * Returns ({ orphan_count, adjacent_count, exit_count }) — counts of
  * the three things that happened.
  */
-mixed * clean_apply(string scope)
+mixed * clean_apply(string scope, varargs int all)
 {
   mixed * preview;
   string * orphans;
@@ -825,7 +831,7 @@ mixed * clean_apply(string scope)
   int adjacent_count, exit_count;
   int i, j;
 
-  preview = clean_preview(scope);
+  preview = clean_preview(scope, all);
   orphans = preview[0];
   adjacent_trim = preview[1];
 
@@ -862,32 +868,47 @@ mixed * clean_apply(string scope)
   }
 
   // phase 2: remove the orphans
-  for (i = 0; i < sizeof(orphans); i++)
   {
-    object loc, area;
+    object * touched_areas;
 
-    loc = load_location(orphans[i]);
+    touched_areas = ({ });
 
-    if (loc)
+    for (i = 0; i < sizeof(orphans); i++)
     {
-      if (loc->query_coordinates())
+      object loc, area;
+
+      loc = load_location(orphans[i]);
+
+      if (loc)
       {
-        int * coords;
-        coords = loc->query_coordinates();
-        load_object(MAPS_HANDLER)->remove_location_from_map(
-            orphans[i], loc->query_map_name(),
-            coords[0], coords[1], coords[2]);
+        if (loc->query_coordinates())
+        {
+          int * coords;
+          coords = loc->query_coordinates();
+          load_object(MAPS_HANDLER)->remove_location_from_map(
+              orphans[i], loc->query_map_name(),
+              coords[0], coords[1], coords[2]);
+        }
+
+        area = query_area_from_location_file_name(orphans[i]);
+        if (area)
+        {
+          area->remove_location(orphans[i]);
+          if (member_array(area, touched_areas) == -1)
+            touched_areas += ({ area });
+        }
+
+        destruct(loc);
       }
 
-      area = query_area_from_location_file_name(orphans[i]);
-      if (area)
-        area->remove_location(orphans[i]);
-
-      destruct(loc);
+      if (file_size(orphans[i]) >= 0)
+        remove_file(orphans[i]);
     }
 
-    if (file_size(orphans[i]) >= 0)
-      remove_file(orphans[i]);
+    // phase 3: drop any area left empty, so no dead area.o remains
+    for (i = 0; i < sizeof(touched_areas); i++)
+      if (touched_areas[i])
+        load_object(AREA_HANDLER)->remove_area_if_empty(touched_areas[i]);
   }
 
   return ({ sizeof(orphans), adjacent_count, exit_count });

@@ -39,7 +39,33 @@ object create_area(string path)
   return area;
 }
 
-string add_location(object location) 
+// Delete an area whose locations are all gone: remove its area.o file,
+// forget it, and drop the now-empty directory, so a wiped area leaves no
+// dead area.o behind. Returns 1 if it was removed, 0 otherwise.
+int remove_area_if_empty(object area)
+{
+  string area_file, path;
+
+  if (!area || map_sizeof(area->query_locations()))
+    return 0;
+
+  area_file = area->query_file_name();
+  path = area->query_area_path();
+
+  if (area_file && file_size(area_file) >= 0)
+    remove_file(area_file);
+
+  if (path)
+    map_delete(loaded_areas, path);
+  destruct(area);
+
+  if (path && file_size(path) == -2 && !sizeof(get_dir(path + "*")))
+    rmdir(path);
+
+  return 1;
+}
+
+string add_location(object location)
 {
   string file_name, dir_name;
   object area_storage;

@@ -10,7 +10,7 @@ void setup()
   set_usage("room2loc < filename | dirname | here >\n" +
             "room2loc reload < filename | dirname | here >\n" +
             "room2loc coords <location.o> <x> <y> <z>\n" +
-            "room2loc clean [apply] <path>");
+            "room2loc clean [all] [apply] <path>");
   set_help("Convert one or more legacy .c rooms into .o locations.\n" +
            "The target may be an absolute file or directory, a path\n" +
            "relative to your coder path, or 'here' for your current\n" +
@@ -39,13 +39,17 @@ void setup()
            "topology wins and the seed is discarded — this verb cannot\n" +
            "override a real anchor.\n" +
            "\n" +
-           "Subverb 'clean' removes every location under <path> (which\n" +
-           "may be a .c source directory or the corresponding save dir,\n" +
-           "even if the .c side has already been deleted), strips the\n" +
-           "map index entries, and trims broken exits on adjacent\n" +
-           "locations across the rest of the world. By default it is a\n" +
-           "dry-run that only prints the counts; pass 'apply' as the\n" +
-           "first word after 'clean' to actually execute.\n");
+           "Subverb 'clean' removes orphaned locations under <path> —\n" +
+           "those whose source .c has been deleted — strips their map\n" +
+           "index entries, and trims broken exits on adjacent locations\n" +
+           "across the rest of the world. Add 'all' to remove EVERY\n" +
+           "location in scope (not just orphans), to wipe an area before\n" +
+           "reconverting it from scratch. By default it is a dry-run that\n" +
+           "only prints the counts; pass 'apply' to actually execute:\n" +
+           "  room2loc clean <path>            preview orphans\n" +
+           "  room2loc clean apply <path>      remove orphans\n" +
+           "  room2loc clean all <path>        preview full wipe\n" +
+           "  room2loc clean all apply <path>  execute full wipe\n");
 }
 
 static int _filter_dot_c(string file)
@@ -130,7 +134,7 @@ static int do_coords(string str)
  * matching map / area index entries, and broken exits in the rest of
  * the world). Pass `apply=1` to execute; `apply=0` is a dry-run.
  */
-static int do_clean(string path, int apply)
+static int do_clean(string path, int apply, varargs int all)
 {
   string * resolved;
   string save_dir;
@@ -145,7 +149,7 @@ static int do_clean(string path, int apply)
 
   if (!path || !strlen(path))
   {
-    notify_fail("Usage: room2loc clean [apply] <path>\n");
+    notify_fail("Usage: room2loc clean [all] [apply] <path>\n");
     return 0;
   }
 
@@ -169,7 +173,7 @@ static int do_clean(string path, int apply)
     return 0;
   }
 
-  preview = load_object(LOCATION_HANDLER)->clean_preview(path);
+  preview = load_object(LOCATION_HANDLER)->clean_preview(path, all);
   orphans = preview[0];
   adjacent_trim = preview[1];
 
@@ -184,18 +188,20 @@ static int do_clean(string path, int apply)
     return 1;
   }
 
-  write("Clean " + (apply ? "applying" : "preview") + " for " + save_dir + "\n");
+  write("Clean " + (all ? "all " : "") + (apply ? "applying" : "preview") +
+        " for " + save_dir + "\n");
   write("  Locations to delete: " + sizeof(orphans) + "\n");
   write("  Adjacent locations with exits to trim: " + sizeof(adj_keys) +
         " (" + trim_count + " exits)\n");
 
   if (!apply)
   {
-    write("Run 'room2loc clean apply " + path + "' to execute.\n");
+    write("Run 'room2loc clean " + (all ? "all " : "") + "apply " + path +
+          "' to execute.\n");
     return 1;
   }
 
-  counts = load_object(LOCATION_HANDLER)->clean_apply(path);
+  counts = load_object(LOCATION_HANDLER)->clean_apply(path, all);
   write("Done. Removed " + counts[0] + " locations, trimmed " +
         counts[2] + " exits on " + counts[1] + " adjacent locations.\n");
   return 1;
@@ -221,9 +227,14 @@ static int cmd(string str, object me, string verb)
 
   if (args[0] == "clean")
   {
-    if (sizeof(args) >= 2 && args[1] == "apply")
-      return do_clean(implode(args[2..], " "), 1);
-    return do_clean(implode(args[1..], " "), 0);
+    int all, apply, idx;
+
+    all = apply = 0;
+    idx = 1;
+    if (idx < sizeof(args) && args[idx] == "all")   { all = 1;   idx++; }
+    if (idx < sizeof(args) && args[idx] == "apply") { apply = 1; idx++; }
+
+    return do_clean(implode(args[idx..], " "), apply, all);
   }
 
   reload = 0;
