@@ -76,7 +76,6 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
     env->remove_component(type);
-    env->save_me();
     write("Removed component '" + type + "'.\n");
     return 1;
   }

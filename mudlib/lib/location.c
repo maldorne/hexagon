@@ -242,7 +242,22 @@ void add_component(string component_type, mapping properties)
 
 void remove_component(string component_type)
 {
+  object live;
+
   map_delete(component_info, component_type);
+
+  // Mirror add_component: also drop the live instance and refresh the
+  // hook chains. Without this, _sync_component_info() would pull the
+  // still-live component straight back into component_info on save.
+  live = query_component_by_type(component_type);
+  if (live)
+  {
+    components -= ({ live });
+    destruct(live);
+  }
+
+  rebuild_hook_chains();
+  save_me();
 }
 
 void init_components(mapping info)
