@@ -11,7 +11,7 @@
 #include <language.h>
 
 // prototypes
-nomask void start_player();
+nomask void start_player(varargs int reconnected);
 nomask void check_mandatory_inventory();
 nomask void move_to_last_pos();
 
@@ -61,7 +61,7 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
       cat(welcome);
   }
   
-  start_player();
+  start_player(reconnected);
 
   if (!msgin || msgin[0] != '@')
     msgin = msgout = mmsgin = mmsgout = "";
@@ -209,7 +209,7 @@ nomask void check_mandatory_inventory()
   }
 }
 
-nomask void start_player()
+nomask void start_player(varargs int reconnected)
 {
   int lockout;
 
@@ -223,9 +223,14 @@ nomask void start_player()
 
   reset_all();
 
-  call_out("do_load_auto", 0);
-
-  add_timed_property(LOADING_PROP, 1, 50);
+  // On a linkdead reconnect the body is intact and already holds its
+  // inventory; reloading the auto_load would clone every item a second
+  // time (doubling on each reconnect). Only load it on a fresh entry.
+  if (!reconnected)
+  {
+    call_out("do_load_auto", 0);
+    add_timed_property(LOADING_PROP, 1, 50);
+  }
 
   // Helpless (relatively) for a while after you log in, you can run...
   // but you can't hide.
