@@ -147,6 +147,41 @@ static int _filter_dot_c(string file)
   return file[strlen(file) - 2..] == ".c";
 }
 
+// Resolve one selection token into the file paths it names. Accepts, in
+// order: `here` (the room you stand in), `*` (everything in your current
+// directory), a `*`/`?` glob (absolute, or relative to your directory), a
+// literal file or directory, and a bare room name with no extension (the
+// `.c` is tried automatically). Returns ({ }) when nothing matches.
+static string * _resolve_selection_target(string target)
+{
+  string cur;
+  string * res;
+
+  if (target == "here")
+    return environment(this_player()) ?
+             ({ base_name(environment(this_player())) }) : ({ });
+
+  cur = this_user()->query_role()->query_current_path();
+
+  if (target == "*")
+    return get_files(cur + "/*");
+
+  if (_has_wildcards(target))
+    return get_files(target[0] == '/' ? target : cur + "/" + target);
+
+  // literal path or name: resolve_targets handles absolute paths, dirs and
+  // names relative to the current directory. Retry with `.c` when the token
+  // carries no extension so `a1` finds `a1.c`.
+  res = load_object(LOCATION_HANDLER)->resolve_targets(target);
+  if (sizeof(res))
+    return res;
+
+  if (strlen(target) < 2 || target[strlen(target) - 2..] != ".c")
+    return load_object(LOCATION_HANDLER)->resolve_targets(target + ".c");
+
+  return ({ });
+}
+
 string pretty_selection()
 {
   string ret;
@@ -155,9 +190,10 @@ string pretty_selection()
   ret = "Current selection:\n";
 
   for (i = 0; i < sizeof(selection); i++)
-  ret += "  - " + selection[i] + 
-         " " + trim(to_string(objects[selection[i]])) + 
-         " (" + (objects[selection[i]]->query_location() ? "location" : "room") + ") \n";
+    ret += "  - " + selection[i] +
+           " (" + (objects[selection[i]] &&
+                   objects[selection[i]]->query_location() ?
+                   "location" : "room") + ")\n";
 
   return ret + "\n";
 }
@@ -220,7 +256,6 @@ int do_build(string str)
 int do_selection(string str)
 {
   string * args;
-  string * resolved;
   string verb;
   string target;
 
@@ -235,54 +270,35 @@ int do_selection(string str)
 
   if (verb == "add")
   {
+    string * added;
+    int i;
+
     if (sizeof(args) < 2)
     {
       notify_fail(capitalize(verb) + " what?\n");
       return 0;
     }
 
-    target = args[1];
+    // every remaining token is a target; each may name one file, a glob,
+    // a directory or a bare room name (see _resolve_selection_target)
+    added = ({ });
+    for (i = 1; i < sizeof(args); i++)
+      added += _resolve_selection_target(args[i]);
 
-    if (member_array(target, selection) != -1)
+    // keep only loadable rooms / locations, drop what is already selected
+    added = filter_array(unique_array(added), "_filter_loadable");
+    added -= selection;
+
+    if (!sizeof(added))
     {
-      notify_fail("Already in the selection.\n");
+      notify_fail("No new loadable files found.\n");
       return 0;
     }
 
-    // converting our environment
-    if (target == "here")
-    {
-      selection += ({ base_name(environment(this_player())) });
-    }
-    else if (target == "*")
-    {
-      selection += get_files(this_user()->query_role()->query_current_path() + "/*");
-    }
-    else if (sizeof(resolved = load_object(LOCATION_HANDLER)->resolve_targets(target)))
-    {
-      selection += resolved;
-    }
-    // absolute path with wildcards (resolve_targets only handles literal paths)
-    else if (target[0] == '/' && _has_wildcards(target) &&
-             sizeof(get_files(target)) > 0)
-    {
-      selection += get_files(target);
-    }
-    // is a pattern in the current directory
-    else if (sizeof(get_files(this_user()->query_role()->query_path() + "/" + target)) > 0)
-    {
-      selection += get_files(this_user()->query_role()->query_path() + "/" + target);
-    }
+    selection += added;
 
-    selection = unique_array(selection);
-    selection = filter_array(selection, "_filter_loadable");
-
-    if (!sizeof(selection))
-    {
-      notify_fail("No loadable files found.\n");
-      return 0;
-    }
-
+    write("Added " + sizeof(added) + " entr" +
+          (sizeof(added) == 1 ? "y" : "ies") + " to the selection.\n");
     write(pretty_selection());
   }
   else if (verb == "remove")
