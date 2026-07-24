@@ -48,6 +48,7 @@ private void _ensure_loaded();
 private void _load_table();
 private void _scan_customs();
 private void _scan_dir(string dir);
+mapping query_type_spec(string type);
 
 void create()
 {
@@ -825,7 +826,23 @@ string * infer_types_from_room(mixed * items, string long)
   for (i = 0; i < sizeof(known); i++)
   {
     string * ids;
+    mapping spec;
+
     ids = query_id_list(known[i]);
+
+    // also match the catalogue noun and its plural, so a description that
+    // reads "mesas" still infers "table" whose id_list only holds the
+    // singular "mesa". Custom blueprints have no spec; their id_list stands
+    // on its own.
+    spec = query_type_spec(known[i]);
+    if (spec)
+    {
+      if (stringp(spec[PROP_TYPE_NOUN]))
+        ids += ({ spec[PROP_TYPE_NOUN] });
+      if (stringp(spec[PROP_TYPE_NOUN_PLURAL]))
+        ids += ({ spec[PROP_TYPE_NOUN_PLURAL] });
+    }
+
     for (j = 0; j < sizeof(ids); j++)
       if (ids[j] && !undefinedp(seen[lower_case(ids[j])]))
       {
