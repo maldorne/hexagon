@@ -373,7 +373,7 @@ private string render_summary(mixed * totals, string extra_lines)
   if (extra_lines && strlen(extra_lines))
     ret += extra_lines;
 
-  ret += " Exits:   " + total_exits + " checked, " +
+  ret += " Exits:  " + total_exits + " checked, " +
          G + ok_exits + " ok" + RE +
          (bad_exits ? ", " + R + bad_exits + " broken" + RE : "") + ".\n";
   return ret;
