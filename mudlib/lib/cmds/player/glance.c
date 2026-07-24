@@ -94,7 +94,7 @@ static int cmd (string arg, object me, string verb)
         {
           props_section = (string)here->query_props_string();
           if (strlen(props_section))
-            ret += props_section + "\n";
+            ret += props_section;
         }
         ret += (string)here->query_contents();
         break;

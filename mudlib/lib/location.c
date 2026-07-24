@@ -525,7 +525,7 @@ string long(varargs string str, int dark)
   // that also appears in `glance`.
   props_section = query_props_string();
   if (strlen(props_section))
-    ret += props_section + "\n";
+    ret += props_section;
 
   ret += query_contents("");
 
@@ -548,9 +548,7 @@ string query_props_string()
   ret = (string)props_comp->query_props_section_string();
   if (!strlen(ret)) return "";
 
-  // Wrap to the viewer's column width. prettify=0 (reflow mode)
-  // keeps the enumeration flush left and adds no surrounding blank
-  // lines — appropriate for a compact one-shot summary.
+  // wrap() returns a newline-terminated line; callers append it as-is.
   return wrap(ret, (this_user() ? this_user()->query_cols() : 79));
 }
 
