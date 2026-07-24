@@ -19,7 +19,11 @@ inherit sign     "/lib/room/sign.c";
 #include <maps/maps.h>
 #include <translations/exits.h>
 
+// The live component instances attached to this location (runtime only).
 static object * components;
+// Persisted component state: component_type -> saved attributes. Written
+// from the live components on save (_sync_component_info) and replayed
+// into fresh instances on restore (init_components).
 mapping component_info;
 
 // Derived from components on init_components(). Maps a hookable
