@@ -507,89 +507,112 @@ object convert_room_to_location(object room)
   return location;
 }
 
-// Convert a batch of room files to locations, with progress output to
-// the current player. Filters out files that fail to load and reports
-// per-file outcomes. After the batch, schedules a coordinate-inference
-// pass on every successfully converted location.
-int batch_convert(string * files, varargs int reload)
+// How many rooms a single convert tick processes. Each room's blueprint
+// load runs its reset(), which can clone NPCs — heavy enough that doing
+// the whole directory in one execution blows the driver's per-call tick
+// budget ("Out of ticks") and silently drops the rooms after the point of
+// exhaustion. Converting a handful per tick keeps every step well inside
+// the budget; call_out gives each tick a fresh one.
+#define CONVERT_CHUNK 4
+
+// One tick of a batch conversion: convert up to CONVERT_CHUNK files, then
+// schedule the next tick. Public because the call_out dispatcher reaches
+// it through call_other. `locations` accumulates every converted location
+// across ticks so the final coordinate-inference pass sees the whole set.
+void convert_step(string * files, int idx, int reload, object initiator,
+                  object * locations)
 {
-  object location;
-  object * locations;
-  object * rooms;
-  object tmp;
-  int num_coordinates;
-  int i;
+  int end, i;
 
-  write("Converting files to locations\n\n");
-  if (reload)
-    write(" * Loading " + sizeof(files) + " objects (reload mode) ...\n");
-  else
-    write(" * Loading " + sizeof(files) + " objects ...\n");
-
-  rooms = ({ });
-
-  for (i = 0; i < sizeof(files); i++)
+  if (idx >= sizeof(files))
   {
-    // reload: destruct existing blueprint so load_object recompiles
-    // from disk. Caller (room2loc reload) has already accepted the
-    // risk of nuking any player still standing in the room.
-    if (reload)
-    {
-      tmp = find_object(files[i]);
-      if (tmp)
-        destruct_object(tmp);
-    }
-
-    tmp = load_object(files[i]);
-
-    if (tmp)
-      rooms += ({ tmp });
-    else
-      write("Error loading " + files[i] + ".\n");
+    if (initiator)
+      tell_object(initiator, "Conversion finished: " + sizeof(locations) +
+                  " location" + (sizeof(locations) == 1 ? "" : "s") +
+                  " converted.\n");
+    // coordinate inference over the whole set, on its own tick for a fresh
+    // budget (it walks the connectivity graph and honours existing anchors)
+    if (sizeof(locations))
+      call_out("do_guess_coordinates", 0, locations);
+    return;
   }
 
-  if (sizeof(rooms) == 0)
+  end = idx + CONVERT_CHUNK;
+  if (end > sizeof(files))
+    end = sizeof(files);
+
+  for (i = idx; i < end; i++)
   {
-    write("No valid objects loaded.\n");
+    object room, location;
+    mixed err;
+
+    // reload: destruct existing blueprint so load_object recompiles from
+    // disk. Caller (room2loc reload) has accepted the risk of nuking any
+    // player still standing in the room.
+    if (reload)
+    {
+      room = find_object(files[i]);
+      if (room)
+        destruct_object(room);
+    }
+
+    // a single bad room (compile / reset error) must not abort the batch;
+    // catch it, report it, and carry on with the rest of the directory.
+    err = catch(room = load_object(files[i]));
+    if (err || !room)
+    {
+      if (initiator)
+        tell_object(initiator, "  load error " + files[i] +
+                    (err ? ": " + err : "") + "\n");
+      continue;
+    }
+
+    location = nil;
+    err = catch(location = convert_room_to_location(room));
+    if (err)
+    {
+      if (initiator)
+        tell_object(initiator, "  convert error " + files[i] + ": " + err +
+                    "\n");
+      continue;
+    }
+    if (!location)
+      continue;
+
+    locations += ({ location });
+    if (initiator)
+      tell_object(initiator, "  " + base_name(room) + " -> " +
+                  (location->query_coordinates() ?
+                     "(" + location->query_coordinates()[0] + "," +
+                     location->query_coordinates()[1] + "," +
+                     location->query_coordinates()[2] + ")" : "no coords") +
+                  "\n");
+  }
+
+  call_out("convert_step", 0, files, end, reload, initiator, locations);
+}
+
+// Convert a batch of room files to locations, chunked across ticks so a
+// whole directory converts reliably without hitting the driver's tick
+// budget. Progress and errors are reported to the initiating player as the
+// background run proceeds; a coordinate-inference pass runs once the whole
+// batch is done.
+int batch_convert(string * files, varargs int reload)
+{
+  object initiator;
+
+  if (!sizeof(files))
+  {
+    write("No files to convert.\n");
     return 1;
   }
 
-  write(" * " + sizeof(rooms) + " objects loaded.\n\n");
+  initiator = this_player();
+  write("Converting " + sizeof(files) + " file" +
+        (sizeof(files) == 1 ? "" : "s") + " to locations" +
+        (reload ? " (reload mode)" : "") + " in the background ...\n");
 
-  num_coordinates = 0;
-  locations = ({ });
-
-  for (i = 0; i < sizeof(rooms); i++)
-  {
-    write(" * Converting " + file_name(rooms[i]) + ".c ...\n");
-
-    if (!(location = convert_room_to_location(rooms[i])))
-    {
-      write("   Error converting " + file_name(rooms[i]) + ".c.\n");
-    }
-    else
-    {
-      locations += ({ location });
-
-      write("   " + file_name(rooms[i]) + ".c to\n     " + location->query_file_name() + "\n");
-      if (location->query_coordinates())
-      {
-        num_coordinates++;
-        write("   %^GREEN%^Coordinates%^RESET%^: " + location->query_coordinates()[0] +
-              " " + location->query_coordinates()[1] + " " + location->query_coordinates()[2] + "\n");
-      }
-      else
-        write("   %^RED%^Coordinates%^RESET%^: none\n");
-    }
-  }
-
-  write("\nConversion finished.\n");
-  write("  Rooms converted: " + sizeof(locations) + "\n");
-  write("  Locations with coordinates: " + num_coordinates + "\n");
-
-  if (sizeof(locations))
-    call_out("do_guess_coordinates", 0, locations);
-
+  call_out("convert_step", 0, files, 0, reload, initiator, ({ }));
   return 1;
 }
 
