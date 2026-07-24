@@ -93,7 +93,6 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
   env->add_component(type, ([ ]));
-  env->save_me();
   write("Added component '" + type + "'.\n");
   return 1;
 }

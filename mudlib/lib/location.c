@@ -232,6 +232,7 @@ void add_component(string component_type, mapping properties)
   if (live)
   {
     live->init_auto_load_attributes(properties);
+    save_me();
     return;
   }
 
@@ -242,6 +243,7 @@ void add_component(string component_type, mapping properties)
   live->initialize(this_object());
   components += ({ live });
   rebuild_hook_chains();
+  save_me();
 }
 
 void remove_component(string component_type)
