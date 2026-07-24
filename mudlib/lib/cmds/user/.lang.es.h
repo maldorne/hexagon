@@ -61,20 +61,3 @@
 #define _LANG_CMD_GAMES_NO_LOGIN "Debes hacer login primero."
 #define _LANG_CMD_GAMES_UNAVAILABLE_GAME "No jugable"
 
-// idle
-
-#define _LANG_IDLE_SYNTAX "idle [<minutos>]"
-#define _LANG_IDLE_HELP "Cuántos minutos se mantiene tu personaje en el mundo cuando dejas de\n" + \
-                        "estar activo. El mismo valor cubre dos situaciones:\n" + \
-                        "  - Si tu conexión sigue viva pero no envías nada durante este tiempo,\n" + \
-                        "    se cierra tu sesión y se guarda tu progreso.\n" + \
-                        "  - Si tu conexión se cae, tu personaje permanece en el mundo este\n" + \
-                        "    tiempo para que puedas reconectarte y continuar donde lo dejaste.\n" + \
-                        "    Pasado ese plazo tu personaje sale del mundo y en el próximo login\n" + \
-                        "    empezarás de nuevo desde tu último estado guardado.\n" + \
-                        "El combate no puede evitarse desconectándose porque tu personaje\n" + \
-                        "permanece en el mundo durante ese tiempo.\n" + \
-                        "`idle` sin argumentos muestra el valor actual y el rango permitido.\n" + \
-                        "`idle <minutos>` fija un nuevo valor; cualquier valor fuera del rango se ajusta a los límites."
-#define _LANG_IDLE_SHOW "La espera de idle es %d minutos (rango permitido %d – %d).\n"
-#define _LANG_IDLE_SET "Espera de idle ajustada a %d minutos.\n"
