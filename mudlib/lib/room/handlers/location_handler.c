@@ -113,6 +113,78 @@ object load_location(string file_name)
   return location;
 }
 
+// Resolve a token (a room `.c` or a location `.o` path) to the loaded
+// location object. A room resolves through its converted `.o`; returns nil
+// when the token names neither, or when the room has not been converted.
+object resolve_to_location(string file)
+{
+  object room;
+
+  if (!strlen(file))
+    return nil;
+
+  if (file[strlen(file) - 2..] == ".o")
+    return load_location(file);
+
+  if (file[strlen(file) - 2..] == ".c")
+  {
+    room = load_object(file);
+    if (!room || !room->query_room())
+      return nil;
+    return load_location(get_location_file_name_from_room(room));
+  }
+
+  return nil;
+}
+
+// Add `type` to every location named by `files` (room `.c` or location
+// `.o` paths). Skips tokens that are not converted locations and those that
+// already carry the component; the location saves itself on add. Returns
+// the number of locations changed.
+int batch_add_component(string * files, string type, varargs mapping init)
+{
+  int count, i;
+  object loc;
+
+  if (!init)
+    init = ([ ]);
+
+  for (i = 0; i < sizeof(files); i++)
+  {
+    loc = resolve_to_location(files[i]);
+    if (!loc || !loc->query_location())
+      continue;
+    if (loc->query_component_by_type(type))
+      continue;
+    loc->add_component(type, init);
+    count++;
+  }
+
+  return count;
+}
+
+// Remove `type` from every location named by `files`. Skips tokens that are
+// not converted locations and those that lack the component; the location
+// saves itself on removal. Returns the number of locations changed.
+int batch_remove_component(string * files, string type)
+{
+  int count, i;
+  object loc;
+
+  for (i = 0; i < sizeof(files); i++)
+  {
+    loc = resolve_to_location(files[i]);
+    if (!loc || !loc->query_location())
+      continue;
+    if (!loc->query_component_by_type(type))
+      continue;
+    loc->remove_component(type);
+    count++;
+  }
+
+  return count;
+}
+
 int do_guess_coordinates(object * locations)
 {
   string * exits;

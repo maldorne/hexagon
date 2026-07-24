@@ -11,14 +11,18 @@ inherit "/lib/armour.c";
 #include <maps/maps.h>
 #include <translations/armour.h>
 
+#define COMPONENTS_DIR "/lib/location/components/"
+
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
+#define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
                 "\t" + BUILDER_RING_SELECTION_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_CONVERT_SYNTAX
+                "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_COMPONENT_SYNTAX
 
 static string * selection;
 static mapping objects;
@@ -54,6 +58,7 @@ void init()
 
 int do_selection(string str);
 int do_convert(string str);
+int do_component(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -244,6 +249,8 @@ int do_build(string str)
     return do_selection(implode(args[1..], " "));
   else if (verb == "convert")
     return do_convert(implode(args[1..], " "));
+  else if (verb == "component")
+    return do_component(implode(args[1..], " "));
   else
   {
     notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
@@ -436,6 +443,53 @@ int do_convert(string str)
 int do_convert_files(string * files)
 {
   return load_object(LOCATION_HANDLER)->batch_convert(files);
+}
+
+// build component < add | remove > <type>
+// Applies a component change to every location in the current selection,
+// delegating to the shared LOCATION_HANDLER batch helpers.
+int do_component(string str)
+{
+  string * args;
+  string verb, type;
+  int changed;
+
+  args = explode(str ? str : "", " ") - ({ "" });
+
+  if (sizeof(args) < 2 || (args[0] != "add" && args[0] != "remove"))
+  {
+    notify_fail("Usage: " + BUILDER_RING_COMPONENT_SYNTAX + "\n");
+    return 0;
+  }
+
+  verb = args[0];
+  type = args[1];
+
+  if (!sizeof(selection))
+  {
+    notify_fail("The selection is empty. Add locations first with " +
+                "'build selection add ...'.\n");
+    return 0;
+  }
+
+  if (file_size(COMPONENTS_DIR + type + ".c") <= 0)
+  {
+    notify_fail("No component blueprint '" + type + "' under "
+                + COMPONENTS_DIR + ".\n");
+    return 0;
+  }
+
+  if (verb == "add")
+    changed = load_object(LOCATION_HANDLER)->batch_add_component(
+                selection, type, ([ ]));
+  else
+    changed = load_object(LOCATION_HANDLER)->batch_remove_component(
+                selection, type);
+
+  write((verb == "add" ? "Added" : "Removed") + " component '" + type + "' " +
+        (verb == "add" ? "to " : "from ") + changed + " location" +
+        (changed == 1 ? "" : "s") + " in the selection.\n");
+  return 1;
 }
 
 
