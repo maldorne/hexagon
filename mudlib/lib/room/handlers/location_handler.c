@@ -966,51 +966,78 @@ mixed * clean_apply(string scope, varargs int all)
     exit_count += sizeof(dirs);
   }
 
-  // phase 2: remove the orphans
+  // phase 2 + 3 (remove the orphans, then drop emptied areas) run in the
+  // background: each orphan removal loads the location, unhooks it from its
+  // sector and area, destructs it and deletes the file — too much to do for
+  // a whole area in one execution (it blows the driver's tick budget, which
+  // used to leave most of the orphans undeleted). clean_step chunks it.
+  call_out("clean_step", 0, orphans, 0, ({ }), this_player());
+
+  return ({ sizeof(orphans), adjacent_count, exit_count });
+}
+
+// How many orphans a single clean tick removes. Each removal is heavier
+// than a conversion (sector + area unhook + destruct + file delete), so the
+// chunk is smaller than CONVERT_CHUNK.
+#define CLEAN_CHUNK 8
+
+// One tick of orphan removal for clean_apply: remove up to CLEAN_CHUNK
+// orphans, then schedule the next tick. When the list is exhausted, drop any
+// area left empty. Public because the call_out dispatcher reaches it through
+// call_other. `touched_areas` accumulates the areas an orphan belonged to so
+// the final tick can prune the emptied ones.
+void clean_step(string * orphans, int idx, object * touched_areas,
+                object initiator)
+{
+  int end, i;
+
+  if (idx >= sizeof(orphans))
   {
-    object * touched_areas;
-
-    touched_areas = ({ });
-
-    for (i = 0; i < sizeof(orphans); i++)
-    {
-      object loc, area;
-
-      loc = load_location(orphans[i]);
-
-      if (loc)
-      {
-        if (loc->query_coordinates())
-        {
-          int * coords;
-          coords = loc->query_coordinates();
-          load_object(MAPS_HANDLER)->remove_location_from_map(
-              orphans[i], loc->query_map_name(),
-              coords[0], coords[1], coords[2]);
-        }
-
-        area = query_area_from_location_file_name(orphans[i]);
-        if (area)
-        {
-          area->remove_location(orphans[i]);
-          if (member_array(area, touched_areas) == -1)
-            touched_areas += ({ area });
-        }
-
-        destruct(loc);
-      }
-
-      if (file_size(orphans[i]) >= 0)
-        remove_file(orphans[i]);
-    }
-
-    // phase 3: drop any area left empty, so no dead area.o remains
     for (i = 0; i < sizeof(touched_areas); i++)
       if (touched_areas[i])
         load_object(AREA_HANDLER)->remove_area_if_empty(touched_areas[i]);
+    if (initiator)
+      tell_object(initiator, "Clean finished: removed " + sizeof(orphans) +
+                  " location" + (sizeof(orphans) == 1 ? "" : "s") + ".\n");
+    return;
   }
 
-  return ({ sizeof(orphans), adjacent_count, exit_count });
+  end = idx + CLEAN_CHUNK;
+  if (end > sizeof(orphans))
+    end = sizeof(orphans);
+
+  for (i = idx; i < end; i++)
+  {
+    object loc, area;
+
+    loc = load_location(orphans[i]);
+    if (loc)
+    {
+      if (loc->query_coordinates())
+      {
+        int * coords;
+        coords = loc->query_coordinates();
+        load_object(MAPS_HANDLER)->remove_location_from_map(
+            orphans[i], loc->query_map_name(),
+            coords[0], coords[1], coords[2]);
+      }
+
+      area = query_area_from_location_file_name(orphans[i]);
+      if (area)
+      {
+        area->remove_location(orphans[i]);
+        if (member_array(area, touched_areas) == -1)
+          touched_areas += ({ area });
+      }
+
+      destruct(loc);
+    }
+
+    if (file_size(orphans[i]) >= 0)
+      remove_file(orphans[i]);
+  }
+
+  call_out("clean_step", 0, orphans, end, touched_areas, initiator);
 }
 
 // ============================================================

@@ -202,8 +202,9 @@ static int do_clean(string path, int apply, varargs int all)
   }
 
   counts = load_object(LOCATION_HANDLER)->clean_apply(path, all);
-  write("Done. Removed " + counts[0] + " locations, trimmed " +
-        counts[2] + " exits on " + counts[1] + " adjacent locations.\n");
+  write("Trimmed " + counts[2] + " exits on " + counts[1] +
+        " adjacent locations. Removing " + counts[0] +
+        " locations in the background ...\n");
   return 1;
 }
 
