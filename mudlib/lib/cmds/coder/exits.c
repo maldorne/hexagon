@@ -288,14 +288,14 @@ private mixed * scan_files(string * files, int verbose)
 
     if (err)
     {
-      ret += " " + file_tag(R, "-") + " " + path + "   cannot load.\n";
+      ret += " " + file_tag(R, "--") + " " + path + "   cannot load.\n";
       skipped_files++;
       continue;
     }
 
     if (!ob || !ob->query_room())
     {
-      ret += " " + file_tag(Y, "-") + " " + path + "   not a room.\n";
+      ret += " " + file_tag(Y, "--") + " " + path + "   not a room.\n";
       skipped_files++;
       continue;
     }
@@ -318,7 +318,7 @@ private mixed * scan_files(string * files, int verbose)
     {
       ok_files++;
       if (!verbose)
-        ret += " " + file_tag(G, "ok") + "  " + path + "   " +
+        ret += " " + file_tag(G, "ok") + " " + path + "   " +
                file_ok + "/" + sizeof(checks) + ".\n";
     }
     else
