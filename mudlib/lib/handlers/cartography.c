@@ -374,7 +374,7 @@ mapping query_map_view(object viewer, varargs mapping options)
  * demand when `deep` is set, while `.o` locations always resolve through
  * LOCATION_HANDLER. Callers that pass `deep = 1` own the tick budget —
  * a single synchronous sweep over a large radius can be expensive, which
- * is why the lifecycle handler warms cold neighbourhoods through its own
+ * is why the location cleaner warms cold neighbourhoods through its own
  * chunked worker rather than one deep call here.
  *
  * Maze locations are boundaries: the maze entry is included in the set

@@ -16,7 +16,7 @@
  * per tick, so nothing is synchronous to the player and no single tick
  * overruns its budget.
  *
- * Design note: dev/location-lifecycle.md.
+ * Design note: dev/location-cleaner.md.
  */
 
 #include <room/location-cleaner.h>
