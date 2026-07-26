@@ -362,6 +362,78 @@ mapping query_map_view(object viewer, varargs mapping options)
   ]);
 }
 
+/**
+ * Pure graph reachability from `start`, following every exit up to
+ * `max_depth` steps. Unlike query_map_view this is not projected onto a
+ * 2D grid: it walks vertical (up / down) and diagonal exits too, does
+ * not filter by z plane, and returns a flat, deduped array of the
+ * reachable room / location objects (start included).
+ *
+ * `deep` (default 0) is passed straight to the same destination
+ * resolution query_map_view uses: legacy `.c` rooms are only loaded on
+ * demand when `deep` is set, while `.o` locations always resolve through
+ * LOCATION_HANDLER. Callers that pass `deep = 1` own the tick budget —
+ * a single synchronous sweep over a large radius can be expensive, which
+ * is why the lifecycle handler warms cold neighbourhoods through its own
+ * chunked worker rather than one deep call here.
+ *
+ * Maze locations are boundaries: the maze entry is included in the set
+ * but its interior is never walked (its layout is randomised, so walking
+ * it is meaningless — same rationale as the map's ghost cell).
+ */
+object * walk_reachable(object start, int max_depth, varargs int deep)
+{
+  mapping visited;
+  mixed * queue;              // ({ ({ room, depth }), ... }), FIFO via head
+  int head;
+
+  if (!start || max_depth < 0)
+    return ({ });
+
+  visited = ([ start : 1 ]);
+  queue = ({ ({ start, 0 }) });
+  head = 0;
+
+  while (head < sizeof(queue))
+  {
+    object room;
+    int depth;
+    string * dest_dir;
+    int i;
+
+    room  = queue[head][0];
+    depth = queue[head][1];
+    head++;
+
+    if (depth >= max_depth)
+      continue;
+
+    dest_dir = room->query_dest_dir();
+    if (!dest_dir)
+      continue;
+
+    // query_dest_dir returns ({ dir, dest, dir, dest, ... }) pairs
+    for (i = 0; i < sizeof(dest_dir); i += 2)
+    {
+      object dest;
+
+      dest = _resolve_destination(dest_dir[i + 1], deep);
+      if (!dest || visited[dest])
+        continue;
+
+      visited[dest] = 1;
+
+      // maze boundary: keep the entry, do not enqueue its interior
+      if (dest->query_maze())
+        continue;
+
+      queue += ({ ({ dest, depth + 1 }) });
+    }
+  }
+
+  return map_indices(visited);
+}
+
 // ---------------------------------------------------------------------------
 // Renderers
 //
