@@ -8,6 +8,8 @@
 #include <living/living.h>
 #include <areas/weather.h>
 #include <common/properties.h>
+#include <basic/move.h>
+#include <room/location-cleaner.h>
 #include <basic/money.h>
 #include <language.h>
 #include <translations/cmds.h>
@@ -121,6 +123,11 @@ int move(mixed dest, varargs mixed messin, mixed messout)
 
   if (environment() && (environment()->query_outside()))
     handler(WEATHER_HANDLER)->notify_me(environment());
+
+  // warm the graph neighbourhood around the player's new location so
+  // nearby rooms/locations are resident before the player reaches them
+  if (i == MOVE_OK)
+    LOCATION_CLEANER->player_moved(this_object());
 
   return i;
 }
