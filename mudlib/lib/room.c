@@ -10,6 +10,7 @@
 */
 
 #include <room/room.h>
+#include <room/location-cleaner.h>
 #include <basic/light.h>
 #include <mud/secure.h>
 #include <areas/common.h>
@@ -82,6 +83,12 @@ void create()
   add_property("location", "inside");
 
   reset();
+
+  // hand this room to the cleaner for residency tracking. The abstract
+  // /lib/room base never registers; real rooms (game rooms, VOID, login,
+  // ...) do, so the cleaner is the single reaper for every map object.
+  if (object_name(this_object()) != "/lib/room")
+    LOCATION_CLEANER->register_object(this_object());
 }
 
 string set_login_room(string room)
@@ -352,6 +359,10 @@ void dest_me()
 {
   object *arr;
   int i;
+
+  // hand this room back to the cleaner before it goes away
+  if (object_name(this_object()) != "/lib/room")
+    LOCATION_CLEANER->deregister_object(this_object());
 
   if (!destables)
       destables = ({ });
