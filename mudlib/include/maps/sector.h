@@ -70,4 +70,13 @@
 #define SECTOR_DIR_EAST  "east"
 #define SECTOR_DIR_WEST  "west"
 
+// Diagonals. A diagonal way crosses up to two sector borders (its x and y
+// components), so query_border_ways records the crossing on each axis that
+// actually changes sector. Winding roads use these, so ignoring them leaves
+// gaps in the world map wherever a diagonal segment straddles a sector edge.
+#define SECTOR_DIR_NORTHEAST "northeast"
+#define SECTOR_DIR_NORTHWEST "northwest"
+#define SECTOR_DIR_SOUTHEAST "southeast"
+#define SECTOR_DIR_SOUTHWEST "southwest"
+
 #endif // SECTORS_H

@@ -365,6 +365,34 @@ mapping query_border_ways()
           if (_sector_index(x - 1) != _sector_index(x))
             _record_border(result, SECTOR_BORDER_W, type);
           break;
+
+        // Diagonals decompose into their x and y components; record the
+        // crossing on whichever axis actually changes sector. north = +y,
+        // south = -y, east = +x, west = -x (matches guess_coordinates).
+        case SECTOR_DIR_NORTHEAST:
+          if (_sector_index(x + 1) != _sector_index(x))
+            _record_border(result, SECTOR_BORDER_E, type);
+          if (_sector_index(y + 1) != _sector_index(y))
+            _record_border(result, SECTOR_BORDER_N, type);
+          break;
+        case SECTOR_DIR_NORTHWEST:
+          if (_sector_index(x - 1) != _sector_index(x))
+            _record_border(result, SECTOR_BORDER_W, type);
+          if (_sector_index(y + 1) != _sector_index(y))
+            _record_border(result, SECTOR_BORDER_N, type);
+          break;
+        case SECTOR_DIR_SOUTHEAST:
+          if (_sector_index(x + 1) != _sector_index(x))
+            _record_border(result, SECTOR_BORDER_E, type);
+          if (_sector_index(y - 1) != _sector_index(y))
+            _record_border(result, SECTOR_BORDER_S, type);
+          break;
+        case SECTOR_DIR_SOUTHWEST:
+          if (_sector_index(x - 1) != _sector_index(x))
+            _record_border(result, SECTOR_BORDER_W, type);
+          if (_sector_index(y - 1) != _sector_index(y))
+            _record_border(result, SECTOR_BORDER_S, type);
+          break;
       }
     }
   }
