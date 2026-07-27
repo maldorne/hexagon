@@ -92,7 +92,10 @@ inherit "/lib/core/object.c";
 // to highlight where a settlement is; they do not correspond one-to-one
 // with the underlying sectors. Set to 0 to render cities as plain solid
 // blocks with no surrounding wall.
-#define WORLDMAP_CITY_WALLS 1
+//
+// Temporarily disabled (0): cities render as solid blocks for now. Flip
+// back to 1 to re-enable the wall overlay; the overlay code is left intact.
+#define WORLDMAP_CITY_WALLS 0
 
 // per-render sector cache. Reset at the top of every render(); safe
 // because DGD executes each mudlib call chain atomically — there is no
