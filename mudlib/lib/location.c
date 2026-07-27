@@ -14,6 +14,7 @@ inherit sign     "/lib/room/sign.c";
 #include <language.h>
 #include <room/location.h>
 #include <room/room.h>
+#include <room/location-cleaner.h>
 #include <areas/area.h>
 #include <areas/common.h>
 #include <maps/maps.h>
@@ -592,6 +593,12 @@ void set_file_name(string name)
 
   file_name = name;
   save_me();
+
+  // now that the location has its game-bound identity, hand it to the
+  // cleaner so it is tracked for residency / eviction. Only real clones
+  // register; the /lib/location blueprint never does.
+  if (clonep() && strlen(name))
+    LOCATION_CLEANER->register_object(this_object());
 }
 
 // restore the location from a file
@@ -610,6 +617,11 @@ int restore_from_file_name(string name)
     add_exits_from_exit_map(_exit_map);
 
     init_components(component_info);
+
+    // restore_object set file_name directly (this is the normal load path,
+    // not set_file_name), so register with the cleaner here too
+    if (clonep() && strlen(file_name))
+      LOCATION_CLEANER->register_object(this_object());
 
     return 1;
   }
@@ -931,10 +943,39 @@ void save_me()
   }
 }
 
+// Passive eviction entry point. The cleaner decides WHEN to reclaim a
+// location; this method decides HOW, and may refuse. Returns 1 to keep
+// the location, 0 when it tore itself down.
+int clean_up(varargs int flag)
+{
+  object * arr;
+  int i;
+
+  // pinned, or a corpse is resting here -> never reclaim
+  if (query_property(NO_CLEAN_UP_PROP))
+    return 1;
+  if (query_property("corpse_here"))
+    return 1;
+
+  // belt-and-suspenders against a handler race: never reclaim a location
+  // a real player is standing in
+  arr = all_inventory(this_object());
+  for (i = 0; i < sizeof(arr); i++)
+    if (arr[i] && userp(arr[i]))
+      return 1;
+
+  dest_me();
+  return 0;
+}
+
 void dest_me()
 {
   object * arr;
   int i;
+
+  // hand the location back to the cleaner before it goes away
+  if (clonep())
+    LOCATION_CLEANER->deregister_object(this_object());
 
   // similar to room.c
   arr = all_inventory(this_object());
@@ -948,6 +989,13 @@ void dest_me()
     else
         arr[i]->dest_me();
   }
+
+  // tear down our own live components (remove_component destructs them the
+  // same way); dest_me previously leaked these
+  for (i = 0; i < sizeof(components); i++)
+    if (components[i])
+      destruct(components[i]);
+  components = ({ });
 
   destruct(this_object());
 }
