@@ -14,12 +14,14 @@
 
 // Compute the highest-priority cell type for `room` from the viewer's
 // perspective. In `deep` mode the function inspects the room's full
-// inventory (which can be expensive — for legacy rooms, walking the
-// inventory may force NPCs to spawn). In lazy mode (`deep == 0`) the
-// inventory pass is skipped on rooms that are not already loaded with
-// live contents; topology and door/up/down/coast still resolve, but
-// per-room markers (quest, enemy, guard, ...) only show up for rooms
-// the viewer has already activated.
+// inventory for per-room markers (quest, enemy, guard, ...). Walking the
+// inventory here is a pure read and never spawns anything; any NPC
+// population is a side effect of a room being LOADED for the first time
+// (its create/reset), which happens in _resolve_destination when a cold
+// room is pulled in — not here, and never for a room already resident.
+// In lazy mode (`deep == 0`) the inventory pass is skipped on rooms with
+// no live contents, so markers only show for rooms already populated;
+// topology and door/up/down/coast still resolve.
 private int _classify_room(object room, object viewer, int deep)
 {
   object * inv;
