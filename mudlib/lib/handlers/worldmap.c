@@ -10,11 +10,12 @@
 //   2. For each cell, load the corresponding sector (if any) and pick
 //      a base glyph from its dominant type (query_sector_type).
 //   3. For city and road cells, replace the base glyph with a shape
-//      chosen from the sector's 4-neighbourhood: city cells become box-
-//      drawing wall segments around a solid interior; road cells become
-//      double-line box-drawing joins.
-//   4. Where a city wall meets a road, swap the plain wall glyph for a
-//      hybrid (╨ ╞ ╥ ╡) so the road visibly enters the settlement.
+//      chosen from the sector's own border crossings: city cells become a
+//      solid block (with an optional wall overlay); road/path cells become
+//      box-drawing joins, drawn per-arm in a light line for paths and a
+//      heavy line for roads (see way_glyph).
+//   4. Where a city wall meets a road, the wall glyph swaps to a wall/road
+//      hybrid so the road visibly enters the settlement.
 //   5. Overwrite the viewer's own sector with '@'.
 //
 // Sector storage is looked up through the maps handler, which already
@@ -25,6 +26,7 @@
 #include <mud/config.h>
 #include <maps/maps.h>
 #include <maps/sector.h>
+#include <maps/glyphs.h>
 #include <room/location.h>
 
 inherit "/lib/core/object.c";
@@ -36,56 +38,8 @@ inherit "/lib/core/object.c";
 #define GLYPH_EMPTY       " "
 #define GLYPH_PLAYER      "@"
 
-#define GLYPH_FOREST      "♣"
 #define GLYPH_COAST       "~"
 #define GLYPH_UNDERGROUND "."
-
-// city interior + single-line box wall segments
-#define GLYPH_CITY_SOLID  "▓"
-#define GLYPH_CITY_NW     "┌"
-#define GLYPH_CITY_N      "─"
-#define GLYPH_CITY_NE     "┐"
-#define GLYPH_CITY_W      "│"
-#define GLYPH_CITY_E      "│"
-#define GLYPH_CITY_SW     "└"
-#define GLYPH_CITY_S      "─"
-#define GLYPH_CITY_SE     "┘"
-
-// city wall glyphs when the outer neighbour is a road (single/double
-// line hybrid — see docs/en/map_characters.txt)
-#define GLYPH_CITY_N_ROAD "╨"
-#define GLYPH_CITY_E_ROAD "╞"
-#define GLYPH_CITY_S_ROAD "╥"
-#define GLYPH_CITY_W_ROAD "╡"
-
-// road glyphs (double-line box drawing) — indexed by an n/s/e/w mask
-// (n=1, s=2, e=4, w=8)
-#define GLYPH_ROAD_NS     "║"
-#define GLYPH_ROAD_EW     "═"
-#define GLYPH_ROAD_NE     "╚"
-#define GLYPH_ROAD_NW     "╝"
-#define GLYPH_ROAD_SE     "╔"
-#define GLYPH_ROAD_SW     "╗"
-#define GLYPH_ROAD_NSE    "╠"
-#define GLYPH_ROAD_NSW    "╣"
-#define GLYPH_ROAD_NEW    "╩"
-#define GLYPH_ROAD_SEW    "╦"
-#define GLYPH_ROAD_NSEW   "╬"
-
-// path glyphs (single-line box drawing) — same mask indexing. A sector
-// whose border crossings are all paths draws in single line; any road
-// crossing promotes it to the double-line set above.
-#define GLYPH_PATH_NS     "│"
-#define GLYPH_PATH_EW     "─"
-#define GLYPH_PATH_NE     "└"
-#define GLYPH_PATH_NW     "┘"
-#define GLYPH_PATH_SE     "┌"
-#define GLYPH_PATH_SW     "┐"
-#define GLYPH_PATH_NSE    "├"
-#define GLYPH_PATH_NSW    "┤"
-#define GLYPH_PATH_NEW    "┴"
-#define GLYPH_PATH_SEW    "┬"
-#define GLYPH_PATH_NSEW   "┼"
 
 // Toggle for the decorative city-wall overlay (see _overlay_city_walls).
 // Walls are a post-processing pass drawn AROUND contiguous city regions
@@ -97,15 +51,28 @@ inherit "/lib/core/object.c";
 // back to 1 to re-enable the wall overlay; the overlay code is left intact.
 #define WORLDMAP_CITY_WALLS 0
 
+// Toggle for the '@' marker on the viewer's own sector. Set to 0 to leave
+// the viewer's cell showing its real glyph, so problems in how that sector
+// is drawn are visible instead of hidden under the marker.
+//
+// Temporarily disabled (0) for map-rendering debugging. Flip back to 1.
+#define WORLDMAP_PLAYER_MARKER 0
+
 // per-render sector cache. Reset at the top of every render(); safe
 // because DGD executes each mudlib call chain atomically — there is no
 // interleaving of two renders on the same handler.
 private mapping sector_cache;
 
+// Box-drawing glyph lookup indexed by n*27 + s*9 + e*3 + w, where each arm
+// weight is 0 (none), 1 (path/light) or 2 (road/heavy). Built once from the
+// shared glyph header so the chr() sequences are evaluated a single time.
+private string * way_table;
+
 void create()
 {
   ::create();
   sector_cache = ([ ]);
+  way_table = BOX_GLYPHS_INDEXED;
 }
 
 // Match maps.c's sector-index convention: sector n = n / 10 - (n < 0),
@@ -152,81 +119,61 @@ private string neighbour_type(string game, string map_name,
   return sect->query_sector_type();
 }
 
-// Glyph for a road/path sector, driven by its own border crossings
-// (sector->query_border_ways, the S2 data) rather than by guessing from
-// neighbour sector types. The mask (n=1, s=2, e=4, w=8) says which
-// borders carry a way; `heavy` picks the double-line road set when any
-// crossing is a road, else the single-line path set.
-private string way_glyph(object sect)
+// Weight of the way crossing border `b`: 0 none, 1 path (light line),
+// 2 road (heavy line). A road on the border outranks a path.
+private int _border_weight(mapping borders, string b)
+{
+  if (!mappingp(borders) || !arrayp(borders[b]) || !sizeof(borders[b]))
+    return 0;
+  if (member_array(SECTOR_WAY_ROAD, borders[b]) != -1)
+    return 2;
+  return 1;
+}
+
+// Weight of one arm, reconciled with the neighbour across that border. The
+// arm is drawn if EITHER this sector or the neighbour records a way on the
+// shared border, taking the heavier of the two -- so a road never thins to a
+// path across a sector seam, and asymmetric border data still joins up
+// instead of leaving a broken line.
+private int _arm_weight(mapping borders, string own_border,
+                        string game, string map_name,
+                        int nsx, int nsy, int nsz, string opp_border)
+{
+  int own, nb;
+  object neigh;
+
+  own = _border_weight(borders, own_border);
+  neigh = cached_sector(game, map_name, nsx, nsy, nsz);
+  nb = neigh ? _border_weight(neigh->query_border_ways(), opp_border) : 0;
+  return (nb > own) ? nb : own;
+}
+
+// Box-drawing glyph for a road/path sector. Each of the four arms carries an
+// independent weight (none / path = light / road = heavy) taken from this
+// sector's border crossings and reconciled with its neighbours, so paths and
+// roads keep their own line weight even where they meet at a junction, and
+// three- and four-way junctions get their proper glyph. A single-arm cell
+// renders as a half-line stub (a dead-end) rather than a full through-line.
+//
+// Neighbour convention (from guess_coordinates): north = larger y, south =
+// smaller y, east = larger x, west = smaller x.
+private string way_glyph(object sect, string game, string map_name,
+                         int sx, int sy, int sz)
 {
   mapping borders;
-  int mask, heavy;
-  string * types;
+  int n, s, e, w;
 
   borders = sect->query_border_ways();
   if (!mappingp(borders)) borders = ([ ]);
 
-  mask  = arrayp(borders[SECTOR_BORDER_N]) && sizeof(borders[SECTOR_BORDER_N]) ? 1 : 0;
-  mask |= arrayp(borders[SECTOR_BORDER_S]) && sizeof(borders[SECTOR_BORDER_S]) ? 2 : 0;
-  mask |= arrayp(borders[SECTOR_BORDER_E]) && sizeof(borders[SECTOR_BORDER_E]) ? 4 : 0;
-  mask |= arrayp(borders[SECTOR_BORDER_W]) && sizeof(borders[SECTOR_BORDER_W]) ? 8 : 0;
+  n = _arm_weight(borders, SECTOR_BORDER_N, game, map_name, sx, sy + 1, sz, SECTOR_BORDER_S);
+  s = _arm_weight(borders, SECTOR_BORDER_S, game, map_name, sx, sy - 1, sz, SECTOR_BORDER_N);
+  e = _arm_weight(borders, SECTOR_BORDER_E, game, map_name, sx + 1, sy, sz, SECTOR_BORDER_W);
+  w = _arm_weight(borders, SECTOR_BORDER_W, game, map_name, sx - 1, sy, sz, SECTOR_BORDER_E);
 
-  // any road on any border promotes the whole cell to the road set
-  heavy = 0;
-  types = ({ SECTOR_BORDER_N, SECTOR_BORDER_S, SECTOR_BORDER_E, SECTOR_BORDER_W });
-  {
-    int i;
-    for (i = 0; i < sizeof(types); i++)
-      if (arrayp(borders[types[i]]) &&
-          member_array(SECTOR_WAY_ROAD, borders[types[i]]) != -1)
-        heavy = 1;
-  }
-
-  if (heavy)
-  {
-    switch (mask)
-    {
-      case 0:  return GLYPH_ROAD_EW;   // isolated stub — arbitrary
-      case 1:  return GLYPH_ROAD_NS;   // stub facing north
-      case 2:  return GLYPH_ROAD_NS;   // stub facing south
-      case 3:  return GLYPH_ROAD_NS;
-      case 4:  return GLYPH_ROAD_EW;
-      case 5:  return GLYPH_ROAD_NE;
-      case 6:  return GLYPH_ROAD_SE;
-      case 7:  return GLYPH_ROAD_NSE;
-      case 8:  return GLYPH_ROAD_EW;
-      case 9:  return GLYPH_ROAD_NW;
-      case 10: return GLYPH_ROAD_SW;
-      case 11: return GLYPH_ROAD_NSW;
-      case 12: return GLYPH_ROAD_EW;
-      case 13: return GLYPH_ROAD_NEW;
-      case 14: return GLYPH_ROAD_SEW;
-      case 15: return GLYPH_ROAD_NSEW;
-    }
-    return GLYPH_ROAD_EW;
-  }
-
-  switch (mask)
-  {
-    case 0:  return GLYPH_PATH_EW;
-    case 1:  return GLYPH_PATH_NS;
-    case 2:  return GLYPH_PATH_NS;
-    case 3:  return GLYPH_PATH_NS;
-    case 4:  return GLYPH_PATH_EW;
-    case 5:  return GLYPH_PATH_NE;
-    case 6:  return GLYPH_PATH_SE;
-    case 7:  return GLYPH_PATH_NSE;
-    case 8:  return GLYPH_PATH_EW;
-    case 9:  return GLYPH_PATH_NW;
-    case 10: return GLYPH_PATH_SW;
-    case 11: return GLYPH_PATH_NSW;
-    case 12: return GLYPH_PATH_EW;
-    case 13: return GLYPH_PATH_NEW;
-    case 14: return GLYPH_PATH_SEW;
-    case 15: return GLYPH_PATH_NSEW;
-  }
-  return GLYPH_PATH_EW;
+  return way_table[n * 27 + s * 9 + e * 3 + w];
 }
+
 
 // Display priority for a sector cell (highest first):
 //   1. city        — any city presence wins; drawn as a solid block, the
@@ -246,17 +193,17 @@ private string render_cell(string game, string map_name,
   // a single city location paints the whole sector (present-wins), so two
   // neighbouring cities never merge through the terrain between them
   if (sect->has_locations_of_type(SECTOR_TYPE_CITY))
-    return GLYPH_CITY_SOLID;
+    return GLYPH_MAP_CITY;
 
   borders = sect->query_border_ways();
   if (mappingp(borders) && map_sizeof(borders))
-    return way_glyph(sect);
+    return way_glyph(sect, game, map_name, sx, sy, sz);
 
   // query_sector_type is the majority component, or the programmer-set
   // manual type for a sector with no locations of its own
   type = sect->query_sector_type();
-  if (type == SECTOR_TYPE_CITY)        return GLYPH_CITY_SOLID;
-  if (type == SECTOR_TYPE_FOREST)      return GLYPH_FOREST;
+  if (type == SECTOR_TYPE_CITY)        return GLYPH_MAP_CITY;
+  if (type == SECTOR_TYPE_FOREST)      return GLYPH_MAP_FOREST;
   if (type == SECTOR_TYPE_COAST)       return GLYPH_COAST;
   if (type == SECTOR_TYPE_UNDERGROUND) return GLYPH_UNDERGROUND;
 
@@ -284,19 +231,19 @@ private string _wall_glyph(int mask)
 {
   switch (mask)
   {
-    case 1: case 2: case 3:  return GLYPH_CITY_W;    // │  vertical
-    case 4: case 8: case 12: return GLYPH_CITY_N;    // ─  horizontal
-    case 5:  return GLYPH_CITY_SW;    // └  N+E
-    case 6:  return GLYPH_CITY_NW;    // ┌  S+E
-    case 9:  return GLYPH_CITY_SE;    // ┘  N+W
-    case 10: return GLYPH_CITY_NE;    // ┐  S+W
-    case 7:  return GLYPH_PATH_NSE;   // ├
-    case 11: return GLYPH_PATH_NSW;   // ┤
-    case 13: return GLYPH_PATH_NEW;   // ┴
-    case 14: return GLYPH_PATH_SEW;   // ┬
-    case 15: return GLYPH_PATH_NSEW;  // ┼
+    case 1: case 2: case 3:  return GLYPH_BOX_1100;    // vertical
+    case 4: case 8: case 12: return GLYPH_BOX_0011;    // horizontal
+    case 5:  return GLYPH_BOX_1010;    // N+E
+    case 6:  return GLYPH_BOX_0110;    // S+E
+    case 9:  return GLYPH_BOX_1001;    // N+W
+    case 10: return GLYPH_BOX_0101;    // S+W
+    case 7:  return GLYPH_BOX_1110;   // N+S+E
+    case 11: return GLYPH_BOX_1101;   // N+S+W
+    case 13: return GLYPH_BOX_1011;   // N+E+W
+    case 14: return GLYPH_BOX_0111;   // S+E+W
+    case 15: return GLYPH_BOX_1111;  // N+S+E+W
   }
-  return GLYPH_CITY_N;                // isolated stub — arbitrary
+  return GLYPH_BOX_0011;                // isolated stub - arbitrary
 }
 
 // Post-processing pass: draw a wall that hugs the exact outline of every
@@ -401,11 +348,12 @@ string render(int center_x, int center_y, int center_z,
       grid[row_i][col] = render_cell(game, map_name, cell_sx, cell_sy, sz0);
       // city mask for the wall overlay, read off the freshly painted
       // glyph — still before the player marker overwrites it below.
-      is_city[row_i][col] = grid[row_i][col] == GLYPH_CITY_SOLID;
+      is_city[row_i][col] = grid[row_i][col] == GLYPH_MAP_CITY;
     }
   }
 
   // player marker (before the overlay, which never overwrites it)
+  if (WORLDMAP_PLAYER_MARKER)
   {
     int prow, pcol;
     prow = row_top - sy0;
