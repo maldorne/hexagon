@@ -27,4 +27,8 @@
 // a player steps out of a zone and straight back in.
 #define CLEANER_GRACE         120
 
+// Seconds between evict sweeps. Kept well below GRACE so an object that
+// falls out of range is checked several times before it can age out.
+#define CLEANER_SWEEP_INTERVAL  30
+
 #endif

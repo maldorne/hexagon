@@ -21,6 +21,7 @@
 
 #include <room/location-cleaner.h>
 #include <room/location.h>
+#include <cartography.h>
 
 // Per-game registry of live map objects: ([ game : ([ ob : reg_time ]) ]).
 mapping buckets;
@@ -45,6 +46,9 @@ mapping queued;
 // call_out handle of the worker, 0 when idle.
 int worker_handle;
 
+// running total of objects reclaimed by the evict sweep (for introspection).
+int evicted_total;
+
 void create()
 {
   buckets       = ([ ]);
@@ -55,6 +59,10 @@ void create()
   head          = 0;
   queued        = ([ ]);
   worker_handle = 0;
+  evicted_total = 0;
+
+  // start the periodic evict sweep
+  call_out("_evict_sweep", CLEANER_SWEEP_INTERVAL);
 }
 
 // ---------------------------------------------------------------------------
@@ -235,6 +243,90 @@ void player_moved(object player)
 }
 
 // ---------------------------------------------------------------------------
+// Evict — reclaim objects out of every player's range, past the grace period.
+// ---------------------------------------------------------------------------
+
+// The set of objects within CLEANER_RADIUS of any online player. A resident
+// walk: the in-range neighbourhood was already prewarmed, so walk_reachable
+// returns cached objects without loading anything new.
+private mapping _retain_set()
+{
+  object * ps;
+  mapping retain;
+  int i, j;
+
+  ps = players();
+  retain = ([ ]);
+
+  for (i = 0; i < sizeof(ps); i++)
+  {
+    object env;
+    object * near;
+
+    if (!ps[i])
+      continue;
+    env = environment(ps[i]);
+    if (!env)
+      continue;
+
+    near = CARTOGRAPHY_HANDLER->walk_reachable(env, CLEANER_RADIUS, 0);
+    for (j = 0; j < sizeof(near); j++)
+      retain[near[j]] = 1;
+  }
+
+  return retain;
+}
+
+// Periodic sweep. Refresh the last-activity stamp of every registered object
+// still in range; evict (via its own clean_up) anything out of range that has
+// been idle past the grace period. Reschedules itself.
+void _evict_sweep()
+{
+  mapping retain;
+  string * games;
+  object * victims;
+  int now, i, g;
+
+  now = time();
+  retain = _retain_set();
+  victims = ({ });
+
+  games = map_indices(buckets);
+  for (g = 0; g < sizeof(games); g++)
+  {
+    object * obs;
+
+    obs = map_indices(buckets[games[g]]);
+    for (i = 0; i < sizeof(obs); i++)
+    {
+      object ob;
+
+      ob = obs[i];
+      if (!ob)
+        continue;
+
+      if (retain[ob])
+      {
+        // still in range — refresh its last-activity stamp
+        buckets[games[g]][ob] = now;
+        continue;
+      }
+
+      if (now - buckets[games[g]][ob] > CLEANER_GRACE)
+        victims += ({ ob });
+    }
+  }
+
+  // evict after iterating: clean_up -> dest_me -> deregister_object mutates
+  // the buckets, which is unsafe to do mid-iteration
+  for (i = 0; i < sizeof(victims); i++)
+    if (victims[i] && !victims[i]->clean_up())
+      evicted_total++;
+
+  call_out("_evict_sweep", CLEANER_SWEEP_INTERVAL);
+}
+
+// ---------------------------------------------------------------------------
 // Introspection — for the admin inspection command and debugging.
 // ---------------------------------------------------------------------------
 
@@ -258,6 +350,7 @@ mapping query_stats()
   s["region_cached"] = map_sizeof(region_warmed);
   s["file_cached"]   = map_sizeof(warmed);
   s["worker_active"] = (worker_handle != 0);
+  s["evicted_total"] = evicted_total;
   return s;
 }
 

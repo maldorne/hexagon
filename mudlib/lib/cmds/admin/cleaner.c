@@ -46,6 +46,7 @@ private int do_stats()
   out += _row("region cached:", s["region_cached"]);
   out += _row("file cached:",   s["file_cached"]);
   out += _row("worker active:", s["worker_active"] ? "yes" : "no");
+  out += _row("evicted total:", s["evicted_total"]);
 
   counts = LOCATION_CLEANER->query_game_counts();
   games = map_indices(counts);
