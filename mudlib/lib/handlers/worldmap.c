@@ -58,6 +58,13 @@ inherit "/lib/core/object.c";
 // Temporarily disabled (0) for map-rendering debugging. Flip back to 1.
 #define WORLDMAP_PLAYER_MARKER 0
 
+// Toggle for drawing roads with a heavier line than paths. Set to 0 to draw
+// roads and paths with the same (light) line; the per-arm weight code that
+// picks heavy glyphs stays intact, roads are just reported as light.
+//
+// Temporarily disabled (0): roads and paths share one line style for now.
+#define WORLDMAP_HEAVY_ROADS 0
+
 // per-render sector cache. Reset at the top of every render(); safe
 // because DGD executes each mudlib call chain atomically — there is no
 // interleaving of two renders on the same handler.
@@ -125,7 +132,7 @@ private int _border_weight(mapping borders, string b)
 {
   if (!mappingp(borders) || !arrayp(borders[b]) || !sizeof(borders[b]))
     return 0;
-  if (member_array(SECTOR_WAY_ROAD, borders[b]) != -1)
+  if (WORLDMAP_HEAVY_ROADS && member_array(SECTOR_WAY_ROAD, borders[b]) != -1)
     return 2;
   return 1;
 }
