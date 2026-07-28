@@ -51,13 +51,6 @@ inherit "/lib/core/object.c";
 // back to 1 to re-enable the wall overlay; the overlay code is left intact.
 #define WORLDMAP_CITY_WALLS 0
 
-// Toggle for the '@' marker on the viewer's own sector. Set to 0 to leave
-// the viewer's cell showing its real glyph, so problems in how that sector
-// is drawn are visible instead of hidden under the marker.
-//
-// Temporarily disabled (0) for map-rendering debugging. Flip back to 1.
-#define WORLDMAP_PLAYER_MARKER 0
-
 // Toggle for drawing roads with a heavier line than paths. Set to 0 to draw
 // roads and paths with the same (light) line; the per-arm weight code that
 // picks heavy glyphs stays intact, roads are just reported as light.
@@ -316,8 +309,13 @@ private void _overlay_city_walls(string ** grid, int ** is_city,
 // Render a `width x height` sector viewport centred on the given world
 // coord. The viewer's sector is overlaid with '@' regardless of what
 // terrain occupies it.
+// Draw a map of anywhere. Give it a world coordinate to centre on, the game
+// and map to read, and a viewport size; no player is needed. `marker`
+// (default 0) stamps a '@' on the centre cell when set, for a "you are here"
+// focus point.
 string render(int center_x, int center_y, int center_z,
-              string game, string map_name, int width, int height)
+              string game, string map_name, int width, int height,
+              varargs int marker)
 {
   int sx0, sy0, sz0;
   int col0, row_top;
@@ -359,8 +357,8 @@ string render(int center_x, int center_y, int center_z,
     }
   }
 
-  // player marker (before the overlay, which never overwrites it)
-  if (WORLDMAP_PLAYER_MARKER)
+  // centre marker (before the overlay, which never overwrites it)
+  if (marker)
   {
     int prow, pcol;
     prow = row_top - sy0;
@@ -380,10 +378,11 @@ string render(int center_x, int center_y, int center_z,
 }
 
 // Convenience: pull the world coord + map + game out of the viewer's
-// environment and hand off to render(). Returns nil if the viewer is
-// standing in something that has no world coord (legacy room, void, a
-// container inside a container without location metadata).
-string render_around(object viewer, int width, int height)
+// environment and hand off to render(). `marker` (default 0) stamps the '@'
+// on the viewer's own cell when set. Returns nil if the viewer is standing in
+// something that has no world coord (legacy room, void, a container inside a
+// container without location metadata).
+string render_around(object viewer, int width, int height, varargs int marker)
 {
   object env;
   int * coords;
@@ -403,5 +402,6 @@ string render_around(object viewer, int width, int height)
   game = game_from_path(file);
   if (!game) return nil;
 
-  return render(coords[0], coords[1], coords[2], game, map_name, width, height);
+  return render(coords[0], coords[1], coords[2], game, map_name, width,
+                height, marker);
 }

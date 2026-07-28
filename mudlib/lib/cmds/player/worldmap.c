@@ -40,7 +40,7 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
 
-  map = handler(WORLDMAP_HANDLER)->render_around(me, width, height);
+  map = handler(WORLDMAP_HANDLER)->render_around(me, width, height, 1);
   if (!map || !strlen(map))
   {
     notify_fail(_LANG_CMD_WORLDMAP_NOMAP);
