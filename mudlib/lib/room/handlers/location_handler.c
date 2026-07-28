@@ -616,12 +616,77 @@ object convert_room_to_location(object room)
 // the budget; call_out gives each tick a fresh one.
 #define CONVERT_CHUNK 4
 
+// Source `.c` path of the room a location `.o` was converted from, or nil for
+// a path that is not a location save file.
+private string _room_source_from_location(string ofile)
+{
+  string game, rest;
+
+  if (!ofile || !strlen(ofile))
+    return nil;
+  if (sscanf(ofile, "/save/games/%s/locations/areas/%s.o", game, rest) == 2)
+    return "/games/" + game + "/areas/" + rest + ".c";
+  // an exit that still points at a source .c (destination not yet converted)
+  if (ofile[strlen(ofile) - 2 ..] == ".c")
+    return ofile;
+  return nil;
+}
+
+// Border rooms of OTHER areas that the just-converted `locations` point at:
+// the source `.c` of every exit destination whose source is not itself in the
+// converted batch. Reconverting these rebuilds the return exits that a
+// preceding `clean` trimmed from the neighbours, so a clean + reconvert no
+// longer leaves the neighbours one-way.
+private string * _neighbour_sources(object * locations, string * converted)
+{
+  mapping seen;
+  string * out;
+  int i;
+
+  seen = ([ ]);
+  out = ({ });
+
+  for (i = 0; i < sizeof(locations); i++)
+  {
+    string * dd;
+    int j;
+
+    if (!locations[i])
+      continue;
+    dd = locations[i]->query_dest_dir();
+    if (!arrayp(dd))
+      continue;
+
+    // query_dest_dir returns ({ dir, dest, dir, dest, ... })
+    for (j = 1; j < sizeof(dd); j += 2)
+    {
+      string src;
+
+      src = _room_source_from_location(dd[j]);
+      if (!src)
+        continue;
+      if (member_array(src, converted) != -1)   // internal to this batch
+        continue;
+      if (!undefinedp(seen[src]))
+        continue;
+      if (file_size(src) < 0)                    // source must still exist
+        continue;
+      seen[src] = 1;
+      out += ({ src });
+    }
+  }
+
+  return out;
+}
+
 // One tick of a batch conversion: convert up to CONVERT_CHUNK files, then
 // schedule the next tick. Public because the call_out dispatcher reaches
 // it through call_other. `locations` accumulates every converted location
 // across ticks so the final coordinate-inference pass sees the whole set.
+// `restore` (1 for a user-initiated convert, 0 for the neighbour pass) drives
+// the auto-restore of neighbouring areas' border rooms once the batch ends.
 void convert_step(string * files, int idx, int reload, object initiator,
-                  object * locations)
+                  object * locations, int restore)
 {
   int end, i;
 
@@ -635,6 +700,23 @@ void convert_step(string * files, int idx, int reload, object initiator,
     // budget (it walks the connectivity graph and honours existing anchors)
     if (sizeof(locations))
       call_out("do_guess_coordinates", 0, locations);
+
+    // auto-restore: reconvert the neighbouring areas' border rooms so the
+    // return exits a preceding clean trimmed come back. `restore == 0` on the
+    // neighbour pass itself, so it never recurses back into this area.
+    if (restore && sizeof(locations))
+    {
+      string * neighbours;
+      neighbours = _neighbour_sources(locations, files);
+      if (sizeof(neighbours))
+      {
+        if (initiator)
+          tell_object(initiator, "Restoring " + sizeof(neighbours) +
+                      " neighbour border room" +
+                      (sizeof(neighbours) == 1 ? "" : "s") + " ...\n");
+        call_out("convert_step", 0, neighbours, 0, 1, initiator, ({ }), 0);
+      }
+    }
     return;
   }
 
@@ -690,7 +772,7 @@ void convert_step(string * files, int idx, int reload, object initiator,
                   "\n");
   }
 
-  call_out("convert_step", 0, files, end, reload, initiator, locations);
+  call_out("convert_step", 0, files, end, reload, initiator, locations, restore);
 }
 
 // Convert a batch of room files to locations, chunked across ticks so a
@@ -713,7 +795,7 @@ int batch_convert(string * files, varargs int reload)
         (sizeof(files) == 1 ? "" : "s") + " to locations" +
         (reload ? " (reload mode)" : "") + " in the background ...\n");
 
-  call_out("convert_step", 0, files, 0, reload, initiator, ({ }));
+  call_out("convert_step", 0, files, 0, reload, initiator, ({ }), 1);
   return 1;
 }
 
