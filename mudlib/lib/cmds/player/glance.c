@@ -51,6 +51,19 @@ static int cmd (string arg, object me, string verb)
         ret += " (room)";
 
       ret += "\n";
+
+      // second coder line: world coords + the 10x10 sector, only in a
+      // coordinated location, so a coder can see where sector borders fall.
+      if (here->query_location() && here->query_coordinates())
+      {
+        int * c;
+        c = here->query_coordinates();
+        ret += "  loc (" + c[0] + "," + c[1] + "," + c[2] + ")  map " +
+               here->query_map_name() + "  sector (" +
+               (c[0] / 10 - (c[0] < 0)) + "," +
+               (c[1] / 10 - (c[1] < 0)) + "," +
+               (c[2] / 10 - (c[2] < 0)) + ")\n";
+      }
     }
 
     switch(dark)
