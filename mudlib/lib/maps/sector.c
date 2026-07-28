@@ -366,33 +366,50 @@ mapping query_border_ways()
             _record_border(result, SECTOR_BORDER_W, type);
           break;
 
-        // Diagonals decompose into their x and y components; record the
-        // crossing on whichever axis actually changes sector. north = +y,
-        // south = -y, east = +x, west = -x (matches guess_coordinates).
+        // Diagonals only record a border crossing when EXACTLY ONE axis
+        // changes sector -- i.e. the diagonal moves orthogonally at sector
+        // scale (a winding road that drifts across one boundary). When both
+        // axes cross, the exit reaches a diagonally-adjacent sector, which
+        // orthogonal box-drawing cannot connect; recording an E/S (etc.) arm
+        // there would point a line at the wrong neighbour and draw a road
+        // that does not exist, so we record nothing. north = +y, south = -y,
+        // east = +x, west = -x (matches guess_coordinates).
         case SECTOR_DIR_NORTHEAST:
-          if (_sector_index(x + 1) != _sector_index(x))
-            _record_border(result, SECTOR_BORDER_E, type);
-          if (_sector_index(y + 1) != _sector_index(y))
-            _record_border(result, SECTOR_BORDER_N, type);
+        {
+          int xc, yc;
+          xc = (_sector_index(x + 1) != _sector_index(x));
+          yc = (_sector_index(y + 1) != _sector_index(y));
+          if (xc && !yc) _record_border(result, SECTOR_BORDER_E, type);
+          if (yc && !xc) _record_border(result, SECTOR_BORDER_N, type);
           break;
+        }
         case SECTOR_DIR_NORTHWEST:
-          if (_sector_index(x - 1) != _sector_index(x))
-            _record_border(result, SECTOR_BORDER_W, type);
-          if (_sector_index(y + 1) != _sector_index(y))
-            _record_border(result, SECTOR_BORDER_N, type);
+        {
+          int xc, yc;
+          xc = (_sector_index(x - 1) != _sector_index(x));
+          yc = (_sector_index(y + 1) != _sector_index(y));
+          if (xc && !yc) _record_border(result, SECTOR_BORDER_W, type);
+          if (yc && !xc) _record_border(result, SECTOR_BORDER_N, type);
           break;
+        }
         case SECTOR_DIR_SOUTHEAST:
-          if (_sector_index(x + 1) != _sector_index(x))
-            _record_border(result, SECTOR_BORDER_E, type);
-          if (_sector_index(y - 1) != _sector_index(y))
-            _record_border(result, SECTOR_BORDER_S, type);
+        {
+          int xc, yc;
+          xc = (_sector_index(x + 1) != _sector_index(x));
+          yc = (_sector_index(y - 1) != _sector_index(y));
+          if (xc && !yc) _record_border(result, SECTOR_BORDER_E, type);
+          if (yc && !xc) _record_border(result, SECTOR_BORDER_S, type);
           break;
+        }
         case SECTOR_DIR_SOUTHWEST:
-          if (_sector_index(x - 1) != _sector_index(x))
-            _record_border(result, SECTOR_BORDER_W, type);
-          if (_sector_index(y - 1) != _sector_index(y))
-            _record_border(result, SECTOR_BORDER_S, type);
+        {
+          int xc, yc;
+          xc = (_sector_index(x - 1) != _sector_index(x));
+          yc = (_sector_index(y - 1) != _sector_index(y));
+          if (xc && !yc) _record_border(result, SECTOR_BORDER_W, type);
+          if (yc && !xc) _record_border(result, SECTOR_BORDER_S, type);
           break;
+        }
       }
     }
   }
