@@ -58,11 +58,11 @@ static int cmd (string arg, object me, string verb)
       {
         int * c;
         c = here->query_coordinates();
-        ret += "  loc (" + c[0] + "," + c[1] + "," + c[2] + ")  map " +
+        ret += "[loc (" + c[0] + "," + c[1] + "," + c[2] + ")  map " +
                here->query_map_name() + "  sector (" +
                (c[0] / 10 - (c[0] < 0)) + "," +
                (c[1] / 10 - (c[1] < 0)) + "," +
-               (c[2] / 10 - (c[2] < 0)) + ")\n";
+               (c[2] / 10 - (c[2] < 0)) + ")]\n";
       }
     }
 
