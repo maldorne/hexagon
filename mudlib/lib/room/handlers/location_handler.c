@@ -137,52 +137,81 @@ object resolve_to_location(string file)
   return nil;
 }
 
-// Add `type` to every location named by `files` (room `.c` or location
-// `.o` paths). Skips tokens that are not converted locations and those that
-// already carry the component; the location saves itself on add. Returns
-// the number of locations changed.
-int batch_add_component(string * files, string type, varargs mapping init)
+// One location of the component batch, scheduled one per tick via call_out so
+// no single tick does more than one add/remove (each saves the location and
+// re-registers it into its sector). `verb` is "add" or "remove". The change is
+// wrapped in catch() so a failing location is recorded rather than aborting
+// the batch; the accumulated counts (and the files that failed) are reported
+// to the initiator when the list is exhausted -- so nothing is changed
+// silently and any error is surfaced. Public because the call_out dispatcher
+// reaches it through call_other.
+void _component_step(string * files, int idx, string verb, string type,
+                     mapping init, int changed, int skipped, string * failed,
+                     object initiator)
 {
-  int count, i;
-  object loc;
-
-  if (!init)
-    init = ([ ]);
-
-  for (i = 0; i < sizeof(files); i++)
+  if (idx < sizeof(files))
   {
-    loc = resolve_to_location(files[i]);
+    object loc;
+
+    loc = resolve_to_location(files[idx]);
     if (!loc || !loc->query_location())
-      continue;
-    if (loc->query_component_by_type(type))
-      continue;
-    loc->add_component(type, init);
-    count++;
+      skipped++;
+    else if (verb == "add")
+    {
+      if (loc->query_component_by_type(type))
+        skipped++;
+      else if (catch(loc->add_component(type, init)))
+        failed += ({ files[idx] });
+      else
+        changed++;
+    }
+    else
+    {
+      if (!loc->query_component_by_type(type))
+        skipped++;
+      else if (catch(loc->remove_component(type)))
+        failed += ({ files[idx] });
+      else
+        changed++;
+    }
+
+    call_out("_component_step", 0, files, idx + 1, verb, type, init,
+             changed, skipped, failed, initiator);
+    return;
   }
 
-  return count;
+  if (initiator)
+  {
+    string msg;
+    msg = "Component '" + type + "' " + verb + " finished: " + changed +
+          " changed, " + skipped + " skipped";
+    if (sizeof(failed))
+      msg += ", " + sizeof(failed) + " FAILED (" + implode(failed, ", ") + ")";
+    tell_object(initiator, msg + ".\n");
+  }
 }
 
-// Remove `type` from every location named by `files`. Skips tokens that are
-// not converted locations and those that lack the component; the location
-// saves itself on removal. Returns the number of locations changed.
+// Add `type` to every location named by `files` (room `.c` or location `.o`
+// paths). Runs in the background (chunked across ticks) so a large selection
+// never overruns the tick budget; a summary of changed/skipped/failed is sent
+// to the caller when it finishes. Returns the number of files queued.
+int batch_add_component(string * files, string type, varargs mapping init)
+{
+  if (!init)
+    init = ([ ]);
+  call_out("_component_step", 0, files, 0, "add", type, init,
+           0, 0, ({ }), this_player());
+  return sizeof(files);
+}
+
+// Remove `type` from every location named by `files`. Background/chunked like
+// batch_add_component, with the same end-of-run summary. Returns the number
+// of files queued.
 int batch_remove_component(string * files, string type)
 {
-  int count, i;
-  object loc;
-
-  for (i = 0; i < sizeof(files); i++)
-  {
-    loc = resolve_to_location(files[i]);
-    if (!loc || !loc->query_location())
-      continue;
-    if (!loc->query_component_by_type(type))
-      continue;
-    loc->remove_component(type);
-    count++;
-  }
-
-  return count;
+  call_out("_component_step", 0, files, 0, "remove", type, ([ ]),
+           0, 0, ({ }), this_player());
+  return sizeof(files);
 }
 
 int do_guess_coordinates(object * locations)

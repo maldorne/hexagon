@@ -486,9 +486,10 @@ int do_component(string str)
     changed = load_object(LOCATION_HANDLER)->batch_remove_component(
                 selection, type);
 
-  write((verb == "add" ? "Added" : "Removed") + " component '" + type + "' " +
-        (verb == "add" ? "to " : "from ") + changed + " location" +
-        (changed == 1 ? "" : "s") + " in the selection.\n");
+  write((verb == "add" ? "Adding" : "Removing") + " component '" + type +
+        "' " + (verb == "add" ? "to " : "from ") + changed + " location" +
+        (changed == 1 ? "" : "s") +
+        " in the background; a summary will follow.\n");
   return 1;
 }
 
