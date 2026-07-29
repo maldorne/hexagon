@@ -10,21 +10,21 @@ void setup()
   set_aliases(({ "sectors" }));
   set_usage("sectors\n" +
             "sectors settype <type>\n" +
-            "sectors settype <x> <y> <z> <type>");
+            "sectors settype <sx> <sy> <sz> <type>");
   set_help(
     "List the sectors loaded in the map system, or set a sector's manual\n" +
     "type.\n" +
     "\n" +
     "  sectors                        list loaded sectors\n" +
     "  sectors settype <type>         set the type of the sector you are in\n" +
-    "  sectors settype <x> <y> <z> <t>  set the sector containing world\n" +
-    "                                 coordinate (x, y, z)\n" +
+    "  sectors settype <sx> <sy> <sz> <t>  set the sector at index (sx, sy, sz)\n" +
     "\n" +
-    "Type is one of: city, forest, coast, underground, empty, none.\n" +
-    "A manual type only shows on the world map when the sector has no\n" +
-    "locations of its own; 'empty' and 'none' draw nothing. The coords\n" +
-    "form creates the sector.o if it does not exist yet, so a virgin part\n" +
-    "of the map can be painted.\n");
+    "Coordinates are SECTOR indices (the ones shown by look / glance), not\n" +
+    "location coordinates. Type is one of: city, forest, coast, underground,\n" +
+    "empty, none. A manual type only shows on the world map when the sector\n" +
+    "has no locations of its own; 'empty' and 'none' draw nothing. The coords\n" +
+    "form creates the sector.o if it does not exist yet, so a virgin part of\n" +
+    "the map can be painted.\n");
 }
 
 private int _valid_type(string type)
@@ -63,7 +63,8 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
-    // settype <type>  -> the sector we stand in
+    // settype <type>  -> the sector we stand in. Convert the location's
+    // world coordinates into the sector index the map system keys on.
     if (sizeof(tokens) == 2)
     {
       int * coords;
@@ -71,15 +72,17 @@ static int cmd(string str, object me, string verb)
       if (!env || !env->query_location() || !env->query_coordinates())
       {
         notify_fail("You are not standing in a location with coordinates. " +
-                    "Use 'sectors settype <x> <y> <z> <type>'.\n");
+                    "Use 'sectors settype <sx> <sy> <sz> <type>'.\n");
         return 0;
       }
       coords = env->query_coordinates();
-      x = coords[0]; y = coords[1]; z = coords[2];
+      x = coords[0] / 10 - (coords[0] < 0);
+      y = coords[1] / 10 - (coords[1] < 0);
+      z = coords[2] / 10 - (coords[2] < 0);
       map_name = env->query_map_name();
       type = tokens[1];
     }
-    // settype <x> <y> <z> <type>
+    // settype <sx> <sy> <sz> <type>  -> sector indices, used directly
     else if (sizeof(tokens) == 5)
     {
       if (sscanf(tokens[1], "%d", x) != 1 ||
@@ -96,7 +99,7 @@ static int cmd(string str, object me, string verb)
     }
     else
     {
-      notify_fail("Usage: sectors settype [<x> <y> <z>] <type>\n");
+      notify_fail("Usage: sectors settype [<sx> <sy> <sz>] <type>\n");
       return 0;
     }
 
@@ -116,8 +119,9 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
-    write("Set manual type of sector at (" + x + "," + y + "," + z +
-          ") in map '" + map_name + "' to '" + _canon_type(type) + "'.\n");
+    write("Set manual type of sector (" + x + "," + y + "," + z +
+          ") in map '" + map_name + "' to '" +
+          (strlen(_canon_type(type)) ? _canon_type(type) : "none") + "'.\n");
     return 1;
   }
 

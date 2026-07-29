@@ -45,16 +45,16 @@ object create_sector(string path)
 // containing world coord (x, y, z) in the given game/map. Creates the
 // sector.o if it does not exist yet, so a programmer can paint a type on
 // a virgin part of the map. Returns the sector object.
+// (sector_x, sector_y, sector_z) are sector indices, not world coordinates:
+// the caller has already divided world coords into sectors (or is naming a
+// sector directly). Creates the sector.o if it does not exist yet, so a
+// virgin part of the map can be painted.
 object set_sector_manual_type(string game, string map_name,
-                              int x, int y, int z, string type)
+                              int sector_x, int sector_y, int sector_z,
+                              string type)
 {
-  int sector_x, sector_y, sector_z;
   string path;
   object sector;
-
-  sector_x = x / 10 - (x < 0);
-  sector_y = y / 10 - (y < 0);
-  sector_z = z / 10 - (z < 0);
 
   path = "/save/games/" + game + "/maps/" + map_name + "/" +
          sector_x + "/" + sector_y + "/" + sector_z + "/";
