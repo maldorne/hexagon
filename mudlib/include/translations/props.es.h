@@ -127,7 +127,7 @@
 #define _LANG_PROP_STATUE_NOUN_PLURAL   "estatuas"
 
 #define _LANG_PROP_STATUE_SHORT         "una estatua $material_phrase$"
-#define _LANG_PROP_STATUE_LONG          "Forjada en $material_name$, representa al Dios Lummen, portador de las almas y benefactor de los sacerdotes."
+#define _LANG_PROP_STATUE_LONG          "Una estatua $material_phrase$ se alza en este lugar, representando a una figura desconocida."
 
 #define _LANG_PROP_STATUE_PRAY_VERBS    ({ "rezar", "orar" })
 

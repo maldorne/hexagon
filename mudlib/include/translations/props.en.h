@@ -122,7 +122,7 @@
 #define _LANG_PROP_STATUE_NOUN_PLURAL   "statues"
 
 #define _LANG_PROP_STATUE_SHORT         "a $material_phrase$ statue"
-#define _LANG_PROP_STATUE_LONG          "Forged in $material_name$, it represents the God Lummen, carrier of the souls and benefactor of the priests."
+#define _LANG_PROP_STATUE_LONG          "A $material_phrase$ statue stands here, depicting an unknown figure."
 
 #define _LANG_PROP_STATUE_PRAY_VERBS    ({ "pray" })
 
