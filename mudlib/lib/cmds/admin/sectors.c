@@ -10,14 +10,18 @@ void setup()
   set_aliases(({ "sectors" }));
   set_usage("sectors\n" +
             "sectors settype <type>\n" +
-            "sectors settype <sx> <sy> <sz> <type>");
+            "sectors settype <sx> <sy> <sz> <type>\n" +
+            "sectors purge");
   set_help(
-    "List the sectors loaded in the map system, or set a sector's manual\n" +
-    "type.\n" +
+    "List the sectors loaded in the map system, set a sector's manual\n" +
+    "type, or purge stale index entries.\n" +
     "\n" +
     "  sectors                        list loaded sectors\n" +
     "  sectors settype <type>         set the type of the sector you are in\n" +
     "  sectors settype <sx> <sy> <sz> <t>  set the sector at index (sx, sy, sz)\n" +
+    "  sectors purge                  drop ghost positions in the current map:\n" +
+    "                                 coordinates left pointing at a location\n" +
+    "                                 that has since moved elsewhere\n" +
     "\n" +
     "Coordinates are SECTOR indices (the ones shown by look / glance), not\n" +
     "location coordinates. Type is one of: city, forest, coast, underground,\n" +
@@ -122,6 +126,31 @@ static int cmd(string str, object me, string verb)
     write("Set manual type of sector (" + x + "," + y + "," + z +
           ") in map '" + map_name + "' to '" +
           (strlen(_canon_type(type)) ? _canon_type(type) : "none") + "'.\n");
+    return 1;
+  }
+
+  // ===== purge (ghost / drift cleanup) =====
+  if (sizeof(tokens) && tokens[0] == "purge")
+  {
+    string game, map_name;
+    object env;
+    int removed;
+
+    game = game_name(me);
+    if (!strlen(game))
+    {
+      notify_fail("Cannot infer game from your current environment. " +
+                  "Stand inside a game first.\n");
+      return 0;
+    }
+
+    env = environment(me);
+    map_name = (env && env->query_location()) ?
+               env->query_map_name() : "default";
+
+    removed = load_object(MAPS_HANDLER)->purge_drift(game, map_name);
+    write("Purged " + removed + " stale position" +
+          (removed == 1 ? "" : "s") + " from map '" + map_name + "'.\n");
     return 1;
   }
 

@@ -6,6 +6,10 @@
 
 mapping loaded_sectors;
 
+// prototypes
+int remove_location_from_map(string location_file_name, string map_name,
+                             int x, int y, int z);
+
 void create() {
   loaded_sectors = ([ ]);
   // ::create();
@@ -88,7 +92,22 @@ string add_location(object location)
   sector_y = y / 10 - (y < 0);
   sector_z = z / 10 - (z < 0);
 
-  path = "/save/games/" + game_from_path(location->query_file_name()) + 
+  // Ghost prevention: if this location is already indexed at a different
+  // coordinate (its coords were re-guessed on a reload, or it was moved),
+  // drop that stale entry before writing the new one. Without this a
+  // reload that shifts coordinates leaves the old sector pointing at a
+  // location that no longer sits there. See location.c::_map_indexed_coord.
+  {
+    int * prev;
+    prev = location->query_map_indexed_coord();
+    if (prev && sizeof(prev) == 3 &&
+        (prev[0] != x || prev[1] != y || prev[2] != z))
+      remove_location_from_map(location->query_file_name(),
+                               location->query_map_name(),
+                               prev[0], prev[1], prev[2]);
+  }
+
+  path = "/save/games/" + game_from_path(location->query_file_name()) +
          "/maps/" + location->query_map_name() + "/" + 
          sector_x + "/" + sector_y + "/" + sector_z + "/";
   file_name = "" + x + "_" + y + "_" + z + ".o";
@@ -183,6 +202,10 @@ string add_location(object location)
     write_file(path + file_name, location->query_file_name());
   }
 
+  // remember where we just indexed it, so a later coordinate change can
+  // find and purge this entry (see the ghost-prevention block above).
+  location->set_map_indexed_coord(({ x, y, z }));
+
   return path + file_name;
 }
 
@@ -233,4 +256,113 @@ int remove_location_from_map(string location_file_name, string map_name,
   }
 
   return 1;
+}
+
+// Ask the location system for a location's real coordinates. Going through
+// LOCATION_HANDLER is the sanctioned path — it restores the location with the
+// right permissions; the sector layer must not read location files itself.
+// Returns ({ x, y, z }), or ({ }) when the location no longer loads. Memoised
+// so a location referenced from several sectors is resolved once.
+private int * _location_coords(string file, mapping cache)
+{
+  object loc;
+  int * coords;
+
+  if (!undefinedp(cache[file]))
+    return cache[file];
+
+  loc = load_object(LOCATION_HANDLER)->load_location(file);
+  coords = loc ? loc->query_coordinates() : nil;
+  cache[file] = (coords && sizeof(coords) == 3) ? coords : ({ });
+
+  return cache[file];
+}
+
+/**
+ * Sweep every sector.o under a map and drop "ghost" position entries: a
+ * coordinate that points at a location whose real coordinates sit elsewhere
+ * (or at a location that no longer loads). These are left behind by reloads
+ * that re-guessed coordinates before add_location's ghost-prevention existed.
+ *
+ * Only the stale coordinate is removed, so a location that legitimately keeps
+ * another entry in the same sector is untouched (see sector.c::remove_position).
+ * A sector emptied by the sweep and not manually painted is marked "empty".
+ * Returns the number of stale entries removed.
+ */
+int purge_drift(string game, string map_name)
+{
+  string base;
+  string * xs;
+  mapping coord_cache;
+  int removed, xi, yi, zi;
+
+  base = "/save/games/" + game + "/maps/" + map_name;
+  coord_cache = ([ ]);
+  removed = 0;
+
+  xs = get_files(base + "/*");
+  for (xi = 0; xi < sizeof(xs); xi++)
+  {
+    string * ys;
+
+    if (file_size(xs[xi]) != -2)
+      continue;
+
+    ys = get_files(xs[xi] + "/*");
+    for (yi = 0; yi < sizeof(ys); yi++)
+    {
+      string * zs;
+
+      if (file_size(ys[yi]) != -2)
+        continue;
+
+      zs = get_files(ys[yi] + "/*");
+      for (zi = 0; zi < sizeof(zs); zi++)
+      {
+        string sector_path;
+        object sector;
+        mapping positions;
+        string * keys;
+        int ki;
+
+        if (file_size(zs[zi]) != -2)
+          continue;
+
+        sector_path = zs[zi] + "/";
+        if (file_size(sector_path + "sector.o") < 0)
+          continue;
+
+        sector = create_sector(sector_path);
+        positions = sector->query_positions();
+        keys = map_indices(positions);
+
+        for (ki = 0; ki < sizeof(keys); ki++)
+        {
+          string file, key;
+          int kx, ky, kz;
+          int * rc;
+
+          key = keys[ki];
+          file = positions[key];
+          if (sscanf(key, "%d_%d_%d", kx, ky, kz) != 3)
+            continue;
+
+          rc = _location_coords(file, coord_cache);
+
+          if (sizeof(rc) != 3 || rc[0] != kx || rc[1] != ky || rc[2] != kz)
+          {
+            remove_file(sector_path + key + ".o");
+            sector->remove_position(key);
+            removed++;
+          }
+        }
+
+        if (!map_sizeof(sector->query_positions()) &&
+            !strlen(sector->query_manual_type()))
+          sector->set_manual_type(SECTOR_TYPE_EMPTY);
+      }
+    }
+  }
+
+  return removed;
 }

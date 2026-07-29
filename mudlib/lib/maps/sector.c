@@ -202,6 +202,62 @@ void remove_location(string location_file_name)
   save_me();
 }
 
+// Remove a single coordinate entry (not every entry a file owns). Used by
+// the drift purge to drop a stale "ghost" position while leaving the same
+// file's legitimate entry — possibly in this very sector — untouched. Only
+// rolls back the file's terrain-type contribution when this was its last
+// remaining position here.
+void remove_position(string coord_key)
+{
+  string file;
+  string * pos_keys;
+  int i, still_here;
+
+  if (!maze_positions) maze_positions = ([ ]);
+  if (!type_counts) type_counts = ([ ]);
+  if (!way_exits) way_exits = ([ ]);
+
+  if (undefinedp(positions[coord_key]))
+    return;
+
+  file = positions[coord_key];
+  map_delete(positions, coord_key);
+  map_delete(maze_positions, coord_key);
+  map_delete(way_exits, coord_key);
+
+  // is the file still present under any other coordinate here?
+  still_here = 0;
+  pos_keys = map_indices(positions);
+  for (i = 0; i < sizeof(pos_keys); i++)
+    if (positions[pos_keys[i]] == file)
+    {
+      still_here = 1;
+      break;
+    }
+
+  // last entry for this file in the sector: roll back its type tally too
+  if (!still_here)
+  {
+    mapping previous;
+    string * old_types;
+    int j;
+
+    previous = locations[file];
+    old_types = (previous && previous["types"]) ? previous["types"] : ({ });
+    for (j = 0; j < sizeof(old_types); j++)
+    {
+      int prev_count;
+      prev_count = undefinedp(type_counts[old_types[j]]) ?
+                   0 : type_counts[old_types[j]];
+      if (prev_count > 0)
+        type_counts[old_types[j]] = prev_count - 1;
+    }
+    map_delete(locations, file);
+  }
+
+  save_me();
+}
+
 void add_loaded_location(object location) 
 {
   int i;

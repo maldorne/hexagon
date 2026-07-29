@@ -52,6 +52,13 @@ string map_name;   // "default", or "underdark", or "mars", use something differ
 
 int * coordinates;
 
+// The coordinate at which this location is currently registered in the map
+// index (MAPS_HANDLER). Kept in sync by MAPS_HANDLER::add_location so that,
+// when a location's coordinates change (a reload that re-guesses them, a
+// manual move), the old sector entry is purged before the new one is written
+// and no stale "ghost" position lingers behind. nil until first indexed.
+int * _map_indexed_coord;
+
 int _created_at;   // Unix timestamp, stamped on first save_me(), never overwritten.
 int _last_imported_at;  // Unix timestamp, refreshed on every conversion from the source .c.
 
@@ -102,6 +109,7 @@ void create()
   map_name = "default";
 
   coordinates = nil;
+  _map_indexed_coord = nil;
 
   _created_at = 0;
   _last_imported_at = 0;
@@ -191,6 +199,9 @@ void set_specific_long(string str) { _specific_long = str ? str : ""; }
 int * query_coordinates() { return coordinates; }
 void set_coordinates(int x, int y, int z) { coordinates = ({ x, y, z }); }
 void clear_coordinates() { coordinates = nil; }
+
+int * query_map_indexed_coord() { return _map_indexed_coord; }
+void set_map_indexed_coord(int * coord) { _map_indexed_coord = coord; }
 
 int query_created_at() { return _created_at; }
 int query_last_imported_at() { return _last_imported_at; }
