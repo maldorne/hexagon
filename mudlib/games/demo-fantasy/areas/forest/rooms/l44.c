@@ -2,9 +2,8 @@
 
 #include "../path.h"
 #include <language.h>
-#include <room/room.h>
 
-inherit "/lib/room.c";
+inherit "maze.c";
 
 void setup()
 {
@@ -13,7 +12,6 @@ void setup()
   set_light(40);
   add_item(_LANG_FOREST_TREE_ITEMS, _LANG_FOREST_TREE_DESC);
   add_room_zone("forest");  
-  add_property(MAZE_PROP, 1);
   add_property("no_undead", 1);
   add_exit(DIR_EAST, ROOMS + "l43.c", "forest");
   add_exit(DIR_SOUTH, ROOMS + "41.c", "forest");
