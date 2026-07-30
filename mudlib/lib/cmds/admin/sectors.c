@@ -22,13 +22,11 @@ void setup()
     "List the sectors loaded in the map system, set a sector's manual\n" +
     "type, audit a sector, or purge stale index entries.\n" +
     "\n" +
-    "  sectors                        list loaded sectors\n" +
-    "  sectors settype <type>         set the type of the sector you are in\n" +
+    "  sectors                             list loaded sectors\n" +
+    "  sectors settype <type>              set the type of the sector you are in\n" +
     "  sectors settype <sx> <sy> <sz> <t>  set the sector at index (sx, sy, sz)\n" +
-    "  sectors verify <sx> <sy> <sz>  report drift in one sector: ghost\n" +
-    "                                 positions, mismatched or orphan pointer\n" +
-    "                                 files (read-only, the dry run of purge)\n" +
-    "  sectors purge                  drop those ghost positions across the map\n" +
+    "  sectors verify <sx> <sy> <sz>       report drift in one sector (read-only)\n" +
+    "  sectors purge                       drop the ghost positions it finds\n" +
     "\n" +
     "Coordinates are SECTOR indices (the ones shown by look / glance), not\n" +
     "location coordinates. The map defaults to the one you are standing in;\n" +
