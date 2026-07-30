@@ -281,6 +281,13 @@ static object inherit_program(string from, string path, int priv)
   object ob;
   string err;
 
+  // Resolve a relative inherit path (no leading '/') against the
+  // inheriting file's directory, mirroring include_file's handling of
+  // relative includes. Lets a file inherit "maze.c" / "./maze.c" from
+  // its own directory instead of forcing an absolute path.
+  if (path && strlen(path) && path[0] != '/')
+    path = resolve_path(from + "/../" + path);
+
   if ((i = strlen(path)) >= 2 && path[i - 2 ..] == ".c")
     path = path[0 .. i - 3];
 
