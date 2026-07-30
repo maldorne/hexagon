@@ -431,6 +431,31 @@ int purge_drift(string game, string map_name)
           }
         }
 
+        // orphan pointer files: <k>.o on disk with no index entry (never
+        // added, or left behind by an older writer). Nothing reads them from
+        // the aggregate index, but direct coordinate access would; drop them.
+        {
+          string * disk_files;
+          mapping live;
+          int fi;
+
+          live = sector->query_positions();
+          disk_files = get_files(sector_path + "*_*_*.o");
+          for (fi = 0; fi < sizeof(disk_files); fi++)
+          {
+            string base;
+            base = disk_files[fi];
+            if (strlen(base) < 2 || base[strlen(base) - 2 ..] != ".o")
+              continue;
+            base = base[strlen(sector_path) .. strlen(base) - 3];
+            if (undefinedp(live[base]))
+            {
+              remove_file(disk_files[fi]);
+              removed++;
+            }
+          }
+        }
+
         if (!map_sizeof(sector->query_positions()) &&
             !strlen(sector->query_manual_type()))
           sector->set_manual_type(SECTOR_TYPE_EMPTY);
@@ -439,4 +464,81 @@ int purge_drift(string game, string map_name)
   }
 
   return removed;
+}
+
+/**
+ * Read-only audit of a single sector — the counterpart of purge_drift scoped
+ * to one sector, for the `sectors verify` command. Flags stale "ghost"
+ * positions (a coordinate whose location has moved elsewhere or no longer
+ * loads), pointer files that disagree with the index, and orphan pointer
+ * files on disk with no index entry. Changes nothing.
+ *
+ * Returns nil when the sector has no sector.o, otherwise:
+ *   ([ "total"   : int,                                positions in the index
+ *      "stale"   : ({ ({ coord_key, file, reason }), ... }),
+ *      "orphans" : ({ coord_key, ... }) ])             pointer files, no entry
+ * reason is one of "moved", "unloadable", "no_pointer", "pointer_mismatch".
+ */
+mapping verify_sector(string game, string map_name, int sx, int sy, int sz)
+{
+  string sector_path;
+  object sector;
+  mapping positions, coord_cache;
+  string * keys, * disk_files, * orphans;
+  mixed * stale;
+  int i;
+
+  sector_path = "/save/games/" + game + "/maps/" + map_name + "/" +
+                sx + "/" + sy + "/" + sz + "/";
+  if (file_size(sector_path + "sector.o") < 0)
+    return nil;
+
+  sector = create_sector(sector_path);
+  positions = sector->query_positions();
+  keys = map_indices(positions);
+  coord_cache = ([ ]);
+  stale = ({ });
+
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    string file, key, reason;
+    int kx, ky, kz;
+    int * rc;
+
+    key = keys[i];
+    file = positions[key];
+    reason = "";
+
+    if (sscanf(key, "%d_%d_%d", kx, ky, kz) != 3)
+      continue;
+
+    rc = _location_coords(file, coord_cache);
+    if (sizeof(rc) != 3)
+      reason = "unloadable";
+    else if (rc[0] != kx || rc[1] != ky || rc[2] != kz)
+      reason = "moved";
+    else if (file_size(sector_path + key + ".o") < 0)
+      reason = "no_pointer";
+    else if (read_file(sector_path + key + ".o") != file)
+      reason = "pointer_mismatch";
+
+    if (strlen(reason))
+      stale += ({ ({ key, file, reason }) });
+  }
+
+  // orphan pointer files: <k>.o on disk with no matching positions entry
+  orphans = ({ });
+  disk_files = get_files(sector_path + "*_*_*.o");
+  for (i = 0; i < sizeof(disk_files); i++)
+  {
+    string base;
+    base = disk_files[i];
+    if (strlen(base) < 2 || base[strlen(base) - 2 ..] != ".o")
+      continue;
+    base = base[strlen(sector_path) .. strlen(base) - 3];
+    if (undefinedp(positions[base]))
+      orphans += ({ base });
+  }
+
+  return ([ "total": sizeof(keys), "stale": stale, "orphans": orphans ]);
 }
