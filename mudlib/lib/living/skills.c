@@ -1,25 +1,24 @@
-// 
-// Nuevos sistema de dotes para CcMud, Folken 11/10/08
 //
-// - Los antiguos comandos (std/commands) pasamos a llamarlos dotes (obj/skills)
-//   (skills) para diferenciarlos de los comandos de /cmds
-// - Extraida la funcionalidad principal de /global/living/groups_obs.c
-// - Reprogramado por completo 18/10/08
+// New skill system for CcMud, Folken 11/10/08
+//
+// - The old commands (std/commands) become skills (obj/skills), to tell
+//   them apart from the /cmds commands
+// - Core functionality extracted from /global/living/groups_obs.c
+// - Fully reprogrammed 18/10/08
 
 #include <mud/secure.h>
 #include <living/skills.h>
 #include <common/properties.h>
 #include <language.h>
 
-string * known_skills;         // nombre de cada dote (tiene que coincidir
-                              // con los nombres de /table/skills_table.c)
-mapping skill_list;            // skills_list[nombre] = ({ lista })
-                              //    usamos como nombres los de la lista known_skills
-                              // Este mapping sera un subconjunto de la lista
-                              // de /table/skills_table.c, unicamente con los que el 
-                              // player conoce
-                              //    lista == ({ filename skill, porcentaje, times_used, pasivo})
-                              //    si es pasivo no tiene accion que ejecutar asociada
+string * known_skills;         // name of each skill (must match the names
+                              // in the skills table)
+mapping skill_list;            // skill_list[name] = ({ row })
+                              //    keyed by the names in known_skills
+                              // A subset of the skills table, holding only
+                              // the skills the player actually knows
+                              //    row == ({ skill filename, percentage, times_used, passive })
+                              //    a passive skill has no associated action to run
 
 void create()
 {
@@ -50,7 +49,7 @@ void set_skill_list(mapping skills)
   }
 }
 
-// ¿Conoce una dote concreta?
+// Does it know a given skill?
 int query_known_skill(string name)
 {
   return (member_array(name, known_skills) != -1);
@@ -86,7 +85,7 @@ void skills_commands()
 
   for (i = 0; i < sizeof(known_skills); i++) 
   {
-    // Las dotes pasivas no tienen accion asociada
+    // Passive skills have no associated action
     if (skill_list[known_skills[i]][3] == PASSIVE_SKILL)
       continue;      
     
@@ -100,19 +99,19 @@ void skills_commands()
     // skill_list[known_skills[i]] = 
     //     (string *)skill_SERVER->query_skill(known_skills[i]);
 
-    // Si la dote/comando no carga, no añadimos la accion al player
+    // If the skill/command fails to load, do not add the action
     if (!objectp(skill_ob))
       continue;
-    
-    // Importante: si la dote es de varias palabras, el add_private_action es
-    // unicamente sobre la primera, cuando ejecutemos el comando
-    // tendremos que comprobar si las siguientes tambien se corresponden
+
+    // Important: for a multi-word skill, add_private_action only covers
+    // the first word; when the command runs we must also check that the
+    // following words match
     
     pieces = explode(known_skills[i], " ");
     
     add_private_action("do_skill", pieces[0]);
 
-    // Tambien damos la accion sin acentos ni otros simbolos
+    // Also register the action without accents or other symbols
     if ((aux = SKILLS_TABLE->skill_translate_to_action(pieces[0])) != "")
       add_private_action("do_skill", aux);
     
@@ -146,14 +145,14 @@ int list_skills(varargs string str)
     return 0;
   }
     
-  // Rellenamos una lista con todas las categorias de dotes
+  // Build a list of all the skill categories
   for (i = 0; i < sizeof(known_skills); i++)
   {
     object f;
     string cat;
 
     f = load_object(skill_list[known_skills[i]][0]);
-    
+
     if (!f)
       continue;
     
@@ -217,33 +216,33 @@ int add_known_skill(string str, varargs int silence)
   if (!silence)
     silence = 0;
 
-  // Si ya conocemos la dote  
+  // Already known
   if (member_array(str, known_skills) != -1)
     return 0;
 
   skill = SKILLS_TABLE->query_skill_data(str);
-  
-  // Si la tabla no nos ha devuelto datos
+
+  // The table returned no data
   if (!arrayp(skill) || !sizeof(skill))
     return 0;
-  
+
   catch(skill_ob = load_object(skill[SKILL_DATA_PATH]));
 
-  // Si la dote/comando no carga
+  // The skill/command failed to load
   if (!objectp(skill_ob))
     return 0;
 
-  // Añadimos la dote. La ability inicial es la que fija la tabla en el
-  // índice [1] de la fila de la dote (ej: orientación arranca al 10%).
+  // Add the skill. The initial ability is whatever the table sets in
+  // index [1] of the skill row (e.g. orientation starts at 10%).
   known_skills += ({ str });
   skill_list[str] = ({ }) + skill;
 
-  // Informamos al player
+  // Tell the player
   if (!silence)
     tell_player(this_object(),
       _LANG_SKILL_GAINED_PRE + capitalize(str) + _LANG_SKILL_GAINED_POST);
 
-  // Actualizamos los comandos
+  // Refresh the commands
   skills_commands();
   
   return 1;
@@ -254,7 +253,7 @@ int remove_known_skill(string str)
 {
   int i;
 
-  // No la conocemos
+  // Not known
   if ((i = member_array(str, known_skills)) == -1)
     return 0;
     
@@ -265,12 +264,12 @@ int remove_known_skill(string str)
     
 } /* remove_known_skill() */
 
-// Porcentaje de conocimiento sobre una dote
+// Percentage mastery of a skill
 int query_skill_ability(string str)
 {
   int i;
 
-  // No la conocemos
+  // Not known
   if ((i = member_array(str, known_skills)) == -1)
     return 0;
 
@@ -284,7 +283,7 @@ int adjust_skill_ability(string str, int value, varargs int silence)
   if (!silence)
     silence = 0;
 
-  // No la conocemos
+  // Not known
   if ((i = member_array(str, known_skills)) == -1)
     return 0;
 
@@ -293,7 +292,7 @@ int adjust_skill_ability(string str, int value, varargs int silence)
   if (skill_list[str][1] <= 1)
       skill_list[str][1] = 1;
 
-  // Reseteamos el numero de veces usadas
+  // Reset the times-used counter
   skill_list[str][2] = 0;
 
   if ((value > 0) && !silence)
@@ -307,16 +306,16 @@ int update_skill_used_times(string str)
 {
   int i;
 
-  // No la conocemos
+  // Not known
   if ((i = member_array(str, known_skills)) == -1)
     return 0;
 
-  // Si ya estamos al maximo no seguimos actualizando
+  // Stop updating once at the maximum
   if (skill_list[str][1] < 100)
   {
     skill_list[str][2] += 1;
-    
-    // Cada 50 usos de un skill, vemos si aumentamos la habilidad
+
+    // Every 50 uses, roll to see whether the ability goes up
     if (skill_list[str][2] % 50 == 0)
     {
         if (random(100) > skill_list[str][1])
@@ -331,15 +330,15 @@ int query_skill_used_times(string str)
 {
   int i;
 
-  // No la conocemos
+  // Not known
   if ((i = member_array(str, known_skills)) == -1)
     return 0;
 
   return skill_list[str][2];
 }
 
-// Funcion que ejecuta la dote (si tiene comando asociado)
-int do_skill(string str)   
+// Runs the skill (if it has an associated command)
+int do_skill(string str)
 {
   int i, j;
   int found;
@@ -371,37 +370,37 @@ int do_skill(string str)
 
   // tell_object(find_living("folken"), "[SKILL] verb='"+query_verb()+"' str='"+str+"'\n");
   
-  // Buscamos el comando
-  
-  // Obviamente esta no es la mejor forma de buscar un comando que pueda incluir
-  // espacios en blanco, pero entre añadir esta funcionalidad unicamente aqui 
-  // (se ejecutan poco) o en el sistema de add_action generico (se ejecuta
-  // constantemente), creo que sera mas eficiente
+  // Look up the command
+
+  // Obviously not the best way to look up a command that may contain
+  // whitespace, but doing it only here (skills run rarely) rather than in
+  // the generic add_action system (which runs constantly) should be more
+  // efficient
   
   for (i = 0; (i < sizeof(known_skills)) && (found == -1); i++)
   {
     skill_pieces = explode(known_skills[i], " ");
     if ((skill_pieces[0] == query_verb()) ||
-    // Tambien nos vale el mismo nombre pero sin acentos ni simbolos
+    // The same name without accents or symbols also matches
     (skill_pieces[0] == SKILLS_TABLE->skill_translate(query_verb())) )
     {
       found = i;
       
       for (j = 1; (j < sizeof(skill_pieces)) && (found == -1); j++)
       {
-        // No hay coincidencia
-        if ((j - 1 < sizeof(str_pieces)) && 
+        // No match
+        if ((j - 1 < sizeof(str_pieces)) &&
             (skill_pieces[j] != str_pieces[j - 1]))
           found = -1;
       }
     }
   }
 
-  if (found == -1)  
+  if (found == -1)
     return 0;
   /*
   {
-      tell_object(find_living("folken"), "[SKILL] found="+found+", skill=<no encontrado>\n");
+      tell_object(find_living("folken"), "[SKILL] found="+found+", skill=<not found>\n");
       return 0;
   }
   else
@@ -409,9 +408,9 @@ int do_skill(string str)
       tell_object(find_living("folken"), "[SKILL] found="+found+", skill="+known_skills[found]+"\n");
   }
   */
-  
-  // Primero buscamos si hay una coincidencia exacta
-  // if((i = member_array(query_verb(), my_skills)) != -1) 
+
+  // First look for an exact match
+  // if((i = member_array(query_verb(), my_skills)) != -1)
 
   if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
   {
@@ -425,24 +424,25 @@ int do_skill(string str)
     return 0;
   }    
 
-  // llamamos a la funcion cast_effect de la dote, pasandole como parametros
-  // el string (objetivos a buscar), el iniciador del efecto, y quiet como false
-  result = (int)call_other( skill_list[known_skills[found]][0], 
+  // Call the skill's cast_effect, passing the string (targets to search),
+  // the effect initiator, and quiet as false
+  result = (int)call_other( skill_list[known_skills[found]][0],
                           "cast_effect", 
                           str, 
                           this_object(), 
                           0);
 
-  // ELIMINADO!!!
-  // Algunas dotes (las de fabricacion de objetos, de tipo "pass") pueden ejecutarse sin fabricar nada, 
-  // y esto haria que se pudieran mejorar sin estar utilizandolas realmente. Ahora el aprendizaje
-  // se realiza en /global/living/effects.c, al final del do_active_effects del ultimo round de la dote
-  // solo, si se ha ejecutado correctamente (igual que el gasto de gps) 
+  // REMOVED!!!
+  // Some skills (object-crafting ones, of type "pass") can run without
+  // crafting anything, which would let them improve without really being
+  // used. Learning now happens in /global/living/effects.c, at the end of
+  // do_active_effects on the skill's last round only, and only if it ran
+  // successfully (same as the gp cost).
 
-  // Si el efecto se ha llegado a lanzar (hemos cumplido todos sus requisitos basicos),
-  // actualizamos el numero de veces usadas. Aun asi es posible que, si el efecto es de varios
-  // turnos, pueda no haber tenido exito en alguno de los posteriores (pero ha llegado a lanzarse)
-  // ... Algo aprendes incluso cuando las cosas salen mal ...
+  // If the effect actually fired (all its basic requirements were met),
+  // update the times-used counter. Even so, if the effect spans several
+  // turns it may have failed on a later one (but it did fire).
+  // ... You learn something even when things go wrong ...
   // if (result == 1)
   //     update_skill_used_times(known_skills[found]);
   
@@ -455,12 +455,12 @@ int skill_damage(int damage, string type, object attacker)
   
   prot = this_object()->query_resistance(type);
       
-  // Debug de informacion a los inmortales (Folken 7/01)
+  // Debug info for immortals (Folken 7/01)
   if ((prot != 0) && this_object()->query_coder())
-    tell_object(this_object(), "DEBUG (skill_damage): Aplicada resistencia " +
-                                "contra '"+type+"' ("+prot+"%).\n");
-  
-  // Calculamos al modificacion al daño segun resistencias:
+    tell_object(this_object(), "DEBUG (skill_damage): applied resistance " +
+                                "against '"+type+"' ("+prot+"%).\n");
+
+  // Apply the damage modifier from resistances:
   damage = (damage * (100 - prot)) / 100;
                         
   if(!attacker)
