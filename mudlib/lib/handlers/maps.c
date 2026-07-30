@@ -4,6 +4,21 @@
 #include <room/location.h>
 #include <room/room.h>
 
+/*
+ * On-disk map index. Each occupied 10x10x10 sector is a directory under
+ * /save/games/<game>/maps/<map>/<sx>/<sy>/<sz>/ holding two things:
+ *   - sector.o      the index: positions ("x_y_z" -> location file), the
+ *                   terrain-type tallies and the per-coordinate road/path ways.
+ *   - <x>_<y>_<z>.o one pointer file per occupied coordinate, naming the
+ *                   location that sits there.
+ *
+ * Invariant: every positions entry has a matching pointer file for the same
+ * location, and a location is indexed at exactly one coordinate. add_location
+ * writes both sides; remove_location_from_map and sector::remove_position drop
+ * both; the per-location indexed-coord marker (purged when coordinates change)
+ * and `sectors purge` enforce the "exactly one" clause.
+ */
+
 mapping loaded_sectors;
 
 // prototypes
