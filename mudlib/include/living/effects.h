@@ -1,7 +1,7 @@
 
 // Definiciones para efectos
 
-#define BASE_EFFECT "/std/effects/base_effect.c"
+#define BASE_EFFECT "/lib/effects/base_effect.c"
 #define EFFECTS_TABLE "/table/effects_table.c"
 
 #define RANGE_HANDLER  "/obj/handlers/range.c"
