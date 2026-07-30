@@ -209,11 +209,14 @@ int list_skills(varargs string str)
   return 1;
 }
 
-int add_known_skill(string str, varargs int silence) 
+// initial_ability > 0 overrides the table's starting percentage (used
+// e.g. when the maze teaches orientation at the 10% floor). 0 keeps the
+// table default.
+int add_known_skill(string str, varargs int silence, int initial_ability)
 {
   mixed * skill;
   object skill_ob;
-  
+
   if (!silence)
     silence = 0;
 
@@ -236,7 +239,11 @@ int add_known_skill(string str, varargs int silence)
   // Añadimos la dote
   known_skills += ({ str });
   skill_list[str] = ({ }) + skill;
-  
+
+  // Ability inicial forzada (ej: aprendizaje por suerte en el laberinto)
+  if (initial_ability > 0)
+    skill_list[str][1] = initial_ability;
+
   // Informamos al player
   if (!silence)
     tell_player(this_object(),

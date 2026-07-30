@@ -51,9 +51,11 @@ mapping query_hooks()
 mixed * hook_do_exit_command(mixed * args)
 {
   string * dirs;
+  string typed, chosen;
   object ob;
   int ability;
 
+  typed = args[1];
   ob = args[2];
   ability = 0;
   if (ob)
@@ -67,7 +69,18 @@ mixed * hook_do_exit_command(mixed * args)
 
   dirs = location->query_direc();
   if (dirs && sizeof(dirs) > 1)
-    args[1] = dirs[random(sizeof(dirs))];
+  {
+    chosen = dirs[random(sizeof(dirs))];
+    args[1] = chosen;
+
+    // Lucky hit: the scramble landed on the direction the mover typed,
+    // so they moved true by chance. A mover who does not yet have the
+    // orientation skill picks it up here at the 10% floor — wandering
+    // the maze is itself how a newbie first learns to orient.
+    if (chosen == typed && ob &&
+        !ob->query_known_skill(_LANG_SKILL_ORIENTATION_NAME))
+      ob->add_known_skill(_LANG_SKILL_ORIENTATION_NAME, 0, 10);
+  }
 
   return args;
 }
