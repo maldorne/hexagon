@@ -10,6 +10,7 @@
 // system this plugs into.
 
 #include <room/location.h>
+#include <translations/skills.h>
 
 inherit component "/lib/location/component.c";
 
@@ -41,9 +42,28 @@ mapping query_hooks()
 // substitute it in. The inherited exit dispatcher looks up the verb
 // in dest_direc, so any registered direction is valid. If there is
 // only one exit (or none), nothing to randomise.
+//
+// The orientation skill gates the scramble: on a successful check
+// (random(100) < ability) the mover keeps the typed direction and
+// moves true. A mover without the skill has ability 0, so the check
+// never passes and the maze scrambles as before. args[2] is the
+// moving living (defaulted to this_player() by the orchestrator).
 mixed * hook_do_exit_command(mixed * args)
 {
   string * dirs;
+  object ob;
+  int ability;
+
+  ob = args[2];
+  ability = 0;
+  if (ob)
+    ability = ob->query_skill_ability(_LANG_SKILL_ORIENTATION_NAME);
+  // A mover lacking the skills mixin returns nil; coerce to 0.
+  if (!ability)
+    ability = 0;
+
+  if (random(100) < ability)
+    return args;
 
   dirs = location->query_direc();
   if (dirs && sizeof(dirs) > 1)
