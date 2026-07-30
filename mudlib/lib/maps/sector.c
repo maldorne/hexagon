@@ -24,6 +24,15 @@ mapping type_counts;
 // (pathfinding), or the sector-border summary via query_border_ways()
 // (world map rendering). See include/maps/sector.h.
 mapping way_exits;
+// mapping in the form ([ x_y_z : ({ to_x_to_y_to_z, ... }) ]) — for each
+// coordinate whose exits cross this sector's border, the neighbouring
+// coordinates (in an adjacent sector) they lead to. These are the sector's
+// A* "ports": the coarse pathfinder reads query_sector_neighbours() to walk
+// the sector graph, the fine one reads a port's from/to pair to stitch the
+// location path across the boundary. Unlike way_exits this includes every
+// traversable direction, not just road/path; internal exits are not stored.
+// Populated by add_location(), cleared on removal. See include/maps/sector.h.
+mapping boundary_exits;
 // a type a programmer set by hand; used only when the sector has no
 // locations to derive a type from. See query_sector_type / set_manual_type.
 string manual_type;
@@ -39,6 +48,7 @@ void create() {
   maze_positions = ([ ]);
   type_counts = ([ ]);
   way_exits = ([ ]);
+  boundary_exits = ([ ]);
   manual_type = SECTOR_TYPE_NONE;
   loaded_locations = ({ });
   ::create();
@@ -107,6 +117,7 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   if (!maze_positions) maze_positions = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
+  if (!boundary_exits) boundary_exits = ([ ]);
 
   key = "" + x + "_" + y + "_" + z;
   previous = locations[location_file_name];
@@ -130,6 +141,15 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
     way_exits[key] = map_copy(location_data["ways"]);
   else
     map_delete(way_exits, key);
+
+  // location_data may carry a "boundary" array of neighbouring coordinates
+  // this coord's exits cross into — the sector's A* ports. Store it keyed by
+  // coord (or clear a stale entry when the location no longer crosses out).
+  if (location_data && location_data["boundary"] &&
+      sizeof(location_data["boundary"]))
+    boundary_exits[key] = location_data["boundary"];
+  else
+    map_delete(boundary_exits, key);
 
   // Update per-type counters. A re-add for the same file is treated as
   // an update: decrement the previous contribution before adding the
@@ -169,6 +189,7 @@ void remove_location(string location_file_name)
   if (!maze_positions) maze_positions = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
+  if (!boundary_exits) boundary_exits = ([ ]);
 
   // Roll back this file's contribution to the sector-type tally BEFORE
   // dropping its entry from `locations`, since that entry is where the
@@ -196,6 +217,7 @@ void remove_location(string location_file_name)
       map_delete(positions, pos_keys[i]);
       map_delete(maze_positions, pos_keys[i]);
       map_delete(way_exits, pos_keys[i]);
+      map_delete(boundary_exits, pos_keys[i]);
     }
   }
 
@@ -216,6 +238,7 @@ void remove_position(string coord_key)
   if (!maze_positions) maze_positions = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
+  if (!boundary_exits) boundary_exits = ([ ]);
 
   if (undefinedp(positions[coord_key]))
     return;
@@ -224,6 +247,7 @@ void remove_position(string coord_key)
   map_delete(positions, coord_key);
   map_delete(maze_positions, coord_key);
   map_delete(way_exits, coord_key);
+  map_delete(boundary_exits, coord_key);
 
   // is the file still present under any other coordinate here?
   still_here = 0;
@@ -471,4 +495,62 @@ mapping query_border_ways()
   }
 
   return result;
+}
+
+mapping query_boundary_exits()
+{
+  if (!boundary_exits) boundary_exits = ([ ]);
+  return boundary_exits;
+}
+
+// The neighbouring sectors this one connects to, as "sx_sy_sz" keys, derived
+// from the boundary ports. The coarse layer of a hierarchical A* walks this
+// graph before descending into the locations of the few sectors a route
+// actually passes through.
+string * query_sector_neighbours()
+{
+  string * coord_keys, * result;
+  int i, j;
+
+  if (!boundary_exits) boundary_exits = ([ ]);
+  result = ({ });
+  coord_keys = map_indices(boundary_exits);
+
+  for (i = 0; i < sizeof(coord_keys); i++)
+  {
+    string * tos;
+    tos = boundary_exits[coord_keys[i]];
+    if (!arrayp(tos)) continue;
+
+    for (j = 0; j < sizeof(tos); j++)
+    {
+      int tx, ty, tz;
+      string nkey;
+
+      if (sscanf(tos[j], "%d_%d_%d", tx, ty, tz) != 3)
+        continue;
+      nkey = _sector_index(tx) + "_" + _sector_index(ty) + "_" +
+             _sector_index(tz);
+      if (member_array(nkey, result) == -1)
+        result += ({ nkey });
+    }
+  }
+
+  return result;
+}
+
+// Rough per-sector movement cost for the coarse A* layer, keyed off the
+// dominant terrain: paved city cheapest, open ground next, forest and
+// underground harder, coastline hardest. A sector with no derived type
+// falls back to the open-ground cost.
+int query_traversal_cost()
+{
+  string type;
+
+  type = query_sector_type();
+  if (type == SECTOR_TYPE_CITY)        return 1;
+  if (type == SECTOR_TYPE_FOREST)      return 3;
+  if (type == SECTOR_TYPE_UNDERGROUND) return 3;
+  if (type == SECTOR_TYPE_COAST)       return 4;
+  return 2;
 }

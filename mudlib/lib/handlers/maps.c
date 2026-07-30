@@ -85,6 +85,28 @@ object set_sector_manual_type(string game, string map_name,
   return sector;
 }
 
+// Cartesian delta of a one-step move in a canonical exit direction, matching
+// the coordinate convention in guess_coordinates (north +y, east +x, up +z).
+// Returns nil for non-directional exits (enter, out, ...), which have no place
+// on the coordinate grid.
+private int * _dir_delta(string dir)
+{
+  switch (dir)
+  {
+    case SECTOR_DIR_NORTH:     return ({  0,  1,  0 });
+    case SECTOR_DIR_SOUTH:     return ({  0, -1,  0 });
+    case SECTOR_DIR_EAST:      return ({  1,  0,  0 });
+    case SECTOR_DIR_WEST:      return ({ -1,  0,  0 });
+    case SECTOR_DIR_NORTHEAST: return ({  1,  1,  0 });
+    case SECTOR_DIR_NORTHWEST: return ({ -1,  1,  0 });
+    case SECTOR_DIR_SOUTHEAST: return ({  1, -1,  0 });
+    case SECTOR_DIR_SOUTHWEST: return ({ -1, -1,  0 });
+    case "up":                 return ({  0,  0,  1 });
+    case "down":               return ({  0,  0, -1 });
+  }
+  return nil;
+}
+
 string add_location(object location)
 {
   int x, y, z;
@@ -183,6 +205,43 @@ string add_location(object location)
 
       if (map_sizeof(ways))
         location_data["ways"] = ways;
+    }
+
+    // Lift the boundary-crossing exits (any traversable direction, not just
+    // road/path): for each exit whose one-step destination lands in a
+    // neighbouring sector, record that neighbour coordinate. These are the
+    // sector's A* "ports" — the coarse pathfinder walks sector to sector, the
+    // fine one stitches location paths through the recorded crossings.
+    {
+      mapping exit_map;
+      string * dirs, * boundary;
+
+      exit_map = location->query_exit_map();
+      boundary = ({ });
+
+      if (mappingp(exit_map))
+      {
+        dirs = map_indices(exit_map);
+        for (i = 0; i < sizeof(dirs); i++)
+        {
+          int * d;
+          int tx, ty, tz;
+
+          d = _dir_delta(ROOM_HAND->canonical_dir(dirs[i]));
+          if (!d)
+            continue;
+          tx = x + d[0];
+          ty = y + d[1];
+          tz = z + d[2];
+          if (tx / 10 - (tx < 0) != sector_x ||
+              ty / 10 - (ty < 0) != sector_y ||
+              tz / 10 - (tz < 0) != sector_z)
+            boundary += ({ "" + tx + "_" + ty + "_" + tz });
+        }
+      }
+
+      if (sizeof(boundary))
+        location_data["boundary"] = boundary;
     }
 
     sector_storage->add_location(location->query_file_name(),
