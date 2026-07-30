@@ -17,8 +17,11 @@ void create()
 {
   list = ([
     // passive skill: no active command; queried by other systems (movement)
+    // Fields: object path, initial ability %, times used, active/passive.
+    // Orientation is learned cheaply (10%) — a newbie first picks it up
+    // by wandering a maze, then it climbs with use.
     _LANG_SKILL_ORIENTATION_NAME :
-      ({ SKILLS_PATH + "orientation", 30, 0, PASSIVE_SKILL, }),
+      ({ SKILLS_PATH + "orientation", 10, 0, PASSIVE_SKILL, }),
   ]);
 }
 

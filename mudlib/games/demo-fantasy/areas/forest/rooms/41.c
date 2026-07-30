@@ -3,7 +3,7 @@
 #include "../path.h"
 #include <language.h>
 
-inherit "maze.c";
+inherit "/games/demo-fantasy/areas/forest/rooms/maze.c";
 
 void setup()
 {

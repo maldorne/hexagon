@@ -75,11 +75,12 @@ mixed * hook_do_exit_command(mixed * args)
 
     // Lucky hit: the scramble landed on the direction the mover typed,
     // so they moved true by chance. A mover who does not yet have the
-    // orientation skill picks it up here at the 10% floor — wandering
-    // the maze is itself how a newbie first learns to orient.
+    // orientation skill picks it up here — wandering the maze is itself
+    // how a newbie first learns to orient. The starting ability (10%)
+    // comes from the skills table.
     if (chosen == typed && ob &&
         !ob->query_known_skill(_LANG_SKILL_ORIENTATION_NAME))
-      ob->add_known_skill(_LANG_SKILL_ORIENTATION_NAME, 0, 10);
+      ob->add_known_skill(_LANG_SKILL_ORIENTATION_NAME);
   }
 
   return args;

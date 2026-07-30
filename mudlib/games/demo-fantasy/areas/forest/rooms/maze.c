@@ -47,10 +47,11 @@ int do_exit_command(string str, varargs mixed verb, object ob)
       verb = chosen;
 
       // Lucky hit: the scramble landed on the direction the mover
-      // typed. A mover without the skill picks it up at the 10% floor.
+      // typed. A mover without the skill picks it up here; the starting
+      // ability (10%) comes from the skills table.
       if (chosen == typed && ob &&
           !ob->query_known_skill(_LANG_SKILL_ORIENTATION_NAME))
-        ob->add_known_skill(_LANG_SKILL_ORIENTATION_NAME, 0, 10);
+        ob->add_known_skill(_LANG_SKILL_ORIENTATION_NAME);
     }
   }
 
