@@ -203,7 +203,7 @@ private string render_cell(string game, string map_name,
   // manual type for a sector with no locations of its own
   type = sect->query_sector_type();
   if (type == SECTOR_TYPE_CITY)        return GLYPH_MAP_CITY;
-  if (type == SECTOR_TYPE_FOREST)      return GLYPH_MAP_FOREST;
+  if (type == SECTOR_TYPE_FOREST)      return "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^";
   if (type == SECTOR_TYPE_COAST)       return GLYPH_COAST;
   if (type == SECTOR_TYPE_UNDERGROUND) return GLYPH_UNDERGROUND;
 
