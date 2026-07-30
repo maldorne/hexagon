@@ -1,35 +1,36 @@
 // 
 // Nuevos sistema de dotes para CcMud, Folken 11/10/08
 //
-// - Los antiguos comandos (std/commands) pasamos a llamarlos dotes (obj/feats)
-//   (feats) para diferenciarlos de los comandos de /cmds
+// - Los antiguos comandos (std/commands) pasamos a llamarlos dotes (obj/skills)
+//   (skills) para diferenciarlos de los comandos de /cmds
 // - Extraida la funcionalidad principal de /global/living/groups_obs.c
 // - Reprogramado por completo 18/10/08
 
 #include <mud/secure.h>
-#include <living/feats.h>
+#include <living/skills.h>
 #include <common/properties.h>
+#include <language.h>
 
-string * known_feats;         // nombre de cada dote (tiene que coincidir
-                              // con los nombres de /table/feats_table.c)
-mapping feat_list;            // feats_list[nombre] = ({ lista })
-                              //    usamos como nombres los de la lista known_feats
+string * known_skills;         // nombre de cada dote (tiene que coincidir
+                              // con los nombres de /table/skills_table.c)
+mapping skill_list;            // skills_list[nombre] = ({ lista })
+                              //    usamos como nombres los de la lista known_skills
                               // Este mapping sera un subconjunto de la lista
-                              // de /table/feats_table.c, unicamente con los que el 
+                              // de /table/skills_table.c, unicamente con los que el 
                               // player conoce
-                              //    lista == ({ filename feat, porcentaje, times_used, pasivo})
+                              //    lista == ({ filename skill, porcentaje, times_used, pasivo})
                               //    si es pasivo no tiene accion que ejecutar asociada
 
 void create()
 {
-  feat_list = ([ ]);
-  known_feats = ({ });
+  skill_list = ([ ]);
+  known_skills = ({ });
 }
 
-mapping query_feat_list() { return feat_list; }
-string * query_known_feats() { return known_feats; }
+mapping query_skill_list() { return skill_list; }
+string * query_known_skills() { return known_skills; }
 
-void set_feat_list(mapping feats) 
+void set_skill_list(mapping skills) 
 { 
   int i;
   string * indices;
@@ -38,27 +39,27 @@ void set_feat_list(mapping feats)
   if (!SECURE->valid_progname("/lib/core/login"))
     return;  
 
-  feat_list = ([ ]);
-  known_feats = ({ });
-  indices = keys(feats);
+  skill_list = ([ ]);
+  known_skills = ({ });
+  indices = keys(skills);
   
   for (i = 0; i < sizeof(indices); i++)
   {
-    feat_list[indices[i]] = ({ }) + feats[indices[i]];
-    known_feats += ({ indices[i] });
+    skill_list[indices[i]] = ({ }) + skills[indices[i]];
+    known_skills += ({ indices[i] });
   }
 }
 
 // ¿Conoce una dote concreta?
-int query_known_feat(string name)
+int query_known_skill(string name)
 {
-  return (member_array(name, known_feats) != -1);
+  return (member_array(name, known_skills) != -1);
 }
 
-int query_feat_ability(string str);
-int adjust_feat_ability(string str, int value, varargs int silence);
-int update_feat_used_times(string str);
-int query_feat_used_times(string str);
+int query_skill_ability(string str);
+int adjust_skill_ability(string str, int value, varargs int silence);
+int update_skill_used_times(string str);
+int query_skill_used_times(string str);
 
 // HACK
 /*
@@ -67,86 +68,91 @@ int query_feat_used_times(string str);
   string help_command(string str) { return ""; }
 */
 
-void feats_commands()
+void skills_commands()
 {
   int i;
-  mixed * feat;
-  object feat_ob;
+  mixed * skill;
+  object skill_ob;
   string * pieces;
   string aux;
 
-  add_private_action("list_feats", "dotes");
-  add_private_action("list_feats", "habilidades");
-  
-  for (i = 0; i < sizeof(known_feats); i++) 
+  {
+    string * verbs;
+    int v;
+    verbs = _LANG_SKILL_LIST_VERBS;
+    for (v = 0; v < sizeof(verbs); v++)
+      add_private_action("list_skills", verbs[v]);
+  }
+
+  for (i = 0; i < sizeof(known_skills); i++) 
   {
     // Las dotes pasivas no tienen accion asociada
-    if (feat_list[known_feats[i]][3] == PASSIVE_FEAT)
+    if (skill_list[known_skills[i]][3] == PASSIVE_SKILL)
       continue;      
     
-    feat = FEATS_TABLE->query_feat_data(known_feats[i]);
+    skill = SKILLS_TABLE->query_skill_data(known_skills[i]);
     
-    if (!sizeof(feat))
+    if (!sizeof(skill))
       continue;
     
-    catch(feat_ob = load_object(feat[FEAT_DATA_PATH]));
+    catch(skill_ob = load_object(skill[SKILL_DATA_PATH]));
 
-    // feat_list[known_feats[i]] = 
-    //     (string *)feat_SERVER->query_feat(known_feats[i]);
+    // skill_list[known_skills[i]] = 
+    //     (string *)skill_SERVER->query_skill(known_skills[i]);
 
     // Si la dote/comando no carga, no añadimos la accion al player
-    if (!objectp(feat_ob))
+    if (!objectp(skill_ob))
       continue;
     
     // Importante: si la dote es de varias palabras, el add_private_action es
     // unicamente sobre la primera, cuando ejecutemos el comando
     // tendremos que comprobar si las siguientes tambien se corresponden
     
-    pieces = explode(known_feats[i], " ");
+    pieces = explode(known_skills[i], " ");
     
-    add_private_action("do_feat", pieces[0]);
+    add_private_action("do_skill", pieces[0]);
 
     // Tambien damos la accion sin acentos ni otros simbolos
-    if ((aux = FEATS_TABLE->feat_translate_to_action(pieces[0])) != "")
-      add_private_action("do_feat", aux);
+    if ((aux = SKILLS_TABLE->skill_translate_to_action(pieces[0])) != "")
+      add_private_action("do_skill", aux);
     
-    // tell_object(find_living("folken"), "[FEAT] add_private_action(do_feat, "+pieces[0]+")\n");
+    // tell_object(find_living("folken"), "[SKILL] add_private_action(do_skill, "+pieces[0]+")\n");
   }
 }
 
-int list_feats() 
+int list_skills(varargs string str)
 {
-  string ret, feat_name;
-  int passive_feats_found;
+  string ret, skill_name;
+  int passive_skills_found;
   string * categories;
   int i, j;
 
   ret = "";
-  feat_name = "";
-  passive_feats_found = 0;
+  skill_name = "";
+  passive_skills_found = 0;
   categories = ({ });
   i = 0;
   j = 0;
 
   if (this_object()->query_dead())
   {
-    notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
+    notify_fail(_LANG_SKILL_DEAD_LIST);
     return 0;
   }
       
-  if (!sizeof(known_feats))
+  if (!sizeof(known_skills))
   {
-    notify_fail("Aún no has conseguido ninguna dote.\n");
+    notify_fail(_LANG_SKILL_NONE_YET);
     return 0;
   }
     
   // Rellenamos una lista con todas las categorias de dotes
-  for (i = 0; i < sizeof(known_feats); i++)
+  for (i = 0; i < sizeof(known_skills); i++)
   {
     object f;
     string cat;
 
-    f = load_object(feat_list[known_feats[i]][0]);
+    f = load_object(skill_list[known_skills[i]][0]);
     
     if (!f)
       continue;
@@ -158,19 +164,19 @@ int list_feats()
   }
 
 
-  ret = sprintf("%*'-'|s\n\n", this_object()->query_cols()+18, 
-      "> %^GREEN%^Conoces las siguientes dotes: %^RESET%^<");
+  ret = sprintf("%*'-'|s\n\n", this_user()->query_cols()+18,
+      _LANG_SKILL_LIST_HEADER);
   
   for (j = 0; j < sizeof(categories); j++)
   {
     ret += "    %^GREEN%^" + capitalize(categories[j]) + "%^RESET%^:\n";
     
-    for (i = 0; i < sizeof(known_feats); i++)
+    for (i = 0; i < sizeof(known_skills); i++)
     {
       object f;
       string cat;
 
-      f = load_object(feat_list[known_feats[i]][0]);
+      f = load_object(skill_list[known_skills[i]][0]);
 
       if (!f)
         continue;
@@ -180,96 +186,97 @@ int list_feats()
       if (categories[j] != cat)
         continue;
         
-      if (feat_list[known_feats[i]][3] == ACTIVE_FEAT)
-        feat_name = "%^BOLD%^"+capitalize(known_feats[i]) +"%^RESET%^";
+      if (skill_list[known_skills[i]][3] == ACTIVE_SKILL)
+        skill_name = "%^BOLD%^"+capitalize(known_skills[i]) +"%^RESET%^";
       else
       {
-        feat_name = "%^BOLD%^"+capitalize(known_feats[i]) +"%^RESET%^ (*)";
-        passive_feats_found = 1;
+        skill_name = "%^BOLD%^"+capitalize(known_skills[i]) +"%^RESET%^ (*)";
+        passive_skills_found = 1;
       }
       
-      ret += sprintf("\t%35-s %25|s (%s)\n", feat_name, 
-                "["+percentage_bar(query_feat_ability(known_feats[i]))+"]",
-                ""+query_feat_ability(known_feats[i])+"%");
+      ret += sprintf("\t%35-s %25|s (%s)\n", skill_name, 
+                "["+percentage_bar(query_skill_ability(known_skills[i]))+"]",
+                ""+query_skill_ability(known_skills[i])+"%");
     }
   }
     
-  if (passive_feats_found)
-    ret += "\n (*) Dotes pasivas\n";
+  if (passive_skills_found)
+    ret += _LANG_SKILL_PASSIVE_LEGEND;
     
-  ret += sprintf("\n%*'-'s\n", this_object()->query_cols(), "");    
+  ret += sprintf("\n%*'-'s\n", this_user()->query_cols(), "");
   tell_object(this_object(), ret);
   
   return 1;
 }
 
-int add_known_feat(string str, varargs int silence) 
+int add_known_skill(string str, varargs int silence) 
 {
-  mixed * feat;
-  object feat_ob;
+  mixed * skill;
+  object skill_ob;
   
   if (!silence)
     silence = 0;
 
   // Si ya conocemos la dote  
-  if (member_array(str, known_feats) != -1)
+  if (member_array(str, known_skills) != -1)
     return 0;
 
-  feat = FEATS_TABLE->query_feat_data(str);
+  skill = SKILLS_TABLE->query_skill_data(str);
   
   // Si la tabla no nos ha devuelto datos
-  if (!arrayp(feat) || !sizeof(feat))
+  if (!arrayp(skill) || !sizeof(skill))
     return 0;
   
-  catch(feat_ob = load_object(feat[FEAT_DATA_PATH]));
+  catch(skill_ob = load_object(skill[SKILL_DATA_PATH]));
 
   // Si la dote/comando no carga
-  if (!objectp(feat_ob))
+  if (!objectp(skill_ob))
     return 0;
 
   // Añadimos la dote
-  known_feats += ({ str });
-  feat_list[str] = ({ }) + feat;
+  known_skills += ({ str });
+  skill_list[str] = ({ }) + skill;
   
   // Informamos al player
   if (!silence)
-    tell_player(this_object(), "¡Has obtenido la dote "+capitalize(str)+"!\n");
+    tell_player(this_object(),
+      _LANG_SKILL_GAINED_PRE + capitalize(str) + _LANG_SKILL_GAINED_POST);
 
   // Actualizamos los comandos
-  feats_commands();
+  skills_commands();
   
   return 1;
     
-} /* add_known_feat() */
+} /* add_known_skill() */
 
-int remove_known_feat(string str) 
+int remove_known_skill(string str) 
 {
   int i;
 
   // No la conocemos
-  if ((i = member_array(str, known_feats)) == -1)
+  if ((i = member_array(str, known_skills)) == -1)
     return 0;
     
-  known_feats = delete(known_feats, i, 1);
-  feat_list = m_delete(feat_list, str);
+  known_skills = delete(known_skills, i, 1);
+  skill_list = m_delete(skill_list, str);
   
   return 1;
     
-} /* remove_known_feat() */
+} /* remove_known_skill() */
 
 // Porcentaje de conocimiento sobre una dote
-int query_feat_ability(string str)
+int query_skill_ability(string str)
 {
   int i;
 
   // No la conocemos
-  if ((i = member_array(str, known_feats)) == -1)
+  if ((i = member_array(str, known_skills)) == -1)
     return 0;
 
-  return feat_list[str][1];
+  return skill_list[str][1];
 }
 
-int adjust_feat_ability(string str, int value, varargs int silence)
+int adjust_skill_ability(string str, int value, varargs int silence)
 {
   int i;
 
@@ -277,71 +284,72 @@ int adjust_feat_ability(string str, int value, varargs int silence)
     silence = 0;
 
   // No la conocemos
-  if ((i = member_array(str, known_feats)) == -1)
+  if ((i = member_array(str, known_skills)) == -1)
     return 0;
 
-  feat_list[str][1] += value;
+  skill_list[str][1] += value;
     
-  if (feat_list[str][1] <= 1)
-      feat_list[str][1] = 1;
+  if (skill_list[str][1] <= 1)
+      skill_list[str][1] = 1;
 
   // Reseteamos el numero de veces usadas
-  feat_list[str][2] = 0;
+  skill_list[str][2] = 0;
 
   if ((value > 0) && !silence)
-    tell_player(this_object(), "¡Has mejorado tus habilidades en "+str+"!\n");
+    tell_player(this_object(),
+      _LANG_SKILL_IMPROVED_PRE + str + _LANG_SKILL_IMPROVED_POST);
 
-  return feat_list[str][1];
+  return skill_list[str][1];
 }
 
-int update_feat_used_times(string str)
+int update_skill_used_times(string str)
 {
   int i;
 
   // No la conocemos
-  if ((i = member_array(str, known_feats)) == -1)
+  if ((i = member_array(str, known_skills)) == -1)
     return 0;
 
   // Si ya estamos al maximo no seguimos actualizando
-  if (feat_list[str][1] < 100)
+  if (skill_list[str][1] < 100)
   {
-    feat_list[str][2] += 1;
+    skill_list[str][2] += 1;
     
-    // Cada 50 usos de un feat, vemos si aumentamos la habilidad
-    if (feat_list[str][2] % 50 == 0)
+    // Cada 50 usos de un skill, vemos si aumentamos la habilidad
+    if (skill_list[str][2] % 50 == 0)
     {
-        if (random(100) > feat_list[str][1])
-          adjust_feat_ability(str, 1);
+        if (random(100) > skill_list[str][1])
+          adjust_skill_ability(str, 1);
     }
   }
 
-  return feat_list[str][2];
+  return skill_list[str][2];
 }
 
-int query_feat_used_times(string str)
+int query_skill_used_times(string str)
 {
   int i;
 
   // No la conocemos
-  if ((i = member_array(str, known_feats)) == -1)
+  if ((i = member_array(str, known_skills)) == -1)
     return 0;
 
-  return feat_list[str][2];
+  return skill_list[str][2];
 }
 
 // Funcion que ejecuta la dote (si tiene comando asociado)
-int do_feat(string str)   
+int do_skill(string str)   
 {
   int i, j;
   int found;
   int result;
-  string * feat_pieces;
+  string * skill_pieces;
   string * str_pieces;
 
   i, j = 0;
   found = -1;
   result = 0;
-  feat_pieces = ({ });
+  skill_pieces = ({ });
 
   if (!strlen(str))
   {
@@ -351,16 +359,16 @@ int do_feat(string str)
   else
     str_pieces = explode(str, " "); 
 
-  if (!known_feats) 
+  if (!known_skills) 
   {
-    known_feats = ({ });
+    known_skills = ({ });
     return 0;
   }
 
-  if (!mappingp(feat_list))
-    feat_list = ([ ]);
+  if (!mappingp(skill_list))
+    skill_list = ([ ]);
 
-  // tell_object(find_living("folken"), "[FEAT] verb='"+query_verb()+"' str='"+str+"'\n");
+  // tell_object(find_living("folken"), "[SKILL] verb='"+query_verb()+"' str='"+str+"'\n");
   
   // Buscamos el comando
   
@@ -369,20 +377,20 @@ int do_feat(string str)
   // (se ejecutan poco) o en el sistema de add_action generico (se ejecuta
   // constantemente), creo que sera mas eficiente
   
-  for (i = 0; (i < sizeof(known_feats)) && (found == -1); i++)
+  for (i = 0; (i < sizeof(known_skills)) && (found == -1); i++)
   {
-    feat_pieces = explode(known_feats[i], " ");
-    if ((feat_pieces[0] == query_verb()) ||
+    skill_pieces = explode(known_skills[i], " ");
+    if ((skill_pieces[0] == query_verb()) ||
     // Tambien nos vale el mismo nombre pero sin acentos ni simbolos
-    (feat_pieces[0] == FEATS_TABLE->feat_translate(query_verb())) )
+    (skill_pieces[0] == SKILLS_TABLE->skill_translate(query_verb())) )
     {
       found = i;
       
-      for (j = 1; (j < sizeof(feat_pieces)) && (found == -1); j++)
+      for (j = 1; (j < sizeof(skill_pieces)) && (found == -1); j++)
       {
         // No hay coincidencia
         if ((j - 1 < sizeof(str_pieces)) && 
-            (feat_pieces[j] != str_pieces[j - 1]))
+            (skill_pieces[j] != str_pieces[j - 1]))
           found = -1;
       }
     }
@@ -392,17 +400,17 @@ int do_feat(string str)
     return 0;
   /*
   {
-      tell_object(find_living("folken"), "[FEAT] found="+found+", feat=<no encontrado>\n");
+      tell_object(find_living("folken"), "[SKILL] found="+found+", skill=<no encontrado>\n");
       return 0;
   }
   else
   {
-      tell_object(find_living("folken"), "[FEAT] found="+found+", feat="+known_feats[found]+"\n");
+      tell_object(find_living("folken"), "[SKILL] found="+found+", skill="+known_skills[found]+"\n");
   }
   */
   
   // Primero buscamos si hay una coincidencia exacta
-  // if((i = member_array(query_verb(), my_feats)) != -1) 
+  // if((i = member_array(query_verb(), my_skills)) != -1) 
 
   if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
   {
@@ -412,14 +420,13 @@ int do_feat(string str)
 
   if (this_object()->query_dead())
   {
-    notify_fail("Eres un espíritu, por lo que no puedes hacer uso " +
-      "de tus dotes.\n" );
+    notify_fail(_LANG_SKILL_DEAD_USE);
     return 0;
   }    
 
   // llamamos a la funcion cast_effect de la dote, pasandole como parametros
   // el string (objetivos a buscar), el iniciador del efecto, y quiet como false
-  result = (int)call_other( feat_list[known_feats[found]][0], 
+  result = (int)call_other( skill_list[known_skills[found]][0], 
                           "cast_effect", 
                           str, 
                           this_object(), 
@@ -436,12 +443,12 @@ int do_feat(string str)
   // turnos, pueda no haber tenido exito en alguno de los posteriores (pero ha llegado a lanzarse)
   // ... Algo aprendes incluso cuando las cosas salen mal ...
   // if (result == 1)
-  //     update_feat_used_times(known_feats[found]);
+  //     update_skill_used_times(known_skills[found]);
   
   return result;
 }
   
-int feat_damage(int damage, string type, object attacker)
+int skill_damage(int damage, string type, object attacker)
 {
   int prot;
   
@@ -449,7 +456,7 @@ int feat_damage(int damage, string type, object attacker)
       
   // Debug de informacion a los inmortales (Folken 7/01)
   if ((prot != 0) && this_object()->query_coder())
-    tell_object(this_object(), "DEBUG (feat_damage): Aplicada resistencia " +
+    tell_object(this_object(), "DEBUG (skill_damage): Aplicada resistencia " +
                                 "contra '"+type+"' ("+prot+"%).\n");
   
   // Calculamos al modificacion al daño segun resistencias:
@@ -465,32 +472,32 @@ int feat_damage(int damage, string type, object attacker)
     // return 1;
 }
                                                                                 
-string help_feat(string str) 
+string help_skill(string str) 
 {
   object table;
   string aux;
 
-  table = load_object(FEATS_TABLE);
+  table = load_object(SKILLS_TABLE);
 
   if (!table)
     return "";
   
-  if (!pointerp(feat_list[str]))
+  if (!pointerp(skill_list[str]))
   {
-    aux = table->feat_translate(str);
+    aux = table->skill_translate(str);
     if (str != aux)
       str = aux;
     else
       return "";
   }
 
-  return (string)feat_list[str][0]->help(str);
+  return (string)skill_list[str][0]->help(str);
 } 
 
 mixed * stats() 
 {
   return ({ 
-    ({"Known feats", known_feats, }),
-    ({"Feat list", feat_list, }),             
+    ({"Known skills", known_skills, }),
+    ({"Skill list", skill_list, }),             
   });
 }

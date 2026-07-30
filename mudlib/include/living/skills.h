@@ -1,13 +1,13 @@
 
-#define FEATS_PATH "/lib/obj/feats/"
-#define FEATS_TABLE "/table/feats_table.c"
+#define SKILLS_PATH "/lib/obj/skills/"
+#define SKILLS_TABLE "/lib/tables/skills_table.c"
 
-#define ACTIVE_FEAT 0
-#define PASSIVE_FEAT 1
+#define ACTIVE_SKILL 0
+#define PASSIVE_SKILL 1
 
-// Datos devueltos por query_feat_data en FEATS_TABLE
-#define FEAT_DATA_PATH 0
+// Datos devueltos por query_skill_data en SKILLS_TABLE
+#define SKILL_DATA_PATH 0
 
-#define FEAT_TYPE_BASIC "habilidades básicas"
-#define FEAT_TYPE_ARMED "combate con armas básico"
-#define FEAT_TYPE_UNARMED "combate desarmado básico"
+#define SKILL_TYPE_BASIC "habilidades básicas"
+#define SKILL_TYPE_ARMED "combate con armas básico"
+#define SKILL_TYPE_UNARMED "combate desarmado básico"

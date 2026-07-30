@@ -34,7 +34,7 @@
 #include <mud/secure.h>
 #include <language.h>
 
-inherit feats "/lib/living/feats";
+inherit skills "/lib/living/skills";
 inherit specs "/lib/living/specs";
 
 // guild_joined[guild_ob] = ({ nivel, 1º vez alistado, ultima vez abandonado, })
@@ -66,7 +66,7 @@ void create()
   job_xp = 0;
   total_job_xp = 0;
 
-  feats::create();
+  skills::create();
   specs::create();
 }
 
@@ -82,7 +82,7 @@ void set_social_object_list(string * list)
 
 void social_commands()
 {
-  feats_commands();
+  skills_commands();
   specs_commands();
 }
 
@@ -961,5 +961,5 @@ mixed * stats()
     ({"Job Xp", job_xp, }),
     ({"Job Level", job_level, }),
   });
-  return ret + feats::stats() + specs::stats();
+  return ret + skills::stats() + specs::stats();
 }

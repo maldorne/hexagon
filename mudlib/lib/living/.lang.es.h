@@ -311,3 +311,15 @@
 #define _LANG_DRUNK_PASSED_OUT_THEY this_object()->query_cap_name() + \
               " parece enferm" + this_object()->query_vowel() + " y cae al suelo " + \
               "con una mirada perdida en la cara.\n"
+
+// skills
+#define _LANG_SKILL_LIST_VERBS ({ "habilidades", "dotes" })
+#define _LANG_SKILL_DEAD_LIST "Estás en forma espiritual, no necesitas conocer eso.\n"
+#define _LANG_SKILL_NONE_YET "Aún no has conseguido ninguna habilidad.\n"
+#define _LANG_SKILL_LIST_HEADER "> %^GREEN%^Conoces las siguientes habilidades: %^RESET%^<"
+#define _LANG_SKILL_PASSIVE_LEGEND "\n (*) Habilidades pasivas\n"
+#define _LANG_SKILL_GAINED_PRE "¡Has obtenido la habilidad "
+#define _LANG_SKILL_GAINED_POST "!\n"
+#define _LANG_SKILL_IMPROVED_PRE "¡Has mejorado tus habilidades en "
+#define _LANG_SKILL_IMPROVED_POST "!\n"
+#define _LANG_SKILL_DEAD_USE "Eres un espíritu, por lo que no puedes hacer uso de tus habilidades.\n"

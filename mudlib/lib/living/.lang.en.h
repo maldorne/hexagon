@@ -311,3 +311,15 @@
                " looks ill the falls on the ground and lies " + \
                "there with a blank look on " + \
                this_object()->query_objective() + " face.\n"
+
+// skills
+#define _LANG_SKILL_LIST_VERBS ({ "skills" })
+#define _LANG_SKILL_DEAD_LIST "You are in spirit form, you have no need to know that.\n"
+#define _LANG_SKILL_NONE_YET "You have not learned any skill yet.\n"
+#define _LANG_SKILL_LIST_HEADER "> %^GREEN%^You know the following skills: %^RESET%^<"
+#define _LANG_SKILL_PASSIVE_LEGEND "\n (*) Passive skills\n"
+#define _LANG_SKILL_GAINED_PRE "You have learned the skill "
+#define _LANG_SKILL_GAINED_POST "!\n"
+#define _LANG_SKILL_IMPROVED_PRE "You have improved your skill in "
+#define _LANG_SKILL_IMPROVED_POST "!\n"
+#define _LANG_SKILL_DEAD_USE "You are a spirit, so you cannot use your skills.\n"

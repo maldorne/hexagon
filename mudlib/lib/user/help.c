@@ -105,14 +105,14 @@ int do_help(string str)
 
   if (sscanf(str, "dote %s", s) == 1 )
   {
-    if ((text = this_object()->help_feat(s)) && strlen(text))
+    if ((text = this_object()->help_skill(s)) && strlen(text))
       write(text);
     else
       write("No conoces esa dote.\n");
     return 1;
   }
 
-  if ((text = this_object()->help_feat(str)) && strlen(text))
+  if ((text = this_object()->help_skill(str)) && strlen(text))
   {
     write(text);
     return 1;

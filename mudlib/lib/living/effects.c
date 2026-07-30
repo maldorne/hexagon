@@ -179,7 +179,7 @@ int do_active_effects(object attacker)
         
           // Si es una dote (efecto de tipo "effect"), mejoramos el aprendizaje
           // ya que la hemos ejecutado correctamente
-          this_object()->update_feat_used_times(effects[i+1][0]);
+          this_object()->update_skill_used_times(effects[i+1][0]);
           
           remove_active_effect(effects[i+1][j]);
         }
