@@ -245,10 +245,12 @@ int add_known_skill(string str, varargs int silence)
   known_skills += ({ str });
   skill_list[str] = ({ }) + skill;
 
-  // Tell the player
+  // Tell the player, using the skill object's translated display name
+  // (str is the English id, which would show untranslated).
   if (!silence)
     tell_player(this_object(),
-      _LANG_SKILL_GAINED_PRE + capitalize(str) + _LANG_SKILL_GAINED_POST);
+      _LANG_SKILL_GAINED_PRE + capitalize(skill_ob->query_effect_name()) +
+      _LANG_SKILL_GAINED_POST);
 
   // Refresh the commands
   skills_commands();
@@ -287,6 +289,7 @@ int query_skill_ability(string str)
 int adjust_skill_ability(string str, int value, varargs int silence)
 {
   int i;
+  object f;
 
   if (!silence)
     silence = 0;
@@ -296,16 +299,20 @@ int adjust_skill_ability(string str, int value, varargs int silence)
     return 0;
 
   skill_list[str][1] += value;
-    
+
   if (skill_list[str][1] <= 1)
       skill_list[str][1] = 1;
 
   // Reset the times-used counter
   skill_list[str][2] = 0;
 
+  // Message uses the skill's translated display name, not the English id.
+  f = load_object(skill_list[str][0]);
+
   if ((value > 0) && !silence)
     tell_player(this_object(),
-      _LANG_SKILL_IMPROVED_PRE + str + _LANG_SKILL_IMPROVED_POST);
+      _LANG_SKILL_IMPROVED_PRE + (f ? f->query_effect_name() : str) +
+      _LANG_SKILL_IMPROVED_POST);
 
   return skill_list[str][1];
 }
