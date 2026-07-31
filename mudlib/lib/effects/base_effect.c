@@ -323,7 +323,7 @@ string help()
     ret += _LANG_EFFECT_HELP_DESC;
     if ( help_extras )
         ret += help_extras + "\n";
-    ret += sprintf("  %-=*s\n", (this_user() ? this_user()->query_cols() - 2 : 79), query_help_desc());
+    ret += sprintf("  %-=*s\n", (this_user() ? this_user()->query_cols() - 2 : 77), query_help_desc());
 
     if (this_player()->query_coder())
         ret += "DEBUG: effect file: "+file_name(this_object()) + "\n";
