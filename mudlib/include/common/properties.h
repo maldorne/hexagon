@@ -20,7 +20,7 @@
 #define SLEEP_PROP "sleeping"
 #define PARALYZE_PROP "paralyzed"
 #define PACIFY_PROP "pacify_on"
-#define NOFEAT_PROP "nofeat"
+#define NOSKILL_PROP "noskill"
 #define NOKILL_PROP "nokill"
 // #define NOCAST_PROP "nocast"
 // #define NOGUILD_PROP "noguild"

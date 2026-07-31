@@ -381,8 +381,8 @@ int cast_effect(string str, object who, int quiet)
         str = (string)caster->expand_nickname(str);
     }
 
-    if(caster->query_property(NOFEAT_PROP) ||
-      environment(caster)->query_property(NOFEAT_PROP) ||
+    if(caster->query_property(NOSKILL_PROP) ||
+      environment(caster)->query_property(NOSKILL_PROP) ||
       caster->query_property(PASSED_OUT_PROP))
     {
         notify_fail(MSG_NO_PUEDO);
@@ -737,8 +737,8 @@ int hb_effect(object caster, mixed *params, int time)
     int i;
 
     // Checks whether we should stop running the effect:
-    if(caster->query_property(NOFEAT_PROP) ||
-      environment(caster)->query_property(NOFEAT_PROP) ||
+    if(caster->query_property(NOSKILL_PROP) ||
+      environment(caster)->query_property(NOSKILL_PROP) ||
       caster->query_dead() ||
       caster->query_property(PASSED_OUT_PROP))
     {

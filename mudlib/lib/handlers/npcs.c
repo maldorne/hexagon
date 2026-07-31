@@ -104,9 +104,9 @@ void effect_heart_beat(object me, object *attacker_list, mixed attack_effects)
     return;
 
   // Check that we can cast a effect
-  // if ( attack_effects[i + 2][2] == 4 && me->check_props(NOFEAT_PROP) )
+  // if ( attack_effects[i + 2][2] == 4 && me->check_props(NOSKILL_PROP) )
   //   return;
-  if ( me->check_props(NOFEAT_PROP) ) 
+  if ( me->check_props(NOSKILL_PROP) ) 
     return;
 
   // Find a target

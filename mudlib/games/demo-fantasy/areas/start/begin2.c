@@ -37,7 +37,7 @@ void setup()
   set_short(game_master_object(this_object())->query_game_name() + ": " + _LANG_START2_SHORT);
   set_long(_LANG_START2_LONG + " " + implode(_LANG_START2_HINTS, " ") + "\n");  
 
-  add_property(NOFEAT_PROP, 1);
+  add_property(NOSKILL_PROP, 1);
   add_property(NOKILL_PROP, 1);
 }
 

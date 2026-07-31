@@ -241,7 +241,7 @@ nomask void start_player(varargs int reconnected)
     lockout = LOGINLOCK;
 
   // old NOCAST and NOGUILD
-  add_timed_property(NOFEAT_PROP, 1, lockout);
+  add_timed_property(NOSKILL_PROP, 1, lockout);
 
   /* Vamos a olvidarnos de estas cosas por ahora, neverbot 4/2003
   // birthday_gifts(); // check if birthday today and give gifts
