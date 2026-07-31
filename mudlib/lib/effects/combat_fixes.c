@@ -24,27 +24,27 @@ int check_weapon_type(object caster, string * types)
 // the object that actually receives it.
 object check_melee_protector(object victim, object doer)
 {
-    object prot;
+  object prot;
 
-    // anti-error check, Eressea 1/2002
-    if ((!victim) || (!doer))
-        return nil;
-    if ( (prot = victim->query_protector() ) &&
-      environment(prot) == environment(victim) &&
-      prot->query_protect_valid(doer, victim) )
-    {
-        tell_object(prot, _LANG_EFFECT_PROTECT_YOU_PRE +
-          victim->query_cap_name() + _LANG_EFFECT_PROTECT_YOU_POST);
-        tell_object(victim, prot->query_cap_name() +
-          _LANG_EFFECT_PROTECT_VICTIM);
-        tell_object(doer, prot->query_cap_name() +
-          _LANG_EFFECT_PROTECT_DOER);
-        tell_room(environment(victim), prot->query_cap_name() +
-          _LANG_EFFECT_PROTECT_ROOM_1 + victim->query_cap_name() +
-          _LANG_EFFECT_PROTECT_ROOM_2 + doer->query_cap_name() +
-          _LANG_EFFECT_PROTECT_ROOM_3,
-          ({ doer, victim, prot }) );
-        return prot;
-    }
-    return victim;
+  // anti-error check, Eressea 1/2002
+  if ((!victim) || (!doer))
+      return nil;
+  if ( (prot = victim->query_protector() ) &&
+    environment(prot) == environment(victim) &&
+    prot->query_protect_valid(doer, victim) )
+  {
+    tell_object(prot, _LANG_EFFECT_PROTECT_YOU_PRE +
+      victim->query_cap_name() + _LANG_EFFECT_PROTECT_YOU_POST);
+    tell_object(victim, prot->query_cap_name() +
+      _LANG_EFFECT_PROTECT_VICTIM);
+    tell_object(doer, prot->query_cap_name() +
+      _LANG_EFFECT_PROTECT_DOER);
+    tell_room(environment(victim), prot->query_cap_name() +
+      _LANG_EFFECT_PROTECT_ROOM_1 + victim->query_cap_name() +
+      _LANG_EFFECT_PROTECT_ROOM_2 + doer->query_cap_name() +
+      _LANG_EFFECT_PROTECT_ROOM_3,
+      ({ doer, victim, prot }) );
+    return prot;
+  }
+  return victim;
 }

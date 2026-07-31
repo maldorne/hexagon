@@ -1,5 +1,5 @@
 // Orientation — passive skill. Measures the character's ability to find their
-// way; queried by the movement / forest systems, it has no active command.
+// way; queried by the movement / maze systems, it has no active command.
 
 #include <living/effects.h>
 #include <living/skills.h>
@@ -9,9 +9,7 @@ inherit BASE_EFFECT;
 
 void setup()
 {
-  // Display name only (translated, per-skill in this dir's .lang). The
-  // learning key is the English id SKILL_ORIENTATION (= this filename),
-  // set by the skills_table, not by effect_name.
+  // Display name only
   set_effect_name(_LANG_SKILL_ORIENTATION_NAME);
 
   is_passive = 1;

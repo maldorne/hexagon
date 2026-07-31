@@ -1,5 +1,5 @@
 
-// Definiciones para efectos
+// Effects constants
 
 #define BASE_EFFECT "/lib/effects/base_effect.c"
 #define EFFECTS_TABLE "/table/effects_table.c"
@@ -33,6 +33,3 @@
 #define SP_NO_RNDS 0
 #define SP_DIV 5
 #define SP_GP_COST 3
-
-// Player-facing effect messages (MSG_*) are translated per language and live
-// in lib/effects/.lang.<lang>.h, reached by base_effect through <language.h>.
