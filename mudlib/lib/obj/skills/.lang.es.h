@@ -1,6 +1,6 @@
 
-// Nombres de las habilidades (la clave en skills_table, el verbo del comando y
-// el effect_name del objeto de la habilidad — la misma cadena) y su ayuda.
+// Cadenas de display por habilidad (español). La clave de aprendizaje es el
+// id en inglés de <living/skills.h>; esto es solo el nombre visible y la ayuda.
 
 #define _LANG_SKILL_ORIENTATION_NAME "orientación"
 #define _LANG_SKILL_ORIENTATION_HELP "Esta habilidad mide tu capacidad para " + \

@@ -49,3 +49,34 @@
 #define _LANG_EFFECT_HELP_COST "\tCost: "
 #define _LANG_EFFECT_HELP_ROLE_NEEDED "\nRequired combat role: "
 #define _LANG_EFFECT_HELP_DESC "\nDescription:\n"
+
+// --- base_effect: messages shared by all effects. The ones that embed a
+// name expand where caster/target are in scope at the call site. ---
+#define MSG_NO_TARGET   "There does not seem to be anyone here by that name.\n"
+#define MSG_DISSAPPEAR  "Your target has disappeared.\n"
+#define MSG_NO_GPS      "You are too tired to do that.\n"
+#define MSG_NO_COMBAT   "You cannot do that in the middle of combat.\n"
+#define MSG_ONLY_COMBAT "That only makes sense in the middle of combat.\n"
+#define MSG_AFECTADO    target->query_cap_name()+" is already affected by that effect.\n"
+#define MSG_NO_SELF     "You cannot do that on yourself.\n"
+#define MSG_WRONG_ENV   "You cannot do that in a place like this.\n"
+#define MSG_NO_BLIND    "You cannot do that while blinded.\n"
+#define MSG_SUIC_C      "You would not want to kill yourself!\n"
+#define MSG_SUIC_R      caster->query_cap_name()+" stops what they were doing.\n"
+#define MSG_NO_PUEDO    "You cannot do that right now.\n"
+#define MSG_NO_PUEDO_R  caster->query_cap_name()+" stops what they were doing.\n"
+#define MSG_NO_ITEMS    "You cannot do that on inanimate objects.\n"
+#define MSG_ON_ITEMS    "That can only be done on inanimate objects.\n"
+#define MSG_NO_CONTINUE "You cannot continue with what you were doing.\n"
+#define MSG_NO_MOVE     "Moving breaks your concentration.\n"
+#define MSG_NO_RANGE    "Your target is too far away.\n"
+#define MSG_NO_ON_MOUNT "You cannot do that on someone who is mounted.\n"
+#define MSG_NO_RIDING   "You cannot do that while riding.\n"
+#define MSG_OCUPADO     "You are busy doing something else.\n"
+#define MSG_ERROR       "This effect has a bug, report it to a programmer at once.\n"
+// Skill category ids (from <living/skills.h>) mapped to their display names.
+#define _LANG_SKILL_CATEGORIES ([ \
+    "basic"   : "basic skills", \
+    "armed"   : "basic armed combat", \
+    "unarmed" : "basic unarmed combat", \
+  ])

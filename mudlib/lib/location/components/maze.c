@@ -10,7 +10,7 @@
 // system this plugs into.
 
 #include <room/location.h>
-#include <translations/skills.h>
+#include <living/skills.h>
 
 inherit component "/lib/location/component.c";
 
@@ -59,7 +59,7 @@ mixed * hook_do_exit_command(mixed * args)
   ob = args[2];
   ability = 0;
   if (ob)
-    ability = ob->query_skill_ability(_LANG_SKILL_ORIENTATION_NAME);
+    ability = ob->query_skill_ability(SKILL_ORIENTATION);
   // A mover lacking the skills mixin returns nil; coerce to 0.
   if (!ability)
     ability = 0;
@@ -79,8 +79,8 @@ mixed * hook_do_exit_command(mixed * args)
     // how a newbie first learns to orient. The starting ability (10%)
     // comes from the skills table.
     if (chosen == typed && ob &&
-        !ob->query_known_skill(_LANG_SKILL_ORIENTATION_NAME))
-      ob->add_known_skill(_LANG_SKILL_ORIENTATION_NAME);
+        !ob->query_known_skill(SKILL_ORIENTATION))
+      ob->add_known_skill(SKILL_ORIENTATION);
   }
 
   return args;

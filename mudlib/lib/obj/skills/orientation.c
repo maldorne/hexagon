@@ -3,13 +3,15 @@
 
 #include <living/effects.h>
 #include <living/skills.h>
-#include <translations/skills.h>
+#include <language.h>
 
 inherit BASE_EFFECT;
 
 void setup()
 {
-  // must match the key in skills_table (that is how learning is tracked)
+  // Display name only (translated, per-skill in this dir's .lang). The
+  // learning key is the English id SKILL_ORIENTATION (= this filename),
+  // set by the skills_table, not by effect_name.
   set_effect_name(_LANG_SKILL_ORIENTATION_NAME);
 
   is_passive = 1;

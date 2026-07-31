@@ -163,13 +163,20 @@ int list_skills(varargs string str)
   }
 
 
-  ret = sprintf("%*'-'|s\n\n", this_user()->query_cols()+18,
+  ret = sprintf("%p%|*s\n\n", '-', this_user()->query_cols()+18,
       _LANG_SKILL_LIST_HEADER);
   
   for (j = 0; j < sizeof(categories); j++)
   {
-    ret += "    %^GREEN%^" + capitalize(categories[j]) + "%^RESET%^:\n";
-    
+    string cat_disp;
+
+    // Categories are stored as English ids; translate for display.
+    cat_disp = _LANG_SKILL_CATEGORIES[categories[j]];
+    if (!cat_disp)
+      cat_disp = categories[j];
+
+    ret += "    %^GREEN%^" + capitalize(cat_disp) + "%^RESET%^:\n";
+
     for (i = 0; i < sizeof(known_skills); i++)
     {
       object f;
@@ -181,19 +188,20 @@ int list_skills(varargs string str)
         continue;
 
       cat = implode(f->query_categories(), " - ");
-      
+
       if (categories[j] != cat)
         continue;
-        
+
+      // The skill is keyed by an English id; show its translated name.
       if (skill_list[known_skills[i]][3] == ACTIVE_SKILL)
-        skill_name = "%^BOLD%^"+capitalize(known_skills[i]) +"%^RESET%^";
+        skill_name = "%^BOLD%^"+capitalize(f->query_effect_name()) +"%^RESET%^";
       else
       {
-        skill_name = "%^BOLD%^"+capitalize(known_skills[i]) +"%^RESET%^ (*)";
+        skill_name = "%^BOLD%^"+capitalize(f->query_effect_name()) +"%^RESET%^ (*)";
         passive_skills_found = 1;
       }
       
-      ret += sprintf("\t%35-s %25|s (%s)\n", skill_name, 
+      ret += sprintf("\t%-35s %|25s (%s)\n", skill_name,
                 "["+percentage_bar(query_skill_ability(known_skills[i]))+"]",
                 ""+query_skill_ability(known_skills[i])+"%");
     }
@@ -202,7 +210,7 @@ int list_skills(varargs string str)
   if (passive_skills_found)
     ret += _LANG_SKILL_PASSIVE_LEGEND;
     
-  ret += sprintf("\n%*'-'s\n", this_user()->query_cols(), "");
+  ret += sprintf("\n%p%*s\n", '-', this_user()->query_cols(), "");
   tell_object(this_object(), ret);
   
   return 1;

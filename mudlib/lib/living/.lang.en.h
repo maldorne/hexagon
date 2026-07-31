@@ -323,3 +323,9 @@
 #define _LANG_SKILL_IMPROVED_PRE "You have improved your skill in "
 #define _LANG_SKILL_IMPROVED_POST "!\n"
 #define _LANG_SKILL_DEAD_USE "You are a spirit, so you cannot use your skills.\n"
+// Skill category ids (from <living/skills.h>) mapped to their display names.
+#define _LANG_SKILL_CATEGORIES ([ \
+    "basic"   : "basic skills", \
+    "armed"   : "basic armed combat", \
+    "unarmed" : "basic unarmed combat", \
+  ])

@@ -55,20 +55,20 @@ int do_help(string str)
 
     if (this_object()->query_coder())
     {
-      s += "%^GREEN%^Ayuda de comandos de programadores%^RESET%^:\n";
+      s += "%^GREEN%^Coder command help%^RESET%^:\n";
       s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
         implode(get_dir("/lib/docs/coder/"), "\n"));
 
-      s += "%^GREEN%^Ayuda de programación%^RESET%^:\n";
+      s += "%^GREEN%^Programming help%^RESET%^:\n";
 
       aux = ({ });
 
       for (i = 0; i < sizeof(creator_dirs); i++)
       {
-        // Este ya lo hemos mostrado antes
+        // Already shown above
         if (creator_dirs[i] == "/lib/docs/coder/")
           continue;
-        // Si no es un directorio, nos lo saltamos
+        // Skip it if it is not a directory
         if (file_size(creator_dirs[i]) != -2)
           continue;
         aux += get_dir(creator_dirs[i]);
@@ -88,12 +88,12 @@ int do_help(string str)
   }
 
   /*
-  if (sscanf(str, "hechizo %s", s) == 1 )
+  if (sscanf(str, "spell %s", s) == 1 )
   {
     if ((text = this_object()->help_spell(s)) && strlen(text))
       write(text);
     else
-      write("No conoces ese hechizo.\n");
+      write("You do not know that spell.\n");
     return 1;
   }
 
@@ -103,12 +103,12 @@ int do_help(string str)
     return 1;
   }
 
-  if (sscanf(str, "dote %s", s) == 1 )
+  if (sscanf(str, "skill %s", s) == 1 )
   {
     if ((text = this_object()->help_skill(s)) && strlen(text))
       write(text);
     else
-      write("No conoces esa dote.\n");
+      write("You do not know that skill.\n");
     return 1;
   }
 
@@ -180,10 +180,10 @@ int do_help(string str)
   // the help corresponds to a file name
   if ((i = member_array(str, files)) != -1)
   {
-    s = "%^GREEN%^Ayuda de: "+str + "%^RESET%^\n\n";
+    s = "%^GREEN%^Help for: "+str + "%^RESET%^\n\n";
     s += read_file(files[i+1] + files[i]);
 
-    this_object()->more_string(s + "\n", "Ayuda");
+    this_object()->more_string(s + "\n", "Help");
     return 1;
   }
   */

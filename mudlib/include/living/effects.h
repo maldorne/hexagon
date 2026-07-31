@@ -34,26 +34,5 @@
 #define SP_DIV 5
 #define SP_GP_COST 3
 
-// Mensajes iguales para todos los efectos
-#define MSG_NO_TARGET   "No parece haber nadie aquí con ese nombre.\n"
-#define MSG_DISSAPPEAR  "Tu objetivo ha desaparecido.\n"
-#define MSG_NO_GPS      "Estás demasiado cansado para hacer eso.\n"
-#define MSG_NO_COMBAT   "No puedes hacer eso en mitad de un combate.\n"
-#define MSG_ONLY_COMBAT "Eso sólo tiene sentido en mitad de un combate.\n"
-#define MSG_AFECTADO    target->query_cap_name()+" ya está afectado por ese efecto.\n"
-#define MSG_NO_SELF     "No puedes hacer eso sobre ti mismo.\n"
-#define MSG_WRONG_ENV   "No puedes hacer eso en un lugar como este.\n"
-#define MSG_NO_BLIND    "Estando cegado no puedes hacer eso.\n"
-#define MSG_SUIC_C      "¿¡No querrás suicidarte!?\n"
-#define MSG_SUIC_R      caster->query_cap_name()+" deja de hacer lo que estaba haciendo.\n"
-#define MSG_NO_PUEDO    "No puedes hacer eso en este momento.\n"
-#define MSG_NO_PUEDO_R  caster->query_cap_name()+" deja de hacer lo que estaba haciendo.\n"
-#define MSG_NO_ITEMS    "No puedes hacer eso sobre objetos inanimados.\n"
-#define MSG_ON_ITEMS    "Eso sólo puede hacerse sobre objetos inanimados.\n"
-#define MSG_NO_CONTINUE "No puedes continuar con lo que estabas haciendo.\n"
-#define MSG_NO_MOVE     "Al moverte pierdes la concentración.\n"
-#define MSG_NO_RANGE    "Tu objetivo está demasiado lejos.\n"
-#define MSG_NO_ON_MOUNT "No puedes hacer eso sobre alguien que vaya montado.\n"
-#define MSG_NO_RIDING   "No puedes hacer eso mientras vayas montando.\n"
-#define MSG_OCUPADO     "Estás ocupado haciendo otra cosa.\n"
-#define MSG_ERROR       "Este efecto tiene un error, avisa rápidamente a algún programador.\n"
+// Player-facing effect messages (MSG_*) are translated per language and live
+// in lib/effects/.lang.<lang>.h, reached by base_effect through <language.h>.

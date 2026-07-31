@@ -1,27 +1,27 @@
-// Skills catalogue: skill_name -> ({ object_path, initial_ability_percent,
+// Skills catalogue: skill_id -> ({ object_path, initial_ability_percent,
 // times_used, ACTIVE_SKILL | PASSIVE_SKILL }). Consumed by lib/living/skills.c
 // (query_skill_data / add_known_skill). Skill objects live under SKILLS_PATH.
-// Player-visible skill names come from <translations/skills.h>, so the key,
-// the command verb and the object's effect_name are all the same string.
+// The key is a stable English id (= the skill object's filename), defined in
+// <living/skills.h>; the player-visible name is translated per-skill in
+// /lib/obj/skills/.lang.<lang>.h and read from the object at display time.
 //
 // Per-game overrides live at /games/<game>/tables/skills_table.c (standard
 // hexagon table convention: table("skills_table") resolves the game one first).
 
 #include <living/skills.h>
 #include <living/effects.h>
-#include <translations/skills.h>
 
 private mapping list;
 
 void create()
 {
   list = ([
-    // passive skill: no active command; queried by other systems (movement)
+    // passive skill: no active command; queried by other systems (movement).
     // Fields: object path, initial ability %, times used, active/passive.
     // Orientation is learned cheaply (10%) — a newbie first picks it up
     // by wandering a maze, then it climbs with use.
-    _LANG_SKILL_ORIENTATION_NAME :
-      ({ SKILLS_PATH + "orientation", 10, 0, PASSIVE_SKILL, }),
+    SKILL_ORIENTATION :
+      ({ SKILLS_PATH + SKILL_ORIENTATION, 10, 0, PASSIVE_SKILL, }),
   ]);
 }
 

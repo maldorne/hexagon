@@ -323,3 +323,9 @@
 #define _LANG_SKILL_IMPROVED_PRE "¡Has mejorado tus habilidades en "
 #define _LANG_SKILL_IMPROVED_POST "!\n"
 #define _LANG_SKILL_DEAD_USE "Eres un espíritu, por lo que no puedes hacer uso de tus habilidades.\n"
+// Ids de categoría de habilidad (de <living/skills.h>) a su nombre visible.
+#define _LANG_SKILL_CATEGORIES ([ \
+    "basic"   : "habilidades básicas", \
+    "armed"   : "combate con armas básico", \
+    "unarmed" : "combate desarmado básico", \
+  ])

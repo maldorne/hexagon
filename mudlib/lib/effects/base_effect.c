@@ -118,7 +118,7 @@ void create()
   gp_cost = 1;
   combat_role_needed = NEUTRAL_ROLE;
   
-  help_desc = "Ayuda";
+  help_desc = "Help";
   help_extras = "";
   target_type = TARGET_TYPE_NONE;
   property_checks = 
@@ -147,6 +147,16 @@ string query_effect_name() { return effect_name; }
 string * query_categories() { return keys(categories); }
 void set_categories(mapping str) { categories = map_copy(str); }
 void add_category(string str, int level) { categories[str] = level; }
+
+// Translate a category id (English, see <living/skills.h>) to its display
+// name. Ids with no mapping (e.g. spell spheres) are shown as-is.
+private string category_display(string id)
+{
+  string disp;
+
+  disp = _LANG_SKILL_CATEGORIES[id];
+  return disp ? disp : id;
+}
 
 int query_combat_role_needed() { return combat_role_needed; }
 void set_combat_role_needed(int value) { combat_role_needed = value; }
@@ -284,9 +294,9 @@ string help()
 
       // Effect category: a skill has no player categories, a spell does.
       if (this_object()->query_effect_type() == EFFECT_IS_FEAT)
-          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(this_object()->query_categories()[0]);
+          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_categories()[0]));
       else
-        ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(this_object()->query_effect_category());
+        ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
 
       if (effect_range <= 1)
           ret += _LANG_EFFECT_HELP_RANGE_NONE;
@@ -302,9 +312,9 @@ string help()
     {
       // Effect category: a skill has no player categories, a spell does.
       if (this_object()->query_effect_type() == EFFECT_IS_FEAT)
-          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(this_object()->query_categories()[0]);
+          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_categories()[0]));
       else
-          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(this_object()->query_effect_category());
+          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
     }
 
     ret += _LANG_EFFECT_HELP_DESC;
@@ -601,8 +611,8 @@ int cast_effect(string str, object who, int quiet)
         for (i = 0; i < sizeof(shadow_checks); i++)
             if ( call_other(ob, "query_aura_"+shadow_checks[i] ) )
             {
-                notify_fail("No puedes invocar ese efecto ahora mismo, el " +
-                  "efecto de algún otro efecto te lo impide.\n");
+                notify_fail("You cannot invoke that effect right now, the " +
+                  "effect of some other effect prevents it.\n");
                 return 0;
             }
 
