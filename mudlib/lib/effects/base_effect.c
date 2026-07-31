@@ -17,6 +17,9 @@ inherit "/lib/effects/combat_fixes.c";
 inherit "/lib/effects/guild_fixes.c";
 
 string effect_name;       // effect name (spell, command, etc)
+string * aliases;         // extra words that also invoke this effect in the
+                          // current language (e.g. accent-less forms); empty
+                          // when the language needs none
 mapping categories;       // categories (spheres, schools, etc)
                           // ([ category_name : level_in_the_category ])
 int is_passive;           // the effect is passive (runs nothing)
@@ -113,6 +116,7 @@ void create()
   is_passive = 0;
   
   effect_name = "test effect";
+  aliases = ({ });
   categories = ([ ]);
   effect_type = EFFECT_IS_SKILL;
   gp_cost = 1;
@@ -146,6 +150,9 @@ string query_effect_name() { return effect_name; }
 
 int query_effect_type() { return effect_type; }
 void set_effect_type(int t) { effect_type = t; }
+
+void set_aliases(string * a) { aliases = a ? a : ({ }); }
+string * query_aliases() { return aliases; }
 
 string * query_categories() { return keys(categories); }
 void set_categories(mapping str) { categories = map_copy(str); }

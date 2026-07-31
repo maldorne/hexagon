@@ -70,10 +70,7 @@ int query_skill_used_times(string str);
 void skills_commands()
 {
   int i;
-  mixed * skill;
   object skill_ob;
-  string * pieces;
-  string aux;
 
   {
     string * verbs;
@@ -83,39 +80,28 @@ void skills_commands()
       add_private_action("list_skills", verbs[v]);
   }
 
-  for (i = 0; i < sizeof(known_skills); i++) 
+  for (i = 0; i < sizeof(known_skills); i++)
   {
+    string * words;
+    int w;
+
     // Passive skills have no associated action
     if (skill_list[known_skills[i]][3] == PASSIVE_SKILL)
-      continue;      
-    
-    skill = SKILLS_TABLE->query_skill_data(known_skills[i]);
-    
-    if (!sizeof(skill))
       continue;
-    
-    catch(skill_ob = load_object(skill[SKILL_DATA_PATH]));
 
-    // skill_list[known_skills[i]] = 
-    //     (string *)skill_SERVER->query_skill(known_skills[i]);
+    catch(skill_ob = load_object(skill_list[known_skills[i]][SKILL_DATA_PATH]));
 
-    // If the skill/command fails to load, do not add the action
+    // If the skill object fails to load, do not add the action
     if (!objectp(skill_ob))
       continue;
 
-    // Important: for a multi-word skill, add_private_action only covers
-    // the first word; when the command runs we must also check that the
-    // following words match
-    
-    pieces = explode(known_skills[i], " ");
-    
-    add_private_action("do_skill", pieces[0]);
+    // Register the action on the skill's translated name and on every
+    // alias. add_private_action only covers the first word; do_skill
+    // checks the following words when the command actually runs.
+    words = ({ skill_ob->query_effect_name() }) + skill_ob->query_aliases();
 
-    // Also register the action without accents or other symbols
-    if ((aux = SKILLS_TABLE->skill_translate_to_action(pieces[0])) != "")
-      add_private_action("do_skill", aux);
-    
-    // tell_object(find_living("folken"), "[SKILL] add_private_action(do_skill, "+pieces[0]+")\n");
+    for (w = 0; w < sizeof(words); w++)
+      add_private_action("do_skill", explode(words[w], " ")[0]);
   }
 }
 
@@ -394,19 +380,34 @@ int do_skill(string str)
   
   for (i = 0; (i < sizeof(known_skills)) && (found == -1); i++)
   {
-    skill_pieces = explode(known_skills[i], " ");
-    if ((skill_pieces[0] == query_verb()) ||
-    // The same name without accents or symbols also matches
-    (skill_pieces[0] == SKILLS_TABLE->skill_translate(query_verb())) )
+    object f;
+    string * cands;
+    int c;
+
+    f = load_object(skill_list[known_skills[i]][SKILL_DATA_PATH]);
+    if (!f)
+      continue;
+
+    // Match the typed verb against the skill's translated name or any of
+    // its aliases; for a multi-word entry the following words must match.
+    cands = ({ f->query_effect_name() }) + f->query_aliases();
+
+    for (c = 0; (c < sizeof(cands)) && (found == -1); c++)
     {
+      skill_pieces = explode(cands[c], " ");
+
+      if (skill_pieces[0] != query_verb())
+        continue;
+
       found = i;
-      
-      for (j = 1; (j < sizeof(skill_pieces)) && (found == -1); j++)
+      for (j = 1; j < sizeof(skill_pieces); j++)
       {
-        // No match
-        if ((j - 1 < sizeof(str_pieces)) &&
-            (skill_pieces[j] != str_pieces[j - 1]))
+        if (!((j - 1 < sizeof(str_pieces)) &&
+              (skill_pieces[j] == str_pieces[j - 1])))
+        {
           found = -1;
+          break;
+        }
       }
     }
   }
@@ -516,7 +517,8 @@ string help_skill(string str)
       continue;
 
     if ((ids[i] == str) ||
-        (lower_case(f->query_effect_name()) == lower_case(str)))
+        (lower_case(f->query_effect_name()) == lower_case(str)) ||
+        (member_array(lower_case(str), f->query_aliases()) != -1))
       return (string) f->help();
   }
 
