@@ -20,7 +20,7 @@ string effect_name;       // effect name (spell, command, etc)
 mapping categories;       // categories (spheres, schools, etc)
                           // ([ category_name : level_in_the_category ])
 int is_passive;           // the effect is passive (runs nothing)
-int effect_type;          // effect type (feat, spell, etc)
+int effect_type;          // effect type (skill, spell, etc)
 int combat_role_needed;   // required combat role (offensive, defensive, etc)
 int gp_cost;              // gp cost (not applied to spells)
 int lockout_time;         // minimum time between two runs of the same effect
@@ -114,7 +114,7 @@ void create()
   
   effect_name = "test effect";
   categories = ([ ]);
-  effect_type = EFFECT_IS_FEAT;
+  effect_type = EFFECT_IS_SKILL;
   gp_cost = 1;
   combat_role_needed = NEUTRAL_ROLE;
   
@@ -143,6 +143,9 @@ void create()
 
 void set_effect_name(string name) { effect_name = name; }
 string query_effect_name() { return effect_name; }
+
+int query_effect_type() { return effect_type; }
+void set_effect_type(int t) { effect_type = t; }
 
 string * query_categories() { return keys(categories); }
 void set_categories(mapping str) { categories = map_copy(str); }
@@ -255,7 +258,7 @@ string query_effect_category(varargs object caster)
             cast_lvl = categories[cat];
         }
         
-        // Added for the physical-combat feats (old commands)
+        // Added for the physical-combat skills (old commands)
         if ((cat_names[i] == SKILL_TYPE_UNARMED) || (cat_names[i] == SKILL_TYPE_ARMED))
             return cat_names[i];
     }
@@ -293,7 +296,7 @@ string help()
       ret += _LANG_EFFECT_HELP_LEVEL + this_object()->query_effect_level();
 
       // Effect category: a skill has no player categories, a spell does.
-      if (this_object()->query_effect_type() == EFFECT_IS_FEAT)
+      if (this_object()->query_effect_type() == EFFECT_IS_SKILL)
           ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_categories()[0]));
       else
         ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
@@ -311,7 +314,7 @@ string help()
     else
     {
       // Effect category: a skill has no player categories, a spell does.
-      if (this_object()->query_effect_type() == EFFECT_IS_FEAT)
+      if (this_object()->query_effect_type() == EFFECT_IS_SKILL)
           ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_categories()[0]));
       else
           ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
@@ -320,7 +323,7 @@ string help()
     ret += _LANG_EFFECT_HELP_DESC;
     if ( help_extras )
         ret += help_extras + "\n";
-    ret += sprintf("  %-=*s\n", (this_player()?this_player()->query_cols()-2:77), query_help_desc());
+    ret += sprintf("  %-=*s\n", (this_user() ? this_user()->query_cols() - 2 : 79), query_help_desc());
 
     if (this_player()->query_coder())
         ret += "DEBUG: effect file: "+file_name(this_object()) + "\n";
@@ -690,7 +693,7 @@ int cast_effect(string str, object who, int quiet)
           caster->query_cap_name() + _LANG_EFFECT_START_SPELL_ROOM,
           caster);
     }
-    else if ( !quiet && (effect_type == EFFECT_IS_FEAT))
+    else if ( !quiet && (effect_type == EFFECT_IS_SKILL))
     {
         if (sizeof(start_phrases) == 2)
         {

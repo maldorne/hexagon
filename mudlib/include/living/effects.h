@@ -6,7 +6,7 @@
 
 #define RANGE_HANDLER  "/obj/handlers/range.c"
 
-#define EFFECT_IS_FEAT 0
+#define EFFECT_IS_SKILL 0
 #define EFFECT_IS_SPELL 1
 
 #define EFFECT_TYPE_SPELL "spell"

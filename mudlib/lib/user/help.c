@@ -143,6 +143,13 @@ int do_help(string str)
     }
   }
 
+  // check if it is a skill the player can look up (by id or translated name)
+  if ((text = this_object()->player()->help_skill(str)) && strlen(text))
+  {
+    this_object()->more_string(text + "\n", capitalize(str));
+    return 1;
+  }
+
   if (member_array(str, _LANG_HELP_EMOTIONS) != -1)
   {
     s = SOUL_OBJECT->query_soul_list();

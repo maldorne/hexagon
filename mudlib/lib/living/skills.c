@@ -488,27 +488,40 @@ int skill_damage(int damage, string type, object attacker)
     // return 1;
 }
                                                                                 
-string help_skill(string str) 
+// Help for a skill the player names. The typed word may be the English id
+// or the skill's translated display name; we resolve it against every skill
+// in the table by loading each object and comparing its effect_name, then
+// return that object's own help() (rendered in the current language).
+string help_skill(string str)
 {
-  object table;
-  string aux;
+  object table, f;
+  mapping skills;
+  string * ids;
+  int i;
+
+  if (!str || !strlen(str))
+    return "";
 
   table = load_object(SKILLS_TABLE);
-
   if (!table)
     return "";
-  
-  if (!pointerp(skill_list[str]))
+
+  skills = table->query_skills();
+  ids = keys(skills);
+
+  for (i = 0; i < sizeof(ids); i++)
   {
-    aux = table->skill_translate(str);
-    if (str != aux)
-      str = aux;
-    else
-      return "";
+    f = load_object(skills[ids[i]][SKILL_DATA_PATH]);
+    if (!f)
+      continue;
+
+    if ((ids[i] == str) ||
+        (lower_case(f->query_effect_name()) == lower_case(str)))
+      return (string) f->help();
   }
 
-  return (string)skill_list[str][0]->help(str);
-} 
+  return "";
+}
 
 mixed * stats() 
 {
