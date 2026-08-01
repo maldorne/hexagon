@@ -63,8 +63,8 @@ int do_choose(string str)
       // this_player()->update_sheet_version(GLOBAL_SHEET_VERSION);
 
       // Feats in common for every player
-      // this_player()->add_known_feat("seguir", 1);
-      // this_player()->add_known_feat("examinar", 1);
+      // this_player()->add_known_skill("seguir", 1);
+      // this_player()->add_known_skill("examinar", 1);
 
       // if we need to do something special
       start_player(this_player());
