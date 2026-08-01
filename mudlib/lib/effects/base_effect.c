@@ -244,9 +244,15 @@ string query_effect_category(varargs object caster)
     cast_lvl = 10;
 
     if(!caster)
-        caster = this_player();  
-    
+        caster = this_player();
+
     cat_names = keys(categories);
+
+    // A skill has a single fixed category; the player-rating logic below
+    // (which asks caster->query_effect_category(name)) is a spell concept
+    // for spheres. Skip it for skills and return the category directly.
+    if (this_object()->query_effect_type() == EFFECT_IS_SKILL)
+        return sizeof(cat_names) ? cat_names[0] : _LANG_EFFECT_CATEGORY_NONE;
 
     for(i = 0; i < sizeof(cat_names);i++)
     {
@@ -313,7 +319,8 @@ string help()
       else
           ret += _LANG_EFFECT_HELP_RANGE + effect_range;
 
-      ret += _LANG_EFFECT_HELP_COST + EFFECTS_TABLE->query_gp_cost(this_player(), this_object());
+      ret += _LANG_EFFECT_HELP_COST + (effect_type == EFFECT_IS_SPELL ?
+        EFFECTS_TABLE->query_gp_cost(this_player(), this_object()) : gp_cost);
 
       if (combat_role_needed != NEUTRAL_ROLE)
         ret += _LANG_EFFECT_HELP_ROLE_NEEDED + _LANG_COMBAT_ROLE_STRINGS[combat_role_needed];
@@ -331,9 +338,6 @@ string help()
     if ( help_extras )
         ret += help_extras + "\n";
     ret += sprintf("  %-=*s\n", (this_user() ? this_user()->query_cols() - 2 : 77), query_help_desc());
-
-    if (this_player()->query_coder())
-        ret += "DEBUG: effect file: "+file_name(this_object()) + "\n";
 
     ret += "\n";
     return ret;
@@ -392,7 +396,7 @@ int cast_effect(string str, object who, int quiet)
       environment(caster)->query_property(NOSKILL_PROP) ||
       caster->query_property(PASSED_OUT_PROP))
     {
-        notify_fail(MSG_NO_PUEDO);
+        notify_fail(MSG_CANNOT_NOW);
         return 0;
     }
 
@@ -418,7 +422,7 @@ int cast_effect(string str, object who, int quiet)
     // This must be commented out if we allow multiple casting
     if ( caster->query_active_effect("effect") )
     {
-        notify_fail(MSG_OCUPADO);
+        notify_fail(MSG_BUSY);
         return 0;
     }
 
@@ -438,7 +442,7 @@ int cast_effect(string str, object who, int quiet)
     for ( i=0; i<sizeof(property_checks); i++)
         if ( caster->query_property(property_checks[i]) )
         {
-            notify_fail(MSG_NO_PUEDO);
+            notify_fail(MSG_CANNOT_NOW);
             return 0;
         }
 
@@ -726,7 +730,7 @@ int cast_effect(string str, object who, int quiet)
     // there is a random chance it applies to any effect)
     if( fast_casting || 
       ((caster->query_level() + 10) > random(100)) )
-        caster->do_active_effects(0);
+        caster->do_active_effects(nil);
 
     return 1;
 }
@@ -826,7 +830,7 @@ int hb_effect(object caster, mixed *params, int time)
                 out_of_range = 0;
                 target = 0;
                 tell_object(caster, MSG_NO_ITEMS);
-                tell_room(environment(caster), MSG_NO_PUEDO_R, caster);
+                tell_room(environment(caster), MSG_CANNOT_NOW_ROOM, caster);
                 call_out("end_effect_now", 0, caster);
                 return 0;
             }
@@ -836,7 +840,7 @@ int hb_effect(object caster, mixed *params, int time)
                 out_of_range = target;
                 target = 0;
                 tell_object(caster, MSG_NO_RANGE);
-                tell_room(environment(caster), MSG_NO_PUEDO_R, caster);
+                tell_room(environment(caster), MSG_CANNOT_NOW_ROOM, caster);
                 call_out("end_effect_now", 0, caster);
                 return 0;
             }
@@ -897,7 +901,7 @@ int hb_effect(object caster, mixed *params, int time)
         if(!sizeof(target))
         {
             tell_object(caster, MSG_DISSAPPEAR);
-            tell_room(environment(caster), MSG_NO_PUEDO_R, caster);
+            tell_room(environment(caster), MSG_CANNOT_NOW_ROOM, caster);
             call_out("end_effect_now", 0, caster);
             return 0;
         }

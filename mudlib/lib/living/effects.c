@@ -161,13 +161,8 @@ int do_active_effects(object attacker)
         // En el ultimo paso acabamos el hechizo.
         // Si hemos llegado hasta aqui es que hemos de gastar los gps
         // (espero que este bien hecho y no de demasiados problemas)
-        if (!--effects[i+1][j+1][SP_NO_RNDS]) 
+        if (!--effects[i+1][j+1][SP_NO_RNDS])
         {
-          if (this_object()->query_coder())
-          {
-            tell_object(this_object(),"DEBUG: Coste en gps: "+
-                (int)effects[i+1][j+1][SP_PARAM][SP_GP_COST]+"\n");
-          }         
           this_object()->adjust_gp(-(int)effects[i+1][j+1][SP_PARAM][SP_GP_COST]);
           
           this_object()->add_timed_property("LOCK " + 

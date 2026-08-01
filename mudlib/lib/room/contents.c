@@ -27,6 +27,14 @@ object * add_hidden_object(object ob)
   return hidden_objects;
 }
 
+// Reveal a hidden object: once removed from the list it shows up in the
+// room's contents again (see query_contents). Used by the search skill.
+object * remove_hidden_object(object ob)
+{
+  hidden_objects -= ({ ob });
+  return hidden_objects;
+}
+
 string query_contents(varargs string str, object *ob)
 {
   if (!hidden_objects)

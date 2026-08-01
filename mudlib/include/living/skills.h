@@ -13,6 +13,7 @@
 // referenced by callers (e.g. the maze component). Never translated —
 // the display name lives per-skill in /lib/obj/skills/.lang.<lang>.h.
 #define SKILL_ORIENTATION "orientation"
+#define SKILL_SEARCH      "search"
 
 // Skill category ids: stable English keys, translated only for display
 // (see the category display map in lib/living/.lang.<lang>.h).

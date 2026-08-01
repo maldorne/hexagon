@@ -112,6 +112,12 @@ void start_player()
 {
   social::start_player();
 
+  // The command groups are registered on set_living_name, before a player's
+  // skills are restored, so active-skill commands would not be attached.
+  // Re-register them here, once known_skills is populated. (NPCs get theirs
+  // through the set_living_name path, as they set their skills at creation.)
+  skills_commands();
+
   // at the end
   money::start_money();
 }
