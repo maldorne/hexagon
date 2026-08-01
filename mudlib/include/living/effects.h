@@ -2,7 +2,6 @@
 // Effects constants
 
 #define BASE_EFFECT "/lib/effects/base_effect.c"
-#define EFFECTS_TABLE "/table/effects_table.c"
 
 #define RANGE_HANDLER  "/obj/handlers/range.c"
 
@@ -10,6 +9,14 @@
 #define EFFECT_IS_SPELL 1
 
 #define EFFECT_TYPE_SPELL "spell"
+
+// Category knowledge levels a caster can have in an effect's category,
+// returned by query_effect_category_level (0: none, 1: minor, 2: neutral,
+// 3: major). Used to surcharge/discount a spell's gp cost.
+#define EFFECT_CAT_NONE    "none"
+#define EFFECT_CAT_MINOR   "minor"
+#define EFFECT_CAT_NEUTRAL "neutral"
+#define EFFECT_CAT_MAJOR   "major"
 
 #define TARGET_TYPE_NONE "none"
 #define TARGET_TYPE_ONE "one"

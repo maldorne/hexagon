@@ -296,6 +296,42 @@ int query_effect_level(varargs object caster)
     return clvl;
 }
 
+// Effective gp cost of this effect for a caster. Skills cost a fixed amount;
+// spells scale with the effect level and are then surcharged or discounted
+// by how well the caster knows the effect's category. Absorbed from the old
+// effects_table, which was a single stateless formula rather than data.
+int query_effect_gp_cost(varargs object caster)
+{
+  // Base cost per spell level (index level-1); levels beyond the curve fall
+  // back to a linear cost. Skills never reach this — they cost gp_cost.
+  int * curve;
+  int level, base;
+
+  if (effect_type != EFFECT_IS_SPELL)
+    return gp_cost;
+
+  if (!caster)
+    caster = this_player();
+
+  level = query_effect_level(caster);
+  curve = ({ 2, 4, 6, 9, 13, 18, 23, 29, 35 });
+
+  if (level >= 1 && level <= sizeof(curve))
+    base = curve[level - 1];
+  else
+    base = 5 * level;
+
+  // Adjust by the caster's knowledge of the effect's category.
+  if (sizeof(query_categories()))
+    switch (caster->query_effect_category_level(query_effect_category(caster)))
+    {
+    case EFFECT_CAT_MINOR: return 2 * base;   // knows it poorly -> costs more
+    case EFFECT_CAT_MAJOR: return base / 2;   // knows it well  -> costs less
+    }
+
+  return base;
+}
+
 // The effect's help text.
 string help()
 {
@@ -319,8 +355,7 @@ string help()
       else
           ret += _LANG_EFFECT_HELP_RANGE + effect_range;
 
-      ret += _LANG_EFFECT_HELP_COST + (effect_type == EFFECT_IS_SPELL ?
-        EFFECTS_TABLE->query_gp_cost(this_player(), this_object()) : gp_cost);
+      ret += _LANG_EFFECT_HELP_COST + query_effect_gp_cost(this_player());
 
       if (combat_role_needed != NEUTRAL_ROLE)
         ret += _LANG_EFFECT_HELP_ROLE_NEEDED + _LANG_COMBAT_ROLE_STRINGS[combat_role_needed];
@@ -631,10 +666,7 @@ int cast_effect(string str, object who, int quiet)
             }
 
     */
-    if (effect_type == EFFECT_IS_SPELL)
-      my_gp_cost = EFFECTS_TABLE->query_gp_cost(caster, this_object());
-    else
-      my_gp_cost = gp_cost;
+    my_gp_cost = query_effect_gp_cost(caster);
 
     if (caster->query_gp() < my_gp_cost)
     {
