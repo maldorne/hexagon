@@ -15,5 +15,21 @@
 #define _LANG_SKILL_SEARCH_START "You search your surroundings carefully, " + \
     "trying to find something hidden.\n"
 #define _LANG_SKILL_SEARCH_ROOM " searches around.\n"
-#define _LANG_SKILL_SEARCH_FOUND "You find:\n"
-#define _LANG_SKILL_SEARCH_NOTHING "You do not find anything hidden.\n"
+
+#define _LANG_SKILL_HIDE_NAME "hide"
+#define _LANG_SKILL_HIDE_ALIASES ({ })
+#define _LANG_SKILL_HIDE_HELP "This skill lets you take a quick look around and try " + \
+    "to slip out of sight behind whatever cover you find. The better your skill, " + \
+    "the easier it is to find a hiding spot, and darkness helps. Succeeding costs " + \
+    "extra effort.\n"
+#define _LANG_SKILL_HIDE_START "You quickly look for a place to hide."
+#define _LANG_SKILL_HIDE_ROUND1 "You try to find somewhere to conceal yourself.\n"
+#define _LANG_SKILL_HIDE_SUCCESS "You slip quietly out of sight.\n"
+#define _LANG_SKILL_HIDE_FAIL "You cannot find anywhere to hide.\n"
+
+// hide shadow (placed on a hidden character)
+#define _LANG_HIDE_REVEALED_ROOM_PRE "\n\t%^BOLD%^You notice "
+#define _LANG_HIDE_REVEALED_ROOM_POST " moving around... they were hiding!%^RESET%^\n"
+#define _LANG_HIDE_REVEALED_YOU "You have been discovered!\n"
+#define _LANG_HIDE_SEARCH_FOUND_PRE "You search around and spot "
+#define _LANG_HIDE_SEARCH_FOUND_POST ", though they have not noticed you yet.\n"

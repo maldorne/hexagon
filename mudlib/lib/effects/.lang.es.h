@@ -79,4 +79,5 @@
     "basic"   : "habilidades básicas", \
     "armed"   : "combate con armas básico", \
     "unarmed" : "combate desarmado básico", \
+    "exploration" : "exploración", \
   ])

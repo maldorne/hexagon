@@ -14,9 +14,11 @@
 // the display name lives per-skill in /lib/obj/skills/.lang.<lang>.h.
 #define SKILL_ORIENTATION "orientation"
 #define SKILL_SEARCH      "search"
+#define SKILL_HIDE        "hide"
 
 // Skill category ids: stable English keys, translated only for display
 // (see the category display map in lib/living/.lang.<lang>.h).
-#define SKILL_TYPE_BASIC   "basic"
-#define SKILL_TYPE_ARMED   "armed"
-#define SKILL_TYPE_UNARMED "unarmed"
+#define SKILL_TYPE_BASIC       "basic"
+#define SKILL_TYPE_ARMED       "armed"
+#define SKILL_TYPE_UNARMED     "unarmed"
+#define SKILL_TYPE_EXPLORATION "exploration"

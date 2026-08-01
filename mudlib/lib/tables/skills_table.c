@@ -23,9 +23,13 @@ void create()
     SKILL_ORIENTATION :
       ({ SKILLS_PATH + SKILL_ORIENTATION, 10, 0, PASSIVE_SKILL, }),
 
-    // active skill: reveals hidden objects in the room, scaling with ability
+    // active skill: searches the room for hidden players
     SKILL_SEARCH :
       ({ SKILLS_PATH + SKILL_SEARCH, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: hides the character behind a shadow (paired with search)
+    SKILL_HIDE :
+      ({ SKILLS_PATH + SKILL_HIDE, 10, 0, ACTIVE_SKILL, }),
   ]);
 }
 

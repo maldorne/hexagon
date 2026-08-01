@@ -40,30 +40,10 @@ void setup()
 int do_search(object caster, mixed target, mixed out_range, int time, int quiet)
 {
   object env;
-  object * hidden;
-  object * found;
-  string res;
-  int ability, i;
 
   env = environment(caster);
   if (!env)
     return 0;
-
-  ability = caster->query_skill_ability(SKILL_SEARCH);
-
-  hidden = env->query_hidden_objects();
-  if (!hidden)
-    hidden = ({ });
-  hidden -= ({ nil });
-
-  // Each hidden object is found independently on an ability check.
-  found = ({ });
-  for (i = 0; i < sizeof(hidden); i++)
-    if (random(100) < ability)
-      found += ({ hidden[i] });
-
-  for (i = 0; i < sizeof(found); i++)
-    env->remove_hidden_object(found[i]);
 
   if (!quiet)
   {
@@ -72,16 +52,10 @@ int do_search(object caster, mixed target, mixed out_range, int time, int quiet)
       ({ caster }));
   }
 
-  if (sizeof(found))
-  {
-    res = _LANG_SKILL_SEARCH_FOUND;
-    for (i = 0; i < sizeof(found); i++)
-      res += "  " + found[i]->short() + "\n";
-    tell_object(caster, res);
-  }
-  else
-    tell_object(caster, _LANG_SKILL_SEARCH_NOTHING);
-
+  // Hidden players carry a hide shadow that listens for this event and runs
+  // its own contest (searcher's search ability + perception vs the hider) to
+  // decide whether it reveals itself. Room "hidden_objects" are system
+  // objects and are deliberately left untouched.
   event(env, "player_search");
   return 1;
 }

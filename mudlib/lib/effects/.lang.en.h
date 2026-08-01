@@ -79,4 +79,5 @@
     "basic"   : "basic skills", \
     "armed"   : "basic armed combat", \
     "unarmed" : "basic unarmed combat", \
+    "exploration" : "exploration", \
   ])
