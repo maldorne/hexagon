@@ -212,7 +212,7 @@ int do_weapon_masteries(string mastery)
   string line;
   string * masteries;
 
-  line = sprintf("\n%*'-'s\n", this_object()->query_cols(), "");
+  line = sprintf("\n%p%*s\n", '-', this_user()->query_cols(), "");
   masteries = keys(query_known_weapon_masteries());
 
   if (this_object()->query_dead())
@@ -221,11 +221,11 @@ int do_weapon_masteries(string mastery)
      return 0;
   }
 
-  ret = sprintf("%*'-'|s\n\n", this_object()->query_cols()+18, "> %^GREEN%^Posees las siguientes maestrías con armas: %^RESET%^<");
+  ret = sprintf("%p%|*s\n\n", '-', this_user()->query_cols()+18, "> %^GREEN%^Posees las siguientes maestrías con armas: %^RESET%^<");
 
   for (i = 0; i < sizeof(masteries); i++)
   {
-      ret += sprintf("\t%35-s %25|s (%s)\n", "%^BOLD%^"+capitalize(masteries[i]) +"%^RESET%^", 
+      ret += sprintf("\t%-35s %|25s (%s)\n", "%^BOLD%^"+capitalize(masteries[i]) +"%^RESET%^",
                 "["+percentage_bar(query_known_weapon_masteries()[masteries[i]])+"]",
                 ""+query_known_weapon_masteries()[masteries[i]]+"%");
   }

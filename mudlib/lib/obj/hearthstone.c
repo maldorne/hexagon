@@ -171,7 +171,7 @@ int continue_travel(object player, int count, object where)
   else
   {
     tell_object(player, query_short() + ": [%^MAGENTA%^" + 
-      sprintf("%*' '-s", NUM_SECONDS, sprintf("%*'*'s", NUM_SECONDS - count, "")) +
+      sprintf("%p%-*s", ' ', NUM_SECONDS, sprintf("%p%*s", '*', NUM_SECONDS - count, "")) +
       "%^RESET%^]\n");
   }
 

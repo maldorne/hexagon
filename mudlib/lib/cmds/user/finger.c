@@ -147,7 +147,7 @@ static int cmd(string str, object me, string verb)
   if ("/lib/core/secure/bastards.c"->query_banish_reason(str))
   {
     string retval;
-    retval = sprintf("%35-s%35-s\n", _LANG_FINGER_NAME + ": " + str, _LANG_FINGER_FORBIDDEN);
+    retval = sprintf("%-35s%-35s\n", _LANG_FINGER_NAME + ": " + str, _LANG_FINGER_FORBIDDEN);
 
     // retval += "No tiene muchos segundos reales de edad.\n";
     // retval += "Nunca tuvo correo (ni lo tendra...).\n";

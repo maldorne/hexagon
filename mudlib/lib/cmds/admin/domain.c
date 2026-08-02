@@ -26,7 +26,7 @@ string string_stats(mapping map) {
   int i;
 
   write("%^BOLD%^Estadísticas%^RESET%^:\n");
-  str = sprintf("%20-s %7|s %7|s %7|s %7|s %7|s %7|s\n",
+  str = sprintf("%-20s %|7s %|7s %|7s %|7s %|7s %|7s\n",
            "Nombre", "moves", "hbs", "worth", "arr", "errors", "objects");
   inds = keys(map);
    blue = map;
@@ -34,7 +34,7 @@ string string_stats(mapping map) {
                     "stats_sort_array", this_object());
   blue = ([ ]);
   for (i=0;i<sizeof(inds);i++) {
-    str += sprintf("%20-s %7|d %7|d %7|d %7|d %7|d %7|d\n", inds[i],
+    str += sprintf("%-20s %|7d %|7d %|7d %|7d %|7d %|7d\n", inds[i],
                    map[inds[i]]["moves"],
                    map[inds[i]]["heart_beats"], map[inds[i]]["worth"],
                    map[inds[i]]["array_size"], map[inds[i]]["errors"],

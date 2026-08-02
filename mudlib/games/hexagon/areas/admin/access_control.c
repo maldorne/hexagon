@@ -174,11 +174,11 @@ int do_summary(string str) {
   if (!sizeof(paths))
     ret = "No permissions set.\n";
   else
-    ret = sprintf("%11-s    Path\n", "Euid");
+    ret = sprintf("%-11s    Path\n", "Euid");
   for (i=0;i<sizeof(paths);i++) {
     euids = m_indices(perms[paths[i]]);
     for (j=0;j<sizeof(euids);j++)
-      ret += sprintf("%11-s %c%c%c %s\n", euids[j],
+      ret += sprintf("%-11s %c%c%c %s\n", euids[j],
              ((k=perms[paths[i]][euids[j]])&1?'R':' '),
              (k&2?'W':' '), (k&4?'G':' '), paths[i]);
   }

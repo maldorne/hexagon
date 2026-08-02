@@ -360,7 +360,7 @@ string query_living_contents(int self)
   for (i = 0; i < sizeof(strs); i++)
   {
     s += strs[i] + ": " + strs[++i] + "\n";
-    // s += sprintf("%13-=s: %-=*s", strs[i], col,
+    // s += sprintf("%-=13s: %-=*s", strs[i], col,
     //           capitalize(strs[++i])) + "\n";
   }
 

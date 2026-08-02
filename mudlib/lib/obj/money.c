@@ -59,7 +59,7 @@ int do_help(string str)
   str = "";
 
   for (i=0;i<sizeof(values);i+=2)
-    str += sprintf("%10-s : %4d %s\n", values[i], values[i+1], values[0]);
+    str += sprintf("%-10s : %4d %s\n", values[i], values[i+1], values[0]);
 
   printf("%-*s\n", this_user()->query_cols(), str);
   return 1;
