@@ -116,6 +116,9 @@ void start_player()
   // skills are restored, so active-skill commands would not be attached.
   // Re-register them here, once known_skills is populated. (NPCs get theirs
   // through the set_living_name path, as they set their skills at creation.)
+  // Grant the default skills first (silent, idempotent) so their commands are
+  // registered in the same pass.
+  grant_default_skills();
   skills_commands();
 
   // at the end

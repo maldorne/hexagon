@@ -245,7 +245,23 @@ int add_known_skill(string str, varargs int silence)
     
 } /* add_known_skill() */
 
-int remove_known_skill(string str) 
+// Grant the mudlib-wide default skills (DEFAULT_SKILLS) to this player.
+// Called on every login from living::start_player. Idempotent, since
+// add_known_skill returns 0 for skills already known, and silent (second
+// argument 1) so a brand-new character is not flooded with gained-skill
+// messages and adding a new default reaches everyone on their next login.
+void grant_default_skills()
+{
+  int i;
+  string * defaults;
+
+  defaults = DEFAULT_SKILLS;
+
+  for (i = 0; i < sizeof(defaults); i++)
+    add_known_skill(defaults[i], 1);
+}
+
+int remove_known_skill(string str)
 {
   int i;
 

@@ -60,11 +60,9 @@ int do_choose(string str)
       // minimal base 50 hps
       this_player()->set_max_hp(this_player()->query_max_hp() + 50);
 
-      // this_player()->update_sheet_version(GLOBAL_SHEET_VERSION);
-
-      // Feats in common for every player
-      // this_player()->add_known_skill("seguir", 1);
-      // this_player()->add_known_skill("examinar", 1);
+      // Default skills are granted from living::start_player
+      // (grant_default_skills), not here, so they reach every player on
+      // login including existing ones, not only newly created characters.
 
       // if we need to do something special
       start_player(this_player());
