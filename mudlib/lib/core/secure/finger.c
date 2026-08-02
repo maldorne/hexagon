@@ -90,7 +90,7 @@ string domain_finger(string name)
 
     while (i < sizeof(names))
     {
-      if (file_size("/save/players/"+names[i][0..0]+"/"+names[i]+".o") == -1)
+      if (file_size(player_save_dir(names[i]) + "player.o") == -1)
         delete(names, i, 1);
       else
         i++;
@@ -157,7 +157,7 @@ string finger_info(string name, varargs object me)
   gender = 1;
   account_name = "";
 
-  restore_object("/save/players/"+name[0..0]+"/"+name+".o",1);
+  restore_object(player_save_dir(name) + "player.o",1);
 
   // New account system, neverbot 12/2010
   // separation in users and players, now account info is in the user, neverbot 05/2019
@@ -181,7 +181,7 @@ string finger_info(string name, varargs object me)
   {
     if (real_name[0] == ':')
     {
-      if (SECURE_OB->valid_read("/save/players/"+name[0..0]+"/"+name+".o", geteuid(me)))
+      if (SECURE_OB->valid_read(player_save_dir(name) + "player.o", geteuid(me)))
         retval = sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME +
           capitalize(name), _LANG_FINGER_REAL_NAME + real_name);
       else
@@ -210,7 +210,7 @@ string finger_info(string name, varargs object me)
     if ((email[0] == ':') || (email[1] == ':'))
     {
       if ((base_name(me) != "/lib/core/login") &&
-          (SECURE_OB->valid_read("/save/players/"+name[0..0]+"/"+name, geteuid(me))) )
+          (SECURE_OB->valid_read(player_save_dir(name) + "player.o", geteuid(me))) )
         retval += _LANG_FINGER_EMAIL+email+"\n";
     }
     else

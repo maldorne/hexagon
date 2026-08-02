@@ -152,7 +152,7 @@ string query_player_ob(string name, varargs int flag)
   return "global/lord";
   }
   */
-  if (file_size("/save/players/" + name[0..0] + "/" + name + ".o") < 1)
+  if (file_size(player_save_dir(name) + "player.o") < 1)
     existing = 0;
   else
     existing = 1;
@@ -287,7 +287,7 @@ int suspend_person(string str, int tim)
 {
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
-  if (file_size("/save/players/"+str[0..0]+"/"+str+".o") < 0)
+  if (file_size(player_save_dir(str) + "player.o") < 0)
     return 0;
   suspended[str] = time()+tim;
   save_object(SECURE_SAVE_PATH, 1);

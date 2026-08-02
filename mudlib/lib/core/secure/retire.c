@@ -107,7 +107,7 @@ nomask int do_retirejob(string name)
   u->update_last_connection();
 
   // last but not least, remove the character
-  rm("/save/players/" + name[0..0] + "/" + name + ".o");
+  rm(player_save_dir(name) + "player.o");
 
   write(_LANG_RETIRE_OK);
   this_player()->add_property(GUEST_PROP, 1);

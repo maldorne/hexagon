@@ -34,12 +34,19 @@ static object real_this_player()
 
 static int file_exists(string str);
 
+// Save directory for a player: one folder per player, holding player.o plus
+// its sibling domain files (exploration.o, ...). Callers append the file name.
+static string player_save_dir(string name)
+{
+  return PLAYERS_SAVE_DIR + name[0..0] + "/" + name + "/";
+}
+
 static int player_exists(string str)
 {
   int ret;
 
   // seteuid((string)master()->get_root_uid());
-  ret = file_exists(PLAYERS_SAVE_DIR + "/" + str[0..0] + "/" + str + ".o");
+  ret = file_exists(player_save_dir(str) + "player.o");
   // seteuid(0);
   return ret;
 }

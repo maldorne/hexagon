@@ -226,9 +226,7 @@ nomask int restore_me()
   if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
-  return restore_object(PLAYERS_SAVE_DIR +
-                        this_object()->query_name()[0..0] + "/" +
-                        this_object()->query_name() + ".o", 1);
+  return restore_object(player_save_dir(this_object()->query_name()) + "player.o", 1);
 }
 
 nomask int save_me()
@@ -285,9 +283,10 @@ nomask int save_me()
   time_on -= time();
 
   // seteuid(ROOT);
-  catch(save_object(PLAYERS_SAVE_DIR +
-                    this_object()->query_name()[0..0] + "/" +
-                    this_object()->query_name() + ".o", 1));
+  // save_object does not create directories; ensure the per-player folder
+  // exists (new players, or players created before the folder scheme).
+  mkdir(player_save_dir(this_object()->query_name()));
+  catch(save_object(player_save_dir(this_object()->query_name()) + "player.o", 1));
 
   // seteuid(oldeuid);
   time_on += time();

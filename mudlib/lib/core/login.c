@@ -380,7 +380,7 @@ nomask void logon_option(string str)
   }
 
   // the input is a character name
-  if (file_size("/save/players/" + str[0..0] + "/" + str + ".o") > 0)
+  if (file_size(player_save_dir(str) + "player.o") > 0)
   {
     // if already logged, don't need to input password again
     if (validated) {
@@ -834,7 +834,7 @@ void create_player(string str)
     return;
   }
 
-  if (file_size("/save/players/"+str[0..0]+"/"+str+".o") > 0)
+  if (file_size(player_save_dir(str) + "player.o") > 0)
   {
     write(_LANG_USED_CHARACTER_NAME);
     input_to("create_player");

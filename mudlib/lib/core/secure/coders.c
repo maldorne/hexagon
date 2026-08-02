@@ -51,7 +51,7 @@ int create_creator(string name)
          "creador por "+capitalize(geteuid(previous_object()))+".\n");
    } 
    else 
-      write_file("/save/players/"+name[0..0]+"/"+name+".o","creator 1\n");
+      write_file(player_save_dir(name) + "player.o","creator 1\n");
    return 1;
 } 
 
@@ -88,9 +88,9 @@ int demote_creator(string str)
                 capitalize(previous_object()->query_cap_name())+".\n");
       find_player(name)->really_quit();
    } 
-   write_file("/save/players/"+name[0..0]+"/"+name+".o","creator 0\n");
+   write_file(player_save_dir(name) + "player.o","creator 0\n");
    rename("/home/"+name,"/home/oldcreators/"+name);
-   rename("/save/players/"+name[0..0]+"/"+name+".o","/home/oldcreators/"+name);
+   rename(player_save_dir(name) + "player.o","/home/oldcreators/"+name);
    write("Creador "+capitalize(name)+" demoteado.\n");
    write("Borrando su correo...");
    POSTAL_D->retire_user(name);
