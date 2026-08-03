@@ -1020,71 +1020,189 @@ private mapping _find_inbound_exits(mapping orphan_set)
   return result;
 }
 
+// How many locations a single scan/trim tick loads. These ticks load a
+// location and read its exits (lighter than a full conversion, heavier than
+// nothing), so keep the chunk modest.
+#define CLEAN_SCAN_CHUNK 8
+
 /**
- * Execute the cleanup the preview described. Two phases:
- *  1. Trim any inbound exits in the locations adjacent to the orphans
- *     (discovered via the orphans' own outgoing exits — see
- *     `_find_inbound_exits`).
- *  2. Remove the orphans themselves: drop their map index entries,
- *     their area index entries, and the `.o` files.
+ * Execute the cleanup for `scope`. Fully chunked across ticks — a whole
+ * area's worth of orphans blows the driver's tick budget in one execution
+ * (both the inbound-exit scan and the removal). Four background phases,
+ * each threading its accumulators through the call_out args:
+ *  1. `_clean_scan_orphans` — collect the orphans' external exit destinations.
+ *  2. `_clean_scan_affected` — of those, the ones with an exit back into the
+ *     orphan set (the exits to trim).
+ *  3. `_clean_trim` — trim those inbound exits, counting adjacents/exits.
+ *  4. `clean_step` — remove the orphans and prune emptied areas.
+ * A summary is reported to the initiator when phase 4 finishes.
  *
- * Returns ({ orphan_count, adjacent_count, exit_count }) — counts of
- * the three things that happened.
+ * Returns ({ orphan_count, 0, 0 }) immediately (the trim counts are only
+ * known at the end and arrive in the summary message).
  */
 mixed * clean_apply(string scope, varargs int all)
 {
-  mixed * preview;
+  string * resolved;
+  string save_dir, source_prefix;
   string * orphans;
   mapping orphan_set;
-  mapping adjacent_trim;
-  string * adj_keys;
-  int adjacent_count, exit_count;
-  int i, j;
+  int i;
 
-  preview = clean_preview(scope, all);
-  orphans = preview[0];
-  adjacent_trim = preview[1];
+  resolved = resolve_clean_scope(scope);
+  save_dir = resolved[0];
+  source_prefix = resolved[1];
+
+  if (!strlen(save_dir))
+    return ({ 0, 0, 0 });
+
+  orphans = _list_scope_orphans(save_dir, source_prefix, all);
 
   if (!sizeof(orphans))
+  {
+    if (this_player())
+      tell_object(this_player(), "Nothing to clean under " + save_dir + ".\n");
     return ({ 0, 0, 0 });
+  }
 
   orphan_set = ([ ]);
   for (i = 0; i < sizeof(orphans); i++)
     orphan_set[orphans[i]] = 1;
 
-  // phase 1: trim inbound exits on adjacent locations
-  adj_keys = map_indices(adjacent_trim);
-  adjacent_count = 0;
-  exit_count = 0;
+  if (this_player())
+    tell_object(this_player(), "Cleaning " + sizeof(orphans) + " location" +
+                (sizeof(orphans) == 1 ? "" : "s") + " in the background ...\n");
 
-  for (i = 0; i < sizeof(adj_keys); i++)
+  call_out("_clean_scan_orphans", 0, orphans, orphan_set, 0, ([ ]),
+           this_player());
+
+  return ({ sizeof(orphans), 0, 0 });
+}
+
+// Phase 1 tick: load a slice of orphans and collect the non-orphan
+// destinations of their exits (the only locations that might hold an exit
+// back into the orphan set). Public: reached via the call_out dispatcher.
+void _clean_scan_orphans(string * orphans, mapping orphan_set, int idx,
+                         mapping affected, object initiator)
+{
+  int end, i;
+
+  if (idx >= sizeof(orphans))
+  {
+    call_out("_clean_scan_affected", 0, orphans, orphan_set,
+             map_indices(affected), 0, ([ ]), initiator);
+    return;
+  }
+
+  end = idx + CLEAN_SCAN_CHUNK;
+  if (end > sizeof(orphans))
+    end = sizeof(orphans);
+
+  for (i = idx; i < end; i++)
+  {
+    object orphan;
+    mixed * exits;
+    int e;
+
+    orphan = load_location(orphans[i]);
+    if (!orphan)
+      continue;
+
+    exits = orphan->query_dest_dir();
+    for (e = 0; e < sizeof(exits); e += 2)
+    {
+      if (orphan_set[exits[e + 1]])
+        continue;
+      affected[exits[e + 1]] = 1;
+    }
+  }
+
+  call_out("_clean_scan_orphans", 0, orphans, orphan_set, end, affected,
+           initiator);
+}
+
+// Phase 2 tick: load a slice of the affected destinations and record the
+// exits that point back into the orphan set (to be trimmed).
+void _clean_scan_affected(string * orphans, mapping orphan_set,
+                          string * affected_keys, int idx, mapping trim,
+                          object initiator)
+{
+  int end, i;
+
+  if (idx >= sizeof(affected_keys))
+  {
+    call_out("_clean_trim", 0, orphans, map_indices(trim), trim, 0, 0, 0,
+             initiator);
+    return;
+  }
+
+  end = idx + CLEAN_SCAN_CHUNK;
+  if (end > sizeof(affected_keys))
+    end = sizeof(affected_keys);
+
+  for (i = idx; i < end; i++)
+  {
+    object loc;
+    mixed * exits;
+    string * to_drop;
+    int e;
+
+    loc = load_location(affected_keys[i]);
+    if (!loc)
+      continue;
+
+    exits = loc->query_dest_dir();
+    to_drop = ({ });
+    for (e = 0; e < sizeof(exits); e += 2)
+      if (orphan_set[exits[e + 1]])
+        to_drop += ({ exits[e] });
+
+    if (sizeof(to_drop))
+      trim[affected_keys[i]] = to_drop;
+  }
+
+  call_out("_clean_scan_affected", 0, orphans, orphan_set, affected_keys, end,
+           trim, initiator);
+}
+
+// Phase 3 tick: trim inbound exits on a slice of the affected locations,
+// accumulating the adjacent-location and exit counts to carry into the
+// removal phase and the final summary.
+void _clean_trim(string * orphans, string * trim_keys, mapping trim, int idx,
+                 int adjacent_count, int exit_count, object initiator)
+{
+  int end, i, j;
+
+  if (idx >= sizeof(trim_keys))
+  {
+    call_out("clean_step", 0, orphans, 0, ({ }), adjacent_count, exit_count,
+             initiator);
+    return;
+  }
+
+  end = idx + CLEAN_SCAN_CHUNK;
+  if (end > sizeof(trim_keys))
+    end = sizeof(trim_keys);
+
+  for (i = idx; i < end; i++)
   {
     object loc;
     string * dirs;
 
-    loc = load_location(adj_keys[i]);
+    loc = load_location(trim_keys[i]);
     if (!loc)
       continue;
 
-    dirs = adjacent_trim[adj_keys[i]];
-
+    dirs = trim[trim_keys[i]];
     for (j = 0; j < sizeof(dirs); j++)
       loc->remove_exit(dirs[j]);
-
     loc->save_me();
 
     adjacent_count++;
     exit_count += sizeof(dirs);
   }
 
-  // phase 2 + 3 (remove the orphans, then drop emptied areas) run in the
-  // background: each orphan removal loads the location, unhooks it from its
-  // sector and area, destructs it and deletes the file — too much to do for
-  // a whole area in one execution (it blows the driver's tick budget, which
-  // used to leave most of the orphans undeleted). clean_step chunks it.
-  call_out("clean_step", 0, orphans, 0, ({ }), this_player());
-
-  return ({ sizeof(orphans), adjacent_count, exit_count });
+  call_out("_clean_trim", 0, orphans, trim_keys, trim, end, adjacent_count,
+           exit_count, initiator);
 }
 
 // How many orphans a single clean tick removes. Each removal is heavier
@@ -1098,7 +1216,7 @@ mixed * clean_apply(string scope, varargs int all)
 // call_other. `touched_areas` accumulates the areas an orphan belonged to so
 // the final tick can prune the emptied ones.
 void clean_step(string * orphans, int idx, object * touched_areas,
-                object initiator)
+                int adjacent_count, int exit_count, object initiator)
 {
   int end, i;
 
@@ -1109,7 +1227,11 @@ void clean_step(string * orphans, int idx, object * touched_areas,
         load_object(AREA_HANDLER)->remove_area_if_empty(touched_areas[i]);
     if (initiator)
       tell_object(initiator, "Clean finished: removed " + sizeof(orphans) +
-                  " location" + (sizeof(orphans) == 1 ? "" : "s") + ".\n");
+                  " location" + (sizeof(orphans) == 1 ? "" : "s") +
+                  ", trimmed " + exit_count + " exit" +
+                  (exit_count == 1 ? "" : "s") + " on " + adjacent_count +
+                  " adjacent location" + (adjacent_count == 1 ? "" : "s") +
+                  ".\n");
     return;
   }
 
@@ -1148,7 +1270,8 @@ void clean_step(string * orphans, int idx, object * touched_areas,
       remove_file(orphans[i]);
   }
 
-  call_out("clean_step", 0, orphans, end, touched_areas, initiator);
+  call_out("clean_step", 0, orphans, end, touched_areas, adjacent_count,
+           exit_count, initiator);
 }
 
 // ============================================================

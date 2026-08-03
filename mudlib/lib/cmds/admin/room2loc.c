@@ -140,7 +140,6 @@ static int do_clean(string path, int apply, varargs int all)
   string save_dir;
   string root_locations, root_areas;
   mixed * preview;
-  mixed * counts;
   string * orphans;
   mapping adjacent_trim;
   string * adj_keys;
@@ -173,38 +172,37 @@ static int do_clean(string path, int apply, varargs int all)
     return 0;
   }
 
-  preview = load_object(LOCATION_HANDLER)->clean_preview(path, all);
-  orphans = preview[0];
-  adjacent_trim = preview[1];
-
-  adj_keys = map_indices(adjacent_trim);
-  trim_count = 0;
-  for (i = 0; i < sizeof(adj_keys); i++)
-    trim_count += sizeof(adjacent_trim[adj_keys[i]]);
-
-  if (!sizeof(orphans))
-  {
-    write("Nothing to clean under " + save_dir + ".\n");
-    return 1;
-  }
-
-  write("Clean " + (all ? "all " : "") + (apply ? "applying" : "preview") +
-        " for " + save_dir + "\n");
-  write("  Locations to delete: " + sizeof(orphans) + "\n");
-  write("  Adjacent locations with exits to trim: " + sizeof(adj_keys) +
-        " (" + trim_count + " exits)\n");
-
+  // Dry-run: the inbound-exit scan is synchronous, so a huge preview can be
+  // heavy; the apply path below is fully chunked in the background.
   if (!apply)
   {
+    preview = load_object(LOCATION_HANDLER)->clean_preview(path, all);
+    orphans = preview[0];
+    adjacent_trim = preview[1];
+
+    adj_keys = map_indices(adjacent_trim);
+    trim_count = 0;
+    for (i = 0; i < sizeof(adj_keys); i++)
+      trim_count += sizeof(adjacent_trim[adj_keys[i]]);
+
+    if (!sizeof(orphans))
+    {
+      write("Nothing to clean under " + save_dir + ".\n");
+      return 1;
+    }
+
+    write("Clean " + (all ? "all " : "") + "preview for " + save_dir + "\n");
+    write("  Locations to delete: " + sizeof(orphans) + "\n");
+    write("  Adjacent locations with exits to trim: " + sizeof(adj_keys) +
+          " (" + trim_count + " exits)\n");
     write("Run 'room2loc clean " + (all ? "all " : "") + "apply " + path +
           "' to execute.\n");
     return 1;
   }
 
-  counts = load_object(LOCATION_HANDLER)->clean_apply(path, all);
-  write("Trimmed " + counts[2] + " exits on " + counts[1] +
-        " adjacent locations. Removing " + counts[0] +
-        " locations in the background ...\n");
+  // Apply: chunked across ticks in the background. clean_apply reports the
+  // "cleaning N ..." line and the final summary itself.
+  load_object(LOCATION_HANDLER)->clean_apply(path, all);
   return 1;
 }
 
