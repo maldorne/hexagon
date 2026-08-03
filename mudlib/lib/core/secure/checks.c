@@ -387,7 +387,10 @@ nomask int valid_write(string path, mixed euid, string func)
     return 0;
 
   // Little patch to plug a security leak -- Wahooka
-  if (func == "save_object" && (sizeof(bing) >= 2) &&
+  // save_object writes the player savefile; make_dir creates the per-player folder
+  // (/save/players/<l>/<name>/) on first save. Both are allowed only when
+  // the action was started by a player object.
+  if ((func == "save_object" || func == "make_dir") && (sizeof(bing) >= 2) &&
      (bing[0] == "save") && (bing[1] == "players" || bing[1] == "users"))
   {
     object * stack;
