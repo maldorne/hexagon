@@ -14,15 +14,17 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
+#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration >"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
                 "\t" + BUILDER_RING_SELECTION_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_COMPONENT_SYNTAX
+                "\t" + BUILDER_RING_COMPONENT_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_AREA_SYNTAX
 
 static string * selection;
 static mapping objects;
@@ -59,6 +61,7 @@ void init()
 int do_selection(string str);
 int do_convert(string str);
 int do_component(string str);
+int do_area(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -251,6 +254,8 @@ int do_build(string str)
     return do_convert(implode(args[1..], " "));
   else if (verb == "component")
     return do_component(implode(args[1..], " "));
+  else if (verb == "area")
+    return do_area(implode(args[1..], " "));
   else
   {
     notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
@@ -491,6 +496,68 @@ int do_component(string str)
         (changed == 1 ? "" : "s") +
         " in the background; a summary will follow.\n");
   return 1;
+}
+
+// Set area-level metadata on the area of the location the coder is standing
+// in. Currently the exploration achievement: whether entering the area is
+// recorded in the player's diary, and its display name (a literal in the
+// running instance's language). Run once per instance in that language.
+int do_area(string str)
+{
+  string * args;
+  string verb, name;
+  object loc, area;
+
+  args = explode(str ? str : "", " ") - ({ "" });
+
+  if (sizeof(args) < 1)
+  {
+    notify_fail("Usage: " + BUILDER_RING_AREA_SYNTAX + "\n");
+    return 0;
+  }
+
+  verb = args[0];
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to set area metadata.\n");
+    return 0;
+  }
+
+  area = loc->query_area();
+  if (!area)
+  {
+    notify_fail("This location has no area.\n");
+    return 0;
+  }
+
+  if (verb == "exploration")
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build area exploration <display name>\n");
+      return 0;
+    }
+
+    name = implode(args[1..], " ");
+    area->set_gives_exploration(1);
+    area->set_exploration_name(name);
+    write("Area '" + area->query_area_name() + "' now grants exploration: \"" +
+          name + "\".\n");
+    return 1;
+  }
+  else if (verb == "noexploration")
+  {
+    area->set_gives_exploration(0);
+    area->set_exploration_name("");
+    write("Area '" + area->query_area_name() +
+          "' no longer grants exploration.\n");
+    return 1;
+  }
+
+  notify_fail("Usage: " + BUILDER_RING_AREA_SYNTAX + "\n");
+  return 0;
 }
 
 
