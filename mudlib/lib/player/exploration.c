@@ -5,12 +5,14 @@
 // here in a static (unsaved) in-memory mapping so it never bloats player.o.
 // Loaded lazily on first access, written on each change.
 //
-//   exploration_data = ([ game : ([ EXP_AREAS    : ({ area names }),
+//   exploration_data = ([ game : ([ EXP_AREAS    : ({ area paths }),
 //                                    EXP_ANCHORS  : ([ name : destination ]),
 //                                    EXP_ARTICLES : ({ article ids }) ]) ])
 //
-// Redesigned from the CcMud explorers handler (Folken 2009): Hexagon uses the
-// area path as the stable id, so no global name->id registry is needed.
+// Redesigned from the CcMud explorers handler (Folken 2009): Hexagon stores the
+// stable area path (not a narrative name), so no global name->id registry is
+// needed and the same savefile works across language instances (the display
+// name is resolved from the area, per instance, only when shown).
 
 #include <user/exploration.h>
 #include <language.h>
@@ -78,21 +80,21 @@ private mapping game_data(string game)
 
 // --- Explored areas -------------------------------------------------------
 
-// Record that the player has explored an area (by display name) in a game.
-// Returns 1 only when newly recorded, so callers can gate a message / XP.
-int add_exploration(string game, string area_name)
+// Record that the player has explored an area (by its stable area path) in a
+// game. Returns 1 only when newly recorded, so callers can gate a message / XP.
+int add_exploration(string game, string area_path)
 {
   mapping g;
 
-  if (!game || !area_name || area_name == "")
+  if (!game || !area_path || area_path == "")
     return 0;
 
   g = game_data(game);
 
-  if (member_array(area_name, g[EXP_AREAS]) != -1)
+  if (member_array(area_path, g[EXP_AREAS]) != -1)
     return 0;
 
-  g[EXP_AREAS] += ({ area_name });
+  g[EXP_AREAS] += ({ area_path });
   save_exploration();
   return 1;
 }
@@ -143,7 +145,9 @@ void check_area_exploration(object location)
 
   game = game_from_path(location->query_file_name());
 
-  if (add_exploration(game, area_display))
+  // Store the stable area path (language-independent); area_display is only
+  // used for the immediate announcement below.
+  if (add_exploration(game, area->query_area_path()))
   {
     this_object()->adjust_xp(EXPLORATION_XP);
     tell_player(this_object(),

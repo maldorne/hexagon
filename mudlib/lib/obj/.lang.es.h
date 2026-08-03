@@ -54,3 +54,26 @@
 #define _LANG_HEARTHSTONE_INVOKE_MOUNT_HERE "Tu montura ya se encuentra aquí.\n"
 #define _LANG_HEARTHSTONE_INVOKE_MSG_ME "Tu montura aparece a tu lado.\n"
 #define _LANG_HEARTHSTONE_INVOKE_MSG_ROOM "La montura de "+this_player()->query_cap_name()+" aparece a su lado.\n"
+
+// diary.c
+
+#define _LANG_DIARY_NAME "diario"
+#define _LANG_DIARY_SHORT "Diario"
+#define _LANG_DIARY_ALIAS ({ "diario", "libro" })
+#define _LANG_DIARY_PLURAL "Diarios"
+#define _LANG_DIARY_PLURALS ({ "diarios" })
+#define _LANG_DIARY_LONG "Un libro gastado donde anotas tus aventuras y viajes. " + \
+    "Escribe '%^BOLD%^diario explorador%^RESET%^' para ver los lugares que has descubierto.\n"
+#define _LANG_DIARY_VERBS ({ "diario" })
+#define _LANG_DIARY_EXPLORER_SUBVERBS ({ "explorador", "exploracion", "exploración", "lugares" })
+#define _LANG_DIARY_PENDING_SUBVERBS ({ "viajes", "enciclopedia" })
+#define _LANG_DIARY_HELP "El diario recoge tus andanzas. Comandos:\n" + \
+    "\tdiario explorador  - lista los lugares que has descubierto.\n"
+#define _LANG_DIARY_DEAD "Estando muerto no puedes hacer eso.\n"
+#define _LANG_DIARY_WHAT "¿Qué quieres consultar en el diario? Prueba 'diario explorador'.\n"
+#define _LANG_DIARY_NOT_YET "Esa sección del diario aún está en blanco.\n"
+#define _LANG_DIARY_EXPLORER_EMPTY "Aún no has descubierto ningún lugar digno de mención.\n"
+#define _LANG_DIARY_EXPLORER_HEADER "A lo largo de tus viajes has estado en:\n\n"
+#define _LANG_DIARY_EXPLORER_COUNT_PRE "\nEn total, has visitado "
+#define _LANG_DIARY_PLACE_SG "lugar"
+#define _LANG_DIARY_PLACE_PL "lugares"

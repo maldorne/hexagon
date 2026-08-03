@@ -54,3 +54,26 @@
 #define _LANG_HEARTHSTONE_INVOKE_MOUNT_HERE "Your mount is already here.\n"
 #define _LANG_HEARTHSTONE_INVOKE_MSG_ME "Your mount appears by your side.\n"
 #define _LANG_HEARTHSTONE_INVOKE_MSG_ROOM "The mount of "+this_player()->query_cap_name()+" appears by their side.\n"
+
+// diary.c
+
+#define _LANG_DIARY_NAME "diary"
+#define _LANG_DIARY_SHORT "Diary"
+#define _LANG_DIARY_ALIAS ({ "diary", "book" })
+#define _LANG_DIARY_PLURAL "Diaries"
+#define _LANG_DIARY_PLURALS ({ "diaries" })
+#define _LANG_DIARY_LONG "A worn book where you jot down your adventures and travels. " + \
+    "Type '%^BOLD%^diary explorer%^RESET%^' to see the places you have discovered.\n"
+#define _LANG_DIARY_VERBS ({ "diary" })
+#define _LANG_DIARY_EXPLORER_SUBVERBS ({ "explorer", "exploration", "places" })
+#define _LANG_DIARY_PENDING_SUBVERBS ({ "travels", "encyclopedia" })
+#define _LANG_DIARY_HELP "The diary keeps track of your wanderings. Commands:\n" + \
+    "\tdiary explorer  - lists the places you have discovered.\n"
+#define _LANG_DIARY_DEAD "You cannot do that while dead.\n"
+#define _LANG_DIARY_WHAT "What do you want to check in the diary? Try 'diary explorer'.\n"
+#define _LANG_DIARY_NOT_YET "That section of the diary is still blank.\n"
+#define _LANG_DIARY_EXPLORER_EMPTY "You have not discovered any place worth noting yet.\n"
+#define _LANG_DIARY_EXPLORER_HEADER "Throughout your travels you have been to:\n\n"
+#define _LANG_DIARY_EXPLORER_COUNT_PRE "\nIn total, you have visited "
+#define _LANG_DIARY_PLACE_SG "place"
+#define _LANG_DIARY_PLACE_PL "places"
