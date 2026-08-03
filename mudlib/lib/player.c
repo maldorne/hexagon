@@ -28,6 +28,7 @@ inherit quests      "/lib/player/quests.c";
 inherit weather     "/lib/player/weather.c";
 inherit read        "/lib/player/read.c";
 inherit health      "/lib/player/health.c";
+inherit exploration "/lib/player/exploration.c";
 
 static object _user;      // the user/account object that handles the connection
 string account_name;      // user email, used to find the owner account
@@ -72,6 +73,7 @@ void create()
   weather::create();
   read::create();
   health::create();
+  exploration::create();
 
   // must be the last one
   living::create();
