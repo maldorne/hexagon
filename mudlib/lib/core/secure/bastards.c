@@ -317,7 +317,7 @@ int banish_playername(string str, string reason)
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
   /*
-  if (file_size("/save/players/"+str[0..0]+"/"+str+".o") < 0)
+  if (file_size(player_save_dir(str) + "player.o") < 0)
   return 0;
   */
   banished[str] = reason;

@@ -49,7 +49,7 @@ int try_retire(object who)
 //     return 0;
 
 //   // now with accounts, neverbot 12/2010
-//   // if (!restore_object("/save/players/"+name[0..0]+"/"+name,1))
+//   // if (!restore_object(player_save_dir(name) + "player.o",1))
 //   if (!restore_object("/save/accounts/" + account_name[0..0] + "/" + account_name))
 //     return 0;
 
