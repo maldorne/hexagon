@@ -86,3 +86,8 @@
 
 #define _LANG_PAST_NOTHING "No te han dicho nada de momento.\n"
 #define _LANG_PAST_HEADER "Historial de conversaciones:\n"
+
+// exploration.c
+
+#define _LANG_EXPLORATION_DISCOVERED_PRE "%^BOLD%^%^GREEN%^Has descubierto un nuevo lugar: "
+#define _LANG_EXPLORATION_DISCOVERED_POST "!%^RESET%^\n"

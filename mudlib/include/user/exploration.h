@@ -9,6 +9,9 @@
 #define EXPLORATION_OB    "/lib/obj/player/exploration.c"
 #define EXPLORATION_SAVE  "exploration.o"
 
+// XP awarded the first time a player explores an area.
+#define EXPLORATION_XP    1000
+
 // Keys of the per-game sub-mapping.
 #define EXP_AREAS    "areas"
 #define EXP_ANCHORS  "anchors"

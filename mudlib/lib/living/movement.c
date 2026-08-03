@@ -144,6 +144,11 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   new_env = environment();
 
+  // Record area exploration for players (no-op for monsters and for
+  // rooms-only games, which have no location/area).
+  if (interactive(this_object()))
+    this_object()->check_area_exploration(new_env);
+
   if (interactive(this_object()) && !query_property(UNKNOWN_MOVE_PROP))
     this_object()->do_look();
 

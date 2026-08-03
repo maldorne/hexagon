@@ -10,6 +10,10 @@ mapping connections;
 static object * loaded_locations;
 string file_name;
 string area_path;
+// exploration: whether entering this area grants an exploration achievement,
+// and the display name recorded in the player's diary when it does.
+int gives_exploration;
+string exploration_name;
 
 // prototype functions
 void add_loaded_location(object location);
@@ -21,6 +25,8 @@ void create() {
   connections = ([ ]);
   file_name = "";
   area_path = "";
+  gives_exploration = 0;
+  exploration_name = "";
   ::create();
 }
 
@@ -40,6 +46,21 @@ void set_file_name(string name)
 }
 
 mapping query_locations() { return locations; }
+
+// Exploration achievement granted on entering this area (see the player's
+// exploration component and the movement arrival hook).
+int query_gives_exploration() { return gives_exploration; }
+void set_gives_exploration(int flag)
+{
+  gives_exploration = flag;
+  save_me();
+}
+string query_exploration_name() { return exploration_name; }
+void set_exploration_name(string name)
+{
+  exploration_name = name;
+  save_me();
+}
 
 // Filters the area's loaded locations down to those carrying the
 // maze component. Derived, no separate storage — the maze flag lives

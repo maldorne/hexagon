@@ -13,14 +13,19 @@
 // area path as the stable id, so no global name->id registry is needed.
 
 #include <user/exploration.h>
+#include <language.h>
 
 static mapping exploration_data;
 static int exploration_loaded;
+// Area we were last known to be in, so the arrival hook fires only when the
+// player crosses into a different area.
+static string current_area_path;
 
 void create()
 {
   exploration_data = ([ ]);
   exploration_loaded = 0;
+  current_area_path = nil;
 }
 
 // Lazily read this player's exploration savefile, once per session.
@@ -100,6 +105,51 @@ string * query_explorations(string game)
     return ({ });
 
   return exploration_data[game][EXP_AREAS] + ({ });
+}
+
+// Called on arrival at a location (see lib/living/movement.c). Fires only
+// when the player crosses into a different area. If that area grants an
+// exploration achievement the player does not yet have, record it, reward,
+// and announce. Rooms-only games have no location/area, so nothing happens.
+void check_area_exploration(object location)
+{
+  object area;
+  string apath, game, area_display;
+
+  if (!location || !location->query_location())
+  {
+    current_area_path = nil;
+    return;
+  }
+
+  area = location->query_area();
+  if (!area)
+  {
+    current_area_path = nil;
+    return;
+  }
+
+  apath = area->query_area_path();
+  if (apath == current_area_path)
+    return;
+  current_area_path = apath;
+
+  if (!area->query_gives_exploration())
+    return;
+
+  area_display = area->query_exploration_name();
+  if (!area_display || area_display == "")
+    return;
+
+  game = game_from_path(location->query_file_name());
+
+  if (add_exploration(game, area_display))
+  {
+    this_object()->adjust_xp(EXPLORATION_XP);
+    tell_player(this_object(),
+      _LANG_EXPLORATION_DISCOVERED_PRE + area_display +
+      _LANG_EXPLORATION_DISCOVERED_POST);
+  }
 }
 
 // --- Travel anchors -------------------------------------------------------
