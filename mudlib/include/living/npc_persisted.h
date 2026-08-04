@@ -13,4 +13,7 @@
 // Persisted-NPC savefiles: /save/games/<game>/npcs/<letter>/<uuid>/npc.o
 #define NPC_SAVE_FILE  "npc.o"
 
+// version-4 uuid generator (packages/uuid)
+#define UUID_OB  "/packages/uuid/master"
+
 #endif

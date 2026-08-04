@@ -67,6 +67,7 @@ string query_file_name();
 void set_file_name(string filename);
 void save_me();
 void add_exits_from_exit_map(mapping m);
+object query_area();
 void set_exits_from_exit_map(mapping m);
 private mapping _exit_map_to_canonical(mapping m);
 private mapping _exit_map_to_local(mapping m);
@@ -634,10 +635,25 @@ int restore_from_file_name(string name)
     if (clonep() && strlen(file_name))
       LOCATION_CLEANER->register_object(this_object());
 
+    // populate this location's dynamic NPCs on the next tick, once it is
+    // fully loaded and in the world (see area::populate_location)
+    if (clonep() && strlen(file_name))
+      call_out("_area_populate", 0);
+
     return 1;
   }
 
   return 0;
+}
+
+// call_out target: ask our area to (re)materialize the NPCs assigned here.
+void _area_populate()
+{
+  object a;
+
+  a = query_area();
+  if (a)
+    a->populate_location(this_object());
 }
 
 int guess_coordinates()
@@ -987,6 +1003,15 @@ void dest_me()
   // hand the location back to the cleaner before it goes away
   if (clonep())
     LOCATION_CLEANER->deregister_object(this_object());
+
+  // persist our dynamic NPCs before the inventory is torn down below, so
+  // their state survives the unload (the census entries stay in the area)
+  {
+    object a;
+    a = query_area();
+    if (a)
+      a->drain_location(this_object());
+  }
 
   // similar to room.c
   arr = all_inventory(this_object());
