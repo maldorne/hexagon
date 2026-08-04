@@ -308,6 +308,27 @@ void do_tests()
     ASSERT(strsrch(out, "epsilon") >= 0);
   END_TEST();
 
+  TEST("- flag: a string that fits the field exactly is not word-wrapped");
+    // Regression: a string whose visible width equals the field must pass
+    // through verbatim. It must NOT be routed through multi_line(), which
+    // would collapse its internal space runs -- e.g. a right-justified size
+    // column. This is the bug that misaligned the widest cell in `ls`.
+    ASSERT(sprintf("%-4s", "a  b") == "a  b");
+    ASSERT(sprintf("%-6s", "x   yz") == "x   yz");
+    // one shorter than the field: padded on the right, spaces still intact
+    ASSERT(sprintf("%-5s", "a  b") == "a  b ");
+    // genuinely wider than the field still wraps (spaces collapse as before)
+    ASSERT(sprintf("%-3s", "a  b") == "a b");
+  END_TEST();
+
+  TEST("# table mode preserves internal spaces in the widest cell");
+    // The widest cell defines the column width, so align() receives it with
+    // width == its own length. It must be emitted as-is, not word-wrapped.
+    out = sprintf("%#-*s", 40, "[  1] xx\n99 yy\n");
+    ASSERT(strsrch(out, "[  1] xx") >= 0);   // widest cell: spaces intact
+    ASSERT(strsrch(out, "99 yy") >= 0);
+  END_TEST();
+
   // ---------------- %h / %H hex dump ----------------
 
   // The implementation reverses %h and %H relative to the spec doc:
