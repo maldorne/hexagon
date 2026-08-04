@@ -14,9 +14,15 @@ mapping query_loaded_areas() {
 
 // will create an area storage in the destination directory
 // (and create such directory if it doesn't exist)
-object create_area(string path) 
+object create_area(string path)
 {
   object area;
+
+  // normalise to a single trailing slash so create_area(".../rooms") and
+  // create_area(".../rooms/") key the same cached area (and never write a
+  // stray "roomsarea.o" from a slashless path).
+  if (strlen(path) && path[strlen(path) - 1] != '/')
+    path += "/";
 
   if (file_size(path) != -2)
     mkdir(path);
