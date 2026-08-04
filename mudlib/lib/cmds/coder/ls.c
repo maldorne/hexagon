@@ -63,7 +63,9 @@ string dir_entry(string path, string name, int mask, object me)
     if (mask & MASK_F)
       name += "/";
 
-    return "[    "[0..4 - strlen(size + "]")] + size + "] " + name;
+    // width matches the file branch below (7 chars incl. trailing space) so
+    // directory and file names line up in the same column
+    return "[     "[0..5 - strlen(size + "]")] + size + "] " + name;
   }
   else
   {
