@@ -10,11 +10,12 @@
 #include <areas/area.h>
 
 // Persisted into the NPC's own savefile so a restored NPC knows who it is.
-string npc_uuid;        // census identity; nil/"" => not a persisted NPC
-string npc_game;        // game slug, for the savefile path
-string npc_area_path;   // owning area (census controller)
-string npc_poi;         // owning point of interest, if any
-string npc_category;    // explicit coarse type; nil => derived on query
+string npc_uuid;         // census identity; nil/"" => not a persisted NPC
+string npc_game;         // game slug, for the savefile path
+string npc_area_path;    // owning area (census controller)
+string npc_poi;          // owning point of interest, if any
+string * npc_categories; // coarse types (aggressive/animal/citizen/...); a
+                         // single NPC can carry several. Empty => derived.
 
 void create()
 {
@@ -22,7 +23,7 @@ void create()
   npc_game = nil;
   npc_area_path = nil;
   npc_poi = nil;
-  npc_category = nil;
+  npc_categories = ({ });
 }
 
 int query_persisted() { return npc_uuid && strlen(npc_uuid); }
@@ -39,19 +40,31 @@ void set_npc_area_path(string s) { npc_area_path = s; }
 string query_npc_poi() { return npc_poi; }
 void set_npc_poi(string s) { npc_poi = s; }
 
-void set_npc_category(string s) { npc_category = s; }
-string query_npc_category()
+void set_npc_categories(string * a) { npc_categories = a ? a : ({ }); }
+void add_npc_category(string s)
 {
-  if (npc_category && strlen(npc_category))
-    return npc_category;
+  if (member_array(s, npc_categories) < 0)
+    npc_categories += ({ s });
+}
 
-  // No explicit category: derive a coarse default. Aggressive mobs read as
+string * query_npc_categories()
+{
+  if (sizeof(npc_categories))
+    return npc_categories[..];
+
+  // No explicit categories: derive a coarse default. Aggressive mobs read as
   // aggressive, everything else as pacific. The finer buckets
   // (animal/citizen/guard) are set explicitly by the blueprint or generator.
   if (this_object()->query_aggressive())
-    return NPC_CATEGORY_AGGRESSIVE;
+    return ({ NPC_CATEGORY_AGGRESSIVE });
 
-  return NPC_CATEGORY_PACIFIC;
+  return ({ NPC_CATEGORY_PACIFIC });
+}
+
+// convenience membership test
+int is_npc_category(string s)
+{
+  return member_array(s, query_npc_categories()) >= 0;
 }
 
 // Persist this NPC to its own savefile. Inert for a non-persisted mob. The
