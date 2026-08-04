@@ -19,7 +19,9 @@ string exploration_name;
 // Dynamic NPC population (see dev/area-npc-system.md).
 //   npc_intended: configuration -- what may spawn here and how many.
 //     ([ kind : ([ "category": ({ ids }), "source": blueprint_path,
-//                  "max": int, "zones": ({ room_zone, ... }) or nil ]) ])
+//                  "max": int ]) ])
+//   (Fine-grained placement -- which location/POI, sector-type weighting --
+//    is layered on in F2; F1 spawns anywhere in the area up to the cap.)
 //   npc_census:   live state -- which concrete NPCs exist and where.
 //     ([ uuid : ([ "kind": kind, "location": location_file,
 //                  "savefile": npc.o path ]) ])
@@ -237,13 +239,11 @@ void set_npc_intended(mapping m)
 
 // Declare (or replace) an intended NPC kind for this area. `categories` is
 // the coarse type list stamped on the mob, `source` the blueprint to clone,
-// `max` the area-wide population cap, `zones` an optional room-zone filter
-// (nil/empty = any location in the area).
-void add_intended_npc(string kind, string * categories, string source,
-                      int max, string * zones)
+// `max` the area-wide population cap.
+void add_intended_npc(string kind, string * categories, string source, int max)
 {
   npc_intended[kind] = ([ "category": categories, "source": source,
-                          "max": max, "zones": zones ]);
+                          "max": max ]);
   save_me();
 }
 
@@ -295,20 +295,6 @@ private int npc_uuid_present(object loc, string uuid)
       return 1;
 
   return 0;
-}
-
-// A location is eligible for a kind when the kind declares no zone filter, or
-// the location shares at least one of the declared room zones.
-private int npc_location_eligible(object loc, mapping spec)
-{
-  string * need, * have;
-
-  need = spec["zones"];
-  if (!need || !sizeof(need))
-    return 1;
-
-  have = loc->query_room_zones();
-  return have && sizeof(have & need) > 0;
 }
 
 // Clone the kind's blueprint, stamp a fresh identity, move it into `loc`,
@@ -394,14 +380,14 @@ void populate_location(object loc)
     if (!npc_uuid_present(loc, ids[i]))
       npc_restore(ids[i], loc);
 
-  // 2. spawn toward the cap for each eligible kind (one per load; the
-  //    population spreads as more eligible locations are visited)
+  // 2. spawn toward the cap for each intended kind (one per load; the
+  //    population spreads across the area as more locations are visited).
+  //    Which location/POI a kind belongs in is refined in F2.
   kinds = map_indices(npc_intended);
   for (i = 0; i < sizeof(kinds); i++)
   {
     spec = npc_intended[kinds[i]];
-    if (npc_location_eligible(loc, spec) &&
-        npc_kind_count(kinds[i]) < spec["max"])
+    if (npc_kind_count(kinds[i]) < spec["max"])
       npc_spawn(kinds[i], loc);
   }
 }
