@@ -20,6 +20,7 @@ static nomask void stderr(string str);
 #include "/lib/core/efuns/object.c"
 #include "/lib/core/efuns/shadow.c"
 #include "/lib/core/efuns/user.c"
+#include "/lib/core/efuns/npc.c"
 #include "/lib/core/efuns/calls.c"
 #include "/lib/core/efuns/filter.c"
 #include "/lib/core/efuns/compiler.c"

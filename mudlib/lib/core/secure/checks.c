@@ -386,6 +386,13 @@ nomask int valid_write(string path, mixed euid, string func)
   else
     return 0;
 
+  // Persisted NPC savefiles live under /save/games/<game>/npcs/<letter>/<uuid>/;
+  // allow the mob/area to create the folders and write the .o. save_object
+  // itself is already permitted below, but make_dir needs an explicit rule.
+  if ((func == "save_object" || func == "make_dir") && (sizeof(bing) >= 4) &&
+     (bing[0] == "save") && (bing[1] == "games") && (bing[3] == "npcs"))
+    return 1;
+
   // Little patch to plug a security leak -- Wahooka
   // save_object writes the player savefile; make_dir creates the per-player folder
   // (/save/players/<l>/<name>/) on first save. Both are allowed only when
