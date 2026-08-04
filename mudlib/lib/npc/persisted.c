@@ -6,7 +6,7 @@
 // notified. This lets any existing blueprint be area-driven without changing
 // its inherit chain, and leaves plain room mobs completely untouched.
 
-#include <living/npc_persisted.h>
+#include <living/persisted.h>
 #include <areas/area.h>
 
 // Persisted into the NPC's own savefile so a restored NPC knows who it is.
@@ -17,6 +17,18 @@ string npc_poi;          // owning point of interest, if any
 string * npc_categories; // coarse types (aggressive/animal/citizen/...); a
                          // single NPC can carry several. Empty => derived.
 
+// Saved shadows of the static display / id fields. name/short/long, the
+// alias & plural lists and the main plural all live in static vars, so a
+// save_object template would not carry them; capture_for_template copies
+// static -> shadow before a snapshot and apply_from_template copies
+// shadow -> static after a template is restored into a generic mob.
+string _tmpl_name, _tmpl_short, _tmpl_long, _tmpl_main_plural;
+string * _tmpl_aliases, * _tmpl_plurals;
+
+// defined below; used by save_npc / restore_npc before their definition
+private void _capture_display_shadows();
+private void _apply_display_shadows();
+
 void create()
 {
   npc_uuid = nil;
@@ -24,6 +36,12 @@ void create()
   npc_area_path = nil;
   npc_poi = nil;
   npc_categories = ({ });
+  _tmpl_name = nil;
+  _tmpl_short = nil;
+  _tmpl_long = nil;
+  _tmpl_main_plural = nil;
+  _tmpl_aliases = nil;
+  _tmpl_plurals = nil;
 }
 
 int query_persisted() { return npc_uuid && strlen(npc_uuid); }
@@ -80,6 +98,8 @@ int save_npc()
   dir = npc_save_dir(npc_game, npc_uuid);
   // save_object does not create directories; mkdir is recursive here
   mkdir(dir);
+  // fold the static display fields into saved shadows so they survive the save
+  _capture_display_shadows();
   return !catch(save_object(dir + NPC_SAVE_FILE, 1));
 }
 
@@ -87,10 +107,62 @@ int save_npc()
 // (uuid + game) first. Inert for a non-persisted mob.
 int restore_npc()
 {
+  int r;
+
   if (!query_persisted() || !npc_game)
     return 0;
 
-  return restore_object(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE, 1);
+  r = restore_object(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE, 1);
+  // restore the static display fields from their saved shadows
+  _apply_display_shadows();
+  return r;
+}
+
+// name/short/long, the alias & plural lists and the main plural live in static
+// vars, which save_object does not persist. These helpers shadow them into the
+// saved _tmpl_* vars around every save/restore (both templates and savefiles),
+// so a generic mob rebuilt from data still shows and matches as its original.
+private void _capture_display_shadows()
+{
+  _tmpl_name = this_object()->query_name();
+  _tmpl_short = this_object()->query_short();
+  _tmpl_long = this_object()->query_long();
+  _tmpl_main_plural = this_object()->query_main_plural();
+  _tmpl_aliases = this_object()->query_alias();
+  _tmpl_plurals = this_object()->query_plurals();
+}
+
+private void _apply_display_shadows()
+{
+  if (_tmpl_name)
+    this_object()->set_name(_tmpl_name);
+  if (_tmpl_short)
+    this_object()->set_short(_tmpl_short);
+  if (_tmpl_long)
+    this_object()->set_long(_tmpl_long);
+  if (_tmpl_main_plural)
+    this_object()->set_main_plural(_tmpl_main_plural);
+  if (_tmpl_aliases)
+    this_object()->set_aliases(_tmpl_aliases);
+  if (_tmpl_plurals)
+    this_object()->set_plurals(_tmpl_plurals);
+}
+
+// Save this mob's data as a bestiary template (whole-object snapshot plus the
+// display shadows). restore_template rebuilds a generic mob from one.
+int save_template(string file)
+{
+  _capture_display_shadows();
+  return !catch(save_object(file, 1));
+}
+
+int restore_template(string file)
+{
+  int r;
+
+  r = restore_object(file, 1);
+  _apply_display_shadows();
+  return r;
 }
 
 // Delete the savefile (on death). Leaves the letter/uuid folders behind; an

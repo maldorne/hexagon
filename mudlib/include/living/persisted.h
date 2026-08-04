@@ -1,5 +1,5 @@
-#ifndef NPC_PERSISTED_H
-#define NPC_PERSISTED_H
+#ifndef PERSISTED_H
+#define PERSISTED_H
 
 // Coarse NPC category ids (English), used by the area census and the spawner
 // to classify persisted NPCs. Plain string ids so area config and diplomacy
@@ -15,5 +15,11 @@
 
 // version-4 uuid generator (packages/uuid)
 #define UUID_OB  "/packages/uuid/master"
+
+// NPC data-template store: snapshots a hand-authored NPC .c into a data
+// template once; a generic mob is then spawned from the template so the .c
+// is a one-time seed, never reloaded at spawn (mirrors room -> location).
+#define BESTIARY_HANDLER  "/lib/handlers/bestiary"
+#define GENERIC_MOB       "/lib/npc/generated"
 
 #endif

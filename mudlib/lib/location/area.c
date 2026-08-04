@@ -1,7 +1,7 @@
 inherit "/lib/core/object.c";
 
 #include <room/location.h>
-#include <living/npc_persisted.h>
+#include <living/persisted.h>
 
 // mapping in the form ([ file_name : location_data ])
 mapping locations;
@@ -237,31 +237,31 @@ void set_npc_intended(mapping m)
   save_me();
 }
 
-// Declare (or replace) an intended NPC kind for this area. `categories` is
-// the coarse type list stamped on the mob, `source` the blueprint to clone,
-// `max` the area-wide population cap.
-void add_intended_npc(string kind, string * categories, string source, int max)
+// Declare (or replace) an intended NPC for this area. `source` is the NPC's
+// blueprint path -- it is the identity (census key) and is snapshotted into a
+// data template on first spawn. `categories` is an optional coarse-type list
+// stamped on the mob, `max` the area-wide population cap.
+void add_intended_npc(string source, string * categories, int max)
 {
-  npc_intended[kind] = ([ "category": categories, "source": source,
-                          "max": max ]);
+  npc_intended[source] = ([ "category": categories, "max": max ]);
   save_me();
 }
 
-void remove_intended_npc(string kind)
+void remove_intended_npc(string source)
 {
-  map_delete(npc_intended, kind);
+  map_delete(npc_intended, source);
   save_me();
 }
 
-// Number of live census entries of a given kind (materialized or not).
-private int npc_kind_count(string kind)
+// Number of live census entries for a given source (materialized or not).
+private int npc_source_count(string source)
 {
   string * ids;
   int i, n;
 
   ids = map_indices(npc_census);
   for (i = 0; i < sizeof(ids); i++)
-    if (npc_census[ids[i]]["kind"] == kind)
+    if (npc_census[ids[i]]["source"] == source)
       n++;
 
   return n;
@@ -297,25 +297,30 @@ private int npc_uuid_present(object loc, string uuid)
   return 0;
 }
 
-// Clone the kind's blueprint, stamp a fresh identity, move it into `loc`,
-// persist it and record the census entry. Returns the new NPC or nil.
-private object npc_spawn(string kind, object loc)
+// Spawn a fresh NPC of `source` into `loc`: ensure the source is snapshotted
+// into a data template, clone a generic mob from that template (never the
+// source .c), stamp identity, persist and record the census entry.
+private object npc_spawn(string source, object loc)
 {
   mapping spec;
   object npc;
   string id, game;
 
-  spec = npc_intended[kind];
-  if (!spec || !spec["source"])
-    return nil;
-
-  npc = clone_object(spec["source"]);
-  if (!npc)
+  spec = npc_intended[source];
+  if (!spec)
     return nil;
 
   game = game_from_path(area_path);
-  id = UUID_OB->uuid();
 
+  // snapshot the source .c into its data template on first use
+  if (!BESTIARY_HANDLER->query_has_template(game, source))
+    BESTIARY_HANDLER->add_template(source);
+
+  npc = BESTIARY_HANDLER->spawn_from_template(game, source);
+  if (!npc)
+    return nil;
+
+  id = UUID_OB->uuid();
   npc->set_npc_uuid(id);
   npc->set_npc_game(game);
   npc->set_npc_area_path(area_path);
@@ -325,32 +330,27 @@ private object npc_spawn(string kind, object loc)
   npc->move(loc);
   npc->save_npc();
 
-  npc_census[id] = ([ "kind": kind, "location": loc->query_file_name(),
+  npc_census[id] = ([ "source": source, "location": loc->query_file_name(),
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE ]);
   save_me();
 
   return npc;
 }
 
-// Re-materialize an existing census NPC into `loc`, loading its saved state.
+// Re-materialize an existing census NPC into `loc` from its own savefile (a
+// generic-mob snapshot that carries its live state), not from the template.
 private object npc_restore(string id, object loc)
 {
-  mapping entry, spec;
   object npc;
 
-  entry = npc_census[id];
-  spec = npc_intended[entry["kind"]];
-  if (!spec || !spec["source"])
-    return nil;
-
-  npc = clone_object(spec["source"]);
+  npc = clone_object(GENERIC_MOB);
   if (!npc)
     return nil;
 
   npc->set_npc_uuid(id);
   npc->set_npc_game(game_from_path(area_path));
   npc->set_npc_area_path(area_path);
-  npc->restore_npc();
+  npc->restore_npc();   // restores saved state and re-applies display shadows
   npc->move(loc);
 
   return npc;
@@ -358,12 +358,12 @@ private object npc_restore(string id, object loc)
 
 // Called (via call_out) when a location of this area finishes loading: bring
 // back the NPCs the census assigns here, then top up toward the area caps for
-// every eligible intended kind. Idempotent -- already-present NPCs are left
-// alone, so repeated prewarm load/unload does not duplicate population.
+// every intended source. Idempotent -- already-present NPCs are left alone, so
+// repeated prewarm load/unload does not duplicate population.
 void populate_location(object loc)
 {
   string file;
-  string * ids, * kinds;
+  string * ids, * sources;
   int i;
   mapping spec;
 
@@ -380,15 +380,15 @@ void populate_location(object loc)
     if (!npc_uuid_present(loc, ids[i]))
       npc_restore(ids[i], loc);
 
-  // 2. spawn toward the cap for each intended kind (one per load; the
+  // 2. spawn toward the cap for each intended source (one per load; the
   //    population spreads across the area as more locations are visited).
-  //    Which location/POI a kind belongs in is refined in F2.
-  kinds = map_indices(npc_intended);
-  for (i = 0; i < sizeof(kinds); i++)
+  //    Which location/POI a source belongs in is refined in F2.
+  sources = map_indices(npc_intended);
+  for (i = 0; i < sizeof(sources); i++)
   {
-    spec = npc_intended[kinds[i]];
-    if (npc_kind_count(kinds[i]) < spec["max"])
-      npc_spawn(kinds[i], loc);
+    spec = npc_intended[sources[i]];
+    if (npc_source_count(sources[i]) < spec["max"])
+      npc_spawn(sources[i], loc);
   }
 }
 
