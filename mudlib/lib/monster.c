@@ -23,7 +23,6 @@ inherit friends    "/lib/npc/friends.c";
 inherit chatter    "/lib/npc/chatter.c";
 inherit npc_combat "/lib/npc/npc_combat.c";
 inherit npc_timed  "/lib/npc/npc_timed.c";
-inherit persisted  "/lib/npc/persisted.c";
 
 // already defined in living/combat.c
 // static int combat_counter;  /* Counts what we should do next in combat */
@@ -73,7 +72,6 @@ void create()
   chatter::create();
   npc_combat::create();
   npc_timed::create();
-  persisted::create();
   // setup() call is inside this create(),
   // so this has to be the last one
   living::create();
@@ -147,16 +145,7 @@ void set_only_one(int value)
 
 int do_death(varargs object killer)
 {
-  int r;
-
-  r = ::do_death(killer);
-
-  // once the NPC has actually died, let the persisted layer free its area
-  // census slot and drop its savefile. Inert for plain (non-persisted) mobs.
-  if (this_object() && query_dead())
-    persisted_npc_died();
-
-  return r;
+  return ::do_death(killer);
 }
 
 // Taniwha 1996. Simply for the convenience of it

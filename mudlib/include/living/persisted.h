@@ -17,9 +17,9 @@
 #define UUID_OB  "/packages/uuid/master"
 
 // NPC data-template store: snapshots a hand-authored NPC .c into a data
-// template once; a generic mob is then spawned from the template so the .c
+// template once; a generic NPC is then spawned from the template so the .c
 // is a one-time seed, never reloaded at spawn (mirrors room -> location).
 #define BESTIARY_HANDLER  "/lib/handlers/bestiary"
-#define GENERIC_MOB       "/lib/npc/generated"
+#define GENERIC_NPC       "/lib/npc"
 
 #endif

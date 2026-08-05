@@ -240,7 +240,7 @@ void set_npc_intended(mapping m)
 // Declare (or replace) an intended NPC for this area. `source` is the NPC's
 // blueprint path -- it is the identity (census key) and is snapshotted into a
 // data template on first spawn. `categories` is an optional coarse-type list
-// stamped on the mob, `max` the area-wide population cap.
+// stamped on the NPC, `max` the area-wide population cap.
 void add_intended_npc(string source, string * categories, int max)
 {
   npc_intended[source] = ([ "category": categories, "max": max ]);
@@ -282,7 +282,7 @@ private string * npc_census_for_location(string location_file)
   return ret;
 }
 
-// Is `uuid` already materialized inside `loc`? Non-mob contents answer nil to
+// Is `uuid` already materialized inside `loc`? Non-NPC contents answer nil to
 // query_npc_uuid (DGD call_other to an undefined function returns nil).
 private int npc_uuid_present(object loc, string uuid)
 {
@@ -298,7 +298,7 @@ private int npc_uuid_present(object loc, string uuid)
 }
 
 // Spawn a fresh NPC of `source` into `loc`: ensure the source is snapshotted
-// into a data template, clone a generic mob from that template (never the
+// into a data template, clone a generic NPC from that template (never the
 // source .c), stamp identity, persist and record the census entry.
 private object npc_spawn(string source, object loc)
 {
@@ -337,20 +337,25 @@ private object npc_spawn(string source, object loc)
   return npc;
 }
 
-// Re-materialize an existing census NPC into `loc` from its own savefile (a
-// generic-mob snapshot that carries its live state), not from the template.
+// Re-materialize an existing census NPC into `loc`: a generic NPC with the
+// source's data template applied (name/race/...), then its own savefile
+// restored on top to carry any mutable state that diverged from the template.
 private object npc_restore(string id, object loc)
 {
   object npc;
+  string game;
 
-  npc = clone_object(GENERIC_MOB);
+  npc = clone_object(GENERIC_NPC);
   if (!npc)
     return nil;
 
+  game = game_from_path(area_path);
   npc->set_npc_uuid(id);
-  npc->set_npc_game(game_from_path(area_path));
+  npc->set_npc_game(game);
   npc->set_npc_area_path(area_path);
-  npc->restore_npc();   // restores saved state and re-applies display shadows
+  npc->apply_template(BESTIARY_HANDLER->query_template(game,
+                        npc_census[id]["source"]));
+  npc->restore_npc();
   npc->move(loc);
 
   return npc;

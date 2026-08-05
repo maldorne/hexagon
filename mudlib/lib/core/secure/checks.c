@@ -389,7 +389,8 @@ nomask int valid_write(string path, mixed euid, string func)
   // Persisted NPC savefiles live under /save/games/<game>/npcs/<letter>/<uuid>/;
   // allow the mob/area to create the folders and write the .o. save_object
   // itself is already permitted below, but make_dir needs an explicit rule.
-  if ((func == "save_object" || func == "make_dir") && (sizeof(bing) >= 4) &&
+  if ((func == "save_object" || func == "make_dir" || func == "write_file" ||
+       func == "remove_file") && (sizeof(bing) >= 4) &&
      (bing[0] == "save") && (bing[1] == "games") && (bing[3] == "npcs"))
     return 1;
 

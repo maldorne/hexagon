@@ -50,6 +50,13 @@ static nomask string game_name(varargs object ob)
   if (ob->query_player() && environment(ob))
     return game_name(environment(ob));
 
+  // area-managed NPCs carry their game explicitly: a generic /lib/npc clone
+  // has no game-bound file path, so trust its npc_game for per-game lookups
+  // (race/class dirs, handlers, ...). Non-NPC objects answer nil here.
+  saved = ob->query_npc_game();
+  if (saved && strlen(saved))
+    return saved;
+
   // location / area / sector storage: the LPC file_name is a generic
   // clone (/lib/location#N, /lib/maps/sector#N, /lib/location/area#N);
   // the game-bound path lives in query_file_name().
