@@ -104,9 +104,10 @@ int add_template(string source)
   dir = tfile[0 .. slash - 1];
   mkdir(dir);
 
-  // write_file appends; drop any previous version first
+  // write_file appends; drop any previous version first. Pretty-print so the
+  // template stays hand-readable / editable.
   remove_file(tfile);
-  return write_file(tfile, json_encode(t));
+  return write_file(tfile, json_encode(t, 1));
 }
 
 // The template mapping for a source, or nil if none.

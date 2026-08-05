@@ -8,9 +8,9 @@
 
 #define JSON_PACKAGE "/packages/json/master"
 
-static string json_encode(mixed value)
+static string json_encode(mixed value, varargs int pretty)
 {
-  return JSON_PACKAGE->encode(value);
+  return JSON_PACKAGE->encode(value, pretty);
 }
 
 static mixed json_decode(string text)

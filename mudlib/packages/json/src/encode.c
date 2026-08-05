@@ -17,8 +17,11 @@
 
 #include <type.h>
 
+#define JSON_INDENT 2   // spaces per level in pretty mode
+
 private string _json_encode_string(string str);
-private string _json_encode_value(mixed value);
+private string _json_encode_value(mixed value, int pretty, int depth);
+private string _json_spaces(int n);
 
 private string _json_encode_string(string str)
 {
@@ -54,7 +57,21 @@ private string _json_encode_string(string str)
   return result + "\"";
 }
 
-private string _json_encode_value(mixed value)
+private string _json_spaces(int n)
+{
+  string s;
+
+  s = "";
+  while (n-- > 0)
+    s += " ";
+
+  return s;
+}
+
+// Serialize `value`. When `pretty` is set, objects and arrays are laid out one
+// element per line, indented JSON_INDENT spaces per level (`depth` is the
+// current nesting depth); otherwise the output is compact.
+private string _json_encode_value(mixed value, int pretty, int depth)
 {
   int t;
 
@@ -77,38 +94,52 @@ private string _json_encode_value(mixed value)
 
     case T_ARRAY:
     {
-      string * parts;
+      string * parts, inner, outer;
       int i, sz;
 
       sz = sizeof(value);
+      if (sz == 0)
+        return "[]";
+
       parts = allocate(sz);
-
       for (i = 0; i < sz; i++)
-        parts[i] = _json_encode_value(value[i]);
+        parts[i] = _json_encode_value(value[i], pretty, depth + 1);
 
-      return "[" + implode(parts, ",") + "]";
+      if (!pretty)
+        return "[" + implode(parts, ",") + "]";
+
+      inner = _json_spaces((depth + 1) * JSON_INDENT);
+      outer = _json_spaces(depth * JSON_INDENT);
+      return "[\n" + inner + implode(parts, ",\n" + inner) + "\n" + outer + "]";
     }
 
     case T_MAPPING:
     {
       mixed * keys;
-      string * parts;
+      string * parts, inner, outer;
       int i, sz;
 
       keys = map_indices(value);
       sz = sizeof(keys);
-      parts = allocate(sz);
+      if (sz == 0)
+        return "{}";
 
+      parts = allocate(sz);
       for (i = 0; i < sz; i++)
       {
         if (typeof(keys[i]) != T_STRING)
           error("json_encode: mapping keys must be strings");
 
-        parts[i] = _json_encode_string(keys[i]) + ":" +
-                   _json_encode_value(value[keys[i]]);
+        parts[i] = _json_encode_string(keys[i]) + (pretty ? ": " : ":") +
+                   _json_encode_value(value[keys[i]], pretty, depth + 1);
       }
 
-      return "{" + implode(parts, ",") + "}";
+      if (!pretty)
+        return "{" + implode(parts, ",") + "}";
+
+      inner = _json_spaces((depth + 1) * JSON_INDENT);
+      outer = _json_spaces(depth * JSON_INDENT);
+      return "{\n" + inner + implode(parts, ",\n" + inner) + "\n" + outer + "}";
     }
 
     case T_OBJECT:
@@ -123,7 +154,8 @@ private string _json_encode_value(mixed value)
   }
 }
 
-string encode(mixed value)
+// encode(value) -> compact JSON; encode(value, 1) -> pretty (indented) JSON.
+string encode(mixed value, varargs int pretty)
 {
-  return _json_encode_value(value);
+  return _json_encode_value(value, pretty, 0);
 }

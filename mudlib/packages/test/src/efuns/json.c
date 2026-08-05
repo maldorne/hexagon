@@ -302,4 +302,50 @@ void do_tests()
     ]);
     ASSERT(EQUALS(json_decode(json_encode(value)), value));
   END_TEST();
+
+  // ---------------- pretty printing (encode second arg) ----------------
+
+  TEST("pretty flag defaults off (no arg, or 0)");
+    ASSERT(json_encode(([ "a" : 1, "b" : 2 ])) == "{\"a\":1,\"b\":2}");
+    ASSERT(json_encode(([ "a" : 1, "b" : 2 ]), 0) == "{\"a\":1,\"b\":2}");
+  END_TEST();
+
+  TEST("pretty leaves scalars unchanged");
+    ASSERT(json_encode(5, 1) == "5");
+    ASSERT(json_encode("x", 1) == "\"x\"");
+    ASSERT(json_encode(nil, 1) == "null");
+  END_TEST();
+
+  TEST("pretty object: one key per line, 2-space indent, space after colon");
+    ASSERT(json_encode(([ "a" : 1, "b" : 2 ]), 1) ==
+           "{\n  \"a\": 1,\n  \"b\": 2\n}");
+  END_TEST();
+
+  TEST("pretty array: one element per line");
+    ASSERT(json_encode(({ 1, 2 }), 1) == "[\n  1,\n  2\n]");
+  END_TEST();
+
+  TEST("pretty keeps empty object / array compact");
+    ASSERT(json_encode(([ ]), 1) == "{}");
+    ASSERT(json_encode(({ }), 1) == "[]");
+  END_TEST();
+
+  TEST("pretty deepens the indent for nested containers");
+    ASSERT(json_encode(([ "k" : ({ 1, 2 }) ]), 1) ==
+           "{\n  \"k\": [\n    1,\n    2\n  ]\n}");
+    ASSERT(json_encode(({ ([ "a" : 1 ]) }), 1) ==
+           "[\n  {\n    \"a\": 1\n  }\n]");
+  END_TEST();
+
+  TEST("pretty round-trips through decode (whitespace ignored)");
+    value = ([
+      "users" : ({
+        ([ "name" : "alice", "level" : 10 ]),
+        ([ "name" : "bob",   "level" : 5  ]),
+      }),
+      "count" : 2,
+      "next"  : nil,
+    ]);
+    ASSERT(EQUALS(json_decode(json_encode(value, 1)), value));
+  END_TEST();
 }
