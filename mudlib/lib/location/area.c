@@ -30,6 +30,13 @@ string exploration_name;
 // but the census entry survives so the same NPC comes back.
 mapping npc_intended;
 mapping npc_census;
+// Per-location NPC provenance from the room2loc conversion:
+//   ([ location_file : ([ blueprint_path : count ]) ])
+// This is the seed for npc_intended: the area cap for a blueprint is the sum
+// of that blueprint's add_clone counts across every room of the area. Keeping
+// it per location makes reconversion idempotent (a location overwrites only
+// its own entry) without reloading the whole area.
+mapping npc_sources;
 
 // prototype functions
 void add_loaded_location(object location);
@@ -45,6 +52,7 @@ void create() {
   exploration_name = "";
   npc_intended = ([ ]);
   npc_census = ([ ]);
+  npc_sources = ([ ]);
   ::create();
 }
 
@@ -250,6 +258,51 @@ void add_intended_npc(string source, string * categories, int max)
 void remove_intended_npc(string source)
 {
   map_delete(npc_intended, source);
+  save_me();
+}
+
+mapping query_npc_sources() { return npc_sources; }
+
+// Recompute npc_intended from the per-location conversion provenance: the
+// area cap for a blueprint is the sum of its add_clone counts across every
+// room of the area.
+private void _recompute_intended()
+{
+  string * locs, * blueprints;
+  int i, j;
+  mapping totals, clones;
+
+  totals = ([ ]);
+  locs = map_indices(npc_sources);
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    clones = npc_sources[locs[i]];
+    blueprints = map_indices(clones);
+    for (j = 0; j < sizeof(blueprints); j++)
+      totals[blueprints[j]] =
+        (totals[blueprints[j]] ? totals[blueprints[j]] : 0) +
+        clones[blueprints[j]];
+  }
+
+  npc_intended = ([ ]);
+  blueprints = map_indices(totals);
+  for (i = 0; i < sizeof(blueprints); i++)
+    npc_intended[blueprints[i]] = ([ "category": nil,
+                                     "max": totals[blueprints[i]] ]);
+}
+
+// Record a converted location's NPC blueprints (its source room's add_clone
+// counts, kept on the location as _original_add_clones) and recompute the area
+// cap. Idempotent: reconverting a location overwrites only its own entry. This
+// is the room2loc seed for the area's population.
+void set_location_npc_sources(string location_file, mapping clones)
+{
+  if (clones && map_sizeof(clones))
+    npc_sources[location_file] = map_copy(clones);
+  else
+    map_delete(npc_sources, location_file);
+
+  _recompute_intended();
   save_me();
 }
 

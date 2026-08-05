@@ -9,6 +9,7 @@
 #include <maps/maps.h>
 #include <room/location.h>
 #include <room/room.h>
+#include <living/persisted.h>
 #include <translations/exits.h>
 
 // Resolve a target string into the list of files it represents for
@@ -496,7 +497,7 @@ object convert_room_to_location(object room)
 {
   object location;
   string file_name, * exits, ret;
-  mapping exit_map;
+  mapping exit_map, clones;
   int i;
 
   if (!room)
@@ -520,10 +521,12 @@ object convert_room_to_location(object room)
     location->set_file_name(file_name);
   }
 
+  clones = _extract_original_add_clones(room);
+
   location->set_original_room_file_name(base_name(room) + ".c");
   location->set_original_short(room->query_short());
   location->set_original_long(room->query_long());
-  location->set_original_add_clones(_extract_original_add_clones(room));
+  location->set_original_add_clones(clones);
   location->set_original_items(_extract_original_items(room));
   location->stamp_last_imported_at();
 
@@ -604,6 +607,30 @@ object convert_room_to_location(object room)
   write(ret);
 
   location->save_me();
+
+  // Seed the area's NPC population from the room's add_clone data. We have the
+  // room and the new location here, so read the room's blueprints directly (a
+  // location's _original_add_clones is only a backup snapshot). Record this
+  // location's contribution -- the area sums it into a per-blueprint cap -- and
+  // snapshot each blueprint's data template so it is ready to inspect / edit.
+  {
+    object area;
+
+    area = location->query_area();
+    if (area)
+    {
+      string game, * blueprints;
+      int c;
+
+      game = game_from_path(location->query_file_name());
+      area->set_location_npc_sources(location->query_file_name(), clones);
+
+      blueprints = map_indices(clones);
+      for (c = 0; c < sizeof(blueprints); c++)
+        if (!BESTIARY_HANDLER->query_has_template(game, blueprints[c]))
+          BESTIARY_HANDLER->add_template(blueprints[c]);
+    }
+  }
 
   return location;
 }
