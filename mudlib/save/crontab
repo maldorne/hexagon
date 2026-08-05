@@ -13,6 +13,9 @@
 # every 10 minutes, update_ventures
 10 * /lib/handlers/ventures.c update_ventures
 
+# every 10 minutes, top up each area's NPC population
+*/10 * /lib/handlers/population.c update_population
+
 # old timed.c checks
 */5 * /lib/handlers/cron.c do_stat_users
 * * /lib/handlers/cron.c do_idletest

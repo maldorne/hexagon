@@ -2,6 +2,7 @@ inherit "/lib/core/object.c";
 
 #include <room/location.h>
 #include <living/persisted.h>
+#include <areas/area.h>
 
 // mapping in the form ([ file_name : location_data ])
 mapping locations;
@@ -37,10 +38,6 @@ mapping npc_census;
 // it per location makes reconversion idempotent (a location overwrites only
 // its own entry) without reloading the whole area.
 mapping npc_sources;
-// Locations already given their one-time statistical NPC seed (the first time
-// a player reaches them): ([ location_file : 1 ]). A seeded location is not
-// re-rolled on later loads.
-mapping seeded_locations;
 
 // prototype functions
 void add_loaded_location(object location);
@@ -57,7 +54,6 @@ void create() {
   npc_intended = ([ ]);
   npc_census = ([ ]);
   npc_sources = ([ ]);
-  seeded_locations = ([ ]);
   ::create();
 }
 
@@ -308,6 +304,11 @@ void set_location_npc_sources(string location_file, mapping clones)
     map_delete(npc_sources, location_file);
 
   _recompute_intended();
+
+  // register with the population sweep so it keeps this area topped up
+  if (map_sizeof(npc_intended))
+    POPULATION_HANDLER->include_area(area_path);
+
   save_me();
 }
 
@@ -356,67 +357,64 @@ private int npc_uuid_present(object loc, string uuid)
   return 0;
 }
 
-// Spawn a fresh NPC of `source` into `loc`: ensure the source is snapshotted
-// into a data template, clone a generic NPC from that template (never the
-// source .c), stamp identity, persist and record the census entry.
-private object npc_spawn(string source, object loc)
+// Assign a new NPC of `source` to `location_file` as data only: ensure the
+// source has a data template and record a census entry. No object is
+// materialized -- it becomes real (cloned from the template and saved) when
+// the location loads (npc_restore). This is what the population sweep calls to
+// scatter NPCs across the area without loading any location. Returns the uuid.
+string assign_npc(string source, string location_file)
 {
-  mapping spec;
-  object npc;
   string id, game;
 
-  spec = npc_intended[source];
-  if (!spec)
+  if (!npc_intended[source])
     return nil;
 
   game = game_from_path(area_path);
-
-  // snapshot the source .c into its data template on first use
   if (!BESTIARY_HANDLER->has_template(game, source))
     BESTIARY_HANDLER->add_template(source);
 
-  npc = BESTIARY_HANDLER->spawn_from_template(game, source);
-  if (!npc)
-    return nil;
-
   id = UUID_OB->uuid();
-  npc->set_npc_uuid(id);
-  npc->set_npc_game(game);
-  npc->set_npc_area_path(area_path);
-  if (spec["category"])
-    npc->set_npc_categories(spec["category"]);
-
-  npc->move(loc);
-  npc->save_npc();
-
-  npc_census[id] = ([ "source": source, "location": loc->query_file_name(),
+  npc_census[id] = ([ "source": source, "location": location_file,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE ]);
   save_me();
 
-  return npc;
+  return id;
 }
 
-// Re-materialize an existing census NPC into `loc`: a generic NPC with the
-// source's data template applied (name/race/...), then its own savefile
-// restored on top to carry any mutable state that diverged from the template.
+// Materialize a census NPC into `loc`: a generic NPC with the source's data
+// template applied. If it already has a savefile (it was live before), restore
+// its state on top; otherwise this is its first materialization (freshly
+// assigned by the population sweep) and we save it so its state persists.
 private object npc_restore(string id, object loc)
 {
   object npc;
-  string game;
+  string game, source, savefile;
+  mapping spec, entry;
+
+  entry = npc_census[id];
+  source = entry["source"];
+  game = game_from_path(area_path);
 
   npc = clone_object(GENERIC_NPC);
   if (!npc)
     return nil;
 
-  game = game_from_path(area_path);
   npc->set_npc_uuid(id);
   npc->set_npc_game(game);
   npc->set_npc_area_path(area_path);
-  npc->apply_template(BESTIARY_HANDLER->query_template(game,
-                        npc_census[id]["source"]));
-  npc->restore_npc();
-  npc->move(loc);
+  npc->apply_template(BESTIARY_HANDLER->query_template(game, source));
 
+  spec = npc_intended[source];
+  if (spec && spec["category"])
+    npc->set_npc_categories(spec["category"]);
+
+  savefile = entry["savefile"];
+  if (savefile && file_size(savefile) >= 0)
+    npc->restore_npc();
+  else
+    npc->save_npc();
+
+  npc->move(loc);
   return npc;
 }
 
@@ -443,55 +441,13 @@ void restore_location_npcs(object loc)
       npc_restore(ids[i], loc);
 }
 
-// Statistical seed for ONE location: the first time it is populated, for each
-// roster blueprint still below its area cap, roll a Bernoulli trial with
-// probability C_b / N (N = area size) and clone one on success. Over the area's
-// N locations this scatters ~C_b of each kind at the density the rooms had,
-// without piling every kind into every location. (A Poisson draw would give
-// occasional 2-3 clusters; kept Bernoulli for now, since the NPCs will later
-// wander and spread further.)
-//
-// This is NOT called on location load. It is driven by the periodic
-// repopulation system (F2), which decides which locations to populate and
-// tops the area up after deaths. Kept here as the per-location primitive that
-// system will call.
-void populate_location(object loc)
-{
-  string file;
-  string * sources;
-  int i, n;
-
-  if (!loc)
-    return;
-
-  file = loc->query_file_name();
-  if (!file || !strlen(file))
-    return;
-
-  if (seeded_locations[file])
-    return;
-
-  n = map_sizeof(locations);
-  if (n < 1)
-    n = 1;
-
-  sources = map_indices(npc_intended);
-  for (i = 0; i < sizeof(sources); i++)
-  {
-    int cap;
-
-    cap = npc_intended[sources[i]]["max"];
-    if (npc_live_count(sources[i]) < cap && random(n) < cap)
-      npc_spawn(sources[i], loc);
-  }
-
-  seeded_locations[file] = 1;
-  save_me();
-}
+// Live census count of a source across the area (cap-check for the population
+// sweep): L_b, checked against the cap C_b (query_npc_intended()[source].max).
+int query_npc_live_count(string source) { return npc_live_count(source); }
 
 // Called from a location's dest_me before its contents are torn down: persist
 // each of our NPCs so its state survives the unload. The census entry stays,
-// so populate_location will bring the NPC back on the next load.
+// so restore_location_npcs brings the NPC back on the next load.
 void drain_location(object loc)
 {
   object * inv;
