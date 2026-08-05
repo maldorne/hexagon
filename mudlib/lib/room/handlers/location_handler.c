@@ -610,22 +610,38 @@ object convert_room_to_location(object room)
 
   // Seed the area's NPC population from the room's add_clone data. We have the
   // room and the new location here, so read the room's blueprints directly (a
-  // location's _original_add_clones is only a backup snapshot). Record this
-  // location's contribution -- the area sums it into a per-blueprint cap -- and
-  // snapshot each blueprint's data template so it is ready to inspect / edit.
+  // location's _original_add_clones is only a backup snapshot). add_clone is
+  // also used for items (trees, props): keep only the living blueprints, since
+  // items are not part of the NPC census. Record this location's contribution
+  // -- the area sums it into a per-blueprint cap -- and snapshot each NPC
+  // blueprint's data template so it is ready to inspect / edit.
   {
     object area;
+    mapping npc_clones;
+    string * blueprints;
+    int c;
+
+    npc_clones = ([ ]);
+    blueprints = map_indices(clones);
+    for (c = 0; c < sizeof(blueprints); c++)
+    {
+      object bp;
+
+      bp = nil;
+      catch(bp = load_object(blueprints[c]));
+      if (bp && bp->query_monster())
+        npc_clones[blueprints[c]] = clones[blueprints[c]];
+    }
 
     area = location->query_area();
     if (area)
     {
-      string game, * blueprints;
-      int c;
+      string game;
 
       game = game_from_path(location->query_file_name());
-      area->set_location_npc_sources(location->query_file_name(), clones);
+      area->set_location_npc_sources(location->query_file_name(), npc_clones);
 
-      blueprints = map_indices(clones);
+      blueprints = map_indices(npc_clones);
       for (c = 0; c < sizeof(blueprints); c++)
         if (!BESTIARY_HANDLER->has_template(game, blueprints[c]))
           BESTIARY_HANDLER->add_template(blueprints[c]);
