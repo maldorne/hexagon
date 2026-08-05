@@ -37,6 +37,10 @@ mapping npc_census;
 // it per location makes reconversion idempotent (a location overwrites only
 // its own entry) without reloading the whole area.
 mapping npc_sources;
+// Locations already given their one-time statistical NPC seed (the first time
+// a player reaches them): ([ location_file : 1 ]). A seeded location is not
+// re-rolled on later loads.
+mapping seeded_locations;
 
 // prototype functions
 void add_loaded_location(object location);
@@ -53,6 +57,7 @@ void create() {
   npc_intended = ([ ]);
   npc_census = ([ ]);
   npc_sources = ([ ]);
+  seeded_locations = ([ ]);
   ::create();
 }
 
@@ -306,16 +311,16 @@ void set_location_npc_sources(string location_file, mapping clones)
   save_me();
 }
 
-// Live census entries of a given source at a given location.
-private int npc_count_in_location(string location_file, string source)
+// Live census count of a given source across the whole area (materialized or
+// not) -- this is L_b, checked against the area cap C_b.
+private int npc_live_count(string source)
 {
   string * ids;
   int i, n;
 
   ids = map_indices(npc_census);
   for (i = 0; i < sizeof(ids); i++)
-    if (npc_census[ids[i]]["location"] == location_file &&
-        npc_census[ids[i]]["source"] == source)
+    if (npc_census[ids[i]]["source"] == source)
       n++;
 
   return n;
@@ -415,16 +420,15 @@ private object npc_restore(string id, object loc)
   return npc;
 }
 
-// Called (via call_out) when a location of this area finishes loading: bring
-// back the NPCs the census assigns here, then top up toward the area caps for
-// every intended source. Idempotent -- already-present NPCs are left alone, so
-// repeated prewarm load/unload does not duplicate population.
-void populate_location(object loc)
+// Called when a location of this area loads (prewarm / movement): bring back
+// exactly the NPCs the census says live here -- the ones that were in the
+// location when it last unloaded. Restore-only: no new NPCs are created here.
+// Idempotent (already-present uuids are left alone).
+void restore_location_npcs(object loc)
 {
   string file;
-  string * ids, * sources;
+  string * ids;
   int i;
-  mapping spec;
 
   if (!loc)
     return;
@@ -433,36 +437,56 @@ void populate_location(object loc)
   if (!file || !strlen(file))
     return;
 
-  // 1. restore census NPCs assigned to this location
   ids = npc_census_for_location(file);
   for (i = 0; i < sizeof(ids); i++)
     if (!npc_uuid_present(loc, ids[i]))
       npc_restore(ids[i], loc);
+}
 
-  // 2. bring this location up to its own converted spec: the count of each
-  //    blueprint the source room declared (npc_sources[file]). This reproduces
-  //    the original room's population -- rooms with no add_clone stay empty --
-  //    and self-heals after a death. Only blueprints still on the area roster
-  //    (npc_intended) spawn, so a place-specific NPC removed from the roster
-  //    does not appear. The area-wide cap is the ceiling for the dynamic layer
-  //    (F2), not the per-location placement.
-  spec = npc_sources[file];
-  if (!spec)
+// Statistical seed for ONE location: the first time it is populated, for each
+// roster blueprint still below its area cap, roll a Bernoulli trial with
+// probability C_b / N (N = area size) and clone one on success. Over the area's
+// N locations this scatters ~C_b of each kind at the density the rooms had,
+// without piling every kind into every location. (A Poisson draw would give
+// occasional 2-3 clusters; kept Bernoulli for now, since the NPCs will later
+// wander and spread further.)
+//
+// This is NOT called on location load. It is driven by the periodic
+// repopulation system (F2), which decides which locations to populate and
+// tops the area up after deaths. Kept here as the per-location primitive that
+// system will call.
+void populate_location(object loc)
+{
+  string file;
+  string * sources;
+  int i, n;
+
+  if (!loc)
     return;
 
-  sources = map_indices(spec);
+  file = loc->query_file_name();
+  if (!file || !strlen(file))
+    return;
+
+  if (seeded_locations[file])
+    return;
+
+  n = map_sizeof(locations);
+  if (n < 1)
+    n = 1;
+
+  sources = map_indices(npc_intended);
   for (i = 0; i < sizeof(sources); i++)
   {
-    int have, want;
+    int cap;
 
-    if (!npc_intended[sources[i]])
-      continue;
-
-    have = npc_count_in_location(file, sources[i]);
-    want = spec[sources[i]];
-    while (have++ < want)
+    cap = npc_intended[sources[i]]["max"];
+    if (npc_live_count(sources[i]) < cap && random(n) < cap)
       npc_spawn(sources[i], loc);
   }
+
+  seeded_locations[file] = 1;
+  save_me();
 }
 
 // Called from a location's dest_me before its contents are torn down: persist
