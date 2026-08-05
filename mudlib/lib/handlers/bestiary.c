@@ -54,7 +54,7 @@ string query_template_file(string game, string source)
   return "/save/games/" + game + "/npcs/templates/" + rest + ".json";
 }
 
-int query_has_template(string game, string source)
+int has_template(string game, string source)
 {
   return file_size(query_template_file(game, source)) >= 0;
 }

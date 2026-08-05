@@ -16,14 +16,14 @@ string area_path;
 int gives_exploration;
 string exploration_name;
 
-// Dynamic NPC population (see dev/area-npc-system.md).
+// Dynamic NPC population (see dev/area-npc-system.md). Both are keyed by the
+// NPC's blueprint path (its "source").
 //   npc_intended: configuration -- what may spawn here and how many.
-//     ([ kind : ([ "category": ({ ids }), "source": blueprint_path,
-//                  "max": int ]) ])
+//     ([ blueprint_path : ([ "category": ({ ids }) or nil, "max": int ]) ])
 //   (Fine-grained placement -- which location/POI, sector-type weighting --
 //    is layered on in F2; F1 spawns anywhere in the area up to the cap.)
 //   npc_census:   live state -- which concrete NPCs exist and where.
-//     ([ uuid : ([ "kind": kind, "location": location_file,
+//     ([ uuid : ([ "source": blueprint_path, "location": location_file,
 //                  "savefile": npc.o path ]) ])
 // The census is the authoritative summary of the area's population; NPC
 // objects are materialized into a location on load and drained on unload,
@@ -366,7 +366,7 @@ private object npc_spawn(string source, object loc)
   game = game_from_path(area_path);
 
   // snapshot the source .c into its data template on first use
-  if (!BESTIARY_HANDLER->query_has_template(game, source))
+  if (!BESTIARY_HANDLER->has_template(game, source))
     BESTIARY_HANDLER->add_template(source);
 
   npc = BESTIARY_HANDLER->spawn_from_template(game, source);

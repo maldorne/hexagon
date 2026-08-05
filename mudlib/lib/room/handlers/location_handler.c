@@ -627,7 +627,7 @@ object convert_room_to_location(object room)
 
       blueprints = map_indices(clones);
       for (c = 0; c < sizeof(blueprints); c++)
-        if (!BESTIARY_HANDLER->query_has_template(game, blueprints[c]))
+        if (!BESTIARY_HANDLER->has_template(game, blueprints[c]))
           BESTIARY_HANDLER->add_template(blueprints[c]);
     }
   }
