@@ -306,15 +306,16 @@ void set_location_npc_sources(string location_file, mapping clones)
   save_me();
 }
 
-// Number of live census entries for a given source (materialized or not).
-private int npc_source_count(string source)
+// Live census entries of a given source at a given location.
+private int npc_count_in_location(string location_file, string source)
 {
   string * ids;
   int i, n;
 
   ids = map_indices(npc_census);
   for (i = 0; i < sizeof(ids); i++)
-    if (npc_census[ids[i]]["source"] == source)
+    if (npc_census[ids[i]]["location"] == location_file &&
+        npc_census[ids[i]]["source"] == source)
       n++;
 
   return n;
@@ -438,14 +439,28 @@ void populate_location(object loc)
     if (!npc_uuid_present(loc, ids[i]))
       npc_restore(ids[i], loc);
 
-  // 2. spawn toward the cap for each intended source (one per load; the
-  //    population spreads across the area as more locations are visited).
-  //    Which location/POI a source belongs in is refined in F2.
-  sources = map_indices(npc_intended);
+  // 2. bring this location up to its own converted spec: the count of each
+  //    blueprint the source room declared (npc_sources[file]). This reproduces
+  //    the original room's population -- rooms with no add_clone stay empty --
+  //    and self-heals after a death. Only blueprints still on the area roster
+  //    (npc_intended) spawn, so a place-specific NPC removed from the roster
+  //    does not appear. The area-wide cap is the ceiling for the dynamic layer
+  //    (F2), not the per-location placement.
+  spec = npc_sources[file];
+  if (!spec)
+    return;
+
+  sources = map_indices(spec);
   for (i = 0; i < sizeof(sources); i++)
   {
-    spec = npc_intended[sources[i]];
-    if (npc_source_count(sources[i]) < spec["max"])
+    int have, want;
+
+    if (!npc_intended[sources[i]])
+      continue;
+
+    have = npc_count_in_location(file, sources[i]);
+    want = spec[sources[i]];
+    while (have++ < want)
       npc_spawn(sources[i], loc);
   }
 }
