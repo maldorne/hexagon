@@ -160,16 +160,27 @@ int do_death(varargs object killer)
 // generic NPC. The set of fields carried is deliberately explicit; extend it
 // (here and in bestiary::extract_template) as more of the source's data needs
 // to survive the room2loc conversion.
-// A gendered field is either a single value or a per-gender wrapper
-// ({ nil, value_for_gender_1, value_for_gender_2 }) written by the bestiary
-// for a source that varies by gender. The nil sentinel at index 0 (no living
-// is neuter) marks the wrapper apart from a plain list value (aliases /
-// plurals are themselves arrays). Resolve it against the caller's gender.
+// A gendered field is either a single value or a per-gender wrapper: a mapping
+// keyed by gender ([ gender: value ]) written by the bestiary for a source that
+// varies by gender. Being a mapping marks it apart from a plain value (aliases
+// and plurals are themselves lists). Keys are strings after the JSON round-trip
+// (gender ids 0 neuter / 1 male / 2 female). Resolve against the caller's
+// gender, falling back to male then any present value so a gender the field
+// does not cover still yields a coherent string.
 private mixed gender_value(mixed v, int g)
 {
-  if (pointerp(v) && sizeof(v) == 3 && v[0] == nil)
-    return v[g];
-  return v;
+  string * ks;
+
+  if (!mappingp(v))
+    return v;
+
+  if (v["" + g] != nil)
+    return v["" + g];
+  if (v["1"] != nil)
+    return v["1"];
+
+  ks = map_indices(v);
+  return sizeof(ks) ? v[ks[0]] : nil;
 }
 
 void apply_template(mapping t)

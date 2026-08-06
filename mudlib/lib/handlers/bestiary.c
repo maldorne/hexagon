@@ -99,13 +99,14 @@ private int same_value(mixed a, mixed b)
 }
 
 // Assemble a template from the fields seen per gender. A source whose setup()
-// only ever produces one gender yields a fixed template: gender is recorded and
-// every field is a single value. A source that varies gender (random(2) in its
-// setup) yields a bimodal template: no fixed gender (one is rolled at spawn),
-// and each gendered field that actually differs becomes a per-gender wrapper
-// ({ nil, value_for_gender_1, value_for_gender_2 }) indexed by query_gender();
-// fields that happen to match across genders stay single so templates stay
-// small and readable.
+// only ever produces one gender yields a fixed template: "gender" is recorded
+// and every field is a single value. A source that varies gender yields a
+// multi-gender template: "genders" lists the ones it can roll (spawn picks one)
+// and each gendered field that actually differs becomes a mapping keyed by
+// gender ([ gender: value ]); fields that match across genders stay single so
+// templates stay small and readable. Gender ids are the driver's own
+// (0 neuter, 1 male, 2 female) so this generalises to any language, including
+// ones with a neuter gender for living beings (German, Russian, ...).
 private mapping assemble_template(mapping bygender, mapping nong)
 {
   mapping t;
@@ -118,26 +119,45 @@ private mapping assemble_template(mapping bygender, mapping nong)
   {
     t += bygender[gs[0]];
     t["gender"] = gs[0];
+    return t;
   }
-  else
+
   {
     string * keys;
-    mapping m1, m2;
-    int i;
+    int i, j;
 
-    m1 = bygender[1];
-    m2 = bygender[2];
     keys = gendered_keys();
     for (i = 0; i < sizeof(keys); i++)
     {
-      mixed v1, v2;
-      v1 = m1[keys[i]];
-      v2 = m2[keys[i]];
-      if (same_value(v1, v2))
-        t[keys[i]] = v1;
+      string k;
+      mixed ref;
+      int varies;
+
+      k = keys[i];
+      ref = bygender[gs[0]][k];
+      varies = 0;
+      for (j = 1; j < sizeof(gs); j++)
+        if (!same_value(ref, bygender[gs[j]][k]))
+        {
+          varies = 1;
+          break;
+        }
+
+      if (!varies)
+        t[k] = ref;
       else
-        t[keys[i]] = ({ nil, v1, v2 });
+      {
+        mapping perg;
+        perg = ([ ]);
+        // string keys: JSON object keys are strings, and apply_template reads
+        // them back as "" + query_gender()
+        for (j = 0; j < sizeof(gs); j++)
+          perg["" + gs[j]] = bygender[gs[j]][k];
+        t[k] = perg;
+      }
     }
+
+    t["genders"] = gs;
   }
 
   return t;
@@ -227,6 +247,26 @@ mapping query_template(string game, string source)
   return json_decode(data);
 }
 
+// The gender to give a fresh NPC of this template. A fixed template ("gender")
+// dictates it; a multi-gender one ("genders") rolls one of its listed genders;
+// with neither known, fall back to a male/female coin flip. Gender ids are the
+// driver's own (0 neuter, 1 male, 2 female).
+int roll_gender(mapping t)
+{
+  mixed gl;
+
+  if (!t)
+    return random(2) + 1;
+  if (t["gender"])
+    return t["gender"];
+
+  gl = t["genders"];
+  if (pointerp(gl) && sizeof(gl))
+    return gl[random(sizeof(gl))];
+
+  return random(2) + 1;
+}
+
 // Spawn a generic NPC and apply the source's template to it. Returns the new
 // NPC, or nil if there is no template. The caller stamps the persisted
 // identity (uuid / game / area) and moves it.
@@ -247,13 +287,10 @@ object spawn_from_template(string game, string source)
   // class paths pass set_race_ob / set_class_ob validation (game_root)
   npc->set_npc_game(game);
 
-  // A fixed template dictates the gender; a bimodal one rolls it here so
-  // apply_template can pick the matching per-gender strings. (The census path
-  // decides gender at assign time instead — see area::assign_npc.)
-  if (t["gender"])
-    npc->set_gender(t["gender"]);
-  else
-    npc->set_gender(random(2) + 1);
+  // A fixed template dictates the gender; a multi-gender one rolls one of its
+  // listed genders here so apply_template can pick the matching per-gender
+  // strings. (The census path decides gender at assign time -- area::assign_npc.)
+  npc->set_gender(roll_gender(t));
 
   npc->apply_template(t);
   return npc;

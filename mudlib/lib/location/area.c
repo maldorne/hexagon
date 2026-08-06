@@ -364,12 +364,8 @@ private int npc_uuid_present(object loc, string uuid)
 // match.
 private int decide_gender(string game, string source)
 {
-  mapping t;
-
-  t = BESTIARY_HANDLER->query_template(game, source);
-  if (t && t["gender"])
-    return t["gender"];
-  return random(2) + 1;
+  return BESTIARY_HANDLER->roll_gender(
+           BESTIARY_HANDLER->query_template(game, source));
 }
 
 // Assign a new NPC of `source` to `location_file` as data only: ensure the
