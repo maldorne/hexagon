@@ -59,9 +59,16 @@ int has_template(string game, string source)
   return file_size(query_template_file(game, source)) >= 0;
 }
 
-// Explicit data extraction from a live source clone. This is the one place to
-// extend when more of a monster's data needs to be carried into templates.
-private mapping extract_template(object npc)
+// Field keys whose value can legitimately differ between a male and a female
+// spawn of the same source (name, description, plural forms). The rest of the
+// data (race, class, level, alignment, weight) is gender-independent.
+private string * gendered_keys()
+{
+  return ({ "name", "short", "long", "main_plural", "aliases", "plurals" });
+}
+
+// The gendered half of a live clone's data.
+private mapping gendered_fields(object npc)
 {
   return ([
     "name":        npc->query_name(),
@@ -70,20 +77,117 @@ private mapping extract_template(object npc)
     "main_plural": npc->query_main_plural(),
     "aliases":     npc->query_alias(),
     "plurals":     npc->query_plurals(),
-    "race_ob":     npc->query_race_ob(),
-    "class_ob":    npc->query_class_ob(),
-    "level":       npc->query_level(),
-    "gender":      npc->query_gender(),
-    "align":       npc->query_real_align(),
-    "weight":      npc->query_weight(),
   ]);
 }
 
+// The gender-independent half.
+private mapping nongendered_fields(object npc)
+{
+  return ([
+    "race_ob":  npc->query_race_ob(),
+    "class_ob": npc->query_class_ob(),
+    "level":    npc->query_level(),
+    "align":    npc->query_real_align(),
+    "weight":   npc->query_weight(),
+  ]);
+}
+
+// Value equality for JSON-able data (arrays compare by content, not identity).
+private int same_value(mixed a, mixed b)
+{
+  return json_encode(a) == json_encode(b);
+}
+
+// Assemble a template from the fields seen per gender. A source whose setup()
+// only ever produces one gender yields a fixed template: gender is recorded and
+// every field is a single value. A source that varies gender (random(2) in its
+// setup) yields a bimodal template: no fixed gender (one is rolled at spawn),
+// and each gendered field that actually differs becomes a per-gender wrapper
+// ({ nil, value_for_gender_1, value_for_gender_2 }) indexed by query_gender();
+// fields that happen to match across genders stay single so templates stay
+// small and readable.
+private mapping assemble_template(mapping bygender, mapping nong)
+{
+  mapping t;
+  int * gs;
+
+  t = nong + ([ ]);
+  gs = map_indices(bygender);
+
+  if (sizeof(gs) == 1)
+  {
+    t += bygender[gs[0]];
+    t["gender"] = gs[0];
+  }
+  else
+  {
+    string * keys;
+    mapping m1, m2;
+    int i;
+
+    m1 = bygender[1];
+    m2 = bygender[2];
+    keys = gendered_keys();
+    for (i = 0; i < sizeof(keys); i++)
+    {
+      mixed v1, v2;
+      v1 = m1[keys[i]];
+      v2 = m2[keys[i]];
+      if (same_value(v1, v2))
+        t[keys[i]] = v1;
+      else
+        t[keys[i]] = ({ nil, v1, v2 });
+    }
+  }
+
+  return t;
+}
+
+// Explicit data extraction from a source .c. Because a source's setup() may
+// pick a gender (and matching name / description) at random per clone, the
+// source is sampled several times: the first clone seen of each gender supplies
+// that gender's fields, and sampling stops as soon as both are seen. This is
+// the one place to extend when more of a monster's data needs to survive.
+private mapping extract_template(string source)
+{
+  mapping bygender, nong;
+  int i;
+
+  bygender = ([ ]);
+  nong = nil;
+
+  for (i = 0; i < 12; i++)
+  {
+    object npc;
+    int g;
+
+    npc = clone_object(source);
+    if (!npc)
+      continue;
+
+    g = npc->query_gender();
+    if (!bygender[g])
+    {
+      bygender[g] = gendered_fields(npc);
+      if (!nong)
+        nong = nongendered_fields(npc);
+    }
+    npc->dest_me();
+
+    if (map_sizeof(bygender) >= 2)
+      break;
+  }
+
+  if (!map_sizeof(bygender))
+    return nil;
+
+  return assemble_template(bygender, nong);
+}
+
 // Read (or refresh) a source NPC .c into its data template. Returns 1 on
-// success. Clones the source once, extracts its data, destructs it.
+// success. Samples the source (see extract_template) to capture both genders.
 int add_template(string source)
 {
-  object npc;
   string game, tfile, dir;
   mapping t;
   int slash;
@@ -92,12 +196,9 @@ int add_template(string source)
   if (!game)
     return 0;
 
-  npc = clone_object(source);
-  if (!npc)
+  t = extract_template(source);
+  if (!t)
     return 0;
-
-  t = extract_template(npc);
-  npc->dest_me();
 
   tfile = query_template_file(game, source);
   slash = strsrch(tfile, "/", -1);
@@ -145,6 +246,15 @@ object spawn_from_template(string game, string source)
   // give it its game before applying the template, so game-specific race /
   // class paths pass set_race_ob / set_class_ob validation (game_root)
   npc->set_npc_game(game);
+
+  // A fixed template dictates the gender; a bimodal one rolls it here so
+  // apply_template can pick the matching per-gender strings. (The census path
+  // decides gender at assign time instead — see area::assign_npc.)
+  if (t["gender"])
+    npc->set_gender(t["gender"]);
+  else
+    npc->set_gender(random(2) + 1);
+
   npc->apply_template(t);
   return npc;
 }

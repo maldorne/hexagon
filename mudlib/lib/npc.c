@@ -160,31 +160,50 @@ int do_death(varargs object killer)
 // generic NPC. The set of fields carried is deliberately explicit; extend it
 // (here and in bestiary::extract_template) as more of the source's data needs
 // to survive the room2loc conversion.
+// A gendered field is either a single value or a per-gender wrapper
+// ({ nil, value_for_gender_1, value_for_gender_2 }) written by the bestiary
+// for a source that varies by gender. The nil sentinel at index 0 (no living
+// is neuter) marks the wrapper apart from a plain list value (aliases /
+// plurals are themselves arrays). Resolve it against the caller's gender.
+private mixed gender_value(mixed v, int g)
+{
+  if (pointerp(v) && sizeof(v) == 3 && v[0] == nil)
+    return v[g];
+  return v;
+}
+
 void apply_template(mapping t)
 {
+  int g;
+
   if (!t)
     return;
 
+  // A fixed template carries its gender; a bimodal one leaves the choice to
+  // the caller (set before apply), so read whatever gender is in effect and
+  // index the per-gender fields by it.
+  if (t["gender"])
+    set_gender(t["gender"]);
+  g = query_gender();
+
   if (t["name"])
-    set_name(t["name"]);
+    set_name(gender_value(t["name"], g));
   if (t["short"])
-    set_short(t["short"]);
+    set_short(gender_value(t["short"], g));
   if (t["long"])
-    set_long(t["long"]);
+    set_long(gender_value(t["long"], g));
   if (t["main_plural"])
-    set_main_plural(t["main_plural"]);
+    set_main_plural(gender_value(t["main_plural"], g));
   if (t["aliases"])
-    set_aliases(t["aliases"]);
+    set_aliases(gender_value(t["aliases"], g));
   if (t["plurals"])
-    set_plurals(t["plurals"]);
+    set_plurals(gender_value(t["plurals"], g));
   if (t["race_ob"])
     set_race_ob(t["race_ob"]);
   if (t["class_ob"])
     set_class_ob(t["class_ob"]);
   if (t["level"])
     set_level(t["level"]);
-  if (t["gender"])
-    set_gender(t["gender"]);
   if (t["align"])
     set_real_align(t["align"]);
   if (t["weight"])

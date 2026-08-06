@@ -357,6 +357,21 @@ private int npc_uuid_present(object loc, string uuid)
   return 0;
 }
 
+// The gender a census NPC is born with, decided once at assignment so it stays
+// stable across saves and restores. A fixed template dictates it; a bimodal
+// one (no "gender" key) rolls male/female here. Stored in the census entry and
+// handed to the NPC before its template is applied, so the per-gender strings
+// match.
+private int decide_gender(string game, string source)
+{
+  mapping t;
+
+  t = BESTIARY_HANDLER->query_template(game, source);
+  if (t && t["gender"])
+    return t["gender"];
+  return random(2) + 1;
+}
+
 // Assign a new NPC of `source` to `location_file` as data only: ensure the
 // source has a data template and record a census entry. No object is
 // materialized -- it becomes real (cloned from the template and saved) when
@@ -375,7 +390,8 @@ string assign_npc(string source, string location_file)
 
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": location_file,
-                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE ]);
+                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
+                      "gender": decide_gender(game, source) ]);
   save_me();
 
   return id;
@@ -402,6 +418,17 @@ private object npc_restore(string id, object loc)
   npc->set_npc_uuid(id);
   npc->set_npc_game(game);
   npc->set_npc_area_path(area_path);
+
+  // Fix the census gender before applying the template so a bimodal template
+  // picks the matching per-gender strings. Older census entries predate the
+  // stored gender -- decide and backfill one so they stay stable from now on.
+  if (!entry["gender"])
+  {
+    entry["gender"] = decide_gender(game, source);
+    npc_census[id] = entry;
+    save_me();
+  }
+  npc->set_gender(entry["gender"]);
   npc->apply_template(BESTIARY_HANDLER->query_template(game, source));
 
   spec = npc_intended[source];
