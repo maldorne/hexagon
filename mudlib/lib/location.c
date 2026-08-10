@@ -623,7 +623,10 @@ string query_poi_marker()
     return "";
 
   if (p[POI_FIELD_LABEL] && strlen(p[POI_FIELD_LABEL]))
-    return "poi " + p[POI_FIELD_KIND] + " \"" + p[POI_FIELD_LABEL] + "\"";
+    // labels are captured from the room short, which may carry %^colour%^
+    // codes; strip them so the coder line stays plain.
+    return "poi " + p[POI_FIELD_KIND] + " \"" +
+           handler("terminal")->clean_string(p[POI_FIELD_LABEL]) + "\"";
   return "poi " + p[POI_FIELD_KIND];
 }
 
