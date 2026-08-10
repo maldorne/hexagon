@@ -12,6 +12,7 @@
 #define LOCATION_COMPONENT_OUTSIDE     "outside"
 #define LOCATION_COMPONENT_MAZE        "maze"
 #define LOCATION_COMPONENT_PROPS       "props"
+#define LOCATION_COMPONENT_SIGN        "sign"
 
 // Cartography-contributing components. A location that carries any of
 // these tells the sector storage what kind of terrain it occupies, so
