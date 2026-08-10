@@ -57,12 +57,17 @@ static int cmd (string arg, object me, string verb)
       if (here->query_location() && here->query_coordinates())
       {
         int * c;
+        string poi_mark;
         c = here->query_coordinates();
         ret += "[loc (" + c[0] + "," + c[1] + "," + c[2] + ")  map " +
                here->query_map_name() + "  sector (" +
                (c[0] / 10 - (c[0] < 0)) + "," +
                (c[1] / 10 - (c[1] < 0)) + "," +
-               (c[2] / 10 - (c[2] < 0)) + ")]\n";
+               (c[2] / 10 - (c[2] < 0)) + ")";
+        poi_mark = here->query_poi_marker();
+        if (strlen(poi_mark))
+          ret += "  " + poi_mark;
+        ret += "]\n";
       }
     }
 

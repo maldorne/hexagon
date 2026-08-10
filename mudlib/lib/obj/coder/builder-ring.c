@@ -8,23 +8,26 @@ inherit "/lib/armour.c";
 
 #include <room/location.h>
 #include <areas/area.h>
+#include <areas/poi.h>
 #include <maps/maps.h>
 #include <translations/armour.h>
 
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
 #define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration >"
+#define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | vacancy <add <role> <source> | remove <role>> >"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
                 "\t" + BUILDER_RING_SELECTION_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_COMPONENT_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_AREA_SYNTAX
+                "\t" + BUILDER_RING_AREA_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_POI_SYNTAX
 
 static string * selection;
 static mapping objects;
@@ -62,6 +65,7 @@ int do_selection(string str);
 int do_convert(string str);
 int do_component(string str);
 int do_area(string str);
+int do_poi(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -256,6 +260,8 @@ int do_build(string str)
     return do_component(implode(args[1..], " "));
   else if (verb == "area")
     return do_area(implode(args[1..], " "));
+  else if (verb == "poi")
+    return do_poi(implode(args[1..], " "));
   else
   {
     notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
@@ -557,6 +563,180 @@ int do_area(string str)
   }
 
   notify_fail("Usage: " + BUILDER_RING_AREA_SYNTAX + "\n");
+  return 0;
+}
+
+// Declare points of interest and their vacancies on the location the coder
+// is standing in. Ventures (pub, shop) are attached automatically at
+// conversion; this command is for the rest (town entrance, square,
+// crossroads, shrine) and for binding vacancy NPCs to any POI. A location
+// holds at most one POI. See include/areas/poi.h.
+int do_poi(string str)
+{
+  string * args;
+  string verb;
+  object loc, area;
+  string file;
+
+  args = explode(str ? str : "", " ") - ({ "" });
+
+  if (sizeof(args) < 1)
+  {
+    notify_fail("Usage: " + BUILDER_RING_POI_SYNTAX + "\n");
+    return 0;
+  }
+
+  verb = args[0];
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to manage its POI.\n");
+    return 0;
+  }
+
+  area = loc->query_area();
+  if (!area)
+  {
+    notify_fail("This location has no area.\n");
+    return 0;
+  }
+
+  file = loc->query_file_name();
+
+  if (verb == "add")
+  {
+    string kind, label;
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build poi add <kind> [label]\n");
+      return 0;
+    }
+
+    kind = args[1];
+    if (member_array(kind, POI_KINDS) < 0)
+    {
+      notify_fail("Unknown POI kind '" + kind + "'. Kinds: " +
+                  implode(POI_KINDS, ", ") + ".\n");
+      return 0;
+    }
+
+    label = sizeof(args) > 2 ? implode(args[2..], " ") : nil;
+    area->add_poi(file, kind, label);
+    write("POI '" + kind + "'" + (label ? " (\"" + label + "\")" : "") +
+          " set on this location.\n");
+    return 1;
+  }
+
+  if (verb == "remove")
+  {
+    if (!area->is_poi(file))
+    {
+      notify_fail("This location is not a POI.\n");
+      return 0;
+    }
+    area->remove_poi(file);
+    write("POI removed from this location.\n");
+    return 1;
+  }
+
+  if (verb == "list")
+  {
+    mapping pois;
+    string * keys;
+    int i;
+
+    pois = area->query_pois();
+    keys = map_indices(pois);
+    if (!sizeof(keys))
+    {
+      write("No POIs in area '" + area->query_area_name() + "'.\n");
+      return 1;
+    }
+
+    write("POIs in area '" + area->query_area_name() + "':\n");
+    for (i = 0; i < sizeof(keys); i++)
+    {
+      mapping p;
+      mapping * vs;
+      int j;
+
+      p = pois[keys[i]];
+      write("  " + keys[i] + " -- " + p[POI_FIELD_KIND] +
+            (p[POI_FIELD_LABEL] ? " (\"" + p[POI_FIELD_LABEL] + "\")" : "") +
+            (keys[i] == file ? "   <- here" : "") + "\n");
+
+      vs = p[POI_FIELD_VACANCIES];
+      for (j = 0; vs && j < sizeof(vs); j++)
+        write("      vacancy " + vs[j][VACANCY_FIELD_ROLE] + " <- " +
+              vs[j][VACANCY_FIELD_SOURCE] +
+              (vs[j][VACANCY_FIELD_UUID] ? "  [filled]" : "  [empty]") + "\n");
+    }
+    return 1;
+  }
+
+  if (verb == "vacancy")
+  {
+    string vverb;
+
+    if (!area->is_poi(file))
+    {
+      notify_fail("This location is not a POI. Add one first with " +
+                  "'build poi add <kind>'.\n");
+      return 0;
+    }
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build poi vacancy < add <role> <source> | " +
+                  "remove <role> >\n");
+      return 0;
+    }
+
+    vverb = args[1];
+
+    if (vverb == "add")
+    {
+      string role, source;
+
+      if (sizeof(args) < 4)
+      {
+        notify_fail("Usage: build poi vacancy add <role> <source>\n");
+        return 0;
+      }
+      role = args[2];
+      source = args[3];
+
+      if (file_size(source) < 0 && file_size(source + ".c") < 0)
+      {
+        notify_fail("No NPC blueprint at '" + source + "'.\n");
+        return 0;
+      }
+
+      area->add_vacancy(file, role, source);
+      write("Vacancy '" + role + "' <- " + source + " on this POI.\n");
+      return 1;
+    }
+
+    if (vverb == "remove")
+    {
+      if (sizeof(args) < 3)
+      {
+        notify_fail("Usage: build poi vacancy remove <role>\n");
+        return 0;
+      }
+      area->remove_vacancy(file, args[2]);
+      write("Vacancy '" + args[2] + "' removed.\n");
+      return 1;
+    }
+
+    notify_fail("Usage: build poi vacancy < add <role> <source> | " +
+                "remove <role> >\n");
+    return 0;
+  }
+
+  notify_fail("Usage: " + BUILDER_RING_POI_SYNTAX + "\n");
   return 0;
 }
 

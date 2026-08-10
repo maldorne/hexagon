@@ -16,6 +16,7 @@ inherit sign     "/lib/room/sign.c";
 #include <room/room.h>
 #include <room/location-cleaner.h>
 #include <areas/area.h>
+#include <areas/poi.h>
 #include <areas/common.h>
 #include <maps/maps.h>
 #include <translations/exits.h>
@@ -600,6 +601,32 @@ string query_area_name()
 }
 
 string query_file_name() { return file_name; }
+
+// This location's POI entry (from its area), or nil. A location holds at
+// most one POI. See include/areas/poi.h.
+mapping query_poi()
+{
+  object a;
+  a = query_area();
+  return a ? a->query_poi(file_name) : nil;
+}
+
+// Coder look/glance marker: "poi <kind>" (plus the label when set) when
+// this location is a registered point of interest, else "". Composed here
+// so look.c and glance.c render it identically.
+string query_poi_marker()
+{
+  mapping p;
+
+  p = query_poi();
+  if (!p)
+    return "";
+
+  if (p[POI_FIELD_LABEL] && strlen(p[POI_FIELD_LABEL]))
+    return "poi " + p[POI_FIELD_KIND] + " \"" + p[POI_FIELD_LABEL] + "\"";
+  return "poi " + p[POI_FIELD_KIND];
+}
+
 void set_file_name(string name)
 {
   string * pieces;

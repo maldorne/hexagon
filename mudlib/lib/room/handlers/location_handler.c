@@ -10,6 +10,7 @@
 #include <room/location.h>
 #include <room/room.h>
 #include <basic/communicate.h>
+#include <areas/poi.h>
 #include <living/persisted.h>
 #include <translations/exits.h>
 
@@ -653,9 +654,27 @@ object convert_room_to_location(object room)
     }
   }
 
-  // TO DO
-  // add shop as point of interest in area
-  // add attender as vacancy in area
+  // A venture component (pub, shop) makes this location a point of interest
+  // of the matching kind, so the vacancy system and the world map can find
+  // it. Only ventures are inferred here; the other POI kinds (town entrance,
+  // square, crossroads, shrine) are declared by hand with the builder ring.
+  // A location holds at most one POI, so stop at the first venture found.
+  {
+    object area;
+    string * venture_kinds;
+    int k;
+
+    area = location->query_area();
+    venture_kinds = POI_VENTURE_KINDS;
+    for (k = 0; area && k < sizeof(venture_kinds); k++)
+      if (location->query_component_by_type(venture_kinds[k]))
+      {
+        area->add_poi(location->query_file_name(), venture_kinds[k],
+                      room->query_short());
+        ret += "   Adding POI " + venture_kinds[k] + ".\n";
+        break;
+      }
+  }
 
   write(ret);
 
