@@ -27,7 +27,7 @@
        "la vida para traer la desgracia a los vivos.\n"
 
 #define _LANG_ZOMBIE_NAME "zombi"
-#define _LANG_SKELETON_DESC "Nada más que un cadáver animado, este ser ha vuelto a " + \
+#define _LANG_ZOMBIE_DESC "Nada más que un cadáver animado, este ser ha vuelto a " + \
        "la vida para traer la desgracia a los vivos.\n"
 
 #define _LANG_SPECTRE_NAME "espectro"
