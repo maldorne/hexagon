@@ -10,6 +10,12 @@
 
 #include <language.h>
 
+// The menu sign this pub last created. Tracked so create_sign is idempotent:
+// initialize() runs it on every load, and reconversion can run it again on a
+// still-live pub, which would otherwise stack a second "Menú" item in the
+// room. Destruct the previous one before making a new one.
+static object menu_sign;
+
 object create_sign(varargs object where)
 {
   object menu;
@@ -17,10 +23,14 @@ object create_sign(varargs object where)
   if (!where)
     where = this_object();
 
-  menu = where->add_sign(_LANG_PUB_SIGN_DESC, 
+  if (menu_sign)
+    menu_sign->dest_me();
+
+  menu = where->add_sign(_LANG_PUB_SIGN_DESC,
                          this_object()->query_menu_text(),
                          _LANG_PUB_SIGN_NAME);
 
-  menu->add_aliases(_LANG_PUB_SIGN_ALIASES);
+  menu->add_alias(_LANG_PUB_SIGN_ALIASES);
+  menu_sign = menu;
   return menu;
 }
