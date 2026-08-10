@@ -9,6 +9,7 @@
 #include <maps/maps.h>
 #include <room/location.h>
 #include <room/room.h>
+#include <basic/communicate.h>
 #include <living/persisted.h>
 #include <translations/exits.h>
 
@@ -493,6 +494,45 @@ static mixed * _extract_original_items(object room)
   return ret;
 }
 
+// Detect a sign posted in the legacy room and read its definition back
+// as a sign-component autoload mapping, or nil when the room has none.
+// A sign is a room-fixed item carrying a read message (created by the
+// room's setup() through add_sign, /lib/room/sign.c). It is recognised
+// by having a non-empty query_read_mess() -- living beings and ordinary
+// contents do not. Only the first one is captured: a location holds a
+// single sign component.
+static mapping _extract_original_sign(object room)
+{
+  object * inv;
+  int i;
+
+  inv = all_inventory(room);
+  if (!inv) return nil;
+
+  for (i = 0; i < sizeof(inv); i++)
+  {
+    mixed * rm;
+
+    if (!function_exists("query_read_mess", inv[i])) continue;
+    rm = inv[i]->query_read_mess();
+    if (!rm || !sizeof(rm)) continue;
+
+    // rm[0] is ({ text, lang, size, frame_style }) -- see read_desc.c
+    // and set_read_mess. The description comes from the stored long
+    // (query_long), not the read hook.
+    return ([
+      "sign_long":  inv[i]->query_long(),
+      "sign_text":  rm[0][READ_STR],
+      "sign_name":  inv[i]->query_name(),
+      "sign_short": inv[i]->query_short(),
+      "sign_frame": rm[0][READ_FRAME],
+      "sign_lang":  rm[0][READ_LANG],
+    ]);
+  }
+
+  return nil;
+}
+
 object convert_room_to_location(object room)
 {
   object location;
@@ -565,6 +605,19 @@ object convert_room_to_location(object room)
   {
     location->add_component(LOCATION_COMPONENT_MAZE, ([ ]));
     ret += "   Adding component maze.\n";
+  }
+
+  // A sign posted in the room (add_sign) becomes a sign component on the
+  // location, which re-materialises the read-able item on every load.
+  {
+    mapping sign;
+
+    sign = _extract_original_sign(room);
+    if (sign)
+    {
+      location->add_component(LOCATION_COMPONENT_SIGN, sign);
+      ret += "   Adding component sign.\n";
+    }
   }
 
   // Props inferred from the room's items and description: the props
