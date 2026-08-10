@@ -18,10 +18,10 @@ void setup()
   
   add_sign(_LANG_CROSSING_SIGN_LONG,
     _LANG_CROSSING_SIGN_MESS,
-    STD_LANG,
+    _LANG_CROSSING_SIGN_NAME,
+    _LANG_CROSSING_SIGN_SHORT,
     DEFAULT_FRAME_STYLE,
-    _LANG_CROSSING_SIGN_SHORT, 
-    _LANG_CROSSING_SIGN_NAME);
+    STD_LANG);
 
   add_room_zone("naduk-road");
   add_property("no_undead", 1);
