@@ -3,6 +3,7 @@ inherit "/lib/core/object.c";
 #include <room/location.h>
 #include <living/persisted.h>
 #include <areas/area.h>
+#include <areas/poi.h>
 
 // mapping in the form ([ file_name : location_data ])
 mapping locations;
@@ -39,8 +40,15 @@ mapping npc_census;
 // its own entry) without reloading the whole area.
 mapping npc_sources;
 
+// Points of interest, keyed by the location's file_name (a location holds
+// at most one POI). See include/areas/poi.h for the entry shape. Venture
+// POIs (pub, shop) are attached automatically at conversion; the rest are
+// declared by hand with the builder ring. Vacancies hang off each POI.
+mapping pois;
+
 // prototype functions
 void add_loaded_location(object location);
+mapping query_vacancy_sources();
 
 
 void create() {
@@ -54,6 +62,7 @@ void create() {
   npc_intended = ([ ]);
   npc_census = ([ ]);
   npc_sources = ([ ]);
+  pois = ([ ]);
   ::create();
 }
 
@@ -267,11 +276,19 @@ mapping query_npc_sources() { return npc_sources; }
 // Recompute npc_intended from the per-location conversion provenance: the
 // area cap for a blueprint is the sum of its add_clone counts across every
 // room of the area.
+//
+// Two sources are deliberately kept out of the statistical roster: a
+// blueprint claimed by a vacancy (a unique the POI system places by hand,
+// not the population sweep) and anything that is not a living blueprint
+// (add_clone is also used for trees and props, which are not NPCs). Both
+// exclusions are re-applied here so a reconversion cannot resurrect a
+// vacancy NPC or item cruft into the population -- the bug that made
+// remove_intended_npc non-durable.
 private void _recompute_intended()
 {
   string * locs, * blueprints;
   int i, j;
-  mapping totals, clones;
+  mapping totals, clones, vacancy_sources;
 
   totals = ([ ]);
   locs = map_indices(npc_sources);
@@ -285,11 +302,29 @@ private void _recompute_intended()
         clones[blueprints[j]];
   }
 
+  vacancy_sources = query_vacancy_sources();
+
   npc_intended = ([ ]);
   blueprints = map_indices(totals);
   for (i = 0; i < sizeof(blueprints); i++)
+  {
+    object bp;
+
+    // a unique bound to a vacancy is placed by the POI system, never by
+    // the population sweep
+    if (vacancy_sources[blueprints[i]])
+      continue;
+
+    // only living blueprints count towards the NPC population; skip trees,
+    // props and other non-living add_clone sources
+    bp = nil;
+    catch(bp = load_object(blueprints[i]));
+    if (!bp || !bp->query_monster())
+      continue;
+
     npc_intended[blueprints[i]] = ([ "category": nil,
                                      "max": totals[blueprints[i]] ]);
+  }
 }
 
 // Record a converted location's NPC blueprints (its source room's add_clone
@@ -310,6 +345,167 @@ void set_location_npc_sources(string location_file, mapping clones)
     POPULATION_HANDLER->include_area(area_path);
 
   save_me();
+}
+
+// ---------------------------------------------------------------------------
+// Points of interest and vacancies (see include/areas/poi.h)
+// ---------------------------------------------------------------------------
+
+mapping query_pois() { return pois; }
+
+// The POI attached to a location, or nil. A location holds at most one.
+mapping query_poi(string location_file)
+{
+  return pois[location_file];
+}
+
+int is_poi(string location_file)
+{
+  return !undefinedp(pois[location_file]);
+}
+
+// Attach (or replace) a POI on a location. `kind` must be one of POI_KINDS;
+// `label` is optional display text. Re-attaching preserves the existing
+// vacancies so a reconversion does not drop them.
+void add_poi(string location_file, string kind, varargs string label)
+{
+  mapping entry;
+
+  if (!location_file || !strlen(location_file))
+    return;
+  if (member_array(kind, POI_KINDS) < 0)
+    return;
+
+  entry = pois[location_file];
+  if (!entry)
+    entry = ([ POI_FIELD_VACANCIES: ({ }) ]);
+
+  entry[POI_FIELD_KIND] = kind;
+  if (label && strlen(label))
+    entry[POI_FIELD_LABEL] = label;
+  if (!entry[POI_FIELD_VACANCIES])
+    entry[POI_FIELD_VACANCIES] = ({ });
+
+  pois[location_file] = entry;
+  save_me();
+}
+
+void remove_poi(string location_file)
+{
+  map_delete(pois, location_file);
+  save_me();
+}
+
+void set_poi_label(string location_file, string label)
+{
+  if (!pois[location_file])
+    return;
+  pois[location_file][POI_FIELD_LABEL] = label;
+  save_me();
+}
+
+// The vacancies of a POI, or an empty array when there is no POI there.
+mapping * query_vacancies(string location_file)
+{
+  mapping entry;
+  entry = pois[location_file];
+  return entry ? entry[POI_FIELD_VACANCIES] : ({ });
+}
+
+// Declare a vacancy on a location's POI: a named `role` filled from a
+// unique NPC blueprint `source`. Starts unfilled. No-op if the location
+// has no POI or the role already exists.
+void add_vacancy(string location_file, string role, string source)
+{
+  mapping entry;
+  mapping * vs;
+  int i;
+
+  entry = pois[location_file];
+  if (!entry || !role || !strlen(role) || !source || !strlen(source))
+    return;
+
+  vs = entry[POI_FIELD_VACANCIES];
+  if (!vs) vs = ({ });
+  for (i = 0; i < sizeof(vs); i++)
+    if (vs[i][VACANCY_FIELD_ROLE] == role)
+      return;
+
+  vs += ({ ([ VACANCY_FIELD_ROLE:   role,
+              VACANCY_FIELD_SOURCE: source,
+              VACANCY_FIELD_UUID:   nil ]) });
+  entry[POI_FIELD_VACANCIES] = vs;
+  pois[location_file] = entry;
+
+  // a vacancy source leaves the statistical roster
+  _recompute_intended();
+  save_me();
+}
+
+void remove_vacancy(string location_file, string role)
+{
+  mapping entry;
+  mapping * vs, * out;
+  int i;
+
+  entry = pois[location_file];
+  if (!entry) return;
+
+  vs = entry[POI_FIELD_VACANCIES];
+  if (!vs) return;
+
+  out = ({ });
+  for (i = 0; i < sizeof(vs); i++)
+    if (vs[i][VACANCY_FIELD_ROLE] != role)
+      out += ({ vs[i] });
+
+  entry[POI_FIELD_VACANCIES] = out;
+  pois[location_file] = entry;
+  _recompute_intended();
+  save_me();
+}
+
+// Record which concrete NPC (uuid) currently fills a vacancy role, or clear
+// it (uuid nil) when the NPC dies so the fill pass respawns it.
+void set_vacancy_uuid(string location_file, string role, string uuid)
+{
+  mapping entry;
+  mapping * vs;
+  int i;
+
+  entry = pois[location_file];
+  if (!entry) return;
+
+  vs = entry[POI_FIELD_VACANCIES];
+  for (i = 0; vs && i < sizeof(vs); i++)
+    if (vs[i][VACANCY_FIELD_ROLE] == role)
+    {
+      vs[i][VACANCY_FIELD_UUID] = uuid;
+      save_me();
+      return;
+    }
+}
+
+// The set of blueprint sources claimed by a vacancy anywhere in the area,
+// as ([ source : 1 ]). Used by _recompute_intended to keep vacancy uniques
+// out of the statistical population.
+mapping query_vacancy_sources()
+{
+  mapping ret;
+  string * locs;
+  int i, j;
+
+  ret = ([ ]);
+  locs = map_indices(pois);
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    mapping * vs;
+    vs = pois[locs[i]][POI_FIELD_VACANCIES];
+    for (j = 0; vs && j < sizeof(vs); j++)
+      ret[vs[j][VACANCY_FIELD_SOURCE]] = 1;
+  }
+
+  return ret;
 }
 
 // Live census count of a given source across the whole area (materialized or
