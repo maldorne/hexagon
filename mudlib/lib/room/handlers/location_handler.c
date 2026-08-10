@@ -610,6 +610,11 @@ object convert_room_to_location(object room)
 
   // A sign posted in the room (add_sign) becomes a sign component on the
   // location, which re-materialises the read-able item on every load.
+  // Ventures (pub, shop) create and manage their own sign (the menu / price
+  // board) through their component, and that item also carries a read
+  // message -- so skip auto-detection here for them, or the venture's sign
+  // would be duplicated (its own copy plus a captured sign-component copy).
+  if (!room->query_pub() && !room->query_shop())
   {
     mapping sign;
 
@@ -618,6 +623,16 @@ object convert_room_to_location(object room)
     {
       location->add_component(LOCATION_COMPONENT_SIGN, sign);
       ret += "   Adding component sign.\n";
+    }
+  }
+  else
+  {
+    // Venture: drop any sign component a prior conversion mistakenly
+    // captured from the venture's own board, so it stops duplicating.
+    if (location->query_component_by_type(LOCATION_COMPONENT_SIGN))
+    {
+      location->remove_component(LOCATION_COMPONENT_SIGN);
+      ret += "   Removing stray sign component (venture manages its own).\n";
     }
   }
 
