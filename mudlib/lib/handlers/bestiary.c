@@ -286,6 +286,7 @@ object spawn_from_template(string game, string source)
   // give it its game before applying the template, so game-specific race /
   // class paths pass set_race_ob / set_class_ob validation (game_root)
   npc->set_npc_game(game);
+  npc->set_npc_source(source);
 
   // A fixed template dictates the gender; a multi-gender one rolls one of its
   // listed genders here so apply_template can pick the matching per-gender

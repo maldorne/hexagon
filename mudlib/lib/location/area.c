@@ -668,6 +668,7 @@ private object npc_restore(string id, object loc)
   npc->set_npc_uuid(id);
   npc->set_npc_game(game);
   npc->set_npc_area_path(area_path);
+  npc->set_npc_source(source);
   if (entry["poi"])
     npc->set_npc_poi(entry["poi"]);
 

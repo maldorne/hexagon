@@ -20,6 +20,9 @@ string npc_uuid;         // census identity; nil/"" => not a persisted NPC
 string npc_game;         // game slug, for the savefile path
 string npc_area_path;    // owning area (census controller)
 string npc_poi;          // owning point of interest, if any
+string npc_source;       // blueprint path this NPC was spawned from; the
+                         // bestiary-template identity and census key. Lets the
+                         // NPC describe itself without a census lookup.
 string * npc_categories; // coarse types (aggressive/animal/citizen/...); a
                          // single NPC can carry several. Empty => derived.
 
@@ -31,6 +34,7 @@ void create()
   npc_game = nil;
   npc_area_path = nil;
   npc_poi = nil;
+  npc_source = nil;
   npc_categories = ({ });
 }
 
@@ -58,6 +62,9 @@ void set_npc_area_path(string s) { npc_area_path = s; }
 
 string query_npc_poi() { return npc_poi; }
 void set_npc_poi(string s) { npc_poi = s; }
+
+string query_npc_source() { return npc_source; }
+void set_npc_source(string s) { npc_source = s; }
 
 void set_npc_categories(string * a) { npc_categories = a ? a : ({ }); }
 void add_npc_category(string s)
