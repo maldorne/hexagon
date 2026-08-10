@@ -589,6 +589,64 @@ string assign_npc(string source, string location_file)
   return id;
 }
 
+// Assign a vacancy NPC: like assign_npc, but the source is a unique bound to
+// a POI (not part of the statistical roster, so no npc_intended check), and
+// the census entry is tagged with the owning POI location and role. Returns
+// the uuid. The NPC materializes when the POI's location loads.
+private string assign_vacancy_npc(string source, string location_file,
+                                  string role)
+{
+  string id, game;
+
+  game = game_from_path(area_path);
+  if (!BESTIARY_HANDLER->has_template(game, source))
+    BESTIARY_HANDLER->add_template(source);
+
+  id = UUID_OB->uuid();
+  npc_census[id] = ([ "source": source, "location": location_file,
+                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
+                      "gender": decide_gender(game, source),
+                      "poi": location_file, "role": role ]);
+  save_me();
+
+  return id;
+}
+
+// Ensure every vacancy of the POI at `location_file` has a census NPC
+// assigned to that location. A vacancy is (re)assigned when it is empty or
+// when its recorded NPC is no longer in the census (it died). Data-only:
+// materialization happens in the normal restore loop.
+private void _ensure_vacancies_assigned(string location_file)
+{
+  mapping entry;
+  mapping * vs;
+  int i;
+  int changed;
+
+  entry = pois[location_file];
+  if (!entry)
+    return;
+
+  vs = entry[POI_FIELD_VACANCIES];
+  changed = 0;
+  for (i = 0; vs && i < sizeof(vs); i++)
+  {
+    string uuid;
+
+    uuid = vs[i][VACANCY_FIELD_UUID];
+    if (uuid && npc_census[uuid])
+      continue;   // already filled and alive
+
+    vs[i][VACANCY_FIELD_UUID] =
+      assign_vacancy_npc(vs[i][VACANCY_FIELD_SOURCE], location_file,
+                         vs[i][VACANCY_FIELD_ROLE]);
+    changed = 1;
+  }
+
+  if (changed)
+    save_me();
+}
+
 // Materialize a census NPC into `loc`: a generic NPC with the source's data
 // template applied. If it already has a savefile (it was live before), restore
 // its state on top; otherwise this is its first materialization (freshly
@@ -610,6 +668,8 @@ private object npc_restore(string id, object loc)
   npc->set_npc_uuid(id);
   npc->set_npc_game(game);
   npc->set_npc_area_path(area_path);
+  if (entry["poi"])
+    npc->set_npc_poi(entry["poi"]);
 
   // Fix the census gender before applying the template so a bimodal template
   // picks the matching per-gender strings. Older census entries predate the
@@ -654,6 +714,11 @@ void restore_location_npcs(object loc)
   if (!file || !strlen(file))
     return;
 
+  // A POI location fills its vacancies first: assign a census NPC to any
+  // empty or dead vacancy slot, so the materialize loop below brings it in
+  // alongside the location's regular census NPCs.
+  _ensure_vacancies_assigned(file);
+
   ids = npc_census_for_location(file);
   for (i = 0; i < sizeof(ids); i++)
     if (!npc_uuid_present(loc, ids[i]))
@@ -682,14 +747,97 @@ void drain_location(object loc)
       inv[i]->save_npc();
 }
 
+// Find the loaded location object for a file, or nil if it is not resident.
+private object loaded_location(string file)
+{
+  object * locs;
+  int i;
+
+  locs = query_loaded_locations();
+  for (i = 0; i < sizeof(locs); i++)
+    if (locs[i] && locs[i]->query_file_name() == file)
+      return locs[i];
+
+  return nil;
+}
+
+// If `uuid` filled a vacancy, clear that slot and return ({ file, role });
+// otherwise nil. Used on death so the vacancy can be refilled.
+private mixed * clear_vacancy_by_uuid(string uuid)
+{
+  string * locs;
+  int i, j;
+
+  locs = map_indices(pois);
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    mapping * vs;
+    vs = pois[locs[i]][POI_FIELD_VACANCIES];
+    for (j = 0; vs && j < sizeof(vs); j++)
+      if (vs[j][VACANCY_FIELD_UUID] == uuid)
+      {
+        vs[j][VACANCY_FIELD_UUID] = nil;
+        save_me();
+        return ({ locs[i], vs[j][VACANCY_FIELD_ROLE] });
+      }
+  }
+
+  return nil;
+}
+
+// call_out target: respawn a vacancy NPC some time after its holder died.
+// Re-assigns the slot and, if the POI's location is loaded, materializes the
+// NPC at once; otherwise it comes back the next time the location loads.
+void _refill_vacancy(string file)
+{
+  object loc;
+
+  if (!pois[file])
+    return;
+
+  _ensure_vacancies_assigned(file);
+
+  loc = loaded_location(file);
+  if (loc)
+    restore_location_npcs(loc);
+}
+
 // Called by a persisted NPC (via monster::do_death) when it dies: drop its
 // census slot so the population frees up and a replacement may spawn later.
 // The savefile itself is removed by the NPC's own delete_npc_save().
+//
+// If the dead NPC filled a vacancy, free the slot and schedule a delayed
+// respawn at its POI.
 void npc_died(string uuid)
 {
+  mixed * vacancy;
+
   if (npc_census[uuid])
   {
     map_delete(npc_census, uuid);
     save_me();
+  }
+
+  vacancy = clear_vacancy_by_uuid(uuid);
+  if (vacancy)
+    call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY, vacancy[0]);
+}
+
+// Ensure every POI vacancy in the area is assigned and, where the location
+// is loaded, materialized. Safe to call repeatedly (idempotent per slot).
+void fill_vacancies()
+{
+  string * locs;
+  int i;
+
+  locs = map_indices(pois);
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    object loc;
+
+    _ensure_vacancies_assigned(locs[i]);
+    loc = loaded_location(locs[i]);
+    if (loc)
+      restore_location_npcs(loc);
   }
 }

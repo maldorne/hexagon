@@ -50,4 +50,7 @@
 #define VACANCY_FIELD_SOURCE "source"
 #define VACANCY_FIELD_UUID   "uuid"
 
+// Seconds before a dead vacancy NPC is respawned at its POI.
+#define VACANCY_RESPAWN_DELAY 300
+
 #endif // AREAS_POI_H
