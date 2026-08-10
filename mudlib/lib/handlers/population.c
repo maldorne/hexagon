@@ -107,7 +107,10 @@ int update_population()
   area_path = areas[next_area];
   next_area++;
 
-  area = load_object(AREA_HANDLER)->create_area(area_path);
+  // query_area (not create_area) so a registered area whose area.o has been
+  // deleted resolves to nil and is dropped, rather than being silently
+  // recreated as an empty area by the sweep.
+  area = load_object(AREA_HANDLER)->query_area(area_path);
   if (!area)
   {
     // area gone -- drop it from the registry

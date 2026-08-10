@@ -53,10 +53,9 @@ static int do_explorer()
   // language. Skip areas that no longer exist or no longer grant a name.
   for (i = 0; paths && i < sizeof(paths); i++)
   {
-    if (file_size(paths[i] + "area.o") < 0)
-      continue;
-
-    area = load_object(AREA_HANDLER)->create_area(paths[i]);
+    // query_area returns nil for a path with no area.o, so a stored area
+    // that no longer exists is skipped without materialising an empty one.
+    area = load_object(AREA_HANDLER)->query_area(paths[i]);
     if (!area)
       continue;
 
