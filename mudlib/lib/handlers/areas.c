@@ -45,6 +45,33 @@ object create_area(string path)
   return area;
 }
 
+// Look up an already-known area without creating anything. Returns the
+// cached area if it is loaded, otherwise restores it from its area.o when
+// that file exists on disk (and caches it), or nil when there is no such
+// area. Unlike create_area this never mkdirs the path nor writes a fresh
+// area.o -- use it for read-only lookups (death cleanup, queries) where a
+// missing area must not be brought into existence.
+object query_area(string path)
+{
+  object area;
+
+  if (strlen(path) && path[strlen(path) - 1] != '/')
+    path += "/";
+
+  if (loaded_areas[path])
+    return loaded_areas[path];
+
+  if (file_size(path + "area.o") < 0)
+    return nil;
+
+  area = clone_object(AREA_STORAGE_OBJECT);
+  area->set_area_path(path);
+  area->restore_from_file_name(path + "area.o");
+  loaded_areas[path] = area;
+
+  return area;
+}
+
 // Delete an area whose locations are all gone: remove its area.o file,
 // forget it, and drop the now-empty directory, so a wiped area leaves no
 // dead area.o behind. Returns 1 if it was removed, 0 otherwise.

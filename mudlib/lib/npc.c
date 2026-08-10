@@ -145,7 +145,12 @@ void dest_me()
   if (query_persisted() && query_dead())
   {
     if (npc_area_path)
-      catch(AREA_HANDLER->create_area(npc_area_path)->npc_died(npc_uuid));
+    {
+      object area;
+      area = AREA_HANDLER->query_area(npc_area_path);
+      if (area)
+        catch(area->npc_died(npc_uuid));
+    }
     delete_npc_save();
   }
 
