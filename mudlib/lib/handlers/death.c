@@ -321,9 +321,15 @@ float get_real_rate(mixed vals, object npc)
   float rateret;
   if (sizeof(vals) < 12)
     return -1.0;
-  if (vals[5] && vals[6] / vals[5] < 4) 
+  // vals holds floats (see update_npc_died's zero-initialisation) but is
+  // typed `mixed`, so the compiler defers these comparisons to runtime.
+  // DGD does not mix int and float in one operator, at compile time or run
+  // time, so each right-hand side must itself be a float: use float literals
+  // and cast the int division's result rather than dividing by a float
+  // literal (BASE_WEEK / 60.0 would be a compile-time int/float error).
+  if (vals[5] && vals[6] / vals[5] < 4.0)
     return -1.0;
-  if (vals[10] < BASE_WEEK/60 && vals[7] < 1000000000) 
+  if (vals[10] < (float)(BASE_WEEK / 60) && vals[7] < 1000000000.0)
     return -1.0;
   if (!vals[8]) 
   {
