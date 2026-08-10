@@ -28,8 +28,8 @@ string query_desc(object ob)
 
 void start_player(object ob)
 { 
-  ob->set_min(_LANG_RACES_MSG_IN_STD);
-  ob->set_mout(_LANG_RACES_MSG_OUT_STD);
+  // No move-message override: an unset slot already resolves to the
+  // current-language default (see movement.c).
 }
 
 void set_racial_bonuses(object ob)

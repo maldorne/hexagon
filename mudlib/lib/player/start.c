@@ -63,16 +63,9 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
   
   start_player(reconnected);
 
-  if (!msgin || msgin[0] != '@')
-    msgin = msgout = mmsgin = mmsgout = "";
-  if (!msgin)
-    msgin = _LANG_RACES_MSG_IN_STD;
-  if (!msgout)
-    msgout = _LANG_RACES_MSG_OUT_STD;
-  if (!mmsgin)
-    mmsgin = _LANG_RACES_MMSG_IN_STD;
-  if (!mmsgout)
-    mmsgout = _LANG_RACES_MMSG_OUT_STD;
+  // Move messages resolve to the current server's language defaults when a
+  // slot is empty (see movement.c), and races re-apply their own phrasing in
+  // start_player above, so no reseeding is needed here.
 
   CHAT_HANDLER->init_player_channels(query_property(CHANNELS_PROPERTY), this_object());
   // channel_init();

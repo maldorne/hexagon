@@ -11,34 +11,75 @@
 // from here we inherit object.c
 inherit container "/lib/core/basic/container";
 
-string msgout, msgin, mmsgout, mmsgin;
+// The four movement messages, in one array so they travel together:
+//   [0] out   (walking away)     [1] in   (walking in)
+//   [2] mout  (teleporting away) [3] min  (teleporting in)
+// An empty slot means "use the current server's language default"; only a
+// value a builder/race actually set is stored. This keeps a player/NPC
+// savefile free of language-specific move strings, so a character (ficha)
+// moves between a Spanish and an English instance and picks up that
+// instance's defaults. Races (re)apply their own phrasing every login via
+// start_player, in the current language, so a stored race string is always
+// refreshed and never pins the ficha to one language.
+#define MOVE_MSG_OUT  0
+#define MOVE_MSG_IN   1
+#define MOVE_MSG_MOUT 2
+#define MOVE_MSG_MIN  3
+
+string * move_msgs;
 
 void create()
 {
-  msgout = _LANG_RACES_MSG_IN_STD;
-  msgin = _LANG_RACES_MSG_OUT_STD;
-  mmsgout = _LANG_RACES_MMSG_OUT_STD;
-  mmsgin = _LANG_RACES_MMSG_IN_STD;
+  move_msgs = ({ "", "", "", "" });
 
   // from here we inherit object.c, were the call to
   // setup is, so it must be the last create call
   container::create();
 }
 
-string * query_move_messages()
+// Resolve a slot: the stored value if set, else the current-language default.
+private string _move_msg(int idx)
 {
-  return ({ msgout, msgin, mmsgout, mmsgin });
+  if (move_msgs && idx < sizeof(move_msgs) &&
+      stringp(move_msgs[idx]) && strlen(move_msgs[idx]))
+    return move_msgs[idx];
+
+  switch (idx)
+  {
+    case MOVE_MSG_OUT:  return _LANG_RACES_MSG_OUT_STD;
+    case MOVE_MSG_IN:   return _LANG_RACES_MSG_IN_STD;
+    case MOVE_MSG_MOUT: return _LANG_RACES_MMSG_OUT_STD;
+    case MOVE_MSG_MIN:  return _LANG_RACES_MMSG_IN_STD;
+  }
+  return "";
 }
 
-void set_min(string str) { msgin = str; }
-void set_mout(string str) { msgout = str; }
-void set_mmin(string str) { mmsgin = str; }
-void set_mmout(string str) { mmsgout = str; }
+private void _ensure_move_msgs()
+{
+  if (!move_msgs || sizeof(move_msgs) < 4)
+    move_msgs = ({ "", "", "", "" });
+}
 
-string query_min() { return msgin; }
-string query_mout() { return msgout; }
-string query_mmin() { return mmsgin; }
-string query_mmout() { return mmsgout; }
+// Resolved messages (defaults filled in), the public 4-tuple contract.
+string * query_move_messages()
+{
+  return ({ _move_msg(MOVE_MSG_OUT), _move_msg(MOVE_MSG_IN),
+            _move_msg(MOVE_MSG_MOUT), _move_msg(MOVE_MSG_MIN) });
+}
+
+// The raw stored array (empty slots = default), for savefile / builder use.
+string * query_move_msgs() { return move_msgs; }
+void set_move_msgs(string * a) { move_msgs = a; _ensure_move_msgs(); }
+
+void set_min(string str)   { _ensure_move_msgs(); move_msgs[MOVE_MSG_IN]   = str ? str : ""; }
+void set_mout(string str)  { _ensure_move_msgs(); move_msgs[MOVE_MSG_OUT]  = str ? str : ""; }
+void set_mmin(string str)  { _ensure_move_msgs(); move_msgs[MOVE_MSG_MIN]  = str ? str : ""; }
+void set_mmout(string str) { _ensure_move_msgs(); move_msgs[MOVE_MSG_MOUT] = str ? str : ""; }
+
+string query_min()   { return _move_msg(MOVE_MSG_IN); }
+string query_mout()  { return _move_msg(MOVE_MSG_OUT); }
+string query_mmin()  { return _move_msg(MOVE_MSG_MIN); }
+string query_mmout() { return _move_msg(MOVE_MSG_MOUT); }
 
 int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 {
@@ -47,18 +88,6 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   object last, new_env;
 
   no_see = 0;
-
-  if (!msgout)
-  {
-    msgin = _LANG_RACES_MSG_IN_STD;
-    msgout = _LANG_RACES_MSG_OUT_STD;
-  }
-
-  if (!mmsgout)
-  {
-    mmsgin = _LANG_RACES_MMSG_IN_STD;
-    mmsgout = _LANG_RACES_MMSG_OUT_STD;
-  }
 
   last = environment();
 
@@ -80,8 +109,8 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   else if (!dir || dir == "X")
   {
     // we are teleporting
-    leave = implode(explode(mmsgout, "$N"), my_short) + "\n";
-    arrive = implode(explode(mmsgin, "$N"), my_short) + "\n";
+    leave = implode(explode(query_mmout(), "$N"), my_short) + "\n";
+    arrive = implode(explode(query_mmin(), "$N"), my_short) + "\n";
   }
   else
   {
@@ -91,13 +120,13 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
     if (pointerp(message))
       message = message[0];
 
-    leave = implode(explode(implode(explode((message ? message : msgout), "$N"),
+    leave = implode(explode(implode(explode((message ? message : query_mout()), "$N"),
               my_short), "$T"), aux) + "\n";
 
     switch (enter[0])
     {
       case 0 :
-        arrive = implode(explode(implode(explode(msgin, "$N"), my_short), "$F"),
+        arrive = implode(explode(implode(explode(query_min(), "$N"), my_short), "$F"),
             enter[1])+"\n";
         break;
       case 1 :
@@ -184,9 +213,7 @@ void run_away()
 mixed * stats()
 {
   return container::stats() + ({
-      ({ "msgout", msgout, }),
-      ({ "msgin", msgin, }),
-      ({ "mmsgout", mmsgout, }),
-      ({ "mmsgin", mmsgin, }),
+      ({ "move_msgs (raw)", move_msgs, }),
+      ({ "move_msgs (resolved)", query_move_messages(), }),
     });
 }
