@@ -125,35 +125,31 @@ void delete_npc_save()
   catch(remove_file(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE));
 }
 
-// Called once the NPC has actually died (see do_death): notify the owning area
-// census and drop the savefile. The diplomacy controller (city_ob) is already
-// notified by living::do_death, so it is not repeated here.
-void persisted_npc_died()
-{
-  if (!query_persisted())
-    return;
-
-  if (npc_area_path)
-    catch(AREA_HANDLER->create_area(npc_area_path)->npc_died(npc_uuid));
-
-  delete_npc_save();
-}
-
 // ---------------------------------------------------------------------------
 // Death and data template
 // ---------------------------------------------------------------------------
 
-// Once actually dead, free the census slot and drop the savefile (this lives
-// here, not on monster.c, so plain mobs do not carry it).
-int do_death(varargs object killer)
+// Free the census slot and POI vacancy, and drop the savefile, when this NPC
+// dies. This runs from dest_me, not do_death: living::actual_death destructs
+// the body, and a destructed object can no longer call_other, so the area
+// must be notified from dest_me -- the last moment the NPC is still alive,
+// just before ::dest_me() destroys it.
+//
+// dest_me also runs on a plain eviction/unload, where the NPC is not dead and
+// its census entry must survive so it returns on the next load; the
+// query_dead() guard (set by living::actual_death before it destructs us)
+// tells the two apart. The diplomacy controller (city_ob) is already notified
+// inside living::do_death, so it is not repeated here.
+void dest_me()
 {
-  int r;
+  if (query_persisted() && query_dead())
+  {
+    if (npc_area_path)
+      catch(AREA_HANDLER->create_area(npc_area_path)->npc_died(npc_uuid));
+    delete_npc_save();
+  }
 
-  r = monster::do_death(killer);
-  if (this_object() && query_dead())
-    persisted_npc_died();
-
-  return r;
+  ::dest_me();
 }
 
 // Apply a bestiary data template (a plain mapping of field -> value) onto this
