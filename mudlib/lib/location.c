@@ -9,6 +9,9 @@ inherit contents "/lib/room/contents.c";
 inherit exits    "/lib/room/exits.c";
 inherit zone     "/lib/room/zone.c";
 inherit sign     "/lib/room/sign.c";
+// exit protection shared with rooms; a location's guards are placed by the
+// diplomacy / POI system and registered here (see /lib/room/guarded_exits.c)
+inherit guarded  "/lib/room/guarded_exits.c";
 
 #include <basic/light.h>
 #include <language.h>
@@ -121,6 +124,7 @@ void create()
   contents::create();
   exits::create();
   zone::create();
+  guarded::create();
   // the last one
   obj::create();
 
@@ -1070,6 +1074,10 @@ void dest_me()
     if (components[i])
       destruct(components[i]);
   components = ({ });
+
+  // forget the guard registry (the guards themselves are area-managed NPCs,
+  // drained above)
+  clear_guards();
 
   destruct(this_object());
 }
