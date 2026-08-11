@@ -614,12 +614,18 @@ string drunk_speech(string str)
 
 // Flode, 080997. Hopefully my fix will make sure that people won't learn
 // fifteen dwarfs or similar anymore
-void add_language(string lang) 
+void add_language(string lang)
 {
   int i;
+  string id;
 
-  if (!handler("languages")->language_exists(lang))
-    return ;
+  // Resolve to the canonical lowercase-English id, so a legacy translated
+  // name ("común") or an alias ("comun") stored on an old ficha, or passed
+  // in, is normalised to the id ("common"). Unknown => not a language.
+  id = handler("languages")->resolve_language(lang);
+  if (!id)
+    return;
+  lang = id;
 
   if (!languages)
     languages = ({ });
@@ -654,6 +660,38 @@ void add_languages(string *list)
     add_language(list[i]);
 }
 
+// Rewrite the known-languages list and the current language to canonical
+// ids, dropping duplicates and anything no longer a language. Migrates an
+// old ficha that stored translated names ("común") to ids ("common"). Run
+// on login (start_player).
+void normalize_languages()
+{
+  string * out;
+  int i;
+  string id;
+
+  if (!languages)
+  {
+    languages = ({ });
+    return;
+  }
+
+  out = ({ });
+  for (i = 0; i < sizeof(languages); i++)
+  {
+    id = handler("languages")->resolve_language(languages[i]);
+    if (id && member_array(id, out) == -1)
+      out += ({ id });
+  }
+  languages = out;
+
+  if (cur_lang && strlen(cur_lang))
+  {
+    id = handler("languages")->resolve_language(cur_lang);
+    cur_lang = id ? id : (sizeof(languages) ? languages[0] : "");
+  }
+}
+
 // Eliminado el grunt, neverbot 12/10/03
 void remove_language(string lang) 
 {
@@ -669,14 +707,14 @@ void remove_language(string lang)
       cur_lang = "";
       // Si estamos creando el personaje no damos mensajes
       if (this_object()->query_level() >= 1)
-        tell_object(this_object(), "Has olvidado el idioma que estabas " +
-           "hablando.\n");
+        tell_object(this_object(), _LANG_SPEAK_FORGOT_ALL);
     }
     else
     {
+      string name;
       cur_lang = languages[0];
-      tell_object(this_object(), "Has olvidado el lenguaje que estabas " +
-          "hablando. Ahora hablas en "+cur_lang+".\n");
+      name = handler("languages")->query_language_display(cur_lang);
+      tell_object(this_object(), _LANG_SPEAK_FORGOT_SWITCH);
     }
   }
 } /* remove_language() */
@@ -690,58 +728,56 @@ void remove_languages(string *list)
 }
 
 // Eliminado el grunt, neverbot 12/10/03
-int set_language(string str) 
+int set_language(string str)
 {
-  string res;
+  string res, name, id;
   int i;
+  object lh;
+
+  lh = handler("languages");
 
   if (!strlen(str))
   {
     if (!strlen(cur_lang))
-      res = "Debes seleccionar un idioma para hablar.\n";
+      res = _LANG_SPEAK_SELECT;
     else
-      res = "Ahora hablas en '" + cur_lang + "'.\n";
+    {
+      name = lh->query_language_display(cur_lang);
+      res = _LANG_SPEAK_CURRENT;
+    }
 
     if (sizeof(languages) > 0)
     {
-      res += "Puedes hablar en los siguiente idiomas:\n";
-
-      for(i = 0; i < sizeof(languages); i++)
-      {
-        res += "\t"+capitalize(languages[i])+"\n";
-      }
+      res += _LANG_SPEAK_KNOWN_HEADER;
+      for (i = 0; i < sizeof(languages); i++)
+        res += "\t" + lh->query_language_display(languages[i]) + "\n";
     }
     else
-    {
-      res += "No conoces ningún idioma.\n";
-    }
+      res += _LANG_SPEAK_NONE;
 
     notify_fail(res);
     return 0;
   }
-  /*           
-  if (!str) {
-    notify_fail("Ahora hablas en "+cur_lang+" y puedes hablar en "
-          +query_multiple_short(languages)+".\n");
-    return 0;
-  }
-  */
-  
-  if (member_array(str, languages) == -1) 
+
+  // Resolve id / alias / display name the player typed to the canonical id.
+  id = lh->resolve_language(str);
+  if (!id || member_array(id, languages) == -1)
   {
-    notify_fail("No conoces el idioma '"+str+"'.\n");
+    notify_fail(_LANG_SPEAK_UNKNOWN);
     return 0;
   }
 
-  cur_lang = str;
+  cur_lang = id;
 
   // Si estamos creando la ficha no damos mensajes
   if (this_object()->query_level() >= 1)
-    tell_object(this_object(),"Usando el idioma '"+str+"' para hablar y "+
-      "escribir.\n");
-  
+  {
+    name = lh->query_language_display(cur_lang);
+    tell_object(this_object(), _LANG_SPEAK_NOW_USING);
+  }
+
   return 1;
-} 
+}
 
 string query_current_language() { return cur_lang; }
 string * query_languages() 

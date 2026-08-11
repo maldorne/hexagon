@@ -53,6 +53,16 @@ void set_read_mess(mixed str, varargs string lang, int size, string frame_style)
   if (!frame_style)
     frame_style = "";
 
+  // Resolve a legacy translated language name ("común") baked into old data
+  // to its canonical id ("common") before the written-language check, so an
+  // old sign is not silently emptied now that ids are language-neutral.
+  {
+    string rid;
+    rid = handler("languages")->resolve_language(lang);
+    if (rid)
+      lang = rid;
+  }
+
   // only allow read_mess with written languages
   if (!handler("languages")->query_language_written(lang))
     read_mess = ({ });

@@ -113,6 +113,64 @@ int language_exists(string lang)
   return arrayp(languages[lang]);
 }
 
+// The real-world-language display name for a language id ("common" -> "común"
+// in ES, "Common" in EN). Unknown ids fall back to the capitalised id, so a
+// game that registers a language without a name entry still shows something
+// sensible.
+string query_language_display(string lang)
+{
+  mapping names;
+
+  if (!lang || !strlen(lang))
+    return "";
+
+  names = _LANG_LANGUAGE_NAMES;
+  if (mappingp(names) && !undefinedp(names[lang]))
+    return names[lang];
+
+  return capitalize(lang);
+}
+
+// Resolve user input (an id, an alias, or a display name, any case) to the
+// canonical lowercase-English id, or 0 when nothing matches. Lets the player
+// type `hablar comun` / `hablar Común` and reach the id "common".
+string resolve_language(string input)
+{
+  mapping aliases, names;
+  string * ids;
+  int i;
+
+  if (!input || !strlen(input))
+    return nil;
+  input = lower_case(input);
+
+  // already a known id
+  if (language_exists(input))
+    return input;
+
+  // an alias
+  aliases = _LANG_LANGUAGE_ALIASES;
+  if (mappingp(aliases))
+  {
+    ids = map_indices(aliases);
+    for (i = 0; i < sizeof(ids); i++)
+      if (member_array(input, aliases[ids[i]]) != -1)
+        return ids[i];
+  }
+
+  // a display name (lower-cased)
+  names = _LANG_LANGUAGE_NAMES;
+  if (mappingp(names))
+  {
+    ids = map_indices(names);
+    for (i = 0; i < sizeof(ids); i++)
+      if (lower_case(names[ids[i]]) == input)
+        return ids[i];
+  }
+
+  return nil;
+}
+
 string garble(string text, string lang)
 {
   object language;

@@ -13,6 +13,7 @@ string long()
 }
 
 string garbler(string mess);
+string scramble_sentence(string text, int speaker, int listener);
 
 // called from the language handler, receives the full message 
 // to "translate" and the start piece "xxx says", "xxx exclaims", etc
@@ -21,10 +22,15 @@ mixed garble(string start, string mess)
   return ({ start, garbler(mess) });
 }
 
-// called from this object, "translates" the real message to show
+// called from this object, "translates" the real message to show.
+// The reader does not understand this language at all (the handler only
+// garbles when the language is not among the reader's known ones), so
+// scramble every word at full distortion. scramble_sentence takes a
+// speaker and a listener competence; 0/0 means "no shared understanding",
+// which drives total_distortion above AVERAGE_LEVEL for every word.
 string garbler(string mess)
 {
-  return mess;
+  return scramble_sentence(mess, 0, 0);
 }
 
 string scramble_word(string word, int total_distortion)

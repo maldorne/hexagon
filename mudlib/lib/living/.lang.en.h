@@ -330,3 +330,14 @@
     "unarmed" : "basic unarmed combat", \
     "exploration" : "exploration", \
   ])
+
+// speak / language selection (set_language, remove_language). `name` is the
+// language's real-world display name; `str` the raw input the player typed.
+#define _LANG_SPEAK_SELECT "You must choose a language to speak.\n"
+#define _LANG_SPEAK_CURRENT "You are now speaking " + name + ".\n"
+#define _LANG_SPEAK_KNOWN_HEADER "You can speak the following languages:\n"
+#define _LANG_SPEAK_NONE "You do not know any language.\n"
+#define _LANG_SPEAK_UNKNOWN "You do not know the language '" + str + "'.\n"
+#define _LANG_SPEAK_NOW_USING "Now using " + name + " to speak and write.\n"
+#define _LANG_SPEAK_FORGOT_ALL "You have forgotten the language you were speaking.\n"
+#define _LANG_SPEAK_FORGOT_SWITCH "You have forgotten the language you were speaking. You are now speaking " + name + ".\n"

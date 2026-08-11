@@ -112,6 +112,10 @@ void start_player()
 {
   social::start_player();
 
+  // Migrate any legacy translated language names on the ficha to canonical
+  // ids (see communicate.c), so an imported character speaks/reads correctly.
+  normalize_languages();
+
   // The command groups are registered on set_living_name, before a player's
   // skills are restored, so active-skill commands would not be attached.
   // Re-register them here, once known_skills is populated. (NPCs get theirs
