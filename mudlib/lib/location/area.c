@@ -46,6 +46,16 @@ mapping npc_sources;
 // declared by hand with the builder ring. Vacancies hang off each POI.
 mapping pois;
 
+// Average level of the area's NPCs and how far individual NPCs may deviate
+// from it. An NPC's level is decided once, at census assignment, as
+//   area_level + template level_area_modifier  ±  random(area_spread + 1)
+// (a template that carries a concrete "level" overrides all of this). The
+// deviation uses random(spread + 1) because random(2) yields only 0 or 1, so
+// a spread of 2 gives a swing of 0..2. Stored per NPC in the census, so each
+// NPC keeps the level it was created with.
+int area_level;
+int area_spread;
+
 // prototype functions
 void add_loaded_location(object location);
 mapping query_vacancy_sources();
@@ -63,6 +73,8 @@ void create() {
   npc_census = ([ ]);
   npc_sources = ([ ]);
   pois = ([ ]);
+  area_level = 1;
+  area_spread = 0;
   ::create();
 }
 
@@ -564,6 +576,50 @@ private int decide_gender(string game, string source)
            BESTIARY_HANDLER->query_template(game, source));
 }
 
+int query_area_level() { return area_level; }
+int query_area_spread() { return area_spread; }
+
+void set_area_level(int n)
+{
+  area_level = n < 1 ? 1 : n;
+  save_me();
+}
+
+void set_area_spread(int n)
+{
+  area_spread = n < 0 ? 0 : n;
+  save_me();
+}
+
+// The level a census NPC is born with, decided once at assignment so it stays
+// stable for the life of that NPC (like its gender). A template with a
+// concrete "level" dictates it outright; otherwise the level derives from the
+// area: area_level + the template's level_area_modifier, swung by up to the
+// area spread (random(spread + 1), sign random). Never below 1.
+private int decide_level(string game, string source)
+{
+  mapping t;
+  int base, dev;
+
+  t = BESTIARY_HANDLER->query_template(game, source);
+
+  // a template that fixes a concrete level ignores area level / spread
+  if (t && t["level"])
+    return t["level"];
+
+  base = area_level + (t && t["level_area_modifier"] ? t["level_area_modifier"] : 0);
+
+  // random(spread + 1) gives 0..spread (random(2) is only 0 or 1), applied up
+  // or down at random
+  dev = random(area_spread + 1);
+  if (random(2))
+    base += dev;
+  else
+    base -= dev;
+
+  return base < 1 ? 1 : base;
+}
+
 // Assign a new NPC of `source` to `location_file` as data only: ensure the
 // source has a data template and record a census entry. No object is
 // materialized -- it becomes real (cloned from the template and saved) when
@@ -583,7 +639,8 @@ string assign_npc(string source, string location_file)
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": location_file,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
-                      "gender": decide_gender(game, source) ]);
+                      "gender": decide_gender(game, source),
+                      "level": decide_level(game, source) ]);
   save_me();
 
   return id;
@@ -606,6 +663,7 @@ private string assign_vacancy_npc(string source, string location_file,
   npc_census[id] = ([ "source": source, "location": location_file,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
                       "gender": decide_gender(game, source),
+                      "level": decide_level(game, source),
                       "poi": location_file, "role": role ]);
   save_me();
 
@@ -683,6 +741,18 @@ private object npc_restore(string id, object loc)
   }
   npc->set_gender(entry["gender"]);
   npc->apply_template(BESTIARY_HANDLER->query_template(game, source));
+
+  // The level is decided once at assignment and stored in the census, so an
+  // NPC keeps the level it was created with (independent of later changes to
+  // the area's average). Older census entries predate the stored level --
+  // decide and backfill one so they stay stable from now on.
+  if (!entry["level"])
+  {
+    entry["level"] = decide_level(game, source);
+    npc_census[id] = entry;
+    save_me();
+  }
+  npc->set_level(entry["level"]);
 
   spec = npc_intended[source];
   if (spec && spec["category"])

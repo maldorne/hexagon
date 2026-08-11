@@ -81,12 +81,18 @@ private mapping gendered_fields(object npc)
 }
 
 // The gender-independent half.
+//
+// Level is deliberately NOT captured: an NPC's level comes from its area
+// (area_level + the template's level_area_modifier, swung by the area spread;
+// see area::decide_level), so a template carries no absolute level by default.
+// A template may still be given an explicit "level" by hand to pin a concrete
+// level, or a "level_area_modifier" to sit a fixed number of levels above or
+// below the area average.
 private mapping nongendered_fields(object npc)
 {
   return ([
     "race_ob":  npc->query_race_ob(),
     "class_ob": npc->query_class_ob(),
-    "level":    npc->query_level(),
     "align":    npc->query_real_align(),
     "weight":   npc->query_weight(),
   ]);
@@ -219,6 +225,23 @@ int add_template(string source)
   t = extract_template(source);
   if (!t)
     return 0;
+
+  // Carry over the hand-set, non-captured fields from an existing template so
+  // a reconversion (which re-extracts from the source) does not wipe them:
+  // level_area_modifier (how this NPC sits relative to the area average) and
+  // an explicit concrete level. extract_template never produces these, so they
+  // only exist if a builder added them.
+  {
+    mapping old;
+    old = query_template(game, source);
+    if (old)
+    {
+      if (!undefinedp(old["level_area_modifier"]))
+        t["level_area_modifier"] = old["level_area_modifier"];
+      if (!undefinedp(old["level"]))
+        t["level"] = old["level"];
+    }
+  }
 
   tfile = query_template_file(game, source);
   slash = strsrch(tfile, "/", -1);

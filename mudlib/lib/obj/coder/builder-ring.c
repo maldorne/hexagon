@@ -15,19 +15,21 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "npc" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
-#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration >"
+#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] >"
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | vacancy <add <role> <source> | remove <role>> >"
+#define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
                 "\t" + BUILDER_RING_SELECTION_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_COMPONENT_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_AREA_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_POI_SYNTAX
+                "\t" + BUILDER_RING_POI_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_NPC_SYNTAX
 
 static string * selection;
 static mapping objects;
@@ -66,6 +68,7 @@ int do_convert(string str);
 int do_component(string str);
 int do_area(string str);
 int do_poi(string str);
+int do_npc();
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -242,6 +245,10 @@ int do_build(string str)
     notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
     return 0;
   }
+
+  // npc takes no argument -- it just reports the current area's population
+  if (verb == "npc")
+    return do_npc();
 
   if (sizeof(args) < 2)
   {
@@ -561,6 +568,28 @@ int do_area(string str)
           "' no longer grants exploration.\n");
     return 1;
   }
+  else if (verb == "level")
+  {
+    int lvl, spread;
+
+    // level is required; spread is optional and left unchanged when omitted
+    if (sizeof(args) < 2 || sscanf(args[1], "%d", lvl) != 1)
+    {
+      notify_fail("Usage: build area level <n> [<spread>]\n");
+      return 0;
+    }
+
+    spread = area->query_area_spread();
+    if (sizeof(args) > 2)
+      sscanf(args[2], "%d", spread);
+
+    area->set_area_level(lvl);
+    area->set_area_spread(spread);
+    write("Area '" + area->query_area_name() + "' average level set to " +
+          area->query_area_level() + " (spread " + area->query_area_spread() +
+          ").\n");
+    return 1;
+  }
 
   notify_fail("Usage: " + BUILDER_RING_AREA_SYNTAX + "\n");
   return 0;
@@ -738,6 +767,76 @@ int do_poi(string str)
 
   notify_fail("Usage: " + BUILDER_RING_POI_SYNTAX + "\n");
   return 0;
+}
+
+// Report the current area's NPC population: the average level and spread, the
+// roster (each blueprint's cap and how many are live in the census), and every
+// POI vacancy. Read-only inspection -- before this there was no command, only
+// exec snippets.
+int do_npc()
+{
+  object loc, area;
+  mapping intended, pois;
+  string * sources, * pkeys;
+  string out;
+  int i;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to inspect its area.\n");
+    return 0;
+  }
+
+  area = loc->query_area();
+  if (!area)
+  {
+    notify_fail("This location has no area.\n");
+    return 0;
+  }
+
+  out = "Area '" + area->query_area_name() + "'  average level " +
+        area->query_area_level() + " (spread " + area->query_area_spread() +
+        ")\n";
+
+  // roster: each blueprint's live census count against its area cap
+  intended = area->query_npc_intended();
+  sources = map_indices(intended);
+  out += "Roster (" + sizeof(sources) + " blueprint" +
+         (sizeof(sources) == 1 ? "" : "s") + "):\n";
+  for (i = 0; i < sizeof(sources); i++)
+    out += "  " + sources[i] + "  live " +
+           area->query_npc_live_count(sources[i]) + " / cap " +
+           intended[sources[i]]["max"] + "\n";
+  if (!sizeof(sources))
+    out += "  (none)\n";
+
+  // vacancies: the named single-instance roles bound to the area's POIs
+  pois = area->query_pois();
+  pkeys = map_indices(pois);
+  {
+    int any, j;
+    any = 0;
+    for (i = 0; i < sizeof(pkeys); i++)
+    {
+      mapping * vs;
+      vs = pois[pkeys[i]][POI_FIELD_VACANCIES];
+      for (j = 0; vs && j < sizeof(vs); j++)
+      {
+        if (!any)
+        {
+          out += "Vacancies:\n";
+          any = 1;
+        }
+        out += "  " + pkeys[i] + "  " + vs[j][VACANCY_FIELD_ROLE] + " <- " +
+               vs[j][VACANCY_FIELD_SOURCE] +
+               (vs[j][VACANCY_FIELD_UUID] ? "  [filled]" : "  [empty]") + "\n";
+      }
+    }
+  }
+
+  write(out);
+  return 1;
 }
 
 
