@@ -121,7 +121,7 @@ private mapping assemble_template(mapping bygender, mapping nong)
   mapping t;
   int * gs;
 
-  t = nong + ([ ]);
+  t = ([ ]) + nong;
   gs = map_indices(bygender);
 
   if (sizeof(gs) == 1)

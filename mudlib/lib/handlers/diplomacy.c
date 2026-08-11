@@ -179,6 +179,13 @@ string * query_enemies(mixed c)
   return (rec && pointerp(rec["enemies"])) ? rec["enemies"] : ({ });
 }
 
+// Read-only view of a game's whole citizenship graph, for inspection commands.
+// Returns a shallow copy so callers cannot mutate the cache.
+mapping query_relations(string game)
+{
+  return ([ ]) + _relations(game);
+}
+
 // Drop the cache so a table edit is picked up without a reboot.
 void reload()
 {
