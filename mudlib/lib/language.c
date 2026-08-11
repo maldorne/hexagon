@@ -72,44 +72,64 @@ string scramble_word(string word, int total_distortion)
   return word;
 } /* scramble_letter() */
 
+// Distort a single word using the speaker / listener competence, or return
+// it unchanged. Empty input yields empty output. Split out of
+// scramble_sentence so the sentence walker can scramble word runs while
+// leaving whitespace untouched.
+private string scramble_one_word(string word, int speaker, int listener)
+{
+  int speaker_distortion, listener_distortion, total_distortion;
+
+  if (!strlen(word))
+    return "";
+
+  speaker_distortion = strlen(word) - speaker;
+  if (speaker_distortion < 0)
+    speaker_distortion = 0;
+
+  listener_distortion = strlen(word) - listener;
+  if (listener_distortion < 0)
+    listener_distortion = 0;
+
+  total_distortion = speaker_distortion + listener_distortion;
+
+  if (random(AVERAGE_LEVEL) < total_distortion)
+    return scramble_word(word, total_distortion);
+
+  return word;
+}
+
+// Scramble each whole word of `text` while preserving every space, tab and
+// newline exactly, so a laid-out sign (columns, indentation) keeps its shape.
+// Walks the string collecting word runs and flushing them scrambled whenever
+// a whitespace character is hit; the whitespace itself is copied verbatim.
+// (The old version exploded/imploded on a single space, which collapsed
+// runs of spaces and dropped indentation.)
 string scramble_sentence(string text, int speaker, int listener)
 {
-  string * words;
-  int x;
-  int speaker_distortion;
-  int listener_distortion;
-  int total_distortion;
+  string out, word;
+  int i, len, c;
 
-  /* first thing to do is to split the sentence into words */
-  words = explode(text, " ");
-  /* then step through the words 1 by 1 scrambling them */
-  for (x = 0; x < sizeof(words); x++)
+  out = "";
+  word = "";
+  len = strlen(text);
+
+  for (i = 0; i < len; i++)
   {
-    /* establish how much distortion comes from the speaker */
-    /* the 2 multiplier is optional */
-    speaker_distortion = strlen(words[x]) - speaker;
-    
-    /* we must check that the speaker distortion cannot be negative */
-    if (speaker_distortion < 0)
-      speaker_distortion = 0;
-    
-    /* establish how much distortion comes from the listener */
-    /* the 2 multiplier is optional */
-    listener_distortion = strlen(words[x]) - listener;
-    
-    /* again we must check listener_distortion is not negative */
-    if (listener_distortion < 0)
-      listener_distortion = 0;
-    
-    /* add these to find the total distortion */
-    total_distortion = speaker_distortion + listener_distortion;
-    
-    /* add a bit of randomness, makes things different*/
-    /* if true you failed to understand */
-    if (random(AVERAGE_LEVEL) < total_distortion)
-      words[x] = scramble_word(words[x], total_distortion);
+    c = text[i];
+
+    if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+    {
+      out += scramble_one_word(word, speaker, listener);
+      word = "";
+      out += text[i .. i];
+    }
+    else
+      word += text[i .. i];
   }
-  
-  /* return the new sentence */
-  return implode(words, " ");
-} /* scramble() */
+
+  // flush the trailing word (if the text did not end in whitespace)
+  out += scramble_one_word(word, speaker, listener);
+
+  return out;
+} /* scramble_sentence() */
