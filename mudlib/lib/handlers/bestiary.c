@@ -14,6 +14,9 @@
 
 #include <living/persisted.h>
 
+// defined further down; add_template reads it to preserve hand-set fields
+mapping query_template(string game, string source);
+
 // Template file for a source NPC .c, under the game's template tree. A source
 // inside /games/<game>/ is mirrored game-relative; anything else by its
 // absolute path. The ".c" suffix becomes ".json".
