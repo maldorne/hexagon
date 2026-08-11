@@ -1,6 +1,8 @@
 
-#define DIPLOMACY_HANDLER "/obj/handlers/diplomacy.c"
-#define DIPLOMACY_TABLE "/tables/diplomacy.c"
+#define DIPLOMACY_HANDLER "/lib/handlers/diplomacy"
+// per-game citizenship graph the handler reads (game-relative), e.g.
+// /games/<game>/tables/diplomacy.c
+#define DIPLOMACY_TABLE "tables/diplomacy"
 
 #define BASE_GUARD "/std/guard.c"
 
