@@ -35,10 +35,10 @@ string garbler(string mess)
 
 string scramble_word(string word, int total_distortion)
 {
-  /* version. replace only the vowels in words */
-  /* have an individual test for each change */
-  /* that way different words can be scrambled */
-  /* differently. makes for a better system */  
+  // version. replace only the vowels in words
+  // have an individual test for each change
+  // that way different words can be scrambled
+  // differently. makes for a better system
   if (random(AVERAGE_LEVEL) < total_distortion)
   {
     word = implode(explode(word, "a"), "ay");
@@ -83,16 +83,26 @@ private string scramble_one_word(string word, int speaker, int listener)
   if (!strlen(word))
     return "";
 
+  // establish how much distortion comes from the speaker
+  // (a longer word is harder; a more competent speaker lowers it)
   speaker_distortion = strlen(word) - speaker;
+
+  // we must check that the speaker distortion cannot be negative
   if (speaker_distortion < 0)
     speaker_distortion = 0;
 
+  // establish how much distortion comes from the listener
   listener_distortion = strlen(word) - listener;
+
+  // again we must check listener_distortion is not negative
   if (listener_distortion < 0)
     listener_distortion = 0;
 
+  // add these to find the total distortion
   total_distortion = speaker_distortion + listener_distortion;
 
+  // add a bit of randomness, makes things different;
+  // if true you failed to understand the word
   if (random(AVERAGE_LEVEL) < total_distortion)
     return scramble_word(word, total_distortion);
 
