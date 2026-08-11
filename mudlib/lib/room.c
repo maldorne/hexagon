@@ -27,7 +27,6 @@ inherit zone       "/lib/room/zone.c";
 inherit senses     "/lib/room/senses.c";
 inherit guard      "/lib/room/room_guards.c";
 inherit navigation "/lib/room/navigation.c";
-inherit diplomacy  "/lib/room/diplomacy.c";
 inherit sign       "/lib/room/sign.c";
 inherit dark       "/lib/room/dark.c";
 
@@ -71,7 +70,6 @@ void create()
   zone::create();
   senses::create();
   navigation::create();
-  diplomacy::create();
   guard::create();
 
   obj::create();
@@ -394,7 +392,6 @@ void dest_me()
 
   guard::dest_me();
   navigation::dest_me();
-  diplomacy::dest_me();
 
   destruct(this_object());
 }
@@ -422,6 +419,5 @@ mixed * stats()
       light::stats() +
       dark::stats() +
       guard::stats() +
-      navigation::stats() +
-      diplomacy::stats();
+      navigation::stats();
 }

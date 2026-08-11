@@ -1,16 +1,21 @@
 /*
  * Diplomacy handler.
  *
- * The single oracle for how citizenships relate. A citizenship is a lean
- * social object (/lib/citizenship.c, inherited by /game/obj/citizenships/*),
- * carried by a living as its city_ob; it stores no relation data. The graph --
- * each citizenship's parent, allies, enemies and security level -- lives here,
- * loaded per game from that game's diplomacy table
- * (/games/<game>/tables/diplomacy.c, which returns the mapping).
+ * The single oracle for how citizenships relate, and the owner of that graph.
+ * A citizenship is a lean social object (/lib/citizenship.c, inherited by
+ * /games/<game>/obj/citizenships/*), carried by a living as its city_ob; it
+ * stores no relation data. All relation data -- each citizenship's parent,
+ * allies, enemies, security level and guard NPC source -- lives here as
+ * mutable, persisted state.
  *
- * References passed in may be a citizenship object, its object path, or a bare
- * name; they resolve to a { name, game } pair. A living with no citizenship
- * (city_ob nil) is neutral -- never an enemy.
+ * The graph is dynamic: a town can be invaded, lose its parent, change the
+ * kingdom it belongs to, gain new enemies. So it is never read from a static
+ * table; it is built and edited by hand through admin commands and saved to
+ * disk (save_object). It starts empty for every game.
+ *
+ * References passed to the query side may be a citizenship object, its object
+ * path, or a bare name; they resolve to a { name, game } pair. A living with
+ * no citizenship (city_ob nil) is neutral -- never an enemy.
  */
 
 #include <mud/config.h>
@@ -18,13 +23,16 @@
 
 inherit "/lib/core/object.c";
 
-// game -> ([ name : ([ "parent":.., "allies":({}), "enemies":({}), "security":n ]) ])
+// game -> ([ name : ([ "parent":.., "allies":({}), "enemies":({}),
+//                      "security":n, "guard":npc_path ]) ]
+// The whole mapping is the handler's persisted state.
 mapping relations;
 
 void create()
 {
   relations = ([ ]);
   ::create();
+  restore_object(DIPLOMACY_SAVE, 1);
 }
 
 void setup()
@@ -35,6 +43,17 @@ void setup()
     dest_me();
     return;
   }
+}
+
+private void _save()
+{
+  save_object(DIPLOMACY_SAVE, 1);
+}
+
+void dest_me()
+{
+  _save();
+  ::dest_me();
 }
 
 // Resolve a citizenship reference to ({ name, game }). Accepts a citizenship
@@ -70,32 +89,12 @@ private mixed * _resolve(mixed c)
   return ({ name, game });
 }
 
-// A game's citizenship graph, loaded once from its diplomacy table (empty when
-// the game defines none -- everyone neutral).
+// A game's citizenship graph (empty when the game has none defined yet).
 private mapping _relations(string game)
 {
-  mapping g;
-  string tpath;
-  object t;
-
-  if (!game)
+  if (!game || !relations[game])
     return ([ ]);
-  if (relations[game])
-    return relations[game];
-
-  g = ([ ]);
-  tpath = "/games/" + game + "/" + DIPLOMACY_TABLE;
-  if (file_size(tpath + ".c") >= 0)
-  {
-    catch(t = load_object(tpath));
-    if (t)
-      g = t->query_diplomacy();
-  }
-  if (!mappingp(g))
-    g = ([ ]);
-
-  relations[game] = g;
-  return g;
+  return relations[game];
 }
 
 // The relation record for a citizenship reference, or nil.
@@ -111,6 +110,8 @@ private mapping _record(mixed c)
   g = _relations(r[1]);
   return g[r[0]];
 }
+
+// --- Query side -----------------------------------------------------------
 
 // Is `b` an enemy of `a`? a supplies the graph/game; both may be object,
 // path or name. Neutral (no citizenship) is never an enemy.
@@ -179,15 +180,150 @@ string * query_enemies(mixed c)
   return (rec && pointerp(rec["enemies"])) ? rec["enemies"] : ({ });
 }
 
+// The NPC source a citizenship fields as its guard, or "" if none set. Guards
+// follow the citizenship, not the area: change an area's citizenship and its
+// guards respawn from the new citizenship's guard source.
+string query_guard(mixed c)
+{
+  mapping rec;
+  rec = _record(c);
+  return (rec && stringp(rec["guard"])) ? rec["guard"] : "";
+}
+
 // Read-only view of a game's whole citizenship graph, for inspection commands.
-// Returns a shallow copy so callers cannot mutate the cache.
+// Returns a shallow copy so callers cannot mutate the state.
 mapping query_relations(string game)
 {
   return ([ ]) + _relations(game);
 }
 
-// Drop the cache so a table edit is picked up without a reboot.
-void reload()
+// Names of every citizenship defined for a game.
+string * query_citizenships(string game)
 {
-  relations = ([ ]);
+  return map_indices(_relations(game));
+}
+
+// --- Mutating side (admin commands build the graph by hand) ---------------
+
+// Ensure a game's graph and a citizenship's record both exist, and return the
+// record. A fresh record is empty of relations, security 0, no guard.
+private mapping _ensure(string game, string name)
+{
+  mapping g;
+
+  if (!relations[game])
+    relations[game] = ([ ]);
+  g = relations[game];
+
+  if (!g[name])
+    g[name] = ([ "parent" : "", "allies" : ({ }),
+                 "enemies" : ({ }), "security" : 0, "guard" : "" ]);
+  return g[name];
+}
+
+// Create a citizenship in a game's graph (no-op if it already exists).
+int add_citizenship(string game, string name)
+{
+  if (!game || !strlen(game) || !name || !strlen(name))
+    return 0;
+  _ensure(game, name);
+  _save();
+  return 1;
+}
+
+// Drop a citizenship and scrub it from every other record's ally/enemy lists.
+int remove_citizenship(string game, string name)
+{
+  mapping g;
+  string * others;
+  int i;
+
+  g = relations[game];
+  if (!g || !g[name])
+    return 0;
+
+  g[name] = nil;
+
+  others = map_indices(g);
+  for (i = 0; i < sizeof(others); i++)
+  {
+    g[others[i]]["allies"]  -= ({ name });
+    g[others[i]]["enemies"] -= ({ name });
+  }
+
+  _save();
+  return 1;
+}
+
+int set_parent(string game, string name, string parent)
+{
+  mapping rec;
+  rec = _ensure(game, name);
+  rec["parent"] = parent ? parent : "";
+  _save();
+  return 1;
+}
+
+int set_security(string game, string name, int n)
+{
+  mapping rec;
+  rec = _ensure(game, name);
+  rec["security"] = n < 0 ? 0 : n;
+  _save();
+  return 1;
+}
+
+int set_guard(string game, string name, string npc_path)
+{
+  mapping rec;
+  rec = _ensure(game, name);
+  rec["guard"] = npc_path ? npc_path : "";
+  _save();
+  return 1;
+}
+
+int add_ally(string game, string name, string other)
+{
+  mapping rec;
+  rec = _ensure(game, name);
+  if (member_array(other, rec["allies"]) == -1)
+    rec["allies"] += ({ other });
+  // an ally cannot also be an enemy
+  rec["enemies"] -= ({ other });
+  _save();
+  return 1;
+}
+
+int remove_ally(string game, string name, string other)
+{
+  mapping rec;
+  rec = relations[game] ? relations[game][name] : nil;
+  if (!rec)
+    return 0;
+  rec["allies"] -= ({ other });
+  _save();
+  return 1;
+}
+
+int add_enemy(string game, string name, string other)
+{
+  mapping rec;
+  rec = _ensure(game, name);
+  if (member_array(other, rec["enemies"]) == -1)
+    rec["enemies"] += ({ other });
+  // an enemy cannot also be an ally
+  rec["allies"] -= ({ other });
+  _save();
+  return 1;
+}
+
+int remove_enemy(string game, string name, string other)
+{
+  mapping rec;
+  rec = relations[game] ? relations[game][name] : nil;
+  if (!rec)
+    return 0;
+  rec["enemies"] -= ({ other });
+  _save();
+  return 1;
 }
