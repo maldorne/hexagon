@@ -40,6 +40,19 @@
 #define _LANG_CMD_LOOK_NO_ENVIRONMENT "You are nowhere... you can't see a thing.\n"
 #define _LANG_CMD_LOOK_BLINDED "You can't see a thing. ¡You are blinded!\n"
 
+// speak (set the language you speak / write). `name` is the language's
+// real-world display name; `str` the raw input the player typed.
+#define _LANG_CMD_SPEAK_ALIAS ({ "speak" })
+#define _LANG_CMD_SPEAK_SYNTAX "speak [<language>]"
+#define _LANG_CMD_SPEAK_HELP "Choose the language you speak and write in. With " + \
+                    "no argument it shows your current language and the ones you know."
+#define _LANG_CMD_SPEAK_SELECT "You must choose a language to speak.\n"
+#define _LANG_CMD_SPEAK_CURRENT "You are now speaking " + name + ".\n"
+#define _LANG_CMD_SPEAK_KNOWN_HEADER "You can speak the following languages:\n"
+#define _LANG_CMD_SPEAK_NONE "You do not know any language.\n"
+#define _LANG_CMD_SPEAK_UNKNOWN "You do not know the language '" + str + "'.\n"
+#define _LANG_CMD_SPEAK_NOW_USING "Now using " + name + " to speak and write.\n"
+
 // glance
 
 #define _LANG_CMD_GLANCE_ALIAS ({ "glance" })

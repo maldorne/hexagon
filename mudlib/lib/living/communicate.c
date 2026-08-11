@@ -25,7 +25,9 @@ void communicate_commands()
   add_private_action("do_say",       _LANG_SAY_VERBS);
   add_private_action("do_tell",      _LANG_TELL_VERBS);
   add_private_action("do_whisper",   _LANG_WHISPER_VERBS);
-  add_private_action("set_language", _LANG_SPEAK_VERBS);
+  // the speak/hablar verb moved to the command /lib/cmds/player/speak.c,
+  // which delegates to set_language (still defined below and used internally
+  // by monster setup and social race assignment)
   add_private_action("do_shout",     _LANG_SHOUT_VERBS);
 
   // deactivated for a while
@@ -728,54 +730,25 @@ void remove_languages(string *list)
 }
 
 // Eliminado el grunt, neverbot 12/10/03
+// Pure setter: resolve the input (id, alias or display name) to a language id
+// and, if this living knows it, make it the current language. Returns 1 on
+// success, 0 when the input is empty, not a language, or one this living does
+// not know. All user-facing messages (the no-argument listing, the "you do
+// not know that language" error, the confirmation) live in the speak command
+// /lib/cmds/player/speak.c; internal callers (monster setup, social race
+// assignment) only want the assignment, with no output.
 int set_language(string str)
 {
-  string res, name, id;
-  int i;
-  object lh;
+  string id;
 
-  lh = handler("languages");
-
-  if (!strlen(str))
-  {
-    if (!strlen(cur_lang))
-      res = _LANG_SPEAK_SELECT;
-    else
-    {
-      name = lh->query_language_display(cur_lang);
-      res = _LANG_SPEAK_CURRENT;
-    }
-
-    if (sizeof(languages) > 0)
-    {
-      res += _LANG_SPEAK_KNOWN_HEADER;
-      for (i = 0; i < sizeof(languages); i++)
-        res += "\t" + lh->query_language_display(languages[i]) + "\n";
-    }
-    else
-      res += _LANG_SPEAK_NONE;
-
-    notify_fail(res);
+  if (!str || !strlen(str))
     return 0;
-  }
 
-  // Resolve id / alias / display name the player typed to the canonical id.
-  id = lh->resolve_language(str);
+  id = handler("languages")->resolve_language(str);
   if (!id || member_array(id, languages) == -1)
-  {
-    notify_fail(_LANG_SPEAK_UNKNOWN);
     return 0;
-  }
 
   cur_lang = id;
-
-  // Si estamos creando la ficha no damos mensajes
-  if (this_object()->query_level() >= 1)
-  {
-    name = lh->query_language_display(cur_lang);
-    tell_object(this_object(), _LANG_SPEAK_NOW_USING);
-  }
-
   return 1;
 }
 
