@@ -42,7 +42,7 @@ string query_help()
 {
   return "Allows to test one line of LPC code.\n" +
          "Executes the line of code inside a main() function in the file\n" +
-         " "+CODER_FILE+" (it will be removed afterwards)\n" +
+         " /home/<your name>/.lpc_exec.c (it will be removed afterwards)\n" +
          "flags:  s: shows the file after being generated\n" +
          "        d: do not overthe file if it exists\n" +
          "        p: do not remove the file after the execution\n" +
