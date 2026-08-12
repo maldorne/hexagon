@@ -566,13 +566,7 @@ string query_props_string()
   ret = (string)props_comp->query_props_section_string();
   if (!strlen(ret)) return "";
 
-  // The section is a single sentence with no internal breaks. Reflow it
-  // to the viewer's width, then terminate it here with exactly one
-  // newline: wrap() only appends a newline to lines that fit the width,
-  // so a reflowed (over-wide) section would otherwise run straight into
-  // the inventory line both callers (look, glance) append next.
-  ret = wrap(ret, (this_user() ? this_user()->query_cols() : 79));
-  return trim(ret) + "\n";
+  return wrap(ret, (this_user() ? this_user()->query_cols() : 79));
 }
 
 string calc_extra_look()
