@@ -122,14 +122,26 @@ int restore_npc()
   return restore_object(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE, 1);
 }
 
-// Delete the savefile (on death). Leaves the letter/uuid folders behind; an
-// area verify pass can prune empties later.
+// Delete the NPC's entire save folder on death: every file in it, then the
+// folder itself. An NPC may accumulate several save files over time (as a
+// player's folder does), so remove them all -- not just npc.o -- and leave no
+// empty directory behind. Done inline within the NPC's own uuid folder on
+// purpose: there is no general recursive-delete efun (too easy to misuse), and
+// this only ever touches this NPC's folder.
 void delete_npc_save()
 {
+  string dir;
+  string * files;
+  int i;
+
   if (!query_persisted() || !npc_game)
     return;
 
-  catch(remove_file(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE));
+  dir = npc_save_dir(npc_game, npc_uuid);
+  files = (string *)get_dir(dir + "*");
+  for (i = 0; i < sizeof(files); i++)
+    catch(remove_file(dir + files[i]));
+  catch(rmdir(dir));
 }
 
 // ---------------------------------------------------------------------------
