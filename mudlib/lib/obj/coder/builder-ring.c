@@ -15,12 +15,13 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "npc" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "role", "npc" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
 #define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> >"
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role>> >"
+#define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
@@ -29,6 +30,7 @@ inherit "/lib/armour.c";
                 "\t" + BUILDER_RING_COMPONENT_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_AREA_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_POI_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_ROLE_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_NPC_SYNTAX
 
 static string * selection;
@@ -68,6 +70,7 @@ int do_convert(string str);
 int do_component(string str);
 int do_area(string str);
 int do_poi(string str);
+int do_role(string str);
 int do_npc();
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
@@ -269,6 +272,8 @@ int do_build(string str)
     return do_area(implode(args[1..], " "));
   else if (verb == "poi")
     return do_poi(implode(args[1..], " "));
+  else if (verb == "role")
+    return do_role(implode(args[1..], " "));
   else
   {
     notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
@@ -854,6 +859,108 @@ int do_poi(string str)
   }
 
   notify_fail("Usage: " + BUILDER_RING_POI_SYNTAX + "\n");
+  return 0;
+}
+
+// Manage the area's role board (dev/area-npc-system.md §7.2): the named jobs a
+// settlement staffs with sentient citizens. `add` declares a role with a count
+// and a transitional blueprint, its work location being wherever you stand;
+// `list` shows them with their live count; `remove` drops one (culling its
+// NPCs). A role slot does not auto-respawn on death -- the settlement pass
+// refills it.
+int do_role(string str)
+{
+  string * args, verb;
+  object loc, area;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to manage its area's " +
+                "roles.\n");
+    return 0;
+  }
+  area = loc->query_area();
+  if (!area)
+  {
+    notify_fail("This location has no area.\n");
+    return 0;
+  }
+
+  args = (str && strlen(str)) ? explode(str, " ") : ({ });
+  if (!sizeof(args))
+  {
+    notify_fail("Usage: build role < add <name> <count> <source.c> | " +
+                "remove <name> | list >\n");
+    return 0;
+  }
+  verb = args[0];
+
+  if (verb == "add")
+  {
+    string name, source;
+    int count;
+
+    if (sizeof(args) < 4 || sscanf(args[2], "%d", count) != 1)
+    {
+      notify_fail("Usage: build role add <name> <count> <source.c>\n");
+      return 0;
+    }
+    name = args[1];
+    source = args[3];
+    if (file_size(source) < 0 && file_size(source + ".c") < 0)
+    {
+      notify_fail("No NPC blueprint at '" + source + "'.\n");
+      return 0;
+    }
+    // work location is wherever the coder is standing
+    area->add_role(name, count, loc->query_file_name(), source, 1);
+    area->fill_role(name);
+    write("Role '" + name + "' x" + count + " <- " + source +
+          ", working here.\n");
+    return 1;
+  }
+
+  if (verb == "remove")
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build role remove <name>\n");
+      return 0;
+    }
+    area->remove_role(args[1]);
+    write("Role '" + args[1] + "' removed.\n");
+    return 1;
+  }
+
+  if (verb == "list")
+  {
+    mapping roles;
+    string * names;
+    int i;
+
+    roles = area->query_roles();
+    names = map_indices(roles);
+    if (!sizeof(names))
+    {
+      write("No roles in area '" + area->query_area_name() + "'.\n");
+      return 1;
+    }
+
+    write("Roles in area '" + area->query_area_name() + "':\n");
+    for (i = 0; i < sizeof(names); i++)
+    {
+      mapping r;
+      r = roles[names[i]];
+      write(sprintf("  %-14s  x%-2d  live %d  <- %s\n",
+                    names[i], r["count"], area->count_role_npcs(names[i]),
+                    get_path_file_name(r["source"])));
+    }
+    return 1;
+  }
+
+  notify_fail("Usage: build role < add <name> <count> <source.c> | " +
+              "remove <name> | list >\n");
   return 0;
 }
 
