@@ -12,6 +12,19 @@ void setup()
   set_help(_LANG_CMD_WORLDMAP_HELP);
 }
 
+// Players see only the base help; resizing is a coder tool, so its syntax is
+// appended only for coders (same pattern as map.c).
+string query_help(varargs string str)
+{
+  string out;
+
+  out = _LANG_CMD_WORLDMAP_HELP;
+  if (this_player() && this_player()->query_coder())
+    out += _LANG_CMD_WORLDMAP_HELP_CODER;
+
+  return out;
+}
+
 static int cmd(string str, object me, string verb)
 {
   int width, height;
