@@ -336,48 +336,63 @@ int set_guard(string game, string name, string npc_path)
   return 1;
 }
 
-int add_ally(string game, string name, string other)
+// Relations are mutual: an ally or enemy link is stored on both records, so a
+// single add or remove affects both sides -- there is no one-way hostility.
+// These helpers touch one direction; the public mutators apply both.
+
+// Add `other` to `name`'s `field` list (creating the record), dropping it from
+// the opposite list (an ally is not an enemy, and vice versa).
+private void _link(string game, string name, string field, string opposite,
+                   string other)
 {
   mapping rec;
   rec = _ensure(game, name);
-  if (member_array(other, rec["allies"]) == -1)
-    rec["allies"] += ({ other });
-  // an ally cannot also be an enemy
-  rec["enemies"] -= ({ other });
+  if (member_array(other, rec[field]) == -1)
+    rec[field] += ({ other });
+  rec[opposite] -= ({ other });
+}
+
+// Remove `other` from `name`'s `field` list, if the record exists.
+private void _unlink(string game, string name, string field, string other)
+{
+  mapping rec;
+  rec = relations[game] ? relations[game][name] : nil;
+  if (rec)
+    rec[field] -= ({ other });
+}
+
+int add_ally(string game, string name, string other)
+{
+  if (!strlen(name) || !strlen(other) || name == other)
+    return 0;
+  _link(game, name, "allies", "enemies", other);
+  _link(game, other, "allies", "enemies", name);
   _save();
   return 1;
 }
 
 int remove_ally(string game, string name, string other)
 {
-  mapping rec;
-  rec = relations[game] ? relations[game][name] : nil;
-  if (!rec)
-    return 0;
-  rec["allies"] -= ({ other });
+  _unlink(game, name, "allies", other);
+  _unlink(game, other, "allies", name);
   _save();
   return 1;
 }
 
 int add_enemy(string game, string name, string other)
 {
-  mapping rec;
-  rec = _ensure(game, name);
-  if (member_array(other, rec["enemies"]) == -1)
-    rec["enemies"] += ({ other });
-  // an enemy cannot also be an ally
-  rec["allies"] -= ({ other });
+  if (!strlen(name) || !strlen(other) || name == other)
+    return 0;
+  _link(game, name, "enemies", "allies", other);
+  _link(game, other, "enemies", "allies", name);
   _save();
   return 1;
 }
 
 int remove_enemy(string game, string name, string other)
 {
-  mapping rec;
-  rec = relations[game] ? relations[game][name] : nil;
-  if (!rec)
-    return 0;
-  rec["enemies"] -= ({ other });
+  _unlink(game, name, "enemies", other);
+  _unlink(game, other, "enemies", name);
   _save();
   return 1;
 }
