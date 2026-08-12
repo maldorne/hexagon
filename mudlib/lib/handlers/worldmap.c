@@ -195,13 +195,23 @@ private string render_cell(string game, string map_name,
   if (sect->has_locations_of_type(SECTOR_TYPE_CITY))
     return GLYPH_MAP_CITY;
 
+  // query_sector_type is the majority component, or the programmer-set
+  // manual type for a sector with no locations of its own
+  type = sect->query_sector_type();
+
+  // Farmland is a landcover that shows THROUGH a track: a field sector is
+  // only ever reached by a path from the settlement, which would otherwise
+  // stamp the sector with a border way and hide the fields under a road
+  // glyph. So a sector whose dominant component is farm renders as cultivated
+  // land even when a path clips its edge -- ranked above the way glyph but
+  // still below city, which always wins.
+  if (type == SECTOR_TYPE_FARM)
+    return "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^";
+
   borders = sect->query_border_ways();
   if (mappingp(borders) && map_sizeof(borders))
     return way_glyph(sect, game, map_name, sx, sy, sz);
 
-  // query_sector_type is the majority component, or the programmer-set
-  // manual type for a sector with no locations of its own
-  type = sect->query_sector_type();
   if (type == SECTOR_TYPE_CITY)        return GLYPH_MAP_CITY;
   if (type == SECTOR_TYPE_FOREST)      return "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^";
   if (type == SECTOR_TYPE_COAST)       return GLYPH_COAST;

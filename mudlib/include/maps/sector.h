@@ -25,6 +25,7 @@
 #define SECTOR_TYPE_FOREST      LOCATION_COMPONENT_FOREST
 #define SECTOR_TYPE_COAST       LOCATION_COMPONENT_COAST
 #define SECTOR_TYPE_UNDERGROUND LOCATION_COMPONENT_UNDERGROUND
+#define SECTOR_TYPE_FARM        LOCATION_COMPONENT_FARM
 
 // A manual type a programmer can set on a sector (query_manual_type /
 // set_manual_type), used when the sector has no locations of its own to
@@ -40,7 +41,8 @@
 // (city, then road/path exits, then the majority component).
 #define SECTOR_MAP_COMPONENTS ({ \
     SECTOR_TYPE_CITY, SECTOR_TYPE_COAST, \
-    SECTOR_TYPE_FOREST, SECTOR_TYPE_UNDERGROUND \
+    SECTOR_TYPE_FOREST, SECTOR_TYPE_FARM, \
+    SECTOR_TYPE_UNDERGROUND \
   })
 
 // Cartographic exit types — the subset of the room exit_types (see

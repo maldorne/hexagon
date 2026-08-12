@@ -182,6 +182,7 @@
 // Non-box map glyphs (also non-ASCII, kept here for the same reason).
 #define GLYPH_MAP_FOREST   (chr(226) + chr(153) + chr(163))         // U+2663 black club suit
 #define GLYPH_MAP_CITY     (chr(226) + chr(150) + chr(147))         // U+2593 dark shade block
+#define GLYPH_MAP_FARM     (chr(226) + chr(137) + chr(161))         // U+2261 identical-to: plowed crop rows
 #define GLYPH_WALL_N_ROAD  (chr(226) + chr(149) + chr(168))         // U+2568 up double, horiz single
 #define GLYPH_WALL_E_ROAD  (chr(226) + chr(149) + chr(158))         // U+255E vert single, right double
 #define GLYPH_WALL_S_ROAD  (chr(226) + chr(149) + chr(165))         // U+2565 down double, horiz single

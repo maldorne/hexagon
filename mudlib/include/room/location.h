@@ -23,6 +23,7 @@
 #define LOCATION_COMPONENT_FOREST      "forest"
 #define LOCATION_COMPONENT_COAST       "coast"
 #define LOCATION_COMPONENT_UNDERGROUND "underground"
+#define LOCATION_COMPONENT_FARM        "farm"
 
 // ************************************************************
 //  Location component hook system
