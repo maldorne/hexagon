@@ -11,6 +11,7 @@ inherit "/lib/armour.c";
 #include <areas/poi.h>
 #include <maps/maps.h>
 #include <translations/armour.h>
+#include <language.h>
 
 #define COMPONENTS_DIR "/lib/location/components/"
 
@@ -23,8 +24,9 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role>> >"
 #define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
-#define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
-                "Available commands:\n" + \
+// intro line + "commands:" header are translated (name/description/help);
+// the command syntax below stays English -- coder verbs are not localized
+#define BUILDER_RING_HELP _LANG_RING_HELP_INTRO + \
                 "\t" + BUILDER_RING_SELECTION_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_COMPONENT_SYNTAX + "\n" + \
@@ -43,13 +45,13 @@ void create()
 
   ::create();
   
-  set_name("builder ring");
-  set_short("Builder ring");
-  add_alias(({ "builder", "ring" }));
+  set_name(_LANG_RING_NAME);
+  set_short(_LANG_RING_SHORT);
+  add_alias(_LANG_RING_ALIAS);
 
-  set_main_plural("Builder rings");
-  add_plural(({ "builder rings", "rings" }));
-  set_long("This ring can be used by coders to help them building areas.\n");
+  set_main_plural(_LANG_RING_PLURAL);
+  add_plural(_LANG_RING_PLURALS);
+  set_long(_LANG_RING_LONG);
 
   set_base_armour(RING);
 
