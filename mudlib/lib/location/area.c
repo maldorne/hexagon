@@ -302,18 +302,18 @@ mapping query_npc_sources() { return npc_sources; }
 // area cap for a blueprint is the sum of its add_clone counts across every
 // room of the area.
 //
-// Two sources are deliberately kept out of the statistical roster: a
-// blueprint claimed by a vacancy (a unique the POI system places by hand,
-// not the population sweep) and anything that is not a living blueprint
-// (add_clone is also used for trees and props, which are not NPCs). Both
-// exclusions are re-applied here so a reconversion cannot resurrect a
-// vacancy NPC or item cruft into the population -- the bug that made
-// remove_intended_npc non-durable.
+// Three kinds of source are deliberately kept out of the statistical roster,
+// re-applied here so a reconversion cannot leak them back into the population:
+//   - a blueprint claimed by a vacancy (a unique the POI system places by hand)
+//   - the area citizenship's guard (diplomacy places it at guarded POIs)
+//   - anything that is not a living blueprint (add_clone also clones trees and
+//     props, which are not NPCs)
 private void _recompute_intended()
 {
   string * locs, * blueprints;
   int i, j;
   mapping totals, clones, vacancy_sources;
+  string guard_source;
 
   totals = ([ ]);
   locs = map_indices(npc_sources);
@@ -329,6 +329,14 @@ private void _recompute_intended()
 
   vacancy_sources = query_vacancy_sources();
 
+  // the citizenship's guard NPC is placed by diplomacy at guarded POIs, so it
+  // must not also be scattered by the population sweep as statistical filler
+  guard_source = "";
+  if (strlen(citizenship))
+    guard_source = DIPLOMACY_HANDLER->query_guard(
+      "/games/" + game_from_path(area_path) +
+      "/obj/citizenships/" + citizenship);
+
   npc_intended = ([ ]);
   blueprints = map_indices(totals);
   for (i = 0; i < sizeof(blueprints); i++)
@@ -338,6 +346,10 @@ private void _recompute_intended()
     // a unique bound to a vacancy is placed by the POI system, never by
     // the population sweep
     if (vacancy_sources[blueprints[i]])
+      continue;
+
+    // the area citizenship's guard is diplomacy-placed, not filler
+    if (strlen(guard_source) && blueprints[i] == guard_source)
       continue;
 
     // only living blueprints count towards the NPC population; skip trees,
@@ -627,6 +639,11 @@ void set_citizenship(string name)
   int i;
 
   citizenship = name ? name : "";
+  save_me();
+
+  // the guard source to keep out of the statistical roster changed with the
+  // citizenship, so recompute the population caps (and persist the new roster)
+  _recompute_intended();
   save_me();
 
   // re-post guards at every guarded POI: drop the old citizenship's guards and
