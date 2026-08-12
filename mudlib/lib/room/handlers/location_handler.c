@@ -602,6 +602,26 @@ object convert_room_to_location(object room)
     ret += "   Adding component pub.\n";
   }
 
+  // A room built on /lib/outside.c is open-air: attach the outside component
+  // so the location gets weather / day-night / darkness behaviour (the
+  // component drives those through the weather handler). Interiors built on
+  // plain /lib/room.c answer nil to query_outside and get nothing. The else
+  // branch strips a stale outside component if a room was flipped back to an
+  // interior base, so a reconversion always matches the room's current base.
+  if (room->query_outside())
+  {
+    if (!location->query_component_by_type(LOCATION_COMPONENT_OUTSIDE))
+    {
+      location->add_component(LOCATION_COMPONENT_OUTSIDE, ([ ]));
+      ret += "   Adding component outside.\n";
+    }
+  }
+  else if (location->query_component_by_type(LOCATION_COMPONENT_OUTSIDE))
+  {
+    location->remove_component(LOCATION_COMPONENT_OUTSIDE);
+    ret += "   Removing outside component (room is not open-air).\n";
+  }
+
   if (room->query_property(MAZE_PROP))
   {
     location->add_component(LOCATION_COMPONENT_MAZE, ([ ]));
