@@ -706,8 +706,16 @@ object convert_room_to_location(object room)
     object area;
     mapping npc_clones;
     string * blueprints;
+    string game;
     int c;
 
+    game = game_from_path(location->query_file_name());
+
+    // Loading the source .c here is the one place conversion needs it: sample
+    // it into a data template, then record the roster keyed by the template id
+    // (not the source path). From now on day-to-day operation works entirely
+    // off the location, the templates and the census -- the monster .c is only
+    // touched again by a later reconversion (a deliberate hard reset).
     npc_clones = ([ ]);
     blueprints = map_indices(clones);
     for (c = 0; c < sizeof(blueprints); c++)
@@ -717,22 +725,18 @@ object convert_room_to_location(object room)
       bp = nil;
       catch(bp = load_object(blueprints[c]));
       if (bp && bp->query_monster())
-        npc_clones[blueprints[c]] = clones[blueprints[c]];
+      {
+        // (re)build the template while the source is loaded, so a reconversion
+        // refreshes it; add_template carries over any hand-set fields
+        BESTIARY_HANDLER->add_template(blueprints[c]);
+        npc_clones[BESTIARY_HANDLER->template_id(game, blueprints[c])] =
+          clones[blueprints[c]];
+      }
     }
 
     area = location->query_area();
     if (area)
-    {
-      string game;
-
-      game = game_from_path(location->query_file_name());
       area->set_location_npc_sources(location->query_file_name(), npc_clones);
-
-      blueprints = map_indices(npc_clones);
-      for (c = 0; c < sizeof(blueprints); c++)
-        if (!BESTIARY_HANDLER->has_template(game, blueprints[c]))
-          BESTIARY_HANDLER->add_template(blueprints[c]);
-    }
   }
 
   return location;

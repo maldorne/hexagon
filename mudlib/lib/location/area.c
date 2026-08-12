@@ -299,6 +299,18 @@ void remove_intended_npc(string source)
 
 mapping query_npc_sources() { return npc_sources; }
 
+// Normalise a source to the template id the area keys everything by. A source
+// arrives either already as a template id (post-conversion data) or as the
+// original monster .c path (pre-conversion saves); template_id is idempotent,
+// so both collapse to the same key and old saves keep working with no separate
+// migration pass. Day-to-day operation never needs the .c to exist.
+private string _template_id(string source)
+{
+  if (!source || !strlen(source))
+    return source;
+  return BESTIARY_HANDLER->template_id(game_from_path(area_path), source);
+}
+
 // Recompute npc_intended from the per-location conversion provenance: the
 // area cap for a source is the sum of its add_clone counts across every
 // room of the area.
@@ -324,9 +336,12 @@ private void _recompute_intended()
     clones_here = npc_sources[location_files[i]];
     npc_paths = map_indices(clones_here);
     for (j = 0; j < sizeof(npc_paths); j++)
-      counts[npc_paths[j]] =
-        (counts[npc_paths[j]] ? counts[npc_paths[j]] : 0) +
-        clones_here[npc_paths[j]];
+    {
+      string tid;
+      tid = _template_id(npc_paths[j]);
+      counts[tid] =
+        (counts[tid] ? counts[tid] : 0) + clones_here[npc_paths[j]];
+    }
   }
 
   vacancy_sources = query_vacancy_sources();
@@ -335,15 +350,18 @@ private void _recompute_intended()
   // must not also be scattered by the population sweep as statistical filler
   guard_source = "";
   if (strlen(citizenship))
-    guard_source = DIPLOMACY_HANDLER->query_guard_path(game_from_path(area_path),
-                                                       citizenship);
+    guard_source = _template_id(
+      DIPLOMACY_HANDLER->query_guard_path(game_from_path(area_path),
+                                          citizenship));
 
+  // npc_sources only ever holds living NPC sources: conversion filters trees
+  // and props out (it loads each source once, keeps only query_monster ones)
+  // before recording them, so the roster no longer re-loads the source .c to
+  // re-check -- it just sums the counts.
   npc_intended = ([ ]);
   npc_paths = map_indices(counts);
   for (i = 0; i < sizeof(npc_paths); i++)
   {
-    object npc;
-
     // a unique bound to a vacancy is placed by the POI system, never by
     // the population sweep
     if (vacancy_sources[npc_paths[i]])
@@ -351,13 +369,6 @@ private void _recompute_intended()
 
     // the area citizenship's guard is diplomacy-placed, not filler
     if (strlen(guard_source) && npc_paths[i] == guard_source)
-      continue;
-
-    // only living NPC sources count towards the population; skip trees,
-    // props and other non-living add_clone sources
-    npc = nil;
-    catch(npc = load_object(npc_paths[i]));
-    if (!npc || !npc->query_monster())
       continue;
 
     npc_intended[npc_paths[i]] = ([ "category": nil,
@@ -494,6 +505,17 @@ void add_vacancy(string location_file, string role, string source)
     if (vs[i][VACANCY_FIELD_ROLE] == role)
       return;
 
+  // A vacancy is added by hand from an NPC blueprint path; build its template
+  // now (the one time the source .c is loaded) and store the vacancy by its
+  // template id, so filling it later never touches the .c.
+  {
+    string game;
+    game = game_from_path(area_path);
+    if (!BESTIARY_HANDLER->has_template(game, source))
+      BESTIARY_HANDLER->add_template(source);
+    source = _template_id(source);
+  }
+
   vs += ({ ([ VACANCY_FIELD_ROLE:   role,
               VACANCY_FIELD_SOURCE: source,
               VACANCY_FIELD_UUID:   nil ]) });
@@ -565,7 +587,7 @@ mapping query_vacancy_sources()
     mapping * vs;
     vs = pois[locs[i]][POI_FIELD_VACANCIES];
     for (j = 0; vs && j < sizeof(vs); j++)
-      ret[vs[j][VACANCY_FIELD_SOURCE]] = 1;
+      ret[_template_id(vs[j][VACANCY_FIELD_SOURCE])] = 1;
   }
 
   return ret;
@@ -575,12 +597,13 @@ mapping query_vacancy_sources()
 // not) -- this is L_b, checked against the area cap C_b.
 private int npc_live_count(string source)
 {
-  string * ids;
+  string * ids, want;
   int i, n;
 
+  want = _template_id(source);
   ids = map_indices(npc_census);
   for (i = 0; i < sizeof(ids); i++)
-    if (npc_census[ids[i]]["source"] == source)
+    if (_template_id(npc_census[ids[i]]["source"]) == want)
       n++;
 
   return n;
@@ -718,9 +741,9 @@ string assign_npc(string source, string location_file)
   if (!npc_intended[source])
     return nil;
 
+  // source is a template id; its template was built at conversion time, so
+  // nothing here loads the original monster .c
   game = game_from_path(area_path);
-  if (!BESTIARY_HANDLER->has_template(game, source))
-    BESTIARY_HANDLER->add_template(source);
 
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": location_file,
@@ -741,9 +764,8 @@ private string assign_vacancy_npc(string source, string location_file,
 {
   string id, game;
 
+  // source is a template id (add_vacancy built its template); no monster .c
   game = game_from_path(area_path);
-  if (!BESTIARY_HANDLER->has_template(game, source))
-    BESTIARY_HANDLER->add_template(source);
 
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": location_file,
@@ -802,8 +824,18 @@ private object npc_restore(string id, object loc)
   mapping spec, entry;
 
   entry = npc_census[id];
-  source = entry["source"];
   game = game_from_path(area_path);
+
+  // Converge the census on template ids: an entry saved before conversion holds
+  // the original monster path -- normalise it once and backfill so later reads
+  // are already ids. query_template accepts either, so this is safe mid-life.
+  source = _template_id(entry["source"]);
+  if (source != entry["source"])
+  {
+    entry["source"] = source;
+    npc_census[id] = entry;
+    save_me();
+  }
 
   // a guard census entry clones the guard base (generic NPC + guardian role)
   // so the placed NPC gains the exit check; everything else is identical.
@@ -1059,9 +1091,15 @@ private string assign_guard_npc(string source, string poi_file)
 {
   string id, game;
 
+  // The guard source is a diplomacy-placed unique, not part of room conversion,
+  // so its template is built here the first time one is fielded (the one place
+  // a guard's monster .c is loaded, guarded by has_template so it happens once).
+  // The census then stores the template id, and filling/refilling never reloads
+  // the .c.
   game = game_from_path(area_path);
   if (!BESTIARY_HANDLER->has_template(game, source))
     BESTIARY_HANDLER->add_template(source);
+  source = _template_id(source);
 
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": poi_file,
@@ -1079,16 +1117,18 @@ private string assign_guard_npc(string source, string poi_file)
 // treated as stale by the reconcile below.
 private string * guard_census_at(string poi_file, string source)
 {
-  string * ids, * out;
+  string * ids, * out, want;
   int i;
 
+  want = _template_id(source);
   ids = map_indices(npc_census);
   out = ({ });
   for (i = 0; i < sizeof(ids); i++)
   {
     mapping e;
     e = npc_census[ids[i]];
-    if (e["guard"] && e["poi"] == poi_file && e["source"] == source)
+    if (e["guard"] && e["poi"] == poi_file &&
+        _template_id(e["source"]) == want)
       out += ({ ids[i] });
   }
   return out;

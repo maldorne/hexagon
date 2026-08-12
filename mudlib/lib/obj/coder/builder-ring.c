@@ -889,8 +889,9 @@ int do_npc()
   sources = map_indices(intended);
   out += "Roster (" + sizeof(sources) + " blueprint" +
          (sizeof(sources) == 1 ? "" : "s") + "):\n";
+  // sources are template ids (areas/<area>/<npc>); show the npc name
   for (i = 0; i < sizeof(sources); i++)
-    out += "  " + sources[i] + "  live " +
+    out += "  " + get_path_file_name(sources[i]) + "  live " +
            area->query_npc_live_count(sources[i]) + " / cap " +
            intended[sources[i]]["max"] + "\n";
   if (!sizeof(sources))
@@ -913,8 +914,9 @@ int do_npc()
           out += "Vacancies:\n";
           any = 1;
         }
-        out += "  " + pkeys[i] + "  " + vs[j][VACANCY_FIELD_ROLE] + " <- " +
-               vs[j][VACANCY_FIELD_SOURCE] +
+        out += "  " + get_path_file_name(pkeys[i]) + "  " +
+               vs[j][VACANCY_FIELD_ROLE] + " <- " +
+               get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]) +
                (vs[j][VACANCY_FIELD_UUID] ? "  [filled]" : "  [empty]") + "\n";
       }
     }

@@ -17,10 +17,18 @@
 // defined further down; add_template reads it to preserve hand-set fields
 mapping query_template(string game, string source);
 
-// Template file for a source NPC .c, under the game's template tree. A source
-// inside /games/<game>/ is mirrored game-relative; anything else by its
-// absolute path. The ".c" suffix becomes ".json".
-string query_template_file(string game, string source)
+// Canonical template identity for a source. A hand-authored NPC .c under
+// /games/<game>/ is mirrored game-relative with its "npcs" directory segment
+// and ".c" suffix dropped (barman.c -> areas/<area>/barman); anything else
+// keeps its absolute path (leading slash dropped). This id is what the area
+// stores as an NPC's identity instead of the original monster path, so nothing
+// in day-to-day operation depends on the source .c still existing.
+//
+// Idempotent: feeding a template id back in returns it unchanged (an id has no
+// "/games/<game>/" prefix, no ".c" suffix and no "npcs" segment to strip), so a
+// census/roster key can be normalised on read whether it was stored as a source
+// path (pre-conversion saves) or already as an id.
+string template_id(string game, string source)
 {
   string rest, prefix;
 
@@ -54,7 +62,15 @@ string query_template_file(string game, string source)
     }
   }
 
-  return "/save/games/" + game + "/npcs/templates/" + rest + ".json";
+  return rest;
+}
+
+// Template file for a source (a source NPC .c or an already-normalised template
+// id), under the game's template tree. The id becomes the ".json" leaf.
+string query_template_file(string game, string source)
+{
+  return "/save/games/" + game + "/npcs/templates/" +
+         template_id(game, source) + ".json";
 }
 
 int has_template(string game, string source)
