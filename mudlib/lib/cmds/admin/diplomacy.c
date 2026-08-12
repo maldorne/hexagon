@@ -4,11 +4,12 @@
 // empty for every game and is built by hand here. All subcommands act on the
 // game of the area you stand in (falling back to your own game).
 //
-//   diplomacy                       list every citizenship of the game
-//   diplomacy <cit>                 show one citizenship
+//   diplomacy                       list every citizenship (columns)
+//   diplomacy tree                  the parent hierarchy, same columns
+//   diplomacy <cit>                 show one citizenship in detail
 //   diplomacy add <cit>             create a citizenship
 //   diplomacy remove <cit>          delete a citizenship (scrubs it elsewhere)
-//   diplomacy <cit> parent <p>      set parent kingdom ("none" clears)
+//   diplomacy <cit> parent <p>      set parent ("none" makes it top-level)
 //   diplomacy <cit> security <n>    set guard count its areas field
 //   diplomacy <cit> guard <path>    set the NPC source its guards spawn from
 //   diplomacy <cit> ally <other>    mark <other> an ally
@@ -24,33 +25,211 @@ inherit CMD_BASE;
 void setup()
 {
   set_aliases(({ "diplomacy", "diplomacia" }));
-  set_usage("diplomacy [<citizenship>] [<field> <value>]");
+  set_usage("diplomacy [tree | <citizenship> [<field> <value>]]");
   set_help("Inspect and edit the diplomacy graph of the game you are in. " +
-           "With no argument, lists every citizenship. With a citizenship " +
-           "name, shows it. Editing subcommands: 'add <cit>', 'remove <cit>', " +
-           "'<cit> parent <p>', '<cit> security <n>', '<cit> guard <path>', " +
-           "'<cit> ally <other>', '<cit> unally <other>', '<cit> enemy " +
-           "<other>', '<cit> unenemy <other>'. The graph is persisted.");
+           "With no argument, lists every citizenship in columns; 'tree' shows " +
+           "the parent hierarchy with the same columns. With a citizenship " +
+           "name, shows it in detail. Editing subcommands: 'add <cit>', " +
+           "'remove <cit>', '<cit> parent <p>', '<cit> security <n>', '<cit> " +
+           "guard <path>', '<cit> ally <other>', '<cit> unally <other>', '<cit> " +
+           "enemy <other>', '<cit> unenemy <other>'. The graph is persisted.");
 }
 
-private string _line(string name, mapping rec)
+// --- columnar rendering ----------------------------------------------------
+//
+// One shared table serves both the flat listing and the tree. Each row's first
+// column is a label (a plain name in the listing, a name hung under box-drawing
+// tree lines in the tree); every other column is identical. allies and enemies
+// are lists, so a citizenship with several of either spans that many lines, the
+// extra names stacked under their column with the leading columns left blank.
+// sprintf's width pads by visible width (strlen(str, true)), so the multi-byte
+// box-drawing glyphs in a tree label still line up.
+
+// The physical lines for one citizenship: `label` in the first column (padded
+// to name_w columns), then security, parent, allies, enemies and the full
+// guard path.
+private string _render(string label, mapping rec, int name_w)
+{
+  string * allies, * enemies;
+  string parent, guard;
+  int sec, rows, i;
+  string out;
+
+  sec = intp(rec["security"]) ? rec["security"] : 0;
+  parent = (stringp(rec["parent"]) && strlen(rec["parent"])) ? rec["parent"] : "-";
+  allies = sizeof(rec["allies"]) ? rec["allies"] : ({ "-" });
+  enemies = sizeof(rec["enemies"]) ? rec["enemies"] : ({ "-" });
+  guard = (stringp(rec["guard"]) && strlen(rec["guard"])) ? rec["guard"] : "-";
+
+  rows = (sizeof(allies) > sizeof(enemies)) ? sizeof(allies) : sizeof(enemies);
+  out = "";
+  for (i = 0; i < rows; i++)
+  {
+    string a, e;
+    a = (i < sizeof(allies)) ? allies[i] : "";
+    e = (i < sizeof(enemies)) ? enemies[i] : "";
+    // the first line carries the name / security / parent / guard; the extra
+    // ally / enemy names hang on the lines below with those columns blank
+    if (i == 0)
+      out += sprintf("  %-*s %4d  %-10s %-12s %-12s %s\n",
+                     name_w, label, sec, parent, a, e, guard);
+    else
+      out += sprintf("  %-*s %4s  %-10s %-12s %-12s\n",
+                     name_w, "", "", "", a, e);
+  }
+  return out;
+}
+
+// A table of ({ label, citizenship_name }) rows, with a header. `name_w` is
+// sized to the widest label so every column lines up.
+private string _table(mixed * label_rows, mapping graph)
+{
+  int name_w, i;
+  string out;
+
+  // widest label by visible width, so the box-drawing tree labels line up too
+  name_w = strlen("citizenship", true);
+  for (i = 0; i < sizeof(label_rows); i++)
+  {
+    int d;
+    d = strlen(label_rows[i][0], true);
+    if (d > name_w)
+      name_w = d;
+  }
+
+  out = sprintf("  %-*s %4s  %-10s %-12s %-12s %s\n",
+                name_w, "citizenship", "sec", "parent", "allies",
+                "enemies", "guard");
+  // underline: dashes the length of each header word, in the same columns.
+  // sprintf("%p%*s", '-', n, "") sets '-' as the pad char and fills an n-wide
+  // field with it, i.e. n dashes -- the plugin has no single repeat conversion.
+  out += sprintf("  %-*s %4s  %-10s %-12s %-12s %s\n",
+                 name_w, sprintf("%p%*s", '-', strlen("citizenship"), ""),
+                 sprintf("%p%*s", '-', strlen("sec"), ""),
+                 sprintf("%p%*s", '-', strlen("parent"), ""),
+                 sprintf("%p%*s", '-', strlen("allies"), ""),
+                 sprintf("%p%*s", '-', strlen("enemies"), ""),
+                 sprintf("%p%*s", '-', strlen("guard"), ""));
+  for (i = 0; i < sizeof(label_rows); i++)
+    out += _render(label_rows[i][0], graph[label_rows[i][1]], name_w);
+  return out;
+}
+
+// Detailed multi-line view of one citizenship (single view / edit confirmation).
+private string _detail(string name, mapping rec)
 {
   string ret;
   string * allies, * enemies;
 
-  ret = "  " + name + "   security " +
-        (intp(rec["security"]) ? rec["security"] : 0);
+  ret = sprintf("  %-12s security %d\n", name,
+                intp(rec["security"]) ? rec["security"] : 0);
   if (stringp(rec["parent"]) && strlen(rec["parent"]))
-    ret += "   parent " + rec["parent"];
+    ret += sprintf("      %-9s %s\n", "parent:", rec["parent"]);
   if (stringp(rec["guard"]) && strlen(rec["guard"]))
-    ret += "   guard " + rec["guard"];
-  ret += "\n";
+    ret += sprintf("      %-9s %s\n", "guard:", rec["guard"]);
 
   allies = pointerp(rec["allies"]) ? rec["allies"] : ({ });
   enemies = pointerp(rec["enemies"]) ? rec["enemies"] : ({ });
-  ret += "      allies:  " + (sizeof(allies) ? implode(allies, ", ") : "-") + "\n";
-  ret += "      enemies: " + (sizeof(enemies) ? implode(enemies, ", ") : "-") + "\n";
+  ret += sprintf("      %-9s %s\n", "allies:",
+                 sizeof(allies) ? implode(allies, ", ") : "-");
+  ret += sprintf("      %-9s %s\n", "enemies:",
+                 sizeof(enemies) ? implode(enemies, ", ") : "-");
   return ret;
+}
+
+// --- tree ------------------------------------------------------------------
+
+// parent name -> the citizenships whose parent is that name. Names with no
+// parent (or a parent that is not itself a citizenship) are the roots.
+private mapping _children_by_parent(mapping graph)
+{
+  mapping children;
+  string * names;
+  int i;
+
+  children = ([ ]);
+  names = map_indices(graph);
+  for (i = 0; i < sizeof(names); i++)
+  {
+    string parent;
+    parent = graph[names[i]]["parent"];
+    if (stringp(parent) && strlen(parent) && graph[parent])
+      children[parent] = (children[parent] ? children[parent] : ({ })) +
+                         ({ names[i] });
+  }
+  return children;
+}
+
+private string * _roots(mapping graph)
+{
+  string * names, * roots;
+  int i;
+
+  names = map_indices(graph);
+  roots = ({ });
+  for (i = 0; i < sizeof(names); i++)
+  {
+    string parent;
+    parent = graph[names[i]]["parent"];
+    if (!stringp(parent) || !strlen(parent) || !graph[parent])
+      roots += ({ names[i] });
+  }
+  return roots;
+}
+
+// ({ label, name }) rows for `name`'s descendants, each name hung under
+// box-drawing tree lines: the last child gets "└── ", the rest "├── ", with
+// "│   " / "    " carried down for deeper levels. `seen` guards against a cycle
+// in the parent chain.
+private mixed * _tree_rows(mapping graph, mapping children, string name,
+                           string prefix, mapping seen)
+{
+  mixed * rows;
+  string * kids;
+  int i;
+
+  rows = ({ });
+  kids = children[name] ? children[name] : ({ });
+  for (i = 0; i < sizeof(kids); i++)
+  {
+    string child, connector, child_prefix;
+    int last;
+
+    child = kids[i];
+    if (seen[child])
+      continue;                       // already drawn -- broken parent cycle
+    seen[child] = 1;
+
+    last = (i == sizeof(kids) - 1);
+    connector = last ? "└── " : "├── ";
+    rows += ({ ({ prefix + connector + child, child }) });
+
+    child_prefix = prefix + (last ? "    " : "│   ");
+    rows += _tree_rows(graph, children, child, child_prefix, seen);
+  }
+  return rows;
+}
+
+// Every citizenship as ({ label, name }) in tree order: each root first, then
+// its descendants hung beneath it.
+private mixed * _tree_label_rows(mapping graph)
+{
+  mapping children, seen;
+  string * roots;
+  mixed * rows;
+  int i;
+
+  children = _children_by_parent(graph);
+  roots = _roots(graph);
+  seen = ([ ]);
+  rows = ({ });
+  for (i = 0; i < sizeof(roots); i++)
+  {
+    seen[roots[i]] = 1;
+    rows += ({ ({ roots[i], roots[i] }) });
+    rows += _tree_rows(graph, children, roots[i], "", seen);
+  }
+  return rows;
 }
 
 // The game to act on: the current area's, else the admin's own game.
@@ -89,11 +268,11 @@ static int cmd(string str, object me, string verb)
   h = load_object(DIPLOMACY_HANDLER);
   words = (str && strlen(str)) ? explode(str, " ") - ({ "" }) : ({ });
 
-  // --- listing / showing -------------------------------------------------
+  // --- listing (columns) -------------------------------------------------
   if (!sizeof(words))
   {
-    string out;
     string * names;
+    mixed * label_rows;
     int i;
 
     g = h->query_relations(game);
@@ -104,12 +283,28 @@ static int cmd(string str, object me, string verb)
       return 1;
     }
 
-    out = "Diplomacy graph for game '" + game + "' (" + map_sizeof(g) +
-          " citizenship" + (map_sizeof(g) == 1 ? "" : "s") + "):\n";
     names = map_indices(g);
+    label_rows = ({ });
     for (i = 0; i < sizeof(names); i++)
-      out += _line(names[i], g[names[i]]);
-    write(out);
+      label_rows += ({ ({ names[i], names[i] }) });
+
+    write("Diplomacy graph for game '" + game + "' (" + map_sizeof(g) +
+          " citizenship" + (map_sizeof(g) == 1 ? "" : "s") + "):\n\n" +
+          _table(label_rows, g));
+    return 1;
+  }
+
+  // --- tree (same columns, name column hung under ASCII lines) ------------
+  if (words[0] == "tree")
+  {
+    g = h->query_relations(game);
+    if (!mappingp(g) || !map_sizeof(g))
+    {
+      write("Game '" + game + "' has no diplomacy defined yet.\n");
+      return 1;
+    }
+    write("Diplomacy tree for game '" + game + "':\n\n" +
+          _table(_tree_label_rows(g), g));
     return 1;
   }
 
@@ -155,7 +350,7 @@ static int cmd(string str, object me, string verb)
   if (sizeof(words) == 1)
   {
     write("Diplomacy of '" + words[0] + "' (game " + game + "):\n" +
-          _line(words[0], g[words[0]]));
+          _detail(words[0], g[words[0]]));
     return 1;
   }
 
@@ -205,6 +400,6 @@ static int cmd(string str, object me, string verb)
 
   // reflect the new state back
   g = h->query_relations(game);
-  write("Updated '" + words[0] + "':\n" + _line(words[0], g[words[0]]));
+  write("Updated '" + words[0] + "':\n" + _detail(words[0], g[words[0]]));
   return 1;
 }
