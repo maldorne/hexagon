@@ -407,7 +407,7 @@
 #define _LANG_CMD_WORLDMAP_SYNTAX  "mapamundi"
 #define _LANG_CMD_WORLDMAP_HELP    "Muestra un mapa a vista de pájaro centrado en el sector en el que estás. " + \
                                    "Cada glifo representa un sector de 10x10; tu posición está marcada con '@'."
-#define _LANG_CMD_WORLDMAP_HELP_CODER "\nProgramadores: puedes indicar el tamaño en sectores, mapamundi <ancho> [alto] (3-80 de ancho, 3-40 de alto)."
+#define _LANG_CMD_WORLDMAP_HELP_CODER "Programadores: puedes indicar el tamaño en sectores, mapamundi <ancho> [alto] (3-80 de ancho, 3-40 de alto)."
 #define _LANG_CMD_WORLDMAP_USAGE   "Sintaxis: mapamundi [ancho [alto]]\n"
 #define _LANG_CMD_WORLDMAP_RANGE   "Las dimensiones deben estar entre 3 y 80 de ancho, 3 y 40 de alto.\n"
 #define _LANG_CMD_WORLDMAP_CODER   "No puedes cambiar el tamaño del mapa.\n"

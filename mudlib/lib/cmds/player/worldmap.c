@@ -20,7 +20,7 @@ string query_help(varargs string str)
 
   out = _LANG_CMD_WORLDMAP_HELP;
   if (this_player() && this_player()->query_coder())
-    out += _LANG_CMD_WORLDMAP_HELP_CODER;
+    out += "\n\n" + _LANG_CMD_WORLDMAP_HELP_CODER;
 
   return out;
 }
