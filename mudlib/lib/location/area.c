@@ -68,6 +68,7 @@ string citizenship;
 // prototype functions
 void add_loaded_location(object location);
 mapping query_vacancy_sources();
+private void _recompute_intended();
 private void _ensure_guards_assigned(string location_file);
 void fill_guards();
 void repost_guards(string poi_file);
@@ -182,6 +183,13 @@ int restore_from_file_name(string name)
   if (file_size(name) >= 0)
   {
     restore_object(name);
+
+    // Rebuild the derived roster from npc_sources on load (npc_intended is not
+    // authoritative state, it is derived) and, in the same pass, fold any
+    // pre-conversion monster paths in the persisted data down to template ids.
+    // This lets a converted area self-heal on first access after a reboot,
+    // without reloading any source .c.
+    _recompute_intended();
     return 1;
   }
 
@@ -311,6 +319,78 @@ private string _template_id(string source)
   return BESTIARY_HANDLER->template_id(game_from_path(area_path), source);
 }
 
+// Fold any pre-conversion monster paths in the area's persisted state down to
+// template ids, in place: npc_sources keys, vacancy sources and census
+// "source". This rewrites labels only -- every uuid and live NPC keeps its
+// identity, so it is not the duplicate-spawning churn that removing and
+// re-adding a vacancy would cause. Idempotent (template_id is), so running it
+// on every recompute is safe. Saves only when something actually changed.
+private void _migrate_source_ids()
+{
+  string * locs, * ids;
+  int i, j, changed;
+
+  changed = 0;
+
+  // npc_sources: re-key each location's inner (source -> count) map by id
+  locs = map_indices(npc_sources);
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    mapping inner, rekeyed;
+    string * keys;
+
+    inner = npc_sources[locs[i]];
+    keys = map_indices(inner);
+    rekeyed = ([ ]);
+    for (j = 0; j < sizeof(keys); j++)
+    {
+      string tid;
+      tid = _template_id(keys[j]);
+      if (tid != keys[j])
+        changed = 1;
+      rekeyed[tid] = inner[keys[j]];
+    }
+    npc_sources[locs[i]] = rekeyed;
+  }
+
+  // vacancy sources stored on each POI
+  locs = map_indices(pois);
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    mapping * vs;
+    vs = pois[locs[i]][POI_FIELD_VACANCIES];
+    for (j = 0; vs && j < sizeof(vs); j++)
+    {
+      string tid;
+      tid = _template_id(vs[j][VACANCY_FIELD_SOURCE]);
+      if (tid != vs[j][VACANCY_FIELD_SOURCE])
+      {
+        vs[j][VACANCY_FIELD_SOURCE] = tid;
+        changed = 1;
+      }
+    }
+  }
+
+  // the identity recorded on each live census NPC
+  ids = map_indices(npc_census);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mapping e;
+    string tid;
+
+    e = npc_census[ids[i]];
+    tid = _template_id(e["source"]);
+    if (tid != e["source"])
+    {
+      e["source"] = tid;
+      changed = 1;
+    }
+  }
+
+  if (changed)
+    save_me();
+}
+
 // Recompute npc_intended from the per-location conversion provenance: the
 // area cap for a source is the sum of its add_clone counts across every
 // room of the area.
@@ -327,6 +407,10 @@ private void _recompute_intended()
   int i, j;
   mapping counts, clones_here, vacancy_sources;
   string guard_source;
+
+  // fold any pre-conversion monster paths in persisted state down to template
+  // ids first, so the roster, vacancies and census all key consistently
+  _migrate_source_ids();
 
   // sum each NPC source's add_clone count across every location of the area
   counts = ([ ]);
