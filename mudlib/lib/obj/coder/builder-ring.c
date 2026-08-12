@@ -694,7 +694,7 @@ int do_poi(string str)
   {
     mapping pois;
     string * keys;
-    int i;
+    int i, w_loc, w_kind, w_role, w_src;
 
     pois = area->query_pois();
     keys = map_indices(pois);
@@ -704,24 +704,59 @@ int do_poi(string str)
       return 1;
     }
 
-    write("POIs in area '" + area->query_area_name() + "':\n");
+    // Column widths, measured over the basenames actually printed (the full
+    // save paths share a directory and would wrap the terminal). The common
+    // directory is stated once in the header instead.
+    w_loc = w_kind = w_role = w_src = 0;
+    for (i = 0; i < sizeof(keys); i++)
+    {
+      mapping p;
+      mapping * vs;
+      int j, l;
+
+      l = strlen(get_path_file_name(keys[i]), TRUE);
+      if (l > w_loc) w_loc = l;
+
+      p = pois[keys[i]];
+      l = strlen(p[POI_FIELD_KIND], TRUE);
+      if (l > w_kind) w_kind = l;
+
+      vs = p[POI_FIELD_VACANCIES];
+      for (j = 0; vs && j < sizeof(vs); j++)
+      {
+        l = strlen(vs[j][VACANCY_FIELD_ROLE], TRUE);
+        if (l > w_role) w_role = l;
+        l = strlen(get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]), TRUE);
+        if (l > w_src) w_src = l;
+      }
+    }
+
+    write("POIs in area '" + area->query_area_name() + "'  (under " +
+          path(keys[0]) + ")\n");
     for (i = 0; i < sizeof(keys); i++)
     {
       mapping p;
       mapping * vs;
       int j;
+      string label, guard, here;
 
       p = pois[keys[i]];
-      write("  " + keys[i] + " -- " + p[POI_FIELD_KIND] +
-            (p[POI_FIELD_LABEL] ? " (\"" + p[POI_FIELD_LABEL] + "\")" : "") +
-            (p[POI_FIELD_GUARD_DIR] ? "   guard_dir " + p[POI_FIELD_GUARD_DIR] : "") +
-            (keys[i] == file ? "   <- here" : "") + "\n");
+      label = p[POI_FIELD_LABEL] ? "  \"" + p[POI_FIELD_LABEL] + "\"" : "";
+      guard = p[POI_FIELD_GUARD_DIR]
+              ? "  guard:" + p[POI_FIELD_GUARD_DIR] : "";
+      here  = keys[i] == file ? "  <- here" : "";
+
+      write(sprintf("  %-*s  %-*s%s%s%s\n",
+                    w_loc, get_path_file_name(keys[i]),
+                    w_kind, p[POI_FIELD_KIND],
+                    label, guard, here));
 
       vs = p[POI_FIELD_VACANCIES];
       for (j = 0; vs && j < sizeof(vs); j++)
-        write("      vacancy " + vs[j][VACANCY_FIELD_ROLE] + " <- " +
-              vs[j][VACANCY_FIELD_SOURCE] +
-              (vs[j][VACANCY_FIELD_UUID] ? "  [filled]" : "  [empty]") + "\n");
+        write(sprintf("      %-*s  %-*s  %s\n",
+                      w_role, vs[j][VACANCY_FIELD_ROLE],
+                      w_src, get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]),
+                      vs[j][VACANCY_FIELD_UUID] ? "[filled]" : "[empty]"));
     }
     return 1;
   }
