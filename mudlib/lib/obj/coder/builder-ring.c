@@ -731,8 +731,11 @@ int do_poi(string str)
       }
     }
 
-    write("POIs in area '" + area->query_area_name() + "'  (under " +
-          path(keys[0]) + ")\n");
+    // Header names the area; the shared directory goes on its own line so a
+    // long path never breaks mid-sentence. POI rows and vacancy rows below
+    // print only basenames against that directory.
+    write("POIs in area '" + area->query_area_name() + "':\n");
+    write("  paths under " + path(keys[0]) + "\n");
     for (i = 0; i < sizeof(keys); i++)
     {
       mapping p;
@@ -753,7 +756,7 @@ int do_poi(string str)
 
       vs = p[POI_FIELD_VACANCIES];
       for (j = 0; vs && j < sizeof(vs); j++)
-        write(sprintf("      %-*s  %-*s  %s\n",
+        write(sprintf("      vacancy  %-*s  <-  %-*s  %s\n",
                       w_role, vs[j][VACANCY_FIELD_ROLE],
                       w_src, get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]),
                       vs[j][VACANCY_FIELD_UUID] ? "[filled]" : "[empty]"));
