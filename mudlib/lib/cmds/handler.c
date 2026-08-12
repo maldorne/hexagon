@@ -467,11 +467,11 @@ int cmd_make_hash(int verbose)
       // while the object is already loaded, so listing never reloads a command
       cmd_hash[s]["alias"] = aliases[0];
       {
-        string h;
-        h = cmd->query_help();
-        if (h && strlen(h))
-          h = explode(h, "\n")[0];
-        cmd_hash[s]["help"] = h;
+        mixed h;
+        h = nil;
+        catch(h = cmd->query_help());
+        cmd_hash[s]["help"] =
+          (stringp(h) && strlen(h)) ? explode(h, "\n")[0] : nil;
       }
 
       for (k = 0; k < sizeof(aliases); k++)
@@ -557,11 +557,11 @@ int cmd_make_hash(int verbose)
         // help on the hash entry so a listing never reloads the command
         cmd_hash[s]["alias"] = aliases[0];
         {
-          string h;
-          h = cmd->query_help();
-          if (h && strlen(h))
-            h = explode(h, "\n")[0];
-          cmd_hash[s]["help"] = h;
+          mixed h;
+          h = nil;
+          catch(h = cmd->query_help());
+          cmd_hash[s]["help"] =
+            (stringp(h) && strlen(h)) ? explode(h, "\n")[0] : nil;
         }
 
         for (l = 0; l < sizeof(aliases); l++)
