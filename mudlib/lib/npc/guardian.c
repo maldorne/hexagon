@@ -23,16 +23,35 @@ static string guardian_direction;
 void set_guardian_direction(string dir) { guardian_direction = dir; }
 string query_guardian_direction() { return guardian_direction; }
 
-// Let `ob` through the watched exit? Blocks only citizenships this guard's own
-// is at war with; its own citizens, allies and neutrals (no citizenship) pass.
-// Diplomacy is the single oracle, so an invasion that flips relations changes
-// who is stopped without touching the guard. With no direction posted yet, or
-// no mover, let everyone through.
-int guardian_check(object ob)
+// Let `mover` through the watched exit? Blocks only citizenships this guard's
+// own is at war with; its own citizens, allies and neutrals (no citizenship)
+// pass. Diplomacy is the single oracle, so an invasion that flips relations
+// changes who is stopped without touching the guard. With no direction posted
+// yet, or no mover, let everyone through.
+int guardian_check(object mover)
 {
-  if (!guardian_direction || !ob)
+  string my_city_ob, mover_city_ob;
+  object my_citizenship, mover_citizenship;
+
+  if (!guardian_direction || !mover)
     return 1;
-  return !DIPLOMACY_HANDLER->is_enemy(query_city_ob(), ob->query_city_ob());
+
+  // a mover with no citizenship is neutral and passes
+  my_city_ob = query_city_ob();
+  mover_city_ob = mover->query_city_ob();
+  if (!my_city_ob || !mover_city_ob)
+    return 1;
+
+  // city_ob is the citizenship object's path; load it and read its name and
+  // game -- diplomacy works in names, and resolves the parent cascade
+  my_citizenship = load_object(my_city_ob);
+  mover_citizenship = load_object(mover_city_ob);
+  if (!my_citizenship || !mover_citizenship)
+    return 1;
+
+  return !DIPLOMACY_HANDLER->is_enemy(game_name(my_citizenship),
+                                      my_citizenship->query_name(),
+                                      mover_citizenship->query_name());
 }
 
 // Message shown when the guard stops someone. nil falls back to the exit

@@ -185,16 +185,16 @@ static int cmd(string str, object me, string verb)
         h->set_guard(game, cit, (value == "none") ? "" : value);
         break;
       case "ally":
-        h->add_ally(game, cit, value);
+        h->add_relationship(game, DIPLOMACY_RELATION_ALLY, cit, value);
         break;
       case "unally":
-        h->remove_ally(game, cit, value);
+        h->remove_relationship(game, DIPLOMACY_RELATION_ALLY, cit, value);
         break;
       case "enemy":
-        h->add_enemy(game, cit, value);
+        h->add_relationship(game, DIPLOMACY_RELATION_ENEMY, cit, value);
         break;
       case "unenemy":
-        h->remove_enemy(game, cit, value);
+        h->remove_relationship(game, DIPLOMACY_RELATION_ENEMY, cit, value);
         break;
       default:
         notify_fail("Unknown field '" + field + "'. Use parent, security, " +

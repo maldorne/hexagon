@@ -6,8 +6,6 @@
 
 inherit "/lib/core/object.c";
 
-#include <areas/diplomacy.h>
-
 // mixed *job_commands = ({ });
 string init_room;
 
@@ -20,24 +18,9 @@ void create()
 int query_legal_race(string race) { return(1); }
 int query_legal_player(object player) { return 1; }
 
-// Diplomacy relations of this citizenship are NOT stored here (this is a lean
-// per-player social object, like /lib/race.c, never saved to disk). They live
-// in the diplomacy handler; these delegate to it so a citizenship object can
-// answer "is that one my enemy?" directly. See /lib/handlers/diplomacy.c.
-int is_enemy(mixed other)
-{
-  return DIPLOMACY_HANDLER->is_enemy(this_object(), other);
-}
-
-int is_ally(mixed other)
-{
-  return DIPLOMACY_HANDLER->is_ally(this_object(), other);
-}
-
-int query_security_level()
-{
-  return DIPLOMACY_HANDLER->query_security_level(this_object());
-}
+// A citizenship is a lean social object (like /lib/race.c): it only identifies
+// the citizenship (its name). How citizenships relate -- parent, allies,
+// enemies, security -- lives in the diplomacy handler, keyed by name.
 
 void set_init_room(string str) { init_room = str; }
 string query_init_room() { return init_room; }

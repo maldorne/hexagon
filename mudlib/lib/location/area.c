@@ -49,13 +49,13 @@ mapping pois;
 
 // Average level of the area's NPCs and how far individual NPCs may deviate
 // from it. An NPC's level is decided once, at census assignment, as
-//   area_level + template level_area_modifier  ±  random(area_spread + 1)
+//   npc_default_level + template level_area_modifier  ±  random(npc_default_level_spread + 1)
 // (a template that carries a concrete "level" overrides all of this). The
 // deviation uses random(spread + 1) because random(2) yields only 0 or 1, so
 // a spread of 2 gives a swing of 0..2. Stored per NPC in the census, so each
 // NPC keeps the level it was created with.
-int area_level;
-int area_spread;
+int npc_default_level;
+int npc_default_level_spread;
 
 // The citizenship this area belongs to (a name in the diplomacy graph).
 // Guards fielded at the area's town entrances and squares follow this
@@ -85,8 +85,8 @@ void create() {
   npc_census = ([ ]);
   npc_sources = ([ ]);
   pois = ([ ]);
-  area_level = 1;
-  area_spread = 0;
+  npc_default_level = 1;
+  npc_default_level_spread = 0;
   citizenship = "";
   ::create();
 }
@@ -334,9 +334,8 @@ private void _recompute_intended()
   // must not also be scattered by the population sweep as statistical filler
   guard_source = "";
   if (strlen(citizenship))
-    guard_source = DIPLOMACY_HANDLER->query_guard(
-      "/games/" + game_from_path(area_path) +
-      "/obj/citizenships/" + citizenship);
+    guard_source = DIPLOMACY_HANDLER->query_guard_path(game_from_path(area_path),
+                                                       citizenship);
 
   npc_intended = ([ ]);
   npc_paths = map_indices(counts);
@@ -616,18 +615,18 @@ private int decide_gender(string game, string source)
            BESTIARY_HANDLER->query_template(game, source));
 }
 
-int query_area_level() { return area_level; }
-int query_area_spread() { return area_spread; }
+int query_area_level() { return npc_default_level; }
+int query_area_spread() { return npc_default_level_spread; }
 
 void set_area_level(int n)
 {
-  area_level = n < 1 ? 1 : n;
+  npc_default_level = n < 1 ? 1 : n;
   save_me();
 }
 
 void set_area_spread(int n)
 {
-  area_spread = n < 0 ? 0 : n;
+  npc_default_level_spread = n < 0 ? 0 : n;
   save_me();
 }
 
@@ -669,7 +668,7 @@ string query_citizenship_path()
 // The level a census NPC is born with, decided once at assignment so it stays
 // stable for the life of that NPC (like its gender). A template with a
 // concrete "level" dictates it outright; otherwise the level derives from the
-// area: area_level + the template's level_area_modifier, swung by up to the
+// area: npc_default_level + the template's level_area_modifier, swung by up to the
 // area spread (random(spread + 1), sign random). Never below 1.
 private int decide_level(string game, string source)
 {
@@ -682,11 +681,11 @@ private int decide_level(string game, string source)
   if (t && t["level"])
     return t["level"];
 
-  base = area_level + (t && t["level_area_modifier"] ? t["level_area_modifier"] : 0);
+  base = npc_default_level + (t && t["level_area_modifier"] ? t["level_area_modifier"] : 0);
 
   // random(spread + 1) gives 0..spread (random(2) is only 0 or 1), applied up
   // or down at random
-  dev = random(area_spread + 1);
+  dev = random(npc_default_level_spread + 1);
   if (random(2))
     base += dev;
   else
@@ -1131,7 +1130,7 @@ private void _remove_guard(string id)
 private void _ensure_guards_assigned(string location_file)
 {
   mapping entry;
-  string kind, cit_path, source;
+  string kind, game, source;
   string * live, * ids;
   int want, have, i;
   object dh;
@@ -1145,10 +1144,10 @@ private void _ensure_guards_assigned(string location_file)
 
   // the area's citizenship supplies both the count (security) and the NPC
   // source (guard); with no citizenship, or none configured, field no guards
-  cit_path = query_citizenship_path();
+  game = game_from_path(area_path);
   dh = load_object(DIPLOMACY_HANDLER);
-  source = strlen(cit_path) ? dh->query_guard(cit_path) : "";
-  want = strlen(source) ? dh->query_security_level(cit_path) : 0;
+  source = strlen(citizenship) ? dh->query_guard_path(game, citizenship) : "";
+  want = strlen(source) ? dh->query_security_level(game, citizenship) : 0;
 
   // guards already here from the current source
   live = strlen(source) ? guard_census_at(location_file, source) : ({ });

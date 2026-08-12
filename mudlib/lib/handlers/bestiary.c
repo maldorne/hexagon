@@ -86,7 +86,7 @@ private mapping gendered_fields(object npc)
 // The gender-independent half.
 //
 // Level is deliberately NOT captured: an NPC's level comes from its area
-// (area_level + the template's level_area_modifier, swung by the area spread;
+// (npc_default_level + the template's level_area_modifier, swung by the area spread;
 // see area::decide_level), so a template carries no absolute level by default.
 // A template may still be given an explicit "level" by hand to pin a concrete
 // level, or a "level_area_modifier" to sit a fixed number of levels above or
