@@ -49,8 +49,6 @@ int query_concentrate_valid() { return 1; }
 int query_npc() { return 1; }
 int query_monster() { return 1; }
 nomask int query_coder() { return 0; }
-// for the guard system
-int guardian_check(object ob) { return 1; }
 
 void create()
 {

@@ -4,6 +4,7 @@ inherit "/lib/core/object.c";
 #include <living/persisted.h>
 #include <areas/area.h>
 #include <areas/poi.h>
+#include <areas/diplomacy.h>
 
 // mapping in the form ([ file_name : location_data ])
 mapping locations;
@@ -56,9 +57,20 @@ mapping pois;
 int area_level;
 int area_spread;
 
+// The citizenship this area belongs to (a name in the diplomacy graph, e.g.
+// "naduk"). Guards fielded at the area's town entrances and squares follow
+// this citizenship: the diplomacy handler tells us how many (its security
+// level) and which NPC source they spawn from (its guard). Change this and,
+// on the next fill, the old guards are replaced by the new citizenship's --
+// this is how an invaded town swaps its human guards for the invaders'.
+string citizenship;
+
 // prototype functions
 void add_loaded_location(object location);
 mapping query_vacancy_sources();
+private void _ensure_guards_assigned(string location_file);
+void fill_guards();
+void repost_guards(string poi_file);
 
 
 void create() {
@@ -75,6 +87,7 @@ void create() {
   pois = ([ ]);
   area_level = 1;
   area_spread = 0;
+  citizenship = "";
   ::create();
 }
 
@@ -416,6 +429,20 @@ void set_poi_label(string location_file, string label)
   save_me();
 }
 
+// The exit direction a town_entrance POI's guards watch (the way into the
+// town). Only meaningful on a town_entrance; ignored by square guards.
+void set_poi_guard_dir(string location_file, string dir)
+{
+  if (!pois[location_file])
+    return;
+  pois[location_file][POI_FIELD_GUARD_DIR] = dir;
+  save_me();
+}
+string query_poi_guard_dir(string location_file)
+{
+  return pois[location_file] ? pois[location_file][POI_FIELD_GUARD_DIR] : nil;
+}
+
 // The vacancies of a POI, or an empty array when there is no POI there.
 mapping * query_vacancies(string location_file)
 {
@@ -591,6 +618,36 @@ void set_area_spread(int n)
   save_me();
 }
 
+// The area's citizenship (a diplomacy-graph name), or "" if none. Guards are
+// fielded from it; see the guard fill below.
+string query_citizenship() { return citizenship; }
+void set_citizenship(string name)
+{
+  string * locs;
+  int i;
+
+  citizenship = name ? name : "";
+  save_me();
+
+  // re-post guards at every guarded POI: drop the old citizenship's guards and
+  // field the new one's. This is the invasion path -- flip the citizenship and
+  // the human guards become the invaders'.
+  locs = map_indices(pois);
+  for (i = 0; i < sizeof(locs); i++)
+    repost_guards(locs[i]);
+}
+
+// The object path of the area's citizenship social object, or "" if unset.
+// Guards carry this as their city_ob so diplomacy can resolve their loyalty.
+string query_citizenship_path()
+{
+  string game;
+  if (!strlen(citizenship))
+    return "";
+  game = game_from_path(area_path);
+  return "/games/" + game + "/obj/citizenships/" + citizenship;
+}
+
 // The level a census NPC is born with, decided once at assignment so it stays
 // stable for the life of that NPC (like its gender). A template with a
 // concrete "level" dictates it outright; otherwise the level derives from the
@@ -719,7 +776,9 @@ private object npc_restore(string id, object loc)
   source = entry["source"];
   game = game_from_path(area_path);
 
-  npc = clone_object(GENERIC_NPC);
+  // a guard census entry clones the guard base (generic NPC + guardian role)
+  // so the placed NPC gains the exit check; everything else is identical.
+  npc = clone_object(entry["guard"] ? GUARD_NPC : GENERIC_NPC);
   if (!npc)
     return nil;
 
@@ -765,6 +824,35 @@ private object npc_restore(string id, object loc)
     npc->save_npc();
 
   npc->move(loc);
+
+  // A guard carries the area's citizenship as its city_ob (so diplomacy can
+  // resolve its loyalty) and, at an entrance, watches the entry direction: it
+  // registers on that exit so the exit handler consults its guardian_check.
+  // Square guards just stand there (no direction). Both are derived here from
+  // the live POI / area rather than the census, so a change to guard_dir or the
+  // citizenship is picked up the next time the guard materializes; none of it
+  // persists on the NPC.
+  if (entry["guard"])
+  {
+    string cpath, gdir;
+    mapping poi;
+
+    cpath = query_citizenship_path();
+    if (strlen(cpath))
+      npc->set_city_ob(cpath);
+
+    // only an entrance guard watches a direction; a square guard is presence
+    // only, so it never registers on an exit even if a stale guard_dir lingers
+    poi = pois[entry["poi"]];
+    gdir = (poi && poi[POI_FIELD_KIND] == POI_KIND_TOWN_ENTRANCE)
+             ? poi[POI_FIELD_GUARD_DIR] : nil;
+    if (gdir)
+    {
+      npc->set_guardian_direction(gdir);
+      loc->register_guard(npc, gdir);
+    }
+  }
+
   return npc;
 }
 
@@ -787,8 +875,10 @@ void restore_location_npcs(object loc)
 
   // A POI location fills its vacancies first: assign a census NPC to any
   // empty or dead vacancy slot, so the materialize loop below brings it in
-  // alongside the location's regular census NPCs.
+  // alongside the location's regular census NPCs. A guarded POI (town entrance
+  // or square) likewise tops up its citizenship's guards.
   _ensure_vacancies_assigned(file);
+  _ensure_guards_assigned(file);
 
   ids = npc_census_for_location(file);
   for (i = 0; i < sizeof(ids); i++)
@@ -882,8 +972,15 @@ void _refill_vacancy(string file)
 void npc_died(string uuid)
 {
   mixed * vacancy;
+  mapping entry;
+  string guard_poi;
 
-  if (npc_census[uuid])
+  // note a fallen guard's POI before we drop the census entry, so we can
+  // re-post a replacement there after the cooldown
+  entry = npc_census[uuid];
+  guard_poi = (entry && entry["guard"]) ? entry["poi"] : nil;
+
+  if (entry)
   {
     map_delete(npc_census, uuid);
     save_me();
@@ -892,6 +989,9 @@ void npc_died(string uuid)
   vacancy = clear_vacancy_by_uuid(uuid);
   if (vacancy)
     call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY, vacancy[0]);
+
+  if (guard_poi)
+    call_out("_refill_guards", VACANCY_RESPAWN_DELAY, guard_poi);
 }
 
 // Ensure every POI vacancy in the area is assigned and, where the location
@@ -911,4 +1011,212 @@ void fill_vacancies()
     if (loc)
       restore_location_npcs(loc);
   }
+}
+
+// --- guards --------------------------------------------------------------
+// Guards are census NPCs a citizenship fields at its town entrances and
+// squares. Unlike a vacancy (a single named role), a guarded POI wants a
+// count -- the citizenship's security level -- of identical guards, all from
+// the citizenship's guard NPC source. They are data-only like every census
+// NPC: they materialize when the POI's location loads (npc_restore clones the
+// guard base, stamps the citizenship and, at an entrance, registers the exit).
+
+// One guard assigned to a POI as census data. The guard's identity is its
+// source; its watched direction and citizenship are not stored -- they are
+// derived at materialization from the POI's guard_dir and the area's current
+// citizenship, so a later change to either is picked up without rewriting the
+// census. Returns the uuid.
+private string assign_guard_npc(string source, string poi_file)
+{
+  string id, game;
+
+  game = game_from_path(area_path);
+  if (!BESTIARY_HANDLER->has_template(game, source))
+    BESTIARY_HANDLER->add_template(source);
+
+  id = UUID_OB->uuid();
+  npc_census[id] = ([ "source": source, "location": poi_file,
+                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
+                      "gender": decide_gender(game, source),
+                      "level": decide_level(game, source),
+                      "poi": poi_file, "guard": 1 ]);
+  save_me();
+
+  return id;
+}
+
+// Guard census ids at a POI whose source matches `source`. A citizenship
+// change swaps the source, so guards from the old one no longer match and are
+// treated as stale by the reconcile below.
+private string * guard_census_at(string poi_file, string source)
+{
+  string * ids, * out;
+  int i;
+
+  ids = map_indices(npc_census);
+  out = ({ });
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mapping e;
+    e = npc_census[ids[i]];
+    if (e["guard"] && e["poi"] == poi_file && e["source"] == source)
+      out += ({ ids[i] });
+  }
+  return out;
+}
+
+// The live guard object for a census uuid inside its (loaded) POI, or nil.
+private object live_guard(string poi_file, string uuid)
+{
+  object loc;
+  object * inv;
+  int i;
+
+  loc = loaded_location(poi_file);
+  if (!loc)
+    return nil;
+  inv = all_inventory(loc);
+  for (i = 0; i < sizeof(inv); i++)
+    if (inv[i] && inv[i]->query_npc_uuid() == uuid)
+      return inv[i];
+  return nil;
+}
+
+// Drop a guard: remove its census entry first (so a death callback becomes a
+// no-op), then destruct the live object if it is materialized, and delete its
+// leftover savefile.
+private void _remove_guard(string id)
+{
+  mapping e;
+  object npc;
+
+  e = npc_census[id];
+  if (!e)
+    return;
+
+  map_delete(npc_census, id);
+  save_me();
+
+  npc = live_guard(e["poi"], id);
+  if (npc)
+    npc->dest_me();
+
+  if (e["savefile"] && file_size(e["savefile"]) >= 0)
+    remove_file(e["savefile"]);
+}
+
+// Reconcile the guards of the POI at `location_file`: if it is a guarded kind,
+// hold exactly the area citizenship's security level of guards, all from the
+// citizenship's current guard source. Data-only; materialization happens in
+// the restore loop. Guards from a stale source (after an invasion) or beyond
+// the wanted count are removed, and the shortfall topped up.
+private void _ensure_guards_assigned(string location_file)
+{
+  mapping entry;
+  string kind, cit_path, source;
+  string * live, * ids;
+  int want, have, i;
+  object dh;
+
+  entry = pois[location_file];
+  if (!entry)
+    return;
+  kind = entry[POI_FIELD_KIND];
+  if (kind != POI_KIND_TOWN_ENTRANCE && kind != POI_KIND_TOWN_SQUARE)
+    return;
+
+  // the area's citizenship supplies both the count (security) and the NPC
+  // source (guard); with no citizenship, or none configured, field no guards
+  cit_path = query_citizenship_path();
+  dh = load_object(DIPLOMACY_HANDLER);
+  source = strlen(cit_path) ? dh->query_guard(cit_path) : "";
+  want = strlen(source) ? dh->query_security_level(cit_path) : 0;
+
+  // guards already here from the current source
+  live = strlen(source) ? guard_census_at(location_file, source) : ({ });
+  have = sizeof(live);
+
+  // cull every guard at this POI that is not a current-source guard (stale
+  // source after a citizenship change)
+  ids = map_indices(npc_census);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mapping e;
+    e = npc_census[ids[i]];
+    if (e["guard"] && e["poi"] == location_file &&
+        member_array(ids[i], live) == -1)
+      _remove_guard(ids[i]);
+  }
+
+  // trim current-source guards down if security dropped
+  for (i = want; i < have; i++)
+    _remove_guard(live[i]);
+
+  // top up to the wanted count from the current source
+  for (i = have; i < want; i++)
+    assign_guard_npc(source, location_file);
+}
+
+// call_out target: re-post a guard some time after one died at `file`.
+void _refill_guards(string file)
+{
+  object loc;
+
+  if (!pois[file])
+    return;
+
+  _ensure_guards_assigned(file);
+
+  loc = loaded_location(file);
+  if (loc)
+    restore_location_npcs(loc);
+}
+
+// Ensure every guarded POI in the area holds its citizenship's guards and,
+// where the location is loaded, materialize them. Safe to call repeatedly.
+void fill_guards()
+{
+  string * locs;
+  int i;
+
+  locs = map_indices(pois);
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    object loc;
+
+    _ensure_guards_assigned(locs[i]);
+    loc = loaded_location(locs[i]);
+    if (loc)
+      restore_location_npcs(loc);
+  }
+}
+
+// Force the guards of a POI to be rebuilt from the current citizenship / POI
+// config: drop the ones there now (destructing any live) and re-derive. Used
+// when config changes live (a new citizenship, a new guard_dir) so already
+// materialized guards pick up the change instead of waiting for a reload.
+void repost_guards(string poi_file)
+{
+  string * ids;
+  int i;
+  object loc;
+
+  if (!pois[poi_file])
+    return;
+
+  // remove every guard currently assigned here, whatever its source
+  ids = map_indices(npc_census);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mapping e;
+    e = npc_census[ids[i]];
+    if (e["guard"] && e["poi"] == poi_file)
+      _remove_guard(ids[i]);
+  }
+
+  _ensure_guards_assigned(poi_file);
+
+  loc = loaded_location(poi_file);
+  if (loc)
+    restore_location_npcs(loc);
 }

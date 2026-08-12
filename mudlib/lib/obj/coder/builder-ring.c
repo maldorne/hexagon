@@ -19,8 +19,8 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
-#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] >"
-#define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | vacancy <add <role> <source> | remove <role>> >"
+#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> >"
+#define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role>> >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 #define BUILDER_RING_HELP "This ring can be used by coders to help them building areas.\n\n" + \
                 "Available commands:\n" + \
@@ -590,6 +590,26 @@ int do_area(string str)
           ").\n");
     return 1;
   }
+  else if (verb == "diplomacy")
+  {
+    // the citizenship this area belongs to; guards are fielded from it. "none"
+    // clears it (and, on the next fill, removes the area's guards).
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build area diplomacy <citizenship|none>\n");
+      return 0;
+    }
+
+    name = (args[1] == "none") ? "" : args[1];
+    area->set_citizenship(name);
+    if (strlen(name))
+      write("Area '" + area->query_area_name() + "' now belongs to " +
+            "citizenship '" + name + "'. Guards field from it.\n");
+    else
+      write("Area '" + area->query_area_name() +
+            "' no longer belongs to a citizenship.\n");
+    return 1;
+  }
 
   notify_fail("Usage: " + BUILDER_RING_AREA_SYNTAX + "\n");
   return 0;
@@ -694,6 +714,7 @@ int do_poi(string str)
       p = pois[keys[i]];
       write("  " + keys[i] + " -- " + p[POI_FIELD_KIND] +
             (p[POI_FIELD_LABEL] ? " (\"" + p[POI_FIELD_LABEL] + "\")" : "") +
+            (p[POI_FIELD_GUARD_DIR] ? "   guard_dir " + p[POI_FIELD_GUARD_DIR] : "") +
             (keys[i] == file ? "   <- here" : "") + "\n");
 
       vs = p[POI_FIELD_VACANCIES];
@@ -702,6 +723,32 @@ int do_poi(string str)
               vs[j][VACANCY_FIELD_SOURCE] +
               (vs[j][VACANCY_FIELD_UUID] ? "  [filled]" : "  [empty]") + "\n");
     }
+    return 1;
+  }
+
+  if (verb == "guard_dir")
+  {
+    if (!area->is_poi(file))
+    {
+      notify_fail("This location is not a POI. Add one first with " +
+                  "'build poi add town_entrance'.\n");
+      return 0;
+    }
+    if (area->query_pois()[file][POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE)
+    {
+      notify_fail("guard_dir only applies to a town_entrance POI.\n");
+      return 0;
+    }
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build poi guard_dir <direction into the town>\n");
+      return 0;
+    }
+
+    // the exit into town its guards watch; re-post so live guards pick it up
+    area->set_poi_guard_dir(file, args[1]);
+    area->repost_guards(file);
+    write("Entrance guards here now watch '" + args[1] + "'.\n");
     return 1;
   }
 

@@ -44,6 +44,9 @@
 #define POI_FIELD_KIND      "kind"
 #define POI_FIELD_LABEL     "label"
 #define POI_FIELD_VACANCIES "vacancies"
+// On a town_entrance POI: the exit direction that leads into the town. The
+// entrance's guards watch this direction to block enemy citizenships.
+#define POI_FIELD_GUARD_DIR "guard_dir"
 
 // Vacancy entry field keys.
 #define VACANCY_FIELD_ROLE   "role"

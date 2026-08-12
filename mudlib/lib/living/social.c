@@ -788,8 +788,11 @@ void set_city_ob(string str)
   // if (sscanf(str,"/%s", tmp) == 1)
   //  str = extract(str,1);
 
-  if ((str[0..strlen("/lib/obj/citizenships")-1] != "/lib/obj/citizenships") &&
-      (str[0..strlen("/game/obj/citizenships")-1] != "/game/obj/citizenships"))
+  // A citizenship object lives under an ".../obj/citizenships/" directory:
+  // the shared /lib/obj/citizenships, or a game's own
+  // /games/<game>/obj/citizenships. Accept any path with that segment rather
+  // than a fixed prefix, so per-game citizenships validate too.
+  if (strsrch(str, "/obj/citizenships/") < 0)
   {
     write("Illegal path in set_city_ob.\n");
     return;
