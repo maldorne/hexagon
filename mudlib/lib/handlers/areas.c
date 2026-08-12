@@ -3,6 +3,8 @@
 
 mapping loaded_areas;
 
+private void _collect_census_uuids(string dir, mapping referenced);
+
 void create() {
   loaded_areas = ([ ]);
   // ::create();
@@ -96,6 +98,98 @@ int remove_area_if_empty(object area)
     rmdir(path);
 
   return 1;
+}
+
+// Walk the area tree under `dir`, collecting every census NPC uuid into
+// `referenced`. A directory holding an area.o is an area; recurse into
+// subdirs so nested areas (e.g. a road area under a town) are covered too.
+private void _collect_census_uuids(string dir, mapping referenced)
+{
+  mixed * entries;
+  int i;
+
+  if (file_size(dir + "area.o") >= 0)
+  {
+    object area;
+
+    area = query_area(dir);
+    if (area)
+    {
+      string * uuids;
+      uuids = map_indices(area->query_npc_census());
+      for (i = 0; i < sizeof(uuids); i++)
+        referenced[uuids[i]] = 1;
+    }
+  }
+
+  entries = get_dir(dir + "*", -1);
+  for (i = 0; i < sizeof(entries); i++)
+    if (entries[i][1] == -2)   // size -2 marks a directory
+      _collect_census_uuids(dir + entries[i][0] + "/", referenced);
+}
+
+// Verify the NPC save folders of `game` against the census: every persisted
+// NPC lives in /save/games/<game>/npcs/<letter>/<uuid>/, but only those whose
+// uuid appears in some area's census are still real. The rest are orphans left
+// when a census entry was dropped without the NPC dying (a reconversion, a
+// census rebuild, a removed vacancy). Returns
+//   ([ "orphans": ({ uuid, ... }),   folders with files but no census entry
+//      "empty":   ({ uuid, ... }) ]) folders already emptied (save deleted)
+// With `apply`, deletes each orphan's whole folder and every empty folder.
+mapping verify_npc_saves(string game, int apply)
+{
+  mapping referenced;
+  string npcbase;
+  string * letters, * orphans, * empties;
+  int i, j;
+
+  referenced = ([ ]);
+  _collect_census_uuids("/save/games/" + game + "/locations/areas/", referenced);
+
+  npcbase = "/save/games/" + game + "/npcs/";
+  orphans = ({ });
+  empties = ({ });
+
+  letters = get_dir(npcbase + "*");
+  for (i = 0; i < sizeof(letters); i++)
+  {
+    string ldir;
+    string * uuids;
+
+    // the templates live under npcs/templates/, not a uuid shard -- skip them
+    if (letters[i] == "templates")
+      continue;
+    ldir = npcbase + letters[i] + "/";
+    if (file_size(ldir) != -2)
+      continue;
+
+    uuids = get_dir(ldir + "*");
+    for (j = 0; j < sizeof(uuids); j++)
+    {
+      string udir;
+      string * files;
+
+      udir = ldir + uuids[j] + "/";
+      if (file_size(udir) != -2 || referenced[uuids[j]])
+        continue;
+
+      files = get_dir(udir + "*");
+      if (sizeof(files))
+        orphans += ({ uuids[j] });
+      else
+        empties += ({ uuids[j] });
+
+      if (apply)
+      {
+        int k;
+        for (k = 0; k < sizeof(files); k++)
+          catch(remove_file(udir + files[k]));
+        catch(rmdir(udir));
+      }
+    }
+  }
+
+  return ([ "orphans": orphans, "empty": empties ]);
 }
 
 string add_location(object location)
