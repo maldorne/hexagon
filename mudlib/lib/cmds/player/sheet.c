@@ -71,11 +71,15 @@ static int cmd(string name, object me, string verb)
     else
     {
       name = me->expand_nickname(name);
-      target = find_living(name);
-
-      if (!objectp(target)) 
+      // prefer a living present in the same room, so "ficha guardia" shows the
+      // one standing here rather than the first living registered anywhere with
+      // that name
+      target = present(name, environment(me));
+      if (!objectp(target) || !living(target))
+        target = find_living(name);
+      if (!objectp(target))
         target = find_player(name);
-      if (!objectp(target)) 
+      if (!objectp(target))
         target = find_object(name);
 
       if (!objectp(target))
