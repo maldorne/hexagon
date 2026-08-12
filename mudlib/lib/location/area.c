@@ -57,6 +57,18 @@ mapping pois;
 int npc_default_level;
 int npc_default_level_spread;
 
+// The settlement's role board (target model, dev/area-npc-system.md §7.2): the
+// named jobs a town staffs with sentient citizens -- barman, mayor, guards,
+// farmers -- each with a count and a real work location. A role slot is a
+// census entry tagged "role" with no "poi"/"guard", so it does NOT auto-respawn
+// like a POI vacancy: a slot emptied by death is refilled by the settlement
+// pass (fill_area_roles), which the F6 prosperity tick will drive. For now the
+// slots are filled from a transitional template `source`; the F4 generator
+// replaces that behind assign_npc_to_role.
+//   ([ role_name : ([ "count": n, "work": location_file,
+//                     "source": template_id, "sentient": 1 ]) ])
+mapping roles;
+
 // The citizenship this area belongs to (a name in the diplomacy graph).
 // Guards fielded at the area's town entrances and squares follow this
 // citizenship: the diplomacy handler tells us how many (its security level)
@@ -88,6 +100,7 @@ void create() {
   npc_census = ([ ]);
   npc_sources = ([ ]);
   pois = ([ ]);
+  roles = ([ ]);
   npc_default_level = 1;
   npc_default_level_spread = 0;
   citizenship = "";
@@ -1400,4 +1413,152 @@ void repost_guards(string poi_file)
   loc = loaded_location(poi_file);
   if (loc)
     restore_location_npcs(loc);
+}
+
+// ---------------------------------------------------------------------------
+// Role board (target model, dev/area-npc-system.md §7.2)
+// ---------------------------------------------------------------------------
+//
+// A role is a named job (barman, mayor, guard, farmer) the settlement staffs
+// with sentient citizens: a count and a real work location. A role slot is a
+// census entry tagged "role" with no "poi"/"guard" -- so it never auto-respawns
+// like a POI vacancy; a slot emptied by death is refilled by fill_area_roles
+// (the settlement pass). Slots are filled from a transitional template `source`
+// for now; the F4 generator will replace assign_npc_to_role's body, the single
+// seam where the filler lives.
+
+mapping query_roles() { return roles; }
+mapping query_role(string name) { return roles[name]; }
+
+// Declare (or replace) a role. `count` is how many of it the settlement wants,
+// `work` its work location, `source` the transitional NPC blueprint filling its
+// slots (snapshotted to a template now, the one time its .c is read), `sentient`
+// whether it is a named citizen (no clone-respawn). Stores the template id.
+void add_role(string name, int count, string work, string source, int sentient)
+{
+  if (!name || !strlen(name) || count < 0)
+    return;
+
+  if (source && strlen(source))
+  {
+    string game;
+    game = game_from_path(area_path);
+    if (!BESTIARY_HANDLER->has_template(game, source))
+      BESTIARY_HANDLER->add_template(source);
+    source = _template_id(source);
+  }
+
+  roles[name] = ([ "count":    count,
+                   "work":     work,
+                   "source":   source,
+                   "sentient": sentient ? 1 : 0 ]);
+  save_me();
+}
+
+// Live count of a role's staff: census entries tagged with this role that are
+// role-board slots (no POI, no guard), so this never counts a POI vacancy or a
+// guard that happens to share the role name.
+int count_role_npcs(string name)
+{
+  string * ids;
+  int i, n;
+
+  ids = map_indices(npc_census);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mapping e;
+    e = npc_census[ids[i]];
+    if (e["role"] == name && !e["poi"] && !e["guard"])
+      n++;
+  }
+
+  return n;
+}
+
+// Record one census NPC for a role, at its work location. Data-only -- it
+// materializes when the work location loads (npc_restore). This is the single
+// seam the F4 generator replaces: today it clones the role's transitional
+// template; later it generates a named individual. Returns the uuid.
+private string assign_npc_to_role(string name, mapping role)
+{
+  string id, game, source, work;
+
+  source = role["source"];
+  work = role["work"];
+  if (!source || !strlen(source) || !work || !strlen(work))
+    return nil;
+
+  game = game_from_path(area_path);
+  id = UUID_OB->uuid();
+  npc_census[id] = ([ "source":   source,
+                      "location": work,
+                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
+                      "gender":   decide_gender(game, source),
+                      "level":    decide_level(game, source),
+                      "role":     name ]);
+  save_me();
+
+  return id;
+}
+
+// Staff a role up to its count: add census slots until the live count reaches
+// it. A slot emptied by a death (role NPCs do not auto-respawn) is refilled
+// here, not instantly at the point of death.
+void fill_role(string name)
+{
+  mapping role;
+  int have, want, i;
+
+  role = roles[name];
+  if (!role)
+    return;
+
+  want = role["count"];
+  have = count_role_npcs(name);
+  for (i = have; i < want; i++)
+    assign_npc_to_role(name, role);
+}
+
+// Staff every role in the area -- the settlement pass. Idempotent: a role
+// already at its count adds nothing.
+void fill_area_roles()
+{
+  string * names;
+  int i;
+
+  names = map_indices(roles);
+  for (i = 0; i < sizeof(names); i++)
+    fill_role(names[i]);
+}
+
+// Drop a role: cull its census NPCs (destruct any live, delete their savefiles)
+// and forget the role, so removing it leaves no orphan behind.
+void remove_role(string name)
+{
+  string * ids;
+  int i;
+
+  if (!roles[name])
+    return;
+
+  ids = map_indices(npc_census);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mapping e;
+    object npc;
+
+    e = npc_census[ids[i]];
+    if (e["role"] == name && !e["poi"] && !e["guard"])
+    {
+      npc = live_census_npc(e["location"], ids[i]);
+      if (npc)
+        npc->dest_me();
+      if (e["savefile"] && file_size(e["savefile"]) >= 0)
+        remove_file(e["savefile"]);
+      map_delete(npc_census, ids[i]);
+    }
+  }
+
+  map_delete(roles, name);
+  save_me();
 }
