@@ -3,8 +3,7 @@
 
 mapping loaded_areas;
 
-private void _delete_folder(string dir);
-private void _delete_npc_folder(string game, string uuid);
+private void _delete_npc_folder(string dir);
 
 void create() {
   loaded_areas = ([ ]);
@@ -101,10 +100,11 @@ int remove_area_if_empty(object area)
   return 1;
 }
 
-// Delete a folder and everything directly in it: every file, then the folder
-// itself. The NPC object is not loaded here, so this works on the folder path
-// directly. Kept scoped to the npcs save tree by its callers.
-private void _delete_folder(string dir)
+// Delete an NPC's save folder and everything in it: every file, then the folder
+// itself. Takes the folder path (the NPC object is not loaded here). Callers
+// pass a folder under the npcs save tree -- npc_save_dir() for a known uuid, or
+// the exact folder found by a scan.
+private void _delete_npc_folder(string dir)
 {
   string * files;
   int i;
@@ -116,12 +116,6 @@ private void _delete_folder(string dir)
   for (i = 0; i < sizeof(files); i++)
     catch(remove_file(dir + files[i]));
   catch(rmdir(dir));
-}
-
-// An NPC's save folder, addressed by its canonical shard path.
-private void _delete_npc_folder(string game, string uuid)
-{
-  _delete_folder(npc_save_dir(game, uuid));
 }
 
 // Delete the save folders of every NPC in this area's census. Called when the
@@ -142,7 +136,7 @@ int prune_area_npc_saves(object area)
 
   uuids = map_indices(area->query_npc_census());
   for (i = 0; i < sizeof(uuids); i++)
-    _delete_npc_folder(game, uuids[i]);
+    _delete_npc_folder(npc_save_dir(game, uuids[i]));
 
   return sizeof(uuids);
 }
@@ -260,7 +254,7 @@ void _npc_verify_step(mapping st)
     // delete the folder exactly where it was found, not a recomputed shard
     // path, so a misplaced folder is still removed
     if (st["apply"])
-      _delete_folder(udir);
+      _delete_npc_folder(udir);
   }
 
   if (sizeof(st["uuids"]) || sizeof(st["letters"]))
