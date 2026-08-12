@@ -1507,6 +1507,7 @@ private string assign_npc_to_role(string name, mapping role)
 void fill_role(string name)
 {
   mapping role;
+  object loc;
   int have, want, i;
 
   role = roles[name];
@@ -1517,6 +1518,12 @@ void fill_role(string name)
   have = count_role_npcs(name);
   for (i = have; i < want; i++)
     assign_npc_to_role(name, role);
+
+  // if the work location is already resident, materialize the new slots now
+  // (mirrors the vacancy refill); otherwise they come in when it next loads
+  loc = loaded_location(role["work"]);
+  if (loc)
+    restore_location_npcs(loc);
 }
 
 // Staff every role in the area -- the settlement pass. Idempotent: a role
