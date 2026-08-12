@@ -406,10 +406,10 @@
 #define _LANG_CMD_WORLDMAP_ALIAS   ({ "mapamundi", "worldmap" })
 #define _LANG_CMD_WORLDMAP_SYNTAX  "mapamundi [ancho [alto]]"
 #define _LANG_CMD_WORLDMAP_HELP    "Muestra un mapa a vista de pájaro centrado en el sector en el que estás. " + \
-                                   "Cada glifo representa un sector de 10x10; tu posición está marcada con \047@\047. " + \
-                                   "Ancho y alto opcionales (por defecto 10x10, mínimo 3, máximo 80x40)."
+                                   "Cada glifo representa un sector de 10x10; tu posición está marcada con '@'."
 #define _LANG_CMD_WORLDMAP_USAGE   "Sintaxis: mapamundi [ancho [alto]]\n"
 #define _LANG_CMD_WORLDMAP_RANGE   "Las dimensiones deben estar entre 3 y 80 de ancho, 3 y 40 de alto.\n"
+#define _LANG_CMD_WORLDMAP_CODER   "No puedes cambiar el tamaño del mapa.\n"
 #define _LANG_CMD_WORLDMAP_NOMAP   "Ahora mismo no estás en ningún mapa del mundo.\n"
 
 // idle.c

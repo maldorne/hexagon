@@ -17,11 +17,18 @@ static int cmd(string str, object me, string verb)
   int width, height;
   string map;
 
-  width = 10;
-  height = 10;
+  // players always get the default viewport; resizing it is a coder tool
+  width = 20;
+  height = 20;
 
   if (str && strlen(str))
   {
+    if (!me->query_coder())
+    {
+      notify_fail(_LANG_CMD_WORLDMAP_CODER);
+      return 0;
+    }
+
     // "worldmap N M" -> width x height; "worldmap N" -> N x N
     if (sscanf(str, "%d %d", width, height) == 2)
       ;
@@ -32,12 +39,12 @@ static int cmd(string str, object me, string verb)
       notify_fail(_LANG_CMD_WORLDMAP_USAGE);
       return 0;
     }
-  }
 
-  if (width < 3 || width > 80 || height < 3 || height > 40)
-  {
-    notify_fail(_LANG_CMD_WORLDMAP_RANGE);
-    return 0;
+    if (width < 3 || width > 80 || height < 3 || height > 40)
+    {
+      notify_fail(_LANG_CMD_WORLDMAP_RANGE);
+      return 0;
+    }
   }
 
   map = handler(WORLDMAP_HANDLER)->render_around(me, width, height, 1);
