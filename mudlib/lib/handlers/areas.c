@@ -4,6 +4,7 @@
 mapping loaded_areas;
 
 private void _collect_census_uuids(string dir, mapping referenced);
+private void _delete_npc_folder(string game, string uuid);
 
 void create() {
   loaded_areas = ([ ]);
@@ -100,6 +101,48 @@ int remove_area_if_empty(object area)
   return 1;
 }
 
+// Delete an NPC's entire save folder (every file in it, then the folder). The
+// NPC object is not loaded here, so this deletes the folder directly -- same
+// shape as npc::delete_npc_save, kept scoped to the npcs save tree.
+private void _delete_npc_folder(string game, string uuid)
+{
+  string udir;
+  string * files;
+  int i;
+
+  udir = npc_save_dir(game, uuid);
+  if (file_size(udir) != -2)
+    return;
+
+  files = (string *)get_dir(udir + "*");
+  for (i = 0; i < sizeof(files); i++)
+    catch(remove_file(udir + files[i]));
+  catch(rmdir(udir));
+}
+
+// Delete the save folders of every NPC in this area's census. Called when the
+// area is being removed (a clean) so its NPCs leave no orphan folder behind.
+// Scoped to the area -- O(area's NPCs), unlike a game-wide verify. Returns the
+// number of folders removed.
+int prune_area_npc_saves(object area)
+{
+  string game;
+  string * uuids;
+  int i;
+
+  if (!area)
+    return 0;
+  game = game_from_path(area->query_area_path());
+  if (!game)
+    return 0;
+
+  uuids = map_indices(area->query_npc_census());
+  for (i = 0; i < sizeof(uuids); i++)
+    _delete_npc_folder(game, uuids[i]);
+
+  return sizeof(uuids);
+}
+
 // Walk the area tree under `dir`, collecting every census NPC uuid into
 // `referenced`. A directory holding an area.o is an area; recurse into
 // subdirs so nested areas (e.g. a road area under a town) are covered too.
@@ -180,12 +223,7 @@ mapping verify_npc_saves(string game, int apply)
         empties += ({ uuids[j] });
 
       if (apply)
-      {
-        int k;
-        for (k = 0; k < sizeof(files); k++)
-          catch(remove_file(udir + files[k]));
-        catch(rmdir(udir));
-      }
+        _delete_npc_folder(game, uuids[j]);
     }
   }
 

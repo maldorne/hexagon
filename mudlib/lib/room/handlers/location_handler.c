@@ -1356,30 +1356,20 @@ void clean_step(string * orphans, int idx, object * touched_areas,
 
   if (idx >= sizeof(orphans))
   {
-    string game;
     int npc_pruned;
 
-    // Note the game before dropping the areas (remove_area_if_empty destructs
-    // the area object, so query_area_path would fail afterwards).
-    game = nil;
+    // A cleaned area takes its census with it, so its NPCs would become orphan
+    // save folders. Prune each area's NPC folders (scoped to that area, not a
+    // game-wide scan) before dropping the area object, so clean leaves no
+    // dangling NPC saves behind and stays cheap however many areas exist.
+    npc_pruned = 0;
     for (i = 0; i < sizeof(touched_areas); i++)
       if (touched_areas[i])
       {
-        if (!game)
-          game = game_from_path(touched_areas[i]->query_area_path());
+        npc_pruned +=
+          load_object(AREA_HANDLER)->prune_area_npc_saves(touched_areas[i]);
         load_object(AREA_HANDLER)->remove_area_if_empty(touched_areas[i]);
       }
-
-    // A cleaned area takes its census with it, so its NPCs are now orphan save
-    // folders. Prune them (and any other orphan in the game) so clean leaves no
-    // dangling NPC saves behind.
-    npc_pruned = 0;
-    if (game)
-    {
-      mapping res;
-      res = load_object(AREA_HANDLER)->verify_npc_saves(game, 1);
-      npc_pruned = sizeof(res["orphans"]) + sizeof(res["empty"]);
-    }
 
     if (initiator)
       tell_object(initiator, "Clean finished: removed " + sizeof(orphans) +
