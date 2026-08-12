@@ -727,7 +727,9 @@ int do_poi(string str)
         // the role is quoted (it is a name we chose); measure it with quotes
         l = strlen(vs[j][VACANCY_FIELD_ROLE], TRUE) + 2;
         if (l > w_role) w_role = l;
-        l = strlen(get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]), TRUE);
+        // show the full template id so the same role name in two areas is
+        // unambiguous (barman exists once per town)
+        l = strlen(vs[j][VACANCY_FIELD_SOURCE], TRUE);
         if (l > w_src) w_src = l;
       }
     }
@@ -759,7 +761,7 @@ int do_poi(string str)
       for (j = 0; vs && j < sizeof(vs); j++)
         write(sprintf("      vacancy %-*s  template %-*s  %s\n",
                       w_role, "\"" + vs[j][VACANCY_FIELD_ROLE] + "\"",
-                      w_src, get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]),
+                      w_src, vs[j][VACANCY_FIELD_SOURCE],
                       vs[j][VACANCY_FIELD_UUID] ? "[filled]" : "[empty]"));
     }
     return 1;
@@ -886,8 +888,9 @@ int do_npc()
         ")\n";
 
   // roster: each template's live census count against its area cap. Sources
-  // are template ids (areas/<area>/<npc>); show the npc name, right-align the
-  // counts into columns.
+  // are template ids (areas/<area>/<npc>); show the full id so the same npc
+  // name in two areas (or a cross-area template) is unambiguous. Right-align
+  // the counts into columns.
   intended = area->query_npc_intended();
   sources = map_indices(intended);
   {
@@ -900,7 +903,7 @@ int do_npc()
     {
       int l;
       lives[i] = area->query_npc_live_count(sources[i]);
-      l = strlen(get_path_file_name(sources[i]), TRUE);
+      l = strlen(sources[i], TRUE);
       if (l > w_name) w_name = l;
       l = strlen("" + lives[i]);
       if (l > w_live) w_live = l;
@@ -912,7 +915,7 @@ int do_npc()
            (sizeof(sources) == 1 ? "" : "s") + "):\n";
     for (i = 0; i < sizeof(sources); i++)
       out += sprintf("  %-*s  live %*d / cap %*d\n",
-                     w_name, get_path_file_name(sources[i]),
+                     w_name, sources[i],
                      w_live, lives[i],
                      w_cap, intended[sources[i]]["max"]);
     if (!sizeof(sources))
@@ -937,7 +940,7 @@ int do_npc()
       {
         v_poi   += ({ get_path_file_name(pkeys[i]) });
         v_role  += ({ "\"" + vs[j][VACANCY_FIELD_ROLE] + "\"" });
-        v_tmpl  += ({ get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]) });
+        v_tmpl  += ({ vs[j][VACANCY_FIELD_SOURCE] });
         v_state += ({ vs[j][VACANCY_FIELD_UUID] ? "[filled]" : "[empty]" });
       }
     }
