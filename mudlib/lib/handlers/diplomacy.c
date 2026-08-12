@@ -4,14 +4,20 @@
  * The single oracle for how citizenships relate, and the owner of that graph.
  * A citizenship is a lean social object (/lib/citizenship.c, inherited by
  * /games/<game>/obj/citizenships/*), carried by a living as its city_ob; it
- * stores no relation data. All relation data -- each citizenship's parent,
- * allies, enemies, security level and guard NPC source -- lives here as
- * mutable, persisted state.
+ * stores no relation data. It all lives here as mutable, persisted state.
  *
- * The graph is dynamic: a town can be invaded, lose its parent, change the
- * kingdom it belongs to, gain new enemies. So it is never read from a static
- * table; it is built and edited by hand through admin commands and saved to
- * disk (save_object). It starts empty for every game.
+ * The graph has two parts, both persisted:
+ *
+ *   - Nodes (`relations`): per-citizenship data that is one-sided by nature --
+ *     its parent kingdom, its guard count (security) and its guard NPC source.
+ *
+ *   - Links (`links`): ally / enemy relations between two citizenships. A
+ *     relation is mutual, so it is stored once, as an unordered pair, rather
+ *     than duplicated on both records. Adding or removing it is a single edit.
+ *
+ * The graph is dynamic (a town can be invaded, change kingdom, gain enemies),
+ * so it is never read from a static table; it is built and edited by hand
+ * through admin commands and saved to disk. It starts empty for every game.
  *
  * References passed to the query side may be a citizenship object, its object
  * path, or a bare name; they resolve to a { name, game } pair. A living with
@@ -23,14 +29,16 @@
 
 inherit "/lib/core/object.c";
 
-// game -> ([ name : ([ "parent":.., "allies":({}), "enemies":({}),
-//                      "security":n, "guard":npc_path ]) ]
-// The whole mapping is the handler's persisted state.
+// game -> ([ name : ([ "parent":.., "security":n, "guard":npc_path ]) ]
 mapping relations;
+// game -> ([ "enemy" : ({ ({a,b}), ... }), "ally" : ({ ({a,b}), ... }) ]
+// Each relation is one unordered pair, stored once.
+mapping links;
 
 void create()
 {
   relations = ([ ]);
+  links = ([ ]);
   ::create();
   restore_object(DIPLOMACY_SAVE, 1);
 }
@@ -89,7 +97,7 @@ private mixed * _resolve(mixed c)
   return ({ name, game });
 }
 
-// A game's citizenship graph (empty when the game has none defined yet).
+// A game's node map (empty when the game has none defined yet).
 private mapping _relations(string game)
 {
   if (!game || !relations[game])
@@ -97,18 +105,24 @@ private mapping _relations(string game)
   return relations[game];
 }
 
-// The relation record for a citizenship reference, or nil.
+// A game's link store, always with both lists present.
+private mapping _links(string game)
+{
+  mapping l;
+  l = game ? links[game] : nil;
+  if (!l)
+    return ([ "enemy" : ({ }), "ally" : ({ }) ]);
+  return l;
+}
+
+// The node record for a citizenship reference, or nil.
 private mapping _record(mixed c)
 {
   mixed * r;
-  mapping g;
-
   r = _resolve(c);
   if (!r || !strlen(r[0]))
     return nil;
-
-  g = _relations(r[1]);
-  return g[r[0]];
+  return _relations(r[1])[r[0]];
 }
 
 // --- Query side -----------------------------------------------------------
@@ -130,11 +144,24 @@ private string * _self_and_parent(string game, string name)
   return strlen(p) ? ({ name, p }) : ({ name });
 }
 
-// Is `b` an enemy of `a`? a supplies the graph/game; both may be object, path
-// or name. Relations cascade through the parent: a town is at war with whatever
-// its kingdom is at war with, so a is `b`'s enemy if any level of a (itself or
-// its kingdom) lists any level of b (itself or its kingdom) as an enemy.
-// Neutral (no citizenship) is never an enemy.
+// Is the unordered pair {a,b} present in a game's `kind` links?
+private int _linked(string game, string kind, string a, string b)
+{
+  mixed * pairs;
+  int i;
+
+  pairs = _links(game)[kind];
+  for (i = 0; i < sizeof(pairs); i++)
+    if ((pairs[i][0] == a && pairs[i][1] == b) ||
+        (pairs[i][0] == b && pairs[i][1] == a))
+      return 1;
+  return 0;
+}
+
+// Is `b` an enemy of `a`? Both may be object, path or name. Relations cascade
+// through the parent: a town is at war with whatever its kingdom is at war
+// with, so a and b are enemies if any level of a (itself or its kingdom) is
+// enemy-linked to any level of b. Neutral (no citizenship) is never an enemy.
 int is_enemy(mixed a, mixed b)
 {
   mixed * ra, * rb;
@@ -152,15 +179,9 @@ int is_enemy(mixed a, mixed b)
   bset = _self_and_parent(game, rb[0]);
 
   for (i = 0; i < sizeof(aset); i++)
-  {
-    mapping rec;
-    rec = _relations(game)[aset[i]];
-    if (!rec || !pointerp(rec["enemies"]))
-      continue;
     for (j = 0; j < sizeof(bset); j++)
-      if (member_array(bset[j], rec["enemies"]) != -1)
+      if (_linked(game, "enemy", aset[i], bset[j]))
         return 1;
-  }
   return 0;
 }
 
@@ -194,15 +215,9 @@ int is_ally(mixed a, mixed b)
   aset = _self_and_parent(game, ra[0]);
   bset = _self_and_parent(game, rb[0]);
   for (i = 0; i < sizeof(aset); i++)
-  {
-    mapping rec;
-    rec = _relations(game)[aset[i]];
-    if (!rec || !pointerp(rec["allies"]))
-      continue;
     for (j = 0; j < sizeof(bset); j++)
-      if (member_array(bset[j], rec["allies"]) != -1)
+      if (_linked(game, "ally", aset[i], bset[j]))
         return 1;
-  }
   return 0;
 }
 
@@ -220,18 +235,39 @@ string query_parent(mixed c)
   return (rec && stringp(rec["parent"])) ? rec["parent"] : "";
 }
 
+// The citizenships directly `kind`-linked to `name` in `game` (the other side
+// of each pair). Direct links only -- inherited (parent) relations are not
+// listed, they are resolved by is_enemy / is_ally.
+private string * _linked_names(string game, string kind, string name)
+{
+  mixed * pairs;
+  string * out;
+  int i;
+
+  pairs = _links(game)[kind];
+  out = ({ });
+  for (i = 0; i < sizeof(pairs); i++)
+  {
+    if (pairs[i][0] == name)
+      out += ({ pairs[i][1] });
+    else if (pairs[i][1] == name)
+      out += ({ pairs[i][0] });
+  }
+  return out;
+}
+
 string * query_allies(mixed c)
 {
-  mapping rec;
-  rec = _record(c);
-  return (rec && pointerp(rec["allies"])) ? rec["allies"] : ({ });
+  mixed * r;
+  r = _resolve(c);
+  return (r && strlen(r[0])) ? _linked_names(r[1], "ally", r[0]) : ({ });
 }
 
 string * query_enemies(mixed c)
 {
-  mapping rec;
-  rec = _record(c);
-  return (rec && pointerp(rec["enemies"])) ? rec["enemies"] : ({ });
+  mixed * r;
+  r = _resolve(c);
+  return (r && strlen(r[0])) ? _linked_names(r[1], "enemy", r[0]) : ({ });
 }
 
 // The NPC source a citizenship fields as its guard, or "" if none set. Guards
@@ -244,11 +280,29 @@ string query_guard(mixed c)
   return (rec && stringp(rec["guard"])) ? rec["guard"] : "";
 }
 
-// Read-only view of a game's whole citizenship graph, for inspection commands.
-// Returns a shallow copy so callers cannot mutate the state.
+// Read-only view of a game's whole graph for inspection commands, one entry
+// per citizenship with its node data and its direct allies / enemies filled in
+// from the links. Synthesised fresh so callers cannot mutate the state.
 mapping query_relations(string game)
 {
-  return ([ ]) + _relations(game);
+  mapping g, out;
+  string * names;
+  int i;
+
+  g = _relations(game);
+  out = ([ ]);
+  names = map_indices(g);
+  for (i = 0; i < sizeof(names); i++)
+  {
+    string n;
+    n = names[i];
+    out[n] = ([ "parent"   : g[n]["parent"],
+                "security" : g[n]["security"],
+                "guard"    : g[n]["guard"],
+                "allies"   : _linked_names(game, "ally", n),
+                "enemies"  : _linked_names(game, "enemy", n) ]);
+  }
+  return out;
 }
 
 // Names of every citizenship defined for a game.
@@ -259,8 +313,8 @@ string * query_citizenships(string game)
 
 // --- Mutating side (admin commands build the graph by hand) ---------------
 
-// Ensure a game's graph and a citizenship's record both exist, and return the
-// record. A fresh record is empty of relations, security 0, no guard.
+// Ensure a game's node map and a citizenship's node both exist, and return the
+// node. A fresh node has no parent, security 0, no guard.
 private mapping _ensure(string game, string name)
 {
   mapping g;
@@ -270,9 +324,30 @@ private mapping _ensure(string game, string name)
   g = relations[game];
 
   if (!g[name])
-    g[name] = ([ "parent" : "", "allies" : ({ }),
-                 "enemies" : ({ }), "security" : 0, "guard" : "" ]);
+    g[name] = ([ "parent" : "", "security" : 0, "guard" : "" ]);
   return g[name];
+}
+
+// Ensure a game's link store exists and return it.
+private mapping _ensure_links(string game)
+{
+  if (!links[game])
+    links[game] = ([ "enemy" : ({ }), "ally" : ({ }) ]);
+  return links[game];
+}
+
+// The `kind` pair list of a game without the unordered pair {a,b}.
+private mixed * _without_pair(mixed * pairs, string a, string b)
+{
+  mixed * out;
+  int i;
+
+  out = ({ });
+  for (i = 0; i < sizeof(pairs); i++)
+    if (!((pairs[i][0] == a && pairs[i][1] == b) ||
+          (pairs[i][0] == b && pairs[i][1] == a)))
+      out += ({ pairs[i] });
+  return out;
 }
 
 // Create a citizenship in a game's graph (no-op if it already exists).
@@ -285,12 +360,10 @@ int add_citizenship(string game, string name)
   return 1;
 }
 
-// Drop a citizenship and scrub it from every other record's ally/enemy lists.
+// Drop a citizenship: remove its node and every link that mentions it.
 int remove_citizenship(string game, string name)
 {
-  mapping g;
-  string * others;
-  int i;
+  mapping g, l;
 
   g = relations[game];
   if (!g || !g[name])
@@ -298,11 +371,23 @@ int remove_citizenship(string game, string name)
 
   g[name] = nil;
 
-  others = map_indices(g);
-  for (i = 0; i < sizeof(others); i++)
+  // scrub any link that mentions name, from both lists
+  l = _ensure_links(game);
   {
-    g[others[i]]["allies"]  -= ({ name });
-    g[others[i]]["enemies"] -= ({ name });
+    string * kinds;
+    int k, i;
+    mixed * pairs, * out;
+
+    kinds = ({ "enemy", "ally" });
+    for (k = 0; k < sizeof(kinds); k++)
+    {
+      pairs = l[kinds[k]];
+      out = ({ });
+      for (i = 0; i < sizeof(pairs); i++)
+        if (pairs[i][0] != name && pairs[i][1] != name)
+          out += ({ pairs[i] });
+      l[kinds[k]] = out;
+    }
   }
 
   _save();
@@ -336,45 +421,38 @@ int set_guard(string game, string name, string npc_path)
   return 1;
 }
 
-// Relations are mutual: an ally or enemy link is stored on both records, so a
-// single add or remove affects both sides -- there is no one-way hostility.
-// These helpers touch one direction; the public mutators apply both.
-
-// Add `other` to `name`'s `field` list (creating the record), dropping it from
-// the opposite list (an ally is not an enemy, and vice versa).
-private void _link(string game, string name, string field, string opposite,
-                   string other)
+// Add a mutual `kind` link between two citizenships, stored once. The relation
+// is dropped from the opposite kind first (an ally is not an enemy, and vice
+// versa). Both citizenships are created if needed.
+private void _add_link(string game, string kind, string a, string b)
 {
-  mapping rec;
-  rec = _ensure(game, name);
-  if (member_array(other, rec[field]) == -1)
-    rec[field] += ({ other });
-  rec[opposite] -= ({ other });
-}
+  mapping l;
+  string opp;
 
-// Remove `other` from `name`'s `field` list, if the record exists.
-private void _unlink(string game, string name, string field, string other)
-{
-  mapping rec;
-  rec = relations[game] ? relations[game][name] : nil;
-  if (rec)
-    rec[field] -= ({ other });
+  _ensure(game, a);
+  _ensure(game, b);
+  l = _ensure_links(game);
+  opp = (kind == "enemy") ? "ally" : "enemy";
+
+  l[opp] = _without_pair(l[opp], a, b);
+  if (!_linked(game, kind, a, b))
+    l[kind] += ({ (a < b) ? ({ a, b }) : ({ b, a }) });
 }
 
 int add_ally(string game, string name, string other)
 {
   if (!strlen(name) || !strlen(other) || name == other)
     return 0;
-  _link(game, name, "allies", "enemies", other);
-  _link(game, other, "allies", "enemies", name);
+  _add_link(game, "ally", name, other);
   _save();
   return 1;
 }
 
 int remove_ally(string game, string name, string other)
 {
-  _unlink(game, name, "allies", other);
-  _unlink(game, other, "allies", name);
+  mapping l;
+  l = _ensure_links(game);
+  l["ally"] = _without_pair(l["ally"], name, other);
   _save();
   return 1;
 }
@@ -383,16 +461,16 @@ int add_enemy(string game, string name, string other)
 {
   if (!strlen(name) || !strlen(other) || name == other)
     return 0;
-  _link(game, name, "enemies", "allies", other);
-  _link(game, other, "enemies", "allies", name);
+  _add_link(game, "enemy", name, other);
   _save();
   return 1;
 }
 
 int remove_enemy(string game, string name, string other)
 {
-  _unlink(game, name, "enemies", other);
-  _unlink(game, other, "enemies", name);
+  mapping l;
+  l = _ensure_links(game);
+  l["enemy"] = _without_pair(l["enemy"], name, other);
   _save();
   return 1;
 }
