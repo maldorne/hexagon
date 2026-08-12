@@ -641,8 +641,8 @@ void set_citizenship(string name)
   citizenship = name ? name : "";
   save_me();
 
-  // the guard source to keep out of the statistical roster changed with the
-  // citizenship, so recompute the population caps (and persist the new roster)
+  // which guard source the roster excludes depends on the citizenship, so
+  // recompute and persist it
   _recompute_intended();
   save_me();
 
@@ -1208,10 +1208,10 @@ void fill_guards()
   }
 }
 
-// Force the guards of a POI to be rebuilt from the current citizenship / POI
-// config: drop the ones there now (destructing any live) and re-derive. Used
-// when config changes live (a new citizenship, a new guard_dir) so already
-// materialized guards pick up the change instead of waiting for a reload.
+// Rebuild the guards of a POI from the current citizenship / POI config: drop
+// the ones there now (destructing any live) and re-derive. Callers use it after
+// editing the citizenship or a guard_dir, so live guards reflect the config
+// without a reload.
 void repost_guards(string poi_file)
 {
   string * ids;
