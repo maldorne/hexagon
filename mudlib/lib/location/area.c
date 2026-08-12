@@ -69,6 +69,7 @@ string citizenship;
 void add_loaded_location(object location);
 mapping query_vacancy_sources();
 private void _recompute_intended();
+private object live_census_npc(string poi_file, string uuid);
 private void _ensure_guards_assigned(string location_file);
 void fill_guards();
 void repost_guards(string poi_file);
@@ -622,6 +623,32 @@ void remove_vacancy(string location_file, string role)
 
   vs = entry[POI_FIELD_VACANCIES];
   if (!vs) return;
+
+  // drop the census NPC that fills this vacancy (destruct any live copy and
+  // delete its savefile) so removing the vacancy leaves no orphan that would
+  // re-materialize on the next load -- mirrors remove_poi culling its guards
+  {
+    string * ids;
+    int j;
+
+    ids = map_indices(npc_census);
+    for (j = 0; j < sizeof(ids); j++)
+    {
+      mapping e;
+      object npc;
+
+      e = npc_census[ids[j]];
+      if (e["role"] == role && e["poi"] == location_file)
+      {
+        npc = live_census_npc(location_file, ids[j]);
+        if (npc)
+          npc->dest_me();
+        if (e["savefile"] && file_size(e["savefile"]) >= 0)
+          remove_file(e["savefile"]);
+        map_delete(npc_census, ids[j]);
+      }
+    }
+  }
 
   out = ({ });
   for (i = 0; i < sizeof(vs); i++)
@@ -1218,8 +1245,9 @@ private string * guard_census_at(string poi_file, string source)
   return out;
 }
 
-// The live guard object for a census uuid inside its (loaded) POI, or nil.
-private object live_guard(string poi_file, string uuid)
+// The live object for a census uuid inside its (loaded) POI, or nil. Works for
+// any census NPC (a guard or a vacancy unique), matched by its uuid.
+private object live_census_npc(string poi_file, string uuid)
 {
   object loc;
   object * inv;
@@ -1250,7 +1278,7 @@ private void _remove_guard(string id)
   map_delete(npc_census, id);
   save_me();
 
-  npc = live_guard(e["poi"], id);
+  npc = live_census_npc(e["poi"], id);
   if (npc)
     npc->dest_me();
 
