@@ -13,9 +13,8 @@ void setup()
 
 static int cmd(string str, object me, string verb)
 {
-  object handler, command;
-  string filename, help, result, result_aux;
-  string * aux;
+  object handler;
+  string help, result, result_aux;
   string * categories;
   mapping cmds;
   int i, j, list_mode;
@@ -48,37 +47,27 @@ static int cmd(string str, object me, string verb)
     
     for (j = 0; j < sizeof(cmds[categories[i]]); j++)
     {
-      aux = explode(cmds[categories[i]][j], "/");
-      filename = aux[sizeof(aux) - 1];
-      filename = explode(filename, ".")[0];
+      mapping entry;
+      string name;
+
+      // each entry is the compact ([ "name", "help" ]) the handler built from
+      // the cmd hash: the command's localized display name and its one-line
+      // help. The player only ever types the localized word, and no command
+      // object is loaded to list it.
+      entry = cmds[categories[i]][j];
+      name = entry["name"];
 
       if (list_mode)
       {
-        catch(command = load_object(cmds[categories[i]][j]));
-      
-        if (!command)
-          continue;
-        
-        if (command->query_help())
-        {
-          string * pieces;
-          // help = command->query_help()[0..60];
-          help = command->query_help();
-          pieces = explode(help, "\n");
-          if (sizeof(pieces))
-            help = pieces[0];
-        }
-        else 
-          help = "";
-      
+        help = entry["help"] ? entry["help"] : "";
         if (help != "")
-          result += sprintf("  %13s: %s\n", filename, help);
+          result += sprintf("  %13s: %s\n", name, help);
         else
-          result += sprintf("  %13s\n", filename);
+          result += sprintf("  %13s\n", name);
       }
       else
       {
-        result_aux += filename + "\n";
+        result_aux += name + "\n";
       }
     }
     

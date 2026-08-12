@@ -321,7 +321,11 @@ mapping query_available_cmds_by_category(object player, varargs int filter)
     if (undefinedp(result[category]))
       result[category] = ({ });
 
-    result[category] += ({ cmd_hash[aux[i]]["file"], });
+    // hand back only what a listing needs -- the localized display name and
+    // the one-line help -- not the internal hash entry, so no command object
+    // is loaded to list it
+    result[category] += ({ ([ "name": cmd_hash[aux[i]]["alias"],
+                              "help": cmd_hash[aux[i]]["help"] ]) });
   }
 
   return result;
@@ -458,6 +462,18 @@ int cmd_make_hash(int verbose)
       if (sizeof(aliases) == 0)
         aliases = ({ s });
 
+      // keep just the two short strings a listing prints -- the localized
+      // display name and the one-line help (see commands.c) -- computed here
+      // while the object is already loaded, so listing never reloads a command
+      cmd_hash[s]["alias"] = aliases[0];
+      {
+        string h;
+        h = cmd->query_help();
+        if (h && strlen(h))
+          h = explode(h, "\n")[0];
+        cmd_hash[s]["help"] = h;
+      }
+
       for (k = 0; k < sizeof(aliases); k++)
       {
         if (verbose && (aliases[k] != s))
@@ -536,6 +552,17 @@ int cmd_make_hash(int verbose)
         // if we do not have any alias, as a fallback use the filename
         if (sizeof(aliases) == 0)
           aliases = ({ s });
+
+        // same as the main loop: keep the localized display name and one-line
+        // help on the hash entry so a listing never reloads the command
+        cmd_hash[s]["alias"] = aliases[0];
+        {
+          string h;
+          h = cmd->query_help();
+          if (h && strlen(h))
+            h = explode(h, "\n")[0];
+          cmd_hash[s]["help"] = h;
+        }
 
         for (l = 0; l < sizeof(aliases); l++)
         {
