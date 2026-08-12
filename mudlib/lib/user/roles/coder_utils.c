@@ -22,17 +22,23 @@ static string desc_object(mixed o)
 
 static string desc_f_object(object o)
 {
-  string str; //, tmp;
+  string str, fname;
 
   str = desc_object(o);
 
-  if (o && (str != file_name(o)))
-  {
-    // if (tmp)
-    //   str += " (" + tmp + ")";
-    // else
-      str += " (" + file_name(o) + ")";
-  }
+  if (!o)
+    return str;
+
+  // A location is a generic /lib/location clone, so its file_name is a useless
+  // clone id (/lib/location#N). Its real identity is the save file it restored
+  // from (query_file_name); use that. Plain objects answer nil and keep their
+  // own file_name.
+  fname = o->query_file_name();
+  if (!stringp(fname) || !strlen(fname))
+    fname = file_name(o);
+
+  if (str != fname)
+    str += " (" + fname + ")";
 
   return str;
 }

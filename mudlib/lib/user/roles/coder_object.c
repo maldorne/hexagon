@@ -793,33 +793,63 @@ int trans(string str)
 
 int whereis(string str)
 {
-  object *ov,e;
+  object *ov, e;
   int i;
 
   notify_fail("Where is what?\n");
   ov = wiz_present(str, this_player());
+
+  // wiz_present only reaches the player's vicinity; also add every living that
+  // answers to this name anywhere -- players, NPCs and monsters all register
+  // via set_living_name -- so `whereis <name>` lists them all, which is what
+  // makes it useful for tracking down strays and duplicates
+  {
+    object * all;
+    int a;
+    all = find_all_livings(str);
+    for (a = 0; a < sizeof(all); a++)
+      if (member_array(all[a], ov) < 0)
+        ov += ({ all[a] });
+  }
 
   if (!sizeof(ov))
     return 0;
 
   for (i = 0; i < sizeof(ov); i++)
   {
-    if (ov[i]->query_invis() > 1)
+    mixed invis;
+    string where, fname;
+
+    // non-player objects may not answer query_invis (nil); treat as visible
+    invis = ov[i]->query_invis();
+    if (intp(invis) && invis > 1)
       continue;
 
     if (interactive(ov[i]))
       if (!(this_player()->query_admin() || this_player()->query_thane()))
       {
-        log_file("whereis", this_player()->query_cap_name()+" attempted to locate interactive: " +
-                            ov[i]->query_cap_name()+" ["+ctime(time(),4)+"]\n");
+        log_file("whereis", this_player()->query_cap_name() +
+                 " attempted to locate interactive: " +
+                 ov[i]->query_cap_name() + " [" + ctime(time(), 4) + "]\n");
         write("Sorry, you are not allowed to locate players.\n");
         continue;
       }
 
-    write(desc_object(ov[i]) + " is: \n");
+    // one line per match: the object, then where it is. A location's useful
+    // identity is its save file (query_file_name), not the clone id; deeper
+    // environments are joined with " / ".
+    where = "";
     e = ov[i];
     while (e = environment(e))
-      write("  in " + desc_f_object(e) + "\n");
+    {
+      fname = e->query_file_name();
+      if (!stringp(fname) || !strlen(fname))
+        fname = file_name(e);
+      where += (strlen(where) ? " / " : "") + fname;
+    }
+
+    write("  " + desc_object(ov[i]) + "  ->  " +
+          (strlen(where) ? where : "(nowhere)") + "\n");
   }
 
   return 1;

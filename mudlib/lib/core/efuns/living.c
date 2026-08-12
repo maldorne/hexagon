@@ -39,6 +39,13 @@ static nomask object find_living(string name)
   return LIVING_HANDLER->_find_living(name);
 }
 
+// Every living object that answers to 'name', not just the first. Covers
+// players, NPCs and monsters -- anything that called set_living_name().
+static nomask object * find_all_livings(string name)
+{
+  return LIVING_HANDLER->_find_all_livings(name);
+}
+
 // void set_living_name( string name );
 // Set a living name on an object that is living. After this has been done, the
 // object can be found with "find_living()".

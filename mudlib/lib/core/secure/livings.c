@@ -87,6 +87,17 @@ object _find_living(string name)
   return nil;
 }
 
+// Every object registered under a living name (find_living returns only the
+// first). A copy, so callers cannot mutate the registry.
+object * _find_all_livings(string name)
+{
+  if (undefinedp(_livings[name]))
+    return ({ });
+
+  _livings[name] -= ({ nil });
+  return ({ }) + _livings[name];
+}
+
 int _is_in_livings(object ob)
 {
   object * list;
