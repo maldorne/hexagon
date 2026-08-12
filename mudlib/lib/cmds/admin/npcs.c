@@ -19,10 +19,9 @@ void setup()
 
 static int cmd(string str, object me, string verb)
 {
-  string * args, * orphans, * empties;
+  string * args;
   string game;
   object env;
-  mapping res;
   int apply;
 
   args = (str && strlen(str)) ? explode(str, " ") : ({ });
@@ -46,21 +45,12 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
 
-  res = load_object(AREA_HANDLER)->verify_npc_saves(game, apply);
-  orphans = res["orphans"];
-  empties = res["empty"];
-
-  write("NPC save verify for '" + game + "':\n");
-  write("  orphan folders (a save with no census entry): " + sizeof(orphans) +
-        "\n");
-  write("  empty folders (save already deleted): " + sizeof(empties) + "\n");
-  if (apply)
-    write("  -> deleted " + (sizeof(orphans) + sizeof(empties)) +
-          " folders.\n");
-  else if (sizeof(orphans) + sizeof(empties))
-    write("  run 'npcs verify apply' to delete them.\n");
-  else
-    write("  nothing to clean.\n");
+  // Runs in the background (it may span thousands of areas / folders); the
+  // summary is sent when it finishes.
+  load_object(AREA_HANDLER)->verify_npc_saves(game, apply, me);
+  write("Verifying NPC saves for '" + game + "'" +
+        (apply ? " (deleting orphans)" : "") +
+        " in the background; the summary will follow.\n");
 
   return 1;
 }

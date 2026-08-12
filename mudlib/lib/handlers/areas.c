@@ -3,7 +3,7 @@
 
 mapping loaded_areas;
 
-private void _collect_census_uuids(string dir, mapping referenced);
+private void _delete_folder(string dir);
 private void _delete_npc_folder(string game, string uuid);
 
 void create() {
@@ -101,23 +101,27 @@ int remove_area_if_empty(object area)
   return 1;
 }
 
-// Delete an NPC's entire save folder (every file in it, then the folder). The
-// NPC object is not loaded here, so this deletes the folder directly -- same
-// shape as npc::delete_npc_save, kept scoped to the npcs save tree.
-private void _delete_npc_folder(string game, string uuid)
+// Delete a folder and everything directly in it: every file, then the folder
+// itself. The NPC object is not loaded here, so this works on the folder path
+// directly. Kept scoped to the npcs save tree by its callers.
+private void _delete_folder(string dir)
 {
-  string udir;
   string * files;
   int i;
 
-  udir = npc_save_dir(game, uuid);
-  if (file_size(udir) != -2)
+  if (file_size(dir) != -2)
     return;
 
-  files = (string *)get_dir(udir + "*");
+  files = (string *)get_dir(dir + "*");
   for (i = 0; i < sizeof(files); i++)
-    catch(remove_file(udir + files[i]));
-  catch(rmdir(udir));
+    catch(remove_file(dir + files[i]));
+  catch(rmdir(dir));
+}
+
+// An NPC's save folder, addressed by its canonical shard path.
+private void _delete_npc_folder(string game, string uuid)
+{
+  _delete_folder(npc_save_dir(game, uuid));
 }
 
 // Delete the save folders of every NPC in this area's census. Called when the
@@ -143,91 +147,173 @@ int prune_area_npc_saves(object area)
   return sizeof(uuids);
 }
 
-// Walk the area tree under `dir`, collecting every census NPC uuid into
-// `referenced`. A directory holding an area.o is an area; recurse into
-// subdirs so nested areas (e.g. a road area under a town) are covered too.
-private void _collect_census_uuids(string dir, mapping referenced)
+// --- npcs verify: a chunked, background audit of NPC save folders -----------
+//
+// Every persisted NPC lives in /save/games/<game>/npcs/<letter>/<uuid>/, but
+// only those whose uuid is in some area's census are still real. The rest are
+// orphans left when a census entry was dropped without the NPC dying (a
+// reconversion, a census rebuild, a removed vacancy). This can span thousands
+// of areas and folders (several imported muds), so it runs across ticks via
+// call_out rather than one synchronous pass -- first collecting census uuids,
+// then scanning the save folders -- and reports to the initiator when done.
+//
+// Areas loaded only to read their census are dropped again afterwards, so a
+// verify never leaves hundreds of areas cached in loaded_areas.
+
+#define NPC_VERIFY_COLLECT_CHUNK 20   // area dirs visited per tick
+#define NPC_VERIFY_SCAN_CHUNK   100   // uuid folders checked per tick
+
+// call_out target: one tick of the verify state machine (see verify_npc_saves).
+// Public because the call_out dispatcher reaches it through call_other.
+void _npc_verify_step(mapping st)
 {
-  mixed * entries;
-  int i;
+  int n;
 
-  if (file_size(dir + "area.o") >= 0)
+  // Phase 1: walk the area tree (BFS, so the walk itself is chunked, not just
+  // the loads), collecting every census uuid into st["referenced"].
+  if (st["phase"] == "collect")
   {
-    object area;
-
-    area = query_area(dir);
-    if (area)
+    n = 0;
+    while (n < NPC_VERIFY_COLLECT_CHUNK && sizeof(st["queue"]))
     {
-      string * uuids;
-      uuids = map_indices(area->query_npc_census());
-      for (i = 0; i < sizeof(uuids); i++)
-        referenced[uuids[i]] = 1;
+      string dir;
+      mixed * entries;
+      int i;
+
+      dir = st["queue"][0];
+      st["queue"] = st["queue"][1 ..];
+      n++;
+
+      if (file_size(dir + "area.o") >= 0)
+      {
+        int fresh;
+        object area;
+
+        // don't keep an area cached just because verify touched it
+        fresh = !loaded_areas[dir];
+        area = query_area(dir);
+        if (area)
+        {
+          string * uuids;
+          uuids = map_indices(area->query_npc_census());
+          for (i = 0; i < sizeof(uuids); i++)
+            st["referenced"][uuids[i]] = 1;
+          if (fresh)
+          {
+            map_delete(loaded_areas, area->query_area_path());
+            destruct(area);
+          }
+        }
+      }
+
+      entries = get_dir(dir + "*", -1);
+      for (i = 0; i < sizeof(entries); i++)
+        if (entries[i][1] == -2)   // size -2 marks a directory
+          st["queue"] += ({ dir + entries[i][0] + "/" });
     }
+
+    if (!sizeof(st["queue"]))
+    {
+      st["letters"] = get_dir(st["npcbase"] + "*");
+      st["phase"] = "scan";
+    }
+    call_out("_npc_verify_step", 0, st);
+    return;
   }
 
-  entries = get_dir(dir + "*", -1);
-  for (i = 0; i < sizeof(entries); i++)
-    if (entries[i][1] == -2)   // size -2 marks a directory
-      _collect_census_uuids(dir + entries[i][0] + "/", referenced);
+  // Phase 2: scan the npc save folders shard by shard, classifying each uuid
+  // folder against the collected census and (on apply) deleting the orphans.
+  n = 0;
+  while (n < NPC_VERIFY_SCAN_CHUNK)
+  {
+    string uuid, udir;
+    string * files;
+
+    if (!sizeof(st["uuids"]))
+    {
+      if (!sizeof(st["letters"]))
+        break;
+      st["letter"] = st["letters"][0];
+      st["letters"] = st["letters"][1 ..];
+      // templates live under npcs/templates/, not a uuid shard
+      if (st["letter"] == "templates" ||
+          file_size(st["npcbase"] + st["letter"] + "/") != -2)
+        continue;
+      st["uuids"] = get_dir(st["npcbase"] + st["letter"] + "/*");
+      continue;
+    }
+
+    uuid = st["uuids"][0];
+    st["uuids"] = st["uuids"][1 ..];
+    n++;
+
+    udir = st["npcbase"] + st["letter"] + "/" + uuid + "/";
+    if (file_size(udir) != -2 || st["referenced"][uuid])
+      continue;
+
+    files = (string *)get_dir(udir + "*");
+    if (sizeof(files))
+      st["orphans"] = st["orphans"] + 1;
+    else
+      st["empty"] = st["empty"] + 1;
+
+    // delete the folder exactly where it was found, not a recomputed shard
+    // path, so a misplaced folder is still removed
+    if (st["apply"])
+      _delete_folder(udir);
+  }
+
+  if (sizeof(st["uuids"]) || sizeof(st["letters"]))
+  {
+    call_out("_npc_verify_step", 0, st);
+    return;
+  }
+
+  // done -- report to whoever asked
+  if (st["initiator"])
+  {
+    int total;
+    string msg;
+
+    total = st["orphans"] + st["empty"];
+    msg = "NPC save verify for '" + st["game"] + "':\n" +
+          "  orphan folders (a save with no census entry): " +
+          st["orphans"] + "\n" +
+          "  empty folders (save already deleted): " + st["empty"] + "\n";
+    if (st["apply"])
+      msg += "  -> deleted " + total + " folder" + (total == 1 ? "" : "s") +
+             ".\n";
+    else if (total)
+      msg += "  run 'npcs verify apply' to delete them.\n";
+    else
+      msg += "  nothing to clean.\n";
+    tell_object(st["initiator"], msg);
+  }
 }
 
-// Verify the NPC save folders of `game` against the census: every persisted
-// NPC lives in /save/games/<game>/npcs/<letter>/<uuid>/, but only those whose
-// uuid appears in some area's census are still real. The rest are orphans left
-// when a census entry was dropped without the NPC dying (a reconversion, a
-// census rebuild, a removed vacancy). Returns
-//   ([ "orphans": ({ uuid, ... }),   folders with files but no census entry
-//      "empty":   ({ uuid, ... }) ]) folders already emptied (save deleted)
-// With `apply`, deletes each orphan's whole folder and every empty folder.
-mapping verify_npc_saves(string game, int apply)
+// Start a chunked, background verify of `game`'s NPC save folders (see
+// _npc_verify_step). Reports to `initiator` when it finishes; `apply` deletes
+// the orphans it finds.
+void verify_npc_saves(string game, int apply, object initiator)
 {
-  mapping referenced;
-  string npcbase;
-  string * letters, * orphans, * empties;
-  int i, j;
+  mapping st;
 
-  referenced = ([ ]);
-  _collect_census_uuids("/save/games/" + game + "/locations/areas/", referenced);
+  st = ([
+    "game":       game,
+    "apply":      apply,
+    "initiator":  initiator,
+    "phase":      "collect",
+    "queue":      ({ "/save/games/" + game + "/locations/areas/" }),
+    "referenced": ([ ]),
+    "npcbase":    "/save/games/" + game + "/npcs/",
+    "letters":    ({ }),
+    "letter":     "",
+    "uuids":      ({ }),
+    "orphans":    0,
+    "empty":      0,
+  ]);
 
-  npcbase = "/save/games/" + game + "/npcs/";
-  orphans = ({ });
-  empties = ({ });
-
-  letters = get_dir(npcbase + "*");
-  for (i = 0; i < sizeof(letters); i++)
-  {
-    string ldir;
-    string * uuids;
-
-    // the templates live under npcs/templates/, not a uuid shard -- skip them
-    if (letters[i] == "templates")
-      continue;
-    ldir = npcbase + letters[i] + "/";
-    if (file_size(ldir) != -2)
-      continue;
-
-    uuids = get_dir(ldir + "*");
-    for (j = 0; j < sizeof(uuids); j++)
-    {
-      string udir;
-      string * files;
-
-      udir = ldir + uuids[j] + "/";
-      if (file_size(udir) != -2 || referenced[uuids[j]])
-        continue;
-
-      files = get_dir(udir + "*");
-      if (sizeof(files))
-        orphans += ({ uuids[j] });
-      else
-        empties += ({ uuids[j] });
-
-      if (apply)
-        _delete_npc_folder(game, uuids[j]);
-    }
-  }
-
-  return ([ "orphans": orphans, "empty": empties ]);
+  call_out("_npc_verify_step", 0, st);
 }
 
 string add_location(object location)
