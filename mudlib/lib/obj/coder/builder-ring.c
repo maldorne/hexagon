@@ -724,7 +724,8 @@ int do_poi(string str)
       vs = p[POI_FIELD_VACANCIES];
       for (j = 0; vs && j < sizeof(vs); j++)
       {
-        l = strlen(vs[j][VACANCY_FIELD_ROLE], TRUE);
+        // the role is quoted (it is a name we chose); measure it with quotes
+        l = strlen(vs[j][VACANCY_FIELD_ROLE], TRUE) + 2;
         if (l > w_role) w_role = l;
         l = strlen(get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]), TRUE);
         if (l > w_src) w_src = l;
@@ -756,8 +757,8 @@ int do_poi(string str)
 
       vs = p[POI_FIELD_VACANCIES];
       for (j = 0; vs && j < sizeof(vs); j++)
-        write(sprintf("      vacancy  %-*s  <-  %-*s  %s\n",
-                      w_role, vs[j][VACANCY_FIELD_ROLE],
+        write(sprintf("      vacancy %-*s  template %-*s  %s\n",
+                      w_role, "\"" + vs[j][VACANCY_FIELD_ROLE] + "\"",
                       w_src, get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]),
                       vs[j][VACANCY_FIELD_UUID] ? "[filled]" : "[empty]"));
     }
@@ -884,41 +885,79 @@ int do_npc()
         area->query_area_level() + " (spread " + area->query_area_spread() +
         ")\n";
 
-  // roster: each blueprint's live census count against its area cap
+  // roster: each template's live census count against its area cap. Sources
+  // are template ids (areas/<area>/<npc>); show the npc name, right-align the
+  // counts into columns.
   intended = area->query_npc_intended();
   sources = map_indices(intended);
-  out += "Roster (" + sizeof(sources) + " blueprint" +
-         (sizeof(sources) == 1 ? "" : "s") + "):\n";
-  // sources are template ids (areas/<area>/<npc>); show the npc name
-  for (i = 0; i < sizeof(sources); i++)
-    out += "  " + get_path_file_name(sources[i]) + "  live " +
-           area->query_npc_live_count(sources[i]) + " / cap " +
-           intended[sources[i]]["max"] + "\n";
-  if (!sizeof(sources))
-    out += "  (none)\n";
+  {
+    int * lives;
+    int w_name, w_live, w_cap;
 
-  // vacancies: the named single-instance roles bound to the area's POIs
+    w_name = w_live = w_cap = 0;
+    lives = allocate(sizeof(sources));
+    for (i = 0; i < sizeof(sources); i++)
+    {
+      int l;
+      lives[i] = area->query_npc_live_count(sources[i]);
+      l = strlen(get_path_file_name(sources[i]), TRUE);
+      if (l > w_name) w_name = l;
+      l = strlen("" + lives[i]);
+      if (l > w_live) w_live = l;
+      l = strlen("" + intended[sources[i]]["max"]);
+      if (l > w_cap) w_cap = l;
+    }
+
+    out += "Roster (" + sizeof(sources) + " template" +
+           (sizeof(sources) == 1 ? "" : "s") + "):\n";
+    for (i = 0; i < sizeof(sources); i++)
+      out += sprintf("  %-*s  live %*d / cap %*d\n",
+                     w_name, get_path_file_name(sources[i]),
+                     w_live, lives[i],
+                     w_cap, intended[sources[i]]["max"]);
+    if (!sizeof(sources))
+      out += "  (none)\n";
+  }
+
+  // vacancies: named single-instance roles bound to POIs, each filled from a
+  // data template (the same template id the roster uses). Columns: POI, the
+  // quoted role we chose, and the template it spawns from.
   pois = area->query_pois();
   pkeys = map_indices(pois);
   {
-    int any, j;
-    any = 0;
+    string * v_poi, * v_role, * v_tmpl, * v_state;
+    int w_poi, w_role, w_tmpl, j;
+
+    v_poi = v_role = v_tmpl = v_state = ({ });
     for (i = 0; i < sizeof(pkeys); i++)
     {
       mapping * vs;
       vs = pois[pkeys[i]][POI_FIELD_VACANCIES];
       for (j = 0; vs && j < sizeof(vs); j++)
       {
-        if (!any)
-        {
-          out += "Vacancies:\n";
-          any = 1;
-        }
-        out += "  " + get_path_file_name(pkeys[i]) + "  " +
-               vs[j][VACANCY_FIELD_ROLE] + " <- " +
-               get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]) +
-               (vs[j][VACANCY_FIELD_UUID] ? "  [filled]" : "  [empty]") + "\n";
+        v_poi   += ({ get_path_file_name(pkeys[i]) });
+        v_role  += ({ "\"" + vs[j][VACANCY_FIELD_ROLE] + "\"" });
+        v_tmpl  += ({ get_path_file_name(vs[j][VACANCY_FIELD_SOURCE]) });
+        v_state += ({ vs[j][VACANCY_FIELD_UUID] ? "[filled]" : "[empty]" });
       }
+    }
+
+    if (sizeof(v_poi))
+    {
+      w_poi = w_role = w_tmpl = 0;
+      for (i = 0; i < sizeof(v_poi); i++)
+      {
+        int l;
+        l = strlen(v_poi[i], TRUE);  if (l > w_poi)  w_poi = l;
+        l = strlen(v_role[i], TRUE); if (l > w_role) w_role = l;
+        l = strlen(v_tmpl[i], TRUE); if (l > w_tmpl) w_tmpl = l;
+      }
+
+      out += "Vacancies:\n";
+      for (i = 0; i < sizeof(v_poi); i++)
+        out += sprintf("  %-*s  %-*s  template %-*s  %s\n",
+                       w_poi, v_poi[i], w_role, v_role[i],
+                       w_tmpl, v_tmpl[i], v_state[i]);
     }
   }
 
