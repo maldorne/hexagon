@@ -48,6 +48,7 @@
 // characters
 
 #define _LANG_CMD_CHARACTERS "characters"
+#define _LANG_CMD_CHARACTERS_ALIAS ({ "characters" })
 #define _LANG_CMD_CHARACTERS_HELP "Show every character available in your account."
 #define _LANG_AVAILABLE_CHARACTERS_IN_ACCOUNT "You have the following characters available in your account:\n"
 #define _LANG_CMD_CHARACTERS_NO_LOGIN "You must login first."
@@ -55,6 +56,7 @@
 // games
 
 #define _LANG_CMD_GAMES "games"
+#define _LANG_CMD_GAMES_ALIAS ({ "games" })
 #define _LANG_CMD_GAMES_SYNTAX "games"
 #define _LANG_CMD_GAMES_HELP "List every available game in " + mud_name() + "."
 #define _LANG_CMD_GAMES_AVAILABLE "The following games are available:\n"

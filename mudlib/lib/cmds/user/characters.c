@@ -8,6 +8,7 @@ inherit CMD_BASE;
 
 void setup()
 {
+  set_aliases(_LANG_CMD_CHARACTERS_ALIAS);
   position = 0;
 }
 

@@ -6,6 +6,11 @@
 
 inherit CMD_BASE;
 
+void setup()
+{
+  set_aliases(_LANG_CMD_GAMES_ALIAS);
+}
+
 string query_usage()
 {
   return _LANG_CMD_GAMES_SYNTAX;
