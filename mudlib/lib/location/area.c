@@ -71,6 +71,7 @@ mapping query_vacancy_sources();
 private void _ensure_guards_assigned(string location_file);
 void fill_guards();
 void repost_guards(string poi_file);
+private void _remove_guard(string id);
 
 
 void create() {
@@ -429,6 +430,17 @@ void add_poi(string location_file, string kind, varargs string label)
 
 void remove_poi(string location_file)
 {
+  string * ids;
+  int i;
+
+  // a POI's guards belong to it: drop them (destructing any live) before the
+  // POI itself goes, so removing it never leaves an orphan guard behind
+  ids = map_indices(npc_census);
+  for (i = 0; i < sizeof(ids); i++)
+    if (npc_census[ids[i]]["guard"] &&
+        npc_census[ids[i]]["poi"] == location_file)
+      _remove_guard(ids[i]);
+
   map_delete(pois, location_file);
   save_me();
 }
