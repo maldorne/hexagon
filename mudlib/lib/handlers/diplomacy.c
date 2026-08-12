@@ -113,29 +113,65 @@ private mapping _record(mixed c)
 
 // --- Query side -----------------------------------------------------------
 
-// Is `b` an enemy of `a`? a supplies the graph/game; both may be object,
-// path or name. Neutral (no citizenship) is never an enemy.
-int is_enemy(mixed a, mixed b)
+// The parent citizenship (kingdom) of a name in a game's graph, or "".
+private string _parent_name(string game, string name)
 {
   mapping rec;
-  mixed * rb;
-
-  rec = _record(a);
-  if (!rec || !rec["enemies"])
-    return 0;
-
-  rb = _resolve(b);
-  if (!rb || !strlen(rb[0]))
-    return 0;
-
-  return member_array(rb[0], rec["enemies"]) != -1;
+  rec = _relations(game)[name];
+  return (rec && stringp(rec["parent"])) ? rec["parent"] : "";
 }
 
-// Is `b` an ally of `a` (or the same citizenship)?
+// A name together with its parent kingdom, so a relation declared at either
+// level is seen. The empty parent is dropped.
+private string * _self_and_parent(string game, string name)
+{
+  string p;
+  p = _parent_name(game, name);
+  return strlen(p) ? ({ name, p }) : ({ name });
+}
+
+// Is `b` an enemy of `a`? a supplies the graph/game; both may be object, path
+// or name. Relations cascade through the parent: a town is at war with whatever
+// its kingdom is at war with, so a is `b`'s enemy if any level of a (itself or
+// its kingdom) lists any level of b (itself or its kingdom) as an enemy.
+// Neutral (no citizenship) is never an enemy.
+int is_enemy(mixed a, mixed b)
+{
+  mixed * ra, * rb;
+  string * aset, * bset;
+  string game;
+  int i, j;
+
+  ra = _resolve(a);
+  rb = _resolve(b);
+  if (!ra || !rb || !strlen(ra[0]) || !strlen(rb[0]))
+    return 0;
+
+  game = ra[1];                 // a supplies the graph/game
+  aset = _self_and_parent(game, ra[0]);
+  bset = _self_and_parent(game, rb[0]);
+
+  for (i = 0; i < sizeof(aset); i++)
+  {
+    mapping rec;
+    rec = _relations(game)[aset[i]];
+    if (!rec || !pointerp(rec["enemies"]))
+      continue;
+    for (j = 0; j < sizeof(bset); j++)
+      if (member_array(bset[j], rec["enemies"]) != -1)
+        return 1;
+  }
+  return 0;
+}
+
+// Is `b` an ally of `a` (or the same citizenship, or a sibling town of the same
+// kingdom)? Allies cascade through the parent like enemies do.
 int is_ally(mixed a, mixed b)
 {
-  mapping rec;
   mixed * ra, * rb;
+  string * aset, * bset;
+  string game, pa, pb;
+  int i, j;
 
   ra = _resolve(a);
   rb = _resolve(b);
@@ -143,13 +179,31 @@ int is_ally(mixed a, mixed b)
     return 0;
 
   if (ra[0] == rb[0])
+    return 1;                   // same citizenship
+
+  game = ra[1];
+
+  // a citizenship and its own kingdom, and two towns of one kingdom, are allies
+  pa = _parent_name(game, ra[0]);
+  pb = _parent_name(game, rb[0]);
+  if (strlen(pa) && (pa == rb[0] || pa == pb))
+    return 1;
+  if (strlen(pb) && pb == ra[0])
     return 1;
 
-  rec = _record(a);
-  if (!rec || !rec["allies"])
-    return 0;
-
-  return member_array(rb[0], rec["allies"]) != -1;
+  aset = _self_and_parent(game, ra[0]);
+  bset = _self_and_parent(game, rb[0]);
+  for (i = 0; i < sizeof(aset); i++)
+  {
+    mapping rec;
+    rec = _relations(game)[aset[i]];
+    if (!rec || !pointerp(rec["allies"]))
+      continue;
+    for (j = 0; j < sizeof(bset); j++)
+      if (member_array(bset[j], rec["allies"]) != -1)
+        return 1;
+  }
+  return 0;
 }
 
 int query_security_level(mixed c)
