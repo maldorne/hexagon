@@ -10,7 +10,7 @@
 // that set as more of a source's data needs to survive conversion. Behaviour
 // that a data template cannot represent (custom code, per-spawn random()
 // variety, movement started in setup) is identified by manual review during
-// conversion — see dev/area-npc-system.md.
+// conversion.
 
 #include <living/persisted.h>
 

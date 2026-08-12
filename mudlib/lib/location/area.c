@@ -19,14 +19,14 @@ string area_path;
 int gives_exploration;
 string exploration_name;
 
-// Dynamic NPC population (see dev/area-npc-system.md). Both are keyed by the
-// NPC's blueprint path (its "source").
+// Dynamic NPC population. Both are keyed by the NPC's source path (the
+// hand-authored .c it is cloned from).
 //   npc_intended: configuration -- what may spawn here and how many.
-//     ([ blueprint_path : ([ "category": ({ ids }) or nil, "max": int ]) ])
+//     ([ npc_path : ([ "category": ({ ids }) or nil, "max": int ]) ])
 //   (Fine-grained placement -- which location/POI, sector-type weighting --
 //    is layered on in F2; F1 spawns anywhere in the area up to the cap.)
 //   npc_census:   live state -- which concrete NPCs exist and where.
-//     ([ uuid : ([ "source": blueprint_path, "location": location_file,
+//     ([ uuid : ([ "source": npc_path, "location": location_file,
 //                  "savefile": npc.o path ]) ])
 // The census is the authoritative summary of the area's population; NPC
 // objects are materialized into a location on load and drained on unload,
@@ -34,9 +34,9 @@ string exploration_name;
 mapping npc_intended;
 mapping npc_census;
 // Per-location NPC provenance from the room2loc conversion:
-//   ([ location_file : ([ blueprint_path : count ]) ])
-// This is the seed for npc_intended: the area cap for a blueprint is the sum
-// of that blueprint's add_clone counts across every room of the area. Keeping
+//   ([ location_file : ([ npc_path : count ]) ])
+// This is the seed for npc_intended: the area cap for a source is the sum
+// of that source's add_clone counts across every room of the area. Keeping
 // it per location makes reconversion idempotent (a location overwrites only
 // its own entry) without reloading the whole area.
 mapping npc_sources;
@@ -57,12 +57,12 @@ mapping pois;
 int area_level;
 int area_spread;
 
-// The citizenship this area belongs to (a name in the diplomacy graph, e.g.
-// "naduk"). Guards fielded at the area's town entrances and squares follow
-// this citizenship: the diplomacy handler tells us how many (its security
-// level) and which NPC source they spawn from (its guard). Change this and,
-// on the next fill, the old guards are replaced by the new citizenship's --
-// this is how an invaded town swaps its human guards for the invaders'.
+// The citizenship this area belongs to (a name in the diplomacy graph).
+// Guards fielded at the area's town entrances and squares follow this
+// citizenship: the diplomacy handler tells us how many (its security level)
+// and which NPC source they spawn from (its guard). Change this and, on the
+// next fill, the old guards are replaced by the new citizenship's -- this is
+// how an invaded town swaps its guards for the conqueror's.
 string citizenship;
 
 // prototype functions
@@ -141,7 +141,7 @@ object * query_maze_locations()
 }
 
 // The full save path of this area
-// (e.g. /save/games/rl-aeternum/locations/areas/elfereth/rooms/), set
+// (e.g. /save/games/<game>/locations/areas/<area>/rooms/), set
 // by the area handler when the storage is created.
 string query_area_path() { return area_path; }
 
@@ -149,8 +149,8 @@ string query_area_path() { return area_path; }
  * Short identifier of the area: everything after the "areas/" segment
  * of the storage path, with the trailing "/" stripped.
  *
- * For "/save/games/rl-aeternum/locations/areas/elfereth/rooms/" this
- * returns "elfereth/rooms"; nested area trees (e.g. an inner-city
+ * For "/save/games/<game>/locations/areas/<area>/rooms/" this
+ * returns "<area>/rooms"; nested area trees (e.g. an inner-city
  * sub-area) keep their inner structure in the name. Falls back to the
  * full path if "areas/" is not present.
  */
@@ -281,7 +281,7 @@ void set_npc_intended(mapping m)
 }
 
 // Declare (or replace) an intended NPC for this area. `source` is the NPC's
-// blueprint path -- it is the identity (census key) and is snapshotted into a
+// source path -- it is the identity (census key) and is snapshotted into a
 // data template on first spawn. `categories` is an optional coarse-type list
 // stamped on the NPC, `max` the area-wide population cap.
 void add_intended_npc(string source, string * categories, int max)
@@ -299,32 +299,33 @@ void remove_intended_npc(string source)
 mapping query_npc_sources() { return npc_sources; }
 
 // Recompute npc_intended from the per-location conversion provenance: the
-// area cap for a blueprint is the sum of its add_clone counts across every
+// area cap for a source is the sum of its add_clone counts across every
 // room of the area.
 //
 // Three kinds of source are deliberately kept out of the statistical roster,
 // re-applied here so a reconversion cannot leak them back into the population:
-//   - a blueprint claimed by a vacancy (a unique the POI system places by hand)
+//   - a source claimed by a vacancy (a unique the POI system places by hand)
 //   - the area citizenship's guard (diplomacy places it at guarded POIs)
-//   - anything that is not a living blueprint (add_clone also clones trees and
-//     props, which are not NPCs)
+//   - anything that is not a living NPC source (add_clone also clones trees
+//     and props, which are not NPCs)
 private void _recompute_intended()
 {
-  string * locs, * blueprints;
+  string * location_files, * npc_paths;
   int i, j;
-  mapping totals, clones, vacancy_sources;
+  mapping counts, clones_here, vacancy_sources;
   string guard_source;
 
-  totals = ([ ]);
-  locs = map_indices(npc_sources);
-  for (i = 0; i < sizeof(locs); i++)
+  // sum each NPC source's add_clone count across every location of the area
+  counts = ([ ]);
+  location_files = map_indices(npc_sources);
+  for (i = 0; i < sizeof(location_files); i++)
   {
-    clones = npc_sources[locs[i]];
-    blueprints = map_indices(clones);
-    for (j = 0; j < sizeof(blueprints); j++)
-      totals[blueprints[j]] =
-        (totals[blueprints[j]] ? totals[blueprints[j]] : 0) +
-        clones[blueprints[j]];
+    clones_here = npc_sources[location_files[i]];
+    npc_paths = map_indices(clones_here);
+    for (j = 0; j < sizeof(npc_paths); j++)
+      counts[npc_paths[j]] =
+        (counts[npc_paths[j]] ? counts[npc_paths[j]] : 0) +
+        clones_here[npc_paths[j]];
   }
 
   vacancy_sources = query_vacancy_sources();
@@ -338,33 +339,33 @@ private void _recompute_intended()
       "/obj/citizenships/" + citizenship);
 
   npc_intended = ([ ]);
-  blueprints = map_indices(totals);
-  for (i = 0; i < sizeof(blueprints); i++)
+  npc_paths = map_indices(counts);
+  for (i = 0; i < sizeof(npc_paths); i++)
   {
-    object bp;
+    object npc;
 
     // a unique bound to a vacancy is placed by the POI system, never by
     // the population sweep
-    if (vacancy_sources[blueprints[i]])
+    if (vacancy_sources[npc_paths[i]])
       continue;
 
     // the area citizenship's guard is diplomacy-placed, not filler
-    if (strlen(guard_source) && blueprints[i] == guard_source)
+    if (strlen(guard_source) && npc_paths[i] == guard_source)
       continue;
 
-    // only living blueprints count towards the NPC population; skip trees,
+    // only living NPC sources count towards the population; skip trees,
     // props and other non-living add_clone sources
-    bp = nil;
-    catch(bp = load_object(blueprints[i]));
-    if (!bp || !bp->query_monster())
+    npc = nil;
+    catch(npc = load_object(npc_paths[i]));
+    if (!npc || !npc->query_monster())
       continue;
 
-    npc_intended[blueprints[i]] = ([ "category": nil,
-                                     "max": totals[blueprints[i]] ]);
+    npc_intended[npc_paths[i]] = ([ "category": nil,
+                                    "max": counts[npc_paths[i]] ]);
   }
 }
 
-// Record a converted location's NPC blueprints (its source room's add_clone
+// Record a converted location's NPC sources (its source room's add_clone
 // counts, kept on the location as _original_add_clones) and recompute the area
 // cap. Idempotent: reconverting a location overwrites only its own entry. This
 // is the room2loc seed for the area's population.
@@ -464,7 +465,7 @@ mapping * query_vacancies(string location_file)
 }
 
 // Declare a vacancy on a location's POI: a named `role` filled from a
-// unique NPC blueprint `source`. Starts unfilled. No-op if the location
+// unique NPC `source`. Starts unfilled. No-op if the location
 // has no POI or the role already exists.
 void add_vacancy(string location_file, string role, string source)
 {
@@ -537,7 +538,7 @@ void set_vacancy_uuid(string location_file, string role, string uuid)
     }
 }
 
-// The set of blueprint sources claimed by a vacancy anywhere in the area,
+// The set of NPC sources claimed by a vacancy anywhere in the area,
 // as ([ source : 1 ]). Used by _recompute_intended to keep vacancy uniques
 // out of the statistical population.
 mapping query_vacancy_sources()
@@ -648,7 +649,7 @@ void set_citizenship(string name)
 
   // re-post guards at every guarded POI: drop the old citizenship's guards and
   // field the new one's. This is the invasion path -- flip the citizenship and
-  // the human guards become the invaders'.
+  // the guards become the conqueror's.
   locs = map_indices(pois);
   for (i = 0; i < sizeof(locs); i++)
     repost_guards(locs[i]);

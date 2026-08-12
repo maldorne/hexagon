@@ -66,7 +66,7 @@ void dest_me()
 
 // Resolve a citizenship reference to ({ name, game }). Accepts a citizenship
 // object, its path, or a bare name (game then nil). Name is the file's base
-// name (naduk.c -> "naduk"); game comes from the path.
+// name (foo.c -> "foo"); game comes from the path.
 private mixed * _resolve(mixed c)
 {
   string path, name, game;
