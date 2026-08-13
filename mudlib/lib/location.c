@@ -526,6 +526,15 @@ string long(varargs string str, int dark)
 
   ret = wrap(ret, (this_user() ? this_user()->query_cols() : 79), 1);
 
+  // Atmospheric extra-look contributions, appended under the description
+  // as their own line: the outside component's weather line (via the
+  // "extra_look" reduce hook) and any legacy add_extra_look() objects.
+  // Empty for locations with no such contributor (e.g. interiors with no
+  // outside component), so this is safe to append unconditionally.
+  aux = calc_extra_look();
+  if (aux && strlen(aux))
+    ret += aux;
+
   if (this_player()->query_coder())
   {
     aux = query_components_string();

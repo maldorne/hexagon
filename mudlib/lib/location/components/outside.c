@@ -81,8 +81,9 @@ mixed hook_long(mixed * args)
 
 string hook_extra_look(mixed * args)
 {
-  return (string)handler(WEATHER_HANDLER)->weather_string(query_my_location())
-         + "\n";
+  // weather_string already ends in a newline, so do not add another or the
+  // description gains a blank line under the weather report.
+  return (string)handler(WEATHER_HANDLER)->weather_string(query_my_location());
 }
 
 mixed * stats()
