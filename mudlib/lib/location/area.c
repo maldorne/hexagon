@@ -943,6 +943,24 @@ private void _ensure_vacancies_assigned(string location_file)
 // template applied. If it already has a savefile (it was live before), restore
 // its state on top; otherwise this is its first materialization (freshly
 // assigned by the population sweep) and we save it so its state persists.
+// The template's own name for a gender (a GENDER_* id): its "trade" word (e.g.
+// "granjero"), used as an alias on a generated citizen. A fixed-gender template
+// stores a plain string; a bimodal one a per-gender mapping keyed by the gender
+// id as a string (matching how the bestiary stores per-gender fields).
+private string _template_kind(mapping t, int gender)
+{
+  mixed v;
+
+  if (!t)
+    return nil;
+  v = t["name"];
+  if (stringp(v))
+    return v;
+  if (mappingp(v))
+    return v["" + gender];
+  return nil;
+}
+
 private object npc_restore(string id, object loc)
 {
   object npc;
@@ -1012,10 +1030,26 @@ private object npc_restore(string id, object loc)
 
   // A sentient role slot is a named individual: it was named before the
   // template ran (see above), so the template kept the body/description but not
-  // the name. The template did overwrite the short with its generic one, so put
-  // the individual's name back as the capitalized short.
+  // the name. Finish the individual here:
+  //   - the short: the template overwrote it with its generic one, so put the
+  //     individual's name back as the capitalized short;
+  //   - the gender: a single-gender template forces its own gender in
+  //     apply_template, so re-assert the census gender (which the citizen rolled
+  //     for itself) so a female citizen is not turned male by a male template;
+  //   - the aliases: keep the template's own kind word as an alias (on top of
+  //     the template's aliases that apply_template already set), so the citizen
+  //     still answers to its trade ("kill farmer" as well as "kill Lothadric").
   if (entry["name"])
+  {
+    string kind;
+
     npc->set_short(entry["name"]);
+    npc->set_gender(entry["gender"]);
+    kind = _template_kind(BESTIARY_HANDLER->query_template(game, source),
+                          entry["gender"]);
+    if (kind && strlen(kind))
+      npc->add_alias(kind);
+  }
 
   spec = npc_intended[source];
   if (spec && spec["category"])
@@ -1540,7 +1574,14 @@ private string assign_npc_to_role(string name, mapping role)
 
   game = game_from_path(area_path);
   id = UUID_OB->uuid();
-  gender = decide_gender(game, source);
+
+  // A sentient citizen rolls its own gender (a fair coin), independent of the
+  // transitional template's -- otherwise a single-gender template (a male
+  // farmer.c) would make every citizen male. Fauna/vacancies keep the
+  // template-driven gender.
+  gender = role["sentient"]
+             ? (random(2) ? GENDER_FEMALE : GENDER_MALE)
+             : decide_gender(game, source);
 
   npc_census[id] = ([ "source":   source,
                       "location": work,
