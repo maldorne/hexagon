@@ -86,6 +86,7 @@ private void _recompute_intended();
 private object live_census_npc(string poi_file, string uuid);
 private void _ensure_guards_assigned(string location_file);
 private void _equip_npc(object npc, string * paths);
+private string * _resolve_equipment(mixed * spec);
 void fill_guards();
 void repost_guards(string poi_file);
 private void _remove_guard(string id);
@@ -1052,21 +1053,31 @@ private object npc_restore(string id, object loc)
       npc->add_alias(kind);
   }
 
-  // A role-board NPC wears the kit its role defines (equipment-by-role):
-  // role-level, so every holder wears the same; a POI vacancy or a guard (which
-  // also carry a "role") is excluded.
-  if (entry["role"] && !entry["poi"] && !entry["guard"] && roles[entry["role"]])
-    _equip_npc(npc, roles[entry["role"]]["equipment"]);
-
   spec = npc_intended[source];
   if (spec && spec["category"])
     npc->set_npc_categories(spec["category"]);
 
+  // Equipment lives on the NPC (its npc.o), never in the census. On the FIRST
+  // materialization (no savefile yet) a role NPC rolls its role's kit once and
+  // equips it, then save_npc persists the gear. On any later materialization
+  // restore_npc brings the saved gear back and init_equip re-wears/wields it,
+  // so the citizen keeps exactly the same equipment for life. Vacancies and
+  // guards (which also carry a "role") are excluded.
   savefile = entry["savefile"];
   if (savefile && file_size(savefile) >= 0)
+  {
     npc->restore_npc();
+    npc->init_equip();
+  }
   else
+  {
+    if (entry["role"] && !entry["poi"] && !entry["guard"] &&
+        roles[entry["role"]] &&
+        pointerp(roles[entry["role"]]["equipment"]) &&
+        sizeof(roles[entry["role"]]["equipment"]))
+      _equip_npc(npc, _resolve_equipment(roles[entry["role"]]["equipment"]));
     npc->save_npc();
+  }
 
   npc->move(loc);
 
@@ -1537,12 +1548,44 @@ private void _equip_npc(object npc, string * paths)
   npc->init_equip();
 }
 
-// Set the kit a role's NPCs wear: an array of item blueprint paths (weapons,
-// armour, clothes). Equipment is role-level (every holder wears the same) and
-// the single source of a citizen's gear -- kept off the template so template
-// and role never fight over what to wield. Applied to already-live holders now
-// (add_clone works on a live NPC) and to future ones at materialization.
-void set_role_equipment(string name, string * paths)
+// Resolve a role's equipment spec into one concrete kit. The spec is an array
+// of slots; each slot is an array of interchangeable blueprints and one is
+// picked at random (a fixed item is just a one-element slot). This is rolled
+// ONCE per NPC at assignment and stored on the census entry, so a citizen keeps
+// the same weapon for life instead of re-rolling every time it materializes.
+private string * _resolve_equipment(mixed * spec)
+{
+  string * kit;
+  int i;
+
+  kit = ({ });
+  if (!pointerp(spec))
+    return kit;
+
+  for (i = 0; i < sizeof(spec); i++)
+  {
+    mixed slot;
+    slot = spec[i];
+    if (pointerp(slot) && sizeof(slot))
+      kit += ({ slot[random(sizeof(slot))] });
+    else if (stringp(slot))
+      kit += ({ slot });
+  }
+
+  return kit;
+}
+
+// Set the kit a role's NPCs wear. `spec` is an array of slots; each slot is an
+// array of interchangeable item blueprints, one of which each NPC rolls (a
+// fixed item is a one-element slot). Equipment is role-level and the single
+// source of a citizen's gear -- kept off the template so template and role
+// never fight over what to wield.
+//
+// Already-live holders that have no kit yet get one rolled, stored and equipped
+// now; holders that already carry a stored kit are left untouched -- once a
+// citizen is created and saved its gear never changes. New holders roll their
+// kit at assignment (see assign_npc_to_role).
+void set_role_equipment(string name, mixed * spec)
 {
   object loc;
   object * inv;
@@ -1550,7 +1593,7 @@ void set_role_equipment(string name, string * paths)
 
   if (!roles[name])
     return;
-  roles[name]["equipment"] = paths ? paths : ({ });
+  roles[name]["equipment"] = pointerp(spec) ? spec : ({ });
   save_me();
 
   loc = loaded_location(roles[name]["work"]);
@@ -1566,8 +1609,15 @@ void set_role_equipment(string name, string * paths)
       continue;
     uuid = inv[i]->query_npc_uuid();
     e = uuid ? npc_census[uuid] : nil;
-    if (e && e["role"] == name && !e["poi"] && !e["guard"])
-      _equip_npc(inv[i], paths);
+    if (!e || e["role"] != name || e["poi"] || e["guard"])
+      continue;
+    // gear a holder that has none yet (created before the kit was set); one
+    // that already carries gear keeps it -- a saved citizen's gear never
+    // changes. The kit is rolled, equipped and saved onto the NPC's own npc.o.
+    if (sizeof(all_inventory(inv[i])))
+      continue;
+    _equip_npc(inv[i], _resolve_equipment(roles[name]["equipment"]));
+    inv[i]->save_npc();
   }
 }
 

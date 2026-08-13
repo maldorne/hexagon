@@ -13,7 +13,11 @@
 #include <living/persisted.h>
 #include <areas/area.h>
 
-inherit monster "/lib/monster.c";
+inherit monster   "/lib/monster.c";
+// Inventory persistence, the same mixin players use: create_auto_load snapshots
+// the carried items into a saveable map, load_auto_load rebuilds them. This is
+// what lets an NPC keep its own equipment on its npc.o across reboots.
+inherit autoload  "/lib/core/basic/auto_load.c";
 
 // Persisted into the NPC's own savefile so a restored NPC knows who it is.
 string npc_uuid;         // census identity; nil/"" => not a persisted NPC
@@ -25,6 +29,8 @@ string npc_source;       // blueprint path this NPC was spawned from; the
                          // NPC describe itself without a census lookup.
 string * npc_categories; // coarse types (aggressive/animal/citizen/...); a
                          // single NPC can carry several. Empty => derived.
+mapping npc_auto_load;   // the NPC's carried inventory, encoded for save_object
+                         // (same shape as a player's auto_load)
 
 void create()
 {
@@ -36,6 +42,7 @@ void create()
   npc_poi = nil;
   npc_source = nil;
   npc_categories = ({ });
+  npc_auto_load = ([ ]);
 }
 
 // Generic NPC: no hard-coded content. A hand-authored subclass overrides this.
@@ -109,6 +116,10 @@ int save_npc()
   dir = npc_save_dir(npc_game, npc_uuid);
   // save_object does not create directories; mkdir is recursive here
   mkdir(dir);
+  // snapshot the carried inventory (weapons, armour, clothes, anything) into
+  // the auto-load map so save_object persists it -- exactly as a player saves
+  // its inventory
+  npc_auto_load = create_auto_load(all_inventory(this_object()));
   return !catch(save_object(dir + NPC_SAVE_FILE, 1));
 }
 
@@ -116,10 +127,17 @@ int save_npc()
 // (uuid + game) first. Inert for a non-persisted NPC.
 int restore_npc()
 {
+  int ok;
+
   if (!query_persisted() || !npc_game)
     return 0;
 
-  return restore_object(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE, 1);
+  ok = restore_object(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE, 1);
+  // rebuild the saved inventory (each item cloned and its attributes applied)
+  // inside us, so a restored NPC carries exactly what it was saved with
+  if (ok)
+    load_auto_load(npc_auto_load, this_object());
+  return ok;
 }
 
 // Delete the NPC's entire save folder on death: every file in it, then the

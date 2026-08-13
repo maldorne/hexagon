@@ -22,7 +22,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
 #define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> >"
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role>> >"
-#define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c>... | remove <name> | list >"
+#define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 // intro line + "commands:" header are translated (name/description/help);
 // the command syntax below stays English -- coder verbs are not localized
@@ -937,12 +937,15 @@ int do_role(string str)
 
   if (verb == "equip")
   {
-    string * paths;
-    int i;
+    mixed * spec;
+    string * tokens;
+    int t;
 
     if (sizeof(args) < 3)
     {
-      notify_fail("Usage: build role equip <name> <item.c> [<item.c> ...]\n");
+      notify_fail("Usage: build role equip <name> <item.c[|alt.c...]> ...\n" +
+                  "  Each argument is one slot; join alternatives with '|' and " +
+                  "each NPC rolls one (e.g. weapons/club|weapons/sickle).\n");
       return 0;
     }
     if (!area->query_role(args[1]))
@@ -951,18 +954,31 @@ int do_role(string str)
       return 0;
     }
 
-    // validate every blueprint exists before storing the kit
-    paths = args[2 ..];
-    for (i = 0; i < sizeof(paths); i++)
-      if (file_size(paths[i]) < 0 && file_size(paths[i] + ".c") < 0)
-      {
-        notify_fail("No item blueprint at '" + paths[i] + "'.\n");
-        return 0;
-      }
+    // one slot per argument; '|' inside a slot lists interchangeable items.
+    // Validate every blueprint exists before storing the kit.
+    tokens = args[2 ..];
+    spec = ({ });
+    for (t = 0; t < sizeof(tokens); t++)
+    {
+      string * alts;
+      int a;
 
-    area->set_role_equipment(args[1], paths);
-    write("Role '" + args[1] + "' kit: " + implode(paths, ", ") +
-          " (applies on next materialization).\n");
+      alts = explode(tokens[t], "|") - ({ "" });
+      if (!sizeof(alts))
+        continue;
+      for (a = 0; a < sizeof(alts); a++)
+        if (file_size(alts[a]) < 0 && file_size(alts[a] + ".c") < 0)
+        {
+          notify_fail("No item blueprint at '" + alts[a] + "'.\n");
+          return 0;
+        }
+      spec += ({ alts });
+    }
+
+    area->set_role_equipment(args[1], spec);
+    write("Role '" + args[1] + "' kit set: " + sizeof(spec) +
+          " slot" + (sizeof(spec) == 1 ? "" : "s") +
+          " (new citizens roll their gear; existing keep theirs).\n");
     return 1;
   }
 
