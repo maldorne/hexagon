@@ -60,7 +60,8 @@ string * many = NAMEGEN_OB->generate_names(path, 8);       // eight at once
 NAMEGEN_OB->reset_cache();                                 // after editing a list
 ```
 
-`generate_name` returns a capitalised name, or `nil` if the wordlist is missing
+`generate_name` returns a lowercase name (capitalise it yourself when you
+display it), or `nil` if the wordlist is missing
 or empty. `order`, `min_len` and `max_len` are optional (0 = default). Each
 wordlist is read and modelled once, then cached per `order`.
 

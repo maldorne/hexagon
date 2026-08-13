@@ -170,7 +170,8 @@ private string sample(mapping model, int max_len)
 // Generate one name from a per-culture wordlist file. `order`, `min_len` and
 // `max_len` are optional (0 = use the defaults). Rejects results that are too
 // short, too long, or an exact copy of a source example, resampling up to
-// NG_MAX_TRIES; returns nil only if the wordlist is missing or empty.
+// NG_MAX_TRIES; returns nil only if the wordlist is missing or empty. The name
+// is lowercase (like a stored id); capitalise it at display time.
 string generate_name(string path, varargs int order, int min_len, int max_len)
 {
   mapping model;
@@ -203,13 +204,13 @@ string generate_name(string path, varargs int order, int min_len, int max_len)
 
     name = s;
     if (strlen(s) >= min_len && strlen(s) <= max_len)
-      return capitalize(s);
+      return s;
   }
 
   // no sample passed the length filter: return the last non-copy we saw, or
   // nil if every single sample reproduced a source name (order too high for
   // this wordlist) so the caller can react rather than get a copy
-  return strlen(name) ? capitalize(name) : nil;
+  return strlen(name) ? name : nil;
 }
 
 // Generate `count` names from the same wordlist. Missing/empty wordlist

@@ -87,6 +87,7 @@ private object live_census_npc(string poi_file, string uuid);
 private void _ensure_guards_assigned(string location_file);
 private void _equip_npc(object npc, string * paths);
 private string * _resolve_equipment(mixed * spec);
+private string generate_citizen_name(int gender);
 void fill_guards();
 void repost_guards(string poi_file);
 private void _remove_guard(string id);
@@ -873,11 +874,12 @@ string assign_npc(string source, string location_file)
   // nothing here loads the original monster .c
   game = game_from_path(area_path);
 
+  // The census is a lean roster -- who/where/what. Per-individual state
+  // (gender, level, inventory, a generated name) is not stored here: it is
+  // decided at first materialization and lives on the NPC's own npc.o.
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": location_file,
-                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
-                      "gender": decide_gender(game, source),
-                      "level": decide_level(game, source) ]);
+                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE ]);
   save_me();
 
   return id;
@@ -898,8 +900,6 @@ private string assign_vacancy_npc(string source, string location_file,
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": location_file,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
-                      "gender": decide_gender(game, source),
-                      "level": decide_level(game, source),
                       "poi": location_file, "role": role ]);
   save_me();
 
@@ -945,29 +945,12 @@ private void _ensure_vacancies_assigned(string location_file)
 // template applied. If it already has a savefile (it was live before), restore
 // its state on top; otherwise this is its first materialization (freshly
 // assigned by the population sweep) and we save it so its state persists.
-// The template's own name for a gender (a GENDER_* id): its "trade" word (e.g.
-// "granjero"), used as an alias on a generated citizen. A fixed-gender template
-// stores a plain string; a bimodal one a per-gender mapping keyed by the gender
-// id as a string (matching how the bestiary stores per-gender fields).
-private string _template_kind(mapping t, int gender)
-{
-  mixed v;
-
-  if (!t)
-    return nil;
-  v = t["name"];
-  if (stringp(v))
-    return v;
-  if (mappingp(v))
-    return v["" + gender];
-  return nil;
-}
-
 private object npc_restore(string id, object loc)
 {
   object npc;
   string game, source, savefile;
-  mapping spec, entry;
+  mapping spec, entry, role;
+  int first, sentient, gender;
 
   entry = npc_census[id];
   game = game_from_path(area_path);
@@ -996,60 +979,66 @@ private object npc_restore(string id, object loc)
   if (entry["poi"])
     npc->set_npc_poi(entry["poi"]);
 
-  // Fix the census gender before applying the template so a bimodal template
-  // picks the matching per-gender strings. Older census entries predate the
-  // stored gender -- decide and backfill one so they stay stable from now on.
-  if (!entry["gender"])
-  {
-    entry["gender"] = decide_gender(game, source);
-    npc_census[id] = entry;
-    save_me();
-  }
-  npc->set_gender(entry["gender"]);
+  // A sentient role-board slot is a named, self-gendered citizen; anything else
+  // (fauna, a POI vacancy, a guard) takes its gender from the template. A slot
+  // is a role-board slot only when tagged "role" with no "poi"/"guard".
+  role = (entry["role"] && !entry["poi"] && !entry["guard"]) ? roles[entry["role"]] : nil;
+  sentient = role && role["sentient"];
 
-  // A sentient role slot is a named individual. Name it BEFORE the template
-  // runs: monster::set_name takes only the first name (it seeds the NPC's
-  // living_name and refuses later renames), so setting our generated name here
-  // makes it the real name and the template's generic set_name becomes a no-op.
-  // The name is stored lowercase (matching / living_name); the short is put
-  // back to the capitalized name after the template overwrites it below.
-  if (entry["name"])
-    npc->set_name(lower_case(entry["name"]));
+  savefile = entry["savefile"];
+  first = !(savefile && file_size(savefile) >= 0);
+
+  // Gender, level and inventory live on the NPC's own npc.o (save_object
+  // persists them), not the census. On restore they come back with the object;
+  // on the first materialization they are decided once here and the save at the
+  // end persists them. A sentient citizen rolls its own gender.
+  if (!first)
+    npc->restore_npc();
+  else
+    npc->set_gender(sentient ? (random(2) ? GENDER_FEMALE : GENDER_MALE)
+                             : decide_gender(game, source));
+  gender = npc->query_gender();
+
+  // A sentient citizen's proper name is generated once, on the first
+  // materialization, using its gender, and stored on the NPC itself
+  // (npc_given_name -> npc.o) because id.c's `name` is static and never saved.
+  // Do it BEFORE the template: monster::set_name takes only the first name, so
+  // ours wins and the template's generic one is a no-op. On a restore the name
+  // was already re-seeded by restore_npc above.
+  if (first && sentient)
+  {
+    string gname;
+    gname = generate_citizen_name(gender);
+    if (gname)
+      npc->set_given_name(gname);
+  }
 
   npc->apply_template(BESTIARY_HANDLER->query_template(game, source));
 
-  // The level is decided once at assignment and stored in the census, so an
-  // NPC keeps the level it was created with (independent of later changes to
-  // the area's average). Older census entries predate the stored level --
-  // decide and backfill one so they stay stable from now on.
-  if (!entry["level"])
-  {
-    entry["level"] = decide_level(game, source);
-    npc_census[id] = entry;
-    save_me();
-  }
-  npc->set_level(entry["level"]);
+  // level: decided once from the area on the first materialization; on restore
+  // it came back with the object
+  if (first)
+    npc->set_level(decide_level(game, source));
 
-  // A sentient role slot is a named individual: it was named before the
-  // template ran (see above), so the template kept the body/description but not
-  // the name. Finish the individual here:
-  //   - the short: the template overwrote it with its generic one, so put the
-  //     individual's name back as the capitalized short;
-  //   - the gender: a single-gender template forces its own gender in
-  //     apply_template, so re-assert the census gender (which the citizen rolled
-  //     for itself) so a female citizen is not turned male by a male template;
-  //   - the aliases: keep the template's own kind word as an alias (on top of
-  //     the template's aliases that apply_template already set), so the citizen
-  //     still answers to its trade ("kill farmer" as well as "kill Lothadric").
-  if (entry["name"])
+  // Finish a named individual: put its name back as the short the template
+  // overwrote, re-assert its own gender over a single-gender template's, and
+  // keep the template's trade word as an alias so it still answers to its kind
+  // ("kill farmer" as well as "kill Lothadric").
+  if (npc->query_given_name())
   {
-    string kind;
+    mapping t;
+    mixed kind;
 
-    npc->set_short(entry["name"]);
-    npc->set_gender(entry["gender"]);
-    kind = _template_kind(BESTIARY_HANDLER->query_template(game, source),
-                          entry["gender"]);
-    if (kind && strlen(kind))
+    npc->set_short(capitalize(npc->query_given_name()));
+    npc->set_gender(gender);
+
+    // the template's trade word, per gender (a fixed template stores a string,
+    // a bimodal one a per-gender map keyed by the gender id as a string)
+    t = BESTIARY_HANDLER->query_template(game, source);
+    kind = t ? t["name"] : nil;
+    if (mappingp(kind))
+      kind = kind["" + gender];
+    if (stringp(kind) && strlen(kind))
       npc->add_alias(kind);
   }
 
@@ -1057,27 +1046,17 @@ private object npc_restore(string id, object loc)
   if (spec && spec["category"])
     npc->set_npc_categories(spec["category"]);
 
-  // Equipment lives on the NPC (its npc.o), never in the census. On the FIRST
-  // materialization (no savefile yet) a role NPC rolls its role's kit once and
-  // equips it, then save_npc persists the gear. On any later materialization
-  // restore_npc brings the saved gear back and init_equip re-wears/wields it,
-  // so the citizen keeps exactly the same equipment for life. Vacancies and
-  // guards (which also carry a "role") are excluded.
-  savefile = entry["savefile"];
-  if (savefile && file_size(savefile) >= 0)
+  // Equipment on the npc.o: on the first materialization a role NPC rolls its
+  // role's kit once, equips it and the save below persists it; on restore the
+  // inventory came back with restore_npc, so just re-wear/wield it.
+  if (first)
   {
-    npc->restore_npc();
-    npc->init_equip();
-  }
-  else
-  {
-    if (entry["role"] && !entry["poi"] && !entry["guard"] &&
-        roles[entry["role"]] &&
-        pointerp(roles[entry["role"]]["equipment"]) &&
-        sizeof(roles[entry["role"]]["equipment"]))
-      _equip_npc(npc, _resolve_equipment(roles[entry["role"]]["equipment"]));
+    if (role && pointerp(role["equipment"]) && sizeof(role["equipment"]))
+      _equip_npc(npc, _resolve_equipment(role["equipment"]));
     npc->save_npc();
   }
+  else
+    npc->init_equip();
 
   npc->move(loc);
 
@@ -1299,8 +1278,6 @@ private string assign_guard_npc(string source, string poi_file)
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": poi_file,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
-                      "gender": decide_gender(game, source),
-                      "level": decide_level(game, source),
                       "poi": poi_file, "guard": 1 ]);
   save_me();
 
@@ -1641,13 +1618,13 @@ int count_role_npcs(string name)
   return n;
 }
 
-// A generated given-name for a sentient role slot: the name generator draws it
-// from the area citizenship's name style, in the form matching the slot's
-// gender (a GENDER_* id). Returns nil when the area has no citizenship, the
-// citizenship declares no name style, or the generator has no wordlist for it
-// -- the slot then keeps its template's name. Decided once at assignment and
-// stored, so the individual materializes as the same person every time.
-private string generate_role_name(int gender)
+// A generated given-name (lowercase) for one of this area's citizens: the name
+// generator draws it from the area citizenship's name style, in the form
+// matching the given gender (a GENDER_* id). It does not depend on the role.
+// Returns nil when the area has no citizenship, the citizenship declares no
+// name style, or the generator has no wordlist for it -- the NPC then keeps its
+// template's name.
+private string generate_citizen_name(int gender)
 {
   string cpath, style, word;
   object cit;
@@ -1677,8 +1654,7 @@ private string generate_role_name(int gender)
 // non-sentient slot is a plain template clone. Returns the uuid.
 private string assign_npc_to_role(string name, mapping role)
 {
-  string id, game, source, work, gname;
-  int gender;
+  string id, game, source, work;
 
   source = role["source"];
   work = role["work"];
@@ -1688,30 +1664,13 @@ private string assign_npc_to_role(string name, mapping role)
   game = game_from_path(area_path);
   id = UUID_OB->uuid();
 
-  // A sentient citizen rolls its own gender (a fair coin), independent of the
-  // transitional template's -- otherwise a single-gender template (a male
-  // farmer.c) would make every citizen male. Fauna/vacancies keep the
-  // template-driven gender.
-  gender = role["sentient"]
-             ? (random(2) ? GENDER_FEMALE : GENDER_MALE)
-             : decide_gender(game, source);
-
+  // Data-only roster entry. The individual (gender, generated name, level,
+  // equipment) is materialized and persisted on its own npc.o at first load
+  // (npc_restore); nothing per-individual is stored in the census.
   npc_census[id] = ([ "source":   source,
                       "location": work,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
-                      "gender":   gender,
-                      "level":    decide_level(game, source),
                       "role":     name ]);
-
-  // a named citizen: generate a given-name now and store it, so the NPC (and
-  // every later re-materialization of this slot) is the same individual
-  if (role["sentient"])
-  {
-    gname = generate_role_name(gender);
-    if (gname)
-      npc_census[id]["name"] = gname;
-  }
-
   save_me();
 
   return id;

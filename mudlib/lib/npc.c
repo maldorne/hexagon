@@ -31,6 +31,12 @@ string * npc_categories; // coarse types (aggressive/animal/citizen/...); a
                          // single NPC can carry several. Empty => derived.
 mapping npc_auto_load;   // the NPC's carried inventory, encoded for save_object
                          // (same shape as a player's auto_load)
+string npc_given_name;   // a generated citizen's proper name (e.g. "thorin").
+                         // id.c's `name` is static (never saved), so the one bit
+                         // of a generated NPC's identity that is not code/template
+                         // derived lives here, in the npc.o. Language-neutral (a
+                         // proper noun does not translate). Nil for template NPCs,
+                         // whose name comes from apply_template.
 
 void create()
 {
@@ -43,7 +49,23 @@ void create()
   npc_source = nil;
   npc_categories = ({ });
   npc_auto_load = ([ ]);
+  npc_given_name = nil;
 }
+
+// Give this NPC a generated proper name: store it (persisted in npc.o) and set
+// it as the engine name (the find_living id), lowercased. Call on a freshly
+// cloned NPC, before any template names it -- monster::set_name only takes the
+// first name. A generated citizen's short/long still come from the template.
+void set_given_name(string s)
+{
+  // stored lowercase, like every name in a savefile / the find_living id;
+  // capitalise it only where it is displayed
+  npc_given_name = s ? lower_case(s) : s;
+  if (npc_given_name && strlen(npc_given_name))
+    set_name(npc_given_name);
+}
+
+string query_given_name() { return npc_given_name; }
 
 // Generic NPC: no hard-coded content. A hand-authored subclass overrides this.
 void setup()
@@ -133,10 +155,16 @@ int restore_npc()
     return 0;
 
   ok = restore_object(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE, 1);
-  // rebuild the saved inventory (each item cloned and its attributes applied)
-  // inside us, so a restored NPC carries exactly what it was saved with
   if (ok)
+  {
+    // rebuild the saved inventory (each item cloned and its attributes applied)
+    // inside us, so a restored NPC carries exactly what it was saved with
     load_auto_load(npc_auto_load, this_object());
+    // id.c's `name` is static and was not restored; re-seed the find_living id
+    // from the saved given name so a restored citizen answers to itself again
+    if (npc_given_name && strlen(npc_given_name))
+      set_name(lower_case(npc_given_name));
+  }
   return ok;
 }
 
