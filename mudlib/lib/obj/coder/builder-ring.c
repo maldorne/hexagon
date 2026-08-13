@@ -22,7 +22,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
 #define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> >"
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role>> >"
-#define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | remove <name> | list >"
+#define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c>... | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 // intro line + "commands:" header are translated (name/description/help);
 // the command syntax below stays English -- coder verbs are not localized
@@ -893,7 +893,7 @@ int do_role(string str)
   if (!sizeof(args))
   {
     notify_fail("Usage: build role < add <name> <count> <source.c> | " +
-                "remove <name> | list >\n");
+                "equip <name> <item.c>... | remove <name> | list >\n");
     return 0;
   }
   verb = args[0];
@@ -935,6 +935,37 @@ int do_role(string str)
     return 1;
   }
 
+  if (verb == "equip")
+  {
+    string * paths;
+    int i;
+
+    if (sizeof(args) < 3)
+    {
+      notify_fail("Usage: build role equip <name> <item.c> [<item.c> ...]\n");
+      return 0;
+    }
+    if (!area->query_role(args[1]))
+    {
+      notify_fail("No role '" + args[1] + "' in this area.\n");
+      return 0;
+    }
+
+    // validate every blueprint exists before storing the kit
+    paths = args[2 ..];
+    for (i = 0; i < sizeof(paths); i++)
+      if (file_size(paths[i]) < 0 && file_size(paths[i] + ".c") < 0)
+      {
+        notify_fail("No item blueprint at '" + paths[i] + "'.\n");
+        return 0;
+      }
+
+    area->set_role_equipment(args[1], paths);
+    write("Role '" + args[1] + "' kit: " + implode(paths, ", ") +
+          " (applies on next materialization).\n");
+    return 1;
+  }
+
   if (verb == "list")
   {
     mapping roles;
@@ -962,7 +993,7 @@ int do_role(string str)
   }
 
   notify_fail("Usage: build role < add <name> <count> <source.c> | " +
-              "remove <name> | list >\n");
+              "equip <name> <item.c>... | remove <name> | list >\n");
   return 0;
 }
 

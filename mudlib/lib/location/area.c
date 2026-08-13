@@ -85,6 +85,7 @@ mapping query_vacancy_sources();
 private void _recompute_intended();
 private object live_census_npc(string poi_file, string uuid);
 private void _ensure_guards_assigned(string location_file);
+private void _equip_npc(object npc, string * paths);
 void fill_guards();
 void repost_guards(string poi_file);
 private void _remove_guard(string id);
@@ -1051,6 +1052,12 @@ private object npc_restore(string id, object loc)
       npc->add_alias(kind);
   }
 
+  // A role-board NPC wears the kit its role defines (equipment-by-role):
+  // role-level, so every holder wears the same; a POI vacancy or a guard (which
+  // also carry a "role") is excluded.
+  if (entry["role"] && !entry["poi"] && !entry["guard"] && roles[entry["role"]])
+    _equip_npc(npc, roles[entry["role"]]["equipment"]);
+
   spec = npc_intended[source];
   if (spec && spec["category"])
     npc->set_npc_categories(spec["category"]);
@@ -1489,6 +1496,8 @@ mapping query_role(string name) { return roles[name]; }
 // whether it is a named citizen (no clone-respawn). Stores the template id.
 void add_role(string name, int count, string work, string source, int sentient)
 {
+  mixed * kit;
+
   if (!name || !strlen(name) || count < 0)
     return;
 
@@ -1501,11 +1510,65 @@ void add_role(string name, int count, string work, string source, int sentient)
     source = _template_id(source);
   }
 
-  roles[name] = ([ "count":    count,
-                   "work":     work,
-                   "source":   source,
-                   "sentient": sentient ? 1 : 0 ]);
+  // preserve a role's equipment across a re-declaration (build role add on an
+  // existing role only changes count/work/source, not its kit)
+  kit = (roles[name] && pointerp(roles[name]["equipment"]))
+          ? roles[name]["equipment"] : ({ });
+
+  roles[name] = ([ "count":     count,
+                   "work":      work,
+                   "source":    source,
+                   "sentient":  sentient ? 1 : 0,
+                   "equipment": kit ]);
   save_me();
+}
+
+// Give one NPC the kit a role defines: monster::add_clone clones each blueprint
+// straight into it, then init_equip wears / wields the lot. Used both when a
+// role NPC first materializes and when a live role's kit is changed.
+private void _equip_npc(object npc, string * paths)
+{
+  int i;
+
+  if (!npc || !pointerp(paths) || !sizeof(paths))
+    return;
+  for (i = 0; i < sizeof(paths); i++)
+    npc->add_clone(paths[i], 1);
+  npc->init_equip();
+}
+
+// Set the kit a role's NPCs wear: an array of item blueprint paths (weapons,
+// armour, clothes). Equipment is role-level (every holder wears the same) and
+// the single source of a citizen's gear -- kept off the template so template
+// and role never fight over what to wield. Applied to already-live holders now
+// (add_clone works on a live NPC) and to future ones at materialization.
+void set_role_equipment(string name, string * paths)
+{
+  object loc;
+  object * inv;
+  int i;
+
+  if (!roles[name])
+    return;
+  roles[name]["equipment"] = paths ? paths : ({ });
+  save_me();
+
+  loc = loaded_location(roles[name]["work"]);
+  if (!loc)
+    return;
+  inv = all_inventory(loc);
+  for (i = 0; i < sizeof(inv); i++)
+  {
+    string uuid;
+    mapping e;
+
+    if (!inv[i] || !inv[i]->query_persisted())
+      continue;
+    uuid = inv[i]->query_npc_uuid();
+    e = uuid ? npc_census[uuid] : nil;
+    if (e && e["role"] == name && !e["poi"] && !e["guard"])
+      _equip_npc(inv[i], paths);
+  }
 }
 
 // Live count of a role's staff: census entries tagged with this role that are
