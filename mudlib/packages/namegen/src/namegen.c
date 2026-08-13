@@ -24,6 +24,9 @@
 #define NG_START "^"         // padding before a word; never emitted
 #define NG_END   "$"         // marks the end of a word; stops the walk
 
+// Where the packaged starter wordlists live (used by generate_for).
+#define NG_COLLECTIONS "/packages/namegen/collections/"
+
 // Cache: "path|order" -> ([ "order": n, "table": ngram, "words": examples ]).
 // A wordlist is read and modelled once, then reused across calls.
 private mapping models;
@@ -228,6 +231,37 @@ string * generate_names(string path, int count, varargs int order,
   }
 
   return out;
+}
+
+// Generate a name for a named collection and gender from the packaged
+// wordlists. Resolves the path as collections/<collection>.<gender>.names,
+// falling back to collections/<collection>.names when a collection has no
+// gendered lists (e.g. an androgynous one). `gender` is "male" / "female" (or
+// ""); the other arguments are the same optional order/min/max as
+// generate_name. Returns nil when no wordlist is found, so a caller can fall
+// back to its own naming.
+string generate_for(string collection, string gender, varargs int order,
+                    int min_len, int max_len)
+{
+  string path;
+
+  if (!collection || !strlen(collection))
+    return nil;
+
+  path = nil;
+  if (gender && strlen(gender))
+  {
+    string gendered;
+    gendered = NG_COLLECTIONS + collection + "." + gender + ".names";
+    if (file_size(gendered) > 0)
+      path = gendered;
+  }
+  if (!path)
+    path = NG_COLLECTIONS + collection + ".names";
+  if (file_size(path) <= 0)
+    return nil;
+
+  return generate_name(path, order, min_len, max_len);
 }
 
 // Drop every cached model, so an edited wordlist is re-read on next use.

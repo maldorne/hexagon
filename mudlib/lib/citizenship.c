@@ -9,11 +9,21 @@ inherit "/lib/core/object.c";
 // mixed *job_commands = ({ });
 string init_room;
 
+// The name style for this citizenship's people: the basename of a wordlist
+// collection (e.g. "humans.fantasy"), used to give generated citizens names in
+// the right style. "" means no generated names -- sentient NPCs then keep
+// their template's name.
+string name_style;
+
 void create()
 {
   init_room = "";
+  name_style = "";
   ::create();
 }
+
+string query_name_style() { return name_style; }
+void set_name_style(string str) { name_style = str ? str : ""; }
 
 int query_legal_race(string race) { return(1); }
 int query_legal_player(object player) { return 1; }

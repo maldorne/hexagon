@@ -5,6 +5,8 @@ inherit "/lib/core/object.c";
 #include <areas/area.h>
 #include <areas/poi.h>
 #include <areas/diplomacy.h>
+#include <room/prop.h>
+#include <namegen.h>
 
 // mapping in the form ([ file_name : location_data ])
 mapping locations;
@@ -984,6 +986,16 @@ private object npc_restore(string id, object loc)
     save_me();
   }
   npc->set_gender(entry["gender"]);
+
+  // A sentient role slot is a named individual. Name it BEFORE the template
+  // runs: monster::set_name takes only the first name (it seeds the NPC's
+  // living_name and refuses later renames), so setting our generated name here
+  // makes it the real name and the template's generic set_name becomes a no-op.
+  // The name is stored lowercase (matching / living_name); the short is put
+  // back to the capitalized name after the template overwrites it below.
+  if (entry["name"])
+    npc->set_name(lower_case(entry["name"]));
+
   npc->apply_template(BESTIARY_HANDLER->query_template(game, source));
 
   // The level is decided once at assignment and stored in the census, so an
@@ -997,6 +1009,13 @@ private object npc_restore(string id, object loc)
     save_me();
   }
   npc->set_level(entry["level"]);
+
+  // A sentient role slot is a named individual: it was named before the
+  // template ran (see above), so the template kept the body/description but not
+  // the name. The template did overwrite the short with its generic one, so put
+  // the individual's name back as the capitalized short.
+  if (entry["name"])
+    npc->set_short(entry["name"]);
 
   spec = npc_intended[source];
   if (spec && spec["category"])
@@ -1475,13 +1494,44 @@ int count_role_npcs(string name)
   return n;
 }
 
+// A generated given-name for a sentient role slot: the name generator draws it
+// from the area citizenship's name style, in the form matching the slot's
+// gender (a GENDER_* id). Returns nil when the area has no citizenship, the
+// citizenship declares no name style, or the generator has no wordlist for it
+// -- the slot then keeps its template's name. Decided once at assignment and
+// stored, so the individual materializes as the same person every time.
+private string generate_role_name(int gender)
+{
+  string cpath, style, word;
+  object cit;
+
+  cpath = query_citizenship_path();
+  if (!strlen(cpath))
+    return nil;
+
+  cit = load_object(cpath);
+  if (!cit)
+    return nil;
+
+  style = cit->query_name_style();
+  if (!style || !strlen(style))
+    return nil;
+
+  word = (gender == GENDER_FEMALE) ? "female" : "male";
+  // order 3 with a length window keeps results name-like without copying the
+  // source list; see packages/namegen for the quality/size trade-off
+  return NAMEGEN_OB->generate_for(style, word, 3, 4, 9);
+}
+
 // Record one census NPC for a role, at its work location. Data-only -- it
-// materializes when the work location loads (npc_restore). This is the single
-// seam the F4 generator replaces: today it clones the role's transitional
-// template; later it generates a named individual. Returns the uuid.
+// materializes when the work location loads (npc_restore). This is the seam
+// the F4 generator plugs into: a sentient slot is given a generated name here
+// (the rest of its body still comes from the transitional template); a
+// non-sentient slot is a plain template clone. Returns the uuid.
 private string assign_npc_to_role(string name, mapping role)
 {
-  string id, game, source, work;
+  string id, game, source, work, gname;
+  int gender;
 
   source = role["source"];
   work = role["work"];
@@ -1490,12 +1540,24 @@ private string assign_npc_to_role(string name, mapping role)
 
   game = game_from_path(area_path);
   id = UUID_OB->uuid();
+  gender = decide_gender(game, source);
+
   npc_census[id] = ([ "source":   source,
                       "location": work,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
-                      "gender":   decide_gender(game, source),
+                      "gender":   gender,
                       "level":    decide_level(game, source),
                       "role":     name ]);
+
+  // a named citizen: generate a given-name now and store it, so the NPC (and
+  // every later re-materialization of this slot) is the same individual
+  if (role["sentient"])
+  {
+    gname = generate_role_name(gender);
+    if (gname)
+      npc_census[id]["name"] = gname;
+  }
+
   save_me();
 
   return id;
