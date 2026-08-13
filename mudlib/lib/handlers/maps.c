@@ -207,16 +207,19 @@ string add_location(object location)
         location_data["ways"] = ways;
     }
 
-    // Lift the boundary-crossing exits (any traversable direction, not just
-    // road/path): for each exit whose one-step destination lands in a
-    // neighbouring sector, record that neighbour coordinate. These are the
-    // sector's A* "ports" — the coarse pathfinder walks sector to sector, the
-    // fine one stitches location paths through the recorded crossings.
+    // Lift the movement graph: every traversable exit (any direction, not just
+    // road/path) as direction -> the neighbouring coordinate it leads to (one
+    // step in that direction). This full edge set (location_data["edges"]) is
+    // what the fine pathfinder walks by direct lookup. The subset of those
+    // edges whose destination lands in a neighbouring sector is also recorded
+    // as location_data["boundary"] -- the sector's A* "ports", read by the
+    // coarse pathfinder (sector to sector) and to stitch a path across a border.
     {
-      mapping exit_map;
+      mapping exit_map, edge_map;
       string * dirs, * boundary;
 
       exit_map = location->query_exit_map();
+      edge_map = ([ ]);
       boundary = ({ });
 
       if (mappingp(exit_map))
@@ -226,20 +229,28 @@ string add_location(object location)
         {
           int * d;
           int tx, ty, tz;
+          string cdir, to;
 
-          d = _dir_delta(ROOM_HAND->canonical_dir(dirs[i]));
+          cdir = ROOM_HAND->canonical_dir(dirs[i]);
+          d = _dir_delta(cdir);
           if (!d)
             continue;
           tx = x + d[0];
           ty = y + d[1];
           tz = z + d[2];
+          to = "" + tx + "_" + ty + "_" + tz;
+
+          edge_map[cdir] = to;
+
           if (tx / 10 - (tx < 0) != sector_x ||
               ty / 10 - (ty < 0) != sector_y ||
               tz / 10 - (tz < 0) != sector_z)
-            boundary += ({ "" + tx + "_" + ty + "_" + tz });
+            boundary += ({ to });
         }
       }
 
+      if (map_sizeof(edge_map))
+        location_data["edges"] = edge_map;
       if (sizeof(boundary))
         location_data["boundary"] = boundary;
     }

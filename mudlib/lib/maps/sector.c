@@ -5,12 +5,22 @@ inherit "/lib/core/object.c";
 
 // mapping in the form ([ file_name : location_data ])
 mapping locations;
-// mapping in the form ([ x_y_z : file_name ])
-mapping positions;
-// mapping in the form ([ x_y_z : 1 ]) for coords whose location is a
-// maze — kept parallel to positions so consumers can tag / skip
-// entries without a full location load.
-mapping maze_positions;
+// The graph NODES of this sector, keyed by coordinate "x_y_z". Each node is a
+// small record about the location at that coordinate:
+//   ([ "file": location_file, "maze": 0/1 ])
+// It merges what used to be two parallel per-coordinate maps (a coord->file
+// map and a coord->maze flag) into one, so a consumer resolves a coordinate in
+// a single lookup and new per-node data can be added here later. The graph
+// EDGES live in `edges` below.
+mapping nodes;
+// The graph EDGES, keyed by coordinate: every traversable exit of the node at
+// that coordinate, as ([ direction : "tx_ty_tz" ]) -> the neighbouring
+// coordinate it leads to (one step in that direction, possibly in an adjacent
+// sector). This is the full movement graph a pathfinder walks by direct lookup
+// (edges[coord]); way_exits and boundary_exits below are pre-materialised
+// SUBSETS of it, kept separately so the map renderer and the coarse sector
+// graph read a small map without scanning every node.
+mapping edges;
 // mapping in the form ([ sector_type : count ]) — how many locations
 // in this sector carry each cartography component. Populated by
 // add_location() and decremented by remove_location(); consumers read
@@ -44,8 +54,8 @@ void save_me();
 
 void create() {
   locations = ([ ]);
-  positions = ([ ]);
-  maze_positions = ([ ]);
+  nodes = ([ ]);
+  edges = ([ ]);
   type_counts = ([ ]);
   way_exits = ([ ]);
   boundary_exits = ([ ]);
@@ -73,18 +83,33 @@ void save_me() {
   save_object(file_name);
 }
 
-mapping query_positions() { return positions; }
+mapping query_nodes() { if (!nodes) nodes = ([ ]); return nodes; }
+mapping query_edges() { if (!edges) edges = ([ ]); return edges; }
 mapping query_locations() { return locations; }
-mapping query_maze_positions()
+
+// Coordinate -> location file, derived from the nodes. A compatibility view for
+// the few (cold) consumers that only want the old coord->file map; the graph
+// itself is queried through query_nodes().
+mapping query_positions()
 {
-  if (!maze_positions) maze_positions = ([ ]);
-  return maze_positions;
+  mapping result;
+  string * keys;
+  int i;
+
+  if (!nodes) nodes = ([ ]);
+  result = ([ ]);
+  keys = map_indices(nodes);
+  for (i = 0; i < sizeof(keys); i++)
+    result[keys[i]] = nodes[keys[i]]["file"];
+  return result;
 }
 
 int is_maze_at(int x, int y, int z)
 {
-  if (!maze_positions) return 0;
-  return maze_positions["" + x + "_" + y + "_" + z] ? 1 : 0;
+  mapping node;
+  if (!nodes) return 0;
+  node = nodes["" + x + "_" + y + "_" + z];
+  return (node && node["maze"]) ? 1 : 0;
 }
 
 string query_file_name() { return file_name; }
@@ -114,7 +139,8 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   string * old_types, * new_types;
   int i;
 
-  if (!maze_positions) maze_positions = ([ ]);
+  if (!nodes) nodes = ([ ]);
+  if (!edges) edges = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
   if (!boundary_exits) boundary_exits = ([ ]);
@@ -122,15 +148,21 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   key = "" + x + "_" + y + "_" + z;
   previous = locations[location_file_name];
   locations[location_file_name] = map_copy(location_data);
-  positions[key] = location_file_name;
 
-  // location_data may carry a "maze" flag lifted from the location's
-  // component set — record it so pathfinding can filter without
-  // touching the location object.
-  if (location_data && location_data["maze"])
-    maze_positions[key] = 1;
+  // The node record for this coordinate: its file and whether it is a maze
+  // (lifted from the location's component set so pathfinding can filter without
+  // loading the location). Extend this record when more per-node data is needed.
+  nodes[key] = ([ "file": location_file_name,
+                  "maze": (location_data && location_data["maze"]) ? 1 : 0 ]);
+
+  // location_data may carry an "edges" mapping ([ direction : "tx_ty_tz" ]) --
+  // every traversable exit of this coordinate and the neighbouring coordinate
+  // it leads to (the full movement graph). Store it, or clear a stale entry.
+  if (location_data && location_data["edges"] &&
+      map_sizeof(location_data["edges"]))
+    edges[key] = map_copy(location_data["edges"]);
   else
-    map_delete(maze_positions, key);
+    map_delete(edges, key);
 
   // location_data may carry a "ways" mapping ([ direction : way_type ])
   // holding this coordinate's path / road exits, lifted from the
@@ -186,7 +218,8 @@ void remove_location(string location_file_name)
   string * old_types;
   int i;
 
-  if (!maze_positions) maze_positions = ([ ]);
+  if (!nodes) nodes = ([ ]);
+  if (!edges) edges = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
   if (!boundary_exits) boundary_exits = ([ ]);
@@ -208,14 +241,14 @@ void remove_location(string location_file_name)
 
   map_delete(locations, location_file_name);
 
-  // also strip the coords -> file_name reverse mapping
-  pos_keys = map_indices(positions);
+  // also strip every coordinate this file occupied from the graph
+  pos_keys = map_indices(nodes);
   for (i = 0; i < sizeof(pos_keys); i++)
   {
-    if (positions[pos_keys[i]] == location_file_name)
+    if (nodes[pos_keys[i]]["file"] == location_file_name)
     {
-      map_delete(positions, pos_keys[i]);
-      map_delete(maze_positions, pos_keys[i]);
+      map_delete(nodes, pos_keys[i]);
+      map_delete(edges, pos_keys[i]);
       map_delete(way_exits, pos_keys[i]);
       map_delete(boundary_exits, pos_keys[i]);
     }
@@ -235,25 +268,26 @@ void remove_position(string coord_key)
   string * pos_keys;
   int i, still_here;
 
-  if (!maze_positions) maze_positions = ([ ]);
+  if (!nodes) nodes = ([ ]);
+  if (!edges) edges = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
   if (!boundary_exits) boundary_exits = ([ ]);
 
-  if (undefinedp(positions[coord_key]))
+  if (undefinedp(nodes[coord_key]))
     return;
 
-  file = positions[coord_key];
-  map_delete(positions, coord_key);
-  map_delete(maze_positions, coord_key);
+  file = nodes[coord_key]["file"];
+  map_delete(nodes, coord_key);
+  map_delete(edges, coord_key);
   map_delete(way_exits, coord_key);
   map_delete(boundary_exits, coord_key);
 
   // is the file still present under any other coordinate here?
   still_here = 0;
-  pos_keys = map_indices(positions);
+  pos_keys = map_indices(nodes);
   for (i = 0; i < sizeof(pos_keys); i++)
-    if (positions[pos_keys[i]] == file)
+    if (nodes[pos_keys[i]]["file"] == file)
     {
       still_here = 1;
       break;
