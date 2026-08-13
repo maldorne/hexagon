@@ -80,7 +80,7 @@ int has_template(string game, string source)
 
 // Field keys whose value can legitimately differ between a male and a female
 // spawn of the same source (name, description, plural forms). The rest of the
-// data (race, class, level, alignment, weight) is gender-independent.
+// data (race, class, alignment) is gender-independent.
 private string * gendered_keys()
 {
   return ({ "name", "short", "long", "main_plural", "aliases", "plurals" });
@@ -107,13 +107,16 @@ private mapping gendered_fields(object npc)
 // A template may still be given an explicit "level" by hand to pin a concrete
 // level, or a "level_area_modifier" to sit a fixed number of levels above or
 // below the area average.
+//
+// Weight is likewise NOT captured: set_race_ob already sets the body weight from
+// the race (living::social set_weight(query_race_weight())), so the race decides
+// it when the template's race_ob is applied.
 private mapping nongendered_fields(object npc)
 {
   return ([
     "race_ob":  npc->query_race_ob(),
     "class_ob": npc->query_class_ob(),
     "align":    npc->query_real_align(),
-    "weight":   npc->query_weight(),
   ]);
 }
 

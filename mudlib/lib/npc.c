@@ -237,6 +237,6 @@ void apply_template(mapping t)
     set_level(t["level"]);
   if (t["align"])
     set_real_align(t["align"]);
-  if (t["weight"])
-    set_weight(t["weight"]);
+  // weight is not applied here: set_race_ob above already set the body weight
+  // from the race, which is where it belongs
 }
