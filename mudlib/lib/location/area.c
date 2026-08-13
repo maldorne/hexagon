@@ -1020,16 +1020,17 @@ private object npc_restore(string id, object loc)
   if (first)
     npc->set_level(decide_level(game, source));
 
-  // Finish a named individual: put its name back as the short the template
-  // overwrote, re-assert its own gender over a single-gender template's, and
-  // keep the template's trade word as an alias so it still answers to its kind
-  // ("kill farmer" as well as "kill Lothadric").
+  // Finish a named individual. Its short stays the template's kind word --
+  // npc::query_cap_name shows that in room lists and combat so it does not read
+  // like a player; the proper name is the find_living id and shows on examine.
+  // Re-assert its own gender over a single-gender template's, and keep the
+  // template's kind word as an alias so the NPC still answers to its trade as
+  // well as to its proper name.
   if (npc->query_given_name())
   {
     mapping t;
     mixed kind;
 
-    npc->set_short(capitalize(npc->query_given_name()));
     npc->set_gender(gender);
 
     // the template's trade word, per gender (a fixed template stores a string,

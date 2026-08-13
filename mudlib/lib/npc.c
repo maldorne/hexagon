@@ -31,7 +31,7 @@ string * npc_categories; // coarse types (aggressive/animal/citizen/...); a
                          // single NPC can carry several. Empty => derived.
 mapping npc_auto_load;   // the NPC's carried inventory, encoded for save_object
                          // (same shape as a player's auto_load)
-string npc_given_name;   // a generated citizen's proper name (e.g. "thorin").
+string npc_given_name;   // a generated citizen's proper name (lowercase).
                          // id.c's `name` is static (never saved), so the one bit
                          // of a generated NPC's identity that is not code/template
                          // derived lives here, in the npc.o. Language-neutral (a
@@ -66,6 +66,42 @@ void set_given_name(string s)
 }
 
 string query_given_name() { return npc_given_name; }
+
+// A generated citizen is shown by its kind, not its proper name, wherever
+// query_cap_name drives the display -- room / glance lists, combat and death
+// messages, emotes -- so it never reads like a player. Its proper name
+// (npc_given_name) stays the find_living id and targeting key, and is surfaced
+// only when you examine it. Only NPCs we gave a generated name are affected;
+// every other object (fauna, uniques, players) keeps the default cap_name.
+string query_cap_name()
+{
+  if (npc_given_name && strlen(npc_given_name))
+    return query_short();
+  return ::query_cap_name();
+}
+
+// When you examine a generated citizen directly its short reveals the proper
+// name -- "<kind> (<Name>)" -- while query_cap_name above keeps room lists and
+// combat on the bare kind. `short()` is what the look command prints as the
+// examine header; query_short (the raw kind) is left untouched so cap_name and
+// the plural stay clean.
+string short(varargs int dark)
+{
+  if (npc_given_name && strlen(npc_given_name))
+    return query_short() + " (" + capitalize(npc_given_name) + ")";
+  return ::short(dark);
+}
+
+// The room-contents grouping keys on pretty_short. Keep it on the bare kind so
+// same-kind citizens collapse into one line (a count plus the plural) instead
+// of each listing separately -- the name lives only on short() (the examine
+// header) and must not leak into the grouping key.
+string pretty_short(varargs int dark)
+{
+  if (npc_given_name && strlen(npc_given_name))
+    return query_short();
+  return ::pretty_short(dark);
+}
 
 // Generic NPC: no hard-coded content. A hand-authored subclass overrides this.
 void setup()
