@@ -18,6 +18,9 @@
 
 #define MAPS_HANDLER "/lib/handlers/maps"
 #define MAP_SECTOR_STORAGE_OBJECT "/lib/maps/sector"
+// Fine (room-to-room) pathfinder: A* over the node/edge graph the sectors
+// index. See /lib/handlers/pathfinding.
+#define PATHFIND_HANDLER "/lib/handlers/pathfinding"
 // Short name — resolved by handler() at /lib/handlers/worldmap (with
 // per-game override at /games/<game>/handlers/worldmap if present).
 #define WORLDMAP_HANDLER "worldmap"

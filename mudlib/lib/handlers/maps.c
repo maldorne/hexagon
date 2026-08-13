@@ -60,6 +60,32 @@ object create_sector(string path)
   return sector;
 }
 
+// The sector object owning world coord (x, y, z) in game/map, or nil if that
+// part of the map was never indexed. The fine pathfinder walks the node/edge
+// graph across sector boundaries and needs to fetch an arbitrary coordinate's
+// sector on demand. Unlike create_sector it does not materialise a virgin
+// sector on disk: an already-loaded one is returned from cache, an existing
+// one is loaded, and a never-written coordinate returns nil (so probing a
+// dead-end edge leaves no empty directories behind).
+object query_sector_for_coord(string game_slug, string map_name,
+                              int x, int y, int z)
+{
+  int sector_x, sector_y, sector_z;
+  string path;
+
+  sector_x = x / 10 - (x < 0);
+  sector_y = y / 10 - (y < 0);
+  sector_z = z / 10 - (z < 0);
+
+  path = "/save/games/" + game_slug + "/maps/" + map_name + "/" +
+         sector_x + "/" + sector_y + "/" + sector_z + "/";
+
+  if (!loaded_sectors[path] && file_size(path + "sector.o") < 0)
+    return nil;
+
+  return create_sector(path);
+}
+
 // Set (or clear, with SECTOR_TYPE_NONE) the manual type of the sector
 // containing world coord (x, y, z) in the given game/map. Creates the
 // sector.o if it does not exist yet, so a programmer can paint a type on
