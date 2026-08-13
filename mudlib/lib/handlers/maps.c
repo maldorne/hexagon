@@ -86,6 +86,37 @@ object query_sector_for_coord(string game_slug, string map_name,
   return create_sector(path);
 }
 
+// Is this location already indexed at its own coordinate? A pure O(1) check --
+// the location's coordinate, the sector that owns it (cached), one node lookup --
+// with no scanning. Callers use it to skip a redundant add_location (each of
+// which rewrites the sector .o) when nothing would change: the location is
+// already the node at that coordinate. Returns 0 when the location has no
+// coordinate, its sector was never written, or a different file holds the node
+// (moved / never indexed / coordinate clash) -- all cases where add_location
+// must run.
+int is_location_indexed(object location)
+{
+  int x, y, z;
+  object sector;
+  mapping node;
+
+  if (!location || location->query_coordinates() == nil)
+    return 0;
+
+  x = location->query_coordinates()[0];
+  y = location->query_coordinates()[1];
+  z = location->query_coordinates()[2];
+
+  sector = query_sector_for_coord(
+             game_from_path(location->query_file_name()),
+             location->query_map_name(), x, y, z);
+  if (!sector)
+    return 0;
+
+  node = sector->query_nodes()["" + x + "_" + y + "_" + z];
+  return (node && node["file"] == location->query_file_name()) ? 1 : 0;
+}
+
 // Set (or clear, with SECTOR_TYPE_NONE) the manual type of the sector
 // containing world coord (x, y, z) in the given game/map. Creates the
 // sector.o if it does not exist yet, so a programmer can paint a type on

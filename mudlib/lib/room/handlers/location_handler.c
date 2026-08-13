@@ -108,10 +108,13 @@ object load_location(string file_name)
   if (!location)
     return nil;
 
-  // sector = query_sector_from_location_file_name(file_name);
-
-  // add the already loaded location into the sector system too
-  load_object(MAPS_HANDLER)->add_location(location);
+  // Index the location into the sector system, but only when it is not already
+  // there: sector::add_location rewrites the whole sector .o (save_object) on
+  // every call, and a map view resolves the same neighbours over and over. The
+  // check is O(1) -- the location's coordinate, the sector that owns it (cached),
+  // and one node lookup -- so it costs nothing next to the write it avoids.
+  if (!load_object(MAPS_HANDLER)->is_location_indexed(location))
+    load_object(MAPS_HANDLER)->add_location(location);
 
   return location;
 }
