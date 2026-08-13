@@ -9,6 +9,7 @@
 !/issues
 !/json
 !/json-old
+!/namegen
 !/sprintf
 !/time
 !/uuid
