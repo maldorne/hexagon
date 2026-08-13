@@ -459,8 +459,11 @@ static int cmd(string name, object me, string verb)
     info += _LANG_CMD_SHEET_CAN_ALSO_USE;
   }
 
-  info = handler("frames")->frame(info, 
-                                  _LANG_CMD_SHEET_NAME + ": %^BOLD%^" + target->query_cap_name() + "%^RESET%^",
+  // short() (not query_cap_name) so a generated citizen's sheet is titled with
+  // its proper name too ("<kind> (<Name>)"); ordinary livings fall back to their
+  // short, which reads the same as their name.
+  info = handler("frames")->frame(info,
+                                  _LANG_CMD_SHEET_NAME + ": %^BOLD%^" + target->short() + "%^RESET%^",
                                   this_user()->query_cols());
 
   write(info);
