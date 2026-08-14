@@ -42,7 +42,7 @@ void init()
 {
   ::init();
   // YES, should be lord, certainly NOT high programmer.
-  if (MASTER->query_lord(geteuid(previous_object())))
+  if (SECURE_OB->query_lord(geteuid(previous_object())))
   {
     add_action("do_site_banish", "site*banish"); /* Site banishing... */
     add_action("do_access", "access"); /* Show the current access list. */

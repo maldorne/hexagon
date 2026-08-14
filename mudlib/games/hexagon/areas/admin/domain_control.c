@@ -95,7 +95,7 @@ int create_domain(string arg) {
 			"       create <domain> <lord>\n");
 		return 0;
 	}
-	if(!((MASTER->high_programmer(geteuid(previous_object()))) &&
+	if(!((SECURE_OB->high_programmer(geteuid(previous_object()))) &&
 		(previous_object()->query_administrator())))
 	{
 		notify_fail("You lack the Power of Change on this scale!\n");
@@ -107,7 +107,7 @@ int create_domain(string arg) {
 	} else {
 		lord = (string)this_player()->expand_nickname(lord);
 	}
-	if (!MASTER->create_domain(dom, lord)) {
+	if (!SECURE_OB->create_domain(dom, lord)) {
 		notify_fail("Failed to create domain " + arg + ".\n");
 		return 0;
 	}
