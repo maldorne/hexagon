@@ -718,32 +718,34 @@ string health_string()
 // if flag==1 we load the other room to be sure to have the door object
 // if flag==0 we do not load (we are destroying things)
 object query_other_side_door(int flag)
-{  
-  mixed *exits;
-  object other_room, other_door;
-  int i;
-  
-  if (!environment(this_object()))
+{
+  object env, other_room, other_door;
+  string dest_path;
+
+  env = environment(this_object());
+  if (!env)
     return nil;
-  
-  exits = environment(this_object())->query_dest_dir();
-  i = 0;
-  while (i < sizeof(exits)) {
-    if (exits[i] == dest) {
-      other_room = find_object(exits[i+1]);
-      if (!other_room && flag) {
-        load_object(exits[i+1]);
-        other_room = find_object(exits[i+1]);
-      }
-      i = sizeof(exits);
-    }
-    i += 2;
+
+  // Resolve the room / location on the far side of this door. `dest` is this
+  // door's direction. The destination may be a room (a ".c" blueprint) or a
+  // loaded location (a ".o" clone), so use the environment's own resolver
+  // (query_dest_object handles both) rather than find_object on the raw path: a
+  // location clone is not named by its ".o" path, so find_object / load_object
+  // never resolve it -- that was why the far door never synced inside locations.
+  // Only force a load when flag is set (open / close syncing); the no-load
+  // callers just skip a neighbour that is not materialized yet.
+  if (flag)
+    other_room = env->query_dest_object(dest);
+  else
+  {
+    dest_path = env->query_where_dir(dest);
+    other_room = dest_path ? find_object(dest_path) : nil;
   }
-   
-  if (other_room) {
+
+  if (other_room)
     other_door = other_room->query_door_ob(dir_other_side);
-  }
-  return (other_door);
+
+  return other_door;
 }
      
 void repop()
