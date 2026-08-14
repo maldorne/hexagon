@@ -19,11 +19,11 @@
 #include <language.h>
 
 inherit living     "/lib/living/living.c";
-inherit friends    "/lib/npc/friends.c";
-inherit chatter    "/lib/npc/chatter.c";
-inherit npc_combat "/lib/npc/npc_combat.c";
-inherit npc_timed  "/lib/npc/npc_timed.c";
-inherit pacing     "/lib/npc/pacing.c";
+inherit friends    "/lib/monster/friends.c";
+inherit chatter    "/lib/monster/chatter.c";
+inherit combat     "/lib/monster/combat.c";
+inherit timed      "/lib/monster/timed.c";
+inherit pacing     "/lib/monster/pacing.c";
 
 // already defined in living/combat.c
 // static int combat_counter;  /* Counts what we should do next in combat */
@@ -69,8 +69,8 @@ void create()
 
   friends::create();
   chatter::create();
-  npc_combat::create();
-  npc_timed::create();
+  combat::create();
+  timed::create();
   pacing::create();
   // setup() call is inside this create(),
   // so this has to be the last one
@@ -118,7 +118,7 @@ void create()
   }
   */
 
-  // timed npcs, for more information, /lib/npc/npc_timed.c
+  // timed npcs, for more information, /lib/monster/timed.c
   if ((is_timed || is_night_timed) && (strsrch(file_name(this_object()), "#") != -1 ))
   {
     time = handler(WEATHER_HANDLER)->query_date_data()[0];
@@ -780,5 +780,5 @@ mixed * stats()
       });
 
   return ret + friends::stats() + chatter::stats() +
-      npc_combat::stats() + npc_timed::stats();
+      combat::stats() + timed::stats();
 }
