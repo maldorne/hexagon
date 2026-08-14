@@ -19,6 +19,12 @@ inherit monster   "/lib/monster.c";
 // what lets an NPC keep its own equipment on its npc.o across reboots.
 inherit autoload  "/lib/core/basic/auto_load.c";
 
+// Behaviour components (schedule, shop, patrol, ...) are attached per NPC. The
+// host machinery lives inline below, exactly as the location component host
+// lives inline in location.c -- the only component *file* is the base every
+// component inherits, /lib/npc/component.c. Concrete components sit under here:
+#define NPC_COMPONENT_DIR "/lib/npc/components/"
+
 // Persisted into the NPC's own savefile so a restored NPC knows who it is.
 string npc_uuid;         // census identity; nil/"" => not a persisted NPC
 string npc_game;         // game slug, for the savefile path
@@ -38,6 +44,11 @@ string npc_given_name;   // a generated citizen's proper name (lowercase).
                          // proper noun does not translate). Nil for template NPCs,
                          // whose name comes from apply_template.
 
+// Component host state. component_info (type -> persisted attrs) rides in the
+// npc.o savefile; the live instances are static and re-cloned on restore.
+mapping component_info;
+static object * components;
+
 void create()
 {
   monster::create();
@@ -50,6 +61,139 @@ void create()
   npc_categories = ({ });
   npc_auto_load = ([ ]);
   npc_given_name = nil;
+  component_info = ([ ]);
+  components = ({ });
+}
+
+// ---------------------------------------------------------------------------
+// Component host
+// ---------------------------------------------------------------------------
+//
+// Attach behaviour components (schedule, shop, patrol, ...) to this NPC.
+// Mirrors the location component host (inline in location.c), pared down: NPC
+// components react to events with side effects, so this provides attach /
+// detach / query and a plain broadcast (run_on_components). It omits the
+// location system's hook-chain / pipeline / reduce machinery, which exists to
+// transform a location's return values -- nothing an NPC component needs yet.
+// Persistence is driven by save_npc / restore_npc below. Per-component half:
+// /lib/npc/component.c.
+
+object * query_components() { return components ? components : ({ }); }
+
+object query_component_by_type(string type)
+{
+  int i;
+
+  if (!components)
+    return nil;
+  for (i = 0; i < sizeof(components); i++)
+    if (components[i]->query_type() == type)
+      return components[i];
+  return nil;
+}
+
+int has_component(string type) { return query_component_by_type(type) != nil; }
+
+// Clone a component blueprint, stamp its type, seed its attrs, and bind it to
+// this NPC. Shared by add_component and init_components.
+private object _spawn_component(string type, mapping attrs)
+{
+  object c;
+
+  c = clone_object(NPC_COMPONENT_DIR + type + ".c");
+  if (!c)
+    return nil;
+
+  c->set_type(type);
+  c->init_auto_load_attributes(attrs ? attrs : ([ ]));
+  c->initialize(this_object());
+  components += ({ c });
+  return c;
+}
+
+// Re-clone every component named in a restored component_info (from restore_npc).
+void init_components(mapping info)
+{
+  string * types;
+  int i;
+
+  if (!components)
+    components = ({ });
+  if (!info)
+    return;
+
+  types = map_indices(info);
+  for (i = 0; i < sizeof(types); i++)
+    _spawn_component(types[i], info[types[i]]);
+}
+
+// Attach a component of `type` with the given attrs, or reseed a live one. This
+// is how a role stamps behaviour on a freshly materialised NPC.
+void add_component(string type, mapping attrs)
+{
+  object live;
+
+  if (!components)
+    components = ({ });
+  if (!component_info)
+    component_info = ([ ]);
+  if (!attrs)
+    attrs = ([ ]);
+
+  component_info[type] = attrs;
+
+  live = query_component_by_type(type);
+  if (live)
+  {
+    live->init_auto_load_attributes(attrs);
+    return;
+  }
+
+  _spawn_component(type, attrs);
+}
+
+void remove_component(string type)
+{
+  object live;
+
+  if (component_info)
+    map_delete(component_info, type);
+
+  live = query_component_by_type(type);
+  if (live)
+  {
+    components -= ({ live });
+    destruct(live);
+  }
+}
+
+// Pull each live component's current attrs back into component_info so
+// save_object persists up-to-date state. Called from save_npc before saving.
+void sync_component_info()
+{
+  int i;
+
+  if (!components)
+    return;
+  if (!component_info)
+    component_info = ([ ]);
+
+  for (i = 0; i < sizeof(components); i++)
+    component_info[components[i]->query_type()] =
+      components[i]->query_auto_load_attributes();
+}
+
+// Broadcast an event to every component. Each component implements only the
+// event_<name> methods it cares about; an undefined one returns nil harmlessly.
+// Side effects only -- no return folding.
+void run_on_components(string func, mixed * args)
+{
+  int i;
+
+  if (!components)
+    return;
+  for (i = 0; i < sizeof(components); i++)
+    call_other(components[i], func, args);
 }
 
 // Give this NPC a generated proper name: store it (persisted in npc.o) and set
@@ -178,6 +322,9 @@ int save_npc()
   // the auto-load map so save_object persists it -- exactly as a player saves
   // its inventory
   npc_auto_load = create_auto_load(all_inventory(this_object()));
+  // refresh each live component's persisted attrs into component_info so
+  // save_object writes their current state
+  sync_component_info();
   return !catch(save_object(dir + NPC_SAVE_FILE, 1));
 }
 
@@ -200,6 +347,8 @@ int restore_npc()
     // from the saved given name so a restored citizen answers to itself again
     if (npc_given_name && strlen(npc_given_name))
       set_name(lower_case(npc_given_name));
+    // re-clone the NPC's behaviour components from the restored component_info
+    init_components(component_info);
   }
   return ok;
 }
