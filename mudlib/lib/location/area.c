@@ -168,20 +168,38 @@ void set_principal(string file)
   save_me();
 }
 
-// Append a line to the area's event log (events.log beside its area.o). One
-// English line per notable event -- for now "no free plot", later invasions,
-// guards reposted, houses raised, and so on. A shared record a builder or an
-// audit can read.
+// The area's event-log file, under the game's central logs dir (mirrors how
+// ventures log under /save/games/<game>/logs/ventures/). The name is built from
+// the area's path so each area has its own file, e.g. the erken area logs to
+// /save/games/<game>/logs/areas/areas-erken-rooms.log.
+string query_log_file()
+{
+  string game, rel;
+
+  game = game_from_path(file_name);
+  rel = replace_string(file_name, "/save/games/" + game + "/locations/", "");
+  rel = replace_string(rel, "/area.o", "");
+  return "/save/games/" + game + "/logs/areas/" +
+         implode(explode(rel, "/"), "-") + ".log";
+}
+
+// Append a line to the area's event log. One English line per notable event --
+// for now "no free plot", later invasions, guards reposted, houses raised, and
+// so on. A shared record a builder or an audit can read. Creates the logs dir
+// on demand (mkdir is recursive).
 void log_event(string msg)
 {
-  string dir;
+  string logf, dir;
   int slash;
 
   if (!msg)
     return;
-  slash = strsrch(file_name, "/", -1);
-  dir = (slash >= 0) ? file_name[0..slash] : "";
-  write_file(dir + "events.log", ctime(time()) + "  " + msg + "\n");
+
+  logf = query_log_file();
+  slash = strsrch(logf, "/", -1);
+  dir = (slash >= 0) ? logf[0..slash] : "";
+  mkdir(dir);
+  write_file(logf, ctime(time()) + "  " + msg + "\n");
 }
 
 // Raise a house on a free plot and move its residents in. Picks a random free
@@ -216,6 +234,10 @@ string build_house_on_plot(string * residents)
   // it is a house now, not an available plot
   remove_plot(plot_file);
 
+  log_event("Raised a house at " + plot_file + " for " +
+            (residents && sizeof(residents) ? implode(residents, ", ")
+                                            : "no residents") + ".");
+
   return plot_file;
 }
 
@@ -245,10 +267,9 @@ private void _house_family(object * family)
 
 // Give every homeless settled citizen a home, pairing a man and a woman into
 // one house (a family) and giving leftovers a house of their own. Operates on
-// the NPCs currently materialized in the area's loaded locations: a named
-// citizen (generated proper name) that is not a guard (guards use a barracks)
-// and has no home yet. Guards, fauna and template NPCs are skipped. Stops
-// quietly when plots run out (each miss is logged in events.log).
+// the NPCs currently materialized in the area's loaded locations: a persisted
+// citizen that is not a guard (guards use a barracks) and not fauna, with no
+// home yet. Stops quietly when plots run out (each miss is logged).
 void assign_homes()
 {
   object * everyone, * homeless, * males, * females;
@@ -264,8 +285,12 @@ void assign_homes()
   {
     object o;
     o = everyone[i];
-    if (o && o->query_npc() && o->query_given_name() &&
-        !o->query_home() && !o->has_component("guard"))
+    // a settled citizen: a persisted NPC that is not a guard (guards use a
+    // barracks) and not fauna (animals / aggressives), with no home yet
+    if (o && o->query_npc() && o->query_persisted() &&
+        !o->query_home() && !o->has_component("guard") &&
+        !o->is_npc_category(NPC_CATEGORY_ANIMAL) &&
+        !o->is_npc_category(NPC_CATEGORY_AGGRESSIVE))
       homeless += ({ o });
   }
 

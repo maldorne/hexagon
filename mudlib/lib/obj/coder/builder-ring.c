@@ -1366,7 +1366,7 @@ int do_homes()
 
   area->assign_homes();
   write("Assigned homes to the area's homeless citizens; see the area's " +
-        "events.log for any shortfall.\n");
+        "event log for any shortfall.\n");
   return 1;
 }
 
