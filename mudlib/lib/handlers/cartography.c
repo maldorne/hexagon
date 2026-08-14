@@ -519,8 +519,8 @@ string render_ascii(mapping view)
         case CART_BACKSLASH_EXIT:     line += " \\ ";                                break;
         case CART_HORIZONTAL_DOOR:    line += "-" + CART_DOOR_GLYPH_H + "-";          break;
         case CART_VERTICAL_DOOR:      line += " " + CART_DOOR_GLYPH_V + " ";          break;
-        case CART_SLASH_DOOR:
-        case CART_BACKSLASH_DOOR:     line += " " + CART_DOOR_GLYPH_D + " ";          break;
+        case CART_SLASH_DOOR:         line += " " + CART_DOOR_GLYPH_SLASH + " ";      break;
+        case CART_BACKSLASH_DOOR:     line += " " + CART_DOOR_GLYPH_BSLASH + " ";     break;
         default:                      line += "   ";                                 break;
       }
     }
@@ -592,8 +592,8 @@ string render_compact(mapping view)
         case CART_BACKSLASH_EXIT:     line += "\\";                                  break;
         case CART_HORIZONTAL_DOOR:    line += CART_DOOR_GLYPH_H;                      break;
         case CART_VERTICAL_DOOR:      line += CART_DOOR_GLYPH_V;                      break;
-        case CART_SLASH_DOOR:
-        case CART_BACKSLASH_DOOR:     line += CART_DOOR_GLYPH_D;                      break;
+        case CART_SLASH_DOOR:         line += CART_DOOR_GLYPH_SLASH;                  break;
+        case CART_BACKSLASH_DOOR:     line += CART_DOOR_GLYPH_BSLASH;                 break;
         default:                      line += ".";                                   break;
       }
     }
@@ -657,8 +657,8 @@ string render_coords(mapping view)
           case CART_BACKSLASH_EXIT:   line += "    \\   "; break;
           case CART_HORIZONTAL_DOOR:  line += "  --" + CART_DOOR_GLYPH_H + "-  "; break;
           case CART_VERTICAL_DOOR:    line += "    " + CART_DOOR_GLYPH_V + "   "; break;
-          case CART_SLASH_DOOR:
-          case CART_BACKSLASH_DOOR:   line += "    " + CART_DOOR_GLYPH_D + "   "; break;
+          case CART_SLASH_DOOR:       line += "    " + CART_DOOR_GLYPH_SLASH + "   "; break;
+          case CART_BACKSLASH_DOOR:   line += "    " + CART_DOOR_GLYPH_BSLASH + "   "; break;
           default:                    line += "        "; break;
         }
         continue;
@@ -766,8 +766,8 @@ string render_unicode(mapping view)
           line += chr(226) + chr(149) + chr(178);                                     break;
         case CART_HORIZONTAL_DOOR:    line += CART_DOOR_GLYPH_H;                       break;
         case CART_VERTICAL_DOOR:      line += CART_DOOR_GLYPH_V;                       break;
-        case CART_SLASH_DOOR:
-        case CART_BACKSLASH_DOOR:     line += CART_DOOR_GLYPH_D;                       break;
+        case CART_SLASH_DOOR:         line += CART_DOOR_GLYPH_SLASH;                   break;
+        case CART_BACKSLASH_DOOR:     line += CART_DOOR_GLYPH_BSLASH;                  break;
         default:
           line += " ";                                                                break;
       }
@@ -922,8 +922,10 @@ string render_color_by_area(mapping view)
           line += " " + CART_DOOR_GLYPH_V + " ";
           break;
         case CART_SLASH_DOOR:
+          line += " " + CART_DOOR_GLYPH_SLASH + " ";
+          break;
         case CART_BACKSLASH_DOOR:
-          line += " " + CART_DOOR_GLYPH_D + " ";
+          line += " " + CART_DOOR_GLYPH_BSLASH + " ";
           break;
         default:
           line += "   ";

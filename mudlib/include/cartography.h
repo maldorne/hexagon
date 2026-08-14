@@ -47,14 +47,16 @@
 #define CART_SLASH_DOOR        26
 #define CART_BACKSLASH_DOOR    27
 
-// Glyphs a door segment paints (a crossed exit): a horizontal door is '+', a
-// vertical door a single-line cross (U+253C ┼, same light weight as '+'), a
-// diagonal door a cross (U+2573 ╳). Used by every renderer so the door shows
-// consistently; the '+' degrades cleanly on 8-bit terminals, the box-drawing
-// crosses fall back to bytes.
-#define CART_DOOR_GLYPH_H   "+"
-#define CART_DOOR_GLYPH_V   (chr(226) + chr(148) + chr(188))
-#define CART_DOOR_GLYPH_D   (chr(226) + chr(149) + chr(179))
+// Glyphs a door segment paints (a crossed exit): the exit's own line stays long
+// and a short stroke crosses it. Horizontal door '+', vertical door a single-line
+// cross (U+253C ┼, same light weight as '+'). A diagonal door keeps its slant:
+// a '/' exit becomes U+233F ⌿ (slash + short bar), a '\' exit U+2340 ⍀
+// (backslash + short bar). Used by every renderer; '+' degrades cleanly on 8-bit
+// terminals, the box-drawing / APL glyphs fall back to bytes.
+#define CART_DOOR_GLYPH_H        "+"
+#define CART_DOOR_GLYPH_V        (chr(226) + chr(148) + chr(188))
+#define CART_DOOR_GLYPH_SLASH    (chr(226) + chr(140) + chr(191))
+#define CART_DOOR_GLYPH_BSLASH   (chr(226) + chr(141) + chr(128))
 
 // A house / home room is drawn with U+2302 (⌂) so dwellings stand out from
 // plain rooms. Ascii renderers fall back to the bytes; still legible.
