@@ -78,7 +78,7 @@ int do_component(string str);
 int do_area(string str);
 int do_poi(string str);
 int do_role(string str);
-int do_npc();
+int do_npc(string str);
 int do_plot(string str);
 int do_homes();
 
@@ -273,9 +273,10 @@ int do_build(string str)
     return 0;
   }
 
-  // npc / homes take no argument -- they act on the coder's current area
+  // homes takes no argument; npc takes an optional subcommand (a bare `build
+  // npc` reports, `build npc resident <source> [off]` flags residency)
   if (verb == "npc")
-    return do_npc();
+    return do_npc(sizeof(args) > 1 ? implode(args[1..], " ") : "");
   if (verb == "homes")
     return do_homes();
 
@@ -1085,7 +1086,7 @@ int do_role(string str)
 // roster (each blueprint's cap and how many are live in the census), and every
 // POI vacancy. Read-only inspection -- before this there was no command, only
 // exec snippets.
-int do_npc()
+int do_npc(string str)
 {
   object loc, area;
   mapping intended, pois;
@@ -1104,6 +1105,44 @@ int do_npc()
   if (!area)
   {
     notify_fail("This location has no area.\n");
+    return 0;
+  }
+
+  // `build npc resident <source> [off]` -- the design-time switch for who gets a
+  // house. Only sources flagged here are housed by `build homes`; a bare `build
+  // npc` (no argument) falls through to the roster/live report below.
+  if (str && strlen(str))
+  {
+    string * a;
+
+    a = explode(str, " ") - ({ "" });
+    if (a[0] == "resident")
+    {
+      string source;
+      int flag;
+
+      if (sizeof(a) < 2)
+      {
+        notify_fail("Usage: build npc resident <source> [off]\n");
+        return 0;
+      }
+      source = a[1];
+      flag = !(sizeof(a) >= 3 &&
+               (a[2] == "off" || a[2] == "no" || a[2] == "0"));
+      if (!area->set_intended_resident(source, flag))
+      {
+        notify_fail("No intended NPC source '" + source +
+                    "' in this area.\n");
+        return 0;
+      }
+      write("Source '" + source + "' is " +
+            (flag ? "now a resident source; build homes will house it."
+                  : "no longer a resident source.") + "\n");
+      return 1;
+    }
+
+    notify_fail("Usage: build npc  (report)  |  " +
+                "build npc resident <source> [off]\n");
     return 0;
   }
 
@@ -1138,10 +1177,11 @@ int do_npc()
     out += "Roster (" + sizeof(sources) + " template" +
            (sizeof(sources) == 1 ? "" : "s") + "):\n";
     for (i = 0; i < sizeof(sources); i++)
-      out += sprintf("  %-*s  live %*d / cap %*d\n",
+      out += sprintf("  %-*s  live %*d / cap %*d%s\n",
                      w_name, sources[i],
                      w_live, lives[i],
-                     w_cap, intended[sources[i]]["max"]);
+                     w_cap, intended[sources[i]]["max"],
+                     intended[sources[i]]["resident"] ? "  resident" : "");
     if (!sizeof(sources))
       out += "  (none)\n";
   }

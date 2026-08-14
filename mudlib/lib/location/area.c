@@ -24,7 +24,9 @@ string exploration_name;
 // Dynamic NPC population. Both are keyed by the NPC's source path (the
 // hand-authored .c it is cloned from).
 //   npc_intended: configuration -- what may spawn here and how many.
-//     ([ npc_path : ([ "category": ({ ids }) or nil, "max": int ]) ])
+//     ([ npc_path : ([ "max": int, "resident": 1 (optional) ]) ])
+//   ("resident" is the design-time flag that lets the housing system give this
+//    source's NPCs a home; unflagged sources are never housed.)
 //   (Fine-grained placement -- which location/POI, sector-type weighting --
 //    is layered on in F2; F1 spawns anywhere in the area up to the cap.)
 //   npc_census:   live state -- which concrete NPCs exist and where.
@@ -332,11 +334,46 @@ object * query_live_npcs()
   return npcs;
 }
 
-// Give every homeless settled citizen a home, pairing a man and a woman into
-// one house (a family) and giving leftovers a house of their own. Operates on
-// the NPCs currently materialized in the area's loaded locations: a persisted
-// citizen that is not a guard (guards use a barracks) and not fauna, with no
-// home yet. Stops quietly when plots run out (each miss is logged).
+// Whether a live NPC is a settled resident -- one the design declared as such.
+// Who gets a house is a design-time decision, not a runtime guess from the NPC's
+// race or behaviour: an NPC source (template) is flagged "resident" in
+// npc_intended by the builder, and only those sources are housed here. Animals,
+// guards and any unflagged roster filler are never handed a house; POI vacancies
+// (barman, shopkeeper) are not in npc_intended at all and carry their own fixed
+// home instead.
+private int _is_resident(object o)
+{
+  mapping spec;
+
+  if (!o || !o->query_npc())
+    return 0;
+
+  spec = npc_intended[o->query_npc_source()];
+  return spec && spec["resident"];
+}
+
+// Flag (or clear) an intended NPC source as a settled resident. This is the
+// design-time switch that decides who `assign_homes` may house. Returns 0 if the
+// source is not a known intended NPC of this area.
+int set_intended_resident(string source, int flag)
+{
+  if (!npc_intended[source])
+    return 0;
+
+  if (flag)
+    npc_intended[source]["resident"] = 1;
+  else
+    map_delete(npc_intended[source], "resident");
+
+  save_me();
+  return 1;
+}
+
+// Give every homeless resident a home, pairing a man and a woman into one house
+// (a family) and giving leftovers a house of their own. Operates on the NPCs
+// currently materialized in the area's loaded locations; residency is the
+// design-time fact tested by _is_resident, not a runtime type guess. Stops
+// quietly when plots run out (each miss is logged).
 void assign_homes()
 {
   object * everyone, * homeless, * males, * females;
@@ -352,12 +389,8 @@ void assign_homes()
   {
     object o;
     o = everyone[i];
-    // a settled citizen: a persisted NPC that is not a guard (guards use a
-    // barracks) and not fauna (animals / aggressives), with no home yet
-    if (o && o->query_npc() && o->query_persisted() &&
-        !o->query_home() && !o->has_component("guard") &&
-        !o->is_npc_category(NPC_CATEGORY_ANIMAL) &&
-        !o->is_npc_category(NPC_CATEGORY_AGGRESSIVE))
+    // a resident placed by the design, still persisted and without a home yet
+    if (o && o->query_persisted() && !o->query_home() && _is_resident(o))
       homeless += ({ o });
   }
 
@@ -670,11 +703,10 @@ void set_npc_intended(mapping m)
 
 // Declare (or replace) an intended NPC for this area. `source` is the NPC's
 // source path -- it is the identity (census key) and is snapshotted into a
-// data template on first spawn. `categories` is an optional coarse-type list
-// stamped on the NPC, `max` the area-wide population cap.
-void add_intended_npc(string source, string * categories, int max)
+// data template on first spawn. `max` is the area-wide population cap.
+void add_intended_npc(string source, int max)
 {
-  npc_intended[source] = ([ "category": categories, "max": max ]);
+  npc_intended[source] = ([ "max": max ]);
   save_me();
 }
 
@@ -834,8 +866,7 @@ private void _recompute_intended()
     if (strlen(guard_source) && npc_paths[i] == guard_source)
       continue;
 
-    npc_intended[npc_paths[i]] = ([ "category": nil,
-                                    "max": counts[npc_paths[i]] ]);
+    npc_intended[npc_paths[i]] = ([ "max": counts[npc_paths[i]] ]);
   }
 }
 
@@ -1309,7 +1340,7 @@ private object npc_restore(string id, object loc)
 {
   object npc;
   string game, source, savefile;
-  mapping spec, entry, role;
+  mapping entry, role;
   int first, sentient, gender;
 
   entry = npc_census[id];
@@ -1403,10 +1434,6 @@ private object npc_restore(string id, object loc)
       npc->add_alias(kind);
   }
 
-  spec = npc_intended[source];
-  if (spec && spec["category"])
-    npc->set_npc_categories(spec["category"]);
-
   // Equipment on the npc.o: on the first materialization a role NPC rolls its
   // role's kit once, equips it and the save below persists it; on restore the
   // inventory came back with restore_npc, so just re-wear/wield it.
@@ -1469,13 +1496,15 @@ private object npc_restore(string id, object loc)
     poi = pois[entry["poi"]];
     gdir = (poi && poi[POI_FIELD_KIND] == POI_KIND_TOWN_ENTRANCE)
              ? poi[POI_FIELD_GUARD_DIR] : nil;
+
+    // every guard carries the guard component: it makes the NPC recognisable as
+    // a guard (so, for example, the home system posts it to a barracks rather
+    // than a family house) and gives it the citizenship challenge. An entrance
+    // guard additionally watches its direction and registers on that exit; a
+    // square guard keeps the component with no direction (it challenges nobody).
+    npc->add_component("guard", gdir ? ([ "direction" : gdir ]) : ([ ]));
     if (gdir)
-    {
-      // stamp the guard-role component (carries the direction + exit check) and
-      // register on the exit so the exit handler consults its guardian_check
-      npc->add_component("guard", ([ "direction" : gdir ]));
       loc->register_guard(npc, gdir);
-    }
   }
 
   return npc;

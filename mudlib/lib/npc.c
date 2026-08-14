@@ -33,8 +33,6 @@ string npc_poi;          // owning point of interest, if any
 string npc_source;       // blueprint path this NPC was spawned from; the
                          // bestiary-template identity and census key. Lets the
                          // NPC describe itself without a census lookup.
-string * npc_categories; // coarse types (aggressive/animal/citizen/...); a
-                         // single NPC can carry several. Empty => derived.
 mapping npc_auto_load;   // the NPC's carried inventory, encoded for save_object
                          // (same shape as a player's auto_load)
 string npc_given_name;   // a generated citizen's proper name (lowercase).
@@ -63,7 +61,6 @@ void create()
   npc_area_path = nil;
   npc_poi = nil;
   npc_source = nil;
-  npc_categories = ({ });
   npc_auto_load = ([ ]);
   npc_given_name = nil;
   npc_home = nil;
@@ -310,33 +307,6 @@ void set_npc_poi(string s) { npc_poi = s; }
 
 string query_npc_source() { return npc_source; }
 void set_npc_source(string s) { npc_source = s; }
-
-void set_npc_categories(string * a) { npc_categories = a ? a : ({ }); }
-void add_npc_category(string s)
-{
-  if (member_array(s, npc_categories) < 0)
-    npc_categories += ({ s });
-}
-
-string * query_npc_categories()
-{
-  if (sizeof(npc_categories))
-    return npc_categories[..];
-
-  // No explicit categories: derive a coarse default. Aggressive NPCs read as
-  // aggressive, everything else as pacific. The finer buckets
-  // (animal/citizen/guard) are set explicitly by the blueprint or generator.
-  if (this_object()->query_aggressive())
-    return ({ NPC_CATEGORY_AGGRESSIVE });
-
-  return ({ NPC_CATEGORY_PACIFIC });
-}
-
-// convenience membership test
-int is_npc_category(string s)
-{
-  return member_array(s, query_npc_categories()) >= 0;
-}
 
 // ---------------------------------------------------------------------------
 // Persisted-NPC savefile (mutable per-NPC state)
