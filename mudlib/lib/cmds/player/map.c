@@ -99,8 +99,13 @@ private string _build_inner(string grid, mapping flags)
     out += "                       %^BOLD%^CYAN%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_FRIENDS) + "\n";
   if (flags[CART_GUARD_ROOM])
     out += "                       %^BOLD%^GREEN%^*%^RESET%^   : " + _format(_LANG_CMD_MAP_GUARDS) + "\n";
-  if (flags[CART_DOOR_ROOM])
-    out += "                       " + _LANG_CMD_MAP_DOOR_LETTER + "   : " + _format(_LANG_CMD_MAP_DOORS) + "\n";
+  // A door is drawn on the exit segment (a crossed bar), not on the room:
+  // show the legend row whenever any door-segment variant is on the grid.
+  if (flags[CART_HORIZONTAL_DOOR] || flags[CART_VERTICAL_DOOR] ||
+      flags[CART_SLASH_DOOR] || flags[CART_BACKSLASH_DOOR])
+    out += "                       " + CART_DOOR_GLYPH_H + "   : " + _format(_LANG_CMD_MAP_DOORS) + "\n";
+  if (flags[CART_HOME_ROOM])
+    out += "                       " + CART_HOME_GLYPH + "   : " + _format(_LANG_CMD_MAP_HOMES) + "\n";
   if (flags[CART_UP_ROOM])
     out += "                       ^   : " + _format(_LANG_CMD_MAP_UP_STAIRS) + "\n";
   if (flags[CART_DOWN_ROOM])

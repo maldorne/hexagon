@@ -61,14 +61,19 @@ private int _classify_room(object room, object viewer, int deep)
     }
   }
 
+  // a dwelling (a location carrying a home component) shows as a house,
+  // whatever its exits. Non-locations return nil here and fall through.
+  if (room->query_component_by_type("home"))
+    return CART_HOME_ROOM;
+
   // structural markers: cheap, depend only on the room's own data.
   exits = room->query_direc();
 
+  // a door is no longer marked on the room; it crosses the exit segment
+  // instead (see the view builder's door-segment upgrade), so only up / down
+  // remain as room-level structural markers here.
   for (i = 0; i < sizeof(exits); i++)
   {
-    if (member_array(room->query_ex_type(exits[i]),
-                     ({ "door", "gate" })) != -1)
-      return CART_DOOR_ROOM;
     if (exits[i] == DIR_UP)
       return CART_UP_ROOM;
     if (exits[i] == DIR_DOWN)
@@ -295,6 +300,17 @@ mapping query_map_view(object viewer, varargs mapping options)
             continue;
         }
 
+        // a door / gate on this exit crosses its segment glyph instead of
+        // marking the room: upgrade the plain segment to its door variant
+        if (member_array(current[2]->query_ex_type(dest_dir[i]),
+                         ({ "door", "gate" })) != -1)
+        {
+          if (seg_type == CART_VERTICAL_EXIT)        seg_type = CART_VERTICAL_DOOR;
+          else if (seg_type == CART_HORIZONTAL_EXIT) seg_type = CART_HORIZONTAL_DOOR;
+          else if (seg_type == CART_SLASH_EXIT)      seg_type = CART_SLASH_DOOR;
+          else if (seg_type == CART_BACKSLASH_EXIT)  seg_type = CART_BACKSLASH_DOOR;
+        }
+
         // Resolve destination first; if it lives on a different z plane
         // we draw nothing (no segment, no destination cell). The source
         // room still carries its CART_UP_ROOM / CART_DOWN_ROOM marker
@@ -486,6 +502,7 @@ string render_ascii(mapping view)
       switch (type)
       {
         case CART_ROOM:               line += "[ ]";                                 break;
+        case CART_HOME_ROOM:          line += "[" + CART_HOME_GLYPH + "]";           break;
         case CART_COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^";                break;
         case CART_DOOR_ROOM:          line += "[D]";                                 break;
         case CART_UP_ROOM:            line += "[^]";                                 break;
@@ -500,6 +517,10 @@ string render_ascii(mapping view)
         case CART_VERTICAL_EXIT:      line += " | ";                                 break;
         case CART_SLASH_EXIT:         line += " / ";                                 break;
         case CART_BACKSLASH_EXIT:     line += " \\ ";                                break;
+        case CART_HORIZONTAL_DOOR:    line += "-" + CART_DOOR_GLYPH_H + "-";          break;
+        case CART_VERTICAL_DOOR:      line += " " + CART_DOOR_GLYPH_V + " ";          break;
+        case CART_SLASH_DOOR:
+        case CART_BACKSLASH_DOOR:     line += " " + CART_DOOR_GLYPH_D + " ";          break;
         default:                      line += "   ";                                 break;
       }
     }
@@ -554,6 +575,7 @@ string render_compact(mapping view)
       switch (type)
       {
         case CART_ROOM:               line += "#";                                   break;
+        case CART_HOME_ROOM:          line += CART_HOME_GLYPH;                        break;
         case CART_COAST_ROOM:         line += "%^BLUE%^~%^RESET%^";                  break;
         case CART_DOOR_ROOM:          line += "D";                                   break;
         case CART_UP_ROOM:            line += "^";                                   break;
@@ -568,6 +590,10 @@ string render_compact(mapping view)
         case CART_VERTICAL_EXIT:      line += "|";                                   break;
         case CART_SLASH_EXIT:         line += "/";                                   break;
         case CART_BACKSLASH_EXIT:     line += "\\";                                  break;
+        case CART_HORIZONTAL_DOOR:    line += CART_DOOR_GLYPH_H;                      break;
+        case CART_VERTICAL_DOOR:      line += CART_DOOR_GLYPH_V;                      break;
+        case CART_SLASH_DOOR:
+        case CART_BACKSLASH_DOOR:     line += CART_DOOR_GLYPH_D;                      break;
         default:                      line += ".";                                   break;
       }
     }
@@ -629,6 +655,10 @@ string render_coords(mapping view)
           case CART_VERTICAL_EXIT:    line += "    |   "; break;
           case CART_SLASH_EXIT:       line += "    /   "; break;
           case CART_BACKSLASH_EXIT:   line += "    \\   "; break;
+          case CART_HORIZONTAL_DOOR:  line += "  --" + CART_DOOR_GLYPH_H + "-  "; break;
+          case CART_VERTICAL_DOOR:    line += "    " + CART_DOOR_GLYPH_V + "   "; break;
+          case CART_SLASH_DOOR:
+          case CART_BACKSLASH_DOOR:   line += "    " + CART_DOOR_GLYPH_D + "   "; break;
           default:                    line += "        "; break;
         }
         continue;
@@ -693,6 +723,9 @@ string render_unicode(mapping view)
         case CART_ROOM:
           // ▢ U+25A2 white square with rounded corners
           line += chr(226) + chr(150) + chr(162);                                     break;
+        case CART_HOME_ROOM:
+          // ⌂ U+2302 house
+          line += CART_HOME_GLYPH;                                                     break;
         case CART_COAST_ROOM:
           // ◯ U+25EF large circle
           line += "%^BLUE%^" + chr(226) + chr(151) + chr(175) + "%^RESET%^";          break;
@@ -731,6 +764,10 @@ string render_unicode(mapping view)
         case CART_BACKSLASH_EXIT:
           // ╲ U+2572 box drawings light diagonal upper left to lower right
           line += chr(226) + chr(149) + chr(178);                                     break;
+        case CART_HORIZONTAL_DOOR:    line += CART_DOOR_GLYPH_H;                       break;
+        case CART_VERTICAL_DOOR:      line += CART_DOOR_GLYPH_V;                       break;
+        case CART_SLASH_DOOR:
+        case CART_BACKSLASH_DOOR:     line += CART_DOOR_GLYPH_D;                       break;
         default:
           line += " ";                                                                break;
       }
@@ -831,6 +868,11 @@ string render_color_by_area(mapping view)
         case CART_ROOM:
           line += (strlen(tint) ? tint + "[ ]%^RESET%^" : "[ ]");
           break;
+        case CART_HOME_ROOM:
+          line += (strlen(tint)
+                   ? tint + "[" + CART_HOME_GLYPH + "]%^RESET%^"
+                   : "[" + CART_HOME_GLYPH + "]");
+          break;
         case CART_COAST_ROOM:
           line += "%^BLUE%^[ ]%^RESET%^";
           break;
@@ -872,6 +914,16 @@ string render_color_by_area(mapping view)
           break;
         case CART_BACKSLASH_EXIT:
           line += " \\ ";
+          break;
+        case CART_HORIZONTAL_DOOR:
+          line += "-" + CART_DOOR_GLYPH_H + "-";
+          break;
+        case CART_VERTICAL_DOOR:
+          line += " " + CART_DOOR_GLYPH_V + " ";
+          break;
+        case CART_SLASH_DOOR:
+        case CART_BACKSLASH_DOOR:
+          line += " " + CART_DOOR_GLYPH_D + " ";
           break;
         default:
           line += "   ";
