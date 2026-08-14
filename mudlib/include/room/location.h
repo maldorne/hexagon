@@ -24,6 +24,10 @@
 #define LOCATION_COMPONENT_COAST       "coast"
 #define LOCATION_COMPONENT_UNDERGROUND "underground"
 #define LOCATION_COMPONENT_FARM        "farm"
+// A buildable empty lot, and a dwelling raised on one. See
+// /lib/location/components/plot.c and home.c.
+#define LOCATION_COMPONENT_PLOT        "plot"
+#define LOCATION_COMPONENT_HOME        "home"
 
 // ************************************************************
 //  Location component hook system
