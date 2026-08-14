@@ -49,6 +49,11 @@ string npc_given_name;   // a generated citizen's proper name (lowercase).
 mapping component_info;
 static object * components;
 
+// Where this NPC lives: a house location file (the home the area assigned it),
+// or nil. Persisted in npc.o. The schedule component walks the NPC here at night
+// via travel_to(query_home()). Just a location for now -- a family shares one.
+string npc_home;
+
 void create()
 {
   monster::create();
@@ -61,9 +66,13 @@ void create()
   npc_categories = ({ });
   npc_auto_load = ([ ]);
   npc_given_name = nil;
+  npc_home = nil;
   component_info = ([ ]);
   components = ({ });
 }
+
+string query_home() { return npc_home; }
+void set_home(string file) { npc_home = file; }
 
 // ---------------------------------------------------------------------------
 // Component host
@@ -212,6 +221,15 @@ string guardian_message()
   object g;
   g = query_component_by_type("guard");
   return g ? g->message() : nil;
+}
+
+// Forward the calendar's day/night ticks to this NPC's components (the schedule
+// component walks it to work at dawn and home at nightfall), after the legacy
+// timed-npc handling that /lib/monster/timed.c provides.
+void event_weather(object who, varargs int flag, int * values)
+{
+  ::event_weather(who, flag);
+  run_on_components("event_weather", ({ who, flag }));
 }
 
 // Give this NPC a generated proper name: store it (persisted in npc.o) and set

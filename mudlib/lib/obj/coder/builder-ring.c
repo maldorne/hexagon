@@ -17,15 +17,16 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "role", "npc", "plot" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "role", "npc", "plot", "homes" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
-#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> >"
+#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> | principal >"
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role>> >"
 #define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
+#define BUILDER_RING_HOMES_SYNTAX "build homes  (house the area's homeless citizens on free plots, pairing families)"
 // intro line + "commands:" header are translated (name/description/help);
 // the command syntax below stays English -- coder verbs are not localized
 #define BUILDER_RING_HELP _LANG_RING_HELP_INTRO + \
@@ -36,7 +37,8 @@ inherit "/lib/armour.c";
                 "\t" + BUILDER_RING_POI_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_ROLE_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_NPC_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_PLOT_SYNTAX
+                "\t" + BUILDER_RING_PLOT_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_HOMES_SYNTAX
 
 static string * selection;
 static mapping objects;
@@ -78,6 +80,7 @@ int do_poi(string str);
 int do_role(string str);
 int do_npc();
 int do_plot(string str);
+int do_homes();
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -255,9 +258,11 @@ int do_build(string str)
     return 0;
   }
 
-  // npc takes no argument -- it just reports the current area's population
+  // npc / homes take no argument -- they act on the coder's current area
   if (verb == "npc")
     return do_npc();
+  if (verb == "homes")
+    return do_homes();
 
   if (sizeof(args) < 2)
   {
@@ -621,6 +626,15 @@ int do_area(string str)
     else
       write("Area '" + area->query_area_name() +
             "' no longer belongs to a citizenship.\n");
+    return 1;
+  }
+  else if (verb == "principal")
+  {
+    // mark this location as the area's fallback (where orphaned occupants go
+    // when a location is destroyed, e.g. deleting an occupied plot)
+    area->set_principal(loc->query_file_name());
+    write("Area '" + area->query_area_name() + "' principal location is now " +
+          loc->query_file_name() + ".\n");
     return 1;
   }
 
@@ -1283,6 +1297,37 @@ int do_plot(string str)
     }
   }
 
+  // move any occupants (a wandered-in NPC, a stray object) to the area's
+  // principal location before destroying the plot, so nothing is orphaned in
+  // the void. If there are occupants and no principal is set, refuse.
+  {
+    object * occ;
+    object principal;
+    string pfile;
+    int i;
+
+    occ = all_inventory(plot);
+    if (sizeof(occ))
+    {
+      pfile = area ? area->query_principal() : "";
+      if (!pfile || !strlen(pfile) || file_size(pfile) < 0)
+      {
+        notify_fail("The plot has occupants and the area has no principal " +
+                    "location to move them to; set one with 'build area " +
+                    "principal'. Refusing to delete.\n");
+        return 0;
+      }
+      principal = load_object(LOCATION_HANDLER)->load_location(pfile);
+      if (!principal)
+      {
+        notify_fail("Could not load the area's principal location; refusing.\n");
+        return 0;
+      }
+      for (i = 0; i < sizeof(occ); i++)
+        catch(occ[i]->move(principal));
+    }
+  }
+
   // sever the exit, re-index this location, unindex + unregister the plot,
   // destroy the object and delete its file
   loc->remove_exit(ldir);
@@ -1296,6 +1341,32 @@ int do_plot(string str)
   remove_file(plot_file);
 
   write("Removed the empty plot to the " + ldir + ".\n");
+  return 1;
+}
+
+// build homes -- house the current area's homeless citizens on its free plots,
+// pairing a man and a woman into each family home. Shortfalls (no free plot)
+// are recorded in the area's events.log.
+int do_homes()
+{
+  object loc, area;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location to assign homes.\n");
+    return 0;
+  }
+  area = loc->query_area();
+  if (!area)
+  {
+    notify_fail("This location has no area.\n");
+    return 0;
+  }
+
+  area->assign_homes();
+  write("Assigned homes to the area's homeless citizens; see the area's " +
+        "events.log for any shortfall.\n");
   return 1;
 }
 

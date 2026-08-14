@@ -77,6 +77,12 @@ mapping roles;
 // houses themselves -- once built, a plot leaves this list.
 string * plots;
 
+// The area's fallback location: where living things and objects are moved when
+// their location is destroyed (e.g. deleting a plot with an NPC that wandered
+// in), and a general safe spot for recovery. nil until a programmer marks one
+// with `build area principal`.
+string principal;
+
 // The citizenship this area belongs to (a name in the diplomacy graph).
 // Guards fielded at the area's town entrances and squares follow this
 // citizenship: the diplomacy handler tells us how many (its security level)
@@ -94,6 +100,7 @@ private void _ensure_guards_assigned(string location_file);
 private void _equip_npc(object npc, string * paths);
 private string * _resolve_equipment(mixed * spec);
 private string generate_citizen_name(int gender);
+private void _house_family(object * family);
 void fill_guards();
 void repost_guards(string poi_file);
 private void _remove_guard(string id);
@@ -113,6 +120,7 @@ void create() {
   pois = ([ ]);
   roles = ([ ]);
   plots = ({ });
+  principal = "";
   npc_default_level = 1;
   npc_default_level_spread = 0;
   citizenship = "";
@@ -149,6 +157,142 @@ void remove_plot(string file)
   {
     plots -= ({ file });
     save_me();
+  }
+}
+
+// The area's fallback location file (where orphaned occupants go). "" if unset.
+string query_principal() { return principal ? principal : ""; }
+void set_principal(string file)
+{
+  principal = file ? file : "";
+  save_me();
+}
+
+// Append a line to the area's event log (events.log beside its area.o). One
+// English line per notable event -- for now "no free plot", later invasions,
+// guards reposted, houses raised, and so on. A shared record a builder or an
+// audit can read.
+void log_event(string msg)
+{
+  string dir;
+  int slash;
+
+  if (!msg)
+    return;
+  slash = strsrch(file_name, "/", -1);
+  dir = (slash >= 0) ? file_name[0..slash] : "";
+  write_file(dir + "events.log", ctime(time()) + "  " + msg + "\n");
+}
+
+// Raise a house on a free plot and move its residents in. Picks a random free
+// plot (no neighbourhood grading yet), turns it from a bare plot into a house
+// (drops the `plot` component, adds `home` with the residents), and drops it
+// from the plots registry. Returns the house's location file, or nil (and logs)
+// when there is no free plot. `residents` are the find_living ids / uuids that
+// will live there; a family shares one call.
+string build_house_on_plot(string * residents)
+{
+  string plot_file;
+  object house;
+
+  if (!plots || !sizeof(plots))
+  {
+    log_event("No free plot available to house " +
+              (residents && sizeof(residents) ? implode(residents, ", ")
+                                              : "an NPC") + ".");
+    return nil;
+  }
+
+  plot_file = plots[random(sizeof(plots))];
+  house = load_object(LOCATION_HANDLER)->load_location(plot_file);
+  if (!house)
+    return nil;
+
+  house->remove_component(LOCATION_COMPONENT_PLOT);
+  house->add_component(LOCATION_COMPONENT_HOME,
+                       ([ "residents": residents ? residents : ({ }) ]));
+  house->save_me();
+
+  // it is a house now, not an available plot
+  remove_plot(plot_file);
+
+  return plot_file;
+}
+
+// Raise one house for a family (one or two NPCs) and move them in: build the
+// house, set each member's home to it, and persist them. No plot -> nothing
+// happens (build_house_on_plot logged it).
+private void _house_family(object * family)
+{
+  string house;
+  string * ids;
+  int i;
+
+  ids = ({ });
+  for (i = 0; i < sizeof(family); i++)
+    ids += ({ family[i]->query_npc_uuid() });
+
+  house = build_house_on_plot(ids);
+  if (!house)
+    return;
+
+  for (i = 0; i < sizeof(family); i++)
+  {
+    family[i]->set_home(house);
+    family[i]->save_npc();
+  }
+}
+
+// Give every homeless settled citizen a home, pairing a man and a woman into
+// one house (a family) and giving leftovers a house of their own. Operates on
+// the NPCs currently materialized in the area's loaded locations: a named
+// citizen (generated proper name) that is not a guard (guards use a barracks)
+// and has no home yet. Guards, fauna and template NPCs are skipped. Stops
+// quietly when plots run out (each miss is logged in events.log).
+void assign_homes()
+{
+  object * everyone, * homeless, * males, * females;
+  int i;
+
+  everyone = ({ });
+  for (i = 0; i < sizeof(loaded_locations); i++)
+    if (loaded_locations[i])
+      everyone += all_inventory(loaded_locations[i]);
+
+  homeless = ({ });
+  for (i = 0; i < sizeof(everyone); i++)
+  {
+    object o;
+    o = everyone[i];
+    if (o && o->query_npc() && o->query_given_name() &&
+        !o->query_home() && !o->has_component("guard"))
+      homeless += ({ o });
+  }
+
+  males = ({ });
+  females = ({ });
+  for (i = 0; i < sizeof(homeless); i++)
+    if (homeless[i]->query_gender() == GENDER_FEMALE)
+      females += ({ homeless[i] });
+    else
+      males += ({ homeless[i] });
+
+  // a man and a woman share a house; whoever is left over gets one alone
+  while (sizeof(males) && sizeof(females))
+  {
+    _house_family(({ males[0], females[0] }));
+    males = males[1..];
+    females = females[1..];
+  }
+  while (sizeof(males))
+  {
+    _house_family(({ males[0] }));
+    males = males[1..];
+  }
+  while (sizeof(females))
+  {
+    _house_family(({ females[0] }));
+    females = females[1..];
   }
 }
 
@@ -1092,6 +1236,13 @@ private object npc_restore(string id, object loc)
     npc->init_equip();
 
   npc->move(loc);
+
+  // A settled role NPC gets a daily schedule: walk to its work by day, home by
+  // night. Attached fresh from the role each materialization (so a work change
+  // is picked up); home is read live at nightfall from the NPC. Guards are
+  // excluded above (a role slot is never a guard entry).
+  if (role && sentient && role["work"])
+    npc->add_component("schedule", ([ "work": role["work"] ]));
 
   // A guard carries the area's citizenship as its city_ob (so diplomacy can
   // resolve its loyalty) and, at an entrance, watches the entry direction: it
