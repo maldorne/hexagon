@@ -7,6 +7,7 @@
 inherit "/lib/armour.c";
 
 #include <room/location.h>
+#include <room/room.h>
 #include <areas/area.h>
 #include <areas/poi.h>
 #include <maps/maps.h>
@@ -16,7 +17,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "role", "npc" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "role", "npc", "plot" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -24,6 +25,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role>> >"
 #define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
+#define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
 // intro line + "commands:" header are translated (name/description/help);
 // the command syntax below stays English -- coder verbs are not localized
 #define BUILDER_RING_HELP _LANG_RING_HELP_INTRO + \
@@ -33,7 +35,8 @@ inherit "/lib/armour.c";
                 "\t" + BUILDER_RING_AREA_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_POI_SYNTAX + "\n" + \
                 "\t" + BUILDER_RING_ROLE_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_NPC_SYNTAX
+                "\t" + BUILDER_RING_NPC_SYNTAX + "\n" + \
+                "\t" + BUILDER_RING_PLOT_SYNTAX
 
 static string * selection;
 static mapping objects;
@@ -74,6 +77,7 @@ int do_area(string str);
 int do_poi(string str);
 int do_role(string str);
 int do_npc();
+int do_plot(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -276,6 +280,8 @@ int do_build(string str)
     return do_poi(implode(args[1..], " "));
   else if (verb == "role")
     return do_role(implode(args[1..], " "));
+  else if (verb == "plot")
+    return do_plot(implode(args[1..], " "));
   else
   {
     notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
@@ -1121,6 +1127,175 @@ int do_npc()
   }
 
   write(out);
+  return 1;
+}
+
+// build plot <dir>         -- carve an empty buildable lot one step in <dir>.
+// build plot remove <dir>  -- delete the lot in <dir>, only if it is a bare plot
+//                             (the plot component and nothing else, i.e. not yet
+//                             built into a house).
+//
+// Never procedural: a programmer runs it, and it refuses (a message, no change)
+// if the target coordinate is already occupied, or if the thing to remove is not
+// a bare plot. It creates/deletes a pure-.o location (no .c source) plus the
+// reciprocal exits, (un)indexes it in the sector map, re-indexes the current
+// location's exits, and (un)registers it with the area's plot list.
+int do_plot(string str)
+{
+  string * args;
+  string verb, dir_in, canon, ldir, rdir;
+  string map, game, loc_file, dir_part, plot_file, key;
+  object loc, plot, sector, area;
+  int * c, * d;
+  int nx, ny, nz, slash;
+
+  args = explode(str ? str : "", " ") - ({ "" });
+  if (!sizeof(args))
+  {
+    notify_fail("Usage: " + BUILDER_RING_PLOT_SYNTAX + "\n");
+    return 0;
+  }
+
+  if (args[0] == "remove" || args[0] == "delete")
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build plot remove <dir>\n");
+      return 0;
+    }
+    verb = "remove";
+    dir_in = args[1];
+  }
+  else
+  {
+    verb = "create";
+    dir_in = args[0];
+  }
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location to build a plot.\n");
+    return 0;
+  }
+
+  c = loc->query_coordinates();
+  if (!c || sizeof(c) != 3)
+  {
+    notify_fail("This location has no coordinates.\n");
+    return 0;
+  }
+
+  // canonical direction gives the coordinate step; the localized word is what
+  // the exits store (exits are kept in the mud's language)
+  canon = ROOM_HAND->canonical_dir(dir_in);
+  d = load_object(MAPS_HANDLER)->query_dir_delta(canon);
+  if (!d)
+  {
+    notify_fail("'" + dir_in + "' is not a compass direction.\n");
+    return 0;
+  }
+  ldir = ROOM_HAND->localize_dir(canon);
+  rdir = ROOM_HAND->query_opposite(ldir);
+
+  nx = c[0] + d[0];
+  ny = c[1] + d[1];
+  nz = c[2] + d[2];
+  key = "" + nx + "_" + ny + "_" + nz;
+
+  map = loc->query_map_name();
+  loc_file = loc->query_file_name();
+  game = game_from_path(loc_file);
+  area = loc->query_area();
+
+  // the plot .o lives in the same area rooms directory as this location
+  slash = strsrch(loc_file, "/", -1);
+  dir_part = loc_file[0..slash];
+  plot_file = dir_part + "plot_" + nx + "_" + ny + "_" + nz + ".o";
+
+  sector = load_object(MAPS_HANDLER)->query_sector_for_coord(game, map,
+                                                             nx, ny, nz);
+
+  if (verb == "create")
+  {
+    if (sector && sector->query_nodes()[key])
+    {
+      notify_fail("(" + key + ") is already occupied by a location.\n");
+      return 0;
+    }
+    if (file_size(plot_file) >= 0)
+    {
+      notify_fail("A file already exists at " + plot_file + ".\n");
+      return 0;
+    }
+
+    plot = clone_object(BASE_LOCATION_OBJ);
+    if (!plot)
+    {
+      notify_fail("Could not clone a location.\n");
+      return 0;
+    }
+    plot->set_file_name(plot_file);
+    plot->set_map_name(map);
+    plot->set_coordinates(nx, ny, nz);
+    plot->add_component(LOCATION_COMPONENT_PLOT, ([ ]));
+
+    // reciprocal open exits (a plain doorway, not a road/path map way)
+    loc->add_exit(ldir, plot_file, "open");
+    plot->add_exit(rdir, loc_file, "open");
+    plot->save_me();
+    loc->save_me();
+
+    // index the new plot and re-index this location so both exit graphs update
+    load_object(MAPS_HANDLER)->add_location(plot);
+    load_object(MAPS_HANDLER)->add_location(loc);
+    if (area)
+      area->add_plot(plot_file);
+
+    write("Carved an empty plot to the " + ldir + " at (" + key + ").\n");
+    return 1;
+  }
+
+  // verb == "remove"
+  if (!sector || !sector->query_nodes()[key])
+  {
+    notify_fail("There is no location to the " + ldir + ".\n");
+    return 0;
+  }
+  plot_file = sector->query_nodes()[key]["file"];
+  plot = load_object(LOCATION_HANDLER)->load_location(plot_file);
+  if (!plot)
+  {
+    notify_fail("Could not load the location to the " + ldir + ".\n");
+    return 0;
+  }
+
+  // only a bare plot may be deleted: exactly the plot component, nothing else
+  {
+    object * comps;
+    comps = plot->query_components();
+    if (sizeof(comps) != 1 ||
+        comps[0]->query_type() != LOCATION_COMPONENT_PLOT)
+    {
+      notify_fail("That location is not a bare plot (it is built or carries " +
+                  "other components); refusing to delete.\n");
+      return 0;
+    }
+  }
+
+  // sever the exit, re-index this location, unindex + unregister the plot,
+  // destroy the object and delete its file
+  loc->remove_exit(ldir);
+  loc->save_me();
+  load_object(MAPS_HANDLER)->add_location(loc);
+  load_object(MAPS_HANDLER)->remove_location_from_map(plot_file, map,
+                                                      nx, ny, nz);
+  if (area)
+    area->remove_plot(plot_file);
+  destruct(plot);
+  remove_file(plot_file);
+
+  write("Removed the empty plot to the " + ldir + ".\n");
   return 1;
 }
 

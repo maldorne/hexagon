@@ -71,6 +71,12 @@ int npc_default_level_spread;
 //                     "source": template_id, "sentient": 1 ]) ])
 mapping roles;
 
+// Buildable empty lots in this area (location files carrying only the `plot`
+// component), carved by a programmer with the builder ring. The housing system
+// raises a house on one of these when it needs to home an NPC family. Not the
+// houses themselves -- once built, a plot leaves this list.
+string * plots;
+
 // The citizenship this area belongs to (a name in the diplomacy graph).
 // Guards fielded at the area's town entrances and squares follow this
 // citizenship: the diplomacy handler tells us how many (its security level)
@@ -106,6 +112,7 @@ void create() {
   npc_sources = ([ ]);
   pois = ([ ]);
   roles = ([ ]);
+  plots = ({ });
   npc_default_level = 1;
   npc_default_level_spread = 0;
   citizenship = "";
@@ -118,6 +125,31 @@ void restore_me() {
 
 void save_me() {
   save_object(file_name);
+}
+
+// Buildable-plot registry. The builder ring registers a freshly carved empty lot
+// with add_plot; the housing system consumes one (and calls remove_plot) when it
+// raises a house on it.
+string * query_plots() { return plots ? plots : ({ }); }
+
+void add_plot(string file)
+{
+  if (!plots)
+    plots = ({ });
+  if (member_array(file, plots) < 0)
+  {
+    plots += ({ file });
+    save_me();
+  }
+}
+
+void remove_plot(string file)
+{
+  if (plots && member_array(file, plots) >= 0)
+  {
+    plots -= ({ file });
+    save_me();
+  }
 }
 
 string query_file_name() { return file_name; }
