@@ -124,6 +124,21 @@ static int _glob_match(string pattern, string str)
   return s == slen;
 }
 
+// The basename of a location/save path, without directories or a trailing ".o",
+// for the compact `build npc` listing. "-" for an empty path.
+static string _base(string path)
+{
+  string * parts;
+
+  if (!path || !strlen(path))
+    return "-";
+  parts = explode(path, "/");
+  path = parts[sizeof(parts) - 1];
+  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".o")
+    path = path[0 .. strlen(path) - 3];
+  return path;
+}
+
 // Pattern has wildcards if it contains `*` or `?`.
 static int _has_wildcards(string pattern)
 {
@@ -1170,6 +1185,51 @@ int do_npc()
         out += sprintf("  %-*s  %-*s  template %-*s  %s\n",
                        w_poi, v_poi[i], w_role, v_role[i],
                        w_tmpl, v_tmpl[i], v_state[i]);
+    }
+  }
+
+  // Live NPCs grouped by their source (type). Under each type, one indented line
+  // per materialized NPC: its position, the work its schedule walks it to, and
+  // the home it lives in. Covers roster, role and vacancy NPCs alike.
+  {
+    object * live_npcs;
+    string * seen;
+    int k, m;
+
+    live_npcs = area->query_live_npcs();
+    seen = ({ });
+    out += "\nLive NPCs (" + sizeof(live_npcs) + "):\n";
+    if (!sizeof(live_npcs))
+      out += "  (none loaded)\n";
+
+    for (k = 0; k < sizeof(live_npcs); k++)
+    {
+      string src;
+
+      src = live_npcs[k]->query_npc_source();
+      if (member_array(src, seen) != -1)
+        continue;
+      seen += ({ src });
+
+      out += "  " + (src ? src : "(no source)") + ":\n";
+      for (m = 0; m < sizeof(live_npcs); m++)
+        if (live_npcs[m]->query_npc_source() == src)
+        {
+          object npc, sched, env;
+          string name;
+
+          npc = live_npcs[m];
+          env = environment(npc);
+          sched = npc->query_component_by_type("schedule");
+          name = npc->query_given_name()
+                   ? capitalize(npc->query_given_name())
+                   : npc->query_cap_name();
+          out += sprintf("      %-16s  loc %-12s  work %-12s  home %-12s\n",
+                         name,
+                         env ? _base(env->query_file_name()) : "nowhere",
+                         _base(sched ? sched->query_work() : nil),
+                         _base(npc->query_home()));
+        }
     }
   }
 

@@ -101,6 +101,7 @@ private void _equip_npc(object npc, string * paths);
 private string * _resolve_equipment(mixed * spec);
 private string generate_citizen_name(int gender);
 private void _house_family(object * family);
+private void _door_house_exits(object house);
 void fill_guards();
 void repost_guards(string poi_file);
 private void _remove_guard(string id);
@@ -231,6 +232,10 @@ string build_house_on_plot(string * residents)
                        ([ "residents": residents ? residents : ({ }) ]));
   house->save_me();
 
+  // a raised house has a real front door: re-type the plot's open exits (both
+  // the house side and the neighbour's reciprocal) to "door"
+  _door_house_exits(house);
+
   // it is a house now, not an available plot
   remove_plot(plot_file);
 
@@ -239,6 +244,48 @@ string build_house_on_plot(string * residents)
                                             : "no residents") + ".");
 
   return plot_file;
+}
+
+// Re-type a raised house's exits to "door": the exit(s) the house carries (a
+// plot-derived house has one, back to the location it was carved from) and each
+// neighbour's reciprocal exit. A plot is carved with plain "open" passages; once
+// it becomes a home it gets a real front door on both sides.
+private void _door_house_exits(object house)
+{
+  mapping hex, nex;
+  string * dirs, * ndirs;
+  string hfile;
+  int i, j;
+
+  if (!house)
+    return;
+
+  hfile = house->query_file_name();
+  hex = house->query_exit_map();
+  dirs = hex ? map_indices(hex) : ({ });
+
+  for (i = 0; i < sizeof(dirs); i++)
+  {
+    string dest;
+    object neighbour;
+
+    // exit_map[dir] = ({ dest, type, ... }); re-type this side to a door
+    dest = hex[dirs[i]][0];
+    house->add_exit(dirs[i], dest, "door");
+
+    // and the neighbour's exit that points back here
+    neighbour = load_object(LOCATION_HANDLER)->load_location(dest);
+    if (!neighbour)
+      continue;
+    nex = neighbour->query_exit_map();
+    ndirs = nex ? map_indices(nex) : ({ });
+    for (j = 0; j < sizeof(ndirs); j++)
+      if (nex[ndirs[j]][0] == hfile)
+        neighbour->add_exit(ndirs[j], hfile, "door");
+    neighbour->save_me();
+  }
+
+  house->save_me();
 }
 
 // Raise one house for a family (one or two NPCs) and move them in: build the
@@ -263,6 +310,26 @@ private void _house_family(object * family)
     family[i]->set_home(house);
     family[i]->save_npc();
   }
+}
+
+// Every NPC currently materialized across the area's loaded locations. Used by
+// the builder's `build npc` report to list each roster template's live members
+// with their position, work and home.
+object * query_live_npcs()
+{
+  object * everyone, * npcs;
+  int i, j;
+
+  everyone = ({ });
+  for (i = 0; i < sizeof(loaded_locations); i++)
+    if (loaded_locations[i])
+      everyone += all_inventory(loaded_locations[i]);
+
+  npcs = ({ });
+  for (j = 0; j < sizeof(everyone); j++)
+    if (everyone[j] && everyone[j]->query_npc())
+      npcs += ({ everyone[j] });
+  return npcs;
 }
 
 // Give every homeless settled citizen a home, pairing a man and a woman into
@@ -397,6 +464,7 @@ int bind_vacancy_house(string role, string location)
     loc->add_component(LOCATION_COMPONENT_HOME,
                        ([ "residents": uuid ? ({ uuid }) : ({ }) ]));
     loc->save_me();
+    _door_house_exits(loc);
     remove_plot(location);
     log_event("Raised a house at " + location + " for the " + role +
               " vacancy.");
