@@ -23,6 +23,7 @@ inherit friends    "/lib/npc/friends.c";
 inherit chatter    "/lib/npc/chatter.c";
 inherit npc_combat "/lib/npc/npc_combat.c";
 inherit npc_timed  "/lib/npc/npc_timed.c";
+inherit pacing     "/lib/npc/pacing.c";
 
 // already defined in living/combat.c
 // static int combat_counter;  /* Counts what we should do next in combat */
@@ -31,9 +32,9 @@ inherit npc_timed  "/lib/npc/npc_timed.c";
 int p_memory;          /* if !0 will record player names, else won't */
 string *p_attack_list; /* names we don't like */
 
-mixed move_after;      /* ({ minimum time, Add'l random time }) */
-
-int move_when;         /* how many hbs we shall move */
+mixed move_after;      /* wander cadence params ({ base, rand }); also the
+                          "wander enabled" marker. The cadence and directed
+                          travel live in the pacing mixin. */
 
 string *move_zones,    /* zones that i may wander into */
 *enter_commands;       /* commands to be done upon entering a room */
@@ -70,6 +71,7 @@ void create()
   chatter::create();
   npc_combat::create();
   npc_timed::create();
+  pacing::create();
   // setup() call is inside this create(),
   // so this has to be the last one
   living::create();
@@ -194,6 +196,14 @@ void attack_by(object ob)
   if (p_attack_list)
     do_equip("");
 
+  // Combat interrupts whatever the NPC had lined up: abandon any route and drop
+  // the pending queue so it stops mid-errand and fights. What it does once the
+  // fight ends is a separate decision the NPC will make later (see the future
+  // "NPC event reactions" work), not a resume of the old route.
+  if (travelling())
+    stop_travel();
+  flush_actions();
+
   ::attack_by(ob);
 }
 
@@ -220,6 +230,7 @@ string *query_p_attacker_list()
 int check_anyone_here();
 void set_random_stats(int low, int high);
 void do_move_after(int bing);
+void movement_heart_beat();
 
 int query_cols() { return 79; }
 
@@ -353,10 +364,14 @@ int check_anyone_here()
   return 0;
 }
 
+// Enable idle wander and set its cadence: a random step every after +
+// random(rand) heart_beats. move_after is the "wander enabled" marker (and
+// feeds stats); the cadence itself, and directed travel, live in the pacing
+// mixin (set_wander_speed / move_ready / travel_to).
 void set_move_after(int after, int rand)
 {
   move_after = ({ after, rand });
-  move_when = (move_after[0] + random(move_after[1]));
+  set_wander_speed(after, rand);
 }
 
 int query_hb_counter() { return hb_counter; }
@@ -379,29 +394,37 @@ int check_heart_beat()
     !sizeof(query_attacker_list()) &&
     !this_object()->query_action_pending() &&
     !check_anyone_here() && !sizeof(query_effects()) &&
-    !this_object()->ai_actions_pending())
+    !this_object()->ai_actions_pending() &&
+    !travelling())
   {
     set_heart_beat(0);
     protecting = 0;
   }
 }
 
-/* Does the move after thingie called in heart_beat
- * Wonderflug, cut this down to nothing :)
+/* Movement cadence tick, called from heart_beat while not in combat. Directed
+ * travel takes priority over idle wander; both share the single pacing counter,
+ * so exactly one movement is issued per due tick.
+ * Wonderflug's old move_after_heart_beat, generalised onto the pacing mixin.
  */
-void move_after_heart_beat()
+void movement_heart_beat()
 {
-  // Taniwha 07 02 97, can't handle the crap uptimes.
-#ifdef NO_WANDER
-  return;
-#endif
-  move_when--;
-  if ( move_when <= 0 )
+  // count down the shared cadence; nothing to do until a step is due
+  if (!move_ready())
+    return;
+
+  if (travelling())
   {
-    do_move_after(0); // probably change that number.. random ?
-    move_when = (move_after[0] + random(move_after[1]) );
+    travel_step();
+    return;
   }
-  return;
+
+  // Taniwha 07 02 97, NO_WANDER disables autonomous wandering on busy uptimes;
+  // directed travel above is a deliberate order and still runs.
+#ifndef NO_WANDER
+  if (move_after)
+    do_move_after(0);
+#endif
 }
 
 /*
@@ -432,8 +455,10 @@ void heart_beat()
   if (sizeof(query_attack_effects()))
     MONSTER_HAND->effect_heart_beat(this_object(), attacker_list, query_attack_effects());
 
-  if (move_after && !sizeof(attacker_list))
-    move_after_heart_beat();
+  // Movement: directed travel or idle wander, paced by the shared cadence and
+  // frozen while in combat. Only tick it when there is a reason to move.
+  if (!sizeof(attacker_list) && (travelling() || move_after))
+    movement_heart_beat();
 
   // No race objects have this
   // catch(query_race_ob()->monster_heart_beat(race, mclass, query_race_ob(), query_guild_ob()));

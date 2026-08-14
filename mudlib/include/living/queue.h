@@ -22,6 +22,12 @@
 // #define MAXIMUM_COMMANDS_PER_HB 5
 #define MAXIMUM_COMMANDS_PER_HB 2
 
+// Absolute hard ceiling on how many actions any living may drain from its queue
+// in one heart_beat, enforced in queue::act(). A circuit breaker, not a speed
+// setting: it exists so a runaway queue can never run an unbounded burst in a
+// single beat. Independent of any pacing layered on top.
+#define MAX_ACTIONS_PER_HB 10
+
 #define ACT_TIME_CONTROL 0
 
 /* return codes */

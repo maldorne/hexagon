@@ -119,6 +119,15 @@ void create()
 mixed* debug_actionq() { return actionq; }
 void debug_resetq() { actionq = ({ }); }
 
+// Drop every pending action from the queue (and its parallel forced-flags
+// array). Used when something must interrupt what a living had lined up -- an
+// NPC abandoning a queued route when combat starts, for instance.
+void flush_actions()
+{
+  actionq = ({ });
+  action_forcedq = ({ });
+}
+
 /* debug of course */
 int query_bits_per_beat() { return 10; }
 
@@ -648,6 +657,8 @@ nomask int query_current_action_forced() { return curr_forced; }
  */
 void act()
 {
+  int performed;
+
   trivial_actions_performed = 0;
 
   if (time_left < max_time)
@@ -656,8 +667,16 @@ void act()
     time_left = ( time_left > max_time ) ? max_time : time_left;
   }
 
+  // Hard circuit breaker: never drain more than MAX_ACTIONS_PER_HB actions in a
+  // single beat. This bounds the worst case (a huge queue, a bug) so one object
+  // can never burn a whole beat running an unbounded burst of commands.
+  performed = 0;
+
   while (perform_next_action())
   {
+    if (++performed >= MAX_ACTIONS_PER_HB)
+      break;
+
     if (show_prompt && this_object())
     {
       this_object()->show_prompt();
