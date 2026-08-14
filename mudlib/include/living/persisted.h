@@ -21,9 +21,4 @@
 // is a one-time seed, never reloaded at spawn (mirrors room -> location).
 #define BESTIARY_HANDLER  "/lib/handlers/bestiary"
 #define GENERIC_NPC       "/lib/npc"
-// A generic NPC with the guardian role: blocks enemy citizenships at a watched
-// exit. Spawned instead of GENERIC_NPC for a citizenship's guards; still takes
-// its appearance / race / level from a bestiary template like any NPC.
-#define GUARD_NPC         "/lib/guard"
-
 #endif

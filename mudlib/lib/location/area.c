@@ -966,9 +966,9 @@ private object npc_restore(string id, object loc)
     save_me();
   }
 
-  // a guard census entry clones the guard base (generic NPC + guardian role)
-  // so the placed NPC gains the exit check; everything else is identical.
-  npc = clone_object(entry["guard"] ? GUARD_NPC : GENERIC_NPC);
+  // Every NPC is a generic NPC; a guard census entry additionally gets the
+  // "guard" component below (at placement), which carries the exit check.
+  npc = clone_object(GENERIC_NPC);
   if (!npc)
     return nil;
 
@@ -1084,7 +1084,9 @@ private object npc_restore(string id, object loc)
              ? poi[POI_FIELD_GUARD_DIR] : nil;
     if (gdir)
     {
-      npc->set_guardian_direction(gdir);
+      // stamp the guard-role component (carries the direction + exit check) and
+      // register on the exit so the exit handler consults its guardian_check
+      npc->add_component("guard", ([ "direction" : gdir ]));
       loc->register_guard(npc, gdir);
     }
   }

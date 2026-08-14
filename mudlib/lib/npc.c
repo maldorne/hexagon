@@ -196,6 +196,24 @@ void run_on_components(string func, mixed * args)
     call_other(components[i], func, args);
 }
 
+// Guard-role proxy. The room's exit handler consults a posted guard through
+// guardian_check / guardian_message on the NPC object; delegate to the guard
+// component when this NPC carries one. An NPC without it blocks nobody, so a
+// non-guard consulted by mistake simply lets everyone through.
+int guardian_check(object mover)
+{
+  object g;
+  g = query_component_by_type("guard");
+  return g ? g->check(mover) : 1;
+}
+
+string guardian_message()
+{
+  object g;
+  g = query_component_by_type("guard");
+  return g ? g->message() : nil;
+}
+
 // Give this NPC a generated proper name: store it (persisted in npc.o) and set
 // it as the engine name (the find_living id), lowercased. Call on a freshly
 // cloned NPC, before any template names it -- monster::set_name only takes the
