@@ -1232,6 +1232,13 @@ int do_plot(string str)
 
   if (verb == "create")
   {
+    // no houses inside houses: a plot cannot be carved from a plot or a home
+    if (loc->query_component_by_type(LOCATION_COMPONENT_PLOT) ||
+        loc->query_component_by_type(LOCATION_COMPONENT_HOME))
+    {
+      notify_fail("You cannot carve a plot from inside a plot or a house.\n");
+      return 0;
+    }
     if (sector && sector->query_nodes()[key])
     {
       notify_fail("(" + key + ") is already occupied by a location.\n");

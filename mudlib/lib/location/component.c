@@ -71,6 +71,11 @@ void initialize(object loc)
 string query_type() { return type; }
 void set_type(string t) { type = t; }
 
+// A one-line summary of this component's essential state, for programmers (the
+// `components` command shows it next to the type). Empty by default; a component
+// with meaningful state overrides it -- e.g. home lists its residents.
+string query_info() { return ""; }
+
 // Hook registration. A component declares which of the location's
 // public functions it wants to participate in, and at what priority
 // bucket (see include/room/location.h). The location reads this

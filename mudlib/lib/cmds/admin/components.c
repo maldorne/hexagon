@@ -54,7 +54,12 @@ static int cmd(string str, object me, string verb)
 
     ret = "Components on this location:\n";
     for (i = 0; i < sizeof(comps); i++)
-      ret += "  - " + comps[i]->query_type() + "\n";
+    {
+      string info;
+      info = comps[i]->query_info();
+      ret += "  - " + comps[i]->query_type() +
+             (info && strlen(info) ? "  (" + info + ")" : "") + "\n";
+    }
     write(ret);
     return 1;
   }

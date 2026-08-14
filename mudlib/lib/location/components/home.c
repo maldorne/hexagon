@@ -48,6 +48,19 @@ void add_resident(string r)
     residents += ({ r });
 }
 
+// Programmer summary: who lives here (and the owner, if set). Residents are the
+// find_living ids / uuids the housing system stored.
+string query_info()
+{
+  string s;
+
+  s = "residents: " +
+      (residents && sizeof(residents) ? implode(residents, ", ") : "none");
+  if (home_owner && strlen(home_owner))
+    s += "; owner: " + home_owner;
+  return s;
+}
+
 mapping query_hooks()
 {
   return ([ "short": HOOK_PRIORITY_STRUCTURE,
