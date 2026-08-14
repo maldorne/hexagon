@@ -52,6 +52,10 @@
 #define VACANCY_FIELD_ROLE   "role"
 #define VACANCY_FIELD_SOURCE "source"
 #define VACANCY_FIELD_UUID   "uuid"
+// A fixed home (a house location) for whoever fills this vacancy, so the pub's
+// barman and the shop's keeper always live in the same house across respawns.
+// nil/unset -> the NPC is homed by the settlement's random housing pass instead.
+#define VACANCY_FIELD_HOME   "home"
 
 // Seconds before a dead vacancy NPC is respawned at its POI.
 #define VACANCY_RESPAWN_DELAY 300

@@ -22,7 +22,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
 #define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> | principal >"
-#define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role>> >"
+#define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role> | home <role>> >"
 #define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
@@ -824,21 +824,54 @@ int do_poi(string str)
   {
     string vverb;
 
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build poi vacancy < add <role> <source> | " +
+                  "remove <role> | home <role> >\n");
+      return 0;
+    }
+
+    vverb = args[1];
+
+    // "home" binds the current location (a plot or a house) as a role's fixed
+    // vacancy home; unlike add/remove it acts on the house, not the POI, so it
+    // does not require standing on the POI itself
+    if (vverb == "home")
+    {
+      string role;
+      int n;
+
+      if (sizeof(args) < 3)
+      {
+        notify_fail("Usage: build poi vacancy home <role>\n");
+        return 0;
+      }
+      role = args[2];
+
+      if (!loc->query_component_by_type(LOCATION_COMPONENT_PLOT) &&
+          !loc->query_component_by_type(LOCATION_COMPONENT_HOME))
+      {
+        notify_fail("Stand in a plot or a house to make it a vacancy's " +
+                    "home.\n");
+        return 0;
+      }
+
+      n = area->bind_vacancy_house(role, file);
+      if (!n)
+      {
+        notify_fail("No vacancy with role '" + role + "' in this area.\n");
+        return 0;
+      }
+      write("Bound the '" + role + "' vacancy's home to " + file + ".\n");
+      return 1;
+    }
+
     if (!area->is_poi(file))
     {
       notify_fail("This location is not a POI. Add one first with " +
                   "'build poi add <kind>'.\n");
       return 0;
     }
-
-    if (sizeof(args) < 2)
-    {
-      notify_fail("Usage: build poi vacancy < add <role> <source> | " +
-                  "remove <role> >\n");
-      return 0;
-    }
-
-    vverb = args[1];
 
     if (vverb == "add")
     {

@@ -321,6 +321,97 @@ void assign_homes()
   }
 }
 
+// Bind a POI vacancy (identified by role) to a fixed home (a house location), so
+// whoever fills that vacancy always lives there. Searches every POI's vacancies
+// for the role, sets the home on each match, and updates the live NPC if it is
+// materialized. Returns the number of vacancies bound (0 if the role is unknown).
+int set_vacancy_home(string role, string home)
+{
+  string * locs;
+  mixed * vs;
+  int i, vi, found;
+
+  locs = map_indices(pois);
+  found = 0;
+
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    vs = pois[locs[i]][POI_FIELD_VACANCIES];
+    for (vi = 0; vs && vi < sizeof(vs); vi++)
+      if (vs[vi][VACANCY_FIELD_ROLE] == role)
+      {
+        vs[vi][VACANCY_FIELD_HOME] = home;
+        found++;
+
+        // update the live NPC filling this slot, if any
+        if (vs[vi][VACANCY_FIELD_UUID])
+        {
+          object npc;
+          npc = live_census_npc(locs[i], vs[vi][VACANCY_FIELD_UUID]);
+          if (npc)
+          {
+            npc->set_home(home);
+            npc->save_npc();
+          }
+        }
+      }
+  }
+
+  if (found)
+    save_me();
+  return found;
+}
+
+// Bind a house to a POI vacancy in one step (the builder-ring flow): given a
+// location and a role, turn a bare plot there into a house, make the vacancy's
+// NPC its resident, and set the vacancy's fixed home to it. Returns the number
+// of vacancies bound (0 if the role is unknown). If the location is already a
+// house it is reused; the vacancy NPC is added as a resident.
+int bind_vacancy_house(string role, string location)
+{
+  object loc, home_comp;
+  string * locs;
+  mixed * vs;
+  int i, vi;
+  string uuid;
+
+  loc = load_object(LOCATION_HANDLER)->load_location(location);
+  if (!loc)
+    return 0;
+
+  // find the uuid currently filling this vacancy (to record as resident)
+  uuid = nil;
+  locs = map_indices(pois);
+  for (i = 0; i < sizeof(locs); i++)
+  {
+    vs = pois[locs[i]][POI_FIELD_VACANCIES];
+    for (vi = 0; vs && vi < sizeof(vs); vi++)
+      if (vs[vi][VACANCY_FIELD_ROLE] == role)
+        uuid = vs[vi][VACANCY_FIELD_UUID];
+  }
+
+  if (loc->query_component_by_type(LOCATION_COMPONENT_PLOT))
+  {
+    // a bare plot becomes this vacancy's house
+    loc->remove_component(LOCATION_COMPONENT_PLOT);
+    loc->add_component(LOCATION_COMPONENT_HOME,
+                       ([ "residents": uuid ? ({ uuid }) : ({ }) ]));
+    loc->save_me();
+    remove_plot(location);
+    log_event("Raised a house at " + location + " for the " + role +
+              " vacancy.");
+  }
+  else if ((home_comp = loc->query_component_by_type(LOCATION_COMPONENT_HOME))
+           && uuid)
+  {
+    // already a house: ensure the vacancy NPC is a resident
+    home_comp->add_resident(uuid);
+    loc->save_me();
+  }
+
+  return set_vacancy_home(role, location);
+}
+
 string query_file_name() { return file_name; }
 void set_file_name(string name)
 {
@@ -1268,6 +1359,26 @@ private object npc_restore(string id, object loc)
   // excluded above (a role slot is never a guard entry).
   if (role && sentient && role["work"])
     npc->add_component("schedule", ([ "work": role["work"] ]));
+
+  // A POI vacancy (the pub's barman, the shop's keeper) with a fixed home lives
+  // in its designated house; set it every materialization so it survives death
+  // and respawn. Read live from the vacancy so a rebind is picked up.
+  if (entry["poi"] && entry["role"])
+  {
+    mapping poi;
+    mixed * vs;
+    int vi;
+
+    poi = pois[entry["poi"]];
+    vs = poi ? poi[POI_FIELD_VACANCIES] : nil;
+    for (vi = 0; vs && vi < sizeof(vs); vi++)
+      if (vs[vi][VACANCY_FIELD_ROLE] == entry["role"] &&
+          vs[vi][VACANCY_FIELD_HOME])
+      {
+        npc->set_home(vs[vi][VACANCY_FIELD_HOME]);
+        break;
+      }
+  }
 
   // A guard carries the area's citizenship as its city_ob (so diplomacy can
   // resolve its loyalty) and, at an entrance, watches the entry direction: it
