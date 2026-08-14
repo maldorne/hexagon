@@ -801,3 +801,44 @@ void repop()
     set_lock_status(init_lock_status);
   }
 }  
+
+// Configure a door's initial (default) state from an options mapping, in one
+// call. Applied when the door is created (add_exit); once the exit map carries
+// it, it is re-applied every time the location reloads -- so a door defined
+// closed comes back closed no matter how it was left last time, because this is
+// its default, not its live state. Every key is optional; an absent key leaves
+// that property at the door's own default. Keys:
+//   "closed"     : 1 => starts closed (init_status 0), else open
+//   "locked"     : 1 => starts locked (init_lock_status 0, implies lockable)
+//   "lockable"   : 1 => can be locked (without necessarily starting locked)
+//   "keys"       : ({ paths }) => the key items that lock / unlock it
+//   "breakable"  : 1 => can be broken
+//   "gender"     : grammatical gender of the door's name
+//   "number"     : 0 single / 1 plural (a gate that reads "verjas")
+//   "other_side" : the direction word the door shows from the far room
+void set_options(mapping m)
+{
+  if (!m)
+    return;
+
+  if (!undefinedp(m["gender"]))
+    set_gender(m["gender"]);
+  if (!undefinedp(m["number"]))
+    set_number(m["number"]);
+  if (!undefinedp(m["other_side"]))
+    set_dir_other_side(m["other_side"]);
+  if (!undefinedp(m["breakable"]))
+    set_breakable(m["breakable"]);
+  if (pointerp(m["keys"]))
+    set_keys(m["keys"]);
+  if (!undefinedp(m["lockable"]))
+    set_lockable(m["lockable"]);
+
+  // status and lock last: opening a door also unlocks it (set_status), and
+  // locking also closes it (set_lock_status), so these must settle after the
+  // rest. "closed" first, then "locked" so a closed+locked door ends locked.
+  if (!undefinedp(m["closed"]))
+    set_init_status(m["closed"] ? 0 : 1);
+  if (!undefinedp(m["locked"]))
+    set_init_lock_status(m["locked"] ? 0 : 1);
+}

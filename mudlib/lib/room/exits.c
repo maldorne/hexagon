@@ -230,7 +230,7 @@ void set_exit_color(string which)
 //  Externalized exit portions of room.c (Piper 12/24/95)
 //      Now look in exit_handler.c
 mixed add_exit(string direc, mixed dest, string type,
-               varargs string material)
+               varargs string material, mapping options)
 {
   mixed *m;
   object door;
@@ -252,6 +252,15 @@ mixed add_exit(string direc, mixed dest, string type,
     dest_other = m[2];
     dest_direc = m[3];
     this_object()->set_hidden_objects(m[4]);
+
+    // stash the door options as a 4th tuple element so they survive save /
+    // restore: a location rebuilds its exits from this map, and reapplies the
+    // options to each freshly-cloned door, so a door defined closed comes back
+    // closed every load. The exit handler keeps the tuple at ({ dest, type,
+    // material }); everything downstream reads [0..2] and ignores extra slots.
+    if (options)
+      exit_map[direc] = exit_map[direc] + ({ options });
+
     exit_string = query_dirs_string();
     short_exit_string = query_short_exit_string();
 
@@ -260,6 +269,10 @@ mixed add_exit(string direc, mixed dest, string type,
     if ((type == "door") || (type == "gate"))
     {
       door = add_door(direc);
+      // configure the door's initial (default) state in the same call: closed,
+      // locked, keys, grammatical gender/number, etc. (see door::set_options)
+      if (door && options)
+        door->set_options(options);
       return door;
     }
 

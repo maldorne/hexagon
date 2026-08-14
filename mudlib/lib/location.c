@@ -842,7 +842,9 @@ void add_exits_from_exit_map(mapping m)
 {
   int i;
   string * exit_names;
-  string * exits_info;
+  // ({ dest, type, material }) plus an optional 4th slot: the door options
+  // mapping -- so the element type is mixed, not string
+  mixed * exits_info;
 
   exit_names = keys(m);
 
@@ -853,10 +855,14 @@ void add_exits_from_exit_map(mapping m)
     // first remove the current exit if it exists
     remove_exit(exit_names[i]);
 
+    // a 4th tuple slot, when present, is the door options mapping (closed,
+    // locked, keys, ...): pass it through so the rebuilt door is reconfigured
+    // to its default state on every load
     add_exit(exit_names[i],
              exits_info[0],
              exits_info[1],
-             exits_info[2]);
+             exits_info[2],
+             sizeof(exits_info) > 3 ? exits_info[3] : nil);
   }
 }
 

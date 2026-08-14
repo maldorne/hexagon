@@ -251,7 +251,9 @@ string build_house_on_plot(string * residents)
 // Re-type a raised house's exits to "door": the exit(s) the house carries (a
 // plot-derived house has one, back to the location it was carved from) and each
 // neighbour's reciprocal exit. A plot is carved with plain "open" passages; once
-// it becomes a home it gets a real front door on both sides.
+// it becomes a home it gets a real front door on both sides. A house door starts
+// closed by default (the options ride in the exit map, so it reopens closed on
+// every load); a resident opens it to come and go.
 private void _door_house_exits(object house)
 {
   mapping hex, nex;
@@ -271,9 +273,9 @@ private void _door_house_exits(object house)
     string dest;
     object neighbour;
 
-    // exit_map[dir] = ({ dest, type, ... }); re-type this side to a door
+    // exit_map[dir] = ({ dest, type, ... }); re-type this side to a closed door
     dest = hex[dirs[i]][0];
-    house->add_exit(dirs[i], dest, "door");
+    house->add_exit(dirs[i], dest, "door", nil, ([ "closed" : 1 ]));
 
     // and the neighbour's exit that points back here
     neighbour = load_object(LOCATION_HANDLER)->load_location(dest);
@@ -283,7 +285,8 @@ private void _door_house_exits(object house)
     ndirs = nex ? map_indices(nex) : ({ });
     for (j = 0; j < sizeof(ndirs); j++)
       if (nex[ndirs[j]][0] == hfile)
-        neighbour->add_exit(ndirs[j], hfile, "door");
+        neighbour->add_exit(ndirs[j], hfile, "door", nil,
+                            ([ "closed" : 1 ]));
     neighbour->save_me();
   }
 
