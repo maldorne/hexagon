@@ -215,14 +215,29 @@ int do_equip(string str)
     // Subtract one from the other to split the original array
     wears -= warms;
 
-    // First of all, we burn through the loop of wearable armour
+    // equip-all puts on every piece in one go. Once the login grace period has
+    // passed, wear_ob leaves the wearer briefly "busy" (PASSED_OUT_PROP) after
+    // each piece, and that busy state makes the next wear_ob bounce -- so a
+    // second item (e.g. a ring after the trousers) was silently skipped. Clear
+    // that per-piece busy between pieces so the whole set goes on, the same way
+    // the first-minute-of-login path already equips everything at once.
     for ( j = 0; j < sizeof(warms); j++)
+    {
+      this_object()->remove_timed_property(PASSED_OUT_PROP);
       this_object()->wear_ob(warms[j]);
-    
+    }
+
     // Then anything without ac.
     for ( j = 0; j < sizeof(wears); j++)
+    {
+      this_object()->remove_timed_property(PASSED_OUT_PROP);
       this_object()->wear_ob(wears[j]);
-    
+    }
+
+    // leave the wearer free after a bulk equip (the last piece would otherwise
+    // keep them briefly busy)
+    this_object()->remove_timed_property(PASSED_OUT_PROP);
+
     // End of line here as well.
     // No more objects to wear or no more slots free.
   }
