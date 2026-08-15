@@ -395,7 +395,7 @@ int check_heart_beat()
     !this_object()->query_action_pending() &&
     !check_anyone_here() && !sizeof(query_effects()) &&
     !this_object()->ai_actions_pending() &&
-    !travelling())
+    !travelling() && !departure_armed())
   {
     set_heart_beat(0);
     protecting = 0;
@@ -409,6 +409,10 @@ int check_heart_beat()
  */
 void movement_heart_beat()
 {
+  // a scheduled departure waiting out its random stagger delay counts down first
+  if (departure_pending())
+    return;
+
   // count down the shared cadence; nothing to do until a step is due
   if (!move_ready())
     return;
@@ -457,7 +461,7 @@ void heart_beat()
 
   // Movement: directed travel or idle wander, paced by the shared cadence and
   // frozen while in combat. Only tick it when there is a reason to move.
-  if (!sizeof(attacker_list) && (travelling() || move_after))
+  if (!sizeof(attacker_list) && (travelling() || move_after || departure_armed()))
     movement_heart_beat();
 
   // No race objects have this

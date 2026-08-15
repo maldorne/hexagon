@@ -190,11 +190,15 @@ void weather_inform(int flag, varargs string zone, int * values)
   // FLAG_CHECK reaches only timed npcs.
   if (flag == FLAG_CHECK)
   {
+    // The hourly ping reaches every subscribed NPC (not rooms / players): a
+    // "timed" NPC uses it to appear / vanish, a scheduled NPC to check its
+    // timetable for this hour. Both opted in via notify_me; each ignores the
+    // hours it does not care about.
     obs = m_indices(my_obs);
     for (i = 0; i < sizeof(obs); i++)
       if (objectp(obs[i]))
       {
-        if (obs[i]->query_npc() && obs[i]->query_timed_npc())
+        if (obs[i]->query_npc())
           event(obs[i], "weather", flag);
       }
       else

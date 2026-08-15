@@ -1462,12 +1462,24 @@ private object npc_restore(string id, object loc)
 
   npc->move(loc);
 
-  // A settled role NPC gets a daily schedule: walk to its work by day, home by
-  // night. Attached fresh from the role each materialization (so a work change
-  // is picked up); home is read live at nightfall from the NPC. Guards are
+  // A settled role NPC gets a daily timetable keyed on the game hour: out to work
+  // in the morning, home in the evening (both staggered so a crowd does not step
+  // off in lockstep). The role may supply its own "timetable"; otherwise a
+  // sensible default is used. Attached fresh each materialization (so a work /
+  // schedule change is picked up); home is read live from the NPC. Guards are
   // excluded above (a role slot is never a guard entry).
   if (role && sentient && role["work"])
-    npc->add_component("schedule", ([ "work": role["work"] ]));
+  {
+    mapping timetable;
+
+    timetable = role["timetable"];
+    if (!mappingp(timetable) || !map_sizeof(timetable))
+      timetable = ([ 6  : ([ "goto" : "work", "mode" : "approx", "spread" : 20 ]),
+                     20 : ([ "goto" : "home", "mode" : "approx", "spread" : 20 ]) ]);
+
+    npc->add_component("schedule",
+                       ([ "work": role["work"], "timetable": timetable ]));
+  }
 
   // A POI vacancy (the pub's barman, the shop's keeper) with a fixed home lives
   // in its designated house; set it every materialization so it survives death
