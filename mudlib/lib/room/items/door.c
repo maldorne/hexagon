@@ -844,3 +844,19 @@ void set_options(mapping m)
   if (!undefinedp(m["locked"]))
     set_init_lock_status(m["locked"] ? 0 : 1);
 }
+
+// Open this door (and keep its far side in sync) programmatically -- e.g. a
+// settled NPC walking its route opens a door in its way to step through. No
+// player context or messages, just the state on both sides, so it is safe to
+// call from a heart_beat / travel step. Uses the (location-aware) other-side
+// lookup so it mirrors correctly inside locations too.
+void open_for_travel()
+{
+  object other;
+
+  set_status(1);
+
+  other = query_other_side_door(1);
+  if (other && !other->is_open())
+    other->set_status(1);
+}

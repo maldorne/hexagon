@@ -155,7 +155,8 @@ void stop_travel()
 // route is spent, end the trip. One call per travel-cadence tick.
 void travel_step()
 {
-  string dir;
+  string dir, ldir;
+  object env, door;
 
   if (!travelling())
     return;
@@ -165,7 +166,20 @@ void travel_step()
 
   // the pathfinder speaks canonical English ("east"); the movement command is
   // in the mud's current language ("este"), so localise before issuing it.
-  this_object()->queue_action(ROOM_HAND->localize_dir(dir));
+  ldir = ROOM_HAND->localize_dir(dir);
+
+  // a settled NPC opens a closed door in its way (its own front door, a gate)
+  // before stepping through -- otherwise the move bounces off the closed door
+  // and the NPC never reaches its work or home.
+  env = environment();
+  if (env)
+  {
+    door = env->query_door_ob(ldir);
+    if (door && !door->is_open())
+      door->open_for_travel();
+  }
+
+  this_object()->queue_action(ldir);
 
   if (!sizeof(travel_path))
     stop_travel();
