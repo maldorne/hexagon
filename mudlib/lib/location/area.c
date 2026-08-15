@@ -97,6 +97,7 @@ string citizenship;
 void add_loaded_location(object location);
 mapping query_vacancy_sources();
 private void _recompute_intended();
+private string _template_id(string source);
 private object live_census_npc(string poi_file, string uuid);
 private void _ensure_guards_assigned(string location_file);
 private void _equip_npc(object npc, string * paths);
@@ -351,7 +352,10 @@ private int _is_resident(object o)
   if (!o || !o->query_npc())
     return 0;
 
-  spec = npc_intended[o->query_npc_source()];
+  // the NPC's source may still be the original monster .c path (an old save) or
+  // already the template id; npc_intended is keyed by template id, so normalise
+  // before the lookup -- exactly as the roster/census do
+  spec = npc_intended[_template_id(o->query_npc_source())];
   return spec && spec["resident"];
 }
 
