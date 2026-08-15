@@ -93,7 +93,12 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   if (!this_object()->query_invis())
   {
-    my_short = (string)this_object()->short();
+    // room messages use the display name (query_cap_name), not short(): for a
+    // generated NPC short() is the examine header "<kind> (<Name>)", so using it
+    // here leaked the proper name into "X leaves north" while the rest of the
+    // room text (lists, combat, door open/close) shows the bare kind. Keep the
+    // name for the examine header only.
+    my_short = (string)this_object()->query_cap_name();
     if (my_short)
       my_short = capitalize(my_short);
   }
