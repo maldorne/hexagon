@@ -819,7 +819,7 @@ private void _recompute_intended()
 {
   string * location_files, * npc_paths;
   int i, j;
-  mapping counts, clones_here, vacancy_sources;
+  mapping counts, clones_here, vacancy_sources, previous;
   string guard_source;
 
   // fold any pre-conversion monster paths in persisted state down to template
@@ -856,6 +856,9 @@ private void _recompute_intended()
   // and props out (it loads each source once, keeps only query_monster ones)
   // before recording them, so the roster no longer re-loads the source .c to
   // re-check -- it just sums the counts.
+  // keep the previous config so design-time flags (resident, ...) set by the
+  // builder survive a recompute -- the counts are re-derived, the flags are not
+  previous = npc_intended;
   npc_intended = ([ ]);
   npc_paths = map_indices(counts);
   for (i = 0; i < sizeof(npc_paths); i++)
@@ -870,6 +873,10 @@ private void _recompute_intended()
       continue;
 
     npc_intended[npc_paths[i]] = ([ "max": counts[npc_paths[i]] ]);
+
+    // carry forward design-time flags recompute must not clobber
+    if (previous[npc_paths[i]] && previous[npc_paths[i]]["resident"])
+      npc_intended[npc_paths[i]]["resident"] = 1;
   }
 }
 
