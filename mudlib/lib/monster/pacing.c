@@ -168,18 +168,25 @@ void travel_step()
   // in the mud's current language ("este"), so localise before issuing it.
   ldir = ROOM_HAND->localize_dir(dir);
 
-  // a settled NPC opens a closed door in its way (its own front door, a gate)
-  // before stepping through -- otherwise the move bounces off the closed door
-  // and the NPC never reaches its work or home.
+  // An NPC does everything a player would, by queueing the exact same commands
+  // it would type. A closed door in the way is not forced open by code: the NPC
+  // queues "<open> <dir>", steps through, then "<close> <back-dir>" from the far
+  // side, leaving the door as it found it. A bystander sees the door open, the
+  // NPC leave, and the door close again -- the real do_open / do_close run, so
+  // the far side and the messages are handled for free.
   env = environment();
-  if (env)
-  {
-    door = env->query_door_ob(ldir);
-    if (door && !door->is_open())
-      door->open_for_travel();
-  }
+  door = env ? env->query_door_ob(ldir) : nil;
 
-  this_object()->queue_action(ldir);
+  if (door && !door->is_open())
+  {
+    string back;
+    back = ROOM_HAND->query_opposite(ldir);
+    this_object()->queue_action(door->query_open_verb() + " " + ldir);
+    this_object()->queue_action(ldir);
+    this_object()->queue_action(door->query_close_verb() + " " + back);
+  }
+  else
+    this_object()->queue_action(ldir);
 
   if (!sizeof(travel_path))
     stop_travel();
