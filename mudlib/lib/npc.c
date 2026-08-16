@@ -220,13 +220,18 @@ string guardian_message()
   return g ? g->message() : nil;
 }
 
-// Forward the calendar's day/night ticks to this NPC's components (the schedule
-// component walks it to work at dawn and home at nightfall), after the legacy
-// timed-npc handling that /lib/monster/timed.c provides.
+// Forward weather / climate events to this NPC's components (a climate component
+// can react to rain, cold, etc.).
 void event_weather(object who, varargs int flag, int * values)
 {
-  ::event_weather(who, flag);
   run_on_components("event_weather", ({ who, flag }));
+}
+
+// The areas handler calls this at a schedule hour: hand it to the schedule
+// component (if any), which walks the NPC to where it should be this hour.
+void do_schedule(int hour)
+{
+  run_on_components("do_schedule", ({ hour }));
 }
 
 // Give this NPC a generated proper name: store it (persisted in npc.o) and set

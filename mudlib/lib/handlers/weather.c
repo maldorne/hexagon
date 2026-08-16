@@ -118,7 +118,8 @@ void setup()
   set_long("¡Éste es el controlador extraordinario del tiempo!\n");
   add_alias("controlador");
 
-  call_out("update_low", TICKS);
+  // cron advances the clock one game hour per call (see the crontab and
+  // `advance` below), so every game's clock runs off the one real-time source.
   // move() is masked below to always land in HANDLERS_HOME.
   move("bing");
 }
@@ -187,25 +188,6 @@ void weather_inform(int flag, varargs string zone, int * values)
     return;
   }
 
-  // FLAG_CHECK reaches only timed npcs.
-  if (flag == FLAG_CHECK)
-  {
-    // The hourly ping reaches every subscribed NPC (not rooms / players): a
-    // "timed" NPC uses it to appear / vanish, a scheduled NPC to check its
-    // timetable for this hour. Both opted in via notify_me; each ignores the
-    // hours it does not care about.
-    obs = m_indices(my_obs);
-    for (i = 0; i < sizeof(obs); i++)
-      if (objectp(obs[i]))
-      {
-        if (obs[i]->query_npc())
-          event(obs[i], "weather", flag);
-      }
-      else
-        my_obs = m_delete(my_obs, obs[i]);
-    return;
-  }
-
   obs = m_indices(my_obs);
 
   // Climate transitions reach rooms in the affected zone (players and
@@ -239,95 +221,70 @@ void weather_inform(int flag, varargs string zone, int * values)
 
 // ********************************************************************
 
-// Heartbeat driving the mud-time clock and periodic weather updates.
-void update_low()
+// Advance the game clock one in-game hour and fire the resulting weather events.
+// Cron calls this once per game hour (see the crontab); one call is exactly one
+// hour, so the clock is cron-paced. Public so the crontab (and tests) drive it.
+void advance()
 {
-  ticks++;
-
-  // Real-time ticks map to in-game hours through TICKS: advance the
-  // in-game hour whenever the current tick's fraction of the day
-  // exceeds the current hour.
-  if ((ticks * 24) / TICKS > hour_of_day)
+  // roll the hour; at midnight roll the calendar forward
+  hour_of_day++;
+  if (hour_of_day >= 24)
   {
-    hour_of_day++;
-    if (hour_of_day == query_dawn_time())
-      weather_inform(FLAG_DAWN);
-    else if (hour_of_day == query_nightfall_time())
-      weather_inform(FLAG_NIGHTFALL);
-    // Hourly ping for timed npcs.
-    else
-      weather_inform(FLAG_CHECK);
+    hour_of_day = 0;
+    day_of_month++;
+    day_of_week++;
+    day_of_year++;
 
-    // End of day: roll everything forward.
-    if (hour_of_day >= 24)
+    // Advance the moon one phase per day; cycles repeat every 10 days.
+    moon = (moon + 1) % 10;
+
+    // Season change on the 22nd of March/June/September/December
+    // (indices 21 in day_of_month, months 2/5/8/11).
+    if (day_of_month == 21)
     {
-      hour_of_day = 0;
-      day_of_month++;
-      day_of_week++;
-      day_of_year++;
-
-      // Advance the moon one phase per day; cycles repeat every 10 days.
-      moon = (moon + 1) % 10;
-
-      // Season change on the 22nd of March/June/September/December
-      // (indices 21 in day_of_month, months 2/5/8/11).
-      if (day_of_month == 21)
-      {
-        if (month == 11)
-        {
-          season = 0; // winter starts
-          check_season(0);
-        }
-        if (month == 2)
-        {
-          season = 1; // spring starts
-          check_season(0);
-        }
-        if (month == 5)
-        {
-          season = 2; // summer starts
-          check_season(0);
-        }
-        if (month == 8)
-        {
-          season = 3; // autumn starts
-          check_season(0);
-        }
-      }
-
-      // Weeks wrap every 7 days.
-      if (day_of_week >= 7)
-        day_of_week = 0;
-
-      // Month roll-over.
-      if (day_of_month >= month_days())
-      {
-        day_of_month = 0;
-        month++;
-        if (month >= 12)
-        {
-          month = 0;
-          day_of_year = 0;
-          year++;
-        }
-      }
+      if (month == 11) { season = 0; check_season(0); } // winter starts
+      if (month == 2)  { season = 1; check_season(0); } // spring starts
+      if (month == 5)  { season = 2; check_season(0); } // summer starts
+      if (month == 8)  { season = 3; check_season(0); } // autumn starts
     }
 
-    // End of the mud-time update.
+    // Weeks wrap every 7 days.
+    if (day_of_week >= 7)
+      day_of_week = 0;
 
-    // Refresh climate every four in-game hours. The interval is
-    // arbitrary but avoids updating too aggressively.
-    if ((hour_of_day % 4) == 0)
-      update_weather(0);
+    // Month roll-over.
+    if (day_of_month >= month_days())
+    {
+      day_of_month = 0;
+      month++;
+      if (month >= 12)
+      {
+        month = 0;
+        day_of_year = 0;
+        year++;
+      }
+    }
   }
 
-  save_weather();
+  // Dawn and nightfall reach climate observers (outside rooms and the players in
+  // them).
+  if (hour_of_day == query_dawn_time())
+    weather_inform(FLAG_DAWN);
+  else if (hour_of_day == query_nightfall_time())
+    weather_inform(FLAG_NIGHTFALL);
 
-  ticks = ticks % TICKS;
-  call_out("update_low", TICKS);
+  // Refresh climate every four in-game hours. The interval is arbitrary but
+  // avoids updating too aggressively.
+  if ((hour_of_day % 4) == 0)
+    update_weather(0);
+
+  // End of the mud-time update.
+  save_weather();
 }
 
-// Used by timed_npcs and similar consumers.
+// The current date/time, as ({ hour, day_of_year, month, season, year,
+// day_of_month }). The areas handler reads element 0 (the hour) to drive NPC
+// schedules.
 int * query_date_data()
 {
   return ({ hour_of_day, day_of_year + 1, month + 1, season + 1, year, day_of_month, });

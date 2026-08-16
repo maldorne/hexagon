@@ -36,9 +36,6 @@ int move_cooldown;              // beats left until the next step is allowed
 static string *travel_path;     // remaining canonical directions to the goal
 static object travel_goal;      // destination location
 
-static mixed pending_dest;      // destination of a staggered, not-yet-begun trip
-static int depart_delay;        // beats left before that trip starts (0 = none)
-
 void create()
 {
   wander_base = 0;
@@ -48,8 +45,6 @@ void create()
   move_cooldown = 0;
   travel_path = ({ });
   travel_goal = nil;
-  pending_dest = nil;
-  depart_delay = 0;
 }
 
 // The idle-wander cadence: a step every base + random(rand) beats. Setting it
@@ -143,49 +138,6 @@ int travel_to(mixed dest)
     this_object()->set_heart_beat(1);
 
   return sizeof(dirs);
-}
-
-// Begin a trip to `dest` after `delay` beats -- a randomised stagger so a crowd
-// ordered off at the same hour (all the farmers heading home at dusk) does not
-// step out on the very same beat. delay <= 0 starts now. Arms the heart_beat so
-// the countdown runs even on an otherwise idle NPC.
-void travel_to_after(mixed dest, int delay)
-{
-  if (delay <= 0)
-  {
-    travel_to(dest);
-    return;
-  }
-
-  pending_dest = dest;
-  depart_delay = delay;
-
-  if (!this_object()->query_heart_beat())
-    this_object()->set_heart_beat(1);
-}
-
-// Whether a staggered departure is armed and still counting down. The beat
-// dispatch uses it as a "reason to move", so the heart_beat keeps ticking (and
-// stays alive) through the pre-trip delay even before the trip itself starts.
-int departure_armed() { return depart_delay > 0; }
-
-// One beat of the pre-trip stagger: count the delay down and start the trip when
-// it elapses. Returns 1 while still waiting (the mover holds this beat), 0 when
-// nothing is pending. Called first in the movement tick.
-int departure_pending()
-{
-  mixed d;
-
-  if (!depart_delay)
-    return 0;
-
-  if (--depart_delay > 0)
-    return 1;
-
-  d = pending_dest;
-  pending_dest = nil;
-  travel_to(d);
-  return 0;
 }
 
 // Abandon the current route. Called on arrival, and the hook to call when the

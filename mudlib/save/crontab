@@ -1,7 +1,7 @@
 # Edit this file to introduce tasks to be run by cron.
-# 
+#
 # Each task to run has to be defined in a single line,
-# indicating when it will be run, the file that will be 
+# indicating when it will be run, the file that will be
 # loaded, and the function that will be called in the file.
 #
 # Times are indicated using values for
@@ -22,10 +22,17 @@
 * * /lib/handlers/cron.c net_dead_purge
 
 # every 23 hours, auto reboot
-# technically the only divisible by 23 hour is 23:00, so this is the same 
+# technically the only divisible by 23 hour is 23:00, so this is the same
 # as 0 23 /something something
 0 */23 /lib/handlers/shutdown.c auto_reboot
 
-# every ten minutes, check if a reboot is needed 
+# every ten minutes, check if a reboot is needed
 # if we are using too much memory
 */10 * /lib/handlers/shutdown.c memory_reboot
+
+# Game time. Every 2 real minutes = one in-game hour (a 48-minute day). The
+# weather line runs first so the areas handler reads an already-advanced hour
+# when it runs on the same minute. weather advances the clock + climate; the
+# areas handler drives the NPC hourly schedules off it.
+*/2 * /games/rl-aeternum/handlers/weather advance
+*/2 * /lib/handlers/areas update_areas

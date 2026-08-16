@@ -3,11 +3,81 @@
 
 mapping loaded_areas;
 
+// ({ ({ npc, hour }), ... }) collected each game hour and released a few per tick
+// (one call_out chain) so a crowd ordered off at the same hour staggers out
+// instead of stepping in lockstep.
+mixed * pending_schedule;
+
 private void _delete_npc_folder(string dir);
 
 void create() {
   loaded_areas = ([ ]);
+  pending_schedule = ({ });
   // ::create();
+}
+
+// The current game hour for an area, read from that area's game weather handler
+// (each game has its own clock: a sci-fi world runs on different hours). Falls
+// back to the base weather when a game has no weather handler of its own.
+private int _area_hour(object area)
+{
+  string game, wpath;
+
+  game = game_from_path(area->query_area_path());
+  wpath = "/games/" + game + "/handlers/weather";
+  if (file_size(wpath + ".c") < 0)
+    wpath = "/lib/handlers/weather";
+
+  return load_object(wpath)->query_date_data()[0];
+}
+
+// Cron calls this once per game hour (see the crontab, after the weather line so
+// the hour is already advanced). For every loaded area it reads that area's game
+// hour and collects the NPCs with something scheduled this hour, then releases
+// them staggered. Loaded areas / loaded NPCs only for now; waking unloaded
+// scheduled NPCs from each area's census is the next step.
+void update_areas()
+{
+  object * areas;
+  int i;
+
+  areas = map_values(loaded_areas);
+  for (i = 0; i < sizeof(areas); i++)
+  {
+    int hour, j;
+    object * actors;
+
+    if (!areas[i])
+      continue;
+
+    hour = _area_hour(areas[i]);
+    actors = areas[i]->hour_actors(hour);
+    for (j = 0; j < sizeof(actors); j++)
+      pending_schedule += ({ ({ actors[j], hour }) });
+  }
+
+  if (sizeof(pending_schedule) && find_call_out("_dispatch_schedule") == -1)
+    call_out("_dispatch_schedule", 0);
+}
+
+// Release a few scheduled actions per tick and re-arm until the queue drains, so
+// departures trickle out over ~seconds rather than all on one beat.
+void _dispatch_schedule()
+{
+  int i;
+
+  // a handful per tick keeps the stagger visible without dragging on
+  for (i = 0; i < 3 && sizeof(pending_schedule); i++)
+  {
+    mixed * item;
+    item = pending_schedule[0];
+    pending_schedule = pending_schedule[1..];
+    if (item[0])
+      item[0]->do_schedule(item[1]);
+  }
+
+  if (sizeof(pending_schedule))
+    call_out("_dispatch_schedule", 1 + random(2));
 }
 
 mapping query_loaded_areas() {

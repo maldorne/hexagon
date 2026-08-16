@@ -22,7 +22,6 @@ inherit living     "/lib/living/living.c";
 inherit friends    "/lib/monster/friends.c";
 inherit chatter    "/lib/monster/chatter.c";
 inherit combat     "/lib/monster/combat.c";
-inherit timed      "/lib/monster/timed.c";
 inherit pacing     "/lib/monster/pacing.c";
 
 // already defined in living/combat.c
@@ -53,7 +52,7 @@ nomask int query_coder() { return 0; }
 
 void create()
 {
-  int time, i;
+  int i;
   object * obs;
   string aux;
 
@@ -70,7 +69,6 @@ void create()
   friends::create();
   chatter::create();
   combat::create();
-  timed::create();
   pacing::create();
   // setup() call is inside this create(),
   // so this has to be the last one
@@ -117,20 +115,6 @@ void create()
     }
   }
   */
-
-  // timed npcs, for more information, /lib/monster/timed.c
-  if ((is_timed || is_night_timed) && (strsrch(file_name(this_object()), "#") != -1 ))
-  {
-    time = handler(WEATHER_HANDLER)->query_date_data()[0];
-
-    // if it is not the time, we do not clone the npc
-    if ((is_timed && (time < init_hour) || (time > end_hour)) ||
-        (is_night_timed && (time < init_hour) && (time > end_hour)))
-    {
-      dest_me();
-      return;
-    }
-  }
 } /* create() */
 
 // only one copy of this npc at the same time
@@ -395,7 +379,7 @@ int check_heart_beat()
     !this_object()->query_action_pending() &&
     !check_anyone_here() && !sizeof(query_effects()) &&
     !this_object()->ai_actions_pending() &&
-    !travelling() && !departure_armed())
+    !travelling())
   {
     set_heart_beat(0);
     protecting = 0;
@@ -409,10 +393,6 @@ int check_heart_beat()
  */
 void movement_heart_beat()
 {
-  // a scheduled departure waiting out its random stagger delay counts down first
-  if (departure_pending())
-    return;
-
   // count down the shared cadence; nothing to do until a step is due
   if (!move_ready())
     return;
@@ -461,7 +441,7 @@ void heart_beat()
 
   // Movement: directed travel or idle wander, paced by the shared cadence and
   // frozen while in combat. Only tick it when there is a reason to move.
-  if (!sizeof(attacker_list) && (travelling() || move_after || departure_armed()))
+  if (!sizeof(attacker_list) && (travelling() || move_after))
     movement_heart_beat();
 
   // No race objects have this
@@ -755,14 +735,6 @@ return ::clean_up(used);
 }
 */
 
-void dest_me()
-{
-  // remove the object from de weather.c
-  if (query_timed_npc())
-    handler(WEATHER_HANDLER)->unnotify_me(this_object());
-
-  ::dest_me();
-}
 
 mixed * stats()
 {
@@ -784,5 +756,5 @@ mixed * stats()
       });
 
   return ret + friends::stats() + chatter::stats() +
-      combat::stats() + timed::stats();
+      combat::stats();
 }

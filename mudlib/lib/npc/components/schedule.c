@@ -1,36 +1,30 @@
-// Schedule component. Gives a settled NPC a daily routine keyed on the game hour
-// (0-23), not on dawn/nightfall: a farmer leaves for the fields at 6 and heads
-// home at 20, a guard rotates posts at 16 and 0. The NPC subscribes to the
-// weather handler's hourly tick; on every hour it looks this hour up in its
-// timetable and, if there is an entry, walks to that destination. The walk is the
-// NPC's paced, interruptible travel (travel_to) -- combat or conversation
-// abandons the trip, and the next matching hour re-issues it.
+// Schedule component. Holds an NPC's daily routine as a timetable keyed on the
+// game hour (0-23) and acts on it when told to. The areas handler decides which
+// NPCs must act at each hour (from the area census) and calls do_schedule(hour)
+// on them; the NPC then reads its own timetable and walks where it should be. So
+// the area is the dispatcher ("your turn"), the NPC decides what to do and how.
 //
-// An "approx" entry delays the departure by random(spread) beats (a per-NPC
-// countdown in the heart_beat, no call_out) so a crowd ordered off at the same
-// hour staggers out instead of stepping in lockstep. An "exact" entry leaves at
-// the hour precisely (a bell, a gate).
-
-#include <areas/weather.h>
+//   timetable: ([ hour(0-23) : ([ "goto": "work" | "home" | <location file> ]) ])
+//
+// "work" resolves to this NPC's work location, "home" to its home (read live, a
+// family shares it and it can change); a literal file lets a guard rotate posts.
+// The walk is the NPC's paced, interruptible travel (travel_to) -- combat or
+// conversation abandons the trip, and the next matching hour re-issues it.
 
 inherit component "/lib/npc/component.c";
 
-// The daily routine: game hour (0-23) -> what to do that hour. Each entry is
-//   ([ "goto": "work" | "home" | <location file>,
-//      "mode": "exact" | "approx",  (default exact)
-//      "spread": <beats> ])         (approx only; the max random delay)
-// "work" resolves to this NPC's work location, "home" to its home (read live, a
-// family shares it and it can change); a literal file lets a guard rotate posts.
-mapping timetable;
-// This NPC's work location (resolves the "work" symbol in the timetable).
+// The hour this NPC works from, resolving the "work" symbol in the timetable.
+// Home is not stored here -- it lives on the NPC (query_home).
 string work;
+// The routine: game hour -> what to do that hour (see the header).
+mapping timetable;
 
 void create()
 {
   component::create();
   set_type("schedule");
-  timetable = ([ ]);
   work = nil;
+  timetable = ([ ]);
 }
 
 string query_work() { return work; }
@@ -39,13 +33,9 @@ mapping query_timetable() { return timetable ? timetable : ([ ]); }
 void set_timetable(mapping m) { timetable = m ? m : ([ ]); }
 void add_entry(int hour, mapping entry) { timetable[hour] = entry; }
 
-// Subscribe the owning NPC to the weather handler's hourly tick when attached.
-void initialize(object npc)
-{
-  component::initialize(npc);
-  if (npc)
-    handler(WEATHER_HANDLER)->notify_me(npc);
-}
+// The hours this NPC has something scheduled. The area uses these to build its
+// hour index (which uuids to wake at each hour) without loading the NPC.
+int * query_active_hours() { return map_indices(timetable); }
 
 // Resolve an entry's "goto" symbol to a concrete location file.
 private string _resolve(object npc, string dest)
@@ -57,11 +47,10 @@ private string _resolve(object npc, string dest)
   return dest;  // a literal location file (a guard's post)
 }
 
-// Forwarded from npc.c::event_weather on every hourly tick (dawn / nightfall /
-// check -- the flag itself does not matter, only the hour). Look this game hour
-// up in the timetable and head to its destination if there is an entry, unless
-// already there. args = ({ who, flag }).
-void event_weather(mixed * args)
+// The areas handler calls this on the NPC at hour H (forwarded here through
+// npc.c::do_schedule). Look H up in the timetable and, if there is an entry,
+// head to its destination unless already there. args = ({ hour }).
+void do_schedule(mixed * args)
 {
   object npc, here;
   int hour;
@@ -69,10 +58,10 @@ void event_weather(mixed * args)
   string dest;
 
   npc = query_owner();
-  if (!npc)
+  if (!npc || !args || !sizeof(args))
     return;
 
-  hour = handler(WEATHER_HANDLER)->query_date_data()[0];
+  hour = args[0];
   entry = timetable[hour];
   if (!entry)
     return;
@@ -86,11 +75,7 @@ void event_weather(mixed * args)
   if (here && here->query_file_name() == dest)
     return;
 
-  // approx staggers the departure by a random delay; exact leaves at once
-  if (entry["mode"] == "approx" && entry["spread"] > 0)
-    npc->travel_to_after(dest, random(entry["spread"]));
-  else
-    npc->travel_to(dest);
+  npc->travel_to(dest);
 }
 
 // Persistence: work + timetable ride in the npc.o.

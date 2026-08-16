@@ -338,6 +338,27 @@ object * query_live_npcs()
   return npcs;
 }
 
+// The live NPCs of this area that have something scheduled at `hour`. The areas
+// handler calls this each game hour and dispatches do_schedule to each, so an
+// NPC acts on its own timetable when its hour comes. Loaded NPCs only for now;
+// waking unloaded ones from the census is a later step.
+object * hour_actors(int hour)
+{
+  object * live, * out;
+  int i;
+
+  live = query_live_npcs();
+  out = ({ });
+  for (i = 0; i < sizeof(live); i++)
+  {
+    object sched;
+    sched = live[i]->query_component_by_type("schedule");
+    if (sched && sched->query_timetable()[hour])
+      out += ({ live[i] });
+  }
+  return out;
+}
+
 // Whether a live NPC is a settled resident -- one the design declared as such.
 // Who gets a house is a design-time decision, not a runtime guess from the NPC's
 // race or behaviour: an NPC source (template) is flagged "resident" in
@@ -1463,19 +1484,19 @@ private object npc_restore(string id, object loc)
   npc->move(loc);
 
   // A settled role NPC gets a daily timetable keyed on the game hour: out to work
-  // in the morning, home in the evening (both staggered so a crowd does not step
-  // off in lockstep). The role may supply its own "timetable"; otherwise a
-  // sensible default is used. Attached fresh each materialization (so a work /
-  // schedule change is picked up); home is read live from the NPC. Guards are
-  // excluded above (a role slot is never a guard entry).
+  // in the morning, home in the evening. The role may supply its own "timetable";
+  // otherwise a sensible default is used. Attached fresh each materialization (so
+  // a schedule change is picked up); home is read live from the NPC. Guards are
+  // excluded above (a role slot is never a guard entry). The areas handler drives
+  // it hour by hour and staggers the departures.
   if (role && sentient && role["work"])
   {
     mapping timetable;
 
     timetable = role["timetable"];
     if (!mappingp(timetable) || !map_sizeof(timetable))
-      timetable = ([ 6  : ([ "goto" : "work", "mode" : "approx", "spread" : 20 ]),
-                     20 : ([ "goto" : "home", "mode" : "approx", "spread" : 20 ]) ]);
+      timetable = ([ 6  : ([ "goto" : "work" ]),
+                     20 : ([ "goto" : "home" ]) ]);
 
     npc->add_component("schedule",
                        ([ "work": role["work"], "timetable": timetable ]));
