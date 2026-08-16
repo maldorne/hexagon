@@ -171,10 +171,10 @@ void cron_step()
     pieces = explode(crontab[i][CRONTAB_MINUTES], "/");
 
     // check minutes
-    // */n
+    // */n -- every n minutes (minute divisible by n)
     if (sizeof(pieces) > 1)
     {
-      if (times[LT_MIN] * atoi(pieces[1]) == 0)
+      if (atoi(pieces[1]) && (times[LT_MIN] % atoi(pieces[1])) == 0)
         run_minutes = true;
     }
     // *
@@ -189,10 +189,10 @@ void cron_step()
     // check hours
     if (run_minutes)
     {
-      // */n
+      // */n -- every n hours (hour divisible by n)
       if (sizeof(pieces) > 1)
       {
-        if (times[LT_HOUR] * atoi(pieces[1]) == 0)
+        if (atoi(pieces[1]) && (times[LT_HOUR] % atoi(pieces[1])) == 0)
           run_hours = true;
       }
       // *
