@@ -3,9 +3,10 @@
 
 mapping loaded_areas;
 
-// ({ ({ npc, hour }), ... }) collected each game hour and released a few per tick
-// (one call_out chain) so a crowd ordered off at the same hour staggers out
-// instead of stepping in lockstep.
+// ({ ({ area, uuid, hour }), ... }) collected each game hour and released a few
+// per tick (one call_out chain) so a crowd ordered off at the same hour staggers
+// out -- and, since each is woken as it is released, the load of materialising
+// unloaded NPCs spreads out too, instead of hitting on one beat.
 mixed * pending_schedule;
 
 private void _delete_npc_folder(string dir);
@@ -33,9 +34,9 @@ private int _area_hour(object area)
 
 // Cron calls this once per game hour (see the crontab, after the weather line so
 // the hour is already advanced). For every loaded area it reads that area's game
-// hour and collects the NPCs with something scheduled this hour, then releases
-// them staggered. Loaded areas / loaded NPCs only for now; waking unloaded
-// scheduled NPCs from each area's census is the next step.
+// hour and collects the census uuids with something scheduled this hour, then
+// releases them staggered. Each is woken as released, so unloaded scheduled NPCs
+// are materialised at their census position and act just like loaded ones.
 void update_areas()
 {
   object * areas;
@@ -45,15 +46,15 @@ void update_areas()
   for (i = 0; i < sizeof(areas); i++)
   {
     int hour, j;
-    object * actors;
+    string * uuids;
 
     if (!areas[i])
       continue;
 
     hour = _area_hour(areas[i]);
-    actors = areas[i]->hour_actors(hour);
-    for (j = 0; j < sizeof(actors); j++)
-      pending_schedule += ({ ({ actors[j], hour }) });
+    uuids = areas[i]->hour_actor_uuids(hour);
+    for (j = 0; j < sizeof(uuids); j++)
+      pending_schedule += ({ ({ areas[i], uuids[j], hour }) });
   }
 
   if (sizeof(pending_schedule) && find_call_out("_dispatch_schedule") == -1)
@@ -61,7 +62,8 @@ void update_areas()
 }
 
 // Release a few scheduled actions per tick and re-arm until the queue drains, so
-// departures trickle out over ~seconds rather than all on one beat.
+// departures (and the loads that waking unloaded NPCs triggers) trickle out over
+// ~seconds rather than all on one beat.
 void _dispatch_schedule()
 {
   int i;
@@ -73,7 +75,7 @@ void _dispatch_schedule()
     item = pending_schedule[0];
     pending_schedule = pending_schedule[1..];
     if (item[0])
-      item[0]->do_schedule(item[1]);
+      item[0]->wake_and_schedule(item[1], item[2]);
   }
 
   if (sizeof(pending_schedule))

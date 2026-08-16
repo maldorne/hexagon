@@ -37,6 +37,11 @@ string exploration_name;
 // but the census entry survives so the same NPC comes back.
 mapping npc_intended;
 mapping npc_census;
+// Which census NPCs have something scheduled at each game hour, so the areas
+// handler can wake and dispatch exactly the ones due without scanning or loading
+// the rest: ([ hour(0-23) : ({ uuids }) ]). Populated when a schedule is
+// attached; the destination itself is read live from the NPC when it acts.
+mapping schedule_index;
 // Per-location NPC provenance from the room2loc conversion:
 //   ([ location_file : ([ npc_path : count ]) ])
 // This is the seed for npc_intended: the area cap for a source is the sum
@@ -98,6 +103,7 @@ void add_loaded_location(object location);
 mapping query_vacancy_sources();
 private void _recompute_intended();
 private string _template_id(string source);
+void restore_location_npcs(object loc);
 private object live_census_npc(string poi_file, string uuid);
 private void _ensure_guards_assigned(string location_file);
 private void _equip_npc(object npc, string * paths);
@@ -120,6 +126,7 @@ void create() {
   exploration_name = "";
   npc_intended = ([ ]);
   npc_census = ([ ]);
+  schedule_index = ([ ]);
   npc_sources = ([ ]);
   pois = ([ ]);
   roles = ([ ]);
@@ -338,25 +345,95 @@ object * query_live_npcs()
   return npcs;
 }
 
-// The live NPCs of this area that have something scheduled at `hour`. The areas
-// handler calls this each game hour and dispatches do_schedule to each, so an
-// NPC acts on its own timetable when its hour comes. Loaded NPCs only for now;
-// waking unloaded ones from the census is a later step.
-object * hour_actors(int hour)
+// Record which game hours a scheduled NPC acts, keyed by its uuid, so the areas
+// handler can find exactly who is due at an hour without loading the census's
+// NPCs. Called when a schedule component is attached (see npc_restore). The
+// destination is not stored here -- it is read live from the NPC when it acts.
+void index_schedule_hours(string uuid, int * hours)
 {
-  object * live, * out;
+  int i, changed;
+
+  if (!schedule_index)
+    schedule_index = ([ ]);
+
+  for (i = 0; i < sizeof(hours); i++)
+  {
+    if (!schedule_index[hours[i]])
+      schedule_index[hours[i]] = ({ });
+    if (member_array(uuid, schedule_index[hours[i]]) < 0)
+    {
+      schedule_index[hours[i]] += ({ uuid });
+      changed = 1;
+    }
+  }
+
+  if (changed)
+    save_me();
+}
+
+// The census uuids with something scheduled at `hour` (loaded or not).
+string * hour_actor_uuids(int hour)
+{
+  return (schedule_index && schedule_index[hour]) ? schedule_index[hour] : ({ });
+}
+
+// A live NPC of this area by uuid, or nil if it is not currently materialized.
+private object _live_npc_by_uuid(string uuid)
+{
+  object * live;
   int i;
 
   live = query_live_npcs();
-  out = ({ });
   for (i = 0; i < sizeof(live); i++)
+    if (live[i] && live[i]->query_npc_uuid() == uuid)
+      return live[i];
+  return nil;
+}
+
+// Wake a scheduled NPC and hand it its hour: if it is already in the world use
+// it as is, otherwise materialize it (and its location) at its census position;
+// then call do_schedule so it acts on its own timetable. The areas handler calls
+// this, staggered, for each uuid due this hour. Checking "already live" first
+// avoids cloning a duplicate when the NPC has wandered off its census position. A
+// stale index entry (uuid no longer in the census) is skipped.
+void wake_and_schedule(string uuid, int hour)
+{
+  mapping entry;
+  string locfile;
+  object loc, npc;
+  object * inv;
+  int i;
+
+  // already materialized somewhere in the area -- use it, do not clone another
+  npc = _live_npc_by_uuid(uuid);
+
+  if (!npc)
   {
-    object sched;
-    sched = live[i]->query_component_by_type("schedule");
-    if (sched && sched->query_timetable()[hour])
-      out += ({ live[i] });
+    entry = npc_census[uuid];
+    if (!entry)
+      return;
+    locfile = entry["location"];
+    if (!locfile || !strlen(locfile))
+      return;
+
+    // load its census-position location and materialize the census NPCs there
+    // (idempotent) so an unloaded NPC comes back before it acts
+    loc = load_object(LOCATION_HANDLER)->load_location(locfile);
+    if (!loc)
+      return;
+    restore_location_npcs(loc);
+
+    inv = all_inventory(loc);
+    for (i = 0; i < sizeof(inv); i++)
+      if (inv[i] && inv[i]->query_npc() && inv[i]->query_npc_uuid() == uuid)
+      {
+        npc = inv[i];
+        break;
+      }
   }
-  return out;
+
+  if (npc)
+    npc->do_schedule(hour);
 }
 
 // Whether a live NPC is a settled resident -- one the design declared as such.
@@ -1492,6 +1569,7 @@ private object npc_restore(string id, object loc)
   if (role && sentient && role["work"])
   {
     mapping timetable;
+    object sched;
 
     timetable = role["timetable"];
     if (!mappingp(timetable) || !map_sizeof(timetable))
@@ -1500,6 +1578,12 @@ private object npc_restore(string id, object loc)
 
     npc->add_component("schedule",
                        ([ "work": role["work"], "timetable": timetable ]));
+
+    // record its scheduled hours in the census index so the areas handler can
+    // wake and dispatch it at those hours even while it is unloaded
+    sched = npc->query_component_by_type("schedule");
+    if (sched)
+      index_schedule_hours(id, sched->query_active_hours());
   }
 
   // A POI vacancy (the pub's barman, the shop's keeper) with a fixed home lives
@@ -1597,16 +1681,34 @@ int query_npc_live_count(string source) { return npc_live_count(source); }
 void drain_location(object loc)
 {
   object * inv;
-  int i;
+  int i, changed;
+  string file;
 
   if (!loc)
     return;
 
+  file = loc->query_file_name();
   inv = all_inventory(loc);
   for (i = 0; i < sizeof(inv); i++)
     if (inv[i] && inv[i]->query_persisted() &&
         inv[i]->query_npc_area_path() == area_path)
+    {
+      string uuid;
+
+      // record where the NPC actually is now, so it comes back here (where it
+      // walked to on its schedule) rather than at its original census spot
+      uuid = inv[i]->query_npc_uuid();
+      if (uuid && npc_census[uuid] && npc_census[uuid]["location"] != file)
+      {
+        npc_census[uuid]["location"] = file;
+        changed = 1;
+      }
+
       inv[i]->save_npc();
+    }
+
+  if (changed)
+    save_me();
 }
 
 // Find the loaded location object for a file, or nil if it is not resident.
