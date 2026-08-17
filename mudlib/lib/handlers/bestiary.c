@@ -262,6 +262,16 @@ int add_template(string source)
         t["level_area_modifier"] = old["level_area_modifier"];
       if (!undefinedp(old["level"]))
         t["level"] = old["level"];
+      // Behaviour fields describe the NPC type but cannot be sampled from the
+      // source .c (it has no equipment kit, sentience mark or daily timetable
+      // of its own): a builder sets them on the template by hand, so carry them
+      // over a re-extraction the same way an explicit level is preserved.
+      if (!undefinedp(old["sentient"]))
+        t["sentient"] = old["sentient"];
+      if (!undefinedp(old["equipment"]))
+        t["equipment"] = old["equipment"];
+      if (!undefinedp(old["timetable"]))
+        t["timetable"] = old["timetable"];
     }
   }
 
@@ -272,6 +282,45 @@ int add_template(string source)
 
   // write_file appends; drop any previous version first. Pretty-print so the
   // template stays hand-readable / editable.
+  remove_file(tfile);
+  return write_file(tfile, json_encode(t, 1));
+}
+
+// Set the hand-authored behaviour fields on a source's template, merging the
+// given fields into the stored template and rewriting it. These are the fields
+// extract_template cannot sample from the source .c -- equipment kit, sentient
+// flag, daily timetable, an explicit level -- so a builder stamps them here and
+// add_template preserves them across re-extraction. A field whose value is nil
+// is cleared. Returns 1 on success, 0 if the source has no template yet.
+//
+// Timetable note: JSON object keys are strings, so a timetable stored here must
+// use string hour keys ("6", "20"); a reader that indexes it by an int hour
+// must convert. Keep symbolic gotos ("work"/"home") and messages inside each
+// entry, matching the per-gender name maps that already key by "" + gender.
+int set_template_behaviour(string game, string source, mapping fields)
+{
+  mapping t;
+  string tfile;
+  string * keys;
+  int i;
+
+  if (!fields)
+    return 0;
+
+  t = query_template(game, source);
+  if (!t)
+    return 0;
+
+  keys = map_indices(fields);
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    if (fields[keys[i]] == nil)
+      map_delete(t, keys[i]);
+    else
+      t[keys[i]] = fields[keys[i]];
+  }
+
+  tfile = query_template_file(game, source);
   remove_file(tfile);
   return write_file(tfile, json_encode(t, 1));
 }
