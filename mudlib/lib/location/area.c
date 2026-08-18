@@ -2125,14 +2125,14 @@ void repost_guards(string poi_file)
 mapping query_roles() { return roles; }
 mapping query_role(string name) { return roles[name]; }
 
-// Declare (or replace) a role. `count` is how many of it the settlement wants,
-// `work` its work location, `source` the transitional NPC blueprint filling its
-// slots (snapshotted to a template now, the one time its .c is read), `sentient`
-// whether it is a named citizen (no clone-respawn). Stores the template id.
-void add_role(string name, int count, string work, string source, int sentient)
+// Declare (or replace) a role: the area-level cap for a kind of citizen. `count`
+// is how many of it the settlement wants, `work` its work location, `source` the
+// NPC blueprint filling its slots (snapshotted to a template now, the one time
+// its .c is read). Stores the template id. Behaviour (sentient, equipment,
+// timetable) is not stored here -- it lives on the type template, written by the
+// builder through the bestiary; the area only holds the count and the workplace.
+void add_role(string name, int count, string work, string source)
 {
-  mixed * kit;
-
   if (!name || !strlen(name) || count < 0)
     return;
 
@@ -2145,16 +2145,9 @@ void add_role(string name, int count, string work, string source, int sentient)
     source = _template_id(source);
   }
 
-  // preserve a role's equipment across a re-declaration (build role add on an
-  // existing role only changes count/work/source, not its kit)
-  kit = (roles[name] && pointerp(roles[name]["equipment"]))
-          ? roles[name]["equipment"] : ({ });
-
-  roles[name] = ([ "count":     count,
-                   "work":      work,
-                   "source":    source,
-                   "sentient":  sentient ? 1 : 0,
-                   "equipment": kit ]);
+  roles[name] = ([ "count":  count,
+                   "work":   work,
+                   "source": source ]);
   save_me();
 }
 
@@ -2199,26 +2192,31 @@ private string * _resolve_equipment(mixed * spec)
   return kit;
 }
 
-// Set the kit a role's NPCs wear. `spec` is an array of slots; each slot is an
-// array of interchangeable item blueprints, one of which each NPC rolls (a
-// fixed item is a one-element slot). Equipment is role-level and the single
-// source of a citizen's gear -- kept off the template so template and role
-// never fight over what to wield.
-//
-// Already-live holders that have no kit yet get one rolled, stored and equipped
-// now; holders that already carry a stored kit are left untouched -- once a
-// citizen is created and saved its gear never changes. New holders roll their
-// kit at assignment (see assign_npc_to_role).
-void set_role_equipment(string name, mixed * spec)
+// Re-roll and equip the kit for this role's live holders that still carry
+// nothing, reading the kit from the type template (its authoritative home for
+// equipment). A holder that already has gear keeps it -- a saved citizen's gear
+// never changes. Called after the builder changes a role's kit on the template,
+// so existing empty-handed holders pick it up without a respawn. New holders
+// roll their kit at first materialization (npc_restore, from the template).
+void reequip_role_holders(string name)
 {
   object loc;
   object * inv;
+  mapping template;
+  mixed * spec;
+  string source;
   int i;
 
   if (!roles[name])
     return;
-  roles[name]["equipment"] = pointerp(spec) ? spec : ({ });
-  save_me();
+
+  source = roles[name]["source"];
+  template = (source && strlen(source))
+               ? BESTIARY_HANDLER->query_template(game_from_path(area_path), source)
+               : nil;
+  spec = template ? template["equipment"] : nil;
+  if (!pointerp(spec) || !sizeof(spec))
+    return;
 
   loc = loaded_location(roles[name]["work"]);
   if (!loc)
@@ -2240,7 +2238,7 @@ void set_role_equipment(string name, mixed * spec)
     // changes. The kit is rolled, equipped and saved onto the NPC's own npc.o.
     if (sizeof(all_inventory(inv[i])))
       continue;
-    _equip_npc(inv[i], _resolve_equipment(roles[name]["equipment"]));
+    _equip_npc(inv[i], _resolve_equipment(spec));
     inv[i]->save_npc();
   }
 }

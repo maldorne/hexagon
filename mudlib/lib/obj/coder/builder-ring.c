@@ -10,6 +10,7 @@ inherit "/lib/armour.c";
 #include <room/room.h>
 #include <areas/area.h>
 #include <areas/poi.h>
+#include <living/persisted.h>
 #include <maps/maps.h>
 #include <translations/armour.h>
 #include <language.h>
@@ -984,8 +985,13 @@ int do_role(string str)
       notify_fail("No NPC blueprint at '" + source + "'.\n");
       return 0;
     }
-    // work location is wherever the coder is standing
-    area->add_role(name, count, loc->query_file_name(), source, 1);
+    // The area stores the cap (count + workplace = wherever the coder stands).
+    // Behaviour is the type's: mark the template sentient through the bestiary,
+    // its authoritative home, so a role is a named citizen by default.
+    area->add_role(name, count, loc->query_file_name(), source);
+    BESTIARY_HANDLER->set_template_behaviour(
+      game_from_path(area->query_area_path()),
+      area->query_role(name)["source"], ([ "sentient": 1 ]));
     area->fill_role(name);
     write("Role '" + name + "' x" + count + " <- " + source +
           ", working here.\n");
@@ -1044,7 +1050,12 @@ int do_role(string str)
       spec += ({ alts });
     }
 
-    area->set_role_equipment(args[1], spec);
+    // Equipment is the type's: write the kit to the template through the
+    // bestiary, then have the area re-gear any live empty-handed holders.
+    BESTIARY_HANDLER->set_template_behaviour(
+      game_from_path(area->query_area_path()),
+      area->query_role(args[1])["source"], ([ "equipment": spec ]));
+    area->reequip_role_holders(args[1]);
     write("Role '" + args[1] + "' kit set: " + sizeof(spec) +
           " slot" + (sizeof(spec) == 1 ? "" : "s") +
           " (new citizens roll their gear; existing keep theirs).\n");
