@@ -52,6 +52,18 @@ static object * components;
 // via travel_to(query_home()). Just a location for now -- a family shares one.
 string npc_home;
 
+// The area that rosters this NPC: the area whose population caps count it and
+// whose scheduler wakes it. Static across its life -- set at assignment time and
+// unchanged even when the NPC walks into another area. Persisted in npc.o so the
+// roster survives an unload; distinct from where the NPC physically is (its
+// position, tracked in the areas handler's global index).
+string npc_roster_area;
+
+// This individual's concrete workplace location file, resolved by the schedule
+// component's "work" symbol. Assigned once and persisted in npc.o (the type-level
+// timetable is generic; where this NPC actually works is per-individual).
+string npc_work;
+
 void create()
 {
   monster::create();
@@ -64,12 +76,20 @@ void create()
   npc_auto_load = ([ ]);
   npc_given_name = nil;
   npc_home = nil;
+  npc_roster_area = nil;
+  npc_work = nil;
   component_info = ([ ]);
   components = ({ });
 }
 
 string query_home() { return npc_home; }
 void set_home(string file) { npc_home = file; }
+
+string query_roster_area() { return npc_roster_area; }
+void set_roster_area(string path) { npc_roster_area = path; }
+
+string query_work() { return npc_work; }
+void set_work(string file) { npc_work = file; }
 
 // ---------------------------------------------------------------------------
 // Component host
