@@ -75,6 +75,12 @@ void do_schedule(mixed * args)
   if (here && here->query_file_name() == dest)
     return;
 
+  // Optional flavour line: a builder-authored message on the entry, written in
+  // the mud's language (like a POI label -- no lang file), announced to the room
+  // as the NPC sets off. Absent on most entries; the departure is silent then.
+  if (here && stringp(entry["msg"]) && strlen(entry["msg"]))
+    tell_room(here, entry["msg"] + "\n");
+
   npc->travel_to(dest);
 }
 
