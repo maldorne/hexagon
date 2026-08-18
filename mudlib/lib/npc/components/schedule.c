@@ -79,24 +79,14 @@ void do_schedule(mixed * args)
   // the mud's language (like a POI label -- no lang file), announced to the room
   // as the NPC sets off. Absent on most entries; the departure is silent then.
   //
-  // The message is a souls template: it may carry the same wildcards the social
-  // commands use ($mcname$ = this NPC's kind/name, $mpronoun$/$mposs$/$mobj$,
-  // $mvocal$ = the o/a vowel for gender agreement, ...), which the souls handler
-  // resolves against THIS npc -- so one generic message reads correctly for a
-  // male or a female citizen instead of a fixed, possibly mis-gendered line.
-  // We pass the npc as both actor and target (messages reference only $m*$),
-  // and capitalise the result since a leading $mcname$ expands lowercase.
+  // The message may carry personalization wildcards ($mcname$ = this NPC's
+  // kind/name, $mpronoun$/$mposs$/$mobj$, $mvocal$ = the o/a vowel for gender
+  // agreement, ...), resolved against THIS npc by the personalize_string efun --
+  // so one generic message reads correctly for a male or a female citizen
+  // instead of a fixed, possibly mis-gendered line. Capitalise the result, as a
+  // leading $mcname$ expands lowercase.
   if (here && stringp(entry["msg"]) && strlen(entry["msg"]))
-  {
-    object souls;
-    string line;
-
-    line = entry["msg"];
-    souls = handler("souls");
-    if (souls)
-      line = (string)souls->parse_string(line, npc, npc, "", 1);
-    tell_room(here, capitalize(line) + "\n");
-  }
+    tell_room(here, capitalize(personalize_string(entry["msg"], npc)) + "\n");
 
   npc->travel_to(dest);
 }

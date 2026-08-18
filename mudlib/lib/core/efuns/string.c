@@ -3,6 +3,7 @@
 
 #include "/lib/core/efuns/strings/full_explode.c"
 #include "/lib/core/efuns/strings/strlen.c"
+#include "/lib/core/efuns/strings/personalize.c"
 // sprintf is now provided by the dgd-extensions kfun (sprintf.1.5);
 // the LPC implementation lives under /packages/sprintf/ as historical
 // reference but is no longer included.

@@ -119,99 +119,22 @@ string parse_string(string s, object me, mixed ob, string arg, int uhn)
   string s1, s2, s3, s4, str, s5;
   int i;
 
-  str = s;
-  s4 = "";
-  while (sscanf(str,"%s$%s$%s",s1,s2,s3) == 3)
-    switch (s2)
-  {
-  case "mcname" :
-    str = s1+me->query_cap_name()+s3;
-    break;
-  case "mname" :
-    str = s1+me->query_name()+s3;
-    break;
-  case "mpronoun" :
-    str = s1+me->query_pronoun()+s3;
-    break;
-  case "hpronoun" :
-    str = s1+ob->query_pronoun()+s3;
-    break;
-  case "mobj" :
-    str = s1+me->query_objective()+s3;
-    break;
-  case "hobj" :
-    str = s1+ob->query_objective()+s3;
-    break;
-  case "mposs" :
-    str = s1+me->query_possessive()+s3;
-    break;
-  case "hposs" :
-    str = s1+ob->query_possessive()+s3;
-    break;
-  case "mvocal" :
-    str = s1+me->query_vowel()+s3;
-    break;
-  case "hvocal" :
-    str = s1+ob->query_vowel()+s3;
-    break;
-  case "mnumeral" :
-    str = s1+me->query_numeral()+s3;
-    break;
-  case "hnumeral" :
-    str = s1+ob->query_numeral()+s3;
-    break;
-  case "lastarg" :
-    str = s1+lastarg+s3;
-    break;
-  case "mhcname" :
-    if (uhn)
-    {
-      // str = s1+ob->query_cap_name()+"'s"+s3;
-      str = s1+ob->query_cap_name()+s3;
-      break;
-    }
-  case "hcname" :
-    if (uhn)
-    {
-      str = s1+ob->query_cap_name()+s3;
-      break;
-    }
-  case "hname" :
-    if (uhn)
-    {
-      str = s1+ob->query_name()+s3;
-      break;
-    }
-  default :
-    s4 += s1+"$"+s2;
-    if (!s3)
-      str = "$";
-    else
-      str = "$"+s3;
-    break;
-  }
+  // Pronoun / name / gender-agreement tokens and $ifarg$ are the generic
+  // personalization efun's job (personalize_string); souls only layers its own
+  // two passes on top. uhn selects whether the target ($h*$) tokens resolve --
+  // with no target object personalize_string leaves them untouched, matching the
+  // old uhn == 0 (an ambiguous, plural or absent target).
+  str = personalize_string(s, me, (uhn && objectp(ob)) ? ob : nil, arg);
 
-  str = s4+str;
-
+  // $force#cmd#delay$ -- schedule a forced soul command on the target(s).
   while (sscanf(str, "%s$force#%s#%d$%s", s1, s2, i, s3) == 4)
   {
     call_out("do_force", i, ({s2, ob}));
     str = s1 + s3;
   }
 
-  while (sscanf(str, "%s$ifarg:%s~$%s", s1, s2, s3) == 3)
-  {
-    string estr;
-
-    sscanf(s2, "%s$else$%s", s2, estr);
-    if (arg && arg != "")
-      str = s1 + parse_string(s2, me, ob, arg, 1) + s3;
-    else if (estr)
-      str = s1 + parse_string(estr, me, ob, arg, 1) + s3;
-    else
-      str = s1 + s3;
-  }
-
+  // $arg:choices$ -- pick / validate a soul adjective from a comma list,
+  // recording it in lastarg for a following reader.
   while (sscanf(str, "%s$arg:%s$%s", s1, s2, s3) == 3)
   {
     if (arg == "?")

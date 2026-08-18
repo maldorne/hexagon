@@ -1035,10 +1035,10 @@ int do_prop_action(string str)
 // ************************************************************
 
 /*
- * Render a prop message template. Prefers souls-style tokens
- * ($mcname$, $mposs$, $mpronoun$, $lastarg$, …) via the souls
- * handler so messages compose gender-agreeing prose without the
- * single-slot `%s` constraint. Legacy templates that still carry a
+ * Render a prop message template. Prefers personalization tokens
+ * ($mcname$, $mposs$, $mpronoun$, $lastarg$, …) via the
+ * personalize_string efun so messages compose gender-agreeing prose
+ * without the single-slot `%s` constraint. Legacy templates that still carry a
  * bare `%s` (no `$` tokens) fall back to sprintf for backward
  * compatibility — will retire once every catalogue entry is
  * migrated.
@@ -1087,9 +1087,9 @@ private string _render_msg(string template, mixed arg)
   me = this_player();
   if (!me) return template;
 
-  // ob defaults to me — prop templates don't reference $h*$ tokens.
-  // The souls handler is a project-wide singleton; loaded once.
-  return (string)handler("souls")->parse_string(template, me, me, arg_str, 1);
+  // Resolve the pronoun / name / agreement tokens against the acting player via
+  // the personalize_string efun (prop templates reference only $m*$ tokens).
+  return personalize_string(template, me, me, arg_str);
 }
 
 private int _execute_generic(mapping spec, mapping inst, string args)
