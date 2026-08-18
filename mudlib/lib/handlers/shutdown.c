@@ -289,7 +289,7 @@ void auto_reboot()
  *
  * Called from /lib/handlers/cron.c
  */
-void memery_reboot()
+void memory_reboot()
 {
   if (memory_info() > REBOOT_MEMORY)
   {
