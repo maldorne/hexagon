@@ -78,8 +78,25 @@ void do_schedule(mixed * args)
   // Optional flavour line: a builder-authored message on the entry, written in
   // the mud's language (like a POI label -- no lang file), announced to the room
   // as the NPC sets off. Absent on most entries; the departure is silent then.
+  //
+  // The message is a souls template: it may carry the same wildcards the social
+  // commands use ($mcname$ = this NPC's kind/name, $mpronoun$/$mposs$/$mobj$,
+  // $mvocal$ = the o/a vowel for gender agreement, ...), which the souls handler
+  // resolves against THIS npc -- so one generic message reads correctly for a
+  // male or a female citizen instead of a fixed, possibly mis-gendered line.
+  // We pass the npc as both actor and target (messages reference only $m*$),
+  // and capitalise the result since a leading $mcname$ expands lowercase.
   if (here && stringp(entry["msg"]) && strlen(entry["msg"]))
-    tell_room(here, entry["msg"] + "\n");
+  {
+    object souls;
+    string line;
+
+    line = entry["msg"];
+    souls = handler("souls");
+    if (souls)
+      line = (string)souls->parse_string(line, npc, npc, "", 1);
+    tell_room(here, capitalize(line) + "\n");
+  }
 
   npc->travel_to(dest);
 }
