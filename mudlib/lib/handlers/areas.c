@@ -9,12 +9,85 @@ mapping loaded_areas;
 // unloaded NPCs spreads out too, instead of hitting on one beat.
 mixed * pending_schedule;
 
+// Cross-area position index. Most NPCs stay in their roster area, found through
+// that area's own census; a few roam (an NPC works in one area, sleeps in
+// another). While such a roamer rests in a foreign location, this index lets
+// that location, on load, find it without scanning every area's census.
+//   npc_positions: foreign location_file -> ([ uuid : roster_area_path ])
+//   npc_at:        uuid -> the location_file it is indexed at (one entry per uuid)
+// Runtime only: rebuilt as NPCs roam. After a reboot a roamer is recovered by its
+// roster area's scheduler (which loads its census position), not from this index.
+mapping npc_positions;
+mapping npc_at;
+
 private void _delete_npc_folder(string dir);
 
 void create() {
   loaded_areas = ([ ]);
   pending_schedule = ({ });
+  npc_positions = ([ ]);
+  npc_at = ([ ]);
   // ::create();
+}
+
+// Find a live NPC by uuid across every loaded area (not just one), so a roamer
+// that has wandered into another area is still recognised as already in the
+// world -- the global dedup a per-area lookup cannot give. Returns nil if it is
+// not currently materialized anywhere.
+object find_live_npc(string uuid)
+{
+  object * areas;
+  int i;
+
+  if (!uuid || !strlen(uuid))
+    return nil;
+  areas = map_values(loaded_areas);
+  for (i = 0; i < sizeof(areas); i++)
+  {
+    object npc;
+    if (!areas[i])
+      continue;
+    npc = areas[i]->live_npc(uuid);
+    if (npc)
+      return npc;
+  }
+  return nil;
+}
+
+// Record that a roamer rostered in `roster` is now resting at `loc` (a location
+// in another area), or clear it with loc = nil. Keeps a single entry per uuid, so
+// a stale bucket is dropped when the NPC moves on.
+void set_foreign_position(string uuid, string roster, string loc)
+{
+  string old;
+
+  if (!uuid || !strlen(uuid))
+    return;
+
+  old = npc_at[uuid];
+  if (old && npc_positions[old])
+  {
+    map_delete(npc_positions[old], uuid);
+    if (!map_sizeof(npc_positions[old]))
+      map_delete(npc_positions, old);
+  }
+
+  if (loc && strlen(loc))
+  {
+    if (!npc_positions[loc])
+      npc_positions[loc] = ([ ]);
+    npc_positions[loc][uuid] = roster;
+    npc_at[uuid] = loc;
+  }
+  else
+    map_delete(npc_at, uuid);
+}
+
+// The roamers indexed at `location_file`: ([ uuid : roster_area_path ]). Empty
+// when no roamer is resting there.
+mapping foreign_positions_at(string location_file)
+{
+  return npc_positions[location_file] ? npc_positions[location_file] : ([ ]);
 }
 
 // The current game hour for an area, read from that area's game weather handler

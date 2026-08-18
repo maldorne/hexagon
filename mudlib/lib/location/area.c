@@ -391,6 +391,10 @@ private object _live_npc_by_uuid(string uuid)
   return nil;
 }
 
+// Public wrapper: this area's live NPC with `uuid`, or nil. The areas handler
+// calls it on each loaded area to build a world-wide lookup (find_live_npc).
+object live_npc(string uuid) { return _live_npc_by_uuid(uuid); }
+
 // Wake a scheduled NPC and hand it its hour: if it is already in the world use
 // it as is, otherwise materialize it (and its location) at its census position;
 // then call do_schedule so it acts on its own timetable. The areas handler calls
@@ -405,8 +409,9 @@ void wake_and_schedule(string uuid, int hour)
   object * inv;
   int i;
 
-  // already materialized somewhere in the area -- use it, do not clone another
-  npc = _live_npc_by_uuid(uuid);
+  // already materialized somewhere in the world -- use it, do not clone another
+  // (a roamer may have wandered into another area, so the lookup is global)
+  npc = AREA_HANDLER->find_live_npc(uuid);
 
   if (!npc)
   {
@@ -1592,26 +1597,15 @@ private object npc_restore(string id, object loc)
       npc->add_alias(kind);
   }
 
-  // Per-individual assignment on the npc.o: its roster area (this area) and its
-  // concrete workplace. Backfilled here for an NPC assigned before these fields
-  // existed -- roster is this area, work comes from its role. A first-materialize
-  // NPC is persisted by the equipment save below; a restore that had to backfill
-  // saves here.
+  // Per-individual assignment on the npc.o: this NPC's concrete workplace.
+  // Backfilled here for an NPC assigned before the field existed -- work comes
+  // from its role. A first-materialize NPC is persisted by the equipment save
+  // below; a restore that had to backfill saves here. (The roster area is
+  // npc_area_path, already stamped above.)
+  if (!npc->query_work() && role && role["work"])
   {
-    int dirty;
-
-    dirty = 0;
-    if (!npc->query_roster_area())
-    {
-      npc->set_roster_area(area_path);
-      dirty = 1;
-    }
-    if (!npc->query_work() && role && role["work"])
-    {
-      npc->set_work(role["work"]);
-      dirty = 1;
-    }
-    if (dirty && !first)
+    npc->set_work(role["work"]);
+    if (!first)
       npc->save_npc();
   }
 
@@ -1748,6 +1742,54 @@ void restore_location_npcs(object loc)
   for (i = 0; i < sizeof(ids); i++)
     if (!npc_uuid_present(loc, ids[i]))
       npc_restore(ids[i], loc);
+
+  // Roamers rostered in another area but resting here: the areas handler indexes
+  // them by location, so bring each back through its own roster area (which owns
+  // its census and template). This area's own census-of-location never lists them.
+  {
+    mapping foreign;
+    string * fids;
+
+    foreign = AREA_HANDLER->foreign_positions_at(file);
+    fids = map_indices(foreign);
+    for (i = 0; i < sizeof(fids); i++)
+    {
+      object rarea;
+      rarea = (foreign[fids[i]] == area_path)
+                ? this_object() : AREA_HANDLER->query_area(foreign[fids[i]]);
+      if (rarea)
+        rarea->restore_one_npc(fids[i], loc);
+    }
+  }
+}
+
+// Materialize one of this area's census NPCs into `loc`, called by another area's
+// restore when a roamer rostered here is resting in that area's location (this
+// area's own restore never runs for a foreign location). Guards against a
+// duplicate (already live anywhere) and against a stale index entry: the census
+// position is authoritative, the handler index only a hint, so the census must
+// still place this NPC at exactly this location.
+void restore_one_npc(string uuid, object loc)
+{
+  if (!uuid || !loc || !npc_census[uuid])
+    return;
+  if (npc_census[uuid]["location"] != loc->query_file_name())
+    return;
+  if (AREA_HANDLER->find_live_npc(uuid))
+    return;
+  npc_restore(uuid, loc);
+}
+
+// Update this area's census position for one of its roamers to `file`. Called by
+// the foreign area whose location the roamer walked into, when that location
+// unloads, so the roster keeps an accurate position for scheduling and reload.
+void set_census_location(string uuid, string file)
+{
+  if (uuid && npc_census[uuid] && npc_census[uuid]["location"] != file)
+  {
+    npc_census[uuid]["location"] = file;
+    save_me();
+  }
 }
 
 // Live census count of a source across the area (cap-check for the population
@@ -1769,22 +1811,42 @@ void drain_location(object loc)
   file = loc->query_file_name();
   inv = all_inventory(loc);
   for (i = 0; i < sizeof(inv); i++)
-    if (inv[i] && inv[i]->query_persisted() &&
-        inv[i]->query_npc_area_path() == area_path)
-    {
-      string uuid;
+  {
+    string uuid, roster;
 
-      // record where the NPC actually is now, so it comes back here (where it
-      // walked to on its schedule) rather than at its original census spot
-      uuid = inv[i]->query_npc_uuid();
+    if (!inv[i] || !inv[i]->query_persisted())
+      continue;
+
+    uuid = inv[i]->query_npc_uuid();
+    roster = inv[i]->query_npc_area_path();
+
+    if (roster == area_path)
+    {
+      // one of our own: record where it actually is now (where it walked to on
+      // its schedule) so it comes back here rather than at its census spot, and
+      // drop any stale foreign-index entry -- it is home, in its roster area
       if (uuid && npc_census[uuid] && npc_census[uuid]["location"] != file)
       {
         npc_census[uuid]["location"] = file;
         changed = 1;
       }
-
-      inv[i]->save_npc();
+      if (uuid)
+        AREA_HANDLER->set_foreign_position(uuid, roster, nil);
     }
+    else if (roster && strlen(roster))
+    {
+      // a roamer rostered elsewhere, resting in our area: tell its roster area
+      // where it is (for scheduling / reload) and index it here so this location
+      // rematerializes it on load
+      object rarea;
+      rarea = AREA_HANDLER->query_area(roster);
+      if (rarea)
+        rarea->set_census_location(uuid, file);
+      AREA_HANDLER->set_foreign_position(uuid, roster, file);
+    }
+
+    inv[i]->save_npc();
+  }
 
   if (changed)
     save_me();
@@ -1867,6 +1929,10 @@ void npc_died(string uuid)
     map_delete(npc_census, uuid);
     save_me();
   }
+
+  // drop any cross-area position index for it, so a dead roamer is never
+  // rematerialized when the foreign location it last rested in reloads
+  AREA_HANDLER->set_foreign_position(uuid, nil, nil);
 
   vacancy = clear_vacancy_by_uuid(uuid);
   if (vacancy)
