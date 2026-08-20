@@ -19,7 +19,7 @@ static nomask object table(string name)
   {
     if (ob = load_object(game_root(this_object()) + "tables/" + name))
     {
-      SINGLETON_HANDLER->set_handler(game_name(this_object()) + "-" + name, ob);
+      SINGLETON_HANDLER->set_table(game_name(this_object()) + "-" + name, ob);
       return ob;
     }
 

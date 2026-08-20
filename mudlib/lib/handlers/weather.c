@@ -204,7 +204,7 @@ void weather_inform(int flag, varargs string zone, int * values)
     // A room-level observer has no environment.
     if (!environment(obs[i]))
     {
-      if (zone == table(WEATHER_TABLE)->query_zone(file_name(obs[i])))
+      if (zone == table("weather")->query_zone(file_name(obs[i])))
         event(obs[i], "weather", flag, values);
     }
 
@@ -213,7 +213,7 @@ void weather_inform(int flag, varargs string zone, int * values)
     if (obs[i]->query_player())
     {
       if ((environment(obs[i])->query_outside()) &&
-          (zone == table(WEATHER_TABLE)->query_zone(file_name(environment(obs[i])))))
+          (zone == table("weather")->query_zone(file_name(environment(obs[i])))))
         event(obs[i], "weather", flag, values);
     }
   }
@@ -383,12 +383,12 @@ void check_season(int flag)
 // Reset every zone to its original table values. Useful when the
 // weather table's exit graph or averages change and we need to
 // re-seed. Note: map_copy() ensures we don't share the mapping with
-// the WEATHER_TABLE object.
+// the "weather" object.
 void reset_zones()
 {
   log_file(LOG_FILE, "Resetting weather zones " + ctime(time(), 4) + "\n");
 
-  zones = map_copy(table(WEATHER_TABLE)->query_zones());
+  zones = map_copy(table("weather")->query_zones());
   check_season(1);
   save_weather();
 }
@@ -403,7 +403,7 @@ void check_zones()
   int changed;
 
   changed = 0;
-  table_zones = map_copy(table(WEATHER_TABLE)->query_zones());
+  table_zones = map_copy(table("weather")->query_zones());
   table_names = keys(table_zones);
   names = keys(zones);
 
@@ -581,7 +581,7 @@ int query_darkness(object room)
   int amount;
   string zone;
 
-  zone = table(WEATHER_TABLE)->query_zone(file_name(room));
+  zone = table("weather")->query_zone(file_name(room));
 
   if (query_day())
   {
@@ -631,7 +631,7 @@ int query_darkness(object room)
 int query_raining(object room)
 {
   string zone;
-  zone = table(WEATHER_TABLE)->query_zone(file_name(room));
+  zone = table("weather")->query_zone(file_name(room));
   return (zones[zone][0] >= 50);
 }
 
@@ -639,7 +639,7 @@ int query_raining(object room)
 int * query_actual_data(object room)
 {
   string zone;
-  zone = table(WEATHER_TABLE)->query_zone(file_name(room));
+  zone = table("weather")->query_zone(file_name(room));
   return ({ zones[zone][0], zones[zone][1], zones[zone][2], });
 }
 
@@ -791,7 +791,7 @@ string weather_string(object room)
   string temp, wind, rain;
 
   ret = capitalize(daynight_string()) + _LANG_WEATHER_STRING_OF + season_string();
-  zone = table(WEATHER_TABLE)->query_zone(file_name(room));
+  zone = table("weather")->query_zone(file_name(room));
 
   temp = temperature_string(zone);
   wind = wind_string(zone);

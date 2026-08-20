@@ -1,5 +1,4 @@
 
-#define CALENDAR_TABLE "calendar_table"
 
 #define SAVE_FILENAME "/save/calendar.o"
 #define POS_YEAR_NAME 0

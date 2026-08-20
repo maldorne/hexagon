@@ -9,8 +9,8 @@
  * Two roles:
  *
  *  1. CATALOGUE — load and cache type definitions from
- *     /lib/tables/props_table.c (base catalogue) plus per-game overrides
- *     at /games/<game>/tables/props_table.c. Per-game tables merge over
+ *     /lib/tables/props.c (base catalogue) plus per-game overrides
+ *     at /games/<game>/tables/props.c. Per-game tables merge over
  *     the base on type id collision. Also scan /lib/location/props/*.c
  *     and per-game /games/<game>/location/props/*.c for custom
  *     blueprints (the ones inheriting /lib/location/prop.c).
@@ -32,7 +32,6 @@
 
 inherit "/lib/core/object.c";
 
-#define PROPS_TABLE      "props_table"
 #define BASE_PROPS_DIR   "/lib/location/props/"
 #define PROP_BASE_FILE   "/lib/location/prop.c"
 
@@ -109,7 +108,7 @@ private void _load_table()
 
   catch
   {
-    base_table = load_object("/lib/tables/" + PROPS_TABLE);
+    base_table = load_object("/lib/tables/" + "props");
     if (base_table)
       table_data = base_table->query_types();
   }
@@ -123,7 +122,7 @@ private void _load_table()
     string game_path;
 
     if (!games[i]) continue;
-    game_path = game_root(games[i]) + "tables/" + PROPS_TABLE;
+    game_path = game_root(games[i]) + "tables/" + "props";
 
     catch
     {

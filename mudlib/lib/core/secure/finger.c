@@ -55,7 +55,7 @@ string domain_finger(string name)
   string ret, *names;
   object master, table;
 
-  table = table("finger_table");
+  table = table("finger");
   master = load_object("/game/areas/"+name+"/master");
 
   if (!master)
@@ -124,7 +124,7 @@ string finger_info(string name, varargs object me)
   mapping mail_stat;
   string birth_day, real_name, where, email;
 
-  table = table("finger_table");
+  table = table("finger");
 
   // if (nick)
   //  name = nick;

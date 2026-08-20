@@ -76,8 +76,8 @@ mixed * get_year(int num)
   string * adjective_list;
 
   year = allocate(3);
-  name_list = table(CALENDAR_TABLE)->query_name_list();
-  adjective_list = table(CALENDAR_TABLE)->query_adjective_list();
+  name_list = table("calendar")->query_name_list();
+  adjective_list = table("calendar")->query_adjective_list();
 
   if (!undefinedp(year_list[num]))
     return year_list[num];
@@ -150,7 +150,7 @@ string query_week_day_string(varargs int num_day)
   if (!num_day)
     num_day = query_global_day();
 
-  return table(CALENDAR_TABLE)->query_week_day_string(num_day);
+  return table("calendar")->query_week_day_string(num_day);
 }
 
 string convert_birthday(string str)

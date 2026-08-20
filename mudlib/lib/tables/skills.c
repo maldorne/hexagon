@@ -5,8 +5,8 @@
 // <living/skills.h>; the player-visible name is translated per-skill in
 // /lib/obj/skills/.lang.<lang>.h and read from the object at display time.
 //
-// Per-game overrides live at /games/<game>/tables/skills_table.c (standard
-// hexagon table convention: table("skills_table") resolves the game one first).
+// Per-game overrides live at /games/<game>/tables/skills.c (standard
+// hexagon table convention: table("skills") resolves the game one first).
 
 #include <living/skills.h>
 #include <living/effects.h>

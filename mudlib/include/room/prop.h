@@ -8,7 +8,7 @@
 //   /lib/location/prop.c            (base for custom blueprints)
 //   /lib/location/props/*.c         (custom blueprints)
 //   /lib/location/components/props.c (the component that owns instances)
-//   /lib/tables/props_table.c       (the data table)
+//   /lib/tables/props.c       (the data table)
 //
 // Player-visible strings live in <translations/props.h> and resolve to
 // the localized .lang.*.h variant at compile time.
@@ -85,7 +85,7 @@
 #define PROP_SPEC_MSG_OTHERS            "msg_others"
 
 // ------------------------------------------------------------
-//  Type-entry sub-keys inside /lib/tables/props_table.c.
+//  Type-entry sub-keys inside /lib/tables/props.c.
 //  Mirror order is the same one used in props.md §2.1.
 // ------------------------------------------------------------
 

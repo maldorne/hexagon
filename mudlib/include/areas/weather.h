@@ -5,7 +5,6 @@
 #define SAVE_FILE "/save/weather.o"
 #define LOG_FILE "weather"
 
-#define WEATHER_TABLE "weather_table"
 #define WEATHER_SH "/lib/obj/shadows/weather_sh.c"
 
 

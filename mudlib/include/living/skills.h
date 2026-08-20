@@ -1,6 +1,6 @@
 
 #define SKILLS_PATH "/lib/obj/skills/"
-#define SKILLS_TABLE "/lib/tables/skills_table.c"
+#define SKILLS_TABLE "/lib/tables/skills.c"
 
 #define ACTIVE_SKILL 0
 #define PASSIVE_SKILL 1
@@ -9,7 +9,7 @@
 #define SKILL_DATA_PATH 0
 
 // Skill ids: stable English keys, the same word as the skill object's
-// filename. Used as the skills_table key, stored in known_skills, and
+// filename. Used as the skills table key, stored in known_skills, and
 // referenced by callers (e.g. the maze component). Never translated —
 // the display name lives per-skill in /lib/obj/skills/.lang.<lang>.h.
 #define SKILL_ORIENTATION "orientation"

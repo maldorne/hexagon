@@ -1,7 +1,7 @@
 // New weather system for CcMud, neverbot 22/10/03
 
-// REMEMBER: If you have a weather_table file in 
-// /game/tables/weather_table.c
+// REMEMBER: If you have a weather table file in 
+// /game/tables/weather.c
 // this file will be ignored by the system
 
 #define BASE "ciudad capital"

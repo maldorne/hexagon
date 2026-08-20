@@ -2,7 +2,7 @@
 // Base class every custom prop blueprint inherits from.
 //
 // Inheritance is only required for the handful of types whose action
-// logic cannot be expressed declaratively in /lib/tables/props_table.c
+// logic cannot be expressed declaratively in /lib/tables/props.c
 // (a fountain that heals, a statue that consults a quest handler, …).
 // Decorative types — chair, table, statue, tapestry — live entirely as
 // table entries and never need a `.c` file under /lib/location/props/.

@@ -1,6 +1,6 @@
 
 /*
- * props_table.c
+ * props.c
  *
  * Base catalogue of declarative prop types consumed by
  * /lib/handlers/props.c (the registry / plan oracle). Every entry
@@ -15,7 +15,7 @@
  * /lib/location/props/<type>.c provides the handler. None of the
  * v1 catalogue needs that.
  *
- * Per-game overrides live at /games/<game>/tables/props_table.c
+ * Per-game overrides live at /games/<game>/tables/props.c
  * (standard hexagon table convention). A per-game entry with the
  * same key replaces the base entry on the registry side.
  *
