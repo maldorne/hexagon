@@ -214,7 +214,7 @@ int add_known_skill(string str, varargs int silence)
   if (member_array(str, known_skills) != -1)
     return 0;
 
-  skill = SKILLS_TABLE->query_skill_data(str);
+  skill = table("skills")->query_skill_data(str);
 
   // The table returned no data
   if (!arrayp(skill) || !sizeof(skill))
@@ -511,7 +511,7 @@ int skill_damage(int damage, string type, object attacker)
 // return that object's own help() (rendered in the current language).
 string help_skill(string str)
 {
-  object table, f;
+  object skills_table, f;
   mapping skills;
   string * ids;
   int i;
@@ -519,11 +519,11 @@ string help_skill(string str)
   if (!str || !strlen(str))
     return "";
 
-  table = load_object(SKILLS_TABLE);
-  if (!table)
+  skills_table = table("skills");
+  if (!skills_table)
     return "";
 
-  skills = table->query_skills();
+  skills = skills_table->query_skills();
   ids = keys(skills);
 
   for (i = 0; i < sizeof(ids); i++)

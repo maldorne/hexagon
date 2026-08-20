@@ -8,24 +8,32 @@
 static nomask object table(string name) 
 {
   object ob;
+  string game, key;
 
-  // ob = SINGLETON_HANDLER->get_table(name);
+  // Resolution is per game -- a game's own copy overrides the lib one -- so
+  // the cache key carries the game, or a lookup made from inside one game
+  // would hand back what a different game resolved. Objects that belong to
+  // no game key by the bare name.
+  game = game_name(this_object());
+  key = (game && strlen(game)) ? game + "-" + name : name;
 
-  // if (objectp(ob))
-  //   return ob;
+  ob = SINGLETON_HANDLER->get_table(key);
+
+  if (objectp(ob))
+    return ob;
 
   // first the game specific table, it will override the lib one
   catch 
   {
     if (ob = load_object(game_root(this_object()) + "tables/" + name))
     {
-      SINGLETON_HANDLER->set_table(game_name(this_object()) + "-" + name, ob);
+      SINGLETON_HANDLER->set_table(key, ob);
       return ob;
     }
 
     if (ob = load_object("/lib/tables/" + name))
     {
-      SINGLETON_HANDLER->set_table(name, ob);
+      SINGLETON_HANDLER->set_table(key, ob);
       return ob;
     }
   }
@@ -36,24 +44,32 @@ static nomask object table(string name)
 static nomask object handler(string name) 
 {
   object ob;
+  string game, key;
 
-  // ob = SINGLETON_HANDLER->get_handler(name);
+  // Resolution is per game -- a game's own copy overrides the lib one -- so
+  // the cache key carries the game, or a lookup made from inside one game
+  // would hand back what a different game resolved. Objects that belong to
+  // no game key by the bare name.
+  game = game_name(this_object());
+  key = (game && strlen(game)) ? game + "-" + name : name;
 
-  // if (objectp(ob))
-  //   return ob;
+  ob = SINGLETON_HANDLER->get_handler(key);
+
+  if (objectp(ob))
+    return ob;
 
   // first the game specific handler, it will override the lib one
   catch 
   {
     if (ob = load_object(game_root(this_object()) + "handlers/" + name))
     {
-      SINGLETON_HANDLER->set_handler(game_name(this_object()) + "-" + name, ob);
+      SINGLETON_HANDLER->set_handler(key, ob);
       return ob;
     }
 
     if (ob = load_object("/lib/handlers/" + name))
     {
-      SINGLETON_HANDLER->set_handler(name, ob);
+      SINGLETON_HANDLER->set_handler(key, ob);
       return ob;
     }
   }

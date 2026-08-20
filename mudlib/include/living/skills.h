@@ -1,11 +1,10 @@
 
 #define SKILLS_PATH "/lib/obj/skills/"
-#define SKILLS_TABLE "/lib/tables/skills.c"
 
 #define ACTIVE_SKILL 0
 #define PASSIVE_SKILL 1
 
-// Data returned by query_skill_data from SKILLS_TABLE
+// Data returned by query_skill_data from the skills table
 #define SKILL_DATA_PATH 0
 
 // Skill ids: stable English keys, the same word as the skill object's
