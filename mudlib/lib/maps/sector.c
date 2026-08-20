@@ -46,8 +46,11 @@ mapping boundary_exits;
 // a type a programmer set by hand; used only when the sector has no
 // locations to derive a type from. See query_sector_type / set_manual_type.
 string manual_type;
-// array of loaded locations
-static object * loaded_locations;
+// The sector's locations currently in memory, indexed by file name:
+//   ([ file_name : location object ])
+// Keyed by file name so "is this location loaded?" is a lookup instead of a
+// scan, and a duplicate entry for the same file is impossible.
+static mapping loaded_locations;
 string file_name;
 
 void save_me();
@@ -60,7 +63,7 @@ void create() {
   way_exits = ([ ]);
   boundary_exits = ([ ]);
   manual_type = SECTOR_TYPE_NONE;
-  loaded_locations = ({ });
+  loaded_locations = ([ ]);
   ::create();
 }
 
@@ -318,28 +321,19 @@ void remove_position(string coord_key)
 
 void add_loaded_location(object location) 
 {
-  int i;
+  if (location)
+    loaded_locations[location->query_file_name()] = location;
+}
 
-  loaded_locations -= ({ nil });
-
-  for (i = 0; i < sizeof(loaded_locations); i++)
-  {
-    // why are we having two objects for the same location?
-    // don't know, don't care, the last one should be the good one
-    if (loaded_locations[i]->query_file_name() == location->query_file_name())
-    {
-      loaded_locations[i] = location;
-      return;
-    }
-  }
-
-  loaded_locations += ({ location });
+// The loaded location object for a file, or nil when it is not in memory.
+object query_loaded_location(string file)
+{
+  return file ? loaded_locations[file] : nil;
 }
 
 object * query_loaded_locations()
 {
-  loaded_locations -= ({ nil });
-  return loaded_locations;
+  return map_values(loaded_locations) - ({ nil });
 }
 
 mapping query_type_counts()
