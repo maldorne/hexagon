@@ -158,39 +158,15 @@ private object npc_restore(string id, object loc)
   if (entry["poi"])
     npc->set_npc_poi(entry["poi"]);
 
-  // Behaviour (sentient/equipment/timetable) lives on the type template; an NPC
-  // assigned before the move still finds it on its area role, kept as a fallback.
-  // A role slot is a named, self-gendered citizen; anything else (fauna, a POI
-  // vacancy, a guard) takes its gender from the template. A slot is a role-board
-  // slot only when tagged "role" with no "poi"/"guard".
+  // A role slot is a named, self-gendered citizen; anything else (a monster, a
+  // POI vacancy, a guard) takes its gender from the template. A slot is a
+  // role-board slot only when tagged "role" with no "poi"/"guard"; the role is
+  // read here for the workplace it names.
   role = (entry["role"] && !entry["poi"] && !entry["guard"]) ? ((mapping)this_object()->query_roles())[entry["role"]] : nil;
   t = BESTIARY_HANDLER->query_template(game, source);
 
-  // One-shot migration: copy an un-migrated role's behaviour onto the type
-  // template so later spawns read it there and the role can retire. Only writes
-  // the fields the template is still missing, so it runs once per NPC type.
-  if (role && t && (undefinedp(t["sentient"]) || undefinedp(t["equipment"]) ||
-                    undefinedp(t["timetable"])))
-  {
-    mapping fields;
-    fields = ([ ]);
-    if (undefinedp(t["sentient"]) && !undefinedp(role["sentient"]))
-      fields["sentient"] = role["sentient"];
-    if (undefinedp(t["equipment"]) && !undefinedp(role["equipment"]))
-      fields["equipment"] = role["equipment"];
-    if (undefinedp(t["timetable"]) && mappingp(role["timetable"]))
-      fields["timetable"] = role["timetable"];
-    if (map_sizeof(fields))
-    {
-      BESTIARY_HANDLER->set_template_behaviour(game, source, fields);
-      t = BESTIARY_HANDLER->query_template(game, source);
-    }
-  }
-
-  // Sentient reads from the template first (its authoritative home), the role
-  // only for a not-yet-migrated NPC.
-  sentient = (t && !undefinedp(t["sentient"])) ? t["sentient"]
-                                               : (role && role["sentient"]);
+  // sentience is a fact about the type, so it comes from the template
+  sentient = t && t["sentient"];
 
   savefile = entry["savefile"];
   first = !(savefile && file_size(savefile) >= 0);
@@ -248,11 +224,10 @@ private object npc_restore(string id, object loc)
       npc->add_alias(kind);
   }
 
-  // Per-individual assignment on the npc.o: this NPC's concrete workplace.
-  // Backfilled here for an NPC assigned before the field existed -- work comes
-  // from its role. A first-materialize NPC is persisted by the equipment save
-  // below; a restore that had to backfill saves here. (The roster area is
-  // npc_area_path, already stamped above.)
+  // Per-individual assignment on the npc.o: this NPC's concrete workplace, taken
+  // from the role it fills. A restored NPC already carries one. A
+  // first-materialize NPC is persisted by the equipment save below; one that had
+  // none saves here. (The roster area is npc_area_path, stamped above.)
   if (!npc->query_work() && role && role["work"])
   {
     npc->set_work(role["work"]);
@@ -261,15 +236,13 @@ private object npc_restore(string id, object loc)
   }
 
   // Equipment on the npc.o: on the first materialization the NPC rolls its kit
-  // once -- from the template, or its role when un-migrated -- equips it and the
-  // save below persists it; on restore the inventory came back with restore_npc,
-  // so just re-wear/wield it.
+  // once from the template, equips it and the save below persists it; on restore
+  // the inventory came back with restore_npc, so just re-wear/wield it.
   if (first)
   {
     mixed * equipment;
 
-    equipment = (t && pointerp(t["equipment"])) ? t["equipment"]
-                                                : (role ? role["equipment"] : nil);
+    equipment = t ? t["equipment"] : nil;
     if (pointerp(equipment) && sizeof(equipment))
       this_object()->equip_npc(npc, (string *)this_object()->resolve_equipment(equipment));
     npc->save_npc();
@@ -282,8 +255,8 @@ private object npc_restore(string id, object loc)
   // A sentient NPC with a workplace gets a daily timetable keyed on the game
   // hour: out to work in the morning, home in the evening. Work is the
   // individual's own (npc.o); the timetable is the type's (template), int-keyed
-  // here because JSON stored its hours as strings. An un-migrated NPC falls back
-  // to its role's native-keyed timetable, else a sensible default. Attached fresh
+  // here because JSON stored its hours as strings, or a sensible default when
+  // the type declares none. Attached fresh
   // each materialization (so a schedule change is picked up); home is read live
   // from the NPC. Guards are excluded above (a role slot is never a guard entry).
   // The areas handler drives it hour by hour and staggers the departures.
@@ -294,8 +267,7 @@ private object npc_restore(string id, object loc)
     object sched;
 
     timetable = (t && mappingp(t["timetable"]))
-                  ? _int_keyed_hours(t["timetable"])
-                  : (role ? role["timetable"] : nil);
+                  ? _int_keyed_hours(t["timetable"]) : nil;
     if (!mappingp(timetable) || !map_sizeof(timetable))
       timetable = ([ 6  : ([ "goto" : "work" ]),
                      20 : ([ "goto" : "home" ]) ]);

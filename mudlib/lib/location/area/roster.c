@@ -106,88 +106,15 @@ void remove_intended_npc(string source)
 
 mapping query_npc_sources() { return npc_sources; }
 
-// Normalise a source to the template id the area keys everything by. A source
-// arrives either already as a template id (post-conversion data) or as the
-// original monster .c path (pre-conversion saves); template_id is idempotent,
-// so both collapse to the same key and old saves keep working with no separate
-// migration pass. Day-to-day operation never needs the .c to exist.
+// The template id for a blueprint path. Everything the area stores is keyed by
+// template id; this is what turns a path handed in from outside -- a builder
+// naming an NPC .c, a guard source read from the diplomacy graph -- into that
+// key. Idempotent, so feeding it an id back returns it unchanged.
 string query_template_from_source(string source)
 {
   if (!source || !strlen(source))
     return source;
   return BESTIARY_HANDLER->template_id(game_from_path((string)this_object()->query_area_path()), source);
-}
-
-// Fold any pre-conversion monster paths in the area's persisted state down to
-// template ids, in place: npc_sources keys, vacancy sources and census
-// "source". This rewrites labels only -- every uuid and live NPC keeps its
-// identity, so it is not the duplicate-spawning churn that removing and
-// re-adding a vacancy would cause. Idempotent (template_id is), so running it
-// on every recompute is safe. Saves only when something actually changed.
-private void _migrate_source_ids()
-{
-  string * locs, * ids;
-  int i, j, changed;
-
-  changed = 0;
-
-  // npc_sources: re-key each location's inner (source -> count) map by id
-  locs = map_indices(npc_sources);
-  for (i = 0; i < sizeof(locs); i++)
-  {
-    mapping inner, rekeyed;
-    string * keys;
-
-    inner = npc_sources[locs[i]];
-    keys = map_indices(inner);
-    rekeyed = ([ ]);
-    for (j = 0; j < sizeof(keys); j++)
-    {
-      string tid;
-      tid = query_template_from_source(keys[j]);
-      if (tid != keys[j])
-        changed = 1;
-      rekeyed[tid] = inner[keys[j]];
-    }
-    npc_sources[locs[i]] = rekeyed;
-  }
-
-  // vacancy sources stored on each POI
-  locs = map_indices((mapping)this_object()->query_pois());
-  for (i = 0; i < sizeof(locs); i++)
-  {
-    mapping * vs;
-    vs = ((mapping)this_object()->query_pois())[locs[i]][POI_FIELD_VACANCIES];
-    for (j = 0; vs && j < sizeof(vs); j++)
-    {
-      string tid;
-      tid = query_template_from_source(vs[j][VACANCY_FIELD_SOURCE]);
-      if (tid != vs[j][VACANCY_FIELD_SOURCE])
-      {
-        vs[j][VACANCY_FIELD_SOURCE] = tid;
-        changed = 1;
-      }
-    }
-  }
-
-  // the identity recorded on each live census NPC
-  ids = map_indices((mapping)this_object()->query_npc_census());
-  for (i = 0; i < sizeof(ids); i++)
-  {
-    mapping e;
-    string tid;
-
-    e = ((mapping)this_object()->query_npc_census())[ids[i]];
-    tid = query_template_from_source(e["source"]);
-    if (tid != e["source"])
-    {
-      e["source"] = tid;
-      changed = 1;
-    }
-  }
-
-  if (changed)
-    this_object()->save_me();
 }
 
 // Recompute npc_intended from the per-location conversion provenance: the
@@ -206,10 +133,6 @@ void recompute_intended()
   int i, j;
   mapping counts, clones_here, vacancy_sources, previous;
   string guard_source;
-
-  // fold any pre-conversion monster paths in persisted state down to template
-  // ids first, so the roster, vacancies and census all key consistently
-  _migrate_source_ids();
 
   // sum each NPC source's add_clone count across every location of the area
   counts = ([ ]);

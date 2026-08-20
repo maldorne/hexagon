@@ -202,11 +202,8 @@ int restore_from_file_name(string name)
   {
     restore_object(name);
 
-    // Rebuild the derived roster from npc_sources on load (npc_intended is not
-    // authoritative state, it is derived) and, in the same pass, fold any
-    // pre-conversion monster paths in the persisted data down to template ids.
-    // This lets a converted area self-heal on first access after a reboot,
-    // without reloading any source .c.
+    // Rebuild the derived roster from npc_sources on load: npc_intended is not
+    // authoritative state, it is the sum of the per-location provenance.
     recompute_intended();
     return 1;
   }
