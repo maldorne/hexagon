@@ -7,8 +7,6 @@
  * oracle; this component is the executor that holds the state and
  * runs the verbs.
  *
- * See the Nottario doc dev/props.md for the full design.
- *
  * Instance shape (one mapping per attached prop):
  *
  *   ([

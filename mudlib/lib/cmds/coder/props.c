@@ -1,8 +1,7 @@
 
 /*
  * props — coder/builder cmd to manage prop instances on the current
- * location. Design-time tool. See the Nottario doc dev/props.md for
- * the design.
+ * location. Design-time tool.
  *
  * Subverbs:
  *   props list                        — print attached instances

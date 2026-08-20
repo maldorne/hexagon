@@ -1,8 +1,7 @@
 
 // prop.h
 //
-// Compile-time constants for the location props subsystem. See
-// the Nottario doc `dev/props.md` for the full design — this file
+// Compile-time constants for the location props subsystem. This file
 // only defines the symbolic names referenced by:
 //
 //   /lib/handlers/props.c           (registry / plan oracle)

@@ -15,8 +15,6 @@
  * game; the prewarm queue is drained by one global worker a few objects
  * per tick, so nothing is synchronous to the player and no single tick
  * overruns its budget.
- *
- * Design note: dev/location-cleaner.md.
  */
 
 #include <room/location-cleaner.h>

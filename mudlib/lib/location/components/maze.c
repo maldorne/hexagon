@@ -6,8 +6,7 @@
 // the maze feel comes from the run-time swap, not from a deliberately
 // bogus exit graph.
 //
-// See muds/notes/hexagon/dev/location-hook-system.md for the hook
-// system this plugs into.
+// Plugs into the location component hook system (see <room/location.h>).
 
 #include <room/location.h>
 #include <living/skills.h>

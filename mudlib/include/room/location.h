@@ -34,7 +34,6 @@
 //
 //  Components register interest in a hook via query_hooks() returning
 //  ([ "func_name": HOOK_PRIORITY_*, ... ]). Lower priority runs earlier.
-//  Full design in the Nottario doc `dev/location-hook-system.md`.
 // ************************************************************
 
 // Text-augmenting hooks (long, short, extra_look). Output appears in

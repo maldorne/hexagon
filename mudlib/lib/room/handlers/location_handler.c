@@ -1049,7 +1049,7 @@ private mapping _find_inbound_exits(mapping orphan_set);
 
 /**
  * Preview the impact of cleaning `scope`. `scope` is a source-tree
- * path (e.g. `/games/rl-aeternum/areas/forest/rooms`) or the matching
+ * path (e.g. `/games/<game>/areas/<area>/rooms`) or the matching
  * save-tree path. Only the corresponding save directory is consulted
  * for orphan discovery; each `.o` there is checked against the source
  * prefix via `_original_room_file_name`.
@@ -1476,8 +1476,8 @@ int reindex_area(string game, string area, varargs int do_save)
   string * files;
   int i, count;
 
-  // Accept the area either bare ("naduk", as `exits area` takes it) or
-  // as query_area_name() reports it ("naduk/rooms"): strip a trailing
+  // Accept the area either bare ("<area>", as `exits area` takes it) or
+  // as query_area_name() reports it ("<area>/rooms"): strip a trailing
   // "/rooms" or "/" so the path is rebuilt exactly once.
   while (strlen(area) && area[strlen(area) - 1] == '/')
     area = area[0 .. strlen(area) - 2];

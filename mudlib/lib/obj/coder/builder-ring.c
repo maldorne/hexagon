@@ -934,7 +934,7 @@ int do_poi(string str)
   return 0;
 }
 
-// Manage the area's role board (dev/area-npc-system.md §7.2): the named jobs a
+// Manage the area's role board: the named jobs a
 // settlement staffs with sentient citizens. `add` declares a role with a count
 // and a transitional blueprint, its work location being wherever you stand;
 // `list` shows them with their live count; `remove` drops one (culling its

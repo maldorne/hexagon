@@ -15,8 +15,8 @@
  *     and per-game /games/<game>/location/props/*.c for custom
  *     blueprints (the ones inheriting /lib/location/prop.c).
  *
- *  2. PLAN ORACLE — the dispatch model described in §5 of the Nottario
- *     doc dev/props.md. query_action_plan(type, verb) returns a plan:
+ *  2. PLAN ORACLE — the dispatch model. query_action_plan(type, verb)
+ *     returns a plan:
  *     either ({ PROP_PLAN_GENERIC, action_spec }) for fully declarative
  *     actions, or ({ PROP_PLAN_CUSTOM, custom_blueprint }) for actions
  *     that delegate to an LPC handler. The location component executes
