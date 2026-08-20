@@ -28,7 +28,7 @@ private string show_topic_value(string category, string topic)
   object target;
   mixed result;
 
-  config = CONFIG_TABLE->query_config_data();
+  config = table("configurations")->query_config_data();
   current_map = config[category];
   func_name = current_map[topic][CONFIG_POS_QUERY_FUNC];
   
@@ -62,7 +62,7 @@ private string set_topic_value(string category, string topic, mixed value)
   mixed result;
   object target;
 
-  config = CONFIG_TABLE->query_config_data();
+  config = table("configurations")->query_config_data();
   current_map = config[category];
   func_name = current_map[topic][CONFIG_POS_SET_FUNC];
 
@@ -113,7 +113,7 @@ private string show_category(string title, string category)
   mixed result;
   object target;
 
-  config = CONFIG_TABLE->query_config_data();
+  config = table("configurations")->query_config_data();
   current_map = config[category];
   topics = keys(current_map);
 
@@ -156,7 +156,7 @@ int show_all_config()
   int i;
   string ret;
 
-  config = CONFIG_TABLE->query_config_data();
+  config = table("configurations")->query_config_data();
   categories = keys(config);
   ret = "";
 
@@ -164,7 +164,7 @@ int show_all_config()
   {
     // the config indices in the mapping are just indices, translate them 
     // before showing them to the user
-    ret += show_category(CONFIG_TABLE->query_config_translations()[categories[i]][0], 
+    ret += show_category(table("configurations")->query_config_translations()[categories[i]][0], 
         categories[i]);
   }
 
@@ -191,7 +191,7 @@ static int cmd(string str, object me, string verb)
   if (sscanf(str, "%s %s %s", category, topic, value) == 3)
   {
     // set new value
-    category = CONFIG_TABLE->query_category_from_name(category);
+    category = table("configurations")->query_category_from_name(category);
     
     // whatever we wrote is not an existing category
     if (strlen(category) == 0)
@@ -201,7 +201,7 @@ static int cmd(string str, object me, string verb)
     }
 
     // whatever we wrote is not an existing topic
-    if (!CONFIG_TABLE->query_topic_in_category(topic, category))
+    if (!table("configurations")->query_topic_in_category(topic, category))
     {
       write(_LANG_CMD_CONFIG_NOT_VALID_TOPIC);
       return 1;
@@ -213,7 +213,7 @@ static int cmd(string str, object me, string verb)
   else if (sscanf(str, "%s %s", category, topic) == 2)
   {
     // show current value
-    category = CONFIG_TABLE->query_category_from_name(category);
+    category = table("configurations")->query_category_from_name(category);
 
     // whatever we wrote is not an existing category
     if (strlen(category) == 0)
@@ -223,7 +223,7 @@ static int cmd(string str, object me, string verb)
     }
 
     // whatever we wrote is not an existing topic
-    if (!CONFIG_TABLE->query_topic_in_category(topic, category))
+    if (!table("configurations")->query_topic_in_category(topic, category))
     {
       write(_LANG_CMD_CONFIG_NOT_VALID_TOPIC);
       return 1;
@@ -236,7 +236,7 @@ static int cmd(string str, object me, string verb)
   {
     // we enter just a category name
     // show all topics and values for the category
-    category = CONFIG_TABLE->query_category_from_name(str);
+    category = table("configurations")->query_category_from_name(str);
 
     // whatever we wrote is not an existing category
     if (strlen(category) == 0)
@@ -246,7 +246,7 @@ static int cmd(string str, object me, string verb)
     }
 
     write(handler("frames")->frame(show_category(
-              CONFIG_TABLE->query_config_translations()[category][0], 
+              table("configurations")->query_config_translations()[category][0], 
               category), 
         _LANG_CMD_CONFIG_FOR_USER, this_user()->query_cols()));;
     return 1;

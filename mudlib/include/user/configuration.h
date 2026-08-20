@@ -1,5 +1,4 @@
 
-#define CONFIG_TABLE "/lib/tables/configurations"
 
 #define CONFIG_POS_TYPE 0
 #define CONFIG_POS_QUERY_FUNC 1

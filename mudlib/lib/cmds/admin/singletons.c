@@ -40,14 +40,15 @@ private void show_group(mapping obs, string title)
 
   if (!map_sizeof(obs))
   {
-    write("\n * No " + title + " loaded yet.\n");
+    write("\n * No %^BOLD%^" + title + "%^RESET%^ loaded yet.\n");
     return;
   }
 
-  // Group by the game each entry was resolved for. This is what tells a real
-  // per-game override apart from a game that simply resolves to the shared
-  // object: the second is not a duplicate, it is the cached answer that saves
-  // re-checking for an override the game does not have on every call.
+  // Group by the game each entry was resolved for, with the objects that
+  // belong to no game under "global". This is what tells a real per-game
+  // override apart from a game that simply resolves to the shared object: the
+  // second is not a duplicate, it is the cached answer that saves re-checking
+  // for an override the game does not have on every call.
   by_game = ([ ]);
   ks = map_indices(obs);
 
@@ -65,7 +66,7 @@ private void show_group(mapping obs, string title)
     by_game[game] += ({ ({ name, base_name(obs[ks[i]]) }) });
   }
 
-  write("\n * " + title + " loaded:\n");
+  write("\n * %^BOLD%^" + title + " loaded%^RESET%^:\n");
 
   games = map_indices(by_game);
 
@@ -74,7 +75,8 @@ private void show_group(mapping obs, string title)
     mixed * rows;
     int j;
 
-    write("\n   " + (strlen(games[i]) ? games[i] : "no game") + ":\n");
+    write("\n   %^GREEN%^" + (strlen(games[i]) ? games[i] : "global") +
+          "%^RESET%^:\n");
     rows = by_game[games[i]];
 
     for (j = 0; j < sizeof(rows); j++)
@@ -83,9 +85,10 @@ private void show_group(mapping obs, string title)
 
       // a game entry pointing outside /games/ resolved to the shared object
       own = (strlen(games[i]) && rows[j][1][0 .. 5] != "/games")
-              ? "   (shared)" : "";
+              ? "   %^YELLOW%^(shared)%^RESET%^" : "";
 
-      write("     " + rows[j][0] + " -> " + rows[j][1] + own + "\n");
+      write("     %^BOLD%^" + rows[j][0] + "%^RESET%^ -> " +
+            rows[j][1] + own + "\n");
     }
   }
 }
