@@ -21,11 +21,11 @@
 // attached; the destination itself is read live from the NPC when it acts.
 mapping schedule_index;
 
-// provided by the area
-void save_me();
-mapping query_npc_census();
-object * query_live_npcs();
-void restore_location_npcs(object loc);
+// Calls into the rest of the area go through this_object(): an area is a single
+// object carrying the whole inheritance tree, so the call resolves at run time
+// against the complete program. That avoids declaring prototypes here for
+// functions that live in a sibling file. Only public functions are reachable
+// this way, and the result comes back as mixed, hence the casts.
 
 void create()
 {
@@ -55,7 +55,7 @@ void index_schedule_hours(string uuid, int * hours)
   }
 
   if (changed)
-    save_me();
+    this_object()->save_me();
 }
 
 // The census uuids with something scheduled at `hour` (loaded or not).
@@ -70,7 +70,7 @@ private object _live_npc_by_uuid(string uuid)
   object * live;
   int i;
 
-  live = query_live_npcs();
+  live = (object *)this_object()->query_live_npcs();
   for (i = 0; i < sizeof(live); i++)
     if (live[i] && live[i]->query_npc_uuid() == uuid)
       return live[i];
@@ -101,7 +101,7 @@ void wake_and_schedule(string uuid, int hour)
 
   if (!npc)
   {
-    entry = query_npc_census()[uuid];
+    entry = ((mapping)this_object()->query_npc_census())[uuid];
     if (!entry)
       return;
     locfile = entry["location"];
@@ -113,7 +113,7 @@ void wake_and_schedule(string uuid, int hour)
     loc = load_object(LOCATION_HANDLER)->load_location(locfile);
     if (!loc)
       return;
-    restore_location_npcs(loc);
+    this_object()->restore_location_npcs(loc);
 
     inv = all_inventory(loc);
     for (i = 0; i < sizeof(inv); i++)

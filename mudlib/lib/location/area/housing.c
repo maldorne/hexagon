@@ -23,12 +23,11 @@ string * plots;
 // The area's fallback location file (where orphaned occupants go). "" if unset.
 string principal;
 
-// provided by the area
-void save_me();
-void log_event(string msg);
-mapping query_npc_intended();
-string _template_id(string source);
-object * query_loaded_locations();
+// Calls into the rest of the area go through this_object(): an area is a single
+// object carrying the whole inheritance tree, so the call resolves at run time
+// against the complete program. That avoids declaring prototypes here for
+// functions that live in a sibling file. Only public functions are reachable
+// this way, and the result comes back as mixed, hence the casts.
 
 void door_house_exits(object house);
 private int _is_resident(object o);
@@ -52,7 +51,7 @@ void add_plot(string file)
   if (member_array(file, plots) < 0)
   {
     plots += ({ file });
-    save_me();
+    this_object()->save_me();
   }
 }
 
@@ -61,7 +60,7 @@ void remove_plot(string file)
   if (plots && member_array(file, plots) >= 0)
   {
     plots -= ({ file });
-    save_me();
+    this_object()->save_me();
   }
 }
 
@@ -69,7 +68,7 @@ string query_principal() { return principal ? principal : ""; }
 void set_principal(string file)
 {
   principal = file ? file : "";
-  save_me();
+  this_object()->save_me();
 }
 
 // Raise a house on a free plot and move its residents in. Picks a random free
@@ -85,7 +84,7 @@ string build_house_on_plot(string * residents)
 
   if (!plots || !sizeof(plots))
   {
-    log_event("No free plot available to house " +
+    this_object()->log_event("No free plot available to house " +
               (residents && sizeof(residents) ? implode(residents, ", ")
                                               : "an NPC") + ".");
     return nil;
@@ -108,7 +107,7 @@ string build_house_on_plot(string * residents)
   // it is a house now, not an available plot
   remove_plot(plot_file);
 
-  log_event("Raised a house at " + plot_file + " for " +
+  this_object()->log_event("Raised a house at " + plot_file + " for " +
             (residents && sizeof(residents) ? implode(residents, ", ")
                                             : "no residents") + ".");
 
@@ -201,7 +200,8 @@ private int _is_resident(object o)
   // the NPC's source may still be the original monster .c path (an old save) or
   // already the template id; npc_intended is keyed by template id, so normalise
   // before the lookup -- exactly as the roster/census do
-  spec = query_npc_intended()[_template_id(o->query_npc_source())];
+  spec = ((mapping)this_object()->query_npc_intended())
+           [(string)this_object()->_template_id(o->query_npc_source())];
   return spec && spec["resident"];
 }
 
@@ -215,7 +215,7 @@ void assign_homes()
   object * everyone, * homeless, * males, * females, * loaded;
   int i;
 
-  loaded = query_loaded_locations();
+  loaded = (object *)this_object()->query_loaded_locations();
   everyone = ({ });
   for (i = 0; i < sizeof(loaded); i++)
     if (loaded[i])

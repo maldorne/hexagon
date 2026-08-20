@@ -18,12 +18,11 @@
 //   ([ location_file : ([ template_id : count ]) ])
 mapping monster_census;
 
-// provided by the area
-void save_me();
-mapping query_npc_intended();
-string query_area_path();
-int decide_gender(string game, string source);
-int decide_level(string game, string source);
+// Calls into the rest of the area go through this_object(): an area is a single
+// object carrying the whole inheritance tree, so the call resolves at run time
+// against the complete program. That avoids declaring prototypes here for
+// functions that live in a sibling file. Only public functions are reachable
+// this way, and the result comes back as mixed, hence the casts.
 
 private int _live_monster_count(object loc, string source);
 private object spawn_monster(string source, object loc);
@@ -44,7 +43,7 @@ int assign_monster(string source, string location_file)
 
   if (!source || !strlen(source) || !location_file || !strlen(location_file))
     return 0;
-  if (!query_npc_intended()[source])
+  if (!((mapping)this_object()->query_npc_intended())[source])
     return 0;
 
   bucket = monster_census[location_file];
@@ -58,7 +57,7 @@ int assign_monster(string source, string location_file)
     bucket[source] = 1;
   else
     bucket[source] = bucket[source] + 1;
-  save_me();
+  this_object()->save_me();
 
   return 1;
 }
@@ -83,7 +82,7 @@ void monster_died(string source, string location_file)
     if (!map_sizeof(bucket))
       map_delete(monster_census, location_file);
   }
-  save_me();
+  this_object()->save_me();
 }
 
 // How many monsters of `source` the area holds, summed across its locations.
@@ -114,8 +113,8 @@ string * query_monster_sources()
   string game;
   int i;
 
-  game = game_from_path(query_area_path());
-  intended = query_npc_intended();
+  game = game_from_path((string)this_object()->query_area_path());
+  intended = (mapping)this_object()->query_npc_intended();
   sources = map_indices(intended);
   out = ({ });
 
@@ -156,7 +155,7 @@ private object spawn_monster(string source, object loc)
   object npc;
   string game, area_path;
 
-  area_path = query_area_path();
+  area_path = (string)this_object()->query_area_path();
   game = game_from_path(area_path);
 
   npc = clone_object(GENERIC_NPC);
@@ -170,9 +169,9 @@ private object spawn_monster(string source, object loc)
 
   // gender before the template, so apply_template picks the matching
   // per-gender name / short / long
-  npc->set_gender(decide_gender(game, source));
+  npc->set_gender((int)this_object()->decide_gender(game, source));
   npc->apply_template(BESTIARY_HANDLER->query_template(game, source));
-  npc->set_level(decide_level(game, source));
+  npc->set_level((int)this_object()->decide_level(game, source));
 
   npc->move(loc);
 
