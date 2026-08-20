@@ -48,8 +48,10 @@ void add_census_entry(string uuid, mapping row)
   this_object()->save_me();
 }
 
-// Live census count of a given source across the whole area (materialized or
-// not) -- this is L_b, checked against the area cap C_b.
+// How many individuals of `source` the census holds across the whole area,
+// materialized or not. The source is normalised to its template id first, so a
+// row still keyed by the original blueprint path (an old save) is counted with
+// the rest.
 private int npc_live_count(string source)
 {
   string * ids, want;
@@ -462,10 +464,9 @@ void set_census_location(string uuid, string file)
   }
 }
 
-// Live census count of a source across the area (cap-check for the population
-// sweep): L_b, checked against the cap C_b (query_npc_intended()[source].max).
-// Every live NPC of `source` the area holds, both halves of the population:
-// the individuals in the census and the anonymous monsters in the buckets.
+// Every live NPC of `source` the area holds, both halves of the population: the
+// individuals in the census and the anonymous monsters counted in the buckets.
+// This is the number the population sweep measures against that source's cap.
 int query_npc_live_count(string source)
 {
   return npc_live_count(source) + (int)this_object()->query_monster_live_count(source);
