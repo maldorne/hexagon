@@ -5,7 +5,7 @@
  * tick), but it works at the DATA level: it never loads a location. For the
  * current area it compares each roster blueprint's area cap against the live
  * census and, for any deficit, assigns new NPCs to random locations of the
- * area (area::assign_npc records a census entry, no object materialized). The
+ * area (area::assign_monster bumps a bucket, no object materialized). The
  * NPC becomes real when its location loads (area::restore_location_npcs). A
  * death frees a census slot, so the next sweep refills it -- somewhere else.
  *
@@ -127,7 +127,9 @@ int update_population()
     return 0;
   }
 
-  sources = map_indices(intended);
+  // only the anonymous half of the population is swept; citizens come from
+  // their settlement's role board, never from a statistical topup
+  sources = area->query_monster_sources();
   assigned = 0;
 
   for (i = 0; i < sizeof(sources) && assigned < ASSIGN_PER_TICK; i++)
@@ -135,11 +137,11 @@ int update_population()
     int cap, deficit, j;
 
     cap = intended[sources[i]]["max"];
-    deficit = cap - area->query_npc_live_count(sources[i]);
+    deficit = cap - area->query_monster_live_count(sources[i]);
 
     for (j = 0; j < deficit && assigned < ASSIGN_PER_TICK; j++)
     {
-      area->assign_npc(sources[i], locs[random(sizeof(locs))]);
+      area->assign_monster(sources[i], locs[random(sizeof(locs))]);
       assigned++;
     }
   }

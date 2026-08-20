@@ -52,6 +52,11 @@ static object * components;
 // via travel_to(query_home()). Just a location for now -- a family shares one.
 string npc_home;
 
+// For an anonymous monster (no uuid): the location whose bucket counts it, set
+// when it is cloned. It is bookkeeping, not identity -- the animal may wander
+// off, and on death it still decrements the bucket it was counted in.
+string npc_monster_location;
+
 // This individual's concrete workplace location file, resolved by the schedule
 // component's "work" symbol. Assigned once and persisted in npc.o (the type-level
 // timetable is generic; where this NPC actually works is per-individual). The
@@ -73,12 +78,16 @@ void create()
   npc_given_name = nil;
   npc_home = nil;
   npc_work = nil;
+  npc_monster_location = nil;
   component_info = ([ ]);
   components = ({ });
 }
 
 string query_home() { return npc_home; }
 void set_home(string file) { npc_home = file; }
+
+string query_monster_location() { return npc_monster_location; }
+void set_monster_location(string file) { npc_monster_location = file; }
 
 string query_work() { return npc_work; }
 void set_work(string file) { npc_work = file; }
@@ -415,16 +424,24 @@ void delete_npc_save()
 // inside living::do_death, so it is not repeated here.
 void dest_me()
 {
-  if (query_persisted() && query_dead())
+  if (query_dead() && npc_area_path)
   {
-    if (npc_area_path)
+    object area;
+
+    area = AREA_HANDLER->query_area(npc_area_path);
+
+    if (query_persisted())
     {
-      object area;
-      area = AREA_HANDLER->query_area(npc_area_path);
+      // an individual: free its census row and remove its save folder
       if (area)
         catch(area->npc_died(npc_uuid));
+      delete_npc_save();
     }
-    delete_npc_save();
+    else if (area && npc_source && npc_monster_location)
+    {
+      // an anonymous monster: take one off the bucket it was counted in
+      catch(area->monster_died(npc_source, npc_monster_location));
+    }
   }
 
   ::dest_me();

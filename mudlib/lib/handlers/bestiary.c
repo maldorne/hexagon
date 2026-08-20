@@ -384,7 +384,8 @@ object spawn_from_template(string game, string source)
 
   // A fixed template dictates the gender; a multi-gender one rolls one of its
   // listed genders here so apply_template can pick the matching per-gender
-  // strings. (The census path decides gender at assign time -- area::assign_npc.)
+  // strings. (An anonymous monster rolls its gender at every materialization --
+  // area::spawn_monster; an individual rolls it once, at its first.)
   npc->set_gender(roll_gender(t));
 
   npc->apply_template(t);
