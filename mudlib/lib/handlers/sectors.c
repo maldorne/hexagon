@@ -1,6 +1,5 @@
 
-#include <maps/maps.h>
-#include <maps/sector.h>
+#include <sector/sector.h>
 #include <room/location.h>
 #include <room/room.h>
 
@@ -47,7 +46,7 @@ object create_sector(string path)
   if (loaded_sectors[path])
     return loaded_sectors[path];
 
-  sector = clone_object(MAP_SECTOR_STORAGE_OBJECT);
+  sector = clone_object(SECTOR_STORAGE_OBJECT);
 
   // will try to load the .o if it exists
   if (!sector->restore_from_file_name(path + "sector.o"))
@@ -346,7 +345,7 @@ string add_location(object location)
     msg = "[" + ctime(time(), 4) + "] map=" + location->query_map_name() +
           " coord=(" + x + "," + y + "," + z + ") collision: " +
           content + " ↔ " + location->query_file_name() + "\n";
-    log_file("maps_collision", msg);
+    log_file("sectors_collision", msg);
     stderr("⚠️  maps: " + msg);
 
     remove_file(path + file_name);

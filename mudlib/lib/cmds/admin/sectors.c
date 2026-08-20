@@ -1,7 +1,6 @@
 
 #include <mud/cmd.h>
-#include <maps/maps.h>
-#include <maps/sector.h>
+#include <sector/sector.h>
 
 inherit CMD_BASE;
 

@@ -24,8 +24,7 @@
 // inside this handler for the duration of a single render() call.
 
 #include <mud/config.h>
-#include <maps/maps.h>
-#include <maps/sector.h>
+#include <sector/sector.h>
 #include <maps/glyphs.h>
 #include <room/location.h>
 

@@ -21,7 +21,7 @@ inherit guarded  "/lib/room/guarded_exits.c";
 #include <areas/area.h>
 #include <areas/poi.h>
 #include <areas/common.h>
-#include <maps/maps.h>
+#include <sector/sector.h>
 #include <translations/exits.h>
 
 // The live component instances attached to this location (runtime only).

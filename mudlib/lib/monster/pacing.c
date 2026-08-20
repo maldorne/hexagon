@@ -24,7 +24,7 @@
 #include <npc/npc.h>
 #include <room/location.h>
 #include <room/room.h>
-#include <maps/maps.h>
+#include <sector/sector.h>
 
 // prototypes (same-file forward references)
 int travelling();

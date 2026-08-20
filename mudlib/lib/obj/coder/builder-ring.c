@@ -11,7 +11,7 @@ inherit "/lib/armour.c";
 #include <areas/area.h>
 #include <areas/poi.h>
 #include <living/persisted.h>
-#include <maps/maps.h>
+#include <sector/sector.h>
 #include <translations/armour.h>
 #include <language.h>
 

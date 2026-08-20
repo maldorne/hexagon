@@ -4,6 +4,20 @@
 
 #include <room/location.h>
 
+// Sectors are 10 x 10 x 10 coordinate buckets, indexed as
+//     sector_n = n / 10 - (n < 0)
+// so that negative coordinates land in the expected sector
+// (e.g. -1 -> sector -1, not sector 0). World coordinates themselves follow
+// the convention in include/maps/maps.h.
+
+// The handler that owns the on-disk sector index.
+#define SECTORS_HANDLER "/lib/handlers/sectors"
+// The per-sector storage object the handler clones, one per occupied bucket.
+#define SECTOR_STORAGE_OBJECT "/lib/location/sector"
+// Fine (room-to-room) pathfinder: A* over the node/edge graph the sectors
+// index. See /lib/handlers/pathfinding.
+#define PATHFIND_HANDLER "/lib/handlers/pathfinding"
+
 // A sector's "type" is the dominant terrain across its locations.
 // Sector types share the exact taxonomy of the cartography-contributing
 // location components in include/room/location.h — a location with a

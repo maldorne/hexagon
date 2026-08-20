@@ -12,8 +12,7 @@
 // walker follows to get from one location to another -- exactly what the NPC
 // mover feeds to its step-by-step movement.
 
-#include <maps/maps.h>
-#include <maps/sector.h>
+#include <sector/sector.h>
 #include <room/location.h>
 
 // Safety cap on node expansions so a malformed or disconnected graph can never

@@ -1,6 +1,5 @@
 
 #include <mud/cmd.h>
-#include <maps/maps.h>
 
 inherit CMD_BASE;
 

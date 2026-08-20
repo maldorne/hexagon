@@ -121,5 +121,5 @@ specific maze) opt in explicitly by removing the maze filter.
 - `lib/location.c::query_maze` — location-side flag accessor.
 - `lib/location/area.c::query_maze_locations` — area-side derived accessor.
 - `lib/handlers/sectors.c::add_location` — lifts flag, forwards to sector, collision warning.
-- `lib/maps/sector.c` — `maze_positions` mapping, `is_maze_at`, accessors.
+- `lib/location/sector.c` — `maze_positions` mapping, `is_maze_at`, accessors.
 - `dev/maze-orientation.md` — future skill mechanics (not yet implemented).

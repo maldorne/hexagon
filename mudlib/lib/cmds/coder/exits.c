@@ -10,7 +10,7 @@
 #include <mud/cmd.h>
 #include <translations/exits.h>
 #include <room/location.h>
-#include <maps/maps.h>
+#include <sector/sector.h>
 #include <areas/area.h>
 
 inherit CMD_BASE;

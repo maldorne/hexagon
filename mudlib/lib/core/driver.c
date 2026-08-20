@@ -17,9 +17,9 @@
 #include <mud/cmd.h>
 
 #include <room/room.h>
+#include <sector/sector.h>
 #include <room/location.h>
 #include <areas/area.h>
-#include <maps/maps.h>
 
 // ************************************************************
 //  Function prototypes

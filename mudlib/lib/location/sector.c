@@ -1,4 +1,4 @@
-#include <maps/sector.h>
+#include <sector/sector.h>
 #include <translations/exits.h>
 
 inherit "/lib/core/object.c";

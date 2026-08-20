@@ -6,7 +6,7 @@
  */
 
 #include <areas/area.h>
-#include <maps/maps.h>
+#include <sector/sector.h>
 #include <room/location.h>
 #include <room/room.h>
 #include <basic/communicate.h>

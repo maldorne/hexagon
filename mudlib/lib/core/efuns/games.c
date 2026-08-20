@@ -58,7 +58,7 @@ static nomask string game_name(varargs object ob)
     return saved;
 
   // location / area / sector storage: the LPC file_name is a generic
-  // clone (/lib/location#N, /lib/maps/sector#N, /lib/location/area#N);
+  // clone (/lib/location#N, /lib/location/sector#N, /lib/location/area#N);
   // the game-bound path lives in query_file_name().
   saved = ob->query_file_name();
   if (saved && strlen(saved))
