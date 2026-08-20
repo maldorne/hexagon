@@ -77,9 +77,10 @@
            "     $g -> tus puntos de energía actuales\n" + \
            "     $B -> comenzar negrita\n" + \
            "     $m -> el nombre del mud\n" + \
-           (user->query_coder() ? "     $~ -> path actual\n" : "") + \
+           ((user && user->query_coder()) ? "     $~ -> path actual\n" : "") + \
            "\nPor ejemplo: 'prompt $n ($h)' mostrará en cada línea:\n" + \
-           "     " + me->query_name() + " (" + me->query_hp() + ") >\n"
+           "     " + (me ? me->query_name() : "$n") + \
+           " (" + (me ? "" + me->query_hp() : "$h") + ") >\n"
 #define _LANG_PROMPT_OK "Ok, prompt cambiado.\n"
 
 // whoami

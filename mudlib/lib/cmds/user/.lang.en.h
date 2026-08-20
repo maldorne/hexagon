@@ -41,6 +41,7 @@
 
 // help
 
+#define _LANG_CMD_HELP_ALIAS ({ "help" })
 #define _LANG_CMD_HELP "help [< topic | command >]"
 #define _LANG_CMD_HELP_HELP "Shows the available help for a particular topic or command, or a list "+ \
       "of every topic if none given."

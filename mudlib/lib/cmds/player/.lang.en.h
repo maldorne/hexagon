@@ -77,9 +77,10 @@
            "     $g -> your current stamina\n" + \
            "     $B -> start bold text\n" + \
            "     $m -> mud name\n" + \
-           (user->query_coder() ? "     $~ -> current path\n" : "") + \
+           ((user && user->query_coder()) ? "     $~ -> current path\n" : "") + \
            "\ni.e.: 'prompt $n ($h)' will show:\n" + \
-           "     " + me->query_name() + " (" + me->query_hp() + ") >\n"
+           "     " + (me ? me->query_name() : "$n") + \
+           " (" + (me ? "" + me->query_hp() : "$h") + ") >\n"
 #define _LANG_PROMPT_OK "Ok, prompt changed.\n"
 
 // whoami

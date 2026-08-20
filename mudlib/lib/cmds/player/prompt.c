@@ -15,8 +15,12 @@ string query_help()
 {
   // local variables to use _LANG_PROMPT_HELP
   object me, user;
+
+  // The command hash is built with no player in scope, so the help text has
+  // to survive being asked for outside a player's context: it then falls back
+  // to the shortcut names instead of this player's own name and hit points.
   me = this_player();
-  user = me->user();
+  user = me ? me->user() : nil;
 
   return _LANG_PROMPT_HELP;
 }
