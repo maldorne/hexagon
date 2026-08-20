@@ -483,20 +483,6 @@ void drain_location(object loc)
     this_object()->save_me();
 }
 
-// Find the loaded location object for a file, or nil if it is not resident.
-object query_loaded_location(string file)
-{
-  object * locs;
-  int i;
-
-  locs = (object *)this_object()->query_loaded_locations();
-  for (i = 0; i < sizeof(locs); i++)
-    if (locs[i] && locs[i]->query_file_name() == file)
-      return locs[i];
-
-  return nil;
-}
-
 // Drop one row from the census and persist. A seam for the pieces that own
 // something hanging off a census entry (a POI vacancy, a guard post) and need
 // to retire the individual filling it without going through a death.
@@ -588,7 +574,7 @@ object query_live_npc_at(string poi_file, string uuid)
   object * inv;
   int i;
 
-  loc = query_loaded_location(poi_file);
+  loc = (object)this_object()->query_loaded_location(poi_file);
   if (!loc)
     return nil;
   inv = all_inventory(loc);

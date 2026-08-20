@@ -21,8 +21,11 @@ inherit roster    "/lib/location/area/roster.c";
 mapping locations;
 // mapping in the form ([ file_name : ({ "direction", destination }) ])
 mapping connections;
-// array of loaded locations
-static object * loaded_locations;
+// The area's locations currently in memory, indexed by file name:
+//   ([ file_name : location object ])
+// Keyed by file name so "is this location loaded?" is a lookup instead of a
+// scan, and a duplicate entry for the same file is impossible.
+static mapping loaded_locations;
 string file_name;
 string area_path;
 // exploration: whether entering this area grants an exploration achievement,
@@ -35,11 +38,13 @@ string exploration_name;
 
 // prototype functions
 void add_loaded_location(object location);
+object query_loaded_location(string file);
+object * query_loaded_locations();
 
 
 void create() {
   locations = ([ ]);
-  loaded_locations = ({ });
+  loaded_locations = ([ ]);
   connections = ([ ]);
   file_name = "";
   area_path = "";
@@ -104,13 +109,13 @@ void log_event(string msg)
 // with their position, work and home.
 object * query_live_npcs()
 {
-  object * everyone, * npcs;
+  object * everyone, * npcs, * locs;
   int i, j;
 
   everyone = ({ });
-  for (i = 0; i < sizeof(loaded_locations); i++)
-    if (loaded_locations[i])
-      everyone += all_inventory(loaded_locations[i]);
+  locs = query_loaded_locations();
+  for (i = 0; i < sizeof(locs); i++)
+    everyone += all_inventory(locs[i]);
 
   npcs = ({ });
   for (j = 0; j < sizeof(everyone); j++)
@@ -148,14 +153,14 @@ void set_exploration_name(string name)
 // on the location's component_info.
 object * query_maze_locations()
 {
-  object * ret;
+  object * ret, * locs;
   int i;
 
   ret = ({ });
-  loaded_locations -= ({ nil });
-  for (i = 0; i < sizeof(loaded_locations); i++)
-    if (loaded_locations[i]->query_component_by_type(LOCATION_COMPONENT_MAZE))
-      ret += ({ loaded_locations[i] });
+  locs = query_loaded_locations();
+  for (i = 0; i < sizeof(locs); i++)
+    if (locs[i]->query_component_by_type(LOCATION_COMPONENT_MAZE))
+      ret += ({ locs[i] });
 
   return ret;
 }
@@ -214,24 +219,14 @@ int restore_from_file_name(string name)
 object load_location(string location_file_name)
 {
   object location;
-  int i;
 
   // check if this location is in this area
-  if (member_array(location_file_name, keys(locations)) == -1)
+  if (!locations[location_file_name])
     return nil;
 
-  // removed already dest'ed locations
-  loaded_locations -= ({ nil });
-
-  // look through loaded_locations to see if it's already loaded
-  for (i = 0; i < sizeof(loaded_locations); i++)
-  {
-    if (loaded_locations[i]->query_file_name() == location_file_name)
-    {
-      // write("🎃 location already loaded: " + location_file_name + "\n");
-      return loaded_locations[i];
-    }
-  }
+  location = query_loaded_location(location_file_name);
+  if (location)
+    return location;
 
   location = clone_object(BASE_LOCATION_OBJ);
 
@@ -239,7 +234,7 @@ object load_location(string location_file_name)
     return nil;
 
   location->restore_from_file_name(location_file_name);
-  loaded_locations += ({ location });
+  loaded_locations[location_file_name] = location;
 
   return location;
 }
@@ -258,28 +253,20 @@ void remove_location(string location_file_name)
 
 void add_loaded_location(object location) 
 {
-  int i;
+  if (location)
+    loaded_locations[location->query_file_name()] = location;
+}
 
-  loaded_locations -= ({ nil });
-
-  for (i = 0; i < sizeof(loaded_locations); i++)
-  {
-    // why are we having two objects for the same location?
-    // don't know, don't care, the last one should be the good one
-    if (loaded_locations[i]->query_file_name() == location->query_file_name())
-    {
-      loaded_locations[i] = location;
-      return;
-    }
-  }
-
-  loaded_locations += ({ location });
+// The loaded location object for a file, or nil when it is not in memory. Never
+// loads anything: a caller that wants it loaded asks load_location instead.
+object query_loaded_location(string file)
+{
+  return file ? loaded_locations[file] : nil;
 }
 
 object * query_loaded_locations() 
 {
-  loaded_locations -= ({ nil });
-  return loaded_locations;
+  return map_values(loaded_locations) - ({ nil });
 }
 
 mapping query_connections() { return connections; }
