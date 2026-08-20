@@ -143,14 +143,4 @@
 
 #define PROP_VALUE_PLAYER_NAME  "__player_name__"
 
-// ------------------------------------------------------------
-//  Gender values used by PROP_TYPE_GENDER. Mirrors the raw ints
-//  /lib/core/basic/gender.c reads (case 1, case 2, else). These
-//  symbolic names exist so the catalogue stays readable.
-// ------------------------------------------------------------
-
-#define GENDER_MALE     1
-#define GENDER_FEMALE   2
-#define GENDER_NEUTER   0
-
 #endif // PROP_H

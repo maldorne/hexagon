@@ -9,7 +9,7 @@ inherit housing   "/lib/location/area/housing.c";
 #include <areas/area.h>
 #include <areas/poi.h>
 #include <areas/diplomacy.h>
-#include <room/prop.h>
+#include <basic/gender.h>
 #include <namegen.h>
 
 // mapping in the form ([ file_name : location_data ])

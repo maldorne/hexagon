@@ -15,7 +15,7 @@
 // accessors prototyped below and resolved by the inheriting object.
 
 #include <room/location.h>
-#include <room/prop.h>   // GENDER_FEMALE
+#include <basic/gender.h>
 
 // Buildable lots waiting for a house, by location file.
 string * plots;

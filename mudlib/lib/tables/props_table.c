@@ -25,6 +25,7 @@
  */
 
 #include <room/prop.h>
+#include <basic/gender.h>
 #include <item/material.h>
 #include <translations/props.h>
 
