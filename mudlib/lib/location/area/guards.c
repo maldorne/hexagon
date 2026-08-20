@@ -13,12 +13,6 @@
 // This file owns the `citizenship` name and the guard reconcile. The census rows
 // the guards occupy belong to the area, so anything that writes them is asked of
 // it.
-//
-// Inherited by /lib/location/area.c. Calls into the rest of the area go through
-// this_object(): an area is a single object carrying the whole inheritance tree,
-// so the call resolves at run time against the complete program. Only public
-// functions are reachable that way, and results come back as mixed, hence the
-// casts.
 
 #include <areas/poi.h>
 #include <areas/diplomacy.h>
@@ -83,7 +77,9 @@ private string * guard_census_at(string poi_file, string source)
   string * ids, * out, want;
   int i;
 
-  want = (string)this_object()->_template_id(source);
+  // the guard source arrives as a blueprint path from the diplomacy graph, so
+  // it is the one thing here that still needs turning into a template id
+  want = (string)this_object()->query_template_from_source(source);
   census = (mapping)this_object()->query_npc_census();
   ids = map_indices(census);
   out = ({ });
@@ -91,8 +87,7 @@ private string * guard_census_at(string poi_file, string source)
   {
     mapping e;
     e = census[ids[i]];
-    if (e["guard"] && e["poi"] == poi_file &&
-        (string)this_object()->_template_id(e["source"]) == want)
+    if (e["guard"] && e["poi"] == poi_file && e["source"] == want)
       out += ({ ids[i] });
   }
   return out;

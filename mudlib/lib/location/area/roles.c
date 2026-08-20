@@ -10,12 +10,6 @@
 //
 // A role slot deliberately does not respawn on death. The person is gone; the
 // post is refilled later by the settlement pass, with somebody else.
-//
-// Inherited by /lib/location/area.c. Calls into the rest of the area go through
-// this_object(): an area is a single object carrying the whole inheritance tree,
-// so the call resolves at run time against the complete program. Only public
-// functions are reachable that way, and results come back as mixed, hence the
-// casts.
 
 #include <living/persisted.h>
 #include <basic/gender.h>
@@ -70,7 +64,7 @@ void add_role(string name, int count, string work, string source)
     game = game_from_path((string)this_object()->query_area_path());
     if (!BESTIARY_HANDLER->has_template(game, source))
       BESTIARY_HANDLER->add_template(source);
-    source = (string)this_object()->_template_id(source);
+    source = (string)this_object()->query_template_from_source(source);
   }
 
   roles[name] = ([ "count":  count,

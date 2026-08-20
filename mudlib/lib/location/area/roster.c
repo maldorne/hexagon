@@ -13,12 +13,6 @@
 // diplomacy, so letting the statistical sweep also scatter them would duplicate
 // them. The area's level band lives here too, since it is what an individual's
 // level is drawn from at birth.
-//
-// Inherited by /lib/location/area.c. Calls into the rest of the area go through
-// this_object(): an area is a single object carrying the whole inheritance tree,
-// so the call resolves at run time against the complete program. Only public
-// functions are reachable that way, and results come back as mixed, hence the
-// casts.
 
 #include <areas/area.h>
 #include <areas/poi.h>
@@ -117,7 +111,7 @@ mapping query_npc_sources() { return npc_sources; }
 // original monster .c path (pre-conversion saves); template_id is idempotent,
 // so both collapse to the same key and old saves keep working with no separate
 // migration pass. Day-to-day operation never needs the .c to exist.
-string _template_id(string source)
+string query_template_from_source(string source)
 {
   if (!source || !strlen(source))
     return source;
@@ -150,7 +144,7 @@ private void _migrate_source_ids()
     for (j = 0; j < sizeof(keys); j++)
     {
       string tid;
-      tid = _template_id(keys[j]);
+      tid = query_template_from_source(keys[j]);
       if (tid != keys[j])
         changed = 1;
       rekeyed[tid] = inner[keys[j]];
@@ -167,7 +161,7 @@ private void _migrate_source_ids()
     for (j = 0; vs && j < sizeof(vs); j++)
     {
       string tid;
-      tid = _template_id(vs[j][VACANCY_FIELD_SOURCE]);
+      tid = query_template_from_source(vs[j][VACANCY_FIELD_SOURCE]);
       if (tid != vs[j][VACANCY_FIELD_SOURCE])
       {
         vs[j][VACANCY_FIELD_SOURCE] = tid;
@@ -184,7 +178,7 @@ private void _migrate_source_ids()
     string tid;
 
     e = ((mapping)this_object()->query_npc_census())[ids[i]];
-    tid = _template_id(e["source"]);
+    tid = query_template_from_source(e["source"]);
     if (tid != e["source"])
     {
       e["source"] = tid;
@@ -227,7 +221,7 @@ void recompute_intended()
     for (j = 0; j < sizeof(npc_paths); j++)
     {
       string tid;
-      tid = _template_id(npc_paths[j]);
+      tid = query_template_from_source(npc_paths[j]);
       counts[tid] =
         (counts[tid] ? counts[tid] : 0) + clones_here[npc_paths[j]];
     }
@@ -239,7 +233,7 @@ void recompute_intended()
   // must not also be scattered by the population sweep as statistical filler
   guard_source = "";
   if (strlen((string)this_object()->query_citizenship()))
-    guard_source = _template_id(
+    guard_source = query_template_from_source(
       DIPLOMACY_HANDLER->query_guard_path(game_from_path((string)this_object()->query_area_path()),
                                           (string)this_object()->query_citizenship()));
 

@@ -12,12 +12,6 @@
 // around it. Materialization is the crossroads of the area: it reads the type
 // template, the role board, the POI vacancies and the citizenship, so most of
 // what it does is asking other pieces for their part.
-//
-// Inherited by /lib/location/area.c. Calls into the rest of the area go through
-// this_object(): an area is a single object carrying the whole inheritance tree,
-// so the call resolves at run time against the complete program. Only public
-// functions are reachable that way, and results come back as mixed, hence the
-// casts.
 
 #include <room/location.h>
 #include <areas/area.h>
@@ -49,18 +43,16 @@ void add_census_entry(string uuid, mapping row)
 }
 
 // How many individuals of `source` the census holds across the whole area,
-// materialized or not. The source is normalised to its template id first, so a
-// row still keyed by the original blueprint path (an old save) is counted with
-// the rest.
+// materialized or not. Everything the area stores is keyed by template id, so
+// this is a plain comparison.
 private int npc_live_count(string source)
 {
-  string * ids, want;
+  string * ids;
   int i, n;
 
-  want = (string)this_object()->_template_id(source);
   ids = map_indices(npc_census);
   for (i = 0; i < sizeof(ids); i++)
-    if ((string)this_object()->_template_id(npc_census[ids[i]]["source"]) == want)
+    if (npc_census[ids[i]]["source"] == source)
       n++;
 
   return n;
@@ -151,16 +143,7 @@ private object npc_restore(string id, object loc)
   entry = npc_census[id];
   game = game_from_path((string)this_object()->query_area_path());
 
-  // Converge the census on template ids: an entry saved before conversion holds
-  // the original monster path -- normalise it once and backfill so later reads
-  // are already ids. query_template accepts either, so this is safe mid-life.
-  source = (string)this_object()->_template_id(entry["source"]);
-  if (source != entry["source"])
-  {
-    entry["source"] = source;
-    npc_census[id] = entry;
-    this_object()->save_me();
-  }
+  source = entry["source"];
 
   // Every NPC is a generic NPC; a guard census entry additionally gets the
   // "guard" component below (at placement), which carries the exit check.
@@ -614,7 +597,7 @@ string assign_guard_npc(string source, string poi_file)
   game = game_from_path((string)this_object()->query_area_path());
   if (!BESTIARY_HANDLER->has_template(game, source))
     BESTIARY_HANDLER->add_template(source);
-  source = (string)this_object()->_template_id(source);
+  source = (string)this_object()->query_template_from_source(source);
 
   id = UUID_OB->uuid();
   npc_census[id] = ([ "source": source, "location": poi_file,

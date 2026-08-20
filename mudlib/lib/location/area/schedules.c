@@ -7,10 +7,6 @@
 // if it was unloaded) and then told the hour, so the NPC can act on its own
 // timetable. Keeping the index on the area is what lets a whole settlement's
 // routine be dispatched without loading a single NPC.
-//
-// Inherited by /lib/location/area.c. Variables cannot be shared upward between
-// inherited files, so what this file needs from the area is reached through the
-// accessors prototyped below and resolved by the inheriting object.
 
 #include <room/location.h>
 #include <areas/area.h>
@@ -21,11 +17,6 @@
 // attached; the destination itself is read live from the NPC when it acts.
 mapping schedule_index;
 
-// Calls into the rest of the area go through this_object(): an area is a single
-// object carrying the whole inheritance tree, so the call resolves at run time
-// against the complete program. That avoids declaring prototypes here for
-// functions that live in a sibling file. Only public functions are reachable
-// this way, and the result comes back as mixed, hence the casts.
 
 void create()
 {

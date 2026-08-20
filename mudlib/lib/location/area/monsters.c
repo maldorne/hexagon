@@ -8,21 +8,12 @@
 // loads and simply vanish when it unloads. Anything with an individual life
 // the world refers to (a citizen, a POI vacancy, a posted guard) is not here;
 // it lives in the area's npc_census, with a uuid.
-//
-// Inherited by /lib/location/area.c. Variables cannot be shared upward between
-// inherited files, so everything this file needs from the area is reached
-// through the accessors prototyped below and resolved by the inheriting object.
 
 #include <living/persisted.h>
 
 //   ([ location_file : ([ template_id : count ]) ])
 mapping monster_census;
 
-// Calls into the rest of the area go through this_object(): an area is a single
-// object carrying the whole inheritance tree, so the call resolves at run time
-// against the complete program. That avoids declaring prototypes here for
-// functions that live in a sibling file. Only public functions are reachable
-// this way, and the result comes back as mixed, hence the casts.
 
 private int _live_monster_count(object loc, string source);
 private object spawn_monster(string source, object loc);

@@ -10,12 +10,6 @@
 // This file owns the `pois` mapping and everything that reads or edits it. The
 // concrete NPCs filling the slots are not owned here: they are ordinary census
 // individuals, so anything touching the census is asked of the area.
-//
-// Inherited by /lib/location/area.c. Calls into the rest of the area go through
-// this_object(): an area is a single object carrying the whole inheritance tree,
-// so the call resolves at run time against the complete program. Only public
-// functions are reachable that way, and results come back as mixed, hence the
-// casts.
 
 #include <room/location.h>
 #include <areas/poi.h>
@@ -148,7 +142,7 @@ void add_vacancy(string location_file, string role, string source)
     game = game_from_path((string)this_object()->query_area_path());
     if (!BESTIARY_HANDLER->has_template(game, source))
       BESTIARY_HANDLER->add_template(source);
-    source = (string)this_object()->_template_id(source);
+    source = (string)this_object()->query_template_from_source(source);
   }
 
   vs += ({ ([ VACANCY_FIELD_ROLE:   role,
@@ -250,7 +244,7 @@ mapping query_vacancy_sources()
     mapping * vs;
     vs = pois[locs[i]][POI_FIELD_VACANCIES];
     for (j = 0; vs && j < sizeof(vs); j++)
-      ret[(string)this_object()->_template_id(vs[j][VACANCY_FIELD_SOURCE])] = 1;
+      ret[vs[j][VACANCY_FIELD_SOURCE]] = 1;
   }
 
   return ret;

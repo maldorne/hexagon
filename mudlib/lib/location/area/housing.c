@@ -9,10 +9,6 @@
 //
 // Who is entitled to a house is a design-time fact, not a runtime guess: an NPC
 // source is flagged "resident" on the area roster and only those are housed.
-//
-// Inherited by /lib/location/area.c. Variables cannot be shared upward between
-// inherited files, so what this file needs from the area is reached through the
-// accessors prototyped below and resolved by the inheriting object.
 
 #include <room/location.h>
 #include <basic/gender.h>
@@ -23,11 +19,6 @@ string * plots;
 // The area's fallback location file (where orphaned occupants go). "" if unset.
 string principal;
 
-// Calls into the rest of the area go through this_object(): an area is a single
-// object carrying the whole inheritance tree, so the call resolves at run time
-// against the complete program. That avoids declaring prototypes here for
-// functions that live in a sibling file. Only public functions are reachable
-// this way, and the result comes back as mixed, hence the casts.
 
 void door_house_exits(object house);
 private int _is_resident(object o);
@@ -197,11 +188,7 @@ private int _is_resident(object o)
   if (!o || !o->query_npc())
     return 0;
 
-  // the NPC's source may still be the original monster .c path (an old save) or
-  // already the template id; npc_intended is keyed by template id, so normalise
-  // before the lookup -- exactly as the roster/census do
-  spec = ((mapping)this_object()->query_npc_intended())
-           [(string)this_object()->_template_id(o->query_npc_source())];
+  spec = ((mapping)this_object()->query_npc_intended())[o->query_npc_source()];
   return spec && spec["resident"];
 }
 
