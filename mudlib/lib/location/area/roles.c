@@ -140,7 +140,7 @@ void reequip_role_holders(string name)
   if (!pointerp(spec) || !sizeof(spec))
     return;
 
-  loc = (object)this_object()->loaded_location(roles[name]["work"]);
+  loc = (object)this_object()->query_loaded_location(roles[name]["work"]);
   if (!loc)
     return;
   inv = all_inventory(loc);
@@ -262,7 +262,7 @@ void fill_role(string name)
 
   // if the work location is already resident, materialize the new slots now
   // (mirrors the vacancy refill); otherwise they come in when it next loads
-  loc = (object)this_object()->loaded_location(role["work"]);
+  loc = (object)this_object()->query_loaded_location(role["work"]);
   if (loc)
     this_object()->restore_location_npcs(loc);
 }
@@ -298,7 +298,7 @@ void remove_role(string name)
     e = ((mapping)this_object()->query_npc_census())[ids[i]];
     if (e["role"] == name && !e["poi"] && !e["guard"])
     {
-      npc = (object)this_object()->live_census_npc(e["location"], ids[i]);
+      npc = (object)this_object()->query_live_npc_at(e["location"], ids[i]);
       if (npc)
         npc->dest_me();
       if (e["savefile"] && file_size(e["savefile"]) >= 0)

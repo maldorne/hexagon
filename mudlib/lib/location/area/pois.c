@@ -186,7 +186,7 @@ void remove_vacancy(string location_file, string role)
       e = census[ids[j]];
       if (e["role"] == role && e["poi"] == location_file)
       {
-        npc = (object)this_object()->live_census_npc(location_file, ids[j]);
+        npc = (object)this_object()->query_live_npc_at(location_file, ids[j]);
         if (npc)
           npc->dest_me();
         if (e["savefile"] && file_size(e["savefile"]) >= 0)
@@ -276,7 +276,7 @@ int set_vacancy_home(string role, string home)
         if (vs[vi][VACANCY_FIELD_UUID])
         {
           object npc;
-          npc = (object)this_object()->live_census_npc(
+          npc = (object)this_object()->query_live_npc_at(
                   locs[i], vs[vi][VACANCY_FIELD_UUID]);
           if (npc)
           {
@@ -415,7 +415,7 @@ void _refill_vacancy(string file)
 
   ensure_vacancies_assigned(file);
 
-  loc = (object)this_object()->loaded_location(file);
+  loc = (object)this_object()->query_loaded_location(file);
   if (loc)
     this_object()->restore_location_npcs(loc);
 }
@@ -433,7 +433,7 @@ void fill_vacancies()
     object loc;
 
     ensure_vacancies_assigned(locs[i]);
-    loc = (object)this_object()->loaded_location(locs[i]);
+    loc = (object)this_object()->query_loaded_location(locs[i]);
     if (loc)
       this_object()->restore_location_npcs(loc);
   }

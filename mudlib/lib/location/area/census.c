@@ -43,9 +43,9 @@ void add_census_entry(string uuid, mapping row)
 }
 
 // How many individuals of `source` the census holds across the whole area,
-// materialized or not. Everything the area stores is keyed by template id, so
-// this is a plain comparison.
-private int npc_live_count(string source)
+// materialized or not. The counterpart of query_monster_live_count for the
+// named half of the population; query_npc_live_count adds the two.
+int query_individual_live_count(string source)
 {
   string * ids;
   int i, n;
@@ -59,7 +59,7 @@ private int npc_live_count(string source)
 }
 
 // Census entries assigned to a given location file.
-private string * npc_census_for_location(string location_file)
+private string * query_census_uuids_at(string location_file)
 {
   string * ids, * ret;
   int i;
@@ -75,7 +75,7 @@ private string * npc_census_for_location(string location_file)
 
 // Is `uuid` already materialized inside `loc`? Non-NPC contents answer nil to
 // query_npc_uuid (DGD call_other to an undefined function returns nil).
-private int npc_uuid_present(object loc, string uuid)
+private int has_live_uuid(object loc, string uuid)
 {
   object * inv;
   int i;
@@ -389,9 +389,9 @@ void restore_location_npcs(object loc)
   this_object()->ensure_vacancies_assigned(file);
   this_object()->ensure_guards_assigned(file);
 
-  ids = npc_census_for_location(file);
+  ids = query_census_uuids_at(file);
   for (i = 0; i < sizeof(ids); i++)
-    if (!npc_uuid_present(loc, ids[i]))
+    if (!has_live_uuid(loc, ids[i]))
       npc_restore(ids[i], loc);
 
   // the anonymous half of the population: cloned fresh from this location's
@@ -452,7 +452,7 @@ void set_census_location(string uuid, string file)
 // This is the number the population sweep measures against that source's cap.
 int query_npc_live_count(string source)
 {
-  return npc_live_count(source) + (int)this_object()->query_monster_live_count(source);
+  return query_individual_live_count(source) + (int)this_object()->query_monster_live_count(source);
 }
 
 // Called from a location's dest_me before its contents are torn down: persist
@@ -512,7 +512,7 @@ void drain_location(object loc)
 }
 
 // Find the loaded location object for a file, or nil if it is not resident.
-object loaded_location(string file)
+object query_loaded_location(string file)
 {
   object * locs;
   int i;
@@ -610,13 +610,13 @@ string assign_guard_npc(string source, string poi_file)
 
 // The live object for a census uuid inside its (loaded) POI, or nil. Works for
 // any census NPC (a guard or a vacancy unique), matched by its uuid.
-object live_census_npc(string poi_file, string uuid)
+object query_live_npc_at(string poi_file, string uuid)
 {
   object loc;
   object * inv;
   int i;
 
-  loc = loaded_location(poi_file);
+  loc = query_loaded_location(poi_file);
   if (!loc)
     return nil;
   inv = all_inventory(loc);

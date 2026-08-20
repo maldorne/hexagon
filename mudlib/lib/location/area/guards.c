@@ -107,7 +107,7 @@ void remove_guard(string id)
 
   this_object()->drop_census_entry(id);
 
-  npc = (object)this_object()->live_census_npc(e["poi"], id);
+  npc = (object)this_object()->query_live_npc_at(e["poi"], id);
   if (npc)
     npc->dest_me();
 
@@ -178,7 +178,7 @@ void _refill_guards(string file)
 
   ensure_guards_assigned(file);
 
-  loc = (object)this_object()->loaded_location(file);
+  loc = (object)this_object()->query_loaded_location(file);
   if (loc)
     this_object()->restore_location_npcs(loc);
 }
@@ -196,7 +196,7 @@ void fill_guards()
     object loc;
 
     ensure_guards_assigned(locs[i]);
-    loc = (object)this_object()->loaded_location(locs[i]);
+    loc = (object)this_object()->query_loaded_location(locs[i]);
     if (loc)
       this_object()->restore_location_npcs(loc);
   }
@@ -229,7 +229,7 @@ void repost_guards(string poi_file)
 
   ensure_guards_assigned(poi_file);
 
-  loc = (object)this_object()->loaded_location(poi_file);
+  loc = (object)this_object()->query_loaded_location(poi_file);
   if (loc)
     this_object()->restore_location_npcs(loc);
 }
