@@ -158,7 +158,7 @@ void reequip_role_holders(string name)
     if (!inv[i] || !inv[i]->query_persisted())
       continue;
     uuid = inv[i]->query_npc_uuid();
-    e = uuid ? (mapping)this_object()->query_npc_census()[uuid] : nil;
+    e = uuid ? ((mapping)this_object()->query_npc_census())[uuid] : nil;
     if (!e || e["role"] != name || e["poi"] || e["guard"])
       continue;
     // gear a holder that has none yet (created before the kit was set); one
@@ -183,7 +183,7 @@ int count_role_npcs(string name)
   for (i = 0; i < sizeof(ids); i++)
   {
     mapping e;
-    e = (mapping)this_object()->query_npc_census()[ids[i]];
+    e = ((mapping)this_object()->query_npc_census())[ids[i]];
     if (e["role"] == name && !e["poi"] && !e["guard"])
       n++;
   }
@@ -301,7 +301,7 @@ void remove_role(string name)
     mapping e;
     object npc;
 
-    e = (mapping)this_object()->query_npc_census()[ids[i]];
+    e = ((mapping)this_object()->query_npc_census())[ids[i]];
     if (e["role"] == name && !e["poi"] && !e["guard"])
     {
       npc = (object)this_object()->live_census_npc(e["location"], ids[i]);

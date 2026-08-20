@@ -334,7 +334,7 @@ private object npc_restore(string id, object loc)
     mixed * vs;
     int vi;
 
-    poi = (mapping)this_object()->query_pois()[entry["poi"]];
+    poi = ((mapping)this_object()->query_pois())[entry["poi"]];
     vs = poi ? poi[POI_FIELD_VACANCIES] : nil;
     for (vi = 0; vs && vi < sizeof(vs); vi++)
       if (vs[vi][VACANCY_FIELD_ROLE] == entry["role"] &&
@@ -363,7 +363,7 @@ private object npc_restore(string id, object loc)
 
     // only an entrance guard watches a direction; a square guard is presence
     // only, so it never registers on an exit even if a stale guard_dir lingers
-    poi = (mapping)this_object()->query_pois()[entry["poi"]];
+    poi = ((mapping)this_object()->query_pois())[entry["poi"]];
     gdir = (poi && poi[POI_FIELD_KIND] == POI_KIND_TOWN_ENTRANCE)
              ? poi[POI_FIELD_GUARD_DIR] : nil;
 
