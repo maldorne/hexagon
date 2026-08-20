@@ -1,6 +1,5 @@
 
 #include <mud/cmd.h>
-#include <maps/maps.h>
 #include <language.h>
 
 inherit CMD_BASE;
@@ -60,7 +59,7 @@ static int cmd(string str, object me, string verb)
     }
   }
 
-  map = handler(WORLDMAP_HANDLER)->render_around(me, width, height, 1);
+  map = handler("worldmap")->render_around(me, width, height, 1);
   if (!map || !strlen(map))
   {
     notify_fail(_LANG_CMD_WORLDMAP_NOMAP);
