@@ -3,6 +3,7 @@ inherit obj      "/lib/core/object.c";
 inherit monsters  "/lib/location/area/monsters.c";
 inherit schedules "/lib/location/area/schedules.c";
 inherit housing   "/lib/location/area/housing.c";
+inherit pois      "/lib/location/area/pois.c";
 
 #include <room/location.h>
 #include <living/persisted.h>
@@ -49,12 +50,6 @@ mapping npc_census;
 // its own entry) without reloading the whole area.
 mapping npc_sources;
 
-// Points of interest, keyed by the location's file_name (a location holds
-// at most one POI). See include/areas/poi.h for the entry shape. Venture
-// POIs (pub, shop) are attached automatically at conversion; the rest are
-// declared by hand with the builder ring. Vacancies hang off each POI.
-mapping pois;
-
 // Average level of the area's NPCs and how far individual NPCs may deviate
 // from it. An NPC's level is decided once, at census assignment, as
 //   npc_default_level + template level_area_modifier  ±  random(npc_default_level_spread + 1)
@@ -87,11 +82,10 @@ string citizenship;
 
 // prototype functions
 void add_loaded_location(object location);
-mapping query_vacancy_sources();
-private void _recompute_intended();
+void recompute_intended();
 string _template_id(string source);
 void restore_location_npcs(object loc);
-private object live_census_npc(string poi_file, string uuid);
+object live_census_npc(string poi_file, string uuid);
 private void _ensure_guards_assigned(string location_file);
 private void _equip_npc(object npc, string * paths);
 private string * _resolve_equipment(mixed * spec);
@@ -99,7 +93,7 @@ private mapping _int_keyed_hours(mapping m);
 private string generate_citizen_name(int gender);
 void fill_guards();
 void repost_guards(string poi_file);
-private void _remove_guard(string id);
+void remove_guard(string id);
 
 
 void create() {
@@ -113,7 +107,6 @@ void create() {
   npc_intended = ([ ]);
   npc_census = ([ ]);
   npc_sources = ([ ]);
-  pois = ([ ]);
   roles = ([ ]);
   npc_default_level = 1;
   npc_default_level_spread = 0;
@@ -121,6 +114,7 @@ void create() {
   monsters::create();
   schedules::create();
   housing::create();
+  pois::create();
   obj::create();
 }
 
@@ -202,98 +196,6 @@ int set_intended_resident(string source, int flag)
 
   save_me();
   return 1;
-}
-
-// Bind a POI vacancy (identified by role) to a fixed home (a house location), so
-// whoever fills that vacancy always lives there. Searches every POI's vacancies
-// for the role, sets the home on each match, and updates the live NPC if it is
-// materialized. Returns the number of vacancies bound (0 if the role is unknown).
-int set_vacancy_home(string role, string home)
-{
-  string * locs;
-  mixed * vs;
-  int i, vi, found;
-
-  locs = map_indices(pois);
-  found = 0;
-
-  for (i = 0; i < sizeof(locs); i++)
-  {
-    vs = pois[locs[i]][POI_FIELD_VACANCIES];
-    for (vi = 0; vs && vi < sizeof(vs); vi++)
-      if (vs[vi][VACANCY_FIELD_ROLE] == role)
-      {
-        vs[vi][VACANCY_FIELD_HOME] = home;
-        found++;
-
-        // update the live NPC filling this slot, if any
-        if (vs[vi][VACANCY_FIELD_UUID])
-        {
-          object npc;
-          npc = live_census_npc(locs[i], vs[vi][VACANCY_FIELD_UUID]);
-          if (npc)
-          {
-            npc->set_home(home);
-            npc->save_npc();
-          }
-        }
-      }
-  }
-
-  if (found)
-    save_me();
-  return found;
-}
-
-// Bind a house to a POI vacancy in one step (the builder-ring flow): given a
-// location and a role, turn a bare plot there into a house, make the vacancy's
-// NPC its resident, and set the vacancy's fixed home to it. Returns the number
-// of vacancies bound (0 if the role is unknown). If the location is already a
-// house it is reused; the vacancy NPC is added as a resident.
-int bind_vacancy_house(string role, string location)
-{
-  object loc, home_comp;
-  string * locs;
-  mixed * vs;
-  int i, vi;
-  string uuid;
-
-  loc = load_object(LOCATION_HANDLER)->load_location(location);
-  if (!loc)
-    return 0;
-
-  // find the uuid currently filling this vacancy (to record as resident)
-  uuid = nil;
-  locs = map_indices(pois);
-  for (i = 0; i < sizeof(locs); i++)
-  {
-    vs = pois[locs[i]][POI_FIELD_VACANCIES];
-    for (vi = 0; vs && vi < sizeof(vs); vi++)
-      if (vs[vi][VACANCY_FIELD_ROLE] == role)
-        uuid = vs[vi][VACANCY_FIELD_UUID];
-  }
-
-  if (loc->query_component_by_type(LOCATION_COMPONENT_PLOT))
-  {
-    // a bare plot becomes this vacancy's house
-    loc->remove_component(LOCATION_COMPONENT_PLOT);
-    loc->add_component(LOCATION_COMPONENT_HOME,
-                       ([ "residents": uuid ? ({ uuid }) : ({ }) ]));
-    loc->save_me();
-    door_house_exits(loc);
-    remove_plot(location);
-    log_event("Raised a house at " + location + " for the " + role +
-              " vacancy.");
-  }
-  else if ((home_comp = loc->query_component_by_type(LOCATION_COMPONENT_HOME))
-           && uuid)
-  {
-    // already a house: ensure the vacancy NPC is a resident
-    home_comp->add_resident(uuid);
-    loc->save_me();
-  }
-
-  return set_vacancy_home(role, location);
 }
 
 string query_file_name() { return file_name; }
@@ -384,7 +286,7 @@ int restore_from_file_name(string name)
     // pre-conversion monster paths in the persisted data down to template ids.
     // This lets a converted area self-heal on first access after a reboot,
     // without reloading any source .c.
-    _recompute_intended();
+    recompute_intended();
     return 1;
   }
 
@@ -548,11 +450,11 @@ private void _migrate_source_ids()
   }
 
   // vacancy sources stored on each POI
-  locs = map_indices(pois);
+  locs = map_indices(query_pois());
   for (i = 0; i < sizeof(locs); i++)
   {
     mapping * vs;
-    vs = pois[locs[i]][POI_FIELD_VACANCIES];
+    vs = query_pois()[locs[i]][POI_FIELD_VACANCIES];
     for (j = 0; vs && j < sizeof(vs); j++)
     {
       string tid;
@@ -595,7 +497,7 @@ private void _migrate_source_ids()
 //   - the area citizenship's guard (diplomacy places it at guarded POIs)
 //   - anything that is not a living NPC source (add_clone also clones trees
 //     and props, which are not NPCs)
-private void _recompute_intended()
+void recompute_intended()
 {
   string * location_files, * npc_paths;
   int i, j;
@@ -671,236 +573,13 @@ void set_location_npc_sources(string location_file, mapping clones)
   else
     map_delete(npc_sources, location_file);
 
-  _recompute_intended();
+  recompute_intended();
 
   // register with the population sweep so it keeps this area topped up
   if (map_sizeof(npc_intended))
     POPULATION_HANDLER->include_area(area_path);
 
   save_me();
-}
-
-// ---------------------------------------------------------------------------
-// Points of interest and vacancies (see include/areas/poi.h)
-// ---------------------------------------------------------------------------
-
-mapping query_pois() { return pois; }
-
-// The POI attached to a location, or nil. A location holds at most one.
-mapping query_poi(string location_file)
-{
-  return pois[location_file];
-}
-
-int is_poi(string location_file)
-{
-  return !undefinedp(pois[location_file]);
-}
-
-// Attach (or replace) a POI on a location. `kind` must be one of POI_KINDS;
-// `label` is optional display text. Re-attaching preserves the existing
-// vacancies so a reconversion does not drop them.
-void add_poi(string location_file, string kind, varargs string label)
-{
-  mapping entry;
-
-  if (!location_file || !strlen(location_file))
-    return;
-  if (member_array(kind, POI_KINDS) < 0)
-    return;
-
-  entry = pois[location_file];
-  if (!entry)
-    entry = ([ POI_FIELD_VACANCIES: ({ }) ]);
-
-  entry[POI_FIELD_KIND] = kind;
-  if (label && strlen(label))
-    entry[POI_FIELD_LABEL] = label;
-  if (!entry[POI_FIELD_VACANCIES])
-    entry[POI_FIELD_VACANCIES] = ({ });
-
-  pois[location_file] = entry;
-  save_me();
-}
-
-void remove_poi(string location_file)
-{
-  string * ids;
-  int i;
-
-  // a POI's guards belong to it: drop them (destructing any live) before the
-  // POI itself goes, so removing it never leaves an orphan guard behind
-  ids = map_indices(npc_census);
-  for (i = 0; i < sizeof(ids); i++)
-    if (npc_census[ids[i]]["guard"] &&
-        npc_census[ids[i]]["poi"] == location_file)
-      _remove_guard(ids[i]);
-
-  map_delete(pois, location_file);
-  save_me();
-}
-
-void set_poi_label(string location_file, string label)
-{
-  if (!pois[location_file])
-    return;
-  pois[location_file][POI_FIELD_LABEL] = label;
-  save_me();
-}
-
-// The exit direction a town_entrance POI's guards watch (the way into the
-// town). Only meaningful on a town_entrance; ignored by square guards.
-void set_poi_guard_dir(string location_file, string dir)
-{
-  if (!pois[location_file])
-    return;
-  pois[location_file][POI_FIELD_GUARD_DIR] = dir;
-  save_me();
-}
-string query_poi_guard_dir(string location_file)
-{
-  return pois[location_file] ? pois[location_file][POI_FIELD_GUARD_DIR] : nil;
-}
-
-// The vacancies of a POI, or an empty array when there is no POI there.
-mapping * query_vacancies(string location_file)
-{
-  mapping entry;
-  entry = pois[location_file];
-  return entry ? entry[POI_FIELD_VACANCIES] : ({ });
-}
-
-// Declare a vacancy on a location's POI: a named `role` filled from a
-// unique NPC `source`. Starts unfilled. No-op if the location
-// has no POI or the role already exists.
-void add_vacancy(string location_file, string role, string source)
-{
-  mapping entry;
-  mapping * vs;
-  int i;
-
-  entry = pois[location_file];
-  if (!entry || !role || !strlen(role) || !source || !strlen(source))
-    return;
-
-  vs = entry[POI_FIELD_VACANCIES];
-  if (!vs) vs = ({ });
-  for (i = 0; i < sizeof(vs); i++)
-    if (vs[i][VACANCY_FIELD_ROLE] == role)
-      return;
-
-  // A vacancy is added by hand from an NPC blueprint path; build its template
-  // now (the one time the source .c is loaded) and store the vacancy by its
-  // template id, so filling it later never touches the .c.
-  {
-    string game;
-    game = game_from_path(area_path);
-    if (!BESTIARY_HANDLER->has_template(game, source))
-      BESTIARY_HANDLER->add_template(source);
-    source = _template_id(source);
-  }
-
-  vs += ({ ([ VACANCY_FIELD_ROLE:   role,
-              VACANCY_FIELD_SOURCE: source,
-              VACANCY_FIELD_UUID:   nil ]) });
-  entry[POI_FIELD_VACANCIES] = vs;
-  pois[location_file] = entry;
-
-  // a vacancy source leaves the statistical roster
-  _recompute_intended();
-  save_me();
-}
-
-void remove_vacancy(string location_file, string role)
-{
-  mapping entry;
-  mapping * vs, * out;
-  int i;
-
-  entry = pois[location_file];
-  if (!entry) return;
-
-  vs = entry[POI_FIELD_VACANCIES];
-  if (!vs) return;
-
-  // drop the census NPC that fills this vacancy (destruct any live copy and
-  // delete its savefile) so removing the vacancy leaves no orphan that would
-  // re-materialize on the next load -- mirrors remove_poi culling its guards
-  {
-    string * ids;
-    int j;
-
-    ids = map_indices(npc_census);
-    for (j = 0; j < sizeof(ids); j++)
-    {
-      mapping e;
-      object npc;
-
-      e = npc_census[ids[j]];
-      if (e["role"] == role && e["poi"] == location_file)
-      {
-        npc = live_census_npc(location_file, ids[j]);
-        if (npc)
-          npc->dest_me();
-        if (e["savefile"] && file_size(e["savefile"]) >= 0)
-          remove_file(e["savefile"]);
-        map_delete(npc_census, ids[j]);
-      }
-    }
-  }
-
-  out = ({ });
-  for (i = 0; i < sizeof(vs); i++)
-    if (vs[i][VACANCY_FIELD_ROLE] != role)
-      out += ({ vs[i] });
-
-  entry[POI_FIELD_VACANCIES] = out;
-  pois[location_file] = entry;
-  _recompute_intended();
-  save_me();
-}
-
-// Record which concrete NPC (uuid) currently fills a vacancy role, or clear
-// it (uuid nil) when the NPC dies so the fill pass respawns it.
-void set_vacancy_uuid(string location_file, string role, string uuid)
-{
-  mapping entry;
-  mapping * vs;
-  int i;
-
-  entry = pois[location_file];
-  if (!entry) return;
-
-  vs = entry[POI_FIELD_VACANCIES];
-  for (i = 0; vs && i < sizeof(vs); i++)
-    if (vs[i][VACANCY_FIELD_ROLE] == role)
-    {
-      vs[i][VACANCY_FIELD_UUID] = uuid;
-      save_me();
-      return;
-    }
-}
-
-// The set of NPC sources claimed by a vacancy anywhere in the area,
-// as ([ source : 1 ]). Used by _recompute_intended to keep vacancy uniques
-// out of the statistical population.
-mapping query_vacancy_sources()
-{
-  mapping ret;
-  string * locs;
-  int i, j;
-
-  ret = ([ ]);
-  locs = map_indices(pois);
-  for (i = 0; i < sizeof(locs); i++)
-  {
-    mapping * vs;
-    vs = pois[locs[i]][POI_FIELD_VACANCIES];
-    for (j = 0; vs && j < sizeof(vs); j++)
-      ret[_template_id(vs[j][VACANCY_FIELD_SOURCE])] = 1;
-  }
-
-  return ret;
 }
 
 // Live census count of a given source across the whole area (materialized or
@@ -988,13 +667,13 @@ void set_citizenship(string name)
 
   // which guard source the roster excludes depends on the citizenship, so
   // recompute and persist it
-  _recompute_intended();
+  recompute_intended();
   save_me();
 
   // re-post guards at every guarded POI: drop the old citizenship's guards and
   // field the new one's. This is the invasion path -- flip the citizenship and
   // the guards become the conqueror's.
-  locs = map_indices(pois);
+  locs = map_indices(query_pois());
   for (i = 0; i < sizeof(locs); i++)
     repost_guards(locs[i]);
 }
@@ -1043,7 +722,7 @@ int decide_level(string game, string source)
 // a POI (not part of the statistical roster, so no npc_intended check), and
 // the census entry is tagged with the owning POI location and role. Returns
 // the uuid. The NPC materializes when the POI's location loads.
-private string assign_vacancy_npc(string source, string location_file,
+string assign_vacancy_npc(string source, string location_file,
                                   string role)
 {
   string id, game;
@@ -1058,41 +737,6 @@ private string assign_vacancy_npc(string source, string location_file,
   save_me();
 
   return id;
-}
-
-// Ensure every vacancy of the POI at `location_file` has a census NPC
-// assigned to that location. A vacancy is (re)assigned when it is empty or
-// when its recorded NPC is no longer in the census (it died). Data-only:
-// materialization happens in the normal restore loop.
-private void _ensure_vacancies_assigned(string location_file)
-{
-  mapping entry;
-  mapping * vs;
-  int i;
-  int changed;
-
-  entry = pois[location_file];
-  if (!entry)
-    return;
-
-  vs = entry[POI_FIELD_VACANCIES];
-  changed = 0;
-  for (i = 0; vs && i < sizeof(vs); i++)
-  {
-    string uuid;
-
-    uuid = vs[i][VACANCY_FIELD_UUID];
-    if (uuid && npc_census[uuid])
-      continue;   // already filled and alive
-
-    vs[i][VACANCY_FIELD_UUID] =
-      assign_vacancy_npc(vs[i][VACANCY_FIELD_SOURCE], location_file,
-                         vs[i][VACANCY_FIELD_ROLE]);
-    changed = 1;
-  }
-
-  if (changed)
-    save_me();
 }
 
 // Materialize a census NPC into `loc`: a generic NPC with the source's data
@@ -1313,7 +957,7 @@ private object npc_restore(string id, object loc)
     mixed * vs;
     int vi;
 
-    poi = pois[entry["poi"]];
+    poi = query_pois()[entry["poi"]];
     vs = poi ? poi[POI_FIELD_VACANCIES] : nil;
     for (vi = 0; vs && vi < sizeof(vs); vi++)
       if (vs[vi][VACANCY_FIELD_ROLE] == entry["role"] &&
@@ -1342,7 +986,7 @@ private object npc_restore(string id, object loc)
 
     // only an entrance guard watches a direction; a square guard is presence
     // only, so it never registers on an exit even if a stale guard_dir lingers
-    poi = pois[entry["poi"]];
+    poi = query_pois()[entry["poi"]];
     gdir = (poi && poi[POI_FIELD_KIND] == POI_KIND_TOWN_ENTRANCE)
              ? poi[POI_FIELD_GUARD_DIR] : nil;
 
@@ -1380,7 +1024,7 @@ void restore_location_npcs(object loc)
   // empty or dead vacancy slot, so the materialize loop below brings it in
   // alongside the location's regular census NPCs. A guarded POI (town entrance
   // or square) likewise tops up its citizenship's guards.
-  _ensure_vacancies_assigned(file);
+  ensure_vacancies_assigned(file);
   _ensure_guards_assigned(file);
 
   ids = npc_census_for_location(file);
@@ -1507,7 +1151,7 @@ void drain_location(object loc)
 }
 
 // Find the loaded location object for a file, or nil if it is not resident.
-private object loaded_location(string file)
+object loaded_location(string file)
 {
   object * locs;
   int i;
@@ -1520,45 +1164,16 @@ private object loaded_location(string file)
   return nil;
 }
 
-// If `uuid` filled a vacancy, clear that slot and return ({ file, role });
-// otherwise nil. Used on death so the vacancy can be refilled.
-private mixed * clear_vacancy_by_uuid(string uuid)
+// Drop one row from the census and persist. A seam for the pieces that own
+// something hanging off a census entry (a POI vacancy, a guard post) and need
+// to retire the individual filling it without going through a death.
+void drop_census_entry(string uuid)
 {
-  string * locs;
-  int i, j;
-
-  locs = map_indices(pois);
-  for (i = 0; i < sizeof(locs); i++)
+  if (uuid && npc_census[uuid])
   {
-    mapping * vs;
-    vs = pois[locs[i]][POI_FIELD_VACANCIES];
-    for (j = 0; vs && j < sizeof(vs); j++)
-      if (vs[j][VACANCY_FIELD_UUID] == uuid)
-      {
-        vs[j][VACANCY_FIELD_UUID] = nil;
-        save_me();
-        return ({ locs[i], vs[j][VACANCY_FIELD_ROLE] });
-      }
+    map_delete(npc_census, uuid);
+    save_me();
   }
-
-  return nil;
-}
-
-// call_out target: respawn a vacancy NPC some time after its holder died.
-// Re-assigns the slot and, if the POI's location is loaded, materializes the
-// NPC at once; otherwise it comes back the next time the location loads.
-void _refill_vacancy(string file)
-{
-  object loc;
-
-  if (!pois[file])
-    return;
-
-  _ensure_vacancies_assigned(file);
-
-  loc = loaded_location(file);
-  if (loc)
-    restore_location_npcs(loc);
 }
 
 // Called by a persisted NPC (via monster::do_death) when it dies: drop its
@@ -1594,25 +1209,6 @@ void npc_died(string uuid)
 
   if (guard_poi)
     call_out("_refill_guards", VACANCY_RESPAWN_DELAY, guard_poi);
-}
-
-// Ensure every POI vacancy in the area is assigned and, where the location
-// is loaded, materialized. Safe to call repeatedly (idempotent per slot).
-void fill_vacancies()
-{
-  string * locs;
-  int i;
-
-  locs = map_indices(pois);
-  for (i = 0; i < sizeof(locs); i++)
-  {
-    object loc;
-
-    _ensure_vacancies_assigned(locs[i]);
-    loc = loaded_location(locs[i]);
-    if (loc)
-      restore_location_npcs(loc);
-  }
 }
 
 // --- guards --------------------------------------------------------------
@@ -1675,7 +1271,7 @@ private string * guard_census_at(string poi_file, string source)
 
 // The live object for a census uuid inside its (loaded) POI, or nil. Works for
 // any census NPC (a guard or a vacancy unique), matched by its uuid.
-private object live_census_npc(string poi_file, string uuid)
+object live_census_npc(string poi_file, string uuid)
 {
   object loc;
   object * inv;
@@ -1694,7 +1290,7 @@ private object live_census_npc(string poi_file, string uuid)
 // Drop a guard: remove its census entry first (so a death callback becomes a
 // no-op), then destruct the live object if it is materialized, and delete its
 // leftover savefile.
-private void _remove_guard(string id)
+void remove_guard(string id)
 {
   mapping e;
   object npc;
@@ -1727,7 +1323,7 @@ private void _ensure_guards_assigned(string location_file)
   int want, have, i;
   object dh;
 
-  entry = pois[location_file];
+  entry = query_pois()[location_file];
   if (!entry)
     return;
   kind = entry[POI_FIELD_KIND];
@@ -1754,12 +1350,12 @@ private void _ensure_guards_assigned(string location_file)
     e = npc_census[ids[i]];
     if (e["guard"] && e["poi"] == location_file &&
         member_array(ids[i], live) == -1)
-      _remove_guard(ids[i]);
+      remove_guard(ids[i]);
   }
 
   // trim current-source guards down if security dropped
   for (i = want; i < have; i++)
-    _remove_guard(live[i]);
+    remove_guard(live[i]);
 
   // top up to the wanted count from the current source
   for (i = have; i < want; i++)
@@ -1771,7 +1367,7 @@ void _refill_guards(string file)
 {
   object loc;
 
-  if (!pois[file])
+  if (!query_pois()[file])
     return;
 
   _ensure_guards_assigned(file);
@@ -1788,7 +1384,7 @@ void fill_guards()
   string * locs;
   int i;
 
-  locs = map_indices(pois);
+  locs = map_indices(query_pois());
   for (i = 0; i < sizeof(locs); i++)
   {
     object loc;
@@ -1810,7 +1406,7 @@ void repost_guards(string poi_file)
   int i;
   object loc;
 
-  if (!pois[poi_file])
+  if (!query_pois()[poi_file])
     return;
 
   // remove every guard currently assigned here, whatever its source
@@ -1820,7 +1416,7 @@ void repost_guards(string poi_file)
     mapping e;
     e = npc_census[ids[i]];
     if (e["guard"] && e["poi"] == poi_file)
-      _remove_guard(ids[i]);
+      remove_guard(ids[i]);
   }
 
   _ensure_guards_assigned(poi_file);
