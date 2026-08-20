@@ -90,7 +90,7 @@ area->query_maze_locations();  // object * of loaded maze locations
 When `add_location` in `MAPS_HANDLER` writes a coord pointer file and
 finds an existing pointer to a different `file_name`, it logs to
 `log_file("maps_collision", ...)` and emits a stderr warning. See
-`lib/handlers/maps.c::add_location`. A data bug on the room side is
+`lib/handlers/sectors.c::add_location`. A data bug on the room side is
 the usual cause.
 
 ## 6. `guess_coordinates` guard
@@ -120,6 +120,6 @@ specific maze) opt in explicitly by removing the maze filter.
 - `lib/location.c::guess_coordinates` — inference with clobber guard.
 - `lib/location.c::query_maze` — location-side flag accessor.
 - `lib/location/area.c::query_maze_locations` — area-side derived accessor.
-- `lib/handlers/maps.c::add_location` — lifts flag, forwards to sector, collision warning.
+- `lib/handlers/sectors.c::add_location` — lifts flag, forwards to sector, collision warning.
 - `lib/maps/sector.c` — `maze_positions` mapping, `is_maze_at`, accessors.
 - `dev/maze-orientation.md` — future skill mechanics (not yet implemented).

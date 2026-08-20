@@ -115,7 +115,7 @@ static nomask void initialize()
     ::call_other(load_object(BASE_LOCATION_OBJ), "???");    
     ::call_other(load_object(LOCATION_HANDLER), "???");    
     ::call_other(load_object(AREA_HANDLER), "???");
-    ::call_other(load_object(MAPS_HANDLER), "???");
+    ::call_other(load_object(SECTORS_HANDLER), "???");
   }
 
   ::call_other(load_object(LOGIN_OB), "???");

@@ -1347,7 +1347,7 @@ int do_plot(string str)
   // canonical direction gives the coordinate step; the localized word is what
   // the exits store (exits are kept in the mud's language)
   canon = ROOM_HAND->canonical_dir(dir_in);
-  d = load_object(MAPS_HANDLER)->query_dir_delta(canon);
+  d = load_object(SECTORS_HANDLER)->query_dir_delta(canon);
   if (!d)
   {
     notify_fail("'" + dir_in + "' is not a compass direction.\n");
@@ -1371,7 +1371,7 @@ int do_plot(string str)
   dir_part = loc_file[0..slash];
   plot_file = dir_part + "plot_" + nx + "_" + ny + "_" + nz + ".o";
 
-  sector = load_object(MAPS_HANDLER)->query_sector_for_coord(game, map,
+  sector = load_object(SECTORS_HANDLER)->query_sector_for_coord(game, map,
                                                              nx, ny, nz);
 
   if (verb == "create")
@@ -1412,8 +1412,8 @@ int do_plot(string str)
     loc->save_me();
 
     // index the new plot and re-index this location so both exit graphs update
-    load_object(MAPS_HANDLER)->add_location(plot);
-    load_object(MAPS_HANDLER)->add_location(loc);
+    load_object(SECTORS_HANDLER)->add_location(plot);
+    load_object(SECTORS_HANDLER)->add_location(loc);
     if (area)
       area->add_plot(plot_file);
 
@@ -1483,8 +1483,8 @@ int do_plot(string str)
   // destroy the object and delete its file
   loc->remove_exit(ldir);
   loc->save_me();
-  load_object(MAPS_HANDLER)->add_location(loc);
-  load_object(MAPS_HANDLER)->remove_location_from_map(plot_file, map,
+  load_object(SECTORS_HANDLER)->add_location(loc);
+  load_object(SECTORS_HANDLER)->remove_location_from_map(plot_file, map,
                                                       nx, ny, nz);
   if (area)
     area->remove_plot(plot_file);

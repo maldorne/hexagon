@@ -5,7 +5,7 @@
 // each traversable exit is an edge (sector.c::query_edges, "x_y_z" -> [ dir :
 // neighbour-coord ]). The edge set is the full graph, cross-sector links
 // included, so A* walks it uniformly: whenever it needs a coordinate's edges it
-// fetches that coordinate's sector on demand (MAPS_HANDLER::query_sector_for_coord),
+// fetches that coordinate's sector on demand (SECTORS_HANDLER::query_sector_for_coord),
 // crossing sector borders without any special case.
 //
 // The result is the sequence of canonical directions ("north", "up", ...) a
@@ -66,7 +66,7 @@ private mapping edges_at(string game_slug, string map_name, string key)
   if (!c)
     return ([ ]);
 
-  sector = MAPS_HANDLER->query_sector_for_coord(game_slug, map_name,
+  sector = SECTORS_HANDLER->query_sector_for_coord(game_slug, map_name,
                                                 c[0], c[1], c[2]);
   if (!sector)
     return ([ ]);
@@ -87,7 +87,7 @@ private int node_exists(string game_slug, string map_name, string key)
   if (!c)
     return 0;
 
-  sector = MAPS_HANDLER->query_sector_for_coord(game_slug, map_name,
+  sector = SECTORS_HANDLER->query_sector_for_coord(game_slug, map_name,
                                                 c[0], c[1], c[2]);
   if (!sector)
     return 0;

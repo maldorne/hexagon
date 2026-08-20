@@ -16,7 +16,7 @@
 // so that negative coordinates land in the expected sector
 // (e.g. -1 -> sector -1, not sector 0).
 
-#define MAPS_HANDLER "/lib/handlers/maps"
+#define SECTORS_HANDLER "/lib/handlers/sectors"
 #define MAP_SECTOR_STORAGE_OBJECT "/lib/maps/sector"
 // Fine (room-to-room) pathfinder: A* over the node/edge graph the sectors
 // index. See /lib/handlers/pathfinding.

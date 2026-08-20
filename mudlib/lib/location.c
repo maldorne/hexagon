@@ -57,7 +57,7 @@ string map_name;   // "default", or "underdark", or "mars", use something differ
 int * coordinates;
 
 // The coordinate at which this location is currently registered in the map
-// index (MAPS_HANDLER). Kept in sync by MAPS_HANDLER::add_location so that,
+// index (SECTORS_HANDLER). Kept in sync by SECTORS_HANDLER::add_location so that,
 // when a location's coordinates change (a reload that re-guesses them, a
 // manual move), the old sector entry is purged before the new one is written
 // and no stale "ghost" position lingers behind. nil until first indexed.
@@ -1003,7 +1003,7 @@ void save_me()
 
   // save in the map system every location with coordinates
   if (query_coordinates() != nil)
-    MAPS_HANDLER->add_location(this_object());
+    SECTORS_HANDLER->add_location(this_object());
 
   // save it in the area system also
   AREA_HANDLER->add_location(this_object());

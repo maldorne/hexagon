@@ -97,7 +97,7 @@ private int do_verify(object me, string * tokens)
   }
   map_name = _resolve_map(me, sizeof(tokens) == 5 ? tokens[4] : nil);
 
-  report = load_object(MAPS_HANDLER)->verify_sector(game, map_name, x, y, z);
+  report = load_object(SECTORS_HANDLER)->verify_sector(game, map_name, x, y, z);
   if (!report)
   {
     write("No sector.o at (" + x + "," + y + "," + z + ") in map '" +
@@ -205,7 +205,7 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
-    sector = load_object(MAPS_HANDLER)->set_sector_manual_type(
+    sector = load_object(SECTORS_HANDLER)->set_sector_manual_type(
                game, map_name, x, y, z, _canon_type(type));
 
     if (!sector)
@@ -236,14 +236,14 @@ static int cmd(string str, object me, string verb)
 
     map_name = _resolve_map(me, sizeof(tokens) >= 2 ? tokens[1] : nil);
 
-    removed = load_object(MAPS_HANDLER)->purge_drift(game, map_name);
+    removed = load_object(SECTORS_HANDLER)->purge_drift(game, map_name);
     write("Purged " + removed + " stale position" +
           (removed == 1 ? "" : "s") + " from map '" + map_name + "'.\n");
     return 1;
   }
 
   // ===== list =====
-  sectors = load_object(MAPS_HANDLER)->query_loaded_sectors();
+  sectors = load_object(SECTORS_HANDLER)->query_loaded_sectors();
 
   if (!sectors || !map_sizeof(sectors))
   {

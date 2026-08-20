@@ -438,7 +438,7 @@ private int do_sector(object me, string * tokens, int verbose)
     return 1;
   }
 
-  sector = load_object(MAPS_HANDLER)->create_sector(sector_path);
+  sector = load_object(SECTORS_HANDLER)->create_sector(sector_path);
   positions = sector->query_positions();
   pos_files = map_values(positions);
 

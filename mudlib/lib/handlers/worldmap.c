@@ -104,7 +104,7 @@ private object cached_sector(string game, string map_name,
   if (file_size(path + "sector.o") < 0)
     sect = nil;
   else
-    sect = load_object(MAPS_HANDLER)->create_sector(path);
+    sect = load_object(SECTORS_HANDLER)->create_sector(path);
 
   sector_cache[key] = sect;
   return sect;

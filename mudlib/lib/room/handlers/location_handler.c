@@ -84,7 +84,7 @@ object query_sector_from_location_file_name(string file_name)
   location = clone_object(BASE_LOCATION_OBJ);
   location->restore_from_file_name(file_name);
 
-  return load_object(MAPS_HANDLER)->query_sector_from_location(location);
+  return load_object(SECTORS_HANDLER)->query_sector_from_location(location);
 }
 
 object load_location(string file_name)
@@ -113,8 +113,8 @@ object load_location(string file_name)
   // every call, and a map view resolves the same neighbours over and over. The
   // check is O(1) -- the location's coordinate, the sector that owns it (cached),
   // and one node lookup -- so it costs nothing next to the write it avoids.
-  if (!load_object(MAPS_HANDLER)->is_location_indexed(location))
-    load_object(MAPS_HANDLER)->add_location(location);
+  if (!load_object(SECTORS_HANDLER)->is_location_indexed(location))
+    load_object(SECTORS_HANDLER)->add_location(location);
 
   return location;
 }
@@ -1420,7 +1420,7 @@ void clean_step(string * orphans, int idx, object * touched_areas,
       {
         int * coords;
         coords = loc->query_coordinates();
-        load_object(MAPS_HANDLER)->remove_location_from_map(
+        load_object(SECTORS_HANDLER)->remove_location_from_map(
             orphans[i], loc->query_map_name(),
             coords[0], coords[1], coords[2]);
       }
