@@ -232,7 +232,7 @@ void blue()
   // FLAG_GAME->save_me();
 
   // neverbot, 7/03
-  handler(WEATHER_HANDLER)->save_weather();
+  handler("weather")->save_weather();
 
   shutdown(0);
 }

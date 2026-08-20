@@ -41,7 +41,7 @@ string long(string str, int dark)
   {
     default: /* can see anyway */
       /* night... */
-      if (this_object()->query_night_long() && !handler(WEATHER_HANDLER)->query_day())
+      if (this_object()->query_night_long() && !handler("weather")->query_day())
         ret += this_object()->query_night_long();
       else
         ret += sprintf("\n   %-=*s\n", 
@@ -51,13 +51,13 @@ string long(string str, int dark)
 
     case 1..3: /* too dark */
       ret += ::query_dark_mess(dark);
-      if (handler(WEATHER_HANDLER)->query_day())
+      if (handler("weather")->query_day())
         ret += "\nA pesar de esta oscuridad parece ser de día.\n";
       return ret;
 
     case 4..6: /* too bright */
       ret += ::query_dark_mess(dark);
-      if (!handler(WEATHER_HANDLER)->query_day())
+      if (!handler("weather")->query_day())
         ret += ".\nA pesar de esta luz parece ser de noche.\n";
       return ret;
   }
@@ -69,7 +69,7 @@ string long(string str, int dark)
   if (s && strlen(s))
     ret += s;
 
-  ret += (string)handler(WEATHER_HANDLER)->weather_string(this_object());
+  ret += (string)handler("weather")->weather_string(this_object());
 
   // this will update exit_string if needed
   if (!exit_string)
@@ -89,7 +89,7 @@ int query_light()
 #ifdef TESTING
   i = 100;
 #else
-  i = (int)handler(WEATHER_HANDLER)->query_darkness(this_object());
+  i = (int)handler("weather")->query_darkness(this_object());
 #endif
 
   return ::query_light()*i/100;

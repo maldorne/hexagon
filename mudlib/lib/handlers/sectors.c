@@ -142,7 +142,10 @@ object set_sector_manual_type(string game, string map_name,
 }
 
 // Cartesian delta of a one-step move in a canonical exit direction, matching
-// the coordinate convention in guess_coordinates (north +y, east +x, up +z).
+// the world coordinate convention, which is fixed for every game and map:
+// +x is east, +y is north, +z is up, and a diagonal composes its two axes.
+// A renderer may flip an axis on the way out (an ASCII map usually draws y
+// growing downward on screen); the stored coordinates never change.
 // Returns nil for non-directional exits (enter, out, ...), which have no place
 // on the coordinate grid.
 private int * _dir_delta(string dir)
@@ -189,7 +192,10 @@ string add_location(object location)
   y = location->query_coordinates()[1];
   z = location->query_coordinates()[2];
 
-  // every sector could store 10x10x10 locations
+  // every sector could store 10x10x10 locations. The -(n < 0) term is what
+  // keeps negative coordinates in the sector a reader expects: integer division
+  // truncates toward zero, so -1 / 10 is 0, and without the correction the
+  // whole strip from -9 to 9 would collapse into sector 0.
   sector_x = x / 10 - (x < 0);
   sector_y = y / 10 - (y < 0);
   sector_z = z / 10 - (z < 0);

@@ -230,7 +230,7 @@ static string ctime(int time, varargs int flag)
   else if (flag == 3)
   {
     // TO DO, return the calendar from the game the character is in
-    // result = handler(WEATHER_HANDLER)->date_string();
+    // result = handler("weather")->date_string();
   }
   else if (flag == 4)
   {

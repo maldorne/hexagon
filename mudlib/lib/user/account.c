@@ -93,7 +93,7 @@ void birthday(string str)
     }
     else
     {
-      if (!handler(CALENDAR_HANDLER)->valid_birthday(str))
+      if (!handler("calendar")->valid_birthday(str))
       {
         write("La fecha no es válida, vuelve a introducirla (ddmm): ");
         input_to("birthday",1);

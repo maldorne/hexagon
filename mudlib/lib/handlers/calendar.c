@@ -130,7 +130,7 @@ int query_global_day()
 {
   // ({ hora_del_dia, dia_del_anyo + 1, mes + 1, estacion + 1, anyo, });
   int * date_data;
-  date_data = handler(WEATHER_HANDLER)->query_date_data();
+  date_data = handler("weather")->query_date_data();
 
   // return (date_data[4] - 1) * 365 + date_data[1];
 

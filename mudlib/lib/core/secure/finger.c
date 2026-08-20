@@ -196,7 +196,7 @@ string finger_info(string name, varargs object me)
 
   if (birth_day)
   {
-    birth_day = handler(CALENDAR_HANDLER)->convert_birthday(birth_day);
+    birth_day = handler("calendar")->convert_birthday(birth_day);
     retval += sprintf("   %-30s", _LANG_FINGER_BIRTHDAY + birth_day);
   }
 

@@ -4,23 +4,6 @@
 
 #include <room/location.h>
 
-// World coordinate convention (fixed for every game, every map):
-//
-//   +x = east        -x = west
-//   +y = north       -y = south
-//   +z = up          -z = down
-//
-// Diagonals compose the two component axes (e.g. northeast = +x +y). This is
-// the standard cartesian convention, and it is not per-game configurable: a
-// renderer is free to flip an axis on the way out (an ASCII map may draw y
-// growing downward on screen), but the underlying coordinates always follow
-// the table above.
-//
-// Sectors are 10 x 10 x 10 coordinate buckets, indexed as
-//     sector_n = n / 10 - (n < 0)
-// so that negative coordinates land in the expected sector
-// (e.g. -1 -> sector -1, not sector 0).
-
 // The handler that owns the on-disk sector index.
 #define SECTORS_HANDLER "/lib/handlers/sectors"
 // The per-sector storage object the handler clones, one per occupied bucket.
@@ -82,8 +65,7 @@
 #define SECTOR_WAY_TYPES ({ SECTOR_WAY_ROAD, SECTOR_WAY_PATH })
 
 // Cardinal border keys returned by query_border_ways(). Screen y grows
-// downward but the world coord convention above is
-// +y = north, +x = east.
+// downward, the world coordinates do not: +y is north.
 #define SECTOR_BORDER_N  "n"
 #define SECTOR_BORDER_S  "s"
 #define SECTOR_BORDER_E  "e"

@@ -119,12 +119,12 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   int i;
 
   if (environment() && (environment()->query_outside()))
-    handler(WEATHER_HANDLER)->unnotify_me(environment());
+    handler("weather")->unnotify_me(environment());
 
   i = ::move(dest, messin, messout);
 
   if (environment() && (environment()->query_outside()))
-    handler(WEATHER_HANDLER)->notify_me(environment());
+    handler("weather")->notify_me(environment());
 
   // warm the graph neighbourhood around the player's new location so
   // nearby rooms/locations are resident before the player reaches them

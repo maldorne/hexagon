@@ -276,7 +276,7 @@ int make(string str)
   if (str == "bola de nieve") 
   {
     /* well lets do it then ;) */
-    if (!handler(WEATHER_HANDLER)->query_snowing()) {
+    if (!handler("weather")->query_snowing()) {
       notify_fail("Necesitas nieve para hacer una bola de nieve.\n");
       return 0;
     }
@@ -286,7 +286,7 @@ int make(string str)
     return 1;
   }
   if (str == "muñeco de nieve") {
-    if (!handler(WEATHER_HANDLER)->query_snowing()) {
+    if (!handler("weather")->query_snowing()) {
       notify_fail("Necesitas nieve para hacer un muñeco de nieve.\n");
       return 0;
     }
@@ -330,7 +330,7 @@ int splash(string str)
     return 0;
   }
   // env = environment();
-  if (!handler(WEATHER_HANDLER)->query_raining(environment())) {
+  if (!handler("weather")->query_raining(environment())) {
     notify_fail("Debe estar lloviendo o haber charcos para mojar a alguien.\n");
     return 0;
   }
@@ -435,7 +435,7 @@ void weather_heart_beat()
       }
      
       // datos == ({ lluvia, viento, temperatura })
-      datos = handler(WEATHER_HANDLER)->query_actual_data(environment(this_object()));
+      datos = handler("weather")->query_actual_data(environment(this_object()));
 
       // Daño por frío
       if (datos[2] > 80)

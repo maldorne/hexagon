@@ -1,5 +1,4 @@
 
-#define WEATHER_HANDLER "weather"
 
 // Default save file for the shared lib weather instance. Per-game
 // subclasses override query_save_file() to point elsewhere.
@@ -9,7 +8,6 @@
 #define WEATHER_TABLE "weather_table"
 #define WEATHER_SH "/lib/obj/shadows/weather_sh.c"
 
-#define CALENDAR_HANDLER "calendar"
 
 // Number of weather zones mutated on each update tick.
 #define MODIFY 3

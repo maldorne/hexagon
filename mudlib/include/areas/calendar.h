@@ -1,5 +1,4 @@
 
-#define CALENDAR_HANDLER "calendar"
 #define CALENDAR_TABLE "calendar_table"
 
 #define SAVE_FILENAME "/save/calendar.o"

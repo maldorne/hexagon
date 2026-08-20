@@ -61,19 +61,19 @@ mixed hook_long(mixed * args)
   {
     default: /* normal vision */
       if (this_object()->query_night_long() &&
-          !handler(WEATHER_HANDLER)->query_day())
+          !handler("weather")->query_day())
         return ({ HOOK_EXCLUSIVE, this_object()->query_night_long() });
       return "";
 
     case 1..3: /* too dark */
       ret = query_dark_mess(dark);
-      if (handler(WEATHER_HANDLER)->query_day())
+      if (handler("weather")->query_day())
         ret += "\nA pesar de esta oscuridad parece ser de día.\n";
       return ({ HOOK_EXCLUSIVE, ret });
 
     case 4..6: /* too bright */
       ret = query_dark_mess(dark);
-      if (!handler(WEATHER_HANDLER)->query_day())
+      if (!handler("weather")->query_day())
         ret += ".\nA pesar de esta luz parece ser de noche.\n";
       return ({ HOOK_EXCLUSIVE, ret });
   }
@@ -83,7 +83,7 @@ string hook_extra_look(mixed * args)
 {
   // weather_string already ends in a newline, so do not add another or the
   // description gains a blank line under the weather report.
-  return (string)handler(WEATHER_HANDLER)->weather_string(query_my_location());
+  return (string)handler("weather")->weather_string(query_my_location());
 }
 
 mixed * stats()
