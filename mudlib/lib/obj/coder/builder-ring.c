@@ -1176,7 +1176,7 @@ int do_npc(string str)
     for (i = 0; i < sizeof(sources); i++)
     {
       int l;
-      lives[i] = area->query_npc_live_count(sources[i]);
+      lives[i] = area->query_total_live_count(sources[i]);
       l = strlen(sources[i], TRUE);
       if (l > w_name) w_name = l;
       l = strlen("" + lives[i]);

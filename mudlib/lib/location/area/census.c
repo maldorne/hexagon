@@ -42,10 +42,10 @@ void add_census_entry(string uuid, mapping row)
   this_object()->save_me();
 }
 
-// How many individuals of `source` the census holds across the whole area,
-// materialized or not. The counterpart of query_monster_live_count for the
-// named half of the population; query_npc_live_count adds the two.
-int query_individual_live_count(string source)
+// How many NPCs of `source` the census holds across the whole area, materialized
+// or not. The counterpart of query_monster_live_count for the named half of the
+// population; query_total_live_count adds the two.
+int query_npc_live_count(string source)
 {
   string * ids;
   int i, n;
@@ -447,12 +447,12 @@ void set_census_location(string uuid, string file)
   }
 }
 
-// Every live NPC of `source` the area holds, both halves of the population: the
-// individuals in the census and the anonymous monsters counted in the buckets.
+// Everything of `source` the area holds, both halves of the population: the
+// named NPCs in the census and the anonymous monsters counted in the buckets.
 // This is the number the population sweep measures against that source's cap.
-int query_npc_live_count(string source)
+int query_total_live_count(string source)
 {
-  return query_individual_live_count(source) + (int)this_object()->query_monster_live_count(source);
+  return query_npc_live_count(source) + (int)this_object()->query_monster_live_count(source);
 }
 
 // Called from a location's dest_me before its contents are torn down: persist
