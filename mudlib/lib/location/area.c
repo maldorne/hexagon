@@ -1,4 +1,6 @@
-inherit "/lib/core/object.c";
+inherit obj      "/lib/core/object.c";
+
+inherit monsters "/lib/location/area/monsters.c";
 
 #include <room/location.h>
 #include <living/persisted.h>
@@ -37,14 +39,6 @@ string exploration_name;
 // but the census entry survives so the same NPC comes back.
 mapping npc_intended;
 mapping npc_census;
-// The anonymous half of the population: plain monsters (fauna, vermin, wildlife)
-// that the world only counts, never identifies. No uuid, no savefile, no state
-// between loads -- the area just knows how many of each kind belong to each
-// location, and they are cloned fresh from their template every time it loads:
-//   ([ location_file : ([ template_id : count ]) ])
-// Anything with an individual life the world refers to -- a citizen, a POI
-// vacancy, a posted guard -- is not here; it lives in npc_census with a uuid.
-mapping monster_census;
 // Which census NPCs have something scheduled at each game hour, so the areas
 // handler can wake and dispatch exactly the ones due without scanning or loading
 // the rest: ([ hour(0-23) : ({ uuids }) ]). Populated when a schedule is
@@ -135,7 +129,6 @@ void create() {
   exploration_name = "";
   npc_intended = ([ ]);
   npc_census = ([ ]);
-  monster_census = ([ ]);
   schedule_index = ([ ]);
   npc_sources = ([ ]);
   pois = ([ ]);
@@ -145,7 +138,8 @@ void create() {
   npc_default_level = 1;
   npc_default_level_spread = 0;
   citizenship = "";
-  ::create();
+  monsters::create();
+  obj::create();
 }
 
 void restore_me() {
@@ -1292,7 +1286,7 @@ private int npc_uuid_present(object loc, string uuid)
 // one (no "gender" key) rolls male/female here. Stored in the census entry and
 // handed to the NPC before its template is applied, so the per-gender strings
 // match.
-private int decide_gender(string game, string source)
+int decide_gender(string game, string source)
 {
   return BESTIARY_HANDLER->roll_gender(
            BESTIARY_HANDLER->query_template(game, source));
@@ -1353,7 +1347,7 @@ string query_citizenship_path()
 // concrete "level" dictates it outright; otherwise the level derives from the
 // area: npc_default_level + the template's level_area_modifier, swung by up to the
 // area spread (random(spread + 1), sign random). Never below 1.
-private int decide_level(string game, string source)
+int decide_level(string game, string source)
 {
   mapping t;
   int base, dev;
@@ -1375,101 +1369,6 @@ private int decide_level(string game, string source)
     base -= dev;
 
   return base < 1 ? 1 : base;
-}
-
-// Assign a new NPC of `source` to `location_file` as data only: ensure the
-// source has a data template and record a census entry. No object is
-// materialized -- it becomes real (cloned from the template and saved) when
-// the location loads (npc_restore). This is what the population sweep calls to
-// scatter NPCs across the area without loading any location. Returns the uuid.
-int assign_monster(string source, string location_file)
-{
-  mapping bucket;
-
-  if (!source || !strlen(source) || !location_file || !strlen(location_file))
-    return 0;
-  if (!npc_intended[source])
-    return 0;
-
-  bucket = monster_census[location_file];
-  if (!bucket)
-  {
-    bucket = ([ ]);
-    monster_census[location_file] = bucket;
-  }
-
-  if (!bucket[source])
-    bucket[source] = 1;
-  else
-    bucket[source] = bucket[source] + 1;
-  save_me();
-
-  return 1;
-}
-
-// One monster of `source` died: take it off the bucket it was materialized
-// from (the NPC carries that location, so an animal that wandered still
-// decrements where it was counted). Persisted at once -- a death is never
-// left to a later sweep to notice.
-void monster_died(string source, string location_file)
-{
-  mapping bucket;
-
-  bucket = monster_census[location_file];
-  if (!bucket || !bucket[source])
-    return;
-
-  if (bucket[source] > 1)
-    bucket[source] = bucket[source] - 1;
-  else
-  {
-    map_delete(bucket, source);
-    if (!map_sizeof(bucket))
-      map_delete(monster_census, location_file);
-  }
-  save_me();
-}
-
-// How many monsters of `source` the area holds, summed across its locations.
-// This is what the population sweep checks against the cap.
-int query_monster_live_count(string source)
-{
-  string * locs;
-  int i, n;
-
-  locs = map_indices(monster_census);
-  for (i = 0; i < sizeof(locs); i++)
-    if (monster_census[locs[i]][source])
-      n += monster_census[locs[i]][source];
-
-  return n;
-}
-
-mapping query_monster_census() { return monster_census; }
-
-// The sources the population sweep may top up: the intended roster minus every
-// sentient kind. Citizens are staffed by their settlement, one named individual
-// at a time -- they are never scattered statistically, so they are not the
-// sweep's business even when an old conversion left them on the roster.
-string * query_monster_sources()
-{
-  string * sources, * out;
-  string game;
-  int i;
-
-  game = game_from_path(area_path);
-  sources = map_indices(npc_intended);
-  out = ({ });
-
-  for (i = 0; i < sizeof(sources); i++)
-  {
-    mapping t;
-    t = BESTIARY_HANDLER->query_template(game, sources[i]);
-    if (!(t && t["sentient"]))
-      out += ({ sources[i] });
-  }
-
-  return out;
 }
 
 // Assign a vacancy NPC: an individual with a uuid and a savefile, bound to
@@ -1526,79 +1425,6 @@ private void _ensure_vacancies_assigned(string location_file)
 
   if (changed)
     save_me();
-}
-
-// How many anonymous monsters of `source` are already standing in `loc`. A
-// monster is told apart from an individual by having no uuid.
-private int _live_monster_count(object loc, string source)
-{
-  object * inv;
-  int i, n;
-
-  inv = all_inventory(loc);
-  for (i = 0; i < sizeof(inv); i++)
-    if (inv[i] && inv[i]->query_npc() && !inv[i]->query_npc_uuid() &&
-        inv[i]->query_npc_source() == source)
-      n++;
-
-  return n;
-}
-
-// Clone one anonymous monster of `source` into `loc`. Nothing is restored and
-// nothing will be saved: it has no uuid, so query_persisted() is false and the
-// whole savefile path is inert for it. Gender and level are rolled here, fresh
-// each time the location loads. It carries the location whose bucket counts it
-// so it can decrement that bucket on death.
-private object spawn_monster(string source, object loc)
-{
-  object npc;
-  string game;
-
-  game = game_from_path(area_path);
-
-  npc = clone_object(GENERIC_NPC);
-  if (!npc)
-    return nil;
-
-  npc->set_npc_game(game);
-  npc->set_npc_area_path(area_path);
-  npc->set_npc_source(source);
-  npc->set_monster_location(loc->query_file_name());
-
-  // gender before the template, so apply_template picks the matching
-  // per-gender name / short / long
-  npc->set_gender(decide_gender(game, source));
-  npc->apply_template(BESTIARY_HANDLER->query_template(game, source));
-  npc->set_level(decide_level(game, source));
-
-  npc->move(loc);
-
-  return npc;
-}
-
-// Bring this location's monsters in: clone whatever its bucket says is missing.
-// Idempotent -- it tops up to the bucket count rather than adding blindly, so a
-// second call on an already-populated location is a no-op.
-private void restore_location_monsters(object loc, string file)
-{
-  mapping bucket;
-  string * sources;
-  int i;
-
-  bucket = monster_census[file];
-  if (!bucket)
-    return;
-
-  sources = map_indices(bucket);
-  for (i = 0; i < sizeof(sources); i++)
-  {
-    int want, have, j;
-
-    want = bucket[sources[i]];
-    have = _live_monster_count(loc, sources[i]);
-    for (j = have; j < want; j++)
-      spawn_monster(sources[i], loc);
-  }
 }
 
 // Materialize a census NPC into `loc`: a generic NPC with the source's data
