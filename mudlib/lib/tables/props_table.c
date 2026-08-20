@@ -132,7 +132,7 @@ void create()
     ]),
 
     // ------------------------------------------------------------
-    //  table — no state in v1
+    //  table — no state
     // ------------------------------------------------------------
     "table": ([
 
@@ -242,9 +242,7 @@ void create()
     ]),
 
     // ------------------------------------------------------------
-    //  fountain — stateless decorative + drink action. Replaces
-    //  the legacy /games/rl-aeternum/areas/naduk/items/fountain.c
-    //  cloned object (same drink semantics, no state).
+    //  fountain — stateless decorative + drink action.
     // ------------------------------------------------------------
     "fountain": ([
 
