@@ -1,4 +1,3 @@
-
 #include <kernel.h>
 #include <mud/cmd.h>
 
@@ -19,37 +18,82 @@ string query_short_help()
   return "Shows a list of the singleton objects handled by the system.";
 }
 
-static int cmd(string name, object me, string verb)
+// The name a singleton was asked for. The store keys every entry by the game
+// that resolved it ("<game>-<name>"), or by the bare name for objects that
+// belong to no game, so the key cannot be split on the dash -- a game name may
+// carry one itself. The requested name is always the last segment of the
+// resolved file's path, which splits the key unambiguously.
+private string entry_name(object ob)
 {
-  mapping obs;
-  string * ks;
+  string path;
+
+  path = base_name(ob);
+
+  return path[strsrch(path, "/", -1) + 1 ..];
+}
+
+private void show_group(mapping obs, string title)
+{
+  mapping by_game;
+  string * ks, * games;
   int i;
 
-  obs = SINGLETON_HANDLER->handlers();
-  ks = keys(obs);
-
-  if (!sizeof(ks))
-    write("\n * No handlers loaded yet.\n");
-  else
+  if (!map_sizeof(obs))
   {
-    write("\n * Handlers loaded:\n");
-
-    for (i = 0; i < sizeof(ks); i++)
-      write("   - " + ks[i] + " (" + base_name(obs[ks[i]]) + ")\n");
+    write("\n * No " + title + " loaded yet.\n");
+    return;
   }
 
-  obs = SINGLETON_HANDLER->tables();
-  ks = keys(obs);
+  // Group by the game each entry was resolved for. This is what tells a real
+  // per-game override apart from a game that simply resolves to the shared
+  // object: the second is not a duplicate, it is the cached answer that saves
+  // re-checking for an override the game does not have on every call.
+  by_game = ([ ]);
+  ks = map_indices(obs);
 
-  if (!sizeof(ks))
-    write("\n * No tables loaded yet.\n");
-  else
+  for (i = 0; i < sizeof(ks); i++)
   {
-    write("\n * Tables loaded:\n");
+    string name, game;
 
-    for (i = 0; i < sizeof(ks); i++)
-      write("   - " + ks[i] + " (" + base_name(obs[ks[i]]) + ")\n");
+    name = entry_name(obs[ks[i]]);
+    game = (ks[i] == name) ? "" :
+           ks[i][0 .. strlen(ks[i]) - strlen(name) - 2];
+
+    if (!by_game[game])
+      by_game[game] = ({ });
+
+    by_game[game] += ({ ({ name, base_name(obs[ks[i]]) }) });
   }
+
+  write("\n * " + title + " loaded:\n");
+
+  games = map_indices(by_game);
+
+  for (i = 0; i < sizeof(games); i++)
+  {
+    mixed * rows;
+    int j;
+
+    write("\n   " + (strlen(games[i]) ? games[i] : "no game") + ":\n");
+    rows = by_game[games[i]];
+
+    for (j = 0; j < sizeof(rows); j++)
+    {
+      string own;
+
+      // a game entry pointing outside /games/ resolved to the shared object
+      own = (strlen(games[i]) && rows[j][1][0 .. 5] != "/games")
+              ? "   (shared)" : "";
+
+      write("     " + rows[j][0] + " -> " + rows[j][1] + own + "\n");
+    }
+  }
+}
+
+static int cmd(string name, object me, string verb)
+{
+  show_group(SINGLETON_HANDLER->handlers(), "Handlers");
+  show_group(SINGLETON_HANDLER->tables(), "Tables");
 
   write("\n");
 
