@@ -74,7 +74,7 @@ mapping pois;
 int npc_default_level;
 int npc_default_level_spread;
 
-// The settlement's role board (target model, dev/area-npc-system.md §7.2): the
+// The settlement's role board: the
 // named jobs a town staffs with sentient citizens -- barman, mayor, guards,
 // farmers -- each with a count and a real work location. A role slot is a
 // census entry tagged "role" with no "poi"/"guard", so it does NOT auto-respawn
@@ -191,8 +191,9 @@ void set_principal(string file)
 
 // The area's event-log file, under the game's central logs dir (mirrors how
 // ventures log under /save/games/<game>/logs/ventures/). The name is built from
-// the area's path so each area has its own file, e.g. the erken area logs to
-// /save/games/<game>/logs/areas/areas-erken-rooms.log.
+// the area's path so each area has its own file: an area at
+// /save/games/<game>/locations/areas/<area>/rooms/ logs to
+// /save/games/<game>/logs/areas/areas-<area>-rooms.log.
 string query_log_file()
 {
   string game, rel;
@@ -2336,7 +2337,7 @@ void repost_guards(string poi_file)
 }
 
 // ---------------------------------------------------------------------------
-// Role board (target model, dev/area-npc-system.md §7.2)
+// Role board
 // ---------------------------------------------------------------------------
 //
 // A role is a named job (barman, mayor, guard, farmer) the settlement staffs
