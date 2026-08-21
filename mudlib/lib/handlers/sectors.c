@@ -329,7 +329,6 @@ string add_location(object location)
     sector_storage->add_location(location->query_file_name(),
                                  x, y, z, location_data);
   }
-  sector_storage->add_loaded_location(location);
 
   // keep the per-coordinate pointer file in sync with the location's
   // own file_name. Three cases:

@@ -255,18 +255,28 @@ static int cmd(string str, object me, string verb)
 
   for (i = 0; i < sizeof(keys); i++)
   {
-    object * locations;
+    mapping nodes;
+    string * coords;
     string manual;
 
     manual = sectors[keys[i]]->query_manual_type();
 
+    // What a sector knows is the coordinates it indexes, not what happens to
+    // be in memory: the whole point of the index is answering without loading
+    // anything, so the listing reports the persisted nodes.
+    nodes = sectors[keys[i]]->query_nodes();
+    coords = nodes ? map_indices(nodes) : ({ });
+
     write(" - %^GREEN%^" + keys[i] + "%^RESET%^" +
+          "  (" + sizeof(coords) + " coord" +
+          (sizeof(coords) == 1 ? "" : "s") + ")" +
           (strlen(manual) ? "  (manual: " + manual + ")" : "") + "\n");
 
-    locations = sectors[keys[i]]->query_loaded_locations();
-
-    for (j = 0; j < sizeof(locations); j++)
-      write("   - " + locations[j]->query_file_name() + "\n");
+    for (j = 0; j < sizeof(coords); j++)
+      write("   - %^BOLD%^" + coords[j] + "%^RESET%^ -> " +
+            nodes[coords[j]]["file"] +
+            (nodes[coords[j]]["maze"] ? "  %^YELLOW%^(maze)%^RESET%^" : "") +
+            "\n");
   }
 
   return 1;
