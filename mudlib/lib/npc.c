@@ -503,7 +503,19 @@ void apply_template(mapping t)
   if (t["race_ob"])
     set_race_ob(t["race_ob"]);
   if (t["class_ob"])
+  {
+    int keep;
+
+    // set_class_ob resets class_level to 1, which is right when a living
+    // changes class but wrong here: the template is re-applied on every
+    // materialization, so a restored NPC would come back a level 1 again and
+    // the next save would persist that. Carry the level across unless the
+    // template pins one below.
+    keep = query_class_level();
     set_class_ob(t["class_ob"]);
+    if (!t["level"] && keep > 1)
+      set_level(keep);
+  }
   if (t["level"])
     set_level(t["level"]);
   if (t["align"])
