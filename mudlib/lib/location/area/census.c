@@ -190,9 +190,13 @@ private object npc_restore(string id, object loc)
   // was already re-seeded by restore_npc above.
   if (first && sentient)
   {
-    string gname;
-    gname = (string)this_object()->generate_citizen_name(gender);
-    if (gname)
+    mixed gname;
+
+    // No (string) cast here: that is a conversion kfun, not a type assertion,
+    // and it errors on nil -- which is what a citizenship with no name style
+    // hands back. The error would abort the whole materialization.
+    gname = this_object()->generate_citizen_name(gender);
+    if (stringp(gname) && strlen(gname))
       npc->set_given_name(gname);
   }
 
