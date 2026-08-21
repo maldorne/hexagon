@@ -365,7 +365,11 @@ static int cmd(string name, object me, string verb)
                   target->query_max_weight());
   info += "\n";
 
-  info += sprintf("%-15s %-16s", capitalize(_LANG_STATS_COMBAT_MODE) + ":",
+  // 16 for the label, not the 15 used above: a string wider than a left-
+  // justified field is word-wrapped rather than allowed to overflow, and this
+  // label reaches 16 characters in some languages, which split it in two. The
+  // value field gives the character back so the second column stays put.
+  info += sprintf("%-16s %-15s", capitalize(_LANG_STATS_COMBAT_MODE) + ":",
                   capitalize(target->query_pretty_combat_mode()));
   info += sprintf("%-15s %s", capitalize(_LANG_STATS_COMBAT_ROLE) + ":",
                   capitalize(target->query_combat_role_string()));
