@@ -474,7 +474,26 @@ private mixed gender_value(mixed v, int g)
   return sizeof(ks) ? v[ks[0]] : nil;
 }
 
-void apply_template(mapping t)
+/**
+ * Stamp a data template onto this NPC.
+ *
+ * The template is re-applied on every materialization, not only the first,
+ * because the fields it carries are held in variables save_object never
+ * writes: name, aliases and plurals are static in the id code, short, long
+ * and the main plural are static in the description code. A restored NPC
+ * would otherwise come back with no name and no description at all. Stamping
+ * every time also means editing a template updates every existing NPC of that
+ * type, which is the point of keeping the type as data.
+ *
+ * `born` says this is the NPC's first materialization, and separates the two
+ * halves of a template. Everything above the guard is presentation: not
+ * persisted, so it has to be re-read each time. Everything below it is the
+ * body -- race, class and a pinned level -- which save_object does keep, so
+ * re-applying it on a restore ranges from pointless to destructive:
+ * set_class_ob resets the level, the experience and the strength cap, which is
+ * right when a living changes class and wrong when it is merely waking up.
+ */
+void apply_template(mapping t, varargs int born)
 {
   int g;
 
@@ -500,26 +519,18 @@ void apply_template(mapping t)
     set_aliases(gender_value(t["aliases"], g));
   if (t["plurals"])
     set_plurals(gender_value(t["plurals"], g));
+  if (t["align"])
+    set_real_align(t["align"]);
+
+  if (!born)
+    return;
+
   if (t["race_ob"])
     set_race_ob(t["race_ob"]);
   if (t["class_ob"])
-  {
-    int keep;
-
-    // set_class_ob resets class_level to 1, which is right when a living
-    // changes class but wrong here: the template is re-applied on every
-    // materialization, so a restored NPC would come back a level 1 again and
-    // the next save would persist that. Carry the level across unless the
-    // template pins one below.
-    keep = query_class_level();
     set_class_ob(t["class_ob"]);
-    if (!t["level"] && keep > 1)
-      set_level(keep);
-  }
   if (t["level"])
     set_level(t["level"]);
-  if (t["align"])
-    set_real_align(t["align"]);
   // weight is not applied here: set_race_ob above already set the body weight
   // from the race, which is where it belongs
 }

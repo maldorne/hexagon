@@ -388,6 +388,6 @@ object spawn_from_template(string game, string source)
   // area::spawn_monster; an individual rolls it once, at its first.)
   npc->set_gender(roll_gender(t));
 
-  npc->apply_template(t);
+  npc->apply_template(t, 1);
   return npc;
 }

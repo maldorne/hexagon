@@ -200,7 +200,7 @@ private object npc_restore(string id, object loc)
       npc->set_given_name(gname);
   }
 
-  npc->apply_template(t);
+  npc->apply_template(t, first);
 
   // level: decided once from the area on the first materialization; on restore
   // it came back with the object
