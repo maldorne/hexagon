@@ -71,7 +71,7 @@ string query_root_citizenship_path()
     return "";
 
   game = game_from_path((string)this_object()->query_area_path());
-  root = DIPLOMACY_HANDLER->query_root(game, citizenship);
+  root = DIPLOMACY_HANDLER->query_root_citizenship(game, citizenship);
 
   if (!root || !strlen(root))
     root = citizenship;

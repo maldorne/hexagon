@@ -196,7 +196,9 @@ string generate_citizen_name(int gender)
   string cpath, style, word;
   object cit;
 
-  cpath = (string)this_object()->query_citizenship_path();
+  // the naming style is a trait of the nationality, not of the town: every
+  // settlement under the same country draws its citizens' names from one pool
+  cpath = (string)this_object()->query_root_citizenship_path();
   if (!strlen(cpath))
     return nil;
 

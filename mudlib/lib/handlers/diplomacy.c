@@ -149,7 +149,7 @@ private string * query_linked_names(string game, string type,
 // The top of a citizenship's parent chain: the country a town or a faction
 // ultimately belongs to. A top-level citizenship is its own root. The walk is
 // bounded so a graph someone edited into a cycle cannot hang the driver.
-string query_root(string game, string citizenship_name)
+string query_root_citizenship(string game, string citizenship_name)
 {
   string current, parent;
   int steps;
