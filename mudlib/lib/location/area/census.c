@@ -207,6 +207,18 @@ private object npc_restore(string id, object loc)
   if (first)
     npc->set_level((int)this_object()->decide_level(game, source));
 
+  // Nationality. Persisted with the NPC, so it is stamped once -- but keyed on
+  // the NPC lacking one rather than on `first`, so an NPC that predates its
+  // area having a citizenship picks one up the next time it wakes.
+  if (!npc->query_city_ob())
+  {
+    mixed cpath;
+
+    cpath = this_object()->query_root_citizenship_path();
+    if (stringp(cpath) && strlen(cpath))
+      npc->set_city_ob(cpath);
+  }
+
   // Finish a named individual. Its short stays the template's kind word --
   // npc::query_cap_name shows that in room lists and combat so it does not read
   // like a player; the proper name is the find_living id and shows on examine.

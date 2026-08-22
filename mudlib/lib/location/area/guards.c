@@ -59,6 +59,26 @@ void set_citizenship(string name)
 
 // The object path of the area's citizenship social object, or "" if unset.
 // Guards carry this as their city_ob so diplomacy can resolve their loyalty.
+// The citizenship object an NPC born in this area carries. Citizenship is the
+// nationality: a resident belongs to the country at the top of the parent
+// chain, not to the town they happen to live in, so a citizen of a town under
+// a country carries the country. Empty when the area has no citizenship.
+string query_root_citizenship_path()
+{
+  string game, root;
+
+  if (!strlen(citizenship))
+    return "";
+
+  game = game_from_path((string)this_object()->query_area_path());
+  root = DIPLOMACY_HANDLER->query_root(game, citizenship);
+
+  if (!root || !strlen(root))
+    root = citizenship;
+
+  return "/games/" + game + "/obj/citizenships/" + root;
+}
+
 string query_citizenship_path()
 {
   string game;
