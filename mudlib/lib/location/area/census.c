@@ -330,7 +330,10 @@ private object npc_restore(string id, object loc)
     string cpath, gdir;
     mapping poi;
 
-    cpath = (string)this_object()->query_citizenship_path();
+    // a guard carries the same nationality as any other NPC of the area; what
+    // differs per town is which guard template it is built from, not who it
+    // answers to
+    cpath = (string)this_object()->query_root_citizenship_path();
     if (strlen(cpath))
       npc->set_city_ob(cpath);
 

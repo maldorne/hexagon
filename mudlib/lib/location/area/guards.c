@@ -79,15 +79,6 @@ string query_root_citizenship_path()
   return "/games/" + game + "/obj/citizenships/" + root;
 }
 
-string query_citizenship_path()
-{
-  string game;
-  if (!strlen(citizenship))
-    return "";
-  game = game_from_path((string)this_object()->query_area_path());
-  return "/games/" + game + "/obj/citizenships/" + citizenship;
-}
-
 // Guard census ids at a POI whose source matches `source`. A citizenship
 // change swaps the source, so guards from the old one no longer match and are
 // treated as stale by the reconcile below.
