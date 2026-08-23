@@ -176,7 +176,19 @@ private object npc_restore(string id, object loc)
   // on the first materialization they are decided once here and the save at the
   // end persists them. A sentient citizen rolls its own gender.
   if (!first)
+  {
     npc->restore_npc();
+
+    // restore_object hands back the identity fields exactly as they were
+    // written, so the census -- which is what decides what an NPC is and where
+    // it belongs -- stamps them again on top. Without this a renamed source (a
+    // template id replacing the original .c path) loses to the stale saved
+    // value on every load, and the entry never settles.
+    npc->set_npc_area_path((string)this_object()->query_area_path());
+    npc->set_npc_source(source);
+    if (entry["poi"])
+      npc->set_npc_poi(entry["poi"]);
+  }
   else
     npc->set_gender(sentient ? (random(2) ? GENDER_FEMALE : GENDER_MALE)
                              : (int)this_object()->decide_gender(game, source));
