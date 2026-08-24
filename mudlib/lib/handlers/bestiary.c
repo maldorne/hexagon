@@ -13,6 +13,7 @@
 // conversion.
 
 #include <living/persisted.h>
+#include <npc/npc.h>
 
 // defined further down; add_template reads it to preserve hand-set fields
 mapping query_template(string game, string source);
@@ -99,6 +100,34 @@ private mapping gendered_fields(object npc)
   ]);
 }
 
+// One chatter block as the template stores it: the chance the NPC speaks, and
+// the flat weight/message list load_chat itself takes. The live object keeps
+// that list behind a running total (chat_string is ({ total, ({ w, msg, ... })
+// })), so only the second half is worth storing -- load_chat rebuilds the total.
+// Returns nil for a silent NPC so the key drops out of the template.
+private mapping chatter_block(int chance, mixed live)
+{
+  mixed lines;
+
+  if (!pointerp(live) || sizeof(live) < 2)
+    return nil;
+
+  lines = live[1];
+  if (!pointerp(lines) || !sizeof(lines))
+    return nil;
+
+  return ([ "chance": chance, "lines": lines ]);
+}
+
+// The idle wander pace, stored as ({ after, rand }) on the live object.
+private mapping wander_block(mixed pace)
+{
+  if (!pointerp(pace) || sizeof(pace) < 2 || (!pace[0] && !pace[1]))
+    return nil;
+
+  return ([ "after": pace[0], "rand": pace[1] ]);
+}
+
 // The gender-independent half.
 //
 // Level is deliberately NOT captured: an NPC's level comes from its area
@@ -111,12 +140,54 @@ private mapping gendered_fields(object npc)
 // Weight is likewise NOT captured: set_race_ob already sets the body weight from
 // the race (living::social set_weight(query_race_weight())), so the race decides
 // it when the template's race_ob is applied.
+//
+// Stats are NOT captured either, and that is deliberate rather than an omission.
+// A source rolls them per clone (set_random_stats(low, high)), so a sampled
+// clone shows one throw of the dice, never the rule that produced it. Recording
+// the throw would freeze every future NPC of the type at one arbitrary set of
+// numbers. The range is copied from the source by hand into "random_stats"; see
+// set_template_behaviour.
 private mapping nongendered_fields(object npc)
 {
+  mapping social;
+
+  // Every social object the NPC belongs to, as the raw paths the accessors
+  // return. Kept in one map rather than as loose fields so a new slot does not
+  // mean a new top-level key. CITY_OB is absent on purpose: citizenship is the
+  // nationality of the area an NPC is born in, stamped there, not a trait of
+  // the type.
+  social = ([
+    "race":       npc->query_race_ob(),
+    "class":      npc->query_class_ob(),
+    "guild":      npc->query_guild_ob(),
+    "race_group": npc->query_race_group_ob(),
+    "group":      npc->query_group_ob(),
+    "job":        npc->query_job_ob(),
+    "deity":      npc->query_deity_ob(),
+  ]);
+
+  // an unset slot reads nil; drop it so the stored template stays readable
+  {
+    string * keys;
+    int i;
+
+    keys = map_indices(social);
+    for (i = 0; i < sizeof(keys); i++)
+      if (!stringp(social[keys[i]]) || !strlen(social[keys[i]]))
+        map_delete(social, keys[i]);
+  }
+
   return ([
-    "race_ob":  npc->query_race_ob(),
-    "class_ob": npc->query_class_ob(),
-    "align":    npc->query_real_align(),
+    "social_obs":  social,
+    "align":       npc->query_real_align(),
+    "wimpy":       npc->query_wimpy(),
+    "aggressive":  npc->query_aggressive(),
+    "chat":        chatter_block((int)npc->query_chat_chance(),
+                                 npc->query_chat_string()),
+    "a_chat":      chatter_block((int)npc->query_achat_chance(),
+                                 npc->query_achat_string()),
+    "move_zones":  npc->query_move_zones(),
+    "move_after":  wander_block(npc->query_move_after()),
   ]);
 }
 
@@ -248,31 +319,24 @@ int add_template(string source)
   if (!t)
     return 0;
 
-  // Carry over the hand-set, non-captured fields from an existing template so
-  // a reconversion (which re-extracts from the source) does not wipe them:
-  // level_area_modifier (how this NPC sits relative to the area average) and
-  // an explicit concrete level. extract_template never produces these, so they
-  // only exist if a builder added them.
+  // Carry over every hand-set field from an existing template, so a
+  // reconversion (which re-extracts from the source) does not wipe the work.
+  // extract_template never produces any of these: they are either things the
+  // source cannot express (a sentience mark, an equipment kit, a daily
+  // timetable) or things a sampled clone cannot reveal (a stat range, which is
+  // rolled per clone). All of them are copied from the source by hand once.
   {
     mapping old;
+    string * carried;
+    int i;
+
+    carried = HAND_SET_TEMPLATE_FIELDS;
     old = query_template(game, source);
+
     if (old)
-    {
-      if (!undefinedp(old["level_area_modifier"]))
-        t["level_area_modifier"] = old["level_area_modifier"];
-      if (!undefinedp(old["level"]))
-        t["level"] = old["level"];
-      // Behaviour fields describe the NPC type but cannot be sampled from the
-      // source .c (it has no equipment kit, sentience mark or daily timetable
-      // of its own): a builder sets them on the template by hand, so carry them
-      // over a re-extraction the same way an explicit level is preserved.
-      if (!undefinedp(old["sentient"]))
-        t["sentient"] = old["sentient"];
-      if (!undefinedp(old["equipment"]))
-        t["equipment"] = old["equipment"];
-      if (!undefinedp(old["timetable"]))
-        t["timetable"] = old["timetable"];
-    }
+      for (i = 0; i < sizeof(carried); i++)
+        if (!undefinedp(old[carried[i]]))
+          t[carried[i]] = old[carried[i]];
   }
 
   tfile = query_template_file(game, source);

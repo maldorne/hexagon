@@ -12,6 +12,7 @@
 
 #include <living/persisted.h>
 #include <areas/area.h>
+#include <translations/money.h>
 
 inherit monster   "/lib/monster.c";
 // Inventory persistence, the same mixin players use: create_auto_load snapshots
@@ -474,6 +475,103 @@ private mixed gender_value(mixed v, int g)
   return sizeof(ks) ? v[ks[0]] : nil;
 }
 
+// Every social object the type belongs to, stored as the raw paths the
+// accessors return. Race and class live here too: they are social objects like
+// the rest, not a special case. Citizenship is absent by design -- an NPC takes
+// its nationality from the area it is born in, not from its type.
+private void apply_social_obs(mapping social)
+{
+  if (!mappingp(social))
+    return;
+
+  if (social["race"])       set_race_ob(social["race"]);
+  if (social["class"])      set_class_ob(social["class"]);
+  if (social["guild"])      set_guild_ob(social["guild"]);
+  if (social["race_group"]) set_race_group_ob(social["race_group"]);
+  if (social["group"])      set_group_ob(social["group"]);
+  if (social["job"])        set_job_ob(social["job"]);
+  if (social["deity"])      set_deity_ob(social["deity"]);
+}
+
+// Roll the eight stats in the type's range, then let any individually pinned
+// stat override its roll. Both halves are optional: a type with neither keeps
+// whatever the race gave it. The roll happens per spawn, so two NPCs of the
+// same type are not the same creature.
+private void apply_stats(mapping t)
+{
+  mapping range, fixed;
+
+  range = t["random_stats"];
+  if (mappingp(range) && !undefinedp(range["low"]) && !undefinedp(range["high"]))
+    set_random_stats(range["low"], range["high"]);
+
+  fixed = t["stats"];
+  if (!mappingp(fixed))
+    return;
+
+  if (!undefinedp(fixed["str"])) set_str(fixed["str"]);
+  if (!undefinedp(fixed["con"])) set_con(fixed["con"]);
+  if (!undefinedp(fixed["dex"])) set_dex(fixed["dex"]);
+  if (!undefinedp(fixed["int"])) set_int(fixed["int"]);
+  if (!undefinedp(fixed["wis"])) set_wis(fixed["wis"]);
+  if (!undefinedp(fixed["cha"])) set_cha(fixed["cha"]);
+  if (!undefinedp(fixed["wil"])) set_wil(fixed["wil"]);
+  if (!undefinedp(fixed["per"])) set_per(fixed["per"]);
+}
+
+// Idle chatter and the addressed variant. Each block is a chance plus a flat
+// list of weight/message pairs, which is the shape load_chat itself takes. The
+// chance is per type and really does vary -- sources use anything from 5 to
+// 100 -- so it is stored rather than assumed.
+private void apply_chatter(mapping t)
+{
+  mapping block;
+
+  block = t["chat"];
+  if (mappingp(block) && pointerp(block["lines"]) && sizeof(block["lines"]))
+    load_chat(block["chance"], block["lines"]);
+
+  block = t["a_chat"];
+  if (mappingp(block) && pointerp(block["lines"]) && sizeof(block["lines"]))
+    load_a_chat(block["chance"], block["lines"]);
+}
+
+// Where the NPC is willing to drift to when idle, and how often.
+private void apply_wandering(mapping t)
+{
+  mixed zones;
+  mapping pace;
+
+  zones = t["move_zones"];
+  if (pointerp(zones))
+  {
+    int i;
+    for (i = 0; i < sizeof(zones); i++)
+      add_move_zone(zones[i]);
+  }
+
+  pace = t["move_after"];
+  if (mappingp(pace) && !undefinedp(pace["after"]))
+    set_move_after(pace["after"], undefinedp(pace["rand"]) ? 0 : pace["rand"]);
+}
+
+// Starting coin: a type carries a base amount and a spread, so the purse of one
+// NPC of the type is not the purse of the next.
+private void apply_purse(mapping money)
+{
+  int amount;
+
+  if (!mappingp(money) || undefinedp(money["base"]))
+    return;
+
+  amount = money["base"];
+  if (!undefinedp(money["spread"]) && money["spread"] > 0)
+    amount += random(money["spread"]);
+
+  if (amount > 0)
+    adjust_money(amount, money["type"] ? money["type"] : BASE_COIN);
+}
+
 /**
  * Stamp a data template onto this NPC.
  *
@@ -522,15 +620,41 @@ void apply_template(mapping t, varargs int born)
   if (t["align"])
     set_real_align(t["align"]);
 
+  // The purse is granted on every materialization, not only at birth, because
+  // coin cannot persist: /lib/obj/money.c opts out of the auto-load snapshot,
+  // so an NPC's money is gone the moment its location unloads. Granting it once
+  // would leave every NPC penniless from its first reload onwards. This matches
+  // what the source .c did, where setup() ran for each clone.
+  apply_purse(t["money"]);
+
   if (!born)
     return;
 
-  if (t["race_ob"])
-    set_race_ob(t["race_ob"]);
-  if (t["class_ob"])
-    set_class_ob(t["class_ob"]);
+  apply_social_obs(t["social_obs"]);
+  apply_stats(t);
+
   if (t["level"])
     set_level(t["level"]);
   // weight is not applied here: set_race_ob above already set the body weight
   // from the race, which is where it belongs
+
+  // hp and gp start full, so only the maxima are stored
+  if (t["max_hp"])
+  {
+    set_max_hp(t["max_hp"]);
+    set_hp(query_max_hp(), this_object());
+  }
+  if (t["max_gp"])
+  {
+    set_max_gp(t["max_gp"]);
+    set_gp(query_max_gp());
+  }
+
+  if (!undefinedp(t["wimpy"]))
+    set_wimpy(t["wimpy"]);
+  if (!undefinedp(t["aggressive"]))
+    set_aggressive(t["aggressive"]);
+
+  apply_chatter(t);
+  apply_wandering(t);
 }
