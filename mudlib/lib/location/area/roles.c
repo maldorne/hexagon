@@ -197,8 +197,10 @@ string generate_citizen_name(int gender)
   object cit;
 
   // the naming style is a trait of the nationality, not of the town: every
-  // settlement under the same country draws its citizens' names from one pool
-  cpath = (string)this_object()->query_root_citizenship_path();
+  // settlement under the same country draws its citizens' names from one pool,
+  // and an area with no citizenship of its own borrows the pool of the region
+  // it sits in without taking its nationality
+  cpath = (string)this_object()->query_naming_citizenship_path();
   if (!strlen(cpath))
     return nil;
 

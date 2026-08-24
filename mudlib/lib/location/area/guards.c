@@ -14,6 +14,7 @@
 // the guards occupy belong to the area, so anything that writes them is asked of
 // it.
 
+#include <areas/area.h>
 #include <areas/poi.h>
 #include <areas/diplomacy.h>
 #include <living/persisted.h>
@@ -77,6 +78,55 @@ string query_root_citizenship_path()
     root = citizenship;
 
   return "/games/" + game + "/obj/citizenships/" + root;
+}
+
+// The citizenship whose naming pool applies to an NPC born in this area.
+//
+// Membership and naming are deliberately different questions. An area with no
+// citizenship of its own hands out no nationality -- that is what
+// query_root_citizenship_path answers, and an empty answer there means its
+// NPCs carry none. Their names, though, still come from the region they live
+// in, so the pool is taken from the nearest ancestor area that does have a
+// citizenship: a road or a wilderness between two towns names its travellers
+// like the land around them without making them subjects of it.
+string query_naming_citizenship_path()
+{
+  string path;
+  mixed own;
+  int steps;
+
+  own = this_object()->query_root_citizenship_path();
+  if (stringp(own) && strlen(own))
+    return own;
+
+  path = (string)this_object()->query_area_path();
+
+  for (steps = 0; steps < AREA_MAX_ANCESTRY; steps++)
+  {
+    object ancestor;
+    mixed inherited;
+    int slash;
+
+    // climb one level: drop the trailing slash, then the last segment
+    if (strlen(path) < 2)
+      return "";
+
+    slash = strsrch(path[0 .. strlen(path) - 2], "/", -1);
+    if (slash < 0)
+      return "";
+
+    path = path[0 .. slash];
+
+    ancestor = AREA_HANDLER->query_area(path);
+    if (!ancestor)
+      continue;
+
+    inherited = ancestor->query_root_citizenship_path();
+    if (stringp(inherited) && strlen(inherited))
+      return inherited;
+  }
+
+  return "";
 }
 
 // Guard census ids at a POI whose source matches `source`. A citizenship
