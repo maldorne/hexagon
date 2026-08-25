@@ -12,9 +12,15 @@
 
 #include <room/location.h>
 #include <basic/gender.h>
+#include <translations/exits.h>
 
 // Buildable lots waiting for a house, by location file.
 string * plots;
+// the area's raised houses, so it can answer which one a resident belongs to
+string * houses;
+
+// defined further down; build_house_on_plot registers each house it raises
+void add_house(string file);
 
 // The area's fallback location file (where orphaned occupants go). "" if unset.
 string principal;
@@ -95,8 +101,10 @@ string build_house_on_plot(string * residents)
   // the house side and the neighbour's reciprocal) to "door"
   door_house_exits(house);
 
-  // it is a house now, not an available plot
+  // it is a house now, not an available plot -- but it stays on the books:
+  // an area that forgets its houses cannot answer who lives where
   remove_plot(plot_file);
+  add_house(plot_file);
 
   this_object()->log_event("Raised a house at " + plot_file + " for " +
             (residents && sizeof(residents) ? implode(residents, ", ")
@@ -172,6 +180,160 @@ private void _house_family(object * family)
     family[i]->set_home(house);
     family[i]->save_npc();
   }
+}
+
+string * query_houses() { return houses ? houses : ({ }); }
+
+void add_house(string file)
+{
+  if (!houses)
+    houses = ({ });
+  if (member_array(file, houses) < 0)
+  {
+    houses += ({ file });
+    this_object()->save_me();
+  }
+}
+
+// Every location of this area carrying a home component. Used to seed `houses`
+// the first time it is asked for, on an area raised before houses were kept on
+// the books; from then on the list is maintained as houses are built.
+private void index_houses()
+{
+  string * files;
+  int i;
+
+  houses = ({ });
+  files = map_indices((mapping)this_object()->query_locations());
+
+  for (i = 0; i < sizeof(files); i++)
+  {
+    object loc;
+
+    loc = (object)this_object()->load_location(files[i]);
+    if (loc && loc->query_component_by_type(LOCATION_COMPONENT_HOME))
+      houses += ({ files[i] });
+  }
+
+  this_object()->save_me();
+}
+
+// Restore the way in to every plot and house of this area.
+//
+// A plot is carved at run time: `build plot` adds an exit on the street side
+// and a matching one back on the plot. Only the plot's own .o records the pair,
+// because the street location is rebuilt from its room .c whenever the area is
+// reconverted -- and the .c knows nothing about a plot carved years later, so
+// the way in is silently dropped and the house becomes unreachable while every
+// other trace of it survives.
+//
+// The plot still remembers which location it opens onto and in which direction,
+// so the missing half is rebuilt from it: take the plot's exit, invert the
+// direction, and put the street side back. Idempotent -- an exit that is still
+// there is left alone. Returns how many were restored.
+int restore_plot_exits()
+{
+  mapping opposites;
+  string * all;
+  int i, restored;
+
+  opposites = OPPOSITES;
+  all = query_houses() + (plots ? plots : ({ }));
+
+  for (i = 0; i < sizeof(all); i++)
+  {
+    object plot;
+    mapping pex;
+    string * dirs;
+    int j;
+
+    plot = (object)this_object()->load_location(all[i]);
+    if (!plot)
+      continue;
+
+    pex = plot->query_exit_map();
+    dirs = pex ? map_indices(pex) : ({ });
+
+    for (j = 0; j < sizeof(dirs); j++)
+    {
+      object street;
+      mapping sex;
+      string back, type;
+      int k, found;
+
+      street = (object)this_object()->load_location(pex[dirs[j]][0]);
+      if (!street)
+        continue;
+
+      // does the street already open onto this plot?
+      sex = street->query_exit_map();
+      found = 0;
+      if (sex)
+      {
+        string * sdirs;
+        sdirs = map_indices(sex);
+        for (k = 0; k < sizeof(sdirs); k++)
+          if (sex[sdirs[k]][0] == all[i])
+            found = 1;
+      }
+      if (found)
+        continue;
+
+      back = opposites[dirs[j]];
+      if (!back)
+        continue;
+
+      // a raised house has a door, a bare plot a plain doorway
+      type = plot->query_component_by_type(LOCATION_COMPONENT_HOME) ?
+               "door" : "open";
+      if (type == "door")
+        street->add_exit(back, all[i], "door", nil, ([ "closed" : 1 ]));
+      else
+        street->add_exit(back, all[i], "open");
+
+      street->save_me();
+      restored++;
+    }
+  }
+
+  return restored;
+}
+
+// The house that lists `uuid` among its residents, or "" when nobody does.
+//
+// A housed NPC keeps its address on its own .o, but the house keeps the
+// resident list on the location, so the link is recorded at both ends. The
+// house is the authoritative end: the location .o outlives any individual, and
+// an NPC that lost its save file (or was rebuilt) comes back with no address
+// while the house still names it. Reading the link back from here is what lets
+// the pair heal instead of silently drifting apart.
+string query_house_of(string uuid)
+{
+  int i;
+
+  if (!uuid || !strlen(uuid))
+    return "";
+
+  if (!houses)
+    index_houses();
+
+  for (i = 0; i < sizeof(houses); i++)
+  {
+    object house, home;
+
+    house = (object)this_object()->load_location(houses[i]);
+    if (!house)
+      continue;
+
+    home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
+    if (!home)
+      continue;
+
+    if (member_array(uuid, (string *)home->query_residents()) != -1)
+      return houses[i];
+  }
+
+  return "";
 }
 
 // Whether a live NPC is a settled resident -- one the design declared as such.

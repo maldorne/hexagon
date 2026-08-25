@@ -254,6 +254,24 @@ private object npc_restore(string id, object loc)
       npc->add_alias(kind);
   }
 
+  // Its address, read back from the house. A housed NPC stores its home on its
+  // own .o, but the house also lists it as a resident, and the house is the end
+  // that survives: an NPC rebuilt from the census comes back with no address
+  // while its house still names it. Reading the link back here heals the pair
+  // instead of leaving the NPC homeless in a house that expects it.
+  if (!npc->query_home())
+  {
+    mixed house;
+
+    house = this_object()->query_house_of(id);
+    if (stringp(house) && strlen(house))
+    {
+      npc->set_home(house);
+      if (!first)
+        npc->save_npc();
+    }
+  }
+
   // Per-individual assignment on the npc.o: this NPC's concrete workplace, taken
   // from the role it fills. A restored NPC already carries one. A
   // first-materialize NPC is persisted by the equipment save below; one that had
