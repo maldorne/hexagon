@@ -174,7 +174,10 @@ private object npc_restore(string id, object loc)
   // Gender, level and inventory live on the NPC's own npc.o (save_object
   // persists them), not the census. On restore they come back with the object;
   // on the first materialization they are decided once here and the save at the
-  // end persists them. A sentient citizen rolls its own gender.
+  // end persists them. Gender comes from the type either way: a template that
+  // fixes one hands it over, a bimodal one rolls between the genders it can
+  // actually describe. Sentience does not enter into it -- an NPC with a proper
+  // name still cannot be a gender its template has no words for.
   if (!first)
   {
     npc->restore_npc();
@@ -190,8 +193,7 @@ private object npc_restore(string id, object loc)
       npc->set_npc_poi(entry["poi"]);
   }
   else
-    npc->set_gender(sentient ? (random(2) ? GENDER_FEMALE : GENDER_MALE)
-                             : (int)this_object()->decide_gender(game, source));
+    npc->set_gender((int)this_object()->decide_gender(game, source));
   gender = npc->query_gender();
 
   // A sentient citizen's proper name is generated once, on the first

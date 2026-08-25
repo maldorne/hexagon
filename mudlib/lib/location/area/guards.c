@@ -224,6 +224,15 @@ void ensure_guards_assigned(string location_file)
   for (i = want; i < have; i++)
     remove_guard(live[i]);
 
+  // A guard is a person, not fauna: it holds a census slot with a uuid, carries
+  // the area's nationality and challenges other people's. Mark its type sentient
+  // so it is named like any other citizen -- the same stamp `build role add`
+  // puts on a role, done here because guards are fielded from the citizenship
+  // rather than authored as a role.
+  if (strlen(source) && want > 0)
+    BESTIARY_HANDLER->set_template_behaviour(
+      game, BESTIARY_HANDLER->template_id(game, source), ([ "sentient": 1 ]));
+
   // top up to the wanted count from the current source
   for (i = have; i < want; i++)
     this_object()->assign_guard_npc(source, location_file);
