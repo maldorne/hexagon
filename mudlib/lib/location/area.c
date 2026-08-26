@@ -76,7 +76,16 @@ void restore_me() {
 }
 
 void save_me() {
+  object owner;
+
   save_object(file_name);
+
+  // A delegated area shares its community's mappings by reference, so anything
+  // that changed a roster, a census or a role here changed them in the parent
+  // too -- and the parent is the file they are written to.
+  owner = query_population_area();
+  if (owner != this_object())
+    owner->save_me();
 }
 
 // The area's event-log file, under the game's central logs dir (mirrors how

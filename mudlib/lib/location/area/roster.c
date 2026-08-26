@@ -65,6 +65,12 @@ void create()
 // source is not a known intended NPC of this area.
 int set_npc_resident(string source, int flag)
 {
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+    return (int)owner->set_npc_resident(source, flag);
+
   if (!npc_caps[source])
     return 0;
 
@@ -94,6 +100,15 @@ mapping query_npc_caps()
 
 void set_npc_caps(mapping m)
 {
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->set_npc_caps(m);
+    return;
+  }
+
   npc_caps = m ? m : ([ ]);
   this_object()->save_me();
 }
@@ -103,17 +118,42 @@ void set_npc_caps(mapping m)
 // data template on first spawn. `max` is the area-wide population cap.
 void add_intended_npc(string source, int max)
 {
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->add_intended_npc(source, max);
+    return;
+  }
+
   npc_caps[source] = ([ "max": max ]);
   this_object()->save_me();
 }
 
 void remove_intended_npc(string source)
 {
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->remove_intended_npc(source);
+    return;
+  }
+
   map_delete(npc_caps, source);
   this_object()->save_me();
 }
 
-mapping query_npc_sources() { return original_npc_sources; }
+mapping query_npc_sources()
+{
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  return owner == this_object() ? original_npc_sources
+                                : (mapping)owner->query_npc_sources();
+}
 
 // The template id for a blueprint path. Everything the area stores is keyed by
 // template id; this is what turns a path handed in from outside -- a builder
@@ -203,6 +243,22 @@ void rebuild_npc_caps()
 // is the room2loc seed for the area's population.
 void set_location_original_sources(string location_file, mapping clones)
 {
+  object owner;
+
+  // The provenance is keyed by location file, so a community can hold the
+  // entries of every area that delegates to it and derive one set of caps from
+  // the lot. The sweep still registers this area by its own path: the caps are
+  // shared, but the locations the filler is placed in are this area's.
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->set_location_original_sources(location_file, clones);
+    if (map_sizeof((mapping)owner->query_npc_caps()))
+      POPULATION_HANDLER->include_area(
+        (string)this_object()->query_area_path());
+    return;
+  }
+
   if (clones && map_sizeof(clones))
     original_npc_sources[location_file] = map_copy(clones);
   else

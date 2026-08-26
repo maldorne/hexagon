@@ -32,7 +32,7 @@ void create()
 // The census this area works from. An area that delegates its population reads
 // and writes its community's census, not its own -- its own stays empty. The
 // mapping is handed back by reference, so a caller that adds or edits a row is
-// editing the community's; `census_saved()` is what persists it.
+// editing the community's, and save_me() writes it where it lives.
 mapping query_npc_census()
 {
   object owner;
@@ -43,14 +43,6 @@ mapping query_npc_census()
 }
 
 // Persist whichever area the census actually belongs to.
-private void census_saved()
-{
-  object owner;
-
-  owner = (object)this_object()->query_population_area();
-  owner->save_me();
-}
-
 // Record one individual in the census and persist. The seam for the pieces that
 // staff a post of their own -- a role slot, a vacancy, a guard -- and need the
 // person to exist before anything materializes it.
@@ -59,7 +51,7 @@ void add_census_entry(string uuid, mapping row)
   if (!uuid || !row)
     return;
   query_npc_census()[uuid] = row;
-  census_saved();
+  this_object()->save_me();
 }
 
 // How many NPCs of `source` the census holds across the whole area, materialized
@@ -125,7 +117,7 @@ string assign_vacancy_npc(string source, string location_file,
   query_npc_census()[id] = ([ "source": source, "location": location_file,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
                       "poi": location_file, "role": role ]);
-  census_saved();
+  this_object()->save_me();
 
   return id;
 }
@@ -491,7 +483,7 @@ void set_census_location(string uuid, string file)
   if (uuid && query_npc_census()[uuid] && query_npc_census()[uuid]["location"] != file)
   {
     query_npc_census()[uuid]["location"] = file;
-    census_saved();
+    this_object()->save_me();
   }
 }
 
@@ -556,7 +548,7 @@ void drain_location(object loc)
   }
 
   if (changed)
-    census_saved();
+    this_object()->save_me();
 }
 
 // Drop one row from the census and persist. A seam for the pieces that own
@@ -567,7 +559,7 @@ void drop_census_entry(string uuid)
   if (uuid && query_npc_census()[uuid])
   {
     map_delete(query_npc_census(), uuid);
-    census_saved();
+    this_object()->save_me();
   }
 }
 
@@ -591,7 +583,7 @@ void npc_died(string uuid)
   if (entry)
   {
     map_delete(query_npc_census(), uuid);
-    census_saved();
+    this_object()->save_me();
   }
 
   // stop its house expecting it back; a vacancy's house is rebound to whoever
@@ -641,7 +633,7 @@ string assign_guard_npc(string source, string poi_file)
   query_npc_census()[id] = ([ "source": source, "location": poi_file,
                       "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
                       "poi": poi_file, "guard": 1 ]);
-  census_saved();
+  this_object()->save_me();
 
   return id;
 }
