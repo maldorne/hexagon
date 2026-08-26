@@ -89,9 +89,12 @@ string query_root_citizenship_path()
 // in, so the pool is taken from the nearest ancestor area that does have a
 // citizenship: a road or a wilderness between two towns names its travellers
 // like the land around them without making them subjects of it.
+//
+// The ancestors are the ones the areas were told about, not the ones their
+// directories suggest.
 string query_naming_citizenship_path()
 {
-  string path;
+  object area;
   mixed own;
   int steps;
 
@@ -99,29 +102,17 @@ string query_naming_citizenship_path()
   if (stringp(own) && strlen(own))
     return own;
 
-  path = (string)this_object()->query_area_path();
+  area = this_object();
 
   for (steps = 0; steps < AREA_MAX_ANCESTRY; steps++)
   {
-    object ancestor;
     mixed inherited;
-    int slash;
 
-    // climb one level: drop the trailing slash, then the last segment
-    if (strlen(path) < 2)
+    area = (object)area->query_parent_area();
+    if (!area)
       return "";
 
-    slash = strsrch(path[0 .. strlen(path) - 2], "/", -1);
-    if (slash < 0)
-      return "";
-
-    path = path[0 .. slash];
-
-    ancestor = AREA_HANDLER->query_area(path);
-    if (!ancestor)
-      continue;
-
-    inherited = ancestor->query_root_citizenship_path();
+    inherited = area->query_root_citizenship_path();
     if (stringp(inherited) && strlen(inherited))
       return inherited;
   }

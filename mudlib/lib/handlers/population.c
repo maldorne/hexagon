@@ -134,14 +134,30 @@ int update_population()
 
   for (i = 0; i < sizeof(sources) && assigned < ASSIGN_PER_TICK; i++)
   {
+    mapping spots;
+    string * files;
     int cap, deficit, j;
 
-    cap = caps[sources[i]]["max"];
+    // where this source was declared when the rooms were converted, and how
+    // many. The caps are shared across a community, so an area tops up only
+    // what its own locations asked for -- otherwise a town would sprinkle the
+    // road's travellers through its streets, and every area of the community
+    // would try to fill the whole count. A source with no provenance here
+    // (added by hand, or declared in a sibling area) is left to whoever has it.
+    spots = area->query_source_spots(sources[i]);
+    files = map_indices(spots);
+    if (!sizeof(files))
+      continue;
+
+    cap = 0;
+    for (j = 0; j < sizeof(files); j++)
+      cap += spots[files[j]];
+
     deficit = cap - area->query_monster_live_count(sources[i]);
 
     for (j = 0; j < deficit && assigned < ASSIGN_PER_TICK; j++)
     {
-      area->assign_monster(sources[i], locs[random(sizeof(locs))]);
+      area->assign_monster(sources[i], files[random(sizeof(files))]);
       assigned++;
     }
   }

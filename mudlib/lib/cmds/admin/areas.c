@@ -21,7 +21,6 @@ static int cmd(string str, object me, string verb)
   int i, j;
   string * pieces;
   int show_locations, show_connections, only_current;
-  string current_area_name;
   object current_area;
   string ret;
 
@@ -37,7 +36,6 @@ static int cmd(string str, object me, string verb)
   show_connections = FALSE;
   only_current = FALSE;
   pieces = explode(str, " ");
-  current_area_name = "";
   current_area = nil;
 
   if (member_array("locations", pieces) != -1)
@@ -47,7 +45,6 @@ static int cmd(string str, object me, string verb)
   if (member_array("-c", pieces) != -1)
   {
     current_area = environment(this_player())->query_area();
-    current_area_name = current_area->query_area_name();
     only_current = TRUE;
   }
 
@@ -57,14 +54,23 @@ static int cmd(string str, object me, string verb)
   for (i = 0; i < sizeof(keys); i++)
   {
     object * locations;
+    object parent;
     mapping connections;
     string * connections_keys;
 
-    // skip areas that are not the current area
-    if (only_current && keys[i] != current_area_name)
+    // the registry is keyed by area path, so compare the objects: the current
+    // area's display name never matches a key
+    if (only_current && areas[keys[i]] != current_area)
       continue;
 
     ret += " - %^GREEN%^" + keys[i] + "%^RESET%^\n";
+
+    // the area this one is part of, if any: the link the community (roster,
+    // census, roles, houses) and everything else shared is resolved through
+    parent = areas[keys[i]]->query_parent_area();
+    if (parent)
+      ret += "   part of %^CYAN%^" + parent->query_area_name() +
+             "%^RESET%^\n";
 
     if (show_locations)
     {

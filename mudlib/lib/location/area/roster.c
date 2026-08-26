@@ -273,6 +273,47 @@ void set_location_original_sources(string location_file, mapping clones)
   this_object()->save_me();
 }
 
+// What this area itself asked for of `source`: its own locations that declared
+// the type when their rooms were converted, each mapped to how many it declared.
+//
+// The caps are shared across a community, so this is what keeps the filler
+// where it came from -- pilgrims recorded on the road stay on the road, and the
+// road tops up its own three rather than the whole community's count -- even
+// though the town they are counted with is the same community. Empty when the
+// type was declared elsewhere, or added by hand with no provenance at all.
+mapping query_source_spots(string source)
+{
+  mapping provenance, mine, out;
+  string * files;
+  int i;
+
+  provenance = (mapping)this_object()->query_npc_sources();
+  mine = (mapping)this_object()->query_locations();
+  files = map_indices(provenance);
+  out = ([ ]);
+
+  for (i = 0; i < sizeof(files); i++)
+  {
+    mapping clones;
+    string * paths;
+    int j;
+
+    if (!mine[files[i]])
+      continue;
+
+    clones = provenance[files[i]];
+    paths = map_indices(clones);
+    for (j = 0; j < sizeof(paths); j++)
+      if (query_template_from_source(paths[j]) == source)
+      {
+        out[files[i]] = clones[paths[j]];
+        break;
+      }
+  }
+
+  return out;
+}
+
 // The gender a census NPC is born with, decided once at assignment so it stays
 // stable across saves and restores. A fixed template dictates it; a bimodal
 // one (no "gender" key) rolls male/female here. Stored in the census entry and

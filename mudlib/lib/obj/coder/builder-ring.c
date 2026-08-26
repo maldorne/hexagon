@@ -683,9 +683,10 @@ int do_area(string str)
       return 0;
     }
 
-    if (parent == area)
+    if (parent == area || parent->query_root_area() == area)
     {
-      notify_fail("An area cannot be its own parent.\n");
+      notify_fail("An area cannot be its own parent, nor be placed under one " +
+                  "of its own descendants.\n");
       return 0;
     }
 
