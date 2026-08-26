@@ -21,6 +21,8 @@ string * houses;
 
 // defined further down; build_house_on_plot registers each house it raises
 void add_house(string file);
+// defined further down; release_house asks it which house holds a resident
+string query_house_of(string uuid);
 
 // The area's fallback location file (where orphaned occupants go). "" if unset.
 string principal;
