@@ -50,7 +50,7 @@ string * query_plots()
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
     return (string *)owner->query_plots();
 
@@ -61,7 +61,7 @@ void add_plot(string file)
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->add_plot(file);
@@ -81,7 +81,7 @@ void remove_plot(string file)
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->remove_plot(file);
@@ -113,7 +113,7 @@ string build_house_on_plot(string * residents)
   string plot_file;
   object house, owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
     return (string)owner->build_house_on_plot(residents);
 
@@ -263,7 +263,7 @@ string * query_houses()
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
     return (string *)owner->query_houses();
 
@@ -274,7 +274,7 @@ void add_house(string file)
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->add_house(file);
@@ -322,7 +322,7 @@ void release_house(string uuid)
   object house, home, owner;
   string file;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->release_house(uuid);
@@ -360,7 +360,7 @@ void claim_house(string uuid, string file)
   object owner;
   int i;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->claim_house(uuid, file);
@@ -414,7 +414,7 @@ int demote_house(string file)
   string * living_here;
   int i, evicted;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
     return (int)owner->demote_house(file);
 
@@ -555,7 +555,7 @@ string query_house_of(string uuid)
   object owner;
   int i;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
     return (string)owner->query_house_of(uuid);
 

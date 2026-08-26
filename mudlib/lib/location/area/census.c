@@ -37,7 +37,7 @@ mapping query_npc_census()
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   return owner == this_object() ? npc_census
                                 : (mapping)owner->query_npc_census();
 }

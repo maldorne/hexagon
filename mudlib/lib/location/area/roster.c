@@ -67,7 +67,7 @@ int set_npc_resident(string source, int flag)
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
     return (int)owner->set_npc_resident(source, flag);
 
@@ -93,7 +93,7 @@ mapping query_npc_caps()
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   return owner == this_object() ? npc_caps
                                 : (mapping)owner->query_npc_caps();
 }
@@ -102,7 +102,7 @@ void set_npc_caps(mapping m)
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->set_npc_caps(m);
@@ -120,7 +120,7 @@ void add_intended_npc(string source, int max)
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->add_intended_npc(source, max);
@@ -135,7 +135,7 @@ void remove_intended_npc(string source)
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->remove_intended_npc(source);
@@ -150,7 +150,7 @@ mapping query_npc_sources()
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   return owner == this_object() ? original_npc_sources
                                 : (mapping)owner->query_npc_sources();
 }
@@ -249,7 +249,7 @@ void set_location_original_sources(string location_file, mapping clones)
   // entries of every area that delegates to it and derive one set of caps from
   // the lot. The sweep still registers this area by its own path: the caps are
   // shared, but the locations the filler is placed in are this area's.
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->set_location_original_sources(location_file, clones);

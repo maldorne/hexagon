@@ -51,7 +51,7 @@ mapping query_roles()
 {
   object owner;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   return owner == this_object() ? roles : (mapping)owner->query_roles();
 }
 
@@ -71,7 +71,7 @@ void add_role(string name, int count, string work, string source)
     return;
 
   // The job belongs to the community, so a delegated area posts it upwards.
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->add_role(name, count, work, source);
@@ -383,7 +383,7 @@ void remove_role(string name)
   object owner;
   int i;
 
-  owner = (object)this_object()->query_population_area();
+  owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
     owner->remove_role(name);

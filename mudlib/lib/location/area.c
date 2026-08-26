@@ -32,20 +32,21 @@ string area_path;
 // and the display name recorded in the player's diary when it does.
 int gives_exploration;
 string exploration_name;
-// The area whose community this area's people belong to, or "" when this area
-// is a community of its own. An area is a place -- locations, coordinates,
-// components -- and a community -- roster, census, roles, houses. The two do
-// not have to coincide: a town's fields are a separate place but the same
-// people, so the fields delegate their population here and keep their own
-// geography. Set by hand, never derived from the directory tree: a wilderness
+// The area this one belongs to, or "" when it answers to nobody. An area is a
+// place -- locations, coordinates, components -- and the two need not coincide
+// with what the place is part of: a town's fields are their own place but the
+// same town, so the fields name the town as their parent and keep their own
+// geography. Everything shared between an area and its ancestors is resolved
+// through this link, starting with the population (roster, census, roles,
+// houses). Set by hand, never derived from the directory tree: a wilderness
 // that happens to sit under a region folder is nobody's suburb.
-string population_parent;
+string parent_area;
 
 
 
 
 // prototype functions
-object query_population_area();
+object query_root_area();
 void add_loaded_location(object location);
 object query_loaded_location(string file);
 object * query_loaded_locations();
@@ -57,7 +58,7 @@ void create() {
   connections = ([ ]);
   file_name = "";
   area_path = "";
-  population_parent = "";
+  parent_area = "";
   gives_exploration = 0;
   exploration_name = "";
   monsters::create();
@@ -83,7 +84,7 @@ void save_me() {
   // A delegated area shares its community's mappings by reference, so anything
   // that changed a roster, a census or a role here changed them in the parent
   // too -- and the parent is the file they are written to.
-  owner = query_population_area();
+  owner = query_root_area();
   if (owner != this_object())
     owner->save_me();
 }
@@ -275,28 +276,35 @@ object load_location(string location_file_name)
   return location;
 }
 
-string query_population_parent() { return population_parent; }
+string query_parent_area_path() { return parent_area; }
 
-// Point this area's population at another area, or bring it back to standing on
-// its own. Both directions are deliberate acts: the tree is never guessed.
-void set_population_parent(string path)
+// The area directly above this one, or nil when it stands on its own.
+object query_parent_area()
 {
-  population_parent = path ? path : "";
+  return strlen(parent_area) ? AREA_HANDLER->query_area(parent_area) : nil;
+}
+
+// Attach this area to another, or bring it back to standing on its own (""
+// clears the link). Both directions are deliberate acts: the tree is never
+// guessed.
+void set_parent_area(string path)
+{
+  parent_area = path ? path : "";
   save_me();
 }
 
-// The area that owns this one's community: its roster, census, roles and
-// houses. An area with no parent owns its own, which is the common case. The
-// walk is bounded so a pair of areas pointed at each other cannot hang the
-// driver, and a parent that no longer loads leaves this area standing alone
-// rather than headless.
-object query_population_area()
+// The top of this area's chain: the one that holds whatever is shared down it,
+// starting with the community -- roster, census, roles, houses. An area with no
+// parent is its own root, which is the common case. The walk is bounded so a
+// pair of areas pointed at each other cannot hang the driver, and a parent that
+// no longer loads leaves this area standing alone rather than headless.
+object query_root_area()
 {
   object area;
   string path;
   int steps;
 
-  path = population_parent;
+  path = parent_area;
   area = this_object();
 
   for (steps = 0; strlen(path) && steps < AREA_MAX_ANCESTRY; steps++)
@@ -308,18 +316,10 @@ object query_population_area()
       break;
 
     area = up;
-    path = (string)up->query_population_parent();
+    path = (string)up->query_parent_area_path();
   }
 
   return area;
-}
-
-// Whether this area keeps its own community. Everything that reads or writes
-// population data asks this first, and forwards to query_population_area() when
-// the answer is no.
-int owns_population()
-{
-  return query_population_area() == this_object();
 }
 
 void add_location(string location_file_name, mapping location_data) 
