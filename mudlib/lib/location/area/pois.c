@@ -152,7 +152,7 @@ void add_vacancy(string location_file, string role, string source)
   pois[location_file] = entry;
 
   // a vacancy source leaves the statistical roster
-  this_object()->recompute_intended();
+  this_object()->rebuild_npc_caps();
   this_object()->save_me();
 }
 
@@ -203,7 +203,7 @@ void remove_vacancy(string location_file, string role)
 
   entry[POI_FIELD_VACANCIES] = out;
   pois[location_file] = entry;
-  this_object()->recompute_intended();
+  this_object()->rebuild_npc_caps();
   this_object()->save_me();
 }
 

@@ -209,7 +209,7 @@ int restore_from_file_name(string name)
 
     // Rebuild the derived roster from npc_sources on load: npc_intended is not
     // authoritative state, it is the sum of the per-location provenance.
-    recompute_intended();
+    rebuild_npc_caps();
     return 1;
   }
 

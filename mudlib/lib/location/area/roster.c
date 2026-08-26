@@ -127,7 +127,7 @@ string query_template_from_source(string source)
 //   - the area citizenship's guard (diplomacy places it at guarded POIs)
 //   - anything that is not a living NPC source (add_clone also clones trees
 //     and props, which are not NPCs)
-void recompute_intended()
+void rebuild_npc_caps()
 {
   string * location_files, * npc_paths;
   int i, j;
@@ -199,7 +199,7 @@ void set_location_npc_sources(string location_file, mapping clones)
   else
     map_delete(npc_sources, location_file);
 
-  recompute_intended();
+  rebuild_npc_caps();
 
   // register with the population sweep so it keeps this area topped up
   if (map_sizeof(npc_intended))

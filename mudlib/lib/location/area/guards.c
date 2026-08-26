@@ -47,7 +47,7 @@ void set_citizenship(string name)
 
   // which guard source the roster excludes depends on the citizenship, so
   // recompute and persist it
-  this_object()->recompute_intended();
+  this_object()->rebuild_npc_caps();
   this_object()->save_me();
 
   // re-post guards at every guarded POI: drop the old citizenship's guards and
