@@ -759,7 +759,7 @@ object convert_room_to_location(object room)
 
     area = location->query_area();
     if (area)
-      area->set_location_npc_sources(location->query_file_name(), npc_clones);
+      area->set_location_original_sources(location->query_file_name(), npc_clones);
   }
 
   return location;

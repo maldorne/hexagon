@@ -45,8 +45,17 @@ void create()
 // for now; the F4 generator will replace assign_npc_to_role's body, the single
 // seam where the filler lives.
 
-mapping query_roles() { return roles; }
-mapping query_role(string name) { return roles[name]; }
+// The role board this area works from -- its community's, when it delegates. A
+// job belongs to the people who hold it, not to the field they hold it in.
+mapping query_roles()
+{
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  return owner == this_object() ? roles : (mapping)owner->query_roles();
+}
+
+mapping query_role(string name) { return query_roles()[name]; }
 
 // Declare (or replace) a role: the area-level cap for a kind of citizen. `count`
 // is how many of it the settlement wants, `work` its work location, `source` the
@@ -56,8 +65,18 @@ mapping query_role(string name) { return roles[name]; }
 // builder through the bestiary; the area only holds the count and the workplace.
 void add_role(string name, int count, string work, string source)
 {
+  object owner;
+
   if (!name || !strlen(name) || count < 0)
     return;
+
+  // The job belongs to the community, so a delegated area posts it upwards.
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->add_role(name, count, work, source);
+    return;
+  }
 
   if (source && strlen(source))
   {
@@ -130,10 +149,10 @@ void reequip_role_holders(string name)
   string source;
   int i;
 
-  if (!roles[name])
+  if (!query_roles()[name])
     return;
 
-  source = roles[name]["source"];
+  source = query_roles()[name]["source"];
   template = (source && strlen(source))
                ? BESTIARY_HANDLER->query_template(game_from_path((string)this_object()->query_area_path()), source)
                : nil;
@@ -141,7 +160,7 @@ void reequip_role_holders(string name)
   if (!pointerp(spec) || !sizeof(spec))
     return;
 
-  loc = (object)this_object()->query_loaded_location(roles[name]["work"]);
+  loc = (object)this_object()->query_loaded_location(query_roles()[name]["work"]);
   if (!loc)
     return;
   inv = all_inventory(loc);
@@ -317,7 +336,7 @@ void fill_role(string name)
   object loc;
   int have, want, i;
 
-  role = roles[name];
+  role = query_roles()[name];
   if (!role)
     return;
 
@@ -351,7 +370,7 @@ void fill_area_roles()
   string * names;
   int i;
 
-  names = map_indices(roles);
+  names = map_indices(query_roles());
   for (i = 0; i < sizeof(names); i++)
     fill_role(names[i]);
 }
@@ -361,7 +380,15 @@ void fill_area_roles()
 void remove_role(string name)
 {
   string * ids;
+  object owner;
   int i;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->remove_role(name);
+    return;
+  }
 
   if (!roles[name])
     return;

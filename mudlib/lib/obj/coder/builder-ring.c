@@ -22,7 +22,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
-#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> | principal >"
+#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> | principal | population <area path|own> >"
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role> | home <role>> >"
 #define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
@@ -655,6 +655,49 @@ int do_area(string str)
             "' no longer belongs to a citizenship.\n");
     return 1;
   }
+  else if (verb == "population")
+  {
+    // whose people these are: an area either holds a community of its own or
+    // delegates it to another area, which then keeps the roster, the census,
+    // the roles and the houses for both. "own" makes this area a community
+    // again. The link is always set by hand -- a wilderness that happens to sit
+    // under a town's folder is not that town's suburb.
+    object parent;
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build area population <area path|own>\n");
+      return 0;
+    }
+
+    if (args[1] == "own")
+    {
+      area->set_population_parent("");
+      area->save_me();
+      write("Area '" + area->query_area_name() +
+            "' keeps its own population.\n");
+      return 1;
+    }
+
+    parent = AREA_HANDLER->query_area(args[1]);
+    if (!parent)
+    {
+      notify_fail("No area known at '" + args[1] + "'.\n");
+      return 0;
+    }
+
+    if (parent == area)
+    {
+      notify_fail("An area cannot delegate its population to itself.\n");
+      return 0;
+    }
+
+    area->set_population_parent(args[1]);
+    area->save_me();
+    write("Area '" + area->query_area_name() + "' now belongs to the " +
+          "community of '" + parent->query_area_name() + "'.\n");
+    return 1;
+  }
   else if (verb == "principal")
   {
     // mark this location as the area's fallback (where orphaned occupants go
@@ -1150,7 +1193,7 @@ int do_npc(string str)
       source = a[1];
       flag = !(sizeof(a) >= 3 &&
                (a[2] == "off" || a[2] == "no" || a[2] == "0"));
-      if (!area->set_intended_resident(source, flag))
+      if (!area->set_npc_resident(source, flag))
       {
         notify_fail("No intended NPC source '" + source +
                     "' in this area.\n");
@@ -1175,7 +1218,7 @@ int do_npc(string str)
   // are template ids (areas/<area>/<npc>); show the full id so the same npc
   // name in two areas (or a cross-area template) is unambiguous. Right-align
   // the counts into columns.
-  intended = area->query_npc_intended();
+  intended = area->query_npc_caps();
   sources = map_indices(intended);
   {
     int * lives;

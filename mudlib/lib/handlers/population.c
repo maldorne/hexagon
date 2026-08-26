@@ -72,8 +72,8 @@ void dest_me()
   ::dest_me();
 }
 
-// Register an area to be swept. Called by area::set_location_npc_sources once
-// the area has a roster.
+// Register an area to be swept. Called once by
+// area::set_location_original_sources, when the area has a roster.
 int include_area(string area_path)
 {
   if (!area_path || !strlen(area_path))
@@ -95,7 +95,7 @@ int update_population()
   object area;
   string area_path;
   string * sources, * locs;
-  mapping intended;
+  mapping caps;
   int i, assigned;
 
   if (!sizeof(areas))
@@ -119,9 +119,9 @@ int update_population()
     return 0;
   }
 
-  intended = area->query_npc_intended();
+  caps = area->query_npc_caps();
   locs = map_indices(area->query_locations());
-  if (!map_sizeof(intended) || !sizeof(locs))
+  if (!map_sizeof(caps) || !sizeof(locs))
   {
     save_handler();
     return 0;
@@ -136,7 +136,7 @@ int update_population()
   {
     int cap, deficit, j;
 
-    cap = intended[sources[i]]["max"];
+    cap = caps[sources[i]]["max"];
     deficit = cap - area->query_monster_live_count(sources[i]);
 
     for (j = 0; j < deficit && assigned < ASSIGN_PER_TICK; j++)

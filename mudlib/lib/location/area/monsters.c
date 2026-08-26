@@ -34,7 +34,7 @@ int assign_monster(string source, string location_file)
 
   if (!source || !strlen(source) || !location_file || !strlen(location_file))
     return 0;
-  if (!((mapping)this_object()->query_npc_intended())[source])
+  if (!((mapping)this_object()->query_npc_caps())[source])
     return 0;
 
   bucket = monster_census[location_file];
@@ -93,20 +93,20 @@ int query_monster_live_count(string source)
 
 mapping query_monster_census() { return monster_census; }
 
-// The sources the population sweep may top up: the intended roster minus every
+// The sources the population sweep may top up: the caps roster minus every
 // sentient kind. Citizens are staffed by their settlement, one named individual
 // at a time -- they are never scattered statistically, so they are not the
 // sweep's business even when an old conversion left them on the roster.
 string * query_monster_sources()
 {
-  mapping intended;
+  mapping caps;
   string * sources, * out;
   string game;
   int i;
 
   game = game_from_path((string)this_object()->query_area_path());
-  intended = (mapping)this_object()->query_npc_intended();
-  sources = map_indices(intended);
+  caps = (mapping)this_object()->query_npc_caps();
+  sources = map_indices(caps);
   out = ({ });
 
   for (i = 0; i < sizeof(sources); i++)

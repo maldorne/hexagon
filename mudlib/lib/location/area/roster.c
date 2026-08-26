@@ -1,9 +1,10 @@
 
 // The roster: how many of each kind of NPC belong to this area.
 //
-// Two mappings and the rules that keep them honest. `npc_intended` is the cap --
-// what may live here and at most how many -- and `npc_sources` is where that cap
-// came from: the per-location provenance recorded when each room was converted.
+// Two mappings and the rules that keep them honest. `npc_caps` is the cap --
+// what may live here and at most how many -- and `original_npc_sources` is
+// where that cap came from: the per-location provenance recorded when each room
+// was converted.
 // The cap is derived from the provenance rather than typed in, which is what
 // makes a reconversion idempotent, and it is also why removing a source for good
 // means clearing its provenance too and not merely its cap.
@@ -21,7 +22,7 @@
 
 // Dynamic NPC population. Both are keyed by the NPC's source path (the
 // hand-authored .c it is cloned from).
-//   npc_intended: configuration -- what may spawn here and how many.
+//   npc_caps: configuration -- what may spawn here and how many.
 //     ([ npc_path : ([ "max": int, "resident": 1 (optional) ]) ])
 //   ("resident" is the design-time flag that lets the housing system give this
 //    source's NPCs a home; unflagged sources are never housed.)
@@ -33,14 +34,14 @@
 // The census is the authoritative summary of the area's population; NPC
 // objects are materialized into a location on load and drained on unload,
 // but the census entry survives so the same NPC comes back.
-mapping npc_intended;
+mapping npc_caps;
 // Per-location NPC provenance from the room2loc conversion:
 //   ([ location_file : ([ npc_path : count ]) ])
-// This is the seed for npc_intended: the area cap for a source is the sum
+// This is the seed for npc_caps: the area cap for a source is the sum
 // of that source's add_clone counts across every room of the area. Keeping
 // it per location makes reconversion idempotent (a location overwrites only
 // its own entry) without reloading the whole area.
-mapping npc_sources;
+mapping original_npc_sources;
 // Average level of the area's NPCs and how far individual NPCs may deviate
 // from it. An NPC's level is decided once, at census assignment, as
 //   npc_default_level + template level_area_modifier  ±  random(npc_default_level_spread + 1)
@@ -53,8 +54,8 @@ int npc_default_level_spread;
 
 void create()
 {
-  npc_intended = ([ ]);
-  npc_sources = ([ ]);
+  npc_caps = ([ ]);
+  original_npc_sources = ([ ]);
   npc_default_level = 1;
   npc_default_level_spread = 0;
 }
@@ -62,15 +63,15 @@ void create()
 // Flag (or clear) an intended NPC source as a settled resident. This is the
 // design-time switch that decides who `assign_homes` may house. Returns 0 if the
 // source is not a known intended NPC of this area.
-int set_intended_resident(string source, int flag)
+int set_npc_resident(string source, int flag)
 {
-  if (!npc_intended[source])
+  if (!npc_caps[source])
     return 0;
 
   if (flag)
-    npc_intended[source]["resident"] = 1;
+    npc_caps[source]["resident"] = 1;
   else
-    map_delete(npc_intended[source], "resident");
+    map_delete(npc_caps[source], "resident");
 
   this_object()->save_me();
   return 1;
@@ -81,11 +82,19 @@ int set_intended_resident(string source, int flag)
 // Dynamic NPC population
 // ---------------------------------------------------------------------------
 
-mapping query_npc_intended() { return npc_intended; }
-
-void set_npc_intended(mapping m)
+// The caps this area works from -- its community's, when it delegates.
+mapping query_npc_caps()
 {
-  npc_intended = m ? m : ([ ]);
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  return owner == this_object() ? npc_caps
+                                : (mapping)owner->query_npc_caps();
+}
+
+void set_npc_caps(mapping m)
+{
+  npc_caps = m ? m : ([ ]);
   this_object()->save_me();
 }
 
@@ -94,17 +103,17 @@ void set_npc_intended(mapping m)
 // data template on first spawn. `max` is the area-wide population cap.
 void add_intended_npc(string source, int max)
 {
-  npc_intended[source] = ([ "max": max ]);
+  npc_caps[source] = ([ "max": max ]);
   this_object()->save_me();
 }
 
 void remove_intended_npc(string source)
 {
-  map_delete(npc_intended, source);
+  map_delete(npc_caps, source);
   this_object()->save_me();
 }
 
-mapping query_npc_sources() { return npc_sources; }
+mapping query_npc_sources() { return original_npc_sources; }
 
 // The template id for a blueprint path. Everything the area stores is keyed by
 // template id; this is what turns a path handed in from outside -- a builder
@@ -117,7 +126,7 @@ string query_template_from_source(string source)
   return BESTIARY_HANDLER->template_id(game_from_path((string)this_object()->query_area_path()), source);
 }
 
-// Recompute npc_intended from the per-location conversion provenance: the
+// Recompute npc_caps from the per-location conversion provenance: the
 // area cap for a source is the sum of its add_clone counts across every
 // room of the area.
 //
@@ -136,10 +145,10 @@ void rebuild_npc_caps()
 
   // sum each NPC source's add_clone count across every location of the area
   counts = ([ ]);
-  location_files = map_indices(npc_sources);
+  location_files = map_indices(original_npc_sources);
   for (i = 0; i < sizeof(location_files); i++)
   {
-    clones_here = npc_sources[location_files[i]];
+    clones_here = original_npc_sources[location_files[i]];
     npc_paths = map_indices(clones_here);
     for (j = 0; j < sizeof(npc_paths); j++)
     {
@@ -160,14 +169,14 @@ void rebuild_npc_caps()
       DIPLOMACY_HANDLER->query_guard_path(game_from_path((string)this_object()->query_area_path()),
                                           (string)this_object()->query_citizenship()));
 
-  // npc_sources only ever holds living NPC sources: conversion filters trees
-  // and props out (it loads each source once, keeps only query_monster ones)
-  // before recording them, so the roster no longer re-loads the source .c to
-  // re-check -- it just sums the counts.
+  // original_npc_sources only ever holds living NPC sources: conversion filters
+  // trees and props out (it loads each source once, keeps only query_monster
+  // ones) before recording them, so the roster no longer re-loads the source .c
+  // to re-check -- it just sums the counts.
   // keep the previous config so design-time flags (resident, ...) set by the
   // builder survive a recompute -- the counts are re-derived, the flags are not
-  previous = npc_intended;
-  npc_intended = ([ ]);
+  previous = npc_caps;
+  npc_caps = ([ ]);
   npc_paths = map_indices(counts);
   for (i = 0; i < sizeof(npc_paths); i++)
   {
@@ -180,11 +189,11 @@ void rebuild_npc_caps()
     if (strlen(guard_source) && npc_paths[i] == guard_source)
       continue;
 
-    npc_intended[npc_paths[i]] = ([ "max": counts[npc_paths[i]] ]);
+    npc_caps[npc_paths[i]] = ([ "max": counts[npc_paths[i]] ]);
 
     // carry forward design-time flags recompute must not clobber
     if (previous[npc_paths[i]] && previous[npc_paths[i]]["resident"])
-      npc_intended[npc_paths[i]]["resident"] = 1;
+      npc_caps[npc_paths[i]]["resident"] = 1;
   }
 }
 
@@ -192,17 +201,17 @@ void rebuild_npc_caps()
 // counts, kept on the location as _original_add_clones) and recompute the area
 // cap. Idempotent: reconverting a location overwrites only its own entry. This
 // is the room2loc seed for the area's population.
-void set_location_npc_sources(string location_file, mapping clones)
+void set_location_original_sources(string location_file, mapping clones)
 {
   if (clones && map_sizeof(clones))
-    npc_sources[location_file] = map_copy(clones);
+    original_npc_sources[location_file] = map_copy(clones);
   else
-    map_delete(npc_sources, location_file);
+    map_delete(original_npc_sources, location_file);
 
   rebuild_npc_caps();
 
   // register with the population sweep so it keeps this area topped up
-  if (map_sizeof(npc_intended))
+  if (map_sizeof(npc_caps))
     POPULATION_HANDLER->include_area((string)this_object()->query_area_path());
 
   this_object()->save_me();

@@ -32,11 +32,20 @@ string area_path;
 // and the display name recorded in the player's diary when it does.
 int gives_exploration;
 string exploration_name;
+// The area whose community this area's people belong to, or "" when this area
+// is a community of its own. An area is a place -- locations, coordinates,
+// components -- and a community -- roster, census, roles, houses. The two do
+// not have to coincide: a town's fields are a separate place but the same
+// people, so the fields delegate their population here and keep their own
+// geography. Set by hand, never derived from the directory tree: a wilderness
+// that happens to sit under a region folder is nobody's suburb.
+string population_parent;
 
 
 
 
 // prototype functions
+object query_population_area();
 void add_loaded_location(object location);
 object query_loaded_location(string file);
 object * query_loaded_locations();
@@ -48,6 +57,7 @@ void create() {
   connections = ([ ]);
   file_name = "";
   area_path = "";
+  population_parent = "";
   gives_exploration = 0;
   exploration_name = "";
   monsters::create();
@@ -207,7 +217,7 @@ int restore_from_file_name(string name)
   {
     restore_object(name);
 
-    // Rebuild the derived roster from npc_sources on load: npc_intended is not
+    // Rebuild the derived roster from original_npc_sources on load: npc_caps is not
     // authoritative state, it is the sum of the per-location provenance.
     rebuild_npc_caps();
     return 1;
@@ -220,9 +230,26 @@ object load_location(string location_file_name)
 {
   object location;
 
-  // check if this location is in this area
+  // A location outside this area still has to be reachable from here: a
+  // community spans every area that delegates to it, so its houses, work spots
+  // and census entries name locations that belong to a sibling. The handler
+  // routes the file to the area that owns it.
   if (!locations[location_file_name])
-    return nil;
+  {
+    object owner;
+
+    if (!strlen(location_file_name))
+      return nil;
+
+    // the owner check is what keeps this from bouncing: the handler comes
+    // straight back here for a file this area is supposed to hold
+    owner = load_object(LOCATION_HANDLER)->
+              query_area_from_location_file_name(location_file_name);
+    if (!owner || owner == this_object())
+      return nil;
+
+    return load_object(LOCATION_HANDLER)->load_location(location_file_name);
+  }
 
   location = query_loaded_location(location_file_name);
   if (location)
@@ -237,6 +264,53 @@ object load_location(string location_file_name)
   loaded_locations[location_file_name] = location;
 
   return location;
+}
+
+string query_population_parent() { return population_parent; }
+
+// Point this area's population at another area, or bring it back to standing on
+// its own. Both directions are deliberate acts: the tree is never guessed.
+void set_population_parent(string path)
+{
+  population_parent = path ? path : "";
+  save_me();
+}
+
+// The area that owns this one's community: its roster, census, roles and
+// houses. An area with no parent owns its own, which is the common case. The
+// walk is bounded so a pair of areas pointed at each other cannot hang the
+// driver, and a parent that no longer loads leaves this area standing alone
+// rather than headless.
+object query_population_area()
+{
+  object area;
+  string path;
+  int steps;
+
+  path = population_parent;
+  area = this_object();
+
+  for (steps = 0; strlen(path) && steps < AREA_MAX_ANCESTRY; steps++)
+  {
+    object up;
+
+    up = AREA_HANDLER->query_area(path);
+    if (!up || up == area)
+      break;
+
+    area = up;
+    path = (string)up->query_population_parent();
+  }
+
+  return area;
+}
+
+// Whether this area keeps its own community. Everything that reads or writes
+// population data asks this first, and forwards to query_population_area() when
+// the answer is no.
+int owns_population()
+{
+  return query_population_area() == this_object();
 }
 
 void add_location(string location_file_name, mapping location_data) 

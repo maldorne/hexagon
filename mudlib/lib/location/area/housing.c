@@ -43,10 +43,31 @@ void create()
 // Buildable-plot registry. The builder ring registers a freshly carved empty lot
 // with add_plot; the housing system consumes one (and calls remove_plot) when it
 // raises a house on it.
-string * query_plots() { return plots ? plots : ({ }); }
+// A delegated area owns no building land of its own: the community's pool is
+// what it builds on, so a citizen can be given a cottage among the fields as
+// readily as a house on the street.
+string * query_plots()
+{
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+    return (string *)owner->query_plots();
+
+  return plots ? plots : ({ });
+}
 
 void add_plot(string file)
 {
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->add_plot(file);
+    return;
+  }
+
   if (!plots)
     plots = ({ });
   if (member_array(file, plots) < 0)
@@ -58,6 +79,15 @@ void add_plot(string file)
 
 void remove_plot(string file)
 {
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->remove_plot(file);
+    return;
+  }
+
   if (plots && member_array(file, plots) >= 0)
   {
     plots -= ({ file });
@@ -81,7 +111,11 @@ void set_principal(string file)
 string build_house_on_plot(string * residents)
 {
   string plot_file;
-  object house;
+  object house, owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+    return (string)owner->build_house_on_plot(residents);
 
   if (!plots || !sizeof(plots))
   {
@@ -225,10 +259,28 @@ private void _house_family(object * family)
   }
 }
 
-string * query_houses() { return houses ? houses : ({ }); }
+string * query_houses()
+{
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+    return (string *)owner->query_houses();
+
+  return houses ? houses : ({ });
+}
 
 void add_house(string file)
 {
+  object owner;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->add_house(file);
+    return;
+  }
+
   if (!houses)
     houses = ({ });
   if (member_array(file, houses) < 0)
@@ -267,8 +319,15 @@ private void index_houses()
 // replaces the dead one finds no room to move into.
 void release_house(string uuid)
 {
-  object house, home;
+  object house, home, owner;
   string file;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->release_house(uuid);
+    return;
+  }
 
   file = query_house_of(uuid);
   if (!strlen(file))
@@ -298,7 +357,15 @@ void release_house(string uuid)
 void claim_house(string uuid, string file)
 {
   string * all;
+  object owner;
   int i;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+  {
+    owner->claim_house(uuid, file);
+    return;
+  }
 
   if (!uuid || !strlen(uuid) || !file || !strlen(file))
     return;
@@ -343,9 +410,13 @@ void claim_house(string uuid, string file)
 // Returns the number of residents evicted, or -1 if `file` is not a house here.
 int demote_house(string file)
 {
-  object house, home;
+  object house, home, owner;
   string * living_here;
   int i, evicted;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+    return (int)owner->demote_house(file);
 
   if (!file || !strlen(file))
     return -1;
@@ -481,7 +552,12 @@ int restore_plot_exits()
 // the pair heal instead of silently drifting apart.
 string query_house_of(string uuid)
 {
+  object owner;
   int i;
+
+  owner = (object)this_object()->query_population_area();
+  if (owner != this_object())
+    return (string)owner->query_house_of(uuid);
 
   if (!uuid || !strlen(uuid))
     return "";
@@ -511,9 +587,9 @@ string query_house_of(string uuid)
 // Whether a live NPC is a settled resident -- one the design declared as such.
 // Who gets a house is a design-time decision, not a runtime guess from the NPC's
 // race or behaviour: an NPC source (template) is flagged "resident" in
-// npc_intended by the builder, and only those sources are housed here. Animals,
+// npc_caps by the builder, and only those sources are housed here. Animals,
 // guards and any unflagged roster filler are never handed a house; POI vacancies
-// (barman, shopkeeper) are not in npc_intended at all and carry their own fixed
+// (barman, shopkeeper) are not in npc_caps at all and carry their own fixed
 // home instead.
 private int _is_resident(object o)
 {
@@ -522,7 +598,7 @@ private int _is_resident(object o)
   if (!o || !o->query_npc())
     return 0;
 
-  spec = ((mapping)this_object()->query_npc_intended())[o->query_npc_source()];
+  spec = ((mapping)this_object()->query_npc_caps())[o->query_npc_source()];
   return spec && spec["resident"];
 }
 
