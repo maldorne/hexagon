@@ -11,6 +11,7 @@
 // A role slot deliberately does not respawn on death. The person is gone; the
 // post is refilled later by the settlement pass, with somebody else.
 
+#include <room/location.h>
 #include <living/persisted.h>
 #include <basic/gender.h>
 #include <namegen.h>
@@ -165,6 +166,67 @@ void reequip_role_holders(string name)
   }
 }
 
+// Where the next holder of `name` should work.
+//
+// A role records one work location -- wherever the builder stood when adding it
+// -- but a job is rarely done in a single spot: a farm is a set of fields, a
+// market a row of stalls. So its holders are spread over every location of the
+// area that carries the same working component as the role's own spot, handed
+// out in turn. With one such location, or none, the recorded spot is used and
+// nothing changes.
+//
+// Deciding here rather than on the individual is what makes it survive death:
+// the replacement is placed by the same rule instead of inheriting whatever
+// spot the last one happened to hold.
+string work_spot_for(string name, int nth)
+{
+  mapping role;
+  object seat;
+  object * comps;
+  string * kinds, * files, * candidates;
+  int i, j;
+
+  role = query_role(name);
+  if (!role || !role["work"])
+    return "";
+
+  seat = (object)this_object()->load_location(role["work"]);
+  if (!seat)
+    return role["work"];
+
+  // what makes that spot a workplace, ignoring what every open-air location has
+  kinds = ({ });
+  comps = seat->query_components();
+  for (i = 0; i < sizeof(comps); i++)
+    if (comps[i]->query_type() != LOCATION_COMPONENT_OUTSIDE)
+      kinds += ({ comps[i]->query_type() });
+
+  if (!sizeof(kinds))
+    return role["work"];
+
+  candidates = ({ });
+  files = map_indices((mapping)this_object()->query_locations());
+  for (i = 0; i < sizeof(files); i++)
+  {
+    object loc;
+
+    loc = (object)this_object()->load_location(files[i]);
+    if (!loc)
+      continue;
+    for (j = 0; j < sizeof(kinds); j++)
+      if (loc->query_component_by_type(kinds[j]))
+      {
+        candidates += ({ files[i] });
+        break;
+      }
+  }
+
+  if (sizeof(candidates) < 2)
+    return role["work"];
+
+  return candidates[nth % sizeof(candidates)];
+}
+
 // Live count of a role's staff: census entries tagged with this role that are
 // role-board slots (no POI, no guard), so this never counts a POI vacancy or a
 // guard that happens to share the role name.
@@ -262,7 +324,18 @@ void fill_role(string name)
   want = role["count"];
   have = count_role_npcs(name);
   for (i = have; i < want; i++)
-    assign_npc_to_role(name, role);
+  {
+    mapping spread;
+    string spot;
+
+    // each holder gets its own spot in the work area, in turn
+    spot = work_spot_for(name, i);
+    spread = ([ ]) + role;
+    if (strlen(spot))
+      spread["work"] = spot;
+
+    assign_npc_to_role(name, spread);
+  }
 
   // if the work location is already resident, materialize the new slots now
   // (mirrors the vacancy refill); otherwise they come in when it next loads
