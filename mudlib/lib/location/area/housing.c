@@ -218,6 +218,76 @@ private void index_houses()
   this_object()->save_me();
 }
 
+// Move `uuid` out of whatever house lists it. Called when an NPC dies: the
+// census entry goes, and the house has to stop expecting a tenant who is never
+// coming back -- otherwise its resident list only ever grows, and the NPC that
+// replaces the dead one finds no room to move into.
+void release_house(string uuid)
+{
+  object house, home;
+  string file;
+
+  file = query_house_of(uuid);
+  if (!strlen(file))
+    return;
+
+  house = (object)this_object()->load_location(file);
+  if (!house)
+    return;
+
+  home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
+  if (!home)
+    return;
+
+  home->remove_resident(uuid);
+  house->save_me();
+}
+
+// Make the houses agree with the address an NPC carries: the one it names lists
+// it, and no other does.
+//
+// The NPC's address and a house's resident list are two records of one fact,
+// written by different paths -- housing writes both when it raises a house, a
+// POI vacancy writes only the NPC's side when it re-homes a replacement, and a
+// move writes the new house without telling the old one. Reconciling from the
+// address here covers all three, and clears the stale entry a move leaves
+// behind.
+void claim_house(string uuid, string file)
+{
+  string * all;
+  int i;
+
+  if (!uuid || !strlen(uuid) || !file || !strlen(file))
+    return;
+
+  all = query_houses();
+
+  for (i = 0; i < sizeof(all); i++)
+  {
+    object house, home;
+    int listed;
+
+    house = (object)this_object()->load_location(all[i]);
+    if (!house)
+      continue;
+
+    home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
+    if (!home)
+      continue;
+
+    listed = (member_array(uuid, (string *)home->query_residents()) != -1);
+
+    if (all[i] == file && !listed)
+      home->add_resident(uuid);
+    else if (all[i] != file && listed)
+      home->remove_resident(uuid);
+    else
+      continue;
+
+    house->save_me();
+  }
+}
+
 // Restore the way in to every plot and house of this area.
 //
 // A plot is carved at run time: `build plot` adds an exit on the street side

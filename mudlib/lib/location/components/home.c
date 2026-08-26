@@ -48,6 +48,13 @@ void add_resident(string r)
     residents += ({ r });
 }
 
+void remove_resident(string r)
+{
+  if (!residents)
+    return;
+  residents -= ({ r });
+}
+
 // Programmer summary: who lives here (and the owner, if set). Residents are the
 // find_living ids / uuids the housing system stored.
 string query_info()

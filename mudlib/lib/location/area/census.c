@@ -271,6 +271,11 @@ private object npc_restore(string id, object loc)
         npc->save_npc();
     }
   }
+  else
+    // it already knows its address; make sure the house agrees. A vacancy
+    // re-homes its replacement by writing only the NPC's side, so without this
+    // the house would still name the holder before last.
+    this_object()->claim_house(id, npc->query_home());
 
   // Per-individual assignment on the npc.o: this NPC's concrete workplace, taken
   // from the role it fills. A restored NPC already carries one. A
@@ -568,6 +573,10 @@ void npc_died(string uuid)
     map_delete(npc_census, uuid);
     this_object()->save_me();
   }
+
+  // stop its house expecting it back; a vacancy's house is rebound to whoever
+  // fills the post next, a roster citizen's frees a bed for its replacement
+  this_object()->release_house(uuid);
 
   // drop any cross-area position index for it, so a dead roamer is never
   // rematerialized when the foreign location it last rested in reloads
