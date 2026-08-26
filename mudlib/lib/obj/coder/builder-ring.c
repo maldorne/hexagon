@@ -18,7 +18,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "role", "npc", "plot", "homes" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "role", "npc", "plot", "homes", "home" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -82,6 +82,7 @@ int do_role(string str);
 int do_npc(string str);
 int do_plot(string str);
 int do_homes();
+int do_home_remove();
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -280,6 +281,15 @@ int do_build(string str)
     return do_npc(sizeof(args) > 1 ? implode(args[1..], " ") : "");
   if (verb == "homes")
     return do_homes();
+  // `build home remove` unbuilds the house you stand in; a bare `build home`
+  // has no meaning, so the subcommand is required
+  if (verb == "home")
+  {
+    if (sizeof(args) > 1 && args[1] == "remove")
+      return do_home_remove();
+    notify_fail("Usage: build home remove   (stand inside the house)\n");
+    return 0;
+  }
 
   if (sizeof(args) < 2)
   {
@@ -1497,6 +1507,42 @@ int do_plot(string str)
 
 // build homes -- house the current area's homeless citizens on its free plots,
 // pairing a man and a woman into each family home. Shortfalls (no free plot)
+// build home remove -- turn the house you are standing in back into a bare plot.
+// The inverse of a raised house: residents are evicted (left homeless, for a
+// later `build homes` to place), the door becomes a doorway again and the plot
+// returns to the free list, so `build plot remove <dir>` can then delete it.
+int do_home_remove()
+{
+  object loc, area;
+  int evicted;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand inside the house you want to unbuild.\n");
+    return 0;
+  }
+  area = loc->query_area();
+  if (!area)
+  {
+    notify_fail("This location has no area.\n");
+    return 0;
+  }
+
+  evicted = (int)area->demote_house(loc->query_file_name());
+  if (evicted < 0)
+  {
+    notify_fail("You are not standing in a house.\n");
+    return 0;
+  }
+
+  write("Unbuilt the house" +
+        (evicted ? ", evicting " + evicted + " resident" +
+                   (evicted == 1 ? "" : "s") : "") +
+        ". It is a bare plot again.\n");
+  return 1;
+}
+
 // are recorded in the area's events.log.
 int do_homes()
 {

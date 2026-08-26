@@ -29,6 +29,8 @@ string principal;
 
 
 void door_house_exits(object house);
+void open_plot_exits(object plot);
+int demote_house(string file);
 private int _is_resident(object o);
 private void _house_family(object * family);
 
@@ -121,6 +123,45 @@ string build_house_on_plot(string * residents)
 // it becomes a home it gets a real front door on both sides. A house door starts
 // closed by default (the options ride in the exit map, so it reopens closed on
 // every load); a resident opens it to come and go.
+// The inverse of door_house_exits: a demoted house has no front door any more,
+// so both sides of every exit go back to a plain doorway.
+void open_plot_exits(object plot)
+{
+  mapping pex, nex;
+  string * dirs, * ndirs;
+  string pfile;
+  int i, j;
+
+  if (!plot)
+    return;
+
+  pfile = plot->query_file_name();
+  pex = plot->query_exit_map();
+  dirs = pex ? map_indices(pex) : ({ });
+
+  for (i = 0; i < sizeof(dirs); i++)
+  {
+    string dest;
+    object neighbour;
+
+    dest = pex[dirs[i]][0];
+    plot->add_exit(dirs[i], dest, "open");
+
+    neighbour = (object)this_object()->load_location(dest);
+    if (!neighbour)
+      continue;
+
+    nex = neighbour->query_exit_map();
+    ndirs = nex ? map_indices(nex) : ({ });
+    for (j = 0; j < sizeof(ndirs); j++)
+      if (nex[ndirs[j]][0] == pfile)
+        neighbour->add_exit(ndirs[j], pfile, "open");
+    neighbour->save_me();
+  }
+
+  plot->save_me();
+}
+
 void door_house_exits(object house)
 {
   mapping hex, nex;
@@ -288,6 +329,65 @@ void claim_house(string uuid, string file)
 
     house->save_me();
   }
+}
+
+// Turn a house back into a bare plot: evict its residents, drop the home
+// component for a plot one, and put it back on the free-plot list.
+//
+// The inverse of build_house_on_plot, and the only way a house that was raised
+// in the wrong place can be undone -- plot removal refuses anything that is not
+// a bare plot, so without this a misplaced house is permanent. Residents are
+// left homeless on purpose: the caller decides where they go next, and a plain
+// `build homes` will re-house them on any free plot.
+//
+// Returns the number of residents evicted, or -1 if `file` is not a house here.
+int demote_house(string file)
+{
+  object house, home;
+  string * living_here;
+  int i, evicted;
+
+  if (!file || !strlen(file))
+    return -1;
+
+  house = (object)this_object()->load_location(file);
+  if (!house)
+    return -1;
+
+  home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
+  if (!home)
+    return -1;
+
+  living_here = (string *)home->query_residents();
+
+  for (i = 0; i < sizeof(living_here); i++)
+  {
+    object npc;
+
+    npc = (object)this_object()->live_npc(living_here[i]);
+    if (npc)
+    {
+      npc->set_home(nil);
+      npc->save_npc();
+    }
+    evicted++;
+  }
+
+  house->remove_component(LOCATION_COMPONENT_HOME);
+  house->add_component(LOCATION_COMPONENT_PLOT, ([ ]));
+  house->save_me();
+
+  // the front door goes back to being an open doorway, on both sides
+  open_plot_exits(house);
+
+  houses -= ({ file });
+  add_plot(file);
+  this_object()->save_me();
+
+  this_object()->log_event("Demoted the house at " + file + " back to a plot" +
+            (evicted ? ", evicting " + evicted + " resident(s)" : "") + ".");
+
+  return evicted;
 }
 
 // Restore the way in to every plot and house of this area.
