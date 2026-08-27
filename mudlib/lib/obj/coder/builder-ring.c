@@ -24,7 +24,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
 #define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> | principal | parent <area path|none> | relevel >"
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role> | home <role>> >"
-#define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | remove <name> | list >"
+#define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | class <name> <class.c|none> | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
 #define BUILDER_RING_HOMES_SYNTAX "build homes  (house the area's homeless citizens on free plots, pairing families)"
@@ -1069,6 +1069,38 @@ int do_role(string str)
     }
     area->remove_role(args[1]);
     write("Role '" + args[1] + "' removed.\n");
+    return 1;
+  }
+
+  if (verb == "class")
+  {
+    // what the trade trains its people in. A farmer is not a soldier, and the
+    // NPC type cannot say so: one source staffs several settlements.
+    if (sizeof(args) < 3)
+    {
+      notify_fail("Usage: build role class <name> <class.c|none>\n");
+      return 0;
+    }
+
+    if (args[2] != "none" && file_size(args[2]) < 0 &&
+        file_size(args[2] + ".c") < 0)
+    {
+      notify_fail("No class object at '" + args[2] + "'.\n");
+      return 0;
+    }
+
+    if (!area->set_role_class(args[1], args[2] == "none" ? "" : args[2]))
+    {
+      notify_fail("No role '" + args[1] + "' in this area.\n");
+      return 0;
+    }
+
+    if (args[2] == "none")
+      write("Role '" + args[1] + "' no longer sets a class; its people keep " +
+            "the type's.\n");
+    else
+      write("Holders of '" + args[1] + "' are now trained as " + args[2] +
+            ".\n");
     return 1;
   }
 

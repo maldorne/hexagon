@@ -66,6 +66,7 @@ mapping query_role(string name) { return query_roles()[name]; }
 void add_role(string name, int count, string work, string source)
 {
   object owner;
+  mapping previous;
 
   if (!name || !strlen(name) || count < 0)
     return;
@@ -87,10 +88,42 @@ void add_role(string name, int count, string work, string source)
     source = (string)this_object()->query_template_from_source(source);
   }
 
+  previous = roles[name];
+
+  // keep what re-adding a role must not clobber: the count, the work spot and
+  // the source are what the builder is restating, the trade's class is not
   roles[name] = ([ "count":  count,
                    "work":   work,
                    "source": source ]);
+  if (previous && previous["class"])
+    roles[name]["class"] = previous["class"];
+
   this_object()->save_me();
+}
+
+// The class the holders of a trade are trained in. A farmer is not a soldier,
+// and the type they are cloned from cannot say so: one source staffs several
+// settlements, and the trade is what decides how a person fights, not the face
+// they were authored with. "" clears it, and the holders fall back to whatever
+// the type carries. Returns 0 if the role is unknown here.
+int set_role_class(string name, string path)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_role_class(name, path);
+
+  if (!roles[name])
+    return 0;
+
+  if (path && strlen(path))
+    roles[name]["class"] = path;
+  else
+    map_delete(roles[name], "class");
+
+  this_object()->save_me();
+  return 1;
 }
 
 // Give one NPC the kit a role defines: monster::add_clone clones each blueprint

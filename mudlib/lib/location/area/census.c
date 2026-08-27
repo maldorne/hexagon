@@ -227,6 +227,18 @@ private object npc_restore(string id, object loc)
 
   npc->apply_template(t, first);
 
+  // The trade's class, when its role declares one. Set before the level:
+  // set_class_ob resets class_level to 1, so a class applied afterwards would
+  // undo the level this NPC was just given.
+  if (first && entry["role"])
+  {
+    mapping role;
+
+    role = (mapping)this_object()->query_role(entry["role"]);
+    if (role && stringp(role["class"]) && strlen(role["class"]))
+      npc->set_class_ob(role["class"]);
+  }
+
   // level: decided once from the area on the first materialization; on restore
   // it came back with the object
   if (first)
@@ -242,6 +254,30 @@ private object npc_restore(string id, object loc)
     cpath = this_object()->query_root_citizenship_path();
     if (stringp(cpath) && strlen(cpath))
       npc->set_city_ob(cpath);
+  }
+
+  // People, like nationality, come from where the citizen is born rather than
+  // from its type: the citizenship declares which races it is made of and each
+  // one born here draws from that pool. A trade authored as human then staffs
+  // an elf town without a second source, and a mixed citizenship comes out
+  // mixed. Done after the template so it overrides the type's race, and only
+  // for a generated citizen -- fauna and the unnamed filler keep their own.
+  //
+  // set_race_ob unwinds the previous race's bonuses, languages and aliases
+  // before applying the new one, so it is safe on top of what the template set.
+  if (first && sentient)
+  {
+    mixed cpath;
+
+    cpath = npc->query_city_ob();
+    if (stringp(cpath) && strlen(cpath))
+    {
+      mixed race;
+
+      race = load_object(cpath)->query_random_race();
+      if (stringp(race) && strlen(race))
+        npc->set_race_ob(race);
+    }
   }
 
   // Finish a named individual. Its short stays the template's kind word --

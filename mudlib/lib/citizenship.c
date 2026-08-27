@@ -15,15 +15,32 @@ string init_room;
 // their template's name.
 string name_style;
 
+// The peoples this citizenship is made of: race object paths, one entry per
+// share, so listing a race twice makes it twice as likely. A generated citizen
+// rolls its race from here rather than inheriting the one its type was
+// authored with, which is what lets a single trade -- one farmer, one guard --
+// staff a human town and an elf one. Empty leaves the type's own race alone.
+string * races;
+
 void create()
 {
   init_room = "";
   name_style = "";
+  races = ({ });
   ::create();
 }
 
 string query_name_style() { return name_style; }
 void set_name_style(string str) { name_style = str ? str : ""; }
+
+string * query_races() { return races ? races : ({ }); }
+void set_races(string * list) { races = list ? list : ({ }); }
+
+// One of this citizenship's peoples, drawn by share. "" when it declares none.
+string query_random_race()
+{
+  return sizeof(query_races()) ? races[random(sizeof(races))] : "";
+}
 
 int query_legal_race(string race) { return(1); }
 int query_legal_player(object player) { return 1; }
