@@ -34,6 +34,8 @@
 // The census is the authoritative summary of the area's population; NPC
 // objects are materialized into a location on load and drained on unload,
 // but the census entry survives so the same NPC comes back.
+int decide_level(string game, string source);
+
 mapping npc_caps;
 // Per-location NPC provenance from the room2loc conversion:
 //   ([ location_file : ([ npc_path : count ]) ])
@@ -338,6 +340,60 @@ void set_area_spread(int n)
 {
   npc_default_level_spread = n < 0 ? 0 : n;
   this_object()->save_me();
+}
+
+// Re-roll the level of every NPC of this area's community that is below the
+// band the area now hands out. A level is decided once and kept for the life of
+// the NPC, so changing an area's band leaves the people who were already born
+// under the old one behind: this is the deliberate correction for that, and the
+// only thing that ever re-levels an NPC. Each one is materialized if it is not
+// live, re-levelled and saved. Returns how many were touched.
+int relevel_census()
+{
+  mapping census;
+  string * ids;
+  string game;
+  int i, touched;
+
+  census = (mapping)this_object()->query_npc_census();
+  ids = map_indices(census);
+  game = game_from_path((string)this_object()->query_area_path());
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    object npc, loc;
+    string source;
+    int want;
+
+    source = census[ids[i]]["source"];
+    if (!source)
+      continue;
+
+    npc = AREA_HANDLER->find_live_npc(ids[i]);
+    if (!npc)
+    {
+      // wake it where the census says it is
+      loc = (object)this_object()->load_location(census[ids[i]]["location"]);
+      if (!loc)
+        continue;
+
+      this_object()->restore_one_npc(ids[i], loc);
+
+      npc = AREA_HANDLER->find_live_npc(ids[i]);
+      if (!npc)
+        continue;
+    }
+
+    want = decide_level(game, source);
+    if ((int)npc->query_level() >= want)
+      continue;
+
+    npc->set_level(want);
+    npc->save_npc();
+    touched++;
+  }
+
+  return touched;
 }
 
 // The level a census NPC is born with, decided once at assignment so it stays

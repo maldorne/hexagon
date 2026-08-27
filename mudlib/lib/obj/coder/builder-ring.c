@@ -22,7 +22,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
-#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> | principal | parent <area path|none> >"
+#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> | principal | parent <area path|none> | relevel >"
 #define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role> | home <role>> >"
 #define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
@@ -653,6 +653,18 @@ int do_area(string str)
     else
       write("Area '" + area->query_area_name() +
             "' no longer belongs to a citizenship.\n");
+    return 1;
+  }
+  else if (verb == "relevel")
+  {
+    // an NPC keeps the level it was born with, so raising an area's band leaves
+    // the people born under the old one behind. This brings them up to it.
+    int touched;
+
+    touched = (int)area->relevel_census();
+    write("Re-levelled " + touched + " NPC(s) of '" + area->query_area_name() +
+          "' to the current band (" + area->query_area_level() + " +/- " +
+          area->query_area_spread() + ").\n");
     return 1;
   }
   else if (verb == "parent")

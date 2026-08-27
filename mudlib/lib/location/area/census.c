@@ -42,7 +42,6 @@ mapping query_npc_census()
                                 : (mapping)owner->query_npc_census();
 }
 
-// Persist whichever area the census actually belongs to.
 // Record one individual in the census and persist. The seam for the pieces that
 // staff a post of their own -- a role slot, a vacancy, a guard -- and need the
 // person to exist before anything materializes it.
