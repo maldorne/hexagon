@@ -273,15 +273,15 @@ void set_location_original_sources(string location_file, mapping clones)
   this_object()->save_me();
 }
 
-// What this area itself asked for of `source`: its own locations that declared
-// the type when their rooms were converted, each mapped to how many it declared.
+// This area's own share of `source`, read off the conversion provenance: each
+// of its locations whose room cloned that type, mapped to how many it cloned.
 //
 // The caps are shared across a community, so this is what keeps the filler
 // where it came from -- pilgrims recorded on the road stay on the road, and the
-// road tops up its own three rather than the whole community's count -- even
+// road tops up its own five rather than the whole community's thirteen -- even
 // though the town they are counted with is the same community. Empty when the
 // type was declared elsewhere, or added by hand with no provenance at all.
-mapping query_source_spots(string source)
+mapping query_original_clone_counts(string source)
 {
   mapping provenance, mine, out;
   string * files;

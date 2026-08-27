@@ -134,7 +134,7 @@ int update_population()
 
   for (i = 0; i < sizeof(sources) && assigned < ASSIGN_PER_TICK; i++)
   {
-    mapping spots;
+    mapping clones_here;
     string * files;
     int cap, deficit, j;
 
@@ -144,14 +144,14 @@ int update_population()
     // road's travellers through its streets, and every area of the community
     // would try to fill the whole count. A source with no provenance here
     // (added by hand, or declared in a sibling area) is left to whoever has it.
-    spots = area->query_source_spots(sources[i]);
-    files = map_indices(spots);
+    clones_here = area->query_original_clone_counts(sources[i]);
+    files = map_indices(clones_here);
     if (!sizeof(files))
       continue;
 
     cap = 0;
     for (j = 0; j < sizeof(files); j++)
-      cap += spots[files[j]];
+      cap += clones_here[files[j]];
 
     deficit = cap - area->query_monster_live_count(sources[i]);
 
