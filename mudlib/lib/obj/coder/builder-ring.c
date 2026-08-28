@@ -73,7 +73,7 @@ inherit "/lib/armour.c";
   "  build plot <dir>                     carve an empty buildable lot\n" + \
   "  build plot remove <dir>              delete one, if still bare\n" + \
   "  build homes                          house the homeless citizens\n" + \
-  "  build home remove                    turn this house back into a plot\n"
+  "  build home remove                    turn this house back into a plot"
 
 static string * selection;
 static mapping objects;
