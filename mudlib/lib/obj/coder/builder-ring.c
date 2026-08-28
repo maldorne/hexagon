@@ -22,24 +22,58 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
-#define BUILDER_RING_AREA_SYNTAX "build area < exploration <display name> | noexploration | level <n> [<spread>] | diplomacy <citizenship|none> | principal | parent <area path|none> | relevel >"
-#define BUILDER_RING_POI_SYNTAX "build poi < add <kind> [label] | remove | list | guard_dir <dir> | vacancy <add <role> <source> | remove <role> | home <role>> >"
-#define BUILDER_RING_ROLE_SYNTAX "build role < add <name> <count> <source.c> | equip <name> <item.c[|alt.c...]>... | class <name> <class.c|none> | remove <name> | list >"
+#define BUILDER_RING_AREA_SYNTAX \
+  "build area < exploration <display name> | noexploration\n" + \
+  "           | level <n> [<spread>] | diplomacy <citizenship|none>\n" + \
+  "           | parent <area path|none> | principal | relevel >"
+#define BUILDER_RING_POI_SYNTAX \
+  "build poi < add <kind> [label] | remove | list | guard_dir <dir>\n" + \
+  "          | vacancy < add <role> <source.c> | remove <role>\n" + \
+  "                    | home <role> > >"
+#define BUILDER_RING_ROLE_SYNTAX \
+  "build role < add <name> <count> <source.c>\n" + \
+  "           | equip <name> <item.c[|alt.c...]>...\n" + \
+  "           | class <name> <class.c|none> | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
 #define BUILDER_RING_HOMES_SYNTAX "build homes  (house the area's homeless citizens on free plots, pairing families)"
 // intro line + "commands:" header are translated (name/description/help);
-// the command syntax below stays English -- coder verbs are not localized
-#define BUILDER_RING_HELP _LANG_RING_HELP_INTRO + \
-                "\t" + BUILDER_RING_SELECTION_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_CONVERT_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_COMPONENT_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_AREA_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_POI_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_ROLE_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_NPC_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_PLOT_SYNTAX + "\n" + \
-                "\t" + BUILDER_RING_HOMES_SYNTAX
+// the command syntax below stays English -- coder verbs are not localized.
+// One line per subverb, grouped by verb: the SYNTAX defines above are the
+// compact one-liners `notify_fail` throws back on a bad call, and they are too
+// dense to read as a menu.
+#define BUILDER_RING_HELP _LANG_RING_HELP_INTRO + "\n" + \
+  "  build selection add|remove|list      working set of locations\n" + \
+  "  build convert [selection|<file>|<dir>|here]\n" + \
+  "  build component add|remove <type>    on the current location\n" + \
+  "\n" + \
+  "  build area exploration <name>        entering here is a diary event\n" + \
+  "  build area noexploration\n" + \
+  "  build area level <n> [<spread>]      NPC level band\n" + \
+  "  build area diplomacy <name|none>     citizenship; guards use it\n" + \
+  "  build area parent <area path|none>   what this place is part of\n" + \
+  "  build area principal                 fallback location for occupants\n" + \
+  "  build area relevel                   raise NPCs to the current band\n" + \
+  "\n" + \
+  "  build poi add <kind> [label]         one per location\n" + \
+  "  build poi remove\n" + \
+  "  build poi list\n" + \
+  "  build poi guard_dir <dir>            on a town_entrance: the way in\n" + \
+  "  build poi vacancy add <role> <source.c>\n" + \
+  "  build poi vacancy remove <role>\n" + \
+  "  build poi vacancy home <role>        bind a house to the post\n" + \
+  "\n" + \
+  "  build role add <name> <count> <source.c>\n" + \
+  "  build role equip <name> <item.c[|alt.c]>...\n" + \
+  "  build role class <name> <class.c|none>   what the trade trains in\n" + \
+  "  build role remove <name>\n" + \
+  "  build role list\n" + \
+  "\n" + \
+  "  build npc                            roster, census and vacancies\n" + \
+  "  build plot <dir>                     carve an empty buildable lot\n" + \
+  "  build plot remove <dir>              delete one, if still bare\n" + \
+  "  build homes                          house the homeless citizens\n" + \
+  "  build home remove                    turn this house back into a plot\n"
 
 static string * selection;
 static mapping objects;
