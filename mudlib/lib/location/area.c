@@ -322,6 +322,52 @@ object query_root_area()
   return area;
 }
 
+// Copy each location's move zones back from the room it was converted from.
+//
+// The conversion has always meant to carry them over, but it called a function
+// that does not exist, so every location came out untagged and no wandering
+// creature could be held to its zone. Reconverting picks them up now; this is
+// the repair for the areas that were already converted, and it is idempotent.
+// Returns how many locations were tagged.
+int restore_zones()
+{
+  string * files;
+  int i, tagged;
+
+  files = map_indices(locations);
+
+  for (i = 0; i < sizeof(files); i++)
+  {
+    object loc, room;
+    string source;
+    string * zones;
+
+    source = (string)load_object(LOCATION_HANDLER)->query_room_source(files[i]);
+    if (!source || !strlen(source) || file_size(source) < 0)
+      continue;
+
+    room = load_object(source);
+    if (!room)
+      continue;
+
+    zones = (string *)room->query_room_zones();
+    if (!zones || !sizeof(zones))
+      continue;
+
+    loc = load_location(files[i]);
+    if (!loc)
+      continue;
+
+    loc->set_room_zones(zones);
+    loc->save_me();
+    tagged++;
+  }
+
+  log_event("Restored move zones on " + tagged + " location(s).");
+
+  return tagged;
+}
+
 void add_location(string location_file_name, mapping location_data) 
 {
   locations[location_file_name] = map_copy(location_data);

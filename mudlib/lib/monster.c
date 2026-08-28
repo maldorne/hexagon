@@ -637,11 +637,19 @@ void do_move_after(int bing)
     if (bing > 1)
       catch(bong = (int)where->query_property("no throw out"));
 
+    // Where this creature is allowed to wander. move_zones is a whitelist: it
+    // names the zones it belongs to, and a destination is refused unless it
+    // carries one of them. An untagged destination shares nothing, so it is
+    // out of bounds too -- which is what keeps a town's dog in the town
+    // instead of following the road out of it.
+    zones = nil;
     catch(zones = (string *)where->query_room_zones());
+    if (!zones)
+      zones = ({ });
 
     if (sizeof(move_zones) || bong)
     {
-      if (bong || sizeof(intersection(zones, move_zones)) > 0)
+      if (bong || sizeof(intersection(zones, move_zones)) == 0)
       {
         direcs = delete(direcs, i, 2);
         continue;

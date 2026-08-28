@@ -575,7 +575,7 @@ object convert_room_to_location(object room)
   location->stamp_last_imported_at();
 
   if (sizeof(room->query_room_zones()))
-    location->set_zones(room->query_room_zones());
+    location->set_room_zones(room->query_room_zones());
 
   exit_map = room->query_exit_map();
 
@@ -775,7 +775,7 @@ object convert_room_to_location(object room)
 
 // Source `.c` path of the room a location `.o` was converted from, or nil for
 // a path that is not a location save file.
-private string _room_source_from_location(string ofile)
+string query_room_source(string ofile)
 {
   string game, rest;
 
@@ -819,7 +819,7 @@ private string * _neighbour_sources(object * locations, string * converted)
     {
       string src;
 
-      src = _room_source_from_location(dd[j]);
+      src = query_room_source(dd[j]);
       if (!src)
         continue;
       if (member_array(src, converted) != -1)   // internal to this batch
