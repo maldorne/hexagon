@@ -867,16 +867,40 @@ void add_exits_from_exit_map(mapping m)
 }
 
 // Replace-all: remove every existing exit, then apply `m`.
+// Replace this location's exits with the ones a room `.c` declares, which is
+// what a conversion hands over.
+//
+// Exits into a location that has no source room survive it. Those are the parts
+// of the world carved at run time -- a plot and the house raised on it exist
+// only as a `.o` -- so the room `.c` cannot mention the way in, and rebuilding
+// blindly from it would wall them off while every other trace of them survived.
 void set_exits_from_exit_map(mapping m)
 {
+  mapping carved;
   string * exit_names;
   int i;
 
+  carved = ([ ]);
   exit_names = keys(_exit_map);
+
   for (i = 0; i < sizeof(exit_names); i++)
+  {
+    string dest;
+    mixed source;
+
+    // no (string) cast: that is a conversion kfun and it errors on the nil a
+    // destination outside the location tree hands back
+    dest = _exit_map[exit_names[i]][0];
+    source = load_object(LOCATION_HANDLER)->query_room_source(dest);
+    if (dest && !m[exit_names[i]] &&
+        (!stringp(source) || file_size(source) < 0))
+      carved[exit_names[i]] = _exit_map[exit_names[i]];
+
     remove_exit(exit_names[i]);
+  }
 
   add_exits_from_exit_map(m);
+  add_exits_from_exit_map(carved);
 }
 
 // check every exit, if it goes to a room already converted to location, 

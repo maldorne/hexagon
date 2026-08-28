@@ -26,7 +26,7 @@ inherit "/lib/armour.c";
   "build area < exploration <display name> | noexploration\n" + \
   "           | level <n> [<spread>] | diplomacy <citizenship|none>\n" + \
   "           | parent <area path|none> | principal\n" + \
-  "           | relevel | zones >"
+  "           | relevel >"
 #define BUILDER_RING_POI_SYNTAX \
   "build poi < add <kind> [label] | remove | list | guard_dir <dir>\n" + \
   "          | vacancy < add <role> <source.c> | remove <role>\n" + \
@@ -55,7 +55,6 @@ inherit "/lib/armour.c";
   "  build area parent <area path|none>   what this place is part of\n" + \
   "  build area principal                 fallback location for occupants\n" + \
   "  build area relevel                   raise NPCs to the current band\n" + \
-  "  build area zones                     re-read move zones from the rooms\n" + \
   "\n" + \
   "  build poi add <kind> [label]         one per location\n" + \
   "  build poi remove\n" + \
@@ -689,17 +688,6 @@ int do_area(string str)
     else
       write("Area '" + area->query_area_name() +
             "' no longer belongs to a citizenship.\n");
-    return 1;
-  }
-  else if (verb == "zones")
-  {
-    // the move zones the conversion was always meant to carry over from the
-    // source rooms, and never did
-    int tagged;
-
-    tagged = (int)area->restore_zones();
-    write("Tagged " + tagged + " location(s) of '" + area->query_area_name() +
-          "' with the move zones of the rooms they came from.\n");
     return 1;
   }
   else if (verb == "relevel")

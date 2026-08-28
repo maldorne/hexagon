@@ -193,11 +193,9 @@ private object npc_restore(string id, object loc)
   {
     npc->restore_npc();
 
-    // restore_object hands back the identity fields exactly as they were
-    // written, so the census -- which is what decides what an NPC is and where
-    // it belongs -- stamps them again on top. Without this a renamed source (a
-    // template id replacing the original .c path) loses to the stale saved
-    // value on every load, and the entry never settles.
+    // The census is what decides what an NPC is and where it belongs, so it
+    // stamps those fields on top of whatever restore_object handed back: the
+    // NPC's own savefile is a record of them, never the authority.
     npc->set_npc_area_path((string)this_object()->query_area_path());
     npc->set_npc_source(source);
     if (entry["poi"])
