@@ -16,6 +16,8 @@
 #define LOG_ADJUST_GUILD_LEVEL "adjust_guild_level"
 
 // old jobs.h
+// where a job object may live: the one every game shares
+#define DEFAULT_JOB_DIR "/lib/obj/jobs/"
 #define JOB_XP_LIMIT 15000
 #define LOGFILE "job_busted"
 #define LOG_JOB_XP "job_xp"

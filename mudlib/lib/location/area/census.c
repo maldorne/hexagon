@@ -213,10 +213,19 @@ private object npc_restore(string id, object loc)
   if (first && entry[CENSUS_VACANCY])
   {
     mapping job;
+    string trade;
 
     job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
     if (job && stringp(job[VACANCY_CLASS]) && strlen(job[VACANCY_CLASS]))
       npc->set_class_ob(job[VACANCY_CLASS]);
+
+    // A job is a social object like a race or a citizenship, and the games
+    // that model one keep it under obj/jobs. Somebody taken on for a job the
+    // game has a file for is enrolled in it; a job with no file is just a name
+    // the settlement uses, and nothing is stamped.
+    trade = "/games/" + game + "/obj/jobs/" + entry[CENSUS_VACANCY] + ".c";
+    if (file_size(trade) >= 0)
+      npc->set_job_ob(trade);
   }
 
   // level: decided once from the area on the first materialization; on restore

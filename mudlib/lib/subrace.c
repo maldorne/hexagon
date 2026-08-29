@@ -1,4 +1,4 @@
-// Nuevo sistema de subrazas, neverbot 6/03
+// New subrace system, neverbot 6/03
 
 #include <living/races.h>
 

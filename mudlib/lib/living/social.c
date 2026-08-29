@@ -532,7 +532,9 @@ void set_job_ob(string str)
 {
   // string tmp;
   string old_job;
+  string * valid_jobs_dirs;
   mixed * values;
+  int i, valid;
 
   old_job = social_object_list[JOB_OB];
 
@@ -560,10 +562,25 @@ void set_job_ob(string str)
   // if (sscanf(str,"/%s", tmp) == 1)
   //   str = extract(str,1);
 
-  if ((str[0..strlen("/lib/obj/jobs")-1] != "/lib/obj/jobs") &&
-      (str[0..strlen("/game/obj/jobs")-1] != "/game/obj/jobs"))
+  // for any object, the valid directories are the common one, and the specific
+  // for its game
+  valid_jobs_dirs = ({ DEFAULT_JOB_DIR,
+                       game_root(this_object()) + "obj/jobs/" });
+  valid = FALSE;
+
+  for (i = 0; i < sizeof(valid_jobs_dirs); i++)
   {
-    write("Illegal path in set_job_ob.\n");
+    if (extract(str, 0, strlen(valid_jobs_dirs[i]) - 1) == valid_jobs_dirs[i])
+    {
+      valid = TRUE;
+      break;
+    }
+  }
+
+  if (!valid)
+  {
+    if (this_player() && this_player()->query_coder())
+      tell_object(this_player(), "Illegal path for set_job_ob.\n");
     return;
   }
 

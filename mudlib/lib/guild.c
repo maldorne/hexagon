@@ -1,16 +1,19 @@
 /* 
- * Revisado y retocado para CcMud
- * Eliminados skills y especializaciones de armas de este sistema
- * Folken 13/7/03
- * 
- * Añadido sistema de subida de niveles de gremio por quests, 
- * Folken 29/07/2010
+ * Reviewed and touched up for CcMud
+ * Removed skills and weapon specializations from this system
+ * neverbot 13/7/03
+ *
+ * Added system for guild level advancement through quests,
+ * neverbot 29/07/2010
  */
 
-inherit "/std/object.c";
-inherit "/global/basic/quests.c";
+inherit "/lib/core/object.c";
+// Quest system, not in hexagon yet: neither /global/basic/quests.c nor
+// <quests.h> exist here, so everything below that needs a quest is kept
+// commented until they do.
+// inherit "/global/basic/quests.c";
 
-#include <quests.h>
+// #include <quests.h>
 
 #define DEFAULT_COST 500
 #define DEFAULT_XP_COST 4500
@@ -31,20 +34,20 @@ void create()
   specs_available = ({ });
   needed_ext_align = 0;
   requirements_func = "";
-  quests::create(); // antes que object, o el setup dara errores por mappings no inicializados!!
-  object::create();
+  // quests::create(); // before object, or setup will give errors due to uninitialized mappings!!
+  ::create();
 }
 
 string query_requirements_func() { return requirements_func; }
 void set_requirements_func(string func) { requirements_func = func; }
 
-// Para comprobar alineamientos
-// 0 no significa neutral, significa que no importa el alineamiento!!!!
-// Valores:
-// 0: no importa
+// To check alignments
+// 0 does not mean neutral, it means the alignment does not matter!!!!
+// Values:
+// 0: does not matter
 // 1: neutral
-// 100: bueno
-// -100: malo
+// 100: good
+// -100: evil
 int query_needed_ext_align() { return needed_ext_align; }
 void set_needed_ext_align(int bing) { needed_ext_align = bing; }
 
@@ -68,7 +71,7 @@ int query_valid_align(int align)
   }
 }
 
-// Para comprobar razas
+// To check races
 string * query_legal_races() { return legal_races; }
 void set_legal_races(string * list) { legal_races = list; }
 
@@ -79,7 +82,7 @@ int query_legal_race(string race)
   return 1;
 }
 
-// Para comprobar clases
+// To check classes
 string * query_legal_classes() { return legal_classes; }
 void set_legal_classes(string * list) { legal_classes = list; }
 
@@ -103,7 +106,7 @@ int query_legal_player(object player)
 {  
   if (!objectp(player) || !player)
     return 0;
-  // Comprobamos raza, clase y alineamiento externo
+  // We check race, class and external alignment
   if (!query_legal_race(player->query_race_name()))
     return 0;
   if (!query_legal_class(player->query_class_name()))
@@ -111,8 +114,13 @@ int query_legal_player(object player)
   if (!query_valid_align(player->query_ext_align()))
     return 0;
     
-  if (requirements_func && function_exists(requirements_func, this_object()))
-    return call_other(this_object(), ({ requirements_func, player }));
+  // an extra requirement the guild may name for itself; with none, race,
+  // class and alignment were the whole test
+  if (strlen(requirements_func) &&
+      function_exists(requirements_func, this_object()))
+    return call_other(this_object(), requirements_func, player);
+
+  return 1;
 }
 
 // string help() { return read_file("/doc/helpdir/guilds"); }
@@ -120,7 +128,9 @@ int query_channel() { return 1; }
 
 int query_next_level_xp(object player)
 {  
-  int res = player->query_guild_level() * DEFAULT_XP_COST;
+  int res;
+
+  res = player->query_guild_level() * DEFAULT_XP_COST;
   if (res == 0)
      return DEFAULT_XP_COST;
   return res;
@@ -134,7 +144,7 @@ int query_max_level() { return 30; }
 int query_extra_gp_bonus() { return 0; }
 
 /*
-// Comandos del gremio:
+// Guild commands:
 string *query_guild_commands() { return guild_commands; }
 
 int add_guild_command(string name, int add_if_player) {
@@ -188,29 +198,30 @@ int player_quit(object player)
 
 void new_levels(int lvl, object ob) 
 {
-  int e, gp_bonus = 0;
-  int gps = 0;
-  object class_ob = ob->query_class_ob();
-    
+  int e, gp_bonus, gps;
+  object class_ob;
+
+  class_ob = ob->query_class_ob();
+
   ob->reset_all();
 
   gp_bonus = ob->query_stat_bonus(ob->query_gp_main_stat()) + (query_extra_gp_bonus());
 
-  // Subimos todos los niveles
+  // We go up all the levels
   for (e = 0; e < lvl; e++)
   {
-      // Solo subimos gps si es un nuevo nivel maximo
+      // We only raise gps if it is a new maximum level
       if (ob->query_guild_level() >= ob->query_max_guild_level())
       {
           if(class_ob)
           {
-              // En el primer nivel se obtiene el maximo
+              // On the first level the maximum is obtained
               if (ob->query_guild_level() == 0)
                   gps = class_ob->query_gp_dice();
               else 
                   gps = roll(1, class_ob->query_gp_dice());
           }
-          else // Newbies y/o NPCs sin guild.
+          else // Newbies and/or NPCs without a guild.
           {
               if(interactive(ob))
                   gps = roll(1, 6);
@@ -225,9 +236,8 @@ void new_levels(int lvl, object ob)
 
           ob->set_max_gp(ob->query_max_gp() + gps);
     
-          // Logeamos en /secure, para que nadie pueda ver estas cosas
           if (interactive(ob))
-              secure_log_file("guilds", "[" + ctime(time(),4) + "] " + 
+              log_file("guilds", "[" + ctime(time(),4) + "] " + 
                   ob->query_cap_name() + 
                   " sube "+gps+" pgs ("+base_name(this_object())+") "+
                    "(a nivel "+(ob->query_guild_level()+lvl)+").\n");
@@ -242,7 +252,7 @@ void new_levels(int lvl, object ob)
  */
  /*
 void leave_guild(){
-  if (this_object()->query_spell_directory() != 0) // Folken
+  if (this_object()->query_spell_directory() != 0) // neverbot
     "/global/spells"->reset_spells();
 }
 */
@@ -259,85 +269,85 @@ int do_command(string name, mixed param) {
 */
 
 
-// Se llamara cuando un jugador intente abandonar el gremio
-// Si devolvemos 1, le permitimos hacerlo
-// Si devolvemos 0, el jugador no puede dejar de tener este gremio
+// Will be called when a player tries to leave the guild
+// If we return 1, we allow them to do it
+// If we return 0, the player cannot stop having this guild
 int can_abandon(object player)
 {
   return 1;
 }
 
-// Se llama cuando se produce realmente el abandono del gremio
+// Called when the guild is actually abandoned
 int guild_abandon(object player)
 {
-  if (player->query_player())
-  {
-    string * quests = player->query_quests();
-    int i;
-    object q;
-    
-    // Buscamos todas las quests hasta encontrar la de este gremio 
-    // (como maximo se puede tener una quest de gremio, pero buscamos
-    //  en todas por si ha habido algun error)
-    for (i = 0; i < sizeof(quests); i+=2)
-    {
-      q = load_object(quests[i]);
-
-      if (!q)
-        continue;
-
-      if ((q->query_quest_category() == QUEST_GUILD) && 
-          (q->query_provider_path() == base_name(this_object())))
-      {
-        player->remove_quest(quests[i]);
-      }
-    }
-  }
+  // if (player->query_player())
+  // {
+  //   string * quests = player->query_quests();
+  //   int i;
+  //   object q;
+  //
+  //   // We search all the quests until we find the one for this guild
+  //   // (at most one guild quest can be held, but we search
+  //   //  through all of them in case there has been some error)
+  //   for (i = 0; i < sizeof(quests); i+=2)
+  //   {
+  //     q = load_object(quests[i]);
+  //
+  //     if (!q)
+  //       continue;
+  //
+  //     if ((q->query_quest_category() == QUEST_GUILD) &&
+  //         (q->query_provider_path() == base_name(this_object())))
+  //     {
+  //       player->remove_quest(quests[i]);
+  //     }
+  //   }
+  // }
   
   return 1;
 }
 
-int asign_guild_quest(object pl, int level)
-{
-  string * quests = this_object()->query_quests();
-  int i, result = 0;
-  object q;
+// int asign_guild_quest(object pl, int level)
+// {
+//   string * quests = this_object()->query_quests();
+//   int i, result = 0;
+//   object q;
+//
+//   // We walk through all the quests looking for the one matching
+//   // the next level
+//   for (i = 0; i < sizeof(quests); i++)
+//   {
+//     q = load_object(quests[i]);
+//
+//     if (!q)
+//       continue;
+//
+//     if ((q->query_quest_category() == QUEST_GUILD) && 
+//         (q->query_provider_path() == base_name(this_object())) &&
+//         (q->query_quest_advance_level() == level))
+//     {
+//       result = pl->add_quest(quests[i]);
+//       if (result)
+//         tell_player(pl, "Tienes una nueva misión de gremio.\n");
+//       break;
+//     }
+//   }
+//
+//   return result;
+// }
 
-  // Recorremos todas las quests buscando la correspondiente al 
-  // siguiente nivel 
-  for (i = 0; i < sizeof(quests); i++)
-  {
-    q = load_object(quests[i]);
-
-    if (!q)
-      continue;
-
-    if ((q->query_quest_category() == QUEST_GUILD) && 
-        (q->query_provider_path() == base_name(this_object())) &&
-        (q->query_quest_advance_level() == level))
-    {
-      result = pl->add_quest(quests[i]);
-      if (result)
-        tell_player(pl, "Tienes una nueva misión de gremio.\n");
-      break;
-    }
-  }
-
-  return result;
-}
-
-// Se llama cuando el living se alista, para añadir dotes, etc
+// Called when the living joins, to add feats, etc
 int join_player(object pl)
 {
-  // Asignamos la primera quest (la correspondiente para subir a nivel 2)
-  // Cambio por level + 1, pueden haber abandonado previamente el gremio y haber vuelto
-  if (pl->query_player())
-    asign_guild_quest(pl, pl->query_guild_level() + 1);
+  // We assign the first quest (the one to advance to level 2)
+  // Changed to level + 1, they may have previously left the guild and come back
+  // if (pl->query_player())
+  //   asign_guild_quest(pl, pl->query_guild_level() + 1);
   
   return 1;
 }
 
-// Sistema de especializaciones de gremios
+// Guild specializations system
 string * query_guild_specs() { return specs_available; }
 void set_guild_specs(string * arr) { specs_available = ({ }) + arr; }
 void add_guild_specs(string name) { specs_available += ({ name }); }

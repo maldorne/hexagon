@@ -1,10 +1,10 @@
 // Base deity file...
-// Eressea -  Marzo 18, 2002
-// No creo que sean necesarios ni canales para el grupo deidad, ni comandos 
-// propios por tener una deidad en concreto, pero dejo el codigo comentado por si acaso
-//    Eressea 3/2002
+// neverbot -  March 18, 2002
+// I do not think channels for the deity group are needed, nor commands
+// of your own for having a particular deity, but I leave the code commented just in case
+//    neverbot 3/2002
 
-inherit "/std/object.c";
+inherit "/lib/core/object.c";
 
 // mixed *job_commands = ({ });
 

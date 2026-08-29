@@ -1,5 +1,5 @@
 // Base class file...
-// neverbot - 20 Junio 2003
+// neverbot - 20 June 2003
 
 inherit "/lib/core/object.c";
 
@@ -8,18 +8,18 @@ inherit "/lib/core/object.c";
 
 mixed * class_commands;
 string * legal_races;
-// Bonus al incremento de gps y hps en cada nivel
+// Bonus to the gp and hp increase at each level
 int hp_bonus, gp_bonus;
-// Tipo de dado que se lanza para subir gps y hps
+// Type of die rolled to raise gps and hps
 int hit_dice, gp_dice;
 
-// Define la facilidad para el combate de una clase
-// (este bono se añade a la AC del pj)
+// Defines how easy combat is for a class
+// (this bonus is added to the character's AC)
 int combat_bonus;
 
-// Sistema de tipos de xp, neverbot 07/04
-// tipos definidos en /include/xp_types.h
-// Define tipo_de_xp:porcentaje
+// Xp types system, neverbot 07/04
+// types defined in /include/xp_types.h
+// Defines xp_type:percentage
 // xp_types = ([ "combat":"100", "magic":"20", ]), ...
 mapping xp_types;
 
@@ -45,7 +45,7 @@ void create(){
   ::create();
 }
 
-// Para comprobar razas
+// To check races
 string * query_legal_races() { return legal_races; }
 void set_legal_races(string * list){
    legal_races = list;
@@ -93,22 +93,22 @@ int player_quit(object player)
     return 1;
 }
 
-// A la hora de subir niveles comprobamos la caracteristica
-//  que nos proporciona gps (esta funcion debe enmascararse en cada
-//  clase concreta
+// When gaining levels we check the stat that
+//  provides us gps (this function must be masked in each
+//  specific class)
 int query_gp_main_stat(object player){
   if (player)
     return player->query_str();
 }
 
-// Añadido 7/03, neverbot (mismo sistema que gremios)
+// Added 7/03, neverbot (same system as guilds)
 /* What happens when you advance in level */
 void new_levels(int lvls, object ob) {
   ob->reset_all();
   ob->recalc_stats(lvls);
 }
 
-// Nuevo sistema de subida automatica de niveles de clase
+// New system for automatic class level advancement
 // neverbot 16/7/03
 int query_next_level_xp(object player)
 {
@@ -123,7 +123,7 @@ int query_max_level(){
   return MAX_LEVEL;
 }
 
-// Sistema de tipos de xp, neverbot 07/04
+// Xp types system, neverbot 07/04
 mapping query_xp_types(){ return xp_types; }
 void set_xp_types(mapping types){
    xp_types += types;

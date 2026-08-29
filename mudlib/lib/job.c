@@ -1,14 +1,12 @@
 /* 
  * Base job file...
- * Folken@Rl -  March 18, 2002
+ * neverbot -  March 18, 2002
  * 
  * auto-remove job quests when abandoning the job
  * neverbot 06/2014
  */
 
-#include <quests.h>
-
-inherit "/std/object.c";
+inherit "/lib/core/object.c";
 
 #define BASIC_JOB_XP_COST 2000
 
@@ -24,17 +22,19 @@ int query_legal_player(object player){
            query_legal_class(player->query_class_name()) );
 }
 
-// Folken 07/12/06
+// neverbot 07/12/06
 int query_next_level_xp(object player)
 {
-  int res = player->query_job_level() * BASIC_JOB_XP_COST;
-  if (res == 0) 
+  int res;
+
+  res = player->query_job_level() * BASIC_JOB_XP_COST;
+  if (res == 0)
     return BASIC_JOB_XP_COST;
   return res;
 }
 
-// Cambiar por otro numero para establecer un limite maximo
-// para este oficio
+// Change to another number to set a maximum limit
+// for this job
 int query_max_level() { return 100; }
 
 int query_gp_dice() { return 5; }
@@ -78,18 +78,17 @@ int player_quit(object player)
 
 void new_levels(int lvl, object ob) 
 {
-    int e = 0;
-    int gps = 0;
+    int e, gps;
     
     ob->reset_all();
     
-    // Subimos todos los niveles
+    // We go up all the levels
     for (e = 0; e < lvl; e++)
     {
-        // Solo subimos gps si es un nuevo nivel maximo
+        // We only raise gps if it is a new maximum level
         if (ob->query_job_level() >= ob->query_max_job_level())
         {
-            // En el primer nivel se obtiene el maximo
+            // On the first level the maximum is obtained
             if (ob->query_job_level() == 0)
                 gps = query_gp_dice() + 5;
             else 
@@ -100,9 +99,8 @@ void new_levels(int lvl, object ob)
             
             ob->set_max_gp(ob->query_max_gp() + gps);
     
-            // Logeamos en /secure, para que nadie pueda ver estas cosas
             if (interactive(ob))
-                secure_log_file("jobs", "[" + ctime(time(),4) + "] " + 
+                log_file("jobs", "[" + ctime(time(),4) + "] " + 
 					ob->query_cap_name() + 
                     " sube "+gps+" pgs ("+base_name(this_object())+") "+
 					"(a nivel "+(ob->query_job_level()+lvl)+").\n");
@@ -110,37 +108,40 @@ void new_levels(int lvl, object ob)
     }
 }
 
-// Se llamara cuando un jugador intente abandonar el oficio
-// Si devolvemos 1, le permitimos hacerlo
-// Si devolvemos 0, el jugador no puede dejar de tener este oficio
+// Will be called when a player tries to leave the job
+// If we return 1, we allow them to do it
+// If we return 0, the player cannot stop having this job
 int job_abandon(object player)
 {
-  if (player->query_player())
-  {
-    string * quests = player->query_quests();
-    int i;
-    object q;
-    
-    // Buscamos todas las quests hasta encontrar la de este oficio 
-    for (i = 0; i < sizeof(quests); i+=2)
-    {
-      q = load_object(quests[i]);
+  // Quest removal, waiting on a quest system: hexagon has neither
+  // <quests.h> nor the query_quests / remove_quest half of the player.
+  //
+  // if (player->query_player())
+  // {
+  //   string * quests = player->query_quests();
+  //   int i;
+  //   object q;
+  //
+  //   // We search all the quests until we find the one for this job
+  //   for (i = 0; i < sizeof(quests); i+=2)
+  //   {
+  //     q = load_object(quests[i]);
+  //
+  //     if (!q)
+  //       continue;
+  //
+  //     if ((q->query_quest_category() == QUEST_JOB) &&
+  //         (q->query_quest_job() == base_name(this_object())))
+  //     {
+  //       player->remove_quest(quests[i]);
+  //     }
+  //   }
+  // }
 
-      if (!q)
-        continue;
-
-      if ((q->query_quest_category() == QUEST_JOB) && 
-          (q->query_quest_job() == base_name(this_object())))
-      {
-        player->remove_quest(quests[i]);
-      }
-    }
-  }
-  
-	return 1;
+  return 1;
 }
 
-// Se llama cuando el jugador se alista, para añadir dotes, etc
+// Called when the player joins, to add feats, etc
 int join_player(object pl)
 {
 	return 1;

@@ -1,10 +1,10 @@
-/* 
- * Retocado por neverbot 3/2002 para quitar ahogos, natacion, hombres-lobo, etc 
+/*
+ * Touched up by neverbot 3/2002 to remove drowning, swimming, werewolves, etc
  *
- * Adaptado por neverbot para Cc, 4/2003 
- * Eliminado gran parte del archivo, y otra gran parte movida a /std/living/death.c
- * Añadidas subrazas (o culturas) para cada raza 'generica', neverbot 6/2003
- * Ahora el sistema de Regeneracion de vida y gps tira de las razas, neverbot 7/2003
+ * Adapted by neverbot for Cc, 4/2003
+ * Removed a big part of the file, and another big part moved to /std/living/death.c
+ * Added subraces (or cultures) for each 'generic' race, neverbot 6/2003
+ * Now the health and gp regeneration system relies on the races, neverbot 7/2003
  *
  */
 
@@ -16,19 +16,19 @@ inherit "/lib/core/object";
 static int min_light_limit;
 static int max_light_limit;
 
-// Añadido un standard para cualquier raza, neverbot 2/2002
-int body_size; // 1 menor - 5 humano - 9 mayor
-// Nuevo sistema de alineamiento, neverbot 6/03
+// Added a standard for any race, neverbot 2/2002
+int body_size; // 1 smaller - 5 human - 9 bigger
+// New alignment system, neverbot 6/03
 int ext_align;
-// Numero de brazos
+// Number of arms
 int limbs;
-// Subculturas o subrazas disponibles (para buscar en el subdirectorio 'cultures')
+// Subcultures or subraces available (to look for in the 'cultures' subdirectory)
 string * cultures;
-// Sistema para llevar a un personaje a su zona de inicio
+// System to take a character to its starting zone
 string init_room;
 
-// Nuevo para poner razas para npcs (no son jugables)
-// Cualquier raza en /obj/races se hace jugable automaticamente a menos que tenga esto a 0
+// New, to add races for NPCs (they are not playable)
+// Any race in /obj/races becomes playable automatically unless it has this set to 0
 int is_playable;
 
 int query_is_race_ob() { return 1; }
@@ -42,7 +42,7 @@ void create()
   is_playable = 1;
   cultures = ({ });
   init_room = "";
-  // Alineamiento por defecto neutral   
+  // Neutral alignment by default
   ext_align = random(100);
 
   ::create();
@@ -210,7 +210,7 @@ mixed obtain_location()
   return ({ mult, name, _LANG_RACES_HUMANOID_BODY });
 }
 
-// Añadidos por neverbot 4/03, para eliminar el gender_table.c
+// Added by neverbot 4/03, to get rid of gender_table.c
 string query_race_gender_string(object player, varargs int flag)
 {
   if (!flag)
@@ -226,13 +226,13 @@ string query_race_gender_string(object player, varargs int flag)
     }
 }
 
-/* Nuevo sistema de regeneracion de vida/gps
+/* New health/gp regeneration system
  *
- * Estas funciones reciben el objeto player y
- *  comprueban si deben o no regenerar pvs!!
- * Para razas como la drow se puede comprobar si el
- *  jugador esta en underground, si es dia/noche, etc
- * (por defecto siempre se suben gps y pvs)
+ * These functions receive the player object and
+ *  check whether or not they must regenerate hps!!
+ * For races such as the drow it is possible to check if the
+ *  player is underground, if it is day/night, etc
+ * (by default gps and hps are always raised)
  */
 
 int query_regen_hp(object player) { return 1; }

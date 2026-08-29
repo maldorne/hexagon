@@ -1,7 +1,7 @@
 // Base citizenship file...
 // neverbot 4/2003
-// No creo que sean necesarios ni canales para el grupo ciudadania, ni
-// comandos propios, pero dejo el codigo comentado por si acaso
+// I do not think channels for the citizenship group are needed, nor
+// commands of your own, but I leave the code commented just in case
 //      neverbot 4/2003
 
 inherit "/lib/core/object.c";
