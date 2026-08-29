@@ -307,6 +307,17 @@ private object npc_restore(string id, object loc)
         npc->save_npc();
     }
   }
+  else if (member_array(npc->query_home(),
+                        (string *)this_object()->query_houses()) < 0)
+  {
+    // an address has to name a house. Unbuilding one clears the address of
+    // whoever was in the world at the time and can do nothing for the rest, so
+    // somebody who was away comes back holding the address of a house that is
+    // no longer there.
+    npc->set_home(nil);
+    if (!first)
+      npc->save_npc();
+  }
   else
     // it already knows its address; make sure the house agrees. A vacancy
     // re-homes its replacement by writing only the NPC's side, so without this

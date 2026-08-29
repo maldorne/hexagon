@@ -89,9 +89,9 @@ private string columns(string * * rows)
   return out;
 }
 
-// Name a resident by their uuid: their own name if they are in the world, the
-// kind of person they are otherwise, and a warning when the census has never
-// heard of them.
+// Name a resident by their uuid: their own name, read off their savefile when
+// they are not in the world, and the kind of person they are when they never
+// had a name of their own. A warning when the census has never heard of them.
 private string who_is(object area, string uuid)
 {
   mapping census;
@@ -109,6 +109,10 @@ private string who_is(object area, string uuid)
     return (stringp(given) && strlen(given))
              ? capitalize(given) : (string)npc->query_cap_name();
   }
+
+  given = field_of(census[uuid]["savefile"], "npc_given_name");
+  if (strlen(given))
+    return capitalize(given);
 
   return census[uuid]["source"]
            ? get_path_file_name(census[uuid]["source"]) : uuid;
@@ -316,7 +320,10 @@ private int do_audit(object area, object me)
     }
   }
 
-  // what the people say
+  // what the people say. Everybody is asked, not only those in the world: an
+  // address that outlived its house is exactly what an unloaded person carries
+  // around, since unbuilding a house can only reach the residents it finds
+  // standing in it.
   ids = map_indices(census);
   for (i = 0; i < sizeof(ids); i++)
   {
@@ -324,10 +331,8 @@ private int do_audit(object area, object me)
     mixed home;
 
     npc = AREA_HANDLER->find_live_npc(ids[i]);
-    if (!npc)
-      continue;
-
-    home = npc->query_home();
+    home = npc ? npc->query_home()
+               : field_of(census[ids[i]]["savefile"], "npc_home");
     if (!stringp(home) || !strlen(home))
     {
       if (claimed[ids[i]])
@@ -363,8 +368,8 @@ private int do_audit(object area, object me)
 
   write("Housing faults in '" + area->query_area_name() + "' (" + faults +
         "):\n" + out +
-        "\nOnly people in the world are checked from their own side; the rest " +
-        "are checked from the houses.\n");
+        "\nEverybody is checked from both sides: those in the world are asked " +
+        "directly, the rest are read off their savefile.\n");
   return 1;
 }
 
