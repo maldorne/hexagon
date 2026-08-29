@@ -215,4 +215,57 @@
 #define _LANG_PROP_BAR_LEAN_OTHERS      "$mcname$ leans against the bar."
 #define _LANG_PROP_BAR_SMELL_ME         "The bar reeks of stale ale and old wood."
 
+// ------------------------------------------------------------
+//  bunk
+// ------------------------------------------------------------
+#define _LANG_PROP_BUNK_ID              "bunk"
+#define _LANG_PROP_BUNK_ID_ALIAS_1      "cot"
+#define _LANG_PROP_BUNK_NOUN            "bunk"
+#define _LANG_PROP_BUNK_NOUN_PLURAL     "bunks"
+#define _LANG_PROP_BUNK_SHORT           "a $material_phrase$ bunk"
+#define _LANG_PROP_BUNK_LONG            "A narrow $material_phrase$ bunk, its blanket folded at the foot."
+
+#define _LANG_PROP_BUNK_SUFFIX_OCCUPIED " (%s is lying on it)"
+#define _LANG_PROP_BUNK_LONG_OCCUPIED   " %s is resting on it."
+
+#define _LANG_PROP_BUNK_LIE_VERBS       ({ "lie", "liedown" })
+#define _LANG_PROP_BUNK_RISE_VERBS      ({ "rise", "getup" })
+
+#define _LANG_PROP_BUNK_OCCUPIED_BY     "Somebody is already lying there."
+#define _LANG_PROP_BUNK_NOT_LYING       "You are not lying on the bunk."
+#define _LANG_PROP_BUNK_LIE_ME          "You lie down on the bunk."
+#define _LANG_PROP_BUNK_LIE_OTHERS      "$mcname$ lies down on the bunk."
+#define _LANG_PROP_BUNK_RISE_ME         "You get up from the bunk."
+#define _LANG_PROP_BUNK_RISE_OTHERS     "$mcname$ gets up from the bunk."
+
+// ------------------------------------------------------------
+//  rack
+// ------------------------------------------------------------
+#define _LANG_PROP_RACK_ID              "rack"
+#define _LANG_PROP_RACK_ID_ALIAS_1      "pegs"
+#define _LANG_PROP_RACK_NOUN            "rack"
+#define _LANG_PROP_RACK_NOUN_PLURAL     "racks"
+#define _LANG_PROP_RACK_SHORT           "a $material_phrase$ rack"
+#define _LANG_PROP_RACK_LONG            "A row of $material_phrase$ pegs fixed to the wall, hung with cloaks and belts."
+
+#define _LANG_PROP_RACK_SEARCH_VERBS    ({ "search", "rummage" })
+#define _LANG_PROP_RACK_SMELL_VERBS     ({ "smell", "sniff" })
+#define _LANG_PROP_RACK_SEARCH_ME       "You rummage through the cloaks: nothing but old wool and worn straps."
+#define _LANG_PROP_RACK_SEARCH_OTHERS   "$mcname$ rummages through the hanging cloaks."
+#define _LANG_PROP_RACK_SMELL_ME        "The cloaks smell of sweat, leather and hearth smoke."
+
+// ------------------------------------------------------------
+//  arms rack
+// ------------------------------------------------------------
+#define _LANG_PROP_ARMS_ID              "armsrack"
+#define _LANG_PROP_ARMS_ID_ALIAS_1      "frame"
+#define _LANG_PROP_ARMS_NOUN            "arms rack"
+#define _LANG_PROP_ARMS_NOUN_PLURAL     "arms racks"
+#define _LANG_PROP_ARMS_SHORT           "a $material_phrase$ arms rack of spears"
+#define _LANG_PROP_ARMS_LONG            "A $material_phrase$ frame propped by the door, half a dozen spears socketed by the shaft with their heads up."
+
+#define _LANG_PROP_ARMS_COUNT_VERBS     ({ "count" })
+#define _LANG_PROP_ARMS_COUNT_ME        "You count six spears, every head clean and oiled."
+#define _LANG_PROP_ARMS_COUNT_OTHERS    "$mcname$ counts the spears in the rack."
+
 #endif // _LANG_PROPS_H_EN

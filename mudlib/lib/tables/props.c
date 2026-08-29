@@ -382,6 +382,134 @@ void create()
       ]),
     ]),
 
+    // ------------------------------------------------------------
+    //  bunk — one sleeper at a time
+    // ------------------------------------------------------------
+    "bunk": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_BUNK_ID,
+        _LANG_PROP_BUNK_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_BUNK_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_BUNK_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WOOD,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_BUNK_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_BUNK_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_WOOD }),
+
+      PROP_TYPE_DEFAULT_STATE: ([
+        "occupant": nil,
+      ]),
+
+      PROP_TYPE_STATE_SUFFIXES: ([
+        "occupant": _LANG_PROP_BUNK_SUFFIX_OCCUPIED,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES: ([
+        "occupant": _LANG_PROP_BUNK_LONG_OCCUPIED,
+      ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "lie": ([
+          PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_BUNK_LIE_VERBS,
+          PROP_SPEC_REQUIRES_STATE_UNSET: ({ "occupant" }),
+          PROP_SPEC_ALREADY_SET_MSG:      _LANG_PROP_BUNK_OCCUPIED_BY,
+          PROP_SPEC_SET_STATE:            ([ "occupant": PROP_VALUE_PLAYER_NAME ]),
+          PROP_SPEC_MSG_ME:               _LANG_PROP_BUNK_LIE_ME,
+          PROP_SPEC_MSG_OTHERS:           _LANG_PROP_BUNK_LIE_OTHERS,
+        ]),
+
+        "rise": ([
+          PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_BUNK_RISE_VERBS,
+          PROP_SPEC_REQUIRES_STATE_MATCH: ([ "occupant": PROP_VALUE_PLAYER_NAME ]),
+          PROP_SPEC_MISSING_MATCH_MSG:    _LANG_PROP_BUNK_NOT_LYING,
+          PROP_SPEC_CLEAR_STATE:          ({ "occupant" }),
+          PROP_SPEC_MSG_ME:               _LANG_PROP_BUNK_RISE_ME,
+          PROP_SPEC_MSG_OTHERS:           _LANG_PROP_BUNK_RISE_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  rack — pegs on a wall, no state
+    // ------------------------------------------------------------
+    "rack": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_RACK_ID,
+        _LANG_PROP_RACK_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_RACK_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_RACK_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WOOD,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_RACK_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_RACK_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_WOOD, MAT_METAL }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "search": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_RACK_SEARCH_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_RACK_SEARCH_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_RACK_SEARCH_OTHERS,
+        ]),
+
+        "smell": ([
+          PROP_SPEC_KIND:   PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:  _LANG_PROP_RACK_SMELL_VERBS,
+          PROP_SPEC_MSG_ME: _LANG_PROP_RACK_SMELL_ME,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  arms rack — the weapons belong to somebody, no state
+    // ------------------------------------------------------------
+    "arms_rack": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_ARMS_ID,
+        _LANG_PROP_ARMS_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_ARMS_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_ARMS_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WOOD,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_ARMS_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_ARMS_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_WOOD, MAT_METAL }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "count": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_ARMS_COUNT_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_ARMS_COUNT_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_ARMS_COUNT_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
   ]);
 }
 

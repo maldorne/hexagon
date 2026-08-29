@@ -216,4 +216,57 @@
 #define _LANG_PROP_BAR_LEAN_OTHERS      "$mcname$ se apoya en la barra."
 #define _LANG_PROP_BAR_SMELL_ME         "La barra huele a cerveza rancia y madera vieja."
 
+// ------------------------------------------------------------
+//  camastro
+// ------------------------------------------------------------
+#define _LANG_PROP_BUNK_ID              "camastro"
+#define _LANG_PROP_BUNK_ID_ALIAS_1      "catre"
+#define _LANG_PROP_BUNK_NOUN            "camastro"
+#define _LANG_PROP_BUNK_NOUN_PLURAL     "camastros"
+#define _LANG_PROP_BUNK_SHORT           "un camastro $material_phrase$"
+#define _LANG_PROP_BUNK_LONG            "Un camastro estrecho $material_phrase$, con la manta doblada a los pies."
+
+#define _LANG_PROP_BUNK_SUFFIX_OCCUPIED " (%s está tumbado en él)"
+#define _LANG_PROP_BUNK_LONG_OCCUPIED   " %s descansa en él."
+
+#define _LANG_PROP_BUNK_LIE_VERBS       ({ "tumbarse", "acostarse", "echarse" })
+#define _LANG_PROP_BUNK_RISE_VERBS      ({ "levantarse", "incorporarse" })
+
+#define _LANG_PROP_BUNK_OCCUPIED_BY     "Ya hay alguien tumbado ahí."
+#define _LANG_PROP_BUNK_NOT_LYING       "No estás tumbado en el camastro."
+#define _LANG_PROP_BUNK_LIE_ME          "Te tumbas en el camastro."
+#define _LANG_PROP_BUNK_LIE_OTHERS      "$mcname$ se tumba en el camastro."
+#define _LANG_PROP_BUNK_RISE_ME         "Te levantas del camastro."
+#define _LANG_PROP_BUNK_RISE_OTHERS     "$mcname$ se levanta del camastro."
+
+// ------------------------------------------------------------
+//  perchero
+// ------------------------------------------------------------
+#define _LANG_PROP_RACK_ID              "perchero"
+#define _LANG_PROP_RACK_ID_ALIAS_1      "clavijas"
+#define _LANG_PROP_RACK_NOUN            "perchero"
+#define _LANG_PROP_RACK_NOUN_PLURAL     "percheros"
+#define _LANG_PROP_RACK_SHORT           "un perchero $material_phrase$"
+#define _LANG_PROP_RACK_LONG            "Una hilera de clavijas $material_phrase$ fijadas a la pared. De ellas cuelgan capas y cinturones."
+
+#define _LANG_PROP_RACK_SEARCH_VERBS    ({ "registrar", "rebuscar" })
+#define _LANG_PROP_RACK_SMELL_VERBS     ({ "oler", "olfatear" })
+#define _LANG_PROP_RACK_SEARCH_ME       "Rebuscas entre las capas: nada que no sea lana vieja y correas gastadas."
+#define _LANG_PROP_RACK_SEARCH_OTHERS   "$mcname$ rebusca entre las capas colgadas."
+#define _LANG_PROP_RACK_SMELL_ME        "Las capas huelen a sudor, cuero y humo de hoguera."
+
+// ------------------------------------------------------------
+//  armero
+// ------------------------------------------------------------
+#define _LANG_PROP_ARMS_ID              "armero"
+#define _LANG_PROP_ARMS_ID_ALIAS_1      "bastidor"
+#define _LANG_PROP_ARMS_NOUN            "armero"
+#define _LANG_PROP_ARMS_NOUN_PLURAL     "armeros"
+#define _LANG_PROP_ARMS_SHORT           "un armero $material_phrase$ con lanzas"
+#define _LANG_PROP_ARMS_LONG            "Un bastidor $material_phrase$ apoyado junto a la puerta, con media docena de lanzas encajadas por el astil y las puntas hacia arriba."
+
+#define _LANG_PROP_ARMS_COUNT_VERBS     ({ "contar" })
+#define _LANG_PROP_ARMS_COUNT_ME        "Cuentas seis lanzas, todas con la punta limpia y engrasada."
+#define _LANG_PROP_ARMS_COUNT_OTHERS    "$mcname$ cuenta las lanzas del armero."
+
 #endif // _LANG_PROPS_H_ES
