@@ -151,6 +151,42 @@ string build_house_on_plot(string * residents)
   return plot_file;
 }
 
+// Raise a house on one named plot, rather than on whichever one is free. Used
+// when a job's house is chosen by hand: the builder stands on the plot that is
+// to become it. Returns the house's location file, or nil if that location is
+// not a plot of this area.
+string build_house_at(string file, string * residents)
+{
+  object house, owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (string)owner->build_house_at(file, residents);
+
+  if (member_array(file, query_plots()) < 0)
+    return nil;
+
+  house = (object)this_object()->load_location(file);
+  if (!house)
+    return nil;
+
+  house->remove_component(LOCATION_COMPONENT_PLOT);
+  house->add_component(LOCATION_COMPONENT_HOME,
+                       ([ "residents": residents ? residents : ({ }) ]));
+  house->save_me();
+
+  door_house_exits(house);
+
+  remove_plot(file);
+  add_house(file);
+
+  this_object()->log_event("Raised a house at " + file + " for " +
+            (residents && sizeof(residents) ? implode(residents, ", ")
+                                            : "no residents") + ".");
+
+  return file;
+}
+
 // Re-type a raised house's exits to "door": the exit(s) the house carries (a
 // plot-derived house has one, back to the location it was carved from) and each
 // neighbour's reciprocal exit. A plot is carved with plain "open" passages; once

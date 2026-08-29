@@ -10,6 +10,7 @@ inherit "/lib/armour.c";
 #include <room/room.h>
 #include <areas/area.h>
 #include <areas/poi.h>
+#include <areas/vacancy.h>
 #include <living/persisted.h>
 #include <sector/sector.h>
 #include <translations/armour.h>
@@ -18,7 +19,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "role", "npc", "plot", "homes", "home" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -29,13 +30,12 @@ inherit "/lib/armour.c";
   "           | parent <area path|none> | principal\n" + \
   "           | relevel >"
 #define BUILDER_RING_POI_SYNTAX \
-  "build poi < add <kind> [label] | remove | list | guard_dir <dir>\n" + \
-  "          | vacancy < add <role> <source.c> | remove <role>\n" + \
-  "                    | home <role> > >"
-#define BUILDER_RING_ROLE_SYNTAX \
-  "build role < add <name> <count> <source.c>\n" + \
-  "           | equip <name> <item.c[|alt.c...]>...\n" + \
-  "           | class <name> <class.c|none> | remove <name> | list >"
+  "build poi < add <kind> [label] | remove | list | guard_dir <dir> >"
+#define BUILDER_RING_VACANCY_SYNTAX \
+  "build vacancy < add <name> <count> <source.c> [poi]\n" + \
+  "               | equip <name> <item.c[|alt.c...]>...\n" + \
+  "               | class <name> <class.c|none> | home <name>\n" + \
+  "               | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
 #define BUILDER_RING_HOMES_SYNTAX "build homes  (house the area's homeless citizens on free plots, pairing families)"
@@ -62,15 +62,13 @@ inherit "/lib/armour.c";
   "  build poi remove\n" + \
   "  build poi list\n" + \
   "  build poi guard_dir <dir>            on a town_entrance: the way in\n" + \
-  "  build poi vacancy add <role> <source.c>\n" + \
-  "  build poi vacancy remove <role>\n" + \
-  "  build poi vacancy home <role>        bind a house to the post\n" + \
   "\n" + \
-  "  build role add <name> <count> <source.c>\n" + \
-  "  build role equip <name> <item.c[|alt.c]>...\n" + \
-  "  build role class <name> <class.c|none>   what the trade trains in\n" + \
-  "  build role remove <name>\n" + \
-  "  build role list\n" + \
+  "  build vacancy add <name> <count> <source.c> [poi]\n" + \
+  "  build vacancy equip <name> <item.c[|alt.c]>...\n" + \
+  "  build vacancy class <name> <class.c|none>  what the job trains in\n" + \
+  "  build vacancy home <name>                  bind a house to the job\n" + \
+  "  build vacancy remove <name>\n" + \
+  "  build vacancy list\n" + \
   "\n" + \
   "  build npc                            roster, census and vacancies\n" + \
   "  build plot <dir>                     carve an empty buildable lot\n" + \
@@ -115,7 +113,7 @@ int do_convert(string str);
 int do_component(string str);
 int do_area(string str);
 int do_poi(string str);
-int do_role(string str);
+int do_vacancy(string str);
 int do_npc(string str);
 int do_plot(string str);
 int do_homes();
@@ -347,8 +345,8 @@ int do_build(string str)
     return do_area(implode(args[1..], " "));
   else if (verb == "poi")
     return do_poi(implode(args[1..], " "));
-  else if (verb == "role")
-    return do_role(implode(args[1..], " "));
+  else if (verb == "vacancy")
+    return do_vacancy(implode(args[1..], " "));
   else if (verb == "plot")
     return do_plot(implode(args[1..], " "));
   else
@@ -894,17 +892,6 @@ int do_poi(string str)
       l = strlen(p[POI_FIELD_KIND], TRUE);
       if (l > w_kind) w_kind = l;
 
-      vs = p[POI_FIELD_VACANCIES];
-      for (j = 0; vs && j < sizeof(vs); j++)
-      {
-        // the role is quoted (it is a name we chose); measure it with quotes
-        l = strlen(vs[j][VACANCY_FIELD_ROLE], TRUE) + 2;
-        if (l > w_role) w_role = l;
-        // show the full template id so the same role name in two areas is
-        // unambiguous (barman exists once per town)
-        l = strlen(vs[j][VACANCY_FIELD_SOURCE], TRUE);
-        if (l > w_src) w_src = l;
-      }
     }
 
     // Header names the area; the shared directory goes on its own line so a
@@ -930,12 +917,6 @@ int do_poi(string str)
                     w_kind, p[POI_FIELD_KIND],
                     label, guard, here));
 
-      vs = p[POI_FIELD_VACANCIES];
-      for (j = 0; vs && j < sizeof(vs); j++)
-        write(sprintf("      vacancy %-*s  template %-*s  %s\n",
-                      w_role, "\"" + vs[j][VACANCY_FIELD_ROLE] + "\"",
-                      w_src, vs[j][VACANCY_FIELD_SOURCE],
-                      vs[j][VACANCY_FIELD_UUID] ? "[filled]" : "[empty]"));
     }
     return 1;
   }
@@ -966,99 +947,6 @@ int do_poi(string str)
     return 1;
   }
 
-  if (verb == "vacancy")
-  {
-    string vverb;
-
-    if (sizeof(args) < 2)
-    {
-      notify_fail("Usage: build poi vacancy < add <role> <source> | " +
-                  "remove <role> | home <role> >\n");
-      return 0;
-    }
-
-    vverb = args[1];
-
-    // "home" binds the current location (a plot or a house) as a role's fixed
-    // vacancy home; unlike add/remove it acts on the house, not the POI, so it
-    // does not require standing on the POI itself
-    if (vverb == "home")
-    {
-      string role;
-      int n;
-
-      if (sizeof(args) < 3)
-      {
-        notify_fail("Usage: build poi vacancy home <role>\n");
-        return 0;
-      }
-      role = args[2];
-
-      if (!loc->query_component_by_type(LOCATION_COMPONENT_PLOT) &&
-          !loc->query_component_by_type(LOCATION_COMPONENT_HOME))
-      {
-        notify_fail("Stand in a plot or a house to make it a vacancy's " +
-                    "home.\n");
-        return 0;
-      }
-
-      n = area->bind_vacancy_house(role, file);
-      if (!n)
-      {
-        notify_fail("No vacancy with role '" + role + "' in this area.\n");
-        return 0;
-      }
-      write("Bound the '" + role + "' vacancy's home to " + file + ".\n");
-      return 1;
-    }
-
-    if (!area->is_poi(file))
-    {
-      notify_fail("This location is not a POI. Add one first with " +
-                  "'build poi add <kind>'.\n");
-      return 0;
-    }
-
-    if (vverb == "add")
-    {
-      string role, source;
-
-      if (sizeof(args) < 4)
-      {
-        notify_fail("Usage: build poi vacancy add <role> <source>\n");
-        return 0;
-      }
-      role = args[2];
-      source = args[3];
-
-      if (file_size(source) < 0 && file_size(source + ".c") < 0)
-      {
-        notify_fail("No NPC blueprint at '" + source + "'.\n");
-        return 0;
-      }
-
-      area->add_vacancy(file, role, source);
-      write("Vacancy '" + role + "' <- " + source + " on this POI.\n");
-      return 1;
-    }
-
-    if (vverb == "remove")
-    {
-      if (sizeof(args) < 3)
-      {
-        notify_fail("Usage: build poi vacancy remove <role>\n");
-        return 0;
-      }
-      area->remove_vacancy(file, args[2]);
-      write("Vacancy '" + args[2] + "' removed.\n");
-      return 1;
-    }
-
-    notify_fail("Usage: build poi vacancy < add <role> <source> | " +
-                "remove <role> >\n");
-    return 0;
-  }
-
   notify_fail("Usage: " + BUILDER_RING_POI_SYNTAX + "\n");
   return 0;
 }
@@ -1069,7 +957,7 @@ int do_poi(string str)
 // `list` shows them with their live count; `remove` drops one (culling its
 // NPCs). A role slot does not auto-respawn on death -- the settlement pass
 // refills it.
-int do_role(string str)
+int do_vacancy(string str)
 {
   string * args, verb;
   object loc, area;
@@ -1078,7 +966,7 @@ int do_role(string str)
   if (!loc || !loc->query_location())
   {
     notify_fail("Stand in a location (not a plain room) to manage its area's " +
-                "roles.\n");
+                "vacancies.\n");
     return 0;
   }
   area = loc->query_area();
@@ -1091,8 +979,7 @@ int do_role(string str)
   args = (str && strlen(str)) ? explode(str, " ") : ({ });
   if (!sizeof(args))
   {
-    notify_fail("Usage: build role < add <name> <count> <source.c> | " +
-                "equip <name> <item.c>... | remove <name> | list >\n");
+    notify_fail("Usage: " + BUILDER_RING_VACANCY_SYNTAX + "\n");
     return 0;
   }
   verb = args[0];
@@ -1100,15 +987,18 @@ int do_role(string str)
   if (verb == "add")
   {
     string name, source;
-    int count;
+    int count, poi;
 
     if (sizeof(args) < 4 || sscanf(args[2], "%d", count) != 1)
     {
-      notify_fail("Usage: build role add <name> <count> <source.c>\n");
+      notify_fail("Usage: build vacancy add <name> <count> <source.c> [poi]\n");
       return 0;
     }
     name = args[1];
     source = args[3];
+    // a job anchored to a point of interest stays where it is and its holder
+    // is replaced there promptly; the rest spread over the area's like places
+    poi = (sizeof(args) > 4 && args[4] == "poi");
     if (file_size(source) < 0 && file_size(source + ".c") < 0)
     {
       notify_fail("No NPC blueprint at '" + source + "'.\n");
@@ -1117,13 +1007,13 @@ int do_role(string str)
     // The area stores the cap (count + workplace = wherever the coder stands).
     // Behaviour is the type's: mark the template sentient through the bestiary,
     // its authoritative home, so a role is a named citizen by default.
-    area->add_role(name, count, loc->query_file_name(), source);
-    BESTIARY_HANDLER->set_template_behaviour(
-      game_from_path(area->query_area_path()),
-      area->query_role(name)["source"], ([ "sentient": 1 ]));
-    area->fill_role(name);
-    write("Role '" + name + "' x" + count + " <- " + source +
-          ", working here.\n");
+    // the area stores the job: how many, where (wherever the coder stands),
+    // and the type its holders are drawn from
+    area->open_vacancy(name, count, loc->query_file_name(), source,
+                       poi ? ([ VACANCY_POI: 1 ]) : ([ VACANCY_SPREAD: 1 ]));
+    area->fill_vacancy(area->query_vacancy(name, loc->query_file_name()));
+    write("Vacancy '" + name + "' x" + count + " <- " + source +
+          ", held here.\n");
     return 1;
   }
 
@@ -1131,11 +1021,11 @@ int do_role(string str)
   {
     if (sizeof(args) < 2)
     {
-      notify_fail("Usage: build role remove <name>\n");
+      notify_fail("Usage: build vacancy remove <name>\n");
       return 0;
     }
-    area->remove_role(args[1]);
-    write("Role '" + args[1] + "' removed.\n");
+    area->close_vacancy(args[1]);
+    write("Vacancy '" + args[1] + "' closed.\n");
     return 1;
   }
 
@@ -1145,7 +1035,7 @@ int do_role(string str)
     // NPC type cannot say so: one source staffs several settlements.
     if (sizeof(args) < 3)
     {
-      notify_fail("Usage: build role class <name> <class.c|none>\n");
+      notify_fail("Usage: build vacancy class <name> <class.c|none>\n");
       return 0;
     }
 
@@ -1156,9 +1046,9 @@ int do_role(string str)
       return 0;
     }
 
-    if (!area->set_role_class(args[1], args[2] == "none" ? "" : args[2]))
+    if (!area->set_vacancy_class(args[1], args[2] == "none" ? "" : args[2]))
     {
-      notify_fail("No role '" + args[1] + "' in this area.\n");
+      notify_fail("No vacancy '" + args[1] + "' in this area.\n");
       return 0;
     }
 
@@ -1184,7 +1074,7 @@ int do_role(string str)
                   "each NPC rolls one (e.g. weapons/club|weapons/sickle).\n");
       return 0;
     }
-    if (!area->query_role(args[1]))
+    if (!area->query_vacancy(args[1]))
     {
       notify_fail("No role '" + args[1] + "' in this area.\n");
       return 0;
@@ -1215,37 +1105,75 @@ int do_role(string str)
     // bestiary, then have the area re-gear any live empty-handed holders.
     BESTIARY_HANDLER->set_template_behaviour(
       game_from_path(area->query_area_path()),
-      area->query_role(args[1])["source"], ([ "equipment": spec ]));
-    area->reequip_role_holders(args[1]);
+      area->query_vacancy(args[1])[VACANCY_SOURCE], ([ "equipment": spec ]));
+    area->reequip_vacancy_holders(args[1]);
     write("Role '" + args[1] + "' kit set: " + sizeof(spec) +
           " slot" + (sizeof(spec) == 1 ? "" : "s") +
           " (new citizens roll their gear; existing keep theirs).\n");
     return 1;
   }
 
+  if (verb == "home")
+  {
+    // the house that comes with the job: stand in a plot or a house and bind it
+    object home;
+    mapping job;
+    string file;
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build vacancy home <name>\n");
+      return 0;
+    }
+
+    job = area->query_vacancy(args[1]);
+    if (!job)
+    {
+      notify_fail("No vacancy '" + args[1] + "' in this area.\n");
+      return 0;
+    }
+
+    file = loc->query_file_name();
+    if (loc->query_component_by_type(LOCATION_COMPONENT_PLOT))
+    {
+      object holder;
+
+      holder = area->query_vacancy_holder(job);
+      home = loc;
+      area->build_house_at(file,
+        holder ? ({ holder->query_npc_uuid() }) : ({ }));
+    }
+    else if (!loc->query_component_by_type(LOCATION_COMPONENT_HOME))
+    {
+      notify_fail("Stand in a plot or a house to make it the '" + args[1] +
+                  "' vacancy's home.\n");
+      return 0;
+    }
+
+    area->set_vacancy_home(args[1], file);
+    write("The '" + args[1] + "' vacancy's home is now " + file + ".\n");
+    return 1;
+  }
+
   if (verb == "list")
   {
-    mapping roles;
-    string * names;
+    mapping * all;
     int i;
 
-    roles = area->query_roles();
-    names = map_indices(roles);
-    if (!sizeof(names))
+    all = area->query_vacancies();
+    if (!sizeof(all))
     {
-      write("No roles in area '" + area->query_area_name() + "'.\n");
+      write("No vacancies in area '" + area->query_area_name() + "'.\n");
       return 1;
     }
 
-    write("Roles in area '" + area->query_area_name() + "':\n");
-    for (i = 0; i < sizeof(names); i++)
-    {
-      mapping r;
-      r = roles[names[i]];
-      write(sprintf("  %-14s  x%-2d  live %d  <- %s\n",
-                    names[i], r["count"], area->count_role_npcs(names[i]),
-                    get_path_file_name(r["source"])));
-    }
+    write("Vacancies in area '" + area->query_area_name() + "':\n");
+    for (i = 0; i < sizeof(all); i++)
+      write(sprintf("  %-14s  x%-2d  held %d  at %-22s  <- %s\n",
+                    all[i][VACANCY_JOB], all[i][VACANCY_COUNT],
+                    sizeof(area->query_vacancy_holders(all[i])),
+                    get_path_file_name(all[i][VACANCY_AT]),
+                    get_path_file_name(all[i][VACANCY_SOURCE])));
     return 1;
   }
 
@@ -1358,45 +1286,21 @@ int do_npc(string str)
       out += "  (none)\n";
   }
 
-  // vacancies: named single-instance roles bound to POIs, each filled from a
-  // data template (the same template id the roster uses). Columns: POI, the
-  // quoted role we chose, and the template it spawns from.
-  pois = area->query_pois();
-  pkeys = map_indices(pois);
+  // Every job the settlement offers: how many hold it, where, and the type
+  // its holders are drawn from.
   {
-    string * v_poi, * v_role, * v_tmpl, * v_state;
-    int w_poi, w_role, w_tmpl, j;
+    mapping * all;
 
-    v_poi = v_role = v_tmpl = v_state = ({ });
-    for (i = 0; i < sizeof(pkeys); i++)
+    all = area->query_vacancies();
+    if (sizeof(all))
     {
-      mapping * vs;
-      vs = pois[pkeys[i]][POI_FIELD_VACANCIES];
-      for (j = 0; vs && j < sizeof(vs); j++)
-      {
-        v_poi   += ({ get_path_file_name(pkeys[i]) });
-        v_role  += ({ "\"" + vs[j][VACANCY_FIELD_ROLE] + "\"" });
-        v_tmpl  += ({ vs[j][VACANCY_FIELD_SOURCE] });
-        v_state += ({ vs[j][VACANCY_FIELD_UUID] ? "[filled]" : "[empty]" });
-      }
-    }
-
-    if (sizeof(v_poi))
-    {
-      w_poi = w_role = w_tmpl = 0;
-      for (i = 0; i < sizeof(v_poi); i++)
-      {
-        int l;
-        l = strlen(v_poi[i], TRUE);  if (l > w_poi)  w_poi = l;
-        l = strlen(v_role[i], TRUE); if (l > w_role) w_role = l;
-        l = strlen(v_tmpl[i], TRUE); if (l > w_tmpl) w_tmpl = l;
-      }
-
       out += "Vacancies:\n";
-      for (i = 0; i < sizeof(v_poi); i++)
-        out += sprintf("  %-*s  %-*s  template %-*s  %s\n",
-                       w_poi, v_poi[i], w_role, v_role[i],
-                       w_tmpl, v_tmpl[i], v_state[i]);
+      for (i = 0; i < sizeof(all); i++)
+        out += sprintf("  %-14s  x%-2d  held %d  at %-22s  <- %s\n",
+                       all[i][VACANCY_JOB], all[i][VACANCY_COUNT],
+                       sizeof(area->query_vacancy_holders(all[i])),
+                       get_path_file_name(all[i][VACANCY_AT]),
+                       get_path_file_name(all[i][VACANCY_SOURCE]));
     }
   }
 

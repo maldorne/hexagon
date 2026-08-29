@@ -6,7 +6,7 @@ inherit housing   "/lib/location/area/housing.c";
 inherit pois      "/lib/location/area/pois.c";
 inherit guards    "/lib/location/area/guards.c";
 inherit census    "/lib/location/area/census.c";
-inherit roles     "/lib/location/area/roles.c";
+inherit vacancies "/lib/location/area/vacancies.c";
 inherit roster    "/lib/location/area/roster.c";
 
 #include <room/location.h>
@@ -67,7 +67,7 @@ void create() {
   pois::create();
   guards::create();
   census::create();
-  roles::create();
+  vacancies::create();
   roster::create();
   obj::create();
 }

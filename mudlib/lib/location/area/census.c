@@ -16,6 +16,7 @@
 #include <room/location.h>
 #include <areas/area.h>
 #include <areas/poi.h>
+#include <areas/vacancy.h>
 #include <living/persisted.h>
 #include <basic/gender.h>
 
@@ -100,26 +101,6 @@ private int has_live_uuid(object loc, string uuid)
 }
 
 
-// Assign a vacancy NPC: an individual with a uuid and a savefile, bound to
-// a POI (not part of the statistical roster, so no npc_caps check), and
-// the census entry is tagged with the owning POI location and role. Returns
-// the uuid. The NPC materializes when the POI's location loads.
-string assign_vacancy_npc(string source, string location_file,
-                                  string role)
-{
-  string id, game;
-
-  // source is a template id (add_vacancy built its template); no monster .c
-  game = game_from_path((string)this_object()->query_area_path());
-
-  id = UUID_OB->uuid();
-  query_npc_census()[id] = ([ "source": source, "location": location_file,
-                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
-                      "poi": location_file, "role": role ]);
-  this_object()->save_me();
-
-  return id;
-}
 
 // Materialize a census NPC into `loc`: a generic NPC with the source's data
 // template applied. If it already has a savefile (it was live before), restore
@@ -169,11 +150,13 @@ private object npc_restore(string id, object loc)
   if (entry["poi"])
     npc->set_npc_poi(entry["poi"]);
 
-  // A role slot is a named, self-gendered citizen; anything else (a monster, a
-  // POI vacancy, a guard) takes its gender from the template. A slot is a
-  // role-board slot only when tagged "role" with no "poi"/"guard"; the role is
-  // read here for the workplace it names.
-  role = (entry["role"] && !entry["poi"] && !entry["guard"]) ? ((mapping)this_object()->query_roles())[entry["role"]] : nil;
+  // Somebody who holds a job is a named, self-gendered citizen; a monster or a
+  // guard takes its gender from the template. The vacancy is read here for the
+  // place it names.
+  role = (entry[CENSUS_VACANCY] && !entry["guard"])
+           ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
+                                                   entry[CENSUS_AT])
+           : nil;
   t = (mapping)this_object()->query_banded_template(game, source);
 
   // sentience is a fact about the type, so it comes from the template
@@ -228,13 +211,14 @@ private object npc_restore(string id, object loc)
   // The trade's class, when its role declares one. Set before the level:
   // set_class_ob resets class_level to 1, so a class applied afterwards would
   // undo the level this NPC was just given.
-  if (first && entry["role"])
+  if (first && entry[CENSUS_VACANCY])
   {
-    mapping role;
+    mapping job;
 
-    role = (mapping)this_object()->query_role(entry["role"]);
-    if (role && stringp(role["class"]) && strlen(role["class"]))
-      npc->set_class_ob(role["class"]);
+    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
+                                                entry[CENSUS_AT]);
+    if (job && stringp(job[VACANCY_CLASS]) && strlen(job[VACANCY_CLASS]))
+      npc->set_class_ob(job[VACANCY_CLASS]);
   }
 
   // level: decided once from the area on the first materialization; on restore
@@ -380,24 +364,17 @@ private object npc_restore(string id, object loc)
       this_object()->index_schedule_hours(id, sched->query_active_hours());
   }
 
-  // A POI vacancy (the pub's barman, the shop's keeper) with a fixed home lives
-  // in its designated house; set it every materialization so it survives death
-  // and respawn. Read live from the vacancy so a rebind is picked up.
-  if (entry["poi"] && entry["role"])
+  // A job that comes with a house houses whoever holds it, set on every
+  // materialization so it survives death and replacement. Read live from the
+  // vacancy, so rebinding the house reaches the holder without a respawn.
+  if (entry[CENSUS_VACANCY])
   {
-    mapping poi;
-    mixed * vs;
-    int vi;
+    mapping job;
 
-    poi = ((mapping)this_object()->query_pois())[entry["poi"]];
-    vs = poi ? poi[POI_FIELD_VACANCIES] : nil;
-    for (vi = 0; vs && vi < sizeof(vs); vi++)
-      if (vs[vi][VACANCY_FIELD_ROLE] == entry["role"] &&
-          vs[vi][VACANCY_FIELD_HOME])
-      {
-        npc->set_home(vs[vi][VACANCY_FIELD_HOME]);
-        break;
-      }
+    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
+                                                entry[CENSUS_AT]);
+    if (job && job[VACANCY_HOME])
+      npc->set_home(job[VACANCY_HOME]);
   }
 
   // A guard carries the area's citizenship as its city_ob (so diplomacy can
@@ -455,11 +432,10 @@ void restore_location_npcs(object loc)
   if (!file || !strlen(file))
     return;
 
-  // A POI location fills its vacancies first: assign a census NPC to any
-  // empty or dead vacancy slot, so the materialize loop below brings it in
-  // alongside the location's regular census NPCs. A guarded POI (town entrance
-  // or square) likewise tops up its citizenship's guards.
-  this_object()->ensure_vacancies_assigned(file);
+  // Take somebody on for every job held here that nobody holds, so the loop
+  // below brings them in alongside the location's other census people. A
+  // guarded POI likewise tops up the guards its citizenship fields.
+  this_object()->fill_vacancies_at(file);
   this_object()->ensure_guards_assigned(file);
 
   ids = query_census_uuids_at(file);
@@ -604,7 +580,6 @@ void drop_census_entry(string uuid)
 // respawn at its POI.
 void npc_died(string uuid)
 {
-  mixed * vacancy;
   mapping entry;
   string guard_poi;
 
@@ -627,9 +602,18 @@ void npc_died(string uuid)
   // rematerialized when the foreign location it last rested in reloads
   AREA_HANDLER->set_foreign_position(uuid, nil, nil);
 
-  vacancy = (mixed *)this_object()->clear_vacancy_by_uuid(uuid);
-  if (vacancy)
-    call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY, vacancy[0]);
+  // a post anchored to a point of interest is taken up again shortly; the rest
+  // wait for the settlement pass, so a town does not replace its dead the
+  // instant they fall
+  if (entry && entry[CENSUS_VACANCY] && !entry["guard"])
+  {
+    mapping job;
+
+    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
+                                                entry[CENSUS_AT]);
+    if (job && job[VACANCY_POI])
+      call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY, entry[CENSUS_AT]);
+  }
 
   if (guard_poi)
     call_out("_refill_guards", VACANCY_RESPAWN_DELAY, guard_poi);
