@@ -114,15 +114,14 @@ private string kind_of(object area, string source, string gender)
   return stringp(name) ? name : "";
 }
 
-// The day of whoever holds a job, as short as it goes: the hour it moves and
-// where to, "6w" out to work at six, "20h" home at eight. Read from the type,
-// which is where a timetable lives; empty for anyone the day does not move.
+// The hours a day moves somebody, in order: "6/20" for out at six and back at
+// eight. Read from the type, which is where a timetable lives; empty for
+// anyone the day does not move.
 private string hours_of(object area, string source)
 {
   mapping template, timetable;
-  string * keys;
   string out;
-  int i;
+  int h;
 
   if (!source || !strlen(source))
     return "";
@@ -133,20 +132,13 @@ private string hours_of(object area, string source)
     return "";
 
   timetable = template["timetable"];
-  keys = map_indices(timetable);
   out = "";
 
-  for (i = 0; i < sizeof(keys); i++)
-  {
-    mixed entry;
-    string where;
-
-    entry = timetable[keys[i]];
-    where = (mappingp(entry) && entry["goto"] == "home") ? "h" : "w";
-    // the hour is the key, which JSON may have stored as a string
-    out += (strlen(out) ? " " : "") +
-           (stringp(keys[i]) ? keys[i] : "" + keys[i]) + where;
-  }
+  // walk the clock rather than the mapping: its keys come out in no order, and
+  // JSON left them as strings on some types and ints on others
+  for (h = 0; h < 24; h++)
+    if (!undefinedp(timetable[h]) || !undefinedp(timetable["" + h]))
+      out += (strlen(out) ? "/" : "") + h;
 
   return out;
 }
