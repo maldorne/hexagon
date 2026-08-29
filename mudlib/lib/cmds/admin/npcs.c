@@ -14,16 +14,17 @@ inherit CMD_BASE;
 private string field_of(string savefile, string key);
 private object area_of(object me);
 private string kind_of(object area, string source, string gender);
+private string columns(string * * rows);
 
 void setup()
 {
   set_aliases(({ "npcs" }));
-  set_usage("npcs [ list | vacancies | roster | live | verify [apply] ]");
+  set_usage("npcs [ list [type] | vacancies | roster | live | verify [apply] ]");
   set_help(
     "Report on the people of the area you are standing in.\n" +
     "\n" +
     "  npcs                 what the area holds, in one screen\n" +
-    "  npcs list            everybody in its census, named\n" +
+    "  npcs list [type]     everybody in its census, or one kind of them\n" +
     "  npcs vacancies       the jobs it offers and who holds them\n" +
     "  npcs roster          the types it spawns statistically, and their caps\n" +
     "  npcs live            only the people materialized right now\n" +
@@ -112,6 +113,52 @@ private string kind_of(object area, string source, string gender)
   return stringp(name) ? name : "";
 }
 
+// Lay rows out in columns, the first row being the header: every column is as
+// wide as its widest cell, and a rule under the header marks where the data
+// starts.
+private string columns(string * * rows)
+{
+  string out;
+  int * width;
+  int i, j, k;
+
+  if (!sizeof(rows))
+    return "";
+
+  width = allocate_int(sizeof(rows[0]));
+  for (i = 0; i < sizeof(rows); i++)
+    for (j = 0; j < sizeof(rows[i]); j++)
+    {
+      int l;
+      l = strlen(rows[i][j], TRUE);
+      if (l > width[j])
+        width[j] = l;
+    }
+
+  out = "";
+  for (i = 0; i < sizeof(rows); i++)
+  {
+    out += " ";
+    for (j = 0; j < sizeof(rows[i]); j++)
+      out += sprintf(" %-*s", width[j], rows[i][j]);
+    out += "\n";
+
+    if (i == 0)
+    {
+      out += " ";
+      for (j = 0; j < sizeof(rows[i]); j++)
+      {
+        out += " ";
+        for (k = 0; k < width[j]; k++)
+          out += "-";
+      }
+      out += "\n";
+    }
+  }
+
+  return out;
+}
+
 // ===== npcs: what the area holds =====
 private int do_summary(object area, object me)
 {
@@ -165,7 +212,7 @@ private int do_summary(object area, object me)
 private int do_vacancies(object area, object me)
 {
   mapping * jobs;
-  string out;
+  string * * rows;
   int i;
 
   jobs = (mapping *)area->query_vacancies();
@@ -175,21 +222,19 @@ private int do_vacancies(object area, object me)
     return 1;
   }
 
-  out = "Jobs offered by '" + area->query_area_name() + "':\n" +
-        sprintf("  %-14s %-6s %-5s %-14s %-16s %s\n",
-                "job", "seats", "held", "held at", "house", "type");
-
+  rows = ({ ({ "job", "seats", "held", "held at", "house", "type" }) });
   for (i = 0; i < sizeof(jobs); i++)
-    out += sprintf("  %-14s %-6s %-5s %-14s %-16s %s\n",
-                   jobs[i][VACANCY_JOB],
-                   "" + jobs[i][VACANCY_COUNT],
-                   "" + sizeof((string *)area->query_vacancy_holders(jobs[i])),
-                   get_path_file_name(jobs[i][VACANCY_WORKS_AT]),
-                   jobs[i][VACANCY_HOME]
-                     ? get_path_file_name(jobs[i][VACANCY_HOME]) : "-",
-                   get_path_file_name(jobs[i][VACANCY_SOURCE]));
+    rows += ({ ({
+      jobs[i][VACANCY_JOB],
+      "" + jobs[i][VACANCY_COUNT],
+      "" + sizeof((string *)area->query_vacancy_holders(jobs[i])),
+      get_path_file_name(jobs[i][VACANCY_WORKS_AT]),
+      jobs[i][VACANCY_HOME]
+        ? get_path_file_name(jobs[i][VACANCY_HOME]) : "-",
+      get_path_file_name(jobs[i][VACANCY_SOURCE])
+    }) });
 
-  write(out);
+  write("Jobs offered by '" + area->query_area_name() + "':\n" + columns(rows));
   return 1;
 }
 
@@ -226,7 +271,7 @@ private int do_roster(object area, object me)
 private int do_live(object area, object me)
 {
   object * live;
-  string out;
+  string * * rows;
   int i;
 
   live = (object *)area->query_live_npcs();
@@ -236,10 +281,7 @@ private int do_live(object area, object me)
     return 1;
   }
 
-  out = "People of '" + area->query_area_name() + "' in the world now:\n" +
-        sprintf("  %-16s %-6s %-10s %-14s %-14s %s\n",
-                "name", "level", "race", "here", "works at", "home");
-
+  rows = ({ ({ "name", "level", "race", "here", "works at", "home" }) });
   for (i = 0; i < sizeof(live); i++)
   {
     mixed race, work, home;
@@ -250,32 +292,29 @@ private int do_live(object area, object me)
     work = live[i]->query_work();
     home = live[i]->query_home();
 
-    out += sprintf("  %-16s %-6s %-10s %-14s %-14s %s\n",
-                   (string)live[i]->query_cap_name(),
-                   "" + (int)live[i]->query_level(),
-                   stringp(race) ? race : "-",
-                   environment(live[i])
-                     ? get_path_file_name(
-                         environment(live[i])->query_file_name()) : "-",
-                   (stringp(work) && strlen(work))
-                     ? get_path_file_name(work) : "-",
-                   (stringp(home) && strlen(home))
-                     ? get_path_file_name(home) : "-");
+    rows += ({ ({
+      (string)live[i]->query_cap_name(),
+      "" + (int)live[i]->query_level(),
+      stringp(race) ? race : "-",
+      environment(live[i])
+        ? get_path_file_name(environment(live[i])->query_file_name()) : "-",
+      (stringp(work) && strlen(work)) ? get_path_file_name(work) : "-",
+      (stringp(home) && strlen(home)) ? get_path_file_name(home) : "-"
+    }) });
   }
 
-  write(out);
+  write("People of '" + area->query_area_name() +
+        "' in the world now:\n" + columns(rows));
   return 1;
 }
 
 // ===== npcs list =====
-private int do_list(object area, object me)
+private int do_list(object area, object me, string want)
 {
   mapping census;
   string * ids;
   string * * rows;
-  string out;
-  int * width;
-  int i, j, read;
+  int i, read, shown;
 
   census = (mapping)area->query_npc_census();
   ids = map_indices(census);
@@ -293,9 +332,15 @@ private int do_list(object area, object me)
     mapping e, job;
     object npc;
     mixed home, given;
-    string name, level;
+    string name, level, kind;
 
     e = census[ids[i]];
+    kind = e["source"] ? get_path_file_name(e["source"]) : "-";
+
+    // a listing can be asked for one kind of person only
+    if (strlen(want) && kind != want)
+      continue;
+
     npc = AREA_HANDLER->find_live_npc(ids[i]);
     name = "";
     level = "";
@@ -337,13 +382,11 @@ private int do_list(object area, object me)
         home = job[VACANCY_HOME];
     }
 
+    shown++;
     rows += ({ ({
       strlen(name) ? capitalize(name) : "?",
       strlen(level) ? level : "?",
-      // what they are: the type they were drawn from. Without it a listing
-      // says only that somebody holds no job, never whether they are a
-      // citizen, a pilgrim or a stray dog.
-      e["source"] ? get_path_file_name(e["source"]) : "-",
+      kind,
       e["guard"] ? "guard"
                  : (e[CENSUS_VACANCY] ? e[CENSUS_VACANCY] : "-"),
       e[CENSUS_WORKS_AT] ? get_path_file_name(e[CENSUS_WORKS_AT]) : "-",
@@ -353,46 +396,18 @@ private int do_list(object area, object me)
     }) });
   }
 
-  // measure every column over the rows themselves, so a long name or a long
-  // location file widens its column instead of running into the next one
-  width = allocate_int(sizeof(rows[0]));
-  for (i = 0; i < sizeof(rows); i++)
-    for (j = 0; j < sizeof(rows[i]); j++)
-    {
-      int l;
-      l = strlen(rows[i][j], TRUE);
-      if (l > width[j])
-        width[j] = l;
-    }
-
-  out = "People of '" + area->query_area_name() + "' (" + sizeof(ids) +
-        "):\n";
-  for (i = 0; i < sizeof(rows); i++)
+  if (strlen(want) && !shown)
   {
-    out += " ";
-    for (j = 0; j < sizeof(rows[i]); j++)
-      out += sprintf(" %-*s", width[j], rows[i][j]);
-    out += "\n";
-
-    // rule under the header, so the eye finds where the data starts
-    if (i == 0)
-    {
-      out += " ";
-      for (j = 0; j < sizeof(rows[i]); j++)
-      {
-        int k;
-        out += " ";
-        for (k = 0; k < width[j]; k++)
-          out += "-";
-      }
-      out += "\n";
-    }
+    write("Nobody of '" + area->query_area_name() + "' is a " + want + ".\n");
+    return 1;
   }
 
-  if (read >= NPCS_READ_LIMIT)
-    out += "  (stopped naming the unloaded after " + NPCS_READ_LIMIT + ")\n";
-
-  write(out);
+  write("People of '" + area->query_area_name() + "'" +
+        (strlen(want) ? " of kind '" + want + "'" : "") +
+        " (" + shown + "):\n" + columns(rows) +
+        (read >= NPCS_READ_LIMIT
+           ? "  (stopped naming the unloaded after " + NPCS_READ_LIMIT + ")\n"
+           : ""));
   return 1;
 }
 
@@ -450,7 +465,8 @@ static int cmd(string str, object me, string verb)
   if (!sizeof(args))
     return do_summary(area, me);
   if (args[0] == "list")
-    return do_list(area, me);
+    return do_list(area, me,
+                   sizeof(args) > 1 ? args[1] : "");
   if (args[0] == "vacancies")
     return do_vacancies(area, me);
   if (args[0] == "roster")
@@ -458,7 +474,7 @@ static int cmd(string str, object me, string verb)
   if (args[0] == "live")
     return do_live(area, me);
 
-  notify_fail("Usage: npcs [ list | vacancies | roster | live | " +
+  notify_fail("Usage: npcs [ list [type] | vacancies | roster | live | " +
               "verify [apply] ]\n");
   return 0;
 }
