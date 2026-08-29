@@ -355,15 +355,20 @@ private int do_list(object area, object me, string want)
       home = npc->query_home();
     }
     else
-      // Somebody out of the world is known only by what the census and the type
-      // say: their proper name, their level and their address live on their own
-      // savefile, and the only way to read those is to bring them in. A listing
-      // shows their kind instead.
-      name = kind_of(area, e["source"]);
+    {
+      // out of the world there is nobody to ask, so the books answer: the
+      // census keeps a copy of who somebody is, refreshed every time they
+      // appear. It has nothing for one who has never been in the world yet.
+      name = e["name"] ? e["name"] : kind_of(area, e["source"]);
+      level = e["level"] ? "" + e["level"] : "";
+    }
 
-    // a job with a house of its own houses whoever holds it
+    // where they live is not on the books and does not need to be: the houses
+    // list their residents, and that is the area's own record
+    home = area->query_house_of(ids[i]);
     if ((!stringp(home) || !strlen(home)) && e[CENSUS_VACANCY])
     {
+      // a job with a house of its own houses whoever holds it
       job = (mapping)area->query_vacancy(e[CENSUS_VACANCY]);
       if (job)
         home = job[VACANCY_HOME];

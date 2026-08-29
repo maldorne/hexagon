@@ -43,6 +43,29 @@ mapping query_npc_census()
                                 : (mapping)owner->query_npc_census();
 }
 
+// What the books remember about a person, copied off them while they are in the
+// world: enough to name and rank everybody in a report without loading anyone.
+// The person is the authority; this is only ever read by reports, never by the
+// world. Where they live is not here -- the houses know that already.
+void remember_npc(string uuid, object npc)
+{
+  mapping entry;
+  mixed given;
+
+  entry = query_npc_census()[uuid];
+  if (!entry || !npc)
+    return;
+
+  given = npc->query_given_name();
+  if (stringp(given) && strlen(given))
+    entry["name"] = given;
+
+  entry["gender"] = npc->query_gender();
+  entry["level"] = npc->query_level();
+
+  this_object()->save_me();
+}
+
 // Record one individual in the census and persist. The seam for the pieces that
 // staff a post of their own -- a role slot, a vacancy, a guard -- and need the
 // person to exist before anything materializes it.
@@ -428,6 +451,14 @@ private object npc_restore(string id, object loc)
     if (gdir)
       loc->register_guard(npc, gdir);
   }
+
+  // Refresh what the books remember about this person. The npc.o is the
+  // authority on who somebody is; these are a copy the census keeps so a
+  // report can name and rank everybody, including those nobody has loaded.
+  // Written on every materialization, which is the only moment the two are
+  // side by side, so a level that changed in play does not leave a stale
+  // number behind.
+  remember_npc(id, npc);
 
   return npc;
 }

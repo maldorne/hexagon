@@ -88,9 +88,9 @@ private string columns(string * * rows)
   return out;
 }
 
-// Name a resident by their uuid: their own name while they are in the world,
-// the kind of person they are otherwise, and a warning when the census has
-// never heard of them.
+// Name a resident by their uuid: their own name, from them while they are in
+// the world and from the books otherwise, and the kind of person they are when
+// they never had a name. A warning when the census has never heard of them.
 private string who_is(object area, string uuid)
 {
   mapping census;
@@ -108,6 +108,9 @@ private string who_is(object area, string uuid)
     return (stringp(given) && strlen(given))
              ? capitalize(given) : (string)npc->query_cap_name();
   }
+
+  if (census[uuid]["name"])
+    return capitalize(census[uuid]["name"]);
 
   return census[uuid]["source"]
            ? get_path_file_name(census[uuid]["source"]) : uuid;
@@ -139,10 +142,10 @@ private string * resident_row(object area, string uuid)
   }
   else
   {
-    // out of the world there is nobody to ask: a name and a gender live on the
-    // person, not on the books
-    name = kind;
-    gender = "";
+    // out of the world the books answer: the census keeps a copy of who
+    // somebody is, refreshed every time they appear
+    name = census[uuid]["name"] ? census[uuid]["name"] : kind;
+    gender = census[uuid]["gender"] ? "" + census[uuid]["gender"] : "";
   }
 
   return ({ name, kind,
