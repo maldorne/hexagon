@@ -69,6 +69,10 @@
 #define _LANG_HANDLE_DEAD "Tu estado etéreo tiene poco efecto en el mundo material.\n "
 #define _LANG_HANDLE_STILL "Aún estas ocupado con la carga.\n"
 #define _LANG_HANDLE_FAIL "No puedes "+query_verb()+" "+query_multiple_short(fail, 1)+".\n"
+// Something the player can see and name, but which carries no short of its
+// own: the props component answers to the fixtures it draws. Name it back
+// with the word the player used.
+#define _LANG_HANDLE_FAIL_SCENERY "No puedes "+query_verb()+" "+str+".\n"
                             
 #define _LANG_HANDLE_GET_VERBS ({ "coger" })
 #define _LANG_HANDLE_GIVE_VERBS ({ "poner", "dar" })

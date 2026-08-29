@@ -318,7 +318,7 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
   object *dest, *obs, *fail, *ret_a;
   mixed *ret;
   string s2, sh, str2, aux;
-  int i, num, j, cap, perc, we, tot, max;
+  int i, num, j, cap, perc, we, tot, max, scenery;
 
   i = 0; j = 0;
 
@@ -403,6 +403,7 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
     ret = ({ ({ }), ({ }), ({ }), ({ }), ({ }), });
     ret_a = ({ });
     fail = ({ });
+    scenery = 0;
     tot = 0;
 
     for (j = 0; j < sizeof(obs); j++)
@@ -419,12 +420,14 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
       }
       else if (!living(obs[j]))
       {
-        // Something with no short is not something the player can be told
-        // about: the props component answers to the names of the fixtures it
-        // renders, but it is scenery bookkeeping and shows nothing of itself.
-        // Reporting it produces "You cannot take ." with a hole in it.
+        // Something the player named but which shows no short of its own is
+        // scenery: the props component answers to the fixtures it draws while
+        // showing nothing of itself. It is refused by the word the player used
+        // rather than by a short it does not have.
         if (strlen((string)obs[j]->short()))
           fail += ({ obs[j] });
+        else
+          scenery++;
       }
     }
 
@@ -468,8 +471,10 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
 
     if (sizeof(fail))
       write(_LANG_HANDLE_FAIL);
+    else if (scenery)
+      write(_LANG_HANDLE_FAIL_SCENERY);
 
-    num += sizeof(fail);
+    num += sizeof(fail) + scenery;
   }
 
   if (!num)

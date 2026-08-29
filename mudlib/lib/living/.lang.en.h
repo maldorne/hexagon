@@ -70,6 +70,10 @@
 #define _LANG_HANDLE_DEAD "Being dead your actions does not have effect.\n "
 #define _LANG_HANDLE_STILL "You are still busy with all that.\n"
 #define _LANG_HANDLE_FAIL "You cannot "+query_verb()+" "+query_multiple_short(fail, 1)+".\n"
+// Something the player can see and name, but which carries no short of its
+// own: the props component answers to the fixtures it draws. Name it back
+// with the word the player used.
+#define _LANG_HANDLE_FAIL_SCENERY "You cannot "+query_verb()+" "+str+".\n"
 
 #define _LANG_HANDLE_GET_VERBS ({ "get", "take" })
 #define _LANG_HANDLE_GIVE_VERBS ({ "give", "put" })
