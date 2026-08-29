@@ -154,8 +154,7 @@ private object npc_restore(string id, object loc)
   // guard takes its gender from the template. The vacancy is read here for the
   // place it names.
   role = (entry[CENSUS_VACANCY] && !entry["guard"])
-           ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
-                                                   entry[CENSUS_VACANCY_AT])
+           ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY])
            : nil;
   t = (mapping)this_object()->query_banded_template(game, source);
 
@@ -215,8 +214,7 @@ private object npc_restore(string id, object loc)
   {
     mapping job;
 
-    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
-                                                entry[CENSUS_VACANCY_AT]);
+    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
     if (job && stringp(job[VACANCY_CLASS]) && strlen(job[VACANCY_CLASS]))
       npc->set_class_ob(job[VACANCY_CLASS]);
   }
@@ -371,8 +369,7 @@ private object npc_restore(string id, object loc)
   {
     mapping job;
 
-    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
-                                                entry[CENSUS_VACANCY_AT]);
+    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
     if (job && job[VACANCY_HOME])
       npc->set_home(job[VACANCY_HOME]);
   }
@@ -609,11 +606,10 @@ void npc_died(string uuid)
   {
     mapping job;
 
-    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
-                                                entry[CENSUS_VACANCY_AT]);
+    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
     if (job && job[VACANCY_POI])
       call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY,
-               entry[CENSUS_VACANCY_AT]);
+               job[VACANCY_WORKS_AT]);
   }
 
   if (guard_poi)

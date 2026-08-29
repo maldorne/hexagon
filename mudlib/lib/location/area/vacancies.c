@@ -47,18 +47,16 @@ mapping * query_vacancies()
   return vacancies ? vacancies : ({ });
 }
 
-// The first vacancy for `job`, or nil. Two places can offer the same job -- a
-// town with two pubs wants two barmen -- so a job name alone does not identify
-// a post; pass `at` to name one exactly.
-mapping query_vacancy(string job, varargs string at)
+// The job by that name, or nil. A name is a job's identity, so a settlement
+// offers one of each: two pubs wanting their own barman name them apart.
+mapping query_vacancy(string job)
 {
   mapping * all;
   int i;
 
   all = query_vacancies();
   for (i = 0; i < sizeof(all); i++)
-    if (all[i][VACANCY_JOB] == job &&
-        (!at || !strlen(at) || all[i][VACANCY_WORKS_AT] == at))
+    if (all[i][VACANCY_JOB] == job)
       return all[i];
 
   return nil;
@@ -130,7 +128,7 @@ void open_vacancy(string job, int count, string at, string source,
     BESTIARY_HANDLER->set_template_behaviour(game, source, ([ "sentient": 1 ]));
   }
 
-  previous = query_vacancy(job, at);
+  previous = query_vacancy(job);
 
   vacancy = ([ VACANCY_JOB:    job,
                VACANCY_COUNT:  count,
@@ -165,7 +163,7 @@ void open_vacancy(string job, int count, string at, string source,
 // Close a job and let go of whoever held it: its census people are culled
 // (destroying any that are live and deleting their savefiles), so closing a
 // post never leaves an orphan behind.
-void close_vacancy(string job, varargs string at)
+void close_vacancy(string job)
 {
   mapping vacancy;
   string * ids;
@@ -175,11 +173,11 @@ void close_vacancy(string job, varargs string at)
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
-    owner->close_vacancy(job, at);
+    owner->close_vacancy(job);
     return;
   }
 
-  vacancy = query_vacancy(job, at);
+  vacancy = query_vacancy(job);
   if (!vacancy)
     return;
 
@@ -190,8 +188,7 @@ void close_vacancy(string job, varargs string at)
     object npc;
 
     e = ((mapping)this_object()->query_npc_census())[ids[i]];
-    if (e[CENSUS_VACANCY] != job ||
-        e[CENSUS_VACANCY_AT] != vacancy[VACANCY_WORKS_AT])
+    if (e[CENSUS_VACANCY] != job)
       continue;
 
     npc = AREA_HANDLER->find_live_npc(ids[i]);
@@ -211,16 +208,16 @@ void close_vacancy(string job, varargs string at)
 // they are drawn from cannot say so: one type staffs several settlements, and
 // the job is what decides how a person fights. "" clears it and the holders
 // fall back to whatever the type carries. Returns 0 if the job is not open.
-int set_vacancy_class(string job, string path, varargs string at)
+int set_vacancy_class(string job, string path)
 {
   mapping vacancy;
   object owner;
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (int)owner->set_vacancy_class(job, path, at);
+    return (int)owner->set_vacancy_class(job, path);
 
-  vacancy = query_vacancy(job, at);
+  vacancy = query_vacancy(job);
   if (!vacancy)
     return 0;
 
@@ -236,7 +233,7 @@ int set_vacancy_class(string job, string path, varargs string at)
 // The house that comes with the job. Its holder lives there, and so does the
 // next one: the house follows the post, not the person. Returns how many
 // vacancies were bound (0 if the job is not open).
-int set_vacancy_home(string job, string home, varargs string at)
+int set_vacancy_home(string job, string home)
 {
   mapping * all;
   object owner;
@@ -244,7 +241,7 @@ int set_vacancy_home(string job, string home, varargs string at)
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (int)owner->set_vacancy_home(job, home, at);
+    return (int)owner->set_vacancy_home(job, home);
 
   all = query_vacancies();
   for (i = 0; i < sizeof(all); i++)
@@ -252,8 +249,6 @@ int set_vacancy_home(string job, string home, varargs string at)
     object npc;
 
     if (all[i][VACANCY_JOB] != job)
-      continue;
-    if (at && strlen(at) && all[i][VACANCY_WORKS_AT] != at)
       continue;
 
     all[i][VACANCY_HOME] = home;
@@ -290,8 +285,7 @@ string * query_vacancy_holders(mapping vacancy)
   out = ({ });
 
   for (i = 0; i < sizeof(ids); i++)
-    if (census[ids[i]][CENSUS_VACANCY] == vacancy[VACANCY_JOB] &&
-        census[ids[i]][CENSUS_VACANCY_AT] == vacancy[VACANCY_WORKS_AT])
+    if (census[ids[i]][CENSUS_VACANCY] == vacancy[VACANCY_JOB])
       out += ({ ids[i] });
 
   return out;
@@ -352,7 +346,7 @@ string * resolve_equipment(mixed * spec)
 // the type template (its authoritative home). A holder that already has gear
 // keeps it -- a saved citizen's gear never changes. Called after the builder
 // changes a kit, so existing empty-handed holders pick it up without a respawn.
-void reequip_vacancy_holders(string job, varargs string at)
+void reequip_vacancy_holders(string job)
 {
   mapping vacancy, template;
   object loc;
@@ -361,7 +355,7 @@ void reequip_vacancy_holders(string job, varargs string at)
   string source;
   int i;
 
-  vacancy = query_vacancy(job, at);
+  vacancy = query_vacancy(job);
   if (!vacancy)
     return;
 
@@ -522,7 +516,6 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
     id, ([ "source":           source,
            "savefile":         npc_save_dir(game, id) + NPC_SAVE_FILE,
            CENSUS_VACANCY:     vacancy[VACANCY_JOB],
-           CENSUS_VACANCY_AT:  vacancy[VACANCY_WORKS_AT],
            CENSUS_WORKS_AT:    where,
            CENSUS_LOCATION:    where ]));
 
