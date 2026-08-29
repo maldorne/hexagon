@@ -47,7 +47,7 @@ mapping query_npc_census()
 // world: enough to name and rank everybody in a report without loading anyone.
 // The person is the authority; this is only ever read by reports, never by the
 // world. Where they live is not here -- the houses know that already.
-void remember_npc(string uuid, object npc)
+void update_npc_info(string uuid, object npc)
 {
   mapping entry;
   mixed given;
@@ -458,7 +458,7 @@ private object npc_restore(string id, object loc)
   // Written on every materialization, which is the only moment the two are
   // side by side, so a level that changed in play does not leave a stale
   // number behind.
-  remember_npc(id, npc);
+  update_npc_info(id, npc);
 
   return npc;
 }
