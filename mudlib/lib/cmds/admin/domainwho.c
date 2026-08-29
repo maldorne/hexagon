@@ -26,7 +26,7 @@ static int cmd(string str, object me, string verb) {
          continue;
       ret += sprintf("%-15s%-45s\n", ob->query_cap_name(), env);
    }
-   me->more_string(ret);
+   me->user()->more_string(ret);
   return 1;
 }
 

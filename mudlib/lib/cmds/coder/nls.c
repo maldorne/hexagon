@@ -317,7 +317,7 @@ int ls(string str, int mask, object me)
   }
 
   if (mask & MASK_P)
-    me->more_string(bong, str);
+    me->user()->more_string(bong, str);
   else
     write(bong + "\n");
 

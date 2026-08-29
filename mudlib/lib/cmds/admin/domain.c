@@ -56,7 +56,7 @@ static int cmd(string str, object me, string verb) {
     bit = ([ str: domain_stats(str) ]);
   else
     bit = domain_stats();
-   me->more_string(string_stats(bit));
+   me->user()->more_string(string_stats(bit));
   return 1;
 */
 } /* do_author() */

@@ -31,6 +31,6 @@ static int cmd(string str, object me, string verb)
   else
     ret += MONEY_TRACKER->select_domain_stats();
 
-  me->more_string(ret);
+  me->user()->more_string(ret);
   return 1;
 }

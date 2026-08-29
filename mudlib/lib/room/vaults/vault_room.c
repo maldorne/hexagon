@@ -131,7 +131,7 @@ int view_vault_log(string str)
       return 1;
     }
 
-    this_player()->more_string(tmp);
+    this_user()->more_string(tmp);
     return 1;
   }
   

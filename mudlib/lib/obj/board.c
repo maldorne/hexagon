@@ -119,8 +119,8 @@ int subjects(string str, int dark)
                 sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
              " "+the_date(stuff[i][B_TIME])+")");
   }
-  this_player()->set_finish_func(0);
-  this_player()->more_string(ret, "Temas");
+  this_user()->set_finish_func(0);
+  this_user()->more_string(ret, "Temas");
   return 1;
 } /* subjects() */
 
@@ -188,8 +188,8 @@ void string_more(string arg, string prompt)
   }
   obj->string_more(arg, prompt);
   */
-  this_player()->set_finish_func(0);
-  this_player()->more_string(arg, prompt);
+  this_user()->set_finish_func(0);
+  this_user()->more_string(arg, prompt);
 } /* string_more() */
 
 int read(string str)
