@@ -2,12 +2,15 @@
 #include <areas/area.h>
 #include <areas/vacancy.h>
 #include <room/location.h>
+#include <basic/gender.h>
 
 inherit CMD_BASE;
 
 private object area_of(object me);
 private string columns(string * * rows);
 private string who_is(object area, string uuid);
+private string field_of(string savefile, string key);
+private string * resident_row(object area, string uuid);
 
 void setup()
 {
@@ -111,6 +114,72 @@ private string who_is(object area, string uuid)
            ? get_path_file_name(census[uuid]["source"]) : uuid;
 }
 
+// One value out of a saved NPC, read straight off its savefile. Used to
+// describe the residents who are not in the world at the moment.
+private string field_of(string savefile, string key)
+{
+  string * lines, want;
+  string body;
+  int i;
+
+  if (!savefile || file_size(savefile) < 0)
+    return "";
+
+  body = read_file(savefile);
+  if (!body)
+    return "";
+
+  want = key + " ";
+  lines = explode(body, "\n");
+  for (i = 0; i < sizeof(lines); i++)
+    if (strlen(lines[i]) > strlen(want) &&
+        lines[i][0 .. strlen(want) - 1] == want)
+    {
+      string value;
+      value = lines[i][strlen(want) ..];
+      if (strlen(value) > 1 && value[0] == '"')
+        return value[1 .. strlen(value) - 2];
+      return value;
+    }
+
+  return "";
+}
+
+// Name, kind and gender of one resident, whether or not they are in the world.
+private string * resident_row(object area, string uuid)
+{
+  mapping census;
+  object npc;
+  mixed given;
+  string name, kind, gender;
+
+  census = (mapping)area->query_npc_census();
+  if (!census[uuid])
+    return ({ "(no census entry)", "-", "-" });
+
+  kind = census[uuid]["source"]
+           ? get_path_file_name(census[uuid]["source"]) : "-";
+  npc = AREA_HANDLER->find_live_npc(uuid);
+
+  if (npc)
+  {
+    given = npc->query_given_name();
+    name = (stringp(given) && strlen(given))
+             ? capitalize(given) : (string)npc->query_cap_name();
+    gender = "" + (int)npc->query_gender();
+  }
+  else
+  {
+    name = field_of(census[uuid]["savefile"], "npc_given_name");
+    name = strlen(name) ? capitalize(name) : "?";
+    gender = field_of(census[uuid]["savefile"], "gender");
+  }
+
+  return ({ name, kind,
+            gender == "" + GENDER_FEMALE ? "female"
+              : (gender == "" + GENDER_MALE ? "male" : "-") });
+}
+
 // ===== houses: every house and who lives in it =====
 private int do_houses(object area, object me, int free_only)
 {
@@ -125,13 +194,14 @@ private int do_houses(object area, object me, int free_only)
     return 1;
   }
 
-  rows = ({ ({ "house", "residents", "who" }) });
+  // one row per resident, so a house with two people takes two lines and the
+  // house is named on the first of them
+  rows = ({ ({ "house", "resident", "type", "gender" }) });
 
   for (i = 0; i < sizeof(files); i++)
   {
     object loc, home;
     string * residents;
-    string who;
 
     loc = (object)area->load_location(files[i]);
     home = loc ? loc->query_component_by_type(LOCATION_COMPONENT_HOME) : nil;
@@ -140,16 +210,18 @@ private int do_houses(object area, object me, int free_only)
     if (free_only && sizeof(residents))
       continue;
 
-    who = "";
-    for (j = 0; j < sizeof(residents); j++)
-      who += (j ? ", " : "") + who_is(area, residents[j]);
-
     shown++;
-    rows += ({ ({
-      get_path_file_name(files[i]),
-      "" + sizeof(residents),
-      strlen(who) ? who : (home ? "(empty)" : "(no home component)")
-    }) });
+
+    if (!sizeof(residents))
+    {
+      rows += ({ ({ get_path_file_name(files[i]),
+                    home ? "(empty)" : "(no home component)", "-", "-" }) });
+      continue;
+    }
+
+    for (j = 0; j < sizeof(residents); j++)
+      rows += ({ ({ j ? "" : get_path_file_name(files[i]) }) +
+                 resident_row(area, residents[j]) });
   }
 
   if (!shown)
