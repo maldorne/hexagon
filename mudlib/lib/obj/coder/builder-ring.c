@@ -75,6 +75,7 @@ inherit "/lib/armour.c";
   "  build plot remove <dir>              delete one, if still bare\n" + \
   "  build homes                          house the homeless citizens\n" + \
   "  build home make                      raise an empty house on this plot\n" + \
+  "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
   "  build sign <text>                    post a sign here (remove: take it down)"
 
@@ -121,6 +122,7 @@ int do_plot(string str);
 int do_homes();
 int do_home_remove();
 int do_home_make();
+int do_home_describe(string what, string str);
 int do_sign(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
@@ -328,8 +330,10 @@ int do_build(string str)
       return do_home_remove();
     if (sizeof(args) > 1 && args[1] == "make")
       return do_home_make();
-    notify_fail("Usage: build home < make | remove >   " +
-                "(stand on the plot / in the house)\n");
+    if (sizeof(args) > 2 && (args[1] == "short" || args[1] == "long"))
+      return do_home_describe(args[1], implode(args[2..], " "));
+    notify_fail("Usage: build home < make | short <text> | long <text> | " +
+                "remove >\n");
     return 0;
   }
 
@@ -1622,6 +1626,46 @@ int do_home_make()
 
   write("Raised an empty house at " + file + ". Give it residents with " +
         "'build homes', or set somebody's home to it by hand.\n");
+  return 1;
+}
+
+// Give the house you stand in a title or a description of its own, so a
+// barracks or a guildhall does not read as one more house. The text is typed in
+// the running instance's language, the way a POI label is; clear it with "none"
+// and the dwelling reads as an ordinary home again.
+int do_home_describe(string what, string str)
+{
+  object loc, home;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand inside the house you want to describe.\n");
+    return 0;
+  }
+
+  home = loc->query_component_by_type(LOCATION_COMPONENT_HOME);
+  if (!home)
+  {
+    notify_fail("You are not standing in a house.\n");
+    return 0;
+  }
+
+  if (str == "none")
+    str = "";
+
+  if (what == "short")
+    home->set_home_short(str);
+  else
+    home->set_home_long(str);
+
+  loc->save_me();
+
+  if (!strlen(str))
+    write("The house reads as an ordinary home again.\n");
+  else
+    write("House " + what + " set.\n");
+
   return 1;
 }
 

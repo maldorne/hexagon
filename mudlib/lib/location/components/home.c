@@ -18,6 +18,10 @@ inherit component "/lib/location/component.c";
 private string home_owner;
 // The NPCs that live here (uuids / find_living ids). A family shares this list.
 private string * residents;
+// What this dwelling is called and looks like, when it is not just a house: a
+// barracks, a guildhall, a mill. Left unset it reads as an ordinary home.
+private string home_short;
+private string home_long;
 
 void create()
 {
@@ -25,6 +29,8 @@ void create()
   set_type(LOCATION_COMPONENT_HOME);
   home_owner = nil;
   residents = ({ });
+  home_short = nil;
+  home_long = nil;
 }
 
 void init() {}
@@ -37,6 +43,12 @@ void initialize(object loc)
 
 string query_home_owner() { return home_owner; }
 void set_home_owner(string s) { home_owner = s; }
+
+string query_home_short() { return home_short; }
+void set_home_short(string s) { home_short = (s && strlen(s)) ? s : nil; }
+
+string query_home_long() { return home_long; }
+void set_home_long(string s) { home_long = (s && strlen(s)) ? s : nil; }
 
 string * query_residents() { return residents ? residents : ({ }); }
 void set_residents(string * r) { residents = r ? r : ({ }); }
@@ -74,10 +86,11 @@ mapping query_hooks()
             "long":  HOOK_PRIORITY_STRUCTURE ]);
 }
 
-// The house interior's title. Exclusive: it is the whole short.
+// The house interior's title. Exclusive: it is the whole short. A dwelling
+// that is something more particular than a house says so itself.
 mixed hook_short(mixed * args)
 {
-  return ({ HOOK_EXCLUSIVE, _LANG_HOME_SHORT });
+  return ({ HOOK_EXCLUSIVE, home_short ? home_short : _LANG_HOME_SHORT });
 }
 
 // The house interior's description. args = ({ str, dark }); a non-empty str
@@ -87,7 +100,7 @@ mixed hook_long(mixed * args)
 {
   if (args[0] && strlen(args[0]))
     return "";
-  return ({ HOOK_EXCLUSIVE, _LANG_HOME_LONG });
+  return ({ HOOK_EXCLUSIVE, home_long ? home_long : _LANG_HOME_LONG });
 }
 
 // Persisted state: owner + residents ride in the location's .o. Extend both
@@ -96,7 +109,9 @@ mapping query_auto_load_attributes()
 {
   return component::query_auto_load_attributes() +
          ([ "home_owner": home_owner,
-            "residents":  residents ]);
+            "residents":  residents,
+            "home_short": home_short,
+            "home_long":  home_long ]);
 }
 
 void init_auto_load_attributes(mapping args)
@@ -106,11 +121,17 @@ void init_auto_load_attributes(mapping args)
     home_owner = args["home_owner"];
   if (!undefinedp(args["residents"]))
     residents = args["residents"];
+  if (!undefinedp(args["home_short"]))
+    home_short = args["home_short"];
+  if (!undefinedp(args["home_long"]))
+    home_long = args["home_long"];
 }
 
 mixed * stats()
 {
   return component::stats() +
          ({ ({ "Owner", home_owner }),
-            ({ "Residents", residents }) });
+            ({ "Residents", residents }),
+            ({ "Short", home_short }),
+            ({ "Long", home_long }) });
 }
