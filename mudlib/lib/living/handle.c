@@ -419,7 +419,12 @@ int do_take(string str, varargs string verb, object *bing, string bing2, int blu
       }
       else if (!living(obs[j]))
       {
-        fail += ({ obs[j] });
+        // Something with no short is not something the player can be told
+        // about: the props component answers to the names of the fixtures it
+        // renders, but it is scenery bookkeeping and shows nothing of itself.
+        // Reporting it produces "You cannot take ." with a hole in it.
+        if (strlen((string)obs[j]->short()))
+          fail += ({ obs[j] });
       }
     }
 

@@ -86,6 +86,7 @@
 #define _LANG_PROP_CHAIR_RIGHT_OTHERS       "$mcname$ rights the chair."
 
 #define _LANG_PROP_CHAIR_CANT_SIT           "You can't sit on this chair right now."
+#define _LANG_PROP_CHAIR_ALREADY_SITTING "You are already sitting on that chair."
 #define _LANG_PROP_CHAIR_OCCUPIED_BY        "$lastarg$ is already sitting on it."
 #define _LANG_PROP_CHAIR_NOT_SITTING        "You are not sitting on this chair."
 #define _LANG_PROP_CHAIR_NAILED_OR_TIPPED   "You cannot tip this chair."
@@ -232,6 +233,7 @@
 #define _LANG_PROP_BUNK_RISE_VERBS      ({ "rise", "getup" })
 
 #define _LANG_PROP_BUNK_OCCUPIED_BY     "Somebody is already lying there."
+#define _LANG_PROP_BUNK_ALREADY_LYING   "You are already lying on that bunk."
 #define _LANG_PROP_BUNK_NOT_LYING       "You are not lying on the bunk."
 #define _LANG_PROP_BUNK_LIE_ME          "You lie down on the bunk."
 #define _LANG_PROP_BUNK_LIE_OTHERS      "$mcname$ lies down on the bunk."
@@ -245,7 +247,7 @@
 #define _LANG_PROP_RACK_ID_ALIAS_1      "pegs"
 #define _LANG_PROP_RACK_NOUN            "rack"
 #define _LANG_PROP_RACK_NOUN_PLURAL     "racks"
-#define _LANG_PROP_RACK_SHORT           "a $material_phrase$ rack"
+#define _LANG_PROP_RACK_SHORT           "a rack of pegs"
 #define _LANG_PROP_RACK_LONG            "A row of $material_phrase$ pegs fixed to the wall, hung with cloaks and belts."
 
 #define _LANG_PROP_RACK_SEARCH_VERBS    ({ "search", "rummage" })
@@ -261,11 +263,17 @@
 #define _LANG_PROP_ARMS_ID_ALIAS_1      "frame"
 #define _LANG_PROP_ARMS_NOUN            "arms rack"
 #define _LANG_PROP_ARMS_NOUN_PLURAL     "arms racks"
-#define _LANG_PROP_ARMS_SHORT           "a $material_phrase$ arms rack of spears"
-#define _LANG_PROP_ARMS_LONG            "A $material_phrase$ frame propped by the door, half a dozen spears socketed by the shaft with their heads up."
+#define _LANG_PROP_ARMS_SHORT           "an arms rack of spears"
+#define _LANG_PROP_ARMS_LONG            "A $material_phrase$ frame propped by the door, half a dozen spears socketed by the shaft with their heads up. A chain runs through every shaft and padlocks to the frame: none of these is leaving."
 
 #define _LANG_PROP_ARMS_COUNT_VERBS     ({ "count" })
-#define _LANG_PROP_ARMS_COUNT_ME        "You count six spears, every head clean and oiled."
+#define _LANG_PROP_ARMS_COUNT_ME        "You count six spears, every head clean and oiled, every shaft chained to the frame."
 #define _LANG_PROP_ARMS_COUNT_OTHERS    "$mcname$ counts the spears in the rack."
+
+// Words a player puts in front of the thing's name that are not part of it:
+// "lie ON THE bunk". Peeled off the front of the argument before looking up
+// which prop is meant.
+#define _LANG_PROPS_FILLER_WORDS ({ "in", "on", "onto", "into", "at", "to", \
+                                    "the", "a", "an" })
 
 #endif // _LANG_PROPS_H_EN

@@ -79,6 +79,10 @@
 #define PROP_SPEC_MISSING_MSG           "missing_msg"
 #define PROP_SPEC_MISSING_MATCH_MSG     "missing_match_msg"
 #define PROP_SPEC_ALREADY_SET_MSG       "already_set_msg"
+// Said instead of the above when the one already holding the field is the
+// player themselves: "you are already lying there" reads very differently from
+// "somebody is already lying there".
+#define PROP_SPEC_ALREADY_SELF_MSG      "already_self_msg"
 #define PROP_SPEC_SET_STATE             "set_state"
 #define PROP_SPEC_CLEAR_STATE           "clear_state"
 #define PROP_SPEC_MSG_ME                "msg_me"
@@ -105,6 +109,11 @@
 #define PROP_TYPE_GENDER          "gender"
 #define PROP_TYPE_DEFAULT_MATERIAL "default_material"
 #define PROP_TYPE_MATERIALS       "materials"
+// Keep the material out of what the room says. The prop still has one -- the
+// data is there for anything that cares -- but a room where every fixture is
+// announced as wooden reads like an inventory, so a type can ask to be named
+// plainly.
+#define PROP_TYPE_HIDE_MATERIAL   "hide_material"
 #define PROP_TYPE_DEFAULT_STATE   "default_state"
 #define PROP_TYPE_STATE_SUFFIXES  "state_suffixes"
 // Mapping `state_field -> suffix_string` appended to the long

@@ -249,6 +249,27 @@ mixed * query_action_plan(string type, string verb)
   return nil;
 }
 
+// A state value as it should read to a player. Most are plain scalars; one that
+// names a living -- the occupant of a chair, of a bunk -- is stored as that
+// living's identity key, because the action that clears the state has to match
+// against it. Shown, it should read the way the world names them: a player by
+// their capitalised name, a generated citizen by its kind, which is what
+// query_cap_name answers for both. Somebody who has left is named by the key
+// itself, capitalised.
+private string _state_value_string(mixed value)
+{
+  object who;
+
+  if (!stringp(value))
+    return "" + value;
+
+  who = find_living(value);
+  if (who)
+    return (string)who->query_cap_name();
+
+  return capitalize(value);
+}
+
 /*
  * Single-line entry composed by the props component when rendering
  * the section. Honours overrides.short first, then the custom
@@ -306,7 +327,7 @@ string query_render_line(string type, mapping overrides, mapping state)
       // characters). The `"" +` idiom coerces int/string scalars to
       // their natural string form (DGD: when one operand of `+` is a
       // string, the other is rendered without quotes).
-      base = base + sprintf(suffix, "" + value);
+      base = base + sprintf(suffix, _state_value_string(value));
     }
   }
 
@@ -404,7 +425,7 @@ string query_type_long(string type, mapping overrides, mapping state,
       mixed value;
       value = state[keys[i]];
       if (!value) continue;
-      ret += sprintf(suffixes[keys[i]], "" + value);
+      ret += sprintf(suffixes[keys[i]], _state_value_string(value));
     }
   }
 
@@ -483,7 +504,7 @@ string query_short_state_suffix(string type, mapping state,
                suffixes_plural[keys[i]] :
                (suffixes ? suffixes[keys[i]] : nil);
     if (!suffix) continue;
-    ret += sprintf(suffix, stringp(value) ? value : "" + value);
+    ret += sprintf(suffix, _state_value_string(value));
   }
 
   return ret;
@@ -541,7 +562,7 @@ string query_state_suffixes(string type, mapping state,
                  suffixes_plural[keys[i]] :
                  (suffixes ? suffixes[keys[i]] : nil);
       if (!suffix) continue;
-      ret += sprintf(suffix, "" + value);
+      ret += sprintf(suffix, _state_value_string(value));
     }
   }
 

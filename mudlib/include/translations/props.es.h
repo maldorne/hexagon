@@ -91,6 +91,7 @@
 #define _LANG_PROP_CHAIR_RIGHT_OTHERS       "$mcname$ levanta la silla."
 
 #define _LANG_PROP_CHAIR_CANT_SIT           "No puedes sentarte en esta silla ahora mismo."
+#define _LANG_PROP_CHAIR_ALREADY_SITTING "Ya estás sentado en esa silla."
 #define _LANG_PROP_CHAIR_OCCUPIED_BY        "$lastarg$ ya está sentado en ella."
 #define _LANG_PROP_CHAIR_NOT_SITTING        "No estás sentado en esta silla."
 #define _LANG_PROP_CHAIR_NAILED_OR_TIPPED   "No puedes tirar esta silla."
@@ -233,6 +234,7 @@
 #define _LANG_PROP_BUNK_RISE_VERBS      ({ "levantarse", "incorporarse" })
 
 #define _LANG_PROP_BUNK_OCCUPIED_BY     "Ya hay alguien tumbado ahí."
+#define _LANG_PROP_BUNK_ALREADY_LYING   "Ya estás tumbado en ese camastro."
 #define _LANG_PROP_BUNK_NOT_LYING       "No estás tumbado en el camastro."
 #define _LANG_PROP_BUNK_LIE_ME          "Te tumbas en el camastro."
 #define _LANG_PROP_BUNK_LIE_OTHERS      "$mcname$ se tumba en el camastro."
@@ -246,7 +248,7 @@
 #define _LANG_PROP_RACK_ID_ALIAS_1      "clavijas"
 #define _LANG_PROP_RACK_NOUN            "perchero"
 #define _LANG_PROP_RACK_NOUN_PLURAL     "percheros"
-#define _LANG_PROP_RACK_SHORT           "un perchero $material_phrase$"
+#define _LANG_PROP_RACK_SHORT           "un perchero"
 #define _LANG_PROP_RACK_LONG            "Una hilera de clavijas $material_phrase$ fijadas a la pared. De ellas cuelgan capas y cinturones."
 
 #define _LANG_PROP_RACK_SEARCH_VERBS    ({ "registrar", "rebuscar" })
@@ -262,11 +264,18 @@
 #define _LANG_PROP_ARMS_ID_ALIAS_1      "bastidor"
 #define _LANG_PROP_ARMS_NOUN            "armero"
 #define _LANG_PROP_ARMS_NOUN_PLURAL     "armeros"
-#define _LANG_PROP_ARMS_SHORT           "un armero $material_phrase$ con lanzas"
-#define _LANG_PROP_ARMS_LONG            "Un bastidor $material_phrase$ apoyado junto a la puerta, con media docena de lanzas encajadas por el astil y las puntas hacia arriba."
+#define _LANG_PROP_ARMS_SHORT           "un armero con lanzas"
+#define _LANG_PROP_ARMS_LONG            "Un bastidor $material_phrase$ apoyado junto a la puerta, con media docena de lanzas encajadas por el astil y las puntas hacia arriba. Una cadena pasa por todos los astiles y se cierra con candado al bastidor: de aquí no sale ninguna."
 
 #define _LANG_PROP_ARMS_COUNT_VERBS     ({ "contar" })
-#define _LANG_PROP_ARMS_COUNT_ME        "Cuentas seis lanzas, todas con la punta limpia y engrasada."
+#define _LANG_PROP_ARMS_COUNT_ME        "Cuentas seis lanzas, todas con la punta limpia y engrasada, y todas encadenadas al bastidor."
 #define _LANG_PROP_ARMS_COUNT_OTHERS    "$mcname$ cuenta las lanzas del armero."
+
+// Palabras que un jugador antepone al nombre del objeto y que no forman parte
+// de él: "tumbarse EN EL camastro". Se descartan por delante del argumento
+// antes de buscar a qué prop se refiere.
+#define _LANG_PROPS_FILLER_WORDS ({ "en", "sobre", "encima", "dentro", "a", \
+                                    "al", "de", "del", "la", "el", "los", \
+                                    "las", "un", "una", "unos", "unas" })
 
 #endif // _LANG_PROPS_H_ES

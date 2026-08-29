@@ -33,6 +33,7 @@ private mapping * props_instances;
 // prototypes
 private mapping  _find_unique_match(string str);
 private mapping * _find_matching_instances(string str);
+private string   _strip_filler(string str);
 private mapping * _auto_target_instances(string verb);
 private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
@@ -730,7 +731,7 @@ private string _group_noun_phrase(mapping * insts)
   gender = spec[PROP_TYPE_GENDER];
 
   mat_id = _instance_material(first);
-  if (mat_id && strlen(mat_id))
+  if (mat_id && strlen(mat_id) && !spec[PROP_TYPE_HIDE_MATERIAL])
     material_phrase = (string)table("materials")->query_material_phrase(mat_id);
   else
     material_phrase = "";
@@ -1141,7 +1142,12 @@ private int _execute_generic(mapping spec, mapping inst, string args)
     for (i = 0; i < sizeof(flags); i++)
       if (st[flags[i]])
       {
-        if (spec[PROP_SPEC_ALREADY_SET_MSG])
+        // the one holding it may be the player: being told somebody else is
+        // there when it is you reads as a bug
+        if (st[flags[i]] == this_player()->query_name() &&
+            spec[PROP_SPEC_ALREADY_SELF_MSG])
+          write(_render_msg(spec[PROP_SPEC_ALREADY_SELF_MSG], "") + "\n");
+        else if (spec[PROP_SPEC_ALREADY_SET_MSG])
           write(_render_msg(spec[PROP_SPEC_ALREADY_SET_MSG],
                             "" + st[flags[i]]) + "\n");
         return 1;
@@ -1283,6 +1289,35 @@ private int _str_matches_instance(string str, mapping inst)
  * base, then narrowing to the requested slot. Caller decides what
  * to do with cardinality > 1.
  */
+/*
+ * Peel the words a player puts in front of the thing itself -- "lie ON THE
+ * bunk", "tumbarse EN EL camastro". A prop's verbs read naturally with a
+ * preposition, and the parser hands the whole tail through as the argument, so
+ * the front of it is trimmed until a word is reached that could name something.
+ */
+private string _strip_filler(string str)
+{
+  string * filler, * words;
+  int i;
+
+  if (!str || !strlen(str))
+    return str;
+
+  filler = _LANG_PROPS_FILLER_WORDS;
+  words = explode(str, " ") - ({ "" });
+
+  for (i = 0; i < sizeof(words); i++)
+    if (member_array(lower_case(words[i]), filler) < 0)
+      break;
+
+  // every word was filler: the player named nothing, so hand back nothing and
+  // let the bare-verb auto-target have its turn
+  if (i >= sizeof(words))
+    return "";
+
+  return implode(words[i ..], " ");
+}
+
 private mapping * _find_matching_instances(string str)
 {
   mapping * ret;
@@ -1291,6 +1326,7 @@ private mapping * _find_matching_instances(string str)
   int i;
 
   ret = ({ });
+  str = _strip_filler(str);
   if (!str || !strlen(str)) return ret;
 
   if (sscanf(str, "%s %d", base, num) != 2 || num <= 0)
