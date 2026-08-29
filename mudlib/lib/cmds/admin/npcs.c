@@ -241,8 +241,10 @@ private int do_list(object area, object me)
 {
   mapping census;
   string * ids;
+  string * * rows;
   string out;
-  int i, read;
+  int * width;
+  int i, j, read;
 
   census = (mapping)area->query_npc_census();
   ids = map_indices(census);
@@ -252,48 +254,82 @@ private int do_list(object area, object me)
     return 1;
   }
 
-  out = "People of '" + area->query_area_name() + "' (" + sizeof(ids) +
-        "):\n" +
-        sprintf("  %-16s %-6s %-12s %-14s %-14s %s\n",
-                "name", "level", "job", "works at", "here", "state");
+  rows = ({ ({ "name", "level", "job", "works at", "location", "house",
+               "state" }) });
 
   for (i = 0; i < sizeof(ids); i++)
   {
-    mapping e;
+    mapping e, job;
     object npc;
-    string name, job, level;
+    mixed home, given;
+    string name, level;
 
     e = census[ids[i]];
     npc = AREA_HANDLER->find_live_npc(ids[i]);
-
     name = "";
     level = "";
+    home = nil;
+
     if (npc)
     {
-      name = (string)npc->query_cap_name();
+      // the proper name, not query_cap_name: that one deliberately answers
+      // with the kind word ("Granjero") so room lists never read like players.
+      // No (string) cast -- somebody never given a name hands back nil, and
+      // the cast is a conversion kfun that errors on it.
+      given = npc->query_given_name();
+      name = (stringp(given) && strlen(given))
+               ? given : (string)npc->query_cap_name();
       level = "" + (int)npc->query_level();
+      home = npc->query_home();
     }
     else if (read < NPCS_READ_LIMIT)
     {
       read++;
       name = field_of(e["savefile"], "npc_given_name");
-      if (strlen(name))
-        name = capitalize(name);
       level = field_of(e["savefile"], "class_level");
+      home = field_of(e["savefile"], "npc_home");
     }
 
-    job = e["guard"] ? "guard"
-                     : (e[CENSUS_VACANCY] ? e[CENSUS_VACANCY] : "-");
+    // a job with a house of its own houses whoever holds it
+    if ((!stringp(home) || !strlen(home)) && e[CENSUS_VACANCY])
+    {
+      job = (mapping)area->query_vacancy(e[CENSUS_VACANCY]);
+      if (job)
+        home = job[VACANCY_HOME];
+    }
 
-    out += sprintf("  %-16s %-6s %-12s %-14s %-14s %s\n",
-                   strlen(name) ? name : "(unnamed)",
-                   strlen(level) ? level : "?",
-                   job,
-                   e[CENSUS_WORKS_AT]
-                     ? get_path_file_name(e[CENSUS_WORKS_AT]) : "-",
-                   e[CENSUS_LOCATION]
-                     ? get_path_file_name(e[CENSUS_LOCATION]) : "-",
-                   npc ? "here" : "away");
+    rows += ({ ({
+      strlen(name) ? capitalize(name) : "(unnamed)",
+      strlen(level) ? level : "?",
+      e["guard"] ? "guard"
+                 : (e[CENSUS_VACANCY] ? e[CENSUS_VACANCY] : "-"),
+      e[CENSUS_WORKS_AT] ? get_path_file_name(e[CENSUS_WORKS_AT]) : "-",
+      e[CENSUS_LOCATION] ? get_path_file_name(e[CENSUS_LOCATION]) : "-",
+      (stringp(home) && strlen(home)) ? get_path_file_name(home) : "-",
+      npc ? "here" : "away"
+    }) });
+  }
+
+  // measure every column over the rows themselves, so a long name or a long
+  // location file widens its column instead of running into the next one
+  width = allocate_int(sizeof(rows[0]));
+  for (i = 0; i < sizeof(rows); i++)
+    for (j = 0; j < sizeof(rows[i]); j++)
+    {
+      int l;
+      l = strlen(rows[i][j], TRUE);
+      if (l > width[j])
+        width[j] = l;
+    }
+
+  out = "People of '" + area->query_area_name() + "' (" + sizeof(ids) +
+        "):\n";
+  for (i = 0; i < sizeof(rows); i++)
+  {
+    out += " ";
+    for (j = 0; j < sizeof(rows[i]); j++)
+      out += sprintf(" %-*s", width[j], rows[i][j]);
+    out += "\n";
   }
 
   if (read >= NPCS_READ_LIMIT)
