@@ -1172,7 +1172,7 @@ int do_vacancy(string str)
       write(sprintf("  %-14s  x%-2d  held %d  at %-22s  <- %s\n",
                     all[i][VACANCY_JOB], all[i][VACANCY_COUNT],
                     sizeof(area->query_vacancy_holders(all[i])),
-                    get_path_file_name(all[i][VACANCY_AT]),
+                    get_path_file_name(all[i][VACANCY_WORKS_AT]),
                     get_path_file_name(all[i][VACANCY_SOURCE])));
     return 1;
   }
@@ -1299,7 +1299,7 @@ int do_npc(string str)
         out += sprintf("  %-14s  x%-2d  held %d  at %-22s  <- %s\n",
                        all[i][VACANCY_JOB], all[i][VACANCY_COUNT],
                        sizeof(area->query_vacancy_holders(all[i])),
-                       get_path_file_name(all[i][VACANCY_AT]),
+                       get_path_file_name(all[i][VACANCY_WORKS_AT]),
                        get_path_file_name(all[i][VACANCY_SOURCE]));
     }
   }

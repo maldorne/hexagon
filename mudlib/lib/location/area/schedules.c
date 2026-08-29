@@ -95,7 +95,7 @@ void wake_and_schedule(string uuid, int hour)
     entry = ((mapping)this_object()->query_npc_census())[uuid];
     if (!entry)
       return;
-    locfile = entry["location"];
+    locfile = entry[CENSUS_LOCATION];
     if (!locfile || !strlen(locfile))
       return;
 

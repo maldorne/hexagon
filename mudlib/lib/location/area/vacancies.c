@@ -58,7 +58,7 @@ mapping query_vacancy(string job, varargs string at)
   all = query_vacancies();
   for (i = 0; i < sizeof(all); i++)
     if (all[i][VACANCY_JOB] == job &&
-        (!at || !strlen(at) || all[i][VACANCY_AT] == at))
+        (!at || !strlen(at) || all[i][VACANCY_WORKS_AT] == at))
       return all[i];
 
   return nil;
@@ -73,7 +73,7 @@ mapping * query_vacancies_at(string at)
   all = query_vacancies();
   out = ({ });
   for (i = 0; i < sizeof(all); i++)
-    if (all[i][VACANCY_AT] == at)
+    if (all[i][VACANCY_WORKS_AT] == at)
       out += ({ all[i] });
 
   return out;
@@ -133,7 +133,7 @@ void open_vacancy(string job, int count, string at, string source,
 
   vacancy = ([ VACANCY_JOB:    job,
                VACANCY_COUNT:  count,
-               VACANCY_AT:     at,
+               VACANCY_WORKS_AT:     at,
                VACANCY_SOURCE: source ]);
 
   if (mappingp(extra))
@@ -189,7 +189,7 @@ void close_vacancy(string job, varargs string at)
     object npc;
 
     e = ((mapping)this_object()->query_npc_census())[ids[i]];
-    if (e[CENSUS_VACANCY] != job || e[CENSUS_AT] != vacancy[VACANCY_AT])
+    if (e[CENSUS_VACANCY] != job || e[CENSUS_WORKS_AT] != vacancy[VACANCY_WORKS_AT])
       continue;
 
     npc = AREA_HANDLER->find_live_npc(ids[i]);
@@ -251,7 +251,7 @@ int set_vacancy_home(string job, string home, varargs string at)
 
     if (all[i][VACANCY_JOB] != job)
       continue;
-    if (at && strlen(at) && all[i][VACANCY_AT] != at)
+    if (at && strlen(at) && all[i][VACANCY_WORKS_AT] != at)
       continue;
 
     all[i][VACANCY_HOME] = home;
@@ -289,7 +289,7 @@ string * query_vacancy_holders(mapping vacancy)
 
   for (i = 0; i < sizeof(ids); i++)
     if (census[ids[i]][CENSUS_VACANCY] == vacancy[VACANCY_JOB] &&
-        census[ids[i]][CENSUS_AT] == vacancy[VACANCY_AT])
+        census[ids[i]][CENSUS_WORKS_AT] == vacancy[VACANCY_WORKS_AT])
       out += ({ ids[i] });
 
   return out;
@@ -373,7 +373,7 @@ void reequip_vacancy_holders(string job, varargs string at)
   if (!pointerp(spec) || !sizeof(spec))
     return;
 
-  loc = (object)this_object()->query_loaded_location(vacancy[VACANCY_AT]);
+  loc = (object)this_object()->query_loaded_location(vacancy[VACANCY_WORKS_AT]);
   if (!loc)
     return;
 
@@ -420,11 +420,11 @@ string spread_spot_for(mapping vacancy, int nth)
   int i, j;
 
   if (!vacancy[VACANCY_SPREAD])
-    return vacancy[VACANCY_AT];
+    return vacancy[VACANCY_WORKS_AT];
 
-  seat = (object)this_object()->load_location(vacancy[VACANCY_AT]);
+  seat = (object)this_object()->load_location(vacancy[VACANCY_WORKS_AT]);
   if (!seat)
-    return vacancy[VACANCY_AT];
+    return vacancy[VACANCY_WORKS_AT];
 
   // what makes that spot a workplace, ignoring what every open-air location has
   kinds = ({ });
@@ -434,7 +434,7 @@ string spread_spot_for(mapping vacancy, int nth)
       kinds += ({ comps[i]->query_type() });
 
   if (!sizeof(kinds))
-    return vacancy[VACANCY_AT];
+    return vacancy[VACANCY_WORKS_AT];
 
   candidates = ({ });
   files = map_indices((mapping)this_object()->query_locations());
@@ -454,7 +454,7 @@ string spread_spot_for(mapping vacancy, int nth)
   }
 
   if (sizeof(candidates) < 2)
-    return vacancy[VACANCY_AT];
+    return vacancy[VACANCY_WORKS_AT];
 
   return candidates[nth % sizeof(candidates)];
 }
@@ -503,7 +503,7 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
   string id, game, source, at;
 
   source = vacancy[VACANCY_SOURCE];
-  at = vacancy[VACANCY_AT];
+  at = vacancy[VACANCY_WORKS_AT];
   if (!source || !strlen(source) || !at || !strlen(at))
     return nil;
 
@@ -518,10 +518,10 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
 
   this_object()->add_census_entry(
     id, ([ "source":        source,
-           "location":      where,
+           CENSUS_LOCATION: where,
            "savefile":      npc_save_dir(game, id) + NPC_SAVE_FILE,
            CENSUS_VACANCY:  vacancy[VACANCY_JOB],
-           CENSUS_AT:       vacancy[VACANCY_AT] ]));
+           CENSUS_WORKS_AT:       vacancy[VACANCY_WORKS_AT] ]));
 
   return id;
 }
@@ -545,7 +545,7 @@ void fill_vacancy(mapping vacancy)
 
   // bring the new people in now if their place is already loaded; otherwise
   // they arrive when it next loads
-  loc = (object)this_object()->query_loaded_location(vacancy[VACANCY_AT]);
+  loc = (object)this_object()->query_loaded_location(vacancy[VACANCY_WORKS_AT]);
   if (loc)
     this_object()->restore_location_npcs(loc);
 }

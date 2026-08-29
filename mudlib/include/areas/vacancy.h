@@ -11,7 +11,7 @@
 //
 //   ([ VACANCY_JOB:    "barman",
 //      VACANCY_COUNT:  1,
-//      VACANCY_AT:     "/save/.../ap.o",   // where it is held
+//      VACANCY_WORKS_AT: "/save/.../ap.o", // where it is held
 //      VACANCY_SOURCE: template_id,
 //      VACANCY_POI:    1,                  // anchored to a point of interest
 //      VACANCY_SPREAD: 1,                  // holders scatter over like places
@@ -19,26 +19,29 @@
 //      VACANCY_HOME:   "/save/.../plot_30_-2_0.o" ])
 
 // the job's name, as the builder and the census know it
-#define VACANCY_JOB     "job"
+#define VACANCY_JOB       "job"
 // how many hold it at this place
-#define VACANCY_COUNT   "count"
-// the location it is held at: a POI, a workplace, a guarded gate
-#define VACANCY_AT      "at"
+#define VACANCY_COUNT     "count"
+// where the job is held: a POI, a workplace, a guarded gate
+#define VACANCY_WORKS_AT  "works_at"
 // the type its holders are drawn from, by template id
-#define VACANCY_SOURCE  "source"
+#define VACANCY_SOURCE    "source"
 // anchored to a point of interest: its holder respawns there after a delay
 // rather than waiting for the settlement pass
-#define VACANCY_POI     "poi"
+#define VACANCY_POI       "poi"
 // holders spread over the area's other locations of the same kind instead of
 // crowding the one the job names
-#define VACANCY_SPREAD  "spread"
+#define VACANCY_SPREAD    "spread"
 // what the job trains its holders in
-#define VACANCY_CLASS   "class"
+#define VACANCY_CLASS     "class"
 // the house that comes with the job, if it comes with one
-#define VACANCY_HOME    "home"
+#define VACANCY_HOME      "home"
 
-// census row: the job its holder was taken on for, and where
-#define CENSUS_VACANCY  "vacancy"
-#define CENSUS_AT       "at"
+// census row: the job its holder was taken on for, and where that job is held
+#define CENSUS_VACANCY        "vacancy"
+#define CENSUS_WORKS_AT       "works_at"
+// where the person actually is right now, which a spread job or a day's
+// walking moves away from the place the job is held
+#define CENSUS_LOCATION       "current_location"
 
 #endif

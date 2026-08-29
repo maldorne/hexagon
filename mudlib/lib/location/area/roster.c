@@ -29,7 +29,7 @@
 //   (Fine-grained placement -- which location/POI, sector-type weighting --
 //    is layered on in F2; F1 spawns anywhere in the area up to the cap.)
 //   npc_census:   live state -- which concrete NPCs exist and where.
-//     ([ uuid : ([ "source": npc_path, "location": location_file,
+//     ([ uuid : ([ "source": npc_path, "current_location": location_file,
 //                  "savefile": npc.o path ]) ])
 // The census is the authoritative summary of the area's population; NPC
 // objects are materialized into a location on load and drained on unload,
@@ -422,7 +422,7 @@ int relevel_census()
     if (!npc)
     {
       // wake it where the census says it is
-      loc = (object)this_object()->load_location(census[ids[i]]["location"]);
+      loc = (object)this_object()->load_location(census[ids[i]][CENSUS_LOCATION]);
       if (!loc)
         continue;
 
