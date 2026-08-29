@@ -155,7 +155,7 @@ private object npc_restore(string id, object loc)
   // place it names.
   role = (entry[CENSUS_VACANCY] && !entry["guard"])
            ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
-                                                   entry[CENSUS_WORKS_AT])
+                                                   entry[CENSUS_VACANCY_AT])
            : nil;
   t = (mapping)this_object()->query_banded_template(game, source);
 
@@ -216,7 +216,7 @@ private object npc_restore(string id, object loc)
     mapping job;
 
     job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
-                                                entry[CENSUS_WORKS_AT]);
+                                                entry[CENSUS_VACANCY_AT]);
     if (job && stringp(job[VACANCY_CLASS]) && strlen(job[VACANCY_CLASS]))
       npc->set_class_ob(job[VACANCY_CLASS]);
   }
@@ -310,9 +310,9 @@ private object npc_restore(string id, object loc)
   // from the role it fills. A restored NPC already carries one. A
   // first-materialize NPC is persisted by the equipment save below; one that had
   // none saves here. (The roster area is npc_area_path, stamped above.)
-  if (!npc->query_work() && role && role["work"])
+  if (!npc->query_work() && entry[CENSUS_WORKS_AT])
   {
-    npc->set_work(role["work"]);
+    npc->set_work(entry[CENSUS_WORKS_AT]);
     if (!first)
       npc->save_npc();
   }
@@ -372,7 +372,7 @@ private object npc_restore(string id, object loc)
     mapping job;
 
     job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
-                                                entry[CENSUS_WORKS_AT]);
+                                                entry[CENSUS_VACANCY_AT]);
     if (job && job[VACANCY_HOME])
       npc->set_home(job[VACANCY_HOME]);
   }
@@ -610,9 +610,10 @@ void npc_died(string uuid)
     mapping job;
 
     job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY],
-                                                entry[CENSUS_WORKS_AT]);
+                                                entry[CENSUS_VACANCY_AT]);
     if (job && job[VACANCY_POI])
-      call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY, entry[CENSUS_WORKS_AT]);
+      call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY,
+               entry[CENSUS_VACANCY_AT]);
   }
 
   if (guard_poi)

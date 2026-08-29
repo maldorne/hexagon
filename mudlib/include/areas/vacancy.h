@@ -37,11 +37,19 @@
 // the house that comes with the job, if it comes with one
 #define VACANCY_HOME      "home"
 
-// census row: the job its holder was taken on for, and where that job is held
+// The census row of somebody who holds a job. Three places, and they are three
+// different questions: which post this is, where this person works it, and
+// where the person happens to be.
+//
+// A spread job seats each holder in a different field, so its holders work in
+// places the post itself does not name; and any of them may be at home, or
+// halfway there, at the hour you ask.
 #define CENSUS_VACANCY        "vacancy"
+// which post: the place the job is held, matching the vacancy's works_at
+#define CENSUS_VACANCY_AT     "vacancy_at"
+// where this person works it, which a spread job moves away from the post
 #define CENSUS_WORKS_AT       "works_at"
-// where the person actually is right now, which a spread job or a day's
-// walking moves away from the place the job is held
+// where the person is right now
 #define CENSUS_LOCATION       "current_location"
 
 #endif

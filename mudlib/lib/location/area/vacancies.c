@@ -190,7 +190,8 @@ void close_vacancy(string job, varargs string at)
     object npc;
 
     e = ((mapping)this_object()->query_npc_census())[ids[i]];
-    if (e[CENSUS_VACANCY] != job || e[CENSUS_WORKS_AT] != vacancy[VACANCY_WORKS_AT])
+    if (e[CENSUS_VACANCY] != job ||
+        e[CENSUS_VACANCY_AT] != vacancy[VACANCY_WORKS_AT])
       continue;
 
     npc = AREA_HANDLER->find_live_npc(ids[i]);
@@ -290,7 +291,7 @@ string * query_vacancy_holders(mapping vacancy)
 
   for (i = 0; i < sizeof(ids); i++)
     if (census[ids[i]][CENSUS_VACANCY] == vacancy[VACANCY_JOB] &&
-        census[ids[i]][CENSUS_WORKS_AT] == vacancy[VACANCY_WORKS_AT])
+        census[ids[i]][CENSUS_VACANCY_AT] == vacancy[VACANCY_WORKS_AT])
       out += ({ ids[i] });
 
   return out;
@@ -518,11 +519,12 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
   id = UUID_OB->uuid();
 
   this_object()->add_census_entry(
-    id, ([ "source":        source,
-           CENSUS_LOCATION: where,
-           "savefile":      npc_save_dir(game, id) + NPC_SAVE_FILE,
-           CENSUS_VACANCY:  vacancy[VACANCY_JOB],
-           CENSUS_WORKS_AT:       vacancy[VACANCY_WORKS_AT] ]));
+    id, ([ "source":           source,
+           "savefile":         npc_save_dir(game, id) + NPC_SAVE_FILE,
+           CENSUS_VACANCY:     vacancy[VACANCY_JOB],
+           CENSUS_VACANCY_AT:  vacancy[VACANCY_WORKS_AT],
+           CENSUS_WORKS_AT:    where,
+           CENSUS_LOCATION:    where ]));
 
   return id;
 }
