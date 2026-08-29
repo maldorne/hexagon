@@ -50,6 +50,21 @@ void index_schedule_hours(string uuid, int * hours)
     this_object()->save_me();
 }
 
+// The current game hour for this area, read from its game's weather handler:
+// each game keeps its own clock, and a game with no handler of its own falls
+// back to the base weather.
+int query_game_hour()
+{
+  string game, wpath;
+
+  game = game_from_path((string)this_object()->query_area_path());
+  wpath = "/games/" + game + "/handlers/weather";
+  if (file_size(wpath + ".c") < 0)
+    wpath = "/lib/handlers/weather";
+
+  return load_object(wpath)->query_date_data()[0];
+}
+
 // The census uuids with something scheduled at `hour` (loaded or not).
 string * hour_actor_uuids(int hour)
 {

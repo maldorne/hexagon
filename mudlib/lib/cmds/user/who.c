@@ -142,7 +142,10 @@ string who_string(int width, int cre, string str)
   prt = "\n";
   prt += sprintf("%p%|*s\n", '-', width, ttl);
   prt += sprintf("%|*s\n", width, _LANG_WHO_REAL_WORLD_DATE, width);
-  prt += sprintf("%|*s\n", width, handler("weather")->date_string(), width);
+  // the clock of the game the reader is in: this file belongs to no game,
+  // so resolving from itself would answer with the never-advanced lib one
+  prt += sprintf("%|*s\n", width,
+                 handler("weather", this_player())->date_string(), width);
 
   // traverse the player list
   // if what == 1 only coders

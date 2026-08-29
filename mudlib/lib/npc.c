@@ -256,6 +256,13 @@ void do_schedule(int hour)
   run_on_components("do_schedule", ({ hour }));
 }
 
+// Materialization counterpart of do_schedule: walk to where the hour's entry
+// puts this NPC, for one that came back mid-errand with its route gone.
+void resume_schedule(int hour)
+{
+  run_on_components("resume_schedule", ({ hour }));
+}
+
 // Give this NPC a generated proper name: store it (persisted in npc.o) and set
 // it as the engine name (the find_living id), lowercased. Call on a freshly
 // cloned NPC, before any template names it -- monster::set_name only takes the

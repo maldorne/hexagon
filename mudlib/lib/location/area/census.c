@@ -403,6 +403,12 @@ private object npc_restore(string id, object loc)
     sched = npc->query_component_by_type("schedule");
     if (sched)
       this_object()->index_schedule_hours(id, sched->query_active_hours());
+
+    // A trip is never saved, so somebody who was walking when this location
+    // last unloaded is standing halfway with no route left. The timetable only
+    // speaks at the hours it names, so without this it would wait there until
+    // the next one; ask where this hour puts it and let it walk the rest.
+    npc->resume_schedule((int)this_object()->query_game_hour());
   }
 
   // A job that comes with a house houses whoever holds it, set on every

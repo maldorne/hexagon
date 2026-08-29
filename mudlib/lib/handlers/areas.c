@@ -90,21 +90,6 @@ mapping foreign_positions_at(string location_file)
   return npc_positions[location_file] ? npc_positions[location_file] : ([ ]);
 }
 
-// The current game hour for an area, read from that area's game weather handler
-// (each game has its own clock: a sci-fi world runs on different hours). Falls
-// back to the base weather when a game has no weather handler of its own.
-private int _area_hour(object area)
-{
-  string game, wpath;
-
-  game = game_from_path(area->query_area_path());
-  wpath = "/games/" + game + "/handlers/weather";
-  if (file_size(wpath + ".c") < 0)
-    wpath = "/lib/handlers/weather";
-
-  return load_object(wpath)->query_date_data()[0];
-}
-
 // Cron calls this once per game hour (see the crontab, after the weather line so
 // the hour is already advanced). For every loaded area it reads that area's game
 // hour and collects the census uuids with something scheduled this hour, then
@@ -124,7 +109,7 @@ void update_areas()
     if (!areas[i])
       continue;
 
-    hour = _area_hour(areas[i]);
+    hour = (int)areas[i]->query_game_hour();
     uuids = areas[i]->hour_actor_uuids(hour);
     for (j = 0; j < sizeof(uuids); j++)
       pending_schedule += ({ ({ areas[i], uuids[j], hour }) });
@@ -416,9 +401,9 @@ void _npc_verify_step(mapping st)
 
     total = st["orphans"] + st["empty"];
     msg = "NPC save verify for '" + st["game"] + "':\n" +
-          "  orphan folders (a save with no census entry): " +
+          "  orphan npcs folders (a save with no census entry): " +
           st["orphans"] + "\n" +
-          "  empty folders (save already deleted): " + st["empty"] + "\n";
+          "  empty npcs folders (save already deleted): " + st["empty"] + "\n";
     if (st["apply"])
       msg += "  -> deleted " + total + " folder" + (total == 1 ? "" : "s") +
              ".\n";

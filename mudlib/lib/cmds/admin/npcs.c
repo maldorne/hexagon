@@ -7,6 +7,7 @@
 inherit CMD_BASE;
 
 private object area_of(object me);
+private int do_orphans(object area, object me, string * args);
 private string kind_of(object area, string source);
 private string columns(string * * rows);
 private string hours_of(object area, string source);
@@ -14,7 +15,7 @@ private string hours_of(object area, string source);
 void setup()
 {
   set_aliases(({ "npcs" }));
-  set_usage("npcs [ list [type] | vacancies | roster | live | verify [apply] ]");
+  set_usage("npcs [ list [type] | vacancies | roster | live | orphans [apply] |\n            verify [apply] ]");
   set_help(
     "Report on the people of the area you are standing in.\n" +
     "\n" +
@@ -23,6 +24,7 @@ void setup()
     "  npcs vacancies       the jobs it offers and who holds them\n" +
     "  npcs roster          the types it spawns statistically, and their caps\n" +
     "  npcs live            only the people materialized right now\n" +
+    "  npcs orphans [apply] people the area no longer accounts for\n" +
     "  npcs verify [apply]  audit the game's NPC savefiles against the census\n" +
     "\n" +
     "The census is the area's record of its individuals: each has a uuid and " +
@@ -35,6 +37,13 @@ void setup()
     "unloaded; 'works at' is where their job is done, and the two differ for " +
     "anyone at home or on their way there. 'loaded' says whether they exist " +
     "in the world right now.\n" +
+    "\n" +
+    "'orphans' finds the other direction: somebody on the books that nothing " +
+    "asks for any more -- holding no job, and of a type the roster no longer " +
+    "counts. Promoting a type to a vacancy leaves exactly this behind, since " +
+    "the roster stops counting it while the people it already made stay. " +
+    "'apply' takes them off the books; run 'verify apply' afterwards to " +
+    "delete the savefiles they leave behind.\n" +
     "\n" +
     "'verify' is the one that spans the whole game rather than one area: it " +
     "reports savefile folders with no census entry -- orphans left when an " +
@@ -401,6 +410,81 @@ private int do_list(object area, object me, string want)
   return 1;
 }
 
+// ===== npcs orphans =====
+// Somebody the area no longer accounts for: holding no job, and of a type its
+// roster no longer counts. Declaring a vacancy for a type is what usually makes
+// them -- the roster drops the type, and the people it had already scattered
+// stay on the books with nothing to belong to.
+private int do_orphans(object area, object me, string * args)
+{
+  mapping census, caps;
+  string * ids;
+  string * * rows;
+  int i, apply, taken;
+
+  apply = (sizeof(args) > 1 && args[1] == "apply");
+
+  census = (mapping)area->query_npc_census();
+  caps = (mapping)area->query_npc_caps();
+  ids = map_indices(census);
+
+  rows = ({ ({ "name", "type", "location", "house" }) });
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mapping e;
+    object npc;
+    mixed home;
+    string kind, name;
+
+    e = census[ids[i]];
+
+    // holding a post is reason enough to be here, guards included
+    if (e[CENSUS_VACANCY] || e["guard"])
+      continue;
+    // and so is being one the roster still counts
+    if (e["source"] && caps[e["source"]])
+      continue;
+
+    kind = e["source"] ? get_path_file_name(e["source"]) : "-";
+    npc = AREA_HANDLER->find_live_npc(ids[i]);
+    name = e["name"] ? e["name"] : kind_of(area, e["source"]);
+    home = area->query_house_of(ids[i]);
+
+    rows += ({ ({
+      strlen(name) ? capitalize(name) : "?",
+      kind,
+      e[CENSUS_LOCATION] ? get_path_file_name(e[CENSUS_LOCATION]) : "-",
+      (stringp(home) && strlen(home)) ? get_path_file_name(home) : "-"
+    }) });
+    taken++;
+
+    if (apply)
+    {
+      // out of the world first, so nothing is left standing in a location
+      // pointing at a row that no longer exists
+      if (npc)
+        npc->dest_me();
+      area->release_house(ids[i]);
+      area->drop_census_entry(ids[i]);
+    }
+  }
+
+  if (!taken)
+  {
+    write("Everybody on the books of '" + area->query_area_name() +
+          "' is accounted for.\n");
+    return 1;
+  }
+
+  write((apply ? "Taken off the books of '" : "Unaccounted for in '") +
+        area->query_area_name() + "' (" + taken + "):\n" + columns(rows) +
+        (apply
+          ? "\nTheir savefiles are still there; 'npcs verify apply' removes them.\n"
+          : "\n'npcs orphans apply' takes them off the books.\n"));
+  return 1;
+}
+
 // ===== npcs verify =====
 private int do_verify(object me, string * args)
 {
@@ -463,8 +547,10 @@ static int cmd(string str, object me, string verb)
     return do_roster(area, me);
   if (args[0] == "live")
     return do_live(area, me);
+  if (args[0] == "orphans")
+    return do_orphans(area, me, args);
 
   notify_fail("Usage: npcs [ list [type] | vacancies | roster | live | " +
-              "verify [apply] ]\n");
+              "orphans [apply] | verify [apply] ]\n");
   return 0;
 }

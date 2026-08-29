@@ -5,16 +5,24 @@
 #include <kernel.h>
 #include <mud/translations.h>
 
-static nomask object table(string name) 
+// `from` is what the game is resolved against, defaulting to the caller. Pass
+// the player (or anything standing in the world) from a file that belongs to no
+// game -- a command under /lib/cmds/ asking for its own game gets none, and
+// would silently be answered by the lib copy instead of the one the player's
+// game overrides it with.
+static nomask object table(string name, varargs object from) 
 {
   object ob;
   string game, key;
+
+  if (!from)
+    from = this_object();
 
   // Resolution is per game -- a game's own copy overrides the lib one -- so
   // the cache key carries the game, or a lookup made from inside one game
   // would hand back what a different game resolved. Objects that belong to
   // no game key by the bare name.
-  game = game_name(this_object());
+  game = game_name(from);
   key = (game && strlen(game)) ? game + "-" + name : name;
 
   ob = SINGLETON_HANDLER->get_table(key);
@@ -25,7 +33,7 @@ static nomask object table(string name)
   // first the game specific table, it will override the lib one
   catch 
   {
-    if (ob = load_object(game_root(this_object()) + "tables/" + name))
+    if (ob = load_object(game_root(from) + "tables/" + name))
     {
       SINGLETON_HANDLER->set_table(key, ob);
       return ob;
@@ -41,16 +49,21 @@ static nomask object table(string name)
   return nil;
 }
 
-static nomask object handler(string name) 
+// Same as table(): `from` is what the game is resolved against, defaulting to
+// the caller.
+static nomask object handler(string name, varargs object from) 
 {
   object ob;
   string game, key;
+
+  if (!from)
+    from = this_object();
 
   // Resolution is per game -- a game's own copy overrides the lib one -- so
   // the cache key carries the game, or a lookup made from inside one game
   // would hand back what a different game resolved. Objects that belong to
   // no game key by the bare name.
-  game = game_name(this_object());
+  game = game_name(from);
   key = (game && strlen(game)) ? game + "-" + name : name;
 
   ob = SINGLETON_HANDLER->get_handler(key);
@@ -61,7 +74,7 @@ static nomask object handler(string name)
   // first the game specific handler, it will override the lib one
   catch 
   {
-    if (ob = load_object(game_root(this_object()) + "handlers/" + name))
+    if (ob = load_object(game_root(from) + "handlers/" + name))
     {
       SINGLETON_HANDLER->set_handler(key, ob);
       return ob;

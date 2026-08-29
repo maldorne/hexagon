@@ -47,6 +47,71 @@ private string _resolve(object npc, string dest)
   return dest;  // a literal location file (a guard's post)
 }
 
+// The entry governing `hour`: the latest one at or before it, wrapping past
+// midnight, so an hour the timetable does not name is still covered by the one
+// that last took effect. A routine of 6 -> work and 20 -> home therefore answers
+// "work" for every hour from 6 to 19 and "home" for the rest.
+private mapping _entry_in_effect(int hour)
+{
+  int * hours;
+  int i, dist, best, best_dist;
+
+  hours = map_indices(timetable);
+  if (!sizeof(hours))
+    return nil;
+
+  best = -1;
+  best_dist = 24;
+
+  for (i = 0; i < sizeof(hours); i++)
+  {
+    dist = hour - hours[i];
+    if (dist < 0)
+      dist += 24;
+    if (dist < best_dist)
+    {
+      best_dist = dist;
+      best = hours[i];
+    }
+  }
+
+  return best >= 0 ? timetable[best] : nil;
+}
+
+// Put a freshly materialized NPC back on its routine. A trip is never saved, so
+// one that was walking when its location unloaded comes back standing wherever
+// it got to, with no route and no goal, and the timetable would not speak to it
+// again until the next hour it names -- half a day of standing in a field path.
+// So on materialization ask which entry governs this hour and walk there.
+// args = ({ hour }).
+void resume_schedule(mixed * args)
+{
+  object npc, here;
+  mapping entry;
+  string dest;
+
+  npc = query_owner();
+  if (!npc || !args || !sizeof(args))
+    return;
+
+  entry = _entry_in_effect(args[0]);
+  if (!entry)
+    return;
+
+  dest = _resolve(npc, entry["goto"]);
+  if (!dest || !strlen(dest))
+    return;
+
+  here = environment(npc);
+  if (here && here->query_file_name() == dest)
+    return;
+
+  // silent, and no message even when the entry carries one: this is not the
+  // hour's departure that a room witnesses, it is somebody quietly finishing a
+  // walk that was cut short
+  npc->travel_to(dest);
+}
+
 // The areas handler calls this on the NPC at hour H (forwarded here through
 // npc.c::do_schedule). Look H up in the timetable and, if there is an entry,
 // head to its destination unless already there. args = ({ hour }).

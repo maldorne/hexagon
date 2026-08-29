@@ -341,7 +341,9 @@
 
 #define _LANG_CMD_TIME_ALIAS ({ "time", "hora", "fecha" })
 #define _LANG_CMD_TIME_SYNTAX "time"
-#define _LANG_CMD_TIME_HELP "Muestra la hora actual del mundo real."
+#define _LANG_CMD_TIME_REAL  "Mundo real:  "
+#define _LANG_CMD_TIME_GAME  "En el juego: "
+#define _LANG_CMD_TIME_HELP  "Muestra la hora y la fecha del mundo real y las del juego en el que estás."
 
 // grope 
 
