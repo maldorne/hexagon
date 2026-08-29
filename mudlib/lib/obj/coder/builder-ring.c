@@ -1012,6 +1012,9 @@ int do_vacancy(string str)
     area->open_vacancy(name, count, loc->query_file_name(), source,
                        poi ? ([ VACANCY_POI: 1 ]) : ([ VACANCY_SPREAD: 1 ]));
     area->fill_vacancy(area->query_vacancy(name, loc->query_file_name()));
+    // filling only writes census rows; bring the new people in here, since the
+    // place they were taken on for is loaded and standing in front of us
+    area->restore_location_npcs(loc);
     write("Vacancy '" + name + "' x" + count + " <- " + source +
           ", held here.\n");
     return 1;

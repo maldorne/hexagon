@@ -529,9 +529,13 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
 
 // Take on as many people as the job is short of. A seat emptied by a death is
 // refilled here, not at the moment of death.
+//
+// This only writes census rows. Bringing the new people into the world is the
+// caller's business, and a load already does it: the location's restore asks
+// for its jobs to be filled and then materializes everybody it finds, so doing
+// it from here as well would have the two calling each other without end.
 void fill_vacancy(mapping vacancy)
 {
-  object loc;
   int have, want, i;
 
   if (!vacancy)
@@ -543,12 +547,6 @@ void fill_vacancy(mapping vacancy)
   // a spread job hands each holder its own place, in turn
   for (i = have; i < want; i++)
     assign_npc_to_vacancy(vacancy, spread_spot_for(vacancy, i));
-
-  // bring the new people in now if their place is already loaded; otherwise
-  // they arrive when it next loads
-  loc = (object)this_object()->query_loaded_location(vacancy[VACANCY_WORKS_AT]);
-  if (loc)
-    this_object()->restore_location_npcs(loc);
 }
 
 // Staff every job the settlement offers. Idempotent: a job already at its count
