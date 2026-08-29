@@ -54,12 +54,23 @@ mapping original_npc_sources;
 int npc_default_level;
 int npc_default_level_spread;
 
+// How strong the people of this place are, as the range every one of their
+// eight stats is rolled in. Strength belongs to the place, not to the race or
+// the trade: the same orcs make a weak village and a hard stronghold, and a
+// range fixed by either could not tell the two apart. The race's modifiers
+// apply on top of the roll. 0/0 means the area declares none and whatever the
+// type carries is left alone.
+int npc_stat_low;
+int npc_stat_high;
+
 void create()
 {
   npc_caps = ([ ]);
   original_npc_sources = ([ ]);
   npc_default_level = 1;
   npc_default_level_spread = 0;
+  npc_stat_low = 0;
+  npc_stat_high = 0;
 }
 
 // Flag (or clear) an intended NPC source as a settled resident. This is the
@@ -329,6 +340,44 @@ int decide_gender(string game, string source)
 
 int query_area_level() { return npc_default_level; }
 int query_area_spread() { return npc_default_level_spread; }
+int * query_area_stats() { return ({ npc_stat_low, npc_stat_high }); }
+
+// Set the range this area rolls its people's stats in, or clear it with a low
+// of 0. Reversed bounds are taken in the order given rather than refused.
+void set_area_stats(int low, int high)
+{
+  if (low < 1)
+  {
+    npc_stat_low = 0;
+    npc_stat_high = 0;
+  }
+  else
+  {
+    npc_stat_low = low;
+    npc_stat_high = high < low ? low : high;
+  }
+
+  this_object()->save_me();
+}
+
+// The type as this area hands it out: the bestiary template with the area's
+// own stat range folded in, so an NPC born here is rolled to the strength of
+// the place. A stat the type pins explicitly still wins -- apply_template
+// applies those after the roll -- and an area with no range of its own hands
+// the template back untouched.
+mapping query_banded_template(string game, string source)
+{
+  mapping t;
+
+  t = BESTIARY_HANDLER->query_template(game, source);
+  if (!t || !npc_stat_low)
+    return t;
+
+  t = ([ ]) + t;
+  t["random_stats"] = ([ "low": npc_stat_low, "high": npc_stat_high ]);
+
+  return t;
+}
 
 void set_area_level(int n)
 {

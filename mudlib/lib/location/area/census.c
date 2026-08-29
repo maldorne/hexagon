@@ -174,7 +174,7 @@ private object npc_restore(string id, object loc)
   // role-board slot only when tagged "role" with no "poi"/"guard"; the role is
   // read here for the workplace it names.
   role = (entry["role"] && !entry["poi"] && !entry["guard"]) ? ((mapping)this_object()->query_roles())[entry["role"]] : nil;
-  t = BESTIARY_HANDLER->query_template(game, source);
+  t = (mapping)this_object()->query_banded_template(game, source);
 
   // sentience is a fact about the type, so it comes from the template
   sentient = t && t["sentient"];

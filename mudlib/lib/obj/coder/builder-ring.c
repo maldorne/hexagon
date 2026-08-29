@@ -24,7 +24,8 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
 #define BUILDER_RING_AREA_SYNTAX \
   "build area < exploration <display name> | noexploration\n" + \
-  "           | level <n> [<spread>] | diplomacy <citizenship|none>\n" + \
+  "           | level <n> [<spread>] | stats <low> <high> | stats none\n" + \
+  "           | diplomacy <citizenship|none>\n" + \
   "           | parent <area path|none> | principal\n" + \
   "           | relevel >"
 #define BUILDER_RING_POI_SYNTAX \
@@ -51,6 +52,7 @@ inherit "/lib/armour.c";
   "  build area exploration <name>        entering here is a diary event\n" + \
   "  build area noexploration\n" + \
   "  build area level <n> [<spread>]      NPC level band\n" + \
+  "  build area stats <low> <high>        how strong its people are\n" + \
   "  build area diplomacy <name|none>     citizenship; guards use it\n" + \
   "  build area parent <area path|none>   what this place is part of\n" + \
   "  build area principal                 fallback location for occupants\n" + \
@@ -668,6 +670,36 @@ int do_area(string str)
     write("Area '" + area->query_area_name() + "' average level set to " +
           area->query_area_level() + " (spread " + area->query_area_spread() +
           ").\n");
+    return 1;
+  }
+  else if (verb == "stats")
+  {
+    // how strong the people of this place are, as the range their eight stats
+    // are rolled in. Belongs to the place: the same race makes a weak village
+    // and a hard stronghold.
+    int low, high;
+    int * band;
+
+    if (sizeof(args) > 1 && args[1] == "none")
+    {
+      area->set_area_stats(0, 0);
+      write("Area '" + area->query_area_name() + "' rolls no stats of its " +
+            "own; its people keep whatever their type carries.\n");
+      return 1;
+    }
+
+    if (sizeof(args) < 3 || sscanf(args[1], "%d", low) != 1 ||
+        sscanf(args[2], "%d", high) != 1)
+    {
+      notify_fail("Usage: build area stats <low> <high>, or " +
+                  "build area stats none\n");
+      return 0;
+    }
+
+    area->set_area_stats(low, high);
+    band = (int *)area->query_area_stats();
+    write("People of '" + area->query_area_name() + "' now roll each stat " +
+          "in " + band[0] + "-" + band[1] + ".\n");
     return 1;
   }
   else if (verb == "diplomacy")
