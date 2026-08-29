@@ -32,4 +32,9 @@
 #define _LANG_MATERIAL_CRYSTAL_PHRASE   "crystal"
 #define _LANG_MATERIAL_CRYSTAL_NAME     "crystal"
 
+#define _LANG_MATERIAL_SILK_PHRASE      "silk"
+#define _LANG_MATERIAL_SILK_NAME        "silk"
+#define _LANG_MATERIAL_WEB_PHRASE       "cobweb"
+#define _LANG_MATERIAL_WEB_NAME         "cobweb"
+
 #endif // _LANG_MATERIALS_H_EN

@@ -32,4 +32,9 @@
 #define _LANG_MATERIAL_CRYSTAL_PHRASE   "de cristal"
 #define _LANG_MATERIAL_CRYSTAL_NAME     "cristal"
 
+#define _LANG_MATERIAL_SILK_PHRASE      "de seda"
+#define _LANG_MATERIAL_SILK_NAME        "seda"
+#define _LANG_MATERIAL_WEB_PHRASE       "de telaraña"
+#define _LANG_MATERIAL_WEB_NAME         "telaraña"
+
 #endif // _LANG_MATERIALS_H_ES

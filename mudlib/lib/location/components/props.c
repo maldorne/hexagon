@@ -278,7 +278,10 @@ string long(varargs string str, int dark)
       if (noun && strlen(noun))
       {
         mat_id = _instance_material(inst);
-        material_phrase = (mat_id && strlen(mat_id))
+        // a type that hides its material hides it here too, or examining a
+        // cobweb answers "Cobweb of cloth"
+        material_phrase = (mat_id && strlen(mat_id) &&
+                           !spec[PROP_TYPE_HIDE_MATERIAL])
           ? (string)table("materials")->query_material_phrase(mat_id)
           : "";
         id = noun;

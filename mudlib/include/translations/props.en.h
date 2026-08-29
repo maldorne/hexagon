@@ -270,6 +270,18 @@
 #define _LANG_PROP_ARMS_COUNT_ME        "You count six spears, every head clean and oiled, every shaft chained to the frame."
 #define _LANG_PROP_ARMS_COUNT_OTHERS    "$mcname$ counts the spears in the rack."
 
+// cobwebs
+#define _LANG_PROP_COBWEB_ID            "cobweb"
+#define _LANG_PROP_COBWEB_ID_ALIAS_1    "web"
+#define _LANG_PROP_COBWEB_NOUN          "cobweb"
+#define _LANG_PROP_COBWEB_NOUN_PLURAL   "cobwebs"
+#define _LANG_PROP_COBWEB_SHORT         "thick cobwebs"
+#define _LANG_PROP_COBWEB_LONG          "Cobwebs sturdier than they have any right to be hang from branch to branch, woven so close they barely let the light through."
+
+#define _LANG_PROP_COBWEB_TOUCH_VERBS   ({ "touch", "feel" })
+#define _LANG_PROP_COBWEB_TOUCH_ME      "You brush a strand with your fingers. It draws tight, hums, and somewhere in the thicket something answers by moving."
+#define _LANG_PROP_COBWEB_TOUCH_OTHERS  "$mcname$ brushes a strand of the cobwebs and the whole tangle shivers."
+
 // Words a player puts in front of the thing's name that are not part of it:
 // "lie ON THE bunk". Peeled off the front of the argument before looking up
 // which prop is meant.

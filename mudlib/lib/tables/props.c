@@ -514,6 +514,42 @@ void create()
       ]),
     ]),
 
+    // ------------------------------------------------------------
+    //  cobweb — decorative, stateless. Scenery of a spider lair.
+    // ------------------------------------------------------------
+    "cobweb": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_COBWEB_ID,
+        _LANG_PROP_COBWEB_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_COBWEB_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_COBWEB_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_FEMALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WEB,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_COBWEB_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_COBWEB_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_WEB }),
+      // the short and long already say what it is woven of, so the phrase
+      // would only repeat itself
+      PROP_TYPE_HIDE_MATERIAL: 1,
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "touch": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_COBWEB_TOUCH_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_COBWEB_TOUCH_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_COBWEB_TOUCH_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
   ]);
 }
 
