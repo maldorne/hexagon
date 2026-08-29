@@ -1,6 +1,7 @@
 #include <mud/cmd.h>
 #include <areas/area.h>
 #include <areas/vacancy.h>
+#include <living/persisted.h>
 
 inherit CMD_BASE;
 
@@ -12,6 +13,7 @@ inherit CMD_BASE;
 
 private string field_of(string savefile, string key);
 private object area_of(object me);
+private string kind_of(object area, string source, string gender);
 
 void setup()
 {
@@ -31,6 +33,12 @@ void setup()
     "a savefile, and only exists in the world while its location is loaded. " +
     "A listing therefore reads the name and level of anybody not materialized " +
     "off their savefile, so it can name them all.\n" +
+    "\n" +
+    "In a listing, 'location' is where the person is according to the books, " +
+    "which for somebody out of the world is where they were when it last " +
+    "unloaded; 'works at' is where their job is done, and the two differ for " +
+    "anyone at home or on their way there. 'loaded' says whether they exist " +
+    "in the world right now.\n" +
     "\n" +
     "'verify' is the one that spans the whole game rather than one area: it " +
     "reports savefile folders with no census entry -- orphans left when an " +
@@ -79,6 +87,29 @@ private string field_of(string savefile, string key)
     }
 
   return "";
+}
+
+// The kind word a type answers to, in the form matching a gender id. What
+// somebody is called when they were never given a name of their own.
+private string kind_of(object area, string source, string gender)
+{
+  mapping template;
+  mixed name;
+
+  if (!source || !strlen(source))
+    return "";
+
+  template = BESTIARY_HANDLER->query_template(
+               game_from_path((string)area->query_area_path()), source);
+  if (!template)
+    return "";
+
+  name = template["name"];
+  // a bimodal type stores its names per gender, keyed by the driver's id
+  if (mappingp(name))
+    name = name[strlen(gender) ? gender : "1"];
+
+  return stringp(name) ? name : "";
 }
 
 // ===== npcs: what the area holds =====
@@ -255,7 +286,7 @@ private int do_list(object area, object me)
   }
 
   rows = ({ ({ "name", "level", "job", "works at", "location", "house",
-               "state" }) });
+               "loaded" }) });
 
   for (i = 0; i < sizeof(ids); i++)
   {
@@ -288,6 +319,14 @@ private int do_list(object area, object me)
       name = field_of(e["savefile"], "npc_given_name");
       level = field_of(e["savefile"], "class_level");
       home = field_of(e["savefile"], "npc_home");
+
+      // Somebody never given a proper name is shown by their kind, the same
+      // answer a live one gives. Those are the posts still staffed from a
+      // named blueprint -- the barman, the healer -- which carry their name on
+      // the type instead of generating one.
+      if (!strlen(name))
+        name = kind_of(area, e["source"],
+                       field_of(e["savefile"], "gender"));
     }
 
     // a job with a house of its own houses whoever holds it
@@ -299,14 +338,14 @@ private int do_list(object area, object me)
     }
 
     rows += ({ ({
-      strlen(name) ? capitalize(name) : "(unnamed)",
+      strlen(name) ? capitalize(name) : "?",
       strlen(level) ? level : "?",
       e["guard"] ? "guard"
                  : (e[CENSUS_VACANCY] ? e[CENSUS_VACANCY] : "-"),
       e[CENSUS_WORKS_AT] ? get_path_file_name(e[CENSUS_WORKS_AT]) : "-",
       e[CENSUS_LOCATION] ? get_path_file_name(e[CENSUS_LOCATION]) : "-",
       (stringp(home) && strlen(home)) ? get_path_file_name(home) : "-",
-      npc ? "here" : "away"
+      npc ? "yes" : "no"
     }) });
   }
 
