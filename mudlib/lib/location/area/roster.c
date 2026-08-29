@@ -17,6 +17,7 @@
 
 #include <areas/area.h>
 #include <areas/poi.h>
+#include <areas/vacancy.h>
 #include <areas/diplomacy.h>
 #include <living/persisted.h>
 

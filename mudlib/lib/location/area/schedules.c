@@ -10,6 +10,7 @@
 
 #include <room/location.h>
 #include <areas/area.h>
+#include <areas/vacancy.h>
 
 // Which census NPCs have something scheduled at each game hour, so the areas
 // handler can wake and dispatch exactly the ones due without scanning or loading

@@ -83,7 +83,8 @@ mapping * query_vacancies_at(string at)
 // people who hold a job, so these sources are not its business.
 mapping query_vacancy_sources()
 {
-  mapping * all, out;
+  mapping * all;
+  mapping out;
   int i;
 
   all = query_vacancies();
