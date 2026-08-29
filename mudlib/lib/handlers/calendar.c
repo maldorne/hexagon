@@ -126,11 +126,15 @@ string query_year_name(int num)
   return _LANG_CALENDAR_YEAR_STRING;
 }
 
-int query_global_day()
+// `from` is what the game is resolved against when reaching for the clock. This
+// handler belongs to no game, so asking for the weather from itself would always
+// answer with the lib copy -- the one nothing advances. Callers pass the player,
+// or the game's own weather handler when it is the one asking.
+int query_global_day(varargs object from)
 {
   // ({ hora_del_dia, dia_del_anyo + 1, mes + 1, estacion + 1, anyo, });
   int * date_data;
-  date_data = handler("weather")->query_date_data();
+  date_data = handler("weather", from)->query_date_data();
 
   // return (date_data[4] - 1) * 365 + date_data[1];
 
@@ -138,17 +142,17 @@ int query_global_day()
   return date_data[4] * 365 + date_data[1];
 }
 
-int query_week_day(int num_day)
+int query_week_day(int num_day, varargs object from)
 {
   if (!num_day)
-    num_day = query_global_day();
+    num_day = query_global_day(from);
   return (num_day % 7) + 1;
 }
 
-string query_week_day_string(varargs int num_day)
+string query_week_day_string(varargs int num_day, object from)
 {
   if (!num_day)
-    num_day = query_global_day();
+    num_day = query_global_day(from);
 
   return table("calendar")->query_week_day_string(num_day);
 }

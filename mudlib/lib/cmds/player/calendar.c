@@ -31,12 +31,12 @@ static int cmd(string str, object me, string verb)
     {
       // date_data = ({ hour_of_day, day_of_year + 1, month + 1, season + 1, year, day_of_month, });
       int present_year;
-      present_year = handler("weather")->query_date_data()[4];
+      present_year = handler("weather", me)->query_date_data()[4];
 
       ret += _LANG_CMD_CALENDAR_ERA_HEADER;
 
       for (i = 0; i <= present_year; i++)
-        ret += "\t" + handler("calendar")->query_year_name(i) + "\n";
+        ret += "\t" + handler("calendar", me)->query_year_name(i) + "\n";
 
       me->more_string(ret, _LANG_CMD_CALENDAR_TITLE);
       return 1;
@@ -49,21 +49,26 @@ static int cmd(string str, object me, string verb)
   }
 
   // date_data = ({ hour_of_day, day_of_year + 1, month + 1, season + 1, year, day_of_month, });
-  date_data = handler("weather")->query_date_data();
+  date_data = handler("weather", me)->query_date_data();
 
-  global_day = handler("calendar")->query_global_day();
+  global_day = handler("calendar", me)->query_global_day(me);
   // Weekday on which the current month started.
-  week_day_start = handler("calendar")->query_week_day(global_day - date_data[5]) - 1;
+  week_day_start = handler("calendar", me)->query_week_day(
+                     global_day - date_data[5], me) - 1;
 
-  ret +=  sprintf("%|*s\n", cols, ctime(time(), 3));
-  ret += "\n" + sprintf("%|*s\n", cols, capitalize(handler("weather")->month_string())) + "\n";
+  // the date of the world this calendar belongs to. ctime's flag 3 was meant
+  // to answer this and never got an implementation, so it returned nothing and
+  // the calendar opened with a blank line.
+  ret += sprintf("%|*s\n", cols, (string)handler("weather", me)->date_string());
+  ret += "\n" + sprintf("%|*s\n", cols,
+                        capitalize(handler("weather", me)->month_string())) + "\n";
 
   ret += sprintf("%|*s\n", cols, _LANG_CMD_CALENDAR_WEEK_HEADER);
 
   count_week = 1;
   count_month = 1;
 
-  for (i = 0; count_month <= handler("weather")->month_days(); i++)
+  for (i = 0; count_month <= handler("weather", me)->month_days(); i++)
   {
     if (i < week_day_start)
     {

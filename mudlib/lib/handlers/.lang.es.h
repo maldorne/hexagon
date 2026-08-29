@@ -66,7 +66,7 @@
 
 #define _LANG_WEATHER_DATE_STRING \
   ((data[0] == 1) ? "Es la una" : "Son las " + data[0]) + \
-  " del " + capitalize(handler("calendar")->query_week_day_string()) + \
+  " del " + capitalize(handler("calendar", this_object())->query_week_day_string(0, this_object())) + \
   " " + (day_of_month + 1) + " de " + \
   capitalize(month_string()) + \
   " del año " + handler("calendar")->query_year_name(data[4])

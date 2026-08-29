@@ -65,7 +65,7 @@
 
 #define _LANG_WEATHER_DATE_STRING \
   "It is " + number_as_string(data[0]) + " o'clock" + \
-  " on " + capitalize(handler("calendar")->query_week_day_string()) + \
+  " on " + capitalize(handler("calendar", this_object())->query_week_day_string(0, this_object())) + \
   " " + (day_of_month + 1) + " of " + \
   capitalize(month_string()) + \
   ", year " + handler("calendar")->query_year_name(data[4])
