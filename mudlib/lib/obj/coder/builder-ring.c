@@ -865,7 +865,8 @@ int do_poi(string str)
   {
     mapping pois;
     string * keys;
-    int i, w_loc, w_kind, w_role, w_src;
+    string out;
+    int i, w_loc, w_kind;
 
     pois = area->query_pois();
     keys = map_indices(pois);
@@ -878,12 +879,11 @@ int do_poi(string str)
     // Column widths, measured over the basenames actually printed (the full
     // save paths share a directory and would wrap the terminal). The common
     // directory is stated once in the header instead.
-    w_loc = w_kind = w_role = w_src = 0;
+    w_loc = w_kind = 0;
     for (i = 0; i < sizeof(keys); i++)
     {
       mapping p;
-      mapping * vs;
-      int j, l;
+      int l;
 
       l = strlen(get_path_file_name(keys[i]), TRUE);
       if (l > w_loc) w_loc = l;
@@ -897,13 +897,12 @@ int do_poi(string str)
     // Header names the area; the shared directory goes on its own line so a
     // long path never breaks mid-sentence. POI rows and vacancy rows below
     // print only basenames against that directory.
-    write("POIs in area '" + area->query_area_name() + "':\n");
-    write("  paths under " + path(keys[0]) + "\n");
+    out = "POIs in area '" + area->query_area_name() + "':\n" +
+          "  paths under " + path(keys[0]) + "\n";
+
     for (i = 0; i < sizeof(keys); i++)
     {
       mapping p;
-      mapping * vs;
-      int j;
       string label, guard, here;
 
       p = pois[keys[i]];
@@ -912,12 +911,13 @@ int do_poi(string str)
               ? "  guard:" + p[POI_FIELD_GUARD_DIR] : "";
       here  = keys[i] == file ? "  <- here" : "";
 
-      write(sprintf("  %-*s  %-*s%s%s%s\n",
-                    w_loc, get_path_file_name(keys[i]),
-                    w_kind, p[POI_FIELD_KIND],
-                    label, guard, here));
-
+      out += sprintf("  %-*s  %-*s%s%s%s\n",
+                     w_loc, get_path_file_name(keys[i]),
+                     w_kind, p[POI_FIELD_KIND],
+                     label, guard, here);
     }
+
+    write(out);
     return 1;
   }
 
@@ -1161,6 +1161,7 @@ int do_vacancy(string str)
   if (verb == "list")
   {
     mapping * all;
+    string out;
     int i;
 
     all = area->query_vacancies();
@@ -1170,13 +1171,16 @@ int do_vacancy(string str)
       return 1;
     }
 
-    write("Vacancies in area '" + area->query_area_name() + "':\n");
+    // one string, one write: each write is a round through the user object
+    out = "Vacancies in area '" + area->query_area_name() + "':\n";
     for (i = 0; i < sizeof(all); i++)
-      write(sprintf("  %-14s  x%-2d  held %d  at %-22s  <- %s\n",
-                    all[i][VACANCY_JOB], all[i][VACANCY_COUNT],
-                    sizeof(area->query_vacancy_holders(all[i])),
-                    get_path_file_name(all[i][VACANCY_WORKS_AT]),
-                    get_path_file_name(all[i][VACANCY_SOURCE])));
+      out += sprintf("  %-14s %-6s %-5s %-22s <- %s\n",
+                     all[i][VACANCY_JOB],
+                     "x" + all[i][VACANCY_COUNT],
+                     "" + sizeof(area->query_vacancy_holders(all[i])),
+                     get_path_file_name(all[i][VACANCY_WORKS_AT]),
+                     get_path_file_name(all[i][VACANCY_SOURCE]));
+    write(out);
     return 1;
   }
 
@@ -1299,9 +1303,10 @@ int do_npc(string str)
     {
       out += "Vacancies:\n";
       for (i = 0; i < sizeof(all); i++)
-        out += sprintf("  %-14s  x%-2d  held %d  at %-22s  <- %s\n",
-                       all[i][VACANCY_JOB], all[i][VACANCY_COUNT],
-                       sizeof(area->query_vacancy_holders(all[i])),
+        out += sprintf("  %-14s %-6s %-5s %-22s <- %s\n",
+                       all[i][VACANCY_JOB],
+                       "x" + all[i][VACANCY_COUNT],
+                       "" + sizeof(area->query_vacancy_holders(all[i])),
                        get_path_file_name(all[i][VACANCY_WORKS_AT]),
                        get_path_file_name(all[i][VACANCY_SOURCE]));
     }

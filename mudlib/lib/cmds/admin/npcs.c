@@ -1,35 +1,315 @@
-
 #include <mud/cmd.h>
 #include <areas/area.h>
+#include <areas/vacancy.h>
 
 inherit CMD_BASE;
+
+// How many census rows a listing will read savefiles for. A listing reads the
+// name and level of everybody who is not materialized straight off their
+// savefile, and an area with a large population would spend the execution's
+// whole tick budget doing it.
+#define NPCS_READ_LIMIT 120
+
+private string field_of(string savefile, string key);
+private object area_of(object me);
 
 void setup()
 {
   set_aliases(({ "npcs" }));
-  set_usage("npcs verify [apply]");
-  set_help("Verify the current game's NPC save folders against the census. " +
-           "Every persisted NPC lives in /save/games/<game>/npcs/<uuid>/, but " +
-           "only those still in an area's census are real; the rest are orphans " +
-           "left when a census entry was dropped without the NPC dying (a " +
-           "reconversion, a census rebuild, a removed vacancy). Lists orphan " +
-           "folders and already-empty folders; 'apply' deletes them. Run it " +
-           "standing in the game you want to check.");
+  set_usage("npcs [ list | vacancies | roster | live | verify [apply] ]");
+  set_help(
+    "Report on the people of the area you are standing in.\n" +
+    "\n" +
+    "  npcs                 what the area holds, in one screen\n" +
+    "  npcs list            everybody in its census, named\n" +
+    "  npcs vacancies       the jobs it offers and who holds them\n" +
+    "  npcs roster          the types it spawns statistically, and their caps\n" +
+    "  npcs live            only the people materialized right now\n" +
+    "  npcs verify [apply]  audit the game's NPC savefiles against the census\n" +
+    "\n" +
+    "The census is the area's record of its individuals: each has a uuid and " +
+    "a savefile, and only exists in the world while its location is loaded. " +
+    "A listing therefore reads the name and level of anybody not materialized " +
+    "off their savefile, so it can name them all.\n" +
+    "\n" +
+    "'verify' is the one that spans the whole game rather than one area: it " +
+    "reports savefile folders with no census entry -- orphans left when an " +
+    "entry was dropped without the person dying -- and 'apply' deletes them.");
 }
 
-static int cmd(string str, object me, string verb)
+// The area of the location the player is standing in, or nil.
+private object area_of(object me)
 {
-  string * args;
-  string game;
   object env;
+
+  env = environment(me);
+  if (!env || !env->query_location())
+    return nil;
+
+  return env->query_area();
+}
+
+// One value out of a saved NPC, read straight off its savefile. Used to name
+// the people a listing covers who are not in the world at the moment.
+private string field_of(string savefile, string key)
+{
+  string * lines, want;
+  string body;
+  int i;
+
+  if (!savefile || file_size(savefile) < 0)
+    return "";
+
+  body = read_file(savefile);
+  if (!body)
+    return "";
+
+  want = key + " ";
+  lines = explode(body, "\n");
+  for (i = 0; i < sizeof(lines); i++)
+    if (strlen(lines[i]) > strlen(want) &&
+        lines[i][0 .. strlen(want) - 1] == want)
+    {
+      string value;
+      value = lines[i][strlen(want) ..];
+      // strings come quoted; numbers do not
+      if (strlen(value) > 1 && value[0] == '"')
+        return value[1 .. strlen(value) - 2];
+      return value;
+    }
+
+  return "";
+}
+
+// ===== npcs: what the area holds =====
+private int do_summary(object area, object me)
+{
+  mapping census;
+  mapping * jobs;
+  object parent;
+  string * ids;
+  string out;
+  int * band;
+  int i, live, held, guards;
+
+  census = (mapping)area->query_npc_census();
+  ids = map_indices(census);
+  jobs = (mapping *)area->query_vacancies();
+  band = (int *)area->query_area_stats();
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    if (census[ids[i]]["guard"])
+      guards++;
+    else if (census[ids[i]][CENSUS_VACANCY])
+      held++;
+  }
+  live = sizeof((object *)area->query_live_npcs());
+
+  out = "Area '" + area->query_area_name() + "'\n";
+
+  parent = (object)area->query_parent_area();
+  if (parent)
+    out += "  part of      " + parent->query_area_name() + "\n";
+
+  out += "  citizenship  " +
+         (strlen((string)area->query_citizenship())
+            ? (string)area->query_citizenship() : "(none)") + "\n" +
+         "  level band   " + area->query_area_level() + " +/- " +
+         area->query_area_spread() + "\n" +
+         "  stat band    " +
+         (band[0] ? band[0] + "-" + band[1] : "(the type's own)") + "\n" +
+         "\n" +
+         "  census       " + sizeof(ids) + " individual(s): " + held +
+         " holding a job, " + guards + " on guard, " +
+         (sizeof(ids) - held - guards) + " unattached\n" +
+         "  vacancies    " + sizeof(jobs) + " job(s) offered\n" +
+         "  live         " + live + " materialized right now\n";
+
+  write(out);
+  return 1;
+}
+
+// ===== npcs vacancies =====
+private int do_vacancies(object area, object me)
+{
+  mapping * jobs;
+  string out;
+  int i;
+
+  jobs = (mapping *)area->query_vacancies();
+  if (!sizeof(jobs))
+  {
+    write("Area '" + area->query_area_name() + "' offers no jobs.\n");
+    return 1;
+  }
+
+  out = "Jobs offered by '" + area->query_area_name() + "':\n" +
+        sprintf("  %-14s %-6s %-5s %-14s %-16s %s\n",
+                "job", "seats", "held", "held at", "house", "type");
+
+  for (i = 0; i < sizeof(jobs); i++)
+    out += sprintf("  %-14s %-6s %-5s %-14s %-16s %s\n",
+                   jobs[i][VACANCY_JOB],
+                   "" + jobs[i][VACANCY_COUNT],
+                   "" + sizeof((string *)area->query_vacancy_holders(jobs[i])),
+                   get_path_file_name(jobs[i][VACANCY_WORKS_AT]),
+                   jobs[i][VACANCY_HOME]
+                     ? get_path_file_name(jobs[i][VACANCY_HOME]) : "-",
+                   get_path_file_name(jobs[i][VACANCY_SOURCE]));
+
+  write(out);
+  return 1;
+}
+
+// ===== npcs roster =====
+private int do_roster(object area, object me)
+{
+  mapping caps;
+  string * sources;
+  string out;
+  int i;
+
+  caps = (mapping)area->query_npc_caps();
+  sources = map_indices(caps);
+  if (!sizeof(sources))
+  {
+    write("Area '" + area->query_area_name() + "' spawns no types of its " +
+          "own.\n");
+    return 1;
+  }
+
+  out = "Types '" + area->query_area_name() + "' spawns, and their caps:\n";
+  for (i = 0; i < sizeof(sources); i++)
+    out += sprintf("  %-28s live %-3s cap %-3s%s\n",
+                   sources[i],
+                   "" + (int)area->query_total_live_count(sources[i]),
+                   "" + caps[sources[i]]["max"],
+                   caps[sources[i]]["resident"] ? " resident" : "");
+
+  write(out);
+  return 1;
+}
+
+// ===== npcs live =====
+private int do_live(object area, object me)
+{
+  object * live;
+  string out;
+  int i;
+
+  live = (object *)area->query_live_npcs();
+  if (!sizeof(live))
+  {
+    write("Nobody of '" + area->query_area_name() + "' is loaded.\n");
+    return 1;
+  }
+
+  out = "People of '" + area->query_area_name() + "' in the world now:\n" +
+        sprintf("  %-16s %-6s %-10s %-14s %-14s %s\n",
+                "name", "level", "race", "here", "works at", "home");
+
+  for (i = 0; i < sizeof(live); i++)
+  {
+    mixed race, work, home;
+
+    // no (string) casts: that is a conversion kfun, and an NPC with no home
+    // hands back nil
+    race = live[i]->query_race_name();
+    work = live[i]->query_work();
+    home = live[i]->query_home();
+
+    out += sprintf("  %-16s %-6s %-10s %-14s %-14s %s\n",
+                   (string)live[i]->query_cap_name(),
+                   "" + (int)live[i]->query_level(),
+                   stringp(race) ? race : "-",
+                   environment(live[i])
+                     ? get_path_file_name(
+                         environment(live[i])->query_file_name()) : "-",
+                   (stringp(work) && strlen(work))
+                     ? get_path_file_name(work) : "-",
+                   (stringp(home) && strlen(home))
+                     ? get_path_file_name(home) : "-");
+  }
+
+  write(out);
+  return 1;
+}
+
+// ===== npcs list =====
+private int do_list(object area, object me)
+{
+  mapping census;
+  string * ids;
+  string out;
+  int i, read;
+
+  census = (mapping)area->query_npc_census();
+  ids = map_indices(census);
+  if (!sizeof(ids))
+  {
+    write("Area '" + area->query_area_name() + "' has nobody on its books.\n");
+    return 1;
+  }
+
+  out = "People of '" + area->query_area_name() + "' (" + sizeof(ids) +
+        "):\n" +
+        sprintf("  %-16s %-6s %-12s %-14s %-14s %s\n",
+                "name", "level", "job", "works at", "here", "state");
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    mapping e;
+    object npc;
+    string name, job, level;
+
+    e = census[ids[i]];
+    npc = AREA_HANDLER->find_live_npc(ids[i]);
+
+    name = "";
+    level = "";
+    if (npc)
+    {
+      name = (string)npc->query_cap_name();
+      level = "" + (int)npc->query_level();
+    }
+    else if (read < NPCS_READ_LIMIT)
+    {
+      read++;
+      name = field_of(e["savefile"], "npc_given_name");
+      if (strlen(name))
+        name = capitalize(name);
+      level = field_of(e["savefile"], "class_level");
+    }
+
+    job = e["guard"] ? "guard"
+                     : (e[CENSUS_VACANCY] ? e[CENSUS_VACANCY] : "-");
+
+    out += sprintf("  %-16s %-6s %-12s %-14s %-14s %s\n",
+                   strlen(name) ? name : "(unnamed)",
+                   strlen(level) ? level : "?",
+                   job,
+                   e[CENSUS_WORKS_AT]
+                     ? get_path_file_name(e[CENSUS_WORKS_AT]) : "-",
+                   e[CENSUS_LOCATION]
+                     ? get_path_file_name(e[CENSUS_LOCATION]) : "-",
+                   npc ? "here" : "away");
+  }
+
+  if (read >= NPCS_READ_LIMIT)
+    out += "  (stopped naming the unloaded after " + NPCS_READ_LIMIT + ")\n";
+
+  write(out);
+  return 1;
+}
+
+// ===== npcs verify =====
+private int do_verify(object me, string * args)
+{
+  object env;
+  string game;
   int apply;
 
-  args = (str && strlen(str)) ? explode(str, " ") : ({ });
-  if (!sizeof(args) || args[0] != "verify")
-  {
-    notify_fail("Usage: npcs verify [apply]\n");
-    return 0;
-  }
   apply = (sizeof(args) > 1 && args[1] == "apply");
 
   env = environment(me);
@@ -53,4 +333,39 @@ static int cmd(string str, object me, string verb)
         " in the background; the summary will follow.\n");
 
   return 1;
+}
+
+static int cmd(string str, object me, string verb)
+{
+  string * args;
+  object area;
+
+  args = (str && strlen(str)) ? explode(str, " ") - ({ "" }) : ({ });
+
+  // the game-wide audit is the one report that does not need an area
+  if (sizeof(args) && args[0] == "verify")
+    return do_verify(me, args);
+
+  area = area_of(me);
+  if (!area)
+  {
+    notify_fail("Stand in a location (not a plain room) to report on its " +
+                "people.\n");
+    return 0;
+  }
+
+  if (!sizeof(args))
+    return do_summary(area, me);
+  if (args[0] == "list")
+    return do_list(area, me);
+  if (args[0] == "vacancies")
+    return do_vacancies(area, me);
+  if (args[0] == "roster")
+    return do_roster(area, me);
+  if (args[0] == "live")
+    return do_live(area, me);
+
+  notify_fail("Usage: npcs [ list | vacancies | roster | live | " +
+              "verify [apply] ]\n");
+  return 0;
 }
