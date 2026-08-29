@@ -2,18 +2,12 @@
 #include <areas/area.h>
 #include <areas/vacancy.h>
 #include <living/persisted.h>
+#include <basic/gender.h>
 
 inherit CMD_BASE;
 
-// How many census rows a listing will read savefiles for. A listing reads the
-// name and level of everybody who is not materialized straight off their
-// savefile, and an area with a large population would spend the execution's
-// whole tick budget doing it.
-#define NPCS_READ_LIMIT 120
-
-private string field_of(string savefile, string key);
 private object area_of(object me);
-private string kind_of(object area, string source, string gender);
+private string kind_of(object area, string source);
 private string columns(string * * rows);
 private string hours_of(object area, string source);
 
@@ -59,41 +53,10 @@ private object area_of(object me)
   return env->query_area();
 }
 
-// One value out of a saved NPC, read straight off its savefile. Used to name
-// the people a listing covers who are not in the world at the moment.
-private string field_of(string savefile, string key)
-{
-  string * lines, want;
-  string body;
-  int i;
-
-  if (!savefile || file_size(savefile) < 0)
-    return "";
-
-  body = read_file(savefile);
-  if (!body)
-    return "";
-
-  want = key + " ";
-  lines = explode(body, "\n");
-  for (i = 0; i < sizeof(lines); i++)
-    if (strlen(lines[i]) > strlen(want) &&
-        lines[i][0 .. strlen(want) - 1] == want)
-    {
-      string value;
-      value = lines[i][strlen(want) ..];
-      // strings come quoted; numbers do not
-      if (strlen(value) > 1 && value[0] == '"')
-        return value[1 .. strlen(value) - 2];
-      return value;
-    }
-
-  return "";
-}
 
 // The kind word a type answers to, in the form matching a gender id. What
 // somebody is called when they were never given a name of their own.
-private string kind_of(object area, string source, string gender)
+private string kind_of(object area, string source)
 {
   mapping template;
   mixed name;
@@ -107,9 +70,10 @@ private string kind_of(object area, string source, string gender)
     return "";
 
   name = template["name"];
-  // a bimodal type stores its names per gender, keyed by the driver's id
+  // a bimodal type stores its names per gender, keyed by the driver's id; with
+  // nobody in the world to ask, the masculine form stands for the type
   if (mappingp(name))
-    name = name[strlen(gender) ? gender : "1"];
+    name = name["" + GENDER_MALE];
 
   return stringp(name) ? name : "";
 }
@@ -344,7 +308,7 @@ private int do_list(object area, object me, string want)
   mapping census;
   string * ids;
   string * * rows;
-  int i, read, shown;
+  int i, shown;
 
   census = (mapping)area->query_npc_census();
   ids = map_indices(census);
@@ -390,21 +354,12 @@ private int do_list(object area, object me, string want)
       level = "" + (int)npc->query_level();
       home = npc->query_home();
     }
-    else if (read < NPCS_READ_LIMIT)
-    {
-      read++;
-      name = field_of(e["savefile"], "npc_given_name");
-      level = field_of(e["savefile"], "class_level");
-      home = field_of(e["savefile"], "npc_home");
-
-      // Somebody never given a proper name is shown by their kind, the same
-      // answer a live one gives. Those are the posts still staffed from a
-      // named blueprint -- the barman, the healer -- which carry their name on
-      // the type instead of generating one.
-      if (!strlen(name))
-        name = kind_of(area, e["source"],
-                       field_of(e["savefile"], "gender"));
-    }
+    else
+      // Somebody out of the world is known only by what the census and the type
+      // say: their proper name, their level and their address live on their own
+      // savefile, and the only way to read those is to bring them in. A listing
+      // shows their kind instead.
+      name = kind_of(area, e["source"]);
 
     // a job with a house of its own houses whoever holds it
     if ((!stringp(home) || !strlen(home)) && e[CENSUS_VACANCY])
@@ -437,10 +392,7 @@ private int do_list(object area, object me, string want)
 
   write("People of '" + area->query_area_name() + "'" +
         (strlen(want) ? " of kind '" + want + "'" : "") +
-        " (" + shown + "):\n" + columns(rows) +
-        (read >= NPCS_READ_LIMIT
-           ? "  (stopped naming the unloaded after " + NPCS_READ_LIMIT + ")\n"
-           : ""));
+        " (" + shown + "):\n" + columns(rows));
   return 1;
 }
 

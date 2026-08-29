@@ -9,7 +9,6 @@ inherit CMD_BASE;
 private object area_of(object me);
 private string columns(string * * rows);
 private string who_is(object area, string uuid);
-private string field_of(string savefile, string key);
 private string * resident_row(object area, string uuid);
 
 void setup()
@@ -89,9 +88,9 @@ private string columns(string * * rows)
   return out;
 }
 
-// Name a resident by their uuid: their own name, read off their savefile when
-// they are not in the world, and the kind of person they are when they never
-// had a name of their own. A warning when the census has never heard of them.
+// Name a resident by their uuid: their own name while they are in the world,
+// the kind of person they are otherwise, and a warning when the census has
+// never heard of them.
 private string who_is(object area, string uuid)
 {
   mapping census;
@@ -110,44 +109,10 @@ private string who_is(object area, string uuid)
              ? capitalize(given) : (string)npc->query_cap_name();
   }
 
-  given = field_of(census[uuid]["savefile"], "npc_given_name");
-  if (strlen(given))
-    return capitalize(given);
-
   return census[uuid]["source"]
            ? get_path_file_name(census[uuid]["source"]) : uuid;
 }
 
-// One value out of a saved NPC, read straight off its savefile. Used to
-// describe the residents who are not in the world at the moment.
-private string field_of(string savefile, string key)
-{
-  string * lines, want;
-  string body;
-  int i;
-
-  if (!savefile || file_size(savefile) < 0)
-    return "";
-
-  body = read_file(savefile);
-  if (!body)
-    return "";
-
-  want = key + " ";
-  lines = explode(body, "\n");
-  for (i = 0; i < sizeof(lines); i++)
-    if (strlen(lines[i]) > strlen(want) &&
-        lines[i][0 .. strlen(want) - 1] == want)
-    {
-      string value;
-      value = lines[i][strlen(want) ..];
-      if (strlen(value) > 1 && value[0] == '"')
-        return value[1 .. strlen(value) - 2];
-      return value;
-    }
-
-  return "";
-}
 
 // Name, kind and gender of one resident, whether or not they are in the world.
 private string * resident_row(object area, string uuid)
@@ -174,9 +139,10 @@ private string * resident_row(object area, string uuid)
   }
   else
   {
-    name = field_of(census[uuid]["savefile"], "npc_given_name");
-    name = strlen(name) ? capitalize(name) : "?";
-    gender = field_of(census[uuid]["savefile"], "gender");
+    // out of the world there is nobody to ask: a name and a gender live on the
+    // person, not on the books
+    name = kind;
+    gender = "";
   }
 
   return ({ name, kind,
@@ -320,10 +286,8 @@ private int do_audit(object area, object me)
     }
   }
 
-  // what the people say. Everybody is asked, not only those in the world: an
-  // address that outlived its house is exactly what an unloaded person carries
-  // around, since unbuilding a house can only reach the residents it finds
-  // standing in it.
+  // what the people say. Only those in the world can be asked: an address lives
+  // on the person, so somebody away is checked from the houses' side alone.
   ids = map_indices(census);
   for (i = 0; i < sizeof(ids); i++)
   {
@@ -331,8 +295,10 @@ private int do_audit(object area, object me)
     mixed home;
 
     npc = AREA_HANDLER->find_live_npc(ids[i]);
-    home = npc ? npc->query_home()
-               : field_of(census[ids[i]]["savefile"], "npc_home");
+    if (!npc)
+      continue;
+
+    home = npc->query_home();
     if (!stringp(home) || !strlen(home))
     {
       if (claimed[ids[i]])
@@ -368,8 +334,8 @@ private int do_audit(object area, object me)
 
   write("Housing faults in '" + area->query_area_name() + "' (" + faults +
         "):\n" + out +
-        "\nEverybody is checked from both sides: those in the world are asked " +
-        "directly, the rest are read off their savefile.\n");
+        "\nOnly people in the world are checked from their own side; the rest " +
+        "are checked from the houses.\n");
   return 1;
 }
 
