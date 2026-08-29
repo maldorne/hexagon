@@ -15,6 +15,7 @@ private string field_of(string savefile, string key);
 private object area_of(object me);
 private string kind_of(object area, string source, string gender);
 private string columns(string * * rows);
+private string hours_of(object area, string source);
 
 void setup()
 {
@@ -111,6 +112,43 @@ private string kind_of(object area, string source, string gender)
     name = name[strlen(gender) ? gender : "1"];
 
   return stringp(name) ? name : "";
+}
+
+// The day of whoever holds a job, as short as it goes: the hour it moves and
+// where to, "6w" out to work at six, "20h" home at eight. Read from the type,
+// which is where a timetable lives; empty for anyone the day does not move.
+private string hours_of(object area, string source)
+{
+  mapping template, timetable;
+  string * keys;
+  string out;
+  int i;
+
+  if (!source || !strlen(source))
+    return "";
+
+  template = BESTIARY_HANDLER->query_template(
+               game_from_path((string)area->query_area_path()), source);
+  if (!template || !mappingp(template["timetable"]))
+    return "";
+
+  timetable = template["timetable"];
+  keys = map_indices(timetable);
+  out = "";
+
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    mixed entry;
+    string where;
+
+    entry = timetable[keys[i]];
+    where = (mappingp(entry) && entry["goto"] == "home") ? "h" : "w";
+    // the hour is the key, which JSON may have stored as a string
+    out += (strlen(out) ? " " : "") +
+           (stringp(keys[i]) ? keys[i] : "" + keys[i]) + where;
+  }
+
+  return out;
 }
 
 // Lay rows out in columns, the first row being the header: every column is as
@@ -324,7 +362,7 @@ private int do_list(object area, object me, string want)
     return 1;
   }
 
-  rows = ({ ({ "name", "level", "type", "job", "works at", "location",
+  rows = ({ ({ "name", "level", "type", "job", "day", "works at", "location",
                "house", "loaded" }) });
 
   for (i = 0; i < sizeof(ids); i++)
@@ -332,7 +370,7 @@ private int do_list(object area, object me, string want)
     mapping e, job;
     object npc;
     mixed home, given;
-    string name, level, kind;
+    string name, level, kind, day;
 
     e = census[ids[i]];
     kind = e["source"] ? get_path_file_name(e["source"]) : "-";
@@ -340,6 +378,8 @@ private int do_list(object area, object me, string want)
     // a listing can be asked for one kind of person only
     if (strlen(want) && kind != want)
       continue;
+
+    day = hours_of(area, e["source"]);
 
     npc = AREA_HANDLER->find_live_npc(ids[i]);
     name = "";
@@ -389,6 +429,7 @@ private int do_list(object area, object me, string want)
       kind,
       e["guard"] ? "guard"
                  : (e[CENSUS_VACANCY] ? e[CENSUS_VACANCY] : "-"),
+      strlen(day) ? day : "-",
       e[CENSUS_WORKS_AT] ? get_path_file_name(e[CENSUS_WORKS_AT]) : "-",
       e[CENSUS_LOCATION] ? get_path_file_name(e[CENSUS_LOCATION]) : "-",
       (stringp(home) && strlen(home)) ? get_path_file_name(home) : "-",

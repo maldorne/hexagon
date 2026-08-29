@@ -19,7 +19,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home", "sign" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -74,7 +74,9 @@ inherit "/lib/armour.c";
   "  build plot <dir>                     carve an empty buildable lot\n" + \
   "  build plot remove <dir>              delete one, if still bare\n" + \
   "  build homes                          house the homeless citizens\n" + \
-  "  build home remove                    turn this house back into a plot"
+  "  build home make                      raise an empty house on this plot\n" + \
+  "  build home remove                    turn this house back into a plot\n" + \
+  "  build sign <text>                    post a sign here (remove: take it down)"
 
 static string * selection;
 static mapping objects;
@@ -118,6 +120,8 @@ int do_npc(string str);
 int do_plot(string str);
 int do_homes();
 int do_home_remove();
+int do_home_make();
+int do_sign(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -322,9 +326,15 @@ int do_build(string str)
   {
     if (sizeof(args) > 1 && args[1] == "remove")
       return do_home_remove();
-    notify_fail("Usage: build home remove   (stand inside the house)\n");
+    if (sizeof(args) > 1 && args[1] == "make")
+      return do_home_make();
+    notify_fail("Usage: build home < make | remove >   " +
+                "(stand on the plot / in the house)\n");
     return 0;
   }
+
+  if (verb == "sign")
+    return do_sign(implode(args[1..], " "));
 
   if (sizeof(args) < 2)
   {
@@ -1574,6 +1584,85 @@ int do_plot(string str)
 // The inverse of a raised house: residents are evicted (left homeless, for a
 // later `build homes` to place), the door becomes a doorway again and the plot
 // returns to the free list, so `build plot remove <dir>` can then delete it.
+// Turn the plot you stand on into a house, with nobody living in it yet. The
+// counterpart of `build homes` for a house placed by hand rather than handed
+// to whoever is homeless -- a barracks, a guildhall, a house kept for somebody
+// in particular.
+int do_home_make()
+{
+  object loc, area;
+  mixed file;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand on the plot you want to build on.\n");
+    return 0;
+  }
+  area = loc->query_area();
+  if (!area)
+  {
+    notify_fail("This location has no area.\n");
+    return 0;
+  }
+
+  if (!loc->query_component_by_type(LOCATION_COMPONENT_PLOT))
+  {
+    notify_fail("This is not a bare plot. Carve one with " +
+                "'build plot <dir>' first.\n");
+    return 0;
+  }
+
+  file = area->build_house_at(loc->query_file_name(), ({ }));
+  if (!stringp(file))
+  {
+    notify_fail("Could not raise a house here.\n");
+    return 0;
+  }
+
+  write("Raised an empty house at " + file + ". Give it residents with " +
+        "'build homes', or set somebody's home to it by hand.\n");
+  return 1;
+}
+
+// Post a sign in this location, with `str` written on it. The text is typed in
+// the running instance's language, the way a POI label is.
+int do_sign(string str)
+{
+  object loc;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to post a sign.\n");
+    return 0;
+  }
+
+  if (str == "remove")
+  {
+    if (!loc->query_component_by_type(LOCATION_COMPONENT_SIGN))
+    {
+      notify_fail("There is no sign here.\n");
+      return 0;
+    }
+    loc->remove_component(LOCATION_COMPONENT_SIGN);
+    loc->save_me();
+    write("Sign taken down.\n");
+    return 1;
+  }
+
+  if (!strlen(str))
+  {
+    notify_fail("Usage: build sign <text>, or build sign remove\n");
+    return 0;
+  }
+
+  loc->add_component(LOCATION_COMPONENT_SIGN, ([ "sign_text": str ]));
+  loc->save_me();
+  write("Posted a sign reading: " + str + "\n");
+  return 1;
+}
+
 int do_home_remove()
 {
   object loc, area;
