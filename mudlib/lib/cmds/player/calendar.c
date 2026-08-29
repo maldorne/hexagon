@@ -38,7 +38,9 @@ static int cmd(string str, object me, string verb)
       for (i = 0; i <= present_year; i++)
         ret += "\t" + handler("calendar", me)->query_year_name(i) + "\n";
 
-      me->more_string(ret, _LANG_CMD_CALENDAR_TITLE);
+      // the pager lives on the user object, not the player: calling it on the
+      // player reaches nothing and prints nothing, without an error
+      me->user()->more_string(ret, _LANG_CMD_CALENDAR_TITLE);
       return 1;
     }
     else
