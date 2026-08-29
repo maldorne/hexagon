@@ -285,8 +285,8 @@ private int do_list(object area, object me)
     return 1;
   }
 
-  rows = ({ ({ "name", "level", "job", "works at", "location", "house",
-               "loaded" }) });
+  rows = ({ ({ "name", "level", "type", "job", "works at", "location",
+               "house", "loaded" }) });
 
   for (i = 0; i < sizeof(ids); i++)
   {
@@ -340,6 +340,10 @@ private int do_list(object area, object me)
     rows += ({ ({
       strlen(name) ? capitalize(name) : "?",
       strlen(level) ? level : "?",
+      // what they are: the type they were drawn from. Without it a listing
+      // says only that somebody holds no job, never whether they are a
+      // citizen, a pilgrim or a stray dog.
+      e["source"] ? get_path_file_name(e["source"]) : "-",
       e["guard"] ? "guard"
                  : (e[CENSUS_VACANCY] ? e[CENSUS_VACANCY] : "-"),
       e[CENSUS_WORKS_AT] ? get_path_file_name(e[CENSUS_WORKS_AT]) : "-",
@@ -369,6 +373,20 @@ private int do_list(object area, object me)
     for (j = 0; j < sizeof(rows[i]); j++)
       out += sprintf(" %-*s", width[j], rows[i][j]);
     out += "\n";
+
+    // rule under the header, so the eye finds where the data starts
+    if (i == 0)
+    {
+      out += " ";
+      for (j = 0; j < sizeof(rows[i]); j++)
+      {
+        int k;
+        out += " ";
+        for (k = 0; k < width[j]; k++)
+          out += "-";
+      }
+      out += "\n";
+    }
   }
 
   if (read >= NPCS_READ_LIMIT)
