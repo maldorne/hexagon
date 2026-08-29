@@ -67,11 +67,37 @@ string template_id(string game, string source)
 }
 
 // Template file for a source (a source NPC .c or an already-normalised template
-// id), under the game's template tree. The id becomes the ".json" leaf.
+// id). Templates are authored in the game tree, beside the area they describe
+// and in the place the seed .c used to occupy, one file per language:
+//
+//   areas/naduk/farmer          -> /games/<game>/areas/naduk/npcs/farmer.es.json
+//   areas/elrhair-forest/items/mallorn
+//                               -> /games/<game>/areas/elrhair-forest/items/mallorn.es.json
+//
+// A .json cannot be preprocessed, so it carries the language in its name rather
+// than through <language.h>, and the language the mudlib was compiled in picks
+// between the siblings. Two candidates are tried because template_id drops an "npcs"
+// directory segment from the id (a leaf that lived in some other directory,
+// like items/, kept its own): the first form puts that segment back, the second
+// is the id as it stands.
 string query_template_file(string game, string source)
 {
-  return "/save/games/" + game + "/npcs/templates/" +
-         template_id(game, source) + ".json";
+  string id, prefix, first;
+  string * parts;
+
+  id = template_id(game, source);
+  prefix = "/games/" + game + "/";
+
+  parts = explode(id, "/");
+  if (sizeof(parts) > 1)
+  {
+    first = prefix + implode(parts[0 .. sizeof(parts) - 2], "/") + "/npcs/" +
+            parts[sizeof(parts) - 1] + "." + mud_language() + ".json";
+    if (file_size(first) >= 0)
+      return first;
+  }
+
+  return prefix + id + "." + mud_language() + ".json";
 }
 
 int has_template(string game, string source)
