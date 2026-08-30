@@ -36,6 +36,11 @@
 #define VACANCY_CLASS     "class"
 // the house that comes with the job, if it comes with one
 #define VACANCY_HOME      "home"
+// its holders are housed among the settlement's own, the way a roster source
+// flagged "resident" is. The opposite of VACANCY_HOME, which pins every holder
+// of the post to one house: a town needs one barman and he sleeps over the bar,
+// but its four farmers each want a roof.
+#define VACANCY_RESIDENT  "resident"
 
 // The census row of somebody who holds a job: which job, where they work it,
 // and where they are.

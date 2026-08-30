@@ -8,10 +8,12 @@
 // and giving whoever is left over a house of their own.
 //
 // Who is entitled to a house is a design-time fact, not a runtime guess: an NPC
-// source is flagged "resident" on the area roster and only those are housed.
+// source is flagged "resident" on the area roster, or the job somebody holds is
+// flagged the same way, and only those are housed.
 
 #include <room/location.h>
 #include <basic/gender.h>
+#include <areas/vacancy.h>
 
 // Buildable lots waiting for a house, by location file.
 string * plots;
@@ -524,13 +526,24 @@ string query_house_of(string uuid)
 // home instead.
 private int _is_resident(object o)
 {
-  mapping spec;
+  mapping spec, entry, job;
 
   if (!o || !o->query_npc())
     return 0;
 
   spec = ((mapping)this_object()->query_npc_caps())[o->query_npc_source()];
-  return spec && spec["resident"];
+  if (spec && spec["resident"])
+    return 1;
+
+  // Somebody holding a job is not on the roster at all, so the flag it would
+  // have carried there lives on the job instead. A post with a house of its own
+  // does not come through here: its holder is housed by the post.
+  entry = ((mapping)this_object()->query_npc_census())[(string)o->query_npc_uuid()];
+  if (!entry || !entry[CENSUS_VACANCY])
+    return 0;
+
+  job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
+  return job && job[VACANCY_RESIDENT] && !job[VACANCY_HOME];
 }
 
 // Give every homeless resident a home, pairing a man and a woman into one house

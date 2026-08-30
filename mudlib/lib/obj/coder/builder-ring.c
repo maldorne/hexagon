@@ -67,6 +67,8 @@ inherit "/lib/armour.c";
   "  build vacancy equip <name> <item.c[|alt.c]>...\n" + \
   "  build vacancy class <name> <class.c|none>  what the job trains in\n" + \
   "  build vacancy home <name>                  bind a house to the job\n" + \
+  "  build vacancy resident <name> [none]       its holders live in town\n" + \
+  "  build vacancy reseat <name>                spread its holders again\n" + \
   "  build vacancy remove <name>\n" + \
   "  build vacancy list\n" + \
   "\n" + \
@@ -1169,6 +1171,60 @@ int do_vacancy(string str)
 
     area->set_vacancy_home(args[1], file);
     write("The '" + args[1] + "' vacancy's home is now " + file + ".\n");
+    return 1;
+  }
+
+  if (verb == "resident")
+  {
+    // whether the job's people are housed among the settlement's own. The
+    // opposite of `home`, which pins every holder to the one house it names: a
+    // barman sleeps over his bar, farmers each want a roof of their own.
+    int flag;
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build vacancy resident <name> [none]\n");
+      return 0;
+    }
+
+    flag = !(sizeof(args) > 2 && args[2] == "none");
+
+    if (!area->set_vacancy_resident(args[1], flag))
+    {
+      notify_fail("No vacancy '" + args[1] + "' in this area.\n");
+      return 0;
+    }
+
+    write("The '" + args[1] + "' vacancy's holders " +
+          (flag ? "are housed with the rest of the town"
+                : "are no longer housed by the town") + ".\n");
+    return 1;
+  }
+
+  if (verb == "reseat")
+  {
+    // hand each holder of a spread job the place it would get if the job were
+    // filled today: a job filled before its workplaces were recognisable put
+    // everybody on its anchor and left them there
+    int moved;
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build vacancy reseat <name>\n");
+      return 0;
+    }
+
+    if (!area->query_vacancy(args[1]))
+    {
+      notify_fail("No vacancy '" + args[1] + "' in this area.\n");
+      return 0;
+    }
+
+    moved = area->reseat_vacancy(args[1]);
+    write(moved ? "Reseated " + moved + " holder" + (moved == 1 ? "" : "s") +
+                  " of '" + args[1] + "'.\n"
+                : "Nobody of '" + args[1] + "' moved: the job does not spread, " +
+                  "or everybody already sits where it would put them.\n");
     return 1;
   }
 

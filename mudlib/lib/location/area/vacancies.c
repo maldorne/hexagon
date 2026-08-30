@@ -230,6 +230,32 @@ int set_vacancy_class(string job, string path)
   return 1;
 }
 
+// Whether the job's holders are housed among the settlement's own. A trade whose
+// people live in the town like anyone else is flagged here; a post that comes
+// with a house of its own uses set_vacancy_home instead. Returns 0 if the job is
+// not open.
+int set_vacancy_resident(string job, int flag)
+{
+  mapping vacancy;
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_vacancy_resident(job, flag);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy)
+    return 0;
+
+  if (flag)
+    vacancy[VACANCY_RESIDENT] = 1;
+  else
+    map_delete(vacancy, VACANCY_RESIDENT);
+
+  this_object()->save_me();
+  return 1;
+}
+
 // The house that comes with the job. Its holder lives there, and so does the
 // next one: the house follows the post, not the person. Returns how many
 // vacancies were bound (0 if the job is not open).
@@ -410,7 +436,7 @@ void reequip_vacancy_holders(string job)
 // spot the last one happened to hold.
 string spread_spot_for(mapping vacancy, int nth)
 {
-  object seat;
+  object seat, work_area;
   object * comps;
   string * kinds, * files, * candidates;
   int i, j;
@@ -432,8 +458,15 @@ string spread_spot_for(mapping vacancy, int nth)
   if (!sizeof(kinds))
     return vacancy[VACANCY_WORKS_AT];
 
+  // The like places are looked for in the area the post itself belongs to, not
+  // in this one. A community spans several areas -- a town, its fields, its road
+  // -- and the jobs of all of them are kept on the town, so a job worked in the
+  // fields would find no field at all among the town's own streets.
   candidates = ({ });
-  files = map_indices((mapping)this_object()->query_locations());
+  work_area = seat->query_area();
+  if (!work_area)
+    work_area = this_object();
+  files = map_indices((mapping)work_area->query_locations());
   for (i = 0; i < sizeof(files); i++)
   {
     object loc;
@@ -520,6 +553,56 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
            CENSUS_LOCATION:    where ]));
 
   return id;
+}
+
+// Seat the holders of a spread job across the area's like places again. Filling
+// hands each new holder its own spot, but a job that was filled before those
+// places existed -- before its anchor carried the component that says what kind
+// of workplace it is -- put everybody on the anchor and has kept them there
+// since. This walks the holders and gives each the spot it would get today.
+// Returns how many were moved; 0 for a job that is not open or not spread.
+int reseat_vacancy(string job)
+{
+  mapping vacancy;
+  mapping census;
+  object owner;
+  string * holders;
+  int i, moved;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->reseat_vacancy(job);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy || !vacancy[VACANCY_SPREAD])
+    return 0;
+
+  census = (mapping)this_object()->query_npc_census();
+  holders = (string *)query_vacancy_holders(vacancy);
+
+  for (i = 0; i < sizeof(holders); i++)
+  {
+    mapping entry;
+    string spot;
+
+    entry = census[holders[i]];
+    if (!entry)
+      continue;
+
+    spot = spread_spot_for(vacancy, i);
+    if (!spot || !strlen(spot) || entry[CENSUS_WORKS_AT] == spot)
+      continue;
+
+    // only where the job is done changes; where the person is right now is
+    // their own business, and the timetable walks them over at its hour
+    entry[CENSUS_WORKS_AT] = spot;
+    moved++;
+  }
+
+  if (moved)
+    this_object()->save_me();
+
+  return moved;
 }
 
 // Take on as many people as the job is short of. A seat emptied by a death is
