@@ -409,6 +409,7 @@ int cmd_make_hash(int verbose)
   string * paths, * packages, * files, s, * a, err, * aliases;
   int i, j, k, l, count;
   object cmd;
+  mixed help;
 
   seteuid(ROOT);
   cmd_hash = ([ ]);
@@ -466,13 +467,10 @@ int cmd_make_hash(int verbose)
       // display name and the one-line help (see commands.c) -- computed here
       // while the object is already loaded, so listing never reloads a command
       cmd_hash[s]["alias"] = aliases[0];
-      {
-        mixed h;
-        h = nil;
-        catch(h = cmd->query_help());
-        cmd_hash[s]["help"] =
-          (stringp(h) && strlen(h)) ? explode(h, "\n")[0] : nil;
-      }
+      help = nil;
+      catch(help = cmd->query_help());
+      cmd_hash[s]["help"] =
+        (stringp(help) && strlen(help)) ? explode(help, "\n")[0] : nil;
 
       for (k = 0; k < sizeof(aliases); k++)
       {
