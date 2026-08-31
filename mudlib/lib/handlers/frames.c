@@ -289,7 +289,7 @@ string frame(string content, varargs string title, int width,
   mapping style;
   string * lines;
   mixed ** top_rows, ** bottom_rows;
-  int padding_x, padding_y, margin_x;
+  int padding_x, padding_y, margin_x, overhead, cols, sides;
   int content_width, body_inner_width;
   int i, len, max_len;
   string body_left, body_right;
@@ -325,14 +325,43 @@ string frame(string content, varargs string title, int width,
   title_left  = style["title_left"]  ? style["title_left"]  : "";
   title_right = style["title_right"] ? style["title_right"] : "";
 
-  // determine content width: caller's `width` overrides; otherwise
-  // pick the longest body line, with the title as a lower bound
+  top_rows    = style["top"]    ? style["top"]    : ({ });
+  bottom_rows = style["bottom"] ? style["bottom"] : ({ });
+
+  // What the frame costs beyond its content. Not every row is as wide as the
+  // body: a border corner can be several characters, and a style may push an
+  // edge row further out on purpose -- the scroll's diagonal does exactly that.
+  // So take the widest row there is, body or edge, and let that decide.
+  sides = strlen(body_left, true) + strlen(body_right, true);
+
+  for (i = 0; i < sizeof(top_rows); i++)
+  {
+    len = strlen(top_rows[i][0], true) + strlen(top_rows[i][2], true) +
+          top_rows[i][3];
+    if (len > sides)
+      sides = len;
+  }
+  for (i = 0; i < sizeof(bottom_rows); i++)
+  {
+    len = strlen(bottom_rows[i][0], true) + strlen(bottom_rows[i][2], true) +
+          bottom_rows[i][3];
+    if (len > sides)
+      sides = len;
+  }
+
+  // A caller asking for a width means the width of the whole thing: it is
+  // fitting the frame into a terminal, not sizing the text, so the overhead
+  // comes out of that width, never on top of it.
+  overhead = 2 * margin_x + 2 * padding_x + sides;
+
   if (width > 0)
   {
-    content_width = width;
+    content_width = width - overhead;
   }
   else
   {
+    // no width asked for: as wide as the longest line, with the title as a
+    // lower bound
     max_len = 0;
     if (strlen(title))
     {
@@ -347,10 +376,34 @@ string frame(string content, varargs string title, int width,
     content_width = max_len;
   }
 
-  body_inner_width = content_width + 2 * padding_x;
+  // And never wider than the terminal reading it, whatever the content says.
+  // A frame that overflows is worse than a narrow one: the client wraps it and
+  // every border lands in a different column.
+  cols = this_user() ? (int)this_user()->query_cols() : 0;
+  if (cols > 0 && content_width > cols - overhead)
+    content_width = cols - overhead;
 
-  top_rows    = style["top"]    ? style["top"]    : ({ });
-  bottom_rows = style["bottom"] ? style["bottom"] : ({ });
+  if (content_width < 1)
+    content_width = 1;
+
+  // Reflow anything still too long for the space it has. Lines that already fit
+  // are left exactly as they are, so deliberate layout -- a map, a table -- is
+  // not touched.
+  {
+    string * reflowed;
+
+    reflowed = ({ });
+    for (i = 0; i < sizeof(lines); i++)
+    {
+      if (strlen(lines[i], true) > content_width)
+        reflowed += explode(wrap(lines[i], content_width), "\n");
+      else
+        reflowed += ({ lines[i] });
+    }
+    lines = reflowed;
+  }
+
+  body_inner_width = content_width + 2 * padding_x;
 
   out = "";
 

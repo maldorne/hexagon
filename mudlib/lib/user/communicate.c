@@ -72,13 +72,17 @@ int set_our_cols(string str)
 {
   int val;
 
-  if (!str)
+  // The bare verb arrives as an empty string, not as nil, so asking for it
+  // without a number has to be caught here or it falls through to the parse
+  // below and answers with an error instead of the current setting.
+  if (!str || !strlen(trim(str)))
   {
     notify_fail(_LANG_COMM_COLS_SYNTAX);
     return 0;
   }
 
-  if (!sscanf(str, "%d", val) || val <= 35 || val >200)
+  // the bounds the message quotes are inclusive
+  if (!sscanf(str, "%d", val) || val < 35 || val > 200)
   {
     notify_fail(_LANG_COMM_COLS_WRONG);
     return 0;
