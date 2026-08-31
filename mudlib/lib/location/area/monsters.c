@@ -162,7 +162,7 @@ private object spawn_monster(string source, object loc)
   // per-gender name / short / long
   npc->set_gender((int)this_object()->decide_gender(game, source));
   npc->apply_template(
-    (mapping)this_object()->query_banded_template(game, source), 1);
+    (mapping)this_object()->query_area_template(game, source), 1);
   npc->set_level((int)this_object()->decide_level(game, source));
 
   npc->move(loc);

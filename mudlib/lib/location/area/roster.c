@@ -366,7 +366,7 @@ void set_area_stats(int low, int high)
 // the place. A stat the type pins explicitly still wins -- apply_template
 // applies those after the roll -- and an area with no range of its own hands
 // the template back untouched.
-mapping query_banded_template(string game, string source)
+mapping query_area_template(string game, string source)
 {
   mapping t;
 
