@@ -82,19 +82,34 @@ string template_id(string game, string source)
 // is the id as it stands.
 string query_template_file(string game, string source)
 {
-  string id, prefix, first;
+  string id, prefix, candidate;
   string * parts;
 
-  id = template_id(game, source);
   prefix = "/games/" + game + "/";
 
+  // Asked with the source .c itself, the answer needs no guessing: the template
+  // belongs beside the file it was captured from. This is the path a capture
+  // writes to, so it has to be the canonical one.
+  if (strlen(source) > 2 && source[strlen(source) - 2 ..] == ".c" &&
+      file_size(source) >= 0)
+    return source[0 .. strlen(source) - 3] + "." + mud_language() + ".json";
+
+  // Asked with an id, the "npcs" directory it was normalised away has to be put
+  // back. Prefer that form whenever the directory is really there, and only
+  // fall back to the bare id for a source that lived somewhere else.
+  id = template_id(game, source);
   parts = explode(id, "/");
+
   if (sizeof(parts) > 1)
   {
-    first = prefix + implode(parts[0 .. sizeof(parts) - 2], "/") + "/npcs/" +
-            parts[sizeof(parts) - 1] + "." + mud_language() + ".json";
-    if (file_size(first) >= 0)
-      return first;
+    string dir;
+
+    dir = prefix + implode(parts[0 .. sizeof(parts) - 2], "/") + "/npcs";
+    candidate = dir + "/" + parts[sizeof(parts) - 1] + "." +
+                mud_language() + ".json";
+    // file_size answers -2 for a directory
+    if (file_size(candidate) >= 0 || file_size(dir) == -2)
+      return candidate;
   }
 
   return prefix + id + "." + mud_language() + ".json";
