@@ -764,8 +764,16 @@ void set_deity_ob(string str)
   //  if (sscanf(str,"/%s", tmp) == 1)
   //  str = extract(str,1);
 
-  if ((str[0..strlen("/lib/obj/deities")-1] != "/lib/obj/deities") &&
-      (str[0..strlen("/game/obj/deities")-1] != "/game/obj/deities"))
+  // A deity is either one the mudlib ships or one of the game's own, the same
+  // way a handler or a table resolves. The game is taken from the path being
+  // set, not from the caller: it is the deity that says which game it belongs
+  // to. The old "/game/obj/deities" spelling never matched anything here --
+  // this mudlib puts a game under "/games/<game>/" -- so a game could not have
+  // a deity of its own at all.
+  if (str[0 .. strlen("/lib/obj/deities") - 1] != "/lib/obj/deities" &&
+      !(strlen(game_from_path(str)) &&
+        str == "/games/" + game_from_path(str) + "/obj/deities/" +
+               explode(str, "/")[sizeof(explode(str, "/")) - 1]))
   {
     write("Illegal path in set_deity_ob.\n");
     return;
