@@ -107,16 +107,16 @@ void setup()
   // any actual clone (file_name suffixed with #N) is destroyed.
   if (sscanf(file_name(this_object()), "%s#%d", name, cnum) == 2)
   {
-    write("Este objeto no puede ser clonado.\n");
+    write(_LANG_WEATHER_NO_CLONING);
     dest_me();
     return;
   }
 
   reset_get();
-  set_name("tiempo");
-  set_short("Controlador extraordinario del tiempo");
-  set_long("¡Éste es el controlador extraordinario del tiempo!\n");
-  add_alias("controlador");
+  set_name(_LANG_WEATHER_OB_NAME);
+  set_short(_LANG_WEATHER_OB_SHORT);
+  set_long(_LANG_WEATHER_OB_LONG);
+  add_alias(_LANG_WEATHER_OB_ALIAS);
 
   // cron advances the clock one game hour per call (see the crontab and
   // `advance` below), so every game's clock runs off the one real-time source.

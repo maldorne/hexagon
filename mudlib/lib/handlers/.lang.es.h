@@ -28,6 +28,13 @@
 // with multiple / coloured moons override moon_string() outright.
 #define _LANG_WEATHER_MOON_NAME "luna"
 
+// El objeto controlador del tiempo, tal como lo ve quien lo examina
+#define _LANG_WEATHER_NO_CLONING "Este objeto no puede ser clonado.\n"
+#define _LANG_WEATHER_OB_NAME    "tiempo"
+#define _LANG_WEATHER_OB_SHORT   "Controlador extraordinario del tiempo"
+#define _LANG_WEATHER_OB_LONG    "¡Éste es el controlador extraordinario del tiempo!\n"
+#define _LANG_WEATHER_OB_ALIAS   "controlador"
+
 // Full "moon <phase>" sentence. References `phase` from the caller.
 // The name is capitalized here because it is the sentence start.
 #define _LANG_WEATHER_MOON_STRING \

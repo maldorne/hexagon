@@ -29,6 +29,13 @@
 // with multiple / coloured moons override moon_string() outright.
 #define _LANG_WEATHER_MOON_NAME "moon"
 
+// The weather controller object, as whoever examines it sees it
+#define _LANG_WEATHER_NO_CLONING "This object cannot be cloned.\n"
+#define _LANG_WEATHER_OB_NAME    "weather"
+#define _LANG_WEATHER_OB_SHORT   "Extraordinary weather controller"
+#define _LANG_WEATHER_OB_LONG    "This is the extraordinary weather controller!\n"
+#define _LANG_WEATHER_OB_ALIAS   "controller"
+
 // Full "The moon is <phase>" sentence. References `phase` from the caller.
 // "The" already handles sentence-start capitalisation.
 #define _LANG_WEATHER_MOON_STRING \
