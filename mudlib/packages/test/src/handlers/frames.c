@@ -42,7 +42,9 @@ void do_tests()
 {
   string out;
   string * lines;
+  string * style_names;
   object f;
+  int i, j, widest, cols;
 
   f = load_object(FRAMES);
 
@@ -99,12 +101,47 @@ void do_tests()
   //      |                        |
   //      +------------------------+
   //
-  TEST("simple: explicit width overrides content length");
+  // A requested width is the width of the WHOLE frame, borders and margins
+  // included: a caller passing the terminal's columns wants something that fits
+  // in them. For the simple style that costs 8 -- two margins, two borders and
+  // two lots of padding -- so asking for 20 leaves 12 for the text.
+  TEST("simple: a requested width is the width of the whole frame");
     lines = rows(f->frame(HW, "", 20, 0, "simple"));
-    // body_inner_width = 20 + 4 = 24
-    ASSERT(lines[0] == " +" + rep("-", 24) + "+ ");
-    // body row: pad "Hello World" (11 chars) on the right to width 20
-    ASSERT(lines[2] == " |  " + HW + rep(" ", 9) + "  | ");
+    ASSERT(strlen(lines[0], true) == 20);
+    ASSERT(lines[0] == " +" + rep("-", 16) + "+ ");
+    // body row: pad "Hello World" (11 chars) on the right to the 12 available
+    ASSERT(lines[2] == " |  " + HW + rep(" ", 1) + "  | ");
+  END_TEST();
+
+  // The same holds whatever the style charges for its decoration, so the check
+  // is that no row of any style ever exceeds what was asked for.
+  TEST("every style renders within the width it was given");
+    style_names = map_indices(f->query_styles());
+    for (i = 0; i < sizeof(style_names); i++)
+    {
+      lines = rows(f->frame(HW + " " + HW + " " + HW, "", 40, 0, style_names[i]));
+      widest = 0;
+      for (j = 0; j < sizeof(lines); j++)
+        if (strlen(lines[j], true) > widest)
+          widest = strlen(lines[j], true);
+      ASSERT(widest == 40);
+    }
+  END_TEST();
+
+  // With no width asked for, the frame still may not outgrow the terminal
+  // reading it: content longer than that is reflowed rather than overflowing.
+  TEST("no width asked for still fits the reader's columns");
+    cols = (int)this_user()->query_cols();
+    style_names = map_indices(f->query_styles());
+    for (i = 0; i < sizeof(style_names); i++)
+    {
+      lines = rows(f->frame(rep(HW + " ", 20), "", 0, 0, style_names[i]));
+      widest = 0;
+      for (j = 0; j < sizeof(lines); j++)
+        if (strlen(lines[j], true) > widest)
+          widest = strlen(lines[j], true);
+      ASSERT(widest <= cols);
+    }
   END_TEST();
 
   // Expected (two body rows; width is the longest line, "Hello World"):
