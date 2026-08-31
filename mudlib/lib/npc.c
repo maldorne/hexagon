@@ -47,6 +47,9 @@ string npc_given_name;   // a generated citizen's proper name (lowercase).
 // npc.o savefile; the live instances are static and re-cloned on restore.
 mapping component_info;
 static object * components;
+// verb -> ({ component, function }), for the verbs components asked for. Static:
+// it holds live object references, which mean nothing across a save.
+static mapping component_actions;
 
 // Where this NPC lives: a house location file (the home the area assigned it),
 // or nil. Persisted in npc.o. The schedule component walks the NPC here at night
@@ -124,6 +127,8 @@ int has_component(string type) { return query_component_by_type(type) != nil; }
 
 // Clone a component blueprint, stamp its type, seed its attrs, and bind it to
 // this NPC. Shared by add_component and init_components.
+private void _register_component_actions(object c);
+
 private object _spawn_component(string type, mapping attrs)
 {
   object c;
@@ -136,7 +141,45 @@ private object _spawn_component(string type, mapping attrs)
   c->init_auto_load_attributes(attrs ? attrs : ([ ]));
   c->initialize(this_object());
   components += ({ c });
+  _register_component_actions(c);
   return c;
+}
+
+// Give the NPC the verbs a component asked for. Actions are matched against the
+// objects standing in the player's environment, and a component stands nowhere:
+// it is owned by the NPC. So the verb is registered here and forwarded back.
+private void _register_component_actions(object c)
+{
+  mapping wanted;
+  string * verbs;
+  int i;
+
+  wanted = (mapping)c->query_component_actions();
+  if (!mappingp(wanted) || !map_sizeof(wanted))
+    return;
+
+  if (!component_actions)
+    component_actions = ([ ]);
+
+  verbs = map_indices(wanted);
+  for (i = 0; i < sizeof(verbs); i++)
+  {
+    component_actions[verbs[i]] = ({ c, wanted[verbs[i]] });
+    add_action("_component_action", verbs[i]);
+  }
+}
+
+// Where every component verb lands. The verb that was typed says which
+// component asked for it and what to call there.
+int _component_action(string str)
+{
+  mixed * bound;
+
+  bound = component_actions ? component_actions[query_verb()] : nil;
+  if (!bound || !bound[0])
+    return 0;
+
+  return (int)call_other(bound[0], bound[1], str);
 }
 
 // Re-clone every component named in a restored component_info (from restore_npc).
@@ -548,6 +591,50 @@ void apply_template(mapping t, varargs int born)
 
     if (amount > 0)
       adjust_money(amount, money["type"] ? money["type"] : BASE_COIN);
+  }
+
+  // What the type knows how to do, and what it knows how to be. All three are
+  // re-applied on every materialization rather than only at birth: none of them
+  // is carried by the npc.o savefile, and re-applying picks up a template that
+  // was edited since. add_known_skill and add_component both no-op on something
+  // already there, so repeating costs nothing.
+  if (pointerp(t["skills"]))
+  {
+    mixed skills;
+    int i;
+
+    skills = t["skills"];
+    for (i = 0; i < sizeof(skills); i++)
+      if (stringp(skills[i]))
+        add_known_skill(skills[i], 1);
+  }
+
+  // Spells are named to their casting object, so this one is a mapping rather
+  // than a list: ([ "<spell>" : "/path/to/spell.c" ]).
+  if (mappingp(t["spells"]))
+  {
+    string * names;
+    int i;
+
+    names = map_indices(t["spells"]);
+    for (i = 0; i < sizeof(names); i++)
+      if (stringp(t["spells"][names[i]]))
+        add_spell(names[i], t["spells"][names[i]]);
+  }
+
+  // Behaviour the type carries: ([ "<component>" : ([ attrs ]) ]). This is how
+  // a template says its people can do something a data field cannot describe --
+  // bring the dead back, keep a shop -- without a blueprint of their own.
+  if (mappingp(t["components"]))
+  {
+    string * types;
+    int i;
+
+    types = map_indices(t["components"]);
+    for (i = 0; i < sizeof(types); i++)
+      add_component(types[i],
+                    mappingp(t["components"][types[i]])
+                      ? t["components"][types[i]] : ([ ]));
   }
 
   if (!born)

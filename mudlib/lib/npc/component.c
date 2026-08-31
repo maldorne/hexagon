@@ -36,6 +36,16 @@ void initialize(object npc)
   owner = npc;
 }
 
+// The verbs this component wants a player to be able to use on the owning NPC,
+// as (verb -> the function to call here). A component is owned by the NPC and
+// never stands in the room, so it cannot carry a verb itself: the NPC registers
+// what it asks for and forwards the call back. Empty for a component that adds
+// no verb of its own.
+mapping query_component_actions()
+{
+  return ([ ]);
+}
+
 object query_owner() { return owner; }
 
 string query_type() { return type; }
