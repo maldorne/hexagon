@@ -265,7 +265,17 @@ void heart_beat()
 
   combat::heart_beat();
 
+  // Both of these can destruct us and everything below would then run on an
+  // object that is no longer there: combat can kill, and the queue performs
+  // whatever the player typed -- quitting among it. queue.c guards its own
+  // continuation the same way.
+  if (!this_object())
+    return;
+
   queue::heart_beat(); // queue.c, will do act()
+
+  if (!this_object())
+    return;
 
   hb_counter++;
 
