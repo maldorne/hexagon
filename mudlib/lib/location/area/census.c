@@ -18,6 +18,7 @@
 #include <areas/poi.h>
 #include <areas/vacancy.h>
 #include <living/persisted.h>
+#include <living/races.h>
 #include <basic/gender.h>
 
 // The area's individuals:
@@ -281,7 +282,16 @@ private object npc_restore(string id, object loc)
   //
   // set_race_ob unwinds the previous race's bonuses, languages and aliases
   // before applying the new one, so it is safe on top of what the template set.
-  if (first && sentient)
+  //
+  // Keyed on the NPC having no people of its own as well as on being newborn,
+  // the way the proper name above is: somebody whose type never handed one over
+  // -- a template captured before races were stored where apply_template reads
+  // them -- would otherwise keep the placeholder race for as long as they live.
+  // A restore does not re-apply the template's social objects (re-applying the
+  // class would reset the class level), so this is the only chance they get.
+  if (sentient &&
+      (first || !npc->query_race_ob() ||
+       npc->query_race_ob() == DEFAULT_RACE_OB))
   {
     mixed cpath;
 

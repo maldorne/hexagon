@@ -188,6 +188,18 @@ void restore_location_monsters(object loc, string file)
   {
     int want, have, j;
 
+    // A bucket only ever holds what the roster allows -- assign_monster refuses
+    // anything else on the way in. The roster changes under it, though: opening
+    // a vacancy takes that type out of the statistical population, and the
+    // bucket recorded at conversion still names it. Drop it here rather than
+    // spawn a second, jobless copy of somebody who holds a post.
+    if (!((mapping)this_object()->query_npc_caps())[sources[i]])
+    {
+      map_delete(bucket, sources[i]);
+      this_object()->save_me();
+      continue;
+    }
+
     want = bucket[sources[i]];
     have = _live_monster_count(loc, sources[i]);
     for (j = have; j < want; j++)
