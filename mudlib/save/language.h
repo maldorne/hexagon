@@ -18,7 +18,7 @@
 #define SUPPORTED_LANGUAGES ({ "en", "es" })
 
 // change below this comment
-#define GLOBAL_COMPILE_LANG "en"
+#define GLOBAL_COMPILE_LANG "es"
 
-#include <translations/common.en.h>
-#include <translations/time.en.h>
+#include <translations/common.es.h>
+#include <translations/time.es.h>
