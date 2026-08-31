@@ -210,13 +210,17 @@ private object npc_restore(string id, object loc)
     npc->set_gender((int)this_object()->decide_gender(game, source));
   gender = npc->query_gender();
 
-  // A sentient citizen's proper name is generated once, on the first
-  // materialization, using its gender, and stored on the NPC itself
-  // (npc_given_name -> npc.o) because id.c's `name` is static and never saved.
-  // Do it BEFORE the template: monster::set_name takes only the first name, so
-  // ours wins and the template's generic one is a no-op. On a restore the name
-  // was already re-seeded by restore_npc above.
-  if (first && sentient)
+  // A sentient citizen's proper name is generated once, using its gender, and
+  // stored on the NPC itself (npc_given_name -> npc.o) because id.c's `name` is
+  // static and never saved. Do it BEFORE the template: monster::set_name takes
+  // only the first name, so ours wins and the template's generic one is a no-op.
+  // On a restore the name was already re-seeded by restore_npc above.
+  //
+  // Keyed on the NPC lacking a name rather than on `first`, the way nationality
+  // below is: somebody who was already alive when their type became sentient --
+  // a fixed individual turned into a generic role -- was never named, and would
+  // otherwise stay nameless for as long as they live.
+  if (sentient && !npc->query_given_name())
   {
     mixed gname;
 
