@@ -60,6 +60,11 @@ string query_zone(string path)
   words = explode(where, "/");
   zone = "";
 
+  // Nothing to walk up from: an object whose path says nothing about where it
+  // stands answers with the base zone rather than erroring on the slice below.
+  if (sizeof(words) < 2)
+    return BASE;
+
   // only directories
   where = "/" + implode(words[0..sizeof(words)-2], "/");
 

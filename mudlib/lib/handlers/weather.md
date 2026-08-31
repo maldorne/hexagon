@@ -36,8 +36,45 @@ advanced.
 Miss the second step and the game reads a date frozen at whatever hour the mud
 last booted on, which is easy to overlook because everything else keeps working.
 
-## Beyond the clock
+# Climate zones
 
-Zone data comes from the weather table, resolved the same way, so a game wanting
-its own climate adds `/games/<game>/tables/weather.c` as well. The handler and
-the table are independent: either can be overridden without the other.
+A zone is a stretch of world that shares one sky. The table lists them with
+their rain, wind and temperature, the averages the handler drifts them back
+towards, and which zones they border -- weather leans on its neighbours, so an
+adjacency graph is what lets a front travel.
+
+Which zone a place belongs to is asked of the table, by **directory**:
+
+    string query_zone(string dir)
+
+The handler hands it a game-relative directory such as `areas/<area>/rooms`, and
+the table walks up until one of its declared areas answers. Declaring
+`areas/<area>` therefore covers everything beneath it -- its rooms, its npcs, any
+sub-area -- so a zone is named once per area, not once per corner of it.
+
+That directory is the same whether the place is a room or a location: a room is a
+`.c` under `/games/<game>/areas/...`, and the location it became is a clone whose
+own file name says nothing, so the handler reads the save path instead and
+reduces both to one key. A game that never converts a room keeps working, and a
+game with no locations at all can still declare zones.
+
+Without a table of its own a game shares the lib one.
+
+## Applying a change
+
+Adding a zone reaches a running mud on the next boot, because the handler
+notices zones the table has and its own state does not. **Editing** an existing
+one does not: the handler keeps its own copy, drifting from the averages it read
+when it first saw the zone. Removing one does not either -- its state simply
+stays. To make the handler take the table as it now stands:
+
+    exec return load_object("/games/<game>/handlers/weather")->reset_zones();
+
+That discards the current weather everywhere and starts again from the declared
+averages, so it is a deliberate act, not something to run casually. Note the
+explicit path: a command runs from a file that belongs to no game, so asking for
+the handler by name would resolve the lib one.
+
+The table and the handler are independent. A game can override either without
+the other: its own clock on the shared climate, or its own climate on the shared
+clock.

@@ -56,6 +56,8 @@ static private mapping my_obs;
 
 // Prototypes.
 void check_zones();
+// defined further down; the zone lookups above it need the prototype
+private string _zone_key(object room);
 string month_string();
 int month_days();
 void update_weather(int flag);
@@ -204,7 +206,7 @@ void weather_inform(int flag, varargs string zone, int * values)
     // A room-level observer has no environment.
     if (!environment(obs[i]))
     {
-      if (zone == table("weather")->query_zone(file_name(obs[i])))
+      if (zone == table("weather")->query_zone(_zone_key(obs[i])))
         event(obs[i], "weather", flag, values);
     }
 
@@ -213,7 +215,7 @@ void weather_inform(int flag, varargs string zone, int * values)
     if (obs[i]->query_player())
     {
       if ((environment(obs[i])->query_outside()) &&
-          (zone == table("weather")->query_zone(file_name(environment(obs[i])))))
+          (zone == table("weather")->query_zone(_zone_key(environment(obs[i])))))
         event(obs[i], "weather", flag, values);
     }
   }
@@ -572,6 +574,48 @@ void update_weather(int flag)
 }
 
 // ***********************************************************************
+// The directory a room or a location belongs to, game-relative, which is what
+// the weather table keys its zones by.
+//
+// A room is a .c under /games/<game>/areas/..., while the location it was
+// converted into is a clone of a generic blueprint: its LPC file_name is
+// /lib/location#N and says nothing about where it stands, so the save path it
+// answers with is the one that does. Both reduce to the same key --
+// "areas/<area>/rooms" -- so a zone declared once covers a place whether or not
+// it was ever converted, and a game that stays on rooms works the same way.
+private string _zone_key(object room)
+{
+  string path;
+  string * parts;
+
+  if (!room)
+    return "";
+
+  path = room->query_file_name();
+  if (!path || !strlen(path))
+    path = file_name(room);
+  if (!path || !strlen(path))
+    return "";
+
+  parts = explode(path, "/") - ({ "" });
+
+  // zones are declared per directory, so the file itself goes
+  if (sizeof(parts) > 1)
+    parts = parts[0 .. sizeof(parts) - 2];
+  else
+    return "";
+
+  // /save/games/<game>/locations/areas/...  and  /games/<game>/areas/...
+  if (sizeof(parts) && parts[0] == "save")
+    parts = parts[1 ..];
+  if (sizeof(parts) > 1 && parts[0] == "games")
+    parts = parts[2 ..];
+  if (sizeof(parts) && parts[0] == "locations")
+    parts = parts[1 ..];
+
+  return implode(parts, "/");
+}
+
 // Queries used by outside rooms/locations, look, shadows, etc.
 // ***********************************************************************
 
@@ -581,7 +625,7 @@ int query_darkness(object room)
   int amount;
   string zone;
 
-  zone = table("weather")->query_zone(file_name(room));
+  zone = table("weather")->query_zone(_zone_key(room));
 
   if (query_day())
   {
@@ -631,7 +675,7 @@ int query_darkness(object room)
 int query_raining(object room)
 {
   string zone;
-  zone = table("weather")->query_zone(file_name(room));
+  zone = table("weather")->query_zone(_zone_key(room));
   return (zones[zone][0] >= 50);
 }
 
@@ -639,7 +683,7 @@ int query_raining(object room)
 int * query_actual_data(object room)
 {
   string zone;
-  zone = table("weather")->query_zone(file_name(room));
+  zone = table("weather")->query_zone(_zone_key(room));
   return ({ zones[zone][0], zones[zone][1], zones[zone][2], });
 }
 
@@ -791,7 +835,7 @@ string weather_string(object room)
   string temp, wind, rain;
 
   ret = capitalize(daynight_string()) + _LANG_WEATHER_STRING_OF + season_string();
-  zone = table("weather")->query_zone(file_name(room));
+  zone = table("weather")->query_zone(_zone_key(room));
 
   temp = temperature_string(zone);
   wind = wind_string(zone);
