@@ -1003,21 +1003,28 @@ int do_vacancy(string str)
   if (verb == "add")
   {
     string name, source;
-    int count, poi;
+    int count, fixed;
 
     if (sizeof(args) < 4 || sscanf(args[2], "%d", count) != 1)
     {
-      notify_fail("Usage: build vacancy add <name> <count> <source.c> [poi]\n");
+      notify_fail("Usage: build vacancy add <name> <count> <source> [fixed]\n");
       return 0;
     }
     name = args[1];
     source = args[3];
-    // a job anchored to a point of interest stays where it is and its holder
-    // is replaced there promptly; the rest spread over the area's like places
-    poi = (sizeof(args) > 4 && args[4] == "poi");
-    if (file_size(source) < 0 && file_size(source + ".c") < 0)
+    // a fixed job is one post: it stays where it is and its holder is replaced
+    // there promptly; the rest spread over the area's like places
+    fixed = (sizeof(args) > 4 && args[4] == "fixed");
+    // A job is filled from an authored template, not from a blueprint: once an
+    // area is built there is no .c left to clone, so what is named here is a
+    // template id ("areas/<area>/<type>"). A path still works -- it normalises
+    // to the same id -- and a source that has no template yet is only accepted
+    // when a .c is there for the bestiary to capture one from.
+    if (!(int)BESTIARY_HANDLER->has_template(
+            game_name(area), (string)area->query_template_from_source(source)) &&
+        file_size(source) < 0 && file_size(source + ".c") < 0)
     {
-      notify_fail("No NPC blueprint at '" + source + "'.\n");
+      notify_fail("No template and no blueprint for '" + source + "'.\n");
       return 0;
     }
     // The area stores the cap (count + workplace = wherever the coder stands).
@@ -1026,7 +1033,7 @@ int do_vacancy(string str)
     // the area stores the job: how many, where (wherever the coder stands),
     // and the type its holders are drawn from
     area->open_vacancy(name, count, loc->query_file_name(), source,
-                       poi ? ([ VACANCY_POI: 1 ]) : ([ VACANCY_SPREAD: 1 ]));
+                       fixed ? ([ VACANCY_FIXED: 1 ]) : ([ VACANCY_SPREAD: 1 ]));
     area->fill_vacancy(area->query_vacancy(name));
     // filling only writes census rows; bring the new people in here, since the
     // place they were taken on for is loaded and standing in front of us

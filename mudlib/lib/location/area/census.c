@@ -179,7 +179,7 @@ private object npc_restore(string id, object loc)
   role = (entry[CENSUS_VACANCY] && !entry["guard"])
            ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY])
            : nil;
-  t = (mapping)this_object()->query_banded_template(game, source);
+  t = (mapping)this_object()->query_area_template(game, source);
 
   // sentience is a fact about the type, so it comes from the template
   sentient = t && t["sentient"];
@@ -656,15 +656,14 @@ void npc_died(string uuid)
   // rematerialized when the foreign location it last rested in reloads
   AREA_HANDLER->set_foreign_position(uuid, nil, nil);
 
-  // a post anchored to a point of interest is taken up again shortly; the rest
-  // wait for the settlement pass, so a town does not replace its dead the
-  // instant they fall
+  // a fixed post is taken up again shortly; the rest wait for the settlement
+  // pass, so a town does not replace its dead the instant they fall
   if (entry && entry[CENSUS_VACANCY] && !entry["guard"])
   {
     mapping job;
 
     job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
-    if (job && job[VACANCY_POI])
+    if (job && job[VACANCY_FIXED])
       call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY,
                job[VACANCY_WORKS_AT]);
   }

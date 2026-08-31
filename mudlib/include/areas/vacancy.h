@@ -13,7 +13,7 @@
 //      VACANCY_COUNT:  1,
 //      VACANCY_WORKS_AT: "/save/.../ap.o", // where it is held
 //      VACANCY_SOURCE: template_id,
-//      VACANCY_POI:    1,                  // anchored to a point of interest
+//      VACANCY_FIXED:  1,                  // one post, held at that one place
 //      VACANCY_SPREAD: 1,                  // holders scatter over like places
 //      VACANCY_CLASS:  "/lib/obj/classes/mixed.c",
 //      VACANCY_HOME:   "/save/.../plot_30_-2_0.o" ])
@@ -26,9 +26,11 @@
 #define VACANCY_WORKS_AT  "works_at"
 // the type its holders are drawn from, by template id
 #define VACANCY_SOURCE    "source"
-// anchored to a point of interest: its holder respawns there after a delay
-// rather than waiting for the settlement pass
-#define VACANCY_POI       "poi"
+// the job is one post held at one place: its holder is replaced there shortly
+// after dying rather than waiting for the settlement pass. The opposite of
+// VACANCY_SPREAD. Nothing to do with the place being a point of interest -- it
+// usually is one, but a fixed post at an ordinary location behaves the same.
+#define VACANCY_FIXED     "fixed"
 // holders spread over the area's other locations of the same kind instead of
 // crowding the one the job names
 #define VACANCY_SPREAD    "spread"
@@ -55,5 +57,8 @@
 #define CENSUS_WORKS_AT       "works_at"
 // where the person is right now
 #define CENSUS_LOCATION       "current_location"
+
+// Seconds before the holder of a fixed post is replaced at its workplace.
+#define VACANCY_RESPAWN_DELAY 300
 
 #endif
