@@ -119,7 +119,10 @@ void open_vacancy(string job, int count, string at, string source,
   if (source && strlen(source))
   {
     game = game_from_path((string)this_object()->query_area_path());
-    if (!BESTIARY_HANDLER->has_template(game, source))
+    // The type is an authored template. Capturing one from a blueprint is the
+    // legacy path, kept for a source whose .c is still around; a built area has
+    // none, and there the template is the only thing there is to draw from.
+    if (!BESTIARY_HANDLER->has_template(game, source) && file_size(source) >= 0)
       BESTIARY_HANDLER->add_template(source);
     source = (string)this_object()->query_template_from_source(source);
 
