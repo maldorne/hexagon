@@ -15,13 +15,14 @@ private string hours_of(object area, string source);
 void setup()
 {
   set_aliases(({ "npcs" }));
-  set_usage("npcs [ list [type] | vacancies | roster | live | orphans [apply] |\n            verify [apply] ]");
+  set_usage("npcs [ list [type] | vacancies | roster | live | orphans [apply] |\n            verify [apply] | retemplate [apply] ]");
   set_help(
     "Report on the people of the area you are standing in.\n" +
     "\n" +
     "  npcs                 what the area holds, in one screen\n" +
     "  npcs list [type]     everybody in its census, or one kind of them\n" +
     "  npcs vacancies       the jobs it offers and who holds them\n" +
+    "  npcs retemplate      repair template ids saved under the old rule\n" +
     "  npcs roster          the types it spawns statistically, and their caps\n" +
     "  npcs live            only the people materialized right now\n" +
     "  npcs orphans [apply] people the area no longer accounts for\n" +
@@ -486,6 +487,28 @@ private int do_orphans(object area, object me, string * args)
 }
 
 // ===== npcs verify =====
+// ===== npcs retemplate =====
+// A one-off repair for worlds saved while a template id was written without the
+// source's own directory. Reports what it would change; `apply` writes it.
+private int do_retemplate(object area, object me, string * args)
+{
+  int apply, fixed;
+
+  apply = (sizeof(args) > 1 && args[1] == "apply");
+  fixed = (int)area->repair_template_ids(apply);
+
+  if (!fixed)
+  {
+    write("Every stored template id already names a template.\n");
+    return 1;
+  }
+
+  write("" + fixed + " stored template id(s) name no template" +
+        (apply ? " -- repaired." : "; run 'npcs retemplate apply' to fix.") +
+        "\n");
+  return 1;
+}
+
 private int do_verify(object me, string * args)
 {
   object env;
@@ -549,8 +572,10 @@ static int cmd(string str, object me, string verb)
     return do_live(area, me);
   if (args[0] == "orphans")
     return do_orphans(area, me, args);
+  if (args[0] == "retemplate")
+    return do_retemplate(area, me, args);
 
   notify_fail("Usage: npcs [ list [type] | vacancies | roster | live | " +
-              "orphans [apply] | verify [apply] ]\n");
+              "orphans [apply] | verify [apply] | retemplate [apply] ]\n");
   return 0;
 }

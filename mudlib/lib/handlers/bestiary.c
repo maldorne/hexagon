@@ -18,17 +18,21 @@
 // defined further down; add_template reads it to preserve hand-set fields
 mapping query_template(string game, string source);
 
-// Canonical template identity for a source. A hand-authored NPC .c under
-// /games/<game>/ is mirrored game-relative with its "npcs" directory segment
-// and ".c" suffix dropped (barman.c -> areas/<area>/barman); anything else
-// keeps its absolute path (leading slash dropped). This id is what the area
-// stores as an NPC's identity instead of the original monster path, so nothing
-// in day-to-day operation depends on the source .c still existing.
+// Canonical template identity for a source: where the file actually sits in the
+// game tree, with the "/games/<game>/" prefix and any ".c" suffix taken off and
+// nothing else touched.
 //
-// Idempotent: feeding a template id back in returns it unchanged (an id has no
-// "/games/<game>/" prefix, no ".c" suffix and no "npcs" segment to strip), so a
-// census/roster key can be normalised on read whether it was stored as a source
-// path (pre-conversion saves) or already as an id.
+//   /games/<game>/areas/<area>/npcs/barman.c -> areas/<area>/npcs/barman
+//
+// Every directory the file lives in stays in the id, so the id names one place
+// and the template file is found by adding the language and the extension back
+// -- no directory is ever guessed at either end. This id is what the area stores
+// as an NPC's identity instead of the original monster path, so nothing in
+// day-to-day operation depends on the source .c still existing.
+//
+// Idempotent: feeding an id back in returns it unchanged (an id has no
+// "/games/<game>/" prefix and no ".c" suffix to strip), so a census/roster key
+// reads the same whether it was stored as a source path or already as an id.
 string template_id(string game, string source)
 {
   string rest, prefix;
@@ -45,74 +49,29 @@ string template_id(string game, string source)
   if (strlen(rest) > 2 && rest[strlen(rest) - 2 ..] == ".c")
     rest = rest[0 .. strlen(rest) - 3];
 
-  // the store already lives under <game>/npcs/templates/, so drop the source's
-  // own "npcs" directory segment (the game's per-area npc dir) as redundant
-  {
-    string * parts, * out;
-    int i, drop;
-
-    parts = explode(rest, "/");
-    drop = sizeof(parts) - 2;   // the file's parent directory
-    if (drop >= 0 && parts[drop] == "npcs")
-    {
-      out = ({ });
-      for (i = 0; i < sizeof(parts); i++)
-        if (i != drop)
-          out += ({ parts[i] });
-      rest = implode(out, "/");
-    }
-  }
-
   return rest;
 }
 
-// Template file for a source (a source NPC .c or an already-normalised template
-// id). Templates are authored in the game tree, beside the area they describe
-// and in the place the seed .c used to occupy, one file per language:
+// Template file for a source (a source NPC .c or an already-stripped template
+// id). The id is the file's own place in the game tree, so the answer is the id
+// with the language and the extension on it -- nothing is inferred:
 //
-//   areas/naduk/farmer          -> /games/<game>/areas/naduk/npcs/farmer.es.json
-//   areas/elrhair-forest/items/mallorn
-//                               -> /games/<game>/areas/elrhair-forest/items/mallorn.es.json
+//   areas/<area>/npcs/<type>   -> /games/<game>/areas/<area>/npcs/<type>.es.json
+//   areas/<area>/items/<thing> -> /games/<game>/areas/<area>/items/<thing>.es.json
 //
 // A .json cannot be preprocessed, so it carries the language in its name rather
 // than through <language.h>, and the language the mudlib was compiled in picks
-// between the siblings. Two candidates are tried because template_id drops an "npcs"
-// directory segment from the id (a leaf that lived in some other directory,
-// like items/, kept its own): the first form puts that segment back, the second
-// is the id as it stands.
+// between the siblings.
 string query_template_file(string game, string source)
 {
-  string id, prefix, candidate;
-  string * parts;
-
-  prefix = "/games/" + game + "/";
-
-  // Asked with the source .c itself, the answer needs no guessing: the template
-  // belongs beside the file it was captured from. This is the path a capture
-  // writes to, so it has to be the canonical one.
+  // Asked with the source .c itself, the template belongs beside the file it
+  // was captured from. This is the path a capture writes to.
   if (strlen(source) > 2 && source[strlen(source) - 2 ..] == ".c" &&
       file_size(source) >= 0)
     return source[0 .. strlen(source) - 3] + "." + mud_language() + ".json";
 
-  // Asked with an id, the "npcs" directory it was normalised away has to be put
-  // back. Prefer that form whenever the directory is really there, and only
-  // fall back to the bare id for a source that lived somewhere else.
-  id = template_id(game, source);
-  parts = explode(id, "/");
-
-  if (sizeof(parts) > 1)
-  {
-    string dir;
-
-    dir = prefix + implode(parts[0 .. sizeof(parts) - 2], "/") + "/npcs";
-    candidate = dir + "/" + parts[sizeof(parts) - 1] + "." +
-                mud_language() + ".json";
-    // file_size answers -2 for a directory
-    if (file_size(candidate) >= 0 || file_size(dir) == -2)
-      return candidate;
-  }
-
-  return prefix + id + "." + mud_language() + ".json";
+  return "/games/" + game + "/" + template_id(game, source) + "." +
+         mud_language() + ".json";
 }
 
 int has_template(string game, string source)

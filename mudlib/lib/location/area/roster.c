@@ -475,3 +475,160 @@ int decide_level(string game, string source)
   return base < 1 ? 1 : base;
 }
 
+
+// ---------------------------------------------------------------------------
+// One-off repair of stored template ids.
+//
+// A template id used to be written with the source's "npcs" directory segment
+// taken out (areas/<area>/npcs/<type> was stored as areas/<area>/<type>), and
+// the segment was guessed back on every lookup. The id is now the file's real
+// place in the tree, so a world saved under the old rule holds ids that name
+// nothing: their people materialize as bare generic NPCs with no template.
+//
+// This walks everything on the area that holds an id -- the conversion
+// provenance the roster is built from, the vacancies, and the census row of
+// every person -- and rewrites an id that resolves to no template into the one
+// that does. An id that already resolves is left exactly as it is, so running
+// it twice is harmless. Delete this once every world has been through it.
+private string _repaired_id(string game, string id)
+{
+  string * parts;
+  string candidate;
+
+  if (!stringp(id) || !strlen(id))
+    return nil;
+  if (BESTIARY_HANDLER->has_template(game, id))
+    return nil;
+
+  parts = explode(id, "/");
+  if (sizeof(parts) < 2)
+    return nil;
+
+  candidate = implode(parts[0 .. sizeof(parts) - 2], "/") + "/npcs/" +
+              parts[sizeof(parts) - 1];
+
+  return BESTIARY_HANDLER->has_template(game, candidate) ? candidate : nil;
+}
+
+int repair_template_ids(int apply)
+{
+  object owner;
+  string game;
+  string * keys;
+  mapping census;
+  mixed * jobs;
+  int i, fixed;
+
+  game = game_from_path((string)this_object()->query_area_path());
+  fixed = 0;
+
+  // The per-location buckets the statistical sweep tops up from live on each
+  // area, not on the community, so they are repaired here before anything is
+  // delegated. They are not derived from anything either, so they are repaired
+  // in place; an unrepaired one spawns filler with no template at all -- a
+  // nameless, raceless body standing in a room.
+  keys = (mapping)this_object()->query_monster_census()
+           ? map_indices((mapping)this_object()->query_monster_census()) : ({ });
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    mapping bucket;
+    string * sources;
+    int j;
+
+    bucket = (mapping)this_object()->query_monster_census()[keys[i]];
+    sources = bucket ? map_indices(bucket) : ({ });
+    for (j = 0; j < sizeof(sources); j++)
+    {
+      string better;
+
+      better = _repaired_id(game, sources[j]);
+      if (!better)
+        continue;
+
+      fixed++;
+      if (apply)
+      {
+        bucket[better] = bucket[sources[j]];
+        map_delete(bucket, sources[j]);
+      }
+    }
+  }
+
+  // Everything else -- the provenance, the jobs, the people -- belongs to the
+  // community the area delegates to.
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+  {
+    if (apply && fixed)
+      this_object()->save_me();
+    return fixed + (int)owner->repair_template_ids(apply);
+  }
+
+  // The conversion provenance, which is what the roster is derived from: the
+  // caps themselves are rebuilt from it on every load, so repairing them
+  // directly would not survive one.
+  keys = original_npc_sources ? map_indices(original_npc_sources) : ({ });
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    mapping clones;
+    string * sources;
+    int j;
+
+    clones = original_npc_sources[keys[i]];
+    sources = clones ? map_indices(clones) : ({ });
+    for (j = 0; j < sizeof(sources); j++)
+    {
+      string better;
+
+      better = _repaired_id(game, sources[j]);
+      if (!better)
+        continue;
+
+      fixed++;
+      if (apply)
+      {
+        clones[better] = clones[sources[j]];
+        map_delete(clones, sources[j]);
+      }
+    }
+  }
+
+  if (apply)
+    rebuild_npc_caps();
+
+  // the jobs, each of which names the type its holders are drawn from
+  jobs = (mixed *)this_object()->query_vacancies();
+  for (i = 0; i < sizeof(jobs); i++)
+  {
+    string better;
+
+    better = _repaired_id(game, jobs[i][VACANCY_SOURCE]);
+    if (!better)
+      continue;
+
+    fixed++;
+    if (apply)
+      jobs[i][VACANCY_SOURCE] = better;
+  }
+
+  // and every person, whose row records the type they were drawn from
+  census = (mapping)this_object()->query_npc_census();
+  keys = census ? map_indices(census) : ({ });
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    string better;
+
+    better = _repaired_id(game, census[keys[i]]["source"]);
+    if (!better)
+      continue;
+
+    fixed++;
+    if (apply)
+      census[keys[i]]["source"] = better;
+  }
+
+  if (apply && fixed)
+    this_object()->save_me();
+
+  return fixed;
+}
