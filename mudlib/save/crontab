@@ -35,4 +35,8 @@
 # when it runs on the same minute. weather advances the clock + climate; the
 # areas handler drives the NPC hourly schedules off it.
 */2 * /games/rl-aeternum/handlers/weather advance
+# the lib clock too: a game with no weather handler of its own falls back to it,
+# and so does anyone outside a game (the entrance hall), who would otherwise read
+# a date frozen at whatever hour the mud last booted on
+*/2 * /lib/handlers/weather advance
 */2 * /lib/handlers/areas update_areas
