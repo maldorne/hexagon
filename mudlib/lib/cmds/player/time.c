@@ -18,6 +18,9 @@ static int cmd(string str, object me, string verb)
 
   out = _LANG_CMD_TIME_REAL + ctime(time(), 1) + "\n";
 
+  // write(ctime(time()-3600)+" Islas Canarias.\n");
+  // write(ctime(time()-14400)+" América Central.\n");
+
   // The clock of the game the player is standing in, not this file's: a command
   // under /lib/cmds/ belongs to no game, so resolving the handler from itself
   // would answer with the lib one, which nothing advances.

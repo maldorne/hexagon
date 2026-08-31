@@ -1,4 +1,7 @@
-// Climate zones: the shared base every game's table inherits.
+// New weather system for CcMud, neverbot 22/10/03
+// Turned into the shared base every game's table inherits, 08/2026
+//
+// Climate zones.
 //
 // A zone is a stretch of world that shares one sky. This file holds the
 // machinery -- how a place is matched to a zone, and how the handler asks for
@@ -29,6 +32,15 @@
 //
 // Zone names are internal keys, never shown to a player, so they are plain
 // English ids like every other identifier in the mudlib.
+//
+// IMPORTANT: adding a zone the weather picks it up on its own. Modifying an
+// already existing one -- its averages, its neighbours -- or removing it does
+// not, because the handler keeps its own copy of the state. Those need the
+// whole system reset:
+//
+//     exec return load_object("/games/<game>/handlers/weather")->reset_zones();
+//
+// See weather.md next to the handler.
 
 // The zone a game answers with until it declares one of its own, and the one
 // anywhere unplaced falls back to.
@@ -37,7 +49,17 @@
 private mapping zones;
 // Which zone each area belongs to, by game-relative directory. An entry covers
 // everything beneath it, so "areas/<area>" also answers for its rooms, its npcs
-// and any sub-area.
+// and any sub-area. The empty key is the game's own default, for everywhere it
+// has not placed yet.
+//
+// The directory is what is left after the game's root, which is the same for a
+// room and for the location it was converted into:
+//
+//   /games/<game>/areas/<area>/rooms/a4.c                       -> areas/<area>/rooms
+//   /save/games/<game>/locations/areas/<area>/rooms/a4.o        -> areas/<area>/rooms
+//
+// so a zone is declared once and covers the place whether or not it was ever
+// converted, and a game that stays on rooms works the same way.
 private mapping areas;
 
 void create()
@@ -67,10 +89,9 @@ string query_zone(string dir)
 {
   string * parts;
 
-  if (!dir || !strlen(dir))
-    return BASE;
-
-  parts = explode(dir, "/") - ({ "" });
+  // An object whose path says nothing about where it stands still belongs to
+  // this game, so it takes the game's default below rather than the lib's.
+  parts = (dir && strlen(dir)) ? explode(dir, "/") - ({ "" }) : ({ });
 
   while (sizeof(parts))
   {
@@ -85,7 +106,12 @@ string query_zone(string dir)
     parts = parts[0 .. sizeof(parts) - 2];
   }
 
-  // Anywhere not on the map shares the default sky rather than having none.
+  // A game names its own default under the empty key, so everywhere of its own
+  // it has not placed on the map yet shares that sky instead of the lib's.
+  if (areas[""])
+    return areas[""];
+
+  // And with no default of its own, the shared one rather than none at all.
   return BASE;
 }
 
