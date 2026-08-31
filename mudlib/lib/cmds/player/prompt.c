@@ -16,10 +16,13 @@ string query_help()
   // local variables to use _LANG_PROMPT_HELP
   object me, user;
 
-  // The command hash is built with no player in scope, so the help text has
-  // to survive being asked for outside a player's context: it then falls back
-  // to the shortcut names instead of this player's own name and hit points.
+  // The command hash is built at boot, and this_player() is the mud's own
+  // handler then rather than nothing at all -- so being non-nil is not enough,
+  // it has to be a player before the help text can quote a name or a hit point
+  // count. Outside a player's context it falls back to the shortcut names.
   me = this_player();
+  if (me && !me->query_player())
+    me = nil;
   user = me ? me->user() : nil;
 
   return _LANG_PROMPT_HELP;
