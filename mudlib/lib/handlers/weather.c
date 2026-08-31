@@ -488,7 +488,10 @@ void update_weather(int flag)
   inform = ({ });
 
   names = keys(zones);
-  for (i = 0; i < MODIFY; i++)
+  // A game may declare fewer zones than we mean to touch -- one is enough for
+  // a small world -- and each pass drops the name it picked, so stop when the
+  // list runs out rather than indexing past its end.
+  for (i = 0; i < MODIFY && sizeof(names); i++)
   {
     roll = random(sizeof(names));
     names_to_modify += ({ names[roll] });
