@@ -5,7 +5,7 @@
 // glyphs (─ │ ┼ etc), joining adjacent sectors that share the
 // direction of travel.
 //
-// Classifier `kind` grades traffic capacity, roughly small → large:
+// Classifier `kind` grades traffic capacity, roughly small -> large:
 //   path < trail < road < highway
 
 #include <room/location.h>

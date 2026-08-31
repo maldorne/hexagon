@@ -60,14 +60,14 @@ agnostic.
 
 | Output | Entry | Composition |
 |---|---|---|
-| **Room prose** (`look`) | `hook_long` → `_compose_prose` | Groups by `(type, material, state)`. Singleton → `query_type_long` (LONG_KEY + material tokens + state suffixes). Plural → `_LANG_PROPS_NOUN_PHRASE`-based sentence + one shared state suffix |
-| **Section line** (`You see ...`) | `query_props_section_string` | Same grouping. Per group → `_LANG_PROPS_NOUN_PHRASE` + compact `STATE_SUFFIXES` for singletons. Joiners: `_LANG_PROPS_LIST_SEPARATOR`, `_LANG_PROPS_LIST_AND` |
-| **`look <prop>`** | `find_match` → `component->long(str)` → `_find_unique_match` → `query_type_long` | LONG_KEY with material tokens replaced + `LONG_SUFFIXES` for truthy state + `LONG_SUFFIXES_UNSET` for falsy state + `_LANG_PROPS_YOU_CAN` line listing available verbs |
-| **Action messages** (e.g. `sit chair`) | `_execute_generic` → `_render_msg` | Every `MSG_ME` / `MSG_OTHERS` / `BLOCKED_MSG` / `MISSING_MSG` / `ALREADY_SET_MSG` runs through souls parser. `$mcname$` → actor cap name, `$mposs$` → gendered possessive, `$lastarg$` → state value |
+| **Room prose** (`look`) | `hook_long` -> `_compose_prose` | Groups by `(type, material, state)`. Singleton -> `query_type_long` (LONG_KEY + material tokens + state suffixes). Plural -> `_LANG_PROPS_NOUN_PHRASE`-based sentence + one shared state suffix |
+| **Section line** (`You see ...`) | `query_props_section_string` | Same grouping. Per group -> `_LANG_PROPS_NOUN_PHRASE` + compact `STATE_SUFFIXES` for singletons. Joiners: `_LANG_PROPS_LIST_SEPARATOR`, `_LANG_PROPS_LIST_AND` |
+| **`look <prop>`** | `find_match` -> `component->long(str)` -> `_find_unique_match` -> `query_type_long` | LONG_KEY with material tokens replaced + `LONG_SUFFIXES` for truthy state + `LONG_SUFFIXES_UNSET` for falsy state + `_LANG_PROPS_YOU_CAN` line listing available verbs |
+| **Action messages** (e.g. `sit chair`) | `_execute_generic` -> `_render_msg` | Every `MSG_ME` / `MSG_OTHERS` / `BLOCKED_MSG` / `MISSING_MSG` / `ALREADY_SET_MSG` runs through souls parser. `$mcname$` -> actor cap name, `$mposs$` -> gendered possessive, `$lastarg$` -> state value |
 | **Parser aliases** | `component->query_alias` + `query_plurals` | Enumerates type's `id_list` (singular) plus `NOUN_PLURAL` (plural) plus every `_LANG_PROPS_ID_WITH_MATERIAL` variant per attached instance |
 | **Numeric disambiguation** (`chair 2`) | `location.find_inv_match` inflates the component N times | `find_match`'s `--num` decrement counts down naturally; component's inner matcher strips the trailing number too |
 
-## 5. State → strings
+## 5. State -> strings
 
 The instance's `state` mapping mutates through action `SET_STATE` /
 `CLEAR_STATE`. Suffixes read that state:
@@ -75,10 +75,10 @@ The instance's `state` mapping mutates through action `SET_STATE` /
 ```
 state = { tipped: 1, occupied: "test" }
 
-→ Section line appends _LANG_PROP_CHAIR_SUFFIX_TIPPED   " (tipped over)"
-→ Section line appends _LANG_PROP_CHAIR_SUFFIX_OCCUPIED " (test is sitting on it)"  // %s legacy
-→ look prop appends    _LANG_PROP_CHAIR_LONG_TIPPED     " It lies on its side."
-→ look prop appends    _LANG_PROP_CHAIR_LONG_OCCUPIED   " test is sitting on it."   // %s legacy
+-> Section line appends _LANG_PROP_CHAIR_SUFFIX_TIPPED   " (tipped over)"
+-> Section line appends _LANG_PROP_CHAIR_SUFFIX_OCCUPIED " (test is sitting on it)"  // %s legacy
+-> look prop appends    _LANG_PROP_CHAIR_LONG_TIPPED     " It lies on its side."
+-> look prop appends    _LANG_PROP_CHAIR_LONG_OCCUPIED   " test is sitting on it."   // %s legacy
 ```
 
 State suffixes are compact by design; if omitted for a plural group,
@@ -107,16 +107,16 @@ find_match("chair")
   ├─ location.find_inv_match strips num=0, no inflation
   ├─ component.query_alias returns
   │     ["chair", "seat", "wooden chair", "metal chair", ...]
-  ├─ "chair" matches → component added to result
+  ├─ "chair" matches -> component added to result
   │
 component.long("chair")
   ├─ _find_unique_match iterates props_instances
-  ├─ first match (chair_1, wood) → handler.query_type_long(chair, ovs, state, "chair_1")
+  ├─ first match (chair_1, wood) -> handler.query_type_long(chair, ovs, state, "chair_1")
   │     ├─ LONG_KEY  "A sturdy $material_phrase$ chair, sized for one."
   │     ├─ material  overrides.material || DEFAULT_MATERIAL = "wood"
   │     ├─ $material_phrase$ = "wooden"
   │     └─ returns "A sturdy wooden chair, sized for one."
-  ├─ query_actions_hint → "You can: sit, stand, tip, right"
+  ├─ query_actions_hint -> "You can: sit, stand, tip, right"
   └─ writes both to the player
 ```
 

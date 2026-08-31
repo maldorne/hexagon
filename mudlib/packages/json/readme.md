@@ -37,7 +37,7 @@ These are thin wrappers defined in `/lib/core/efuns/json.c` that forward to `"/p
 | `mapping` (other keys)  | error                             |
 | `object`              | error (see notes below)             |
 
-LPC has no native boolean: `0` and `1` encode as JSON numbers, not as `false`/`true`. Conversely, `json_decode` maps `true` → `1`, `false` → `0`, `null` → `nil`.
+LPC has no native boolean: `0` and `1` encode as JSON numbers, not as `false`/`true`. Conversely, `json_decode` maps `true` -> `1`, `false` -> `0`, `null` -> `nil`.
 
 ## Why LPC objects raise
 

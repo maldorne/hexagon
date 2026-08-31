@@ -410,7 +410,7 @@ int do_guess_coordinates(object * locations)
   return 1;
 }
 
-// Aggregate the legacy room's add_clone calls into a path → count
+// Aggregate the legacy room's add_clone calls into a path -> count
 // mapping. The source storage (room.c::room_clones) encodes each
 // add_clone(path, count, [flag]) as `count` placeholders followed by an
 // optional flag int and the path string at the end. After reset() the
@@ -1105,7 +1105,7 @@ mixed * clean_preview(string scope, varargs int all)
  * load — never the whole world. The two assumptions are: (1) the save
  * tree mirrors the source tree (so an orphan's destinations live where
  * its exit string says they live); (2) the world's exit graph is at
- * least mostly reciprocal (if A→B exists, B→A usually does too — the
+ * least mostly reciprocal (if A->B exists, B->A usually does too — the
  * standard MUD convention). Non-reciprocal exits FROM an external
  * location to an orphan that the orphan does not know about are not
  * trimmed; that is the explicit cost of not scanning the world.

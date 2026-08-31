@@ -40,11 +40,11 @@ static mapping hook_chains;
 string _original_room_file_name;
 string _original_long;
 string _original_short;
-mapping _original_add_clones;   // path → count for each add_clone in the source room
+mapping _original_add_clones;   // path -> count for each add_clone in the source room
 mixed * _original_items;         // ordered ({ id_or_id_array, desc }) from add_item
 // Author-curated scene prose — what no component can infer. Composed
 // FIRST in long(); component hook_long contributions follow. Both
-// empty → fall back to _original_long for backward compat. Editable
+// empty -> fall back to _original_long for backward compat. Editable
 // inline with the `desc` cmd; persisted.
 string _specific_long;
 mapping _exit_map;
@@ -166,7 +166,7 @@ int id(string str)
 }
 
 // Movement entry point. Runs the components' do_exit_command pipeline
-// (HOOK_PRIORITY_GATE → TRANSFORM → TRACE) and then calls the
+// (HOOK_PRIORITY_GATE -> TRANSFORM -> TRACE) and then calls the
 // inherited exit dispatcher with the final args.
 //
 // Pipeline hook contract: receives ({ str, verb, ob }), returns the
@@ -999,7 +999,7 @@ object * find_inv_match(string str)
 }
 
 // Refresh component_info from the live components before serialising.
-// Pull-on-save closes the symmetric loop with init_components → push
+// Pull-on-save closes the symmetric loop with init_components -> push
 // via init_auto_load_attributes on restore. See the header comment of
 // /lib/location/component.c for the full persistence contract.
 private void _sync_component_info()

@@ -15,7 +15,7 @@ void do_tests()
   // json_encode
   // ============================================================
 
-  TEST("json_encode nil → null");
+  TEST("json_encode nil -> null");
     ASSERT(json_encode(nil) == "null");
   END_TEST();
 
@@ -121,11 +121,11 @@ void do_tests()
   // json_decode
   // ============================================================
 
-  TEST("json_decode null → nil");
+  TEST("json_decode null -> nil");
     ASSERT(json_decode("null") == nil);
   END_TEST();
 
-  TEST("json_decode boolean → 1 / 0");
+  TEST("json_decode boolean -> 1 / 0");
     ASSERT(json_decode("true") == 1);
     ASSERT(json_decode("false") == 0);
   END_TEST();
@@ -165,14 +165,14 @@ void do_tests()
   END_TEST();
 
   TEST("json_decode \\uXXXX for ASCII range");
-    // A → 'A'
+    // A -> 'A'
     ASSERT(json_decode("\"\\u0041\"") == "A");
-    // / → '/'
+    // / -> '/'
     ASSERT(json_decode("\"\\u002f\"") == "/");
   END_TEST();
 
   TEST("json_decode \\uXXXX for 2-byte UTF-8");
-    // ñ → "ñ" (UTF-8: C3 B1)
+    // ñ -> "ñ" (UTF-8: C3 B1)
     ASSERT(json_decode("\"\\u00f1\"") == "ñ");
   END_TEST();
 

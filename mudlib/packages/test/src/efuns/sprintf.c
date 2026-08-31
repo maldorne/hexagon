@@ -216,12 +216,12 @@ void do_tests()
   // visible=true), so a "\n   " literal contributes 4 to the margin.
 
   TEST("- flag: no margin when no literal precedes the directive");
-    // Nothing before %-=10s → margin 0, wrap flush left.
+    // Nothing before %-=10s -> margin 0, wrap flush left.
     ASSERT(sprintf("%-=10s", "aa bb cc dd") == "Aa bb cc\ndd");
   END_TEST();
 
   TEST("- flag: hanging indent from literal chunk before directive");
-    // "\n   " precedes → margin 4 (newline counted as one column).
+    // "\n   " precedes -> margin 4 (newline counted as one column).
     // The trailing literal spaces of the input also survive as the
     // FIRST-line indent, matching the LPC-visual authors rely on.
     ASSERT(sprintf("\n   %-=20s", "   one two three four five") ==
@@ -229,14 +229,14 @@ void do_tests()
   END_TEST();
 
   TEST("- flag: newline in literal contributes to margin, does not reset");
-    // "A\nB " → margin 4 (A, \n, B, space). Wrap at width 6:
-    // "X y z" (5) + " w" (+2=7 > 6) → hang w on a new line prefixed
+    // "A\nB " -> margin 4 (A, \n, B, space). Wrap at width 6:
+    // "X y z" (5) + " w" (+2=7 > 6) -> hang w on a new line prefixed
     // by 4 margin spaces.
     ASSERT(sprintf("A\nB %-=6s", "x y z w") == "A\nB X y z\n    w");
   END_TEST();
 
   TEST("- flag: hard-truncated first word still gets margin on wrap");
-    // "   " precedes → margin 3. First word is longer than the field,
+    // "   " precedes -> margin 3. First word is longer than the field,
     // hard-truncated on line 1; the next word starts on a new line
     // indented by the margin.
     ASSERT(sprintf("   %-=5s", "abcdefghij kl") == "   Abcde\n   kl");

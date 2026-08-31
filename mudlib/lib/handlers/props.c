@@ -185,7 +185,7 @@ private void _scan_dir(string dir)
       type_id = blueprint->query_type_id();
       if (!type_id || !strlen(type_id)) continue;
 
-      // No table entry yet → create one with empty spec so the
+      // No table entry yet -> create one with empty spec so the
       // dispatcher can still ask for its custom blueprint.
       if (!types[type_id])
         types[type_id] = ([ "spec": ([ ]), "custom": nil ]);
@@ -336,8 +336,8 @@ string query_render_line(string type, mapping overrides, mapping state)
 
 /*
  * Substitute material tokens inside a description template.
- *   $material_phrase$ → adjectival form ("wooden" / "de madera")
- *   $material_name$   → bare noun form  ("wood" / "madera")
+ *   $material_phrase$ -> adjectival form ("wooden" / "de madera")
+ *   $material_name$   -> bare noun form  ("wood" / "madera")
  * The instance's material is overrides.material (if set) or the
  * type's PROP_TYPE_DEFAULT_MATERIAL; missing material still returns
  * something sensible via the materials table's UNKNOWN fallback.
@@ -749,7 +749,7 @@ string * query_supported_verbs(string type, mapping overrides,
  * Resolve a typed verb to the canonical action id for a type. Scans
  * every action's PROP_SPEC_VERBS array; returns the action key whose
  * verb list contains `verb`, or nil if no action accepts it. The
- * dispatcher uses this to translate "apagar" → "extinguish" before
+ * dispatcher uses this to translate "apagar" -> "extinguish" before
  * checking overrides.actions[canonical] and dispatching the plan.
  */
 string query_canonical_action(string type, string verb)

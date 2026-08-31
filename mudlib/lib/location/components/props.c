@@ -570,7 +570,7 @@ string query_action_verbs(mapping inst)
 
   if (!inst) return "";
 
-  // primary_only=1 → one verb per action (the first of each
+  // primary_only=1 -> one verb per action (the first of each
   // PROP_SPEC_VERBS array) so the hint doesn't echo every synonym.
   // init() still uses the unfiltered list to register all of them
   // with add_action.
@@ -603,11 +603,11 @@ string query_actions_hint(mapping inst)
 /*
  * Reduce contract for long: receive ({ str, dark }).
  *
- * - No str → no contribution. The props section is rendered separately
+ * - No str -> no contribution. The props section is rendered separately
  *   by location.c via query_props_section_string(), inserted between
  *   the exit list and the inventory. We do not duplicate it inside
  *   the long body.
- * - With a str matching an instance → return the prop's long with
+ * - With a str matching an instance -> return the prop's long with
  *   HOOK_EXCLUSIVE so the room body is replaced. We append a
  *   "You can: …" hint line so the player can discover what verbs
  *   the prop accepts.
@@ -1287,7 +1287,7 @@ private int _str_matches_instance(string str, mapping inst)
 
 /*
  * Returns every attached instance whose ids include `str`. Handles
- * the mudlib's numeric-disambiguation idiom (`silla 2` → the 2nd
+ * the mudlib's numeric-disambiguation idiom (`silla 2` -> the 2nd
  * matching silla) by peeling a trailing integer, filtering on the
  * base, then narrowing to the requested slot. Caller decides what
  * to do with cardinality > 1.

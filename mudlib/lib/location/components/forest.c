@@ -4,7 +4,7 @@
 // "forest" tally so the world map can render the sector as woodland.
 //
 // Classifier `depth` grades canopy density and how easy it is to
-// travel through, smallest → densest:
+// travel through, smallest -> densest:
 //   garden < thicket < forest < jungle
 
 #include <room/location.h>

@@ -7,13 +7,13 @@
  *
  * Identifiers are concatenable with ":" — `"wood"`, `"wood:oak"`,
  * `"metal:steel:damascus"`. Lookups walk up the hierarchy on miss:
- * `"wood:oak"` → `"wood"` → UNKNOWN. The table stays sparse — only
+ * `"wood:oak"` -> `"wood"` -> UNKNOWN. The table stays sparse — only
  * the materials that need their own localised name carry an entry.
  *
  * Two forms per material:
- *   query_material_phrase(id)  → the adjectival form glued to a noun
+ *   query_material_phrase(id)  -> the adjectival form glued to a noun
  *                                (English "wooden", Spanish "de madera").
- *   query_material_name(id)    → the bare noun form when referring
+ *   query_material_name(id)    -> the bare noun form when referring
  *                                to the material itself (English
  *                                "wood", Spanish "madera").
  *
@@ -89,8 +89,8 @@ string query_material_name(string id)
 /*
  * Reverse lookup: given a localised phrase, return the material id
  * that produces it. Used by the props parser to detect qualifiers
- * inside player input ("silla de metal" → "metal", "wooden chair"
- * → "wood"). Returns nil when nothing matches.
+ * inside player input ("silla de metal" -> "metal", "wooden chair"
+ * -> "wood"). Returns nil when nothing matches.
  */
 string query_id_from_phrase(string phrase)
 {

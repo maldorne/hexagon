@@ -180,7 +180,7 @@ void do_tests()
     ASSERT(contains(lines[4], "/"));
   END_TEST();
 
-  // Expected (heavy double-line glyphs, padding_x = 1, padding_y = 0 →
+  // Expected (heavy double-line glyphs, padding_x = 1, padding_y = 0 ->
   // no inner blank rows):
   //
   //      ╔═════════════╗
@@ -235,7 +235,7 @@ void do_tests()
   END_TEST();
 
   // ============================================================
-  // unknown style → return content unchanged
+  // unknown style -> return content unchanged
   // ============================================================
 
   IT("unknown style name returns the content unchanged",

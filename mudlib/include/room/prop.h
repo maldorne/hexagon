@@ -133,7 +133,7 @@
 // variant when a group carries more than one instance, and falls
 // back to the singular map when a plural variant is not defined —
 // so authors only fill these in where the singular reads badly on
-// several instances ("Está tirada" → "Están tiradas").
+// several instances ("Está tirada" -> "Están tiradas").
 #define PROP_TYPE_STATE_SUFFIXES_PLURAL      "state_suffixes_plural"
 #define PROP_TYPE_LONG_SUFFIXES_PLURAL       "long_suffixes_plural"
 #define PROP_TYPE_LONG_SUFFIXES_UNSET_PLURAL "long_suffixes_unset_plural"

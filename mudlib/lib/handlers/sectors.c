@@ -332,9 +332,9 @@ string add_location(object location)
 
   // keep the per-coordinate pointer file in sync with the location's
   // own file_name. Three cases:
-  //   - file missing      → create it (first time this coord is used)
-  //   - content matches   → no-op
-  //   - content differs   → rewrite
+  //   - file missing      -> create it (first time this coord is used)
+  //   - content matches   -> no-op
+  //   - content differs   -> rewrite
   content = read_file(path + file_name);
 
   if (!content)

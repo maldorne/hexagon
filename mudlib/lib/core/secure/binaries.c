@@ -26,7 +26,7 @@ object new_connection(int port)
   string id;
   string target;
 
-  // route by port: 8080 → HTTP, everything else → raw binary
+  // route by port: 8080 -> HTTP, everything else -> raw binary
   target = (port == HTTP_PORT ? HTTP_OB : BINARY_OB);
 
   conn = clone_object(find_object(target));
