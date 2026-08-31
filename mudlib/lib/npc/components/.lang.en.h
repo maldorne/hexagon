@@ -9,7 +9,5 @@
     "you have only to ask: write 'raise'."
 #define _LANG_RAISE_NOT_DEAD "Why do you want me to raise you if you don't need it?\n"
 #define _LANG_RAISE_TOO_SOON "You were raised recently, you will have to wait a bit more.\n"
-#define _LANG_RAISE_DONE_ME "Hands are raised calling on the powers that bind soul " + \
-    "to body, and you appear again in your mortal form.\n"
-#define _LANG_RAISE_DONE_ROOM this_player()->query_cap_name() + \
-    " appears again in their mortal form.\n"
+#define _LANG_RAISE_GESTURE "Hands are raised calling on the powers that bind " + \
+    "soul to body.\n"

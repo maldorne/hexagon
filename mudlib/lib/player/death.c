@@ -123,8 +123,10 @@ void remove_ghost()
     // if (this_object()->query_level() > 9) this_object()->adjust_con(-1);
   }
 
+  // The room message is for everybody but the one being raised, who was just
+  // told in their own words on the line above.
   tell_object(this_object(), _LANG_DEATH_RAISED_ME);
-  tell_room(environment(this_object()), _LANG_DEATH_RAISED_ROOM);
+  tell_room(environment(this_object()), _LANG_DEATH_RAISED_ROOM, this_object());
 
   this_object()->dest_death_shadow();
 

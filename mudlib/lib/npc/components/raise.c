@@ -73,8 +73,11 @@ int do_raise(string str)
     return 1;
   }
 
-  tell_object(who, _LANG_RAISE_DONE_ME);
-  tell_room(environment(who), _LANG_RAISE_DONE_ROOM, who);
+  // Everybody present sees the gesture, the raised player included -- it is the
+  // one thing here that remove_ghost cannot know about. It then tells the player
+  // they are back and tells the room, each in their own words, so saying either
+  // of those again would only repeat it.
+  tell_room(environment(who), _LANG_RAISE_GESTURE);
 
   who->remove_ghost();
   who->add_timed_property(RAISE_COOLDOWN_PROP, 1, RAISE_COOLDOWN);
