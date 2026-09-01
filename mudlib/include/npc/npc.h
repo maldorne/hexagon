@@ -31,6 +31,7 @@
     "sentient",           /* generated name + gender, gets a schedule      */ \
     "equipment",          /* kit rolled once at the first materialization  */ \
     "timetable",          /* hour-of-day work/home schedule                */ \
+    "extracted_from",     /* the type this one was copied from, if any     */ \
     "random_stats",       /* ([ "low": n, "high": n ]) rolled per spawn    */ \
     "stats",              /* individual stats applied over the roll        */ \
     "max_hp", "max_gp",   /* current hp/gp start at the maximum            */ \

@@ -187,13 +187,16 @@ string query_template_from_source(string source)
 // Three kinds of source are deliberately kept out of the statistical roster,
 // re-applied here so a reconversion cannot leak them back into the population:
 //   - a source claimed by a vacancy (a unique the POI system places by hand)
+//   - the source a vacancy's own type was extracted from, which the rooms may
+//     still clone even though the job has replaced it
 //   - anything that is not a living NPC source (add_clone also clones trees
 //     and props, which are not NPCs)
 void rebuild_npc_caps()
 {
   string * location_files, * npc_paths;
+  string game;
   int i, j;
-  mapping counts, clones_here, vacancy_sources, previous;
+  mapping counts, clones_here, vacancy_sources, previous, template;
 
   // sum each NPC source's add_clone count across every location of the area
   counts = ([ ]);
@@ -212,6 +215,20 @@ void rebuild_npc_caps()
   }
 
   vacancy_sources = (mapping)this_object()->query_vacancy_sources();
+
+  // A job's type is often a copy of an older one that the rooms still clone --
+  // two watch shifts extracted from the one guard the area used to field. That
+  // seed is not filler either: the rooms asking for it are asking for the job,
+  // which the vacancy already fills. Its template names it, so the exclusion
+  // follows the copy back to what it came from.
+  game = game_from_path((string)this_object()->query_area_path());
+  npc_paths = map_indices(vacancy_sources);
+  for (i = 0; i < sizeof(npc_paths); i++)
+  {
+    template = BESTIARY_HANDLER->query_template(game, npc_paths[i]);
+    if (template && stringp(template["extracted_from"]))
+      vacancy_sources[query_template_from_source(template["extracted_from"])] = 1;
+  }
 
   // original_npc_sources only ever holds living NPC sources: conversion filters
   // trees and props out (it loads each source once, keeps only query_monster
