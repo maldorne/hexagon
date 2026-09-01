@@ -36,7 +36,8 @@ inherit "/lib/armour.c";
   "               | equip <name> <item.c[|alt.c...]>...\n" + \
   "               | class <name> <class.c|none> | home <name>\n" + \
   "               | remove <name> | list >"
-#define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
+#define BUILDER_RING_NPC_SYNTAX \
+  "build npc < (report) | resident <source> [off] >"
 #define BUILDER_RING_TEMPLE_SYNTAX \
   "build temple < <deity path> | none >  (consecrate this location, or unconsecrate it)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
@@ -79,6 +80,7 @@ inherit "/lib/armour.c";
   "  build vacancy list\n" + \
   "\n" + \
   "  build npc                            roster, census and vacancies\n" + \
+  "  build npc resident <source> [off]    who is entitled to a house\n" + \
   "  build plot <dir>                     carve an empty buildable lot\n" + \
   "  build plot remove <dir>              delete one, if still bare\n" + \
   "  build homes                          house the homeless citizens\n" + \

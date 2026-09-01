@@ -585,7 +585,14 @@ static int cmd(string str, object me, string verb)
 
   // the game-wide audit is the one report that does not need an area
   if (sizeof(args) && args[0] == "verify")
+  {
+    if (sizeof(args) > 1 && (sizeof(args) > 2 || args[1] != "apply"))
+    {
+      notify_fail("'npcs verify' takes 'apply' or nothing.\n");
+      return 0;
+    }
     return do_verify(me, args);
+  }
 
   area = area_of(me);
   if (!area)
@@ -600,6 +607,26 @@ static int cmd(string str, object me, string verb)
   if (args[0] == "list")
     return do_list(area, me,
                    sizeof(args) > 1 ? args[1] : "");
+
+  // every report is about the area under our feet, so none of them takes one
+  // as an argument; a stray word means the caller expected otherwise and
+  // deserves to be told rather than shown a report of somewhere else
+  if ((args[0] == "vacancies" || args[0] == "roster" || args[0] == "live") &&
+      sizeof(args) > 1)
+  {
+    notify_fail("'npcs " + args[0] + "' reports on the area you are standing " +
+                "in and takes no argument.\n");
+    return 0;
+  }
+
+  // the three that act take 'apply' and nothing else
+  if ((args[0] == "orphans" || args[0] == "retemplate") &&
+      sizeof(args) > 1 && (sizeof(args) > 2 || args[1] != "apply"))
+  {
+    notify_fail("'npcs " + args[0] + "' takes 'apply' or nothing.\n");
+    return 0;
+  }
+
   if (args[0] == "vacancies")
     return do_vacancies(area, me);
   if (args[0] == "roster")
