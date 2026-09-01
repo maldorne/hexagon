@@ -97,7 +97,9 @@ private string hours_of(object area, string source)
 {
   mapping template, timetable;
   string out;
-  int h;
+  mixed entry;
+  int * hours;
+  int h, leaves;
 
   if (!source || !strlen(source))
     return "";
@@ -108,13 +110,31 @@ private string hours_of(object area, string source)
     return "";
 
   timetable = template["timetable"];
-  out = "";
+  hours = ({ });
+  leaves = -1;
 
   // walk the clock rather than the mapping: its keys come out in no order, and
   // JSON left them as strings on some types and ints on others
   for (h = 0; h < 24; h++)
-    if (!undefinedp(timetable[h]) || !undefinedp(timetable["" + h]))
-      out += (strlen(out) ? "/" : "") + h;
+  {
+    entry = undefinedp(timetable[h]) ? timetable["" + h] : timetable[h];
+    if (undefinedp(entry))
+      continue;
+
+    if (leaves < 0 && mappingp(entry) && entry["goto"] == "work")
+      leaves = sizeof(hours);
+
+    hours += ({ h });
+  }
+
+  // read the day from the hour they leave for work, so a night watch shows the
+  // 18 it goes out at before the 8 it comes back at instead of clock order
+  if (leaves > 0)
+    hours = hours[leaves ..] + hours[.. leaves - 1];
+
+  out = "";
+  for (h = 0; h < sizeof(hours); h++)
+    out += (h ? "/" : "") + hours[h];
 
   return out;
 }
