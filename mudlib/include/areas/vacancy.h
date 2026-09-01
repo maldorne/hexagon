@@ -14,7 +14,7 @@
 //      VACANCY_WORKS_AT: "/save/.../ap.o", // where it is held
 //      VACANCY_SOURCE: template_id,
 //      VACANCY_FIXED:  1,                  // one post, held at that one place
-//      VACANCY_SPREAD: 1,                  // holders scatter over like places
+//      VACANCY_SPOTS: ({ "/save/.../c1.o", ... }), // one holder to each
 //      VACANCY_CLASS:  "/lib/obj/classes/mixed.c",
 //      VACANCY_HOME:   "/save/.../plot_30_-2_0.o" ])
 
@@ -31,9 +31,10 @@
 // VACANCY_SPREAD. Nothing to do with the place being a point of interest -- it
 // usually is one, but a fixed post at an ordinary location behaves the same.
 #define VACANCY_FIXED     "fixed"
-// holders spread over the area's other locations of the same kind instead of
-// crowding the one the job names
-#define VACANCY_SPREAD    "spread"
+// The places this job is worked, one holder to each, listed by hand. Without it
+// every holder stands at the one place the job names. The list is the builder's
+// to keep: nothing infers it, so a job is worked where somebody said it is.
+#define VACANCY_SPOTS     "spots"
 // what the job trains its holders in
 #define VACANCY_CLASS     "class"
 // the house that comes with the job, if it comes with one

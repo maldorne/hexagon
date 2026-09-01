@@ -72,7 +72,9 @@ inherit "/lib/armour.c";
   "  build vacancy class <name> <class.c|none>  what the job trains in\n" + \
   "  build vacancy home <name>                  bind a house to the job\n" + \
   "  build vacancy resident <name> [none]       its holders live in town\n" + \
-  "  build vacancy reseat <name>                spread its holders again\n" + \
+  "  build vacancy spot <name> [remove]         a place this job is worked\n" + \
+  "  build vacancy spots <name>                 list them\n" + \
+  "  build vacancy reseat <name>                seat its holders again\n" + \
   "  build vacancy remove <name>\n" + \
   "  build vacancy list\n" + \
   "\n" + \
@@ -1107,7 +1109,7 @@ int do_vacancy(string str)
     // barman and deciding that somebody walks into the bar are two different
     // acts, and only the first belongs to a builder.
     area->open_vacancy(name, count, loc->query_file_name(), source,
-                       fixed ? ([ VACANCY_FIXED: 1 ]) : ([ VACANCY_SPREAD: 1 ]));
+                       fixed ? ([ VACANCY_FIXED: 1 ]) : ([ ]));
     write("Vacancy '" + name + "' x" + count + " <- " + source +
           ", held here. Nobody taken on.\n");
     return 1;
@@ -1275,6 +1277,52 @@ int do_vacancy(string str)
     write("The '" + args[1] + "' vacancy's holders " +
           (flag ? "are housed with the rest of the town"
                 : "are no longer housed by the town") + ".\n");
+    return 1;
+  }
+
+  if (verb == "spot" || verb == "spots")
+  {
+    mapping vacancy;
+    mixed spots;
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build vacancy " + verb + " <name>" +
+                  (verb == "spot" ? " [remove]" : "") + "\n");
+      return 0;
+    }
+
+    vacancy = (mapping)area->query_vacancy(args[1]);
+    if (!vacancy)
+    {
+      notify_fail("No vacancy '" + args[1] + "' here.\n");
+      return 0;
+    }
+
+    if (verb == "spot")
+    {
+      if (sizeof(args) > 2 && args[2] == "remove")
+        write(area->remove_vacancy_spot(args[1], loc->query_file_name())
+                ? "Taken off the places '" + args[1] + "' is worked.\n"
+                : "'" + args[1] + "' was not worked here.\n");
+      else
+        write(area->add_vacancy_spot(args[1], loc->query_file_name())
+                ? "'" + args[1] + "' is worked here too.\n"
+                : "'" + args[1] + "' was already worked here.\n");
+      return 1;
+    }
+
+    spots = vacancy[VACANCY_SPOTS];
+    if (!pointerp(spots) || !sizeof(spots))
+    {
+      write("'" + args[1] + "' names no places; it is worked where it was " +
+            "declared.\n");
+      return 1;
+    }
+
+    write("'" + args[1] + "' is worked in " + sizeof(spots) + " place" +
+          (sizeof(spots) == 1 ? "" : "s") + ":\n  " +
+          implode(spots, "\n  ") + "\n");
     return 1;
   }
 

@@ -18,6 +18,7 @@
 
 #include <room/location.h>
 #include <areas/area.h>
+#include <areas/poi.h>
 #include <areas/vacancy.h>
 #include <living/persisted.h>
 #include <basic/gender.h>
@@ -426,70 +427,64 @@ void reequip_vacancy_holders(string job)
 // Filling the seats
 // ---------------------------------------------------------------------------
 
-// Where the next holder of a spread job should stand.
-//
-// A vacancy records one place -- wherever the builder stood when opening it --
-// but some jobs are rarely done in a single spot: a farm is a set of fields, a
-// market a row of stalls. Those spread over every location of the area carrying
-// the same working component as the recorded spot, handed out in turn. With one
-// such location, or none, the recorded spot is used and nothing changes.
-//
-// Deciding here rather than on the individual is what makes it survive death:
-// the replacement is placed by the same rule instead of inheriting whatever
-// spot the last one happened to hold.
-string spread_spot_for(mapping vacancy, int nth)
+// Where the nth holder of a job stands. A job that lists its places seats one
+// holder in each, in turn; a job that lists none is worked where it was
+// declared. The list is data, not a guess: see VACANCY_SPOTS.
+string spot_for(mapping vacancy, int nth)
 {
-  object seat, work_area;
-  object * comps;
-  string * kinds, * files, * candidates;
-  int i, j;
+  mixed spots;
 
-  if (!vacancy[VACANCY_SPREAD])
-    return vacancy[VACANCY_WORKS_AT];
+  spots = vacancy ? vacancy[VACANCY_SPOTS] : nil;
+  if (!pointerp(spots) || !sizeof(spots))
+    return vacancy ? vacancy[VACANCY_WORKS_AT] : nil;
 
-  seat = (object)this_object()->load_location(vacancy[VACANCY_WORKS_AT]);
-  if (!seat)
-    return vacancy[VACANCY_WORKS_AT];
-
-  // what makes that spot a workplace, ignoring what every open-air location has
-  kinds = ({ });
-  comps = seat->query_components();
-  for (i = 0; i < sizeof(comps); i++)
-    if (comps[i]->query_type() != LOCATION_COMPONENT_OUTSIDE)
-      kinds += ({ comps[i]->query_type() });
-
-  if (!sizeof(kinds))
-    return vacancy[VACANCY_WORKS_AT];
-
-  // The like places are looked for in the area the post itself belongs to, not
-  // in this one. A community spans several areas -- a town, its fields, its road
-  // -- and the jobs of all of them are kept on the town, so a job worked in the
-  // fields would find no field at all among the town's own streets.
-  candidates = ({ });
-  work_area = seat->query_area();
-  if (!work_area)
-    work_area = this_object();
-  files = map_indices((mapping)work_area->query_locations());
-  for (i = 0; i < sizeof(files); i++)
-  {
-    object loc;
-
-    loc = (object)this_object()->load_location(files[i]);
-    if (!loc)
-      continue;
-    for (j = 0; j < sizeof(kinds); j++)
-      if (loc->query_component_by_type(kinds[j]))
-      {
-        candidates += ({ files[i] });
-        break;
-      }
-  }
-
-  if (sizeof(candidates) < 2)
-    return vacancy[VACANCY_WORKS_AT];
-
-  return candidates[nth % sizeof(candidates)];
+  return spots[nth % sizeof(spots)];
 }
+
+// Add a place this job is worked, or take one off the list. Returns 1 when the
+// list changed.
+int add_vacancy_spot(string job, string location_file)
+{
+  mapping vacancy;
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->add_vacancy_spot(job, location_file);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy || !location_file || !strlen(location_file))
+    return 0;
+
+  if (!pointerp(vacancy[VACANCY_SPOTS]))
+    vacancy[VACANCY_SPOTS] = ({ });
+  if (member_array(location_file, vacancy[VACANCY_SPOTS]) != -1)
+    return 0;
+
+  vacancy[VACANCY_SPOTS] += ({ location_file });
+  this_object()->save_me();
+  return 1;
+}
+
+int remove_vacancy_spot(string job, string location_file)
+{
+  mapping vacancy;
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->remove_vacancy_spot(job, location_file);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy || !pointerp(vacancy[VACANCY_SPOTS]) ||
+      member_array(location_file, vacancy[VACANCY_SPOTS]) == -1)
+    return 0;
+
+  vacancy[VACANCY_SPOTS] -= ({ location_file });
+  this_object()->save_me();
+  return 1;
+}
+
 
 // A generated given-name (lowercase) for one of this area's citizens: the name
 // generator draws it from the area citizenship's name style, in the form
@@ -577,7 +572,8 @@ int reseat_vacancy(string job)
     return (int)owner->reseat_vacancy(job);
 
   vacancy = query_vacancy(job);
-  if (!vacancy || !vacancy[VACANCY_SPREAD])
+  if (!vacancy || !pointerp(vacancy[VACANCY_SPOTS]) ||
+      !sizeof(vacancy[VACANCY_SPOTS]))
     return 0;
 
   census = (mapping)this_object()->query_npc_census();
@@ -592,7 +588,7 @@ int reseat_vacancy(string job)
     if (!entry)
       continue;
 
-    spot = spread_spot_for(vacancy, i);
+    spot = spot_for(vacancy, i);
     if (!spot || !strlen(spot) || entry[CENSUS_WORKS_AT] == spot)
       continue;
 
@@ -649,7 +645,7 @@ private void _staff(mapping vacancy)
     object loc;
 
     // a spread job hands each holder its own place, in turn
-    where = spread_spot_for(vacancy, i);
+    where = spot_for(vacancy, i);
     assign_npc_to_vacancy(vacancy, where);
 
     if (!where || !strlen(where))
