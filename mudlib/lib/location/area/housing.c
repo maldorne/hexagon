@@ -551,10 +551,53 @@ private int _is_resident(object o)
 // currently materialized in the area's loaded locations; residency is the
 // design-time fact tested by _is_resident, not a runtime type guess. Stops
 // quietly when plots run out (each miss is logged).
+// Drop residents no census row accounts for. A house is written by one path and
+// the census by another, so a person taken off the books without dying -- a
+// retired type, a repaired id -- leaves an address behind that nothing can
+// resolve to a name.
+private void _drop_unknown_residents()
+{
+  mapping census;
+  string * all;
+  int i;
+
+  census = (mapping)this_object()->query_npc_census();
+  all = query_houses();
+
+  for (i = 0; i < sizeof(all); i++)
+  {
+    object house, home;
+    string * living, * known;
+    int j;
+
+    house = (object)this_object()->load_location(all[i]);
+    if (!house)
+      continue;
+
+    home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
+    if (!home)
+      continue;
+
+    living = (string *)home->query_residents();
+    known = ({ });
+    for (j = 0; j < sizeof(living); j++)
+      if (census[living[j]])
+        known += ({ living[j] });
+
+    if (sizeof(known) == sizeof(living))
+      continue;
+
+    home->set_residents(known);
+    house->save_me();
+  }
+}
+
 void assign_homes()
 {
   object * everyone, * homeless, * males, * females, * loaded;
   int i;
+
+  _drop_unknown_residents();
 
   loaded = (object *)this_object()->query_loaded_locations();
   everyone = ({ });
