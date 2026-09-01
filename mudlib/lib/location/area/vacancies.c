@@ -373,16 +373,40 @@ string * resolve_equipment(mixed * spec)
   return kit;
 }
 
-// Gear the live holders of a job that still carry nothing, reading the kit from
-// the type template (its authoritative home). A holder that already has gear
-// keeps it -- a saved citizen's gear never changes. Called after the builder
-// changes a kit, so existing empty-handed holders pick it up without a respawn.
+// Whether an NPC already carries gear. Coin does not count: every holder is
+// handed a purse on each materialization, so an inventory that is merely
+// non-empty says nothing about whether the kit was ever bought.
+private int _carries_gear(object npc)
+{
+  object * inv;
+  int i;
+
+  inv = all_inventory(npc);
+  for (i = 0; i < sizeof(inv); i++)
+    if (inv[i] && !inv[i]->is_money())
+      return 1;
+
+  return 0;
+}
+
+// Gear the live holders of a job that carry no kit, reading it from the type
+// template (its authoritative home). A holder that already has gear keeps it --
+// a saved citizen's gear never changes. Called after the builder changes a kit,
+// so existing holders pick it up without a respawn.
+//
+// The holders are read off the census rather than looked for where the job is
+// worked: somebody at home, or halfway there, holds the post just the same.
+//
+// The kit is bought once and then lives in the holder's saved inventory, which
+// is what a later materialization restores; the `_carries_gear` test is what
+// keeps this from buying a second set for somebody who already has one, however
+// many times it is run.
 void reequip_vacancy_holders(string job)
 {
-  mapping vacancy, template;
-  object loc;
-  object * inv;
+  mapping vacancy, template, census;
+  object npc;
   mixed * spec;
+  string * ids;
   string source;
   int i;
 
@@ -400,27 +424,22 @@ void reequip_vacancy_holders(string job)
   if (!pointerp(spec) || !sizeof(spec))
     return;
 
-  loc = (object)this_object()->query_loaded_location(vacancy[VACANCY_WORKS_AT]);
-  if (!loc)
-    return;
+  census = (mapping)this_object()->query_npc_census();
+  ids = map_indices(census);
 
-  inv = all_inventory(loc);
-  for (i = 0; i < sizeof(inv); i++)
+  for (i = 0; i < sizeof(ids); i++)
   {
-    string uuid;
-    mapping e;
-
-    if (!inv[i] || !inv[i]->query_persisted())
-      continue;
-    uuid = inv[i]->query_npc_uuid();
-    e = uuid ? ((mapping)this_object()->query_npc_census())[uuid] : nil;
-    if (!e || e[CENSUS_VACANCY] != job)
-      continue;
-    if (sizeof(all_inventory(inv[i])))
+    if (census[ids[i]][CENSUS_VACANCY] != job)
       continue;
 
-    equip_npc(inv[i], resolve_equipment(spec));
-    inv[i]->save_npc();
+    // only those already in the world: one that is not gets its kit the
+    // ordinary way, from the template, when it is next materialized
+    npc = (object)this_object()->live_npc(ids[i]);
+    if (!npc || _carries_gear(npc))
+      continue;
+
+    equip_npc(npc, resolve_equipment(spec));
+    npc->save_npc();
   }
 }
 
