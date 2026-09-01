@@ -12,6 +12,7 @@
 
 #include <living/persisted.h>
 #include <areas/area.h>
+#include <basic/money.h>
 #include <translations/money.h>
 
 inherit monster   "/lib/monster.c";
@@ -42,6 +43,10 @@ string npc_given_name;   // a generated citizen's proper name (lowercase).
                          // derived lives here, in the npc.o. Language-neutral (a
                          // proper noun does not translate). Nil for template NPCs,
                          // whose name comes from apply_template.
+int npc_purse_given;     // whether this NPC has already been handed its starting
+                         // coin. What it earns and spends is its own from then
+                         // on, so the purse is granted once and persisted like
+                         // a player's rather than re-rolled on every waking.
 
 // Component host state. component_info (type -> persisted attrs) rides in the
 // npc.o savefile; the live instances are static and re-cloned on restore.
@@ -83,6 +88,7 @@ void create()
   npc_home = nil;
   npc_work = nil;
   npc_monster_location = nil;
+  npc_purse_given = 0;
   component_info = ([ ]);
   components = ({ });
 }
@@ -402,6 +408,7 @@ void set_npc_source(string s) { npc_source = s; }
 // area drives when this runs (on location unload).
 int save_npc()
 {
+  object purse;
   string dir;
 
   if (!query_persisted() || !npc_game)
@@ -414,6 +421,11 @@ int save_npc()
   // the auto-load map so save_object persists it -- exactly as a player saves
   // its inventory
   npc_auto_load = create_auto_load(all_inventory(this_object()));
+  // coin is the one thing the inventory snapshot does not carry: the money
+  // object opts out of it, and what persists instead is money_array. Copy the
+  // live purse into it before saving, exactly as player::save_me does.
+  purse = present(MONEY_NAME, this_object());
+  money_array = purse ? (mixed *)purse->query_money_array() : ({ });
   // refresh each live component's persisted attrs into component_info so
   // save_object writes their current state
   sync_component_info();
@@ -582,13 +594,19 @@ void apply_template(mapping t, varargs int born)
   if (t["align"])
     set_real_align(t["align"]);
 
-  // Starting coin. Granted on every materialization, not only at birth,
-  // because coin cannot persist: /lib/obj/money.c opts out of the auto-load
-  // snapshot, so an NPC's money is gone the moment its location unloads.
-  // Granting it once would leave every NPC penniless from its first reload
-  // onwards. This matches the source .c, whose setup() ran for each clone.
-  // The base and spread mean two NPCs of a type do not carry the same purse.
-  if (mappingp(t["money"]) && !undefinedp(t["money"]["base"]))
+  // Starting coin, handed over once. What the NPC earns or spends afterwards is
+  // its own, and persists: the purse itself opts out of the auto-load snapshot,
+  // so what is saved is money_array, refreshed from the live money object in
+  // save_npc and read back into one in restore_npc -- the two hooks a player
+  // uses. The base and spread mean two NPCs of a type do not carry the same
+  // purse.
+  //
+  // Keyed on the flag rather than on `born`, so an NPC saved before the purse
+  // persisted gets its one grant on the next waking instead of staying broke
+  // for good. A monster carries no savefile, so its flag is always fresh and
+  // every clone is paid.
+  if (!npc_purse_given && mappingp(t["money"]) &&
+      !undefinedp(t["money"]["base"]))
   {
     mapping money;
     int amount;
@@ -600,6 +618,8 @@ void apply_template(mapping t, varargs int born)
 
     if (amount > 0)
       adjust_money(amount, money["type"] ? money["type"] : BASE_COIN);
+
+    npc_purse_given = 1;
   }
 
   // What the type knows how to do and how to be. Re-applied every

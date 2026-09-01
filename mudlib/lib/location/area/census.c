@@ -388,6 +388,13 @@ private object npc_restore(string id, object loc)
 
   npc->move(loc);
 
+  // The purse, put back from the saved money_array by the same call a player
+  // makes on entering the game. It happens here and not earlier because a money
+  // object handed to somebody who is nowhere does not stay with them; and it is
+  // safe on top of a purse the type just granted, since a second money object
+  // moved into the same holder merges into the first and destroys itself.
+  npc->start_money();
+
   // now that it is somewhere, its components can take up whatever needs the
   // world to see them -- a guard registering on the exit it watches
   npc->components_placed();
