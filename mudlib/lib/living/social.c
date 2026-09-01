@@ -767,9 +767,7 @@ void set_deity_ob(string str)
   // A deity is either one the mudlib ships or one of the game's own, the same
   // way a handler or a table resolves. The game is taken from the path being
   // set, not from the caller: it is the deity that says which game it belongs
-  // to. The old "/game/obj/deities" spelling never matched anything here --
-  // this mudlib puts a game under "/games/<game>/" -- so a game could not have
-  // a deity of its own at all.
+  // to.
   if (str[0 .. strlen("/lib/obj/deities") - 1] != "/lib/obj/deities" &&
       !(strlen(game_from_path(str)) &&
         str == "/games/" + game_from_path(str) + "/obj/deities/" +
