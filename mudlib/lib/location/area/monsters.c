@@ -28,13 +28,31 @@ void create()
 // location, with no per-animal identity, uuid or savefile. They are cloned
 // from the template when the location loads and simply vanish when it unloads.
 // Returns 1 when it was recorded.
+// Whether a bucket may hold this source at all. The buckets count the anonymous
+// half of the population, so what goes in them is what the sweep tops up: on the
+// roster, and not a kind the world knows one by one. A citizen is somebody, and
+// somebody belongs in the census with a name and a savefile, never as a head of
+// cattle.
+private int _is_monster_source(string source)
+{
+  mapping t;
+
+  if (!((mapping)this_object()->query_npc_caps())[source])
+    return 0;
+
+  t = BESTIARY_HANDLER->query_template(
+        game_from_path((string)this_object()->query_area_path()), source);
+
+  return !(t && t["sentient"]);
+}
+
 int assign_monster(string source, string location_file)
 {
   mapping bucket;
 
   if (!source || !strlen(source) || !location_file || !strlen(location_file))
     return 0;
-  if (!((mapping)this_object()->query_npc_caps())[source])
+  if (!_is_monster_source(source))
     return 0;
 
   bucket = monster_census[location_file];
@@ -188,12 +206,14 @@ void restore_location_monsters(object loc, string file)
   {
     int want, have, j;
 
-    // A bucket only ever holds what the roster allows -- assign_monster refuses
-    // anything else on the way in. The roster changes under it, though: opening
-    // a vacancy takes that type out of the statistical population, and the
-    // bucket recorded at conversion still names it. Drop it here rather than
-    // spawn a second, jobless copy of somebody who holds a post.
-    if (!((mapping)this_object()->query_npc_caps())[sources[i]])
+    // A bucket only ever holds what may be counted rather than known -- see
+    // _is_monster_source, which assign_monster asks on the way in. What it may
+    // hold changes under it, though: opening a vacancy takes that type out of
+    // the statistical population, and a type the world came to know one by one
+    // stops belonging here at all. Either way the bucket recorded at conversion
+    // still names it, so drop it rather than spawn a nameless second copy of
+    // somebody the census already has.
+    if (!_is_monster_source(sources[i]))
     {
       map_delete(bucket, sources[i]);
       this_object()->save_me();
