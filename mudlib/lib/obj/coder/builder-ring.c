@@ -72,7 +72,6 @@ inherit "/lib/armour.c";
   "  build vacancy class <name> <class.c|none>  what the job trains in\n" + \
   "  build vacancy home <name>                  bind a house to the job\n" + \
   "  build vacancy resident <name> [none]       its holders live in town\n" + \
-  "  build vacancy rename <name> <new>          rename a job, holders and all\n" + \
   "  build vacancy spot <name> [remove]         a place this job is worked\n" + \
   "  build vacancy spots <name>                 list them\n" + \
   "  build vacancy reseat <name>                seat its holders again\n" + \
@@ -1278,21 +1277,6 @@ int do_vacancy(string str)
     write("The '" + args[1] + "' vacancy's holders " +
           (flag ? "are housed with the rest of the town"
                 : "are no longer housed by the town") + ".\n");
-    return 1;
-  }
-
-  if (verb == "rename")
-  {
-    if (sizeof(args) < 3)
-    {
-      notify_fail("Usage: build vacancy rename <name> <new name>\n");
-      return 0;
-    }
-
-    write(area->rename_vacancy(args[1], args[2])
-            ? "'" + args[1] + "' is now '" + args[2] + "'.\n"
-            : "No vacancy '" + args[1] + "', or '" + args[2] +
-              "' is taken.\n");
     return 1;
   }
 

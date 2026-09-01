@@ -444,35 +444,6 @@ string spot_for(mapping vacancy, int nth)
 
 // Add a place this job is worked, or take one off the list. Returns 1 when the
 // list changed.
-// Rename a job, carrying its holders with it. A job's name is its identity, so
-// the census rows that name it have to follow or their holders lose their post.
-int rename_vacancy(string job, string renamed)
-{
-  mapping vacancy, census;
-  string * ids;
-  object owner;
-  int i;
-
-  owner = (object)this_object()->query_root_area();
-  if (owner != this_object())
-    return (int)owner->rename_vacancy(job, renamed);
-
-  vacancy = query_vacancy(job);
-  if (!vacancy || !renamed || !strlen(renamed) || query_vacancy(renamed))
-    return 0;
-
-  vacancy[VACANCY_JOB] = renamed;
-
-  census = (mapping)this_object()->query_npc_census();
-  ids = map_indices(census);
-  for (i = 0; i < sizeof(ids); i++)
-    if (census[ids[i]][CENSUS_VACANCY] == job)
-      census[ids[i]][CENSUS_VACANCY] = renamed;
-
-  this_object()->save_me();
-  return 1;
-}
-
 int add_vacancy_spot(string job, string location_file)
 {
   mapping vacancy;

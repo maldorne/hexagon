@@ -57,8 +57,8 @@
 // lists its places seats each of its people in a different one, and any of them
 // may be at home, or halfway there, at the hour you ask.
 #define CENSUS_VACANCY        "vacancy"
-// where this person works, which a spread job moves away from the place the
-// job itself names
+// where this person works, which is one of the job's own places when it lists
+// more than the one it was declared at
 #define CENSUS_WORKS_AT       "works_at"
 // where the person is right now
 #define CENSUS_LOCATION       "current_location"
