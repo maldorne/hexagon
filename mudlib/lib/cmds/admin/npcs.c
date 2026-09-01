@@ -11,6 +11,8 @@ private int do_orphans(object area, object me, string * args);
 private string kind_of(object area, string source);
 private string columns(string * * rows);
 private string hours_of(object area, string source);
+private string books_of(object area);
+private string seen_from(object area);
 
 void setup()
 {
@@ -120,6 +122,32 @@ private string hours_of(object area, string source)
 // Lay rows out in columns, the first row being the header: every column is as
 // wide as its widest cell, and a rule under the header marks where the data
 // starts.
+// Whose books a report is reading. The census, the roster, the jobs and the
+// houses belong to the community, and an area that delegates up has none of its
+// own -- so a report run from a sub-area is showing the community's list, not
+// that area's.
+private string books_of(object area)
+{
+  object owner;
+
+  owner = (object)area->query_root_area();
+  return "'" + (string)((owner ? owner : area)->query_area_name()) + "'";
+}
+
+// Where those books are being read from, when that is somewhere other than the
+// place that keeps them. Goes at the end of a header, so whatever the report
+// narrowed itself to still reads next to what it is a list of.
+private string seen_from(object area)
+{
+  object owner;
+
+  owner = (object)area->query_root_area();
+  if (!owner || owner == area)
+    return "";
+
+  return ", seen from '" + area->query_area_name() + "'";
+}
+
 private string columns(string * * rows)
 {
   string out;
@@ -222,7 +250,8 @@ private int do_vacancies(object area, object me)
   jobs = (mapping *)area->query_vacancies();
   if (!sizeof(jobs))
   {
-    write("Area '" + area->query_area_name() + "' offers no jobs.\n");
+    write("No jobs are offered by " + books_of(area) + seen_from(area) +
+          ".\n");
     return 1;
   }
 
@@ -238,7 +267,8 @@ private int do_vacancies(object area, object me)
       get_path_file_name(jobs[i][VACANCY_SOURCE])
     }) });
 
-  write("Jobs offered by '" + area->query_area_name() + "':\n" + columns(rows));
+  write("Jobs offered by " + books_of(area) + seen_from(area) + ":\n" +
+        columns(rows));
   return 1;
 }
 
@@ -254,12 +284,13 @@ private int do_roster(object area, object me)
   sources = map_indices(caps);
   if (!sizeof(sources))
   {
-    write("Area '" + area->query_area_name() + "' spawns no types of its " +
+    write("No types are spawned by " + books_of(area) + ", of its " +
           "own.\n");
     return 1;
   }
 
-  out = "Types '" + area->query_area_name() + "' spawns, and their caps:\n";
+  out = "Types spawned by " + books_of(area) + ", and their caps" +
+        seen_from(area) + ":\n";
   for (i = 0; i < sizeof(sources); i++)
     out += sprintf("  %-28s live %-3s cap %-3s%s\n",
                    sources[i],
@@ -324,7 +355,8 @@ private int do_list(object area, object me, string want)
   ids = map_indices(census);
   if (!sizeof(ids))
   {
-    write("Area '" + area->query_area_name() + "' has nobody on its books.\n");
+    write("Nobody is on the books of " + books_of(area) + seen_from(area) +
+          ".\n");
     return 1;
   }
 
@@ -401,13 +433,14 @@ private int do_list(object area, object me, string want)
 
   if (strlen(want) && !shown)
   {
-    write("Nobody of '" + area->query_area_name() + "' is a " + want + ".\n");
+    write("Nobody of " + books_of(area) + " is a " + want +
+          seen_from(area) + ".\n");
     return 1;
   }
 
-  write("People of '" + area->query_area_name() + "'" +
+  write("People of " + books_of(area) +
         (strlen(want) ? " of kind '" + want + "'" : "") +
-        " (" + shown + "):\n" + columns(rows));
+        " (" + shown + ")" + seen_from(area) + ":\n" + columns(rows));
   return 1;
 }
 
@@ -473,13 +506,14 @@ private int do_orphans(object area, object me, string * args)
 
   if (!taken)
   {
-    write("Everybody on the books of '" + area->query_area_name() +
-          "' is accounted for.\n");
+    write("Everybody on the books of " + books_of(area) +
+          " is accounted for" + seen_from(area) + ".\n");
     return 1;
   }
 
-  write((apply ? "Taken off the books of '" : "Unaccounted for in '") +
-        area->query_area_name() + "' (" + taken + "):\n" + columns(rows) +
+  write((apply ? "Taken off the books of " : "Unaccounted for in ") +
+        books_of(area) + " (" + taken + ")" + seen_from(area) + ":\n" +
+        columns(rows) +
         (apply
           ? "\nTheir savefiles are still there; 'npcs verify apply' removes them.\n"
           : "\n'npcs orphans apply' takes them off the books.\n"));
