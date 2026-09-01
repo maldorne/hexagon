@@ -55,8 +55,8 @@ int query_valid_align(int align)
 {
   switch(needed_ext_align){
     case 1:
-       if (0 <= align <= 100) return 1;
-       else return 0;
+       // the neutral band of the alignment table: 0..100
+       return (align >= 0 && align <= 100);
        break;
     case 100:
        return (align > 100);
@@ -75,8 +75,14 @@ int query_valid_align(int align)
 string * query_legal_races() { return legal_races; }
 void set_legal_races(string * list) { legal_races = list; }
 
+// A guild that names no races admits every one of them. Naming some is how a
+// guild closes itself to the rest -- the drow orders do, the open ones do not
+// -- so the empty list has to mean "anyone", or a guild would have to
+// enumerate every people in the world just to stay open to it.
 int query_legal_race(string race)
 {
+  if (!sizeof(legal_races))
+    return 1;
   if (member_array(race, legal_races) == -1)
     return 0;
   return 1;
@@ -86,8 +92,11 @@ int query_legal_race(string race)
 string * query_legal_classes() { return legal_classes; }
 void set_legal_classes(string * list) { legal_classes = list; }
 
+// Same rule as the races above: no list is no restriction.
 int query_legal_class(string name)
 {
+  if (!sizeof(legal_classes))
+    return 1;
   if (member_array(name, legal_classes) == -1)
     return 0;
   return 1;
