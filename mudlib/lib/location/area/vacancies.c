@@ -671,7 +671,10 @@ void fill_vacancies_at(string at)
     fill_vacancy(here[i]);
 }
 
-// call_out target: take somebody on again a while after a holder died at `at`.
+// Staff whatever is held at `at` and bring the new people in. Nothing calls
+// this on its own: how a settlement repopulates is undecided, so hiring is
+// something that is asked for, never something that happens. This is the entry
+// point whatever we decide should use.
 //
 // Filling only writes the census row. If the place is standing loaded -- and a
 // post somebody just died at usually is -- nothing else would bring the new

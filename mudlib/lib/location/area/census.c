@@ -500,10 +500,13 @@ void restore_location_npcs(object loc)
   if (!file || !strlen(file))
     return;
 
-  // Take somebody on for every job held here that nobody holds, so the loop
-  // below brings them in alongside the location's other census people. A
-  // guarded POI likewise tops up the guards its citizenship fields.
-  this_object()->fill_vacancies_at(file);
+  // Parked until we decide how a settlement repopulates. This took somebody on
+  // for every job held here that nobody holds, every time the place loaded,
+  // which is a hiring policy nobody chose. The machinery stays -- the builder
+  // still staffs a job when it opens one, and whatever we design will call
+  // fill_vacancies_at itself -- but nothing hires behind our back meanwhile.
+  //
+  // this_object()->fill_vacancies_at(file);
   this_object()->ensure_guards_assigned(file);
 
   ids = query_census_uuids_at(file);
@@ -670,17 +673,21 @@ void npc_died(string uuid)
   // rematerialized when the foreign location it last rested in reloads
   AREA_HANDLER->set_foreign_position(uuid, nil, nil);
 
-  // a fixed post is taken up again shortly; the rest wait for the settlement
-  // pass, so a town does not replace its dead the instant they fall
-  if (entry && entry[CENSUS_VACANCY] && !entry["guard"])
-  {
-    mapping job;
-
-    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
-    if (job && job[VACANCY_FIXED])
-      call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY,
-               job[VACANCY_WORKS_AT]);
-  }
+  // Parked with the other half of this, in restore_location_npcs: a fixed post
+  // used to be taken up again VACANCY_RESPAWN_DELAY after its holder fell. How
+  // a settlement replaces its dead is a decision we have not made, so it makes
+  // nobody for now; the post simply stands empty until something asks for it to
+  // be filled.
+  //
+  // if (entry && entry[CENSUS_VACANCY] && !entry["guard"])
+  // {
+  //   mapping job;
+  //
+  //   job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
+  //   if (job && job[VACANCY_FIXED])
+  //     call_out("_refill_vacancy", VACANCY_RESPAWN_DELAY,
+  //              job[VACANCY_WORKS_AT]);
+  // }
 
   if (guard_poi)
     call_out("_refill_guards", VACANCY_RESPAWN_DELAY, guard_poi);
