@@ -658,6 +658,14 @@ void apply_template(mapping t, varargs int born)
     if (social["deity"])      set_deity_ob(social["deity"]);
   }
 
+  // How the world reads this type. Perceived alignment is otherwise accumulated
+  // from what an NPC is -- its race adds its own as the race object is applied
+  // -- so a type that wants to say how it is seen says it here, after the social
+  // objects, where it has the last word. A type that says nothing is read by
+  // what it is made of.
+  if (!undefinedp(t["ext_align"]))
+    set_ext_align(t["ext_align"]);
+
   // Roll the eight stats in the type's range, so two NPCs of a type are not the
   // same creature, then let any individually pinned stat override its roll.
   // Both halves are optional: a type with neither keeps what the race gave it.
