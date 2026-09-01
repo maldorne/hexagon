@@ -54,19 +54,6 @@ void add_poi(string location_file, string kind, varargs string label)
 
 void remove_poi(string location_file)
 {
-  mapping census;
-  string * ids;
-  int i;
-
-  // a POI's guards belong to it: drop them (destructing any live) before the
-  // POI itself goes, so removing it never leaves an orphan guard behind
-  census = (mapping)this_object()->query_npc_census();
-  ids = map_indices(census);
-  for (i = 0; i < sizeof(ids); i++)
-    if (census[ids[i]]["guard"] &&
-        census[ids[i]]["poi"] == location_file)
-      this_object()->remove_guard(ids[i]);
-
   map_delete(pois, location_file);
   this_object()->save_me();
 }

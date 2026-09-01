@@ -187,7 +187,6 @@ string query_template_from_source(string source)
 // Three kinds of source are deliberately kept out of the statistical roster,
 // re-applied here so a reconversion cannot leak them back into the population:
 //   - a source claimed by a vacancy (a unique the POI system places by hand)
-//   - the area citizenship's guard (diplomacy places it at guarded POIs)
 //   - anything that is not a living NPC source (add_clone also clones trees
 //     and props, which are not NPCs)
 void rebuild_npc_caps()
@@ -195,7 +194,6 @@ void rebuild_npc_caps()
   string * location_files, * npc_paths;
   int i, j;
   mapping counts, clones_here, vacancy_sources, previous;
-  string guard_source;
 
   // sum each NPC source's add_clone count across every location of the area
   counts = ([ ]);
@@ -215,14 +213,6 @@ void rebuild_npc_caps()
 
   vacancy_sources = (mapping)this_object()->query_vacancy_sources();
 
-  // the citizenship's guard NPC is placed by diplomacy at guarded POIs, so it
-  // must not also be scattered by the population sweep as statistical filler
-  guard_source = "";
-  if (strlen((string)this_object()->query_citizenship()))
-    guard_source = query_template_from_source(
-      DIPLOMACY_HANDLER->query_guard_path(game_from_path((string)this_object()->query_area_path()),
-                                          (string)this_object()->query_citizenship()));
-
   // original_npc_sources only ever holds living NPC sources: conversion filters
   // trees and props out (it loads each source once, keeps only query_monster
   // ones) before recording them, so the roster no longer re-loads the source .c
@@ -237,10 +227,6 @@ void rebuild_npc_caps()
     // a unique bound to a vacancy is placed by the POI system, never by
     // the population sweep
     if (vacancy_sources[npc_paths[i]])
-      continue;
-
-    // the area citizenship's guard is diplomacy-placed, not filler
-    if (strlen(guard_source) && npc_paths[i] == guard_source)
       continue;
 
     npc_caps[npc_paths[i]] = ([ "max": counts[npc_paths[i]] ]);

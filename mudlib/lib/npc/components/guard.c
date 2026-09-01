@@ -12,28 +12,56 @@
 // which this component reads through query_owner().
 
 #include <areas/diplomacy.h>
+#include <areas/poi.h>
+#include <room/location.h>
 
 inherit component "/lib/npc/component.c";
 
-// The exit direction this guard watches. nil until posted (an unposted guard
-// blocks nobody). Persisted so a restored guard keeps its post; the area also
-// re-stamps it on every materialization, so a changed guard_dir is picked up.
-string guard_direction;
-
-void set_direction(string dir) { guard_direction = dir; }
-string query_direction() { return guard_direction; }
-
-mapping query_auto_load_attributes()
+// The exit this guard watches, read off the post it works at rather than stored:
+// a town_entrance POI names the way in, and a guard is posted to a place before
+// it is posted to a direction. Empty at a square, where the watch is presence
+// only and nobody is stopped.
+private string _watched_direction()
 {
-  return component::query_auto_load_attributes() +
-         ([ "direction" : guard_direction ]);
+  object me, post;
+  mapping poi;
+  mixed work;
+
+  me = query_owner();
+  work = me ? me->query_work() : nil;
+  if (!stringp(work) || !strlen(work))
+    return "";
+
+  post = (object)load_object(LOCATION_HANDLER)->load_location(work);
+  if (!post || !post->query_area())
+    return "";
+
+  poi = ((mapping)post->query_area()->query_pois())[work];
+  if (!poi || poi[POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE)
+    return "";
+
+  return poi[POI_FIELD_GUARD_DIR] ? poi[POI_FIELD_GUARD_DIR] : "";
 }
 
-void init_auto_load_attributes(mapping args)
+string query_direction() { return _watched_direction(); }
+
+// Called once the NPC is standing in the world. Register on the exit so the
+// exit handler consults us; it checks we are present before asking, so this
+// holds across the walk to the barracks and back.
+void placed()
 {
-  component::init_auto_load_attributes(args);
-  if (args && !undefinedp(args["direction"]))
-    guard_direction = args["direction"];
+  object me, post;
+  string dir;
+
+  dir = _watched_direction();
+  me = query_owner();
+  if (!strlen(dir) || !me)
+    return;
+
+  post = (object)load_object(LOCATION_HANDLER)->load_location(
+           (string)me->query_work());
+  if (post)
+    post->register_guard(me, dir);
 }
 
 // Let `mover` through the watched exit? Blocks only citizenships this guard's
@@ -46,7 +74,7 @@ int check(object mover)
   object me, my_citizenship, mover_citizenship;
 
   me = query_owner();
-  if (!guard_direction || !mover || !me)
+  if (!strlen(_watched_direction()) || !mover || !me)
     return 1;
 
   // a mover with no citizenship is neutral and passes

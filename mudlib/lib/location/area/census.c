@@ -2,7 +2,7 @@
 // The census: the area's individual NPCs.
 //
 // A census row is a person the world refers to one by one -- a citizen staffing
-// a role, the unique filling a POI vacancy, a posted guard. Each carries a uuid
+// a role, the unique filling a POI vacancy, a posted watch. Each carries a uuid
 // and a savefile of its own, which is exactly what tells it apart from the
 // anonymous monsters counted elsewhere. The row itself stays lean (who, where,
 // what post); everything individual about the NPC -- gender, level, inventory,
@@ -23,7 +23,7 @@
 
 // The area's individuals:
 //   ([ uuid : ([ "source": template_id, "current_location": location_file,
-//                "savefile": npc.o path, "vacancy"/"works_at"/"guard": ... ]) ])
+//                "savefile": npc.o path, "vacancy"/"works_at": ... ]) ])
 mapping npc_census;
 
 void create()
@@ -68,7 +68,7 @@ void update_npc_info(string uuid, object npc)
 }
 
 // Record one individual in the census and persist. The seam for the pieces that
-// staff a post of their own -- a role slot, a vacancy, a guard -- and need the
+// staff a post of their own -- a role slot, a vacancy -- and need the
 // person to exist before anything materializes it.
 void add_census_entry(string uuid, mapping row)
 {
@@ -161,8 +161,8 @@ private object npc_restore(string id, object loc)
 
   source = entry["source"];
 
-  // Every NPC is a generic NPC; a guard census entry additionally gets the
-  // "guard" component below (at placement), which carries the exit check.
+  // Every NPC is a generic NPC; what it can do comes from the components its
+  // template asks for -- a guard's exit check among them.
   npc = clone_object(GENERIC_NPC);
   if (!npc)
     return nil;
@@ -175,9 +175,8 @@ private object npc_restore(string id, object loc)
     npc->set_npc_poi(entry["poi"]);
 
   // Somebody who holds a job is a named, self-gendered citizen; a monster or a
-  // guard takes its gender from the template. The vacancy is read here for the
-  // place it names.
-  role = (entry[CENSUS_VACANCY] && !entry["guard"])
+  // The vacancy is read here for the place it names.
+  role = entry[CENSUS_VACANCY]
            ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY])
            : nil;
   t = (mapping)this_object()->query_area_template(game, source);
@@ -389,12 +388,15 @@ private object npc_restore(string id, object loc)
 
   npc->move(loc);
 
+  // now that it is somewhere, its components can take up whatever needs the
+  // world to see them -- a guard registering on the exit it watches
+  npc->components_placed();
+
   // A sentient NPC with a workplace keeps the hours its type declares: out to
   // work at one hour, home at another, keyed on the game hour. Work is the
   // individual's own (npc.o); the timetable is the type's (template), int-keyed
   // here because JSON stored its hours as strings. Attached fresh each
   // materialization (so a schedule change is picked up); home is read live from
-  // the NPC. Guards are excluded above (a role slot is never a guard entry).
   // The areas handler drives it hour by hour and staggers the departures.
   //
   // A type that names no hours keeps none: it stays where it is put. Walking
@@ -444,46 +446,6 @@ private object npc_restore(string id, object loc)
       npc->set_home(job[VACANCY_HOME]);
   }
 
-  // A guard carries the area's citizenship as its city_ob (so diplomacy can
-  // resolve its loyalty) and, at an entrance, watches the entry direction: it
-  // registers on that exit so the exit handler consults its guardian_check.
-  // Square guards just stand there (no direction). Both are derived here from
-  // the live POI / area rather than the census, so a change to guard_dir or the
-  // citizenship is picked up the next time the guard materializes; none of it
-  // persists on the NPC.
-  if (entry["guard"])
-  {
-    string cpath, gdir;
-    mapping poi;
-
-    // a guard carries the same nationality as any other NPC of the area; what
-    // differs per town is which guard template it is built from, not who it
-    // answers to
-    cpath = (string)this_object()->query_root_citizenship_path();
-    if (strlen(cpath))
-      npc->set_city_ob(cpath);
-
-    // only an entrance guard watches a direction; a square guard is presence
-    // only, so it never registers on an exit even if a stale guard_dir lingers
-    poi = ((mapping)this_object()->query_pois())[entry["poi"]];
-    gdir = (poi && poi[POI_FIELD_KIND] == POI_KIND_TOWN_ENTRANCE)
-             ? poi[POI_FIELD_GUARD_DIR] : nil;
-
-    // every guard carries the guard component: it makes the NPC recognisable as
-    // a guard (so, for example, the home system posts it to a barracks rather
-    // than a family house) and gives it the citizenship challenge. An entrance
-    // guard additionally watches its direction and registers on that exit; a
-    // square guard keeps the component with no direction (it challenges nobody).
-    npc->add_component("guard", gdir ? ([ "direction" : gdir ]) : ([ ]));
-    if (gdir)
-      loc->register_guard(npc, gdir);
-
-    // The barracks belongs to the settlement, so every guard it fields sleeps
-    // there -- including the ones fielded to replace the last lot.
-    if (strlen((string)this_object()->query_barracks()))
-      npc->set_home((string)this_object()->query_barracks());
-  }
-
   // Refresh what the books remember about this person. The npc.o is the
   // authority on who somebody is; these are a copy the census keeps so a
   // report can name and rank everybody, including those nobody has loaded.
@@ -518,7 +480,6 @@ void restore_location_npcs(object loc)
   // staff_vacancies in vacancies.c -- but nothing hires behind our back.
   //
   // this_object()->staff_vacancies_at(file);
-  this_object()->ensure_guards_assigned(file);
 
   ids = query_census_uuids_at(file);
   for (i = 0; i < sizeof(ids); i++)
@@ -643,7 +604,7 @@ void drain_location(object loc)
 }
 
 // Drop one row from the census and persist. A seam for the pieces that own
-// something hanging off a census entry (a POI vacancy, a guard post) and need
+// something hanging off a census entry (a POI vacancy) and need
 // to retire the individual filling it without going through a death.
 void drop_census_entry(string uuid)
 {
@@ -663,12 +624,8 @@ void drop_census_entry(string uuid)
 void npc_died(string uuid)
 {
   mapping entry;
-  string guard_poi;
 
-  // note a fallen guard's POI before we drop the census entry, so we can
-  // re-post a replacement there after the cooldown
   entry = query_npc_census()[uuid];
-  guard_poi = (entry && entry["guard"]) ? entry["poi"] : nil;
 
   if (entry)
   {
@@ -689,7 +646,7 @@ void npc_died(string uuid)
   // a settlement replaces its dead is a decision we have not made, so the post
   // simply stands empty until something asks for it to be staffed.
   //
-  // if (entry && entry[CENSUS_VACANCY] && !entry["guard"])
+  // if (entry && entry[CENSUS_VACANCY])
   // {
   //   mapping job;
   //
@@ -699,45 +656,8 @@ void npc_died(string uuid)
   //              job[VACANCY_WORKS_AT]);
   // }
 
-  if (guard_poi)
-    call_out("_refill_guards", VACANCY_RESPAWN_DELAY, guard_poi);
 }
 
-// --- guards --------------------------------------------------------------
-// Guards are census NPCs a citizenship fields at its town entrances and
-// squares. Unlike a vacancy (a single named role), a guarded POI wants a
-// count -- the citizenship's security level -- of identical guards, all from
-// the citizenship's guard NPC source. They are data-only like every census
-// NPC: they materialize when the POI's location loads (npc_restore clones the
-// guard base, stamps the citizenship and, at an entrance, registers the exit).
-
-// One guard assigned to a POI as census data. The guard's identity is its
-// source; its watched direction and citizenship are not stored -- they are
-// derived at materialization from the POI's guard_dir and the area's current
-// citizenship, so a later change to either is picked up without rewriting the
-// census. Returns the uuid.
-string assign_guard_npc(string source, string poi_file)
-{
-  string id, game;
-
-  // The guard source is a diplomacy-placed unique, not part of room conversion,
-  // so its template is built here the first time one is fielded (the one place
-  // a guard's monster .c is loaded, guarded by has_template so it happens once).
-  // The census then stores the template id, and filling/refilling never reloads
-  // the .c.
-  game = game_from_path((string)this_object()->query_area_path());
-  if (!BESTIARY_HANDLER->has_template(game, source))
-    BESTIARY_HANDLER->add_template(source);
-  source = (string)this_object()->query_template_from_source(source);
-
-  id = UUID_OB->uuid();
-  query_npc_census()[id] = ([ "source": source, CENSUS_LOCATION: poi_file,
-                      "savefile": npc_save_dir(game, id) + NPC_SAVE_FILE,
-                      "poi": poi_file, "guard": 1 ]);
-  this_object()->save_me();
-
-  return id;
-}
 
 // The live object for a census uuid inside its (loaded) POI, or nil. Works for
 // any census NPC (a guard or a vacancy unique), matched by its uuid.

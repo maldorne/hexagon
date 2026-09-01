@@ -46,6 +46,11 @@ mapping query_component_actions()
   return ([ ]);
 }
 
+// Called once the NPC is standing somewhere, which initialize() is too early
+// for: it runs while the NPC is still being built. Override to do whatever
+// needs the world to be able to see it.
+void placed() { }
+
 object query_owner() { return owner; }
 
 string query_type() { return type; }

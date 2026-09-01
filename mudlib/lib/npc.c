@@ -125,6 +125,16 @@ object query_component_by_type(string type)
 
 int has_component(string type) { return query_component_by_type(type) != nil; }
 
+// Tell every component the NPC is now standing in the world.
+void components_placed()
+{
+  int i;
+
+  for (i = 0; components && i < sizeof(components); i++)
+    if (components[i])
+      components[i]->placed();
+}
+
 // Clone a component blueprint, stamp its type, seed its attrs, and bind it to
 // this NPC. Shared by add_component and init_components.
 private void _register_component_actions(object c);

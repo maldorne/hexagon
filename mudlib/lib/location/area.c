@@ -4,7 +4,7 @@ inherit monsters  "/lib/location/area/monsters.c";
 inherit schedules "/lib/location/area/schedules.c";
 inherit housing   "/lib/location/area/housing.c";
 inherit pois      "/lib/location/area/pois.c";
-inherit guards    "/lib/location/area/guards.c";
+inherit citizen   "/lib/location/area/citizenship.c";
 inherit census    "/lib/location/area/census.c";
 inherit vacancies "/lib/location/area/vacancies.c";
 inherit roster    "/lib/location/area/roster.c";
@@ -65,7 +65,7 @@ void create() {
   schedules::create();
   housing::create();
   pois::create();
-  guards::create();
+  citizen::create();
   census::create();
   vacancies::create();
   roster::create();
