@@ -153,7 +153,7 @@ private object npc_restore(string id, object loc)
 {
   object npc;
   string game, source, savefile, work;
-  mapping entry, role, t;
+  mapping entry, role, t, timetable;
   int first, sentient, gender;
 
   entry = query_npc_census()[id];
@@ -389,25 +389,25 @@ private object npc_restore(string id, object loc)
 
   npc->move(loc);
 
-  // A sentient NPC with a workplace gets a daily timetable keyed on the game
-  // hour: out to work in the morning, home in the evening. Work is the
+  // A sentient NPC with a workplace keeps the hours its type declares: out to
+  // work at one hour, home at another, keyed on the game hour. Work is the
   // individual's own (npc.o); the timetable is the type's (template), int-keyed
-  // here because JSON stored its hours as strings, or a sensible default when
-  // the type declares none. Attached fresh
-  // each materialization (so a schedule change is picked up); home is read live
-  // from the NPC. Guards are excluded above (a role slot is never a guard entry).
+  // here because JSON stored its hours as strings. Attached fresh each
+  // materialization (so a schedule change is picked up); home is read live from
+  // the NPC. Guards are excluded above (a role slot is never a guard entry).
   // The areas handler drives it hour by hour and staggers the departures.
+  //
+  // A type that names no hours keeps none: it stays where it is put. Walking
+  // somebody to a house every evening is a thing about them, not a thing every
+  // person does, so it is said or it does not happen.
   work = npc->query_work();
-  if (sentient && work && strlen(work))
-  {
-    mapping timetable;
-    object sched;
+  timetable = (t && mappingp(t["timetable"]))
+                ? _int_keyed_hours(t["timetable"]) : nil;
 
-    timetable = (t && mappingp(t["timetable"]))
-                  ? _int_keyed_hours(t["timetable"]) : nil;
-    if (!mappingp(timetable) || !map_sizeof(timetable))
-      timetable = ([ 6  : ([ "goto" : "work" ]),
-                     20 : ([ "goto" : "home" ]) ]);
+  if (sentient && work && strlen(work) &&
+      mappingp(timetable) && map_sizeof(timetable))
+  {
+    object sched;
 
     npc->add_component("schedule",
                        ([ "work": work, "timetable": timetable ]));
@@ -423,6 +423,13 @@ private object npc_restore(string id, object loc)
     // speaks at the hours it names, so without this it would wait there until
     // the next one; ask where this hour puts it and let it walk the rest.
     npc->resume_schedule((int)this_object()->query_game_hour());
+  }
+  else
+  {
+    // Somebody whose type used to name hours and no longer does: the component
+    // rode in on its npc.o and would keep walking them about on its own.
+    npc->remove_component("schedule");
+    this_object()->index_schedule_hours(id, ({ }));
   }
 
   // A job that comes with a house houses whoever holds it, set on every
