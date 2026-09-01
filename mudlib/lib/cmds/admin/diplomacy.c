@@ -12,6 +12,8 @@
 //   diplomacy <cit> parent <p>      set parent ("none" makes it top-level)
 //   diplomacy <cit> security <n>    set guard count its areas field
 //   diplomacy <cit> guard <path>    set the NPC source its guards spawn from
+//   diplomacy <cit> deity <path>    accept a deity's worship on its ground
+//   diplomacy <cit> undeity <path>  stop accepting it
 //   diplomacy <cit> ally <other>    mark <other> an ally
 //   diplomacy <cit> unally <other>  drop <other> as ally
 //   diplomacy <cit> enemy <other>   mark <other> an enemy (guards block them)
@@ -31,7 +33,8 @@ void setup()
            "the parent hierarchy with the same columns. With a citizenship " +
            "name, shows it in detail. Editing subcommands: 'add <cit>', " +
            "'remove <cit>', '<cit> parent <p>', '<cit> security <n>', '<cit> " +
-           "guard <path>', '<cit> ally <other>', '<cit> unally <other>', '<cit> " +
+           "guard <path>', '<cit> deity <path>', '<cit> undeity <path>', " +
+           "'<cit> ally <other>', '<cit> unally <other>', '<cit> " +
            "enemy <other>', '<cit> unenemy <other>'. The graph is persisted.");
 }
 
@@ -127,6 +130,9 @@ private string _detail(string name, mapping rec)
     ret += sprintf("      %-9s %s\n", "parent:", rec["parent"]);
   if (stringp(rec["guard"]) && strlen(rec["guard"]))
     ret += sprintf("      %-9s %s\n", "guard:", rec["guard"]);
+  if (pointerp(rec[DIPLOMACY_DEITIES]) && sizeof(rec[DIPLOMACY_DEITIES]))
+    ret += sprintf("      %-9s %s\n", "deities:",
+                   implode(rec[DIPLOMACY_DEITIES], ", "));
 
   allies = pointerp(rec["allies"]) ? rec["allies"] : ({ });
   enemies = pointerp(rec["enemies"]) ? rec["enemies"] : ({ });
@@ -357,8 +363,8 @@ static int cmd(string str, object me, string verb)
   // editing: diplomacy <cit> <field> <value>
   if (sizeof(words) < 3)
   {
-    notify_fail("Usage: diplomacy <cit> <parent|security|guard|ally|" +
-                "unally|enemy|unenemy> <value>\n");
+    notify_fail("Usage: diplomacy <cit> <parent|security|guard|deity|" +
+                "undeity|ally|unally|enemy|unenemy> <value>\n");
     return 0;
   }
 
@@ -379,6 +385,12 @@ static int cmd(string str, object me, string verb)
       case "guard":
         h->set_guard(game, cit, (value == "none") ? "" : value);
         break;
+      case "deity":
+        h->add_deity(game, cit, value);
+        break;
+      case "undeity":
+        h->remove_deity(game, cit, value);
+        break;
       case "ally":
         h->add_relationship(game, DIPLOMACY_RELATION_ALLY, cit, value);
         break;
@@ -393,7 +405,8 @@ static int cmd(string str, object me, string verb)
         break;
       default:
         notify_fail("Unknown field '" + field + "'. Use parent, security, " +
-                    "guard, ally, unally, enemy or unenemy.\n");
+                    "guard, deity, undeity, ally, unally, enemy or " +
+                    "unenemy.\n");
         return 0;
     }
   }

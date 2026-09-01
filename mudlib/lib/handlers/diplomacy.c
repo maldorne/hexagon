@@ -37,7 +37,8 @@ inherit "/lib/core/object.c";
 // mapping indexed by citizenship name, whose value is that citizenship's data:
 //   citizenships[game][name] == ([ "parent"   : parent_name (or ""),
 //                                  "security" : guard_count,
-//                                  "guard"    : guard_npc_path (or "") ])
+//                                  "guard"    : guard_npc_path (or ""),
+//                                  "deities"  : ({ deity paths }) ])
 mapping citizenships;
 
 // Indexed by game name. Each game's value holds the two relationship lists,
@@ -77,6 +78,9 @@ void dest_me()
 
 // A game's citizenship map ([ name : citizenship_data ]), empty if the game has
 // no citizenships yet.
+// defined further down, where the mutating side of the graph lives
+private mapping query_citizenship(string game, string citizenship_name);
+
 private mapping game_citizenships(string game)
 {
   if (!game || !citizenships[game])
@@ -244,6 +248,85 @@ string query_guard_path(string game, string citizenship_name)
   return (citizenship && stringp(citizenship["guard"])) ? citizenship["guard"] : "";
 }
 
+// The deities this citizenship accepts, walking up to its parent when it
+// declares none of its own: a village keeps the faiths of the realm it belongs
+// to until it decides otherwise. An empty answer means it has never been asked
+// to choose, which is not the same as accepting nothing -- see accepts_deity.
+string * query_deities(string game, string citizenship_name)
+{
+  string current;
+  int steps;
+
+  current = citizenship_name;
+
+  for (steps = 0; steps < DIPLOMACY_MAX_DEPTH; steps++)
+  {
+    mapping citizenship;
+    string parent;
+
+    citizenship = game_citizenships(game)[current];
+    if (citizenship && pointerp(citizenship[DIPLOMACY_DEITIES]) &&
+        sizeof(citizenship[DIPLOMACY_DEITIES]))
+      return citizenship[DIPLOMACY_DEITIES];
+
+    parent = query_parent(game, current);
+    if (!strlen(parent) || parent == current)
+      break;
+    current = parent;
+  }
+
+  return ({ });
+}
+
+// Whether this citizenship will have that deity worshipped on its ground. A
+// citizenship that has declared no faiths at all objects to none of them: the
+// question only starts to bite once somebody has said what the place believes.
+int accepts_deity(string game, string citizenship_name, string deity)
+{
+  string * accepted;
+
+  if (!deity || !strlen(deity))
+    return 1;
+
+  accepted = query_deities(game, citizenship_name);
+  if (!sizeof(accepted))
+    return 1;
+
+  return member_array(deity, accepted) != -1;
+}
+
+int add_deity(string game, string citizenship_name, string deity)
+{
+  mapping citizenship;
+
+  citizenship = query_citizenship(game, citizenship_name);
+  if (!citizenship || !deity || !strlen(deity))
+    return 0;
+
+  if (!pointerp(citizenship[DIPLOMACY_DEITIES]))
+    citizenship[DIPLOMACY_DEITIES] = ({ });
+  if (member_array(deity, citizenship[DIPLOMACY_DEITIES]) != -1)
+    return 0;
+
+  citizenship[DIPLOMACY_DEITIES] += ({ deity });
+  save_handler();
+  return 1;
+}
+
+int remove_deity(string game, string citizenship_name, string deity)
+{
+  mapping citizenship;
+
+  citizenship = query_citizenship(game, citizenship_name);
+  if (!citizenship || !pointerp(citizenship[DIPLOMACY_DEITIES]) ||
+      member_array(deity, citizenship[DIPLOMACY_DEITIES]) == -1)
+    return 0;
+
+  citizenship[DIPLOMACY_DEITIES] -= ({ deity });
+  save_handler();
+  return 1;
+}
+
 // The citizenships this one is directly allied with / at war with (direct relationships
 // only; parent-inherited relations are resolved by is_ally / is_enemy).
 string * query_allies(string game, string citizenship_name)
@@ -275,6 +358,7 @@ mapping query_relations(string game)
     view[name] = ([ "parent"   : citizenship_map[name]["parent"],
                     "security" : citizenship_map[name]["security"],
                     "guard"    : citizenship_map[name]["guard"],
+                    DIPLOMACY_DEITIES : citizenship_map[name][DIPLOMACY_DEITIES],
                     "allies"   : query_linked_names(game, DIPLOMACY_RELATION_ALLY, name),
                     "enemies"  : query_linked_names(game, DIPLOMACY_RELATION_ENEMY, name) ]);
   }

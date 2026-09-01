@@ -11,6 +11,12 @@
 // edited into a cycle cannot spin forever.
 #define DIPLOMACY_MAX_DEPTH 16
 
+// The deities a citizenship accepts. A temple consecrated to anything else
+// stands closed for as long as this citizenship holds the ground it is on.
+// Unset means it accepts whatever its parent accepts; a citizenship with no
+// ancestor that declares any accepts everything.
+#define DIPLOMACY_DEITIES "deities"
+
 #define DIPLOMACY_RELATION_ALLY  "ally"
 #define DIPLOMACY_RELATION_ENEMY "enemy"
 
