@@ -672,7 +672,20 @@ void fill_vacancies_at(string at)
 }
 
 // call_out target: take somebody on again a while after a holder died at `at`.
+//
+// Filling only writes the census row. If the place is standing loaded -- and a
+// post somebody just died at usually is -- nothing else would bring the new
+// holder in until it next unloaded and came back, which for a location nobody
+// leaves is never. Materialize them here; restore_location_npcs is idempotent
+// and leaves an already-present uuid alone. A place that is not loaded needs
+// nothing: it brings its people in when it loads.
 void _refill_vacancy(string at)
 {
+  object loc;
+
   fill_vacancies_at(at);
+
+  loc = (object)this_object()->query_loaded_location(at);
+  if (loc)
+    this_object()->restore_location_npcs(loc);
 }
