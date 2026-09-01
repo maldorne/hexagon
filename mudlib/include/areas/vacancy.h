@@ -48,10 +48,14 @@
 // The census row of somebody who holds a job: which job, where they work it,
 // and where they are.
 //
-// A job's name is its identity, so a settlement offers one of each. Where the
-// job is held is the vacancy's business, not the holder's: a spread job seats
-// each of its people in a different field, and any of them may be at home, or
-// halfway there, at the hour you ask.
+// A job's name is its identity and is the leaf of the type it is filled from --
+// `barman` from areas/<area>/npcs/barman -- so a report never shows a job and a
+// type that read as different things. A settlement offers one of each: two pubs
+// are that one job with two seats and two spots.
+//
+// Where the job is held is the vacancy's business, not the holder's: a job that
+// lists its places seats each of its people in a different one, and any of them
+// may be at home, or halfway there, at the hour you ask.
 #define CENSUS_VACANCY        "vacancy"
 // where this person works, which a spread job moves away from the place the
 // job itself names

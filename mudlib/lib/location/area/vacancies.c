@@ -49,7 +49,8 @@ mapping * query_vacancies()
 }
 
 // The job by that name, or nil. A name is a job's identity, so a settlement
-// offers one of each: two pubs wanting their own barman name them apart.
+// offers one of each, and it is named after the type it is filled from. Two
+// pubs are one barman job with two seats and two spots, not two jobs.
 mapping query_vacancy(string job)
 {
   mapping * all;
