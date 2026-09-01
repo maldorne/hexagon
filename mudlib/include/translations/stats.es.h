@@ -29,8 +29,9 @@
 #define _LANG_STATS_NO_CITIZENSHIP "sin ciudadanía"
 #define _LANG_STATS_WIMPY "cobardía"
 #define _LANG_STATS_ENCUMBRANCE "carga"
+#define _LANG_STATS_OUT_OF "de"
 #define _LANG_STATS_COMBAT_MODE "modo de combate"
-#define _LANG_STATS_COMBAT_ROLE "rol de combate"
+#define _LANG_STATS_ATTITUDE "actitud"
 
 #define _LANG_STATS_STR "fuerza"
 #define _LANG_STATS_CON "constitución"

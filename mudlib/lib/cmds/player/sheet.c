@@ -330,24 +330,24 @@ static int cmd(string name, object me, string verb)
   info += sprintf("%-15s %-2s (%-+1d) %8s", capitalize(_LANG_STATS_CHA) + ":",
                   target->query_cha(),
                   target->query_stat_bonus_to_cha(), "");
-  if (!group) // clan, race group, etc
-    info += sprintf("%-15s %s", capitalize(_LANG_STATS_GROUP) + ":", 
-                    capitalize(_LANG_STATS_NO_GROUP));
-  else    
-    info += sprintf("%-15s %s", capitalize(_LANG_STATS_GROUP) + ":", 
-                    capitalize(group->query_short()));
-  info += "\n";
-
-  // new characteristic, neverbot 03/05
-  info += sprintf("%-15s %-2s (%-+1d) %8s", capitalize(_LANG_STATS_PER) + ":",
-                  target->query_per(),
-                  target->query_stat_bonus_to_per(), "");
   if (!citizenship)
     info += sprintf("%-15s %s", capitalize(_LANG_STATS_CITIZENSHIP) + ":", 
                     capitalize(_LANG_STATS_NO_CITIZENSHIP));
   else    
     info += sprintf("%-15s %s", capitalize(_LANG_STATS_CITIZENSHIP) + ":", 
                     capitalize(citizenship->query_short()));
+  info += "\n";
+
+  // new characteristic, neverbot 03/05
+  info += sprintf("%-15s %-2s (%-+1d) %8s", capitalize(_LANG_STATS_PER) + ":",
+                  target->query_per(),
+                  target->query_stat_bonus_to_per(), "");
+  if (!group) // clan, race group, etc
+    info += sprintf("%-15s %s", capitalize(_LANG_STATS_GROUP) + ":", 
+                    capitalize(_LANG_STATS_NO_GROUP));
+  else    
+    info += sprintf("%-15s %s", capitalize(_LANG_STATS_GROUP) + ":", 
+                    capitalize(group->query_short()));
   info += "\n";
 
   // new characteristic, neverbot 03/05
@@ -360,8 +360,9 @@ static int cmd(string name, object me, string verb)
   info += sprintf("%-15s ( %-3d%% ) %7s", capitalize(_LANG_STATS_WIMPY) + ":",
                   target->query_wimpy(),
                   "");
-  info += sprintf("%-15s %d (of %d)", capitalize(_LANG_STATS_ENCUMBRANCE) + ":",
+  info += sprintf("%-15s %d (%s %d)", capitalize(_LANG_STATS_ENCUMBRANCE) + ":",
                   target->query_contents_weight(),
+                  _LANG_STATS_OUT_OF,
                   target->query_max_weight());
   info += "\n";
 
@@ -371,7 +372,7 @@ static int cmd(string name, object me, string verb)
   // value field gives the character back so the second column stays put.
   info += sprintf("%-16s %-15s", capitalize(_LANG_STATS_COMBAT_MODE) + ":",
                   capitalize(target->query_pretty_combat_mode()));
-  info += sprintf("%-15s %s", capitalize(_LANG_STATS_COMBAT_ROLE) + ":",
+  info += sprintf("%-15s %s", capitalize(_LANG_STATS_ATTITUDE) + ":",
                   capitalize(target->query_combat_role_string()));
   info += "\n";
 
