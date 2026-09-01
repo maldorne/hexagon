@@ -19,7 +19,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home", "sign" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home", "sign", "temple" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -37,6 +37,8 @@ inherit "/lib/armour.c";
   "               | class <name> <class.c|none> | home <name>\n" + \
   "               | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX "build npc  (show this area's NPC roster, census and vacancies)"
+#define BUILDER_RING_TEMPLE_SYNTAX \
+  "build temple < <deity path> | none >  (consecrate this location, or unconsecrate it)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
 #define BUILDER_RING_HOMES_SYNTAX "build homes  (house the area's homeless citizens on free plots, pairing families)"
 // intro line + "commands:" header are translated (name/description/help);
@@ -48,6 +50,7 @@ inherit "/lib/armour.c";
   "  build selection add|remove|list      working set of locations\n" + \
   "  build convert [selection|<file>|<dir>|here]\n" + \
   "  build component add|remove <type>    on the current location\n" + \
+  "  build temple <deity|none>            consecrate this location\n" + \
   "\n" + \
   "  build area exploration <name>        entering here is a diary event\n" + \
   "  build area noexploration\n" + \
@@ -126,6 +129,7 @@ int do_home_remove();
 int do_home_make();
 int do_home_describe(string what, string str);
 int do_sign(string str);
+int do_temple(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -365,6 +369,8 @@ int do_build(string str)
     return do_vacancy(implode(args[1..], " "));
   else if (verb == "plot")
     return do_plot(implode(args[1..], " "));
+  else if (verb == "temple")
+    return do_temple(implode(args[1..], " "));
   else
   {
     notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
@@ -562,6 +568,58 @@ int do_convert_files(string * files)
 // build component < add | remove > <type>
 // Applies a component change to every location in the current selection,
 // delegating to the shared LOCATION_HANDLER batch helpers.
+// Consecrate the location the coder is standing in to a deity, attaching the
+// temple component if it is not there yet. `none` unconsecrates it and leaves
+// the component in place: the building is still a temple, it just has no god.
+int do_temple(string str)
+{
+  object loc, temple;
+  string deity;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_property("location"))
+  {
+    notify_fail("Stand in a location to consecrate it.\n");
+    return 0;
+  }
+
+  deity = str ? trim(str) : "";
+  if (!strlen(deity))
+  {
+    notify_fail("Usage: " + BUILDER_RING_TEMPLE_SYNTAX + "\n");
+    return 0;
+  }
+
+  if (deity == "none")
+    deity = "";
+  else if (!load_object(deity))
+  {
+    notify_fail("No deity loads at '" + deity + "'.\n");
+    return 0;
+  }
+
+  temple = (object)loc->query_component_by_type(LOCATION_COMPONENT_TEMPLE);
+  if (!temple)
+  {
+    loc->add_component(LOCATION_COMPONENT_TEMPLE, ([ ]));
+    temple = (object)loc->query_component_by_type(LOCATION_COMPONENT_TEMPLE);
+  }
+
+  if (!temple)
+  {
+    notify_fail("The temple component would not attach here.\n");
+    return 0;
+  }
+
+  temple->set_deity(deity);
+  loc->save_me();
+
+  write(strlen(deity)
+          ? "Consecrated to " + deity + ".\n"
+          : "Unconsecrated; the temple keeps no god.\n");
+  return 1;
+}
+
 int do_component(string str)
 {
   string * args;

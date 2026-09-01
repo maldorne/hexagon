@@ -615,11 +615,29 @@ int reseat_vacancy(string job)
 // caller's business, and a load already does it: the location's restore asks
 // for its jobs to be filled and then materializes everybody it finds, so doing
 // it from here as well would have the two calling each other without end.
+// Whether the place a job is held in is shut to it. The location answers for
+// itself through its components, so a post at a temple the land will not have
+// goes unstaffed without the job being touched: the seat is still declared and
+// the place is still a temple, and both take people again when the ground
+// changes hands.
+private int _venue_closed(mapping vacancy)
+{
+  string at;
+  object loc;
+
+  at = vacancy ? vacancy[VACANCY_WORKS_AT] : nil;
+  if (!at || !strlen(at))
+    return 0;
+
+  loc = load_object(LOCATION_HANDLER)->load_location(at);
+  return loc ? (int)loc->query_venue_closed() : 0;
+}
+
 void fill_vacancy(mapping vacancy)
 {
   int have, want, i;
 
-  if (!vacancy)
+  if (!vacancy || _venue_closed(vacancy))
     return;
 
   want = vacancy[VACANCY_COUNT];

@@ -28,6 +28,7 @@
 // /lib/location/components/plot.c and home.c.
 #define LOCATION_COMPONENT_PLOT        "plot"
 #define LOCATION_COMPONENT_HOME        "home"
+#define LOCATION_COMPONENT_TEMPLE      "temple"
 
 // ************************************************************
 //  Location component hook system

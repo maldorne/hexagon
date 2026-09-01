@@ -79,6 +79,7 @@ mixed * run_pipeline(string func, mixed * args);
 mixed run_reduce(string func, mixed * args, mixed acc, string combinator);
 string _concat_string(mixed acc, mixed piece);
 int _sum_int(mixed acc, mixed piece);
+int _any_true(mixed acc, mixed piece);
 object query_component_by_type(string type);
 string query_props_string();
 private void rebuild_hook_chains();
@@ -423,6 +424,13 @@ mixed run_reduce(string func, mixed * args, mixed acc, string combinator)
   return acc;
 }
 
+// Combinator: any component saying yes settles it. For the gates where one
+// objection is enough and the rest of the chain cannot overrule it.
+int _any_true(mixed acc, mixed piece)
+{
+  return acc || (piece ? 1 : 0);
+}
+
 // Combinator: string concatenation. Treats nil/0 pieces as no
 // contribution. Honours HOOK_EXCLUSIVE by replacing the accumulator.
 string _concat_string(mixed acc, mixed piece)
@@ -482,6 +490,15 @@ string short(varargs int dark)
   if (!ret || !strlen(ret))
     ret = _original_short;
   return ret;
+}
+
+// Whether this place is shut to the work that would be done in it. A component
+// answers for its own venue -- a temple whose god the land will not have, a
+// trade nobody is allowed to ply here -- and one closure is enough. The job
+// itself stays declared: what closes is the place, not the post.
+int query_venue_closed()
+{
+  return (int)run_reduce("venue_closed", ({ }), 0, "_any_true");
 }
 
 string long(varargs string str, int dark)
