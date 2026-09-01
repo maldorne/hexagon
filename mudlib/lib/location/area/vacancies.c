@@ -633,7 +633,14 @@ private int _venue_closed(mapping vacancy)
   return loc ? (int)loc->query_venue_closed() : 0;
 }
 
-void fill_vacancy(mapping vacancy)
+// Staff one job: take somebody on for every seat nobody holds, and bring each
+// new holder into the world if the place they were seated at is standing
+// loaded. Filling alone only writes a census row, and a location nobody enters
+// or leaves would never bring that person in.
+//
+// Idempotent in both halves: a job already at its count takes nobody on, and
+// restore_location_npcs leaves an already-present uuid alone.
+private void _staff(mapping vacancy)
 {
   int have, want, i;
 
@@ -643,52 +650,49 @@ void fill_vacancy(mapping vacancy)
   want = vacancy[VACANCY_COUNT];
   have = sizeof(query_vacancy_holders(vacancy));
 
-  // a spread job hands each holder its own place, in turn
   for (i = have; i < want; i++)
-    assign_npc_to_vacancy(vacancy, spread_spot_for(vacancy, i));
+  {
+    string where;
+    object loc;
+
+    // a spread job hands each holder its own place, in turn
+    where = spread_spot_for(vacancy, i);
+    assign_npc_to_vacancy(vacancy, where);
+
+    if (!where || !strlen(where))
+      where = vacancy[VACANCY_WORKS_AT];
+
+    loc = (object)this_object()->query_loaded_location(where);
+    if (loc)
+      this_object()->restore_location_npcs(loc);
+  }
 }
 
-// Staff every job the settlement offers. Idempotent: a job already at its count
-// takes nobody on.
-void fill_vacancies()
+// Staff every job this settlement offers. This is the whole-settlement pass: a
+// scheduled population check would call this one.
+//
+// Nothing calls it on its own today. How a settlement replaces the people it
+// loses is a decision we have not made, so taking somebody on is always
+// something that was asked for, never something that happened while nobody was
+// looking. These are the entry points whatever we decide should use.
+void staff_vacancies()
 {
   mapping * all;
   int i;
 
   all = query_vacancies();
   for (i = 0; i < sizeof(all); i++)
-    fill_vacancy(all[i]);
+    _staff(all[i]);
 }
 
-// Fill whatever is held at one location, as it loads.
-void fill_vacancies_at(string at)
+// Staff only the jobs held at one location, for when the answer is wanted about
+// one place rather than the whole settlement.
+void staff_vacancies_at(string at)
 {
   mapping * here;
   int i;
 
   here = query_vacancies_at(at);
   for (i = 0; i < sizeof(here); i++)
-    fill_vacancy(here[i]);
-}
-
-// Staff whatever is held at `at` and bring the new people in. Nothing calls
-// this on its own: how a settlement repopulates is undecided, so hiring is
-// something that is asked for, never something that happens. This is the entry
-// point whatever we decide should use.
-//
-// Filling only writes the census row. If the place is standing loaded -- and a
-// post somebody just died at usually is -- nothing else would bring the new
-// holder in until it next unloaded and came back, which for a location nobody
-// leaves is never. Materialize them here; restore_location_npcs is idempotent
-// and leaves an already-present uuid alone. A place that is not loaded needs
-// nothing: it brings its people in when it loads.
-void _refill_vacancy(string at)
-{
-  object loc;
-
-  fill_vacancies_at(at);
-
-  loc = (object)this_object()->query_loaded_location(at);
-  if (loc)
-    this_object()->restore_location_npcs(loc);
+    _staff(here[i]);
 }

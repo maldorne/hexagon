@@ -1085,19 +1085,18 @@ int do_vacancy(string str)
       notify_fail("No template and no blueprint for '" + source + "'.\n");
       return 0;
     }
-    // The area stores the cap (count + workplace = wherever the coder stands).
-    // Behaviour is the type's: mark the template sentient through the bestiary,
-    // its authoritative home, so a role is a named citizen by default.
-    // the area stores the job: how many, where (wherever the coder stands),
-    // and the type its holders are drawn from
+    // The area stores the job: how many, where (wherever the coder stands), and
+    // the type its holders are drawn from. Behaviour is the type's: the template
+    // is marked sentient through the bestiary, its authoritative home, so a role
+    // is a named citizen by default.
+    //
+    // Opening a job does not staff it. Declaring that a settlement wants a
+    // barman and deciding that somebody walks into the bar are two different
+    // acts, and only the first belongs to a builder.
     area->open_vacancy(name, count, loc->query_file_name(), source,
                        fixed ? ([ VACANCY_FIXED: 1 ]) : ([ VACANCY_SPREAD: 1 ]));
-    area->fill_vacancy(area->query_vacancy(name));
-    // filling only writes census rows; bring the new people in here, since the
-    // place they were taken on for is loaded and standing in front of us
-    area->restore_location_npcs(loc);
     write("Vacancy '" + name + "' x" + count + " <- " + source +
-          ", held here.\n");
+          ", held here. Nobody taken on.\n");
     return 1;
   }
 
