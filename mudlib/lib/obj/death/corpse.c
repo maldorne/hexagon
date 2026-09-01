@@ -14,6 +14,10 @@ inherit equip     "/lib/living/equip";
 
 int wasplayer;
 string owner, race_ob, race_name, filename;
+// The proper name of whoever this was, when they had one of their own. The
+// corpse reads as what the world saw of them -- a cleric, a farmer -- so the
+// name is kept here rather than shown.
+string given_name;
 static int decay;
 static object original;
 
@@ -35,6 +39,7 @@ void create()
   container::create();
   equip::create();
   owner = _LANG_CORPSE_SOMEBODY;
+  given_name = "";
   race_name = "";
   race_ob = "";
   filename = "";
@@ -98,10 +103,15 @@ void setup()
   // set_race_ob("/lib/obj/races/unknown");
 }
 
+string query_given_name() { return given_name; }
+
 void set_owner(string n, object ob) 
 {
   owner = n;
   original = ob;
+
+  if (ob)
+    given_name = (string)ob->query_given_name();
   
   set_name(_LANG_CORPSE_OF + n);
   set_short(capitalize(_LANG_CORPSE_OF) + capitalize(n));
