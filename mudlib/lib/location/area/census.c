@@ -477,6 +477,11 @@ private object npc_restore(string id, object loc)
     npc->add_component("guard", gdir ? ([ "direction" : gdir ]) : ([ ]));
     if (gdir)
       loc->register_guard(npc, gdir);
+
+    // The barracks belongs to the settlement, so every guard it fields sleeps
+    // there -- including the ones fielded to replace the last lot.
+    if (strlen((string)this_object()->query_barracks()))
+      npc->set_home((string)this_object()->query_barracks());
   }
 
   // Refresh what the books remember about this person. The npc.o is the

@@ -27,7 +27,7 @@ inherit "/lib/armour.c";
   "build area < exploration <display name> | noexploration\n" + \
   "           | level <n> [<spread>] | stats <low> <high> | stats none\n" + \
   "           | diplomacy <citizenship|none>\n" + \
-  "           | parent <area path|none> | principal\n" + \
+  "           | parent <area path|none> | principal | barracks [none]\n" + \
   "           | relevel >"
 #define BUILDER_RING_POI_SYNTAX \
   "build poi < add <kind> [label] | remove | list | guard_dir <dir> >"
@@ -59,6 +59,7 @@ inherit "/lib/armour.c";
   "  build area diplomacy <name|none>     citizenship; guards use it\n" + \
   "  build area parent <area path|none>   what this place is part of\n" + \
   "  build area principal                 fallback location for occupants\n" + \
+  "  build area barracks [none]           where its guards sleep\n" + \
   "  build area relevel                   raise NPCs to the current band\n" + \
   "\n" + \
   "  build poi add <kind> [label]         one per location\n" + \
@@ -844,6 +845,18 @@ int do_area(string str)
     area->set_parent_area(args[1]);
     write("Area '" + area->query_area_name() + "' is now part of '" +
           parent->query_area_name() + "'.\n");
+    return 1;
+  }
+  else if (verb == "barracks")
+  {
+    // where the guards this settlement fields sleep, one building for all
+    area->set_barracks((sizeof(args) > 1 && args[1] == "none")
+                         ? "" : loc->query_file_name());
+    write(strlen((string)area->query_barracks())
+            ? "The guards of '" + area->query_area_name() +
+              "' are barracked here.\n"
+            : "The guards of '" + area->query_area_name() +
+              "' have no barracks.\n");
     return 1;
   }
   else if (verb == "principal")

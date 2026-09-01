@@ -24,6 +24,9 @@
 // name, so flipping it is how an invaded town swaps its guards for the
 // conqueror's.
 string citizenship;
+// Where the guards this settlement fields sleep. One building for all of them,
+// shared down the area chain like the rest of the community's books.
+string barracks;
 
 void repost_guards(string poi_file);
 void ensure_guards_assigned(string location_file);
@@ -32,6 +35,31 @@ private string * guard_census_at(string poi_file, string source);
 void create()
 {
   citizenship = "";
+  barracks = "";
+}
+
+// The community's barracks, since that is where the guards belong.
+string query_barracks()
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  return owner == this_object() ? barracks : (string)owner->query_barracks();
+}
+
+void set_barracks(string location_file)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+  {
+    owner->set_barracks(location_file);
+    return;
+  }
+
+  barracks = location_file ? location_file : "";
+  this_object()->save_me();
 }
 
 // The area's citizenship (a diplomacy-graph name), or "" if none. Guards are

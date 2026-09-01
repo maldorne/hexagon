@@ -413,6 +413,11 @@ private int do_list(object area, object me, string want)
         home = job[VACANCY_HOME];
     }
 
+    // a guard sleeps in the settlement's barracks, which is not a house and so
+    // keeps no resident list
+    if ((!stringp(home) || !strlen(home)) && e["guard"])
+      home = (string)area->query_barracks();
+
     shown++;
     rows += ({ ({
       strlen(name) ? capitalize(name) : "?",
