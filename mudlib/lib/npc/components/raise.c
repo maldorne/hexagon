@@ -1,13 +1,9 @@
-// raise.c -- bringing the dead back, as an NPC component.
+// raise.c -- returning a ghost to its body, as an NPC component.
 //
-// Some settlements keep somebody who can return a ghost to its body: a priest
-// at a shrine, a healer at a temple. That is a service the person offers, not
-// a fact about their race or their trade, so it is a component an NPC can be
-// given rather than a base class -- the same shape as the guard role.
-//
-// The component asks the NPC for two verbs (see query_component_actions): one
-// to explain the service, one to request it. Being dead is the only condition,
-// plus a cooldown so the service cannot be leaned on repeatedly.
+// A service somebody offers, not a fact about their race or trade, so it is a
+// component rather than a base class -- the same shape as the guard role. It
+// asks the NPC for two verbs: one to explain the service, one to request it.
+// Being dead is the only condition, plus a cooldown.
 
 #include <language.h>
 

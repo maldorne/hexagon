@@ -145,9 +145,8 @@ private object _spawn_component(string type, mapping attrs)
   return c;
 }
 
-// Give the NPC the verbs a component asked for. Actions are matched against the
-// objects standing in the player's environment, and a component stands nowhere:
-// it is owned by the NPC. So the verb is registered here and forwarded back.
+// A component stands in no room, so it cannot carry a verb. The NPC registers
+// what it asked for and forwards the call back.
 private void _register_component_actions(object c)
 {
   mapping wanted;
@@ -593,11 +592,8 @@ void apply_template(mapping t, varargs int born)
       adjust_money(amount, money["type"] ? money["type"] : BASE_COIN);
   }
 
-  // What the type knows how to do, and what it knows how to be. All three are
-  // re-applied on every materialization rather than only at birth: none of them
-  // is carried by the npc.o savefile, and re-applying picks up a template that
-  // was edited since. add_known_skill and add_component both no-op on something
-  // already there, so repeating costs nothing.
+  // What the type knows how to do and how to be. Re-applied every
+  // materialization: none of it rides in the npc.o, and repeating is a no-op.
   if (pointerp(t["skills"]))
   {
     mixed skills;
@@ -658,11 +654,8 @@ void apply_template(mapping t, varargs int born)
     if (social["deity"])      set_deity_ob(social["deity"]);
   }
 
-  // How the world reads this type. Perceived alignment is otherwise accumulated
-  // from what an NPC is -- its race adds its own as the race object is applied
-  // -- so a type that wants to say how it is seen says it here, after the social
-  // objects, where it has the last word. A type that says nothing is read by
-  // what it is made of.
+  // How the world reads this type. Perceived alignment accumulates from the
+  // social objects, so this comes after them to have the last word.
   if (!undefinedp(t["ext_align"]))
     set_ext_align(t["ext_align"]);
 

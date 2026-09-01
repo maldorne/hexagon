@@ -694,28 +694,10 @@ int restore_from_file_name(string name)
     if (clonep() && strlen(file_name))
       LOCATION_CLEANER->register_object(this_object());
 
-    // restore this location's NPCs on the next tick, once it is fully loaded
-    // and in the world: bring back exactly what the census says lives here
-    // (see area::restore_location_npcs). New NPCs are added by the periodic
-    // repopulation system, not on load.
-    if (clonep() && strlen(file_name))
-      call_out("_restore_area_npcs", 0);
-
     return 1;
   }
 
   return 0;
-}
-
-// call_out target: ask our area to re-materialize the NPCs the census assigns
-// to this location (restore-only, not a fresh populate).
-void _restore_area_npcs()
-{
-  object a;
-
-  a = query_area();
-  if (a)
-    a->restore_location_npcs(this_object());
 }
 
 int guess_coordinates()

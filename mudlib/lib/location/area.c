@@ -273,6 +273,10 @@ object load_location(string location_file_name)
   location->restore_from_file_name(location_file_name);
   loaded_locations[location_file_name] = location;
 
+  // The only path from unloaded to loaded, so the only place its people are
+  // brought in. Done before handing it back, or the first look shows it empty.
+  census::restore_location_npcs(location);
+
   return location;
 }
 

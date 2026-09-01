@@ -14,9 +14,8 @@ inherit equip     "/lib/living/equip";
 
 int wasplayer;
 string owner, race_ob, race_name, filename;
-// The proper name of whoever this was, when they had one of their own. The
-// corpse reads as what the world saw of them -- a cleric, a farmer -- so the
-// name is kept here rather than shown.
+// The name of whoever this was, kept rather than shown: the corpse reads as
+// what the world saw of them.
 string given_name;
 static int decay;
 static object original;

@@ -1,19 +1,13 @@
-// Temple component. Attach to a location consecrated to a deity: a temple, a
-// shrine, a chapel, a roadside altar. It carries which deity the place is
-// given to, and it answers for whether the place is open.
+// Temple component. Marks a location consecrated to a deity and answers for
+// whether it is open.
 //
-// A temple is consecrated to its god and stays consecrated whoever holds the
-// ground it stands on. Sovereignty over that ground changes, though, and the
-// citizenship holding it decides which faiths it will have practised: when the
-// temple's deity is not among them, the place closes. Nobody is taken on to
-// serve there and nobody is replaced when they die, and the location says so
-// when it is looked at. Nothing is lost meanwhile -- the building is still a
-// temple to the same god, and it opens again if the land changes hands back.
+// A temple stays consecrated whoever holds the ground, but the citizenship
+// holding it decides which faiths may be practised there. When the deity is not
+// among them the place closes: nobody is taken on, nobody is replaced, and the
+// description says so. It opens again if the land changes hands back.
 //
-// The land is asked of the nearest area that claims a citizenship, walking up
-// from this location's own: a shrine on a road outside the walls belongs to no
-// town, and the question of who may worship there is still answered by the
-// people whose road it is.
+// The land is the nearest area up the chain that claims a citizenship, so a
+// shrine on a road outside the walls still answers to whoever holds the road.
 
 #include <room/location.h>
 #include <areas/diplomacy.h>

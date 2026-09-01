@@ -122,10 +122,8 @@ private string hours_of(object area, string source)
 // Lay rows out in columns, the first row being the header: every column is as
 // wide as its widest cell, and a rule under the header marks where the data
 // starts.
-// Whose books a report is reading. The census, the roster, the jobs and the
-// houses belong to the community, and an area that delegates up has none of its
-// own -- so a report run from a sub-area is showing the community's list, not
-// that area's.
+// Whose books a report is reading: the census, roster, jobs and houses belong
+// to the community, so a sub-area is showing its community's list, not its own.
 private string books_of(object area)
 {
   object owner;
@@ -134,9 +132,8 @@ private string books_of(object area)
   return "'" + (string)((owner ? owner : area)->query_area_name()) + "'";
 }
 
-// Where those books are being read from, when that is somewhere other than the
-// place that keeps them. Goes at the end of a header, so whatever the report
-// narrowed itself to still reads next to what it is a list of.
+// Where they are being read from, when that is not where they are kept. Goes at
+// the end of a header, so a filter still reads next to what it filtered.
 private string seen_from(object area)
 {
   object owner;

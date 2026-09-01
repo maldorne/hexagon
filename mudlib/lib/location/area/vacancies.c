@@ -615,11 +615,8 @@ int reseat_vacancy(string job)
 // caller's business, and a load already does it: the location's restore asks
 // for its jobs to be filled and then materializes everybody it finds, so doing
 // it from here as well would have the two calling each other without end.
-// Whether the place a job is held in is shut to it. The location answers for
-// itself through its components, so a post at a temple the land will not have
-// goes unstaffed without the job being touched: the seat is still declared and
-// the place is still a temple, and both take people again when the ground
-// changes hands.
+// Whether the place a job is held in is shut to it. The location answers
+// through its components; the job itself is never touched.
 private int _venue_closed(mapping vacancy)
 {
   string at;
@@ -633,12 +630,8 @@ private int _venue_closed(mapping vacancy)
   return loc ? (int)loc->query_venue_closed() : 0;
 }
 
-// Staff one job: take somebody on for every seat nobody holds, and bring each
-// new holder into the world if the place they were seated at is standing
-// loaded. Filling alone only writes a census row, and a location nobody enters
-// or leaves would never bring that person in.
-//
-// Idempotent in both halves: a job already at its count takes nobody on, and
+// Staff one job: take somebody on for every empty seat, and bring them in if
+// their place is loaded. Idempotent: a full job hires nobody, and
 // restore_location_npcs leaves an already-present uuid alone.
 private void _staff(mapping vacancy)
 {
@@ -668,13 +661,9 @@ private void _staff(mapping vacancy)
   }
 }
 
-// Staff every job this settlement offers. This is the whole-settlement pass: a
-// scheduled population check would call this one.
-//
-// Nothing calls it on its own today. How a settlement replaces the people it
-// loses is a decision we have not made, so taking somebody on is always
-// something that was asked for, never something that happened while nobody was
-// looking. These are the entry points whatever we decide should use.
+// Staff every job this settlement offers -- the whole-settlement pass, which a
+// scheduled population check would call. Nothing calls it on its own: how a
+// settlement replaces its dead is undecided, so hiring is always asked for.
 void staff_vacancies()
 {
   mapping * all;

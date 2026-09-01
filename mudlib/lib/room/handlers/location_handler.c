@@ -116,14 +116,6 @@ object load_location(string file_name)
   if (!load_object(SECTORS_HANDLER)->is_location_indexed(location))
     load_object(SECTORS_HANDLER)->add_location(location);
 
-  // Hand back a place that is already peopled. A location brings its own back a
-  // tick after it loads, which is late for whoever asked for it: somebody
-  // walking into a place that was not loaded arrives, is shown the room, and
-  // only sees who was there when they look a second time. Doing it here, before
-  // the caller ever gets the location, is what makes the first look right. The
-  // area's own restore is idempotent, so its later tick finds nothing to do.
-  area->restore_location_npcs(location);
-
   return location;
 }
 

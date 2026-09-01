@@ -28,11 +28,8 @@ void create()
 // location, with no per-animal identity, uuid or savefile. They are cloned
 // from the template when the location loads and simply vanish when it unloads.
 // Returns 1 when it was recorded.
-// Whether a bucket may hold this source at all. The buckets count the anonymous
-// half of the population, so what goes in them is what the sweep tops up: on the
-// roster, and not a kind the world knows one by one. A citizen is somebody, and
-// somebody belongs in the census with a name and a savefile, never as a head of
-// cattle.
+// Whether a bucket may hold this source: on the roster, and not sentient.
+// Somebody the world knows one by one belongs in the census, not in a count.
 private int _is_monster_source(string source)
 {
   mapping t;
@@ -206,13 +203,8 @@ void restore_location_monsters(object loc, string file)
   {
     int want, have, j;
 
-    // A bucket only ever holds what may be counted rather than known -- see
-    // _is_monster_source, which assign_monster asks on the way in. What it may
-    // hold changes under it, though: opening a vacancy takes that type out of
-    // the statistical population, and a type the world came to know one by one
-    // stops belonging here at all. Either way the bucket recorded at conversion
-    // still names it, so drop it rather than spawn a nameless second copy of
-    // somebody the census already has.
+    // What a bucket may hold changes under it -- opening a vacancy takes a
+    // type off the roster. Drop what no longer belongs instead of spawning it.
     if (!_is_monster_source(sources[i]))
     {
       map_delete(bucket, sources[i]);

@@ -289,9 +289,8 @@ object make_corpse()
   room_mess = "";
 
   corpse = clone_object(CORPSE_OB);
-  // What the world saw, not who they were: a generated citizen goes by the word
-  // for their trade in every room list they appear in, and their corpse reads
-  // the same way. The name they carried is kept on the corpse itself.
+  // What the world saw, not who they were: a citizen goes by their trade in
+  // every room list, and their corpse reads the same. The name is kept on it.
   corpse->set_owner(this_object()->query_cap_name(), this_object());
 
   corpse->start_decay();
