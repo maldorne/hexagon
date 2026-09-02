@@ -15,7 +15,7 @@ void setup()
     "Report on the houses of the game you are standing in.\n" +
     "\n" +
     "  families             every house, and how it stands\n" +
-    "  families <surname>   one house: its people, its roll, its property\n" +
+    "  families <surname>   its people, its history, what it owns\n" +
     "\n" +
     "A family is a surname, the people who belong to it and what it owns. " +
     "It is kept in a register of its own rather than on any of its members, " +
@@ -23,11 +23,12 @@ void setup()
     "surname, and everything else -- who is married to whom, whose child " +
     "somebody is, which house a door belongs to -- is asked of the register.\n" +
     "\n" +
-    "The 'roll' is everyone the house ever held and what became of them. An " +
-    "NPC's savefile is deleted when it dies, so without the roll the dead " +
-    "stop being nameable and a generation means nothing. A house whose roll " +
-    "still has names but whose living count is zero is extinct: its property " +
-    "is freed, but its surname is spent and never minted again.\n" +
+    "A house keeps a record of everyone who has ever belonged to it and what " +
+    "became of each -- the living, the dead, and those who married into " +
+    "another house. An NPC's savefile is deleted when it dies, so without it " +
+    "the dead stop being nameable and a generation means nothing. A house " +
+    "that held people once and holds none now is extinct: its property is " +
+    "freed, but its surname is spent and never minted again.\n" +
     "\n" +
     "Houses are founded with the builder ring ('build family'), and by " +
     "'build homes', which gives each household it houses a house of its own.");
@@ -91,17 +92,18 @@ private int do_list(string game, object me)
     return 1;
   }
 
-  rows = ({ ({ "house", "living", "roll", "property", "" }) });
+  rows = ({ ({ "house", "living", "gone", "property", "" }) });
   for (i = 0; i < sizeof(names); i++)
   {
     living = sizeof((string *)FAMILY_HANDLER->query_members(game, names[i]));
     rows += ({ ({ names[i],
                   "" + living,
-                  "" + map_sizeof((mapping)FAMILY_HANDLER->query_roll(
-                                    game, names[i])),
+                  "" + (map_sizeof((mapping)FAMILY_HANDLER->query_history(
+                                      game, names[i])) - living),
                   "" + sizeof((string *)FAMILY_HANDLER->query_properties(
                                 game, names[i])),
-                  living ? "" : "extinct" }) });
+                  FAMILY_HANDLER->is_extinct(game, names[i]) ? "extinct"
+                    : (living ? "" : "nobody has moved in yet") }) });
   }
 
   write("Houses of " + game + ":\n" + columns(rows));
@@ -111,7 +113,7 @@ private int do_list(string game, object me)
 // ===== families <surname> =====
 private int do_house(string game, object me, string surname)
 {
-  mapping roll;
+  mapping history;
   string * ids, * props, * parents;
   string * * rows;
   string out;
@@ -125,14 +127,16 @@ private int do_house(string game, object me, string surname)
   }
 
   ids = (string *)FAMILY_HANDLER->query_members(game, surname);
-  roll = (mapping)FAMILY_HANDLER->query_roll(game, surname);
+  history = (mapping)FAMILY_HANDLER->query_history(game, surname);
   props = (string *)FAMILY_HANDLER->query_properties(game, surname);
 
   out = "House " + surname + ", of " +
         (string)FAMILY_HANDLER->query_family(game, surname)[FAMILY_CITIZENSHIP] +
         "\n\n";
 
-  if (!sizeof(ids))
+  if (!sizeof(ids) && !map_sizeof(history))
+    out += "It was founded and nobody has moved in yet.\n\n";
+  else if (!sizeof(ids))
     out += "Nobody is left of it: the house is extinct and its surname " +
            "spent.\n\n";
   else
@@ -160,17 +164,19 @@ private int do_house(string game, object me, string surname)
     out += columns(rows) + "\n";
   }
 
-  // The roll is the point of the register: the dead and the departed are still
-  // named here, wherever their savefile went.
-  ids = map_indices(roll);
-  rows = ({ ({ "roll", "" }) });
+  // The point of keeping a history: the dead and the departed are still named
+  // here, wherever their savefile went. Only they -- the living are above.
+  ids = map_indices(history);
+  rows = ({ ({ "history", "what became of them" }) });
   for (i = 0; i < sizeof(ids); i++)
   {
-    fate = roll[ids[i]][FAMILY_FATE];
-    rows += ({ ({ roll[ids[i]][FAMILY_NAME],
-                  stringp(fate) ? fate : "living" }) });
+    fate = history[ids[i]][FAMILY_FATE];
+    if (!stringp(fate))
+      continue;
+    rows += ({ ({ history[ids[i]][FAMILY_NAME], fate }) });
   }
-  out += columns(rows) + "\n";
+  if (sizeof(rows) > 1)
+    out += columns(rows) + "\n";
 
   if (!sizeof(props))
     out += "It owns nothing.\n";

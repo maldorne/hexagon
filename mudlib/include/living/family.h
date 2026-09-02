@@ -14,18 +14,18 @@
 // A family's record
 #define FAMILY_CITIZENSHIP "citizenship"
 #define FAMILY_MEMBERS     "members"
-#define FAMILY_ROLL        "roll"
+#define FAMILY_HISTORY     "history"
 #define FAMILY_PROPERTIES  "properties"
 
-// A member's row, and a roll entry
+// A member's row, and an entry in the history
 #define FAMILY_SPOUSE  "spouse"
 #define FAMILY_PARENTS "parents"
 #define FAMILY_NAME    "name"
 #define FAMILY_FATE    "fate"
 
-// What became of somebody the family no longer holds. The roll keeps them
-// either way: an NPC's savefile is deleted when it dies, so without this the
-// dead stop being nameable and a generation means nothing.
+// What became of somebody the house no longer holds. The history keeps them either
+// way: an NPC's savefile is deleted when it dies, so without this the dead stop
+// being nameable and a generation means nothing.
 #define FAMILY_DIED    "died"
 #define FAMILY_MARRIED "married"
 

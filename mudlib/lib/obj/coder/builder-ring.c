@@ -102,7 +102,7 @@ inherit "/lib/armour.c";
   "  build family leave <who>             put somebody out of theirs\n" + \
   "  build family marry <who> <to whom>   wed two people, moving one house\n" + \
   "  build family parents <who> <a> [b]   say whose child somebody is\n" + \
-  "  build family show <surname>          its people, its roll, its property\n" + \
+  "  build family show <surname>          its people, its history, its property\n" + \
   "  build family list                    every house of this game"
 
 static string * selection;
@@ -2027,7 +2027,7 @@ private object _family_target(string who)
 
 // What to write a member down as. A generated citizen has a proper name of its
 // own; query_cap_name deliberately answers with the kind word ("Ciudadana") so
-// an NPC does not read like a player in a room list, and a roll wants the name.
+// an NPC does not read like a player in a room list, and the history wants the name.
 private string _family_display(object who)
 {
   mixed shown;
@@ -2078,10 +2078,11 @@ int do_family(string str)
 
     out = "Houses of " + game + ":\n";
     for (i = 0; i < sizeof(names); i++)
-      out += sprintf("  %-20s %2d living, %2d on the roll, %d propert%s\n",
+      out += sprintf("  %-20s %2d living, %2d gone, %d propert%s\n",
                names[i],
                sizeof((string *)FAMILY_HANDLER->query_members(game, names[i])),
-               map_sizeof((mapping)FAMILY_HANDLER->query_roll(game, names[i])),
+               map_sizeof((mapping)FAMILY_HANDLER->query_history(game, names[i]))
+                 - sizeof((string *)FAMILY_HANDLER->query_members(game, names[i])),
                sizeof((string *)FAMILY_HANDLER->query_properties(game, names[i])),
                sizeof((string *)FAMILY_HANDLER->query_properties(game, names[i]))
                  == 1 ? "y" : "ies");
@@ -2091,7 +2092,7 @@ int do_family(string str)
 
   if (verb == "show")
   {
-    mapping roll;
+    mapping history;
     string * ids, * props;
     string out;
     mixed spouse;
@@ -2111,7 +2112,7 @@ int do_family(string str)
     }
 
     ids = (string *)FAMILY_HANDLER->query_members(game, surname);
-    roll = (mapping)FAMILY_HANDLER->query_roll(game, surname);
+    history = (mapping)FAMILY_HANDLER->query_history(game, surname);
     props = (string *)FAMILY_HANDLER->query_properties(game, surname);
 
     out = "House " + surname + "\n";
@@ -2129,11 +2130,12 @@ int do_family(string str)
                  ? "  (has parents)" : "");
     }
 
-    out += "  roll\n";
-    ids = map_indices(roll);
+    out += "  history\n";
+    ids = map_indices(history);
     for (i = 0; i < sizeof(ids); i++)
-      out += sprintf("    %-24s %s\n", roll[ids[i]][FAMILY_NAME],
-               roll[ids[i]][FAMILY_FATE] ? roll[ids[i]][FAMILY_FATE] : "living");
+      if (history[ids[i]][FAMILY_FATE])
+        out += sprintf("    %-24s %s\n", history[ids[i]][FAMILY_NAME],
+                       history[ids[i]][FAMILY_FATE]);
 
     out += "  property " + (sizeof(props) ? implode(props, ", ") : "none") +
            "\n";

@@ -9,7 +9,7 @@
  * Keeping the relations here rather than on each living is what lets a family
  * survive its people. An NPC's savefile is deleted the moment it dies, so a
  * relation written on the individual dies with them and a generation stops
- * being nameable. The roll below is the answer: every family keeps a record of
+ * being nameable. The history below is the answer: every house keeps a record of
  * everyone who ever belonged to it and what became of them, and the living
  * members are simply those whose id still resolves to somebody.
  *
@@ -23,12 +23,12 @@
  *   families[game][surname] == ([ "citizenship": name,
  *                                 "members":     ([ id : ([ "spouse":  id,
  *                                                           "parents": ({ id }) ]) ]),
- *                                 "roll":        ([ id : ([ "name": s,
+ *                                 "history":     ([ id : ([ "name": s,
  *                                                           "fate": s ]) ]),
  *                                 "properties":  ({ location files }) ])
  *
  * A surname is spent for good. When the last member dies the family is extinct:
- * its properties are freed, but the record and its roll stay, and the name is
+ * its properties are freed, but the record and its history stay, and the name is
  * never minted again. A family holding a player never goes extinct on its own.
  */
 
@@ -119,22 +119,24 @@ string * query_members(string game, string surname)
   return family ? map_indices(family[FAMILY_MEMBERS]) : ({ });
 }
 
-// Everyone the family ever held, living or not. What makes a genealogy possible
-// after the people in it are gone.
-mapping query_roll(string game, string surname)
+// Everyone the house has ever held and what became of each: the living, the
+// dead, and those who married into another house. This is what makes a
+// genealogy possible after the people in it are gone.
+mapping query_history(string game, string surname)
 {
   mapping family;
 
   family = query_family(game, surname);
-  return family ? family[FAMILY_ROLL] : ([ ]);
+  return family ? family[FAMILY_HISTORY] : ([ ]);
 }
 
 string query_member_name(string game, string surname, string id)
 {
-  mapping roll;
+  mapping history;
 
-  roll = query_roll(game, surname);
-  return (roll[id] && roll[id][FAMILY_NAME]) ? roll[id][FAMILY_NAME] : id;
+  history = query_history(game, surname);
+  return (history[id] && history[id][FAMILY_NAME])
+           ? history[id][FAMILY_NAME] : id;
 }
 
 string query_spouse(string game, string id)
@@ -166,8 +168,8 @@ string * query_parents(string game, string id)
 }
 
 // Whose children somebody is. Not stored: it is the inverse of parents, read
-// off the members and the roll together, so it cannot fall out of step with
-// them -- and the roll is what keeps a daughter who married into another house
+// off the members and the history together, so it cannot fall out of step with
+// them -- and the history is what keeps a daughter who married into another house
 // answerable here, where her parents still live.
 string * query_children(string game, string id)
 {
@@ -225,7 +227,7 @@ string * query_siblings(string game, string id)
 
 // Ask the citizenship's pool for a surname nobody in this game has used. The
 // register never forgets a name, so an extinct family's surname is spent too:
-// two houses of the same name, generations apart, would make the roll a lie.
+// two houses of the same name, generations apart, would make the history a lie.
 string mint_surname(string game, string citizenship)
 {
   mixed style, name;
@@ -269,7 +271,7 @@ int found_family(string game, string surname, string citizenship)
 
   all[surname] = ([ FAMILY_CITIZENSHIP: citizenship ? citizenship : "",
                     FAMILY_MEMBERS:     ([ ]),
-                    FAMILY_ROLL:        ([ ]),
+                    FAMILY_HISTORY:        ([ ]),
                     FAMILY_PROPERTIES:  ({ }) ]);
   _save();
   return 1;
@@ -279,7 +281,7 @@ int found_family(string game, string surname, string citizenship)
 // Membership
 // ---------------------------------------------------------------------------
 
-// Take somebody in. `name` is what to call them afterwards: the roll keeps it
+// Take somebody in. `name` is what to call them afterwards: the history keeps it
 // so the dead stay nameable once their savefile is gone.
 int add_member(string game, string surname, string id, string name)
 {
@@ -293,13 +295,13 @@ int add_member(string game, string surname, string id, string name)
     return 0;
 
   family[FAMILY_MEMBERS][id] = ([ ]);
-  family[FAMILY_ROLL][id] = ([ FAMILY_NAME: name ? name : id ]);
+  family[FAMILY_HISTORY][id] = ([ FAMILY_NAME: name ? name : id ]);
   _game_members(game)[id] = surname;
   _save();
   return 1;
 }
 
-// Somebody married out. They leave the members but stay in the roll, marked
+// Somebody married out. They leave the members but stay in the history, marked
 // with where they went -- which is how the house they left can still say whose
 // children they were.
 int member_married_out(string game, string id, string into)
@@ -313,14 +315,20 @@ int member_married_out(string game, string id, string into)
     return 0;
 
   map_delete(family[FAMILY_MEMBERS], id);
-  if (family[FAMILY_ROLL][id])
-    family[FAMILY_ROLL][id][FAMILY_FATE] = FAMILY_MARRIED + " " + into;
+  if (family[FAMILY_HISTORY][id])
+    family[FAMILY_HISTORY][id][FAMILY_FATE] = FAMILY_MARRIED + " " + into;
   map_delete(_game_members(game), id);
+
+  // a house nobody lives in holds nothing, however it emptied: the last of a
+  // line marrying away leaves the roof as free as the last of it dying
+  if (!map_sizeof(family[FAMILY_MEMBERS]))
+    family[FAMILY_PROPERTIES] = ({ });
+
   _save();
   return 1;
 }
 
-// Somebody died. They leave the members and are marked in the roll. If nobody
+// Somebody died. They leave the members and are marked in the history. If nobody
 // living is left the family is extinct: its properties are freed, and the
 // record stays as history so the name is never minted again.
 int member_died(string game, string id)
@@ -344,8 +352,8 @@ int member_died(string game, string id)
       map_delete(members[ids[i]], FAMILY_SPOUSE);
 
   map_delete(members, id);
-  if (family[FAMILY_ROLL][id])
-    family[FAMILY_ROLL][id][FAMILY_FATE] = FAMILY_DIED;
+  if (family[FAMILY_HISTORY][id])
+    family[FAMILY_HISTORY][id][FAMILY_FATE] = FAMILY_DIED;
   map_delete(_game_members(game), id);
 
   if (!map_sizeof(members))
@@ -355,15 +363,20 @@ int member_died(string game, string id)
   return 1;
 }
 
-// Whether a family still holds anybody. A family with a player in it is never
-// extinct on its own, which this answers for free: the player is a member until
-// they leave.
+// Whether a house has died out: it held people once and holds none now. A house
+// just founded and not yet moved into is empty but not extinct, and the history is
+// what tells the two apart. A house with a player in it is never extinct on its
+// own, which this answers for free: the player is a member until they leave.
 int is_extinct(string game, string surname)
 {
   mapping family;
 
   family = query_family(game, surname);
-  return family ? !map_sizeof(family[FAMILY_MEMBERS]) : 0;
+  if (!family)
+    return 0;
+
+  return !map_sizeof(family[FAMILY_MEMBERS]) &&
+          map_sizeof(family[FAMILY_HISTORY]);
 }
 
 // ---------------------------------------------------------------------------
