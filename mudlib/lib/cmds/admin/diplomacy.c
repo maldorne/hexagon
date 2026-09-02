@@ -271,7 +271,8 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
 
-  h = load_object(DIPLOMACY_HANDLER);
+  // the graph belongs to the game under our feet, so ask for that one
+  h = handler("diplomacy", me);
   words = (str && strlen(str)) ? explode(str, " ") - ({ "" }) : ({ });
 
   // --- listing (columns) -------------------------------------------------
@@ -281,7 +282,7 @@ static int cmd(string str, object me, string verb)
     mixed * label_rows;
     int i;
 
-    g = h->query_relations(game);
+    g = h->query_relations();
     if (!mappingp(g) || !map_sizeof(g))
     {
       write("Game '" + game + "' has no diplomacy defined yet. " +
@@ -303,7 +304,7 @@ static int cmd(string str, object me, string verb)
   // --- tree (same columns, name column hung under ASCII lines) ------------
   if (words[0] == "tree")
   {
-    g = h->query_relations(game);
+    g = h->query_relations();
     if (!mappingp(g) || !map_sizeof(g))
     {
       write("Game '" + game + "' has no diplomacy defined yet.\n");
@@ -322,7 +323,7 @@ static int cmd(string str, object me, string verb)
       notify_fail("Usage: diplomacy add <citizenship>\n");
       return 0;
     }
-    h->add_citizenship(game, words[1]);
+    h->add_citizenship(words[1]);
     write("Added citizenship '" + words[1] + "' to game '" + game + "'.\n");
     return 1;
   }
@@ -334,7 +335,7 @@ static int cmd(string str, object me, string verb)
       notify_fail("Usage: diplomacy remove <citizenship>\n");
       return 0;
     }
-    if (!h->remove_citizenship(game, words[1]))
+    if (!h->remove_citizenship(words[1]))
     {
       notify_fail("No citizenship '" + words[1] + "' in game '" + game + "'.\n");
       return 0;
@@ -344,7 +345,7 @@ static int cmd(string str, object me, string verb)
   }
 
   // --- from here, words[0] is a citizenship name -------------------------
-  g = h->query_relations(game);
+  g = h->query_relations();
   if (!g[words[0]])
   {
     notify_fail("No citizenship '" + words[0] + "' in game '" + game +
@@ -377,31 +378,31 @@ static int cmd(string str, object me, string verb)
     switch (field)
     {
       case "parent":
-        h->set_parent(game, cit, (value == "none") ? "" : value);
+        h->set_parent(cit, (value == "none") ? "" : value);
         break;
       case "security":
-        h->set_security(game, cit, to_int(value));
+        h->set_security(cit, to_int(value));
         break;
       case "guard":
-        h->set_guard(game, cit, (value == "none") ? "" : value);
+        h->set_guard(cit, (value == "none") ? "" : value);
         break;
       case "deity":
-        h->add_deity(game, cit, value);
+        h->add_deity(cit, value);
         break;
       case "undeity":
-        h->remove_deity(game, cit, value);
+        h->remove_deity(cit, value);
         break;
       case "ally":
-        h->add_relationship(game, DIPLOMACY_RELATION_ALLY, cit, value);
+        h->add_relationship(DIPLOMACY_RELATION_ALLY, cit, value);
         break;
       case "unally":
-        h->remove_relationship(game, DIPLOMACY_RELATION_ALLY, cit, value);
+        h->remove_relationship(DIPLOMACY_RELATION_ALLY, cit, value);
         break;
       case "enemy":
-        h->add_relationship(game, DIPLOMACY_RELATION_ENEMY, cit, value);
+        h->add_relationship(DIPLOMACY_RELATION_ENEMY, cit, value);
         break;
       case "unenemy":
-        h->remove_relationship(game, DIPLOMACY_RELATION_ENEMY, cit, value);
+        h->remove_relationship(DIPLOMACY_RELATION_ENEMY, cit, value);
         break;
       default:
         notify_fail("Unknown field '" + field + "'. Use parent, security, " +
@@ -412,7 +413,7 @@ static int cmd(string str, object me, string verb)
   }
 
   // reflect the new state back
-  g = h->query_relations(game);
+  g = h->query_relations();
   write("Updated '" + words[0] + "':\n" + _detail(words[0], g[words[0]]));
   return 1;
 }

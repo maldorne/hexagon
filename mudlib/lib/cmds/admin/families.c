@@ -4,8 +4,8 @@
 inherit CMD_BASE;
 
 private string columns(string * * rows);
-private int do_list(string game, object me);
-private int do_house(string game, object me, string surname);
+private int do_list(object me, string game);
+private int do_house(object me, string surname);
 
 void setup()
 {
@@ -78,13 +78,13 @@ private string columns(string * * rows)
 }
 
 // ===== families =====
-private int do_list(string game, object me)
+private int do_list(object me, string game)
 {
   string * names;
   string * * rows;
   int i, living;
 
-  names = (string *)FAMILY_HANDLER->query_families(game);
+  names = (string *)handler("families", me)->query_families();
   if (!sizeof(names))
   {
     write("No house has been founded in " + game + ".\n");
@@ -94,14 +94,14 @@ private int do_list(string game, object me)
   rows = ({ ({ "house", "living", "gone", "property", "" }) });
   for (i = 0; i < sizeof(names); i++)
   {
-    living = sizeof((string *)FAMILY_HANDLER->query_members(game, names[i]));
+    living = sizeof((string *)handler("families", me)->query_members(names[i]));
     rows += ({ ({ names[i],
                   "" + living,
-                  "" + (map_sizeof((mapping)FAMILY_HANDLER->query_history(
-                                      game, names[i])) - living),
-                  "" + sizeof((string *)FAMILY_HANDLER->query_properties(
-                                game, names[i])),
-                  FAMILY_HANDLER->is_extinct(game, names[i]) ? "extinct"
+                  "" + (map_sizeof((mapping)handler("families", me)->query_history(
+                                      names[i])) - living),
+                  "" + sizeof((string *)handler("families", me)->query_properties(
+                                names[i])),
+                  handler("families", me)->is_extinct(names[i]) ? "extinct"
                     : (living ? "" : "nobody has moved in yet") }) });
   }
 
@@ -110,7 +110,7 @@ private int do_list(string game, object me)
 }
 
 // ===== families <surname> =====
-private int do_house(string game, object me, string surname)
+private int do_house(object me, string surname)
 {
   mapping history;
   string * ids, * props, * parents;
@@ -119,18 +119,18 @@ private int do_house(string game, object me, string surname)
   mixed spouse, fate;
   int i;
 
-  if (!FAMILY_HANDLER->has_family(game, surname))
+  if (!handler("families", me)->has_family(surname))
   {
-    notify_fail("No house of that name in " + game + ".\n");
+    notify_fail("No house of that name here.\n");
     return 0;
   }
 
-  ids = (string *)FAMILY_HANDLER->query_members(game, surname);
-  history = (mapping)FAMILY_HANDLER->query_history(game, surname);
-  props = (string *)FAMILY_HANDLER->query_properties(game, surname);
+  ids = (string *)handler("families", me)->query_members(surname);
+  history = (mapping)handler("families", me)->query_history(surname);
+  props = (string *)handler("families", me)->query_properties(surname);
 
   out = "House " + surname + ", of " +
-        (string)FAMILY_HANDLER->query_family(game, surname)[FAMILY_CITIZENSHIP] +
+        (string)handler("families", me)->query_family(surname)[FAMILY_CITIZENSHIP] +
         "\n\n";
 
   if (!sizeof(ids) && !map_sizeof(history))
@@ -145,19 +145,19 @@ private int do_house(string game, object me, string surname)
     {
       // no (string) cast on the spouse: the unmarried have none, and the cast
       // is a conversion kfun that errors on nil
-      spouse = FAMILY_HANDLER->query_spouse(game, ids[i]);
-      parents = (string *)FAMILY_HANDLER->query_parents(game, ids[i]);
+      spouse = handler("families", me)->query_spouse(ids[i]);
+      parents = (string *)handler("families", me)->query_parents(ids[i]);
 
       rows += ({ ({
-        (string)FAMILY_HANDLER->query_member_name(game, surname, ids[i]),
+        (string)handler("families", me)->query_member_name(surname, ids[i]),
         stringp(spouse)
-          ? (string)FAMILY_HANDLER->query_member_name(game, surname, spouse)
+          ? (string)handler("families", me)->query_member_name(surname, spouse)
           : "-",
         sizeof(parents)
-          ? (string)FAMILY_HANDLER->query_member_name(game, surname, parents[0])
+          ? (string)handler("families", me)->query_member_name(surname, parents[0])
               + (sizeof(parents) > 1 ? " and " +
-                  (string)FAMILY_HANDLER->query_member_name(
-                    game, surname, parents[1]) : "")
+                  (string)handler("families", me)->query_member_name(
+                    surname, parents[1]) : "")
           : "-" }) });
     }
     out += columns(rows) + "\n";
@@ -207,9 +207,9 @@ static int cmd(string str, object me, string verb)
   }
 
   if (!sizeof(args))
-    return do_list(game, me);
+    return do_list(me, game);
   if (sizeof(args) == 1)
-    return do_house(game, me, capitalize(args[0]));
+    return do_house(me, capitalize(args[0]));
 
   notify_fail("Usage: families [ <surname> ]\n");
   return 0;

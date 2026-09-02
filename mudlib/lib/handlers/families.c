@@ -1,7 +1,7 @@
 /*
  * Families handler.
  *
- * The register of every family in every game, and the only thing that knows who
+ * The register of every family in every and the only thing that knows who
  * belongs to whom. A living carries nothing but its surname (the family slot of
  * its social objects); everything else -- who is married to whom, whose child
  * somebody is, what the house belongs to -- is here.
@@ -17,12 +17,13 @@
  * "player:<name>" -- so nothing here has to care which it holds. That is what
  * lets a player marry an NPC, or a family hold both.
  *
- * Every game keeps its own register, in its own savefile beside the rest of its
- * state: a surname is unique within its game, not across the mudlib, and the
- * houses of one world have nothing to say about another's. A game's register is
- * read the first time that game is asked about and written whenever it changes.
+ * Every game has its own handler: /games/<game>/handlers/families.c inherits
+ * this one and points query_save_file at its own file, so a surname is unique
+ * within its game and the houses of one world have nothing to say about
+ * another's. Reach it with handler("families", ob) -- never by path -- so the
+ * register you get is the one belonging to ob's game.
  *
- *   families[game][surname] == ([ "citizenship": name,
+ *   families[surname] == ([ "citizenship": name,
  *                                 "members":     ([ id : ([ "spouse":  id,
  *                                                           "parents": ({ id }) ]) ]),
  *                                 "history":     ([ id : ([ "name": s,
@@ -40,160 +41,122 @@
 
 inherit "/lib/core/object.c";
 
-// The register of the game whose file is currently loaded, and which game that
-// is. One game at a time: a handler holds one set of variables, and save_object
-// writes all of them, so the file being written has to be the one they came
-// from. Every entry point names its game and _load_game swaps them over.
 //   families:  ([ surname : family record ])
 //   member_of: ([ member id : surname ]), so a living finds its house without
 //              walking the register
 mapping families;
 mapping member_of;
-// static: which game is in memory is bookkeeping, not data. Were it saved,
-// restoring a game's file would overwrite the name of the game being loaded
-// with whatever was written into that file.
-static string loaded_game;
 
 private void _save();
-private mapping _game_families(string game);
+string query_save_file();
 
 void create()
 {
   families = ([ ]);
   member_of = ([ ]);
-  loaded_game = "";
   ::create();
+  restore_object(query_save_file(), 1);
 }
 
-// The file a game's houses live in, beside the rest of that game's state.
-private string _save_file(string game)
+// Where this register is kept. A game's own handler overrides it to point at
+// /save/games/<game>/families.o; the shared one answers for anybody without.
+string query_save_file()
 {
-  return FAMILY_SAVE_DIR + game + FAMILY_SAVE_FILE;
-}
-
-// Make `game` the one in memory, writing back whatever was there before. Every
-// read and every write goes through this, so a caller never has to think about
-// which game is loaded.
-private void _load_game(string game)
-{
-  if (!game || !strlen(game) || game == loaded_game)
-    return;
-
-  if (strlen(loaded_game))
-    save_object(_save_file(loaded_game), 1);
-
-  families = ([ ]);
-  member_of = ([ ]);
-  loaded_game = game;
-  restore_object(_save_file(game), 1);
+  return FAMILY_SAVE;
 }
 
 void setup()
 {
-  // anticloning, like the other handlers
-  if (this_object() != find_object(FAMILY_HANDLER))
-    destruct_object(this_object());
+  string name;
+  int cnum;
+
+  // Anticloning: only the master instance loaded through handler() should
+  // exist. The path is not compared, so a game's own subclass passes; any
+  // actual clone (file_name suffixed with #N) is destroyed.
+  if (sscanf(file_name(this_object()), "%s#%d", name, cnum) == 2)
+    dest_me();
 }
 
 private void _save()
 {
-  if (strlen(loaded_game))
-    save_object(_save_file(loaded_game), 1);
-}
-
-private mapping _game_families(string game)
-{
-  if (!game || !strlen(game))
-    return ([ ]);
-
-  _load_game(game);
-  return families;
-}
-
-private mapping _game_members(string game)
-{
-  if (!game || !strlen(game))
-    return ([ ]);
-
-  _load_game(game);
-  return member_of;
+  save_object(query_save_file(), 1);
 }
 
 // ---------------------------------------------------------------------------
 // Reading
 // ---------------------------------------------------------------------------
 
-string * query_families(string game)
+string * query_families()
 {
-  return map_indices(_game_families(game));
+  return map_indices(families);
 }
 
-mapping query_family(string game, string surname)
+mapping query_family(string surname)
 {
-  return _game_families(game)[surname];
+  return families[surname];
 }
 
-int has_family(string game, string surname)
+int has_family(string surname)
 {
-  return _game_families(game)[surname] ? 1 : 0;
+  return families[surname] ? 1 : 0;
 }
 
 // The surname somebody belongs to, or nil. This is the lookup every living
 // does, so it is an index rather than a walk of the register.
-string family_of(string game, string id)
+string family_of(string id)
 {
-  return _game_members(game)[id];
+  return member_of[id];
 }
 
-string * query_members(string game, string surname)
+string * query_members(string surname)
 {
   mapping family;
 
-  family = query_family(game, surname);
+  family = query_family(surname);
   return family ? map_indices(family[FAMILY_MEMBERS]) : ({ });
 }
 
 // Everyone the house has ever held and what became of each: the living, the
 // dead, and those who married into another house. This is what makes a
 // genealogy possible after the people in it are gone.
-mapping query_history(string game, string surname)
+mapping query_history(string surname)
 {
   mapping family;
 
-  family = query_family(game, surname);
+  family = query_family(surname);
   return family ? family[FAMILY_HISTORY] : ([ ]);
 }
 
-string query_member_name(string game, string surname, string id)
+string query_member_name(string surname, string id)
 {
   mapping history;
 
-  history = query_history(game, surname);
+  history = query_history(surname);
   return (history[id] && history[id][FAMILY_NAME])
            ? history[id][FAMILY_NAME] : id;
 }
 
-string query_spouse(string game, string id)
+string query_spouse(string id)
 {
   mapping family;
   string surname;
 
-  surname = family_of(game, id);
-  family = surname ? query_family(game, surname) : nil;
+  surname = family_of(id);
+  family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return nil;
 
   return family[FAMILY_MEMBERS][id][FAMILY_SPOUSE];
 }
 
-string * query_parents(string game, string id)
+string * query_parents(string id)
 {
   mapping family;
   string surname;
   mixed parents;
 
-  surname = family_of(game, id);
-  family = surname ? query_family(game, surname) : nil;
+  surname = family_of(id);
+  family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return ({ });
 
@@ -205,15 +168,15 @@ string * query_parents(string game, string id)
 // off the members and the history together, so it cannot fall out of step with
 // them -- and the history is what keeps a daughter who married into another house
 // answerable here, where her parents still live.
-string * query_children(string game, string id)
+string * query_children(string id)
 {
   mapping family, members;
   string surname;
   string * ids, * out;
   int i;
 
-  surname = family_of(game, id);
-  family = surname ? query_family(game, surname) : nil;
+  surname = family_of(id);
+  family = surname ? query_family(surname) : nil;
   if (!family)
     return ({ });
 
@@ -230,19 +193,19 @@ string * query_children(string game, string id)
 }
 
 // Siblings share a parent. Derived for the same reason children are.
-string * query_siblings(string game, string id)
+string * query_siblings(string id)
 {
   mapping family, members;
   string surname;
   string * ids, * mine, * out;
   int i;
 
-  mine = query_parents(game, id);
+  mine = query_parents(id);
   if (!sizeof(mine))
     return ({ });
 
-  surname = family_of(game, id);
-  family = query_family(game, surname);
+  surname = family_of(id);
+  family = query_family(surname);
   members = family[FAMILY_MEMBERS];
   ids = map_indices(members);
   out = ({ });
@@ -259,10 +222,10 @@ string * query_siblings(string game, string id)
 // Founding
 // ---------------------------------------------------------------------------
 
-// Ask the citizenship's pool for a surname nobody in this game has used. The
+// Ask the citizenship's pool for a surname nobody here has used. The
 // register never forgets a name, so an extinct family's surname is spent too:
 // two houses of the same name, generations apart, would make the history a lie.
-string mint_surname(string game, string citizenship)
+string mint_surname(string citizenship)
 {
   mixed style, name;
   int i;
@@ -283,7 +246,7 @@ string mint_surname(string game, string citizenship)
       return nil;
 
     name = capitalize(name);
-    if (!has_family(game, name))
+    if (!has_family(name))
       return name;
   }
 
@@ -292,14 +255,14 @@ string mint_surname(string game, string citizenship)
 
 // Start a family. The citizenship is the path of the culture it belongs to,
 // which is what its surnames and its descent are read from later.
-int found_family(string game, string surname, string citizenship)
+int found_family(string surname, string citizenship)
 {
   mapping all;
 
-  if (!game || !strlen(game) || !surname || !strlen(surname))
+  if (!surname || !strlen(surname))
     return 0;
 
-  all = _game_families(game);
+  all = families;
   if (all[surname])
     return 0;
 
@@ -317,11 +280,11 @@ int found_family(string game, string surname, string citizenship)
 
 // Take somebody in. `name` is what to call them afterwards: the history keeps it
 // so the dead stay nameable once their savefile is gone.
-int add_member(string game, string surname, string id, string name)
+int add_member(string surname, string id, string name)
 {
   mapping family;
 
-  family = query_family(game, surname);
+  family = query_family(surname);
   if (!family || !id || !strlen(id))
     return 0;
 
@@ -330,7 +293,7 @@ int add_member(string game, string surname, string id, string name)
 
   family[FAMILY_MEMBERS][id] = ([ ]);
   family[FAMILY_HISTORY][id] = ([ FAMILY_NAME: name ? name : id ]);
-  _game_members(game)[id] = surname;
+  member_of[id] = surname;
   _save();
   return 1;
 }
@@ -338,20 +301,20 @@ int add_member(string game, string surname, string id, string name)
 // Somebody married out. They leave the members but stay in the history, marked
 // with where they went -- which is how the house they left can still say whose
 // children they were.
-int member_married_out(string game, string id, string into)
+int member_married_out(string id, string into)
 {
   mapping family;
   string surname;
 
-  surname = family_of(game, id);
-  family = surname ? query_family(game, surname) : nil;
+  surname = family_of(id);
+  family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return 0;
 
   map_delete(family[FAMILY_MEMBERS], id);
   if (family[FAMILY_HISTORY][id])
     family[FAMILY_HISTORY][id][FAMILY_FATE] = FAMILY_MARRIED + " " + into;
-  map_delete(_game_members(game), id);
+  map_delete(member_of, id);
 
   // a house nobody lives in holds nothing, however it emptied: the last of a
   // line marrying away leaves the roof as free as the last of it dying
@@ -365,15 +328,15 @@ int member_married_out(string game, string id, string into)
 // Somebody died. They leave the members and are marked in the history. If nobody
 // living is left the family is extinct: its properties are freed, and the
 // record stays as history so the name is never minted again.
-int member_died(string game, string id)
+int member_died(string id)
 {
   mapping family, members;
   string surname;
   string * ids;
   int i;
 
-  surname = family_of(game, id);
-  family = surname ? query_family(game, surname) : nil;
+  surname = family_of(id);
+  family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return 0;
 
@@ -388,7 +351,7 @@ int member_died(string game, string id)
   map_delete(members, id);
   if (family[FAMILY_HISTORY][id])
     family[FAMILY_HISTORY][id][FAMILY_FATE] = FAMILY_DIED;
-  map_delete(_game_members(game), id);
+  map_delete(member_of, id);
 
   if (!map_sizeof(members))
     family[FAMILY_PROPERTIES] = ({ });
@@ -401,11 +364,11 @@ int member_died(string game, string id)
 // just founded and not yet moved into is empty but not extinct, and the history is
 // what tells the two apart. A house with a player in it is never extinct on its
 // own, which this answers for free: the player is a member until they leave.
-int is_extinct(string game, string surname)
+int is_extinct(string surname)
 {
   mapping family;
 
-  family = query_family(game, surname);
+  family = query_family(surname);
   if (!family)
     return 0;
 
@@ -420,13 +383,13 @@ int is_extinct(string game, string surname)
 // Marry two members of the same family. Moving the incomer into their spouse's
 // family is the caller's business (see the descent rule on the citizenship);
 // by the time this runs they are both here.
-int set_spouse(string game, string id, string other)
+int set_spouse(string id, string other)
 {
   mapping family;
   string surname;
 
-  surname = family_of(game, id);
-  family = surname ? query_family(game, surname) : nil;
+  surname = family_of(id);
+  family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id] || !family[FAMILY_MEMBERS][other])
     return 0;
 
@@ -438,13 +401,13 @@ int set_spouse(string game, string id, string other)
 
 // Whose child somebody is. The parents may be in another house -- a mother who
 // married out keeps her children here -- so they are ids, not members.
-int set_parents(string game, string id, string * parents)
+int set_parents(string id, string * parents)
 {
   mapping family;
   string surname;
 
-  surname = family_of(game, id);
-  family = surname ? query_family(game, surname) : nil;
+  surname = family_of(id);
+  family = surname ? query_family(surname) : nil;
   if (!family || !family[FAMILY_MEMBERS][id])
     return 0;
 
@@ -457,11 +420,11 @@ int set_parents(string game, string id, string * parents)
 // Property
 // ---------------------------------------------------------------------------
 
-int add_property(string game, string surname, string file)
+int add_property(string surname, string file)
 {
   mapping family;
 
-  family = query_family(game, surname);
+  family = query_family(surname);
   if (!family || !file || !strlen(file))
     return 0;
 
@@ -473,11 +436,11 @@ int add_property(string game, string surname, string file)
   return 1;
 }
 
-int remove_property(string game, string surname, string file)
+int remove_property(string surname, string file)
 {
   mapping family;
 
-  family = query_family(game, surname);
+  family = query_family(surname);
   if (!family)
     return 0;
 
@@ -489,24 +452,24 @@ int remove_property(string game, string surname, string file)
   return 1;
 }
 
-string * query_properties(string game, string surname)
+string * query_properties(string surname)
 {
   mapping family;
 
-  family = query_family(game, surname);
+  family = query_family(surname);
   return family ? family[FAMILY_PROPERTIES] : ({ });
 }
 
 // Who owns a place. Walks the register rather than keeping a second index: a
 // game holds hundreds of families at most, and a location already carries the
 // surname on its home component for the common lookup.
-string owner_of(string game, string file)
+string owner_of(string file)
 {
   mapping all;
   string * names;
   int i;
 
-  all = _game_families(game);
+  all = families;
   names = map_indices(all);
 
   for (i = 0; i < sizeof(names); i++)
@@ -521,17 +484,17 @@ string owner_of(string game, string file)
 string * families_of_area(string area_path)
 {
   mapping all;
-  string game, prefix;
+  string prefix;
   string * names, * out, * props;
   int i, j;
 
   if (!area_path || !strlen(area_path))
     return ({ });
 
-  game = game_from_path(area_path);
-  all = _game_families(game);
+  all = families;
   names = map_indices(all);
-  prefix = "/save/games/" + game + "/locations/" + area_path;
+  prefix = "/save/games/" + game_from_path(area_path) + "/locations/" +
+           area_path;
   out = ({ });
 
   for (i = 0; i < sizeof(names); i++)

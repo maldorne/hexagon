@@ -747,7 +747,7 @@ int do_area(string str)
 
     census = (mapping)area->query_npc_census();
     people = map_sizeof(census);
-    families = sizeof((string *)FAMILY_HANDLER->families_of_area(
+    families = sizeof((string *)handler("families", this_player())->families_of_area(
                         (string)area->query_area_path()));
 
     area->set_area_state(args[1]);
@@ -2068,7 +2068,7 @@ int do_family(string str)
 
   if (verb == "list")
   {
-    names = (string *)FAMILY_HANDLER->query_families(game);
+    names = (string *)handler("families", this_player())->query_families();
     if (!sizeof(names))
     {
       write("No house has been founded in " + game + " yet.\n");
@@ -2079,11 +2079,11 @@ int do_family(string str)
     for (i = 0; i < sizeof(names); i++)
       out += sprintf("  %-20s %2d living, %2d gone, %d propert%s\n",
                names[i],
-               sizeof((string *)FAMILY_HANDLER->query_members(game, names[i])),
-               map_sizeof((mapping)FAMILY_HANDLER->query_history(game, names[i]))
-                 - sizeof((string *)FAMILY_HANDLER->query_members(game, names[i])),
-               sizeof((string *)FAMILY_HANDLER->query_properties(game, names[i])),
-               sizeof((string *)FAMILY_HANDLER->query_properties(game, names[i]))
+               sizeof((string *)handler("families", this_player())->query_members(names[i])),
+               map_sizeof((mapping)handler("families", this_player())->query_history(names[i]))
+                 - sizeof((string *)handler("families", this_player())->query_members(names[i])),
+               sizeof((string *)handler("families", this_player())->query_properties(names[i])),
+               sizeof((string *)handler("families", this_player())->query_properties(names[i]))
                  == 1 ? "y" : "ies");
     write(out);
     return 1;
@@ -2098,15 +2098,15 @@ int do_family(string str)
     }
 
     surname = capitalize(args[1]);
-    if (!FAMILY_HANDLER->has_family(game, surname))
+    if (!handler("families", this_player())->has_family(surname))
     {
       notify_fail("No house of that name in " + game + ".\n");
       return 0;
     }
 
-    ids = (string *)FAMILY_HANDLER->query_members(game, surname);
-    history = (mapping)FAMILY_HANDLER->query_history(game, surname);
-    props = (string *)FAMILY_HANDLER->query_properties(game, surname);
+    ids = (string *)handler("families", this_player())->query_members(surname);
+    history = (mapping)handler("families", this_player())->query_history(surname);
+    props = (string *)handler("families", this_player())->query_properties(surname);
 
     out = "House " + surname + "\n";
     out += "  living   " + (sizeof(ids) ? "" : "(nobody -- extinct)") + "\n";
@@ -2114,12 +2114,12 @@ int do_family(string str)
     {
       // no (string) cast on the spouse: an unmarried member has none, and the
       // cast is a conversion kfun that errors on nil
-      spouse = FAMILY_HANDLER->query_spouse(game, ids[i]);
+      spouse = handler("families", this_player())->query_spouse(ids[i]);
       out += sprintf("    %-24s %s%s\n",
-               FAMILY_HANDLER->query_member_name(game, surname, ids[i]),
+               handler("families", this_player())->query_member_name(surname, ids[i]),
                stringp(spouse) ? "married to " +
-                 FAMILY_HANDLER->query_member_name(game, surname, spouse) : "",
-               sizeof((string *)FAMILY_HANDLER->query_parents(game, ids[i]))
+                 handler("families", this_player())->query_member_name(surname, spouse) : "",
+               sizeof((string *)handler("families", this_player())->query_parents(ids[i]))
                  ? "  (has parents)" : "");
     }
 
@@ -2174,7 +2174,7 @@ int do_family(string str)
     if (sizeof(args) > 1)
       surname = capitalize(args[1]);
     else
-      surname = (string)FAMILY_HANDLER->mint_surname(game, citizenship);
+      surname = (string)handler("families", this_player())->mint_surname(citizenship);
 
     if (!surname || !strlen(surname))
     {
@@ -2183,7 +2183,7 @@ int do_family(string str)
       return 0;
     }
 
-    if (!FAMILY_HANDLER->found_family(game, surname, citizenship))
+    if (!handler("families", this_player())->found_family(surname, citizenship))
     {
       notify_fail("House " + surname + " already exists.\n");
       return 0;
@@ -2209,7 +2209,7 @@ int do_family(string str)
       notify_fail("Nobody called '" + args[2] + "' is here.\n");
       return 0;
     }
-    if (!FAMILY_HANDLER->has_family(game, surname))
+    if (!handler("families", this_player())->has_family(surname))
     {
       notify_fail("No house of that name in " + game + ".\n");
       return 0;
@@ -2248,7 +2248,7 @@ int do_family(string str)
     }
 
     surname = (string)who->query_family();
-    FAMILY_HANDLER->member_married_out(game, (string)who->query_family_id(),
+    handler("families", this_player())->member_married_out((string)who->query_family_id(),
                                        "nowhere");
     who->set_family(nil);
     write(_family_display(who) + " is no longer of house " + surname + ".\n");
@@ -2308,15 +2308,14 @@ int do_family(string str)
     if (joins->query_family() &&
         joins->query_family() != keeps->query_family())
     {
-      FAMILY_HANDLER->member_married_out(game,
-        (string)joins->query_family_id(), (string)keeps->query_family());
+      handler("families", this_player())->member_married_out((string)joins->query_family_id(), (string)keeps->query_family());
       joins->set_family(nil);
     }
 
     if (!joins->query_family())
       joins->set_family((string)keeps->query_family(), _family_display(joins));
 
-    if (!FAMILY_HANDLER->set_spouse(game, (string)who->query_family_id(),
+    if (!handler("families", this_player())->set_spouse((string)who->query_family_id(),
                                     (string)other->query_family_id()))
     {
       notify_fail("Could not wed them.\n");
@@ -2361,7 +2360,7 @@ int do_family(string str)
       return 0;
     }
 
-    FAMILY_HANDLER->set_parents(game, (string)who->query_family_id(), parents);
+    handler("families", this_player())->set_parents((string)who->query_family_id(), parents);
     write(_family_display(who) + " is now the child of " + sizeof(parents) +
           " of house " + (string)who->query_family() + ".\n");
     return 1;

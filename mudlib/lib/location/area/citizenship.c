@@ -37,7 +37,8 @@ string query_root_citizenship_path()
     return "";
 
   game = game_from_path((string)this_object()->query_area_path());
-  root = DIPLOMACY_HANDLER->query_root_citizenship(game, citizenship);
+  // handler(), not the path: the graph belongs to this area's game
+  root = handler("diplomacy", this_object())->query_root_citizenship(citizenship);
 
   if (!root || !strlen(root))
     root = citizenship;

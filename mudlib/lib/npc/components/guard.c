@@ -90,9 +90,9 @@ int check(object mover)
   if (!my_citizenship || !mover_citizenship)
     return 1;
 
-  return !DIPLOMACY_HANDLER->is_enemy(game_name(my_citizenship),
-                                      my_citizenship->query_name(),
-                                      mover_citizenship->query_name());
+  return !handler("diplomacy", my_citizenship)->is_enemy(
+             my_citizenship->query_name(),
+             mover_citizenship->query_name());
 }
 
 // Message shown when the guard stops someone. nil falls back to the exit

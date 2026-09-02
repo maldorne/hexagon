@@ -283,15 +283,14 @@ void door_house_exits(object house)
 // house's property, and the location itself names its owner so a door can ask
 // without going through the handler. Two records of one fact, kept in step
 // here, the way an NPC's address and its house's resident list are.
-void claim_property(string game, string surname, string file)
+void claim_property(string surname, string file)
 {
   object place, home;
 
-  if (!game || !strlen(game) || !surname || !strlen(surname) ||
-      !file || !strlen(file))
+  if (!surname || !strlen(surname) || !file || !strlen(file))
     return;
 
-  FAMILY_HANDLER->add_property(game, surname, file);
+  handler("families", this_object())->add_property(surname, file);
 
   place = load_object(LOCATION_HANDLER)->load_location(file);
   if (!place)
@@ -311,12 +310,8 @@ void claim_property(string game, string surname, string file)
 // outlives the locations it stands in, so it waits until the place is settled.
 private string _family_for(object * group)
 {
-  string game, citizenship, surname;
+  string citizenship, surname;
   int i;
-
-  game = game_name(group[0]);
-  if (!strlen(game))
-    return nil;
 
   for (i = 0; i < sizeof(group); i++)
     if (group[i]->query_family())
@@ -328,10 +323,10 @@ private string _family_for(object * group)
       return nil;
 
     citizenship = (string)this_object()->query_root_citizenship_path();
-    surname = (string)FAMILY_HANDLER->mint_surname(game, citizenship);
+    surname = (string)handler("families", this_object())->mint_surname(citizenship);
     if (!surname || !strlen(surname))
       return nil;
-    if (!FAMILY_HANDLER->found_family(game, surname, citizenship))
+    if (!handler("families", this_object())->found_family(surname, citizenship))
       return nil;
   }
 
@@ -344,7 +339,7 @@ private string _family_for(object * group)
 
   // a couple housed together is a couple
   if (sizeof(group) == 2)
-    FAMILY_HANDLER->set_spouse(game, (string)group[0]->query_family_id(),
+    handler("families", this_object())->set_spouse((string)group[0]->query_family_id(),
                                      (string)group[1]->query_family_id());
 
   return surname;
@@ -352,7 +347,7 @@ private string _family_for(object * group)
 
 private void _house_family(object * family)
 {
-  string house, surname, game;
+  string house, surname;
   string * ids;
   int i;
 
@@ -375,11 +370,10 @@ private void _house_family(object * family)
 
   // A house belongs to the family living in it, not to the people one by one:
   // that is what lets it outlast them, and what a door asks before it opens.
-  game = game_name(family[0]);
-  if (!surname || !strlen(surname) || !strlen(game))
+  if (!surname || !strlen(surname))
     return;
 
-  claim_property(game, surname, house);
+  claim_property(surname, house);
 }
 
 string * query_houses()

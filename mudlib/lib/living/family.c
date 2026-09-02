@@ -63,12 +63,11 @@ string query_full_name()
 // told first and the slot only records the answer.
 int set_family(string surname, varargs string display_name)
 {
-  string game, id, old;
+  string id, old;
   mixed shown;
 
   id = query_family_id();
-  game = game_name();
-  if (!id || !strlen(game))
+  if (!id)
     return 0;
 
   if (!surname || !strlen(surname))
@@ -91,7 +90,7 @@ int set_family(string surname, varargs string display_name)
     display_name = stringp(shown) ? shown : id;
   }
 
-  if (!FAMILY_HANDLER->add_member(game, surname, id, display_name))
+  if (!handler("families", this_object())->add_member(surname, id, display_name))
     return 0;
 
   this_object()->set_family_ob(surname);
@@ -111,38 +110,35 @@ int set_family(string surname, varargs string display_name)
 
 string query_spouse_id()
 {
-  string game, id;
+  string id;
 
   id = query_family_id();
-  game = game_name();
-  if (!id || !strlen(game))
+  if (!id)
     return nil;
 
-  return FAMILY_HANDLER->query_spouse(game, id);
+  return handler("families", this_object())->query_spouse(id);
 }
 
 string * query_parent_ids()
 {
-  string game, id;
+  string id;
 
   id = query_family_id();
-  game = game_name();
-  if (!id || !strlen(game))
+  if (!id)
     return ({ });
 
-  return (string *)FAMILY_HANDLER->query_parents(game, id);
+  return (string *)handler("families", this_object())->query_parents(id);
 }
 
 string * query_children_ids()
 {
-  string game, id;
+  string id;
 
   id = query_family_id();
-  game = game_name();
-  if (!id || !strlen(game))
+  if (!id)
     return ({ });
 
-  return (string *)FAMILY_HANDLER->query_children(game, id);
+  return (string *)handler("families", this_object())->query_children(id);
 }
 
 // Everything the house has to do to somebody arriving in the world, called

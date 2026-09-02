@@ -322,28 +322,3 @@ void do_stat_users()
   return;
 }
 
-/*
-void update_guards()
-{
-  object handler;
-
-  // One more guard every GUARD_TIME seconds
-  if ((uptime() < 120) || (time() > last_guard_time + GUARD_TIME))
-  {
-    // log_file(LOG_DIPLOMACY, "[" + ctime(time(), 4) + "] timed update_guards\n");
-
-    last_guard_time = time();
-
-    handler = load_object( DIPLOMACY_HANDLER );
-
-    if (!handler)
-      return;
-
-    handler->update_guards();
-
-    // From minute one (first call of update_guards) to minute two, lots of guards
-    if (uptime() < 120)
-      call_out("update_guards", 1);
-  }
-}
-*/

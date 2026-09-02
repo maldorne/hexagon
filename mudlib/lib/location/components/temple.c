@@ -84,11 +84,7 @@ int query_closed()
   if (!strlen(held))
     return 0;
 
-  game = game_from_path((string)query_my_location()->query_file_name());
-  if (!game || !strlen(game))
-    return 0;
-
-  return !DIPLOMACY_HANDLER->accepts_deity(game, held, deity);
+  return !handler("diplomacy", query_my_location())->accepts_deity(held, deity);
 }
 
 string query_info()

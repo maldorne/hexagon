@@ -2,10 +2,10 @@
 #define DIPLOMACY_HANDLER "/lib/handlers/diplomacy"
 // The handler owns its graph as mutable, persisted state (built by hand via
 // admin commands, never from a static table); this is where it is saved.
-// One graph per game, beside its other state: the countries at war in one world
-// have nothing to do with another's.
-#define DIPLOMACY_SAVE_DIR  "/save/games/"
-#define DIPLOMACY_SAVE_FILE "/diplomacy"
+// The shared default. A game's own handler overrides query_save_file to keep
+// its graph beside the rest of that game's state, because the countries at war
+// in one world have nothing to do with another's.
+#define DIPLOMACY_SAVE "/save/diplomacy"
 
 // The two relationship kinds a citizenship graph tracks. They are also the keys
 // of the handler's `links` mapping, so these string values are persisted -- do
