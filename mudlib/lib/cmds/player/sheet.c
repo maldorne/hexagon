@@ -47,6 +47,7 @@ static int cmd(string name, object me, string verb)
   object guild, job, guild_class, 
          group, race, race_group, 
          deity, citizenship;
+  string family;
   object target;
 
   int * stats;
@@ -110,6 +111,7 @@ static int cmd(string name, object me, string verb)
   race_group =  load_object(target->query_race_group_ob());
   deity =       load_object(target->query_deity_ob());
   citizenship = load_object(target->query_city_ob());
+  family = target->query_family();
 
   // get character data
   stats[0] = target->query_str();
@@ -350,10 +352,18 @@ static int cmd(string name, object me, string verb)
                     capitalize(group->query_short()));
   info += "\n";
 
+
   // new characteristic, neverbot 03/05
   info += sprintf("%-15s %-2s (%-+1d) %8s", capitalize(_LANG_STATS_WIL) + ":",
                   target->query_wil(),
                   target->query_stat_bonus_to_wil(), "");
+  // the house. A surname the families handler resolves, not a social object
+  // with a file of its own, so it is printed straight rather than loaded
+  if (!family)
+    info += sprintf("%-15s %s", capitalize(_LANG_STATS_FAMILY) + ":",
+                    capitalize(_LANG_STATS_NO_FAMILY));
+  else
+    info += sprintf("%-15s %s", capitalize(_LANG_STATS_FAMILY) + ":", family);
   info += "\n";
 
 

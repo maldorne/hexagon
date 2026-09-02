@@ -27,6 +27,8 @@
 #define _LANG_STATS_NO_GROUP "sin clan"
 #define _LANG_STATS_CITIZENSHIP "ciudadanía"
 #define _LANG_STATS_NO_CITIZENSHIP "sin ciudadanía"
+#define _LANG_STATS_FAMILY "familia"
+#define _LANG_STATS_NO_FAMILY "sin familia"
 #define _LANG_STATS_WIMPY "cobardía"
 #define _LANG_STATS_ENCUMBRANCE "carga"
 #define _LANG_STATS_OUT_OF "de"
