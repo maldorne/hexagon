@@ -217,7 +217,7 @@ private int do_summary(object area, object me)
   string * ids;
   string out;
   int * band;
-  int i, live, held, guards;
+  int i, live, held;
 
   census = (mapping)area->query_npc_census();
   ids = map_indices(census);
@@ -226,9 +226,7 @@ private int do_summary(object area, object me)
 
   for (i = 0; i < sizeof(ids); i++)
   {
-    if (census[ids[i]]["guard"])
-      guards++;
-    else if (census[ids[i]][CENSUS_VACANCY])
+    if (census[ids[i]][CENSUS_VACANCY])
       held++;
   }
   live = sizeof((object *)area->query_live_npcs());
@@ -248,8 +246,7 @@ private int do_summary(object area, object me)
          (band[0] ? band[0] + "-" + band[1] : "(the type's own)") + "\n" +
          "\n" +
          "  census       " + sizeof(ids) + " individual(s): " + held +
-         " holding a job, " + guards + " on guard, " +
-         (sizeof(ids) - held - guards) + " unattached\n" +
+         " holding a job, " + (sizeof(ids) - held) + " unattached\n" +
          "  vacancies    " + sizeof(jobs) + " job(s) offered\n" +
          "  live         " + live + " materialized right now\n";
 

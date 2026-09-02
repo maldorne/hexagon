@@ -450,7 +450,12 @@ private object npc_restore(string id, object loc)
 
     job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
     if (job && job[VACANCY_HOME])
+    {
       npc->set_home(job[VACANCY_HOME]);
+      // the job writes the holder's side; the house learns who lives in it here,
+      // which is what a report of the barracks reads
+      this_object()->claim_house(id, job[VACANCY_HOME]);
+    }
   }
 
   // Refresh what the books remember about this person. The npc.o is the
