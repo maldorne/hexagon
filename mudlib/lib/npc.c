@@ -344,15 +344,15 @@ string query_cap_name()
   return ::query_cap_name();
 }
 
-// When you examine a generated citizen directly its short reveals the proper
-// name -- "<kind> (<Name>)" -- while query_cap_name above keeps room lists and
-// combat on the bare kind. `short()` is what the look command prints as the
-// examine header; query_short (the raw kind) is left untouched so cap_name and
-// the plural stay clean.
+// When you examine a generated citizen directly its short reveals the name in
+// full -- "<kind> (<Name> <House>)" -- while query_cap_name above keeps room
+// lists and combat on the bare kind. `short()` is what the look command prints
+// as the examine header; query_short (the raw kind) is left untouched so
+// cap_name and the plural stay clean.
 string short(varargs int dark)
 {
   if (npc_given_name && strlen(npc_given_name))
-    return query_short() + " (" + capitalize(npc_given_name) + ")";
+    return query_short() + " (" + query_full_name() + ")";
   return ::short(dark);
 }
 

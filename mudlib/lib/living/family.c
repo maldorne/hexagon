@@ -39,11 +39,31 @@ string query_family()
   return stringp(surname) ? surname : nil;
 }
 
+// What somebody is called in full: their own name, and the house they are of
+// when they have one. An NPC's own name is the one it was generated with; a
+// player's is its name. Nil for anybody who answers to neither.
+string query_full_name()
+{
+  mixed personal;
+  string surname;
+
+  personal = this_object()->query_given_name();
+  if (!stringp(personal) || !strlen(personal))
+    personal = this_object()->query_cap_name();
+  if (!stringp(personal) || !strlen(personal))
+    return nil;
+
+  personal = capitalize(personal);
+  surname = query_family();
+
+  return (surname && strlen(surname)) ? personal + " " + surname : personal;
+}
+
 // Join a house. The register is the authority on who belongs where, so it is
 // told first and the slot only records the answer.
 int set_family(string surname, varargs string display_name)
 {
-  string game, id;
+  string game, id, old;
   mixed shown;
 
   id = query_family_id();
@@ -53,6 +73,12 @@ int set_family(string surname, varargs string display_name)
 
   if (!surname || !strlen(surname))
   {
+    // the surname answers as a name while it is theirs, so it stops answering
+    // when it is not
+    old = query_family();
+    if (old && strlen(old))
+      this_object()->remove_alias(lower_case(old));
+
     this_object()->set_family_ob(nil);
     if (this_object()->query_persisted())
       this_object()->save_npc();
@@ -69,6 +95,10 @@ int set_family(string surname, varargs string display_name)
     return 0;
 
   this_object()->set_family_ob(surname);
+
+  // somebody of a house answers to it: "look copperfen" finds one of them, the
+  // same way a generated citizen answers to the name it was given
+  this_object()->add_alias(lower_case(surname));
 
   // the register has written its side; without this the two disagree the
   // moment the location unloads, and somebody wakes up disowned by a house
@@ -113,6 +143,22 @@ string * query_children_ids()
     return ({ });
 
   return (string *)FAMILY_HANDLER->query_children(game, id);
+}
+
+// Everything the house has to do to somebody arriving in the world, called
+// once they are otherwise finished: start_player for a player, the census after
+// the template for an NPC.
+//
+// So far that is one thing: the surname answers as a name, and names are static
+// -- id.c never saves them -- so it has to be put back each time, exactly as a
+// generated citizen's own name is re-seeded on restore.
+void start_family()
+{
+  string surname;
+
+  surname = query_family();
+  if (surname && strlen(surname))
+    this_object()->add_alias(lower_case(surname));
 }
 
 // Whether this living belongs to the named house. What a family door asks

@@ -126,6 +126,8 @@ void start_player()
   grant_default_skills();
   skills_commands();
 
+  family::start_family();
+
   // at the end
   money::start_money();
 }

@@ -234,6 +234,11 @@ private object npc_restore(string id, object loc)
 
   npc->apply_template(t, first);
 
+  // What the house does to somebody arriving: its surname answers as a name, so
+  // "look copperfen" finds one of its people. After the template, not before --
+  // applying one replaces the alias list.
+  npc->start_family();
+
   // The trade's class, when its role declares one. Set before the level:
   // set_class_ob resets class_level to 1, so a class applied afterwards would
   // undo the level this NPC was just given.
