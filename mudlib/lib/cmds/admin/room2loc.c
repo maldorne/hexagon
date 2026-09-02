@@ -1,6 +1,7 @@
 
 #include <mud/cmd.h>
 #include <room/location.h>
+#include <areas/area.h>
 
 inherit CMD_BASE;
 
@@ -170,6 +171,29 @@ static int do_clean(string path, int apply, varargs int all)
   {
     notify_fail("Refusing to clean a root path (" + save_dir + ").\n");
     return 0;
+  }
+
+  // A full wipe is a tool for shaping a map, not for a place people live in:
+  // it takes the converted locations and leaves behind the houses raised on
+  // top of them, owned by families whose members it just pruned. An area says
+  // for itself when that is over (build area state settled), and from then on
+  // the answer is no. Removing stale orphans stays allowed -- it never touches
+  // a location without a source .c, which is every plot and every house.
+  if (all)
+  {
+    object area;
+
+    // the save directory is the area's path; query_area adds the slash and
+    // hands back nil when there is no area object there at all
+    area = load_object(AREA_HANDLER)->query_area(save_dir);
+    if (area && area->query_area_state() == AREA_SETTLED)
+    {
+      notify_fail("'" + area->query_area_name() + "' is settled: it has " +
+                  "people, houses and families whose records name these " +
+                  "locations. Move it back to draft first (build area state " +
+                  AREA_DRAFT + ") if you really mean to wipe it.\n");
+      return 0;
+    }
   }
 
   // Dry-run: the inbound-exit scan is synchronous, so a huge preview can be

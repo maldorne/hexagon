@@ -33,6 +33,7 @@ inherit queue     "/lib/living/queue";
 inherit movement  "/lib/living/movement";
 
 inherit social    "/lib/living/social";
+inherit family    "/lib/living/family";
 inherit mount     "/lib/living/mount";
 inherit drunk     "/lib/living/drunk";
 inherit spells    "/lib/living/spells";

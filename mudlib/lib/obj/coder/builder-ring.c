@@ -12,6 +12,8 @@ inherit "/lib/armour.c";
 #include <areas/poi.h>
 #include <areas/vacancy.h>
 #include <living/persisted.h>
+#include <living/family.h>
+#include <basic/gender.h>
 #include <sector/sector.h>
 #include <translations/armour.h>
 #include <language.h>
@@ -19,7 +21,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home", "sign", "temple" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home", "sign", "temple", "family" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -28,6 +30,7 @@ inherit "/lib/armour.c";
   "           | level <n> [<spread>] | stats <low> <high> | stats none\n" + \
   "           | diplomacy <citizenship|none>\n" + \
   "           | parent <area path|none> | principal | barracks [none]\n" + \
+  "           | state [draft|settled]\n" + \
   "           | relevel >"
 #define BUILDER_RING_POI_SYNTAX \
   "build poi < add <kind> [label] | remove | list | guard_dir <dir> >"
@@ -38,6 +41,10 @@ inherit "/lib/armour.c";
   "               | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX \
   "build npc < (report) | resident <source> [off] >"
+#define BUILDER_RING_FAMILY_SYNTAX \
+  "build family < found [surname] | join <surname> <who> | leave <who>\n" + \
+  "             | marry <who> <to whom> | parents <who> <a> [b]\n" + \
+  "             | show <surname> | list >"
 #define BUILDER_RING_TEMPLE_SYNTAX \
   "build temple < <deity path> | none >  (consecrate this location, or unconsecrate it)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
@@ -61,6 +68,7 @@ inherit "/lib/armour.c";
   "  build area parent <area path|none>   what this place is part of\n" + \
   "  build area principal                 fallback location for occupants\n" + \
   "  build area barracks [none]           where its guards sleep\n" + \
+  "  build area state [draft|settled]     how far along it is\n" + \
   "  build area relevel                   raise NPCs to the current band\n" + \
   "\n" + \
   "  build poi add <kind> [label]         one per location\n" + \
@@ -87,7 +95,15 @@ inherit "/lib/armour.c";
   "  build home make                      raise an empty house on this plot\n" + \
   "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
-  "  build sign <text>                    post a sign here (remove: take it down)"
+  "  build sign <text>                    post a sign here (remove: take it down)\n" + \
+  "\n" + \
+  "  build family found [surname]         start a house in this area\n" + \
+  "  build family join <surname> <who>    take somebody into it\n" + \
+  "  build family leave <who>             put somebody out of theirs\n" + \
+  "  build family marry <who> <to whom>   wed two people, moving one house\n" + \
+  "  build family parents <who> <a> [b]   say whose child somebody is\n" + \
+  "  build family show <surname>          its people, its roll, its property\n" + \
+  "  build family list                    every house of this game"
 
 static string * selection;
 static mapping objects;
@@ -135,6 +151,7 @@ int do_home_make();
 int do_home_describe(string what, string str);
 int do_sign(string str);
 int do_temple(string str);
+int do_family(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
 // (exactly one character). Recursive backtracking; pattern and string
@@ -376,6 +393,8 @@ int do_build(string str)
     return do_plot(implode(args[1..], " "));
   else if (verb == "temple")
     return do_temple(implode(args[1..], " "));
+  else if (verb == "family")
+    return do_family(implode(args[1..], " "));
   else
   {
     notify_fail("Unknown build command.\n\n" + BUILDER_RING_HELP + "\n");
@@ -702,6 +721,44 @@ int do_area(string str)
   {
     notify_fail("This location has no area.\n");
     return 0;
+  }
+
+  // How far along the area is. Moving it back to draft is allowed -- sometimes a
+  // place really has to be rebuilt -- but it is the moment to say out loud what
+  // a wipe would take with it, because that is the only thing the state gates.
+  if (verb == "state")
+  {
+    mapping census;
+    int people, families;
+
+    if (sizeof(args) < 2)
+    {
+      write("Area '" + area->query_area_name() + "' is " +
+            area->query_area_state() + ".\n");
+      return 1;
+    }
+
+    if (args[1] != AREA_DRAFT && args[1] != AREA_SETTLED)
+    {
+      notify_fail("An area is '" + AREA_DRAFT + "' or '" + AREA_SETTLED +
+                  "'.\n");
+      return 0;
+    }
+
+    census = (mapping)area->query_npc_census();
+    people = map_sizeof(census);
+    families = sizeof((string *)FAMILY_HANDLER->families_of_area(
+                        (string)area->query_area_path()));
+
+    area->set_area_state(args[1]);
+
+    write("Area '" + area->query_area_name() + "' is now " + args[1] + ".\n");
+    if (args[1] == AREA_DRAFT && (people || families))
+      write("It holds " + people + " person" + (people == 1 ? "" : "s") +
+            " and " + families + " famil" + (families == 1 ? "y" : "ies") +
+            ". A draft may be wiped, and a wipe leaves their records naming " +
+            "things that no longer exist.\n");
+    return 1;
   }
 
   if (verb == "exploration")
@@ -1948,3 +2005,380 @@ int do_homes()
 }
 
 
+// ---------------------------------------------------------------------------
+// Families
+// ---------------------------------------------------------------------------
+
+// Resolve who somebody means by a name: anybody standing here, player or NPC.
+// A family is written in ids, but a builder talks in names.
+private object _family_target(string who)
+{
+  object found;
+
+  if (!who || !strlen(who))
+    return nil;
+
+  found = present(lower_case(who), environment(this_player()));
+  if (!found)
+    found = find_player(lower_case(who));
+
+  return (found && found->query_living()) ? found : nil;
+}
+
+// What to write a member down as. A generated citizen has a proper name of its
+// own; query_cap_name deliberately answers with the kind word ("Ciudadana") so
+// an NPC does not read like a player in a room list, and a roll wants the name.
+private string _family_display(object who)
+{
+  mixed shown;
+
+  shown = who->query_given_name();
+  if (!stringp(shown) || !strlen(shown))
+    shown = who->query_cap_name();
+
+  return stringp(shown) ? capitalize(shown) : (string)who->query_family_id();
+}
+
+int do_family(string str)
+{
+  string * args;
+  string verb, game, surname;
+  object loc, area, who, other;
+
+  args = explode(str ? str : "", " ") - ({ "" });
+
+  if (!sizeof(args))
+  {
+    notify_fail("Usage: " + BUILDER_RING_FAMILY_SYNTAX + "\n");
+    return 0;
+  }
+
+  verb = args[0];
+  loc = environment(this_player());
+  game = game_name(this_player());
+
+  if (!strlen(game))
+  {
+    notify_fail("Stand in a game location: a family belongs to its world.\n");
+    return 0;
+  }
+
+  if (verb == "list")
+  {
+    string * names;
+    string out;
+    int i;
+
+    names = (string *)FAMILY_HANDLER->query_families(game);
+    if (!sizeof(names))
+    {
+      write("No house has been founded in " + game + " yet.\n");
+      return 1;
+    }
+
+    out = "Houses of " + game + ":\n";
+    for (i = 0; i < sizeof(names); i++)
+      out += sprintf("  %-20s %2d living, %2d on the roll, %d propert%s\n",
+               names[i],
+               sizeof((string *)FAMILY_HANDLER->query_members(game, names[i])),
+               map_sizeof((mapping)FAMILY_HANDLER->query_roll(game, names[i])),
+               sizeof((string *)FAMILY_HANDLER->query_properties(game, names[i])),
+               sizeof((string *)FAMILY_HANDLER->query_properties(game, names[i]))
+                 == 1 ? "y" : "ies");
+    write(out);
+    return 1;
+  }
+
+  if (verb == "show")
+  {
+    mapping roll;
+    string * ids, * props;
+    string out;
+    mixed spouse;
+    int i;
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build family show <surname>\n");
+      return 0;
+    }
+
+    surname = capitalize(args[1]);
+    if (!FAMILY_HANDLER->has_family(game, surname))
+    {
+      notify_fail("No house of that name in " + game + ".\n");
+      return 0;
+    }
+
+    ids = (string *)FAMILY_HANDLER->query_members(game, surname);
+    roll = (mapping)FAMILY_HANDLER->query_roll(game, surname);
+    props = (string *)FAMILY_HANDLER->query_properties(game, surname);
+
+    out = "House " + surname + "\n";
+    out += "  living   " + (sizeof(ids) ? "" : "(nobody -- extinct)") + "\n";
+    for (i = 0; i < sizeof(ids); i++)
+    {
+      // no (string) cast on the spouse: an unmarried member has none, and the
+      // cast is a conversion kfun that errors on nil
+      spouse = FAMILY_HANDLER->query_spouse(game, ids[i]);
+      out += sprintf("    %-24s %s%s\n",
+               FAMILY_HANDLER->query_member_name(game, surname, ids[i]),
+               stringp(spouse) ? "married to " +
+                 FAMILY_HANDLER->query_member_name(game, surname, spouse) : "",
+               sizeof((string *)FAMILY_HANDLER->query_parents(game, ids[i]))
+                 ? "  (has parents)" : "");
+    }
+
+    out += "  roll\n";
+    ids = map_indices(roll);
+    for (i = 0; i < sizeof(ids); i++)
+      out += sprintf("    %-24s %s\n", roll[ids[i]][FAMILY_NAME],
+               roll[ids[i]][FAMILY_FATE] ? roll[ids[i]][FAMILY_FATE] : "living");
+
+    out += "  property " + (sizeof(props) ? implode(props, ", ") : "none") +
+           "\n";
+    write(out);
+    return 1;
+  }
+
+  // everything below acts on the area under our feet
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to work on a " +
+                "family.\n");
+    return 0;
+  }
+  area = loc->query_area();
+
+  if (verb == "found")
+  {
+    string citizenship;
+
+    if (!area)
+    {
+      notify_fail("This location has no area.\n");
+      return 0;
+    }
+
+    // A house outlives the locations it stands in, so it is not founded in a
+    // place that may still be wiped and rebuilt.
+    if (area->query_area_state() != AREA_SETTLED)
+    {
+      notify_fail("'" + area->query_area_name() + "' is still a draft. " +
+                  "Settle it first (build area state " + AREA_SETTLED +
+                  ") -- a house founded here would not survive a wipe.\n");
+      return 0;
+    }
+
+    citizenship = (string)area->query_root_citizenship_path();
+    if (!citizenship || !strlen(citizenship))
+    {
+      notify_fail("This area grants no citizenship, and a house takes its " +
+                  "name from its people.\n");
+      return 0;
+    }
+
+    if (sizeof(args) > 1)
+      surname = capitalize(args[1]);
+    else
+      surname = (string)FAMILY_HANDLER->mint_surname(game, citizenship);
+
+    if (!surname || !strlen(surname))
+    {
+      notify_fail("No surname: does " + citizenship + " declare a " +
+                  "surname_style, and does that wordlist exist?\n");
+      return 0;
+    }
+
+    if (!FAMILY_HANDLER->found_family(game, surname, citizenship))
+    {
+      notify_fail("House " + surname + " already exists.\n");
+      return 0;
+    }
+
+    write("House " + surname + " founded, of " + citizenship + ".\n");
+    return 1;
+  }
+
+  if (verb == "join")
+  {
+    if (sizeof(args) < 3)
+    {
+      notify_fail("Usage: build family join <surname> <who>\n");
+      return 0;
+    }
+
+    surname = capitalize(args[1]);
+    who = _family_target(args[2]);
+
+    if (!who)
+    {
+      notify_fail("Nobody called '" + args[2] + "' is here.\n");
+      return 0;
+    }
+    if (!FAMILY_HANDLER->has_family(game, surname))
+    {
+      notify_fail("No house of that name in " + game + ".\n");
+      return 0;
+    }
+    if (who->query_family())
+    {
+      notify_fail(_family_display(who) + " already belongs to house " +
+                  (string)who->query_family() + ".\n");
+      return 0;
+    }
+
+    if (!who->set_family(surname, _family_display(who)))
+    {
+      notify_fail("Could not take " + _family_display(who) + " in. Only " +
+                  "somebody the world keeps track of has a family.\n");
+      return 0;
+    }
+
+    write(_family_display(who) + " is now of house " + surname + ".\n");
+    return 1;
+  }
+
+  if (verb == "leave")
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build family leave <who>\n");
+      return 0;
+    }
+
+    who = _family_target(args[1]);
+    if (!who || !who->query_family())
+    {
+      notify_fail("Nobody of that name here belongs to a house.\n");
+      return 0;
+    }
+
+    surname = (string)who->query_family();
+    FAMILY_HANDLER->member_married_out(game, (string)who->query_family_id(),
+                                       "nowhere");
+    who->set_family(nil);
+    write(_family_display(who) + " is no longer of house " + surname + ".\n");
+    return 1;
+  }
+
+  if (verb == "marry")
+  {
+    object joins, keeps, swap;
+    string rule;
+
+    if (sizeof(args) < 3)
+    {
+      notify_fail("Usage: build family marry <who> <to whom>\n");
+      return 0;
+    }
+
+    who = _family_target(args[1]);
+    other = _family_target(args[2]);
+
+    if (!who || !other || who == other)
+    {
+      notify_fail("Name two people who are here.\n");
+      return 0;
+    }
+    if (!who->query_family() && !other->query_family())
+    {
+      notify_fail("Neither of them has a house to marry into.\n");
+      return 0;
+    }
+
+    // Which of the two moves is the land's business, not theirs: the
+    // citizenship of the area the wedding happens in says how descent runs
+    // here, which is the only answer that does not depend on who you ask
+    // first.
+    rule = DESCENT_PATRILINEAL;
+    if (area && strlen((string)area->query_root_citizenship_path()))
+      rule = (string)load_object(
+               (string)area->query_root_citizenship_path())->query_descent();
+
+    if (rule == DESCENT_MATRILINEAL)
+    {
+      keeps = (who->query_gender() == GENDER_FEMALE) ? who : other;
+      joins = (keeps == who) ? other : who;
+    }
+    else
+    {
+      keeps = (who->query_gender() == GENDER_FEMALE) ? other : who;
+      joins = (keeps == who) ? other : who;
+    }
+
+    if (!keeps->query_family())
+    {
+      // the one who would keep the house has none: the other's stands instead
+      swap = keeps;
+      keeps = joins;
+      joins = swap;
+    }
+
+    if (joins->query_family() &&
+        joins->query_family() != keeps->query_family())
+    {
+      FAMILY_HANDLER->member_married_out(game,
+        (string)joins->query_family_id(), (string)keeps->query_family());
+      joins->set_family(nil);
+    }
+
+    if (!joins->query_family())
+      joins->set_family((string)keeps->query_family(), _family_display(joins));
+
+    if (!FAMILY_HANDLER->set_spouse(game, (string)who->query_family_id(),
+                                    (string)other->query_family_id()))
+    {
+      notify_fail("Could not wed them.\n");
+      return 0;
+    }
+
+    write(_family_display(who) + " and " + _family_display(other) +
+          " are married, of house " + (string)keeps->query_family() +
+          " (" + rule + ").\n");
+    return 1;
+  }
+
+  if (verb == "parents")
+  {
+    string * parents;
+
+    if (sizeof(args) < 3)
+    {
+      notify_fail("Usage: build family parents <who> <a> [b]\n");
+      return 0;
+    }
+
+    who = _family_target(args[1]);
+    if (!who || !who->query_family())
+    {
+      notify_fail("Nobody of that name here belongs to a house.\n");
+      return 0;
+    }
+
+    parents = ({ });
+    other = _family_target(args[2]);
+    if (other)
+      parents += ({ (string)other->query_family_id() });
+    if (sizeof(args) > 3)
+    {
+      other = _family_target(args[3]);
+      if (other)
+        parents += ({ (string)other->query_family_id() });
+    }
+
+    if (!sizeof(parents))
+    {
+      notify_fail("Name at least one parent who is here.\n");
+      return 0;
+    }
+
+    FAMILY_HANDLER->set_parents(game, (string)who->query_family_id(), parents);
+    write(_family_display(who) + " is now the child of " + sizeof(parents) +
+          " of house " + (string)who->query_family() + ".\n");
+    return 1;
+  }
+
+  notify_fail("Usage: " + BUILDER_RING_FAMILY_SYNTAX + "\n");
+  return 0;
+}

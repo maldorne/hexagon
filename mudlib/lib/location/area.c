@@ -41,6 +41,13 @@ string exploration_name;
 // houses). Set by hand, never derived from the directory tree: a wilderness
 // that happens to sit under a region folder is nobody's suburb.
 string parent_area;
+// How far along this area is, which decides what may still be done to it.
+// AREA_DRAFT: the map is being shaped, so a full wipe is allowed and no family
+// may be founded here. AREA_SETTLED: it has people, houses and families, and a
+// wipe would leave their records naming things that no longer exist -- so it is
+// refused. Declared by hand (build area state), never inferred from what the
+// area happens to hold at the moment.
+string area_state;
 
 
 
@@ -59,6 +66,7 @@ void create() {
   file_name = "";
   area_path = "";
   parent_area = "";
+  area_state = AREA_DRAFT;
   gives_exploration = 0;
   exploration_name = "";
   monsters::create();
@@ -189,6 +197,24 @@ object * query_maze_locations()
 // (e.g. /save/games/<game>/locations/areas/<area>/rooms/), set
 // by the area handler when the storage is created.
 string query_area_path() { return area_path; }
+
+// An area restored from a save written before states existed has none; it is
+// read as a draft, which is the safe reading for everything except a wipe, and
+// the wipe asks about the people as well.
+string query_area_state()
+{
+  return (area_state && strlen(area_state)) ? area_state : AREA_DRAFT;
+}
+
+int set_area_state(string state)
+{
+  if (state != AREA_DRAFT && state != AREA_SETTLED)
+    return 0;
+
+  area_state = state;
+  save_me();
+  return 1;
+}
 
 /**
  * Short identifier of the area: everything after the "areas/" segment

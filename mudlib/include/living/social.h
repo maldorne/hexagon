@@ -1,5 +1,12 @@
 
-#define NUM_SOCIAL_OBJECTS 8
+// The social objects a living belongs to. The first eight name a blueprint --
+// a race, a guild, a citizenship -- written by hand, one file per kind, and a
+// living stores the path of that file. The ninth is different and deliberately
+// so: a family is made at run time, there is no end of them and they die out,
+// so no file can be written for one. It stores the surname, which the families
+// handler resolves. Nothing walks this list generically, so the two kinds of
+// entry never meet.
+#define NUM_SOCIAL_OBJECTS 9
 
 #define RACE_OB 0
 #define GUILD_OB 1
@@ -9,6 +16,7 @@
 #define DEITY_OB 5
 #define CITY_OB 6
 #define CLASS_OB 7
+#define FAMILY_OB 8
 
 #define NULL_SOCIAL_VALUE "none"
 

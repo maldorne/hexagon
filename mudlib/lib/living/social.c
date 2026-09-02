@@ -80,6 +80,21 @@ void set_social_object_list(string * list)
   social_object_list = list;
 }
 
+// The family slot. Unlike its eight neighbours it holds a surname rather than
+// the path of a blueprint, because a family is a run-time record the families
+// handler owns; see the note in <living/social.h>. Kept here because this is
+// where the array lives -- what a surname means is /lib/living/family.c's.
+string query_family_ob()
+{
+  return social_object_list[FAMILY_OB];
+}
+
+void set_family_ob(string surname)
+{
+  social_object_list[FAMILY_OB] =
+    (surname && strlen(surname)) ? surname : nil;
+}
+
 void social_commands()
 {
   skills_commands();

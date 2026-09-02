@@ -6,6 +6,8 @@
 
 inherit "/lib/core/object.c";
 
+#include <living/family.h>
+
 // mixed *job_commands = ({ });
 string init_room;
 
@@ -22,16 +24,43 @@ string name_style;
 // staff a human town and an elf one. Empty leaves the type's own race alone.
 string * races;
 
+// The wordlist a family surname is drawn from, kept apart from name_style
+// because a culture's houses need not be named like its people. "" means this
+// citizenship founds no families.
+string surname_style;
+
+// Which parent a marriage joins and whose surname the children take:
+// DESCENT_PATRILINEAL, DESCENT_MATRILINEAL, or DESCENT_NONE for a people where
+// nobody moves house on marrying.
+string descent;
+
 void create()
 {
   init_room = "";
   name_style = "";
+  surname_style = "";
+  descent = DESCENT_PATRILINEAL;
   races = ({ });
   ::create();
 }
 
 string query_name_style() { return name_style; }
 void set_name_style(string str) { name_style = str ? str : ""; }
+
+string query_surname_style() { return surname_style; }
+void set_surname_style(string str) { surname_style = str ? str : ""; }
+
+string query_descent()
+{
+  return (descent && strlen(descent)) ? descent : DESCENT_PATRILINEAL;
+}
+
+void set_descent(string str)
+{
+  if (str == DESCENT_PATRILINEAL || str == DESCENT_MATRILINEAL ||
+      str == DESCENT_NONE)
+    descent = str;
+}
 
 string * query_races() { return races ? races : ({ }); }
 void set_races(string * list) { races = list ? list : ({ }); }

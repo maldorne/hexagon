@@ -1381,13 +1381,14 @@ void clean_step(string * orphans, int idx, object * touched_areas,
   {
     int npc_pruned;
 
-    // A cleaned area takes its census with it, so its NPCs would become orphan
-    // save folders. Prune each area's NPC folders (scoped to that area, not a
-    // game-wide scan) before dropping the area object, so clean leaves no
-    // dangling NPC saves behind and stays cheap however many areas exist.
+    // An area that loses all its locations takes its census with it, so its
+    // NPCs would become orphan save folders: prune them before dropping the
+    // area object, scoped to that area rather than a game-wide scan. An area
+    // that merely lost a stale location keeps its people -- pruning there would
+    // silently reset a whole population because one obsolete room was cleaned.
     npc_pruned = 0;
     for (i = 0; i < sizeof(touched_areas); i++)
-      if (touched_areas[i])
+      if (touched_areas[i] && !map_sizeof(touched_areas[i]->query_locations()))
       {
         npc_pruned +=
           load_object(AREA_HANDLER)->prune_area_npc_saves(touched_areas[i]);
