@@ -6,8 +6,13 @@
  * /games/<game>/obj/citizenships/*), carried by a living as its city_ob; it
  * stores no relation data. It all lives here as mutable, persisted state.
  *
+ * Every game keeps its own graph, in its own savefile beside the rest of its
+ * state: the countries at war in one world have nothing to do with another's.
+ * A game's graph is read the first time that game is asked about and written
+ * whenever it changes.
+ *
  * Everything is keyed by the citizenship name (its query_name, e.g. the id used
- * in every mapping here) within a game. Callers work in names: a caller holding
+ * in every mapping here). Callers work in names: a caller holding
  * a citizenship object or path resolves it to a name once (load the object, ask
  * query_name / game_name) and passes names in.
  *
@@ -33,26 +38,55 @@
 
 inherit "/lib/core/object.c";
 
-// A mapping of mappings, indexed by game name. Each game's value is itself a
-// mapping indexed by citizenship name, whose value is that citizenship's data:
-//   citizenships[game][name] == ([ "parent"   : parent_name (or ""),
-//                                  "security" : guard_count,
-//                                  "guard"    : guard_npc_path (or ""),
-//                                  "deities"  : ({ deity paths }) ])
+// The graph of the game whose file is currently loaded. One game at a time: a
+// handler holds one set of variables and save_object writes all of them, so the
+// file being written has to be the one they came from. Every entry point names
+// its game and _load_game swaps them over.
+//
+//   citizenships[name] == ([ "parent"   : parent_name (or ""),
+//                            "security" : guard_count,
+//                            "guard"    : guard_npc_path (or ""),
+//                            "deities"  : ({ deity paths }) ])
 mapping citizenships;
 
-// Indexed by game name. Each game's value holds the two relationship lists,
-// each a list of unordered name pairs (every relationship stored once):
-//   relationships[game] == ([ DIPLOMACY_RELATION_ENEMY : ({ ({a, b}), ... }),
-//                              DIPLOMACY_RELATION_ALLY  : ({ ({a, b}), ... }) ])
+// The two relationship lists, each a list of unordered name pairs (every
+// relationship stored once):
+//   relationships == ([ DIPLOMACY_RELATION_ENEMY : ({ ({a, b}), ... }),
+//                       DIPLOMACY_RELATION_ALLY  : ({ ({a, b}), ... }) ])
 mapping relationships;
+
+// static: which game is in memory is bookkeeping, not data. Were it saved,
+// restoring a game's file would overwrite the name of the game being loaded
+// with whatever was written into that file.
+static string loaded_game;
 
 void create()
 {
   citizenships = ([ ]);
   relationships = ([ ]);
+  loaded_game = "";
   ::create();
-  restore_object(DIPLOMACY_SAVE, 1);
+}
+
+// The file a game's graph lives in, beside the rest of that game's state.
+private string _save_file(string game)
+{
+  return DIPLOMACY_SAVE_DIR + game + DIPLOMACY_SAVE_FILE;
+}
+
+// Make `game` the one in memory, writing back whatever was there before.
+private void _load_game(string game)
+{
+  if (!game || !strlen(game) || game == loaded_game)
+    return;
+
+  if (strlen(loaded_game))
+    save_object(_save_file(loaded_game), 1);
+
+  citizenships = ([ ]);
+  relationships = ([ ]);
+  loaded_game = game;
+  restore_object(_save_file(game), 1);
 }
 
 void setup()
@@ -67,7 +101,8 @@ void setup()
 
 void save_handler()
 {
-  save_object(DIPLOMACY_SAVE, 1);
+  if (strlen(loaded_game))
+    save_object(_save_file(loaded_game), 1);
 }
 
 void dest_me()
@@ -83,19 +118,27 @@ private mapping query_citizenship(string game, string citizenship_name);
 
 private mapping game_citizenships(string game)
 {
-  if (!game || !citizenships[game])
+  if (!game || !strlen(game))
     return ([ ]);
-  return citizenships[game];
+
+  _load_game(game);
+  return citizenships;
 }
 
 // A game's relationship store, always with both type lists present.
 private mapping game_relationships(string game)
 {
-  mapping store;
-  store = game ? relationships[game] : nil;
-  if (!store)
-    return ([ DIPLOMACY_RELATION_ENEMY : ({ }), DIPLOMACY_RELATION_ALLY : ({ }) ]);
-  return store;
+  if (!game || !strlen(game))
+    return ([ DIPLOMACY_RELATION_ENEMY : ({ }),
+              DIPLOMACY_RELATION_ALLY  : ({ }) ]);
+
+  _load_game(game);
+
+  if (!map_sizeof(relationships))
+    relationships = ([ DIPLOMACY_RELATION_ENEMY : ({ }),
+                       DIPLOMACY_RELATION_ALLY  : ({ }) ]);
+
+  return relationships;
 }
 
 // --- Query side: everything is a citizenship name within a game ------------
@@ -399,11 +442,10 @@ int add_citizenship(string game, string citizenship_name)
   if (!game || !strlen(game) || !citizenship_name || !strlen(citizenship_name))
     return 0;
 
-  if (!citizenships[game])
-    citizenships[game] = ([ ]);
+  _load_game(game);
 
-  if (!citizenships[game][citizenship_name])
-    citizenships[game][citizenship_name] =
+  if (!citizenships[citizenship_name])
+    citizenships[citizenship_name] =
       ([ "parent" : "", "security" : 0, "guard" : "" ]);
 
   save_handler();
@@ -416,24 +458,26 @@ int remove_citizenship(string game, string citizenship_name)
   string * types;
   int t;
 
-  if (!citizenships[game] || !citizenships[game][citizenship_name])
+  _load_game(game);
+
+  if (!citizenships[citizenship_name])
     return 0;
 
-  citizenships[game][citizenship_name] = nil;
+  citizenships[citizenship_name] = nil;
 
   // drop every pair that names this citizenship, from both type lists (the
   // game may have no relationships yet, so its lists may not exist)
   types = ({ DIPLOMACY_RELATION_ENEMY, DIPLOMACY_RELATION_ALLY });
-  for (t = 0; relationships[game] && t < sizeof(types); t++)
+  for (t = 0; map_sizeof(relationships) && t < sizeof(types); t++)
   {
     mixed * pairs, * kept;
     int i;
-    pairs = relationships[game][types[t]];
+    pairs = relationships[types[t]];
     kept = ({ });
     for (i = 0; i < sizeof(pairs); i++)
       if (pairs[i][0] != citizenship_name && pairs[i][1] != citizenship_name)
         kept += ({ pairs[i] });
-    relationships[game][types[t]] = kept;
+    relationships[types[t]] = kept;
   }
 
   save_handler();
@@ -445,7 +489,8 @@ int remove_citizenship(string game, string citizenship_name)
 // beforehand with add_citizenship).
 private mapping query_citizenship(string game, string citizenship_name)
 {
-  return citizenships[game] ? citizenships[game][citizenship_name] : nil;
+  _load_game(game);
+  return citizenships[citizenship_name];
 }
 
 // Set a citizenship's parent (the one it sits under). "" makes it top-level.
@@ -491,16 +536,17 @@ int add_relationship(string game, string type, string name_a, string name_b)
   mapping type_lists;
   string opposite_type;
 
-  if (name_a == name_b || !citizenships[game] ||
-      !citizenships[game][name_a] || !citizenships[game][name_b])
+  _load_game(game);
+
+  if (name_a == name_b || !citizenships[name_a] || !citizenships[name_b])
     return 0;
 
   // the game's relationship lists are born here, with its first relationship
-  if (!relationships[game])
-    relationships[game] = ([ DIPLOMACY_RELATION_ENEMY : ({ }),
+  if (!map_sizeof(relationships))
+    relationships = ([ DIPLOMACY_RELATION_ENEMY : ({ }),
                              DIPLOMACY_RELATION_ALLY  : ({ }) ]);
 
-  type_lists = relationships[game];
+  type_lists = relationships;
   opposite_type = (type == DIPLOMACY_RELATION_ENEMY) ? DIPLOMACY_RELATION_ALLY
                                                      : DIPLOMACY_RELATION_ENEMY;
 
@@ -516,10 +562,11 @@ int add_relationship(string game, string type, string name_a, string name_b)
 // Remove the `type` relationship between two citizenships, if present.
 int remove_relationship(string game, string type, string name_a, string name_b)
 {
-  if (!relationships[game])
+  _load_game(game);
+
+  if (!map_sizeof(relationships))
     return 0;
-  relationships[game][type] =
-    _filter_pair(relationships[game][type], name_a, name_b);
+  relationships[type] = _filter_pair(relationships[type], name_a, name_b);
   save_handler();
   return 1;
 }
