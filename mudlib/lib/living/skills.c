@@ -67,24 +67,31 @@ int query_skill_used_times(string str);
   string help_command(string str) { return ""; }
 */
 
+// The verbs that are always there, whoever this is: registered from create,
+// through social_commands, like every other half of a living registers its own.
 void skills_commands()
 {
+  string * verbs;
   int i;
-  object skill_ob;
 
-  {
-    string * verbs;
-    int v;
-    verbs = _LANG_SKILL_LIST_VERBS;
-    for (v = 0; v < sizeof(verbs); v++)
-      add_private_action("list_skills", verbs[v]);
-  }
+  verbs = _LANG_SKILL_LIST_VERBS;
+
+  for (i = 0; i < sizeof(verbs); i++)
+    add_private_action("list_skills", verbs[i]);
+}
+
+// One action per skill this living actually knows. Kept apart from the verbs
+// above because it can only run once the skills are known: a player's are
+// restored from its savefile long after create, and until then there is
+// nothing here to register.
+private void known_skill_commands()
+{
+  object skill_ob;
+  string * words;
+  int i, w;
 
   for (i = 0; i < sizeof(known_skills); i++)
   {
-    string * words;
-    int w;
-
     // Passive skills have no associated action
     if (skill_list[known_skills[i]][3] == PASSIVE_SKILL)
       continue;
@@ -238,8 +245,8 @@ int add_known_skill(string str, varargs int silence)
       _LANG_SKILL_GAINED_PRE + capitalize(skill_ob->query_effect_name()) +
       _LANG_SKILL_GAINED_POST);
 
-  // Refresh the commands
-  skills_commands();
+  // the new skill needs its action attached; the standing verbs are already up
+  known_skill_commands();
   
   return 1;
     
@@ -259,6 +266,14 @@ void grant_default_skills()
 
   for (i = 0; i < sizeof(defaults); i++)
     add_known_skill(defaults[i], 1);
+}
+
+// Everything the skills half does for somebody entering the world: hand over
+// the defaults, then attach an action to each skill they turn out to know.
+void start_skills()
+{
+  grant_default_skills();
+  known_skill_commands();
 }
 
 int remove_known_skill(string str)

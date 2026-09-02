@@ -1,5 +1,9 @@
 #define FAMILY_HANDLER "/lib/handlers/families"
-#define FAMILY_SAVE    "/save/families"
+// One register per game, beside its other state. A game's houses have nothing
+// to do with another's: the families of a fantasy world and those of a
+// science-fiction one share neither surnames nor anything else.
+#define FAMILY_SAVE_DIR  "/save/games/"
+#define FAMILY_SAVE_FILE "/families"
 
 // How many times the generator is asked again when the surname it minted is
 // already spoken for, before giving up on that citizenship.

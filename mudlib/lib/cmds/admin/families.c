@@ -39,7 +39,7 @@ private string columns(string * * rows)
 {
   string out;
   int * width;
-  int i, j, k;
+  int i, j, k, l;
 
   if (!sizeof(rows))
     return "";
@@ -48,7 +48,6 @@ private string columns(string * * rows)
   for (i = 0; i < sizeof(rows); i++)
     for (j = 0; j < sizeof(rows[i]); j++)
     {
-      int l;
       l = strlen(rows[i][j], TRUE);
       if (l > width[j])
         width[j] = l;

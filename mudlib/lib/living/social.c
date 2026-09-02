@@ -119,6 +119,8 @@ void start_player()
     catch(social_object_list[CITY_OB]->start_player(this_object()));
   if (social_object_list[CLASS_OB])
     catch(social_object_list[CLASS_OB]->start_player(this_object()));
+
+  skills::start_skills();
 }
 
 string query_gtitle()

@@ -149,9 +149,9 @@ string * query_children_ids()
 // once they are otherwise finished: start_player for a player, the census after
 // the template for an NPC.
 //
-// So far that is one thing: the surname answers as a name, and names are static
-// -- id.c never saves them -- so it has to be put back each time, exactly as a
-// generated citizen's own name is re-seeded on restore.
+// So far that is one thing: the surname answers as a name, and id.c keeps names
+// static, so nothing on disk brings it back -- it has to be put there again on
+// every arrival.
 void start_family()
 {
   string surname;

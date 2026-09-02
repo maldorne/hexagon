@@ -2041,9 +2041,12 @@ private string _family_display(object who)
 
 int do_family(string str)
 {
-  string * args;
-  string verb, game, surname;
-  object loc, area, who, other;
+  mapping history;
+  object loc, area, who, other, joins, keeps, swap;
+  string * args, * names, * ids, * props, * parents;
+  string verb, game, surname, citizenship, rule, out;
+  mixed spouse;
+  int i;
 
   args = explode(str ? str : "", " ") - ({ "" });
 
@@ -2065,10 +2068,6 @@ int do_family(string str)
 
   if (verb == "list")
   {
-    string * names;
-    string out;
-    int i;
-
     names = (string *)FAMILY_HANDLER->query_families(game);
     if (!sizeof(names))
     {
@@ -2092,12 +2091,6 @@ int do_family(string str)
 
   if (verb == "show")
   {
-    mapping history;
-    string * ids, * props;
-    string out;
-    mixed spouse;
-    int i;
-
     if (sizeof(args) < 2)
     {
       notify_fail("Usage: build family show <surname>\n");
@@ -2154,8 +2147,6 @@ int do_family(string str)
 
   if (verb == "found")
   {
-    string citizenship;
-
     if (!area)
     {
       notify_fail("This location has no area.\n");
@@ -2266,9 +2257,6 @@ int do_family(string str)
 
   if (verb == "marry")
   {
-    object joins, keeps, swap;
-    string rule;
-
     if (sizeof(args) < 3)
     {
       notify_fail("Usage: build family marry <who> <to whom>\n");
@@ -2343,8 +2331,6 @@ int do_family(string str)
 
   if (verb == "parents")
   {
-    string * parents;
-
     if (sizeof(args) < 3)
     {
       notify_fail("Usage: build family parents <who> <a> [b]\n");

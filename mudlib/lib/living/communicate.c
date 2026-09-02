@@ -662,38 +662,6 @@ void add_languages(string *list)
     add_language(list[i]);
 }
 
-// Rewrite the known-languages list and the current language to canonical
-// ids, dropping duplicates and anything no longer a language. Migrates an
-// old ficha that stored translated names ("común") to ids ("common"). Run
-// on login (start_player).
-void normalize_languages()
-{
-  string * out;
-  int i;
-  string id;
-
-  if (!languages)
-  {
-    languages = ({ });
-    return;
-  }
-
-  out = ({ });
-  for (i = 0; i < sizeof(languages); i++)
-  {
-    id = handler("languages")->resolve_language(languages[i]);
-    if (id && member_array(id, out) == -1)
-      out += ({ id });
-  }
-  languages = out;
-
-  if (cur_lang && strlen(cur_lang))
-  {
-    id = handler("languages")->resolve_language(cur_lang);
-    cur_lang = id ? id : (sizeof(languages) ? languages[0] : "");
-  }
-}
-
 // Eliminado el grunt, neverbot 12/10/03
 void remove_language(string lang) 
 {

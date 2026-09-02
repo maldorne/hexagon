@@ -17,8 +17,10 @@
  * "player:<name>" -- so nothing here has to care which it holds. That is what
  * lets a player marry an NPC, or a family hold both.
  *
- * Everything is keyed by game first: a surname is unique within its game, not
- * across the mudlib, and a family belongs to the world it was founded in.
+ * Every game keeps its own register, in its own savefile beside the rest of its
+ * state: a surname is unique within its game, not across the mudlib, and the
+ * houses of one world have nothing to say about another's. A game's register is
+ * read the first time that game is asked about and written whenever it changes.
  *
  *   families[game][surname] == ([ "citizenship": name,
  *                                 "members":     ([ id : ([ "spouse":  id,
@@ -38,11 +40,19 @@
 
 inherit "/lib/core/object.c";
 
-// ([ game : ([ surname : family record ]) ])
+// The register of the game whose file is currently loaded, and which game that
+// is. One game at a time: a handler holds one set of variables, and save_object
+// writes all of them, so the file being written has to be the one they came
+// from. Every entry point names its game and _load_game swaps them over.
+//   families:  ([ surname : family record ])
+//   member_of: ([ member id : surname ]), so a living finds its house without
+//              walking the register
 mapping families;
-// Where every member is, so a living finds its own family without searching:
-// ([ game : ([ member id : surname ]) ])
 mapping member_of;
+// static: which game is in memory is bookkeeping, not data. Were it saved,
+// restoring a game's file would overwrite the name of the game being loaded
+// with whatever was written into that file.
+static string loaded_game;
 
 private void _save();
 private mapping _game_families(string game);
@@ -51,8 +61,31 @@ void create()
 {
   families = ([ ]);
   member_of = ([ ]);
+  loaded_game = "";
   ::create();
-  restore_object(FAMILY_SAVE, 1);
+}
+
+// The file a game's houses live in, beside the rest of that game's state.
+private string _save_file(string game)
+{
+  return FAMILY_SAVE_DIR + game + FAMILY_SAVE_FILE;
+}
+
+// Make `game` the one in memory, writing back whatever was there before. Every
+// read and every write goes through this, so a caller never has to think about
+// which game is loaded.
+private void _load_game(string game)
+{
+  if (!game || !strlen(game) || game == loaded_game)
+    return;
+
+  if (strlen(loaded_game))
+    save_object(_save_file(loaded_game), 1);
+
+  families = ([ ]);
+  member_of = ([ ]);
+  loaded_game = game;
+  restore_object(_save_file(game), 1);
 }
 
 void setup()
@@ -64,25 +97,26 @@ void setup()
 
 private void _save()
 {
-  save_object(FAMILY_SAVE, 1);
+  if (strlen(loaded_game))
+    save_object(_save_file(loaded_game), 1);
 }
 
 private mapping _game_families(string game)
 {
   if (!game || !strlen(game))
     return ([ ]);
-  if (!families[game])
-    families[game] = ([ ]);
-  return families[game];
+
+  _load_game(game);
+  return families;
 }
 
 private mapping _game_members(string game)
 {
   if (!game || !strlen(game))
     return ([ ]);
-  if (!member_of[game])
-    member_of[game] = ([ ]);
-  return member_of[game];
+
+  _load_game(game);
+  return member_of;
 }
 
 // ---------------------------------------------------------------------------
