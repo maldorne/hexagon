@@ -29,7 +29,9 @@ inherit "/lib/core/object.c";
 #define ASSIGN_PER_TICK 10
 
 // Whose turn it is in the game's list of areas. Static: it is a position in a
-// round, not something worth remembering across a reboot.
+// round, not something worth remembering across a reboot -- and it starts
+// somewhere at random, so the same area is not always the first to be topped up
+// after a restart.
 static int next_area;
 
 // The world this handler sweeps, which is the game its own file belongs to. The
@@ -46,7 +48,11 @@ string * query_areas()
 
 void create()
 {
-  next_area = 0;
+  string * areas;
+
+  areas = query_areas();
+  next_area = sizeof(areas) ? random(sizeof(areas)) : 0;
+
   ::create();
 }
 

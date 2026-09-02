@@ -94,56 +94,6 @@ mapping foreign_positions_at(string location_file)
   return npc_positions[location_file] ? npc_positions[location_file] : ([ ]);
 }
 
-// Cron calls this once per game hour (see the crontab, after the weather line so
-// the hour is already advanced). For every loaded area it reads that area's game
-// hour and collects the census uuids with something scheduled this hour, then
-// releases them staggered. Each is woken as released, so unloaded scheduled NPCs
-// are materialised at their census position and act just like loaded ones.
-void update_areas()
-{
-  object * areas;
-  int i;
-
-  areas = map_values(loaded_areas);
-  for (i = 0; i < sizeof(areas); i++)
-  {
-    int hour, j;
-    string * uuids;
-
-    if (!areas[i])
-      continue;
-
-    hour = (int)areas[i]->query_game_hour();
-    uuids = areas[i]->hour_actor_uuids(hour);
-    for (j = 0; j < sizeof(uuids); j++)
-      pending_schedule += ({ ({ areas[i], uuids[j], hour }) });
-  }
-
-  if (sizeof(pending_schedule) && find_call_out("_dispatch_schedule") == -1)
-    call_out("_dispatch_schedule", 0);
-}
-
-// Release a few scheduled actions per tick and re-arm until the queue drains, so
-// departures (and the loads that waking unloaded NPCs triggers) trickle out over
-// ~seconds rather than all on one beat.
-void _dispatch_schedule()
-{
-  int i;
-
-  // a handful per tick keeps the stagger visible without dragging on
-  for (i = 0; i < 3 && sizeof(pending_schedule); i++)
-  {
-    mixed * item;
-    item = pending_schedule[0];
-    pending_schedule = pending_schedule[1..];
-    if (item[0])
-      item[0]->wake_and_schedule(item[1], item[2]);
-  }
-
-  if (sizeof(pending_schedule))
-    call_out("_dispatch_schedule", 1 + random(2));
-}
-
 mapping query_loaded_areas() {
   return loaded_areas;
 }
@@ -252,6 +202,66 @@ object query_area(string path)
   loaded_areas[path] = area;
 
   return area;
+}
+
+// Cron calls this once per game hour (see the crontab, after the weather line so
+// the hour is already advanced). For every loaded area it reads that area's game
+// hour and collects the census uuids with something scheduled this hour, then
+// releases them staggered. Each is woken as released, so unloaded scheduled NPCs
+// are materialised at their census position and act just like loaded ones.
+void update_areas()
+{
+  string * games, * paths, * uuids;
+  object area;
+  int g, p, hour, j;
+
+  // Every area of every game, not only the ones somebody happens to be standing
+  // in: a town whose people stop going to work because no player is watching is
+  // a town that only exists while it is looked at. An area object is small and
+  // query_area caches it, so the whole world costs one restore each and then
+  // nothing.
+  games = (string *)handler("games")->query_games();
+
+  for (g = 0; g < sizeof(games); g++)
+  {
+    paths = query_area_paths(games[g]);
+
+    for (p = 0; p < sizeof(paths); p++)
+    {
+      area = query_area(paths[p]);
+      if (!area)
+        continue;
+
+      hour = (int)area->query_game_hour();
+      uuids = area->hour_actor_uuids(hour);
+      for (j = 0; j < sizeof(uuids); j++)
+        pending_schedule += ({ ({ area, uuids[j], hour }) });
+    }
+  }
+
+  if (sizeof(pending_schedule) && find_call_out("_dispatch_schedule") == -1)
+    call_out("_dispatch_schedule", 0);
+}
+
+// Release a few scheduled actions per tick and re-arm until the queue drains, so
+// departures (and the loads that waking unloaded NPCs triggers) trickle out over
+// ~seconds rather than all on one beat.
+void _dispatch_schedule()
+{
+  int i;
+
+  // a handful per tick keeps the stagger visible without dragging on
+  for (i = 0; i < 3 && sizeof(pending_schedule); i++)
+  {
+    mixed * item;
+    item = pending_schedule[0];
+    pending_schedule = pending_schedule[1..];
+    if (item[0])
+      item[0]->wake_and_schedule(item[1], item[2]);
+  }
+
+  if (sizeof(pending_schedule))
+    call_out("_dispatch_schedule", 1 + random(2));
 }
 
 // Delete an area whose locations are all gone: remove its area.o file,
