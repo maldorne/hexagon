@@ -269,7 +269,7 @@ void _dispatch_schedule()
 // dead area.o behind. Returns 1 if it was removed, 0 otherwise.
 int remove_area_if_empty(object area)
 {
-  string area_file, path;
+  string area_file, path, game;
 
   if (!area || map_sizeof(area->query_locations()))
     return 0;
@@ -281,7 +281,14 @@ int remove_area_if_empty(object area)
     remove_file(area_file);
 
   if (path)
+  {
     map_delete(loaded_areas, path);
+
+    // and out of the list of what exists, which create_area adds to
+    game = game_from_path(path);
+    if (strlen(game) && area_paths[game])
+      area_paths[game] -= ({ path });
+  }
   destruct(area);
 
   if (path && file_size(path) == -2 && !sizeof(get_dir(path + "*")))
