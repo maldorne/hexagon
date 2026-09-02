@@ -484,9 +484,9 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
   if (!source || !strlen(source) || !at || !strlen(at))
     return nil;
 
-  // where the person stands is not which post it holds: a spread job seats its
-  // holders across the area's like places, and every one of them still holds
-  // the one post recorded at `at`
+  // where the person stands is not which post it holds: a job that lists its
+  // places seats its holders across them, and every one of them still holds the
+  // one post recorded at `at`
   if (!where || !strlen(where))
     where = at;
 
@@ -503,11 +503,10 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
   return id;
 }
 
-// Seat the holders of a spread job across the area's like places again. Filling
-// hands each new holder its own spot, but a job that was filled before those
-// places existed -- before its anchor carried the component that says what kind
-// of workplace it is -- put everybody on the anchor and has kept them there
-// since. This walks the holders and gives each the spot it would get today.
+// Seat the holders of a job across its places again. Staffing hands each new
+// holder its own spot, but a job staffed before its list was written put
+// everybody on the place it was declared at and has kept them there since. This
+// walks the holders and gives each the spot the list would give it today.
 // Returns how many were moved; 0 for a job that is not open or not spread.
 int reseat_vacancy(string job)
 {
@@ -554,13 +553,6 @@ int reseat_vacancy(string job)
   return moved;
 }
 
-// Take on as many people as the job is short of. A seat emptied by a death is
-// refilled here, not at the moment of death.
-//
-// This only writes census rows. Bringing the new people into the world is the
-// caller's business, and a load already does it: the location's restore asks
-// for its jobs to be filled and then materializes everybody it finds, so doing
-// it from here as well would have the two calling each other without end.
 // Whether the place a job is held in is shut to it. The location answers
 // through its components; the job itself is never touched.
 private int _venue_closed(mapping vacancy)
@@ -594,7 +586,7 @@ private void _staff(mapping vacancy)
     string where;
     object loc;
 
-    // a spread job hands each holder its own place, in turn
+    // a job that lists its places hands each holder one of them, in turn
     where = spot_for(vacancy, i);
     assign_npc_to_vacancy(vacancy, where);
 
