@@ -12,6 +12,8 @@
 // flagged the same way, and only those are housed.
 
 #include <room/location.h>
+#include <living/family.h>
+#include <areas/area.h>
 #include <basic/gender.h>
 #include <areas/vacancy.h>
 
@@ -34,6 +36,7 @@ void open_plot_exits(object plot);
 int demote_house(string file);
 private int _is_resident(object o);
 private void _house_family(object * family);
+private string _family_for(object * group);
 
 void create()
 {
@@ -276,11 +279,85 @@ void door_house_exits(object house)
 // Raise one house for a family (one or two NPCs) and move them in: build the
 // house, set each member's home to it, and persist them. No plot -> nothing
 // happens (build_house_on_plot logged it).
+// Record a place as a family's, on both sides: the register lists it among the
+// house's property, and the location itself names its owner so a door can ask
+// without going through the handler. Two records of one fact, kept in step
+// here, the way an NPC's address and its house's resident list are.
+void claim_property(string game, string surname, string file)
+{
+  object place, home;
+
+  if (!game || !strlen(game) || !surname || !strlen(surname) ||
+      !file || !strlen(file))
+    return;
+
+  FAMILY_HANDLER->add_property(game, surname, file);
+
+  place = load_object(LOCATION_HANDLER)->load_location(file);
+  if (!place)
+    return;
+
+  home = place->query_component_by_type(LOCATION_COMPONENT_HOME);
+  if (!home)
+    return;
+
+  home->set_home_owner(surname);
+  place->save_me();
+}
+
+// The house a group of people will live under. Whoever already belongs to one
+// brings the others into it; a group of strangers founds a new one, named from
+// the citizenship they were born into. A draft area founds nothing -- a house
+// outlives the locations it stands in, so it waits until the place is settled.
+private string _family_for(object * group)
+{
+  string game, citizenship, surname;
+  int i;
+
+  game = game_name(group[0]);
+  if (!strlen(game))
+    return nil;
+
+  for (i = 0; i < sizeof(group); i++)
+    if (group[i]->query_family())
+      surname = (string)group[i]->query_family();
+
+  if (!surname)
+  {
+    if ((string)this_object()->query_area_state() != AREA_SETTLED)
+      return nil;
+
+    citizenship = (string)this_object()->query_root_citizenship_path();
+    surname = (string)FAMILY_HANDLER->mint_surname(game, citizenship);
+    if (!surname || !strlen(surname))
+      return nil;
+    if (!FAMILY_HANDLER->found_family(game, surname, citizenship))
+      return nil;
+  }
+
+  for (i = 0; i < sizeof(group); i++)
+    if (!group[i]->query_family())
+      group[i]->set_family(surname,
+        group[i]->query_given_name()
+          ? capitalize((string)group[i]->query_given_name())
+          : (string)group[i]->query_cap_name());
+
+  // a couple housed together is a couple
+  if (sizeof(group) == 2)
+    FAMILY_HANDLER->set_spouse(game, (string)group[0]->query_family_id(),
+                                     (string)group[1]->query_family_id());
+
+  return surname;
+}
+
 private void _house_family(object * family)
 {
-  string house;
+  string house, surname, game;
   string * ids;
   int i;
+
+  // the house they will live under, founded now if they had none
+  surname = _family_for(family);
 
   ids = ({ });
   for (i = 0; i < sizeof(family); i++)
@@ -295,6 +372,14 @@ private void _house_family(object * family)
     family[i]->set_home(house);
     family[i]->save_npc();
   }
+
+  // A house belongs to the family living in it, not to the people one by one:
+  // that is what lets it outlast them, and what a door asks before it opens.
+  game = game_name(family[0]);
+  if (!surname || !strlen(surname) || !strlen(game))
+    return;
+
+  claim_property(game, surname, house);
 }
 
 string * query_houses()

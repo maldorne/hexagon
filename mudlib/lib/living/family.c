@@ -54,6 +54,8 @@ int set_family(string surname, varargs string display_name)
   if (!surname || !strlen(surname))
   {
     this_object()->set_family_ob(nil);
+    if (this_object()->query_persisted())
+      this_object()->save_npc();
     return 1;
   }
 
@@ -67,6 +69,13 @@ int set_family(string surname, varargs string display_name)
     return 0;
 
   this_object()->set_family_ob(surname);
+
+  // the register has written its side; without this the two disagree the
+  // moment the location unloads, and somebody wakes up disowned by a house
+  // that still counts them
+  if (this_object()->query_persisted())
+    this_object()->save_npc();
+
   return 1;
 }
 

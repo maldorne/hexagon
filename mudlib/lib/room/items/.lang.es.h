@@ -111,3 +111,5 @@
 
 #define _LANG_ITEM_NOTHING_IMPORTANT "No ves nada destacable.\n"
 #define _LANG_ITEM_ERROR "Error en el objeto, comunícaselo a un programador.\n"
+
+#define _LANG_DOOR_OPEN_AS_FAMILY "Eres de la casa: la puerta te reconoce.\n"

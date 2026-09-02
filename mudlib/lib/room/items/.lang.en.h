@@ -85,3 +85,5 @@
 
 #define _LANG_ITEM_NOTHING_IMPORTANT "You don't see anything important.\n"
 #define _LANG_ITEM_ERROR "Error in the object, report it to a coder.\n"
+
+#define _LANG_DOOR_OPEN_AS_FAMILY "You are of the house: the door knows you.\n"

@@ -9,6 +9,7 @@ inherit "/lib/core/object.c";
 #include <language.h>
 #include <translations/exits.h>
 #include <room/room.h>
+#include <room/location.h>
 
 string dest,           // door direction
        dir_other_side, // direction we come from the other side (north -> south)
@@ -232,6 +233,50 @@ int query_known_exit(string name)
 void open_msg(string door, object ob, int flag);
 void close_msg(string door, object ob, int flag);
 
+// Whether somebody carries the right of the house this door belongs to. A
+// family's own door is locked to everybody else and opens for its members with
+// no key at all: what they have instead of one is being of the house.
+//
+// The owner is read from the home component of whichever side of the doorway is
+// the house, so re-housing a family is a change in one place and both faces of
+// the door follow it.
+private int _of_the_house(object who);
+
+private int _of_the_house(object who)
+{
+  object place, home;
+  mixed owner;
+  int i;
+  string * sides;
+
+  if (!who)
+    return 0;
+
+  sides = ({ dest });
+  if (environment())
+    sides += ({ (string)environment()->query_file_name() });
+
+  for (i = 0; i < sizeof(sides); i++)
+  {
+    if (!sides[i] || !strlen(sides[i]))
+      continue;
+
+    place = load_object(LOCATION_HANDLER)->load_location(sides[i]);
+    if (!place)
+      continue;
+
+    home = place->query_component_by_type(LOCATION_COMPONENT_HOME);
+    if (!home)
+      continue;
+
+    owner = home->query_home_owner();
+    if (stringp(owner) && strlen(owner) && who->is_family_member(owner))
+      return 1;
+  }
+
+  return 0;
+}
+
 int do_unlock(varargs string str)
 {
   int find, i, aux;
@@ -252,6 +297,14 @@ int do_unlock(varargs string str)
   {
     notify_fail(_LANG_DOOR_NOT_LOCKED);
     return 0;    
+  }
+
+  // being of the house counts as the key
+  if (_of_the_house(this_player()))
+  {
+    set_lock_status(1);
+    tell_object(this_player(), _LANG_DOOR_OPEN_AS_FAMILY);
+    return 1;
   }
 
   find = -1;
@@ -391,9 +444,13 @@ int do_lock(varargs string str)
   {
     find = -1;
     obs = all_inventory(this_player());
-  
+
+    // being of the house counts as the key
+    if (_of_the_house(this_player()))
+      find = -2;
+
     // auto search for the right key
-    for (i = 0; i < sizeof(obs); i++)
+    for (i = 0; find == -1 && i < sizeof(obs); i++)
     {
       if (obs[i]->query_key())
       {
