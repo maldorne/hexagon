@@ -1202,14 +1202,15 @@ int do_vacancy(string str)
     }
 
     // Equipment is the type's: write the kit to the template through the
-    // bestiary, then have the area re-gear any live empty-handed holders.
+    // bestiary. Whoever holds the post now keeps what they were given at birth,
+    // the way a player keeps what they own; the kit takes effect on the next
+    // person to fill it.
     BESTIARY_HANDLER->set_template_behaviour(
       game_from_path(area->query_area_path()),
       area->query_vacancy(args[1])[VACANCY_SOURCE], ([ "equipment": spec ]));
-    area->reequip_vacancy_holders(args[1]);
-    write("Role '" + args[1] + "' kit set: " + sizeof(spec) +
+    write("Job '" + args[1] + "' kit set: " + sizeof(spec) +
           " slot" + (sizeof(spec) == 1 ? "" : "s") +
-          " (new citizens roll their gear; existing keep theirs).\n");
+          ". Whoever fills it next rolls their gear.\n");
     return 1;
   }
 

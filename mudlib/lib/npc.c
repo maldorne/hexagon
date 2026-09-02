@@ -43,10 +43,6 @@ string npc_given_name;   // a generated citizen's proper name (lowercase).
                          // derived lives here, in the npc.o. Language-neutral (a
                          // proper noun does not translate). Nil for template NPCs,
                          // whose name comes from apply_template.
-int npc_purse_given;     // whether this NPC has already been handed its starting
-                         // coin. What it earns and spends is its own from then
-                         // on, so the purse is granted once and persisted like
-                         // a player's rather than re-rolled on every waking.
 
 // Component host state. component_info (type -> persisted attrs) rides in the
 // npc.o savefile; the live instances are static and re-cloned on restore.
@@ -88,7 +84,6 @@ void create()
   npc_home = nil;
   npc_work = nil;
   npc_monster_location = nil;
-  npc_purse_given = 0;
   component_info = ([ ]);
   components = ({ });
 }
@@ -597,16 +592,10 @@ void apply_template(mapping t, varargs int born)
   // Starting coin, handed over once. What the NPC earns or spends afterwards is
   // its own, and persists: the purse itself opts out of the auto-load snapshot,
   // so what is saved is money_array, refreshed from the live money object in
-  // save_npc and read back into one in restore_npc -- the two hooks a player
-  // uses. The base and spread mean two NPCs of a type do not carry the same
-  // purse.
-  //
-  // Keyed on the flag rather than on `born`, so an NPC saved before the purse
-  // persisted gets its one grant on the next waking instead of staying broke
-  // for good. A monster carries no savefile, so its flag is always fresh and
-  // every clone is paid.
-  if (!npc_purse_given && mappingp(t["money"]) &&
-      !undefinedp(t["money"]["base"]))
+  // save_npc and put back into one by start_money when it enters the world --
+  // the two hooks a player uses. The base and spread mean two NPCs of a type do
+  // not carry the same purse.
+  if (born && mappingp(t["money"]) && !undefinedp(t["money"]["base"]))
   {
     mapping money;
     int amount;
@@ -618,8 +607,6 @@ void apply_template(mapping t, varargs int born)
 
     if (amount > 0)
       adjust_money(amount, money["type"] ? money["type"] : BASE_COIN);
-
-    npc_purse_given = 1;
   }
 
   // What the type knows how to do and how to be. Re-applied every

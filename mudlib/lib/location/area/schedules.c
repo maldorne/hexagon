@@ -72,7 +72,9 @@ string * hour_actor_uuids(int hour)
 }
 
 // A live NPC of this area by uuid, or nil if it is not currently materialized.
-private object _live_npc_by_uuid(string uuid)
+// The areas handler calls it on each loaded area to build a world-wide lookup
+// (find_live_npc).
+object live_npc(string uuid)
 {
   object * live;
   int i;
@@ -83,10 +85,6 @@ private object _live_npc_by_uuid(string uuid)
       return live[i];
   return nil;
 }
-
-// Public wrapper: this area's live NPC with `uuid`, or nil. The areas handler
-// calls it on each loaded area to build a world-wide lookup (find_live_npc).
-object live_npc(string uuid) { return _live_npc_by_uuid(uuid); }
 
 // Wake a scheduled NPC and hand it its hour: if it is already in the world use
 // it as is, otherwise materialize it (and its location) at its census position;
