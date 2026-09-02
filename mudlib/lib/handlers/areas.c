@@ -2,6 +2,9 @@
 #include <areas/area.h>
 
 mapping loaded_areas;
+// Each game's areas, as found on disk. Static: it is a reading of the tree, not
+// state of our own, and a reboot reads it again.
+static mapping area_paths;
 
 // ({ ({ area, uuid, hour }), ... }) collected each game hour and released a few
 // per tick (one call_out chain) so a crowd ordered off at the same hour staggers
@@ -23,6 +26,7 @@ mapping npc_at;
 private void _delete_npc_folder(string dir);
 
 void create() {
+  area_paths = ([ ]);
   loaded_areas = ([ ]);
   pending_schedule = ({ });
   npc_positions = ([ ]);
@@ -144,11 +148,51 @@ mapping query_loaded_areas() {
   return loaded_areas;
 }
 
+// Every area of a game, loaded or not. There is no register of them: an area
+// exists because there is an area.o in its directory, so the tree under the
+// game's locations is the list, and walking it is the only answer that cannot
+// go stale. Cached, because the walk is the same until somebody converts a new
+// area -- create_area adds to the cache when that happens.
+string * query_area_paths(string game)
+{
+  string * queue, * found;
+  mixed * entries;
+  string dir;
+  int i;
+
+  if (!game || !strlen(game))
+    return ({ });
+
+  if (area_paths[game])
+    return area_paths[game];
+
+  queue = ({ "/save/games/" + game + "/locations/areas/" });
+  found = ({ });
+
+  while (sizeof(queue))
+  {
+    dir = queue[0];
+    queue = queue[1 ..];
+
+    if (file_size(dir + "area.o") >= 0)
+      found += ({ dir });
+
+    entries = get_dir(dir + "*", -1);
+    for (i = 0; i < sizeof(entries); i++)
+      if (entries[i][1] == -2)   // size -2 marks a directory
+        queue += ({ dir + entries[i][0] + "/" });
+  }
+
+  area_paths[game] = found;
+  return found;
+}
+
 // will create an area storage in the destination directory
 // (and create such directory if it doesn't exist)
 object create_area(string path)
 {
   object area;
+  string game;
 
   // normalise to a single trailing slash so create_area(".../rooms") and
   // create_area(".../rooms/") key the same cached area (and never write a
@@ -173,6 +217,12 @@ object create_area(string path)
   }
 
   loaded_areas[path] = area;
+
+  // a brand-new area belongs to the list of what exists, without re-walking it
+  game = game_from_path(path);
+  if (strlen(game) && area_paths[game] &&
+      member_array(path, area_paths[game]) == -1)
+    area_paths[game] += ({ path });
 
   return area;
 }

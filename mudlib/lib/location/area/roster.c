@@ -270,9 +270,6 @@ void set_location_original_sources(string location_file, mapping clones)
   if (owner != this_object())
   {
     owner->set_location_original_sources(location_file, clones);
-    if (map_sizeof((mapping)owner->query_npc_caps()))
-      POPULATION_HANDLER->include_area(
-        (string)this_object()->query_area_path());
     return;
   }
 
@@ -283,9 +280,6 @@ void set_location_original_sources(string location_file, mapping clones)
 
   rebuild_npc_caps();
 
-  // register with the population sweep so it keeps this area topped up
-  if (map_sizeof(npc_caps))
-    POPULATION_HANDLER->include_area((string)this_object()->query_area_path());
 
   this_object()->save_me();
 }

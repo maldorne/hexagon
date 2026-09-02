@@ -1,15 +1,22 @@
 /*
- * Population handler — keeps every area's NPC population topped up.
+ * Population handler — keeps every area's fauna topped up.
  *
- * Same shape as /lib/handlers/ventures.c (a registry walked one item per cron
- * tick), but it works at the DATA level: it never loads a location. For the
- * current area it compares each roster blueprint's area cap against the live
- * census and, for any deficit, assigns new NPCs to random locations of the
- * area (area::assign_monster bumps a bucket, no object materialized). The
- * NPC becomes real when its location loads (area::restore_location_npcs). A
- * death frees a census slot, so the next sweep refills it -- somewhere else.
+ * One area per cron tick, at the DATA level: it never loads a location. For the
+ * area whose turn it is, it compares each roster blueprint's cap against the
+ * live count and, for any deficit, assigns new NPCs to random locations of the
+ * area (area::assign_monster bumps a bucket, no object materialized). The NPC
+ * becomes real when its location loads (area::restore_location_npcs). A death
+ * frees a slot, so the next sweep refills it -- somewhere else.
  *
- * Called from /lib/handlers/cron.c via the crontab (update_population).
+ * Only the anonymous half of the population is swept. People are staffed one by
+ * one by their settlement and never scattered statistically.
+ *
+ * It keeps no register of its own: which areas exist is the areas handler's to
+ * answer, read off the tree of the game this handler belongs to. Every game has
+ * its own -- /games/<game>/handlers/population.c inherits this one and needs to
+ * override nothing, since its own path says which world it sweeps.
+ *
+ * Called from the crontab, one line per game (update_population).
  */
 
 #include <mud/config.h>
@@ -17,32 +24,41 @@
 
 inherit "/lib/core/object.c";
 
-#define SAVE_FILE "/save/population"
-
 // how many NPCs to assign in a single sweep of one area, so a large deficit
 // fills over several cron cycles instead of in one heavy tick
 #define ASSIGN_PER_TICK 10
 
-// area paths (the save-tree directory of each registered area)
-string * areas;
-int next_area;
+// Whose turn it is in the game's list of areas. Static: it is a position in a
+// round, not something worth remembering across a reboot.
+static int next_area;
 
-string * query_areas() { return areas; }
+// The world this handler sweeps, which is the game its own file belongs to. The
+// shared one belongs to none and sweeps nothing.
+string query_game()
+{
+  return game_from_path(file_name(this_object()));
+}
+
+string * query_areas()
+{
+  return (string *)load_object(AREA_HANDLER)->query_area_paths(query_game());
+}
 
 void create()
 {
-  areas = ({ });
   next_area = 0;
-
-  restore_object(SAVE_FILE, 1);
-
   ::create();
 }
 
 void setup()
 {
-  // anticloning, like the other handlers
-  if (file_name(this_object()) != POPULATION_HANDLER)
+  string name;
+  int cnum;
+
+  // Anticloning: only the master instance loaded through handler() should
+  // exist. The path is not compared, so a game's own subclass passes; any
+  // actual clone (file_name suffixed with #N) is destroyed.
+  if (sscanf(file_name(this_object()), "%s#%d", name, cnum) == 2)
   {
     write("This object cannot be cloned.\n");
     dest_me();
@@ -64,40 +80,17 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   ::move(HANDLERS_HOME, messin, messout);
 }
 
-void save_handler() { save_object(SAVE_FILE, 1); }
-
-void dest_me()
-{
-  save_object(SAVE_FILE, 1);
-  ::dest_me();
-}
-
-// Register an area to be swept. Called once by
-// area::set_location_original_sources, when the area has a roster.
-int include_area(string area_path)
-{
-  if (!area_path || !strlen(area_path))
-    return 0;
-
-  if (member_array(area_path, areas) == -1)
-  {
-    areas += ({ area_path });
-    save_handler();
-  }
-
-  return 1;
-}
-
-// One sweep: top up the next area toward its caps. Round-robins through the
-// registry (one area per call, like the ventures handler).
+// One sweep: top up the next area of this game toward its caps. One area per
+// call, taking them in turn.
 int update_population()
 {
   object area;
   string area_path;
-  string * sources, * locs;
+  string * areas, * sources, * locs;
   mapping caps;
   int i, assigned;
 
+  areas = query_areas();
   if (!sizeof(areas))
     return 0;
 
@@ -107,25 +100,16 @@ int update_population()
   area_path = areas[next_area];
   next_area++;
 
-  // query_area (not create_area) so a registered area whose area.o has been
-  // deleted resolves to nil and is dropped, rather than being silently
-  // recreated as an empty area by the sweep.
+  // query_area (not create_area) so a path whose area.o has gone resolves to
+  // nil rather than being silently recreated as an empty area by the sweep.
   area = load_object(AREA_HANDLER)->query_area(area_path);
   if (!area)
-  {
-    // area gone -- drop it from the registry
-    areas -= ({ area_path });
-    save_handler();
     return 0;
-  }
 
   caps = area->query_npc_caps();
   locs = map_indices(area->query_locations());
   if (!map_sizeof(caps) || !sizeof(locs))
-  {
-    save_handler();
     return 0;
-  }
 
   // only the anonymous half of the population is swept; citizens come from
   // their settlement's role board, never from a statistical topup
@@ -162,6 +146,5 @@ int update_population()
     }
   }
 
-  save_handler();
   return 1;
 }

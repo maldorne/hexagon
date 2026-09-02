@@ -16,8 +16,9 @@
 10 * /games/rl-aeternum/handlers/ventures update_ventures
 10 * /lib/handlers/ventures.c update_ventures
 
-# every 10 minutes, top up each area's NPC population
-*/10 * /lib/handlers/population.c update_population
+# every 10 minutes, top up one area's fauna. A game at a time, like the
+# ventures round: each handler sweeps the world its own file belongs to
+*/10 * /games/rl-aeternum/handlers/population update_population
 
 # old timed.c checks
 */5 * /lib/handlers/cron.c do_stat_users
