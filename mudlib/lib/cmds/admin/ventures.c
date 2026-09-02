@@ -23,8 +23,8 @@ static int cmd(string str, object me, string verb)
   terminal = load_object(TERM_HANDLER);
 
   ventures = ({ });
-  ventures += load_object(VENTURES_HANDLER)->query_shops_array();
-  ventures += load_object(VENTURES_HANDLER)->query_pubs_array();
+  ventures += handler("ventures", me)->query_shops_array();
+  ventures += handler("ventures", me)->query_pubs_array();
 
   if (!ventures || !sizeof(ventures))
   {

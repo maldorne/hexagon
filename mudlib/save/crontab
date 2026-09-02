@@ -10,7 +10,10 @@
 
 # m h object function
 
-# every 10 minutes, update_ventures
+# every 10 minutes, restock one venue. Each game keeps its own register, so
+# each one needs its own line; the lib handler serves any game without a
+# handler of its own
+10 * /games/rl-aeternum/handlers/ventures update_ventures
 10 * /lib/handlers/ventures.c update_ventures
 
 # every 10 minutes, top up each area's NPC population

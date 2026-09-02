@@ -94,7 +94,7 @@ void create()
 
   // include the shop in the ventures handler
   if (base_name(this_object()) != "/lib/ventures/shop")
-    handler("ventures")->include_shop(base_name(this_object()));
+    handler("ventures", this_object())->include_shop(base_name(this_object()));
 }
 
 string query_save_file_name()

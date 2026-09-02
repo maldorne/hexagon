@@ -17,7 +17,11 @@
  *
  * Modified for Hexagon, made generic to handle every type 
  * of venture if needed, neverbot 10/2021
- * 
+ *
+ * Every game has its own handler: /games/<game>/handlers/ventures.c inherits
+ * this one and points query_save_file at its own file, so one world's shops are
+ * not walked as part of another's round. Reach it with handler("ventures", ob)
+ * -- an object of the game whose shops you mean -- and never by path.
  */
 
 #include <mud/config.h>
@@ -55,6 +59,8 @@ void reset_stock(string shop);
 
 string * query_pubs_array() { return pubs; }
 
+string query_save_file();
+
 void create()
 {
   shops = ({ });
@@ -62,15 +68,27 @@ void create()
   next_shop = 0;
   pubs = ({ });
 
-  restore_object(SAVE_FILE, 1);
+  restore_object(query_save_file(), 1);
 
   ::create();
 }
 
+// Where this register is kept. A game's own handler overrides it to point at
+// /save/games/<game>/ventures.o; the shared one answers for anybody without.
+string query_save_file()
+{
+  return SAVE_FILE;
+}
+
 void setup()
 {
-  // anticloning like obj/shut, neverbot 6/03
-  if (file_name(this_object()) != "/lib/handlers/ventures") 
+  string name;
+  int cnum;
+
+  // Anticloning: only the master instance loaded through handler() should
+  // exist. The path is not compared, so a game's own subclass passes; any
+  // actual clone (file_name suffixed with #N) is destroyed.
+  if (sscanf(file_name(this_object()), "%s#%d", name, cnum) == 2)
   {
     write("This object cannot be cloned.\n");
     dest_me();
@@ -96,12 +114,12 @@ int move(mixed dest, varargs mixed messin, mixed messout)
 void save_handler() 
 { 
   // tell_object(find_living("admin"), "(VENTURES) Salvando controlador...\n");
-  save_object(SAVE_FILE, 1); 
+  save_object(query_save_file(), 1); 
 }
 
 void dest_me() 
 {
-  save_object(SAVE_FILE, 1);
+  save_object(query_save_file(), 1);
   ::dest_me();
 }
 

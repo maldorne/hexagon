@@ -37,7 +37,7 @@ void initialize(object location)
   create_sign(location);
 
   // include the pub in the ventures handler
-  handler("ventures")->include_pub(location->query_file_name());
+  handler("ventures", location)->include_pub(location->query_file_name());
 }
 
 // Chain autoload through every mixin that owns persistent state. Each

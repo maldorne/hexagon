@@ -49,7 +49,7 @@ void initialize(object location)
   this_object()->check_directories();
 
   // include the shop in the ventures handler
-  handler("ventures")->include_shop(location->query_file_name());
+  handler("ventures", location)->include_shop(location->query_file_name());
 }
 
 // Chain autoload through every mixin that owns persistent state. Each

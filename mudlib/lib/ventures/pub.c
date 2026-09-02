@@ -43,7 +43,7 @@ void create()
 
   // include the pub in the ventures handler
   if (base_name(this_object()) != "/lib/ventures/pub")
-    handler("ventures")->include_pub(base_name(this_object()));
+    handler("ventures", this_object())->include_pub(base_name(this_object()));
 }
 
 void init()
