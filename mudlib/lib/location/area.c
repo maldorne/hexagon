@@ -358,7 +358,7 @@ void add_location(string location_file_name, mapping location_data)
   save_me();
 }
 
-void remove_location(string location_file_name) 
+void remove_location(string location_file_name)
 {
   map_delete(locations, location_file_name);
   save_me();

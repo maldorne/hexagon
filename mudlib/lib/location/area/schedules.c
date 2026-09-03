@@ -7,6 +7,15 @@
 // if it was unloaded) and then told the hour, so the NPC can act on its own
 // timetable. Keeping the index on the area is what lets a whole settlement's
 // routine be dispatched without loading a single NPC.
+//
+// The index looks after itself. Everything that knows an NPC has stopped being
+// due says so (index_schedule_hours with no hours: it dies, it leaves the
+// census, its type stops naming hours), but nothing outside has to walk it to
+// keep it honest: an entry that turns out to be unusable when its hour comes --
+// no census row left, no position, a position that no longer loads -- is
+// dropped there and then. So a room that is cleaned away, or a savefile edited
+// by hand, needs no notification of any kind; the round finds it and the index
+// settles by itself, one wasted wake per stale entry and no more.
 
 #include <room/location.h>
 #include <areas/area.h>
@@ -121,8 +130,9 @@ object live_npc(string uuid)
 // then call do_schedule so it acts on its own timetable. The areas handler calls
 // this, staggered, for each uuid due this hour. Checking "already live" first
 // avoids cloning a duplicate when the NPC has wandered off its census position.
-// A uuid the census no longer holds is taken out of the index here: the round
-// is where a stale entry shows itself, so it is also where it is dropped.
+// This is also where the index cleans itself: a uuid that cannot be woken -- no
+// census row, no position, a position that no longer loads -- comes out of it
+// here, because trying again next hour would fail the same way.
 void wake_and_schedule(string uuid, int hour)
 {
   mapping entry;
@@ -143,15 +153,24 @@ void wake_and_schedule(string uuid, int hour)
       index_schedule_hours(uuid, ({ }));
       return;
     }
+    // no position, or one that no longer loads: it cannot be woken, and trying
+    // again every hour will not change that, so it comes out of the index. The
+    // census row stays -- whoever placed it is who gets to place it again.
     locfile = entry[CENSUS_LOCATION];
     if (!locfile || !strlen(locfile))
+    {
+      index_schedule_hours(uuid, ({ }));
       return;
+    }
 
     // load its census-position location and materialize the census NPCs there
     // (idempotent) so an unloaded NPC comes back before it acts
     loc = load_object(LOCATION_HANDLER)->load_location(locfile);
     if (!loc)
+    {
+      index_schedule_hours(uuid, ({ }));
       return;
+    }
     this_object()->restore_location_npcs(loc);
 
     inv = all_inventory(loc);
