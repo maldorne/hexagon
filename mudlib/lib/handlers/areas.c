@@ -1,16 +1,43 @@
+/*
+ * Areas handler.
+ *
+ * This file plays two roles, and they are kept apart on purpose.
+ *
+ *   - The shared instance at AREA_HANDLER holds the runtime indices: which
+ *     areas are loaded, where roaming NPCs are resting, the queue of scheduled
+ *     actions waiting to be released. All of it is keyed by a path or a uuid
+ *     that already names its game, so there is one of each for the whole mud
+ *     and no reason to split it. Nothing of it is written to disk.
+ *
+ *   - A game's own handler, /games/<game>/handlers/areas.c, inherits this file
+ *     and points query_save_file at its own areas.o. What it keeps there is
+ *     that game's list of areas and, per game hour, which of those areas have
+ *     somebody due -- so an hour's round restores exactly those instead of
+ *     every area.o in the world.
+ *
+ * A game's handler therefore inherits its own (empty) copies of the runtime
+ * variables and must never read them: the functions that touch them hand the
+ * call to the shared instance first (see _global). The other way round, the
+ * functions that touch the per-game state hand the call to the game the path
+ * names (see _owner). A game with no handler of its own falls back to this
+ * instance, which keeps no file and walks the tree instead.
+ */
 
 #include <areas/area.h>
 
-mapping loaded_areas;
-// Each game's areas, as found on disk. Static: it is a reading of the tree, not
-// state of our own, and a reboot reads it again.
+// --- runtime, shared: read and written only on the AREA_HANDLER instance ----
+
+static mapping loaded_areas;
+
+// Each game's areas as found on disk, for the games with no handler of their
+// own. A reading of the tree, not state, so a reboot reads it again.
 static mapping area_paths;
 
 // ({ ({ area, uuid, hour }), ... }) collected each game hour and released a few
 // per tick (one call_out chain) so a crowd ordered off at the same hour staggers
 // out -- and, since each is woken as it is released, the load of materialising
 // unloaded NPCs spreads out too, instead of hitting on one beat.
-mixed * pending_schedule;
+static mixed * pending_schedule;
 
 // Cross-area position index. Most NPCs stay in their roster area, found through
 // that area's own census; a few roam (an NPC works in one area, sleeps in
@@ -20,10 +47,71 @@ mixed * pending_schedule;
 //   npc_at:        uuid -> the location_file it is indexed at (one entry per uuid)
 // Runtime only: rebuilt as NPCs roam. After a reboot a roamer is recovered by its
 // roster area's scheduler (which loads its census position), not from this index.
-mapping npc_positions;
-mapping npc_at;
+static mapping npc_positions;
+static mapping npc_at;
+
+// --- persisted, per game: only a game's own handler keeps these -------------
+
+// Every area of this game, as found on disk. There is no register of an area
+// other than its own area.o, so the tree is the list; it is walked once and
+// then kept here, and create_area / remove_area_if_empty amend it.
+string * game_areas;
+
+// Which of this game's areas have somebody due at each game hour:
+//   ([ hour(0-23) : ({ area path }) ])
+// An area maintains its entry as its schedules change (see note_schedule_hours);
+// the index as a whole is built once from the areas themselves, and the flag
+// says it has been, since a game where nobody is scheduled indexes to nothing
+// and must not be rebuilt every round.
+mapping schedule_areas;
+int schedule_indexed;
+
+// The areas still to read while building the index, a few per tick.
+static string * rebuild_queue;
 
 private void _delete_npc_folder(string dir);
+
+// The shared instance, where the runtime indices live. A game's handler
+// inherits empty copies of those variables, so every function that reads one
+// asks this object instead of itself.
+private object _global()
+{
+  return load_object(AREA_HANDLER);
+}
+
+// The game this handler answers for: a copy under /games/<game>/handlers keeps
+// that game's areas, and the shared one keeps nobody's.
+string query_game()
+{
+  return game_from_path(file_name(this_object()));
+}
+
+// The handler that owns `game`'s list of areas: its own if it has one, this
+// shared instance otherwise.
+private object _owner(string game)
+{
+  if (!game || !strlen(game) || game == query_game())
+    return this_object();
+
+  if (file_size("/games/" + game + "/handlers/areas.c") < 0)
+    return _global();
+
+  return load_object("/games/" + game + "/handlers/areas");
+}
+
+// Where this game's list of areas is kept. A game's own handler overrides it to
+// point at /save/games/<game>/areas.o; the shared one keeps nothing, because a
+// file holding several games at once belongs to none of them.
+string query_save_file()
+{
+  return nil;
+}
+
+void save_handler()
+{
+  if (query_save_file())
+    save_object(query_save_file(), 1);
+}
 
 void create() {
   area_paths = ([ ]);
@@ -31,7 +119,12 @@ void create() {
   pending_schedule = ({ });
   npc_positions = ([ ]);
   npc_at = ([ ]);
-  // ::create();
+  game_areas = ({ });
+  schedule_areas = ([ ]);
+  rebuild_queue = ({ });
+
+  if (query_save_file())
+    restore_object(query_save_file(), 1);
 }
 
 // Find a live NPC by uuid across every loaded area (not just one), so a roamer
@@ -41,14 +134,17 @@ void create() {
 object find_live_npc(string uuid)
 {
   object * areas;
+  object npc;
   int i;
 
   if (!uuid || !strlen(uuid))
     return nil;
+  if (this_object() != _global())
+    return (object)_global()->find_live_npc(uuid);
+
   areas = map_values(loaded_areas);
   for (i = 0; i < sizeof(areas); i++)
   {
-    object npc;
     if (!areas[i])
       continue;
     npc = areas[i]->live_npc(uuid);
@@ -67,6 +163,11 @@ void set_foreign_position(string uuid, string roster, string loc)
 
   if (!uuid || !strlen(uuid))
     return;
+  if (this_object() != _global())
+  {
+    _global()->set_foreign_position(uuid, roster, loc);
+    return;
+  }
 
   old = npc_at[uuid];
   if (old && npc_positions[old])
@@ -91,30 +192,29 @@ void set_foreign_position(string uuid, string roster, string loc)
 // when no roamer is resting there.
 mapping foreign_positions_at(string location_file)
 {
+  if (this_object() != _global())
+    return (mapping)_global()->foreign_positions_at(location_file);
+
   return npc_positions[location_file] ? npc_positions[location_file] : ([ ]);
 }
 
 mapping query_loaded_areas() {
+  if (this_object() != _global())
+    return (mapping)_global()->query_loaded_areas();
+
   return loaded_areas;
 }
 
-// Every area of a game, loaded or not. There is no register of them: an area
+// Read a game's areas off the tree. There is no register of them: an area
 // exists because there is an area.o in its directory, so the tree under the
 // game's locations is the list, and walking it is the only answer that cannot
-// go stale. Cached, because the walk is the same until somebody converts a new
-// area -- create_area adds to the cache when that happens.
-string * query_area_paths(string game)
+// go stale.
+private string * _walk_areas(string game)
 {
   string * queue, * found;
   mixed * entries;
   string dir;
   int i;
-
-  if (!game || !strlen(game))
-    return ({ });
-
-  if (area_paths[game])
-    return area_paths[game];
 
   queue = ({ "/save/games/" + game + "/locations/areas/" });
   found = ({ });
@@ -133,8 +233,133 @@ string * query_area_paths(string game)
         queue += ({ dir + entries[i][0] + "/" });
   }
 
-  area_paths[game] = found;
   return found;
+}
+
+// Every area of a game, loaded or not. A game's own handler keeps the list in
+// its areas.o, walking the tree once to build it; for a game without one it is
+// walked and cached until the next reboot. Either way create_area and
+// remove_area_if_empty amend it, so the walk is not repeated when the world
+// changes under us.
+string * query_area_paths(string game)
+{
+  object owner;
+
+  if (!game || !strlen(game))
+    return ({ });
+
+  owner = _owner(game);
+  if (owner != this_object())
+    return (string *)owner->query_area_paths(game);
+
+  if (strlen(query_game()))
+  {
+    if (!sizeof(game_areas))
+    {
+      game_areas = _walk_areas(game);
+      save_handler();
+    }
+    return game_areas;
+  }
+
+  if (!area_paths[game])
+    area_paths[game] = _walk_areas(game);
+
+  return area_paths[game];
+}
+
+// Add an area to the list of what exists, so a newly converted one is known
+// without re-walking the tree. Called by create_area on the handler that owns
+// the game the path belongs to.
+void note_area(string path)
+{
+  string game;
+
+  game = game_from_path(path);
+  if (!strlen(game))
+    return;
+
+  if (strlen(query_game()))
+  {
+    if (member_array(path, game_areas) == -1)
+    {
+      game_areas += ({ path });
+      save_handler();
+    }
+    return;
+  }
+
+  if (area_paths[game] && member_array(path, area_paths[game]) == -1)
+    area_paths[game] += ({ path });
+}
+
+// Drop an area from the list, and from the hourly index, when it is removed.
+void forget_area(string path)
+{
+  string game;
+  int * hours;
+  int i;
+
+  game = game_from_path(path);
+  if (!strlen(game))
+    return;
+
+  if (!strlen(query_game()))
+  {
+    if (area_paths[game])
+      area_paths[game] -= ({ path });
+    return;
+  }
+
+  game_areas -= ({ path });
+
+  hours = map_indices(schedule_areas);
+  for (i = 0; i < sizeof(hours); i++)
+  {
+    schedule_areas[hours[i]] -= ({ path });
+    if (!sizeof(schedule_areas[hours[i]]))
+      map_delete(schedule_areas, hours[i]);
+  }
+
+  save_handler();
+}
+
+// An area tells us at which game hours it has somebody due, so an hour's round
+// can restore only the areas that have work. Called by the area whenever its
+// own schedule index changes.
+void note_schedule_hours(string path, int * hours)
+{
+  object owner;
+  int i, changed;
+
+  if (!path || !strlen(path) || !sizeof(hours))
+    return;
+
+  owner = _owner(game_from_path(path));
+  if (owner != this_object())
+  {
+    owner->note_schedule_hours(path, hours);
+    return;
+  }
+
+  // a game without a handler of its own keeps no index: its round visits every
+  // area, so there is nothing to record
+  if (!strlen(query_game()))
+    return;
+
+  for (i = 0; i < sizeof(hours); i++)
+  {
+    if (!schedule_areas[hours[i]])
+      schedule_areas[hours[i]] = ({ });
+    if (member_array(path, schedule_areas[hours[i]]) == -1)
+    {
+      schedule_areas[hours[i]] += ({ path });
+      changed = 1;
+    }
+  }
+
+  if (changed)
+    save_handler();
 }
 
 // will create an area storage in the destination directory
@@ -142,13 +367,15 @@ string * query_area_paths(string game)
 object create_area(string path)
 {
   object area;
-  string game;
 
   // normalise to a single trailing slash so create_area(".../rooms") and
   // create_area(".../rooms/") key the same cached area (and never write a
   // stray "roomsarea.o" from a slashless path).
   if (strlen(path) && path[strlen(path) - 1] != '/')
     path += "/";
+
+  if (this_object() != _global())
+    return (object)_global()->create_area(path);
 
   if (file_size(path) != -2)
     mkdir(path);
@@ -169,10 +396,7 @@ object create_area(string path)
   loaded_areas[path] = area;
 
   // a brand-new area belongs to the list of what exists, without re-walking it
-  game = game_from_path(path);
-  if (strlen(game) && area_paths[game] &&
-      member_array(path, area_paths[game]) == -1)
-    area_paths[game] += ({ path });
+  _owner(game_from_path(path))->note_area(path);
 
   return area;
 }
@@ -189,6 +413,9 @@ object query_area(string path)
 
   if (strlen(path) && path[strlen(path) - 1] != '/')
     path += "/";
+
+  if (this_object() != _global())
+    return (object)_global()->query_area(path);
 
   if (loaded_areas[path])
     return loaded_areas[path];
@@ -209,38 +436,152 @@ object query_area(string path)
 // hour and collects the census uuids with something scheduled this hour, then
 // releases them staggered. Each is woken as released, so unloaded scheduled NPCs
 // are materialised at their census position and act just like loaded ones.
-void update_areas()
+// Queue scheduled actions for release. The queue lives on the shared instance,
+// so a game's handler hands its round's findings over rather than keeping a
+// queue of its own.
+void queue_schedule(mixed * items)
 {
-  string * games, * paths, * uuids;
-  object area;
-  int g, p, hour, j;
-
-  // Every area of every game, not only the ones somebody happens to be standing
-  // in: a town whose people stop going to work because no player is watching is
-  // a town that only exists while it is looked at. An area object is small and
-  // query_area caches it, so the whole world costs one restore each and then
-  // nothing.
-  games = (string *)handler("games")->query_games();
-
-  for (g = 0; g < sizeof(games); g++)
+  if (this_object() != _global())
   {
-    paths = query_area_paths(games[g]);
-
-    for (p = 0; p < sizeof(paths); p++)
-    {
-      area = query_area(paths[p]);
-      if (!area)
-        continue;
-
-      hour = (int)area->query_game_hour();
-      uuids = area->hour_actor_uuids(hour);
-      for (j = 0; j < sizeof(uuids); j++)
-        pending_schedule += ({ ({ area, uuids[j], hour }) });
-    }
+    _global()->queue_schedule(items);
+    return;
   }
+
+  pending_schedule += items;
 
   if (sizeof(pending_schedule) && find_call_out("_dispatch_schedule") == -1)
     call_out("_dispatch_schedule", 0);
+}
+
+// One tick of the index rebuild: read a few areas' own schedule indices and
+// record, for each hour they have somebody due at, that they are one of the
+// areas the round must visit. Public because the call_out dispatcher reaches it
+// through call_other.
+void _rebuild_step()
+{
+  string path;
+  int * hours;
+  object area;
+  int i, j;
+
+  for (i = 0; i < 5 && sizeof(rebuild_queue); i++)
+  {
+    path = rebuild_queue[0];
+    rebuild_queue = rebuild_queue[1 ..];
+
+    area = query_area(path);
+    if (!area)
+      continue;
+
+    hours = map_indices((mapping)area->query_schedule_index());
+    for (j = 0; j < sizeof(hours); j++)
+    {
+      if (!schedule_areas[hours[j]])
+        schedule_areas[hours[j]] = ({ });
+      if (member_array(path, schedule_areas[hours[j]]) == -1)
+        schedule_areas[hours[j]] += ({ path });
+    }
+  }
+
+  if (sizeof(rebuild_queue))
+  {
+    call_out("_rebuild_step", 1);
+    return;
+  }
+
+  schedule_indexed = 1;
+  save_handler();
+}
+
+// Build the hourly index from the areas themselves. An area keeps its own
+// schedule index in its area.o, so this is answerable without loading a single
+// NPC. It runs once per game -- for a world converted before there was an index
+// -- and a handful of areas per tick, so a world of thousands does not read them
+// all on one beat. Until it finishes the round visits every area, which is
+// right, only slower.
+private void _build_schedule_index()
+{
+  if (schedule_indexed || sizeof(rebuild_queue) ||
+      find_call_out("_rebuild_step") != -1)
+    return;
+
+  rebuild_queue = query_area_paths(query_game()) + ({ });
+  if (!sizeof(rebuild_queue))
+  {
+    schedule_indexed = 1;
+    save_handler();
+    return;
+  }
+
+  call_out("_rebuild_step", 0);
+}
+
+// One game's round: collect the census uuids due at that game's current hour.
+// The areas visited come from the hourly index when the game keeps one, so only
+// the areas that have somebody due are restored; a game without an index (or
+// one whose index has never been written) is visited whole.
+private void _round(string game)
+{
+  string * paths, * uuids;
+  mixed * queued;
+  string wpath;
+  object area;
+  int p, hour, j;
+
+  // every area of a game shares its clock, so the hour is read once from that
+  // game's weather handler (the shared one when it has none of its own)
+  wpath = "/games/" + game + "/handlers/weather";
+  if (file_size(wpath + ".c") < 0)
+    wpath = "/lib/handlers/weather";
+  hour = (int)load_object(wpath)->query_date_data()[0];
+
+  if (strlen(query_game()))
+    _build_schedule_index();
+
+  if (strlen(query_game()) && schedule_indexed)
+    paths = schedule_areas[hour] ? schedule_areas[hour] : ({ });
+  else
+    paths = query_area_paths(game);
+
+  queued = ({ });
+
+  for (p = 0; p < sizeof(paths); p++)
+  {
+    area = query_area(paths[p]);
+    if (!area)
+      continue;
+
+    uuids = area->hour_actor_uuids(hour);
+    for (j = 0; j < sizeof(uuids); j++)
+      queued += ({ ({ area, uuids[j], hour }) });
+  }
+
+  if (sizeof(queued))
+    queue_schedule(queued);
+}
+
+// Cron calls this once per game hour on each game's own handler (see the
+// crontab, after that game's weather line so the hour is already advanced). It
+// runs whether or not anybody is playing: a town whose people stop going to
+// work because no player is watching is a town that only exists while it is
+// looked at.
+void update_areas()
+{
+  string * games;
+  int g;
+
+  if (strlen(query_game()))
+  {
+    _round(query_game());
+    return;
+  }
+
+  // the shared instance answers for the games that have no handler of their
+  // own; the rest are driven by their own crontab line
+  games = (string *)handler("games")->query_games();
+  for (g = 0; g < sizeof(games); g++)
+    if (file_size("/games/" + games[g] + "/handlers/areas.c") < 0)
+      _round(games[g]);
 }
 
 // Release a few scheduled actions per tick and re-arm until the queue drains, so
@@ -248,12 +589,12 @@ void update_areas()
 // ~seconds rather than all on one beat.
 void _dispatch_schedule()
 {
+  mixed * item;
   int i;
 
   // a handful per tick keeps the stagger visible without dragging on
   for (i = 0; i < 3 && sizeof(pending_schedule); i++)
   {
-    mixed * item;
     item = pending_schedule[0];
     pending_schedule = pending_schedule[1..];
     if (item[0])
@@ -269,10 +610,13 @@ void _dispatch_schedule()
 // dead area.o behind. Returns 1 if it was removed, 0 otherwise.
 int remove_area_if_empty(object area)
 {
-  string area_file, path, game;
+  string area_file, path;
 
   if (!area || map_sizeof(area->query_locations()))
     return 0;
+
+  if (this_object() != _global())
+    return (int)_global()->remove_area_if_empty(area);
 
   area_file = area->query_file_name();
   path = area->query_area_path();
@@ -285,9 +629,7 @@ int remove_area_if_empty(object area)
     map_delete(loaded_areas, path);
 
     // and out of the list of what exists, which create_area adds to
-    game = game_from_path(path);
-    if (strlen(game) && area_paths[game])
-      area_paths[game] -= ({ path });
+    _owner(game_from_path(path))->forget_area(path);
   }
   destruct(area);
 

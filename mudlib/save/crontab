@@ -43,4 +43,8 @@
 # and so does anyone outside a game (the entrance hall), who would otherwise read
 # a date frozen at whatever hour the mud last booted on
 */2 * /lib/handlers/weather advance
+# the NPC hourly round. Each game keeps its own list of areas and its own index
+# of which of them have somebody due at each hour, so each one needs its line;
+# the lib handler answers for the games with no handler of their own
+*/2 * /games/rl-aeternum/handlers/areas update_areas
 */2 * /lib/handlers/areas update_areas

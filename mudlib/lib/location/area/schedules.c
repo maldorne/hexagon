@@ -47,7 +47,14 @@ void index_schedule_hours(string uuid, int * hours)
   }
 
   if (changed)
+  {
     this_object()->save_me();
+
+    // and tell the areas handler which hours we have somebody due at, so its
+    // hourly round restores only the areas that have work
+    AREA_HANDLER->note_schedule_hours(
+      (string)this_object()->query_area_path(), hours);
+  }
 }
 
 // The current game hour for this area, read from its game's weather handler:
@@ -63,6 +70,13 @@ int query_game_hour()
     wpath = "/lib/handlers/weather";
 
   return load_object(wpath)->query_date_data()[0];
+}
+
+// The whole index, ([ hour : ({ uuids }) ]). The areas handler reads it to
+// learn which hours this area has somebody due at without loading an NPC.
+mapping query_schedule_index()
+{
+  return schedule_index ? schedule_index : ([ ]);
 }
 
 // The census uuids with something scheduled at `hour` (loaded or not).

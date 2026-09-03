@@ -7,20 +7,30 @@
 //   ::create();
 // }
 
+// Read the tree rather than get_files: this is asked from cron as well as from
+// a player's command, and get_files resolves the path against a logged-in user,
+// so from a timed call it would hand back nothing.
 object * query_game_objects()
 {
-  string * dirs;
-  int i;
+  mixed * entries;
   object * result;
+  object game;
+  string path;
+  int i;
 
-  dirs = get_files("/games/*");
+  entries = get_dir("/games/*", -1);
   result = ({ });
 
-  for (i = 0; i < sizeof(dirs); i++)
+  for (i = 0; i < sizeof(entries); i++)
   {
-    object game;
-    game = load_object(dirs[i] + "/master.c");
+    if (entries[i][1] != -2)   // size -2 marks a directory
+      continue;
 
+    path = "/games/" + entries[i][0] + "/master.c";
+    if (file_size(path) < 0)
+      continue;
+
+    game = load_object(path);
     if (game)
       result += ({ game });
   }
