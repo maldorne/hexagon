@@ -26,14 +26,35 @@ void create()
 
 // Record which game hours a scheduled NPC acts, keyed by its uuid, so the areas
 // handler can find exactly who is due at an hour without loading the census's
-// NPCs. Called when a schedule component is attached (see npc_restore). The
-// destination is not stored here -- it is read live from the NPC when it acts.
+// NPCs. Called when a schedule component is attached (see npc_restore), and
+// with no hours at all when one is taken away -- an NPC that dies, leaves the
+// census or stops keeping a timetable. The destination is not stored here -- it
+// is read live from the NPC when it acts.
+//
+// `hours` is the whole truth about that uuid, not an addition to it: it is
+// dropped from every hour the list does not name. An index that only ever grew
+// would keep waking the dead.
 void index_schedule_hours(string uuid, int * hours)
 {
+  int * known;
   int i, changed;
 
   if (!schedule_index)
     schedule_index = ([ ]);
+
+  known = map_indices(schedule_index);
+  for (i = 0; i < sizeof(known); i++)
+  {
+    if (member_array(known[i], hours) >= 0)
+      continue;
+    if (member_array(uuid, schedule_index[known[i]]) < 0)
+      continue;
+
+    schedule_index[known[i]] -= ({ uuid });
+    if (!sizeof(schedule_index[known[i]]))
+      map_delete(schedule_index, known[i]);
+    changed = 1;
+  }
 
   for (i = 0; i < sizeof(hours); i++)
   {
@@ -50,10 +71,12 @@ void index_schedule_hours(string uuid, int * hours)
   {
     this_object()->save_me();
 
-    // and tell the areas handler which hours we have somebody due at, so its
-    // hourly round restores only the areas that have work
+    // and tell the areas handler at which hours we have somebody due, so its
+    // hourly round restores only the areas that have work. It gets our whole
+    // set, not the hours of this one NPC: the last one to leave an hour is what
+    // takes the area out of it.
     AREA_HANDLER->note_schedule_hours(
-      (string)this_object()->query_area_path(), hours);
+      (string)this_object()->query_area_path(), map_indices(schedule_index));
   }
 }
 
@@ -70,13 +93,6 @@ int query_game_hour()
     wpath = "/lib/handlers/weather";
 
   return load_object(wpath)->query_date_data()[0];
-}
-
-// The whole index, ([ hour : ({ uuids }) ]). The areas handler reads it to
-// learn which hours this area has somebody due at without loading an NPC.
-mapping query_schedule_index()
-{
-  return schedule_index ? schedule_index : ([ ]);
 }
 
 // The census uuids with something scheduled at `hour` (loaded or not).
@@ -104,8 +120,9 @@ object live_npc(string uuid)
 // it as is, otherwise materialize it (and its location) at its census position;
 // then call do_schedule so it acts on its own timetable. The areas handler calls
 // this, staggered, for each uuid due this hour. Checking "already live" first
-// avoids cloning a duplicate when the NPC has wandered off its census position. A
-// stale index entry (uuid no longer in the census) is skipped.
+// avoids cloning a duplicate when the NPC has wandered off its census position.
+// A uuid the census no longer holds is taken out of the index here: the round
+// is where a stale entry shows itself, so it is also where it is dropped.
 void wake_and_schedule(string uuid, int hour)
 {
   mapping entry;
@@ -122,7 +139,10 @@ void wake_and_schedule(string uuid, int hour)
   {
     entry = ((mapping)this_object()->query_npc_census())[uuid];
     if (!entry)
+    {
+      index_schedule_hours(uuid, ({ }));
       return;
+    }
     locfile = entry[CENSUS_LOCATION];
     if (!locfile || !strlen(locfile))
       return;

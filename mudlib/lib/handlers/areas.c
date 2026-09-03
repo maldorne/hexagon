@@ -59,15 +59,11 @@ string * game_areas;
 
 // Which of this game's areas have somebody due at each game hour:
 //   ([ hour(0-23) : ({ area path }) ])
-// An area maintains its entry as its schedules change (see note_schedule_hours);
-// the index as a whole is built once from the areas themselves, and the flag
-// says it has been, since a game where nobody is scheduled indexes to nothing
-// and must not be rebuilt every round.
+// This is the mirror, one level up, of the index each area keeps of its own
+// people: an area tells us its hours whenever they change (note_schedule_hours),
+// both when it gains one and when its last scheduled NPC leaves it. So the round
+// reads it as the truth -- an hour that names no area has nobody due anywhere.
 mapping schedule_areas;
-int schedule_indexed;
-
-// The areas still to read while building the index, a few per tick.
-static string * rebuild_queue;
 
 private void _delete_npc_folder(string dir);
 
@@ -121,7 +117,6 @@ void create() {
   npc_at = ([ ]);
   game_areas = ({ });
   schedule_areas = ([ ]);
-  rebuild_queue = ({ });
 
   if (query_save_file())
     restore_object(query_save_file(), 1);
@@ -325,14 +320,19 @@ void forget_area(string path)
 }
 
 // An area tells us at which game hours it has somebody due, so an hour's round
-// can restore only the areas that have work. Called by the area whenever its
-// own schedule index changes.
+// can restore only the areas that have work. Called by the area whenever its own
+// schedule index changes, in either direction.
+//
+// `hours` is the whole truth about that area, not an addition to it: it is
+// dropped from every hour the list does not name, which is how the last NPC to
+// stop keeping a timetable takes its area out of the round.
 void note_schedule_hours(string path, int * hours)
 {
   object owner;
+  int * known;
   int i, changed;
 
-  if (!path || !strlen(path) || !sizeof(hours))
+  if (!path || !strlen(path))
     return;
 
   owner = _owner(game_from_path(path));
@@ -346,6 +346,20 @@ void note_schedule_hours(string path, int * hours)
   // area, so there is nothing to record
   if (!strlen(query_game()))
     return;
+
+  known = map_indices(schedule_areas);
+  for (i = 0; i < sizeof(known); i++)
+  {
+    if (member_array(known[i], hours) >= 0)
+      continue;
+    if (member_array(path, schedule_areas[known[i]]) == -1)
+      continue;
+
+    schedule_areas[known[i]] -= ({ path });
+    if (!sizeof(schedule_areas[known[i]]))
+      map_delete(schedule_areas, known[i]);
+    changed = 1;
+  }
 
   for (i = 0; i < sizeof(hours); i++)
   {
@@ -453,73 +467,10 @@ void queue_schedule(mixed * items)
     call_out("_dispatch_schedule", 0);
 }
 
-// One tick of the index rebuild: read a few areas' own schedule indices and
-// record, for each hour they have somebody due at, that they are one of the
-// areas the round must visit. Public because the call_out dispatcher reaches it
-// through call_other.
-void _rebuild_step()
-{
-  string path;
-  int * hours;
-  object area;
-  int i, j;
-
-  for (i = 0; i < 5 && sizeof(rebuild_queue); i++)
-  {
-    path = rebuild_queue[0];
-    rebuild_queue = rebuild_queue[1 ..];
-
-    area = query_area(path);
-    if (!area)
-      continue;
-
-    hours = map_indices((mapping)area->query_schedule_index());
-    for (j = 0; j < sizeof(hours); j++)
-    {
-      if (!schedule_areas[hours[j]])
-        schedule_areas[hours[j]] = ({ });
-      if (member_array(path, schedule_areas[hours[j]]) == -1)
-        schedule_areas[hours[j]] += ({ path });
-    }
-  }
-
-  if (sizeof(rebuild_queue))
-  {
-    call_out("_rebuild_step", 1);
-    return;
-  }
-
-  schedule_indexed = 1;
-  save_handler();
-}
-
-// Build the hourly index from the areas themselves. An area keeps its own
-// schedule index in its area.o, so this is answerable without loading a single
-// NPC. It runs once per game -- for a world converted before there was an index
-// -- and a handful of areas per tick, so a world of thousands does not read them
-// all on one beat. Until it finishes the round visits every area, which is
-// right, only slower.
-private void _build_schedule_index()
-{
-  if (schedule_indexed || sizeof(rebuild_queue) ||
-      find_call_out("_rebuild_step") != -1)
-    return;
-
-  rebuild_queue = query_area_paths(query_game()) + ({ });
-  if (!sizeof(rebuild_queue))
-  {
-    schedule_indexed = 1;
-    save_handler();
-    return;
-  }
-
-  call_out("_rebuild_step", 0);
-}
-
 // One game's round: collect the census uuids due at that game's current hour.
-// The areas visited come from the hourly index when the game keeps one, so only
-// the areas that have somebody due are restored; a game without an index (or
-// one whose index has never been written) is visited whole.
+// The areas visited come from the hourly index, so only the ones with somebody
+// due are restored; a game with no handler of its own keeps no index and is
+// visited whole.
 private void _round(string game)
 {
   string * paths, * uuids;
@@ -536,9 +487,6 @@ private void _round(string game)
   hour = (int)load_object(wpath)->query_date_data()[0];
 
   if (strlen(query_game()))
-    _build_schedule_index();
-
-  if (strlen(query_game()) && schedule_indexed)
     paths = schedule_areas[hour] ? schedule_areas[hour] : ({ });
   else
     paths = query_area_paths(game);
@@ -548,8 +496,14 @@ private void _round(string game)
   for (p = 0; p < sizeof(paths); p++)
   {
     area = query_area(paths[p]);
+
+    // the index named an area that is no longer there (a clean, a hand-deleted
+    // area.o): the round is where it shows, so it is where we drop it
     if (!area)
+    {
+      _owner(game)->forget_area(paths[p]);
       continue;
+    }
 
     uuids = area->hour_actor_uuids(hour);
     for (j = 0; j < sizeof(uuids); j++)

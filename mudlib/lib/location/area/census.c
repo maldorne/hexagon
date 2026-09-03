@@ -628,6 +628,7 @@ void drop_census_entry(string uuid)
   if (uuid && query_npc_census()[uuid])
   {
     map_delete(query_npc_census(), uuid);
+    this_object()->index_schedule_hours(uuid, ({ }));
     this_object()->save_me();
   }
 }
@@ -649,6 +650,9 @@ void npc_died(string uuid)
     map_delete(query_npc_census(), uuid);
     this_object()->save_me();
   }
+
+  // and out of the hourly index, or the round would keep waking the dead
+  this_object()->index_schedule_hours(uuid, ({ }));
 
   // stop its house expecting it back; a vacancy's house is rebound to whoever
   // fills the post next, a roster citizen's frees a bed for its replacement
