@@ -278,10 +278,29 @@ mixed add_exit(string direc, mixed dest, string type,
 
     return 1;
   }
-  // the only case the exit handler returns ({ }) is 
-  // because the exit already existed 
+  // The only case the exit handler returns ({ }) is because the exit already
+  // existed. It has rewritten the tuple all the same, so the direction may have
+  // just changed type under us -- an open passage becoming a door is how a plot
+  // turns into a house -- and the options and the door object are ours to see
+  // to, exactly as above.
   else
   {
+    if (options)
+      exit_map[direc] = exit_map[direc] + ({ options });
+
+    exit_string = query_dirs_string();
+    short_exit_string = query_short_exit_string();
+
+    if ((type == "door") || (type == "gate"))
+    {
+      door = query_door_ob(direc);
+      if (!door)
+        door = add_door(direc);
+      if (door && options)
+        door->set_options(options);
+      return door;
+    }
+
     // return the door object if it already existed
     if (door = query_door_ob(direc))
       return door;

@@ -14,3 +14,7 @@
 #define _LANG_HOME_LONG \
     "The interior of a modest dwelling. Bare walls and a packed-earth floor " + \
     "await the furniture and belongings of whoever comes to live here.\n"
+
+// Appended to the interior description when the house belongs to a family.
+#define _LANG_HOME_FAMILY(name) \
+    "\nThis is the home of the " + (name) + " family.\n"

@@ -14,3 +14,7 @@
 #define _LANG_HOME_LONG \
     "El interior de una vivienda modesta. Las paredes desnudas y el suelo de " + \
     "tierra apisonada aguardan los muebles y enseres de quienes la habiten.\n"
+
+// Se añade a la descripción del interior cuando la casa pertenece a una familia.
+#define _LANG_HOME_FAMILY(name) \
+    "\nEsta es la casa de la familia " + (name) + ".\n"

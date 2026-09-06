@@ -98,9 +98,21 @@ mixed hook_short(mixed * args)
 // furniture/decoration will extend this rather than replace it.
 mixed hook_long(mixed * args)
 {
+  string text;
+
   if (args[0] && strlen(args[0]))
     return "";
-  return ({ HOOK_EXCLUSIVE, home_long ? home_long : _LANG_HOME_LONG });
+
+  text = home_long ? home_long : _LANG_HOME_LONG;
+
+  // A house that belongs to a family says whose it is. The register is asked
+  // rather than the name being printed on trust, so a surname left behind by a
+  // house that has died out stops claiming the place.
+  if (home_owner && strlen(home_owner) &&
+      handler("families", query_my_location())->has_family(home_owner))
+    text += _LANG_HOME_FAMILY(home_owner);
+
+  return ({ HOOK_EXCLUSIVE, text });
 }
 
 // Persisted state: owner + residents ride in the location's .o. Extend both

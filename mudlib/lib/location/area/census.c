@@ -19,6 +19,7 @@
 #include <areas/vacancy.h>
 #include <living/persisted.h>
 #include <living/races.h>
+#include <living/family.h>
 #include <basic/gender.h>
 
 // The area's individuals:
@@ -657,6 +658,12 @@ void npc_died(string uuid)
   // stop its house expecting it back; a vacancy's house is rebound to whoever
   // fills the post next, a roster citizen's frees a bed for its replacement
   this_object()->release_house(uuid);
+
+  // and tell its house. The savefile goes with the death, so the family record
+  // is the only thing that will still be able to name this person afterwards:
+  // it moves them into its history, widows whoever they were married to, and if
+  // they were the last one left the house dies out and frees its property.
+  handler("families", this_object())->member_died(FAMILY_NPC + uuid);
 
   // drop any cross-area position index for it, so a dead roamer is never
   // rematerialized when the foreign location it last rested in reloads
