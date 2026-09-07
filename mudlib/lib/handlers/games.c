@@ -28,23 +28,21 @@ object * query_game_objects()
   return result;
 }
 
-// The games this mudlib holds, by name. A game is a directory under /games with
-// a master in it; there is no register of them, so the tree is the list.
+// The same games as above, named rather than as objects, for callers that work
+// in names -- the areas each one holds, the file its state is kept in.
 string * query_games()
 {
-  string * dirs, * result;
+  object * masters;
+  string * result;
   string game;
   int i;
 
-  dirs = get_files("/games/*");
+  masters = query_game_objects();
   result = ({ });
 
-  for (i = 0; i < sizeof(dirs); i++)
+  for (i = 0; i < sizeof(masters); i++)
   {
-    if (file_size(dirs[i] + "/master.c") < 0)
-      continue;
-
-    game = game_from_path(dirs[i] + "/master.c");
+    game = game_from_path(file_name(masters[i]));
     if (strlen(game) && member_array(game, result) == -1)
       result += ({ game });
   }
