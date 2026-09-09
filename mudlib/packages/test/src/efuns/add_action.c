@@ -27,6 +27,8 @@ int do_private(string str)
 
 void do_tests()
 {
+  string * verbs;
+
   called = 0;
   ADD_LIVING("something");
 
@@ -55,14 +57,11 @@ void do_tests()
   IT("re-adding the same verb overwrites the previous binding",
      called == 2);
 
-  {
-    string * verbs;
-    verbs = map_indices(query_actions());
-    IT("query_actions exposes every registered verb",
-       member_array("foo", verbs) != -1 &&
-       member_array("one", verbs) != -1 &&
-       member_array("two", verbs) != -1);
-  }
+  verbs = map_indices(query_actions());
+  IT("query_actions exposes every registered verb",
+     member_array("foo", verbs) != -1 &&
+     member_array("one", verbs) != -1 &&
+     member_array("two", verbs) != -1);
 
   // Private actions gate on this_object() == this_player(). Simulating
   // that here would require forging an interactive user; instead we

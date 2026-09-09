@@ -347,7 +347,7 @@ private string _apply_material_tokens(string str, mapping overrides,
                                        mapping spec)
 {
   string mat_id;
-  string phrase, name;
+  string phrase, name, a, b;
 
   if (!str || !strlen(str)) return str;
   if (strsrch(str, "$material") == -1) return str;
@@ -361,13 +361,10 @@ private string _apply_material_tokens(string str, mapping overrides,
   phrase = (string)table("materials")->query_material_phrase(mat_id);
   name   = (string)table("materials")->query_material_name(mat_id);
 
-  {
-    string a, b;
-    while (sscanf(str, "%s$material_phrase$%s", a, b) == 2)
-      str = a + phrase + b;
-    while (sscanf(str, "%s$material_name$%s", a, b) == 2)
-      str = a + name + b;
-  }
+  while (sscanf(str, "%s$material_phrase$%s", a, b) == 2)
+    str = a + phrase + b;
+  while (sscanf(str, "%s$material_name$%s", a, b) == 2)
+    str = a + name + b;
 
   return str;
 }

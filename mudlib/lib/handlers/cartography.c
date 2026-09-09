@@ -166,7 +166,7 @@ mapping query_map_view(object viewer, varargs mapping options)
   mixed * revised;
   mixed current;
   int viewer_x, viewer_y;
-  int i, j;
+  int i, j, repeated, viewer_z;
 
   if (!viewer)
     return nil;
@@ -201,173 +201,167 @@ mapping query_map_view(object viewer, varargs mapping options)
   // means "we cannot tell" (legacy room without coordinates), in which
   // case we do not filter and accept the previous behaviour of mixing
   // levels (best effort with no information).
+  viewer_z = _z_of(env);
+
+  // BFS from the viewer's environment outward through exits
+  pending = ({ });
+  revised = ({ });
+
+  current = ({ viewer_x, viewer_y, env });
+  pending += ({ current });
+  cells[viewer_y][viewer_x] = _classify_room(env, viewer, deep);
+  rooms[viewer_y][viewer_x] = env;
+
+  while (sizeof(pending))
   {
-    int viewer_z;
-    viewer_z = _z_of(env);
+    string * dest_dir;
 
-    // BFS from the viewer's environment outward through exits
-    pending = ({ });
-    revised = ({ });
+    current = pending[0];
+    dest_dir = current[2]->query_dest_dir();
 
-    current = ({ viewer_x, viewer_y, env });
-    pending += ({ current });
-    cells[viewer_y][viewer_x] = _classify_room(env, viewer, deep);
-    rooms[viewer_y][viewer_x] = env;
-
-    while (sizeof(pending))
+    for (i = 0; i < sizeof(dest_dir); i += 2)
     {
-      string * dest_dir;
+      object new_room;
+      int seg_x, seg_y;            // exit-segment cell coordinates
+      int dest_x, dest_y;          // destination cell coordinates
+      int seg_type;
+      int has_segment, has_dest;
+      int cx, cy;
 
-      current = pending[0];
-      dest_dir = current[2]->query_dest_dir();
+      cx = current[0];
+      cy = current[1];
 
-      for (i = 0; i < sizeof(dest_dir); i += 2)
+      seg_x = seg_y = dest_x = dest_y = seg_type = 0;
+      has_segment = has_dest = 0;
+
+      switch (dest_dir[i])
       {
-        object new_room;
-        int seg_x, seg_y;            // exit-segment cell coordinates
-        int dest_x, dest_y;          // destination cell coordinates
-        int seg_type;
-        int has_segment, has_dest;
-        int cx, cy;
-
-        cx = current[0];
-        cy = current[1];
-
-        seg_x = seg_y = dest_x = dest_y = seg_type = 0;
-        has_segment = has_dest = 0;
-
-        switch (dest_dir[i])
-        {
-          case DIR_NORTH:
-            seg_x = cx;     seg_y = cy - 1;
-            dest_x = cx;    dest_y = cy - 2;
-            seg_type = CART_VERTICAL_EXIT;
-            has_segment = (seg_y >= 0);
-            has_dest    = (dest_y >= 0);
-            break;
-          case DIR_SOUTH:
-            seg_x = cx;     seg_y = cy + 1;
-            dest_x = cx;    dest_y = cy + 2;
-            seg_type = CART_VERTICAL_EXIT;
-            has_segment = (seg_y < height);
-            has_dest    = (dest_y < height);
-            break;
-          case DIR_EAST:
-            seg_x = cx + 1; seg_y = cy;
-            dest_x = cx + 2; dest_y = cy;
-            seg_type = CART_HORIZONTAL_EXIT;
-            has_segment = (seg_x < width);
-            has_dest    = (dest_x < width);
-            break;
-          case DIR_WEST:
-            seg_x = cx - 1; seg_y = cy;
-            dest_x = cx - 2; dest_y = cy;
-            seg_type = CART_HORIZONTAL_EXIT;
-            has_segment = (seg_x >= 0);
-            has_dest    = (dest_x >= 0);
-            break;
-          case DIR_NORTHWEST:
-            seg_x = cx - 1; seg_y = cy - 1;
-            dest_x = cx - 2; dest_y = cy - 2;
-            seg_type = CART_BACKSLASH_EXIT;
-            has_segment = (seg_x >= 0 && seg_y >= 0);
-            has_dest    = (dest_x >= 0 && dest_y >= 0);
-            break;
-          case DIR_NORTHEAST:
-            seg_x = cx + 1; seg_y = cy - 1;
-            dest_x = cx + 2; dest_y = cy - 2;
-            seg_type = CART_SLASH_EXIT;
-            has_segment = (seg_x < width && seg_y >= 0);
-            has_dest    = (dest_x < width && dest_y >= 0);
-            break;
-          case DIR_SOUTHWEST:
-            seg_x = cx - 1; seg_y = cy + 1;
-            dest_x = cx - 2; dest_y = cy + 2;
-            seg_type = CART_SLASH_EXIT;
-            has_segment = (seg_x >= 0 && seg_y < height);
-            has_dest    = (dest_x >= 0 && dest_y < height);
-            break;
-          case DIR_SOUTHEAST:
-            seg_x = cx + 1; seg_y = cy + 1;
-            dest_x = cx + 2; dest_y = cy + 2;
-            seg_type = CART_BACKSLASH_EXIT;
-            has_segment = (seg_x < width && seg_y < height);
-            has_dest    = (dest_x < width && dest_y < height);
-            break;
-          default:
-            // up / down / non-cardinal — handled by the source room's
-            // CART_UP_ROOM / CART_DOWN_ROOM marker, no segment to draw
-            continue;
-        }
-
-        // a door / gate on this exit crosses its segment glyph instead of
-        // marking the room: upgrade the plain segment to its door variant
-        if (member_array(current[2]->query_ex_type(dest_dir[i]),
-                         ({ "door", "gate" })) != -1)
-        {
-          if (seg_type == CART_VERTICAL_EXIT)        seg_type = CART_VERTICAL_DOOR;
-          else if (seg_type == CART_HORIZONTAL_EXIT) seg_type = CART_HORIZONTAL_DOOR;
-          else if (seg_type == CART_SLASH_EXIT)      seg_type = CART_SLASH_DOOR;
-          else if (seg_type == CART_BACKSLASH_EXIT)  seg_type = CART_BACKSLASH_DOOR;
-        }
-
-        // Resolve destination first; if it lives on a different z plane
-        // we draw nothing (no segment, no destination cell). The source
-        // room still carries its CART_UP_ROOM / CART_DOWN_ROOM marker
-        // for any vertical exit, which is the level-transition hint.
-        new_room = _resolve_destination(dest_dir[i + 1], deep);
-        if (!new_room)
+        case DIR_NORTH:
+          seg_x = cx;     seg_y = cy - 1;
+          dest_x = cx;    dest_y = cy - 2;
+          seg_type = CART_VERTICAL_EXIT;
+          has_segment = (seg_y >= 0);
+          has_dest    = (dest_y >= 0);
+          break;
+        case DIR_SOUTH:
+          seg_x = cx;     seg_y = cy + 1;
+          dest_x = cx;    dest_y = cy + 2;
+          seg_type = CART_VERTICAL_EXIT;
+          has_segment = (seg_y < height);
+          has_dest    = (dest_y < height);
+          break;
+        case DIR_EAST:
+          seg_x = cx + 1; seg_y = cy;
+          dest_x = cx + 2; dest_y = cy;
+          seg_type = CART_HORIZONTAL_EXIT;
+          has_segment = (seg_x < width);
+          has_dest    = (dest_x < width);
+          break;
+        case DIR_WEST:
+          seg_x = cx - 1; seg_y = cy;
+          dest_x = cx - 2; dest_y = cy;
+          seg_type = CART_HORIZONTAL_EXIT;
+          has_segment = (seg_x >= 0);
+          has_dest    = (dest_x >= 0);
+          break;
+        case DIR_NORTHWEST:
+          seg_x = cx - 1; seg_y = cy - 1;
+          dest_x = cx - 2; dest_y = cy - 2;
+          seg_type = CART_BACKSLASH_EXIT;
+          has_segment = (seg_x >= 0 && seg_y >= 0);
+          has_dest    = (dest_x >= 0 && dest_y >= 0);
+          break;
+        case DIR_NORTHEAST:
+          seg_x = cx + 1; seg_y = cy - 1;
+          dest_x = cx + 2; dest_y = cy - 2;
+          seg_type = CART_SLASH_EXIT;
+          has_segment = (seg_x < width && seg_y >= 0);
+          has_dest    = (dest_x < width && dest_y >= 0);
+          break;
+        case DIR_SOUTHWEST:
+          seg_x = cx - 1; seg_y = cy + 1;
+          dest_x = cx - 2; dest_y = cy + 2;
+          seg_type = CART_SLASH_EXIT;
+          has_segment = (seg_x >= 0 && seg_y < height);
+          has_dest    = (dest_x >= 0 && dest_y < height);
+          break;
+        case DIR_SOUTHEAST:
+          seg_x = cx + 1; seg_y = cy + 1;
+          dest_x = cx + 2; dest_y = cy + 2;
+          seg_type = CART_BACKSLASH_EXIT;
+          has_segment = (seg_x < width && seg_y < height);
+          has_dest    = (dest_x < width && dest_y < height);
+          break;
+        default:
+          // up / down / non-cardinal — handled by the source room's
+          // CART_UP_ROOM / CART_DOWN_ROOM marker, no segment to draw
           continue;
-
-        if (viewer_z != CART_NO_Z)
-        {
-          int dest_z;
-          dest_z = _z_of(new_room);
-          if (dest_z != CART_NO_Z && dest_z != viewer_z)
-            continue;
-        }
-
-        // skip rooms we already placed
-        {
-          int repeated;
-          repeated = 0;
-          for (j = 0; j < sizeof(revised); j++)
-            if (revised[j][2] == new_room) { repeated = 1; break; }
-          if (repeated)
-            continue;
-        }
-
-        if (has_segment)
-          cells[seg_y][seg_x] = seg_type;
-
-        // Maze locations are deliberately opaque to cartography: we
-        // draw the connecting segment and a '?' ghost cell where the
-        // maze begins, but never enqueue the maze room itself. The
-        // map intentionally hides the labyrinth's layout — knowing
-        // it would defeat the point, since movement inside is
-        // randomised by the maze component anyway. Legacy rooms do
-        // not implement query_maze(), so the call returns nil there.
-        if (new_room->query_maze())
-        {
-          if (has_dest)
-          {
-            cells[dest_y][dest_x] = CART_MAZE_ROOM;
-            rooms[dest_y][dest_x] = new_room;
-          }
-          continue;
-        }
-
-        if (has_dest)
-        {
-          cells[dest_y][dest_x] = _classify_room(new_room, viewer, deep);
-          rooms[dest_y][dest_x] = new_room;
-          pending += ({ ({ dest_x, dest_y, new_room }) });
-        }
       }
 
-      revised += ({ current });
-      pending -= ({ current });
+      // a door / gate on this exit crosses its segment glyph instead of
+      // marking the room: upgrade the plain segment to its door variant
+      if (member_array(current[2]->query_ex_type(dest_dir[i]),
+                       ({ "door", "gate" })) != -1)
+      {
+        if (seg_type == CART_VERTICAL_EXIT)        seg_type = CART_VERTICAL_DOOR;
+        else if (seg_type == CART_HORIZONTAL_EXIT) seg_type = CART_HORIZONTAL_DOOR;
+        else if (seg_type == CART_SLASH_EXIT)      seg_type = CART_SLASH_DOOR;
+        else if (seg_type == CART_BACKSLASH_EXIT)  seg_type = CART_BACKSLASH_DOOR;
+      }
+
+      // Resolve destination first; if it lives on a different z plane
+      // we draw nothing (no segment, no destination cell). The source
+      // room still carries its CART_UP_ROOM / CART_DOWN_ROOM marker
+      // for any vertical exit, which is the level-transition hint.
+      new_room = _resolve_destination(dest_dir[i + 1], deep);
+      if (!new_room)
+        continue;
+
+      if (viewer_z != CART_NO_Z)
+      {
+        int dest_z;
+        dest_z = _z_of(new_room);
+        if (dest_z != CART_NO_Z && dest_z != viewer_z)
+          continue;
+      }
+
+      // skip rooms we already placed
+      repeated = 0;
+      for (j = 0; j < sizeof(revised); j++)
+        if (revised[j][2] == new_room) { repeated = 1; break; }
+      if (repeated)
+        continue;
+
+      if (has_segment)
+        cells[seg_y][seg_x] = seg_type;
+
+      // Maze locations are deliberately opaque to cartography: we
+      // draw the connecting segment and a '?' ghost cell where the
+      // maze begins, but never enqueue the maze room itself. The
+      // map intentionally hides the labyrinth's layout — knowing
+      // it would defeat the point, since movement inside is
+      // randomised by the maze component anyway. Legacy rooms do
+      // not implement query_maze(), so the call returns nil there.
+      if (new_room->query_maze())
+      {
+        if (has_dest)
+        {
+          cells[dest_y][dest_x] = CART_MAZE_ROOM;
+          rooms[dest_y][dest_x] = new_room;
+        }
+        continue;
+      }
+
+      if (has_dest)
+      {
+        cells[dest_y][dest_x] = _classify_room(new_room, viewer, deep);
+        rooms[dest_y][dest_x] = new_room;
+        pending += ({ ({ dest_x, dest_y, new_room }) });
+      }
     }
+
+    revised += ({ current });
+    pending -= ({ current });
   }
 
   return ([

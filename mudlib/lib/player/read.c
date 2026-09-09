@@ -11,6 +11,7 @@ string read_message(string str, string lang, varargs int size, string frame_styl
 {
   mixed bing;
   object languages, frames;
+  string rid;
 
   languages = handler("languages");
   frames = handler("frames");
@@ -18,12 +19,9 @@ string read_message(string str, string lang, varargs int size, string frame_styl
   // Resolve a legacy translated language name baked into old data ("común")
   // to its canonical id ("common"), so a sign written before ids were
   // normalised still matches a reader who knows the language.
-  {
-    string rid;
-    rid = languages->resolve_language(lang);
-    if (rid)
-      lang = rid;
-  }
+  rid = languages->resolve_language(lang);
+  if (rid)
+    lang = rid;
 
   // if we do not speak the language
   if (member_array(lang, this_object()->query_languages()) == -1)

@@ -8,6 +8,7 @@
 static nomask object load_object(string name)
 {
   object obj;
+  int * sizes;
 
   if (undefinedp(name) || !strlen(name))
     return nil;
@@ -18,14 +19,11 @@ static nomask object load_object(string name)
 
   // extra check: if the file does not exist, don't
   // even bother trying
-  {
-    int * sizes;
-    sizes = ::get_dir(name + ".c")[1];
+  sizes = ::get_dir(name + ".c")[1];
 
-    // no files
-    if (!sizes || (sizeof(sizes) == 0) || (sizes[0] == -2) )
-      return nil;
-  }
+  // no files
+  if (!sizes || (sizeof(sizes) == 0) || (sizes[0] == -2) )
+    return nil;
 
   obj = find_object(name);
 

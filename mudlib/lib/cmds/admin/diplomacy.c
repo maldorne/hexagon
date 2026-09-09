@@ -260,7 +260,7 @@ private string _game(object me)
 static int cmd(string str, object me, string verb)
 {
   object h;
-  string game;
+  string game, cit, field, value;
   string * words;
   mapping g;
 
@@ -369,47 +369,44 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
 
-  {
-    string cit, field, value;
-    cit = words[0];
-    field = words[1];
-    value = implode(words[2 ..], " ");
+  cit = words[0];
+  field = words[1];
+  value = implode(words[2 ..], " ");
 
-    switch (field)
-    {
-      case "parent":
-        h->set_parent(cit, (value == "none") ? "" : value);
-        break;
-      case "security":
-        h->set_security(cit, to_int(value));
-        break;
-      case "guard":
-        h->set_guard(cit, (value == "none") ? "" : value);
-        break;
-      case "deity":
-        h->add_deity(cit, value);
-        break;
-      case "undeity":
-        h->remove_deity(cit, value);
-        break;
-      case "ally":
-        h->add_relationship(DIPLOMACY_RELATION_ALLY, cit, value);
-        break;
-      case "unally":
-        h->remove_relationship(DIPLOMACY_RELATION_ALLY, cit, value);
-        break;
-      case "enemy":
-        h->add_relationship(DIPLOMACY_RELATION_ENEMY, cit, value);
-        break;
-      case "unenemy":
-        h->remove_relationship(DIPLOMACY_RELATION_ENEMY, cit, value);
-        break;
-      default:
-        notify_fail("Unknown field '" + field + "'. Use parent, security, " +
-                    "guard, deity, undeity, ally, unally, enemy or " +
-                    "unenemy.\n");
-        return 0;
-    }
+  switch (field)
+  {
+    case "parent":
+      h->set_parent(cit, (value == "none") ? "" : value);
+      break;
+    case "security":
+      h->set_security(cit, to_int(value));
+      break;
+    case "guard":
+      h->set_guard(cit, (value == "none") ? "" : value);
+      break;
+    case "deity":
+      h->add_deity(cit, value);
+      break;
+    case "undeity":
+      h->remove_deity(cit, value);
+      break;
+    case "ally":
+      h->add_relationship(DIPLOMACY_RELATION_ALLY, cit, value);
+      break;
+    case "unally":
+      h->remove_relationship(DIPLOMACY_RELATION_ALLY, cit, value);
+      break;
+    case "enemy":
+      h->add_relationship(DIPLOMACY_RELATION_ENEMY, cit, value);
+      break;
+    case "unenemy":
+      h->remove_relationship(DIPLOMACY_RELATION_ENEMY, cit, value);
+      break;
+    default:
+      notify_fail("Unknown field '" + field + "'. Use parent, security, " +
+                  "guard, deity, undeity, ally, unally, enemy or " +
+                  "unenemy.\n");
+      return 0;
   }
 
   // reflect the new state back

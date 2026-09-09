@@ -482,7 +482,8 @@ private object npc_restore(string id, object loc)
 void restore_location_npcs(object loc)
 {
   string file;
-  string * ids;
+  string * ids, * fids;
+  mapping foreign;
   int i;
 
   if (!loc)
@@ -511,20 +512,15 @@ void restore_location_npcs(object loc)
   // Roamers rostered in another area but resting here: the areas handler indexes
   // them by location, so bring each back through its own roster area (which owns
   // its census and template). This area's own census-of-location never lists them.
+  foreign = AREA_HANDLER->foreign_positions_at(file);
+  fids = map_indices(foreign);
+  for (i = 0; i < sizeof(fids); i++)
   {
-    mapping foreign;
-    string * fids;
-
-    foreign = AREA_HANDLER->foreign_positions_at(file);
-    fids = map_indices(foreign);
-    for (i = 0; i < sizeof(fids); i++)
-    {
-      object rarea;
-      rarea = (foreign[fids[i]] == (string)this_object()->query_area_path())
-                ? this_object() : AREA_HANDLER->query_area(foreign[fids[i]]);
-      if (rarea)
-        rarea->restore_one_npc(fids[i], loc);
-    }
+    object rarea;
+    rarea = (foreign[fids[i]] == (string)this_object()->query_area_path())
+              ? this_object() : AREA_HANDLER->query_area(foreign[fids[i]]);
+    if (rarea)
+      rarea->restore_one_npc(fids[i], loc);
   }
 }
 

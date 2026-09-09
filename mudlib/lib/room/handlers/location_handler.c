@@ -539,10 +539,12 @@ static mapping _extract_original_sign(object room)
 
 object convert_room_to_location(object room)
 {
-  object location;
+  object location, area;
   string file_name, * exits, ret;
-  mapping exit_map, clones;
-  int i;
+  string * inferred, * venture_kinds, * blueprints;
+  string game;
+  mapping exit_map, clones, npc_clones;
+  int i, c;
 
   if (!room)
     return nil;
@@ -663,33 +665,29 @@ object convert_room_to_location(object room)
   // handler matches each prop type's keywords against them and returns
   // the types to attach. One instance of each is added to the location's
   // props component.
+  inferred = handler("props")->infer_types_from_room(
+               location->query_original_items(),
+               location->query_original_long());
+
+  if (sizeof(inferred))
   {
-    string * inferred;
+    object comp;
+    int k;
 
-    inferred = handler("props")->infer_types_from_room(
-                 location->query_original_items(),
-                 location->query_original_long());
+    if (!location->query_component_by_type(LOCATION_COMPONENT_PROPS))
+      location->add_component(LOCATION_COMPONENT_PROPS,
+                              ([ "props_instances": ({ }) ]));
 
-    if (sizeof(inferred))
-    {
-      object comp;
-      int k;
+    comp = location->query_component_by_type(LOCATION_COMPONENT_PROPS);
+    if (comp)
+      // idempotent: only add a type not already present, so re-running
+      // the conversion never duplicates inferred props and never stomps
+      // a prop of that type added by hand.
+      for (k = 0; k < sizeof(inferred); k++)
+        if (!sizeof(comp->query_instances_by_type(inferred[k])))
+          comp->add_prop_instance(inferred[k], inferred[k] + "_1", ([ ]));
 
-      if (!location->query_component_by_type(LOCATION_COMPONENT_PROPS))
-        location->add_component(LOCATION_COMPONENT_PROPS,
-                                ([ "props_instances": ({ }) ]));
-
-      comp = location->query_component_by_type(LOCATION_COMPONENT_PROPS);
-      if (comp)
-        // idempotent: only add a type not already present, so re-running
-        // the conversion never duplicates inferred props and never stomps
-        // a prop of that type added by hand.
-        for (k = 0; k < sizeof(inferred); k++)
-          if (!sizeof(comp->query_instances_by_type(inferred[k])))
-            comp->add_prop_instance(inferred[k], inferred[k] + "_1", ([ ]));
-
-      ret += "   Inferred props: " + implode(inferred, ", ") + ".\n";
-    }
+    ret += "   Inferred props: " + implode(inferred, ", ") + ".\n";
   }
 
   // A venture component (pub, shop) makes this location a point of interest
@@ -697,22 +695,16 @@ object convert_room_to_location(object room)
   // it. Only ventures are inferred here; the other POI kinds (town entrance,
   // square, crossroads, shrine) are declared by hand with the builder ring.
   // A location holds at most one POI, so stop at the first venture found.
-  {
-    object area;
-    string * venture_kinds;
-    int k;
-
-    area = location->query_area();
-    venture_kinds = POI_VENTURE_KINDS;
-    for (k = 0; area && k < sizeof(venture_kinds); k++)
-      if (location->query_component_by_type(venture_kinds[k]))
-      {
-        area->add_poi(location->query_file_name(), venture_kinds[k],
-                      room->query_short());
-        ret += "   Adding POI " + venture_kinds[k] + ".\n";
-        break;
-      }
-  }
+  area = location->query_area();
+  venture_kinds = POI_VENTURE_KINDS;
+  for (i = 0; area && i < sizeof(venture_kinds); i++)
+    if (location->query_component_by_type(venture_kinds[i]))
+    {
+      area->add_poi(location->query_file_name(), venture_kinds[i],
+                    room->query_short());
+      ret += "   Adding POI " + venture_kinds[i] + ".\n";
+      break;
+    }
 
   write(ret);
 
@@ -725,42 +717,34 @@ object convert_room_to_location(object room)
   // items are not part of the NPC census. Record this location's contribution
   // -- the area sums it into a per-blueprint cap -- and snapshot each NPC
   // blueprint's data template so it is ready to inspect / edit.
+  game = game_from_path(location->query_file_name());
+
+  // Loading the source .c here is the one place conversion needs it: sample
+  // it into a data template, then record the roster keyed by the template id
+  // (not the source path). From now on day-to-day operation works entirely
+  // off the location, the templates and the census -- the monster .c is only
+  // touched again by a later reconversion (a deliberate hard reset).
+  npc_clones = ([ ]);
+  blueprints = map_indices(clones);
+  for (c = 0; c < sizeof(blueprints); c++)
   {
-    object area;
-    mapping npc_clones;
-    string * blueprints;
-    string game;
-    int c;
+    object bp;
 
-    game = game_from_path(location->query_file_name());
-
-    // Loading the source .c here is the one place conversion needs it: sample
-    // it into a data template, then record the roster keyed by the template id
-    // (not the source path). From now on day-to-day operation works entirely
-    // off the location, the templates and the census -- the monster .c is only
-    // touched again by a later reconversion (a deliberate hard reset).
-    npc_clones = ([ ]);
-    blueprints = map_indices(clones);
-    for (c = 0; c < sizeof(blueprints); c++)
+    bp = nil;
+    catch(bp = load_object(blueprints[c]));
+    if (bp && bp->query_monster())
     {
-      object bp;
-
-      bp = nil;
-      catch(bp = load_object(blueprints[c]));
-      if (bp && bp->query_monster())
-      {
-        // (re)build the template while the source is loaded, so a reconversion
-        // refreshes it; add_template carries over any hand-set fields
-        BESTIARY_HANDLER->add_template(blueprints[c]);
-        npc_clones[BESTIARY_HANDLER->template_id(game, blueprints[c])] =
-          clones[blueprints[c]];
-      }
+      // (re)build the template while the source is loaded, so a reconversion
+      // refreshes it; add_template carries over any hand-set fields
+      BESTIARY_HANDLER->add_template(blueprints[c]);
+      npc_clones[BESTIARY_HANDLER->template_id(game, blueprints[c])] =
+        clones[blueprints[c]];
     }
-
-    area = location->query_area();
-    if (area)
-      area->set_location_original_sources(location->query_file_name(), npc_clones);
   }
+
+  area = location->query_area();
+  if (area)
+    area->set_location_original_sources(location->query_file_name(), npc_clones);
 
   return location;
 }

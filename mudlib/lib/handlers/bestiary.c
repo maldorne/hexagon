@@ -150,6 +150,8 @@ private mapping wander_block(mixed pace)
 private mapping nongendered_fields(object npc)
 {
   mapping social;
+  string * keys;
+  int i;
 
   // Every social object the NPC belongs to, as the raw paths the accessors
   // return. Kept in one map rather than as loose fields so a new slot does not
@@ -167,15 +169,10 @@ private mapping nongendered_fields(object npc)
   ]);
 
   // an unset slot reads nil; drop it so the stored template stays readable
-  {
-    string * keys;
-    int i;
-
-    keys = map_indices(social);
-    for (i = 0; i < sizeof(keys); i++)
-      if (!stringp(social[keys[i]]) || !strlen(social[keys[i]]))
-        map_delete(social, keys[i]);
-  }
+  keys = map_indices(social);
+  for (i = 0; i < sizeof(keys); i++)
+    if (!stringp(social[keys[i]]) || !strlen(social[keys[i]]))
+      map_delete(social, keys[i]);
 
   return ([
     "social_obs":  social,
@@ -209,7 +206,9 @@ private int same_value(mixed a, mixed b)
 private mapping assemble_template(mapping bygender, mapping nong)
 {
   mapping t;
+  string * keys;
   int * gs;
+  int i, j;
 
   t = ([ ]) + nong;
   gs = map_indices(bygender);
@@ -221,43 +220,38 @@ private mapping assemble_template(mapping bygender, mapping nong)
     return t;
   }
 
+  keys = gendered_keys();
+  for (i = 0; i < sizeof(keys); i++)
   {
-    string * keys;
-    int i, j;
+    string k;
+    mixed ref;
+    int varies;
 
-    keys = gendered_keys();
-    for (i = 0; i < sizeof(keys); i++)
-    {
-      string k;
-      mixed ref;
-      int varies;
-
-      k = keys[i];
-      ref = bygender[gs[0]][k];
-      varies = 0;
-      for (j = 1; j < sizeof(gs); j++)
-        if (!same_value(ref, bygender[gs[j]][k]))
-        {
-          varies = 1;
-          break;
-        }
-
-      if (!varies)
-        t[k] = ref;
-      else
+    k = keys[i];
+    ref = bygender[gs[0]][k];
+    varies = 0;
+    for (j = 1; j < sizeof(gs); j++)
+      if (!same_value(ref, bygender[gs[j]][k]))
       {
-        mapping perg;
-        perg = ([ ]);
-        // string keys: JSON object keys are strings, and apply_template reads
-        // them back as "" + query_gender()
-        for (j = 0; j < sizeof(gs); j++)
-          perg["" + gs[j]] = bygender[gs[j]][k];
-        t[k] = perg;
+        varies = 1;
+        break;
       }
-    }
 
-    t["genders"] = gs;
+    if (!varies)
+      t[k] = ref;
+    else
+    {
+      mapping perg;
+      perg = ([ ]);
+      // string keys: JSON object keys are strings, and apply_template reads
+      // them back as "" + query_gender()
+      for (j = 0; j < sizeof(gs); j++)
+        perg["" + gs[j]] = bygender[gs[j]][k];
+      t[k] = perg;
+    }
   }
+
+  t["genders"] = gs;
 
   return t;
 }
@@ -308,8 +302,9 @@ private mapping extract_template(string source)
 int add_template(string source)
 {
   string game, tfile, dir;
-  mapping t;
-  int slash;
+  string * carried;
+  mapping t, old;
+  int i, slash;
 
   game = game_from_path(source);
   if (!game)
@@ -325,19 +320,13 @@ int add_template(string source)
   // source cannot express (a sentience mark, an equipment kit, a daily
   // timetable) or things a sampled clone cannot reveal (a stat range, which is
   // rolled per clone). All of them are copied from the source by hand once.
-  {
-    mapping old;
-    string * carried;
-    int i;
+  carried = HAND_SET_TEMPLATE_FIELDS;
+  old = query_template(game, source);
 
-    carried = HAND_SET_TEMPLATE_FIELDS;
-    old = query_template(game, source);
-
-    if (old)
-      for (i = 0; i < sizeof(carried); i++)
-        if (!undefinedp(old[carried[i]]))
-          t[carried[i]] = old[carried[i]];
-  }
+  if (old)
+    for (i = 0; i < sizeof(carried); i++)
+      if (!undefinedp(old[carried[i]]))
+        t[carried[i]] = old[carried[i]];
 
   tfile = query_template_file(game, source);
   slash = strsrch(tfile, "/", -1);

@@ -162,7 +162,7 @@ mixed * workout_attack(string unarmed_type)
 {
   string happen;
   int result, attackerwc, defenderac, damage_done;
-  int tmp;
+  int tmp, ac_diff;
 
   // should not happen, neverbot 4/03
   if (!defender || !attacker)
@@ -207,12 +207,9 @@ mixed * workout_attack(string unarmed_type)
   // Changed by neverbot, 10/2009
   // It does not depend of the number of your attackers, but the difference between your
   // attackers and your oponent attackers (so we are not modifying the AC in crowd combat ie. 6 vs 6)
-  {
-    int ac_diff;
-    ac_diff = sizeof(defender->query_attacker_list()) - sizeof(attacker->query_attacker_list());
-    if ( ac_diff >= 2 )
-      defenderac = (defenderac / (ac_diff / 2));  
-  }
+  ac_diff = sizeof(defender->query_attacker_list()) - sizeof(attacker->query_attacker_list());
+  if ( ac_diff >= 2 )
+    defenderac = (defenderac / (ac_diff / 2));
 
   // to the attacker unarmed ability we add the luck factor for both players
   // and we substract the defender AC

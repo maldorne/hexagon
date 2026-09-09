@@ -959,8 +959,10 @@ object query_area()
 // need inflation and is left alone.
 object * find_inv_match(string str)
 {
-  object * inv;
+  object * inv, * extras;
   object props_comp;
+  string aux;
+  int num, prop_count, i;
 
   inv = (object *)all_inventory(this_object()) +
         (object *)contents::query_hidden_objects();
@@ -970,29 +972,19 @@ object * find_inv_match(string str)
   props_comp = query_component_by_type(LOCATION_COMPONENT_PROPS);
   if (!props_comp) return inv;
 
-  {
-    string aux;
-    int num;
-    int prop_count;
+  if (sscanf(str, "%s %d", aux, num) != 2 || num <= 1)
+    return inv;
 
-    if (sscanf(str, "%s %d", aux, num) != 2 || num <= 1)
-      return inv;
+  prop_count = (int)props_comp->count_matching_props(aux);
+  if (num > prop_count) return inv;
 
-    prop_count = (int)props_comp->count_matching_props(aux);
-    if (num > prop_count) return inv;
-
-    // Extra copies so find_match's --num decrement can advance to
-    // the requested slot. The component is already in inv once
-    // (from all_inventory); add num-1 more.
-    {
-      object * extras;
-      int i;
-      extras = ({ });
-      for (i = 1; i < num; i++)
-        extras += ({ props_comp });
-      inv += extras;
-    }
-  }
+  // Extra copies so find_match's --num decrement can advance to
+  // the requested slot. The component is already in inv once
+  // (from all_inventory); add num-1 more.
+  extras = ({ });
+  for (i = 1; i < num; i++)
+    extras += ({ props_comp });
+  inv += extras;
 
   return inv;
 }
@@ -1072,6 +1064,7 @@ int clean_up(varargs int flag)
 void dest_me()
 {
   object * arr;
+  object a;
   int i;
 
   // hand the location back to the cleaner before it goes away
@@ -1080,12 +1073,9 @@ void dest_me()
 
   // persist our dynamic NPCs before the inventory is torn down below, so
   // their state survives the unload (the census entries stay in the area)
-  {
-    object a;
-    a = query_area();
-    if (a)
-      a->drain_location(this_object());
-  }
+  a = query_area();
+  if (a)
+    a->drain_location(this_object());
 
   // similar to room.c
   arr = all_inventory(this_object());

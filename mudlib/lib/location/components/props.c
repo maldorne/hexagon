@@ -247,8 +247,9 @@ int id_plural(string str)
 // logic hook_long uses on the str-provided branch.
 string long(varargs string str, int dark)
 {
-  mapping inst;
+  mapping inst, spec;
   string desc, hint, sh;
+  string noun, mat_id, material_phrase, id, header;
 
   if (!str || !strlen(str)) return "";
 
@@ -266,30 +267,24 @@ string long(varargs string str, int dark)
     desc += "\n";
   desc = wrap(desc, (this_user() ? this_user()->query_cols() : 79), 1);
 
+  spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
+  if (spec)
   {
-    mapping spec;
-    string noun, mat_id, material_phrase, id, header;
-
-    spec = (mapping)handler("props")->query_type_spec(
-             inst[PROP_FIELD_TYPE]);
-    if (spec)
+    noun = spec[PROP_TYPE_NOUN];
+    if (noun && strlen(noun))
     {
-      noun = spec[PROP_TYPE_NOUN];
-      if (noun && strlen(noun))
-      {
-        mat_id = _instance_material(inst);
-        // a type that hides its material hides it here too, or examining a
-        // cobweb answers "Cobweb of cloth"
-        material_phrase = (mat_id && strlen(mat_id) &&
-                           !spec[PROP_TYPE_HIDE_MATERIAL])
-          ? (string)table("materials")->query_material_phrase(mat_id)
-          : "";
-        id = noun;
-        header = strlen(material_phrase)
-          ? _LANG_PROPS_ID_WITH_MATERIAL
-          : noun;
-        desc = capitalize(header) + ".\n" + desc;
-      }
+      mat_id = _instance_material(inst);
+      // a type that hides its material hides it here too, or examining a
+      // cobweb answers "Cobweb of cloth"
+      material_phrase = (mat_id && strlen(mat_id) &&
+                         !spec[PROP_TYPE_HIDE_MATERIAL])
+        ? (string)table("materials")->query_material_phrase(mat_id)
+        : "";
+      id = noun;
+      header = strlen(material_phrase)
+        ? _LANG_PROPS_ID_WITH_MATERIAL
+        : noun;
+      desc = capitalize(header) + ".\n" + desc;
     }
   }
 
@@ -493,12 +488,12 @@ mapping * query_instances_by_type(string type)
  */
 string query_props_section_string()
 {
-  mapping groups;
+  mapping groups, first;
   string * keys;
   string * pieces;
   int i;
   int n;
-  string line;
+  string line, suf;
 
   if (!sizeof(props_instances)) return "";
 
@@ -517,16 +512,12 @@ string query_props_section_string()
     // Groups collapse into one entry by construction; every instance
     // shares the same state signature, so a single suffix (singular
     // or plural, per group cardinality) describes the lot.
-    {
-      mapping first;
-      string suf;
-      first = insts[0];
-      suf = (string)handler("props")->query_short_state_suffix(
-              first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE],
-              sizeof(insts) > 1);
-      if (strlen(suf))
-        piece += suf;
-    }
+    first = insts[0];
+    suf = (string)handler("props")->query_short_state_suffix(
+            first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE],
+            sizeof(insts) > 1);
+    if (strlen(suf))
+      piece += suf;
 
     pieces += ({ piece });
   }
@@ -768,7 +759,7 @@ private string _group_noun_phrase(mapping * insts)
 private string _compose_group_sentence(mapping * insts)
 {
   mapping first;
-  string ret;
+  string ret, tail;
 
   if (!sizeof(insts)) return "";
   first = insts[0];
@@ -793,14 +784,11 @@ private string _compose_group_sentence(mapping * insts)
   // every instance in this group carries the same state signature,
   // so a single tail describes the lot. Plural flag picks the
   // plural suffix variant when the type defines one.
-  {
-    string tail;
-    tail = (string)handler("props")->query_state_suffixes(
-             first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE],
-             sizeof(insts) > 1);
-    if (strlen(tail))
-      ret += tail;
-  }
+  tail = (string)handler("props")->query_state_suffixes(
+           first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE],
+           sizeof(insts) > 1);
+  if (strlen(tail))
+    ret += tail;
 
   return ret;
 }
@@ -1052,7 +1040,7 @@ int do_prop_action(string str)
 private string _render_msg(string template, mixed arg)
 {
   object me;
-  string arg_str;
+  string arg_str, a, b;
 
   if (!template || !strlen(template)) return "";
 
@@ -1073,17 +1061,14 @@ private string _render_msg(string template, mixed arg)
   // here" slot from the props side. Loop over every occurrence via
   // sscanf so a leading/trailing $lastarg$ substitutes too (DGD's
   // explode strips boundary empties).
+  while (sscanf(template, "%s$lastarg$%s", a, b) == 2)
   {
-    string a, b;
-    while (sscanf(template, "%s$lastarg$%s", a, b) == 2)
-    {
-      // Capitalise if the token opens the sentence — arg_str is a
-      // bare lowercase player name from state, and reads badly as
-      // the first word of a message otherwise.
-      string sub;
-      sub = (a == "") ? capitalize(arg_str) : arg_str;
-      template = a + sub + b;
-    }
+    // Capitalise if the token opens the sentence — arg_str is a
+    // bare lowercase player name from state, and reads badly as
+    // the first word of a message otherwise.
+    string sub;
+    sub = (a == "") ? capitalize(arg_str) : arg_str;
+    template = a + sub + b;
   }
 
   me = this_player();

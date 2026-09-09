@@ -554,13 +554,10 @@ int cmd_make_hash(int verbose)
         // same as the main loop: keep the localized display name and one-line
         // help on the hash entry so a listing never reloads the command
         cmd_hash[s]["alias"] = aliases[0];
-        {
-          mixed h;
-          h = nil;
-          catch(h = cmd->query_help());
-          cmd_hash[s]["help"] =
-            (stringp(h) && strlen(h)) ? explode(h, "\n")[0] : nil;
-        }
+        help = nil;
+        catch(help = cmd->query_help());
+        cmd_hash[s]["help"] =
+          (stringp(help) && strlen(help)) ? explode(help, "\n")[0] : nil;
 
         for (l = 0; l < sizeof(aliases); l++)
         {
