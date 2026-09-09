@@ -87,6 +87,25 @@ private string * gendered_keys()
   return ({ "name", "short", "long", "main_plural", "aliases", "plurals" });
 }
 
+// The words the sampled clone answers to, minus the ones its race grants. A
+// living's race is decided per individual, not by its type, so the racial words
+// belong to the race and never to a template.
+private string * type_aliases(object npc)
+{
+  mixed race;
+  string * aliases;
+
+  aliases = (string *)npc->query_alias();
+  if (!pointerp(aliases))
+    return ({ });
+
+  race = npc->query_race_ob();
+  if (stringp(race) && strlen(race))
+    aliases -= (string *)load_object(race)->query_race_aliases();
+
+  return aliases;
+}
+
 // The gendered half of a live clone's data.
 private mapping gendered_fields(object npc)
 {
@@ -95,7 +114,7 @@ private mapping gendered_fields(object npc)
     "short":       npc->query_short(),
     "long":        npc->query_long(),
     "main_plural": npc->query_main_plural(),
-    "aliases":     npc->query_alias(),
+    "aliases":     type_aliases(npc),
     "plurals":     npc->query_plurals(),
   ]);
 }

@@ -311,6 +311,10 @@ private object npc_restore(string id, object loc)
     }
   }
 
+  // and make it answer to whatever race it ended up with: apply_template has
+  // just replaced the alias list, and a restore never runs set_race_ob
+  npc->start_race();
+
   // Finish a named individual. Its short stays the template's kind word --
   // npc::query_cap_name shows that in room lists and combat so it does not read
   // like a player; the proper name is the find_living id and shows on examine.

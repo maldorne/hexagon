@@ -134,9 +134,34 @@ string query_gtitle()
   return "";
 }
 
+// Re-assert the racial aliases on a living that already wears its race.
+// Aliases are static, so anything rebuilt rather than created comes back
+// without them.
+void start_race()
+{
+  string * aliases;
+  int i;
+
+  if (!social_object_list[RACE_OB])
+    return;
+
+  // A body wears the placeholder race until it is given a real one; drop its
+  // word unless that is genuinely the race.
+  if (social_object_list[RACE_OB] != DEFAULT_RACE_OB)
+  {
+    aliases = DEFAULT_RACE_OB->query_race_aliases();
+    for (i = 0; i < sizeof(aliases); i++)
+      this_object()->remove_alias(aliases[i]);
+  }
+
+  aliases = social_object_list[RACE_OB]->query_race_aliases();
+  for (i = 0; i < sizeof(aliases); i++)
+    this_object()->add_alias(aliases[i]);
+}
+
 void set_race_ob(string str)
 {
-  string * valid_races_dirs;
+  string * valid_races_dirs, * old_aliases;
   int i, valid;
 
   if (undefinedp(str) || !strlen(str))
@@ -188,16 +213,11 @@ void set_race_ob(string str)
         this_object()->set_language(this_object()->query_languages()[0]);
 
       this_object()->adjust_ext_align(-social_object_list[RACE_OB]->query_ext_align());
-      // Quitamos los alias raciales
-      if (social_object_list[RACE_OB]->query_base_race())
-      {
-        this_object()->remove_alias(lower_case(this_object()->query_race_name()));
-        this_object()->remove_alias(lower_case(this_object()->query_base_race_name()));
-      }
-      else
-      {
-        this_object()->remove_alias(lower_case(this_object()->query_race_name()));
-      }
+
+      // the outgoing race's words, which the race itself lists
+      old_aliases = social_object_list[RACE_OB]->query_race_aliases();
+      for (i = 0; i < sizeof(old_aliases); i++)
+        this_object()->remove_alias(old_aliases[i]);
   }
 
   social_object_list[RACE_OB] = str;
@@ -209,20 +229,11 @@ void set_race_ob(string str)
   this_object()->set_weight(social_object_list[RACE_OB]->query_race_weight());
   social_object_list[RACE_OB]->set_racial_bonuses(this_object());
 
+  // Racial aliases go on here rather than in the race's start_player, because
+  // overrides of that hook do not chain.
   // Problema: con subrazas esto añade el alias "Humano (Velan)" por ejemplo
   // this_object()->add_alias(lower_case(this_object()->query_race()));
-  if (social_object_list[RACE_OB]->query_base_race())
-  {
-    // Añadimos subraza
-    this_object()->add_alias(lower_case(this_object()->query_race_name()));
-    // Añadimos raza base
-    this_object()->add_alias(lower_case(this_object()->query_base_race_name()));
-  }
-  else
-  {
-    // Unicamente raza base si nuestra raza no tiene subrazas
-    this_object()->add_alias(lower_case(this_object()->query_race_name()));
-  }
+  start_race();
 
   // if (this_object()->query_player())
   //  this_object()->add_alias("*"+lower_case(this_object()->query_race())+"*");
@@ -237,6 +248,7 @@ void set_race_ob(string str)
 } /* set_race_ob() */
 
 void set_race(string str) { set_race_ob(DEFAULT_RACE_DIR + str); }
+
 
 string query_race_ob() { return social_object_list[RACE_OB]; }
 

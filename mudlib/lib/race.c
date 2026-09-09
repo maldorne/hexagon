@@ -156,9 +156,29 @@ void set_ext_align(int i) { ext_align = i; }
 
 void set_racial_bonuses(object ob) { }
 
+// The words a living of this race answers to. A subrace answers both to its
+// own name and to its base race's.
+string * query_race_aliases()
+{
+  string * ret;
+  string basepath;
+  object base;
+
+  ret = ({ lower_case((string)this_object()->query_name()) });
+
+  // query_base_race lives on /lib/subrace.c, so a plain race answers nil
+  basepath = this_object()->query_base_race();
+  if (stringp(basepath) && strlen(basepath) &&
+      (base = load_object(basepath)))
+    ret |= ({ lower_case((string)base->query_name()) });
+
+  return ret;
+}
+
+// Hook for what a race does to somebody the moment it is put on. Racial
+// aliases are not handed out here: overrides of this do not chain.
 void start_player(object ob)
 {
-  ob->add_alias(lower_case(this_object()->query_name()));
 }
 
 void race_heartbeat(object player)
