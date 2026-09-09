@@ -8,14 +8,9 @@
 // timetable. Keeping the index on the area is what lets a whole settlement's
 // routine be dispatched without loading a single NPC.
 //
-// The index looks after itself. Everything that knows an NPC has stopped being
-// due says so (index_schedule_hours with no hours: it dies, it leaves the
-// census, its type stops naming hours), but nothing outside has to walk it to
-// keep it honest: an entry that turns out to be unusable when its hour comes --
-// no census row left, no position, a position that no longer loads -- is
-// dropped there and then. So a room that is cleaned away, or a savefile edited
-// by hand, needs no notification of any kind; the round finds it and the index
-// settles by itself, one wasted wake per stale entry and no more.
+// The index looks after itself: whoever knows an NPC has stopped being due says
+// so, and an entry that cannot be woken when its hour comes is dropped there
+// and then. Nothing outside has to walk it to keep it honest.
 
 #include <room/location.h>
 #include <areas/area.h>
@@ -35,14 +30,11 @@ void create()
 
 // Record which game hours a scheduled NPC acts, keyed by its uuid, so the areas
 // handler can find exactly who is due at an hour without loading the census's
-// NPCs. Called when a schedule component is attached (see npc_restore), and
-// with no hours at all when one is taken away -- an NPC that dies, leaves the
-// census or stops keeping a timetable. The destination is not stored here -- it
-// is read live from the NPC when it acts.
+// NPCs. The destination is not stored here -- it is read live from the NPC.
 //
-// `hours` is the whole truth about that uuid, not an addition to it: it is
-// dropped from every hour the list does not name. An index that only ever grew
-// would keep waking the dead.
+// `hours` is the whole truth about that uuid, not an addition to it: it comes
+// out of every hour the list does not name. An index that only grew would keep
+// waking the dead.
 void index_schedule_hours(string uuid, int * hours)
 {
   int * known;
@@ -80,10 +72,8 @@ void index_schedule_hours(string uuid, int * hours)
   {
     this_object()->save_me();
 
-    // and tell the areas handler at which hours we have somebody due, so its
-    // hourly round restores only the areas that have work. It gets our whole
-    // set, not the hours of this one NPC: the last one to leave an hour is what
-    // takes the area out of it.
+    // tell the areas handler our whole set of hours, not this NPC's: the last
+    // one to leave an hour is what takes the area out of it
     AREA_HANDLER->note_schedule_hours(
       (string)this_object()->query_area_path(), map_indices(schedule_index));
   }

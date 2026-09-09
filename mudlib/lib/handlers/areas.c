@@ -59,10 +59,8 @@ string * game_areas;
 
 // Which of this game's areas have somebody due at each game hour:
 //   ([ hour(0-23) : ({ area path }) ])
-// This is the mirror, one level up, of the index each area keeps of its own
-// people: an area tells us its hours whenever they change (note_schedule_hours),
-// both when it gains one and when its last scheduled NPC leaves it. So the round
-// reads it as the truth -- an hour that names no area has nobody due anywhere.
+// The mirror, one level up, of the index each area keeps of its own people. An
+// hour that names no area has nobody due anywhere.
 mapping schedule_areas;
 
 private void _delete_npc_folder(string dir);
@@ -232,10 +230,8 @@ private string * _walk_areas(string game)
 }
 
 // Every area of a game, loaded or not. A game's own handler keeps the list in
-// its areas.o, walking the tree once to build it; for a game without one it is
-// walked and cached until the next reboot. Either way create_area and
-// remove_area_if_empty amend it, so the walk is not repeated when the world
-// changes under us.
+// its areas.o; a game without one has it walked and cached until the next
+// reboot. create_area and remove_area_if_empty amend it either way.
 string * query_area_paths(string game)
 {
   object owner;
@@ -319,13 +315,11 @@ void forget_area(string path)
   save_handler();
 }
 
-// An area tells us at which game hours it has somebody due, so an hour's round
-// can restore only the areas that have work. Called by the area whenever its own
-// schedule index changes, in either direction.
+// An area tells us at which game hours it has somebody due, so a round restores
+// only the areas that have work.
 //
-// `hours` is the whole truth about that area, not an addition to it: it is
-// dropped from every hour the list does not name, which is how the last NPC to
-// stop keeping a timetable takes its area out of the round.
+// `hours` is the whole truth about that area, not an addition to it: it comes
+// out of every hour the list does not name.
 void note_schedule_hours(string path, int * hours)
 {
   object owner;
@@ -467,10 +461,9 @@ void queue_schedule(mixed * items)
     call_out("_dispatch_schedule", 0);
 }
 
-// One game's round: collect the census uuids due at that game's current hour.
-// The areas visited come from the hourly index, so only the ones with somebody
-// due are restored; a game with no handler of its own keeps no index and is
-// visited whole.
+// One game's round: collect the census uuids due at its current hour. The areas
+// come from the hourly index, so only the ones with work are restored; a game
+// with no handler of its own keeps no index and is visited whole.
 private void _round(string game)
 {
   string * paths, * uuids;
@@ -514,11 +507,9 @@ private void _round(string game)
     queue_schedule(queued);
 }
 
-// Cron calls this once per game hour on each game's own handler (see the
-// crontab, after that game's weather line so the hour is already advanced). It
-// runs whether or not anybody is playing: a town whose people stop going to
-// work because no player is watching is a town that only exists while it is
-// looked at.
+// Cron calls this once per game hour on each game's own handler, after that
+// game's weather line so the hour is already advanced. It runs whether or not
+// anybody is playing.
 void update_areas()
 {
   string * games;

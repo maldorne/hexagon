@@ -278,11 +278,9 @@ mixed add_exit(string direc, mixed dest, string type,
 
     return 1;
   }
-  // The only case the exit handler returns ({ }) is because the exit already
-  // existed. It has rewritten the tuple all the same, so the direction may have
-  // just changed type under us -- an open passage becoming a door is how a plot
-  // turns into a house -- and the options and the door object are ours to see
-  // to, exactly as above.
+  // The exit handler returns ({ }) only when the exit already existed, but it
+  // has rewritten the tuple all the same: the direction may have just changed
+  // type, so the options and the door object are ours to see to, as above.
   else
   {
     if (options)
