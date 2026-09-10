@@ -23,7 +23,7 @@ private string seen_from(object area);
 void setup()
 {
   set_aliases(({ "npcs" }));
-  set_usage("npcs [ list [type] | vacancies | roster | live | orphans [apply] |\n" +
+  set_usage("npcs [ list [type] | roster | live | orphans [apply] |\n" +
             "            verify [apply] | retemplate [apply] |\n" +
             "            template check [type] ]");
   set_help(
@@ -31,7 +31,6 @@ void setup()
     "\n" +
     "  npcs                 what the area holds, in one screen\n" +
     "  npcs list [type]     everybody in its census, or one kind of them\n" +
-    "  npcs vacancies       the jobs it offers and who holds them\n" +
     "  npcs retemplate      repair template ids saved under the old rule\n" +
     "  npcs roster          the types it spawns statistically, and their caps\n" +
     "  npcs live            only the people materialized right now\n" +
@@ -258,42 +257,11 @@ private int do_summary(object area, object me)
          "\n" +
          "  census       " + sizeof(ids) + " individual(s): " + held +
          " holding a job, " + (sizeof(ids) - held) + " unattached\n" +
-         "  vacancies    " + sizeof(jobs) + " job(s) offered\n" +
+         "  vacancies    " + sizeof(jobs) + " job(s) offered " +
+         "('vacancies' reports them)\n" +
          "  live         " + live + " materialized right now\n";
 
   write(out);
-  return 1;
-}
-
-// ===== npcs vacancies =====
-private int do_vacancies(object area, object me)
-{
-  mapping * jobs;
-  string * * rows;
-  int i;
-
-  jobs = (mapping *)area->query_vacancies();
-  if (!sizeof(jobs))
-  {
-    write("No jobs are offered by " + books_of(area) + seen_from(area) +
-          ".\n");
-    return 1;
-  }
-
-  rows = ({ ({ "job", "seats", "held", "held at", "house", "type" }) });
-  for (i = 0; i < sizeof(jobs); i++)
-    rows += ({ ({
-      jobs[i][VACANCY_JOB],
-      "" + jobs[i][VACANCY_COUNT],
-      "" + sizeof((string *)area->query_vacancy_holders(jobs[i])),
-      get_path_file_name(jobs[i][VACANCY_WORKS_AT]),
-      jobs[i][VACANCY_HOME]
-        ? get_path_file_name(jobs[i][VACANCY_HOME]) : "-",
-      get_path_file_name(jobs[i][VACANCY_SOURCE])
-    }) });
-
-  write("Jobs offered by " + books_of(area) + seen_from(area) + ":\n" +
-        columns(rows));
   return 1;
 }
 
@@ -823,8 +791,7 @@ static int cmd(string str, object me, string verb)
   // every report is about the area under our feet, so none of them takes one
   // as an argument; a stray word means the caller expected otherwise and
   // deserves to be told rather than shown a report of somewhere else
-  if ((args[0] == "vacancies" || args[0] == "roster" || args[0] == "live") &&
-      sizeof(args) > 1)
+  if ((args[0] == "roster" || args[0] == "live") && sizeof(args) > 1)
   {
     notify_fail("'npcs " + args[0] + "' reports on the area you are standing " +
                 "in and takes no argument.\n");
@@ -839,8 +806,6 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
 
-  if (args[0] == "vacancies")
-    return do_vacancies(area, me);
   if (args[0] == "roster")
     return do_roster(area, me);
   if (args[0] == "live")
@@ -852,7 +817,7 @@ static int cmd(string str, object me, string verb)
   if (args[0] == "template" && sizeof(args) > 1 && args[1] == "check")
     return do_template_check(area, me, args);
 
-  notify_fail("Usage: npcs [ list [type] | vacancies | roster | live | " +
+  notify_fail("Usage: npcs [ list [type] | roster | live | " +
               "template check [type] | orphans [apply] | verify [apply] | " +
               "retemplate [apply] ]\n");
   return 0;
