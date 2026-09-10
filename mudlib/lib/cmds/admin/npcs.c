@@ -6,6 +6,12 @@
 
 inherit CMD_BASE;
 
+// The languages a template is written in. A .json cannot be preprocessed, so
+// each one exists once per language and the mud reads the sibling matching the
+// language it was compiled in -- a missing sibling is a type that stops
+// existing the day the mud is booted in the other one.
+#define TEMPLATE_LANGS ({ "es", "en" })
+
 private object area_of(object me);
 private int do_orphans(object area, object me, string * args);
 private string kind_of(object area, string source);
@@ -17,7 +23,9 @@ private string seen_from(object area);
 void setup()
 {
   set_aliases(({ "npcs" }));
-  set_usage("npcs [ list [type] | vacancies | roster | live | orphans [apply] |\n            verify [apply] | retemplate [apply] ]");
+  set_usage("npcs [ list [type] | vacancies | roster | live | orphans [apply] |\n" +
+            "            verify [apply] | retemplate [apply] |\n" +
+            "            template check [type] ]");
   set_help(
     "Report on the people of the area you are standing in.\n" +
     "\n" +
@@ -29,6 +37,9 @@ void setup()
     "  npcs live            only the people materialized right now\n" +
     "  npcs orphans [apply] people the area no longer accounts for\n" +
     "  npcs verify [apply]  audit the game's NPC savefiles against the census\n" +
+    "  npcs template check [type]\n" +
+    "                       read the templates this area spawns from and say\n" +
+    "                       what is wrong with them\n" +
     "\n" +
     "The census is the area's record of its individuals: each has a uuid and " +
     "a savefile, and only exists in the world while its location is loaded. " +
@@ -539,6 +550,170 @@ private int do_orphans(object area, object me, string * args)
   return 1;
 }
 
+// ===== npcs template check =====
+// Every field a template may carry. A misspelled key is ignored in silence when
+// the NPC is built, so listing the ones that mean something is the only way to
+// catch it.
+private string * known_template_fields()
+{
+  return ({ "gender", "genders", "name", "short", "long", "main_plural",
+            "aliases", "plurals", "align", "ext_align", "wimpy", "aggressive",
+            "chat", "a_chat", "move_zones", "move_after", "sentient",
+            "level", "level_area_modifier", "stat_modifiers", "stats",
+            "max_hp", "max_gp", "random_stats", "social_obs", "equipment",
+            "money", "components", "timetable", "skills", "spells",
+            "extracted_from" });
+}
+
+// The six fields that may be written once or once per gender.
+private string * gendered_template_fields()
+{
+  return ({ "name", "short", "long", "main_plural", "aliases", "plurals" });
+}
+
+// Does this path name an object that can be loaded? Templates store social
+// objects with and without the .c, so both spellings are accepted.
+private int loadable(string path)
+{
+  if (!stringp(path) || !strlen(path))
+    return 0;
+  return file_size(path) >= 0 || file_size(path + ".c") >= 0;
+}
+
+// What is wrong with one type's template, as a list of complaints. An empty
+// list means it is sound as far as this can tell.
+private string * template_complaints(string game, string id)
+{
+  string * langs, * fields, * keys, * out;
+  mapping t, social;
+  mixed data;
+  int i, j;
+
+  out = ({ });
+  langs = TEMPLATE_LANGS;
+
+  for (i = 0; i < sizeof(langs); i++)
+  {
+    string file;
+
+    file = "/games/" + game + "/" + id + "." + langs[i] + ".json";
+    if (file_size(file) < 0)
+    {
+      out += ({ "no " + langs[i] + " file" });
+      continue;
+    }
+
+    data = nil;
+    catch(data = json_decode(read_file(file)));
+    if (!mappingp(data))
+      out += ({ langs[i] + " file is not readable json" });
+  }
+
+  t = BESTIARY_HANDLER->query_template(game, id);
+  if (!t)
+    return out;
+
+  keys = map_indices(t);
+  fields = known_template_fields();
+  for (i = 0; i < sizeof(keys); i++)
+    if (member_array(keys[i], fields) < 0)
+      out += ({ "unknown field '" + keys[i] + "'" });
+
+  if (undefinedp(t["gender"]) && !pointerp(t["genders"]))
+    out += ({ "says neither 'gender' nor 'genders'" });
+
+  fields = gendered_template_fields();
+  for (i = 0; i < sizeof(fields); i++)
+  {
+    if (!mappingp(t[fields[i]]))
+      continue;
+
+    keys = map_indices(t[fields[i]]);
+    for (j = 0; j < sizeof(keys); j++)
+      if (!stringp(keys[j]) ||
+          (keys[j] != "0" && keys[j] != "1" && keys[j] != "2"))
+        out += ({ fields[i] + " is keyed by '" + keys[j] +
+                  "' rather than a gender" });
+  }
+
+  social = mappingp(t["social_obs"]) ? t["social_obs"] : ([ ]);
+  keys = map_indices(social);
+  for (i = 0; i < sizeof(keys); i++)
+    if (!loadable(social[keys[i]]))
+      out += ({ keys[i] + " '" + social[keys[i]] + "' does not load" });
+
+  // A person's race is drawn from the citizenship that holds the area, so a
+  // template naming one takes that decision away from the culture.
+  if (t["sentient"] && social["race"])
+    out += ({ "names a race, but its people belong to a citizenship" });
+
+  // The area says how strong its people are, so a person's template must not.
+  // A creature is the other way round: it carries its own body wherever it
+  // turns up, and its range is what the area defers to.
+  if (t["sentient"] && !undefinedp(t["random_stats"]))
+    out += ({ "pins a stat range: the area's band owns it, " +
+              "use stat_modifiers" });
+  if (t["sentient"] && !undefinedp(t["level"]))
+    out += ({ "pins a level: the area's band owns it, " +
+              "use level_area_modifier" });
+
+  return out;
+}
+
+// Every type this area is meant to be able to spawn: what it counts, what its
+// jobs draw from, and what its people were made from.
+private string * area_types(object area)
+{
+  mapping census;
+  string * out, * ids;
+  int i;
+
+  out = map_indices((mapping)area->query_npc_caps()) +
+        map_indices((mapping)area->query_vacancy_sources());
+
+  census = (mapping)area->query_npc_census();
+  ids = map_indices(census);
+  for (i = 0; i < sizeof(ids); i++)
+    if (census[ids[i]]["source"])
+      out += ({ census[ids[i]]["source"] });
+
+  return unique_array(out);
+}
+
+// Read every template the area depends on and say what is wrong with each.
+// A template is authored by hand and read only when somebody spawns, so a
+// mistake in one is silent until a type quietly stops appearing.
+private int do_template_check(object area, object me, string * args)
+{
+  string game, * types, * bad;
+  int i, sound;
+
+  game = game_from_path((string)area->query_area_path());
+  types = sizeof(args) > 2 ? ({ (string)area->query_template_from_source(args[2]) })
+                           : area_types(area);
+
+  if (!sizeof(types))
+  {
+    write("This area spawns nothing.\n");
+    return 1;
+  }
+
+  types = sort_array(types);
+  for (i = 0; i < sizeof(types); i++)
+  {
+    bad = template_complaints(game, types[i]);
+    if (!sizeof(bad))
+    {
+      sound++;
+      continue;
+    }
+    write(types[i] + "\n   " + implode(bad, "\n   ") + "\n");
+  }
+
+  write("" + sound + " of " + sizeof(types) + " sound.\n");
+  return 1;
+}
+
 // ===== npcs verify =====
 // ===== npcs retemplate =====
 // A one-off repair for worlds saved while a template id was written without the
@@ -654,8 +829,11 @@ static int cmd(string str, object me, string verb)
     return do_orphans(area, me, args);
   if (args[0] == "retemplate")
     return do_retemplate(area, me, args);
+  if (args[0] == "template" && sizeof(args) > 1 && args[1] == "check")
+    return do_template_check(area, me, args);
 
   notify_fail("Usage: npcs [ list [type] | vacancies | roster | live | " +
-              "orphans [apply] | verify [apply] | retemplate [apply] ]\n");
+              "template check [type] | orphans [apply] | verify [apply] | " +
+              "retemplate [apply] ]\n");
   return 0;
 }

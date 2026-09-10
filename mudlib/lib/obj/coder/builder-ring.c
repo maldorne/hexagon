@@ -1135,7 +1135,7 @@ int do_vacancy(string str)
   if (verb == "add")
   {
     string name, source;
-    int count, fixed;
+    int count, fixed, templated;
 
     if (sizeof(args) < 4 || sscanf(args[2], "%d", count) != 1)
     {
@@ -1147,18 +1147,12 @@ int do_vacancy(string str)
     // a fixed job is one post: it stays where it is and its holder is replaced
     // there promptly; the rest spread over the area's like places
     fixed = (sizeof(args) > 4 && args[4] == "fixed");
-    // A job is filled from an authored template, not from a blueprint: once an
-    // area is built there is no .c left to clone, so what is named here is a
-    // template id ("areas/<area>/<type>"). A path still works -- it normalises
-    // to the same id -- and a source that has no template yet is only accepted
-    // when a .c is there for the bestiary to capture one from.
-    if (!(int)BESTIARY_HANDLER->has_template(
-            game_name(area), (string)area->query_template_from_source(source)) &&
-        file_size(source) < 0 && file_size(source + ".c") < 0)
-    {
-      notify_fail("No template and no blueprint for '" + source + "'.\n");
-      return 0;
-    }
+    // A job is filled from an authored template, so what is named here is a
+    // template id ("areas/<area>/npcs/<type>"). A path still works -- it
+    // normalises to the same id. The job may be declared before its type is
+    // written; nobody can be taken on until it is, so say so.
+    templated = (int)BESTIARY_HANDLER->has_template(
+                  game_name(area), (string)area->query_template_from_source(source));
     // The area stores the job: how many, where (wherever the coder stands), and
     // the type its holders are drawn from. Behaviour is the type's: the template
     // is marked sentient through the bestiary, its authoritative home, so a role
@@ -1171,6 +1165,9 @@ int do_vacancy(string str)
                        fixed ? ([ VACANCY_FIXED: 1 ]) : ([ ]));
     write("Vacancy '" + name + "' x" + count + " <- " + source +
           ", held here. Nobody taken on.\n");
+    if (!templated)
+      write("There is no template for '" + source + "' yet: write one before " +
+            "staffing it.\n");
     return 1;
   }
 

@@ -541,7 +541,7 @@ object convert_room_to_location(object room)
 {
   object location, area;
   string file_name, * exits, ret;
-  string * inferred, * venture_kinds, * blueprints;
+  string * inferred, * venture_kinds, * blueprints, * missing;
   string game;
   mapping exit_map, clones, npc_clones;
   int i, c;
@@ -714,33 +714,36 @@ object convert_room_to_location(object room)
   // room and the new location here, so read the room's blueprints directly (a
   // location's _original_add_clones is only a backup snapshot). add_clone is
   // also used for items (trees, props): keep only the living blueprints, since
-  // items are not part of the NPC census. Record this location's contribution
-  // -- the area sums it into a per-blueprint cap -- and snapshot each NPC
-  // blueprint's data template so it is ready to inspect / edit.
+  // items are not part of the NPC census. What is recorded is this location's
+  // contribution, keyed by template id -- the area sums it into a per-type cap.
   game = game_from_path(location->query_file_name());
 
-  // Loading the source .c here is the one place conversion needs it: sample
-  // it into a data template, then record the roster keyed by the template id
-  // (not the source path). From now on day-to-day operation works entirely
-  // off the location, the templates and the census -- the monster .c is only
-  // touched again by a later reconversion (a deliberate hard reset).
+  // The templates themselves are written by hand: what the people of a place
+  // read like is not something a conversion can work out. A type with none is
+  // named here so whoever is converting knows what is left to write; until it
+  // is written, that type spawns nobody.
   npc_clones = ([ ]);
+  missing = ({ });
   blueprints = map_indices(clones);
   for (c = 0; c < sizeof(blueprints); c++)
   {
     object bp;
+    string id;
 
     bp = nil;
     catch(bp = load_object(blueprints[c]));
     if (bp && bp->query_monster())
     {
-      // (re)build the template while the source is loaded, so a reconversion
-      // refreshes it; add_template carries over any hand-set fields
-      BESTIARY_HANDLER->add_template(blueprints[c]);
-      npc_clones[BESTIARY_HANDLER->template_id(game, blueprints[c])] =
-        clones[blueprints[c]];
+      id = BESTIARY_HANDLER->template_id(game, blueprints[c]);
+      npc_clones[id] = clones[blueprints[c]];
+      if (!BESTIARY_HANDLER->has_template(game, id) &&
+          member_array(id, missing) < 0)
+        missing += ({ id });
     }
   }
+
+  if (sizeof(missing))
+    write("   No template yet: " + implode(missing, ", ") + ".\n");
 
   area = location->query_area();
   if (area)

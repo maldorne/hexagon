@@ -1,21 +1,17 @@
 // bestiary.c (BESTIARY_HANDLER) — NPC data-template store.
 //
-// A hand-authored NPC .c is read once into a data template (a plain mapping of
-// field -> value, stored as JSON at /save/games/<game>/npcs/templates/...);
-// every spawn then clones the generic NPC (GENERIC_NPC = /lib/npc.c) and
-// applies the template. The original .c is a one-time seed, never reloaded at
-// spawn — mirroring room -> location.
+// A kind of NPC is described by a data template: a plain mapping of
+// field -> value, authored by hand as JSON in the game tree. Every spawn
+// clones the generic NPC (GENERIC_NPC = /lib/npc.c) and applies one, the way a
+// location is a clone with data rather than a compiled room.
 //
-// The template captures an explicit set of fields (see extract_template). Grow
-// that set as more of a source's data needs to survive conversion. Behaviour
-// that a data template cannot represent (custom code, per-spawn random()
-// variety, movement started in setup) is identified by manual review during
-// conversion.
+// This handler only finds, reads and writes those files. What a template may
+// contain, and which of its fields belong to the citizenship, the area or the
+// post instead, is the author's business, not this handler's.
 
 #include <living/persisted.h>
-#include <npc/npc.h>
 
-// defined further down; add_template reads it to preserve hand-set fields
+// defined further down; set_template_behaviour merges into what it returns
 mapping query_template(string game, string source);
 
 // Canonical template identity for a source: where the file actually sits in the
@@ -64,8 +60,8 @@ string template_id(string game, string source)
 // between the siblings.
 string query_template_file(string game, string source)
 {
-  // Asked with the source .c itself, the template belongs beside the file it
-  // was captured from. This is the path a capture writes to.
+  // Asked with the source .c itself, the template is its sibling: a type that
+  // still has a legacy .c keeps its files next to it.
   if (strlen(source) > 2 && source[strlen(source) - 2 ..] == ".c" &&
       file_size(source) >= 0)
     return source[0 .. strlen(source) - 3] + "." + mud_language() + ".json";
@@ -79,291 +75,10 @@ int has_template(string game, string source)
   return file_size(query_template_file(game, source)) >= 0;
 }
 
-// Field keys whose value can legitimately differ between a male and a female
-// spawn of the same source (name, description, plural forms). The rest of the
-// data (race, class, alignment) is gender-independent.
-private string * gendered_keys()
-{
-  return ({ "name", "short", "long", "main_plural", "aliases", "plurals" });
-}
-
-// The words the sampled clone answers to, minus the ones its race grants. A
-// living's race is decided per individual, not by its type, so the racial words
-// belong to the race and never to a template.
-private string * type_aliases(object npc)
-{
-  mixed race;
-  string * aliases;
-
-  aliases = (string *)npc->query_alias();
-  if (!pointerp(aliases))
-    return ({ });
-
-  race = npc->query_race_ob();
-  if (stringp(race) && strlen(race))
-    aliases -= (string *)load_object(race)->query_race_aliases();
-
-  return aliases;
-}
-
-// The gendered half of a live clone's data.
-private mapping gendered_fields(object npc)
-{
-  return ([
-    "name":        npc->query_name(),
-    "short":       npc->query_short(),
-    "long":        npc->query_long(),
-    "main_plural": npc->query_main_plural(),
-    "aliases":     type_aliases(npc),
-    "plurals":     npc->query_plurals(),
-  ]);
-}
-
-// One chatter block as the template stores it: the chance the NPC speaks, and
-// the flat weight/message list load_chat itself takes. The live object keeps
-// that list behind a running total (chat_string is ({ total, ({ w, msg, ... })
-// })), so only the second half is worth storing -- load_chat rebuilds the total.
-// Returns nil for a silent NPC so the key drops out of the template.
-private mapping chatter_block(int chance, mixed live)
-{
-  mixed lines;
-
-  if (!pointerp(live) || sizeof(live) < 2)
-    return nil;
-
-  lines = live[1];
-  if (!pointerp(lines) || !sizeof(lines))
-    return nil;
-
-  return ([ "chance": chance, "lines": lines ]);
-}
-
-// The idle wander pace, stored as ({ after, rand }) on the live object.
-private mapping wander_block(mixed pace)
-{
-  if (!pointerp(pace) || sizeof(pace) < 2 || (!pace[0] && !pace[1]))
-    return nil;
-
-  return ([ "after": pace[0], "rand": pace[1] ]);
-}
-
-// The gender-independent half.
-//
-// Level is deliberately NOT captured: an NPC's level comes from its area
-// (npc_default_level + the template's level_area_modifier, swung by the area spread;
-// see area::decide_level), so a template carries no absolute level by default.
-// A template may still be given an explicit "level" by hand to pin a concrete
-// level, or a "level_area_modifier" to sit a fixed number of levels above or
-// below the area average.
-//
-// Weight is likewise NOT captured: set_race_ob already sets the body weight from
-// the race (living::social set_weight(query_race_weight())), so the race decides
-// it when the template's race_ob is applied.
-//
-// Stats are NOT captured either, and that is deliberate rather than an omission.
-// A source rolls them per clone (set_random_stats(low, high)), so a sampled
-// clone shows one throw of the dice, never the rule that produced it. Recording
-// the throw would freeze every future NPC of the type at one arbitrary set of
-// numbers. The range is copied from the source by hand into "random_stats"; see
-// set_template_behaviour.
-private mapping nongendered_fields(object npc)
-{
-  mapping social;
-  string * keys;
-  int i;
-
-  // Every social object the NPC belongs to, as the raw paths the accessors
-  // return. Kept in one map rather than as loose fields so a new slot does not
-  // mean a new top-level key. CITY_OB is absent on purpose: citizenship is the
-  // nationality of the area an NPC is born in, stamped there, not a trait of
-  // the type.
-  social = ([
-    "race":       npc->query_race_ob(),
-    "class":      npc->query_class_ob(),
-    "guild":      npc->query_guild_ob(),
-    "race_group": npc->query_race_group_ob(),
-    "group":      npc->query_group_ob(),
-    "job":        npc->query_job_ob(),
-    "deity":      npc->query_deity_ob(),
-  ]);
-
-  // an unset slot reads nil; drop it so the stored template stays readable
-  keys = map_indices(social);
-  for (i = 0; i < sizeof(keys); i++)
-    if (!stringp(social[keys[i]]) || !strlen(social[keys[i]]))
-      map_delete(social, keys[i]);
-
-  return ([
-    "social_obs":  social,
-    "align":       npc->query_real_align(),
-    "wimpy":       npc->query_wimpy(),
-    "aggressive":  npc->query_aggressive(),
-    "chat":        chatter_block((int)npc->query_chat_chance(),
-                                 npc->query_chat_string()),
-    "a_chat":      chatter_block((int)npc->query_achat_chance(),
-                                 npc->query_achat_string()),
-    "move_zones":  npc->query_move_zones(),
-    "move_after":  wander_block(npc->query_move_after()),
-  ]);
-}
-
-// Value equality for JSON-able data (arrays compare by content, not identity).
-private int same_value(mixed a, mixed b)
-{
-  return json_encode(a) == json_encode(b);
-}
-
-// Assemble a template from the fields seen per gender. A source whose setup()
-// only ever produces one gender yields a fixed template: "gender" is recorded
-// and every field is a single value. A source that varies gender yields a
-// multi-gender template: "genders" lists the ones it can roll (spawn picks one)
-// and each gendered field that actually differs becomes a mapping keyed by
-// gender ([ gender: value ]); fields that match across genders stay single so
-// templates stay small and readable. Gender ids are the driver's own
-// (0 neuter, 1 male, 2 female) so this generalises to any language, including
-// ones with a neuter gender for living beings (German, Russian, ...).
-private mapping assemble_template(mapping bygender, mapping nong)
-{
-  mapping t;
-  string * keys;
-  int * gs;
-  int i, j;
-
-  t = ([ ]) + nong;
-  gs = map_indices(bygender);
-
-  if (sizeof(gs) == 1)
-  {
-    t += bygender[gs[0]];
-    t["gender"] = gs[0];
-    return t;
-  }
-
-  keys = gendered_keys();
-  for (i = 0; i < sizeof(keys); i++)
-  {
-    string k;
-    mixed ref;
-    int varies;
-
-    k = keys[i];
-    ref = bygender[gs[0]][k];
-    varies = 0;
-    for (j = 1; j < sizeof(gs); j++)
-      if (!same_value(ref, bygender[gs[j]][k]))
-      {
-        varies = 1;
-        break;
-      }
-
-    if (!varies)
-      t[k] = ref;
-    else
-    {
-      mapping perg;
-      perg = ([ ]);
-      // string keys: JSON object keys are strings, and apply_template reads
-      // them back as "" + query_gender()
-      for (j = 0; j < sizeof(gs); j++)
-        perg["" + gs[j]] = bygender[gs[j]][k];
-      t[k] = perg;
-    }
-  }
-
-  t["genders"] = gs;
-
-  return t;
-}
-
-// Explicit data extraction from a source .c. Because a source's setup() may
-// pick a gender (and matching name / description) at random per clone, the
-// source is sampled several times: the first clone seen of each gender supplies
-// that gender's fields, and sampling stops as soon as both are seen. This is
-// the one place to extend when more of a monster's data needs to survive.
-private mapping extract_template(string source)
-{
-  mapping bygender, nong;
-  int i;
-
-  bygender = ([ ]);
-  nong = nil;
-
-  for (i = 0; i < 12; i++)
-  {
-    object npc;
-    int g;
-
-    npc = clone_object(source);
-    if (!npc)
-      continue;
-
-    g = npc->query_gender();
-    if (!bygender[g])
-    {
-      bygender[g] = gendered_fields(npc);
-      if (!nong)
-        nong = nongendered_fields(npc);
-    }
-    npc->dest_me();
-
-    if (map_sizeof(bygender) >= 2)
-      break;
-  }
-
-  if (!map_sizeof(bygender))
-    return nil;
-
-  return assemble_template(bygender, nong);
-}
-
-// Read (or refresh) a source NPC .c into its data template. Returns 1 on
-// success. Samples the source (see extract_template) to capture both genders.
-int add_template(string source)
-{
-  string game, tfile, dir;
-  string * carried;
-  mapping t, old;
-  int i, slash;
-
-  game = game_from_path(source);
-  if (!game)
-    return 0;
-
-  t = extract_template(source);
-  if (!t)
-    return 0;
-
-  // Carry over every hand-set field from an existing template, so a
-  // reconversion (which re-extracts from the source) does not wipe the work.
-  // extract_template never produces any of these: they are either things the
-  // source cannot express (a sentience mark, an equipment kit, a daily
-  // timetable) or things a sampled clone cannot reveal (a stat range, which is
-  // rolled per clone). All of them are copied from the source by hand once.
-  carried = HAND_SET_TEMPLATE_FIELDS;
-  old = query_template(game, source);
-
-  if (old)
-    for (i = 0; i < sizeof(carried); i++)
-      if (!undefinedp(old[carried[i]]))
-        t[carried[i]] = old[carried[i]];
-
-  tfile = query_template_file(game, source);
-  slash = strsrch(tfile, "/", -1);
-  dir = tfile[0 .. slash - 1];
-  mkdir(dir);
-
-  // write_file appends; drop any previous version first. Pretty-print so the
-  // template stays hand-readable / editable.
-  remove_file(tfile);
-  return write_file(tfile, json_encode(t, 1));
-}
-
-// Set the hand-authored behaviour fields on a source's template, merging the
-// given fields into the stored template and rewriting it. These are the fields
-// extract_template cannot sample from the source .c -- equipment kit, sentient
-// flag, daily timetable, an explicit level -- so a builder stamps them here and
-// add_template preserves them across re-extraction. A field whose value is nil
-// is cleared. Returns 1 on success, 0 if the source has no template yet.
+// Merge fields into a source's template and rewrite the file. This is how a
+// builder verb stamps what it owns -- the sentient mark, a job's kit, its daily
+// timetable -- on a template a person authored. A field whose value is nil is
+// cleared. Returns 1 on success, 0 if the source has no template yet.
 //
 // Timetable note: JSON object keys are strings, so a timetable stored here must
 // use string hour keys ("6", "20"); a reader that indexes it by an int hour

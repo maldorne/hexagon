@@ -121,16 +121,14 @@ void open_vacancy(string job, int count, string at, string source,
   if (source && strlen(source))
   {
     game = game_from_path((string)this_object()->query_area_path());
-    // The type is an authored template. Capturing one from a blueprint is the
-    // legacy path, kept for a source whose .c is still around; a built area has
-    // none, and there the template is the only thing there is to draw from.
-    if (!BESTIARY_HANDLER->has_template(game, source) && file_size(source) >= 0)
-      BESTIARY_HANDLER->add_template(source);
     source = (string)this_object()->query_template_from_source(source);
 
     // somebody who holds a job is a person, named and tracked, never a head of
-    // statistical fauna
-    BESTIARY_HANDLER->set_template_behaviour(game, source, ([ "sentient": 1 ]));
+    // statistical fauna. A job may be declared before its type is written; the
+    // mark is stamped when there is a template to stamp it on, and staffing
+    // refuses until then.
+    if (BESTIARY_HANDLER->has_template(game, source))
+      BESTIARY_HANDLER->set_template_behaviour(game, source, ([ "sentient": 1 ]));
   }
 
   previous = query_vacancy(job);

@@ -358,17 +358,18 @@ void set_area_stats(int low, int high)
   this_object()->save_me();
 }
 
-// The type as this area hands it out: the bestiary template with the area's
-// own stat range folded in, so an NPC born here is rolled to the strength of
-// the place. A stat the type pins explicitly still wins -- apply_template
-// applies those after the roll -- and an area with no range of its own hands
-// the template back untouched.
+// The type as this area hands it out: the template with the area's own stat
+// range folded in, so a person born here is rolled to the strength of the
+// place. The area's range is the default, not the law -- a creature carries its
+// own body wherever it turns up, and a template that states a range keeps it.
+// A stat the type pins explicitly still wins, since apply_template applies
+// those after the roll, and an area with no range of its own changes nothing.
 mapping query_area_template(string game, string source)
 {
   mapping t;
 
   t = BESTIARY_HANDLER->query_template(game, source);
-  if (!t || !npc_stat_low)
+  if (!t || !npc_stat_low || mappingp(t["random_stats"]))
     return t;
 
   t = ([ ]) + t;

@@ -699,6 +699,45 @@ void apply_template(mapping t, varargs int born)
     if (!undefinedp(fixed["per"])) set_per(fixed["per"]);
   }
 
+  // How this trade's body differs from the average of its place, as deltas over
+  // whatever the roll produced. The area decides how strong its people are, so
+  // a template says a farmer has heavier arms than his neighbours, never that
+  // he has a strength of twelve.
+  if (mappingp(t["stat_modifiers"]))
+  {
+    mapping mods;
+    string * names;
+    int i, v;
+
+    mods = t["stat_modifiers"];
+    names = map_indices(mods);
+    for (i = 0; i < sizeof(names); i++)
+    {
+      if (!intp(mods[names[i]]))
+        continue;
+
+      switch (names[i])
+      {
+      case "str":
+        v = query_real_str() + mods[names[i]]; set_str(v < 1 ? 1 : v); break;
+      case "con":
+        v = query_real_con() + mods[names[i]]; set_con(v < 1 ? 1 : v); break;
+      case "dex":
+        v = query_real_dex() + mods[names[i]]; set_dex(v < 1 ? 1 : v); break;
+      case "int":
+        v = query_real_int() + mods[names[i]]; set_int(v < 1 ? 1 : v); break;
+      case "wis":
+        v = query_real_wis() + mods[names[i]]; set_wis(v < 1 ? 1 : v); break;
+      case "cha":
+        v = query_real_cha() + mods[names[i]]; set_cha(v < 1 ? 1 : v); break;
+      case "wil":
+        v = query_real_wil() + mods[names[i]]; set_wil(v < 1 ? 1 : v); break;
+      case "per":
+        v = query_real_per() + mods[names[i]]; set_per(v < 1 ? 1 : v); break;
+      }
+    }
+  }
+
   if (t["level"])
     set_level(t["level"]);
   // weight is not applied here: set_race_ob above already set the body weight

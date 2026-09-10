@@ -278,29 +278,32 @@ private object npc_restore(string id, object loc)
       npc->set_city_ob(cpath);
   }
 
-  // People, like nationality, come from where the citizen is born rather than
-  // from its type: the citizenship declares which races it is made of and each
-  // one born here draws from that pool. A trade authored as human then staffs
-  // an elf town without a second source, and a mixed citizenship comes out
-  // mixed. Done after the template so it overrides the type's race, and only
-  // for a generated citizen -- fauna and the unnamed filler keep their own.
+  // What people this one is: the citizenship declares which races it is made
+  // of and each citizen born here draws from that pool, so a trade authored
+  // for one town staffs another without a second source and a mixed
+  // citizenship comes out mixed. Fauna and the unnamed filler keep the race
+  // their type gives them.
+  //
+  // The pool is the naming citizenship's, not the nationality's: a road
+  // between two towns makes nobody its subject, but its travellers are still
+  // people of the region they walk through.
   //
   // set_race_ob unwinds the previous race's bonuses, languages and aliases
   // before applying the new one, so it is safe on top of what the template set.
   //
   // Keyed on the NPC having no people of its own as well as on being newborn,
-  // the way the proper name above is: somebody whose type never handed one over
-  // -- a template captured before races were stored where apply_template reads
-  // them -- would otherwise keep the placeholder race for as long as they live.
-  // A restore does not re-apply the template's social objects (re-applying the
-  // class would reset the class level), so this is the only chance they get.
+  // the way the proper name above is: a template says nothing about race, so
+  // this is where a person gets one, and somebody who woke without one before
+  // this rule existed would otherwise keep the placeholder for life. A restore
+  // does not re-apply the template's social objects (re-applying the class
+  // would reset the class level), so this is the only chance they get.
   if (sentient &&
       (first || !npc->query_race_ob() ||
        npc->query_race_ob() == DEFAULT_RACE_OB))
   {
     mixed cpath;
 
-    cpath = npc->query_city_ob();
+    cpath = this_object()->query_naming_citizenship_path();
     if (stringp(cpath) && strlen(cpath))
     {
       mixed race;
