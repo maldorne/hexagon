@@ -385,13 +385,16 @@ private object npc_restore(string id, object loc)
   }
 
   // Equipment on the npc.o: on the first materialization the NPC rolls its kit
-  // once from the template, equips it and the save below persists it; on restore
-  // the inventory came back with restore_npc, so just re-wear/wield it.
+  // once, equips it and the save below persists it; on restore the inventory
+  // came back with restore_npc, so just re-wear/wield it. The kit is the job's
+  // where there is one -- the same trade is armed differently from town to
+  // town -- and the type's for somebody who holds no post.
   if (first)
   {
     mixed * equipment;
 
-    equipment = t ? t["equipment"] : nil;
+    equipment = (role && pointerp(role[VACANCY_EQUIPMENT]))
+                  ? role[VACANCY_EQUIPMENT] : (t ? t["equipment"] : nil);
     if (pointerp(equipment) && sizeof(equipment))
       this_object()->equip_npc(npc, (string *)this_object()->resolve_equipment(equipment));
     npc->save_npc();
@@ -412,19 +415,22 @@ private object npc_restore(string id, object loc)
   // world to see them -- a guard registering on the exit it watches
   npc->components_placed();
 
-  // A sentient NPC with a workplace keeps the hours its type declares: out to
+  // A sentient NPC with a workplace keeps the hours of the job it holds: out to
   // work at one hour, home at another, keyed on the game hour. Work is the
-  // individual's own (npc.o); the timetable is the type's (template), int-keyed
-  // here because JSON stored its hours as strings. Attached fresh each
-  // materialization (so a schedule change is picked up); home is read live from
-  // The areas handler drives it hour by hour and staggers the departures.
+  // individual's own (npc.o); the hours are the job's, falling back to the
+  // type's for somebody who holds no post. Int-keyed here because JSON stored
+  // them as strings. Attached fresh each materialization (so a change is picked
+  // up); home is read live. The areas handler drives it hour by hour and
+  // staggers the departures.
   //
-  // A type that names no hours keeps none: it stays where it is put. Walking
-  // somebody to a house every evening is a thing about them, not a thing every
-  // person does, so it is said or it does not happen.
+  // Naming no hours keeps none: the NPC stays where it is put. Walking somebody
+  // to a house every evening is a thing about them, not a thing every person
+  // does, so it is said or it does not happen.
   work = npc->query_work();
-  timetable = (t && mappingp(t["timetable"]))
-                ? _int_keyed_hours(t["timetable"]) : nil;
+  timetable = (role && mappingp(role[VACANCY_TIMETABLE]))
+                ? _int_keyed_hours(role[VACANCY_TIMETABLE])
+                : ((t && mappingp(t["timetable"]))
+                     ? _int_keyed_hours(t["timetable"]) : nil);
 
   if (sentient && work && strlen(work) &&
       mappingp(timetable) && map_sizeof(timetable))

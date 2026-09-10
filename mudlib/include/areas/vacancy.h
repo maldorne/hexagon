@@ -37,6 +37,13 @@
 #define VACANCY_SPOTS     "spots"
 // what the job trains its holders in
 #define VACANCY_CLASS     "class"
+// the kit a holder is given at birth: one list of interchangeable items per
+// slot. The job's, not the type's -- one town may arm its watch with spears and
+// the next with swords out of the same people.
+#define VACANCY_EQUIPMENT "equipment"
+// the hours the job keeps: ([ "<hour>": ([ "goto": "work"|"home"|<file>,
+// "msg": <souls template> ]) ]). Hour keys are strings, as JSON leaves them.
+#define VACANCY_TIMETABLE "timetable"
 // the house that comes with the job, if it comes with one
 #define VACANCY_HOME      "home"
 // its holders are housed among the settlement's own, the way a roster source

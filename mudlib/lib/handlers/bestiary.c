@@ -5,14 +5,13 @@
 // clones the generic NPC (GENERIC_NPC = /lib/npc.c) and applies one, the way a
 // location is a clone with data rather than a compiled room.
 //
-// This handler only finds, reads and writes those files. What a template may
-// contain, and which of its fields belong to the citizenship, the area or the
-// post instead, is the author's business, not this handler's.
+// This handler only finds and reads those files -- nothing in the mud writes
+// one. A template is content, versioned with the game it describes, so a change
+// to it is a programmer editing the JSON. What a template may contain, and
+// which of its fields belong to the citizenship, the area or the post instead,
+// is the author's business, not this handler's.
 
 #include <living/persisted.h>
-
-// defined further down; set_template_behaviour merges into what it returns
-mapping query_template(string game, string source);
 
 // Canonical template identity for a source: where the file actually sits in the
 // game tree, with the "/games/<game>/" prefix and any ".c" suffix taken off and
@@ -73,43 +72,6 @@ string query_template_file(string game, string source)
 int has_template(string game, string source)
 {
   return file_size(query_template_file(game, source)) >= 0;
-}
-
-// Merge fields into a source's template and rewrite the file. This is how a
-// builder verb stamps what it owns -- the sentient mark, a job's kit, its daily
-// timetable -- on a template a person authored. A field whose value is nil is
-// cleared. Returns 1 on success, 0 if the source has no template yet.
-//
-// Timetable note: JSON object keys are strings, so a timetable stored here must
-// use string hour keys ("6", "20"); a reader that indexes it by an int hour
-// must convert. Keep symbolic gotos ("work"/"home") and messages inside each
-// entry, matching the per-gender name maps that already key by "" + gender.
-int set_template_behaviour(string game, string source, mapping fields)
-{
-  mapping t;
-  string tfile;
-  string * keys;
-  int i;
-
-  if (!fields)
-    return 0;
-
-  t = query_template(game, source);
-  if (!t)
-    return 0;
-
-  keys = map_indices(fields);
-  for (i = 0; i < sizeof(keys); i++)
-  {
-    if (fields[keys[i]] == nil)
-      map_delete(t, keys[i]);
-    else
-      t[keys[i]] = fields[keys[i]];
-  }
-
-  tfile = query_template_file(game, source);
-  remove_file(tfile);
-  return write_file(tfile, json_encode(t, 1));
 }
 
 // The template mapping for a source, or nil if none.

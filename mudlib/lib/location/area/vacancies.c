@@ -118,18 +118,13 @@ void open_vacancy(string job, int count, string at, string source,
     return;
   }
 
+  // Somebody who holds a job is a person, never a head of statistical fauna,
+  // but that is a fact about the type and the type is authored: the template
+  // says `sentient` or the job draws from the wrong kind. Nothing writes it
+  // here -- templates are read-only -- so the mistake is reported instead, by
+  // `build vacancy add` and by `npcs template check`.
   if (source && strlen(source))
-  {
-    game = game_from_path((string)this_object()->query_area_path());
     source = (string)this_object()->query_template_from_source(source);
-
-    // somebody who holds a job is a person, named and tracked, never a head of
-    // statistical fauna. A job may be declared before its type is written; the
-    // mark is stamped when there is a template to stamp it on, and staffing
-    // refuses until then.
-    if (BESTIARY_HANDLER->has_template(game, source))
-      BESTIARY_HANDLER->set_template_behaviour(game, source, ([ "sentient": 1 ]));
-  }
 
   previous = query_vacancy(job);
 
@@ -228,6 +223,57 @@ int set_vacancy_class(string job, string path)
     vacancy[VACANCY_CLASS] = path;
   else
     map_delete(vacancy, VACANCY_CLASS);
+
+  this_object()->save_me();
+  return 1;
+}
+
+// The kit this job hands a new holder: one list of interchangeable items per
+// slot, each holder rolling one from each. It belongs to the post rather than
+// to the people it draws from, so two settlements can arm the same trade
+// differently. An empty spec clears it. Returns 0 if the job is not open.
+int set_vacancy_equipment(string job, mixed * spec)
+{
+  mapping vacancy;
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_vacancy_equipment(job, spec);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy)
+    return 0;
+
+  if (pointerp(spec) && sizeof(spec))
+    vacancy[VACANCY_EQUIPMENT] = spec;
+  else
+    map_delete(vacancy, VACANCY_EQUIPMENT);
+
+  this_object()->save_me();
+  return 1;
+}
+
+// The hours this job keeps, keyed by game hour as a string. Also the post's:
+// a night watch and a day watch are the same people on different shifts. An
+// empty mapping clears it. Returns 0 if the job is not open.
+int set_vacancy_timetable(string job, mapping hours)
+{
+  mapping vacancy;
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_vacancy_timetable(job, hours);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy)
+    return 0;
+
+  if (mappingp(hours) && map_sizeof(hours))
+    vacancy[VACANCY_TIMETABLE] = hours;
+  else
+    map_delete(vacancy, VACANCY_TIMETABLE);
 
   this_object()->save_me();
   return 1;

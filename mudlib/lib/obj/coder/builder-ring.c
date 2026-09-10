@@ -37,6 +37,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_VACANCY_SYNTAX \
   "build vacancy < add <name> <count> <source.c> [poi]\n" + \
   "               | equip <name> <item.c[|alt.c...]>...\n" + \
+  "               | timetable <name> [<hour> <work|home|clear> [message]]\n" + \
   "               | class <name> <class.c|none> | home <name>\n" + \
   "               | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX \
@@ -1255,16 +1256,86 @@ int do_vacancy(string str)
       spec += ({ alts });
     }
 
-    // Equipment is the type's: write the kit to the template through the
-    // bestiary. Whoever holds the post now keeps what they were given at birth,
-    // the way a player keeps what they own; the kit takes effect on the next
-    // person to fill it.
-    BESTIARY_HANDLER->set_template_behaviour(
-      game_from_path(area->query_area_path()),
-      area->query_vacancy(args[1])[VACANCY_SOURCE], ([ "equipment": spec ]));
+    // The kit belongs to the post, not to the people it draws from: the same
+    // trade is armed differently from one town to the next. Whoever holds the
+    // post now keeps what they were given at birth, the way a player keeps what
+    // they own; the kit takes effect on the next person to fill it.
+    area->set_vacancy_equipment(args[1], spec);
     write("Job '" + args[1] + "' kit set: " + sizeof(spec) +
           " slot" + (sizeof(spec) == 1 ? "" : "s") +
           ". Whoever fills it next rolls their gear.\n");
+    return 1;
+  }
+
+  if (verb == "timetable")
+  {
+    // the hours the job keeps. Hour keys are strings, the way JSON leaves them
+    // and the way the census reads them back.
+    mapping hours;
+    mapping job;
+    string msg;
+    int hour;
+
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build vacancy timetable <name> <hour> " +
+                  "<work|home|clear> [message]\n");
+      return 0;
+    }
+
+    job = area->query_vacancy(args[1]);
+    if (!job)
+    {
+      notify_fail("No vacancy '" + args[1] + "' in this area.\n");
+      return 0;
+    }
+
+    if (sizeof(args) == 2)
+    {
+      hours = job[VACANCY_TIMETABLE];
+      if (!mappingp(hours) || !map_sizeof(hours))
+      {
+        write("Job '" + args[1] + "' keeps no hours.\n");
+        return 1;
+      }
+      write("Job '" + args[1] + "' hours: " +
+            implode(map_indices(hours), ", ") + ".\n");
+      return 1;
+    }
+
+    if (sizeof(args) < 4 || sscanf(args[2], "%d", hour) != 1 ||
+        hour < 0 || hour > 23)
+    {
+      notify_fail("Usage: build vacancy timetable <name> <hour 0-23> " +
+                  "<work|home|clear> [message]\n");
+      return 0;
+    }
+
+    hours = mappingp(job[VACANCY_TIMETABLE]) ? job[VACANCY_TIMETABLE] : ([ ]);
+    hours = ([ ]) + hours;
+
+    if (args[3] == "clear")
+    {
+      map_delete(hours, "" + hour);
+      area->set_vacancy_timetable(args[1], hours);
+      write("Job '" + args[1] + "' no longer does anything at " + hour + ".\n");
+      return 1;
+    }
+
+    if (args[3] != "work" && args[3] != "home" && file_size(args[3]) < 0)
+    {
+      notify_fail("A destination is 'work', 'home' or a location file.\n");
+      return 0;
+    }
+
+    // the rest of the line is the departure message, a souls template rendered
+    // against whoever is leaving
+    msg = sizeof(args) > 4 ? implode(args[4 ..], " ") : nil;
+    hours["" + hour] = msg ? ([ "goto": args[3], "msg": msg ])
+                           : ([ "goto": args[3] ]);
+    area->set_vacancy_timetable(args[1], hours);
+    write("Job '" + args[1] + "' goes to " + args[3] + " at " + hour +
+          (msg ? ", saying so." : ", silently.") + "\n");
     return 1;
   }
 

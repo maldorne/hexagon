@@ -685,7 +685,7 @@ private string * area_types(object area)
 // mistake in one is silent until a type quietly stops appearing.
 private int do_template_check(object area, object me, string * args)
 {
-  string game, * types, * bad;
+  string game, * types, * bad, * staffed;
   int i, sound;
 
   game = game_from_path((string)area->query_area_path());
@@ -699,9 +699,29 @@ private int do_template_check(object area, object me, string * args)
   }
 
   types = sort_array(types);
+  staffed = map_indices((mapping)area->query_vacancy_sources());
+
   for (i = 0; i < sizeof(types); i++)
   {
     bad = template_complaints(game, types[i]);
+
+    // A job draws people from a type, so that type has to be one: a template
+    // the sweep would treat as fauna cannot staff a settlement. And the post
+    // owns the kit and the hours -- a template that also names them is stating
+    // something nobody reads.
+    if (member_array(types[i], staffed) >= 0)
+    {
+      mapping t;
+
+      t = BESTIARY_HANDLER->query_template(game, types[i]);
+      if (t && !t["sentient"])
+        bad += ({ "a job draws from it, but it is not sentient" });
+      if (t && !undefinedp(t["equipment"]))
+        bad += ({ "names equipment, which the job it staffs owns" });
+      if (t && !undefinedp(t["timetable"]))
+        bad += ({ "names a timetable, which the job it staffs owns" });
+    }
+
     if (!sizeof(bad))
     {
       sound++;
