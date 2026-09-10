@@ -2,7 +2,7 @@
 // The census: the area's individual NPCs.
 //
 // A census row is a person the world refers to one by one -- a citizen staffing
-// a role, the unique filling a POI vacancy, a posted watch. Each carries a uuid
+// a job, the unique filling a POI vacancy, a posted watch. Each carries a uuid
 // and a savefile of its own, which is exactly what tells it apart from the
 // anonymous monsters counted elsewhere. The row itself stays lean (who, where,
 // what post); everything individual about the NPC -- gender, level, inventory,
@@ -10,7 +10,7 @@
 //
 // This file owns `npc_census` and the whole materialize / drain / die cycle
 // around it. Materialization is the crossroads of the area: it reads the type
-// template, the role board, the POI vacancies and the citizenship, so most of
+// template, the jobs the settlement offers and the citizenship, so most of
 // what it does is asking other pieces for their part.
 
 #include <room/location.h>
@@ -69,7 +69,7 @@ void update_npc_info(string uuid, object npc)
 }
 
 // Record one individual in the census and persist. The seam for the pieces that
-// staff a post of their own -- a role slot, a vacancy -- and need the
+// staff a post of their own -- a seat of a job -- and need the
 // person to exist before anything materializes it.
 void add_census_entry(string uuid, mapping row)
 {
@@ -154,7 +154,7 @@ private object npc_restore(string id, object loc)
 {
   object npc;
   string game, source, savefile, work;
-  mapping entry, role, t, timetable;
+  mapping entry, job, t, timetable;
   int first, sentient, gender;
 
   entry = query_npc_census()[id];
@@ -177,7 +177,7 @@ private object npc_restore(string id, object loc)
 
   // Somebody who holds a job is a named, self-gendered citizen; a monster or a
   // The vacancy is read here for the place it names.
-  role = entry[CENSUS_VACANCY]
+  job = entry[CENSUS_VACANCY]
            ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY])
            : nil;
   t = (mapping)this_object()->query_area_template(game, source);
@@ -219,7 +219,7 @@ private object npc_restore(string id, object loc)
   //
   // Keyed on the NPC lacking a name rather than on `first`, the way nationality
   // below is: somebody who was already alive when their type became sentient --
-  // a fixed individual turned into a generic role -- was never named, and would
+  // a fixed individual turned into a generic post -- was never named, and would
   // otherwise stay nameless for as long as they live.
   if (sentient && !npc->query_given_name())
   {
@@ -240,15 +240,13 @@ private object npc_restore(string id, object loc)
   // applying one replaces the alias list.
   npc->start_family();
 
-  // The trade's class, when its role declares one. Set before the level:
+  // The trade's class, when its job declares one. Set before the level:
   // set_class_ob resets class_level to 1, so a class applied afterwards would
   // undo the level this NPC was just given.
   if (first && entry[CENSUS_VACANCY])
   {
-    mapping job;
     string trade;
 
-    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
     if (job && stringp(job[VACANCY_CLASS]) && strlen(job[VACANCY_CLASS]))
       npc->set_class_ob(job[VACANCY_CLASS]);
 
@@ -374,7 +372,7 @@ private object npc_restore(string id, object loc)
     this_object()->claim_house(id, npc->query_home());
 
   // Per-individual assignment on the npc.o: this NPC's concrete workplace, taken
-  // from the role it fills. A restored NPC already carries one. A
+  // from the job it holds. A restored NPC already carries one. A
   // first-materialize NPC is persisted by the equipment save below; one that had
   // none saves here. (The roster area is npc_area_path, stamped above.)
   if (!npc->query_work() && entry[CENSUS_WORKS_AT])
@@ -393,8 +391,8 @@ private object npc_restore(string id, object loc)
   {
     mixed * equipment;
 
-    equipment = (role && pointerp(role[VACANCY_EQUIPMENT]))
-                  ? role[VACANCY_EQUIPMENT] : (t ? t["equipment"] : nil);
+    equipment = (job && pointerp(job[VACANCY_EQUIPMENT]))
+                  ? job[VACANCY_EQUIPMENT] : (t ? t["equipment"] : nil);
     if (pointerp(equipment) && sizeof(equipment))
       this_object()->equip_npc(npc, (string *)this_object()->resolve_equipment(equipment));
     npc->save_npc();
@@ -427,8 +425,8 @@ private object npc_restore(string id, object loc)
   // to a house every evening is a thing about them, not a thing every person
   // does, so it is said or it does not happen.
   work = npc->query_work();
-  timetable = (role && mappingp(role[VACANCY_TIMETABLE]))
-                ? _int_keyed_hours(role[VACANCY_TIMETABLE])
+  timetable = (job && mappingp(job[VACANCY_TIMETABLE]))
+                ? _int_keyed_hours(job[VACANCY_TIMETABLE])
                 : ((t && mappingp(t["timetable"]))
                      ? _int_keyed_hours(t["timetable"]) : nil);
 

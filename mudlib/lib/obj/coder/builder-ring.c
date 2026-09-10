@@ -872,7 +872,7 @@ int do_area(string str)
   else if (verb == "parent")
   {
     // what this area is part of. Everything shared down the chain is resolved
-    // through the link -- today the community (roster, census, roles, houses),
+    // through the link -- today the community (roster, census, jobs, houses),
     // whatever comes next tomorrow. "none" detaches it. Always set by hand: a
     // wilderness that happens to sit under a town's folder is not its suburb.
     object parent;
@@ -1100,12 +1100,12 @@ int do_poi(string str)
   return 0;
 }
 
-// Manage the area's role board: the named jobs a
-// settlement staffs with sentient citizens. `add` declares a role with a count
-// and a transitional blueprint, its work location being wherever you stand;
-// `list` shows them with their live count; `remove` drops one (culling its
-// NPCs). A role slot does not auto-respawn on death -- the settlement pass
-// refills it.
+// Manage the jobs a settlement offers: the posts it wants held by named
+// citizens. `add` declares one with a count and the type its holders are drawn
+// from, its workplace being wherever you stand; the rest of the subverbs say
+// what the post carries (kit, hours, class, house, places); `list` shows them
+// with their live count; `remove` drops one and culls its holders. A seat
+// freed by a death stays empty until somebody asks for it to be filled.
 int do_vacancy(string str)
 {
   string * args, verb;
@@ -1156,8 +1156,7 @@ int do_vacancy(string str)
                   game_name(area), (string)area->query_template_from_source(source));
     // The area stores the job: how many, where (wherever the coder stands), and
     // the type its holders are drawn from. Behaviour is the type's: the template
-    // is marked sentient through the bestiary, its authoritative home, so a role
-    // is a named citizen by default.
+    // is marked sentient in its template, so a holder is a named citizen.
     //
     // Opening a job does not staff it. Declaring that a settlement wants a
     // barman and deciding that somebody walks into the bar are two different
@@ -1224,14 +1223,14 @@ int do_vacancy(string str)
 
     if (sizeof(args) < 3)
     {
-      notify_fail("Usage: build role equip <name> <item.c[|alt.c...]> ...\n" +
+      notify_fail("Usage: build vacancy equip <name> <item.c[|alt.c...]> ...\n" +
                   "  Each argument is one slot; join alternatives with '|' and " +
                   "each NPC rolls one (e.g. weapons/club|weapons/sickle).\n");
       return 0;
     }
     if (!area->query_vacancy(args[1]))
     {
-      notify_fail("No role '" + args[1] + "' in this area.\n");
+      notify_fail("No job '" + args[1] + "' in this area.\n");
       return 0;
     }
 
@@ -1507,8 +1506,7 @@ int do_vacancy(string str)
     return 1;
   }
 
-  notify_fail("Usage: build role < add <name> <count> <source.c> | " +
-              "equip <name> <item.c>... | remove <name> | list >\n");
+  notify_fail("Usage: " + BUILDER_RING_VACANCY_SYNTAX + "\n");
   return 0;
 }
 
@@ -1637,7 +1635,7 @@ int do_npc(string str)
 
   // Live NPCs grouped by their source (type). Under each type, one indented line
   // per materialized NPC: its position, the work its schedule walks it to, and
-  // the home it lives in. Covers roster, role and vacancy NPCs alike.
+  // the home it lives in. Covers roster and vacancy NPCs alike.
   {
     object * live_npcs;
     string * seen;

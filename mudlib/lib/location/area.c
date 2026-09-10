@@ -90,7 +90,7 @@ void save_me() {
   save_object(file_name);
 
   // A delegated area shares its community's mappings by reference, so anything
-  // that changed a roster, a census or a role here changed them in the parent
+  // that changed a roster, a census or a job here changed them in the parent
   // too -- and the parent is the file they are written to.
   owner = query_root_area();
   if (owner != this_object())

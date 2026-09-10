@@ -209,7 +209,7 @@ void init_components(mapping info)
 }
 
 // Attach a component of `type` with the given attrs, or reseed a live one. This
-// is how a role stamps behaviour on a freshly materialised NPC.
+// is how a job stamps behaviour on a freshly materialised NPC.
 void add_component(string type, mapping attrs)
 {
   object live;
@@ -277,7 +277,7 @@ void run_on_components(string func, mixed * args)
     call_other(components[i], func, args);
 }
 
-// Guard-role proxy. The room's exit handler consults a posted guard through
+// Guard proxy. The room's exit handler consults a posted guard through
 // guardian_check / guardian_message on the NPC object; delegate to the guard
 // component when this NPC carries one. An NPC without it blocks nobody, so a
 // non-guard consulted by mistake simply lets everyone through.

@@ -3,9 +3,9 @@
 // the sector-level "farm" tally so the world map can render the sector
 // as cultivated land (a yellow furrow glyph), distinct from wild forest.
 //
-// A farm location is also the kind of place the role board points a
-// working NPC at (a farmer's work location) -- but that binding lives on
-// the area's role, not here; this component only marks the terrain.
+// A farm location is also the kind of place a settlement's jobs send somebody
+// to work (a farmer's workplace) -- but that binding lives on the job, not
+// here; this component only marks the terrain.
 //
 // Classifier `crop` names what grows there. No implicit ordering -- pick
 // whichever fits:

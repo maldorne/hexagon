@@ -66,7 +66,7 @@ static int cmd(string str, object me, string verb)
     ret += " - %^GREEN%^" + keys[i] + "%^RESET%^\n";
 
     // the area this one is part of, if any: the link the community (roster,
-    // census, roles, houses) and everything else shared is resolved through
+    // census, jobs, houses) and everything else shared is resolved through
     parent = areas[keys[i]]->query_parent_area();
     if (parent)
       ret += "   part of %^CYAN%^" + parent->query_area_name() +

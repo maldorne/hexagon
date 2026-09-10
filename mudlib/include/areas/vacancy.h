@@ -4,7 +4,8 @@
 // A vacancy is a job a settlement offers and somebody holds: the barman's post
 // behind one bar, the four farmers its fields need, the guards its citizenship
 // fields at the gates. One record shape for all of them -- what used to be a
-// role board, a POI vacancy list and a derived guard count.
+// role board, a POI vacancy list and a derived guard count. There is one name
+// for it now: a job, held by whoever the census says holds it.
 //
 // The record says what the job is and where, never who does it. Who holds a
 // seat is read from the census, which is the only record of a person.
