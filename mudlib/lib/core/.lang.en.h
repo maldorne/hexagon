@@ -51,6 +51,8 @@
 
 #define _LANG_NONEXISTANT_ACCOUNT "There is no account with that name.\n"
 #define _LANG_NONEXISTANT_ACCOUNT_OR_CHARACTER "There is no account or character with that name.\n"
+#define _LANG_ACCOUNT_BANNED(reason) ("That name is banned: " + reason + "\n")
+#define _LANG_ACCOUNT_SUSPENDED(until) ("That name is suspended until " + until + ".\n")
 #define _LANG_TYPE_ACCOUNT_PASSWORD "Type your account password: "
 #define _LANG_TYPE_CHARACTER_PASSWORD "Type your character password: "
 #define _LANG_WRONG_PASSWORD "Wrong password.\n"

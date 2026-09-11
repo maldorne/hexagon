@@ -46,6 +46,7 @@ nomask void begin(int is_new_player, varargs int reconnected, object destination
 nomask void try_throw_out(string str);
 nomask void time_out();
 nomask void disconnect(varargs int silence);
+nomask int refused(string name);
 
 void create()
 {
@@ -209,6 +210,25 @@ nomask void restore_player(string character_name)
 
   // will link back player -> user, too
   _user->set_player_ob(_player);
+}
+
+// Whether a name is barred from playing, said to whoever typed it. Both halves
+// of an identity are asked the same question: an account keeps its characters
+// out, and a character of an otherwise clean account is kept out on its own.
+nomask int refused(string name)
+{
+  mixed * why;
+
+  why = SECURE->query_refusal(name);
+  if (!why)
+    return FALSE;
+
+  if (why[0] == "banished")
+    write(_LANG_ACCOUNT_BANNED(why[1]));
+  else
+    write(_LANG_ACCOUNT_SUSPENDED(ctime(why[1])));
+
+  return TRUE;
 }
 
 nomask void show_options()
@@ -382,6 +402,12 @@ nomask void logon_option(string str)
   // the input is a character name
   if (file_size(player_save_dir(str) + "player.o") > 0)
   {
+    if (refused(str))
+    {
+      show_options();
+      return;
+    }
+
     // if already logged, don't need to input password again
     if (validated) {
       string * list;
@@ -409,6 +435,12 @@ nomask void logon_option(string str)
   // the input is an user name
   else if (!validated && file_size("/save/users/" + str[0..0] + "/" + str + ".o") > 0)
   {
+    if (refused(str))
+    {
+      show_options();
+      return;
+    }
+
     restore_user(str);
     write(_LANG_TYPE_ACCOUNT_PASSWORD);
     input_to("logon_with_user_name", 1);

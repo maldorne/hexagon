@@ -51,6 +51,8 @@
 
 #define _LANG_NONEXISTANT_ACCOUNT "No existe una cuenta con ese nombre.\n"
 #define _LANG_NONEXISTANT_ACCOUNT_OR_CHARACTER "No existe ninguna cuenta o personaje con ese nombre.\n"
+#define _LANG_ACCOUNT_BANNED(reason) ("Ese nombre está vetado: " + reason + "\n")
+#define _LANG_ACCOUNT_SUSPENDED(until) ("Ese nombre está suspendido hasta " + until + ".\n")
 #define _LANG_TYPE_ACCOUNT_PASSWORD "Introduce la contraseña asociada a tu cuenta: "
 #define _LANG_TYPE_CHARACTER_PASSWORD "Introduce la contraseña de tu personaje: "
 #define _LANG_WRONG_PASSWORD "Password incorrecto.\n"

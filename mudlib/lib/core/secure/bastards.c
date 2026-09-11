@@ -309,6 +309,31 @@ int unsuspend_person(string str)
   return 1;
 } /* unsuspend_person() */
 
+// Why this name may not log in: ({ "banished", reason }) or
+// ({ "suspended", until }), and nil when there is nothing against it. A
+// suspension that has run out is cleared here rather than left to rot.
+mixed * query_refusal(string name)
+{
+  if (!stringp(name) || !strlen(name))
+    return nil;
+
+  name = lower_case(name);
+
+  if (stringp(banished[name]))
+    return ({ "banished", banished[name] });
+
+  if (!undefinedp(suspended[name]))
+  {
+    if (suspended[name] > time())
+      return ({ "suspended", suspended[name] });
+
+    suspended = m_delete(suspended, name);
+    save_object(SECURE_SAVE_PATH, 1);
+  }
+
+  return nil;
+}
+
 /* Banish code:
 * Added by Baldrick for simplifying banishing..
 */
