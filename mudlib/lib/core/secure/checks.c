@@ -562,110 +562,33 @@ int valid_email(string str)
 
 // checked for ccmud, neverbot 07/05
 
-nomask int valid_snoop(object snooper, object snoopee, object pobj)
+// Who may watch whose session. The link itself lives on the two user objects
+// (/lib/user.c); this only says whether it may be made. A nil target means the
+// watcher is letting go, which is always allowed.
+nomask int valid_snoop(object snooper, object snoopee)
 {
-  return -1;
-  /*
-  if (snooper == snoopee) {
-    tell_object(snooper, "No puedes snoopearte a ti mismo.\n");
-    return 0;
-  }
-  if (snoopee && query_snoop(snoopee)) {
-    tell_object(snooper,
-      snoopee->query_cap_name()+" ya está siendo snoopeado.\n");
-    return 0;
-  }
-  if (snooper->query_snoopee())
-  {
-    if (!snooper->query_property("quiet snoop"))
-    {
-        event(users(), "inform", snooper->query_cap_name()+" deja de snoopear a "+
-          snooper->query_snoopee()->query_name(), "snoop");
-        tell_object((object)snooper->query_snoopee(),
-          snooper->query_cap_name()+" deja de snoopearte.\n");
-    } else {
-        event(users(), "inform", snooper->query_cap_name()+" deja de qsnoopear a "+
-          snooper->query_snoopee()->query_name(), "snoop");
-        snooper->remove_property("quiet snoop");
-    }
-    snooper->set_snoopee(0);
-  }
+  if (!snooper || !snooper->query_user())
+    return FALSE;
+
+  // stopping needs no permission
   if (!snoopee)
-    return 1;
+    return TRUE;
 
-  if (query_snoop(snoopee))
-    return 0;
-  if (!snooper->query_coder())
-    return 0;
-  if (pobj == this_object()) {
-    event(users(), "inform", snooper->query_cap_name()+" comienza a qsnoopear a "+
-      snoopee->query_name(), "snoop");
-    return 1;
-  }
-  if (query_verb() == "qsnoop" && query_admin(geteuid(snooper)))
-  {
-    tell_object(snooper, "Comienzas a qsnoopear a "+
-      snoopee->query_cap_name()+".\n");
-    snooper->add_property("quiet snoop", 1);
-  }
-  else
-  {
-    tell_object(snoopee, "Estás siendo snoopeado por "+
-      snooper->query_cap_name()+".\n");
-    tell_object(snooper, "Comienzas a snoopear a "+
-      snoopee->query_cap_name()+".\n");
-  }
-  // Radix...
-  if (snooper->query_invis() < 2)
-  {
-    log_file("snoop","[" + ctime(time(),4) + "] " +
-      (string)snooper->query_cap_name() + " " +
-      query_verb() + "s " + (string) snoopee-> query_cap_name()+ ".\n");
-          snooper->set_snoopee(snoopee);
+  if (!snoopee->query_user() || snooper == snoopee)
+    return FALSE;
 
-    // El input_to se ejecuta despues de terminar esta funcion, por lo que la razon
-    // se introduce cuando YA estas snoopeando... lo quito por comodidad
-    // neverbot 07/05
-    // tell_object(snooper, "Indica la razón por la que estás snoopeando:\n");
-    // input_to("snoop_reason");
-    event(users(), "inform", snooper->query_cap_name()+" comienza a snoopear a "+
-        snoopee->query_name(), "snoop");
-  }
-  snoop_list[snooper] = snoopee;
-  return 1;
-  */
+  // only staff watch, and nobody watches staff
+  if (!snooper->query_coder() || snoopee->query_coder())
+    return FALSE;
+
+  // one watcher per session, and no chains: a session that is already
+  // watching somebody cannot be watched itself
+  if (snoopee->query_snooped_by() || snoopee->query_snooping())
+    return FALSE;
+
+  return TRUE;
 } /* valid_snoop() */
 
-/*
-void snoop_reason(string str) {
-    object snooper;
-
-    snooper = this_player();
-    if (this_player(1) != this_user()) {
-  write("No puedes forzar a alguien a hacer esto...\n");
-  return ;
-    }
- //     if (!high_programmer(geteuid(this_player()))) {
-  // write("Not a high programmer.\n");
-  // return ;
- //      }
-
-    if (!snoop_list[snooper]) {
-  write("Se ha desconectado.\n");
-  return ;
-    }
-    if (!str) {
-  write("Snoop cancelado.\n");
-  log_file("snoop", "  No ha indicado razon (termina).\n");
-  return;
-    }
-    log_file("snoop", "  Razón: " + str + "\n");
-    if (snoop(snooper, snoop_list[snooper]))
-  write("Snoop con éxito.\n");
-    else
-  write("Snoop falló.\n");
-}
-*/
 
 int valid_adjust_xp(object prev, object this, int i)
 {

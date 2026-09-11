@@ -13,3 +13,7 @@
 #define _LANG_PEACE_MESSAGES_OTHERS this_player()->query_cap_name() + \
         " alza su mano y exclama: %^YELLOW%^¡Dejad de luchar, mortales!" + \
         "%^RESET%^\n"
+
+// snoop
+
+#define _LANG_SNOOP_WATCHED(who) (who) + " comienza a observar tu sesión.\n"

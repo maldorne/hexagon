@@ -12,3 +12,7 @@
 #define _LANG_PEACE_MESSAGES_OTHERS this_player()->query_cap_name() + \
         " raises " + this_player()->query_possessive() + " hand and exclaims: " + \
         "%^YELLOW%^Stop fighting, mortals!%^RESET%^\n"
+
+// snoop
+
+#define _LANG_SNOOP_WATCHED(who) (who) + " starts watching your session.\n"

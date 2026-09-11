@@ -35,6 +35,12 @@ string last_on_from;        // last ip the user connected from
 static object _player;      // player avatar
 static string _player_name; // player name
 
+// Snooping: who is reading this session over our shoulder, and whose session
+// we are reading. Static on purpose -- watching somebody must not survive a
+// reboot, or a link nobody remembers making would come back after one.
+static object _snooped_by;
+static object _snooping;
+
 // user account info
 string account_name;        // user email
 
@@ -150,6 +156,12 @@ int query_verbose() { return !brief; }
 
 void dest_me()
 {
+  // a link is only as alive as its two ends
+  if (_snooping)
+    catch(_snooping->set_snooped_by(nil));
+  if (_snooped_by)
+    catch(_snooped_by->set_snooping(nil));
+
   if (_player)
     catch(_player->dest_me());
 
@@ -162,6 +174,39 @@ void dest_me()
 }
 
 nomask object player() { return _player; }
+
+nomask object query_snooped_by() { return _snooped_by; }
+nomask object query_snooping() { return _snooping; }
+
+// Start or stop watching `target`. Answers 0 when the secure object refuses.
+// Only it decides who may watch whom; this only keeps the two ends in step, so
+// neither is left pointing at a link the other has dropped.
+nomask int set_snooping(object target)
+{
+  if (!SECURE->valid_snoop(this_object(), target))
+    return FALSE;
+
+  if (_snooping)
+    _snooping->set_snooped_by(nil);
+
+  _snooping = target;
+
+  if (target)
+    target->set_snooped_by(this_object());
+
+  return TRUE;
+}
+
+// The other end of the link, set by the user object that watches us. A watcher
+// is only accepted while it says it is watching us, so the link cannot be
+// claimed from outside the pair.
+nomask void set_snooped_by(object watcher)
+{
+  if (watcher && watcher->query_snooping() != this_object())
+    return;
+
+  _snooped_by = watcher;
+}
 nomask int set_player_ob(object ob)
 {
   object old_player;
@@ -413,6 +458,11 @@ void send_message(string str)
   if (str == nil)
     return;
 
+  // everything a connection is told passes through here, which is the whole
+  // reason a snoop needs no support from the driver
+  if (_snooped_by)
+    _snooped_by->send_message(str);
+
   ::send_message(str);
 
   // redraw all the ui features if a new line is sent
@@ -443,6 +493,12 @@ static void receive_message(string str)
   int i;
 
   timestamp = time();
+
+  // the watcher sees both halves of the conversation, so a typed line is
+  // marked to tell it apart from what the game answers
+  if (_snooped_by && strlen(str))
+    _snooped_by->send_message("[" + (_player_name ? _player_name : "?") +
+                              "] " + str + "\n");
 
   // restore the original echo value
   if (echo == 0)

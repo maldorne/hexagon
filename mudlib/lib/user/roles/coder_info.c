@@ -11,106 +11,12 @@ void create()
 void role_commands()
 {
   // add_action("do_gauge", "gauge");
-  add_action("do_snoop", "snoop");
-  /* Added on 16 March by Grimbrand */
-  add_action("grim_snoop", "qsnoop");  
-
   /* Added by Jada aug '94, blame him if it won't work */
   add_action("do_title", ({ "title", "titulo", "título" }));
   /* Adds for new commandsystem.. */
   add_action("comm_info", "cominfo");
 } 
 
-private int check_snoop(object ob) 
-{
-  if ((object)ob->query_snoopee())
-    return 1;
-  else
-    return 0;
-}
-
-/*  Added on 16 March 93 by Grimbrand */
-int grim_snoop(string str) 
-{
-  object targ;
-
-  if (this_player()->query_admin())
-  {
-    if (!strlen(str))
-    {
-      snoop(this_player());
-      write("Ok, quiet snoop cancelado.\n");
-      return 1;
-    }
-    
-    str = (string)this_player()->expand_nickname(str);
-    
-    if (!(targ = find_player(str)))
-    {
-      notify_fail("No encuentro a "+str+" para hacerle un quiet snoop.\n");
-      return 0;
-    }
-    
-    if (targ->query_admin())
-    {
-      tell_object(targ,"Una voz demoníaca retumba en tu mente, diciendo:\n  "+
-        this_player()->query_cap_name()+" ha intentado "+
-        "snoopearte silenciosamente, mi señor.\n");
-      return 1;
-    }
-    
-    if (!snoop(this_player(), targ))
-    {
-      notify_fail("Tu intento de snoop silencioso a "+capitalize(str)+" ha fallado.\n");
-      return 0;
-    }
-    
-    write("Ok, snoopeando silenciosamente a "+str+".\n");
-    return 1;
-  }
-  
-  write("Una voz demoníaca irrumpe en tu mente:\n  "+
-    "¡No tienes el poder ni la habilidad para intentar semejante cosa!\n");
-  return 1;
-}
-
-int do_snoop(string str) 
-{
-  object targ;
-
-  if (!strlen(str)) 
-  {
-    snoop(this_player());
-    write("Ok, snoop cancelado.\n");
-    return 1;
-  }
-  
-  str = (string)this_player()->expand_nickname(str);
-  
-  if (!(targ = find_player(str))) 
-  {
-    notify_fail("No encuentro a "+str+".\n");
-    return 0;
-  }
-  
-  /* fixed object 24.2 93 Baldrick */
-  if (!this_player()->query_admin() && targ->query_admin()) 
-  {
-    tell_object(targ, "Un bonito pato aparece frente a ti.\n"+
-      "El Pato dice: ¡Cuac! "+this_player()->query_cap_name()+
-      " está intentando snoopearte, mi señor.\n");
-    return 1;
-  }
-
-  if (!snoop(this_player(), targ)) 
-  {
-    notify_fail("Fallas tu intento de snoopear a " + capitalize(str) + ".\n");
-    return 0;
-  }
-  
-  // write("Ok, snoopeando a "+str+".\n");
-  return 1;
-} /* do_snoop() */
 
 // int do_gauge(string str) 
 // {

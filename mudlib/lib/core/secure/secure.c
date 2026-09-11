@@ -11,7 +11,6 @@ string * preload;
 string * call_out_preload;
 
 static int done;
-static mapping snoop_list;
 
 void create()
 {
@@ -22,7 +21,6 @@ void create()
   call_out_preload = ({ });
 
   done = FALSE;
-  snoop_list = ([ ]);
 
   // from /lib/core/secure/preload.c, included below
   call_out("load_secure_object", 0);

@@ -57,7 +57,6 @@ static nomask void stderr(string str);
 
 #include "/lib/core/efuns/find_match.c"
 
-#include "/lib/core/efuns/snoop.c"
 
 // Hamlet patch
 #include "/lib/core/efuns/exec.c"
