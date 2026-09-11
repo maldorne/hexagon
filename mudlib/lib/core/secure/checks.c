@@ -577,8 +577,12 @@ nomask int valid_snoop(object snooper, object snoopee)
   if (!snoopee->query_user() || snooper == snoopee)
     return FALSE;
 
-  // only staff watch, and nobody watches staff
-  if (!snooper->query_coder() || snoopee->query_coder())
+  // only staff watch: an admin may watch a coder, a coder only a player, and
+  // an admin is never watched
+  if (!snooper->query_coder() || snoopee->query_admin())
+    return FALSE;
+
+  if (snoopee->query_coder() && !snooper->query_admin())
     return FALSE;
 
   // one watcher per session, and no chains: a session that is already

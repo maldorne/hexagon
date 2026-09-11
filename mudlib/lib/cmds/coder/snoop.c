@@ -24,9 +24,10 @@ void setup()
     "\n" +
     "You see what the game tells them and, marked with their name in " +
     "brackets, what they type. They are told they are being watched, and " +
-    "so is anybody listening to the snoop inform channel. Staff cannot be " +
-    "watched, nobody can be watched by two people at once, and a session " +
-    "that is already watching somebody cannot itself be watched.\n" +
+    "so is anybody listening to the snoop inform channel. An admin may " +
+    "watch a coder, a coder only a player, and an admin is never watched. " +
+    "Nobody can be watched by two people at once, and a session that is " +
+    "already watching somebody cannot itself be watched.\n" +
     "\n" +
     "To watch without telling them, admins have 'qsnoop'.");
 }

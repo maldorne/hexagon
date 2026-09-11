@@ -21,7 +21,7 @@ void setup()
     "\n" +
     "The same as 'snoop', except that neither they nor the inform channel " +
     "are told. It still goes to the snoop log, and 'snoopers' still lists " +
-    "it. The limits are the same: staff cannot be watched, and no session " +
+    "it. The limits are the same: an admin is never watched, and no session " +
     "can be at both ends of a link.");
 }
 
