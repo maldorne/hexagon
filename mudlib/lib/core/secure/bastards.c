@@ -278,7 +278,7 @@ int change_access(string *address, string ident, int level, string reason)
     reason = "deleted for "+reason;
     break;
   }
-  write_file("/log/ACCESS",
+  write_file("/log/access",
     ident+"@"+implode(address, ".")+" set to "+reason+" by "+
     this_player()->query_name()+".\n");
   return 1;
@@ -295,7 +295,7 @@ int suspend_person(string str, int tim)
     return 0;
   suspended[str] = time()+tim;
   save_object(SECURE_SAVE_PATH, 1);
-  write_file("/log/SUSPEND", str+" suspended until "+ctime(time()+tim)+
+  write_file("/log/suspend", str+" suspended until "+ctime(time()+tim)+
     " by "+this_player()->query_name()+".\n");
   return 1;
 } /* suspend_person() */
@@ -307,9 +307,9 @@ int unsuspend_person(string str)
   suspended = m_delete(suspended, str);
   save_object(SECURE_SAVE_PATH, 1);
   // Radix...
-  write_file("/log/SUSPEND", str+" unsuspended by "+
+  write_file("/log/suspend", str+" unsuspended by "+
     this_player()->query_name()+".\n");
-  // write_file("/log/SUSPEND", str+" unsuspended.\n");
+  // write_file("/log/suspend", str+" unsuspended.\n");
   return 1;
 } /* unsuspend_person() */
 
@@ -351,7 +351,7 @@ int ban_name(string str, string reason)
   */
   banned[str] = reason;
   save_object(SECURE_SAVE_PATH, 1);
-  write_file("/log/BANNED", str+" banned because of " + reason +
+  write_file("/log/banned", str+" banned because of " + reason +
     " by "+this_player()->query_name()+".\n");
   return 1;
 } /* ban_name */
@@ -362,7 +362,7 @@ int unban_name(string str)
     return 0;
   banned = m_delete(banned, str);
   save_object(SECURE_SAVE_PATH, 1);
-  write_file("/log/BANNED", str+" unbanned.\n");
+  write_file("/log/banned", str+" unbanned.\n");
   return 1;
 } /* unban_name */
 

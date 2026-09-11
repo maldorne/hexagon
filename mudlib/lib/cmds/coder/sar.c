@@ -54,7 +54,7 @@ static int cmd(string str, object me, string verb)
   s4 = str[0..0];
   
   // No hacemos log de lo que se haga con el sar
-  // log_file("SAR",me->query_name()+" : "+str+"\n");
+  // log_file("sar",me->query_name()+" : "+str+"\n");
   files = (string *)get_files(s3);
   
   if (!sizeof(files))

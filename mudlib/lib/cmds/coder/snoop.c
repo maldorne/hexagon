@@ -51,7 +51,7 @@ static int cmd(string str, object me, string verb)
     name = body ? body->query_cap_name() : "a session";
     user->set_snooping(nil);
     write("You stop watching " + name + ".\n");
-    log_file("SNOOP", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
+    log_file("snoop", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
              " stops snooping " + name + ".\n");
     event(users(), "inform", me->query_cap_name() + " stops snooping " +
           name, INFORM_EVENT_SNOOP, me);
@@ -75,7 +75,7 @@ static int cmd(string str, object me, string verb)
   body = target->player();
   write("You start watching " + body->query_cap_name() + ".\n");
   tell_object(body, _LANG_SNOOP_WATCHED(me->query_cap_name()));
-  log_file("SNOOP", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
+  log_file("snoop", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
            " snoops " + body->query_cap_name() + ".\n");
   event(users(), "inform", me->query_cap_name() + " starts snooping " +
         body->query_cap_name(), INFORM_EVENT_SNOOP, me);

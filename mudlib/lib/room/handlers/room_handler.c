@@ -145,7 +145,7 @@ mixed * query_exit_type(string type, string dir)
   if (!(s = opp_dirs[dir]))
   {
     // Commented out...
-    // log_file("BAD_DIRS", "Type: " + type + ", Dir: " + dir + ", Caller: " +
+    // log_file("bad_dirs", "Type: " + type + ", Dir: " + dir + ", Caller: " +
     // file_name(previous_object()) + ".\n\n");
     s = ({ 0, DIR_SOME_PLACE });
   }

@@ -34,7 +34,7 @@ if(!patron && !thane && !mudlibber && !lord && !god) {
 	return 0;
     }
     sscanf(str, "%s %s", path, dest);
-    log_file("CLONEIN", me->query_cap_name()+" intento " +
+    log_file("clonein", me->query_cap_name()+" intento " +
       "ejecutar clonein "+str+" "+ctime(time())+"\n");
     paths = get_cfiles(path);
     if(!sizeof(paths)) {
@@ -64,7 +64,7 @@ if(!patron && !thane && !mudlibber && !lord && !god) {
         tell_object(me,"Fallo al clonar.\n");
 	return 1;
     }
-    log_file("CLONEIN", me->query_cap_name()+" clono satisfactoriamente "
+    log_file("clonein", me->query_cap_name()+" clono satisfactoriamente "
       +file_name(ob)+" en "+dest+" "+ctime(time())+"\n");
     return 1;
 } /* clonein() */

@@ -172,7 +172,7 @@ int query_blocking(string name)
 //   }
 //   block = name;
 //   tell_object(this_player(), "Ok, bloqueando los mensajes de "+capitalize(block)+".\n");
-//   // log_file("BLOCK",TO->query_cap_name()+" blocked "+capitalize(block)+
+//   // log_file("block",TO->query_cap_name()+" blocked "+capitalize(block)+
 //   //         " : "+ctime(time())+"\n");
 //   return 1;
 // }

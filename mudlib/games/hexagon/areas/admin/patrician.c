@@ -146,7 +146,7 @@ void get_complaint(string str) {
   if(str == "**") {
     write("Complaint Posted\n");
     message += "\n\n";
-    log_file("COMPLAINTS", message);
+    log_file("complaints", message);
     message = "";
     in_use = 0;
     return;
@@ -198,7 +198,7 @@ void apply2(string str) {
 void apply3() {
   write("The lord of that domain will get back to you at the earliest "+
         "convenience to discuss the details with you.\n");
-  log_file("APPLICATIONS", this_player()->query_name() + " " + 
+  log_file("applications", this_player()->query_name() + " " + 
            ctime(time()) + apply_dom + "\n\n");
 }
 

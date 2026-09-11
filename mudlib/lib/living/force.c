@@ -118,7 +118,7 @@ int do_force_on_me(string str, varargs int msg)
   {
     event(users(), "inform", forcer->query_cap_name()+" fuerza a "+
                    this_object()->query_name()+" a hacer "+str+" (y falla)", "force");
-    log_file("FORCE", " (falla)\n");
+    log_file("force", " (falla)\n");
     return 0;
   }
   if (!sscanf(str, "%s %s", temp1, temp2)) {
@@ -132,7 +132,7 @@ int do_force_on_me(string str, varargs int msg)
       !"secure/master"->god(geteuid(forcer))) {
     event(users(), "inform", forcer->query_cap_name()+" fuerza a "+
                    this_object()->query_name()+" a hacer "+str+" (y falla)", "force");
-    log_file("FORCE", " (falla)\n");
+    log_file("force", " (falla)\n");
     return 0;
   }
   */

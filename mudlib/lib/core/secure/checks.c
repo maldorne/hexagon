@@ -618,7 +618,7 @@ int valid_adjust_xp(object prev, object this, int i)
          i,
          this_player()->query_name()));
 
-      log_file("ADJUST", "XP: create_me "+origin->query_create_me()+
+      log_file("adjust", "XP: create_me "+origin->query_create_me()+
          " "+base_name(origin)+" calling "+base_name(destination)+
          " for "+amt+"\n");
 

@@ -45,7 +45,7 @@ static int cmd(string str, object me, string verb)
     name = body ? body->query_cap_name() : "a session";
     user->set_snooping(nil);
     write("You stop watching " + name + ".\n");
-    log_file("SNOOP", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
+    log_file("snoop", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
              " stops qsnooping " + name + ".\n");
     return 1;
   }
@@ -66,7 +66,7 @@ static int cmd(string str, object me, string verb)
 
   body = target->player();
   write("You start watching " + body->query_cap_name() + ", quietly.\n");
-  log_file("SNOOP", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
+  log_file("snoop", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
            " qsnoops " + body->query_cap_name() + ".\n");
   return 1;
 }

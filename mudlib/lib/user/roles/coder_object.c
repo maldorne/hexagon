@@ -717,7 +717,7 @@ int show_stats(string str) {
   for (j=0;j<sizeof(ob);j++) {
   // if (interactive(ob[j]) && !(this_player()->query_admin() || this_player()->query_thane()) && !(this_player() == obj(j))
   // {
-  //  log_file("LOCATE",this_player()->query_cap_name()+" tried to Stat "+ob[j]->query_cap_name()+".\n");
+  //  log_file("locate",this_player()->query_cap_name()+" tried to Stat "+ob[j]->query_cap_name()+".\n");
   //  write("You are not allowed to stat "+ob[j]->query_cap_name()+".\n");
   // continue;
   // }
@@ -772,7 +772,7 @@ int trans(string str)
        !(this_player()->query_thane() || this_player()->query_admin()) &&
        !(obs[i]->query_property("test_char"))
     {
-      log_file("BUSTED",this_player()->query_cap_name()+" tried to illegally trans "+obs[i]->query_cap_name()+".\n");
+      log_file("busted",this_player()->query_cap_name()+" tried to illegally trans "+obs[i]->query_cap_name()+".\n");
       write("Sorry, You are not powerful enough to trans "+obs[i]->query_cap_name()+". Ask a higher ranking immortal.\n");
       continue;
     }
