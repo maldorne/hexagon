@@ -13,15 +13,15 @@ void setup()
   set_aliases(({ "ban" }));
   set_usage("ban [ <name> <reason> | list | remove <name> ]");
   set_help(
-    "Bar a name from the game.\n" +
+    "Ban a name from the game.\n" +
     "\n" +
-    "  ban <name> <reason>  bar it, saying why\n" +
-    "  ban list             every name barred, and why\n" +
+    "  ban <name> <reason>  ban it, saying why\n" +
+    "  ban list             every name banned, and why\n" +
     "  ban remove <name>    let it back in\n" +
     "\n" +
     "The name is either an account or a character: whichever is typed at " +
-    "the login prompt is checked, so barring an account keeps its " +
-    "characters out and barring one character leaves the rest of the " +
+    "the login prompt is checked, so banning an account keeps its " +
+    "characters out and banning one character leaves the rest of the " +
     "account alone. The reason is shown to whoever tries to get in.\n" +
     "\n" +
     "For a spell rather than for good, use 'suspend'.");
@@ -46,12 +46,12 @@ static int cmd(string str, object me, string verb)
     banned = (mapping)SECURE->query_banished();
     if (!mappingp(banned) || !map_sizeof(banned))
     {
-      write("Nobody is barred.\n");
+      write("Nobody is banned.\n");
       return 1;
     }
 
     names = map_indices(banned);
-    out = "Barred names:\n";
+    out = "Banned names:\n";
     for (i = 0; i < sizeof(names); i++)
       out += sprintf("  %-20s %s\n", names[i], banned[names[i]]);
 
@@ -66,7 +66,7 @@ static int cmd(string str, object me, string verb)
 
     if (!mappingp(banned) || undefinedp(banned[name]))
     {
-      notify_fail("'" + name + "' is not barred.\n");
+      notify_fail("'" + name + "' is not banned.\n");
       return 0;
     }
 
@@ -89,10 +89,10 @@ static int cmd(string str, object me, string verb)
   name = lower_case(name);
   if (!SECURE->banish_playername(name, reason))
   {
-    notify_fail("The secure object refused to bar that name.\n");
+    notify_fail("The secure object refused to ban that name.\n");
     return 0;
   }
 
-  write("'" + name + "' barred: " + reason + "\n");
+  write("'" + name + "' banned: " + reason + "\n");
   return 1;
 }

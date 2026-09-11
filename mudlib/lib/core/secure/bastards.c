@@ -8,6 +8,7 @@ Trying to fix NO_NEW and add NO_GUEST
 
 #include <mud/access.h>
 #include <mud/secure.h>
+#include <user/user.h>
 
 // TODO mail
 // #include "mail.h"
@@ -287,7 +288,10 @@ int suspend_person(string str, int tim)
 {
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
-  if (file_size(player_save_dir(str) + "player.o") < 0)
+  // a name worth suspending is one somebody can log in with: a character or
+  // the account that owns it
+  if (file_size(player_save_dir(str) + "player.o") < 0 &&
+      file_size(USERS_SAVE_DIR + str[0 .. 0] + "/" + str + ".o") < 0)
     return 0;
   suspended[str] = time()+tim;
   save_object(SECURE_SAVE_PATH, 1);

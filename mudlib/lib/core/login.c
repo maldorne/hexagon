@@ -187,7 +187,10 @@ nomask void restore_user(string account_name)
   user_name = account_name;
 }
 
-nomask void restore_player(string character_name)
+// Bring a character back, with the account it belongs to. Answers 0 when the
+// caller must stop: the save is unreadable (the connection is already gone by
+// then) or the account is banned.
+nomask int restore_player(string character_name)
 {
   _player = clone_object(PLAYER_OB);
   _player->set_name(character_name);
@@ -197,7 +200,17 @@ nomask void restore_player(string character_name)
   {
     write(_LANG_CHARACTER_RESTORE_ERROR);
     disconnect(1);
-    return;
+    return FALSE;
+  }
+
+  // a character carries the account it belongs to, so a banned account keeps
+  // its characters out even when one of them is typed at the prompt directly
+  if (refused(_player->query_account_name()))
+  {
+    catch(_player->dest_me());
+    _player = nil;
+    show_options();
+    return FALSE;
   }
 
   _user->set_account_name(_player->query_account_name());
@@ -205,14 +218,15 @@ nomask void restore_player(string character_name)
   {
     write(_LANG_ACCOUNT_RESTORE_ERROR);
     disconnect(1);
-    return;
+    return FALSE;
   }
 
   // will link back player -> user, too
   _user->set_player_ob(_player);
+  return TRUE;
 }
 
-// Whether a name is barred from playing, said to whoever typed it. Both halves
+// Whether a name is banned or suspended, said to whoever typed it. Both halves
 // of an identity are asked the same question: an account keeps its characters
 // out, and a character of an otherwise clean account is kept out on its own.
 nomask int refused(string name)
@@ -415,7 +429,8 @@ nomask void logon_option(string str)
 
       // our own character, load auto
       if (member_array(str, list) != -1) {
-        restore_player(str);
+        if (!restore_player(str))
+          return;
         logon_with_player_name("", 1);
         return;
       }
@@ -425,7 +440,8 @@ nomask void logon_option(string str)
       return;
 
     } else {
-      restore_player(str);
+      if (!restore_player(str))
+        return;
       write(_LANG_TYPE_CHARACTER_PASSWORD);
       // flag to show it's a character name
       input_to("logon_with_player_name", 1, 0);
@@ -538,7 +554,8 @@ nomask void choose_character(string str, string * list)
     return;
   }
 
-  restore_player(chosen);
+  if (!restore_player(chosen))
+    return;
 
   // not needed, we already did the password validation
   // write(_LANG_TYPE_CHARACTER_PASSWORD);
