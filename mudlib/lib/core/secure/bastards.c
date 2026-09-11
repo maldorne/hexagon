@@ -1,4 +1,4 @@
-/* Bastards.c takes care of suspension, banished sites and now also banished
+/* Bastards.c takes care of suspension, banned sites and now also banned
 * playernames.
 * Baldrick, oct '95
 */
@@ -18,14 +18,14 @@ static string def;
 
 mapping access;  /* Site access control */
 string *preferred;
-mapping suspended, banished;
+mapping suspended, banned;
 
 int query_access(string *address, string ident);
 mapping query_access_mapping() { return access; }
 string get_nomulti_string(string site, string userid);
 
 mapping query_suspended() { return suspended; }
-mapping query_banished() { return banished; }
+mapping query_banned() { return banned; }
 
 void create()
 {
@@ -38,7 +38,7 @@ void create()
   seteuid(ROOT);
   access = ([ ]);
   suspended = ([ ]);
-  banished = ([ ]);
+  banned = ([ ]);
   restore_object(SECURE_SAVE_PATH, 1);
   preferred = ({ });
 } /* create() */
@@ -105,7 +105,7 @@ int check_access(object ob, int existing)
   The flag skips the initial check for query_coder().  This is
   needed for the first call to the fcn, when restore_object() hasn't
   been called yet.  Only purpose of this first call is to determine
-  whether the person is banished, so security isn't really an issue.
+  whether the person is banned, so security isn't really an issue.
   Check for query_coder() needs skipped so I can install immortal
   slots, which have to decide whether let person in according to whether
   this fcn returns "global/player" or not.  flag should not be passed in
@@ -134,9 +134,9 @@ string query_player_ob(string name, varargs int flag)
   if (i != -1)
     return names[i+1];
 
-  if (!undefinedp(banished[name]))
+  if (!undefinedp(banned[name]))
   {
-    write("Este nombre está prohibido, razón:\n\t"+banished[name]+".\nDebes escoger otro.\n");
+    write("Este nombre está prohibido, razón:\n\t"+banned[name]+".\nDebes escoger otro.\n");
     return "";
   }
 
@@ -313,7 +313,7 @@ int unsuspend_person(string str)
   return 1;
 } /* unsuspend_person() */
 
-// Why this name may not log in: ({ "banished", reason }) or
+// Why this name may not log in: ({ "banned", reason }) or
 // ({ "suspended", until }), and nil when there is nothing against it. A
 // suspension that has run out is cleared here rather than left to rot.
 mixed * query_refusal(string name)
@@ -323,8 +323,8 @@ mixed * query_refusal(string name)
 
   name = lower_case(name);
 
-  if (stringp(banished[name]))
-    return ({ "banished", banished[name] });
+  if (stringp(banned[name]))
+    return ({ "banned", banned[name] });
 
   if (!undefinedp(suspended[name]))
   {
@@ -338,10 +338,10 @@ mixed * query_refusal(string name)
   return nil;
 }
 
-/* Banish code:
-* Added by Baldrick for simplifying banishing..
+/* Ban code:
+* Added by Baldrick for simplifying banning..
 */
-int banish_playername(string str, string reason)
+int ban_name(string str, string reason)
 {
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
@@ -349,22 +349,22 @@ int banish_playername(string str, string reason)
   if (file_size(player_save_dir(str) + "player.o") < 0)
   return 0;
   */
-  banished[str] = reason;
+  banned[str] = reason;
   save_object(SECURE_SAVE_PATH, 1);
-  write_file("/log/BANISHED", str+" banished because of " + reason +
+  write_file("/log/BANNED", str+" banned because of " + reason +
     " by "+this_player()->query_name()+".\n");
   return 1;
-} /* banish player name */
+} /* ban_name */
 
-int unbanish_playername(string str)
+int unban_name(string str)
 {
   if (!SECURE->query_admin(geteuid(previous_object())))
     return 0;
-  banished = m_delete(banished, str);
+  banned = m_delete(banned, str);
   save_object(SECURE_SAVE_PATH, 1);
-  write_file("/log/BANISHED", str+" unbanished.\n");
+  write_file("/log/BANNED", str+" unbanned.\n");
   return 1;
-} /* unbanish playername */
+} /* unban_name */
 
 string get_nomulti_string(string site, string userid) {
   string *ret;

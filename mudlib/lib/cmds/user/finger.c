@@ -144,7 +144,7 @@ static int cmd(string str, object me, string verb)
   if (this_player() && !this_player()->query_link())
     str = this_player()->expand_nickname(str);
 
-  if ("/lib/core/secure/bastards.c"->query_banish_reason(str))
+  if (SECURE->query_banned()[str])
   {
     string retval;
     retval = sprintf("%-35s%-35s\n", _LANG_FINGER_NAME + ": " + str, _LANG_FINGER_FORBIDDEN);
@@ -153,7 +153,7 @@ static int cmd(string str, object me, string verb)
     // retval += "Nunca tuvo correo (ni lo tendra...).\n";
     // retval += "Sin plan.\nSin futuro.\n";
 
-    ret = "/lib/core/secure/bastards.c"->query_banish_reason(str);
+    ret = SECURE->query_banned()[str];
     write(retval + _LANG_FINGER_FORBIDDEN_REASON);
     return 1;
   }

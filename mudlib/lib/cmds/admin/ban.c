@@ -43,7 +43,7 @@ static int cmd(string str, object me, string verb)
 
   if (str == "list")
   {
-    banned = (mapping)SECURE->query_banished();
+    banned = (mapping)SECURE->query_banned();
     if (!mappingp(banned) || !map_sizeof(banned))
     {
       write("Nobody is banned.\n");
@@ -62,7 +62,7 @@ static int cmd(string str, object me, string verb)
   if (sscanf(str, "remove %s", name) == 1)
   {
     name = lower_case(name);
-    banned = (mapping)SECURE->query_banished();
+    banned = (mapping)SECURE->query_banned();
 
     if (!mappingp(banned) || undefinedp(banned[name]))
     {
@@ -70,7 +70,7 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
-    if (!SECURE->unbanish_playername(name))
+    if (!SECURE->unban_name(name))
     {
       notify_fail("The secure object refused to lift it.\n");
       return 0;
@@ -87,7 +87,7 @@ static int cmd(string str, object me, string verb)
   }
 
   name = lower_case(name);
-  if (!SECURE->banish_playername(name, reason))
+  if (!SECURE->ban_name(name, reason))
   {
     notify_fail("The secure object refused to ban that name.\n");
     return 0;

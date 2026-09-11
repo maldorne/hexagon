@@ -237,7 +237,7 @@ nomask int refused(string name)
   if (!why)
     return FALSE;
 
-  if (why[0] == "banished")
+  if (why[0] == "banned")
     write(_LANG_ACCOUNT_BANNED(why[1]));
   else
     write(_LANG_ACCOUNT_SUSPENDED(ctime(why[1])));
