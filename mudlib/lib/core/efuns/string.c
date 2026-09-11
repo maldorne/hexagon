@@ -249,10 +249,10 @@ static string wrap(string str, varargs int width, int prettify)
     if (strlen(lines[i]) <= w)
       out += lines[i] + "\n";
     else
-      // %-= reflows a long line into several rows but adds no trailing break;
+      // %- reflows a long line into several rows but adds no trailing break;
       // append one so it matches the short-line branch and the next author
       // line (or paragraph) starts fresh instead of merging onto the last row
-      out += sprintf("%-=" + cols + "s", lines[i]) + "\n";
+      out += sprintf("%-" + cols + "s", lines[i]) + "\n";
   }
 
   return out;

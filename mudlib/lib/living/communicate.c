@@ -663,7 +663,9 @@ void add_languages(string *list)
 }
 
 // Eliminado el grunt, neverbot 12/10/03
-void remove_language(string lang) 
+// `quiet` drops the messages: a race change hands one set of tongues over for
+// another, and the body is not forgetting anything.
+void remove_language(string lang, varargs int quiet) 
 {
   int i;
 
@@ -676,7 +678,7 @@ void remove_language(string lang)
     {
       cur_lang = "";
       // Si estamos creando el personaje no damos mensajes
-      if (this_object()->query_level() >= 1)
+      if (!quiet && this_object()->query_level() >= 1)
         tell_object(this_object(), _LANG_SPEAK_FORGOT_ALL);
     }
     else
@@ -684,17 +686,18 @@ void remove_language(string lang)
       string name;
       cur_lang = languages[0];
       name = handler("languages")->query_language_display(cur_lang);
-      tell_object(this_object(), _LANG_SPEAK_FORGOT_SWITCH);
+      if (!quiet)
+        tell_object(this_object(), _LANG_SPEAK_FORGOT_SWITCH);
     }
   }
 } /* remove_language() */
 
 // neverbot 10/03
-void remove_languages(string *list)
+void remove_languages(string *list, varargs int quiet)
 {
   int i;
   for (i = 0; i < sizeof(list); i++)
-    remove_language(list[i]);
+    remove_language(list[i], quiet);
 }
 
 // Eliminado el grunt, neverbot 12/10/03

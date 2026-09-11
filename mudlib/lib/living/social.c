@@ -120,6 +120,17 @@ void start_player()
   if (social_object_list[CLASS_OB])
     catch(social_object_list[CLASS_OB]->start_player(this_object()));
 
+  // A body that wears a race knows its tongue and has one of them selected.
+  if (social_object_list[RACE_OB])
+  {
+    this_object()->add_languages(
+      social_object_list[RACE_OB]->query_initial_languages());
+
+    if (!strlen(this_object()->query_current_language()) &&
+        sizeof(this_object()->query_languages()))
+      this_object()->set_language(this_object()->query_languages()[0]);
+  }
+
   skills::start_skills();
 }
 
@@ -207,7 +218,8 @@ void set_race_ob(string str)
   // Remove the old language if they have one. Flode - 150997
   if (social_object_list[RACE_OB])
   {
-    this_object()->remove_languages(social_object_list[RACE_OB]->query_initial_languages());
+    this_object()->remove_languages(
+      social_object_list[RACE_OB]->query_initial_languages(), 1);
       // Asignamos uno de los lenguajes actuales, neverbot 02/2006
       if (sizeof(this_object()->query_languages()) > 0)
         this_object()->set_language(this_object()->query_languages()[0]);

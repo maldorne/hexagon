@@ -13,6 +13,10 @@ inherit "/lib/room";
 int i, num_races;
 object ob;
 mapping races;
+// the race name as the player types it -> the file that race lives in. The
+// name is translated, the file name is not, so one cannot be built from the
+// other.
+mapping race_files;
 // string * descs;
 string * files;
 string tmp, r;
@@ -25,6 +29,7 @@ void obtain_data();
 void create()
 {
   races = ([ ]);
+  race_files = ([ ]);
   r = "<race>";
   obtain_data();
 
@@ -59,13 +64,17 @@ void obtain_data()
 {
   i = 0;
 
-  // get every race file in the game
+  // every playable race of the game, read from its own file. A race object is
+  // used as a blueprint everywhere else, so there is nothing to clone here.
   files = get_dir(RACES_PATH);
 
   for (i = 0; i < sizeof(files); i++)
-    if (ob = clone_object(RACES_PATH + files[i]))
+    if (ob = load_object(RACES_PATH + files[i]))
       if (ob->query_is_race_ob() && (ob->query_playable()))
+      {
         races[ob->query_name()] = ob->query_long();
+        race_files[ob->query_name()] = RACES_PATH + files[i];
+      }
 
   num_races = m_sizeof(races);  
 }
@@ -117,7 +126,7 @@ int do_look(string str)
 
 int do_open(string str)
 {
-  string a, r, ret;
+  string a, r, ret, race;
 
   // if we try to open something that is not a chest
   if ((sscanf(str, "%s %s", a, r) != 2) || (a != _LANG_START2_CHESTS_NAME) ||
@@ -127,10 +136,13 @@ int do_open(string str)
     return 0;
   }
 
-  if (!this_player()->query_race_ob() || 
-       this_player()->query_race_ob() == "/lib/obj/races/unknown")
+  race = this_player()->query_race_ob();
+
+  // a race is chosen once: only an unset one, or the placeholder, may be set.
+  // The placeholder is stored with or without its extension
+  if (!race || race == DEFAULT_RACE_OB || race + ".c" == DEFAULT_RACE_OB)
   {
-    this_player()->set_race_ob(RACES_PATH + lower_case(r) + ".c");
+    this_player()->set_race_ob(race_files[lower_case(r)]);
     log_file("races", this_player()->query_cap_name() + ": "+
         r + " " + ctime(time(),4) + "\n");
   }

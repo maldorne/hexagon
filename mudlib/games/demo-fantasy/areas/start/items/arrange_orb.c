@@ -114,7 +114,7 @@ int intro(object ob)
 
   ret = _LANG_ORB_ADJUST_TXT;
 
-  write("\n" + handler("frames")->frame(wrap(ret)));
+  write("\n" + handler("frames")->frame(ret));
   write(_LANG_ORB_ADJUST_ORDER);
 
   input_to("choose_order", 0);
@@ -224,7 +224,7 @@ void confirm_order(string answer)
     this_player()->set_per(scores[6]);
     this_player()->set_wil(scores[7]);
 
-    write(handler("frames")->frame(wrap(_LANG_ORB_ADJUST_CONGRATS), 
+    write(handler("frames")->frame(_LANG_ORB_ADJUST_CONGRATS, 
                                    "", 0, 0, "notifications") + "\n\n");
 
     this_player()->move_living("X", NEWBIE_ROOM);
