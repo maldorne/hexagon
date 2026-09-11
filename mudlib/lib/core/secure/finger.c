@@ -29,26 +29,6 @@ string make_string(mixed *al)
   return str;
 }
 
-string banish_finger(string name)
-{
-  string retval;
-  // string time, ban_by;
-  string *file;
-
-  file = explode(read_file("/banish/"+name+".o"), "\n");
-  retval =  sprintf("%30s%30s\n", "Login name : "+name, "Real name : "+
-    "Banished");
-  retval += "Not real many seconds old.\n";
-  retval += "No mail ever.\n";
-  retval += "No plan.\nNo future.\n";
-  if (this_player(1)->query_coder())
-    if (sizeof(file) == 3)
-      retval += implode(file, "\n")+"\n";
-    else
-      retval += "Banish info not in the correct format.\n";
-  return retval;
-} /* banish_finger() */
-
 string domain_finger(string name)
 {
   int i;
