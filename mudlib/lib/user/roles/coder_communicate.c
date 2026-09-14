@@ -13,7 +13,6 @@ static void role_commands()
 {
   add_action("do_echo",      "echo");
   add_action("do_echo_to",   "echoto");
-  add_action("do_emote_all", "emoteall");
   add_action("do_channels",  "coders");
 
   // add_action("do_channels", "dwcre");
@@ -119,31 +118,6 @@ int do_echo_to(string str)
 
   return 1;
 } /* do_echo_to() */
-
-int do_emote_all(string str)
-{
-  if (!strlen(str))
-  {
-    notify_fail("Sintaxis: emoteall <texto>\n");
-    return 0;
-  }
-
-  // Radix cause Piper & Taniwha wanted it...
-  if (this_player(1)->query_object_type() == O_CODER)
-  {
-    notify_fail("Emoteall sólo esta disponible para administradores.\n");
-    return(0);
-  }
-
-  log_file("echoes", this_player()->query_cap_name()+
-    " emotealls: "+str+" ["+ctime(time(), 4)+"]\n");
-
-  str += "%^RESET%^";
-  write("Envías el emoteall:\n" + this_player()->query_cap_name() + " " + str + "\n");
-  event(users(), "player_emote_all", this_player()->query_cap_name() + " " + str + "\n");
-
-  return 1;
-} /* do_emote_all() */
 
 /*
 int do_inter_creator_tell(string str)

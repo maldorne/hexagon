@@ -15,7 +15,8 @@ void setup()
     "\n" +
     "The message goes out exactly as you type it, on a line of its own, and " +
     "nobody is told it came from you -- so write enough for it to stand on " +
-    "its own, punctuation included. Every use is logged.");
+    "its own, punctuation included. To sign it, use 'emoteall'. Every use " +
+    "is logged.");
 }
 
 static int cmd(string str, object me, string verb)
@@ -34,7 +35,7 @@ static int cmd(string str, object me, string verb)
   for (i = 0; i < sizeof(connections); i++)
     tell_object(connections[i], "\n" + str + "\n");
 
-  log_file("echoall", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
+  log_file("echoes", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
            ": " + str + "\n");
 
   write("Sent to " + sizeof(connections) + " connection" +
