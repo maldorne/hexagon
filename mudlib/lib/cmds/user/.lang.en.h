@@ -17,7 +17,9 @@
 #define _LANG_WHO_SYNTAX "who\n" + \
                        "        who coders\n" + \
                        "        who players\n" + \
-                       "        who <race or culture>"
+                       "        who <race or culture>\n" + \
+                       "        who <game>\n" + \
+                       "        who <guild>"
 #define _LANG_WHO_HELP "Shows a list of the connected characters."
 #define _LANG_WHO_OPTION_CODERS "coders"
 #define _LANG_WHO_OPTION_PLAYERS "players"

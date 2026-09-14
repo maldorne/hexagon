@@ -91,6 +91,68 @@ int remove_logon(object ob)
   return (!(ob->query_short() == "logon"));
 }
 
+// The guild object somebody belongs to, or nil when they belong to none. The
+// object is asked for rather than read from disk: a guild somebody has joined
+// is already in memory.
+object guild_of(object ob)
+{
+  mixed path;
+  object guild;
+
+  path = ob->query_guild_ob();
+  if (!stringp(path) || !strlen(path))
+    return nil;
+
+  guild = find_object(path);
+  if (!guild)
+    catch(guild = load_object(path));
+
+  return guild;
+}
+
+// Whether the word names a game somebody can be playing
+int query_valid_game(string str)
+{
+  object * games;
+  int i;
+
+  games = handler("games")->query_game_objects();
+
+  for (i = 0; i < sizeof(games); i++)
+    if (game_name(games[i]) == str)
+      return 1;
+
+  return 0;
+}
+
+// Whether the word names a guild somebody connected belongs to, by its name or
+// by any of the words it answers to
+int query_valid_guild(string str)
+{
+  object * arr, guild;
+  int i;
+
+  arr = players();
+
+  for (i = 0; i < sizeof(arr); i++)
+    if ((guild = guild_of(arr[i])) && guild->id(str))
+      return 1;
+
+  return 0;
+}
+
+int compare_game(object ob, string str)
+{
+  return game_name(ob) == str;
+}
+
+int compare_guild(object ob, string str)
+{
+  object guild;
+
+  return (guild = guild_of(ob)) && guild->id(str);
+}
+
 string who_string(int width, int cre, string str)
 {
   object * arr, user;
@@ -110,6 +172,10 @@ string who_string(int width, int cre, string str)
     what = 2;
   else if (query_valid_race(str))
     what = 3;
+  else if (query_valid_game(lower_case(str)))
+    what = 4;
+  else if (query_valid_guild(lower_case(str)))
+    what = 5;
   else
     return _LANG_WHO_SYNTAX + "\n\n" + _LANG_WHO_HELP + "\n";
 
@@ -129,6 +195,19 @@ string who_string(int width, int cre, string str)
     arr = filter_array(arr, "compare_race", this_object(), lower_case(str));
     race = str;
     str = _LANG_WHO_OPTION_PLAYERS;
+  }
+  else if (what == 4)
+  {
+    // one game of the mud: whoever stands inside it, coders included
+    arr = filter_array(arr, "compare_game", this_object(), lower_case(str));
+    arr = sort_array(arr, "compare_obs", this_object());
+    race = str;
+  }
+  else if (what == 5)
+  {
+    arr = filter_array(arr, "compare_guild", this_object(), lower_case(str));
+    arr = sort_array(arr, "compare_obs", this_object());
+    race = str;
   }
   else
   {
@@ -162,7 +241,7 @@ string who_string(int width, int cre, string str)
 
     if (arr[i]->query_coder())
     {
-      if (!what || what == 1)
+      if (what != 2 && what != 3)
       {
         // Here it denies to show "super invis"
         if (user->query_invis() > 1)
@@ -255,7 +334,7 @@ string who_string(int width, int cre, string str)
     }
   } // for
 
-  if (!what || (what == 1))
+  if (what != 2 && what != 3)
   {
     // coders
     ttl = fix_string("] %^BOLD%^WHITE%^" + capitalize(_LANG_WHO_OPTION_CODERS) + "%^RESET%^ [");
@@ -271,7 +350,7 @@ string who_string(int width, int cre, string str)
   // players
   if (what != 1)
   {
-    if (what == 3)
+    if (what >= 3)
     {
       ttl = fix_string("] %^BOLD%^WHITE%^" + capitalize(race) + "%^RESET%^ [");
     }
