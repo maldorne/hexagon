@@ -26,9 +26,26 @@ inherit CMD_BASE;
 
 #define NDIRS 8
 
-string query_short_help()
+void setup()
 {
-  return "Rotate (90 clockwise) or mirror a zone by rewriting its rooms' exits.";
+  set_aliases(({ "rotate" }));
+  set_usage("rotate [ -n | -mirrorx | -mirrory ] <file(s)>");
+  set_help(
+    "Rotate or mirror a zone by rewriting the exits of its room files.\n" +
+    "\n" +
+    "  rotate <files>            turn the zone 90 degrees clockwise\n" +
+    "  rotate -mirrorx <files>   flip it over the horizontal axis\n" +
+    "  rotate -mirrory <files>   flip it over the vertical axis\n" +
+    "  rotate -n <files>         say which files would change, change none\n" +
+    "\n" +
+    "This is how a zone is duplicated: copy its rooms, rotate the copy, and " +
+    "the same map reads as a different place. It works on room files only " +
+    "-- a converted area keeps its exits in its saved locations, not in " +
+    "source -- and it rewrites them where they are, so name the files you " +
+    "mean and keep a copy.\n" +
+    "\n" +
+    "Only files ending in '.c' are touched. Up, down, in and out are left " +
+    "alone: they do not turn.");
 }
 
 // Directions in clockwise ring order: N, NE, E, SE, S, SW, W, NW. Returns the
@@ -56,27 +73,38 @@ static int cmd(string str, object me, string verb)
 {
   string * files, * dconst, * dname;
   string s1, s2;
-  int mirror_x, mirror_y, i, j, count;
+  int mirror_x, mirror_y, dry, i, j, count;
   int * rot, * order;
 
   if (!str || str == "")
   {
-    notify_fail("Syntax: rotate [ -mirrorx | -mirrory ] <file(s)>\n" +
-                "        (no flag rotates the zone 90 degrees clockwise)\n");
+    notify_fail("Usage: " + query_usage() + "\n");
     return 0;
   }
 
-  mirror_x = mirror_y = 0;
+  mirror_x = mirror_y = dry = 0;
   if (sscanf(str, "%s %s", s1, s2) == 2)
   {
     if (s1 == "-mirrorx")      { mirror_x = 1; str = s2; }
     else if (s1 == "-mirrory") { mirror_y = 1; str = s2; }
+    else if (s1 == "-n")       { dry = 1; str = s2; }
   }
 
   files = get_files(str);
   if (!sizeof(files))
   {
     notify_fail("No files matching '" + str + "'.\n");
+    return 0;
+  }
+
+  // source only: a .o is state, and a backup copy is not the zone
+  for (i = sizeof(files) - 1; i >= 0; i--)
+    if (strlen(files[i]) < 3 || files[i][strlen(files[i]) - 2 ..] != ".c")
+      files = files[.. i - 1] + files[i + 1 ..];
+
+  if (!sizeof(files))
+  {
+    notify_fail("None of those files is source.\n");
     return 0;
   }
 
@@ -92,7 +120,7 @@ static int cmd(string str, object me, string verb)
   count = 0;
   for (i = 0; i < sizeof(files); i++)
   {
-    string content;
+    string content, before;
 
     if (file_size(files[i]) <= 0)
       continue;
@@ -103,6 +131,8 @@ static int cmd(string str, object me, string verb)
       write("Could not read '" + files[i] + "'.\n");
       continue;
     }
+
+    before = content;
 
     // pass 1: source direction -> unique non-direction sentinel
     for (j = 0; j < sizeof(order); j++)
@@ -125,11 +155,25 @@ static int cmd(string str, object me, string verb)
       content = replace(content, "@@RN" + d + "@@", "\"" + dname[rot[d]] + "\"");
     }
 
-    write_file(files[i], content, 1);
+    if (content == before)
+      continue;
+
+    if (dry)
+    {
+      write("Would rotate '" + files[i] + "'.\n");
+      count++;
+      continue;
+    }
+
+    // write_file writes at an offset and never truncates, so the old file goes
+    // first and the rotated one is written whole
+    rm(files[i]);
+    write_file(files[i], content);
     write("Rotated exits in '" + files[i] + "'.\n");
     count++;
   }
 
-  write("Done: " + count + " file" + (count == 1 ? "" : "s") + " rewritten.\n");
+  write("Done: " + count + " file" + (count == 1 ? "" : "s") +
+        (dry ? " would change.\n" : " rewritten.\n"));
   return 1;
 }
