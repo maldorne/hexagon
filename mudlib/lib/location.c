@@ -1051,11 +1051,16 @@ int clean_up(varargs int flag)
     return 1;
 
   // belt-and-suspenders against a handler race: never reclaim a location
-  // a real player is standing in
-  arr = all_inventory(this_object());
+  // a real player is standing in. A unique object exists once in the whole
+  // game, so the place it rests in stays rather than taking it down with it.
+  arr = deep_inventory(this_object());
   for (i = 0; i < sizeof(arr); i++)
-    if (arr[i] && userp(arr[i]))
+  {
+    if (!arr[i])
+      continue;
+    if (userp(arr[i]) || arr[i]->query_unique_object())
       return 1;
+  }
 
   dest_me();
   return 0;
