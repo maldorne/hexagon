@@ -1,5 +1,6 @@
 
 #define RACES_PATH "/games/demo-fantasy/obj/races/"
+#define CLASSES_PATH "/games/demo-fantasy/obj/classes/"
 #define ITEMS "/games/demo-fantasy/areas/start/items/"
 
 #define BEGIN_ROOM "/games/demo-fantasy/areas/start/begin.c"

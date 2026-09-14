@@ -1,6 +1,7 @@
 // items to choose the class at the beginning of the game
 
 #include <language.h>
+#include "../path.h"
 
 inherit "/games/demo-fantasy/areas/start/items/base.c";
 
@@ -13,7 +14,7 @@ void setup()
 
   set_long(_LANG_KEY_DESC);
 
-  set_class_ob("/lib/obj/classes/mixed.c");
+  set_class_ob(CLASSES_PATH + "mixed.c");
   set_message(_LANG_ITEMS_MIXED_MSG);
   set_items( ({
         "/games/demo-fantasy/baseobs/weapons/dagger.c",

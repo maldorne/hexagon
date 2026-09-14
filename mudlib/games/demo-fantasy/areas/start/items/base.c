@@ -17,7 +17,7 @@ void set_items(string * list) { items += list; }
 
 void create()
 {
-  class_ob = "/lib/obj/classes/fighter.c";
+  class_ob = CLASSES_PATH + "fighter.c";
   message = _LANG_ITEMS_FIGHTER_MSG;
 
   items = MUST_HAVE;
