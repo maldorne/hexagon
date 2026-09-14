@@ -10,7 +10,7 @@ inherit CMD_BASE;
 
 void setup()
 {
-  set_aliases(({ "money-info", "money_info" }));
+  set_aliases(({ "money-info" }));
   set_usage("money-info [<game>]");
   set_help(
     "Report what the money tracker has seen, place by place.\n" +
