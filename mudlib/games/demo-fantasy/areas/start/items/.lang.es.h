@@ -91,3 +91,4 @@
 #define _LANG_ORB_ADJUST_OK "Ok, tus atributos serán:\n"
 #define _LANG_ORB_ADJUST_CONGRATS "¡Enhorabuena! La generación de atributos " + \
     "ha sido completada. Tu personaje ya está completo, puedes comenzar a jugar."
+#define _LANG_ORB_ADJUST_NO_WAY_OUT "Algo va mal: el mundo no se abre ante ti. Avisa a un administrador.\n"

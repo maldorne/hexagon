@@ -186,6 +186,7 @@ void confirm_order(string answer)
   if (member_array(answer, _LANG_AFFIRMATIVE_OPTIONS) != -1)
   {
     mapping stats_prop;
+    object before;
     int i;
 
     // set the attributes
@@ -227,7 +228,19 @@ void confirm_order(string answer)
     write(handler("frames")->frame(_LANG_ORB_ADJUST_CONGRATS, 
                                    "", 0, 0, "notifications") + "\n\n");
 
+    // the orb destroys itself right after this, and the room it leaves behind
+    // has no exits, so a way out that does not work has to be said out loud
+    before = environment(this_player());
     this_player()->move_living("X", NEWBIE_ROOM);
+
+    if (environment(this_player()) == before)
+    {
+      tell_object(this_player(), _LANG_ORB_ADJUST_NO_WAY_OUT);
+      log_file(LOG_FILE, this_player()->query_cap_name() +
+        " could not be moved to " + NEWBIE_ROOM + ", " + ctime(time(), 4) +
+        ".\n");
+    }
+
     this_player()->save_me();
     this_user()->save_me();
 

@@ -84,3 +84,4 @@
 #define _LANG_ORB_ADJUST_OK "Ok, your attributes will be:\n"
 #define _LANG_ORB_ADJUST_CONGRATS "Congrats! The attribute generation has been completed. " + \
     "Your character is now ready, you can start playing."
+#define _LANG_ORB_ADJUST_NO_WAY_OUT "Something is wrong: the world does not open for you. Tell an administrator.\n"
