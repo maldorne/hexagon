@@ -10,6 +10,7 @@ inherit CMD_BASE;
 private string columns(string * * rows);
 private string * * rows_for(object * who, string * fields, string * heads);
 private int do_view(object * who, string view);
+private int do_net(object * who);
 private int do_detail(object * who);
 
 void setup()
@@ -21,7 +22,8 @@ void setup()
     "\n" +
     "  people          who they are: kind, race, guild, level, alignment\n" +
     "  people quick    the short version: how long they have been on\n" +
-    "  people net      where they connect from, and how idle they are\n" +
+    "  people net      where they connect from, sorted by address, with\n" +
+    "                  the connections sharing one counted\n" +
     "  people terms    what their client says it is, and how big\n" +
     "  people dirs     where each of them stands, and a coder's own path\n" +
     "  people all      every fact known about each of them, one block each\n" +
@@ -113,11 +115,6 @@ private int do_view(object * who, string view)
     fields = ({ "editing", "cap_name", "on", "race", "guild" });
     heads = ({ "", "name", "on", "race", "guild" });
   }
-  else if (view == "net")
-  {
-    fields = ({ "editing", "cap_name", "idle", "ip", "host" });
-    heads = ({ "", "name", "idle", "address", "host" });
-  }
   else if (view == "terms")
   {
     fields = ({ "editing", "cap_name", "terminal", "rows", "cols" });
@@ -138,6 +135,61 @@ private int do_view(object * who, string view)
 
   write("" + sizeof(who) + " connected:\n" +
         columns(rows_for(who, fields, heads)));
+  return 1;
+}
+
+// ===== people net =====
+// Sorted by address, and every address more than one connection comes from is
+// counted on its rows: two people arriving from the same place at the same
+// time is the whole point of the view.
+int cmp_address(object a, object b)
+{
+  mixed x, y;
+
+  x = query_ip_number(a);
+  y = query_ip_number(b);
+
+  if (!stringp(x))
+    x = "";
+  if (!stringp(y))
+    y = "";
+
+  if (x == y)
+    return 0;
+
+  return (x > y) ? 1 : -1;
+}
+
+private int do_net(object * who)
+{
+  mapping seen;
+  string * * rows;
+  int i;
+
+  seen = ([ ]);
+  for (i = 0; i < sizeof(who); i++)
+  {
+    mixed ip;
+
+    ip = query_ip_number(who[i]);
+    if (!stringp(ip))
+      ip = "-";
+    seen[ip] = (seen[ip] ? seen[ip] : 0) + 1;
+  }
+
+  who = sort_array(who, "cmp_address", this_object());
+  rows = ({ ({ "", "name", "idle", "address", "host", "same" }) });
+
+  for (i = 0; i < sizeof(who); i++)
+  {
+    mapping f;
+
+    f = (mapping)handler("people")->query_facts(who[i]);
+    rows += ({ ({ f["editing"], f["cap_name"], f["idle"], f["ip"], f["host"],
+                  seen[f["ip"]] > 1 ? "" + seen[f["ip"]] : "" }) });
+  }
+
+  write("" + sizeof(who) + " connected:\n" + columns(rows));
   return 1;
 }
 
@@ -212,6 +264,9 @@ static int cmd(string str, object me, string verb)
 
   if (view == "all")
     return do_detail(who);
+
+  if (view == "net")
+    return do_net(who);
 
   return do_view(who, view);
 }

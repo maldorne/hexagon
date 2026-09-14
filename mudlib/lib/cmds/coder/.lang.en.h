@@ -5,6 +5,8 @@
         ((string)ob->query_short() ? (string)ob->query_short() : "object") + \
         " in other dimension.\n"
 
+#define _LANG_CMD_CLONE_IN ({ "in" })
+
 // peace
 
 #define _LANG_PEACE_MESSAGES_MINE "You raise your hand and exclaim: " + \
