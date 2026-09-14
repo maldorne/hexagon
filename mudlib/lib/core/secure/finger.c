@@ -9,6 +9,9 @@
 #include <areas/calendar.h>
 #include <language.h>
 
+// One header row: an indent and two columns of the same width
+#define FINGER_ROW "   %-30s%-30s\n"
+
 string account_name;
 
 string title;
@@ -103,6 +106,7 @@ string finger_info(string name, varargs object me)
   object ob, table, user;
   mapping mail_stat;
   string birth_day, real_name, where, email;
+  int may_read;
 
   table = table("finger");
 
@@ -157,48 +161,31 @@ string finger_info(string name, varargs object me)
       return "";
   }
 
-  if (strlen(real_name))
-  {
-    if (real_name[0] == ':')
-    {
-      if (SECURE_OB->valid_read(player_save_dir(name) + "player.o", geteuid(me)))
-        retval = sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME +
-          capitalize(name), _LANG_FINGER_REAL_NAME + real_name);
-      else
-        retval = sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME +
-          capitalize(name), _LANG_FINGER_REAL_NAME + "???");
-    }
-  }
+  // A name kept private is marked with a leading ':' and is only spelled out
+  // to somebody who may read the character's own file.
+  if (me && SECURE_OB->valid_read(player_save_dir(name) + "player.o",
+                                  geteuid(me)))
+    may_read = TRUE;
 
-  if (!retval)
-    retval =  sprintf("   %-30s%-30s\n", _LANG_FINGER_NAME + capitalize(name),
-          _LANG_FINGER_REAL_NAME + (real_name?real_name:"???"));
+  if (!strlen(real_name) ||
+      (real_name[0] == ':' && !may_read))
+    real_name = "???";
 
-  if (birth_day)
-  {
+  // Every row is two columns of the same width, so the labels line up whatever
+  // each character has filled in.
+  retval = sprintf(FINGER_ROW, _LANG_FINGER_NAME + capitalize(name),
+                   _LANG_FINGER_REAL_NAME + real_name);
+
+  if (strlen(birth_day))
     birth_day = handler("calendar")->convert_birthday(birth_day);
-    retval += sprintf("   %-30s", _LANG_FINGER_BIRTHDAY + birth_day);
-  }
 
-  if (me && me->query_coder())
-  {
-  if (strlen(email))
-  {
-    // some clientes (zmud) introduce a control character first in the string
-    // when the input includes the '@'
-    // just in case, check the first character too
-    if ((email[0] == ':') || (email[1] == ':'))
-    {
-      if ((base_name(me) != "/lib/core/login") &&
-          (SECURE_OB->valid_read(player_save_dir(name) + "player.o", geteuid(me))) )
-        retval += _LANG_FINGER_EMAIL+email+"\n";
-    }
-    else
-      retval += _LANG_FINGER_EMAIL+email+"\n";
-  }
-  else if (birth_day)
-    retval += "\n";
-  }
+  if (strlen(where) > 65)
+    where = where[.. 65];
+
+  if (strlen(birth_day) || strlen(where))
+    retval += sprintf(FINGER_ROW,
+                      strlen(birth_day) ? _LANG_FINGER_BIRTHDAY + birth_day : "",
+                      strlen(where) ? _LANG_FINGER_PLACE + where : "");
 
   // changed by neverbot, players wont see the coders home directories
   // if (home_dir)
@@ -206,11 +193,18 @@ string finger_info(string name, varargs object me)
   // else if (home_dir)
   //   retval += "\n";
 
-  if (strlen(where))
+  if (me && me->query_coder() && strlen(email))
   {
-    if (strlen(where) > 65)
-      where = where[..65];
-    retval += sprintf("   %-30s", _LANG_FINGER_PLACE+where+"\n");
+    // some clientes (zmud) introduce a control character first in the string
+    // when the input includes the '@'
+    // just in case, check the first character too
+    if ((email[0] == ':') || (email[1] == ':'))
+    {
+      if ((base_name(me) != "/lib/core/login") && may_read)
+        retval += sprintf(FINGER_ROW, _LANG_FINGER_EMAIL + email, "");
+    }
+    else
+      retval += sprintf(FINGER_ROW, _LANG_FINGER_EMAIL + email, "");
   }
 
   if ((role_name == "player") && sizeof(social_object_list))
