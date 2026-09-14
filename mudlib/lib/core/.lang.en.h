@@ -7,6 +7,7 @@
 
 #define _LANG_WHO_COMMAND "who"
 #define _LANG_CREATE_COMMAND "create"
+#define _LANG_GUEST_COMMAND ({ "guest" })
 #define _LANG_FINGER_COMMAND "finger"
 
 #define _LANG_LOGIN_CMDS_OPTIONS "Options: "
@@ -87,3 +88,12 @@
 
 #define _LANG_GAME_DEFAULT_FINGER_INFO "One of the games in " + mud_name() + ".\n"
 #define _LANG_GAME_NO_PROJECT "No assigned project"
+
+// guest login
+
+#define _LANG_GUEST_WELCOME "\nYou are playing as a guest. You may wander and try the game, " + \
+        "but nothing you do is kept: once you disconnect, your character " + \
+        "is gone.\n"
+#define _LANG_GUEST_ASK_NAME "\nWhat name do you want to use during your visit? "
+#define _LANG_GUEST_NOT_A_NAME "\nYes, you are our guest, but you still need a name for " + \
+        "this visit.\n"

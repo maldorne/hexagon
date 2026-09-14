@@ -241,11 +241,10 @@ nomask int save_me()
   if (query_property(LOADING_PROP))
     return 0;
 
+  // a guest has no file to write to, and every caller here is the mudlib
+  // itself: they are told what a guest is when they arrive, not on each save
   if (query_property(GUEST_PROP))
-  {
-    tell_object(this_object(), _LANG_PLAYER_NO_GUEST_SAVE);
     return 0;
-  }
 
   // Fix by Wonderflug.  Saving object is a bad idea.
   if (!strlen(query_name()) || (query_name() == DEF_NAME))

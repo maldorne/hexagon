@@ -47,6 +47,8 @@ nomask void try_throw_out(string str);
 nomask void time_out();
 nomask void disconnect(varargs int silence);
 nomask int refused(string name);
+nomask void guest_login();
+nomask void guest_name(string str);
 
 void create()
 {
@@ -326,6 +328,14 @@ nomask void logon_option(string str)
   }
 #endif
 
+  // a guest is offered before there is an account; afterwards the word is just
+  // another character name to look for
+  if (!validated && member_array(str, _LANG_GUEST_COMMAND) != -1)
+  {
+    guest_login();
+    return;
+  }
+
   if (str == _LANG_CREATE_COMMAND)
   {
     // if not validated yet, we are creating a new user account
@@ -384,10 +394,6 @@ nomask void logon_option(string str)
     return ;
   }
   */
-
-  // TODO guest login
-  // if ((str == "invitado") || (str == "guest"))
-  //   return guest_login();
 
   // now we accept emails as users names
   // if (strlen(str) > MAX_LEN)
@@ -637,6 +643,89 @@ nomask void logon_with_player_name(string password, int flag)
   }
 
   begin(0);
+}
+
+// A guest plays without an account: no character file, nothing saved, nothing
+// left behind. The name is the visitor's own, the same as anybody else's, so
+// the world still reads like a world; it is only lent for the visit and free
+// again when they leave.
+nomask void guest_login()
+{
+  write(_LANG_GUEST_WELCOME);
+  write(_LANG_GUEST_ASK_NAME);
+  input_to("guest_name");
+}
+
+nomask void guest_name(string str)
+{
+  // the invalid-character message names the offending index as `tmp`
+  int tmp;
+
+  if (!strlen(str))
+  {
+    disconnect();
+    return;
+  }
+
+  str = lower_case(implode(explode(str, " "), ""));
+
+  // the word that opened the door is not a name
+  if (member_array(str, _LANG_GUEST_COMMAND) != -1)
+  {
+    write(_LANG_GUEST_NOT_A_NAME);
+    write(_LANG_GUEST_ASK_NAME);
+    input_to("guest_name");
+    return;
+  }
+
+  if (strlen(str) < MIN_LEN)
+  {
+    write(_LANG_CHARACTER_NAME_TOO_SHORT);
+    write(_LANG_GUEST_ASK_NAME);
+    input_to("guest_name");
+    return;
+  }
+
+  if (strlen(str) > MAX_LEN)
+  {
+    write(_LANG_CHARACTER_NAME_TOO_LONG);
+    write(_LANG_GUEST_ASK_NAME);
+    input_to("guest_name");
+    return;
+  }
+
+  if ((tmp = SECURE->valid_user_name(str)) != -1)
+  {
+    write(_LANG_INVALID_USER_NAME);
+    write(_LANG_GUEST_ASK_NAME);
+    input_to("guest_name");
+    return;
+  }
+
+  // a name somebody owns, or is answering to right now, is not free to borrow
+  if ((file_size(player_save_dir(str) + "player.o") > 0) || find_player(str))
+  {
+    // this one asks for another name by itself
+    write(_LANG_USED_CHARACTER_NAME);
+    input_to("guest_name");
+    return;
+  }
+
+  if (refused(str))
+  {
+    show_options();
+    return;
+  }
+
+  name = str;
+
+  // from here the road is the one every new character walks: a gender, and
+  // then create_player2, which reads this property to know there is no account
+  // to join and nothing to write
+  add_property(GUEST_PROP, 1);
+
+  write(_LANG_CHOOSE_CHARACTER_GENDER);
+  input_to("get_sex");
 }
 
 nomask void begin(int is_new_player, varargs int reconnected, object destination)
@@ -954,29 +1043,44 @@ void get_sex(string str)
 void create_player2()
 {
   object old_player;
+  int guest;
+
+  if (query_property(GUEST_PROP))
+    guest = TRUE;
+
   old_player = _player;
 
   // end of the process, we create a new player object
   _player = clone_object(PLAYER_OB);
   _player->set_name(name);
   _player->set_gender(chosen_gender);
-  _player->set_account_name(user_name);
+
+  if (!guest)
+    _player->set_account_name(user_name);
 
   // destruct the link object
   destruct(old_player);
 
-  _user->set_account_name(user_name);
+  if (!guest)
+    _user->set_account_name(user_name);
+
   // will link back player -> user, too
   _user->set_player_ob(_player);
-  _user->add_player(name);
-  _user->save_me();
 
-  // save the _user first, and then the _player, 
-  // any message printed without a user will prompt an error, and 
-  // even this save_me will print messages
-  _player->save_me();
+  // a guest joins no account and writes no file: the name is borrowed for the
+  // visit and free again afterwards
+  if (!guest)
+  {
+    _user->add_player(name);
+    _user->save_me();
 
-  begin(!query_property(GUEST_PROP));
+    // save the _user first, and then the _player, 
+    // any message printed without a user will prompt an error, and 
+    // even this save_me will print messages
+    _player->save_me();
+  }
+
+  begin(!guest);
 }
 
 mixed * stats()

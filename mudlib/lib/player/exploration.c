@@ -15,6 +15,7 @@
 // name is resolved from the area, per instance, only when shown).
 
 #include <user/exploration.h>
+#include <user/player.h>
 #include <language.h>
 
 static mapping exploration_data;
@@ -54,6 +55,10 @@ private void load_exploration()
 private void save_exploration()
 {
   object o;
+
+  // a guest leaves nothing behind
+  if (this_object()->query_property(GUEST_PROP))
+    return;
 
   o = clone_object(EXPLORATION_OB);
   if (!o)

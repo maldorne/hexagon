@@ -29,7 +29,6 @@
 // player.c
 
 #define _LANG_PLAYER_SAVING "Salvando...\n"
-#define _LANG_PLAYER_NO_GUEST_SAVE "Ups, l"+G_CHAR+"s invitad"+G_CHAR+"s no pueden salvar...\n"
 #define _LANG_PLAYER_SAVE_ACTIONS ({ "salvar", "grabar" })
 #define _LANG_PLAYER_PLURAL "personas que se parecen a " + str
 
