@@ -410,19 +410,15 @@ int cast_effect(string str, object who, int quiet)
 
         s = base_name(this_object());
 
-        // Test check: if the effect is not somewhere under /obj we only let
-        // immortals and testers (the "TEST" property) try it.
-        if ( strlen(s) && !caster->query_coder() &&
+        // An effect written in somebody's home directory is still being
+        // worked on: only a coder or a tester (the "TEST" property) may fire
+        // it. Everything that has landed in the mudlib is fair game.
+        if ( strlen(s) > 6 && s[0 .. 5] == "/home/" &&
+          !caster->query_coder() &&
           !caster->query_property(PROP_EFFECT_TESTER) )
         {
-            string* ss;
-
-            ss = explode( s, "/" );
-            if ( sizeof(ss) && ss[0] != "obj" )
-            {
-                notify_fail(_LANG_EFFECT_NOT_APPROVED);
-                return 0;
-            }
+            notify_fail(_LANG_EFFECT_NOT_APPROVED);
+            return 0;
         }
         str = (string)caster->expand_nickname(str);
     }
