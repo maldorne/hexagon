@@ -141,6 +141,24 @@ mixed *query_money_stat( string dom, string pathname )
   return ({ });
 }
 
+// Where a transaction happened, said shortly enough to fit a column: the game
+// and the area, without the tree around them.
+private string short_dir(string dir)
+{
+  string * parts;
+
+  parts = explode(dir, "/");
+
+  if (sizeof(parts) && parts[0] == "games")
+    parts = parts[1 ..];
+  if (sizeof(parts) && parts[sizeof(parts) - 1] == "rooms")
+    parts = parts[.. sizeof(parts) - 2];
+
+  parts -= ({ "areas" });
+
+  return implode(parts, "/");
+}
+
 string select_domain_stats(varargs string realdom) 
 {
   int i;
@@ -156,8 +174,8 @@ string select_domain_stats(varargs string realdom)
 
   // outgoing ="\nDir              ggive     ngive     ggivel    ngivel    ggl15     ngl15\n";
 
-  outgoing = sprintf("%-20s %9s %9s %9s %9s %9s %9s\n", "Dir", "ggive", "ngive", "ggivel", "ngivel", "ggl15", "ngl15");
-  outgoing += "                         (money in copper, time in player hours)\n\n";
+  outgoing = sprintf("%-28s %9s %9s %9s %9s %9s %9s\n", "Place", "given", "net", "per lev", "net/lev", "under 15", "net<15");
+  outgoing += "  (money in copper per player hour)\n\n";
 
   if (!mappingp(data)) 
     data = ([ ]); // Taniwha
@@ -206,7 +224,7 @@ string select_domain_stats(varargs string realdom)
       //   dom = dom[strlen(realdom)+3..]+"/";
       if (timt) 
       {
-        outgoing+=sprintf("%-20s %8.2f ", dom, (gt*60.0)/timt);
+        outgoing+=sprintf("%-28s %8.2f ", short_dir(dom), (gt*60.0)/timt);
         outgoing+=sprintf(" %8.2f ", (gt+tt)*60.0/timt);
         outgoing+=sprintf(" %8.2f ", (gtl)*60.0/timt);
         outgoing+=sprintf(" %8.2f ", (gtl+ttl)*60.0/timt);
@@ -237,7 +255,7 @@ string select_domain_stats(varargs string realdom)
 
   if (timtt) 
   {
-    outgoing+=sprintf("%-20s %8.2f ", "Totals", (gtt*60.0)/timtt);
+    outgoing+=sprintf("%-28s %8.2f ", "Totals", (gtt*60.0)/timtt);
     outgoing+=sprintf(" %8.2f ", (gtt+ttt)*60.0/timtt);
     outgoing+=sprintf(" %8.2f ", (gtlt)*60.0/timtt);
     outgoing+=sprintf(" %8.2f ", (gtlt+ttlt)*60.0/timtt);
@@ -262,8 +280,8 @@ string full_domain_stats(varargs string realdom)
   time_now = (float)TIMEKEEPER->query_running_time()/60.0;
   
   // outgoing="\nDir           grs give  grs take  ggive/lev  gtak/lev  gg/lev<15  gt/lev<15\n";
-  outgoing = sprintf("%-20s %9s %9s %9s %9s %9s %9s\n", "Dir", "grs give", "grs take", "ggive/lev", "gtak/lev", "gg/lev<15", "gt/lev<15");
-  outgoing += "                      (money in copper, per time in player hours)\n\n";
+  outgoing = sprintf("%-28s %9s %9s %9s %9s %9s %9s\n", "Place", "given", "taken", "giv/lev", "tak/lev", "giv<15", "tak<15");
+  outgoing += "  (money in copper per player hour)\n\n";
 
   if (!mappingp(data)) 
     data = ([ ]); // Taniwha
@@ -313,7 +331,7 @@ string full_domain_stats(varargs string realdom)
       //   dom = dom[strlen(realdom)+3..]+"/";
       if (timt) 
       {
-        outgoing+=sprintf("%-20s %8.2f ", dom, (gt*60.0)/timt);
+        outgoing+=sprintf("%-28s %8.2f ", short_dir(dom), (gt*60.0)/timt);
         outgoing+=sprintf(" %8.2f ", (tt)*60.0/timt);
         outgoing+=sprintf(" %8.2f ", (gtl)*60.0/timt);
         outgoing+=sprintf(" %8.2f ", (ttl)*60.0/timt);
@@ -345,7 +363,7 @@ string full_domain_stats(varargs string realdom)
 
   if (timtt) 
   {
-    outgoing+=sprintf("%-20s %8.2f ", "Totals",(gtt*60.0)/timtt);
+    outgoing+=sprintf("%-28s %8.2f ", "Totals", (gtt*60.0)/timtt);
     outgoing+=sprintf(" %8.2f ", (ttt)*60.0/timtt);
     outgoing+=sprintf(" %8.2f ", (gtlt)*60.0/timtt);
     outgoing+=sprintf(" %8.2f ", (ttlt)*60.0/timtt);
