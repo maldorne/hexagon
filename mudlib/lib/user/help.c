@@ -24,6 +24,7 @@ private int show_section(string name);
 private int show_matches(string pattern);
 private int show_topic(mixed * topic, string str);
 private int may_read(string tier);
+private int show_item_help(string str);
 private string body_of(string text);
 private string help_page(string name, string kind, string subtitle,
                          string body, int indent);
@@ -258,6 +259,27 @@ private int show_topic(mixed * topic, string str)
   return 1;
 }
 
+// What something the player is carrying says about itself. An object that
+// answers is the answer: the documents are about the game, the item is in
+// their hands.
+private int show_item_help(string str)
+{
+  object * objs;
+  string text;
+  int loop, found;
+
+  objs = find_match(str, this_player());
+
+  for (loop = 0; loop < sizeof(objs); loop++)
+    if (text = (string)objs[loop]->query_help())
+    {
+      write(_LANG_HELP_HELP_ABOUT);
+      found = 1;
+    }
+
+  return found;
+}
+
 int do_help(string str)
 {
   string s, text;
@@ -357,6 +379,10 @@ int do_help(string str)
     return 1;
   }
 
+  // something in the player's hands, before anything written down
+  if (show_item_help(str))
+    return 1;
+
   // a section of the index, by its directory or by the name it is listed
   // under, then a document of it
   found = HELP_HANDLER->query_section_named(str);
@@ -416,43 +442,14 @@ int do_help(string str)
   }
   */
 
-  // finally we check if the help about some inventory item exists
+  // and finally an emotion
+  s = (string)SOUL_OBJECT->help_soul(str);
+
+  if (strlen(s))
   {
-    object * objs;
-    int flag, loop;
-    flag = 0;
-    objs = find_match(str, this_player());
-
-    // if we do not have items in the inventory that match the name,
-    // finally we try with the help of the emotions
-    if (!sizeof(objs))
-    {
-      s = (string)SOUL_OBJECT->help_soul(str);
-
-      if (!strlen(s))
-      {
-        notify_fail(_LANG_HELP_NO_HELP_ABOUT);
-        return 0;
-      }
-
-      s = help_page(str, _LANG_HELP_KIND_SOUL, "", wrap(s), FALSE);
-      this_user()->set_finish_func("end_of_help");
-      this_user()->more_string(s, capitalize(str));
-      return 1;
-    }
-
-    for (loop = 0; loop < sizeof(objs); loop++)
-    {
-      if (text = (string)objs[loop]->query_help())
-      {
-        write(_LANG_HELP_HELP_ABOUT);
-        flag = 1;
-      }
-    }
-
-    if (!flag)
-      write(_LANG_HELP_NO_HELP_FOR_ITEM);
-
+    s = help_page(str, _LANG_HELP_KIND_SOUL, "", wrap(s), FALSE);
+    this_user()->set_finish_func("end_of_help");
+    this_user()->more_string(s, capitalize(str));
     return 1;
   }
 
