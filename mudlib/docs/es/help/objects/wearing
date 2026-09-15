@@ -11,9 +11,11 @@ y 'desvestir', igual que 'quitarse'.
   empuñar <objeto>     lo coges con las manos para usarlo.
   soltar <objeto>      lo dejas de empuñar, pero sigue contigo.
 
-Sólo se empuña una cosa a la vez, y sólo lo que esté hecho para
-empuñarse. 'sostener' es lo mismo que 'empuñar'; 'desempuñar', lo
-mismo que 'soltar'.
+Empuñas una cosa con cada mano: dos armas, o un arma y un escudo.
+Lo que pida las dos manos, como un bastón, no entra hasta que las
+tengas libres. Y sólo se empuña lo que esté hecho para empuñarse.
+'sostener' es lo mismo que 'empuñar'; 'desempuñar', lo mismo que
+'soltar'.
 
   equipar
 

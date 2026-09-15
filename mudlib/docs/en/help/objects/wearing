@@ -8,8 +8,10 @@
   hold <item>      you take it in your hands to use it.
   unhold <item>    you stop holding it, but still carry it.
 
-Only one thing is held at a time, and only what was made to be
-held. 'wield' does the same as 'hold'.
+You hold one thing in each hand: two weapons, or a weapon and a
+shield. Anything that asks for both hands, a staff say, does not go
+in until both are free. And only what was made to be held is held.
+'wield' does the same as 'hold'.
 
   equip
 
