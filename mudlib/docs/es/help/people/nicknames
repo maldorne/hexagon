@@ -10,8 +10,5 @@ Nadie más lo ve: te sirve para escribir menos.
   apodo                    lista todos los que tengas.
   quitarapodo <apodo>      lo borra.
 
-'nick' y 'apodos' hacen lo mismo que 'apodo'; 'dnick', lo mismo que
-'quitarapodo'.
-
 Donde se espera el nombre de alguien, el apodo vale igual: si has
 hecho "apodo g Guardia", entonces "tell g hola" habla con Guardia.

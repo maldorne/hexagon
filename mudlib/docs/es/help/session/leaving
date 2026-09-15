@@ -9,10 +9,9 @@ poco: el juego graba solo, y al salir también.
 
   salir
 
-Termina la partida. Antes de irte se guarda todo. 'quit' es lo
-mismo.
+Termina la partida. Antes de irte se guarda todo.
 
   clear
 
 Borra la pantalla y deja el cursor arriba. Necesita un terminal que
-entienda de eso. 'cls' es lo mismo.
+entienda de eso.
