@@ -20,51 +20,39 @@ Admin commands will be only in english, except texts shown to the players, which
 
 | Command    | Working in Hexagon |  Translated en/es  |   Help available   | Notes |
 | ---------- | :----------------: | :----------------: | :----------------: | ----- |
-| areas      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
-| ban        |                    |                    |                    |       |
-| clonein    |                    |                    |                    |       |
-| cmds       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
-| dirs       |                    |                    |                    |       |
-| domain     |                    |                    |                    |       |
-| domainwho  |                    |                    |                    |       |
-| donde      |                    |                    |                    |       |
-| echoall    |                    |                    |                    |       |
-| fds        |                    |                    |                    |       |
-| findfile   |                    |                    |                    |       |
-| fsearch    |                    |                    |                    |       |
-| guildwho   |                    |                    |                    |       |
-| ident      |                    |                    |                    |       |
-| in         |                    |                    |                    |       |
-| ll         |                    |                    |                    |       |
-| memory     | :white_check_mark: | :heavy_minus_sign: |                    |       |
-| memtree    |                    |                    |                    |       |
-| money_info |                    |                    |                    |       |
-| netstat    |                    |                    |                    |       |
-| people     |                    |                    |                    |       |
-| qatt       |                    |                    |                    |       |
-| qc         |                    |                    |                    |       |
-| qpeople    |                    |                    |                    |       |
-| register   |                    |                    |                    |       |
-| rehash     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
-| resolve    |                    |                    |                    |       |
-| rotate     |                    |                    |                    |       |
-| sectors    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
-| shutdown   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
-| singletons | :white_check_mark: | :heavy_minus_sign: |                    |       |
-| snetstat   |                    |                    |                    |       |
-| snoopers   |                    |                    |                    |       |
-| sockets    |                    |                    |                    |       |
-| stats      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
-| status     |                    |                    |                    |       |
-| su         |                    |                    |                    |       |
-| suspend    |                    |                    |                    |       |
-| targets    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
-| terms      |                    |                    |                    |       |
-| unicos     |                    |                    |                    |       |
-| ventures   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |       |
-| whois      |                    |                    |                    |       |
-| xdate      |                    |                    |                    |       |
-| xfinger    |                    |                    |                    |       |
+| areas      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| ban        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| cleaner    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| components | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| diplomacy  | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| echoall    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Anonymous line to everybody connected; `emoteall` is the signed half. |
+| emoteall   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was an action in `coder_communicate.c`. |
+| families   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| fights     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was `qatt`; covers every living now, not only players. |
+| houses     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| memory     | :white_check_mark: | :heavy_minus_sign: |                    |  |
+| money-info | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was `money_info`. |
+| npcs       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| people     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Absorbed `dirs`, `netstat`, `qpeople`, `terms` and `snetstat`. |
+| pois       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| preloads   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| qsnoop     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Quiet half of `snoop`, which is a coder command. |
+| room2loc   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| rotate     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Room zones only; a converted area keeps its exits in its locations. |
+| sectors    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| shutdown   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| singletons | :white_check_mark: | :heavy_minus_sign: |                    |  |
+| snoopers   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| stats      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| status     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Reads the `status()` kfun; takes an object. |
+| suspend    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| targets    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| uniques    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was `unicos`. A stub until the unique-object handler exists. |
+| vacancies  | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| ventures   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+
+`register` is parked in `cmds/admin/postponed/`: it belongs to an application
+system this mudlib does not have.
 
 ## Coder (see issue [#15](https://github.com/maldorne/hexagon/issues/15))
 
@@ -80,10 +68,13 @@ Coder commands will be only in english, except texts shown to the players, which
 | compare     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | cp          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | cplines     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| desc        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Sets or shows a description. |
 | discard     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | du          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | exec        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | exits       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| findfile    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was an admin command; finds a file by name anywhere under a directory. |
+| fsearch     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was an admin command; lists the functions a file defines. |
 | ~ftpwho~    |                    |                    |                    | Moved to the `ftpd` package.                         |
 | goto        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | grep        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
@@ -103,14 +94,19 @@ Coder commands will be only in english, except texts shown to the players, which
 | mv          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | nls         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | peace       | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                      |
+| props       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Inspect and set properties. |
+| rain        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Weather for testing. |
 | resistances | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | restore     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | rm          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | rmdir       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | sar         | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| snoop       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Watch another session; `qsnoop` is the quiet, admin-only half. |
 | tail        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| testcolors  | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Print the colour table as this terminal renders it. |
 | uptime      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | visible     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| whereis     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was an action in `coder_object.c`; finds anything alive by name. |
 
 ## Player (see issue [#14](https://github.com/maldorne/hexagon/issues/14))
 
@@ -152,6 +148,24 @@ Coder commands will be only in english, except texts shown to the players, which
 | verbose       | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | whoami        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | wimpy         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
+
+## Actions
+
+Not every verb is a command. A file under `mudlib/lib/cmds/<tier>/` is what these
+tables list, and it carries its own usage and help, which `help <verb>` prints.
+The rest of what a character can type comes from `add_action()`: the role files
+(`lib/user/roles/`), the player and user objects, and whatever is being carried
+or stood in.
+
+Those actions are not in the tables above and cannot answer `help` on their own:
+`ed`, `trans`, `pwd`, `homedir`, `call`, `creator`, `pathof`, `shadows`, `dest`,
+`inv`, `find`, `goback`, `cd`, `echo`, `echoto`, `update`, `save` and the rest of
+the creator toolbox are actions, as are most of what a player types (`coger`,
+`vestir`, `decir`, `gritar`, `habilidades`, …).
+
+The coder command `actions` lists every one of them for the character running it,
+grouped by the object that added it. Documenting them is what the files under
+`mudlib/docs/<lang>/help/` are for.
 
 ## Legend
 
