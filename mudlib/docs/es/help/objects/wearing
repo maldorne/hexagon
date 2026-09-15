@@ -1,0 +1,24 @@
+@verbs vestir ponerse quitarse desvestir equipar empuñar soltar
+@tier player
+@title vestirse, empuñar y equiparse de una vez
+
+  ponerse <objeto>     lo que sea ropa o armadura, puesto.
+  quitarse <objeto>    y fuera otra vez.
+
+'vestir' y 'ponerme' valen igual que 'ponerse'; 'quitar', 'quitarme'
+y 'desvestir', igual que 'quitarse'.
+
+  empuñar <objeto>     lo coges con las manos para usarlo.
+  soltar <objeto>      lo dejas de empuñar, pero sigue contigo.
+
+Sólo se empuña una cosa a la vez, y sólo lo que esté hecho para
+empuñarse. 'sostener' es lo mismo que 'empuñar'; 'desempuñar', lo
+mismo que 'soltar'.
+
+  equipar
+
+Sin argumentos: recorre lo que llevas encima y se pone todo lo que
+se pueda poner y empuñar. Es lo mismo que el juego hace por ti al
+entrar si tienes a sí el consentimiento 'autoequiparse'.
+
+Para ver qué llevas puesto y en qué estado está, usa 'equipo'.

@@ -1,0 +1,20 @@
+@verbs coger dejar dar poner
+@tier player
+@title mover cosas: del suelo a ti, de ti a otro
+
+  coger <objeto> [de <objeto>]
+
+Lo que esté en el suelo, o dentro de algo que puedas abrir, pasa a
+tus manos. Sin el 'de', se busca por donde estás.
+
+  dejar <objeto>
+
+Lo suelta donde estés. No todo se puede dejar: lo que sea tuyo de
+verdad, como el orbe, se niega.
+
+  dar <objeto> a <alguien>
+  poner <objeto> en <algo>
+
+Son el mismo verbo con dos preposiciones. Nadie recibe nada sin
+querer: quien no tenga a sí su consentimiento 'dar' te dirá que no
+lo acepta, y sabrá que lo intentaste.

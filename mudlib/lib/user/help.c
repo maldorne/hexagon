@@ -24,6 +24,7 @@ private int show_section(string name);
 private int show_matches(string pattern);
 private int show_topic(mixed * topic, string str);
 private int may_read(string tier);
+private string body_of(string text);
 private string help_page(string name, string kind, string subtitle,
                          string body, int indent);
 
@@ -67,6 +68,19 @@ private string help_page(string name, string kind, string subtitle,
     out += body + "\n";
 
   return out;
+}
+
+// A document's text without the blank lines around it. Only newlines are
+// taken off: the indentation of the first line is part of the layout.
+private string body_of(string text)
+{
+  while (strlen(text) && text[0] == '\n')
+    text = text[1 ..];
+
+  while (strlen(text) && text[strlen(text) - 1] == '\n')
+    text = text[.. strlen(text) - 2];
+
+  return text;
 }
 
 // Whether somebody may read a document written for a given tier.
@@ -149,6 +163,7 @@ private int show_section(string name)
 {
   string * topics;
   string out;
+  mixed * about;
   int i;
 
   topics = (string *)HELP_HANDLER->query_section(name);
@@ -165,9 +180,11 @@ private int show_section(string name)
     out += sprintf("  %-18s %s\n", topics[i], topic[3]);
   }
 
+  about = (mixed *)HELP_HANDLER->query_section_info(name);
+
   this_object()->more_string(
-    help_page(name, _LANG_HELP_KIND_SECTION, "", out, FALSE),
-    capitalize(name));
+    help_page(about[0], _LANG_HELP_KIND_SECTION, about[1], out, FALSE),
+    capitalize(about[0]));
   return 1;
 }
 
@@ -235,7 +252,7 @@ private int show_topic(mixed * topic, string str)
                                                ? _LANG_HELP_KIND_DRIVER
                                                : _LANG_HELP_KIND_CODER_TOPIC)
                                           : _LANG_HELP_KIND_TOPIC,
-              topic[3], trim(text) + "\n",
+              topic[3], body_of(text) + "\n",
               topic[2] != HELP_DRIVER_SECTION && topic[2] != "kfun"),
     capitalize(str));
   return 1;
@@ -246,6 +263,7 @@ int do_help(string str)
   string s, text;
   string * files;
   string * aux;
+  mixed found;
   int i, j;
   object ob;
 
@@ -339,9 +357,11 @@ int do_help(string str)
     return 1;
   }
 
-  // a section of the index, then a document of it
-  if (member_array(str, (string *)HELP_HANDLER->query_sections()) != -1)
-    return show_section(str);
+  // a section of the index, by its directory or by the name it is listed
+  // under, then a document of it
+  found = HELP_HANDLER->query_section_named(str);
+  if (stringp(found))
+    return show_section(found);
 
   {
     mixed * topic;

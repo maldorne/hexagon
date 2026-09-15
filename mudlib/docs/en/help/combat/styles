@@ -1,0 +1,22 @@
+@verbs style styles maestrias masteries
+@tier player
+@title what you fight with, and how good you are at it
+
+  styles
+
+Lists your unarmed fighting styles, how much of each you have
+learnt, and which one you are on.
+
+  style <name>
+
+Switches to the style you name. 'style' and 'styles' are the same
+word: the list comes out whenever you name none.
+
+For now it has to be named by its internal id, which is not the
+name the list prints: the basic style, listed as 'Pelea', is chosen
+with "style fighting".
+
+  maestrias
+
+Lists your weapon masteries: for every kind of weapon you have come
+to handle, how well you handle it. The verb is not translated yet.

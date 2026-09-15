@@ -1,0 +1,22 @@
+@verbs actitud combate
+@tier player
+@title con qué intención peleas, y hasta dónde
+
+  actitud [<modo>]
+
+Tu actitud dice qué papel haces en una pelea: 'ofensiva',
+'defensiva', 'de apoyo' o 'cualquiera'. Sin argumento te dice cuál
+llevas puesta ahora.
+
+Algunos efectos sólo se pueden usar desde una actitud concreta, y
+te la cambian ellos si hace falta. Por eso no puedes cambiarla dos
+veces seguidas: entre un cambio y el siguiente han de pasar cinco
+minutos.
+
+  combate [<modo>]
+
+El modo es 'letal' o 'no letal'. En un combate no letal, quien va a
+caer se queda en un punto de vida, los dos dejáis de pelear y ahí
+acaba la práctica. En uno letal, se muere.
+
+El modo que cuenta es el de quien da el golpe final.

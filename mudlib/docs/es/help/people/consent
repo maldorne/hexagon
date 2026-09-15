@@ -1,0 +1,26 @@
+@verbs consentir consentimientos
+@tier player
+@title decidir qué pueden hacer contigo los demás
+
+Hay cosas que otro jugador no puede hacerte si tú no lo permites.
+Cada una de ellas es un consentimiento que tienes puesto a sí o a
+no, y todos empiezan en no.
+
+  consentir                      lista cómo los tienes ahora.
+  consentir <nombre> sí          lo permite.
+  consentir <nombre> no          deja de permitirlo.
+
+Los consentimientos son:
+
+  dar             que alguien te dé un objeto.
+  proteger        que alguien se ponga a protegerte en un combate.
+  grupos          que te metan en un grupo de aventura.
+  invitaciones    que te inviten a una bebida.
+  autoequiparse   equiparte solo al entrar en el juego.
+  seguir          que alguien te siga.
+  resucitar       que alguien te devuelva a la vida.
+
+Los dos últimos están reservados: todavía no hay nada que los mire.
+
+Quien intente algo que no consientes recibe una negativa. En el
+caso de 'dar', además, tú te enteras de que lo ha intentado.

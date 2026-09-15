@@ -1,0 +1,21 @@
+@verbs hearthstone stone transport mark invoke
+@tier player
+@title the hearthstone: going home and calling your mount
+
+  mark stone
+
+Marks the place you are standing in as your home. It can only be
+done in an inn, and never in combat.
+
+  transport
+
+Takes you to whatever you marked. It takes ten seconds, during
+which you can neither move nor fight, or the journey is cut off.
+Afterwards the stone is spent for an hour.
+
+If you never marked anything, or the place you marked is gone, it
+takes you to the starting place of your race.
+
+  invoke mount
+
+Calls your mount, if you have one.

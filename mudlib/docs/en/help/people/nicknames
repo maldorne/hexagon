@@ -1,0 +1,18 @@
+@verbs nicknames apodo apodos nick dnick quitarapodo
+@tier player
+@title a short name for somebody you name often
+
+A nickname is your own abbreviation for another person's name.
+Nobody else sees it: it is there so you type less. The verbs are
+not translated yet:
+
+  apodo <nickname> <name>   creates it, or changes one you had.
+  apodo <nickname>          says what name it stands for.
+  apodo                     lists every one you have.
+  quitarapodo <nickname>    deletes it.
+
+'nick' and 'apodos' do the same as 'apodo'; 'dnick' does the same
+as 'quitarapodo'.
+
+Wherever somebody's name is expected, the nickname works just as
+well: after "apodo g Guardia", "tell g hello" talks to Guardia.

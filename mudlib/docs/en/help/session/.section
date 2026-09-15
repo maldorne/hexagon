@@ -1,0 +1,5 @@
+@verbs session
+@title session
+@blurb your screen and your account: size, terminal, password
+@tier player
+@order 60

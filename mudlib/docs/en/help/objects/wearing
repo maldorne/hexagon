@@ -1,0 +1,22 @@
+@verbs wear unwear hold wield unhold equip
+@tier player
+@title dressing, wielding, and equipping in one go
+
+  wear <item>      anything that is clothing or armour goes on.
+  unwear <item>    and off again.
+
+  hold <item>      you take it in your hands to use it.
+  unhold <item>    you stop holding it, but still carry it.
+
+Only one thing is held at a time, and only what was made to be
+held. 'wield' does the same as 'hold'.
+
+  equip
+
+With no argument: it walks what you are carrying and puts on and
+holds everything that can be put on and held. It is the same thing
+the game does for you on entering if your 'autoequiparse' consent
+is set to yes.
+
+To see what you are wearing and the state it is in, use
+'equipment'.

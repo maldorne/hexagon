@@ -1,0 +1,47 @@
+@verbs update dest inv pathof creator coder shadows debug dump find call goback
+@tier coder
+@title mirar objetos vivos y cambiarlos
+
+Donde estos verbos piden un objeto, lo piden como todos los verbos
+de programador: un nombre, 'here', 'me', 'all in here', otro
+jugador. Donde piden un fichero, el nombre se lee desde el
+directorio en el que estés, salvo que empiece por '/' o por '~'.
+
+  update [<fichero|objeto>]
+
+Destruye la copia cargada y la vuelve a cargar del disco. Sin
+argumento, o con 'here', actualiza el lugar donde estás. No alcanza
+a los clones que ya estén vivos, ni a los objetos que hereden del
+fichero actualizado.
+
+  dest <objeto>
+  dest query <objeto>
+
+Lo destruye. Los objetos interactivos no se destruyen. La forma
+'query' pregunta antes de cada uno.
+
+  inv <objeto>          lo que lleva dentro, con nombres de fichero.
+  pathof <objeto>       el nombre de fichero del objeto.
+  creator <objeto>      de quién es el fichero, y su uid y euid.
+  shadows <objeto>      las sombras que lo estén cubriendo.
+  debug <objeto>        cuándo se compiló, cuánto ocupa su programa,
+                        cuántas variables y call-outs tiene, y qué
+                        funciones llama sin definirlas.
+
+'coder' hace lo mismo que 'creator'; 'dump', lo mismo que 'debug'.
+
+  find <función>() <objeto>
+
+Dice si ese objeto responde a esa función y qué fichero la define.
+Avisa también de una sombra que la defina.
+
+  call <función>(<args>) <objeto>
+
+Llama a la función y escribe lo que devuelve. Los argumentos se
+escriben como en LPC: los números como números, las cadenas entre
+comillas, los arrays entre llaves, y el texto entre barras
+verticales se resuelve a objetos. Cada llamada queda registrada.
+
+  goback
+
+Te devuelve al lugar donde estabas antes del último teletransporte.

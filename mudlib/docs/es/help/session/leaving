@@ -1,0 +1,18 @@
+@verbs salir quit grabar salvar save clear cls
+@tier player
+@title guardar, limpiar la pantalla y marcharse
+
+  grabar
+
+Guarda tu personaje tal como está ahora. No hace falta hacerlo cada
+poco: el juego graba solo, y al salir también.
+
+  salir
+
+Termina la partida. Antes de irte se guarda todo. 'quit' es lo
+mismo.
+
+  clear
+
+Borra la pantalla y deja el cursor arriba. Necesita un terminal que
+entienda de eso. 'cls' es lo mismo.

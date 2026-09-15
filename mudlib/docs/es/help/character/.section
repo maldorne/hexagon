@@ -1,0 +1,5 @@
+@verbs personaje character
+@title personaje
+@blurb lo que sabes hacer: habilidades, maestrías y magia
+@tier player
+@order 25

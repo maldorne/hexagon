@@ -1,0 +1,17 @@
+@verbs quit save clear cls leaving
+@tier player
+@title saving, clearing the screen and leaving
+
+  save
+
+Saves your character as it is now. There is no need to keep doing
+it: the game saves by itself, and again when you leave.
+
+  quit
+
+Ends the session. Everything is saved before you go.
+
+  clear
+
+Clears the screen and puts the cursor at the top. It needs a
+terminal that understands that. 'cls' is the same.

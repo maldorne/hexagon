@@ -1,0 +1,33 @@
+@verbs decir susurrar tell gritar
+@tier player
+@title las cuatro maneras de decir algo en voz alta
+
+Hablas siempre en el idioma que tengas seleccionado, y quien no lo
+conozca oirá tus palabras deformadas. Mira 'hablar' para ver cuáles
+sabes y para cambiar de uno a otro.
+
+  decir <texto>
+
+Te oye todo el que esté donde tú estás. El signo final cambia el
+verbo: "decir hola" sale como 'Dices: hola', "decir ¿hay alguien?"
+como 'Preguntas: ...' y "decir ¡eh!" como 'Exclamas: ...'.
+
+  susurrar [a] <persona> <texto>
+
+Sólo esa persona te oye, y el resto ve que le has susurrado algo.
+Tiene que estar donde tú estás. La palabra 'a' es opcional.
+
+  tell <persona> <mensaje>
+
+Llega a donde esté, aunque sea al otro extremo del mundo. Necesita
+un idioma que se pueda hablar a distancia, gasta puntos sociales, y
+la otra persona ha de estar conectada. Acepta un apodo en lugar del
+nombre.
+
+  gritar <texto>
+
+Lo oye todo el mundo. Cuesta puntos sociales, y más cuanto más
+largo sea el grito, y después hay que tomar aire un par de segundos
+antes de volver a gritar. También hace falta un idioma que se pueda
+hablar a distancia, y no se puede gritar con los tapones puestos.
+Los gritos quedan registrados.

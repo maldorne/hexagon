@@ -1,0 +1,15 @@
+@verbs diary
+@tier player
+@title the diary: where you have been
+
+  diary explorer
+
+The places in the world you have passed through, and how many they
+are. 'exploration' and 'places' do the same as 'explorer'.
+
+  diary travels
+  diary encyclopedia
+
+Two sections still blank: the diary will tell you so.
+
+The diary cannot be read while you are dead.

@@ -1,0 +1,24 @@
+@verbs alias unalias flushalias
+@tier player
+@title abreviar lo que escribes a menudo
+
+Un alias es un verbo tuyo que se convierte en otra cosa al pulsar
+enter.
+
+  alias                      lista los que tengas.
+  alias <nombre> <orden>     lo crea o lo cambia.
+  unalias <nombre>           lo borra.
+
+Dentro de la orden puedes dejar huecos donde irá lo que escribas
+después del alias:
+
+  $*$              todo lo que hayas escrito detrás.
+  $1$              la primera palabra, $2$ la segunda, y así.
+  $arg1:algo$      la primera palabra, o 'algo' si no pusiste nada.
+
+Y con punto y coma se encadenan varias órdenes en una:
+
+  alias saludar decir hola;sonreir
+
+Un ejemplo completo: "alias g decir hola $1$" hace que "g Guardia"
+diga "hola Guardia".

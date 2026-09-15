@@ -1,0 +1,28 @@
+@verbs columns rows terminal sidebar screen
+@tier player
+@title fitting the game to the size of your screen
+
+The game lays its text out by how wide you tell it your screen is,
+so it is worth setting once.
+
+  columns [<number>]
+
+With no number, it says how many you have now. With one, it
+changes them; it has to be between 35 and 200. You start at 80.
+
+  rows <number>
+
+How many lines fit at a time, for the pauses when reading long
+texts. It has to be more than ten. You start at 25.
+
+  terminal <type>
+
+What your terminal can do, colour above all. A type that does not
+exist is refused, but you are not shown the list.
+
+  sidebar <on|off>
+
+Draws a panel down the right of the screen with a map and your
+health and energy bars. It needs a terminal that understands cursor
+positioning, and the room for it is taken from the last twelve of
+the columns you declared.

@@ -1,0 +1,20 @@
+@verbs north south east west directions moving
+@tier player
+@title walking from one place to another
+
+To move you type the direction, nothing else:
+
+  north  south  east  west
+  northeast  northwest  southeast  southwest
+  up  down  inside  outside  stairs
+
+The initials are enough: n, s, e, w, ne, nw, se, sw, and 'in' and
+'out' for inside and outside.
+
+Only the exits that place has will work. The ones there are get
+listed in brackets beside the name of the place, like this:
+
+  The village gate [e,n,s,w].
+
+A direction that is not there answers that it did not work. And an
+exit may have a door, in which case it has to be opened first.

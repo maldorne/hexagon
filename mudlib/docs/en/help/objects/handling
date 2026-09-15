@@ -1,0 +1,20 @@
+@verbs get take drop give put
+@tier player
+@title moving things: from the floor to you, from you to somebody
+
+  get <item> [from <something>]
+
+Whatever is on the floor, or inside something you can open, comes
+to your hands. Without the 'from', it is looked for where you are.
+
+  drop <item>
+
+Leaves it where you are. Not everything can be dropped: something
+that is properly yours, such as the orb, refuses.
+
+  give <item> to <somebody>
+  put <item> in <something>
+
+These are the same verb with two prepositions. Nobody receives
+anything unwillingly: somebody whose 'dar' consent is not set to
+yes tells you they will not take it, and learns that you tried.

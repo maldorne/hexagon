@@ -1,0 +1,19 @@
+@verbs hechizos formular esferas escuelas
+@tier player
+@title los hechizos que conoces y cómo lanzarlos
+
+Sólo los gremios de magia enseñan hechizos; si no perteneces a uno,
+estos cuatro verbos no tienen nada que contarte.
+
+  hechizos                      lista los que conoces.
+  formular <hechizo> [<quién>]  lanza uno.
+
+Formular lleva su tiempo: hay un turno de preparación, y no puedes
+empezar otro hasta que el anterior termine. Tampoco puedes formular
+estando muerto, ni vistiendo una armadura que tu gremio no permita.
+
+  esferas     las esferas que te ha dado tu gremio, si es clerical.
+  escuelas    las escuelas, si tu gremio es de magos.
+
+Cada gremio usa una de las dos cosas, no las dos: al otro verbo te
+contestará que no lo necesitas.

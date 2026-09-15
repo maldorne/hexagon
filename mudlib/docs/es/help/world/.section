@@ -1,4 +1,5 @@
-@title world
+@verbs mundo world
+@title mundo
 @blurb los lugares por los que andas y lo que hay en ellos
 @tier player
 @order 30

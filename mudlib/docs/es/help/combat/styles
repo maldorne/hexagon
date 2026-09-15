@@ -1,0 +1,22 @@
+@verbs estilo estilos maestrias maestrías
+@tier player
+@title con qué peleas, y lo bien que se te da
+
+  estilos
+
+Lista tus estilos de lucha sin armas, con lo aprendido de cada uno,
+y dice cuál llevas puesto.
+
+  estilo <nombre>
+
+Cambia al estilo que le digas. 'estilo' y 'estilos' son la misma
+palabra: la lista sale siempre que no nombres ninguno.
+
+De momento hay que nombrarlo por su nombre interno, en inglés, que
+no es el que aparece en la lista: el estilo básico, que la lista
+llama 'Pelea', se elige con "estilo fighting".
+
+  maestrias
+
+Lista tus maestrías con armas: por cada tipo de arma que hayas
+llegado a manejar, lo bien que la manejas.

@@ -1,0 +1,21 @@
+@verbs password datos chfn notifications
+@tier player
+@title tu contraseña, tus datos y lo que te has perdido
+
+  password
+
+Cambia la contraseña. Te pide la que tienes, la nueva, y la nueva
+otra vez. Ha de tener seis caracteres o más. Si algo no cuadra, se
+cancela sin cambiar nada.
+
+  datos
+
+Los datos personales de tu cuenta: nombre real, lugar de residencia
+y día de cumpleaños. Se te pregunta uno por uno, y dejando la línea
+en blanco se queda como estaba; 'ninguno' o 'ninguna' lo borra.
+'chfn' es la misma palabra.
+
+  notifications
+
+Vuelve a mostrarte los avisos que el juego te ha ido dando, con la
+hora a la que llegaron.

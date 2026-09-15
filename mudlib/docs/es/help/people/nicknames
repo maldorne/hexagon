@@ -1,0 +1,17 @@
+@verbs apodo apodos nick dnick quitarapodo
+@tier player
+@title poner un nombre corto a quien nombras a menudo
+
+Un apodo es una abreviatura tuya para el nombre de otra persona.
+Nadie más lo ve: te sirve para escribir menos.
+
+  apodo <apodo> <nombre>   lo crea, o cambia uno que ya tenías.
+  apodo <apodo>            dice a qué nombre equivale.
+  apodo                    lista todos los que tengas.
+  quitarapodo <apodo>      lo borra.
+
+'nick' y 'apodos' hacen lo mismo que 'apodo'; 'dnick', lo mismo que
+'quitarapodo'.
+
+Donde se espera el nombre de alguien, el apodo vale igual: si has
+hecho "apodo g Guardia", entonces "tell g hola" habla con Guardia.

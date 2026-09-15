@@ -1,0 +1,23 @@
+@verbs stance actitud combat
+@tier player
+@title what you mean by fighting, and how far you take it
+
+  actitud [<stance>]
+
+Your stance says which part you play in a fight: 'ofensiva',
+'defensiva', 'de apoyo' or 'cualquiera' (the verb and the stances
+are not translated yet). With no argument it tells you which one
+you are on.
+
+Some effects can only be used from a particular stance, and they
+change it for you when they need to. That is why you cannot change
+it twice in a row: five minutes have to pass between one change and
+the next.
+
+  combat [<mode>]
+
+The mode is lethal or non-lethal. In a non-lethal fight, whoever is
+about to fall stops at one hit point, you both stop fighting, and
+the practice ends there. In a lethal one, they die.
+
+The mode that counts is the one of whoever lands the last blow.

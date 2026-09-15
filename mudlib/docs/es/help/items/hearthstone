@@ -1,0 +1,21 @@
+@verbs piedra transportar marcar invocar
+@tier player
+@title la piedra de hogar: volver a casa y llamar a tu montura
+
+  marcar piedra
+
+Deja marcado el sitio donde estás como tu casa. Sólo puede hacerse
+en una posada, y no en combate.
+
+  transportar
+
+Te lleva a lo que tengas marcado. Tardas diez segundos, durante los
+cuales no puedes moverte ni pelear, o el viaje se corta. Después la
+piedra queda sin fuerzas durante una hora.
+
+Si nunca has marcado nada, o el sitio marcado ya no existe, te
+lleva al lugar de origen de tu raza.
+
+  invocar montura
+
+Llama a tu montura, si tienes una.

@@ -1,0 +1,28 @@
+@verbs canales canal emergencia gremio clan raza aventurero
+@tier player
+@title los canales: hablar con un grupo esté donde esté
+
+Un canal lleva lo que escribes a toda la gente que lo escucha, sin
+importar dónde estéis. Cada canal es un verbo:
+
+  emergencia   abierto a todos los jugadores, para pedir ayuda.
+  gremio       para los miembros de tu gremio.
+  clan         para los miembros de tu clan.
+  raza         para los de tu mismo grupo racial.
+  aventurero   para el grupo con el que estés aventurándote.
+
+Los tres del medio sólo funcionan si perteneces a ese gremio, clan
+o grupo racial, y si ese grupo tiene canal propio.
+
+Escribiendo el nombre del canal y nada más no pasa nada; hay que
+darle algo que decir:
+
+  <canal> <mensaje>   lo envía a quien esté escuchando.
+  <canal> ?           recuerda estas opciones.
+  <canal> !           repite los últimos veinte mensajes.
+  <canal> off         deja de escucharlo.
+  <canal> on          vuelve a escucharlo.
+
+Un canal apagado tampoco te deja hablar por él. El de aventurero es
+la excepción: se abre y se cierra solo al entrar y salir del grupo,
+y no acepta 'on' ni 'off'.

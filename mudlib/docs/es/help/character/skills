@@ -1,0 +1,19 @@
+@verbs habilidades dotes
+@tier player
+@title lo que sabes hacer, y cómo se usa
+
+  habilidades
+
+Lista lo que sabes hacer, por categorías, y cuánto has aprendido de
+cada cosa. Las marcadas con (*) son pasivas: actúan solas, no las
+tecleas. 'dotes' es la misma palabra.
+
+Cada habilidad que no sea pasiva es además un verbo: si sabes
+esconderte, 'esconderse' es algo que puedes escribir. Algunas piden
+un objetivo, otras no.
+
+Para saber qué hace una en concreto, pregunta por ella:
+
+  ayuda <habilidad>
+
+Eso te da la explicación de esa habilidad, no esta lista.

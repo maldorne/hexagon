@@ -1,0 +1,5 @@
+@verbs belongings items
+@title belongings
+@blurb what you carry from the start: the diary and the stone
+@tier player
+@order 35

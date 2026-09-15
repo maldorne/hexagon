@@ -1,0 +1,26 @@
+@verbs cd pwd homedir paths
+@tier coder
+@title where you are in the file tree
+
+Every file name you type that does not start with '/' or '~' is
+read from the directory you are standing in.
+
+  pwd
+
+Says which directory that is.
+
+  cd <directory>
+
+Moves you there. '..' goes one up, and 'cd' with nothing takes you
+back to your home directory. '~' is /home/<your name>/, always.
+
+  cd <object>
+
+Takes you to the directory of that object's file: 'cd here' lands
+in the directory of the place you are in. Naming another creator
+takes you to the directory they are in.
+
+  homedir [<directory>]
+
+Sets the directory you start in when you log on, and the one bare
+'cd' returns to. With no argument it says which one it is.

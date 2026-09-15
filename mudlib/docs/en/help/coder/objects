@@ -1,0 +1,47 @@
+@verbs update dest inv pathof creator coder shadows debug dump find call goback
+@tier coder
+@title looking at live objects and changing them
+
+Where these verbs take an object, they take it the way every
+creator verb does: a name, 'here', 'me', 'all in here', another
+player. Where they take a file, the name is read from the directory
+you are standing in unless it starts with '/' or '~'.
+
+  update [<file|object>]
+
+Destructs the loaded copy and loads it again from disk. With no
+argument, or with 'here', it updates the place you are in. It does
+not reach clones already alive, nor objects that inherit the file
+you updated.
+
+  dest <object>
+  dest query <object>
+
+Destructs it. Interactive objects are refused. The 'query' form
+asks before each one.
+
+  inv <object>          what that object is carrying, with file names.
+  pathof <object>       the file name of the object itself.
+  creator <object>      who owns the file, and its uid and euid.
+  shadows <object>      the shadows acting on it, if any.
+  debug <object>        when it was compiled, how big its program is,
+                        how many variables and call-outs it has, and
+                        which functions it calls but does not define.
+
+'coder' does the same as 'creator', 'dump' the same as 'debug'.
+
+  find <function>() <object>
+
+Says whether that object answers to that function, and which file
+defines it. Also reports a shadow that defines it.
+
+  call <function>(<args>) <object>
+
+Calls the function and prints what came back. Arguments are written
+as LPC: numbers as numbers, strings in quotes, arrays in braces,
+and text between vertical bars is resolved to objects. Every call
+is logged.
+
+  goback
+
+Returns you to the place you were in before the last teleport.

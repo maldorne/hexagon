@@ -1,0 +1,20 @@
+@verbs spells magic hechizos formular esferas escuelas
+@tier player
+@title the spells you know and how to cast them
+
+Only the magic guilds teach spells; if you do not belong to one,
+these four verbs have nothing to tell you. They are not translated
+yet:
+
+  hechizos                      lists the ones you know.
+  formular <spell> [<target>]   casts one.
+
+Casting takes time: there is a round of preparation, and you cannot
+start another one until the first has finished. You cannot cast
+while dead either, nor wearing armour your guild does not allow.
+
+  esferas     the spheres your guild gave you, if it is clerical.
+  escuelas    the schools, if your guild is a mage guild.
+
+A guild uses one of the two, not both: the other verb answers that
+you do not need it.

@@ -1,0 +1,20 @@
+@verbs norte sur este oeste direcciones moverse
+@tier player
+@title andar de un sitio a otro
+
+Para moverte escribes la dirección, sin más:
+
+  norte  sur  este  oeste
+  noreste  noroeste  sudeste  sudoeste
+  arriba  abajo  dentro  fuera  escaleras
+
+Y con la inicial basta: n, s, e, o, ne, no, se, so, ar, ab, de,
+fu, es.
+
+Sólo funcionan las salidas que ese sitio tenga. Las que hay se
+listan entre corchetes al lado del nombre del lugar, así:
+
+  Entrada al pueblo de Naduk [e,n,o,s].
+
+Una dirección que no esté ahí te dirá que no funcionó. Y una salida
+puede tener una puerta, en cuyo caso habrá que abrirla antes.

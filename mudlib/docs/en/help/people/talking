@@ -1,0 +1,34 @@
+@verbs say whisper tell shout talking
+@tier player
+@title the four ways of saying something out loud
+
+You always speak in the language you have selected, and anybody who
+does not know it hears your words garbled. Use 'speak' to see which
+ones you know and to change from one to another.
+
+  say <text>
+
+Everybody where you are hears it. The closing punctuation changes
+the verb: "say hello" comes out as 'You say: hello', "say anybody
+there?" as 'You ask: ...' and "say hey!" as 'You exclaim: ...'.
+
+  whisper [to] <person> <text>
+
+Only that person hears you, and the rest see that you whispered
+something to them. They have to be where you are. The word 'to' is
+optional.
+
+  tell <person> <message>
+
+Reaches them wherever they are, at the other end of the world if
+need be. It needs a language that can be spoken at a distance, it
+spends social points, and the other person has to be connected. A
+nickname works in place of the name.
+
+  shout <text>
+
+Everybody hears it. It costs social points, more the longer the
+shout is, and afterwards you need a couple of seconds to catch your
+breath before shouting again. It also needs a language that can be
+spoken at a distance, and you cannot shout with your earmuffs on.
+Shouts are logged.

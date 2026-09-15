@@ -1,0 +1,26 @@
+@verbs cd pwd homedir rutas
+@tier coder
+@title dónde estás dentro del árbol de ficheros
+
+Todo nombre de fichero que escribas y no empiece por '/' ni por '~'
+se lee desde el directorio en el que estés.
+
+  pwd
+
+Dice cuál es ese directorio.
+
+  cd <directorio>
+
+Te lleva allí. '..' sube uno, y 'cd' a secas te devuelve a tu
+directorio de inicio. '~' es siempre /home/<tu nombre>/.
+
+  cd <objeto>
+
+Te lleva al directorio del fichero de ese objeto: 'cd here' te deja
+en el del lugar donde estás. Nombrando a otro programador, vas al
+directorio en el que él esté.
+
+  homedir [<directorio>]
+
+Fija el directorio en el que apareces al conectarte, y al que
+vuelve un 'cd' sin argumentos. Sin argumento dice cuál es.

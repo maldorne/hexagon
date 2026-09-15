@@ -1,0 +1,16 @@
+@verbs proteger desproteger
+@tier player
+@title recibir los golpes que iban para otro
+
+  proteger <objetivos>
+  desproteger <objetivo>
+
+Mientras proteges a alguien, los ataques que le lanzan te llegan a
+ti en su lugar, siempre que estéis los dos en el mismo sitio y tú
+sigas vivo.
+
+Nadie puede protegerte sin tu permiso: sólo funciona con quien haya
+puesto a sí su consentimiento 'proteger'. A quien no lo consienta,
+se te dirá que no quiere tu protección.
+
+Puedes nombrar a varios a la vez. 'desproteger' deshace uno.

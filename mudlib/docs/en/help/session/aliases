@@ -1,0 +1,24 @@
+@verbs aliases alias unalias flushalias
+@tier player
+@title shortening what you type often
+
+An alias is a verb of your own that turns into something else when
+you press enter.
+
+  alias                      lists the ones you have.
+  alias <name> <command>     creates it, or changes it.
+  unalias <name>             deletes it.
+
+Inside the command you can leave gaps for whatever you type after
+the alias:
+
+  $*$              everything you wrote after it.
+  $1$              the first word, $2$ the second, and so on.
+  $arg1:something$ the first word, or 'something' if you gave none.
+
+And a semicolon chains several commands into one:
+
+  alias greet say hello;smile
+
+A whole example: "alias g say hello $1$" makes "g Guardia" say
+"hello Guardia".

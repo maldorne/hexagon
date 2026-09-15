@@ -1,0 +1,15 @@
+@verbs diario
+@tier player
+@title el diario: dónde has estado
+
+  diario explorador
+
+Los lugares del mundo por los que has pasado, y cuántos son. Vale
+decir 'exploración' o 'lugares' en vez de 'explorador'.
+
+  diario viajes
+  diario enciclopedia
+
+Dos secciones todavía en blanco: el diario te lo dirá.
+
+El diario no se puede consultar estando muerto.

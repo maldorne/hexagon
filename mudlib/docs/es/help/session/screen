@@ -1,0 +1,28 @@
+@verbs columnas filas terminal sidebar
+@tier player
+@title ajustar el juego al tamaño de tu pantalla
+
+El juego reparte sus textos según lo ancha que le digas que es tu
+pantalla, así que vale la pena ajustarlo una vez.
+
+  columnas [<número>]
+
+Sin número, dice cuántas tiene puestas ahora. Con número, lo
+cambia; ha de estar entre 35 y 200. Empiezas con 80.
+
+  filas <número>
+
+Cuántas líneas caben de una vez, para las pausas al leer textos
+largos. Han de ser más de diez. Empiezas con 25.
+
+  terminal <tipo>
+
+De qué es capaz tu terminal, sobre todo en cuanto a color. Con un
+tipo que no exista te lo dice, pero no te enseña la lista.
+
+  sidebar <on|off>
+
+Dibuja a la derecha de la pantalla un panel con un mapa y tus
+barras de vida y energía. Necesita un terminal que entienda de
+posicionar el cursor, y el espacio se toma de las últimas doce
+columnas de las que hayas declarado.

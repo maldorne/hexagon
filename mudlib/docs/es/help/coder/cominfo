@@ -1,0 +1,26 @@
+@verbs cominfo coders
+@tier coder
+@title qué responde a un verbo, y el canal de programadores
+
+  cominfo
+  cominfo <verbo>
+  cominfo <verbo> <jugador>
+
+Todos los verbos que el jugador puede teclear, de dónde sale cada
+uno y si la función que hay detrás existe. Cada línea se lee así:
+
+  decir /lib/player->do_say() found in /lib/living/communicate.
+
+Un "not found" significa que la acción está registrada sobre una
+función que nadie define: el verbo existe y no puede funcionar.
+
+Sin argumentos lista todo, primero las acciones y luego los
+ficheros de /lib/cmds a los que ese jugador llega. Con un verbo
+muestra sólo ése, y con un nombre pregunta por ese jugador en vez
+de por ti.
+
+  coders <mensaje>
+
+El canal de los programadores. Admite las mismas opciones que
+cualquier canal: '?' para verlas, '!' para los últimos mensajes,
+'.' para saber quién escucha, y 'on' y 'off'.

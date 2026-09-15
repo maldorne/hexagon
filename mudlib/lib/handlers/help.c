@@ -26,8 +26,10 @@ inherit "/lib/core/object";
 mapping topics;
 // section -> ({ keyword, keyword, ... })
 mapping sections;
-// section -> ({ title, blurb, tier, order })
+// section -> ({ title, blurb, tier, order, words })
 mapping section_info;
+// "<section>/<file>" -> 1, for the documents already listed in a section
+static private mapping listed_docs;
 
 int build_index();
 private string lowered(string str);
@@ -35,6 +37,7 @@ private int match_pattern(string str, string pattern);
 int query_section_order(string name);
 string query_section_tier(string name);
 mixed * query_section_info(string name);
+string query_section_named(string word);
 private void index_tree(string dir, string section, string tier,
                         int keep_existing);
 private void index_driver();
@@ -47,6 +50,7 @@ void create()
   topics = ([ ]);
   sections = ([ ]);
   section_info = ([ ]);
+  listed_docs = ([ ]);
 
   restore_object(HELP_SAVE_FILE, 1);
 
@@ -183,7 +187,8 @@ private void index_tree(string dir, string section, string tier,
         ({ about["title"] ? about["title"] : section,
            about["blurb"] ? about["blurb"] : "",
            about["tier"] ? about["tier"] : tier,
-           about["order"] ? about["order"] : "50" });
+           about["order"] ? about["order"] : "50",
+           about["verbs"] ? about["verbs"] : "" });
       continue;
     }
 
@@ -223,8 +228,14 @@ private void index_tree(string dir, string section, string tier,
 
       if (!sections[section])
         sections[section] = ({ });
-      if (j == 0)
+
+      // the same document in another language still answers for its own
+      // words, but the section lists it once
+      if (j == 0 && !listed_docs[section + "/" + files[i]])
+      {
         sections[section] |= ({ word });
+        listed_docs[section + "/" + files[i]] = 1;
+      }
     }
   }
 }
@@ -252,7 +263,8 @@ private void index_driver()
       ({ about["title"] ? about["title"] : HELP_DRIVER_SECTION,
          about["blurb"] ? about["blurb"] : "",
          HELP_TIER_CODER,
-         about["order"] ? about["order"] : "90" });
+         about["order"] ? about["order"] : "90",
+         about["verbs"] ? about["verbs"] : "" });
   }
 
   for (i = 0; i < sizeof(dirs); i++)
@@ -287,6 +299,7 @@ int build_index()
   topics = ([ ]);
   sections = ([ ]);
   section_info = ([ ]);
+  listed_docs = ([ ]);
 
   root = "/docs/" + GLOBAL_COMPILE_LANG + "/help/";
   if (file_size(root) == -2)
@@ -364,7 +377,7 @@ mixed * query_section_info(string name)
 
   // a section that never said anything is named after its directory and
   // inherits the tier of whatever is in it
-  return ({ name, "", query_section_tier(name), "50" });
+  return ({ name, "", query_section_tier(name), "50", "" });
 }
 
 int query_section_order(string name)
@@ -388,6 +401,38 @@ string query_section_tier(string name)
     return HELP_TIER_PLAYER;
 
   return topics[words[0]][1];
+}
+
+// The section a word names: the directory it lives in, the title it is listed
+// under, or any word its own file claims with @verbs. The index shows titles,
+// so a title has to be enough to ask, and a title with an accent needs the
+// spelling without it to work too.
+string query_section_named(string word)
+{
+  string * names;
+  int i;
+
+  if (!stringp(word) || !strlen(word))
+    return nil;
+
+  word = lowered(word);
+  names = map_indices(sections);
+
+  for (i = 0; i < sizeof(names); i++)
+  {
+    mixed * about;
+
+    about = query_section_info(names[i]);
+
+    if (lowered(names[i]) == word || lowered(about[0]) == word)
+      return names[i];
+
+    if (sizeof(about) > 4 && stringp(about[4]) &&
+        member_array(word, explode(lowered(about[4]), " ")) != -1)
+      return names[i];
+  }
+
+  return nil;
 }
 
 string * query_section(string name)

@@ -1,0 +1,26 @@
+@verbs cominfo coders
+@tier coder
+@title what answers a verb, and the staff channel
+
+  cominfo
+  cominfo <verb>
+  cominfo <verb> <player>
+
+Every verb the player can type, where it comes from and whether the
+function behind it exists. Each line reads
+
+  decir /lib/player->do_say() found in /lib/living/communicate.
+
+"not found" means the action is registered on a function nobody
+defines: the verb exists and can never work.
+
+With no argument it lists everything, actions first and then the
+files under /lib/cmds the player may reach. With a verb it shows
+only that one, and with a player's name it asks about that player
+instead of you.
+
+  coders <message>
+
+The staff channel. It takes the same options every channel does:
+'?' for them, '!' for the last messages, '.' for who is listening,
+and 'on' and 'off'.

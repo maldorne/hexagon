@@ -1,0 +1,19 @@
+@verbs skills
+@tier player
+@title what you can do, and how it is used
+
+  skills
+
+Lists what you can do, by category, and how much you have learnt of
+each. The ones marked with (*) are passive: they work by
+themselves, you never type them.
+
+Every skill that is not passive is also a verb of its own: if you
+know how to hide, hiding is something you can type. Some ask for a
+target, some do not.
+
+To find out what one of them does, ask about it:
+
+  help <skill>
+
+That gives you the explanation of that skill, not this list.
