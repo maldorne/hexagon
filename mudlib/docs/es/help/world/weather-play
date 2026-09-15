@@ -1,0 +1,17 @@
+@verbs hacer mojar nieve
+@tier player
+@title jugar con el tiempo que hace
+
+Dos cosas que sólo se pueden hacer al aire libre, y nunca metido en
+el agua.
+
+  hacer bola de nieve
+  hacer muñeco de nieve
+
+Necesitan que esté nevando donde estés. Del muñeco sólo cabe uno
+por sitio, y aguanta un rato antes de que se pueda hacer otro.
+
+  mojar <alguien>
+
+Necesita que esté lloviendo, o que haya charcos. La otra persona ha
+de estar donde tú estás.

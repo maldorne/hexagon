@@ -1,0 +1,21 @@
+@verbs build anillo
+@tier coder
+@title el anillo constructor: el verbo con el que se hace un mundo
+
+  build <qué> ...
+
+Todo lo que tiene que ver con convertir salas en locations, montar
+una zona, sus puntos de interés, sus puestos de trabajo, sus casas
+y sus familias es un solo verbo, y ese verbo vive en el anillo
+constructor que llevas encima.
+
+Hay que ponerse el anillo antes: 'equipar' te lo pone, y hasta
+entonces 'build' sólo te lo recuerda.
+
+El anillo se documenta a sí mismo, y su lista es la que corresponde
+al código que estás ejecutando:
+
+  build                 lista todas las formas del verbo.
+  ayuda anillo          la misma lista, con para qué sirve.
+
+Esa lista no se repite aquí porque crece con el constructor.

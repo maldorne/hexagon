@@ -1,0 +1,16 @@
+@verbs snow snowball splash
+@tier player
+@title playing with the weather
+
+Two things that can only be done outdoors, and never while in the
+water. The verbs are not translated yet:
+
+  hacer bola de nieve
+  hacer muñeco de nieve
+
+They need snow falling where you are. Only one snowman fits in a
+place, and it stands for a while before another can be made.
+
+  mojar <somebody>
+
+Needs rain, or puddles. The other person has to be where you are.

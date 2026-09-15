@@ -1,0 +1,20 @@
+@verbs build ring builder-ring
+@tier coder
+@title the builder ring: the verb that makes a world
+
+  build <what> ...
+
+Everything about converting rooms into locations, laying out an
+area, its points of interest, its jobs, its houses and its families
+is one verb, and the verb lives on the builder ring you carry.
+
+The ring has to be worn first: 'equip' puts it on, and until then
+'build' only says so.
+
+The ring documents itself, and its list is the one that matches the
+code you are running:
+
+  build                 lists every form of the verb.
+  help ring             the same list, with what the ring is for.
+
+That list is not repeated here because it grows with the builder.
