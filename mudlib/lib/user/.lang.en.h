@@ -79,12 +79,16 @@
 
 #define _LANG_HELP_REINDEX ({ "reindex" })
 #define _LANG_HELP_REINDEXED(n) "Indexed " + (n) + " help topics.\n"
-#define _LANG_HELP_SECTIONS_HEADER "\nHelp topics:\n\n"
-#define _LANG_HELP_SECTIONS_FOOTER "\nType 'help <section>' to see its topics, " + \
-        "'help <topic>' to read one, or 'help *word*' to search.\n"
+#define _LANG_HELP_SECTIONS_FOOTER \
+        "  help <section>     the topics of a section\n" + \
+        "  help <topic>       read one\n" + \
+        "  help *word*        search\n" + \
+        "  commands           everything you can type\n"
+#define _LANG_HELP_SECTIONS_STAFF "  for creators"
+#define _LANG_HELP_KIND_INDEX "index"
 #define _LANG_HELP_MATCHES "\nMatching:\n\n"
 #define _LANG_HELP_NO_MATCHES "No topic matches that.\n"
-#define _LANG_HELP_TITLE_BAR(name) "] Help about: %^BOLD%^WHITE%^" + (name) + "%^RESET%^ ["
+#define _LANG_HELP_TITLE(name, kind) "%^BOLD%^WHITE%^" + (name) + "%^RESET%^ (" + (kind) + ")"
 #define _LANG_HELP_KIND_SEPARATOR "·"
 #define _LANG_HELP_KIND_COMMAND "command"
 #define _LANG_HELP_KIND_SKILL "skill"

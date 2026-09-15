@@ -25,7 +25,7 @@ private int show_matches(string pattern);
 private int show_topic(mixed * topic, string str);
 private int may_read(string tier);
 private string help_page(string name, string kind, string subtitle,
-                         string body);
+                         string body, int indent);
 
 static int compare_strings(string a, string b)
 {
@@ -35,32 +35,38 @@ static int compare_strings(string a, string b)
   return -1;
 }
 
-// One page for every kind of help, so a document does not read like a file
-// somebody printed by accident: a bar naming what is being read, what kind of
-// thing it is, the text, and a bar to say where it ends. Both bars are as wide
-// as the reader's screen.
+// A page of help: the name and what kind of thing it is, underlined to its own
+// width so the screen width never matters, then the text. An indented body
+// reads as a block without needing a rule around it; a document that brings its
+// own layout (the driver manual) is left as it is.
 private string help_page(string name, string kind, string subtitle,
-                         string body)
+                         string body, int indent)
 {
-  string out;
-  int width;
+  string title, out;
 
-  width = (int)this_object()->query_cols();
+  title = name + " (" + kind + ")";
 
-  out = sprintf("%p%|*s\n", '-', width,
-                fix_string(_LANG_HELP_TITLE_BAR(name)));
+  out = "\n" + fix_string(_LANG_HELP_TITLE(name, kind)) + "\n" +
+        sprintf("%p%*s", '=', strlen(title, TRUE), "") + "\n";
 
   if (strlen(subtitle))
-    out += subtitle + " " + _LANG_HELP_KIND_SEPARATOR + " " + kind + "\n\n";
+    out += subtitle + "\n";
+
+  out += "\n";
+
+  if (indent)
+  {
+    string * lines;
+    int i;
+
+    lines = explode(body, "\n");
+    for (i = 0; i < sizeof(lines); i++)
+      out += strlen(lines[i]) ? "  " + lines[i] + "\n" : "\n";
+  }
   else
-    out += kind + "\n\n";
+    out += body + "\n";
 
-  out += body;
-
-  if (!strlen(out) || out[strlen(out) - 1] != '\n')
-    out += "\n";
-
-  return out + sprintf("%p%*s\n", '-', width, "");
+  return out;
 }
 
 // Whether somebody may read a document written for a given tier.
@@ -77,33 +83,64 @@ private int may_read(string tier)
 private int show_sections()
 {
   string * names;
-  string out;
-  int i;
+  string out, extra;
+  int i, width;
 
   names = (string *)HELP_HANDLER->query_sections();
-  out = _LANG_HELP_SECTIONS_HEADER;
+  width = 0;
+
+  // the name column is as wide as the longest name that will be printed
+  for (i = 0; i < sizeof(names); i++)
+    if (may_read((string)HELP_HANDLER->query_section_tier(names[i])) &&
+        strlen(names[i], TRUE) > width)
+      width = strlen(names[i], TRUE);
+
+  out = "";
+  extra = "";
 
   for (i = 0; i < sizeof(names); i++)
   {
-    string * topics;
-    int shown;
+    mixed * about;
+    string * words;
+    string line;
+    int j, readable;
 
-    topics = (string *)HELP_HANDLER->query_section(names[i]);
-    shown = sizeof(topics);
-
-    if (!shown)
+    about = (mixed *)HELP_HANDLER->query_section_info(names[i]);
+    if (!may_read(about[2]))
       continue;
 
-    // a section nobody may read is not offered
-    if (!may_read(((mixed *)HELP_HANDLER->query_topic(topics[0]))[1]))
+    // count what the reader may actually open, not what the directory holds
+    words = (string *)HELP_HANDLER->query_section(names[i]);
+    readable = 0;
+    for (j = 0; j < sizeof(words); j++)
+    {
+      mixed * topic;
+
+      topic = (mixed *)HELP_HANDLER->query_topic(words[j]);
+      if (topic && may_read(topic[1]))
+        readable++;
+    }
+
+    if (!readable)
       continue;
 
-    out += sprintf("  %-14s %3d\n", names[i], shown);
+    line = sprintf("  %-*s %4d   %s\n", width, about[0], readable, about[1]);
+
+    // what is not for a player goes below, under its own heading
+    if (about[2] == HELP_TIER_PLAYER)
+      out += line;
+    else
+      extra += line;
   }
 
-  out += _LANG_HELP_SECTIONS_FOOTER;
+  if (strlen(extra))
+    out += "\n" + _LANG_HELP_SECTIONS_STAFF + "\n" + extra;
 
-  this_object()->more_string(out, capitalize(_LANG_HELP_NAME));
+  out += "\n" + _LANG_HELP_SECTIONS_FOOTER;
+
+  this_object()->more_string(
+    help_page(_LANG_HELP_NAME, _LANG_HELP_KIND_INDEX, "", out, FALSE),
+    capitalize(_LANG_HELP_NAME));
   return 1;
 }
 
@@ -129,7 +166,8 @@ private int show_section(string name)
   }
 
   this_object()->more_string(
-    help_page(name, _LANG_HELP_KIND_SECTION, "", out), capitalize(name));
+    help_page(name, _LANG_HELP_KIND_SECTION, "", out, FALSE),
+    capitalize(name));
   return 1;
 }
 
@@ -197,7 +235,8 @@ private int show_topic(mixed * topic, string str)
                                                ? _LANG_HELP_KIND_DRIVER
                                                : _LANG_HELP_KIND_CODER_TOPIC)
                                           : _LANG_HELP_KIND_TOPIC,
-              topic[3], trim(text) + "\n"),
+              topic[3], trim(text) + "\n",
+              topic[2] != HELP_DRIVER_SECTION && topic[2] != "kfun"),
     capitalize(str));
   return 1;
 }
@@ -282,7 +321,8 @@ int do_help(string str)
             help_page(str, _LANG_HELP_KIND_COMMAND, "",
                       _LANG_CMD_SYNTAX + ob->query_usage() + "\n\n" +
                       (ob->query_help() ? wrap(ob->query_help())
-                                        : _LANG_HELP_CMD_NO_HELP) + "\n"),
+                                        : _LANG_HELP_CMD_NO_HELP) + "\n",
+                      TRUE),
             capitalize(str));
           return 1;
         }
@@ -294,7 +334,7 @@ int do_help(string str)
   if ((text = this_object()->player()->help_skill(str)) && strlen(text))
   {
     this_object()->more_string(
-      help_page(str, _LANG_HELP_KIND_SKILL, "", text + "\n"),
+      help_page(str, _LANG_HELP_KIND_SKILL, "", text + "\n", FALSE),
       capitalize(str));
     return 1;
   }
@@ -375,7 +415,7 @@ int do_help(string str)
         return 0;
       }
 
-      s = help_page(str, _LANG_HELP_KIND_SOUL, "", wrap(s));
+      s = help_page(str, _LANG_HELP_KIND_SOUL, "", wrap(s), FALSE);
       this_user()->set_finish_func("end_of_help");
       this_user()->more_string(s, capitalize(str));
       return 1;

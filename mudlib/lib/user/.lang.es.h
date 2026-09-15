@@ -79,12 +79,16 @@
 
 #define _LANG_HELP_REINDEX ({ "reindex", "reindexar" })
 #define _LANG_HELP_REINDEXED(n) "Indexados " + (n) + " temas de ayuda.\n"
-#define _LANG_HELP_SECTIONS_HEADER "\nTemas de ayuda:\n\n"
-#define _LANG_HELP_SECTIONS_FOOTER "\nEscribe 'ayuda <sección>' para ver sus temas, " + \
-        "'ayuda <tema>' para leerlo, o 'ayuda *palabra*' para buscar.\n"
+#define _LANG_HELP_SECTIONS_FOOTER \
+        "  ayuda <sección>    los temas de una sección\n" + \
+        "  ayuda <tema>       leer uno\n" + \
+        "  ayuda *palabra*    buscar\n" + \
+        "  comandos           todo lo que puedes teclear\n"
+#define _LANG_HELP_SECTIONS_STAFF "  para programadores"
+#define _LANG_HELP_KIND_INDEX "índice"
 #define _LANG_HELP_MATCHES "\nCoinciden:\n\n"
 #define _LANG_HELP_NO_MATCHES "No hay ningún tema que coincida.\n"
-#define _LANG_HELP_TITLE_BAR(name) "] Ayuda sobre: %^BOLD%^WHITE%^" + (name) + "%^RESET%^ ["
+#define _LANG_HELP_TITLE(name, kind) "%^BOLD%^WHITE%^" + (name) + "%^RESET%^ (" + (kind) + ")"
 #define _LANG_HELP_KIND_SEPARATOR "·"
 #define _LANG_HELP_KIND_COMMAND "comando"
 #define _LANG_HELP_KIND_SKILL "habilidad"

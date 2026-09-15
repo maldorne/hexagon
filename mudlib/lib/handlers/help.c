@@ -26,13 +26,19 @@ inherit "/lib/core/object";
 mapping topics;
 // section -> ({ keyword, keyword, ... })
 mapping sections;
+// section -> ({ title, blurb, tier, order })
+mapping section_info;
 
 int build_index();
 private string lowered(string str);
 private int match_pattern(string str, string pattern);
+int query_section_order(string name);
+string query_section_tier(string name);
+mixed * query_section_info(string name);
 private void index_tree(string dir, string section, string tier,
                         int keep_existing);
 private void index_driver();
+private mapping fields_of(string path);
 private string * header_of(string path);
 
 void create()
@@ -40,6 +46,7 @@ void create()
   // the index has to exist before ::create() runs setup()
   topics = ([ ]);
   sections = ([ ]);
+  section_info = ([ ]);
 
   restore_object(HELP_SAVE_FILE, 1);
 
@@ -123,6 +130,27 @@ private string * header_of(string path)
   return out;
 }
 
+// The @fields of a header, as a mapping.
+private mapping fields_of(string path)
+{
+  mapping out;
+  string * head;
+  int i;
+
+  out = ([ ]);
+  head = header_of(path);
+
+  for (i = 0; i < sizeof(head); i++)
+  {
+    string field, value;
+
+    if (sscanf(head[i], "@%s %s", field, value) == 2)
+      out[field] = trim(value);
+  }
+
+  return out;
+}
+
 // Read one directory of documents into the index. Every file is expected to
 // carry a header; one without @verbs is indexed by its own name, so a
 // document is never invisible just because somebody forgot the line.
@@ -137,9 +165,29 @@ private void index_tree(string dir, string section, string tier,
   for (i = 0; i < sizeof(files); i++)
   {
     string path, title, own_tier;
-    string * head, * verbs;
+    string * verbs;
+    mapping about;
 
-    // a dotfile is not a document
+    // a section says what it is in a file of its own
+    if (files[i] == HELP_SECTION_FILE)
+    {
+      mapping about;
+
+      // the English tree does not re-label a section the mud's own language
+      // has already described
+      if (keep_existing && section_info[section])
+        continue;
+
+      about = fields_of(dir + files[i]);
+      section_info[section] =
+        ({ about["title"] ? about["title"] : section,
+           about["blurb"] ? about["blurb"] : "",
+           about["tier"] ? about["tier"] : tier,
+           about["order"] ? about["order"] : "50" });
+      continue;
+    }
+
+    // no other dotfile is a document
     if (files[i][0] == '.')
       continue;
 
@@ -152,31 +200,10 @@ private void index_tree(string dir, string section, string tier,
       continue;
     }
 
-    head = header_of(path);
-    verbs = ({ });
-    title = "";
-    own_tier = tier;
-
-    for (j = 0; j < sizeof(head); j++)
-    {
-      string field, value;
-
-      if (sscanf(head[j], "@%s %s", field, value) != 2)
-        continue;
-
-      switch (field)
-      {
-      case "verbs":
-        verbs += explode(value, " ") - ({ "" });
-        break;
-      case "tier":
-        own_tier = trim(value);
-        break;
-      case "title":
-        title = trim(value);
-        break;
-      }
-    }
+    about = fields_of(path);
+    verbs = about["verbs"] ? explode(about["verbs"], " ") - ({ "" }) : ({ });
+    title = about["title"] ? about["title"] : "";
+    own_tier = about["tier"] ? about["tier"] : tier;
 
     if (!sizeof(verbs))
       verbs = ({ files[i] });
@@ -215,6 +242,19 @@ private void index_driver()
 
   dirs = get_dir(root);
 
+  // the manual describes itself in the same way a section of ours does
+  if (file_size(root + HELP_SECTION_FILE) > 0)
+  {
+    mapping about;
+
+    about = fields_of(root + HELP_SECTION_FILE);
+    section_info[HELP_DRIVER_SECTION] =
+      ({ about["title"] ? about["title"] : HELP_DRIVER_SECTION,
+         about["blurb"] ? about["blurb"] : "",
+         HELP_TIER_CODER,
+         about["order"] ? about["order"] : "90" });
+  }
+
   for (i = 0; i < sizeof(dirs); i++)
   {
     string path;
@@ -246,6 +286,7 @@ int build_index()
 
   topics = ([ ]);
   sections = ([ ]);
+  section_info = ([ ]);
 
   root = "/docs/" + GLOBAL_COMPILE_LANG + "/help/";
   if (file_size(root) == -2)
@@ -292,7 +333,62 @@ string * query_matching(string pattern)
   return sort_array(out);
 }
 
-string * query_sections() { return map_indices(sections); }
+// Sections in the order they want to be read in, the ones that said so first.
+string * query_sections()
+{
+  string * names, * out;
+  int i, pass;
+
+  names = map_indices(sections);
+  out = ({ });
+
+  // @order is a string in the saved mapping; ten passes is enough for the
+  // handful of sections a mud has, and keeps the sort out of the way
+  for (pass = 0; pass <= 99; pass++)
+    for (i = 0; i < sizeof(names); i++)
+      if (query_section_order(names[i]) == pass)
+        out += ({ names[i] });
+
+  return out + (names - out);
+}
+
+// What a section says about itself: its name to read, a line about what is in
+// it, who it is for, and where it goes in the list.
+mixed * query_section_info(string name)
+{
+  if (!stringp(name))
+    return nil;
+
+  if (section_info[name])
+    return section_info[name];
+
+  // a section that never said anything is named after its directory and
+  // inherits the tier of whatever is in it
+  return ({ name, "", query_section_tier(name), "50" });
+}
+
+int query_section_order(string name)
+{
+  mixed * about;
+
+  about = query_section_info(name);
+  return about ? (int)about[3] : 50;
+}
+
+// The tier of a section with no file of its own: the one its documents carry.
+string query_section_tier(string name)
+{
+  string * words;
+
+  if (section_info[name])
+    return section_info[name][2];
+
+  words = sections[name];
+  if (!words || !sizeof(words) || !topics[words[0]])
+    return HELP_TIER_PLAYER;
+
+  return topics[words[0]][1];
+}
 
 string * query_section(string name)
 {

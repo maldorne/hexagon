@@ -10,6 +10,10 @@
 // who a document is for; a document says so with "@tier <name>"
 #define HELP_TIER_PLAYER    "player"
 #define HELP_TIER_CODER     "coder"
+#define HELP_TIER_ADMIN     "admin"
+
+// a section says what it is in a file of this name inside its directory
+#define HELP_SECTION_FILE   ".section"
 
 // documents that sit directly under help/, outside any section
 #define HELP_GENERAL_SECTION "general"
