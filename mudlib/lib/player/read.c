@@ -1,5 +1,6 @@
 
 #include <basic/communicate.h>
+#include <translations/language.h>
 #include <language.h>
 
 void create()
@@ -50,7 +51,9 @@ string read_message(string str, string lang, varargs int size, string frame_styl
   if (strlen(frame_style))
     str = frames->frame(str, "", 0, 0, frame_style);
 
-  if (!lang)
+  // the common tongue is the one everything is written in: naming it says
+  // nothing the reader does not know
+  if (!lang || lang == STD_LANG)
     return _LANG_READ;
 
   // show the language by its real-world-language name, not the id
