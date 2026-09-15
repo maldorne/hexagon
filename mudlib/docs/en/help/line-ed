@@ -1,3 +1,6 @@
+@verbs line-ed ed
+@tier coder
+@title ed, the line editor
 
 When in 'ed', the prompt is ':'.
 

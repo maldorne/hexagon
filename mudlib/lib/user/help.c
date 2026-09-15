@@ -3,6 +3,7 @@
 // nroff files removed, neverbot 06/2010
 
 #include <mud/cmd.h>
+#include <files/help.h>
 #include <language.h>
 
 #define help_dirs ({ "/lib/docs/mud/concepts/", \
@@ -18,12 +19,148 @@
                         "/lib/docs/driver/lpc/constructs/", })
 
 
+private int show_sections();
+private int show_section(string name);
+private int show_matches(string pattern);
+private int show_topic(mixed * topic, string str);
+private int may_read(string tier);
+
 static int compare_strings(string a, string b)
 {
   if (a == b) return 0;
   if (!a || !b) return 1;
   if (a > b) return 1;
   return -1;
+}
+
+// Whether somebody may read a document written for a given tier.
+private int may_read(string tier)
+{
+  if (tier != HELP_TIER_CODER)
+    return TRUE;
+
+  return this_object()->player() && this_object()->player()->query_coder();
+}
+
+// What there is to read, by section. The whole index would be hundreds of
+// words; the sections are what fits on a screen.
+private int show_sections()
+{
+  string * names;
+  string out;
+  int i;
+
+  names = (string *)HELP_HANDLER->query_sections();
+  out = _LANG_HELP_SECTIONS_HEADER;
+
+  for (i = 0; i < sizeof(names); i++)
+  {
+    string * topics;
+    int shown;
+
+    topics = (string *)HELP_HANDLER->query_section(names[i]);
+    shown = sizeof(topics);
+
+    if (!shown)
+      continue;
+
+    // a section nobody may read is not offered
+    if (!may_read(((mixed *)HELP_HANDLER->query_topic(topics[0]))[1]))
+      continue;
+
+    out += sprintf("  %-14s %3d\n", names[i], shown);
+  }
+
+  out += _LANG_HELP_SECTIONS_FOOTER;
+
+  this_object()->more_string(out, capitalize(_LANG_HELP_NAME));
+  return 1;
+}
+
+// The documents of one section, with whatever each says it is about.
+private int show_section(string name)
+{
+  string * topics;
+  string out;
+  int i;
+
+  topics = (string *)HELP_HANDLER->query_section(name);
+  out = _LANG_HELP_SECTION_HEADER(name);
+
+  for (i = 0; i < sizeof(topics); i++)
+  {
+    mixed * topic;
+
+    topic = (mixed *)HELP_HANDLER->query_topic(topics[i]);
+    if (!topic || !may_read(topic[1]))
+      continue;
+
+    out += sprintf("  %-18s %s\n", topics[i], topic[3]);
+  }
+
+  this_object()->more_string(out, capitalize(name));
+  return 1;
+}
+
+// Every word that matches, for when only half of it is remembered.
+private int show_matches(string pattern)
+{
+  string * words;
+  string out;
+  int i, shown;
+
+  words = (string *)HELP_HANDLER->query_matching(pattern);
+  out = "";
+
+  for (i = 0; i < sizeof(words); i++)
+  {
+    mixed * topic;
+
+    topic = (mixed *)HELP_HANDLER->query_topic(words[i]);
+    if (!topic || !may_read(topic[1]))
+      continue;
+
+    out += sprintf("  %-18s %-10s %s\n", words[i], topic[2], topic[3]);
+    shown++;
+  }
+
+  if (!shown)
+  {
+    notify_fail(_LANG_HELP_NO_MATCHES);
+    return 0;
+  }
+
+  this_object()->more_string(_LANG_HELP_MATCHES + out, pattern);
+  return 1;
+}
+
+// Read one document out. The argument is named `str` because the "no help
+// about" message reads it from the caller's scope.
+private int show_topic(mixed * topic, string str)
+{
+  string text;
+
+  text = read_file(topic[0]);
+
+  if (!stringp(text) || !strlen(text))
+  {
+    notify_fail(_LANG_HELP_NO_HELP_ABOUT);
+    return 0;
+  }
+
+  // the header says what the document answers to; it is not part of it
+  while (strlen(text) && text[0] == '@')
+  {
+    int i;
+
+    i = strsrch(text, "\n");
+    if (i == -1)
+      break;
+    text = text[i + 1 ..];
+  }
+
+  this_object()->more_string(trim(text) + "\n", capitalize(str));
+  return 1;
 }
 
 int do_help(string str)
@@ -39,53 +176,21 @@ int do_help(string str)
 
   if (!strlen(str))
   {
-    s = "";
-    /*
-    s = "%^GREEN%^Temas importantes%^RESET%^:\n";
-    s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
-      implode(get_dir("/lib/docs/mud/important/"), "\n"));
+    return show_sections();
+  }
 
-    s += "%^GREEN%^Conceptos generales del juego%^RESET%^:\n";
-    s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
-      implode(get_dir("/lib/docs/mud/concepts/"), "\n"));
-
-    s += "%^GREEN%^Otros temas%^RESET%^:\n";
-    s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
-      implode(get_dir("/lib/docs/helpdir/"), "\n"));
-
-    if (this_object()->query_coder())
-    {
-      s += "%^GREEN%^Coder command help%^RESET%^:\n";
-      s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
-        implode(get_dir("/lib/docs/coder/"), "\n"));
-
-      s += "%^GREEN%^Programming help%^RESET%^:\n";
-
-      aux = ({ });
-
-      for (i = 0; i < sizeof(creator_dirs); i++)
-      {
-        // Already shown above
-        if (creator_dirs[i] == "/lib/docs/coder/")
-          continue;
-        // Skip it if it is not a directory
-        if (file_size(creator_dirs[i]) != -2)
-          continue;
-        aux += get_dir(creator_dirs[i]);
-      }
-
-      aux = sort_array(aux, "compare_strings");
-
-      s += sprintf("\n%-#*s\n\n", (int)this_user()->query_cols(),
-        implode(aux, "\n"));
-    }
-    */
-
-    s += _LANG_HELP_SYNTAX;
-
-    this_object()->more_string(s + "\n", capitalize(_LANG_HELP_NAME));
+  // reindex: the documents are read from disk, so they are indexed once and
+  // remembered; a new one needs the index built again
+  if (member_array(str, _LANG_HELP_REINDEX) != -1 &&
+      this_object()->player() && this_object()->player()->query_coder())
+  {
+    write(_LANG_HELP_REINDEXED(HELP_HANDLER->build_index()));
     return 1;
   }
+
+  // a pattern, for when the word is only half remembered
+  if (strsrch(str, "*") != -1 || strsrch(str, "?") != -1)
+    return show_matches(str);
 
   /*
   if (sscanf(str, "spell %s", s) == 1 )
@@ -148,6 +253,18 @@ int do_help(string str)
   {
     this_object()->more_string(text + "\n", capitalize(str));
     return 1;
+  }
+
+  // a section of the index, then a document of it
+  if (member_array(str, (string *)HELP_HANDLER->query_sections()) != -1)
+    return show_section(str);
+
+  {
+    mixed * topic;
+
+    topic = (mixed *)HELP_HANDLER->query_topic(str);
+    if (topic && may_read(topic[1]))
+      return show_topic(topic, str);
   }
 
   if (member_array(str, _LANG_HELP_EMOTIONS) != -1)

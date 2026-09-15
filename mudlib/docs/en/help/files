@@ -1,3 +1,7 @@
+@verbs files
+@tier coder
+@title the tools for reading and changing files
+
 This is a brief editing help list for creators.  Share and enjoy.
 
 ls                       -- Lists the files in the present directory.

@@ -74,3 +74,14 @@
 #define _LANG_UI_SIDEBAR_SYNTAX "Usa sidebar <on|off> para activarla o desactivarla.\n"
 #define _LANG_UI_MAP "Mapa"
 #define _LANG_UI_STATS "Puntos"
+
+// help topics
+
+#define _LANG_HELP_REINDEX ({ "reindex", "reindexar" })
+#define _LANG_HELP_REINDEXED(n) "Indexados " + (n) + " temas de ayuda.\n"
+#define _LANG_HELP_SECTIONS_HEADER "\nTemas de ayuda:\n\n"
+#define _LANG_HELP_SECTIONS_FOOTER "\nEscribe 'ayuda <sección>' para ver sus temas, " + \
+        "'ayuda <tema>' para leerlo, o 'ayuda *palabra*' para buscar.\n"
+#define _LANG_HELP_SECTION_HEADER(name) "\nTemas de " + (name) + ":\n\n"
+#define _LANG_HELP_MATCHES "\nCoinciden:\n\n"
+#define _LANG_HELP_NO_MATCHES "No hay ningún tema que coincida.\n"
