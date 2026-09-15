@@ -10,7 +10,7 @@ void create()
 void account_commands()
 {
   // add_action("set_email", "email");
-  add_action("chfn", ({ "datos", "chfn" }));
+  add_action("chfn", _LANG_ACCOUNT_DETAILS_VERBS);
 }
 
 void show_commands()
@@ -20,11 +20,8 @@ void show_commands()
 
 int chfn(string str)
 {
-  write("Cambiando los datos personales de tu cuenta.\n");
-  write("Si no introduces algún dato, se tomará la opción por defecto (entre corchetes).\n");
-
-  write("\nIntroduce tu nombre real ["+this_object()->query_real_name()+"]\n"+
-    "('ninguno' para borrarlo): ");
+  write(_LANG_ACCOUNT_DETAILS_HEADER);
+  write(_LANG_ACCOUNT_ASK_REAL_NAME);
   input_to("real_name");
   return 1;
 }
@@ -33,25 +30,23 @@ int real_name(string str)
 {
   if (strlen(str))
   {
-    if ((str == "none") || (str == "ninguno") || (str == "ninguna"))
+    if (member_array(str, _LANG_ACCOUNT_NONE_WORDS) != -1)
     {
       this_object()->set_real_name("");
-      write("Ok, nombre real borrado.\n");
+      write(_LANG_ACCOUNT_REAL_NAME_CLEARED);
     }
     else
     {
       this_object()->set_real_name(str);
-      write("Ok, nombre real establecido como "+str+".\n");
+      write(_LANG_ACCOUNT_REAL_NAME_SET);
     }
   }
   else
   {
-    write("Ok, nombre real sin modificar.\n");
+    write(_LANG_ACCOUNT_REAL_NAME_KEPT);
   }
 
-  write("\nIntroduce tu lugar de residencia (ej: Madrid, Estocolmo... ) ["+
-    this_object()->query_location()+"]\n"+
-    "('ninguna' para borrarla): ");
+  write(_LANG_ACCOUNT_ASK_LOCATION);
   input_to("get_where");
   return 1;
 } /* real_name() */
@@ -60,24 +55,23 @@ int get_where(string str)
 {
   if (strlen(str))
   {
-    if ((str == "none") || (str == "ninguno") || (str == "ninguna"))
+    if (member_array(str, _LANG_ACCOUNT_NONE_WORDS) != -1)
     {
       this_object()->set_location("");
-      write("Ok, lugar de residencia borrado.\n");
+      write(_LANG_ACCOUNT_LOCATION_CLEARED);
     }
     else
     {
       this_object()->set_location(str);
-      write("Ok, lugar de residencia establecido como "+str+".\n");
+      write(_LANG_ACCOUNT_LOCATION_SET);
     }
   }
   else
   {
-    write("Ok, lugar de residencia sin modificar.\n");
+    write(_LANG_ACCOUNT_LOCATION_KEPT);
   }
 
-  write("\nIntroduce tu fecha de cumpleaños (ddmm) ["+this_object()->query_birthday()+"]\n"+
-    "('ninguna' para borrarla): ");
+  write(_LANG_ACCOUNT_ASK_BIRTHDAY);
   input_to("birthday");
   return 1;
 } /* get_where() */
@@ -86,26 +80,26 @@ void birthday(string str)
 {
   if (strlen(str))
   {
-    if ((str == "none") || (str == "ninguno") || (str == "ninguna"))
+    if (member_array(str, _LANG_ACCOUNT_NONE_WORDS) != -1)
     {
       this_object()->set_birthday("");
-      write("Ok, fecha de cumpleaños borrada.\n");
+      write(_LANG_ACCOUNT_BIRTHDAY_CLEARED);
     }
     else
     {
       if (!handler("calendar")->valid_birthday(str))
       {
-        write("La fecha no es válida, vuelve a introducirla (ddmm): ");
+        write(_LANG_ACCOUNT_BIRTHDAY_INVALID);
         input_to("birthday",1);
         return;
       }
       this_object()->set_birthday(str);
-      write("Ok, fecha de cumpleaños establecida como "+str+".\n");
+      write(_LANG_ACCOUNT_BIRTHDAY_SET);
     }
   }
   else
   {
-    write("Ok, fecha de cumpleaños sin modificar.\n");
+    write(_LANG_ACCOUNT_BIRTHDAY_KEPT);
   }
 
   this_object()->save_me();

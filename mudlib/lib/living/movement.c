@@ -16,11 +16,11 @@ inherit container "/lib/core/basic/container";
 //   [2] mout  (teleporting away) [3] min  (teleporting in)
 // An empty slot means "use the current server's language default"; only a
 // value a builder/race actually set is stored. This keeps a player/NPC
-// savefile free of language-specific move strings, so a character (ficha)
-// moves between a Spanish and an English instance and picks up that
-// instance's defaults. Races (re)apply their own phrasing every login via
-// start_player, in the current language, so a stored race string is always
-// refreshed and never pins the ficha to one language.
+// savefile free of language-specific move strings, so a character moves
+// between instances of different languages and picks up that instance's
+// defaults. Races (re)apply their own phrasing every login via start_player,
+// in the current language, so a stored race string is always refreshed and
+// never pins the character to one language.
 #define MOVE_MSG_OUT  0
 #define MOVE_MSG_IN   1
 #define MOVE_MSG_MOUT 2

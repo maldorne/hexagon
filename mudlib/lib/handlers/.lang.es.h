@@ -199,3 +199,52 @@
 #define _LANG_SOULS_HELP_WITHOUT_PARAMETERS "Puede utilizarse sin argumentos.\n"
 #define _LANG_SOULS_HELP_AVAILABLE_PARAMETERS "Los argumentos posibles son: "+implode(bit,", ")+".\n"
 #define _LANG_SOULS_HELP_HAS_NO_PARAMETERS "No tiene argumentos.\n"
+
+// channels
+//
+// A channel is stored and asked for by its id, an English word. The words a
+// player types are here, and so is the name the channel is shown under.
+// `name` in these messages is the display name of the channel.
+
+#define _LANG_CHANNEL_VERBS ([ \
+  "emergencia" : "emergency", \
+  "gremio"     : "guild", \
+  "clan"       : "clan", \
+  "raza"       : "race", \
+  "aventurero" : "adventurer", \
+])
+
+#define _LANG_CHANNEL_NAMES ([ \
+  "emergency" : "emergencia", \
+])
+
+#define _LANG_CHANNEL_ANY "<canal>"
+
+#define _LANG_CHANNEL_OPENED "Ok, abres el canal %^BOLD%^WHITE%^" + name + "%^RESET%^.\n"
+#define _LANG_CHANNEL_CLOSED "Ok, apagas el canal %^RED%^" + name + "%^RESET%^.\n"
+#define _LANG_CHANNEL_ALREADY_ON "¡El canal '" + name + "' ya está activado!\n"
+#define _LANG_CHANNEL_ALREADY_OFF "¡El canal '" + name + "' ya está desactivado!\n"
+#define _LANG_CHANNEL_NOT_LISTENING "No tienes ese canal activado.\n"
+#define _LANG_CHANNEL_DISABLED "Tu canal ha sido deshabilitado.\n"
+#define _LANG_CHANNEL_NO_PERMISSION "No tienes permiso para usar el canal '" + name + "'.\n"
+#define _LANG_CHANNEL_NEEDS_MESSAGE "Funciona mejor si introduces un mensaje.\n"
+
+#define _LANG_CHANNEL_NO_GUILD "No eres miembro de ningún gremio.\n"
+#define _LANG_CHANNEL_GUILD_NO_CHANNEL "Tu gremio no tiene esa habilidad.\n"
+#define _LANG_CHANNEL_NO_CLAN "No eres miembro de ningún clan.\n"
+#define _LANG_CHANNEL_CLAN_NO_CHANNEL "Tu clan no tiene esa habilidad.\n"
+#define _LANG_CHANNEL_NO_RACE_GROUP "No eres miembro de ningún grupo racial.\n"
+#define _LANG_CHANNEL_RACE_NO_CHANNEL "Tu grupo racial no tiene esa habilidad.\n"
+#define _LANG_CHANNEL_NO_PARTY "Debes pertenecer a un grupo para utilizar este canal.\n"
+#define _LANG_CHANNEL_PARTY_AUTOMATIC "No puedes abrir ni cerrar el canal de tu grupo, funciona automáticamente.\n"
+
+#define _LANG_CHANNEL_HISTORY_HEADER "Historia del canal '" + name + "':\n"
+#define _LANG_CHANNEL_HISTORY_EMPTY "El canal está vacío.\n"
+#define _LANG_CHANNEL_HISTORY_NOT_ALLOWED "Intento de ver el histórico de canales a los que no tienes permiso.\n"
+#define _LANG_CHANNEL_HELP_HEADER "Ayuda del canal '" + name + "':\n"
+#define _LANG_CHANNEL_WHO_HEADER "Gente escuchando en el canal '" + name + "':"
+
+#define _LANG_CHANNEL_HELP_MESSAGE "\t" + name + " <mensaje> : Envía un mensaje a la gente que escucha el canal.\n"
+#define _LANG_CHANNEL_HELP_HELP "\t" + name + " ?     : Muestra este mensaje de ayuda.\n"
+#define _LANG_CHANNEL_HELP_HISTORY "\t" + name + " !     : Ver los últimos " + number_as_string(MAX_CHANNEL_HISTORY) + " mensajes enviados al canal.\n"
+#define _LANG_CHANNEL_HELP_WHO "\t" + name + " .     : Lista quienes están escuchando el canal.\n"

@@ -91,3 +91,18 @@
 
 #define _LANG_EXPLORATION_DISCOVERED_PRE "%^BOLD%^%^GREEN%^¡Has descubierto un nuevo lugar: "
 #define _LANG_EXPLORATION_DISCOVERED_POST "!%^RESET%^\n"
+
+// nicknames. `s1` is the nickname, `s2` the name it stands for, and `str`
+// the one being asked about or deleted
+#define _LANG_NICKNAME_VERBS ({ "apodo", "apodos", "nick" })
+#define _LANG_NICKNAME_DELETE_VERBS ({ "quitarapodo", "dnick" })
+
+#define _LANG_NICKNAME_SYNTAX "Sintaxis: " + query_verb() + " <apodo> <nombre>\n"
+#define _LANG_NICKNAME_ADDED "Apodo '" + s1 + "' añadido como '" + s2 + "'.\n"
+#define _LANG_NICKNAME_CHANGED "Apodo '" + s1 + "' cambiado de '" + map_nicknames[s1] + "' a '" + s2 + "'.\n"
+#define _LANG_NICKNAME_UNKNOWN "Ese apodo no existe.\n"
+#define _LANG_NICKNAME_DELETED "Apodo borrado: " + str + "\n"
+#define _LANG_NICKNAME_NONE "No tienes apodos definidos.\n"
+#define _LANG_NICKNAME_LIST_HEADER " * Lista de apodos:\n"
+#define _LANG_NICKNAME_LIST_FOOTER " Utiliza '" + _LANG_NICKNAME_DELETE_VERBS[0] + " <nombre>' para borrarlo\n"
+#define _LANG_NICKNAME_STANDS_FOR "El apodo '" + str + "' equivale a '" + map_nicknames[str] + "'.\n"

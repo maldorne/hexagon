@@ -21,8 +21,6 @@
 
 #define PAST_LENGHT 30
 
-#define NO_POWER "Puntos sociales insuficientes.\n"
-#define NOT_ALLOWED "Aún no posees esa habilidad.\n"
 #define SHOUT_COST 20
 #define TELL_COST 1
 #define EMOTE_COST 1
@@ -36,4 +34,5 @@
 #define MAX_CHANNEL_HISTORY 20
 #define REMOTE_CHANNELS "/lib/core/net/remote_channels"
 
-#define EMERGENCY_CHANNEL "emergencia"
+#define EMERGENCY_CHANNEL "emergency"
+#define CODERS_CHANNEL "coders"

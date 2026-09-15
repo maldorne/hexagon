@@ -89,3 +89,18 @@
 
 #define _LANG_EXPLORATION_DISCOVERED_PRE "%^BOLD%^%^GREEN%^You have discovered a new place: "
 #define _LANG_EXPLORATION_DISCOVERED_POST "!%^RESET%^\n"
+
+// nicknames. `s1` is the nickname, `s2` the name it stands for, and `str`
+// the one being asked about or deleted
+#define _LANG_NICKNAME_VERBS ({ "nickname", "nicknames", "nick" })
+#define _LANG_NICKNAME_DELETE_VERBS ({ "unnickname", "dnick" })
+
+#define _LANG_NICKNAME_SYNTAX "Syntax: " + query_verb() + " <nickname> <name>\n"
+#define _LANG_NICKNAME_ADDED "Nickname '" + s1 + "' added as '" + s2 + "'.\n"
+#define _LANG_NICKNAME_CHANGED "Nickname '" + s1 + "' changed from '" + map_nicknames[s1] + "' to '" + s2 + "'.\n"
+#define _LANG_NICKNAME_UNKNOWN "That nickname does not exist.\n"
+#define _LANG_NICKNAME_DELETED "Nickname deleted: " + str + "\n"
+#define _LANG_NICKNAME_NONE "You have no nicknames.\n"
+#define _LANG_NICKNAME_LIST_HEADER " * Your nicknames:\n"
+#define _LANG_NICKNAME_LIST_FOOTER " Use '" + _LANG_NICKNAME_DELETE_VERBS[0] + " <name>' to delete one\n"
+#define _LANG_NICKNAME_STANDS_FOR "The nickname '" + str + "' stands for '" + map_nicknames[str] + "'.\n"

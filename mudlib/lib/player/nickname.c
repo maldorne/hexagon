@@ -3,6 +3,8 @@
  * pinkfish.
  */
 
+#include <language.h>
+
 mapping map_nicknames;
 
 void create()
@@ -12,13 +14,10 @@ void create()
 
 void nickname_commands()
 {
-  add_private_action("delete_nickname", "quitarapodo");
-  add_private_action("delete_nickname", "dnick");
+  add_private_action("delete_nickname", _LANG_NICKNAME_DELETE_VERBS);
 
   // add_private_action("nickname", "nickname");
-  add_private_action("nickname", "apodo");
-  add_private_action("nickname", "apodos");
-  add_private_action("nickname", "nick");
+  add_private_action("nickname", _LANG_NICKNAME_VERBS);
 
   // add_private_action("flushnicknames","flushnicknames");
 }
@@ -31,7 +30,7 @@ int add_nickname(string str)
 
   if (sscanf(str,"%s %s",s1,s2)!=2)
   {
-    notify_fail("Sintaxis: apodo <apodo> <nombre>\n");
+    notify_fail(_LANG_NICKNAME_SYNTAX);
     return 0;
   }
 
@@ -41,11 +40,11 @@ int add_nickname(string str)
   if (!map_nicknames[s1])
   {
     map_nicknames[s1] = s2;
-    write("Apodo '"+s1+"' añadido como '"+s2+"'.\n");
+    write(_LANG_NICKNAME_ADDED);
     return 1;
   }
 
-  write("Apodo '"+s1+"' cambiado de '"+map_nicknames[s1]+"' a '"+s2+"'.\n");
+  write(_LANG_NICKNAME_CHANGED);
   map_nicknames[s1] = s2;
   return 1;
 }
@@ -77,12 +76,12 @@ int delete_nickname(string str)
 
   if (!map_nicknames[str])
   {
-    notify_fail("Ese apodo no existe.\n");
+    notify_fail(_LANG_NICKNAME_UNKNOWN);
     return 0;
   }
 
   map_nicknames = m_delete(map_nicknames, str);
-  write("Apodo borrado: "+str+"\n");
+  write(_LANG_NICKNAME_DELETED);
   return 1;
 }
 
@@ -129,7 +128,7 @@ int nickname(string str)
 
   if ((!strlen(str)) && !map_sizeof(map_nicknames))
   {
-    notify_fail("No tienes apodos definidos.\n");
+    notify_fail(_LANG_NICKNAME_NONE);
     return 0;
   }
 
@@ -138,9 +137,9 @@ int nickname(string str)
     string line;
     line = sprintf("%p%|*s\n", '-', this_user()->query_cols(), "");
 
-    write(line + " * Lista de apodos:\n" + line);
+    write(line + _LANG_NICKNAME_LIST_HEADER + line);
     write(_print_nicknames());
-    write(line + " Utiliza 'quitarapodo <nombre>' para borrarlo\n" + line);
+    write(line + _LANG_NICKNAME_LIST_FOOTER + line);
     return 1;
   }
 
@@ -148,11 +147,11 @@ int nickname(string str)
   {
     if (!map_nicknames[str])
     {
-      notify_fail("Ese apodo no existe.\n");
+      notify_fail(_LANG_NICKNAME_UNKNOWN);
       return 0;
     }
 
-    write("El apodo '"+str+"' equivale a '"+map_nicknames[str]+"'.\n");
+    write(_LANG_NICKNAME_STANDS_FOR);
     return 1;
   }
 

@@ -97,3 +97,29 @@
 #define _LANG_HELP_KIND_DRIVER "manual del driver"
 #define _LANG_HELP_KIND_SOUL "emoción"
 #define _LANG_HELP_KIND_SECTION "sección"
+
+// account details. `str` is what the player just typed
+#define _LANG_ACCOUNT_DETAILS_VERBS ({ "datos", "chfn" })
+#define _LANG_ACCOUNT_NONE_WORDS ({ "ninguno", "ninguna" })
+
+#define _LANG_ACCOUNT_DETAILS_HEADER "Cambiando los datos personales de tu cuenta.\n" + \
+  "Si no introduces algún dato, se tomará la opción por defecto (entre corchetes).\n"
+
+#define _LANG_ACCOUNT_ASK_REAL_NAME "\nIntroduce tu nombre real [" + \
+  this_object()->query_real_name() + "]\n('" + _LANG_ACCOUNT_NONE_WORDS[0] + "' para borrarlo): "
+#define _LANG_ACCOUNT_REAL_NAME_CLEARED "Ok, nombre real borrado.\n"
+#define _LANG_ACCOUNT_REAL_NAME_SET "Ok, nombre real establecido como " + str + ".\n"
+#define _LANG_ACCOUNT_REAL_NAME_KEPT "Ok, nombre real sin modificar.\n"
+
+#define _LANG_ACCOUNT_ASK_LOCATION "\nIntroduce tu lugar de residencia (ej: Madrid, Estocolmo... ) [" + \
+  this_object()->query_location() + "]\n('" + _LANG_ACCOUNT_NONE_WORDS[1] + "' para borrarla): "
+#define _LANG_ACCOUNT_LOCATION_CLEARED "Ok, lugar de residencia borrado.\n"
+#define _LANG_ACCOUNT_LOCATION_SET "Ok, lugar de residencia establecido como " + str + ".\n"
+#define _LANG_ACCOUNT_LOCATION_KEPT "Ok, lugar de residencia sin modificar.\n"
+
+#define _LANG_ACCOUNT_ASK_BIRTHDAY "\nIntroduce tu fecha de cumpleaños (ddmm) [" + \
+  this_object()->query_birthday() + "]\n('" + _LANG_ACCOUNT_NONE_WORDS[1] + "' para borrarla): "
+#define _LANG_ACCOUNT_BIRTHDAY_CLEARED "Ok, fecha de cumpleaños borrada.\n"
+#define _LANG_ACCOUNT_BIRTHDAY_SET "Ok, fecha de cumpleaños establecida como " + str + ".\n"
+#define _LANG_ACCOUNT_BIRTHDAY_KEPT "Ok, fecha de cumpleaños sin modificar.\n"
+#define _LANG_ACCOUNT_BIRTHDAY_INVALID "La fecha no es válida, vuelve a introducirla (ddmm): "

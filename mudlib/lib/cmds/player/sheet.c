@@ -72,7 +72,7 @@ static int cmd(string name, object me, string verb)
     else
     {
       name = me->expand_nickname(name);
-      // prefer a living present in the same room, so "ficha guardia" shows the
+      // prefer a living present in the same room, so naming somebody shows the
       // one standing here rather than the first living registered anywhere with
       // that name
       target = present(name, environment(me));

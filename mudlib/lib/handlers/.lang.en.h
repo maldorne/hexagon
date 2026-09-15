@@ -192,3 +192,50 @@
 #define _LANG_SOULS_HELP_WITHOUT_PARAMETERS "It can be used without parameters.\n"
 #define _LANG_SOULS_HELP_AVAILABLE_PARAMETERS "The available parameters are: "+implode(bit,", ")+".\n"
 #define _LANG_SOULS_HELP_HAS_NO_PARAMETERS "It has no parameters.\n"
+
+// channels
+//
+// A channel is stored and asked for by its id, an English word. The words a
+// player types are here, and so is the name the channel is shown under.
+// `name` in these messages is the display name of the channel.
+
+#define _LANG_CHANNEL_VERBS ([ \
+  "emergency"  : "emergency", \
+  "guild"      : "guild", \
+  "clan"       : "clan", \
+  "race"       : "race", \
+  "adventurer" : "adventurer", \
+])
+
+#define _LANG_CHANNEL_NAMES ([ ])
+
+#define _LANG_CHANNEL_ANY "<channel>"
+
+#define _LANG_CHANNEL_OPENED "Ok, you open the " + name + " channel.\n"
+#define _LANG_CHANNEL_CLOSED "Ok, you close the " + name + " channel.\n"
+#define _LANG_CHANNEL_ALREADY_ON "The '" + name + "' channel is already on!\n"
+#define _LANG_CHANNEL_ALREADY_OFF "The '" + name + "' channel is already off!\n"
+#define _LANG_CHANNEL_NOT_LISTENING "You are not listening to that channel.\n"
+#define _LANG_CHANNEL_DISABLED "Your channel has been disabled.\n"
+#define _LANG_CHANNEL_NO_PERMISSION "You are not allowed to use the '" + name + "' channel.\n"
+#define _LANG_CHANNEL_NEEDS_MESSAGE "It works better if you give it a message.\n"
+
+#define _LANG_CHANNEL_NO_GUILD "You are not a member of any guild.\n"
+#define _LANG_CHANNEL_GUILD_NO_CHANNEL "Your guild does not have that ability.\n"
+#define _LANG_CHANNEL_NO_CLAN "You are not a member of any clan.\n"
+#define _LANG_CHANNEL_CLAN_NO_CHANNEL "Your clan does not have that ability.\n"
+#define _LANG_CHANNEL_NO_RACE_GROUP "You are not a member of any racial group.\n"
+#define _LANG_CHANNEL_RACE_NO_CHANNEL "Your racial group does not have that ability.\n"
+#define _LANG_CHANNEL_NO_PARTY "You have to belong to a party to use this channel.\n"
+#define _LANG_CHANNEL_PARTY_AUTOMATIC "You cannot open or close your party channel, it works by itself.\n"
+
+#define _LANG_CHANNEL_HISTORY_HEADER "History of the '" + name + "' channel:\n"
+#define _LANG_CHANNEL_HISTORY_EMPTY "The channel is empty.\n"
+#define _LANG_CHANNEL_HISTORY_NOT_ALLOWED "Attempt to read the history of a channel you are not allowed to use.\n"
+#define _LANG_CHANNEL_HELP_HEADER "Help for the '" + name + "' channel:\n"
+#define _LANG_CHANNEL_WHO_HEADER "People listening to the '" + name + "' channel:"
+
+#define _LANG_CHANNEL_HELP_MESSAGE "\t" + name + " <message> : Sends a message to everybody listening.\n"
+#define _LANG_CHANNEL_HELP_HELP "\t" + name + " ?     : Shows this help message.\n"
+#define _LANG_CHANNEL_HELP_HISTORY "\t" + name + " !     : Shows the last " + number_as_string(MAX_CHANNEL_HISTORY) + " messages sent to the channel.\n"
+#define _LANG_CHANNEL_HELP_WHO "\t" + name + " .     : Lists who is listening to the channel.\n"

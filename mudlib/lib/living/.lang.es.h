@@ -340,3 +340,57 @@
 // (lib/cmds/player/.lang.*.h, _LANG_CMD_SPEAK_*).
 #define _LANG_SPEAK_FORGOT_ALL "Has olvidado el idioma que estabas hablando.\n"
 #define _LANG_SPEAK_FORGOT_SWITCH "Has olvidado el idioma que estabas hablando. Ahora hablas en " + name + ".\n"
+
+// social points and abilities
+#define _LANG_COMMS_NO_POWER "Puntos sociales insuficientes.\n"
+#define _LANG_COMMS_NOT_ALLOWED "Aún no posees esa habilidad.\n"
+
+// whisper. `cur_lang` is the language the speaker is using, `s` the word the
+// punctuation chose, and `obs` the people whispered to
+#define _LANG_WHISPER_SYNTAX "Sintaxis: " + query_verb() + " [a] <persona> <texto>\n"
+#define _LANG_WHISPER_NO_LANGUAGE "Debes seleccionar un idioma para hablar.\n"
+#define _LANG_WHISPER_LANG_NOT_SPOKEN capitalize(cur_lang) + " no es un lenguaje hablado.\n"
+#define _LANG_WHISPER_TO_YOURSELF_ROOM this_player()->query_cap_name() + " se susurra a si mismo.\n"
+#define _LANG_WHISPER_TO_YOURSELF_ME "¿¡Susurrándote a ti mismo!?\n"
+#define _LANG_WHISPER_NOBODY "No hay nadie con ese nombre a quien susurrar.\n"
+#define _LANG_WHISPER_THEM this_object()->query_cap_name() + " susurra" + s
+#define _LANG_WHISPER_ME "Susurras" + s + " a " + query_multiple_short(obs) + ": "
+
+// emote
+#define _LANG_EMOTE_SYNTAX "Sintaxis: emote <emocion a expresar>\n"
+
+// shout. `cur_lang` is the language the shouter is using, `s1` the word the
+// punctuation chose
+#define _LANG_SHOUT_SYNTAX "Sintaxis: " + query_verb() + " <texto>\n"
+#define _LANG_SHOUT_LOCKED "Espera a coger un poco de aire antes de volver a gritar.\n"
+#define _LANG_SHOUT_EARMUFFS "¿Para qué gritar si no vas a oir cómo te contestan?\n"
+#define _LANG_SHOUT_NO_LANGUAGE "Debes seleccionar un idioma para gritar.\n"
+#define _LANG_SHOUT_LANG_NOT_SPOKEN capitalize(cur_lang) + " no es un idioma hablado.\n"
+#define _LANG_SHOUT_LANG_NOT_DISTANCE capitalize(cur_lang) + " no se puede hablar a distancia.\n"
+#define _LANG_SHOUT_WORD "grita" + s1
+#define _LANG_WHISPER_PREPOSITION "a %s"
+#define _LANG_SHOUT_ME "Gritas" + s1 + ": "
+#define _LANG_SHOUT_IN_LANGUAGE " en " + cur_lang
+
+// consents. `name` is the consent being talked about, and `value` whether it
+// is allowed
+#define _LANG_CONSENT_VERBS ({ "consentir" })
+#define _LANG_CONSENT_YES ({ "si", "sí" })
+#define _LANG_CONSENT_NO ({ "no" })
+
+#define _LANG_CONSENT_NAMES ([ \
+  "raise"     : "resucitar", \
+  "give"      : "dar", \
+  "follow"    : "seguir", \
+  "drinks"    : "invitaciones", \
+  "protect"   : "proteger", \
+  "autoequip" : "autoequiparse", \
+  "groups"    : "grupos", \
+])
+
+#define _LANG_CONSENT_HEADER "Tus consentimientos actuales son:\n"
+#define _LANG_CONSENT_ON "sí"
+#define _LANG_CONSENT_OFF "no"
+#define _LANG_CONSENT_FOOTER "\nPara cambiarlos, utiliza '" + query_verb() + " <nombre> <sí|no>'.\n"
+#define _LANG_CONSENT_UNKNOWN "No existe ese consentimiento.\nLos que hay son: " + query_multiple_short(names) + ".\n"
+#define _LANG_CONSENT_CHANGED "Ok. Consentir " + name + " cambiado a " + value + ".\n"

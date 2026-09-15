@@ -340,3 +340,49 @@
 // (lib/cmds/player/.lang.*.h, _LANG_CMD_SPEAK_*).
 #define _LANG_SPEAK_FORGOT_ALL "You have forgotten the language you were speaking.\n"
 #define _LANG_SPEAK_FORGOT_SWITCH "You have forgotten the language you were speaking. You are now speaking " + name + ".\n"
+
+// social points and abilities
+#define _LANG_COMMS_NO_POWER "Not enough social points.\n"
+#define _LANG_COMMS_NOT_ALLOWED "You do not have that ability yet.\n"
+
+// whisper. `cur_lang` is the language the speaker is using, `s` the word the
+// punctuation chose, and `obs` the people whispered to
+#define _LANG_WHISPER_SYNTAX "Syntax: " + query_verb() + " [to] <person> <text>\n"
+#define _LANG_WHISPER_NO_LANGUAGE "You must choose a language to speak.\n"
+#define _LANG_WHISPER_LANG_NOT_SPOKEN capitalize(cur_lang) + " is not a spoken language.\n"
+#define _LANG_WHISPER_TO_YOURSELF_ROOM this_player()->query_cap_name() + " whispers to themselves.\n"
+#define _LANG_WHISPER_TO_YOURSELF_ME "Whispering to yourself?!\n"
+#define _LANG_WHISPER_NOBODY "There is nobody by that name to whisper to.\n"
+#define _LANG_WHISPER_THEM this_object()->query_cap_name() + " whispers" + s
+#define _LANG_WHISPER_ME "You whisper" + s + " to " + query_multiple_short(obs) + ": "
+
+// emote
+#define _LANG_EMOTE_SYNTAX "Syntax: emote <what you feel>\n"
+
+// shout. `cur_lang` is the language the shouter is using, `s1` the word the
+// punctuation chose
+#define _LANG_SHOUT_SYNTAX "Syntax: " + query_verb() + " <text>\n"
+#define _LANG_SHOUT_LOCKED "Catch your breath before shouting again.\n"
+#define _LANG_SHOUT_EARMUFFS "Why shout, if you are not going to hear the answer?\n"
+#define _LANG_SHOUT_NO_LANGUAGE "You must choose a language to shout in.\n"
+#define _LANG_SHOUT_LANG_NOT_SPOKEN capitalize(cur_lang) + " is not a spoken language.\n"
+#define _LANG_SHOUT_LANG_NOT_DISTANCE capitalize(cur_lang) + " cannot be spoken at a distance.\n"
+#define _LANG_SHOUT_WORD "shouts" + s1
+#define _LANG_WHISPER_PREPOSITION "to %s"
+#define _LANG_SHOUT_ME "You shout" + s1 + ": "
+#define _LANG_SHOUT_IN_LANGUAGE " in " + cur_lang
+
+// consents. `name` is the consent being talked about, and `value` whether it
+// is allowed
+#define _LANG_CONSENT_VERBS ({ "consent", "consents" })
+#define _LANG_CONSENT_YES ({ "yes" })
+#define _LANG_CONSENT_NO ({ "no" })
+
+#define _LANG_CONSENT_NAMES ([ ])
+
+#define _LANG_CONSENT_HEADER "Your consents are:\n"
+#define _LANG_CONSENT_ON "yes"
+#define _LANG_CONSENT_OFF "no"
+#define _LANG_CONSENT_FOOTER "\nTo change them, use '" + query_verb() + " <name> <yes|no>'.\n"
+#define _LANG_CONSENT_UNKNOWN "There is no such consent.\nThe ones there are: " + query_multiple_short(names) + ".\n"
+#define _LANG_CONSENT_CHANGED "Ok. Consent " + name + " changed to " + value + ".\n"

@@ -1,8 +1,10 @@
-
 #include <living/consents.h>
 #include <mud/secure.h>
+#include <language.h>
 
 mapping consents;
+
+private string consent_id(string word);
 
 void create() 
 {
@@ -12,12 +14,36 @@ void create()
 
 void consent_commands() 
 { 
-  add_private_action("change_consent", "consentir"); 
+  add_private_action("change_consent", _LANG_CONSENT_VERBS); 
 }
 
 mixed query_valid_consents() { return CONSENT_TYPES; }
 mixed query_consent(string tipo) { return consents[tipo]; }
 mapping query_consents() { return consents; }
+
+// What a consent is called for the player who reads it.
+string query_consent_name(string id)
+{
+  mapping names;
+
+  names = _LANG_CONSENT_NAMES;
+  return names[id] ? names[id] : id;
+}
+
+// The consent a typed word names, by its id or by the name it is shown under.
+private string consent_id(string word)
+{
+  string * types;
+  int i;
+
+  types = CONSENT_TYPES;
+
+  for (i = 0; i < sizeof(types); i++)
+    if (types[i] == word || query_consent_name(types[i]) == word)
+      return types[i];
+
+  return nil;
+}
 
 void set_consents(mapping map)
 {
@@ -40,38 +66,63 @@ int set_consent(string cons, int value)
 
 int change_consent(string str)
 {
-  string tipo, ret;
-  int value;
-
-  ret = "";
+  string id, name, word, value;
+  string * names;
+  int allowed, i;
 
   if (!strlen(str))
   {
-    ret += "Tus consentimientos actuales son:\n";
+    string ret;
 
-    for (value = sizeof(CONSENT_TYPES); value--;)
-      ret += sprintf("%17s: %s\n", CONSENT_TYPES[value], (consents[CONSENT_TYPES[value]] ? "sí":"no"));
-            
-    ret += "\nPara cambiarlos, utiliza 'consentir <nombre> <sí|no>'.\n";
+    ret = _LANG_CONSENT_HEADER;
+
+    for (i = sizeof(CONSENT_TYPES); i--;)
+    {
+      name = query_consent_name(CONSENT_TYPES[i]);
+      ret += sprintf("%17s: %s\n", name,
+        (consents[CONSENT_TYPES[i]] ? _LANG_CONSENT_ON : _LANG_CONSENT_OFF));
+    }
+
+    ret += _LANG_CONSENT_FOOTER;
 
     tell_object(this_player(), ret);
     return 1;
   }
 
-  if ((sscanf(str, "%s si", tipo) == 1) || (sscanf(str, "%s sí", tipo) == 1))
-    value = 1;
-  else if (sscanf(str, "%s no", tipo) == 1)
-    value = 0;
-  else
+  // the names to answer with, in the language the player reads
+  names = ({ });
+  for (i = 0; i < sizeof(CONSENT_TYPES); i++)
+    names += ({ query_consent_name(CONSENT_TYPES[i]) });
+
+  if (sscanf(str, "%s %s", word, value) != 2)
   {
-    notify_fail("Tipo inválido de consentimiento.\nLos tipos válidos son: " +
-      query_multiple_short(CONSENT_TYPES) + ".\n");
+    notify_fail(_LANG_CONSENT_UNKNOWN);
     return 0;
   }
 
-  consents[tipo] = value;
+  if (member_array(value, _LANG_CONSENT_YES) != -1)
+    allowed = 1;
+  else if (member_array(value, _LANG_CONSENT_NO) != -1)
+    allowed = 0;
+  else
+  {
+    notify_fail(_LANG_CONSENT_UNKNOWN);
+    return 0;
+  }
 
-  tell_object(this_object(), "Ok. Consentir "+tipo+" cambiado a "+(value ? "sí":"no")+".\n");
+  id = consent_id(word);
+
+  if (!id)
+  {
+    notify_fail(_LANG_CONSENT_UNKNOWN);
+    return 0;
+  }
+
+  consents[id] = allowed;
+
+  name = query_consent_name(id);
+  value = allowed ? _LANG_CONSENT_ON : _LANG_CONSENT_OFF;
+  tell_object(this_object(), _LANG_CONSENT_CHANGED);
   return 1;
 }
 

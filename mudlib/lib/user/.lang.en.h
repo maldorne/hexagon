@@ -97,3 +97,29 @@
 #define _LANG_HELP_KIND_DRIVER "driver manual"
 #define _LANG_HELP_KIND_SOUL "emote"
 #define _LANG_HELP_KIND_SECTION "section"
+
+// account details. `str` is what the player just typed
+#define _LANG_ACCOUNT_DETAILS_VERBS ({ "details", "chfn" })
+#define _LANG_ACCOUNT_NONE_WORDS ({ "none" })
+
+#define _LANG_ACCOUNT_DETAILS_HEADER "Changing the personal details of your account.\n" + \
+  "Leave a line blank to keep what is there (shown in brackets).\n"
+
+#define _LANG_ACCOUNT_ASK_REAL_NAME "\nType your real name [" + \
+  this_object()->query_real_name() + "]\n('" + _LANG_ACCOUNT_NONE_WORDS[0] + "' to clear it): "
+#define _LANG_ACCOUNT_REAL_NAME_CLEARED "Ok, real name cleared.\n"
+#define _LANG_ACCOUNT_REAL_NAME_SET "Ok, real name set to " + str + ".\n"
+#define _LANG_ACCOUNT_REAL_NAME_KEPT "Ok, real name unchanged.\n"
+
+#define _LANG_ACCOUNT_ASK_LOCATION "\nType where you live (e.g. Madrid, Stockholm... ) [" + \
+  this_object()->query_location() + "]\n('" + _LANG_ACCOUNT_NONE_WORDS[0] + "' to clear it): "
+#define _LANG_ACCOUNT_LOCATION_CLEARED "Ok, place of residence cleared.\n"
+#define _LANG_ACCOUNT_LOCATION_SET "Ok, place of residence set to " + str + ".\n"
+#define _LANG_ACCOUNT_LOCATION_KEPT "Ok, place of residence unchanged.\n"
+
+#define _LANG_ACCOUNT_ASK_BIRTHDAY "\nType your birthday (ddmm) [" + \
+  this_object()->query_birthday() + "]\n('" + _LANG_ACCOUNT_NONE_WORDS[0] + "' to clear it): "
+#define _LANG_ACCOUNT_BIRTHDAY_CLEARED "Ok, birthday cleared.\n"
+#define _LANG_ACCOUNT_BIRTHDAY_SET "Ok, birthday set to " + str + ".\n"
+#define _LANG_ACCOUNT_BIRTHDAY_KEPT "Ok, birthday unchanged.\n"
+#define _LANG_ACCOUNT_BIRTHDAY_INVALID "That date is not valid, type it again (ddmm): "

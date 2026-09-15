@@ -22,6 +22,9 @@ string drunk_speech(string str);
 
 void communicate_commands() 
 {
+  string * verbs;
+  int i;
+
   add_private_action("do_say",       _LANG_SAY_VERBS);
   add_private_action("do_tell",      _LANG_TELL_VERBS);
   add_private_action("do_whisper",   _LANG_WHISPER_VERBS);
@@ -33,11 +36,12 @@ void communicate_commands()
   // deactivated for a while
   // add_private_action("do_emote", ({ "emote", "emocion"}));
 
-  add_private_action("do_channels", "emergencia");
-  add_private_action("do_channels", "gremio");
-  add_private_action("do_channels", "clan");
-  add_private_action("do_channels", "aventurero");
-  add_private_action("do_channels", "raza");
+  // the words the channels answer to belong to the channel handler, which
+  // is where they are translated
+  verbs = (string *)CHAT_HANDLER->query_channel_verbs();
+
+  for (i = 0; i < sizeof(verbs); i++)
+    add_private_action("do_channels", verbs[i]);
 } 
 
 // neverbot 6/03
@@ -353,7 +357,7 @@ int do_tell(string arg, varargs object ob, int silent)
     
   if (adjust_social_points(-TELL_COST) < 0)
   {
-    notify_fail(NO_POWER);
+    notify_fail(_LANG_COMMS_NO_POWER);
     return 0;
   }
   
@@ -397,24 +401,24 @@ int do_whisper(string str)
 
   if (!strlen(str))
   {
-    notify_fail("Sintaxis: susurrar [a] <persona> <texto>\n");
+    notify_fail(_LANG_WHISPER_SYNTAX);
     return 0;
   }
 
   // neverbot
   if (!cur_lang || (cur_lang == ""))
   {
-    notify_fail("Debes seleccionar un idioma para hablar.\n");
+    notify_fail(_LANG_WHISPER_NO_LANGUAGE);
     return 0;
   }
 
   if (!handler("languages")->query_language_spoken(cur_lang)) 
   {
-    notify_fail(capitalize(cur_lang)+" no es un lenguaje hablado.\n");
+    notify_fail(_LANG_WHISPER_LANG_NOT_SPOKEN);
     return 0;
   }
   
-  sscanf(str, "a %s", str);
+  sscanf(str, _LANG_WHISPER_PREPOSITION, str);
   bits = explode(str, " ");
   obs = ({ });
   
@@ -426,14 +430,14 @@ int do_whisper(string str)
     s2 = implode(bits[i + 1..], " ");
   else
   {
-    notify_fail("Sintaxis: susurrar [a] <persona> <texto>\n");
+    notify_fail(_LANG_WHISPER_SYNTAX);
     return 0;
   }
 
   if (sizeof(obs) == 1 && obs[0] == this_player()) 
   {
-    say(this_player()->query_cap_name()+" se susurra a si mismo.\n");
-    write("¿¡Susurrándote a ti mismo!?\n");
+    say(_LANG_WHISPER_TO_YOURSELF_ROOM);
+    write(_LANG_WHISPER_TO_YOURSELF_ME);
     return 1;
   }
   
@@ -445,7 +449,7 @@ int do_whisper(string str)
   
   if (!sizeof(obs)) 
   {
-    notify_fail("No hay nadie con ese nombre a quien susurrar.\n");
+    notify_fail(_LANG_WHISPER_NOBODY);
     return 0;
   }
   
@@ -455,10 +459,9 @@ int do_whisper(string str)
   s = query_whisper_word_type(s2);
   s2 += "%^RESET%^";
 
-  event(environment(), "person_whisper", this_object()->query_cap_name() +
-      " susurra" + s, s2, obs, cur_lang);
+  event(environment(), "person_whisper", _LANG_WHISPER_THEM, s2, obs, cur_lang);
 
-  my_mess("Susurras" + s + " a " + query_multiple_short(obs) + ": ", s2);
+  my_mess(_LANG_WHISPER_ME, s2);
 
   // this_player()->adjust_time_left(-5);
   return 1;
@@ -470,7 +473,7 @@ int do_emote(string arg)
 
   if (!this_object()->query_coder() && !this_player()->query_property("emote"))
   {
-    notify_fail(NOT_ALLOWED);
+    notify_fail(_LANG_COMMS_NOT_ALLOWED);
     return 0;
   }
  
@@ -481,13 +484,13 @@ int do_emote(string arg)
 
   if (arg == "" || arg == " ") 
   {
-    notify_fail("Sintaxis: emote <emocion a expresar>\n");
+    notify_fail(_LANG_EMOTE_SYNTAX);
     return 0;
   }
 
   if (adjust_social_points(-EMOTE_COST) < 0) 
   {
-    notify_fail(NO_POWER);
+    notify_fail(_LANG_COMMS_NO_POWER);
     return 0;
   }
   
@@ -512,13 +515,13 @@ int do_shout(string str)
 
   if (!strlen(str)) 
   {
-    notify_fail("Sintaxis: gritar <texto>\n");
+    notify_fail(_LANG_SHOUT_SYNTAX);
     return 0;
   }
 
   if (this_object()->query_property(NOSHOUT_LOCK)) 
   {
-    notify_fail("Espera a coger un poco de aire antes de volver a gritar.\n");
+    notify_fail(_LANG_SHOUT_LOCKED);
     return 0;
   }
 
@@ -531,38 +534,38 @@ int do_shout(string str)
 
   if (this_object()->query_earmuffs()) 
   {
-    notify_fail("¿Para qué gritar si no vas a oir cómo te contestan?\n");
+    notify_fail(_LANG_SHOUT_EARMUFFS);
     return 0;
   }
 
   // neverbot
   if (!cur_lang || (cur_lang == ""))
   {
-    notify_fail("Debes seleccionar un idioma para gritar.\n");
+    notify_fail(_LANG_SHOUT_NO_LANGUAGE);
     return 0;
   }
 
   if (!handler("languages")->query_language_spoken(cur_lang)) 
   {
-    notify_fail(capitalize(cur_lang)+" no es un idioma hablado.\n");
+    notify_fail(_LANG_SHOUT_LANG_NOT_SPOKEN);
     return 0;
   }
   
   if (!handler("languages")->query_language_distance(cur_lang)) 
   {
-    notify_fail(capitalize(cur_lang)+" no se puede hablar a distancia.\n");
+    notify_fail(_LANG_SHOUT_LANG_NOT_DISTANCE);
     return 0;
   }
   
   if (adjust_social_points(-SHOUT_COST*((strlen(str)/10)+1)) < 0) 
   {    
-    notify_fail(NO_POWER);
+    notify_fail(_LANG_COMMS_NO_POWER);
     return 0;
   }
 
   s1 = query_shout_word_type(str);
   //  if (s1 != " exclamando")
-  s = "grita" + s1;
+  s = _LANG_SHOUT_WORD;
   // else
   //  s = s1+"s";
 
@@ -579,9 +582,9 @@ int do_shout(string str)
 
   // if (s1 != " exclamando") {
   if (cur_lang != STD_LANG) 
-    s1 += " en "+cur_lang;
+    s1 += _LANG_SHOUT_IN_LANGUAGE;
 
-  my_mess("Gritas" + s1 + ": ", str);
+  my_mess(_LANG_SHOUT_ME, str);
   /*
   } else {
   if (cur_lang != STD_LANG) 
@@ -621,9 +624,9 @@ void add_language(string lang)
   int i;
   string id;
 
-  // Resolve to the canonical lowercase-English id, so a legacy translated
-  // name ("común") or an alias ("comun") stored on an old ficha, or passed
-  // in, is normalised to the id ("common"). Unknown => not a language.
+  // Resolve to the canonical lowercase-English id, so a translated name or
+  // an alias, stored on a character or passed in, is normalised to the id.
+  // Unknown => not a language.
   id = handler("languages")->resolve_language(lang);
   if (!id)
     return;

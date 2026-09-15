@@ -11,6 +11,7 @@
  */
 
 #include <basic/communicate.h>
+#include <language.h>
 
 #define GUILD this_player()->query_guild_ob()
 #define GROUP this_player()->query_group_ob()
@@ -21,7 +22,38 @@ mapping channels, history;
 
 int query_channel_on(object ob, string chan);
 int query_channel_permission(object ob, string chan);
-void do_channel(string verb, string str, varargs string name, string mud, int flg);
+void do_channel(string verb, string str, varargs string who, string mud, int flg);
+string query_channel_display(string chan);
+
+// The channel a typed word means, or nil if no channel answers to it. The
+// dynamic channels (a guild's, a clan's, a party's) are named after the group
+// itself and never come through here.
+string query_channel_id(string verb)
+{
+  mapping verbs;
+
+  verbs = _LANG_CHANNEL_VERBS;
+  return verbs[verb];
+}
+
+// The words this mud's players type, for whoever registers the actions.
+string * query_channel_verbs()
+{
+  return map_indices(_LANG_CHANNEL_VERBS);
+}
+
+// What a channel is called on screen. A channel named after a group, or a
+// temporary one, is shown by its own name.
+string query_channel_display(string chan)
+{
+  mapping names;
+
+  if (!stringp(chan) || !strlen(chan))
+    return "";
+
+  names = _LANG_CHANNEL_NAMES;
+  return names[chan] ? names[chan] : chan;
+}
 
 void create() 
 {
@@ -32,13 +64,16 @@ void create()
 
 int close_channel(string channel, object ob)
 {
+  string name;
+
   if (!query_channel_on(ob, channel)) 
     return 0;
   
   channels[channel] -= ({ ob });
+  name = query_channel_display(channel);
   
   if (channel[0..0] != "#")
-    message("Ok, apagas el canal %^RED%^" + channel + "%^RESET%^.\n","",ob);
+    message(_LANG_CHANNEL_CLOSED,"",ob);
   
   ob->adjust_property(CHANNELS_PROPERTY, ({channel}), -1);
   return 1;
@@ -46,14 +81,18 @@ int close_channel(string channel, object ob)
 
 int open_channel(string channel, object ob)
 {
+  string name;
+
   if (query_channel_on(ob, channel)) 
     return 0;
 
   if (!channels[channel]) 
     channels[channel] = ({ });
 
+  name = query_channel_display(channel);
+
   if (channel[0..0] != "#")
-    message("Ok, abres el canal %^BOLD%^WHITE%^"+channel+"%^RESET%^.\n","",ob);
+    message(_LANG_CHANNEL_OPENED,"",ob);
 
   if (member_array(channel, ob->query_property(CHANNELS_PROPERTY)) == -1)
     ob->adjust_property(CHANNELS_PROPERTY, ({channel}));
@@ -71,7 +110,7 @@ void init_player_channels(mixed chans, object player)
 
   for (i = 0; i < sizeof(chans); i++) 
   {
-    // Los canales temporales los eliminamos al reconectar
+    // a temporary channel is dropped on reconnecting
     if (chans[i][0..0] == "#")
     {
       player->adjust_property(CHANNELS_PROPERTY, ({ chans[i] }), -1);
@@ -128,7 +167,7 @@ int query_channel_permission(object ob, string chan)
             if (ob->query_god()) return 1;
       */
 
-    // Canal emergencia solo jugadores y admins
+    // the emergency channel is for players and admins
     case EMERGENCY_CHANNEL:
       if (ob->query_coder()) 
             if (ob->query_admin())
@@ -185,97 +224,103 @@ string get_history(string chan)
     if (this_player() && !this_player()->query_admin() && 
       !query_channel_permission(this_player(), chan))
     {
-      tell_object(this_player(),"Intento de ver el histórico de canales a los que no tienes permiso.\n");
-      event(users(), "inform", this_player()->query_short(1)+" intento de get_history() sobre el canal "+chan, "person_cheat");
+      tell_object(this_player(), _LANG_CHANNEL_HISTORY_NOT_ALLOWED);
+      event(users(), "inform", this_player()->query_short(1)+" tried get_history() on the channel "+chan, "person_cheat");
       return "";
     }
 
   if (!history[chan]) 
-    return "El canal está vacío.\n";
+    return _LANG_CHANNEL_HISTORY_EMPTY;
   return implode(history[chan], "\n");
 }
 
 int do_chat( string str ) 
 {
-  string verb;
-  verb = query_verb();
+  string verb, kind, name;
 
-  if (verb == "gremio") 
+  // the word typed says which channel this is; a channel of a group is then
+  // named after the group itself
+  kind = query_channel_id(query_verb());
+  verb = kind ? kind : query_verb();
+
+  if (kind == "guild") 
   {
     if (!GUILD) 
     {
-      message("No eres miembro de ningún gremio.\n","",this_player());
+      message(_LANG_CHANNEL_NO_GUILD,"",this_player());
       return 1;
     }
     if (!GUILD->query_channel()) 
     {
-      message("Tu gremio no tiene esa habilidad.\n","",this_player());
+      message(_LANG_CHANNEL_GUILD_NO_CHANNEL,"",this_player());
       return 1;
     }
     verb = (string)GUILD->query_name();
   }
 
-  if (verb == "clan") 
+  if (kind == "clan") 
     {
     if (!GROUP) 
     {
-      message("No eres miembro de ningún clan.\n","",this_player());
+      message(_LANG_CHANNEL_NO_CLAN,"",this_player());
       return 1;
     }
     if (!GROUP->query_channel()) 
     {
-      message("Tu clan no tiene esa habilidad.\n","",this_player());
+      message(_LANG_CHANNEL_CLAN_NO_CHANNEL,"",this_player());
       return 1;
     }
     verb = (string)GROUP->query_name();
   }
 
-  if (verb == "raza") 
+  if (kind == "race") 
   {
     if (!RACEG) 
     {
-      message("No eres miembro de ningún grupo racial.\n","",this_player());
+      message(_LANG_CHANNEL_NO_RACE_GROUP,"",this_player());
       return 1;
     }
     if (!RACEG->query_channel()) 
     {
-      message("Tu grupo racial no tiene esa habilidad.\n","",this_player());
+      message(_LANG_CHANNEL_RACE_NO_CHANNEL,"",this_player());
       return 1;
     }
     verb = (string)RACEG->query_name();
   }
   
-  if (verb == "aventurero") 
+  if (kind == "adventurer") 
   {
-    // Si no perteneces a un grupo
+    // not in a party
     if (!this_player()->query_adventurer()) 
     {
-      message("Debes pertenecer a un grupo para utilizar este canal.\n","",this_player());
+      message(_LANG_CHANNEL_NO_PARTY,"",this_player());
       return 1;
     }
     
     if (str == "off" || str == "on") 
     {
-      message("No puedes abrir ni cerrar el canal de tu grupo, funciona automáticamente.\n","",this_player());
+      message(_LANG_CHANNEL_PARTY_AUTOMATIC,"",this_player());
       return 1;
     }
   }
 
+  name = query_channel_display(verb);
+
   if (this_player()->query_property("chan_"+verb) == "nope") 
   {
-    message("Tu canal ha sido deshabilitado.\n", "", this_player());
+    message(_LANG_CHANNEL_DISABLED, "", this_player());
     return 1;
   }
 
   if (!query_channel_permission(this_player(), verb)) 
   {
-    message("No tienes permiso para usar el canal '"+verb+"'.\n","",this_player());
+    message(_LANG_CHANNEL_NO_PERMISSION,"",this_player());
     return 0;
   }
 
   if (!strlen(str)) 
   {
-    message("Funciona mejor si introduces un mensaje.\n","",this_player());
+    message(_LANG_CHANNEL_NEEDS_MESSAGE,"",this_player());
     return 1;
   }
 
@@ -284,7 +329,7 @@ int do_chat( string str )
     case "off" :
       if (!query_channel_on(this_player(), verb)) 
       {
-        message("¡El canal-"+verb+" ya está desactivado!\n", "", this_player());
+        message(_LANG_CHANNEL_ALREADY_OFF, "", this_player());
         return 0;
       }
       
@@ -294,7 +339,7 @@ int do_chat( string str )
     case "on" :
       if (query_channel_on(this_player(), verb)) 
       {
-        message("¡El canal '"+verb+"' ya está activado!\n", "", this_player());
+        message(_LANG_CHANNEL_ALREADY_ON, "", this_player());
         return 0;
       }
     
@@ -303,14 +348,14 @@ int do_chat( string str )
   }
 
 
-  if (verb != "aventurero") 
+  if (kind != "adventurer") 
     if (!query_channel_on(this_player(), verb)) 
     {
-      message("No tienes ese canal activado.\n","",this_player());
+      message(_LANG_CHANNEL_NOT_LISTENING,"",this_player());
       return 1;
     }
 
-  if (verb == "aventurero")
+  if (kind == "adventurer")
     verb = this_player()->query_adventurer_channel();
 
   do_channel(verb, str, this_player()->query_cap_name());
@@ -319,7 +364,7 @@ int do_chat( string str )
   
   TODO network
 
-  // Hacemos remote el canal emergencia, neverbot 02/06
+  // the emergency channel goes out to the other muds too, neverbot 02/06
   if ((verb == EMERGENCY_CHANNEL) &&
       (str[0] != '!') &&
       (str[0] != '@') &&
@@ -360,17 +405,20 @@ int do_chat( string str )
 
 string get_channel_help(string verb) 
 {
-  string ret;
+  string ret, name;
+
   if (!verb || (verb[0..0] == "#") ) 
-    verb = "<canal>";
+    name = _LANG_CHANNEL_ANY;
+  else
+    name = query_channel_display(verb);
 
   ret =
-    "\t"+verb+" <mensaje> : Envía un mensaje a la gente que escucha el canal.\n"+
-    "\t"+verb+" ?     : Muestra este mensaje de ayuda.\n"+
+    _LANG_CHANNEL_HELP_MESSAGE +
+    _LANG_CHANNEL_HELP_HELP +
     // "\t"+verb+" @' Emote a traves del canal.\n"
-    "\t"+verb+" !     : Ver los últimos "+number_as_string(MAX_CHANNEL_HISTORY)+" mensajes enviados al canal.\n";
+    _LANG_CHANNEL_HELP_HISTORY;
   if (this_player()->query_coder())
-    ret += "\t"+verb+" .     : Lista quienes están escuchando el canal.\n";
+    ret += _LANG_CHANNEL_HELP_WHO;
   return ret;
 }
 
@@ -380,20 +428,20 @@ string get_channel_help(string verb)
 // +": "+str);
 // #define check_cmd() if (strlen(str) > 1) { chan_msg(); return; }
 
-// Arreglo para los canales temporales (como el canal aventurero), neverbot 05/09
+// temporary channels (a party's, say) are named with a leading #, neverbot 05/09
 
 #define channel_name(verb) (verb[0..0]=="#"?explode(verb,"#")[sizeof(explode(verb,"#"))-1]:verb)
 
 // neverbot, 01/06
-#define new_chan_msg() message(name + ": " + str + "\n", (flg?"(":tmp1)+capitalize(channel_name(verb))+(flg?")":tmp2)\
+#define new_chan_msg() message(who + ": " + str + "\n", (flg?"(":tmp1)+capitalize(query_channel_display(channel_name(verb)))+(flg?")":tmp2)\
 , channels[verb]);\
-add_history(verb, (flg?"(":tmp1)+capitalize(channel_name(verb))+(flg?")":tmp2)\
-+" "+name+": "+str);
+add_history(verb, (flg?"(":tmp1)+capitalize(query_channel_display(channel_name(verb)))+(flg?")":tmp2)\
++" "+who+": "+str);
 
-#define admin_chan_msg() message(name + ": " + str + "\n", (flg?"(":tmp1)+capitalize(channel_name(verb))+(flg?")":tmp2)\
+#define admin_chan_msg() message(who + ": " + str + "\n", (flg?"(":tmp1)+capitalize(query_channel_display(channel_name(verb)))+(flg?")":tmp2)\
 , filter_array(channels[verb], "only_admins") );\
-add_history(verb, (flg?"(":tmp1)+capitalize(channel_name(verb))+(flg?")":tmp2)\
-+" "+name+": "+str);
+add_history(verb, (flg?"(":tmp1)+capitalize(query_channel_display(channel_name(verb)))+(flg?")":tmp2)\
++" "+who+": "+str);
 
 #define check_cmd() if (strlen(str) > 1) { new_chan_msg(); return; }
 
@@ -402,9 +450,10 @@ int only_admins(object who, varargs mixed args...)
   return (who && (who->query_admin() || (who == this_player())));
 }
 
-void do_channel(string verb, string str, varargs string name, string mud, int flg) 
+// `who` is the one speaking; `name` is the channel's own name on screen.
+void do_channel(string verb, string str, varargs string who, string mud, int flg) 
 {
-  string tmp1, tmp2;
+  string tmp1, tmp2, name;
   tmp1 = "[";
   tmp2 = "]";
   
@@ -423,11 +472,13 @@ void do_channel(string verb, string str, varargs string name, string mud, int fl
   {
     case '!':
       check_cmd();
-      message("Historia del canal '"+channel_name(verb)+"':\n"+get_history(verb) + "\n", "", this_player());
+      name = query_channel_display(channel_name(verb));
+      message(_LANG_CHANNEL_HISTORY_HEADER+get_history(verb) + "\n", "", this_player());
       return;
     case '?':
       check_cmd();
-      message("Ayuda del canal '"+channel_name(verb)+"':\n"+get_channel_help(verb) + "\n", "", this_player());
+      name = query_channel_display(channel_name(verb));
+      message(_LANG_CHANNEL_HELP_HEADER+get_channel_help(verb) + "\n", "", this_player());
       return;
      /* Desactivado, neverbot 01/06
     case '@' :
@@ -444,12 +495,13 @@ void do_channel(string verb, string str, varargs string name, string mud, int fl
         new_chan_msg();
         return;
       }
+      name = query_channel_display(channel_name(verb));
       message(query_multiple_short(query_who_on(verb)) + "\n",
-        "Gente escuchando en el canal '"+channel_name(verb)+"':", this_player());
+        _LANG_CHANNEL_WHO_HEADER, this_player());
       break;
     default:
       // chan_msg();
-      // No permitimos que los jugadores vean el canal emergencia
+      // players do not read the emergency channel
       if (verb == EMERGENCY_CHANNEL)
       {
         admin_chan_msg();
