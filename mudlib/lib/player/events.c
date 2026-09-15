@@ -166,7 +166,12 @@ void event_person_say(object ob, string start, string msg, string lang)
   else
   {
     if (lang != STD_LANG)
-      start += " " + _LANG_PREPOSITION + " " + lang + ": ";
+    {
+      string name;
+
+      name = (string)handler("languages")->query_language_display(lang);
+      start += " " + _LANG_PREPOSITION + " " + name + ": ";
+    }
     else
       start += ": ";
   }

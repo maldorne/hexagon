@@ -168,7 +168,12 @@ void event_person_whisper(object ob, string start, string msg,
   //   start = start[0..strlen(start)-3]+" en "+lang+": ";
   // else {
   if (lang != STD_LANG)
-    oblue = " en "+lang+": ";
+  {
+    string name;
+
+    name = (string)handler("languages")->query_language_display(lang);
+    oblue = _LANG_EVENTS_IN_LANGUAGE;
+  }
   else
     // if (!stringp(oblue))
     oblue = ": ";
@@ -228,7 +233,12 @@ void event_person_shout(object ob, string start, string msg, string lang)
   }
   // else
   if (lang != STD_LANG)
-    start = start[0..strlen(start)-3]+" en "+lang+": ";
+  {
+    string name;
+
+    name = (string)handler("languages")->query_language_display(lang);
+    start = start[0..strlen(start)-3] + _LANG_EVENTS_IN_LANGUAGE;
+  }
 
   tmp = start + msg;
 

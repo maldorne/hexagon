@@ -87,3 +87,7 @@
 #define _LANG_CONTAINER_CONTAINS " contains:\n"
 #define _LANG_CONTAINER_DROP "You can't hold everything you're trying to carry, " + \
             "so you drop your " + stuff[i]->query_name() + ".\n"
+
+// what is heard in a language of its own. `name` is the language, by the name
+// it is known under
+#define _LANG_EVENTS_IN_LANGUAGE " " + _LANG_PREPOSITION + " " + name + ": "

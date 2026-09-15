@@ -230,7 +230,7 @@ void their_mess(object ob, string start, string msg, string lang)
 
 int do_say(string arg, varargs int no_echo) 
 {
-  string * words, word;
+  string * words, word, name;
 
   // Taniwha, sanity/ no debug errors
   if (!environment(this_object()))
@@ -269,7 +269,10 @@ int do_say(string arg, varargs int no_echo)
   if (!no_echo) 
   {
     if (cur_lang != STD_LANG)
-      word = words[0] + " " + _LANG_PREPOSITION + " " + cur_lang + ": ";
+    {
+      name = (string)handler("languages")->query_language_display(cur_lang);
+      word = words[0] + " " + _LANG_PREPOSITION + " " + name + ": ";
+    }
     else
       word = words[0] + ": ";
 
@@ -281,7 +284,7 @@ int do_say(string arg, varargs int no_echo)
 
 int do_tell(string arg, varargs object ob, int silent) 
 {
-  string str, rest;
+  string str, rest, name;
   string * words;
   // string person, mud;
 
@@ -343,7 +346,8 @@ int do_tell(string arg, varargs object ob, int silent)
     }
   }
 
-  if (ob == this_player()) 
+  // the one speaking, not whoever typed: an NPC can tell somebody too
+  if (ob == this_object()) 
   {
     notify_fail(_LANG_TELL_YOURSELF);
     return 0;
@@ -362,6 +366,7 @@ int do_tell(string arg, varargs object ob, int silent)
   }
   
   words = query_word_type(rest);
+  name = (string)handler("languages")->query_language_display(cur_lang);
   
   if (this_object()->query_intoxication())
     arg = drunk_speech(arg);
@@ -376,7 +381,7 @@ int do_tell(string arg, varargs object ob, int silent)
     if (!silent)
       my_mess(_LANG_TELL_MSG_ME + " " +  ob->query_cap_name() + 
               (words[2] == _LANG_COMM_EXCLAIMING ? " " + words[2] : "") +
-              (cur_lang != STD_LANG ? " " + _LANG_IN + " " + cur_lang : "") +
+              (cur_lang != STD_LANG ? " " + _LANG_IN + " " + name : "") +
                ": ", rest);
   } 
   else 
@@ -386,7 +391,7 @@ int do_tell(string arg, varargs object ob, int silent)
 
     if (!silent)
       my_mess(_LANG_TELL_MSG_ASK_ME + " " + ob->query_cap_name() + 
-              (cur_lang != STD_LANG ? " " + _LANG_IN + " " + cur_lang : "") +
+              (cur_lang != STD_LANG ? " " + _LANG_IN + " " + name : "") +
               ": ", rest);
   }
   
@@ -434,14 +439,14 @@ int do_whisper(string str)
     return 0;
   }
 
-  if (sizeof(obs) == 1 && obs[0] == this_player()) 
+  if (sizeof(obs) == 1 && obs[0] == this_object()) 
   {
     say(_LANG_WHISPER_TO_YOURSELF_ROOM);
     write(_LANG_WHISPER_TO_YOURSELF_ME);
     return 1;
   }
   
-  obs = obs - ({ this_player() });
+  obs = obs - ({ this_object() });
   
   for (i = 0; i < sizeof(obs); i++)
     if (!living(obs[i]))
@@ -471,7 +476,7 @@ int do_emote(string arg)
 {
   string str;
 
-  if (!this_object()->query_coder() && !this_player()->query_property("emote"))
+  if (!this_object()->query_coder() && !this_object()->query_property("emote"))
   {
     notify_fail(_LANG_COMMS_NOT_ALLOWED);
     return 0;
@@ -509,7 +514,7 @@ int do_emote(string arg)
 // Flode added 2-round lockout  -  211197
 int do_shout(string str) 
 {
-  string s1, s;
+  string s1, s, name;
   object* usrs;
   usrs = users();
 
@@ -582,7 +587,10 @@ int do_shout(string str)
 
   // if (s1 != " exclamando") {
   if (cur_lang != STD_LANG) 
+  {
+    name = (string)handler("languages")->query_language_display(cur_lang);
     s1 += _LANG_SHOUT_IN_LANGUAGE;
+  }
 
   my_mess(_LANG_SHOUT_ME, str);
   /*

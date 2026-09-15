@@ -350,7 +350,7 @@
 #define _LANG_WHISPER_SYNTAX "Sintaxis: " + query_verb() + " [a] <persona> <texto>\n"
 #define _LANG_WHISPER_NO_LANGUAGE "Debes seleccionar un idioma para hablar.\n"
 #define _LANG_WHISPER_LANG_NOT_SPOKEN capitalize(cur_lang) + " no es un lenguaje hablado.\n"
-#define _LANG_WHISPER_TO_YOURSELF_ROOM this_player()->query_cap_name() + " se susurra a si mismo.\n"
+#define _LANG_WHISPER_TO_YOURSELF_ROOM this_object()->query_cap_name() + " se susurra a si mismo.\n"
 #define _LANG_WHISPER_TO_YOURSELF_ME "¿¡Susurrándote a ti mismo!?\n"
 #define _LANG_WHISPER_NOBODY "No hay nadie con ese nombre a quien susurrar.\n"
 #define _LANG_WHISPER_THEM this_object()->query_cap_name() + " susurra" + s
@@ -370,7 +370,7 @@
 #define _LANG_SHOUT_WORD "grita" + s1
 #define _LANG_WHISPER_PREPOSITION "a %s"
 #define _LANG_SHOUT_ME "Gritas" + s1 + ": "
-#define _LANG_SHOUT_IN_LANGUAGE " en " + cur_lang
+#define _LANG_SHOUT_IN_LANGUAGE " " + _LANG_PREPOSITION + " " + name
 
 // consents. `name` is the consent being talked about, and `value` whether it
 // is allowed
