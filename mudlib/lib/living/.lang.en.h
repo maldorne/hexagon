@@ -357,7 +357,9 @@
 #define _LANG_WHISPER_ME "You whisper" + s + " to " + query_multiple_short(obs) + ": "
 
 // emote
-#define _LANG_EMOTE_SYNTAX "Syntax: emote <what you feel>\n"
+#define _LANG_EMOTE_NOT_ALLOWED "You cannot do that.\n"
+#define _LANG_EMOTE_VERBS ({ "emotion", "emote" })
+#define _LANG_EMOTE_SYNTAX "Syntax: " + query_verb() + " <what you do>\n"
 
 // shout. `cur_lang` is the language the shouter is using, `s1` the word the
 // punctuation chose

@@ -33,8 +33,7 @@ void communicate_commands()
   // by monster setup and social race assignment)
   add_private_action("do_shout",     _LANG_SHOUT_VERBS);
 
-  // deactivated for a while
-  // add_private_action("do_emote", ({ "emote", "emocion"}));
+  add_private_action("do_emote",     _LANG_EMOTE_VERBS);
 
   // the words the channels answer to belong to the channel handler, which
   // is where they are translated
@@ -472,20 +471,20 @@ int do_whisper(string str)
   return 1;
 }
 
+// A free-form action: whatever is typed is shown after your name. Anybody
+// can write anything with it, so it stays in the hands of the staff.
 int do_emote(string arg) 
 {
   string str;
 
-  if (!this_object()->query_coder() && !this_object()->query_property("emote"))
+  if (!this_object()->query_coder())
   {
-    notify_fail(_LANG_COMMS_NOT_ALLOWED);
+    notify_fail(_LANG_EMOTE_NOT_ALLOWED);
     return 0;
   }
  
   if (!strlen(arg))
     arg = "";
-
-  str = query_verb();
 
   if (arg == "" || arg == " ") 
   {
