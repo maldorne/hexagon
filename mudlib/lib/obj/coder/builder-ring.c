@@ -21,7 +21,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home", "sign", "temple", "family" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home", "sign", "desc", "temple", "family" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -97,6 +97,7 @@ inherit "/lib/armour.c";
   "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
   "  build sign <text>                    post a sign here (remove: take it down)\n" + \
+  "  build desc <text>                    the prose of this location (reset: drop it)\n" + \
   "\n" + \
   "  build family found [surname]         start a house in this area\n" + \
   "  build family join <surname> <who>    take somebody into it\n" + \
@@ -151,6 +152,7 @@ int do_home_remove();
 int do_home_make();
 int do_home_describe(string what, string str);
 int do_sign(string str);
+int do_desc(string str);
 int do_temple(string str);
 int do_family(string str);
 
@@ -368,6 +370,9 @@ int do_build(string str)
 
   if (verb == "sign")
     return do_sign(implode(args[1..], " "));
+
+  if (verb == "desc")
+    return do_desc(implode(args[1..], " "));
 
   if (sizeof(args) < 2)
   {
@@ -2011,6 +2016,49 @@ int do_sign(string str)
   loc->add_component(LOCATION_COMPONENT_SIGN, ([ "sign_text": str ]));
   loc->save_me();
   write("Posted a sign reading: " + str + "\n");
+  return 1;
+}
+
+// The prose of a location: what the author has to say that no component can
+// work out. A location with none composes its body from its components and,
+// failing those, from the description the room it was converted from had.
+int do_desc(string str)
+{
+  object loc;
+  mixed current, original;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to describe it.\n");
+    return 0;
+  }
+
+  if (!strlen(str))
+  {
+    current  = loc->query_specific_long();
+    original = loc->query_original_long();
+
+    write("Its own prose:\n  " +
+          (stringp(current) && strlen(current) ? "\"" + current + "\""
+                                               : "(none)") + "\n");
+    write("The room it came from:\n  " +
+          (stringp(original) && strlen(original) ? "\"" + original + "\""
+                                                 : "(none)") + "\n");
+    return 1;
+  }
+
+  if (str == "reset")
+  {
+    loc->set_specific_long("");
+    loc->save_me();
+    write("Dropped its own prose.\n");
+    return 1;
+  }
+
+  loc->set_specific_long(str);
+  loc->save_me();
+  write("Described.\n");
   return 1;
 }
 
