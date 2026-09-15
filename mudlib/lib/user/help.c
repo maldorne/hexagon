@@ -24,7 +24,8 @@ private int show_section(string name);
 private int show_matches(string pattern);
 private int show_topic(mixed * topic, string str);
 private int may_read(string tier);
-private string help_header(string name, string kind, string subtitle);
+private string help_page(string name, string kind, string subtitle,
+                         string body);
 
 static int compare_strings(string a, string b)
 {
@@ -34,9 +35,12 @@ static int compare_strings(string a, string b)
   return -1;
 }
 
-// One header for every kind of help, so a document does not read like a file
-// somebody printed by accident. The bar is as wide as the reader's screen.
-private string help_header(string name, string kind, string subtitle)
+// One page for every kind of help, so a document does not read like a file
+// somebody printed by accident: a bar naming what is being read, what kind of
+// thing it is, the text, and a bar to say where it ends. Both bars are as wide
+// as the reader's screen.
+private string help_page(string name, string kind, string subtitle,
+                         string body)
 {
   string out;
   int width;
@@ -44,14 +48,19 @@ private string help_header(string name, string kind, string subtitle)
   width = (int)this_object()->query_cols();
 
   out = sprintf("%p%|*s\n", '-', width,
-                fix_string(_LANG_HELP_TITLE_BAR(capitalize(name))));
+                fix_string(_LANG_HELP_TITLE_BAR(name)));
 
   if (strlen(subtitle))
     out += subtitle + " " + _LANG_HELP_KIND_SEPARATOR + " " + kind + "\n\n";
   else
     out += kind + "\n\n";
 
-  return out;
+  out += body;
+
+  if (!strlen(out) || out[strlen(out) - 1] != '\n')
+    out += "\n";
+
+  return out + sprintf("%p%*s\n", '-', width, "");
 }
 
 // Whether somebody may read a document written for a given tier.
@@ -106,7 +115,7 @@ private int show_section(string name)
   int i;
 
   topics = (string *)HELP_HANDLER->query_section(name);
-  out = help_header(name, _LANG_HELP_KIND_SECTION, "");
+  out = "";
 
   for (i = 0; i < sizeof(topics); i++)
   {
@@ -119,7 +128,8 @@ private int show_section(string name)
     out += sprintf("  %-18s %s\n", topics[i], topic[3]);
   }
 
-  this_object()->more_string(out, capitalize(name));
+  this_object()->more_string(
+    help_page(name, _LANG_HELP_KIND_SECTION, "", out), capitalize(name));
   return 1;
 }
 
@@ -181,14 +191,13 @@ private int show_topic(mixed * topic, string str)
   }
 
   this_object()->more_string(
-    help_header(str,
-                topic[1] == HELP_TIER_CODER ? (topic[2] == HELP_DRIVER_SECTION ||
-                                               topic[2] == "kfun"
-                                                 ? _LANG_HELP_KIND_DRIVER
-                                                 : _LANG_HELP_KIND_CODER_TOPIC)
-                                            : _LANG_HELP_KIND_TOPIC,
-                topic[3]) +
-    trim(text) + "\n",
+    help_page(str,
+              topic[1] == HELP_TIER_CODER ? (topic[2] == HELP_DRIVER_SECTION ||
+                                             topic[2] == "kfun"
+                                               ? _LANG_HELP_KIND_DRIVER
+                                               : _LANG_HELP_KIND_CODER_TOPIC)
+                                          : _LANG_HELP_KIND_TOPIC,
+              topic[3], trim(text) + "\n"),
     capitalize(str));
   return 1;
 }
@@ -270,10 +279,10 @@ int do_help(string str)
         if (ob = load_object(text))
         {
           this_object()->more_string(
-            help_header(str, _LANG_HELP_KIND_COMMAND, "") +
-            _LANG_CMD_SYNTAX + ob->query_usage() + "\n\n" +
-            (ob->query_help() ? wrap(ob->query_help())
-                              : _LANG_HELP_CMD_NO_HELP) + "\n",
+            help_page(str, _LANG_HELP_KIND_COMMAND, "",
+                      _LANG_CMD_SYNTAX + ob->query_usage() + "\n\n" +
+                      (ob->query_help() ? wrap(ob->query_help())
+                                        : _LANG_HELP_CMD_NO_HELP) + "\n"),
             capitalize(str));
           return 1;
         }
@@ -285,7 +294,7 @@ int do_help(string str)
   if ((text = this_object()->player()->help_skill(str)) && strlen(text))
   {
     this_object()->more_string(
-      help_header(str, _LANG_HELP_KIND_SKILL, "") + text + "\n",
+      help_page(str, _LANG_HELP_KIND_SKILL, "", text + "\n"),
       capitalize(str));
     return 1;
   }
@@ -366,7 +375,7 @@ int do_help(string str)
         return 0;
       }
 
-      s = help_header(str, _LANG_HELP_KIND_SOUL, "") + wrap(s);
+      s = help_page(str, _LANG_HELP_KIND_SOUL, "", wrap(s));
       this_user()->set_finish_func("end_of_help");
       this_user()->more_string(s, capitalize(str));
       return 1;

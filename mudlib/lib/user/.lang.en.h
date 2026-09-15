@@ -84,7 +84,7 @@
         "'help <topic>' to read one, or 'help *word*' to search.\n"
 #define _LANG_HELP_MATCHES "\nMatching:\n\n"
 #define _LANG_HELP_NO_MATCHES "No topic matches that.\n"
-#define _LANG_HELP_TITLE_BAR(name) "] %^BOLD%^WHITE%^" + (name) + "%^RESET%^ ["
+#define _LANG_HELP_TITLE_BAR(name) "] Help about: %^BOLD%^WHITE%^" + (name) + "%^RESET%^ ["
 #define _LANG_HELP_KIND_SEPARATOR "·"
 #define _LANG_HELP_KIND_COMMAND "command"
 #define _LANG_HELP_KIND_SKILL "skill"

@@ -84,7 +84,7 @@
         "'ayuda <tema>' para leerlo, o 'ayuda *palabra*' para buscar.\n"
 #define _LANG_HELP_MATCHES "\nCoinciden:\n\n"
 #define _LANG_HELP_NO_MATCHES "No hay ningún tema que coincida.\n"
-#define _LANG_HELP_TITLE_BAR(name) "] %^BOLD%^WHITE%^" + (name) + "%^RESET%^ ["
+#define _LANG_HELP_TITLE_BAR(name) "] Ayuda sobre: %^BOLD%^WHITE%^" + (name) + "%^RESET%^ ["
 #define _LANG_HELP_KIND_SEPARATOR "·"
 #define _LANG_HELP_KIND_COMMAND "comando"
 #define _LANG_HELP_KIND_SKILL "habilidad"
