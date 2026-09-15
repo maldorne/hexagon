@@ -12,10 +12,6 @@ learnt, and which one you are on.
 Switches to the style you name. 'style' and 'styles' are the same
 word: the list comes out whenever you name none.
 
-For now it has to be named by its internal id, which is not the
-name the list prints: the basic style, listed as 'Pelea', is chosen
-with "style fighting".
-
   maestrias
 
 Lists your weapon masteries: for every kind of weapon you have come
