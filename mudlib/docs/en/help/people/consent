@@ -20,7 +20,5 @@ The consents, by the names you type, are:
   seguir          somebody following you.
   resucitar       somebody bringing you back to life.
 
-The last two are reserved: nothing looks at them yet.
-
 Anybody trying something you do not consent to is refused. With
 'dar', on top of that, you are told they tried.
