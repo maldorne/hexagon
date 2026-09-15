@@ -9,6 +9,7 @@ inherit CMD_BASE;
 
 private string columns(string * * rows);
 private string * * rows_for(object * who, string * fields, string * heads);
+private int any_guest(object * who);
 private int do_view(object * who, string view);
 private int do_net(object * who);
 private int do_detail(object * who);
@@ -35,6 +36,24 @@ void setup()
     "A '*' beside a name means that person is in the editor and is not " +
     "reading what is said to them. Somebody still at the login prompt has no " +
     "character yet and shows as such.");
+}
+
+// Whether anybody in the list is visiting. The guest column is only worth a
+// place on the screen when there is one.
+private int any_guest(object * who)
+{
+  int i;
+
+  for (i = 0; i < sizeof(who); i++)
+  {
+    mapping facts;
+
+    facts = (mapping)handler("people")->query_facts(who[i]);
+    if (strlen(facts["guest"]))
+      return TRUE;
+  }
+
+  return FALSE;
 }
 
 // Lay rows out in columns, the first row being the header.
@@ -133,6 +152,12 @@ private int do_view(object * who, string view)
                "idle" });
   }
 
+  if (any_guest(who))
+  {
+    fields += ({ "guest" });
+    heads += ({ "guest" });
+  }
+
   write("" + sizeof(who) + " connected:\n" +
         columns(rows_for(who, fields, heads)));
   return 1;
@@ -164,7 +189,7 @@ private int do_net(object * who)
 {
   mapping seen;
   string * * rows;
-  int i;
+  int i, guests;
 
   seen = ([ ]);
   for (i = 0; i < sizeof(who); i++)
@@ -178,7 +203,10 @@ private int do_net(object * who)
   }
 
   who = sort_array(who, "cmp_address", this_object());
-  rows = ({ ({ "", "name", "idle", "address", "host", "same" }) });
+  guests = any_guest(who);
+
+  rows = ({ ({ "", "name", "idle", "address", "host", "same" }) +
+            (guests ? ({ "guest" }) : ({ })) });
 
   for (i = 0; i < sizeof(who); i++)
   {
@@ -186,7 +214,8 @@ private int do_net(object * who)
 
     f = (mapping)handler("people")->query_facts(who[i]);
     rows += ({ ({ f["editing"], f["cap_name"], f["idle"], f["ip"], f["host"],
-                  seen[f["ip"]] > 1 ? "" + seen[f["ip"]] : "" }) });
+                  seen[f["ip"]] > 1 ? "" + seen[f["ip"]] : "" }) +
+               (guests ? ({ f["guest"] }) : ({ })) });
   }
 
   write("" + sizeof(who) + " connected:\n" + columns(rows));
@@ -207,7 +236,8 @@ private int do_detail(object * who)
     f = (mapping)handler("people")->query_facts(who[i]);
     out += f["cap_name"] + (f["editing"] == "*" ? "  (in the editor)" : "") +
            "\n" +
-           "  kind       " + f["kind"] + ", " + f["gender"] + "\n" +
+           "  kind       " + f["kind"] +
+           (strlen(f["guest"]) ? " (guest)" : "") + ", " + f["gender"] + "\n" +
            "  race       " + f["race"] + "\n" +
            "  guild      " + f["guild"] + "\n" +
            "  level      " + f["level"] + "\n" +

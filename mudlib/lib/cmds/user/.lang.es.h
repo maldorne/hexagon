@@ -28,7 +28,8 @@
 #define _LANG_WHO_AWAY_MSG " (%^WHITE%^%^BOLD%^Ausente%^RESET%^)"
 #define _LANG_WHO_IDLE_MSG " (%^CYAN%^%^BOLD%^Inactivo: " + (user->query_idle() / 60) + "%^RESET%^)"
 #define _LANG_WHO_LINKDEAD_MSG " (%^YELLOW%^%^BOLD%^Desconectado: " + ((time() - user->query_linkdead_at()) / 60) + " min%^RESET%^)"
-#define _LANG_WHO_GUEST_MSG " invitad" + ((arr[i]->query_gender() == 2) ? "a" : "o") + " en " + mud_name()
+#define _LANG_WHO_GUEST_MSG " (%^BOLD%^Invitad" + \
+        ((arr[i]->query_gender() == 2) ? "a" : "o") + "%^RESET%^)"
 #define _LANG_WHO_NO_CODERS_MSG "> %^GREEN%^No hay programadores conectados%^RESET%^ <"
 #define _LANG_WHO_NO_PLAYERS_MSG "> %^GREEN%^No hay jugadores conectados%^RESET%^ <"
 #define _LANG_WHO_IS_THE_ONLY_ONE "> %^GREEN%^Es el único que está conectado en " + mud_name() + "%^RESET%^ <"

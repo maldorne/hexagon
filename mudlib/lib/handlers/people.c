@@ -11,6 +11,7 @@
 // Everything here reads; nothing is written, and no user is touched.
 
 #include <user/roles.h>
+#include <user/player.h>
 
 // The body behind a connection. `users()` answers with the user objects -- the
 // connection and its terminal -- and everything about the person (race, guild,
@@ -163,6 +164,8 @@ mapping query_facts(object user)
   // somebody in the editor is not reading what is said to them
   facts["editing"] = (body && body->query_in_editor()) ? "*" : " ";
   facts["kind"] = query_kind(user);
+  // somebody visiting: a character that is never written down
+  facts["guest"] = (body && body->query_property(GUEST_PROP)) ? "yes" : "";
   facts["gender"] = (body && stringp(body->query_gender_string()))
                       ? body->query_gender_string() : "-";
 

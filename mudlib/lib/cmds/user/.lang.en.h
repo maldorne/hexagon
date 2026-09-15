@@ -28,7 +28,7 @@
 #define _LANG_WHO_AWAY_MSG " (%^WHITE%^%^BOLD%^Away%^RESET%^)"
 #define _LANG_WHO_IDLE_MSG " (%^CYAN%^%^BOLD%^Idle: " + (user->query_idle() / 60) + "%^RESET%^)"
 #define _LANG_WHO_LINKDEAD_MSG " (%^YELLOW%^%^BOLD%^Linkdead: " + ((time() - user->query_linkdead_at()) / 60) + " min%^RESET%^)"
-#define _LANG_WHO_GUEST_MSG " guest in " + mud_name()
+#define _LANG_WHO_GUEST_MSG " (%^BOLD%^Guest%^RESET%^)"
 #define _LANG_WHO_NO_CODERS_MSG "> %^GREEN%^No coders connected%^RESET%^ <"
 #define _LANG_WHO_NO_PLAYERS_MSG "> %^GREEN%^No players connected%^RESET%^ <"
 #define _LANG_WHO_IS_THE_ONLY_ONE "> %^GREEN%^Is the only one connected to " + mud_name() + "%^RESET%^ <"
