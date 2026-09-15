@@ -24,6 +24,7 @@ private int show_section(string name);
 private int show_matches(string pattern);
 private int show_topic(mixed * topic, string str);
 private int may_read(string tier);
+private string help_header(string name, string kind, string subtitle);
 
 static int compare_strings(string a, string b)
 {
@@ -31,6 +32,26 @@ static int compare_strings(string a, string b)
   if (!a || !b) return 1;
   if (a > b) return 1;
   return -1;
+}
+
+// One header for every kind of help, so a document does not read like a file
+// somebody printed by accident. The bar is as wide as the reader's screen.
+private string help_header(string name, string kind, string subtitle)
+{
+  string out;
+  int width;
+
+  width = (int)this_object()->query_cols();
+
+  out = sprintf("%p%|*s\n", '-', width,
+                fix_string(_LANG_HELP_TITLE_BAR(capitalize(name))));
+
+  if (strlen(subtitle))
+    out += subtitle + " " + _LANG_HELP_KIND_SEPARATOR + " " + kind + "\n\n";
+  else
+    out += kind + "\n\n";
+
+  return out;
 }
 
 // Whether somebody may read a document written for a given tier.
@@ -85,7 +106,7 @@ private int show_section(string name)
   int i;
 
   topics = (string *)HELP_HANDLER->query_section(name);
-  out = _LANG_HELP_SECTION_HEADER(name);
+  out = help_header(name, _LANG_HELP_KIND_SECTION, "");
 
   for (i = 0; i < sizeof(topics); i++)
   {
@@ -159,7 +180,16 @@ private int show_topic(mixed * topic, string str)
     text = text[i + 1 ..];
   }
 
-  this_object()->more_string(trim(text) + "\n", capitalize(str));
+  this_object()->more_string(
+    help_header(str,
+                topic[1] == HELP_TIER_CODER ? (topic[2] == HELP_DRIVER_SECTION ||
+                                               topic[2] == "kfun"
+                                                 ? _LANG_HELP_KIND_DRIVER
+                                                 : _LANG_HELP_KIND_CODER_TOPIC)
+                                            : _LANG_HELP_KIND_TOPIC,
+                topic[3]) +
+    trim(text) + "\n",
+    capitalize(str));
   return 1;
 }
 
@@ -239,9 +269,12 @@ int do_help(string str)
       {
         if (ob = load_object(text))
         {
-          write(_LANG_HELP_CMD);
-          write(_LANG_CMD_SYNTAX + ob->query_usage() + "\n\n");
-          write((ob->query_help() ? wrap(ob->query_help()) : _LANG_HELP_CMD_NO_HELP) + "\n");
+          this_object()->more_string(
+            help_header(str, _LANG_HELP_KIND_COMMAND, "") +
+            _LANG_CMD_SYNTAX + ob->query_usage() + "\n\n" +
+            (ob->query_help() ? wrap(ob->query_help())
+                              : _LANG_HELP_CMD_NO_HELP) + "\n",
+            capitalize(str));
           return 1;
         }
       }
@@ -251,7 +284,9 @@ int do_help(string str)
   // check if it is a skill the player can look up (by id or translated name)
   if ((text = this_object()->player()->help_skill(str)) && strlen(text))
   {
-    this_object()->more_string(text + "\n", capitalize(str));
+    this_object()->more_string(
+      help_header(str, _LANG_HELP_KIND_SKILL, "") + text + "\n",
+      capitalize(str));
     return 1;
   }
 
@@ -331,9 +366,9 @@ int do_help(string str)
         return 0;
       }
 
-      s = wrap(s);
+      s = help_header(str, _LANG_HELP_KIND_SOUL, "") + wrap(s);
       this_user()->set_finish_func("end_of_help");
-      this_user()->more_string(s);
+      this_user()->more_string(s, capitalize(str));
       return 1;
     }
 
