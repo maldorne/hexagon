@@ -1,16 +1,16 @@
-@verbs protect proteger desproteger
+@verbs protect unprotect proteger desproteger
 @tier player
 @title taking the blows meant for somebody else
 
-  proteger <targets>
-  desproteger <target>
+  protect <targets>
+  unprotect <target>
 
 While you are protecting somebody, the attacks aimed at them reach
 you instead, as long as you are both in the same place and you are
-still alive. The verbs are not translated yet.
+still alive.
 
 Nobody can protect you without your leave: it only works on people
-who have set their 'proteger' consent to yes. Anybody who has not
-is reported as not wanting your protection.
+who have set their 'protect' consent to yes. Anybody who has not is
+reported as not wanting your protection.
 
-You can name several at once. 'desproteger' undoes one.
+You can name several at once. 'unprotect' undoes one.

@@ -1,4 +1,4 @@
-@verbs account password datos chfn notifications
+@verbs account password details chfn notifications
 @tier player
 @title your password, your details and what you missed
 
@@ -8,12 +8,11 @@ Changes your password. It asks for the one you have, the new one,
 and the new one again. It has to be six characters or more. If
 anything does not match, it cancels without changing a thing.
 
-  datos
+  details
 
 The personal details of your account: real name, where you live and
 your birthday. You are asked one at a time, and leaving the line
-blank keeps what was there; 'ninguna' clears it. 'chfn' is the same
-word, and neither is translated yet.
+blank keeps what was there; 'none' clears it.
 
   notifications
 

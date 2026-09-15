@@ -1,24 +1,24 @@
-@verbs consent consentir
+@verbs consent consents consentir
 @tier player
 @title deciding what others may do to you
 
 There are things another player cannot do to you unless you allow
 them. Each of those is a consent, set to yes or no, and every one
-of them starts at no. The verb is not translated yet:
+of them starts at no.
 
-  consentir                       lists how you have them now.
-  consentir <name> sí             allows it.
-  consentir <name> no             stops allowing it.
+  consent                      lists how you have them now.
+  consent <name> yes           allows it.
+  consent <name> no            stops allowing it.
 
 The consents, by the names you type, are:
 
-  dar             somebody giving you an object.
-  proteger        somebody protecting you in a fight.
-  grupos          being taken into an adventuring party.
-  invitaciones    being bought a drink.
-  autoequiparse   equipping yourself on entering the game.
-  seguir          somebody following you.
-  resucitar       somebody bringing you back to life.
+  give        somebody giving you an object.
+  protect     somebody protecting you in a fight.
+  groups      being taken into an adventuring party.
+  drinks      being bought a drink.
+  autoequip   equipping yourself on entering the game.
+  follow      somebody following you.
+  raise       somebody bringing you back to life.
 
 Anybody trying something you do not consent to is refused. With
-'dar', on top of that, you are told they tried.
+'give', on top of that, you are told they tried.

@@ -1,16 +1,15 @@
-@verbs channels channel emergencia gremio clan raza aventurero
+@verbs channels channel emergency guild clan race adventurer
 @tier player
 @title channels: talking to a group wherever they are
 
 A channel carries what you write to everybody listening to it, no
-matter where you all are. Each channel is a verb of its own, and
-the verbs are not translated yet:
+matter where you all are. Each channel is a verb of its own:
 
-  emergencia   open to every player, to ask for help.
-  gremio       for the members of your guild.
+  emergency    open to every player, to ask for help.
+  guild        for the members of your guild.
   clan         for the members of your clan.
-  raza         for those of your own racial group.
-  aventurero   for the party you are adventuring with.
+  race         for those of your own racial group.
+  adventurer   for the party you are adventuring with.
 
 The three in the middle only work if you belong to that guild, clan
 or racial group, and if the group has a channel of its own.

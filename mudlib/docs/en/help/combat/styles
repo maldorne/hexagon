@@ -1,4 +1,4 @@
-@verbs style styles maestrias masteries
+@verbs style styles masteries maestrias
 @tier player
 @title what you fight with, and how good you are at it
 
@@ -12,7 +12,7 @@ learnt, and which one you are on.
 Switches to the style you name. 'style' and 'styles' are the same
 word: the list comes out whenever you name none.
 
-  maestrias
+  masteries
 
 Lists your weapon masteries: for every kind of weapon you have come
-to handle, how well you handle it. The verb is not translated yet.
+to handle, how well you handle it.
