@@ -36,8 +36,6 @@
 
 // read_desc.c
 
-#define _LANG_READ_CMDS ({ "leer" })
-#define _LANG_READ_READ_WHAT "¿Leer el qué?\n"
 #define _LANG_READ_SOMETHING_WRITTEN "Parece que tiene algo escrito.\n"
 
 // auto_load.c

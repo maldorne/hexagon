@@ -90,7 +90,6 @@ void create()
 void init()
 {
   obj::init();
-  read_desc::init();
 }
 
 void set_holdable(int i)

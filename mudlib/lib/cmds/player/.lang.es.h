@@ -432,3 +432,19 @@
                         "`idle <minutos>` fija un nuevo valor; cualquier valor fuera del rango se ajusta a los límites."
 #define _LANG_IDLE_SHOW "La espera de idle es %d minutos (rango permitido %d – %d).\n"
 #define _LANG_IDLE_SET "Espera de idle ajustada a %d minutos.\n"
+
+// read. `str` is what the player named, and `ob` the thing being read
+#define _LANG_CMD_READ_ALIAS ({ "leer" })
+#define _LANG_CMD_READ_SYNTAX "leer <objeto>"
+#define _LANG_CMD_READ_HELP "Lee lo que esté escrito en algo: un cartel, una placa, " + \
+                            "un libro, una carta. Se nombra la cosa, y se lee lo que pone en ella.\n" + \
+                            "\n" + \
+                            "Cada texto está escrito en un idioma. Si no lo conoces, verás las letras " + \
+                            "revueltas, y sabrás al menos en qué idioma está; usa 'hablar' para ver " + \
+                            "cuáles sabes.\n" + \
+                            "\n" + \
+                            "Leer no es lo mismo que mirar: 'mirar <objeto>' te dice cómo es la cosa, " + \
+                            "'leer <objeto>' te da lo que pone en ella."
+#define _LANG_CMD_READ_WHAT "¿Leer el qué?\n"
+#define _LANG_CMD_READ_CANNOT_FIND "No ves ningún '" + str + "' por aquí.\n"
+#define _LANG_CMD_READ_NOTHING_WRITTEN ob->query_short() + " no tiene nada escrito.\n"

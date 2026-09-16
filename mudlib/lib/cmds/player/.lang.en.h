@@ -432,3 +432,19 @@
                         "Running `idle <minutes>` sets a new value; anything outside the range is clamped."
 #define _LANG_IDLE_SHOW "Idle grace is %d minutes (allowed range %d – %d).\n"
 #define _LANG_IDLE_SET "Idle grace set to %d minutes.\n"
+
+// read. `str` is what the player named, and `ob` the thing being read
+#define _LANG_CMD_READ_ALIAS ({ "read" })
+#define _LANG_CMD_READ_SYNTAX "read <object>"
+#define _LANG_CMD_READ_HELP "Read whatever is written on something: a sign, a plaque, " + \
+                            "a book, a letter. Name the thing, and you read what it says.\n" + \
+                            "\n" + \
+                            "Every text is written in some language. If you do not know it, you see " + \
+                            "the letters jumbled, and at least learn which language it is in; use " + \
+                            "'speak' to see the ones you know.\n" + \
+                            "\n" + \
+                            "Reading is not looking: 'look <object>' tells you what the thing is like, " + \
+                            "'read <object>' gives you what it says."
+#define _LANG_CMD_READ_WHAT "Read what?\n"
+#define _LANG_CMD_READ_CANNOT_FIND "You see no '" + str + "' here.\n"
+#define _LANG_CMD_READ_NOTHING_WRITTEN ob->query_short() + " has nothing written on it.\n"

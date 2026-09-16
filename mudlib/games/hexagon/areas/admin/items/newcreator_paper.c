@@ -20,7 +20,7 @@ void setup()
     "In the code of these workrooms you can find examples and a lot of " +
     "comments about how to create and modify basic rooms, and you can " +
     "find even more info inside the \"/docs\" directory or using " +
-    "the \"man\" and \"help\" commands.\n\n" +
+    "the \"help\" command.\n\n" +
     "\t\t Have fun!!\n", STD_LANG);
 
   set_value(0);

@@ -19,13 +19,6 @@ void create()
   cur_size = 0;
 }
 
-void init()
-{
-  // does not inherit from anywhere
-  // ::init();
-  add_action("do_read", _LANG_READ_CMDS);
-}
-
 mixed add_read_mess(mixed str, varargs string lang, int size, string frame_style);
 
 void set_max_size(int siz) { max_size = siz; }
@@ -145,7 +138,7 @@ int remove_read_mess(string str, string lang)
 }
 
 /*
- * This is used by the do_read procedure to create the message that
+ * This is used by the reading verb to create the message that
  * you will end up reading.  Useful huh?
  *
  * string create_read_array(object ob)
@@ -167,68 +160,58 @@ int remove_read_mess(string str, string lang)
  */
 
 /*
- * Yeppers, this actually reads the object. Handles reading of actual
- * messages.
+ * What is written here, as the reader sees it: in their own language if
+ * they know it, garbled if they do not. The reading verb lives in
+ * /lib/cmds/player/read.c and asks for this.
  */
-int do_read(string what)
+string query_read_text()
 {
   string s1, s2, s3, str, str2;
   // neverbot 4/2003
   string ret;
   int i;
 
-  if (!this_object()->id(what))
-  {
-    notify_fail(_LANG_READ_READ_WHAT);
-    return 0;
-  }
+  ret = "";
 
   if (!read_mess)
-    return 0;
+    return "";
 
-  if (read_mess)
+  for (i = 0; i < sizeof(read_mess); i++)
   {
-    for (i = 0; i < sizeof(read_mess); i++)
+    str = read_mess[i][READ_STR];
+
+    /* Its not a string when we are dealing with magical writing */
+    if (stringp(str))
     {
-      str = read_mess[i][READ_STR];
-
-      /* Its not a string when we are dealing with magical writing */
-      if (stringp(str))
+      str2 = "";
+      while (sscanf(str, "%s$$%s$$%s", s1, s2, s3) == 3)
       {
-        str2 = "";
-        while (sscanf(str, "%s$$%s$$%s", s1, s2, s3) == 3)
-        {
-          str2 += s1 + read_file(s2);
-          str = s3;
-        }
+        str2 += s1 + read_file(s2);
+        str = s3;
+      }
 
-        ret = (string)this_player()->read_message(str2 + str,
-          read_mess[i][READ_LANG],
-          read_mess[i][READ_SIZE],
-          read_mess[i][READ_FRAME]);
-      }
-      else
-      {
-        /* It magic!  She blinded me with science! */
-        ret = (string)this_player()->read_message(str,
-          read_mess[i][READ_LANG],
-          read_mess[i][READ_SIZE],
-          read_mess[i][READ_FRAME]);
-      }
+      ret += (string)this_player()->read_message(str2 + str,
+        read_mess[i][READ_LANG],
+        read_mess[i][READ_SIZE],
+        read_mess[i][READ_FRAME]);
+    }
+    else
+    {
+      /* It magic!  She blinded me with science! */
+      ret += (string)this_player()->read_message(str,
+        read_mess[i][READ_LANG],
+        read_mess[i][READ_SIZE],
+        read_mess[i][READ_FRAME]);
     }
   }
 
-  // neverbot 4/2003
-  if (strlen(ret))
-    write(ret);
-
-  return 1;
-} /* do_read() */
+  return ret;
+} /* query_read_text() */
 
 /* Modify the long if we have something written on us */
 string long(varargs string str, int dark)
 {
-  if (read_mess)
+  if (read_mess && sizeof(read_mess))
     return _LANG_READ_SOMETHING_WRITTEN;
   return "";
 }

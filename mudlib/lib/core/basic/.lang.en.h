@@ -40,8 +40,6 @@
 
 // read_desc.c
 
-#define _LANG_READ_CMDS ({ "read" })
-#define _LANG_READ_READ_WHAT "Read what?\n"
 #define _LANG_READ_SOMETHING_WRITTEN "Looks that there's something written on "+this_object()->query_pronoun()+".\n"
 
 // auto_load.c
