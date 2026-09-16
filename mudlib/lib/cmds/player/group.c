@@ -78,6 +78,13 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
+    // query_time_on() counts back from now, so a played character is negative
+    if (-me->query_time_on() < PARTY_MIN_PLAY_TIME)
+    {
+      notify_fail(_LANG_CMD_GROUP_TOO_YOUNG);
+      return 0;
+    }
+
     name = strlen(rest) ? rest : _LANG_CMD_GROUP_DEFAULT_NAME;
 
     if (strlen(name) > PARTY_NAME_LENGTH)

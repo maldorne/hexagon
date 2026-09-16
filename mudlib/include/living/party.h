@@ -10,6 +10,10 @@
 // how long a party name may be
 #define PARTY_NAME_LENGTH 60
 
-// an invitation, and how long it stands (in seconds)
+// how long a character has to have been played before it can start a party
+#define PARTY_MIN_PLAY_TIME (5 * 3600)
+
+// an invitation, and how long it stands. A timed property counts heart beats,
+// not seconds, so thirty of them is about a minute.
 #define PARTY_INVITE_PROP "party_invitation"
-#define PARTY_INVITE_TIME 60
+#define PARTY_INVITE_TIME 30

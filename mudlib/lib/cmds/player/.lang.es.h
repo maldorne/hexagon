@@ -458,10 +458,11 @@
     "no se guarda de una partida a otra.\n" + \
     "\n" + \
     "Quien lo crea lo dirige, y es el único que puede invitar, expulsar, cambiarle el " + \
-    "nombre o cederlo. Si se marcha, el grupo pasa a manos del siguiente.\n" + \
+    "nombre o cederlo. Si se marcha, el grupo pasa a manos del siguiente. Para crear " + \
+    "uno hace falta llevar unas horas de juego, aunque a cualquiera pueden invitarle.\n" + \
     "\n" + \
     "  grupo crear [<nombre>]     lo crea, contigo al frente.\n" + \
-    "  grupo invitar <jugador>    le ofrece unirse; tiene un minuto para aceptar.\n" + \
+    "  grupo invitar <jugador>    le ofrece unirse; tiene un rato para aceptar.\n" + \
     "  grupo unirse               acepta la invitación que te hayan hecho.\n" + \
     "  grupo lista                quiénes sois.\n" + \
     "  grupo estado               cómo está de salud cada uno.\n" + \
@@ -493,6 +494,7 @@
 #define _LANG_CMD_GROUP_NOT_IN_PARTY "Para eso tienes que pertenecer a un grupo.\n"
 #define _LANG_CMD_GROUP_ALREADY_IN_PARTY "Ya perteneces a un grupo.\n"
 #define _LANG_CMD_GROUP_NOT_LEADER "Sólo quien dirige el grupo puede hacer eso.\n"
+#define _LANG_CMD_GROUP_TOO_YOUNG "Tu personaje es aún demasiado joven para dirigir un grupo.\n"
 #define _LANG_CMD_GROUP_NAME_TOO_LONG "Ese nombre es demasiado largo.\n"
 #define _LANG_CMD_GROUP_NEEDS_NAME "Tienes que decir un nombre.\n"
 #define _LANG_CMD_GROUP_NEEDS_PLAYER "Tienes que decir a quién.\n"
@@ -517,7 +519,7 @@
 #define _LANG_CMD_GROUP_FULL "El grupo está completo.\n"
 #define _LANG_CMD_GROUP_INVITED_ME "Invitas a " + who->query_cap_name() + " a tu grupo.\n"
 #define _LANG_CMD_GROUP_INVITED_THEM me->query_cap_name() + " te invita al grupo '" + name + "'.\n" + \
-    "Escribe 'grupo unirse' si quieres entrar; la invitación dura un minuto.\n"
+    "Escribe 'grupo unirse' si quieres entrar; la invitación no dura mucho.\n"
 
 #define _LANG_CMD_GROUP_NOT_INVITED "No te ha invitado nadie a ningún grupo.\n"
 #define _LANG_CMD_GROUP_INVITE_GONE "Ese grupo ya no existe.\n"

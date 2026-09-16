@@ -458,10 +458,11 @@
     "as long as you want it to: nothing about it is kept from one session to the next.\n" + \
     "\n" + \
     "Whoever creates it leads it, and is the only one who can invite, throw somebody out, " + \
-    "rename it or hand it over. If they leave, the party passes to the next one in.\n" + \
+    "rename it or hand it over. If they leave, the party passes to the next one in. " + \
+    "Creating one asks for a few hours of play; anybody at all can be invited to one.\n" + \
     "\n" + \
     "  party create [<name>]    creates it, with you at the head.\n" + \
-    "  party invite <player>    offers them a place; they have a minute to take it.\n" + \
+    "  party invite <player>    offers them a place; they have a short while to take it.\n" + \
     "  party join               takes the invitation you were given.\n" + \
     "  party list               who you are.\n" + \
     "  party status             how each of you is holding up.\n" + \
@@ -472,7 +473,7 @@
     "  party leader <player>    hands them the lead.\n" + \
     "  party end                breaks it up.\n" + \
     "\n" + \
-    "The party channel also answers to 'aventurero <message>'. To be left out of parties " + \
+    "The party channel also answers to 'adventurer <message>'. To be left out of parties " + \
     "altogether, see 'consent'."
 
 #define _LANG_CMD_GROUP_CREATE ({ "create" })
@@ -493,6 +494,7 @@
 #define _LANG_CMD_GROUP_NOT_IN_PARTY "You have to be in a party for that.\n"
 #define _LANG_CMD_GROUP_ALREADY_IN_PARTY "You are in a party already.\n"
 #define _LANG_CMD_GROUP_NOT_LEADER "Only whoever leads the party can do that.\n"
+#define _LANG_CMD_GROUP_TOO_YOUNG "Your character is too young yet to lead a party.\n"
 #define _LANG_CMD_GROUP_NAME_TOO_LONG "That name is too long.\n"
 #define _LANG_CMD_GROUP_NEEDS_NAME "You have to give a name.\n"
 #define _LANG_CMD_GROUP_NEEDS_PLAYER "You have to say who.\n"
@@ -517,7 +519,7 @@
 #define _LANG_CMD_GROUP_FULL "The party is full.\n"
 #define _LANG_CMD_GROUP_INVITED_ME "You invite " + who->query_cap_name() + " to your party.\n"
 #define _LANG_CMD_GROUP_INVITED_THEM me->query_cap_name() + " invites you to the party '" + name + "'.\n" + \
-    "Type 'party join' if you want in; the invitation stands for a minute.\n"
+    "Type 'party join' if you want in; the invitation does not stand for long.\n"
 
 #define _LANG_CMD_GROUP_NOT_INVITED "Nobody has invited you to a party.\n"
 #define _LANG_CMD_GROUP_INVITE_GONE "That party is gone.\n"
