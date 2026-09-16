@@ -448,3 +448,88 @@
 #define _LANG_CMD_READ_WHAT "¿Leer el qué?\n"
 #define _LANG_CMD_READ_CANNOT_FIND "No ves ningún '" + str + "' por aquí.\n"
 #define _LANG_CMD_READ_NOTHING_WRITTEN ob->query_short() + " no tiene nada escrito.\n"
+
+// group. `name` is the party's name, `who` the one being talked about, and
+// `str` what the player typed
+#define _LANG_CMD_GROUP_ALIAS ({ "grupo" })
+#define _LANG_CMD_GROUP_SYNTAX "grupo <orden> [<nombre>]"
+#define _LANG_CMD_GROUP_HELP "Un grupo reúne a varios jugadores para algo que quieren hacer juntos. " + \
+    "Tiene un canal propio, se ve en el mapa quién va contigo, y dura lo que queráis: " + \
+    "no se guarda de una partida a otra.\n" + \
+    "\n" + \
+    "Quien lo crea lo dirige, y es el único que puede invitar, expulsar, cambiarle el " + \
+    "nombre o cederlo. Si se marcha, el grupo pasa a manos del siguiente.\n" + \
+    "\n" + \
+    "  grupo crear [<nombre>]     lo crea, contigo al frente.\n" + \
+    "  grupo invitar <jugador>    le ofrece unirse; tiene un minuto para aceptar.\n" + \
+    "  grupo unirse               acepta la invitación que te hayan hecho.\n" + \
+    "  grupo lista                quiénes sois.\n" + \
+    "  grupo estado               cómo está de salud cada uno.\n" + \
+    "  grupo canal <mensaje>      habla por el canal del grupo.\n" + \
+    "  grupo despedirse           te sales.\n" + \
+    "  grupo nombre <nombre>      le cambia el nombre.\n" + \
+    "  grupo expulsar <jugador>   lo saca del grupo.\n" + \
+    "  grupo lider <jugador>      le cedes el mando.\n" + \
+    "  grupo finalizar            lo deshace.\n" + \
+    "\n" + \
+    "El canal del grupo también responde a 'aventurero <mensaje>'. Para que no te " + \
+    "inviten a ninguno, mira 'consentir'."
+
+#define _LANG_CMD_GROUP_CREATE ({ "crear" })
+#define _LANG_CMD_GROUP_END ({ "finalizar" })
+#define _LANG_CMD_GROUP_LEAVE ({ "despedirse" })
+#define _LANG_CMD_GROUP_LIST ({ "lista" })
+#define _LANG_CMD_GROUP_STATUS ({ "estado" })
+#define _LANG_CMD_GROUP_NAME ({ "nombre" })
+#define _LANG_CMD_GROUP_INVITE ({ "invitar" })
+#define _LANG_CMD_GROUP_JOIN ({ "unirse" })
+#define _LANG_CMD_GROUP_KICK ({ "expulsar" })
+#define _LANG_CMD_GROUP_LEADER ({ "lider", "líder" })
+#define _LANG_CMD_GROUP_CHANNEL ({ "canal" })
+
+#define _LANG_CMD_GROUP_DEFAULT_NAME "Grupo de " + me->query_cap_name()
+#define _LANG_CMD_GROUP_UNKNOWN_OPTION "No sé qué es eso. Mira 'ayuda grupo'.\n"
+#define _LANG_CMD_GROUP_IN_PARTY "Perteneces al grupo '" + name + "'.\n"
+#define _LANG_CMD_GROUP_NOT_IN_PARTY "Para eso tienes que pertenecer a un grupo.\n"
+#define _LANG_CMD_GROUP_ALREADY_IN_PARTY "Ya perteneces a un grupo.\n"
+#define _LANG_CMD_GROUP_NOT_LEADER "Sólo quien dirige el grupo puede hacer eso.\n"
+#define _LANG_CMD_GROUP_NAME_TOO_LONG "Ese nombre es demasiado largo.\n"
+#define _LANG_CMD_GROUP_NEEDS_NAME "Tienes que decir un nombre.\n"
+#define _LANG_CMD_GROUP_NEEDS_PLAYER "Tienes que decir a quién.\n"
+
+#define _LANG_CMD_GROUP_CREATED_ME "Creas el grupo '" + name + "'.\n"
+#define _LANG_CMD_GROUP_CREATED_ROOM me->query_cap_name() + " crea el grupo '" + name + "'.\n"
+#define _LANG_CMD_GROUP_ENDED_ME "Das por terminado el grupo.\n"
+#define _LANG_CMD_GROUP_ENDED_THEM me->query_cap_name() + " da por terminado el grupo.\n"
+#define _LANG_CMD_GROUP_LEFT_ME "Te despides del grupo.\n"
+#define _LANG_CMD_GROUP_LEFT_THEM me->query_cap_name() + " se despide del grupo.\n"
+#define _LANG_CMD_GROUP_LEADER_CANNOT_LEAVE "Diriges el grupo: cédelo a otro o dalo por terminado.\n"
+
+#define _LANG_CMD_GROUP_LIST_HEADER "Grupo '" + name + "':\n"
+#define _LANG_CMD_GROUP_LIST_LEADER " (al mando)"
+#define _LANG_CMD_GROUP_RENAMED_ME "El grupo pasa a llamarse '" + name + "'.\n"
+#define _LANG_CMD_GROUP_RENAMED_THEM me->query_cap_name() + " le cambia el nombre al grupo: '" + name + "'.\n"
+
+#define _LANG_CMD_GROUP_NO_SUCH_PLAYER "No hay nadie conectado con ese nombre.\n"
+#define _LANG_CMD_GROUP_NOT_YOURSELF "A ti mismo no.\n"
+#define _LANG_CMD_GROUP_THEY_HAVE_PARTY who->query_cap_name() + " ya pertenece a un grupo.\n"
+#define _LANG_CMD_GROUP_THEY_REFUSE who->query_cap_name() + " no quiere que le inviten a grupos.\n"
+#define _LANG_CMD_GROUP_FULL "El grupo está completo.\n"
+#define _LANG_CMD_GROUP_INVITED_ME "Invitas a " + who->query_cap_name() + " a tu grupo.\n"
+#define _LANG_CMD_GROUP_INVITED_THEM me->query_cap_name() + " te invita al grupo '" + name + "'.\n" + \
+    "Escribe 'grupo unirse' si quieres entrar; la invitación dura un minuto.\n"
+
+#define _LANG_CMD_GROUP_NOT_INVITED "No te ha invitado nadie a ningún grupo.\n"
+#define _LANG_CMD_GROUP_INVITE_GONE "Ese grupo ya no existe.\n"
+#define _LANG_CMD_GROUP_JOINED_ME "Te unes al grupo '" + name + "'.\n"
+#define _LANG_CMD_GROUP_JOINED_THEM me->query_cap_name() + " se une al grupo.\n"
+
+#define _LANG_CMD_GROUP_NOT_A_MEMBER "En tu grupo no hay nadie con ese nombre.\n"
+#define _LANG_CMD_GROUP_KICKED_ME "Expulsas a " + who->query_cap_name() + " del grupo.\n"
+#define _LANG_CMD_GROUP_KICKED_THEM me->query_cap_name() + " te expulsa del grupo.\n"
+#define _LANG_CMD_GROUP_KICKED_OTHERS me->query_cap_name() + " expulsa del grupo a " + who->query_cap_name() + ".\n"
+
+#define _LANG_CMD_GROUP_ALREADY_LEADER "Ya diriges tú el grupo.\n"
+#define _LANG_CMD_GROUP_HANDED_ME "Cedes el mando del grupo a " + who->query_cap_name() + ".\n"
+#define _LANG_CMD_GROUP_HANDED_THEM me->query_cap_name() + " te cede el mando del grupo.\n"
+#define _LANG_CMD_GROUP_HANDED_OTHERS me->query_cap_name() + " cede el mando del grupo a " + who->query_cap_name() + ".\n"

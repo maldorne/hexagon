@@ -1,7 +1,7 @@
 @verbs canales canal emergencia gremio clan raza aventurero
 @tier player
 @title los canales: hablar con un grupo esté donde esté
-@see decir apodo
+@see decir apodo grupo
 
 Un canal lleva lo que escribes a toda la gente que lo escucha, sin
 importar dónde estéis. Cada canal es un verbo:

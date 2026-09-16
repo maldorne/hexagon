@@ -1,7 +1,7 @@
 @verbs consent consents consentir
 @tier player
 @title deciding what others may do to you
-@see give protect
+@see give protect party
 
 There are things another player cannot do to you unless you allow
 them. Each of those is a consent, set to yes or no, and every one

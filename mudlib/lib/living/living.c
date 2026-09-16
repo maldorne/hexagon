@@ -38,6 +38,7 @@ inherit mount     "/lib/living/mount";
 inherit drunk     "/lib/living/drunk";
 inherit spells    "/lib/living/spells";
 inherit consent   "/lib/living/consent";
+inherit party     "/lib/living/party";
 inherit visited   "/lib/living/visited";
 inherit comm      "/lib/living/communicate";
 
@@ -99,6 +100,9 @@ void dest_me()
 {
   object *obs;
   int i;
+
+  // out of the party before anything else, so whoever is left keeps theirs
+  party::leave_party();
 
   obs = deep_inventory(this_object());
 

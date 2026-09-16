@@ -396,3 +396,6 @@
 #define _LANG_CONSENT_FOOTER "\nPara cambiarlos, utiliza '" + query_verb() + " <nombre> <sí|no>'.\n"
 #define _LANG_CONSENT_UNKNOWN "No existe ese consentimiento.\nLos que hay son: " + query_multiple_short(names) + ".\n"
 #define _LANG_CONSENT_CHANGED "Ok. Consentir " + name + " cambiado a " + value + ".\n"
+
+// parties
+#define _LANG_PARTY_NOW_LEADING "El grupo queda en tus manos.\n"

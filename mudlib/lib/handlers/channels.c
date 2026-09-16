@@ -82,6 +82,7 @@ int close_channel(string channel, object ob)
 int open_channel(string channel, object ob)
 {
   string name;
+  mixed open;
 
   if (query_channel_on(ob, channel)) 
     return 0;
@@ -94,7 +95,10 @@ int open_channel(string channel, object ob)
   if (channel[0..0] != "#")
     message(_LANG_CHANNEL_OPENED,"",ob);
 
-  if (member_array(channel, ob->query_property(CHANNELS_PROPERTY)) == -1)
+  // the property is empty until something is written on it
+  open = ob->query_property(CHANNELS_PROPERTY);
+
+  if (!pointerp(open) || member_array(channel, open) == -1)
     ob->adjust_property(CHANNELS_PROPERTY, ({channel}));
 
   channels[channel] += ({ ob });

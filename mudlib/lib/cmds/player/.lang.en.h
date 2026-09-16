@@ -448,3 +448,88 @@
 #define _LANG_CMD_READ_WHAT "Read what?\n"
 #define _LANG_CMD_READ_CANNOT_FIND "You see no '" + str + "' here.\n"
 #define _LANG_CMD_READ_NOTHING_WRITTEN ob->query_short() + " has nothing written on it.\n"
+
+// group. `name` is the party's name, `who` the one being talked about, and
+// `str` what the player typed
+#define _LANG_CMD_GROUP_ALIAS ({ "party", "group" })
+#define _LANG_CMD_GROUP_SYNTAX "party <option> [<name>]"
+#define _LANG_CMD_GROUP_HELP "A party brings several players together for something they want to " + \
+    "do as one. It has a channel of its own, you see who is with you on the map, and it lasts " + \
+    "as long as you want it to: nothing about it is kept from one session to the next.\n" + \
+    "\n" + \
+    "Whoever creates it leads it, and is the only one who can invite, throw somebody out, " + \
+    "rename it or hand it over. If they leave, the party passes to the next one in.\n" + \
+    "\n" + \
+    "  party create [<name>]    creates it, with you at the head.\n" + \
+    "  party invite <player>    offers them a place; they have a minute to take it.\n" + \
+    "  party join               takes the invitation you were given.\n" + \
+    "  party list               who you are.\n" + \
+    "  party status             how each of you is holding up.\n" + \
+    "  party channel <message>  talks on the party channel.\n" + \
+    "  party leave              you walk out.\n" + \
+    "  party name <name>        renames it.\n" + \
+    "  party kick <player>      puts them out.\n" + \
+    "  party leader <player>    hands them the lead.\n" + \
+    "  party end                breaks it up.\n" + \
+    "\n" + \
+    "The party channel also answers to 'aventurero <message>'. To be left out of parties " + \
+    "altogether, see 'consent'."
+
+#define _LANG_CMD_GROUP_CREATE ({ "create" })
+#define _LANG_CMD_GROUP_END ({ "end", "disband" })
+#define _LANG_CMD_GROUP_LEAVE ({ "leave" })
+#define _LANG_CMD_GROUP_LIST ({ "list" })
+#define _LANG_CMD_GROUP_STATUS ({ "status" })
+#define _LANG_CMD_GROUP_NAME ({ "name" })
+#define _LANG_CMD_GROUP_INVITE ({ "invite" })
+#define _LANG_CMD_GROUP_JOIN ({ "join" })
+#define _LANG_CMD_GROUP_KICK ({ "kick" })
+#define _LANG_CMD_GROUP_LEADER ({ "leader" })
+#define _LANG_CMD_GROUP_CHANNEL ({ "channel" })
+
+#define _LANG_CMD_GROUP_DEFAULT_NAME me->query_cap_name() + "'s party"
+#define _LANG_CMD_GROUP_UNKNOWN_OPTION "I do not know that one. See 'help party'.\n"
+#define _LANG_CMD_GROUP_IN_PARTY "You are in the party '" + name + "'.\n"
+#define _LANG_CMD_GROUP_NOT_IN_PARTY "You have to be in a party for that.\n"
+#define _LANG_CMD_GROUP_ALREADY_IN_PARTY "You are in a party already.\n"
+#define _LANG_CMD_GROUP_NOT_LEADER "Only whoever leads the party can do that.\n"
+#define _LANG_CMD_GROUP_NAME_TOO_LONG "That name is too long.\n"
+#define _LANG_CMD_GROUP_NEEDS_NAME "You have to give a name.\n"
+#define _LANG_CMD_GROUP_NEEDS_PLAYER "You have to say who.\n"
+
+#define _LANG_CMD_GROUP_CREATED_ME "You create the party '" + name + "'.\n"
+#define _LANG_CMD_GROUP_CREATED_ROOM me->query_cap_name() + " creates the party '" + name + "'.\n"
+#define _LANG_CMD_GROUP_ENDED_ME "You break up the party.\n"
+#define _LANG_CMD_GROUP_ENDED_THEM me->query_cap_name() + " breaks up the party.\n"
+#define _LANG_CMD_GROUP_LEFT_ME "You leave the party.\n"
+#define _LANG_CMD_GROUP_LEFT_THEM me->query_cap_name() + " leaves the party.\n"
+#define _LANG_CMD_GROUP_LEADER_CANNOT_LEAVE "You lead the party: hand it over or break it up.\n"
+
+#define _LANG_CMD_GROUP_LIST_HEADER "Party '" + name + "':\n"
+#define _LANG_CMD_GROUP_LIST_LEADER " (leading)"
+#define _LANG_CMD_GROUP_RENAMED_ME "The party is called '" + name + "' now.\n"
+#define _LANG_CMD_GROUP_RENAMED_THEM me->query_cap_name() + " renames the party: '" + name + "'.\n"
+
+#define _LANG_CMD_GROUP_NO_SUCH_PLAYER "Nobody by that name is connected.\n"
+#define _LANG_CMD_GROUP_NOT_YOURSELF "Not yourself.\n"
+#define _LANG_CMD_GROUP_THEY_HAVE_PARTY who->query_cap_name() + " is in a party already.\n"
+#define _LANG_CMD_GROUP_THEY_REFUSE who->query_cap_name() + " does not want to be invited to parties.\n"
+#define _LANG_CMD_GROUP_FULL "The party is full.\n"
+#define _LANG_CMD_GROUP_INVITED_ME "You invite " + who->query_cap_name() + " to your party.\n"
+#define _LANG_CMD_GROUP_INVITED_THEM me->query_cap_name() + " invites you to the party '" + name + "'.\n" + \
+    "Type 'party join' if you want in; the invitation stands for a minute.\n"
+
+#define _LANG_CMD_GROUP_NOT_INVITED "Nobody has invited you to a party.\n"
+#define _LANG_CMD_GROUP_INVITE_GONE "That party is gone.\n"
+#define _LANG_CMD_GROUP_JOINED_ME "You join the party '" + name + "'.\n"
+#define _LANG_CMD_GROUP_JOINED_THEM me->query_cap_name() + " joins the party.\n"
+
+#define _LANG_CMD_GROUP_NOT_A_MEMBER "Nobody by that name is in your party.\n"
+#define _LANG_CMD_GROUP_KICKED_ME "You throw " + who->query_cap_name() + " out of the party.\n"
+#define _LANG_CMD_GROUP_KICKED_THEM me->query_cap_name() + " throws you out of the party.\n"
+#define _LANG_CMD_GROUP_KICKED_OTHERS me->query_cap_name() + " throws " + who->query_cap_name() + " out of the party.\n"
+
+#define _LANG_CMD_GROUP_ALREADY_LEADER "You lead the party already.\n"
+#define _LANG_CMD_GROUP_HANDED_ME "You hand the party to " + who->query_cap_name() + ".\n"
+#define _LANG_CMD_GROUP_HANDED_THEM me->query_cap_name() + " hands you the party.\n"
+#define _LANG_CMD_GROUP_HANDED_OTHERS me->query_cap_name() + " hands the party to " + who->query_cap_name() + ".\n"
