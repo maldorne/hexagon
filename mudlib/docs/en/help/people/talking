@@ -1,6 +1,7 @@
 @verbs say whisper tell shout talking
 @tier player
 @title the four ways of saying something out loud
+@see speak channels nickname
 
 You always speak in the language you have selected, and anybody who
 does not know it hears your words garbled. Use 'speak' to see which

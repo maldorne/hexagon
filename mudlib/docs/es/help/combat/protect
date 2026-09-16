@@ -1,6 +1,7 @@
 @verbs proteger desproteger
 @tier player
 @title recibir los golpes que iban para otro
+@see consentir actitud
 
   proteger <objetivos>
   desproteger <objetivo>

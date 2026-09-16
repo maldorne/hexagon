@@ -1,6 +1,7 @@
 @verbs apodo apodos nick dnick quitarapodo
 @tier player
 @title poner un nombre corto a quien nombras a menudo
+@see decir canales alias
 
 Un apodo es una abreviatura tuya para el nombre de otra persona.
 Nadie más lo ve: te sirve para escribir menos.

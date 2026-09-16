@@ -1,6 +1,7 @@
 @verbs cominfo coders
 @tier coder
 @title what answers a verb, and the staff channel
+@see update actions
 
   cominfo
   cominfo <verb>

@@ -1,6 +1,7 @@
 @verbs update dest inv pathof creator coder shadows debug dump find call goback
 @tier coder
 @title mirar objetos vivos y cambiarlos
+@see cd cominfo build
 
 Donde estos verbos piden un objeto, lo piden como todos los verbos
 de programador: un nombre, 'here', 'me', 'all in here', otro

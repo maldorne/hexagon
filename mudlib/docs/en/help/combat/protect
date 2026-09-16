@@ -1,6 +1,7 @@
 @verbs protect unprotect proteger desproteger
 @tier player
 @title taking the blows meant for somebody else
+@see consent stance
 
   protect <targets>
   unprotect <target>

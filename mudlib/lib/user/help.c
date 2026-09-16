@@ -26,6 +26,8 @@ private int show_topic(mixed * topic, string str);
 private int may_read(string tier);
 private int show_item_help(string str);
 private string body_of(string text);
+private string see_also(string see);
+private int is_command(string word);
 private string help_page(string name, string kind, string subtitle,
                          string body, int indent);
 
@@ -82,6 +84,56 @@ private string body_of(string text)
     text = text[.. strlen(text) - 2];
 
   return text;
+}
+
+// Whether a word is a command this reader can run, and so worth pointing at.
+private int is_command(string word)
+{
+  object handler;
+  string file;
+
+  handler = load_object(CMD_HANDLER);
+  if (!handler)
+    return FALSE;
+
+  file = handler->query_unaliased_cmd(word);
+  if (!file || !handler->query_hash()[file])
+    return FALSE;
+
+  file = handler->query_hash()[file]["file"];
+
+  return member_array(file,
+    handler->query_available_cmds(this_object()->player())) != -1;
+}
+
+// The documents a page points at, as a line to close it with. A word nobody
+// can read here is left out, and so is one that answers to nothing.
+private string see_also(string see)
+{
+  string * words, * out;
+  int i;
+
+  if (!stringp(see) || !strlen(see))
+    return "";
+
+  words = explode(see, " ") - ({ "" });
+  out = ({ });
+
+  for (i = 0; i < sizeof(words); i++)
+  {
+    mixed * topic;
+
+    topic = (mixed *)HELP_HANDLER->query_topic(words[i]);
+
+    if ((topic && may_read(topic[1])) || is_command(words[i]))
+      out += ({ words[i] });
+  }
+
+  if (!sizeof(out))
+    return "";
+
+  words = out;
+  return "\n" + _LANG_HELP_SEE_ALSO;
 }
 
 // Whether somebody may read a document written for a given tier.
@@ -253,7 +305,9 @@ private int show_topic(mixed * topic, string str)
                                                ? _LANG_HELP_KIND_DRIVER
                                                : _LANG_HELP_KIND_CODER_TOPIC)
                                           : _LANG_HELP_KIND_TOPIC,
-              topic[3], body_of(text) + "\n",
+              topic[3],
+              body_of(text) + "\n" +
+                (sizeof(topic) > 4 ? see_also(topic[4]) : ""),
               topic[2] != HELP_DRIVER_SECTION && topic[2] != "kfun"),
     capitalize(str));
   return 1;

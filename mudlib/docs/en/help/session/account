@@ -1,6 +1,7 @@
 @verbs account password details chfn notifications
 @tier player
 @title your password, your details and what you missed
+@see quit
 
   password
 

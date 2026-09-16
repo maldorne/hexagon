@@ -1,6 +1,7 @@
 @verbs quit save clear cls leaving
 @tier player
 @title saving, clearing the screen and leaving
+@see columns
 
   save
 

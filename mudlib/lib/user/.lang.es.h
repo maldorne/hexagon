@@ -86,6 +86,7 @@
         "  comandos           todo lo que puedes teclear\n"
 #define _LANG_HELP_SECTIONS_STAFF "  para programadores"
 #define _LANG_HELP_KIND_INDEX "índice"
+#define _LANG_HELP_SEE_ALSO "Ver también: " + implode(words, ", ") + ".\n"
 #define _LANG_HELP_MATCHES "\nCoinciden:\n\n"
 #define _LANG_HELP_NO_MATCHES "No hay ningún tema que coincida.\n"
 #define _LANG_HELP_TITLE(name, kind) "%^BOLD%^WHITE%^" + (name) + "%^RESET%^ (" + (kind) + ")"

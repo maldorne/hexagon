@@ -1,6 +1,7 @@
 @verbs spells magic cast spheres schools
 @tier player
 @title the spells you know and how to cast them
+@see skills
 
 Only the magic guilds teach spells; if you do not belong to one,
 these four verbs have nothing to tell you.

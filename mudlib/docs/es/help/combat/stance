@@ -1,6 +1,7 @@
 @verbs actitud combate
 @tier player
 @title con qué intención peleas, y hasta dónde
+@see estilo proteger habilidades
 
   actitud [<modo>]
 

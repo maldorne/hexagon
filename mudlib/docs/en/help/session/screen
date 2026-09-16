@@ -1,6 +1,7 @@
 @verbs columns rows terminal sidebar screen
 @tier player
 @title fitting the game to the size of your screen
+@see quit
 
 The game lays its text out by how wide you tell it your screen is,
 so it is worth setting once.

@@ -86,6 +86,7 @@
         "  commands           everything you can type\n"
 #define _LANG_HELP_SECTIONS_STAFF "  for creators"
 #define _LANG_HELP_KIND_INDEX "index"
+#define _LANG_HELP_SEE_ALSO "See also: " + implode(words, ", ") + ".\n"
 #define _LANG_HELP_MATCHES "\nMatching:\n\n"
 #define _LANG_HELP_NO_MATCHES "No topic matches that.\n"
 #define _LANG_HELP_TITLE(name, kind) "%^BOLD%^WHITE%^" + (name) + "%^RESET%^ (" + (kind) + ")"

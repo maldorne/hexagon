@@ -1,6 +1,7 @@
 @verbs piedra transportar marcar invocar
 @tier player
 @title la piedra de hogar: volver a casa y llamar a tu montura
+@see norte diario
 
   marcar piedra
 

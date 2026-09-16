@@ -1,6 +1,7 @@
 @verbs alias unalias flushalias
 @tier player
 @title abreviar lo que escribes a menudo
+@see apodo
 
 Un alias es un verbo tuyo que se convierte en otra cosa al pulsar
 enter.

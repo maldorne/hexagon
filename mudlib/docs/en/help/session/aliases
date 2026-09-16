@@ -1,6 +1,7 @@
 @verbs aliases alias unalias flushalias
 @tier player
 @title shortening what you type often
+@see nickname
 
 An alias is a verb of your own that turns into something else when
 you press enter.

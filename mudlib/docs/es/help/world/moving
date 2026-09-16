@@ -1,6 +1,7 @@
 @verbs norte sur este oeste direcciones moverse
 @tier player
 @title andar de un sitio a otro
+@see piedra mapa
 
 Para moverte escribes la dirección, sin más:
 

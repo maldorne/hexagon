@@ -1,6 +1,7 @@
 @verbs build ring builder-ring
 @tier coder
 @title the builder ring: the verb that makes a world
+@see update cd
 
   build <what> ...
 

@@ -1,6 +1,7 @@
 @verbs editor
 @tier coder
 @title the menu editor: how to write a text in it
+@see line-ed
 
 Help for the line editor:
 

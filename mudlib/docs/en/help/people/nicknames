@@ -1,6 +1,7 @@
 @verbs nicknames nickname unnickname nick dnick apodo quitarapodo
 @tier player
 @title a short name for somebody you name often
+@see say channels alias
 
 A nickname is your own abbreviation for another person's name.
 Nobody else sees it: it is there so you type less.

@@ -1,6 +1,7 @@
 @verbs channels channel emergency guild clan race adventurer
 @tier player
 @title channels: talking to a group wherever they are
+@see say nickname
 
 A channel carries what you write to everybody listening to it, no
 matter where you all are. Each channel is a verb of its own:

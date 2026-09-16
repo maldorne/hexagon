@@ -1,6 +1,7 @@
 @verbs north south east west directions moving
 @tier player
 @title walking from one place to another
+@see stone map
 
 To move you type the direction, nothing else:
 

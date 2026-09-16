@@ -1,6 +1,7 @@
 @verbs build anillo
 @tier coder
 @title el anillo constructor: el verbo con el que se hace un mundo
+@see update cd
 
   build <qué> ...
 

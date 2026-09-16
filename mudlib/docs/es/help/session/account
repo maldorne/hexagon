@@ -1,6 +1,7 @@
 @verbs password datos chfn notifications
 @tier player
 @title tu contraseña, tus datos y lo que te has perdido
+@see salir
 
   password
 

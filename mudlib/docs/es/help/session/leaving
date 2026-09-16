@@ -1,6 +1,7 @@
 @verbs salir quit grabar salvar save clear cls
 @tier player
 @title guardar, limpiar la pantalla y marcharse
+@see columnas
 
   grabar
 

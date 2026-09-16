@@ -1,6 +1,7 @@
 @verbs wear unwear hold wield unhold equip
 @tier player
 @title dressing, wielding, and equipping in one go
+@see get equipment
 
   wear <item>      anything that is clothing or armour goes on.
   unwear <item>    and off again.

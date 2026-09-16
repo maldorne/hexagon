@@ -1,6 +1,7 @@
 @verbs columnas filas terminal sidebar
 @tier player
 @title ajustar el juego al tamaño de tu pantalla
+@see salir
 
 El juego reparte sus textos según lo ancha que le digas que es tu
 pantalla, así que vale la pena ajustarlo una vez.

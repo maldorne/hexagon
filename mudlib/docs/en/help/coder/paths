@@ -1,6 +1,7 @@
 @verbs cd pwd homedir paths
 @tier coder
 @title where you are in the file tree
+@see update cominfo
 
 Every file name you type that does not start with '/' or '~' is
 read from the directory you are standing in.

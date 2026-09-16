@@ -1,6 +1,7 @@
 @verbs stance actitud combat
 @tier player
 @title what you mean by fighting, and how far you take it
+@see style protect skills
 
   stance [<stance>]
 

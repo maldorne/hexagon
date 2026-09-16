@@ -1,6 +1,7 @@
 @verbs read reading
 @tier player
 @title reading what is written
+@see speak
 
   read <object>
 

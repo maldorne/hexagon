@@ -1,6 +1,7 @@
 @verbs update dest inv pathof creator coder shadows debug dump find call goback
 @tier coder
 @title looking at live objects and changing them
+@see cd cominfo build
 
 Where these verbs take an object, they take it the way every
 creator verb does: a name, 'here', 'me', 'all in here', another

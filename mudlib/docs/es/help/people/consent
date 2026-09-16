@@ -1,6 +1,7 @@
 @verbs consentir consentimientos
 @tier player
 @title decidir qué pueden hacer contigo los demás
+@see dar proteger
 
 Hay cosas que otro jugador no puede hacerte si tú no lo permites.
 Cada una de ellas es un consentimiento que tienes puesto a sí o a

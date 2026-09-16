@@ -1,6 +1,7 @@
 @verbs leer
 @tier player
 @title leer lo que está escrito
+@see hablar
 
   leer <objeto>
 

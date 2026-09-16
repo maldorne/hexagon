@@ -1,6 +1,7 @@
 @verbs get take drop give put
 @tier player
 @title moving things: from the floor to you, from you to somebody
+@see wear consent inventory
 
   get <item> [from <something>]
 

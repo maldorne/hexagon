@@ -1,6 +1,7 @@
 @verbs diario
 @tier player
 @title el diario: dónde has estado
+@see norte
 
   diario explorador
 

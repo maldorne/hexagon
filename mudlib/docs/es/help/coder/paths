@@ -1,6 +1,7 @@
 @verbs cd pwd homedir rutas
 @tier coder
 @title dónde estás dentro del árbol de ficheros
+@see update cominfo
 
 Todo nombre de fichero que escribas y no empiece por '/' ni por '~'
 se lee desde el directorio en el que estés.

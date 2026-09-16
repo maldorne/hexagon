@@ -1,6 +1,7 @@
 @verbs cominfo coders
 @tier coder
 @title qué responde a un verbo, y el canal de programadores
+@see update actions
 
   cominfo
   cominfo <verbo>

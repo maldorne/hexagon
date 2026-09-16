@@ -1,6 +1,7 @@
 @verbs coger dejar dar poner
 @tier player
 @title mover cosas: del suelo a ti, de ti a otro
+@see vestir consentir inventario
 
   coger <objeto> [de <objeto>]
 

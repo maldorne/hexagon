@@ -1,6 +1,7 @@
 @verbs vestir ponerse quitarse desvestir equipar empuñar soltar
 @tier player
 @title vestirse, empuñar y equiparse de una vez
+@see coger equipo
 
   ponerse <objeto>     lo que sea ropa o armadura, puesto.
   quitarse <objeto>    y fuera otra vez.

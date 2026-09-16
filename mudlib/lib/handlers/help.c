@@ -22,7 +22,7 @@
 
 inherit "/lib/core/object";
 
-// keyword -> ({ path, tier, section, title })
+// keyword -> ({ path, tier, section, title, see })
 mapping topics;
 // section -> ({ keyword, keyword, ... })
 mapping sections;
@@ -168,7 +168,7 @@ private void index_tree(string dir, string section, string tier,
 
   for (i = 0; i < sizeof(files); i++)
   {
-    string path, title, own_tier;
+    string path, title, own_tier, see;
     string * verbs;
     mapping about;
 
@@ -209,6 +209,7 @@ private void index_tree(string dir, string section, string tier,
     verbs = about["verbs"] ? explode(about["verbs"], " ") - ({ "" }) : ({ });
     title = about["title"] ? about["title"] : "";
     own_tier = about["tier"] ? about["tier"] : tier;
+    see = about["see"] ? about["see"] : "";
 
     if (!sizeof(verbs))
       verbs = ({ files[i] });
@@ -224,7 +225,7 @@ private void index_tree(string dir, string section, string tier,
       if (keep_existing && topics[word])
         continue;
 
-      topics[word] = ({ path, own_tier, section, title });
+      topics[word] = ({ path, own_tier, section, title, see });
 
       if (!sections[section])
         sections[section] = ({ });
@@ -282,7 +283,7 @@ private void index_driver()
     else if (!topics[lowered(dirs[i])])
     {
       topics[lowered(dirs[i])] =
-        ({ path, HELP_TIER_CODER, HELP_DRIVER_SECTION, "" });
+        ({ path, HELP_TIER_CODER, HELP_DRIVER_SECTION, "", "" });
 
       if (!sections[HELP_DRIVER_SECTION])
         sections[HELP_DRIVER_SECTION] = ({ });
