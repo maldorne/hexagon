@@ -29,7 +29,9 @@ static void event(mixed obs, string event_name, mixed arg...)
     return;
   }
 
+  // a destructed object is nil in an array
   for (i = 0; i < sizeof(event_obs); i++)
-    call_other(event_obs[i], "event_" + event_name, who, arg...);
+    if (event_obs[i])
+      call_other(event_obs[i], "event_" + event_name, who, arg...);
 }
 

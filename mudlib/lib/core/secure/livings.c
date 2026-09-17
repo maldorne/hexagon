@@ -38,7 +38,8 @@ object * query_livings()
   for (i = 0; i < sizeof(indices); i++)
     result += _livings[indices[i]];
 
-  return result;
+  // a destructed living stays behind as nil until its name is looked up
+  return result - ({ nil });
 }
 
 void _set_living_name(object ob, string name)
@@ -57,10 +58,11 @@ void _set_living_name(object ob, string name)
   if (_livings["object"])
     _livings["object"] -= ({ ob });
 
+  // a living registered again under the same name is still one entry
   if (undefinedp(_livings[name]))
     _livings[name] = ({ ob });
   else
-    _livings[name] = _livings[name] + ({ ob }) - ({ nil });
+    _livings[name] = _livings[name] - ({ nil, ob }) + ({ ob });
 }
 
 void remove_living(object ob)

@@ -13,6 +13,7 @@
  */
 
 #include <living/food.h>
+#include <living/living.h>
 #include <common/quests.h>
 #include <common/properties.h>
 #include <translations/combat.h>
@@ -103,6 +104,9 @@ void dest_me()
 
   // out of the party before anything else, so whoever is left keeps theirs
   party::leave_party();
+
+  // and out of the registry of living names
+  LIVING_HANDLER->remove_living(this_object());
 
   obs = deep_inventory(this_object());
 
