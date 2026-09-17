@@ -511,6 +511,7 @@
 #define _LANG_CMD_GROUP_ENDED_THEM me->query_cap_name() + " da por terminado el grupo.\n"
 #define _LANG_CMD_GROUP_LEFT_ME "Te despides del grupo.\n"
 #define _LANG_CMD_GROUP_LEFT_THEM me->query_cap_name() + " se despide del grupo.\n"
+#define _LANG_CMD_GROUP_DISSOLVED "Al quedarte solo, el grupo se disuelve.\n"
 #define _LANG_CMD_GROUP_LEADER_CANNOT_LEAVE "Diriges el grupo: cédelo a otro o dalo por terminado.\n"
 
 #define _LANG_CMD_GROUP_LIST_HEADER "Grupo '" + name + "':\n"

@@ -511,6 +511,7 @@
 #define _LANG_CMD_GROUP_ENDED_THEM me->query_cap_name() + " breaks up the party.\n"
 #define _LANG_CMD_GROUP_LEFT_ME "You leave the party.\n"
 #define _LANG_CMD_GROUP_LEFT_THEM me->query_cap_name() + " leaves the party.\n"
+#define _LANG_CMD_GROUP_DISSOLVED "Left on your own, the group breaks up.\n"
 #define _LANG_CMD_GROUP_LEADER_CANNOT_LEAVE "You lead the party: hand it over or break it up.\n"
 
 #define _LANG_CMD_GROUP_LIST_HEADER "Party '" + name + "':\n"

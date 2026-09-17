@@ -198,12 +198,27 @@ static int cmd(string str, object me, string verb)
     PARTY_HANDLER->remove_member(me);
 
     for (i = 0; i < sizeof(members); i++)
+    {
       tell_object(members[i], _LANG_CMD_GROUP_LEFT_THEM);
+
+      // one left alone is in no group any more
+      if (!members[i]->query_adventurer())
+        tell_object(members[i], _LANG_CMD_GROUP_DISSOLVED);
+    }
 
     return 1;
   }
 
   // ---- what only the leader may do ---------------------------------------
+
+  // a word that is no order at all is not a matter of who leads
+  if (member_array(option, _LANG_CMD_GROUP_END + _LANG_CMD_GROUP_NAME +
+                           _LANG_CMD_GROUP_INVITE + _LANG_CMD_GROUP_KICK +
+                           _LANG_CMD_GROUP_LEADER) == -1)
+  {
+    notify_fail(_LANG_CMD_GROUP_UNKNOWN_OPTION);
+    return 0;
+  }
 
   if (!me->query_adventurer_leading())
   {
@@ -332,6 +347,10 @@ static int cmd(string str, object me, string verb)
     members -= ({ me, who });
     for (i = 0; i < sizeof(members); i++)
       tell_object(members[i], _LANG_CMD_GROUP_KICKED_OTHERS);
+
+    // one left alone is in no group any more
+    if (!me->query_adventurer())
+      write(_LANG_CMD_GROUP_DISSOLVED);
 
     return 1;
   }
