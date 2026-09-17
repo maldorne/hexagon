@@ -7,6 +7,13 @@
 
 #define _LANG_CMD_CLONE_IN ({ "in" })
 
+// heal
+
+#define _LANG_HEAL_ALIASES ({ "heal" })
+#define _LANG_HEAL_MESSAGE_MINE "%^YELLOW%^Your life and energy come back.%^RESET%^\n"
+#define _LANG_HEAL_MESSAGE_OTHERS "%^YELLOW%^The life and energy of " + me->query_cap_name() + \
+  " come back.%^RESET%^\n"
+
 // peace
 
 #define _LANG_PEACE_MESSAGES_MINE "You raise your hand and exclaim: " + \
