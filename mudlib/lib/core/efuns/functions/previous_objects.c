@@ -1,28 +1,36 @@
 
 #include <trace.h>
 
+// The objects in the call_other chain, nearest first: element 0 is the object
+// that called the current function with call_other, element 1 the one that
+// called that one, and so on. This follows the kfun previous_object(): local
+// calls (including every efun, inherited from auto) stay within the current
+// object, and each call_other steps back once. A destructed object leaves nil
+// in its place.
 static nomask object * previous_objects()
 {
-  int i;
-  mixed ** trace, last;
+  mixed ** trace;
   object * result;
+  mixed caller;
+  int i;
+
   result = ({ });
-
   trace = call_trace();
+  i = sizeof(trace) - 1;
 
-  for (i = sizeof(trace) - 1; i >= 0; i--)
+  while (i > 0)
   {
-    if (!last)
-      last = trace[i][TRACE_OBJNAME];
-    else if (trace[i][TRACE_OBJNAME] == last)
-      continue;
+    // back to the last call made with call_other
+    while (i > 0 && !trace[i][TRACE_EXTERNAL])
+      i--;
 
-    if (objectp(trace[i][TRACE_OBJNAME]))
-      result += ({ trace[i][TRACE_OBJNAME] });
-    else
-      result += ({ find_object(trace[i][TRACE_OBJNAME]) });
+    if (i == 0)
+      break;
 
-    last = trace[i][TRACE_OBJNAME];
+    // the frame before it belongs to the caller
+    i--;
+    caller = trace[i][TRACE_OBJNAME];
+    result += ({ objectp(caller) ? caller : find_object(caller) });
   }
 
   return result;

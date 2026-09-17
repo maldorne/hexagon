@@ -21,8 +21,8 @@ static nomask void say(string str, varargs mixed avoid)
 
   must_avoid = ({ });
 
-  if (this_player() != previous_object())
-    must_avoid = ({ this_player(), previous_object() });
+  if (this_player() != this_object())
+    must_avoid = ({ this_player(), this_object() });
   else
     must_avoid = ({ this_player() });
 
@@ -46,16 +46,16 @@ static nomask void say(string str, varargs mixed avoid)
     }
   }
 
-  if (!environment(previous_object()))
+  if (!environment(this_object()))
   {
     if (this_player() && environment(this_player()))
       where = environment(this_player());
     else
-      where = previous_object();
+      where = this_object();
   }
   else
   {
-    where = environment(previous_object());
+    where = environment(this_object());
   }
 
   event(where, "say", str, avoid);

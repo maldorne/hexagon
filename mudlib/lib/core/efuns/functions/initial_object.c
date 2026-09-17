@@ -1,11 +1,16 @@
 
+// The object at the bottom of the call chain: the one the driver called to
+// start the current execution.
 static nomask object initial_object()
 {
-  object * list;
-  list = previous_objects();
+  mixed ** trace;
+  mixed first;
 
-  if (!sizeof(list))
+  trace = call_trace();
+
+  if (!sizeof(trace))
     return nil;
 
-  return list[sizeof(list)-1];
+  first = trace[0][TRACE_OBJNAME];
+  return objectp(first) ? first : find_object(first);
 }

@@ -10,7 +10,7 @@ static void event(mixed obs, string event_name, mixed arg...)
   object * event_obs;
   int i;
 
-  who = previous_object();
+  who = this_object();
 
   if (arrayp(obs))
   {

@@ -401,11 +401,9 @@ nomask int valid_write(string path, mixed euid, string func)
   if ((func == "save_object" || func == "make_dir") && (sizeof(bing) >= 2) &&
      (bing[0] == "save") && (bing[1] == "players" || bing[1] == "users"))
   {
-    object * stack;
-    stack = previous_object(-1);
-
     // check the action was started by a player object
-    if (member_array(base_name(stack[sizeof(stack) - 1]), PLAYEROBS) != -1)
+    if (initial_object() &&
+        member_array(base_name(initial_object()), PLAYEROBS) != -1)
       return 1;
     return 0;
   }

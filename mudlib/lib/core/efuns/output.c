@@ -16,7 +16,7 @@ static nomask void shout(string str, varargs object avoid)
     if (ob[i] != avoid && !ob[i]->query_earmuffs())
 
   if(ob[i] != this_player())
-    ob[i]->event_say(previous_object(), str, ({ }));
+    ob[i]->event_say(this_object(), str, ({ }));
 }
 
 static nomask void tell_room(object ob, string str, varargs mixed avoid)

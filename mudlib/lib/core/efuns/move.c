@@ -208,7 +208,7 @@ static nomask int destruct(varargs object ob)
 
   if ((strlen(ob_name) >= 10) && (strlen(ob_name) >= 17) && 
       (ob_name[0..16] == "/lib/core/secure/") && 
-      (previous_object(1) != find_object(DRIVER)))
+      (previous_object() != find_object(DRIVER)))
   {    
     stderr(" *** destruct: <" + ob_name + "> error, core objects refuse to be destroyed\n");
     return 0;

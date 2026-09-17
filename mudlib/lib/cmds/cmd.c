@@ -58,7 +58,7 @@ int _cmd(string tail, object thisob, string verb)
   string euid;
   int ret;
 
-  if (previous_object(1) != find_object(CMD_HANDLER))
+  if (previous_object() != find_object(CMD_HANDLER))
     return 0;
 
   command_giver = thisob;

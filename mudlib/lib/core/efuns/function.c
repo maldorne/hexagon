@@ -38,9 +38,6 @@ static nomask mixed previous_object(varargs int number)
   object * prevs;
   prevs = previous_objects();
 
-  if (undefinedp(number))
-    return prevs[0];
-
   if (number == -1)
     return prevs;
 

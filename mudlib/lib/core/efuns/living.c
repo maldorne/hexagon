@@ -53,7 +53,7 @@ static nomask object * find_all_livings(string name)
 nomask void set_living_name(string name)
 {
   if (interactive(this_object()) &&
-     (base_name(previous_object(1)) != LOGIN_OB))
+     (base_name(previous_object()) != LOGIN_OB))
     return;
 
   LIVING_HANDLER->_set_living_name(this_object(), name);

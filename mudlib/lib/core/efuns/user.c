@@ -16,7 +16,7 @@ static object real_this_player()
   // if (this_player(1))
   //   return this_player(1);
 
-  list = previous_objects();
+  list = ({ this_object() }) + previous_objects();
 
   for (i = sizeof(list)-1; i >= 0; i--)
     if (interactive(list[i]))

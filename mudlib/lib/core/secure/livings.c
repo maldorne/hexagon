@@ -51,7 +51,7 @@ void _set_living_name(object ob, string name)
   //     (base_name(previous_object()) != NPC_OB) )
   //   return;
 
-  if (previous_object(1) != ob)
+  if (previous_object() != ob)
     return;
 
   // players in login

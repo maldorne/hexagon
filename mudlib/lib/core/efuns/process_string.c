@@ -17,7 +17,7 @@ static mixed process_value(string func)
     obj = find_object(func[tmp+1..]);
     func = func[0..tmp-1];
   } else {
-    obj = previous_object();
+    obj = this_object();
   }
   if (!obj)
     return 0;

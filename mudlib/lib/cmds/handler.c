@@ -345,7 +345,7 @@ int cmd(string verb, string tail, object thisob)
     return 0;
 
   // allow commands being called from the login
-  if ((previous_object(1) != thisob) && (!SECURE->valid_progname("/lib/core/login")))
+  if ((previous_object() != thisob) && (!SECURE->valid_progname("/lib/core/login")))
     return 0;
 
   // if (!interactive(thisob) && cmd_dirs[last_dir][0] != LIVING_CMD)
