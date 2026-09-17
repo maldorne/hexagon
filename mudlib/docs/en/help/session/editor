@@ -30,3 +30,6 @@ the menu commands are used without leaving the text by typing ~ first:
 
 The letters work in upper or lower case, and they are the same in both
 editors.
+
+If you are not sure how this works, do not change it: the menu editor
+does everything and is the easiest one for a newcomer.
