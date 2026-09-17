@@ -134,8 +134,8 @@
 #define _LANG_COMBAT_CHASING "You are chasing "
 
 #define _LANG_COMBAT_ROLE_VERBS ({ "stance" })
-#define _LANG_COMBAT_ROLE_CHANGED "Your stance is now " + COMBAT_ROLE_STRINGS[new_role] + ".\n"
-#define _LANG_COMBAT_ROLE_CURRENT "Your current stance is " + query_combat_role_string() + \
+#define _LANG_COMBAT_ROLE_CHANGED "Your stance is now: " + COMBAT_ROLE_STRINGS[new_role] + ".\n"
+#define _LANG_COMBAT_ROLE_CURRENT "Your current stance is: " + query_combat_role_string() + \
   ".\nUse 'stance <stance>' to change it.\n"
 #define _LANG_COMBAT_ROLE_SYNTAX "Syntax: stance <stance>\nThe possible ones are: " + \
   query_multiple_short(COMBAT_ROLE_STRINGS) + ".\n"

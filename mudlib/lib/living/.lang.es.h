@@ -132,8 +132,8 @@
 #define _LANG_COMBAT_CHASING "Estás persiguiendo a " 
 
 #define _LANG_COMBAT_ROLE_VERBS ({ "actitud" })
-#define _LANG_COMBAT_ROLE_CHANGED "Tu actitud de combate pasa a ser " + COMBAT_ROLE_STRINGS[new_role] + ".\n"
-#define _LANG_COMBAT_ROLE_CURRENT "Tu actitud de combate actual es " + query_combat_role_string() + \
+#define _LANG_COMBAT_ROLE_CHANGED "Tu actitud de combate pasa a ser: " + COMBAT_ROLE_STRINGS[new_role] + ".\n"
+#define _LANG_COMBAT_ROLE_CURRENT "Tu actitud de combate actual es: " + query_combat_role_string() + \
   ".\nUtiliza 'actitud <modo>' para cambiarla.\n"
 #define _LANG_COMBAT_ROLE_SYNTAX "Sintaxis: actitud <modo>\nLos modos posibles son: " + \
   query_multiple_short(COMBAT_ROLE_STRINGS) + ".\n"
