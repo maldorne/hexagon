@@ -110,7 +110,7 @@ void set_owner(string n, object ob)
   original = ob;
 
   if (ob)
-    given_name = (string)ob->query_given_name();
+    given_name = ob->query_given_name();
   
   set_name(_LANG_CORPSE_OF + n);
   set_short(capitalize(_LANG_CORPSE_OF) + capitalize(n));
