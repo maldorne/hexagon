@@ -424,6 +424,7 @@
 #define _LANG_CMD_WORLDMAP_NOMAP   "You are nowhere on any world map right now.\n"
 
 // idle.c
+#define _LANG_IDLE_ALIAS ({ "idle" })
 #define _LANG_IDLE_SYNTAX "idle [<minutes>]"
 #define _LANG_IDLE_HELP "How many minutes the mud keeps your character in the world when you\n" + \
                         "stop being active. The same value covers two situations:\n" + \

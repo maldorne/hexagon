@@ -424,7 +424,8 @@
 #define _LANG_CMD_WORLDMAP_NOMAP   "Ahora mismo no estás en ningún mapa del mundo.\n"
 
 // idle.c
-#define _LANG_IDLE_SYNTAX "idle [<minutos>]"
+#define _LANG_IDLE_ALIAS ({ "inactivo", "idle" })
+#define _LANG_IDLE_SYNTAX "inactivo [<minutos>]"
 #define _LANG_IDLE_HELP "Cuántos minutos se mantiene tu personaje en el mundo cuando dejas de\n" + \
                         "estar activo. El mismo valor cubre dos situaciones:\n" + \
                         "  - Si tu conexión sigue viva pero no envías nada durante este tiempo,\n" + \
@@ -435,8 +436,9 @@
                         "    empezarás de nuevo desde tu último estado guardado.\n" + \
                         "El combate no puede evitarse desconectándose porque tu personaje\n" + \
                         "permanece en el mundo durante ese tiempo.\n" + \
-                        "`idle` sin argumentos muestra el valor actual y el rango permitido.\n" + \
-                        "`idle <minutos>` fija un nuevo valor; cualquier valor fuera del rango se ajusta a los límites."
+                        "`inactivo` sin argumentos muestra el valor actual y el rango permitido.\n" + \
+                        "`inactivo <minutos>` fija un nuevo valor; cualquier valor fuera del rango se ajusta a los límites.\n" + \
+                        "También responde a `idle`."
 #define _LANG_IDLE_SHOW "La espera de idle es %d minutos (rango permitido %d – %d).\n"
 #define _LANG_IDLE_SET "Espera de idle ajustada a %d minutos.\n"
 

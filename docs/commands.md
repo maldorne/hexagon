@@ -130,7 +130,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | grope         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | group         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
-| idle          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Its messages are translated, the verb has no Spanish alias yet.            |
+| idle          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | inform        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | inventory     | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |

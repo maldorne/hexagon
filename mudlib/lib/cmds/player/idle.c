@@ -19,6 +19,11 @@
 
 inherit CMD_BASE;
 
+void setup()
+{
+  set_aliases(_LANG_IDLE_ALIAS);
+}
+
 string query_usage()
 {
   return _LANG_IDLE_SYNTAX;
