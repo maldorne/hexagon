@@ -8,12 +8,14 @@ static object myfriend;
 void set_friend(object friend) { myfriend = friend; }
 object query_friend() { return myfriend; }
 
-void event_fight_in_progress(object ob1, object ob2)
+// fighters holds the two sides of a blow traded in the room
+void event_fight_in_progress(object ob, object * fighters)
 {
-  if (ob1 && ob1 != myfriend)
-    ::attack_by(ob1);
-  if (ob2 && ob2 != myfriend)
-    ::attack_by(ob2);
+  int i;
+
+  for (i = 0; i < sizeof(fighters); i++)
+    if (fighters[i] && fighters[i] != myfriend)
+      ::attack_by(fighters[i]);
 }
 
 void attack_by(object ob)
