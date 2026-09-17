@@ -26,6 +26,7 @@ private void show_prompt();
 private void show_headers();
 private void refresh_letters();
 private string * recipient_names(string str);
+private string query_signature();
 private void start_letter(string * names, varargs string subject);
 private void close_mailer();
 
@@ -469,6 +470,27 @@ private string short_subject(string subject)
   return subject;
 }
 
+// A coder's signature, from .sig or .signature in their home directory,
+// closes every letter they write.
+private string query_signature()
+{
+  string file, text;
+  int i;
+
+  if (!owner->query_coder())
+    return "";
+
+  for (i = 0; i < 2; i++)
+  {
+    file = "/home/" + owner_name + "/" + ({ ".sig", ".signature" })[i];
+
+    if (file_exists(file) && strlen(text = read_file(file)))
+      return "\n" + text + (text[strlen(text) - 1] == '\n' ? "" : "\n");
+  }
+
+  return "";
+}
+
 // Writing a letter: recipients, then subject, then the lines of the body,
 // then who gets a copy.
 private void start_letter(string * names, varargs string subject)
@@ -586,7 +608,7 @@ void letter_cc(string str)
   }
 
   delivered = POSTAL_D->post_mail(owner_name, draft["to"], draft["cc"],
-    draft["subject"], implode(body, "\n") + "\n");
+    draft["subject"], implode(body, "\n") + "\n" + query_signature());
 
   if (sizeof(delivered))
     write(_LANG_MAILER_SENT);
