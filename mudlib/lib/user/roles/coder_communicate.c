@@ -21,14 +21,9 @@ static void role_commands()
   // add_action("do_channels", "geek");
 
   // Radix was here...
-  if (this_object()->query_admin())
-  {
-    add_action("do_god_inform", "ginfo");
-
-    // add_action("do_channels", "semi");
-    // add_action("do_channels", "thane");
-    // add_action("do_channels", "dwadmin");
-  }
+  // add_action("do_channels", "semi");
+  // add_action("do_channels", "thane");
+  // add_action("do_channels", "dwadmin");
   // if (this_object()->query_thane())
   //   add_action("do_channels", "thane");
 
@@ -38,20 +33,6 @@ int do_channels(string mess)
 {
   return this_player()->do_channels(mess);
 }
-
-int do_god_inform(string mess)
-{
-  if (!strlen(mess))
-  {
-    notify_fail("Sintaxis: ginfo <mensaje>\n");
-    return(0);
-  }
-
-  event(users(), "god_inform", (string)this_player()->query_cap_name() +
-                                " [Info]:", mess + "\n");
-
-  return 1;
-} /* do god inform */
 
 int do_echo(string str)
 {

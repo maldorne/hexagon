@@ -258,19 +258,6 @@ void event_creator_tell(object ob, string start, string msg)
 {
 }
 
-nomask void event_god_inform(object ob, string start, string msg)
-{
-  if (!interactive(this_object()))
-    return;
-
-  if (!strlen(msg))
-    return;
-
-  msg = fix_string("\n" + start + " " + msg);
-
-  this_object()->catch_tell(msg);
-}
-
 void event_inter_creator_tell(object ob, string mname, string pname,
                               string msg, object ig, int emote)
 {
