@@ -2,7 +2,7 @@
 
 List of commands available to every player, depending of its user type/role (`player`, `coder`, `admin`, and the common type `login` always available, even in the login screen before choosing a player character).
 
-**Be aware**: most of the commands listed here are already implemented and working (might not be translated), but as I've just started working in this document recently, I'll update every entry as I test each command.
+**Be aware**: every command listed here has been tested in a running mud. A struck command is not available: its note says where it went, or which issue covers it.
 
 ## Login (see issue [#13](https://github.com/maldorne/hexagon/issues/13))
 
