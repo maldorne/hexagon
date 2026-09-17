@@ -518,6 +518,9 @@ int do_emote(string arg)
     return 0;
   }
   
+  log_file("echoes", this_object()->query_cap_name() + " emotes: " +
+           arg + " [" + ctime(time(), 4) + "]\n");
+
   // this_player()->adjust_time_left(-5);
   str = (string)this_object()->query_cap_name()+" "+arg+"%^RESET%^\n";
 

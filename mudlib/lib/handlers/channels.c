@@ -364,6 +364,12 @@ int do_chat( string str )
 
   do_channel(verb, str, this_player()->query_cap_name());
 
+  // the emergency channel reaches every player, so what is said on it is kept;
+  // the one-character options (history, help, listeners) are not messages
+  if (verb == EMERGENCY_CHANNEL && str != "!" && str != "?" && str != ".")
+    log_file(EMERGENCY_CHANNEL, "[" + ctime(time(), 4) + " - " +
+             this_player()->query_cap_name() + "] (" + str + ")\n");
+
   /*
   
   TODO network
