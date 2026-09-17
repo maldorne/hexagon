@@ -376,11 +376,40 @@ mapping query_known_unarmed_combat_styles()
   return known_unarmed_styles;
 }
 
+// A style the player knows, named either by its id or by the name the list
+// shows, so what is read back is what can be typed.
+private string known_style_named(string word)
+{
+  string * styles;
+  mixed * info;
+  int i;
+
+  if (!strlen(word))
+    return nil;
+
+  styles = keys(query_known_unarmed_combat_styles());
+  word = lower_case(word);
+
+  for (i = 0; i < sizeof(styles); i++)
+  {
+    if (lower_case(styles[i]) == word)
+      return styles[i];
+
+    info = table("unarmed_combat")->query_unarmed_style_info(styles[i]);
+
+    if (sizeof(info) && lower_case(info[0]) == word)
+      return styles[i];
+  }
+
+  return nil;
+}
+
 int do_combat_styles(string style)
 {
   int i;
   string ret;
   string line;
+  string known;
   string * _unarmed_styles;
 
   _unarmed_styles = keys(query_known_unarmed_combat_styles());
@@ -419,16 +448,15 @@ int do_combat_styles(string style)
     return 1;
   }
 
-  if (member_array(style, _unarmed_styles) != -1)
-  {
-    set_unarmed_combat_style(style);
-  }
-  else
+  known = known_style_named(style);
+
+  if (!known)
   {
     notify_fail(_LANG_UNARMED_NOT_KNOWN);
     return 0;
   }
 
+  set_unarmed_combat_style(known);
   return 1;
 }
 

@@ -131,6 +131,31 @@
             "para devolver los golpes.\n"
 #define _LANG_COMBAT_CHASING "Estás persiguiendo a " 
 
+#define _LANG_COMBAT_PROTECT_VERBS ({ "proteger" })
+#define _LANG_COMBAT_UNPROTECT_VERBS ({ "desproteger" })
+#define _LANG_COMBAT_PROTECT_WHO "¿Proteger a quién?\n"
+#define _LANG_COMBAT_PROTECT_REFUSED query_multiple_short(no_prot) + " no quiere" + \
+  (sizeof(no_prot) == 1 ? "" : "n") + " tu protección.\n"
+#define _LANG_COMBAT_PROTECT_ME "Proteges a " + \
+  (sizeof(ok) == 1 ? ok[0]->query_short() : query_multiple_short(ok)) + ".\n"
+#define _LANG_COMBAT_PROTECT_HOW_TO_STOP "Utiliza 'desproteger' para dejar de hacerlo.\n"
+#define _LANG_COMBAT_PROTECT_ROOM this_object()->query_cap_name() + " protege a " + \
+  (sizeof(ok) == 1 ? ok[0]->query_short() : query_multiple_short(ok)) + ".\n"
+#define _LANG_COMBAT_PROTECT_THEM_SEVERAL this_object()->query_cap_name() + \
+  " os protege a ti y a " + query_multiple_short(ok - ({ ok[i] })) + ".\n"
+#define _LANG_COMBAT_PROTECT_THEM this_object()->query_cap_name() + " te protege.\n"
+#define _LANG_COMBAT_UNPROTECT_SYNTAX "Sintaxis: desproteger <objetivo>\n"
+#define _LANG_COMBAT_UNPROTECT_WHO "¿Desproteger a quién?\n"
+#define _LANG_COMBAT_UNPROTECT_NOT_PROTECTING "No estás protegiendo a " + tmp->query_cap_name() + ".\n"
+#define _LANG_COMBAT_UNPROTECT_THEM_HERE this_object()->query_cap_name() + \
+  " se retira y no te protege más.\n"
+#define _LANG_COMBAT_UNPROTECT_ROOM this_object()->query_cap_name() + " deja de proteger a " + \
+  tmp->query_cap_name() + ".\n"
+#define _LANG_COMBAT_UNPROTECT_THEM this_object()->query_cap_name() + " deja de protegerte.\n"
+#define _LANG_COMBAT_UNPROTECT_ME "Te retiras y dejas de proteger a " + tmp->query_cap_name() + ".\n"
+#define _LANG_ARMED_MASTERY_VERBS ({ "maestrias", "maestrías" })
+#define _LANG_ARMED_MASTERY_DEAD "Estás en forma espiritual, no necesitas conocer eso.\n"
+#define _LANG_ARMED_MASTERY_HEADER "> %^GREEN%^Posees las siguientes maestrías con armas: %^RESET%^<"
 #define _LANG_COMBAT_ROLE_VERBS ({ "actitud" })
 #define _LANG_COMBAT_ROLE_CHANGED "Tu actitud de combate pasa a ser: " + COMBAT_ROLE_STRINGS[new_role] + ".\n"
 #define _LANG_COMBAT_ROLE_CURRENT "Tu actitud de combate actual es: " + query_combat_role_string() + \

@@ -71,8 +71,8 @@ int query_is_moving() { return is_moving; }
 
 void combat_commands() 
 {
-  add_private_action("do_protect", "proteger");
-  add_private_action("do_unprotect", "desproteger");
+  add_private_action("do_protect", _LANG_COMBAT_PROTECT_VERBS);
+  add_private_action("do_unprotect", _LANG_COMBAT_UNPROTECT_VERBS);
   add_private_action("do_combat_role", _LANG_COMBAT_ROLE_VERBS);
   add_private_action("do_combat_mode", _LANG_COMBAT_MODE_VERBS);
 
@@ -535,7 +535,7 @@ int do_protect(string str)
   
   if (!sizeof(obs)) 
   {
-    notify_fail("¿Proteger a quién?\n");
+    notify_fail(_LANG_COMBAT_PROTECT_WHO);
     return 0;
   }
   
@@ -553,29 +553,24 @@ int do_protect(string str)
       
   if (sizeof(no_prot)) 
   {
-    tell_object(this_object(), query_multiple_short(no_prot)+ " no quiere"+
-      (sizeof(no_prot)==1?"":"n")+" tu protección.\n");
+    tell_object(this_object(), _LANG_COMBAT_PROTECT_REFUSED);
   }
   
   if (sizeof(ok))
   {
-    tell_player(this_object(),"Proteges a " + 
-    ((sizeof(ok) == 1)?ok[0]->query_short():query_multiple_short(ok)) + ".\n");
-    tell_object(this_object(),"Utiliza 'desproteger' para dejar de hacerlo.\n");
+    tell_player(this_object(), _LANG_COMBAT_PROTECT_ME);
+    tell_object(this_object(), _LANG_COMBAT_PROTECT_HOW_TO_STOP);
 
-    tell_room(environment(this_object()),this_object()->query_cap_name() +
-      " protege a " + ((sizeof(ok) == 1)?ok[0]->query_short():query_multiple_short(ok)) +
-      ".\n", ok);
+    tell_room(environment(this_object()), _LANG_COMBAT_PROTECT_ROOM, ok);
   }
 
   if (sizeof(ok) > 1)
   {
     for (i = 0; i < sizeof(ok); i++)
-      tell_player(ok[i], this_object()->query_cap_name()+" os protege a ti y a "+
-        query_multiple_short(ok - ({ ok[i] })) +".\n");
+      tell_player(ok[i], _LANG_COMBAT_PROTECT_THEM_SEVERAL);
   }
   else if (sizeof(ok) == 1)      
-    tell_player(ok[0], this_object()->query_cap_name()+" te protege.\n"); 
+    tell_player(ok[0], _LANG_COMBAT_PROTECT_THEM);
 
   return 1;
 }
@@ -587,7 +582,7 @@ int do_unprotect(string str)
   
   if (!strlen(str))
   {
-    notify_fail("Sintaxis: desproteger <objetivo>\n");
+    notify_fail(_LANG_COMBAT_UNPROTECT_SYNTAX);
     return(0);
   }
   
@@ -595,13 +590,13 @@ int do_unprotect(string str)
   
   if (!tmp)
   {
-    notify_fail("¿Desproteger a quién?\n");
+    notify_fail(_LANG_COMBAT_UNPROTECT_WHO);
     return(0);
   }
   
   if (tmp->query_protector() != this_object())
   {
-    write("No estás protegiendo a "+tmp->query_cap_name()+".\n");
+    write(_LANG_COMBAT_UNPROTECT_NOT_PROTECTING);
     return(1);
   }
   
@@ -609,17 +604,15 @@ int do_unprotect(string str)
   
   if (environment(tmp) == environment(this_object()))
   {
-    tell_player(tmp, this_object()->query_cap_name()+" se retira y "+
-      "no te protege más.\n");
-    tell_room(environment(), this_object()->query_cap_name()+" deja de "+
-      "proteger a " + tmp->query_cap_name() + ".\n", ({tmp, this_object() }));
+    tell_player(tmp, _LANG_COMBAT_UNPROTECT_THEM_HERE);
+    tell_room(environment(), _LANG_COMBAT_UNPROTECT_ROOM, ({ tmp, this_object() }));
   }
   else
   {
-    tell_object(tmp, this_object()->query_cap_name()+" deja de protegerte.\n");
+    tell_object(tmp, _LANG_COMBAT_UNPROTECT_THEM);
   }
   
-  tell_object(this_object(),"Te retiras y dejas de proteger a "+tmp->query_cap_name()+".\n");
+  tell_object(this_object(), _LANG_COMBAT_UNPROTECT_ME);
   return(1);
 }
 

@@ -16,6 +16,7 @@
  */
 
 #include <living/combat.h>
+#include <language.h>
 
 // Las maestrias son un mapping con ([ "tipo de arma":valor ])
 // siendo valor el porcentaje de control (0-100) sobre ese tipo de arma.
@@ -43,8 +44,7 @@ mapping query_known_weapon_masteries();
 
 void armed_combat_commands()
 {
-  add_private_action("do_weapon_masteries", "maestrias");
-  add_private_action("do_weapon_masteries", "maestrías");
+  add_private_action("do_weapon_masteries", _LANG_ARMED_MASTERY_VERBS);
 }
 
 void create()
@@ -217,11 +217,12 @@ int do_weapon_masteries(string mastery)
 
   if (this_object()->query_dead())
   {
-     notify_fail("Estás en forma espiritual, no necesitas conocer eso.\n");
+     notify_fail(_LANG_ARMED_MASTERY_DEAD);
      return 0;
   }
 
-  ret = sprintf("%p%|*s\n\n", '-', this_user()->query_cols()+18, "> %^GREEN%^Posees las siguientes maestrías con armas: %^RESET%^<");
+  ret = sprintf("%p%|*s\n\n", '-', this_user()->query_cols() + 18,
+                _LANG_ARMED_MASTERY_HEADER);
 
   for (i = 0; i < sizeof(masteries); i++)
   {
