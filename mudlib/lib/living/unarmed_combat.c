@@ -63,6 +63,8 @@ int add_known_unarmed_style(string style, varargs int dominio);
 int remove_known_unarmed_style(string style);
 mapping query_known_unarmed_combat_styles();
 int adjust_unarmed_ability(string style, int i);
+string query_unarmed_style_name(string style);
+string query_current_unarmed_style();
 
 void unarmed_combat_commands()
 {
@@ -335,15 +337,22 @@ string query_current_unarmed_style_id()
   return current_unarmed_style;
 }
 
-string query_current_unarmed_style()
+// The name a style is shown with, in the language the mud runs in.
+string query_unarmed_style_name(string style)
 {
   mixed * info;
-  info = table("unarmed_combat")->query_unarmed_style_info(current_unarmed_style);
-  
+
+  info = table("unarmed_combat")->query_unarmed_style_info(style);
+
   if (!sizeof(info))
-    return "error";
+    return style;
 
   return info[0];
+}
+
+string query_current_unarmed_style()
+{
+  return query_unarmed_style_name(current_unarmed_style);
 }
 
 int query_current_unarmed_ability()
@@ -376,12 +385,11 @@ mapping query_known_unarmed_combat_styles()
   return known_unarmed_styles;
 }
 
-// A style the player knows, named either by its id or by the name the list
-// shows, so what is read back is what can be typed.
+// The id of a style the player knows, named by the name it is listed with:
+// the internal id is not a name a player ever sees.
 private string known_style_named(string word)
 {
   string * styles;
-  mixed * info;
   int i;
 
   if (!strlen(word))
@@ -391,18 +399,12 @@ private string known_style_named(string word)
   word = lower_case(word);
 
   for (i = 0; i < sizeof(styles); i++)
-  {
-    if (lower_case(styles[i]) == word)
+    if (lower_case(query_unarmed_style_name(styles[i])) == word)
       return styles[i];
-
-    info = table("unarmed_combat")->query_unarmed_style_info(styles[i]);
-
-    if (sizeof(info) && lower_case(info[0]) == word)
-      return styles[i];
-  }
 
   return nil;
 }
+
 
 int do_combat_styles(string style)
 {

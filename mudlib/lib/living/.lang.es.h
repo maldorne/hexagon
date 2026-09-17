@@ -223,8 +223,8 @@
                                   "  Utiliza: estilo <nombre> para cambiarlo.\n"
 #define _LANG_UNARMED_NOT_KNOWN "No conoces el estilo de combate '"+style+"'.\n"
 
-#define _LANG_UNARMED_STYLE_INFO "Estilo de combate desarmado: '"+style+"'. Nivel de habilidad: "+unarmed_ability+"%.\n"
-#define _LANG_UNARMED_STYLE_IMPROVED "¡Has mejorado tus habilidades en "+style+"!\n"
+#define _LANG_UNARMED_STYLE_INFO "Estilo de combate desarmado: '"+query_current_unarmed_style()+"'. Nivel de habilidad: "+unarmed_ability+"%.\n"
+#define _LANG_UNARMED_STYLE_IMPROVED "¡Has mejorado tus habilidades en "+query_unarmed_style_name(style)+"!\n"
 
 // hold.c
 

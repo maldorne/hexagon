@@ -224,8 +224,8 @@
                                   "  Use: style <name> to change it.\n"
 #define _LANG_UNARMED_NOT_KNOWN "You don't know the combat style called '"+style+"'.\n"
 
-#define _LANG_UNARMED_STYLE_INFO "Unarmed combat style: '"+style+"'. Ability: "+unarmed_ability+"%.\n"
-#define _LANG_UNARMED_STYLE_IMPROVED "You improved your abilities with "+style+"!\n"
+#define _LANG_UNARMED_STYLE_INFO "Unarmed combat style: '"+query_current_unarmed_style()+"'. Ability: "+unarmed_ability+"%.\n"
+#define _LANG_UNARMED_STYLE_IMPROVED "You improved your abilities with "+query_unarmed_style_name(style)+"!\n"
 
 // hold.c
 
