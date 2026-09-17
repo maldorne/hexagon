@@ -344,6 +344,8 @@
 // social points and abilities
 #define _LANG_COMMS_NO_POWER "Not enough social points.\n"
 #define _LANG_COMMS_NOT_ALLOWED "You do not have that ability yet.\n"
+// `ob` is the one who blocks the speaker
+#define _LANG_COMMS_BLOCKED ob->query_cap_name() + " does not want your messages.\n"
 
 // whisper. `cur_lang` is the language the speaker is using, `s` the word the
 // punctuation chose, and `obs` the people whispered to

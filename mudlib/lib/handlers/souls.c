@@ -321,7 +321,8 @@ int soul_command(string verb, string str, object m)
     if (objectp(target))
     {
       /* Flode 110599 - Why was this taken out? */
-      if ((mixed)target->query_blocking() == (mixed)me->query_name())
+      // the list of blocked players is kept by the target's user
+      if (target->user() && target->user()->query_blocking(me->query_name()))
       {
         tell_object(me, _LANG_SOULS_BLOCKING_YOU);
         return 1;

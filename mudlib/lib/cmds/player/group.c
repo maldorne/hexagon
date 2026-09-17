@@ -289,6 +289,12 @@ static int cmd(string str, object me, string verb)
       return 0;
     }
 
+    if (who->user() && who->user()->query_blocking(me->query_name()))
+    {
+      notify_fail(_LANG_CMD_GROUP_THEY_BLOCK);
+      return 0;
+    }
+
     who->add_timed_property(PARTY_INVITE_PROP, id, PARTY_INVITE_TIME);
 
     write(_LANG_CMD_GROUP_INVITED_ME);

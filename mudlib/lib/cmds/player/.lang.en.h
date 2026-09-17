@@ -516,6 +516,7 @@
 #define _LANG_CMD_GROUP_NOT_YOURSELF "Not yourself.\n"
 #define _LANG_CMD_GROUP_THEY_HAVE_PARTY who->query_cap_name() + " is in a party already.\n"
 #define _LANG_CMD_GROUP_THEY_REFUSE who->query_cap_name() + " does not want to be invited to parties.\n"
+#define _LANG_CMD_GROUP_THEY_BLOCK who->query_cap_name() + " does not want your messages.\n"
 #define _LANG_CMD_GROUP_FULL "The party is full.\n"
 #define _LANG_CMD_GROUP_INVITED_ME "You invite " + who->query_cap_name() + " to your party.\n"
 #define _LANG_CMD_GROUP_INVITED_THEM me->query_cap_name() + " invites you to the party '" + name + "'.\n" + \

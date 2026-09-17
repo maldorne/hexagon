@@ -1,0 +1,16 @@
+@verbs block unblock blocking
+@tier player
+@title no longer receiving somebody's messages
+@see say earmuffs consent
+
+  block                     lists who you are blocking.
+  block <player>            blocks them.
+  unblock <player>          unblocks them.
+
+While you block somebody, their tells and whispers do not reach you,
+they cannot use emotes on you, and they cannot invite you to a party.
+Every time they try, they learn that you are blocking them.
+
+The block belongs to your account, not to the character: it holds for
+every character you play from it, and it lasts from one session to
+the next. Only a character that exists can be blocked.

@@ -1,0 +1,17 @@
+@verbs bloquear desbloquear
+@tier player
+@title dejar de recibir los mensajes de alguien
+@see decir tapones consentir
+
+  bloquear                  lista a quién estás bloqueando.
+  bloquear <jugador>        lo bloqueas.
+  desbloquear <jugador>     lo desbloqueas.
+
+Mientras tengas bloqueado a alguien, no te llegan sus 'tell' ni sus
+susurros, no puede hacerte emociones, y no puede invitarte a un
+grupo. Cada vez que lo intente, se enterará de que le tienes
+bloqueado.
+
+El bloqueo va con tu cuenta, no con el personaje: vale para todos
+los que juegues desde ella, y se mantiene de una partida a otra.
+Sólo se puede bloquear a un personaje que exista.

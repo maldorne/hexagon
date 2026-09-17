@@ -20,12 +20,15 @@ string term_name;
 
 // special characters for the terminal output
 static mapping colour_map;
-static string * blocks;
+// the players whose messages this account does not want, by name; it is saved
+// with the account, so it holds for every character played from it
+string * blocks;
 
 void create()
 {
   term_name = "ansi";
   colour_map = ([ ]);
+  blocks = ({ });
 
   // default text-mode size
   cols = 80;
@@ -128,9 +131,104 @@ int set_term_type(string str)
   }
 }
 
+// Whether this account blocks a player, by name.
 int query_blocking(string name)
 {
-  return (member_array(name, blocks) != -1);
+  if (!pointerp(blocks) || !stringp(name))
+    return 0;
+
+  return member_array(name, blocks) != -1;
+}
+
+string * query_blocks()
+{
+  return pointerp(blocks) ? blocks + ({ }) : ({ });
+}
+
+// The name a player typed, through their nicknames, as it is stored.
+private string block_name(string str)
+{
+  if (this_object()->player())
+    str = this_object()->player()->expand_nickname(str);
+
+  return lower_case(trim(str));
+}
+
+int do_block(string str)
+{
+  string name, * names;
+  int i;
+
+  if (!pointerp(blocks))
+    blocks = ({ });
+
+  if (!str || !strlen(trim(str)))
+  {
+    if (!sizeof(blocks))
+    {
+      write(_LANG_BLOCK_NOBODY);
+      return 1;
+    }
+
+    names = ({ });
+    for (i = 0; i < sizeof(blocks); i++)
+      names += ({ capitalize(blocks[i]) });
+
+    write(_LANG_BLOCK_LIST);
+    return 1;
+  }
+
+  name = block_name(str);
+
+  if (this_object()->player() &&
+      name == this_object()->player()->query_name())
+  {
+    notify_fail(_LANG_BLOCK_NOT_YOURSELF);
+    return 0;
+  }
+
+  if (!player_exists(name))
+  {
+    notify_fail(_LANG_BLOCK_NO_SUCH_PLAYER);
+    return 0;
+  }
+
+  if (member_array(name, blocks) != -1)
+  {
+    notify_fail(_LANG_BLOCK_ALREADY);
+    return 0;
+  }
+
+  blocks += ({ name });
+  this_object()->save_me();
+
+  write(_LANG_BLOCK_DONE);
+  return 1;
+}
+
+int do_unblock(string str)
+{
+  string name;
+
+  if (!str || !strlen(trim(str)))
+  {
+    notify_fail(_LANG_BLOCK_SYNTAX);
+    return 0;
+  }
+
+  name = block_name(str);
+
+  if (!pointerp(blocks) || member_array(name, blocks) == -1)
+  {
+    notify_fail(_LANG_BLOCK_NOT_BLOCKED);
+    return 0;
+  }
+
+  blocks -= ({ name });
+  this_object()->save_me();
+
+  write(_LANG_BLOCK_UNDONE);
+  return 1;
 }
 
 // int do_unblock(string name){

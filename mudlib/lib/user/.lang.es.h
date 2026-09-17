@@ -18,8 +18,8 @@
 
 #define _LANG_COMM_EARMUFFS "tapones"
 #define _LANG_COMM_TERMINAL "terminal"
-#define _LANG_COMM_BLOCK ({ "bloquear", "block" })
-#define _LANG_COMM_UNBLOCK ({ "desbloquear", "unblock" })
+#define _LANG_COMM_BLOCK ({ "bloquear" })
+#define _LANG_COMM_UNBLOCK ({ "desbloquear" })
 
 // help.c
 
@@ -142,3 +142,14 @@
 #define _LANG_EARMUFFS_WILL_MUFFLE "Con los tapones puestos ya no oirás: " + type + ".\n"
 #define _LANG_EARMUFFS_WILL_NOT_MUFFLE "Vuelves a oír: " + type + ".\n"
 #define _LANG_EARMUFFS_TYPES "Puedes dejar de oír: " + query_multiple_short(types) + ".\n"
+
+// blocking. `name` is the player being blocked or unblocked
+#define _LANG_BLOCK_NOBODY "No estás bloqueando a nadie.\n"
+#define _LANG_BLOCK_LIST "Estás bloqueando a: " + query_multiple_short(names) + ".\n"
+#define _LANG_BLOCK_SYNTAX "Sintaxis: " + query_verb() + " <jugador>\n"
+#define _LANG_BLOCK_NO_SUCH_PLAYER "No existe ningún personaje llamado '" + name + "'.\n"
+#define _LANG_BLOCK_NOT_YOURSELF "No puedes bloquearte a ti mismo.\n"
+#define _LANG_BLOCK_ALREADY "Ya estabas bloqueando a " + capitalize(name) + ".\n"
+#define _LANG_BLOCK_DONE "Bloqueas a " + capitalize(name) + ": sus mensajes ya no te llegarán.\n"
+#define _LANG_BLOCK_NOT_BLOCKED "No estás bloqueando a " + capitalize(name) + ".\n"
+#define _LANG_BLOCK_UNDONE "Desbloqueas a " + capitalize(name) + ".\n"

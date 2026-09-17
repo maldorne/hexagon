@@ -357,6 +357,13 @@ int do_tell(string arg, varargs object ob, int silent)
     notify_fail(_LANG_TELL_NO_CONNECTION);
     return 0;
   }
+
+  // the list of blocked players is kept by the user of whoever is told
+  if (ob->user() && ob->user()->query_blocking(this_object()->query_name()))
+  {
+    notify_fail(_LANG_COMMS_BLOCKED);
+    return 0;
+  }
     
   if (adjust_social_points(-TELL_COST) < 0)
   {
@@ -399,7 +406,7 @@ int do_tell(string arg, varargs object ob, int silent)
 
 int do_whisper(string str) 
 {
-  object *obs;
+  object *obs, ob;
   string s, s2, *bits;
   int i;
 
@@ -456,6 +463,19 @@ int do_whisper(string str)
     notify_fail(_LANG_WHISPER_NOBODY);
     return 0;
   }
+
+  // nobody who blocks the whisperer is whispered to
+  for (i = 0; i < sizeof(obs); i++)
+    if (obs[i]->user() &&
+        obs[i]->user()->query_blocking(this_object()->query_name()))
+    {
+      ob = obs[i];
+      write(_LANG_COMMS_BLOCKED);
+      obs = delete(obs, i--, 1);
+    }
+
+  if (!sizeof(obs))
+    return 1;
   
   if (this_object()->query_intoxication())
     s2 = drunk_speech(s2);
