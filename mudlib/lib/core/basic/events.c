@@ -204,12 +204,16 @@ void event_person_whisper(object ob, string start, string msg,
 
 void event_person_shout(object ob, string start, string msg, string lang)
 {
+  object user;
   string tmp;
 
   if (ob == this_object())
     return;
 
-  if (this_object()->query_earmuffs() == 1 &&
+  // the earmuffs are kept by the user, the languages by the living
+  user = this_object()->user();
+
+  if (user && user->query_earmuffs() == 1 &&
     ((string)ob->query_verb() != "coders!") &&
     ((string)ob->query_verb() != "shout!"))
     return;

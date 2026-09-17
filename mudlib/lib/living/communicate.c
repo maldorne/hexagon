@@ -514,8 +514,6 @@ int do_emote(string arg)
 int do_shout(string str) 
 {
   string s1, s, name;
-  object* usrs;
-  usrs = users();
 
   if (!strlen(str)) 
   {
@@ -581,7 +579,9 @@ int do_shout(string str)
   log_file(SHOUT_LOGFILE, "[" + ctime(time(), 4) + " - " + 
           this_object()->query_cap_name() + "] (" + str + ")\n");
 
-  event(usrs, "person_shout", this_object()->query_cap_name()+
+  // every living hears it: the event asks the listener which languages it
+  // knows, and that is a living's answer to give
+  event(livings(), "person_shout", this_object()->query_cap_name()+
      " "+s+": ", str, cur_lang);
 
   // if (s1 != " exclamando") {
