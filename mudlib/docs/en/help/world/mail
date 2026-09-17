@@ -1,7 +1,7 @@
 @verbs mail letters mailbox
 @tier player
 @title mail: how to read and send letters
-@see nicknames
+@see nicknames boards editor
 
   mail
   mail <names>
@@ -27,12 +27,15 @@ Inside the mailbox:
 
 Numbers can go alone or in ranges: 3, 1-4 or 2,5.
 
-Writing a letter asks for the subject and then the text, line by line. A
-line with just a dot ends it and '~q' discards it. Afterwards you can
-send a copy to other characters.
+Writing a letter asks for the subject, and the text is written with your
+editor. Afterwards you can send a copy to other characters.
 
 A group is your own name for several characters: writing to it writes to
-all of them. Nicknames work as recipients too.
+all of them. There are also the game's mailing lists, which anybody can
+write to by their name. Nicknames work as recipients too.
+
+A note on a board is answered by letter with 'mudmail <number>' in front
+of the board.
 
 A letter that arrives while you are connected tells you so; otherwise you
 will know when you log in. Letters older than two months are lost. Guests

@@ -17,3 +17,9 @@ void init()
 {
   actions::init();
 }
+
+void initialize(object location)
+{
+  component::initialize(location);
+  create_sign(location);
+}

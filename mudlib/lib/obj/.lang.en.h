@@ -181,3 +181,58 @@
   "  S - quit and save the text\n" + \
   "  Q - quit without saving the text\n" + \
   "  H - show this help\n"
+
+// board.c
+
+#define _LANG_BOARD_NAME "notice board"
+#define _LANG_BOARD_ALIASES ({ "board" })
+#define _LANG_BOARD_SHORT "Notice Board"
+#define _LANG_BOARD_PLURAL "Boards"
+#define _LANG_BOARD_PLURALS ({ "boards" })
+#define _LANG_BOARD_READ_CMDS ({ "read" })
+#define _LANG_BOARD_POST_CMDS ({ "post" })
+#define _LANG_BOARD_DELETE_CMDS ({ "eat" })
+#define _LANG_BOARD_FOLLOWUP_CMDS ({ "followup" })
+#define _LANG_BOARD_MUDMAIL_CMDS ({ "mudmail" })
+#define _LANG_BOARD_SUBJECTS_CMDS ({ "subjects" })
+#define _LANG_BOARD_EMPTY_TAG " [ Empty ]"
+#define _LANG_BOARD_ONE_NOTE_TAG " [ 1 note ]"
+#define _LANG_BOARD_NOTES_TAG " [ " + sizeof(stuff) + " notes ]"
+#define _LANG_BOARD_NOTES_UNREAD_TAG " [ " + sizeof(stuff) + " notes (" + \
+  ((pending == 1) ? "one" : query_num(pending, 20)) + " unread) ]"
+#define _LANG_BOARD_ADMINISTRATOR "Administrator"
+#define _LANG_BOARD_MARK_UNREAD "N"
+#define _LANG_BOARD_READONLY "Only coders can write on this board.\n"
+#define _LANG_BOARD_NO_GUESTS "Guests cannot write notes or letters.\n"
+#define _LANG_BOARD_IS_EMPTY "The board is completely empty.\n"
+#define _LANG_BOARD_SUBJECTS_PROMPT "Subjects"
+#define _LANG_BOARD_COMMANDS "Commands (more in 'help boards'):\n" + \
+  "  read [number]         read a note, or the first unread one\n" + \
+  "  subjects              list every note\n" + \
+  "  post <subject>        write a new note\n" + \
+  "  followup <number>     answer a note on the board\n" + \
+  "  mudmail <number>      answer whoever wrote it with a letter\n" + \
+  "  eat <number>          tear down a note of yours\n\n"
+#define _LANG_BOARD_NO_NEW_NOTES "\nThere are no new notes.\n"
+#define _LANG_BOARD_READ_SYNTAX "Syntax: read <note number>\n"
+#define _LANG_BOARD_NOTHING_TO_READ "You have no notes left to read.\n"
+#define _LANG_BOARD_NO_SUCH_NOTE "There is no note with that number.\n"
+#define _LANG_BOARD_NOTE_HEADER "Note #" + (num + 1) + " written by %^GREEN%^" + \
+  author_of(stuff[num]) + "%^RESET%^ on " + ctime(stuff[num][B_TIME], 4) + "\n" + \
+  "Subject: '%^GREEN%^" + stuff[num][B_SUBJECT] + "%^RESET%^'\n\n"
+#define _LANG_BOARD_NOTE_PROMPT "Note " + (num + 1)
+#define _LANG_BOARD_POST_SYNTAX "Syntax: post <subject>\n"
+#define _LANG_BOARD_WRITE_ERROR "The note could not be written.\n"
+#define _LANG_BOARD_WRITTEN "You pin your note on the board.\n"
+#define _LANG_BOARD_NOT_SAVED "The note was not kept.\n"
+#define _LANG_BOARD_DELETE_SYNTAX "Syntax: eat [until] <note number>\n"
+#define _LANG_BOARD_DELETE_UNTIL "until"
+#define _LANG_BOARD_DELETE_FAILED "You cannot delete that note.\n"
+#define _LANG_BOARD_DELETED_MANY_ME "You tear down and destroy " + query_num(eaten, 0) + " notes.\n"
+#define _LANG_BOARD_DELETED_MANY_ROOM this_player()->query_cap_name() + " tears down and destroys " + \
+  query_num(eaten, 0) + " notes.\n"
+#define _LANG_BOARD_DELETED_ONE_ME "You tear down and destroy note number " + num + ".\n"
+#define _LANG_BOARD_DELETED_ONE_ROOM this_player()->query_cap_name() + \
+  " tears down and destroys note number " + num + ".\n"
+#define _LANG_BOARD_FOLLOWUP_SYNTAX "Syntax: followup <note number>\n"
+#define _LANG_BOARD_MUDMAIL_SYNTAX "Syntax: mudmail <note number>\n"

@@ -7,6 +7,12 @@ inherit actions "/lib/ventures/post-office-actions.c";
 
 int query_post_office() { return 1; }
 
+void create()
+{
+  room::create();
+  create_sign();
+}
+
 void init()
 {
   room::init();

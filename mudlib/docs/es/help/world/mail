@@ -1,7 +1,7 @@
 @verbs correo cartas buzon buzón
 @tier player
 @title el correo: cómo leer y enviar cartas
-@see apodos
+@see apodos tablones editor
 
   correo
   correo <nombres>
@@ -27,12 +27,16 @@ Dentro del buzón:
 
 Los números pueden ir sueltos o en rangos: 3, 1-4 o 2,5.
 
-Al escribir una carta se piden el asunto y el texto, línea a línea. Una
-línea con solo un punto la termina y '~q' la descarta. Después puedes
-enviar una copia a otros personajes.
+Al escribir una carta se pide el asunto, y el texto se escribe con tu
+editor. Después puedes enviar una copia a otros personajes.
 
 Un grupo es un nombre tuyo para varios personajes: escribir a él es
-escribir a todos. Los apodos también valen como destinatarios.
+escribir a todos. También hay listas de correo del juego, a las que
+cualquiera puede escribir por su nombre. Los apodos valen como
+destinatarios.
+
+Una nota de un tablón se responde por carta con 'mudmail <número>'
+delante del tablón.
 
 Cuando te llega una carta estando conectado, te avisa; si no, lo sabrás
 al entrar. Las cartas de más de dos meses se pierden. Los invitados no

@@ -1,0 +1,22 @@
+@verbs tablon tablón tablones temas mudmail
+@tier player
+@title los tablones de notas
+@see correo editor
+
+En las tabernas y en otros sitios hay tablones donde cualquiera deja
+notas para los demás. Mirar el tablón muestra sus órdenes y las notas
+nuevas, marcadas con una N.
+
+  leer [número]         lee una nota, o la primera que no has leído
+  temas                 lista todas las notas
+  escribir <tema>       escribe una nota nueva
+  responder <número>    responde a una nota con otra nota
+  mudmail <número>      responde por carta a quien escribió la nota
+  borrar <número>       arranca una nota tuya
+
+Las notas se escriben con tu editor. 'mudmail' abre una carta dirigida
+al autor de la nota, con el mismo asunto, y no hace falta estar en una
+oficina de correos para enviarla.
+
+En algunos tablones solo escriben los programadores, y los invitados no
+pueden escribir en ninguno.

@@ -1,9 +1,13 @@
 // Traducción revisada para CcMud, neverbot 7/03
 // Añadido numero de notas sin leer, neverbot 2/06
+// Reviewed for Hexagon, neverbot 09/2026: translated, notes written with the
+// user's editor, and notes answered by mail through the mail reader.
 
-#include <mud/mail.h>
 #include <item/board.h>
 #include <basic/communicate.h>
+#include <files/postal.h>
+#include <user/player.h>
+#include <language.h>
 
 inherit "/lib/item.c";
 
@@ -11,7 +15,15 @@ inherit "/lib/item.c";
 // static string *readonly = ({"playerinfo","quests","announcements"});
 static string *readonly;
 string board_name;
-mapping being_written;
+// character name -> subject of the note being written
+static mapping being_written;
+
+int subjects(string str);
+int read(string str);
+int post(string str);
+int eat(string str);
+int followup(string str);
+int reply(string str);
 
 void create()
 {
@@ -21,27 +33,25 @@ void create()
   board_name = "informacion";
   being_written = ([ ]);
   reset_get();
+
+  set_name(_LANG_BOARD_NAME);
+  add_alias(_LANG_BOARD_ALIASES);
+  set_short(_LANG_BOARD_SHORT);
+  set_main_plural(_LANG_BOARD_PLURAL);
+  add_plural(_LANG_BOARD_PLURALS);
 }
 
-void setup()
-{
-  set_name("tablón de notas");
-  add_alias("tablon");
-  add_alias("tablón");
-
-  set_short("Tablón de Notas");
-  set_main_plural("Tablones");
-  add_plural("tablones");
-}
+int query_board() { return 1; }
+string query_board_name() { return board_name; }
 
 void init()
 {
-  add_action("read", "leer");
-  add_action("post", "escribir");
-  add_action("eat", "borrar");
-  add_action("followup", "responder");
-  add_action("reply", "mudmail");
-  add_action("subjects", "temas");
+  add_action("read", _LANG_BOARD_READ_CMDS);
+  add_action("post", _LANG_BOARD_POST_CMDS);
+  add_action("eat", _LANG_BOARD_DELETE_CMDS);
+  add_action("followup", _LANG_BOARD_FOLLOWUP_CMDS);
+  add_action("reply", _LANG_BOARD_MUDMAIL_CMDS);
+  add_action("subjects", _LANG_BOARD_SUBJECTS_CMDS);
   ::init();
 }
 
@@ -51,10 +61,10 @@ string query_plural()
 
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   switch (sizeof(stuff)) {
-    case 0:  return pluralize(::short(0))+" [ Vacío ]";
-    case 1:  return pluralize(::short(0))+" [ 1 nota ]";
+    case 0:  return pluralize(::short(0)) + _LANG_BOARD_EMPTY_TAG;
+    case 1:  return pluralize(::short(0)) + _LANG_BOARD_ONE_NOTE_TAG;
   }
-   return pluralize(::short(0))+" [ "+sizeof(stuff)+" notas ]";
+  return pluralize(::short(0)) + _LANG_BOARD_NOTES_TAG;
 }
 
 string short(varargs int dark)
@@ -67,24 +77,72 @@ string short(varargs int dark)
   pending = this_object()->query_new_messages();
 
   switch (sizeof(stuff)) {
-    case 0:  return ::short(dark)+" [ Vacío ]";
-    case 1:  return ::short(dark)+" [ 1 nota ]";
+    case 0:  return ::short(dark) + _LANG_BOARD_EMPTY_TAG;
+    case 1:  return ::short(dark) + _LANG_BOARD_ONE_NOTE_TAG;
     default:
     if (pending)
-      return ::short(dark)+ " [ "+sizeof(stuff)+" notas (" +
-                            ((pending == 1)?("una"):query_num(pending, 20)) +
-                            " sin leer) ]";
+      return ::short(dark) + _LANG_BOARD_NOTES_UNREAD_TAG;
     else
-      return ::short(dark)+" [ "+sizeof(stuff)+" notas ]";
+      return ::short(dark) + _LANG_BOARD_NOTES_TAG;
   }
 }
 
 string the_date(int i)
 {
-  return ctime(i)[4..9];
+  return ctime(i, 4)[0..7];
 }
 
-int subjects(string str, int dark)
+// Who wrote a note, as a player sees it: the names of coders are hidden.
+private string author_of(mixed * note)
+{
+  if (!this_player()->query_coder() && sizeof(get_files("/home/" + note[B_NAME])))
+    return _LANG_BOARD_ADMINISTRATOR;
+
+  return capitalize(note[B_NAME]);
+}
+
+private string note_line(mixed * note, int number, int unread)
+{
+  return sprintf("%s %2d: %-=*s\n", (unread ? _LANG_BOARD_MARK_UNREAD : " "), number,
+                 (int)this_user()->query_cols() - 6,
+                 note[B_SUBJECT] + " (" + author_of(note) + " " +
+                 the_date(note[B_TIME]) + ")");
+}
+
+// When the player last read each board: board name -> time of that note.
+private mapping query_news_rc()
+{
+  mixed news_rc;
+
+  news_rc = this_player()->query_property(NEWS_RC);
+
+  if (!mappingp(news_rc))
+    news_rc = ([ ]);
+
+  if (!intp(news_rc[board_name]))
+    news_rc[board_name] = 0;
+
+  return news_rc;
+}
+
+private int can_write()
+{
+  if ((member_array(board_name, readonly) != -1) && !this_player()->query_coder())
+  {
+    write(_LANG_BOARD_READONLY);
+    return 0;
+  }
+
+  if (this_player()->query_property(GUEST_PROP))
+  {
+    write(_LANG_BOARD_NO_GUESTS);
+    return 0;
+  }
+
+  return 1;
+}
+
+int subjects(string str)
 {
   int i;
   mixed *stuff;
@@ -93,34 +151,20 @@ int subjects(string str, int dark)
 
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   if (!sizeof(stuff)) {
-    notify_fail("El tablón está completamente vacío.\n");
+    notify_fail(_LANG_BOARD_IS_EMPTY);
     return 0;
   }
-  news_rc = (mapping)this_player()->query_property(NEWS_RC);
-  if (!news_rc)
-    news_rc = ([ ]);
+  news_rc = query_news_rc();
   ret = "";
 
   if (this_player()->query_coder())
-    ret += "El tablón de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n\n";
+    ret += "Board '%^BOLD%^" + board_name + "%^RESET%^'.\n\n";
 
-  for (i=0;i<sizeof(stuff);i++)
-  {
-    if (news_rc[board_name] < stuff[i][B_TIME])
-      ret += sprintf("N %2d: %-=*s\n", i+1, (int)this_user()->query_cols()-6,
-             stuff[i][B_SUBJECT]+" ("+
-             ((!this_player()->query_coder() &&
-                sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
-             " "+the_date(stuff[i][B_TIME])+")");
-    else
-      ret += sprintf("  %2d: %-=*s\n", i+1, (int)this_user()->query_cols()-6,
-             stuff[i][B_SUBJECT]+" ("+
-             ((!this_player()->query_coder() &&
-                sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
-             " "+the_date(stuff[i][B_TIME])+")");
-  }
+  for (i = 0; i < sizeof(stuff); i++)
+    ret += note_line(stuff[i], i + 1, news_rc[board_name] < stuff[i][B_TIME]);
+
   this_user()->set_finish_func(0);
-  this_user()->more_string(ret, "Temas");
+  this_user()->more_string(ret, _LANG_BOARD_SUBJECTS_PROMPT);
   return 1;
 } /* subjects() */
 
@@ -136,43 +180,30 @@ string long(string str, int dark)
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
 
   if (this_player()->query_coder())
-    ret += "El tablón de notas de '%^BOLD%^"+board_name+"%^RESET%^'.\n";
+    ret += "Board '%^BOLD%^" + board_name + "%^RESET%^'.\n";
 
-  ret += "Comandos:\n";
-  ret += sprintf("%#-*s\n\n", this_user()->query_cols(),
-                            "leer [número de nota]\nescribir <tema>\n"+
-                            "temas\nborrar <número de nota>\n"+
-                            "responder <número de nota>\nmudmail <número de nota>\n");
+  ret += _LANG_BOARD_COMMANDS;
+
   if (!sizeof(stuff))
-    return ret+"El tablón está completamente vacío.\n";
+    return ret + _LANG_BOARD_IS_EMPTY;
 
-  news_rc = (mapping)this_player()->query_property(NEWS_RC);
-
-  if (!news_rc)
-    news_rc = ([ ]);
+  news_rc = query_news_rc();
   newones = 0;
 
-  for (i=0;i<sizeof(stuff);i++)
+  // unread notes, and the ones read in the last two days
+  for (i = 0; i < sizeof(stuff); i++)
   {
     if (news_rc[board_name] < stuff[i][B_TIME])
     {
-      ret += sprintf("N %2d: %-=*s\n", i+1, (int)this_user()->query_cols()-6,
-             stuff[i][B_SUBJECT]+" ("+
-             ((!this_player()->query_coder() &&
-                sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
-             " "+the_date(stuff[i][B_TIME])+")");
-      newones +=1;
+      ret += note_line(stuff[i], i + 1, 1);
+      newones += 1;
     }
-    else if (news_rc[board_name] < stuff[i][B_TIME]+(2*24*60*60))
-      ret += sprintf("  %2d: %-=*s\n", i+1, (int)this_user()->query_cols()-6,
-             stuff[i][B_SUBJECT]+" ("+
-             ((!this_player()->query_coder() &&
-                sizeof(get_files("/home/"+stuff[i][B_NAME])))?"Administrador":capitalize(stuff[i][B_NAME])) +
-             " "+the_date(stuff[i][B_TIME])+")");
+    else if (news_rc[board_name] < stuff[i][B_TIME] + (2*24*60*60))
+      ret += note_line(stuff[i], i + 1, 0);
   }
 
   if (!newones)
-    ret += "\nNo hay nuevas notas.\n";
+    ret += _LANG_BOARD_NO_NEW_NOTES;
 
   return ret;
 } /* long() */
@@ -197,26 +228,27 @@ int read(string str)
   int num, i;
   mixed stuff;
   mapping news_rc;
-  string mensaje,lang;
+  string message;
 
-  notify_fail("Sintaxis: leer <número de nota>\n");
+  notify_fail(_LANG_BOARD_READ_SYNTAX);
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
-  news_rc = (mapping)this_player()->query_property(NEWS_RC);
-  if (!news_rc)
-    news_rc = ([ ]);
+  news_rc = query_news_rc();
+
+  // with no number, the first note not read yet
   if (!strlen(str)) {
     i = sizeof(stuff)-1;
     while (i >= 0 &&stuff[i][B_TIME] > news_rc[board_name] )
       i--;
     if (i == sizeof(stuff)-1) {
-      notify_fail("No te quedan mensajes por leer.\n");
+      notify_fail(_LANG_BOARD_NOTHING_TO_READ);
       return 0;
     }
     num = i+2;
   } else if (sscanf(str, "%d", num) != 1)
     return 0;
+
   if (num < 1 || num > sizeof(stuff)) {
-    notify_fail("No hay ninguna nota con ese número.\n");
+    notify_fail(_LANG_BOARD_NO_SUCH_NOTE);
     return 0;
   }
   num --;
@@ -225,110 +257,101 @@ int read(string str)
     news_rc[board_name] = stuff[num][B_TIME];
     this_player()->add_property(NEWS_RC, news_rc);
   }
-  mensaje = BOARD_HAND->get_message(board_name, num);
-  lang = BOARD_HAND->get_language(board_name,num);
+  message = BOARD_HAND->get_message(board_name, num);
 
-  if (!lang)
-      lang="comun";
+  // lang = BOARD_HAND->get_language(board_name,num);
+  //
+  // if (!lang)
+  //     lang="comun";
+  //
+  // if (member_array(lang, this_player()->query_languages()) == -1)
+  // {
+  //      mixed stri;
+  //
+  //      if ((stri = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
+  //           if ((stri = (mixed)stri->garble_say("",mensaje)))
+  //           {
+  //                mensaje = stri[1];
+  //           }
+  // }
 
-  if (member_array(lang, this_player()->query_languages()) == -1)
-  {
-       mixed stri;
+  message = sprintf("  %-=*s\n", (int)this_user()->query_cols() - 2, message);
 
-       if ((stri = (mixed)LANGUAGE_HANDLER->query_garble_object(lang)))
-            if ((stri = (mixed)stri->garble_say("",mensaje)))
-            {
-                 mensaje = stri[1];
-            }
-  }
-
-  mensaje = sprintf("  %-=*s\n", (int)this_user()->query_cols() - 2, mensaje);
-
-  string_more(sprintf("Nota #%d escrita por %s el %s\nTítulo: '%s'\n\n",
-              num+1, "%^GREEN%^" +
-              ((!this_player()->query_coder() &&
-                 sizeof(get_files("/home/"+stuff[num][B_NAME])))?"Administrador":capitalize(stuff[num][B_NAME])) +
-              "%^RESET%^",
-              ctime(stuff[num][B_TIME]),
-              "%^GREEN%^"+stuff[num][B_SUBJECT][0..(int)this_user()->query_cols()-10]+"%^RESET%^")+
-              mensaje,
-              "[Nota "+(num+1)+"]");
+  string_more(_LANG_BOARD_NOTE_HEADER + message, _LANG_BOARD_NOTE_PROMPT);
   return 1;
 } /* read() */
 
+// Writing a note: the subject comes with the command, the text is written
+// in the user's editor.
+private void start_note(string subject)
+{
+  being_written[this_player()->query_name()] = subject;
+  this_user()->do_edit("", "end_of_thing", this_object());
+}
+
 int post(string str)
 {
-  if ( (member_array(board_name,readonly) != -1) && !this_player()->query_coder())
-  {
-    write("Sólo los programadores pueden escribir en este tablón.\n");
+  if (!can_write())
     return 1;
-  }
-  notify_fail("Sintaxis: escribir <tema>\n");
+
+  notify_fail(_LANG_BOARD_POST_SYNTAX);
 
   if (!strlen(str))
     return 0;
-  /* ok shove the editing stuff in here.  Lets make it function string_edit
-   * sound froggy?
-   */
-  /*
-  string_edit("");
-  body = string_edit_res;
-  */
-  being_written[this_player()->query_name()] = str;
-  this_player()->do_edit(0,"end_of_thing");
+
+  start_note(str);
   return 1;
 } /* post() */
 
 void end_of_thing(string body)
 {
-  if (body && (body != "") && being_written[this_player()->query_name()])
-    if (!BOARD_HAND->add_message(board_name, this_player()->query_name(),
-                            being_written[this_player()->query_name()], body,this_player()->query_current_language()))
-      write("Error escribiendo mensaje.\n");
+  string name;
+
+  name = this_player()->query_name();
+
+  if (strlen(trim(body ? body : "")) && being_written[name])
+  {
+    if (!BOARD_HAND->add_message(board_name, name, being_written[name], body + "\n"))
+      write(_LANG_BOARD_WRITE_ERROR);
     else
-    {
-      write("Mensaje escrito.\n");
-      event(users(), "inform", this_player()->query_cap_name()+" escribe una nota "+
-            "en '"+board_name+"'", "tablones");
-    }
+      write(_LANG_BOARD_WRITTEN);
+  }
   else
-    write("El texto no se ha guardado.\n");
-  being_written = m_delete(being_written, this_player()->query_name());
-  return ;
+    write(_LANG_BOARD_NOT_SAVED);
+
+  map_delete(being_written, name);
 } /* end_of_thing() */
+
 
 int eat(string str) {
   int num, i, eaten;
 
-  notify_fail("Sintaxis: borrar [hasta] <número de nota>\n");
+  notify_fail(_LANG_BOARD_DELETE_SYNTAX);
   if (!str || (str == ""))
     return 0;
-  if (sscanf(str, "hasta %d", num)) {
-    for (i=0;i<num;i++)
-      eaten += (int)BOARD_HAND->delete_message(board_name, i);
+  if (sscanf(str, _LANG_BOARD_DELETE_UNTIL + " %d", num)) {
+    for (i = 0; i < num; i++)
+      eaten += (int)BOARD_HAND->delete_message(board_name, 0);
     if (!eaten) {
-      notify_fail("Fallo al borrar.\n");
+      notify_fail(_LANG_BOARD_DELETE_FAILED);
       return 0;
     }
-    write("Borras "+eaten+" notas.\n");
-    say(this_player()->query_cap_name()+" arranca y destruye la nota "+
-        query_num(eaten, 0)+".\n");
-    if (eaten == 1)
-      event(users(), "inform", this_player()->query_cap_name()+" borra una nota "+
-            "de '"+board_name+"'", "tablones");
-    else
-      event(users(), "inform", this_player()->query_cap_name()+" borra "+
-            query_num(eaten, 0)+" notas de '"+board_name+"'", "tablones");
+    write(_LANG_BOARD_DELETED_MANY_ME);
+    say(_LANG_BOARD_DELETED_MANY_ROOM);
+    event(users(), "inform", this_player()->query_cap_name() + " deletes " +
+          eaten + " note(s) from '" + board_name + "'", "tablones");
     return 1;
   } else if (sscanf(str, "%d", num) != 1)
     return 0;
   if (!BOARD_HAND->delete_message(board_name, num-1))
+  {
+    notify_fail(_LANG_BOARD_DELETE_FAILED);
     return 0;
-  write("Arrancas y destruyes la nota número "+num+".\n");
-  say(this_player()->query_cap_name()+" arranca y destruye la nota número "+
-         num+".\n");
-  event(users(), "inform", this_player()->query_cap_name()+" borra una nota "+
-                           "de "+board_name, "tablones");
+  }
+  write(_LANG_BOARD_DELETED_ONE_ME);
+  say(_LANG_BOARD_DELETED_ONE_ROOM);
+  event(users(), "inform", this_player()->query_cap_name() + " deletes a note " +
+                           "from '" + board_name + "'", "tablones");
   return 1;
 } /* eat() */
 
@@ -338,63 +361,52 @@ int followup(string str)
   mixed stuff;
   string s;
 
-  if ( (member_array(board_name,readonly) != -1) && !this_player()->query_coder())
-  {
-    write("Sólo los programadores pueden escribir en este tablón.\n");
+  if (!can_write())
     return 1;
-  }
-  notify_fail("Sintaxis: responder <número de nota>\n");
+
+  notify_fail(_LANG_BOARD_FOLLOWUP_SYNTAX);
   if (!strlen(str))
     return 0;
   if (sscanf(str, "%d", num) != 1)
     return 0;
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   if (num < 1 || num > sizeof(stuff)) {
-    notify_fail("No hay ninguna nota con ese número.\n");
+    notify_fail(_LANG_BOARD_NO_SUCH_NOTE);
     return 0;
   }
   if (sscanf(stuff[num-1][B_SUBJECT], "Re:#%d %s", i, s) != 2)
-    being_written[this_player()->query_name()] = "Re:#1 "+stuff[num-1][B_SUBJECT];
+    start_note("Re:#1 " + stuff[num-1][B_SUBJECT]);
   else
-    being_written[this_player()->query_name()] = "Re:#"+(i+1)+" "+s;
-  this_player()->do_edit(0,"end_of_thing");
+    start_note("Re:#" + (i+1) + " " + s);
   return 1;
 } /* followup() */
 
+// Answer the author of a note with a letter instead of another note.
 int reply(string str)
 {
   int num;
   mixed stuff;
+  object mailer;
 
-  // PENDIENTE: Revisar esto el dia que revise el sistema de correo!!!!
-  // neverbot 7/03 (el MAIL_TRACK intenta clonar un objeto que no existe
-  //  para enviar la carta... habra que revisar el sistema con calma!!!
-
-  if (this_player()->query_player())
+  if (this_player()->query_property(GUEST_PROP))
   {
-    notify_fail("El servicio de respuesta de notas por correo está " +
-        "desactivado temporalmente. Utiliza 'responder <nota>' " +
-        "para responder dentro del propio tablón.\n");
+    notify_fail(_LANG_BOARD_NO_GUESTS);
     return 0;
   }
 
-  // if (board_name=="announcements" && !this_player()->query_coder() )
-  if ( (member_array(board_name, readonly) != -1) && !this_player()->query_coder())
-  {
-    write("Sólo los programadores pueden escribir en este tablón.\n");
-    return 1;
-  }
-  notify_fail("Sintaxis: mudmail <número de nota>\n");
+  notify_fail(_LANG_BOARD_MUDMAIL_SYNTAX);
   if (!strlen(str))
     return 0;
   if (sscanf(str, "%d", num) != 1)
     return 0;
   stuff = (mixed *)BOARD_HAND->get_subjects(board_name);
   if (num < 1 || num > sizeof(stuff)) {
-    notify_fail("No hay ninguna nota con ese número.\n");
+    notify_fail(_LANG_BOARD_NO_SUCH_NOTE);
     return 0;
   }
-  MAIL_TRACK->mail(stuff[num-1][B_NAME], stuff[num-1][B_SUBJECT]);
+
+  mailer = clone_object(MAILER_OB);
+  mailer->start(this_player(), stuff[num-1][B_NAME], "Re: " + stuff[num-1][B_SUBJECT]);
   return 1;
 } /* reply() */
 
@@ -420,19 +432,18 @@ int query_new_messages()
 
   number = 0;
 
-  news_rc = this_player()->query_property(NEWS_RC);
-
-  if (!news_rc || !mappingp(news_rc))
-    news_rc = ([ ]);
+  news_rc = query_news_rc();
 
   notes = (mixed *)BOARD_HAND->get_subjects(board_name);
 
   if (!sizeof(notes))
     return 0;
 
-  if (undefinedp(news_rc[board_name]))
+  if (!news_rc[board_name])
   {
       news_rc[board_name] = this_player()->query_start_time();
+      if (!intp(news_rc[board_name]))
+        news_rc[board_name] = 0;
       this_player()->add_property(NEWS_RC, news_rc);
   }
 

@@ -14,6 +14,7 @@
 #define LOCATION_COMPONENT_PROPS       "props"
 #define LOCATION_COMPONENT_SIGN        "sign"
 #define LOCATION_COMPONENT_POST_OFFICE "post-office"
+#define LOCATION_COMPONENT_BOARD       "board"
 
 // Cartography-contributing components. A location that carries any of
 // these tells the sector storage what kind of terrain it occupies, so

@@ -96,3 +96,11 @@
 #define _LANG_POST_OFFICE_MAIL_CMDS ({ "correo" })
 #define _LANG_POST_OFFICE_NO_GUESTS "Los invitados no tienen buzón.\n"
 #define _LANG_POST_OFFICE_BUSY "Termina primero lo que estás haciendo.\n"
+#define _LANG_POST_OFFICE_SIGN_NAME "cartel"
+#define _LANG_POST_OFFICE_SIGN_ALIASES ({ "cartel de correos" })
+#define _LANG_POST_OFFICE_SIGN_DESC "Un cartel de metal clavado junto al mostrador.\n"
+#define _LANG_POST_OFFICE_SIGN_TEXT "Oficina de correos\n\n" + \
+  "correo             abre tu buzón\n" + \
+  "correo <nombres>   escribe una carta\n\n" + \
+  "Más en 'ayuda correo'. Una nota de un tablón\n" + \
+  "se responde por carta con 'mudmail <número>'."

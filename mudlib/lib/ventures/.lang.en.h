@@ -93,3 +93,11 @@
 #define _LANG_POST_OFFICE_MAIL_CMDS ({ "mail" })
 #define _LANG_POST_OFFICE_NO_GUESTS "Guests have no mailbox.\n"
 #define _LANG_POST_OFFICE_BUSY "Finish what you are doing first.\n"
+#define _LANG_POST_OFFICE_SIGN_NAME "sign"
+#define _LANG_POST_OFFICE_SIGN_ALIASES ({ "post office sign" })
+#define _LANG_POST_OFFICE_SIGN_DESC "A metal sign nailed next to the counter.\n"
+#define _LANG_POST_OFFICE_SIGN_TEXT "Post office\n\n" + \
+  "mail               open your mailbox\n" + \
+  "mail <names>       write a letter\n\n" + \
+  "More in 'help mail'. A note on a board is\n" + \
+  "answered by letter with 'mudmail <number>'."

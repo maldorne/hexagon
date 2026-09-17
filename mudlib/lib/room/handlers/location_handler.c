@@ -537,10 +537,25 @@ static mapping _extract_original_sign(object room)
   return nil;
 }
 
+// The name of the notice board standing in the room, if there is one.
+static string _extract_original_board(object room)
+{
+  object * inv;
+  int i;
+
+  inv = all_inventory(room);
+
+  for (i = 0; inv && i < sizeof(inv); i++)
+    if (inv[i]->query_board())
+      return inv[i]->query_board_name();
+
+  return nil;
+}
+
 object convert_room_to_location(object room)
 {
   object location, area;
-  string file_name, * exits, ret;
+  string file_name, * exits, ret, board_name;
   string * inferred, * venture_kinds, * blueprints, * missing;
   string game;
   mapping exit_map, clones, npc_clones;
@@ -607,6 +622,15 @@ object convert_room_to_location(object room)
     ret += "   Adding component pub.\n";
   }
 
+  // A notice board standing in the room becomes a board component, which
+  // puts the same board back on every load.
+  board_name = _extract_original_board(room);
+  if (strlen(board_name))
+  {
+    location->add_component(LOCATION_COMPONENT_BOARD, ([ "board_name" : board_name ]));
+    ret += "   Adding component board.\n";
+  }
+
   if (room->query_post_office() &&
       !location->query_component_by_type(LOCATION_COMPONENT_POST_OFFICE))
   {
@@ -642,11 +666,12 @@ object convert_room_to_location(object room)
 
   // A sign posted in the room (add_sign) becomes a sign component on the
   // location, which re-materialises the read-able item on every load.
-  // Ventures (pub, shop) create and manage their own sign (the menu / price
-  // board) through their component, and that item also carries a read
-  // message -- so skip auto-detection here for them, or the venture's sign
-  // would be duplicated (its own copy plus a captured sign-component copy).
-  if (!room->query_pub() && !room->query_shop())
+  // Ventures (pub, shop) and post offices create and manage their own sign
+  // (the menu, the price board, the mail instructions) through their
+  // component, and that item also carries a read message -- so skip
+  // auto-detection here for them, or the venture's sign would be duplicated
+  // (its own copy plus a captured sign-component copy).
+  if (!room->query_pub() && !room->query_shop() && !room->query_post_office())
   {
     mapping sign;
 

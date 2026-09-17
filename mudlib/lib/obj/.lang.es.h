@@ -181,3 +181,58 @@
   "  S - salir y guardar el texto\n" + \
   "  Q - salir sin guardar el texto\n" + \
   "  H - mostrar esta ayuda\n"
+
+// board.c
+
+#define _LANG_BOARD_NAME "tablón de notas"
+#define _LANG_BOARD_ALIASES ({ "tablon", "tablón" })
+#define _LANG_BOARD_SHORT "Tablón de Notas"
+#define _LANG_BOARD_PLURAL "Tablones"
+#define _LANG_BOARD_PLURALS ({ "tablones" })
+#define _LANG_BOARD_READ_CMDS ({ "leer" })
+#define _LANG_BOARD_POST_CMDS ({ "escribir" })
+#define _LANG_BOARD_DELETE_CMDS ({ "borrar" })
+#define _LANG_BOARD_FOLLOWUP_CMDS ({ "responder" })
+#define _LANG_BOARD_MUDMAIL_CMDS ({ "mudmail" })
+#define _LANG_BOARD_SUBJECTS_CMDS ({ "temas" })
+#define _LANG_BOARD_EMPTY_TAG " [ Vacío ]"
+#define _LANG_BOARD_ONE_NOTE_TAG " [ 1 nota ]"
+#define _LANG_BOARD_NOTES_TAG " [ " + sizeof(stuff) + " notas ]"
+#define _LANG_BOARD_NOTES_UNREAD_TAG " [ " + sizeof(stuff) + " notas (" + \
+  ((pending == 1) ? "una" : query_num(pending, 20)) + " sin leer) ]"
+#define _LANG_BOARD_ADMINISTRATOR "Administrador"
+#define _LANG_BOARD_MARK_UNREAD "N"
+#define _LANG_BOARD_READONLY "Sólo los programadores pueden escribir en este tablón.\n"
+#define _LANG_BOARD_NO_GUESTS "Los invitados no pueden escribir notas ni cartas.\n"
+#define _LANG_BOARD_IS_EMPTY "El tablón está completamente vacío.\n"
+#define _LANG_BOARD_SUBJECTS_PROMPT "Temas"
+#define _LANG_BOARD_COMMANDS "Órdenes (más en 'ayuda tablones'):\n" + \
+  "  leer [número]         lee una nota, o la primera sin leer\n" + \
+  "  temas                 lista todas las notas\n" + \
+  "  escribir <tema>       escribe una nota nueva\n" + \
+  "  responder <número>    responde a una nota en el tablón\n" + \
+  "  mudmail <número>      responde por carta a quien la escribió\n" + \
+  "  borrar <número>       arranca una nota tuya\n\n"
+#define _LANG_BOARD_NO_NEW_NOTES "\nNo hay nuevas notas.\n"
+#define _LANG_BOARD_READ_SYNTAX "Sintaxis: leer <número de nota>\n"
+#define _LANG_BOARD_NOTHING_TO_READ "No te quedan notas por leer.\n"
+#define _LANG_BOARD_NO_SUCH_NOTE "No hay ninguna nota con ese número.\n"
+#define _LANG_BOARD_NOTE_HEADER "Nota #" + (num + 1) + " escrita por %^GREEN%^" + \
+  author_of(stuff[num]) + "%^RESET%^ el " + ctime(stuff[num][B_TIME], 4) + "\n" + \
+  "Título: '%^GREEN%^" + stuff[num][B_SUBJECT] + "%^RESET%^'\n\n"
+#define _LANG_BOARD_NOTE_PROMPT "Nota " + (num + 1)
+#define _LANG_BOARD_POST_SYNTAX "Sintaxis: escribir <tema>\n"
+#define _LANG_BOARD_WRITE_ERROR "No se ha podido escribir la nota.\n"
+#define _LANG_BOARD_WRITTEN "Clavas tu nota en el tablón.\n"
+#define _LANG_BOARD_NOT_SAVED "La nota no se ha guardado.\n"
+#define _LANG_BOARD_DELETE_SYNTAX "Sintaxis: borrar [hasta] <número de nota>\n"
+#define _LANG_BOARD_DELETE_UNTIL "hasta"
+#define _LANG_BOARD_DELETE_FAILED "No puedes borrar esa nota.\n"
+#define _LANG_BOARD_DELETED_MANY_ME "Arrancas y destruyes " + query_num(eaten, 0) + " notas.\n"
+#define _LANG_BOARD_DELETED_MANY_ROOM this_player()->query_cap_name() + " arranca y destruye " + \
+  query_num(eaten, 0) + " notas.\n"
+#define _LANG_BOARD_DELETED_ONE_ME "Arrancas y destruyes la nota número " + num + ".\n"
+#define _LANG_BOARD_DELETED_ONE_ROOM this_player()->query_cap_name() + \
+  " arranca y destruye la nota número " + num + ".\n"
+#define _LANG_BOARD_FOLLOWUP_SYNTAX "Sintaxis: responder <número de nota>\n"
+#define _LANG_BOARD_MUDMAIL_SYNTAX "Sintaxis: mudmail <número de nota>\n"

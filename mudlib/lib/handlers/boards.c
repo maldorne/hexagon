@@ -26,6 +26,12 @@ void create() {
   expire_boards();
 } /* create() */
 
+// Who is acting on a board: every permission here is the player's.
+private string query_actor()
+{
+  return this_player() ? this_player()->query_name() : "";
+}
+
 string *query_boards() {
   return m_indices(boards);
 } /* query_boards() */
@@ -38,9 +44,6 @@ mixed get_subjects(string name) {
   string pl;
   int bit;
 
-  if (file_name(previous_object())[0..10] != "/lib/obj/board"[0..10])
-    return ({ });
-
   pl = (string)this_player()->query_name();
   bit = priv[name] && !query_admin(pl) &&
         (member_array(pl, security[name]) == -1);
@@ -52,11 +55,9 @@ mixed get_subjects(string name) {
 string get_message(string board, int num) {
   string name;
 
-  if (file_name(previous_object())[0..10] != "/lib/obj/board"[0..10])
-    return "";
   name = (string)this_player()->query_name();
   if (!boards[board] || (priv[board] && !query_admin(name)
-                        && (member_array(geteuid(previous_object()),
+                        && (member_array(query_actor(),
                                          security[board]) == -1)))
     return "";
   if (num < 0 || num >= sizeof(boards[board]))
@@ -94,14 +95,14 @@ int add_message(string board, string name, string subject, string body) {
       zap_message(board, 0);
       irp++;
     }
-      event(users(), "inform", capitalize(name)+" escribe un mensaje en "+board, "message");
+      event(users(), "inform", capitalize(name)+" posts a note on "+board, "message");
 /*
-    event(users(), "inform", capitalize(name)+" escribe un mensaje en "+board+
+    event(users(), "inform", capitalize(name)+" posts a note on "+board+
                    " y "+irp+" mensaje"+(irp>1?"s":"")+
                    " estallan de alegria", "message");
 */
   } else
-    event(users(), "inform", capitalize(name)+" escribe un mensaje en "+board,
+    event(users(), "inform", capitalize(name)+" posts a note on "+board,
                    "message");
   return num-1;
 } /* add_message() */
@@ -115,15 +116,13 @@ int create_board(string board, int priva) {
   if (priva)
     priv[board] = priva;
   save_me();
-  write("Creado tablón "+board+".\n");
+  // write("Creado tablón "+board+".\n");
   return 1;
 } /* create_board() */
 
 int add_allowed(string board, string name) {
   string nam;
 
-  if (sscanf(file_name(previous_object()), "/lib/obj/board%s", nam) != 1)
-    return 0;
   nam = (string)this_player()->query_name();
   if (member_array(nam, security[board]) == -1 &&
       !SECURE_OB->query_admin(nam))
@@ -132,7 +131,7 @@ int add_allowed(string board, string name) {
     return 0;
   security[board] += ({ name });
   save_me();
-  write("Añadido "+name+" a la lista de seguridad de "+board+".\n");
+  write("Added "+name+" to the security list of "+board+".\n");
   return 1;
 } /* add_allowed() */
 
@@ -140,15 +139,13 @@ int remove_allowed(string board, string name) {
   string nam;
   int i;
 
-  if (sscanf(file_name(previous_object()), "/lib/obj/board%s", nam) != 1)
-    return 0;
-  nam = geteuid(previous_object());
+  nam = query_actor();
   if ((i= member_array(name, security[board])) == -1 &&
       !SECURE_OB->query_admin(nam))
     return 0;
   security[board] = delete(security[board], i, 1);
   save_me();
-  write("Quitado "+name+" de la lista de seguridad de "+board+".\n");
+  write("Removed "+name+" from the security list of "+board+".\n");
   return 1;
 } /* add_allowed() */
 
@@ -166,7 +163,7 @@ static int zap_message(string board, int off) {
 
     stuff = boards[board][off];
     write_file(archive,
-              sprintf("\n----\nNota #%d por %s escrita el %s\nTítulo: '%s'\n\n",
+              sprintf("\n----\nNote #%d by %s written on %s\nSubject: '%s'\n\n",
               off, capitalize(stuff[B_NAME]), ctime(stuff[B_TIME]),
               stuff[B_SUBJECT])+
               read_file(nam));
@@ -180,9 +177,7 @@ static int zap_message(string board, int off) {
 int delete_message(string board, int off) {
   string nam;
 
-  if (file_name(previous_object())[0..10] != "/lib/obj/board"[0..10])
-    return 0;
-  nam = geteuid(this_player());
+  nam = query_actor();
   if(!security[board])
     security[board] = ({ });
 
@@ -211,7 +206,7 @@ int delete_board(string board)
 
   if (!boards[board])
     return 0;
-  nam = geteuid(previous_object());
+  nam = query_actor();
   if (member_array(nam, security[board]) == -1 &&
       !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
@@ -235,7 +230,7 @@ int set_timeout(string board, int timeout)
   string nam;
 
   if (!boards[board]) return 0;
-  nam = geteuid(previous_object());
+  nam = query_actor();
   if (member_array(nam, security[board]) == -1 &&
       !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
@@ -254,7 +249,7 @@ int set_minimum(string board, int min) {
   string nam;
 
   if (!boards[board]) return 0;
-  nam = geteuid(previous_object());
+  nam = query_actor();
   if (member_array(nam, security[board]) == -1 &&
       !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
@@ -272,7 +267,7 @@ int set_maximum(string board, int max) {
   string nam;
 
   if (!boards[board]) return 0;
-  nam = geteuid(previous_object());
+  nam = query_actor();
   if (member_array(nam, security[board]) == -1 &&
       !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
@@ -290,7 +285,7 @@ int set_archive(string board, string file) {
   string nam;
 
   if (!boards[board]) return 0;
-  nam = geteuid(previous_object());
+  nam = query_actor();
   if (member_array(nam, security[board]) == -1 &&
       !SECURE_OB->query_admin(nam))
     return 0; /* not allowed to delete the notes */
@@ -347,8 +342,8 @@ void expire_boards()
         zap_message(nam, 0);
         num++;
       }
-      event(users(), "inform", "Borrando automáticamente "+num+" mensajes "+
-                               "del tablón "+nam, "message");
+      event(users(), "inform", "Automatically deleting "+num+" notes "+
+                               "from the board "+nam, "message");
     }
   }
   if (!find_call_out("expire_boards"))

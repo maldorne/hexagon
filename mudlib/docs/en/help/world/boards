@@ -1,0 +1,21 @@
+@verbs boards board subjects mudmail
+@tier player
+@title notice boards
+@see mail editor
+
+In taverns and other places there are boards where anybody leaves notes
+for the rest. Looking at a board shows its commands and the new notes,
+marked with an N.
+
+  read [number]         read a note, or the first one you have not read
+  subjects              list every note
+  post <subject>        write a new note
+  followup <number>     answer a note with another note
+  mudmail <number>      answer whoever wrote the note with a letter
+  eat <number>          tear down a note of yours
+
+Notes are written with your editor. 'mudmail' opens a letter to the
+author of the note, with the same subject, and you do not need to be at
+a post office to send it.
+
+On some boards only coders write, and guests cannot write on any.

@@ -6,6 +6,23 @@
 #include <user/player.h>
 #include <language.h>
 
+// The sign this post office last put up, so putting it up again replaces it.
+static object mail_sign;
+
+object create_sign(varargs object where)
+{
+  if (!where)
+    where = this_object();
+
+  if (mail_sign)
+    mail_sign->dest_me();
+
+  mail_sign = where->add_sign(_LANG_POST_OFFICE_SIGN_DESC, _LANG_POST_OFFICE_SIGN_TEXT,
+                              _LANG_POST_OFFICE_SIGN_NAME);
+  mail_sign->add_alias(_LANG_POST_OFFICE_SIGN_ALIASES);
+  return mail_sign;
+}
+
 void init()
 {
   ::init();
