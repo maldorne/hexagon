@@ -342,6 +342,7 @@ int do_help(string str)
   mixed found;
   int i, j;
   object ob;
+  mixed * topic;
 
   files = ({ });
   aux = ({ });
@@ -396,6 +397,31 @@ int do_help(string str)
   }
   */
 
+  // check if it is a skill the player can look up (by id or translated name)
+  if ((text = this_object()->player()->help_skill(str)) && strlen(text))
+  {
+    this_object()->more_string(
+      help_page(str, _LANG_HELP_KIND_SKILL, "", text + "\n", FALSE),
+      capitalize(str));
+    return 1;
+  }
+
+  // something in the player's hands, before anything written down
+  if (show_item_help(str))
+    return 1;
+
+  // a section of the index, by its directory or by the name it is listed
+  // under, then a document of it
+  found = HELP_HANDLER->query_section_named(str);
+  if (stringp(found))
+    return show_section(found);
+
+  // a document, before the command of the same name: what is written for a
+  // verb says more than the command's one line
+  topic = (mixed *)HELP_HANDLER->query_topic(str);
+  if (topic && may_read(topic[1]))
+    return show_topic(topic, str);
+
   // check if it is a cmd
   ob = load_object(CMD_HANDLER);
   if (ob)
@@ -422,33 +448,6 @@ int do_help(string str)
         }
       }
     }
-  }
-
-  // check if it is a skill the player can look up (by id or translated name)
-  if ((text = this_object()->player()->help_skill(str)) && strlen(text))
-  {
-    this_object()->more_string(
-      help_page(str, _LANG_HELP_KIND_SKILL, "", text + "\n", FALSE),
-      capitalize(str));
-    return 1;
-  }
-
-  // something in the player's hands, before anything written down
-  if (show_item_help(str))
-    return 1;
-
-  // a section of the index, by its directory or by the name it is listed
-  // under, then a document of it
-  found = HELP_HANDLER->query_section_named(str);
-  if (stringp(found))
-    return show_section(found);
-
-  {
-    mixed * topic;
-
-    topic = (mixed *)HELP_HANDLER->query_topic(str);
-    if (topic && may_read(topic[1]))
-      return show_topic(topic, str);
   }
 
   if (member_array(str, _LANG_HELP_EMOTIONS) != -1)
