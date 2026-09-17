@@ -10,7 +10,7 @@
 #define CODER_SLOTS 5
 
 // destination room to leave there the /lib/link objects
-#define LOGIN_LOUNGE "/games/hexagon/areas/login_lounge.c"
+#define LOGIN_LOUNGE "/games/hexagon/areas/login-lounge.c"
 #define LINK_OB "/lib/link.c"
 
 // from /lib/core/user/login

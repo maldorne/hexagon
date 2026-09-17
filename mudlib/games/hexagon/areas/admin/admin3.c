@@ -27,9 +27,9 @@ void setup() {
     " another plaque on it that reads: File Access security.\n");
   set_short("Admin Hallway");
   
-  add_exit(DIR_NORTH,ADMIN+"domain_control","standard");
-  add_exit(DIR_SOUTH,ADMIN+"site_control","standard");
-  add_exit(DIR_EAST,ADMIN+"access_control","standard");
+  add_exit(DIR_NORTH,ADMIN+"domain-control","standard");
+  add_exit(DIR_SOUTH,ADMIN+"site-control","standard");
+  add_exit(DIR_EAST,ADMIN+"access-control","standard");
   add_exit(DIR_WEST,ROOM+"admin2","road");
   add_exit(DIR_SOUTHEAST,ADMIN+"patrician.c","standard");
   add_exit(DIR_NORTHEAST,ADMIN+"weather.c","standard");
