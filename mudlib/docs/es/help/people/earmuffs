@@ -1,0 +1,27 @@
+@verbs tapones
+@tier player
+@title dejar de oír lo que no te interesa
+@see decir canales
+
+Los tapones son dos cosas: un interruptor, y una lista de lo que
+dejas de oír cuando lo tienes puesto.
+
+  tapones            dice cómo los llevas y qué estás tapando.
+  tapones on         te los pones.
+  tapones off        te los quitas.
+
+Con ellos puestos no oyes lo que hayas metido en la lista. Para
+manejarla:
+
+  tapones <cosa>          la mete si no estaba, y la saca si estaba.
+  tapones <cosa> on       la mete.
+  tapones <cosa> off      la saca.
+  tapones todo            mete todo lo que se puede tapar.
+  tapones nada            vacía la lista.
+
+Qué puedes tapar te lo dice el propio verbo al escribirlo a secas.
+Los gritos son lo primero de la lista, y son la razón por la que
+suele usarse esto.
+
+Con los tapones puestos tú tampoco puedes gritar: de poco serviría
+llamar a voces a quien no va a oír la respuesta.
