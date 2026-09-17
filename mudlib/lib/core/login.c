@@ -629,7 +629,7 @@ nomask void logon_with_player_name(string password, int flag)
         _player = other_copy;
         tell_room(env, _LANG_HAS_RECONNECTED, ({ _user, _player }));
         event(users() - ({ _player, 0 }), "inform",
-          _user->query_cap_name() + " reconnected", "link-death");
+          _player->query_cap_name() + " reconnected", "link-death");
         begin(0, TRUE, env);
         return;
       }
@@ -806,7 +806,7 @@ nomask void try_throw_out(string str)
 
   tell_room(env, _LANG_HAS_RECONNECTED, ({ _user, other_copy }) );
   event(users() - ({ other_copy, 0 }), "inform",
-    _user->query_cap_name() + " reconnected", "link-death");
+    _player->query_cap_name() + " reconnected", "link-death");
 
   begin(0, TRUE, env);
 }
