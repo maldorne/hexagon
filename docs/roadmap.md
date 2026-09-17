@@ -27,9 +27,9 @@
 
 ### [v1.24.04 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
-When finished, this version will be renamed as `v2.0` and it will be the last `alpha` version.
+This version was renamed as `v2.0` and it was the last `alpha` version.
 
-Set of features we are currently working on:
+Set of features worked on in this version:
 
 | Status | Title | Description |
 | :----: | :---- | ----------- |

@@ -33,7 +33,9 @@ Admin commands will be only in english, except texts shown to the players, which
 | memory     | :white_check_mark: | :heavy_minus_sign: |                    |  |
 | money-info | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was `money_info`. |
 | npcs       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| parties    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | people     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Absorbed `dirs`, `netstat`, `qpeople`, `terms` and `snetstat`. |
+| pks        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | pois       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | preloads   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | qsnoop     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Quiet half of `snoop`, which is a coder command. |
@@ -78,12 +80,13 @@ Coder commands will be only in english, except texts shown to the players, which
 | goto        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | grep        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | head        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
+| heal        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                      |
 | home        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | invisible   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | ioulist     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | load        | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | ls          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
-| ~mail~      |                    |                    |                    | [#23](https://github.com/maldorne/hexagon/issues/23) |
+| mail        | :white_check_mark: | :white_check_mark: | :white_check_mark: | [#40](https://github.com/maldorne/hexagon/issues/40) |
 | malloc      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
 | ~man~       |                    |                    |                    | [#7](https://github.com/maldorne/hexagon/issues/7)   |
 | mkdir       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |                                                      |
@@ -113,19 +116,21 @@ Coder commands will be only in english, except texts shown to the players, which
 | ------------- | :----------------: | :----------------: | :----------------: | -------------------------------------------------------------------------- |
 | away          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | bury          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
-| ~calendar~    |                    |                    |                    | Converted to game cmd [#27](https://github.com/maldorne/hexagon/issues/27) |
+| calendar      | :white_check_mark: | :white_check_mark: | :white_check_mark: | Game cmd [#27](https://github.com/maldorne/hexagon/issues/27)               |
 | commands      | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | combats       | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | condition     | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | configuration | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | consider      | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | cost          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
-| ~diplomacy~   |                    |                    |                    | Postponed for now                                                          |
+| description   | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
+| ~diplomacy~   |                    |                    |                    | Only as an admin command for now                                           |
 | encumbrance   | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | equipment     | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | glance        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | grope         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
-| ~group~       |                    |                    |                    | Postponed for now                                                          |
+| group         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
+| idle          | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Its messages are translated, the verb has no Spanish alias yet.            |
 | inform        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | inventory     | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | kill          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
@@ -134,6 +139,7 @@ Coder commands will be only in english, except texts shown to the players, which
 | money         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | past          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | pov           | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
+| read          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | prompt        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | ~quests~      |                    |                    |                    | [#26](https://github.com/maldorne/hexagon/issues/26)                       |
 | ~ranking~     |                    |                    |                    | Postponed for now                                                          |
@@ -141,30 +147,23 @@ Coder commands will be only in english, except texts shown to the players, which
 | score         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | ~search~      |                    |                    |                    | Converted to skill [#25](https://github.com/maldorne/hexagon/issues/25)    |
 | sheet         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
+| speak         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | stop          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | time          | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | travel        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | verbose       | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | whoami        | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 | wimpy         | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
+| worldmap      | :white_check_mark: | :white_check_mark: | :white_check_mark: |                                                                            |
 
-## Actions
+## Meta
 
-Not every verb is a command. A file under `mudlib/lib/cmds/<tier>/` is what these
-tables list, and it carries its own usage and help, which `help <verb>` prints.
-The rest of what a character can type comes from `add_action()`: the role files
-(`lib/user/roles/`), the player and user objects, and whatever is being carried
-or stood in.
+Commands about the command system itself, available to whoever may load code.
 
-Those actions are not in the tables above and cannot answer `help` on their own:
-`ed`, `trans`, `pwd`, `homedir`, `call`, `creator`, `pathof`, `shadows`, `dest`,
-`inv`, `find`, `goback`, `cd`, `echo`, `echoto`, `update`, `save` and the rest of
-the creator toolbox are actions, as are most of what a player types (`coger`,
-`vestir`, `decir`, `gritar`, `habilidades`, …).
-
-The coder command `actions` lists every one of them for the character running it,
-grouped by the object that added it. Documenting them is what the files under
-`mudlib/docs/<lang>/help/` are for.
+| Command | Working in Hexagon |  Translated en/es  |   Help available   | Notes |
+| ------- | :----------------: | :----------------: | :----------------: | ----- |
+| cmds    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
+| rehash  | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 
 ## Legend
 
