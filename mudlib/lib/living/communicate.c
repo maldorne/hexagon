@@ -534,7 +534,8 @@ int do_shout(string str)
   }
   */
 
-  if (this_object()->query_earmuffs()) 
+  // the earmuffs are kept by the user
+  if (this_object()->user() && this_object()->user()->query_earmuffs()) 
   {
     notify_fail(_LANG_SHOUT_EARMUFFS);
     return 0;

@@ -124,3 +124,21 @@
 #define _LANG_ACCOUNT_BIRTHDAY_SET "Ok, fecha de cumpleaños establecida como " + str + ".\n"
 #define _LANG_ACCOUNT_BIRTHDAY_KEPT "Ok, fecha de cumpleaños sin modificar.\n"
 #define _LANG_ACCOUNT_BIRTHDAY_INVALID "La fecha no es válida, vuelve a introducirla (ddmm): "
+
+// earmuffs. `type` is the kind of event being talked about
+#define _LANG_EARMUFFS_ON_WORDS ({ "on" })
+#define _LANG_EARMUFFS_OFF_WORDS ({ "off" })
+#define _LANG_EARMUFFS_ALL_WORDS ({ "todo", "todos" })
+#define _LANG_EARMUFFS_NONE_WORDS ({ "nada", "ninguno" })
+
+#define _LANG_EARMUFFS_ON "Llevas los tapones puestos.\n"
+#define _LANG_EARMUFFS_OFF "No llevas los tapones puestos.\n"
+#define _LANG_EARMUFFS_PUT_ON "Te pones los tapones.\n"
+#define _LANG_EARMUFFS_TAKE_OFF "Te quitas los tapones.\n"
+#define _LANG_EARMUFFS_NOTHING_MUFFLED "Con ellos puestos no dejas de oír nada en concreto.\n"
+#define _LANG_EARMUFFS_MUFFLING "Con ellos puestos no oyes: " + type + ".\n"
+#define _LANG_EARMUFFS_CLEARED "Vuelves a oírlo todo.\n"
+#define _LANG_EARMUFFS_UNKNOWN_TYPE "No hay nada llamado '" + type + "' que puedas dejar de oír.\n"
+#define _LANG_EARMUFFS_WILL_MUFFLE "Con los tapones puestos ya no oirás: " + type + ".\n"
+#define _LANG_EARMUFFS_WILL_NOT_MUFFLE "Vuelves a oír: " + type + ".\n"
+#define _LANG_EARMUFFS_TYPES "Puedes dejar de oír: " + query_multiple_short(types) + ".\n"
