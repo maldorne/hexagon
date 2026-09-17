@@ -133,13 +133,13 @@
 #define _LANG_COMBAT_PASSED_OUT_MSG "You are too stunned to fight back.\n"
 #define _LANG_COMBAT_CHASING "You are chasing "
 
-#define _LANG_COMBAT_ROLE_VERBS ({ "attitude" })
-#define _LANG_COMBAT_ROLE_CHANGED "Your combat attitude is now " + COMBAT_ROLE_STRINGS[new_role] + ".\n"
-#define _LANG_COMBAT_ROLE_CURRENT "Your current combat attitude is " + query_combat_role_string() + \
-  ".\nUse 'attitude <mode>' to change it.\n"
-#define _LANG_COMBAT_ROLE_SYNTAX "Syntax: attitude <mode>\nThe possible modes are: " + \
+#define _LANG_COMBAT_ROLE_VERBS ({ "stance" })
+#define _LANG_COMBAT_ROLE_CHANGED "Your stance is now " + COMBAT_ROLE_STRINGS[new_role] + ".\n"
+#define _LANG_COMBAT_ROLE_CURRENT "Your current stance is " + query_combat_role_string() + \
+  ".\nUse 'stance <stance>' to change it.\n"
+#define _LANG_COMBAT_ROLE_SYNTAX "Syntax: stance <stance>\nThe possible ones are: " + \
   query_multiple_short(COMBAT_ROLE_STRINGS) + ".\n"
-#define _LANG_COMBAT_ROLE_TOO_SOON "You changed your combat attitude a short while ago, wait a little.\n"
+#define _LANG_COMBAT_ROLE_TOO_SOON "You changed your stance a short while ago, wait a little.\n"
 #define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ME "You have killed "+his_name+".\n"
 #define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ROOM this_object()->query_cap_name() + \
             " has killed "+his_name+".\n"

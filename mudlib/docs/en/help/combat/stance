@@ -1,12 +1,12 @@
-@verbs stance actitud combat
+@verbs stance combat
 @tier player
 @title what you mean by fighting, and how far you take it
 @see style protect skills
 
   stance [<stance>]
 
-Your stance says which part you play in a fight: 'offensive',
-'defensive', 'support' or 'any'. With no argument it tells you
+Your stance says which part you play in a fight: 'aggressive',
+'defensive', 'supportive' or 'any'. With no argument it tells you
 which one you are on.
 
 Some effects can only be used from a particular stance, and they

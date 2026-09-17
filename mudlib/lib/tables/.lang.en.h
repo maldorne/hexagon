@@ -67,7 +67,7 @@
 #define _LANG_CONFIG_TOPIC_POV "pov"
 #define _LANG_CONFIG_TOPIC_PROMPT "prompt"
 #define _LANG_CONFIG_TOPIC_COMBAT "combat"
-#define _LANG_CONFIG_TOPIC_ATTITUDE "attitude"
+#define _LANG_CONFIG_TOPIC_ATTITUDE "stance"
 #define _LANG_CONFIG_TOPIC_WIMPY "wimpy"
 #define _LANG_CONFIG_TOPIC_LANGUAGE "language"
 
@@ -81,7 +81,7 @@
 #define _LANG_CONFIG_CMD_POV "pov"
 #define _LANG_CONFIG_CMD_PROMPT "prompt"
 #define _LANG_CONFIG_CMD_WIMPY "wimpy"
-#define _LANG_CONFIG_CMD_ATTITUDE "attitude"
+#define _LANG_CONFIG_CMD_ATTITUDE "stance"
 #define _LANG_CONFIG_CMD_COMBAT "combat"
 #define _LANG_CONFIG_CMD_SPEAK "speak"
 #define _LANG_CONFIG_CMD_CONSENT "consent"

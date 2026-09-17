@@ -52,4 +52,4 @@
     FIRE_STR, EVIL_STR, DEATH_STR, STONE_STR, CHAOS_STR, })
 
 #define COMBAT_MODE_STRINGS ({ "lethal", "non-lethal" })
-#define COMBAT_ROLE_STRINGS ({ "any", "offensive", "deffensive", "support" })
+#define COMBAT_ROLE_STRINGS ({ "any", "aggressive", "defensive", "supportive" })
