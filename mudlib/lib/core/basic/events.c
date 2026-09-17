@@ -285,7 +285,7 @@ void event_player_echo(object ob, string msg)
     return;
 
   if (this_object()->query_admin())
-    msg = ob->query_cap_name()+" echo's:\n" + msg;
+    msg = ob->query_cap_name()+" echoes:\n" + msg;
 
   msg = fix_string("\n" + msg);
 
@@ -299,7 +299,7 @@ void event_player_echo_to(object ob, string msg)
     return;
 
   if (this_object()->query_admin())
-    msg = ob->query_cap_name()+" echo to's:\n" + msg;
+    msg = ob->query_cap_name()+" echoes to you:\n" + msg;
 
   msg = fix_string("\n" + msg);
 
