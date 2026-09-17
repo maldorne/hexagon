@@ -30,7 +30,7 @@ Admin commands will be only in english, except texts shown to the players, which
 | families   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | fights     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was `qatt`; covers every living now, not only players. |
 | houses     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
-| memory     | :white_check_mark: | :heavy_minus_sign: |                    |  |
+| memory     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | money-info | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Was `money_info`. |
 | npcs       | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | parties    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
@@ -43,7 +43,7 @@ Admin commands will be only in english, except texts shown to the players, which
 | rotate     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Room zones only; a converted area keeps its exits in its locations. |
 | sectors    | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | shutdown   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
-| singletons | :white_check_mark: | :heavy_minus_sign: |                    |  |
+| singletons | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | snoopers   | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | stats      | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: |  |
 | status     | :white_check_mark: | :heavy_minus_sign: | :white_check_mark: | Reads the `status()` kfun; takes an object. |

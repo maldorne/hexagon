@@ -5,17 +5,12 @@ inherit CMD_BASE;
 
 void setup()
 {
+  set_aliases(({ "singletons" }));
+  set_usage("singletons");
+  set_help("The handlers and tables the singleton store has resolved so far,\n" +
+           "grouped by the game each one was resolved for. An entry marked as\n" +
+           "shared is a game that has no override and uses the common object.");
   position = 0;
-}
-
-string query_usage()
-{
-  return "singletons";
-}
-
-string query_short_help()
-{
-  return "Shows a list of the singleton objects handled by the system.";
 }
 
 // The name a singleton was asked for. The store keys every entry by the game
