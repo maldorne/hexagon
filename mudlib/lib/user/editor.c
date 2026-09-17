@@ -29,6 +29,21 @@ string query_editor_name()
   return _LANG_EDITOR_MODE_NAMES[query_editor_mode()];
 }
 
+// The names of the editors this user may choose, in the user's language.
+string * query_editor_names()
+{
+  mapping names;
+  string * ret;
+
+  names = _LANG_EDITOR_MODE_NAMES;
+  ret = ({ names[EDITOR_MODE_MENU], names[EDITOR_MODE_COMMAND] });
+
+  if (this_object()->query_coder())
+    ret += ({ names[EDITOR_MODE_ED] });
+
+  return ret;
+}
+
 // Takes the mode by any of its translated names. ed is only for coders.
 int set_editor_name(string name)
 {

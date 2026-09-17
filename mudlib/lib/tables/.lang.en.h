@@ -54,24 +54,32 @@
 
 #define _LANG_CONFIG_TERMINAL ({ "terminal", "term" })
 #define _LANG_CONFIG_INFO ({ "information", "info" })
-#define _LANG_CONFIG_PLAYER ({ "player" })
+#define _LANG_CONFIG_COMMUNICATION ({ "communication" })
+#define _LANG_CONFIG_CHARACTER ({ "character", "player" })
+#define _LANG_CONFIG_CONSENTS ({ "consents" })
 
 #define _LANG_CONFIG_TOPIC_TERM "type"
 #define _LANG_CONFIG_TOPIC_COLS "columns"
 #define _LANG_CONFIG_TOPIC_ROWS "rows"
-#define _LANG_CONFIG_TOPIC_HEALTH "health"
 #define _LANG_CONFIG_TOPIC_VERBOSE "verbose"
-#define _LANG_CONFIG_TOPIC_LOGON "logon"
-#define _LANG_CONFIG_TOPIC_POV "pov"
-#define _LANG_CONFIG_TOPIC_COMBAT "combat"
+#define _LANG_CONFIG_TOPIC_EARMUFFS "earmuffs"
+#define _LANG_CONFIG_TOPIC_MUFFLE "muffle-"
 #define _LANG_CONFIG_TOPIC_EDITOR "editor"
+#define _LANG_CONFIG_TOPIC_POV "pov"
+#define _LANG_CONFIG_TOPIC_PROMPT "prompt"
+#define _LANG_CONFIG_TOPIC_COMBAT "combat"
+#define _LANG_CONFIG_TOPIC_WIMPY "wimpy"
+#define _LANG_CONFIG_TOPIC_LANGUAGE "language"
 
 #define _LANG_CONFIG_CMD_TERM "terminal"
 #define _LANG_CONFIG_CMD_COLS "columns"
 #define _LANG_CONFIG_CMD_ROWS "rows"
-#define _LANG_CONFIG_CMD_MONITOR "monitor"
 #define _LANG_CONFIG_CMD_VERBOSE "verbose"
 #define _LANG_CONFIG_CMD_INFORM "inform"
-#define _LANG_CONFIG_CMD_POV "pov"
-#define _LANG_CONFIG_CMD_COMBAT "combat"
+#define _LANG_CONFIG_CMD_EARMUFFS "earmuffs"
 #define _LANG_CONFIG_CMD_EDITOR "editor"
+#define _LANG_CONFIG_CMD_POV "pov"
+#define _LANG_CONFIG_CMD_PROMPT "prompt"
+#define _LANG_CONFIG_CMD_WIMPY "wimpy"
+#define _LANG_CONFIG_CMD_SPEAK "speak"
+#define _LANG_CONFIG_CMD_CONSENT "consent"

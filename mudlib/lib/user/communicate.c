@@ -98,6 +98,17 @@ int set_our_cols(string str)
 } /* set_our_cols() */
 
 string query_term_name() { return term_name; }
+
+// Change the terminal type without a word to the player; 0 if it is unknown.
+int set_terminal(string str)
+{
+  if (member_array(str, (string *)TERM_HANDLER->query_term_types()) == -1)
+    return 0;
+
+  colour_map = (mapping)TERM_HANDLER->set_term_type(str);
+  term_name = str;
+  return 1;
+}
 int set_term_type(string str)
 {
   if (!str)
@@ -111,10 +122,8 @@ int set_term_type(string str)
   }
   if (str != term_name)
   {
-    if (member_array(str, (string *)TERM_HANDLER->query_term_types()) != -1)
+    if (set_terminal(str))
     {
-      colour_map = (mapping)TERM_HANDLER->set_term_type(str);
-      term_name = str;
       tell_object(this_player(), "Ok, tipo de terminal seleccionado: "+str+".\n");
       return 1;
     }
@@ -277,6 +286,7 @@ int do_unblock(string str)
 // }
 
 int query_earmuffs() { return earmuffs; }
+void set_earmuffs(int on) { earmuffs = on ? 1 : 0; }
 
 // The kinds of event this user has asked not to hear. The list is kept as a
 // property on the user, the same object the flag above lives on.
@@ -288,8 +298,27 @@ string * query_muffled()
   return pointerp(on) ? on : ({ });
 }
 
+string * query_muffle_types();
+
+// Muffle one kind of event or hear it again; 0 if it cannot be muffled.
+int set_muffled(string type, int on)
+{
+  string * muffled;
+
+  if (member_array(type, query_muffle_types()) == -1)
+    return 0;
+
+  muffled = query_muffled() - ({ type });
+
+  if (on)
+    muffled += ({ type });
+
+  this_object()->add_property(EARMUFFS_PROP, muffled);
+  return 1;
+}
+
 // The kinds of event that can be muffled at all.
-private string * muffle_types()
+string * query_muffle_types()
 {
   string * types;
 
@@ -312,7 +341,7 @@ int earmuffs(string str)
   string type;
   int i;
 
-  types = muffle_types();
+  types = query_muffle_types();
   on = query_muffled();
 
   if (!str || !strlen(str))

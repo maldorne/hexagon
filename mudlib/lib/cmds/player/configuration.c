@@ -5,10 +5,13 @@
  *
  * ********************************************************************
  */
+// Reviewed for Hexagon, neverbot 09/2026: every value is checked against
+// what its setting accepts, a wrong one is refused with the values that
+// would do, and each category says whether it belongs to the account or to
+// the character.
 
 #include <mud/cmd.h>
 #include <user/configuration.h>
-#include <user/terminal.h>
 #include <translations/common.h>
 #include <language.h>
 
@@ -21,239 +24,266 @@ void setup()
   set_help(_LANG_CMD_CONFIG_HELP);
 }
 
-private string show_topic_value(string category, string topic)
+// A word as typed, compared without case and without accents, so that both
+// spellings a player may use name the same thing.
+private string plain(string word)
 {
-  mapping config, current_map;
-  string func_name;
-  object target;
-  mixed result;
-
-  config = table("configurations")->query_config_data();
-  current_map = config[category];
-  func_name = current_map[topic][CONFIG_POS_QUERY_FUNC];
-  
-  if (function_exists(func_name, this_user()))
-    target = this_user();
-  else if (function_exists(func_name, this_player()))
-    target = this_player();
-
-  if (function_exists(func_name, target))
-  {
-    if (current_map[topic][CONFIG_POS_PARAM] != "")
-      result = call_other(target, func_name, current_map[topic][CONFIG_POS_PARAM]);
-    else
-      result = call_other(target, func_name);
-    
-    if (current_map[topic][CONFIG_POS_TYPE] == "bool")
-      result = (result ? _LANG_YES : _LANG_NO);
-
-    return _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR + category + " / " + topic + 
-            ": [ " + result + " ]\n";
-  }
-  else
-    return _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR + category + " / " + topic + 
-          ": " + _LANG_CMD_CONFIG_UNKNOWN + "\n";
-}
-
-private string set_topic_value(string category, string topic, mixed value)
-{
-  mapping config, current_map;
-  string func_name;
-  mixed result;
-  object target;
-
-  config = table("configurations")->query_config_data();
-  current_map = config[category];
-  func_name = current_map[topic][CONFIG_POS_SET_FUNC];
-
-  if (function_exists(func_name, this_user()))
-    target = this_user();
-  else if (function_exists(func_name, this_player()))
-    target = this_player();
-  
-  if (function_exists(func_name, target))
-  {
-    switch(current_map[topic][CONFIG_POS_TYPE])
-    {
-      case "string":
-        if (current_map[topic][CONFIG_POS_PARAM] != "")
-          result = call_other(target, func_name, 
-                              current_map[topic][CONFIG_POS_PARAM], (string)value);
-        else
-          result = call_other(target, func_name, (string)value);
-        break;
-      case "int":
-        if (current_map[topic][CONFIG_POS_PARAM] != "")
-          result = call_other(target, func_name, 
-                              current_map[topic][CONFIG_POS_PARAM], to_int(value));
-        else
-          result = call_other(target, func_name, to_int(value));
-        break;
-      case "bool":
-        if (current_map[topic][CONFIG_POS_PARAM] != "")
-          result = call_other(target, func_name, 
-                              current_map[topic][CONFIG_POS_PARAM], affirmative(value));
-        else
-          result = call_other(target, func_name, affirmative(value));
-        break;
-    }
-  }
-
-  // result will probably be just 1 or 0, we need
-  // to call again the query func to return the real value
-  return show_topic_value(category, topic);
-}
-
-private string show_category(string title, string category)
-{
-  string ret, func_name;
-  mapping config, current_map;
-  string * topics;
+  string * from, * to;
   int i;
-  mixed result;
+
+  word = lower_case(word);
+  from = ({ "á", "é", "í", "ó", "ú", "ü", "Á", "É", "Í", "Ó", "Ú" });
+  to   = ({ "a", "e", "i", "o", "u", "u", "a", "e", "i", "o", "u" });
+
+  for (i = 0; i < sizeof(from); i++)
+    word = replace_string(word, from[i], to[i]);
+
+  return word;
+}
+
+// The name of a topic of the category that a typed word stands for.
+private string topic_named(mapping topics, string word)
+{
+  string * names;
+  int i;
+
+  names = map_indices(topics);
+
+  for (i = 0; i < sizeof(names); i++)
+    if (plain(names[i]) == plain(word))
+      return names[i];
+
+  return nil;
+}
+
+private object target_of(mapping setting, object me)
+{
+  return setting[CONFIG_OWNER] == CONFIG_ON_USER ? me->user() : me;
+}
+
+private mixed query_value(mapping setting, object me)
+{
   object target;
 
-  config = table("configurations")->query_config_data();
-  current_map = config[category];
-  topics = keys(current_map);
+  target = target_of(setting, me);
+
+  if (!target || !function_exists(setting[CONFIG_QUERY], target))
+    return nil;
+
+  if (!undefinedp(setting[CONFIG_PARAM]))
+    return call_other(target, setting[CONFIG_QUERY], setting[CONFIG_PARAM]);
+
+  return call_other(target, setting[CONFIG_QUERY]);
+}
+
+private string show_value(mapping setting, object me)
+{
+  mixed value;
+
+  value = query_value(setting, me);
+
+  if (setting[CONFIG_TYPE] == CONFIG_BOOL)
+    return value ? _LANG_YES : _LANG_NO;
+
+  if (value == nil || (stringp(value) && !strlen(value)))
+    return "-";
+
+  return "" + value;
+}
+
+// What a setting accepts, for the player to read.
+private string accepted(mapping setting)
+{
+  switch (setting[CONFIG_TYPE])
+  {
+    case CONFIG_BOOL:
+      return _LANG_CMD_CONFIG_ACCEPTS_BOOL;
+    case CONFIG_INT:
+      return _LANG_CMD_CONFIG_ACCEPTS_INT;
+    case CONFIG_CHOICE:
+      return _LANG_CMD_CONFIG_ACCEPTS_CHOICE;
+  }
+
+  return _LANG_CMD_CONFIG_ACCEPTS_STRING;
+}
+
+// Turn what the player typed into the value to store, or nil if the setting
+// does not accept it.
+private mixed parse_value(mapping setting, string value)
+{
+  int number, i;
+
+  switch (setting[CONFIG_TYPE])
+  {
+    case CONFIG_BOOL:
+      if (affirmative(value))
+        return 1;
+      if (negative(value))
+        return 0;
+      return nil;
+
+    case CONFIG_INT:
+      if (sscanf(value, "%d", number) != 1 || ("" + number) != value ||
+          number < setting[CONFIG_MIN] || number > setting[CONFIG_MAX])
+        return nil;
+      return number;
+
+    case CONFIG_CHOICE:
+      for (i = 0; i < sizeof(setting[CONFIG_OPTIONS]); i++)
+        if (plain(setting[CONFIG_OPTIONS][i]) == plain(value))
+          return setting[CONFIG_OPTIONS][i];
+      return nil;
+  }
+
+  // a free text: one of the words for nothing empties it
+  if (member_array(lower_case(value), _LANG_NONE_OPTIONS) != -1)
+    return "";
+
+  return value;
+}
+
+private string owner_of(mapping topics)
+{
+  string * names;
+
+  names = map_indices(topics);
+
+  if (!sizeof(names))
+    return "";
+
+  return topics[names[0]][CONFIG_OWNER] == CONFIG_ON_USER ?
+         _LANG_CMD_CONFIG_OWNER_USER : _LANG_CMD_CONFIG_OWNER_PLAYER;
+}
+
+private string show_category(string category, mapping topics, object me)
+{
+  string * names;
+  string ret, title, cmd, value, owner;
+  mapping setting;
+  int i;
+
+  title = table("configurations")->query_category_name(category);
+  owner = owner_of(topics);
+  names = sort_array(map_indices(topics));
 
   ret = "\n" + _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY + "\n";
 
-  for (i = 0; i < sizeof(topics); i++)
+  for (i = 0; i < sizeof(names); i++)
   {
-    func_name = current_map[topics[i]][CONFIG_POS_QUERY_FUNC];
+    setting = topics[names[i]];
+    cmd = setting[CONFIG_COMMAND];
 
-    if (function_exists(func_name, this_user()))
-      target = this_user();
-    else if (function_exists(func_name, this_player()))
-      target = this_player();
-    
-    if (function_exists(func_name, target))
-    {
-      if (current_map[topics[i]][CONFIG_POS_PARAM] != "")
-        result = call_other(target, func_name, current_map[topics[i]][CONFIG_POS_PARAM]);
-      else
-        result = call_other(target, func_name);
-      
-      if (current_map[topics[i]][CONFIG_POS_TYPE] == "bool")
-        result = (result ? _LANG_YES : _LANG_NO);
-      
-      ret += sprintf("    %18s : %15s", (string)topics[i], (string)result);
-    }
-    else
-      ret += sprintf("    %18s : %15s", (string)topics[i], _LANG_CMD_CONFIG_UNKNOWN);
+    value = show_value(setting, me);
+    if (strlen(value) > 18)
+      value = value[0..16] + "~";
 
-    ret += "    [ %^GREEN%^" + current_map[topics[i]][CONFIG_POS_COMMAND] + "%^RESET%^ ]\n";
+    ret += sprintf("  %22s : %-18s %s\n", names[i], value,
+                   strlen(cmd) ? "[ %^GREEN%^" + cmd + "%^RESET%^ ]" : "");
   }
 
   return ret;
 }
 
-int show_all_config()
+private string frame(string text, object me)
 {
-  mapping config;
-  string * categories;
-  int i;
-  string ret;
-
-  config = table("configurations")->query_config_data();
-  categories = keys(config);
-  ret = "";
-
-  for (i = 0; i < sizeof(categories); i++)
-  {
-    // the config indices in the mapping are just indices, translate them 
-    // before showing them to the user
-    ret += show_category(table("configurations")->query_config_translations()[categories[i]][0], 
-        categories[i]);
-  }
-
-  ret += "\n" + _LANG_CMD_CONFIG_HINT;
-
-  if (this_user()->query_verbose())
-  {
-    ret += "\n" + _LANG_CMD_CONFIG_USE_COMMANDS;
-    ret += "\n" + _LANG_CMD_CONFIG_USER;
-  }
-
-  ret = handler("frames")->frame(ret, _LANG_CMD_CONFIG_FOR_USER, 
-                                 this_user()->query_cols());
-  write(ret);
-  return 1;
-}  
+  return handler("frames")->frame(text, _LANG_CMD_CONFIG_FOR_USER,
+                                  me->user()->query_cols());
+}
 
 static int cmd(string str, object me, string verb)
 {
-  string category, topic, value;
+  mapping data, setting;
+  string * categories, * words;
+  string category, topic, value, title, ret, shown;
+  mixed parsed;
+  object target;
+  int i;
 
-  // if we do not have the three arguments category, topic, value,
-  // show all the configuration
-  if (sscanf(str, "%s %s %s", category, topic, value) == 3)
+  data = table("configurations")->query_config_data(me);
+  words = explode(trim(str ? str : ""), " ") - ({ "" });
+
+  // everything
+  if (!sizeof(words))
   {
-    // set new value
-    category = table("configurations")->query_category_from_name(category);
-    
-    // whatever we wrote is not an existing category
-    if (strlen(category) == 0)
-    {
-      write(_LANG_CMD_CONFIG_NOT_VALID_CATEGORY);
-      return 1;
-    }
+    categories = table("configurations")->query_categories();
+    ret = "";
 
-    // whatever we wrote is not an existing topic
-    if (!table("configurations")->query_topic_in_category(topic, category))
-    {
-      write(_LANG_CMD_CONFIG_NOT_VALID_TOPIC);
-      return 1;
-    }
+    for (i = 0; i < sizeof(categories); i++)
+      ret += show_category(categories[i], data[categories[i]], me);
 
-    write(set_topic_value(category, topic, value));
+    ret += "\n" + _LANG_CMD_CONFIG_HINT;
+
+    if (me->user()->query_verbose())
+      ret += "\n" + _LANG_CMD_CONFIG_USE_COMMANDS;
+
+    write(frame(ret, me));
     return 1;
   }
-  else if (sscanf(str, "%s %s", category, topic) == 2)
+
+  category = table("configurations")->query_category_from_name(plain(words[0]));
+
+  if (!strlen(category))
   {
-    // show current value
-    category = table("configurations")->query_category_from_name(category);
+    notify_fail(_LANG_CMD_CONFIG_NOT_VALID_CATEGORY);
+    return 0;
+  }
 
-    // whatever we wrote is not an existing category
-    if (strlen(category) == 0)
-    {
-      write(_LANG_CMD_CONFIG_NOT_VALID_CATEGORY);
-      return 1;
-    }
+  title = table("configurations")->query_category_name(category);
 
-    // whatever we wrote is not an existing topic
-    if (!table("configurations")->query_topic_in_category(topic, category))
-    {
-      write(_LANG_CMD_CONFIG_NOT_VALID_TOPIC);
-      return 1;
-    }
-
-    write(show_topic_value(category, topic));
+  // one category
+  if (sizeof(words) == 1)
+  {
+    write(frame(show_category(category, data[category], me), me));
     return 1;
   }
-  else if (strlen(str) > 0)
+
+  topic = topic_named(data[category], words[1]);
+  setting = topic ? data[category][topic] : nil;
+
+  if (!setting)
   {
-    // we enter just a category name
-    // show all topics and values for the category
-    category = table("configurations")->query_category_from_name(str);
+    notify_fail(_LANG_CMD_CONFIG_NOT_VALID_TOPIC);
+    return 0;
+  }
 
-    // whatever we wrote is not an existing category
-    if (strlen(category) == 0)
-    {
-      write(_LANG_CMD_CONFIG_NOT_VALID_CATEGORY);
-      return 1;
-    }
-
-    write(handler("frames")->frame(show_category(
-              table("configurations")->query_config_translations()[category][0], 
-              category), 
-        _LANG_CMD_CONFIG_FOR_USER, this_user()->query_cols()));;
+  // one setting: its value and what it accepts
+  if (sizeof(words) == 2)
+  {
+    shown = show_value(setting, me);
+    write(_LANG_CMD_CONFIG_CURRENT + accepted(setting));
     return 1;
   }
+
+  value = implode(words[2..], " ");
+  parsed = parse_value(setting, value);
+
+  if (parsed == nil)
+  {
+    notify_fail(_LANG_CMD_CONFIG_NOT_VALID_VALUE + accepted(setting));
+    return 0;
+  }
+
+  target = target_of(setting, me);
+
+  if (!target || !function_exists(setting[CONFIG_SET], target))
+  {
+    notify_fail(_LANG_CMD_CONFIG_CANNOT_SET);
+    return 0;
+  }
+
+  if (!undefinedp(setting[CONFIG_PARAM]))
+    call_other(target, setting[CONFIG_SET], setting[CONFIG_PARAM], parsed);
   else
-  {
-    // show all configuration
-    return show_all_config();
-  }
+    call_other(target, setting[CONFIG_SET], parsed);
+
+  // the setting has the last word: it may round a value or refuse it
+  shown = show_value(setting, me);
+
+  if (setting[CONFIG_TYPE] != CONFIG_BOOL && setting[CONFIG_TYPE] != CONFIG_STRING &&
+      lower_case("" + query_value(setting, me)) != lower_case("" + parsed))
+    write(_LANG_CMD_CONFIG_ADJUSTED);
+  else
+    write(_LANG_CMD_CONFIG_CURRENT);
+
+  return 1;
 }

@@ -53,25 +53,33 @@
 // configurations
 
 #define _LANG_CONFIG_TERMINAL ({ "terminal", "term" })
-#define _LANG_CONFIG_INFO ({ "información", "informacion", "info", })
-#define _LANG_CONFIG_PLAYER ({ "jugador" })
+#define _LANG_CONFIG_INFO ({ "información", "informacion", "info" })
+#define _LANG_CONFIG_COMMUNICATION ({ "comunicación", "comunicacion" })
+#define _LANG_CONFIG_CHARACTER ({ "personaje", "jugador" })
+#define _LANG_CONFIG_CONSENTS ({ "consentimientos" })
 
 #define _LANG_CONFIG_TOPIC_TERM "tipo"
 #define _LANG_CONFIG_TOPIC_COLS "columnas"
 #define _LANG_CONFIG_TOPIC_ROWS "filas"
-#define _LANG_CONFIG_TOPIC_HEALTH "salud"
 #define _LANG_CONFIG_TOPIC_VERBOSE "detallada"
-#define _LANG_CONFIG_TOPIC_LOGON "logon"
-#define _LANG_CONFIG_TOPIC_POV "pov"
-#define _LANG_CONFIG_TOPIC_COMBAT "combate"
+#define _LANG_CONFIG_TOPIC_EARMUFFS "tapones"
+#define _LANG_CONFIG_TOPIC_MUFFLE "sin-"
 #define _LANG_CONFIG_TOPIC_EDITOR "editor"
+#define _LANG_CONFIG_TOPIC_POV "pov"
+#define _LANG_CONFIG_TOPIC_PROMPT "prompt"
+#define _LANG_CONFIG_TOPIC_COMBAT "combate"
+#define _LANG_CONFIG_TOPIC_WIMPY "cobardía"
+#define _LANG_CONFIG_TOPIC_LANGUAGE "idioma"
 
 #define _LANG_CONFIG_CMD_TERM "terminal"
 #define _LANG_CONFIG_CMD_COLS "columnas"
 #define _LANG_CONFIG_CMD_ROWS "filas"
-#define _LANG_CONFIG_CMD_MONITOR "monitor"
-#define _LANG_CONFIG_CMD_VERBOSE "modo"
+#define _LANG_CONFIG_CMD_VERBOSE "detalle"
 #define _LANG_CONFIG_CMD_INFORM "informar"
-#define _LANG_CONFIG_CMD_POV "pov"
-#define _LANG_CONFIG_CMD_COMBAT "combate"
+#define _LANG_CONFIG_CMD_EARMUFFS "tapones"
 #define _LANG_CONFIG_CMD_EDITOR "editor"
+#define _LANG_CONFIG_CMD_POV "pov"
+#define _LANG_CONFIG_CMD_PROMPT "prompt"
+#define _LANG_CONFIG_CMD_WIMPY "cobardía"
+#define _LANG_CONFIG_CMD_SPEAK "hablar"
+#define _LANG_CONFIG_CMD_CONSENT "consentir"

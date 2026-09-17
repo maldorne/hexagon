@@ -125,19 +125,25 @@
 // configuration
 
 #define _LANG_CMD_CONFIG_ALIAS ({ "configuration", "config", "settings" })
-#define _LANG_CMD_CONFIG_SYNTAX "configuration <category> <topic> <value>"
-#define _LANG_CMD_CONFIG_HELP "Sets various player configuration values."
-#define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'"+str+"' is not a valid category to configure.\n"
-#define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'"+str+"' is not a valid topic to configure.\n"
-#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  Topics available in %^BOLD%^" + title + "%^RESET%^:\n"
-#define _LANG_CMD_CONFIG_FOR_USER this_player()->query_cap_name() + " configuration"
-#define _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR "Current configuration for "
-#define _LANG_CMD_CONFIG_UNKNOWN "Unknown"
-#define _LANG_CMD_CONFIG_USE_COMMANDS "  Between brackets you can see the specific command\n" + \
-        "  that you can use to get more information.\n"
-#define _LANG_CMD_CONFIG_HINT "  Use '" + _LANG_CMD_CONFIG_SYNTAX + "'\n  to change the values.\n"
-#define _LANG_CMD_CONFIG_USER "  Remember these configurations are made at user-level,\n  so they are " + \
-        "common to all your characters.\n"
+#define _LANG_CMD_CONFIG_SYNTAX "configuration [<category> [<topic> [<value>]]]"
+#define _LANG_CMD_CONFIG_HELP "Shows and changes, from one place, what you can adjust of your account and your character."
+#define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'" + words[0] + "' is not a configuration category.\n"
+#define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'" + words[1] + "' is not something configured in " + title + ".\n"
+#define _LANG_CMD_CONFIG_NOT_VALID_VALUE "'" + value + "' does not do for " + title + " / " + topic + ". "
+#define _LANG_CMD_CONFIG_CANNOT_SET "That cannot be changed right now.\n"
+#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  %^BOLD%^" + title + "%^RESET%^ " + owner + ":\n"
+#define _LANG_CMD_CONFIG_OWNER_USER "(of your account, the same for all your characters)"
+#define _LANG_CMD_CONFIG_OWNER_PLAYER "(of this character)"
+#define _LANG_CMD_CONFIG_FOR_USER me->query_cap_name() + " configuration"
+#define _LANG_CMD_CONFIG_CURRENT title + " / " + topic + ": [ " + shown + " ]\n"
+#define _LANG_CMD_CONFIG_ADJUSTED title + " / " + topic + ": [ " + shown + " ] (what you asked for was adjusted)\n"
+#define _LANG_CMD_CONFIG_ACCEPTS_BOOL "It takes yes or no.\n"
+#define _LANG_CMD_CONFIG_ACCEPTS_INT "It takes a number between " + setting[CONFIG_MIN] + " and " + setting[CONFIG_MAX] + ".\n"
+#define _LANG_CMD_CONFIG_ACCEPTS_CHOICE "It takes: " + implode(setting[CONFIG_OPTIONS], ", ") + ".\n"
+#define _LANG_CMD_CONFIG_ACCEPTS_STRING "It takes any text, or 'none' to leave it empty.\n"
+#define _LANG_CMD_CONFIG_USE_COMMANDS "  Between brackets, the command that does the same and has its own help.\n"
+#define _LANG_CMD_CONFIG_HINT "  'configuration <category> <topic>' tells what each thing takes,\n" + \
+  "  and 'configuration <category> <topic> <value>' changes it.\n"
 
 // sheet
 

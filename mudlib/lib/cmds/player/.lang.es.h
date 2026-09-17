@@ -125,19 +125,25 @@
 // configuration
 
 #define _LANG_CMD_CONFIG_ALIAS ({ "configuracion", "configuración", "config", "settings" })
-#define _LANG_CMD_CONFIG_SYNTAX "configuracion <categoría> <tema> <valor>"
-#define _LANG_CMD_CONFIG_HELP "Establece diversos valores de configuración del jugador."
-#define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'"+str+"' no es una categoría válida a configurar.\n"
-#define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'"+str+"' no es un tema válido a configurar.\n"
-#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  Valores configurables dentro de %^BOLD%^"+title+"%^RESET%^:\n"
-#define _LANG_CMD_CONFIG_FOR_USER "Configuración de " + this_player()->query_cap_name()
-#define _LANG_CMD_CONFIG_CURRENT_CONFIG_FOR "Configuración actual para "
-#define _LANG_CMD_CONFIG_UNKNOWN "Desconocido"
-#define _LANG_CMD_CONFIG_USE_COMMANDS "  Entre corchetes se indica el comando específico\n" + \
-        "  que puedes usar para obtener más información.\n"
-#define _LANG_CMD_CONFIG_HINT "  Usa '" + _LANG_CMD_CONFIG_SYNTAX + "'\n  para cambiar los valores.\n"
-#define _LANG_CMD_CONFIG_USER "  Recuerda que estas configuraciones son a nivel de usuario,\n" + \
-        "  por lo que son comunes a todos tus personajes.\n"
+#define _LANG_CMD_CONFIG_SYNTAX "configuración [<categoría> [<tema> [<valor>]]]"
+#define _LANG_CMD_CONFIG_HELP "Muestra y cambia de un solo sitio lo que puedes ajustar de tu cuenta y de tu personaje."
+#define _LANG_CMD_CONFIG_NOT_VALID_CATEGORY "'" + words[0] + "' no es una categoría de la configuración.\n"
+#define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'" + words[1] + "' no es algo que se configure en " + title + ".\n"
+#define _LANG_CMD_CONFIG_NOT_VALID_VALUE "'" + value + "' no vale para " + title + " / " + topic + ". "
+#define _LANG_CMD_CONFIG_CANNOT_SET "Eso no se puede cambiar ahora mismo.\n"
+#define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  %^BOLD%^" + title + "%^RESET%^ " + owner + ":\n"
+#define _LANG_CMD_CONFIG_OWNER_USER "(de tu cuenta, igual en todos tus personajes)"
+#define _LANG_CMD_CONFIG_OWNER_PLAYER "(de este personaje)"
+#define _LANG_CMD_CONFIG_FOR_USER "Configuración de " + me->query_cap_name()
+#define _LANG_CMD_CONFIG_CURRENT title + " / " + topic + ": [ " + shown + " ]\n"
+#define _LANG_CMD_CONFIG_ADJUSTED title + " / " + topic + ": [ " + shown + " ] (se ha ajustado lo que pediste)\n"
+#define _LANG_CMD_CONFIG_ACCEPTS_BOOL "Acepta sí o no.\n"
+#define _LANG_CMD_CONFIG_ACCEPTS_INT "Acepta un número entre " + setting[CONFIG_MIN] + " y " + setting[CONFIG_MAX] + ".\n"
+#define _LANG_CMD_CONFIG_ACCEPTS_CHOICE "Acepta: " + implode(setting[CONFIG_OPTIONS], ", ") + ".\n"
+#define _LANG_CMD_CONFIG_ACCEPTS_STRING "Acepta cualquier texto, o 'nada' para dejarlo vacío.\n"
+#define _LANG_CMD_CONFIG_USE_COMMANDS "  Entre corchetes, el comando que hace lo mismo y tiene su propia ayuda.\n"
+#define _LANG_CMD_CONFIG_HINT "  'configuración <categoría> <tema>' dice qué valores acepta cada cosa,\n" + \
+  "  y 'configuración <categoría> <tema> <valor>' la cambia.\n"
 
 // sheet
 

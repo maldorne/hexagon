@@ -758,6 +758,15 @@ int set_language(string str)
 }
 
 string query_current_language() { return cur_lang; }
+
+// The language spoken, by the name the player reads it under.
+string query_current_language_display()
+{
+  if (!strlen(cur_lang))
+    return "";
+
+  return handler("languages")->query_language_display(cur_lang);
+}
 string * query_languages() 
 {
   if (!languages) 

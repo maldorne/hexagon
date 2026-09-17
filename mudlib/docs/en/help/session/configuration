@@ -1,0 +1,28 @@
+@verbs configuration config settings
+@tier player
+@title configuration: everything you can adjust, in one place
+@see columns inform earmuffs editor wimpy speak consent
+
+  configuration
+  configuration <category>
+  configuration <category> <topic>
+  configuration <category> <topic> <value>
+
+It gathers what many other commands change one by one. With nothing,
+it shows it all; with a category, just that one; with a topic, its
+value and what it takes; and with a value, it changes it. A value that
+does not do is refused, naming the ones that would.
+
+The categories are:
+
+  terminal          the terminal type, columns and rows
+  information       whether the game describes everything in detail,
+                    and which notices you want to receive
+  communication     earmuffs and what they block, the editor, the
+                    point of view and the prompt
+  character         the combat mode, wimpy and the language you speak
+  consents          what you let others do with you
+
+The first three belong to your account and are the same for all your
+characters; the last two belong to each character. Next to each topic,
+between brackets, is the command that does the same, with its own help.

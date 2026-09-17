@@ -1,0 +1,33 @@
+@verbs configuración configuracion config
+@tier player
+@title la configuración: todo lo que puedes ajustar, en un solo sitio
+@see columnas informar tapones editor cobardía hablar consentir
+
+  configuración
+  configuración <categoría>
+  configuración <categoría> <tema>
+  configuración <categoría> <tema> <valor>
+
+Reúne lo que muchos otros comandos cambian por separado. Sin nada,
+lo muestra todo; con una categoría, solo esa; con un tema, su valor y
+lo que acepta; y con un valor, lo cambia. Un valor que no vale se
+rechaza diciendo cuáles sirven.
+
+Las categorías son:
+
+  terminal          el tipo de terminal, columnas y filas
+  información       si el juego te describe todo en detalle, y qué
+                    avisos quieres recibir
+  comunicación      los tapones y lo que dejan de oír, el editor,
+                    el punto de vista y el prompt
+  personaje         el modo de combate, la cobardía y el idioma que
+                    hablas
+  consentimientos   lo que permites que los demás hagan contigo
+
+Las tres primeras son de tu cuenta y valen igual para todos tus
+personajes; las dos últimas son de cada personaje. Junto a cada tema
+aparece, entre corchetes, el comando que hace lo mismo con su propia
+ayuda.
+
+Los nombres valen con tilde o sin ella: 'configuración personaje
+cobardia 20'.
