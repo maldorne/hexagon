@@ -465,7 +465,8 @@ string query_editor_path(string path, int writing)
   if (previous_program() != DRIVER || !can_use_ed())
     return nil;
 
-  if (path == ed_file)
+  // the temporary copy of a letter or a note belongs to this session
+  if (ed_is_copy && path == ed_file)
     return path;
 
   path = get_path(path);
