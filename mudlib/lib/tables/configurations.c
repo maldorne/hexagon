@@ -114,7 +114,7 @@ mapping query_config_data(object player)
   // character
   topics = ([ ]);
   e = entry(CONFIG_CHOICE, CONFIG_ON_PLAYER, "query_pretty_combat_mode",
-            "set_pretty_combat_mode");
+            "set_pretty_combat_mode", nil, _LANG_CONFIG_CMD_COMBAT);
   e[CONFIG_OPTIONS] = COMBAT_MODE_STRINGS;
   topics[_LANG_CONFIG_TOPIC_COMBAT] = e;
 

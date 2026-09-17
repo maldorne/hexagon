@@ -82,5 +82,6 @@
 #define _LANG_CONFIG_CMD_PROMPT "prompt"
 #define _LANG_CONFIG_CMD_WIMPY "cobardía"
 #define _LANG_CONFIG_CMD_ATTITUDE "actitud"
+#define _LANG_CONFIG_CMD_COMBAT "combate"
 #define _LANG_CONFIG_CMD_SPEAK "hablar"
 #define _LANG_CONFIG_CMD_CONSENT "consentir"

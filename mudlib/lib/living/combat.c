@@ -25,7 +25,8 @@ static object *attacker_list, *call_outed, protector;
 static object concentrate;
 static int dodging;
 static int combat_mode;
-static int combat_role;
+// the attitude is the player's choice, kept in the save file
+int combat_role;
 
 static object last_moving_env; // object with the last enviroment
 static int combat_counter; // heart_beat counter
