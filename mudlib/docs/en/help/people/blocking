@@ -8,8 +8,10 @@
   unblock <player>          unblocks them.
 
 While you block somebody, their tells and whispers do not reach you,
-they cannot use emotes on you, and they cannot invite you to a party.
-Every time they try, they learn that you are blocking them.
+you do not hear their shouts, they cannot aim a soul command at you
+(smiling at you, waving at you...), and they cannot invite you to a
+party. When they try to talk to you directly they learn that you are
+blocking them; their shouts just do not arrive.
 
 The block belongs to your account, not to the character: it holds for
 every character you play from it, and it lasts from one session to

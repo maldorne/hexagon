@@ -213,9 +213,11 @@ void event_person_shout(object ob, string start, string msg, string lang)
   // the earmuffs are kept by the user, the languages by the living
   user = this_object()->user();
 
-  if (user && user->query_earmuffs() == 1 &&
-    ((string)ob->query_verb() != "coders!") &&
-    ((string)ob->query_verb() != "shout!"))
+  if (user && user->query_earmuffs() == 1)
+    return;
+
+  // nor does a shout reach anybody who blocks the one shouting
+  if (user && user->query_blocking(ob->query_name()))
     return;
 
   msg = fix_string(msg);

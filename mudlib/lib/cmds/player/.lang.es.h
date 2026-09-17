@@ -516,7 +516,7 @@
 #define _LANG_CMD_GROUP_NOT_YOURSELF "A ti mismo no.\n"
 #define _LANG_CMD_GROUP_THEY_HAVE_PARTY who->query_cap_name() + " ya pertenece a un grupo.\n"
 #define _LANG_CMD_GROUP_THEY_REFUSE who->query_cap_name() + " no quiere que le inviten a grupos.\n"
-#define _LANG_CMD_GROUP_THEY_BLOCK who->query_cap_name() + " no quiere recibir tus mensajes.\n"
+#define _LANG_CMD_GROUP_THEY_BLOCK who->query_cap_name() + " no quiere aceptar tus invitaciones.\n"
 #define _LANG_CMD_GROUP_FULL "El grupo está completo.\n"
 #define _LANG_CMD_GROUP_INVITED_ME "Invitas a " + who->query_cap_name() + " a tu grupo.\n"
 #define _LANG_CMD_GROUP_INVITED_THEM me->query_cap_name() + " te invita al grupo '" + name + "'.\n" + \
