@@ -536,3 +536,21 @@
 #define _LANG_CMD_GROUP_HANDED_ME "Cedes el mando del grupo a " + who->query_cap_name() + ".\n"
 #define _LANG_CMD_GROUP_HANDED_THEM me->query_cap_name() + " te cede el mando del grupo.\n"
 #define _LANG_CMD_GROUP_HANDED_OTHERS me->query_cap_name() + " cede el mando del grupo a " + who->query_cap_name() + ".\n"
+
+// description
+
+#define _LANG_CMD_DESCRIPTION_ALIAS ({ "descripcion", "descripción" })
+#define _LANG_CMD_DESCRIPTION_SYNTAX "descripción [<texto> | escribir | borrar]"
+#define _LANG_CMD_DESCRIPTION_HELP "Escribe lo que ven los demás cuando te miran."
+#define _LANG_CMD_DESCRIPTION_CLEAR ({ "borrar" })
+#define _LANG_CMD_DESCRIPTION_EDIT ({ "escribir" })
+#define _LANG_CMD_DESCRIPTION_CURRENT "Cuando te miran, ven:\n\n   " + me->query_description() + \
+  "\n\n'descripción borrar' vuelve a la de por defecto.\n"
+#define _LANG_CMD_DESCRIPTION_DEFAULT "No has escrito ninguna descripción, así que al mirarte " + \
+  "se ve la de por defecto.\nEscribe 'descripción <texto>', o 'descripción escribir' para " + \
+  "usar tu editor.\n"
+#define _LANG_CMD_DESCRIPTION_SET "Ahora, cuando te miran, ven lo que has escrito.\n"
+#define _LANG_CMD_DESCRIPTION_CLEARED "Vuelves a tener la descripción por defecto.\n"
+#define _LANG_CMD_DESCRIPTION_UNCHANGED "Tu descripción no cambia.\n"
+#define _LANG_CMD_DESCRIPTION_TOO_LONG "Es demasiado larga: como mucho " + \
+  me->query_max_description_length() + " caracteres.\n"

@@ -1,0 +1,16 @@
+@verbs description
+@tier player
+@title your description: what others see when they look at you
+@see look editor
+
+  description
+  description <text>
+  description write
+  description clear
+
+When somebody looks at you they see your name, a description, how hurt
+you are and what you carry. That description is yours to write.
+
+With nothing, it tells you which one you have. With a text, you change
+it in one go; with 'write' you draft it with your editor, line by line.
+'clear' goes back to the default one, which depends on your race.

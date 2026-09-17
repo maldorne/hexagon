@@ -17,6 +17,7 @@
 #include <common/quests.h>
 #include <common/properties.h>
 #include <translations/combat.h>
+#include <translations/races.h>
 
 inherit alignment "/lib/core/basic/alignment";
 inherit death     "/lib/living/death";
@@ -46,6 +47,57 @@ inherit comm      "/lib/living/communicate";
 int hb_counter;
 static int hp_counter, gp_counter;
 static int no_heal; 
+
+// What a living looks like to whoever looks at it: its description, its race,
+// how hurt it is, what it wears and carries. Shared by players and npcs.
+string long(string str, int dark)
+{
+  string s, my_long, race_name, race;
+  object ob;
+
+  race_name = "";
+  my_long = query_long();
+  race = this_object()->query_race_ob();
+  ob = race ? load_object(race) : nil;
+
+  if (!undefinedp(ob))
+  {
+    race_name = ob->query_race_gender_string(this_object(), 1);
+  
+    // if we have a race object and we do not have a
+    // non default long description, use the one from the race object
+    if (!strlen(my_long) || my_long == _LANG_RACES_UNKNOWN_DESC)
+      my_long = ob->query_desc(this_object());
+  }
+
+  // nothing written and no race to ask: the generic description
+  if (!strlen(my_long))
+    my_long = _LANG_RACES_UNKNOWN_DESC;
+
+  // every description closes its own line, like the race ones do
+  if (my_long[strlen(my_long) - 1] != '\n')
+    my_long += "\n";
+
+  s = sprintf(
+    "\n  %-=*s\n",
+    (this_user() ? this_user()->query_cols() - 2 : 79),
+    "   " + my_long
+    );
+
+  // neverbot, 7/03
+  // query_race_gender_string flag returns the string without
+  // the article ("human" instead of "the human")
+  if (!undefinedp(ob))
+    if (race_name != "")
+      s += capitalize(query_pronoun()) + _LANG_RACES_IS + query_numeral(race_name) + " " +
+           race_name + ".\n";
+
+  // s += capitalize(query_pronoun())+" "+health_string(0)+".\n";
+  s += capitalize(health_string(0))+".\n";
+  s += calc_extra_look();
+  s += query_living_contents(0);
+  return s;
+}
 
 void create()
 {

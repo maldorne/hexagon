@@ -29,6 +29,7 @@ inherit weather     "/lib/player/weather.c";
 inherit read        "/lib/player/read.c";
 inherit health      "/lib/player/health.c";
 inherit exploration "/lib/player/exploration.c";
+inherit description "/lib/player/description.c";
 
 static object _user;      // the user/account object that handles the connection
 string account_name;      // user email, used to find the owner account
@@ -74,6 +75,7 @@ void create()
   read::create();
   health::create();
   exploration::create();
+  description::create();
 
   // must be the last one
   living::create();
@@ -138,6 +140,15 @@ nomask int query_link() { return 0; }
 nomask int query_player() { return 1; }
 nomask int query_user() { return 0; }
 nomask object user() { return _user; }
+// A description the player wrote of themselves wins over the default one.
+string query_long()
+{
+  if (strlen(query_description()))
+    return query_description();
+
+  return living::query_long();
+}
+
 nomask int query_coder()
 {
   if (_user)

@@ -536,3 +536,21 @@
 #define _LANG_CMD_GROUP_HANDED_ME "You hand the party to " + who->query_cap_name() + ".\n"
 #define _LANG_CMD_GROUP_HANDED_THEM me->query_cap_name() + " hands you the party.\n"
 #define _LANG_CMD_GROUP_HANDED_OTHERS me->query_cap_name() + " hands the party to " + who->query_cap_name() + ".\n"
+
+// description
+
+#define _LANG_CMD_DESCRIPTION_ALIAS ({ "description" })
+#define _LANG_CMD_DESCRIPTION_SYNTAX "description [<text> | write | clear]"
+#define _LANG_CMD_DESCRIPTION_HELP "Write what others see when they look at you."
+#define _LANG_CMD_DESCRIPTION_CLEAR ({ "clear" })
+#define _LANG_CMD_DESCRIPTION_EDIT ({ "write" })
+#define _LANG_CMD_DESCRIPTION_CURRENT "When somebody looks at you, they see:\n\n   " + \
+  me->query_description() + "\n\n'description clear' goes back to the default one.\n"
+#define _LANG_CMD_DESCRIPTION_DEFAULT "You have not written a description, so whoever looks at " + \
+  "you sees the default one.\nType 'description <text>', or 'description write' to use " + \
+  "your editor.\n"
+#define _LANG_CMD_DESCRIPTION_SET "Now, when somebody looks at you, they see what you wrote.\n"
+#define _LANG_CMD_DESCRIPTION_CLEARED "You have the default description again.\n"
+#define _LANG_CMD_DESCRIPTION_UNCHANGED "Your description does not change.\n"
+#define _LANG_CMD_DESCRIPTION_TOO_LONG "It is too long: " + me->query_max_description_length() + \
+  " characters at most.\n"

@@ -240,46 +240,6 @@ void set_name(string n)
   set_living_name(n);
 }
 
-string long(string str, int dark)
-{
-  string s, my_long, race_name;
-  object ob;
-
-  race_name = "";
-  my_long = query_long();
-  ob = load_object(this_object()->query_race_ob());
-
-  if (!undefinedp(ob))
-  {
-    race_name = ob->query_race_gender_string(this_object(), 1);
-  
-    // if we have a race object and we do not have a
-    // non default long description, use the one from the race object
-    if (my_long == _LANG_RACES_UNKNOWN_DESC)
-      my_long = ob->query_desc(this_object());
-  }
-
-  s = sprintf(
-    "\n  %-=*s\n",
-    (this_user() ? this_user()->query_cols() - 2 : 79),
-    "   " + my_long
-    );
-
-  // neverbot, 7/03
-  // query_race_gender_string flag returns the string without
-  // the article ("human" instead of "the human")
-  if (!undefinedp(ob))
-    if (race_name != "")
-      s += capitalize(query_pronoun()) + _LANG_RACES_IS + query_numeral(race_name) + " " +
-           race_name + ".\n";
-
-  // s += capitalize(query_pronoun())+" "+health_string(0)+".\n";
-  s += capitalize(health_string(0))+".\n";
-  s += calc_extra_look();
-  s += query_living_contents(0);
-  return s;
-}
-
 void init_command(string str) { call_out("do_command", 0, str); }
 void init_equip() { call_out("do_equip", 0, ""); }
 

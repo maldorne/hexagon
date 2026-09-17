@@ -166,7 +166,7 @@ static int cmd(string arg, object me, string verb)
       // Objects with an empty/nil short don't get the
       // "capitalized-short + period" prefix — an inventory-resident
       // helper (like the props component) has nothing to prepend.
-      if (!ob[i]->query_player())
+      if (ob[i])
       {
         string sh;
         sh = ob[i]->short();

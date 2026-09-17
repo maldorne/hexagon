@@ -1,0 +1,16 @@
+@verbs descripcion descripción
+@tier player
+@title tu descripción: lo que ven los demás al mirarte
+@see mirar editor
+
+  descripción
+  descripción <texto>
+  descripción escribir
+  descripción borrar
+
+Cuando alguien te mira ve tu nombre, una descripción, tu estado de
+salud y lo que llevas encima. Esa descripción puedes escribirla tú.
+
+Sin nada, te dice cuál tienes. Con un texto, la cambias de una vez;
+con 'escribir' la redactas con tu editor, línea a línea. 'borrar'
+vuelve a la de por defecto, que depende de tu raza.
