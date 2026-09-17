@@ -334,8 +334,9 @@ void heart_beat()
 
   // TODO this is user stuff, move it to the user object when/if the user 
   // has its own heart_beat
-  // show pending notifications after the heart beat has finished
-  if (user()->query_pending_notifications())
+  // show pending notifications after the heart beat has finished; a player
+  // without a connection keeps them until they come back
+  if (!_net_dead && user()->query_pending_notifications())
     user()->show_notifications();
 }
 
