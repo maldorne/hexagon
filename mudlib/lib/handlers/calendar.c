@@ -67,6 +67,34 @@ void dest_me()
   ::dest_me();
 }
 
+// The name, adjective and gender a stored year reads as now: a year keeps
+// the position it was given in the tables, so it follows the mud's language.
+private mixed * year_as_named_now(mixed * year)
+{
+  mixed * name_list;
+  string * adjective_list;
+  mixed * now;
+
+  if (sizeof(year) <= POS_YEAR_ADJECTIVE_INDEX)
+    return year;
+
+  name_list = table("calendar")->query_name_list();
+  adjective_list = table("calendar")->query_adjective_list();
+
+  if (year[POS_YEAR_NAME_INDEX] >= sizeof(name_list) ||
+      year[POS_YEAR_ADJECTIVE_INDEX] >= sizeof(adjective_list))
+    return year;
+
+  now = ({ }) + year;
+  now[POS_YEAR_NAME] = name_list[year[POS_YEAR_NAME_INDEX]];
+  now[POS_YEAR_GENDER] = name_list[year[POS_YEAR_NAME_INDEX] + 1];
+  now[POS_YEAR_ADJECTIVE] =
+    adjective_list[year[POS_YEAR_ADJECTIVE_INDEX] +
+                   ((now[POS_YEAR_GENDER] == YEAR_GENDER_MASCULINE) ? 0 : 1)];
+
+  return now;
+}
+
 mixed * get_year(int num)
 {
   mixed * year;
@@ -75,7 +103,7 @@ mixed * get_year(int num)
   mixed * name_list;
   string * adjective_list;
 
-  year = allocate(3);
+  year = allocate(5);
   name_list = table("calendar")->query_name_list();
   adjective_list = table("calendar")->query_adjective_list();
 
@@ -85,6 +113,7 @@ mixed * get_year(int num)
   // Nombre del año
   rand = random(sizeof(name_list)/2) * 2;
   year[POS_YEAR_NAME] = name_list[rand];
+  year[POS_YEAR_NAME_INDEX] = rand;
 
   // Genero del nombre
   gender = name_list[rand+1];
@@ -92,7 +121,9 @@ mixed * get_year(int num)
 
   // Adjetivo dependiendo del genero
   rand = random(sizeof(adjective_list)/2) * 2;
-  if (gender == 1)
+  year[POS_YEAR_ADJECTIVE_INDEX] = rand;
+
+  if (gender == YEAR_GENDER_MASCULINE)
     year[POS_YEAR_ADJECTIVE] = adjective_list[rand];
   else
     year[POS_YEAR_ADJECTIVE] = adjective_list[rand+1];
@@ -112,13 +143,14 @@ string query_year_name(int num)
   gender = 0;
 
   if (!undefinedp(year_list[num]))
-    year = year_list[num];
+    year = year_as_named_now(year_list[num]);
   else
-    year = get_year(num);
+    year = year_as_named_now(get_year(num));
 
-  // Force the masculine "el año del" article for names starting with a
-  // stressed 'a' — "el águila", "el agua".
-  if ((year[POS_YEAR_GENDER] == 1) || (year[POS_YEAR_NAME][0..0] == "a") || (year[POS_YEAR_NAME][0..0] == "á"))
+  // The article follows the name's gender, except for the names that are
+  // feminine but take the masculine one.
+  if ((year[POS_YEAR_GENDER] == YEAR_GENDER_MASCULINE) ||
+      (year[POS_YEAR_GENDER] == YEAR_GENDER_FEMININE_MASCULINE_ARTICLE))
     gender = 1;
   else
     gender = 2;

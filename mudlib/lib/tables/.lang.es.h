@@ -85,3 +85,54 @@
 #define _LANG_CONFIG_CMD_COMBAT "combate"
 #define _LANG_CONFIG_CMD_SPEAK "hablar"
 #define _LANG_CONFIG_CMD_CONSENT "consentir"
+
+// calendar table
+
+// nombres de año y género de cada nombre: 1 masculino, 2 femenino,
+// 3 femenino con artículo masculino ("el águila")
+#define _LANG_CALENDAR_YEAR_NAMES ({ \
+  "rata", 2, "dragón", 1, "caballo", 1, "cerdo", 1, \
+  "grulla", 2, "fénix", 1, "tigre", 1, "león", 1, \
+  "zorro", 1, "naga", 2, "lagarto", 1, "serpiente", 2, \
+  "gato", 1, "perro", 1, "águila", 3, "buitre", 1, \
+  "unicornio", 1, "gorrión", 1, "grajo", 1, "buey", 1, \
+  "araña", 2, "ratón", 1, "vaca", 2, "paloma", 2, \
+  "cobra", 2, "cuervo", 1, "halcón", 1, "lobo", 1, \
+  "oso", 1, "jabalí", 1, "ciervo", 1, "carnero", 1, \
+  "cabra", 2, "liebre", 2, "lince", 1, "nutria", 2, \
+  "tejón", 1, "erizo", 1, "topo", 1, "murciélago", 1, \
+  "golondrina", 2, "garza", 2, "cisne", 1, "lechuza", 2, \
+  "urraca", 2, "escorpión", 1, "avispa", 2, "abeja", 2, \
+  "salmón", 1, "anguila", 2, "pulpo", 1, "ballena", 2, \
+  "delfín", 1, "grifo", 1, \
+  })
+
+// adjetivos, en pares masculino y femenino
+#define _LANG_CALENDAR_YEAR_ADJECTIVES ({ \
+  "cornudo", "cornuda", "llameante", "llameante", \
+  "encabritado", "encabritada", "orgulloso", "orgullosa", \
+  "inmortal", "inmortal", "naciente", "naciente", \
+  "imperial", "imperial", "callejero", "callejera", \
+  "durmiente", "durmiente", "sigiloso", "sigilosa", \
+  "mentiroso", "mentirosa", "ardiente", "ardiente", \
+  "infectado", "infectada", "real", "real", \
+  "oriental", "oriental", "occidental", "occidental", \
+  "rojo", "roja", "negro", "negra", \
+  "pestilente", "pestilente", "furioso", "furiosa", \
+  "aullador", "aulladora", "traidor", "traidora", \
+  "dorado", "dorada", "plateado", "plateada", \
+  "sombrío", "sombría", "errante", "errante", \
+  "silencioso", "silenciosa", "hambriento", "hambrienta", \
+  "valiente", "valiente", "sabio", "sabia", \
+  "ciego", "ciega", "herido", "herida", \
+  "sediento", "sedienta", "helado", "helada", \
+  "tormentoso", "tormentosa", "solitario", "solitaria", \
+  "vengativo", "vengativa", "paciente", "paciente", \
+  "insomne", "insomne", "altivo", "altiva", \
+  "cautivo", "cautiva", "marchito", "marchita", \
+  "luminoso", "luminosa", "doliente", "doliente", \
+  })
+
+#define _LANG_CALENDAR_WEEK_DAYS ({ "lunes", "martes", "miércoles", \
+                                    "jueves", "viernes", "sábado", \
+                                    "domingo" })
