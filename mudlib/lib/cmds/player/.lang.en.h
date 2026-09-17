@@ -131,6 +131,7 @@
 #define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'" + words[1] + "' is not something configured in " + title + ".\n"
 #define _LANG_CMD_CONFIG_NOT_VALID_VALUE "'" + value + "' does not do for " + title + " / " + topic + ". "
 #define _LANG_CMD_CONFIG_CANNOT_SET "That cannot be changed right now.\n"
+#define _LANG_CMD_CONFIG_REFUSED title + " / " + topic + ": it cannot be changed right now.\n"
 #define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  %^BOLD%^" + title + "%^RESET%^ " + owner + ":\n"
 #define _LANG_CMD_CONFIG_OWNER_USER "(of your account, the same for all your characters)"
 #define _LANG_CMD_CONFIG_OWNER_PLAYER "(of this character)"

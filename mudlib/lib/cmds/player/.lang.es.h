@@ -131,6 +131,7 @@
 #define _LANG_CMD_CONFIG_NOT_VALID_TOPIC "'" + words[1] + "' no es algo que se configure en " + title + ".\n"
 #define _LANG_CMD_CONFIG_NOT_VALID_VALUE "'" + value + "' no vale para " + title + " / " + topic + ". "
 #define _LANG_CMD_CONFIG_CANNOT_SET "Eso no se puede cambiar ahora mismo.\n"
+#define _LANG_CMD_CONFIG_REFUSED title + " / " + topic + ": no se puede cambiar ahora mismo.\n"
 #define _LANG_CMD_CONFIG_OPTIONS_IN_CATEGORY "  %^BOLD%^" + title + "%^RESET%^ " + owner + ":\n"
 #define _LANG_CMD_CONFIG_OWNER_USER "(de tu cuenta, igual en todos tus personajes)"
 #define _LANG_CMD_CONFIG_OWNER_PLAYER "(de este personaje)"

@@ -72,7 +72,7 @@ void combat_commands()
 {
   add_private_action("do_protect", "proteger");
   add_private_action("do_unprotect", "desproteger");
-  add_private_action("do_combat_role", "actitud");
+  add_private_action("do_combat_role", _LANG_COMBAT_ROLE_VERBS);
   add_private_action("do_combat_mode", _LANG_COMBAT_MODE_VERBS);
 
   armed_combat_commands();
@@ -624,7 +624,36 @@ int do_unprotect(string str)
 
 static string combat_role_message(int new_role)
 {
-  return "Tu actitud de combate pasa a ser " + COMBAT_ROLE_STRINGS[new_role] + ".\n";
+  return _LANG_COMBAT_ROLE_CHANGED;
+}
+
+// A player may choose another attitude once every five minutes.
+int query_can_change_combat_role()
+{
+  int last_time;
+
+  last_time = this_object()->query_static_property(COMBAT_ROLE_CHANGED_PROP);
+  return !last_time || time() - last_time >= 300;
+}
+
+// The attitude a player chooses, by its name: 0 if there is none by that name
+// or the last change was too recent.
+int set_combat_role_name(string name)
+{
+  int i;
+
+  if ((i = member_array(name, COMBAT_ROLE_STRINGS)) == -1)
+    return 0;
+
+  if (i == combat_role)
+    return 1;
+
+  if (!query_can_change_combat_role())
+    return 0;
+
+  this_object()->add_static_property(COMBAT_ROLE_CHANGED_PROP, time());
+  set_combat_role(i);
+  return 1;
 }
 
 // Funcion para cambios forzados del rol de combate (al ejecutar dotes, por ejemplo)
@@ -642,43 +671,26 @@ int change_combat_role(int new_role)
 int do_combat_role(string str)
 {
   int i;
-  int last_time;
-
-  last_time = this_object()->query_static_property(COMBAT_ROLE_CHANGED_PROP);
 
   if (!strlen(str))
   {
-    tell_object(this_object(), "Tu actitud de combate actual es " + 
-      COMBAT_ROLE_STRINGS[query_combat_role()] + ".\n" + 
-      "Utiliza 'actitud <modo>' para cambiarla.\n");
+    tell_object(this_object(), _LANG_COMBAT_ROLE_CURRENT);
     return 1;
-
   }
 
   if ((i = member_array(str, COMBAT_ROLE_STRINGS)) == -1)
   {
-    notify_fail("Sintaxis: actitud <modo>\n" + 
-          "Los modos posibles son: " + query_multiple_short(COMBAT_ROLE_STRINGS) + 
-          ".\n");
+    notify_fail(_LANG_COMBAT_ROLE_SYNTAX);
     return 0;
   }
 
-  // aun no ha cambiado de rol desde que conecto (al conectar por defecto
-  // todos los players son DPS_ROLE)
-  if (!last_time)
+  if (!set_combat_role_name(str))
   {
-    this_object()->add_static_property(COMBAT_ROLE_CHANGED_PROP, time());
-  }  
-  // No dejamos cambiar de rol en menos de cinco minutos
-  else if (time() - last_time < 300)
-  {
-    notify_fail("Hace poco que has cambiado tu actitud de combate, debes esperar un poco.\n");
+    notify_fail(_LANG_COMBAT_ROLE_TOO_SOON);
     return 0;
   }
 
-  set_combat_role(i);
   tell_object(this_object(), combat_role_message(i));
-  
   return 1;
 }
 

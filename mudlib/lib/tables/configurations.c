@@ -96,10 +96,6 @@ mapping query_config_data(object player)
   topics = ([ ]);
   topics[_LANG_CONFIG_TOPIC_EARMUFFS] = entry(CONFIG_BOOL, CONFIG_ON_USER, "query_earmuffs",
                                               "set_earmuffs", nil, _LANG_CONFIG_CMD_EARMUFFS);
-  list = user->query_muffle_types();
-  for (i = 0; i < sizeof(list); i++)
-    topics[_LANG_CONFIG_TOPIC_MUFFLE + list[i]] = entry(CONFIG_BOOL, CONFIG_ON_USER,
-      "check_earmuffs", "set_muffled", list[i], _LANG_CONFIG_CMD_EARMUFFS);
 
   e = entry(CONFIG_CHOICE, CONFIG_ON_USER, "query_editor_name", "set_editor_name", nil,
             _LANG_CONFIG_CMD_EDITOR);
@@ -121,6 +117,12 @@ mapping query_config_data(object player)
             "set_pretty_combat_mode");
   e[CONFIG_OPTIONS] = COMBAT_MODE_STRINGS;
   topics[_LANG_CONFIG_TOPIC_COMBAT] = e;
+
+  e = entry(CONFIG_CHOICE, CONFIG_ON_PLAYER, "query_combat_role_string",
+            "set_combat_role_name", nil, _LANG_CONFIG_CMD_ATTITUDE);
+  e[CONFIG_OPTIONS] = COMBAT_ROLE_STRINGS;
+  e[CONFIG_REFUSES] = 1;
+  topics[_LANG_CONFIG_TOPIC_ATTITUDE] = e;
 
   e = entry(CONFIG_INT, CONFIG_ON_PLAYER, "query_wimpy", "set_wimpy", nil,
             _LANG_CONFIG_CMD_WIMPY);

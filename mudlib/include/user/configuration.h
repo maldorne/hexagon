@@ -9,6 +9,7 @@
 #define CONFIG_MIN     "min"      // the bounds of a CONFIG_INT
 #define CONFIG_MAX     "max"
 #define CONFIG_COMMAND "command"  // the command that does the same, if any
+#define CONFIG_REFUSES "refuses"  // the set function answers 0 when it refuses
 
 #define CONFIG_BOOL   "bool"
 #define CONFIG_INT    "int"

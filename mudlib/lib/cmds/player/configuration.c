@@ -195,7 +195,7 @@ static int cmd(string str, object me, string verb)
   mapping data, setting;
   string * categories, * words;
   string category, topic, value, title, ret, shown;
-  mixed parsed;
+  mixed parsed, done;
   object target;
   int i;
 
@@ -272,9 +272,16 @@ static int cmd(string str, object me, string verb)
   }
 
   if (!undefinedp(setting[CONFIG_PARAM]))
-    call_other(target, setting[CONFIG_SET], setting[CONFIG_PARAM], parsed);
+    done = call_other(target, setting[CONFIG_SET], setting[CONFIG_PARAM], parsed);
   else
-    call_other(target, setting[CONFIG_SET], parsed);
+    done = call_other(target, setting[CONFIG_SET], parsed);
+
+  // some settings can say no for a reason of their own
+  if (setting[CONFIG_REFUSES] && !done)
+  {
+    notify_fail(_LANG_CMD_CONFIG_REFUSED);
+    return 0;
+  }
 
   // the setting has the last word: it may round a value or refuse it
   shown = show_value(setting, me);
