@@ -32,17 +32,19 @@ void create()
   owner = "";
 }
 
-int valid_access(string func)
+// A mailbox is changed by the character who owns it, playing, or by an
+// administrator.
+int valid_access(string func, string who)
 {
-  if (geteuid(previous_object()) == ROOT)
+  if (this_player() && lower_case(this_player()->query_name()) == lower_case(who))
     return 1;
 
-  if (member_array(base_name(previous_object()), TRUSTED_MAILERS) != -1)
+  if (this_user() && this_user()->query_admin())
     return 1;
 
-  log_file("illegal", "attempt to access postal daemon function " + func + " by " +
-    (this_player() ? this_player()->query_name() : getuid(previous_object())) +
-    " from file " + file_name(previous_object()) + " [" + ctime(time(), 4) + "]\n");
+  log_file("illegal", "attempt to access postal daemon function " + func + " on " + who +
+    " by " + (this_player() ? this_player()->query_name() : "nobody") +
+    " [" + ctime(time(), 4) + "]\n");
 
   return 0;
 }
@@ -117,6 +119,9 @@ mapping * query_letters(string who)
   int i;
   mapping * result;
 
+  if (!valid_access("query letters", who))
+    return ({ });
+
   load_mailbox(who);
   result = ({ });
 
@@ -139,8 +144,9 @@ mapping mail_status(string who)
   return ([ "unread" : unread, "total" : sizeof(letters) ]);
 }
 
-// Resolve a list of names and personal groups of the sender into the
-// characters that will get the letter. Names that are neither go to unknown.
+// Resolve a list of names into the characters that will get the letter:
+// the sender's personal groups first, then characters, then mailing lists.
+// Names that are none of those go to unknown.
 mapping expand_recipients(string from, string * names)
 {
   string * found, * unknown, * members;
@@ -169,6 +175,13 @@ mapping expand_recipients(string from, string * names)
     }
     else if (valid_recipient(name))
       found += ({ name });
+    else if (MAILING_LISTS_D->query_list(name))
+    {
+      members = MAILING_LISTS_D->query_members(name);
+      for (j = 0; j < sizeof(members); j++)
+        if (valid_recipient(members[j]))
+          found += ({ members[j] });
+    }
     else
       unknown += ({ name });
   }
@@ -185,7 +198,7 @@ string * post_mail(string from, string * to, string * cc, string subject, string
   object ob;
   int i;
 
-  if (!valid_access("post mail"))
+  if (!valid_access("post mail", from))
     return ({ });
 
   from = lower_case(from);
@@ -230,7 +243,7 @@ void mark_read(string who, string id)
 {
   int i;
 
-  if (!valid_access("mark read"))
+  if (!valid_access("mark read", who))
     return;
 
   load_mailbox(who);
@@ -246,7 +259,7 @@ int remove_letters(string who, string * ids)
 {
   int i, removed;
 
-  if (!valid_access("remove letters"))
+  if (!valid_access("remove letters", who))
     return 0;
 
   load_mailbox(who);
@@ -266,6 +279,9 @@ int remove_letters(string who, string * ids)
 // the character who made it.
 mapping query_groups(string who)
 {
+  if (!valid_access("query groups", who))
+    return ([ ]);
+
   load_mailbox(who);
   return ([ ]) + groups;
 }
@@ -275,7 +291,7 @@ string * add_to_group(string who, string group, string * names)
   string * added;
   int i;
 
-  if (!valid_access("add group"))
+  if (!valid_access("add group", who))
     return ({ });
 
   load_mailbox(who);
@@ -305,7 +321,7 @@ string * remove_from_group(string who, string group, string * names)
   string * removed;
   int i;
 
-  if (!valid_access("remove group"))
+  if (!valid_access("remove group", who))
     return ({ });
 
   load_mailbox(who);
@@ -334,7 +350,7 @@ int age_mail(string who)
   string * old;
   int i;
 
-  if (!valid_access("age mail"))
+  if (!valid_access("age mail", who))
     return 0;
 
   load_mailbox(who);
@@ -353,7 +369,7 @@ int age_mail(string who)
 // Radix : March 5, 1997
 void retire_user(string who)
 {
-  if (!who || !valid_access("retire user"))
+  if (!who || !valid_access("retire user", who))
     return;
 
   who = lower_case(who);
@@ -367,4 +383,6 @@ void retire_user(string who)
 
   if (file_exists(player_save_dir(who) + MAILBOX_SAVE + ".o"))
     rm(player_save_dir(who) + MAILBOX_SAVE + ".o");
+
+  MAILING_LISTS_D->retire_user(who);
 }

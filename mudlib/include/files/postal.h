@@ -4,10 +4,8 @@
 
 #define POSTAL_D "/lib/handlers/postal"
 #define MAILER_OB "/lib/obj/mailer"
-
-// The objects allowed to change a mailbox through the postal handler.
-#define TRUSTED_MAILERS ({ MAILER_OB, "/lib/player", \
-                           "/lib/core/secure/retire", "/lib/core/secure/coders" })
+#define MAILING_LISTS_D "/lib/handlers/mailing-lists"
+#define MAILING_LISTS_SAVE "/save/mailing-lists"
 
 // Each character's mailbox, inside their save directory.
 #define MAILBOX_SAVE "mailbox"
