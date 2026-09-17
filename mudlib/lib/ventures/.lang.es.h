@@ -90,3 +90,9 @@
 #define _LANG_PUB_DEFAULT_FOOD_MESS_ME "Te comes un plato de " + name
 #define _LANG_PUB_DEFAULT_FOOD_MESS_OTHERS "se come un plato de " + name
 #define _LANG_PUB_DEFAULT_MENU_HEADER "En el menú hay:"
+
+// post office
+
+#define _LANG_POST_OFFICE_MAIL_CMDS ({ "correo" })
+#define _LANG_POST_OFFICE_NO_GUESTS "Los invitados no tienen buzón.\n"
+#define _LANG_POST_OFFICE_BUSY "Termina primero lo que estás haciendo.\n"

@@ -38,6 +38,11 @@
               "Otr" + ob->query_vowel() + " nuev" + ob->query_vowel() + " te es concedid" + ob->query_vowel() + ".\n"
 #define _LANG_START_CONNECTING_GAME "Estás entrando en " + master->query_game_name() + "...\n"
 
+#define _LANG_START_MAIL_AGED (aged_mail == 1 ? "Una carta muy antigua de tu buzón se ha perdido.\n" : \
+  "" + aged_mail + " cartas muy antiguas de tu buzón se han perdido.\n")
+#define _LANG_START_MAIL_UNREAD (mail_stat["unread"] == 1 ? "Tienes una carta sin leer.\n" : \
+  "Tienes " + mail_stat["unread"] + " cartas sin leer.\n")
+
 // quit.c
 
 #define _LANG_QUIT_LOADING "Todavía se esta cargando tu equipo, espera a que termine el proceso.\n"

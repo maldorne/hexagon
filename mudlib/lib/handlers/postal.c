@@ -3,324 +3,227 @@
 // the postal daemon... handles all mail sending and receiving
 //    "radix",
 // Added retire_user and age_mail : Radix - March 6, 1997
+//
+// Rewritten for Hexagon, neverbot 09/2026: every character keeps their
+// mailbox (letters and personal groups) in their own save directory, and
+// every recipient gets their own copy of a letter.
 
 #include <mud/secure.h>
 #include <files/postal.h>
+#include <user/player.h>
 #include <language.h>
 
-mapping *box_info;
-mapping my_groups;
-static mapping mud_groups;
-static string file;
+// The mailbox loaded right now, and whose it is. Every call loads the
+// mailbox it needs, so these only live for the length of one call.
+mapping * letters;
+mapping groups;
+static string owner;
 
-string *expand_list(string *who);
-string *expand_group(string grp);
-void add_post(string *local, mapping borg);
-void notify_online(string *who, string from, string sub);
-int get_post_number(string id);
-void remove_post(string who, string id);
-void retire_user(string who);
-void age_mail(string who);
-void flush_files();
+private void load_mailbox(string who);
+private void save_mailbox();
+private int find_letter(string id);
+private string * without_repeats(string * names);
 
 void create()
 {
   seteuid(ROOT);
-  box_info = ({});
-  my_groups = ([]);
-
-  mud_groups = ([
-    _LANG_POSTAL_GROUP_CODERS: ({
-      "admin",
-    }) ,
-    _LANG_POSTAL_GROUP_ADMINS: ({
-      "admin",
-    }) ,
-  ]);
-  // Removed until guilds are defined, neverbot 17/01/03
-  // catch(mud_groups[_LANG_POSTAL_GROUP_PATRONS] = "/d/oficios/master"->query_patrons());
+  letters = ({ });
+  groups = ([ ]);
+  owner = "";
 }
 
 int valid_access(string func)
 {
   if (geteuid(previous_object()) == ROOT)
-  return 1;
+    return 1;
 
   if (member_array(base_name(previous_object()), TRUSTED_MAILERS) != -1)
-  return 1;
+    return 1;
 
-  log_file("illegal", "attempt to access postal daemon function "+func+" by "+
-    (this_player() ? this_player()->query_name() : getuid(previous_object()))+
-    " from file "+file_name(previous_object())+"\n");
-  log_file("illegal", ctime(time())+"\n");
+  log_file("illegal", "attempt to access postal daemon function " + func + " by " +
+    (this_player() ? this_player()->query_name() : getuid(previous_object())) +
+    " from file " + file_name(previous_object()) + " [" + ctime(time(), 4) + "]\n");
 
   return 0;
 }
 
-void update_post_box(string who)
+private void load_mailbox(string who)
 {
-  if (file == DIR_POSTAL+"/"+who)
-    return;
-
-  if (file && file != "")
-  {
-    if (!sizeof(box_info) && !m_sizeof(my_groups))
-      rm(file+".o");
-    else
-      save_object(file);
-  }
-
-  box_info = ({});
-  my_groups = ([]);
-  file =  DIR_POSTAL+"/" +who;
-  restore_object(file);
+  owner = lower_case(who);
+  letters = ({ });
+  groups = ([ ]);
+  restore_object(player_save_dir(owner) + MAILBOX_SAVE, 1);
 }
 
-// Radix : March 5, 1997
-void retire_user(string who)
+private void save_mailbox()
 {
-  mapping m;
+  if (!sizeof(letters) && !map_sizeof(groups))
+  {
+    if (file_exists(player_save_dir(owner) + MAILBOX_SAVE + ".o"))
+      rm(player_save_dir(owner) + MAILBOX_SAVE + ".o");
+    return;
+  }
+
+  mkdir(player_save_dir(owner));
+  save_object(player_save_dir(owner) + MAILBOX_SAVE, 1);
+}
+
+private int find_letter(string id)
+{
   int i;
 
-  if (!who)
-    return;
+  for (i = 0; i < sizeof(letters); i++)
+    if (letters[i]["id"] == id)
+      return i;
+
+  return -1;
+}
+
+private string * without_repeats(string * names)
+{
+  string * result;
+  int i;
+
+  result = ({ });
+
+  for (i = 0; i < sizeof(names); i++)
+    if (member_array(names[i], result) == -1)
+      result += ({ names[i] });
+
+  return result;
+}
+
+// A character that can receive mail: one with a save file. Guests have none,
+// but one could be online under a name nobody saved yet, so ask them too.
+int valid_recipient(string who)
+{
+  object ob;
+
+  if (!strlen(who))
+    return 0;
+
   who = lower_case(who);
 
-  //  if (this_player() && !this_player()->query_admin() &&
-  //  this_player()->query_name() != who)
-  //  return;
-  update_post_box(who);
-
-  // if (find_player(who))
-  //  tell_object(find_player(who), "Borrando tu mail.\n");
-
-  for (i = 0; i < sizeof(box_info); i++)
-    remove_post(who, box_info[i]["id"]);
-
-  flush_files(); // neverbot 12/2010
-
-  return;
-}
-
-string *post_mail(mapping borg)
-{
-  string *local, *remote;
-
-  if (!valid_access("post mail"))
-    return ({});
-  if (!borg["from"])
-    return ({});
-
-  update_post_box(borg["from"]);
-  local = unique_array(expand_list(borg["to"])+expand_list(borg["cc"]));
-
-  if (!sizeof(local -= (remote=filter_array(local, "remote_mail",this_object(), borg))))
-    return remote;
-
-  add_post(local, borg);
-  notify_online(local, borg["from"], borg["subject"]);
-  return local+remote;
-}
-
-int remote_mail(string who, mapping borg)
-{
-  string pl, mud;
-
-  if (sscanf(who, "%s@%s", pl, mud) != 2)
+  if ((ob = find_player(who)) && ob->query_property(GUEST_PROP))
     return 0;
-  MAIL_S->remote_mail(pl, mud, borg);
-    return 1;
+
+  return player_exists(who);
 }
 
-string * expand_list(string *who)
-{
-  string *full;
-  string a,b;
-  int i;
-
-  full = ({});
-  if (!(i=sizeof(who)))
-    return ({});
-
-  while (i--)
-  {
-  if (!who[i] || who[i] == "" || !stringp(who[i]))
-    continue;
-  if (sscanf((who[i]=lower_case(who[i])), "%s@%s", a, b) == 2)
-    full += ({ who[i] });
-  else if (player_exists(who[i]))
-    full += ({ who[i] });
-  else if (mud_groups[who[i]] || my_groups[who[i]])
-    full += expand_group(who[i]);
-  else
-    write(_LANG_POSTAL_DOES_NOT_EXIST_USER_OR_GROUP);
-  }
-  return full;
-}
-
-string * expand_group(string grp)
-{
-  string *ret, *g;
-  string a, b;
-  int i;
-
-  if (mud_groups[grp])
-    g = mud_groups[grp];
-  else if (my_groups[grp])
-    g = my_groups[grp];
-  else
-    return ({});
-
-  i = sizeof(g);
-  ret = ({});
-
-  while (i--)
-  {
-    if (sscanf(g[i], "%s@%s", a, b) ==2)
-      ret += ({ g[i] });
-    else if (player_exists(g[i]))
-      ret += ({ g[i] });
-    else
-      write(_LANG_POSTAL_DOES_NOT_EXIST_USER);
-  }
-  return ret;
-}
-
-void add_post(string *local, mapping borg)
+// Letters in the mailbox, oldest first. Each one is a mapping with
+// id, from, to, cc, subject, date, read and body.
+mapping * query_letters(string who)
 {
   int i;
+  mapping * result;
 
-  if (!valid_access("add post"))
-    return;
-  if (!(i=sizeof(local)))
-    return;
+  load_mailbox(who);
+  result = ({ });
 
-  borg["id"] = (string)LETTER_D->create_message(borg["message"],local);
-  borg["read"] = 0;
-  map_delete(borg, "message");
+  for (i = 0; i < sizeof(letters); i++)
+    result += ({ ([ ]) + letters[i] });
 
-  while(i--)
-  {
-    update_post_box(local[i]);
-    box_info += ({ borg });
-  }
-}
-
-void remove_post(string who, string id)
-{
-  int x;
-
-  if (!valid_access("remove post"))
-   return;
-
-  update_post_box(who = lower_case(who));
-
-  if ((x = get_post_number(id)) == -1)
-    return;
-
-  LETTER_D->delete_message(id, who);
-  box_info = exclude_array(box_info, x);
-}
-
-static int get_post_number(string id)
-{
-  int i;
-
-  i = sizeof(box_info);
-  while(i--)
-    if (box_info[i]["id"] == id)
-      return i;
-  return -1;
+  return result;
 }
 
 mapping mail_status(string who)
 {
-  int un, tot, i;
+  int unread, i;
 
-  update_post_box(who = lower_case(who));
-  i = sizeof(box_info);
+  load_mailbox(who);
 
-  while(i--)
-  {
-    tot++;
-    if (!box_info[i]["read"])
-      un++;
-  }
-  return ([ "unread":un, "total":tot ]);
+  for (i = 0; i < sizeof(letters); i++)
+    if (!letters[i]["read"])
+      unread++;
+
+  return ([ "unread" : unread, "total" : sizeof(letters) ]);
 }
 
-void notify_online(string *who, string from, string sub)
+// Resolve a list of names and personal groups of the sender into the
+// characters that will get the letter. Names that are neither go to unknown.
+mapping expand_recipients(string from, string * names)
 {
-  object ob, mail;
-  string str;
-  int i;
+  string * found, * unknown, * members;
+  string name;
+  int i, j;
 
-  i = sizeof(who);
-  while (i--)
+  load_mailbox(from);
+  found = ({ });
+  unknown = ({ });
+
+  for (i = 0; i < sizeof(names); i++)
   {
-    if (!(ob = find_player(who[i])) ||
-      ((str=(string)ob->getenv("MAIL_MSG")) == "ignore"))
+    name = lower_case(names[i]);
+
+    if (!strlen(name))
       continue;
 
-    if (!str || str == "")
-      str = _LANG_POSTAL_NEW_MAIL;
-
-    str = replace_string(str, "$N", capitalize(from));
-    str = replace_string(str, "$S", sub);
-
-    //tell_object(ob,str);
-    tell_object(ob,wrap(str,(int)ob->query_cols()) );
-    //tell_object(ob, wrap(str, (int)ob->getenv("screen")));
-    if (mail=present(POST_ID, ob))
-      mail->reset_post();
+    if (groups[name])
+    {
+      members = groups[name];
+      for (j = 0; j < sizeof(members); j++)
+        if (valid_recipient(members[j]))
+          found += ({ members[j] });
+        else
+          unknown += ({ members[j] });
+    }
+    else if (valid_recipient(name))
+      found += ({ name });
+    else
+      unknown += ({ name });
   }
+
+  return ([ "found" : without_repeats(found), "unknown" : without_repeats(unknown) ]);
 }
 
-mapping add_group(string who, string group, string *in_group)
+// Deliver a copy of the letter to every recipient in to and cc, which must
+// already be expanded. Returns the characters that got it.
+string * post_mail(string from, string * to, string * cc, string subject, string body)
 {
-  string a, b;
+  string * recipients, * delivered;
+  mapping letter;
+  object ob;
   int i;
 
-  if (!valid_access("add group"))
-    return ([]);
+  if (!valid_access("post mail"))
+    return ({ });
 
-  update_post_box(who = lower_case(who));
-  if (!my_groups)
-    my_groups = ([]);
-  if (!my_groups[group])
-    my_groups[group] = ({});
-  i = sizeof(in_group);
+  from = lower_case(from);
 
-  while (i--)
+  if (!valid_recipient(from))
+    return ({ });
+
+  to = without_repeats(to);
+  cc = without_repeats((cc ? cc : ({ })) - to);
+  recipients = to + cc;
+  delivered = ({ });
+
+  letter = ([
+    "id"      : "" + time() + "-" + from + "-" + random(100000),
+    "from"    : from,
+    "to"      : to,
+    "cc"      : cc,
+    "subject" : subject,
+    "date"    : time(),
+    "read"    : 0,
+    "body"    : body,
+  ]);
+
+  for (i = 0; i < sizeof(recipients); i++)
   {
-    if (player_exists(in_group[i] = lower_case(in_group[i])))
-      my_groups[group] += ({ in_group[i] });
-    if (sscanf(in_group[i], "%s@%s", a, b) == 2)
-      my_groups[group] += ({ in_group[i] });
+    if (!valid_recipient(recipients[i]))
+      continue;
+
+    load_mailbox(recipients[i]);
+    letters += ({ ([ ]) + letter });
+    save_mailbox();
+    delivered += ({ recipients[i] });
+
+    if (ob = find_player(recipients[i]))
+      tell_object(ob, _LANG_POSTAL_NEW_MAIL);
   }
-  return my_groups;
-}
 
-mapping remove_group(string who, string group, string *out_group)
-{
-  int i;
-
-  if (!valid_access("remove group"))
-    return ([]);
-  update_post_box(who = lower_case(who));
-
-  if (!my_groups)
-    return ([]);
-  if (!my_groups[group])
-    return my_groups;
-  i = sizeof(my_groups[group]);
-
-  while (i--)
-   my_groups[group] -= ({ my_groups[group][i] });
-
-  if (!m_sizeof(my_groups))
-    map_delete(my_groups, group);
-  return my_groups;
+  return delivered;
 }
 
 void mark_read(string who, string id)
@@ -329,70 +232,139 @@ void mark_read(string who, string id)
 
   if (!valid_access("mark read"))
     return;
-  update_post_box(who = lower_case(who));
-  i = sizeof(box_info);
-  while (i--)
-    if (id == box_info[i]["id"])
-      box_info[i]["read"] = 1;
+
+  load_mailbox(who);
+
+  if ((i = find_letter(id)) == -1 || letters[i]["read"])
+    return;
+
+  letters[i]["read"] = 1;
+  save_mailbox();
+}
+
+int remove_letters(string who, string * ids)
+{
+  int i, removed;
+
+  if (!valid_access("remove letters"))
+    return 0;
+
+  load_mailbox(who);
+
+  for (i = sizeof(letters) - 1; i >= 0; i--)
+    if (member_array(letters[i]["id"], ids) != -1)
+    {
+      letters = letters[0..i-1] + letters[i+1..];
+      removed++;
+    }
+
+  save_mailbox();
+  return removed;
+}
+
+// Personal groups: a name standing for a list of characters, only usable by
+// the character who made it.
+mapping query_groups(string who)
+{
+  load_mailbox(who);
+  return ([ ]) + groups;
+}
+
+string * add_to_group(string who, string group, string * names)
+{
+  string * added;
+  int i;
+
+  if (!valid_access("add group"))
+    return ({ });
+
+  load_mailbox(who);
+  group = lower_case(group);
+  added = ({ });
+
+  if (!groups[group])
+    groups[group] = ({ });
+
+  for (i = 0; i < sizeof(names); i++)
+    if (valid_recipient(names[i]) &&
+        member_array(lower_case(names[i]), groups[group]) == -1)
+      added += ({ lower_case(names[i]) });
+
+  added = without_repeats(added);
+  groups[group] += added;
+
+  if (!sizeof(groups[group]))
+    map_delete(groups, group);
+
+  save_mailbox();
+  return added;
+}
+
+string * remove_from_group(string who, string group, string * names)
+{
+  string * removed;
+  int i;
+
+  if (!valid_access("remove group"))
+    return ({ });
+
+  load_mailbox(who);
+  group = lower_case(group);
+
+  if (!groups[group])
+    return ({ });
+
+  for (i = 0; i < sizeof(names); i++)
+    names[i] = lower_case(names[i]);
+
+  removed = groups[group] & names;
+  groups[group] -= removed;
+
+  if (!sizeof(groups[group]))
+    map_delete(groups, group);
+
+  save_mailbox();
+  return removed;
 }
 
 // Radix : March 7, 1997
-void age_mail(string who)
+// Remove the letters older than MAIL_AGED. Returns how many went.
+int age_mail(string who)
 {
-  int low, high;
-  mapping m;
+  string * old;
   int i;
 
   if (!valid_access("age mail"))
+    return 0;
+
+  load_mailbox(who);
+  old = ({ });
+
+  for (i = 0; i < sizeof(letters); i++)
+    if (letters[i]["date"] + MAIL_AGED < time())
+      old += ({ letters[i]["id"] });
+
+  if (!sizeof(old))
+    return 0;
+
+  return remove_letters(who, old);
+}
+
+// Radix : March 5, 1997
+void retire_user(string who)
+{
+  if (!who || !valid_access("retire user"))
     return;
 
-  update_post_box(who);
+  who = lower_case(who);
 
-  for (i = 0; i < sizeof(box_info); i++)
-    if (box_info[i]["date"] + AGED < time())
-    {
-      high = get_post_number(box_info[i]["id"]);
-      if (!low)
-        low = high;
-      remove_post(who, box_info[i]["id"]);
-    }
+  //  if (this_player() && !this_player()->query_admin() &&
+  //  this_player()->query_name() != who)
+  //  return;
 
-  if (low)
-  {
-    if (low == high)
-      tell_object(find_player(who),_LANG_POSTAL_OLD_MAIL_1);
-    else if (low + 1 == high)
-      tell_object(find_player(who),_LANG_POSTAL_OLD_MAIL_2);
-    else
-      tell_object(find_player(who),_LANG_POSTAL_OLD_MAIL_3);
-  }
-  return;
+  // if (find_player(who))
+  //  tell_object(find_player(who), "Borrando tu mail.\n");
+
+  if (file_exists(player_save_dir(who) + MAILBOX_SAVE + ".o"))
+    rm(player_save_dir(who) + MAILBOX_SAVE + ".o");
 }
-
-mapping query_mud_groups() { return mud_groups; }
-int query_mailing_list(string which)
-{
-  if (!which)
-    return 1;
-  if (mud_groups[which])
-    return 1;
-  return 0;
-}
-
-void flush_files()
-{
-  if (!sizeof(box_info) && !m_sizeof(my_groups))
-    rm(file+".o");
-  else
-    save_object(file);
-}
-
-string read_sig(string who)
-{
-  if (file_exists("/home/"+who+"/.sig"))
-    return read_file("/home/"+who+"/.sig");
-  else
-    return "";
-}
-
-int valid_shadow() { return 1; }

@@ -80,15 +80,8 @@
 
 // postal
 
-#define _LANG_POSTAL_GROUP_CODERS "programadores"
-#define _LANG_POSTAL_GROUP_ADMINS "admins"
-#define _LANG_POSTAL_GROUP_PATRONS "patrones"
-#define _LANG_POSTAL_DOES_NOT_EXIST_USER_OR_GROUP "No existe el usuario o grupo: "+capitalize(who[i])+".\n"
-#define _LANG_POSTAL_DOES_NOT_EXIST_USER "No existe el usuario: "+capitalize(g[i])+".\n"
-#define _LANG_POSTAL_NEW_MAIL "  Nuevo mail ha llegado desde $N\n  Asunto: $S"
-#define _LANG_POSTAL_OLD_MAIL_1 "Mail antiguo #"+low+"\n"
-#define _LANG_POSTAL_OLD_MAIL_2 "Mails antiguos #"+low+" y "+"#"+high+"\n"
-#define _LANG_POSTAL_OLD_MAIL_3 "Mails antiguos #"+low+" hasta"+" #"+high+"\n"
+#define _LANG_POSTAL_NEW_MAIL "Te ha llegado una carta de " + capitalize(from) + \
+  ": " + subject + ".\n"
 
 // weapons
 

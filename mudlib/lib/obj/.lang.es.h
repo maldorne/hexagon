@@ -77,3 +77,70 @@
 #define _LANG_DIARY_EXPLORER_COUNT_PRE "\nEn total, has visitado "
 #define _LANG_DIARY_PLACE_SG "lugar"
 #define _LANG_DIARY_PLACE_PL "lugares"
+
+// mailer.c
+
+#define _LANG_MAILER_PROMPT "correo> "
+#define _LANG_MAILER_EMPTY "No tienes cartas.\n"
+#define _LANG_MAILER_HEADERS_TITLE "Tus cartas ('?' para ver las órdenes):\n\n"
+#define _LANG_MAILER_MARK_DELETED "B"
+#define _LANG_MAILER_MARK_UNREAD "N"
+#define _LANG_MAILER_NO_SUCH_LETTER "No tienes ninguna carta con ese número.\n"
+#define _LANG_MAILER_WHICH_LETTERS "¿Qué cartas? Indica sus números: 3, 1-4 o 2,5.\n"
+#define _LANG_MAILER_MARKED "Marcadas para borrar al salir.\n"
+#define _LANG_MAILER_UNMARKED "Ya no se borrarán.\n"
+#define _LANG_MAILER_LETTER_FROM "De: " + capitalize(letter["from"]) + "\n"
+#define _LANG_MAILER_LETTER_TO "Para: " + list_names(letter["to"]) + "\n"
+#define _LANG_MAILER_LETTER_CC "Copia: " + list_names(letter["cc"]) + "\n"
+#define _LANG_MAILER_LETTER_DATE "Fecha: " + ctime(letter["date"], 4) + "\n"
+#define _LANG_MAILER_LETTER_SUBJECT "Asunto: " + letter["subject"] + "\n"
+#define _LANG_MAILER_NO_GROUPS "No tienes ningún grupo.\n"
+#define _LANG_MAILER_GROUPS_TITLE "Tus grupos:\n\n"
+#define _LANG_MAILER_GROUP_SYNTAX "Escribe g <grupo> <nombres> para añadir, y -<nombre> para quitar.\n"
+#define _LANG_MAILER_GROUP_ADDED "Añadidos a " + group + ": " + list_names(done) + ".\n"
+#define _LANG_MAILER_GROUP_NOT_ADDED "No se han añadido a " + group + " (no existen o ya estaban): " + \
+  list_names(adding - done) + ".\n"
+#define _LANG_MAILER_GROUP_REMOVED "Quitados de " + group + ": " + list_names(done) + ".\n"
+#define _LANG_MAILER_GROUP_NOT_REMOVED "Nadie de esos está en " + group + ".\n"
+#define _LANG_MAILER_HELP \
+  "  <número>                  lee esa carta\n" + \
+  "  l                         lista tus cartas\n" + \
+  "  e <nombres>               escribe una carta\n" + \
+  "  r <número>                responde a quien te la envió\n" + \
+  "  v <número> <nombres>      reenvía una carta\n" + \
+  "  b <números>               marca cartas para borrarlas al salir\n" + \
+  "  d <números>               deja de marcarlas\n" + \
+  "  g                         muestra tus grupos\n" + \
+  "  g <grupo> <nombres>       añade nombres a un grupo (-<nombre> lo quita)\n" + \
+  "  s                         sale, borrando las cartas marcadas\n" + \
+  "  ?                         muestra esta ayuda\n"
+#define _LANG_MAILER_CMD_LIST ({ "l" })
+#define _LANG_MAILER_CMD_WRITE ({ "e" })
+#define _LANG_MAILER_CMD_REPLY ({ "r" })
+#define _LANG_MAILER_CMD_FORWARD ({ "v" })
+#define _LANG_MAILER_CMD_DELETE ({ "b" })
+#define _LANG_MAILER_CMD_UNDELETE ({ "d" })
+#define _LANG_MAILER_CMD_GROUPS ({ "g" })
+#define _LANG_MAILER_CMD_QUIT ({ "s" })
+#define _LANG_MAILER_CMD_HELP ({ "?" })
+#define _LANG_MAILER_WRITE_TO_WHOM "¿A quién? Escribe e <nombres>.\n"
+#define _LANG_MAILER_REPLY_PREFIX "Re: "
+#define _LANG_MAILER_FORWARD_SYNTAX "Escribe v <número> <nombres>.\n"
+#define _LANG_MAILER_FORWARD_PREFIX "Rv: "
+#define _LANG_MAILER_FORWARD_BODY "Carta reenviada por " + capitalize(owner_name) + ", escrita por " + \
+  capitalize(letter["from"]) + " el " + ctime(letter["date"], 4) + ":\n\n"
+#define _LANG_MAILER_UNKNOWN_RECIPIENTS "No hay nadie a quien escribir con esos nombres: " + \
+  list_names(recipients["unknown"]) + ".\n"
+#define _LANG_MAILER_NOBODY_TO_WRITE "La carta no tiene a quién ir.\n"
+#define _LANG_MAILER_SENT "Carta enviada a " + list_names(delivered) + ".\n"
+#define _LANG_MAILER_NOT_SENT "La carta no ha llegado a nadie.\n"
+#define _LANG_MAILER_DELETED (number == 1 ? "Borrada una carta.\n" : "Borradas " + number + " cartas.\n")
+#define _LANG_MAILER_CLOSED "Cierras tu buzón.\n"
+#define _LANG_MAILER_UNKNOWN_COMMAND "No entiendo esa orden. Escribe '?' para verlas.\n"
+#define _LANG_MAILER_ASK_SUBJECT "Asunto: "
+#define _LANG_MAILER_NO_SUBJECT "(sin asunto)"
+#define _LANG_MAILER_WRITE_BODY "Escribe la carta. Una línea con solo un punto la termina; '~q' la descarta.\n"
+#define _LANG_MAILER_BODY_END "."
+#define _LANG_MAILER_BODY_CANCEL "~q"
+#define _LANG_MAILER_DISCARDED "Carta descartada.\n"
+#define _LANG_MAILER_ASK_CC "Copia para (Intro para nadie): "

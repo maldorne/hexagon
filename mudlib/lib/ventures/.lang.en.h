@@ -87,3 +87,9 @@
 #define _LANG_PUB_DEFAULT_FOOD_MESS_ME "You eat a full plate of " + name
 #define _LANG_PUB_DEFAULT_FOOD_MESS_OTHERS "eats a full plate of " + name
 #define _LANG_PUB_DEFAULT_MENU_HEADER "On the menu there is:"
+
+// post office
+
+#define _LANG_POST_OFFICE_MAIL_CMDS ({ "mail" })
+#define _LANG_POST_OFFICE_NO_GUESTS "Guests have no mailbox.\n"
+#define _LANG_POST_OFFICE_BUSY "Finish what you are doing first.\n"

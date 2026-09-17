@@ -36,6 +36,11 @@
                 ob->query_name() + ". A new one is given to you.\n"
 #define _LANG_START_CONNECTING_GAME "You are now entering " + master->query_game_name() + "...\n"
 
+#define _LANG_START_MAIL_AGED (aged_mail == 1 ? "A very old letter in your mailbox has been lost.\n" : \
+  "" + aged_mail + " very old letters in your mailbox have been lost.\n")
+#define _LANG_START_MAIL_UNREAD (mail_stat["unread"] == 1 ? "You have an unread letter.\n" : \
+  "You have " + mail_stat["unread"] + " unread letters.\n")
+
 // quit.c
 
 #define _LANG_QUIT_LOADING "Your inventory is still loading, please wait until the process ends.\n"

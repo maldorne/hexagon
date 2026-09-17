@@ -1,0 +1,39 @@
+@verbs mail letters mailbox
+@tier player
+@title mail: how to read and send letters
+@see nicknames
+
+  mail
+  mail <names>
+
+At a post office, 'mail' opens your mailbox and lists your letters; the
+ones you have not read yet carry an N. With names, you write a letter to
+those characters without going through the mailbox.
+
+Inside the mailbox:
+
+  <number>                  read that letter
+  l                         list your letters
+  m <names>                 write a letter
+  r <number>                reply to whoever sent it
+  f <number> <names>        forward a letter
+  d <numbers>               mark letters to be deleted when you quit
+  u <numbers>               unmark them
+  g                         show your groups
+  g <group> <names>         add names to a group
+  g <group> -<name>         remove a name from a group
+  q                         quit, deleting the marked letters
+  ?                         show the commands
+
+Numbers can go alone or in ranges: 3, 1-4 or 2,5.
+
+Writing a letter asks for the subject and then the text, line by line. A
+line with just a dot ends it and '~q' discards it. Afterwards you can
+send a copy to other characters.
+
+A group is your own name for several characters: writing to it writes to
+all of them. Nicknames work as recipients too.
+
+A letter that arrives while you are connected tells you so; otherwise you
+will know when you log in. Letters older than two months are lost. Guests
+have no mailbox and cannot receive letters.

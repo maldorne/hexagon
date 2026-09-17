@@ -607,6 +607,13 @@ object convert_room_to_location(object room)
     ret += "   Adding component pub.\n";
   }
 
+  if (room->query_post_office() &&
+      !location->query_component_by_type(LOCATION_COMPONENT_POST_OFFICE))
+  {
+    location->add_component(LOCATION_COMPONENT_POST_OFFICE, ([ ]));
+    ret += "   Adding component post office.\n";
+  }
+
   // A room built on /lib/outside.c is open-air: attach the outside component
   // so the location gets weather / day-night / darkness behaviour (the
   // component drives those through the weather handler). Interiors built on

@@ -6,6 +6,7 @@
 #include <basic/communicate.h>
 #include <room/location.h>
 #include <mud/translations.h>
+#include <files/postal.h>
 #include <translations/races.h>
 #include <translations/inform.h>
 #include <language.h>
@@ -19,6 +20,7 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
 {
   object tmp;
   mapping mail_stat;
+  int aged_mail;
 
   if (!SECURE->valid_progname("/lib/core/login"))
     return;
@@ -108,18 +110,17 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
   // check items we have lost from our inventory
   call_out("check_mandatory_inventory", 1);
 
-  // TODO mail
-  /*
-  mail_stat = (mapping)POSTAL_D->mail_status(query_name());
-  if (mail_stat["unread"])
+  // letters past their age go away, and the rest are announced
+  if (!query_property(GUEST_PROP))
   {
-    if (mail_stat["total"] == 1)
-        write("\n\t >>> ¡Tu único correo está por leer! <<<\n");
-    else
-        write("\n\t >>> ¡"+mail_stat["unread"]+" de tus "+
-            mail_stat["total"]+" correos están por leer! <<<\n");
+    aged_mail = POSTAL_D->age_mail(query_name());
+    if (aged_mail)
+      write(_LANG_START_MAIL_AGED);
+
+    mail_stat = POSTAL_D->mail_status(query_name());
+    if (mail_stat["unread"])
+      write(_LANG_START_MAIL_UNREAD);
   }
-  */
 
   // removed these things about executing scripts on login, neverbot 4/2003
   // exec_alias("login","");

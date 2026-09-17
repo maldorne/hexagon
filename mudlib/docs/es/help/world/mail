@@ -1,0 +1,39 @@
+@verbs correo cartas buzon buzón
+@tier player
+@title el correo: cómo leer y enviar cartas
+@see apodos
+
+  correo
+  correo <nombres>
+
+En una oficina de correos, 'correo' abre tu buzón y muestra tus cartas;
+las que aún no has leído llevan una N. Con nombres, escribes una carta a
+esos personajes sin pasar por el buzón.
+
+Dentro del buzón:
+
+  <número>                  lee esa carta
+  l                         lista tus cartas
+  e <nombres>               escribe una carta
+  r <número>                responde a quien te la envió
+  v <número> <nombres>      reenvía una carta
+  b <números>               marca cartas para borrarlas al salir
+  d <números>               deja de marcarlas
+  g                         muestra tus grupos
+  g <grupo> <nombres>       añade nombres a un grupo
+  g <grupo> -<nombre>       quita un nombre de un grupo
+  s                         sale, borrando las cartas marcadas
+  ?                         muestra las órdenes
+
+Los números pueden ir sueltos o en rangos: 3, 1-4 o 2,5.
+
+Al escribir una carta se piden el asunto y el texto, línea a línea. Una
+línea con solo un punto la termina y '~q' la descarta. Después puedes
+enviar una copia a otros personajes.
+
+Un grupo es un nombre tuyo para varios personajes: escribir a él es
+escribir a todos. Los apodos también valen como destinatarios.
+
+Cuando te llega una carta estando conectado, te avisa; si no, lo sabrás
+al entrar. Las cartas de más de dos meses se pierden. Los invitados no
+tienen buzón y no pueden recibir cartas.
