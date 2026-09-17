@@ -5,8 +5,8 @@
 
   actitud [<modo>]
 
-Tu actitud dice qué papel haces en una pelea: 'ofensiva',
-'defensiva', 'de apoyo' o 'cualquiera'. Sin argumento te dice cuál
+Tu actitud dice qué papel haces en una pelea: 'agresiva',
+'defensiva', 'apoyo' o 'libre'. Sin argumento te dice cuál
 llevas puesta ahora.
 
 Algunos efectos sólo se pueden usar desde una actitud concreta, y

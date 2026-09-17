@@ -2,7 +2,6 @@
 // effects / base_effect — cadenas visibles para el jugador (español)
 
 // etiquetas de rol de combate, indexadas por las constantes de combat.h
-#define _LANG_COMBAT_ROLE_STRINGS ({ "neutral", "ofensiva", "defensiva", "sanadora" })
 
 // --- combat_fixes: mensajes de protección ---
 #define _LANG_EFFECT_PROTECT_YOU_PRE "Proteges a "

@@ -11,6 +11,7 @@
 #include <common/properties.h>
 #include <living/skills.h>
 #include <living/combat.h>
+#include <translations/combat.h>
 #include <language.h>
 
 inherit "/lib/effects/combat_fixes.c";
@@ -170,7 +171,7 @@ private string category_display(string id)
 
 int query_combat_role_needed() { return combat_role_needed; }
 void set_combat_role_needed(int value) { combat_role_needed = value; }
-string query_combat_role_needed_string() { return _LANG_COMBAT_ROLE_STRINGS[combat_role_needed]; }
+string query_combat_role_needed_string() { return COMBAT_ROLE_STRINGS[combat_role_needed]; }
 
 void set_help_desc(string str) { help_desc = str; }
 string query_help_desc() { return help_desc; }
@@ -358,7 +359,7 @@ string help()
       ret += _LANG_EFFECT_HELP_COST + query_effect_gp_cost(this_player());
 
       if (combat_role_needed != NEUTRAL_ROLE)
-        ret += _LANG_EFFECT_HELP_ROLE_NEEDED + _LANG_COMBAT_ROLE_STRINGS[combat_role_needed];
+        ret += _LANG_EFFECT_HELP_ROLE_NEEDED + COMBAT_ROLE_STRINGS[combat_role_needed];
     }
     else
     {

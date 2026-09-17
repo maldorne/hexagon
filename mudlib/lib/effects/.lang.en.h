@@ -2,7 +2,6 @@
 // effects / base_effect — player-facing strings (English)
 
 // combat role display labels, indexed by the role constants in combat.h
-#define _LANG_COMBAT_ROLE_STRINGS ({ "neutral", "offensive", "defensive", "healing" })
 
 // --- combat_fixes: protector messages ---
 #define _LANG_EFFECT_PROTECT_YOU_PRE "You protect "
