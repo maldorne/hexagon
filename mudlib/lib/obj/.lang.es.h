@@ -169,8 +169,8 @@
 #define _LANG_EDITOR_QUITTING "Sales sin guardar.\n"
 #define _LANG_EDITOR_UNKNOWN_COMMAND "No entiendo esa orden. " + \
   (mode == EDITOR_MODE_COMMAND ? "~h" : "H") + " muestra la ayuda.\n"
-#define _LANG_EDITOR_ED_START "Entras en ed. %^BOLD%^x%^RESET%^ guarda y sale, " + \
-  "%^BOLD%^q%^RESET%^ sale, %^BOLD%^h%^RESET%^ muestra la ayuda.\n"
+#define _LANG_EDITOR_ED_START "You enter ed. %^BOLD%^x%^RESET%^ saves and quits, " + \
+  "%^BOLD%^q%^RESET%^ quits, %^BOLD%^h%^RESET%^ shows the commands.\n"
 #define _LANG_EDITOR_HELP \
   "  I - insertar líneas antes de un número de línea\n" + \
   "  D - borrar líneas: un número o un rango como 1..3\n" + \

@@ -157,8 +157,16 @@
 // editor.c
 
 #define _LANG_EDITOR_VERBS ({ "editor" })
-#define _LANG_EDITOR_MODE_NAMES ([ "menu" : "menu", "command" : "command", "ed" : "ed" ])
-#define _LANG_EDITOR_CURRENT "You write with the " + query_editor_name() + " editor.\n"
-#define _LANG_EDITOR_OPTIONS "Your editor can be: menu or command" + \
-  (this_object()->query_coder() ? ", or ed" : "") + ". The menu editor is the default.\n"
+#define _LANG_EDITOR_MODE_NAMES ([ "menu" : "menu", "command" : "direct", "ed" : "ed" ])
+#define _LANG_EDITOR_MODE_ALIASES ([ "menu" : ({ "menu" }), \
+  "command" : ({ "direct" }), "ed" : ({ "ed" }) ])
+#define _LANG_EDITOR_CURRENT "You write letters and notes with the " + query_editor_name() + " editor.\n"
+#define _LANG_EDITOR_UNKNOWN "That editor does not exist.\n"
+#define _LANG_EDITOR_OPTIONS "\nYou can choose with 'editor <name>':\n" + \
+  "  menu      you type the lines; ** opens a menu to fix them,\n" + \
+  "            save or quit (the default one)\n" + \
+  "  direct    you type the lines and ** saves; ~ before a letter\n" + \
+  "            uses the menu commands without leaving the text\n" + \
+  (this_object()->query_coder() ? "  ed        the driver's line editor\n" : "") + \
+  "More in 'help editor'.\n"
 #define _LANG_EDITOR_SELECTED "You now write with the " + query_editor_name() + " editor.\n"

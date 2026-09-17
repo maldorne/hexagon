@@ -29,18 +29,19 @@ string query_editor_name()
   return _LANG_EDITOR_MODE_NAMES[query_editor_mode()];
 }
 
-// Takes the mode by its translated name. ed is only for coders.
+// Takes the mode by any of its translated names. ed is only for coders.
 int set_editor_name(string name)
 {
-  mapping names;
+  mapping aliases;
   string * modes;
   int i;
 
-  names = _LANG_EDITOR_MODE_NAMES;
-  modes = map_indices(names);
+  aliases = _LANG_EDITOR_MODE_ALIASES;
+  modes = map_indices(aliases);
+  name = lower_case(trim(name ? name : ""));
 
   for (i = 0; i < sizeof(modes); i++)
-    if (names[modes[i]] == name)
+    if (member_array(name, aliases[modes[i]]) != -1)
     {
       if (modes[i] == EDITOR_MODE_ED && !this_object()->query_coder())
         return 0;
@@ -56,13 +57,13 @@ int set_editor(string str)
 {
   if (!strlen(str))
   {
-    write(_LANG_EDITOR_CURRENT);
+    write(_LANG_EDITOR_CURRENT + _LANG_EDITOR_OPTIONS);
     return 1;
   }
 
-  if (!set_editor_name(lower_case(trim(str))))
+  if (!set_editor_name(str))
   {
-    notify_fail(_LANG_EDITOR_OPTIONS);
+    notify_fail(_LANG_EDITOR_UNKNOWN + _LANG_EDITOR_OPTIONS);
     return 0;
   }
 

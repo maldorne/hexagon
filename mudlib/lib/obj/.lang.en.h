@@ -170,7 +170,7 @@
 #define _LANG_EDITOR_UNKNOWN_COMMAND "Unknown command. " + \
   (mode == EDITOR_MODE_COMMAND ? "~h" : "H") + " shows the help.\n"
 #define _LANG_EDITOR_ED_START "You enter ed. %^BOLD%^x%^RESET%^ saves and quits, " + \
-  "%^BOLD%^q%^RESET%^ quits, %^BOLD%^h%^RESET%^ shows the help.\n"
+  "%^BOLD%^q%^RESET%^ quits, %^BOLD%^h%^RESET%^ shows the commands.\n"
 #define _LANG_EDITOR_HELP \
   "  I - insert lines before a line number\n" + \
   "  D - delete lines: a number or a range like 1..3\n" + \

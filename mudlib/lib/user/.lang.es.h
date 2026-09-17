@@ -157,8 +157,16 @@
 // editor.c
 
 #define _LANG_EDITOR_VERBS ({ "editor" })
-#define _LANG_EDITOR_MODE_NAMES ([ "menu" : "menú", "command" : "órdenes", "ed" : "ed" ])
-#define _LANG_EDITOR_CURRENT "Escribes con el editor " + query_editor_name() + ".\n"
-#define _LANG_EDITOR_OPTIONS "Tu editor puede ser: menú u órdenes" + \
-  (this_object()->query_coder() ? ", o ed" : "") + ". El de menú es el que viene por defecto.\n"
+#define _LANG_EDITOR_MODE_NAMES ([ "menu" : "menú", "command" : "directo", "ed" : "ed" ])
+#define _LANG_EDITOR_MODE_ALIASES ([ "menu" : ({ "menú", "menu" }), \
+  "command" : ({ "directo" }), "ed" : ({ "ed" }) ])
+#define _LANG_EDITOR_CURRENT "Escribes las cartas y las notas con el editor " + query_editor_name() + ".\n"
+#define _LANG_EDITOR_UNKNOWN "Ese editor no existe.\n"
+#define _LANG_EDITOR_OPTIONS "\nPuedes elegir con 'editor <nombre>':\n" + \
+  "  menú      escribes las líneas; ** abre un menú para corregirlas,\n" + \
+  "            guardar o salir (el que viene por defecto)\n" + \
+  "  directo   escribes las líneas y ** guarda; ~ delante de una letra\n" + \
+  "            usa las órdenes del menú sin dejar de escribir\n" + \
+  (this_object()->query_coder() ? "  ed        el editor de líneas del driver\n" : "") + \
+  "Más en 'ayuda editor'.\n"
 #define _LANG_EDITOR_SELECTED "Ahora escribes con el editor " + query_editor_name() + ".\n"

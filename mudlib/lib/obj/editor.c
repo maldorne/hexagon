@@ -18,6 +18,18 @@
 
 inherit "/lib/core/object";
 
+#define ED_HELP \
+  "  (.)     a        append lines after .     (.,.)  p        print lines\n" + \
+  "  (.)     i        insert lines before .    (.,.)  #        numbered lines\n" + \
+  "  (.,.)   c        change lines             (.,.)  d        delete lines\n" + \
+  "  (.,.)   s/a/b/   substitute a by b        (.,.)  m line   move lines\n" + \
+  "  (.,.)   t line   copy lines               (.+1)  z        page of lines\n" + \
+  "  (1,$)   g/re/cmd run cmd where re matches (1,$)  I        indent LPC code\n" + \
+  "          u        undo last change                w [file] write\n" + \
+  "          x        write and quit                  q, q!    quit, quit discarding\n" + \
+  "  Lines: . current, $ last, 5+7, /re/ forward, ?re? backward.\n" + \
+  "  Insert mode ends with a line holding just a dot. More in 'help line-ed'.\n"
+
 static object owner;
 static string mode;
 static string * lines;
@@ -403,6 +415,14 @@ void ed_input(string str)
   if (!valid_session())
     return;
 
+  // the driver editor has no help of its own
+  if (query_editor(this_object()) == "command" && trim(str ? str : "") == "h")
+  {
+    write(ED_HELP + ":");
+    input_to("ed_input");
+    return;
+  }
+
   output = editor(str ? str : "");
   if (strlen(output))
     write(output);
@@ -442,8 +462,6 @@ void ed_input(string str)
 // the path the coder typed and allow it only if they may use that file.
 string query_editor_path(string path, int writing)
 {
-  object role;
-
   if (previous_program() != DRIVER || !can_use_ed())
     return nil;
 
@@ -451,12 +469,11 @@ string query_editor_path(string path, int writing)
     return path;
 
   path = get_path(path);
-  role = owner->user()->query_role();
 
   if (writing)
-    return SECURE->valid_write(path, geteuid(role), "editor") ? path : nil;
+    return SECURE->valid_write(path, geteuid(owner), "editor") ? path : nil;
 
-  return SECURE->valid_read(path, geteuid(role), "editor") ? path : nil;
+  return SECURE->valid_read(path, geteuid(owner), "editor") ? path : nil;
 }
 
 private void finish(string text)

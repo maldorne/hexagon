@@ -8,9 +8,9 @@ Letters and notes on boards are written with your editor.
   editor
   editor <name>
 
-With nothing, it tells you which editor you use; with a name, you change
-it. It can also be changed from 'configuration'. It is kept with your
-account.
+With nothing, it tells you which editor you use and which ones you can
+choose; with a name, you change it. It can also be changed from
+'configuration'. It is kept with your account.
 
 With the menu editor, the default one, you type the lines one after
 another. A line with just ** takes you to the menu:
@@ -24,6 +24,9 @@ another. A line with just ** takes you to the menu:
   Q   quit without saving the text
   H   show the help
 
-The command editor is the same, but ** saves the text straight away, and
+The direct editor is the same, but ** saves the text straight away, and
 the menu commands are used without leaving the text by typing ~ first:
 ~l shows the lines, ~q quits without saving.
+
+The letters work in upper or lower case, and they are the same in both
+editors.

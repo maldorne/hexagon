@@ -42,7 +42,8 @@ i Start insert mode before specified line. Exit with '.'<return>.
 Commands used without line specification:
 
 q Quit. Won't work if file is changed.
-Q Quit and discard all changes if not saved.
+q! Quit and discard all changes if not saved.
+x  Write the file out and quit.
 w Write the file out.
 w file  Write the file out with name 'file'.
 e file  Edit a file.

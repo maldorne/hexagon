@@ -94,8 +94,8 @@ int edit(string str)
 
   in_editor = str;
   
-  if (!SECURE->valid_write(str, geteuid(), "frog"))
-    write("[read only] ");
+  if (!SECURE->valid_write(str, geteuid(this_player()), "frog"))
+    write("[read only]\n");
   
   // ed(str, "fini_editor");
   clone_object(EDITOR_OB)->start_file(this_player(), str);
