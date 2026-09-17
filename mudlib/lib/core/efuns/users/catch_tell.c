@@ -44,7 +44,10 @@ void catch_tell(string message)
     if (userp(destination) && destination->query_cols())
       cols = destination->query_cols();
 
-    message = sprintf("%-*s", cols, message);
+    // wrap a line wider than the screen; a shorter one, like a prompt waiting
+    // on the same line for what the user types, goes as it is
+    if (strlen(message, true) > cols)
+      message = sprintf("%-*s", cols, message);
   }
 
   // if (!destination)
