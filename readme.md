@@ -5,7 +5,7 @@
 Hexagon mudlib
 ==============
 
-[![Hexagon](https://img.shields.io/badge/Hexagon-v2.0%20Castle%20Black-green)](https://github.com/maldorne/hexagon)
+[![Hexagon](https://img.shields.io/badge/Hexagon-v2.1%20Daggerfall-green)](https://github.com/maldorne/hexagon)
 [![DGD](https://img.shields.io/badge/DGD-1.7.5-green.svg)](https://github.com/dworkin/dgd)
 
 A project to make the original _ccmudlib_ and other MudOS-alike mud libraries (like the ones from _Final
@@ -17,9 +17,9 @@ Realms_ or _Discworld_) work with a modern [DGD](https://github.com/dworkin/dgd)
 
 ### Current status
 
-Current version *[v2.0 (renamed from v1.24.04) Castle Black](https://github.com/maldorne/hexagon/releases/tag/1.24.04)*.
+Current version *[v2.1 Daggerfall](https://github.com/maldorne/hexagon/milestone/4)*.
 
-Next milestone *[v2.1 Daggerfall](docs/roadmap.md#v21-daggerfall)*.
+Next milestone *[v2.2 Edoras](docs/roadmap.md#v22-edoras)*.
 
 ### More detailed information about the project
 * Current project status and roadmap in the [roadmap document](docs/roadmap.md).

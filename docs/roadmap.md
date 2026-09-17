@@ -2,20 +2,6 @@
 
 ## Current version being worked on:
 
-### [v2.1 Daggerfall](https://github.com/maldorne/hexagon/milestone/4)
-
-| Status | Title | Description |
-| :----: | :---- | ----------- |
-|        | **Commands** | Review and full translation of every `lib/cmds` command. |
-|        |  | :heavy_minus_sign: Test and translate every command, by user type: `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)]. |
-|        | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/maldorne/hexagon/issues/7)]. |
-|        | **Player actions** | Review every communications action [[#23](https://github.com/maldorne/hexagon/issues/23)]. |
-|        | **Skills** | Review skill system [[#25](https://github.com/maldorne/hexagon/issues/25)]. |
-
-## Future versions: 
-
-Set of features not yet started, but planned.
-
 ### [v2.2 Edoras](https://github.com/maldorne/hexagon/milestone/5)
 
 | Status | Title | Description |
@@ -23,6 +9,21 @@ Set of features not yet started, but planned.
 |        | **Quests** | Review quest system [[#26](https://github.com/maldorne/hexagon/issues/26)]. |
 
 ## Previous versions/milestones
+
+### [v2.1 Daggerfall](https://github.com/maldorne/hexagon/milestone/4)
+
+| Status | Title | Description |
+| :----: | :---- | ----------- |
+| :white_check_mark: | **Commands** | Review and full translation of every `lib/cmds` command. |
+| :white_check_mark: |  | :heavy_minus_sign: Test and translate every command, by user type: `admin` [[#16](https://github.com/maldorne/hexagon/issues/16)]. |
+| :white_check_mark: | **Documentation** | Give some love to the `/docs` directory [[#7](https://github.com/maldorne/hexagon/issues/7)]. |
+| :white_check_mark: | **Player actions** | Review every communications action [[#23](https://github.com/maldorne/hexagon/issues/23)]. |
+| :white_check_mark: | **Skills** | Review skill system [[#25](https://github.com/maldorne/hexagon/issues/25)]. |
+| :white_check_mark: | **Combat** | Review combat system [[#30](https://github.com/maldorne/hexagon/issues/30)]. |
+| :white_check_mark: | **Mail** | Review the mail system [[#40](https://github.com/maldorne/hexagon/issues/40)]. |
+| :white_check_mark: | **Weather** | Per-game weather instances [[#38](https://github.com/maldorne/hexagon/issues/38)]. |
+| :white_check_mark: | **Guests** | Activate guest users [[#29](https://github.com/maldorne/hexagon/issues/29)]. |
+| :white_check_mark: | **Calendar** | Make the calendar command dependant of the game [[#27](https://github.com/maldorne/hexagon/issues/27)]. |
 
 ### [v1.24.04 Castle Black](https://github.com/maldorne/hexagon/milestone/3)
 
