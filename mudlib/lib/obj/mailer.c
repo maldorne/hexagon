@@ -40,8 +40,8 @@ void create()
 }
 
 // Open the mailbox of the player, or go straight to writing a letter
-// when recipients are given.
-void start(object player, varargs string recipients)
+// when recipients are given, with the subject if there is one.
+void start(object player, varargs string recipients, string subject)
 {
   owner = player;
   owner_name = player->query_name();
@@ -53,7 +53,7 @@ void start(object player, varargs string recipients)
   if (strlen(recipients))
   {
     only_one = 1;
-    start_letter(recipient_names(recipients));
+    start_letter(recipient_names(recipients), subject);
     return;
   }
 
@@ -491,8 +491,8 @@ private string query_signature()
   return "";
 }
 
-// Writing a letter: recipients, then subject, then the lines of the body,
-// then who gets a copy.
+// Writing a letter: recipients, then subject, then the body in the
+// user's editor, then who gets a copy.
 private void start_letter(string * names, varargs string subject)
 {
   mapping recipients;
@@ -518,8 +518,7 @@ private void start_letter(string * names, varargs string subject)
   if (strlen(subject))
   {
     draft["subject"] = short_subject(subject);
-    write(_LANG_MAILER_WRITE_BODY);
-    input_to("letter_line");
+    this_user()->do_edit("", "letter_body", this_object());
     return;
   }
 
@@ -538,8 +537,7 @@ void letter_subject(string str)
     str = _LANG_MAILER_NO_SUBJECT;
 
   draft["subject"] = short_subject(str);
-  write(_LANG_MAILER_WRITE_BODY);
-  input_to("letter_line");
+  this_user()->do_edit("", "letter_body", this_object());
 }
 
 private void letter_done()
@@ -553,37 +551,22 @@ private void letter_done()
   }
 }
 
-void letter_line(string str)
+// The text comes back from the editor, or nil when it was not kept.
+void letter_body(string text)
 {
   if (!valid_session())
     return;
 
-  if (!str)
-    str = "";
-
-  if (str == _LANG_MAILER_BODY_CANCEL)
+  if (!strlen(trim(text ? text : "")))
   {
     write(_LANG_MAILER_DISCARDED);
     letter_done();
     return;
   }
 
-  if (str == _LANG_MAILER_BODY_END)
-  {
-    if (!sizeof(body))
-    {
-      write(_LANG_MAILER_DISCARDED);
-      letter_done();
-      return;
-    }
-
-    write(_LANG_MAILER_ASK_CC);
-    input_to("letter_cc");
-    return;
-  }
-
-  body += ({ str });
-  input_to("letter_line");
+  body = explode(text, "\n");
+  write(_LANG_MAILER_ASK_CC);
+  input_to("letter_cc");
 }
 
 void letter_cc(string str)

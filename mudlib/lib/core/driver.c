@@ -404,6 +404,25 @@ static string atomic_error(string error, int atom, mixed **trace)
   return ret;
 }
 
+// The kfun editor reads and writes files through these. The object running
+// the editor resolves the path and decides whether it may be used; nil
+// refuses it.
+static string path_read(string path)
+{
+  object ob;
+
+  ob = previous_object();
+  return ob ? ob->query_editor_path(path, 0) : nil;
+}
+
+static string path_write(string path)
+{
+  object ob;
+
+  ob = previous_object();
+  return ob ? ob->query_editor_path(path, 1) : nil;
+}
+
 // If an object A is loaded, A inherits B, B inherits C, and the
 // version of C inherited by B is out of date, recompile(B) will be
 // called in the driver object.  If B should actually be recompiled

@@ -19,6 +19,7 @@ inherit more_file     "/lib/user/more_file";
 inherit account       "/lib/user/account";
 inherit notifications "/lib/user/notifications";
 inherit ui            "/lib/user/ui";
+inherit editor        "/lib/user/editor";
 
 // interactive object info
 static object redirect_input_ob;       // object that will catch input and
@@ -84,6 +85,7 @@ void create()
   notifications::create();
   account::create();
   ui::create();
+  editor::create();
   communicate::create();
   inform::create();
   more_string::create();
@@ -128,6 +130,7 @@ void create()
 
   notifications_commands();
   event_commands();
+  editor_commands();
   account_commands();
   security_commands();
   ui_commands();
@@ -732,5 +735,6 @@ mixed * stats()
                security::stats() +
                notifications::stats() +
                ui::stats() +
+               editor::stats() +
                obj::stats();
 }

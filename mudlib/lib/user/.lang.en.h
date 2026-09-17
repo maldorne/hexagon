@@ -153,3 +153,12 @@
 #define _LANG_BLOCK_DONE "You block " + capitalize(name) + ": their messages will not reach you.\n"
 #define _LANG_BLOCK_NOT_BLOCKED "You are not blocking " + capitalize(name) + ".\n"
 #define _LANG_BLOCK_UNDONE "You unblock " + capitalize(name) + ".\n"
+
+// editor.c
+
+#define _LANG_EDITOR_VERBS ({ "editor" })
+#define _LANG_EDITOR_MODE_NAMES ([ "menu" : "menu", "command" : "command", "ed" : "ed" ])
+#define _LANG_EDITOR_CURRENT "You write with the " + query_editor_name() + " editor.\n"
+#define _LANG_EDITOR_OPTIONS "Your editor can be: menu or command" + \
+  (this_object()->query_coder() ? ", or ed" : "") + ". The menu editor is the default.\n"
+#define _LANG_EDITOR_SELECTED "You now write with the " + query_editor_name() + " editor.\n"

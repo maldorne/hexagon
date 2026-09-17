@@ -66,6 +66,11 @@ mapping query_config_data()
                                          "set_pretty_combat_mode", 
                                          "", 
                                          _LANG_CONFIG_CMD_COMBAT, }),
+          _LANG_CONFIG_TOPIC_EDITOR:  ({ "string",
+                                         "query_editor_name",
+                                         "set_editor_name",
+                                         "",
+                                         _LANG_CONFIG_CMD_EDITOR, }),
         ]),                        
     ]); 
 }

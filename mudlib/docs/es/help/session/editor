@@ -1,0 +1,28 @@
+@verbs editor
+@tier player
+@title el editor: cómo se escribe un texto largo
+@see correo tablones configuración
+
+Las cartas y las notas de los tablones se escriben con tu editor.
+
+  editor
+  editor <nombre>
+
+Sin nada, te dice qué editor usas; con un nombre, lo cambias. También
+se puede cambiar desde 'configuración'. Se guarda con tu cuenta.
+
+Con el editor de menú, que es el que viene por defecto, escribes las
+líneas una tras otra. Una línea con solo ** te lleva al menú:
+
+  I   insertar líneas antes de un número de línea
+  D   borrar líneas: un número o un rango como 1..3
+  L   mostrar las líneas escritas
+  M   cambiar un texto por otro dentro de unas líneas
+  C   seguir escribiendo al final
+  S   salir y guardar el texto
+  Q   salir sin guardar el texto
+  H   mostrar la ayuda
+
+El editor de órdenes es igual, pero ** guarda el texto directamente, y
+las órdenes del menú se usan sin salir del texto escribiendo ~ delante:
+~l muestra las líneas, ~q sale sin guardar.

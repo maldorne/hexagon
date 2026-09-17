@@ -1,5 +1,6 @@
 
 #include <mud/secure.h>
+#include <user/editor.h>
 
 static int ed_setup;
 static mixed in_editor;
@@ -26,15 +27,15 @@ int edit(string str)
   object *things;
   int egg;
 
-  if (this_player(1) != this_object()->query_player()) 
+  if (this_player(1) != this_user())
     return 0;
 
-  if (!str) 
+  if (!strlen(str))
   {
-    in_editor = "(hidden)";
+    // in_editor = "(hidden)";
     // ed("frog", "fini_editor");
-    editor("frog"); // TODO
-    return 1;
+    notify_fail("Syntax: ed <file>\n");
+    return 0;
   }
 
    // dodgy idea, but allows 'ed here' or 'ed strawberry'
@@ -72,7 +73,7 @@ int edit(string str)
         
         if(loop >= sizeof(filenames)) 
         {
-          write("El archivo no existe.\n");
+          write("That file does not exist.\n");
           return 0;
         }
         else 
@@ -80,24 +81,24 @@ int edit(string str)
           str = filenames[loop];
         }
 
-        write("Ambiguo, usando: " + str + "\n");
+        write("Ambiguous name, using: " + str + "\n");
       }
     }
   }
 
   if (file_size(str) == -2) 
   {
-    write("Es un directorio.\n");
+    write("Is a directory.\n");
     return 1;
   }
 
   in_editor = str;
   
   if (!SECURE->valid_write(str, geteuid(), "frog"))
-    write("[sólo lectura] ");
+    write("[read only] ");
   
   // ed(str, "fini_editor");
-  editor(str); // TODO
+  clone_object(EDITOR_OB)->start_file(this_player(), str);
   return 1;
 } 
 

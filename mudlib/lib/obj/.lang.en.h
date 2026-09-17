@@ -139,8 +139,45 @@
 #define _LANG_MAILER_UNKNOWN_COMMAND "Unknown command. Type '?' to see them.\n"
 #define _LANG_MAILER_ASK_SUBJECT "Subject: "
 #define _LANG_MAILER_NO_SUBJECT "(no subject)"
-#define _LANG_MAILER_WRITE_BODY "Write the letter. A line with just a dot ends it; '~q' discards it.\n"
-#define _LANG_MAILER_BODY_END "."
-#define _LANG_MAILER_BODY_CANCEL "~q"
 #define _LANG_MAILER_DISCARDED "Letter discarded.\n"
 #define _LANG_MAILER_ASK_CC "Copy to (Enter for nobody): "
+
+// editor.c
+
+#define _LANG_EDITOR_START_MENU "Write the text. %^BOLD%^**%^RESET%^ on a line to go to the menu.\n"
+#define _LANG_EDITOR_START_COMMAND "Write the text. %^BOLD%^**%^RESET%^ on a line to finish, " + \
+  "~h to see the commands.\n"
+#define _LANG_EDITOR_MENU_PROMPT "" + sizeof(lines) + (sizeof(lines) == 1 ? " line" : " lines") + \
+  " - Choose from IDLMC" + (can_use_ed() ? "E" : "") + "SQ, H for help: "
+#define _LANG_EDITOR_ASK_INSERT "Insert before line: "
+#define _LANG_EDITOR_ASK_DELETE "Delete the line or lines (example: 3 or 1..3): "
+#define _LANG_EDITOR_ASK_MODIFY "Modify the line or lines (example: 3 or 1..3): "
+#define _LANG_EDITOR_ASK_MODIFY_FROM "Text to change: "
+#define _LANG_EDITOR_ASK_MODIFY_TO "Change it to: "
+#define _LANG_EDITOR_ASK_QUIT "Are you sure you want to quit without saving the text? (y/n): "
+#define _LANG_EDITOR_YES ({ "y" })
+#define _LANG_EDITOR_NO_LINES "There are no lines yet.\n"
+#define _LANG_EDITOR_CONTINUE "You go on writing at the end. %^BOLD%^**%^RESET%^ on a line to stop.\n"
+#define _LANG_EDITOR_INSERTING "You write before line " + number + ". %^BOLD%^**%^RESET%^ on a " + \
+  "line to stop.\n"
+#define _LANG_EDITOR_OUT_OF_RANGE "There are no lines with those numbers.\n"
+#define _LANG_EDITOR_DELETED "Deleted.\n"
+#define _LANG_EDITOR_ABORTED "Nothing changed.\n"
+#define _LANG_EDITOR_DONE "Done.\n"
+#define _LANG_EDITOR_BACK "Back to the editor.\n"
+#define _LANG_EDITOR_SAVING "You save the text.\n"
+#define _LANG_EDITOR_QUITTING "You quit without saving.\n"
+#define _LANG_EDITOR_UNKNOWN_COMMAND "Unknown command. " + \
+  (mode == EDITOR_MODE_COMMAND ? "~h" : "H") + " shows the help.\n"
+#define _LANG_EDITOR_ED_START "You enter ed. %^BOLD%^x%^RESET%^ saves and quits, " + \
+  "%^BOLD%^q%^RESET%^ quits, %^BOLD%^h%^RESET%^ shows the help.\n"
+#define _LANG_EDITOR_HELP \
+  "  I - insert lines before a line number\n" + \
+  "  D - delete lines: a number or a range like 1..3\n" + \
+  "  L - show the lines written\n" + \
+  "  M - change a text for another within some lines\n" + \
+  "  C - go on writing at the end\n" + \
+  (can_use_ed() ? "  E - hand the text to the ed editor\n" : "") + \
+  "  S - quit and save the text\n" + \
+  "  Q - quit without saving the text\n" + \
+  "  H - show this help\n"

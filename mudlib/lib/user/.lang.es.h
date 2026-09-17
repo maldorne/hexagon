@@ -153,3 +153,12 @@
 #define _LANG_BLOCK_DONE "Bloqueas a " + capitalize(name) + ": sus mensajes ya no te llegarán.\n"
 #define _LANG_BLOCK_NOT_BLOCKED "No estás bloqueando a " + capitalize(name) + ".\n"
 #define _LANG_BLOCK_UNDONE "Desbloqueas a " + capitalize(name) + ".\n"
+
+// editor.c
+
+#define _LANG_EDITOR_VERBS ({ "editor" })
+#define _LANG_EDITOR_MODE_NAMES ([ "menu" : "menú", "command" : "órdenes", "ed" : "ed" ])
+#define _LANG_EDITOR_CURRENT "Escribes con el editor " + query_editor_name() + ".\n"
+#define _LANG_EDITOR_OPTIONS "Tu editor puede ser: menú u órdenes" + \
+  (this_object()->query_coder() ? ", o ed" : "") + ". El de menú es el que viene por defecto.\n"
+#define _LANG_EDITOR_SELECTED "Ahora escribes con el editor " + query_editor_name() + ".\n"

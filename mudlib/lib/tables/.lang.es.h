@@ -64,6 +64,7 @@
 #define _LANG_CONFIG_TOPIC_LOGON "logon"
 #define _LANG_CONFIG_TOPIC_POV "pov"
 #define _LANG_CONFIG_TOPIC_COMBAT "combate"
+#define _LANG_CONFIG_TOPIC_EDITOR "editor"
 
 #define _LANG_CONFIG_CMD_TERM "terminal"
 #define _LANG_CONFIG_CMD_COLS "columnas"
@@ -73,3 +74,4 @@
 #define _LANG_CONFIG_CMD_INFORM "informar"
 #define _LANG_CONFIG_CMD_POV "pov"
 #define _LANG_CONFIG_CMD_COMBAT "combate"
+#define _LANG_CONFIG_CMD_EDITOR "editor"

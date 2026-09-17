@@ -1,0 +1,29 @@
+@verbs editor
+@tier player
+@title the editor: how a long text is written
+@see mail boards configuration
+
+Letters and notes on boards are written with your editor.
+
+  editor
+  editor <name>
+
+With nothing, it tells you which editor you use; with a name, you change
+it. It can also be changed from 'configuration'. It is kept with your
+account.
+
+With the menu editor, the default one, you type the lines one after
+another. A line with just ** takes you to the menu:
+
+  I   insert lines before a line number
+  D   delete lines: a number or a range like 1..3
+  L   show the lines written
+  M   change a text for another within some lines
+  C   go on writing at the end
+  S   quit and save the text
+  Q   quit without saving the text
+  H   show the help
+
+The command editor is the same, but ** saves the text straight away, and
+the menu commands are used without leaving the text by typing ~ first:
+~l shows the lines, ~q quits without saving.

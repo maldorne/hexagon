@@ -139,8 +139,45 @@
 #define _LANG_MAILER_UNKNOWN_COMMAND "No entiendo esa orden. Escribe '?' para verlas.\n"
 #define _LANG_MAILER_ASK_SUBJECT "Asunto: "
 #define _LANG_MAILER_NO_SUBJECT "(sin asunto)"
-#define _LANG_MAILER_WRITE_BODY "Escribe la carta. Una línea con solo un punto la termina; '~q' la descarta.\n"
-#define _LANG_MAILER_BODY_END "."
-#define _LANG_MAILER_BODY_CANCEL "~q"
 #define _LANG_MAILER_DISCARDED "Carta descartada.\n"
 #define _LANG_MAILER_ASK_CC "Copia para (Intro para nadie): "
+
+// editor.c
+
+#define _LANG_EDITOR_START_MENU "Escribe el texto. %^BOLD%^**%^RESET%^ en una línea para ir al menú.\n"
+#define _LANG_EDITOR_START_COMMAND "Escribe el texto. %^BOLD%^**%^RESET%^ en una línea para terminar, " + \
+  "~h para ver las órdenes.\n"
+#define _LANG_EDITOR_MENU_PROMPT "" + sizeof(lines) + (sizeof(lines) == 1 ? " línea" : " líneas") + \
+  " - Elige entre IDLMC" + (can_use_ed() ? "E" : "") + "SQ, H para ayuda: "
+#define _LANG_EDITOR_ASK_INSERT "Insertar antes de la línea: "
+#define _LANG_EDITOR_ASK_DELETE "Borrar la línea o las líneas (ejemplo: 3 o 1..3): "
+#define _LANG_EDITOR_ASK_MODIFY "Modificar la línea o las líneas (ejemplo: 3 o 1..3): "
+#define _LANG_EDITOR_ASK_MODIFY_FROM "Texto a cambiar: "
+#define _LANG_EDITOR_ASK_MODIFY_TO "Cambiarlo por: "
+#define _LANG_EDITOR_ASK_QUIT "¿Seguro que quieres salir sin guardar el texto? (s/n): "
+#define _LANG_EDITOR_YES ({ "s" })
+#define _LANG_EDITOR_NO_LINES "Aún no hay ninguna línea.\n"
+#define _LANG_EDITOR_CONTINUE "Sigues escribiendo al final. %^BOLD%^**%^RESET%^ en una línea para parar.\n"
+#define _LANG_EDITOR_INSERTING "Escribes antes de la línea " + number + ". %^BOLD%^**%^RESET%^ en una " + \
+  "línea para parar.\n"
+#define _LANG_EDITOR_OUT_OF_RANGE "No hay líneas con esos números.\n"
+#define _LANG_EDITOR_DELETED "Borrado.\n"
+#define _LANG_EDITOR_ABORTED "No cambias nada.\n"
+#define _LANG_EDITOR_DONE "Hecho.\n"
+#define _LANG_EDITOR_BACK "Vuelves al editor.\n"
+#define _LANG_EDITOR_SAVING "Guardas el texto.\n"
+#define _LANG_EDITOR_QUITTING "Sales sin guardar.\n"
+#define _LANG_EDITOR_UNKNOWN_COMMAND "No entiendo esa orden. " + \
+  (mode == EDITOR_MODE_COMMAND ? "~h" : "H") + " muestra la ayuda.\n"
+#define _LANG_EDITOR_ED_START "Entras en ed. %^BOLD%^x%^RESET%^ guarda y sale, " + \
+  "%^BOLD%^q%^RESET%^ sale, %^BOLD%^h%^RESET%^ muestra la ayuda.\n"
+#define _LANG_EDITOR_HELP \
+  "  I - insertar líneas antes de un número de línea\n" + \
+  "  D - borrar líneas: un número o un rango como 1..3\n" + \
+  "  L - mostrar las líneas escritas\n" + \
+  "  M - cambiar un texto por otro dentro de unas líneas\n" + \
+  "  C - seguir escribiendo al final\n" + \
+  (can_use_ed() ? "  E - pasar el texto al editor ed\n" : "") + \
+  "  S - salir y guardar el texto\n" + \
+  "  Q - salir sin guardar el texto\n" + \
+  "  H - mostrar esta ayuda\n"
