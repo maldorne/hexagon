@@ -294,115 +294,103 @@ static string arrange_string(string str, int x)
 
 // spanish characters, neverbot 4/03
 
+// Every letter of the string, lowercased. Accented latin letters are two
+// bytes in UTF-8 (0xC3 followed by the letter), so they cannot be written
+// with the single quote notation: "Á" is 195 129, not 'Á'. In that block
+// the lowercase byte sits 32 above the uppercase one, with 0xD7 (the
+// multiplication sign) not being a letter at all.
 static string lower_case(string str)
 {
-  int first_char;
+  int i, len, c, second;
 
   if (!strlen(str))
     return str;
 
-  first_char = str[0];
+  len = strlen(str);
 
-  // with UTF-8 encoding these are not one characters, they are two,
-  // so we can't use the single quote notation
-  // 
-  //   case 'Á': str[0] = 'á'; break;
-  //   case 'É': str[0] = 'é'; break;
-  //   case 'Í': str[0] = 'í'; break;
-  //   case 'Ó': str[0] = 'ó'; break;
-  //   case 'Ú': str[0] = 'ú'; break;
-  //   case 'Ü': str[0] = 'ü'; break;
-  //   case 'Ñ': str[0] = 'ñ'; break;
-
-  // áéíóú ÁÉÍÓÚ üÜ ñÑ
-  if (first_char == 195)
+  for (i = 0; i < len; i++)
   {
-    int second_char;
-    second_char = str[1];
-  
-    switch(second_char)
+    c = str[i];
+
+    if ((c >= 'A') && (c <= 'Z'))
     {
-      // 'Á'
-      case 129: str = "á" + str[2..]; break;
-      // 'É'
-      case 137: str = "é" + str[2..]; break;
-      // 'Í'
-      case 141: str = "í" + str[2..]; break;
-      // 'Ó'
-      case 147: str = "ó" + str[2..]; break;
-      // 'Ú'
-      case 154: str = "ú" + str[2..]; break;
-      // 'Ü'
-      case 156: str = "ü" + str[2..]; break;
-      // 'Ñ'
-      case 145: str = "ñ" + str[2..]; break;
+      str[i] = c + 32;
     }
-  } 
-  else 
-  {
-    if ((first_char >= 65) && (first_char <= 90))
-      str[0] = first_char + 32;
+    else if ((c == 195) && (i + 1 < len))
+    {
+      // áéíóú ÁÉÍÓÚ üÜ ñÑ and the rest of the latin-1 supplement
+      second = str[i + 1];
+
+      if ((second >= 128) && (second <= 158) && (second != 151))
+        str[i + 1] = second + 32;
+
+      i++;
+    }
   }
 
   return str;
 }
 
+// The first character of the string, uppercased, and nothing else: what a
+// name or the start of a sentence needs. The accented letters follow the
+// same two-byte rule as upper_case.
 static string capitalize(string str)
 {
-  int first_char;
+  int first_char, second_char;
 
   if (!strlen(str))
     return str;
 
   first_char = str[0];
 
-  // with UTF-8 encoding these are not one characters, they are two,
-  // so we can't use the single quote notation
-  // 
-  //   case 'á': str[0] = 'Á'; break;
-  //   case 'é': str[0] = 'É'; break;
-  //   case 'í': str[0] = 'Í'; break;
-  //   case 'ó': str[0] = 'Ó'; break;
-  //   case 'ú': str[0] = 'Ú'; break;
-  //   case 'ü': str[0] = 'Ü'; break;
-  //   case 'ñ': str[0] = 'Ñ'; break;
-
-  // áéíóú ÁÉÍÓÚ üÜ ñÑ
-  if (first_char == 195)
+  if ((first_char >= 'a') && (first_char <= 'z'))
   {
-    int second_char;
+    str[0] = first_char - 32;
+  }
+  else if ((first_char == 195) && (strlen(str) > 1))
+  {
+    // áéíóú üÜ ñÑ and the rest of the latin-1 supplement
     second_char = str[1];
-  
-    switch(second_char)
-    {
-      // 'á'
-      case 161: str = "Á" + str[2..]; break;
-      // 'é'
-      case 169: str = "É" + str[2..]; break;
-      // 'í'
-      case 173: str = "Í" + str[2..]; break;
-      // 'ó'
-      case 179: str = "Ó" + str[2..]; break;
-      // 'ú'
-      case 186: str = "Ú" + str[2..]; break;
-      // 'ü'
-      case 188: str = "Ü" + str[2..]; break;
-      // 'ñ'
-      case 177: str = "Ñ" + str[2..]; break;
-    }
-  } 
-  else 
-  {
-      if ((first_char >= 97) && (first_char <= 122))
-        str[0] = first_char - 32;
+
+    if ((second_char >= 160) && (second_char <= 190) && (second_char != 183))
+      str[1] = second_char - 32;
   }
 
   return str;
 }
 
+// Every letter of the string, uppercased: the mirror of lower_case, where
+// the uppercase byte of an accented letter sits 32 below the lowercase one
+// and 0xF7 (the division sign) is not a letter.
 static string upper_case(string str)
 {
-  return capitalize(str);
+  int i, len, c, second;
+
+  if (!strlen(str))
+    return str;
+
+  len = strlen(str);
+
+  for (i = 0; i < len; i++)
+  {
+    c = str[i];
+
+    if ((c >= 'a') && (c <= 'z'))
+    {
+      str[i] = c - 32;
+    }
+    else if ((c == 195) && (i + 1 < len))
+    {
+      second = str[i + 1];
+
+      if ((second >= 160) && (second <= 190) && (second != 183))
+        str[i + 1] = second - 32;
+
+      i++;
+    }
+  }
+
+  return str;
 }
 
 static string pluralize(string str)
