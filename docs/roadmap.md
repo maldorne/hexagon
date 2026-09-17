@@ -33,7 +33,7 @@ Set of features we are currently working on:
 
 | Status | Title | Description |
 | :----: | :---- | ----------- |
-|        | **Commands** | Review and full translation of every `lib/cmds` command. |
+| :white_check_mark: | **Commands** | Review and full translation of every `lib/cmds` command. |
 | :white_check_mark: |  | :heavy_minus_sign: Add compatibility and status list in the repository ([done](commands.md)). |
 | :white_check_mark: |  | :heavy_minus_sign: Test and translate every command, by user type: `login` [[#13](https://github.com/maldorne/hexagon/issues/13)]. |
 | :white_check_mark: |  | :heavy_minus_sign: Test and translate every command, by user type: `player` [[#14](https://github.com/maldorne/hexagon/issues/14)]. |
