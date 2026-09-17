@@ -17,7 +17,6 @@
 #define READ_FRAME 3
 
 #define NOSHOUT_LOCK "noshout_lock"
-#define EARMUFFS_PROP "earmuffs"
 #define SHOUT_LOGFILE "shouts"
 
 #define PAST_LENGHT 30

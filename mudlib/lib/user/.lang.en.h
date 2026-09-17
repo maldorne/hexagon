@@ -126,22 +126,12 @@
 #define _LANG_ACCOUNT_BIRTHDAY_INVALID "That date is not valid, type it again (ddmm): "
 
 // earmuffs. `type` is the kind of event being talked about
-#define _LANG_EARMUFFS_ON_WORDS ({ "on" })
-#define _LANG_EARMUFFS_OFF_WORDS ({ "off" })
-#define _LANG_EARMUFFS_ALL_WORDS ({ "all" })
-#define _LANG_EARMUFFS_NONE_WORDS ({ "none" })
+#define _LANG_EARMUFFS_ON "Your earmuffs are on: you do not hear shouts, and you cannot shout either.\n"
+#define _LANG_EARMUFFS_OFF "Your earmuffs are off: you hear shouts.\n"
+#define _LANG_EARMUFFS_PUT_ON "You put your earmuffs on: you stop hearing shouts.\n"
+#define _LANG_EARMUFFS_TAKE_OFF "You take your earmuffs off: you hear shouts again.\n"
+#define _LANG_EARMUFFS_SYNTAX "Syntax: earmuffs [yes|no]\n"
 
-#define _LANG_EARMUFFS_ON "Your earmuffs are on.\n"
-#define _LANG_EARMUFFS_OFF "Your earmuffs are off.\n"
-#define _LANG_EARMUFFS_PUT_ON "You put your earmuffs on.\n"
-#define _LANG_EARMUFFS_TAKE_OFF "You take your earmuffs off.\n"
-#define _LANG_EARMUFFS_NOTHING_MUFFLED "You are not muffling anything in particular.\n"
-#define _LANG_EARMUFFS_MUFFLING "You are muffling: " + type + ".\n"
-#define _LANG_EARMUFFS_CLEARED "You are not muffling anything in particular any more.\n"
-#define _LANG_EARMUFFS_UNKNOWN_TYPE "'" + type + "' cannot be muffled.\n"
-#define _LANG_EARMUFFS_WILL_MUFFLE "From now on you muffle: " + type + ".\n"
-#define _LANG_EARMUFFS_WILL_NOT_MUFFLE "You stop muffling: " + type + ".\n"
-#define _LANG_EARMUFFS_TYPES "You can muffle: " + query_multiple_short(types) + ".\n"
 
 // blocking. `name` is the player being blocked or unblocked
 #define _LANG_BLOCK_NOBODY "You are not blocking anybody.\n"

@@ -288,150 +288,35 @@ int do_unblock(string str)
 int query_earmuffs() { return earmuffs; }
 void set_earmuffs(int on) { earmuffs = on ? 1 : 0; }
 
-// The kinds of event this user has asked not to hear. The list is kept as a
-// property on the user, the same object the flag above lives on.
-string * query_muffled()
-{
-  mixed on;
-
-  on = this_object()->query_property(EARMUFFS_PROP);
-  return pointerp(on) ? on : ({ });
-}
-
-string * query_muffle_types();
-
-// Muffle one kind of event or hear it again; 0 if it cannot be muffled.
-int set_muffled(string type, int on)
-{
-  string * muffled;
-
-  if (member_array(type, query_muffle_types()) == -1)
-    return 0;
-
-  muffled = query_muffled() - ({ type });
-
-  if (on)
-    muffled += ({ type });
-
-  this_object()->add_property(EARMUFFS_PROP, muffled);
-  return 1;
-}
-
-// The kinds of event that can be muffled at all.
-string * query_muffle_types()
-{
-  string * types;
-
-  types = ({ "shout" });
-
-  if (this_object()->query_coder())
-    types += ({ "creator-tell", "multiple-soul", "remote-soul",
-                "inter-creator-tell" });
-
-  return types;
-}
-
-// The earmuffs verb: the flag, and the list of events it applies to. With no
-// argument it says what is on and what is muffled; the words for the flag, for
-// all and for none are translated, and a kind of event may be followed by the
-// word for on or off, or be left to toggle.
+// The earmuffs verb: on or off. With them on, shouts are not heard, and the
+// one wearing them cannot shout either.
 int earmuffs(string str)
 {
-  string * types, * on, * bits;
-  string type;
-  int i;
-
-  types = query_muffle_types();
-  on = query_muffled();
-
-  if (!str || !strlen(str))
+  if (!str || !strlen(trim(str)))
   {
     write(earmuffs ? _LANG_EARMUFFS_ON : _LANG_EARMUFFS_OFF);
-
-    if (!sizeof(on))
-      write(_LANG_EARMUFFS_NOTHING_MUFFLED);
-    else
-    {
-      type = query_multiple_short(on);
-      write(_LANG_EARMUFFS_MUFFLING);
-    }
-
-    write(_LANG_EARMUFFS_TYPES);
     return 1;
   }
 
-  bits = explode(lower_case(str), " ") - ({ "" });
+  str = lower_case(trim(str));
 
-  if (sizeof(bits) == 1)
+  if (affirmative(str))
   {
-    if (member_array(bits[0], _LANG_EARMUFFS_ON_WORDS) != -1)
-    {
-      earmuffs = 1;
-      write(_LANG_EARMUFFS_PUT_ON);
-      return 1;
-    }
-
-    if (member_array(bits[0], _LANG_EARMUFFS_OFF_WORDS) != -1)
-    {
-      earmuffs = 0;
-      write(_LANG_EARMUFFS_TAKE_OFF);
-      return 1;
-    }
-
-    if (member_array(bits[0], _LANG_EARMUFFS_NONE_WORDS) != -1)
-    {
-      this_object()->add_property(EARMUFFS_PROP, ({ }));
-      write(_LANG_EARMUFFS_CLEARED);
-      return 1;
-    }
-
-    if (member_array(bits[0], _LANG_EARMUFFS_ALL_WORDS) != -1)
-      bits = types;
+    earmuffs = 1;
+    write(_LANG_EARMUFFS_PUT_ON);
+    return 1;
   }
 
-  for (i = 0; i < sizeof(bits); i++)
+  if (negative(str))
   {
-    type = bits[i];
-
-    if (member_array(type, types) == -1)
-    {
-      write(_LANG_EARMUFFS_UNKNOWN_TYPE);
-      continue;
-    }
-
-    // a type may be followed by on or off; without one it is toggled
-    if (sizeof(bits) > i + 1 &&
-        member_array(bits[i + 1], _LANG_EARMUFFS_ON_WORDS) != -1)
-      i++;
-    else if (sizeof(bits) > i + 1 &&
-             member_array(bits[i + 1], _LANG_EARMUFFS_OFF_WORDS) != -1)
-    {
-      on -= ({ type });
-      write(_LANG_EARMUFFS_WILL_NOT_MUFFLE);
-      i++;
-      continue;
-    }
-    else if (member_array(type, on) != -1)
-    {
-      on -= ({ type });
-      write(_LANG_EARMUFFS_WILL_NOT_MUFFLE);
-      continue;
-    }
-
-    if (member_array(type, on) == -1)
-      on += ({ type });
-
-    write(_LANG_EARMUFFS_WILL_MUFFLE);
+    earmuffs = 0;
+    write(_LANG_EARMUFFS_TAKE_OFF);
+    return 1;
   }
 
-  this_object()->add_property(EARMUFFS_PROP, on);
-  return 1;
+  notify_fail(_LANG_EARMUFFS_SYNTAX);
+  return 0;
 } /* earmuffs() */
-
-int check_earmuffs(string type)
-{
-  return member_array(type, query_muffled()) != -1;
-} /* check_earmuffs() */
 
 mixed * stats()
 {

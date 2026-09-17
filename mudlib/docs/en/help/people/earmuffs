@@ -1,28 +1,12 @@
-@verbs earmuffs tapones
+@verbs earmuffs
 @tier player
-@title shutting out what you would rather not hear
+@title stop hearing shouts
 @see say channels
 
-Earmuffs are two things: a switch, and a list of what you stop
-hearing while they are on. The verb is not translated yet.
+  earmuffs           tells whether you are wearing them.
+  earmuffs yes       puts them on.
+  earmuffs no        takes them off.
 
-  tapones            says how you are wearing them, and what is on
-                     the list.
-  tapones on         you put them on.
-  tapones off        you take them off.
-
-With them on you do not hear whatever is on the list. To work the
-list:
-
-  tapones <thing>         adds it if it was not there, removes it
-                          if it was.
-  tapones <thing> on      adds it.
-  tapones <thing> off     removes it.
-  tapones all             adds everything that can be shut out.
-  tapones none            empties the list.
-
-What you can shut out is what the bare verb tells you. Shouts are
-first on that list, and the reason most people reach for this.
-
-With your earmuffs on you cannot shout either: there is little
-point calling out to somebody whose answer you will not hear.
+With your earmuffs on you hear nobody's shouts. You cannot shout
+either: there is little point in calling out to somebody who will not
+hear the answer. They can also be changed from 'configuration'.

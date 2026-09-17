@@ -140,10 +140,10 @@ int do_inter_creator_tell(string str)
     notify_fail("Sintaxis: "+query_verb()+" <mensaje>\n");
     return 0;
   }
-  if (this_object()->check_earmuffs("inter-creator-tell")) {
-    notify_fail("No puedes usar esto si no estas en el canal.\n");
-    return 0;
-  }
+  // if (this_object()->check_earmuffs("inter-creator-tell")) {
+  //   notify_fail("No puedes usar esto si no estas en el canal.\n");
+  //   return 0;
+  // }
   INTERCREATORD->do_intercreator(str, emoted);
   // (UDP_PATH+"gwizmsg")->send_gwizmsg(str, emoted);
   write("El mensaje puede tardar un poco en llegar a algunos sitios.\n");
