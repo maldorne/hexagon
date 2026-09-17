@@ -119,6 +119,9 @@ nomask int do_retirejob(string name)
   // Maybe THIS will work, and actually free the disk space - Radix
   POSTAL_D->retire_user(name);
 
+  // and the player killing records
+  "/lib/handlers/pk"->retire_user(name);
+
   // Hmm.. should add a delete of bank accounts, think i have some code.
   // WHY does the BANK_HANDLER thingie work here and not in bank.c ?
   // BANK_HANDLER->refresh_account(name);

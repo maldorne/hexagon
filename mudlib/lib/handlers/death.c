@@ -27,7 +27,7 @@
 inherit "/lib/core/object.c";
 
 #define SAVE "/save/"
-#define PKHAND "/obj/handlers/pk"
+#define PKHAND "/lib/handlers/pk"
 
 mapping data;
 float totaldif, diftimes;
@@ -602,8 +602,8 @@ float update_statistics(object victim, varargs object enemy)
          return update_npc_died(victim, enemy);
       }
 
-      // PKing...
-      if (interactive(victim) && interactive(enemy))
+      // PKing: a player killed by another player, connected or not
+      if (victim->query_player() && enemy->query_player())
          catch(PKHAND->update_player_killed(victim, enemy));
   }
   
