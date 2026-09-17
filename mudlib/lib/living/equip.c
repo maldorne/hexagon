@@ -269,6 +269,24 @@ int filter_short(object ob, varargs mixed args...)
 //    - 'You' instead of 'Playername'
 //    - Show exact amount of money instead of the usual messages
 //     like 'His purse is fit to burst!'
+// Wrap a list to width columns, the lines after the first indented under it.
+// Colour tokens are turned into terminal codes first, so they take no width.
+private string wrap_list(string text, int width)
+{
+  string * lines;
+  int i;
+
+  lines = explode(sprintf("%-=*s", width, fix_string(text)), "\n") - ({ "" });
+
+  for (i = 0; i < sizeof(lines); i++)
+  {
+    while (strlen(lines[i]) && lines[i][strlen(lines[i]) - 1] == ' ')
+      lines[i] = lines[i][0..strlen(lines[i]) - 2];
+  }
+
+  return implode(lines, "\n" + sprintf("%15s", ""));
+}
+
 string query_living_contents(int self)
 {
   object * wpn, * held, * worn, * carry, money;
@@ -372,9 +390,13 @@ string query_living_contents(int self)
   if (sizeof(carry) && (self != 2))
     strs += ({ sprintf( "%-13s", _LANG_EQUIP_CARRYING), query_multiple_short(carry, 1) + "." });
 
+  // the list after each label wraps to the width of whoever is looking,
+  // keeping its continuation lines under the list
+  col = (this_user() ? this_user()->query_cols() : 80) - 15;
+
   for (i = 0; i < sizeof(strs); i++)
   {
-    s += strs[i] + ": " + strs[++i] + "\n";
+    s += strs[i] + ": " + wrap_list(strs[++i], col) + "\n";
     // s += sprintf("%-=13s: %-=*s", strs[i], col,
     //           capitalize(strs[++i])) + "\n";
   }
