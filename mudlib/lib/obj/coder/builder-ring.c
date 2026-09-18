@@ -21,7 +21,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "plot", "homes", "home", "sign", "desc", "temple", "family" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "desc", "temple", "family" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -50,6 +50,8 @@ inherit "/lib/armour.c";
   "build temple < <deity path> | none >  (consecrate this location, or unconsecrate it)"
 #define BUILDER_RING_LOCATION_SYNTAX \
   "build location < <dir> <name> [title] | remove <dir> >  (carve / delete a location)"
+#define BUILDER_RING_EXIT_SYNTAX \
+  "build exit < (list) | <dir> <type> [material] [closed|locked] >  (retype an exit, both sides)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
 #define BUILDER_RING_HOMES_SYNTAX "build homes  (house the area's homeless citizens on free plots, pairing families)"
 // intro line + "commands:" header are translated (name/description/help);
@@ -63,6 +65,8 @@ inherit "/lib/armour.c";
   "  build component add|remove <type>    on the selection\n" + \
   "  build location <dir> <name> [title]  carve a new location that way\n" + \
   "  build location remove <dir>          delete it, if it is bare\n" + \
+  "  build exit [<dir> <type> [material] [closed|locked]]\n" + \
+  "                                       how a way through reads, both sides\n" + \
   "  build temple <deity|none>            consecrate this location\n" + \
   "\n" + \
   "  build area exploration <name>        entering here is a diary event\n" + \
@@ -152,6 +156,7 @@ int do_poi(string str);
 int do_vacancy(string str);
 int do_npc(string str);
 int do_location(string str);
+int do_exit(string str);
 int do_plot(string str);
 int do_homes();
 int do_home_remove();
@@ -376,6 +381,9 @@ int do_build(string str)
 
   if (verb == "location")
     return do_location(implode(args[1..], " "));
+
+  if (verb == "exit")
+    return do_exit(implode(args[1..], " "));
 
   if (verb == "sign")
     return do_sign(implode(args[1..], " "));
@@ -1898,6 +1906,144 @@ int do_location(string str)
   remove_file(new_file);
 
   write("Removed the location to the " + ldir + ".\n");
+  return 1;
+}
+
+// build exit -- what a way through is made of, on both sides at once. A pair of
+// locations carved by hand starts with plain open passages; a building wants a
+// door, a town gate a gate, and both sides have to agree or one half of the
+// pair opens onto a doorway the other calls a door.
+//
+//   build exit                                    what this location has
+//   build exit <dir> <type> [material] [closed|locked]
+//
+// The door options ride in the exit map, so a door set closed comes back closed
+// on every load. `locked` implies `closed`.
+int do_exit(string str)
+{
+  string * args;
+  string dir_in, canon, ldir, type, material, dest;
+  mapping exits, nex;
+  mixed * tuple;
+  mapping options;
+  object loc, neighbour;
+  string * dirs;
+  int i;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location to work on its exits.\n");
+    return 0;
+  }
+
+  exits = loc->query_exit_map();
+  args = explode(str ? str : "", " ") - ({ "" });
+
+  // with no arguments, read back what is there
+  if (!sizeof(args))
+  {
+    dirs = exits ? map_indices(exits) : ({ });
+
+    if (!sizeof(dirs))
+    {
+      write("This location has no exits.\n");
+      return 1;
+    }
+
+    write("Exits of " + loc->query_file_name() + ":\n");
+
+    for (i = 0; i < sizeof(dirs); i++)
+    {
+      tuple = exits[dirs[i]];
+      write(sprintf("  %-12s %-6s %-10s %s\n", dirs[i],
+                    stringp(tuple[1]) ? tuple[1] : "?",
+                    (sizeof(tuple) > 2 && stringp(tuple[2])) ? tuple[2] : "-",
+                    stringp(tuple[0]) ? tuple[0] : "?"));
+
+      if (sizeof(tuple) > 3 && mappingp(tuple[3]))
+        write("               options: " +
+              implode(map_indices(tuple[3]), ", ") + "\n");
+    }
+
+    return 1;
+  }
+
+  if (sizeof(args) < 2)
+  {
+    notify_fail("Usage: " + BUILDER_RING_EXIT_SYNTAX + "\n");
+    return 0;
+  }
+
+  dir_in = args[0];
+  type = args[1];
+
+  canon = ROOM_HAND->canonical_dir(dir_in);
+  if (!canon)
+  {
+    notify_fail("'" + dir_in + "' is not a compass direction.\n");
+    return 0;
+  }
+  ldir = ROOM_HAND->localize_dir(canon);
+
+  if (!exits || !exits[ldir])
+  {
+    notify_fail("There is no exit to the " + ldir + " here.\n");
+    return 0;
+  }
+
+  // anything after the type is either the material or one of the door words
+  options = ([ ]);
+  material = nil;
+
+  for (i = 2; i < sizeof(args); i++)
+  {
+    if (args[i] == "closed")
+      options["closed"] = 1;
+    else if (args[i] == "locked")
+    {
+      options["closed"] = 1;
+      options["locked"] = 1;
+    }
+    else if (args[i] == "open")
+      options["closed"] = 0;
+    else
+      material = args[i];
+  }
+
+  if (!map_sizeof(options))
+    options = nil;
+
+  dest = exits[ldir][0];
+  if (!stringp(dest))
+  {
+    notify_fail("That exit has no destination to re-type.\n");
+    return 0;
+  }
+
+  loc->add_exit(ldir, dest, type, material, options);
+  loc->save_me();
+
+  // and the way back, so the pair reads the same from either side
+  neighbour = load_object(LOCATION_HANDLER)->load_location(dest);
+
+  if (neighbour)
+  {
+    nex = neighbour->query_exit_map();
+    dirs = nex ? map_indices(nex) : ({ });
+
+    for (i = 0; i < sizeof(dirs); i++)
+      if (nex[dirs[i]][0] == loc->query_file_name())
+        neighbour->add_exit(dirs[i], loc->query_file_name(), type, material,
+                            options);
+
+    neighbour->save_me();
+  }
+
+  write("The way " + ldir + " is a " + type +
+        (material ? " of " + material : "") +
+        (options ? " (" + implode(map_indices(options), ", ") + ")" : "") +
+        ", on both sides.\n");
   return 1;
 }
 

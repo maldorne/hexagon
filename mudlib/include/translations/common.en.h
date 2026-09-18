@@ -104,8 +104,11 @@
 
 // pluralize
 
-#define _LANG_PLURALIZE(s) if (!strlen(s)) return "objetos"; \
+#define _LANG_PLURALIZE(s) if (!strlen(s)) return "objects"; \
   else if (extract(s, strlen(s) - 1) == "s") return s; \
+  else if (extract(s, strlen(s) - 1) == "x" || \
+           (strlen(s) > 2 && (s[strlen(s) - 2 ..] == "ch" || \
+                              s[strlen(s) - 2 ..] == "sh"))) return (s + "es"); \
   else if (extract(s, strlen(s) - 1) == "y") return s[..strlen(s)-2] + "ies"; \
   else return (s + "s");
 

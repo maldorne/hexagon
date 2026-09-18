@@ -89,7 +89,21 @@
 
 // pluralize
 
+// Plural of a spanish noun. A word ending in an unstressed vowel takes -s, one
+// ending in a consonant takes -es, -z becomes -ces, and -ión loses its accent.
+// Words already ending in -s or -x do not change (crisis, tórax). The accented
+// vowels are two bytes in UTF-8 (195 + the letter), hence the byte checks.
 #define _LANG_PLURALIZE(s) if (!strlen(s)) return "objetos"; \
-  else if (extract(s, strlen(s) - 1) == "s") return s; \
-  else return (s + "s");
+  else if (s[strlen(s) - 1] == 's' || s[strlen(s) - 1] == 'x') return s; \
+  else if (s[strlen(s) - 1] == 'z') return s[.. strlen(s) - 2] + "ces"; \
+  else if (strlen(s) > 4 && s[strlen(s) - 4 ..] == "ión") \
+    return s[.. strlen(s) - 5] + "iones"; \
+  else if (s[strlen(s) - 1] == 'a' || s[strlen(s) - 1] == 'e' || \
+           s[strlen(s) - 1] == 'i' || s[strlen(s) - 1] == 'o' || \
+           s[strlen(s) - 1] == 'u') return (s + "s"); \
+  else if (strlen(s) > 1 && s[strlen(s) - 2] == 195 && \
+           (s[strlen(s) - 1] == 161 || s[strlen(s) - 1] == 169 || \
+            s[strlen(s) - 1] == 173 || s[strlen(s) - 1] == 179 || \
+            s[strlen(s) - 1] == 186)) return (s + "s"); \
+  else return (s + "es");
 
