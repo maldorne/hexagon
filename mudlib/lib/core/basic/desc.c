@@ -47,14 +47,19 @@ string long(varargs string str, int dark)
   return query_long();
 }
 
+// The plural of this object: the one it was given, or the plural of its short.
+// An object that never set one holds an empty string rather than nil, which is
+// not an answer -- without the length check every unnamed plural came back
+// empty and a pair of them listed as "two " and nothing else.
 string query_plural() 
 {
-  if (!query_main_plural())
-    if (!short(0))
-      return nil;
-    else
-      return pluralize(short(0));
-  return query_main_plural();
+  if (query_main_plural() && strlen(query_main_plural()))
+    return query_main_plural();
+
+  if (!short(0) || !strlen(short(0)))
+    return nil;
+
+  return pluralize(short(0));
 }
 
 mixed pretty_plural() 
