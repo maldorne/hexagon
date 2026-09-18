@@ -39,12 +39,16 @@ object create_sector(string path)
 {
   object sector;
 
+  // A sector already in memory costs one lookup: every resolution of a
+  // coordinate comes through here, and mkdir below walks the path one level at
+  // a time asking the file system about each, which a map view drawing a whole
+  // neighbourhood would pay over and over.
+  if (loaded_sectors[path])
+    return loaded_sectors[path];
+
   // mkdir efun (lib/core/efuns/file.c) creates every missing level along
   // the path, so a virgin sector deep in maps/<map>/<x>/<y>/<z>/ works.
   mkdir(path);
-
-  if (loaded_sectors[path])
-    return loaded_sectors[path];
 
   sector = clone_object(SECTOR_STORAGE_OBJECT);
 
