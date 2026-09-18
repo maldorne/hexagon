@@ -47,6 +47,10 @@ mixed * _original_items;         // ordered ({ id_or_id_array, desc }) from add_
 // empty -> fall back to _original_long for backward compat. Editable
 // inline with the `desc` cmd; persisted.
 string _specific_long;
+// Author-curated title, for a location built by hand rather than converted
+// from a room. Taken before _original_short, and after whatever a component
+// has to say about the place. Persisted.
+string _specific_short;
 mapping _exit_map;
 
 string file_name;  // .o file of the location
@@ -108,6 +112,7 @@ void create()
   _original_add_clones = ([ ]);
   _original_items = ({ });
   _specific_long = "";
+  _specific_short = "";
   _exit_map = ([ ]);
 
   file_name = "";
@@ -202,6 +207,8 @@ void set_original_items(mixed * a) { _original_items = a; }
 
 string query_specific_long() { return _specific_long; }
 void set_specific_long(string str) { _specific_long = str ? str : ""; }
+string query_specific_short() { return _specific_short; }
+void set_specific_short(string str) { _specific_short = str ? str : ""; }
 
 int * query_coordinates() { return coordinates; }
 void set_coordinates(int x, int y, int z) { coordinates = ({ x, y, z }); }
@@ -487,6 +494,8 @@ string short(varargs int dark)
 {
   string ret;
   ret = (string)run_reduce("short", ({ dark }), "", "_concat_string");
+  if (!ret || !strlen(ret))
+    ret = _specific_short;
   if (!ret || !strlen(ret))
     ret = _original_short;
   return ret;

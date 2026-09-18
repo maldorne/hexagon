@@ -21,7 +21,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "plot", "homes", "home", "sign", "desc", "temple", "family" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "plot", "homes", "home", "sign", "desc", "temple", "family" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -48,6 +48,8 @@ inherit "/lib/armour.c";
   "             | show <surname> | list >"
 #define BUILDER_RING_TEMPLE_SYNTAX \
   "build temple < <deity path> | none >  (consecrate this location, or unconsecrate it)"
+#define BUILDER_RING_LOCATION_SYNTAX \
+  "build location < <dir> <name> [title] | remove <dir> >  (carve / delete a location)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
 #define BUILDER_RING_HOMES_SYNTAX "build homes  (house the area's homeless citizens on free plots, pairing families)"
 // intro line + "commands:" header are translated (name/description/help);
@@ -58,7 +60,9 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_HELP _LANG_RING_HELP_INTRO + "\n" + \
   "  build selection add|remove|list      working set of locations\n" + \
   "  build convert [selection|<file>|<dir>|here]\n" + \
-  "  build component add|remove <type>    on the current location\n" + \
+  "  build component add|remove <type>    on the selection\n" + \
+  "  build location <dir> <name> [title]  carve a new location that way\n" + \
+  "  build location remove <dir>          delete it, if it is bare\n" + \
   "  build temple <deity|none>            consecrate this location\n" + \
   "\n" + \
   "  build area exploration <name>        entering here is a diary event\n" + \
@@ -97,7 +101,8 @@ inherit "/lib/armour.c";
   "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
   "  build sign <text>                    post a sign here (remove: take it down)\n" + \
-  "  build desc <text>                    the prose of this location (reset: drop it)\n" + \
+  "  build desc [long] <text>             the prose of this location (reset: drop it)\n" + \
+  "  build desc short <text>              its title, read in one line\n" + \
   "\n" + \
   "  build family found [surname]         start a house in this area\n" + \
   "  build family join <surname> <who>    take somebody into it\n" + \
@@ -146,6 +151,7 @@ int do_area(string str);
 int do_poi(string str);
 int do_vacancy(string str);
 int do_npc(string str);
+int do_location(string str);
 int do_plot(string str);
 int do_homes();
 int do_home_remove();
@@ -367,6 +373,9 @@ int do_build(string str)
                 "remove >\n");
     return 0;
   }
+
+  if (verb == "location")
+    return do_location(implode(args[1..], " "));
 
   if (verb == "sign")
     return do_sign(implode(args[1..], " "));
@@ -1697,6 +1706,201 @@ int do_npc(string str)
 // a bare plot. It creates/deletes a pure-.o location (no .c source) plus the
 // reciprocal exits, (un)indexes it in the sector map, re-indexes the current
 // location's exits, and (un)registers it with the area's plot list.
+// build location <dir> <name> [title] -- carve a new location one step in
+// <dir>, named <name>.o in this area's rooms directory, with reciprocal open
+// exits. It is how a place is added to a converted area: the .c rooms are the
+// initial build of an area, not something to go back to.
+//
+// The new location carries no component: what it is comes from what the coder
+// adds to it afterwards (a post office, a shop, a temple).
+//
+// build location remove <dir> -- delete it, refusing anything that is not
+// bare: no components, nothing inside, and not a converted room.
+int do_location(string str)
+{
+  string * args;
+  string verb, dir_in, name, title, canon, ldir, rdir;
+  string map, loc_file, dir_part, new_file, key;
+  object loc, made, sector, area;
+  int * c, * d;
+  int nx, ny, nz, slash, i;
+
+  args = explode(str ? str : "", " ") - ({ "" });
+
+  if (!sizeof(args))
+  {
+    notify_fail("Usage: " + BUILDER_RING_LOCATION_SYNTAX + "\n");
+    return 0;
+  }
+
+  if (args[0] == "remove" || args[0] == "delete")
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: build location remove <dir>\n");
+      return 0;
+    }
+    verb = "remove";
+    dir_in = args[1];
+  }
+  else
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: " + BUILDER_RING_LOCATION_SYNTAX + "\n");
+      return 0;
+    }
+    verb = "create";
+    dir_in = args[0];
+    name = args[1];
+    title = (sizeof(args) > 2) ? implode(args[2..], " ") : "";
+  }
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location to carve another one.\n");
+    return 0;
+  }
+
+  c = loc->query_coordinates();
+  if (!c || sizeof(c) != 3)
+  {
+    notify_fail("This location has no coordinates.\n");
+    return 0;
+  }
+
+  // the canonical direction gives the coordinate step; the localized word is
+  // what the exits store, since exits are kept in the mud's language
+  canon = ROOM_HAND->canonical_dir(dir_in);
+  d = load_object(SECTORS_HANDLER)->query_dir_delta(canon);
+  if (!d)
+  {
+    notify_fail("'" + dir_in + "' is not a compass direction.\n");
+    return 0;
+  }
+  ldir = ROOM_HAND->localize_dir(canon);
+  rdir = ROOM_HAND->query_opposite(ldir);
+
+  nx = c[0] + d[0];
+  ny = c[1] + d[1];
+  nz = c[2] + d[2];
+  key = "" + nx + "_" + ny + "_" + nz;
+
+  map = loc->query_map_name();
+  loc_file = loc->query_file_name();
+  area = loc->query_area();
+
+  // the new .o lives in the same area rooms directory as this location
+  slash = strsrch(loc_file, "/", -1);
+  dir_part = loc_file[0..slash];
+
+  sector = load_object(SECTORS_HANDLER)->query_sector_for_coord(
+             game_from_path(loc_file), map, nx, ny, nz);
+
+  if (verb == "create")
+  {
+    // a plain file name: no path, no extension, nothing a directory listing
+    // would not take
+    for (i = 0; i < strlen(name); i++)
+      if (!((name[i] >= 'a' && name[i] <= 'z') ||
+            (name[i] >= 'A' && name[i] <= 'Z') ||
+            (name[i] >= '0' && name[i] <= '9') ||
+            name[i] == '_' || name[i] == '-'))
+      {
+        notify_fail("'" + name + "' is not a plain name (letters, digits, " +
+                    "dash and underscore).\n");
+        return 0;
+      }
+
+    new_file = dir_part + name + ".o";
+
+    if (sector && sector->query_nodes()[key])
+    {
+      notify_fail("(" + key + ") is already occupied by a location.\n");
+      return 0;
+    }
+    if (file_size(new_file) >= 0)
+    {
+      notify_fail("A file already exists at " + new_file + ".\n");
+      return 0;
+    }
+
+    made = clone_object(BASE_LOCATION_OBJ);
+    if (!made)
+    {
+      notify_fail("Could not clone a location.\n");
+      return 0;
+    }
+    made->set_file_name(new_file);
+    made->set_map_name(map);
+    made->set_coordinates(nx, ny, nz);
+    if (strlen(title))
+      made->set_specific_short(title);
+
+    // reciprocal open exits: a plain way through, not a road on the map
+    loc->add_exit(ldir, new_file, "open");
+    made->add_exit(rdir, loc_file, "open");
+    made->save_me();
+    loc->save_me();
+
+    // index the new location and re-index this one so both exit graphs update
+    load_object(SECTORS_HANDLER)->add_location(made);
+    load_object(SECTORS_HANDLER)->add_location(loc);
+
+    write("Carved a location to the " + ldir + " at (" + key + "), " +
+          new_file + ".\n");
+    return 1;
+  }
+
+  // verb == "remove"
+  if (!sector || !sector->query_nodes()[key])
+  {
+    notify_fail("There is no location to the " + ldir + ".\n");
+    return 0;
+  }
+
+  new_file = sector->query_nodes()[key]["file"];
+  made = load_object(LOCATION_HANDLER)->load_location(new_file);
+  if (!made)
+  {
+    notify_fail("Could not load the location to the " + ldir + ".\n");
+    return 0;
+  }
+
+  if (sizeof(made->query_components()))
+  {
+    notify_fail("That location carries components; take them off first " +
+                "(build selection add " + new_file + ", build component " +
+                "remove <type>).\n");
+    return 0;
+  }
+  if (strlen(made->query_original_room_file_name()))
+  {
+    notify_fail("That location was converted from a room; refusing to " +
+                "delete it.\n");
+    return 0;
+  }
+  if (sizeof(all_inventory(made)))
+  {
+    notify_fail("That location is not empty.\n");
+    return 0;
+  }
+
+  // sever the exit, re-index this location, unindex the other, destroy the
+  // object and delete its file
+  loc->remove_exit(ldir);
+  loc->save_me();
+  load_object(SECTORS_HANDLER)->add_location(loc);
+  load_object(SECTORS_HANDLER)->remove_location_from_map(new_file, map,
+                                                        nx, ny, nz);
+  destruct(made);
+  remove_file(new_file);
+
+  write("Removed the location to the " + ldir + ".\n");
+  return 1;
+}
+
 int do_plot(string str)
 {
   string * args;
@@ -2022,10 +2226,15 @@ int do_sign(string str)
 // The prose of a location: what the author has to say that no component can
 // work out. A location with none composes its body from its components and,
 // failing those, from the description the room it was converted from had.
+// build desc -- the title and the prose a location has of its own, the two
+// things no component can work out. `short` is the title read in one line,
+// anything else is the prose; both fall back to what the room it was converted
+// from said, if it came from one.
 int do_desc(string str)
 {
   object loc;
-  mixed current, original;
+  string * args;
+  int title;
 
   loc = environment(this_player());
   if (!loc || !loc->query_location())
@@ -2034,12 +2243,28 @@ int do_desc(string str)
     return 0;
   }
 
+  args = explode(str ? str : "", " ") - ({ "" });
+  title = sizeof(args) && args[0] == "short";
+
+  if (title)
+  {
+    args = args[1..];
+    str = implode(args, " ");
+  }
+  else if (sizeof(args) && args[0] == "long")
+  {
+    args = args[1..];
+    str = implode(args, " ");
+  }
+
   if (!strlen(str))
   {
-    current  = loc->query_specific_long();
-    original = loc->query_original_long();
+    mixed current, original;
 
-    write("Its own prose:\n  " +
+    current  = title ? loc->query_specific_short() : loc->query_specific_long();
+    original = title ? loc->query_original_short() : loc->query_original_long();
+
+    write("Its own " + (title ? "title" : "prose") + ":\n  " +
           (stringp(current) && strlen(current) ? "\"" + current + "\""
                                                : "(none)") + "\n");
     write("The room it came from:\n  " +
@@ -2050,15 +2275,22 @@ int do_desc(string str)
 
   if (str == "reset")
   {
-    loc->set_specific_long("");
+    if (title)
+      loc->set_specific_short("");
+    else
+      loc->set_specific_long("");
     loc->save_me();
-    write("Dropped its own prose.\n");
+    write("Dropped its own " + (title ? "title" : "prose") + ".\n");
     return 1;
   }
 
-  loc->set_specific_long(str);
+  if (title)
+    loc->set_specific_short(str);
+  else
+    loc->set_specific_long(str);
+
   loc->save_me();
-  write("Described.\n");
+  write(title ? "Titled.\n" : "Described.\n");
   return 1;
 }
 
