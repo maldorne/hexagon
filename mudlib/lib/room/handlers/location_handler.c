@@ -676,6 +676,24 @@ object convert_room_to_location(object room)
     ret += "   Removing outside component (room is not open-air).\n";
   }
 
+  // A room built on /lib/underground.c is below the surface: attach the
+  // underground component with the kind the room declares, and strip a stale
+  // one from a room that no longer is, as with outside above.
+  if (room->query_underground())
+  {
+    if (!location->query_component_by_type(LOCATION_COMPONENT_UNDERGROUND))
+    {
+      location->add_component(LOCATION_COMPONENT_UNDERGROUND,
+                              ([ "kind": room->query_underground_kind() ]));
+      ret += "   Adding component underground.\n";
+    }
+  }
+  else if (location->query_component_by_type(LOCATION_COMPONENT_UNDERGROUND))
+  {
+    location->remove_component(LOCATION_COMPONENT_UNDERGROUND);
+    ret += "   Removing underground component (room is not below the surface).\n";
+  }
+
   if (room->query_property(MAZE_PROP))
   {
     location->add_component(LOCATION_COMPONENT_MAZE, ([ ]));
