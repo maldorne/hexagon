@@ -1,5 +1,6 @@
 
 #define STD_RACE    "/lib/race.c"
+#define STD_SUBRACE "/lib/subrace.c"
 #define STD_CULTURE "/lib/culture.c"
 
 #define DEFAULT_RACE_DIR "/lib/obj/races/"

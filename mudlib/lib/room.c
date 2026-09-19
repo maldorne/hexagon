@@ -72,13 +72,12 @@ void create()
   navigation::create();
   guard::create();
 
-  obj::create();
-
   // default light value for every room, will be changed
   // in the setup() if needed
   set_light(BASE_ROOM_LIGHT_VALUE);
-
   add_property("location", "inside");
+
+  obj::create();
 
   reset();
 
