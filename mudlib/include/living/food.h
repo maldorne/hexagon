@@ -23,3 +23,9 @@
 
 #define NEWBIE_WCOST 1
 #define NORMAL_WCOST 1
+
+// where a piece of food comes from, stamped on it when it is made
+#define FOOD_ORIGIN_UNKNOWN ""
+#define FOOD_ORIGIN_PUB     "pub"
+#define FOOD_ORIGIN_SHOP    "shop"
+#define FOOD_ORIGIN_WILD    "wild"

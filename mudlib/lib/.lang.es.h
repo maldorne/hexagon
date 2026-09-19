@@ -63,3 +63,25 @@
 #define _LANG_WEAPON_NO_HIT "No consigues golpear a "
 #define _LANG_WEAPON_NOT_HIT " no consigue golpearte."
 #define _LANG_WEAPON_NO_HIT_ROOM " no consigue golpear a "
+
+// food.c
+
+#define _LANG_FOOD_EAT_VERBS ({ "comer" })
+#define _LANG_FOOD_DRINK_VERBS ({ "beber" })
+#define _LANG_FOOD_CONSUME_WHAT "¿" + capitalize(query_verb()) + " el qué?\n"
+#define _LANG_FOOD_DEFAULT_EAT_ME "Comes un poco de " + query_name() + ".\n"
+#define _LANG_FOOD_DEFAULT_EAT_OTHERS "come un poco de " + query_name() + ".\n"
+#define _LANG_FOOD_DEFAULT_DRINK_ME "Bebes un trago de " + query_name() + ".\n"
+#define _LANG_FOOD_DEFAULT_DRINK_OTHERS "bebe un trago de " + query_name() + ".\n"
+#define _LANG_FOOD_SPOILED_ME "Está en mal estado, y el estómago se te revuelve.\n"
+#define _LANG_FOOD_FINISHED "No queda nada de " + query_name() + ".\n"
+#define _LANG_FOOD_ROTTED_HOLDER "Lo que queda de " + query_name() + " se deshace entre tus dedos.\n"
+#define _LANG_FOOD_ROTTED_HOLDER_ROOM "tira lo que queda de " + query_name() + ", ya podrido.\n"
+#define _LANG_FOOD_ROTTED_ROOM "Lo que queda de " + query_name() + " acaba de pudrirse del todo.\n"
+#define _LANG_FOOD_COND_FRESH "Está recién hech" + query_vowel() + ".\n"
+#define _LANG_FOOD_COND_PASSABLE "Todavía está en buen estado.\n"
+#define _LANG_FOOD_COND_STALE "Está a punto de echarse a perder.\n"
+#define _LANG_FOOD_COND_SPOILED "Está echad" + query_vowel() + " a perder.\n"
+#define _LANG_FOOD_LONG_CONDITION "   " + cond_string()
+#define _LANG_FOOD_LONG_BITES "   Da para " + number_as_string(query_bites_left()) + \
+  ((query_bites_left() == 1) ? " bocado más" : " bocados más") + ".\n"

@@ -6,7 +6,7 @@ inherit attendable "/lib/ventures/attendable.c";
 inherit sign       "/lib/ventures/pub-sign.c";
 inherit menu       "/lib/ventures/pub-menu.c";
 inherit actions    "/lib/ventures/pub-actions.c";
-inherit food       "/lib/ventures/food.c";
+inherit prices     "/lib/ventures/pub-prices.c";
 
 void create()
 {

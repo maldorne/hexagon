@@ -1,3 +1,5 @@
+// Pricing rules of a venture that serves food and drink: what a point of
+// healing costs, by what is served and how strong it is.
 
 #include <living/food.h>
 
