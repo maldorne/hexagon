@@ -195,7 +195,7 @@ int do_unwear_ob(object ob)
       if (main_object && sizeof(main_object->query_piece_object_list()))
       {
         // tell_object(find_living("neverbot"), "-- main is: " + file_name(main_object) + "\n");
-        main_object->set_piece_object_list( 0 );
+        main_object->set_piece_object_list(({ }));
         tell_object(this_object(), _LANG_UNWEAR_FULL_SET);
         main_object->complete_set_off(this_object());
       }
