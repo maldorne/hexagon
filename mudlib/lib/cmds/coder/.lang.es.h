@@ -26,3 +26,8 @@
 // snoop
 
 #define _LANG_SNOOP_WATCHED(who) (who) + " comienza a observar tu sesión.\n"
+
+// uptime
+
+#define _LANG_CMD_UPTIME_MESSAGE "El mud lleva funcionando " + \
+  seconds_to_time_string(uptime()) + ".\n"
