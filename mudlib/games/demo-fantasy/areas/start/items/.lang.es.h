@@ -34,7 +34,7 @@
     "en un metal bastante oscuro y aparentemente bastante resistente. " + \
     "Tiene una extraña forma que parece hacerla capaz de abrir hasta la " + \
     "más compleja cerradura. Sin duda esta llave podría abrir puertas " + \
-    "que ocultan increíbles secretos o grandes fortunas, y promete "
+    "que ocultan increíbles secretos o grandes fortunas, y promete " + \
     "aventuras sin fin...\n" + \
     "\n%^BOLD%^Si coges la llave te convertirás en la clase mixta, el explorador.%^RESET%^\n"
 

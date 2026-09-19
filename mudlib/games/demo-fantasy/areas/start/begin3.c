@@ -46,7 +46,7 @@ void init()
 {
   if (!orb)
   {
-    orb = clone_object(ITEMS + "arrange_orb.c");
+    orb = clone_object(ITEMS + "arrange-orb.c");
     orb->move(this_object());
   }
 
