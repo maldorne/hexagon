@@ -516,9 +516,10 @@ string generate_citizen_name(int gender)
 // Take somebody on for a job. Data-only: the person materializes when its place
 // loads (npc_restore), which is where the body is built. Returns the uuid.
 //
-// This is the seam the generator plugs into. Today the body still comes from a
-// transitional type template; when it comes from the culture instead, only this
-// function changes.
+// The body is put together from its owners when it materializes: the type's
+// template says how the people of this trade look, talk and behave; the
+// citizenship draws the race and the name; the area sets the level and the
+// stats; the post gives the class, the kit, the hours and the house.
 private string assign_npc_to_vacancy(mapping vacancy, string where)
 {
   string id, game, source, at;
