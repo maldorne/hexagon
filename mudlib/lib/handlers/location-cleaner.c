@@ -19,6 +19,8 @@
 
 #include <room/location-cleaner.h>
 #include <room/location.h>
+#include <room/room.h>
+#include <sector/sector.h>
 #include <cartography.h>
 
 // Per-game registry of live map objects: ([ game : ([ ob : reg_time ]) ]).
@@ -29,13 +31,13 @@ mapping buckets;
 mapping ob_game;
 
 // L1 coarse cache: ([ "<game>:<x>_<y>_<z>" : expiry_time ]). A move into a
-// still-warm cell returns immediately without walking the neighbourhood.
+// still-warm location returns immediately without walking the neighbourhood.
 mapping region_warmed;
 // L2 fine cache: ([ file : expiry_time ]). A fresh file is not re-loaded or
 // re-enqueued while its stamp holds.
 mapping warmed;
 
-// Prewarm queue: ({ ({ file, depth }), ... }), drained from `head` (FIFO
+// Prewarm queue: ({ ({ file, steps, centre }), ... }), drained from `head` (FIFO
 // without O(n) shifts). `queued` dedupes files already in flight.
 mixed * queue;
 int head;
@@ -116,30 +118,105 @@ private int _fresh(string file)
 private object _ensure_loaded(string file)
 {
   object ob;
+  string err;
 
   if (!file || !strlen(file))
     return nil;
 
+  // Whatever one file does, the rest of the queue still has to be warmed: a
+  // location that throws while restoring (or while bringing its people back)
+  // must not take the worker down with it, or everything behind it in the
+  // queue stays cold until the mud is restarted.
   if (file[strlen(file) - 2 ..] == ".o")
-    return load_object(LOCATION_HANDLER)->load_location(file);
+  {
+    err = catch(ob = load_object(LOCATION_HANDLER)->load_location(file));
+
+    if (err)
+    {
+      stderr("🧹 cleaner prewarm: " + file + " failed to load: " + err + "\n");
+      return nil;
+    }
+
+    return ob;
+  }
 
   ob = find_object(file);
   if (ob)
     return ob;
 
-  catch(ob = load_object(file));
+  err = catch(ob = load_object(file));
+
+  if (err)
+  {
+    stderr("🧹 cleaner prewarm: " + file + " failed to load: " + err + "\n");
+    return nil;
+  }
+
   return ob;
 }
 
-// Enqueue a loaded object's exit destinations at `depth`, skipping files
-// already in flight or still fresh.
-private void _seed(object ob, int depth)
+// Whether coordinate `c` lies within CLEANER_RADIUS of `centre` on every axis.
+private int _in_window(int * centre, int * c)
+{
+  int i, d;
+
+  for (i = 0; i < 3; i++)
+  {
+    d = c[i] - centre[i];
+    if (d > CLEANER_RADIUS || d < -CLEANER_RADIUS)
+      return 0;
+  }
+
+  return 1;
+}
+
+// The coordinate an exit of `ob` leads to, worked out from the exit's compass
+// direction so the destination does not have to be loaded to know where it
+// is. nil when `ob` has no coordinate or the exit is not a compass direction.
+private int * _dest_coordinate(object ob, string dir)
+{
+  int * from, * delta;
+
+  from = ob->query_coordinates();
+  if (!from || sizeof(from) < 3)
+    return nil;
+
+  delta = load_object(SECTORS_HANDLER)->query_dir_delta(
+            ROOM_HAND->canonical_dir(dir));
+  if (!delta)
+    return nil;
+
+  return ({ from[0] + delta[0], from[1] + delta[1], from[2] + delta[2] });
+}
+
+// Whether the walk may go on through the exit `dir` of `ob`, `steps` exits away
+// from the player. With a centre, the coordinate window decides; a place that
+// cannot say where it is (a room with no coordinates, an exit that is not a
+// compass direction) falls back to counting exits.
+private int _within_reach(object ob, string dir, int steps, int * centre)
+{
+  int * to;
+
+  if (steps > CLEANER_MAX_STEPS)
+    return 0;
+
+  if (!centre)
+    return steps <= CLEANER_RADIUS;
+
+  to = _dest_coordinate(ob, dir);
+  if (!to)
+    return steps <= CLEANER_RADIUS;
+
+  return _in_window(centre, to);
+}
+
+// Enqueue a loaded object's exit destinations `steps` exits from the player,
+// skipping files already in flight or still fresh and anything outside the
+// window around `centre`.
+private void _seed(object ob, int steps, int * centre)
 {
   string * dest_dir;
   int i;
-
-  if (depth > CLEANER_RADIUS)
-    return;
 
   dest_dir = ob->query_dest_dir();
   if (!dest_dir)
@@ -155,9 +232,11 @@ private void _seed(object ob, int depth)
       continue;
     if (queued[dest] || _fresh(dest))
       continue;
+    if (!_within_reach(ob, dest_dir[i], steps, centre))
+      continue;
 
     queued[dest] = 1;
-    queue += ({ ({ dest, depth }) });
+    queue += ({ ({ dest, steps, centre }) });
   }
 }
 
@@ -180,22 +259,30 @@ void _prewarm_step()
   for (i = 0; i < CLEANER_CHUNK && head < sizeof(queue); i++)
   {
     string file;
-    int depth;
+    int steps;
+    int * centre;
     object ob;
 
-    file  = queue[head][0];
-    depth = queue[head][1];
+    file   = queue[head][0];
+    steps  = queue[head][1];
+    centre = queue[head][2];
     head++;
     map_delete(queued, file);
 
     ob = _ensure_loaded(file);
+
+    // A file that could not be loaded is stamped like a loaded one, so a
+    // broken location is retried when its stamp ages out instead of on every
+    // walk through the neighbourhood.
     if (!ob)
+    {
+      warmed[file] = time() + CLEANER_FILE_TTL;
       continue;
+    }
 
     warmed[file] = time() + CLEANER_FILE_TTL;
 
-    if (depth < CLEANER_RADIUS)
-      _seed(ob, depth + 1);
+    _seed(ob, steps + 1, centre);
   }
 
   if (head < sizeof(queue))
@@ -224,7 +311,7 @@ void player_moved(object player)
   if (!env)
     return;
 
-  // L1 coarse gate: nothing to do if the player's current cell is warm.
+  // L1 coarse gate: nothing to do if the player's current location is warm.
   coords = env->query_coordinates();
   if (coords && sizeof(coords) >= 3)
   {
@@ -236,7 +323,7 @@ void player_moved(object player)
     region_warmed[key] = time() + CLEANER_REGION_TTL;
   }
 
-  _seed(env, 1);
+  _seed(env, 1, (coords && sizeof(coords) >= 3) ? coords : nil);
   _schedule();
 }
 
@@ -244,14 +331,88 @@ void player_moved(object player)
 // Evict — reclaim objects out of every player's range, past the grace period.
 // ---------------------------------------------------------------------------
 
-// The set of objects within CLEANER_RADIUS of any online player. A resident
-// walk: the in-range neighbourhood was already prewarmed, so walk_reachable
-// returns cached objects without loading anything new.
+// The loaded object an exit leads to, without loading anything: retention
+// only decides what to keep of what is already in memory.
+private object _loaded_destination(string dest)
+{
+  if (!dest || !strlen(dest))
+    return nil;
+
+  if (dest[strlen(dest) - 2 ..] == ".o")
+    return load_object(LOCATION_HANDLER)->query_loaded_location(dest);
+
+  return find_object(dest);
+}
+
+// Walk the same window the prewarm fills, over what is already in memory, and
+// mark every object met as retained. Anything inside the window that is not
+// loaded is queued for the worker: the invariant is kept here, every sweep,
+// and not only when the player moves -- a location that went away while the
+// player stood still is brought back within one sweep.
+private void _retain_around(object env, mapping retain)
+{
+  mixed * pending;
+  int * centre;
+  int i, steps;
+
+  centre = env->query_coordinates();
+  if (centre && sizeof(centre) < 3)
+    centre = nil;
+
+  retain[env] = 1;
+  pending = ({ ({ env, 1 }) });
+
+  while (sizeof(pending))
+  {
+    object here;
+    string * dest_dir;
+
+    here  = pending[0][0];
+    steps = pending[0][1];
+    pending = pending[1..];
+
+    dest_dir = here->query_dest_dir();
+    if (!dest_dir)
+      continue;
+
+    for (i = 0; i < sizeof(dest_dir); i += 2)
+    {
+      object there;
+      string dest;
+
+      dest = dest_dir[i + 1];
+      if (!dest || !strlen(dest))
+        continue;
+      if (!_within_reach(here, dest_dir[i], steps, centre))
+        continue;
+
+      there = _loaded_destination(dest);
+
+      if (!there)
+      {
+        if (!queued[dest])
+        {
+          queued[dest] = 1;
+          queue += ({ ({ dest, steps, centre }) });
+        }
+        continue;
+      }
+
+      if (retain[there])
+        continue;
+
+      retain[there] = 1;
+      pending += ({ ({ there, steps + 1 }) });
+    }
+  }
+}
+
+// The set of objects within CLEANER_RADIUS of any online player.
 private mapping _retain_set()
 {
   object * ps;
   mapping retain;
-  int i, j;
+  int i;
 
   ps = players();
   retain = ([ ]);
@@ -259,7 +420,6 @@ private mapping _retain_set()
   for (i = 0; i < sizeof(ps); i++)
   {
     object env;
-    object * near;
 
     if (!ps[i])
       continue;
@@ -267,10 +427,12 @@ private mapping _retain_set()
     if (!env)
       continue;
 
-    near = CARTOGRAPHY_HANDLER->walk_reachable(env, CLEANER_RADIUS, 0);
-    for (j = 0; j < sizeof(near); j++)
-      retain[near[j]] = 1;
+    _retain_around(env, retain);
   }
+
+  // whatever the walk found missing is loaded by the worker, a chunk a tick
+  if (head < sizeof(queue))
+    _schedule();
 
   return retain;
 }

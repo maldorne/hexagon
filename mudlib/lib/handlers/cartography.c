@@ -12,7 +12,7 @@
 #include <translations/exits.h>
 #include <room/location.h>
 
-// Compute the highest-priority cell type for `room` from the viewer's
+// Compute the highest-priority type for the location `room` from the viewer's
 // perspective. In `deep` mode the function inspects the room's full
 // inventory for per-room markers (quest, enemy, guard, ...). Walking the
 // inventory here is a pure read and never spawns anything; any NPC
@@ -133,34 +133,34 @@ private int _z_of(object room)
  * Build the map view for `viewer`. Returns a mapping shaped:
  *
  *   ([
- *     "width":     int,                 viewport width in cells
- *     "height":    int,                 viewport height in cells
+ *     "width":     int,                 viewport width in grid slots
+ *     "height":    int,                 viewport height in grid slots
  *     "viewer_x":  int,                 viewer column inside the grid
  *     "viewer_y":  int,                 viewer row inside the grid
- *     "cells":     int **,              grid[y][x] == one of CART_*
+ *     "locations": int **,              grid[y][x] == one of CART_*
  *     "rooms":     object **,           grid[y][x] == room/location or nil
  *   ])
  *
  * Or nil if the viewer has no environment or the environment refuses
  * to render a map (dungeon / underwater rooms).
  *
- * The two grids are aligned: `rooms[y][x]` holds the room object that
- * produced `cells[y][x]` for room cells, and is `nil` for empty or
- * exit-segment cells. Renderers that only care about cell types ignore
- * `rooms`; renderers that need coordinates (coord overlay, future
- * pathfinding) read it.
+ * The two grids are aligned: `rooms[y][x]` holds the object that produced
+ * `locations[y][x]` where a location is drawn, and is `nil` where nothing is
+ * or where the slot holds the link between two locations. Renderers that
+ * only care about what each location is ignore `rooms`; renderers that need
+ * coordinates (coord overlay, future pathfinding) read it.
  *
  * `options` (mapping, all optional):
  *   "deep":   1 to force loading every reachable room (slow on legacy
  *             room-based areas; safe on locations). Default 0.
- *   "width":  viewport width in cells. Default CART_DEFAULT_WIDTH.
- *   "height": viewport height in cells. Default CART_DEFAULT_HEIGHT.
+ *   "width":  viewport width in grid slots. Default CART_DEFAULT_WIDTH.
+ *   "height": viewport height in grid slots. Default CART_DEFAULT_HEIGHT.
  */
 mapping query_map_view(object viewer, varargs mapping options)
 {
   object env;
   int deep, width, height;
-  int ** cells;
+  int ** locations;
   object ** rooms;
   mixed * pending;
   mixed * revised;
@@ -185,12 +185,12 @@ mapping query_map_view(object viewer, varargs mapping options)
   width  = (intp(options["width"])  ? options["width"]  : CART_DEFAULT_WIDTH);
   height = (intp(options["height"]) ? options["height"] : CART_DEFAULT_HEIGHT);
 
-  // initialise the grids with empty cells
-  cells = allocate(height);
+  // initialise the grids with empty locations
+  locations = allocate(height);
   rooms = allocate(height);
   for (i = 0; i < height; i++)
   {
-    cells[i] = allocate_int(width);
+    locations[i] = allocate_int(width);
     rooms[i] = allocate(width);
   }
 
@@ -209,7 +209,7 @@ mapping query_map_view(object viewer, varargs mapping options)
 
   current = ({ viewer_x, viewer_y, env });
   pending += ({ current });
-  cells[viewer_y][viewer_x] = _classify_room(env, viewer, deep);
+  locations[viewer_y][viewer_x] = _classify_room(env, viewer, deep);
   rooms[viewer_y][viewer_x] = env;
 
   while (sizeof(pending))
@@ -222,8 +222,8 @@ mapping query_map_view(object viewer, varargs mapping options)
     for (i = 0; i < sizeof(dest_dir); i += 2)
     {
       object new_room;
-      int seg_x, seg_y;            // exit-segment cell coordinates
-      int dest_x, dest_y;          // destination cell coordinates
+      int seg_x, seg_y;            // where the link to it is drawn
+      int dest_x, dest_y;          // where the destination is drawn
       int seg_type;
       int has_segment, has_dest;
       int cx, cy;
@@ -310,7 +310,7 @@ mapping query_map_view(object viewer, varargs mapping options)
       }
 
       // Resolve destination first; if it lives on a different z plane
-      // we draw nothing (no segment, no destination cell). The source
+      // we draw nothing (no segment, no destination). The source
       // room still carries its CART_UP_ROOM / CART_DOWN_ROOM marker
       // for any vertical exit, which is the level-transition hint.
       new_room = _resolve_destination(dest_dir[i + 1], deep);
@@ -333,10 +333,10 @@ mapping query_map_view(object viewer, varargs mapping options)
         continue;
 
       if (has_segment)
-        cells[seg_y][seg_x] = seg_type;
+        locations[seg_y][seg_x] = seg_type;
 
       // Maze locations are deliberately opaque to cartography: we
-      // draw the connecting segment and a '?' ghost cell where the
+      // draw the connecting segment and a '?' ghost where the
       // maze begins, but never enqueue the maze room itself. The
       // map intentionally hides the labyrinth's layout — knowing
       // it would defeat the point, since movement inside is
@@ -346,7 +346,7 @@ mapping query_map_view(object viewer, varargs mapping options)
       {
         if (has_dest)
         {
-          cells[dest_y][dest_x] = CART_MAZE_ROOM;
+          locations[dest_y][dest_x] = CART_MAZE_ROOM;
           rooms[dest_y][dest_x] = new_room;
         }
         continue;
@@ -354,7 +354,7 @@ mapping query_map_view(object viewer, varargs mapping options)
 
       if (has_dest)
       {
-        cells[dest_y][dest_x] = _classify_room(new_room, viewer, deep);
+        locations[dest_y][dest_x] = _classify_room(new_room, viewer, deep);
         rooms[dest_y][dest_x] = new_room;
         pending += ({ ({ dest_x, dest_y, new_room }) });
       }
@@ -369,7 +369,7 @@ mapping query_map_view(object viewer, varargs mapping options)
     "height":   height,
     "viewer_x": viewer_x,
     "viewer_y": viewer_y,
-    "cells":    cells,
+    "locations":    locations,
     "rooms":    rooms,
   ]);
 }
@@ -391,7 +391,7 @@ mapping query_map_view(object viewer, varargs mapping options)
  *
  * Maze locations are boundaries: the maze entry is included in the set
  * but its interior is never walked (its layout is randomised, so walking
- * it is meaningless — same rationale as the map's ghost cell).
+ * it is meaningless — same rationale as the map's ghost).
  */
 object * walk_reachable(object start, int max_depth, varargs int deep)
 {
@@ -464,14 +464,14 @@ object * walk_reachable(object start, int max_depth, varargs int deep)
 string render_ascii(mapping view)
 {
   int width, height;
-  int ** cells;
+  int ** locations;
   int vx, vy;
   string out, line;
   int i, j, type;
 
   width  = view["width"];
   height = view["height"];
-  cells  = view["cells"];
+  locations = view["locations"];
   vx     = view["viewer_x"];
   vy     = view["viewer_y"];
 
@@ -482,7 +482,7 @@ string render_ascii(mapping view)
     line = "";
     for (j = 0; j < width; j++)
     {
-      type = cells[i][j];
+      type = locations[i][j];
 
       if (i == vy && j == vx)
       {
@@ -525,12 +525,12 @@ string render_ascii(mapping view)
 }
 
 /**
- * Compact renderer: one character per cell. Three times denser, fits
+ * Compact renderer: one character per location. Three times denser, fits
  * a much larger viewport in the same screen real estate. Roguelike
  * feel.
  *
  *   '@'  viewer
- *   '.'  empty cell
+ *   '.'  no location here
  *   '#'  plain room
  *   'D'  door room      '^'  up exit       'v'  down exit
  *   '~'  coast          '?'  finished quest waiting to turn in
@@ -540,14 +540,14 @@ string render_ascii(mapping view)
 string render_compact(mapping view)
 {
   int width, height;
-  int ** cells;
+  int ** locations;
   int vx, vy;
   string out, line;
   int i, j, type;
 
   width  = view["width"];
   height = view["height"];
-  cells  = view["cells"];
+  locations = view["locations"];
   vx     = view["viewer_x"];
   vy     = view["viewer_y"];
 
@@ -558,7 +558,7 @@ string render_compact(mapping view)
     line = "";
     for (j = 0; j < width; j++)
     {
-      type = cells[i][j];
+      type = locations[i][j];
 
       if (i == vy && j == vx)
       {
@@ -599,19 +599,19 @@ string render_compact(mapping view)
 
 /**
  * Coordinate overlay renderer: shows the world `(x,y)` of each
- * room/location cell instead of an opaque glyph. Intended for coders
+ * location instead of an opaque glyph. Intended for coders
  * and admins debugging conversions, sector indexes, or inferred
- * coordinates — not for player consumption. Cells without a backing
+ * coordinates — not for player consumption. Slots without a backing
  * room (empty space, exit segments) are blank.
  *
- * Each room cell is rendered as a fixed-width "(x,y)" tag. The viewer
- * cell shows "(*x,y)" with the leading asterisk so it stays findable
+ * Each location is rendered as a fixed-width "(x,y)" tag. The viewer's
+ * location shows "(*x,y)" with the leading asterisk so it stays findable
  * in the grid.
  */
 string render_coords(mapping view)
 {
   int width, height;
-  int ** cells;
+  int ** locations;
   object ** rooms;
   int vx, vy;
   string out, line;
@@ -619,7 +619,7 @@ string render_coords(mapping view)
 
   width  = view["width"];
   height = view["height"];
-  cells  = view["cells"];
+  locations = view["locations"];
   rooms  = view["rooms"];
   vx     = view["viewer_x"];
   vy     = view["viewer_y"];
@@ -641,9 +641,9 @@ string render_coords(mapping view)
 
       if (!room)
       {
-        // exit-segment cells get a small marker too so the topology is
+        // the links between locations get a small marker too so the topology is
         // still readable without needing the room glyphs
-        switch (cells[i][j])
+        switch (locations[i][j])
         {
           case CART_HORIZONTAL_EXIT:  line += "  ----  "; break;
           case CART_VERTICAL_EXIT:    line += "    |   "; break;
@@ -685,14 +685,14 @@ string render_coords(mapping view)
 string render_unicode(mapping view)
 {
   int width, height;
-  int ** cells;
+  int ** locations;
   int vx, vy;
   string out, line;
   int i, j, type;
 
   width  = view["width"];
   height = view["height"];
-  cells  = view["cells"];
+  locations = view["locations"];
   vx     = view["viewer_x"];
   vy     = view["viewer_y"];
 
@@ -703,7 +703,7 @@ string render_unicode(mapping view)
     line = "";
     for (j = 0; j < width; j++)
     {
-      type = cells[i][j];
+      type = locations[i][j];
 
       if (i == vy && j == vx)
       {
@@ -774,7 +774,7 @@ string render_unicode(mapping view)
 
 /**
  * Color-by-area renderer: same chunky `[ ]` glyphs as render_ascii,
- * but each room cell is tinted with a palette colour assigned to its
+ * but each location is tinted with a palette colour assigned to its
  * `query_area_name()`. Lets the player see at a glance the boundary
  * between areas without losing any of the marker information.
  *
@@ -786,7 +786,7 @@ string render_unicode(mapping view)
 string render_color_by_area(mapping view)
 {
   int width, height;
-  int ** cells;
+  int ** locations;
   object ** rooms;
   int vx, vy;
   string out, line;
@@ -797,7 +797,7 @@ string render_color_by_area(mapping view)
 
   width  = view["width"];
   height = view["height"];
-  cells  = view["cells"];
+  locations = view["locations"];
   rooms  = view["rooms"];
   vx     = view["viewer_x"];
   vy     = view["viewer_y"];
@@ -828,10 +828,10 @@ string render_color_by_area(mapping view)
       object room;
       string area_name, tint;
 
-      type = cells[i][j];
+      type = locations[i][j];
       room = rooms[i][j];
 
-      // pick a tint for the room cell based on its area
+      // pick a tint for the location based on its area
       tint = "";
       if (room)
       {

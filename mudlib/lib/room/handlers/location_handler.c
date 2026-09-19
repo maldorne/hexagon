@@ -87,6 +87,24 @@ object query_sector_from_location_file_name(string file_name)
   return load_object(SECTORS_HANDLER)->query_sector_from_location(location);
 }
 
+// The location for this file only if it is already in memory. For callers that
+// must not pull a location off disk as a side effect of asking about it -- the
+// cleaner deciding what to keep resident, a report listing what is loaded.
+object query_loaded_location(string file_name)
+{
+  object area;
+
+  if (!strlen(file_name))
+    return nil;
+
+  if (file_name[strlen(file_name) - 2 ..] != ".o")
+    return nil;
+
+  area = query_area_from_location_file_name(file_name);
+
+  return area ? (object)area->query_loaded_location(file_name) : nil;
+}
+
 object load_location(string file_name)
 {
   object area, sector, location;

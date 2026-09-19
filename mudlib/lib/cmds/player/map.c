@@ -3,10 +3,10 @@
 //
 // `map`            — default chunky ASCII (`[ ]`, `---`, `|`, `/`, `\`)
 //                    inside the parchment frame, with legend.
-// `map compact`    — single-character-per-cell roguelike style. Three
+// `map compact`    — single-character-per-location roguelike style. Three
 //                    times denser, fits a much larger viewport.
-// `map coords`     — coder-only debug view: `(x,y)` of each location
-//                    cell. Useful for verifying coordinate inference.
+// `map coords`     — coder-only debug view: `(x,y)` of each location.
+//                    Useful for verifying coordinate inference.
 //
 // The grid contents come from the handler's `render_*` functions; this
 // file only adds the parchment frame and legend (default style only)
@@ -24,6 +24,11 @@ inherit CMD_BASE;
 #define MAP_STYLE_UNICODE  2
 #define MAP_STYLE_COLOR    3
 #define MAP_STYLE_COORDS   4
+
+// Seconds after connecting (or reconnecting) before the map answers: what it
+// draws is the neighbourhood the cleaner prewarms, and that walk runs a few
+// locations per tick.
+#define MAP_SETTLE_SECONDS 30
 
 void setup()
 {
@@ -48,16 +53,16 @@ string query_help(varargs string str)
 
 private string _format(string str) { return sprintf("%-*s", 24, str); }
 
-// Walk the cells grid and return a mapping of which marker types
+// Walk the locations grid and return a mapping of which marker types
 // appear so the legend can show only the relevant rows.
 private mapping _scan_legend(mapping view)
 {
-  int ** cells;
+  int ** locations;
   int width, height;
   mapping flags;
   int i, j;
 
-  cells  = view["cells"];
+  locations = view["locations"];
   width  = view["width"];
   height = view["height"];
 
@@ -65,7 +70,7 @@ private mapping _scan_legend(mapping view)
 
   for (i = 0; i < height; i++)
     for (j = 0; j < width; j++)
-      flags[cells[i][j]] = 1;
+      flags[locations[i][j]] = 1;
 
   return flags;
 }
@@ -125,6 +130,26 @@ static int cmd(string str, object me, string verb)
   mapping view;
   object cart;
   int style;
+
+  // The view is only cheap because the neighbourhood around the player is
+  // already resident, and that is true of a player the cleaner can see and
+  // has had time to warm. The two cases where it is not:
+  //
+  //   - a fully invisible coder: they are left out of the retain set, so
+  //     their surroundings are not kept loaded for them;
+  //   - the first seconds of a session: the prewarm walk is chunked across
+  //     ticks and is still running.
+  if (me->user() && me->user()->query_invis() == 2)
+  {
+    notify_fail(_LANG_CMD_MAP_INVISIBLE);
+    return 0;
+  }
+
+  if (time() - me->query_ontime() < MAP_SETTLE_SECONDS)
+  {
+    notify_fail(_LANG_CMD_MAP_JUST_ARRIVED);
+    return 0;
+  }
 
   // pick a style from the trailing argument
   style = MAP_STYLE_DEFAULT;
@@ -193,7 +218,7 @@ static int cmd(string str, object me, string verb)
             "\n");
       break;
     case MAP_STYLE_COORDS:
-      // coord cells are 8 chars wide — wraps past the parchment width
+      // each (x,y) tag is 8 chars wide — wraps past the parchment width
       write("\n" + cart->render_coords(view) + "\n");
       break;
     default:

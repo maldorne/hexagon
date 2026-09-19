@@ -380,6 +380,8 @@
 #define _LANG_CMD_MAP_NO_ENV "Without an environment you cannot do that.\n"
 #define _LANG_CMD_MAP_INVALID "For some you cannot use your map here.\n"
 #define _LANG_CMD_MAP_NO_WATER "You cannot check the map while you are in the water.\n"
+#define _LANG_CMD_MAP_INVISIBLE "You cannot read the map while completely invisible.\n"
+#define _LANG_CMD_MAP_JUST_ARRIVED "You have just arrived and do not know your way around yet, wait a moment.\n"
 #define _LANG_CMD_MAP_LEGEND "Legend"
 #define _LANG_CMD_MAP_YOUR_POS "Your position"
 #define _LANG_CMD_MAP_ENEMIES "Enemies"
@@ -401,7 +403,7 @@
 #define _LANG_CMD_MAP_VARIANTS_HELP \
         "\nVariants:\n" + \
         "  map           the standard map.\n" + \
-        "  map compact   a denser one-character-per-cell view.\n" + \
+        "  map compact   a denser one-character-per-location view.\n" + \
         "  map unicode   the same density as compact but with proper\n" + \
         "                box-drawing glyphs (needs a UTF-8 client).\n" + \
         "  map color     standard chunky boxes, each room tinted by\n" + \

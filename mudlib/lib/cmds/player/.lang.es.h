@@ -379,6 +379,8 @@
 #define _LANG_CMD_MAP_NO_ENV "¡Sin entorno no puedes hacer eso!\n"
 #define _LANG_CMD_MAP_INVALID "Por alguna razón el mapa no funciona en un lugar como este.\n"
 #define _LANG_CMD_MAP_NO_WATER "No puedes ponerte a consultar el mapa rodeado de agua.\n"
+#define _LANG_CMD_MAP_INVISIBLE "No puedes consultar el mapa estando completamente invisible.\n"
+#define _LANG_CMD_MAP_JUST_ARRIVED "Acabas de llegar y todavía no reconoces el terreno, espera un momento.\n"
 #define _LANG_CMD_MAP_LEGEND "Leyenda"
 #define _LANG_CMD_MAP_YOUR_POS "Tu posición"
 #define _LANG_CMD_MAP_ENEMIES "Enemigos"
@@ -400,7 +402,7 @@
 #define _LANG_CMD_MAP_VARIANTS_HELP \
         "\nVariantes:\n" + \
         "  mapa              el mapa estándar.\n" + \
-        "  mapa compacto     una vista densa de un carácter por celda.\n" + \
+        "  mapa compacto     una vista densa de un carácter por lugar.\n" + \
         "  mapa unicode      la misma densidad que compacto pero con\n" + \
         "                    glifos reales de dibujo de cajas (necesita\n" + \
         "                    un cliente UTF-8).\n" + \

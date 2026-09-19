@@ -7,11 +7,11 @@
 // Layers:
 //   1. Compute the sector index for the target coord and clip a
 //      viewport of `width x height` sectors centred on it.
-//   2. For each cell, load the corresponding sector (if any) and pick
+//   2. For each sector in the viewport, load it (if it exists) and pick
 //      a base glyph from its dominant type (query_sector_type).
-//   3. For city and road cells, replace the base glyph with a shape
-//      chosen from the sector's own border crossings: city cells become a
-//      solid block (with an optional wall overlay); road/path cells become
+//   3. For city and road sectors, replace the base glyph with a shape
+//      chosen from the sector's own border crossings: city sectors become a
+//      solid block (with an optional wall overlay); road/path sectors become
 //      box-drawing joins, drawn per-arm in a light line for paths and a
 //      heavy line for roads (see way_glyph).
 //   4. Where a city wall meets a road, the wall glyph swaps to a wall/road
@@ -82,7 +82,7 @@ private int sector_index(int n)
 }
 
 // Load the sector at (sx, sy, sz), or nil if no sector.o exists.
-// Memoised for the current render pass — the same neighbour cell is
+// Memoised for the current render pass — the same neighbour sector is
 // consulted by the four wall/road decisions around it.
 private object cached_sector(string game, string map_name,
                              int sx, int sy, int sz)
@@ -151,7 +151,7 @@ private int _arm_weight(mapping borders, string own_border,
 // independent weight (none / path = light / road = heavy) taken from this
 // sector's border crossings and reconciled with its neighbours, so paths and
 // roads keep their own line weight even where they meet at a junction, and
-// three- and four-way junctions get their proper glyph. A single-arm cell
+// three- and four-way junctions get their proper glyph. A single-arm sector
 // renders as a half-line stub (a dead-end) rather than a full through-line.
 //
 // Neighbour convention (from guess_coordinates): north = larger y, south =
@@ -174,12 +174,12 @@ private string way_glyph(object sect, string game, string map_name,
 }
 
 
-// Display priority for a sector cell (highest first):
+// Display priority for a sector (highest first):
 //   1. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls
 //   2. road / path — if the sector has road/path exits, draw the way glyph
 //   3. majority    — otherwise the dominant remaining terrain type
-private string render_cell(string game, string map_name,
+private string render_sector(string game, string map_name,
                            int sx, int sy, int sz)
 {
   object sect;
@@ -219,7 +219,7 @@ private string render_cell(string game, string map_name,
   return GLYPH_EMPTY;
 }
 
-// Write a wall glyph into the grid, clamped to bounds. Only blank cells
+// Write a wall glyph into the grid, clamped to bounds. Only blank sectors
 // are painted: the player marker and any real terrain glyph (another
 // sector's fill — forest, road, a different city) show through, so the
 // wall never hides map content, it only fills the empty margin around a
@@ -233,9 +233,9 @@ private void _put(string ** grid, int w, int h, int r, int c, string g)
   grid[r][c] = g;
 }
 
-// Line glyph for a wall cell, from the mask of which orthogonal
-// neighbours are also wall cells (N=1, S=2, E=4, W=8). This connects the
-// ring of wall cells into a continuous outline.
+// Line glyph for a wall sector, from the mask of which orthogonal
+// neighbours are also wall sectors (N=1, S=2, E=4, W=8). This connects the
+// ring of wall sectors into a continuous outline.
 private string _wall_glyph(int mask)
 {
   switch (mask)
@@ -256,11 +256,11 @@ private string _wall_glyph(int mask)
 }
 
 // Post-processing pass: draw a wall that hugs the exact outline of every
-// city region. A wall cell is any non-city cell touching a city cell
+// city region. A wall sector is any non-city sector touching a city sector
 // (8-connectivity, so corners are included); its glyph connects to the
-// neighbouring wall cells, so the ring follows the silhouette — dipping
+// neighbouring wall sectors, so the ring follows the silhouette — dipping
 // in and out around protrusions instead of squaring off a bounding box.
-// City sectors keep their solid fill, so there are no empty cells inside
+// City sectors keep their solid fill, so there are no empty sectors inside
 // the wall.
 private void _overlay_city_walls(string ** grid, int ** is_city,
                                  int w, int h)
@@ -268,7 +268,7 @@ private void _overlay_city_walls(string ** grid, int ** is_city,
   int ** is_wall;
   int r, c;
 
-  // pass 1: a wall cell is a non-city cell adjacent (8-dir) to any city
+  // pass 1: a wall sector is a non-city sector adjacent (8-dir) to any city
   is_wall = allocate(h);
   for (r = 0; r < h; r++)
   {
@@ -295,7 +295,7 @@ private void _overlay_city_walls(string ** grid, int ** is_city,
     }
   }
 
-  // pass 2: connect the ring — each wall cell's glyph follows its
+  // pass 2: connect the ring — each wall sector's glyph follows its
   // orthogonal wall neighbours
   for (r = 0; r < h; r++)
     for (c = 0; c < w; c++)
@@ -320,7 +320,7 @@ private void _overlay_city_walls(string ** grid, int ** is_city,
 // terrain occupies it.
 // Draw a map of anywhere. Give it a world coordinate to centre on, the game
 // and map to read, and a viewport size; no player is needed. `marker`
-// (default 0) stamps a '@' on the centre cell when set, for a "you are here"
+// (default 0) stamps a '@' on the centre sector when set, for a "you are here"
 // focus point.
 string render(int center_x, int center_y, int center_z,
               string game, string map_name, int width, int height,
@@ -346,20 +346,20 @@ string render(int center_x, int center_y, int center_z,
 
   // base fill: one glyph per sector, plus a parallel city mask the wall
   // overlay reads. The mask is captured here, before the player marker is
-  // stamped in, so a marker sitting on a city cell never breaks the wall.
+  // stamped in, so a marker sitting on a city sector never breaks the wall.
   grid = allocate(height);
   is_city = allocate(height);
   for (row_i = 0; row_i < height; row_i++)
   {
-    int cell_sy;
+    int sector_y;
     grid[row_i] = allocate(width);
     is_city[row_i] = allocate_int(width);
-    cell_sy = row_top - row_i;
+    sector_y = row_top - row_i;
     for (col = 0; col < width; col++)
     {
-      int cell_sx;
-      cell_sx = col0 + col;
-      grid[row_i][col] = render_cell(game, map_name, cell_sx, cell_sy, sz0);
+      int sector_x;
+      sector_x = col0 + col;
+      grid[row_i][col] = render_sector(game, map_name, sector_x, sector_y, sz0);
       // city mask for the wall overlay, read off the freshly painted
       // glyph — still before the player marker overwrites it below.
       is_city[row_i][col] = grid[row_i][col] == GLYPH_MAP_CITY;
@@ -388,7 +388,7 @@ string render(int center_x, int center_y, int center_z,
 
 // Convenience: pull the world coord + map + game out of the viewer's
 // environment and hand off to render(). `marker` (default 0) stamps the '@'
-// on the viewer's own cell when set. Returns nil if the viewer is standing in
+// on the viewer's own sector when set. Returns nil if the viewer is standing in
 // something that has no world coord (legacy room, void, a container inside a
 // container without location metadata).
 string render_around(object viewer, int width, int height, varargs int marker)

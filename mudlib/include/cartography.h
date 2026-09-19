@@ -1,19 +1,26 @@
 
 #define CARTOGRAPHY_HANDLER "/lib/handlers/cartography"
 
-// Default viewport size for the map view, in cells. Each room occupies one
-// cell, with the cell between two rooms holding the exit glyph (so a 15x15
-// grid carries about 8x8 rooms in the worst case).
+// Default viewport size for the map view, in grid slots. Each location takes
+// one slot, with the slot between two of them holding the exit glyph (so a
+// 15x15 grid carries about 8x8 locations in the worst case).
 #define CART_DEFAULT_WIDTH   15
 #define CART_DEFAULT_HEIGHT  15
 
-// Semantic types stored in `cells[y][x]`. Renderers map these to glyphs
+// How far from the viewer the map reaches, in coordinate steps. The viewer sits
+// at the centre of the viewport and every step outward costs two slots (the
+// location and the link drawn to it), so half the grid holds this many
+// locations. What is drawn has to be resident, so the cleaner warms a wider
+// radius than this one (see CLEANER_RADIUS).
+#define CART_MAP_REACH       ((CART_DEFAULT_WIDTH / 2) / 2)
+
+// Semantic types stored in `locations[y][x]`. Renderers map these to glyphs
 // (ASCII), colours, icons, JSON keys — whatever the consuming UI needs.
 
 #define CART_EMPTY              0   // nothing here
 
-// Room cells (a location occupies the cell). Ordered roughly by priority:
-// when a room qualifies for several types, the highest-priority one wins
+// What a location is. Ordered roughly by priority: when one qualifies for
+// several types, the highest-priority one wins
 // (see _classify_room in cartography.c).
 #define CART_ROOM               1   // plain room, no markers
 #define CART_DOOR_ROOM          2   // exit through a door / gate
@@ -25,14 +32,14 @@
 #define CART_ADVENTURER_ROOM    8   // a friendly group member is here
 #define CART_GUARD_ROOM         9   // friendly guard is here
 #define CART_ENEMY_ROOM        10   // hostile to the viewer is here
-#define CART_MAZE_ROOM         11   // ghost cell standing in for a maze
+#define CART_MAZE_ROOM         11   // ghost standing in for a maze
 #define CART_HOME_ROOM         12   // a dwelling (a location with a home
                                     // component); drawn with a house glyph
                                     // location reached from a normal room;
                                     // renderers paint it as '?' and never
                                     // explore further from here
 
-// Exit-segment cells (the cell between two rooms). The renderer paints
+// The link drawn between two locations. The renderer paints
 // the corresponding line glyph: '|', '---', '/' or '\'.
 #define CART_VERTICAL_EXIT     20
 #define CART_HORIZONTAL_EXIT   21
