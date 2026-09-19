@@ -35,6 +35,7 @@ void initialize(object location)
 
   // add a sign with available commands and the menu
   create_sign(location);
+  place_globe(location);
 
   // include the pub in the ventures handler
   handler("ventures", location)->include_pub(location->query_file_name());

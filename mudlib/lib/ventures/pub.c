@@ -41,9 +41,12 @@ void create()
 
   create_sign();
 
-  // include the pub in the ventures handler
+  // include the pub in the ventures handler, and put up its chat globe
   if (base_name(this_object()) != "/lib/ventures/pub")
+  {
     handler("ventures", this_object())->include_pub(base_name(this_object()));
+    place_globe();
+  }
 }
 
 void init()

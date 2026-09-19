@@ -2,6 +2,9 @@
 
 #define VENTURES_HANDLER "/lib/handlers/ventures.c"
 
+// the chat globe every pub puts up
+#define GLOBE_OB "/lib/obj/globe.c"
+
 /* Hamlet, August 1995.  */
 
 /* PAY_RATES is broken into pairs.  First number is minimum of each

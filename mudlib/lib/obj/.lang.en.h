@@ -236,3 +236,27 @@
   " tears down and destroys note number " + num + ".\n"
 #define _LANG_BOARD_FOLLOWUP_SYNTAX "Syntax: followup <note number>\n"
 #define _LANG_BOARD_MUDMAIL_SYNTAX "Syntax: mudmail <note number>\n"
+
+// globe
+#define _LANG_GLOBE_NAME "globe"
+#define _LANG_GLOBE_SHORT "Chat Globe"
+#define _LANG_GLOBE_PLURAL "Chat Globes"
+#define _LANG_GLOBE_ALIASES ({ "chat globe" })
+#define _LANG_GLOBE_PLURALS ({ "globes", "chat globes" })
+#define _LANG_GLOBE_LONG "This is one of the most curious objects you have come across in " + \
+  "all your travels. It is a bluish globe resting on a strange golden stand, " + \
+  "with curious metal arcs circling the sphere. It surely has something " + \
+  "magical about it.\n"
+#define _LANG_GLOBE_READ "This globe was made by some powerful wizard so that whoever is " + \
+  "in any pub of the world can talk to each other.\n" + \
+  "\tUse 'globe chat <message>' to speak through every globe.\n" + \
+  "\tUse 'globe who' to find out who is standing by a globe.\n"
+#define _LANG_GLOBE_VERB "globe"
+#define _LANG_GLOBE_CHAT_OPTIONS ({ "chat" })
+#define _LANG_GLOBE_WHO_OPTIONS ({ "who" })
+#define _LANG_GLOBE_USAGE "Syntax: globe chat <message>, globe who\n"
+#define _LANG_GLOBE_NO_MESSAGE "You should say something too.\n"
+#define _LANG_GLOBE_HEARD "[Globe] " + this_player()->query_cap_name() + ": " + str + "\n"
+#define _LANG_GLOBE_SAID "You say through the globe: " + str + "\n"
+#define _LANG_GLOBE_WHO_PLACE "In " + place + (strlen(game) ? " (" + game + ")" : "") + ":\n"
+#define _LANG_GLOBE_DRUNK_REPLACEMENTS ({ "s", "sh", "r", "rr", "ing", "in'", "x", "xsh", "S", "SH", "R", "RR" })

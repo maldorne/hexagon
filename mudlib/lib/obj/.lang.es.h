@@ -236,3 +236,27 @@
   " arranca y destruye la nota número " + num + ".\n"
 #define _LANG_BOARD_FOLLOWUP_SYNTAX "Sintaxis: responder <número de nota>\n"
 #define _LANG_BOARD_MUDMAIL_SYNTAX "Sintaxis: mudmail <número de nota>\n"
+
+// globe
+#define _LANG_GLOBE_NAME "globo"
+#define _LANG_GLOBE_SHORT "Globo de Conversación"
+#define _LANG_GLOBE_PLURAL "Globos de Conversación"
+#define _LANG_GLOBE_ALIASES ({ "conversacion", "conversación", "globo de conversacion", "globo de conversación" })
+#define _LANG_GLOBE_PLURALS ({ "globos", "globos de conversacion", "globos de conversación" })
+#define _LANG_GLOBE_LONG "Este es uno de los objetos más curiosos que has podido encontrar en " + \
+  "cualquiera de tus viajes. Se trata de un globo de color azulado, que reposa " + \
+  "en un extraño soporte dorado con curiosos arcos metálicos rodeando la esfera. " + \
+  "Sin duda alguna tiene alguna extraña apariencia mágica.\n"
+#define _LANG_GLOBE_READ "Este globo ha sido creado por algún poderoso mago para permitir " + \
+  "a quienes están en cualquier taberna del mundo comunicarse entre ellos.\n" + \
+  "\tUtiliza 'globo chat <mensaje>' para hablar a través de todos los globos.\n" + \
+  "\tUtiliza 'globo quien' para saber quiénes están junto a un globo.\n"
+#define _LANG_GLOBE_VERB "globo"
+#define _LANG_GLOBE_CHAT_OPTIONS ({ "chat" })
+#define _LANG_GLOBE_WHO_OPTIONS ({ "quien", "quién" })
+#define _LANG_GLOBE_USAGE "Sintaxis: globo chat <mensaje>, globo quien\n"
+#define _LANG_GLOBE_NO_MESSAGE "Deberías introducir un mensaje también.\n"
+#define _LANG_GLOBE_HEARD "[Globo] " + this_player()->query_cap_name() + ": " + str + "\n"
+#define _LANG_GLOBE_SAID "Dices a través del globo: " + str + "\n"
+#define _LANG_GLOBE_WHO_PLACE "En " + place + (strlen(game) ? " (" + game + ")" : "") + ":\n"
+#define _LANG_GLOBE_DRUNK_REPLACEMENTS ({ "s", "sh", "r", "rr", "x", "xsh", "S", "SH", "R", "RR" })
