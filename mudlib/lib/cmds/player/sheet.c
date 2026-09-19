@@ -46,8 +46,8 @@ static int cmd(string name, object me, string verb)
   // social objects
   object guild, job, guild_class, 
          group, race, race_group, 
-         deity, citizenship;
-  string family;
+         deity, citizenship, base_race;
+  string family, race_name;
   object target;
 
   int * stats;
@@ -264,9 +264,16 @@ static int cmd(string name, object me, string verb)
   if (stats[5] < 10) str_stats[6] = " " + str_stats[6];
   if (stats[6] < 10) str_stats[7] = " " + str_stats[7];
 
+  race_name = race ? race->query_short() : capitalize(_LANG_STATS_NO_RACE);
+
+  // a lineage reads as its base race with the lineage beside it
+  if (race && race->query_lineage() &&
+      (base_race = load_object(race->query_base_race())))
+    race_name = base_race->query_short() + " (" +
+                capitalize(race->query_name()) + ")";
+
   info += sprintf("%-32s", _LANG_CMD_SHEET_BASIC_CHARACTERISTICS + ":");
-  info += sprintf("%-15s %s", capitalize(_LANG_STATS_RACE) + ":", 
-                  (race ? race->query_short() : capitalize(_LANG_STATS_NO_RACE)));
+  info += sprintf("%-15s %s", capitalize(_LANG_STATS_RACE) + ":", race_name);
   info += "\n";
 
   // to show 18/xx

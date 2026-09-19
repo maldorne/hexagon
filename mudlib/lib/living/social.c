@@ -243,7 +243,7 @@ void set_race_ob(string str)
 
   // Racial aliases go on here rather than in the race's start_player, because
   // overrides of that hook do not chain.
-  // Problema: con subrazas esto añade el alias "Humano (Velan)" por ejemplo
+  // with lineages this would add an alias such as "Humano (Velan)"
   // this_object()->add_alias(lower_case(this_object()->query_race()));
   start_race();
 
@@ -265,6 +265,7 @@ void set_race(string str) { set_race_ob(DEFAULT_RACE_DIR + str); }
 string query_race_ob() { return social_object_list[RACE_OB]; }
 
 // Nuevo sistema de subrazas, neverbot 6/03
+// The name of the base race of a lineage, or "" for a race that is none
 string query_base_race_name()
 {
   object ob;

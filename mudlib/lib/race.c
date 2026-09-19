@@ -4,6 +4,7 @@
  * Adapted by neverbot for Cc, 4/2003
  * Removed a big part of the file, and another big part moved to /std/living/death.c
  * Added subraces (or cultures) for each 'generic' race, neverbot 6/2003
+ * Subraces are now called lineages
  * Now the health and gp regeneration system relies on the races, neverbot 7/2003
  *
  */
@@ -22,8 +23,8 @@ int body_size; // 1 smaller - 5 human - 9 bigger
 int ext_align;
 // Number of arms
 int limbs;
-// Subcultures or subraces available (to look for in the 'cultures' subdirectory)
-string * cultures;
+// The lineages this race divides into, by name
+string * lineages;
 // System to take a character to its starting zone
 string init_room;
 
@@ -40,7 +41,7 @@ void create()
   body_size = 5; // This is used as a standard 'human' size
   limbs = 2;
   is_playable = 1;
-  cultures = ({ });
+  lineages = ({ });
   init_room = "";
   // Neutral alignment by default
   ext_align = random(100);
@@ -83,8 +84,8 @@ int query_light_limitl() { return min_light_limit; }
 void set_body_size(int i) { body_size = i; }
 int query_body_size() { return body_size; }
 
-string * query_cultures(){ return cultures; }
-void set_cultures(string * list){ cultures = list; }
+string * query_lineages(){ return lineages; }
+void set_lineages(string * list){ lineages = list; }
 
 string query_init_room(){ return init_room; }
 void set_init_room(string where){ init_room = where; }
@@ -156,7 +157,7 @@ void set_ext_align(int i) { ext_align = i; }
 
 void set_racial_bonuses(object ob) { }
 
-// The words a living of this race answers to. A subrace answers both to its
+// The words a living of this race answers to. A lineage answers both to its
 // own name and to its base race's.
 string * query_race_aliases()
 {
@@ -166,7 +167,7 @@ string * query_race_aliases()
 
   ret = ({ lower_case((string)this_object()->query_name()) });
 
-  // query_base_race lives on /lib/subrace.c, so a plain race answers nil
+  // query_base_race lives on /lib/lineage.c, so a plain race answers nil
   basepath = this_object()->query_base_race();
   if (stringp(basepath) && strlen(basepath) &&
       (base = load_object(basepath)))

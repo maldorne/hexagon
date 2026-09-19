@@ -80,6 +80,7 @@ int no_coders(object me)
 }
 
 // base_race added, for the subrace/culture system, neverbot 6/03
+// a race or the base race of a lineage both match
 int compare_race(object ob, string str)
 {
   return ((lower_case(ob->query_race_name()) == str) ||

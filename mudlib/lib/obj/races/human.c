@@ -18,9 +18,9 @@ void setup()
   set_short(capitalize(_LANG_RACES_HUMAN_NAME));
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
   
-  set_cultures( ({ "velan", "tresio" }) );
+  set_lineages( ({ "velan", "tresio" }) );
 
-  // If you have different cultures, the init_room will be set in each of them
+  // If you have different lineages, the init_room will be set in each of them
   set_init_room("/games/demo-fantasy/rooms/1.c");
 }
 

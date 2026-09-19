@@ -15,7 +15,7 @@ void setup()
   set_short(capitalize(_LANG_RACES_GNOLL_NAME));
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 
-  // If you have different cultures, the init_room will be set in each of them
+  // If you have different lineages, the init_room will be set in each of them
   set_init_room("/games/demo-fantasy/areas/road/rooms/1.c");
 
   // do not allow new players with this race

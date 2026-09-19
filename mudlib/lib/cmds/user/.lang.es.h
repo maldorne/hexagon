@@ -17,7 +17,7 @@
 #define _LANG_WHO_SYNTAX "who\n" + \
                          "          who programadores\n" + \
                          "          who jugadores\n" + \
-                         "          who <raza|cultura>\n" + \
+                         "          who <raza|linaje>\n" + \
                          "          who <juego>\n" + \
                          "          who <gremio>"
 #define _LANG_WHO_HELP "Muestra un listado de los personajes conectados."

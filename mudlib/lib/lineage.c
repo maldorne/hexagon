@@ -1,4 +1,6 @@
 // New subrace system, neverbot 6/03
+// Subraces renamed lineages: a variety of a base race, a people or a kind of
+// the same body -- the velan and the tresio among humans.
 
 #include <living/races.h>
 
@@ -9,7 +11,7 @@ string base_race;
 void set_base_race(string race){ base_race = race; }
 string query_base_race(){ return base_race; }
 
-int query_subrace(){ return 1; }
+int query_lineage(){ return 1; }
 
 void start_player(object ob) 
 { 
