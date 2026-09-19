@@ -75,9 +75,13 @@ void create()
   // default light value for every room, will be changed
   // in the setup() if needed
   set_light(BASE_ROOM_LIGHT_VALUE);
-  add_property("location", "inside");
 
   obj::create();
+
+  // obj::create() resets the properties before running setup(), so the
+  // default only applies when setup() did not choose one
+  if (!query_property("location"))
+    add_property("location", "inside");
 
   reset();
 
