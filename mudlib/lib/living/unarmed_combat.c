@@ -174,7 +174,7 @@ mixed * workout_attack(string unarmed_type)
   //  we store it the first time we need them, to avoid looking through the mapping
   if ((ovr_num == 0) || (ovr_type == 0))
   {
-    tmp = table("unarmed_combat")->set_damage_dice(current_unarmed_style, this_object());
+    tmp = table("unarmed-combat")->set_damage_dice(current_unarmed_style, this_object());
     if (tmp == 0)
     {
       ovr_num = BDEFNUM;
@@ -281,7 +281,7 @@ int set_unarmed_combat_style(string style)
     unarmed_ability = (known_unarmed_styles[style] >= MIN_UNARMED_ABILITY ? known_unarmed_styles[style] : MIN_UNARMED_ABILITY);
 
     // update the dice used
-    tmp = table("unarmed_combat")->set_damage_dice(current_unarmed_style, this_object());
+    tmp = table("unarmed-combat")->set_damage_dice(current_unarmed_style, this_object());
     if (tmp == 0)
     {
       ovr_num = BDEFNUM;
@@ -294,7 +294,7 @@ int set_unarmed_combat_style(string style)
     reset_num_unarmed_hits();
     
     // update the messages to use
-    messages = table("unarmed_combat")->query_messages(current_unarmed_style, unarmed_ability, this_object());      
+    messages = table("unarmed-combat")->query_messages(current_unarmed_style, unarmed_ability, this_object());      
     
     return 1;
   }
@@ -342,7 +342,7 @@ string query_unarmed_style_name(string style)
 {
   mixed * info;
 
-  info = table("unarmed_combat")->query_unarmed_style_info(style);
+  info = table("unarmed-combat")->query_unarmed_style_info(style);
 
   if (!sizeof(info))
     return style;
@@ -366,7 +366,7 @@ int adjust_unarmed_ability(string style, int i)
   if (!known_unarmed_styles[style])
     return 0;
   
-  if (member_array(style, table("unarmed_combat")->query_unarmed_styles()) == -1)
+  if (member_array(style, table("unarmed-combat")->query_unarmed_styles()) == -1)
     return 0;
 
   known_unarmed_styles[style] += i;
@@ -436,7 +436,7 @@ int do_combat_styles(string style)
     for (i = 0; i < sizeof(_unarmed_styles); i++)
     {
       mixed * info;
-      info = table("unarmed_combat")->query_unarmed_style_info(_unarmed_styles[i]);
+      info = table("unarmed-combat")->query_unarmed_style_info(_unarmed_styles[i]);
 
       ret += sprintf("\t%35s %25s (%s)\n", "%^BOLD%^" + capitalize(info[0]) + "%^RESET%^", 
                 "[" + percentage_bar(query_known_unarmed_combat_styles()[_unarmed_styles[i]]) + "]",
@@ -526,7 +526,7 @@ void write_message(int damage, string local, object att, object def)
     place = "" + _LANG_UNARMED_LOCALIZATION_PREP + " " + local;
   
   if (sizeof(messages) != 3)  
-    messages = table("unarmed_combat")->query_messages(current_unarmed_style, unarmed_ability, att);
+    messages = table("unarmed-combat")->query_messages(current_unarmed_style, unarmed_ability, att);
   
   if (sizeof(messages) != 3)
   {

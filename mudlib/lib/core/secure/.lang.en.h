@@ -17,7 +17,6 @@
 #define _LANG_FINGER_PLACE "City: "
 #define _LANG_FINGER_RACE_GENDER "   %^GREEN%^"+(gender==2?"She":"He")+" is a " + \
             social_object_list[0]->query_race_gender_string(this_object(), 1)+"%^RESET%^. "
-#define _LANG_FINGER_TITLE "   Wears the title " + finger_title() + ".\n"
 #define _LANG_FINGER_GUILD "   "+(gender==2?"She":"He")+" is a member of the '" + \
             social_object_list[1]->short()+"' guild.\n"
 #define _LANG_FINGER_WRONG_GUILD "   "+(gender==2?"She":"He")+" is a member of a non existant guild.\n"

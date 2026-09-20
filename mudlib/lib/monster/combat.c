@@ -47,11 +47,11 @@ void add_attacks( string * names )
   for (i = 0; i < sizeof(names); i++)
   {
     // Si el estilo existe
-    if (table("unarmed_combat")->style_exists(names[i]))
+    if (table("unarmed-combat")->style_exists(names[i]))
     {
       // a creature fights its own way at its best: the messages of the top
       // ability band of the style
-      tmp = table("unarmed_combat")->query_messages(names[i], 100, this_object());
+      tmp = table("unarmed-combat")->query_messages(names[i], 100, this_object());
 
       // Si es una lista, la añadimos
       if (arrayp(tmp[0]))

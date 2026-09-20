@@ -39,6 +39,19 @@
 // just an id, there is no need to translate it
 #define DEF_UNARMED_STYLE_NAME "fighting"
 
+// The attacks a creature makes with its own body, which is what add_attacks()
+// takes. Ids, so english: the words a player reads live in the table's .lang
+// files
+#define NATURAL_ATTACK_FANGS  "fangs"
+#define NATURAL_ATTACK_CLAWS  "claws"
+#define NATURAL_ATTACK_BEAK   "beak"
+#define NATURAL_ATTACK_HORNS  "horns"
+#define NATURAL_ATTACK_HOOVES "hooves"
+#define NATURAL_ATTACK_TEETH  "teeth"
+#define NATURAL_ATTACK_PAWS   "paws"
+#define NATURAL_ATTACK_TAIL   "tail"
+#define NATURAL_ATTACK_LEGS   "legs"
+
 // minimum ability with a style
 #define MIN_UNARMED_ABILITY 10
 // maximum ability value learning by yourself (auto)
