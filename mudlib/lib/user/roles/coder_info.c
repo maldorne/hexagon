@@ -12,7 +12,6 @@ void role_commands()
 {
   // add_action("do_gauge", "gauge");
   /* Added by Jada aug '94, blame him if it won't work */
-  add_action("do_title", ({ "title", "titulo", "título" }));
   /* Adds for new commandsystem.. */
   add_action("comm_info", "cominfo");
 } 
@@ -35,33 +34,6 @@ void role_commands()
 //   write("\nEl comando '" + str + "' usó: " + eval_cost + " ciclos de CPU.\n");
 //   return 1;
 // } 
-
-int do_title(string str)
-{
-  string title;
-  title = this_player()->query_title();
-  
-  if (!strlen(str))
-  {
-    if (title) 
-      write("Tu título es: "+title+"\n");
-    else
-      write("No tienes título.\n");
-      
-    write("Sintaxis: titulo <texto>\n"+
-          "          titulo -c para borrarlo\n");
-  }
-  else if (str == "-c")
-  {
-    write("Borrando tu título.\n");
-    this_player()->set_title("");
-    return 1;
-  }
-  else
-    this_player()->set_title(str);
-
-  return 1;
-}
 
 string _do_find_comm(string func, object ob) 
 {

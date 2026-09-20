@@ -565,3 +565,25 @@
 #define _LANG_CMD_DESCRIPTION_UNCHANGED "Your description does not change.\n"
 #define _LANG_CMD_DESCRIPTION_TOO_LONG "It is too long: " + me->query_max_description_length() + \
   " characters at most.\n"
+
+// title
+
+#define _LANG_CMD_TITLE_ALIASES ({ "title" })
+#define _LANG_CMD_TITLE_SYNTAX "title\n" + \
+                               "          title <number>\n" + \
+                               "          title none"
+#define _LANG_CMD_TITLE_HELP "Lists the titles you have earned and chooses which one you wear."
+#define _LANG_CMD_TITLE_NO_TITLE ({ "none", "nothing" })
+#define _LANG_CMD_TITLE_NONE_EARNED "You have not earned any title yet.\n"
+#define _LANG_CMD_TITLE_HEADER "Your titles:\n"
+#define _LANG_CMD_TITLE_LINE "  %2d) %-40s (%s)%s\n"
+#define _LANG_CMD_TITLE_FROM_CLASS "class"
+#define _LANG_CMD_TITLE_FROM_GUILD "guild"
+#define _LANG_CMD_TITLE_FROM_JOB "job"
+#define _LANG_CMD_TITLE_FROM_DEED "deed"
+#define _LANG_CMD_TITLE_WORN "  [ worn ]"
+#define _LANG_CMD_TITLE_FOOTER "Write 'title <number>' to wear it, " + \
+                               "or 'title none' to wear none.\n"
+#define _LANG_CMD_TITLE_CLEARED "You no longer wear any title.\n"
+#define _LANG_CMD_TITLE_NOT_YOURS "You have no title with that number.\n"
+#define _LANG_CMD_TITLE_SET "You now wear the title '" + me->query_title() + "'.\n"

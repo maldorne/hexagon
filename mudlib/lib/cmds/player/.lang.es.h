@@ -566,3 +566,25 @@
 #define _LANG_CMD_DESCRIPTION_UNCHANGED "Tu descripción no cambia.\n"
 #define _LANG_CMD_DESCRIPTION_TOO_LONG "Es demasiado larga: como mucho " + \
   me->query_max_description_length() + " caracteres.\n"
+
+// title
+
+#define _LANG_CMD_TITLE_ALIASES ({ "titulo", "título", "title" })
+#define _LANG_CMD_TITLE_SYNTAX "titulo\n" + \
+                               "          titulo <número>\n" + \
+                               "          titulo ninguno"
+#define _LANG_CMD_TITLE_HELP "Lista los títulos que has conseguido y escoge cuál luces."
+#define _LANG_CMD_TITLE_NO_TITLE ({ "ninguno", "nada", "none" })
+#define _LANG_CMD_TITLE_NONE_EARNED "Todavía no has conseguido ningún título.\n"
+#define _LANG_CMD_TITLE_HEADER "Tus títulos:\n"
+#define _LANG_CMD_TITLE_LINE "  %2d) %-40s (%s)%s\n"
+#define _LANG_CMD_TITLE_FROM_CLASS "clase"
+#define _LANG_CMD_TITLE_FROM_GUILD "gremio"
+#define _LANG_CMD_TITLE_FROM_JOB "oficio"
+#define _LANG_CMD_TITLE_FROM_DEED "hazaña"
+#define _LANG_CMD_TITLE_WORN "  [ lo luces ]"
+#define _LANG_CMD_TITLE_FOOTER "Escribe 'titulo <número>' para lucirlo, " + \
+                               "o 'titulo ninguno' para no lucir ninguno.\n"
+#define _LANG_CMD_TITLE_CLEARED "Ya no luces ningún título.\n"
+#define _LANG_CMD_TITLE_NOT_YOURS "No tienes ningún título con ese número.\n"
+#define _LANG_CMD_TITLE_SET "Ahora luces el título '" + me->query_title() + "'.\n"

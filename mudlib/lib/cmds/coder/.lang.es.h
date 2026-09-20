@@ -31,3 +31,14 @@
 
 #define _LANG_CMD_UPTIME_MESSAGE "El mud lleva funcionando " + \
   seconds_to_time_string(uptime()) + ".\n"
+
+// free-title
+
+#define _LANG_CMD_FREE_TITLE_ALIASES ({ "titulolibre", "títulolibre", "freetitle" })
+#define _LANG_CMD_FREE_TITLE_SYNTAX "titulolibre <texto>\n" + \
+                                    "          titulolibre -c"
+#define _LANG_CMD_FREE_TITLE_HELP "Escribe a mano el título que luces, o bórralo con -c."
+#define _LANG_CMD_FREE_TITLE_SHOW "Tu título escrito a mano es: " + me->query_manual_title() + "\n"
+#define _LANG_CMD_FREE_TITLE_NONE "No tienes ningún título escrito a mano.\n"
+#define _LANG_CMD_FREE_TITLE_CLEARED "Borrado tu título escrito a mano.\n"
+#define _LANG_CMD_FREE_TITLE_SET "Ahora luces el título '" + me->query_title() + "'.\n"

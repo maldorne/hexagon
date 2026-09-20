@@ -30,3 +30,14 @@
 
 #define _LANG_CMD_UPTIME_MESSAGE "The mud has been up for " + \
   seconds_to_time_string(uptime()) + ".\n"
+
+// free-title
+
+#define _LANG_CMD_FREE_TITLE_ALIASES ({ "freetitle" })
+#define _LANG_CMD_FREE_TITLE_SYNTAX "freetitle <text>\n" + \
+                                    "          freetitle -c"
+#define _LANG_CMD_FREE_TITLE_HELP "Writes by hand the title you wear, or clears it with -c."
+#define _LANG_CMD_FREE_TITLE_SHOW "Your title written by hand is: " + me->query_manual_title() + "\n"
+#define _LANG_CMD_FREE_TITLE_NONE "You have no title written by hand.\n"
+#define _LANG_CMD_FREE_TITLE_CLEARED "Your title written by hand is gone.\n"
+#define _LANG_CMD_FREE_TITLE_SET "You now wear the title '" + me->query_title() + "'.\n"
