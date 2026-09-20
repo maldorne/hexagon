@@ -32,3 +32,9 @@
 #define _LANG_BASEOBS_SHOVEL "shovel"
 #define _LANG_BASEOBS_SHOVEL_LONG "A medium sized shovel, with a wooden handle and " + \
       "a flat blade of hard metal. Made for digging things up, and a weapon at a pinch.\n"
+
+#define _LANG_BASEOBS_SHORT_SWORD "short sword"
+#define _LANG_BASEOBS_SHORT_SWORD_LONG "A sword with a short, broad blade, easy to handle " + \
+      "in a tight space.\n"
+#define _LANG_BASEOBS_SHORT_SWORD_ALIASES ({ "sword", "short" })
+#define _LANG_BASEOBS_SHORT_SWORD_PLURALS ({ "short swords", "swords" })

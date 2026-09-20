@@ -18,7 +18,7 @@ void setup()
   add_exit(DIR_NORTHEAST, ROAD + "rooms/11.c", "road");
   add_exit(DIR_SOUTH, ROOMS + "15.c", "forest");
   add_exit(DIR_SOUTHWEST, ROOMS + "14.c", "forest");
-  add_clone(NPCS + "aranya", 3);
+  add_clone(NPCS + "spider.c", 3);
   add_clone(NPCS + "wolf.c", 2);
   add_clone(NPCS + "wasp.c", 1);
 }

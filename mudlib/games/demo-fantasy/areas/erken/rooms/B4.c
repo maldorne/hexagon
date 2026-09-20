@@ -17,5 +17,5 @@ void setup()
   add_exit(DIR_NORTH, ROOMS + "B2.c", "road");
   add_exit(DIR_WEST, ROOMS + "B6.c", "road");
   add_exit(DIR_EAST, ROOMS + "B5.c", "road");
-  add_clone(NPCS + "golin", 2);
+  add_clone(NPCS + "goblin.c", 2);
 }

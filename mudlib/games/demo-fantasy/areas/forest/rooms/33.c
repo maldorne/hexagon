@@ -15,5 +15,5 @@ void setup()
   add_property("no_undead", 1);
   add_exit(DIR_NORTH, ROOMS + "34.c", "forest");
   add_exit(DIR_NORTHWEST, ROOMS + "32.c", "forest");
-  add_clone(NPCS + "aranya", 3);
+  add_clone(NPCS + "spider.c", 3);
 }

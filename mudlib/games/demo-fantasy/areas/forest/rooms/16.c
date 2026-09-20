@@ -17,6 +17,6 @@ void setup()
   add_exit(DIR_EAST, ROOMS + "26.c", "forest");
   add_exit(DIR_SOUTHWEST, ROOMS + "18.c", "forest");
   add_clone(NPCS + "wasp.c", 1);
-  add_clone(NPCS + "aranya", 1);
+  add_clone(NPCS + "spider.c", 1);
  add_property("no_undead", 1); 
 }

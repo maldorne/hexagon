@@ -7,14 +7,14 @@ inherit "/lib/monster.c";
 
 void setup()
 {
-  set_name(_LANG_NPCS_SPIDER_NAME);
-  set_short(_LANG_NPCS_SPIDER_SHORT);
-  add_alias(_LANG_NPCS_SPIDER_ALIASES);
+  set_name(_LANG_NPCS_SPIDER_QUEEN_NAME);
+  set_short(_LANG_NPCS_SPIDER_QUEEN_SHORT);
+  add_alias(_LANG_NPCS_SPIDER_QUEEN_ALIASES);
 
-  set_main_plural(_LANG_NPCS_SPIDER_PLURAL);
-  add_plural(_LANG_NPCS_SPIDER_PLURAL_ALIASES);
+  set_main_plural(_LANG_NPCS_SPIDER_QUEEN_PLURAL);
+  add_plural(_LANG_NPCS_SPIDER_QUEEN_PLURAL_ALIASES);
 
-  set_long(_LANG_NPCS_SPIDER_LONG);
+  set_long(_LANG_NPCS_SPIDER_QUEEN_LONG);
   
   set_race_ob(OBJ + "races/spider.c");
   set_gender(2); // spanish language

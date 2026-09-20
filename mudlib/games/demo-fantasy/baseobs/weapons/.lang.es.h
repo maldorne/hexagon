@@ -33,3 +33,9 @@
 #define _LANG_BASEOBS_SHOVEL_LONG "Es una pala de tamaño medio, con mango de madera " + \
       "y una hoja plana de metal duro. Sirve para cavar o desenterrar cosas, y en un " + \
       "apuro también como arma.\n"
+
+#define _LANG_BASEOBS_SHORT_SWORD "espada corta"
+#define _LANG_BASEOBS_SHORT_SWORD_LONG "Una espada de hoja corta y ancha, fácil de manejar " + \
+      "en un espacio estrecho.\n"
+#define _LANG_BASEOBS_SHORT_SWORD_ALIASES ({ "espada", "corta" })
+#define _LANG_BASEOBS_SHORT_SWORD_PLURALS ({ "espadas cortas", "espadas" })

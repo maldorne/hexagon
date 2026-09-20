@@ -21,12 +21,32 @@
 #define _LANG_NPCS_WOLF_LONG "Un lobo gris de los bosques.\n"
 
 
-#define _LANG_NPCS_SPIDER_NAME "araña reina"
-#define _LANG_NPCS_SPIDER_SHORT "Araña reina"
-#define _LANG_NPCS_SPIDER_ALIASES ({ "araña", "reina", "aranya", "aranya reina" })
+#define _LANG_NPCS_SPIDER_QUEEN_NAME "araña reina"
+#define _LANG_NPCS_SPIDER_QUEEN_SHORT "Araña reina"
+#define _LANG_NPCS_SPIDER_QUEEN_ALIASES ({ "araña", "reina", "aranya", "aranya reina" })
 
-#define _LANG_NPCS_SPIDER_PLURAL "Arañas reinas"
-#define _LANG_NPCS_SPIDER_PLURAL_ALIASES ({ "arañas", "reinas", "arañas reinas", "aranyas", "aranyas reinas" })
+#define _LANG_NPCS_SPIDER_QUEEN_PLURAL "Arañas reinas"
+#define _LANG_NPCS_SPIDER_QUEEN_PLURAL_ALIASES ({ "arañas", "reinas", "arañas reinas", "aranyas", "aranyas reinas" })
 
-#define _LANG_NPCS_SPIDER_LONG "Esta es la Araña reina, madre de todas las pobladoras del bosque. " + \
+#define _LANG_NPCS_SPIDER_QUEEN_LONG "Esta es la Araña reina, madre de todas las pobladoras del bosque. " + \
     "Su lomo es plateado como el de las demás, pero su tamaño es tres veces mayor.\n"
+
+#define _LANG_NPCS_WASP_NAME "avispa"
+#define _LANG_NPCS_WASP_SHORT "Enjambre de avispas"
+#define _LANG_NPCS_WASP_ALIASES ({ "avispa", "avispas", "enjambre" })
+
+#define _LANG_NPCS_WASP_PLURAL "Enjambres de avispas"
+#define _LANG_NPCS_WASP_PLURAL_ALIASES ({ "enjambres", "insectos" })
+
+#define _LANG_NPCS_WASP_LONG "Es un enjambre de avispas de tamaño considerable. " + \
+      "Parecen peligrosas.\n"
+
+
+#define _LANG_NPCS_SPIDER_NAME "araña"
+#define _LANG_NPCS_SPIDER_SHORT "Araña"
+#define _LANG_NPCS_SPIDER_ALIASES ({ "araña", "aranya" })
+
+#define _LANG_NPCS_SPIDER_PLURAL "Arañas"
+#define _LANG_NPCS_SPIDER_PLURAL_ALIASES ({ "arañas", "aranyas", "insectos" })
+
+#define _LANG_NPCS_SPIDER_LONG "Es una araña de un metro de altura.\n"
