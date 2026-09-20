@@ -3,7 +3,7 @@
 
 #define BASE_EFFECT "/lib/effects/base_effect.c"
 
-#define RANGE_HANDLER  "/obj/handlers/range.c"
+#define RANGE_HANDLER  "/lib/handlers/range.c"
 
 #define EFFECT_IS_SKILL 0
 #define EFFECT_IS_SPELL 1

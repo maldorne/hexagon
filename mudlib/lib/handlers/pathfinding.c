@@ -204,14 +204,12 @@ string * find_path_coords(string game_slug, string map_name,
   return nil;
 }
 
-// Convenience entry point: the direction list to walk from one location to
-// another. Both must sit in the same game and map (the coordinate graph is
-// per-map); returns ({ }) when they are the same coordinate and nil when there
-// is no route or the endpoints are not indexed.
-string * find_path(object from, object to)
+// The two places as coordinate keys of the same game and map, or nil when
+// either of them is not indexed (a room, or a location with no coordinates).
+private mixed * coord_keys(object from, object to)
 {
   int * fc, * tc;
-  string game_slug, map_name, start_key, goal_key;
+  string game_slug;
 
   if (!from || !to)
     return nil;
@@ -223,14 +221,61 @@ string * find_path(object from, object to)
 
   if (from->query_map_name() != to->query_map_name())
     return nil;
-  map_name = from->query_map_name();
 
   game_slug = game_from_path(from->query_file_name());
   if (game_slug != game_from_path(to->query_file_name()))
     return nil;
 
-  start_key = "" + fc[0] + "_" + fc[1] + "_" + fc[2];
-  goal_key  = "" + tc[0] + "_" + tc[1] + "_" + tc[2];
+  return ({ game_slug, from->query_map_name(),
+            "" + fc[0] + "_" + fc[1] + "_" + fc[2],
+            "" + tc[0] + "_" + tc[1] + "_" + tc[2] });
+}
 
-  return find_path_coords(game_slug, map_name, start_key, goal_key);
+// The fewest steps the two places could possibly be apart, read straight off
+// their coordinates: no file is opened and no search is run. It never
+// overestimates, so anything further than a limit by this measure is further
+// than the limit for good. Answers -1 when they cannot be compared.
+int query_min_distance(object from, object to)
+{
+  mixed * keys;
+
+  keys = coord_keys(from, to);
+  if (!keys)
+    return -1;
+
+  return heuristic(keys[2], keys[3]);
+}
+
+// How many steps apart two locations really are, walking the coordinate graph.
+// 0 when they sit on the same coordinate, -1 when there is no route or either
+// end is not indexed.
+int query_distance(object from, object to)
+{
+  mixed * keys;
+  string * dirs;
+
+  keys = coord_keys(from, to);
+  if (!keys)
+    return -1;
+
+  dirs = find_path_coords(keys[0], keys[1], keys[2], keys[3]);
+  if (!dirs)
+    return -1;
+
+  return sizeof(dirs);
+}
+
+// Convenience entry point: the direction list to walk from one location to
+// another. Both must sit in the same game and map (the coordinate graph is
+// per-map); returns ({ }) when they are the same coordinate and nil when there
+// is no route or the endpoints are not indexed.
+string * find_path(object from, object to)
+{
+  mixed * keys;
+
+  keys = coord_keys(from, to);
+  if (!keys)
+    return nil;
+
+  return find_path_coords(keys[0], keys[1], keys[2], keys[3]);
 }
