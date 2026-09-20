@@ -61,3 +61,9 @@
 
 
 
+
+#define _LANG_ROAD_SIGN_NAME "sign"
+#define _LANG_ROAD_SIGN_SHORT "%^BOLD%^Sign of advice for newcomers%^RESET%^"
+#define _LANG_ROAD_SIGN_ALIASES ({ "advice", "newcomers" })
+#define _LANG_ROAD_SIGN_LONG "A wooden sign planted by the roadside, with some advice " + \
+      "for whoever just arrived. Try reading it.\n"

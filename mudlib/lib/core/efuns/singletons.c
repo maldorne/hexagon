@@ -112,9 +112,22 @@ static nomask string doc(string name)
       return "/docs/en/" + name;
     }
 
-    if (file_exists(game_root(this_object()) + "docs/" + name))
+    // a game keeps its documents per language too
+    path = game_root(this_object()) + "docs/";
+
+    if (file_exists(path + GLOBAL_COMPILE_LANG + "/" + name))
     {
-      return game_root(this_object()) + "docs/" + name;
+      return path + GLOBAL_COMPILE_LANG + "/" + name;
+    }
+
+    if ((GLOBAL_COMPILE_LANG != "en") && file_exists(path + "en/" + name))
+    {
+      return path + "en/" + name;
+    }
+
+    if (file_exists(path + name))
+    {
+      return path + name;
     }
   }
 

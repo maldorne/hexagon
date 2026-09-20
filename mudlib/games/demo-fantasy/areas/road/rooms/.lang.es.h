@@ -71,3 +71,9 @@
 
 
 
+
+#define _LANG_ROAD_SIGN_NAME "cartel"
+#define _LANG_ROAD_SIGN_SHORT "%^BOLD%^Cartel de ayuda al novato%^RESET%^"
+#define _LANG_ROAD_SIGN_ALIASES ({ "ayuda", "novato" })
+#define _LANG_ROAD_SIGN_LONG "Un cartel de madera plantado al borde del camino, con " + \
+      "unos consejos para quien acaba de llegar. Prueba a leerlo.\n"

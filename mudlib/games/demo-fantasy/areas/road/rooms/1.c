@@ -6,6 +6,7 @@
 inherit "/lib/room.c";
 
 static object door;
+static object sign;
 
 void setup()
 {
@@ -22,5 +23,9 @@ void setup()
   add_room_zone("naduk-road");
   add_property("no_undead", 1);
   add_clone(NPCS + "snake.c", 1);
-  // add_clone(ITEMS + "board.c", 1);
+
+  sign = add_sign(_LANG_ROAD_SIGN_LONG, read_file(doc("newbie.txt")),
+                  _LANG_ROAD_SIGN_NAME, _LANG_ROAD_SIGN_SHORT);
+  if (sign)
+    sign->add_alias(_LANG_ROAD_SIGN_ALIASES);
 }
