@@ -49,3 +49,18 @@
                                   "'No probarás ninguna comida igual en otro lugar." })
 #define _LANG_NPCS_BARMAN_A_CHAT ({ "'¡Arrggghhh!", \
                                     "'¡Socorro, avisad a los guardias!" })
+
+#define _LANG_NPCS_SHOPKEEPER_NAME "tobal"
+// "shopkeeper" will be used by set_attender in the shop, do not change!
+#define _LANG_NPCS_SHOPKEEPER_ALIAS ({ "tobal", "shopkeeper", "tendero" })
+#define _LANG_NPCS_SHOPKEEPER_PLURAL "tobal"
+#define _LANG_NPCS_SHOPKEEPER_PLURALS ({ "tobal" })
+#define _LANG_NPCS_SHOPKEEPER_LONG "Es un hombre enjuto y de manos agrietadas, que fue " + \
+      "labrador antes que tendero. Anota cada trato en un cuaderno mugriento y no " + \
+      "aparta la vista de ti mientras lo hace.\n"
+
+#define _LANG_NPCS_SHOPKEEPER_CHAT ({ "'Si vas a mirar, mira desde ahí.", \
+                                      "'Los de fuera pagan primero. No es nada personal.", \
+                                      "'Cuando el campo va mal, la tienda va peor." })
+#define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'¡Guardias! ¡Me están robando!", \
+                                        "'¡Suelta eso, ladrón!" })

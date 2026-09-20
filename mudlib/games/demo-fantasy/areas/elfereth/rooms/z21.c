@@ -25,6 +25,7 @@ void setup()
   add_permanent_goods(BASEOBS + "weapons/short-sword.c", 1);
   add_permanent_goods(BASEOBS + "weapons/long-sword.c", 1);
 
-  // add_clone(NPCS + "some_npc.c", 1);
-  // set_attender("some_npc");
+  add_clone(NPCS + "shopkeeper.c", 1);
+  // the shop only trades while its keeper is there and out of a fight
+  set_attender("shopkeeper");
 }

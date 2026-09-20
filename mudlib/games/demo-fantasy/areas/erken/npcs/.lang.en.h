@@ -35,3 +35,18 @@
 #define _LANG_NPCS_ASSASSIN_SHORT "Kael, the Assassin"
 #define _LANG_NPCS_ASSASSIN_LONG "Kael is a dark, shadowy figure dressed in all black. " + \
                     "He moves silently and appears to be assessing your every move.\n"
+
+#define _LANG_NPCS_SHOPKEEPER_NAME "grukk"
+// "shopkeeper" will be used by set_attender in the shop, do not change!
+#define _LANG_NPCS_SHOPKEEPER_ALIAS ({ "grukk", "shopkeeper" })
+#define _LANG_NPCS_SHOPKEEPER_PLURAL "grukk"
+#define _LANG_NPCS_SHOPKEEPER_PLURALS ({ "grukk" })
+#define _LANG_NPCS_SHOPKEEPER_LONG "A scrawny goblin sitting on a heap of things that do not " + \
+      "match one another. Many still carry somebody else's initials, and he is not going " + \
+      "to discuss that.\n"
+
+#define _LANG_NPCS_SHOPKEEPER_CHAT ({ "'Cheap, cheap. Don't ask where from.", \
+                                      ":counts his coins again, just in case.", \
+                                      "'Nobody gets a refund here." })
+#define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'Mine! All mine!", \
+                                        "'Arak! Help!" })

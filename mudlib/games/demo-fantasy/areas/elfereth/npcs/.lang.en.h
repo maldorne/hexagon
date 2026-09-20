@@ -43,3 +43,17 @@
 
 #define _LANG_NPCS_BARMAN_CHAT ({ "'hmmmmmm.... I love natural food." })
 #define _LANG_NPCS_BARMAN_A_CHAT ({ "'Arrggghhh!" })
+
+#define _LANG_NPCS_SHOPKEEPER_NAME "alarion"
+// "shopkeeper" will be used by set_attender in the shop, do not change!
+#define _LANG_NPCS_SHOPKEEPER_ALIAS ({ "alarion", "shopkeeper" })
+#define _LANG_NPCS_SHOPKEEPER_PLURAL "alarion"
+#define _LANG_NPCS_SHOPKEEPER_PLURALS ({ "alarion" })
+#define _LANG_NPCS_SHOPKEEPER_LONG "A quiet elf who arranges his wares as though parting with " + \
+      "them hurt. Nothing he sells was taken from the forest without leave.\n"
+
+#define _LANG_NPCS_SHOPKEEPER_CHAT ({ "'Everything you carry is something the forest no longer has.", \
+                                      "'Take it if you need it. Bring it back if you do not.", \
+                                      ":runs a hand along the wood of the counter." })
+#define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'This does not have to end this way.", \
+                                        "'Elrhair will remember you for this." })

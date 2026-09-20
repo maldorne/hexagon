@@ -49,3 +49,18 @@
                                   "'You won’t taste food this good anywhere else." })
 #define _LANG_NPCS_BARMAN_A_CHAT ({ "'Arrggghhh!", \
                                     "'Help, warn the guards!" })
+
+#define _LANG_NPCS_SHOPKEEPER_NAME "tobal"
+// "shopkeeper" will be used by set_attender in the shop, do not change!
+#define _LANG_NPCS_SHOPKEEPER_ALIAS ({ "tobal", "shopkeeper" })
+#define _LANG_NPCS_SHOPKEEPER_PLURAL "tobal"
+#define _LANG_NPCS_SHOPKEEPER_PLURALS ({ "tobal" })
+#define _LANG_NPCS_SHOPKEEPER_LONG "A lean man with cracked hands, a ploughman before he " + \
+      "was a shopkeeper. He writes down every deal in a grubby notebook and does not " + \
+      "take his eyes off you while he does it.\n"
+
+#define _LANG_NPCS_SHOPKEEPER_CHAT ({ "'If you are only looking, look from there.", \
+                                      "'Outsiders pay first. Nothing personal.", \
+                                      "'When the fields do badly, the shop does worse." })
+#define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'Guards! I am being robbed!", \
+                                        "'Put that down, thief!" })
