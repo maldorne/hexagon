@@ -25,7 +25,7 @@
 #define _LANG_GENDER_ARTICLE_MALE "el"
 #define _LANG_GENDER_ARTICLE_PLURAL_FEMALE "las"
 #define _LANG_GENDER_ARTICLE_PLURAL_MALE "los"
-#define _LANG_GENDER_NUMERAL_FEMALE (!undefinedp(next_word) && next_word[0..0] == "a" ? "un" : "una")
+#define _LANG_GENDER_NUMERAL_FEMALE "una"
 #define _LANG_GENDER_NUMERAL_MALE "un"
 #define _LANG_GENDER_NUMERAL_PLURAL_FEMALE "unas"
 #define _LANG_GENDER_NUMERAL_PLURAL_MALE "unos"

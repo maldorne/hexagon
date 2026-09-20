@@ -126,6 +126,8 @@ object * load_auto_load(mapping auto_load, object dest)
         // And if it didn't work , give em an IOU
         mapping iou_info;
 
+        iou_info = ([ ]);
+
         tell_object(this_player(), _LANG_AUTO_LOAD_SOMETHING_WRONG);
 
         // build mapping with the info of ONLY this item
