@@ -1,8 +1,14 @@
 
 #define NPC_OB       "/lib/npc"
 
-#define MONSTER_HAND "/lib/handlers/npcs.c"
 #define NO_SPAM      "no_spam"
+
+// Who an attack effect of a monster is aimed at, the fourth value of the data
+// given to add_attack_effect
+#define ATTACK_EFFECT_TARGET_ONE    0   // one of the attackers, at random
+#define ATTACK_EFFECT_TARGET_MANY   1   // every attacker, named one by one
+#define ATTACK_EFFECT_TARGET_ALL    2   // everybody in the room
+#define ATTACK_EFFECT_TARGET_CASTER 3   // the monster itself
 
 // #define NO_WANDER
 #define MIN_PLAYER_LEVEL 1

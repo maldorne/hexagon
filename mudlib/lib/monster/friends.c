@@ -2,6 +2,7 @@
 // code taken from monster.c, neverbot 04/2009
 
 #include <npc/npc.h>
+#include <common/properties.h>
 #include <language.h>
 
 mapping loved;          /* How do I love thee, let me count the ways */
@@ -84,10 +85,105 @@ void pile_in(object ob, object ob1)
   }
 }
 
+// Whether somebody fits a description of livings, the shape both the loved and
+// the hated lists are written in: a race, a guild, a group, a race group, a
+// name, a deity, a citizenship, or simply a property they carry. Each key holds
+// one value or a list of them, and any match is enough.
+// Taniwha, util routine for "membership"
+int matches_group(mapping description, object who)
+{
+  mixed list;
+  int i;
+
+  list = description["race"];
+  if (pointerp(list) &&
+    ((member_array(who->query_race_name(), list) != -1) ||
+     (member_array(who->query_base_race_name(), list) != -1)) )
+    return 1;
+  if (stringp(list) && (string)list == (string)who->query_race_name()) return 1;
+  if (stringp(list) && (string)list == (string)who->query_base_race_name()) return 1;
+
+  list = description["guild"];
+  if (pointerp(list) && member_array(who->query_guild_name(), list) != -1) return 1;
+  if (stringp(list) && (string)list == (string)who->query_guild_name()) return 1;
+
+  list = description["group"];
+  if (pointerp(list) && member_array(who->query_group_name(), list) != -1) return 1;
+  if (stringp(list) && (string)list == (string)who->query_group_name()) return 1;
+
+  list = description["race_group"];
+  if (pointerp(list) && member_array(who->query_race_group_name(), list) != -1) return 1;
+  if (stringp(list) && (string)list == (string)who->query_race_group_name()) return 1;
+
+  list = description["player"];
+  if (pointerp(list) && member_array(who->query_name(), list) != -1) return 1;
+  if (stringp(list) && (string)list == (string)who->query_name()) return 1;
+
+  list = description["deity"];
+  if (pointerp(list) && member_array(who->query_deity_name(), list) != -1) return 1;
+  if (stringp(list) && (string)list == (string)who->query_deity_name()) return 1;
+
+  list = description["city"];
+  if (pointerp(list) && member_array(who->query_city_name(), list) != -1) return 1;
+  if (stringp(list) && (string)list == (string)who->query_city_name()) return 1;
+
+  list = description["property"];
+  if (pointerp(list))
+    for (i = 0; i < sizeof(list); i++)
+      if (stringp(list[i]) && who->query_property(list[i])) return 1;
+  if (stringp(list) && who->query_property(list)) return 1;
+
+  return 0;
+}
+
+// Whether this monster would attack somebody who just turned up. The levels of
+// aggressiveness read the loved and the hated lists differently: the lowest
+// only goes for the hated, and the highest for anybody who is not loved,
+// players and NPCs alike, hidden or not.
+// some changes neverbot, 6/03
+private int would_attack(object ob)
+{
+  if (!ob) return 0;
+  if (ob->query_invis()) return 0;
+  if (!ob->query_alive()) return 0;
+  if (ob->query_level() < minplayer) return 0;
+  if (ob->query_timed_property(PASSED_OUT_PROP)) return 0;
+
+  switch (aggressive)
+  {
+    case 0:
+      if (!interactive(ob)) return 0;
+      if (ob->query_hidden()) return 0;
+      if (mappingp(hated) && matches_group(hated, ob)) return 1;
+      return 0;
+
+    case 1:
+      if (mappingp(loved) && matches_group(loved, ob)) return 0;
+      if (!interactive(ob)) return 0;
+      if (ob->query_hidden()) return 0;
+      return 1;
+
+    case 2:
+      if (mappingp(loved) && matches_group(loved, ob)) return 0;
+      if (ob->query_hidden()) return 0;
+      return 1;
+
+    case 3:
+      if (mappingp(loved) && matches_group(loved, ob)) return 0;
+      if (!interactive(ob)) return 0;
+      return 1;
+
+    case 4:
+      if (mappingp(loved) && matches_group(loved, ob)) return 0;
+      return 1;
+  }
+
+  return 0;
+}
+
 void do_aggressive_check(object ob)
 {
-  if (MONSTER_HAND->do_aggressive_check(ob, aggressive,
-      this_object(), minplayer, hated, loved))
+  if (would_attack(ob))
   {
     if (stringp(join_fight_mess) && (join_fight_mess != "") && !this_object()->query_timed_property(NO_SPAM))
     {

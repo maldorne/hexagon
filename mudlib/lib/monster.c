@@ -396,8 +396,7 @@ void heart_beat()
     chatter(chat_chance, chat_string);
   }
 
-  if (sizeof(query_attack_effects()))
-    MONSTER_HAND->effect_heart_beat(this_object(), attacker_list, query_attack_effects());
+  effect_heart_beat();
 
   // Movement: directed travel or idle wander, paced by the shared cadence and
   // frozen while in combat. Only tick it when there is a reason to move.

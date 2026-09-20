@@ -2,6 +2,8 @@
 // code taken from monster.c, neverbot 04/2009
 
 #include <living/combat.h>
+#include <common/properties.h>
+#include <npc/npc.h>
 
 mixed * attack_effects;     /* ({ chance, identifier, data, ... }) */
 int protecting;             /* Am I protecting someone currently ? */
@@ -83,6 +85,66 @@ int add_attack_effect(int chance, string name, mixed obj)
     attack_effects[i+1] = obj;
   }
   return 1;
+}
+
+// One of the declared attack effects, picked at random and fired at whoever is
+// fighting. Every target but the monster itself is read from the attackers, so
+// with nobody fighting there is nothing to aim at.
+void effect_heart_beat()
+{
+  mixed * effect;
+  object * attackers;
+  string target;
+  int i, k, silent;
+
+  attackers = this_object()->query_attacker_list();
+
+  if (!sizeof(attack_effects))
+    return;
+
+  // entries go in threes: chance, name, data
+  i = 3 * random(sizeof(attack_effects) / 3);
+
+  if (random(100) > attack_effects[i])
+    return;
+
+  effect = attack_effects[i + 2];
+
+  if (this_object()->check_props(NOSKILL_PROP))
+    return;
+
+  if (!sizeof(attackers) && effect[2] != ATTACK_EFFECT_TARGET_CASTER)
+    return;
+
+  switch (effect[2])
+  {
+    case ATTACK_EFFECT_TARGET_MANY:
+      // every attacker, as a spell of type many reads them: a list of names
+      target = "";
+      for (k = 0; k < sizeof(attackers) - 1; k++)
+        target += attackers[k]->query_name() + ",";
+      target += attackers[sizeof(attackers) - 1]->query_name();
+      break;
+
+    case ATTACK_EFFECT_TARGET_ALL:
+    case ATTACK_EFFECT_TARGET_CASTER:
+      // an effect over everybody, or over the monster itself, works out its
+      // own targets and ignores this name
+      target = this_object()->query_name();
+      break;
+
+    default:
+      target = attackers[random(sizeof(attackers))]->query_name();
+      break;
+  }
+
+  // the effect may ask to be fired without messages
+  if (sizeof(effect) > 3)
+    silent = effect[3];
+  else
+    silent = 0;
+
+  call_other(effect[0], effect[1], target, this_object(), silent);
 }
 
 int remove_attack_effect(string name) 
