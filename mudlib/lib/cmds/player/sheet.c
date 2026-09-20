@@ -50,17 +50,6 @@ static int cmd(string name, object me, string verb)
   string family, race_name;
   object target;
 
-  int * stats;
-  int * tmp_stats;
-  // these are the bonus to characteristics
-  // dex 18 -> bonus +4, etc
-  int * bonus_to_stats;
-  string * str_stats;
-
-  stats = allocate(8);
-  tmp_stats = allocate(8);
-  bonus_to_stats = allocate(8);
-  str_stats = allocate(8);
   info = "";
 
   debug = me->query_coder();
@@ -97,12 +86,6 @@ static int cmd(string name, object me, string verb)
   else 
     target = me;
 
-  if (me->query_dead() && !debug)
-  {
-    notify_fail(_LANG_CMD_DEAD);
-    return 0;
-  }
-
   race =        load_object(target->query_race_ob());
   guild =       load_object(target->query_guild_ob());
   guild_class = load_object(target->query_class_ob());
@@ -112,157 +95,6 @@ static int cmd(string name, object me, string verb)
   deity =       load_object(target->query_deity_ob());
   citizenship = load_object(target->query_city_ob());
   family = target->query_family();
-
-  // get character data
-  stats[0] = target->query_str();
-  stats[1] = target->query_dex();
-  stats[2] = target->query_con();
-  stats[3] = target->query_wis();
-  stats[4] = target->query_int();
-  stats[5] = target->query_cha();
-  stats[6] = target->query_per();
-  stats[7] = target->query_wil();
-
-  tmp_stats[0] = target->query_tmp_str();
-  tmp_stats[1] = target->query_tmp_dex();
-  tmp_stats[2] = target->query_tmp_con();
-  tmp_stats[4] = target->query_tmp_int();
-  tmp_stats[3] = target->query_tmp_wis();
-  tmp_stats[5] = target->query_tmp_cha();
-  tmp_stats[6] = target->query_tmp_per();
-  tmp_stats[7] = target->query_tmp_wil();
-
-  // new system of bonuses to characteristics for CcMud, neverbot 6/03
-  bonus_to_stats[0] = target->query_bonus_to_stat_bonus_str();
-  bonus_to_stats[1] = target->query_bonus_to_stat_bonus_dex();
-  bonus_to_stats[2] = target->query_bonus_to_stat_bonus_con();
-  bonus_to_stats[3] = target->query_bonus_to_stat_bonus_int();
-  bonus_to_stats[4] = target->query_bonus_to_stat_bonus_wis();
-  bonus_to_stats[5] = target->query_bonus_to_stat_bonus_cha();
-  bonus_to_stats[6] = target->query_bonus_to_stat_bonus_per();
-  bonus_to_stats[7] = target->query_bonus_to_stat_bonus_wil();
-
-  // if we have any modifier to the basic characteristics, show it in red
-  // strenght
-  if (tmp_stats[0] != 0)
-    str_stats[0] = "%^BOLD%^%^RED%^"+str_stats[0]+"%^RESET%^";
-  else
-    str_stats[0] = "" + stats[0] + "";   
-  if (bonus_to_stats[0] != 0)
-    str_stats[0] += " (%^BOLD%^RED%^" +
-            ((target->query_stat_bonus_to_str() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_str()+"%^RESET%^)";
-  else
-    str_stats[0] += " (" +
-            ((target->query_stat_bonus_to_str() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_str()+")";
-
-  // dexterity
-  if (tmp_stats[1] != 0)
-    str_stats[1] = "%^BOLD%^%^RED%^"+stats[0]+"%^RESET%^";
-  else
-    str_stats[1] = "" + stats[0] + "";   
-  if (bonus_to_stats[1] != 0)
-    str_stats[1] += " (%^BOLD%^RED%^" +
-            ((target->query_stat_bonus_to_dex() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_dex()+"%^RESET%^)";
-  else
-    str_stats[1] += " (" +
-            ((target->query_stat_bonus_to_dex() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_dex()+")";
-
-  // constitution
-  if (tmp_stats[2] != 0)
-    str_stats[2] = "%^BOLD%^%^RED%^"+stats[1]+"%^RESET%^";
-  else
-    str_stats[2] = "" + stats[1] + "";   
-  if (bonus_to_stats[2] != 0)
-    str_stats[2] += " (%^BOLD%^RED%^" +
-            ((target->query_stat_bonus_to_con() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_con()+"%^RESET%^)";
-  else
-    str_stats[2] += " (" +
-            ((target->query_stat_bonus_to_con() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_con()+")";
-
-  // intelligence
-  if (tmp_stats[4] != 0)
-    str_stats[4] = "%^BOLD%^%^RED%^"+stats[3]+"%^RESET%^";
-  else
-    str_stats[4] = "" + stats[3] + "";   
-  if (bonus_to_stats[4] != 0)
-    str_stats[4] += " (%^BOLD%^RED%^" +
-            ((target->query_stat_bonus_to_int() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_int()+"%^RESET%^)";
-  else
-    str_stats[4] += " (" +
-            ((target->query_stat_bonus_to_int() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_int()+")";
-
-  // wisdom   
-  if (tmp_stats[3] != 0)
-    str_stats[3] = "%^BOLD%^%^RED%^"+stats[2]+"%^RESET%^";
-  else
-    str_stats[3] = "" + stats[2] + "";   
-  if (bonus_to_stats[3] != 0)
-    str_stats[3] += " (%^BOLD%^RED%^" +
-            ((target->query_stat_bonus_to_wis() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_wis()+"%^RESET%^)";
-  else
-    str_stats[3] += " (" +
-            ((target->query_stat_bonus_to_wis() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_wis()+")";
-
-  // charisma
-  if (tmp_stats[5] != 0)
-    str_stats[5] = "%^BOLD%^%^RED%^"+stats[4]+"%^RESET%^";
-  else
-     str_stats[5] = "" + stats[4] + "";   
-  if (bonus_to_stats[5] != 0)
-    str_stats[5] += " (%^BOLD%^RED%^" +
-            ((target->query_stat_bonus_to_cha() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_cha()+"%^RESET%^)";
-  else
-    str_stats[5] += " (" +
-            ((target->query_stat_bonus_to_cha() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_cha()+")";
-
-  // perception
-  if (tmp_stats[6] != 0)
-     str_stats[6] = "%^BOLD%^%^RED%^"+stats[5]+"%^RESET%^";
-  else
-     str_stats[6] = "" + stats[5] + "";   
-  if (bonus_to_stats[6] != 0)
-    str_stats[6] += " (%^BOLD%^RED%^" +
-            ((target->query_stat_bonus_to_per() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_per()+"%^RESET%^)";
-  else
-    str_stats[6] += " (" +
-            ((target->query_stat_bonus_to_per() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_per()+")";
-
-  // willpower
-  if (tmp_stats[7] != 0)
-    str_stats[7] = "%^BOLD%^%^RED%^"+stats[6]+"%^RESET%^";
-  else
-    str_stats[7] = "" + stats[6] + "";   
-  if (bonus_to_stats[7] != 0)
-    str_stats[7] += " (%^BOLD%^RED%^" +
-            ((target->query_stat_bonus_to_wil() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_wil()+"%^RESET%^)";
-  else
-    str_stats[7] += " (" +
-            ((target->query_stat_bonus_to_wil() >= 0) ? "+" : "") + 
-            target->query_stat_bonus_to_wil()+")";
-
-  if (target->query_str() < 10) str_stats[0] = " " + str_stats[0];
-  if (stats[0] < 10) str_stats[1] = " " + str_stats[1];
-  if (stats[1] < 10) str_stats[2] = " " + str_stats[2];
-  if (stats[2] < 10) str_stats[3] = " " + str_stats[3];
-  if (stats[3] < 10) str_stats[4] = " " + str_stats[4];
-  if (stats[4] < 10) str_stats[5] = " " + str_stats[5];
-  if (stats[5] < 10) str_stats[6] = " " + str_stats[6];
-  if (stats[6] < 10) str_stats[7] = " " + str_stats[7];
 
   race_name = race ? race->query_short() : capitalize(_LANG_STATS_NO_RACE);
 
