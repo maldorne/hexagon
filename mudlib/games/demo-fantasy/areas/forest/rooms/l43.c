@@ -22,6 +22,6 @@ void setup()
   add_exit(DIR_SOUTHWEST, ROOMS + "l44.c", "forest"); 
   add_exit(DIR_WEST, ROOMS + "l44.c", "forest");
 
-  add_clone(NPCS + "black_bear.c", 1);
+  add_clone(NPCS + "black-bear.c", 1);
   add_clone(NPCS + "spider.c", 2);
 }

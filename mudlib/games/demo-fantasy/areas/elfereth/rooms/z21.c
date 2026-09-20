@@ -22,8 +22,8 @@ void setup()
   add_permanent_goods(BASEOBS + "misc/torch.c", 2);
   add_permanent_goods(BASEOBS + "weapons/shovel.c", 1);
   add_permanent_goods(BASEOBS + "weapons/dagger.c", 2);
-  add_permanent_goods(BASEOBS + "weapons/short_sword.c", 1);
-  add_permanent_goods(BASEOBS + "weapons/long_sword.c", 1);
+  add_permanent_goods(BASEOBS + "weapons/short-sword.c", 1);
+  add_permanent_goods(BASEOBS + "weapons/long-sword.c", 1);
 
   // add_clone(NPCS + "some_npc.c", 1);
   // set_attender("some_npc");

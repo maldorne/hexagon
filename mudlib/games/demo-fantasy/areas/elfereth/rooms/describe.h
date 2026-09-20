@@ -166,7 +166,7 @@ void create_monsters(int num)
       add_clone(ROAD + "npcs/pilgrim.c", 1);
     break;
     case 11:
-      add_clone(NPCS + "black_bear.c", 1);
+      add_clone(NPCS + "black-bear.c", 1);
     break;
     case 7:
     break;

@@ -37,6 +37,6 @@ void setup()
   }));
 
   add_clone(BASEOBS + "weapons/club", 1);
-  add_clone(BASEOBS + "armours/chain_mail", 1);
+  add_clone(BASEOBS + "armours/chain-mail", 1);
   init_equip();
 } 

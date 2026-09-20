@@ -28,7 +28,7 @@ void setup()
   add_property("no_undead", 1);
   
   add_clone(NPCS + "barman.c", 1);
-  add_clone(NPCS + "old_man.c", 1);
+  add_clone(NPCS + "old-man.c", 1);
 
   set_attender("barman");
 }

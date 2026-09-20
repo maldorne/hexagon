@@ -12,5 +12,5 @@ void setup()
   set_light(20);
   add_item(_LANG_FOREST_WEB_ITEMS, _LANG_FOREST_WEB_DESC);
   add_exit(DIR_SOUTH, ROOMS + "33.c", "forest");
-  add_clone(NPCS + "spider_queen.c", 1);
+  add_clone(NPCS + "spider-queen.c", 1);
 }

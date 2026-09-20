@@ -38,7 +38,7 @@ void setup()
   adjust_money(5 + random(5), "gold");
   add_clone(BASEOBS + "weapons/mace", 1);
   add_clone(BASEOBS + "armours/cape", 1);
-  add_clone(BASEOBS + "armours/chain_mail", 1);
+  add_clone(BASEOBS + "armours/chain-mail", 1);
 
   init_equip();
 }

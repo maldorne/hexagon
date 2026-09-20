@@ -20,7 +20,7 @@ void setup()
   add_permanent_goods(BASEOBS + "armours/cape.c", 1);
   add_permanent_goods(BASEOBS + "armours/trousers.c", 1);
   add_permanent_goods(BASEOBS + "weapons/dagger.c", 2);
-  add_permanent_goods(BASEOBS + "shields/small_wooden_shield.c", 1);
+  add_permanent_goods(BASEOBS + "shields/small-wooden-shield.c", 1);
   add_permanent_goods(BASEOBS + "misc/rope.c", 1);
   add_permanent_goods(BASEOBS + "misc/torch.c", 2);
   add_permanent_goods(BASEOBS + "weapons/shovel.c", 1);
