@@ -1,9 +1,9 @@
 
 // Effects constants
 
-#define BASE_EFFECT "/lib/effects/base_effect.c"
+#include <living/range.h>
 
-#define RANGE_HANDLER  "/lib/handlers/range.c"
+#define BASE_EFFECT "/lib/effects/base_effect.c"
 
 #define EFFECT_IS_SKILL 0
 #define EFFECT_IS_SPELL 1

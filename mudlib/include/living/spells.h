@@ -1,7 +1,7 @@
 
 // neverbot 10/2001
 
-#define RANGE_HANDLER "/lib/handlers/range"
+#include <living/range.h>
 
 #define SP_OBJECT 1 
 #define SP_FUNC 2
