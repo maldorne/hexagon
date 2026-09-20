@@ -28,3 +28,8 @@
 #define _LANG_BASEOBS_STAFF_ALIASES ({ "baston" })
 #define _LANG_BASEOBS_STAFF_PLURALS ({ "bastones" })
 
+
+#define _LANG_BASEOBS_SHOVEL "pala"
+#define _LANG_BASEOBS_SHOVEL_LONG "Es una pala de tamaño medio, con mango de madera " + \
+      "y una hoja plana de metal duro. Sirve para cavar o desenterrar cosas, y en un " + \
+      "apuro también como arma.\n"

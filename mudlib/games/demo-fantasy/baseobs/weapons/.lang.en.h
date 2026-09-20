@@ -28,3 +28,7 @@
 #define _LANG_BASEOBS_STAFF_ALIASES ({ "staff" })
 #define _LANG_BASEOBS_STAFF_PLURALS ({ "staves", "staffs" })
 
+
+#define _LANG_BASEOBS_SHOVEL "shovel"
+#define _LANG_BASEOBS_SHOVEL_LONG "A medium sized shovel, with a wooden handle and " + \
+      "a flat blade of hard metal. Made for digging things up, and a weapon at a pinch.\n"
