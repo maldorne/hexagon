@@ -136,3 +136,50 @@
 #define _LANG_CALENDAR_WEEK_DAYS ({ "monday", "tuesday", "wednesday", \
                                     "thursday", "friday", "saturday", \
                                     "sunday" })
+
+// the styles a creature fights with
+
+#define _LANG_UNARMED_FANGS_STYLE "fangs"
+#define _LANG_UNARMED_FANGS_ATT_MSGS "you bite with your fangs"
+#define _LANG_UNARMED_FANGS_DEF_MSGS "bites you with its fangs"
+#define _LANG_UNARMED_FANGS_ROOM_MSGS "bites with its fangs"
+
+#define _LANG_UNARMED_CLAWS_STYLE "claws"
+#define _LANG_UNARMED_CLAWS_ATT_MSGS "you scratch with your claws"
+#define _LANG_UNARMED_CLAWS_DEF_MSGS "scratches you with its claws"
+#define _LANG_UNARMED_CLAWS_ROOM_MSGS "scratches with its claws"
+
+#define _LANG_UNARMED_BEAK_STYLE "beak"
+#define _LANG_UNARMED_BEAK_ATT_MSGS "you strike with your beak"
+#define _LANG_UNARMED_BEAK_DEF_MSGS "strikes you with its beak"
+#define _LANG_UNARMED_BEAK_ROOM_MSGS "strikes with its beak"
+
+#define _LANG_UNARMED_HORNS_STYLE "horns"
+#define _LANG_UNARMED_HORNS_ATT_MSGS "you gore"
+#define _LANG_UNARMED_HORNS_DEF_MSGS "gores you"
+#define _LANG_UNARMED_HORNS_ROOM_MSGS "gores"
+
+#define _LANG_UNARMED_HOOVES_STYLE "hooves"
+#define _LANG_UNARMED_HOOVES_ATT_MSGS "you strike with your hooves"
+#define _LANG_UNARMED_HOOVES_DEF_MSGS "strikes you with its hooves"
+#define _LANG_UNARMED_HOOVES_ROOM_MSGS "strikes with its hooves"
+
+#define _LANG_UNARMED_TEETH_STYLE "teeth"
+#define _LANG_UNARMED_TEETH_ATT_MSGS "you bite"
+#define _LANG_UNARMED_TEETH_DEF_MSGS "bites you"
+#define _LANG_UNARMED_TEETH_ROOM_MSGS "bites"
+
+#define _LANG_UNARMED_PAWS_STYLE "paws"
+#define _LANG_UNARMED_PAWS_ATT_MSGS "you swipe a paw"
+#define _LANG_UNARMED_PAWS_DEF_MSGS "swipes a paw at you"
+#define _LANG_UNARMED_PAWS_ROOM_MSGS "swipes a paw"
+
+#define _LANG_UNARMED_TAIL_STYLE "tail"
+#define _LANG_UNARMED_TAIL_ATT_MSGS "you lash with your tail"
+#define _LANG_UNARMED_TAIL_DEF_MSGS "lashes you with its tail"
+#define _LANG_UNARMED_TAIL_ROOM_MSGS "lashes with its tail"
+
+#define _LANG_UNARMED_LEGS_STYLE "legs"
+#define _LANG_UNARMED_LEGS_ATT_MSGS "you strike with your legs"
+#define _LANG_UNARMED_LEGS_DEF_MSGS "strikes you with its legs"
+#define _LANG_UNARMED_LEGS_ROOM_MSGS "strikes with its legs"
