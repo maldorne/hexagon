@@ -232,3 +232,8 @@
 #define _LANG_CHANNEL_HELP_HELP "\t" + name + " ?     : Shows this help message.\n"
 #define _LANG_CHANNEL_HELP_HISTORY "\t" + name + " !     : Shows the last " + number_as_string(MAX_CHANNEL_HISTORY) + " messages sent to the channel.\n"
 #define _LANG_CHANNEL_HELP_WHO "\t" + name + " .     : Lists who is listening to the channel.\n"
+
+// titles
+
+#define _LANG_TITLE_DEMO_FINISHED "Newly Arrived"
+#define _LANG_TITLE_GRANTED "%^BOLD%^You have earned the title '" + text + "'.%^RESET%^\n"

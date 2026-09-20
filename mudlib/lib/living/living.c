@@ -35,6 +35,7 @@ inherit queue     "/lib/living/queue";
 inherit movement  "/lib/living/movement";
 
 inherit social    "/lib/living/social";
+inherit titles    "/lib/living/titles";
 inherit family    "/lib/living/family";
 inherit mount     "/lib/living/mount";
 inherit drunk     "/lib/living/drunk";
@@ -114,6 +115,7 @@ void create()
   handle::create();
   queue::create();
   social::create();
+  titles::create();
   mount::create();
   drunk::create();
   spells::create();

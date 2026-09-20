@@ -134,17 +134,6 @@ void start_player()
   skills::start_skills();
 }
 
-string query_gtitle()
-{
-  string str;
-
-  if (social_object_list[GUILD_OB] &&
-     !catch((str = (string)social_object_list[GUILD_OB]->query_title(this_object()))))
-    return str;
-
-  return "";
-}
-
 // Re-assert the racial aliases on a living that already wears its race.
 // Aliases are static, so anything rebuilt rather than created comes back
 // without them.
@@ -702,6 +691,9 @@ int adjust_job_level(int i)
 
   job_level += i;
 
+  // the new rank may carry a title with it
+  this_object()->check_new_titles();
+
   // Log para players
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
   {
@@ -921,6 +913,9 @@ int adjust_level(int i)
 
   class_level += i;
 
+  // the new rank may carry a title with it
+  this_object()->check_new_titles();
+
   // adjust player rank
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
   {
@@ -976,6 +971,9 @@ int adjust_guild_level(int i)
     tell_player(this_object(), "¡Subes tu nivel de gremio!");
 
   guild_level += i;
+
+  // the new rank may carry a title with it
+  this_object()->check_new_titles();
 
   // Log para players
   if (interactive(this_object()) && !this_object()->query_property(GUEST_PROP))
