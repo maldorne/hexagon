@@ -8,8 +8,8 @@ inherit CMD_BASE;
 
 void setup()
 {
-  set_aliases(({ "peace" }));
-  set_usage("peace");
+  set_aliases(_LANG_PEACE_ALIASES);
+  set_usage(_LANG_PEACE_ALIASES[0]);
   set_help("Immediately stops current combats in your environment.");
 }
 
