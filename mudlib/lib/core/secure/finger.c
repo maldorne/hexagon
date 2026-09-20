@@ -7,6 +7,7 @@
 #include <mud/mail.h>
 #include <mud/secure.h>
 #include <areas/calendar.h>
+#include <living/titles.h>
 #include <language.h>
 
 // One header row: an indent and two columns of the same width
@@ -14,7 +15,9 @@
 
 string account_name;
 
-string title;
+// read from the character sheet, which is what this file restores
+string * earned_titles;
+string worn_title, manual_title;
 int last_log_on, time_on, start_time, gender;
 string home_dir, last_on_from;
 mapping aliases;
@@ -22,6 +25,32 @@ string ident;
 string last_pos;
 string * social_object_list;
 string role_name;
+
+// The title in the sheet, put into words by the game the character was last in:
+// an id means nothing without the table that owns it.
+private string finger_title()
+{
+  string game;
+  object master;
+
+  if (strlen(manual_title))
+    return manual_title;
+
+  if (!strlen(worn_title))
+    return "";
+
+  game = game_from_path(last_pos);
+
+  if (!strlen(game))
+    return "";
+
+  catch(master = load_object("/games/" + game + "/master"));
+
+  if (!master)
+    return "";
+
+  return handler(TITLES_HANDLER, master)->query_title_text(worn_title, gender);
+}
 
 string make_string(mixed *al)
 {
@@ -124,7 +153,9 @@ string finger_info(string name, varargs object me)
   if (!"/lib/core/login"->test_user(name))
     return "";
 
-  title = "";
+  earned_titles = ({ });
+  worn_title = "";
+  manual_title = "";
   birth_day = "";
   last_log_on = 0;
   time_on = 0;
@@ -211,6 +242,9 @@ string finger_info(string name, varargs object me)
   {
     if (social_object_list[0])
       retval+= _LANG_FINGER_RACE_GENDER;
+
+    if (strlen(finger_title()))
+      retval += _LANG_FINGER_TITLE;
 
     if (social_object_list[1] && me && me->query_coder())
     {

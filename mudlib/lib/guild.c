@@ -172,12 +172,6 @@ int remove_guild_command(string name) {
 }
 */
 
-string query_title(object player) 
-{
-  return (capitalize(query_short()) + " de nivel " + 
-           player->query_level() /* +".\n" */ );
-}
-
 void start_player(object pl) 
 {
   /*

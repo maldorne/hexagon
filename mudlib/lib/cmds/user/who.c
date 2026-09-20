@@ -348,14 +348,8 @@ string who_string(int width, int cre, string str)
 
         }
 
-        if (tmp = (string) arr[i]->query_gtitle())
+        if (strlen(tmp = (string) arr[i]->query_title()))
           s += ", " + tmp;
-
-        // if (tmp = (string) arr[i]->query_title())
-        //   s += ", " + tmp;
-
-        // if (tmp = arr[i]->query_extitle())
-        //   s += " (" + tmp + ")";
 
         if (cre && arr[i]->query_property(AWAY_PROP))
           s += _LANG_WHO_AWAY_MSG;
@@ -391,6 +385,10 @@ string who_string(int width, int cre, string str)
         continue;
       s = "";
       nam = tmp;
+
+      // the title they wear, if any: no comma when there is none
+      if (strlen(tmp = (string) arr[i]->query_title()))
+        nam += ", " + tmp;
 
       if (arr[i]->query_property(GUEST_PROP))
         s += _LANG_WHO_GUEST_MSG;

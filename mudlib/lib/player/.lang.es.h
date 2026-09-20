@@ -27,7 +27,7 @@
 // start.c
 
 #define _LANG_START_INFORM_CODER query_cap_name() + \
-                (strlen(query_gtitle()) ? " " + query_gtitle() : "") + \
+                (strlen(query_title()) ? ", " + query_title() : "") + \
                 " entra en " + game_pretty_name(this_object())
 #define _LANG_START_INFORM_PLAYER query_cap_name() + " entra " + \
                 (query_property(GUEST_PROP) ? ("como invitad" + G_CHAR + " ") : "") + \

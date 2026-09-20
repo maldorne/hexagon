@@ -27,6 +27,7 @@
 #define _LANG_STATS_NO_GROUP "no clan"
 #define _LANG_STATS_CITIZENSHIP "citizenship"
 #define _LANG_STATS_NO_CITIZENSHIP "no citizenship"
+#define _LANG_STATS_TITLE "title"
 #define _LANG_STATS_FAMILY "family"
 #define _LANG_STATS_NO_FAMILY "no family"
 #define _LANG_STATS_WIMPY "wimpy"

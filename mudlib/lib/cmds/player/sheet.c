@@ -397,6 +397,11 @@ static int cmd(string name, object me, string verb)
     info += sprintf("%-15s %-30s\n", capitalize(_LANG_STATS_INTOX) + ":",
                     capitalize(target->intox_string()));
 
+  // the title they wear, when they wear one
+  if (strlen(target->query_title()))
+    info += sprintf("%-15s %s\n", capitalize(_LANG_STATS_TITLE) + ":",
+                    target->query_title());
+
   info += "\n";
 
   // cheack if all ac are the same
