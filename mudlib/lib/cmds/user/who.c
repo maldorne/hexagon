@@ -22,6 +22,10 @@
  *
  * Translated for Hexagon mudlib, neverbot 09/2019
  *  - removed whoami feature again
+ *
+ * Options, neverbot 09/2026
+ *  - a game is named either by its directory or by the name it shows
+ *  - "-games" adds the game of every player as a right-hand column
  */
 
 #include <mud/cmd.h>
@@ -29,9 +33,13 @@
 #include <common/properties.h>
 #include <user/player.h>
 #include <areas/weather.h>
+#include <user/terminal.h>
 #include <language.h>
 
 inherit CMD_BASE;
+
+// Width of the right-hand column the "-games" option adds
+#define GAME_COLUMN 18
 
 // TODO: this shouldn`t be hard coded here
 #define RACES ({ \
@@ -111,6 +119,14 @@ object guild_of(object ob)
   return guild;
 }
 
+// Whether a game answers to this word, by the name of its directory
+// ("ciudad-capital") or by the name it shows ("Ciudad Capital")
+int game_answers_to(object game, string str)
+{
+  return (game_name(game) == str) ||
+         (lower_case(game->query_game_name()) == str);
+}
+
 // Whether the word names a game somebody can be playing
 int query_valid_game(string str)
 {
@@ -120,7 +136,7 @@ int query_valid_game(string str)
   games = handler("games")->query_game_objects();
 
   for (i = 0; i < sizeof(games); i++)
-    if (game_name(games[i]) == str)
+    if (game_answers_to(games[i], str))
       return 1;
 
   return 0;
@@ -144,7 +160,9 @@ int query_valid_guild(string str)
 
 int compare_game(object ob, string str)
 {
-  return game_name(ob) == str;
+  object game;
+
+  return (game = game_master_object(ob)) && game_answers_to(game, str);
 }
 
 int compare_guild(object ob, string str)
@@ -152,6 +170,59 @@ int compare_guild(object ob, string str)
   object guild;
 
   return (guild = guild_of(ob)) && guild->id(str);
+}
+
+// The options asked for and the filter left over. An option is a word starting
+// with a dash and may come before or after the filter, which may itself be
+// several words ("Ciudad Capital"). Answers nil when an option is unknown.
+mixed * parse_options(string str)
+{
+  string * words, filter;
+  int show_games, i;
+
+  filter = "";
+  show_games = 0;
+
+  if (!str || !strlen(str))
+    return ({ "", 0 });
+
+  words = explode(str, " ");
+
+  for (i = 0; i < sizeof(words); i++)
+  {
+    if (!strlen(words[i]))
+      continue;
+
+    if (words[i][0] == '-')
+    {
+      if (member_array(lower_case(words[i]), _LANG_WHO_OPTION_GAMES) == -1)
+        return nil;
+
+      show_games = 1;
+    }
+    else if (strlen(filter))
+      filter += " " + words[i];
+    else
+      filter = words[i];
+  }
+
+  return ({ filter, show_games });
+}
+
+// A row whose right-hand column ends at the margin. The text carries colour
+// codes, which take no room on screen, so the padding is measured on the text
+// without them.
+string who_row(int width, string text, string right)
+{
+  int pad;
+
+  pad = width - GAME_COLUMN - 1 -
+        strlen(TERM_HANDLER->clean_string(text), TRUE);
+
+  if (pad < 1)
+    pad = 1;
+
+  return " " + text + sprintf("%*s", pad, "") + sprintf("%*s", GAME_COLUMN, right);
 }
 
 string who_string(int width, int cre, string str)
@@ -162,8 +233,16 @@ string who_string(int width, int cre, string str)
   string s, tmp, nam, imm, play, prt, race;
   //  mixed ee;
   string ttl;
+  mixed * options;
+  int show_games;
   ttl = fix_string("======] %^GREEN%^" + mud_name() + "%^RESET%^ [======");
   // Radix...
+
+  if (!(options = parse_options(str)))
+    return _LANG_WHO_SYNTAX + "\n\n" + _LANG_WHO_HELP + "\n";
+
+  str = options[0];
+  show_games = options[1];
 
   if (!strlen(str))
     what = 0;
@@ -290,8 +369,7 @@ string who_string(int width, int cre, string str)
             (time() - user->query_linkdead_at()) >= 60)
           s += _LANG_WHO_LINKDEAD_MSG;
 
-        // imm += sprintf(" %s%*-=s", nam, width, s) + "%^RESET%^\n";
-        imm += sprintf(" %s%-*s", nam, width, s) + "%^RESET%^\n";
+        imm += " " + nam + s + "%^RESET%^\n";
 
         if (!user->query_invis() || cre)
         {
@@ -329,8 +407,10 @@ string who_string(int width, int cre, string str)
           (time() - user->query_linkdead_at()) >= 60)
         s += _LANG_WHO_LINKDEAD_MSG;
 
-      // play += sprintf("          %*-=s", width - 10, nam + s) + "\n";
-      play += sprintf(" %s%-*s", nam, width, s) + "\n";
+      if (show_games)
+        play += who_row(width, nam + s, game_pretty_name(arr[i])) + "\n";
+      else
+        play += " " + nam + s + "\n";
       num_people++;
     }
   } // for

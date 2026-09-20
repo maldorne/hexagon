@@ -19,8 +19,10 @@
                        "        who players\n" + \
                        "        who <race or lineage>\n" + \
                        "        who <game>\n" + \
-                       "        who <guild>"
+                       "        who <guild>\n" + \
+                       "        who [<filter>] -games"
 #define _LANG_WHO_HELP "Shows a list of the connected characters."
+#define _LANG_WHO_OPTION_GAMES ({ "-games" })
 #define _LANG_WHO_OPTION_CODERS "coders"
 #define _LANG_WHO_OPTION_PLAYERS "players"
 #define _LANG_WHO_REAL_WORLD_DATE "Today is " + ctime(time(), 5) + " in the real world"

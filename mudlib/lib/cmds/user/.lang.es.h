@@ -19,8 +19,10 @@
                          "          who jugadores\n" + \
                          "          who <raza|linaje>\n" + \
                          "          who <juego>\n" + \
-                         "          who <gremio>"
+                         "          who <gremio>\n" + \
+                         "          who [<filtro>] -juegos"
 #define _LANG_WHO_HELP "Muestra un listado de los personajes conectados."
+#define _LANG_WHO_OPTION_GAMES ({ "-juegos", "-games" })
 #define _LANG_WHO_OPTION_CODERS "programadores"
 #define _LANG_WHO_OPTION_PLAYERS "jugadores"
 #define _LANG_WHO_REAL_WORLD_DATE "Hoy es " + ctime(time(), 5) + " en el mundo real"
