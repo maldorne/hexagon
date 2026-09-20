@@ -10,6 +10,10 @@
 #define _LANG_RACES_ANIMAL_DESC "A small wild animal.\n"
 #define _LANG_RACES_ANIMAL_BODY "animal"
 
+#define _LANG_RACES_INSECT_NAME "insect"
+#define _LANG_RACES_INSECT_DESC "An insect, at times larger than it ought to be.\n"
+#define _LANG_RACES_INSECT_BODY "insect"
+
 #define _LANG_RACES_REPTILE_NAME "reptile"
 #define _LANG_RACES_REPTILE_DESC "A small wild reptile.\n"
 #define _LANG_RACES_REPTILE_BODY "reptile"

@@ -15,7 +15,7 @@ void setup()
 
   set_long(_LANG_NPCS_WASP_LONG);
 
-  set_race("animal");
+  set_race("insect");
   set_gender(2); // spanish language
 
   set_real_align(0);
