@@ -123,3 +123,33 @@ string * quests_to_hand_in(object who)
 
   return out;
 }
+
+// ---------------------------------------------------------------------------
+// What a player sees before asking
+// ---------------------------------------------------------------------------
+//
+// Somebody has to be able to tell, by looking, that there is work here. The
+// room listing (/lib/core/basic/contents.c) and the map
+// (/lib/handlers/cartography.c) both mark a giver by asking these three: a
+// yellow [!] when it has something to offer the one looking, a yellow [?] when
+// they can hand something in.
+
+int query_quest_object() { return 1; }
+
+// Has something for this one to take.
+int check_player(object who)
+{
+  if (!who)
+    return 0;
+
+  return sizeof(quests_for(who)) > 0;
+}
+
+// This one can hand something in here.
+int check_player_finished(object who)
+{
+  if (!who)
+    return 0;
+
+  return sizeof(quests_to_hand_in(who)) > 0;
+}

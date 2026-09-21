@@ -169,6 +169,17 @@ string query_contents(string str, varargs object *obs)
     else
       ret += aux;
 
+    // whoever deals in quests is marked, so somebody can tell by looking that
+    // there is work to be had or to be handed back. Only when alone: a group is
+    // named in the plural and the mark would not say which of them it is about.
+    if ((j <= 1) && me && inv[1][i][0]->query_quest_object())
+    {
+      if (inv[1][i][0]->check_player_finished(me))
+        ret += _LANG_QUEST_MARK_HAND_IN;
+      else if (inv[1][i][0]->check_player(me))
+        ret += _LANG_QUEST_MARK_OFFER;
+    }
+
     count--;
     if (count > 1)
        ret += ", ";

@@ -89,3 +89,7 @@
 // what is heard in a language of its own. `name` is the language, by the name
 // it is known under
 #define _LANG_EVENTS_IN_LANGUAGE " " + _LANG_PREPOSITION + " " + name + ": "
+
+// marks for whoever deals in quests, in a room listing
+#define _LANG_QUEST_MARK_OFFER " %^RESET%^[%^BOLD%^YELLOW%^!%^RESET%^]"
+#define _LANG_QUEST_MARK_HAND_IN " %^RESET%^[%^BOLD%^YELLOW%^?%^RESET%^]"
