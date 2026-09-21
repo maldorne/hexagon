@@ -614,14 +614,15 @@
 #define _LANG_CMD_QUESTS_HAND_IN_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
       "entrégasela a " + creature->query_cap_name()
 
-#define _LANG_CMD_QUESTS_HINT_INFO "Escribe 'misiones info <número>' para ver más de una"
-#define _LANG_CMD_QUESTS_HINT_ACCEPT "        'misiones aceptar <número>' para aceptarla"
-#define _LANG_CMD_QUESTS_HINT_HAND_IN "        'misiones entregar <número>' para entregarla"
-#define _LANG_CMD_QUESTS_HINT_ABANDON "        'misiones abandonar <número>' para dejarla"
+#define _LANG_CMD_QUESTS_HINT_LEAD "Escribe "
+#define _LANG_CMD_QUESTS_ANY_NUMBER "<número>"
+#define _LANG_CMD_QUESTS_HINT_INFO "'misiones info " + which + "' para ver más de una"
+#define _LANG_CMD_QUESTS_HINT_ACCEPT "'misiones aceptar " + which + "' para aceptarla"
+#define _LANG_CMD_QUESTS_HINT_HAND_IN "'misiones entregar " + which + "' para entregarla"
+#define _LANG_CMD_QUESTS_HINT_ABANDON "'misiones abandonar " + which + "' para dejarla"
 
-#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "    - " + objectives[j][OBJ_TEXT] + " (" + \
+#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "- " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " de " + objectives[j][OBJ_COUNT] + ")\n"
-#define _LANG_CMD_QUESTS_INFO_TITLE "* %^BOLD%^" + quest->query_title() + "%^RESET%^\n"
 
 #define _LANG_CMD_QUESTS_NO_SUCH "No hay ninguna misión con ese número.\n"
 #define _LANG_CMD_QUESTS_NOT_AN_OFFER "Esa no es una de las que te ofrecen aquí.\n"

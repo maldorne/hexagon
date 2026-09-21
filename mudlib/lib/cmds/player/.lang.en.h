@@ -613,14 +613,15 @@
 #define _LANG_CMD_QUESTS_HAND_IN_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
       "deliver it to " + creature->query_cap_name()
 
-#define _LANG_CMD_QUESTS_HINT_INFO "Type 'quests info <number>' to see more of one"
-#define _LANG_CMD_QUESTS_HINT_ACCEPT "     'quests accept <number>' to take it"
-#define _LANG_CMD_QUESTS_HINT_HAND_IN "     'quests deliver <number>' to hand it in"
-#define _LANG_CMD_QUESTS_HINT_ABANDON "     'quests abandon <number>' to drop it"
+#define _LANG_CMD_QUESTS_HINT_LEAD "Type "
+#define _LANG_CMD_QUESTS_ANY_NUMBER "<number>"
+#define _LANG_CMD_QUESTS_HINT_INFO "'quests info " + which + "' to see more of one"
+#define _LANG_CMD_QUESTS_HINT_ACCEPT "'quests accept " + which + "' to take it"
+#define _LANG_CMD_QUESTS_HINT_HAND_IN "'quests deliver " + which + "' to hand it in"
+#define _LANG_CMD_QUESTS_HINT_ABANDON "'quests abandon " + which + "' to drop it"
 
-#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "    - " + objectives[j][OBJ_TEXT] + " (" + \
+#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "- " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " of " + objectives[j][OBJ_COUNT] + ")\n"
-#define _LANG_CMD_QUESTS_INFO_TITLE "* %^BOLD%^" + quest->query_title() + "%^RESET%^\n"
 
 #define _LANG_CMD_QUESTS_NO_SUCH "There is no quest with that number.\n"
 #define _LANG_CMD_QUESTS_NOT_AN_OFFER "That is not one of the quests offered here.\n"

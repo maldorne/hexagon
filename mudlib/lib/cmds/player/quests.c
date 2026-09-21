@@ -138,12 +138,23 @@ private string progress_note(object me, object quest, string id)
   return _LANG_CMD_QUESTS_PROGRESS_MANY;
 }
 
+// The commands that can be typed, one under the other, lined up after the
+// lead word, the last one closing the sentence.
+private string hints_text(string * hints)
+{
+  string lead;
+
+  lead = _LANG_CMD_QUESTS_HINT_LEAD;
+
+  return lead + implode(hints, ",\n" + sprintf("%*s", strlen(lead), "")) + ".\n";
+}
+
 private int list_quests(object me)
 {
   object quests, quest, creature, last_giver;
   mixed * lines;
   string * hints;
-  string text;
+  string text, which;
   int index, offers, mine, ready;
 
   quests = handler(QUESTS_HANDLER, me);
@@ -197,6 +208,7 @@ private int list_quests(object me)
   // what can be typed about what is on the screen, and nothing else
   if (offers || mine)
   {
+    which = _LANG_CMD_QUESTS_ANY_NUMBER;
     hints = ({ _LANG_CMD_QUESTS_HINT_INFO });
     if (offers)
       hints += ({ _LANG_CMD_QUESTS_HINT_ACCEPT });
@@ -205,7 +217,7 @@ private int list_quests(object me)
     if (mine)
       hints += ({ _LANG_CMD_QUESTS_HINT_ABANDON });
 
-    text += "\n" + implode(hints, ",\n") + ".\n";
+    text += "\n" + hints_text(hints);
   }
 
   tell_object(me, handler("frames")->frame(text, _LANG_CMD_QUESTS_TITLE,
@@ -256,7 +268,8 @@ private int show_info(object me, int index)
   mixed * line;
   mapping * objectives;
   int * progress;
-  string text, description, objective_lines;
+  string * hints;
+  string text, which;
   int j;
 
   line = entry_at(me, index);
@@ -276,29 +289,36 @@ private int show_info(object me, int index)
     return 0;
   }
 
-  // the description is laid out as the long of a room: indented paragraph
-  // with a blank line above and below
-  description = quest->query_description();
-  if (strlen(description) && description[strlen(description) - 1] != '\n')
-    description += "\n";
+  text = quest->query_description();
+  if (strlen(text) && text[strlen(text) - 1] != '\n')
+    text += "\n";
 
-  text = _LANG_CMD_QUESTS_INFO_TITLE +
-         wrap(description, this_user()->query_cols(), 1);
+  which = "" + index;
 
-  // one line per objective, with the count, for a quest being done
-  if (line[ENTRY_KIND] == ENTRY_MINE)
+  if (line[ENTRY_KIND] == ENTRY_OFFER)
+    hints = ({ _LANG_CMD_QUESTS_HINT_ACCEPT });
+  else
   {
+    // one line per objective, with the count, for a quest being done
     objectives = quest->query_objectives();
     progress = me->query_progress(game_name(me), line[ENTRY_ID]);
-    objective_lines = "";
+
+    if (sizeof(objectives))
+      text += "\n";
 
     for (j = 0; j < sizeof(objectives); j++)
-      objective_lines += _LANG_CMD_QUESTS_OBJECTIVE_LINE;
+      text += _LANG_CMD_QUESTS_OBJECTIVE_LINE;
 
-    text += wrap(objective_lines, this_user()->query_cols());
+    hints = ({ });
+    if (line[ENTRY_CREATURE])
+      hints += ({ _LANG_CMD_QUESTS_HINT_HAND_IN });
+    hints += ({ _LANG_CMD_QUESTS_HINT_ABANDON });
   }
 
-  tell_object(me, text);
+  text += "\n" + hints_text(hints);
+
+  tell_object(me, handler("frames")->frame(text, quest->query_title(),
+                                           this_user()->query_cols()));
   return 1;
 }
 
