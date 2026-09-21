@@ -50,3 +50,6 @@
                                       "'Nobody gets a refund here." })
 #define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'Mine! All mine!", \
                                         "'Arak! Help!" })
+
+// races this village does not tolerate, by the name the race answers to
+#define _LANG_NPCS_HATED_RACES ({ "human", "elf" })

@@ -54,3 +54,6 @@
                                       "'When the fields do badly, the shop does worse." })
 #define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'Guards! I am being robbed!", \
                                         "'Put that down, thief!" })
+
+// races this village does not tolerate, by the name the race answers to
+#define _LANG_NPCS_HATED_RACES ({ "orc", "goblin" })

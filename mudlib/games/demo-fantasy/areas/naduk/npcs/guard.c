@@ -41,4 +41,9 @@ void setup()
   add_clone(BASEOBS + "weapons/long-sword.c", 1);
   add_clone(BASEOBS + "shields/small-wooden-shield.c", 1);
   init_equip();
+
+  // the village has no patience with its enemies: aggressive 0 only goes
+  // for the hated, so anybody else may walk through in peace
+  set_aggressive(0);
+  add_hated("race", _LANG_NPCS_HATED_RACES);
 }

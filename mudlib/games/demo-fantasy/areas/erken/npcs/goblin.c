@@ -42,4 +42,9 @@ void setup()
 
   add_move_zone("erken");
   set_move_after(20 + random(10), 20 + random(10));
+
+  // the village has no patience with its enemies: aggressive 0 only goes
+  // for the hated, so anybody else may walk through in peace
+  set_aggressive(0);
+  add_hated("race", _LANG_NPCS_HATED_RACES);
 }

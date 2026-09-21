@@ -40,4 +40,9 @@ void setup()
   add_clone(BASEOBS + "armours/trousers", 1);
   add_clone(BASEOBS + "armours/slippers", 1);
   init_equip();
+
+  // the village has no patience with its enemies: aggressive 0 only goes
+  // for the hated, so anybody else may walk through in peace
+  set_aggressive(0);
+  add_hated("race", _LANG_NPCS_HATED_RACES);
 }

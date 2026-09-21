@@ -52,3 +52,6 @@
                                       "'Aquí nadie devuelve nada." })
 #define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'¡Mío! ¡Todo mío!", \
                                         "'¡Arak! ¡Ayuda!" })
+
+// races this village does not tolerate, by the name the race answers to
+#define _LANG_NPCS_HATED_RACES ({ "humano", "elfo" })

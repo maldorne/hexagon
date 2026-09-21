@@ -57,3 +57,6 @@
                                       ":runs a hand along the wood of the counter." })
 #define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'This does not have to end this way.", \
                                         "'Elrhair will remember you for this." })
+
+// races this village does not tolerate, by the name the race answers to
+#define _LANG_NPCS_HATED_RACES ({ "orc", "goblin" })
