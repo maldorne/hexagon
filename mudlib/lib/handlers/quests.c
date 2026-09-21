@@ -168,6 +168,38 @@ int check_can_hand_in(object who, string id)
   return QUEST_OK;
 }
 
+// Of a list of quest ids, the ones somebody could take right now. Sources hold
+// the list; deciding is this handler's job, so both the monster mixin and the npc
+// component ask here instead of each filtering on its own.
+string * takeable(object who, string * ids)
+{
+  string * out;
+  int i;
+
+  out = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+    if (check_can_take(who, ids[i]) == QUEST_OK)
+      out += ({ ids[i] });
+
+  return out;
+}
+
+// Of a list of quest ids, the ones somebody could hand in right now.
+string * handable(object who, string * ids)
+{
+  string * out;
+  int i;
+
+  out = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+    if (check_can_hand_in(who, ids[i]) == QUEST_OK)
+      out += ({ ids[i] });
+
+  return out;
+}
+
 /*
  * Give a player a quest. `source` is whoever handed it over, remembered so the
  * log can say where it came from. Returns a QUEST_* answer.

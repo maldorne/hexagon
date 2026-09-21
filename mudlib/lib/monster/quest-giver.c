@@ -86,42 +86,19 @@ int deals_with(object who)
   return member_array(race_id_of(who), query_dealt_races()) != -1;
 }
 
-// The quests this giver would offer somebody right now.
+// The quests this giver would offer somebody right now, and the ones it takes
+// back: the lists are ours, the decisions are the handler's.
 string * quests_for(object who)
 {
-  object quests;
-  string * out;
-  int i;
-
-  out = ({ });
-
   if (!deals_with(who))
-    return out;
+    return ({ });
 
-  quests = handler(QUESTS_HANDLER, this_object());
-
-  for (i = 0; i < sizeof(query_offered_quests()); i++)
-    if (quests->check_can_take(who, query_offered_quests()[i]) == QUEST_OK)
-      out += ({ query_offered_quests()[i] });
-
-  return out;
+  return handler(QUESTS_HANDLER, this_object())->takeable(who, query_offered_quests());
 }
 
-// The quests somebody is carrying that this giver takes back.
 string * quests_to_hand_in(object who)
 {
-  object quests;
-  string * out;
-  int i;
-
-  out = ({ });
-  quests = handler(QUESTS_HANDLER, this_object());
-
-  for (i = 0; i < sizeof(query_taken_quests()); i++)
-    if (quests->check_can_hand_in(who, query_taken_quests()[i]) == QUEST_OK)
-      out += ({ query_taken_quests()[i] });
-
-  return out;
+  return handler(QUESTS_HANDLER, this_object())->handable(who, query_taken_quests());
 }
 
 // ---------------------------------------------------------------------------
