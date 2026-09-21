@@ -1,31 +1,30 @@
 Advice for whoever just arrived
 
-This road leads north to Naduk, the nearest village. South lies the rest of the road, and beyond it the forest, which is no place for somebody who has just started.
+The villages all lie to the south. To reach Naduk, the nearest one, follow the road south to the crossing and go east from there. To the north there are only the temple and the adventurer's house. The forest, beyond the villages, is no place for somebody who has just started.
 
 To move and to look around:
 
-  look                  the room you are in
+  look                  the place you are in
   look <something>      an object, a creature or a person
   north, south, east... you move that way
   map                   what you know of the area
 
 To know how you are doing:
 
-  sheet                 your characteristics in full
-  score                 a short summary
+  sheet                 every detail of your character
+  score                 a few plain figures, in short
   inventory             what you are carrying
-  condition             how badly hurt you are
+  condition             how your health is holding up
 
 To talk and to fight:
 
-  speak <anything>      you say it out loud
-  consider <creature>   how it would go in a fight
+  say <anything>        you say it out loud
+  consider <creature>   how a fight with it would go
   attack <creature>     you start the fight
-  wimpy <number>        at what percentage of health you flee
 
 And when you get lost:
 
-  commands              everything you can type
+  commands              everything you can do
   help <command>        what one of them does
 
 Two warnings that save grief. First: look at a creature and consider it before attacking, because many of the ones in the forest will kill a newcomer without effort. Second: if you run out of health you die, and coming back costs. Flee before it gets that far.

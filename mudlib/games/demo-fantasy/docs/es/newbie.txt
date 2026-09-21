@@ -1,31 +1,30 @@
 Consejos para quien acaba de llegar
 
-Este camino lleva al norte, a Naduk, el pueblo más cercano. Al sur queda el resto del camino, y más allá el bosque, que no es lugar para alguien que acaba de empezar.
+Los pueblos quedan todos hacia el sur. Para llegar a Naduk, el más cercano, sigue el camino al sur hasta el cruce y desde allí ve al este. Hacia el norte sólo están el templo y la casa del aventurero. El bosque, más allá de los pueblos, no es lugar para alguien que acaba de empezar.
 
 Para empezar a moverte y a mirar:
 
-  mirar                 la sala en la que estás
-  mirar <algo>          un objeto, un bicho o una persona
+  mirar                 el lugar en el que estás
+  mirar <algo>          un objeto, una criatura o una persona
   norte, sur, este...   te mueves en esa dirección
   mapa                  lo que conoces de la zona
 
 Para saber cómo estás:
 
-  ficha                 tus características completas
-  puntos                un resumen corto
+  ficha                 todos los datos de tu personaje
+  puntos                unos datos sencillos, en corto
   inventario            lo que llevas encima
-  estado                cómo de malherido estás
+  estado                cómo te encuentras de salud
 
 Para hablar y para pelear:
 
-  hablar <lo que sea>   lo dices en voz alta
-  considerar <bicho>    cuánto te sacaría en una pelea
-  atacar <bicho>        empiezas el combate
-  cobardia <número>     a qué porcentaje de vida huyes
+  decir <algo>              lo dices en voz alta
+  considerar <criatura>     cómo te iría en una pelea con ella
+  atacar <criatura>         empiezas el combate
 
 Y cuando te pierdas:
 
-  comandos              todo lo que puedes escribir
+  comandos              todo lo que puedes hacer
   ayuda <comando>       qué hace uno en concreto
 
-Dos advertencias que ahorran disgustos. La primera: mira a un bicho y considéralo antes de atacarlo, porque muchos de los del bosque matan sin esfuerzo a alguien recién llegado. La segunda: si te quedas sin vida, mueres, y volver cuesta. Huye antes de llegar a eso.
+Dos advertencias que ahorran disgustos. La primera: mira a una criatura y considérala antes de atacarla, porque muchas de las del bosque matan sin esfuerzo a alguien recién llegado. La segunda: si te quedas sin vida, mueres, y volver cuesta. Huye antes de llegar a eso.
