@@ -24,17 +24,7 @@
 #define _LANG_NPCS_DOG_NAME "perro"
 #define _LANG_NPCS_DOG_LONG "Es un perro callejero, sucio y con pulgas.\n"
 
-#define _LANG_NPCS_OLD_MAN_NAME "viejo"
-#define _LANG_NPCS_OLD_MAN_ALIAS ({ "viejo" })
-#define _LANG_NPCS_OLD_MAN_PLURAL "viejos"
-#define _LANG_NPCS_OLD_MAN_PLURALS ({ "viejos" })
-#define _LANG_NPCS_OLD_MAN_LONG "Es un viejo montaraz, que se encuentra de paso temporalmente.\n"
 
-#define _LANG_NPCS_OLD_MAN_CHAT ({ "'en mis viejos tiempos era uno de los mejores escaladores de la " + \
-                                   "región. Es una lástima que se pierda una afición tan excitante.", \
-                                   "'la verdadera aventura es la de escalar los grandes Mallorns.", \
-                                   "'tienes grandes dotes físicas para ser un excelente " + \
-                                   "escalador. Si quieres aprender sólo tienes que decírmelo." })
 
 #define _LANG_NPCS_BARMAN_NAME "cebadil"
 // "barman" will be use by set_attender in the pub, do not change!

@@ -18,4 +18,6 @@ void setup()
   add_room_zone("naduk-road");
   add_property("no_undead", 1);
   add_clone(NPCS + "pilgrim.c", 3);
+  // the old ranger watches the forest from here, one step from the Mallorn
+  add_clone(NPCS + "old-man.c", 1);
 }

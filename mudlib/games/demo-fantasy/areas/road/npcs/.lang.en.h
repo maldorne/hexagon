@@ -33,3 +33,15 @@
 #define _LANG_NPCS_FARMER_LONG "A farmer from the area. Seems a nice man.\n" 
 #define _LANG_NPCS_FARMER_CHAT ({ ":greets you cordially.", \
                                   ":makes comments about this year's corn crop." })
+
+#define _LANG_NPCS_OLD_MAN_NAME "old man"
+#define _LANG_NPCS_OLD_MAN_ALIAS ({ "old", "man" })
+#define _LANG_NPCS_OLD_MAN_PLURAL "old men"
+#define _LANG_NPCS_OLD_MAN_PLURALS ({ "men" })
+#define _LANG_NPCS_OLD_MAN_LONG "An old ranger with tired legs. He does not hunt any more, " + \
+      "but he does not stray from the forest either: he spends his days watching the trees.\n"
+#define _LANG_NPCS_OLD_MAN_CHAT ({ "'In my younger years I was one of the best climbers " + \
+                                   "in the region. It is a shame such a craft is being lost.", \
+                                   "'the true adventure is climbing the great Mallorns.", \
+                                   "'they told me the wasps were driving the game away. " + \
+                                   "I wish somebody would bring me good news about that." })

@@ -10,5 +10,8 @@ void create()
 {
   ::create();
 
-  add_quest(QUESTS + "learn-to-climb.c");
+  // the chain that ends with a character able to climb the Mallorn: the tavern
+  // sends them after the wasps, and the old man they report to teaches them
+  add_quest(QUESTS + "wasps-ruin-the-hunt.c");
+  add_quest(QUESTS + "news-for-the-old-man.c");
 }

@@ -24,17 +24,7 @@
 #define _LANG_NPCS_DOG_NAME "dog"
 #define _LANG_NPCS_DOG_LONG "It is a dirty stray dog.\n"
 
-#define _LANG_NPCS_OLD_MAN_NAME "old man"
-#define _LANG_NPCS_OLD_MAN_ALIAS ({ "old", "man" })
-#define _LANG_NPCS_OLD_MAN_PLURAL "old men"
-#define _LANG_NPCS_OLD_MAN_PLURALS ({ "men" })
-#define _LANG_NPCS_OLD_MAN_LONG "He is an old ranger, visiting the region for a time.\n"
 
-#define _LANG_NPCS_OLD_MAN_CHAT ({ "'In my younger years I was one of the best climbers in the region. " + \
-                                   "It is a shame such a beautiful hobby is beign lost.", \
-                                   "'The true adventure is in climbing the big Mallorns.", \
-                                   "'You are in good shape to be an excellent climber. " + \
-                                   "If you want to learn just tell me." })
 
 #define _LANG_NPCS_BARMAN_NAME "cebadil"
 // "barman" will be use by set_attender in the pub, do not change!

@@ -34,3 +34,15 @@
     "bastante agradable.\n" 
 #define _LANG_NPCS_FARMER_CHAT ({ ":te saluda cordialmente.", \
                                   ":comenta algo sobre la cosecha de maíz de este año." })
+
+#define _LANG_NPCS_OLD_MAN_NAME "viejo"
+#define _LANG_NPCS_OLD_MAN_ALIAS ({ "viejo" })
+#define _LANG_NPCS_OLD_MAN_PLURAL "viejos"
+#define _LANG_NPCS_OLD_MAN_PLURALS ({ "viejos" })
+#define _LANG_NPCS_OLD_MAN_LONG "Es un viejo montaraz de piernas cansadas. Ya no caza, pero " + \
+      "no se aleja del bosque: se pasa los días mirando hacia los árboles.\n"
+#define _LANG_NPCS_OLD_MAN_CHAT ({ "'en mis viejos tiempos era uno de los mejores escaladores de la " + \
+                                   "región. Es una lástima que se pierda una afición tan excitante.", \
+                                   "'la verdadera aventura es la de escalar los grandes Mallorns.", \
+                                   "'me dijeron que las avispas estaban espantando la caza. " + \
+                                   "Ojalá alguien me traiga buenas noticias de eso." })

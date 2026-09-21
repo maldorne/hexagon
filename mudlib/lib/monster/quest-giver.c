@@ -10,12 +10,17 @@
 // or hand in a quest comes from handler("quests").
 //
 //   offers_quests("<game>:kill-the-wasps");
-//   deals_with_races(({ "human" }));   // by race file, not by its name
+//   takes_quests("<game>:kill-the-wasps");   // who it is handed back to
+//   deals_with_races(({ "human" }));         // by race file, not by its name
+//
+// Offering and taking back are declared apart because they are not always the
+// same creature: one hands the work out and another is the one to be found.
 
 #include <living/quests.h>
 #include <language.h>
 
 private string * offered;
+private string * taken;
 // race ids -- the basename of the race file -- this one will talk to. Empty
 // means anybody.
 private string * races;
@@ -31,6 +36,16 @@ void offers_quests(string id)
 }
 
 string * query_offered_quests() { return offered ? offered : ({ }); }
+
+void takes_quests(string id)
+{
+  if (!taken)
+    taken = ({ });
+
+  taken += ({ id });
+}
+
+string * query_taken_quests() { return taken ? taken : ({ }); }
 
 void deals_with_races(string * list) { races = list; }
 string * query_dealt_races() { return races ? races : ({ }); }
@@ -101,9 +116,9 @@ string * quests_to_hand_in(object who)
   out = ({ });
   quests = handler(QUESTS_HANDLER, this_object());
 
-  for (i = 0; i < sizeof(query_offered_quests()); i++)
-    if (quests->check_can_hand_in(who, query_offered_quests()[i]) == QUEST_OK)
-      out += ({ query_offered_quests()[i] });
+  for (i = 0; i < sizeof(query_taken_quests()); i++)
+    if (quests->check_can_hand_in(who, query_taken_quests()[i]) == QUEST_OK)
+      out += ({ query_taken_quests()[i] });
 
   return out;
 }

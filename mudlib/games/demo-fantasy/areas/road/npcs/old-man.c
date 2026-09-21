@@ -4,6 +4,7 @@
 #include "../path.h"
 
 inherit "/lib/monster.c";
+inherit giver "/lib/monster/quest-giver.c";
 
 void setup()
 {
@@ -36,4 +37,13 @@ void setup()
 
   add_clone(BASEOBS + "armours/cloak", 1);
   init_equip();
+
+  // he is the one to be found, and he teaches whoever brings him the news
+  takes_quests("demo-fantasy:news-for-the-old-man");
 } 
+
+void init()
+{
+  ::init();
+  giver_init();
+}
