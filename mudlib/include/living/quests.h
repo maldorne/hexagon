@@ -13,6 +13,7 @@
 // identifier -- a template id or a file path -- never a name a player reads,
 // so translating or renaming something cannot break a quest.
 #define OBJECTIVE_KILL  "kill"
+#define OBJECTIVE_BEAT  "beat"   // win a practice fight, nobody dies
 #define OBJECTIVE_GET   "get"
 #define OBJECTIVE_REACH "reach"
 #define OBJECTIVE_TALK  "talk"

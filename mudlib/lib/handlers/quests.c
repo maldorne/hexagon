@@ -430,6 +430,12 @@ void killed(object who, object creature)
   advance(who, OBJECTIVE_KILL, creature_id(who, creature), 1);
 }
 
+// A player won a practice fight against something, without killing it.
+void beaten(object who, object creature)
+{
+  advance(who, OBJECTIVE_BEAT, creature_id(who, creature), 1);
+}
+
 // A player reached a place.
 void reached(object who, string where)
 {
