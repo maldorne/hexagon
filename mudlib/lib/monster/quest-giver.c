@@ -5,9 +5,10 @@
 // /lib/monster.c does not inherit /lib/npc.c. Games built on locations use the
 // npc component instead; both end up calling the same handler.
 //
-// The giver decides nothing. It says which quests it deals in and, if it is
-// picky, which races it deals with; every answer about whether somebody may take
-// or hand in a quest comes from handler("quests").
+// The giver decides nothing and owns no verbs: it says which quests it deals in
+// and, if it is picky, which races it deals with. The quests command is what
+// finds the givers standing in a room and asks them, and every answer about
+// whether somebody may take or hand in a quest comes from handler("quests").
 //
 //   offers_quests("<game>:kill-the-wasps");
 //   takes_quests("<game>:kill-the-wasps");   // who it is handed back to
@@ -121,93 +122,4 @@ string * quests_to_hand_in(object who)
       out += ({ query_taken_quests()[i] });
 
   return out;
-}
-
-void giver_init()
-{
-  add_action("do_ask_work", _LANG_GIVER_ASK_VERBS);
-  add_action("do_accept_work", _LANG_GIVER_ACCEPT_VERBS);
-  add_action("do_hand_in_work", _LANG_GIVER_HAND_IN_VERBS);
-}
-
-// What this one has to say about work, which is also how somebody learns there
-// is any.
-int do_ask_work(string str)
-{
-  object who, quests, quest;
-  string * available, * ready;
-  int i;
-
-  who = this_player();
-  quests = handler(QUESTS_HANDLER, this_object());
-
-  if (!deals_with(who))
-  {
-    tell_object(who, _LANG_GIVER_NOT_YOUR_KIND);
-    return 1;
-  }
-
-  ready = quests_to_hand_in(who);
-
-  for (i = 0; i < sizeof(ready); i++)
-  {
-    quest = quests->query_quest(ready[i]);
-    tell_object(who, _LANG_GIVER_COME_BACK_DONE);
-  }
-
-  available = quests_for(who);
-
-  if (!sizeof(available) && !sizeof(ready))
-  {
-    tell_object(who, _LANG_GIVER_NOTHING_TO_OFFER);
-    return 1;
-  }
-
-  for (i = 0; i < sizeof(available); i++)
-  {
-    quest = quests->query_quest(available[i]);
-    tell_object(who, _LANG_GIVER_OFFER);
-  }
-
-  return 1;
-}
-
-int do_accept_work(string str)
-{
-  object who, quests;
-  string * available;
-
-  who = this_player();
-  quests = handler(QUESTS_HANDLER, this_object());
-  available = quests_for(who);
-
-  if (!sizeof(available))
-  {
-    notify_fail(_LANG_GIVER_NOTHING_TO_ACCEPT);
-    return 0;
-  }
-
-  quests->accept(who, available[0], this_object()->query_name());
-
-  return 1;
-}
-
-int do_hand_in_work(string str)
-{
-  object who, quests;
-  string * ready;
-
-  who = this_player();
-  quests = handler(QUESTS_HANDLER, this_object());
-  ready = quests_to_hand_in(who);
-
-  if (!sizeof(ready))
-  {
-    notify_fail(_LANG_GIVER_NOTHING_TO_HAND_IN);
-    return 0;
-  }
-
-  quests->hand_in(who, ready[0]);
-
-  return 1;
 }

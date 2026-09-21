@@ -41,9 +41,3 @@ void setup()
   // he is the one to be found, and he teaches whoever brings him the news
   takes_quests("demo-fantasy:news-for-the-old-man");
 } 
-
-void init()
-{
-  ::init();
-  giver_init();
-}

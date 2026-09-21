@@ -588,3 +588,43 @@
 #define _LANG_CMD_TITLE_CLEARED "Ya no luces ningún título.\n"
 #define _LANG_CMD_TITLE_NOT_YOURS "No tienes ningún título con ese número.\n"
 #define _LANG_CMD_TITLE_SET "Ahora luces el título '" + me->query_title() + "'.\n"
+
+// quests
+
+#define _LANG_CMD_QUESTS_ALIAS ({ "misiones", "trabajos" })
+#define _LANG_CMD_QUESTS_SYNTAX "misiones [info|aceptar|entregar|abandonar] [<número>]"
+#define _LANG_CMD_QUESTS_HELP "Muestra los trabajos que has aceptado y en qué punto " + \
+      "estás de cada uno. Junto a quien reparte trabajo, también dice qué te ofrecen " + \
+      "y qué puedes entregar.\n" + \
+      "  misiones               lo que llevas entre manos, y lo que hay aquí\n" + \
+      "  misiones info <n>      todo el detalle de uno de tus trabajos\n" + \
+      "  misiones aceptar <n>   aceptas uno de los que te ofrecen aquí\n" + \
+      "  misiones entregar <n>  das por terminado uno aquí mismo\n" + \
+      "  misiones abandonar <n> lo dejas, y pierdes lo avanzado\n" + \
+      "El número es el que aparece en la lista de la que hablas: los tuyos para " + \
+      "info y abandonar, los de aquí para aceptar y entregar. Con uno solo, el " + \
+      "número sobra."
+
+#define _LANG_CMD_QUESTS_TITLE "Trabajos"
+#define _LANG_CMD_QUESTS_NONE "No llevas ningún trabajo entre manos.\n"
+#define _LANG_CMD_QUESTS_YOURS "Tus trabajos:\n"
+#define _LANG_CMD_QUESTS_LINE "  [%^BOLD%^" + (i + 1) + "%^RESET%^] " + quest->query_title() + "\n"
+#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "      " + objectives[j][OBJ_TEXT] + " (" + \
+      progress[j] + " de " + objectives[j][OBJ_COUNT] + ")\n"
+#define _LANG_CMD_QUESTS_CAN_HAND_IN "\n%^BOLD%^[" + (i + 1) + "]%^RESET%^ " + \
+      giver->query_cap_name() + " espera que le entregues " + quest->query_title() + ".\n"
+#define _LANG_CMD_QUESTS_OFFERED "\n%^BOLD%^[" + (i + 1) + "]%^RESET%^ " + \
+      giver->query_cap_name() + " ofrece: " + quest->query_title() + ".\n" + \
+      quest->query_description()
+#define _LANG_CMD_QUESTS_INFO "%^BOLD%^" + quest->query_title() + "%^RESET%^\n" + \
+      quest->query_description()
+#define _LANG_CMD_QUESTS_NO_SUCH "No llevas ese trabajo.\n"
+#define _LANG_CMD_QUESTS_NOTHING_OFFERED "Aquí no te ofrecen ningún trabajo.\n"
+#define _LANG_CMD_QUESTS_WHICH_OFFER "¿Cuál de los que te ofrecen?\n"
+#define _LANG_CMD_QUESTS_NOTHING_TO_HAND_IN "Aquí no puedes entregar nada.\n"
+#define _LANG_CMD_QUESTS_WHICH_HAND_IN "¿Cuál de los que puedes entregar?\n"
+
+#define _LANG_CMD_QUESTS_INFO_OPTIONS ({ "info" })
+#define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "aceptar" })
+#define _LANG_CMD_QUESTS_HAND_IN_OPTIONS ({ "entregar" })
+#define _LANG_CMD_QUESTS_ABANDON_OPTIONS ({ "abandonar", "dejar" })

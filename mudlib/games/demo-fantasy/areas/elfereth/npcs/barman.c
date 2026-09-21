@@ -46,9 +46,3 @@ void setup()
   // who takes it back
   offers_quests("demo-fantasy:news-for-the-old-man");
 } 
-
-void init()
-{
-  ::init();
-  giver_init();
-}
