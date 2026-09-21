@@ -619,10 +619,9 @@
 #define _LANG_CMD_QUESTS_HINT_HAND_IN "        'misiones entregar <número>' para entregarla"
 #define _LANG_CMD_QUESTS_HINT_ABANDON "        'misiones abandonar <número>' para dejarla"
 
-#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "  " + objectives[j][OBJ_TEXT] + " (" + \
+#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "    - " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " de " + objectives[j][OBJ_COUNT] + ")\n"
-#define _LANG_CMD_QUESTS_INFO "%^BOLD%^" + quest->query_title() + "%^RESET%^\n" + \
-      quest->query_description()
+#define _LANG_CMD_QUESTS_INFO_TITLE "* %^BOLD%^" + quest->query_title() + "%^RESET%^\n"
 
 #define _LANG_CMD_QUESTS_NO_SUCH "No hay ninguna misión con ese número.\n"
 #define _LANG_CMD_QUESTS_NOT_AN_OFFER "Esa no es una de las que te ofrecen aquí.\n"

@@ -618,10 +618,9 @@
 #define _LANG_CMD_QUESTS_HINT_HAND_IN "     'quests deliver <number>' to hand it in"
 #define _LANG_CMD_QUESTS_HINT_ABANDON "     'quests abandon <number>' to drop it"
 
-#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "  " + objectives[j][OBJ_TEXT] + " (" + \
+#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "    - " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " of " + objectives[j][OBJ_COUNT] + ")\n"
-#define _LANG_CMD_QUESTS_INFO "%^BOLD%^" + quest->query_title() + "%^RESET%^\n" + \
-      quest->query_description()
+#define _LANG_CMD_QUESTS_INFO_TITLE "* %^BOLD%^" + quest->query_title() + "%^RESET%^\n"
 
 #define _LANG_CMD_QUESTS_NO_SUCH "There is no quest with that number.\n"
 #define _LANG_CMD_QUESTS_NOT_AN_OFFER "That is not one of the quests offered here.\n"

@@ -256,7 +256,7 @@ private int show_info(object me, int index)
   mixed * line;
   mapping * objectives;
   int * progress;
-  string text;
+  string text, description, objective_lines;
   int j;
 
   line = entry_at(me, index);
@@ -276,19 +276,29 @@ private int show_info(object me, int index)
     return 0;
   }
 
-  text = _LANG_CMD_QUESTS_INFO;
+  // the description is laid out as the long of a room: indented paragraph
+  // with a blank line above and below
+  description = quest->query_description();
+  if (strlen(description) && description[strlen(description) - 1] != '\n')
+    description += "\n";
+
+  text = _LANG_CMD_QUESTS_INFO_TITLE +
+         wrap(description, this_user()->query_cols(), 1);
 
   // one line per objective, with the count, for a quest being done
   if (line[ENTRY_KIND] == ENTRY_MINE)
   {
     objectives = quest->query_objectives();
     progress = me->query_progress(game_name(me), line[ENTRY_ID]);
+    objective_lines = "";
 
     for (j = 0; j < sizeof(objectives); j++)
-      text += _LANG_CMD_QUESTS_OBJECTIVE_LINE;
+      objective_lines += _LANG_CMD_QUESTS_OBJECTIVE_LINE;
+
+    text += wrap(objective_lines, this_user()->query_cols());
   }
 
-  tell_object(me, wrap(text, this_user()->query_cols()));
+  tell_object(me, text);
   return 1;
 }
 
