@@ -591,23 +591,23 @@
 
 // quests
 
-#define _LANG_CMD_QUESTS_ALIAS ({ "misiones", "trabajos" })
+#define _LANG_CMD_QUESTS_ALIAS ({ "misiones", "mision", "misión" })
 #define _LANG_CMD_QUESTS_SYNTAX "misiones [info|aceptar|entregar|abandonar] [<número>]"
-#define _LANG_CMD_QUESTS_HELP "Muestra los trabajos que has aceptado y en qué punto " + \
-      "estás de cada uno. Junto a quien reparte trabajo, también dice qué te ofrecen " + \
+#define _LANG_CMD_QUESTS_HELP "Muestra las misiones que has aceptado y en qué punto " + \
+      "estás de cada una. Junto a quien reparte misiones, también dice qué te ofrecen " + \
       "y qué puedes entregar.\n" + \
       "  misiones               lo que llevas entre manos, y lo que hay aquí\n" + \
-      "  misiones info <n>      todo el detalle de uno de tus trabajos\n" + \
-      "  misiones aceptar <n>   aceptas uno de los que te ofrecen aquí\n" + \
-      "  misiones entregar <n>  das por terminado uno aquí mismo\n" + \
-      "  misiones abandonar <n> lo dejas, y pierdes lo avanzado\n" + \
-      "El número es el que aparece en la lista de la que hablas: los tuyos para " + \
-      "info y abandonar, los de aquí para aceptar y entregar. Con uno solo, el " + \
+      "  misiones info <n>      todo el detalle de una de tus misiones\n" + \
+      "  misiones aceptar <n>   aceptas una de las que te ofrecen aquí\n" + \
+      "  misiones entregar <n>  das por terminada una aquí mismo\n" + \
+      "  misiones abandonar <n> la dejas, y pierdes lo avanzado\n" + \
+      "El número es el que aparece en la lista de la que hablas: las tuyas para " + \
+      "info y abandonar, las de aquí para aceptar y entregar. Con una sola, el " + \
       "número sobra."
 
-#define _LANG_CMD_QUESTS_TITLE "Trabajos"
-#define _LANG_CMD_QUESTS_NONE "No llevas ningún trabajo entre manos.\n"
-#define _LANG_CMD_QUESTS_YOURS "Tus trabajos:\n"
+#define _LANG_CMD_QUESTS_TITLE "Misiones"
+#define _LANG_CMD_QUESTS_NONE "No llevas ninguna misión entre manos.\n"
+#define _LANG_CMD_QUESTS_YOURS "Tus misiones:\n"
 #define _LANG_CMD_QUESTS_LINE "  [%^BOLD%^" + (i + 1) + "%^RESET%^] " + quest->query_title() + "\n"
 #define _LANG_CMD_QUESTS_OBJECTIVE_LINE "      " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " de " + objectives[j][OBJ_COUNT] + ")\n"
@@ -618,8 +618,8 @@
       quest->query_description()
 #define _LANG_CMD_QUESTS_INFO "%^BOLD%^" + quest->query_title() + "%^RESET%^\n" + \
       quest->query_description()
-#define _LANG_CMD_QUESTS_NO_SUCH "No llevas ese trabajo.\n"
-#define _LANG_CMD_QUESTS_NOTHING_OFFERED "Aquí no te ofrecen ningún trabajo.\n"
+#define _LANG_CMD_QUESTS_NO_SUCH "No llevas esa misión.\n"
+#define _LANG_CMD_QUESTS_NOTHING_OFFERED "Aquí no te ofrecen ninguna misión.\n"
 #define _LANG_CMD_QUESTS_WHICH_OFFER "¿Cuál de los que te ofrecen?\n"
 #define _LANG_CMD_QUESTS_NOTHING_TO_HAND_IN "Aquí no puedes entregar nada.\n"
 #define _LANG_CMD_QUESTS_WHICH_HAND_IN "¿Cuál de los que puedes entregar?\n"

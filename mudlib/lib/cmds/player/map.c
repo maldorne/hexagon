@@ -28,7 +28,7 @@ inherit CMD_BASE;
 // Seconds after connecting (or reconnecting) before the map answers: what it
 // draws is the neighbourhood the cleaner prewarms, and that walk runs a few
 // locations per tick.
-#define MAP_SETTLE_SECONDS 30
+#define MAP_SETTLE_SECONDS 10
 
 void setup()
 {

@@ -249,8 +249,8 @@
 
 // quests
 
-#define _LANG_QUEST_ACCEPTED "Aceptas el trabajo: " + quest->query_title() + ".\n"
-#define _LANG_QUEST_ABANDONED "Abandonas el trabajo: " + quest->query_title() + ".\n"
+#define _LANG_QUEST_ACCEPTED "Aceptas la misión: " + quest->query_title() + ".\n"
+#define _LANG_QUEST_ABANDONED "Abandonas la misión: " + quest->query_title() + ".\n"
 #define _LANG_QUEST_FINISHED "%^BOLD%^Has terminado " + quest->query_title() + ".%^RESET%^\n"
 #define _LANG_QUEST_OBJECTIVE_DONE "%^BOLD%^" + quest->query_title() + \
       ": " + objectives[j][OBJ_TEXT] + " (hecho).%^RESET%^\n"
