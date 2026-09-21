@@ -4,6 +4,7 @@
 #include "../path.h"
 
 inherit "/lib/monster.c";
+inherit giver "/lib/monster/quest-giver.c";
 
 void setup()
 {
@@ -36,4 +37,14 @@ void setup()
   ({
     1, _LANG_NPCS_BARMAN_A_CHAT[0],
   }));
+
+  // the village keeps its own kind: everybody else is sent away
+  deals_with_races(({ "elf" }));
+  offers_quests("demo-fantasy:learn-to-climb");
 } 
+
+void init()
+{
+  ::init();
+  giver_init();
+}

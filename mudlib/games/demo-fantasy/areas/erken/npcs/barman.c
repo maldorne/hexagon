@@ -2,6 +2,7 @@
 #include "../path.h"
 
 inherit "/lib/monster.c";
+inherit giver "/lib/monster/quest-giver.c";
 
 void setup()
 {
@@ -39,4 +40,14 @@ void setup()
   add_clone(BASEOBS + "weapons/club", 1);
   add_clone(BASEOBS + "armours/chain-mail", 1);
   init_equip();
+
+  // the village keeps its own kind: everybody else is sent away
+  deals_with_races(({ "orc", "goblin" }));
+  offers_quests("demo-fantasy:learn-to-climb");
 } 
+
+void init()
+{
+  ::init();
+  giver_init();
+}
