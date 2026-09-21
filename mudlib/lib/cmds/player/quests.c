@@ -288,7 +288,7 @@ private int show_info(object me, int index)
       text += _LANG_CMD_QUESTS_OBJECTIVE_LINE;
   }
 
-  tell_object(me, text);
+  tell_object(me, wrap(text, this_user()->query_cols()));
   return 1;
 }
 
