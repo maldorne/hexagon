@@ -1381,7 +1381,7 @@ int do_vacancy(string str)
     }
 
     file = loc->query_file_name();
-    if (loc->query_component_by_type(LOCATION_COMPONENT_PLOT))
+    if (loc->has_component(LOCATION_COMPONENT_PLOT))
     {
       object holder;
 
@@ -1390,7 +1390,7 @@ int do_vacancy(string str)
       area->build_house_at(file,
         holder ? ({ holder->query_npc_uuid() }) : ({ }));
     }
-    else if (!loc->query_component_by_type(LOCATION_COMPONENT_HOME))
+    else if (!loc->has_component(LOCATION_COMPONENT_HOME))
     {
       notify_fail("Stand in a plot or a house to make it the '" + args[1] +
                   "' vacancy's home.\n");
@@ -2126,8 +2126,8 @@ int do_plot(string str)
   if (verb == "create")
   {
     // no houses inside houses: a plot cannot be carved from a plot or a home
-    if (loc->query_component_by_type(LOCATION_COMPONENT_PLOT) ||
-        loc->query_component_by_type(LOCATION_COMPONENT_HOME))
+    if (loc->has_component(LOCATION_COMPONENT_PLOT) ||
+        loc->has_component(LOCATION_COMPONENT_HOME))
     {
       notify_fail("You cannot carve a plot from inside a plot or a house.\n");
       return 0;
@@ -2272,7 +2272,7 @@ int do_home_make()
     return 0;
   }
 
-  if (!loc->query_component_by_type(LOCATION_COMPONENT_PLOT))
+  if (!loc->has_component(LOCATION_COMPONENT_PLOT))
   {
     notify_fail("This is not a bare plot. Carve one with " +
                 "'build plot <dir>' first.\n");
@@ -2346,7 +2346,7 @@ int do_sign(string str)
 
   if (str == "remove")
   {
-    if (!loc->query_component_by_type(LOCATION_COMPONENT_SIGN))
+    if (!loc->has_component(LOCATION_COMPONENT_SIGN))
     {
       notify_fail("There is no sign here.\n");
       return 0;

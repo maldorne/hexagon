@@ -75,7 +75,7 @@ static int cmd(string str, object me, string verb)
 
   if (tokens[0] == "remove")
   {
-    if (!env->query_component_by_type(type))
+    if (!env->has_component(type))
     {
       notify_fail("This location has no '" + type + "' component.\n");
       return 0;
@@ -92,7 +92,7 @@ static int cmd(string str, object me, string verb)
                 COMPONENTS_DIR + ".\n");
     return 0;
   }
-  if (env->query_component_by_type(type))
+  if (env->has_component(type))
   {
     notify_fail("This location already has a '" + type + "' component.\n");
     return 0;

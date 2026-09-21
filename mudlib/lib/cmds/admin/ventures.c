@@ -50,7 +50,7 @@ static int cmd(string str, object me, string verb)
     else if (where = load_object(LOCATION_HANDLER)->load_location(ventures[i]))
     {
       ret += sprintf(" - %-25s", extract(terminal->clean_string(where->short()), 0, 20));
-      ret += sprintf(" %-6s %-10s", (where->query_component_by_type(LOCATION_COMPONENT_SHOP) ? "shop" : "pub"), "location");
+      ret += sprintf(" %-6s %-10s", (where->has_component(LOCATION_COMPONENT_SHOP) ? "shop" : "pub"), "location");
       ret += sprintf("%30s\n", ventures[i]);
     }
     else

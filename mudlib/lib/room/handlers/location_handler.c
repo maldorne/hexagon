@@ -182,7 +182,7 @@ void _component_step(string * files, int idx, string verb, string type,
       skipped++;
     else if (verb == "add")
     {
-      if (loc->query_component_by_type(type))
+      if (loc->has_component(type))
         skipped++;
       else if (catch(loc->add_component(type, init)))
         failed += ({ files[idx] });
@@ -191,7 +191,7 @@ void _component_step(string * files, int idx, string verb, string type,
     }
     else
     {
-      if (!loc->query_component_by_type(type))
+      if (!loc->has_component(type))
         skipped++;
       else if (catch(loc->remove_component(type)))
         failed += ({ files[idx] });
@@ -650,7 +650,7 @@ object convert_room_to_location(object room)
   }
 
   if (room->query_post_office() &&
-      !location->query_component_by_type(LOCATION_COMPONENT_POST_OFFICE))
+      !location->has_component(LOCATION_COMPONENT_POST_OFFICE))
   {
     location->add_component(LOCATION_COMPONENT_POST_OFFICE, ([ ]));
     ret += "   Adding component post office.\n";
@@ -664,13 +664,13 @@ object convert_room_to_location(object room)
   // interior base, so a reconversion always matches the room's current base.
   if (room->query_outside())
   {
-    if (!location->query_component_by_type(LOCATION_COMPONENT_OUTSIDE))
+    if (!location->has_component(LOCATION_COMPONENT_OUTSIDE))
     {
       location->add_component(LOCATION_COMPONENT_OUTSIDE, ([ ]));
       ret += "   Adding component outside.\n";
     }
   }
-  else if (location->query_component_by_type(LOCATION_COMPONENT_OUTSIDE))
+  else if (location->has_component(LOCATION_COMPONENT_OUTSIDE))
   {
     location->remove_component(LOCATION_COMPONENT_OUTSIDE);
     ret += "   Removing outside component (room is not open-air).\n";
@@ -681,14 +681,14 @@ object convert_room_to_location(object room)
   // one from a room that no longer is, as with outside above.
   if (room->query_underground())
   {
-    if (!location->query_component_by_type(LOCATION_COMPONENT_UNDERGROUND))
+    if (!location->has_component(LOCATION_COMPONENT_UNDERGROUND))
     {
       location->add_component(LOCATION_COMPONENT_UNDERGROUND,
                               ([ "kind": room->query_underground_kind() ]));
       ret += "   Adding component underground.\n";
     }
   }
-  else if (location->query_component_by_type(LOCATION_COMPONENT_UNDERGROUND))
+  else if (location->has_component(LOCATION_COMPONENT_UNDERGROUND))
   {
     location->remove_component(LOCATION_COMPONENT_UNDERGROUND);
     ret += "   Removing underground component (room is not below the surface).\n";
@@ -722,7 +722,7 @@ object convert_room_to_location(object room)
   {
     // Venture: drop any sign component a prior conversion mistakenly
     // captured from the venture's own board, so it stops duplicating.
-    if (location->query_component_by_type(LOCATION_COMPONENT_SIGN))
+    if (location->has_component(LOCATION_COMPONENT_SIGN))
     {
       location->remove_component(LOCATION_COMPONENT_SIGN);
       ret += "   Removing stray sign component (venture manages its own).\n";
@@ -742,7 +742,7 @@ object convert_room_to_location(object room)
     object comp;
     int k;
 
-    if (!location->query_component_by_type(LOCATION_COMPONENT_PROPS))
+    if (!location->has_component(LOCATION_COMPONENT_PROPS))
       location->add_component(LOCATION_COMPONENT_PROPS,
                               ([ "props_instances": ({ }) ]));
 
@@ -766,7 +766,7 @@ object convert_room_to_location(object room)
   area = location->query_area();
   venture_kinds = POI_VENTURE_KINDS;
   for (i = 0; area && i < sizeof(venture_kinds); i++)
-    if (location->query_component_by_type(venture_kinds[i]))
+    if (location->has_component(venture_kinds[i]))
     {
       area->add_poi(location->query_file_name(), venture_kinds[i],
                     room->query_short());

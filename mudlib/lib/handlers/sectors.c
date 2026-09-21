@@ -237,13 +237,13 @@ string add_location(object location)
     int i;
 
     location_data = ([ ]);
-    if (location->query_component_by_type(LOCATION_COMPONENT_MAZE))
+    if (location->has_component(LOCATION_COMPONENT_MAZE))
       location_data["maze"] = 1;
 
     contrib = SECTOR_MAP_COMPONENTS;
     my_types = ({ });
     for (i = 0; i < sizeof(contrib); i++)
-      if (location->query_component_by_type(contrib[i]))
+      if (location->has_component(contrib[i]))
         my_types += ({ contrib[i] });
     if (sizeof(my_types))
       location_data["types"] = my_types;

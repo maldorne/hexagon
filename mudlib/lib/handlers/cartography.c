@@ -68,7 +68,7 @@ private int _classify_room(object room, object viewer, int deep)
 
   // a dwelling (a location carrying a home component) shows as a house,
   // whatever its exits. Non-locations return nil here and fall through.
-  if (room->query_component_by_type("home"))
+  if (room->has_component("home"))
     return CART_HOME_ROOM;
 
   // structural markers: cheap, depend only on the room's own data.

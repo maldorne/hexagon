@@ -187,7 +187,7 @@ object * query_maze_locations()
   ret = ({ });
   locs = query_loaded_locations();
   for (i = 0; i < sizeof(locs); i++)
-    if (locs[i]->query_component_by_type(LOCATION_COMPONENT_MAZE))
+    if (locs[i]->has_component(LOCATION_COMPONENT_MAZE))
       ret += ({ locs[i] });
 
   return ret;

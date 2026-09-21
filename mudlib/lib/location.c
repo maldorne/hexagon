@@ -236,6 +236,8 @@ object query_component_by_type(string type)
   return nil;
 }
 
+int has_component(string type) { return query_component_by_type(type) != nil; }
+
 // Seed (or reseed) a component's persisted attributes.
 //
 // Two callers: (a) the conversion path, which seeds state from a
