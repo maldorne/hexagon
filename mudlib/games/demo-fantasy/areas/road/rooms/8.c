@@ -13,8 +13,8 @@ void setup()
   set_long(_LANG_CROSSING_LONG); 
   set_light(60);
   add_exit(DIR_NORTHWEST, ROOMS + "6.c", "road"); // mountains
-  add_exit(DIR_EAST, ROOMS + "9.c", "road"); // erken
-  add_exit(DIR_SOUTHWEST, ROOMS + "21.c", "road"); // naduk
+  add_exit(DIR_EAST, ROOMS + "9.c", "road"); // naduk
+  add_exit(DIR_SOUTHWEST, ROOMS + "21.c", "road"); // erken
   
   add_sign(_LANG_CROSSING_SIGN_LONG,
     _LANG_CROSSING_SIGN_MESS,
