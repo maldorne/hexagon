@@ -28,7 +28,7 @@
           "corazón del bosque, preguntándote qué secretos y desafíos " + \
           "se encuentran dentro. A tu alrededor puedes ver " + \
           number_as_string(num_races) + " %^BOLD%^cofre" + ((num_races==1) ? "" : "s") + \
-          "%^RESET%^, colocado" + ((num_races == 1) ? "" : "s") + " " \
+          "%^RESET%^, colocado" + ((num_races == 1) ? "" : "s") + " " + \
           "como si fueses el centro de toda la existencia."
 #define _LANG_START2_CHESTS_NAME "cofre"
 #define _LANG_START2_CHESTS ({ "cofres", "cofre", "efigie", "efigies" })
@@ -36,7 +36,7 @@
     "efigies de seres de las más diversas razas de " + game_pretty_name(this_object()) + ". Concretamente " + \
     "observas dibujos de "+query_multiple_short(keys(races)) + ". " + \
     "%^BOLD%^Puedes mirar a cada uno de ellos por separado " + \
-    "para observarlos detenidamente (ej: <mirar cofre " + keys(races)[random(sizeof(races))] + ">).%^RESET%^\n"
+    "para observarlos detenidamente (ej: <mirar cofre " + keys(races)[random(map_sizeof(races))] + ">).%^RESET%^\n"
 #define _LANG_START2_HINTS ({ "Echa un vistazo a los cofres que hay aquí. " + \
           "Solo puedes abrir uno de ellos.", \
           "Escribe 'abrir cofre " + r + "' para elegir la raza de tu personaje." })
