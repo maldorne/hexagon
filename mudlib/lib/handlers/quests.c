@@ -169,12 +169,11 @@ int check_can_hand_in(object who, string id)
 }
 
 /*
- * Who answers for an object in matters of quests, or nil when nobody does. A
- * monster carries the giver mixin and answers for itself; an npc built out of
- * components answers through the one that deals in quests. Everything that wants
- * to know -- the room listing, the map, the quests command -- asks this and then
- * talks to whatever comes back, so neither /lib/npc.c nor any caller has to know
- * which of the two it is looking at.
+ * The object carrying a creature's quest giver code, or nil when it has none: the
+ * creature itself when it is a monster inheriting /lib/monster/quest-giver.c, or
+ * the quest-giver component when it is an npc -- the way the ventures handler
+ * takes either a shop room or a location's shop component. Callers keep the
+ * creature, which is what they show and name; this is only for asking.
  */
 object giver_of(object ob)
 {

@@ -21,11 +21,14 @@ void setup()
   set_help(_LANG_CMD_QUESTS_HELP);
 }
 
-// Whoever in this room deals in quests at all.
+// The creatures standing here that deal in quests. The creature is what this
+// command works with and names; the handler says which object carries its quest
+// code -- the creature itself, or the component an npc carries -- and that is
+// only asked, never shown.
 private object * givers_here(object me)
 {
   object * here, * out;
-  object giver;
+  object quests;
   int i;
 
   out = ({ });
@@ -33,60 +36,61 @@ private object * givers_here(object me)
   if (!environment(me))
     return out;
 
+  quests = handler(QUESTS_HANDLER, me);
   here = all_inventory(environment(me));
 
-  // the handler says who answers for each thing standing here: a creature that
-  // deals in quests itself, or the component it carries. Anything else: nil.
   for (i = 0; i < sizeof(here); i++)
-  {
-    giver = handler(QUESTS_HANDLER, me)->giver_of(here[i]);
-
-    if (giver)
-      out += ({ giver });
-  }
+    if (quests->giver_of(here[i]))
+      out += ({ here[i] });
 
   return out;
 }
 
-// What can be taken here, in the order the listing shows it.
+// What can be taken here, as ({ creature, quest id }) pairs, in the order the
+// listing shows them.
 private mixed * offers_here(object me)
 {
-  object * givers;
+  object quests;
+  object * creatures;
   mixed * out;
   string * ids;
   int i, j;
 
   out = ({ });
-  givers = givers_here(me);
+  quests = handler(QUESTS_HANDLER, me);
+  creatures = givers_here(me);
 
-  for (i = 0; i < sizeof(givers); i++)
+  for (i = 0; i < sizeof(creatures); i++)
   {
-    ids = givers[i]->quests_for(me);
+    ids = quests->giver_of(creatures[i])->quests_for(me);
 
     for (j = 0; j < sizeof(ids); j++)
-      out += ({ ({ givers[i], ids[j] }) });
+      out += ({ ({ creatures[i], ids[j] }) });
   }
 
   return out;
 }
 
-// What can be handed in here, in the order the listing shows it.
+// What can be handed in here, as ({ creature, quest id }) pairs, in the order
+// the listing shows them.
 private mixed * hand_ins_here(object me)
 {
-  object * givers;
+  object quests;
+  object * creatures;
   mixed * out;
   string * ids;
   int i, j;
 
   out = ({ });
-  givers = givers_here(me);
+  quests = handler(QUESTS_HANDLER, me);
+  creatures = givers_here(me);
 
-  for (i = 0; i < sizeof(givers); i++)
+  for (i = 0; i < sizeof(creatures); i++)
   {
-    ids = givers[i]->quests_to_hand_in(me);
+    ids = quests->giver_of(creatures[i])->quests_to_hand_in(me);
 
     for (j = 0; j < sizeof(ids); j++)
-      out += ({ ({ givers[i], ids[j] }) });
+      out += ({ ({ creatures[i], ids[j] }) });
   }
 
   return out;
@@ -119,7 +123,7 @@ private string objectives_of(object quest, object me, string id)
 
 private int list_quests(object me)
 {
-  object quests, quest, giver;
+  object quests, quest, creature;
   mixed * offers, * ready;
   string * mine;
   string text;
@@ -153,14 +157,14 @@ private int list_quests(object me)
   // to learn a quest exists at all
   for (i = 0; i < sizeof(ready); i++)
   {
-    giver = ready[i][0];
+    creature = ready[i][0];
     quest = quests->query_quest(ready[i][1]);
     text += _LANG_CMD_QUESTS_CAN_HAND_IN;
   }
 
   for (i = 0; i < sizeof(offers); i++)
   {
-    giver = offers[i][0];
+    creature = offers[i][0];
     quest = quests->query_quest(offers[i][1]);
     text += _LANG_CMD_QUESTS_OFFERED;
   }

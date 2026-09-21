@@ -611,9 +611,9 @@
 #define _LANG_CMD_QUESTS_OBJECTIVE_LINE "      " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " of " + objectives[j][OBJ_COUNT] + ")\n"
 #define _LANG_CMD_QUESTS_CAN_HAND_IN "\n%^BOLD%^[" + (i + 1) + "]%^RESET%^ " + \
-      giver->query_cap_name() + " is waiting for you to deliver " + quest->query_title() + ".\n"
+      creature->query_cap_name() + " is waiting for you to deliver " + quest->query_title() + ".\n"
 #define _LANG_CMD_QUESTS_OFFERED "\n%^BOLD%^[" + (i + 1) + "]%^RESET%^ " + \
-      giver->query_cap_name() + " offers: " + quest->query_title() + ".\n" + \
+      creature->query_cap_name() + " offers: " + quest->query_title() + ".\n" + \
       quest->query_description()
 #define _LANG_CMD_QUESTS_INFO "%^BOLD%^" + quest->query_title() + "%^RESET%^\n" + \
       quest->query_description()

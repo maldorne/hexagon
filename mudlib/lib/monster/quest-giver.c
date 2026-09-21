@@ -1,9 +1,11 @@
-// quest-giver.c -- a creature that hands work out, as a mixin.
+// quest-giver.c -- what a creature that hands work out knows and answers.
 //
-// Inherited by the file of any monster meant to offer quests, which is how a
-// game made of rooms gets a source: a plain monster has no component host, since
-// /lib/monster.c does not inherit /lib/npc.c. Games built on locations use the
-// npc component instead; both end up calling the same handler.
+// Shared the way the shop code under /lib/ventures/ is shared by a shop room
+// and a shop location component: a monster in a game made of rooms inherits
+// this directly, and the npc component /lib/npc/components/quest-giver.c
+// inherits it too, for npcs in a game made of locations. One implementation,
+// two carriers; handler("quests") is what knows which of the two it is
+// talking to.
 //
 // The giver decides nothing and owns no verbs: it says which quests it deals in
 // and, if it is picky, which races it deals with. The quests command is what
@@ -37,6 +39,7 @@ void offers_quests(string id)
 }
 
 string * query_offered_quests() { return offered ? offered : ({ }); }
+void set_offered_quests(string * list) { offered = list; }
 
 void takes_quests(string id)
 {
@@ -47,6 +50,7 @@ void takes_quests(string id)
 }
 
 string * query_taken_quests() { return taken ? taken : ({ }); }
+void set_taken_quests(string * list) { taken = list; }
 
 void deals_with_races(string * list) { races = list; }
 string * query_dealt_races() { return races ? races : ({ }); }
