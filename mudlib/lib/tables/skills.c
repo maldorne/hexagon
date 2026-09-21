@@ -30,6 +30,11 @@ void create()
     // active skill: hides the character behind a shadow (paired with search)
     SKILL_HIDE :
       ({ SKILLS_PATH + SKILL_HIDE, 10, 0, ACTIVE_SKILL, }),
+
+    // passive skill: rolled against by whatever can be climbed. Not learned by
+    // wandering: somebody has to teach it, or a quest has to pay it.
+    SKILL_CLIMB :
+      ({ SKILLS_PATH + SKILL_CLIMB, 10, 0, PASSIVE_SKILL, }),
   ]);
 }
 

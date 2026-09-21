@@ -1,5 +1,6 @@
 
 #include <trace.h>
+#include <kernel.h>
 
 #include <files/log.h>
 #include <mud/secure.h>
@@ -603,12 +604,19 @@ int valid_adjust_xp(object prev, object this, int i)
   if (base_name(prev)[0..3] == "/lib")
     return 1;
 
+  // a handler awards xp on behalf of the mudlib: a quest reward, somebody
+  // teaching, whatever a game hangs off a handler of its own. Only the objects
+  // the singleton registry handed out as handlers pass, so a file that merely
+  // sits in the same directory cannot award anything.
+  if (member_array(prev, map_values(SINGLETON_HANDLER->handlers())) != -1)
+    return 1;
+
   if (interactive(this)) // neverbot
     if ((!prev->query_npc() && !prev->query_player()) ||
        (immortal_create_me(prev)) )
     {
       log_file("adjust_xp", "File: " + base_name(prev) +
-               "\n\tcreated by: " + prev->query_create_me() +
+               "\n\tcreated by: " + (prev->query_create_me() ? prev->query_create_me() : "") +
                " adjusting: " + this->query_cap_name() +
                "\n\tamount: " + i +
                " (this_player() = " + this_player()->query_cap_name() + ") "+ctime(time(), 4)+".\n");

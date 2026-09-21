@@ -246,3 +246,13 @@
 
 #define _LANG_TITLE_DEMO_FINISHED "Recién Llegado"
 #define _LANG_TITLE_GRANTED "%^BOLD%^Has ganado el título '" + text + "'.%^RESET%^\n"
+
+// quests
+
+#define _LANG_QUEST_ACCEPTED "Aceptas el trabajo: " + quest->query_title() + ".\n"
+#define _LANG_QUEST_ABANDONED "Abandonas el trabajo: " + quest->query_title() + ".\n"
+#define _LANG_QUEST_FINISHED "%^BOLD%^Has terminado " + quest->query_title() + ".%^RESET%^\n"
+#define _LANG_QUEST_OBJECTIVE_DONE "%^BOLD%^" + quest->query_title() + \
+      ": " + objectives[j][OBJ_TEXT] + " (hecho).%^RESET%^\n"
+#define _LANG_QUEST_OBJECTIVE_PROGRESS quest->query_title() + ": " + \
+      objectives[j][OBJ_TEXT] + " (" + after + " de " + objectives[j][OBJ_COUNT] + ").\n"

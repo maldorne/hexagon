@@ -33,3 +33,9 @@
 #define _LANG_HIDE_REVEALED_YOU "You have been discovered!\n"
 #define _LANG_HIDE_SEARCH_FOUND_PRE "You search around and spot "
 #define _LANG_HIDE_SEARCH_FOUND_POST ", though they have not noticed you yet.\n"
+
+#define _LANG_SKILL_CLIMB_NAME "climb"
+#define _LANG_SKILL_CLIMB_ALIASES ({ "climbing" })
+#define _LANG_SKILL_CLIMB_HELP "This skill measures how well you climb a wall, " + \
+      "a tree or anything else you can get a grip on. The better you are at it, " + \
+      "the less likely you are to fall.\n"

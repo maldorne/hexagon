@@ -33,3 +33,9 @@
 #define _LANG_HIDE_REVEALED_YOU "¡Te han descubierto!\n"
 #define _LANG_HIDE_SEARCH_FOUND_PRE "Buscas a tu alrededor y encuentras a "
 #define _LANG_HIDE_SEARCH_FOUND_POST ", aunque aún no se ha dado cuenta.\n"
+
+#define _LANG_SKILL_CLIMB_NAME "trepar"
+#define _LANG_SKILL_CLIMB_ALIASES ({ "escalar" })
+#define _LANG_SKILL_CLIMB_HELP "Esta habilidad mide tu capacidad para trepar " + \
+      "por una pared, un árbol o cualquier otra cosa a la que puedas agarrarte. " + \
+      "Cuanto mejor la tengas, menos probable es que te caigas.\n"

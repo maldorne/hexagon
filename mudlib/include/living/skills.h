@@ -14,6 +14,7 @@
 #define SKILL_ORIENTATION "orientation"
 #define SKILL_SEARCH      "search"
 #define SKILL_HIDE        "hide"
+#define SKILL_CLIMB       "climb"
 
 // Skills every player must always have. Granted silently and idempotently
 // on each login (grant_default_skills, called from living::start_player):
