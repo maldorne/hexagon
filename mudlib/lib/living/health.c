@@ -2,7 +2,6 @@
 #include <common/properties.h>
 #include <living/food.h>
 #include <living/combat.h>
-#include <common/quests.h>
 #include <mud/secure.h>
 #include <user/xp.h>
 #include <language.h>
@@ -195,12 +194,6 @@ int adjust_hp(int i, varargs object hp_remover)
       this_object()->stop_fight(hp_remover);
       hp_remover->stop_fight(this_object());
       call_out("end_practise", 0, this_object(), hp_remover);
-      
-      // quests of winning in combat (non lethal)
-      if (hp_remover->is_doing_quest(base_name(this_object()), TYPE_BEAT) )
-        hp_remover->update_quest(base_name(this_object()));
-      else if (hp_remover->is_doing_quest_from_name(this_object()->query_short(), TYPE_BEAT) )
-        hp_remover->update_quest_from_name(this_object()->query_short());
     }
     else // non safe combat, they die
     {

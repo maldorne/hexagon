@@ -16,7 +16,7 @@ void setup()
   set_description(_LANG_QUEST_NEWS_DESC);
 
   // he is the one to be found, and the one it is handed in to
-  set_hand_in("old-man");
+  set_hand_in("areas/road/npcs/old-man");
 
   add_needs_quest("demo-fantasy:wasps-ruin-the-hunt");
 

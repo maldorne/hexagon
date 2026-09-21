@@ -21,6 +21,7 @@
  */
 
 #include <living/quests.h>
+#include <living/persisted.h>
 #include <living/skills.h>
 #include <living/titles.h>
 #include <language.h>
@@ -409,15 +410,24 @@ int query_objective_progress(object who, string id, int which)
   return progress[which];
 }
 
-// Something died. Credit goes to everybody who was fighting it, not only to
-// whoever landed the last blow.
-void killed(object * attackers, string target)
+// The stable id objectives name a creature by: its template id, taken from the
+// source an npc was spawned from, or from the file of a monster.
+private string creature_id(object who, object creature)
 {
-  int i;
+  string source;
 
-  for (i = 0; i < sizeof(attackers); i++)
-    if (attackers[i] && attackers[i]->query_player())
-      advance(attackers[i], OBJECTIVE_KILL, target, 1);
+  source = creature->query_npc_source();
+
+  if (!source || !strlen(source))
+    source = base_name(creature);
+
+  return BESTIARY_HANDLER->template_id(game_of(who), source);
+}
+
+// A player took part in killing something.
+void killed(object who, object creature)
+{
+  advance(who, OBJECTIVE_KILL, creature_id(who, creature), 1);
 }
 
 // A player reached a place.
