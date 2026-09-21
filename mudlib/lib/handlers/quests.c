@@ -168,6 +168,32 @@ int check_can_hand_in(object who, string id)
   return QUEST_OK;
 }
 
+/*
+ * Who answers for an object in matters of quests, or nil when nobody does. A
+ * monster carries the giver mixin and answers for itself; an npc built out of
+ * components answers through the one that deals in quests. Everything that wants
+ * to know -- the room listing, the map, the quests command -- asks this and then
+ * talks to whatever comes back, so neither /lib/npc.c nor any caller has to know
+ * which of the two it is looking at.
+ */
+object giver_of(object ob)
+{
+  object component;
+
+  if (!ob)
+    return nil;
+
+  component = ob->query_component_by_type("quest-giver");
+
+  if (component)
+    return component;
+
+  if (ob->query_quest_object())
+    return ob;
+
+  return nil;
+}
+
 // Of a list of quest ids, the ones somebody could take right now. Sources hold
 // the list; deciding is this handler's job, so both the monster mixin and the npc
 // component ask here instead of each filtering on its own.

@@ -72,24 +72,28 @@ int deals_with(object who)
   return member_array(race_id_of(who), races) != -1;
 }
 
-// The handler is resolved against the owner: a file under /lib/ belongs to no
-// game, and a game's own quests handler is the one that knows its quests.
-private object quests_handler()
-{
-  return handler(QUESTS_HANDLER, query_owner());
-}
-
+// The handler is resolved against whoever is asking: an npc of a game built on
+// locations is a clone of /lib/npc and belongs to no game by its path, while
+// the player is in the game whose quests are at stake.
 string * quests_for(object who)
 {
   if (!deals_with(who))
     return ({ });
 
-  return quests_handler()->takeable(who, offered);
+  return handler(QUESTS_HANDLER, who)->takeable(who, offered);
 }
 
 string * quests_to_hand_in(object who)
 {
-  return quests_handler()->handable(who, taken);
+  return handler(QUESTS_HANDLER, who)->handable(who, taken);
+}
+
+// Whoever asks got this component back rather than the npc, so it answers with
+// its owner's name: to a player, the one offering the work is the npc.
+string query_name() { return query_owner() ? query_owner()->query_name() : ""; }
+string query_cap_name()
+{
+  return query_owner() ? query_owner()->query_cap_name() : "";
 }
 
 int query_quest_object() { return 1; }

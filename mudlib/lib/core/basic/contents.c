@@ -5,6 +5,7 @@
 
 #include <translations/pov.h>
 #include <translations/common.h>
+#include <living/quests.h>
 #include <language.h>
 
 /* returns an array of the form:
@@ -124,7 +125,7 @@ string query_contents(string str, varargs object *obs)
   mixed inv;
   string ret, aux, color;
   int count, howmany;
-  object me;
+  object me, giver;
 
   ret = "";
   aux = "";
@@ -172,11 +173,15 @@ string query_contents(string str, varargs object *obs)
     // whoever deals in quests is marked, so somebody can tell by looking that
     // there is work to be had or to be handed back. Only when alone: a group is
     // named in the plural and the mark would not say which of them it is about.
-    if ((j <= 1) && me && inv[1][i][0]->query_quest_object())
+    // Who answers for the creature -- itself or one of its components -- is the
+    // quest handler's business, not ours.
+    if ((j <= 1) && me)
     {
-      if (inv[1][i][0]->check_player_finished(me))
+      giver = handler(QUESTS_HANDLER, me)->giver_of(inv[1][i][0]);
+
+      if (giver && giver->check_player_finished(me))
         ret += _LANG_QUEST_MARK_HAND_IN;
-      else if (inv[1][i][0]->check_player(me))
+      else if (giver && giver->check_player(me))
         ret += _LANG_QUEST_MARK_OFFER;
     }
 

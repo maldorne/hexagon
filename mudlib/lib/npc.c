@@ -295,57 +295,6 @@ string guardian_message()
   return g ? g->message() : nil;
 }
 
-// Quest giver proxy. The quests command, the room listing and the map all ask
-// the NPC itself, the same way they ask a monster carrying the giver mixin;
-// delegate to the quest-giver component when this NPC carries one. An NPC
-// without it deals in no quests, so asking one by mistake is harmless.
-int query_quest_object()
-{
-  return query_component_by_type("quest-giver") != nil;
-}
-
-int check_player(object who)
-{
-  object q;
-  q = query_component_by_type("quest-giver");
-  return q ? q->check_player(who) : 0;
-}
-
-int check_player_finished(object who)
-{
-  object q;
-  q = query_component_by_type("quest-giver");
-  return q ? q->check_player_finished(who) : 0;
-}
-
-string * query_offered_quests()
-{
-  object q;
-  q = query_component_by_type("quest-giver");
-  return q ? q->query_offered_quests() : nil;
-}
-
-string * query_taken_quests()
-{
-  object q;
-  q = query_component_by_type("quest-giver");
-  return q ? q->query_taken_quests() : nil;
-}
-
-string * quests_for(object who)
-{
-  object q;
-  q = query_component_by_type("quest-giver");
-  return q ? q->quests_for(who) : ({ });
-}
-
-string * quests_to_hand_in(object who)
-{
-  object q;
-  q = query_component_by_type("quest-giver");
-  return q ? q->quests_to_hand_in(who) : ({ });
-}
-
 // Forward weather / climate events to this NPC's components (a climate component
 // can react to rain, cold, etc.).
 void event_weather(object who, varargs int flag, int * values)

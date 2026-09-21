@@ -25,6 +25,7 @@ void setup()
 private object * givers_here(object me)
 {
   object * here, * out;
+  object giver;
   int i;
 
   out = ({ });
@@ -34,11 +35,15 @@ private object * givers_here(object me)
 
   here = all_inventory(environment(me));
 
-  // anything that is not a giver answers nil to both
+  // the handler says who answers for each thing standing here: a creature that
+  // deals in quests itself, or the component it carries. Anything else: nil.
   for (i = 0; i < sizeof(here); i++)
-    if (arrayp(here[i]->query_offered_quests()) ||
-        arrayp(here[i]->query_taken_quests()))
-      out += ({ here[i] });
+  {
+    giver = handler(QUESTS_HANDLER, me)->giver_of(here[i]);
+
+    if (giver)
+      out += ({ giver });
+  }
 
   return out;
 }

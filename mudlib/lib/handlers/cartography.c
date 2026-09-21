@@ -9,6 +9,7 @@
  */
 
 #include <cartography.h>
+#include <living/quests.h>
 #include <translations/exits.h>
 #include <room/location.h>
 
@@ -26,6 +27,7 @@ private int _classify_room(object room, object viewer, int deep)
 {
   object * inv;
   object * enemies;
+  object giver;
   string * exits;
   int i;
 
@@ -47,9 +49,12 @@ private int _classify_room(object room, object viewer, int deep)
     {
       if ((member_array(inv[i], enemies) != -1) && !inv[i]->query_hidden())
         return CART_ENEMY_ROOM;
-      if (inv[i]->query_quest_object() && inv[i]->check_player_finished(viewer))
+      // the quest handler says who answers for whatever is standing here: the
+      // creature itself, or the component it carries
+      giver = handler(QUESTS_HANDLER, viewer)->giver_of(inv[i]);
+      if (giver && giver->check_player_finished(viewer))
         return CART_FINISH_QUEST_ROOM;
-      if (inv[i]->query_quest_object() && inv[i]->check_player(viewer))
+      if (giver && giver->check_player(viewer))
         return CART_QUEST_ROOM;
       if (viewer->query_adventurer() &&
           (viewer->query_adventurer_group_name() ==

@@ -87,18 +87,19 @@ int deals_with(object who)
 }
 
 // The quests this giver would offer somebody right now, and the ones it takes
-// back: the lists are ours, the decisions are the handler's.
+// back: the lists are ours, the decisions are the handler's. The handler is the
+// one of the game of whoever is asking, since those are the quests at stake.
 string * quests_for(object who)
 {
   if (!deals_with(who))
     return ({ });
 
-  return handler(QUESTS_HANDLER, this_object())->takeable(who, query_offered_quests());
+  return handler(QUESTS_HANDLER, who)->takeable(who, query_offered_quests());
 }
 
 string * quests_to_hand_in(object who)
 {
-  return handler(QUESTS_HANDLER, this_object())->handable(who, query_taken_quests());
+  return handler(QUESTS_HANDLER, who)->handable(who, query_taken_quests());
 }
 
 // ---------------------------------------------------------------------------
