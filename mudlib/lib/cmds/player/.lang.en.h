@@ -592,36 +592,42 @@
 
 #define _LANG_CMD_QUESTS_ALIAS ({ "quests", "quest" })
 #define _LANG_CMD_QUESTS_SYNTAX "quests [info|accept|deliver|abandon] [<number>]"
-#define _LANG_CMD_QUESTS_HELP "Shows the quests you have taken and how far along you are " + \
-      "with each. Next to somebody who hands work out, it also says what you are " + \
-      "offered and what you can deliver.\n" + \
-      "  quests               what you have in hand, and what is here\n" + \
-      "  quests info <n>      the full detail of one of your quests\n" + \
-      "  quests accept <n>    you take one of the quests offered here\n" + \
-      "  quests deliver <n>   you hand one in on the spot\n" + \
-      "  quests abandon <n>   you drop it, losing what you had done\n" + \
-      "The number is the one shown in the list you are talking about: yours for " + \
-      "info and abandon, the ones here for accept and deliver. With only one, the " + \
-      "number can be left out."
+#define _LANG_CMD_QUESTS_HELP "Shows what whoever is with you offers and the quests you " + \
+      "have in hand, with a number for each.\n" + \
+      "  quests                offers here and your quests, numbered\n" + \
+      "  quests info <n>       the full detail of number n\n" + \
+      "  quests accept <n>     you take one of the ones offered\n" + \
+      "  quests deliver <n>    you hand one of yours to whoever awaits it here\n" + \
+      "  quests abandon <n>    you drop one of yours, losing what you had done\n" + \
+      "The numbers are those of the listing at that moment, and they serve for " + \
+      "everything. To accept or deliver, when only one fits, the number can be left out."
 
 #define _LANG_CMD_QUESTS_TITLE "Quests"
 #define _LANG_CMD_QUESTS_NONE "You have no quest in hand.\n"
+#define _LANG_CMD_QUESTS_OFFERS_FROM creature->query_cap_name() + " offers you:\n"
 #define _LANG_CMD_QUESTS_YOURS "Your quests:\n"
-#define _LANG_CMD_QUESTS_LINE "  [%^BOLD%^" + (i + 1) + "%^RESET%^] " + quest->query_title() + "\n"
-#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "      " + objectives[j][OBJ_TEXT] + " (" + \
+#define _LANG_CMD_QUESTS_ENTRY "  [%^BOLD%^" + index + "%^RESET%^] " + quest->query_title()
+#define _LANG_CMD_QUESTS_PROGRESS_ONE " (" + done + " of " + needed + ")"
+#define _LANG_CMD_QUESTS_PROGRESS_MANY " (" + met + " of " + total + " objectives)"
+#define _LANG_CMD_QUESTS_FINISHED " (%^BOLD%^RED%^finished%^RESET%^)"
+#define _LANG_CMD_QUESTS_HAND_IN_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
+      "deliver it to " + creature->query_cap_name()
+
+#define _LANG_CMD_QUESTS_HINT_INFO "Type 'quests info <number>' to see more of one"
+#define _LANG_CMD_QUESTS_HINT_ACCEPT "     'quests accept <number>' to take it"
+#define _LANG_CMD_QUESTS_HINT_HAND_IN "     'quests deliver <number>' to hand it in"
+#define _LANG_CMD_QUESTS_HINT_ABANDON "     'quests abandon <number>' to drop it"
+
+#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "  " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " of " + objectives[j][OBJ_COUNT] + ")\n"
-#define _LANG_CMD_QUESTS_CAN_HAND_IN "\n%^BOLD%^[" + (i + 1) + "]%^RESET%^ " + \
-      creature->query_cap_name() + " is waiting for you to deliver " + quest->query_title() + ".\n"
-#define _LANG_CMD_QUESTS_OFFERED "\n%^BOLD%^[" + (i + 1) + "]%^RESET%^ " + \
-      creature->query_cap_name() + " offers: " + quest->query_title() + ".\n" + \
-      quest->query_description()
 #define _LANG_CMD_QUESTS_INFO "%^BOLD%^" + quest->query_title() + "%^RESET%^\n" + \
       quest->query_description()
-#define _LANG_CMD_QUESTS_NO_SUCH "You are not doing that quest.\n"
-#define _LANG_CMD_QUESTS_NOTHING_OFFERED "Nobody here is offering you a quest.\n"
-#define _LANG_CMD_QUESTS_WHICH_OFFER "Which of the ones you are offered?\n"
-#define _LANG_CMD_QUESTS_NOTHING_TO_HAND_IN "There is nothing to deliver here.\n"
-#define _LANG_CMD_QUESTS_WHICH_HAND_IN "Which of the ones you can deliver?\n"
+
+#define _LANG_CMD_QUESTS_NO_SUCH "There is no quest with that number.\n"
+#define _LANG_CMD_QUESTS_NOT_AN_OFFER "That is not one of the quests offered here.\n"
+#define _LANG_CMD_QUESTS_NOT_YOURS "That is not one of your quests.\n"
+#define _LANG_CMD_QUESTS_CANNOT_HAND_IN "That quest cannot be delivered here.\n"
+#define _LANG_CMD_QUESTS_WHICH "Which one? Say it by its number.\n"
 
 #define _LANG_CMD_QUESTS_INFO_OPTIONS ({ "info" })
 #define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "accept" })

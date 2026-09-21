@@ -593,36 +593,42 @@
 
 #define _LANG_CMD_QUESTS_ALIAS ({ "misiones", "mision", "misión" })
 #define _LANG_CMD_QUESTS_SYNTAX "misiones [info|aceptar|entregar|abandonar] [<número>]"
-#define _LANG_CMD_QUESTS_HELP "Muestra las misiones que has aceptado y en qué punto " + \
-      "estás de cada una. Junto a quien reparte misiones, también dice qué te ofrecen " + \
-      "y qué puedes entregar.\n" + \
-      "  misiones               lo que llevas entre manos, y lo que hay aquí\n" + \
-      "  misiones info <n>      todo el detalle de una de tus misiones\n" + \
-      "  misiones aceptar <n>   aceptas una de las que te ofrecen aquí\n" + \
-      "  misiones entregar <n>  das por terminada una aquí mismo\n" + \
-      "  misiones abandonar <n> la dejas, y pierdes lo avanzado\n" + \
-      "El número es el que aparece en la lista de la que hablas: las tuyas para " + \
-      "info y abandonar, las de aquí para aceptar y entregar. Con una sola, el " + \
-      "número sobra."
+#define _LANG_CMD_QUESTS_HELP "Muestra lo que te ofrecen quienes están contigo y las " + \
+      "misiones que llevas entre manos, con un número para cada una.\n" + \
+      "  misiones                ofertas de aquí y misiones tuyas, numeradas\n" + \
+      "  misiones info <n>       todo el detalle de la número n\n" + \
+      "  misiones aceptar <n>    aceptas una de las que te ofrecen\n" + \
+      "  misiones entregar <n>   entregas una de las tuyas a quien la espera aquí\n" + \
+      "  misiones abandonar <n>  dejas una de las tuyas, y pierdes lo avanzado\n" + \
+      "Los números son los del listado de ese momento, y valen para todo. " + \
+      "Para aceptar o entregar, si sólo hay una que encaje, el número sobra."
 
 #define _LANG_CMD_QUESTS_TITLE "Misiones"
 #define _LANG_CMD_QUESTS_NONE "No llevas ninguna misión entre manos.\n"
+#define _LANG_CMD_QUESTS_OFFERS_FROM creature->query_cap_name() + " te ofrece:\n"
 #define _LANG_CMD_QUESTS_YOURS "Tus misiones:\n"
-#define _LANG_CMD_QUESTS_LINE "  [%^BOLD%^" + (i + 1) + "%^RESET%^] " + quest->query_title() + "\n"
-#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "      " + objectives[j][OBJ_TEXT] + " (" + \
+#define _LANG_CMD_QUESTS_ENTRY "  [%^BOLD%^" + index + "%^RESET%^] " + quest->query_title()
+#define _LANG_CMD_QUESTS_PROGRESS_ONE " (" + done + " de " + needed + ")"
+#define _LANG_CMD_QUESTS_PROGRESS_MANY " (" + met + " de " + total + " objetivos)"
+#define _LANG_CMD_QUESTS_FINISHED " (%^BOLD%^RED%^terminada%^RESET%^)"
+#define _LANG_CMD_QUESTS_HAND_IN_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
+      "entrégasela a " + creature->query_cap_name()
+
+#define _LANG_CMD_QUESTS_HINT_INFO "Escribe 'misiones info <número>' para ver más de una"
+#define _LANG_CMD_QUESTS_HINT_ACCEPT "        'misiones aceptar <número>' para aceptarla"
+#define _LANG_CMD_QUESTS_HINT_HAND_IN "        'misiones entregar <número>' para entregarla"
+#define _LANG_CMD_QUESTS_HINT_ABANDON "        'misiones abandonar <número>' para dejarla"
+
+#define _LANG_CMD_QUESTS_OBJECTIVE_LINE "  " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " de " + objectives[j][OBJ_COUNT] + ")\n"
-#define _LANG_CMD_QUESTS_CAN_HAND_IN "\n%^BOLD%^[" + (i + 1) + "]%^RESET%^ " + \
-      creature->query_cap_name() + " espera que le entregues " + quest->query_title() + ".\n"
-#define _LANG_CMD_QUESTS_OFFERED "\n%^BOLD%^[" + (i + 1) + "]%^RESET%^ " + \
-      creature->query_cap_name() + " ofrece: " + quest->query_title() + ".\n" + \
-      quest->query_description()
 #define _LANG_CMD_QUESTS_INFO "%^BOLD%^" + quest->query_title() + "%^RESET%^\n" + \
       quest->query_description()
-#define _LANG_CMD_QUESTS_NO_SUCH "No llevas esa misión.\n"
-#define _LANG_CMD_QUESTS_NOTHING_OFFERED "Aquí no te ofrecen ninguna misión.\n"
-#define _LANG_CMD_QUESTS_WHICH_OFFER "¿Cuál de los que te ofrecen?\n"
-#define _LANG_CMD_QUESTS_NOTHING_TO_HAND_IN "Aquí no puedes entregar nada.\n"
-#define _LANG_CMD_QUESTS_WHICH_HAND_IN "¿Cuál de los que puedes entregar?\n"
+
+#define _LANG_CMD_QUESTS_NO_SUCH "No hay ninguna misión con ese número.\n"
+#define _LANG_CMD_QUESTS_NOT_AN_OFFER "Esa no es una de las que te ofrecen aquí.\n"
+#define _LANG_CMD_QUESTS_NOT_YOURS "Esa no es una de tus misiones.\n"
+#define _LANG_CMD_QUESTS_CANNOT_HAND_IN "Esa misión no se puede entregar aquí.\n"
+#define _LANG_CMD_QUESTS_WHICH "¿Cuál? Dilo con su número.\n"
 
 #define _LANG_CMD_QUESTS_INFO_OPTIONS ({ "info" })
 #define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "aceptar" })
