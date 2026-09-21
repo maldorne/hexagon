@@ -166,6 +166,17 @@ void abandon_quest(string game, string id)
   save_quests();
 }
 
+// Wipe a quest from both lists, as if it had never been taken.
+void forget_quest(string game, string id)
+{
+  game_data(game);
+
+  quest_data[game][QUESTS_ACTIVE] = map_delete(quest_data[game][QUESTS_ACTIVE], id);
+  quest_data[game][QUESTS_DONE] = map_delete(quest_data[game][QUESTS_DONE], id);
+
+  save_quests();
+}
+
 int * query_progress(string game, string id)
 {
   mapping quest;
