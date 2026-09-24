@@ -15,8 +15,13 @@ void setup()
   set_title(_LANG_QUEST_NEWS_TITLE);
   set_description(_LANG_QUEST_NEWS_DESC);
 
+  set_chain("demo-fantasy:the-climb", 2);
+
   // he is the one to be found, and the one it is handed in to
   set_hand_in("areas/road/npcs/old-man");
+
+  // what he says as he takes the news, and teaches what he pays with
+  set_complete_message(_LANG_QUEST_NEWS_COMPLETE);
 
   add_needs_quest("demo-fantasy:wasps-ruin-the-hunt");
 

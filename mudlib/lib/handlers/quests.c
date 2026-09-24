@@ -77,6 +77,85 @@ object query_quest(string id)
   return quest;
 }
 
+/*
+ * The quests of a chain, ordered by the step each one declares. Read from the
+ * quests themselves, so a chain is never written down anywhere: adding a step is
+ * declaring it in the quest, and nothing in a player's savefile knows about it.
+ */
+string * query_chain_steps(string chain)
+{
+  string * ids, * out;
+  object quest;
+  int * steps;
+  int i, j, k;
+
+  ids = query_quest_ids();
+  out = ({ });
+  steps = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    quest = query_quest(ids[i]);
+
+    if (!quest || quest->query_chain() != chain)
+      continue;
+
+    // by the step it declares, lowest first
+    k = sizeof(out);
+    for (j = 0; j < sizeof(out); j++)
+      if (quest->query_chain_step() < steps[j])
+      {
+        k = j;
+        break;
+      }
+
+    out = out[0 .. k - 1] + ({ ids[i] }) + out[k ..];
+    steps = steps[0 .. k - 1] + ({ quest->query_chain_step() }) + steps[k ..];
+  }
+
+  return out;
+}
+
+// The name of a chain, and what it is all for: whatever its first step that
+// declares them says. Empty for a chain whose steps declare nothing.
+string query_chain_title(string chain)
+{
+  string * ids;
+  object quest;
+  int i;
+
+  ids = query_chain_steps(chain);
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    quest = query_quest(ids[i]);
+
+    if (quest && strlen(quest->query_chain_title()))
+      return quest->query_chain_title();
+  }
+
+  return "";
+}
+
+string query_chain_description(string chain)
+{
+  string * ids;
+  object quest;
+  int i;
+
+  ids = query_chain_steps(chain);
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    quest = query_quest(ids[i]);
+
+    if (quest && strlen(quest->query_chain_description()))
+      return quest->query_chain_description();
+  }
+
+  return "";
+}
+
 // Which game a player's quests belong to. Taken from the player, so the same
 // character keeps separate progress per game.
 private string game_of(object who)
@@ -249,6 +328,11 @@ int accept(object who, string id, varargs string source)
 
   tell_object(who, _LANG_QUEST_ACCEPTED);
 
+  // what the giver says as it hands the work over, when it says anything
+  if (strlen(quest->query_accept_message()))
+    tell_object(who, "\n" + wrap(quest->query_accept_message(),
+                                 this_user()->query_cols()));
+
   return QUEST_OK;
 }
 
@@ -343,6 +427,11 @@ int hand_in(object who, string id)
   rewards = quest->query_rewards();
 
   who->finish_quest(game_of(who), id);
+
+  // what the taker says as it takes the quest back, before whatever it pays
+  if (strlen(quest->query_complete_message()))
+    tell_object(who, "\n" + wrap(quest->query_complete_message(),
+                                 this_user()->query_cols()));
 
   for (i = 0; i < sizeof(rewards); i++)
     pay_reward(who, rewards[i]);

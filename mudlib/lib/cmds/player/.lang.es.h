@@ -592,10 +592,11 @@
 // quests
 
 #define _LANG_CMD_QUESTS_ALIAS ({ "misiones", "mision", "misión" })
-#define _LANG_CMD_QUESTS_SYNTAX "misiones [info|aceptar|entregar|abandonar] [<número>]"
+#define _LANG_CMD_QUESTS_SYNTAX "misiones [terminadas|info|aceptar|entregar|abandonar] [<número>]"
 #define _LANG_CMD_QUESTS_HELP "Muestra lo que te ofrecen quienes están contigo y las " + \
       "misiones que llevas entre manos, con un número para cada una.\n" + \
       "  misiones                ofertas de aquí y misiones tuyas, numeradas\n" + \
+      "  misiones terminadas     las que ya has entregado, por cadenas\n" + \
       "  misiones info <n>       todo el detalle de la número n\n" + \
       "  misiones aceptar <n>    aceptas una de las que te ofrecen\n" + \
       "  misiones entregar <n>   entregas una de las tuyas a quien la espera aquí\n" + \
@@ -614,6 +615,9 @@
 #define _LANG_CMD_QUESTS_HAND_IN_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
       "entrégasela a " + creature->query_cap_name()
 
+#define _LANG_CMD_QUESTS_NEW_OFFERS creature->query_cap_name() + \
+      " tiene nuevas misiones para ti.\n"
+
 #define _LANG_CMD_QUESTS_HINT_LEAD "Escribe "
 #define _LANG_CMD_QUESTS_ANY_NUMBER "<número>"
 #define _LANG_CMD_QUESTS_HINT_INFO "'misiones info " + which + "' para ver más de una"
@@ -629,6 +633,23 @@
 #define _LANG_CMD_QUESTS_NOT_YOURS "Esa no es una de tus misiones.\n"
 #define _LANG_CMD_QUESTS_CANNOT_HAND_IN "Esa misión no se puede entregar aquí.\n"
 #define _LANG_CMD_QUESTS_WHICH "¿Cuál? Dilo con su número.\n"
+
+#define _LANG_CMD_QUESTS_CHAIN_INTRO "Esta misión es parte de la cadena:\n\n"
+#define _LANG_CMD_QUESTS_CHAIN_STEPS_INTRO "Esta cadena está compuesta de las misiones:\n\n"
+#define _LANG_CMD_QUESTS_CHAIN_TITLE "%^BOLD%^" + chain_title + "%^RESET%^\n"
+#define _LANG_CMD_QUESTS_CHAIN_STEP "  " + (j + 1) + ". " + \
+      step_quest->query_title() + " " + mark + "\n"
+#define _LANG_CMD_QUESTS_STEP_DONE "(entregada)"
+#define _LANG_CMD_QUESTS_STEP_HERE "(esta misma)"
+#define _LANG_CMD_QUESTS_STEP_TO_COME "(aún no)"
+
+#define _LANG_CMD_QUESTS_DONE_HEADER "Misiones terminadas"
+#define _LANG_CMD_QUESTS_DONE_NONE "No has entregado ninguna misión todavía.\n"
+#define _LANG_CMD_QUESTS_DONE_ENTRY "  [%^BOLD%^" + index + "%^RESET%^] " + \
+      quest->query_title() + \
+      (done[id][QUEST_TIMES] > 1 ? " (" + done[id][QUEST_TIMES] + " veces)" : "") + \
+      ", " + ctime(done[id][QUEST_LAST], 4) + "\n"
+#define _LANG_CMD_QUESTS_DONE_OPTIONS ({ "terminadas", "hechas" })
 
 #define _LANG_CMD_QUESTS_INFO_OPTIONS ({ "info" })
 #define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "aceptar" })

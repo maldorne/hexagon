@@ -40,10 +40,21 @@ private string description;
 private string hand_in;
 // where it is handed in, when it is a place rather than somebody
 private string hand_in_place;
+// what the giver says when the quest is taken
+private string accept_message;
+// what the taker says when the quest is handed in, beyond the rewards
+private string complete_message;
 private mapping * objectives;
 private mapping * rewards;
 // ids of quests that have to be handed in before this one is offered
 private string * needs_quests;
+// the chain this quest is a step of, and which step it is. The first step is
+// also where the chain's own name and text are declared, so a chain needs no
+// file of its own.
+private string chain;
+private int chain_step;
+private string chain_title;
+private string chain_description;
 private int needs_level;
 private int repeatable;
 
@@ -54,10 +65,16 @@ void create()
   description = "";
   hand_in = "";
   hand_in_place = "";
+  accept_message = "";
+  complete_message = "";
   objectives = ({ });
   rewards = ({ });
   needs_quests = ({ });
   needs_level = 0;
+  chain = "";
+  chain_step = 0;
+  chain_title = "";
+  chain_description = "";
   repeatable = 0;
 
   // /lib/core/object's create() is what calls setup()
@@ -79,11 +96,29 @@ string query_hand_in() { return hand_in; }
 void set_hand_in_place(string str) { hand_in_place = str; }
 string query_hand_in_place() { return hand_in_place; }
 
+void set_accept_message(string str) { accept_message = str; }
+string query_accept_message() { return accept_message; }
+
+void set_complete_message(string str) { complete_message = str; }
+string query_complete_message() { return complete_message; }
+
 void set_needs_level(int i) { needs_level = i; }
 int query_needs_level() { return needs_level; }
 
 void set_repeatable(int i) { repeatable = i; }
 int query_repeatable() { return repeatable; }
+
+// Which chain this quest belongs to, and its place in it, counting from one.
+void set_chain(string chain_id, int step) { chain = chain_id; chain_step = step; }
+string query_chain() { return chain; }
+int query_chain_step() { return chain_step; }
+
+// The chain's own name and what it is all for, declared by its first step.
+void set_chain_title(string str) { chain_title = str; }
+string query_chain_title() { return chain_title; }
+
+void set_chain_description(string str) { chain_description = str; }
+string query_chain_description() { return chain_description; }
 
 void add_needs_quest(string quest_id) { needs_quests += ({ quest_id }); }
 string * query_needs_quests() { return needs_quests; }

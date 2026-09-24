@@ -591,10 +591,11 @@
 // quests
 
 #define _LANG_CMD_QUESTS_ALIAS ({ "quests", "quest" })
-#define _LANG_CMD_QUESTS_SYNTAX "quests [info|accept|deliver|abandon] [<number>]"
+#define _LANG_CMD_QUESTS_SYNTAX "quests [done|info|accept|deliver|abandon] [<number>]"
 #define _LANG_CMD_QUESTS_HELP "Shows what whoever is with you offers and the quests you " + \
       "have in hand, with a number for each.\n" + \
       "  quests                offers here and your quests, numbered\n" + \
+      "  quests done           the ones you have handed in, by chain\n" + \
       "  quests info <n>       the full detail of number n\n" + \
       "  quests accept <n>     you take one of the ones offered\n" + \
       "  quests deliver <n>    you hand one of yours to whoever awaits it here\n" + \
@@ -613,6 +614,9 @@
 #define _LANG_CMD_QUESTS_HAND_IN_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
       "deliver it to " + creature->query_cap_name()
 
+#define _LANG_CMD_QUESTS_NEW_OFFERS creature->query_cap_name() + \
+      " has new quests for you.\n"
+
 #define _LANG_CMD_QUESTS_HINT_LEAD "Type "
 #define _LANG_CMD_QUESTS_ANY_NUMBER "<number>"
 #define _LANG_CMD_QUESTS_HINT_INFO "'quests info " + which + "' to see more of one"
@@ -628,6 +632,23 @@
 #define _LANG_CMD_QUESTS_NOT_YOURS "That is not one of your quests.\n"
 #define _LANG_CMD_QUESTS_CANNOT_HAND_IN "That quest cannot be delivered here.\n"
 #define _LANG_CMD_QUESTS_WHICH "Which one? Say it by its number.\n"
+
+#define _LANG_CMD_QUESTS_CHAIN_INTRO "This quest is part of the chain:\n\n"
+#define _LANG_CMD_QUESTS_CHAIN_STEPS_INTRO "This chain is made up of the quests:\n\n"
+#define _LANG_CMD_QUESTS_CHAIN_TITLE "%^BOLD%^" + chain_title + "%^RESET%^\n"
+#define _LANG_CMD_QUESTS_CHAIN_STEP "  " + (j + 1) + ". " + \
+      step_quest->query_title() + " " + mark + "\n"
+#define _LANG_CMD_QUESTS_STEP_DONE "(handed in)"
+#define _LANG_CMD_QUESTS_STEP_HERE "(this one)"
+#define _LANG_CMD_QUESTS_STEP_TO_COME "(not yet)"
+
+#define _LANG_CMD_QUESTS_DONE_HEADER "Quests finished"
+#define _LANG_CMD_QUESTS_DONE_NONE "You have not handed in any quest yet.\n"
+#define _LANG_CMD_QUESTS_DONE_ENTRY "  [%^BOLD%^" + index + "%^RESET%^] " + \
+      quest->query_title() + \
+      (done[id][QUEST_TIMES] > 1 ? " (" + done[id][QUEST_TIMES] + " times)" : "") + \
+      ", " + ctime(done[id][QUEST_LAST], 4) + "\n"
+#define _LANG_CMD_QUESTS_DONE_OPTIONS ({ "done", "finished" })
 
 #define _LANG_CMD_QUESTS_INFO_OPTIONS ({ "info" })
 #define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "accept" })

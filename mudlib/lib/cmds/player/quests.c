@@ -10,6 +10,7 @@
 
 #include <mud/cmd.h>
 #include <living/quests.h>
+#include <user/quests.h>
 #include <language.h>
 
 inherit CMD_BASE;
@@ -21,6 +22,7 @@ inherit CMD_BASE;
 
 #define ENTRY_OFFER 1
 #define ENTRY_MINE  2
+#define ENTRY_DONE  3
 
 void setup()
 {
@@ -69,6 +71,23 @@ private object taker_here(object me, string id, object * givers)
   return nil;
 }
 
+// How many quests each of these creatures would offer right now. Handing one in
+// can open the next of a chain, and that is how the difference is noticed.
+private int * offer_counts(object me, object * givers)
+{
+  object quests;
+  int * out;
+  int i;
+
+  quests = handler(QUESTS_HANDLER, me);
+  out = allocate_int(sizeof(givers));
+
+  for (i = 0; i < sizeof(givers); i++)
+    out[i] = sizeof(quests->giver_of(givers[i])->quests_for(me));
+
+  return out;
+}
+
 /*
  * Everything the listing numbers, in the order it shows it: first what the
  * givers here offer, grouped by giver, then the quests being done. The numbers
@@ -77,10 +96,11 @@ private object taker_here(object me, string id, object * givers)
  */
 private mixed * entries(object me)
 {
-  object quests;
+  object quests, quest;
   object * givers;
   mixed * out;
-  string * ids;
+  string * ids, * chains, * steps;
+  string chain;
   int i, j;
 
   out = ({ });
@@ -99,6 +119,36 @@ private mixed * entries(object me)
 
   for (i = 0; i < sizeof(ids); i++)
     out += ({ ({ ENTRY_MINE, ids[i], taker_here(me, ids[i], givers) }) });
+
+  // handed in: not in the listing of what is going on, but numbered all the
+  // same, so 'misiones hechas' and 'misiones info' agree on the numbers. In the
+  // order they are shown there: the loose ones, then each chain by its steps.
+  ids = map_indices(me->query_done_quests(game_name(me)));
+  chains = ({ });
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    quest = quests->query_quest(ids[i]);
+    chain = quest ? quest->query_chain() : "";
+
+    if (strlen(chain))
+    {
+      if (member_array(chain, chains) == -1)
+        chains += ({ chain });
+      continue;
+    }
+
+    out += ({ ({ ENTRY_DONE, ids[i], nil }) });
+  }
+
+  for (i = 0; i < sizeof(chains); i++)
+  {
+    steps = quests->query_chain_steps(chains[i]);
+
+    for (j = 0; j < sizeof(steps); j++)
+      if (member_array(steps[j], ids) != -1)
+        out += ({ ({ ENTRY_DONE, steps[j], nil }) });
+  }
 
   return out;
 }
@@ -169,6 +219,9 @@ private int list_quests(object me)
     creature = lines[index - 1][ENTRY_CREATURE];
 
     if (!quest)
+      continue;
+
+    if (lines[index - 1][ENTRY_KIND] == ENTRY_DONE)
       continue;
 
     if (lines[index - 1][ENTRY_KIND] == ENTRY_OFFER)
@@ -262,6 +315,145 @@ private int only_index_of(object me, int kind, int takeable_here)
   return found;
 }
 
+/*
+ * The chain a quest is a step of: what the whole thing is for, and every step in
+ * order, saying which are handed in, which is this one and which are still to
+ * come. Empty for a quest that stands alone.
+ */
+private string chain_block(object me, object quest)
+{
+  object quests, step_quest;
+  string * ids;
+  string chain, chain_title, chain_description, text, mark;
+  int j;
+
+  chain = quest->query_chain();
+
+  if (!strlen(chain))
+    return "";
+
+  quests = handler(QUESTS_HANDLER, me);
+  chain_title = quests->query_chain_title(chain);
+  chain_description = quests->query_chain_description(chain);
+  ids = quests->query_chain_steps(chain);
+
+  text = "\n" + _LANG_CMD_QUESTS_CHAIN_INTRO + _LANG_CMD_QUESTS_CHAIN_TITLE;
+
+  if (strlen(chain_description))
+    text += chain_description;
+
+  text += "\n" + _LANG_CMD_QUESTS_CHAIN_STEPS_INTRO;
+
+  for (j = 0; j < sizeof(ids); j++)
+  {
+    step_quest = quests->query_quest(ids[j]);
+
+    if (!step_quest)
+      continue;
+
+    if (me->has_done_quest(game_name(me), ids[j]))
+      mark = _LANG_CMD_QUESTS_STEP_DONE;
+    else if (ids[j] == quest->query_id())
+      mark = _LANG_CMD_QUESTS_STEP_HERE;
+    else
+      mark = _LANG_CMD_QUESTS_STEP_TO_COME;
+
+    text += _LANG_CMD_QUESTS_CHAIN_STEP;
+  }
+
+  return text;
+}
+
+// The number a handed-in quest carries in the shared listing, or zero.
+private int only_index_of_id(mixed * lines, string id)
+{
+  int i;
+
+  for (i = 0; i < sizeof(lines); i++)
+    if (lines[i][ENTRY_KIND] == ENTRY_DONE && lines[i][ENTRY_ID] == id)
+      return i + 1;
+
+  return 0;
+}
+
+// The quests already handed in, the ones in a chain grouped under its name, with
+// the numbers of the shared listing so 'misiones info' takes them too.
+private int list_done(object me)
+{
+  object quests, quest;
+  mapping done;
+  mixed * lines;
+  string * chains, * steps;
+  string text, chain, chain_title, id;
+  int index, j, k, shown;
+
+  quests = handler(QUESTS_HANDLER, me);
+  done = me->query_done_quests(game_name(me));
+  lines = entries(me);
+  text = "";
+  chains = ({ });
+  shown = 0;
+
+  // loose quests first, and the chains each under its own name below
+  for (index = 1; index <= sizeof(lines); index++)
+  {
+    if (lines[index - 1][ENTRY_KIND] != ENTRY_DONE)
+      continue;
+
+    id = lines[index - 1][ENTRY_ID];
+    quest = quests->query_quest(id);
+
+    if (!quest)
+      continue;
+
+    chain = quest->query_chain();
+
+    if (strlen(chain))
+    {
+      if (member_array(chain, chains) == -1)
+        chains += ({ chain });
+      continue;
+    }
+
+    text += _LANG_CMD_QUESTS_DONE_ENTRY;
+    shown++;
+  }
+
+  for (j = 0; j < sizeof(chains); j++)
+  {
+    chain = chains[j];
+    chain_title = quests->query_chain_title(chain);
+    text += (strlen(text) ? "\n" : "") + _LANG_CMD_QUESTS_CHAIN_TITLE;
+
+    // in the order the chain declares, not the order the savefile keeps them
+    steps = quests->query_chain_steps(chain);
+
+    for (k = 0; k < sizeof(steps); k++)
+    {
+      index = only_index_of_id(lines, steps[k]);
+
+      if (!index)
+        continue;
+
+      id = steps[k];
+      quest = quests->query_quest(id);
+
+      if (!quest)
+        continue;
+
+      text += _LANG_CMD_QUESTS_DONE_ENTRY;
+      shown++;
+    }
+  }
+
+  if (!shown)
+    text = _LANG_CMD_QUESTS_DONE_NONE;
+
+  tell_object(me, handler("frames")->frame(text, _LANG_CMD_QUESTS_DONE_HEADER,
+                                           this_user()->query_cols()));
+  return 1;
+}
+
 private int show_info(object me, int index)
 {
   object quests, quest;
@@ -295,9 +487,11 @@ private int show_info(object me, int index)
 
   which = "" + index;
 
+  hints = ({ });
+
   if (line[ENTRY_KIND] == ENTRY_OFFER)
     hints = ({ _LANG_CMD_QUESTS_HINT_ACCEPT });
-  else
+  else if (line[ENTRY_KIND] == ENTRY_MINE)
   {
     // one line per objective, with the count, for a quest being done
     objectives = quest->query_objectives();
@@ -309,13 +503,15 @@ private int show_info(object me, int index)
     for (j = 0; j < sizeof(objectives); j++)
       text += _LANG_CMD_QUESTS_OBJECTIVE_LINE;
 
-    hints = ({ });
     if (line[ENTRY_CREATURE])
       hints += ({ _LANG_CMD_QUESTS_HINT_HAND_IN });
     hints += ({ _LANG_CMD_QUESTS_HINT_ABANDON });
   }
 
-  text += "\n" + hints_text(hints);
+  text += chain_block(me, quest);
+
+  if (sizeof(hints))
+    text += "\n" + hints_text(hints);
 
   tell_object(me, handler("frames")->frame(text, quest->query_title(),
                                            this_user()->query_cols()));
@@ -345,6 +541,10 @@ private int accept_quest(object me, int index)
 private int hand_in_quest(object me, int index)
 {
   mixed * line;
+  object * givers;
+  object creature;
+  int * before, * after;
+  int i;
 
   if (!index)
     index = only_index_of(me, ENTRY_MINE, 1);
@@ -357,7 +557,21 @@ private int hand_in_quest(object me, int index)
     return 0;
   }
 
+  // whoever is here may have had nothing to offer until this was handed in
+  givers = givers_here(me);
+  before = offer_counts(me, givers);
+
   handler(QUESTS_HANDLER, me)->hand_in(me, line[ENTRY_ID]);
+
+  after = offer_counts(me, givers);
+
+  for (i = 0; i < sizeof(givers); i++)
+    if (after[i] > before[i])
+    {
+      creature = givers[i];
+      tell_object(me, _LANG_CMD_QUESTS_NEW_OFFERS);
+    }
+
   return 1;
 }
 
@@ -392,6 +606,9 @@ static int cmd(string str, object me, string verb)
 
   index = 0;
   sscanf(rest, "%d", index);
+
+  if (member_array(option, _LANG_CMD_QUESTS_DONE_OPTIONS) != -1)
+    return list_done(me);
 
   if (member_array(option, _LANG_CMD_QUESTS_INFO_OPTIONS) != -1)
     return show_info(me, index);

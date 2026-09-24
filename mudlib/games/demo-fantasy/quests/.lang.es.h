@@ -7,6 +7,13 @@
       "tres de esos enjambres y vuelve a contarlo.\n"
 #define _LANG_QUEST_WASPS_OBJECTIVE "Acabar con tres enjambres de avispas del bosque"
 
+// the-climb chain, declared by its first step
+
+#define _LANG_CHAIN_CLIMB_TITLE "Trepar el gran Mallorn"
+#define _LANG_CHAIN_CLIMB_DESC "Nadie sale de esta región sin subir a lo alto " + \
+      "de un Mallorn, y eso no se aprende solo. Hay que ganarse a quien todavía " + \
+      "sabe hacerlo.\n"
+
 // news-for-the-old-man
 
 #define _LANG_QUEST_NEWS_TITLE "Buenas noticias para el viejo"
@@ -14,3 +21,11 @@
       "y se quedó preocupado: la caza era su vida antes de que le fallaran las piernas. " + \
       "Ya no baja al pueblo, así que anda por el camino que bordea el bosque. Ve a " + \
       "buscarle y dale la buena noticia.\n"
+
+#define _LANG_QUEST_NEWS_COMPLETE "El viejo escucha la noticia con los ojos " + \
+      "encendidos y te dice: veo que sabes apreciar las buenas sensaciones.\n\n" + \
+      "Cojea hasta las lindes del bosque apoyado en ti y allí, durante horas, te " + \
+      "va enseñando dónde agarrarse, dónde no, y cómo se lee un tronco antes de " + \
+      "subirlo. Al caer la tarde consigues encaramarte a un árbol pequeño.\n\n" + \
+      "El viejo te dice: si quieres probar de verdad lo que has aprendido, busca " + \
+      "el gran Mallorn, al norte de la región. ¡Buena suerte!\n"
