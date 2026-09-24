@@ -14,4 +14,6 @@ void create()
   // sends them after the wasps, and the old man they report to teaches them
   add_quest(QUESTS + "wasps-ruin-the-hunt.c");
   add_quest(QUESTS + "news-for-the-old-man.c");
+  add_quest(QUESTS + "the-rangers-rope.c");
+  add_quest(QUESTS + "climb-the-mallorn.c");
 }

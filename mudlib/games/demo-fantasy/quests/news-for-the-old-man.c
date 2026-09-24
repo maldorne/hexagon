@@ -1,10 +1,10 @@
 // The old ranger asked to be told how the hunt was going, and he is somewhere
 // out on the road by the forest. The errand is to find him, so the quest has no
-// objectives: reaching him is all there is, and it is handed in to him. He
-// repays the news by teaching what he knows best.
+// objectives: reaching him is all there is, and it is handed in to him. The news
+// is what earns his trust, and he then asks for the one thing he cannot do
+// himself.
 
 #include <living/quests.h>
-#include <living/skills.h>
 #include <language.h>
 
 inherit QUEST_BASE;
@@ -25,6 +25,5 @@ void setup()
 
   add_needs_quest("demo-fantasy:wasps-ruin-the-hunt");
 
-  add_reward(REWARD_SKILL, SKILL_CLIMB);
-  add_reward(REWARD_XP, 500);
+  add_reward(REWARD_XP, 300);
 }

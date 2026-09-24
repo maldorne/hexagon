@@ -23,9 +23,35 @@
       "buscarle y dale la buena noticia.\n"
 
 #define _LANG_QUEST_NEWS_COMPLETE "El viejo escucha la noticia con los ojos " + \
-      "encendidos y te dice: veo que sabes apreciar las buenas sensaciones.\n\n" + \
-      "Cojea hasta las lindes del bosque apoyado en ti y allí, durante horas, te " + \
-      "va enseñando dónde agarrarse, dónde no, y cómo se lee un tronco antes de " + \
+      "encendidos y te dice: veo que sabes apreciar las buenas sensaciones. Hace " + \
+      "años que nadie me traía nada que mereciera la pena oír.\n\n" + \
+      "Se queda callado un rato, mirando la linde del bosque, y añade: hay algo " + \
+      "que llevo esperando más tiempo del que me queda. Si te atreves, te lo " + \
+      "cuento.\n"
+
+// the-rangers-rope
+
+#define _LANG_QUEST_ROPE_TITLE "La cuerda del montaraz"
+#define _LANG_QUEST_ROPE_DESC "Cuando aún subía a los árboles, al viejo lo echó del " + \
+      "bosque una araña enorme, y con las prisas dejó allí su cuerda de escalada. " + \
+      "Sigue colgada en el nido, entre las telarañas, y él no ha vuelto a pisar esa " + \
+      "parte del bosque. Acaba con la araña reina y vuelve a contárselo.\n"
+#define _LANG_QUEST_ROPE_OBJECTIVE "Acabar con la araña reina del nido del bosque"
+
+#define _LANG_QUEST_ROPE_COMPLETE "El viejo escucha el final de la historia con las " + \
+      "manos quietas por primera vez y te dice: esa cuerda ya no me sirve de nada, " + \
+      "y lo que sé tampoco, si se va conmigo. Tú has entrado donde yo no me atrevo, " + \
+      "así que te lo enseño.\n\n" + \
+      "Cojea hasta las lindes del bosque apoyado en ti y allí, durante horas, te va " + \
+      "enseñando dónde agarrarse, dónde no, y cómo se lee un tronco antes de " + \
       "subirlo. Al caer la tarde consigues encaramarte a un árbol pequeño.\n\n" + \
-      "El viejo te dice: si quieres probar de verdad lo que has aprendido, busca " + \
-      "el gran Mallorn, al norte de la región. ¡Buena suerte!\n"
+      "El viejo te dice: ya sabes lo suficiente. Lo que falta sólo se aprende " + \
+      "arriba.\n"
+
+// climb-the-mallorn
+
+#define _LANG_QUEST_MALLORN_TITLE "Trepar el Mallorn"
+#define _LANG_QUEST_MALLORN_DESC "El viejo te ha señalado el norte de la región: en " + \
+      "una colina pelada, en medio del bosque y junto a un pequeño río, queda un " + \
+      "Mallorn viejo. Dice que desde arriba se ve lo que hay más allá de esta " + \
+      "región, y que quien llega a verlo ya no se queda. Sube a él.\n"
