@@ -65,7 +65,7 @@ private object taker_here(object me, string id, object * givers)
   quests = handler(QUESTS_HANDLER, me);
 
   for (i = 0; i < sizeof(givers); i++)
-    if (member_array(id, quests->giver_of(givers[i])->quests_to_hand_in(me)) != -1)
+    if (member_array(id, quests->giver_of(givers[i])->quests_to_complete(me)) != -1)
       return givers[i];
 
   return nil;
@@ -120,10 +120,10 @@ private mixed * entries(object me)
   for (i = 0; i < sizeof(ids); i++)
     out += ({ ({ ENTRY_MINE, ids[i], taker_here(me, ids[i], givers) }) });
 
-  // handed in: not in the listing of what is going on, but numbered all the
+  // completed: not in the listing of what is going on, but numbered all the
   // same, so 'misiones hechas' and 'misiones info' agree on the numbers. In the
   // order they are shown there: the loose ones, then each chain by its steps.
-  ids = map_indices(me->query_done_quests(game_name(me)));
+  ids = map_indices(me->query_completed_quests(game_name(me)));
   chains = ({ });
 
   for (i = 0; i < sizeof(ids); i++)
@@ -168,7 +168,7 @@ private string progress_note(object me, object quest, string id)
   if (!total)
     return "";
 
-  if (handler(QUESTS_HANDLER, me)->is_complete(me, id))
+  if (handler(QUESTS_HANDLER, me)->objectives_met(me, id))
     return _LANG_CMD_QUESTS_FINISHED;
 
   progress = me->query_progress(game_name(me), id);
@@ -247,7 +247,7 @@ private int list_quests(object me)
     // who standing here takes it back
     if (creature)
     {
-      text += _LANG_CMD_QUESTS_HAND_IN_HERE;
+      text += _LANG_CMD_QUESTS_COMPLETE_HERE;
       ready++;
     }
 
@@ -266,7 +266,7 @@ private int list_quests(object me)
     if (offers)
       hints += ({ _LANG_CMD_QUESTS_HINT_ACCEPT });
     if (ready)
-      hints += ({ _LANG_CMD_QUESTS_HINT_HAND_IN });
+      hints += ({ _LANG_CMD_QUESTS_HINT_COMPLETE });
     if (mine)
       hints += ({ _LANG_CMD_QUESTS_HINT_ABANDON });
 
@@ -317,7 +317,7 @@ private int only_index_of(object me, int kind, int takeable_here)
 
 /*
  * The chain a quest is a step of: what the whole thing is for, and every step in
- * order, saying which are handed in, which is this one and which are still to
+ * order, saying which are completed, which is this one and which are still to
  * come. Empty for a quest that stands alone.
  */
 private string chain_block(object me, object quest)
@@ -351,7 +351,7 @@ private string chain_block(object me, object quest)
     if (!step_quest)
       continue;
 
-    if (me->has_done_quest(game_name(me), ids[j]))
+    if (me->has_completed_quest(game_name(me), ids[j]))
       mark = _LANG_CMD_QUESTS_STEP_DONE;
     else if (ids[j] == quest->query_id())
       mark = _LANG_CMD_QUESTS_STEP_HERE;
@@ -364,7 +364,7 @@ private string chain_block(object me, object quest)
   return text;
 }
 
-// The number a handed-in quest carries in the shared listing, or zero.
+// The number a completed quest carries in the shared listing, or zero.
 private int only_index_of_id(mixed * lines, string id)
 {
   int i;
@@ -376,7 +376,7 @@ private int only_index_of_id(mixed * lines, string id)
   return 0;
 }
 
-// The quests already handed in, the ones in a chain grouped under its name, with
+// The quests already completed, the ones in a chain grouped under its name, with
 // the numbers of the shared listing so 'misiones info' takes them too.
 private int list_done(object me)
 {
@@ -388,7 +388,7 @@ private int list_done(object me)
   int index, j, k, shown;
 
   quests = handler(QUESTS_HANDLER, me);
-  done = me->query_done_quests(game_name(me));
+  done = me->query_completed_quests(game_name(me));
   lines = entries(me);
   text = "";
   chains = ({ });
@@ -504,7 +504,7 @@ private int show_info(object me, int index)
       text += _LANG_CMD_QUESTS_OBJECTIVE_LINE;
 
     if (line[ENTRY_CREATURE])
-      hints += ({ _LANG_CMD_QUESTS_HINT_HAND_IN });
+      hints += ({ _LANG_CMD_QUESTS_HINT_COMPLETE });
     hints += ({ _LANG_CMD_QUESTS_HINT_ABANDON });
   }
 
@@ -538,7 +538,7 @@ private int accept_quest(object me, int index)
   return 1;
 }
 
-private int hand_in_quest(object me, int index)
+private int complete_quest(object me, int index)
 {
   mixed * line;
   object * givers;
@@ -553,15 +553,15 @@ private int hand_in_quest(object me, int index)
 
   if (!line || line[ENTRY_KIND] != ENTRY_MINE || !line[ENTRY_CREATURE])
   {
-    notify_fail(index ? _LANG_CMD_QUESTS_CANNOT_HAND_IN : _LANG_CMD_QUESTS_WHICH);
+    notify_fail(index ? _LANG_CMD_QUESTS_CANNOT_COMPLETE : _LANG_CMD_QUESTS_WHICH);
     return 0;
   }
 
-  // whoever is here may have had nothing to offer until this was handed in
+  // whoever is here may have had nothing to offer until this was completed
   givers = givers_here(me);
   before = offer_counts(me, givers);
 
-  handler(QUESTS_HANDLER, me)->hand_in(me, line[ENTRY_ID]);
+  handler(QUESTS_HANDLER, me)->complete(me, line[ENTRY_ID]);
 
   after = offer_counts(me, givers);
 
@@ -616,8 +616,8 @@ static int cmd(string str, object me, string verb)
   if (member_array(option, _LANG_CMD_QUESTS_ACCEPT_OPTIONS) != -1)
     return accept_quest(me, index);
 
-  if (member_array(option, _LANG_CMD_QUESTS_HAND_IN_OPTIONS) != -1)
-    return hand_in_quest(me, index);
+  if (member_array(option, _LANG_CMD_QUESTS_COMPLETE_OPTIONS) != -1)
+    return complete_quest(me, index);
 
   if (member_array(option, _LANG_CMD_QUESTS_ABANDON_OPTIONS) != -1)
     return abandon_quest(me, index);

@@ -612,7 +612,7 @@
 #define _LANG_CMD_QUESTS_PROGRESS_ONE " (" + done + " de " + needed + ")"
 #define _LANG_CMD_QUESTS_PROGRESS_MANY " (" + met + " de " + total + " objetivos)"
 #define _LANG_CMD_QUESTS_FINISHED " (%^BOLD%^RED%^terminada%^RESET%^)"
-#define _LANG_CMD_QUESTS_HAND_IN_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
+#define _LANG_CMD_QUESTS_COMPLETE_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
       "entrégasela a " + creature->query_cap_name()
 
 #define _LANG_CMD_QUESTS_NEW_OFFERS creature->query_cap_name() + \
@@ -622,7 +622,7 @@
 #define _LANG_CMD_QUESTS_ANY_NUMBER "<número>"
 #define _LANG_CMD_QUESTS_HINT_INFO "'misiones info " + which + "' para ver más de una"
 #define _LANG_CMD_QUESTS_HINT_ACCEPT "'misiones aceptar " + which + "' para aceptarla"
-#define _LANG_CMD_QUESTS_HINT_HAND_IN "'misiones entregar " + which + "' para entregarla"
+#define _LANG_CMD_QUESTS_HINT_COMPLETE "'misiones entregar " + which + "' para entregarla"
 #define _LANG_CMD_QUESTS_HINT_ABANDON "'misiones abandonar " + which + "' para dejarla"
 
 #define _LANG_CMD_QUESTS_OBJECTIVE_LINE "- " + objectives[j][OBJ_TEXT] + " (" + \
@@ -631,7 +631,7 @@
 #define _LANG_CMD_QUESTS_NO_SUCH "No hay ninguna misión con ese número.\n"
 #define _LANG_CMD_QUESTS_NOT_AN_OFFER "Esa no es una de las que te ofrecen aquí.\n"
 #define _LANG_CMD_QUESTS_NOT_YOURS "Esa no es una de tus misiones.\n"
-#define _LANG_CMD_QUESTS_CANNOT_HAND_IN "Esa misión no se puede entregar aquí.\n"
+#define _LANG_CMD_QUESTS_CANNOT_COMPLETE "Esa misión no se puede entregar aquí.\n"
 #define _LANG_CMD_QUESTS_WHICH "¿Cuál? Dilo con su número.\n"
 
 #define _LANG_CMD_QUESTS_CHAIN_INTRO "Esta misión es parte de la cadena:\n\n"
@@ -653,5 +653,5 @@
 
 #define _LANG_CMD_QUESTS_INFO_OPTIONS ({ "info" })
 #define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "aceptar" })
-#define _LANG_CMD_QUESTS_HAND_IN_OPTIONS ({ "entregar" })
+#define _LANG_CMD_QUESTS_COMPLETE_OPTIONS ({ "entregar" })
 #define _LANG_CMD_QUESTS_ABANDON_OPTIONS ({ "abandonar", "dejar" })

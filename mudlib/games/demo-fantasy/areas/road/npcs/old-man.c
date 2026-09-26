@@ -39,8 +39,8 @@ void setup()
   init_equip();
 
   // he is the one to be found, and what he asks for afterwards is his own
-  takes_quests("demo-fantasy:news-for-the-old-man");
+  completes_quests("demo-fantasy:news-for-the-old-man");
   offers_quests("demo-fantasy:the-rangers-rope");
-  takes_quests("demo-fantasy:the-rangers-rope");
+  completes_quests("demo-fantasy:the-rangers-rope");
   offers_quests("demo-fantasy:climb-the-mallorn");
 } 

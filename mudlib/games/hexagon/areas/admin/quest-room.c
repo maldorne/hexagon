@@ -100,7 +100,7 @@ private object quest_by_id(string id)
   return quest;
 }
 
-// Whether an objective or hand-in target names something that exists: a
+// Whether an objective or completion target names something that exists: a
 // template id under the game, or a file path.
 private int target_exists(string game, string target)
 {
@@ -195,7 +195,7 @@ int do_list(string game)
       "  progress <player> [<game>]   a player's quests\n" +
       "  assign <player> <id>         start a quest for a player, no checks\n" +
       "  fulfil <player> <id>         meet every objective of an active quest\n" +
-      "  forget <player> <id>         wipe a quest, active or handed in\n";
+      "  forget <player> <id>         wipe a quest, active or completed\n";
 
     show_frame(text, "Quests");
     return 1;
@@ -269,21 +269,21 @@ int do_show(string id)
     return 0;
 
   text = quest->query_title() + "\n" +
-    "  id:          " + quest->query_id() + "\n" +
-    "  file:        " + base_name(quest) + ".c\n" +
-    "  repeatable:  " + (quest->query_repeatable() ? "yes" : "no") + "\n";
+    "  id:            " + quest->query_id() + "\n" +
+    "  file:          " + base_name(quest) + ".c\n" +
+    "  repeatable:    " + (quest->query_repeatable() ? "yes" : "no") + "\n";
 
   if (quest->query_needs_level())
-    text += "  needs level: " + quest->query_needs_level() + "\n";
+    text += "  needs level:   " + quest->query_needs_level() + "\n";
 
   needs = quest->query_needs_quests();
   if (sizeof(needs))
-    text += "  needs:       " + implode(needs, ", ") + "\n";
+    text += "  needs:         " + implode(needs, ", ") + "\n";
 
-  if (strlen(quest->query_hand_in()))
-    text += "  hand in to:  " + quest->query_hand_in() + "\n";
-  if (strlen(quest->query_hand_in_place()))
-    text += "  hand in at:  " + quest->query_hand_in_place() + "\n";
+  if (strlen(quest->query_completed_by()))
+    text += "  completed by:  " + quest->query_completed_by() + "\n";
+  if (strlen(quest->query_completion_place()))
+    text += "  completed at:  " + quest->query_completion_place() + "\n";
 
   description = quest->query_description();
   if (strlen(description) && description[strlen(description) - 1] != '\n')
@@ -359,9 +359,9 @@ int do_check(string game)
 
     objectives = quest->query_objectives();
 
-    if (!sizeof(objectives) && !strlen(quest->query_hand_in()) &&
-        !strlen(quest->query_hand_in_place()))
-      problems += ({ "no objectives and nowhere to hand it in" });
+    if (!sizeof(objectives) && !strlen(quest->query_completed_by()) &&
+        !strlen(quest->query_completion_place()))
+      problems += ({ "no objectives and nobody or nowhere to complete it" });
 
     for (j = 0; j < sizeof(objectives); j++)
     {
@@ -375,15 +375,15 @@ int do_check(string game)
         problems += ({ "objective " + (j + 1) + ": no text" });
     }
 
-    if (strlen(quest->query_hand_in()) &&
-        !target_exists(game, quest->query_hand_in()))
-      problems += ({ "hand in: nothing found for '" +
-                     quest->query_hand_in() + "'" });
+    if (strlen(quest->query_completed_by()) &&
+        !target_exists(game, quest->query_completed_by()))
+      problems += ({ "completed by: nothing found for '" +
+                     quest->query_completed_by() + "'" });
 
-    if (strlen(quest->query_hand_in_place()) &&
-        !target_exists(game, quest->query_hand_in_place()))
-      problems += ({ "hand in at: nothing found for '" +
-                     quest->query_hand_in_place() + "'" });
+    if (strlen(quest->query_completion_place()) &&
+        !target_exists(game, quest->query_completion_place()))
+      problems += ({ "completed at: nothing found for '" +
+                     quest->query_completion_place() + "'" });
 
     needs = quest->query_needs_quests();
     for (j = 0; j < sizeof(needs); j++)
@@ -416,7 +416,7 @@ int do_check(string game)
   return 1;
 }
 
-// progress <player> [<game>] -> a player's quests, active and handed in
+// progress <player> [<game>] -> a player's quests, active and completed
 int do_progress(string str)
 {
   object player, quests, quest;
@@ -449,7 +449,7 @@ int do_progress(string str)
 
   quests = quests_of(game);
   active = player->query_active_quests(game);
-  done = player->query_done_quests(game);
+  done = player->query_completed_quests(game);
   text = "Doing:\n";
 
   ids = map_indices(active);
@@ -479,7 +479,7 @@ int do_progress(string str)
         objectives[j][OBJ_COUNT] + "\n";
   }
 
-  text += "\nHanded in:\n";
+  text += "\nCompleted:\n";
 
   ids = map_indices(done);
   if (!sizeof(ids))

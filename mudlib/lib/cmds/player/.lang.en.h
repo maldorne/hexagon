@@ -611,7 +611,7 @@
 #define _LANG_CMD_QUESTS_PROGRESS_ONE " (" + done + " of " + needed + ")"
 #define _LANG_CMD_QUESTS_PROGRESS_MANY " (" + met + " of " + total + " objectives)"
 #define _LANG_CMD_QUESTS_FINISHED " (%^BOLD%^RED%^finished%^RESET%^)"
-#define _LANG_CMD_QUESTS_HAND_IN_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
+#define _LANG_CMD_QUESTS_COMPLETE_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
       "deliver it to " + creature->query_cap_name()
 
 #define _LANG_CMD_QUESTS_NEW_OFFERS creature->query_cap_name() + \
@@ -621,7 +621,7 @@
 #define _LANG_CMD_QUESTS_ANY_NUMBER "<number>"
 #define _LANG_CMD_QUESTS_HINT_INFO "'quests info " + which + "' to see more of one"
 #define _LANG_CMD_QUESTS_HINT_ACCEPT "'quests accept " + which + "' to take it"
-#define _LANG_CMD_QUESTS_HINT_HAND_IN "'quests deliver " + which + "' to hand it in"
+#define _LANG_CMD_QUESTS_HINT_COMPLETE "'quests deliver " + which + "' to hand it in"
 #define _LANG_CMD_QUESTS_HINT_ABANDON "'quests abandon " + which + "' to drop it"
 
 #define _LANG_CMD_QUESTS_OBJECTIVE_LINE "- " + objectives[j][OBJ_TEXT] + " (" + \
@@ -630,7 +630,7 @@
 #define _LANG_CMD_QUESTS_NO_SUCH "There is no quest with that number.\n"
 #define _LANG_CMD_QUESTS_NOT_AN_OFFER "That is not one of the quests offered here.\n"
 #define _LANG_CMD_QUESTS_NOT_YOURS "That is not one of your quests.\n"
-#define _LANG_CMD_QUESTS_CANNOT_HAND_IN "That quest cannot be delivered here.\n"
+#define _LANG_CMD_QUESTS_CANNOT_COMPLETE "That quest cannot be delivered here.\n"
 #define _LANG_CMD_QUESTS_WHICH "Which one? Say it by its number.\n"
 
 #define _LANG_CMD_QUESTS_CHAIN_INTRO "This quest is part of the chain:\n\n"
@@ -652,5 +652,5 @@
 
 #define _LANG_CMD_QUESTS_INFO_OPTIONS ({ "info" })
 #define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "accept" })
-#define _LANG_CMD_QUESTS_HAND_IN_OPTIONS ({ "deliver" })
+#define _LANG_CMD_QUESTS_COMPLETE_OPTIONS ({ "deliver" })
 #define _LANG_CMD_QUESTS_ABANDON_OPTIONS ({ "abandon", "drop" })

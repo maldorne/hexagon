@@ -1,6 +1,6 @@
 // The old ranger asked to be told how the hunt was going, and he is somewhere
 // out on the road by the forest. The errand is to find him, so the quest has no
-// objectives: reaching him is all there is, and it is handed in to him. The news
+// objectives: reaching him is all there is, and he is the one who completes it. The news
 // is what earns his trust, and he then asks for the one thing he cannot do
 // himself.
 
@@ -17,8 +17,8 @@ void setup()
 
   set_chain("demo-fantasy:the-climb", 2);
 
-  // he is the one to be found, and the one it is handed in to
-  set_hand_in("areas/road/npcs/old-man");
+  // he is the one to be found, and the one who completes it
+  set_completed_by("areas/road/npcs/old-man");
 
   // what he says as he takes the news, and teaches what he pays with
   set_complete_message(_LANG_QUEST_NEWS_COMPLETE);

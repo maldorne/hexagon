@@ -242,7 +242,7 @@
 
 #define _LANG_QUEST_ACCEPTED "You take the quest: " + quest->query_title() + ".\n"
 #define _LANG_QUEST_ABANDONED "You give up the quest: " + quest->query_title() + ".\n"
-#define _LANG_QUEST_FINISHED "%^BOLD%^You have finished " + quest->query_title() + ".%^RESET%^\n"
+#define _LANG_QUEST_COMPLETED "%^BOLD%^You have finished " + quest->query_title() + ".%^RESET%^\n"
 #define _LANG_QUEST_OBJECTIVE_DONE "%^BOLD%^" + quest->query_title() + \
       ": " + objectives[j][OBJ_TEXT] + " (done).%^RESET%^\n"
 #define _LANG_QUEST_OBJECTIVE_PROGRESS quest->query_title() + ": " + \

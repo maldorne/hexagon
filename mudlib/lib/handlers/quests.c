@@ -8,7 +8,7 @@
  *
  * Quests are offered from several places: an npc, a monster, a location, a book,
  * or an event with no object behind it. None of them decides: they call offer(),
- * accept(), hand_in() or abandon() here, and this handler is what checks whether
+ * accept(), complete() or abandon() here, and this handler is what checks whether
  * the player may, moves the player's store on and pays the rewards.
  *
  * A game has its own handler inheriting this one, and registers the quests it
@@ -185,7 +185,7 @@ int check_can_take(object who, string id)
     return QUEST_ALREADY;
 
   // a quest that is not repeatable is taken once and never again
-  if (who->has_done_quest(game, id) && !quest->query_repeatable())
+  if (who->has_completed_quest(game, id) && !quest->query_repeatable())
     return QUEST_DONE;
 
   if (quest->query_needs_level() &&
@@ -195,7 +195,7 @@ int check_can_take(object who, string id)
   needs = quest->query_needs_quests();
 
   for (i = 0; i < sizeof(needs); i++)
-    if (!who->has_done_quest(game, needs[i]))
+    if (!who->has_completed_quest(game, needs[i]))
       return QUEST_NEEDS;
 
   if (!quest->can_take(who))
@@ -205,7 +205,7 @@ int check_can_take(object who, string id)
 }
 
 // Whether every objective of a quest the player is doing has been met.
-int is_complete(object who, string id)
+int objectives_met(object who, string id)
 {
   object quest;
   mapping * objectives;
@@ -227,7 +227,7 @@ int is_complete(object who, string id)
   return 1;
 }
 
-int check_can_hand_in(object who, string id)
+int check_can_complete(object who, string id)
 {
   object quest;
 
@@ -239,10 +239,10 @@ int check_can_hand_in(object who, string id)
   if (!who->is_doing_quest(game_of(who), id))
     return QUEST_UNKNOWN;
 
-  if (!is_complete(who, id))
+  if (!objectives_met(who, id))
     return QUEST_INCOMPLETE;
 
-  if (!quest->can_hand_in(who))
+  if (!quest->can_complete(who))
     return QUEST_INCOMPLETE;
 
   return QUEST_OK;
@@ -291,7 +291,7 @@ string * takeable(object who, string * ids)
 }
 
 // Of a list of quest ids, the ones somebody could hand in right now.
-string * handable(object who, string * ids)
+string * completable(object who, string * ids)
 {
   string * out;
   int i;
@@ -299,7 +299,7 @@ string * handable(object who, string * ids)
   out = ({ });
 
   for (i = 0; i < sizeof(ids); i++)
-    if (check_can_hand_in(who, ids[i]) == QUEST_OK)
+    if (check_can_complete(who, ids[i]) == QUEST_OK)
       out += ({ ids[i] });
 
   return out;
@@ -412,13 +412,13 @@ private void pay_item(object who, string path)
  * Take a finished quest back. Checks first, because a hand-in that is refused
  * must pay nothing, then pays every reward and writes the quest down as done.
  */
-int hand_in(object who, string id)
+int complete(object who, string id)
 {
   object quest;
   mapping * rewards;
   int answer, i;
 
-  answer = check_can_hand_in(who, id);
+  answer = check_can_complete(who, id);
 
   if (answer != QUEST_OK)
     return answer;
@@ -426,7 +426,7 @@ int hand_in(object who, string id)
   quest = query_quest(id);
   rewards = quest->query_rewards();
 
-  who->finish_quest(game_of(who), id);
+  who->complete_quest(game_of(who), id);
 
   // what the taker says as it takes the quest back, before whatever it pays
   if (strlen(quest->query_complete_message()))
@@ -436,7 +436,7 @@ int hand_in(object who, string id)
   for (i = 0; i < sizeof(rewards); i++)
     pay_reward(who, rewards[i]);
 
-  tell_object(who, _LANG_QUEST_FINISHED);
+  tell_object(who, _LANG_QUEST_COMPLETED);
 
   return QUEST_OK;
 }

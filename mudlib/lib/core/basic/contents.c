@@ -179,7 +179,7 @@ string query_contents(string str, varargs object *obs)
     {
       giver = handler(QUESTS_HANDLER, me)->giver_of(inv[1][i][0]);
 
-      if (giver && giver->check_player_finished(me))
+      if (giver && giver->check_player_can_complete(me))
         ret += _LANG_QUEST_MARK_HAND_IN;
       else if (giver && giver->check_player(me))
         ret += _LANG_QUEST_MARK_OFFER;

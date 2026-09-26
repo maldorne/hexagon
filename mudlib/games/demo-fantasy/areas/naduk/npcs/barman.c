@@ -44,7 +44,7 @@ void setup()
   // the village keeps its own kind: everybody else is sent away
   deals_with_races(({ "human" }));
   offers_quests("demo-fantasy:wasps-ruin-the-hunt");
-  takes_quests("demo-fantasy:wasps-ruin-the-hunt");
+  completes_quests("demo-fantasy:wasps-ruin-the-hunt");
   // the errand to the old man is handed out here, but he is the one
   // who takes it back
   offers_quests("demo-fantasy:news-for-the-old-man");

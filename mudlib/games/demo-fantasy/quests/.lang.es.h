@@ -10,9 +10,11 @@
 // the-climb chain, declared by its first step
 
 #define _LANG_CHAIN_CLIMB_TITLE "Trepar el gran Mallorn"
-#define _LANG_CHAIN_CLIMB_DESC "Nadie sale de esta región sin subir a lo alto " + \
-      "de un Mallorn, y eso no se aprende solo. Hay que ganarse a quien todavía " + \
-      "sabe hacerlo.\n"
+#define _LANG_CHAIN_CLIMB_DESC "Quien sabe trepar lleva ventaja en el bosque: " + \
+      "desde la copa de un Mallorn se ve el valle entero, se localiza la caza y el " + \
+      "humo de otros campamentos, y se alcanza lo que sólo crece allá arriba. Para " + \
+      "aprender a trepar bien lo mejor es encontrar quien te enseñe, y por aquí ya " + \
+      "sólo queda uno que sepa hacerlo.\n"
 
 // news-for-the-old-man
 
@@ -52,6 +54,7 @@
 
 #define _LANG_QUEST_MALLORN_TITLE "Trepar el Mallorn"
 #define _LANG_QUEST_MALLORN_DESC "El viejo te ha señalado el norte de la región: en " + \
-      "una colina pelada, en medio del bosque y junto a un pequeño río, queda un " + \
-      "Mallorn viejo. Dice que desde arriba se ve lo que hay más allá de esta " + \
-      "región, y que quien llega a verlo ya no se queda. Sube a él.\n"
+      "una colina pelada, en medio del bosque y junto a un pequeño río, queda el " + \
+      "Mallorn más alto que conoce. Dice que desde su copa se ve el valle entero y " + \
+      "lo que viene detrás, y que el que lo mira una vez ya no se conforma con su " + \
+      "pueblo. Sube a él.\n"

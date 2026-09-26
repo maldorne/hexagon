@@ -16,7 +16,7 @@ void setup()
   set_chain("demo-fantasy:the-climb", 4);
 
   // nobody takes it back: the tree does, where it stands
-  set_hand_in_place("areas/forest/rooms/38");
+  set_completion_place("areas/forest/rooms/38");
 
   add_needs_quest("demo-fantasy:the-rangers-rope");
 

@@ -8,9 +8,9 @@
 //
 // Declared in the npc template's components, attributes and all:
 //
-//   "quest-giver" : ([ "quest_offered" : ({ "<game>:kill-the-wasps" }),
-//                      "quest_taken"   : ({ "<game>:kill-the-wasps" }),
-//                      "quest_races"   : ({ "human" }) ])
+//   "quest-giver" : ([ "quest_offered"  : ({ "<game>:kill-the-wasps" }),
+//                      "quest_completed": ({ "<game>:kill-the-wasps" }),
+//                      "quest_races"    : ({ "human" }) ])
 
 inherit component "/lib/npc/component.c";
 inherit giver     "/lib/monster/quest-giver.c";
@@ -25,9 +25,9 @@ void create()
 mapping query_auto_load_attributes()
 {
   return component::query_auto_load_attributes() +
-    ([ "quest_offered" : query_offered_quests(),
-       "quest_taken"   : query_taken_quests(),
-       "quest_races"   : query_dealt_races() ]);
+    ([ "quest_offered"  : query_offered_quests(),
+       "quest_completed": query_completed_quests(),
+       "quest_races"    : query_dealt_races() ]);
 }
 
 void init_auto_load_attributes(mapping args)
@@ -39,8 +39,8 @@ void init_auto_load_attributes(mapping args)
 
   if (!undefinedp(args["quest_offered"]))
     set_offered_quests(args["quest_offered"]);
-  if (!undefinedp(args["quest_taken"]))
-    set_taken_quests(args["quest_taken"]);
+  if (!undefinedp(args["quest_completed"]))
+    set_completed_quests(args["quest_completed"]);
   if (!undefinedp(args["quest_races"]))
     deals_with_races(args["quest_races"]);
 }

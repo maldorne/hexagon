@@ -10,20 +10,20 @@
 // The giver decides nothing and owns no verbs: it says which quests it deals in
 // and, if it is picky, which races it deals with. The quests command is what
 // finds the givers standing in a room and asks them, and every answer about
-// whether somebody may take or hand in a quest comes from handler("quests").
+// whether somebody may take or complete a quest comes from handler("quests").
 //
 //   offers_quests("<game>:kill-the-wasps");
-//   takes_quests("<game>:kill-the-wasps");   // who it is handed back to
+//   completes_quests("<game>:kill-the-wasps");  // it is the one to come back to
 //   deals_with_races(({ "human" }));         // by race file, not by its name
 //
-// Offering and taking back are declared apart because they are not always the
+// Offering and completing are declared apart because they are not always the
 // same creature: one hands the work out and another is the one to be found.
 
 #include <living/quests.h>
 #include <language.h>
 
 private string * offered;
-private string * taken;
+private string * completed;
 // race ids -- the basename of the race file -- this one will talk to. Empty
 // means anybody.
 private string * races;
@@ -41,16 +41,16 @@ void offers_quests(string id)
 string * query_offered_quests() { return offered ? offered : ({ }); }
 void set_offered_quests(string * list) { offered = list; }
 
-void takes_quests(string id)
+void completes_quests(string id)
 {
-  if (!taken)
-    taken = ({ });
+  if (!completed)
+    completed = ({ });
 
-  taken += ({ id });
+  completed += ({ id });
 }
 
-string * query_taken_quests() { return taken ? taken : ({ }); }
-void set_taken_quests(string * list) { taken = list; }
+string * query_completed_quests() { return completed ? completed : ({ }); }
+void set_completed_quests(string * list) { completed = list; }
 
 void deals_with_races(string * list) { races = list; }
 string * query_dealt_races() { return races ? races : ({ }); }
@@ -101,9 +101,9 @@ string * quests_for(object who)
   return handler(QUESTS_HANDLER, who)->takeable(who, query_offered_quests());
 }
 
-string * quests_to_hand_in(object who)
+string * quests_to_complete(object who)
 {
-  return handler(QUESTS_HANDLER, who)->handable(who, query_taken_quests());
+  return handler(QUESTS_HANDLER, who)->completable(who, query_completed_quests());
 }
 
 // ---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ string * quests_to_hand_in(object who)
 // room listing (/lib/core/basic/contents.c) and the map
 // (/lib/handlers/cartography.c) both mark a giver by asking these three: a
 // yellow [!] when it has something to offer the one looking, a yellow [?] when
-// they can hand something in.
+// they can complete something.
 
 int query_quest_object() { return 1; }
 
@@ -127,11 +127,11 @@ int check_player(object who)
   return sizeof(quests_for(who)) > 0;
 }
 
-// This one can hand something in here.
-int check_player_finished(object who)
+// This one can complete something here.
+int check_player_can_complete(object who)
 {
   if (!who)
     return 0;
 
-  return sizeof(quests_to_hand_in(who)) > 0;
+  return sizeof(quests_to_complete(who)) > 0;
 }

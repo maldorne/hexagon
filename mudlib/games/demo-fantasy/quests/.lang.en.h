@@ -10,9 +10,11 @@
 // the-climb chain, declared by its first step
 
 #define _LANG_CHAIN_CLIMB_TITLE "Climbing the great Mallorn"
-#define _LANG_CHAIN_CLIMB_DESC "Nobody leaves this region without getting to " + \
-      "the top of a Mallorn, and that is not learnt alone. Whoever still knows " + \
-      "how has to be won over.\n"
+#define _LANG_CHAIN_CLIMB_DESC "Knowing how to climb gives you the edge in the " + \
+      "forest: from the crown of a Mallorn you see the whole valley, you can spot " + \
+      "game and the smoke of other camps, and you can reach what only grows up " + \
+      "there. The best way to learn to climb properly is to find somebody to teach " + \
+      "you, and around here only one man is left who knows how.\n"
 
 // news-for-the-old-man
 
@@ -52,6 +54,7 @@
 
 #define _LANG_QUEST_MALLORN_TITLE "Climb the Mallorn"
 #define _LANG_QUEST_MALLORN_DESC "The old man has pointed you north: on a bare hill, " + \
-      "in the middle of the forest and beside a small river, one old Mallorn is " + \
-      "left. He says that from the top you can see what lies beyond this region, " + \
-      "and that whoever gets to see it does not stay. Climb it.\n"
+      "in the middle of the forest and beside a small river, stands the tallest " + \
+      "Mallorn he knows. He says that from its crown you see the whole valley and " + \
+      "what comes after it, and that whoever looks at it once is never content " + \
+      "with their village again. Climb it.\n"

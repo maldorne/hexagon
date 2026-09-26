@@ -1,5 +1,5 @@
 // The swarms nesting near the forest paths are driving the game away and the
-// hunters cannot work. The village tavern keeper hands this out and takes it
+// hunters cannot work. The village tavern keeper hands this out and completes it
 // back; it is the first half of how somebody ends up learning to climb.
 
 #include <living/quests.h>

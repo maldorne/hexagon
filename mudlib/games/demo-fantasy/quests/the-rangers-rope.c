@@ -18,7 +18,7 @@ void setup()
   set_chain("demo-fantasy:the-climb", 3);
 
   // he asks for it and he takes it back
-  set_hand_in("areas/road/npcs/old-man");
+  set_completed_by("areas/road/npcs/old-man");
   set_complete_message(_LANG_QUEST_ROPE_COMPLETE);
 
   add_needs_quest("demo-fantasy:news-for-the-old-man");

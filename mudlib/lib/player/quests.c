@@ -9,7 +9,7 @@
  * *********************************************************** */
 
 // Player quest component. Records, per game, the quests being done with their
-// progress per objective, and the quests handed in with how many times and when.
+// progress per objective, and the quests completed with how many times and when.
 // The state lives in its own savefile (/save/players/<l>/<name>/quests.o) via a
 // helper object, and is held here in a static (unsaved) in-memory mapping so it
 // never bloats player.o. Loaded lazily on first access, written on each change.
@@ -92,7 +92,7 @@ mapping query_active_quests(string game)
   return game_data(game)[QUESTS_ACTIVE];
 }
 
-mapping query_done_quests(string game)
+mapping query_completed_quests(string game)
 {
   return game_data(game)[QUESTS_DONE];
 }
@@ -107,7 +107,7 @@ int is_doing_quest(string game, string id)
   return mappingp(game_data(game)[QUESTS_ACTIVE][id]);
 }
 
-int has_done_quest(string game, string id)
+int has_completed_quest(string game, string id)
 {
   return mappingp(game_data(game)[QUESTS_DONE][id]);
 }
@@ -133,8 +133,8 @@ void start_quest(string game, string id, int objectives, string source)
   save_quests();
 }
 
-// Move a quest from active to handed in, counting the times it has been.
-void finish_quest(string game, string id)
+// Move a quest from active to completed, counting the times it has been.
+void complete_quest(string game, string id)
 {
   mapping active, done;
 

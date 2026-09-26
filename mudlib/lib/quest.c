@@ -26,7 +26,7 @@
  *   ([ REWARD_KIND: REWARD_SKILL, REWARD_VALUE: SKILL_CLIMB ])
  *
  * A quest that needs more than a level or a finished quest to be taken, or more
- * than its objectives to be handed in, overrides can_take() or can_hand_in().
+ * than its objectives to be completed, overrides can_take() or can_complete().
  */
 
 inherit "/lib/core/object";
@@ -36,17 +36,17 @@ inherit "/lib/core/object";
 private string id;
 private string title;
 private string description;
-// who takes the quest back: a template id, so any npc of that kind will do
-private string hand_in;
-// where it is handed in, when it is a place rather than somebody
-private string hand_in_place;
+// who completes the quest: a template id, so any npc of that kind will do
+private string completed_by;
+// where it is completed, when that is a place rather than somebody
+private string completion_place;
 // what the giver says when the quest is taken
 private string accept_message;
-// what the taker says when the quest is handed in, beyond the rewards
+// what is said when the quest is completed, beyond the rewards
 private string complete_message;
 private mapping * objectives;
 private mapping * rewards;
-// ids of quests that have to be handed in before this one is offered
+// ids of quests that have to be completed before this one is offered
 private string * needs_quests;
 // the chain this quest is a step of, and which step it is. The first step is
 // also where the chain's own name and text are declared, so a chain needs no
@@ -63,8 +63,8 @@ void create()
   id = "";
   title = "";
   description = "";
-  hand_in = "";
-  hand_in_place = "";
+  completed_by = "";
+  completion_place = "";
   accept_message = "";
   complete_message = "";
   objectives = ({ });
@@ -90,11 +90,11 @@ string query_title() { return title; }
 void set_description(string str) { description = str; }
 string query_description() { return description; }
 
-void set_hand_in(string str) { hand_in = str; }
-string query_hand_in() { return hand_in; }
+void set_completed_by(string str) { completed_by = str; }
+string query_completed_by() { return completed_by; }
 
-void set_hand_in_place(string str) { hand_in_place = str; }
-string query_hand_in_place() { return hand_in_place; }
+void set_completion_place(string str) { completion_place = str; }
+string query_completion_place() { return completion_place; }
 
 void set_accept_message(string str) { accept_message = str; }
 string query_accept_message() { return accept_message; }
@@ -154,8 +154,8 @@ int can_take(object who)
   return 1;
 }
 
-// Extra conditions to hand it in, beyond having met every objective.
-int can_hand_in(object who)
+// Extra conditions to complete it, beyond having met every objective.
+int can_complete(object who)
 {
   return 1;
 }

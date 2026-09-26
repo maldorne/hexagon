@@ -52,7 +52,7 @@ private int _classify_room(object room, object viewer, int deep)
       // the quest handler says who answers for whatever is standing here: the
       // creature itself, or the component it carries
       giver = handler(QUESTS_HANDLER, viewer)->giver_of(inv[i]);
-      if (giver && giver->check_player_finished(viewer))
+      if (giver && giver->check_player_can_complete(viewer))
         return CART_FINISH_QUEST_ROOM;
       if (giver && giver->check_player(viewer))
         return CART_QUEST_ROOM;
