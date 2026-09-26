@@ -67,4 +67,13 @@
 #define _LANG_CMD_GAMES_AVAILABLE "The following games are available:\n"
 #define _LANG_CMD_GAMES_NO_LOGIN "You must login first."
 #define _LANG_CMD_GAMES_UNAVAILABLE_GAME "Non playable"
+#define _LANG_CMD_GAMES_DEMO_GAME "demo"
+#define _LANG_CMD_GAMES_START_TITLE "How it is played:\n"
+#define _LANG_CMD_GAMES_START_DEMO "With a new account you can only create " + \
+      "characters in the demo games, the first ones on the list. Finishing one " + \
+      "opens the rest: from then on you can create characters in any game."
+#define _LANG_CMD_GAMES_START_CARRY "The character who finishes the demo does " + \
+      "not stay there: it moves on to one of the games of the same genre " + \
+      "(fantasy, science fiction, ...) and carries on with everything it has, so " + \
+      "nothing you do in the demo is lost."
 

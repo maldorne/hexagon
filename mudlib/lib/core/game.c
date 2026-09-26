@@ -14,6 +14,9 @@
 // game description
 string game_coordinator;
 static string game_name, game_short_desc, game_long_desc;
+// a demo game: the one an account starts with, and the only kind it can play
+// before finishing one
+static int demo;
 // permissions for players: can they play?
 int open;
 
@@ -31,6 +34,9 @@ void set_game_short_description(string desc) { game_short_desc = desc; }
 string query_game_short_description() { return game_short_desc; }
 void set_game_long_description(string desc) { game_long_desc = desc; }
 string query_game_long_description() { return game_long_desc; }
+
+void set_demo(int value) { demo = value; }
+int query_demo() { return demo; }
 
 void set_game_coordinator(string lord) { game_coordinator = lord; }
 string query_game_coordinator() { return game_coordinator; }
@@ -66,6 +72,7 @@ void create()
   game_name = "";
   game_short_desc = "";
   game_long_desc = "";
+  demo = 0;
 
   members = ([ ]);
   read_perms = ([ ]);
