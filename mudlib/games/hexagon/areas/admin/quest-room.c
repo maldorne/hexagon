@@ -282,8 +282,8 @@ int do_show(string id)
 
   if (strlen(quest->query_completed_by()))
     text += "  completed by:  " + quest->query_completed_by() + "\n";
-  if (strlen(quest->query_completion_place()))
-    text += "  completed at:  " + quest->query_completion_place() + "\n";
+  if (quest->query_completed_anywhere())
+    text += "  completed:     anywhere, by the player alone\n";
 
   description = quest->query_description();
   if (strlen(description) && description[strlen(description) - 1] != '\n')
@@ -360,8 +360,8 @@ int do_check(string game)
     objectives = quest->query_objectives();
 
     if (!sizeof(objectives) && !strlen(quest->query_completed_by()) &&
-        !strlen(quest->query_completion_place()))
-      problems += ({ "no objectives and nobody or nowhere to complete it" });
+        !quest->query_completed_anywhere())
+      problems += ({ "no objectives and nobody to complete it" });
 
     for (j = 0; j < sizeof(objectives); j++)
     {
@@ -379,11 +379,6 @@ int do_check(string game)
         !target_exists(game, quest->query_completed_by()))
       problems += ({ "completed by: nothing found for '" +
                      quest->query_completed_by() + "'" });
-
-    if (strlen(quest->query_completion_place()) &&
-        !target_exists(game, quest->query_completion_place()))
-      problems += ({ "completed at: nothing found for '" +
-                     quest->query_completion_place() + "'" });
 
     needs = quest->query_needs_quests();
     for (j = 0; j < sizeof(needs); j++)

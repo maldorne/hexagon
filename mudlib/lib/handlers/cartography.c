@@ -41,6 +41,14 @@ private int _classify_room(object room, object viewer, int deep)
   // the marker pass without forcing a load.
   inv = all_inventory(room);
 
+  // the room itself can deal in quests too, through its own component or by
+  // carrying /lib/quests/giver.c
+  giver = handler(QUESTS_HANDLER, viewer)->giver_of(room);
+  if (giver && giver->check_player_can_complete(viewer))
+    return CART_FINISH_QUEST_ROOM;
+  if (giver && giver->check_player(viewer))
+    return CART_QUEST_ROOM;
+
   if (deep || sizeof(inv))
   {
     enemies = viewer->query_attacker_list() + viewer->query_call_outed();
@@ -49,8 +57,8 @@ private int _classify_room(object room, object viewer, int deep)
     {
       if ((member_array(inv[i], enemies) != -1) && !inv[i]->query_hidden())
         return CART_ENEMY_ROOM;
-      // the quest handler says who answers for whatever is standing here: the
-      // creature itself, or the component it carries
+      // the quest handler says what answers for whatever is here -- a creature,
+      // an item, or the component one of them carries
       giver = handler(QUESTS_HANDLER, viewer)->giver_of(inv[i]);
       if (giver && giver->check_player_can_complete(viewer))
         return CART_FINISH_QUEST_ROOM;

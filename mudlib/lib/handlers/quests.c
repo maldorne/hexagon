@@ -250,7 +250,7 @@ int check_can_complete(object who, string id)
 
 /*
  * The object carrying a creature's quest giver code, or nil when it has none: the
- * creature itself when it is a monster inheriting /lib/monster/quest-giver.c, or
+ * creature itself when it is a monster inheriting /lib/quests/giver.c, or
  * the quest-giver component when it is an npc -- the way the ventures handler
  * takes either a shop room or a location's shop component. Callers keep the
  * creature, which is what they show and name; this is only for asking.

@@ -38,8 +38,9 @@ private string title;
 private string description;
 // who completes the quest: a template id, so any npc of that kind will do
 private string completed_by;
-// where it is completed, when that is a place rather than somebody
-private string completion_place;
+// set when nobody and nowhere is needed to close it: the player completes it
+// by themselves, wherever they are, once every objective is met
+private int completed_anywhere;
 // what the giver says when the quest is taken
 private string accept_message;
 // what is said when the quest is completed, beyond the rewards
@@ -64,7 +65,7 @@ void create()
   title = "";
   description = "";
   completed_by = "";
-  completion_place = "";
+  completed_anywhere = 0;
   accept_message = "";
   complete_message = "";
   objectives = ({ });
@@ -93,8 +94,8 @@ string query_description() { return description; }
 void set_completed_by(string str) { completed_by = str; }
 string query_completed_by() { return completed_by; }
 
-void set_completion_place(string str) { completion_place = str; }
-string query_completion_place() { return completion_place; }
+void set_completed_anywhere(int i) { completed_anywhere = i; }
+int query_completed_anywhere() { return completed_anywhere; }
 
 void set_accept_message(string str) { accept_message = str; }
 string query_accept_message() { return accept_message; }

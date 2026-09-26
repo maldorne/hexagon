@@ -1,7 +1,7 @@
 // quest-giver.c -- an npc that hands work out, as a component.
 //
 // For npcs in a game made of locations. Everything a quest giver knows and
-// answers comes from /lib/monster/quest-giver.c, the same code a monster in a
+// answers comes from /lib/quests/giver.c, the same code a monster in a
 // game made of rooms inherits directly -- the way a shop location component and
 // a shop room share the code under /lib/ventures/. This file only adds what a
 // component needs on top: being attached to an npc and saved with it.
@@ -13,7 +13,7 @@
 //                      "quest_races"    : ({ "human" }) ])
 
 inherit component "/lib/npc/component.c";
-inherit giver     "/lib/monster/quest-giver.c";
+inherit giver     "/lib/quests/giver.c";
 
 void create()
 {

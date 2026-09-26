@@ -1,26 +1,31 @@
-// quest-giver.c -- what a creature that hands work out knows and answers.
+// giver.c -- what something that hands quests out knows and answers.
 //
-// Shared the way the shop code under /lib/ventures/ is shared by a shop room
-// and a shop location component: a monster in a game made of rooms inherits
-// this directly, and the npc component /lib/npc/components/quest-giver.c
-// inherits it too, for npcs in a game made of locations. One implementation,
-// two carriers; handler("quests") is what knows which of the two it is
-// talking to.
+// Anything can carry this, and everything that does answers the same way, the
+// way the shop code under /lib/ventures/ is shared by a shop room and a shop
+// location component:
 //
-// The giver decides nothing and owns no verbs: it says which quests it deals in
-// and, if it is picky, which races it deals with. The quests command is what
-// finds the givers standing in a room and asks them, and every answer about
-// whether somebody may take or complete a quest comes from handler("quests").
+//   a monster                          inherit giver "/lib/quests/giver.c"
+//   an item standing in a room         idem
+//   a room                             idem
+//   an npc, through its component      /lib/npc/components/quest-giver.c
+//   a location, through its component  /lib/location/components/quest-giver.c
+//
+// handler("quests") is what knows which of them it is talking to: giver_of()
+// hands back the component when there is one and the carrier itself otherwise.
+//
+// The carrier decides nothing and owns no verbs: it says which quests it deals
+// in and, if it is picky, which races it deals with. The quests command is what
+// finds the carriers in a room and asks them, and every answer about whether
+// somebody may take or complete a quest comes from the handler.
 //
 //   offers_quests("<game>:kill-the-wasps");
 //   completes_quests("<game>:kill-the-wasps");  // it is the one to come back to
-//   deals_with_races(({ "human" }));         // by race file, not by its name
+//   deals_with_races(({ "human" }));            // by race file, not by its name
 //
 // Offering and completing are declared apart because they are not always the
-// same creature: one hands the work out and another is the one to be found.
+// same carrier: one hands the work out and another is where it ends.
 
 #include <living/quests.h>
-#include <language.h>
 
 private string * offered;
 private string * completed;

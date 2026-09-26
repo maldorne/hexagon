@@ -4,7 +4,7 @@
 #include "../path.h"
 
 inherit "/lib/monster.c";
-inherit giver "/lib/monster/quest-giver.c";
+inherit giver "/lib/quests/giver.c";
 
 void setup()
 {

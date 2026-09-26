@@ -16,9 +16,9 @@
 inherit CMD_BASE;
 
 // What one numbered line of the listing stands for.
-#define ENTRY_KIND     0   // ENTRY_OFFER or ENTRY_MINE
-#define ENTRY_ID       1   // the quest id
-#define ENTRY_CREATURE 2   // who offers it, or who takes it back here; nil if nobody
+#define ENTRY_KIND  0   // ENTRY_OFFER, ENTRY_MINE or ENTRY_DONE
+#define ENTRY_ID    1   // the quest id
+#define ENTRY_GIVER 2   // what offers it, or what completes it here; nil if nothing
 
 #define ENTRY_OFFER 1
 #define ENTRY_MINE  2
@@ -31,10 +31,10 @@ void setup()
   set_help(_LANG_CMD_QUESTS_HELP);
 }
 
-// The creatures standing here that deal in quests. The creature is what this
-// command works with and names; the handler says which object carries its quest
-// code -- the creature itself, or the component an npc carries -- and that is
-// only asked, never shown.
+// What deals in quests here: whoever and whatever is in the room, and the room
+// itself. The carrier is what this command works with and names; the handler
+// says which object holds its quest code -- the carrier itself, or the component
+// an npc or a location has -- and that is only asked, never shown.
 private object * givers_here(object me)
 {
   object * here, * out;
@@ -47,7 +47,7 @@ private object * givers_here(object me)
     return out;
 
   quests = handler(QUESTS_HANDLER, me);
-  here = all_inventory(environment(me));
+  here = all_inventory(environment(me)) + ({ environment(me) });
 
   for (i = 0; i < sizeof(here); i++)
     if (quests->giver_of(here[i]))
@@ -56,8 +56,18 @@ private object * givers_here(object me)
   return out;
 }
 
-// Who standing here takes this quest back, if anybody.
-private object taker_here(object me, string id, object * givers)
+// How a carrier is named: a giver by its name, anything else -- an item, the
+// room itself -- by its short.
+private string giver_name(object giver)
+{
+  if (living(giver))
+    return giver->query_cap_name();
+
+  return giver->query_short();
+}
+
+// What here completes this quest, if anything.
+private object completer_here(object me, string id, object * givers)
 {
   object quests;
   int i;
@@ -118,7 +128,7 @@ private mixed * entries(object me)
   ids = map_indices(me->query_active_quests(game_name(me)));
 
   for (i = 0; i < sizeof(ids); i++)
-    out += ({ ({ ENTRY_MINE, ids[i], taker_here(me, ids[i], givers) }) });
+    out += ({ ({ ENTRY_MINE, ids[i], completer_here(me, ids[i], givers) }) });
 
   // completed: not in the listing of what is going on, but numbered all the
   // same, so 'misiones hechas' and 'misiones info' agree on the numbers. In the
@@ -201,10 +211,10 @@ private string hints_text(string * hints)
 
 private int list_quests(object me)
 {
-  object quests, quest, creature, last_giver;
+  object quests, quest, giver, last_giver;
   mixed * lines;
   string * hints;
-  string text, which;
+  string text, which, name;
   int index, offers, mine, ready;
 
   quests = handler(QUESTS_HANDLER, me);
@@ -216,7 +226,7 @@ private int list_quests(object me)
   for (index = 1; index <= sizeof(lines); index++)
   {
     quest = quests->query_quest(lines[index - 1][ENTRY_ID]);
-    creature = lines[index - 1][ENTRY_CREATURE];
+    giver = lines[index - 1][ENTRY_GIVER];
 
     if (!quest)
       continue;
@@ -226,11 +236,13 @@ private int list_quests(object me)
 
     if (lines[index - 1][ENTRY_KIND] == ENTRY_OFFER)
     {
-      // one heading per giver, over the quests it offers
-      if (creature != last_giver)
+      // one heading per carrier, over the quests it offers
+      if (giver != last_giver)
       {
-        text += _LANG_CMD_QUESTS_OFFERS_FROM;
-        last_giver = creature;
+        name = giver_name(giver);
+        text += (giver == environment(me)) ? _LANG_CMD_QUESTS_OFFERS_HERE
+                                              : _LANG_CMD_QUESTS_OFFERS_FROM;
+        last_giver = giver;
       }
 
       text += _LANG_CMD_QUESTS_ENTRY + "\n";
@@ -244,10 +256,17 @@ private int list_quests(object me)
     text += _LANG_CMD_QUESTS_ENTRY +
             progress_note(me, quest, lines[index - 1][ENTRY_ID]);
 
-    // who standing here takes it back
-    if (creature)
+    // what here closes it, or nothing at all when it needs nobody
+    if (giver)
     {
-      text += _LANG_CMD_QUESTS_COMPLETE_HERE;
+      name = giver_name(giver);
+      text += (giver == environment(me)) ? _LANG_CMD_QUESTS_COMPLETE_IN_PLACE
+                                            : _LANG_CMD_QUESTS_COMPLETE_HERE;
+      ready++;
+    }
+    else if (quest->query_completed_anywhere())
+    {
+      text += _LANG_CMD_QUESTS_COMPLETE_ALONE;
       ready++;
     }
 
@@ -292,12 +311,15 @@ private mixed * entry_at(object me, int index)
 }
 
 // Without a number, the one line of the right kind there is, if there is
-// exactly one.
-private int only_index_of(object me, int kind, int takeable_here)
+// exactly one. With completable_only, a line counts when something here closes
+// that quest or the quest needs nobody at all.
+private int only_index_of(object me, int kind, int completable_only)
 {
+  object quests, quest;
   mixed * lines;
   int i, found;
 
+  quests = handler(QUESTS_HANDLER, me);
   lines = entries(me);
   found = 0;
 
@@ -305,8 +327,15 @@ private int only_index_of(object me, int kind, int takeable_here)
   {
     if (lines[i][ENTRY_KIND] != kind)
       continue;
-    if (takeable_here && !lines[i][ENTRY_CREATURE])
-      continue;
+
+    if (completable_only && !lines[i][ENTRY_GIVER])
+    {
+      quest = quests->query_quest(lines[i][ENTRY_ID]);
+
+      if (!quest || !quest->query_completed_anywhere())
+        continue;
+    }
+
     if (found)
       return 0;
     found = i + 1;
@@ -351,12 +380,9 @@ private string chain_block(object me, object quest)
     if (!step_quest)
       continue;
 
-    if (me->has_completed_quest(game_name(me), ids[j]))
-      mark = _LANG_CMD_QUESTS_STEP_DONE;
-    else if (ids[j] == quest->query_id())
-      mark = _LANG_CMD_QUESTS_STEP_HERE;
-    else
-      mark = _LANG_CMD_QUESTS_STEP_TO_COME;
+    // a step already completed is ticked; the rest say nothing
+    mark = me->has_completed_quest(game_name(me), ids[j])
+           ? _LANG_CMD_QUESTS_STEP_DONE : "";
 
     text += _LANG_CMD_QUESTS_CHAIN_STEP;
   }
@@ -503,7 +529,7 @@ private int show_info(object me, int index)
     for (j = 0; j < sizeof(objectives); j++)
       text += _LANG_CMD_QUESTS_OBJECTIVE_LINE;
 
-    if (line[ENTRY_CREATURE])
+    if (line[ENTRY_GIVER])
       hints += ({ _LANG_CMD_QUESTS_HINT_COMPLETE });
     hints += ({ _LANG_CMD_QUESTS_HINT_ABANDON });
   }
@@ -534,7 +560,7 @@ private int accept_quest(object me, int index)
   }
 
   handler(QUESTS_HANDLER, me)->accept(me, line[ENTRY_ID],
-                                      line[ENTRY_CREATURE]->query_name());
+                                      line[ENTRY_GIVER]->query_name());
   return 1;
 }
 
@@ -542,7 +568,8 @@ private int complete_quest(object me, int index)
 {
   mixed * line;
   object * givers;
-  object creature;
+  object quest, giver;
+  string name;
   int * before, * after;
   int i;
 
@@ -550,8 +577,11 @@ private int complete_quest(object me, int index)
     index = only_index_of(me, ENTRY_MINE, 1);
 
   line = entry_at(me, index);
+  quest = line ? handler(QUESTS_HANDLER, me)->query_quest(line[ENTRY_ID]) : nil;
 
-  if (!line || line[ENTRY_KIND] != ENTRY_MINE || !line[ENTRY_CREATURE])
+  // something here has to close it, unless the quest needs nobody
+  if (!line || line[ENTRY_KIND] != ENTRY_MINE || !quest ||
+      (!line[ENTRY_GIVER] && !quest->query_completed_anywhere()))
   {
     notify_fail(index ? _LANG_CMD_QUESTS_CANNOT_COMPLETE : _LANG_CMD_QUESTS_WHICH);
     return 0;
@@ -568,7 +598,8 @@ private int complete_quest(object me, int index)
   for (i = 0; i < sizeof(givers); i++)
     if (after[i] > before[i])
     {
-      creature = givers[i];
+      giver = givers[i];
+      name = giver_name(giver);
       tell_object(me, _LANG_CMD_QUESTS_NEW_OFFERS);
     }
 

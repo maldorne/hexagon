@@ -15,8 +15,8 @@ void setup()
 
   set_chain("demo-fantasy:the-climb", 4);
 
-  // nobody takes it back: the tree does, where it stands
-  set_completion_place("areas/forest/rooms/38");
+  // the tree itself is what closes it, where it stands
+  set_completed_by("areas/forest/items/mallorn");
 
   add_needs_quest("demo-fantasy:the-rangers-rope");
 

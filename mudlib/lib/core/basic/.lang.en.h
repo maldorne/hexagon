@@ -92,4 +92,4 @@
 
 // marks for whoever deals in quests, in a room listing
 #define _LANG_QUEST_MARK_OFFER " %^RESET%^[%^BOLD%^YELLOW%^!%^RESET%^]"
-#define _LANG_QUEST_MARK_HAND_IN " %^RESET%^[%^BOLD%^YELLOW%^?%^RESET%^]"
+#define _LANG_QUEST_MARK_COMPLETE " %^RESET%^[%^BOLD%^YELLOW%^?%^RESET%^]"

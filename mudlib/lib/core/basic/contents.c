@@ -116,6 +116,30 @@ mixed query_inventory(object *obs)
   return inv;
 }
 
+// Whoever and whatever deals in quests is marked, so somebody can tell by
+// looking that there is work to be had or to be closed here. What answers for it
+// -- itself or a component it carries -- is the quest handler's business.
+private string quest_mark(object ob, object me)
+{
+  object giver;
+
+  if (!ob || !me)
+    return "";
+
+  giver = handler(QUESTS_HANDLER, me)->giver_of(ob);
+
+  if (!giver)
+    return "";
+
+  if (giver->check_player_can_complete(me))
+    return _LANG_QUEST_MARK_COMPLETE;
+
+  if (giver->check_player(me))
+    return _LANG_QUEST_MARK_OFFER;
+
+  return "";
+}
+
 // important change in this function: now npcs and players are treated the same
 // both shown in the same line, and both with colors if needed, see
 // /lib/handlers/pov.c
@@ -125,7 +149,7 @@ string query_contents(string str, varargs object *obs)
   mixed inv;
   string ret, aux, color;
   int count, howmany;
-  object me, giver;
+  object me;
 
   ret = "";
   aux = "";
@@ -170,20 +194,10 @@ string query_contents(string str, varargs object *obs)
     else
       ret += aux;
 
-    // whoever deals in quests is marked, so somebody can tell by looking that
-    // there is work to be had or to be handed back. Only when alone: a group is
-    // named in the plural and the mark would not say which of them it is about.
-    // Who answers for the creature -- itself or one of its components -- is the
-    // quest handler's business, not ours.
-    if ((j <= 1) && me)
-    {
-      giver = handler(QUESTS_HANDLER, me)->giver_of(inv[1][i][0]);
-
-      if (giver && giver->check_player_can_complete(me))
-        ret += _LANG_QUEST_MARK_HAND_IN;
-      else if (giver && giver->check_player(me))
-        ret += _LANG_QUEST_MARK_OFFER;
-    }
+    // only when alone: a group is named in the plural and the mark would not
+    // say which of them it is about
+    if (j <= 1)
+      ret += quest_mark(inv[1][i][0], me);
 
     count--;
     if (count > 1)
@@ -210,7 +224,7 @@ string query_contents(string str, varargs object *obs)
              capitalize((string)inv[3][i][0]->pretty_plural()) + ".\n";
       continue;
     }
-    ret += capitalize(inv[2][i]) + ".\n";
+    ret += capitalize(inv[2][i]) + quest_mark(inv[3][i][0], me) + ".\n";
   }  
 
   return ret;

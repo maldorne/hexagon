@@ -606,17 +606,23 @@
 
 #define _LANG_CMD_QUESTS_TITLE "Misiones"
 #define _LANG_CMD_QUESTS_NONE "No llevas ninguna misión entre manos.\n"
-#define _LANG_CMD_QUESTS_OFFERS_FROM creature->query_cap_name() + " te ofrece:\n"
+#define _LANG_CMD_QUESTS_OFFERS_FROM name + " te ofrece:\n"
+#define _LANG_CMD_QUESTS_OFFERS_HERE "Aquí se ofrece:\n"
 #define _LANG_CMD_QUESTS_YOURS "Tus misiones:\n"
 #define _LANG_CMD_QUESTS_ENTRY "  [%^BOLD%^" + index + "%^RESET%^] " + quest->query_title()
 #define _LANG_CMD_QUESTS_PROGRESS_ONE " (" + done + " de " + needed + ")"
 #define _LANG_CMD_QUESTS_PROGRESS_MANY " (" + met + " de " + total + " objetivos)"
 #define _LANG_CMD_QUESTS_FINISHED " (%^BOLD%^RED%^terminada%^RESET%^)"
 #define _LANG_CMD_QUESTS_COMPLETE_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
-      "entrégasela a " + creature->query_cap_name()
+      "entrégasela a " + name
 
-#define _LANG_CMD_QUESTS_NEW_OFFERS creature->query_cap_name() + \
+#define _LANG_CMD_QUESTS_NEW_OFFERS name + \
       " tiene nuevas misiones para ti.\n"
+
+#define _LANG_CMD_QUESTS_COMPLETE_IN_PLACE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
+      "aquí puedes entregarla"
+#define _LANG_CMD_QUESTS_COMPLETE_ALONE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
+      "puedes entregarla tú mismo, donde estés"
 
 #define _LANG_CMD_QUESTS_HINT_LEAD "Escribe "
 #define _LANG_CMD_QUESTS_ANY_NUMBER "<número>"
@@ -638,10 +644,8 @@
 #define _LANG_CMD_QUESTS_CHAIN_STEPS_INTRO "Esta cadena está compuesta de las misiones:\n\n"
 #define _LANG_CMD_QUESTS_CHAIN_TITLE "%^BOLD%^" + chain_title + "%^RESET%^\n"
 #define _LANG_CMD_QUESTS_CHAIN_STEP "  " + (j + 1) + ". " + \
-      step_quest->query_title() + " " + mark + "\n"
-#define _LANG_CMD_QUESTS_STEP_DONE "(entregada)"
-#define _LANG_CMD_QUESTS_STEP_HERE "(esta misma)"
-#define _LANG_CMD_QUESTS_STEP_TO_COME "(aún no)"
+      step_quest->query_title() + mark + "\n"
+#define _LANG_CMD_QUESTS_STEP_DONE " %^BOLD%^YELLOW%^✓%^RESET%^"
 
 #define _LANG_CMD_QUESTS_DONE_HEADER "Misiones terminadas"
 #define _LANG_CMD_QUESTS_DONE_NONE "No has entregado ninguna misión todavía.\n"

@@ -2,7 +2,8 @@
 
 #include <language.h>
  
-inherit "/lib/item.c"; 
+inherit "/lib/item.c";
+inherit giver "/lib/quests/giver.c";
  
 void setup()
 {
@@ -14,7 +15,10 @@ void setup()
   add_plural(_LANG_MALLORN_PLURALS);
 
   set_long(_LANG_MALLORN_LONG);
-  reset_get();                                   
+  reset_get();
+
+  // the tree is where the climb quest ends, so it carries the mark and takes it
+  completes_quests("demo-fantasy:climb-the-mallorn");
 }
  
 /*

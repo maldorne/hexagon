@@ -605,17 +605,23 @@
 
 #define _LANG_CMD_QUESTS_TITLE "Quests"
 #define _LANG_CMD_QUESTS_NONE "You have no quest in hand.\n"
-#define _LANG_CMD_QUESTS_OFFERS_FROM creature->query_cap_name() + " offers you:\n"
+#define _LANG_CMD_QUESTS_OFFERS_FROM name + " offers you:\n"
+#define _LANG_CMD_QUESTS_OFFERS_HERE "Offered here:\n"
 #define _LANG_CMD_QUESTS_YOURS "Your quests:\n"
 #define _LANG_CMD_QUESTS_ENTRY "  [%^BOLD%^" + index + "%^RESET%^] " + quest->query_title()
 #define _LANG_CMD_QUESTS_PROGRESS_ONE " (" + done + " of " + needed + ")"
 #define _LANG_CMD_QUESTS_PROGRESS_MANY " (" + met + " of " + total + " objectives)"
 #define _LANG_CMD_QUESTS_FINISHED " (%^BOLD%^RED%^finished%^RESET%^)"
 #define _LANG_CMD_QUESTS_COMPLETE_HERE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
-      "deliver it to " + creature->query_cap_name()
+      "deliver it to " + name
 
-#define _LANG_CMD_QUESTS_NEW_OFFERS creature->query_cap_name() + \
+#define _LANG_CMD_QUESTS_NEW_OFFERS name + \
       " has new quests for you.\n"
+
+#define _LANG_CMD_QUESTS_COMPLETE_IN_PLACE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
+      "you can deliver it here"
+#define _LANG_CMD_QUESTS_COMPLETE_ALONE " [%^BOLD%^YELLOW%^?%^RESET%^] " + \
+      "you can deliver it yourself, wherever you are"
 
 #define _LANG_CMD_QUESTS_HINT_LEAD "Type "
 #define _LANG_CMD_QUESTS_ANY_NUMBER "<number>"
@@ -637,10 +643,8 @@
 #define _LANG_CMD_QUESTS_CHAIN_STEPS_INTRO "This chain is made up of the quests:\n\n"
 #define _LANG_CMD_QUESTS_CHAIN_TITLE "%^BOLD%^" + chain_title + "%^RESET%^\n"
 #define _LANG_CMD_QUESTS_CHAIN_STEP "  " + (j + 1) + ". " + \
-      step_quest->query_title() + " " + mark + "\n"
-#define _LANG_CMD_QUESTS_STEP_DONE "(handed in)"
-#define _LANG_CMD_QUESTS_STEP_HERE "(this one)"
-#define _LANG_CMD_QUESTS_STEP_TO_COME "(not yet)"
+      step_quest->query_title() + mark + "\n"
+#define _LANG_CMD_QUESTS_STEP_DONE " %^BOLD%^YELLOW%^✓%^RESET%^"
 
 #define _LANG_CMD_QUESTS_DONE_HEADER "Quests finished"
 #define _LANG_CMD_QUESTS_DONE_NONE "You have not handed in any quest yet.\n"
