@@ -80,10 +80,6 @@ void skills_commands()
     add_private_action("list_skills", verbs[i]);
 }
 
-// One action per skill this living actually knows. Kept apart from the verbs
-// above because it can only run once the skills are known: a player's are
-// restored from its savefile long after create, and until then there is
-// nothing here to register.
 // Whether a known skill is active or passive, as the catalogue says now: a
 // character's own row keeps what the skill was when it was learnt, and a skill
 // may have gained a command since.
@@ -99,6 +95,10 @@ private int skill_type(string id)
   return skill_list[id][3];
 }
 
+// One action per skill this living actually knows. Kept apart from the verbs
+// above because it can only run once the skills are known: a player's are
+// restored from its savefile long after create, and until then there is
+// nothing here to register.
 private void known_skill_commands()
 {
   object skill_ob;
