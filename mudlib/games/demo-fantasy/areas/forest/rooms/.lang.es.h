@@ -28,3 +28,23 @@
     "te adentras en este te asalta la extraña sensación de que los " + \
     "árboles te cortan el camino, parece como si nunca avanzases. Te " + \
     "preguntas cuando lograrás salir.\n"
+
+// river.c: the end of the demo
+
+#define _LANG_RIVER_SHORT _LANG_FOREST_SHORT + ": Orilla del río"
+#define _LANG_RIVER_LONG "Un recodo del río, más abajo de la colina del Mallorn. " + \
+    "La corriente deja aquí todo lo que arrastra: ramas, hojas y, de vez en " + \
+    "cuando, a algún incauto.\n"
+#define _LANG_RIVER_PASSED_CLIMBING "Estás en lo alto del Mallorn, agarrado a una rama.\n"
+#define _LANG_RIVER_PASSED_UNCONSCIOUS "Estás inconsciente.\n"
+#define _LANG_RIVER_BRANCH_ME "\nLa rama en la que te apoyas cruje bajo tu peso. " + \
+    "Intentas agarrarte a otra, pero no llegas a tiempo.\n"
+#define _LANG_RIVER_FALL_ME "\n¡CRAAASH! Caes con la rama al río y te golpeas la " + \
+    "cabeza contra una piedra. Lo último que notas es el agua fría arrastrándote.\n"
+#define _LANG_RIVER_FALL_ROOM "Se oye un crujido entre las ramas del Mallorn: " + \
+    player->query_cap_name() + " cae con una rama al río y la corriente se lo " + \
+    "lleva.\n"
+#define _LANG_RIVER_CARRIED_ME "\nEntre sueños notas el frío, el ruido del agua y " + \
+    "golpes de ramas y piedras. No sabes cuánto tiempo pasa.\n"
+#define _LANG_RIVER_WAKE_ME "\nDespiertas tendido en una orilla, empapado y con un " + \
+    "buen chichón. No recuerdas muy bien cómo has llegado hasta aquí.\n"

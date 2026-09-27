@@ -58,3 +58,4 @@
       "Mallorn más alto que conoce. Dice que desde su copa se ve el valle entero y " + \
       "lo que viene detrás, y que el que lo mira una vez ya no se conforma con su " + \
       "pueblo. Sube a él.\n"
+#define _LANG_QUEST_MALLORN_OBJECTIVE "Subir a lo alto del Mallorn"

@@ -58,3 +58,4 @@
       "Mallorn he knows. He says that from its crown you see the whole valley and " + \
       "what comes after it, and that whoever looks at it once is never content " + \
       "with their village again. Climb it.\n"
+#define _LANG_QUEST_MALLORN_OBJECTIVE "Get to the top of the Mallorn"
