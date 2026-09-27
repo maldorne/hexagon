@@ -51,7 +51,9 @@ mixed query_inventory(object *obs)
   for (z = sizeof(obs)-1; z >= 0; z--)
   {
     ob = obs[z];
-    if (!(desc = (string)ob->pretty_short()) || (desc == ""))
+    // a string, a list of them, or nil for what cannot be seen (a hidden
+    // player), so no cast: a cast to string would refuse the last two
+    if (!(desc = ob->pretty_short()) || (desc == ""))
     {
       inv[4] += ({ ob });
       continue;
