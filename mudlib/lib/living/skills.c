@@ -84,6 +84,21 @@ void skills_commands()
 // above because it can only run once the skills are known: a player's are
 // restored from its savefile long after create, and until then there is
 // nothing here to register.
+// Whether a known skill is active or passive, as the catalogue says now: a
+// character's own row keeps what the skill was when it was learnt, and a skill
+// may have gained a command since.
+private int skill_type(string id)
+{
+  mixed * data;
+
+  data = table("skills")->query_skill_data(id);
+
+  if (arrayp(data) && sizeof(data) > 3)
+    return data[3];
+
+  return skill_list[id][3];
+}
+
 private void known_skill_commands()
 {
   object skill_ob;
@@ -93,7 +108,7 @@ private void known_skill_commands()
   for (i = 0; i < sizeof(known_skills); i++)
   {
     // Passive skills have no associated action
-    if (skill_list[known_skills[i]][3] == PASSIVE_SKILL)
+    if (skill_type(known_skills[i]) == PASSIVE_SKILL)
       continue;
 
     catch(skill_ob = load_object(skill_list[known_skills[i]][SKILL_DATA_PATH]));
@@ -186,7 +201,7 @@ int list_skills(varargs string str)
         continue;
 
       // The skill is keyed by an English id; show its translated name.
-      if (skill_list[known_skills[i]][3] == ACTIVE_SKILL)
+      if (skill_type(known_skills[i]) == ACTIVE_SKILL)
         skill_name = "%^BOLD%^"+capitalize(f->query_effect_name()) +"%^RESET%^";
       else
       {

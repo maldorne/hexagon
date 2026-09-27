@@ -36,6 +36,16 @@
 
 #define _LANG_SKILL_CLIMB_NAME "trepar"
 #define _LANG_SKILL_CLIMB_ALIASES ({ "escalar" })
-#define _LANG_SKILL_CLIMB_HELP "Esta habilidad mide tu capacidad para trepar " + \
-      "por una pared, un árbol o cualquier otra cosa a la que puedas agarrarte. " + \
-      "Cuanto mejor la tengas, menos probable es que te caigas.\n"
+#define _LANG_SKILL_CLIMB_HELP "Con 'trepar <algo>' intentas subir por un árbol, " + \
+      "una pared o cualquier otra cosa a la que puedas agarrarte. Cuanto mejor " + \
+      "tengas la habilidad, menos probable es que resbales, y algunas cosas son " + \
+      "más fáciles de subir que otras.\n"
+#define _LANG_SKILL_CLIMB_START "Buscas por dónde empezar a subir."
+#define _LANG_SKILL_CLIMB_NOT_CLIMBABLE "Ahí no hay por dónde trepar.\n"
+#define _LANG_SKILL_CLIMB_ROUND1 "Te agarras bien y empiezas a subir.\n"
+#define _LANG_SKILL_CLIMB_ROUND1_ROOM caster->query_cap_name() + \
+      " empieza a trepar por " + target->query_short() + ".\n"
+#define _LANG_SKILL_CLIMB_SUCCESS "Llegas arriba sin problemas, echas un vistazo " + \
+      "y vuelves a bajar.\n"
+#define _LANG_SKILL_CLIMB_FAIL "Resbalas y vuelves al suelo sin haber llegado " + \
+      "muy alto.\n"

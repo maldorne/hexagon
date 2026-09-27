@@ -35,7 +35,17 @@
 #define _LANG_HIDE_SEARCH_FOUND_POST ", though they have not noticed you yet.\n"
 
 #define _LANG_SKILL_CLIMB_NAME "climb"
-#define _LANG_SKILL_CLIMB_ALIASES ({ "climbing" })
-#define _LANG_SKILL_CLIMB_HELP "This skill measures how well you climb a wall, " + \
-      "a tree or anything else you can get a grip on. The better you are at it, " + \
-      "the less likely you are to fall.\n"
+#define _LANG_SKILL_CLIMB_ALIASES ({ })
+#define _LANG_SKILL_CLIMB_HELP "With 'climb <something>' you try to get up a tree, " + \
+      "a wall or anything else you can get a grip on. The better your skill, the " + \
+      "less likely you are to slip, and some things are easier to climb than " + \
+      "others.\n"
+#define _LANG_SKILL_CLIMB_START "You look for somewhere to start up."
+#define _LANG_SKILL_CLIMB_NOT_CLIMBABLE "There is nothing there to climb.\n"
+#define _LANG_SKILL_CLIMB_ROUND1 "You get a good grip and start up.\n"
+#define _LANG_SKILL_CLIMB_ROUND1_ROOM caster->query_cap_name() + \
+      " starts climbing " + target->query_short() + ".\n"
+#define _LANG_SKILL_CLIMB_SUCCESS "You get to the top with no trouble, have a look " + \
+      "around and climb back down.\n"
+#define _LANG_SKILL_CLIMB_FAIL "You slip and are back on the ground before " + \
+      "getting very high.\n"

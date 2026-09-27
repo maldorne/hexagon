@@ -31,10 +31,10 @@ void create()
     SKILL_HIDE :
       ({ SKILLS_PATH + SKILL_HIDE, 10, 0, ACTIVE_SKILL, }),
 
-    // passive skill: rolled against by whatever can be climbed. Not learned by
-    // wandering: somebody has to teach it, or a quest has to pay it.
+    // active skill: 'climb <something>'. Not learned by wandering: somebody
+    // has to teach it, or a quest has to pay it.
     SKILL_CLIMB :
-      ({ SKILLS_PATH + SKILL_CLIMB, 10, 0, PASSIVE_SKILL, }),
+      ({ SKILLS_PATH + SKILL_CLIMB, 10, 0, ACTIVE_SKILL, }),
   ]);
 }
 
