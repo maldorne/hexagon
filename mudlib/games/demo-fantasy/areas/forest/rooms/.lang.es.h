@@ -42,7 +42,7 @@
 #define _LANG_RIVER_FALL_ME "\n¡CRAAASH! Caes con la rama al río y te golpeas la " + \
     "cabeza contra una piedra. Lo último que notas es el agua fría arrastrándote.\n"
 #define _LANG_RIVER_FALL_ROOM "Se oye un crujido entre las ramas del Mallorn: " + \
-    player->query_cap_name() + " cae con una rama al río y la corriente se lo " + \
+    who->query_cap_name() + " cae con una rama al río y la corriente se lo " + \
     "lleva.\n"
 #define _LANG_RIVER_CARRIED_ME "\nEntre sueños notas el frío, el ruido del agua y " + \
     "golpes de ramas y piedras. No sabes cuánto tiempo pasa.\n"

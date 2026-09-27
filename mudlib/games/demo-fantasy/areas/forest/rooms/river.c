@@ -1,11 +1,10 @@
 // The river below the Mallorn, where the end of the demo plays out. Nobody walks
-// in: whoever the old man sent up the tree falls with a branch, is carried here
-// by the current and wakes up on the bank, and that completes the quest that
-// sent them up.
+// in: whoever the old man sent up the tree is moved here from the top of it,
+// and everything that happens from then on happens in this room -- the branch
+// breaks, the fall, the current, waking up on the bank, which completes the
+// quest that sent them up.
 //
-// The steps run as call_outs in this room, which stays loaded, rather than in
-// the tree, which a reset may take away halfway. Each step checks the player is
-// still where the previous one left them, and stops if not.
+// Each step checks the one who entered is still here, and stops if not.
 
 #include <common/properties.h>
 #include <living/quests.h>
@@ -25,57 +24,64 @@ void setup()
   add_exit(DIR_NORTHEAST, ROOMS + "38.c", "forest");
 }
 
-// Up in the Mallorn, somebody on the quest has just reached the crown. The
-// branch gives way a moment later.
-void start_fall(object player, object from)
+// Whoever arrives from somewhere falls: coming back to the game after quitting
+// here has no previous room, and that is not a fall.
+void event_enter(object who, varargs string msg, object from, mixed avoid)
 {
-  player->add_timed_property(PASSED_OUT_PROP, _LANG_RIVER_PASSED_CLIMBING, 10);
-  call_out("branch_breaks", 4, player, from);
-}
+  ::event_enter(who, msg, from, avoid);
 
-void branch_breaks(object player, object from)
-{
-  if (!player || environment(player) != from)
+  if (!living(who) || !from)
     return;
 
-  tell_object(player, _LANG_RIVER_BRANCH_ME);
-  call_out("fall_into_river", 3, player, from);
+  who->add_timed_property(PASSED_OUT_PROP, _LANG_RIVER_PASSED_CLIMBING, 10);
+  call_out("branch_breaks", 2, who, from);
 }
 
-void fall_into_river(object player, object from)
+void branch_breaks(object who, object from)
 {
-  if (!player || environment(player) != from)
+  if (!who || environment(who) != this_object())
     return;
 
-  tell_object(player, _LANG_RIVER_FALL_ME);
-  tell_room(from, _LANG_RIVER_FALL_ROOM, player);
-
-  // out cold until the current leaves them somewhere
-  player->add_timed_property(PASSED_OUT_PROP, _LANG_RIVER_PASSED_UNCONSCIOUS, 30);
-  player->move(this_object());
-
-  call_out("carried_away", 8, player);
+  tell_object(who, _LANG_RIVER_BRANCH_ME);
+  call_out("fall_into_river", 3, who, from);
 }
 
-void carried_away(object player)
+void fall_into_river(object who, object from)
 {
-  if (!player || environment(player) != this_object())
+  if (!who || environment(who) != this_object())
     return;
 
-  tell_object(player, _LANG_RIVER_CARRIED_ME);
-  call_out("wake_up", 8, player);
+  tell_object(who, _LANG_RIVER_FALL_ME);
+
+  // whoever stayed below sees the branch come down
+  if (from)
+    tell_room(from, _LANG_RIVER_FALL_ROOM);
+
+  // out cold until the current leaves them on the bank
+  who->add_timed_property(PASSED_OUT_PROP, _LANG_RIVER_PASSED_UNCONSCIOUS, 30);
+
+  call_out("carried_away", 8, who);
 }
 
-void wake_up(object player)
+void carried_away(object who)
 {
-  if (!player || environment(player) != this_object())
+  if (!who || environment(who) != this_object())
     return;
 
-  player->remove_timed_property(PASSED_OUT_PROP);
-  tell_object(player, _LANG_RIVER_WAKE_ME);
+  tell_object(who, _LANG_RIVER_CARRIED_ME);
+  call_out("wake_up", 8, who);
+}
 
-  handler(QUESTS_HANDLER, player)->complete(player, QUEST_CLIMB);
+void wake_up(object who)
+{
+  if (!who || environment(who) != this_object())
+    return;
+
+  who->remove_timed_property(PASSED_OUT_PROP);
+  tell_object(who, _LANG_RIVER_WAKE_ME);
+
+  handler(QUESTS_HANDLER, who)->complete(who, QUEST_CLIMB);
 
   // queued, so it shows once the rest has been told
-  player->do_look();
+  who->do_look();
 }

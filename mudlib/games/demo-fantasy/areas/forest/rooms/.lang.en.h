@@ -43,7 +43,7 @@
     "hit your head on a stone. The last thing you feel is the cold water carrying " + \
     "you off.\n"
 #define _LANG_RIVER_FALL_ROOM "Something cracks among the Mallorn's branches: " + \
-    player->query_cap_name() + " falls into the river with a branch and the " + \
+    who->query_cap_name() + " falls into the river with a branch and the " + \
     "current takes them away.\n"
 #define _LANG_RIVER_CARRIED_ME "\nHalf asleep you feel the cold, the noise of the " + \
     "water and the knocks of branches and stones. You cannot tell how long it lasts.\n"

@@ -46,5 +46,6 @@ void event_climbed(object climber)
   // up there is the objective of the quest that sent them
   handler(QUESTS_HANDLER, climber)->reached(climber, "areas/forest/items/mallorn");
 
-  load_object(RIVER)->start_fall(climber, environment(climber));
+  // the fall is told by the river, where they end up
+  climber->move(RIVER);
 }
