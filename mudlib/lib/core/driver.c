@@ -462,6 +462,21 @@ static void remove_program(string path, int timestamp, int index)
   log_driver(" + remove_program: " + path + "\n");
 }
 
+// Called by DGD when the driver receives a kill signal (SIGHUP / SIGINT /
+// SIGTERM). Without this function DGD aborts with
+//   "Fatal error: missing function in driver object: interrupt"
+// on every stop, so we log the interrupt and hand off to the shutdown
+// efun for an orderly exit.
+nomask void interrupt()
+{
+  string date;
+
+  date = ::ctime(time())[4 .. 18];
+
+  log_driver("\n[" + date + "] ** " + "Interrupt signal received, shutting down mud.\n\n");
+  ::shutdown();
+}
+
 // Runtime toggle for showing caught errors to the user.
 // Reads are public; writes require both the original (non-spoofable)
 // player and the immediate caller object to belong to an administrator,
