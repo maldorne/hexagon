@@ -63,7 +63,7 @@ static int cmd (string arg, object me, string verb)
 
   // the frame opens and closes with a blank row of its own, so the text adds
   // none at either end
-  ret = _LANG_CMD_GAMES_AVAILABLE + "\n";
+  ret = _LANG_CMD_GAMES_AVAILABLE;
 
   games = demos_first(handler("games")->query_game_objects());
   shown = 0;
@@ -80,8 +80,9 @@ static int cmd (string arg, object me, string verb)
 
     // numbered as they are listed: a game nobody can see leaves no gap
     shown++;
-    line = "   " + shown + ") %^BOLD%^" + games[i]->query_game_name() +
-           "%^RESET%^";
+    // a blank line over each one, so they are told apart at a glance
+    line = "\n   %^BOLD%^" + shown + ") %^CYAN%^" +
+           games[i]->query_game_name() + "%^RESET%^";
 
     if (games[i]->query_demo())
       line += " (" + _LANG_CMD_GAMES_DEMO_GAME + ")";
