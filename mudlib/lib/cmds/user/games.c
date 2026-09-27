@@ -70,6 +70,7 @@ static int cmd (string arg, object me, string verb)
 
   for (i = 0; i < sizeof(games); i++)
   {
+    string * extras;
     string line;
     int available;
 
@@ -84,8 +85,14 @@ static int cmd (string arg, object me, string verb)
     line = "\n   %^BOLD%^" + shown + ") %^CYAN%^" +
            games[i]->query_game_name() + "%^RESET%^";
 
+    // its genre, and whether it is a demo
+    extras = ({ });
+    if (strlen(games[i]->query_genre()))
+      extras += ({ table("genres")->query_genre_name(games[i]->query_genre()) });
     if (games[i]->query_demo())
-      line += " (" + _LANG_CMD_GAMES_DEMO_GAME + ")";
+      extras += ({ _LANG_CMD_GAMES_DEMO_GAME });
+    if (sizeof(extras))
+      line += " (" + implode(extras, ", ") + ")";
 
     if (!available)
       line += " (" + _LANG_CMD_GAMES_UNAVAILABLE_GAME + ")";

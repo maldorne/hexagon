@@ -1,6 +1,7 @@
 
 #define GAME_COORDINATOR "neverbot"
 
+#include <mud/genres.h>
 #include <language.h>
 
 inherit "/lib/core/game.c";
@@ -14,6 +15,7 @@ void create()
 
    // a demo: playable from a brand new account, and the way out of one
    set_demo(true);
+   set_genre(GENRE_FANTASY);
    set_open_read(0);
    set_open_write(0);
    // set_finger_info("");

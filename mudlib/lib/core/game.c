@@ -17,6 +17,9 @@ static string game_name, game_short_desc, game_long_desc;
 // a demo game: the one an account starts with, and the only kind it can play
 // before finishing one
 static int demo;
+// the genre id (include/mud/genres.h): what kind of world it is, and which games
+// a character finishing a demo may move on to
+static string genre;
 // permissions for players: can they play?
 int open;
 
@@ -37,6 +40,9 @@ string query_game_long_description() { return game_long_desc; }
 
 void set_demo(int value) { demo = value; }
 int query_demo() { return demo; }
+
+void set_genre(string id) { genre = id; }
+string query_genre() { return genre; }
 
 void set_game_coordinator(string lord) { game_coordinator = lord; }
 string query_game_coordinator() { return game_coordinator; }
@@ -73,6 +79,7 @@ void create()
   game_short_desc = "";
   game_long_desc = "";
   demo = 0;
+  genre = "";
 
   members = ([ ]);
   read_perms = ([ ]);
