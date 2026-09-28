@@ -19,6 +19,7 @@ inherit "/lib/core/object.c";
 #define DEFAULT_XP_COST 4500
 
 // string *guild_commands;
+// race and class ids, see <living/races.h> and <living/classes.h>
 string *legal_races, *legal_classes;
 string requirements_func;
 int needed_ext_align;
@@ -116,9 +117,9 @@ int query_legal_player(object player)
   if (!objectp(player) || !player)
     return 0;
   // We check race, class and external alignment
-  if (!query_legal_race(player->query_race_name()))
+  if (!query_legal_race(player->query_race_id()))
     return 0;
-  if (!query_legal_class(player->query_class_name()))
+  if (!query_legal_class(player->query_class_id()))
     return 0;
   if (!query_valid_align(player->query_ext_align()))
     return 0;

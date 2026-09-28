@@ -17,9 +17,9 @@ int query_legal_base_race(string race) { return(1); }
 int query_legal_class(string my_class) { return(1); }
 
 int query_legal_player(object player){
-   return (query_legal_race(player->query_race_name()) &&
-           query_legal_base_race(player->query_base_race_name()) &&
-           query_legal_class(player->query_class_name()) );
+   return (query_legal_race(player->query_race_id()) &&
+           query_legal_base_race(player->query_base_race_id()) &&
+           query_legal_class(player->query_class_id()) );
 }
 
 // neverbot 07/12/06

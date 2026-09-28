@@ -61,6 +61,3 @@
                                       ":acaricia la madera del mostrador." })
 #define _LANG_NPCS_SHOPKEEPER_A_CHAT ({ "'No hace falta que esto acabe así.", \
                                         "'Elrhair te recordará por esto." })
-
-// races this village does not tolerate, by the name the race answers to
-#define _LANG_NPCS_HATED_RACES ({ "orco", "goblin" })

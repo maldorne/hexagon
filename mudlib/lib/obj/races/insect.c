@@ -10,6 +10,7 @@ void setup()
   // from 0 (very small) - 5 (human) - 10 (very big)
   set_body_size(1);
   set_name(_LANG_RACES_INSECT_NAME);
+  set_race_id(RACE_INSECT);
   set_short(capitalize(_LANG_RACES_INSECT_NAME));
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 

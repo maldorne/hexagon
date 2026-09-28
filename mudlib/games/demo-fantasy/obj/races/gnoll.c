@@ -3,6 +3,7 @@
 #include <translations/language.h>
 #include <translations/races.h>
 #include <language.h>
+#include "/games/demo-fantasy/include/races.h"
 
 inherit STD_RACE;
 
@@ -12,6 +13,7 @@ void setup()
   // from 0 (very small) - 5 (human) - 10 (very big)
   set_body_size(6);
   set_name(_LANG_RACES_GNOLL_NAME);
+  set_race_id(RACE_GNOLL);
   set_short(capitalize(_LANG_RACES_GNOLL_NAME));
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 

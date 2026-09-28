@@ -264,6 +264,16 @@ string query_base_race_name()
   return "";
 }
 
+// The id of the base race of a lineage, or "" for a race that is none
+string query_base_race_id()
+{
+  object ob;
+  if (social_object_list[RACE_OB])
+    if (ob = load_object(social_object_list[RACE_OB]->query_base_race()))
+        return (string)ob->query_race_id();
+  return "";
+}
+
 string query_base_race_ob()
 {
   string str;
@@ -281,6 +291,14 @@ string query_race_name()
     return ((string)social_object_list[RACE_OB]->query_name());
   else
     return "Sin Raza";
+}
+
+// The id of the race, for code to compare: never translated
+string query_race_id()
+{
+  if (social_object_list[RACE_OB])
+    return (string)social_object_list[RACE_OB]->query_race_id();
+  return "";
 }
 
 string query_race()
@@ -335,6 +353,14 @@ string query_class_name()
     return ((string)social_object_list[CLASS_OB]->query_name());
   else
     return ("Sin Clase");
+}
+
+// The id of the class, for code to compare: never translated
+string query_class_id()
+{
+  if (social_object_list[CLASS_OB])
+    return (string)social_object_list[CLASS_OB]->query_class_id();
+  return "";
 }
 
 string query_class()

@@ -2,6 +2,8 @@
 
 #include "../path.h"
 #include <language.h>
+#include <living/races.h>
+#include "/games/demo-fantasy/include/races.h"
 
 inherit "/lib/monster.c";
 
@@ -45,5 +47,5 @@ void setup()
   // the village has no patience with its enemies: aggressive 0 only goes
   // for the hated, so anybody else may walk through in peace
   set_aggressive(0);
-  add_hated("race", _LANG_NPCS_HATED_RACES);
+  add_hated("race", ({ RACE_HUMAN, RACE_ELF }));
 }

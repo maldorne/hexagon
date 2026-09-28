@@ -7,6 +7,16 @@
 #define DEFAULT_RACE_OB "/lib/obj/races/unknown.c"
 #define DEFAULT_CLASS_OB "/lib/obj/classes/fighter.c"
 
+// Race ids: what code compares a race by, always English and never translated.
+// These are the races every game shares; a game declares its own in
+// /games/<game>/include/races.h.
+#define RACE_ANIMAL  "animal"
+#define RACE_HUMAN   "human"
+#define RACE_INSECT  "insect"
+#define RACE_REPTILE "reptile"
+#define RACE_UNDEAD  "undead"
+#define RACE_UNKNOWN "unknown"
+
 // old light_defs.h
 #define L_B_H 1000
 #define L_B_L -1000

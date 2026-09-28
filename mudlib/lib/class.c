@@ -23,6 +23,13 @@ int combat_bonus;
 // xp_types = ([ "combat":"100", "magic":"20", ]), ...
 mapping xp_types;
 
+// What code compares this class by: English, never translated, one of the
+// CLASS_* ids. The name and the short are what players read.
+string class_id;
+
+void set_class_id(string id) { class_id = id; }
+string query_class_id() { return class_id; }
+
 int query_combat_bonus(){ return combat_bonus; }
 void set_combat_bonus(int value){ combat_bonus = value; }
 int query_hp_bonus() { return hp_bonus; }
@@ -42,10 +49,11 @@ void create(){
   gp_bonus = 0;
   hit_dice = 0;
   gp_dice = 0;
+  class_id = "";
   ::create();
 }
 
-// To check races
+// To check races, by id
 string * query_legal_races() { return legal_races; }
 void set_legal_races(string * list){
    legal_races = list;

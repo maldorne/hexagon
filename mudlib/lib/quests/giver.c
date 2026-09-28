@@ -60,39 +60,15 @@ void set_completed_quests(string * list) { completed = list; }
 void deals_with_races(string * list) { races = list; }
 string * query_dealt_races() { return races ? races : ({ }); }
 
-// The race of a living as a stable id: the name of the file its race object
-// lives in, which is not translated.
-private string race_id_of(object who)
-{
-  string path;
-  string * parts;
-
-  path = who->query_race_ob();
-
-  if (!stringp(path) || !strlen(path))
-    return "";
-
-  parts = explode(path, "/");
-
-  if (!sizeof(parts))
-    return "";
-
-  path = parts[sizeof(parts) - 1];
-
-  // the path may or may not carry the extension
-  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
-    path = path[0 .. strlen(path) - 3];
-
-  return path;
-}
-
-// Whether this giver talks to somebody at all.
+// Whether this giver talks to somebody at all: by race id, and a lineage
+// counts as its base race too.
 int deals_with(object who)
 {
   if (!sizeof(query_dealt_races()))
     return 1;
 
-  return member_array(race_id_of(who), query_dealt_races()) != -1;
+  return member_array(who->query_race_id(), query_dealt_races()) != -1 ||
+         member_array(who->query_base_race_id(), query_dealt_races()) != -1;
 }
 
 // The quests this giver would offer somebody right now, and the ones it takes

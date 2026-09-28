@@ -97,11 +97,11 @@ int matches_group(mapping description, object who)
 
   list = description["race"];
   if (pointerp(list) &&
-    ((member_array(who->query_race_name(), list) != -1) ||
-     (member_array(who->query_base_race_name(), list) != -1)) )
+    ((member_array(who->query_race_id(), list) != -1) ||
+     (member_array(who->query_base_race_id(), list) != -1)) )
     return 1;
-  if (stringp(list) && (string)list == (string)who->query_race_name()) return 1;
-  if (stringp(list) && (string)list == (string)who->query_base_race_name()) return 1;
+  if (stringp(list) && (string)list == (string)who->query_race_id()) return 1;
+  if (stringp(list) && (string)list == (string)who->query_base_race_id()) return 1;
 
   list = description["guild"];
   if (pointerp(list) && member_array(who->query_guild_name(), list) != -1) return 1;

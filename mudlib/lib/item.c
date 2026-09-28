@@ -264,7 +264,7 @@ int set_in_use(int i)
     // check race
     if (list[RACE_OB] != NULL_SOCIAL_VALUE)
     {
-      if (list[RACE_OB] != environment(this_object())->query_race_name())
+      if (list[RACE_OB] != environment(this_object())->query_race_id())
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de una raza "+
                     "concreta para que puedas usarlo.\n");
@@ -275,7 +275,7 @@ int set_in_use(int i)
     // check class
     if (list[CLASS_OB] != NULL_SOCIAL_VALUE)
     {
-      if (list[CLASS_OB] != environment(this_object())->query_class_name())
+      if (list[CLASS_OB] != environment(this_object())->query_class_id())
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de una clase "+
                     "concreta para que puedas usarlo.\n");
@@ -449,6 +449,7 @@ int set_in_use(int i)
 int query_gender_needed(){ return gender_needed; }
 void set_gender_needed(int i){ gender_needed = i; }
 
+// race and class are ids, see <living/races.h> and <living/classes.h>
 void set_class(string str){ list[CLASS_OB] = str; }
 void set_guild(string str){ list[GUILD_OB] = str; }
 void set_race(string str){ list[RACE_OB] = str; }

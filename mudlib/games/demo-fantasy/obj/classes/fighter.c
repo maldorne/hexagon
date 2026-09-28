@@ -2,12 +2,14 @@
 
 #include <user/xp.h>
 #include <language.h>
+#include <living/classes.h>
 
 inherit "/lib/class.c";
 
 void setup()
 {
    set_name(_LANG_FIGHTER_CLASS_NAME);
+   set_class_id(CLASS_FIGHTER);
    set_short(capitalize(_LANG_FIGHTER_CLASS_NAME));
 
    set_combat_bonus(4); // combat ability

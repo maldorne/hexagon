@@ -27,12 +27,18 @@ int limbs;
 string * lineages;
 // System to take a character to its starting zone
 string init_room;
+// What code compares this race by: English, never translated, one of the
+// RACE_* ids. The name and the short are what players read.
+string race_id;
 
 // New, to add races for NPCs (they are not playable)
 // Any race in /obj/races becomes playable automatically unless it has this set to 0
 int is_playable;
 
 int query_is_race_ob() { return 1; }
+
+void set_race_id(string id) { race_id = id; }
+string query_race_id() { return race_id; }
 
 void create() 
 {
@@ -43,6 +49,7 @@ void create()
   is_playable = 1;
   lineages = ({ });
   init_room = "";
+  race_id = "";
   // Neutral alignment by default
   ext_align = random(100);
 

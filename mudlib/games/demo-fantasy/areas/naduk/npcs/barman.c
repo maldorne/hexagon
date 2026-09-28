@@ -2,6 +2,8 @@
 
 #include <language.h>
 #include "../path.h"
+#include <living/races.h>
+#include "/games/demo-fantasy/include/races.h"
 
 inherit "/lib/monster.c";
 inherit giver "/lib/quests/giver.c";
@@ -42,7 +44,7 @@ void setup()
   }));
 
   // the village keeps its own kind: everybody else is sent away
-  deals_with_races(({ "human" }));
+  deals_with_races(({ RACE_HUMAN }));
   offers_quests("demo-fantasy:wasps-ruin-the-hunt");
   completes_quests("demo-fantasy:wasps-ruin-the-hunt");
   // the errand to the old man is handed out here, but he is the one

@@ -14,6 +14,7 @@ void setup()
   // from 0 (very small) - 5 (human) - 10 (very big)
   set_body_size(5);
   set_name(_LANG_RACES_UNDEAD_NAME);
+  set_race_id(RACE_UNDEAD);
   set_short(capitalize(_LANG_RACES_UNDEAD_NAME));
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 
