@@ -6,7 +6,7 @@
 #define _LANG_ITEMS_FIGHTER_MSG "From now on your wandering through the realms will be " + \
       "marked by your honor and by your skill with the sword.\n\n" + \
       "May the Gods accompany you on your journey...\n\n"
-#define _LANG_ITEMS_MIXED_MSG "From now on your wandering through the world will be marked " + \
+#define _LANG_ITEMS_EXPLORER_MSG "From now on your wandering through the world will be marked " + \
     "by your ability to negotiate, your skill to not " + \
     "draw attention and, in the worst cases, " + \
     "your mastery with the sword, deceit or even flight.\n\n" + \

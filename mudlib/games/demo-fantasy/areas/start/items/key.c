@@ -14,8 +14,8 @@ void setup()
 
   set_long(_LANG_KEY_DESC);
 
-  set_class_ob(CLASSES_PATH + "mixed.c");
-  set_message(_LANG_ITEMS_MIXED_MSG);
+  set_class_ob(CLASSES_PATH + "explorer.c");
+  set_message(_LANG_ITEMS_EXPLORER_MSG);
   set_items( ({
         "/games/demo-fantasy/baseobs/weapons/dagger.c",
         "/games/demo-fantasy/baseobs/armours/shirt.c",

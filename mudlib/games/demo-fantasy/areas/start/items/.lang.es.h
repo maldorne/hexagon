@@ -6,7 +6,7 @@
 #define _LANG_ITEMS_FIGHTER_MSG "Desde este día tu viaje por los reinos estará " + \
       "marcado por tu honor y por tu destreza con la espada.\n\n" + \
       "Que los Dioses te acompañen en tu viaje...\n\n"
-#define _LANG_ITEMS_MIXED_MSG "Desde este día tu deambular por el mundo estará marcado " + \
+#define _LANG_ITEMS_EXPLORER_MSG "Desde este día tu deambular por el mundo estará marcado " + \
     "por tu capacidad para la negociación, tu habilidad para no " + \
     "llamar la atención y, en los peores casos, " + \
     "tu maestría con la espada, el engaño o incluso la huída.\n\n" + \

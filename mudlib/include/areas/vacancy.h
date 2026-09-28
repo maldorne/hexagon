@@ -16,7 +16,7 @@
 //      VACANCY_SOURCE: template_id,
 //      VACANCY_FIXED:  1,                  // one post, held at that one place
 //      VACANCY_SPOTS: ({ "/save/.../c1.o", ... }), // one holder to each
-//      VACANCY_CLASS:  "/lib/obj/classes/mixed.c",
+//      VACANCY_CLASS:  "/lib/obj/classes/explorer.c",
 //      VACANCY_HOME:   "/save/.../plot_30_-2_0.o" ])
 
 // the job's name, as the builder and the census know it
