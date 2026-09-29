@@ -14,5 +14,12 @@
 #define _LANG_PLAY_VERBS ({ "play" })
 #define _LANG_PLAY_FAIL "Play what?\n"
 #define _LANG_PLAY_GAME_DO_NOT_LOAD "The chosen game seems to be broken.\n"
+// why the chosen game cannot be played, by the reason the game gives
+#define _LANG_PLAY_CLOSED ([ \
+    GAME_CLOSED: "That game is not open to players.\n", \
+    GAME_NEEDS_DEMO: "Until your account finishes a demo, you can only " + \
+      "create characters in them.\n", \
+    GAME_DEMO_TAKEN: "You already have another character in that demo: an " + \
+      "account may have only one in each demo.\n" ])
 #define _LANG_PLAY_START "Ok, you choose to play " + games[i]->query_game_name() + \
           ". Your character gives its first step in what could be a long journey. Good luck!\n"

@@ -9,6 +9,7 @@
 // Converted to game object for Hexagon, neverbot 12/2020
 
 #include <mud/secure.h>
+#include <mud/games.h>
 #include <language.h>
 
 // game description
@@ -103,14 +104,33 @@ void create()
   }
 }
 
+// Why this account cannot play here now, or "" if it can. A new account may
+// only play the demos, one character in each, and finishing one opens the rest.
+string query_closed_reason(object user)
+{
+  string character;
+
+  if (!open)
+    return GAME_CLOSED;
+
+  if (!user)
+    return "";
+
+  if (!demo)
+    return user->has_finished_demo() ? "" : GAME_NEEDS_DEMO;
+
+  character = user->query_demo_player(game_name(this_object()));
+
+  if (stringp(character) && strlen(character) &&
+      (!user->player() || user->player()->query_name() != character))
+    return GAME_DEMO_TAKEN;
+
+  return "";
+}
+
 int is_available(object user)
 {
-  if (!open)
-    return false;
-
-  // TODO: logic for games only available with achievements, etc
-
-  return true;
+  return !strlen(query_closed_reason(user));
 }
 
 void dest_me() { destruct(this_object()); }

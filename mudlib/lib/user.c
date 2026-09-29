@@ -20,6 +20,7 @@ inherit account       "/lib/user/account";
 inherit notifications "/lib/user/notifications";
 inherit ui            "/lib/user/ui";
 inherit editor        "/lib/user/editor";
+inherit demos         "/lib/user/demos";
 
 // interactive object info
 static object redirect_input_ob;       // object that will catch input and
@@ -86,6 +87,7 @@ void create()
   account::create();
   ui::create();
   editor::create();
+  demos::create();
   communicate::create();
   inform::create();
   more_string::create();

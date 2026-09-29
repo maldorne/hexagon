@@ -52,10 +52,48 @@ int show_hints(object who)
   return 1;
 }
 
+// Whether somebody still has to choose a race: they have none yet, or only
+// the placeholder, which is stored with or without its extension.
+private int has_no_race(object who)
+{
+  string race;
+
+  race = who->query_race_ob();
+  return !race || race == DEFAULT_RACE_OB || race + ".c" == DEFAULT_RACE_OB;
+}
+
+// Somebody who already has a race does not choose again: with a race of this
+// game they go straight on, and with one from another game they take the race
+// of this game with the same id. With no such race, they choose one here.
+void pass_through(object who)
+{
+  string race;
+
+  if (!who || environment(who) != this_object())
+    return;
+
+  if (game_from_path(who->query_race_ob()) != game_name(this_object()))
+  {
+    race = handler("games")->query_equivalent_race(who, game_name(this_object()));
+
+    if (!strlen(race))
+    {
+      show_hints(who);
+      return;
+    }
+
+    who->set_race_ob(race);
+    log_file("races", who->query_cap_name() + ": " + who->query_race_name() +
+      ", from another game, " + ctime(time(), 4) + "\n");
+  }
+
+  who->move_living("X", ADJUST_ROOM);
+}
+
 void event_enter(object who, varargs string msg, object from, mixed avoid)
 {
   if (living(who))
-    call_out("show_hints", 1, who);
+    call_out(has_no_race(who) ? "show_hints" : "pass_through", 1, who);
 
   ::event_enter(who, msg, from, avoid);
 }
@@ -138,9 +176,10 @@ int do_open(string str)
 
   race = this_player()->query_race_ob();
 
-  // a race is chosen once: only an unset one, or the placeholder, may be set.
-  // The placeholder is stored with or without its extension
-  if (!race || race == DEFAULT_RACE_OB || race + ".c" == DEFAULT_RACE_OB)
+  // a race is chosen once: only an unset one, or the placeholder, may be set,
+  // or one from another game that has no counterpart here
+  if (has_no_race(this_player()) ||
+      game_from_path(race) != game_name(this_object()))
   {
     this_player()->set_race_ob(race_files[lower_case(r)]);
     log_file("races", this_player()->query_cap_name() + ": "+

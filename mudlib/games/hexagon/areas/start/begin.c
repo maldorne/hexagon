@@ -7,6 +7,7 @@
 inherit "/lib/room";
 
 #include <living/races.h>
+#include <mud/games.h>
 #include <language.h>
 
 void setup()
@@ -40,7 +41,7 @@ int do_play(string str)
 {
   int i;
   object * games;
-  string path;
+  string path, reason;
 
   if (!strlen(str))
   {
@@ -56,7 +57,8 @@ int do_play(string str)
 
   i -= 1;
 
-  games = handler("games")->query_game_objects();
+  // numbered as the games list shows them
+  games = handler("games")->query_listed_games(this_player()->user());
 
   if (i < 0 || i >= sizeof(games))
   {
@@ -64,13 +66,24 @@ int do_play(string str)
     return 0;
   }
 
-  path = game_root(games[i]) + "areas/start/begin.c";
+  // coders may go anywhere, to try things out
+  reason = games[i]->query_closed_reason(this_player()->user());
+
+  if (strlen(reason) && !this_player()->query_coder())
+  {
+    notify_fail(_LANG_PLAY_CLOSED[reason]);
+    return 0;
+  }
+
+  path = game_root(games[i]) + GAME_START_ROOM;
 
   if (!load_object(path))
   {
     notify_fail(_LANG_PLAY_GAME_DO_NOT_LOAD);
     return 0;
   }
+
+  handler("games")->start_demo(this_player(), games[i]);
 
   write("\n" + _LANG_PLAY_START + "\n");
   this_player()->move(path);

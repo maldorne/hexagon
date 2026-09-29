@@ -28,10 +28,39 @@ int show_hints(object who)
   return 1;
 }
 
+// Somebody who already has a class does not choose again: with a class of this
+// game they go straight on, and with one from another game the item of the same
+// class here takes them. With no such item, they choose like anybody else.
+void pass_through(object who)
+{
+  object * here;
+  int i;
+
+  if (!who || environment(who) != this_object())
+    return;
+
+  if (game_from_path(who->query_class_ob()) == game_name(this_object()))
+  {
+    who->move_living("X", CHOOSE_RACE_ROOM);
+    return;
+  }
+
+  here = all_inventory(this_object());
+
+  for (i = 0; i < sizeof(here); i++)
+    if (!living(here[i]) && here[i]->query_class_id() == who->query_class_id())
+    {
+      here[i]->choose(who);
+      return;
+    }
+
+  show_hints(who);
+}
+
 void event_enter(object who, varargs string msg, object from, mixed avoid)
 {
   if (living(who))
-    call_out("show_hints", 1, who);
+    call_out(who->query_class_ob() ? "pass_through" : "show_hints", 1, who);
 
   ::event_enter(who, msg, from, avoid);
 }

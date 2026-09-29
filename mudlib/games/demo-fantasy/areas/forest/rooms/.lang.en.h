@@ -49,3 +49,22 @@
     "water and the knocks of branches and stones. You cannot tell how long it lasts.\n"
 #define _LANG_RIVER_WAKE_ME "\nYou wake up lying on a bank, soaked and with a nasty " + \
     "bump. You do not quite remember how you got here.\n"
+
+// river.c: leaving the demo
+
+#define _LANG_RIVER_CHOOSE_VERBS ({ "choose" })
+#define _LANG_RIVER_DESTINATIONS "The river does not end here. Downstream other " + \
+    "lands open up where your story may go on:\n"
+#define _LANG_RIVER_DESTINATIONS_HINT "%^BOLD%^Type 'choose <number>' to let the " + \
+    "river take you to one of them. There is no way back, and what you carry " + \
+    "stays here.%^RESET%^\n"
+#define _LANG_RIVER_NO_DESTINATIONS "The river does not seem to lead anywhere. " + \
+    "There is no game you can move on to: talk to a coder.\n"
+#define _LANG_RIVER_CHOOSE_FAIL "Choose what? Type 'choose <number>' with one of " + \
+    "the lands the river can take you to.\n"
+#define _LANG_RIVER_LEAVING_ME "\nYou step back into the water and let the " + \
+    "current take you. You lose your footing, swallow water, and the little you " + \
+    "carried is left to the river. When you open your eyes again, of everything " + \
+    "you lived before only blurred memories remain.\n\n"
+#define _LANG_RIVER_LEAVING_ROOM this_player()->query_cap_name() + " steps into " + \
+    "the river and the current carries them downstream.\n"

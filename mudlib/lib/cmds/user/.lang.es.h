@@ -67,8 +67,15 @@
 #define _LANG_CMD_GAMES_HELP "Lista todos los juegos disponibles en " + mud_name() + "."
 #define _LANG_CMD_GAMES_AVAILABLE "Los siguientes juegos están disponibles:\n"
 #define _LANG_CMD_GAMES_NO_LOGIN "Debes hacer login primero."
-#define _LANG_CMD_GAMES_UNAVAILABLE_GAME "No jugable"
 #define _LANG_CMD_GAMES_DEMO_GAME "demostración"
+// why a listed game cannot be played now, by the reason game.c gives
+#define _LANG_CMD_GAMES_CLOSED_REASONS ([ \
+      GAME_CLOSED: "no jugable", \
+      GAME_NEEDS_DEMO: "tras terminar una demostración", \
+      GAME_DEMO_TAKEN: "ya tienes un personaje en ella" ])
+#define _LANG_CMD_GAMES_NEEDS_DEMO "%^BOLD%^YELLOW%^Tu cuenta aún no ha " + \
+      "terminado ninguna demostración: hasta entonces sólo puedes crear " + \
+      "personajes en ellas.%^RESET%^"
 #define _LANG_CMD_GAMES_START_TITLE "Cómo se empieza:\n"
 #define _LANG_CMD_GAMES_START_DEMO "Con una cuenta nueva sólo puedes crear " + \
       "personajes en los juegos de demostración, los primeros de la lista. Al " + \
@@ -76,6 +83,6 @@
       "en cualquier juego."
 #define _LANG_CMD_GAMES_START_CARRY "El personaje con el que termines la " + \
       "demostración no se queda ahí: pasa a uno de los juegos del mismo género " + \
-      "(fantasía, ciencia ficción, ...) y sigue avanzando con todo lo que lleve, " + \
-      "así que nada de lo que hagas en la demostración se pierde."
+      "(fantasía, ciencia ficción, ...) y conserva su nivel y lo que ha " + \
+      "aprendido, aunque el equipo se queda atrás."
 

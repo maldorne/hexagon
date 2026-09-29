@@ -66,14 +66,21 @@
 #define _LANG_CMD_GAMES_HELP "List every available game in " + mud_name() + "."
 #define _LANG_CMD_GAMES_AVAILABLE "The following games are available:\n"
 #define _LANG_CMD_GAMES_NO_LOGIN "You must login first."
-#define _LANG_CMD_GAMES_UNAVAILABLE_GAME "Non playable"
 #define _LANG_CMD_GAMES_DEMO_GAME "demo"
+// why a listed game cannot be played now, by the reason game.c gives
+#define _LANG_CMD_GAMES_CLOSED_REASONS ([ \
+      GAME_CLOSED: "non playable", \
+      GAME_NEEDS_DEMO: "after finishing a demo", \
+      GAME_DEMO_TAKEN: "you already have a character in it" ])
+#define _LANG_CMD_GAMES_NEEDS_DEMO "%^BOLD%^YELLOW%^Your account has not " + \
+      "finished any demo yet: until then you can only create characters " + \
+      "in them.%^RESET%^"
 #define _LANG_CMD_GAMES_START_TITLE "How it is played:\n"
 #define _LANG_CMD_GAMES_START_DEMO "With a new account you can only create " + \
       "characters in the demo games, the first ones on the list. Finishing one " + \
       "opens the rest: from then on you can create characters in any game."
 #define _LANG_CMD_GAMES_START_CARRY "The character who finishes the demo does " + \
       "not stay there: it moves on to one of the games of the same genre " + \
-      "(fantasy, science fiction, ...) and carries on with everything it has, so " + \
-      "nothing you do in the demo is lost."
+      "(fantasy, science fiction, ...) and keeps its level and what it has " + \
+      "learned, though its equipment stays behind."
 

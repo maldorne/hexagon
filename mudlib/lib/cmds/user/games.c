@@ -4,6 +4,7 @@
 // the first thing a new player reads about how Hexagon is played.
 
 #include <mud/cmd.h>
+#include <mud/games.h>
 #include <language.h>
 
 inherit CMD_BASE;
@@ -21,25 +22,6 @@ string query_usage()
 string query_help()
 {
   return _LANG_CMD_GAMES_HELP;
-}
-
-// The demos first: those are the ones a new account can always play.
-private object * demos_first(object * games)
-{
-  object * out;
-  int i;
-
-  out = ({ });
-
-  for (i = 0; i < sizeof(games); i++)
-    if (games[i]->query_demo())
-      out += ({ games[i] });
-
-  for (i = 0; i < sizeof(games); i++)
-    if (!games[i]->query_demo())
-      out += ({ games[i] });
-
-  return out;
 }
 
 static int cmd (string arg, object me, string verb)
@@ -65,19 +47,20 @@ static int cmd (string arg, object me, string verb)
   // none at either end
   ret = _LANG_CMD_GAMES_AVAILABLE;
 
-  games = demos_first(handler("games")->query_game_objects());
+  // said up front to an account that cannot play everything yet
+  if (!is_coder && user->player() && !user->has_finished_demo())
+    ret += "\n" + sprintf("   %-" + width + "s", _LANG_CMD_GAMES_NEEDS_DEMO) + "\n";
+
+  // numbered in the same order the lobby takes them in
+  games = handler("games")->query_listed_games(user);
   shown = 0;
 
   for (i = 0; i < sizeof(games); i++)
   {
     string * extras;
-    string line;
-    int available;
+    string line, reason;
 
-    available = games[i]->is_available(user);
-
-    if (!is_coder && !available)
-      continue;
+    reason = games[i]->query_closed_reason(user);
 
     // numbered as they are listed: a game nobody can see leaves no gap
     shown++;
@@ -94,8 +77,8 @@ static int cmd (string arg, object me, string verb)
     if (sizeof(extras))
       line += " (" + implode(extras, ", ") + ")";
 
-    if (!available)
-      line += " (" + _LANG_CMD_GAMES_UNAVAILABLE_GAME + ")";
+    if (strlen(reason))
+      line += " (" + _LANG_CMD_GAMES_CLOSED_REASONS[reason] + ")";
 
     line += "\n";
 

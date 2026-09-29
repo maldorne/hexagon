@@ -48,3 +48,22 @@
     "golpes de ramas y piedras. No sabes cuánto tiempo pasa.\n"
 #define _LANG_RIVER_WAKE_ME "\nDespiertas tendido en una orilla, empapado y con un " + \
     "buen chichón. No recuerdas muy bien cómo has llegado hasta aquí.\n"
+
+// river.c: leaving the demo
+
+#define _LANG_RIVER_CHOOSE_VERBS ({ "elegir", "escoger" })
+#define _LANG_RIVER_DESTINATIONS "El río no termina aquí. Aguas abajo se abren " + \
+    "otras tierras donde seguir tu historia:\n"
+#define _LANG_RIVER_DESTINATIONS_HINT "%^BOLD%^Escribe 'elegir <número>' para " + \
+    "dejar que el río te lleve a una de ellas. No hay vuelta atrás, y lo que " + \
+    "llevas encima se queda aquí.%^RESET%^\n"
+#define _LANG_RIVER_NO_DESTINATIONS "El río no parece llevar a ninguna parte. " + \
+    "No hay ningún juego al que puedas pasar: habla con un programador.\n"
+#define _LANG_RIVER_CHOOSE_FAIL "¿Elegir qué? Escribe 'elegir <número>' con una " + \
+    "de las tierras adonde puede llevarte el río.\n"
+#define _LANG_RIVER_LEAVING_ME "\nTe metes de nuevo en el agua y dejas que la " + \
+    "corriente te lleve. Pierdes pie, tragas agua, y lo poco que llevabas encima " + \
+    "se lo queda el río. Cuando vuelves a abrir los ojos, de todo lo que viviste " + \
+    "antes apenas te quedan recuerdos borrosos.\n\n"
+#define _LANG_RIVER_LEAVING_ROOM this_player()->query_cap_name() + " se mete en " + \
+    "el río y la corriente se lo lleva aguas abajo.\n"

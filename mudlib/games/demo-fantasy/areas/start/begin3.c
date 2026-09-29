@@ -33,10 +33,18 @@ int show_hints(object who)
   return 1;
 }
 
+// Somebody whose attributes are already arranged has nothing to do here.
+void pass_through(object who)
+{
+  if (who && environment(who) == this_object())
+    who->move_living("X", NEWBIE_ROOM);
+}
+
 void event_enter(object who, varargs string msg, object from, mixed avoid)
 {
   if (living(who))
-    call_out("show_hints", 1, who);
+    call_out(who->query_property(ORIGINAL_ADJUST_PROP) ? "pass_through" :
+             "show_hints", 1, who);
 
   ::event_enter(who, msg, from, avoid);
 }
