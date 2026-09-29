@@ -27,7 +27,8 @@ inherit prices     "/lib/ventures/pub-prices.c";
 int last_adjust, pts_healed;
 
 // Taniwha 1995 , block clean_up() from removing items
-int clean_up(int flag) { return 1; }
+// Same signature as the one it overrides, which callers may call with no flag
+int clean_up(varargs int flag) { return 1; }
 int clean_up_room(int flag) {  return 1; }
 
 int query_pub(){ return 1; }
