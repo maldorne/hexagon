@@ -34,7 +34,9 @@
 #define _LANG_RIVER_SHORT _LANG_FOREST_SHORT + ": River bank"
 #define _LANG_RIVER_LONG "A bend of the river, below the Mallorn's hill. The " + \
     "current leaves here everything it carries: branches, leaves and, now and " + \
-    "then, somebody unwary.\n"
+    "then, somebody unwary. From here there is no way back into the forest, " + \
+    "only downstream: %^BOLD%^type 'choose' to see where the river can take " + \
+    "you.%^RESET%^\n"
 #define _LANG_RIVER_PASSED_CLIMBING "You are up in the Mallorn, holding on to a branch.\n"
 #define _LANG_RIVER_PASSED_UNCONSCIOUS "You are unconscious.\n"
 #define _LANG_RIVER_BRANCH_ME "\nThe branch you are leaning on creaks under your " + \
@@ -60,8 +62,10 @@
     "stays here.%^RESET%^\n"
 #define _LANG_RIVER_NO_DESTINATIONS "The river does not seem to lead anywhere. " + \
     "There is no game you can move on to: talk to a coder.\n"
-#define _LANG_RIVER_CHOOSE_FAIL "Choose what? Type 'choose <number>' with one of " + \
-    "the lands the river can take you to.\n"
+#define _LANG_RIVER_CHOOSE_FAIL "Choose what? Type 'choose' to see where the " + \
+    "river can take you, and 'choose <number>' to go.\n"
+#define _LANG_RIVER_TRANSFER_FAILED "The current washes you back to the bank: " + \
+    "that way is not open right now. Talk to a coder.\n"
 #define _LANG_RIVER_LEAVING_ME "\nYou step back into the water and let the " + \
     "current take you. You lose your footing, swallow water, and the little you " + \
     "carried is left to the river. When you open your eyes again, of everything " + \

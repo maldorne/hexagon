@@ -8,6 +8,8 @@
 //
 // There is no way back into the forest: from the bank the character leaves the
 // demo for one of the games the games handler finds for it, and chooses which.
+// Being here is being done with the demo, however one got here, so nothing in
+// this room asks for the quest before letting anybody go on.
 
 #include <common/properties.h>
 #include <living/quests.h>
@@ -32,15 +34,6 @@ void init()
   add_action("do_choose", _LANG_RIVER_CHOOSE_VERBS);
 }
 
-// The games this one may go on to, once the demo is over for them.
-private object * destinations(object who)
-{
-  if (!who->has_completed_quest(game_name(who), QUEST_CLIMB))
-    return ({ });
-
-  return handler("games")->query_transfer_destinations(who);
-}
-
 // Tells the one on the bank where the river may take them, and how to choose.
 void show_destinations(object who)
 {
@@ -51,7 +44,7 @@ void show_destinations(object who)
   if (!who || environment(who) != this_object() || !who->user())
     return;
 
-  games = destinations(who);
+  games = handler("games")->query_transfer_destinations(who);
 
   if (!sizeof(games))
   {
@@ -74,15 +67,22 @@ void show_destinations(object who)
   tell_object(who, handler("frames")->frame(ret));
 }
 
+// With no number, the list again: whoever missed it, came back linkdead or
+// just forgot can always ask for it.
 int do_choose(string str)
 {
   object * games;
   int i;
 
-  games = destinations(this_player());
+  if (!str || !strlen(str))
+  {
+    show_destinations(this_player());
+    return 1;
+  }
 
-  if (!sizeof(games) || !str || sscanf(str, "%d", i) != 1 ||
-      i < 1 || i > sizeof(games))
+  games = handler("games")->query_transfer_destinations(this_player());
+
+  if (sscanf(str, "%d", i) != 1 || i < 1 || i > sizeof(games))
   {
     notify_fail(_LANG_RIVER_CHOOSE_FAIL);
     return 0;
@@ -92,18 +92,16 @@ int do_choose(string str)
   write(wrap(_LANG_RIVER_LEAVING_ME, this_user()->query_cols()));
   tell_room(this_object(), _LANG_RIVER_LEAVING_ROOM, this_player());
 
+  // the destination's start room did not load: nothing has changed yet
   if (!handler("games")->transfer(this_player(), games[i - 1]))
-  {
-    notify_fail(_LANG_RIVER_CHOOSE_FAIL);
-    return 0;
-  }
+    write(_LANG_RIVER_TRANSFER_FAILED);
 
   return 1;
 }
 
 // Whoever arrives from somewhere falls: coming back to the game after quitting
-// here has no previous room, and that is not a fall -- that one is only told
-// again where the river may take them.
+// here has no previous room, and that is not a fall -- that one wakes up on
+// the bank straight away, wherever the fall had got to when they left.
 void event_enter(object who, varargs string msg, object from, mixed avoid)
 {
   ::event_enter(who, msg, from, avoid);
@@ -113,7 +111,7 @@ void event_enter(object who, varargs string msg, object from, mixed avoid)
 
   if (!from)
   {
-    call_out("show_destinations", 1, who);
+    call_out("on_the_bank", 1, who);
     return;
   }
 
@@ -156,19 +154,31 @@ void carried_away(object who)
   call_out("wake_up", 8, who);
 }
 
+// Where every way in ends: awake, done with the quest if it was still open,
+// and told where the river may take them from here.
+void on_the_bank(object who)
+{
+  if (!who || environment(who) != this_object())
+    return;
+
+  // a fall cut short by quitting may have left them out cold
+  who->remove_timed_property(PASSED_OUT_PROP);
+
+  // does nothing for somebody who was not on it
+  handler(QUESTS_HANDLER, who)->complete(who, QUEST_CLIMB);
+
+  call_out("show_destinations", 2, who);
+}
+
 void wake_up(object who)
 {
   if (!who || environment(who) != this_object())
     return;
 
-  who->remove_timed_property(PASSED_OUT_PROP);
   tell_object(who, _LANG_RIVER_WAKE_ME);
-
-  handler(QUESTS_HANDLER, who)->complete(who, QUEST_CLIMB);
 
   // queued, so it shows once the rest has been told
   who->do_look();
 
-  // and then, where the river may take them from here
-  call_out("show_destinations", 2, who);
+  on_the_bank(who);
 }

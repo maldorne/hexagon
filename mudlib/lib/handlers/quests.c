@@ -330,8 +330,9 @@ int accept(object who, string id, varargs string source)
 
   // what the giver says as it hands the work over, when it says anything
   if (strlen(quest->query_accept_message()))
+    // the width of whoever takes it: this may run with nobody typing
     tell_object(who, "\n" + wrap(quest->query_accept_message(),
-                                 this_user()->query_cols()));
+                                 who->user() ? who->user()->query_cols() : 0));
 
   return QUEST_OK;
 }
@@ -430,8 +431,9 @@ int complete(object who, string id)
 
   // what the taker says as it takes the quest back, before whatever it pays
   if (strlen(quest->query_complete_message()))
+    // the width of whoever completes it: this may run with nobody typing
     tell_object(who, "\n" + wrap(quest->query_complete_message(),
-                                 this_user()->query_cols()));
+                                 who->user() ? who->user()->query_cols() : 0));
 
   for (i = 0; i < sizeof(rewards); i++)
     pay_reward(who, rewards[i]);

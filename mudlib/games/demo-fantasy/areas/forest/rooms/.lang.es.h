@@ -34,7 +34,9 @@
 #define _LANG_RIVER_SHORT _LANG_FOREST_SHORT + ": Orilla del río"
 #define _LANG_RIVER_LONG "Un recodo del río, más abajo de la colina del Mallorn. " + \
     "La corriente deja aquí todo lo que arrastra: ramas, hojas y, de vez en " + \
-    "cuando, a algún incauto.\n"
+    "cuando, a algún incauto. Desde aquí no hay camino de vuelta al bosque, " + \
+    "solo aguas abajo: %^BOLD%^escribe 'elegir' para ver adónde puede " + \
+    "llevarte el río.%^RESET%^\n"
 #define _LANG_RIVER_PASSED_CLIMBING "Estás en lo alto del Mallorn, agarrado a una rama.\n"
 #define _LANG_RIVER_PASSED_UNCONSCIOUS "Estás inconsciente.\n"
 #define _LANG_RIVER_BRANCH_ME "\nLa rama en la que te apoyas cruje bajo tu peso. " + \
@@ -59,8 +61,10 @@
     "llevas encima se queda aquí.%^RESET%^\n"
 #define _LANG_RIVER_NO_DESTINATIONS "El río no parece llevar a ninguna parte. " + \
     "No hay ningún juego al que puedas pasar: habla con un programador.\n"
-#define _LANG_RIVER_CHOOSE_FAIL "¿Elegir qué? Escribe 'elegir <número>' con una " + \
-    "de las tierras adonde puede llevarte el río.\n"
+#define _LANG_RIVER_CHOOSE_FAIL "¿Elegir qué? Escribe 'elegir' para ver adónde " + \
+    "puede llevarte el río, y 'elegir <número>' para ir.\n"
+#define _LANG_RIVER_TRANSFER_FAILED "La corriente te devuelve a la orilla: ese " + \
+    "camino no está abierto ahora mismo. Habla con un programador.\n"
 #define _LANG_RIVER_LEAVING_ME "\nTe metes de nuevo en el agua y dejas que la " + \
     "corriente te lleve. Pierdes pie, tragas agua, y lo poco que llevabas encima " + \
     "se lo queda el río. Cuando vuelves a abrir los ojos, de todo lo que viviste " + \

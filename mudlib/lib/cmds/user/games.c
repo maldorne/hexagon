@@ -27,7 +27,7 @@ string query_help()
 static int cmd (string arg, object me, string verb)
 {
   int i, shown, is_coder, width;
-  object user;
+  object user, account;
   object * games;
   string ret;
 
@@ -47,8 +47,12 @@ static int cmd (string arg, object me, string verb)
   // none at either end
   ret = _LANG_CMD_GAMES_AVAILABLE;
 
+  // before a login there is no account to speak of, and nothing about what it
+  // can play is known yet
+  account = strlen(user->query_account_name()) ? user : nil;
+
   // said up front to an account that cannot play everything yet
-  if (!is_coder && user->player() && !user->has_finished_demo())
+  if (!is_coder && account && !account->has_finished_demo())
     // coloured outside the sprintf field, which would count the codes as text
     ret += "\n%^BOLD%^YELLOW%^" +
            sprintf("   %-" + width + "s", _LANG_CMD_GAMES_NEEDS_DEMO) +
@@ -63,7 +67,7 @@ static int cmd (string arg, object me, string verb)
     string * extras;
     string line, reason;
 
-    reason = games[i]->query_closed_reason(user);
+    reason = games[i]->query_closed_reason(account);
 
     // numbered as they are listed: a game nobody can see leaves no gap
     shown++;
