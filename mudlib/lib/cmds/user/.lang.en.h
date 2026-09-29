@@ -72,9 +72,8 @@
       GAME_CLOSED: "non playable", \
       GAME_NEEDS_DEMO: "after finishing a demo", \
       GAME_DEMO_TAKEN: "you already have a character in it" ])
-#define _LANG_CMD_GAMES_NEEDS_DEMO "%^BOLD%^YELLOW%^Your account has not " + \
-      "finished any demo yet: until then you can only create characters " + \
-      "in them.%^RESET%^"
+#define _LANG_CMD_GAMES_NEEDS_DEMO "Your account has not finished any demo " + \
+      "yet: until then you can only create characters in them."
 #define _LANG_CMD_GAMES_START_TITLE "How it is played:\n"
 #define _LANG_CMD_GAMES_START_DEMO "With a new account you can only create " + \
       "characters in the demo games, the first ones on the list. Finishing one " + \

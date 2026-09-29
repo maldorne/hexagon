@@ -73,9 +73,8 @@
       GAME_CLOSED: "no jugable", \
       GAME_NEEDS_DEMO: "tras terminar una demostración", \
       GAME_DEMO_TAKEN: "ya tienes un personaje en ella" ])
-#define _LANG_CMD_GAMES_NEEDS_DEMO "%^BOLD%^YELLOW%^Tu cuenta aún no ha " + \
-      "terminado ninguna demostración: hasta entonces sólo puedes crear " + \
-      "personajes en ellas.%^RESET%^"
+#define _LANG_CMD_GAMES_NEEDS_DEMO "Tu cuenta aún no ha terminado ninguna " + \
+      "demostración: hasta entonces sólo puedes crear personajes en ellas."
 #define _LANG_CMD_GAMES_START_TITLE "Cómo se empieza:\n"
 #define _LANG_CMD_GAMES_START_DEMO "Con una cuenta nueva sólo puedes crear " + \
       "personajes en los juegos de demostración, los primeros de la lista. Al " + \

@@ -49,7 +49,10 @@ static int cmd (string arg, object me, string verb)
 
   // said up front to an account that cannot play everything yet
   if (!is_coder && user->player() && !user->has_finished_demo())
-    ret += "\n" + sprintf("   %-" + width + "s", _LANG_CMD_GAMES_NEEDS_DEMO) + "\n";
+    // coloured outside the sprintf field, which would count the codes as text
+    ret += "\n%^BOLD%^YELLOW%^" +
+           sprintf("   %-" + width + "s", _LANG_CMD_GAMES_NEEDS_DEMO) +
+           "%^RESET%^\n";
 
   // numbered in the same order the lobby takes them in
   games = handler("games")->query_listed_games(user);

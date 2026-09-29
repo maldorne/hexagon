@@ -203,6 +203,39 @@ private string _repeat(string s, int n)
 
 private string _spaces(int n) { return _repeat(" ", n); }
 
+// The colour escapes still open at the end of a line: every SGR sequence
+// (ESC '[' ... 'm') since the last one that resets.
+private string _open_colour(string line)
+{
+  string open;
+  int i, j, len;
+
+  open = "";
+  len = strlen(line);
+
+  for (i = 0; i < len; i++)
+  {
+    if (line[i] != 27 || i + 1 >= len || line[i + 1] != '[')
+      continue;
+
+    j = i + 2;
+    while (j < len && (line[j] < 0x40 || line[j] > 0x7E))
+      j++;
+
+    if (j < len && line[j] == 'm')
+    {
+      if (j == i + 2 || line[i + 2 .. j - 1] == "0")
+        open = "";
+      else
+        open += line[i .. j];
+    }
+
+    i = j;
+  }
+
+  return open;
+}
+
 // Render one edge row: optional outer margin, left segment, fill chars
 // repeated (`body_inner_width + adjustment`) times, right segment, and
 // the same outer margin again.
@@ -311,10 +344,14 @@ string frame(string content, varargs string title, int width,
   if (!title)
     title = "";
 
+  // the content is turned into escapes as a whole: a colour may span lines,
+  // and fixing each line apart would close it at the end of the first one.
+  // Trailing breaks go first, or the reset added at the end would make a row
+  while (strlen(content) && content[strlen(content) - 1] == '\n')
+    content = content[0 .. strlen(content) - 2];
+
   title    = fix_string(title);
-  lines    = explode(content, "\n");
-  for (i = 0; i < sizeof(lines); i++)
-    lines[i] = fix_string(lines[i]);
+  lines    = explode(fix_string(content), "\n");
 
   padding_x = style["padding_x"];
   padding_y = style["padding_y"];
@@ -401,6 +438,25 @@ string frame(string content, varargs string title, int width,
         reflowed += ({ lines[i] });
     }
     lines = reflowed;
+  }
+
+  // A colour left open at the end of a row would paint its border, and a
+  // client that resets at every line break would lose it for the rest of the
+  // text: close it on each row and open it again on the next.
+  {
+    string carry, reset;
+
+    carry = "";
+    reset = fix_string("%^RESET%^");
+
+    for (i = 0; i < sizeof(lines); i++)
+    {
+      lines[i] = carry + lines[i];
+      carry = _open_colour(lines[i]);
+
+      if (strlen(carry))
+        lines[i] += reset;
+    }
   }
 
   body_inner_width = content_width + 2 * padding_x;
