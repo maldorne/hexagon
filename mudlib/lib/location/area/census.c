@@ -489,7 +489,7 @@ private object npc_restore(string id, object loc)
 // Called when a location of this area loads (prewarm / movement): bring back
 // exactly the NPCs the census says live here -- the ones that were in the
 // location when it last unloaded. Restore-only: no new NPCs are created here.
-// Idempotent (already-present uuids are left alone).
+// Idempotent (anybody already in the world, here or elsewhere, is left alone).
 void restore_location_npcs(object loc)
 {
   string file;
@@ -511,9 +511,12 @@ void restore_location_npcs(object loc)
   //
   // this_object()->staff_vacancies_at(file);
 
+  // the census position is where somebody was when their location last
+  // unloaded, and they may have walked on since: one already in the world,
+  // here or anywhere else, is not brought back a second time
   ids = query_census_uuids_at(file);
   for (i = 0; i < sizeof(ids); i++)
-    if (!has_live_uuid(loc, ids[i]))
+    if (!has_live_uuid(loc, ids[i]) && !AREA_HANDLER->find_live_npc(ids[i]))
       npc_restore(ids[i], loc);
 
   // the anonymous half of the population: cloned fresh from this location's
