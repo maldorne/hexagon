@@ -53,7 +53,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_EXIT_SYNTAX \
   "build exit < (list) | <dir> <type> [material] [closed|locked] >  (retype an exit, both sides)"
 #define BUILDER_RING_PLOT_SYNTAX "build plot < <dir> | remove <dir> >  (carve / delete an empty buildable lot)"
-#define BUILDER_RING_HOMES_SYNTAX "build homes  (house the area's homeless citizens on free plots, pairing families)"
+#define BUILDER_RING_HOMES_SYNTAX "build homes  (house the community's homeless residents, marrying them off and filling empty houses before free plots)"
 // intro line + "commands:" header are translated (name/description/help);
 // the command syntax below stays English -- coder verbs are not localized.
 // One line per subverb, grouped by verb: the SYNTAX defines above are the
@@ -2231,8 +2231,9 @@ int do_plot(string str)
   return 1;
 }
 
-// build homes -- house the current area's homeless citizens on its free plots,
-// pairing a man and a woman into each family home. Shortfalls (no free plot)
+// build homes -- house the community's homeless residents: with a spouse, with
+// somebody living alone they marry, or in a new household in an empty house or
+// on a free plot. Shortfalls (no free plot)
 // build home remove -- turn the house you are standing in back into a bare plot.
 // The inverse of a raised house: residents are evicted (left homeless, for a
 // later `build homes` to place), the door becomes a doorway again and the plot
@@ -2478,7 +2479,7 @@ int do_homes()
   }
 
   area->assign_homes();
-  write("Assigned homes to the area's homeless citizens; see the area's " +
+  write("Assigned homes to the community's homeless residents; see the area's " +
         "event log for any shortfall.\n");
   return 1;
 }
@@ -2521,7 +2522,7 @@ private string _family_display(object who)
 int do_family(string str)
 {
   mapping history;
-  object loc, area, who, other, joins, keeps, swap;
+  object loc, area, who, other;
   string * args, * names, * ids, * props, * parents;
   string verb, game, surname, citizenship, rule, out;
   mixed spouse;
@@ -2765,44 +2766,15 @@ int do_family(string str)
       rule = (string)load_object(
                (string)area->query_root_citizenship_path())->query_descent();
 
-    if (rule == DESCENT_MATRILINEAL)
-    {
-      keeps = (who->query_gender() == GENDER_FEMALE) ? who : other;
-      joins = (keeps == who) ? other : who;
-    }
-    else
-    {
-      keeps = (who->query_gender() == GENDER_FEMALE) ? other : who;
-      joins = (keeps == who) ? other : who;
-    }
-
-    if (!keeps->query_family())
-    {
-      // the one who would keep the house has none: the other's stands instead
-      swap = keeps;
-      keeps = joins;
-      joins = swap;
-    }
-
-    if (joins->query_family() &&
-        joins->query_family() != keeps->query_family())
-    {
-      handler("families", this_player())->member_married_out((string)joins->query_family_id(), (string)keeps->query_family());
-      joins->set_family(nil);
-    }
-
-    if (!joins->query_family())
-      joins->set_family((string)keeps->query_family(), _family_display(joins));
-
-    if (!handler("families", this_player())->set_spouse((string)who->query_family_id(),
-                                    (string)other->query_family_id()))
+    surname = (string)handler("families", this_player())->wed(who, other, rule);
+    if (!surname)
     {
       notify_fail("Could not wed them.\n");
       return 0;
     }
 
     write(_family_display(who) + " and " + _family_display(other) +
-          " are married, of house " + (string)keeps->query_family() +
+          " are married, of house " + surname +
           " (" + rule + ").\n");
     return 1;
   }

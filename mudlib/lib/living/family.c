@@ -31,9 +31,16 @@ string query_family_id()
   return (stringp(id) && strlen(id)) ? FAMILY_NPC + id : nil;
 }
 
+// The register is the authority on who belongs where; the slot is only its copy,
+// and a copy that drifted is not believed.
 string query_family()
 {
   mixed surname;
+  string id;
+
+  id = query_family_id();
+  if (id)
+    return handler("families", this_object())->family_of(id);
 
   surname = this_object()->query_family_ob();
   return stringp(surname) ? surname : nil;
@@ -74,7 +81,9 @@ int set_family(string surname, varargs string display_name)
   {
     // the surname answers as a name while it is theirs, so it stops answering
     // when it is not
-    old = query_family();
+    // the slot, not the register: somebody leaving has already left it
+    shown = this_object()->query_family_ob();
+    old = stringp(shown) ? shown : nil;
     if (old && strlen(old))
       this_object()->remove_alias(lower_case(old));
 
@@ -84,10 +93,13 @@ int set_family(string surname, varargs string display_name)
     return 1;
   }
 
+  // an NPC's cap name is its trade word, so the name it was given goes first
   if (!display_name)
   {
-    shown = this_object()->query_cap_name();
-    display_name = stringp(shown) ? shown : id;
+    shown = this_object()->query_given_name();
+    if (!stringp(shown) || !strlen(shown))
+      shown = this_object()->query_cap_name();
+    display_name = stringp(shown) ? capitalize(shown) : id;
   }
 
   if (!handler("families", this_object())->add_member(surname, id, display_name))
@@ -145,16 +157,33 @@ string * query_children_ids()
 // once they are otherwise finished: start_player for a player, the census after
 // the template for an NPC.
 //
-// So far that is one thing: the surname answers as a name, and id.c keeps names
-// static, so nothing on disk brings it back -- it has to be put there again on
-// every arrival.
+// The surname answers as a name, and id.c keeps names static, so nothing on disk
+// brings it back -- it has to be put there again on every arrival. And somebody
+// who joined the house before they were named is written down by name now.
 void start_family()
 {
-  string surname;
+  mixed surname, slot, given;
 
+  // the slot follows the register, dropping a house it no longer belongs to
   surname = query_family();
-  if (surname && strlen(surname))
-    this_object()->add_alias(lower_case(surname));
+  slot = this_object()->query_family_ob();
+  if (stringp(slot) && strlen(slot) && slot != surname)
+  {
+    this_object()->remove_alias(lower_case(slot));
+    this_object()->set_family_ob(surname);
+    if (this_object()->query_persisted())
+      this_object()->save_npc();
+  }
+
+  if (!stringp(surname) || !strlen(surname))
+    return;
+
+  this_object()->add_alias(lower_case(surname));
+
+  given = this_object()->query_given_name();
+  if (stringp(given) && strlen(given) && query_family_id())
+    handler("families", this_object())->name_member(query_family_id(),
+                                                    capitalize(given));
 }
 
 // Whether this living belongs to the named house. What a family door asks

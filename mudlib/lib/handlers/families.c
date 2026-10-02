@@ -25,6 +25,7 @@
  *
  *   families[surname] == ([ "citizenship": name,
  *                                 "members":     ([ id : ([ "spouse":  id,
+ *                                                           "widow_of": id,
  *                                                           "parents": ({ id }) ]) ]),
  *                                 "history":     ([ id : ([ "name": s,
  *                                                           "fate": s ]) ]),
@@ -38,6 +39,8 @@
 #include <mud/config.h>
 #include <living/family.h>
 #include <namegen.h>
+#include <room/location.h>
+#include <basic/gender.h>
 
 inherit "/lib/core/object.c";
 
@@ -49,6 +52,8 @@ mapping member_of;
 
 private void _save();
 string query_save_file();
+private void _vacate_properties(string surname);
+int is_extinct(string surname);
 
 void create()
 {
@@ -147,6 +152,21 @@ string query_spouse(string id)
     return nil;
 
   return family[FAMILY_MEMBERS][id][FAMILY_SPOUSE];
+}
+
+// Whether somebody is married or has been: a widow counts as much as a wife.
+int has_been_married(string id)
+{
+  mapping family;
+  string surname;
+
+  surname = family_of(id);
+  family = surname ? query_family(surname) : nil;
+  if (!family || !family[FAMILY_MEMBERS][id])
+    return 0;
+
+  return family[FAMILY_MEMBERS][id][FAMILY_SPOUSE] ||
+         family[FAMILY_MEMBERS][id][FAMILY_WIDOW_OF];
 }
 
 string * query_parents(string id)
@@ -288,7 +308,8 @@ int add_member(string surname, string id, string name)
   if (!family || !id || !strlen(id))
     return 0;
 
-  if (family[FAMILY_MEMBERS][id])
+  // a house that has died out stays history: its name is never taken up again
+  if (family[FAMILY_MEMBERS][id] || is_extinct(surname))
     return 0;
 
   family[FAMILY_MEMBERS][id] = ([ ]);
@@ -296,6 +317,29 @@ int add_member(string surname, string id, string name)
   member_of[id] = surname;
   _save();
   return 1;
+}
+
+// Write down the name somebody goes by, when the history only knows them by id.
+// An NPC can join a house before it has been named, and the history is the only
+// place that will still name it once its savefile is gone.
+void name_member(string id, string name)
+{
+  mapping history;
+  string surname;
+
+  surname = family_of(id);
+  if (!surname || !name || !strlen(name))
+    return;
+
+  history = query_history(surname);
+  if (!history[id] || history[id][FAMILY_NAME] == name)
+    return;
+
+  if (history[id][FAMILY_NAME] && history[id][FAMILY_NAME] != id)
+    return;
+
+  history[id][FAMILY_NAME] = name;
+  _save();
 }
 
 // Somebody married out. They leave the members but stay in the history, marked
@@ -319,7 +363,7 @@ int member_married_out(string id, string into)
   // a house nobody lives in holds nothing, however it emptied: the last of a
   // line marrying away leaves the roof as free as the last of it dying
   if (!map_sizeof(family[FAMILY_MEMBERS]))
-    family[FAMILY_PROPERTIES] = ({ });
+    _vacate_properties(surname);
 
   _save();
   return 1;
@@ -342,11 +386,14 @@ int member_died(string id)
 
   members = family[FAMILY_MEMBERS];
 
-  // a widow is not still married to the dead
+  // a widow is not still married to the dead, but remembers having been
   ids = map_indices(members);
   for (i = 0; i < sizeof(ids); i++)
     if (members[ids[i]][FAMILY_SPOUSE] == id)
+    {
       map_delete(members[ids[i]], FAMILY_SPOUSE);
+      members[ids[i]][FAMILY_WIDOW_OF] = id;
+    }
 
   map_delete(members, id);
   if (family[FAMILY_HISTORY][id])
@@ -354,10 +401,41 @@ int member_died(string id)
   map_delete(member_of, id);
 
   if (!map_sizeof(members))
-    family[FAMILY_PROPERTIES] = ({ });
+    _vacate_properties(surname);
 
   _save();
   return 1;
+}
+
+// A house that has nobody left gives up everything it owned, in the register and
+// on the places themselves: an empty house names no owner, so the next family
+// can move in.
+private void _vacate_properties(string surname)
+{
+  mapping family;
+  string * props;
+  int i;
+
+  family = query_family(surname);
+  if (!family)
+    return;
+
+  props = family[FAMILY_PROPERTIES];
+  family[FAMILY_PROPERTIES] = ({ });
+
+  for (i = 0; i < sizeof(props); i++)
+  {
+    object place, home;
+
+    place = load_object(LOCATION_HANDLER)->load_location(props[i]);
+    home = place ? place->query_component_by_type(LOCATION_COMPONENT_HOME)
+                 : nil;
+    if (!home || home->query_home_owner() != surname)
+      continue;
+
+    home->set_home_owner(nil);
+    place->save_me();
+  }
 }
 
 // Whether a house has died out: it held people once and holds none now. A house
@@ -397,6 +475,50 @@ int set_spouse(string id, string other)
   family[FAMILY_MEMBERS][other][FAMILY_SPOUSE] = id;
   _save();
   return 1;
+}
+
+// Marry two people, one of whom at least belongs to a house. Which of them moves
+// is the land's business, not theirs: `rule` is the descent of the citizenship
+// the wedding happens under, which is the only answer that does not depend on
+// who is asked first. Returns the surname they share afterwards, or nil.
+string wed(object who, object other, string rule)
+{
+  object keeps, joins, swap;
+
+  if (!who || !other || who == other)
+    return nil;
+  if (!who->query_family() && !other->query_family())
+    return nil;
+
+  if (rule == DESCENT_MATRILINEAL)
+    keeps = (who->query_gender() == GENDER_FEMALE) ? who : other;
+  else
+    keeps = (who->query_gender() == GENDER_FEMALE) ? other : who;
+  joins = (keeps == who) ? other : who;
+
+  // the one who would keep the house has none: the other's stands instead
+  if (!keeps->query_family())
+  {
+    swap = keeps;
+    keeps = joins;
+    joins = swap;
+  }
+
+  if (joins->query_family() && joins->query_family() != keeps->query_family())
+  {
+    member_married_out((string)joins->query_family_id(),
+                       (string)keeps->query_family());
+    joins->set_family(nil);
+  }
+
+  if (!joins->query_family())
+    joins->set_family((string)keeps->query_family());
+
+  if (!set_spouse((string)who->query_family_id(),
+                  (string)other->query_family_id()))
+    return nil;
+
+  return (string)keeps->query_family();
 }
 
 // Whose child somebody is. The parents may be in another house -- a mother who

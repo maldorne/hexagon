@@ -144,7 +144,7 @@ private string * resident_row(object area, string uuid)
   {
     // out of the world the books answer: the census keeps a copy of who
     // somebody is, refreshed every time they appear
-    name = census[uuid]["name"] ? census[uuid]["name"] : kind;
+    name = census[uuid]["name"] ? capitalize(census[uuid]["name"]) : kind;
     gender = census[uuid]["gender"] ? "" + census[uuid]["gender"] : "";
   }
 

@@ -22,6 +22,9 @@
 
 // A member's row, and an entry in the history
 #define FAMILY_SPOUSE  "spouse"
+// whom a widow or widower was married to: somebody who has been married once
+// is never paired off again by the housing pass
+#define FAMILY_WIDOW_OF "widow_of"
 #define FAMILY_PARENTS "parents"
 #define FAMILY_NAME    "name"
 #define FAMILY_FATE    "fate"

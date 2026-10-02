@@ -611,13 +611,14 @@ private int _venue_closed(mapping vacancy)
 
 // Staff one job: take somebody on for every empty seat, and bring them in if
 // their place is loaded. Idempotent: a full job hires nobody, and
-// restore_location_npcs leaves an already-present uuid alone.
-private void _staff(mapping vacancy)
+// restore_location_npcs leaves an already-present uuid alone. Returns how many
+// were taken on.
+private int _staff(mapping vacancy)
 {
   int have, want, i;
 
   if (!vacancy || _venue_closed(vacancy))
-    return;
+    return 0;
 
   want = vacancy[VACANCY_COUNT];
   have = sizeof(query_vacancy_holders(vacancy));
@@ -638,19 +639,25 @@ private void _staff(mapping vacancy)
     if (loc)
       this_object()->restore_location_npcs(loc);
   }
+
+  return want > have ? want - have : 0;
 }
 
 // Staff every job this settlement offers -- the whole-settlement pass, which a
 // scheduled population check would call. Nothing calls it on its own: how a
 // settlement replaces its dead is undecided, so hiring is always asked for.
+// Whoever is taken on is housed straight away, the resident ones at least.
 void staff_vacancies()
 {
   mapping * all;
-  int i;
+  int i, hired;
 
   all = query_vacancies();
   for (i = 0; i < sizeof(all); i++)
-    _staff(all[i]);
+    hired += _staff(all[i]);
+
+  if (hired)
+    this_object()->assign_homes();
 }
 
 // Staff only the jobs held at one location, for when the answer is wanted about
@@ -658,9 +665,12 @@ void staff_vacancies()
 void staff_vacancies_at(string at)
 {
   mapping * here;
-  int i;
+  int i, hired;
 
   here = query_vacancies_at(at);
   for (i = 0; i < sizeof(here); i++)
-    _staff(here[i]);
+    hired += _staff(here[i]);
+
+  if (hired)
+    this_object()->assign_homes();
 }
