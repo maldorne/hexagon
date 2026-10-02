@@ -99,7 +99,7 @@ mapping query_vacancy_sources()
 // Open a job here, or restate one that is already open. `at` is where it is
 // held, `source` the type its holders are drawn from -- a blueprint path the
 // first time, snapshotted into a template and kept by template id afterwards.
-// Restating a job keeps what the builder is not saying: its class, its house.
+// Restating a job keeps everything the builder is not saying again.
 void open_vacancy(string job, int count, string at, string source,
                   varargs mapping extra)
 {
@@ -128,10 +128,14 @@ void open_vacancy(string job, int count, string at, string source,
 
   previous = query_vacancy(job);
 
-  vacancy = ([ VACANCY_JOB:    job,
-               VACANCY_COUNT:  count,
-               VACANCY_WORKS_AT:     at,
-               VACANCY_SOURCE: source ]);
+  // carry every part the builder is not restating -- its places, its kit, its
+  // hours, its class, its house -- so changing how many seats a job has does not
+  // undo the rest of it
+  vacancy = previous ? ([ ]) + previous : ([ ]);
+  vacancy[VACANCY_JOB] = job;
+  vacancy[VACANCY_COUNT] = count;
+  vacancy[VACANCY_WORKS_AT] = at;
+  vacancy[VACANCY_SOURCE] = source;
 
   if (mappingp(extra))
   {
@@ -141,16 +145,8 @@ void open_vacancy(string job, int count, string at, string source,
       vacancy[keys[i]] = extra[keys[i]];
   }
 
-  // carry the parts the builder is not restating
   if (previous)
-  {
-    if (previous[VACANCY_CLASS] && !vacancy[VACANCY_CLASS])
-      vacancy[VACANCY_CLASS] = previous[VACANCY_CLASS];
-    if (previous[VACANCY_HOME] && !vacancy[VACANCY_HOME])
-      vacancy[VACANCY_HOME] = previous[VACANCY_HOME];
-
     vacancies -= ({ previous });
-  }
 
   vacancies += ({ vacancy });
 
