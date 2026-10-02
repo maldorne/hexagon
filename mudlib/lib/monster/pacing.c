@@ -124,6 +124,13 @@ int travel_to(mixed dest)
   if (!destination || !environment())
     return 0;
 
+  // Already on the way there: a step released by travel_step sits in the action
+  // queue until it runs, so the NPC is still standing where it was. A route
+  // planned from here now would repeat that step and walk it one place too far.
+  if (destination == travel_goal &&
+      (travelling() || this_object()->query_action_pending()))
+    return sizeof(travel_path);
+
   dirs = PATHFIND_HANDLER->find_path(environment(), destination);
   if (!dirs)
     return 0;
@@ -140,8 +147,8 @@ int travel_to(mixed dest)
   return sizeof(dirs);
 }
 
-// Abandon the current route. Called on arrival, and the hook to call when the
-// NPC is interrupted (combat, later conversation) so it stops mid-errand. The
+// Abandon the current route: the hook to call when the NPC is interrupted
+// (combat, later conversation) so it stops mid-errand. The
 // cadence needs no restore: move_ready re-arms from the wander interval as soon
 // as travelling() is false.
 void stop_travel()
@@ -188,6 +195,7 @@ void travel_step()
   else
     this_object()->queue_action(ldir);
 
-  if (!sizeof(travel_path))
-    stop_travel();
+  // The last step is released, not taken, so the trip is not ended here: the
+  // goal stays known while the step waits in the queue, and a second order for
+  // the same place is not planned from where the NPC still stands.
 }
