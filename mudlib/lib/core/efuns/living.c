@@ -32,7 +32,8 @@ static nomask object * livings()
 // id 'str'. A living object is an object that has called
 // set_living_name(). The object must have set a name with
 // set_living_name(), so its name will be entered into the hash table
-// used to speed up the search for living objects.
+// used to speed up the search for living objects. A living that carries a
+// uuid (query_uuid) is also found by it, wherever it is in the world.
 
 static nomask object find_living(string name)
 {

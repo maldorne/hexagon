@@ -258,7 +258,7 @@ private string * holder_rows(object area, mapping job)
     mixed given;
 
     entry = census[ids[i]];
-    npc = AREA_HANDLER->find_live_npc(ids[i]);
+    npc = find_living(ids[i]);
 
     // In the world the person answers; out of it the census does, from the
     // copy it refreshes every time they appear. Somebody who has never been

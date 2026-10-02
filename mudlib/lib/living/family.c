@@ -27,7 +27,7 @@ string query_family_id()
     return stringp(id) ? FAMILY_PLAYER + id : nil;
   }
 
-  id = this_object()->query_npc_uuid();
+  id = this_object()->query_uuid();
   return (stringp(id) && strlen(id)) ? FAMILY_NPC + id : nil;
 }
 

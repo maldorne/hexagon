@@ -356,7 +356,7 @@ private void _house_family(object * family)
 
   ids = ({ });
   for (i = 0; i < sizeof(family); i++)
-    ids += ({ family[i]->query_npc_uuid() });
+    ids += ({ family[i]->query_uuid() });
 
   house = build_house_on_plot(ids);
   if (!house)
@@ -530,7 +530,7 @@ int demote_house(string file)
   {
     object npc;
 
-    npc = (object)this_object()->live_npc(living_here[i]);
+    npc = find_living(living_here[i]);
     if (npc)
     {
       npc->set_home(nil);
@@ -617,7 +617,7 @@ private int _is_resident(object o)
   // Somebody holding a job is not on the roster at all, so the flag it would
   // have carried there lives on the job instead. A post with a house of its own
   // does not come through here: its holder is housed by the post.
-  entry = ((mapping)this_object()->query_npc_census())[(string)o->query_npc_uuid()];
+  entry = ((mapping)this_object()->query_npc_census())[(string)o->query_uuid()];
   if (!entry || !entry[CENSUS_VACANCY])
     return 0;
 

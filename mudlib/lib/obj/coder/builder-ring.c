@@ -1375,7 +1375,7 @@ int do_vacancy(string str)
       holder = area->query_vacancy_holder(job);
       home = loc;
       area->build_house_at(file,
-        holder ? ({ holder->query_npc_uuid() }) : ({ }));
+        holder ? ({ holder->query_uuid() }) : ({ }));
     }
     else if (!loc->has_component(LOCATION_COMPONENT_HOME))
     {

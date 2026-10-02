@@ -2,12 +2,18 @@
 // Livings handler
 // Keeps tracking of objects marked as living
 // (set_living_name has been called on them)
+//
+// A living is found by its name, which many may share, and one that carries a
+// uuid (a census npc) also by that uuid, which is its alone. Both are filled
+// and emptied by the same calls: whoever registers a name registers its uuid.
 
 #include <living/living.h>
 #include <user/user.h>
 #include <npc/npc.h>
 
 static mapping _livings;
+// uuid -> the one living carrying it
+static mapping _uuids;
 
 void create()
 {
@@ -21,6 +27,7 @@ void create()
 
   ::create();
   _livings = ([ ]);
+  _uuids = ([ ]);
 }
 
 mapping query_livings_mapping() { return _livings; }
@@ -44,6 +51,8 @@ object * query_livings()
 
 void _set_living_name(object ob, string name)
 {
+  string uuid;
+
   // TODO check it's a player object or it inherits from npc object
 
   // stderr("TEST " + name + " " + to_string(previous_objects()) + "\n");
@@ -63,10 +72,31 @@ void _set_living_name(object ob, string name)
     _livings[name] = ({ ob });
   else
     _livings[name] = _livings[name] - ({ nil, ob }) + ({ ob });
+
+  // a uuid belongs to one living: a second one claiming it while the first is
+  // still in the world is a copy that should not exist, and the first is kept
+  uuid = ob->query_uuid();
+  if (!stringp(uuid) || !strlen(uuid))
+    return;
+
+  if (_uuids[uuid] && _uuids[uuid] != ob)
+  {
+    stderr("👥 livings: " + object_name(ob) + " claims uuid " + uuid +
+           ", already held by " + object_name(_uuids[uuid]) + "\n");
+    return;
+  }
+
+  _uuids[uuid] = ob;
 }
 
 void remove_living(object ob)
 {
+  string uuid;
+
+  uuid = ob->query_uuid();
+  if (stringp(uuid) && _uuids[uuid] == ob)
+    _uuids[uuid] = nil;
+
   if (undefinedp(_livings[ob->query_name()]))
     return;
 
@@ -78,6 +108,13 @@ void remove_living(object ob)
 
 object _find_living(string name)
 {
+  if (!stringp(name) || !strlen(name))
+    return nil;
+
+  // a uuid names one living, and never reads as anybody's name
+  if (_uuids[name])
+    return _uuids[name];
+
   if (undefinedp(_livings[name]))
     return nil;
 
@@ -93,6 +130,12 @@ object _find_living(string name)
 // first). A copy, so callers cannot mutate the registry.
 object * _find_all_livings(string name)
 {
+  if (!stringp(name) || !strlen(name))
+    return ({ });
+
+  if (_uuids[name])
+    return ({ _uuids[name] });
+
   if (undefinedp(_livings[name]))
     return ({ });
 

@@ -144,7 +144,7 @@ private int _live_monster_count(object loc, string source)
 
   inv = all_inventory(loc);
   for (i = 0; i < sizeof(inv); i++)
-    if (inv[i] && inv[i]->query_npc() && !inv[i]->query_npc_uuid() &&
+    if (inv[i] && inv[i]->query_npc() && !inv[i]->query_uuid() &&
         inv[i]->query_npc_source() == source)
       n++;
 

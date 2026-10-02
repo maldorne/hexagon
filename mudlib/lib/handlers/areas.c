@@ -120,33 +120,6 @@ void create() {
     restore_object(query_save_file(), 1);
 }
 
-// Find a live NPC by uuid across every loaded area (not just one), so a roamer
-// that has wandered into another area is still recognised as already in the
-// world -- the global dedup a per-area lookup cannot give. Returns nil if it is
-// not currently materialized anywhere.
-object find_live_npc(string uuid)
-{
-  object * areas;
-  object npc;
-  int i;
-
-  if (!uuid || !strlen(uuid))
-    return nil;
-  if (this_object() != _global())
-    return (object)_global()->find_live_npc(uuid);
-
-  areas = map_values(loaded_areas);
-  for (i = 0; i < sizeof(areas); i++)
-  {
-    if (!areas[i])
-      continue;
-    npc = areas[i]->live_npc(uuid);
-    if (npc)
-      return npc;
-  }
-  return nil;
-}
-
 // Record that a roamer rostered in `roster` is now resting at `loc` (a location
 // in another area), or clear it with loc = nil. Keeps a single entry per uuid, so
 // a stale bucket is dropped when the NPC moves on.

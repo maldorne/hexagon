@@ -372,7 +372,7 @@ private int do_list(object area, object me, string want)
 
     day = hours_of(area, e["source"]);
 
-    npc = AREA_HANDLER->find_live_npc(ids[i]);
+    npc = find_living(ids[i]);
     name = "";
     level = "";
     home = nil;
@@ -474,7 +474,7 @@ private int do_orphans(object area, object me, string * args)
       continue;
 
     kind = e["source"] ? get_path_file_name(e["source"]) : "-";
-    npc = AREA_HANDLER->find_live_npc(ids[i]);
+    npc = find_living(ids[i]);
     name = e["name"] ? e["name"] : kind_of(area, e["source"]);
     home = area->query_house_of(ids[i]);
 

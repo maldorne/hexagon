@@ -111,7 +111,7 @@ private string * query_census_uuids_at(string location_file)
 }
 
 // Is `uuid` already materialized inside `loc`? Non-NPC contents answer nil to
-// query_npc_uuid (DGD call_other to an undefined function returns nil).
+// query_uuid (DGD call_other to an undefined function returns nil).
 private int has_live_uuid(object loc, string uuid)
 {
   object * inv;
@@ -119,7 +119,7 @@ private int has_live_uuid(object loc, string uuid)
 
   inv = all_inventory(loc);
   for (i = 0; i < sizeof(inv); i++)
-    if (inv[i] && inv[i]->query_npc_uuid() == uuid)
+    if (inv[i] && inv[i]->query_uuid() == uuid)
       return 1;
 
   return 0;
@@ -168,7 +168,7 @@ private object npc_restore(string id, object loc)
   if (!npc)
     return nil;
 
-  npc->set_npc_uuid(id);
+  npc->set_uuid(id);
   npc->set_npc_game(game);
   npc->set_npc_area_path((string)this_object()->query_area_path());
   npc->set_npc_source(source);
@@ -516,7 +516,7 @@ void restore_location_npcs(object loc)
   // here or anywhere else, is not brought back a second time
   ids = query_census_uuids_at(file);
   for (i = 0; i < sizeof(ids); i++)
-    if (!has_live_uuid(loc, ids[i]) && !AREA_HANDLER->find_live_npc(ids[i]))
+    if (!has_live_uuid(loc, ids[i]) && !find_living(ids[i]))
       npc_restore(ids[i], loc);
 
   // the anonymous half of the population: cloned fresh from this location's
@@ -550,7 +550,7 @@ void restore_one_npc(string uuid, object loc)
     return;
   if (query_npc_census()[uuid][CENSUS_LOCATION] != loc->query_file_name())
     return;
-  if (AREA_HANDLER->find_live_npc(uuid))
+  if (find_living(uuid))
     return;
   npc_restore(uuid, loc);
 }
@@ -596,7 +596,7 @@ void drain_location(object loc)
     if (!inv[i] || !inv[i]->query_persisted())
       continue;
 
-    uuid = inv[i]->query_npc_uuid();
+    uuid = inv[i]->query_uuid();
     roster = inv[i]->query_npc_area_path();
 
     if (roster == (string)this_object()->query_area_path())
@@ -710,7 +710,7 @@ object query_live_npc_at(string poi_file, string uuid)
     return nil;
   inv = all_inventory(loc);
   for (i = 0; i < sizeof(inv); i++)
-    if (inv[i] && inv[i]->query_npc_uuid() == uuid)
+    if (inv[i] && inv[i]->query_uuid() == uuid)
       return inv[i];
   return nil;
 }

@@ -8,7 +8,7 @@
 //
 // The persistence layer gives an area-managed NPC its census identity, its own
 // savefile for mutable state, and death cleanup. It is inert until an area
-// stamps an identity (set_npc_uuid + set_npc_area_path + set_npc_game).
+// stamps an identity (set_uuid + set_npc_area_path + set_npc_game).
 
 #include <living/persisted.h>
 #include <areas/area.h>
@@ -380,8 +380,8 @@ int query_npc() { return 1; }
 
 int query_persisted() { return npc_uuid && strlen(npc_uuid); }
 
-string query_npc_uuid() { return npc_uuid; }
-void set_npc_uuid(string s) { npc_uuid = s; }
+string query_uuid() { return npc_uuid; }
+void set_uuid(string s) { npc_uuid = s; }
 
 string query_npc_game() { return npc_game; }
 void set_npc_game(string s) { npc_game = s; }

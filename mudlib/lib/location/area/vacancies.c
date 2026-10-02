@@ -189,7 +189,7 @@ void close_vacancy(string job)
     if (e[CENSUS_VACANCY] != job)
       continue;
 
-    npc = AREA_HANDLER->find_live_npc(ids[i]);
+    npc = find_living(ids[i]);
     if (npc)
       npc->dest_me();
 
@@ -372,7 +372,7 @@ object query_vacancy_holder(mapping vacancy)
   string * ids;
 
   ids = query_vacancy_holders(vacancy);
-  return sizeof(ids) ? AREA_HANDLER->find_live_npc(ids[0]) : nil;
+  return sizeof(ids) ? find_living(ids[0]) : nil;
 }
 
 // ---------------------------------------------------------------------------

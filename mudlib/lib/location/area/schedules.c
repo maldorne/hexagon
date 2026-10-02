@@ -100,21 +100,6 @@ string * hour_actor_uuids(int hour)
   return (schedule_index && schedule_index[hour]) ? schedule_index[hour] : ({ });
 }
 
-// A live NPC of this area by uuid, or nil if it is not currently materialized.
-// The areas handler calls it on each loaded area to build a world-wide lookup
-// (find_live_npc).
-object live_npc(string uuid)
-{
-  object * live;
-  int i;
-
-  live = (object *)this_object()->query_live_npcs();
-  for (i = 0; i < sizeof(live); i++)
-    if (live[i] && live[i]->query_npc_uuid() == uuid)
-      return live[i];
-  return nil;
-}
-
 // Wake a scheduled NPC and hand it its hour: if it is already in the world use
 // it as is, otherwise materialize it (and its location) at its census position;
 // then call do_schedule so it acts on its own timetable. The areas handler calls
@@ -133,7 +118,7 @@ void wake_and_schedule(string uuid, int hour)
 
   // already materialized somewhere in the world -- use it, do not clone another
   // (a roamer may have wandered into another area, so the lookup is global)
-  npc = AREA_HANDLER->find_live_npc(uuid);
+  npc = find_living(uuid);
 
   if (!npc)
   {
@@ -165,7 +150,7 @@ void wake_and_schedule(string uuid, int hour)
 
     inv = all_inventory(loc);
     for (i = 0; i < sizeof(inv); i++)
-      if (inv[i] && inv[i]->query_npc() && inv[i]->query_npc_uuid() == uuid)
+      if (inv[i] && inv[i]->query_npc() && inv[i]->query_uuid() == uuid)
       {
         npc = inv[i];
         break;

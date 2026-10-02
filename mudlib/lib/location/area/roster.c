@@ -417,7 +417,7 @@ int relevel_census()
     if (!source)
       continue;
 
-    npc = AREA_HANDLER->find_live_npc(ids[i]);
+    npc = find_living(ids[i]);
     if (!npc)
     {
       // wake it where the census says it is
@@ -427,7 +427,7 @@ int relevel_census()
 
       this_object()->restore_one_npc(ids[i], loc);
 
-      npc = AREA_HANDLER->find_live_npc(ids[i]);
+      npc = find_living(ids[i]);
       if (!npc)
         continue;
     }

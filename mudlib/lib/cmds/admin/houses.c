@@ -101,7 +101,7 @@ private string who_is(object area, string uuid)
   if (!census[uuid])
     return "(no census entry)";
 
-  npc = AREA_HANDLER->find_live_npc(uuid);
+  npc = find_living(uuid);
   if (npc)
   {
     given = npc->query_given_name();
@@ -131,7 +131,7 @@ private string * resident_row(object area, string uuid)
 
   kind = census[uuid]["source"]
            ? get_path_file_name(census[uuid]["source"]) : "-";
-  npc = AREA_HANDLER->find_live_npc(uuid);
+  npc = find_living(uuid);
 
   if (npc)
   {
@@ -297,7 +297,7 @@ private int do_audit(object area, object me)
     object npc;
     mixed home;
 
-    npc = AREA_HANDLER->find_live_npc(ids[i]);
+    npc = find_living(ids[i]);
     if (!npc)
       continue;
 
