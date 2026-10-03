@@ -325,9 +325,9 @@ mapping query_original_clone_counts(string source)
   return out;
 }
 
-// The gender a census NPC is born with, decided once at assignment so it stays
-// stable across saves and restores. A fixed template dictates it; a bimodal
-// one (no "gender" key) rolls male/female here. Stored in the census entry and
+// The gender a census NPC is born with, decided once when it is created so it
+// stays stable across saves and restores. A fixed template dictates it; a
+// bimodal one (no "gender" key) rolls male/female here. Kept on the npc.o and
 // handed to the NPC before its template is applied, so the per-gender strings
 // match.
 int decide_gender(string game, string source)
@@ -394,8 +394,9 @@ void set_area_spread(int n)
 // band the area now hands out. A level is decided once and kept for the life of
 // the NPC, so changing an area's band leaves the people who were already born
 // under the old one behind: this is the deliberate correction for that, and the
-// only thing that ever re-levels an NPC. Each one is materialized if it is not
-// live, re-levelled and saved. Returns how many were touched.
+// only thing that ever re-levels an NPC. Each one is borrowed (borrow_npc, so
+// nobody's location is loaded), re-levelled and saved. Returns how many were
+// touched.
 int relevel_census()
 {
   mapping census;
@@ -409,7 +410,7 @@ int relevel_census()
 
   for (i = 0; i < sizeof(ids); i++)
   {
-    object npc, loc;
+    object npc;
     string source;
     int want;
 
@@ -417,27 +418,22 @@ int relevel_census()
     if (!source)
       continue;
 
-    npc = find_living(ids[i]);
+    npc = (object)this_object()->borrow_npc(ids[i]);
     if (!npc)
-    {
-      // wake it where the census says it is
-      loc = (object)this_object()->load_location(census[ids[i]][CENSUS_LOCATION]);
-      if (!loc)
-        continue;
-
-      this_object()->restore_one_npc(ids[i], loc);
-
-      npc = find_living(ids[i]);
-      if (!npc)
-        continue;
-    }
+      continue;
 
     want = decide_level(game, source);
     if ((int)npc->query_level() >= want)
+    {
+      // nothing changed: a passing body goes without saving
+      if (!environment(npc))
+        npc->dest_me();
       continue;
+    }
 
     npc->set_level(want);
-    npc->save_npc();
+    this_object()->update_npc_info(ids[i], npc);
+    this_object()->release_npc(npc);
     touched++;
   }
 

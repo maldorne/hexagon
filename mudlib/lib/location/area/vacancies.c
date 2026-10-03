@@ -20,7 +20,6 @@
 #include <areas/area.h>
 #include <areas/poi.h>
 #include <areas/vacancy.h>
-#include <living/persisted.h>
 #include <basic/gender.h>
 #include <namegen.h>
 
@@ -375,17 +374,6 @@ object query_vacancy_holder(mapping vacancy)
 // Equipment
 // ---------------------------------------------------------------------------
 
-void equip_npc(object npc, string * paths)
-{
-  int i;
-
-  if (!npc || !pointerp(paths) || !sizeof(paths))
-    return;
-  for (i = 0; i < sizeof(paths); i++)
-    npc->add_clone(paths[i], 1);
-  npc->init_equip();
-}
-
 // Resolve a kit spec into one concrete kit. The spec is an array of slots; each
 // slot is an array of interchangeable blueprints and one is picked at random (a
 // fixed item is just a one-element slot). Rolled once per NPC at assignment, so
@@ -509,16 +497,14 @@ string generate_citizen_name(int gender)
   return NAMEGEN_OB->generate_for(style, word, 3, 4, 9);
 }
 
-// Take somebody on for a job. Data-only: the person materializes when its place
-// loads (npc_restore), which is where the body is built. Returns the uuid.
-//
-// The body is put together from its owners when it materializes: the type's
-// template says how the people of this trade look, talk and behave; the
-// citizenship draws the race and the name; the area sets the level and the
-// stats; the post gives the class, the kit, the hours and the house.
+// Take somebody on for a job: a new person, created whole (create_npc) by the
+// area that owns the place they will stand in, since that area's level, stats
+// and naming are the ones they are born with. Nothing is loaded: the person
+// appears when that place loads. Returns the uuid.
 private string assign_npc_to_vacancy(mapping vacancy, string where)
 {
-  string id, game, source, at;
+  string source, at;
+  object owner;
 
   source = vacancy[VACANCY_SOURCE];
   at = vacancy[VACANCY_WORKS_AT];
@@ -531,17 +517,14 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
   if (!where || !strlen(where))
     where = at;
 
-  game = game_from_path((string)this_object()->query_area_path());
-  id = UUID_OB->uuid();
+  owner = load_object(LOCATION_HANDLER)->query_area_from_location_file_name(where);
+  if (!owner)
+    owner = this_object();
 
-  this_object()->add_census_entry(
-    id, ([ "source":           source,
-           "savefile":         npc_save_dir(game, id) + NPC_SAVE_FILE,
-           CENSUS_VACANCY:     vacancy[VACANCY_JOB],
-           CENSUS_WORKS_AT:    where,
-           CENSUS_LOCATION:    where ]));
-
-  return id;
+  return owner->create_npc(source,
+                           ([ CENSUS_VACANCY:  vacancy[VACANCY_JOB],
+                              CENSUS_WORKS_AT: where,
+                              CENSUS_LOCATION: where ]));
 }
 
 // Seat the holders of a job across its places again. Staffing hands each new

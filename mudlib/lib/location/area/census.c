@@ -6,10 +6,11 @@
 // and a savefile of its own, which is exactly what tells it apart from the
 // anonymous monsters counted elsewhere. The row itself stays lean (who, where,
 // what post); everything individual about the NPC -- gender, level, inventory,
-// its generated name, its home and workplace -- lives on its own npc.o.
+// its generated name, its home and workplace -- lives on its own npc.o, written
+// whole when the person is created (create_npc).
 //
-// This file owns `npc_census` and the whole materialize / drain / die cycle
-// around it. Materialization is the crossroads of the area: it reads the type
+// This file owns `npc_census` and the whole create / materialize / drain / die
+// cycle around it. Creation is the crossroads of the area: it reads the type
 // template, the jobs the settlement offers and the citizenship, so most of
 // what it does is asking other pieces for their part.
 
@@ -68,17 +69,6 @@ void update_npc_info(string uuid, object npc)
   this_object()->save_me();
 }
 
-// Record one individual in the census and persist. The seam for the pieces that
-// staff a post of their own -- a seat of a job -- and need the
-// person to exist before anything materializes it.
-void add_census_entry(string uuid, mapping row)
-{
-  if (!uuid || !row)
-    return;
-  query_npc_census()[uuid] = row;
-  this_object()->save_me();
-}
-
 // How many NPCs of `source` the census holds across the whole area, materialized
 // or not. The counterpart of query_monster_live_count for the named half of the
 // population; query_total_live_count adds the two.
@@ -127,10 +117,6 @@ private int has_live_uuid(object loc, string uuid)
 
 
 
-// Materialize a census NPC into `loc`: a generic NPC with the source's data
-// template applied. If it already has a savefile (it was live before), restore
-// its state on top; otherwise this is its first materialization (freshly
-// assigned by the population sweep) and we save it so its state persists.
 // Rebuild a template timetable read from JSON (string hour keys "6"/"20") into
 // the int-keyed mapping the schedule component and the hour index expect. Entry
 // values (goto/msg) keep their string keys untouched.
@@ -150,100 +136,56 @@ private mapping _int_keyed_hours(mapping m)
   return out;
 }
 
-private object npc_restore(string id, object loc)
+// Who somebody is, put together from its owners: the type's template says how
+// the people of this trade look, talk and behave; the citizenship draws the race
+// and the name; the area sets the level and the stats; the post gives the class.
+//
+// `born` is the moment the person is created: what is decided once is decided
+// then and kept on the npc.o. Without it, this is a materialization: the
+// template's presentation is re-read (none of it is saved), and anything a
+// person still lacks -- because their type changed after they were born -- is
+// filled in.
+private void _fill_identity(object npc, mapping entry, mapping job, mapping t,
+                            int born)
 {
-  object npc;
-  string game, source, savefile, work;
-  mapping entry, job, t, timetable;
-  int first, sentient, gender;
-
-  entry = query_npc_census()[id];
-  game = game_from_path((string)this_object()->query_area_path());
-
-  source = entry["source"];
-
-  // Every NPC is a generic NPC; what it can do comes from the components its
-  // template asks for -- a guard's exit check among them.
-  npc = clone_object(GENERIC_NPC);
-  if (!npc)
-    return nil;
-
-  npc->set_uuid(id);
-  npc->set_npc_game(game);
-  npc->set_npc_area_path((string)this_object()->query_area_path());
-  npc->set_npc_source(source);
-  if (entry["poi"])
-    npc->set_npc_poi(entry["poi"]);
-
-  // Somebody who holds a job is a named, self-gendered citizen; a monster or a
-  // The vacancy is read here for the place it names.
-  job = entry[CENSUS_VACANCY]
-           ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY])
-           : nil;
-  t = (mapping)this_object()->query_area_template(game, source);
+  int sentient, gender;
 
   // sentience is a fact about the type, so it comes from the template
   sentient = t && t["sentient"];
-
-  savefile = entry["savefile"];
-  first = !(savefile && file_size(savefile) >= 0);
-
-  // Gender, level and inventory live on the NPC's own npc.o (save_object
-  // persists them), not the census. On restore they come back with the object;
-  // on the first materialization they are decided once here and the save at the
-  // end persists them. Gender comes from the type either way: a template that
-  // fixes one hands it over, a bimodal one rolls between the genders it can
-  // actually describe. Sentience does not enter into it -- an NPC with a proper
-  // name still cannot be a gender its template has no words for.
-  if (!first)
-  {
-    npc->restore_npc();
-
-    // The census is what decides what an NPC is and where it belongs, so it
-    // stamps those fields on top of whatever restore_object handed back: the
-    // NPC's own savefile is a record of them, never the authority.
-    npc->set_npc_area_path((string)this_object()->query_area_path());
-    npc->set_npc_source(source);
-    if (entry["poi"])
-      npc->set_npc_poi(entry["poi"]);
-  }
-  else
-    npc->set_gender((int)this_object()->decide_gender(game, source));
   gender = npc->query_gender();
 
   // A sentient citizen's proper name is generated once, using its gender, and
   // stored on the NPC itself (npc_given_name -> npc.o) because id.c's `name` is
-  // static and never saved. Do it BEFORE the template: monster::set_name takes
+  // static and never saved. Do it before the template: monster::set_name takes
   // only the first name, so ours wins and the template's generic one is a no-op.
-  // On a restore the name was already re-seeded by restore_npc above.
+  // On a restore the name was already re-seeded by restore_npc.
   //
-  // Keyed on the NPC lacking a name rather than on `first`, the way nationality
-  // below is: somebody who was already alive when their type became sentient --
-  // a fixed individual turned into a generic post -- was never named, and would
-  // otherwise stay nameless for as long as they live.
+  // Keyed on the NPC lacking a name, the way nationality below is: somebody who
+  // was already alive when their type became sentient was never named, and
+  // would otherwise stay nameless for as long as they live.
   if (sentient && !npc->query_given_name())
   {
     mixed gname;
 
     // No (string) cast here: that is a conversion kfun, not a type assertion,
     // and it errors on nil -- which is what a citizenship with no name style
-    // hands back. The error would abort the whole materialization.
+    // hands back.
     gname = this_object()->generate_citizen_name(gender);
     if (stringp(gname) && strlen(gname))
       npc->set_given_name(gname);
   }
 
-  npc->apply_template(t, first);
+  npc->apply_template(t, born);
 
   // What the house does to somebody arriving: its surname answers as a name, so
-  // "look copperfen" finds one of its people. After the template, not before --
+  // "look <surname>" finds one of its people. After the template, not before --
   // applying one replaces the alias list.
   npc->start_family();
 
   // The trade's class, when its job declares one. Set before the level:
   // set_class_ob resets class_level to 1, so a class applied afterwards would
   // undo the level this NPC was just given.
-  if (first && entry[CENSUS_VACANCY])
+  if (born && entry[CENSUS_VACANCY])
   {
     string trade;
 
@@ -254,19 +196,20 @@ private object npc_restore(string id, object loc)
     // that model one keep it under obj/jobs. Somebody taken on for a job the
     // game has a file for is enrolled in it; a job with no file is just a name
     // the settlement uses, and nothing is stamped.
-    trade = "/games/" + game + "/obj/jobs/" + entry[CENSUS_VACANCY] + ".c";
+    trade = "/games/" + (string)npc->query_npc_game() + "/obj/jobs/" +
+            entry[CENSUS_VACANCY] + ".c";
     if (file_size(trade) >= 0)
       npc->set_job_ob(trade);
   }
 
-  // level: decided once from the area on the first materialization; on restore
-  // it came back with the object
-  if (first)
-    npc->set_level((int)this_object()->decide_level(game, source));
+  // level: decided once from the area when the person is born
+  if (born)
+    npc->set_level((int)this_object()->decide_level(
+                     (string)npc->query_npc_game(), entry["source"]));
 
   // Nationality. Persisted with the NPC, so it is stamped once -- but keyed on
-  // the NPC lacking one rather than on `first`, so an NPC that predates its
-  // area having a citizenship picks one up the next time it wakes.
+  // the NPC lacking one, so an NPC that predates its area having a citizenship
+  // picks one up the next time it wakes.
   if (!npc->query_city_ob())
   {
     mixed cpath;
@@ -291,12 +234,11 @@ private object npc_restore(string id, object loc)
   //
   // Keyed on the NPC having no people of its own as well as on being newborn,
   // the way the proper name above is: a template says nothing about race, so
-  // this is where a person gets one, and somebody who woke without one before
-  // this rule existed would otherwise keep the placeholder for life. A restore
-  // does not re-apply the template's social objects (re-applying the class
-  // would reset the class level), so this is the only chance they get.
+  // this is where a person gets one. A restore does not re-apply the
+  // template's social objects (re-applying the class would reset the class
+  // level), so this is the only chance somebody without one gets.
   if (sentient &&
-      (first || !npc->query_race_ob() ||
+      (born || !npc->query_race_ob() ||
        npc->query_race_ob() == DEFAULT_RACE_OB))
   {
     mixed cpath;
@@ -336,6 +278,208 @@ private object npc_restore(string id, object loc)
     if (stringp(kind) && strlen(kind))
       npc->add_alias(kind);
   }
+}
+
+// A generic NPC stamped with a census row's identity, not yet restored or
+// placed anywhere.
+private object _clone_npc(string id)
+{
+  mapping entry;
+  object npc;
+
+  entry = query_npc_census()[id];
+  npc = clone_object(GENERIC_NPC);
+  if (!npc)
+    return nil;
+
+  npc->set_uuid(id);
+  npc->set_npc_game(game_from_path((string)this_object()->query_area_path()));
+  npc->set_npc_area_path((string)this_object()->query_area_path());
+  npc->set_npc_source(entry["source"]);
+  if (entry["poi"])
+    npc->set_npc_poi(entry["poi"]);
+
+  return npc;
+}
+
+// Write the npc.o of a census row's person, complete: gender, name, race,
+// nationality, class, level, stats, purse, workplace and kit, all decided here
+// once. The body is a passing clone, never placed in the world: it exists to be
+// saved and is gone when this returns. Returns 1 if the npc.o was written.
+private int _build_npc(string id)
+{
+  mapping entry, job, t;
+  mixed * equipment;
+  object npc;
+  string game;
+  int ok;
+
+  entry = query_npc_census()[id];
+  if (!entry)
+    return 0;
+
+  npc = _clone_npc(id);
+  if (!npc)
+    return 0;
+
+  game = (string)npc->query_npc_game();
+  job = entry[CENSUS_VACANCY]
+          ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY])
+          : nil;
+  t = (mapping)this_object()->query_area_template(game, entry["source"]);
+
+  // Gender comes from the type: a template that fixes one hands it over, a
+  // bimodal one rolls between the genders it can actually describe. Sentience
+  // does not enter into it -- an NPC with a proper name still cannot be a gender
+  // its template has no words for.
+  npc->set_gender((int)this_object()->decide_gender(game, entry["source"]));
+
+  _fill_identity(npc, entry, job, t, 1);
+
+  // this individual's concrete workplace, taken from the job it holds
+  if (entry[CENSUS_WORKS_AT])
+    npc->set_work(entry[CENSUS_WORKS_AT]);
+
+  // The kit is rolled once and carried for life. It is the job's where there is
+  // one -- the same trade is armed differently from town to town -- and the
+  // type's for somebody who holds no post. Worn and wielded on every
+  // materialization (init_equip), not here.
+  equipment = (job && pointerp(job[VACANCY_EQUIPMENT]))
+                ? job[VACANCY_EQUIPMENT] : (t ? t["equipment"] : nil);
+  if (pointerp(equipment) && sizeof(equipment))
+  {
+    string * kit;
+    int i;
+
+    kit = (string *)this_object()->resolve_equipment(equipment);
+    for (i = 0; i < sizeof(kit); i++)
+      npc->add_clone(kit[i], 1);
+  }
+
+  ok = npc->save_npc();
+
+  // the books keep a copy of who somebody is from the moment they exist
+  update_npc_info(id, npc);
+
+  npc->dest_me();
+  return ok;
+}
+
+// The person behind a census row as an object, to read or change: the one in
+// the world when they are there, otherwise a passing body restored from their
+// npc.o and never placed, so nothing is loaded to reach them. Hand it back to
+// release_npc. Nil for an unknown id or a missing npc.o.
+object borrow_npc(string id)
+{
+  object npc;
+
+  npc = find_living(id);
+  if (npc)
+    return npc;
+
+  if (!query_npc_census()[id])
+    return nil;
+
+  npc = _clone_npc(id);
+  if (npc && !npc->restore_npc())
+  {
+    npc->dest_me();
+    return nil;
+  }
+
+  return npc;
+}
+
+// Save what was changed on a borrowed person; a passing body is then gone.
+void release_npc(object npc)
+{
+  if (!npc)
+    return;
+
+  npc->save_npc();
+  if (!environment(npc))
+    npc->dest_me();
+}
+
+// Take a person onto the census, whole: the row and their npc.o. `row` carries
+// what places them (the post, where they work, where they stand); everything
+// individual is decided now and written to the npc.o. Nothing is loaded or
+// placed: the person appears when the location they stand in loads. Returns the
+// uuid, or nil if their npc.o could not be written.
+string create_npc(string source, mapping row)
+{
+  string id, game;
+
+  if (!source || !strlen(source))
+    return nil;
+
+  game = game_from_path((string)this_object()->query_area_path());
+  id = UUID_OB->uuid();
+
+  row = ([ ]) + (row ? row : ([ ]));
+  row["source"] = source;
+  row["savefile"] = npc_save_dir(game, id) + NPC_SAVE_FILE;
+  query_npc_census()[id] = row;
+
+  if (!_build_npc(id))
+  {
+    map_delete(query_npc_census(), id);
+    return nil;
+  }
+
+  this_object()->save_me();
+  return id;
+}
+
+// Materialize a census NPC into `loc`: a generic NPC restored from its npc.o,
+// with the template's presentation applied on top. A row with no npc.o -- one
+// created before people were built whole, or one whose file was lost -- has it
+// written first.
+private object npc_restore(string id, object loc)
+{
+  object npc;
+  string game, source, work;
+  mapping entry, job, t, timetable;
+  int sentient;
+
+  entry = query_npc_census()[id];
+  game = game_from_path((string)this_object()->query_area_path());
+  source = entry["source"];
+
+  if (!entry["savefile"] || file_size(entry["savefile"]) < 0)
+    if (!_build_npc(id))
+      return nil;
+
+  // Every NPC is a generic NPC; what it can do comes from the components its
+  // template asks for -- a guard's exit check among them.
+  npc = _clone_npc(id);
+  if (!npc)
+    return nil;
+
+  // Gender, level and inventory live on the NPC's own npc.o (save_object
+  // persists them), not the census.
+  if (!npc->restore_npc())
+  {
+    npc->dest_me();
+    return nil;
+  }
+
+  // The census is what decides what an NPC is and where it belongs, so it
+  // stamps those fields on top of whatever restore_object handed back: the
+  // NPC's own savefile is a record of them, never the authority.
+  npc->set_npc_area_path((string)this_object()->query_area_path());
+  npc->set_npc_source(source);
+  if (entry["poi"])
+    npc->set_npc_poi(entry["poi"]);
+
+  // The vacancy is read here for the place it names.
+  job = entry[CENSUS_VACANCY]
+           ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY])
+           : nil;
+  t = (mapping)this_object()->query_area_template(game, source);
+  sentient = t && t["sentient"];
+
+  _fill_identity(npc, entry, job, t, 0);
 
   // Its address, read back from the house. A housed NPC stores its home on its
   // own .o, but the house also lists it as a resident, and the house is the end
@@ -350,8 +494,7 @@ private object npc_restore(string id, object loc)
     if (stringp(house) && strlen(house))
     {
       npc->set_home(house);
-      if (!first)
-        npc->save_npc();
+      npc->save_npc();
     }
   }
   else if (member_array(npc->query_home(),
@@ -362,8 +505,7 @@ private object npc_restore(string id, object loc)
     // somebody who was away comes back holding the address of a house that is
     // no longer there.
     npc->set_home(nil);
-    if (!first)
-      npc->save_npc();
+    npc->save_npc();
   }
   else
     // it already knows its address; make sure the house agrees. A vacancy
@@ -372,33 +514,17 @@ private object npc_restore(string id, object loc)
     this_object()->claim_house(id, npc->query_home());
 
   // Per-individual assignment on the npc.o: this NPC's concrete workplace, taken
-  // from the job it holds. A restored NPC already carries one. A
-  // first-materialize NPC is persisted by the equipment save below; one that had
-  // none saves here. (The roster area is npc_area_path, stamped above.)
+  // from the job it holds. Written when the person is created; somebody who
+  // predates that is given it here. (The roster area is npc_area_path, stamped
+  // above.)
   if (!npc->query_work() && entry[CENSUS_WORKS_AT])
   {
     npc->set_work(entry[CENSUS_WORKS_AT]);
-    if (!first)
-      npc->save_npc();
-  }
-
-  // Equipment on the npc.o: on the first materialization the NPC rolls its kit
-  // once, equips it and the save below persists it; on restore the inventory
-  // came back with restore_npc, so just re-wear/wield it. The kit is the job's
-  // where there is one -- the same trade is armed differently from town to
-  // town -- and the type's for somebody who holds no post.
-  if (first)
-  {
-    mixed * equipment;
-
-    equipment = (job && pointerp(job[VACANCY_EQUIPMENT]))
-                  ? job[VACANCY_EQUIPMENT] : (t ? t["equipment"] : nil);
-    if (pointerp(equipment) && sizeof(equipment))
-      this_object()->equip_npc(npc, (string *)this_object()->resolve_equipment(equipment));
     npc->save_npc();
   }
-  else
-    npc->init_equip();
+
+  // the inventory came back with restore_npc; wear and wield it
+  npc->init_equip();
 
   npc->move(loc);
 
@@ -461,18 +587,12 @@ private object npc_restore(string id, object loc)
   // A job that comes with a house houses whoever holds it, set on every
   // materialization so it survives death and replacement. Read live from the
   // vacancy, so rebinding the house reaches the holder without a respawn.
-  if (entry[CENSUS_VACANCY])
+  if (job && job[VACANCY_HOME])
   {
-    mapping job;
-
-    job = (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY]);
-    if (job && job[VACANCY_HOME])
-    {
-      npc->set_home(job[VACANCY_HOME]);
-      // the job writes the holder's side; the house learns who lives in it here,
-      // which is what a report of the barracks reads
-      this_object()->claim_house(id, job[VACANCY_HOME]);
-    }
+    npc->set_home(job[VACANCY_HOME]);
+    // the job writes the holder's side; the house learns who lives in it here,
+    // which is what a report of the barracks reads
+    this_object()->claim_house(id, job[VACANCY_HOME]);
   }
 
   // Refresh what the books remember about this person. The npc.o is the
