@@ -21,15 +21,15 @@ void setup()
     "  houses           every house it holds, and who lives in each\n" +
     "  houses plots     the building land still waiting for a house\n" +
     "  houses free      the houses nobody lives in\n" +
-    "  houses audit     where the books and the houses disagree\n" +
+    "  houses audit     what the books say that cannot be right\n" +
     "\n" +
     "A house is a location carrying a home component; a plot is one carrying " +
     "a plot component, carved next to an existing location and waiting to be " +
     "built on. Both are kept on the area's books, and an area that delegates " +
     "its population shares one pool of them with the rest of its community.\n" +
     "\n" +
-    "Who lives where is written twice: the resident list on the house, and " +
-    "the address each person carries. 'audit' is what compares the two.");
+    "Who lives in each house and which family owns it are on the area's " +
+    "books, so none of this loads a house or a person.");
 }
 
 // The area of the location the player is standing in, or nil.
@@ -173,12 +173,9 @@ private int do_houses(object area, object me, int free_only)
 
   for (i = 0; i < sizeof(files); i++)
   {
-    object loc, home;
     string * residents;
 
-    loc = (object)area->load_location(files[i]);
-    home = loc ? loc->query_component_by_type(LOCATION_COMPONENT_HOME) : nil;
-    residents = home ? (string *)home->query_residents() : ({ });
+    residents = (string *)area->query_house_residents(files[i]);
 
     if (free_only && sizeof(residents))
       continue;
@@ -188,7 +185,8 @@ private int do_houses(object area, object me, int free_only)
     if (!sizeof(residents))
     {
       rows += ({ ({ get_path_file_name(files[i]),
-                    home ? "(empty)" : "(no home component)", "-", "-" }) });
+                    area->is_kept_house(files[i]) ? "(empty, kept)" : "(empty)",
+                    "-", "-" }) });
       continue;
     }
 
@@ -246,99 +244,68 @@ private int do_plots(object area, object me)
   return 1;
 }
 
-// ===== houses audit: where the two records disagree =====
+// ===== houses audit: what the books say that cannot be right =====
 private int do_audit(object area, object me)
 {
-  mapping census, claimed;
-  string * files, * ids;
+  mapping census;
+  mapping * jobs;
+  string * files;
   string out;
   int i, j, faults;
 
   files = (string *)area->query_houses();
   census = (mapping)area->query_npc_census();
-  claimed = ([ ]);
   out = "";
 
-  // what the houses say
   for (i = 0; i < sizeof(files); i++)
   {
-    object loc, home;
     string * residents;
 
-    loc = (object)area->load_location(files[i]);
-    home = loc ? loc->query_component_by_type(LOCATION_COMPONENT_HOME) : nil;
-    if (!home)
+    if (file_size(files[i]) < 0)
     {
       faults++;
       out += "  " + get_path_file_name(files[i]) +
-             " is on the books but carries no home component\n";
-      continue;
+             " is on the books but its location is gone\n";
     }
 
-    residents = (string *)home->query_residents();
+    residents = (string *)area->query_house_residents(files[i]);
     for (j = 0; j < sizeof(residents); j++)
-    {
       if (!census[residents[j]])
       {
         faults++;
         out += "  " + get_path_file_name(files[i]) +
                " lists somebody the census has never heard of\n";
-        continue;
       }
-      claimed[residents[j]] = files[i];
-    }
   }
 
-  // what the people say. Only those in the world can be asked: an address lives
-  // on the person, so somebody away is checked from the houses' side alone.
-  ids = map_indices(census);
-  for (i = 0; i < sizeof(ids); i++)
+  // a job with a house of its own houses whoever holds it
+  jobs = (mapping *)area->query_vacancies();
+  for (i = 0; i < sizeof(jobs); i++)
   {
-    object npc;
-    mixed home;
+    string * holders;
 
-    npc = find_living(ids[i]);
-    if (!npc)
+    if (!stringp(jobs[i][VACANCY_HOME]))
       continue;
 
-    home = npc->query_home();
-    if (!stringp(home) || !strlen(home))
-    {
-      if (claimed[ids[i]])
+    holders = (string *)area->query_vacancy_holders(jobs[i]);
+    for (j = 0; j < sizeof(holders); j++)
+      if (area->query_house_of(holders[j]) != jobs[i][VACANCY_HOME])
       {
         faults++;
-        out += "  " + who_is(area, ids[i]) + " lives nowhere, but " +
-               get_path_file_name(claimed[ids[i]]) + " keeps a bed for them\n";
+        out += "  " + who_is(area, holders[j]) + " holds '" +
+               jobs[i][VACANCY_JOB] + "' but does not live in its house\n";
       }
-      continue;
-    }
-
-    if (!claimed[ids[i]])
-    {
-      faults++;
-      out += "  " + who_is(area, ids[i]) + " says they live at " +
-             get_path_file_name(home) + ", which does not list them\n";
-    }
-    else if (claimed[ids[i]] != home)
-    {
-      faults++;
-      out += "  " + who_is(area, ids[i]) + " says they live at " +
-             get_path_file_name(home) + ", but " +
-             get_path_file_name(claimed[ids[i]]) + " lists them too\n";
-    }
   }
 
   if (!faults)
   {
-    write("The houses of '" + area->query_area_name() +
-          "' and the people in them agree.\n");
+    write("The books of the houses of '" + area->query_area_name() +
+          "' hold together.\n");
     return 1;
   }
 
   write("Housing faults in '" + area->query_area_name() + "' (" + faults +
-        "):\n" + out +
-        "\nOnly people in the world are checked from their own side; the rest " +
-        "are checked from the houses.\n");
+        "):\n" + out);
   return 1;
 }
 

@@ -18,7 +18,6 @@
 #define FAMILY_CITIZENSHIP "citizenship"
 #define FAMILY_MEMBERS     "members"
 #define FAMILY_HISTORY     "history"
-#define FAMILY_PROPERTIES  "properties"
 
 // A member's row, and an entry in the history
 #define FAMILY_SPOUSE  "spouse"

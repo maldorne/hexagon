@@ -1367,15 +1367,12 @@ int do_vacancy(string str)
       return 0;
     }
 
+    // a job's house is kept for it: set_vacancy_home moves its holders in
     file = loc->query_file_name();
     if (loc->has_component(LOCATION_COMPONENT_PLOT))
     {
-      object holder;
-
-      holder = area->query_vacancy_holder(job);
       home = loc;
-      area->build_house_at(file,
-        holder ? ({ holder->query_uuid() }) : ({ }));
+      area->build_house_at(file, ({ }), 1);
     }
     else if (!loc->has_component(LOCATION_COMPONENT_HOME))
     {
@@ -2267,15 +2264,16 @@ int do_home_make()
     return 0;
   }
 
-  file = area->build_house_at(loc->query_file_name(), ({ }));
+  // raised by hand for something in particular, so never handed out
+  file = area->build_house_at(loc->query_file_name(), ({ }), 1);
   if (!stringp(file))
   {
     notify_fail("Could not raise a house here.\n");
     return 0;
   }
 
-  write("Raised an empty house at " + file + ". Give it residents with " +
-        "'build homes', or set somebody's home to it by hand.\n");
+  write("Raised an empty house at " + file + ". It is kept out of " +
+        "'build homes'; make it a job's house with 'build vacancy home <job>'.\n");
   return 1;
 }
 
@@ -2728,8 +2726,6 @@ int do_family(string str)
     }
 
     surname = (string)who->query_family();
-    handler("families", this_player())->member_married_out((string)who->query_family_id(),
-                                       "nowhere");
     who->set_family(nil);
     write(_family_display(who) + " is no longer of house " + surname + ".\n");
     return 1;
@@ -2766,7 +2762,12 @@ int do_family(string str)
       rule = (string)load_object(
                (string)area->query_root_citizenship_path())->query_descent();
 
-    surname = (string)handler("families", this_player())->wed(who, other, rule);
+    surname = (string)handler("families", this_player())->wed(
+                ([ "id": who->query_family_id(), "name": _family_display(who),
+                   "gender": who->query_gender() ]),
+                ([ "id": other->query_family_id(), "name": _family_display(other),
+                   "gender": other->query_gender() ]),
+                rule);
     if (!surname)
     {
       notify_fail("Could not wed them.\n");

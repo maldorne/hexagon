@@ -492,7 +492,7 @@ private int do_orphans(object area, object me, string * args)
       // pointing at a row that no longer exists
       if (npc)
         npc->dest_me();
-      area->release_house(ids[i]);
+      area->set_house_of(ids[i], nil);
       area->drop_census_entry(ids[i]);
     }
   }

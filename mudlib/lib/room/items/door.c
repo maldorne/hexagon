@@ -10,6 +10,7 @@ inherit "/lib/core/object.c";
 #include <translations/exits.h>
 #include <room/room.h>
 #include <room/location.h>
+#include <areas/area.h>
 
 string dest,           // door direction
        dir_other_side, // direction we come from the other side (north -> south)
@@ -237,14 +238,14 @@ void close_msg(string door, object ob, int flag);
 // family's own door is locked to everybody else and opens for its members with
 // no key at all: what they have instead of one is being of the house.
 //
-// The owner is read from the home component of whichever side of the doorway is
-// the house, so re-housing a family is a change in one place and both faces of
-// the door follow it.
+// The owner is read from the books of the area whichever side of the doorway
+// belongs to, so re-housing a family is a change in one place and both faces of
+// the door follow it. Neither side is loaded to ask.
 private int _of_the_house(object who);
 
 private int _of_the_house(object who)
 {
-  object place, home;
+  object area;
   mixed owner;
   int i;
   string * sides;
@@ -261,15 +262,15 @@ private int _of_the_house(object who)
     if (!sides[i] || !strlen(sides[i]))
       continue;
 
-    place = load_object(LOCATION_HANDLER)->load_location(sides[i]);
-    if (!place)
+    // only a location can be a house, and its area is the directory it is in
+    if (sides[i][strlen(sides[i]) - 2 ..] != ".o")
       continue;
 
-    home = place->query_component_by_type(LOCATION_COMPONENT_HOME);
-    if (!home)
+    area = AREA_HANDLER->query_area(path(sides[i]));
+    if (!area)
       continue;
 
-    owner = home->query_home_owner();
+    owner = area->query_house_owner(sides[i]);
     if (stringp(owner) && strlen(owner) && who->is_family_member(owner))
       return 1;
   }

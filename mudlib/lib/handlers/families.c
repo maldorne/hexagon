@@ -1,10 +1,10 @@
 /*
  * Families handler.
  *
- * The register of every family in every and the only thing that knows who
- * belongs to whom. A living carries nothing but its surname (the family slot of
- * its social objects); everything else -- who is married to whom, whose child
- * somebody is, what the house belongs to -- is here.
+ * The register of every family in a game and the only thing that knows who
+ * belongs to whom: who is married to whom, whose child somebody is. A living
+ * stores nothing about it; it asks here. What a family owns is on the books of
+ * the areas its houses stand in, which say who owns each one.
  *
  * Keeping the relations here rather than on each living is what lets a family
  * survive its people. An NPC's savefile is deleted the moment it dies, so a
@@ -28,18 +28,17 @@
  *                                                           "widow_of": id,
  *                                                           "parents": ({ id }) ]) ]),
  *                                 "history":     ([ id : ([ "name": s,
- *                                                           "fate": s ]) ]),
- *                                 "properties":  ({ location files }) ])
+ *                                                           "fate": s ]) ]) ])
  *
  * A surname is spent for good. When the last member dies the family is extinct:
- * its properties are freed, but the record and its history stay, and the name is
+ * its houses are freed, but the record and its history stay, and the name is
  * never minted again. A family holding a player never goes extinct on its own.
  */
 
 #include <mud/config.h>
 #include <living/family.h>
 #include <namegen.h>
-#include <room/location.h>
+#include <areas/area.h>
 #include <basic/gender.h>
 
 inherit "/lib/core/object.c";
@@ -52,7 +51,7 @@ mapping member_of;
 
 private void _save();
 string query_save_file();
-private void _vacate_properties(string surname);
+private void _vacate_houses(string surname);
 int is_extinct(string surname);
 
 void create()
@@ -288,8 +287,7 @@ int found_family(string surname, string citizenship)
 
   all[surname] = ([ FAMILY_CITIZENSHIP: citizenship ? citizenship : "",
                     FAMILY_MEMBERS:     ([ ]),
-                    FAMILY_HISTORY:        ([ ]),
-                    FAMILY_PROPERTIES:  ({ }) ]);
+                    FAMILY_HISTORY:     ([ ]) ]);
   _save();
   return 1;
 }
@@ -363,7 +361,7 @@ int member_married_out(string id, string into)
   // a house nobody lives in holds nothing, however it emptied: the last of a
   // line marrying away leaves the roof as free as the last of it dying
   if (!map_sizeof(family[FAMILY_MEMBERS]))
-    _vacate_properties(surname);
+    _vacate_houses(surname);
 
   _save();
   return 1;
@@ -401,41 +399,47 @@ int member_died(string id)
   map_delete(member_of, id);
 
   if (!map_sizeof(members))
-    _vacate_properties(surname);
+    _vacate_houses(surname);
 
   _save();
   return 1;
 }
 
-// A house that has nobody left gives up everything it owned, in the register and
-// on the places themselves: an empty house names no owner, so the next family
-// can move in.
-private void _vacate_properties(string surname)
+// The areas of this register's game that keep books of their own: each
+// community's root, where its houses are recorded.
+private object * _root_areas()
 {
-  mapping family;
-  string * props;
+  string * paths;
+  object * out;
+  string game;
   int i;
 
-  family = query_family(surname);
-  if (!family)
-    return;
+  game = game_from_path(object_name(this_object()));
+  paths = (string *)AREA_HANDLER->query_area_paths(game);
+  out = ({ });
 
-  props = family[FAMILY_PROPERTIES];
-  family[FAMILY_PROPERTIES] = ({ });
-
-  for (i = 0; i < sizeof(props); i++)
+  for (i = 0; i < sizeof(paths); i++)
   {
-    object place, home;
+    object area;
 
-    place = load_object(LOCATION_HANDLER)->load_location(props[i]);
-    home = place ? place->query_component_by_type(LOCATION_COMPONENT_HOME)
-                 : nil;
-    if (!home || home->query_home_owner() != surname)
-      continue;
-
-    home->set_home_owner(nil);
-    place->save_me();
+    area = AREA_HANDLER->query_area(paths[i]);
+    if (area && area->query_root_area() == area)
+      out += ({ area });
   }
+
+  return out;
+}
+
+// A house that has nobody left gives up everything it owned: every house on the
+// books in its name stands empty and unowned, so the next family can move in.
+private void _vacate_houses(string surname)
+{
+  object * areas;
+  int i;
+
+  areas = _root_areas();
+  for (i = 0; i < sizeof(areas); i++)
+    areas[i]->vacate_houses_of(surname);
 }
 
 // Whether a house has died out: it held people once and holds none now. A house
@@ -477,48 +481,49 @@ int set_spouse(string id, string other)
   return 1;
 }
 
-// Marry two people, one of whom at least belongs to a house. Which of them moves
-// is the land's business, not theirs: `rule` is the descent of the citizenship
-// the wedding happens under, which is the only answer that does not depend on
-// who is asked first. Returns the surname they share afterwards, or nil.
-string wed(object who, object other, string rule)
+// Marry two people, one of whom at least belongs to a house. Each is given as
+// ([ "id": family id, "name": what to call them, "gender": GENDER_* ]), so
+// nobody has to be in the world for it. Which of them moves is the land's
+// business, not theirs: `rule` is the descent of the citizenship the wedding
+// happens under, which is the only answer that does not depend on who is asked
+// first. Returns the surname they share afterwards, or nil.
+string wed(mapping who, mapping other, string rule)
 {
-  object keeps, joins, swap;
+  mapping keeps, joins, swap;
+  string kept, left;
 
-  if (!who || !other || who == other)
+  if (!who || !other || who["id"] == other["id"])
     return nil;
-  if (!who->query_family() && !other->query_family())
+  if (!family_of(who["id"]) && !family_of(other["id"]))
     return nil;
 
   if (rule == DESCENT_MATRILINEAL)
-    keeps = (who->query_gender() == GENDER_FEMALE) ? who : other;
+    keeps = (who["gender"] == GENDER_FEMALE) ? who : other;
   else
-    keeps = (who->query_gender() == GENDER_FEMALE) ? other : who;
+    keeps = (who["gender"] == GENDER_FEMALE) ? other : who;
   joins = (keeps == who) ? other : who;
 
   // the one who would keep the house has none: the other's stands instead
-  if (!keeps->query_family())
+  if (!family_of(keeps["id"]))
   {
     swap = keeps;
     keeps = joins;
     joins = swap;
   }
 
-  if (joins->query_family() && joins->query_family() != keeps->query_family())
-  {
-    member_married_out((string)joins->query_family_id(),
-                       (string)keeps->query_family());
-    joins->set_family(nil);
-  }
+  kept = family_of(keeps["id"]);
+  left = family_of(joins["id"]);
 
-  if (!joins->query_family())
-    joins->set_family((string)keeps->query_family());
+  if (left && left != kept)
+    member_married_out(joins["id"], kept);
 
-  if (!set_spouse((string)who->query_family_id(),
-                  (string)other->query_family_id()))
+  if (left != kept)
+    add_member(kept, joins["id"], joins["name"]);
+
+  if (!set_spouse(who["id"], other["id"]))
     return nil;
 
-  return (string)keeps->query_family();
+  return kept;
 }
 
 // Whose child somebody is. The parents may be in another house -- a mother who
@@ -542,93 +547,50 @@ int set_parents(string id, string * parents)
 // Property
 // ---------------------------------------------------------------------------
 
-int add_property(string surname, string file)
-{
-  mapping family;
-
-  family = query_family(surname);
-  if (!family || !file || !strlen(file))
-    return 0;
-
-  if (member_array(file, family[FAMILY_PROPERTIES]) != -1)
-    return 0;
-
-  family[FAMILY_PROPERTIES] += ({ file });
-  _save();
-  return 1;
-}
-
-int remove_property(string surname, string file)
-{
-  mapping family;
-
-  family = query_family(surname);
-  if (!family)
-    return 0;
-
-  if (member_array(file, family[FAMILY_PROPERTIES]) == -1)
-    return 0;
-
-  family[FAMILY_PROPERTIES] -= ({ file });
-  _save();
-  return 1;
-}
-
+// The houses a family owns, read off the books of every community in the game.
 string * query_properties(string surname)
 {
-  mapping family;
-
-  family = query_family(surname);
-  return family ? family[FAMILY_PROPERTIES] : ({ });
-}
-
-// Who owns a place. Walks the register rather than keeping a second index: a
-// game holds hundreds of families at most, and a location already carries the
-// surname on its home component for the common lookup.
-string owner_of(string file)
-{
-  mapping all;
-  string * names;
+  object * areas;
+  string * out;
   int i;
 
-  all = families;
-  names = map_indices(all);
+  areas = _root_areas();
+  out = ({ });
+  for (i = 0; i < sizeof(areas); i++)
+    out += (string *)areas[i]->query_houses_owned_by(surname);
 
-  for (i = 0; i < sizeof(names); i++)
-    if (member_array(file, all[names[i]][FAMILY_PROPERTIES]) != -1)
-      return names[i];
-
-  return nil;
+  return out;
 }
 
 // The families holding property inside an area, so a builder can be told what a
 // wipe would take with it.
 string * families_of_area(string area_path)
 {
-  mapping all;
+  object * areas;
   string prefix;
-  string * names, * out, * props;
+  string * out;
   int i, j;
 
   if (!area_path || !strlen(area_path))
     return ({ });
 
-  all = families;
-  names = map_indices(all);
   prefix = "/save/games/" + game_from_path(area_path) + "/locations/" +
            area_path;
+  areas = _root_areas();
   out = ({ });
 
-  for (i = 0; i < sizeof(names); i++)
+  for (i = 0; i < sizeof(areas); i++)
   {
-    props = all[names[i]][FAMILY_PROPERTIES];
-    for (j = 0; j < sizeof(props); j++)
-      if (strlen(props[j]) >= strlen(prefix) &&
-          props[j][0 .. strlen(prefix) - 1] == prefix)
-      {
-        out += ({ names[i] });
-        break;
-      }
+    mapping owners;
+    string * files;
+
+    owners = (mapping)areas[i]->query_house_owners();
+    files = map_indices(owners);
+    for (j = 0; j < sizeof(files); j++)
+      if (strlen(files[j]) >= strlen(prefix) &&
+          files[j][0 .. strlen(prefix) - 1] == prefix &&
+          member_array(owners[files[j]], out) == -1)
+        out += ({ owners[files[j]] });
   }
 
   return out;

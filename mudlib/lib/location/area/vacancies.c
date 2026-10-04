@@ -28,6 +28,7 @@
 mapping * vacancies;
 
 private string assign_npc_to_vacancy(mapping vacancy, string where);
+string * query_vacancy_holders(mapping vacancy);
 
 void create()
 {
@@ -316,7 +317,8 @@ int set_vacancy_home(string job, string home)
   all = query_vacancies();
   for (i = 0; i < sizeof(all); i++)
   {
-    object npc;
+    string * holders;
+    int j;
 
     if (all[i][VACANCY_JOB] != job)
       continue;
@@ -325,12 +327,9 @@ int set_vacancy_home(string job, string home)
     found++;
 
     // move whoever holds it now
-    npc = (object)this_object()->query_vacancy_holder(all[i]);
-    if (npc)
-    {
-      npc->set_home(home);
-      npc->save_npc();
-    }
+    holders = query_vacancy_holders(all[i]);
+    for (j = 0; j < sizeof(holders); j++)
+      this_object()->set_house_of(holders[j], home);
   }
 
   if (found)
@@ -503,7 +502,7 @@ string generate_citizen_name(int gender)
 // appears when that place loads. Returns the uuid.
 private string assign_npc_to_vacancy(mapping vacancy, string where)
 {
-  string source, at;
+  string source, at, id;
   object owner;
 
   source = vacancy[VACANCY_SOURCE];
@@ -521,10 +520,16 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
   if (!owner)
     owner = this_object();
 
-  return owner->create_npc(source,
-                           ([ CENSUS_VACANCY:  vacancy[VACANCY_JOB],
-                              CENSUS_WORKS_AT: where,
-                              CENSUS_LOCATION: where ]));
+  id = owner->create_npc(source,
+                         ([ CENSUS_VACANCY:  vacancy[VACANCY_JOB],
+                            CENSUS_WORKS_AT: where,
+                            CENSUS_LOCATION: where ]));
+
+  // a job that comes with a house houses whoever holds it
+  if (id && vacancy[VACANCY_HOME])
+    this_object()->set_house_of(id, vacancy[VACANCY_HOME]);
+
+  return id;
 }
 
 // Seat the holders of a job across its places again. Staffing hands each new

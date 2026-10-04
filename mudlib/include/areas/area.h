@@ -14,3 +14,12 @@
 // wipe is refused and only the steps that preserve what is there remain.
 #define AREA_DRAFT   "draft"
 #define AREA_SETTLED "settled"
+
+// A house on the community's books: who lives in it, which family owns it, and
+// whether it was raised for something in particular (a barracks, a guildhall)
+// and so is never handed to whoever is homeless.
+//   ([ location file : ([ HOUSE_RESIDENTS: ({ uuid }), HOUSE_OWNER: surname,
+//                         HOUSE_KEPT: 1 ]) ])
+#define HOUSE_RESIDENTS "residents"
+#define HOUSE_OWNER     "owner"
+#define HOUSE_KEPT      "kept"

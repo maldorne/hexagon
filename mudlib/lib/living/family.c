@@ -1,10 +1,10 @@
 //
 // A living's family: which house it belongs to, and who its people are.
 //
-// The living itself stores one thing, the surname, in the family slot of its
-// social objects. Everything else -- who it is married to, whose child it is,
-// what the house belongs to -- is asked of the families handler, which is where
-// a family outlives the people in it.
+// The living stores nothing about it: which house it is of, who it is married
+// to, whose child it is -- all of it is asked of the families handler, which is
+// where a family outlives the people in it, and which can be written to without
+// anybody being in the world.
 //
 // A member is named the same way whether it is an NPC or a player, so a family
 // may hold both and nothing here has to know which it is looking at.
@@ -31,19 +31,12 @@ string query_family_id()
   return (stringp(id) && strlen(id)) ? FAMILY_NPC + id : nil;
 }
 
-// The register is the authority on who belongs where; the slot is only its copy,
-// and a copy that drifted is not believed.
 string query_family()
 {
-  mixed surname;
   string id;
 
   id = query_family_id();
-  if (id)
-    return handler("families", this_object())->family_of(id);
-
-  surname = this_object()->query_family_ob();
-  return stringp(surname) ? surname : nil;
+  return id ? handler("families", this_object())->family_of(id) : nil;
 }
 
 // What somebody is called in full: their own name, and the house they are of
@@ -66,8 +59,9 @@ string query_full_name()
   return (surname && strlen(surname)) ? personal + " " + surname : personal;
 }
 
-// Join a house. The register is the authority on who belongs where, so it is
-// told first and the slot only records the answer.
+// Join a house, or leave the one somebody is of with no surname. Only the
+// register is written; the surname answering as a name is the one thing kept on
+// the living, and it is not saved.
 int set_family(string surname, varargs string display_name)
 {
   string id, old;
@@ -77,19 +71,18 @@ int set_family(string surname, varargs string display_name)
   if (!id)
     return 0;
 
+  old = query_family();
+
   if (!surname || !strlen(surname))
   {
+    if (!old)
+      return 1;
+
+    handler("families", this_object())->member_married_out(id, "nowhere");
+
     // the surname answers as a name while it is theirs, so it stops answering
     // when it is not
-    // the slot, not the register: somebody leaving has already left it
-    shown = this_object()->query_family_ob();
-    old = stringp(shown) ? shown : nil;
-    if (old && strlen(old))
-      this_object()->remove_alias(lower_case(old));
-
-    this_object()->set_family_ob(nil);
-    if (this_object()->query_persisted())
-      this_object()->save_npc();
+    this_object()->remove_alias(lower_case(old));
     return 1;
   }
 
@@ -105,17 +98,9 @@ int set_family(string surname, varargs string display_name)
   if (!handler("families", this_object())->add_member(surname, id, display_name))
     return 0;
 
-  this_object()->set_family_ob(surname);
-
-  // somebody of a house answers to it: "look copperfen" finds one of them, the
+  // somebody of a house answers to it: "look <surname>" finds one of them, the
   // same way a generated citizen answers to the name it was given
   this_object()->add_alias(lower_case(surname));
-
-  // the register has written its side; without this the two disagree the
-  // moment the location unloads, and somebody wakes up disowned by a house
-  // that still counts them
-  if (this_object()->query_persisted())
-    this_object()->save_npc();
 
   return 1;
 }
@@ -162,19 +147,9 @@ string * query_children_ids()
 // who joined the house before they were named is written down by name now.
 void start_family()
 {
-  mixed surname, slot, given;
+  mixed surname, given;
 
-  // the slot follows the register, dropping a house it no longer belongs to
   surname = query_family();
-  slot = this_object()->query_family_ob();
-  if (stringp(slot) && strlen(slot) && slot != surname)
-  {
-    this_object()->remove_alias(lower_case(slot));
-    this_object()->set_family_ob(surname);
-    if (this_object()->query_persisted())
-      this_object()->save_npc();
-  }
-
   if (!stringp(surname) || !strlen(surname))
     return;
 

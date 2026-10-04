@@ -6,8 +6,9 @@
 // and a savefile of its own, which is exactly what tells it apart from the
 // anonymous monsters counted elsewhere. The row itself stays lean (who, where,
 // what post); everything individual about the NPC -- gender, level, inventory,
-// its generated name, its home and workplace -- lives on its own npc.o, written
-// whole when the person is created (create_npc).
+// its generated name and its workplace -- lives on its own npc.o, written whole
+// when the person is created (create_npc). Where it lives is on the area's books
+// of houses.
 //
 // This file owns `npc_census` and the whole create / materialize / drain / die
 // cycle around it. Creation is the crossroads of the area: it reads the type
@@ -46,10 +47,11 @@ mapping query_npc_census()
                                 : (mapping)owner->query_npc_census();
 }
 
-// What the books remember about a person, copied off them while they are in the
-// world: enough to name and rank everybody in a report without loading anyone.
-// The person is the authority; this is only ever read by reports, never by the
-// world. Where they live is not here -- the houses know that already.
+// What the books remember about a person, copied off them when they are created
+// and whenever they are in the world: enough to name, rank and pair everybody
+// without loading anyone. The person is the authority; this is read by reports
+// and by the housing pass. Where they live is not here -- the books of houses
+// know that already.
 void update_npc_info(string uuid, object npc)
 {
   mapping entry;
@@ -397,31 +399,6 @@ object place_npc(string id, object loc)
   t = (mapping)this_object()->query_area_template(
                  (string)npc->query_npc_game(), entry["source"]);
 
-  // Its address, read back from the house. A housed NPC stores its home on its
-  // own .o, but the house also lists it as a resident, and the house is the end
-  // that survives. Reading the link back here heals the pair instead of leaving
-  // the NPC homeless in a house that expects it.
-  if (!npc->query_home())
-  {
-    mixed house;
-
-    house = this_object()->query_house_of(id);
-    if (stringp(house) && strlen(house))
-      npc->set_home(house);
-  }
-  else if (member_array(npc->query_home(),
-                        (string *)this_object()->query_houses()) < 0)
-    // an address has to name a house. Unbuilding one clears the address of
-    // whoever was in the world at the time and can do nothing for the rest, so
-    // somebody who was away comes back holding the address of a house that is
-    // no longer there.
-    npc->set_home(nil);
-  else
-    // it already knows its address; make sure the house agrees. A vacancy
-    // re-homes its replacement by writing only the NPC's side, so without this
-    // the house would still name the holder before last.
-    this_object()->claim_house(id, npc->query_home());
-
   // the inventory came back with the npc.o; wear and wield it
   npc->init_equip();
 
@@ -474,17 +451,6 @@ object place_npc(string id, object loc)
     // rode in on its npc.o and would keep walking them about on its own.
     npc->remove_component("schedule");
     this_object()->index_schedule_hours(id, ({ }));
-  }
-
-  // A job that comes with a house houses whoever holds it, set every time so it
-  // survives death and replacement. Read live from the vacancy, so rebinding the
-  // house reaches the holder without a respawn.
-  if (job && job[VACANCY_HOME])
-  {
-    npc->set_home(job[VACANCY_HOME]);
-    // the job writes the holder's side; the house learns who lives in it here,
-    // which is what a report of the barracks reads
-    this_object()->claim_house(id, job[VACANCY_HOME]);
   }
 
   npc->save_npc();
@@ -660,9 +626,8 @@ void npc_died(string uuid)
   // and out of the hourly index, or the round would keep waking the dead
   this_object()->index_schedule_hours(uuid, ({ }));
 
-  // stop its house expecting it back; a vacancy's house is rebound to whoever
-  // fills the post next, a roster citizen's frees a bed for its replacement
-  this_object()->release_house(uuid);
+  // off the books of its house; a bed freed for whoever comes next
+  this_object()->set_house_of(uuid, nil);
 
   // and tell its house. The savefile goes with the death, so the family record
   // is the only thing that will still be able to name this person afterwards:

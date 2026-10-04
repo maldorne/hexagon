@@ -52,11 +52,6 @@ static object * components;
 // it holds live object references, which mean nothing across a save.
 static mapping component_actions;
 
-// Where this NPC lives: a house location file (the home the area assigned it),
-// or nil. Persisted in npc.o. The schedule component walks the NPC here at night
-// via travel_to(query_home()). Just a location for now -- a family shares one.
-string npc_home;
-
 // For an anonymous monster (no uuid): the location whose bucket counts it, set
 // when it is cloned. It is bookkeeping, not identity -- the animal may wander
 // off, and on death it still decrements the bucket it was counted in.
@@ -81,15 +76,28 @@ void create()
   npc_source = nil;
   npc_auto_load = ([ ]);
   npc_given_name = nil;
-  npc_home = nil;
   npc_work = nil;
   npc_monster_location = nil;
   component_info = ([ ]);
   components = ({ });
 }
 
-string query_home() { return npc_home; }
-void set_home(string file) { npc_home = file; }
+int query_persisted();
+
+// Where this NPC lives: the house its area's books list it in, or nil. The
+// schedule component walks the NPC there at night via travel_to(query_home()).
+string query_home()
+{
+  object area;
+  mixed house;
+
+  if (!query_persisted() || !npc_area_path)
+    return nil;
+
+  area = AREA_HANDLER->query_area(npc_area_path);
+  house = area ? area->query_house_of(npc_uuid) : nil;
+  return (stringp(house) && strlen(house)) ? house : nil;
+}
 
 string query_monster_location() { return npc_monster_location; }
 void set_monster_location(string file) { npc_monster_location = file; }

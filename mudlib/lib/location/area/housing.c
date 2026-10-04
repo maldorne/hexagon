@@ -3,9 +3,13 @@
 //
 // A plot is an empty lot the builder carved next to an existing location; a
 // house is that same location once someone moves in. This file owns the plot
-// registry, the act of raising a house on one, and the pass that gives every
-// homeless settled citizen a home -- pairing a man and a woman into one house
-// and giving whoever is left over a house of their own.
+// registry, the books of the houses -- who lives in each and which family owns
+// it -- the act of raising a house on a plot, and the pass that gives every
+// homeless settled citizen a home.
+//
+// The books are the only record of who lives where. Nothing is written on the
+// people or on the houses themselves, so housing somebody, marrying them off or
+// emptying a house loads neither the person nor the place.
 //
 // Who is entitled to a house is a design-time fact, not a runtime guess: an NPC
 // source is flagged "resident" on the area roster, or the job somebody holds is
@@ -19,13 +23,13 @@
 
 // Buildable lots waiting for a house, by location file.
 string * plots;
-// the area's raised houses, so it can answer which one a resident belongs to
-string * houses;
+// The community's houses, see <areas/area.h>:
+//   ([ location file : ([ HOUSE_RESIDENTS: ({ uuid }), HOUSE_OWNER: surname,
+//                         HOUSE_KEPT: 1 ]) ])
+mapping house_records;
 
-// defined further down; build_house_on_plot registers each house it raises
-void add_house(string file);
-// defined further down; release_house asks it which house holds a resident
-string query_house_of(string uuid);
+void add_house(string file, varargs int kept);
+void set_house_of(string uuid, string file);
 
 // The area's fallback location file (where orphaned occupants go). "" if unset.
 string principal;
@@ -34,14 +38,14 @@ string principal;
 void door_house_exits(object house);
 void open_plot_exits(object plot);
 int demote_house(string file);
-void claim_house(string uuid, string file);
-private void _house_family(object * family, string house);
-private string _family_for(object * group);
+int is_house(string file);
+private void _house_family(string * family, string house);
+private string _family_for(string * group);
 
 void create()
 {
   plots = ({ });
-  houses = ({ });
+  house_records = ([ ]);
   principal = "";
 }
 
@@ -107,37 +111,21 @@ void set_principal(string file)
   this_object()->save_me();
 }
 
-// Raise a house on a free plot and move its residents in. Picks a random free
-// plot (no neighbourhood grading yet), turns it from a bare plot into a house
-// (drops the `plot` component, adds `home` with the residents), and drops it
-// from the plots registry. Returns the house's location file, or nil (and logs)
-// when there is no free plot. `residents` are the find_living ids / uuids that
-// will live there; a family shares one call.
-string build_house_on_plot(string * residents)
+// Turn the plot at `file` into a house and put it on the books: the `plot`
+// component goes, a `home` component comes, the plot's open passages become
+// doors, and `residents` move in. The location itself has to be loaded for
+// this: raising a house changes it.
+private void _raise_house(string file, string * residents, int kept)
 {
-  string plot_file;
-  object house, owner;
+  object house;
+  int i;
 
-  owner = (object)this_object()->query_root_area();
-  if (owner != this_object())
-    return (string)owner->build_house_on_plot(residents);
-
-  if (!plots || !sizeof(plots))
-  {
-    this_object()->log_event("No free plot available to house " +
-              (residents && sizeof(residents) ? implode(residents, ", ")
-                                              : "an NPC") + ".");
-    return nil;
-  }
-
-  plot_file = plots[random(sizeof(plots))];
-  house = load_object(LOCATION_HANDLER)->load_location(plot_file);
+  house = load_object(LOCATION_HANDLER)->load_location(file);
   if (!house)
-    return nil;
+    return;
 
   house->remove_component(LOCATION_COMPONENT_PLOT);
-  house->add_component(LOCATION_COMPONENT_HOME,
-                       ([ "residents": residents ? residents : ({ }) ]));
+  house->add_component(LOCATION_COMPONENT_HOME, ([ ]));
   house->save_me();
 
   // a raised house has a real front door: re-type the plot's open exits (both
@@ -146,50 +134,63 @@ string build_house_on_plot(string * residents)
 
   // it is a house now, not an available plot -- but it stays on the books:
   // an area that forgets its houses cannot answer who lives where
-  remove_plot(plot_file);
-  add_house(plot_file);
+  remove_plot(file);
+  add_house(file, kept);
 
-  this_object()->log_event("Raised a house at " + plot_file + " for " +
-            (residents && sizeof(residents) ? implode(residents, ", ")
-                                            : "no residents") + ".");
+  for (i = 0; i < sizeof(residents); i++)
+    set_house_of(residents[i], file);
 
-  return plot_file;
+  this_object()->log_event("Raised a house at " + file + " for " +
+            (sizeof(residents) ? implode(residents, ", ") : "no residents") +
+            ".");
 }
 
-// Raise a house on one named plot, rather than on whichever one is free. Used
-// when a job's house is chosen by hand: the builder stands on the plot that is
-// to become it. Returns the house's location file, or nil if that location is
-// not a plot of this area.
-string build_house_at(string file, string * residents)
+// Raise a house on a free plot and move its residents in. Picks a random free
+// plot (no neighbourhood grading yet). Returns the house's location file, or nil
+// (and logs) when there is no free plot. `residents` are the uuids that will
+// live there; a family shares one call.
+string build_house_on_plot(string * residents)
 {
-  object house, owner;
+  string plot_file;
+  object owner;
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (string)owner->build_house_at(file, residents);
+    return (string)owner->build_house_on_plot(residents);
+
+  residents = residents ? residents : ({ });
+
+  if (!plots || !sizeof(plots))
+  {
+    this_object()->log_event("No free plot available to house " +
+              (sizeof(residents) ? implode(residents, ", ") : "an NPC") + ".");
+    return nil;
+  }
+
+  plot_file = plots[random(sizeof(plots))];
+  _raise_house(plot_file, residents, 0);
+  return is_house(plot_file) ? plot_file : nil;
+}
+
+// Raise a house on one named plot, rather than on whichever one is free. Used
+// when a house is placed by hand: the builder stands on the plot that is to
+// become it. A `kept` house was raised for something in particular -- a
+// barracks, a job's house -- and is never handed to whoever is homeless.
+// Returns the house's location file, or nil if that location is not a plot of
+// this area.
+string build_house_at(string file, string * residents, varargs int kept)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (string)owner->build_house_at(file, residents, kept);
 
   if (member_array(file, query_plots()) < 0)
     return nil;
 
-  house = (object)this_object()->load_location(file);
-  if (!house)
-    return nil;
-
-  house->remove_component(LOCATION_COMPONENT_PLOT);
-  house->add_component(LOCATION_COMPONENT_HOME,
-                       ([ "residents": residents ? residents : ({ }) ]));
-  house->save_me();
-
-  door_house_exits(house);
-
-  remove_plot(file);
-  add_house(file);
-
-  this_object()->log_event("Raised a house at " + file + " for " +
-            (residents && sizeof(residents) ? implode(residents, ", ")
-                                            : "no residents") + ".");
-
-  return file;
+  _raise_house(file, residents ? residents : ({ }), kept);
+  return is_house(file) ? file : nil;
 }
 
 // Re-type a raised house's exits to "door": the exit(s) the house carries (a
@@ -276,30 +277,12 @@ void door_house_exits(object house)
   house->save_me();
 }
 
-// Record a place as a family's, on both sides: the register lists it among the
-// house's property, and the location itself names its owner so a door can ask
-// without going through the handler. Two records of one fact, kept in step
-// here, the way an NPC's address and its house's resident list are.
-void claim_property(string surname, string file)
-{
-  object place, home;
-
-  if (!surname || !strlen(surname) || !file || !strlen(file))
-    return;
-
-  handler("families", this_object())->add_property(surname, file);
-
-  place = load_object(LOCATION_HANDLER)->load_location(file);
-  if (!place)
-    return;
-
-  home = place->query_component_by_type(LOCATION_COMPONENT_HOME);
-  if (!home)
-    return;
-
-  home->set_home_owner(surname);
-  place->save_me();
-}
+// ---------------------------------------------------------------------------
+// The books
+// ---------------------------------------------------------------------------
+//
+// Every call is answered by the community's root area, which keeps them. A
+// house is named by its location file.
 
 string * query_houses()
 {
@@ -309,113 +292,238 @@ string * query_houses()
   if (owner != this_object())
     return (string *)owner->query_houses();
 
-  return houses ? houses : ({ });
+  if (!house_records)
+    house_records = ([ ]);
+
+  return house_records ? map_indices(house_records) : ({ });
 }
 
-void add_house(string file)
+int is_house(string file)
+{
+  return member_array(file, query_houses()) != -1;
+}
+
+// Put a location on the books as a house, with nobody in it yet.
+void add_house(string file, varargs int kept)
 {
   object owner;
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
   {
-    owner->add_house(file);
+    owner->add_house(file, kept);
     return;
   }
 
-  if (!houses)
-    houses = ({ });
-  if (member_array(file, houses) < 0)
-  {
-    houses += ({ file });
-    this_object()->save_me();
-  }
+  if (!house_records)
+    house_records = ([ ]);
+
+  if (!file || !strlen(file) || house_records[file])
+    return;
+
+  house_records[file] = ([ HOUSE_RESIDENTS: ({ }) ]);
+  if (kept)
+    house_records[file][HOUSE_KEPT] = 1;
+  this_object()->save_me();
 }
 
-
-// Move `uuid` out of whatever house lists it. Called when an NPC dies: the
-// census entry goes, and the house has to stop expecting a tenant who is never
-// coming back -- otherwise its resident list only ever grows, and the NPC that
-// replaces the dead one finds no room to move into.
-void release_house(string uuid)
+int is_kept_house(string file)
 {
-  object house, home, owner;
-  string file;
+  object owner;
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-  {
-    owner->release_house(uuid);
-    return;
-  }
+    return (int)owner->is_kept_house(file);
 
-  file = query_house_of(uuid);
-  if (!strlen(file))
-    return;
+  if (!house_records)
+    house_records = ([ ]);
 
-  house = (object)this_object()->load_location(file);
-  if (!house)
-    return;
-
-  home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
-  if (!home)
-    return;
-
-  home->remove_resident(uuid);
-  house->save_me();
+  return house_records[file] && house_records[file][HOUSE_KEPT];
 }
 
-// Make the houses agree with the address an NPC carries: the one it names lists
-// it, and no other does.
-//
-// The NPC's address and a house's resident list are two records of one fact,
-// written by different paths -- housing writes both when it raises a house, a
-// POI vacancy writes only the NPC's side when it re-homes a replacement, and a
-// move writes the new house without telling the old one. Reconciling from the
-// address here covers all three, and clears the stale entry a move leaves
-// behind.
-void claim_house(string uuid, string file)
+string * query_house_residents(string file)
 {
-  string * all;
   object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (string *)owner->query_house_residents(file);
+
+  if (!house_records)
+    house_records = ([ ]);
+
+  return house_records[file] ? ({ }) + house_records[file][HOUSE_RESIDENTS]
+                             : ({ });
+}
+
+// The house `uuid` lives in, or "" when nobody has given them one.
+string query_house_of(string uuid)
+{
+  object owner;
+  string * files;
   int i;
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
+    return (string)owner->query_house_of(uuid);
+
+  if (!house_records)
+    house_records = ([ ]);
+
+  if (!uuid || !strlen(uuid))
+    return "";
+
+  files = map_indices(house_records);
+  for (i = 0; i < sizeof(files); i++)
+    if (member_array(uuid, house_records[files[i]][HOUSE_RESIDENTS]) != -1)
+      return files[i];
+
+  return "";
+}
+
+// Move `uuid` into the house at `file`, out of any other; nil leaves them
+// homeless. Somebody lives in one house at a time.
+void set_house_of(string uuid, string file)
+{
+  object owner;
+  string * files;
+  int i, changed;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
   {
-    owner->claim_house(uuid, file);
+    owner->set_house_of(uuid, file);
     return;
   }
 
-  if (!uuid || !strlen(uuid) || !file || !strlen(file))
+  if (!house_records)
+    house_records = ([ ]);
+
+  if (!uuid || !strlen(uuid))
     return;
 
-  all = query_houses();
-
-  for (i = 0; i < sizeof(all); i++)
+  files = map_indices(house_records);
+  for (i = 0; i < sizeof(files); i++)
   {
-    object house, home;
-    int listed;
+    string * living;
 
-    house = (object)this_object()->load_location(all[i]);
-    if (!house)
-      continue;
-
-    home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
-    if (!home)
-      continue;
-
-    listed = (member_array(uuid, (string *)home->query_residents()) != -1);
-
-    if (all[i] == file && !listed)
-      home->add_resident(uuid);
-    else if (all[i] != file && listed)
-      home->remove_resident(uuid);
-    else
-      continue;
-
-    house->save_me();
+    living = house_records[files[i]][HOUSE_RESIDENTS];
+    if (files[i] == file && member_array(uuid, living) == -1)
+    {
+      house_records[files[i]][HOUSE_RESIDENTS] = living + ({ uuid });
+      changed = 1;
+    }
+    else if (files[i] != file && member_array(uuid, living) != -1)
+    {
+      house_records[files[i]][HOUSE_RESIDENTS] = living - ({ uuid });
+      changed = 1;
+    }
   }
+
+  if (changed)
+    this_object()->save_me();
+}
+
+// The family a house belongs to, or nil. A house whose family has died out
+// belongs to nobody.
+string query_house_owner(string file)
+{
+  object owner;
+  mixed surname;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (string)owner->query_house_owner(file);
+
+  if (!house_records)
+    house_records = ([ ]);
+
+  surname = house_records[file] ? house_records[file][HOUSE_OWNER] : nil;
+  if (!stringp(surname) ||
+      !handler("families", this_object())->has_family(surname) ||
+      handler("families", this_object())->is_extinct(surname))
+    return nil;
+
+  return surname;
+}
+
+// Put a house in a family's name; nil leaves it unowned. A house belongs to the
+// family living in it, not to the people one by one: that is what lets it
+// outlast them, and what a door asks before it opens.
+void set_house_owner(string file, string surname)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+  {
+    owner->set_house_owner(file, surname);
+    return;
+  }
+
+  if (!house_records)
+    house_records = ([ ]);
+
+  if (!house_records[file])
+    return;
+
+  if (surname && strlen(surname))
+    house_records[file][HOUSE_OWNER] = surname;
+  else
+    map_delete(house_records[file], HOUSE_OWNER);
+  this_object()->save_me();
+}
+
+// Every house on the books with the family it belongs to: ([ file : surname ]).
+mapping query_house_owners()
+{
+  object owner;
+  mapping out;
+  string * files;
+  int i;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (mapping)owner->query_house_owners();
+
+  if (!house_records)
+    house_records = ([ ]);
+
+  out = ([ ]);
+  files = map_indices(house_records);
+  for (i = 0; i < sizeof(files); i++)
+    if (house_records[files[i]][HOUSE_OWNER])
+      out[files[i]] = house_records[files[i]][HOUSE_OWNER];
+
+  return out;
+}
+
+string * query_houses_owned_by(string surname)
+{
+  mapping owners;
+  string * files, * out;
+  int i;
+
+  owners = query_house_owners();
+  files = map_indices(owners);
+  out = ({ });
+  for (i = 0; i < sizeof(files); i++)
+    if (owners[files[i]] == surname)
+      out += ({ files[i] });
+
+  return out;
+}
+
+// A family that has died out leaves its houses: they stand unowned, ready for
+// the next household. Called by the families handler.
+void vacate_houses_of(string surname)
+{
+  string * files;
+  int i;
+
+  files = query_houses_owned_by(surname);
+  for (i = 0; i < sizeof(files); i++)
+    set_house_owner(files[i], nil);
 }
 
 // Turn a house back into a bare plot: evict its residents, drop the home
@@ -430,48 +538,33 @@ void claim_house(string uuid, string file)
 // Returns the number of residents evicted, or -1 if `file` is not a house here.
 int demote_house(string file)
 {
-  object house, home, owner;
-  string * living_here;
-  int i, evicted;
+  object house, owner;
+  int evicted;
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
     return (int)owner->demote_house(file);
 
-  if (!file || !strlen(file))
+  if (!house_records)
+    house_records = ([ ]);
+
+  if (!file || !house_records[file])
     return -1;
+
+  evicted = sizeof(house_records[file][HOUSE_RESIDENTS]);
+  map_delete(house_records, file);
 
   house = (object)this_object()->load_location(file);
-  if (!house)
-    return -1;
-
-  home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
-  if (!home)
-    return -1;
-
-  living_here = (string *)home->query_residents();
-
-  for (i = 0; i < sizeof(living_here); i++)
+  if (house)
   {
-    object npc;
+    house->remove_component(LOCATION_COMPONENT_HOME);
+    house->add_component(LOCATION_COMPONENT_PLOT, ([ ]));
+    house->save_me();
 
-    npc = find_living(living_here[i]);
-    if (npc)
-    {
-      npc->set_home(nil);
-      npc->save_npc();
-    }
-    evicted++;
+    // the front door goes back to being an open doorway, on both sides
+    open_plot_exits(house);
   }
 
-  house->remove_component(LOCATION_COMPONENT_HOME);
-  house->add_component(LOCATION_COMPONENT_PLOT, ([ ]));
-  house->save_me();
-
-  // the front door goes back to being an open doorway, on both sides
-  open_plot_exits(house);
-
-  houses -= ({ file });
   add_plot(file);
   this_object()->save_me();
 
@@ -480,47 +573,6 @@ int demote_house(string file)
 
   return evicted;
 }
-
-
-// The house that lists `uuid` among its residents, or "" when nobody does.
-//
-// A housed NPC keeps its address on its own .o, but the house keeps the
-// resident list on the location, so the link is recorded at both ends. The
-// house is the authoritative end: the location .o outlives any individual, and
-// an NPC that lost its save file (or was rebuilt) comes back with no address
-// while the house still names it. Reading the link back from here is what lets
-// the pair heal instead of silently drifting apart.
-string query_house_of(string uuid)
-{
-  object owner;
-  int i;
-
-  owner = (object)this_object()->query_root_area();
-  if (owner != this_object())
-    return (string)owner->query_house_of(uuid);
-
-  if (!uuid || !strlen(uuid))
-    return "";
-
-  for (i = 0; i < sizeof(houses); i++)
-  {
-    object house, home;
-
-    house = (object)this_object()->load_location(houses[i]);
-    if (!house)
-      continue;
-
-    home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
-    if (!home)
-      continue;
-
-    if (member_array(uuid, (string *)home->query_residents()) != -1)
-      return houses[i];
-  }
-
-  return "";
-}
-
 
 // Whether a census row is a settled resident -- one the design declared as such.
 // Who gets a house is a design-time decision, not a runtime guess from the NPC's
@@ -550,30 +602,22 @@ private int _is_resident(mapping entry)
   return job && job[VACANCY_RESIDENT] && !job[VACANCY_HOME];
 }
 
-// Who lives where, read off the houses: ([ uuid : house file ]).
+// Who lives where, read off the books: ([ uuid : house file ]).
 private mapping _residences()
 {
   mapping out;
-  string * all;
+  string * files;
   int i, j;
 
   out = ([ ]);
-  all = query_houses();
-
-  for (i = 0; i < sizeof(all); i++)
+  files = query_houses();
+  for (i = 0; i < sizeof(files); i++)
   {
-    object house, home;
     string * living;
 
-    house = (object)this_object()->load_location(all[i]);
-    home = house ? house->query_component_by_type(LOCATION_COMPONENT_HOME)
-                 : nil;
-    if (!home)
-      continue;
-
-    living = (string *)home->query_residents();
+    living = query_house_residents(files[i]);
     for (j = 0; j < sizeof(living); j++)
-      out[living[j]] = all[i];
+      out[living[j]] = files[i];
   }
 
   return out;
@@ -596,48 +640,23 @@ private string * _job_houses()
   return out;
 }
 
-// Ordinary houses standing empty, ready for a new household. A house whose
-// family has died out still naming it as theirs is cleared on the way: nobody
-// is left to own it.
+// Ordinary houses standing empty, ready for a new household: nobody lives in
+// them, no living family owns them, and they were not raised for anything in
+// particular.
 private string * _empty_houses()
 {
-  string * all, * posts, * out;
+  string * files, * posts, * out;
   int i;
 
-  all = query_houses();
+  files = query_houses();
   posts = _job_houses();
   out = ({ });
 
-  for (i = 0; i < sizeof(all); i++)
-  {
-    object house, home;
-    mixed owner;
-
-    if (member_array(all[i], posts) != -1)
-      continue;
-
-    house = (object)this_object()->load_location(all[i]);
-    home = house ? house->query_component_by_type(LOCATION_COMPONENT_HOME)
-                 : nil;
-
-    // a dwelling with a name of its own was raised for something in particular
-    if (!home || sizeof((string *)home->query_residents()) ||
-        home->query_home_short())
-      continue;
-
-    owner = home->query_home_owner();
-    if (stringp(owner) && strlen(owner))
-    {
-      if (handler("families", this_object())->has_family(owner) &&
-          !handler("families", this_object())->is_extinct(owner))
-        continue;
-
-      home->set_home_owner(nil);
-      house->save_me();
-    }
-
-    out += ({ all[i] });
-  }
+  for (i = 0; i < sizeof(files); i++)
+    if (member_array(files[i], posts) == -1 && !is_kept_house(files[i]) &&
+        !sizeof(query_house_residents(files[i])) &&
+        !query_house_owner(files[i]))
+      out += ({ files[i] });
 
   return out;
 }
@@ -655,23 +674,32 @@ private string _descent()
   return (string)load_object(path)->query_descent();
 }
 
+// A census person as the families handler takes them: id, name and gender, all
+// read off the census row.
+private mapping _person(string uuid)
+{
+  mapping entry;
+
+  entry = ((mapping)this_object()->query_npc_census())[uuid];
+  return ([ "id":     FAMILY_NPC + uuid,
+            "name":   (entry && entry["name"]) ? capitalize(entry["name"])
+                                               : FAMILY_NPC + uuid,
+            "gender": entry ? entry["gender"] : 0 ]);
+}
+
 // Somebody married now or once. A widow keeps to herself: the pass never pairs
 // her off again.
-private int _has_been_married(object who)
+private int _has_been_married(string uuid)
 {
-  mixed id;
-
-  id = who->query_family_id();
-  return stringp(id) &&
-         handler("families", this_object())->has_been_married(id);
+  return handler("families", this_object())->has_been_married(FAMILY_NPC + uuid);
 }
 
 // The census uuid of somebody's spouse, or nil.
-private string _spouse_uuid(object who)
+private string _spouse_uuid(string uuid)
 {
   mixed spouse;
 
-  spouse = who->query_spouse_id();
+  spouse = handler("families", this_object())->query_spouse(FAMILY_NPC + uuid);
   if (!stringp(spouse) || strlen(spouse) <= strlen(FAMILY_NPC) ||
       spouse[0 .. strlen(FAMILY_NPC) - 1] != FAMILY_NPC)
     return nil;
@@ -679,42 +707,20 @@ private string _spouse_uuid(object who)
   return spouse[strlen(FAMILY_NPC) ..];
 }
 
-// Put a house in a family's name, taking it off whoever held it before.
-private void _transfer_house(string surname, string file)
-{
-  mixed previous;
-
-  if (!surname || !strlen(surname))
-    return;
-
-  previous = handler("families", this_object())->owner_of(file);
-  if (previous && previous != surname)
-    handler("families", this_object())->remove_property(previous, file);
-
-  claim_property(surname, file);
-}
-
-// Move somebody into a house that already stands.
-private void _move_in(object who, string file)
-{
-  who->set_home(file);
-  who->save_npc();
-  claim_house((string)who->query_uuid(), file);
-}
-
 // The house a group of people will live under. A couple marries, and the
 // descent of the community decides whose house they are of; a group of strangers
 // founds a new one, named from the citizenship they were born into. A draft area
 // founds nothing -- a house outlives the locations it stands in, so it waits
 // until the place is settled.
-private string _family_for(object * group)
+private string _family_for(string * group)
 {
   string citizenship, surname;
+  mapping first;
   int i;
 
   for (i = 0; i < sizeof(group); i++)
-    if (group[i]->query_family())
-      surname = (string)group[i]->query_family();
+    if (handler("families", this_object())->family_of(FAMILY_NPC + group[i]))
+      surname = handler("families", this_object())->family_of(FAMILY_NPC + group[i]);
 
   if (!surname)
   {
@@ -728,48 +734,48 @@ private string _family_for(object * group)
     if (!handler("families", this_object())->found_family(surname, citizenship))
       return nil;
 
-    group[0]->set_family(surname);
+    first = _person(group[0]);
+    handler("families", this_object())->add_member(surname, first["id"],
+                                                   first["name"]);
   }
 
   // a couple housed together is a couple
   if (sizeof(group) == 2)
-    return handler("families", this_object())->wed(group[0], group[1],
+    return handler("families", this_object())->wed(_person(group[0]),
+                                                   _person(group[1]),
                                                    _descent());
 
-  if (!group[0]->query_family())
-    group[0]->set_family(surname);
+  if (!handler("families", this_object())->family_of(FAMILY_NPC + group[0]))
+  {
+    first = _person(group[0]);
+    handler("families", this_object())->add_member(surname, first["id"],
+                                                   first["name"]);
+  }
 
-  return group[0]->query_family();
+  return handler("families", this_object())->family_of(FAMILY_NPC + group[0]);
 }
 
-// Give a family (one or two NPCs) a home and move them in: the empty house
-// offered, or one raised on a free plot. Each member's address is set and
-// persisted. No house and no plot -> nothing happens (build_house_on_plot
-// logged it).
-private void _house_family(object * family, string house)
+// Give a family (one or two people) a home and move them in: the empty house
+// offered, or one raised on a free plot. No house and no plot -> nothing
+// happens (build_house_on_plot logged it).
+private void _house_family(string * family, string house)
 {
   string surname;
-  string * ids;
   int i;
 
   // the house they will live under, founded now if they had none
   surname = _family_for(family);
 
-  ids = ({ });
-  for (i = 0; i < sizeof(family); i++)
-    ids += ({ family[i]->query_uuid() });
-
   if (!house)
-    house = build_house_on_plot(ids);
+    house = build_house_on_plot(family);
   if (!house)
     return;
 
   for (i = 0; i < sizeof(family); i++)
-    _move_in(family[i], house);
+    set_house_of(family[i], house);
 
-  // A house belongs to the family living in it, not to the people one by one:
-  // that is what lets it outlast them, and what a door asks before it opens.
-  _transfer_house(surname, house);
+  if (surname)
+    set_house_owner(house, surname);
 }
 
 // Drop residents no census row accounts for. A house is written by one path and
@@ -779,37 +785,20 @@ private void _house_family(object * family, string house)
 private void _drop_unknown_residents()
 {
   mapping census;
-  string * all;
-  int i;
+  string * files;
+  int i, j;
 
   census = (mapping)this_object()->query_npc_census();
-  all = query_houses();
+  files = query_houses();
 
-  for (i = 0; i < sizeof(all); i++)
+  for (i = 0; i < sizeof(files); i++)
   {
-    object house, home;
-    string * living, * known;
-    int j;
+    string * living;
 
-    house = (object)this_object()->load_location(all[i]);
-    if (!house)
-      continue;
-
-    home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
-    if (!home)
-      continue;
-
-    living = (string *)home->query_residents();
-    known = ({ });
+    living = query_house_residents(files[i]);
     for (j = 0; j < sizeof(living); j++)
-      if (census[living[j]])
-        known += ({ living[j] });
-
-    if (sizeof(known) == sizeof(living))
-      continue;
-
-    home->set_residents(known);
-    house->save_me();
+      if (!census[living[j]])
+        set_house_of(living[j], nil);
   }
 }
 
@@ -820,16 +809,17 @@ private void _drop_unknown_residents()
 //   - or pairs with another homeless resident free to marry, founding a house;
 //   - or, failing all of that, gets a house of their own.
 // A new household takes an empty house before it raises one on a free plot. The
-// whole census is housed, not only whoever is loaded: anybody the pass needs is
-// read from their npc.o (load_npc), without loading where they are. Residency is the design-time fact tested by
-// _is_resident, not a runtime type guess. Stops quietly when plots run out (each
-// miss is logged).
+// whole census is housed, not only whoever is loaded, and everything is read off
+// the census, the books and the family register: nobody and no place is loaded,
+// except a plot a new house is raised on. Residency is the design-time fact
+// tested by _is_resident, not a runtime type guess. Stops quietly when plots run
+// out (each miss is logged).
 void assign_homes()
 {
-  mapping census, lives_at, gender_of, heads;
+  mapping census, lives_at, heads;
   object owner;
-  object * homeless, * males, * females, * alone, * loaded;
-  string * ids, * singles, * empty, * posts;
+  string * ids, * homeless, * males, * females, * alone, * singles, * empty;
+  string * posts;
   int i, j;
 
   owner = (object)this_object()->query_root_area();
@@ -845,32 +835,15 @@ void assign_homes()
   lives_at = _residences();
   empty = _empty_houses();
 
-  // people are loaded from their npc.o where they are not in the world, and
-  // unloaded again at the end: nobody's location is loaded for this
-  loaded = ({ });
-
+  // a resident placed by the design, without a home yet
   homeless = ({ });
   ids = map_indices(census);
   for (i = 0; i < sizeof(ids); i++)
-  {
-    object npc;
-
-    // a resident placed by the design, without a home yet
-    if (lives_at[ids[i]] || !_is_resident(census[ids[i]]))
-      continue;
-
-    npc = (object)this_object()->load_npc(ids[i]);
-    if (!npc)
-      continue;
-    if (!environment(npc))
-      loaded += ({ npc });
-    homeless += ({ npc });
-  }
+    if (!lives_at[ids[i]] && _is_resident(census[ids[i]]))
+      homeless += ({ ids[i] });
 
   // those living alone in an ordinary house, who have never married: a homeless
   // newcomer may marry in
-  singles = ({ });
-  gender_of = ([ ]);
   heads = ([ ]);
   posts = _job_houses();
   for (i = 0; i < sizeof(ids); i++)
@@ -879,20 +852,12 @@ void assign_homes()
                                   ? heads[lives_at[ids[i]]] + ({ ids[i] })
                                   : ({ ids[i] });
 
-  // read off the census and the family register, without loading anybody
+  singles = ({ });
   ids = map_indices(heads);
   for (i = 0; i < sizeof(ids); i++)
-  {
-    string single;
-
-    single = heads[ids[i]][0];
-    if (sizeof(heads[ids[i]]) != 1 || !_is_resident(census[single]) ||
-        handler("families", this_object())->has_been_married(FAMILY_NPC + single))
-      continue;
-
-    singles += ({ single });
-    gender_of[single] = census[single]["gender"];
-  }
+    if (sizeof(heads[ids[i]]) == 1 && _is_resident(census[heads[ids[i]][0]]) &&
+        !_has_been_married(heads[ids[i]][0]))
+      singles += ({ heads[ids[i]][0] });
 
   males = ({ });
   females = ({ });
@@ -900,14 +865,14 @@ void assign_homes()
 
   for (i = 0; i < sizeof(homeless); i++)
   {
-    object who, partner;
-    string spouse;
-    int found;
+    string who, spouse;
+    int gender, found;
 
     who = homeless[i];
+    gender = census[who]["gender"];
 
     // already housed in this pass, alongside a spouse further up the list
-    if (lives_at[(string)who->query_uuid()])
+    if (lives_at[who])
       continue;
 
     spouse = _spouse_uuid(who);
@@ -915,27 +880,25 @@ void assign_homes()
     {
       if (lives_at[spouse])
       {
-        _move_in(who, lives_at[spouse]);
-        lives_at[(string)who->query_uuid()] = lives_at[spouse];
+        set_house_of(who, lives_at[spouse]);
+        lives_at[who] = lives_at[spouse];
         continue;
       }
 
-      partner = find_living(spouse);
-      if (partner && member_array(partner, homeless) != -1)
+      if (member_array(spouse, homeless) != -1)
       {
-        _house_family(({ who, partner }), sizeof(empty) ? empty[0] : nil);
+        _house_family(({ who, spouse }), sizeof(empty) ? empty[0] : nil);
         if (sizeof(empty))
           empty = empty[1..];
-        lives_at[(string)who->query_uuid()] = who->query_home();
-        lives_at[spouse] = who->query_home();
+        lives_at[who] = query_house_of(who);
+        lives_at[spouse] = lives_at[who];
         continue;
       }
     }
 
     // marriage is between a man and a woman who have never been married
     if (_has_been_married(who) ||
-        (who->query_gender() != GENDER_MALE &&
-         who->query_gender() != GENDER_FEMALE))
+        (gender != GENDER_MALE && gender != GENDER_FEMALE))
     {
       alone += ({ who });
       continue;
@@ -943,27 +906,25 @@ void assign_homes()
 
     for (j = 0; j < sizeof(singles) && !found; j++)
     {
-      if (gender_of[singles[j]] == who->query_gender() ||
-          gender_of[singles[j]] == GENDER_NEUTER)
+      int other;
+
+      other = census[singles[j]]["gender"];
+      if (other == gender || (other != GENDER_MALE && other != GENDER_FEMALE))
         continue;
 
-      partner = (object)this_object()->load_npc(singles[j]);
-      if (!partner)
-        continue;
-      if (!environment(partner))
-        loaded += ({ partner });
-
-      _family_for(({ who, partner }));
-      _move_in(who, lives_at[singles[j]]);
-      _transfer_house(who->query_family(), lives_at[singles[j]]);
-      lives_at[(string)who->query_uuid()] = lives_at[singles[j]];
+      _family_for(({ who, singles[j] }));
+      set_house_of(who, lives_at[singles[j]]);
+      if (handler("families", this_object())->family_of(FAMILY_NPC + who))
+        set_house_owner(lives_at[singles[j]],
+          handler("families", this_object())->family_of(FAMILY_NPC + who));
+      lives_at[who] = lives_at[singles[j]];
       singles -= ({ singles[j] });
       found = 1;
     }
     if (found)
       continue;
 
-    if (who->query_gender() == GENDER_FEMALE)
+    if (gender == GENDER_FEMALE)
       females += ({ who });
     else
       males += ({ who });
@@ -986,7 +947,4 @@ void assign_homes()
     if (sizeof(empty))
       empty = empty[1..];
   }
-
-  for (i = 0; i < sizeof(loaded); i++)
-    this_object()->unload_npc(loaded[i]);
 }
