@@ -136,9 +136,8 @@ void wake_and_schedule(string uuid, int hour)
       return;
     }
 
-    // load its census-position location (loading one places its people) and
-    // place this NPC there if the location was already loaded, so an unloaded
-    // NPC comes back before it acts
+    // load its census-position location, which places its people, so an
+    // unloaded NPC comes back before it acts
     loc = load_object(LOCATION_HANDLER)->load_location(locfile);
     if (!loc)
     {
@@ -147,8 +146,6 @@ void wake_and_schedule(string uuid, int hour)
     }
 
     npc = find_living(uuid);
-    if (!npc)
-      npc = (object)this_object()->place_npc(uuid, loc);
   }
 
   if (npc)

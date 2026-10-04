@@ -592,9 +592,9 @@ private int _venue_closed(mapping vacancy)
   return loc ? (int)loc->query_venue_closed() : 0;
 }
 
-// Staff one job: take somebody on for every empty seat, and place them if their
-// location is loaded (an unloaded one places them when it loads). Idempotent: a
-// full job hires nobody. Returns how many were taken on.
+// Staff one job: take somebody on for every empty seat. They appear when the
+// location they stand in loads. Idempotent: a full job hires nobody. Returns
+// how many were taken on.
 private int _staff(mapping vacancy)
 {
   int have, want, i;
@@ -605,22 +605,9 @@ private int _staff(mapping vacancy)
   want = vacancy[VACANCY_COUNT];
   have = sizeof(query_vacancy_holders(vacancy));
 
+  // a job that lists its places hands each holder one of them, in turn
   for (i = have; i < want; i++)
-  {
-    string where, id;
-    object loc;
-
-    // a job that lists its places hands each holder one of them, in turn
-    where = spot_for(vacancy, i);
-    id = assign_npc_to_vacancy(vacancy, where);
-
-    if (!where || !strlen(where))
-      where = vacancy[VACANCY_WORKS_AT];
-
-    loc = load_object(LOCATION_HANDLER)->query_loaded_location(where);
-    if (id && loc)
-      loc->query_area()->place_npc(id, loc);
-  }
+    assign_npc_to_vacancy(vacancy, spot_for(vacancy, i));
 
   return want > have ? want - have : 0;
 }
