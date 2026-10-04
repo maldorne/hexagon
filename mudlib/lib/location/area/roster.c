@@ -394,7 +394,7 @@ void set_area_spread(int n)
 // band the area now hands out. A level is decided once and kept for the life of
 // the NPC, so changing an area's band leaves the people who were already born
 // under the old one behind: this is the deliberate correction for that, and the
-// only thing that ever re-levels an NPC. Each one is borrowed (borrow_npc, so
+// only thing that ever re-levels an NPC. Each one is loaded (load_npc, so
 // nobody's location is loaded), re-levelled and saved. Returns how many were
 // touched.
 int relevel_census()
@@ -418,7 +418,7 @@ int relevel_census()
     if (!source)
       continue;
 
-    npc = (object)this_object()->borrow_npc(ids[i]);
+    npc = (object)this_object()->load_npc(ids[i]);
     if (!npc)
       continue;
 
@@ -433,7 +433,7 @@ int relevel_census()
 
     npc->set_level(want);
     this_object()->update_npc_info(ids[i], npc);
-    this_object()->release_npc(npc);
+    this_object()->unload_npc(npc);
     touched++;
   }
 

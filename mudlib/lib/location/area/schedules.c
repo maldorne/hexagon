@@ -113,8 +113,6 @@ void wake_and_schedule(string uuid, int hour)
   mapping entry;
   string locfile;
   object loc, npc;
-  object * inv;
-  int i;
 
   // already materialized somewhere in the world -- use it, do not clone another
   // (a roamer may have wandered into another area, so the lookup is global)
@@ -138,23 +136,19 @@ void wake_and_schedule(string uuid, int hour)
       return;
     }
 
-    // load its census-position location and materialize the census NPCs there
-    // (idempotent) so an unloaded NPC comes back before it acts
+    // load its census-position location (loading one places its people) and
+    // place this NPC there if the location was already loaded, so an unloaded
+    // NPC comes back before it acts
     loc = load_object(LOCATION_HANDLER)->load_location(locfile);
     if (!loc)
     {
       index_schedule_hours(uuid, ({ }));
       return;
     }
-    this_object()->restore_location_npcs(loc);
 
-    inv = all_inventory(loc);
-    for (i = 0; i < sizeof(inv); i++)
-      if (inv[i] && inv[i]->query_npc() && inv[i]->query_uuid() == uuid)
-      {
-        npc = inv[i];
-        break;
-      }
+    npc = find_living(uuid);
+    if (!npc)
+      npc = (object)this_object()->place_npc(uuid, loc);
   }
 
   if (npc)

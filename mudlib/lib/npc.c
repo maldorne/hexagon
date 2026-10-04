@@ -569,8 +569,9 @@ void apply_template(mapping t, varargs int born)
 
   // A fixed template carries its gender; a bimodal one leaves the choice to
   // the caller (set before apply), so read whatever gender is in effect and
-  // index the per-gender fields by it.
-  if (t["gender"])
+  // index the per-gender fields by it. A named individual keeps its own gender
+  // over a single-gender template's.
+  if (t["gender"] && !npc_given_name)
     set_gender(t["gender"]);
   g = query_gender();
 
@@ -586,6 +587,12 @@ void apply_template(mapping t, varargs int born)
     set_aliases(gender_value(t["aliases"], g));
   if (t["plurals"])
     set_plurals(gender_value(t["plurals"], g));
+
+  // A named individual was named before the template (set_name keeps the first
+  // name it is given), so the template's name, the kind word, would be lost:
+  // it answers to it as an alias instead, to its trade as well as to its name.
+  if (npc_given_name && t["name"])
+    add_alias(gender_value(t["name"], g));
   if (t["align"])
     set_real_align(t["align"]);
 

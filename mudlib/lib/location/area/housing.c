@@ -642,34 +642,6 @@ private string * _empty_houses()
   return out;
 }
 
-// Bring a census NPC into the world, wherever the census last saw it, so the
-// pass can work on people nobody happens to have loaded.
-private object _summon(string uuid)
-{
-  mapping entry;
-  object npc, loc, area;
-
-  npc = find_living(uuid);
-  if (npc)
-    return npc;
-
-  entry = ((mapping)this_object()->query_npc_census())[uuid];
-  if (!entry || !stringp(entry[CENSUS_LOCATION]))
-    return nil;
-
-  loc = load_object(LOCATION_HANDLER)->load_location(entry[CENSUS_LOCATION]);
-  if (!loc)
-    return nil;
-
-  // the location's own area brings its people back, whichever of the
-  // community's areas it belongs to
-  area = loc->query_area();
-  if (area)
-    area->restore_location_npcs(loc);
-
-  return find_living(uuid);
-}
-
 // How descent runs in this community: its citizenship says, and a place with
 // none follows the father.
 private string _descent()
@@ -849,14 +821,14 @@ private void _drop_unknown_residents()
 //   - or, failing all of that, gets a house of their own.
 // A new household takes an empty house before it raises one on a free plot. The
 // whole census is housed, not only whoever is loaded: anybody the pass needs is
-// brought into the world for it. Residency is the design-time fact tested by
+// read from their npc.o (load_npc), without loading where they are. Residency is the design-time fact tested by
 // _is_resident, not a runtime type guess. Stops quietly when plots run out (each
 // miss is logged).
 void assign_homes()
 {
   mapping census, lives_at, gender_of, heads;
   object owner;
-  object * homeless, * males, * females, * alone;
+  object * homeless, * males, * females, * alone, * loaded;
   string * ids, * singles, * empty, * posts;
   int i, j;
 
@@ -873,19 +845,26 @@ void assign_homes()
   lives_at = _residences();
   empty = _empty_houses();
 
+  // people are loaded from their npc.o where they are not in the world, and
+  // unloaded again at the end: nobody's location is loaded for this
+  loaded = ({ });
+
   homeless = ({ });
   ids = map_indices(census);
   for (i = 0; i < sizeof(ids); i++)
   {
     object npc;
 
-    // a resident placed by the design, still persisted and without a home yet
+    // a resident placed by the design, without a home yet
     if (lives_at[ids[i]] || !_is_resident(census[ids[i]]))
       continue;
 
-    npc = _summon(ids[i]);
-    if (npc && npc->query_persisted())
-      homeless += ({ npc });
+    npc = (object)this_object()->load_npc(ids[i]);
+    if (!npc)
+      continue;
+    if (!environment(npc))
+      loaded += ({ npc });
+    homeless += ({ npc });
   }
 
   // those living alone in an ordinary house, who have never married: a homeless
@@ -900,21 +879,19 @@ void assign_homes()
                                   ? heads[lives_at[ids[i]]] + ({ ids[i] })
                                   : ({ ids[i] });
 
+  // read off the census and the family register, without loading anybody
   ids = map_indices(heads);
   for (i = 0; i < sizeof(ids); i++)
   {
-    object npc;
+    string single;
 
-    if (sizeof(heads[ids[i]]) != 1 ||
-        !_is_resident(census[heads[ids[i]][0]]))
+    single = heads[ids[i]][0];
+    if (sizeof(heads[ids[i]]) != 1 || !_is_resident(census[single]) ||
+        handler("families", this_object())->has_been_married(FAMILY_NPC + single))
       continue;
 
-    npc = _summon(heads[ids[i]][0]);
-    if (!npc || _has_been_married(npc))
-      continue;
-
-    singles += ({ heads[ids[i]][0] });
-    gender_of[heads[ids[i]][0]] = npc->query_gender();
+    singles += ({ single });
+    gender_of[single] = census[single]["gender"];
   }
 
   males = ({ });
@@ -970,9 +947,11 @@ void assign_homes()
           gender_of[singles[j]] == GENDER_NEUTER)
         continue;
 
-      partner = find_living(singles[j]);
+      partner = (object)this_object()->load_npc(singles[j]);
       if (!partner)
         continue;
+      if (!environment(partner))
+        loaded += ({ partner });
 
       _family_for(({ who, partner }));
       _move_in(who, lives_at[singles[j]]);
@@ -1007,4 +986,7 @@ void assign_homes()
     if (sizeof(empty))
       empty = empty[1..];
   }
+
+  for (i = 0; i < sizeof(loaded); i++)
+    this_object()->unload_npc(loaded[i]);
 }

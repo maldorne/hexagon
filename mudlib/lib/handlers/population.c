@@ -5,7 +5,7 @@
  * area whose turn it is, it compares each roster blueprint's cap against the
  * live count and, for any deficit, assigns new NPCs to random locations of the
  * area (area::assign_monster bumps a bucket, no object materialized). The NPC
- * becomes real when its location loads (area::restore_location_npcs). A death
+ * becomes real when its location loads (area::populate_location). A death
  * frees a slot, so the next sweep refills it -- somewhere else.
  *
  * Only the anonymous half of the population is swept. People are staffed one by
