@@ -16,7 +16,7 @@ private object area_of(object me);
 private int do_orphans(object area, object me, string * args);
 private string kind_of(object area, string source);
 private string columns(string * * rows);
-private string hours_of(object area, string source);
+private string hours_of(object area, mapping e);
 private string books_of(object area);
 private string seen_from(object area);
 
@@ -101,25 +101,33 @@ private string kind_of(object area, string source)
 }
 
 // The hours a day moves somebody, in order: "6/20" for out at six and back at
-// eight. Read from the type, which is where a timetable lives; empty for
-// anyone the day does not move.
-private string hours_of(object area, string source)
+// eight. The job's timetable where they hold one that names hours, the type's
+// otherwise, as when they are placed in the world; empty for anyone the day
+// does not move.
+private string hours_of(object area, mapping e)
 {
-  mapping template, timetable;
+  mapping template, timetable, job;
   string out;
   mixed entry;
   int * hours;
   int h, leaves;
 
-  if (!source || !strlen(source))
-    return "";
+  job = e[CENSUS_VACANCY] ? (mapping)area->query_vacancy(e[CENSUS_VACANCY])
+                          : nil;
+  if (job && mappingp(job[VACANCY_TIMETABLE]))
+    timetable = job[VACANCY_TIMETABLE];
+  else
+  {
+    if (!e["source"] || !strlen(e["source"]))
+      return "";
 
-  template = BESTIARY_HANDLER->query_template(
-               game_from_path((string)area->query_area_path()), source);
-  if (!template || !mappingp(template["timetable"]))
-    return "";
+    template = BESTIARY_HANDLER->query_template(
+                 game_from_path((string)area->query_area_path()), e["source"]);
+    if (!template || !mappingp(template["timetable"]))
+      return "";
 
-  timetable = template["timetable"];
+    timetable = template["timetable"];
+  }
   hours = ({ });
   leaves = -1;
 
@@ -370,7 +378,7 @@ private int do_list(object area, object me, string want)
     if (strlen(want) && kind != want)
       continue;
 
-    day = hours_of(area, e["source"]);
+    day = hours_of(area, e);
 
     npc = find_living(ids[i]);
     name = "";
