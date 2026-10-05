@@ -95,9 +95,10 @@ mixed *query_active_effect_type(string type)
   return ret;
 } /* query_active_effect_type() */
 
-int do_active_effects(object attacker) 
+int do_active_effects(object attacker)
 {
   int i, j, ok;
+  string * skill_path;
 
   this_object()->remove_timed_property(PROPERTY_IS_CASTING);
   
@@ -174,7 +175,10 @@ int do_active_effects(object attacker)
         
           // Si es una dote (efecto de tipo "effect"), mejoramos el aprendizaje
           // ya que la hemos ejecutado correctamente
-          this_object()->update_skill_used_times(effects[i+1][0]);
+          // A skill is known by its id, the skill object's file name; the
+          // effect name is the translated verb and only matches it in English.
+          skill_path = explode(base_name(effects[i+1][j+1][SP_OBJECT]), "/");
+          this_object()->update_skill_used_times(skill_path[sizeof(skill_path) - 1]);
           
           remove_active_effect(effects[i+1][j]);
         }
