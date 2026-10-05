@@ -15,17 +15,22 @@
 // See include/areas/poi.h for the field keys and the kind vocabulary.
 mapping pois;
 
+// An area restored from a savefile written before it had any POI comes back
+// with the variable unset; every reader starts from an empty map instead.
+private void _ensure_pois() { if (!pois) pois = ([ ]); }
 
-mapping query_pois() { return pois; }
+mapping query_pois() { _ensure_pois(); return pois; }
 
 // The POI attached to a location, or nil. A location holds at most one.
 mapping query_poi(string location_file)
 {
+  _ensure_pois();
   return pois[location_file];
 }
 
 int is_poi(string location_file)
 {
+  _ensure_pois();
   return !undefinedp(pois[location_file]);
 }
 
@@ -35,6 +40,7 @@ void add_poi(string location_file, string kind, varargs string label)
 {
   mapping entry;
 
+  _ensure_pois();
   if (!location_file || !strlen(location_file))
     return;
   if (member_array(kind, POI_KINDS) < 0)
@@ -54,12 +60,14 @@ void add_poi(string location_file, string kind, varargs string label)
 
 void remove_poi(string location_file)
 {
+  _ensure_pois();
   map_delete(pois, location_file);
   this_object()->save_me();
 }
 
 void set_poi_label(string location_file, string label)
 {
+  _ensure_pois();
   if (!pois[location_file])
     return;
   pois[location_file][POI_FIELD_LABEL] = label;
@@ -70,6 +78,7 @@ void set_poi_label(string location_file, string label)
 // town). Only meaningful on a town_entrance; ignored by square guards.
 void set_poi_guard_dir(string location_file, string dir)
 {
+  _ensure_pois();
   if (!pois[location_file])
     return;
   pois[location_file][POI_FIELD_GUARD_DIR] = dir;
@@ -77,5 +86,6 @@ void set_poi_guard_dir(string location_file, string dir)
 }
 string query_poi_guard_dir(string location_file)
 {
+  _ensure_pois();
   return pois[location_file] ? pois[location_file][POI_FIELD_GUARD_DIR] : nil;
 }
