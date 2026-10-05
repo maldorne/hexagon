@@ -35,6 +35,11 @@ void create()
     // has to teach it, or a quest has to pay it.
     SKILL_CLIMB :
       ({ SKILLS_PATH + SKILL_CLIMB, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: 'repair <item>' at a smithy whose forge is lit. Everybody
+    // knows the rudiments; it climbs with use.
+    SKILL_REPAIR :
+      ({ SKILLS_PATH + SKILL_REPAIR, 10, 0, ACTIVE_SKILL, }),
   ]);
 }
 

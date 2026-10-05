@@ -49,3 +49,35 @@
       "y vuelves a bajar.\n"
 #define _LANG_SKILL_CLIMB_FAIL "Resbalas y vuelves al suelo sin haber llegado " + \
       "muy alto.\n"
+
+#define _LANG_SKILL_REPAIR_NAME "reparar"
+#define _LANG_SKILL_REPAIR_ALIASES ({ "arreglar" })
+#define _LANG_SKILL_REPAIR_HELP "Con 'reparar <objeto>' trabajas en la fragua " + \
+      "de una herrería un arma, una armadura o un escudo de metal que lleves " + \
+      "encima, para quitarle el desgaste. Solo puede hacerse mientras la fragua " + \
+      "está encendida, y hay que pagar el metal y el carbón que se gastan. " + \
+      "Cuanto mejor tengas la habilidad, más desgaste quitas de una vez y menos " + \
+      "te cuestan los materiales; si fallas, solo pierdes el esfuerzo.\n"
+#define _LANG_SKILL_REPAIR_START "Preparas el yunque y avivas el fuego de la fragua."
+#define _LANG_SKILL_REPAIR_NO_FORGE "Para reparar necesitas una fragua y un " + \
+      "yunque: busca una herrería.\n"
+#define _LANG_SKILL_REPAIR_FORGE_COLD "La fragua está apagada; sin nadie que la " + \
+      "atienda no puedes trabajar el metal.\n"
+#define _LANG_SKILL_REPAIR_NOT_CARRIED "Tienes que llevar encima lo que quieras reparar.\n"
+#define _LANG_SKILL_REPAIR_NOT_GEAR "Solo se pueden reparar armas, armaduras y escudos.\n"
+#define _LANG_SKILL_REPAIR_NOT_METAL "Eso no es de metal: en una fragua no se arregla.\n"
+#define _LANG_SKILL_REPAIR_NOTHING_TO_DO "Está en perfecto estado; no hay nada que reparar.\n"
+#define _LANG_SKILL_REPAIR_TOO_POOR "No llevas dinero suficiente para pagar los materiales.\n"
+#define _LANG_SKILL_REPAIR_ROUND1 "Calientas " + target->query_short() + \
+      " en las brasas hasta que el metal enrojece.\n"
+#define _LANG_SKILL_REPAIR_ROUND1_ROOM caster->query_cap_name() + \
+      " calienta " + target->query_short() + " en la fragua.\n"
+#define _LANG_SKILL_REPAIR_SUCCESS "Golpeas el metal sobre el yunque hasta dejar " + \
+      target->query_short() + " en mejor estado. Los materiales te cuestan " + \
+      handler("money")->money_string(money) + ".\n"
+#define _LANG_SKILL_REPAIR_SUCCESS_ROOM caster->query_cap_name() + \
+      " martillea " + target->query_short() + " sobre el yunque y lo deja como nuevo.\n"
+#define _LANG_SKILL_REPAIR_FAIL "El metal se enfría antes de tiempo y no consigues " + \
+      "arreglar nada.\n"
+#define _LANG_SKILL_REPAIR_FAIL_ROOM caster->query_cap_name() + \
+      " golpea el yunque sin mucho acierto.\n"

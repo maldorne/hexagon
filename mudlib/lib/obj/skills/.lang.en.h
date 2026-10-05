@@ -49,3 +49,34 @@
       "around and climb back down.\n"
 #define _LANG_SKILL_CLIMB_FAIL "You slip and are back on the ground before " + \
       "getting very high.\n"
+
+#define _LANG_SKILL_REPAIR_NAME "repair"
+#define _LANG_SKILL_REPAIR_ALIASES ({ "mend" })
+#define _LANG_SKILL_REPAIR_HELP "With 'repair <item>' you work a metal weapon, " + \
+      "armour or shield you are carrying at a smithy's forge, to take the wear " + \
+      "out of it. It can only be done while the forge is lit, and you pay for " + \
+      "the metal and the coal it uses. The better your skill, the more wear you " + \
+      "take out at once and the less the materials cost; if you fail, you only " + \
+      "lose the effort.\n"
+#define _LANG_SKILL_REPAIR_START "You set up the anvil and stir the forge's fire."
+#define _LANG_SKILL_REPAIR_NO_FORGE "To repair you need a forge and an anvil: " + \
+      "look for a smithy.\n"
+#define _LANG_SKILL_REPAIR_FORGE_COLD "The forge is out; with nobody tending it " + \
+      "you cannot work the metal.\n"
+#define _LANG_SKILL_REPAIR_NOT_CARRIED "You have to be carrying what you want to repair.\n"
+#define _LANG_SKILL_REPAIR_NOT_GEAR "Only weapons, armour and shields can be repaired.\n"
+#define _LANG_SKILL_REPAIR_NOT_METAL "That is not metal: a forge will not mend it.\n"
+#define _LANG_SKILL_REPAIR_NOTHING_TO_DO "It is in perfect condition; there is nothing to repair.\n"
+#define _LANG_SKILL_REPAIR_TOO_POOR "You do not carry enough money to pay for the materials.\n"
+#define _LANG_SKILL_REPAIR_ROUND1 "You heat " + target->query_short() + \
+      " in the embers until the metal glows red.\n"
+#define _LANG_SKILL_REPAIR_ROUND1_ROOM caster->query_cap_name() + \
+      " heats " + target->query_short() + " in the forge.\n"
+#define _LANG_SKILL_REPAIR_SUCCESS "You hammer the metal on the anvil and leave " + \
+      target->query_short() + " in better shape. The materials cost you " + \
+      handler("money")->money_string(money) + ".\n"
+#define _LANG_SKILL_REPAIR_SUCCESS_ROOM caster->query_cap_name() + \
+      " hammers " + target->query_short() + " on the anvil and leaves it as good as new.\n"
+#define _LANG_SKILL_REPAIR_FAIL "The metal cools too soon and you mend nothing.\n"
+#define _LANG_SKILL_REPAIR_FAIL_ROOM caster->query_cap_name() + \
+      " strikes the anvil without much success.\n"

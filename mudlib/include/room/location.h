@@ -32,6 +32,9 @@
 #define LOCATION_COMPONENT_PLOT        "plot"
 #define LOCATION_COMPONENT_HOME        "home"
 #define LOCATION_COMPONENT_TEMPLE      "temple"
+// A smithy: a forge where metal is worked and the repair skill is used. See
+// /lib/location/components/blacksmith.c.
+#define LOCATION_COMPONENT_BLACKSMITH  "blacksmith"
 
 // ************************************************************
 //  Location component hook system
