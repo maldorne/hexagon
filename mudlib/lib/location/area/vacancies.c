@@ -11,10 +11,9 @@
 // person. A vacancy therefore cannot go stale: kill the holder and the seat is
 // open again by arithmetic, with nothing to clear.
 //
-// A seat emptied by death is not refilled on the spot. The person is gone; the
-// post is taken up later by somebody else -- at once for a post anchored to a
-// point of interest, which a settlement notices immediately, and with the next
-// settlement pass for the rest.
+// A seat emptied by death is not refilled by itself. The person is gone and the
+// seat stays open until the settlement is staffed again (staff_vacancies), which
+// takes somebody new on for every open seat at once.
 
 #include <room/location.h>
 #include <areas/area.h>

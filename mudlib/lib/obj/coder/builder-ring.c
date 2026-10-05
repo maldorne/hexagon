@@ -35,7 +35,7 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_POI_SYNTAX \
   "build poi < add <kind> [label] | remove | list | guard_dir <dir> >"
 #define BUILDER_RING_VACANCY_SYNTAX \
-  "build vacancy < add <name> <count> <source.c> [poi]\n" + \
+  "build vacancy < add <name> <count> <source.c> [fixed]\n" + \
   "               | equip <name> <item.c[|alt.c...]>...\n" + \
   "               | timetable <name> [<hour> <work|home|clear> [message]]\n" + \
   "               | class <name> <class.c|none> | home <name>\n" + \
@@ -84,7 +84,7 @@ inherit "/lib/armour.c";
   "  build poi list\n" + \
   "  build poi guard_dir <dir>            on a town_entrance: the way in\n" + \
   "\n" + \
-  "  build vacancy add <name> <count> <source.c> [poi]\n" + \
+  "  build vacancy add <name> <count> <source.c> [fixed]\n" + \
   "  build vacancy equip <name> <item.c[|alt.c]>...\n" + \
   "  build vacancy class <name> <class.c|none>  what the job trains in\n" + \
   "  build vacancy home <name>                  bind a house to the job\n" + \
