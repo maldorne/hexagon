@@ -101,6 +101,7 @@ inherit "/lib/armour.c";
   "  build plot remove <dir>              delete one, if still bare\n" + \
   "  build homes                          house the homeless citizens\n" + \
   "  build home make                      raise an empty house on this plot\n" + \
+  "  build home communal [off]            a barracks: no families live by it\n" + \
   "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
   "  build sign <text>                    post a sign here (remove: take it down)\n" + \
@@ -160,6 +161,7 @@ int do_plot(string str);
 int do_homes();
 int do_home_remove();
 int do_home_make();
+int do_home_communal(int flag);
 int do_home_describe(string what, string str);
 int do_sign(string str);
 int do_desc(string str);
@@ -371,10 +373,12 @@ int do_build(string str)
       return do_home_remove();
     if (sizeof(args) > 1 && args[1] == "make")
       return do_home_make();
+    if (sizeof(args) > 1 && args[1] == "communal")
+      return do_home_communal(!(sizeof(args) > 2 && args[2] == "off"));
     if (sizeof(args) > 2 && (args[1] == "short" || args[1] == "long"))
       return do_home_describe(args[1], implode(args[2..], " "));
-    notify_fail("Usage: build home < make | short <text> | long <text> | " +
-                "remove >\n");
+    notify_fail("Usage: build home < make | communal [off] | short <text> | " +
+                "long <text> | remove >\n");
     return 0;
   }
 
@@ -519,16 +523,26 @@ int do_selection(string str)
     }
     else
     {
-      if (member_array(target, selection) == -1)
+      string * named;
+      int i;
+
+      // the same names add takes: a full path, or a room relative to the
+      // current directory
+      named = ({ target }) + _resolve_selection_target(target);
+      named = named & selection;
+
+      if (!sizeof(named))
       {
         notify_fail("Not in the selection.\n");
         return 0;
       }
 
-      selection -= ({ target });
-      objects = m_delete(objects, target);
-
-      write("Removed " + target + " from the selection.\n");
+      selection -= named;
+      for (i = 0; i < sizeof(named); i++)
+      {
+        objects = m_delete(objects, named[i]);
+        write("Removed " + named[i] + " from the selection.\n");
+      }
     }
   }
   else if (verb == "clean")
@@ -2274,6 +2288,35 @@ int do_home_make()
 
   write("Raised an empty house at " + file + ". It is kept out of " +
         "'build homes'; make it a job's house with 'build vacancy home <job>'.\n");
+  return 1;
+}
+
+// Mark the house you stand in as communal, or not: a barracks or a dormitory,
+// shared by whoever holds its job, where nobody founds a family nor marries
+// anybody in.
+int do_home_communal(int flag)
+{
+  object loc, area;
+  string file;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location() || !(area = loc->query_area()))
+  {
+    notify_fail("Stand in the house you want to mark.\n");
+    return 0;
+  }
+
+  file = loc->query_file_name();
+  if (!area->is_house(file))
+  {
+    notify_fail("This is not a house.\n");
+    return 0;
+  }
+
+  area->set_communal_house(file, flag);
+  write(flag ? "This house is now communal: nobody founds a family by living " +
+               "here.\n"
+             : "This house is no longer communal.\n");
   return 1;
 }
 
