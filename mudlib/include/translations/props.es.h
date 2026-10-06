@@ -283,6 +283,30 @@
 #define _LANG_PROP_COBWEB_TOUCH_ME      "Rozas una hebra con los dedos. Se tensa, vibra, y en algún lugar de la espesura algo responde moviéndose."
 #define _LANG_PROP_COBWEB_TOUCH_OTHERS  "$mcname$ roza una hebra de las telarañas y toda la maraña tiembla."
 
+// yunque
+#define _LANG_PROP_ANVIL_ID             "yunque"
+#define _LANG_PROP_ANVIL_ID_ALIAS_1     "bigornia"
+#define _LANG_PROP_ANVIL_NOUN           "yunque"
+#define _LANG_PROP_ANVIL_NOUN_PLURAL    "yunques"
+#define _LANG_PROP_ANVIL_SHORT          "un yunque"
+#define _LANG_PROP_ANVIL_LONG           "Un yunque $material_phrase$, pesado y negro, sobre un tocón de roble. La cara está pulida por años de golpes y el cuerno, gastado de doblar hierro."
+
+#define _LANG_PROP_ANVIL_STRIKE_VERBS   ({ "golpear", "tocar" })
+#define _LANG_PROP_ANVIL_STRIKE_ME      "Golpeas el yunque. Suena hondo y largo, como una campana sorda."
+#define _LANG_PROP_ANVIL_STRIKE_OTHERS  "$mcname$ golpea el yunque, que suena como una campana sorda."
+
+// fuelle
+#define _LANG_PROP_BELLOWS_ID           "fuelle"
+#define _LANG_PROP_BELLOWS_ID_ALIAS_1   "fuelles"
+#define _LANG_PROP_BELLOWS_NOUN         "fuelle"
+#define _LANG_PROP_BELLOWS_NOUN_PLURAL  "fuelles"
+#define _LANG_PROP_BELLOWS_SHORT        "un fuelle"
+#define _LANG_PROP_BELLOWS_LONG         "Un fuelle grande $material_phrase$, de tapas de madera, colgado junto a la fragua y unido a ella por una tobera de hierro. Se acciona con una palanca larga."
+
+#define _LANG_PROP_BELLOWS_PUMP_VERBS   ({ "accionar", "soplar", "bombear" })
+#define _LANG_PROP_BELLOWS_PUMP_ME      "Bajas la palanca un par de veces. El fuelle resopla y el aire silba por la tobera hacia la fragua."
+#define _LANG_PROP_BELLOWS_PUMP_OTHERS  "$mcname$ acciona el fuelle, que resopla con fuerza hacia la fragua."
+
 // Palabras que un jugador antepone al nombre del objeto y que no forman parte
 // de él: "tumbarse EN EL camastro". Se descartan por delante del argumento
 // antes de buscar a qué prop se refiere.

@@ -282,6 +282,30 @@
 #define _LANG_PROP_COBWEB_TOUCH_ME      "You brush a strand with your fingers. It draws tight, hums, and somewhere in the thicket something answers by moving."
 #define _LANG_PROP_COBWEB_TOUCH_OTHERS  "$mcname$ brushes a strand of the cobwebs and the whole tangle shivers."
 
+// anvil
+#define _LANG_PROP_ANVIL_ID             "anvil"
+#define _LANG_PROP_ANVIL_ID_ALIAS_1     "bickern"
+#define _LANG_PROP_ANVIL_NOUN           "anvil"
+#define _LANG_PROP_ANVIL_NOUN_PLURAL    "anvils"
+#define _LANG_PROP_ANVIL_SHORT          "an anvil"
+#define _LANG_PROP_ANVIL_LONG           "A heavy, black anvil $material_phrase$ on an oak stump. Its face is polished by years of blows and its horn worn from bending iron."
+
+#define _LANG_PROP_ANVIL_STRIKE_VERBS   ({ "strike", "knock", "tap" })
+#define _LANG_PROP_ANVIL_STRIKE_ME      "You strike the anvil. It rings deep and long, like a muffled bell."
+#define _LANG_PROP_ANVIL_STRIKE_OTHERS  "$mcname$ strikes the anvil, and it rings like a muffled bell."
+
+// bellows
+#define _LANG_PROP_BELLOWS_ID           "bellows"
+#define _LANG_PROP_BELLOWS_ID_ALIAS_1   "bellow"
+#define _LANG_PROP_BELLOWS_NOUN         "bellows"
+#define _LANG_PROP_BELLOWS_NOUN_PLURAL  "bellows"
+#define _LANG_PROP_BELLOWS_SHORT        "a pair of bellows"
+#define _LANG_PROP_BELLOWS_LONG         "A large pair of bellows $material_phrase$ with wooden boards, hanging by the forge and joined to it by an iron nozzle. A long lever works it."
+
+#define _LANG_PROP_BELLOWS_PUMP_VERBS   ({ "pump", "work", "blow" })
+#define _LANG_PROP_BELLOWS_PUMP_ME      "You pull the lever down a couple of times. The bellows wheeze and the air whistles through the nozzle into the forge."
+#define _LANG_PROP_BELLOWS_PUMP_OTHERS  "$mcname$ works the bellows, which wheeze hard into the forge."
+
 // Words a player puts in front of the thing's name that are not part of it:
 // "lie ON THE bunk". Peeled off the front of the argument before looking up
 // which prop is meant.
