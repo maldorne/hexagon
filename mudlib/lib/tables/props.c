@@ -616,6 +616,106 @@ void create()
       ]),
     ]),
 
+    // ------------------------------------------------------------
+    //  tools -- a smith's tools hanging on the wall. Stateless.
+    // ------------------------------------------------------------
+    "tools": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_TOOLS_ID,
+        _LANG_PROP_TOOLS_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_TOOLS_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_TOOLS_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_METAL,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_TOOLS_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_TOOLS_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_METAL }),
+      PROP_TYPE_HIDE_MATERIAL: 1,
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "handle": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_TOOLS_HANDLE_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_TOOLS_HANDLE_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_TOOLS_HANDLE_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  shelf -- shelves where a shop shows its goods. Stateless.
+    // ------------------------------------------------------------
+    "shelf": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_SHELF_ID,
+        _LANG_PROP_SHELF_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_SHELF_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_SHELF_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_FEMALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WOOD,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_SHELF_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_SHELF_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_WOOD }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "browse": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_SHELF_BROWSE_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_SHELF_BROWSE_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_SHELF_BROWSE_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  well -- a village well with a stone curb. Stateless.
+    // ------------------------------------------------------------
+    "well": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_WELL_ID,
+        _LANG_PROP_WELL_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_WELL_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_WELL_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_WELL_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_WELL_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "lean": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_WELL_LEAN_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_WELL_LEAN_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_WELL_LEAN_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
   ]);
 }
 

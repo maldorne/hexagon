@@ -306,6 +306,42 @@
 #define _LANG_PROP_BELLOWS_PUMP_ME      "You pull the lever down a couple of times. The bellows wheeze and the air whistles through the nozzle into the forge."
 #define _LANG_PROP_BELLOWS_PUMP_OTHERS  "$mcname$ works the bellows, which wheeze hard into the forge."
 
+// tools
+#define _LANG_PROP_TOOLS_ID             "tools"
+#define _LANG_PROP_TOOLS_ID_ALIAS_1     "tool"
+#define _LANG_PROP_TOOLS_NOUN           "set of tools"
+#define _LANG_PROP_TOOLS_NOUN_PLURAL    "sets of tools"
+#define _LANG_PROP_TOOLS_SHORT          "a set of tools"
+#define _LANG_PROP_TOOLS_LONG           "Tongs of several sizes, hammers, punches and files hang from pegs on the wall, all blackened by use and each in its place."
+
+#define _LANG_PROP_TOOLS_HANDLE_VERBS   ({ "handle", "touch" })
+#define _LANG_PROP_TOOLS_HANDLE_ME      "You take down a pair of tongs and weigh them; they are heavier than they look. You hang them back on their peg."
+#define _LANG_PROP_TOOLS_HANDLE_OTHERS  "$mcname$ takes down a pair of tongs, weighs them and hangs them back."
+
+// shelf
+#define _LANG_PROP_SHELF_ID             "shelf"
+#define _LANG_PROP_SHELF_ID_ALIAS_1     "shelves"
+#define _LANG_PROP_SHELF_NOUN           "shelf"
+#define _LANG_PROP_SHELF_NOUN_PLURAL    "shelves"
+#define _LANG_PROP_SHELF_SHORT          "a shelf"
+#define _LANG_PROP_SHELF_LONG           "A shelf $material_phrase$ by the door, with what is for sale set out in view on its boards."
+
+#define _LANG_PROP_SHELF_BROWSE_VERBS   ({ "browse" })
+#define _LANG_PROP_SHELF_BROWSE_ME      "You glance over the boards. Whatever is for sale, you ask whoever is serving for it."
+#define _LANG_PROP_SHELF_BROWSE_OTHERS  "$mcname$ glances over the boards of the shelf."
+
+// well
+#define _LANG_PROP_WELL_ID              "well"
+#define _LANG_PROP_WELL_ID_ALIAS_1      "curb"
+#define _LANG_PROP_WELL_NOUN            "well"
+#define _LANG_PROP_WELL_NOUN_PLURAL     "wells"
+#define _LANG_PROP_WELL_SHORT           "a well"
+#define _LANG_PROP_WELL_LONG            "A well with a curb $material_phrase$, worn by the rubbing of ropes. A wooden bucket hangs from a pulley over its mouth."
+
+#define _LANG_PROP_WELL_LEAN_VERBS      ({ "lean" })
+#define _LANG_PROP_WELL_LEAN_ME         "You lean over the curb. Far below the water glints, and your voice comes back from it a little deeper."
+#define _LANG_PROP_WELL_LEAN_OTHERS     "$mcname$ leans over the well."
+
 // Words a player puts in front of the thing's name that are not part of it:
 // "lie ON THE bunk". Peeled off the front of the argument before looking up
 // which prop is meant.

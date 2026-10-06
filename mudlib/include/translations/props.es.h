@@ -307,6 +307,42 @@
 #define _LANG_PROP_BELLOWS_PUMP_ME      "Bajas la palanca un par de veces. El fuelle resopla y el aire silba por la tobera hacia la fragua."
 #define _LANG_PROP_BELLOWS_PUMP_OTHERS  "$mcname$ acciona el fuelle, que resopla con fuerza hacia la fragua."
 
+// herramientas
+#define _LANG_PROP_TOOLS_ID             "herramientas"
+#define _LANG_PROP_TOOLS_ID_ALIAS_1     "herramienta"
+#define _LANG_PROP_TOOLS_NOUN           "juego de herramientas"
+#define _LANG_PROP_TOOLS_NOUN_PLURAL    "juegos de herramientas"
+#define _LANG_PROP_TOOLS_SHORT          "un juego de herramientas"
+#define _LANG_PROP_TOOLS_LONG           "De unas clavijas en la pared cuelgan tenazas de varios tamaños, martillos, punzones y limas, todos ennegrecidos por el uso y cada uno en su sitio."
+
+#define _LANG_PROP_TOOLS_HANDLE_VERBS   ({ "descolgar", "coger", "tocar" })
+#define _LANG_PROP_TOOLS_HANDLE_ME      "Descuelgas unas tenazas y las sopesas; pesan más de lo que parece. Las vuelves a dejar en su clavija."
+#define _LANG_PROP_TOOLS_HANDLE_OTHERS  "$mcname$ descuelga unas tenazas, las sopesa y las vuelve a colgar."
+
+// estantería
+#define _LANG_PROP_SHELF_ID             "estantería"
+#define _LANG_PROP_SHELF_ID_ALIAS_1     "estanteria"
+#define _LANG_PROP_SHELF_NOUN           "estantería"
+#define _LANG_PROP_SHELF_NOUN_PLURAL    "estanterías"
+#define _LANG_PROP_SHELF_SHORT          "una estantería"
+#define _LANG_PROP_SHELF_LONG           "Una estantería $material_phrase$ junto a la puerta, con lo que se vende colocado a la vista en sus baldas."
+
+#define _LANG_PROP_SHELF_BROWSE_VERBS   ({ "rebuscar", "ojear" })
+#define _LANG_PROP_SHELF_BROWSE_ME      "Echas un vistazo a las baldas. Lo que hay a la venta, hay que pedírselo a quien atiende."
+#define _LANG_PROP_SHELF_BROWSE_OTHERS  "$mcname$ echa un vistazo a las baldas de la estantería."
+
+// pozo
+#define _LANG_PROP_WELL_ID              "pozo"
+#define _LANG_PROP_WELL_ID_ALIAS_1      "brocal"
+#define _LANG_PROP_WELL_NOUN            "pozo"
+#define _LANG_PROP_WELL_NOUN_PLURAL     "pozos"
+#define _LANG_PROP_WELL_SHORT           "un pozo"
+#define _LANG_PROP_WELL_LONG            "Un pozo de brocal $material_phrase$, gastado por el roce de las cuerdas. Un cubo de madera cuelga de una polea sobre la boca."
+
+#define _LANG_PROP_WELL_LEAN_VERBS      ({ "asomarse", "asomar" })
+#define _LANG_PROP_WELL_LEAN_ME         "Te asomas al brocal. Abajo, muy hondo, brilla el agua, y tu voz vuelve de ella un poco más grave."
+#define _LANG_PROP_WELL_LEAN_OTHERS     "$mcname$ se asoma al pozo."
+
 // Palabras que un jugador antepone al nombre del objeto y que no forman parte
 // de él: "tumbarse EN EL camastro". Se descartan por delante del argumento
 // antes de buscar a qué prop se refiere.
