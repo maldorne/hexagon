@@ -307,6 +307,23 @@
 #define _LANG_PROP_BELLOWS_PUMP_ME      "Bajas la palanca un par de veces. El fuelle resopla y el aire silba por la tobera hacia la fragua."
 #define _LANG_PROP_BELLOWS_PUMP_OTHERS  "$mcname$ acciona el fuelle, que resopla con fuerza hacia la fragua."
 
+// fragua
+#define _LANG_PROP_FORGE_ID             "fragua"
+#define _LANG_PROP_FORGE_ID_ALIAS_1     "forja"
+#define _LANG_PROP_FORGE_NOUN           "fragua"
+#define _LANG_PROP_FORGE_NOUN_PLURAL    "fraguas"
+#define _LANG_PROP_FORGE_SHORT          "una fragua"
+#define _LANG_PROP_FORGE_LONG           "Una fragua $material_phrase$, ancha y baja, con el hogar abierto bajo una campana ennegrecida por el humo."
+#define _LANG_PROP_FORGE_SUFFIX_LIT     " (encendida)"
+#define _LANG_PROP_FORGE_LONG_LIT       " En ella arde un fuego vivo, y el calor se nota desde la puerta."
+#define _LANG_PROP_FORGE_LONG_UNLIT     " Está apagada y las brasas, frías; nadie trabaja hoy el yunque."
+#define _LANG_PROP_FORGE_LONG_UNLIT_PLURAL " Están apagadas y las brasas, frías."
+
+#define _LANG_PROP_FORGE_WARM_VERBS     ({ "calentarse", "calentar" })
+#define _LANG_PROP_FORGE_WARM_ME        "Te acercas a la fragua y extiendes las manos hacia el fuego. El calor te llega hasta los huesos."
+#define _LANG_PROP_FORGE_WARM_OTHERS    "$mcname$ se acerca a la fragua a calentarse las manos."
+#define _LANG_PROP_FORGE_NOT_LIT        "La fragua está apagada; no da ningún calor."
+
 // herramientas
 #define _LANG_PROP_TOOLS_ID             "herramientas"
 #define _LANG_PROP_TOOLS_ID_ALIAS_1     "herramienta"

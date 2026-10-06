@@ -306,6 +306,23 @@
 #define _LANG_PROP_BELLOWS_PUMP_ME      "You pull the lever down a couple of times. The bellows wheeze and the air whistles through the nozzle into the forge."
 #define _LANG_PROP_BELLOWS_PUMP_OTHERS  "$mcname$ works the bellows, which wheeze hard into the forge."
 
+// forge
+#define _LANG_PROP_FORGE_ID             "forge"
+#define _LANG_PROP_FORGE_ID_ALIAS_1     "hearth"
+#define _LANG_PROP_FORGE_NOUN           "forge"
+#define _LANG_PROP_FORGE_NOUN_PLURAL    "forges"
+#define _LANG_PROP_FORGE_SHORT          "a forge"
+#define _LANG_PROP_FORGE_LONG           "A wide, low forge $material_phrase$, its open hearth under a hood blackened by smoke."
+#define _LANG_PROP_FORGE_SUFFIX_LIT     " (lit)"
+#define _LANG_PROP_FORGE_LONG_LIT       " A lively fire burns in it, and the heat reaches the door."
+#define _LANG_PROP_FORGE_LONG_UNLIT     " It is out and its embers are cold; nobody is working the anvil today."
+#define _LANG_PROP_FORGE_LONG_UNLIT_PLURAL " They are out and their embers are cold."
+
+#define _LANG_PROP_FORGE_WARM_VERBS     ({ "warm" })
+#define _LANG_PROP_FORGE_WARM_ME        "You step up to the forge and hold your hands to the fire. The heat goes right to your bones."
+#define _LANG_PROP_FORGE_WARM_OTHERS    "$mcname$ steps up to the forge to warm their hands."
+#define _LANG_PROP_FORGE_NOT_LIT        "The forge is out; it gives no heat at all."
+
 // tools
 #define _LANG_PROP_TOOLS_ID             "tools"
 #define _LANG_PROP_TOOLS_ID_ALIAS_1     "tool"

@@ -617,6 +617,58 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  forge -- a smithy's forge. Lit or cold, but nobody lights it by
+    //  hand: the blacksmith component sets the state from who is working.
+    // ------------------------------------------------------------
+    "forge": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_FORGE_ID,
+        _LANG_PROP_FORGE_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_FORGE_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_FORGE_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_FEMALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_FORGE_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_FORGE_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ "lit": 0, ]),
+
+      PROP_TYPE_STATE_SUFFIXES: ([
+        "lit": _LANG_PROP_FORGE_SUFFIX_LIT,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES: ([
+        "lit": _LANG_PROP_FORGE_LONG_LIT,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES_UNSET_PLURAL: ([
+        "lit": _LANG_PROP_FORGE_LONG_UNLIT_PLURAL,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES_UNSET: ([
+        "lit": _LANG_PROP_FORGE_LONG_UNLIT,
+      ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "warm": ([
+          PROP_SPEC_KIND:           PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:          _LANG_PROP_FORGE_WARM_VERBS,
+          PROP_SPEC_REQUIRES_STATE: ({ "lit" }),
+          PROP_SPEC_MISSING_MSG:    _LANG_PROP_FORGE_NOT_LIT,
+          PROP_SPEC_MSG_ME:         _LANG_PROP_FORGE_WARM_ME,
+          PROP_SPEC_MSG_OTHERS:     _LANG_PROP_FORGE_WARM_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  tools -- a smith's tools hanging on the wall. Stateless.
     // ------------------------------------------------------------
     "tools": ([
