@@ -4,17 +4,18 @@
 inherit CMD_BASE;
 
 private string columns(string * * rows);
-private int do_list(object me, string game);
+private int do_list(object me, string game, int whole_game);
 private int do_house(object me, string surname);
 
 void setup()
 {
   set_aliases(({ "families", "familias" }));
-  set_usage("families [ <surname> ]");
+  set_usage("families [ all | <surname> ]");
   set_help(
     "Report on the houses of the game you are standing in.\n" +
     "\n" +
-    "  families             every house, and how it stands\n" +
+    "  families             the houses of the area you stand in\n" +
+    "  families all         every house of the game, and how it stands\n" +
     "  families <surname>   its people, its history, what it owns\n" +
     "\n" +
     "A family is a surname, the people who belong to it and what it owns. " +
@@ -77,17 +78,69 @@ private string columns(string * * rows)
   return out;
 }
 
-// ===== families =====
-private int do_list(object me, string game)
+// The houses of the area you stand in, taken from the area it belongs to (the
+// one keeping its census and its books): those of its people, and those owning
+// a house on its books. A house that died out owns nothing and holds nobody, so
+// it is only listed with the whole game.
+private string * area_families(object me, object area)
+{
+  mapping census, owners;
+  string * ids, * out;
+  mixed surname;
+  int i;
+
+  area = (object)area->query_root_area();
+  census = (mapping)area->query_npc_census();
+  owners = (mapping)area->query_house_owners();
+  out = ({ });
+
+  ids = map_indices(census);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    surname = handler("families", me)->family_of(FAMILY_NPC + ids[i]);
+    if (stringp(surname) && member_array(surname, out) == -1)
+      out += ({ surname });
+  }
+
+  ids = map_indices(owners);
+  for (i = 0; i < sizeof(ids); i++)
+    if (stringp(owners[ids[i]]) && member_array(owners[ids[i]], out) == -1)
+      out += ({ owners[ids[i]] });
+
+  return sort_array(out);
+}
+
+// ===== families [all] =====
+private int do_list(object me, string game, int whole_game)
 {
   string * names;
   string * * rows;
+  string where;
+  object area;
   int i, living;
 
-  names = (string *)handler("families", me)->query_families();
+  area = environment(me) ? (object)environment(me)->query_area() : nil;
+  if (!whole_game && !area)
+  {
+    notify_fail("Stand in an area to see its houses, or ask for " +
+                "'families all'.\n");
+    return 0;
+  }
+
+  if (whole_game)
+  {
+    names = (string *)handler("families", me)->query_families();
+    where = game;
+  }
+  else
+  {
+    names = area_families(me, area);
+    where = (string)area->query_root_area()->query_area_name();
+  }
+
   if (!sizeof(names))
   {
-    write("No house has been founded in " + game + ".\n");
+    write("No house has been founded in " + where + ".\n");
     return 1;
   }
 
@@ -105,7 +158,7 @@ private int do_list(object me, string game)
                     : (living ? "" : "nobody has moved in yet") }) });
   }
 
-  write("Houses of " + game + ":\n" + columns(rows));
+  write("Houses of " + where + ":\n" + columns(rows));
   return 1;
 }
 
@@ -207,10 +260,12 @@ static int cmd(string str, object me, string verb)
   }
 
   if (!sizeof(args))
-    return do_list(me, game);
+    return do_list(me, game, 0);
+  if (sizeof(args) == 1 && args[0] == "all")
+    return do_list(me, game, 1);
   if (sizeof(args) == 1)
     return do_house(me, capitalize(args[0]));
 
-  notify_fail("Usage: families [ <surname> ]\n");
+  notify_fail("Usage: families [ all | <surname> ]\n");
   return 0;
 }
