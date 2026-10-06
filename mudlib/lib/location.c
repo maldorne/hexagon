@@ -225,6 +225,28 @@ string query_map_name() { return map_name; }
 void set_map_name(string name) { map_name = name; }
 
 object * query_components() { return components; }
+
+// Components are not in the location's inventory, so they would never hear of
+// anybody coming or going: the location passes both events on to them.
+void event_enter(object ob, varargs string msg, object from, mixed avoid)
+{
+  int i;
+
+  obj::event_enter(ob, msg, from, avoid);
+  for (i = 0; i < sizeof(components); i++)
+    if (components[i] && function_exists("event_enter", components[i]))
+      components[i]->event_enter(ob, msg, from, avoid);
+}
+
+void event_exit(object ob, varargs string msg, object dest, mixed avoid)
+{
+  int i;
+
+  obj::event_exit(ob, msg, dest, avoid);
+  for (i = 0; i < sizeof(components); i++)
+    if (components[i] && function_exists("event_exit", components[i]))
+      components[i]->event_exit(ob, msg, dest, avoid);
+}
 object query_component_by_type(string type)
 {
   int i;
