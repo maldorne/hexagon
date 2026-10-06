@@ -35,6 +35,7 @@ private mapping  _find_unique_match(string str);
 private mapping * _find_matching_instances(string str);
 private string   _strip_filler(string str);
 private mapping * _auto_target_instances(string verb);
+private mapping * _instances_with_verb(string verb);
 private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
 private int      _execute_generic(mapping spec, mapping inst, string args);
@@ -942,6 +943,15 @@ int do_prop_action(string str)
   if (!sizeof(matches) && (!str || !strlen(str)))
     matches = _auto_target_instances(verb);
 
+  // No prop is ready for the verb, but only one here knows it at all: that one
+  // is meant, and its own message says why the action cannot be done now.
+  if (!sizeof(matches) && (!str || !strlen(str)))
+  {
+    matches = _instances_with_verb(verb);
+    if (sizeof(matches) != 1)
+      matches = ({ });
+  }
+
   if (!sizeof(matches))
   {
     notify_fail(_LANG_PROPS_NO_TARGET + "\n");
@@ -1432,6 +1442,39 @@ private mapping * _auto_target_instances(string verb)
 
     if (ok)
       ret += ({ inst });
+  }
+
+  return ret;
+}
+
+// Every instance whose type has an action answering to `verb` that depends on
+// the prop's state, whatever that state is now. Actions with no state
+// precondition stay out, as in _auto_target_instances.
+private mapping * _instances_with_verb(string verb)
+{
+  mapping * ret;
+  int i;
+
+  ret = ({ });
+  if (!verb || !strlen(verb)) return ret;
+
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    string type;
+    mixed canonical, plan;
+
+    type = props_instances[i][PROP_FIELD_TYPE];
+    if (!type || !strlen(type)) continue;
+
+    canonical = handler("props")->query_canonical_action(type, verb);
+    if (!stringp(canonical)) continue;
+
+    plan = handler("props")->query_action_plan(type, canonical);
+    if (!pointerp(plan) || sizeof(plan) < 2 || !mappingp(plan[1])) continue;
+
+    if (plan[1][PROP_SPEC_REQUIRES_STATE] ||
+        plan[1][PROP_SPEC_REQUIRES_STATE_MATCH])
+      ret += ({ props_instances[i] });
   }
 
   return ret;
