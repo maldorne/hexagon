@@ -21,7 +21,7 @@
 // on each login (grant_default_skills, called from living::start_player):
 // a player missing one gets it on their next connection, first login
 // included. Add an id here and every player picks it up as they reconnect.
-#define DEFAULT_SKILLS ({ SKILL_SEARCH, SKILL_REPAIR })
+#define DEFAULT_SKILLS ({ SKILL_SEARCH })
 
 // Skill category ids: stable English keys, translated only for display
 // (see the category display map in lib/living/.lang.<lang>.h).
