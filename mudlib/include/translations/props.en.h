@@ -342,6 +342,10 @@
 #define _LANG_PROP_WELL_LEAN_ME         "You lean over the curb. Far below the water glints, and your voice comes back from it a little deeper."
 #define _LANG_PROP_WELL_LEAN_OTHERS     "$mcname$ leans over the well."
 
+#define _LANG_PROP_WELL_DRINK_VERBS     ({ "drink" })
+#define _LANG_PROP_WELL_DRINK_ME        "You haul up the bucket and take a drink. The water is cold and tastes of stone."
+#define _LANG_PROP_WELL_DRINK_OTHERS    "$mcname$ hauls up the bucket from the well and takes a drink."
+
 // Words a player puts in front of the thing's name that are not part of it:
 // "lie ON THE bunk". Peeled off the front of the argument before looking up
 // which prop is meant.

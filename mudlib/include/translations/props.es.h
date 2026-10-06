@@ -343,6 +343,10 @@
 #define _LANG_PROP_WELL_LEAN_ME         "Te asomas al brocal. Abajo, muy hondo, brilla el agua, y tu voz vuelve de ella un poco más grave."
 #define _LANG_PROP_WELL_LEAN_OTHERS     "$mcname$ se asoma al pozo."
 
+#define _LANG_PROP_WELL_DRINK_VERBS     ({ "beber" })
+#define _LANG_PROP_WELL_DRINK_ME        "Subes el cubo del pozo y bebes un trago. El agua está fría y sabe a piedra."
+#define _LANG_PROP_WELL_DRINK_OTHERS    "$mcname$ sube el cubo del pozo y bebe un trago."
+
 // Palabras que un jugador antepone al nombre del objeto y que no forman parte
 // de él: "tumbarse EN EL camastro". Se descartan por delante del argumento
 // antes de buscar a qué prop se refiere.

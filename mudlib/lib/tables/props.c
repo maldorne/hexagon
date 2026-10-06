@@ -713,6 +713,13 @@ void create()
           PROP_SPEC_MSG_OTHERS: _LANG_PROP_WELL_LEAN_OTHERS,
         ]),
 
+        "drink": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_WELL_DRINK_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_WELL_DRINK_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_WELL_DRINK_OTHERS,
+        ]),
+
       ]),
     ]),
 
