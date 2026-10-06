@@ -5,15 +5,15 @@
 // and is standing in it. Without a job declared here the forge is always lit,
 // so a smithy that nobody staffs is still a smithy.
 //
-// The forge itself is a prop of the location ("forge"), so it can be looked at.
-// This component adds it when missing and keeps its lit state in step with who
-// is at work, whenever somebody comes in or goes out.
+// The forge, the anvil and the bellows are props of the location, added by this
+// component when missing. It keeps the forge's lit state in step with who is at
+// work, whenever somebody comes in or goes out.
 
 #include <room/location.h>
 #include <room/prop.h>
 
-#define FORGE_PROP_TYPE "forge"
-#define FORGE_PROP_ID   "forge_1"
+#define FORGE_PROP_TYPE    "forge"
+#define SMITHY_PROP_TYPES  ({ FORGE_PROP_TYPE, "anvil", "bellows" })
 
 inherit component "/lib/location/component.c";
 
@@ -26,14 +26,14 @@ void create()
 void init() {}
 void dest_me() {}
 
-void add_forge_prop();
+void add_smithy_props();
 void update_forge_props();
 
 void initialize(object loc)
 {
   component::initialize(loc);
   // not during the location's own component setup
-  call_out("add_forge_prop", 0);
+  call_out("add_smithy_props", 0);
 }
 
 // Whether the forge is burning: the same condition a shop opens under, somebody
@@ -56,23 +56,19 @@ string query_info()
   return query_forge_lit() ? "forge lit" : "forge cold";
 }
 
-// Gives the smithy its forge prop, attaching the props component if the
-// location has none yet.
-void add_forge_prop()
+// Gives the smithy the props every smithy has (a forge, an anvil and a pair of
+// bellows), attaching the props component if the location has none yet. The
+// rest of the furnishing belongs to each location.
+void add_smithy_props()
 {
   object loc, props;
+  int i, added;
 
   loc = query_my_location();
   if (!loc)
     return;
 
   props = loc->query_component_by_type(LOCATION_COMPONENT_PROPS);
-  if (props && sizeof(props->query_instances_by_type(FORGE_PROP_TYPE)))
-  {
-    update_forge_props();
-    return;
-  }
-
   if (!props)
   {
     loc->add_component(LOCATION_COMPONENT_PROPS, ([ "props_instances": ({ }) ]));
@@ -81,10 +77,21 @@ void add_forge_prop()
       return;
   }
 
-  props->add_prop_instance(FORGE_PROP_TYPE, FORGE_PROP_ID, ([ ]));
-  props->refresh_actions();
+  for (i = 0; i < sizeof(SMITHY_PROP_TYPES); i++)
+  {
+    if (sizeof(props->query_instances_by_type(SMITHY_PROP_TYPES[i])))
+      continue;
+    props->add_prop_instance(SMITHY_PROP_TYPES[i], SMITHY_PROP_TYPES[i] + "_1", ([ ]));
+    added = 1;
+  }
+
   update_forge_props();
-  loc->save_me();
+
+  if (added)
+  {
+    props->refresh_actions();
+    loc->save_me();
+  }
 }
 
 // Sets the lit state of every forge prop from who is at work.
