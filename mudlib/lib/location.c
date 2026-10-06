@@ -293,6 +293,8 @@ void add_component(string component_type, mapping properties)
   live->initialize(this_object());
   components += ({ live });
   rebuild_hook_chains();
+  if (function_exists("components_ready", live))
+    live->components_ready();
   save_me();
 }
 
@@ -319,6 +321,7 @@ void remove_component(string component_type)
 void init_components(mapping info)
 {
   string * component_paths;
+  object * loaded;
   int i;
 
   component_paths = keys(info);
@@ -338,6 +341,13 @@ void init_components(mapping info)
   }
 
   rebuild_hook_chains();
+
+  // A component that depends on another can only reach it once all of them
+  // exist. The list is copied: one may attach another component here.
+  loaded = ({ }) + components;
+  for (i = 0; i < sizeof(loaded); i++)
+    if (loaded[i] && function_exists("components_ready", loaded[i]))
+      loaded[i]->components_ready();
 }
 
 // Walk the current components, ask each which functions it hooks and

@@ -29,11 +29,10 @@ void dest_me() {}
 void add_smithy_props();
 void update_forge_props();
 
-void initialize(object loc)
+// Once every component of the location exists, the props one can be reached.
+void components_ready()
 {
-  component::initialize(loc);
-  // not during the location's own component setup
-  call_out("add_smithy_props", 0);
+  add_smithy_props();
 }
 
 // Whether the forge is burning: the same condition a shop opens under, somebody
@@ -87,11 +86,18 @@ void add_smithy_props()
 
   update_forge_props();
 
+  // saved once the location has finished loading
   if (added)
   {
     props->refresh_actions();
-    loc->save_me();
+    call_out("save_location", 0);
   }
+}
+
+void save_location()
+{
+  if (query_my_location())
+    query_my_location()->save_me();
 }
 
 // Sets the lit state of every forge prop from who is at work.
@@ -116,12 +122,12 @@ void update_forge_props()
     props->set_state(forges[i][PROP_FIELD_ID], "lit", lit);
 }
 
-// Somebody arriving or leaving may be the smith. The state is read once the
-// move is over, when the leaver is no longer here.
+// Somebody arriving or leaving may be the smith. Somebody arriving is already
+// here; somebody leaving still is, so that state is read once the move is over.
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
   if (ob && living(ob))
-    call_out("update_forge_props", 0);
+    update_forge_props();
 }
 
 void event_exit(object ob, varargs string msg, object dest, mixed avoid)
