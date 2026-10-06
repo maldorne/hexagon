@@ -261,6 +261,11 @@
 #define _LANG_GLOBE_WHO_PLACE "In " + place + (strlen(game) ? " (" + game + ")" : "") + ":\n"
 #define _LANG_GLOBE_DRUNK_REPLACEMENTS ({ "s", "sh", "r", "rr", "ing", "in'", "x", "xsh", "S", "SH", "R", "RR" })
 
+#define _LANG_ROPE_NAME "rope"
+#define _LANG_ROPE_LONG "A strong rope of a good length. It looks able to take " + \
+      "your weight if you use it to climb or to help you carry a load, and it " + \
+      "will tie almost anything.\n"
+
 #define _LANG_TORCH_NAME "torch"
 #define _LANG_TORCH_LONG "A small torch to light the way, little more than a stick " + \
       "of old wood with strips of cloth wound around one end. Use \"light torch\" and " + \

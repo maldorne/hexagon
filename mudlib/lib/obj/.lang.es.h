@@ -261,6 +261,11 @@
 #define _LANG_GLOBE_WHO_PLACE "En " + place + (strlen(game) ? " (" + game + ")" : "") + ":\n"
 #define _LANG_GLOBE_DRUNK_REPLACEMENTS ({ "s", "sh", "r", "rr", "x", "xsh", "S", "SH", "R", "RR" })
 
+#define _LANG_ROPE_NAME "cuerda"
+#define _LANG_ROPE_LONG "Una cuerda resistente y de bastante longitud. Parece capaz " + \
+      "de soportar tu peso si la usas para trepar o para ayudarte a cargar, y " + \
+      "sirve para atar casi cualquier cosa.\n"
+
 #define _LANG_TORCH_NAME "antorcha"
 #define _LANG_TORCH_LONG "Una antorcha pequeña para iluminar el camino, poco " + \
       "más que un palo de madera vieja con tiras de tela enrolladas en un extremo. " + \
