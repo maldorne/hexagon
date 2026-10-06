@@ -41,6 +41,7 @@ int demote_house(string file);
 int is_house(string file);
 private void _house_family(string * family, string house);
 private string _family_for(string * group);
+void assign_homes();
 
 void create()
 {
@@ -339,6 +340,41 @@ int is_kept_house(string file)
     house_records = ([ ]);
 
   return house_records[file] && house_records[file][HOUSE_KEPT];
+}
+
+int is_communal_house(string file)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->is_communal_house(file);
+
+  if (!house_records)
+    house_records = ([ ]);
+
+  return house_records[file] && house_records[file][HOUSE_COMMUNAL];
+}
+
+// Mark a house as communal, or not. Only a house already on the books.
+int set_communal_house(string file, int flag)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_communal_house(file, flag);
+
+  if (!house_records || !house_records[file])
+    return 0;
+
+  if (flag)
+    house_records[file][HOUSE_COMMUNAL] = 1;
+  else
+    map_delete(house_records[file], HOUSE_COMMUNAL);
+
+  this_object()->save_me();
+  return 1;
 }
 
 string * query_house_residents(string file)
@@ -755,6 +791,55 @@ private string _family_for(string * group)
   return handler("families", this_object())->family_of(FAMILY_NPC + group[0]);
 }
 
+// The family somebody belongs to, founding one for them if they have none. What
+// staffing calls for a holder housed by their post, whose house is the job's and
+// is never the family's.
+string found_family_for(string uuid)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (string)owner->found_family_for(uuid);
+
+  return _family_for(({ uuid }));
+}
+
+// Somebody who held a job with a house of its own has died: whoever lived there
+// with them leaves, since the house goes with the post to whoever holds it next,
+// and is housed again with the rest of the town. A communal house keeps its
+// people, who live there by their own job.
+void release_job_house(string uuid)
+{
+  object owner;
+  string house;
+  string * others;
+  int i;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+  {
+    owner->release_job_house(uuid);
+    return;
+  }
+
+  house = query_house_of(uuid);
+  if (!house || member_array(house, _job_houses()) == -1 ||
+      is_communal_house(house))
+    return;
+
+  others = query_house_residents(house) - ({ uuid });
+  for (i = 0; i < sizeof(others); i++)
+  {
+    set_house_of(others[i], nil);
+    this_object()->log_event(_person(others[i])["name"] + " leaves " + house +
+                             ", the house of the job its late holder had.");
+  }
+
+  if (sizeof(others))
+    assign_homes();
+}
+
 // Give a family (one or two people) a home and move them in: the empty house
 // offered, or one raised on a free plot. No house and no plot -> nothing
 // happens (build_house_on_plot logged it).
@@ -802,6 +887,54 @@ private void _drop_unknown_residents()
   }
 }
 
+// Found a family for everybody housed without one (see assign_homes).
+private void _found_housed_families(mapping census, mapping lives_at,
+                                    string * posts)
+{
+  mapping by_house;
+  string * ids, * houses;
+  string surname;
+  int i;
+
+  by_house = ([ ]);
+  ids = map_indices(lives_at);
+  for (i = 0; i < sizeof(ids); i++)
+    if (census[ids[i]] && !is_communal_house(lives_at[ids[i]]) &&
+        !handler("families", this_object())->family_of(FAMILY_NPC + ids[i]))
+      by_house[lives_at[ids[i]]] = by_house[lives_at[ids[i]]]
+                                     ? by_house[lives_at[ids[i]]] + ({ ids[i] })
+                                     : ({ ids[i] });
+
+  houses = map_indices(by_house);
+  for (i = 0; i < sizeof(houses); i++)
+  {
+    string * group;
+
+    group = by_house[houses[i]];
+
+    // two who share a roof and may marry are a couple; anybody else is a
+    // household of their own
+    if (sizeof(group) == 2 && !_has_been_married(group[0]) &&
+        !_has_been_married(group[1]) &&
+        ((census[group[0]]["gender"] == GENDER_MALE &&
+          census[group[1]]["gender"] == GENDER_FEMALE) ||
+         (census[group[0]]["gender"] == GENDER_FEMALE &&
+          census[group[1]]["gender"] == GENDER_MALE)))
+      surname = _family_for(group);
+    else
+    {
+      int j;
+
+      for (j = 0; j < sizeof(group); j++)
+        surname = _family_for(({ group[j] }));
+    }
+
+    if (surname && member_array(houses[i], posts) == -1 &&
+        !query_house_owner(houses[i]))
+      set_house_owner(houses[i], surname);
+  }
+}
+
 // Give every homeless resident of the community a home. In turn, each one:
 //   - joins a spouse who already has a house;
 //   - or, never having been married, marries somebody of the other sex who lives
@@ -835,6 +968,14 @@ void assign_homes()
   lives_at = _residences();
   empty = _empty_houses();
 
+  posts = _job_houses();
+
+  // Whoever already has a roof and no family gets one: people housed while the
+  // area was a draft, and the holders of a job with a house of its own. A couple
+  // under one roof is wed; an ordinary house goes into the family's name, a
+  // job's house stays the job's. A communal house founds nothing.
+  _found_housed_families(census, lives_at, posts);
+
   // a resident placed by the design, without a home yet
   homeless = ({ });
   ids = map_indices(census);
@@ -842,12 +983,11 @@ void assign_homes()
     if (!lives_at[ids[i]] && _is_resident(census[ids[i]]))
       homeless += ({ ids[i] });
 
-  // those living alone in an ordinary house, who have never married: a homeless
-  // newcomer may marry in
+  // those living alone in a house that is not communal, who have never married:
+  // a homeless newcomer may marry in, into a job's house as well
   heads = ([ ]);
-  posts = _job_houses();
   for (i = 0; i < sizeof(ids); i++)
-    if (lives_at[ids[i]] && member_array(lives_at[ids[i]], posts) == -1)
+    if (lives_at[ids[i]] && !is_communal_house(lives_at[ids[i]]))
       heads[lives_at[ids[i]]] = heads[lives_at[ids[i]]]
                                   ? heads[lives_at[ids[i]]] + ({ ids[i] })
                                   : ({ ids[i] });
@@ -855,7 +995,9 @@ void assign_homes()
   singles = ({ });
   ids = map_indices(heads);
   for (i = 0; i < sizeof(ids); i++)
-    if (sizeof(heads[ids[i]]) == 1 && _is_resident(census[heads[ids[i]][0]]) &&
+    if (sizeof(heads[ids[i]]) == 1 &&
+        (_is_resident(census[heads[ids[i]][0]]) ||
+         member_array(ids[i], posts) != -1) &&
         !_has_been_married(heads[ids[i]][0]))
       singles += ({ heads[ids[i]][0] });
 
@@ -914,7 +1056,8 @@ void assign_homes()
 
       _family_for(({ who, singles[j] }));
       set_house_of(who, lives_at[singles[j]]);
-      if (handler("families", this_object())->family_of(FAMILY_NPC + who))
+      if (handler("families", this_object())->family_of(FAMILY_NPC + who) &&
+          member_array(lives_at[singles[j]], posts) == -1)
         set_house_owner(lives_at[singles[j]],
           handler("families", this_object())->family_of(FAMILY_NPC + who));
       lives_at[who] = lives_at[singles[j]];

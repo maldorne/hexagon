@@ -524,9 +524,15 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
                             CENSUS_WORKS_AT: where,
                             CENSUS_LOCATION: where ]));
 
-  // a job that comes with a house houses whoever holds it
+  // a job that comes with a house houses whoever holds it, and unless the house
+  // is communal its holder has a family of their own there, which owns nothing:
+  // the house stays the job's
   if (id && vacancy[VACANCY_HOME])
+  {
     this_object()->set_house_of(id, vacancy[VACANCY_HOME]);
+    if (!this_object()->is_communal_house(vacancy[VACANCY_HOME]))
+      this_object()->found_family_for(id);
+  }
 
   return id;
 }

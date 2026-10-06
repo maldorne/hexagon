@@ -18,8 +18,11 @@
 // A house on the community's books: who lives in it, which family owns it, and
 // whether it was raised for something in particular (a barracks, a guildhall)
 // and so is never handed to whoever is homeless.
+// A communal house (a barracks) is shared by whoever holds its job: nobody living
+// there founds a family by it nor marries anybody into it.
 //   ([ location file : ([ HOUSE_RESIDENTS: ({ uuid }), HOUSE_OWNER: surname,
-//                         HOUSE_KEPT: 1 ]) ])
+//                         HOUSE_KEPT: 1, HOUSE_COMMUNAL: 1 ]) ])
 #define HOUSE_RESIDENTS "residents"
 #define HOUSE_OWNER     "owner"
 #define HOUSE_KEPT      "kept"
+#define HOUSE_COMMUNAL  "communal"

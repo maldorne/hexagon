@@ -626,6 +626,10 @@ void npc_died(string uuid)
   // and out of the hourly index, or the round would keep waking the dead
   this_object()->index_schedule_hours(uuid, ({ }));
 
+  // a job's house goes with the post: whoever lived there with them leaves and
+  // is housed again
+  this_object()->release_job_house(uuid);
+
   // off the books of its house; a bed freed for whoever comes next
   this_object()->set_house_of(uuid, nil);
 
