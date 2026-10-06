@@ -4,18 +4,19 @@
 inherit CMD_BASE;
 
 private string columns(string * * rows);
-private int do_list(object me, string game, int whole_game);
+private int do_list(object me, string game, int whole_game, int extinct);
 private int do_house(object me, string surname);
 
 void setup()
 {
   set_aliases(({ "families", "familias" }));
-  set_usage("families [ all | <surname> ]");
+  set_usage("families [ all [extinct] | <surname> ]");
   set_help(
     "Report on the houses of the game you are standing in.\n" +
     "\n" +
     "  families             the houses of the area you stand in\n" +
-    "  families all         every house of the game, and how it stands\n" +
+    "  families all         every living house of the game, and how it stands\n" +
+    "  families all extinct the same, with the houses that died out\n" +
     "  families <surname>   its people, its history, what it owns\n" +
     "\n" +
     "A family is a surname, the people who belong to it and what it owns. " +
@@ -110,14 +111,14 @@ private string * area_families(object me, object area)
   return sort_array(out);
 }
 
-// ===== families [all] =====
-private int do_list(object me, string game, int whole_game)
+// ===== families [all [extinct]] =====
+private int do_list(object me, string game, int whole_game, int extinct)
 {
   string * names;
   string * * rows;
   string where;
   object area;
-  int i, living;
+  int i, living, hidden;
 
   area = environment(me) ? (object)environment(me)->query_area() : nil;
   if (!whole_game && !area)
@@ -131,6 +132,19 @@ private int do_list(object me, string game, int whole_game)
   {
     names = (string *)handler("families", me)->query_families();
     where = game;
+
+    // the houses that died out pile up with time; they are asked for by name
+    if (!extinct)
+    {
+      string * alive;
+
+      alive = ({ });
+      for (i = 0; i < sizeof(names); i++)
+        if (!handler("families", me)->is_extinct(names[i]))
+          alive += ({ names[i] });
+      hidden = sizeof(names) - sizeof(alive);
+      names = alive;
+    }
   }
   else
   {
@@ -158,7 +172,9 @@ private int do_list(object me, string game, int whole_game)
                     : (living ? "" : "nobody has moved in yet") }) });
   }
 
-  write("Houses of " + where + ":\n" + columns(rows));
+  write("Houses of " + where + ":\n" + columns(rows) +
+        (hidden ? hidden + " extinct house" + (hidden == 1 ? "" : "s") +
+                  " not shown ('families all extinct' lists them).\n" : ""));
   return 1;
 }
 
@@ -260,12 +276,14 @@ static int cmd(string str, object me, string verb)
   }
 
   if (!sizeof(args))
-    return do_list(me, game, 0);
+    return do_list(me, game, 0, 0);
   if (sizeof(args) == 1 && args[0] == "all")
-    return do_list(me, game, 1);
+    return do_list(me, game, 1, 0);
+  if (sizeof(args) == 2 && args[0] == "all" && args[1] == "extinct")
+    return do_list(me, game, 1, 1);
   if (sizeof(args) == 1)
     return do_house(me, capitalize(args[0]));
 
-  notify_fail("Usage: families [ all | <surname> ]\n");
+  notify_fail("Usage: families [ all [extinct] | <surname> ]\n");
   return 0;
 }
