@@ -363,6 +363,30 @@
 #define _LANG_PROP_WELL_DRINK_ME        "You haul up the bucket and take a drink. The water is cold and tastes of stone."
 #define _LANG_PROP_WELL_DRINK_OTHERS    "$mcname$ hauls up the bucket from the well and takes a drink."
 
+// trough
+#define _LANG_PROP_TROUGH_ID            "trough"
+#define _LANG_PROP_TROUGH_ID_ALIAS_1    "water trough"
+#define _LANG_PROP_TROUGH_NOUN          "trough"
+#define _LANG_PROP_TROUGH_NOUN_PLURAL   "troughs"
+#define _LANG_PROP_TROUGH_SHORT         "a trough"
+#define _LANG_PROP_TROUGH_LONG          "A long, low trough $material_phrase$, full of water to the brim. Its bottom is green with slime and its edge worn by the animals."
+
+#define _LANG_PROP_TROUGH_DRINK_VERBS   ({ "drink" })
+#define _LANG_PROP_TROUGH_DRINK_ME      "You cup your hands and drink from the trough. The water is lukewarm and tastes of grass."
+#define _LANG_PROP_TROUGH_DRINK_OTHERS  "$mcname$ leans over the trough and drinks the animals' water."
+
+// manger
+#define _LANG_PROP_MANGER_ID            "manger"
+#define _LANG_PROP_MANGER_ID_ALIAS_1    "feeder"
+#define _LANG_PROP_MANGER_NOUN          "manger"
+#define _LANG_PROP_MANGER_NOUN_PLURAL   "mangers"
+#define _LANG_PROP_MANGER_SHORT         "a manger"
+#define _LANG_PROP_MANGER_LONG          "A long, low manger $material_phrase$, with leftover grain and straw at the bottom and the wood worn smooth with use."
+
+#define _LANG_PROP_MANGER_SMELL_VERBS   ({ "smell" })
+#define _LANG_PROP_MANGER_SMELL_ME      "You smell the manger. It smells of grain, of damp straw and, above all, of animal."
+#define _LANG_PROP_MANGER_SMELL_OTHERS  "$mcname$ leans in to smell the manger and wrinkles their nose."
+
 // Words a player puts in front of the thing's name that are not part of it:
 // "lie ON THE bunk". Peeled off the front of the argument before looking up
 // which prop is meant.

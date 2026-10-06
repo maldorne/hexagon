@@ -775,6 +775,72 @@ void create()
       ]),
     ]),
 
+    // ------------------------------------------------------------
+    //  trough -- where livestock drink. Stateless.
+    // ------------------------------------------------------------
+    "trough": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_TROUGH_ID,
+        _LANG_PROP_TROUGH_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_TROUGH_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_TROUGH_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_TROUGH_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_TROUGH_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE, MAT_WOOD }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "drink": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_TROUGH_DRINK_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_TROUGH_DRINK_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_TROUGH_DRINK_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  manger -- where livestock feed. Stateless.
+    // ------------------------------------------------------------
+    "manger": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_MANGER_ID,
+        _LANG_PROP_MANGER_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_MANGER_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_MANGER_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WOOD,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_MANGER_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_MANGER_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE, MAT_WOOD }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "smell": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_MANGER_SMELL_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_MANGER_SMELL_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_MANGER_SMELL_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
   ]);
 }
 

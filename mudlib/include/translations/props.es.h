@@ -364,6 +364,30 @@
 #define _LANG_PROP_WELL_DRINK_ME        "Subes el cubo del pozo y bebes un trago. El agua está fría y sabe a piedra."
 #define _LANG_PROP_WELL_DRINK_OTHERS    "$mcname$ sube el cubo del pozo y bebe un trago."
 
+// abrevadero
+#define _LANG_PROP_TROUGH_ID            "abrevadero"
+#define _LANG_PROP_TROUGH_ID_ALIAS_1    "pilón"
+#define _LANG_PROP_TROUGH_NOUN          "abrevadero"
+#define _LANG_PROP_TROUGH_NOUN_PLURAL   "abrevaderos"
+#define _LANG_PROP_TROUGH_SHORT         "un abrevadero"
+#define _LANG_PROP_TROUGH_LONG          "Un abrevadero $material_phrase$, largo y bajo, lleno de agua hasta el borde. Tiene el fondo verde de verdín y la orilla gastada por los animales."
+
+#define _LANG_PROP_TROUGH_DRINK_VERBS   ({ "beber" })
+#define _LANG_PROP_TROUGH_DRINK_ME      "Haces cuenco con las manos y bebes del abrevadero. El agua está tibia y sabe a hierba."
+#define _LANG_PROP_TROUGH_DRINK_OTHERS  "$mcname$ se inclina sobre el abrevadero y bebe del agua de los animales."
+
+// comedero
+#define _LANG_PROP_MANGER_ID            "comedero"
+#define _LANG_PROP_MANGER_ID_ALIAS_1    "pesebre"
+#define _LANG_PROP_MANGER_NOUN          "comedero"
+#define _LANG_PROP_MANGER_NOUN_PLURAL   "comederos"
+#define _LANG_PROP_MANGER_SHORT         "un comedero"
+#define _LANG_PROP_MANGER_LONG          "Un comedero $material_phrase$, bajo y alargado, con restos de grano y paja en el fondo y la madera alisada por el uso."
+
+#define _LANG_PROP_MANGER_SMELL_VERBS   ({ "oler" })
+#define _LANG_PROP_MANGER_SMELL_ME      "Hueles el comedero. Huele a grano, a paja húmeda y, sobre todo, a animal."
+#define _LANG_PROP_MANGER_SMELL_OTHERS  "$mcname$ se acerca a oler el comedero y arruga la nariz."
+
 // Palabras que un jugador antepone al nombre del objeto y que no forman parte
 // de él: "tumbarse EN EL camastro". Se descartan por delante del argumento
 // antes de buscar a qué prop se refiere.
