@@ -21,7 +21,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "desc", "temple", "family" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "desc", "temple", "venture", "family" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -68,6 +68,9 @@ inherit "/lib/armour.c";
   "  build exit [<dir> <type> [material] [closed|locked]]\n" + \
   "                                       how a way through reads, both sides\n" + \
   "  build temple <deity|none>            consecrate this location\n" + \
+  "  build venture                        this shop or tavern's open conditions\n" + \
+  "  build venture condition add <name> [key=value ...]\n" + \
+  "  build venture condition remove <name>\n" + \
   "\n" + \
   "  build area exploration <name>        entering here is a diary event\n" + \
   "  build area noexploration\n" + \
@@ -166,6 +169,7 @@ int do_home_describe(string what, string str);
 int do_sign(string str);
 int do_desc(string str);
 int do_temple(string str);
+int do_venture(string str);
 int do_family(string str);
 
 // Glob-style matcher for `*` (any sequence, including empty) and `?`
@@ -394,6 +398,9 @@ int do_build(string str)
   if (verb == "desc")
     return do_desc(implode(args[1..], " "));
 
+  if (verb == "venture")
+    return do_venture(implode(args[1..], " "));
+
   if (sizeof(args) < 2)
   {
     notify_fail("Build " + verb + " what?\n");
@@ -419,6 +426,8 @@ int do_build(string str)
     return do_plot(implode(args[1..], " "));
   else if (verb == "temple")
     return do_temple(implode(args[1..], " "));
+  else if (verb == "venture")
+    return do_venture(implode(args[1..], " "));
   else if (verb == "family")
     return do_family(implode(args[1..], " "));
   else
@@ -2288,6 +2297,119 @@ int do_home_make()
 
   write("Raised an empty house at " + file + ". It is kept out of " +
         "'build homes'; make it a job's house with 'build vacancy home <job>'.\n");
+  return 1;
+}
+
+// The condition a name stands for: a path as given, or a bare name looked up in
+// the game's own ventures/conditions/ first and the shared one after.
+private string _condition_path(string name, object loc)
+{
+  string game;
+
+  // a trailing .c is allowed and dropped
+  sscanf(name, "%s.c", name);
+  if (name[0] == '/')
+    return name;
+
+  game = game_root(loc) + "ventures/conditions/" + name;
+  if (file_size(game + ".c") >= 0)
+    return game;
+  return "/lib/ventures/conditions/" + name;
+}
+
+// `build venture`: the open conditions of the shop or tavern you stand in.
+// Arguments are key=value pairs; a value made of digits is a number.
+int do_venture(string str)
+{
+  object loc, venture;
+  string * args;
+  mixed * conditions;
+  string path;
+  mapping cargs;
+  int i;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a shop or a tavern.\n");
+    return 0;
+  }
+
+  venture = loc->query_component_by_type(LOCATION_COMPONENT_SHOP);
+  if (!venture)
+    venture = loc->query_component_by_type(LOCATION_COMPONENT_PUB);
+  if (!venture)
+  {
+    notify_fail("This location is neither a shop nor a tavern.\n");
+    return 0;
+  }
+
+  args = (str && strlen(str)) ? explode(str, " ") : ({ });
+
+  if (!sizeof(args) || args[0] == "list")
+  {
+    conditions = (mixed *)venture->query_open_conditions();
+    if (!sizeof(conditions))
+    {
+      write("No open conditions: it is always open.\n");
+      return 1;
+    }
+
+    write("Open conditions (all must hold):\n");
+    for (i = 0; i < sizeof(conditions); i++)
+      write("  " + conditions[i][0] + " -- " +
+            (string)conditions[i][0]->query_description(conditions[i][1]) +
+            "\n");
+    write("Right now it is " +
+          (venture->check_open_condition() ? "open" : "closed") + ".\n");
+    return 1;
+  }
+
+  if (args[0] != "condition" || sizeof(args) < 3 ||
+      (args[1] != "add" && args[1] != "remove"))
+  {
+    notify_fail("Usage: build venture [condition add <name> [key=value ...] | " +
+                "condition remove <name>]\n");
+    return 0;
+  }
+
+  path = _condition_path(args[2], loc);
+  if (file_size(path + ".c") < 0)
+  {
+    notify_fail("No condition at " + path + ".c\n");
+    return 0;
+  }
+
+  if (args[1] == "remove")
+  {
+    if (!venture->remove_open_condition(path))
+    {
+      notify_fail("This venture has no condition " + path + ".\n");
+      return 0;
+    }
+    loc->save_me();
+    write("Removed " + path + ".\n");
+    return 1;
+  }
+
+  cargs = ([ ]);
+  for (i = 3; i < sizeof(args); i++)
+  {
+    string key, value;
+    int number;
+
+    if (sscanf(args[i], "%s=%s", key, value) != 2)
+    {
+      notify_fail("Arguments are key=value: '" + args[i] + "' is not.\n");
+      return 0;
+    }
+    cargs[key] = (sscanf(value, "%d", number) == 1 && "" + number == value)
+                   ? number : value;
+  }
+
+  venture->add_open_condition(path, cargs);
+  loc->save_me();
+  write("Added " + path + ": " + (string)path->query_description(cargs) + ".\n");
   return 1;
 }
 

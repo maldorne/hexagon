@@ -6,8 +6,17 @@
 
 #include <language.h>
 
+// Where the opening conditions live, and the one every venture starts with.
+#define CONDITIONS_DIR "/lib/ventures/conditions/"
+#define DEFAULT_CONDITIONS ({ ({ CONDITIONS_DIR + "attended", ([ ]) }) })
+
 string open_condition;
 string attender_name;
+
+// The conditions the venture opens under, all of which must hold:
+// ({ ({ condition object path, ([ argument : value ]) }) }). See
+// /lib/ventures/conditions/readme.md.
+mixed * open_conditions;
 
 // from shop.c
 static int only_sell;
@@ -17,18 +26,92 @@ void create()
   open_condition = "";
   attender_name = "";
   only_sell = 0;
+  open_conditions = DEFAULT_CONDITIONS;
 }
 
 void set_open_condition(string str) { open_condition = str; }
 string query_open_condition() { return open_condition; }
 
+// The location the venture stands in: a location component's location, or the
+// venture itself when it is a room.
+object query_venue()
+{
+  object loc;
+
+  loc = function_exists("query_my_location", this_object())
+          ? (object)this_object()->query_my_location() : nil;
+  return loc ? loc : this_object();
+}
+
+mixed * query_open_conditions()
+{
+  return open_conditions ? open_conditions : ({ });
+}
+
+// Add a condition, or replace the arguments of one already there.
+void add_open_condition(string path, varargs mapping args)
+{
+  int i;
+
+  if (!open_conditions)
+    open_conditions = ({ });
+
+  for (i = 0; i < sizeof(open_conditions); i++)
+    if (open_conditions[i][0] == path)
+    {
+      open_conditions[i] = ({ path, args ? args : ([ ]) });
+      return;
+    }
+
+  open_conditions += ({ ({ path, args ? args : ([ ]) }) });
+}
+
+int remove_open_condition(string path)
+{
+  int i;
+
+  for (i = 0; i < sizeof(open_conditions); i++)
+    if (open_conditions[i][0] == path)
+    {
+      open_conditions = open_conditions[0..i - 1] + open_conditions[i + 1..];
+      return 1;
+    }
+
+  return 0;
+}
+
+// Open when the legacy open_condition function (if any) and every condition
+// say so. The first condition that does not hold gives the reason the customer
+// reads.
 int check_open_condition()
 {
-  if (!open_condition || !strlen(open_condition)) 
-    return 1;
- 
-  notify_fail(_LANG_ATT_NON_ATTENDABLE);
-  return call_other(this_object(), open_condition);
+  mixed answer;
+  int i;
+
+  if (open_condition && strlen(open_condition))
+  {
+    notify_fail(_LANG_ATT_NON_ATTENDABLE);
+    if (!call_other(this_object(), open_condition))
+      return 0;
+  }
+
+  for (i = 0; i < sizeof(open_conditions); i++)
+  {
+    answer = call_other(open_conditions[i][0], "check_open", this_object(),
+                        query_venue(), this_player(), open_conditions[i][1]);
+    if (stringp(answer))
+    {
+      notify_fail(answer);
+      return 0;
+    }
+    if (!answer)
+    {
+      notify_fail(_LANG_ATT_NON_ATTENDABLE);
+      return 0;
+    }
+  }
+
+  return 1;
 }
 
 void set_attender(string str)
@@ -73,6 +156,7 @@ mapping query_auto_load_attributes()
     "attendable_open_condition" : open_condition,
     "attendable_attender_name"  : attender_name,
     "attendable_only_sell"      : only_sell,
+    "attendable_open_conditions" : query_open_conditions(),
   ]);
 }
 
@@ -84,6 +168,8 @@ void init_auto_load_attributes(mapping args)
     attender_name = args["attendable_attender_name"];
   if (!undefinedp(args["attendable_only_sell"]))
     only_sell = args["attendable_only_sell"];
+  if (arrayp(args["attendable_open_conditions"]))
+    open_conditions = args["attendable_open_conditions"];
 }
 
 mixed * stats()
@@ -92,6 +178,7 @@ mixed * stats()
     ({ "Open Condition", open_condition }),
     ({ "Attender Name", attender_name }),
     ({ "Only Sell", only_sell }),
+    ({ "Open Conditions", query_open_conditions() }),
   });
 }
 

@@ -1,12 +1,11 @@
 // Blacksmith component. Marks a location as a smithy: it has a forge, an anvil
 // and the tools to work metal, and it is where the repair skill can be used.
 //
-// The forge is lit while somebody works it: whoever holds a job at this place
+// The forge is lit while somebody works it: somebody whose work is this place
 // and is standing in it. Without a job declared here the forge is always lit,
 // so a smithy that nobody staffs is still a smithy.
 
 #include <room/location.h>
-#include <areas/vacancy.h>
 #include <language.h>
 
 inherit component "/lib/location/component.c";
@@ -20,34 +19,19 @@ void create()
 void init() {}
 void dest_me() {}
 
-// Whether the forge is burning: true when no job is held here, or when one of
-// the people holding a job here is standing at it.
+// Whether the forge is burning: the same condition a shop opens under, somebody
+// who works here is in it (or nobody is meant to). See
+// /lib/ventures/conditions/attended.c.
 int query_forge_lit()
 {
-  object loc, area, holder;
-  mapping * jobs;
-  int i;
+  object loc;
 
   loc = query_my_location();
   if (!loc)
     return 0;
 
-  area = (object)loc->query_area();
-  if (!area)
-    return 1;
-
-  jobs = (mapping *)area->query_vacancies_at((string)loc->query_file_name());
-  if (!sizeof(jobs))
-    return 1;
-
-  for (i = 0; i < sizeof(jobs); i++)
-  {
-    holder = (object)area->query_vacancy_holder(jobs[i]);
-    if (holder && environment(holder) == loc)
-      return 1;
-  }
-
-  return 0;
+  return call_other("/lib/ventures/conditions/attended", "check_open",
+                    this_object(), loc, nil, ([ ])) == 1;
 }
 
 string query_info()
