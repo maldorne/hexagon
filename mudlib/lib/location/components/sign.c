@@ -32,6 +32,9 @@ private string sign_short;   // contents-listing short; nil => capitalized name
 private string sign_frame;   // frame style for the read rendering; nil => default
 private string sign_lang;    // written language of the text; nil => standard
 
+// the item this component put in the location, so it can take it down again
+private static object sign_item;
+
 void create()
 {
   component::create();
@@ -51,8 +54,17 @@ void initialize(object loc)
   if (!sign_long && !sign_text)
     return;
 
-  loc->add_sign(sign_long, sign_text, sign_name, sign_short,
-                sign_frame, sign_lang);
+  sign_item = loc->add_sign(sign_long, sign_text, sign_name, sign_short,
+                            sign_frame, sign_lang);
+}
+
+// Take the sign item out of the location. The location destructs a component
+// it drops without calling it, so whoever removes this one calls this first.
+void take_down()
+{
+  if (sign_item)
+    sign_item->dest_me();
+  sign_item = nil;
 }
 
 // ************************************************************

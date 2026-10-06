@@ -2502,6 +2502,7 @@ int do_sign(string str)
       notify_fail("There is no sign here.\n");
       return 0;
     }
+    loc->query_component_by_type(LOCATION_COMPONENT_SIGN)->take_down();
     loc->remove_component(LOCATION_COMPONENT_SIGN);
     loc->save_me();
     write("Sign taken down.\n");
@@ -2512,6 +2513,13 @@ int do_sign(string str)
   {
     notify_fail("Usage: build sign <text>, or build sign remove\n");
     return 0;
+  }
+
+  // one sign per location: a new one replaces whatever was posted
+  if (loc->has_component(LOCATION_COMPONENT_SIGN))
+  {
+    loc->query_component_by_type(LOCATION_COMPONENT_SIGN)->take_down();
+    loc->remove_component(LOCATION_COMPONENT_SIGN);
   }
 
   loc->add_component(LOCATION_COMPONENT_SIGN, ([ "sign_text": str ]));
