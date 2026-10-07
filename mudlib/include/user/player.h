@@ -21,7 +21,7 @@
 #define G_CHAR (this_object()->query_gender()==2?"a":"o")
 
 // items
-// objects a player must have
-// TODO this will change with multiple games
-#define MUST_HAVE ({ "/lib/obj/diary", "/lib/obj/hearthstone", })
+// objects every player must carry, unless their game's master says otherwise
+// (set_mandatory_items in /lib/core/game.c)
+#define MUST_HAVE ({ "/lib/obj/diary", })
 

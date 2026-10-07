@@ -10,6 +10,7 @@
 
 #include <mud/secure.h>
 #include <mud/games.h>
+#include <user/player.h>
 #include <language.h>
 
 // game description
@@ -23,6 +24,9 @@ static int demo;
 static string genre;
 // permissions for players: can they play?
 int open;
+// what every player of this game must carry (see check_mandatory_inventory in
+// /lib/player/start.c)
+static string * mandatory_items;
 
 // permissions for coders
 int open_read, open_write;
@@ -38,6 +42,9 @@ void set_game_short_description(string desc) { game_short_desc = desc; }
 string query_game_short_description() { return game_short_desc; }
 void set_game_long_description(string desc) { game_long_desc = desc; }
 string query_game_long_description() { return game_long_desc; }
+
+void set_mandatory_items(string * paths) { mandatory_items = paths; }
+string * query_mandatory_items() { return mandatory_items; }
 
 void set_demo(int value) { demo = value; }
 int query_demo() { return demo; }
@@ -81,6 +88,7 @@ void create()
   game_long_desc = "";
   demo = 0;
   genre = "";
+  mandatory_items = MUST_HAVE;
 
   members = ([ ]);
   read_perms = ([ ]);

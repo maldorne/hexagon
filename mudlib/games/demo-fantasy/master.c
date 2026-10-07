@@ -16,6 +16,8 @@ void create()
    // a demo: playable from a brand new account, and the way out of one
    set_demo(true);
    set_genre(GENRE_FANTASY);
+   // what its players carry: the diary and the hearthstone, its recall item
+   set_mandatory_items(({ "/lib/obj/diary", "/lib/obj/hearthstone" }));
    set_open_read(0);
    set_open_write(0);
    // set_finger_info("");

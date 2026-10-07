@@ -168,38 +168,53 @@ nomask void move_to_last_pos()
   }
 }
 
+// The items every player of this game must carry (they can be lost by some
+// error in saving or loading the character): the game's master says which,
+// MUST_HAVE when it does not. A recall item replacing another one -- the game
+// changed which one it hands out -- keeps the place it had marked.
 nomask void check_mandatory_inventory()
 {
-  int i, j;
-  int * has;
+  int i, j, found;
+  string * items;
   object * obs;
-  object ob;
-
-  has = allocate_int(sizeof(MUST_HAVE));
+  object ob, master;
 
   // if we are creating the character, his level is zero, we must not do this
-  if (query_level() >= 1)
+  if (query_level() < 1)
+    return;
+
+  master = game_master_object(this_object());
+  items = master ? (string *)master->query_mandatory_items() : nil;
+  if (!items)
+    items = MUST_HAVE;
+
+  obs = all_inventory(this_object());
+
+  for (i = 0; i < sizeof(items); i++)
   {
-    // check the items every player must always have
-    // (they can be lost by some error in saving or loading the character)
-    obs = all_inventory(this_object());
+    found = 0;
+    for (j = 0; j < sizeof(obs); j++)
+      if (base_name(obs[j]) == items[i])
+        found = 1;
 
-    for (i = 0; i < sizeof(MUST_HAVE); i++)
+    if (found)
+      continue;
+
+    ob = clone_object(items[i]);
+    if (!ob)
+      continue;
+
+    if (ob->query_recall())
       for (j = 0; j < sizeof(obs); j++)
-        if (base_name(obs[j]) == MUST_HAVE[i])
-          has[i] = 1;
-
-    for (i = 0; i < sizeof(has); i++)
-      if (!has[i])
-      {
-        ob = clone_object(MUST_HAVE[i]);
-
-        if (ob)
+        if (obs[j] && obs[j]->query_recall())
         {
-          ob->move(this_object());
-          this_object()->user()->add_notification("inventory", _LANG_NEW_MANDATORY_ITEM);
+          ob->set_destination(obs[j]->query_destination_path(),
+                              obs[j]->query_destination_name());
+          obs[j]->dest_me();
         }
-      }
+
+    ob->move(this_object());
+    this_object()->user()->add_notification("inventory", _LANG_NEW_MANDATORY_ITEM);
   }
 }
 
