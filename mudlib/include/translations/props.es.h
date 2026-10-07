@@ -76,8 +76,8 @@
 #define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s está sentado en ella."
 #define _LANG_PROP_CHAIR_LONG_TIPPED_PLURAL " Están tiradas en el suelo."
 
-#define _LANG_PROP_CHAIR_SIT_VERBS          ({ "sentar", "sentarse" })
-#define _LANG_PROP_CHAIR_STAND_VERBS        ({ "levantar", "levantarse" })
+#define _LANG_PROP_CHAIR_SIT_VERBS          ({ "sentar", "sentarse", "sentarme" })
+#define _LANG_PROP_CHAIR_STAND_VERBS        ({ "levantar", "levantarse", "levantarme" })
 #define _LANG_PROP_CHAIR_TIP_VERBS          ({ "tirar", "volcar" })
 #define _LANG_PROP_CHAIR_RIGHT_VERBS        ({ "enderezar" })
 
@@ -109,7 +109,7 @@
 #define _LANG_PROP_TABLE_LONG           "Una larga mesa $material_phrase$, marcada por años de uso."
 
 #define _LANG_PROP_TABLE_SMELL_VERBS    ({ "oler", "olfatear" })
-#define _LANG_PROP_TABLE_LEAN_VERBS     ({ "apoyarse", "apoyar" })
+#define _LANG_PROP_TABLE_LEAN_VERBS     ({ "apoyarse", "apoyarme", "apoyar" })
 #define _LANG_PROP_TABLE_CLIMB_VERBS    ({ "subir", "trepar" })
 
 #define _LANG_PROP_TABLE_SMELL_ME       "La mesa huele a cera y madera vieja."
@@ -210,7 +210,7 @@
 #define _LANG_PROP_BAR_SHORT            "una larga barra $material_phrase$"
 #define _LANG_PROP_BAR_LONG             "Una larga barra $material_phrase$ recorre la pared, su superficie marcada por años de jarras y codos. No está muy limpia."
 
-#define _LANG_PROP_BAR_LEAN_VERBS       ({ "apoyarse", "apoyar" })
+#define _LANG_PROP_BAR_LEAN_VERBS       ({ "apoyarse", "apoyarme", "apoyar" })
 #define _LANG_PROP_BAR_SMELL_VERBS      ({ "oler", "olfatear" })
 
 #define _LANG_PROP_BAR_LEAN_ME          "Te apoyas en la barra."
@@ -230,8 +230,8 @@
 #define _LANG_PROP_BUNK_SUFFIX_OCCUPIED " (%s está tumbado en él)"
 #define _LANG_PROP_BUNK_LONG_OCCUPIED   " %s descansa en él."
 
-#define _LANG_PROP_BUNK_LIE_VERBS       ({ "tumbarse", "acostarse", "echarse" })
-#define _LANG_PROP_BUNK_RISE_VERBS      ({ "levantarse", "incorporarse" })
+#define _LANG_PROP_BUNK_LIE_VERBS       ({ "tumbarse", "tumbarme", "acostarse", "acostarme", "echarse", "echarme" })
+#define _LANG_PROP_BUNK_RISE_VERBS      ({ "levantarse", "levantarme", "incorporarse", "incorporarme" })
 
 #define _LANG_PROP_BUNK_OCCUPIED_BY     "Ya hay alguien tumbado ahí."
 #define _LANG_PROP_BUNK_ALREADY_LYING   "Ya estás tumbado en ese camastro."
@@ -319,7 +319,7 @@
 #define _LANG_PROP_FORGE_LONG_UNLIT     " Está apagada y las brasas, frías; nadie trabaja hoy el yunque."
 #define _LANG_PROP_FORGE_LONG_UNLIT_PLURAL " Están apagadas y las brasas, frías."
 
-#define _LANG_PROP_FORGE_WARM_VERBS     ({ "calentarse", "calentar" })
+#define _LANG_PROP_FORGE_WARM_VERBS     ({ "calentarse", "calentarme", "calentar" })
 #define _LANG_PROP_FORGE_WARM_ME        "Te acercas a la fragua y extiendes las manos hacia el fuego. El calor te llega hasta los huesos."
 #define _LANG_PROP_FORGE_WARM_OTHERS    "$mcname$ se acerca a la fragua a calentarse las manos."
 #define _LANG_PROP_FORGE_NOT_LIT        "La fragua está apagada; no da ningún calor."
@@ -356,7 +356,7 @@
 #define _LANG_PROP_WELL_SHORT           "un pozo"
 #define _LANG_PROP_WELL_LONG            "Un pozo de brocal $material_phrase$, gastado por el roce de las cuerdas. Un cubo de madera cuelga de una polea sobre la boca."
 
-#define _LANG_PROP_WELL_LEAN_VERBS      ({ "asomarse", "asomar" })
+#define _LANG_PROP_WELL_LEAN_VERBS      ({ "asomarse", "asomarme", "asomar" })
 #define _LANG_PROP_WELL_LEAN_ME         "Te asomas al brocal. Abajo, muy hondo, brilla el agua, y tu voz vuelve de ella un poco más grave."
 #define _LANG_PROP_WELL_LEAN_OTHERS     "$mcname$ se asoma al pozo."
 
