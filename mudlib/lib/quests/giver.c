@@ -26,6 +26,7 @@
 // same carrier: one hands the work out and another is where it ends.
 
 #include <living/quests.h>
+#include <language.h>
 
 private string * offered;
 private string * completed;
@@ -35,12 +36,21 @@ private string * races;
 
 // The lists start empty at first use: this is a mixin inherited under a label,
 // so its create() is not the one the object runs.
+// A carrier that inherits this mixin directly describes itself through its own
+// extra look; the components register themselves on their owner instead.
+private void add_quest_hint_extra_look()
+{
+  if (function_exists("add_extra_look", this_object()))
+    this_object()->add_extra_look(this_object());
+}
+
 void offers_quests(string id)
 {
   if (!offered)
     offered = ({ });
 
   offered += ({ id });
+  add_quest_hint_extra_look();
 }
 
 string * query_offered_quests() { return offered ? offered : ({ }); }
@@ -52,6 +62,7 @@ void completes_quests(string id)
     completed = ({ });
 
   completed += ({ id });
+  add_quest_hint_extra_look();
 }
 
 string * query_completed_quests() { return completed ? completed : ({ }); }
@@ -116,3 +127,25 @@ int check_player_can_complete(object who)
 
   return sizeof(quests_to_complete(who)) > 0;
 }
+
+// What looking at a giver adds to its description, so a player who sees a mark
+// learns which command deals with it.
+string query_quest_hint(object who)
+{
+  string hint;
+
+  hint = "";
+
+  if (!who)
+    return hint;
+
+  if (check_player(who))
+    hint += _LANG_QUEST_HINT_OFFER;
+
+  if (check_player_can_complete(who))
+    hint += _LANG_QUEST_HINT_COMPLETE;
+
+  return hint;
+}
+
+string extra_look() { return query_quest_hint(this_player()); }

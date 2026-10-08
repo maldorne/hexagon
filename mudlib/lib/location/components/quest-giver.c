@@ -23,6 +23,17 @@ void create()
   set_type(LOCATION_COMPONENT_QUEST_GIVER);
 }
 
+// Looking at the place tells the player how to ask about its quests.
+mapping query_hooks()
+{
+  return ([ "extra_look" : HOOK_PRIORITY_DYNAMIC ]);
+}
+
+string hook_extra_look(mixed * args)
+{
+  return query_quest_hint(this_player());
+}
+
 string query_info()
 {
   return implode(query_offered_quests() + query_completed_quests(), ", ");

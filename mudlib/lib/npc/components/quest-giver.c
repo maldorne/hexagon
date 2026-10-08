@@ -20,6 +20,15 @@ void create()
   component::create();
 }
 
+// Looking at the npc tells the player how to ask about its quests.
+void initialize(object npc)
+{
+  component::initialize(npc);
+
+  if (npc)
+    npc->add_extra_look(this_object());
+}
+
 // What it deals in travels with the npc, so a quest giver stays one across a
 // reboot without the template having to be read again.
 mapping query_auto_load_attributes()
