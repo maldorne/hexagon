@@ -603,12 +603,14 @@
       "have in hand, with a number for each.\n" + \
       "  quests                offers here and your quests, numbered\n" + \
       "  quests done           the ones you have handed in, by chain\n" + \
+      "  quests done <n>       the full detail of finished number n\n" + \
       "  quests info <n>       the full detail of number n\n" + \
       "  quests accept <n>     you take one of the ones offered\n" + \
       "  quests deliver <n>    you hand one of yours to whoever awaits it here\n" + \
       "  quests abandon <n>    you drop one of yours, losing what you had done\n" + \
-      "The numbers are those of the listing at that moment, and they serve for " + \
-      "everything. To accept or deliver, when only one fits, the number can be left out."
+      "The numbers are those of the listing at that moment: 'quests done' keeps its " + \
+      "own count, and the rest serve for everything else. To accept or deliver, " + \
+      "when only one fits, the number can be left out."
 
 #define _LANG_CMD_QUESTS_TITLE "Quests"
 #define _LANG_CMD_QUESTS_NONE "You have no quest in hand.\n"
@@ -636,6 +638,7 @@
 #define _LANG_CMD_QUESTS_HINT_ACCEPT "'quests accept " + which + "' to take it"
 #define _LANG_CMD_QUESTS_HINT_COMPLETE "'quests deliver " + which + "' to hand it in"
 #define _LANG_CMD_QUESTS_HINT_ABANDON "'quests abandon " + which + "' to drop it"
+#define _LANG_CMD_QUESTS_HINT_DONE_INFO "'quests done " + which + "' to see one"
 
 #define _LANG_CMD_QUESTS_OBJECTIVE_LINE "- " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " of " + objectives[j][OBJ_COUNT] + ")\n"

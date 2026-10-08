@@ -24,6 +24,8 @@ inherit CMD_BASE;
 #define ENTRY_MINE  2
 #define ENTRY_DONE  3
 
+private int show_quest(object me, mixed * line, int index);
+
 void setup()
 {
   set_aliases(_LANG_CMD_QUESTS_ALIAS);
@@ -106,11 +108,10 @@ private int * offer_counts(object me, object * givers)
  */
 private mixed * entries(object me)
 {
-  object quests, quest;
+  object quests;
   object * givers;
   mixed * out;
-  string * ids, * chains, * steps;
-  string chain;
+  string * ids;
   int i, j;
 
   out = ({ });
@@ -130,11 +131,22 @@ private mixed * entries(object me)
   for (i = 0; i < sizeof(ids); i++)
     out += ({ ({ ENTRY_MINE, ids[i], completer_here(me, ids[i], givers) }) });
 
-  // completed: not in the listing of what is going on, but numbered all the
-  // same, so 'misiones hechas' and 'misiones info' agree on the numbers. In the
-  // order they are shown there: the loose ones, then each chain by its steps.
+  return out;
+}
+
+// The completed quests, numbered from one by their own listing, in the order it
+// shows them: the loose ones, then each chain by its steps.
+private string * done_ids(object me)
+{
+  object quests, quest;
+  string * ids, * chains, * steps, * out;
+  string chain;
+  int i, j;
+
+  quests = handler(QUESTS_HANDLER, me);
   ids = map_indices(me->query_completed_quests(game_name(me)));
   chains = ({ });
+  out = ({ });
 
   for (i = 0; i < sizeof(ids); i++)
   {
@@ -148,7 +160,7 @@ private mixed * entries(object me)
       continue;
     }
 
-    out += ({ ({ ENTRY_DONE, ids[i], nil }) });
+    out += ({ ids[i] });
   }
 
   for (i = 0; i < sizeof(chains); i++)
@@ -157,7 +169,7 @@ private mixed * entries(object me)
 
     for (j = 0; j < sizeof(steps); j++)
       if (member_array(steps[j], ids) != -1)
-        out += ({ ({ ENTRY_DONE, steps[j], nil }) });
+        out += ({ steps[j] });
   }
 
   return out;
@@ -229,9 +241,6 @@ private int list_quests(object me)
     giver = lines[index - 1][ENTRY_GIVER];
 
     if (!quest)
-      continue;
-
-    if (lines[index - 1][ENTRY_KIND] == ENTRY_DONE)
       continue;
 
     if (lines[index - 1][ENTRY_KIND] == ENTRY_OFFER)
@@ -390,43 +399,38 @@ private string chain_block(object me, object quest)
   return text;
 }
 
-// The number a completed quest carries in the shared listing, or zero.
-private int only_index_of_id(mixed * lines, string id)
-{
-  int i;
-
-  for (i = 0; i < sizeof(lines); i++)
-    if (lines[i][ENTRY_KIND] == ENTRY_DONE && lines[i][ENTRY_ID] == id)
-      return i + 1;
-
-  return 0;
-}
-
-// The quests already completed, the ones in a chain grouped under its name, with
-// the numbers of the shared listing so 'misiones info' takes them too.
-private int list_done(object me)
+// The quests already completed, the ones in a chain grouped under its name,
+// numbered by this listing alone; with a number, that one in full.
+private int list_done(object me, int index)
 {
   object quests, quest;
   mapping done;
-  mixed * lines;
-  string * chains, * steps;
-  string text, chain, chain_title, id;
-  int index, j, k, shown;
+  string * ids, * chains, * steps;
+  string text, chain, chain_title, id, which;
+  int j, k;
 
   quests = handler(QUESTS_HANDLER, me);
   done = me->query_completed_quests(game_name(me));
-  lines = entries(me);
+  ids = done_ids(me);
+
+  if (index)
+  {
+    if (index < 1 || index > sizeof(ids))
+    {
+      notify_fail(_LANG_CMD_QUESTS_NO_SUCH);
+      return 0;
+    }
+
+    return show_quest(me, ({ ENTRY_DONE, ids[index - 1], nil }), index);
+  }
+
   text = "";
   chains = ({ });
-  shown = 0;
 
   // loose quests first, and the chains each under its own name below
-  for (index = 1; index <= sizeof(lines); index++)
+  for (index = 1; index <= sizeof(ids); index++)
   {
-    if (lines[index - 1][ENTRY_KIND] != ENTRY_DONE)
-      continue;
-
-    id = lines[index - 1][ENTRY_ID];
+    id = ids[index - 1];
     quest = quests->query_quest(id);
 
     if (!quest)
@@ -442,7 +446,6 @@ private int list_done(object me)
     }
 
     text += _LANG_CMD_QUESTS_DONE_ENTRY;
-    shown++;
   }
 
   for (j = 0; j < sizeof(chains); j++)
@@ -456,7 +459,7 @@ private int list_done(object me)
 
     for (k = 0; k < sizeof(steps); k++)
     {
-      index = only_index_of_id(lines, steps[k]);
+      index = member_array(steps[k], ids) + 1;
 
       if (!index)
         continue;
@@ -468,35 +471,33 @@ private int list_done(object me)
         continue;
 
       text += _LANG_CMD_QUESTS_DONE_ENTRY;
-      shown++;
     }
   }
 
-  if (!shown)
+  if (!strlen(text))
     text = _LANG_CMD_QUESTS_DONE_NONE;
+  else
+  {
+    which = _LANG_CMD_QUESTS_ANY_NUMBER;
+    text += "\n" + hints_text(({ _LANG_CMD_QUESTS_HINT_DONE_INFO }));
+  }
 
   tell_object(me, handler("frames")->frame(text, _LANG_CMD_QUESTS_DONE_HEADER,
                                            this_user()->query_cols()));
   return 1;
 }
 
-private int show_info(object me, int index)
+// A quest in full: its description, the objectives with their counts when it is
+// being done, its chain, and what can be typed about it. `index` is the number
+// it carries in the listing it came from.
+private int show_quest(object me, mixed * line, int index)
 {
   object quests, quest;
-  mixed * line;
   mapping * objectives;
   int * progress;
   string * hints;
   string text, which;
   int j;
-
-  line = entry_at(me, index);
-
-  if (!line)
-  {
-    notify_fail(_LANG_CMD_QUESTS_NO_SUCH);
-    return 0;
-  }
 
   quests = handler(QUESTS_HANDLER, me);
   quest = quests->query_quest(line[ENTRY_ID]);
@@ -542,6 +543,21 @@ private int show_info(object me, int index)
   tell_object(me, handler("frames")->frame(text, quest->query_title(),
                                            this_user()->query_cols()));
   return 1;
+}
+
+private int show_info(object me, int index)
+{
+  mixed * line;
+
+  line = entry_at(me, index);
+
+  if (!line)
+  {
+    notify_fail(_LANG_CMD_QUESTS_NO_SUCH);
+    return 0;
+  }
+
+  return show_quest(me, line, index);
 }
 
 private int accept_quest(object me, int index)
@@ -639,7 +655,7 @@ static int cmd(string str, object me, string verb)
   sscanf(rest, "%d", index);
 
   if (member_array(option, _LANG_CMD_QUESTS_DONE_OPTIONS) != -1)
-    return list_done(me);
+    return list_done(me, index);
 
   if (member_array(option, _LANG_CMD_QUESTS_INFO_OPTIONS) != -1)
     return show_info(me, index);

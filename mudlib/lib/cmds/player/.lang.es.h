@@ -604,11 +604,13 @@
       "misiones que llevas entre manos, con un número para cada una.\n" + \
       "  misiones                ofertas de aquí y misiones tuyas, numeradas\n" + \
       "  misiones terminadas     las que ya has entregado, por cadenas\n" + \
+      "  misiones terminadas <n> todo el detalle de la terminada n\n" + \
       "  misiones info <n>       todo el detalle de la número n\n" + \
       "  misiones aceptar <n>    aceptas una de las que te ofrecen\n" + \
       "  misiones entregar <n>   entregas una de las tuyas a quien la espera aquí\n" + \
       "  misiones abandonar <n>  dejas una de las tuyas, y pierdes lo avanzado\n" + \
-      "Los números son los del listado de ese momento, y valen para todo. " + \
+      "Los números son los del listado de ese momento: 'misiones terminadas' " + \
+      "lleva su propia cuenta, y los demás valen para todo lo demás. " + \
       "Para aceptar o entregar, si sólo hay una que encaje, el número sobra."
 
 #define _LANG_CMD_QUESTS_TITLE "Misiones"
@@ -637,6 +639,7 @@
 #define _LANG_CMD_QUESTS_HINT_ACCEPT "'misiones aceptar " + which + "' para aceptarla"
 #define _LANG_CMD_QUESTS_HINT_COMPLETE "'misiones entregar " + which + "' para entregarla"
 #define _LANG_CMD_QUESTS_HINT_ABANDON "'misiones abandonar " + which + "' para dejarla"
+#define _LANG_CMD_QUESTS_HINT_DONE_INFO "'misiones terminadas " + which + "' para ver una"
 
 #define _LANG_CMD_QUESTS_OBJECTIVE_LINE "- " + objectives[j][OBJ_TEXT] + " (" + \
       progress[j] + " de " + objectives[j][OBJ_COUNT] + ")\n"
