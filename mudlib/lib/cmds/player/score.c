@@ -18,6 +18,15 @@ void setup()
 
 #define RESET "%^RESET%^"
 
+// A maximum can still be zero: social points, for instance, start at zero and
+// grow while the character plays.
+private int percent_of(int points, int max_points)
+{
+  if (max_points <= 0)
+    return 0;
+  return (points * 100) / max_points;
+}
+
 static int cmd (string str, object me, string verb)
 {
   int points, max_points, percentage;
@@ -57,7 +66,7 @@ static int cmd (string str, object me, string verb)
 
   if ( (str == "-d") || me->user()->query_verbose() ) 
   {
-    percentage = (points * 100) / max_points;
+    percentage = percent_of(points, max_points);
     res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_HEALTH_POINTS_LONG) + ":", percentage);
     points_string = color + points + RESET; 
     max_points_string = "%^BOLD%^%^GREEN%^" + max_points + RESET;      
@@ -66,7 +75,7 @@ static int cmd (string str, object me, string verb)
   
     points = me->query_gp();
     max_points = me->query_max_gp();
-    percentage = (points * 100) / max_points;
+    percentage = percent_of(points, max_points);
 
     res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_GUILD_POINTS_LONG) + ":", percentage);
     points_string = "%^BOLD%^" + points + RESET; 
@@ -76,7 +85,7 @@ static int cmd (string str, object me, string verb)
     
     points = me->query_social_points();
     max_points = me->query_max_social_points();
-    percentage = (points * 100) / max_points;
+    percentage = percent_of(points, max_points);
 
     res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_SOCIAL_POINTS_LONG) + ":", percentage);
     points_string = "%^BOLD%^" + points  + RESET; 
@@ -89,7 +98,7 @@ static int cmd (string str, object me, string verb)
     {
       points = me->query_xp();
       max_points = ob->query_next_level_xp(me);
-      percentage = (points * 100) / max_points;
+      percentage = percent_of(points, max_points);
 
       res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_CLASS_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
@@ -103,7 +112,7 @@ static int cmd (string str, object me, string verb)
     {
       points = me->query_xp();
       max_points = ob->query_next_level_xp(me);
-      percentage = (points * 100) / max_points;
+      percentage = percent_of(points, max_points);
 
       res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_GUILD_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
@@ -117,7 +126,7 @@ static int cmd (string str, object me, string verb)
     {
       points = me->query_job_xp();
       max_points = ob->query_next_level_xp(me);
-      percentage = (points * 100) / max_points;
+      percentage = percent_of(points, max_points);
 
       res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_JOB_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
