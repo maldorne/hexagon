@@ -10,6 +10,10 @@
 
 int gender;
 
+// an object whose name is a plural noun, one item called by a plural word
+// (trousers, boots): its article and numeral are the plural ones
+static int plural_noun;
+
 // create and stats added, neverbot 4/03
 void create()
 {
@@ -98,8 +102,13 @@ void set_gender(int arg)
   //   gender = arg;
 }
 
+void set_plural_noun(int value) { plural_noun = value ? 1 : 0; }
+int query_plural_noun() { return plural_noun; }
+
 string query_article()
 {
+  if (plural_noun)
+    return query_article_plural();
   if (gender == GENDER_FEMALE)
     return _LANG_GENDER_ARTICLE_FEMALE;
   return _LANG_GENDER_ARTICLE_MALE;
@@ -116,6 +125,8 @@ string query_article_plural()
 // first letter of the next word: "a elf" -> "an elf"
 string query_numeral(varargs string next_word)
 {
+   if (plural_noun)
+     return query_numeral_plural();
    if (gender == GENDER_FEMALE)
     return _LANG_GENDER_NUMERAL_FEMALE;
    return _LANG_GENDER_NUMERAL_MALE;

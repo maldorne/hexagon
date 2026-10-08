@@ -28,7 +28,7 @@
 
 #define _LANG_SHOP_VERBS_LIST ({ "listar" })
 #define _LANG_SHOP_LIST_SUMMARY "Tenemos a la venta " + query_num(sizeof(all), 20) + " objetos:\n\n"
-#define _LANG_SHOP_LIST_JUST_ONE "Sólo nos queda " + list[name_list[i]][1]->query_numeral() + " " + name_list[i] 
+#define _LANG_SHOP_LIST_JUST_ONE "Sólo nos queda" + (list[name_list[i]][1]->query_plural_noun() ? "n " : " ") + list[name_list[i]][1]->query_numeral() + " " + name_list[i] 
 #define _LANG_SHOP_LIST_LOTS "Una gran selección de " + (string)list[name_list[i]][1]->query_plural()
 #define _LANG_SHOP_LIST_EMPTY "El almacén está vacío en estos momentos.\n"
 #define _LANG_SHOP_CLOSED_ONLY_LOOK "Puedes ver lo que hay, pero para comprar o vender tendrás que volver cuando atiendan.\n"

@@ -17,5 +17,7 @@ void setup()
   set_long(_LANG_BASEOBS_TROUSERS_LONG);
 
   // in spanish
-  set_gender(2);
+  set_gender(1);
+  // one item named in the plural
+  set_plural_noun(1);
 } 

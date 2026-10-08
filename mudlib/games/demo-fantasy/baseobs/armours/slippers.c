@@ -18,4 +18,6 @@ void setup()
 
   // in spanish
   set_gender(2);
+  // one item named in the plural
+  set_plural_noun(1);
 } 
