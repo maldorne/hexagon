@@ -30,9 +30,9 @@ void display_monitor(varargs int use_colors)
     else
       color2 += "%^BOLD%^RED%^";
 
-    if (this_object()->query_hp() >= (this_object()->query_max_gp()/2))
+    if (this_object()->query_gp() >= (this_object()->query_max_gp()/2))
       color3 += "%^GREEN%^";
-    else if (this_object()->query_hp() >= (this_object()->query_max_gp()/4))
+    else if (this_object()->query_gp() >= (this_object()->query_max_gp()/4))
       color3 += "%^BOLD%^MAGENTA%^";
     else
       color3 += "%^BOLD%^RED%^";
@@ -40,7 +40,7 @@ void display_monitor(varargs int use_colors)
     tell_object(this_object(), "[ " + COLOR +
       _LANG_HEALTH_POINTS_SHORT + ": " + color2 + this_object()->query_hp() + RESET +
       " (" + this_object()->query_max_hp() + RESET + ") " +
-      _LANG_GUILD_POINTS_SHORT+": " + color3 + this_object()->query_hp() + RESET +
+      _LANG_GUILD_POINTS_SHORT+": " + color3 + this_object()->query_gp() + RESET +
       " (" + this_object()->query_max_gp() + RESET + ")%^RESET%^ ]\n");
   }
   else
@@ -50,7 +50,7 @@ void display_monitor(varargs int use_colors)
                                 _LANG_GUILD_POINTS_SHORT + ": %d (%d)\n",
                                 this_object()->query_hp(),
                                 this_object()->query_max_hp(),
-                                this_object()->query_hp(),
+                                this_object()->query_gp(),
                                 this_object()->query_max_gp()) + "%^RESET%^ ]\n");
   }
 }

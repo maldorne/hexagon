@@ -303,7 +303,7 @@
 
 #define _LANG_HEALTH_YOU_ARE "Estás"
 #define _LANG_HEALTH_THEY_ARE "Está"
-#define _LANG_HEALTH_DEATH_THRESHOLD "al borde la muerte"
+#define _LANG_HEALTH_DEATH_THRESHOLD "al borde de la muerte"
 #define _LANG_HEALTH_CRITICAL_THRESHOLD "en muy mal estado"
 #define _LANG_HEALTH_BAD_THRESHOLD "en mal estado"
 #define _LANG_HEALTH_FAIR_THRESHOLD "algo herid" + this_object()->query_vowel()
