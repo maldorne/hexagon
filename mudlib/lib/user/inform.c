@@ -3,9 +3,11 @@
 
 mapping informs;
 
+// A new account starts with the events every player should see; a saved one
+// restores its own choice over this.
 void create()
 {
-  informs = ([ ]);
+  informs = ([ INFORM_EVENT_HEALTH : TRUE ]);
 }
 
 mapping query_informs() { return informs; }
