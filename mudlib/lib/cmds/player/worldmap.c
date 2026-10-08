@@ -24,6 +24,27 @@ string query_help(varargs string str)
   return out;
 }
 
+private string * legend_labels()
+{
+  return ({ _LANG_CMD_WORLDMAP_YOUR_POS, _LANG_CMD_WORLDMAP_CITY,
+            _LANG_CMD_WORLDMAP_FOREST, _LANG_CMD_WORLDMAP_FARM,
+            _LANG_CMD_WORLDMAP_COAST, _LANG_CMD_WORLDMAP_UNDERGROUND });
+}
+
+// How wide the widest legend line can be ("  x : label").
+private int legend_width()
+{
+  string * labels;
+  int i, best;
+
+  labels = legend_labels();
+  best = strlen(_LANG_CMD_WORLDMAP_LEGEND + ":");
+  for (i = 0; i < sizeof(labels); i++)
+    if (strlen(fix_string(labels[i]), 1) + 6 > best)
+      best = strlen(fix_string(labels[i]), 1) + 6;
+  return best;
+}
+
 // The legend under the map: your position always, and each other kind of
 // sector only when the map shows one.
 private string legend(string map)
@@ -35,9 +56,7 @@ private string legend(string map)
 
   glyphs = handler("worldmap")->query_legend_glyphs();
   kinds = ({ "player", "city", "forest", "farm", "coast", "underground" });
-  labels = ({ _LANG_CMD_WORLDMAP_YOUR_POS, _LANG_CMD_WORLDMAP_CITY,
-              _LANG_CMD_WORLDMAP_FOREST, _LANG_CMD_WORLDMAP_FARM,
-              _LANG_CMD_WORLDMAP_COAST, _LANG_CMD_WORLDMAP_UNDERGROUND });
+  labels = legend_labels();
 
   out = "\n" + _LANG_CMD_WORLDMAP_LEGEND + ":\n";
   for (i = 0; i < sizeof(kinds); i++)
@@ -82,7 +101,10 @@ static int cmd(string str, object me, string verb)
     }
   }
 
-  map = handler("worldmap")->render_around(me, width, height, 1, 1);
+  // the frame is as wide as its longest line, so the widest legend line leaves
+  // blank columns to the right of a narrower map: room for city names
+  map = handler("worldmap")->render_around(me, width, height, 1, 1,
+                                           legend_width() - width);
   if (!map || !strlen(map))
   {
     notify_fail(_LANG_CMD_WORLDMAP_NOMAP);

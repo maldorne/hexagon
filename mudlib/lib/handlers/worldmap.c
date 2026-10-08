@@ -381,12 +381,43 @@ private string * _cells_of(string text)
   return out;
 }
 
+// The cities whose labels are being placed, and the one being labelled now:
+// set while the labels go in, so the fit test can keep each label nearer its
+// own city than any other.
+private static mixed * label_cities;
+private static int label_own;
+
+// How far a label of `n` cells on row `r` from column `c` is from a city
+// (`members`, its cells as ({ r, c })): the fewest steps, corners counting as
+// one, from any of its letters to any of the city's cells.
+private int _label_distance(mixed * members, int r, int c, int n)
+{
+  int i, d, dr, dc, best;
+
+  best = -1;
+  for (i = 0; i < sizeof(members); i++)
+  {
+    dr = abs(members[i][0] - r);
+    if (members[i][1] < c)
+      dc = c - members[i][1];
+    else if (members[i][1] > c + n - 1)
+      dc = members[i][1] - (c + n - 1);
+    else
+      dc = 0;
+    d = dr > dc ? dr : dc;
+    if (best < 0 || d < best)
+      best = d;
+  }
+  return best;
+}
+
 // Whether a label of `n` cells fits on row `r` from column `c`: every cell it
 // would take is blank, and so is the one at each end, unless that end is the
-// edge of the map, so it neither covers nor touches anything already drawn.
+// edge of the map, so it neither covers nor touches anything already drawn;
+// and, while labels are being placed, it is nearer its own city than any other.
 private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
 {
-  int i;
+  int i, k, own;
 
   if (r < 0 || r >= h || c < 0 || c + n > w)
     return 0;
@@ -397,6 +428,17 @@ private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
     if (grid[r][i] != GLYPH_EMPTY)
       return 0;
   }
+
+  // nearer the city it names than any other one on the map
+  if (label_cities)
+  {
+    own = _label_distance(label_cities[label_own][0], r, c, n);
+    for (k = 0; k < sizeof(label_cities); k++)
+      if (k != label_own &&
+          _label_distance(label_cities[k][0], r, c, n) <= own)
+        return 0;
+  }
+
   return 1;
 }
 
@@ -470,20 +512,23 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
                                  int col0, int row_top, int sz)
 {
   int ** seen;
-  int r, c;
+  mixed * cities;
+  int r, c, k;
 
   seen = allocate(h);
   for (r = 0; r < h; r++)
     seen[r] = allocate_int(w);
 
+  // every city first, so a label can be kept nearer its own than any other:
+  // each is ({ members, rmin, rmax, cmin, cmax, name })
+  cities = ({ });
   for (r = 0; r < h; r++)
     for (c = 0; c < w; c++)
     {
       mixed * stack, * members;
       mapping votes;
-      string name, * cells, * names;
-      int rmin, rmax, cmin, cmax, mid, n, best, i;
-      int * spot;
+      string name, * names;
+      int rmin, rmax, cmin, cmax, best, i;
 
       if (!is_city[r][c] || seen[r][c])
         continue;
@@ -520,10 +565,8 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
       }
 
       names = map_indices(votes);
-      if (!sizeof(names))
-        continue;
-      name = names[0];
-      best = votes[name];
+      name = sizeof(names) ? names[0] : nil;
+      best = name ? votes[name] : 0;
       for (i = 1; i < sizeof(names); i++)
         if (votes[names[i]] > best)
         {
@@ -531,30 +574,54 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
           best = votes[name];
         }
 
-      cells = _cells_of(name);
-      n = sizeof(cells);
-      mid = (rmin + rmax) / 2;
-
-      if (_label_fits(grid, w, h, mid, cmax + 2, n))
-        spot = ({ mid, cmax + 2 });
-      else if (_label_fits(grid, w, h, mid, cmin - 1 - n, n))
-        spot = ({ mid, cmin - 1 - n });
-      else
-        spot = _spot_above_or_below(grid, w, h, rmin - 1, rmax + 1,
-                                    cmin, cmax, n);
-      if (!spot)
-        spot = _spot_near(grid, w, h, members, n, mid, (cmin + cmax) / 2);
-
-      if (!spot)
-        continue;
-      for (i = 0; i < n; i++)
-        grid[spot[0]][spot[1] + i] = cells[i];
+      cities += ({ ({ members, rmin, rmax, cmin, cmax, name }) });
     }
+
+  for (k = 0; k < sizeof(cities); k++)
+  {
+    string * cells;
+    int rmin, rmax, cmin, cmax, mid, n, i;
+    int * spot;
+
+    if (!cities[k][5])
+      continue;
+
+    rmin = cities[k][1];
+    rmax = cities[k][2];
+    cmin = cities[k][3];
+    cmax = cities[k][4];
+    cells = _cells_of(cities[k][5]);
+    n = sizeof(cells);
+    mid = (rmin + rmax) / 2;
+
+    // the fit test now also keeps the label nearer this city than any other
+    label_cities = cities;
+    label_own = k;
+
+    if (_label_fits(grid, w, h, mid, cmax + 2, n))
+      spot = ({ mid, cmax + 2 });
+    else if (_label_fits(grid, w, h, mid, cmin - 1 - n, n))
+      spot = ({ mid, cmin - 1 - n });
+    else
+      spot = _spot_above_or_below(grid, w, h, rmin - 1, rmax + 1,
+                                  cmin, cmax, n);
+    if (!spot)
+      spot = _spot_near(grid, w, h, cities[k][0], n, mid, (cmin + cmax) / 2);
+
+    label_cities = nil;
+
+    if (!spot)
+      continue;
+    for (i = 0; i < n; i++)
+      grid[spot[0]][spot[1] + i] = cells[i];
+  }
 }
 
+// `labels` names the cities; `label_room` is how many blank columns the caller
+// has beside the map, to the right, where a name may also go.
 string render(int center_x, int center_y, int center_z,
               string game, string map_name, int width, int height,
-              varargs int marker, int labels)
+              varargs int marker, int labels, int label_room)
 {
   int sx0, sy0, sz0;
   int col0, row_top;
@@ -609,10 +676,21 @@ string render(int center_x, int center_y, int center_z,
   if (WORLDMAP_CITY_WALLS)
     _overlay_city_walls(grid, is_city, width, height);
 
-  // names last, so they only take cells nothing else has drawn on
+  // names last, so they only take cells nothing else has drawn on, in the map
+  // or in the blank columns the caller has to the right of it
   if (labels)
-    _overlay_city_names(grid, is_city, width, height, game, map_name,
-                        col0, row_top, sz0);
+  {
+    if (label_room > 0)
+      for (row_i = 0; row_i < height; row_i++)
+      {
+        grid[row_i] += allocate(label_room);
+        is_city[row_i] += allocate_int(label_room);
+        for (col = width; col < width + label_room; col++)
+          grid[row_i][col] = GLYPH_EMPTY;
+      }
+    _overlay_city_names(grid, is_city, width + (label_room > 0 ? label_room : 0),
+                        height, game, map_name, col0, row_top, sz0);
+  }
 
   result = "";
   for (row_i = 0; row_i < height; row_i++)
@@ -642,7 +720,7 @@ mapping query_legend_glyphs()
 // something that has no world coord (legacy room, void, a container inside a
 // container without location metadata).
 string render_around(object viewer, int width, int height, varargs int marker,
-                     int labels)
+                     int labels, int label_room)
 {
   object env;
   int * coords;
@@ -663,5 +741,5 @@ string render_around(object viewer, int width, int height, varargs int marker,
   if (!game) return nil;
 
   return render(coords[0], coords[1], coords[2], game, map_name, width,
-                height, marker, labels);
+                height, marker, labels, label_room);
 }
