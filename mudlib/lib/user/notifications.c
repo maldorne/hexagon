@@ -80,9 +80,13 @@ int show_notifications(varargs int show_all)
     if (show_all)
     {
       int itime;
+      string stamp;
       itime = atoi(notifications[i][NOTIFICATION_TIME]);
+      stamp = ctime(itime, 7) + " - ";
 
-      messages += ({ ctime(itime, 7) + " - " + notifications[i][NOTIFICATION_MSG]});
+      // the lines after the first one line up with the text, not the time
+      messages += ({ stamp + implode(explode(notifications[i][NOTIFICATION_MSG], "\n"),
+                                     "\n" + pad("", strlen(stamp))) });
       notifications[i][NOTIFICATION_SENT] = true;
     }
     else if (!notifications[i][NOTIFICATION_SENT])
