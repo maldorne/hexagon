@@ -87,6 +87,9 @@ position:
 	to use this command. Level means "player", "creator",
 	"lord" and so forth. The actual values you should assign
 	are mudlib dependant. Refer to local documentation (see below).
+	Hexagon has no position: who may use a command is decided by
+	the directory it lives in under /lib/cmds/ (user, player,
+	coder or admin).
 
 doclone:
 	This tells the handler whether it should actually clone a

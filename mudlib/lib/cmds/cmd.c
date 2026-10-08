@@ -12,13 +12,12 @@
 #include <common/properties.h>
 #include <language.h>
 
-static int position, dodest, doclone;
+static int dodest, doclone;
 static object command_giver;
 static string * aliases, usage, help;
 
 void create()
 {
-  position = 0;
   dodest = 0;
   doclone = 0;
 
@@ -67,28 +66,8 @@ int _cmd(string tail, object thisob, string verb)
   // Set the euid to that of either the creator, or to PLAYER.
   seteuid(euid);
 
-  // Will check who is using command and if allowed here sort of :)
-  switch(position)
-  {
-    case ADMIN_CMD:
-      if (!thisob->query_admin())
-        return 0;
-      break;
-
-    case CODER_CMD:
-      if (!thisob->query_coder())
-        return 0;
-      break;
-
-    case PLAYER_CMD:
-      if (!thisob->query_player())
-        return 0;
-      break;
-
-    case USER_CMD:
-      // always allowed
-      break;
-  }
+  // who may use it is decided by the handler, from the directory the command
+  // lives in
 
   // neverbot, 21/02/04
   // cmds should not be executed if we have a passed out
@@ -111,7 +90,6 @@ int _cmd(string tail, object thisob, string verb)
   return ret;
 }
 
-int _query_position() { return position; }
 int _query_dodest() { return dodest; }
 int _query_doclone() { return doclone; }
 

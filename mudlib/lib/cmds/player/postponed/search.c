@@ -9,7 +9,6 @@ inherit CMD_BASE;
 
 void setup()
 {
-	position = 0;
 }
 
 int is_hidden(object ob)

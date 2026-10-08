@@ -8,7 +8,6 @@ inherit CMD_BASE;
 
 void setup()
 {
-        position = 0;
 }
 
 int compare_ints(int a, int b)

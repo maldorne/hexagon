@@ -10,7 +10,6 @@ void setup()
   set_help("The handlers and tables the singleton store has resolved so far,\n" +
            "grouped by the game each one was resolved for. An entry marked as\n" +
            "shared is a game that has no override and uses the common object.");
-  position = 0;
 }
 
 // The name a singleton was asked for. The store keys every entry by the game
