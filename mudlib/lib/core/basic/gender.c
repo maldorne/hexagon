@@ -14,6 +14,9 @@ int gender;
 // (trousers, boots): its article and numeral are the plural ones
 static int plural_noun;
 
+string query_article_plural();
+string query_numeral_plural();
+
 // create and stats added, neverbot 4/03
 void create()
 {
