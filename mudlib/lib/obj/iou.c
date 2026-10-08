@@ -85,18 +85,32 @@ int inspect(string str)
 
 int try_loading(string str)
 {
-  object * olist;
-  string * files;
+  object * olist, moved;
+  string * files, new_path;
   int i;
 
   if (!undefinedp(auto_load_info))
   {
-    // older IOUs kept one attribute mapping per file instead of a list of them
     files = map_indices(auto_load_info);
+    moved = handler("moved-files");
 
     for (i = 0; i < sizeof(files); i++)
+    {
+      // older IOUs kept one attribute mapping per file instead of a list of them
       if (mappingp(auto_load_info[files[i]]))
         auto_load_info[files[i]] = ({ auto_load_info[files[i]] });
+
+      // a file renamed since the item was saved is looked for under its new
+      // name, as the coders declared it in the moved files room
+      new_path = moved->query_new_path(files[i]);
+
+      if (new_path)
+      {
+        auto_load_info[new_path] = (auto_load_info[new_path] ?
+          auto_load_info[new_path] : ({ })) + auto_load_info[files[i]];
+        auto_load_info[files[i]] = nil;
+      }
+    }
 
     olist = load_auto_load(auto_load_info, this_player());
     

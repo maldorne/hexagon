@@ -26,6 +26,7 @@ void setup() {
 	add_exit(DIR_SOUTH,ADMIN+"development","standard");
 	add_exit(DIR_EAST,ROOM+"admin2","road");
 	// add_exit(DIR_WEST,ROOM+"palace2","standard");
+	add_exit(DIR_WEST,ADMIN+"moved-files","standard");
 	
 	add_item("carpet","There is none.");
 	add_item("plaque","It is made of gold and magically sealed"+
