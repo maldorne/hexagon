@@ -366,7 +366,8 @@ void movement_heart_beat()
   // Taniwha 07 02 97, NO_WANDER disables autonomous wandering on busy uptimes;
   // directed travel above is a deliberate order and still runs.
 #ifndef NO_WANDER
-  if (move_after)
+  // somebody whose routine has put them to bed at home stays in
+  if (move_after && !this_object()->query_staying_put())
     do_move_after(0);
 #endif
 }

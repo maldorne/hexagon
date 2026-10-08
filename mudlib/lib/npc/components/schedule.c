@@ -4,12 +4,18 @@
 // on them; the NPC then reads its own timetable and walks where it should be. So
 // the area is the dispatcher ("your turn"), the NPC decides what to do and how.
 //
-//   timetable: ([ hour(0-23) : ([ "goto": "work" | "home" | <location file> ]) ])
+//   timetable: ([ hour(0-23) : ([ "goto": "work" | "home" | "out" |
+//                                         <location file> ]) ])
 //
 // "work" resolves to this NPC's work location, "home" to its home (read live, a
-// family shares it and it can change); a literal file lets a guard rotate posts.
+// family shares it and it can change), "out" to one of its area's points of
+// interest picked at random, from where an NPC that wanders goes on wandering;
+// a literal file lets a guard rotate posts. While the entry in effect is "home"
+// and the NPC is there, it does not wander out of it.
 // The walk is the NPC's paced, interruptible travel (travel_to) -- combat or
 // conversation abandons the trip, and the next matching hour re-issues it.
+
+#include <areas/area.h>
 
 inherit component "/lib/npc/component.c";
 
@@ -18,6 +24,8 @@ inherit component "/lib/npc/component.c";
 string work;
 // The routine: game hour -> what to do that hour (see the header).
 mapping timetable;
+// what the last entry acted on said to do ("home" keeps the NPC in)
+static string current_goto;
 
 void create()
 {
@@ -38,13 +46,50 @@ void add_entry(int hour, mapping entry) { timetable[hour] = entry; }
 int * query_active_hours() { return map_indices(timetable); }
 
 // Resolve an entry's "goto" symbol to a concrete location file.
+// One of the points of interest of the area this NPC belongs to, at random:
+// where somebody with nothing to do goes out to in the morning. Nil when the
+// area marks none.
+private string _somewhere_out(object npc)
+{
+  object area;
+  string * places;
+
+  if (!npc->query_npc_area_path())
+    return nil;
+  area = (object)load_object(AREA_HANDLER)->query_area(npc->query_npc_area_path());
+  if (area && area->query_root_area())
+    area = (object)area->query_root_area();
+  if (!area)
+    return nil;
+
+  places = map_indices((mapping)area->query_pois());
+  return sizeof(places) ? places[random(sizeof(places))] : nil;
+}
+
 private string _resolve(object npc, string dest)
 {
   if (dest == "work")
     return work;
   if (dest == "home")
     return npc->query_home();
+  if (dest == "out")
+    return _somewhere_out(npc);
   return dest;  // a literal location file (a guard's post)
+}
+
+// Whether the NPC should stay where it is rather than wander: the entry in
+// effect sends it home and it is there.
+int query_staying_put()
+{
+  object npc, here;
+  string home;
+
+  npc = query_owner();
+  if (!npc || current_goto != "home")
+    return 0;
+  here = environment(npc);
+  home = npc->query_home();
+  return here && home && here->query_file_name() == home;
 }
 
 // The entry governing `hour`: the latest one at or before it, wrapping past
@@ -98,6 +143,7 @@ void resume_schedule(mixed * args)
   if (!entry)
     return;
 
+  current_goto = entry["goto"];
   dest = _resolve(npc, entry["goto"]);
   if (!dest || !strlen(dest))
     return;
@@ -131,6 +177,7 @@ void do_schedule(mixed * args)
   if (!entry)
     return;
 
+  current_goto = entry["goto"];
   dest = _resolve(npc, entry["goto"]);
   if (!dest || !strlen(dest))
     return;

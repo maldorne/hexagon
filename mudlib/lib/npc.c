@@ -134,6 +134,16 @@ object query_component_by_type(string type)
 
 int has_component(string type) { return query_component_by_type(type) != nil; }
 
+// Whether this NPC's routine keeps it where it is (at home for the night), so
+// it does not wander off.
+int query_staying_put()
+{
+  object sched;
+
+  sched = query_component_by_type("schedule");
+  return sched ? (int)sched->query_staying_put() : 0;
+}
+
 // Tell every component the NPC is now standing in the world.
 void components_placed()
 {

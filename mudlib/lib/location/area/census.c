@@ -102,6 +102,19 @@ private string * query_census_uuids_at(string location_file)
   return ret;
 }
 
+// Whether a timetable ever sends somebody to work, which needs a workplace.
+private int _sends_to_work(mapping timetable)
+{
+  mixed * entries;
+  int i;
+
+  entries = map_values(timetable);
+  for (i = 0; i < sizeof(entries); i++)
+    if (mappingp(entries[i]) && entries[i]["goto"] == "work")
+      return 1;
+  return 0;
+}
+
 // Rebuild a template timetable read from JSON (string hour keys "6"/"20") into
 // the int-keyed mapping the schedule component and the hour index expect. Entry
 // values (goto/msg) keep their string keys untouched.
@@ -411,10 +424,11 @@ object place_npc(string id, object loc)
   // A sentient NPC with a workplace keeps the hours of the job it holds: out to
   // work at one hour, home at another, keyed on the game hour. Work is the
   // individual's own (npc.o); the hours are the job's, falling back to the
-  // type's for somebody who holds no post. Int-keyed here because JSON stored
-  // them as strings. Attached fresh each time (so a change is picked up); home
-  // is read live. The areas handler drives it hour by hour and staggers the
-  // departures.
+  // type's for somebody who holds no post -- who has no workplace either, so a
+  // type's hours may only send them home and out (see the schedule component).
+  // Int-keyed here because JSON stored them as strings. Attached fresh each
+  // time (so a change is picked up); home is read live. The areas handler
+  // drives it hour by hour and staggers the departures.
   //
   // Naming no hours keeps none: the NPC stays where it is put. Walking somebody
   // to a house every evening is a thing about them, not a thing every person
@@ -425,8 +439,8 @@ object place_npc(string id, object loc)
                 : ((t && mappingp(t["timetable"]))
                      ? _int_keyed_hours(t["timetable"]) : nil);
 
-  if (t && t["sentient"] && work && strlen(work) &&
-      mappingp(timetable) && map_sizeof(timetable))
+  if (t && t["sentient"] && mappingp(timetable) && map_sizeof(timetable) &&
+      ((work && strlen(work)) || !_sends_to_work(timetable)))
   {
     object sched;
 
