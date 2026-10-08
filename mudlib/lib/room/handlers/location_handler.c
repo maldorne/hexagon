@@ -659,6 +659,15 @@ object convert_room_to_location(object room)
     ret += "   Adding component post office.\n";
   }
 
+  // A vault room becomes a vault component, which puts its own sign up from
+  // the vault help document on every load.
+  if (room->query_vault_room() &&
+      !location->has_component(LOCATION_COMPONENT_VAULT))
+  {
+    location->add_component(LOCATION_COMPONENT_VAULT, ([ ]));
+    ret += "   Adding component vault.\n";
+  }
+
   // A room built on /lib/outside.c is open-air: attach the outside component
   // so the location gets weather / day-night / darkness behaviour (the
   // component drives those through the weather handler). Interiors built on
@@ -705,12 +714,13 @@ object convert_room_to_location(object room)
 
   // A sign posted in the room (add_sign) becomes a sign component on the
   // location, which re-materialises the read-able item on every load.
-  // Ventures (pub, shop) and post offices create and manage their own sign
-  // (the menu, the price board, the mail instructions) through their
-  // component, and that item also carries a read message -- so skip
-  // auto-detection here for them, or the venture's sign would be duplicated
-  // (its own copy plus a captured sign-component copy).
-  if (!room->query_pub() && !room->query_shop() && !room->query_post_office())
+  // Ventures (pub, shop), post offices and vaults create and manage their own
+  // sign (the menu, the price board, the mail instructions, the vault help)
+  // through their component, and that item also carries a read message -- so
+  // skip auto-detection here for them, or the sign would be duplicated (its
+  // own copy plus a captured sign-component copy).
+  if (!room->query_pub() && !room->query_shop() && !room->query_post_office() &&
+      !room->query_vault_room())
   {
     mapping sign;
 

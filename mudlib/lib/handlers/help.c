@@ -330,6 +330,31 @@ mixed * query_topic(string word)
   return topics[lowered(word)];
 }
 
+// The text of a document without its header, for anything that shows a help
+// document somewhere else (a sign, a note). "" when there is no such file.
+string query_document_text(string path)
+{
+  string text;
+  int i;
+
+  if (!stringp(path) || !strlen(path))
+    return "";
+
+  text = read_file(path);
+  if (!stringp(text))
+    return "";
+
+  while (strlen(text) && text[0] == '@')
+  {
+    i = strsrch(text, "\n");
+    if (i == -1)
+      return "";
+    text = text[i + 1 ..];
+  }
+
+  return text;
+}
+
 // Every keyword matching a pattern of `*` and `?`, sorted.
 string * query_matching(string pattern)
 {

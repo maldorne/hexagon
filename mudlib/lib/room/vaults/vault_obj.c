@@ -5,6 +5,7 @@ inherit container "/lib/core/basic/container";
 inherit auto_load "/lib/core/basic/auto_load";
 
 #include <room/storage.h>
+#include <room/location.h>
 #include <mud/secure.h>
 
 mapping auto_load;
@@ -37,6 +38,17 @@ void restore_me()
   seteuid(PLAYER_EUID);
 }
 
+// Only a vault (a vault room, or a location with the vault component) or a
+// shop may open one.
+private int in_vault_place()
+{
+  object env;
+
+  env = environment();
+  return env && (env->query_vault_room() || env->query_shop() ||
+                 env->has_component(LOCATION_COMPONENT_VAULT));
+}
+
 void set_save_file(string file) 
 {
   object * olist;
@@ -45,8 +57,7 @@ void set_save_file(string file)
   savefile = file;
   auto_load = ([ ]);
 
-  if (!environment() || 
-     (!environment()->query_vault_room() && !environment()->query_shop()))
+  if (!in_vault_place())
   {
     destruct(this_object()); // die screaming
     return;
@@ -69,8 +80,7 @@ void dest_me()
 
   olist = all_inventory(this_object());
 
-  if (!savefile || !environment() || 
-     (!environment()->query_vault_room() && !environment()->query_shop()) )
+  if (!savefile || !in_vault_place())
   {
     destruct(this_object()); // die screaming
     return;
