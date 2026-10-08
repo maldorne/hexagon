@@ -28,6 +28,7 @@
 #define _LANG_SHOP_LIST_JUST_ONE "Just one " + name_list[i] 
 #define _LANG_SHOP_LIST_LOTS "A great selection of " + (string)list[name_list[i]][1]->query_plural()
 #define _LANG_SHOP_LIST_EMPTY "The store is empty right now.\n"
+#define _LANG_SHOP_CLOSED_ONLY_LOOK "You can see what there is, but to buy or sell you will have to come back when somebody serves.\n"
 
 #define _LANG_SHOP_VERBS_SELL ({ "sell" })
 #define _LANG_SHOP_ONLY_SELL "This shop does not buy items.\n"

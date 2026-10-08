@@ -23,9 +23,10 @@ A condition object answers:
   closes it with the generic message.
 - `query_description` is one line for `build venture`.
 
-The venture checks the conditions in order, every time a customer lists, buys,
-sells, browses or asks for a value; the first one that does not hold gives the
-answer.
+The venture checks the conditions in order, every time a customer buys, sells or
+asks for a value; the first one that does not hold gives the answer. Listing the
+goods and browsing one of them work while it is closed, so a customer can see
+whether it is worth coming back: the answer is then added under what they see.
 
 ## The conditions here
 

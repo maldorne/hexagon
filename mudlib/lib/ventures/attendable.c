@@ -80,35 +80,42 @@ int remove_open_condition(string path)
   return 0;
 }
 
-// Open when the legacy open_condition function (if any) and every condition
-// say so. The first condition that does not hold gives the reason the customer
-// reads.
-int check_open_condition()
+// Why the venture cannot serve right now, or 0 when it can: open when the
+// legacy open_condition function (if any) and every condition say so. The first
+// condition that does not hold gives the reason the customer reads.
+mixed query_closed_reason()
 {
   mixed answer;
   int i;
 
   if (open_condition && strlen(open_condition))
-  {
-    notify_fail(_LANG_ATT_NON_ATTENDABLE);
     if (!call_other(this_object(), open_condition))
-      return 0;
-  }
+      return _LANG_ATT_NON_ATTENDABLE;
 
   for (i = 0; i < sizeof(open_conditions); i++)
   {
     answer = call_other(open_conditions[i][0], "check_open", this_object(),
                         query_venue(), this_player(), open_conditions[i][1]);
     if (stringp(answer))
-    {
-      notify_fail(answer);
-      return 0;
-    }
+      return answer;
     if (!answer)
-    {
-      notify_fail(_LANG_ATT_NON_ATTENDABLE);
-      return 0;
-    }
+      return _LANG_ATT_NON_ATTENDABLE;
+  }
+
+  return 0;
+}
+
+// Whether the venture serves right now; if not, its reason is the pending
+// notify_fail.
+int check_open_condition()
+{
+  mixed reason;
+
+  reason = query_closed_reason();
+  if (reason)
+  {
+    notify_fail(reason);
+    return 0;
   }
 
   return 1;

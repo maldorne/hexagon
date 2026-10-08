@@ -28,6 +28,7 @@ int do_list(string str)
 {
   object vault;
   object * all;
+  mixed closed;
   string tmp;
   mapping list;
   string * name_list;
@@ -37,8 +38,8 @@ int do_list(string str)
   list = ([ ]);
   name_list = ({ });
 
-  if (!this_object()->check_open_condition())
-    return 0;
+  // the goods can be looked at while nobody serves; buying and selling cannot
+  closed = this_object()->query_closed_reason();
 
   // same safety system as in the vault_rooms
   if (this_object()->query_property(VAULT_USE_PROP)) 
@@ -100,7 +101,10 @@ int do_list(string str)
   }
   else
     write(_LANG_SHOP_LIST_EMPTY);
-  
+
+  if (closed)
+    write(closed + _LANG_SHOP_CLOSED_ONLY_LOOK);
+
   vault->dest_me();
   return 1;
 }
@@ -267,9 +271,10 @@ int do_browse(string str)
   object *obs;
   int i, ob_amt;
   object vault;
+  mixed closed;
 
-  if (!this_object()->check_open_condition())
-    return 0;
+  // the goods can be looked at while nobody serves; buying and selling cannot
+  closed = this_object()->query_closed_reason();
 
   if (!strlen(str))
   {
@@ -314,6 +319,9 @@ int do_browse(string str)
       (string)handler("money")->money_value_string(ob_amt),
       (string)obs[i]->long());
   }
+
+  if (closed)
+    write(closed + _LANG_SHOP_CLOSED_ONLY_LOOK);
 
   vault->dest_me();
   return 1;
