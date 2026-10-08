@@ -92,7 +92,7 @@ int _cmd(string tail, object thisob, string verb)
 
   // neverbot, 21/02/04
   // cmds should not be executed if we have a passed out
-  if ((position == PLAYER_CMD) && thisob->query_timed_property_exists(PASSED_OUT_PROP) )
+  if (thisob->query_timed_property_exists(PASSED_OUT_PROP))
   {
     notify_fail(thisob->query_timed_property(PASSED_OUT_PROP));
     return 0;
