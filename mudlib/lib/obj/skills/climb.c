@@ -31,7 +31,7 @@ void setup()
   set_target_type(TARGET_TYPE_ITEM);
   set_range(0);
 
-  add_category(SKILL_TYPE_EXPLORATION, 1);
+  add_category(SKILL_TYPE_BASIC, 1);
 
   allow_while_mounted = 0;
   allow_while_pacified = 0;
