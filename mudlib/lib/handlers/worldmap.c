@@ -27,6 +27,7 @@
 #include <sector/sector.h>
 #include <maps/glyphs.h>
 #include <room/location.h>
+#include <areas/area.h>
 
 inherit "/lib/core/object.c";
 
@@ -322,9 +323,203 @@ private void _overlay_city_walls(string ** grid, int ** is_city,
 // and map to read, and a viewport size; no player is needed. `marker`
 // (default 0) stamps a '@' on the centre sector when set, for a "you are here"
 // focus point.
+// Count, in `votes`, the names of the areas the city locations of one sector
+// belong to: an area's exploration name, or its root area's for a part of a
+// town that has none of its own. The city is named after the most counted.
+private void _count_city_names(string game, string map_name, int sx, int sy,
+                               int sz, mapping votes)
+{
+  object sect, area;
+  mapping locs;
+  string * files, * pieces, name;
+  int i;
+
+  sect = cached_sector(game, map_name, sx, sy, sz);
+  if (!sect)
+    return;
+
+  locs = sect->query_locations();
+  if (!mappingp(locs))
+    return;
+
+  files = map_indices(locs);
+  for (i = 0; i < sizeof(files); i++)
+  {
+    if (!mappingp(locs[files[i]]) || !arrayp(locs[files[i]]["types"]) ||
+        member_array(SECTOR_TYPE_CITY, locs[files[i]]["types"]) == -1)
+      continue;
+
+    // the area is the directory the location is saved in
+    pieces = explode(files[i], "/");
+    area = load_object(AREA_HANDLER)->query_area(
+             "/" + implode(pieces[0..sizeof(pieces) - 2], "/"));
+    if (!area)
+      continue;
+
+    name = area->query_exploration_name();
+    if ((!name || !strlen(name)) && area->query_root_area())
+      name = area->query_root_area()->query_exploration_name();
+    if (name && strlen(name))
+      votes[name] = (votes[name] ? votes[name] : 0) + 1;
+  }
+}
+
+// A label's characters, one per map cell: a UTF-8 sequence stays whole.
+private string * _cells_of(string text)
+{
+  string * out;
+  int i, start;
+
+  out = ({ });
+  for (i = 0; i < strlen(text); i = start)
+  {
+    start = i + 1;
+    while (start < strlen(text) && text[start] >= 128 && text[start] < 192)
+      start++;
+    out += ({ text[i..start - 1] });
+  }
+  return out;
+}
+
+// Whether a label of `n` cells fits on row `r` from column `c`: every cell it
+// would take is blank, and so is the one at each end, unless that end is the
+// edge of the map, so it neither covers nor touches anything already drawn.
+private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
+{
+  int i;
+
+  if (r < 0 || r >= h || c < 0 || c + n > w)
+    return 0;
+  for (i = c - 1; i <= c + n; i++)
+  {
+    if (i < 0 || i >= w)
+      continue;
+    if (grid[r][i] != GLYPH_EMPTY)
+      return 0;
+  }
+  return 1;
+}
+
+// A place for a label of `n` cells on the row above the city (`above`), else
+// the row below: centred on it if it fits, else slid a cell at a time to
+// either side, as long as it still overlaps the city's columns. Nil if neither
+// row has room.
+private int * _spot_above_or_below(string ** grid, int w, int h, int above,
+                                   int below, int cmin, int cmax, int n)
+{
+  int * rows;
+  int centre, shift, r, start;
+
+  rows = ({ above, below });
+  centre = (cmin + cmax) / 2 - n / 2;
+
+  for (r = 0; r < sizeof(rows); r++)
+    for (shift = 0; shift <= n; shift++)
+    {
+      start = centre - shift;
+      if (start + n - 1 >= cmin && start <= cmax &&
+          _label_fits(grid, w, h, rows[r], start, n))
+        return ({ rows[r], start });
+      start = centre + shift;
+      if (shift && start + n - 1 >= cmin && start <= cmax &&
+          _label_fits(grid, w, h, rows[r], start, n))
+        return ({ rows[r], start });
+    }
+
+  return nil;
+}
+
+// Name each city on the map next to it, where there is room: to its right on
+// its middle row, else to its left, else above or below it (see
+// _spot_above_or_below). A label
+// is only drawn over blank cells; a city with no room for its name goes
+// unnamed.
+private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
+                                 string game, string map_name,
+                                 int col0, int row_top, int sz)
+{
+  int ** seen;
+  int r, c;
+
+  seen = allocate(h);
+  for (r = 0; r < h; r++)
+    seen[r] = allocate_int(w);
+
+  for (r = 0; r < h; r++)
+    for (c = 0; c < w; c++)
+    {
+      mixed * stack;
+      mapping votes;
+      string name, * cells, * names;
+      int rmin, rmax, cmin, cmax, mid, n, best, i;
+      int * spot;
+
+      if (!is_city[r][c] || seen[r][c])
+        continue;
+
+      // the city: every city cell joined to this one, corners included
+      votes = ([ ]);
+      rmin = rmax = r;
+      cmin = cmax = c;
+      stack = ({ ({ r, c }) });
+      seen[r][c] = 1;
+      while (sizeof(stack))
+      {
+        int cr, cc, dr, dc;
+
+        cr = stack[0][0];
+        cc = stack[0][1];
+        stack = stack[1..];
+        if (cr < rmin) rmin = cr;
+        if (cr > rmax) rmax = cr;
+        if (cc < cmin) cmin = cc;
+        if (cc > cmax) cmax = cc;
+        _count_city_names(game, map_name, col0 + cc, row_top - cr, sz, votes);
+
+        for (dr = -1; dr <= 1; dr++)
+          for (dc = -1; dc <= 1; dc++)
+            if (cr + dr >= 0 && cr + dr < h && cc + dc >= 0 && cc + dc < w &&
+                is_city[cr + dr][cc + dc] && !seen[cr + dr][cc + dc])
+            {
+              seen[cr + dr][cc + dc] = 1;
+              stack += ({ ({ cr + dr, cc + dc }) });
+            }
+      }
+
+      names = map_indices(votes);
+      if (!sizeof(names))
+        continue;
+      name = names[0];
+      best = votes[name];
+      for (i = 1; i < sizeof(names); i++)
+        if (votes[names[i]] > best)
+        {
+          name = names[i];
+          best = votes[name];
+        }
+
+      cells = _cells_of(name);
+      n = sizeof(cells);
+      mid = (rmin + rmax) / 2;
+
+      if (_label_fits(grid, w, h, mid, cmax + 2, n))
+        spot = ({ mid, cmax + 2 });
+      else if (_label_fits(grid, w, h, mid, cmin - 1 - n, n))
+        spot = ({ mid, cmin - 1 - n });
+      else
+        spot = _spot_above_or_below(grid, w, h, rmin - 1, rmax + 1,
+                                    cmin, cmax, n);
+
+      if (!spot)
+        continue;
+      for (i = 0; i < n; i++)
+        grid[spot[0]][spot[1] + i] = cells[i];
+    }
+}
+
 string render(int center_x, int center_y, int center_z,
               string game, string map_name, int width, int height,
-              varargs int marker)
+              varargs int marker, int labels)
 {
   int sx0, sy0, sz0;
   int col0, row_top;
@@ -379,6 +574,11 @@ string render(int center_x, int center_y, int center_z,
   if (WORLDMAP_CITY_WALLS)
     _overlay_city_walls(grid, is_city, width, height);
 
+  // names last, so they only take cells nothing else has drawn on
+  if (labels)
+    _overlay_city_names(grid, is_city, width, height, game, map_name,
+                        col0, row_top, sz0);
+
   result = "";
   for (row_i = 0; row_i < height; row_i++)
     result += implode(grid[row_i], "") + "\n";
@@ -406,7 +606,8 @@ mapping query_legend_glyphs()
 // on the viewer's own sector when set. Returns nil if the viewer is standing in
 // something that has no world coord (legacy room, void, a container inside a
 // container without location metadata).
-string render_around(object viewer, int width, int height, varargs int marker)
+string render_around(object viewer, int width, int height, varargs int marker,
+                     int labels)
 {
   object env;
   int * coords;
@@ -427,5 +628,5 @@ string render_around(object viewer, int width, int height, varargs int marker)
   if (!game) return nil;
 
   return render(coords[0], coords[1], coords[2], game, map_name, width,
-                height, marker);
+                height, marker, labels);
 }

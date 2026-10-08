@@ -82,7 +82,7 @@ static int cmd(string str, object me, string verb)
     }
   }
 
-  map = handler("worldmap")->render_around(me, width, height, 1);
+  map = handler("worldmap")->render_around(me, width, height, 1, 1);
   if (!map || !strlen(map))
   {
     notify_fail(_LANG_CMD_WORLDMAP_NOMAP);
