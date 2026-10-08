@@ -380,7 +380,7 @@ float *mudwide_sums() {
   string *ind, *tmp;
   string dom;
   float time_now;
-  time_now = TIMEKEEPER->query_running_time()/60.0;
+  time_now = ((float)TIMEKEEPER->query_running_time())/60.0;
   load_this_ob();
   if (!mappingp(data)) data = ([ ]); // Taniwha
   vals = ({ 0.0,0.0,0.0,0.0,0.0,0.0,0.0 });

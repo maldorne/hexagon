@@ -188,7 +188,7 @@ void full_domain_kar(string realdom)
   string *ind;
   string *tmp;
   load_this_ob();
-  time_now = TIMEKEEPER->query_running_time()/60.0;
+  time_now = ((float)TIMEKEEPER->query_running_time())/60.0;
   outgoing = "\nDirectory      pc xp killed/xp award    awarded rate\n";
   outgoing += "(player xp in units of 100, time in player hours)\n\n";
   if (!mappingp(data)) data = ([ ]); // Taniwha
@@ -339,9 +339,9 @@ float get_real_rate(mixed vals, object npc)
       return -1.0;
   }
   rateret = (vals[2]+0.0)/(vals[8]+0.0)/BASE_KAR;
-  if (rateret*vals[11] > npc->query_level()*60*MAX_XP_BON)
+  if (rateret*vals[11] > (float)(npc->query_level()*60)*MAX_XP_BON)
     rateret = MAX_XP_BON*(npc->query_level()+0.0)*60.0/(vals[11]+0.0);
-  if (rateret*vals[11] < npc->query_level()*60*MAX_XP_PEN)
+  if (rateret*vals[11] < (float)(npc->query_level()*60)*MAX_XP_PEN)
   {
     rateret = MAX_XP_PEN*(npc->query_level()+0.0)*60.0/(vals[11]+0.0);
     if (rateret > 1.0) 
@@ -392,13 +392,13 @@ float update_npc_died(object npc, object player)
     total_time = vals[10]+time_since;
     if (total_time > (float)BASE_WEEK/30.0) {
       time_extra = total_time - (float)BASE_WEEK/30.0;
-      temp = vals[5]*((vals[10]-time_extra)*10.0/vals[10])/10;
+      temp = vals[5]*((vals[10]-time_extra)*10.0/vals[10])/10.0;
       vals[5] = temp;
-      temp = vals[6]*((vals[10]-time_extra)*10.0/vals[10])/10;
+      temp = vals[6]*((vals[10]-time_extra)*10.0/vals[10])/10.0;
       vals[6] = temp;
-      temp = vals[7]*((vals[10]-time_extra)*10.0/vals[10])/10;
+      temp = vals[7]*((vals[10]-time_extra)*10.0/vals[10])/10.0;
       vals[7] = temp;
-      temp = vals[8]*((vals[10]-time_extra)*10.0/vals[10])/10;
+      temp = vals[8]*((vals[10]-time_extra)*10.0/vals[10])/10.0;
       vals[8] = temp;
       temp = (float)BASE_WEEK/30.0;
       vals[10] = temp;
@@ -408,12 +408,12 @@ float update_npc_died(object npc, object player)
   }
   
   if (vals[10] < 0.0) vals[10] = (float)BASE_WEEK/30.0;
-  vals[5] += 1;
+  vals[5] += 1.0;
   vals[6] += (float)player->query_level();
   vals[7] += ((float)player->query_total_xp())/100.0;
   vals[11] = (float)npc->query_kill_xp();
   vals[8] += vals[11];
-    if (vals[7] > 2000000000) {
+    if (vals[7] > 2000000000.0) {
       temp=vals[5]*2000000000.0/vals[7];
       vals[5]=temp;
       temp=vals[6]*2000000000.0/vals[7];
@@ -422,7 +422,7 @@ float update_npc_died(object npc, object player)
       vals[8] = temp;
       temp=vals[10]*2000000000.0/vals[7];;
       vals[10] = temp;
-      vals[7]=2000000000;
+      vals[7]=2000000000.0;
     }
 
   tmp[obname] = vals;
@@ -501,7 +501,7 @@ void update_player_died(object npc, object player)
   if (!vals) 
     vals = ({ 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0 });
   
-  time_now = TIMEKEEPER->query_running_time()/60.0;
+  time_now = ((float)TIMEKEEPER->query_running_time())/60.0;
   if (!vals[3]) vals[3] = time_now;
   time_since = time_now - vals[3];
   if (time_since < 0.0) time_since = 0.0;
@@ -516,11 +516,11 @@ void update_player_died(object npc, object player)
     total_time = vals[4]+time_since;
     if (total_time > (float)BASE_WEEK/30.0) {
       time_extra = total_time - (float)BASE_WEEK/30.0;
-      temp = vals[0]*((vals[4]-time_extra)*10.0/vals[4])/10;
+      temp = vals[0]*((vals[4]-time_extra)*10.0/vals[4])/10.0;
       vals[0] = temp;
-      temp = vals[1]*((vals[4]-time_extra)*10.0/vals[4])/10;
+      temp = vals[1]*((vals[4]-time_extra)*10.0/vals[4])/10.0;
       vals[1] = temp;
-      temp = vals[2]*((vals[4]-time_extra)*10.0/vals[4])/10;
+      temp = vals[2]*((vals[4]-time_extra)*10.0/vals[4])/10.0;
       vals[2] = temp;
       temp = (float)BASE_WEEK/30.0;
       vals[4] = temp;
@@ -531,9 +531,9 @@ void update_player_died(object npc, object player)
   
   if (vals[4] < 0.0) vals[4] = (float)BASE_WEEK/30.0;
   vals[0] += 1.0;
-  vals[1] += player->query_level();
-  vals[2] += player->query_total_xp()/100;
-  vals[11] = npc->query_kill_xp();
+  vals[1] += (float)player->query_level();
+  vals[2] += ((float)player->query_total_xp())/100.0;
+  vals[11] = (float)npc->query_kill_xp();
   
   tmp[obname] = vals;
   data[domname] = tmp;
