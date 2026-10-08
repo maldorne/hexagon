@@ -33,7 +33,14 @@ int query_climb_modifier(object climber) { return 100; }
 
 void event_climbed(object climber)
 {
-  if (!climber->is_doing_quest(game_name(climber), QUEST_CLIMB))
+  string game;
+
+  game = game_name(climber);
+
+  // whoever already finished the quest falls again, so the way out of the demo
+  // stays open if something brought them back to the forest
+  if (!climber->is_doing_quest(game, QUEST_CLIMB) &&
+      !climber->has_completed_quest(game, QUEST_CLIMB))
   {
     tell_object(climber, _LANG_MALLORN_VIEW);
     return;
