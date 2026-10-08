@@ -387,6 +387,7 @@ int cast_effect(string str, object who, int quiet)
     object caster;   // the object casting the effect
     int i;
     int my_gp_cost;
+    string verb;     // what was typed, to ask what it was meant for
     
     if (who) 
         caster = who;
@@ -496,6 +497,19 @@ int cast_effect(string str, object who, int quiet)
       return 0;
     }
 
+    // nothing named for an effect that needs something to act on
+    if ((!str || !strlen(trim(str))) &&
+        (target_type == TARGET_TYPE_ITEM || target_type == TARGET_TYPE_ONE ||
+         target_type == TARGET_TYPE_TOUCH || target_type == TARGET_TYPE_MANY))
+    {
+        verb = query_verb();
+        if (!verb || !strlen(verb))
+            verb = effect_name;
+
+        notify_fail(target_type == TARGET_TYPE_ITEM ? MSG_WHICH_ITEM : MSG_WHICH_TARGET);
+        return 0;
+    }
+
     // Taniwha, prevent "spam" casting
     caster->add_timed_property(PROPERTY_IS_CASTING, 1, 1);
 
@@ -601,7 +615,7 @@ int cast_effect(string str, object who, int quiet)
 
         if (!ob)
         {
-            notify_fail(MSG_NO_TARGET);
+            notify_fail(MSG_NO_ITEM);
             return 0;
         }
 

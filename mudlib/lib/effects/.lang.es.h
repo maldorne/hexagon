@@ -52,6 +52,9 @@
 // --- base_effect: mensajes iguales para todos los efectos. Los que llevan un
 // nombre se expanden donde caster/target están en scope en la llamada. ---
 #define MSG_NO_TARGET   "No parece haber nadie aquí con ese nombre.\n"
+#define MSG_NO_ITEM     "No ves nada así por aquí.\n"
+#define MSG_WHICH_ITEM   "¿" + capitalize(verb) + " qué?\n"
+#define MSG_WHICH_TARGET "¿" + capitalize(verb) + " a quién?\n"
 #define MSG_DISSAPPEAR  "Tu objetivo ha desaparecido.\n"
 #define MSG_NO_GPS      "Estás demasiado cansado para hacer eso.\n"
 #define MSG_NO_COMBAT   "No puedes hacer eso en mitad de un combate.\n"

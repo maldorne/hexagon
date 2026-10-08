@@ -52,6 +52,9 @@
 // --- base_effect: messages shared by all effects. The ones that embed a
 // name expand where caster/target are in scope at the call site. ---
 #define MSG_NO_TARGET   "There does not seem to be anyone here by that name.\n"
+#define MSG_NO_ITEM     "You see nothing like that here.\n"
+#define MSG_WHICH_ITEM   capitalize(verb) + " what?\n"
+#define MSG_WHICH_TARGET capitalize(verb) + " whom?\n"
 #define MSG_DISSAPPEAR  "Your target has disappeared.\n"
 #define MSG_NO_GPS      "You are too tired to do that.\n"
 #define MSG_NO_COMBAT   "You cannot do that in the middle of combat.\n"
