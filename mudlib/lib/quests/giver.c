@@ -36,21 +36,16 @@ private string * races;
 
 // The lists start empty at first use: this is a mixin inherited under a label,
 // so its create() is not the one the object runs.
-// A carrier that inherits this mixin directly describes itself through its own
-// extra look; the components register themselves on their owner instead.
-private void add_quest_hint_extra_look()
-{
-  if (function_exists("add_extra_look", this_object()))
-    this_object()->add_extra_look(this_object());
-}
-
+// Declaring a quest also puts the giver in its own list of extra looks, so
+// looking at it shows the hint. A component has no such list: the call does
+// nothing there, and the component registers on its owner instead.
 void offers_quests(string id)
 {
   if (!offered)
     offered = ({ });
 
   offered += ({ id });
-  add_quest_hint_extra_look();
+  this_object()->add_extra_look(this_object());
 }
 
 string * query_offered_quests() { return offered ? offered : ({ }); }
@@ -62,7 +57,7 @@ void completes_quests(string id)
     completed = ({ });
 
   completed += ({ id });
-  add_quest_hint_extra_look();
+  this_object()->add_extra_look(this_object());
 }
 
 string * query_completed_quests() { return completed ? completed : ({ }); }
