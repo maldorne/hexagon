@@ -19,6 +19,7 @@ static int cmd (string arg, object me, string verb)
 {
   object here, *ob;
   int i, dark;
+  string seen;
   string ret;
   me = me;
   here = environment(me);
@@ -83,21 +84,16 @@ static int cmd (string arg, object me, string verb)
 
       case 2:
       case 5:
-        if (here->query_dirs_string() != "")
-          ret += (string)here->short(dark) + ".\n";
-        else
-          ret += (string)here->short(dark);
-        //  + (string)here->query_short_exit_string() +".\n";
-        break;
-
       case 3:
       case 4:
-        // in this case we do not see the exits, but they do with "look"
-        // because the look is more detailed
-        if (here->query_dirs_string() != "")
-          ret += (string)here->short(dark) + ".\n";
+        // a room answers with its whole dark message, already ending in a
+        // newline; a location answers with its name, which still needs closing.
+        // At 3 and 4 glance shows no exits; look, being more detailed, does
+        seen = (string)here->short(dark);
+        if (strlen(seen) && seen[strlen(seen) - 1] == '\n')
+          ret += seen;
         else
-          ret += (string)here->short(dark);
+          ret += seen + ".\n";
         break;
 
       default:

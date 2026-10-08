@@ -196,7 +196,7 @@ string short(varargs int dark)
 string long(string str, int dark)
 {
   if (dark)
-    return query_dark_mess(dark) + "\n";
+    return query_dark_mess(dark);
 
   // commented by neverbot 6/03
   // is slower, but we need exit_string to be updated, because now

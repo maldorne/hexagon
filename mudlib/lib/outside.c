@@ -52,13 +52,13 @@ string long(string str, int dark)
     case 1..3: /* too dark */
       ret += ::query_dark_mess(dark);
       if (handler("weather")->query_day())
-        ret += "\nA pesar de esta oscuridad parece ser de día.\n";
+        ret += "A pesar de esta oscuridad parece ser de día.\n";
       return ret;
 
     case 4..6: /* too bright */
       ret += ::query_dark_mess(dark);
       if (!handler("weather")->query_day())
-        ret += ".\nA pesar de esta luz parece ser de noche.\n";
+        ret += "A pesar de esta luz parece ser de noche.\n";
       return ret;
   }
 

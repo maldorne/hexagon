@@ -68,13 +68,13 @@ mixed hook_long(mixed * args)
     case 1..3: /* too dark */
       ret = query_dark_mess(dark);
       if (handler("weather", query_my_location())->query_day())
-        ret += "\nA pesar de esta oscuridad parece ser de día.\n";
+        ret += "A pesar de esta oscuridad parece ser de día.\n";
       return ({ HOOK_EXCLUSIVE, ret });
 
     case 4..6: /* too bright */
       ret = query_dark_mess(dark);
       if (!handler("weather", query_my_location())->query_day())
-        ret += ".\nA pesar de esta luz parece ser de noche.\n";
+        ret += "A pesar de esta luz parece ser de noche.\n";
       return ({ HOOK_EXCLUSIVE, ret });
   }
 }
