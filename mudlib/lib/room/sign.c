@@ -1,6 +1,6 @@
 /* 
  * add_sign(string long, string read_mess, 
- *          varargs string name, string short, string lang, string frame_style)
+ *          varargs string name, string short, string frame_style, string lang)
  *   [name, short, frame_style and lang are optional]
  * This function will return a sign that can be used by a room in any way it sees fit.
  * This function was the brainchild of Wyrm - 7 Feb '92

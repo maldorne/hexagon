@@ -78,7 +78,7 @@ void create()
 
   ::create();
 
-  add_sign(_LANG_VAULTS_SIGN_LONG, read_file(doc("help/vaults")), STD_LANG);
+  add_sign(_LANG_VAULTS_SIGN_LONG, read_file(doc("help/vaults")), nil, nil, nil, STD_LANG);
 
   save_dir = game_save_dir(this_object());   
   dirs = explode(base_name(this_object()), "/");
