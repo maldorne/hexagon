@@ -19,7 +19,7 @@ void create()
 
 void notifications_commands()
 {
-  add_action("do_show_notifications", "notifications");
+  add_action("do_show_notifications", _LANG_NOTIFICATIONS_VERB);
 }
 
 int query_pending_notifications() { return pending_notifications == true; }

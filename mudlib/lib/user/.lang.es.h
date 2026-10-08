@@ -44,6 +44,7 @@
 
 // notifications.c
 
+#define _LANG_NOTIFICATIONS_VERB "notificaciones"
 #define _LANG_NO_NOTIFICATIONS "No has recibido notificaciones.\n"
 #define _LANG_PAST_NOTIFICATIONS "Notificaciones anteriores"
 
