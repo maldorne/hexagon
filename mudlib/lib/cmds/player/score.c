@@ -27,15 +27,39 @@ private int percent_of(int points, int max_points)
   return (points * 100) / max_points;
 }
 
+// The width of the label column: as wide as the longest label, so none is
+// cut and moved to the next line.
+private int label_width()
+{
+  string * labels;
+  int i, width, len;
+
+  labels = ({ _LANG_HEALTH_POINTS_LONG, _LANG_GUILD_POINTS_LONG,
+              _LANG_SOCIAL_POINTS_LONG, _LANG_XP_CLASS_LONG,
+              _LANG_XP_GUILD_LONG, _LANG_XP_JOB_LONG });
+  width = 0;
+
+  for (i = 0; i < sizeof(labels); i++)
+  {
+    // the visible length, an accented letter counting once
+    len = strlen(fix_string(labels[i]), 1) + 1;
+    if (len > width)
+      width = len;
+  }
+
+  return width;
+}
+
 static int cmd (string str, object me, string verb)
 {
-  int points, max_points, percentage;
+  int points, max_points, percentage, width;
   int age, aux;
   object ob;
   string points_string, max_points_string, color;
   string res;
 
   res = "";
+  width = label_width();
     
   if (me->query_dead())
   {
@@ -67,7 +91,7 @@ static int cmd (string str, object me, string verb)
   if ( (str == "-d") || me->user()->query_verbose() ) 
   {
     percentage = percent_of(points, max_points);
-    res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_HEALTH_POINTS_LONG) + ":", percentage);
+    res += sprintf("%-*s ( %3d %% )", width, capitalize(_LANG_HEALTH_POINTS_LONG) + ":", percentage);
     points_string = color + points + RESET; 
     max_points_string = "%^BOLD%^%^GREEN%^" + max_points + RESET;      
     res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
@@ -77,7 +101,7 @@ static int cmd (string str, object me, string verb)
     max_points = me->query_max_gp();
     percentage = percent_of(points, max_points);
 
-    res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_GUILD_POINTS_LONG) + ":", percentage);
+    res += sprintf("%-*s ( %3d %% )", width, capitalize(_LANG_GUILD_POINTS_LONG) + ":", percentage);
     points_string = "%^BOLD%^" + points + RESET; 
     max_points_string = "%^BOLD%^" + max_points + RESET; 
     res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
@@ -87,7 +111,7 @@ static int cmd (string str, object me, string verb)
     max_points = me->query_max_social_points();
     percentage = percent_of(points, max_points);
 
-    res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_SOCIAL_POINTS_LONG) + ":", percentage);
+    res += sprintf("%-*s ( %3d %% )", width, capitalize(_LANG_SOCIAL_POINTS_LONG) + ":", percentage);
     points_string = "%^BOLD%^" + points  + RESET; 
     max_points_string = "%^BOLD%^" + max_points  + RESET; 
     res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
@@ -100,7 +124,7 @@ static int cmd (string str, object me, string verb)
       max_points = ob->query_next_level_xp(me);
       percentage = percent_of(points, max_points);
 
-      res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_CLASS_LONG) + ":", percentage);
+      res += sprintf("%-*s ( %3d %% )", width, capitalize(_LANG_XP_CLASS_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
       max_points_string = "%^BOLD%^" + max_points  + RESET; 
       res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
@@ -114,7 +138,7 @@ static int cmd (string str, object me, string verb)
       max_points = ob->query_next_level_xp(me);
       percentage = percent_of(points, max_points);
 
-      res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_GUILD_LONG) + ":", percentage);
+      res += sprintf("%-*s ( %3d %% )", width, capitalize(_LANG_XP_GUILD_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
       max_points_string = "%^BOLD%^" + max_points  + RESET; 
       res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
@@ -128,7 +152,7 @@ static int cmd (string str, object me, string verb)
       max_points = ob->query_next_level_xp(me);
       percentage = percent_of(points, max_points);
 
-      res += sprintf("%-19s ( %3d %% )", capitalize(_LANG_XP_JOB_LONG) + ":", percentage);
+      res += sprintf("%-*s ( %3d %% )", width, capitalize(_LANG_XP_JOB_LONG) + ":", percentage);
       points_string = "%^BOLD%^" + points  + RESET; 
       max_points_string = "%^BOLD%^" + max_points  + RESET; 
       res += " [ " + bar(percentage, 15) + " ] (" + points_string + " " + 
