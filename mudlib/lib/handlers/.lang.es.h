@@ -252,7 +252,9 @@
 #define _LANG_QUEST_ACCEPTED "Aceptas la misión: " + quest->query_title() + ".\n"
 #define _LANG_QUEST_ABANDONED "Abandonas la misión: " + quest->query_title() + ".\n"
 #define _LANG_QUEST_COMPLETED "%^BOLD%^Has terminado " + quest->query_title() + ".%^RESET%^\n"
-#define _LANG_QUEST_OBJECTIVE_DONE "%^BOLD%^" + quest->query_title() + \
-      ": " + objectives[j][OBJ_TEXT] + " (hecho).%^RESET%^\n"
-#define _LANG_QUEST_OBJECTIVE_PROGRESS quest->query_title() + ": " + \
-      objectives[j][OBJ_TEXT] + " (" + after + " de " + objectives[j][OBJ_COUNT] + ").\n"
+#define _LANG_QUEST_OBJECTIVE_DONE "Misión %^BOLD%^" + quest->query_title() + \
+      "%^RESET%^\n  " + objectives[j][OBJ_TEXT] + ": %^BOLD%^hecho%^RESET%^."
+#define _LANG_QUEST_OBJECTIVE_PROGRESS "Misión %^BOLD%^" + quest->query_title() + \
+      "%^RESET%^\n  " + objectives[j][OBJ_TEXT] + ": " + after + " de " + \
+      objectives[j][OBJ_COUNT] + "."
+#define _LANG_QUEST_OBJECTIVES_MET "\n  Ya puedes entregarla ('misiones entregar')."

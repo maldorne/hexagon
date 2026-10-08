@@ -243,7 +243,9 @@
 #define _LANG_QUEST_ACCEPTED "You take the quest: " + quest->query_title() + ".\n"
 #define _LANG_QUEST_ABANDONED "You give up the quest: " + quest->query_title() + ".\n"
 #define _LANG_QUEST_COMPLETED "%^BOLD%^You have finished " + quest->query_title() + ".%^RESET%^\n"
-#define _LANG_QUEST_OBJECTIVE_DONE "%^BOLD%^" + quest->query_title() + \
-      ": " + objectives[j][OBJ_TEXT] + " (done).%^RESET%^\n"
-#define _LANG_QUEST_OBJECTIVE_PROGRESS quest->query_title() + ": " + \
-      objectives[j][OBJ_TEXT] + " (" + after + " of " + objectives[j][OBJ_COUNT] + ").\n"
+#define _LANG_QUEST_OBJECTIVE_DONE "Quest %^BOLD%^" + quest->query_title() + \
+      "%^RESET%^\n  " + objectives[j][OBJ_TEXT] + ": %^BOLD%^done%^RESET%^."
+#define _LANG_QUEST_OBJECTIVE_PROGRESS "Quest %^BOLD%^" + quest->query_title() + \
+      "%^RESET%^\n  " + objectives[j][OBJ_TEXT] + ": " + after + " of " + \
+      objectives[j][OBJ_COUNT] + "."
+#define _LANG_QUEST_OBJECTIVES_MET "\n  You can hand it in now ('quests deliver')."

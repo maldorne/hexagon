@@ -453,6 +453,7 @@ private void advance(object who, string kind, string target, int amount)
   object quest;
   mapping * objectives;
   int i, j, before, after;
+  string message;
 
   game = game_of(who);
   ids = map_indices(who->query_active_quests(game));
@@ -480,9 +481,19 @@ private void advance(object who, string kind, string target, int amount)
         continue;
 
       if (after >= objectives[j][OBJ_COUNT])
-        tell_object(who, _LANG_QUEST_OBJECTIVE_DONE);
+        message = _LANG_QUEST_OBJECTIVE_DONE;
       else
-        tell_object(who, _LANG_QUEST_OBJECTIVE_PROGRESS);
+        message = _LANG_QUEST_OBJECTIVE_PROGRESS;
+
+      if (objectives_met(who, ids[i]))
+        message += _LANG_QUEST_OBJECTIVES_MET;
+
+      // queued with the rest of what the player is told at the end of the
+      // round, such as a death blow, so they read together
+      if (interactive(who))
+        who->user()->add_notification("quest", message);
+      else
+        tell_object(who, message + "\n");
     }
   }
 }

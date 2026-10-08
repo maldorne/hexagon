@@ -14,7 +14,6 @@
 
 #include <living/food.h>
 #include <living/living.h>
-#include <living/quests.h>
 #include <common/properties.h>
 #include <translations/combat.h>
 #include <translations/races.h>
@@ -388,25 +387,6 @@ void heart_beat()
   health::heart_beat();
   drunk::heart_beat();
   comm::heart_beat();
-}
-
-// Every player who was fighting it gets the death counted for their quests,
-// not only whoever landed the last blow.
-int do_death(varargs object killer)
-{
-  object * attackers;
-  int i;
-
-  attackers = this_object()->query_attacker_list();
-
-  if (killer && member_array(killer, attackers) == -1)
-    attackers += ({ killer });
-
-  for (i = 0; i < sizeof(attackers); i++)
-    if (attackers[i] && attackers[i]->query_player())
-      handler(QUESTS_HANDLER, attackers[i])->killed(attackers[i], this_object());
-
-  return ::do_death(killer);
 }
 
 mixed * stats() 

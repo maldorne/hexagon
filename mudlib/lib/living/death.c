@@ -11,6 +11,7 @@
 #include <basic/alignment.h>
 #include <user/xp.h>
 #include <basic/money.h>
+#include <living/quests.h>
 #include <language.h>
 
 // bring from /global/living/living.c, neverbot 4/03
@@ -72,7 +73,7 @@ int do_death(varargs object killed_by)
   mapping damage_done;
   int att_level;
   int attackers, attacker_xp, aux_attacker_xp;
-  object *attacker_list, *call_outed;
+  object *attacker_list, *call_outed, *quest_killers;
 
   attacker_xp = 0;
 
@@ -81,6 +82,13 @@ int do_death(varargs object killed_by)
   // Baldrick, April '95.
   if (this_object()->query_property(LOADING_PROP))
     return 0;
+
+  // Every player who was fighting it gets the death counted for their quests,
+  // not only whoever landed the last blow. Taken before anybody stops fighting.
+  quest_killers = this_object()->query_attacker_list();
+
+  if (killed_by && member_array(killed_by, quest_killers) == -1)
+    quest_killers += ({ killed_by });
 
   // Death statistics - Radix April 1996
   catch(xp_adj = DEATH_HANDLER->update_statistics(this_object(), killed_by));
@@ -264,6 +272,11 @@ int do_death(varargs object killed_by)
     if (interactive(this_object()))
       this_object()->user()->add_notification("death", _LANG_DEATH_DEATH_BLOW_DEF);
   }
+
+  // after the death blow, so its notification comes first
+  for (i = 0; i < sizeof(quest_killers); i++)
+    if (quest_killers[i] && quest_killers[i]->query_player())
+      handler(QUESTS_HANDLER, quest_killers[i])->killed(quest_killers[i], this_object());
   else
     tell_room(environment(this_object()), _LANG_DEATH_DEATH_BLOW_NO_KILLER);
 
