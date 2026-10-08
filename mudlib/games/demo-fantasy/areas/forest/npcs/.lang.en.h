@@ -31,10 +31,10 @@
 
 #define _LANG_NPCS_WASP_NAME "wasp"
 #define _LANG_NPCS_WASP_SHORT "Swarm of wasps"
-#define _LANG_NPCS_WASP_ALIASES ({ "wasp", "wasps", "swarm" })
+#define _LANG_NPCS_WASP_ALIASES ({ "wasp", "swarm" })
 
 #define _LANG_NPCS_WASP_PLURAL "Swarms of wasps"
-#define _LANG_NPCS_WASP_PLURAL_ALIASES ({ "swarms", "insects" })
+#define _LANG_NPCS_WASP_PLURAL_ALIASES ({ "wasps", "swarms", "insects" })
 
 #define _LANG_NPCS_WASP_LONG "A swarm of wasps of a considerable size. They look dangerous.\n"
 

@@ -33,10 +33,10 @@
 
 #define _LANG_NPCS_WASP_NAME "avispa"
 #define _LANG_NPCS_WASP_SHORT "Enjambre de avispas"
-#define _LANG_NPCS_WASP_ALIASES ({ "avispa", "avispas", "enjambre" })
+#define _LANG_NPCS_WASP_ALIASES ({ "avispa", "enjambre" })
 
 #define _LANG_NPCS_WASP_PLURAL "Enjambres de avispas"
-#define _LANG_NPCS_WASP_PLURAL_ALIASES ({ "enjambres", "insectos" })
+#define _LANG_NPCS_WASP_PLURAL_ALIASES ({ "avispas", "enjambres", "insectos" })
 
 #define _LANG_NPCS_WASP_LONG "Es un enjambre de avispas de tamaño considerable. " + \
       "Parecen peligrosas.\n"

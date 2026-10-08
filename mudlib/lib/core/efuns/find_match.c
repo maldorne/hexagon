@@ -77,35 +77,66 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
 
   for (j = 0; j < sizeof(bits); j++)
   {
-    string what;
+    string * words;
     int num;
 
     aux = trim(bits[j]);
     num = 0;
 
-    // if we are looking for "sword 2"
-    if (sscanf(aux, "%s %d", what, num) >= 2)
-      aux = what;
+    // if we are looking for "sword 2": the number is the last word, after a
+    // name that may have several
+    words = explode(aux, " ");
+
+    if (sizeof(words) > 1 &&
+        sscanf(words[sizeof(words) - 1], "%d", num) == 1 &&
+        "" + num == words[sizeof(words) - 1])
+      aux = implode(words[0..sizeof(words) - 2], " ");
+    else
+      num = 0;
 
     if (this_player())
       aux = this_player()->expand_nickname(aux);
 
+    aux = lower_case(aux);
+
     for (i = 0; i < sizeof(list); i++)
     {
+      int k;
+
       id_list = ({ list[i]->query_name(), list[i]->query_short(), }) +
                   (list[i]->query_alias() ? list[i]->query_alias() : ({ }));
 
       id_list_plurals = ({ list[i]->query_main_plural(), }) +
                           (list[i]->query_plurals() ? list[i]->query_plurals() : ({ }));
 
-      if ((member_array(aux, id_list) != -1) && (--num <= 0))
+      // shorts and plurals are written capitalised, what the player types is not
+      for (k = 0; k < sizeof(id_list); k++)
+        if (stringp(id_list[k]))
+          id_list[k] = lower_case(id_list[k]);
+
+      for (k = 0; k < sizeof(id_list_plurals); k++)
+        if (stringp(id_list_plurals[k]))
+          id_list_plurals[k] = lower_case(id_list_plurals[k]);
+
+      // with a number, only that one, whether the word names one or the group
+      if (num > 0)
       {
-        result += ({ list[i] });
-        break;
+        if ((member_array(aux, id_list) != -1 ||
+             member_array(aux, id_list_plurals) != -1) && (--num <= 0))
+        {
+          result += ({ list[i] });
+          break;
+        }
       }
+      // a word that names one and also names the group means the whole group
       else if (member_array(aux, id_list_plurals) != -1)
       {  
         result += ({ list[i] });
+      }
+      else if (member_array(aux, id_list) != -1)
+      {
+        result += ({ list[i] });
+        break;
       }
       else if (list[i]->query_parse_id( ({ 0, aux }) ))
       {
