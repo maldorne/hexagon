@@ -45,30 +45,18 @@ void init_auto_load_attributes(mapping args)
     deity = args["deity"];
 }
 
-// The citizenship that holds the ground this temple stands on, taken from the
-// nearest area up the chain that claims one. Empty when nobody claims it.
+// The citizenship that holds the ground this temple stands on: its area's
+// effective one, taken from the nearest area up the chain that claims one.
+// Empty when nobody claims it.
 private string _holding_citizenship()
 {
   object area;
-  int steps;
 
   if (!query_my_location())
     return "";
 
   area = (object)query_my_location()->query_area();
-
-  for (steps = 0; area && steps < 16; steps++)
-  {
-    string held;
-
-    held = (string)area->query_citizenship();
-    if (held && strlen(held))
-      return held;
-
-    area = (object)area->query_parent_area();
-  }
-
-  return "";
+  return area ? (string)area->query_effective_citizenship() : "";
 }
 
 // Closed when the people who hold the ground will not have this god worshipped

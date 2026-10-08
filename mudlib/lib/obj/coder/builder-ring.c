@@ -883,22 +883,36 @@ int do_area(string str)
   }
   else if (verb == "diplomacy")
   {
-    // the citizenship this area belongs to; guards are fielded from it. "none"
-    // clears it (and, on the next fill, removes the area's guards).
+    // the citizenship this area belongs to. Without one of its own an area
+    // takes its parent's; "none" says it belongs to nobody (a road between two
+    // towns), "inherit" drops its own and goes back to its parent's.
     if (sizeof(args) < 2)
     {
-      notify_fail("Usage: build area diplomacy <citizenship|none>\n");
+      notify_fail("Usage: build area diplomacy <citizenship|inherit|none>\n");
       return 0;
     }
 
-    name = (args[1] == "none") ? "" : args[1];
-    area->set_citizenship(name);
-    if (strlen(name))
-      write("Area '" + area->query_area_name() + "' now belongs to " +
-            "citizenship '" + name + "'. Guards field from it.\n");
+    if (args[1] == "none")
+    {
+      area->set_stateless(1);
+      write("Area '" + area->query_area_name() + "' now belongs to no " +
+            "citizenship, not even its parent's.\n");
+    }
+    else if (args[1] == "inherit")
+    {
+      area->set_citizenship("");
+      area->set_stateless(0);
+      name = (string)area->query_effective_citizenship();
+      write("Area '" + area->query_area_name() + "' has no citizenship of " +
+            "its own; it belongs to " +
+            (strlen(name) ? "'" + name + "', its parent's" : "none") + ".\n");
+    }
     else
-      write("Area '" + area->query_area_name() +
-            "' no longer belongs to a citizenship.\n");
+    {
+      area->set_citizenship(args[1]);
+      write("Area '" + area->query_area_name() + "' now belongs to " +
+            "citizenship '" + args[1] + "'.\n");
+    }
     return 1;
   }
   else if (verb == "relevel")

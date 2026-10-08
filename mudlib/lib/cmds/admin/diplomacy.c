@@ -6,6 +6,7 @@
 //
 //   diplomacy                       list every citizenship (columns)
 //   diplomacy tree                  the parent hierarchy, same columns
+//   diplomacy here                  the area you stand in: who it belongs to
 //   diplomacy <cit>                 show one citizenship in detail
 //   diplomacy add <cit>             create a citizenship
 //   diplomacy remove <cit>          delete a citizenship (scrubs it elsewhere)
@@ -20,6 +21,7 @@
 //   diplomacy <cit> unenemy <other> drop <other> as enemy
 
 #include <mud/cmd.h>
+#include <areas/area.h>
 #include <areas/diplomacy.h>
 
 inherit CMD_BASE;
@@ -27,15 +29,40 @@ inherit CMD_BASE;
 void setup()
 {
   set_aliases(({ "diplomacy", "diplomacia" }));
-  set_usage("diplomacy [tree | <citizenship> [<field> <value>]]");
-  set_help("Inspect and edit the diplomacy graph of the game you are in. " +
-           "With no argument, lists every citizenship in columns; 'tree' shows " +
-           "the parent hierarchy with the same columns. With a citizenship " +
-           "name, shows it in detail. Editing subcommands: 'add <cit>', " +
-           "'remove <cit>', '<cit> parent <p>', '<cit> security <n>', '<cit> " +
-           "guard <path>', '<cit> deity <path>', '<cit> undeity <path>', " +
-           "'<cit> ally <other>', '<cit> unally <other>', '<cit> " +
-           "enemy <other>', '<cit> unenemy <other>'. The graph is persisted.");
+  set_usage("diplomacy [tree | here | <citizenship> [<field> <value>]]");
+  set_help(
+    "Inspect and edit the diplomacy graph of the game you are in: its\n" +
+    "citizenships, which one each hangs from, and how they treat each other.\n" +
+    "\n" +
+    "Reading:\n" +
+    "  diplomacy                  every citizenship, in columns\n" +
+    "  diplomacy tree             the same, hung under their parents\n" +
+    "  diplomacy here             the area you stand in: which citizenship it\n" +
+    "                             belongs to and why, what its people are born\n" +
+    "                             as, and that citizenship's record\n" +
+    "  diplomacy <cit>            one citizenship in detail, with the areas\n" +
+    "                             that belong to it\n" +
+    "\n" +
+    "Creating and removing:\n" +
+    "  diplomacy add <cit>        a new citizenship\n" +
+    "  diplomacy remove <cit>     delete one (it is scrubbed from the others)\n" +
+    "\n" +
+    "Editing one, as 'diplomacy <cit> <field> <value>':\n" +
+    "  parent <cit|none>          the citizenship it hangs from; its people are\n" +
+    "                             born citizens of the one at the top\n" +
+    "  security <n>               how many guards its areas field\n" +
+    "  guard <path|none>          the NPC source those guards come from\n" +
+    "  deity <path>               accept a god's worship on its ground\n" +
+    "  undeity <path>             stop accepting it\n" +
+    "  ally <cit>, unally <cit>   mark or drop an ally\n" +
+    "  enemy <cit>, unenemy <cit> mark or drop an enemy (guards block them)\n" +
+    "\n" +
+    "Which citizenship an area belongs to is set on the area, with the builder\n" +
+    "ring: 'build area diplomacy <cit>'. An area without one of its own belongs\n" +
+    "to its parent area's; 'build area diplomacy none' says it belongs to\n" +
+    "nobody, and 'build area diplomacy inherit' goes back to the parent's.\n" +
+    "\n" +
+    "The graph is saved as you change it.");
 }
 
 // --- columnar rendering ----------------------------------------------------
@@ -141,6 +168,62 @@ private string _detail(string name, mapping rec)
   ret += sprintf("      %-9s %s\n", "enemies:",
                  sizeof(enemies) ? implode(enemies, ", ") : "-");
   return ret;
+}
+
+// The areas of `game` that belong to `cit`, each with whether the citizenship
+// is its own or comes from the area it is part of.
+private string * _areas_of(string game, string cit)
+{
+  string * paths, * out;
+  object area;
+  int i;
+
+  out = ({ });
+  paths = (string *)load_object(AREA_HANDLER)->query_area_paths(game);
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    area = (object)load_object(AREA_HANDLER)->query_area(paths[i]);
+    if (!area || (string)area->query_effective_citizenship() != cit)
+      continue;
+    out += ({ (string)area->query_area_name() +
+              (strlen((string)area->query_citizenship()) ? "" : " (inherited)") });
+  }
+  return out;
+}
+
+// The report for the area under your feet.
+private string _here(object area, object h)
+{
+  string out, held, born, named;
+  mapping g;
+  object parent;
+
+  out = "Area '" + area->query_area_name() + "'\n";
+  parent = (object)area->query_parent_area();
+  out += sprintf("  %-14s %s\n", "part of",
+                 parent ? (string)parent->query_area_name() : "-");
+  out += sprintf("  %-14s %s\n", "citizenship",
+                 (string)area->query_citizenship_description());
+
+  // what somebody born here carries, and the pool their name is drawn from
+  born = (string)area->query_root_citizenship_path();
+  named = (string)area->query_naming_citizenship_path();
+  out += sprintf("  %-14s %s\n", "born as",
+                 strlen(born) ? born : "(no nationality)");
+  out += sprintf("  %-14s %s\n", "named from",
+                 strlen(named) ? named : "(no name pool)");
+
+  held = (string)area->query_effective_citizenship();
+  g = h->query_relations();
+  if (strlen(held))
+  {
+    if (mappingp(g) && g[held])
+      out += "\n" + _detail(held, g[held]);
+    else
+      out += "\n  '" + held + "' is not in the diplomacy graph: create it " +
+             "with 'diplomacy add " + held + "'.\n";
+  }
+  return out;
 }
 
 // --- tree ------------------------------------------------------------------
@@ -315,6 +398,22 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
+  // --- the area under your feet -------------------------------------------
+  if (words[0] == "here")
+  {
+    object loc, area;
+
+    loc = environment(me);
+    area = (loc && loc->query_location()) ? (object)loc->query_area() : nil;
+    if (!area)
+    {
+      notify_fail("You are not standing in an area.\n");
+      return 0;
+    }
+    write(_here(area, h));
+    return 1;
+  }
+
   // --- create / delete ---------------------------------------------------
   if (words[0] == "add")
   {
@@ -356,8 +455,15 @@ static int cmd(string str, object me, string verb)
   // show one citizenship
   if (sizeof(words) == 1)
   {
-    write("Diplomacy of '" + words[0] + "' (game " + game + "):\n" +
-          _detail(words[0], g[words[0]]));
+    {
+      string * areas;
+
+      areas = _areas_of(game, words[0]);
+      write("Diplomacy of '" + words[0] + "' (game " + game + "):\n" +
+            _detail(words[0], g[words[0]]) +
+            sprintf("      %-9s %s\n", "areas:",
+                    sizeof(areas) ? implode(areas, ", ") : "-"));
+    }
     return 1;
   }
 

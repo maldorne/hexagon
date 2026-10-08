@@ -255,9 +255,7 @@ private int do_summary(object area, object me)
   if (parent)
     out += "  part of      " + parent->query_area_name() + "\n";
 
-  out += "  citizenship  " +
-         (strlen((string)area->query_citizenship())
-            ? (string)area->query_citizenship() : "(none)") + "\n" +
+  out += "  citizenship  " + (string)area->query_citizenship_description() + "\n" +
          "  level band   " + area->query_area_level() + " +/- " +
          area->query_area_spread() + "\n" +
          "  stat band    " +
