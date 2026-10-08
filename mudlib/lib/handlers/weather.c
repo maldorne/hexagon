@@ -646,14 +646,16 @@ int query_darkness(object room)
   }
   else
   {
-    amount = 25;
-    // The single moon adds a little light near full phase.
+    // Night dims an outdoor place to half its light: enough to find the way
+    // in most places, not enough to make out details in the darker ones.
+    amount = 50;
+    // The single moon adds light near full phase.
     // Phase 0 == full; 4/5/6 are hidden (new moon window).
     if (moon == 0) // full
-      amount += 10;
+      amount += 20;
     else if (((moon >= 1) && (moon <= 3)) ||
              ((moon >= 7) && (moon <= 9)))
-      amount += 5;
+      amount += 10;
 
     /* Moon phase reference:
      * ({ "full",

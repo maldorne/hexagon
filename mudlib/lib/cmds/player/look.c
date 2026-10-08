@@ -33,7 +33,8 @@ static int cmd(string arg, object me, string verb)
     return 1;
   }
 
-  if (me->query_timed_property(BLIND_PROP) && me->query_coder() == 0)
+  // query_property also answers for a timed property
+  if (me->query_property(BLIND_PROP) && !me->query_coder())
   {
     write(_LANG_CMD_LOOK_BLINDED);
     return 1;
@@ -124,8 +125,10 @@ static int cmd(string arg, object me, string verb)
       }
     }
 
-    if (!dark)
-      ret += here->short(dark) + ".\n";
+    // the name of the place is seen unless the darkness or the glare is
+    // absolute (see /lib/room/dark.c)
+    if (!dark || !here->query_dark_hides_place(dark))
+      ret += here->short() + ".\n";
 
     ret += here->long(arg, dark); //+"\n";
 

@@ -12,6 +12,7 @@ inherit sign     "/lib/room/sign.c";
 // exit protection shared with rooms; a location's guards are placed by the
 // diplomacy / POI system and registered here (see /lib/room/guarded_exits.c)
 inherit guarded  "/lib/room/guarded_exits.c";
+inherit dark     "/lib/room/dark.c";
 
 #include <basic/light.h>
 #include <language.h>
@@ -66,6 +67,10 @@ int * coordinates;
 // manual move), the old sector entry is purged before the new one is written
 // and no stale "ghost" position lingers behind. nil until first indexed.
 int * _map_indexed_coord;
+
+// The location's own light, carried over from its source room. An array so a
+// light of 0 (a cave) is saved too; nil keeps the default.
+int * _base_light;
 
 int _created_at;   // Unix timestamp, stamped on first save_me(), never overwritten.
 int _last_imported_at;  // Unix timestamp, refreshed on every conversion from the source .c.
@@ -131,6 +136,7 @@ void create()
   exits::create();
   zone::create();
   guarded::create();
+  dark::create();
   // the last one
   obj::create();
 
@@ -220,6 +226,19 @@ void set_map_indexed_coord(int * coord) { _map_indexed_coord = coord; }
 int query_created_at() { return _created_at; }
 int query_last_imported_at() { return _last_imported_at; }
 void stamp_last_imported_at() { _last_imported_at = time(); }
+
+// The light of the place itself, before the hour, the weather or anything
+// carried in changes it.
+void set_base_light(int value)
+{
+  _base_light = ({ value });
+  set_light(value);
+}
+
+int query_base_light()
+{
+  return (_base_light && sizeof(_base_light)) ? _base_light[0] : BASE_ROOM_LIGHT_VALUE;
+}
 
 string query_map_name() { return map_name; }
 void set_map_name(string name) { map_name = name; }
@@ -527,6 +546,12 @@ string query_components_string()
 string short(varargs int dark)
 {
   string ret;
+
+  // nothing but the darkness message when nothing can be seen (see
+  // /lib/room/dark.c)
+  if (dark && query_dark_hides_place(dark))
+    return query_dark_mess(dark);
+
   ret = (string)run_reduce("short", ({ dark }), "", "_concat_string");
   if (!ret || !strlen(ret))
     ret = _specific_short;
@@ -550,6 +575,14 @@ string long(varargs string str, int dark)
 
   if (this_player())
     dark = (int)this_player()->check_dark(query_light());
+
+  // absolute darkness or glare: nothing but the message (see /lib/room/dark.c)
+  if (dark && query_dark_hides_place(dark))
+    return query_dark_mess(dark);
+
+  // the details of the place, or of anything in it, cannot be made out
+  if (dark && str && strlen(str))
+    return query_dark_mess(dark);
 
   composed = (string)run_reduce("long", ({ str, dark }), "", "_concat_string");
 
@@ -584,7 +617,12 @@ string long(varargs string str, int dark)
   if (strlen(ret) && ret[strlen(ret) - 1] != '\n')
     ret += "\n";
 
-  ret = wrap(ret, (this_user() ? this_user()->query_cols() : 79), 1);
+  // too dark or too bright for details: the description is lost, the rest of
+  // the place (weather, exits, props, contents) is still seen
+  if (dark)
+    ret = query_dark_mess(dark);
+  else
+    ret = wrap(ret, (this_user() ? this_user()->query_cols() : 79), 1);
 
   // Atmospheric extra-look contributions, appended under the description
   // as their own line: the outside component's weather line (via the
@@ -729,6 +767,8 @@ int restore_from_file_name(string name)
     _exit_map = _exit_map_to_local(_exit_map);
 
     add_exits_from_exit_map(_exit_map);
+
+    set_light(query_base_light());
 
     init_components(component_info);
 

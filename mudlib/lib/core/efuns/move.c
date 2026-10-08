@@ -192,6 +192,7 @@ static nomask int destruct(varargs object ob)
   object * shadows;
   int i;
   string ob_name;
+  mixed amount;
 
   if (!ob)
     ob = this_object();
@@ -220,13 +221,25 @@ static nomask int destruct(varargs object ob)
 
   if (env)
   {
+    // give back to the environment the light and weight a move would have
+    // taken away, so a destructed object leaves nothing behind
+    amount = ob->query_light();
+    if (intp(amount) && amount)
+      env->adjust_light(-amount);
+    amount = ob->query_weight();
+    if (intp(amount) && amount)
+      env->add_weight(-amount);
+
     if (!env->_inv_remove(ob))
     {
       stderr(" *** destruct: <" + ob_name + "> error, its environment refused to let it go\n");
       return 0;
     }
 
-    _environment = nil;
+    // _environment belongs to the object running this code: clear it only
+    // when that is the one going away
+    if (ob == this_object())
+      _environment = nil;
   }
 
   ::destruct_object(ob);

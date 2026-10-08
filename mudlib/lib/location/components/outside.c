@@ -4,12 +4,10 @@
 
 inherit component  "/lib/location/component.c";
 inherit night      "/lib/room/outside-night.c";
-inherit dark       "/lib/room/dark.c";
 
 void create()
 {
   night::create();
-  dark::create();
   component::create();
 
   set_type(LOCATION_COMPONENT_OUTSIDE);
@@ -28,8 +26,9 @@ void initialize(object loc)
 mapping query_hooks()
 {
   return ([
-    "long":       HOOK_PRIORITY_ATMOSPHERE,
-    "extra_look": HOOK_PRIORITY_ATMOSPHERE,
+    "long":        HOOK_PRIORITY_ATMOSPHERE,
+    "extra_look":  HOOK_PRIORITY_ATMOSPHERE,
+    "query_light": HOOK_PRIORITY_ATMOSPHERE,
   ]);
 }
 
@@ -38,45 +37,44 @@ mapping query_hooks()
 // ({ HOOK_EXCLUSIVE, str }) to replace whatever the chain has built
 // so far.
 //
-// Outside takes authority on two cases that override the base
-// description entirely:
-//   - night, when the room defines a night-specific long
-//   - too dark / too bright, when the visual is whatever the dark
-//     subsystem chooses to say (and nothing else makes sense to read)
-// Otherwise contributes nothing — the base long stays.
+// Outside takes authority at night, when the place defines a
+// night-specific long. Darkness itself is the location's business (it
+// replaces the description with the darkness message whatever components
+// the place has), so here the night long only applies to normal sight.
+// Otherwise contributes nothing: the base long stays.
 mixed hook_long(mixed * args)
 {
   string str;
   int dark;
-  string ret;
 
   str = args[0];
   dark = args[1];
 
-  // looking at a specific item — no atmospheric contribution
-  if (str && strlen(str))
+  // looking at a specific item, or too dark or bright to see the place
+  if ((str && strlen(str)) || dark)
     return "";
 
-  switch (dark)
-  {
-    default: /* normal vision */
-      if (this_object()->query_night_long() &&
-          !handler("weather", query_my_location())->query_day())
-        return ({ HOOK_EXCLUSIVE, this_object()->query_night_long() });
-      return "";
+  if (this_object()->query_night_long() &&
+      !handler("weather", query_my_location())->query_day())
+    return ({ HOOK_EXCLUSIVE, this_object()->query_night_long() });
+  return "";
+}
 
-    case 1..3: /* too dark */
-      ret = query_dark_mess(dark);
-      if (handler("weather", query_my_location())->query_day())
-        ret += "A pesar de esta oscuridad parece ser de día.\n";
-      return ({ HOOK_EXCLUSIVE, ret });
+// Reduce contract for query_light: the light of an outdoor place is its own
+// light by the percentage the hour and the weather allow, plus whatever is
+// carried in (a torch), which shines the same at any hour.
+mixed hook_query_light(mixed * args)
+{
+  object loc;
+  int percent;
 
-    case 4..6: /* too bright */
-      ret = query_dark_mess(dark);
-      if (!handler("weather", query_my_location())->query_day())
-        ret += "A pesar de esta luz parece ser de noche.\n";
-      return ({ HOOK_EXCLUSIVE, ret });
-  }
+  loc = query_my_location();
+  if (!loc)
+    return 0;
+
+  percent = (int)handler("weather", loc)->query_darkness(loc);
+  return ({ HOOK_EXCLUSIVE,
+            loc->query_my_light() * percent / 100 + loc->query_int_light() });
 }
 
 // A component belongs to no game, so the weather handler is resolved against
@@ -91,6 +89,5 @@ string hook_extra_look(mixed * args)
 mixed * stats()
 {
   return component::stats() +
-        night::stats()+
-        dark::stats();
+        night::stats();
 }

@@ -25,6 +25,8 @@
 #define LIGHT_STD_LOW 20
 #define LIGHT_HUMAN_HIGH 200
 #define LIGHT_HUMAN_LOW 20
+// races that see in the dark: half the light a human needs is enough
+#define LIGHT_NIGHT_VISION_LOW 10
 
 // old race_weights.h
 #define STD_WEIGHT 1750

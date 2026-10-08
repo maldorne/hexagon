@@ -3,6 +3,7 @@
 // Removed the string about the moon, now there are three and it takes up a lot.
 
 #include <areas/weather.h>
+#include <translations/light.h>
 
 inherit room        "/lib/room.c";
 inherit extra_look  "/lib/core/basic/extra_look.c";
@@ -25,55 +26,53 @@ string long(string str, int dark)
 {
   string s, ret;
 
-  // looking to an item
+  if (this_player())
+    dark = (int)this_player()->check_dark(query_light());
+
+  // looking to an item: its details cannot be made out in the dark either
   if (str && strlen(str))
   {
+    if (dark)
+      return query_dark_mess(dark);
     str = expand_alias(str);
     return items[str];
   }
 
   ret = "";
 
-  if (this_player())
-    dark = (int)this_player()->check_dark(query_light());
-
-  switch (dark) /* O.K. how much can we see at night */
+  // absolute darkness or glare: nothing but the message (see /lib/room/dark.c),
+  // and a hint of the time of day when it contradicts what is seen
+  if (dark && query_dark_hides_place(dark))
   {
-    default: /* can see anyway */
-      /* night... */
-      if (this_object()->query_night_long() && !handler("weather")->query_day())
-        ret += this_object()->query_night_long();
-      else
-        ret += sprintf("\n   %-=*s\n", 
-                       (this_user() ? this_user()->query_cols() : 79), 
-                       "   " + query_long());
-      break;
-
-    case 1..3: /* too dark */
-      ret += ::query_dark_mess(dark);
-      if (handler("weather")->query_day())
-        ret += "A pesar de esta oscuridad parece ser de día.\n";
-      return ret;
-
-    case 4..6: /* too bright */
-      ret += ::query_dark_mess(dark);
-      if (!handler("weather")->query_day())
-        ret += "A pesar de esta luz parece ser de noche.\n";
-      return ret;
+    ret += query_dark_mess(dark);
+    if ((dark == 1) && handler("weather", this_object())->query_day())
+      ret += _LANG_ROOM_DARK_BUT_DAY;
+    if ((dark == 6) && !handler("weather", this_object())->query_day())
+      ret += _LANG_ROOM_BRIGHT_BUT_NIGHT;
+    return ret;
   }
 
-  /* if we got here we can see */
+  // too dark or too bright for details: the description is lost, the rest of
+  // the place is still seen
+  if (dark)
+    ret += query_dark_mess(dark);
+  else if (this_object()->query_night_long() &&
+           !handler("weather", this_object())->query_day())
+    ret += this_object()->query_night_long();
+  else
+    ret += sprintf("\n   %-=*s\n", 
+                   (this_user() ? this_user()->query_cols() : 79), 
+                   "   " + query_long());
 
   s = calc_extra_look();
 
   if (s && strlen(s))
     ret += s;
 
-  ret += (string)handler("weather")->weather_string(this_object());
+  ret += (string)handler("weather", this_object())->weather_string(this_object());
 
-  // this will update exit_string if needed
-  if (!exit_string)
-    query_dirs_string();
+  // refreshed every time: open and closed doors show in it
+  query_dirs_string();
 
   if (exit_string)
     ret += exit_string + "\n";
@@ -82,17 +81,18 @@ string long(string str, int dark)
   return ret + query_contents("");
 }
 
-/* percentage system */
+// The day lights the place by a percentage of its own light; what is carried
+// in (a torch) shines the same at any hour, as it does indoors.
 int query_light()
 {
   int i;
 #ifdef TESTING
   i = 100;
 #else
-  i = (int)handler("weather")->query_darkness(this_object());
+  i = (int)handler("weather", this_object())->query_darkness(this_object());
 #endif
 
-  return ::query_light()*i/100;
+  return query_my_light() * i / 100 + query_int_light();
 } /* query_light() */
 
 int query_outside()

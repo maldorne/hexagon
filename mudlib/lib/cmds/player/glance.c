@@ -19,7 +19,7 @@ static int cmd (string arg, object me, string verb)
 {
   object here, *ob;
   int i, dark;
-  string seen;
+  string props_section;
   string ret;
   me = me;
   here = environment(me);
@@ -31,7 +31,7 @@ static int cmd (string arg, object me, string verb)
     return 0;
   }
 
-  if (me->query_property(BLIND_PROP))
+  if (me->query_property(BLIND_PROP) && !me->query_coder())
   {
     notify_fail(_LANG_CMD_LOOK_BLINDED);
     return 0;
@@ -82,24 +82,12 @@ static int cmd (string arg, object me, string verb)
         ret += _LANG_CMD_LOOK_TOO_BRIGHT;
         break;
 
-      case 2:
-      case 5:
-      case 3:
-      case 4:
-        // a room answers with its whole dark message, already ending in a
-        // newline; a location answers with its name, which still needs closing.
-        // At 3 and 4 glance shows no exits; look, being more detailed, does
-        seen = (string)here->short(dark);
-        if (strlen(seen) && seen[strlen(seen) - 1] == '\n')
-          ret += seen;
-        else
-          ret += seen + ".\n";
-        break;
-
       default:
-      {
-        string props_section;
-        ret += (string)here->short(dark) +
+        // glance never shows the description, so too little or too much light
+        // short of the extremes only adds its message above the usual view
+        if (dark)
+          ret += (string)here->query_dark_mess(dark);
+        ret += (string)here->short() +
                (string)here->query_short_exit_string() + ".\n";
         // Props section between exits and inventory, matching the
         // slot it occupies in `look`. Returns "" when no props
@@ -112,7 +100,6 @@ static int cmd (string arg, object me, string verb)
         }
         ret += (string)here->query_contents();
         break;
-      }
     }
     
     write(ret);

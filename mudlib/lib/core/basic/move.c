@@ -31,6 +31,8 @@ void set_move_flag(int i) { move_flag = i; }
 
 int move(mixed dest, varargs mixed messin, mixed messout)
 {
+  mixed amount;
+
   previous = environment();
 
   if (stringp(dest))
@@ -54,6 +56,16 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   // efun that simulates the mudos inventory and
   // environment handling
   ::move(dest);
+
+  // the light goes with the object before anybody hears of its arrival, so
+  // whoever is at the destination already sees by it
+  amount = this_object()->query_light();
+  if (intp(amount) && amount)
+  {
+    if (previous)
+      previous->adjust_light(-amount);
+    dest->adjust_light(amount);
+  }
 
   // event_enter
   event(dest, "enter", messin, previous, this_object());

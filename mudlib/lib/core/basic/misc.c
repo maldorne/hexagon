@@ -33,16 +33,12 @@ int move(mixed dest, varargs mixed messin, mixed messout)
 
   i = move::move(dest, messin, messout);
 
+  // the light moves with the object inside move::move, before the
+  // destination hears of the arrival
   if (i == MOVE_OK) 
   {
     if (from) 
-    {
       from->add_weight(-weight);
-      from->adjust_light(-query_light());
-    }
-
-    if (environment())
-      environment()->adjust_light(query_light());
   } 
   else
     dest->add_weight(-weight);
@@ -55,12 +51,8 @@ void dest_me()
   object *olist;
   int i;
 
-  if (environment()) 
-  {
-    environment()->add_weight(-weight);
-    set_light(0);
-  }
-  
+  // the light and weight this object took from its environment are given
+  // back by destruct itself, which every way of going away ends in
   olist = all_inventory(this_object());
   
   for (i = 0; i < sizeof(olist); i++)

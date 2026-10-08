@@ -605,6 +605,9 @@ object convert_room_to_location(object room)
   location->set_original_room_file_name(base_name(room) + ".c");
   location->set_original_short(room->query_short());
   location->set_original_long(room->query_long());
+  // the room's own light (set_light), not query_light(): an outdoor room
+  // scales that by the hour, and the location does so itself
+  location->set_base_light(room->query_my_light());
   location->set_original_add_clones(clones);
   location->set_original_items(_extract_original_items(room));
   location->stamp_last_imported_at();

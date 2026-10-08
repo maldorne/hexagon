@@ -6,3 +6,5 @@
 #define _LANG_ROOM_LIGHT_4 "Estás deslumbrado por la luz.\n"
 #define _LANG_ROOM_LIGHT_5 "La luz es realmente cegadora.\n"
 #define _LANG_ROOM_LIGHT_6 "Estás cegado por la luz.\n"
+#define _LANG_ROOM_DARK_BUT_DAY "A pesar de esta oscuridad parece ser de día.\n"
+#define _LANG_ROOM_BRIGHT_BUT_NIGHT "A pesar de esta luz parece ser de noche.\n"

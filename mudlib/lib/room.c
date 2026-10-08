@@ -185,17 +185,19 @@ void add_clone(string the_file, int how_many, varargs int flags)
 
 mixed * query_room_clones() { return room_clones; }
 
+// The name of the place, or the darkness message when nothing can be seen
+// (see /lib/room/dark.c).
 string short(varargs int dark)
 {
-  if (dark)
+  if (dark && query_dark_hides_place(dark))
     return query_dark_mess(dark);
-  else
-    return ::short();
+  return ::short();
 }
 
 string long(string str, int dark)
 {
-  if (dark)
+  // absolute darkness or glare: nothing but the message
+  if (dark && query_dark_hides_place(dark))
     return query_dark_mess(dark);
 
   // commented by neverbot 6/03
@@ -205,9 +207,20 @@ string long(string str, int dark)
   exit_string = query_dirs_string();
 
   if (!strlen(str))
+  {
+    // too dark or too bright for details: the description is lost, the rest
+    // of the place is still seen
+    if (dark)
+      return query_dark_mess(dark) + exit_string + "\n" + query_contents("");
+
     return wrap(::long(str, dark), 
                (this_user() ? this_user()->query_cols() : 80), 1) + 
                 exit_string + "\n" + query_contents("");
+  }
+
+  // the details of the place cannot be made out either
+  if (dark)
+    return query_dark_mess(dark);
 
   str = expand_alias(str);
   return items[str];
