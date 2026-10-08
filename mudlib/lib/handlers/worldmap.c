@@ -429,9 +429,40 @@ private int * _spot_above_or_below(string ** grid, int w, int h, int above,
   return nil;
 }
 
+// Last resort for a label of `n` cells: any row and column where it fits whose
+// first cell is at most two cells from one of the city's (corners count), the
+// one nearest the city's centre. `cells` lists the city's cells as ({ r, c }).
+private int * _spot_near(string ** grid, int w, int h, mixed * cells, int n,
+                         int crow, int ccol)
+{
+  int * best;
+  int r, c, i, near, dist, best_dist;
+
+  for (r = 0; r < h; r++)
+    for (c = 0; c < w; c++)
+    {
+      near = 0;
+      for (i = 0; i < sizeof(cells) && !near; i++)
+        if (abs(cells[i][0] - r) <= 2 && abs(cells[i][1] - c) <= 2)
+          near = 1;
+      if (!near || !_label_fits(grid, w, h, r, c, n))
+        continue;
+
+      // distance from the label's middle to the city's
+      dist = abs(r - crow) * 2 + abs(c + n / 2 - ccol);
+      if (!best || dist < best_dist)
+      {
+        best = ({ r, c });
+        best_dist = dist;
+      }
+    }
+
+  return best;
+}
+
 // Name each city on the map next to it, where there is room: to its right on
 // its middle row, else to its left, else above or below it (see
-// _spot_above_or_below). A label
+// _spot_above_or_below), else anywhere close enough (see _spot_near). A label
 // is only drawn over blank cells; a city with no room for its name goes
 // unnamed.
 private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
@@ -448,7 +479,7 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
   for (r = 0; r < h; r++)
     for (c = 0; c < w; c++)
     {
-      mixed * stack;
+      mixed * stack, * members;
       mapping votes;
       string name, * cells, * names;
       int rmin, rmax, cmin, cmax, mid, n, best, i;
@@ -462,6 +493,7 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
       rmin = rmax = r;
       cmin = cmax = c;
       stack = ({ ({ r, c }) });
+      members = ({ });
       seen[r][c] = 1;
       while (sizeof(stack))
       {
@@ -469,6 +501,7 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
 
         cr = stack[0][0];
         cc = stack[0][1];
+        members += ({ stack[0] });
         stack = stack[1..];
         if (cr < rmin) rmin = cr;
         if (cr > rmax) rmax = cr;
@@ -509,6 +542,8 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
       else
         spot = _spot_above_or_below(grid, w, h, rmin - 1, rmax + 1,
                                     cmin, cmax, n);
+      if (!spot)
+        spot = _spot_near(grid, w, h, members, n, mid, (cmin + cmax) / 2);
 
       if (!spot)
         continue;
