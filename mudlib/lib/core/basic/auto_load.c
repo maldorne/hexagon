@@ -131,8 +131,9 @@ object * load_auto_load(mapping auto_load, object dest)
 
         tell_object(this_player(), _LANG_AUTO_LOAD_SOMETHING_WRONG);
 
-        // build mapping with the info of ONLY this item
-        iou_info[files[i]] = auto_load[files[i]][j];
+        // build mapping with the info of ONLY this item, in the same shape
+        // as an auto_load: a list of attribute mappings per file
+        iou_info[files[i]] = ({ auto_load[files[i]][j] });
         make_iou(files[i], iou_info, dest);
       }
     }

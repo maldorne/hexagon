@@ -1,4 +1,6 @@
 
+#include <language.h>
+
 inherit "/lib/item.c";
 inherit "/lib/core/basic/auto_load.c";
 
@@ -9,16 +11,18 @@ string stat();
 
 void setup()
 {
-  set_name("iou");
-  set_short("IOU");
-  set_main_plural("IOUs");
-  add_plural("ious");
-  set_long("This is an IOU for an item that went missing for some unknown reason, " +
-    "probably something obscure to do with gods meddling with things that man is " +
-    "not meant to know of (The buggers have been messing with the fabric of reality again). " +
-    "Hang onto it, and you never know, it might be reclaimed.\n" +
-    "      \"reclaim\" to try to reclaim on the IOU.\n" +
-    "      \"inspect iou\" to try to read the fine print on the IOU.\n");
+  set_name(_LANG_IOU_NAME);
+  set_short(_LANG_IOU_SHORT);
+  add_alias(_LANG_IOU_ALIASES);
+  set_main_plural(_LANG_IOU_PLURAL);
+  add_plural(_LANG_IOU_PLURALS);
+  set_long(_LANG_IOU_LONG);
+}
+
+// what can be done with it, apart from the description
+string long(varargs string s, int dark)
+{
+  return ::long(s, dark) + _LANG_IOU_USAGE;
 }
 
 string stat()
@@ -26,31 +30,31 @@ string stat()
   string * path;
 
   if (undefinedp(auto_load_info)) 
-    return "Nothing, totally useless, throw it away";
+    return _LANG_IOU_STAT_NOTHING;
 
   path = explode(file, "/");
 
   if (sizeof(path) < 3) 
-    return "Something wierd wat mortal man was not meant to mess with.\n";
+    return _LANG_IOU_STAT_WEIRD;
   
   switch (path[0])
   {
     case "home":
       call_out("dest_me", 2, 0);
-      return "Some gods toy, which aught not be in the hands of mortals.\n";
+      return _LANG_IOU_STAT_HOME;
     case "games":
-      return "It's for an item from the game "+path[1]+" and it's called "+path[sizeof(path)-1]+".\n";
+      return _LANG_IOU_STAT_GAME;
     default:
-      return "It's for some generic object know as "+path[sizeof(path)-1]+".\n";
+      return _LANG_IOU_STAT_GENERIC;
   }
 
-  return "Damned if I know really.\n";
+  return _LANG_IOU_STAT_UNKNOWN;
 }
 
 void init()
 {
-  add_action("try_loading", "reclaim");
-  add_action("inspect", "inspect");
+  add_action("try_loading", _LANG_IOU_RECLAIM_VERBS);
+  add_action("inspect", _LANG_IOU_INSPECT_VERBS);
 }
 
 mixed add_auto_load_info(string f, mixed str)
@@ -69,25 +73,37 @@ mixed add_object(object ob)
 
 int inspect(string str)
 {
-  if (str == "iou" || str == "IOU") 
-    write(stat());
+  if (!str || !id(lower_case(str)))
+  {
+    notify_fail(_LANG_IOU_INSPECT_WHAT);
+    return 0;
+  }
 
-  notify_fail("O.K. you've looked at everything closely now.\n");
-  return 0;
+  write(stat());
+  return 1;
 }
 
 int try_loading(string str)
 {
   object * olist;
+  string * files;
+  int i;
 
   if (!undefinedp(auto_load_info))
   {
+    // older IOUs kept one attribute mapping per file instead of a list of them
+    files = map_indices(auto_load_info);
+
+    for (i = 0; i < sizeof(files); i++)
+      if (mappingp(auto_load_info[files[i]]))
+        auto_load_info[files[i]] = ({ auto_load_info[files[i]] });
+
     olist = load_auto_load(auto_load_info, this_player());
     
     if (sizeof(olist))
-      write("A small demon hands you something and runs off with the IOU\n");
+      write(_LANG_IOU_RECLAIMED);
     else
-      write("Nothing seems to happen.\n");
+      write(_LANG_IOU_NOTHING_HAPPENS);
   }
 
   // if this did not work, a new iou would have been created, so

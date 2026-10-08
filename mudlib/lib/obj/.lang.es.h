@@ -315,3 +315,30 @@
 #define _LANG_TORCH_GOES_OUT "Tu antorcha se apaga.\n"
 #define _LANG_TORCH_SOMEBODYS_GOES_OUT "La antorcha de " + who->query_cap_name() + \
       " se apaga.\n"
+
+// iou.c
+
+#define _LANG_IOU_NAME "pagaré"
+#define _LANG_IOU_SHORT "Pagaré"
+#define _LANG_IOU_ALIASES ({ "pagare", "iou" })
+#define _LANG_IOU_PLURAL "Pagarés"
+#define _LANG_IOU_PLURALS ({ "pagarés", "pagares", "ious" })
+#define _LANG_IOU_LONG "Es un pagaré por un objeto que se perdió por alguna razón " + \
+      "desconocida, seguramente algo turbio de los dioses enredando con cosas que " + \
+      "los mortales no deberían conocer (ya han vuelto a meter mano en el tejido de " + \
+      "la realidad). Guárdalo: nunca se sabe, quizá puedas reclamarlo.\n"
+#define _LANG_IOU_USAGE "  'reclamar' para intentar recuperar el objeto.\n" + \
+      "  'inspeccionar pagaré' para leer la letra pequeña.\n"
+#define _LANG_IOU_RECLAIM_VERBS ({ "reclamar" })
+#define _LANG_IOU_INSPECT_VERBS ({ "inspeccionar" })
+#define _LANG_IOU_INSPECT_WHAT "¿Inspeccionar qué?\n"
+#define _LANG_IOU_STAT_NOTHING "No vale para nada: tíralo.\n"
+#define _LANG_IOU_STAT_WEIRD "Algo extraño, con lo que los mortales no deberían jugar.\n"
+#define _LANG_IOU_STAT_HOME "El juguete de algún dios, que no debería estar en manos mortales.\n"
+#define _LANG_IOU_STAT_GAME "Es por un objeto del juego " + path[1] + " llamado " + \
+      path[sizeof(path) - 1] + ".\n"
+#define _LANG_IOU_STAT_GENERIC "Es por un objeto genérico llamado " + \
+      path[sizeof(path) - 1] + ".\n"
+#define _LANG_IOU_STAT_UNKNOWN "Vete a saber.\n"
+#define _LANG_IOU_RECLAIMED "Un pequeño demonio te da algo y se marcha corriendo con el pagaré.\n"
+#define _LANG_IOU_NOTHING_HAPPENS "No parece pasar nada.\n"

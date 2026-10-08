@@ -315,3 +315,30 @@
 #define _LANG_TORCH_GOES_OUT "Your torch goes out.\n"
 #define _LANG_TORCH_SOMEBODYS_GOES_OUT "The torch of " + who->query_cap_name() + \
       " goes out.\n"
+
+// iou.c
+
+#define _LANG_IOU_NAME "iou"
+#define _LANG_IOU_SHORT "IOU"
+#define _LANG_IOU_ALIASES ({ "iou" })
+#define _LANG_IOU_PLURAL "IOUs"
+#define _LANG_IOU_PLURALS ({ "ious" })
+#define _LANG_IOU_LONG "This is an IOU for an item that went missing for some unknown " + \
+      "reason, probably something obscure to do with gods meddling with things that " + \
+      "man is not meant to know of (the buggers have been messing with the fabric of " + \
+      "reality again). Hang onto it, and you never know, it might be reclaimed.\n"
+#define _LANG_IOU_USAGE "  'reclaim' to try to get the item back.\n" + \
+      "  'inspect iou' to read the fine print.\n"
+#define _LANG_IOU_RECLAIM_VERBS ({ "reclaim" })
+#define _LANG_IOU_INSPECT_VERBS ({ "inspect" })
+#define _LANG_IOU_INSPECT_WHAT "Inspect what?\n"
+#define _LANG_IOU_STAT_NOTHING "Nothing, totally useless: throw it away.\n"
+#define _LANG_IOU_STAT_WEIRD "Something weird that mortal man was not meant to mess with.\n"
+#define _LANG_IOU_STAT_HOME "Some god's toy, which ought not be in the hands of mortals.\n"
+#define _LANG_IOU_STAT_GAME "It's for an item from the game " + path[1] + " and it's called " + \
+      path[sizeof(path) - 1] + ".\n"
+#define _LANG_IOU_STAT_GENERIC "It's for some generic object known as " + \
+      path[sizeof(path) - 1] + ".\n"
+#define _LANG_IOU_STAT_UNKNOWN "Damned if I know really.\n"
+#define _LANG_IOU_RECLAIMED "A small demon hands you something and runs off with the IOU.\n"
+#define _LANG_IOU_NOTHING_HAPPENS "Nothing seems to happen.\n"
