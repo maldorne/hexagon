@@ -576,7 +576,7 @@
 
 // title
 
-#define _LANG_CMD_TITLE_ALIASES ({ "titulo", "título", "title" })
+#define _LANG_CMD_TITLE_ALIASES ({ "titulo", "título", "titulos", "títulos", "title", "titles" })
 #define _LANG_CMD_TITLE_SYNTAX "titulo\n" + \
                                "          titulo <número>\n" + \
                                "          titulo ninguno"
