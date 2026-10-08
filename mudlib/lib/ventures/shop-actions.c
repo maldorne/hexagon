@@ -41,7 +41,7 @@ int do_list(string str)
   // the goods can be looked at while nobody serves; buying and selling cannot
   closed = this_object()->query_closed_reason();
 
-  // same safety system as in the vault_rooms
+  // same safety system as in the vault rooms
   if (this_object()->query_property(VAULT_USE_PROP)) 
   {
     notify_fail(_LANG_SHOP_STORE_IN_USE);
@@ -49,7 +49,7 @@ int do_list(string str)
   }
 
   // shop inventory object
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
   vault->move(this_object());
   vault->set_save_file(this_object()->query_save_file_name());
 
@@ -110,7 +110,7 @@ int do_list(string str)
 }
 
 /*
- * Now shops store items the same way as vault_rooms 
+ * Now shops store items the same way as vault rooms 
  * neverbot 7/03
  */
 int do_sell(string str) 
@@ -136,7 +136,7 @@ int do_sell(string str)
     return 0;
   }
 
-  // same safety system as in the vault_rooms
+  // same safety system as in the vault rooms
   if (this_object()->query_property(VAULT_USE_PROP)) 
   {
     notify_fail(_LANG_SHOP_STORE_IN_USE);
@@ -166,7 +166,7 @@ int do_sell(string str)
   }
 
   // shop inventory object
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
   vault->move(this_object());
   vault->set_save_file(this_object()->query_save_file_name());
 
@@ -282,7 +282,7 @@ int do_browse(string str)
     return 0;
   }
 
-  // same safety system as in the vault_rooms
+  // same safety system as in the vault rooms
   if (this_object()->query_property(VAULT_USE_PROP)) 
   {
     notify_fail(_LANG_SHOP_STORE_IN_USE);
@@ -290,7 +290,7 @@ int do_browse(string str)
   }
 
   // shop inventory object
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
   vault->move(this_object());
   vault->set_save_file(this_object()->query_save_file_name());
 
@@ -398,7 +398,7 @@ int do_buy(string str)
     return 0;
   }
 
-  // same safety system as in the vault_rooms
+  // same safety system as in the vault rooms
   if (this_object()->query_property(VAULT_USE_PROP)) 
   {
     notify_fail(_LANG_SHOP_STORE_IN_USE);
@@ -406,7 +406,7 @@ int do_buy(string str)
   }
 
   // shop inventory object
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
   vault->move(this_object());
   vault->set_save_file(this_object()->query_save_file_name());
 

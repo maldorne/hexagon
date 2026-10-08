@@ -40,10 +40,10 @@
   Translated for CcMud, neverbot 08/07/04 
   Listings by item category
   Translated again for Hexagon, neverbot 01/2021
-  Split from vault_room.c so rooms and locations share it, 2026
+  Split from vault-room.c so rooms and locations share it, 2026
 */ 
 
-// The vault's behaviour, shared by the vault room (/lib/room/vaults/vault_room.c)
+// The vault's behaviour, shared by the vault room (/lib/room/vaults/vault-room.c)
 // and the vault location component (/lib/location/components/vault.c). Whoever
 // inherits it says where the vault stands (query_vault_place), where it keeps
 // its contents (set_vault_storage) and puts up its sign (create_vault_sign).
@@ -182,7 +182,7 @@ int do_deposit(string str)
     return 0;
   }
  
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
   /* Added by Timion, 06 NOV 97
     To prevent deposits in vault during CTF
   if ("/global/omiq.c"->flag_in_progress())
@@ -308,7 +308,7 @@ int do_retrieve(string str)
     return 0;
   }
 
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
 
   if (query_vault_place()->query_property(VAULT_USE_PROP))
   {
@@ -375,7 +375,7 @@ int do_list(string str)
   // every mapping entry is an array with the corresponding objects
   mapping objects;
   
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
   
   // set the order to show
   list = ({ _LANG_VAULTS_LIST_WEAPONS, _LANG_VAULTS_LIST_ARMOURS, _LANG_VAULTS_LIST_SHIELDS, 

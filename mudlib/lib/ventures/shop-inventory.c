@@ -6,7 +6,7 @@
  *   for locations (/lib/location/components/shop.c). More info about
  *   previous changes in the header comments of the original shop file.
  * - new create_vault() and destroy_vault() to allow batch operations
- *   without having to recreate the vault_obj every time. Mainly used from
+ *   without having to recreate the vault-obj every time. Mainly used from
  *   the ventures handler.
  * - IMPORTANT: if you create a vault with create_vault, the shop won't
  *   be available to use while it exists (the same as when a player 
@@ -81,7 +81,7 @@ object create_vault()
   if (this_object()->query_property(VAULT_USE_PROP)) 
     return nil;
 
-  vault = clone_object(VAULT_FILES_PATH + "vault_obj.c");
+  vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
   vault->move(this_object());
   vault->set_save_file(this_object()->query_save_file_name());
 

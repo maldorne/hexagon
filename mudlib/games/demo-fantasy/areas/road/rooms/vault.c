@@ -2,7 +2,7 @@
 #include "../path.h"
 #include <language.h>
 
-inherit "/lib/room/vaults/vault_room.c";
+inherit "/lib/room/vaults/vault-room.c";
 
 void setup()
 {

@@ -26,7 +26,13 @@ string query_savefile() { return savefile; }
 
 void save_me()
 {
+  string * parts;
+
   seteuid(ROOM_EUID);
+  // the first vault of a game creates the game's vaults directory
+  parts = explode(savefile, "/");
+  if (sizeof(parts) > 1)
+    mkdir("/" + implode(parts[.. sizeof(parts) - 2], "/"));
   save_object(savefile);
   seteuid(PLAYER_EUID);  
 }
@@ -106,7 +112,7 @@ void dest_me()
     // unique items, neverbot 08/07/04
     if (olist[i]->query_unique_object())
     {
-      debug("uniques", "Unique object in vault_obj, destroy.\n");
+      debug("uniques", "Unique object in vault-obj, destroy.\n");
       olist[i]->dest_unique();
     }
     else

@@ -1,5 +1,5 @@
 // Vault component: the location is a vault, with the same behaviour as the
-// vault room (/lib/room/vaults/vault_room.c), both from vault-actions.c.
+// vault room (/lib/room/vaults/vault-room.c), both from vault-actions.c.
 //
 // Nothing of the sign is stored: it is put up on every load from the vault
 // help document, so changing that document changes every vault. The contents

@@ -34,7 +34,7 @@
  *
  * Important changes for CcMud, neverbot 20/7/03
  * - remove the storeroom files (no need to use two different files and rooms per 
- *   shop), using the vault_room system. The shop 'saves' the items in inventory.
+ *   shop), using the vault room system. The shop 'saves' the items in inventory.
  * - remove the 'fluctuating' prices, maybe in the future will be restored.
  * - everything reviewed and modified... (is mostly a new shop.c)
  * 

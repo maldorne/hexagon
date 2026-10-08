@@ -10,7 +10,7 @@ inherit messages   "/lib/ventures/shop-messages.c";
 inherit attendable "/lib/ventures/attendable.c";
 inherit prices     "/lib/ventures/prices.c";
 
-// allow items in inventory, a vault_obj will be moved here
+// allow items in inventory, a vault-obj will be moved here
 // when operating with the shop contents
 int test_add(object ob, int flag) { return 1; }
 int test_remove(object ob, int flag) { return 1; }
