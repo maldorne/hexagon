@@ -249,11 +249,11 @@
 // condition
 
 #define _LANG_CMD_CONDITION_ALIAS ({ "estado" })
-#define _LANG_CMD_CONDITION_SYNTAX "estado [<nombre> | todos]"
+#define _LANG_CMD_CONDITION_SYNTAX "estado [<nombre> | todo]"
 #define _LANG_CMD_CONDITION_HELP "Muestra el estado de salud de un personaje o de todos los personajes en la localización."
 #define _LANG_CMD_CONDITION_OPTIONS "Sintaxis: 'estado' para comprobar tu estado de salud, o\n" + \
                                     "          'estado <nombre>' para ver el estado de otro, o\n" + \
-                                    "          'estado todos' para comprobar a todos los de tu entorno.\n"
+                                    "          'estado todo' para comprobar a todos los de tu entorno.\n"
 #define _LANG_CMD_CONDITION_IS_DEAD "Está muert"+obs[i]->query_vowel()+"."
 #define _LANG_CMD_CONDITION_HEADER "Estado en que se encuentran:\n"
 
