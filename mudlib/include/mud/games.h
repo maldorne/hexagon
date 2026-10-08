@@ -11,3 +11,8 @@
 // where every game starts a new character, and where a character moving in
 // from another game arrives
 #define GAME_START_ROOM "areas/start/begin.c"
+
+// carried by a character moving in from another game while the start rooms
+// send it on: it goes through them unseen, and only a room where it has to
+// stop and choose something is shown
+#define PASSING_THROUGH_PROP "passing through"

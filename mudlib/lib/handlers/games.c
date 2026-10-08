@@ -208,7 +208,29 @@ int transfer(object player, object game)
   log_file("transfers", player->query_cap_name() + ": " + source + " -> " +
     game_name(game) + ", " + ctime(time(), 4) + "\n");
 
+  // the start rooms show only where it has to stop, see pass_on()
+  player->add_timed_property(PASSING_THROUGH_PROP, 1, 60);
   player->move(start);
-  player->do_look();
+  return 1;
+}
+
+// Sends somebody on from one start room to the next: unseen while a transfer
+// carries them through, walking in as anybody else otherwise.
+void pass_on(object who, string dest)
+{
+  if (who->query_property(PASSING_THROUGH_PROP))
+    who->move(dest);
+  else
+    who->move_living("X", dest);
+}
+
+// Whoever was carried through the start rooms has arrived where they stop.
+// Returns whether they were, so the room they have not seen can be shown.
+int end_passing_through(object who)
+{
+  if (!who->query_property(PASSING_THROUGH_PROP))
+    return 0;
+
+  who->remove_timed_property(PASSING_THROUGH_PROP);
   return 1;
 }
