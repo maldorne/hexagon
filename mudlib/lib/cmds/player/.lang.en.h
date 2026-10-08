@@ -423,7 +423,7 @@
 #define _LANG_CMD_WORLDMAP_USAGE   "Syntax: worldmap [width [height]]\n"
 #define _LANG_CMD_WORLDMAP_RANGE   "Dimensions must be between 3 and 80 wide, 3 and 40 tall.\n"
 #define _LANG_CMD_WORLDMAP_CODER   "You cannot change the map size.\n"
-#define _LANG_CMD_WORLDMAP_NOMAP   "You are nowhere on any world map right now.\n"
+#define _LANG_CMD_WORLDMAP_NOMAP   "You cannot use that here.\n"
 #define _LANG_CMD_WORLDMAP_LEGEND      "Legend"
 #define _LANG_CMD_WORLDMAP_YOUR_POS    "Your position"
 #define _LANG_CMD_WORLDMAP_CITY        "City or town"
