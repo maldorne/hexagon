@@ -25,7 +25,7 @@ void setup()
    set_xp_types(([
                   ARMED_COMBAT_XP : 100, 
                   UNARMED_COMBAT_XP : 80, 
-                  KILL_XP : 50
+                  KILL_XP : 75
                 ]));
 }
 
