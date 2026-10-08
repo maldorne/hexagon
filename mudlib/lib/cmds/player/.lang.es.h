@@ -424,6 +424,13 @@
 #define _LANG_CMD_WORLDMAP_RANGE   "Las dimensiones deben estar entre 3 y 80 de ancho, 3 y 40 de alto.\n"
 #define _LANG_CMD_WORLDMAP_CODER   "No puedes cambiar el tamaño del mapa.\n"
 #define _LANG_CMD_WORLDMAP_NOMAP   "Ahora mismo no estás en ningún mapa del mundo.\n"
+#define _LANG_CMD_WORLDMAP_LEGEND      "Leyenda"
+#define _LANG_CMD_WORLDMAP_YOUR_POS    "Tu posición"
+#define _LANG_CMD_WORLDMAP_CITY        "Ciudad o pueblo"
+#define _LANG_CMD_WORLDMAP_FOREST      "Bosque"
+#define _LANG_CMD_WORLDMAP_FARM        "Tierras de cultivo"
+#define _LANG_CMD_WORLDMAP_COAST       "Costa"
+#define _LANG_CMD_WORLDMAP_UNDERGROUND "Subterráneo"
 
 // idle.c
 #define _LANG_IDLE_ALIAS ({ "inactivo", "idle" })

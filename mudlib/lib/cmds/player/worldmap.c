@@ -24,6 +24,29 @@ string query_help(varargs string str)
   return out;
 }
 
+// The legend under the map: your position always, and each other kind of
+// sector only when the map shows one.
+private string legend(string map)
+{
+  mapping glyphs;
+  string * kinds, * labels;
+  string out;
+  int i;
+
+  glyphs = handler("worldmap")->query_legend_glyphs();
+  kinds = ({ "player", "city", "forest", "farm", "coast", "underground" });
+  labels = ({ _LANG_CMD_WORLDMAP_YOUR_POS, _LANG_CMD_WORLDMAP_CITY,
+              _LANG_CMD_WORLDMAP_FOREST, _LANG_CMD_WORLDMAP_FARM,
+              _LANG_CMD_WORLDMAP_COAST, _LANG_CMD_WORLDMAP_UNDERGROUND });
+
+  out = "\n" + _LANG_CMD_WORLDMAP_LEGEND + ":\n";
+  for (i = 0; i < sizeof(kinds); i++)
+    if (kinds[i] == "player" || sizeof(explode("#" + map + "#", glyphs[kinds[i]][0])) > 1)
+      out += "  " + glyphs[kinds[i]][1] + " : " + labels[i] + "\n";
+
+  return out;
+}
+
 static int cmd(string str, object me, string verb)
 {
   int width, height;
@@ -68,6 +91,6 @@ static int cmd(string str, object me, string verb)
 
   // wrap the grid in the parchment frame, matching the location-level
   // map command's presentation
-  write("\n" + handler("frames")->frame(map, "", 0, 0, "scroll") + "\n");
+  write("\n" + handler("frames")->frame(map + legend(map), "", 0, 0, "scroll") + "\n");
   return 1;
 }

@@ -386,6 +386,21 @@ string render(int center_x, int center_y, int center_z,
   return result;
 }
 
+// What a legend needs, by kind of sector: the glyph to look for in a rendered
+// map and the same glyph as it is drawn there (with its colour). Ways are left
+// out: a line reads as a road without being told.
+mapping query_legend_glyphs()
+{
+  return ([
+    "player":      ({ GLYPH_PLAYER, GLYPH_PLAYER }),
+    "city":        ({ GLYPH_MAP_CITY, GLYPH_MAP_CITY }),
+    "forest":      ({ GLYPH_MAP_FOREST, "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^" }),
+    "farm":        ({ GLYPH_MAP_FARM, "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^" }),
+    "coast":       ({ GLYPH_COAST, GLYPH_COAST }),
+    "underground": ({ GLYPH_UNDERGROUND, GLYPH_UNDERGROUND }),
+  ]);
+}
+
 // Convenience: pull the world coord + map + game out of the viewer's
 // environment and hand off to render(). `marker` (default 0) stamps the '@'
 // on the viewer's own sector when set. Returns nil if the viewer is standing in
