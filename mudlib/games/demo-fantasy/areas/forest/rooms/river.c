@@ -64,7 +64,8 @@ void show_destinations(object who)
 
   ret += "\n" + _LANG_RIVER_DESTINATIONS_HINT;
 
-  tell_object(who, handler("frames")->frame(ret));
+  // on a line of its own, never after the prompt that came before it
+  tell_object(who, "\n" + handler("frames")->frame(ret));
 }
 
 // With no number, the list again: whoever missed it, came back linkdead or
