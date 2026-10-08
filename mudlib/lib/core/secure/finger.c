@@ -12,9 +12,13 @@
 // One header row: an indent and two columns of the same width
 #define FINGER_ROW "   %-30s%-30s\n"
 
+// the gender functions (article, vowel...) let a race describe the restored
+// player when this object is passed in its place
+inherit gender "/lib/core/basic/gender.c";
+
 string account_name;
 
-int last_log_on, time_on, start_time, gender;
+int last_log_on, time_on, start_time;
 string home_dir, last_on_from;
 mapping aliases;
 string ident;
@@ -94,9 +98,6 @@ string domain_finger(string name)
 
   return ret;
 } /* domain_finger() */
-
-// to be able to use gender functions when passing the finger object as a parameter
-int query_gender() { return gender; }
 
 string finger_info(string name, varargs object me)
 {
