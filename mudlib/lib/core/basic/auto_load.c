@@ -89,7 +89,8 @@ object * load_auto_load(mapping auto_load, object dest)
   {
     for (j = 0; j < sizeof(auto_load[files[i]]); j++)
     {
-      // Try to clone one
+      // Try to clone one; a failed clone must not leave the previous item here
+      ob = nil;
       catch( ob = clone_object(files[i]) );
 
       if (ob)
