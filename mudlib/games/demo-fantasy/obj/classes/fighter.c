@@ -21,6 +21,10 @@ void setup()
    // set_hp_bonus(0);
    // set_gp_bonus(0);
 
+   // what a level costs, set so every class needs about the same kills
+   // with what it earns per kill (see /lib/class.md)
+   set_level_xp_cost(1650);
+
    // important in ALL classes!!!!
    set_xp_types(([
                   ARMED_COMBAT_XP : 100, 

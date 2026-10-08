@@ -190,7 +190,8 @@ int do_active_effects(object attacker)
 
 int do_call_out_effect(mixed *params) 
 {
-  int res, aux_xp;
+  int res, aux_xp, percentage;
+  mapping types;
 
   aux_xp = 0;
   res = call_other(params[0][SP_OBJECT],
@@ -203,9 +204,13 @@ int do_call_out_effect(mixed *params)
   // Tipos de xp, neverbot 07/04
   if ((res > 0) && (params[2] == EFFECT_TYPE_SPELL))
   {
-    aux_xp = res * (this_object()->query_xp_types()[MAGIC_XP]) / 100;
+    // the class's magic xp percentage applies to what the spell did; a class
+    // that does not say gets all of it, as with kill xp
+    types = this_object()->query_xp_types();
+    percentage = (types && !undefinedp(types[MAGIC_XP])) ? types[MAGIC_XP] : 100;
+    aux_xp = res * percentage / 100;
 
-    this_object()->adjust_xp(res);
+    this_object()->adjust_xp(aux_xp);
   }
 
   // Devolvemos el resultado. Si algo ha ido mal tendremos un -1, y debemos

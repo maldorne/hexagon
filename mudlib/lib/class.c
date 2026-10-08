@@ -3,8 +3,15 @@
 
 inherit "/lib/core/object.c";
 
-#define BASIC_XP_COST 5000
 #define MAX_LEVEL 20
+
+// The xp a level costs grows with the level and, on top of that, by a fixed
+// factor per level, so each level asks for more kills than the one before.
+// See class.md next to this file for the formula and its numbers.
+#define DEFAULT_LEVEL_XP_COST 1500
+#define DEFAULT_LEVEL_XP_GROWTH 1.3
+// the level a new character starts at: the growth counts from here
+#define FIRST_PLAYED_LEVEL 5
 
 mixed * class_commands;
 string * legal_races;
@@ -22,6 +29,10 @@ int combat_bonus;
 // Defines xp_type:percentage
 // xp_types = ([ "combat":"100", "magic":"20", ]), ...
 mapping xp_types;
+
+// what a level costs: level_xp_cost x level x level_xp_growth ^ (level - 5)
+int level_xp_cost;
+float level_xp_growth;
 
 // What code compares this class by: English, never translated, one of the
 // CLASS_* ids. The name and the short are what players read.
@@ -45,6 +56,8 @@ void create(){
   class_commands = ({ });
   legal_races = ({ });
   xp_types = ([ ]);
+  level_xp_cost = DEFAULT_LEVEL_XP_COST;
+  level_xp_growth = DEFAULT_LEVEL_XP_GROWTH;
   hp_bonus = 0;
   gp_bonus = 0;
   hit_dice = 0;
@@ -116,15 +129,29 @@ void new_levels(int lvls, object ob) {
   ob->recalc_stats(lvls);
 }
 
+// The base cost of a level for this class. A class whose characters earn less
+// xp per kill sets it lower, so every class needs about as many kills.
+void set_level_xp_cost(int cost) { if (cost > 0) level_xp_cost = cost; }
+int query_level_xp_cost() { return level_xp_cost; }
+
+// How much more each level costs than the one before, as a factor (1.3 is
+// 30% more kills per level).
+void set_level_xp_growth(float growth) { if (growth > 0.0) level_xp_growth = growth; }
+float query_level_xp_growth() { return level_xp_growth; }
+
 // New system for automatic class level advancement
 // neverbot 16/7/03
+// The xp to reach the next level: cost x level x growth ^ (level - 5).
 int query_next_level_xp(object player)
 {
-  int res;
-  res = player->query_level() * BASIC_XP_COST;
-  if (res == 0) 
-     return BASIC_XP_COST;
-  return res;
+  int level;
+
+  level = player->query_level();
+  if (level < 1)
+    level = 1;
+
+  return (int)((float)(level_xp_cost * level) *
+               pow(level_xp_growth, (float)(level - FIRST_PLAYED_LEVEL)));
 }
 
 int query_max_level(){
