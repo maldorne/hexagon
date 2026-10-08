@@ -126,35 +126,39 @@ mixed query_message(int damage,
   msg_him += aux;
   msg_env += aux;
 
-  // relative damage
-  i = (100 * (defender->query_hp() - damage)) / defender->query_max_hp();
-  
+  // The wound describes what this hit did: its share of the victim's hit
+  // points, or a mortal wound when it killed. The hit is already applied when
+  // this is called, so the victim's hit points are those it is left with.
+  i = defender->query_max_hp() > 0 ? (100 * damage) / defender->query_max_hp() : 0;
+
   if (damage <= 0) 
-   aux = "";
-  else switch (attack_type) 
+    aux = "";
+  else if (defender->query_hp() < 0)
+    aux = (attack_type == SLASHING) ? _LANG_WEAPONS_SLASHING_MSG_7 :
+                                      _LANG_WEAPONS_NON_SLASHING_MSG_7;
+  else if (attack_type == SLASHING)
   {
-    case SLASHING: 
-      switch (i) 
-      {
-        case 0..10 :  aux = _LANG_WEAPONS_SLASHING_MSG_1; break;
-        case 11..25:  aux = _LANG_WEAPONS_SLASHING_MSG_2; break;
-        case 26..40:  aux = _LANG_WEAPONS_SLASHING_MSG_3; break;
-        case 41..60:  aux = _LANG_WEAPONS_SLASHING_MSG_4; break;
-        case 61..80:  aux = _LANG_WEAPONS_SLASHING_MSG_5; break;
-        case 81..100: aux = _LANG_WEAPONS_SLASHING_MSG_6; break;
-        default:      aux = _LANG_WEAPONS_SLASHING_MSG_7; break;
-      }
-    default: 
-      switch (i) 
-      {
-        case 0..10 :  aux = _LANG_WEAPONS_NON_SLASHING_MSG_1; break;
-        case 11..25:  aux = _LANG_WEAPONS_NON_SLASHING_MSG_2; break;
-        case 26..40:  aux = _LANG_WEAPONS_NON_SLASHING_MSG_3; break;
-        case 41..60:  aux = _LANG_WEAPONS_NON_SLASHING_MSG_4; break;
-        case 61..80:  aux = _LANG_WEAPONS_NON_SLASHING_MSG_5; break;
-        case 81..100: aux = _LANG_WEAPONS_NON_SLASHING_MSG_6; break;
-        default:      aux = _LANG_WEAPONS_NON_SLASHING_MSG_7; break;
-      }
+    switch (i)
+    {
+      case 0..7:   aux = _LANG_WEAPONS_SLASHING_MSG_6; break;
+      case 8..14:  aux = _LANG_WEAPONS_SLASHING_MSG_5; break;
+      case 15..24: aux = _LANG_WEAPONS_SLASHING_MSG_4; break;
+      case 25..34: aux = _LANG_WEAPONS_SLASHING_MSG_3; break;
+      case 35..49: aux = _LANG_WEAPONS_SLASHING_MSG_2; break;
+      default:     aux = _LANG_WEAPONS_SLASHING_MSG_1; break;
+    }
+  }
+  else
+  {
+    switch (i)
+    {
+      case 0..7:   aux = _LANG_WEAPONS_NON_SLASHING_MSG_6; break;
+      case 8..14:  aux = _LANG_WEAPONS_NON_SLASHING_MSG_5; break;
+      case 15..24: aux = _LANG_WEAPONS_NON_SLASHING_MSG_4; break;
+      case 25..34: aux = _LANG_WEAPONS_NON_SLASHING_MSG_3; break;
+      case 35..49: aux = _LANG_WEAPONS_NON_SLASHING_MSG_2; break;
+      default:     aux = _LANG_WEAPONS_NON_SLASHING_MSG_1; break;
+    }
   }
 
   // 5. you pierce john in his armour weakly, making only scratches
