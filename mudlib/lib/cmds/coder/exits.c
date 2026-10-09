@@ -235,11 +235,11 @@ private string render_table(object env, mixed * checks)
     row = render_row(checks[i]);
     // a correct exit says its type: both sides already agree on it
     if (checks[i][2] == EX_OK)
-      row = row[0 .. strlen(row) - 3] + " (" + C + env->query_ex_type(checks[i][0]) +
-            RE + ").\n";
+      row = row[0 .. strlen(row) - 3] + " (" + env->query_ex_type(checks[i][0]) +
+            ").\n";
     // a sealed exit is real but only an action takes it
     if (env->query_sealed_exit(checks[i][0]))
-      row = row[0 .. strlen(row) - 2] + " " + C + "(sealed)" + RE + "\n";
+      row = row[0 .. strlen(row) - 2] + " (sealed)\n";
     ret += row;
     if (checks[i][2] == EX_OK) ok_count++;
   }
