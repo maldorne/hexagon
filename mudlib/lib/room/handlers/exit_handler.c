@@ -344,13 +344,8 @@ int do_exit_command(mapping door_control,
     string fail_msg;
     fail_msg = "";
 
-    // door customization, neverbot 10/03
-    if (door->query_reset_message())
-      notify_fail(_LANG_EXITS_IS_CLOSED);
-    else if (door->query_known_exit(dest_direc[i]))
-      notify_fail(_LANG_EXITS_IS_CLOSED_KNOWN);
-    else       
-      notify_fail(_LANG_EXITS_IS_CLOSED_CUSTOM);
+    // the door says it, with its own name: a door, a gate...
+    notify_fail(door->query_closed_message());
     
     return 0;
   }

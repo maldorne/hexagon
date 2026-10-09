@@ -83,6 +83,18 @@ string message()
   return query_owner()->query_cap_name() + ": " + _LANG_TOLL_BLOCKED + "\n";
 }
 
+// A closed gate on the kept exit is opened for whoever may go through.
+private void open_gate()
+{
+  object npc, env, gate;
+
+  npc = query_owner();
+  env = npc ? environment(npc) : nil;
+  gate = env ? env->query_door_ob(toll_direction) : nil;
+  if (gate && !gate->is_open())
+    npc->queue_action(gate->query_open_verb() + " " + toll_direction);
+}
+
 mapping query_component_actions()
 {
   mapping out;
@@ -99,7 +111,7 @@ mapping query_component_actions()
 
 int do_pay(string str)
 {
-  object who, npc, env, gate;
+  object who, npc;
 
   who = this_player();
   npc = query_owner();
@@ -115,6 +127,7 @@ int do_pay(string str)
   if (who->query_timed_property(paid_property()))
   {
     npc->do_say(_LANG_TOLL_ALREADY_PAID);
+    open_gate();
     return 1;
   }
 
@@ -128,12 +141,7 @@ int do_pay(string str)
   npc->adjust_money(toll_fee, BASE_COIN);
   who->add_timed_property(paid_property(), 1, toll_duration);
   npc->do_say(_LANG_TOLL_PAID);
-
-  // a closed gate on the way is opened for the one who paid
-  env = environment(npc);
-  gate = env ? env->query_door_ob(toll_direction) : nil;
-  if (gate && !gate->is_open())
-    npc->queue_action(gate->query_open_verb() + " " + toll_direction);
+  open_gate();
 
   return 1;
 }

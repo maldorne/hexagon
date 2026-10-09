@@ -7,10 +7,3 @@
 #define _LANG_EXITS_MULTIPLE_EXITS "Puedes ver " + query_num(sizeof(dirs)+1, 0) + \
                                    " salidas: "
 
-#define _LANG_EXITS_IS_CLOSED "La puerta hacia " + dest_direc[i] + " está cerrada.\n"
-#define _LANG_EXITS_IS_CLOSED_KNOWN "La puerta " + dest_direc[i] + " está cerrada.\n"
-#define _LANG_EXITS_IS_CLOSED_CUSTOM capitalize((!door->query_number()) ? door->query_article() : \
-              door->query_article_plural()) + " " + dest_direc[i] + \
-              " está"+((!door->query_number()) ? "" : "n") + \
-              (!door->query_number()) ? (" cerrad"+door->query_vowel()+".\n") : \
-              (" cerrad"+door->query_vowel()+"s.\n")

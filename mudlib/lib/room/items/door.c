@@ -29,6 +29,8 @@ int number,       // 0 == single, 1 == many)
                   // has such things) and use a generic one like 'you open the door to xxx'
 
 string * keys;    // names of the keys than can lock/unlock the door
+string door_name;  // what it is called: a door, a gate... (its gender and number
+                   // say how to speak of it)
 
 object query_other_side_door(int flag);
 
@@ -68,7 +70,9 @@ void create()
   hps = 1000;
 
   number = 0; // single
+  door_name = _LANG_DOOR_DEFAULT_NAME;
   ::create();
+  set_gender(_LANG_DOOR_DEFAULT_GENDER);
 }
 
 void setup()
@@ -194,6 +198,31 @@ void set_dest(string str)
   dest = str; 
 }
 
+string query_door_name() { return door_name; }
+void set_door_name(string str) { door_name = str; }
+
+// How a sentence names this door, article included: its name and the way it
+// leads ("la verja este", "the east gate"). `dir` is the direction it is seen
+// from, this side's or the other's.
+string query_door_phrase(string dir)
+{
+  return ((!number) ? query_article() : query_article_plural()) + " " +
+         _LANG_DOOR_NOUN;
+}
+
+// What somebody typing at this door may call it: its direction, short or
+// long, its name, or both together.
+int query_door_called(string str)
+{
+  if (!strlen(str))
+    return 0;
+  return (str == dest) || (str == s_dest) || (str == door_name) ||
+         (str == _LANG_DOOR_NOUN_FOR(dest));
+}
+
+// The answer to somebody walking into it while it is closed.
+string query_closed_message() { return _LANG_DOOR_IS_CLOSED; }
+
 string query_short_dest() { return s_dest; }
 string query_dest() { return dest; }
 void set_dir_other_side(string str) { dir_other_side = str; }
@@ -291,7 +320,7 @@ int do_unlock(varargs string str)
   }
 
   // if we are not opening THIS door
-  if (!strlen(str) || ((str != dest) && (str != s_dest)))
+  if (!query_door_called(str))
     return 0;
 
   if (lock_status == 1) 
@@ -331,18 +360,7 @@ int do_unlock(varargs string str)
 
   if (find == -1)
   {
-    if (reset_msg)
-    {
-      notify_fail(_LANG_DOOR_IS_LOCKED);
-    }
-    else if (query_known_exit(dest))
-    {
-      notify_fail(_LANG_DOOR_IS_LOCKED_KNOWN);
-    }
-    else
-    {
-      notify_fail(_LANG_DOOR_IS_LOCKED_CUSTOM);
-    }
+    notify_fail(_LANG_DOOR_IS_LOCKED);
 
     return 0;
   } 
@@ -362,24 +380,13 @@ int do_open(varargs string str)
   }
 
   // if we are not opening THIS door
-  if (!strlen(str) || ((str != dest) && (str != s_dest)))
+  if (!query_door_called(str))
     return 0;
 
   // already open
   if (query_status() == 1)
   {
-    if (reset_msg)
-    {
-      notify_fail(_LANG_DOOR_OPEN_ALREADY);
-    }
-    else if (query_known_exit(dest))
-    {
-      notify_fail(_LANG_DOOR_OPEN_ALREADY_KNOWN);
-    }
-    else 
-    {
-      notify_fail(_LANG_DOOR_OPEN_ALREADY_CUSTOM);
-    }
+    notify_fail(_LANG_DOOR_OPEN_ALREADY);
 
     return 0;
   }
@@ -424,18 +431,7 @@ int do_lock(varargs string str)
   // if can be locked and IS locked 
   if (lock_status == 0)
   {
-    if (reset_msg)
-    {
-      notify_fail(_LANG_DOOR_LOCK_ALREADY);
-    }
-    else if (query_known_exit(dest))
-    {
-      notify_fail(_LANG_DOOR_LOCK_ALREADY_KNOWN);
-    }
-    else
-    {
-      notify_fail(_LANG_DOOR_LOCK_ALREADY_CUSTOM);
-    }
+    notify_fail(_LANG_DOOR_LOCK_ALREADY);
 
     return 0;
   }
@@ -479,18 +475,7 @@ int do_lock(varargs string str)
     tell_object(this_player(), _LANG_DOOR_USE_TO_LOCK);
 
     // message to the room, to all players including this_player()
-    if (reset_msg)
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK);
-    }
-    else if (query_known_exit(dest))
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK_KNOWN);
-    }
-    else 
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK_CUSTOM);
-    }
+    tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK);
 
     // other side messages
     other_door = query_other_side_door(1);
@@ -499,18 +484,7 @@ int do_lock(varargs string str)
     {
       other_door->set_lock_status(0);
       
-      if (reset_msg)
-      {
-        tell_room(environment(other_door), _LANG_DOOR_OTHER_SIDE_LOCK);
-      }
-      else if (query_known_exit(dir_other_side))
-      {
-        tell_room(environment(other_door), _LANG_DOOR_OTHER_SIDE_LOCK_KNOWN);
-      }
-      else 
-      {
-        tell_room(environment(other_door), _LANG_DOOR_OTHER_SIDE_LOCK_CUSTOM);
-      }
+      tell_room(environment(other_door), _LANG_DOOR_OTHER_SIDE_LOCK);
     }
 
     return 1;
@@ -534,27 +508,13 @@ int do_close(varargs string str)
     return 0;
   }
 
-  if (!strlen(str))
-    return 0;
-
   // if we are not closing THIS door
-  if ((str != dest) && (str != s_dest))
+  if (!query_door_called(str))
     return 0;
 
   if (this_object()->is_broken())
   {
-    if (reset_msg)
-    {
-      notify_fail(_LANG_DOOR_BROKEN);
-    }
-    else if (query_known_exit(dest))
-    {
-      notify_fail(_LANG_DOOR_BROKEN_KNOWN);
-    }
-    else
-    {
-      notify_fail(_LANG_DOOR_BROKEN_CUSTOM);
-    }
+    notify_fail(_LANG_DOOR_BROKEN);
 
     return 0;
   }
@@ -562,18 +522,7 @@ int do_close(varargs string str)
   // initially closed
   if (!query_status())
   {
-    if (reset_msg)
-    {
-      tell_object(this_player(), _LANG_DOOR_CLOSED_ALREADY);
-    }
-    else if (query_known_exit(dest))
-    {
-      tell_object(this_player(), _LANG_DOOR_CLOSED_ALREADY_KNOWN);
-    }
-    else 
-    {
-      tell_object(this_player(), _LANG_DOOR_CLOSED_ALREADY_CUSTOM);
-    }
+    tell_object(this_player(), _LANG_DOOR_CLOSED_ALREADY);
   }
   // initially open
   else 
@@ -614,77 +563,22 @@ void open_msg(string door, object ob, int flag)
 {
   if (flag == 0)
   {
-    if (reset_msg)
-    {
-      tell_object(ob, _LANG_DOOR_YOU_OPEN);
-      tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS, ({ ob }));
-      return;
-    }
-    
-    if (query_known_exit(door))
-    {
-      tell_object(ob, _LANG_DOOR_YOU_OPEN_KNOWN);
-      tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS_KNOWN, ({ ob }));
-      return;
-    }
-
-    tell_object(ob, _LANG_DOOR_YOU_OPEN_CUSTOM);
-    tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS_CUSTOM, ({ ob }) );
+    tell_object(ob, _LANG_DOOR_YOU_OPEN);
+    tell_room(environment(ob), _LANG_DOOR_PLAYER_OPENS, ({ ob }));
   }
   else
-  {
-    if (reset_msg)
-    {
-      tell_room(environment(ob), _LANG_DOOR_SOMEBODY_OPENS);
-      return;
-    }
-
-    if (query_known_exit(door))
-    {
-      tell_room(environment(ob), _LANG_DOOR_SOMEBODY_OPENS_KNOWN);
-      return;
-    }
-    
-    tell_room(environment(ob), _LANG_DOOR_SOMEBODY_OPENS_CUSTOM);
-  }
+    tell_room(environment(ob), _LANG_DOOR_SOMEBODY_OPENS);
 }
 
 void close_msg(string door, object ob, int flag)
 {
   if (flag == 0)
   {
-    if (reset_msg)
-    {
-      tell_object(ob, _LANG_DOOR_YOU_CLOSE);
-      tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES, ({ ob }));
-      return;
-    }
-
-    if (query_known_exit(door))
-    {
-      tell_object(ob, _LANG_DOOR_YOU_CLOSE_KNOWN);
-      tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES_KNOWN, ({ ob }));
-      return;
-    }
-
-    tell_object(ob, _LANG_DOOR_YOU_CLOSE_CUSTOM);
-    tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES_CUSTOM, ({ ob }) );
+    tell_object(ob, _LANG_DOOR_YOU_CLOSE);
+    tell_room(environment(ob), _LANG_DOOR_PLAYER_CLOSES, ({ ob }));
   }
   else
-  {
-    if (reset_msg){
-      tell_room(environment(ob), _LANG_DOOR_SOMEBODY_CLOSES);
-      return;
-    }
-
-    if (query_known_exit(door))
-    {
-      tell_room(environment(ob), _LANG_DOOR_SOMEBODY_CLOSES_KNOWN);
-      return;
-    }
-
-    tell_room(environment(ob), _LANG_DOOR_SOMEBODY_CLOSES_CUSTOM);
-  }
+    tell_room(environment(ob), _LANG_DOOR_SOMEBODY_CLOSES);
 }
 
 int query_max_hps() { return max_hps; }
@@ -738,18 +632,7 @@ void do_damage(int i)
 
 void do_break()
 {
-  if (reset_msg)
-  {
-     tell_room(environment(this_object()), _LANG_DOOR_BREAKS);
-  }
-  else if (query_known_exit(dest))
-  {
-    tell_room(environment(this_object()), _LANG_DOOR_BREAKS_KNOWN);
-  }
-  else
-  {
-    tell_room(environment(this_object()), _LANG_DOOR_BREAKS_CUSTOM);
-  }
+  tell_room(environment(this_object()), _LANG_DOOR_BREAKS);
 
   // open it
   set_status(1);
@@ -810,34 +693,12 @@ void repop()
 {  
   if (!query_status() && (init_status == 1))
   {
-    if (reset_msg)
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OPENS);
-    }
-    else if (query_known_exit(dest))
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OPENS_KNOWN);
-    }
-    else 
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OPENS_CUSTOM);
-    }
+    tell_room(environment(this_object()), _LANG_DOOR_OPENS);
   }
 
   if (query_status() && (init_status == 0))
   {
-    if (reset_msg)
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_CLOSES);
-    }
-    else if (query_known_exit(dest))
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_CLOSES_KNOWN);
-    }
-    else 
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_CLOSES_CUSTOM);
-    }
+    tell_room(environment(this_object()), _LANG_DOOR_CLOSES);
   }
     
   set_status(init_status);
@@ -845,18 +706,7 @@ void repop()
 
   if (!is_open() && !query_init_lock_status()) 
   {
-    if (reset_msg)
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK);
-    }
-    else if (query_known_exit(dest))
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK_KNOWN);
-    }
-    else
-    {
-      tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK_CUSTOM);
-    }
+    tell_room(environment(this_object()), _LANG_DOOR_OTHERS_LOCK);
     
     set_lock_status(init_lock_status);
   }
@@ -873,6 +723,7 @@ void repop()
 //   "lockable"   : 1 => can be locked (without necessarily starting locked)
 //   "keys"       : ({ paths }) => the key items that lock / unlock it
 //   "breakable"  : 1 => can be broken
+//   "name"       : what it is called ("verja", "portón"), "puerta" by default
 //   "gender"     : grammatical gender of the door's name
 //   "number"     : 0 single / 1 plural (a gate that reads "verjas")
 //   "other_side" : the direction word the door shows from the far room
@@ -881,6 +732,8 @@ void set_options(mapping m)
   if (!m)
     return;
 
+  if (stringp(m["name"]))
+    set_door_name(m["name"]);
   if (!undefinedp(m["gender"]))
     set_gender(m["gender"]);
   if (!undefinedp(m["number"]))
