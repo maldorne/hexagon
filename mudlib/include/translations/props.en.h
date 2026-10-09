@@ -317,7 +317,7 @@
 #define _LANG_PROP_COBWEB_LONG          "Cobwebs sturdier than they have any right to be hang from branch to branch, woven so close they barely let the light through."
 
 #define _LANG_PROP_COBWEB_TOUCH_VERBS   ({ "touch", "feel" })
-#define _LANG_PROP_COBWEB_TOUCH_ME      "You brush a strand with your fingers. It draws tight, hums, and somewhere in the thicket something answers by moving."
+#define _LANG_PROP_COBWEB_TOUCH_ME      "You brush a strand with your fingers. It draws tight, hums, and somewhere something answers by moving."
 #define _LANG_PROP_COBWEB_TOUCH_OTHERS  "$mcname$ brushes a strand of the cobwebs and the whole tangle shivers."
 
 // anvil

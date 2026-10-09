@@ -318,7 +318,7 @@
 #define _LANG_PROP_COBWEB_LONG          "Telarañas más robustas de lo normal cuelgan de rama en rama, tan tupidas que apenas dejan pasar la luz."
 
 #define _LANG_PROP_COBWEB_TOUCH_VERBS   ({ "tocar", "palpar" })
-#define _LANG_PROP_COBWEB_TOUCH_ME      "Rozas una hebra con los dedos. Se tensa, vibra, y en algún lugar de la espesura algo responde moviéndose."
+#define _LANG_PROP_COBWEB_TOUCH_ME      "Rozas una hebra con los dedos. Se tensa, vibra, y en algún lugar algo responde moviéndose."
 #define _LANG_PROP_COBWEB_TOUCH_OTHERS  "$mcname$ roza una hebra de las telarañas y toda la maraña tiembla."
 
 // yunque
