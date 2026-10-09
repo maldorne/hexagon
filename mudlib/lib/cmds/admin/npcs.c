@@ -531,7 +531,7 @@ private string * known_template_fields()
             "level", "level_area_modifier", "stat_modifiers", "stats",
             "max_hp", "max_gp", "random_stats", "social_obs", "equipment",
             "money", "components", "timetable", "skills", "spells",
-            "extracted_from", "citizenship" });
+            "extracted_from", "citizenship", "proper_name" });
 }
 
 // The six fields that may be written once or once per gender.
@@ -612,8 +612,9 @@ private string * template_complaints(string game, string id)
       out += ({ keys[i] + " '" + social[keys[i]] + "' does not load" });
 
   // A person's race is drawn from the citizenship that holds the area, so a
-  // template naming one takes that decision away from the culture.
-  if (t["sentient"] && social["race"])
+  // template naming one takes that decision away from the culture. One
+  // particular person (proper_name) keeps the race their template gives.
+  if (t["sentient"] && social["race"] && !t["proper_name"])
     out += ({ "names a race, but its people belong to a citizenship" });
 
   // The area says how strong its people are, so a person's template must not.
