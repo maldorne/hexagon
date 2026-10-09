@@ -134,6 +134,11 @@
 #define _LANG_PROP_STATUE_PRAY_ME       "Te arrodillas ante la estatua y ofreces una oración en silencio."
 #define _LANG_PROP_STATUE_PRAY_OTHERS   "$mcname$ se arrodilla ante la estatua y reza en silencio."
 
+#define _LANG_PROP_STATUE_READ_VERBS    ({ "leer" })
+#define _LANG_PROP_STATUE_READ_ME       "Te acercas al pedestal de la estatua y lees lo que tiene grabado."
+#define _LANG_PROP_STATUE_READ_OTHERS   "$mcname$ se acerca al pedestal de la estatua y lee algo."
+#define _LANG_PROP_STATUE_READ_NOTHING  "La estatua no tiene nada escrito."
+
 
 // ************************************************************
 //  estatua abandonada

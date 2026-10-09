@@ -98,9 +98,9 @@ overrides = ([
 ])
 ```
 
-An action whose spec carries `PROP_SPEC_SHOW_TEXT` (the `read` of a
-`ruined_statue`) prints `MSG_ME`, then the override it names, read the way
-any written text is read (`read_message` on the player): in a frame, in the
+An action whose spec carries `PROP_SPEC_SHOW_TEXT` (the `read` of a `statue`
+or a `ruined_statue`) prints `MSG_ME`, then the override it names, read the
+way any written text is read (`read_message` on the player): in a frame, in the
 common tongue, and garbled for a reader who does not know it.
 
 ```

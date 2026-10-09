@@ -129,6 +129,11 @@
 #define _LANG_PROP_STATUE_PRAY_ME       "You kneel before the statue and offer a silent prayer."
 #define _LANG_PROP_STATUE_PRAY_OTHERS   "$mcname$ kneels before the statue and prays in silence."
 
+#define _LANG_PROP_STATUE_READ_VERBS    ({ "read" })
+#define _LANG_PROP_STATUE_READ_ME       "You step up to the pedestal of the statue and read what is carved on it."
+#define _LANG_PROP_STATUE_READ_OTHERS   "$mcname$ steps up to the pedestal of the statue and reads something."
+#define _LANG_PROP_STATUE_READ_NOTHING  "Nothing is written on the statue."
+
 
 // ************************************************************
 //  ruined statue

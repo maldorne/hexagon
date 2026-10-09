@@ -176,7 +176,9 @@ void create()
     ]),
 
     // ------------------------------------------------------------
-    //  statue — decorative, stateless. Pray action for flavour.
+    //  statue — decorative, stateless. Pray action for flavour;
+    //  what is carved on its pedestal is the instance's inscription
+    //  override.
     // ------------------------------------------------------------
     "statue": ([
 
@@ -192,11 +194,20 @@ void create()
 
       PROP_TYPE_SHORT_KEY:  _LANG_PROP_STATUE_SHORT,
       PROP_TYPE_LONG_KEY:   _LANG_PROP_STATUE_LONG,
-      PROP_TYPE_MATERIALS:  ({ MAT_METAL }),
+      PROP_TYPE_MATERIALS:  ({ MAT_METAL, MAT_STONE }),
 
       PROP_TYPE_DEFAULT_STATE: ([ ]),
 
       PROP_TYPE_ACTIONS: ([
+
+        "read": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_STATUE_READ_VERBS,
+          PROP_SPEC_SHOW_TEXT:    PROP_OVERRIDE_INSCRIPTION,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_STATUE_READ_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_STATUE_READ_OTHERS,
+          PROP_SPEC_MISSING_MSG:  _LANG_PROP_STATUE_READ_NOTHING,
+        ]),
 
         "pray": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
