@@ -27,6 +27,8 @@ void create()
    "gate"     : ({ 0, 1,  15, 0 }),
    "road"     : ({ 0, 1,  30, 0 }),
    "path"     : ({ 0, 1,  20, 0 }),
+   "forest"   : ({ 0, 1,  10, 0 }), // through woods, with no path to follow
+   "bridge"   : ({ 0, 1,  20, 0 }), // across water, on a bridge
    "rope"     : ({ 0, 1,   5, 0 }), // ropes, etc
   ]);
  

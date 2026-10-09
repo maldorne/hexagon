@@ -27,6 +27,7 @@ inherit CMD_BASE;
 #define EX_NO_LOAD     2   // destination won't load
 #define EX_NO_BACK     3   // destination has no back-exit toward us
 #define EX_WRONG_BACK  4   // destination has a back-exit but in the wrong direction
+#define EX_TYPE_DIFF   5   // the back-exit is right but of another exit type
 
 void setup()
 {
@@ -46,6 +47,9 @@ void setup()
     "\n" +
     "  -v   verbose: dump the full per-exit table for every scanned file.\n" +
     "\n" +
+    "Each exit is checked for a destination that loads, a way back in the\n" +
+    "opposite direction, and a way back of the same exit type.\n" +
+    "\n" +
     "Game is inferred from the player's current environment for the sector\n" +
     "and area forms.\n");
 }
@@ -61,7 +65,8 @@ private string self_id(object env)
 
 // Returns ({ ({ dir, target_path, status, detail }), ... }) for every
 // exit of env. detail is "" except for EX_WRONG_BACK, where it carries
-// the (wrong) back-direction that was found.
+// the (wrong) back-direction that was found, and EX_TYPE_DIFF, where it
+// carries both exit types ("forest/path": this side, then the way back).
 private mixed * check_exits_of(object env)
 {
   mixed * dirs, * dirs2, * out;
@@ -117,6 +122,10 @@ private mixed * check_exits_of(object env)
       out += ({ ({ dir, target, EX_NO_BACK, "" }) });
     else if (OPPOSITES[dir] != match)
       out += ({ ({ dir, target, EX_WRONG_BACK, match }) });
+    // the two sides of one link should read as the same kind of way
+    else if (env->query_ex_type(dir) != dest->query_ex_type(match))
+      out += ({ ({ dir, target, EX_TYPE_DIFF,
+                   env->query_ex_type(dir) + "/" + dest->query_ex_type(match) }) });
     else
       out += ({ ({ dir, target, EX_OK, "" }) });
   }
@@ -145,6 +154,8 @@ private string render_row(mixed * row)
     case EX_NO_BACK:    return line + R + "no backwards exit" + RE + ".\n";
     case EX_WRONG_BACK: return line + Y + "wrong opposite" + RE +
                                " (back: " + C + detail + RE + ").\n";
+    case EX_TYPE_DIFF:  return line + Y + "different exit type" + RE +
+                               " (" + C + detail + RE + ").\n";
   }
 
   return line + "?\n";
@@ -245,6 +256,7 @@ private string status_label(mixed * c)
     case EX_NO_LOAD:    return c[0] + ": won't load";
     case EX_NO_BACK:    return c[0] + ": no back-exit";
     case EX_WRONG_BACK: return c[0] + ": wrong opposite (" + c[3] + ")";
+    case EX_TYPE_DIFF:  return c[0] + ": exit type " + c[3];
   }
   return c[0];
 }
