@@ -16,6 +16,7 @@ mapping monster_census;
 
 
 private int _live_monster_count(object loc, string source);
+int query_monster_live_count(string source);
 private object spawn_monster(string source, object loc);
 
 void create()
@@ -91,38 +92,100 @@ void monster_died(string source, string location_file)
   this_object()->save_me();
 }
 
-// A reconverted location keeps no more monsters of a kind than its room now
-// asks for: its bucket is cut down to the new provenance, so lowering what a
-// room clones lowers the population instead of leaving the old one in place.
-void trim_location_monsters(string location_file, mapping clones)
+// Bring the monster counts back within what this area's locations ask for,
+// after a conversion changed it: a kind no room of the area clones any more
+// goes, and a kind over its share loses the excess, first from locations that
+// do not declare it and then from the fullest ones. The share is what the
+// population sweep tops up to, so lowering what the rooms clone lowers the
+// population instead of leaving the old one in place.
+// How many monsters of `source` the bucket of `file` holds.
+private int _bucket_count(string file, string source)
 {
-  mapping bucket, wanted;
-  string * keys;
-  int i;
+  mixed count;
 
-  bucket = monster_census[location_file];
-  if (!bucket)
-    return;
+  count = monster_census[file][source];
+  return count ? count : 0;
+}
 
-  wanted = ([ ]);
-  keys = clones ? map_indices(clones) : ({ });
-  for (i = 0; i < sizeof(keys); i++)
+void trim_monsters_to_caps()
+{
+  string * sources, * files;
+  int i, j, changed;
+
+  sources = ({ });
+  files = map_indices(monster_census);
+  for (i = 0; i < sizeof(files); i++)
+    sources |= map_indices(monster_census[files[i]]);
+
+  for (i = 0; i < sizeof(sources); i++)
   {
-    string source;
+    mapping declared;
+    int share, excess;
 
-    source = (string)this_object()->query_template_from_source(keys[i]);
-    wanted[source] = (wanted[source] ? wanted[source] : 0) + clones[keys[i]];
+    declared = (mapping)this_object()->query_original_clone_counts(sources[i]);
+    share = 0;
+    files = map_indices(declared);
+    for (j = 0; j < sizeof(files); j++)
+      share += declared[files[j]];
+
+    excess = query_monster_live_count(sources[i]) - share;
+    if (excess <= 0)
+      continue;
+
+    // locations that never declared this kind are emptied of it first
+    files = map_indices(monster_census);
+    for (j = 0; j < sizeof(files) && excess > 0; j++)
+    {
+      int here;
+
+      here = _bucket_count(files[j], sources[i]);
+      if (!here || declared[files[j]])
+        continue;
+
+      here = (here > excess) ? excess : here;
+      monster_census[files[j]][sources[i]] -= here;
+      excess -= here;
+      changed = 1;
+    }
+
+    // then one at a time from wherever most of them are
+    while (excess > 0)
+    {
+      string fullest;
+      int most;
+
+      fullest = nil;
+      most = 0;
+      for (j = 0; j < sizeof(files); j++)
+        if (_bucket_count(files[j], sources[i]) > most)
+        {
+          most = _bucket_count(files[j], sources[i]);
+          fullest = files[j];
+        }
+
+      if (!fullest)
+        break;
+
+      monster_census[fullest][sources[i]] -= 1;
+      excess--;
+      changed = 1;
+    }
   }
 
-  keys = map_indices(bucket);
-  for (i = 0; i < sizeof(keys); i++)
-    if (!wanted[keys[i]])
-      map_delete(bucket, keys[i]);
-    else if (bucket[keys[i]] > wanted[keys[i]])
-      bucket[keys[i]] = wanted[keys[i]];
+  if (!changed)
+    return;
 
-  if (!map_sizeof(bucket))
-    map_delete(monster_census, location_file);
+  // drop the counts and the buckets left at zero
+  files = map_indices(monster_census);
+  for (i = 0; i < sizeof(files); i++)
+  {
+    sources = map_indices(monster_census[files[i]]);
+    for (j = 0; j < sizeof(sources); j++)
+      if (monster_census[files[i]][sources[j]] <= 0)
+        map_delete(monster_census[files[i]], sources[j]);
+    if (!map_sizeof(monster_census[files[i]]))
+      map_delete(monster_census, files[i]);
+  }
 
   this_object()->save_me();
 }

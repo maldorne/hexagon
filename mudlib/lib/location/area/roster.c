@@ -262,10 +262,6 @@ void set_location_original_sources(string location_file, mapping clones)
 {
   object owner;
 
-  // the monsters are counted by the area the location belongs to, whoever
-  // keeps the provenance
-  this_object()->trim_location_monsters(location_file, clones);
-
   // The provenance is keyed by location file, so a community can hold the
   // entries of every area that delegates to it and derive one set of caps from
   // the lot. The sweep still registers this area by its own path: the caps are
@@ -274,6 +270,8 @@ void set_location_original_sources(string location_file, mapping clones)
   if (owner != this_object())
   {
     owner->set_location_original_sources(location_file, clones);
+    // the monsters are counted by the area the location belongs to
+    this_object()->trim_monsters_to_caps();
     return;
   }
 
@@ -283,7 +281,7 @@ void set_location_original_sources(string location_file, mapping clones)
     map_delete(original_npc_sources, location_file);
 
   rebuild_npc_caps();
-
+  this_object()->trim_monsters_to_caps();
 
   this_object()->save_me();
 }
