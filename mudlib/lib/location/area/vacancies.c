@@ -465,19 +465,21 @@ int remove_vacancy_spot(string job, string location_file)
 // A generated given-name (lowercase) for one of this area's citizens: the name
 // generator draws it from the area citizenship's name style, in the form
 // matching the given gender (a GENDER_* id). It does not depend on the job.
-// Returns nil when the area has no citizenship, the citizenship declares no
-// name style, or the generator has no wordlist for it -- the NPC then keeps its
-// template's name.
-string generate_citizen_name(int gender)
+// `cpath` names the citizenship to draw from instead, for somebody born here
+// who comes from elsewhere. Returns nil when there is no citizenship, it
+// declares no name style, or the generator has no wordlist for it -- the NPC
+// then keeps its template's name.
+string generate_citizen_name(int gender, varargs string cpath)
 {
-  string cpath, style, word;
+  string style, word;
   object cit;
 
   // the naming style is a trait of the nationality, not of the town: every
   // settlement under the same country draws its citizens' names from one pool,
   // and an area with no citizenship of its own borrows the pool of the region
   // it sits in without taking its nationality
-  cpath = (string)this_object()->query_naming_citizenship_path();
+  if (!stringp(cpath))
+    cpath = (string)this_object()->query_naming_citizenship_path();
   if (!strlen(cpath))
     return nil;
 

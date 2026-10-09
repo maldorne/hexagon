@@ -531,7 +531,7 @@ private string * known_template_fields()
             "level", "level_area_modifier", "stat_modifiers", "stats",
             "max_hp", "max_gp", "random_stats", "social_obs", "equipment",
             "money", "components", "timetable", "skills", "spells",
-            "extracted_from" });
+            "extracted_from", "citizenship" });
 }
 
 // The six fields that may be written once or once per gender.
@@ -625,6 +625,25 @@ private string * template_complaints(string game, string id)
   if (t["sentient"] && !undefinedp(t["level"]))
     out += ({ "pins a level: the area's band owns it, " +
               "use level_area_modifier" });
+
+  // Where a type's people come from, when it is not the area: only a person has
+  // a citizenship, and each one named must exist in this game.
+  if (!undefinedp(t["citizenship"]))
+  {
+    string * named;
+
+    if (!t["sentient"])
+      out += ({ "has a citizenship, but only people carry one" });
+
+    named = pointerp(t["citizenship"]) ? t["citizenship"] :
+            ({ t["citizenship"] });
+    for (i = 0; i < sizeof(named); i++)
+      if (!stringp(named[i]))
+        out += ({ "citizenship holds something that is not a name" });
+      else if (strlen(named[i]) &&
+               !loadable("/games/" + game + "/obj/citizenships/" + named[i]))
+        out += ({ "citizenship '" + named[i] + "' does not exist" });
+  }
 
   return out;
 }

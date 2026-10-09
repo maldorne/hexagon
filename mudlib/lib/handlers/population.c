@@ -1,5 +1,6 @@
 /*
- * Population handler — keeps every area's fauna topped up.
+ * Population handler — keeps every area's fauna, and the people nothing else
+ * places, topped up.
  *
  * One area per cron tick, at the DATA level: it never loads a location. For the
  * area whose turn it is, it compares each roster blueprint's cap against the
@@ -8,8 +9,11 @@
  * becomes real when its location loads (area::populate_location). A death
  * frees a slot, so the next sweep refills it -- somewhere else.
  *
- * Only the anonymous half of the population is swept. People are staffed one by
- * one by their settlement and never scattered statistically.
+ * The people of the area that nothing else gives a place to -- no post, no
+ * house: travellers, pilgrims -- are topped up the same way, but each one is
+ * created as a person of the census (area::create_npc), with a name and a
+ * savefile, standing in the location drawn for it. Everybody else is staffed
+ * one by one by their settlement and never scattered statistically.
  *
  * It keeps no register of its own: which areas exist is the areas handler's to
  * answer, read off the tree of the game this handler belongs to. Every game has
@@ -21,6 +25,7 @@
 
 #include <mud/config.h>
 #include <areas/area.h>
+#include <areas/vacancy.h>
 
 inherit "/lib/core/object.c";
 
@@ -117,8 +122,8 @@ int update_population()
   if (!map_sizeof(caps) || !sizeof(locs))
     return 0;
 
-  // only the anonymous half of the population is swept; citizens come from
-  // their settlement's role board, never from a statistical topup
+  // the anonymous half of the population first; the people with a post or a
+  // house come from their settlement, never from a statistical topup
   sources = area->query_monster_sources();
   assigned = 0;
 
@@ -148,6 +153,36 @@ int update_population()
     for (j = 0; j < deficit && assigned < ASSIGN_PER_TICK; j++)
     {
       area->assign_monster(sources[i], files[random(sizeof(files))]);
+      assigned++;
+    }
+  }
+
+  // then the people nothing else places, from the same provenance. They are
+  // counted where they stand in this area's own locations, as a community
+  // shares one census, so one who has walked out of the area is replaced here.
+  sources = area->query_unplaced_people_sources();
+
+  for (i = 0; i < sizeof(sources) && assigned < ASSIGN_PER_TICK; i++)
+  {
+    mapping clones_here;
+    string * files;
+    int cap, deficit, j;
+
+    clones_here = area->query_original_clone_counts(sources[i]);
+    files = map_indices(clones_here);
+    if (!sizeof(files))
+      continue;
+
+    cap = 0;
+    for (j = 0; j < sizeof(files); j++)
+      cap += clones_here[files[j]];
+
+    deficit = cap - area->query_npc_count_at(sources[i], locs);
+
+    for (j = 0; j < deficit && assigned < ASSIGN_PER_TICK; j++)
+    {
+      area->create_npc(sources[i],
+                       ([ CENSUS_LOCATION : files[random(sizeof(files))] ]));
       assigned++;
     }
   }

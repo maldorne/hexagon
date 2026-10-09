@@ -2,7 +2,8 @@
 // The census: the area's individual NPCs.
 //
 // A census row is a person the world refers to one by one -- a citizen staffing
-// a job, the unique filling a POI vacancy, a posted watch. Each carries a uuid
+// a job, the unique filling a POI vacancy, a posted watch, a traveller the
+// population sweep placed on a road. Each carries a uuid
 // and a savefile of its own, which is exactly what tells it apart from the
 // anonymous monsters counted elsewhere. The row itself stays lean (who, where,
 // what post); everything individual about the NPC -- gender, level, inventory,
@@ -87,6 +88,58 @@ int query_npc_live_count(string source)
   return n;
 }
 
+// How many people of `source` the census has standing in one of
+// `location_files`, materialized or not. What the population sweep measures an
+// area's own share of a type against, since a community shares one census.
+int query_npc_count_at(string source, string * location_files)
+{
+  string * ids;
+  mapping census;
+  int i, n;
+
+  census = query_npc_census();
+  ids = map_indices(census);
+  for (i = 0; i < sizeof(ids); i++)
+    if (census[ids[i]]["source"] == source &&
+        member_array(census[ids[i]][CENSUS_LOCATION], location_files) != -1)
+      n++;
+
+  return n;
+}
+
+// The people the population sweep places: sentient kinds on the roster that
+// nothing else gives a place to. A job places its holders and a house its
+// residents, so the types a post draws from and the ones entitled to a house
+// are left out; what remains -- travellers, pilgrims, the odd old man -- is born
+// where the rooms declared it, as the fauna is, but as a person of the census.
+string * query_unplaced_people_sources()
+{
+  mapping caps, posts;
+  string * sources, * out;
+  string game;
+  int i;
+
+  game = game_from_path((string)this_object()->query_area_path());
+  caps = (mapping)this_object()->query_npc_caps();
+  posts = (mapping)this_object()->query_vacancy_sources();
+  sources = map_indices(caps);
+  out = ({ });
+
+  for (i = 0; i < sizeof(sources); i++)
+  {
+    mapping t;
+
+    if (posts[sources[i]] || caps[sources[i]]["resident"])
+      continue;
+
+    t = BESTIARY_HANDLER->query_template(game, sources[i]);
+    if (t && t["sentient"])
+      out += ({ sources[i] });
+  }
+
+  return out;
+}
+
 // Census entries assigned to a given location file.
 private string * query_census_uuids_at(string location_file)
 {
@@ -156,6 +209,39 @@ private object _clone_npc(string id)
   return npc;
 }
 
+// Where a person of the type `t` comes from: ({ nationality, naming }), the
+// citizenship they are a subject of and the one their name and race are drawn
+// from, as paths ("" for none). The area answers both, unless the type says its
+// people come from elsewhere: a template "citizenship" names one, or a list to
+// draw one from, and an empty one makes them nobody's subjects while they are
+// still named like the land they are born in.
+private string * query_birth_citizenships(mapping t)
+{
+  mixed choice;
+  string game, root;
+
+  if (!t || undefinedp(t["citizenship"]))
+    return ({ (string)this_object()->query_root_citizenship_path(),
+              (string)this_object()->query_naming_citizenship_path() });
+
+  choice = t["citizenship"];
+  if (pointerp(choice))
+    choice = sizeof(choice) ? choice[random(sizeof(choice))] : "";
+
+  if (!stringp(choice) || !strlen(choice))
+    return ({ "", (string)this_object()->query_naming_citizenship_path() });
+
+  // a citizenship under another one carries the one at the top, as the area's
+  // own does
+  game = game_from_path((string)this_object()->query_area_path());
+  root = handler("diplomacy", this_object())->query_root_citizenship(choice);
+  if (!root || !strlen(root))
+    root = choice;
+
+  root = "/games/" + game + "/obj/citizenships/" + root;
+  return ({ root, root });
+}
+
 // Write the npc.o of a census row's person, complete. Who somebody is comes from
 // its owners: the type's template says how the people of this trade look, talk
 // and behave; the citizenship draws the race and the name; the area sets the
@@ -170,6 +256,7 @@ private int _build_npc(string id)
   mixed cpath;
   object npc;
   string game, source;
+  string * origin;
   int ok;
 
   entry = query_npc_census()[id];
@@ -193,6 +280,9 @@ private int _build_npc(string id)
   // its template has no words for.
   npc->set_gender((int)this_object()->decide_gender(game, source));
 
+  // where this person comes from, decided now and kept for life
+  origin = query_birth_citizenships(t);
+
   // A sentient citizen's proper name is generated using its gender and stored
   // on the NPC itself (npc_given_name -> npc.o) because id.c's `name` is static
   // and never saved. Before the template: monster::set_name takes only the
@@ -204,7 +294,8 @@ private int _build_npc(string id)
     // No (string) cast here: that is a conversion kfun, not a type assertion,
     // and it errors on nil -- which is what a citizenship with no name style
     // hands back.
-    gname = this_object()->generate_citizen_name((int)npc->query_gender());
+    gname = this_object()->generate_citizen_name((int)npc->query_gender(),
+                                                 origin[1]);
     if (stringp(gname) && strlen(gname))
       npc->set_given_name(gname);
   }
@@ -233,8 +324,9 @@ private int _build_npc(string id)
   npc->set_level((int)this_object()->decide_level(game, source));
 
   // Nationality: the citizenship at the top of the area's parent chain. A place
-  // with none, a road between two towns, makes nobody its subject.
-  cpath = this_object()->query_root_citizenship_path();
+  // with none, a road between two towns, makes nobody its subject. A type whose
+  // people come from elsewhere says so in its template, see above.
+  cpath = origin[0];
   if (stringp(cpath) && strlen(cpath))
     npc->set_city_ob(cpath);
 
@@ -252,7 +344,7 @@ private int _build_npc(string id)
   // before applying the new one, so it is safe on top of what the template set.
   if (t && t["sentient"])
   {
-    cpath = this_object()->query_naming_citizenship_path();
+    cpath = origin[1];
     if (stringp(cpath) && strlen(cpath))
     {
       mixed race;

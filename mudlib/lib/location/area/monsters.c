@@ -108,10 +108,12 @@ int query_monster_live_count(string source)
 
 mapping query_monster_census() { return monster_census; }
 
-// The sources the population sweep may top up: the caps roster minus every
-// sentient kind. Citizens are staffed by their settlement, one named individual
-// at a time -- they are never scattered statistically, so they are not the
-// sweep's business even when an old conversion left them on the roster.
+// The sources the population sweep may top up as fauna: the caps roster minus
+// every sentient kind. Citizens are staffed by their settlement, one named
+// individual at a time -- they are never scattered statistically, so they are
+// not counted here even when an old conversion left them on the roster. The
+// people nothing else places are swept as persons instead
+// (query_unplaced_people_sources).
 string * query_monster_sources()
 {
   mapping caps;
