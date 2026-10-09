@@ -14,6 +14,8 @@
 #include <areas/area.h>
 #include <basic/money.h>
 #include <translations/money.h>
+#include <living/skills.h>
+#include <npc/npc.h>
 
 inherit monster   "/lib/monster.c";
 // Inventory persistence, the same mixin players use: create_auto_load snapshots
@@ -334,6 +336,12 @@ void resume_schedule(int hour)
   run_on_components("resume_schedule", ({ hour }));
 }
 
+// The hide shadow tells whoever it hid that a search found them.
+void event_revealed(object finder)
+{
+  run_on_components("revealed", ({ finder }));
+}
+
 // Give this NPC a generated proper name: store it (persisted in npc.o) and set
 // it as the engine name (the find_living id), lowercased. Call on a freshly
 // cloned NPC, before any template names it -- monster::set_name only takes the
@@ -507,6 +515,15 @@ void delete_npc_save()
 // query_dead() guard (set by living::actual_death before it destructs us)
 // tells the two apart. The diplomacy controller (city_ob) is already notified
 // inside living::do_death, so it is not repeated here.
+// Components hear of the death while the body is still standing: what they
+// put on it goes into the corpse with the rest of its inventory.
+int do_death(varargs object killer)
+{
+  if (!query_dead())
+    run_on_components("died", ({ killer }));
+  return monster::do_death(killer);
+}
+
 void dest_me()
 {
   if (query_dead() && npc_area_path)
@@ -658,6 +675,26 @@ void apply_template(mapping t, varargs int born)
     for (i = 0; i < sizeof(names); i++)
       if (stringp(t["spells"][names[i]]))
         add_spell(names[i], t["spells"][names[i]]);
+  }
+
+  // Skills the type uses unprompted in a fight, with the chance each heart beat
+  // of trying one: ([ "<skill id>" : <chance> ]). The skill is aimed at whoever
+  // it is fighting.
+  if (mappingp(t["attack_skills"]))
+  {
+    string * ids;
+    mixed data;
+    int i;
+
+    ids = map_indices(t["attack_skills"]);
+    for (i = 0; i < sizeof(ids); i++)
+    {
+      data = table("skills")->query_skill_data(ids[i]);
+      if (pointerp(data) && intp(t["attack_skills"][ids[i]]))
+        add_attack_effect(t["attack_skills"][ids[i]], ids[i],
+          ({ data[SKILL_DATA_PATH] + ".c", "cast_effect",
+             ATTACK_EFFECT_TARGET_ONE }));
+    }
   }
 
   // Behaviour the type carries: ([ "<component>" : ([ attrs ]) ]). This is how
