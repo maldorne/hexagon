@@ -668,3 +668,30 @@
 #define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "accept" })
 #define _LANG_CMD_QUESTS_COMPLETE_OPTIONS ({ "deliver" })
 #define _LANG_CMD_QUESTS_ABANDON_OPTIONS ({ "abandon", "drop" })
+
+// crafts
+
+#define _LANG_CMD_CRAFTS_ALIAS ({ "crafts", "craft" })
+#define _LANG_CMD_CRAFTS_SYNTAX "crafts [info|commission] [<number>]"
+#define _LANG_CMD_CRAFTS_HELP "Shows what the crafters with you make to order, with " + \
+      "a number for each thing.\n" + \
+      "  crafts                  what can be commissioned here, numbered\n" + \
+      "  crafts info <n>         what it is, the materials it needs and its price\n" + \
+      "  crafts commission <n>   you hand over the materials, pay and have it made\n" + \
+      "With only one thing to commission, the number may be left out."
+#define _LANG_CMD_CRAFTS_INFO_WORDS ({ "info" })
+#define _LANG_CMD_CRAFTS_ORDER_WORDS ({ "commission", "order" })
+#define _LANG_CMD_CRAFTS_NONE "Nobody here makes anything to order for you.\n"
+#define _LANG_CMD_CRAFTS_FROM list[i][0]->query_cap_name() + " can make you:\n"
+#define _LANG_CMD_CRAFTS_LIST_FOOTER "Type 'crafts info <number>' to see what each thing needs.\n"
+#define _LANG_CMD_CRAFTS_NO_SUCH "There is nothing to commission with that number.\n"
+#define _LANG_CMD_CRAFTS_FREE "nothing"
+#define _LANG_CMD_CRAFTS_NEEDS "Materials: "
+#define _LANG_CMD_CRAFTS_COSTS "Price: "
+#define _LANG_CMD_CRAFTS_YOU_LACK "You lack: "
+#define _LANG_CMD_CRAFTS_CANNOT_PAY "You do not carry enough money to pay for it.\n"
+#define _LANG_CMD_CRAFTS_FAILED "The commission could not be made.\n"
+#define _LANG_CMD_CRAFTS_DONE_ME who->query_cap_name() + " takes what you give, sets " + \
+      "to work and after a while hands you " + made->query_short() + ".\n"
+#define _LANG_CMD_CRAFTS_DONE_ROOM who->query_cap_name() + " hands " + \
+      me->query_cap_name() + " a piece of work made to order.\n"

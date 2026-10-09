@@ -669,3 +669,30 @@
 #define _LANG_CMD_QUESTS_ACCEPT_OPTIONS ({ "aceptar" })
 #define _LANG_CMD_QUESTS_COMPLETE_OPTIONS ({ "entregar" })
 #define _LANG_CMD_QUESTS_ABANDON_OPTIONS ({ "abandonar", "dejar" })
+
+// crafts
+
+#define _LANG_CMD_CRAFTS_ALIAS ({ "encargos", "encargo" })
+#define _LANG_CMD_CRAFTS_SYNTAX "encargos [info|encargar] [<número>]"
+#define _LANG_CMD_CRAFTS_HELP "Muestra lo que hacen por encargo los artesanos que " + \
+      "están contigo, con un número para cada cosa.\n" + \
+      "  encargos                lo que se puede encargar aquí, numerado\n" + \
+      "  encargos info <n>       qué es, qué materiales pide y cuánto cuesta\n" + \
+      "  encargos encargar <n>   entregas los materiales, pagas y te lo hacen\n" + \
+      "Si sólo hay una cosa que encargar, el número sobra."
+#define _LANG_CMD_CRAFTS_INFO_WORDS ({ "info" })
+#define _LANG_CMD_CRAFTS_ORDER_WORDS ({ "encargar", "pedir" })
+#define _LANG_CMD_CRAFTS_NONE "Aquí nadie te hace trabajos por encargo.\n"
+#define _LANG_CMD_CRAFTS_FROM list[i][0]->query_cap_name() + " te puede hacer:\n"
+#define _LANG_CMD_CRAFTS_LIST_FOOTER "Escribe 'encargos info <número>' para ver qué pide cada cosa.\n"
+#define _LANG_CMD_CRAFTS_NO_SUCH "No hay ningún encargo con ese número.\n"
+#define _LANG_CMD_CRAFTS_FREE "nada"
+#define _LANG_CMD_CRAFTS_NEEDS "Materiales: "
+#define _LANG_CMD_CRAFTS_COSTS "Precio: "
+#define _LANG_CMD_CRAFTS_YOU_LACK "Te falta: "
+#define _LANG_CMD_CRAFTS_CANNOT_PAY "No llevas suficiente dinero para pagarlo.\n"
+#define _LANG_CMD_CRAFTS_FAILED "No ha podido hacerse el encargo.\n"
+#define _LANG_CMD_CRAFTS_DONE_ME who->query_cap_name() + " toma lo que le das, se pone a " + \
+      "trabajar y al rato te entrega " + made->query_short() + ".\n"
+#define _LANG_CMD_CRAFTS_DONE_ROOM who->query_cap_name() + " le entrega a " + \
+      me->query_cap_name() + " un trabajo hecho por encargo.\n"

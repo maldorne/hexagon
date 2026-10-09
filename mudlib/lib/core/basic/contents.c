@@ -142,6 +142,23 @@ private string quest_mark(object ob, object me)
   return "";
 }
 
+// Whoever makes things to order is marked too, in its own colour, for whoever
+// it deals with.
+private string craft_mark(object ob, object me)
+{
+  object crafter;
+
+  if (!ob || !me)
+    return "";
+
+  crafter = handler("crafts")->crafter_of(ob);
+
+  if (!crafter || !sizeof(crafter->recipes_for(me)))
+    return "";
+
+  return _LANG_CRAFT_MARK;
+}
+
 // important change in this function: now npcs and players are treated the same
 // both shown in the same line, and both with colors if needed, see
 // /lib/handlers/pov.c
@@ -199,7 +216,7 @@ string query_contents(string str, varargs object *obs)
     // only when alone: a group is named in the plural and the mark would not
     // say which of them it is about
     if (j <= 1)
-      ret += quest_mark(inv[1][i][0], me);
+      ret += quest_mark(inv[1][i][0], me) + craft_mark(inv[1][i][0], me);
 
     count--;
     if (count > 1)
@@ -226,7 +243,8 @@ string query_contents(string str, varargs object *obs)
              capitalize((string)inv[3][i][0]->pretty_plural()) + ".\n";
       continue;
     }
-    ret += capitalize(inv[2][i]) + quest_mark(inv[3][i][0], me) + ".\n";
+    ret += capitalize(inv[2][i]) + quest_mark(inv[3][i][0], me) +
+           craft_mark(inv[3][i][0], me) + ".\n";
   }  
 
   return ret;

@@ -428,6 +428,10 @@ int complete(object who, string id)
 
   who->complete_quest(game_of(who), id);
 
+  // whatever the quest itself does as it is handed in, such as taking back
+  // what it asked for
+  quest->event_completed(who);
+
   // what the taker says as it takes the quest back, before whatever it pays
   if (strlen(quest->query_complete_message()))
     tell_object(who, "\n" + wrap(quest->query_complete_message(),

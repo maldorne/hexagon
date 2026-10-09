@@ -160,3 +160,9 @@ int can_complete(object who)
 {
   return 1;
 }
+
+// Called as the quest is handed in, once it has been accepted and before the
+// rewards are paid: a quest that asked for something takes it here.
+void event_completed(object who)
+{
+}
