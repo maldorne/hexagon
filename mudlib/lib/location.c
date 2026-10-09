@@ -681,18 +681,22 @@ string long(varargs string str, int dark)
 
   // Body composition (no-arg path):
   // 1. Author-curated _specific_long sets the scene for what no
-  //    component can infer.
+  //    component can infer; without one, the _original_long of the room
+  //    the location was converted from does.
   // 2. Component hook_long contributions (via the run_reduce above)
   //    follow, joined by a single space so the result reads as prose.
-  // 3. If neither yielded anything, fall back to _original_long for
-  //    backward compatibility with unmigrated locations.
   ret = "";
   if (_specific_long && strlen(_specific_long))
     ret = _specific_long;
+  else if (_original_long)
+    ret = _original_long;
   if (composed && strlen(composed))
+  {
+    // the base text may end its paragraph; the contributions continue it
+    while (strlen(ret) && ret[strlen(ret) - 1] == '\n')
+      ret = ret[0 .. strlen(ret) - 2];
     ret = strlen(ret) ? ret + " " + composed : composed;
-  if (!strlen(ret))
-    ret = _original_long ? _original_long : "";
+  }
 
   // Append the trailing newline authors of legacy rooms typically
   // put inside their set_long("text.\n") call — wrap()'s prettify
