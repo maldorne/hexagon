@@ -296,6 +296,14 @@ private void edit_group(string str)
   int i;
 
   words = explode(replace_string(lower_case(str), ",", " "), " ") - ({ "" });
+
+  // only separators: nothing to edit
+  if (!sizeof(words))
+  {
+    show_groups();
+    return;
+  }
+
   group = words[0];
   adding = ({ });
   removing = ({ });

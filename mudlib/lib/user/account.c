@@ -90,7 +90,7 @@ void birthday(string str)
       if (!handler("calendar")->valid_birthday(str))
       {
         write(_LANG_ACCOUNT_BIRTHDAY_INVALID);
-        input_to("birthday",1);
+        input_to("birthday");
         return;
       }
       this_object()->set_birthday(str);

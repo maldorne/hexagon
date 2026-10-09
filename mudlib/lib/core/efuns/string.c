@@ -105,8 +105,9 @@ static string trim(string str)
          str[strlen(str)-1] == 9 ||
          str[strlen(str)-1] == 10)
   {
+    // nothing but blanks
     if (strlen(str) == 1)
-      return str;
+      return "";
     str = str[0..strlen(str)-2];
   }
 
@@ -114,8 +115,9 @@ static string trim(string str)
          str[0] == 9 ||
          str[0] == 10)
   {
+    // nothing but blanks
     if (strlen(str) == 1)
-      return str;
+      return "";
     str = str[1..strlen(str)-1];
   }
 

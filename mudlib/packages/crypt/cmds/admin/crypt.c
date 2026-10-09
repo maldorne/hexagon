@@ -274,6 +274,14 @@ int get_key2(mixed key)
   int i, l;
   write("\n");
 
+  // an empty key encrypts nothing
+  if (!stringp(key) || !strlen(key))
+  {
+    write("No key given, nothing done.\n");
+    tmpkey = 0;
+    return 1;
+  }
+
   if (crypt && key != tmpkey)
   {
     write("You changed!\n");
