@@ -809,12 +809,14 @@ string * query_known_types()
 string * infer_types_from_room(mixed * items, string long)
 {
   string * known, * result, * words;
-  mapping seen;
+  mapping seen, matched, nouns;
   int i, j;
 
   _ensure_loaded();
   result = ({ });
   seen = ([ ]);
+  matched = ([ ]);
+  nouns = ([ ]);
 
   // item id keywords: items = ({ ({ id_or_id_array, desc }), ... })
   if (pointerp(items))
@@ -862,6 +864,47 @@ string * infer_types_from_room(mixed * items, string long)
 
     for (j = 0; j < sizeof(ids); j++)
       if (ids[j] && !undefinedp(seen[lower_case(ids[j])]))
+      {
+        if (undefinedp(matched[known[i]]))
+          matched[known[i]] = ({ });
+        matched[known[i]] += ({ lower_case(ids[j]) });
+      }
+
+    if (spec && !undefinedp(matched[known[i]]))
+    {
+      if (stringp(spec[PROP_TYPE_NOUN]))
+        nouns[lower_case(spec[PROP_TYPE_NOUN])] = 1;
+      if (stringp(spec[PROP_TYPE_NOUN_PLURAL]))
+        nouns[lower_case(spec[PROP_TYPE_NOUN_PLURAL])] = 1;
+    }
+  }
+
+  // a word several types share as an id belongs to the type it names
+  // ("estatua" is a statue, not a ruined statue): a type matched only by
+  // words that are another matched type's noun is left out, so one thing
+  // in the description gives one prop
+  for (i = 0; i < sizeof(known); i++)
+  {
+    string * words_matched, * own_nouns;
+    mapping spec;
+
+    if (undefinedp(matched[known[i]]))
+      continue;
+
+    words_matched = matched[known[i]];
+    own_nouns = ({ });
+    spec = query_type_spec(known[i]);
+    if (spec)
+    {
+      if (stringp(spec[PROP_TYPE_NOUN]))
+        own_nouns += ({ lower_case(spec[PROP_TYPE_NOUN]) });
+      if (stringp(spec[PROP_TYPE_NOUN_PLURAL]))
+        own_nouns += ({ lower_case(spec[PROP_TYPE_NOUN_PLURAL]) });
+    }
+
+    for (j = 0; j < sizeof(words_matched); j++)
+      if (undefinedp(nouns[words_matched[j]]) ||
+          member_array(words_matched[j], own_nouns) != -1)
       {
         result += ({ known[i] });
         break;
