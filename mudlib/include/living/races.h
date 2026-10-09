@@ -11,6 +11,8 @@
 // These are the races every game shares; a game declares its own in
 // /games/<game>/include/races.h.
 #define RACE_ANIMAL  "animal"
+#define RACE_BIRD    "bird"
+#define RACE_CRITTER "critter"
 #define RACE_HUMAN   "human"
 #define RACE_INSECT  "insect"
 #define RACE_REPTILE "reptile"

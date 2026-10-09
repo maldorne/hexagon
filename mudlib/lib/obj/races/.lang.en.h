@@ -10,6 +10,14 @@
 #define _LANG_RACES_ANIMAL_DESC "A small wild animal.\n"
 #define _LANG_RACES_ANIMAL_BODY "animal"
 
+#define _LANG_RACES_BIRD_NAME "bird"
+#define _LANG_RACES_BIRD_DESC "A bird, covered in feathers.\n"
+#define _LANG_RACES_BIRD_BODY "bird"
+
+#define _LANG_RACES_CRITTER_NAME "critter"
+#define _LANG_RACES_CRITTER_DESC "A small critter, the kind that crawls along the ground.\n"
+#define _LANG_RACES_CRITTER_BODY "critter"
+
 #define _LANG_RACES_INSECT_NAME "insect"
 #define _LANG_RACES_INSECT_DESC "An insect, at times larger than it ought to be.\n"
 #define _LANG_RACES_INSECT_BODY "insect"
