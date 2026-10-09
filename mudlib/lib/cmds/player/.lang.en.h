@@ -464,7 +464,7 @@
                             "'read <object>' gives you what it says."
 #define _LANG_CMD_READ_WHAT "Read what?\n"
 #define _LANG_CMD_READ_CANNOT_FIND "You see no '" + str + "' here.\n"
-#define _LANG_CMD_READ_NOTHING_WRITTEN ob->query_short() + " has nothing written on it.\n"
+#define _LANG_CMD_READ_NOTHING_WRITTEN capitalize(what) + " has nothing written on it.\n"
 
 // group. `name` is the party's name, `who` the one being talked about, and
 // `str` what the player typed

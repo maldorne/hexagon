@@ -21,7 +21,8 @@ void setup()
 static int cmd(string str, object me, string verb)
 {
   object * obs, ob;
-  string text;
+  string text, what;
+  mixed written;
   int i, found;
 
   if (!str || !strlen(str))
@@ -42,10 +43,12 @@ static int cmd(string str, object me, string verb)
   for (i = 0; i < sizeof(obs); i++)
   {
     ob = obs[i];
-    text = (string)ob->query_read_text();
-
-    if (!text || !strlen(text))
+    // not everything answers with a string: what has nothing written says so
+    // in its own way, or not at all
+    written = ob->query_read_text();
+    if (!stringp(written) || !strlen(written))
       continue;
+    text = written;
 
     write(text);
     found = 1;
@@ -53,7 +56,11 @@ static int cmd(string str, object me, string verb)
 
   if (!found)
   {
-    ob = obs[0];
+    // a prop answers inside a component with no name of its own: say it the
+    // way the player called it
+    what = obs[0]->query_short();
+    if (!what || !strlen(what))
+      what = str;
     notify_fail(_LANG_CMD_READ_NOTHING_WRITTEN);
     return 0;
   }
