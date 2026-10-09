@@ -588,6 +588,44 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  puddle — standing water in a hollow of the ground. Only there
+    //  to be noticed: stepping in it is all it does.
+    // ------------------------------------------------------------
+    "puddle": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_PUDDLE_ID,
+        _LANG_PROP_PUDDLE_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_PUDDLE_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_PUDDLE_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_MINERAL,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_PUDDLE_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_PUDDLE_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_MINERAL }),
+      // it is water: no material phrase to add
+      PROP_TYPE_HIDE_MATERIAL: 1,
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_SENSES: ([ "smell": _LANG_PROP_PUDDLE_SMELL ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "step": ([
+          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:      _LANG_PROP_PUDDLE_STEP_VERBS,
+          PROP_SPEC_MSG_ME:     _LANG_PROP_PUDDLE_STEP_ME,
+          PROP_SPEC_MSG_OTHERS: _LANG_PROP_PUDDLE_STEP_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  anvil — a smithy's anvil. Stateless; it rings when struck.
     // ------------------------------------------------------------
     "anvil": ([

@@ -12,6 +12,7 @@
 #include <living/quests.h>
 #include <translations/exits.h>
 #include <room/location.h>
+#include <room/room.h>
 
 // Compute the highest-priority type for the location `room` from the viewer's
 // perspective. In `deep` mode the function inspects the room's full
@@ -87,8 +88,9 @@ private int _classify_room(object room, object viewer, int deep)
   // remain as room-level structural markers here.
   for (i = 0; i < sizeof(exits); i++)
   {
-    // a sealed way up or down does not show until it is revealed
-    if (room->query_sealed_exit(exits[i]))
+    // a sealed or hidden way up or down does not show either
+    if (room->query_sealed_exit(exits[i]) ||
+        !ROOM_HAND->query_obvious_type(room->query_ex_type(exits[i])))
       continue;
     if (exits[i] == DIR_UP)
       return CART_UP_ROOM;
@@ -244,8 +246,10 @@ mapping query_map_view(object viewer, varargs mapping options)
       int has_segment, has_dest;
       int cx, cy;
 
-      // a sealed exit is not there for anybody until it is revealed
-      if (current[2]->query_sealed_exit(dest_dir[i]))
+      // a sealed exit is not there for anybody until it is revealed, and a
+      // hidden one is not shown to anybody who has not found it
+      if (current[2]->query_sealed_exit(dest_dir[i]) ||
+          !ROOM_HAND->query_obvious_type(current[2]->query_ex_type(dest_dir[i])))
         continue;
 
       cx = current[0];

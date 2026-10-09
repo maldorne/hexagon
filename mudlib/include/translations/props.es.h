@@ -160,6 +160,23 @@
 #define _LANG_PROP_RUINED_STATUE_PRAY_OTHERS "$mcname$ se arrodilla ante la estatua abandonada y reza en silencio."
 
 // ************************************************************
+//  charco
+// ************************************************************
+#define _LANG_PROP_PUDDLE_ID            "charco"
+#define _LANG_PROP_PUDDLE_ID_ALIAS_1    "poza"
+
+#define _LANG_PROP_PUDDLE_NOUN          "charco"
+#define _LANG_PROP_PUDDLE_NOUN_PLURAL   "charcos"
+
+#define _LANG_PROP_PUDDLE_SHORT         "un charco"
+#define _LANG_PROP_PUDDLE_LONG          "Un charco de agua turbia se ha quedado estancado en un hueco del suelo, con los bordes de barro."
+#define _LANG_PROP_PUDDLE_SMELL         "Huele a barro y a agua estancada."
+
+#define _LANG_PROP_PUDDLE_STEP_VERBS    ({ "pisar", "chapotear" })
+#define _LANG_PROP_PUDDLE_STEP_ME       "Metes un pie en el charco y el agua fría te empapa la bota."
+#define _LANG_PROP_PUDDLE_STEP_OTHERS   "$mcname$ mete un pie en el charco y salpica barro alrededor."
+
+// ************************************************************
 //  altar
 // ************************************************************
 #define _LANG_PROP_ALTAR_ID             "altar"

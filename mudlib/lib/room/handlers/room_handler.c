@@ -139,6 +139,15 @@ void check_door(mixed bing) {
 }
 */
 
+// Whether exits of this type are there for anybody to see (a hidden or a
+// secret one is not). An unknown type counts as a standard exit.
+int query_obvious_type(string type)
+{
+  if (!type || !exit_types[type])
+    return 1;
+  return exit_types[type][1] ? 1 : 0;
+}
+
 mixed * query_exit_type(string type, string dir)
 {
   mixed s;

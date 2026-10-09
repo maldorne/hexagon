@@ -155,6 +155,23 @@
 #define _LANG_PROP_RUINED_STATUE_PRAY_OTHERS "$mcname$ kneels before the abandoned statue and prays in silence."
 
 // ************************************************************
+//  puddle
+// ************************************************************
+#define _LANG_PROP_PUDDLE_ID            "puddle"
+#define _LANG_PROP_PUDDLE_ID_ALIAS_1    "pool"
+
+#define _LANG_PROP_PUDDLE_NOUN          "puddle"
+#define _LANG_PROP_PUDDLE_NOUN_PLURAL   "puddles"
+
+#define _LANG_PROP_PUDDLE_SHORT         "a puddle"
+#define _LANG_PROP_PUDDLE_LONG          "A puddle of murky water has gathered in a hollow of the ground, with muddy edges."
+#define _LANG_PROP_PUDDLE_SMELL         "It smells of mud and standing water."
+
+#define _LANG_PROP_PUDDLE_STEP_VERBS    ({ "step", "splash" })
+#define _LANG_PROP_PUDDLE_STEP_ME       "You put a foot in the puddle and the cold water soaks your boot."
+#define _LANG_PROP_PUDDLE_STEP_OTHERS   "$mcname$ puts a foot in the puddle and splashes mud around."
+
+// ************************************************************
 //  altar
 // ************************************************************
 #define _LANG_PROP_ALTAR_ID             "altar"
