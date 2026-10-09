@@ -40,6 +40,11 @@ void create()
     // with the smith's trade, then it climbs with use.
     SKILL_REPAIR :
       ({ SKILLS_PATH + SKILL_REPAIR, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: 'slice <someone>', a flurry of cuts with two slashing
+    // weapons. A warrior's trade: taught, not picked up.
+    SKILL_SLICE :
+      ({ SKILLS_PATH + SKILL_SLICE, 10, 0, ACTIVE_SKILL, }),
   ]);
 }
 

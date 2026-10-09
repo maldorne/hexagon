@@ -80,3 +80,24 @@
 #define _LANG_SKILL_REPAIR_FAIL "The metal cools too soon and you mend nothing.\n"
 #define _LANG_SKILL_REPAIR_FAIL_ROOM caster->query_cap_name() + \
       " strikes the anvil without much success.\n"
+
+#define _LANG_SKILL_SLICE_NAME "slice"
+#define _LANG_SKILL_SLICE_ALIASES ({ })
+#define _LANG_SKILL_SLICE_HELP "With 'slice <someone>' you spin your two bladed " + \
+      "weapons and loose on your opponent a series of cuts as fast as lightning. " + \
+      "You need to wield two slashing weapons. The more dexterity and level you " + \
+      "have, the more cuts each series carries; dexterity and how well you know " + \
+      "the skill improve your aim and your damage, and bright light hinders you. " + \
+      "Every series of cuts costs energy.\n"
+#define _LANG_SKILL_SLICE_START "You spin your weapons, looking for a gap in your opponent's guard."
+#define _LANG_SKILL_SLICE_START_ROOM "spins their weapons."
+#define _LANG_SKILL_SLICE_NO_WEAPONS "You need to wield two bladed weapons to slice.\n"
+#define _LANG_SKILL_SLICE_LOST_WEAPONS "You get your weapons in a tangle and stop slicing.\n"
+#define _LANG_SKILL_SLICE_TIRED "You have no strength left to go on slicing.\n"
+#define _LANG_SKILL_SLICE_ME "You slice " + target->query_cap_name() + \
+      " with a series of quick cuts.\n"
+#define _LANG_SKILL_SLICE_TARGET caster->query_cap_name() + " spins their weapons " + \
+      "and slices you with a series of quick cuts.\n"
+#define _LANG_SKILL_SLICE_ROOM caster->query_cap_name() + " spins their weapons and " + \
+      "slices " + target->query_cap_name() + " with a series of cuts as fast as " + \
+      "lightning.\n"

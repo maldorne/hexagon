@@ -81,3 +81,24 @@
       "arreglar nada.\n"
 #define _LANG_SKILL_REPAIR_FAIL_ROOM caster->query_cap_name() + \
       " golpea el yunque sin mucho acierto.\n"
+
+#define _LANG_SKILL_SLICE_NAME "rebanar"
+#define _LANG_SKILL_SLICE_ALIASES ({ })
+#define _LANG_SKILL_SLICE_HELP "Con 'rebanar <alguien>' haces girar tus dos armas " + \
+      "de filo y lanzas sobre tu rival una serie de cortes rápidos como el rayo. " + \
+      "Necesitas empuñar dos armas cortantes. Cuantos más destreza y nivel tengas, " + \
+      "más cortes das en cada serie; la destreza y lo bien que conozcas la " + \
+      "habilidad mejoran la puntería y el daño, y la luz fuerte te estorba. Cada " + \
+      "serie de cortes gasta energía.\n"
+#define _LANG_SKILL_SLICE_START "Haces girar tus armas buscando un hueco en la guardia de tu rival."
+#define _LANG_SKILL_SLICE_START_ROOM "hace girar sus armas."
+#define _LANG_SKILL_SLICE_NO_WEAPONS "Necesitas empuñar dos armas de filo para rebanar.\n"
+#define _LANG_SKILL_SLICE_LOST_WEAPONS "Te haces un lío con las armas y dejas de rebanar.\n"
+#define _LANG_SKILL_SLICE_TIRED "No te quedan fuerzas para seguir rebanando.\n"
+#define _LANG_SKILL_SLICE_ME "Rebanas a " + target->query_cap_name() + \
+      " con una serie de cortes rápidos.\n"
+#define _LANG_SKILL_SLICE_TARGET caster->query_cap_name() + " hace girar sus armas " + \
+      "y te rebana con una serie de cortes rápidos.\n"
+#define _LANG_SKILL_SLICE_ROOM caster->query_cap_name() + " hace girar sus armas y " + \
+      "rebana a " + target->query_cap_name() + " con una serie de cortes rápidos " + \
+      "como el rayo.\n"
