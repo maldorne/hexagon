@@ -1,0 +1,29 @@
+@verbs pager
+@tier player
+@title reading a long text one screen at a time
+@see columns rows
+
+When a text does not fit on your screen, the game shows it in parts
+and waits for you to say how to go on. At the bottom you see which
+lines you are reading, out of how many, and how much you have read.
+
+Type one of these. The ones with <n> take a number in front, saying
+how many times or how far.
+
+  (enter) or f   the next screen; <n>f skips <n> screens
+  b              the previous screen; <n>b goes back <n>
+  d              half a screen down; <n>d, <n> halves
+  u              half a screen up; <n>u, <n> halves
+  (space) or z   one more line; <n>z, <n> lines
+  .              shows the current screen again
+  <n>s           skips <n> lines forward
+  <n>g           goes to line <n>
+  G              goes to the end; <n>G, to <n> lines from the end
+  <n>%           goes to <n> per cent of the text: 50% is the middle
+  /<text>        searches forward for the text; / alone repeats the
+                 last search
+  -<text>        searches backward for the text
+  h or ?         this help
+  q              stops reading
+
+How many lines fit on each screen is set with rows.

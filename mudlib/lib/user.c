@@ -15,7 +15,6 @@ inherit help          "/lib/user/help";
 inherit prompt        "/lib/user/prompt";
 inherit role          "/lib/user/role";
 inherit more_string   "/lib/user/more_string";
-inherit more_file     "/lib/user/more_file";
 inherit account       "/lib/user/account";
 inherit notifications "/lib/user/notifications";
 inherit ui            "/lib/user/ui";
@@ -91,7 +90,6 @@ void create()
   communicate::create();
   inform::create();
   more_string::create();
-  more_file::create();
   help::create();
   prompt::create();
   security::create();

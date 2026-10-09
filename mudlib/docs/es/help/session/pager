@@ -1,0 +1,29 @@
+@verbs paginador
+@tier player
+@title leer un texto largo por pantallas
+@see columnas filas
+
+Cuando un texto no cabe en tu pantalla, el juego te lo enseña por
+partes y espera a que digas cómo seguir. Abajo verás desde qué
+línea hasta cuál estás leyendo, de cuántas, y el porcentaje leído.
+
+Escribe una de estas órdenes. Las que llevan <n> aceptan un número
+delante, que dice cuántas veces o hasta dónde.
+
+  (intro) o f    la pantalla siguiente; <n>f salta <n> pantallas
+  b              la pantalla anterior; <n>b retrocede <n>
+  d              media pantalla hacia abajo; <n>d, <n> medias
+  u              media pantalla hacia arriba; <n>u, <n> medias
+  (espacio) o z  una línea más; <n>z, <n> líneas
+  .              vuelve a enseñar la pantalla actual
+  <n>s           salta <n> líneas hacia delante
+  <n>g           ve a la línea <n>
+  G              ve al final; <n>G, a <n> líneas del final
+  <n>%           ve al <n> por ciento del texto: 50% es la mitad
+  /<texto>       busca el texto hacia delante; / solo repite la
+                 última búsqueda
+  -<texto>       busca el texto hacia atrás
+  h o ?          esta ayuda
+  q              deja de leer
+
+Cuántas líneas caben en cada pantalla lo dice la orden filas.

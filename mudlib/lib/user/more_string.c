@@ -26,10 +26,31 @@ private string last_search, *the_bit, more_bit, stat_line;
 private object finish_ob;
 private mixed finish_func;
 
+// the help document of the pager, read with h or ?
+#define MORE_HELP_DOC "help/session/pager"
+
 #define ROWS ((int)this_object()->query_rows() - 1)
 #define COLS (int)this_object()->query_cols()
 
 void call_finish_func(string str);
+
+// A help document without the @ header lines the help index reads.
+private string help_text(string path)
+{
+  string * lines;
+  int i;
+
+  lines = explode(read_file(path), "\n");
+
+  for (i = 0; i < sizeof(lines) && strlen(lines[i]) && lines[i][0] == '@'; i++)
+    ;
+
+  // and the blank line that closes the header
+  if (i < sizeof(lines) && !strlen(lines[i]))
+    i++;
+
+  return implode(lines[i..], "\n") + "\n";
+}
 
 void create()
 {
@@ -199,6 +220,27 @@ void string_next_page(string str)
                topl += num;
                redraw = 1;
                break;
+    case "d" :
+               // half a screen down from the top of the page shown
+               if (noargs)
+                 num = 1;
+               topl += (ROWS / 2) * num - used;
+               redraw = 1;
+               break;
+    case "u" :
+               // half a screen up from the top of the page shown
+               if (noargs)
+                 num = 1;
+               topl -= (ROWS / 2) * num + used;
+               redraw = 1;
+               break;
+    case "%" :
+               // jump to a share of the text: 50% is its middle
+               if (noargs)
+                 num = 0;
+               topl = (num * fsize) / 100;
+               redraw = 1;
+               break;
     case "q" :
     case "Q" :
                call_finish_func(str);
@@ -252,8 +294,8 @@ void string_next_page(string str)
                break;
     case "?" :
     case "h" :
-               if (file_size(doc("coder/more")) > 0)
-                 tell_object(this_object(), read_file(doc("coder/more")));
+               if (file_size(doc(MORE_HELP_DOC)) > 0)
+                 tell_object(this_object(), help_text(doc(MORE_HELP_DOC)));
                else
                  tell_object(this_object(), _LANG_MORE_STRING_HELP_NOT_FOUND);
                break;
