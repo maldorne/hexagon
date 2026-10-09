@@ -146,7 +146,7 @@
 #define _LANG_PROP_RUINED_STATUE_FEEL        "It is cold and rough, and the creepers catch on your fingers."
 
 #define _LANG_PROP_RUINED_STATUE_READ_VERBS  ({ "read" })
-#define _LANG_PROP_RUINED_STATUE_READ_ME     "You push the creepers away from the pedestal and read the plaque:"
+#define _LANG_PROP_RUINED_STATUE_READ_ME     "You push aside the creepers covering the pedestal and uncover the plaque."
 #define _LANG_PROP_RUINED_STATUE_READ_OTHERS "$mcname$ pushes the creepers away from the foot of the statue and reads something."
 #define _LANG_PROP_RUINED_STATUE_READ_NOTHING "If anything was ever written on the plaque, time has worn it away."
 

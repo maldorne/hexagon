@@ -151,7 +151,7 @@
 #define _LANG_PROP_RUINED_STATUE_FEEL        "Está fría y áspera, y las enredaderas se te enganchan en los dedos."
 
 #define _LANG_PROP_RUINED_STATUE_READ_VERBS  ({ "leer" })
-#define _LANG_PROP_RUINED_STATUE_READ_ME     "Apartas las enredaderas del pedestal y lees la placa:"
+#define _LANG_PROP_RUINED_STATUE_READ_ME     "Apartas las enredaderas que cubren el pedestal y descubres la placa."
 #define _LANG_PROP_RUINED_STATUE_READ_OTHERS "$mcname$ aparta las enredaderas del pie de la estatua y lee algo."
 #define _LANG_PROP_RUINED_STATUE_READ_NOTHING "Si alguna vez hubo algo escrito en la placa, el tiempo lo ha borrado."
 

@@ -99,13 +99,15 @@ overrides = ([
 ```
 
 An action whose spec carries `PROP_SPEC_SHOW_TEXT` (the `read` of a
-`ruined_statue`) prints `MSG_ME`, then the override it names, verbatim:
+`ruined_statue`) prints `MSG_ME`, then the override it names, read the way
+any written text is read (`read_message` on the player): in a frame, in the
+common tongue, and garbled for a reader who does not know it.
 
 ```
 props set ruined_statue_1 overrides.inscription "Here lies nobody."
 read plaque
-  -> "You push the creepers away from the pedestal and read the plaque:"
-  -> "Here lies nobody."
+  -> "You push aside the creepers covering the pedestal and uncover the plaque."
+  -> "You read:" and the text in a frame
 ```
 
 An instance without that override gets `MISSING_MSG` and nothing else.

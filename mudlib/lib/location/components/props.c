@@ -25,6 +25,8 @@
 #include <room/location.h>
 #include <room/prop.h>
 #include <translations/props.h>
+#include <translations/language.h>
+#include <common/frames.h>
 
 inherit component "/lib/location/component.c";
 
@@ -1240,8 +1242,16 @@ private int _execute_generic(mapping spec, mapping inst, string args)
   // messages
   if (spec[PROP_SPEC_MSG_ME])
     write(_render_msg(spec[PROP_SPEC_MSG_ME], "") + "\n");
+  // read as any written text is read: framed, in the common tongue, garbled
+  // for whoever cannot read it
   if (spec[PROP_SPEC_SHOW_TEXT])
-    write(ov[spec[PROP_SPEC_SHOW_TEXT]] + "\n");
+  {
+    if (function_exists("read_message", this_player()))
+      write(this_player()->read_message(ov[spec[PROP_SPEC_SHOW_TEXT]],
+                                        STD_LANG, 1, DEFAULT_FRAME_STYLE));
+    else
+      write(ov[spec[PROP_SPEC_SHOW_TEXT]] + "\n");
+  }
   if (spec[PROP_SPEC_MSG_OTHERS])
   {
     object loc;
