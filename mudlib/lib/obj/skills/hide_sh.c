@@ -14,10 +14,13 @@ private int found;
 // A living carrying this shadow reports itself as hidden. query_hidden is
 // what the effect system and other code check; query_hide_shadow marks that
 // the hidden state comes from this shadow specifically.
-int query_hide_shadow() { return 1; }
+// Once found it no longer hides anything, though it lingers until its call_out.
+int query_hide_shadow() { return !found; }
 int query_hidden() { return !found; }
 
-static void do_dest_hide_shadow() { destruct_object(this_object()); }
+// Not static: a call_out reaches it through call_other, which cannot call a
+// static function.
+void do_dest_hide_shadow() { destruct_object(this_object()); }
 
 // Reveal the hidden character to the room and remove the shadow.
 void dest_hide_shadow()
@@ -140,6 +143,8 @@ int event_player_search(varargs mixed args)
     tell_player(searcher, _LANG_HIDE_SEARCH_FOUND_PRE +
       player->query_cap_name() + _LANG_HIDE_SEARCH_FOUND_POST);
     dest_hide_shadow();
+    // who was hiding may want to know who found them (an NPC lying in wait)
+    player->event_revealed(searcher);
     return 1;
   }
 
