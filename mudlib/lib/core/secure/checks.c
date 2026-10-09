@@ -517,20 +517,15 @@ nomask int valid_user_name(string str)
   return -1;
 }
 
-// used in login
-int valid_email(string str)
+// One part of an address: a run of the given characters, split by single
+// dots, with no dot at either end.
+private int valid_email_part(string str, int * allowed)
 {
   int i;
-  string * pieces;
 
-  if (!strlen(str))
+  if (!strlen(str) || str[0] == '.' || str[strlen(str) - 1] == '.')
     return 0;
 
-  // first character must be a letter
-  if (str[0] < 'a' || str[0] > 'z')
-    return 0;
-
-  // only letters, numbers, @ and dots
   for (i = 0; i < strlen(str); i++)
   {
     if (str[i] >= 'a' && str[i] <= 'z')
@@ -539,21 +534,50 @@ int valid_email(string str)
       continue;
     if (str[i] >= '0' && str[i] <= '9')
       continue;
-
-    if (str[i] == '@')
-      continue;
     if (str[i] == '.')
+    {
+      // no empty piece between two dots
+      if (str[i + 1] == '.')
+        return 0;
+      continue;
+    }
+    if (member_array(str[i], allowed) != -1)
       continue;
 
     return 0;
   }
 
-  pieces = explode(str, "@");
+  return 1;
+}
+
+// used in login
+int valid_email(string str)
+{
+  string * pieces;
+
+  if (!strlen(str))
+    return 0;
+
+  // first character must be a letter: accounts are saved in a directory named
+  // after it (/save/users/<letter>/)
+  if (str[0] < 'a' || str[0] > 'z')
+    return 0;
+
+  pieces = explode("|" + str + "|", "@");
   if (sizeof(pieces) != 2)
     return 0;
 
-  pieces = explode(pieces[1], ".");
-  if (sizeof(pieces) < 2)
+  pieces[0] = pieces[0][1 .. strlen(pieces[0]) - 1];
+  pieces[1] = pieces[1][0 .. strlen(pieces[1]) - 2];
+
+  // the name before the @ may also hold - _ and +, the domain only -
+  if (!valid_email_part(pieces[0], ({ '-', '_', '+' })))
+    return 0;
+  if (!valid_email_part(pieces[1], ({ '-' })))
+    return 0;
+
+  // a domain has at least a name and an ending
+  if (sizeof(explode(pieces[1], ".")) < 2)
     return 0;
 
   return 1;

@@ -275,8 +275,6 @@ nomask void show_options()
 nomask void logon_option(string str)
 {
   string * exploded_args;
-  mapping available_cmd_info;
-  string * available_cmds;
   int tmp;
 
   // most clients hide local echo in the two first inputs (username and password)
@@ -292,13 +290,10 @@ nomask void logon_option(string str)
   str = lower_case(str);
   exploded_args = explode(str, " ");
 
-  available_cmd_info = CMD_HANDLER->query_hash_by_category(USER_CMD);
-  available_cmds = keys(available_cmd_info);
-
   // new options, neverbot 02/2006
   // execute cmd avaibale to login roles, neverbot 09/2019
-  // the word may be any alias of the command, in the mud's language or not
-  if (member_array(CMD_HANDLER->query_unaliased_cmd(exploded_args[0]), available_cmds) != -1)
+  // a command answers to its aliases, never to its file name
+  if (CMD_HANDLER->query_alias_category(exploded_args[0]) == USER_CMD)
   {
     string args, err;
     int result;
@@ -828,6 +823,9 @@ void create_user(string str)
     disconnect();
     return;
   }
+
+  // the login lowers whatever is typed, so the account is saved the same way
+  str = lower_case(str);
 
   if (!SECURE->valid_email(str))
   {

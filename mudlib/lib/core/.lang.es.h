@@ -37,8 +37,8 @@
 #define _LANG_ENTER_EMAIL "Introduce tu dirección de email: "
 #define _LANG_ENTER_VALID_EMAIL "\nIntroduce una dirección de email válida: "
 #define _LANG_INVALID_EMAIL "\nEsa dirección de email no es válida. Tiene que tener la forma " + \
-      "nombre@dominio.ext, empezar por una letra minúscula y llevar solo letras, " + \
-      "números, puntos y una @."
+      "nombre@dominio.ext, empezar por una letra y llevar solo letras, números, " + \
+      "puntos, guiones, guiones bajos, + y una @."
 #define _LANG_USED_EMAIL "Lo sentimos, pero esa dirección ya está utilizada.\n" + \
       "Por favor, introduce otra dirección de email: "
 #define _LANG_ACCOUNT_RECOMMEND "Si ya tienes otra cuenta en " + mud_name() + ", recomendamos " + \

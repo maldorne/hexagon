@@ -37,8 +37,8 @@
 #define _LANG_ENTER_EMAIL "Enter your email: "
 #define _LANG_ENTER_VALID_EMAIL "\nEnter a valid email: "
 #define _LANG_INVALID_EMAIL "\nThat is not a valid email address. It has to look like " + \
-      "name@domain.ext, start with a lowercase letter and hold only letters, " + \
-      "numbers, dots and one @."
+      "name@domain.ext, start with a letter and hold only letters, numbers, " + \
+      "dots, hyphens, underscores, + and one @."
 #define _LANG_USED_EMAIL "Sorry, but that address is already in use.\n" + \
       "Please, enter a different email: "
 #define _LANG_ACCOUNT_RECOMMEND "If your already have an account in " + mud_name() + ", we really " + \

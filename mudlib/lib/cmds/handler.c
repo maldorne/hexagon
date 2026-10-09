@@ -74,6 +74,19 @@ string query_last_dir() { return last_dir; }
 mapping query_aliases() { return cmd_aliases; }
 string query_alias(string verb) { return cmd_aliases[verb]; }
 
+// The category (USER_CMD, PLAYER_CMD, ...) of the command `verb` is an alias
+// of, or 0 when no command answers to it.
+int query_alias_category(string verb)
+{
+  string name;
+
+  name = cmd_aliases[verb];
+  if (!name || !cmd_hash[name])
+    return 0;
+
+  return cmd_hash[name]["category"];
+}
+
 void set_save_all() { save_all = 1; }
 void reset_save_all() { save_all = 0; }
 int query_save_all() { return save_all; }
