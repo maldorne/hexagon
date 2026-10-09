@@ -13,7 +13,8 @@
 //      chosen from the sector's own border crossings: city sectors become a
 //      solid block (with an optional wall overlay); road/path sectors become
 //      box-drawing joins, drawn per-arm in a light line for paths and a
-//      heavy line for roads (see way_glyph).
+//      heavy line for roads (see way_glyph). Which ways are drawn at all is
+//      set by WORLDMAP_DRAW_PATHS below.
 //   4. Where a city wall meets a road, the wall glyph swaps to a wall/road
 //      hybrid so the road visibly enters the settlement.
 //   5. Overwrite the viewer's own sector with '@'.
@@ -57,6 +58,12 @@ inherit "/lib/core/object.c";
 //
 // Temporarily disabled (0): roads and paths share one line style for now.
 #define WORLDMAP_HEAVY_ROADS 0
+
+// Toggle for drawing paths. Set to 0 to draw only roads: a border crossed by
+// paths alone counts as no way at all, so a sector with nothing but paths
+// shows its terrain. The sectors still record every path, only the map leaves
+// them out.
+#define WORLDMAP_DRAW_PATHS 0
 
 // per-render sector cache. Reset at the top of every render(); safe
 // because DGD executes each mudlib call chain atomically — there is no
@@ -123,11 +130,29 @@ private string neighbour_type(string game, string map_name,
 // 2 road (heavy line). A road on the border outranks a path.
 private int _border_weight(mapping borders, string b)
 {
+  int road;
+
   if (!mappingp(borders) || !arrayp(borders[b]) || !sizeof(borders[b]))
     return 0;
-  if (WORLDMAP_HEAVY_ROADS && member_array(SECTOR_WAY_ROAD, borders[b]) != -1)
+
+  road = member_array(SECTOR_WAY_ROAD, borders[b]) != -1;
+
+  // a border with paths only is no way at all when paths are not drawn
+  if (!WORLDMAP_DRAW_PATHS && !road)
+    return 0;
+
+  if (WORLDMAP_HEAVY_ROADS && road)
     return 2;
   return 1;
+}
+
+// Whether any border of this sector carries a way the map draws.
+private int _has_drawn_way(mapping borders)
+{
+  return _border_weight(borders, SECTOR_BORDER_N) ||
+         _border_weight(borders, SECTOR_BORDER_S) ||
+         _border_weight(borders, SECTOR_BORDER_E) ||
+         _border_weight(borders, SECTOR_BORDER_W);
 }
 
 // Weight of one arm, reconciled with the neighbour across that border. The
@@ -178,7 +203,8 @@ private string way_glyph(object sect, string game, string map_name,
 // Display priority for a sector (highest first):
 //   1. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls
-//   2. road / path — if the sector has road/path exits, draw the way glyph
+//   2. road / path — if the sector has road/path exits the map draws (see
+//                    WORLDMAP_DRAW_PATHS), draw the way glyph
 //   3. majority    — otherwise the dominant remaining terrain type
 private string render_sector(string game, string map_name,
                            int sx, int sy, int sz)
@@ -209,7 +235,7 @@ private string render_sector(string game, string map_name,
     return "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^";
 
   borders = sect->query_border_ways();
-  if (mappingp(borders) && map_sizeof(borders))
+  if (_has_drawn_way(borders))
     return way_glyph(sect, game, map_name, sx, sy, sz);
 
   if (type == SECTOR_TYPE_CITY)        return GLYPH_MAP_CITY;
