@@ -45,7 +45,8 @@ void setup()
     "                                       between sector.o and on-disk coord files.\n" +
     "  exits area <name>                    scan every location of the area.\n" +
     "\n" +
-    "  -v   verbose: dump the full per-exit table for every scanned file.\n" +
+    "  -v   verbose: dump the full per-exit table for every scanned file;\n" +
+    "       on the current environment, show every destination in full.\n" +
     "\n" +
     "Each exit is checked for a destination that loads, a way back in the\n" +
     "opposite direction, and a way back of the same exit type.\n" +
@@ -133,121 +134,157 @@ private mixed * check_exits_of(object env)
   return out;
 }
 
-// Renders one exit row of the detailed table.
-private string render_row(mixed * row)
+// The status of one exit, as the detailed table prints it: green when it is
+// right, red when it is not.
+private string status_text(mixed * row)
 {
-  string dir, target, detail, line;
-  int status;
-
-  dir    = row[0];
-  target = row[1];
-  status = row[2];
-  detail = row[3];
-
-  line = sprintf("  %-9s -> %s ", dir, target);
-
-  switch (status)
+  switch (row[2])
   {
-    case EX_OK:         return line + G + "ok" + RE + ".\n";
-    case EX_NO_DEST:    return line + R + "destination does not exist" + RE + ".\n";
-    case EX_NO_LOAD:    return line + R + "destination won't load" + RE + ".\n";
-    case EX_NO_BACK:    return line + R + "no backwards exit" + RE + ".\n";
-    case EX_WRONG_BACK: return line + Y + "wrong opposite" + RE +
-                               " (back: " + C + detail + RE + ").\n";
-    case EX_TYPE_DIFF:  return line + Y + "different exit type" + RE +
-                               " (" + C + detail + RE + ").\n";
+    case EX_OK:         return G + "ok" + RE;
+    case EX_NO_DEST:    return R + "no destination" + RE;
+    case EX_NO_LOAD:    return R + "won't load" + RE;
+    case EX_NO_BACK:    return R + "no way back" + RE;
+    case EX_WRONG_BACK: return R + "way back is " + row[3] + RE;
+    case EX_TYPE_DIFF:  return R + "different type (" + row[3] + ")" + RE;
   }
 
-  return line + "?\n";
+  return "?";
+}
+
+// A room or location path as the table shows it: after the game's areas
+// directory, which every path of a game shares.
+private string area_relative(string path)
+{
+  string game, rest;
+
+  if (!path)
+    return "";
+  if (sscanf(path, "/save/games/%s/locations/areas/%s", game, rest) == 2)
+    return rest;
+  if (sscanf(path, "/games/%s/areas/%s", game, rest) == 2)
+    return rest;
+  return path;
+}
+
+// Where an exit leads, as short as it reads unambiguously: only the file
+// name when it is in the same directory as the place itself, the path from
+// the areas directory otherwise. `full` keeps the whole path.
+private string short_dest(object env, string target, int full)
+{
+  string * mine, * theirs;
+
+  if (full || !target)
+    return target ? target : "";
+
+  mine = explode(self_id(env), "/");
+  theirs = explode(target, "/");
+
+  if (sizeof(mine) == sizeof(theirs) &&
+      implode(mine[0 .. sizeof(mine) - 2], "/") ==
+      implode(theirs[0 .. sizeof(theirs) - 2], "/"))
+    return theirs[sizeof(theirs) - 1];
+
+  return area_relative(target);
 }
 
 // Full detailed table for a single env. Used by the no-args branch and
-// by -v on the file-list branch.
-private string render_table(object env, mixed * checks)
+// by -v on the file-list branch. `full` shows every destination as its
+// whole path.
+private string render_table(object env, mixed * checks, varargs int full)
 {
   object user;
-  string ret, here;
-  int i, ok_count;
+  string ret, line, * dests;
+  int i, ok_count, cols, dest_width;
 
   user = this_player()->user();
-  here = file_name(env);
+  cols = user->query_cols();
+  line = sprintf("%p%|*s\n", '-', cols, "");
 
-  ret  = sprintf("%p%|*s\n", '-', user->query_cols(), "");
-  ret += " File: " + here;
-  if (env->query_location())
-    ret += "   (location " + env->query_file_name() + ")";
-  else
-    ret += "   (" + file_size(here + ".c") + " bytes)";
-  ret += "\n";
+  ret = line;
 
-  // for locations, also surface the area / map / sector context
+  // what each field is, spelled out: the names are easy to forget
   if (env->query_location())
   {
     object area;
     int * coords;
     string game;
 
-    area   = env->query_area();
+    ret += sprintf(" %-9s %s\n", "Location", env->query_file_name());
+    ret += sprintf(" %-9s %s\n", "Object", file_name(env));
+
+    area = env->query_area();
+    game = game_name(env);
+    ret += sprintf(" %-9s %-20s %-7s %s\n", "Game", strlen(game) ? game : "-",
+                   "Area", area ? area->query_area_name() : "-");
+
     coords = env->query_coordinates();
-    game   = game_name(env);
-
-    if (strlen(game) || area)
-    {
-      ret += " ";
-      if (strlen(game))
-        ret += "Game: " + game;
-      if (strlen(game) && area)
-        ret += "   ";
-      if (area)
-        ret += "Area: " + area->query_area_name();
-      ret += "\n";
-    }
-
-    ret += " Map:  " + env->query_map_name();
     if (coords && sizeof(coords) == 3)
     {
       int sx, sy, sz;
+
       sx = coords[0] / 10 - (coords[0] < 0);
       sy = coords[1] / 10 - (coords[1] < 0);
       sz = coords[2] / 10 - (coords[2] < 0);
-      ret += "   Coords (" + coords[0] + "," + coords[1] + "," + coords[2] +
-             ")   Sector (" + sx + "," + sy + "," + sz + ")";
+      ret += sprintf(" %-9s %-20s %-7s %-14s %-7s %s\n", "Map",
+                     env->query_map_name(), "Coords",
+                     "(" + coords[0] + "," + coords[1] + "," + coords[2] + ")",
+                     "Sector", "(" + sx + "," + sy + "," + sz + ")");
     }
     else
-      ret += "   (no coordinates set)";
-    ret += "\n";
+      ret += sprintf(" %-9s %-20s %s\n", "Map", env->query_map_name(),
+                     "(no coordinates set)");
+  }
+  else
+  {
+    ret += sprintf(" %-9s %s\n", "Room", self_id(env));
+    ret += sprintf(" %-9s %d bytes\n", "Size", file_size(file_name(env) + ".c"));
   }
 
-  ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
+  ret += line;
 
   if (!sizeof(checks))
+    return ret + " No exits.\n" + line;
+
+  // the destination column is as wide as the longest one, but never so wide
+  // that the status no longer fits on the line, unless asked for in full
+  dests = ({ });
+  dest_width = 0;
+  for (i = 0; i < sizeof(checks); i++)
   {
-    ret += " No exits.\n";
-    ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
-    return ret;
+    dests += ({ short_dest(env, checks[i][1], full) });
+    if (strlen(dests[i]) > dest_width)
+      dest_width = strlen(dests[i]);
   }
+  if (!full && dest_width > cols - 50)
+    dest_width = (cols - 50 > 12) ? cols - 50 : 12;
 
   ok_count = 0;
   for (i = 0; i < sizeof(checks); i++)
   {
-    string row;
+    string dest;
 
-    row = render_row(checks[i]);
-    // a correct exit says its type: both sides already agree on it
-    if (checks[i][2] == EX_OK)
-      row = row[0 .. strlen(row) - 3] + " (" + env->query_ex_type(checks[i][0]) +
-            ").\n";
+    dest = dests[i];
+    if (strlen(dest) > dest_width)
+      dest = dest[0 .. dest_width - 4] + "...";
+
+    ret += sprintf("  %-9s %-8s %-*s  ", checks[i][0],
+                   env->query_ex_type(checks[i][0]), dest_width, dest) +
+           status_text(checks[i]);
+
     // a sealed exit is real but only an action takes it
     if (env->query_sealed_exit(checks[i][0]))
-      row = row[0 .. strlen(row) - 2] + " (sealed)\n";
-    ret += row;
-    if (checks[i][2] == EX_OK) ok_count++;
+      ret += "  " + C + "sealed" + RE;
+
+    ret += "\n";
+
+    if (checks[i][2] == EX_OK)
+      ok_count++;
   }
 
-  ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
-  ret += " " + sizeof(checks) + " exits, " + ok_count + " ok, " +
+  ret += line;
+  ret += " " + sizeof(checks) + " exits: " + ok_count + " ok, " +
          (sizeof(checks) - ok_count) + " with issues.\n";
-  ret += sprintf("%p%|*s\n", '-', user->query_cols(), "");
+  ret += line;
 
   return ret;
 }
@@ -591,7 +628,7 @@ static int cmd(string str, object me, string verb)
       return 1;
     }
 
-    write(render_table(env, check_exits_of(env)));
+    write(render_table(env, check_exits_of(env), verbose));
     return 1;
   }
 
