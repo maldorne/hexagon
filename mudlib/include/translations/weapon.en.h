@@ -10,6 +10,7 @@
 #define PICK "pick"
 
 #define HEAVY_MACE "heavy mace"
+#define MORNING_STAR "morning star"
 #define STAFF "staff"
 #define JAVELIN "javelin"
 

@@ -10,6 +10,7 @@
 #define PICK "pico"
 
 #define HEAVY_MACE "maza pesada"
+#define MORNING_STAR "lucero del alba"
 #define STAFF "bastón"
 #define JAVELIN "jabalina"
 

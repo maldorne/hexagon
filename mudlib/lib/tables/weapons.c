@@ -71,6 +71,8 @@ mixed * lookup_weapon_data(string name)
     // medium simple weapons
     case HEAVY_MACE:
       weapon_data = ({ 120,1200,120,5,      BLUNT,    1, 8, 0,   2, 0,-1, 2, MACE_MASTERY,       2 ,1 }); break;
+    case MORNING_STAR: // lucero del alba
+      weapon_data = ({ 100,1000,140,5,      BLUNT,    2, 4, 1,   2, 0,-1, 2, MACE_MASTERY,       2 ,1 }); break;
     case JAVELIN: // Media lanza o jabalina
       weapon_data = ({ 10, 100, 30,6,       PIERCING, 1, 6, 0,   1, 1, 6, 3, SPEAR_MASTERY,      1 ,1 }); break;
     case STAFF:
