@@ -299,12 +299,15 @@ void run_on_components(string func, mixed * args)
 
 // Guard proxy. The room's exit handler consults a posted guard through
 // guardian_check / guardian_message on the NPC object; delegate to the guard
-// component when this NPC carries one. An NPC without it blocks nobody, so a
+// component when this NPC carries one, or to the toll component of one who
+// charges for the way. An NPC without it blocks nobody, so a
 // non-guard consulted by mistake simply lets everyone through.
 int guardian_check(object mover)
 {
   object g;
   g = query_component_by_type("guard");
+  if (!g)
+    g = query_component_by_type("toll");
   return g ? g->check(mover) : 1;
 }
 
@@ -312,6 +315,8 @@ string guardian_message()
 {
   object g;
   g = query_component_by_type("guard");
+  if (!g)
+    g = query_component_by_type("toll");
   return g ? g->message() : nil;
 }
 
@@ -560,6 +565,21 @@ void dest_me()
 // (gender ids 0 neuter / 1 male / 2 female). Resolve against the caller's
 // gender, falling back to male then any present value so a gender the field
 // does not cover still yields a coherent string.
+// One of the feelings of a template (loved, hated, liked, disliked), each key
+// of the description handed to the matching add_<kind>.
+private void add_feelings(string kind, mixed description)
+{
+  string * keys;
+  int i;
+
+  if (!mappingp(description))
+    return;
+
+  keys = map_indices(description);
+  for (i = 0; i < sizeof(keys); i++)
+    call_other(this_object(), "add_" + kind, keys[i], description[keys[i]]);
+}
+
 private mixed gender_value(mixed v, int g)
 {
   string * ks;
@@ -676,6 +696,18 @@ void apply_template(mapping t, varargs int born)
       if (stringp(t["spells"][names[i]]))
         add_spell(names[i], t["spells"][names[i]]);
   }
+
+  // Whom it loves and hates, which decides whom it fights, and whom it likes
+  // and dislikes, which only decides what it says on seeing them arrive. All in
+  // the shape matches_group reads: race, guild, city...
+  add_feelings("loved", t["loved"]);
+  add_feelings("hated", t["hated"]);
+  add_feelings("liked", t["liked"]);
+  add_feelings("disliked", t["disliked"]);
+  if (t["liked_message"])
+    set_liked_message(gender_value(t["liked_message"], g));
+  if (t["disliked_message"])
+    set_disliked_message(gender_value(t["disliked_message"], g));
 
   // Skills the type uses unprompted in a fight, with the chance each heart beat
   // of trying one: ([ "<skill id>" : <chance> ]). The skill is aimed at whoever

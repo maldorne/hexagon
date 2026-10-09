@@ -14,6 +14,11 @@ int join_fights,        /* Do we join into fights in the room ? */
     
 int minplayer;          /* minimum player level an NPC will attack, extra param to set_aggressive(), default 0 */
 
+// Lighter feelings than love and hate: they decide nothing in a fight, only
+// what it says to somebody on seeing them arrive ($ocname$ is their name).
+mapping liked, disliked;
+string liked_message, disliked_message;
+
 void create()
 {
   loved = ([ ]);
@@ -24,6 +29,10 @@ void create()
   fight_npcs = 0;  
   minplayer = 0;
   aggressive = 0;
+  liked = ([ ]);
+  disliked = ([ ]);
+  liked_message = nil;
+  disliked_message = nil;
 }
 
 int query_join_fights() { return join_fights; }
@@ -45,6 +54,23 @@ mapping add_hated(string type, mixed targets)
   hated[type] = targets;
   return hated;
 }
+
+mapping add_liked(string type, mixed targets)
+{
+  liked[type] = targets;
+  return liked;
+}
+
+mapping add_disliked(string type, mixed targets)
+{
+  disliked[type] = targets;
+  return disliked;
+}
+
+string query_liked_message() { return liked_message; }
+void set_liked_message(string str) { liked_message = str; }
+string query_disliked_message() { return disliked_message; }
+void set_disliked_message(string str) { disliked_message = str; }
 
 mapping add_loved(string type, mixed targets)
 {
@@ -181,8 +207,35 @@ private int would_attack(object ob)
   return 0;
 }
 
+// Somebody it likes or dislikes has just turned up where it can see them: tell
+// them so, once in a while rather than every time they come and go.
+private void say_feelings(object ob)
+{
+  string message, prop;
+
+  if (!ob || !interactive(ob) || ob->query_hidden() || ob->query_invis())
+    return;
+
+  if (disliked_message && map_sizeof(disliked) && matches_group(disliked, ob))
+    message = disliked_message;
+  else if (liked_message && map_sizeof(liked) && matches_group(liked, ob))
+    message = liked_message;
+  else
+    return;
+
+  prop = "feelings_said_" + ob->query_name();
+  if (this_object()->query_timed_property(prop))
+    return;
+
+  this_object()->do_say(this_object()->chat_expand_string(this_object(),
+                                                          message, ob));
+  this_object()->add_timed_property(prop, 1, 30);
+}
+
 void do_aggressive_check(object ob)
 {
+  say_feelings(ob);
+
   if (would_attack(ob))
   {
     if (stringp(join_fight_mess) && (join_fight_mess != "") && !this_object()->query_timed_property(NO_SPAM))
@@ -215,6 +268,8 @@ mixed * stats()
     ({ "Fight Npcs", fight_npcs }),
     ({ "Loved", loved }),
     ({ "Hated", hated }),
+    ({ "Liked", liked }),
+    ({ "Disliked", disliked }),
     ({ "Minplayer", minplayer }),
     ({ "Aggressive", aggressive }),
           });
