@@ -152,6 +152,11 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   nodes[key] = ([ "file": location_file_name,
                   "maze": (location_data && location_data["maze"]) ? 1 : 0 ]);
 
+  // the exits of this coordinate that only an action can take (sealed): still
+  // edges of the graph, but a walker has to be told it may use them
+  if (location_data && location_data["sealed"] && sizeof(location_data["sealed"]))
+    nodes[key]["sealed"] = location_data["sealed"];
+
   // location_data may carry an "edges" mapping ([ direction : "tx_ty_tz" ]) --
   // every traversable exit of this coordinate and the neighbouring coordinate
   // it leads to (the full movement graph). Store it, or clear a stale entry.

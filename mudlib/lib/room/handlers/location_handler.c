@@ -275,6 +275,10 @@ int do_guess_coordinates(object * locations)
 
     if (locations[i]->query_coordinates())
       pending += ({ locations[i] });
+    // a location added to an area already on the map takes its place from a
+    // neighbour that has one, whatever area that neighbour belongs to
+    else if (locations[i]->guess_coordinates())
+      pending += ({ locations[i] });
   }
 
   // get the area (the same for every location, use the first one as an example)

@@ -291,11 +291,12 @@ string add_location(object location)
     // coarse pathfinder (sector to sector) and to stitch a path across a border.
     {
       mapping exit_map, edge_map;
-      string * dirs, * boundary;
+      string * dirs, * boundary, * sealed;
 
       exit_map = location->query_exit_map();
       edge_map = ([ ]);
       boundary = ({ });
+      sealed = ({ });
 
       if (mappingp(exit_map))
       {
@@ -317,6 +318,11 @@ string add_location(object location)
 
           edge_map[cdir] = to;
 
+          // a sealed exit is part of the graph, but walking it takes an action
+          if (sizeof(exit_map[dirs[i]]) > 3 && mappingp(exit_map[dirs[i]][3]) &&
+              exit_map[dirs[i]][3]["sealed"])
+            sealed += ({ cdir });
+
           if (tx / 10 - (tx < 0) != sector_x ||
               ty / 10 - (ty < 0) != sector_y ||
               tz / 10 - (tz < 0) != sector_z)
@@ -328,6 +334,8 @@ string add_location(object location)
         location_data["edges"] = edge_map;
       if (sizeof(boundary))
         location_data["boundary"] = boundary;
+      if (sizeof(sealed))
+        location_data["sealed"] = sealed;
     }
 
     sector_storage->add_location(location->query_file_name(),

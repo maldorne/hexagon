@@ -230,7 +230,13 @@ private string render_table(object env, mixed * checks)
   ok_count = 0;
   for (i = 0; i < sizeof(checks); i++)
   {
-    ret += render_row(checks[i]);
+    string row;
+
+    row = render_row(checks[i]);
+    // a sealed exit is real but only an action takes it
+    if (env->query_sealed_exit(checks[i][0]))
+      row = row[0 .. strlen(row) - 2] + " " + C + "(sealed)" + RE + "\n";
+    ret += row;
     if (checks[i][2] == EX_OK) ok_count++;
   }
 

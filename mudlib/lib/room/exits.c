@@ -15,11 +15,19 @@ static mixed * dest_other;
 
 static mapping exit_map,
                door_locks,
-               door_control;
+               door_control,
+               // sealed exits opened for now: back to sealed on the next load
+               revealed_exits;
+
+// the sealed exit force_exit is moving somebody through, if any
+static string forced_exit;
 
 // function prototypes
 object query_door_ob(string dir);
 object add_door(string dir);
+int query_sealed_exit(string direc);
+string query_verb_exit(mixed verb);
+private void show_exit(string direc, int shown);
 
 
 void create()
@@ -35,6 +43,7 @@ void create()
   short_exit_string = "";  
 
   exit_map = ([ ]);
+  revealed_exits = ([ ]);
 
   // dig_where = ({ });
   // dig_exit = ({ });
@@ -160,6 +169,10 @@ string query_short_exit_string()
 
   for (i = 0; i < sizeof(dest_other); i += 2)
   {
+    // a sealed exit is never listed, door or not
+    if (query_sealed_exit(dest_other[i]))
+      continue;
+
     door = query_door_ob(dest_other[i]);
 
     if (door)
@@ -261,6 +274,10 @@ mixed add_exit(string direc, mixed dest, string type,
     if (options)
       exit_map[direc] = exit_map[direc] + ({ options });
 
+    // a sealed exit is real but nobody sees it until it is revealed
+    if (query_sealed_exit(direc))
+      show_exit(direc, 0);
+
     exit_string = query_dirs_string();
     short_exit_string = query_short_exit_string();
 
@@ -285,6 +302,10 @@ mixed add_exit(string direc, mixed dest, string type,
   {
     if (options)
       exit_map[direc] = exit_map[direc] + ({ options });
+
+    // a sealed exit is real but nobody sees it until it is revealed
+    if (query_sealed_exit(direc))
+      show_exit(direc, 0);
 
     exit_string = query_dirs_string();
     short_exit_string = query_short_exit_string();
@@ -424,6 +445,11 @@ int do_exit_command(string str, varargs mixed verb, object ob)
   if (!ob)
     ob = this_player();
 
+  // a sealed exit answers to nobody typing its direction: only force_exit
+  // moves anyone through it
+  if (query_sealed_exit(query_verb_exit(verb)) && forced_exit != query_verb_exit(verb))
+    return 0;
+
   zip = EXIT_HAND->do_exit_command(door_control,
     exit_map, dest_direc, dest_other,
     aliases, str, verb, ob, room_ob);
@@ -437,6 +463,95 @@ int do_exit_command(string str, varargs mixed verb, object ob)
     this_player()->set_no_prompt();
 
   return zip;
+}
+
+// The exit a movement verb names: the direction itself, or the direction one
+// of its aliases stands for. Nil when the verb is not an exit here.
+string query_verb_exit(mixed verb)
+{
+  string word, rest;
+  int i;
+
+  word = pointerp(verb) ? verb[0] : verb;
+  if (!stringp(word))
+    return nil;
+  sscanf(word, "%s %s", word, rest);
+
+  if (member_array(word, dest_direc) != -1)
+    return word;
+
+  if ((i = member_array(word, aliases)) > 0)
+    return aliases[i - 1];
+
+  return nil;
+}
+
+// Whether an exit is sealed right now: declared with the "sealed" option and
+// not revealed since this room or location was loaded. A sealed exit exists
+// for coordinates and the map graph, but is not listed and its direction does
+// nothing; an action elsewhere (a prop, an item, a quest) uses force_exit or
+// reveal_exit.
+int query_sealed_exit(string direc)
+{
+  mixed * tuple;
+
+  if (!direc || !exit_map || !(tuple = exit_map[direc]))
+    return 0;
+  if (sizeof(tuple) < 4 || !mappingp(tuple[3]) || !tuple[3]["sealed"])
+    return 0;
+
+  return !revealed_exits[direc];
+}
+
+// List an exit among the visible ones, or take it off the list, as its type
+// would show it.
+private void show_exit(string direc, int shown)
+{
+  mixed * info;
+
+  info = ROOM_HAND->query_exit_type(exit_map[direc][1], direc);
+  modify_exit(direc, ({ "obvious", shown ? info[1] : 0 }));
+  reset_short_exit_string();
+}
+
+// Open a sealed exit: from now on it is listed and works like any other, until
+// seal_exit closes it or the room or location loads again.
+int reveal_exit(string direc)
+{
+  if (!query_sealed_exit(direc))
+    return 0;
+
+  revealed_exits[direc] = 1;
+  show_exit(direc, 1);
+  return 1;
+}
+
+// Close a revealed exit again.
+int seal_exit(string direc)
+{
+  if (!exit_map[direc] || !revealed_exits[direc])
+    return 0;
+
+  map_delete(revealed_exits, direc);
+  show_exit(direc, 0);
+  return 1;
+}
+
+// Move `who` through an exit, sealed or not, as if they had taken it: the same
+// checks, messages and arrival. This is how an action carries somebody along
+// a sealed exit (climbing a tree, falling off a bridge).
+int force_exit(string direc, object who)
+{
+  int moved;
+
+  if (!who || !exit_map[direc])
+    return 0;
+
+  forced_exit = direc;
+  moved = (int)this_object()->do_exit_command("", direc, who);
+  forced_exit = nil;
+
+  return moved;
 }
 
 // This is the function to include IF you add_exit with a
