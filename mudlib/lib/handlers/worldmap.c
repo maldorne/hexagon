@@ -63,7 +63,7 @@ inherit "/lib/core/object.c";
 // paths alone counts as no way at all, so a sector with nothing but paths
 // shows its terrain. The sectors still record every path, only the map leaves
 // them out.
-#define WORLDMAP_DRAW_PATHS 0
+#define WORLDMAP_DRAW_PATHS 1
 
 // per-render sector cache. Reset at the top of every render(); safe
 // because DGD executes each mudlib call chain atomically — there is no
