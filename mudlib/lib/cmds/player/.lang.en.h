@@ -695,3 +695,29 @@
       "to work and after a while hands you " + made->query_short() + ".\n"
 #define _LANG_CMD_CRAFTS_DONE_ROOM who->query_cap_name() + " hands " + \
       me->query_cap_name() + " a piece of work made to order.\n"
+
+// smell, listen, taste, feel
+
+#define _LANG_CMD_SMELL_ALIAS ({ "smell", "sniff" })
+#define _LANG_CMD_SMELL_SYNTAX "smell [<something>]"
+#define _LANG_CMD_SMELL_HELP "You smell the place you are in, or something in it or carried."
+#define _LANG_CMD_SMELL_NOTHING_HERE "You notice no particular smell.\n"
+#define _LANG_CMD_SMELL_NOTHING_IN "You notice no particular smell about it.\n"
+
+#define _LANG_CMD_LISTEN_ALIAS ({ "listen", "hear" })
+#define _LANG_CMD_LISTEN_SYNTAX "listen [<something>]"
+#define _LANG_CMD_LISTEN_HELP "You listen to the place you are in, or to something in it or carried."
+#define _LANG_CMD_LISTEN_NOTHING_HERE "You hear nothing in particular.\n"
+#define _LANG_CMD_LISTEN_NOTHING_IN "You hear nothing in particular from it.\n"
+
+#define _LANG_CMD_TASTE_ALIAS ({ "taste", "lick" })
+#define _LANG_CMD_TASTE_SYNTAX "taste [<something>]"
+#define _LANG_CMD_TASTE_HELP "You taste something in the place you are in, or carried."
+#define _LANG_CMD_TASTE_NOTHING_HERE "You notice no particular taste.\n"
+#define _LANG_CMD_TASTE_NOTHING_IN "You notice no particular taste about it.\n"
+
+#define _LANG_CMD_FEEL_ALIAS ({ "feel", "touch" })
+#define _LANG_CMD_FEEL_SYNTAX "feel [<something>]"
+#define _LANG_CMD_FEEL_HELP "You touch something in the place you are in or carried, or feel the place itself."
+#define _LANG_CMD_FEEL_NOTHING_HERE "You feel nothing in particular.\n"
+#define _LANG_CMD_FEEL_NOTHING_IN "You feel nothing in particular about it.\n"

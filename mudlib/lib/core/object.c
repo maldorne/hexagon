@@ -18,6 +18,7 @@ inherit extra_look "/lib/core/basic/extra_look";
 inherit desc       "/lib/core/basic/desc";
 inherit events     "/lib/core/basic/events";
 inherit gender     "/lib/core/basic/gender";
+inherit senses     "/lib/core/basic/senses";
 
 string create_me;
 

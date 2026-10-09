@@ -103,11 +103,10 @@
 #define _LANG_PROP_TABLE_SHORT          "a $material_phrase$ table"
 #define _LANG_PROP_TABLE_LONG           "A long $material_phrase$ table, scarred by years of use."
 
-#define _LANG_PROP_TABLE_SMELL_VERBS    ({ "smell", "sniff" })
 #define _LANG_PROP_TABLE_LEAN_VERBS     ({ "lean" })
 #define _LANG_PROP_TABLE_CLIMB_VERBS    ({ "climb" })
 
-#define _LANG_PROP_TABLE_SMELL_ME       "The table smells of polish and old wood."
+#define _LANG_PROP_TABLE_SMELL          "The table smells of polish and old wood."
 #define _LANG_PROP_TABLE_LEAN_ME        "You lean on the table."
 #define _LANG_PROP_TABLE_LEAN_OTHERS    "$mcname$ leans on the table."
 #define _LANG_PROP_TABLE_CLIMB_ME       "You climb onto the table."
@@ -159,11 +158,10 @@
 #define _LANG_PROP_FOUNTAIN_LONG        "A $material_phrase$ fountain. Clear water bubbles gently in its basin."
 
 #define _LANG_PROP_FOUNTAIN_DRINK_VERBS ({ "drink" })
-#define _LANG_PROP_FOUNTAIN_SMELL_VERBS ({ "smell", "sniff" })
 
 #define _LANG_PROP_FOUNTAIN_DRINK_ME    "You drink some fresh water from the fountain."
 #define _LANG_PROP_FOUNTAIN_DRINK_OTHERS "$mcname$ drinks some fresh water from the fountain."
-#define _LANG_PROP_FOUNTAIN_SMELL_ME    "The water smells faintly of moss and cold stone."
+#define _LANG_PROP_FOUNTAIN_SMELL       "The water smells faintly of moss and cold stone."
 
 // ************************************************************
 //  fireplace
@@ -210,11 +208,10 @@
 #define _LANG_PROP_BAR_LONG             "A long $material_phrase$ bar runs along the wall, its surface scarred by years of mugs and elbows. It is not very clean."
 
 #define _LANG_PROP_BAR_LEAN_VERBS       ({ "lean" })
-#define _LANG_PROP_BAR_SMELL_VERBS      ({ "smell", "sniff" })
 
 #define _LANG_PROP_BAR_LEAN_ME          "You lean against the bar."
 #define _LANG_PROP_BAR_LEAN_OTHERS      "$mcname$ leans against the bar."
-#define _LANG_PROP_BAR_SMELL_ME         "The bar reeks of stale ale and old wood."
+#define _LANG_PROP_BAR_SMELL            "The bar reeks of stale ale and old wood."
 
 // ------------------------------------------------------------
 //  bunk
@@ -251,10 +248,9 @@
 #define _LANG_PROP_RACK_LONG            "A row of $material_phrase$ pegs fixed to the wall, hung with cloaks and belts."
 
 #define _LANG_PROP_RACK_SEARCH_VERBS    ({ "search", "rummage" })
-#define _LANG_PROP_RACK_SMELL_VERBS     ({ "smell", "sniff" })
 #define _LANG_PROP_RACK_SEARCH_ME       "You rummage through the cloaks: nothing but old wool and worn straps."
 #define _LANG_PROP_RACK_SEARCH_OTHERS   "$mcname$ rummages through the hanging cloaks."
-#define _LANG_PROP_RACK_SMELL_ME        "The cloaks smell of sweat, leather and hearth smoke."
+#define _LANG_PROP_RACK_SMELL           "The cloaks smell of sweat, leather and hearth smoke."
 
 // ------------------------------------------------------------
 //  arms rack
@@ -383,9 +379,7 @@
 #define _LANG_PROP_MANGER_SHORT         "a manger"
 #define _LANG_PROP_MANGER_LONG          "A long, low manger $material_phrase$, with leftover grain and straw at the bottom and the wood worn smooth with use."
 
-#define _LANG_PROP_MANGER_SMELL_VERBS   ({ "smell" })
-#define _LANG_PROP_MANGER_SMELL_ME      "You smell the manger. It smells of grain, of damp straw and, above all, of animal."
-#define _LANG_PROP_MANGER_SMELL_OTHERS  "$mcname$ leans in to smell the manger and wrinkles their nose."
+#define _LANG_PROP_MANGER_SMELL         "You smell the manger. It smells of grain, of damp straw and, above all, of animal."
 
 // Words a player puts in front of the thing's name that are not part of it:
 // "lie ON THE bunk". Peeled off the front of the argument before looking up

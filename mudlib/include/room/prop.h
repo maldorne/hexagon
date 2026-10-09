@@ -47,6 +47,7 @@
 #define PROP_OVERRIDE_SHORT        "short"
 #define PROP_OVERRIDE_REMOVED_ACTIONS "removed_actions"
 #define PROP_OVERRIDE_PROPS        "props"
+#define PROP_OVERRIDE_SENSES       "senses"
 
 // ------------------------------------------------------------
 //  Plan kinds returned by handler("props")->query_action_plan().
@@ -139,6 +140,11 @@
 #define PROP_TYPE_LONG_SUFFIXES_UNSET_PLURAL "long_suffixes_unset_plural"
 
 #define PROP_TYPE_ACTIONS         "actions"
+
+// What a type smells, sounds, tastes or feels like, for the sense commands:
+// ([ "smell": text, ... ]). An instance overrides any of them with
+// overrides.senses.
+#define PROP_TYPE_SENSES          "senses"
 
 // ------------------------------------------------------------
 //  Sentinel values.

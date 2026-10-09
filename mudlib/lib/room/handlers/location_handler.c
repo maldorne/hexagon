@@ -639,6 +639,8 @@ object convert_room_to_location(object room)
   location->set_base_light(room->query_my_light());
   location->set_original_add_clones(clones);
   location->set_original_items(_extract_original_items(room));
+  // what the room smells, sounds, tastes and feels like
+  location->set_location_senses(room->query_senses());
   location->stamp_last_imported_at();
 
   if (sizeof(room->query_room_zones()))

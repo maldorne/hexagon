@@ -24,7 +24,6 @@ inherit cleanup    "/lib/room/cleanup.c";
 inherit contents   "/lib/room/contents.c";
 inherit exits      "/lib/room/exits.c";
 inherit zone       "/lib/room/zone.c";
-inherit senses     "/lib/room/senses.c";
 inherit guard      "/lib/room/room_guards.c";
 inherit navigation "/lib/room/navigation.c";
 inherit sign       "/lib/room/sign.c";
@@ -68,7 +67,6 @@ void create()
   exits::create();
   contents::create();
   zone::create();
-  senses::create();
   navigation::create();
   guard::create();
 
@@ -231,7 +229,6 @@ void init()
   exits::init();
 
   contents::init();
-  senses::init();
 
   cleanup::init();
 }

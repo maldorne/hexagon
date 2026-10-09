@@ -592,6 +592,32 @@ string query_actions_hint(mapping inst)
   return _LANG_PROPS_YOU_CAN + verbs + _LANG_PROPS_LIST_TERMINATOR;
 }
 
+// What the prop a word names smells, sounds, tastes or feels like, for the
+// sense commands: the instance's own text, else its type's. Nil when no prop
+// here answers to the word or it has nothing for that sense.
+string query_sense(string sense, varargs string word)
+{
+  mapping inst, spec, ov;
+
+  if (!word || !strlen(word))
+    return nil;
+
+  inst = _find_unique_match(word);
+  if (!inst)
+    return nil;
+
+  ov = inst[PROP_FIELD_OVERRIDES];
+  if (mappingp(ov) && mappingp(ov[PROP_OVERRIDE_SENSES]) &&
+      ov[PROP_OVERRIDE_SENSES][sense])
+    return ov[PROP_OVERRIDE_SENSES][sense];
+
+  spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
+  if (spec && mappingp(spec[PROP_TYPE_SENSES]))
+    return spec[PROP_TYPE_SENSES][sense];
+
+  return nil;
+}
+
 /*
  * Reduce contract for long: receive ({ str, dark }).
  *

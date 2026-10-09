@@ -46,6 +46,9 @@ mixed * _original_items;         // ordered ({ id_or_id_array, desc }) from add_
 // the fixed objects this location clones on every load (a tree to climb, a
 // stone to move), as blueprint -> how many
 mapping _fixtures;
+// what this place smells, sounds, tastes and feels like, kept so it comes back
+// on every load (taken from the room it is converted from)
+mapping _senses;
 // Author-curated scene prose — what no component can infer. Composed
 // FIRST in long(); component hook_long contributions follow. Both
 // empty -> fall back to _original_long for backward compat. Editable
@@ -120,6 +123,7 @@ void create()
   _original_add_clones = ([ ]);
   _original_items = ({ });
   _fixtures = ([ ]);
+  _senses = ([ ]);
   _specific_long = "";
   _specific_short = "";
   _exit_map = ([ ]);
@@ -219,6 +223,13 @@ void set_original_items(mixed * a) { _original_items = a; }
 mapping query_fixtures() { return ([ ]) + (_fixtures ? _fixtures : ([ ])); }
 
 void set_fixtures(mapping m) { _fixtures = m ? ([ ]) + m : ([ ]); }
+
+// The senses of the place, kept in the .o and applied at once.
+void set_location_senses(mapping m)
+{
+  set_senses(m);
+  _senses = query_senses();
+}
 
 // Clone whatever fixed objects are missing here: those already in the
 // location are counted, so calling it again never adds a second one.
@@ -858,6 +869,9 @@ int restore_from_file_name(string name)
     init_components(component_info);
 
     restore_fixtures();
+
+    if (mappingp(_senses))
+      set_senses(_senses);
 
     // restore_object set file_name directly (this is the normal load path,
     // not set_file_name), so register with the cleaner here too

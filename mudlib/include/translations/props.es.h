@@ -108,11 +108,10 @@
 #define _LANG_PROP_TABLE_SHORT          "una mesa $material_phrase$"
 #define _LANG_PROP_TABLE_LONG           "Una larga mesa $material_phrase$, marcada por años de uso."
 
-#define _LANG_PROP_TABLE_SMELL_VERBS    ({ "oler", "olfatear" })
 #define _LANG_PROP_TABLE_LEAN_VERBS     ({ "apoyarse", "apoyarme", "apoyar" })
 #define _LANG_PROP_TABLE_CLIMB_VERBS    ({ "subir", "trepar" })
 
-#define _LANG_PROP_TABLE_SMELL_ME       "La mesa huele a cera y madera vieja."
+#define _LANG_PROP_TABLE_SMELL          "La mesa huele a cera y madera vieja."
 #define _LANG_PROP_TABLE_LEAN_ME        "Te apoyas en la mesa."
 #define _LANG_PROP_TABLE_LEAN_OTHERS    "$mcname$ se apoya en la mesa."
 #define _LANG_PROP_TABLE_CLIMB_ME       "Te subes a la mesa."
@@ -164,11 +163,10 @@
 #define _LANG_PROP_FOUNTAIN_LONG        "Una fuente $material_phrase$. Agua clara burbujea suavemente en su pilón."
 
 #define _LANG_PROP_FOUNTAIN_DRINK_VERBS ({ "beber" })
-#define _LANG_PROP_FOUNTAIN_SMELL_VERBS ({ "oler", "olfatear" })
 
 #define _LANG_PROP_FOUNTAIN_DRINK_ME    "Bebes un poco de agua fresca de la fuente."
 #define _LANG_PROP_FOUNTAIN_DRINK_OTHERS "$mcname$ bebe un poco de agua fresca de la fuente."
-#define _LANG_PROP_FOUNTAIN_SMELL_ME    "El agua huele levemente a musgo y a piedra fría."
+#define _LANG_PROP_FOUNTAIN_SMELL       "El agua huele levemente a musgo y a piedra fría."
 
 // ************************************************************
 //  chimenea
@@ -211,11 +209,10 @@
 #define _LANG_PROP_BAR_LONG             "Una larga barra $material_phrase$ recorre la pared, su superficie marcada por años de jarras y codos. No está muy limpia."
 
 #define _LANG_PROP_BAR_LEAN_VERBS       ({ "apoyarse", "apoyarme", "apoyar" })
-#define _LANG_PROP_BAR_SMELL_VERBS      ({ "oler", "olfatear" })
 
 #define _LANG_PROP_BAR_LEAN_ME          "Te apoyas en la barra."
 #define _LANG_PROP_BAR_LEAN_OTHERS      "$mcname$ se apoya en la barra."
-#define _LANG_PROP_BAR_SMELL_ME         "La barra huele a cerveza rancia y madera vieja."
+#define _LANG_PROP_BAR_SMELL            "La barra huele a cerveza rancia y madera vieja."
 
 // ------------------------------------------------------------
 //  camastro
@@ -252,10 +249,9 @@
 #define _LANG_PROP_RACK_LONG            "Una hilera de clavijas $material_phrase$ fijadas a la pared. De ellas cuelgan capas y cinturones."
 
 #define _LANG_PROP_RACK_SEARCH_VERBS    ({ "registrar", "rebuscar" })
-#define _LANG_PROP_RACK_SMELL_VERBS     ({ "oler", "olfatear" })
 #define _LANG_PROP_RACK_SEARCH_ME       "Rebuscas entre las capas: nada que no sea lana vieja y correas gastadas."
 #define _LANG_PROP_RACK_SEARCH_OTHERS   "$mcname$ rebusca entre las capas colgadas."
-#define _LANG_PROP_RACK_SMELL_ME        "Las capas huelen a sudor, cuero y humo de hoguera."
+#define _LANG_PROP_RACK_SMELL           "Las capas huelen a sudor, cuero y humo de hoguera."
 
 // ------------------------------------------------------------
 //  armero
@@ -384,9 +380,7 @@
 #define _LANG_PROP_MANGER_SHORT         "un comedero"
 #define _LANG_PROP_MANGER_LONG          "Un comedero $material_phrase$, bajo y alargado, con restos de grano y paja en el fondo y la madera alisada por el uso."
 
-#define _LANG_PROP_MANGER_SMELL_VERBS   ({ "oler" })
-#define _LANG_PROP_MANGER_SMELL_ME      "Hueles el comedero. Huele a grano, a paja húmeda y, sobre todo, a animal."
-#define _LANG_PROP_MANGER_SMELL_OTHERS  "$mcname$ se acerca a oler el comedero y arruga la nariz."
+#define _LANG_PROP_MANGER_SMELL         "Hueles el comedero. Huele a grano, a paja húmeda y, sobre todo, a animal."
 
 // Palabras que un jugador antepone al nombre del objeto y que no forman parte
 // de él: "tumbarse EN EL camastro". Se descartan por delante del argumento

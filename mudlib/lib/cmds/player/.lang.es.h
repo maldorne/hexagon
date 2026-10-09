@@ -696,3 +696,33 @@
       "trabajar y al rato te entrega " + made->query_short() + ".\n"
 #define _LANG_CMD_CRAFTS_DONE_ROOM who->query_cap_name() + " le entrega a " + \
       me->query_cap_name() + " un trabajo hecho por encargo.\n"
+
+// smell, listen, taste, feel
+
+#define _LANG_CMD_SMELL_ALIAS ({ "oler", "olfatear" })
+#define _LANG_CMD_SMELL_SYNTAX "oler [<algo>]"
+#define _LANG_CMD_SMELL_HELP "Hueles el sitio en el que estás o algo de lo que hay en él " + \
+      "o llevas encima."
+#define _LANG_CMD_SMELL_NOTHING_HERE "No notas ningún olor especial.\n"
+#define _LANG_CMD_SMELL_NOTHING_IN "No le notas ningún olor especial.\n"
+
+#define _LANG_CMD_LISTEN_ALIAS ({ "escuchar", "oir", "oír" })
+#define _LANG_CMD_LISTEN_SYNTAX "escuchar [<algo>]"
+#define _LANG_CMD_LISTEN_HELP "Escuchas el sitio en el que estás o algo de lo que hay en " + \
+      "él o llevas encima."
+#define _LANG_CMD_LISTEN_NOTHING_HERE "No oyes nada especial.\n"
+#define _LANG_CMD_LISTEN_NOTHING_IN "No le oyes nada especial.\n"
+
+#define _LANG_CMD_TASTE_ALIAS ({ "saborear", "probar" })
+#define _LANG_CMD_TASTE_SYNTAX "saborear [<algo>]"
+#define _LANG_CMD_TASTE_HELP "Pruebas el sabor de algo de lo que hay donde estás o " + \
+      "llevas encima."
+#define _LANG_CMD_TASTE_NOTHING_HERE "No notas ningún sabor especial.\n"
+#define _LANG_CMD_TASTE_NOTHING_IN "No le notas ningún sabor especial.\n"
+
+#define _LANG_CMD_FEEL_ALIAS ({ "tocar", "palpar", "sentir" })
+#define _LANG_CMD_FEEL_SYNTAX "tocar [<algo>]"
+#define _LANG_CMD_FEEL_HELP "Tocas algo de lo que hay donde estás o llevas encima, o " + \
+      "notas el tacto del sitio en el que estás."
+#define _LANG_CMD_FEEL_NOTHING_HERE "No notas nada especial al tacto.\n"
+#define _LANG_CMD_FEEL_NOTHING_IN "No le notas nada especial al tacto.\n"

@@ -153,13 +153,10 @@ void create()
 
       PROP_TYPE_DEFAULT_STATE: ([ ]),
 
-      PROP_TYPE_ACTIONS: ([
+      // what it smells of, for the smell command
+      PROP_TYPE_SENSES: ([ "smell": _LANG_PROP_TABLE_SMELL ]),
 
-        "smell": ([
-          PROP_SPEC_KIND:     PROP_PLAN_GENERIC,
-          PROP_SPEC_VERBS:    _LANG_PROP_TABLE_SMELL_VERBS,
-          PROP_SPEC_MSG_ME:   _LANG_PROP_TABLE_SMELL_ME,
-        ]),
+      PROP_TYPE_ACTIONS: ([
 
         "lean": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
@@ -264,6 +261,9 @@ void create()
 
       PROP_TYPE_DEFAULT_STATE: ([ ]),
 
+      // what it smells of, for the smell command
+      PROP_TYPE_SENSES: ([ "smell": _LANG_PROP_FOUNTAIN_SMELL ]),
+
       PROP_TYPE_ACTIONS: ([
 
         "drink": ([
@@ -271,12 +271,6 @@ void create()
           PROP_SPEC_VERBS:        _LANG_PROP_FOUNTAIN_DRINK_VERBS,
           PROP_SPEC_MSG_ME:       _LANG_PROP_FOUNTAIN_DRINK_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_FOUNTAIN_DRINK_OTHERS,
-        ]),
-
-        "smell": ([
-          PROP_SPEC_KIND:     PROP_PLAN_GENERIC,
-          PROP_SPEC_VERBS:    _LANG_PROP_FOUNTAIN_SMELL_VERBS,
-          PROP_SPEC_MSG_ME:   _LANG_PROP_FOUNTAIN_SMELL_ME,
         ]),
 
       ]),
@@ -365,6 +359,9 @@ void create()
 
       PROP_TYPE_DEFAULT_STATE: ([ ]),
 
+      // what it smells of, for the smell command
+      PROP_TYPE_SENSES: ([ "smell": _LANG_PROP_BAR_SMELL ]),
+
       PROP_TYPE_ACTIONS: ([
 
         "lean": ([
@@ -372,12 +369,6 @@ void create()
           PROP_SPEC_VERBS:        _LANG_PROP_BAR_LEAN_VERBS,
           PROP_SPEC_MSG_ME:       _LANG_PROP_BAR_LEAN_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_BAR_LEAN_OTHERS,
-        ]),
-
-        "smell": ([
-          PROP_SPEC_KIND:     PROP_PLAN_GENERIC,
-          PROP_SPEC_VERBS:    _LANG_PROP_BAR_SMELL_VERBS,
-          PROP_SPEC_MSG_ME:   _LANG_PROP_BAR_SMELL_ME,
         ]),
 
       ]),
@@ -462,6 +453,9 @@ void create()
 
       PROP_TYPE_DEFAULT_STATE: ([ ]),
 
+      // what it smells of, for the smell command
+      PROP_TYPE_SENSES: ([ "smell": _LANG_PROP_RACK_SMELL ]),
+
       PROP_TYPE_ACTIONS: ([
 
         "search": ([
@@ -469,12 +463,6 @@ void create()
           PROP_SPEC_VERBS:      _LANG_PROP_RACK_SEARCH_VERBS,
           PROP_SPEC_MSG_ME:     _LANG_PROP_RACK_SEARCH_ME,
           PROP_SPEC_MSG_OTHERS: _LANG_PROP_RACK_SEARCH_OTHERS,
-        ]),
-
-        "smell": ([
-          PROP_SPEC_KIND:   PROP_PLAN_GENERIC,
-          PROP_SPEC_VERBS:  _LANG_PROP_RACK_SMELL_VERBS,
-          PROP_SPEC_MSG_ME: _LANG_PROP_RACK_SMELL_ME,
         ]),
 
       ]),
@@ -829,14 +817,10 @@ void create()
 
       PROP_TYPE_DEFAULT_STATE: ([ ]),
 
-      PROP_TYPE_ACTIONS: ([
+      // what it smells of, for the smell command
+      PROP_TYPE_SENSES: ([ "smell": _LANG_PROP_MANGER_SMELL ]),
 
-        "smell": ([
-          PROP_SPEC_KIND:       PROP_PLAN_GENERIC,
-          PROP_SPEC_VERBS:      _LANG_PROP_MANGER_SMELL_VERBS,
-          PROP_SPEC_MSG_ME:     _LANG_PROP_MANGER_SMELL_ME,
-          PROP_SPEC_MSG_OTHERS: _LANG_PROP_MANGER_SMELL_OTHERS,
-        ]),
+      PROP_TYPE_ACTIONS: ([
 
       ]),
     ]),
