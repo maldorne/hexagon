@@ -48,6 +48,9 @@
 #define PROP_OVERRIDE_REMOVED_ACTIONS "removed_actions"
 #define PROP_OVERRIDE_PROPS        "props"
 #define PROP_OVERRIDE_SENSES       "senses"
+// Text written on this one instance (a plaque, an epitaph, a carved name),
+// shown by an action that declares PROP_SPEC_SHOW_TEXT.
+#define PROP_OVERRIDE_INSCRIPTION  "inscription"
 
 // ------------------------------------------------------------
 //  Plan kinds returned by handler("props")->query_action_plan().
@@ -88,6 +91,10 @@
 #define PROP_SPEC_CLEAR_STATE           "clear_state"
 #define PROP_SPEC_MSG_ME                "msg_me"
 #define PROP_SPEC_MSG_OTHERS            "msg_others"
+// The override key whose text the action shows to the player after
+// PROP_SPEC_MSG_ME (PROP_OVERRIDE_INSCRIPTION for reading). An instance
+// without that text gets PROP_SPEC_MISSING_MSG instead, and nothing changes.
+#define PROP_SPEC_SHOW_TEXT             "show_text"
 
 // ------------------------------------------------------------
 //  Type-entry sub-keys inside /lib/tables/props.c.

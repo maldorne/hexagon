@@ -94,8 +94,21 @@ overrides = ([
   "description": "A throne forged of solid gold.",  // wins over LONG_KEY
   "material":    "gold",                        // feeds $material_*$ tokens
   "props":       ({ "nailed" }),                // boolean flags that BLOCKED_BY checks
+  "inscription": "Here lies nobody.",           // what a show_text action shows
 ])
 ```
+
+An action whose spec carries `PROP_SPEC_SHOW_TEXT` (the `read` of a
+`ruined_statue`) prints `MSG_ME`, then the override it names, verbatim:
+
+```
+props set ruined_statue_1 overrides.inscription "Here lies nobody."
+read plaque
+  -> "You push the creepers away from the pedestal and read the plaque:"
+  -> "Here lies nobody."
+```
+
+An instance without that override gets `MISSING_MSG` and nothing else.
 
 ## 7. End-to-end example
 

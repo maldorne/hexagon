@@ -134,6 +134,31 @@
 #define _LANG_PROP_STATUE_PRAY_ME       "Te arrodillas ante la estatua y ofreces una oración en silencio."
 #define _LANG_PROP_STATUE_PRAY_OTHERS   "$mcname$ se arrodilla ante la estatua y reza en silencio."
 
+
+// ************************************************************
+//  estatua abandonada
+// ************************************************************
+#define _LANG_PROP_RUINED_STATUE_ID          "estatua"
+#define _LANG_PROP_RUINED_STATUE_ID_ALIAS_1  "placa"
+
+#define _LANG_PROP_RUINED_STATUE_NOUN        "estatua abandonada"
+#define _LANG_PROP_RUINED_STATUE_NOUN_PLURAL "estatuas abandonadas"
+
+#define _LANG_PROP_RUINED_STATUE_SHORT       "una estatua $material_phrase$ abandonada"
+#define _LANG_PROP_RUINED_STATUE_LONG        "Una vieja estatua $material_phrase$ se alza aquí, abandonada en mitad de la nada. El tiempo ha borrado las facciones de la figura y le ha quebrado un brazo; está agrietada y cubierta de líquenes, y las plantas y las enredaderas crecen a su alrededor y trepan por ella hasta los hombros. En el pedestal, medio oculta por la maleza, hay una placa."
+
+#define _LANG_PROP_RUINED_STATUE_SMELL       "Huele a musgo y a tierra húmeda."
+#define _LANG_PROP_RUINED_STATUE_FEEL        "Está fría y áspera, y las enredaderas se te enganchan en los dedos."
+
+#define _LANG_PROP_RUINED_STATUE_READ_VERBS  ({ "leer" })
+#define _LANG_PROP_RUINED_STATUE_READ_ME     "Apartas las enredaderas del pedestal y lees la placa:"
+#define _LANG_PROP_RUINED_STATUE_READ_OTHERS "$mcname$ aparta las enredaderas del pie de la estatua y lee algo."
+#define _LANG_PROP_RUINED_STATUE_READ_NOTHING "Si alguna vez hubo algo escrito en la placa, el tiempo lo ha borrado."
+
+#define _LANG_PROP_RUINED_STATUE_PRAY_VERBS  ({ "rezar", "orar" })
+#define _LANG_PROP_RUINED_STATUE_PRAY_ME     "Te arrodillas ante la estatua abandonada. Nadie parece haberlo hecho en mucho tiempo."
+#define _LANG_PROP_RUINED_STATUE_PRAY_OTHERS "$mcname$ se arrodilla ante la estatua abandonada y reza en silencio."
+
 // ************************************************************
 //  altar
 // ************************************************************

@@ -1053,7 +1053,8 @@ int do_prop_action(string str)
 //    5. set_state              — assign state[flag] = value
 //    6. clear_state            — state[flag] = nil
 //
-//  Plus message output to player and room.
+//  Plus message output to player and room, and the instance's own text
+//  when the action shows one (show_text, read from its overrides).
 //
 //  PROP_VALUE_PLAYER_NAME is the sentinel that resolves to
 //  this_player()->query_name() at apply time, allowing table data to
@@ -1134,6 +1135,16 @@ private int _execute_generic(mapping spec, mapping inst, string args)
 
   ov = inst[PROP_FIELD_OVERRIDES];
   ov_props = ov ? ov[PROP_OVERRIDE_PROPS] : nil;
+
+  // an action that shows the instance's text does nothing on one without it
+  if (spec[PROP_SPEC_SHOW_TEXT] &&
+      (!ov || !stringp(ov[spec[PROP_SPEC_SHOW_TEXT]]) ||
+       !strlen(ov[spec[PROP_SPEC_SHOW_TEXT]])))
+  {
+    if (spec[PROP_SPEC_MISSING_MSG])
+      write(_render_msg(spec[PROP_SPEC_MISSING_MSG], "") + "\n");
+    return 1;
+  }
 
   // 1. blocked_by — state OR static override.props
   flags = spec[PROP_SPEC_BLOCKED_BY];
@@ -1229,6 +1240,8 @@ private int _execute_generic(mapping spec, mapping inst, string args)
   // messages
   if (spec[PROP_SPEC_MSG_ME])
     write(_render_msg(spec[PROP_SPEC_MSG_ME], "") + "\n");
+  if (spec[PROP_SPEC_SHOW_TEXT])
+    write(ov[spec[PROP_SPEC_SHOW_TEXT]] + "\n");
   if (spec[PROP_SPEC_MSG_OTHERS])
   {
     object loc;

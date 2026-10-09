@@ -209,6 +209,55 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  ruined_statue — a statue left alone for so long that the
+    //  plants have taken it. What is written on its plaque is the
+    //  instance's inscription override.
+    // ------------------------------------------------------------
+    "ruined_statue": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_RUINED_STATUE_ID,
+        _LANG_PROP_RUINED_STATUE_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_RUINED_STATUE_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_RUINED_STATUE_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_FEMALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_RUINED_STATUE_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_RUINED_STATUE_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE, MAT_METAL }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_SENSES: ([
+        "smell": _LANG_PROP_RUINED_STATUE_SMELL,
+        "feel":  _LANG_PROP_RUINED_STATUE_FEEL,
+      ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "read": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_RUINED_STATUE_READ_VERBS,
+          PROP_SPEC_SHOW_TEXT:    PROP_OVERRIDE_INSCRIPTION,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_RUINED_STATUE_READ_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_RUINED_STATUE_READ_OTHERS,
+          PROP_SPEC_MISSING_MSG:  _LANG_PROP_RUINED_STATUE_READ_NOTHING,
+        ]),
+
+        "pray": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_RUINED_STATUE_PRAY_VERBS,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_RUINED_STATUE_PRAY_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_RUINED_STATUE_PRAY_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  altar — decorative, stateless. Pray action for flavour.
     // ------------------------------------------------------------
     "altar": ([
