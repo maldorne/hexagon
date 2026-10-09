@@ -782,9 +782,19 @@ nomask void try_throw_out(string str)
   // object tmp, ob;
   object env;
 
-  if (member_array(str[0], _LANG_NO_OPTIONS_ARRAY) != -1)
+  str = implode(explode(str, " "), "");
+
+  if (strlen(str) && member_array(str[0], _LANG_NO_OPTIONS_ARRAY) != -1)
   {
     disconnect();
+    return;
+  }
+
+  // only a yes throws the other session out
+  if (!strlen(str) || member_array(str[0], _LANG_YES_OPTIONS_ARRAY) == -1)
+  {
+    write(_LANG_ANSWER_YES_NO);
+    input_to("try_throw_out");
     return;
   }
 

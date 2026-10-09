@@ -294,7 +294,9 @@ int do_flushalias(string str)
 
 int _flushem(string str)
 {
-  if (member_array(str[0], _LANG_NO_OPTIONS_ARRAY) != -1)
+  str = implode(explode(str, " "), "");
+
+  if (strlen(str) && member_array(str[0], _LANG_YES_OPTIONS_ARRAY) != -1)
   {
     aliases = ([ ]);
     map_aliases = ([ ]);
