@@ -91,6 +91,42 @@ void monster_died(string source, string location_file)
   this_object()->save_me();
 }
 
+// A reconverted location keeps no more monsters of a kind than its room now
+// asks for: its bucket is cut down to the new provenance, so lowering what a
+// room clones lowers the population instead of leaving the old one in place.
+void trim_location_monsters(string location_file, mapping clones)
+{
+  mapping bucket, wanted;
+  string * keys;
+  int i;
+
+  bucket = monster_census[location_file];
+  if (!bucket)
+    return;
+
+  wanted = ([ ]);
+  keys = clones ? map_indices(clones) : ({ });
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    string source;
+
+    source = (string)this_object()->query_template_from_source(keys[i]);
+    wanted[source] = (wanted[source] ? wanted[source] : 0) + clones[keys[i]];
+  }
+
+  keys = map_indices(bucket);
+  for (i = 0; i < sizeof(keys); i++)
+    if (!wanted[keys[i]])
+      map_delete(bucket, keys[i]);
+    else if (bucket[keys[i]] > wanted[keys[i]])
+      bucket[keys[i]] = wanted[keys[i]];
+
+  if (!map_sizeof(bucket))
+    map_delete(monster_census, location_file);
+
+  this_object()->save_me();
+}
+
 // How many monsters of `source` the area holds, summed across its locations.
 // This is what the population sweep checks against the cap.
 int query_monster_live_count(string source)
