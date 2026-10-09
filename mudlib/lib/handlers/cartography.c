@@ -87,6 +87,9 @@ private int _classify_room(object room, object viewer, int deep)
   // remain as room-level structural markers here.
   for (i = 0; i < sizeof(exits); i++)
   {
+    // a sealed way up or down does not show until it is revealed
+    if (room->query_sealed_exit(exits[i]))
+      continue;
     if (exits[i] == DIR_UP)
       return CART_UP_ROOM;
     if (exits[i] == DIR_DOWN)
@@ -240,6 +243,10 @@ mapping query_map_view(object viewer, varargs mapping options)
       int seg_type;
       int has_segment, has_dest;
       int cx, cy;
+
+      // a sealed exit is not there for anybody until it is revealed
+      if (current[2]->query_sealed_exit(dest_dir[i]))
+        continue;
 
       cx = current[0];
       cy = current[1];
