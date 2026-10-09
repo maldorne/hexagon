@@ -193,6 +193,17 @@
 #define _LANG_PROP_ALTAR_PRAY_OTHERS    "$mcname$ bows $mposs$ head before the altar."
 
 // ************************************************************
+//  bowl
+// ************************************************************
+
+#define _LANG_PROP_BOWL_ID              "bowl"
+#define _LANG_PROP_BOWL_ID_ALIAS_1      "basin"
+#define _LANG_PROP_BOWL_NOUN            "bowl"
+#define _LANG_PROP_BOWL_NOUN_PLURAL     "bowls"
+#define _LANG_PROP_BOWL_SHORT           "a $material_phrase$ bowl"
+#define _LANG_PROP_BOWL_LONG            "A small open $material_phrase$ bowl rests here."
+
+// ************************************************************
 //  fountain
 // ************************************************************
 #define _LANG_PROP_FOUNTAIN_ID          "fountain"

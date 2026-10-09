@@ -301,6 +301,31 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  bowl — a small open vessel set down somewhere, for offerings
+    //  or alms. Only there to be noticed.
+    // ------------------------------------------------------------
+    "bowl": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_BOWL_ID,
+        _LANG_PROP_BOWL_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_BOWL_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_BOWL_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_BOWL_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_BOWL_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE, MAT_METAL, MAT_WOOD }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([ ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  fountain — stateless decorative + drink action.
     // ------------------------------------------------------------
     "fountain": ([

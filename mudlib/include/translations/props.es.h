@@ -198,6 +198,17 @@
 #define _LANG_PROP_ALTAR_PRAY_OTHERS    "$mcname$ inclina la cabeza ante el altar."
 
 // ************************************************************
+//  cuenco
+// ************************************************************
+
+#define _LANG_PROP_BOWL_ID              "cuenco"
+#define _LANG_PROP_BOWL_ID_ALIAS_1      "bol"
+#define _LANG_PROP_BOWL_NOUN            "cuenco"
+#define _LANG_PROP_BOWL_NOUN_PLURAL     "cuencos"
+#define _LANG_PROP_BOWL_SHORT           "un cuenco $material_phrase$"
+#define _LANG_PROP_BOWL_LONG            "Un cuenco $material_phrase$, pequeño y abierto, descansa aquí."
+
+// ************************************************************
 //  fuente
 // ************************************************************
 #define _LANG_PROP_FOUNTAIN_ID          "fuente"
