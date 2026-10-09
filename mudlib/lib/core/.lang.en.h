@@ -27,7 +27,7 @@
 #define _LANG_TIMED_OUT "Timed out.\n"
 #define _LANG_COME_AGAIN_SOON "\nCome again soon!\n"
 #define _LANG_OPTION_STRING_TOO_SHORT "Option selected is too short, the minimum are " + MIN_LEN + " characters.\n"
-#define _LANG_INVALID_CHARACTER_OR_EMAIL "Invalid user name or email" + (tmp >= 0) ? " (wrong character '" + str[tmp..tmp] + "' in '" + str + "').\n" : ".\n"
+#define _LANG_INVALID_CHARACTER_OR_EMAIL "Invalid user name or email" + ((tmp >= 0) ? " (wrong character '" + str[tmp..tmp] + "' in '" + str + "').\n" : ".\n")
 #define _LANG_PLAYER_ACCESS_FORBIDDEN "Player access is not allowed at the moment.\n"
 #define _LANG_ANSWER_YES_NO "You must answer yes or no (y/n): "
 #define _LANG_YES_OPTIONS_ARRAY ({ 'y', 'Y' })
@@ -36,6 +36,9 @@
 
 #define _LANG_ENTER_EMAIL "Enter your email: "
 #define _LANG_ENTER_VALID_EMAIL "\nEnter a valid email: "
+#define _LANG_INVALID_EMAIL "\nThat is not a valid email address. It has to look like " + \
+      "name@domain.ext, start with a lowercase letter and hold only letters, " + \
+      "numbers, dots and one @."
 #define _LANG_USED_EMAIL "Sorry, but that address is already in use.\n" + \
       "Please, enter a different email: "
 #define _LANG_ACCOUNT_RECOMMEND "If your already have an account in " + mud_name() + ", we really " + \

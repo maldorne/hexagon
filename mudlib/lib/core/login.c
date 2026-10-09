@@ -297,7 +297,8 @@ nomask void logon_option(string str)
 
   // new options, neverbot 02/2006
   // execute cmd avaibale to login roles, neverbot 09/2019
-  if (member_array(exploded_args[0], available_cmds) != -1)
+  // the word may be any alias of the command, in the mud's language or not
+  if (member_array(CMD_HANDLER->query_unaliased_cmd(exploded_args[0]), available_cmds) != -1)
   {
     string args, err;
     int result;
@@ -830,6 +831,7 @@ void create_user(string str)
 
   if (!SECURE->valid_email(str))
   {
+    write(_LANG_INVALID_EMAIL);
     write(_LANG_ENTER_VALID_EMAIL);
     input_to("create_user");
     return;
@@ -989,13 +991,13 @@ int check_player_name(string str)
 {
   str = implode(explode(str, " "), "");
 
-  if (member_array(str[0], _LANG_YES_OPTIONS_ARRAY) != -1)
+  if (strlen(str) && member_array(str[0], _LANG_YES_OPTIONS_ARRAY) != -1)
   {
     write(_LANG_CHOOSE_CHARACTER_GENDER);
     input_to("get_sex");
     return 1;
   }
-  else if (member_array(str[0], _LANG_NO_OPTIONS_ARRAY) != -1)
+  else if (strlen(str) && member_array(str[0], _LANG_NO_OPTIONS_ARRAY) != -1)
   {
     write(_LANG_TRY_AGAIN);
     write(_LANG_TYPE_THE_NEW_CHARACTER_NAME);

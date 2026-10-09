@@ -16,8 +16,8 @@
 #define _LANG_OPTIONS_GUEST_LOGIN "%^BOLD%^invitado%^RESET%^ para probar el juego temporalmente."
 #define _LANG_OPTIONS_CHARACTER_LOGIN "%^BOLD%^GREEN%^<nombre de personaje>%^RESET%^ para seguir jugando."
 #define _LANG_OPTIONS_CREATE_CHARACTER "%^BOLD%^crear%^RESET%^ para crear un nuevo personaje."
-#define _LANG_OPTIONS_LIST_CHARACTERS "%^BOLD%^characters%^RESET%^ para ver todos tus personajes disponibles."
-#define _LANG_OPTIONS_CMD_GAMES "%^BOLD%^games%^RESET%^ para ver todos los juegos disponibles en " + mud_name() + "."
+#define _LANG_OPTIONS_LIST_CHARACTERS "%^BOLD%^personajes%^RESET%^ para ver todos tus personajes disponibles."
+#define _LANG_OPTIONS_CMD_GAMES "%^BOLD%^juegos%^RESET%^ para ver todos los juegos disponibles en " + mud_name() + "."
 #define _LANG_OPTIONS_CMD_FINGER "%^BOLD%^finger <nombre>%^RESET%^ para obtener datos sobre otro jugador."
 #define _LANG_OPTIONS_CMD_WHO "%^BOLD%^who%^RESET%^ para ver la lista de jugadores conectados."
 
@@ -27,7 +27,7 @@
 #define _LANG_TIMED_OUT "Se terminó el tiempo.\n"
 #define _LANG_COME_AGAIN_SOON "\n¡Vuelve dentro de poco!\n"
 #define _LANG_OPTION_STRING_TOO_SHORT "La opción introducida es demasiado corta, el mínimo son " + MIN_LEN + " caracteres.\n"
-#define _LANG_INVALID_CHARACTER_OR_EMAIL "Nombre de usuario o email inválido" + (tmp >= 0) ? " (carácter erróneo '" + str[tmp..tmp] + "' en '" + str + "').\n" : ".\n"
+#define _LANG_INVALID_CHARACTER_OR_EMAIL "Nombre de usuario o email inválido" + ((tmp >= 0) ? " (carácter erróneo '" + str[tmp..tmp] + "' en '" + str + "').\n" : ".\n")
 #define _LANG_PLAYER_ACCESS_FORBIDDEN "El acceso a jugadores no está permitido en estos momentos.\n"
 #define _LANG_ANSWER_YES_NO "Debes responder sí o no (s/n): "
 #define _LANG_YES_OPTIONS_ARRAY ({ 's', 'S' })
@@ -36,6 +36,9 @@
 
 #define _LANG_ENTER_EMAIL "Introduce tu dirección de email: "
 #define _LANG_ENTER_VALID_EMAIL "\nIntroduce una dirección de email válida: "
+#define _LANG_INVALID_EMAIL "\nEsa dirección de email no es válida. Tiene que tener la forma " + \
+      "nombre@dominio.ext, empezar por una letra minúscula y llevar solo letras, " + \
+      "números, puntos y una @."
 #define _LANG_USED_EMAIL "Lo sentimos, pero esa dirección ya está utilizada.\n" + \
       "Por favor, introduce otra dirección de email: "
 #define _LANG_ACCOUNT_RECOMMEND "Si ya tienes otra cuenta en " + mud_name() + ", recomendamos " + \
