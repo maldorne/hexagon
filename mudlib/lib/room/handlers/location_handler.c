@@ -574,13 +574,38 @@ static string _extract_original_board(object room)
   return nil;
 }
 
+// The fixed objects among a room's add_clone counts, as blueprint (no .c) ->
+// how many. Only what says it is a fixture counts; anything else the room
+// cloned is loose and stays behind.
+private mapping _fixtures_from_clones(mapping clones)
+{
+  mapping fixtures;
+  string * paths;
+  int i;
+
+  fixtures = ([ ]);
+  paths = map_indices(clones);
+
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    object bp;
+
+    bp = nil;
+    catch(bp = load_object(paths[i]));
+    if (bp && bp->query_fixture())
+      fixtures[base_name(bp)] = clones[paths[i]];
+  }
+
+  return fixtures;
+}
+
 object convert_room_to_location(object room)
 {
   object location, area;
   string file_name, * exits, ret, board_name;
   string * inferred, * venture_kinds, * blueprints, * missing;
   string game;
-  mapping exit_map, clones, npc_clones;
+  mapping exit_map, clones, npc_clones, fixtures;
   int i, c;
 
   if (!room)
@@ -790,6 +815,15 @@ object convert_room_to_location(object room)
       ret += "   Adding POI " + venture_kinds[i] + ".\n";
       break;
     }
+
+  // The room's fixed objects (a tree to climb, a stone to move) become the
+  // location's own: it clones them again on every load.
+  fixtures = _fixtures_from_clones(clones);
+  location->set_fixtures(fixtures);
+  location->restore_fixtures();
+
+  if (map_sizeof(fixtures))
+    ret += "   Fixtures: " + implode(map_indices(fixtures), ", ") + ".\n";
 
   write(ret);
 

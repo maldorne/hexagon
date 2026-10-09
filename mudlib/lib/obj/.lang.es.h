@@ -342,3 +342,11 @@
 #define _LANG_IOU_STAT_UNKNOWN "Vete a saber.\n"
 #define _LANG_IOU_RECLAIMED "Un pequeño demonio te da algo y se marcha corriendo con el pagaré.\n"
 #define _LANG_IOU_NOTHING_HAPPENS "No parece pasar nada.\n"
+
+// movable.c
+
+#define _LANG_MOVABLE_VERBS ({ "mover", "empujar", "apartar" })
+#define _LANG_MOVABLE_WHAT "¿Mover qué?\n"
+#define _LANG_MOVABLE_ALREADY "No hay nada más que apartar; el paso sigue a la vista.\n"
+#define _LANG_MOVABLE_MOVED_ME "Lo apartas y dejas al descubierto un paso.\n"
+#define _LANG_MOVABLE_MOVED_ROOM "aparta algo y deja al descubierto un paso.\n"

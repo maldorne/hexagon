@@ -43,6 +43,9 @@ string _original_long;
 string _original_short;
 mapping _original_add_clones;   // path -> count for each add_clone in the source room
 mixed * _original_items;         // ordered ({ id_or_id_array, desc }) from add_item
+// the fixed objects this location clones on every load (a tree to climb, a
+// stone to move), as blueprint -> how many
+mapping _fixtures;
 // Author-curated scene prose — what no component can infer. Composed
 // FIRST in long(); component hook_long contributions follow. Both
 // empty -> fall back to _original_long for backward compat. Editable
@@ -116,6 +119,7 @@ void create()
   _original_short = "";
   _original_add_clones = ([ ]);
   _original_items = ({ });
+  _fixtures = ([ ]);
   _specific_long = "";
   _specific_short = "";
   _exit_map = ([ ]);
@@ -210,6 +214,87 @@ mapping query_original_add_clones() { return _original_add_clones; }
 void set_original_add_clones(mapping m) { _original_add_clones = m; }
 mixed * query_original_items() { return _original_items; }
 void set_original_items(mixed * a) { _original_items = a; }
+
+// The fixed objects of this location, as blueprint (no .c) -> how many.
+mapping query_fixtures() { return ([ ]) + (_fixtures ? _fixtures : ([ ])); }
+
+void set_fixtures(mapping m) { _fixtures = m ? ([ ]) + m : ([ ]); }
+
+// Clone whatever fixed objects are missing here: those already in the
+// location are counted, so calling it again never adds a second one.
+void restore_fixtures()
+{
+  object * here;
+  string * paths;
+  int i, j;
+
+  if (!_fixtures || !map_sizeof(_fixtures))
+    return;
+
+  here = all_inventory(this_object());
+  paths = map_indices(_fixtures);
+
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    int missing;
+
+    missing = _fixtures[paths[i]];
+    for (j = 0; j < sizeof(here); j++)
+      if (here[j] && base_name(here[j]) == paths[i])
+        missing--;
+
+    for (j = 0; j < missing; j++)
+    {
+      object ob;
+
+      ob = nil;
+      catch(ob = clone_object(paths[i]));
+      if (ob)
+        ob->move(this_object());
+    }
+  }
+}
+
+// Add `count` (one by default) fixed objects of `path` and clone them here.
+int add_fixture(string path, varargs int count)
+{
+  if (!path || !strlen(path))
+    return 0;
+  if (strlen(path) > 2 && path[strlen(path) - 2..] == ".c")
+    path = path[0..strlen(path) - 3];
+  if (count < 1)
+    count = 1;
+
+  if (!_fixtures)
+    _fixtures = ([ ]);
+  _fixtures[path] = (_fixtures[path] ? _fixtures[path] : 0) + count;
+
+  restore_fixtures();
+  return 1;
+}
+
+// Take every fixed object of `path` off the list and out of the location.
+int remove_fixture(string path)
+{
+  object * here;
+  int i;
+
+  if (!path || !_fixtures)
+    return 0;
+  if (strlen(path) > 2 && path[strlen(path) - 2..] == ".c")
+    path = path[0..strlen(path) - 3];
+  if (undefinedp(_fixtures[path]))
+    return 0;
+
+  map_delete(_fixtures, path);
+
+  here = all_inventory(this_object());
+  for (i = 0; i < sizeof(here); i++)
+    if (here[i] && base_name(here[i]) == path)
+      here[i]->dest_me();
+
+  return 1;
+}
 
 string query_specific_long() { return _specific_long; }
 void set_specific_long(string str) { _specific_long = str ? str : ""; }
@@ -771,6 +856,8 @@ int restore_from_file_name(string name)
     set_light(query_base_light());
 
     init_components(component_info);
+
+    restore_fixtures();
 
     // restore_object set file_name directly (this is the normal load path,
     // not set_file_name), so register with the cleaner here too

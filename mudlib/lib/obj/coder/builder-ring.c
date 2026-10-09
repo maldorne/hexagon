@@ -21,7 +21,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "desc", "temple", "venture", "family" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "desc", "temple", "venture", "family", "fixture" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -108,6 +108,9 @@ inherit "/lib/armour.c";
   "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
   "  build sign <text>                    post a sign here (remove: take it down)\n" + \
+  "  build fixture [list]                 fixed objects this location clones\n" + \
+  "  build fixture add <file.c> [count]   add one (a tree, a stone...)\n" + \
+  "  build fixture remove <file.c>        take it off the list and out\n" + \
   "  build desc [long] <text>             the prose of this location (reset: drop it)\n" + \
   "  build desc short <text>              its title, read in one line\n" + \
   "\n" + \
@@ -167,6 +170,7 @@ int do_home_make();
 int do_home_communal(int flag);
 int do_home_describe(string what, string str);
 int do_sign(string str);
+int do_fixture(string str);
 int do_desc(string str);
 int do_temple(string str);
 int do_venture(string str);
@@ -394,6 +398,9 @@ int do_build(string str)
 
   if (verb == "sign")
     return do_sign(implode(args[1..], " "));
+
+  if (verb == "fixture")
+    return do_fixture(implode(args[1..], " "));
 
   if (verb == "desc")
     return do_desc(implode(args[1..], " "));
@@ -2498,6 +2505,80 @@ int do_home_describe(string what, string str)
 
 // Post a sign in this location, with `str` written on it. The text is typed in
 // the running instance's language, the way a POI label is.
+// The fixed objects of the location you stand in: the ones it clones again on
+// every load (see restore_fixtures in /lib/location.c). Only an object that
+// answers query_fixture() is accepted.
+int do_fixture(string str)
+{
+  object loc, bp;
+  string * args, * paths, path, out;
+  mapping fixtures;
+  int count, i;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to manage its fixtures.\n");
+    return 0;
+  }
+
+  args = explode(str ? str : "", " ") - ({ "" });
+
+  if (!sizeof(args) || args[0] == "list")
+  {
+    fixtures = loc->query_fixtures();
+    paths = map_indices(fixtures);
+    if (!sizeof(paths))
+    {
+      write("This location has no fixtures.\n");
+      return 1;
+    }
+    out = "Fixtures of this location:\n";
+    for (i = 0; i < sizeof(paths); i++)
+      out += "  " + paths[i] + " x" + fixtures[paths[i]] + "\n";
+    write(out);
+    return 1;
+  }
+
+  if (sizeof(args) < 2 || (args[0] != "add" && args[0] != "remove"))
+  {
+    notify_fail("Usage: build fixture [list] | add <file.c> [count] | remove <file.c>\n");
+    return 0;
+  }
+
+  path = get_path(args[1]);
+
+  if (args[0] == "remove")
+  {
+    if (!loc->remove_fixture(path))
+    {
+      notify_fail("'" + path + "' is not a fixture of this location.\n");
+      return 0;
+    }
+    loc->save_me();
+    write("Removed fixture " + path + ".\n");
+    return 1;
+  }
+
+  bp = nil;
+  catch(bp = load_object(path));
+  if (!bp || !bp->query_fixture())
+  {
+    notify_fail("'" + path + "' does not load or is not a fixture " +
+                "(it has to inherit /lib/obj/fixture.c).\n");
+    return 0;
+  }
+
+  count = 1;
+  if (sizeof(args) > 2)
+    sscanf(args[2], "%d", count);
+
+  loc->add_fixture(path, count);
+  loc->save_me();
+  write("Added fixture " + base_name(bp) + " x" + count + ".\n");
+  return 1;
+}
+
 int do_sign(string str)
 {
   object loc;

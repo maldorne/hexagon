@@ -342,3 +342,11 @@
 #define _LANG_IOU_STAT_UNKNOWN "Damned if I know really.\n"
 #define _LANG_IOU_RECLAIMED "A small demon hands you something and runs off with the IOU.\n"
 #define _LANG_IOU_NOTHING_HAPPENS "Nothing seems to happen.\n"
+
+// movable.c
+
+#define _LANG_MOVABLE_VERBS ({ "move", "push", "shift" })
+#define _LANG_MOVABLE_WHAT "Move what?\n"
+#define _LANG_MOVABLE_ALREADY "There is nothing more to shift; the passage is still in sight.\n"
+#define _LANG_MOVABLE_MOVED_ME "You shift it aside and uncover a passage.\n"
+#define _LANG_MOVABLE_MOVED_ROOM "shifts something aside and uncovers a passage.\n"
