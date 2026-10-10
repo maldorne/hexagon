@@ -26,7 +26,12 @@
   ║ ║                                                          ║ ║
   ║ ╚══════════════════════════════════════════════════════════╝ ║
   ╚══════════════════════════════════════════════════════════════╝
-
-            Página web: https://maldorne.org/
-            Twitter:    https://twitter.com/houseofmaldorne
-            Github:     https://github.com/maldorne/
+        ,     _,
+       /| _.-~/      
+      ( /~   /         
+      `\\  _/          Página web: https://maldorne.org/
+  _-~~~-.)  )__/;;,.   Twitter:    https://twitter.com/houseofmaldorne
+ /'_,\   --~   \ ~~~-  Github:     https://github.com/maldorne/
+ `~ _( ,_..--\ (     
+  /~~//'   /' `~\    
+  "  `~"  "      `"  
