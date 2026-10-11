@@ -36,6 +36,32 @@ void create()
   types = ([
 
     // ------------------------------------------------------------
+    //  scenery — anything that is only there to be looked at: a heap
+    //  of rubble, broken tiles, the planks of a fallen door. It has no
+    //  actions and no words of its own: every instance says what it
+    //  is with its overrides, the short it is listed by ("unos
+    //  montones de piedras"), the ids it answers to (({ "piedras" }))
+    //  and its description. Having no words, it is never inferred by
+    //  the conversion; it is added by hand. Use a type of its own for
+    //  anything that can be used.
+    // ------------------------------------------------------------
+    "scenery": ([
+
+      PROP_TYPE_ID_LIST: ({ }),
+
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+      PROP_TYPE_HIDE_MATERIAL:    1,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_SCENERY_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_SCENERY_LONG,
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([ ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  chair — full state cycle: sit/stand, tip/right
     // ------------------------------------------------------------
     "chair": ([

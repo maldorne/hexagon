@@ -99,8 +99,16 @@ overrides = ([
   "language":    "elf",                         // the inscription's language
   "colour":      "red",                         // feeds $colour$, and the list of props
   "symbol":      "a falcon",                    // feeds $symbol$
+  "ids":         ({ "stones", "heaps" }),       // more words it answers to
 ])
 ```
+
+A `short` override also names the instance in the room's list of props and
+heads `look <prop>`. The first type of the catalogue, `scenery`, is built on
+that: it has no actions and no words of its own, so every instance says what
+it is with `short`, `ids` and `description` (a heap of rubble, broken tiles),
+and the conversion never infers it. In `props set` a list is written
+`({ stones, heaps })`.
 
 A colour is also named in the room's list of props ("You see a red stone
 rune") and in the header of `look <prop>`, through `_LANG_PROPS_NOUN_WITH_COLOUR`;

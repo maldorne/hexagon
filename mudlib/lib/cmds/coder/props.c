@@ -47,8 +47,9 @@ void setup()
            "          dotted: overrides.material,\n" +
            "          overrides.props.X, overrides.removed_actions.X,\n" +
            "          state.X. Value parsed as int when it looks\n" +
-           "          like a number, nil for the literal 'nil',\n" +
-           "          otherwise string.\n" +
+           "          like a number, nil for the literal 'nil', a\n" +
+           "          list for ({ a, b }) (overrides.ids), otherwise\n" +
+           "          string.\n" +
            "  state   Print current runtime state of the matching\n" +
            "          instance. With 'reset' as the second token,\n" +
            "          re-applies the type's default_state (useful to\n" +
@@ -74,6 +75,23 @@ static mixed _parse_value(string raw)
 
   if (!raw) return nil;
   if (raw == "nil" || raw == "0") return raw == "0" ? 0 : nil;
+
+  // a list, ({ piedras, montones }): its words, trimmed and unquoted
+  if (strlen(raw) >= 4 && raw[0..1] == "({" && raw[strlen(raw)-2..] == "})")
+  {
+    string * words;
+    int i;
+
+    words = explode(raw[2..strlen(raw)-3], ",");
+    for (i = 0; i < sizeof(words); i++)
+    {
+      words[i] = trim(words[i]);
+      if (strlen(words[i]) >= 2 && words[i][0] == '"' &&
+          words[i][strlen(words[i])-1] == '"')
+        words[i] = words[i][1..strlen(words[i])-2];
+    }
+    return words - ({ "" });
+  }
 
   // quoted string
   if (strlen(raw) >= 2 && raw[0] == '"' && raw[strlen(raw)-1] == '"')

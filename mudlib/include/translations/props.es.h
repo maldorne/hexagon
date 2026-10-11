@@ -42,6 +42,12 @@
 #define _LANG_PROPS_YOU_CAN           "Puedes: "
 #define _LANG_PROPS_NO_ACTIONS        "No hay nada que hacer con esto."
 
+// ************************************************************
+//  decorado: lo que cada instancia diga ser (short, ids, description)
+// ************************************************************
+#define _LANG_PROP_SCENERY_SHORT        "algo"
+#define _LANG_PROP_SCENERY_LONG         "No tiene nada de particular."
+
 // Plantillas de frase nominal usadas por hook_long del componente
 // para describir las instancias en el cuerpo de la location.
 // Variables en scope en el call site: count_word, noun,

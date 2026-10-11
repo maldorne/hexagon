@@ -37,6 +37,12 @@
 #define _LANG_PROPS_YOU_CAN           "You can: "
 #define _LANG_PROPS_NO_ACTIONS        "Nothing to do with this one."
 
+// ************************************************************
+//  scenery: whatever each instance says it is (short, ids, description)
+// ************************************************************
+#define _LANG_PROP_SCENERY_SHORT        "something"
+#define _LANG_PROP_SCENERY_LONG         "There is nothing special about it."
+
 // Noun-phrase templates consumed by the props component's hook_long
 // to describe attached instances in the location body. Variables in
 // scope at the call site: count_word, noun, material_phrase. Order

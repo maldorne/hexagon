@@ -61,6 +61,10 @@
 // What this one instance depicts ("un halcón con las alas abiertas"), named
 // where the type's texts carry $symbol$.
 #define PROP_OVERRIDE_SYMBOL       "symbol"
+// More words this one instance answers to (({ "piedras", "montones" })),
+// added to the type's own ids. A generic type with no ids of its own (scenery)
+// is named only by these.
+#define PROP_OVERRIDE_IDS          "ids"
 
 // ------------------------------------------------------------
 //  Plan kinds returned by handler("props")->query_action_plan().

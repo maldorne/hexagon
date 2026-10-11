@@ -171,7 +171,11 @@ string * query_alias()
     if (!spec) continue;
 
     ids = (string *)handler("props")->query_id_list(inst[PROP_FIELD_TYPE]);
-    if (!ids) continue;
+    if (!ids) ids = ({ });
+    // the words this instance adds of its own
+    if (inst[PROP_FIELD_OVERRIDES] &&
+        pointerp(inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_IDS]))
+      ids += inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_IDS];
 
     material_phrase = "";
     mat_id = _instance_material(inst);
@@ -303,7 +307,12 @@ string long(varargs string str, int dark)
   desc = wrap(desc, (this_user() ? this_user()->query_cols() : 79), 1);
 
   spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
-  if (spec)
+  // an instance that says how it is named heads its description with that
+  if (inst[PROP_FIELD_OVERRIDES] &&
+      stringp(inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_SHORT]))
+    desc = capitalize(inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_SHORT]) +
+           ".\n" + desc;
+  else if (spec)
   {
     noun = spec[PROP_TYPE_NOUN];
     if (noun && strlen(noun))
@@ -779,7 +788,10 @@ private mapping _group_instances_by_type_material()
           _state_signature(inst[PROP_FIELD_STATE]) + ":" +
           (inst[PROP_FIELD_OVERRIDES] &&
            stringp(inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR]) ?
-           inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR] : "");
+           inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR] : "") + ":" +
+          (inst[PROP_FIELD_OVERRIDES] &&
+           stringp(inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_SHORT]) ?
+           inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_SHORT] : "");
     if (!groups[key])
       groups[key] = ({ });
     groups[key] += ({ inst });
@@ -803,6 +815,11 @@ private string _group_noun_phrase(mapping * insts)
   first = insts[0];
   spec = handler("props")->query_type_spec(first[PROP_FIELD_TYPE]);
   if (!spec) return "";
+
+  // an instance that says how it is named is named so (see the grouping key)
+  if (first[PROP_FIELD_OVERRIDES] &&
+      stringp(first[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_SHORT]))
+    return first[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_SHORT];
 
   gender = spec[PROP_TYPE_GENDER];
 
@@ -1360,7 +1377,13 @@ private int _str_matches_instance(string str, mapping inst)
 
   ids = (string *)handler("props")->query_id_list(inst[PROP_FIELD_TYPE]);
   spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
-  if (!ids) return 0;
+  if (!ids) ids = ({ });
+
+  // a word this instance adds of its own
+  if (inst[PROP_FIELD_OVERRIDES] &&
+      pointerp(inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_IDS]) &&
+      member_array(str, inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_IDS]) != -1)
+    return 1;
 
   // Bare singular id.
   if (member_array(str, ids) != -1) return 1;
