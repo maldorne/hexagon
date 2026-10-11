@@ -65,6 +65,10 @@
 // added to the type's own ids. A generic type with no ids of its own (scenery)
 // is named only by these.
 #define PROP_OVERRIDE_IDS          "ids"
+// How a group of instances sharing one short is named, without the count
+// ("receptacles"); a group whose short has no plural is named by the short of
+// its first instance.
+#define PROP_OVERRIDE_PLURAL       "plural"
 
 // ------------------------------------------------------------
 //  Plan kinds returned by handler("props")->query_action_plan().

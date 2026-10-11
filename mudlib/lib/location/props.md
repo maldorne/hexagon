@@ -100,8 +100,20 @@ overrides = ([
   "colour":      "red",                         // feeds $colour$, and the list of props
   "symbol":      "a falcon",                    // feeds $symbol$
   "ids":         ({ "stones", "heaps" }),       // more words it answers to
+  "plural":      "heaps of rubble",             // a group sharing the short
 ])
 ```
+
+Every object in a room is its own instance: eight chairs are eight `chair`
+instances, never one instance whose short says "eight chairs", so that each
+one can be looked at and used apart. The room's list and prose count them
+("You see eight wooden chairs"), `look chair 3` picks one and `look chairs`
+describes them all, as looking at a plural does with carried objects. An
+instance answers to its type's plural noun, its own `plural` and the plural of
+every word it answers to. Instances that
+share a `short` group under it, and a group of more than one is named by the
+count and their `plural` ("three heaps of rubble"); without a `plural` it
+keeps the first instance's short.
 
 A `short` override also names the instance in the room's list of props and
 heads `look <prop>`. The first type of the catalogue, `scenery`, is built on

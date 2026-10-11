@@ -34,6 +34,8 @@ private mapping * props_instances;
 
 // prototypes
 private mapping  _find_unique_match(string str);
+private string * _instance_plurals(mapping inst);
+private string   _instance_long(mapping inst);
 private mapping * _find_matching_instances(string str);
 private string   _strip_filler(string str);
 private mapping * _auto_target_instances(string verb);
@@ -239,6 +241,8 @@ string * query_plurals()
     spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
     if (!spec) continue;
 
+    ret += _instance_plurals(inst) - ret;
+
     id = spec[PROP_TYPE_NOUN_PLURAL];
     if (!id || !strlen(id)) continue;
 
@@ -286,14 +290,37 @@ int id_plural(string str)
 // logic hook_long uses on the str-provided branch.
 string long(varargs string str, int dark)
 {
-  mapping inst, spec;
-  string desc, hint, sh;
-  string noun, mat_id, material_phrase, id, header;
+  mapping inst;
+  string ret;
+  int i;
 
   if (!str || !strlen(str)) return "";
 
+  // a plural word describes every instance it names, one after another,
+  // as looking at a plural describes every object it names
+  if (id_plural(str))
+  {
+    ret = "";
+    for (i = 0; i < sizeof(props_instances); i++)
+      if (member_array(str, _instance_plurals(props_instances[i])) != -1)
+        ret += _instance_long(props_instances[i]);
+    if (strlen(ret))
+      return ret;
+  }
+
   inst = _find_unique_match(str);
   if (!inst) return "";
+
+  return _instance_long(inst);
+}
+
+// The description of one instance, headed by its name and followed by
+// what can be done with it.
+private string _instance_long(mapping inst)
+{
+  mapping spec;
+  string desc, hint;
+  string noun, mat_id, material_phrase, id, header;
 
   desc = (string)handler("props")->query_type_long(
            inst[PROP_FIELD_TYPE],
@@ -816,10 +843,16 @@ private string _group_noun_phrase(mapping * insts)
   spec = handler("props")->query_type_spec(first[PROP_FIELD_TYPE]);
   if (!spec) return "";
 
-  // an instance that says how it is named is named so (see the grouping key)
+  // an instance that says how it is named is named so (see the grouping key),
+  // and a group of them by its plural
   if (first[PROP_FIELD_OVERRIDES] &&
       stringp(first[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_SHORT]))
+  {
+    if (count > 1 && stringp(first[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_PLURAL]))
+      return query_num(count, 99) + " " +
+             first[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_PLURAL];
     return first[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_SHORT];
+  }
 
   gender = spec[PROP_TYPE_GENDER];
 
@@ -1357,6 +1390,36 @@ private int _execute_generic(mapping spec, mapping inst, string args)
 //  Matching helpers
 // ************************************************************
 
+// The plural words one instance answers to: its type's plural noun, its own
+// plural and the plural of every word it answers to, so "receptacles" names a
+// group of instances that only say "receptacle".
+private string * _instance_plurals(mapping inst)
+{
+  string * ids, * ret;
+  mapping spec, overrides;
+  int i;
+
+  ret = ({ });
+  spec = (mapping)handler("props")->query_type_spec(inst[PROP_FIELD_TYPE]);
+  overrides = inst[PROP_FIELD_OVERRIDES];
+
+  if (spec && stringp(spec[PROP_TYPE_NOUN_PLURAL]) &&
+      strlen(spec[PROP_TYPE_NOUN_PLURAL]))
+    ret += ({ spec[PROP_TYPE_NOUN_PLURAL] });
+  if (overrides && stringp(overrides[PROP_OVERRIDE_PLURAL]))
+    ret += ({ overrides[PROP_OVERRIDE_PLURAL] });
+
+  ids = (string *)handler("props")->query_id_list(inst[PROP_FIELD_TYPE]);
+  if (!ids) ids = ({ });
+  if (overrides && pointerp(overrides[PROP_OVERRIDE_IDS]))
+    ids += overrides[PROP_OVERRIDE_IDS];
+  for (i = 0; i < sizeof(ids); i++)
+    if (member_array(pluralize(ids[i]), ret) == -1)
+      ret += ({ pluralize(ids[i]) });
+
+  return ret;
+}
+
 /*
  * Returns 1 if `str` matches the instance — either against the type's
  * id_list from the registry, or the instance's per-location id.
@@ -1387,6 +1450,9 @@ private int _str_matches_instance(string str, mapping inst)
 
   // Bare singular id.
   if (member_array(str, ids) != -1) return 1;
+
+  // A plural this instance is named by.
+  if (member_array(str, _instance_plurals(inst)) != -1) return 1;
 
   // Bare plural noun.
   if (spec && spec[PROP_TYPE_NOUN_PLURAL] == str) return 1;
