@@ -37,12 +37,29 @@ from the room's `add_clone` of anything that is a fixture, so a room that
 clones its tree converts into a location that has it. `build fixture` lists,
 adds and removes them by hand.
 
+A fixture declares the actions it answers to with
+`add_fixture_action(function, verbs)` in its `setup()`, never with a bare
+`add_action`: the base registers them on whoever comes near, and looking at the
+fixture ends with the same line a prop shows ("You can: fill, drink."), with the
+first verb of each action. When what somebody can do depends on them or on the
+fixture's state, it redefines `query_usage_verbs(viewer)`; `query_actions_hint`
+gives the line, for a fixture that builds its own long.
+
+`force_exit(dir, who, leave, arrive)` takes two optional messages that replace
+the usual departure and arrival: `leave` is what the place left reads (`$N` who,
+`$T` the way they go), `arrive` what the place reached reads (`$N`).
+
 Two bases put both pieces together:
 
 - `/lib/obj/climbable.c`: climbed with the climb skill (`set_climb_modifier`);
-  reaching the top takes the climber through `set_climb_exit`.
+  reaching the top takes the climber through `set_climb_exit`. Climbing is the
+  skill's, not an action of the fixture, so its verb shows in the line only to
+  whoever knows the skill.
 - `/lib/obj/movable.c`: moved with `mover` / `move`; it reveals
-  `set_reveal_exit`, with the messages given to `set_move_messages`.
+  `set_reveal_exit`, with the messages given to `set_move_messages`. With
+  `set_pass_through(leave, arrive)` it reveals nothing: it takes the mover alone
+  through the sealed exit, which stays sealed, with those messages in the place
+  left and the place reached.
 
 Each place has its own file that inherits one of them, gives the description
 and, if it needs to, redefines `event_climbed` or `do_move` to do something of

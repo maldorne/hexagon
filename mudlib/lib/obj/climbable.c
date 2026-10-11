@@ -4,6 +4,8 @@
 // /lib/room/exits.c). Whatever inherits it gives the description and the
 // exit, and may redefine event_climbed to do something else at the top.
 
+#include <living/skills.h>
+
 inherit "/lib/obj/fixture.c";
 
 private string climb_exit;
@@ -26,6 +28,28 @@ int query_climb_modifier(object climber) { return climb_modifier; }
 
 // What the climb skill asks of anything it is used on.
 int query_climbable() { return 1; }
+
+// Climbing is the climb skill, not an action of the fixture: its verb is
+// offered only to whoever knows the skill, as the game's skills table names it.
+string * query_usage_verbs(object viewer)
+{
+  string * verbs;
+  mapping skills;
+  object skill;
+
+  verbs = ::query_usage_verbs(viewer);
+  if (!viewer || !viewer->query_known_skill(SKILL_CLIMB))
+    return verbs;
+
+  skills = table("skills")->query_skills();
+  if (!skills || !skills[SKILL_CLIMB])
+    return verbs;
+  // the skill's own name is the word that uses it; aliases are extras
+  skill = load_object(skills[SKILL_CLIMB][SKILL_DATA_PATH]);
+  if (skill && strlen(skill->query_effect_name()))
+    verbs += ({ lower_case(skill->query_effect_name()) });
+  return verbs;
+}
 
 void event_climbed(object climber)
 {

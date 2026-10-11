@@ -3,6 +3,10 @@
 // (see reveal_exit in /lib/room/exits.c), so it exists for the map but nobody
 // sees it until this is moved; it seals itself again when the place reloads.
 // Whatever inherits it gives the description, the exit and the messages.
+//
+// With set_pass_through, moving it does not open the exit for everybody: it
+// takes the mover alone through it (force_exit), and the exit stays sealed,
+// as a slab that swings back into place behind whoever pushed it.
 
 #include <language.h>
 
@@ -10,13 +14,18 @@ inherit "/lib/obj/fixture.c";
 
 private string reveal_exit;
 private string move_message, move_room_message;
+// pass-through mode, and what the place left and the place reached read
+private int pass_through;
+private string pass_leave_message, pass_arrive_message;
 
 void create()
 {
   reveal_exit = "";
   move_message = _LANG_MOVABLE_MOVED_ME;
   move_room_message = _LANG_MOVABLE_MOVED_ROOM;
+  pass_through = 0;
   ::create();
+  add_fixture_action("do_move", _LANG_MOVABLE_VERBS);
 }
 
 // The exit of the place this stands in that moving it uncovers.
@@ -31,11 +40,18 @@ void set_move_messages(string me, string room)
   move_room_message = room;
 }
 
-void init()
+/**
+ * Take the mover alone through the exit instead of opening it. `leave` is what
+ * the place left reads ($N the mover, $T the way they go) and `arrive` what the
+ * place reached reads ($N); the mover reads the move message.
+ */
+void set_pass_through(string leave, string arrive)
 {
-  ::init();
-  add_action("do_move", _LANG_MOVABLE_VERBS);
+  pass_through = 1;
+  pass_leave_message = leave;
+  pass_arrive_message = arrive;
 }
+int query_pass_through() { return pass_through; }
 
 int do_move(string str)
 {
@@ -50,6 +66,14 @@ int do_move(string str)
   place = environment();
   if (!place || !strlen(reveal_exit))
     return 0;
+
+  if (pass_through)
+  {
+    write(move_message);
+    place->force_exit(reveal_exit, this_player(), pass_leave_message,
+                      pass_arrive_message);
+    return 1;
+  }
 
   // already uncovered: the way is there for anybody to take
   if (!place->query_sealed_exit(reveal_exit))
