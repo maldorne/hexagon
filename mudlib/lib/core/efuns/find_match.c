@@ -102,6 +102,7 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
     for (i = 0; i < sizeof(list); i++)
     {
       int k;
+      object found;
 
       id_list = ({ list[i]->query_name(), list[i]->query_short(), }) +
                   (list[i]->query_alias() ? list[i]->query_alias() : ({ }));
@@ -138,9 +139,11 @@ static mixed find_match(string str, mixed ob, varargs int no_hidden)
         result += ({ list[i] });
         break;
       }
-      else if (list[i]->query_parse_id( ({ 0, aux }) ))
+      // what the object answers with: money hands back the coins it split
+      // off for the request, not itself
+      else if (objectp(found = list[i]->query_parse_id( ({ 0, aux }) )))
       {
-        result += ({ list[i] });
+        result += ({ found });
         break;
       }
     }

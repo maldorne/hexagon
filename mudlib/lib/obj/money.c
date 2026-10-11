@@ -186,7 +186,7 @@ string *half_short()
   for (i=0;i<sizeof(money_array);i+=2)
     if (money_array[i+1] > 1)
         if (this_player() != environment() && money_array[i+1] > 10)
-          retval += ({ "Varias monedas de "+money_array[i] });
+          retval += ({ "varias monedas de "+money_array[i] });
         else
           retval += ({ money_array[i+1]+" monedas de "+ money_array[i] });
     else
@@ -381,9 +381,14 @@ object query_parse_id(mixed *arr)
 
   if (i == -1)
   {
-    // 2 cobres, 2 monedas de platino, etc...
+    // 2 cobres, 2 monedas de platino, etc... The number asked for is the
+    // count to split off, not all the coins of that kind
     if (atoi(bit[0]) > 0)
-      bit -= ({ bit[0] });
+    {
+      if (arr[0] == 0)
+        arr[0] = atoi(bit[0]);
+      bit = bit[1..];
+    }
 
     // a bare number names no coin
     if (!sizeof(bit))
