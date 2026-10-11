@@ -26,12 +26,17 @@
 #define _LANG_GUILD_ENTRANCE_TOO_SOON "Hace muy poco que te alistaste en un " + \
         "gremio: tendrás que jugar " + seconds_to_time_string(wait) + " más antes " + \
         "de alistarte en otro.\n"
-#define _LANG_GUILD_ENTRANCE_JOINED "Te alistas en el gremio.\n"
+#define _LANG_GUILD_ENTRANCE_JOINED "Te alistas en el gremio. Durante las " + \
+        "próximas " + (GUILD_JOIN_WAIT / 3600) + " horas de juego no podrás " + \
+        "alistarte en ningún otro.\n"
 #define _LANG_GUILD_ENTRANCE_JOINED_OTHERS me->query_cap_name() + " se alista " + \
         "en el gremio.\n"
 #define _LANG_GUILD_ENTRANCE_NO_GUILD_TO_LEAVE "No perteneces a ningún gremio.\n"
 #define _LANG_GUILD_ENTRANCE_CANNOT_LEAVE "Por alguna razón no te está permitido " + \
         "abandonar tu gremio.\n"
+#define _LANG_GUILD_ENTRANCE_LEAVE_WAIT_WARNING "Te alistaste hace poco: si " + \
+        "renuncias, no podrás alistarte en ningún gremio hasta que juegues " + \
+        seconds_to_time_string(wait) + " más.\n"
 #define _LANG_GUILD_ENTRANCE_LEAVE_CONFIRM "¿Seguro que quieres renunciar a tu " + \
         "gremio? (s/n) "
 #define _LANG_GUILD_ENTRANCE_LEAVE_CANCELLED "De acuerdo, sigues en tu gremio.\n"

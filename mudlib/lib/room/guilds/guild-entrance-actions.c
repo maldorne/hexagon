@@ -175,6 +175,7 @@ int do_join(string str)
 int do_leave(string str)
 {
   object me, guild;
+  int wait;
 
   me = this_player();
   if (!me || !me->query_guild_ob())
@@ -190,6 +191,11 @@ int do_leave(string str)
     notify_fail(_LANG_GUILD_ENTRANCE_CANNOT_LEAVE);
     return 0;
   }
+
+  // warned before deciding: leaving now means no guild at all for a while
+  wait = (int)me->query_guild_join_wait();
+  if (wait > 0)
+    tell_object(me, _LANG_GUILD_ENTRANCE_LEAVE_WAIT_WARNING);
 
   tell_object(me, _LANG_GUILD_ENTRANCE_LEAVE_CONFIRM);
   input_to("confirm_leave", 0, me);

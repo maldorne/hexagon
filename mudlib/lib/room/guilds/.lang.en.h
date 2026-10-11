@@ -25,12 +25,17 @@
 #define _LANG_GUILD_ENTRANCE_TOO_SOON "You joined a guild very recently: you will " + \
         "have to play " + seconds_to_time_string(wait) + " more before you join " + \
         "another.\n"
-#define _LANG_GUILD_ENTRANCE_JOINED "You join the guild.\n"
+#define _LANG_GUILD_ENTRANCE_JOINED "You join the guild. For the next " + \
+        (GUILD_JOIN_WAIT / 3600) + " hours of play you will not be able to join " + \
+        "any other.\n"
 #define _LANG_GUILD_ENTRANCE_JOINED_OTHERS me->query_cap_name() + " joins the " + \
         "guild.\n"
 #define _LANG_GUILD_ENTRANCE_NO_GUILD_TO_LEAVE "You do not belong to any guild.\n"
 #define _LANG_GUILD_ENTRANCE_CANNOT_LEAVE "For some reason you are not allowed to " + \
         "leave your guild.\n"
+#define _LANG_GUILD_ENTRANCE_LEAVE_WAIT_WARNING "You joined recently: if you " + \
+        "leave, you will not be able to join any guild until you play " + \
+        seconds_to_time_string(wait) + " more.\n"
 #define _LANG_GUILD_ENTRANCE_LEAVE_CONFIRM "Are you sure you want to leave your " + \
         "guild? (y/n) "
 #define _LANG_GUILD_ENTRANCE_LEAVE_CANCELLED "Very well, you stay in your guild.\n"
