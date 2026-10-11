@@ -539,8 +539,10 @@ int seal_exit(string direc)
 
 // Move `who` through an exit, sealed or not, as if they had taken it: the same
 // checks, messages and arrival. This is how an action carries somebody along
-// a sealed exit (climbing a tree, falling off a bridge).
-int force_exit(string direc, object who)
+// a sealed exit (climbing a tree, falling off a bridge). `leave` and `arrive`
+// replace what the rooms left and reached read: the first takes $N (who) and
+// $T (the way they go), the second $N.
+int force_exit(string direc, object who, varargs string leave, string arrive)
 {
   int moved;
 
@@ -548,7 +550,13 @@ int force_exit(string direc, object who)
     return 0;
 
   forced_exit = direc;
-  moved = (int)this_object()->do_exit_command("", direc, who);
+  // movement messages carry a leading marker that move_living strips
+  if (leave || arrive)
+    moved = (int)this_object()->do_exit_command("",
+              ({ direc, leave ? "@" + leave : nil, arrive ? "@" + arrive : nil }),
+              who);
+  else
+    moved = (int)this_object()->do_exit_command("", direc, who);
   forced_exit = nil;
 
   return moved;

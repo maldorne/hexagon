@@ -5,9 +5,10 @@
 // takes the living through it with force_exit, so a sealed exit opens for
 // that one living alone.
 //
-// A trigger is a mapping: "mark", "message", and optionally "exit" and
-// "room_message" (read by the others after the living's name). Rooms
-// declare them with add_entry_trigger (/lib/room/trigger.c).
+// A trigger is a mapping: "mark", "message", and optionally "exit", "leave"
+// (what the place left reads, $N the living and $T the way it goes) and
+// "arrive" (what the place reached reads, $N). Rooms declare them with
+// add_entry_trigger (/lib/room/trigger.c).
 
 #include <room/location.h>
 
@@ -48,11 +49,9 @@ void fire(object who, mapping trigger)
 
   if (stringp(trigger["message"]))
     tell_object(who, trigger["message"]);
-  if (stringp(trigger["room_message"]))
-    tell_room(place, who->query_cap_name() + " " + trigger["room_message"],
-              who);
   if (stringp(trigger["exit"]))
-    place->force_exit(trigger["exit"], who);
+    place->force_exit(trigger["exit"], who, trigger["leave"],
+                      trigger["arrive"]);
 }
 
 void event_enter(object ob, varargs string msg, object from, mixed avoid)

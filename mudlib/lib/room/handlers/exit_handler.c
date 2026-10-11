@@ -271,6 +271,7 @@ int do_exit_command(mapping door_control,
                     object room_ob)
 {
   string special_mess;
+  mixed special_enter;
   int i, result;
   mixed zip;
   object door;
@@ -280,9 +281,13 @@ int do_exit_command(mapping door_control,
     verb = query_verb();
   else 
   {
+    // ({ verb, leave message, arrive message }): the leave message takes
+    // $N and $T, the arrive message $N; either may be nil
     if (pointerp(verb)) 
     {
        special_mess = verb[1];
+       if (sizeof(verb) > 2 && stringp(verb[2]))
+         special_enter = ({ 1, verb[2] });
        verb = verb[0];
     }
     if (!sscanf(verb, "%s %s", verb, str) !=2)
@@ -423,15 +428,11 @@ int do_exit_command(mapping door_control,
         return 0;
   }
  
-  if (!special_mess)
-    catch( result = (int)ob->move_living(dest_other[i*2], 
-                                      dest_other[i*2+1][ROOM_DEST],
+  catch( result = (int)ob->move_living(dest_other[i*2], 
+                                    dest_other[i*2+1][ROOM_DEST],
+                                    special_mess ? special_mess :
                                       dest_other[i*2+1][ROOM_MESS],
-                                      dest_other[i*2+1][ROOM_ENTER]));
-  else
-    catch( result = (int)ob->move_living(dest_other[i*2], 
-                                      dest_other[i*2+1][ROOM_DEST],
-                                      special_mess,
+                                    special_enter ? special_enter :
                                       dest_other[i*2+1][ROOM_ENTER]));
 
   // visited places, neverbot 08/2010

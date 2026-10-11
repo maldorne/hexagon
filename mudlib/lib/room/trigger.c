@@ -14,19 +14,22 @@ void create()
 /**
  * Declare an entry trigger.
  *
- * @param  mark          timed property the living must carry; it is removed
- *                       when the trigger fires
- * @param  message       what the living reads
- * @param  exit          direction of the exit it is taken through, if any
- * @param  room_message  what the others read after its name, if anything
+ * @param  mark     timed property the living must carry; it is removed when
+ *                  the trigger fires
+ * @param  message  what the living reads
+ * @param  exit     direction of the exit it is taken through, if any
+ * @param  leave    what the place left reads instead of the usual departure
+ *                  ($N the living, $T the way it goes)
+ * @param  arrive   what the place reached reads instead of the usual arrival
+ *                  ($N the living)
  */
 void add_entry_trigger(string mark, string message, varargs string exit,
-                       string room_message)
+                       string leave, string arrive)
 {
   if (!entry_triggers)
     entry_triggers = ({ });
-  entry_triggers += ({ ([ "mark": mark, "message": message,
-                          "exit": exit, "room_message": room_message ]) });
+  entry_triggers += ({ ([ "mark": mark, "message": message, "exit": exit,
+                          "leave": leave, "arrive": arrive ]) });
 }
 
 mixed * query_entry_triggers()
