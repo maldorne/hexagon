@@ -21,7 +21,7 @@
 // `**words**` are shown in bold, and `[[words|id]]` (a link to another
 // text) shows only its words.
 //
-// Ported from the CcMud books and their text format, Folken 10/2009 and
+// Ported from the CcMud books and their text format, neverbot 10/2009 and
 // 03/2010.
 
 #include <user/exploration.h>

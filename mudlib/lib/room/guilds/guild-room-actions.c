@@ -5,7 +5,7 @@
 // guild asks for it, which coste shows them here (the general coste command,
 // elsewhere, shows every kind of level).
 //
-// Ported from the CcMud guild room, Folken 12/2006 and 07/2010.
+// Ported from the CcMud guild room, neverbot 12/2006 and 07/2010.
 
 #include <language.h>
 

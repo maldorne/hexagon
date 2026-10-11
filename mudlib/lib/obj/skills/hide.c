@@ -1,7 +1,7 @@
 // Hide (esconderse) — active skill. On success it clones a hide shadow onto
 // the character, making them invisible in the room until they act or a
 // searcher finds them (see shadows/hide_sh.c and the search skill). Ported
-// from the old CcMud feat, Folken 10/2009.
+// from the old CcMud feat, neverbot 10/2009.
 
 #include <living/effects.h>
 #include <living/skills.h>

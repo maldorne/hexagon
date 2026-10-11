@@ -8,7 +8,7 @@
 // same character may join another, so nobody hops from guild to guild to get
 // inside one.
 //
-// Ported from the CcMud guild entrance, Folken 12/2006.
+// Ported from the CcMud guild entrance, neverbot 12/2006.
 
 #include <living/social.h>
 #include <language.h>

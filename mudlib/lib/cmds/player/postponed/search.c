@@ -1,4 +1,4 @@
-// Hecho externo por Folken 6/03
+// Hecho externo por neverbot 6/03
 // para vaciar un poco de codigo el room.c
 
 #include <standard.h>
@@ -59,7 +59,7 @@ protected int cmd(string str, object me, string verb)
 	if(sizeof(hidden_objects) )
 	{
 		// Si queremos hacer algo con los objetos que están escondidos, lo podemos hacer aqui,
-		// Folken 10/2009
+		// neverbot 10/2009
 	}
 	*/
 	

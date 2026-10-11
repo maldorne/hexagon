@@ -2,7 +2,7 @@
  * Version 2, with globewho
  * Baldrick, '93, fix jan '96.
  *
- * Traducido por Folken@CcMud, Julio 2003
+ * Traducido por neverbot@CcMud, Julio 2003
  * Generic for every pub of every game, neverbot 09/2026
  */
 

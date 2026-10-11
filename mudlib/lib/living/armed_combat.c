@@ -1,18 +1,18 @@
 /*
  *  Nuevo sistema de tecnicas de combate con armas (como complemento al
- *   sistema de lucha sin armas), Folken@CcMud, 6/2003
+ *   sistema de lucha sin armas), neverbot@CcMud, 6/2003
  *
  *  Mejora en el sistema de aprendizaje: ahora no contamos el numero de 
  *   golpes con exito en el arma, sino en el player. Siempre que no
  *   cambiemos el _tipo_ de arma (query_base_weapon)
  *   seguimos acumulando golpes (asi practicamos con un tipo de arma,
- *   no con una arma concreta). Folken 08/05
+ *   no con una arma concreta). neverbot 08/05
  * 
  *  Cambio en el sistema: cambiamos estilos por maestrias. La maestria es 
  *   es una especializacion en el tipo de arma que se esta utilizando
  *   (* weapon->query_weapon_family() *)
  *   Asi el aprendizaje es mas sencillo, con empuñar un arma se empieza a
- *   practicar. Folken 09/2012
+ *   practicar. neverbot 09/2012
  */
 
 #include <living/combat.h>
@@ -28,7 +28,7 @@ string current_weapon_mastery;
 // para agilizar los accesos (y minimizar la busqueda en el mapping)
 static int current_mastery_value;
 
-// Nuevo sistema de aprendizaje, Folken 08/05
+// Nuevo sistema de aprendizaje, neverbot 08/05
 int num_armed_hits;
 
 int adjust_num_armed_hits(int i, string weapon_type);
@@ -173,7 +173,7 @@ int adjust_current_mastery_value(string mastery, int i)
 
 int adjust_num_armed_hits(int i, string weapon_type)
 {
-  // Removed this, with ranged weapons the increment is 10 by 10, Folken 08/2013
+  // Removed this, with ranged weapons the increment is 10 by 10, neverbot 08/2013
   // if (i > 1)
   //    i = 1;
 

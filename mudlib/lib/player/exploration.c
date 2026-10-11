@@ -9,7 +9,7 @@
 //                                    EXP_ANCHORS  : ([ name : destination ]),
 //                                    EXP_ARTICLES : ({ book text paths }) ]) ])
 //
-// Redesigned from the CcMud explorers handler (Folken 2009): Hexagon stores the
+// Redesigned from the CcMud explorers handler (neverbot 2009): Hexagon stores the
 // stable area path (not a narrative name), so no global name->id registry is
 // needed and the same savefile works across language instances (the display
 // name is resolved from the area, per instance, only when shown).

@@ -8,7 +8,7 @@
 // copy and leaves the text on the shelf, and leaving a book adds its text if
 // the shelves do not have it yet.
 //
-// Ported from the CcMud libraries, Folken 12/2009.
+// Ported from the CcMud libraries, neverbot 12/2009.
 
 #include <language.h>
 

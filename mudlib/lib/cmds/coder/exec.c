@@ -87,7 +87,7 @@ private int check_code(string str)
   if (!str || (str == ""))
     return 1;
 
-  // Aqui metio mano (mucho) Folken 3/2002, para arreglar el capado
+  // Aqui metio mano (mucho) neverbot 3/2002, para arreglar el capado
   //  del exec que funcionaba mal :)
   if (sizeof(explode(str,"->"))>1)
   {

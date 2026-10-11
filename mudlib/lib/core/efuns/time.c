@@ -94,7 +94,7 @@ string seconds_to_time_string(int seconds)
  * always return information in spanish, with different modes
  * for real-world time or mud time, neverbot 4/2003
  *
- * Added date and time inside the mud, Folken 6/03
+ * Added date and time inside the mud, neverbot 6/03
  *  (takes info from the weather handler, ignoring the time
  *   passed as parameter)
  *

@@ -22,7 +22,7 @@ inherit CMD_BASE;
 // direction into a marker that is NOT a direction, pass 2 expands the
 // markers into the rotated directions. This stops an already-rotated exit
 // from being rotated again (e.g. N->E then E->S turning the new E into S).
-// Created from sar.c, Folken 02/2010; generalized 2026.
+// Created from sar.c, neverbot 02/2010; generalized 2026.
 
 #define NDIRS 8
 

@@ -2,7 +2,7 @@
  *  Navegacion y mapeado automatico
  *  Funciones a incluir en todas las rooms
  *
- *  Folken 08/08/2013
+ *  neverbot 08/08/2013
  */
 
 #include <areas/navigation.h>

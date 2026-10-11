@@ -8,7 +8,7 @@
  * half (the cloning) of the old /lib/room/guard.c; the enforcement half moved
  * to guarded_exits.c so locations can share it without the cloning.
  *
- *   Folken 15/04/2009 (split into guarded_exits + room_guards, neverbot 2026)
+ *   neverbot 15/04/2009 (split into guarded_exits + room_guards, neverbot 2026)
  */
 
 inherit guarded "/lib/room/guarded_exits.c";

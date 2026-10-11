@@ -181,7 +181,7 @@ int delete_message(string board, int off) {
   if(!security[board])
     security[board] = ({ });
 
-  // Added by Folken, 07/04
+  // Added by neverbot, 07/04
   if (off < 0 || off >= sizeof(boards[board]))
     return 0;
 

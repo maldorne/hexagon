@@ -3,7 +3,7 @@
  *  Effect system
  *
  *  Generic, applies to commands, spells, etc.
- *  Folken@CcMud 27/11/2008
+ *  neverbot@CcMud 27/11/2008
  *
  * ******************************************************* */
 
@@ -231,7 +231,7 @@ void set_start_phrases(string a, string b)
  * caster->query_effect_category_level("name") returns the level as a string
  *     ("minor", "major", ...).
  * When in doubt: lib/living/effects.c
- * Folken 7/01
+ * neverbot 7/01
  */
 
 string query_effect_category(varargs object caster)
@@ -661,11 +661,11 @@ int cast_effect(string str, object who, int quiet)
         return 0;
     }
 
-    /* Added by Folken 3/2002, to try to stop the shadow effects from */
+    /* Added by neverbot 3/2002, to try to stop the shadow effects from */
     /*  crashing all day */
     /* Check the required properties */
 
-    // This is horrendous, removing it again, Folken 11/2008
+    // This is horrendous, removing it again, neverbot 11/2008
     /*
     if ((target_type == TARGET_TYPE_ONE) || (target_type == TARGET_TYPE_SELF))
         for (i = 0; i < sizeof(shadow_checks); i++)
@@ -685,7 +685,7 @@ int cast_effect(string str, object who, int quiet)
         return 0;
     }
 
-    // Combat roles, Folken 01/2013
+    // Combat roles, neverbot 01/2013
     if (combat_role_needed != NEUTRAL_ROLE)
     {
       int current_caster_role, last_time;
@@ -891,7 +891,7 @@ int hb_effect(object caster, mixed *params, int time)
         break;
 
     case TARGET_TYPE_MANY:
-        /*** IMPORTANT CHANGE (Folken 7/2001)
+        /*** IMPORTANT CHANGE (neverbot 7/2001)
              We don't allow many-target effects; either we have single-target
              effects or we affect every character in the
              habitacion. ***/
@@ -963,7 +963,7 @@ int hb_effect(object caster, mixed *params, int time)
         return 0;
     }
 
-    // Added the "invulnerable_efectos" checks from area 23, Folken 2001
+    // Added the "invulnerable_efectos" checks from area 23, neverbot 2001
     // Check the target is not invulnerable to the effect.
     /*
     if (pointerp(target))

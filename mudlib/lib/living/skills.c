@@ -1,5 +1,5 @@
 //
-// New skill system for CcMud, Folken 11/10/08
+// New skill system for CcMud, neverbot 11/10/08
 //
 // - The old commands (std/commands) become skills (obj/skills), to tell
 //   them apart from the /cmds commands
@@ -517,7 +517,7 @@ int skill_damage(int damage, string type, object attacker)
   
   prot = this_object()->query_resistance(type);
       
-  // Debug info for immortals (Folken 7/01)
+  // Debug info for immortals (neverbot 7/01)
   if ((prot != 0) && this_object()->query_coder())
     tell_object(this_object(), "DEBUG (skill_damage): applied resistance " +
                                 "against '"+type+"' ("+prot+"%).\n");

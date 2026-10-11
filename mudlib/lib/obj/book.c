@@ -2,7 +2,7 @@
 // 'read <book>' (see /lib/handlers/books.c for the format of the text). The
 // title on its cover is the first heading of the text.
 //
-// Ported from the CcMud book, Folken 10/2009.
+// Ported from the CcMud book, neverbot 10/2009.
 
 #include <language.h>
 

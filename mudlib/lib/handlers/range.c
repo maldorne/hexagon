@@ -14,7 +14,7 @@
 // the limit given", not "unknown".
 //
 // The exit walk comes from the range handler of the MudOS Ciudad Capital
-// (Folken, 08/2008), rewritten for Hexagon.
+// (neverbot, 08/2008), rewritten for Hexagon.
 
 #include <sector/sector.h>
 

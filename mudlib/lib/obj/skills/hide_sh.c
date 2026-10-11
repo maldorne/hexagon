@@ -2,7 +2,7 @@
 // shadowed over them, so call_other/-> calls to the character's name-producing
 // methods return nil (invisible) while it is attached. It reveals itself (and
 // self-destructs) when the character acts, or when a searcher wins the
-// player_search contest. Ported from the old CcMud hide_sh, Folken 10/2009.
+// player_search contest. Ported from the old CcMud hide_sh, neverbot 10/2009.
 
 #include <common/properties.h>
 #include <living/skills.h>

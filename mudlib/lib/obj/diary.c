@@ -5,7 +5,7 @@
 //   diario enciclopedia [<n>] - the books the player has read, and reading one again
 //
 // Travel points (diario viajes) are a follow-up.
-// Ported from the CcMud diary, Folken 04/2009.
+// Ported from the CcMud diary, neverbot 04/2009.
 
 #include <areas/area.h>
 #include <language.h>
