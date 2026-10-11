@@ -31,6 +31,7 @@ int number,       // 0 == single, 1 == many)
 string * keys;    // names of the keys than can lock/unlock the door
 string door_name;  // what it is called: a door, a gate... (its gender and number
                    // say how to speak of it)
+string * door_aliases; // other words it answers to, such as its name unaccented
 
 object query_other_side_door(int flag);
 
@@ -71,6 +72,7 @@ void create()
 
   number = 0; // single
   door_name = _LANG_DOOR_DEFAULT_NAME;
+  door_aliases = ({ });
   ::create();
   set_gender(_LANG_DOOR_DEFAULT_GENDER);
 }
@@ -202,8 +204,8 @@ string query_door_name() { return door_name; }
 void set_door_name(string str) { door_name = str; }
 
 // How a sentence names this door, article included: its name and the way it
-// leads ("la verja este", "the east gate"). `dir` is the direction it is seen
-// from, this side's or the other's.
+// leads ("the east gate"). `dir` is the direction it is seen from, this
+// side's or the other's.
 string query_door_phrase(string dir)
 {
   return ((!number) ? query_article() : query_article_plural()) + " " +
@@ -217,6 +219,7 @@ int query_door_called(string str)
   if (!strlen(str))
     return 0;
   return (str == dest) || (str == s_dest) || (str == door_name) ||
+         (member_array(str, door_aliases) != -1) ||
          (str == _LANG_DOOR_NOUN_FOR(dest));
 }
 
@@ -723,9 +726,11 @@ void repop()
 //   "lockable"   : 1 => can be locked (without necessarily starting locked)
 //   "keys"       : ({ paths }) => the key items that lock / unlock it
 //   "breakable"  : 1 => can be broken
-//   "name"       : what it is called ("verja", "portón"), "puerta" by default
+//   "name"       : what it is called ("gate"), "door" by default
+//   "aliases"    : ({ words }) => other words it answers to, such as its
+//                  name spelled without accents
 //   "gender"     : grammatical gender of the door's name
-//   "number"     : 0 single / 1 plural (a gate that reads "verjas")
+//   "number"     : 0 single / 1 plural (a gate that reads "gates")
 //   "other_side" : the direction word the door shows from the far room
 void set_options(mapping m)
 {
@@ -734,6 +739,8 @@ void set_options(mapping m)
 
   if (stringp(m["name"]))
     set_door_name(m["name"]);
+  if (pointerp(m["aliases"]))
+    door_aliases = m["aliases"];
   if (!undefinedp(m["gender"]))
     set_gender(m["gender"]);
   if (!undefinedp(m["number"]))
@@ -756,13 +763,13 @@ void set_options(mapping m)
     set_init_lock_status(m["locked"] ? 0 : 1);
 }
 
-// The verb (in the mud's current language) that opens this door, e.g. "abrir" /
-// "open". A travelling NPC queues "<verb> <dir>" to open a door in its way, the
-// same command a player would type -- so it runs through do_open with all its
+// The verb (in the mud's current language) that opens this door, e.g. "open".
+// A travelling NPC queues "<verb> <dir>" to open a door in its way, the same
+// command a player would type -- so it runs through do_open with all its
 // normal effects (far-side sync, messages) instead of poking the state by code.
 string query_open_verb() { return _LANG_DOOR_OPEN_ACTIONS[0]; }
 
-// The verb (current language) that closes this door, e.g. "cerrar" / "close". A
+// The verb (current language) that closes this door, e.g. "close". A
 // travelling NPC that had to open a door queues "<verb> <back-dir>" from the far
 // side once through, so it leaves the door as it found it (closed).
 string query_close_verb() { return _LANG_DOOR_CLOSE_ACTIONS[0]; }
