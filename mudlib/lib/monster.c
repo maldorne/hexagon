@@ -540,7 +540,7 @@ int reset_enter_commands()
   enter_commands = ({ });
 }
 
-int move_living(string dir, string dest, mixed message, mixed enter)
+int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 {
   int i, j;
 
