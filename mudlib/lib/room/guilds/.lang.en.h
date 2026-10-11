@@ -42,6 +42,17 @@
 #define _LANG_GUILD_ENTRANCE_LEFT "You leave your guild: from now on you belong " + \
         "to none.\n"
 
+#define _LANG_GUILD_ROOM_CMDS_COST ({ "cost" })
+#define _LANG_GUILD_ROOM_CMDS_ADVANCE ({ "advance" })
 #define _LANG_GUILD_ROOM_SIGN_LONG "A sign on the wall says what can be done here.\n"
 #define _LANG_GUILD_ROOM_SIGN_TEXT "Guild hall\n\n" + \
-        "  ranking    the highest levels of your guild, your class and your job"
+        "  cost       what your next guild level costs\n" + \
+        "  advance    go up a level of the guild, if you have that experience\n\n" + \
+        "Only members of the guild may advance here."
+#define _LANG_GUILD_ROOM_NOT_MEMBER "Only members of this guild may advance here.\n"
+#define _LANG_GUILD_ROOM_MAX_LEVEL "You have already reached the highest level of your guild.\n"
+#define _LANG_GUILD_ROOM_NOT_ENOUGH_XP "You do not have experience enough to advance yet: " + \
+        "you have " + have + " and need " + cost + ".\n"
+#define _LANG_GUILD_ROOM_ADVANCED_OTHERS me->query_cap_name() + " advances a level in the guild.\n"
+#define _LANG_GUILD_ROOM_COST "To advance to level " + next + " of your guild " + \
+        "you need " + cost + " experience points (you have " + have + ").\n"

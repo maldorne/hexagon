@@ -43,6 +43,17 @@
 #define _LANG_GUILD_ENTRANCE_LEFT "Renuncias a tu gremio: a partir de ahora no " + \
         "perteneces a ninguno.\n"
 
+#define _LANG_GUILD_ROOM_CMDS_COST ({ "coste" })
+#define _LANG_GUILD_ROOM_CMDS_ADVANCE ({ "avanzar" })
 #define _LANG_GUILD_ROOM_SIGN_LONG "Un cartel cuelga de la pared con lo que se puede hacer aquí.\n"
 #define _LANG_GUILD_ROOM_SIGN_TEXT "Salón del gremio\n\n" + \
-        "  ranking    los niveles más altos de tu gremio, tu clase y tu oficio"
+        "  coste      lo que te falta para tu siguiente nivel de gremio\n" + \
+        "  avanzar    subes un nivel de gremio, si tienes esa experiencia\n\n" + \
+        "Solo los miembros del gremio pueden avanzar aquí."
+#define _LANG_GUILD_ROOM_NOT_MEMBER "Solo los miembros de este gremio pueden avanzar aquí.\n"
+#define _LANG_GUILD_ROOM_MAX_LEVEL "Ya has alcanzado el nivel más alto de tu gremio.\n"
+#define _LANG_GUILD_ROOM_NOT_ENOUGH_XP "Aún no tienes experiencia suficiente para avanzar: " + \
+        "tienes " + have + " y necesitas " + cost + ".\n"
+#define _LANG_GUILD_ROOM_ADVANCED_OTHERS me->query_cap_name() + " avanza un nivel en el gremio.\n"
+#define _LANG_GUILD_ROOM_COST "Para avanzar al nivel " + next + " de tu gremio " + \
+        "necesitas " + cost + " puntos de experiencia (tienes " + have + ").\n"
