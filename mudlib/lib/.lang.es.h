@@ -85,3 +85,6 @@
 #define _LANG_FOOD_LONG_CONDITION "   " + cond_string()
 #define _LANG_FOOD_LONG_BITES "   Da para " + number_as_string(query_bites_left()) + \
   ((query_bites_left() == 1) ? " bocado más" : " bocados más") + ".\n"
+
+// wearable bags: what one holds
+#define _LANG_WEARABLE_BAG_CONTAINS " contiene:\n"
