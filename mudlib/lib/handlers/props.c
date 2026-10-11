@@ -370,12 +370,46 @@ private string _apply_material_tokens(string str, mapping overrides,
 }
 
 /*
- * Full long shown on `look <prop>`. overrides.description wins
- * unconditionally; otherwise the custom blueprint may provide a
- * state-aware long; otherwise the table's long_key (with material
- * tokens substituted) plus any matching PROP_TYPE_LONG_SUFFIXES
- * appended for truthy state fields (parallel to state_suffixes that
- * drive the section line).
+ * Substitute the per-instance tokens $colour$ and $symbol$ with the
+ * instance's overrides. A token whose override is unset disappears,
+ * along with the space it leaves doubled ("una runa  grabada").
+ */
+private string _apply_override_tokens(string str, mapping overrides)
+{
+  string a, b, value;
+
+  if (!str || !strlen(str)) return str;
+  if (strsrch(str, "$colour$") == -1 && strsrch(str, "$symbol$") == -1)
+    return str;
+
+  value = (overrides && stringp(overrides[PROP_OVERRIDE_COLOUR])) ?
+            overrides[PROP_OVERRIDE_COLOUR] : "";
+  while (sscanf(str, "%s$colour$%s", a, b) == 2)
+    str = a + value + b;
+
+  value = (overrides && stringp(overrides[PROP_OVERRIDE_SYMBOL])) ?
+            overrides[PROP_OVERRIDE_SYMBOL] : "";
+  while (sscanf(str, "%s$symbol$%s", a, b) == 2)
+    str = a + value + b;
+
+  while (sscanf(str, "%s  %s", a, b) == 2)
+    str = a + " " + b;
+  while (sscanf(str, "%s .%s", a, b) == 2)
+    str = a + "." + b;
+
+  return str;
+}
+
+/*
+ * Full long shown on `look <prop>`. The custom blueprint may provide a
+ * state-aware long of its own. Otherwise the body is overrides.description
+ * or, failing it, the table's long_key (material and override tokens
+ * substituted) plus a PROP_TYPE_OVERRIDE_SUFFIXES sentence for every
+ * override the instance sets. Either way the state suffixes follow:
+ * PROP_TYPE_LONG_SUFFIXES for truthy state fields (parallel to the
+ * state_suffixes that drive the section line) and LONG_SUFFIXES_UNSET
+ * for falsy ones, so a prop with its own description still says
+ * whether it is lit or tipped over.
  */
 string query_type_long(string type, mapping overrides, mapping state,
                        string instance_id)
@@ -392,22 +426,39 @@ string query_type_long(string type, mapping overrides, mapping state,
   entry = types[type];
   if (!entry) return nil;
 
-  if (overrides && overrides[PROP_OVERRIDE_DESCRIPTION])
-    return overrides[PROP_OVERRIDE_DESCRIPTION];
-
-  if (entry["custom"])
+  if (entry["custom"] && !(overrides && overrides[PROP_OVERRIDE_DESCRIPTION]))
   {
     ret = entry["custom"]->query_long(state, overrides, instance_id);
     if (ret) return ret;
   }
 
   spec = entry["spec"];
-  if (!spec) return nil;
 
-  ret = spec[PROP_TYPE_LONG_KEY];
-  if (!ret) return nil;
+  if (overrides && overrides[PROP_OVERRIDE_DESCRIPTION])
+  {
+    ret = overrides[PROP_OVERRIDE_DESCRIPTION];
+    if (!spec) return ret;
+  }
+  else
+  {
+    if (!spec) return nil;
 
-  ret = _apply_material_tokens(ret, overrides, spec);
+    ret = spec[PROP_TYPE_LONG_KEY];
+    if (!ret) return nil;
+
+    ret = _apply_override_tokens(_apply_material_tokens(ret, overrides, spec),
+                                 overrides);
+
+    // a sentence for each optional detail this instance gives
+    suffixes = spec[PROP_TYPE_OVERRIDE_SUFFIXES];
+    if (suffixes && overrides)
+    {
+      keys = map_indices(suffixes);
+      for (i = 0; i < sizeof(keys); i++)
+        if (overrides[keys[i]])
+          ret += _apply_override_tokens(suffixes[keys[i]], overrides);
+    }
+  }
 
   // Append truthy-state suffixes. sprintf returns the suffix
   // verbatim when it has no format directive; the "" + value idiom
@@ -623,7 +674,9 @@ string query_type_short(string type, mapping overrides, mapping state)
 
   spec = entry["spec"];
   if (!spec) return nil;
-  return _apply_material_tokens(spec[PROP_TYPE_SHORT_KEY], overrides, spec);
+  return _apply_override_tokens(
+           _apply_material_tokens(spec[PROP_TYPE_SHORT_KEY], overrides, spec),
+           overrides);
 }
 
 /*

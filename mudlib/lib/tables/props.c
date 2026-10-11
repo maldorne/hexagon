@@ -269,6 +269,95 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  rune — a rune carved in stone, metal, wood or crystal. Each
+    //  instance may give it a colour, what it depicts, and a text in
+    //  a language of its own to read. It glows, giving the place some
+    //  light, until somebody puts it out, and can be lit again.
+    // ------------------------------------------------------------
+    "rune": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_RUNE_ID,
+        _LANG_PROP_RUNE_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_RUNE_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_RUNE_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_FEMALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_RUNE_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_RUNE_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE, MAT_METAL, MAT_WOOD, MAT_CRYSTAL }),
+
+      PROP_TYPE_OVERRIDE_SUFFIXES: ([
+        PROP_OVERRIDE_SYMBOL: _LANG_PROP_RUNE_LONG_SYMBOL,
+      ]),
+
+      PROP_TYPE_DEFAULT_STATE: ([ "lit": 1, ]),
+
+      PROP_TYPE_LIGHT: ([ "lit": 20, ]),
+
+      PROP_TYPE_STATE_SUFFIXES: ([
+        "lit": _LANG_PROP_RUNE_SUFFIX_LIT,
+      ]),
+      PROP_TYPE_STATE_SUFFIXES_PLURAL: ([
+        "lit": _LANG_PROP_RUNE_SUFFIX_LIT_PLURAL,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES: ([
+        "lit": _LANG_PROP_RUNE_LONG_LIT,
+      ]),
+      PROP_TYPE_LONG_SUFFIXES_PLURAL: ([
+        "lit": _LANG_PROP_RUNE_LONG_LIT_PLURAL,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES_UNSET: ([
+        "lit": _LANG_PROP_RUNE_LONG_UNLIT,
+      ]),
+      PROP_TYPE_LONG_SUFFIXES_UNSET_PLURAL: ([
+        "lit": _LANG_PROP_RUNE_LONG_UNLIT_PLURAL,
+      ]),
+
+      PROP_TYPE_SENSES: ([
+        "feel": _LANG_PROP_RUNE_FEEL,
+      ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "light": ([
+          PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_RUNE_LIGHT_VERBS,
+          PROP_SPEC_REQUIRES_STATE_UNSET: ({ "lit" }),
+          PROP_SPEC_ALREADY_SET_MSG:      _LANG_PROP_RUNE_ALREADY_LIT,
+          PROP_SPEC_SET_STATE:            ([ "lit": 1 ]),
+          PROP_SPEC_MSG_ME:               _LANG_PROP_RUNE_LIGHT_ME,
+          PROP_SPEC_MSG_OTHERS:           _LANG_PROP_RUNE_LIGHT_OTHERS,
+        ]),
+
+        "extinguish": ([
+          PROP_SPEC_KIND:             PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:            _LANG_PROP_RUNE_EXT_VERBS,
+          PROP_SPEC_REQUIRES_STATE:   ({ "lit" }),
+          PROP_SPEC_MISSING_MSG:      _LANG_PROP_RUNE_NOT_LIT,
+          PROP_SPEC_CLEAR_STATE:      ({ "lit" }),
+          PROP_SPEC_MSG_ME:           _LANG_PROP_RUNE_EXT_ME,
+          PROP_SPEC_MSG_OTHERS:       _LANG_PROP_RUNE_EXT_OTHERS,
+        ]),
+
+        "read": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_RUNE_READ_VERBS,
+          PROP_SPEC_SHOW_TEXT:    PROP_OVERRIDE_INSCRIPTION,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_RUNE_READ_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_RUNE_READ_OTHERS,
+          PROP_SPEC_MISSING_MSG:  _LANG_PROP_RUNE_READ_NOTHING,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  altar — decorative, stateless. Pray action for flavour.
     // ------------------------------------------------------------
     "altar": ([
@@ -381,6 +470,8 @@ void create()
       PROP_TYPE_MATERIALS:  ({ MAT_STONE }),
 
       PROP_TYPE_DEFAULT_STATE: ([ "lit": 0, ]),
+
+      PROP_TYPE_LIGHT: ([ "lit": 30, ]),
 
       PROP_TYPE_STATE_SUFFIXES: ([
         "lit": _LANG_PROP_FIREPLACE_SUFFIX_LIT,
@@ -748,6 +839,8 @@ void create()
       PROP_TYPE_MATERIALS:  ({ MAT_STONE }),
 
       PROP_TYPE_DEFAULT_STATE: ([ "lit": 0, ]),
+
+      PROP_TYPE_LIGHT: ([ "lit": 30, ]),
 
       PROP_TYPE_STATE_SUFFIXES: ([
         "lit": _LANG_PROP_FORGE_SUFFIX_LIT,

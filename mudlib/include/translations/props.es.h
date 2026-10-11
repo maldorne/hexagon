@@ -48,6 +48,8 @@
 // material_phrase. El orden difiere por idioma; ver props.en.h.
 #define _LANG_PROPS_NOUN_PHRASE             count_word + " " + noun + " " + material_phrase
 #define _LANG_PROPS_NOUN_PHRASE_NO_MATERIAL count_word + " " + noun
+// el nombre con el color de la instancia: "runa roja"
+#define _LANG_PROPS_NOUN_WITH_COLOUR        noun + " " + colour
 
 // Plantilla de id compuesto con material usada por el componente
 // para enumerar sus alias en el parser. Variables en scope: id,
@@ -159,6 +161,42 @@
 #define _LANG_PROP_RUINED_STATUE_READ_ME     "Apartas las enredaderas que cubren el pedestal y descubres la placa."
 #define _LANG_PROP_RUINED_STATUE_READ_OTHERS "$mcname$ aparta las enredaderas del pie de la estatua y lee algo."
 #define _LANG_PROP_RUINED_STATUE_READ_NOTHING "Si alguna vez hubo algo escrito en la placa, el tiempo lo ha borrado."
+
+// ************************************************************
+//  runa
+// ************************************************************
+#define _LANG_PROP_RUNE_ID              "runa"
+#define _LANG_PROP_RUNE_ID_ALIAS_1      "piedra rúnica"
+#define _LANG_PROP_RUNE_NOUN            "runa"
+#define _LANG_PROP_RUNE_NOUN_PLURAL     "runas"
+
+#define _LANG_PROP_RUNE_SHORT           "una runa $colour$ grabada en $material_name$"
+#define _LANG_PROP_RUNE_LONG            "Hay una runa $colour$ grabada en $material_name$."
+#define _LANG_PROP_RUNE_LONG_SYMBOL     " Representa $symbol$."
+
+#define _LANG_PROP_RUNE_SUFFIX_LIT          " que brilla"
+#define _LANG_PROP_RUNE_SUFFIX_LIT_PLURAL   " que brillan"
+#define _LANG_PROP_RUNE_LONG_LIT            " Brilla con luz propia."
+#define _LANG_PROP_RUNE_LONG_LIT_PLURAL     " Brillan con luz propia."
+#define _LANG_PROP_RUNE_LONG_UNLIT          " Está apagada."
+#define _LANG_PROP_RUNE_LONG_UNLIT_PLURAL   " Están apagadas."
+
+#define _LANG_PROP_RUNE_FEEL            "La superficie de la runa está fría y lisa."
+
+#define _LANG_PROP_RUNE_LIGHT_VERBS     ({ "activar", "encender" })
+#define _LANG_PROP_RUNE_ALREADY_LIT     "La runa ya brilla."
+#define _LANG_PROP_RUNE_LIGHT_ME        "Pasas la mano sobre la runa y empieza a brillar."
+#define _LANG_PROP_RUNE_LIGHT_OTHERS    "$mcname$ pasa la mano sobre una runa, que empieza a brillar."
+
+#define _LANG_PROP_RUNE_EXT_VERBS       ({ "apagar", "desactivar" })
+#define _LANG_PROP_RUNE_NOT_LIT         "La runa ya está apagada."
+#define _LANG_PROP_RUNE_EXT_ME          "Cubres la runa con la mano y su brillo se apaga."
+#define _LANG_PROP_RUNE_EXT_OTHERS      "$mcname$ cubre una runa con la mano y su brillo se apaga."
+
+#define _LANG_PROP_RUNE_READ_VERBS      ({ "leer" })
+#define _LANG_PROP_RUNE_READ_ME         "Te acercas a la runa y lees lo que tiene grabado."
+#define _LANG_PROP_RUNE_READ_OTHERS     "$mcname$ se acerca a una runa y la lee."
+#define _LANG_PROP_RUNE_READ_NOTHING    "La runa es solo un símbolo; no dice nada que se pueda leer."
 
 #define _LANG_PROP_RUINED_STATUE_PRAY_VERBS  ({ "rezar", "orar" })
 #define _LANG_PROP_RUINED_STATUE_PRAY_ME     "Te arrodillas ante la estatua abandonada. Nadie parece haberlo hecho en mucho tiempo."

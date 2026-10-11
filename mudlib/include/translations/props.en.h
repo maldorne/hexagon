@@ -43,6 +43,8 @@
 // differs per language; see props.es.h for the mirror.
 #define _LANG_PROPS_NOUN_PHRASE             count_word + " " + material_phrase + " " + noun
 #define _LANG_PROPS_NOUN_PHRASE_NO_MATERIAL count_word + " " + noun
+// the noun with the instance's colour: "red rune"
+#define _LANG_PROPS_NOUN_WITH_COLOUR        colour + " " + noun
 
 // Material-composed id template used by the props component to
 // enumerate its parser aliases. Variables in scope: id, material_phrase.
@@ -154,6 +156,42 @@
 #define _LANG_PROP_RUINED_STATUE_READ_ME     "You push aside the creepers covering the pedestal and uncover the plaque."
 #define _LANG_PROP_RUINED_STATUE_READ_OTHERS "$mcname$ pushes the creepers away from the foot of the statue and reads something."
 #define _LANG_PROP_RUINED_STATUE_READ_NOTHING "If anything was ever written on the plaque, time has worn it away."
+
+// ************************************************************
+//  rune
+// ************************************************************
+#define _LANG_PROP_RUNE_ID              "rune"
+#define _LANG_PROP_RUNE_ID_ALIAS_1      "runestone"
+#define _LANG_PROP_RUNE_NOUN            "rune"
+#define _LANG_PROP_RUNE_NOUN_PLURAL     "runes"
+
+#define _LANG_PROP_RUNE_SHORT           "a $colour$ rune carved in $material_name$"
+#define _LANG_PROP_RUNE_LONG            "There is a $colour$ rune carved in $material_name$."
+#define _LANG_PROP_RUNE_LONG_SYMBOL     " It depicts $symbol$."
+
+#define _LANG_PROP_RUNE_SUFFIX_LIT          " that glows"
+#define _LANG_PROP_RUNE_SUFFIX_LIT_PLURAL   " that glow"
+#define _LANG_PROP_RUNE_LONG_LIT            " It glows with a light of its own."
+#define _LANG_PROP_RUNE_LONG_LIT_PLURAL     " They glow with a light of their own."
+#define _LANG_PROP_RUNE_LONG_UNLIT          " It is dark."
+#define _LANG_PROP_RUNE_LONG_UNLIT_PLURAL   " They are dark."
+
+#define _LANG_PROP_RUNE_FEEL            "The surface of the rune is cold and smooth."
+
+#define _LANG_PROP_RUNE_LIGHT_VERBS     ({ "activate", "light" })
+#define _LANG_PROP_RUNE_ALREADY_LIT     "The rune is already glowing."
+#define _LANG_PROP_RUNE_LIGHT_ME        "You pass your hand over the rune and it starts to glow."
+#define _LANG_PROP_RUNE_LIGHT_OTHERS    "$mcname$ passes a hand over a rune, which starts to glow."
+
+#define _LANG_PROP_RUNE_EXT_VERBS       ({ "extinguish", "deactivate" })
+#define _LANG_PROP_RUNE_NOT_LIT         "The rune is already dark."
+#define _LANG_PROP_RUNE_EXT_ME          "You cover the rune with your hand and its glow goes out."
+#define _LANG_PROP_RUNE_EXT_OTHERS      "$mcname$ covers a rune with a hand and its glow goes out."
+
+#define _LANG_PROP_RUNE_READ_VERBS      ({ "read" })
+#define _LANG_PROP_RUNE_READ_ME         "You step up to the rune and read what is carved on it."
+#define _LANG_PROP_RUNE_READ_OTHERS     "$mcname$ steps up to a rune and reads it."
+#define _LANG_PROP_RUNE_READ_NOTHING    "The rune is only a symbol; there is nothing on it to read."
 
 #define _LANG_PROP_RUINED_STATUE_PRAY_VERBS  ({ "pray" })
 #define _LANG_PROP_RUINED_STATUE_PRAY_ME     "You kneel before the abandoned statue. Nobody seems to have done so in a long time."

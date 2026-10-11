@@ -42,6 +42,7 @@ private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
 private int      _execute_generic(mapping spec, mapping inst, string args);
 private string   _render_msg(string template, mixed arg);
+private void     _update_light();
 private string   _instance_material(mapping inst);
 private mapping  _group_instances_by_type_material();
 private string   _group_noun_phrase(mapping * insts);
@@ -89,6 +90,37 @@ void initialize(object loc)
   component::initialize(loc);
   if (loc && environment(this_object()) != loc)
     move(loc);
+  _update_light();
+}
+
+// The light the props give the location: this component stands in its
+// inventory, so its own light (set_light) is added to the location's. Every
+// instance adds what its type's PROP_TYPE_LIGHT gives for each truthy state
+// field. Called whenever an instance or its state changes.
+private void _update_light()
+{
+  int i, j, total;
+
+  total = 0;
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    mapping spec, light, st;
+    string * keys;
+
+    spec = handler("props")->query_type_spec(props_instances[i][PROP_FIELD_TYPE]);
+    if (!spec || !mappingp(light = spec[PROP_TYPE_LIGHT]))
+      continue;
+    st = props_instances[i][PROP_FIELD_STATE];
+    if (!st)
+      continue;
+    keys = map_indices(light);
+    for (j = 0; j < sizeof(keys); j++)
+      if (st[keys[j]])
+        total += light[keys[j]];
+  }
+
+  if (total != query_my_light())
+    set_light(total);
 }
 
 // Clear any state fields on attached instances whose value is the
@@ -283,6 +315,15 @@ string long(varargs string str, int dark)
                          !spec[PROP_TYPE_HIDE_MATERIAL])
         ? (string)table("materials")->query_material_phrase(mat_id)
         : "";
+      // and its colour, as in the room's list of props
+      if (inst[PROP_FIELD_OVERRIDES] &&
+          stringp(inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR]))
+      {
+        string colour;
+
+        colour = inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR];
+        noun = _LANG_PROPS_NOUN_WITH_COLOUR;
+      }
       id = noun;
       header = strlen(material_phrase)
         ? _LANG_PROPS_ID_WITH_MATERIAL
@@ -350,6 +391,7 @@ void add_prop_instance(string type, string id, mapping overrides)
   ]);
 
   props_instances += ({ inst });
+  _update_light();
 }
 
 /*
@@ -367,6 +409,7 @@ int remove_prop_instance(string handle)
         props_instances[i][PROP_FIELD_TYPE] == handle)
     {
       props_instances = delete(props_instances, i, 1);
+      _update_light();
       return 1;
     }
 
@@ -430,6 +473,7 @@ int set_state(string handle, string field, mixed value)
   }
 
   st[field] = value;
+  _update_light();
   return 1;
 }
 
@@ -450,6 +494,7 @@ int reset_state(string handle)
   if (!default_state) default_state = ([ ]);
 
   inst[PROP_FIELD_STATE] = map_copy(default_state);
+  _update_light();
   return 1;
 }
 
@@ -725,8 +770,12 @@ private mapping _group_instances_by_type_material()
 
     inst = props_instances[i];
     mat = _instance_material(inst);
+    // instances of another colour are told apart, so they do not group
     key = inst[PROP_FIELD_TYPE] + ":" + (mat ? mat : "") + ":" +
-          _state_signature(inst[PROP_FIELD_STATE]);
+          _state_signature(inst[PROP_FIELD_STATE]) + ":" +
+          (inst[PROP_FIELD_OVERRIDES] &&
+           stringp(inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR]) ?
+           inst[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR] : "");
     if (!groups[key])
       groups[key] = ({ });
     groups[key] += ({ inst });
@@ -762,6 +811,18 @@ private string _group_noun_phrase(mapping * insts)
   noun = spec[count == 1 ? PROP_TYPE_NOUN : PROP_TYPE_NOUN_PLURAL];
   if (!noun || !strlen(noun))
     noun = spec[PROP_TYPE_SHORT_KEY];  // last-ditch fallback
+
+  // the group shares its colour, if it has one (see the grouping key)
+  if (first[PROP_FIELD_OVERRIDES] &&
+      stringp(first[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR]))
+  {
+    string colour;
+
+    colour = first[PROP_FIELD_OVERRIDES][PROP_OVERRIDE_COLOUR];
+    if (count > 1)
+      colour = pluralize(colour);
+    noun = _LANG_PROPS_NOUN_WITH_COLOUR;
+  }
 
   if (count == 1)
   {
@@ -1239,16 +1300,21 @@ private int _execute_generic(mapping spec, mapping inst, string args)
     for (i = 0; i < sizeof(flags); i++)
       st[flags[i]] = nil;
 
+  // a state that gives light (a lit rune) changes the location's
+  _update_light();
+
   // messages
   if (spec[PROP_SPEC_MSG_ME])
     write(_render_msg(spec[PROP_SPEC_MSG_ME], "") + "\n");
-  // read as any written text is read: framed, in the common tongue, garbled
-  // for whoever cannot read it
+  // read as any written text is read: framed, in its language (the common
+  // tongue unless the instance names one), garbled for whoever cannot read it
   if (spec[PROP_SPEC_SHOW_TEXT])
   {
     if (function_exists("read_message", this_player()))
       write(this_player()->read_message(ov[spec[PROP_SPEC_SHOW_TEXT]],
-                                        STD_LANG, 1, DEFAULT_FRAME_STYLE));
+                                        stringp(ov[PROP_OVERRIDE_LANGUAGE]) ?
+                                          ov[PROP_OVERRIDE_LANGUAGE] : STD_LANG,
+                                        1, DEFAULT_FRAME_STYLE));
     else
       write(ov[spec[PROP_SPEC_SHOW_TEXT]] + "\n");
   }

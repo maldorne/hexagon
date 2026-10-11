@@ -51,6 +51,16 @@
 // Text written on this one instance (a plaque, an epitaph, a carved name),
 // shown by an action that declares PROP_SPEC_SHOW_TEXT.
 #define PROP_OVERRIDE_INSCRIPTION  "inscription"
+// The language the inscription is written in (a language id of the languages
+// handler); the common tongue when unset. A reader who does not know it sees
+// it garbled.
+#define PROP_OVERRIDE_LANGUAGE     "language"
+// A colour for this one instance ("roja"), named where the type's texts carry
+// $colour$ and in the room's list of props.
+#define PROP_OVERRIDE_COLOUR       "colour"
+// What this one instance depicts ("un halcón con las alas abiertas"), named
+// where the type's texts carry $symbol$.
+#define PROP_OVERRIDE_SYMBOL       "symbol"
 
 // ------------------------------------------------------------
 //  Plan kinds returned by handler("props")->query_action_plan().
@@ -145,6 +155,16 @@
 #define PROP_TYPE_STATE_SUFFIXES_PLURAL      "state_suffixes_plural"
 #define PROP_TYPE_LONG_SUFFIXES_PLURAL       "long_suffixes_plural"
 #define PROP_TYPE_LONG_SUFFIXES_UNSET_PLURAL "long_suffixes_unset_plural"
+
+// Mapping `override_key -> suffix_string` appended to the long description
+// when the instance sets that override, so an optional detail (what a rune
+// depicts) adds a sentence only where there is one. Not used when the
+// instance has its own description.
+#define PROP_TYPE_OVERRIDE_SUFFIXES "override_suffixes"
+
+// Mapping `state_field -> light`: the light an instance gives the location
+// while that state field is truthy (a lit rune, a burning fire).
+#define PROP_TYPE_LIGHT           "light"
 
 #define PROP_TYPE_ACTIONS         "actions"
 

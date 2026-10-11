@@ -34,6 +34,10 @@ The totals are kept up to date incrementally, never recalculated:
   weight of the object back to its environment. `dest_me()` ends in it, so both
   ways of removing an object leave nothing behind.
 
+A location's props add their light the same way: a lit rune, a burning fire or
+forge (`PROP_TYPE_LIGHT`, see `/lib/location/props.md`) is light the props
+component gives off from inside the location.
+
 ## Rooms
 
 `/lib/room.c` starts every room at `BASE_ROOM_LIGHT_VALUE` (50,

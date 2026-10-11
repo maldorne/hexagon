@@ -29,6 +29,7 @@ Types wire the strings into `PROP_TYPE_*` slots inside
 |---|---|---|
 | `$material_phrase$` | `_apply_material_tokens` (handler) | `query_type_long` / `query_type_short` |
 | `$material_name$` | idem | idem |
+| `$colour$` `$symbol$` | `_apply_override_tokens` (handler) | `query_type_long` / `query_type_short`; an unset one disappears |
 | `$mcname$` `$mname$` | `handler("souls")->parse_string` | `_render_msg` (component) |
 | `$mposs$` `$mpronoun$` `$mobj$` `$mvocal$` `$mnumeral$` | souls parser | `_render_msg` |
 | `$lastarg$` | pre-substituted, capitalised if sentence-initial | `_render_msg` |
@@ -95,13 +96,35 @@ overrides = ([
   "material":    "gold",                        // feeds $material_*$ tokens
   "props":       ({ "nailed" }),                // boolean flags that BLOCKED_BY checks
   "inscription": "Here lies nobody.",           // what a show_text action shows
+  "language":    "elf",                         // the inscription's language
+  "colour":      "red",                         // feeds $colour$, and the list of props
+  "symbol":      "a falcon",                    // feeds $symbol$
 ])
 ```
+
+A colour is also named in the room's list of props ("You see a red stone
+rune") and in the header of `look <prop>`, through `_LANG_PROPS_NOUN_WITH_COLOUR`;
+instances of different colours are listed apart. A type can add a sentence for
+an optional detail with `PROP_TYPE_OVERRIDE_SUFFIXES` (`override_key -> text`),
+appended to the long only when the instance sets that override: the rune's
+`symbol` gives "It depicts $symbol$." An instance with its own `description`
+keeps it whole, without those sentences, but the state suffixes still follow it,
+so a described prop still says whether it is lit or tipped over.
 
 An action whose spec carries `PROP_SPEC_SHOW_TEXT` (the `read` of a `statue`
 or a `ruined_statue`) prints `MSG_ME`, then the override it names, read the
 way any written text is read (`read_message` on the player): in a frame, in the
-common tongue, and garbled for a reader who does not know it.
+instance's `language` (the common tongue when unset), and garbled for a reader
+who does not know it.
+
+## Light
+
+A type gives light with `PROP_TYPE_LIGHT` (`state_field -> light`): each
+instance adds that light to the location while the field is truthy. The props
+component stands in the location's inventory, so it keeps the sum as its own
+light (`set_light`) and the location's light follows, recalculated whenever an
+instance is added or removed or its state changes. A lit rune gives 20, a
+burning fireplace or forge 30.
 
 ```
 props set ruined_statue_1 overrides.inscription "Here lies nobody."
