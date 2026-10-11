@@ -87,9 +87,12 @@ string long(string str, int dark)
   // neverbot, 7/03
   // query_race_gender_string flag returns the string without
   // the article ("human" instead of "the human")
+  // a race whose word has a gender of its own gives the article itself
   if (!undefinedp(ob))
     if (race_name != "")
-      s += capitalize(query_pronoun()) + _LANG_RACES_IS + query_numeral(race_name) + " " +
+      s += capitalize(query_pronoun()) + _LANG_RACES_IS +
+           (ob->query_race_article() ? ob->query_race_article()
+                                     : query_numeral(race_name)) + " " +
            race_name + ".\n";
 
   // s += capitalize(query_pronoun())+" "+health_string(0)+".\n";
