@@ -414,9 +414,34 @@ int reply(string str)
   return 1;
 } /* reply() */
 
+// The game of whatever is putting this board up: a room or a location of a
+// game, or the location a board component stands in. "" outside any game.
+private string query_placing_game()
+{
+  object ob;
+
+  ob = previous_object();
+  if (!ob)
+    return "";
+  if (ob->query_my_location())
+    ob = ob->query_my_location();
+
+  return game_name(ob);
+}
+
+// A board of a game carries the game's id ("<game>-<name>"), added here when
+// the name does not already start with it, so two games never share a board
+// by giving it the same name.
 void set_board_name(string str)
 {
+  string game;
+
   str = lower_case(str);
+  game = query_placing_game();
+  if (strlen(game) && (strlen(str) <= strlen(game) ||
+                       str[0 .. strlen(game)] != game + "-"))
+    str = game + "-" + str;
+
   board_name = str;
   BOARD_HAND->create_board(board_name, 0);
 }
