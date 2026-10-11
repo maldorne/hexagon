@@ -101,7 +101,7 @@ int do_boards(string str)
   string ret;
   mixed * notes;
   mixed news_rc;
-  int i, j, unread;
+  int i, j, unread, width;
 
   if (!test_coder())
     return 0;
@@ -111,7 +111,13 @@ int do_boards(string str)
   if (!mappingp(news_rc))
     news_rc = ([ ]);
 
-  ret = "Boards registered (" + sizeof(boards) + "):\n";
+  // the name column is as wide as the longest name, so none is cut
+  width = 0;
+  for (i = 0; i < sizeof(boards); i++)
+    if (strlen(boards[i]) > width)
+      width = strlen(boards[i]);
+
+  ret = "Boards registered (" + sizeof(boards) + "):\n\n";
   for (i = 0; i < sizeof(boards); i++)
   {
     notes = (mixed *)BOARD_HAND->get_subjects(boards[i]);
@@ -120,13 +126,13 @@ int do_boards(string str)
       if (notes[j][B_TIME] > (intp(news_rc[boards[i]]) ? news_rc[boards[i]] : 0))
         unread++;
 
-    ret += sprintf("  %s %-40s %3d note%s%s\n",
+    ret += sprintf("  %s %-" + width + "s %3d note%s%s\n",
                    (boards[i] == board_name ? "*" : " "), boards[i],
                    sizeof(notes), (sizeof(notes) == 1 ? " " : "s"),
                    (unread ? ", " + unread + " new" : ""));
   }
 
-  ret += "* the board this one is reading now ('board <name>' to change it)\n";
+  ret += "\n* the board this one is reading now ('board <name>' to change it)\n";
 
   write(ret);
   return 1;
