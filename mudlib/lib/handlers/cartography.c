@@ -512,7 +512,7 @@ string render_ascii(mapping view)
 
       if (i == vy && j == vx)
       {
-        if (type == CART_COAST_ROOM)
+        if (type == CART_COAST_ROOM || type == CART_WATER_ROOM)
           line += "%^BLUE%^[%^ORANGE%^*%^BLUE%^]%^RESET%^";
         else
           line += "[%^ORANGE%^*%^RESET%^]";
@@ -880,7 +880,10 @@ string render_color_by_area(mapping view)
 
       if (i == vy && j == vx)
       {
-        // the viewer keeps its orange asterisk on top of the area tint
+        // the viewer keeps its orange asterisk on top of the area tint, or of
+        // the blue of a shore or of the water
+        if (type == CART_COAST_ROOM || type == CART_WATER_ROOM)
+          tint = "%^BLUE%^";
         if (strlen(tint))
           line += tint + "[%^RESET%^%^ORANGE%^*%^RESET%^" + tint + "]%^RESET%^";
         else
