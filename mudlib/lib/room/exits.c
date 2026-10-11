@@ -27,6 +27,7 @@ object query_door_ob(string dir);
 object add_door(string dir);
 int query_sealed_exit(string direc);
 int query_swim_exit(string direc);
+object query_dest_object(string direc);
 string query_verb_exit(mixed verb);
 private void show_exit(string direc, int shown);
 
@@ -454,9 +455,10 @@ int do_exit_command(string str, varargs mixed verb, object ob)
     return 0;
 
   // nor one that is swum: the swim skill takes it, and whoever swims by
-  // nature walks it
+  // nature walks it, as long as it stays in the water
   if (query_swim_exit(query_verb_exit(verb)) && forced_exit != query_verb_exit(verb) &&
-      !(ob && ob->query_swims()))
+      !(ob && ob->query_swims() &&
+        query_dest_object(query_verb_exit(verb))->query_water_environment()))
     return 0;
 
   zip = EXIT_HAND->do_exit_command(door_control,
