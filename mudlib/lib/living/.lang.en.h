@@ -128,7 +128,7 @@
 
 // combat.c
 
-#define _LANG_COMBAT_BEING_ATTACKED DFF + "%^BOLD%^You are being attacked by %^RESET%^" + \
+#define _LANG_COMBAT_BEING_ATTACKED "\n" + DFF + "%^BOLD%^You are being attacked by %^RESET%^" + \
                         name + "%^BOLD%^.%^RESET%^\n\n"
 #define _LANG_COMBAT_PASSED_OUT_MSG "You are too stunned to fight back.\n"
 #define _LANG_COMBAT_CHASING "You are chasing "
