@@ -100,6 +100,9 @@
 #define _LANG_WEAPONS_COLD_MSG_ME "Congelas"
 #define _LANG_WEAPONS_COLD_MSG_HIM " te congela"
 #define _LANG_WEAPONS_COLD_MSG_ENV " congela"
+#define _LANG_WEAPONS_ELEMENTAL_MSG_ME "Dañas"
+#define _LANG_WEAPONS_ELEMENTAL_MSG_HIM " te daña"
+#define _LANG_WEAPONS_ELEMENTAL_MSG_ENV " daña"
 
 #define _LANG_WEAPONS_NO_EFFECT " sin efecto"
 #define _LANG_WEAPONS_WEAKLY " débilmente"

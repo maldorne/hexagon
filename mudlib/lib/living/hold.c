@@ -34,7 +34,13 @@ int hold_ob(object ob);
 int shield_bonus();
 int query_dual_wield_penalty();
 int * query_total_held_ac() { return held_ac; }
-int query_held_ac(int type) { return held_ac[type]; }
+// ac only exists for the physical types, elemental ones have no equipment bonus
+int query_held_ac(int type)
+{
+  if (type < 0 || type >= sizeof(held_ac))
+    return 0;
+  return held_ac[type];
+}
 
 private void _add_held_ac(object ob)
 {

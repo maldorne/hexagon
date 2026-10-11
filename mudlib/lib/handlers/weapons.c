@@ -52,9 +52,20 @@ mixed query_message(int damage,
       relative = 0;
       break;
     default:
-      msg_me  += _LANG_WEAPONS_BLUNT_MSG_ME;
-      msg_him += _LANG_WEAPONS_BLUNT_MSG_HIM;
-      msg_env += _LANG_WEAPONS_BLUNT_MSG_ENV;
+      if (attack_type >= sizeof(AC_TYPES))
+      {
+        // any other elemental type without a message of its own
+        msg_me  += _LANG_WEAPONS_ELEMENTAL_MSG_ME;
+        msg_him += _LANG_WEAPONS_ELEMENTAL_MSG_HIM;
+        msg_env += _LANG_WEAPONS_ELEMENTAL_MSG_ENV;
+        relative = 0;
+      }
+      else
+      {
+        msg_me  += _LANG_WEAPONS_BLUNT_MSG_ME;
+        msg_him += _LANG_WEAPONS_BLUNT_MSG_HIM;
+        msg_env += _LANG_WEAPONS_BLUNT_MSG_ENV;
+      }
       break;
   }
 

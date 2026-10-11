@@ -41,7 +41,13 @@ object *query_worn_ob(varargs int type);
 int query_max_dex_bon() { return max_dex_bon; }
 int set_max_dex_bon(int i) { return max_dex_bon = i; }
 int * query_total_worn_ac() { return worn_ac; }
-int query_worn_ac(int type) { return worn_ac[type]; }
+// ac only exists for the physical types, elemental ones have no equipment bonus
+int query_worn_ac(int type)
+{
+  if (type < 0 || type >= sizeof(worn_ac))
+    return 0;
+  return worn_ac[type];
+}
 
 private void _add_worn_ac(object ob)
 {

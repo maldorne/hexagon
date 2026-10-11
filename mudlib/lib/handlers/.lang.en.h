@@ -99,6 +99,9 @@
 #define _LANG_WEAPONS_COLD_MSG_ME "You freeze"
 #define _LANG_WEAPONS_COLD_MSG_HIM " freezes you"
 #define _LANG_WEAPONS_COLD_MSG_ENV " freezes"
+#define _LANG_WEAPONS_ELEMENTAL_MSG_ME "You harm"
+#define _LANG_WEAPONS_ELEMENTAL_MSG_HIM " harms you"
+#define _LANG_WEAPONS_ELEMENTAL_MSG_ENV " harms"
 
 #define _LANG_WEAPONS_NO_EFFECT " without effect"
 #define _LANG_WEAPONS_WEAKLY " weakly"

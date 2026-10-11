@@ -115,10 +115,26 @@ int query_enchant() { return enchant; }
 
 int query_ac() { return (armour_ac + enchant); }
 int query_armour_ac() { return query_ac(); }
-int query_ac_against(int type) { return query_ac() + ac_bonus_against[type]; }
+// only the physical types have a per-type bonus, any other type uses the base ac
+int query_ac_against(int type)
+{
+  if (type < 0 || type >= sizeof(ac_bonus_against))
+    return query_ac();
+  return query_ac() + ac_bonus_against[type];
+}
 
-int query_ac_bon_against(int type) { return ac_bonus_against[type]; }
-void set_ac_bon_against(int type, int value) { ac_bonus_against[type] = value; }
+int query_ac_bon_against(int type)
+{
+  if (type < 0 || type >= sizeof(ac_bonus_against))
+    return 0;
+  return ac_bonus_against[type];
+}
+void set_ac_bon_against(int type, int value)
+{
+  if (type < 0 || type >= sizeof(ac_bonus_against))
+    return;
+  ac_bonus_against[type] = value;
+}
 
 string query_armour_type_name()
 {

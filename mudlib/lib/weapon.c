@@ -144,6 +144,9 @@ string query_attack_type_name(int type)
     case PIERCING:
       return PIERCING_STR;
     default:
+      // elemental types are named after their element
+      if (type >= sizeof(AC_TYPES) && (type - sizeof(AC_TYPES)) < sizeof(RESISTANCES))
+        return RESISTANCES[type - sizeof(AC_TYPES)];
       return SLASHING_STR;
   }
 }
@@ -330,7 +333,7 @@ mixed * recalc_damage(int i)
 int weapon_attack(object def, object att)
 {
   mixed *att_val;
-  mixed damage;
+  mixed damage, piece_resistance;
   int absorbed_damage;
   object * obs;
   object where;
@@ -372,8 +375,32 @@ int weapon_attack(object def, object att)
             // if we did not found the armour, do not ruin the weapon
             where = obs[j];
 
+            // elemental attacks: the armour absorbs by its base ac, modified by
+            // its own resistance to the element (negative means a weakness, and
+            // the damage grows). The wearer's global resistance is not applied
+            // here, since wearing the piece already adds its resistance to it.
+            if (attacks[attack_names[i]][0] >= sizeof(AC_TYPES))
+            {
+              percent = obs[j]->query_ac_against(attacks[attack_names[i]][0]) * 10;
+              if (percent > 100)
+                percent = 100;
+              if (percent < 0)
+                percent = 0;
+
+              piece_resistance = obs[j]->query_property(
+                  RESISTANCES[attacks[attack_names[i]][0] - sizeof(AC_TYPES)]);
+              if (intp(piece_resistance))
+                percent += piece_resistance;
+
+              if (percent > 100)
+                percent = 100;
+              if (percent < -100)
+                percent = -100;
+
+              absorbed_damage = damage[0] * percent / 100;
+            }
             // calculate damage percentage absorbed by the armour
-            if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 0) 
+            else if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 0) 
             {
               if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 10)
                 percent = 100;
