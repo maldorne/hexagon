@@ -32,8 +32,8 @@ private int skill_malus;
 
 int query_skill_malus() { return skill_malus; }
 
-int unwear_ob(object ob);
-int do_unwear_ob(object on);
+int unwear_ob(object ob, varargs int forced);
+int do_unwear_ob(object ob, varargs int forced);
 int wear_ob(object ob);
 int do_wear_ob(object ob);
 void reset_types();
@@ -134,12 +134,14 @@ void reset_types()
     armour_types[e] = 0;
 }
 
-int unwear_ob(object ob)
+// `forced` takes off a piece that is going away (destroyed, broken) whatever
+// holds it on: being busy, or a curse.
+int unwear_ob(object ob, varargs int forced)
 {
   if (!ob)
     return 0;
 
-  if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
+  if (!forced && this_object()->query_timed_property_exists(PASSED_OUT_PROP))
   {
     notify_fail(this_object()->query_timed_property(PASSED_OUT_PROP));
     return 0;
@@ -151,16 +153,17 @@ int unwear_ob(object ob)
     return 0;
   }
 
-  tell_object(this_object(), _LANG_UNWEAR_START);
-  return do_unwear_ob(ob);
+  if (!forced)
+    tell_object(this_object(), _LANG_UNWEAR_START);
+  return do_unwear_ob(ob, forced);
 }
 
-int do_unwear_ob(object ob)
+int do_unwear_ob(object ob, varargs int forced)
 {
   if (!ob)
     return 0;
 
-  if (ob->set_in_use(0) == 0)
+  if ((ob->set_in_use(0) == 0) || forced)
   {
     worn_objects -= ({ ob });
     armour_types[ob->query_armour_type()]--;

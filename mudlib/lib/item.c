@@ -224,7 +224,7 @@ void dest_me()
     if (this_object()->query_holdable()) /* Hamlet fixed me */
       ob->unhold_ob(this_object());
     else if (this_object()->query_wearable()) /* Hamlet */
-      ob->unwear_ob(this_object());
+      ob->unwear_ob(this_object(), 1);
   ::dest_me();
 } /* void dest_me */
 

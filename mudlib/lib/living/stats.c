@@ -929,9 +929,8 @@ void calc()
   tohit_bonus  = calc_tohit_bonus(query_str());
   */
   body_ac_bon = 0;
-  tmp_ac_bon = 0;
-  tmp_tohit_bon = 0;
-  tmp_damage_bon = 0;
+  // the temporary bonuses are left alone: whoever adds one (a spell, a full
+  // armour set) takes it off again
 }
 
 // Sistema de bonificaciones por caracteristica añadido, neverbot 6/03
