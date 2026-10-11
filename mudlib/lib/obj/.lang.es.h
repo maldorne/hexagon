@@ -89,11 +89,11 @@
 #define _LANG_DIARY_EXPLORER_SUBVERBS ({ "explorador", "exploracion", "exploración", "lugares" })
 #define _LANG_DIARY_PENDING_SUBVERBS ({ "viajes" })
 #define _LANG_DIARY_HELP "El diario recoge tus andanzas. Comandos:\n" + \
-    "\tdiario explorador  - lista los lugares que has descubierto.\n" + \
+    "\tdiario explorador         - lista los lugares que has descubierto.\n" + \
     "\tdiario enciclopedia       - lista los libros que has leído.\n" + \
     "\tdiario enciclopedia <num> - vuelve a leer uno de ellos.\n"
 #define _LANG_DIARY_DEAD "Estando muerto no puedes hacer eso.\n"
-#define _LANG_DIARY_WHAT "¿Qué quieres consultar en el diario? Prueba 'diario explorador'.\n"
+#define _LANG_DIARY_WHAT "¿Qué quieres consultar en el diario? Escribe 'ayuda diario' para más información.\n"
 #define _LANG_DIARY_NOT_YET "Esa sección del diario aún está en blanco.\n"
 #define _LANG_DIARY_EXPLORER_EMPTY "Aún no has descubierto ningún lugar digno de mención.\n"
 #define _LANG_DIARY_EXPLORER_HEADER "A lo largo de tus viajes has estado en:\n\n"
