@@ -116,3 +116,16 @@ kills of the player's level for its last level, and a first-time player takes
   kills and the whole climb ~3,300; with 1.35, ~2,000 and ~7,600.
 - One kind of xp worth more or less to a class: its percentage in
   `set_xp_types`.
+
+## Guild levels
+
+Class and guild levels are paid from the same xp. A class level comes on its
+own: as soon as the xp reaches the class's figure, the level goes up and the xp
+is spent (`adjust_xp` in `/lib/living/health.c`). A guild level is bought by
+hand, in the guild's hall (`avanzar`, `/lib/room/guilds/guild-room-actions.c`),
+for the xp the guild asks (`query_next_level_xp` in `/lib/guild.c`, the guild
+level x 4500 by default), which `coste` shows there.
+
+So nobody climbs high in a guild without their class climbing about as fast:
+the class takes the xp first whenever it reaches its figure, and only what is
+saved between class levels pays for the guild. That is deliberate.
