@@ -619,11 +619,13 @@ private string * template_complaints(string game, string id)
 
   // The area says how strong its people are, so a person's template must not.
   // A creature is the other way round: it carries its own body wherever it
-  // turns up, and its range is what the area defers to.
+  // turns up, and its range is what the area defers to. One particular person
+  // (proper_name) is exactly as strong as their template says, wherever they
+  // are.
   if (t["sentient"] && !undefinedp(t["random_stats"]))
     out += ({ "pins a stat range: the area's band owns it, " +
               "use stat_modifiers" });
-  if (t["sentient"] && !undefinedp(t["level"]))
+  if (t["sentient"] && !undefinedp(t["level"]) && !t["proper_name"])
     out += ({ "pins a level: the area's band owns it, " +
               "use level_area_modifier" });
 
