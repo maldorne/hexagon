@@ -166,8 +166,11 @@ int do_take_book(string str)
     notify_fail(_LANG_LIBRARY_ALREADY_CARRIED);
     return 0;
   }
+  // the floor: the reader stands here too, and what they carry is checked
+  // above
   if (environment(this_player()) &&
-      _copy_among(all_inventory(environment(this_player())), path))
+      _copy_among(all_inventory(environment(this_player())) -
+                  ({ this_player() }), path))
   {
     notify_fail(_LANG_LIBRARY_COPY_HERE);
     return 0;
