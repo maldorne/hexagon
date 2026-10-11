@@ -385,6 +385,10 @@ object query_parse_id(mixed *arr)
     if (atoi(bit[0]) > 0)
       bit -= ({ bit[0] });
 
+    // a bare number names no coin
+    if (!sizeof(bit))
+      return nil;
+
     // Probamos si hemos escrito "cobres", "platinos"
     if ((i = member_array(bit[0][0..strlen(bit[0])-2], money_array)) != -1)
     {
