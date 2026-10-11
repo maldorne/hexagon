@@ -880,7 +880,7 @@ string * infer_types_from_room(mixed * items, string long)
   }
 
   // a word several types share as an id belongs to the type it names
-  // ("estatua" is a statue, not a ruined statue): a type matched only by
+  // ("statue" is a statue, not a ruined statue): a type matched only by
   // words that are another matched type's noun is left out, so one thing
   // in the description gives one prop
   for (i = 0; i < sizeof(known); i++)
