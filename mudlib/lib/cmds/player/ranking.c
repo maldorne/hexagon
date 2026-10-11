@@ -100,7 +100,8 @@ static int cmd(string str, object me, string verb)
     ret = _LANG_RANKING_HEADER + ret;
 
   if (me->query_coder())
-    ret += _LANG_RANKING_CODER_HINTS;
+    ret += wrap(_LANG_RANKING_CODER_HINTS,
+                this_user() ? this_user()->query_cols() : 80);
 
   write(ret);
   return 1;
