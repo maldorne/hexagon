@@ -84,12 +84,16 @@ string query_mmout() { return _move_msg(MOVE_MSG_MOUT); }
 int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 {
   int ret, no_see;
-  string arrive, leave, my_short, aux;
+  string arrive, leave, my_short, aux, leave_tpl, arrive_tpl;
   object last, new_env;
+  object * group;
 
   no_see = 0;
 
   last = environment();
+
+  // those following us here, who will try to come along
+  group = (dir && dir != "X") ? this_object()->query_followers_here() : ({ });
 
   if (!this_object()->query_invis())
   {
@@ -107,7 +111,9 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   // north -> the north, etc
   aux = ROOM_HAND->query_exit_dir(dir);
 
-  if (!my_short || my_short == "" || (stringp(message) && message == "none"))
+  // nor does somebody coming along behind their leader: the leader tells it
+  if (!my_short || my_short == "" || (stringp(message) && message == "none") ||
+      this_object()->query_coming_along())
   {
     no_see = 1;
   }
@@ -138,6 +144,11 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
         arrive = implode(explode(enter[1], "$N"), my_short)+"\n";
         break;
     }
+
+    // the same lines with $N left in, for the one told for the whole group
+    leave_tpl = implode(explode((message ? message : query_mout()), "$T"), aux);
+    arrive_tpl = enter[0] ? enter[1] :
+                 implode(explode(query_min(), "$F"), enter[1]);
   }
 
   // locations
@@ -167,7 +178,8 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
     }
   }
 
-  if (arrive)
+  // with followers we go in silence: one line is told for all of us after
+  if (arrive && !(sizeof(group) && leave_tpl))
     ret = move(dest, arrive[1..], leave[1..]);
   else
     ret = move(dest);
@@ -189,8 +201,9 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
   if (!dir || dir == "X")
     return 1;
 
-  // whoever follows this living goes the same way
-  this_object()->drag_followers(dir, last);
+  // whoever follows us goes the same way, and each room is told once
+  if (sizeof(group))
+    this_object()->move_group(dir, last, group, leave_tpl, arrive_tpl);
   // else if (no_see)
   //   return ({ });
 

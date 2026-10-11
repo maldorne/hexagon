@@ -5,6 +5,7 @@
 // evade skill, or the other one going away.
 
 #include <room/room.h>
+#include <translations/pov.h>
 #include <language.h>
 
 static object following;    // whom this living follows
@@ -79,47 +80,134 @@ int start_following(object leader)
   return 1;
 }
 
-// After this living has gone out of `from` by `dir`, those following it who
-// were still there go the same way. Each goes through the exit as anybody
-// would (a closed door, a guard), so one may be left behind.
-void drag_followers(string dir, object from)
+// Those following this living who are here with it.
+object * query_followers_here()
 {
-  object * list;
-  object follower;
-  string name;
+  object * list, * here;
   int i;
 
   list = query_followers();
-  if (!sizeof(list) || !from || !dir)
+  here = ({ });
+  for (i = 0; i < sizeof(list); i++)
+    if (list[i]->query_following() == this_object() &&
+        environment(list[i]) == environment(this_object()))
+      here += ({ list[i] });
+
+  return here;
+}
+
+// Set while this living goes through an exit behind its leader: the move
+// tells nothing, the leader tells one line for the whole group.
+static int coming_along;
+int query_coming_along() { return coming_along; }
+void set_coming_along(int i) { coming_along = i; }
+
+// A living as `viewer` sees them, coloured.
+private string name_seen_by(object viewer, object who)
+{
+  string color, name;
+
+  // change player appereance from /handler/pov.c, neverbot 10/04
+  color = (string)POV->query_color(viewer, who);
+  name = (string)POV->query_name_changed(viewer, who);
+  return strlen(color) ? color + name + "%^RESET%^" : name;
+}
+
+// One line to everybody in `room` but the group, the names as each sees them:
+// the leader's movement line with those who came along added at its end.
+private void tell_group_line(object room, string tpl, object * came,
+                             string in_the_dark)
+{
+  object * obs, * seen;
+  string line, * names;
+  int i, j;
+
+  if (!room || !tpl)
     return;
 
-  name = this_object()->query_cap_name();
+  // the leader's lines start with the marker move_living strips
+  if (strlen(tpl) && tpl[0] == '@')
+    tpl = tpl[1..];
 
-  for (i = 0; i < sizeof(list); i++)
+  obs = all_inventory(room) - came - ({ this_object() });
+  for (i = 0; i < sizeof(obs); i++)
   {
-    follower = list[i];
-    if (!follower || follower->query_following() != this_object())
+    if (!interactive(obs[i]))
+      continue;
+
+    if (obs[i]->check_dark(room->query_light()))
     {
-      remove_follower(follower);
+      tell_object(obs[i], in_the_dark);
       continue;
     }
 
-    // left behind somewhere else: the trail is lost
-    if (environment(follower) != from)
+    line = replace_string(tpl, "$N", name_seen_by(obs[i], this_object()));
+
+    names = ({ });
+    seen = came - ({ obs[i] });
+    for (j = 0; j < sizeof(seen); j++)
+      if (!seen[j]->query_invis())
+        names += ({ name_seen_by(obs[i], seen[j]) });
+
+    // the followers go before the closing full stop of the leader's line
+    if (sizeof(names))
     {
-      if (environment(follower) != environment(this_object()))
-      {
-        tell_object(follower, _LANG_FOLLOW_LOST_ME);
-        follower->stop_following(1);
-      }
-      continue;
+      if (strlen(line) && line[strlen(line) - 1] == '.')
+        line = line[0 .. strlen(line) - 2];
+      line += _LANG_FOLLOW_FOLLOWED_BY + query_multiple_short(names) + ".";
     }
 
-    tell_object(follower, _LANG_FOLLOW_GO_ME);
-    if (!from->force_exit(dir, follower, _LANG_FOLLOW_GO_LEAVE,
-                          _LANG_FOLLOW_GO_ARRIVE))
-      tell_object(follower, _LANG_FOLLOW_GO_FAILED);
+    tell_object(obs[i], wrap(fix_string(line + "\n"), obs[i]->user() ?
+                obs[i]->user()->query_cols() : 0));
   }
+}
+
+// After this living has gone out of `from` by `dir`, take the ones following
+// it who were there through the same exit, each as anybody would (a closed
+// door, a guard), so one may be left behind. Then tell each room one line for
+// all who made it. With no line of the leader's own (it went unseen), each
+// follower is seen going on their own.
+void move_group(string dir, object from, object * group, string leave_tpl,
+                string arrive_tpl)
+{
+  object * came, * list;
+  string name;
+  int i;
+
+  name = this_object()->query_cap_name();
+  came = ({ });
+
+  for (i = 0; i < sizeof(group); i++)
+  {
+    if (!group[i])
+      continue;
+
+    tell_object(group[i], _LANG_FOLLOW_GO_ME);
+    group[i]->set_coming_along(leave_tpl ? 1 : 0);
+    from->force_exit(dir, group[i]);
+    group[i]->set_coming_along(0);
+
+    if (environment(group[i]) == environment(this_object()))
+      came += ({ group[i] });
+    else
+      tell_object(group[i], _LANG_FOLLOW_GO_FAILED);
+  }
+
+  // those following who were somewhere else have lost the trail
+  list = query_followers() - group;
+  for (i = 0; i < sizeof(list); i++)
+    if (environment(list[i]) != environment(this_object()))
+    {
+      tell_object(list[i], _LANG_FOLLOW_LOST_ME);
+      list[i]->stop_following(1);
+    }
+
+  if (!leave_tpl)
+    return;
+
+  tell_group_line(from, leave_tpl, came, _LANG_FOLLOW_SOMEBODY_LEAVES);
+  tell_group_line(environment(this_object()), arrive_tpl, came,
+                  _LANG_FOLLOW_SOMEBODY_ARRIVES);
 }
 
 mixed * follow_stats()
