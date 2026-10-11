@@ -113,7 +113,8 @@
 #define _LANG_SKILL_SWIM_NO_WATER "There is no water here to swim in.\n"
 #define _LANG_SKILL_SWIM_NOT_THERE "You cannot swim that way.\n"
 #define _LANG_SKILL_SWIM_WHICH_WAY "There is water more than one way: swim <direction>.\n"
-#define _LANG_SKILL_SWIM_ROUND1 "You take a breath and start swimming.\n"
+#define _LANG_SKILL_SWIM_START "You start swimming."
+#define _LANG_SKILL_SWIM_START_ROOM "starts swimming."
 
 #define _LANG_SKILL_FOLLOW_NAME "follow"
 #define _LANG_SKILL_FOLLOW_ALIASES ({ })

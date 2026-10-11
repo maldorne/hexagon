@@ -760,7 +760,7 @@ int cast_effect(string str, object who, int quiet)
         if (sizeof(start_phrases) == 2)
         {
 			if (start_phrases[0] != "")
-            	tell_object(caster, start_phrases[0] + "\n");
+            	tell_object(caster, SPE_INFO + start_phrases[0] + "\n");
 			
 			if (start_phrases[1] != "")
               tell_room(environment(caster), SPE_INFO +

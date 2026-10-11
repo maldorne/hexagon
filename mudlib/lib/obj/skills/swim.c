@@ -36,8 +36,11 @@ void setup()
   allow_on_water = 1;
 
   set_help_desc(_LANG_SKILL_SWIM_HELP);
+  set_start_phrases(_LANG_SKILL_SWIM_START, _LANG_SKILL_SWIM_START_ROOM);
 
-  set_rounds(({ "start_swim", "do_swim" }));
+  // one stroke at once: nobody is left standing on the shore meanwhile
+  set_fast_casting(1);
+  set_rounds(({ "do_swim" }));
 }
 
 // What answers for swimming here: a water or coast component of a location,
@@ -121,15 +124,6 @@ mixed extra_checks(string str, object caster)
   }
 
   return _LANG_SKILL_SWIM_NOT_THERE;
-}
-
-int start_swim(object caster, mixed target, mixed out_range, int time, int quiet)
-{
-  if (!query_swim_exit(caster, target))
-    return 0;
-
-  tell_object(caster, _LANG_SKILL_SWIM_ROUND1);
-  return 1;
 }
 
 int do_swim(object caster, mixed target, mixed out_range, int time, int quiet)

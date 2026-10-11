@@ -114,7 +114,8 @@
 #define _LANG_SKILL_SWIM_NO_WATER "Aquí no hay agua en la que nadar.\n"
 #define _LANG_SKILL_SWIM_NOT_THERE "No puedes nadar hacia ahí.\n"
 #define _LANG_SKILL_SWIM_WHICH_WAY "Hay agua hacia más de un lado: nadar <dirección>.\n"
-#define _LANG_SKILL_SWIM_ROUND1 "Coges aire y das las primeras brazadas.\n"
+#define _LANG_SKILL_SWIM_START "Comienzas a nadar."
+#define _LANG_SKILL_SWIM_START_ROOM "empieza a nadar."
 
 #define _LANG_SKILL_FOLLOW_NAME "seguir"
 #define _LANG_SKILL_FOLLOW_ALIASES ({ })
