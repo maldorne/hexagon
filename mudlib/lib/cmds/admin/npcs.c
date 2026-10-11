@@ -531,7 +531,7 @@ private string * known_template_fields()
             "level", "level_area_modifier", "stat_modifiers", "stats",
             "max_hp", "max_gp", "random_stats", "social_obs", "equipment",
             "money", "components", "timetable", "skills", "spells",
-            "extracted_from", "citizenship", "proper_name" });
+            "extracted_from", "citizenship", "proper_name", "guild_level" });
 }
 
 // The six fields that may be written once or once per gender.

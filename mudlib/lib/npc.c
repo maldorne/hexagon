@@ -744,6 +744,26 @@ void apply_template(mapping t, varargs int born)
                       ? t["components"][types[i]] : ([ ]));
   }
 
+  // Where the NPC is willing to drift to when idle, and how often. It is how
+  // the type behaves, like its chatter, so it is read again every
+  // materialization and the template's list replaces whatever was saved.
+  if (pointerp(t["move_zones"]))
+  {
+    mixed zones;
+    int i;
+
+    zones = t["move_zones"];
+    if (sizeof(query_move_zones()))
+      remove_move_zone(query_move_zones() + ({ }));
+    for (i = 0; i < sizeof(zones); i++)
+      add_move_zone(zones[i]);
+  }
+
+  if (mappingp(t["move_after"]) && !undefinedp(t["move_after"]["after"]))
+    set_move_after(t["move_after"]["after"],
+                   undefinedp(t["move_after"]["rand"]) ?
+                     0 : t["move_after"]["rand"]);
+
   if (!born)
     return;
 
@@ -764,6 +784,12 @@ void apply_template(mapping t, varargs int born)
     if (social["job"])        set_job_ob(social["job"]);
     if (social["deity"])      set_deity_ob(social["deity"]);
   }
+
+  // How far up its guild the type has risen. Joining a guild starts at level
+  // one, so this comes after the social objects.
+  if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
+      t["guild_level"] > query_guild_level())
+    adjust_guild_level(t["guild_level"] - query_guild_level());
 
   // How the world reads this type. Perceived alignment accumulates from the
   // social objects, so this comes after them to have the last word.
@@ -864,19 +890,4 @@ void apply_template(mapping t, varargs int born)
       sizeof(t["a_chat"]["lines"]))
     load_a_chat(t["a_chat"]["chance"], t["a_chat"]["lines"]);
 
-  // where the NPC is willing to drift to when idle, and how often
-  if (pointerp(t["move_zones"]))
-  {
-    mixed zones;
-    int i;
-
-    zones = t["move_zones"];
-    for (i = 0; i < sizeof(zones); i++)
-      add_move_zone(zones[i]);
-  }
-
-  if (mappingp(t["move_after"]) && !undefinedp(t["move_after"]["after"]))
-    set_move_after(t["move_after"]["after"],
-                   undefinedp(t["move_after"]["rand"]) ?
-                     0 : t["move_after"]["rand"]);
 }
