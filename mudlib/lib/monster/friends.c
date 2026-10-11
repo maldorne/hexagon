@@ -112,9 +112,11 @@ void pile_in(object ob, object ob1)
 }
 
 // Whether somebody fits a description of livings, the shape both the loved and
-// the hated lists are written in: a race, a guild, a group, a race group, a
-// name, a deity, a citizenship, or simply a property they carry. Each key holds
-// one value or a list of them, and any match is enough.
+// the hated lists are written in: a race, a guild, a member of a guild other
+// than the ones named (other_guild: somebody with no guild does not match), a
+// group, a race group, a name, a deity, a citizenship, or simply a property
+// they carry. Each key holds one value or a list of them, and any match is
+// enough.
 // Taniwha, util routine for "membership"
 int matches_group(mapping description, object who)
 {
@@ -132,6 +134,13 @@ int matches_group(mapping description, object who)
   list = description["guild"];
   if (pointerp(list) && member_array(who->query_guild_name(), list) != -1) return 1;
   if (stringp(list) && (string)list == (string)who->query_guild_name()) return 1;
+
+  list = description["other_guild"];
+  if (stringp(list))
+    list = ({ list });
+  if (pointerp(list) && who->query_guild_ob() &&
+      member_array(who->query_guild_name(), list) == -1)
+    return 1;
 
   list = description["group"];
   if (pointerp(list) && member_array(who->query_group_name(), list) != -1) return 1;
