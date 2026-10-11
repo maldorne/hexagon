@@ -22,6 +22,8 @@
         "'borrow <number>' to take a copy with you.\n"
 #define _LANG_LIBRARY_DAMAGED "A book in poor condition"
 #define _LANG_LIBRARY_WHICH "Which book? Use 'list' to see the list and 'borrow <number>'.\n"
+#define _LANG_LIBRARY_ALREADY_CARRIED "You already carry a copy of that book.\n"
+#define _LANG_LIBRARY_COPY_HERE "A copy of that book is already here; take it.\n"
 #define _LANG_LIBRARY_CANNOT_CARRY "You cannot carry anything else.\n"
 #define _LANG_LIBRARY_TAKEN "You take a copy of \"" + book->query_title() + "\" from the shelves.\n"
 #define _LANG_LIBRARY_TAKEN_OTHERS this_player()->query_cap_name() + " takes a book from the shelves.\n"

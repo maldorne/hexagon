@@ -135,6 +135,18 @@ int do_read_book(string str)
   return 1;
 }
 
+// A copy of the book with that text among `obs`, or nil.
+private object _copy_among(object * obs, string path)
+{
+  int i;
+
+  for (i = 0; i < sizeof(obs); i++)
+    if (obs[i]->query_book() && obs[i]->query_text_file() == path)
+      return obs[i];
+
+  return nil;
+}
+
 int do_take_book(string str)
 {
   string path;
@@ -144,6 +156,20 @@ int do_take_book(string str)
   if (!path)
   {
     notify_fail(_LANG_LIBRARY_WHICH);
+    return 0;
+  }
+
+  // one copy per reader: none while they carry one, even in a bag, or one
+  // lies here for the taking
+  if (_copy_among(deep_inventory(this_player()), path))
+  {
+    notify_fail(_LANG_LIBRARY_ALREADY_CARRIED);
+    return 0;
+  }
+  if (environment(this_player()) &&
+      _copy_among(all_inventory(environment(this_player())), path))
+  {
+    notify_fail(_LANG_LIBRARY_COPY_HERE);
     return 0;
   }
 

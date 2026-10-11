@@ -22,6 +22,8 @@
         "'recuperar <número>' para llevarte una copia.\n"
 #define _LANG_LIBRARY_DAMAGED "Un libro en mal estado"
 #define _LANG_LIBRARY_WHICH "¿Qué libro? Usa 'listar' para ver la lista y 'recuperar <número>'.\n"
+#define _LANG_LIBRARY_ALREADY_CARRIED "Ya llevas una copia de ese libro.\n"
+#define _LANG_LIBRARY_COPY_HERE "Ya hay una copia de ese libro aquí mismo; cógela.\n"
 #define _LANG_LIBRARY_CANNOT_CARRY "No puedes llevar nada más.\n"
 #define _LANG_LIBRARY_TAKEN "Coges de las estanterías una copia de «" + book->query_title() + "».\n"
 #define _LANG_LIBRARY_TAKEN_OTHERS this_player()->query_cap_name() + " coge un libro de las estanterías.\n"
