@@ -599,9 +599,37 @@ private mapping _fixtures_from_clones(mapping clones)
   return fixtures;
 }
 
+// What a reconversion carries over from the location that was live before it:
+// whoever is standing there and whatever lies on the floor, and nothing the
+// location builds itself (its components, doors, signs and fixtures). The old
+// location is then destructed, so a file never has two live locations.
+private void _replace_live_location(object old, object location)
+{
+  object * contents;
+  int i;
+
+  if (!old || !location || old == location)
+    return;
+
+  contents = all_inventory(old);
+  for (i = 0; i < sizeof(contents); i++)
+  {
+    if (!contents[i] || contents[i]->query_location_component() ||
+        contents[i]->query_fixture())
+      continue;
+    // a living, or something that can be picked up (get() is the flag that
+    // forbids it)
+    if (living(contents[i]) ||
+        (function_exists("get", contents[i]) && !contents[i]->get()))
+      contents[i]->move(location);
+  }
+
+  old->dest_me();
+}
+
 object convert_room_to_location(object room)
 {
-  object location, area;
+  object location, area, old;
   string file_name, * exits, ret, board_name;
   string * inferred, * venture_kinds, * blueprints, * missing;
   string game;
@@ -619,6 +647,10 @@ object convert_room_to_location(object room)
 
   // what file name would a location based on this room?
   file_name = load_object(LOCATION_HANDLER)->get_location_file_name_from_room(room);
+
+  // the location may be live already, with people in it: a reload must not
+  // leave it running beside the new one
+  old = query_loaded_location(file_name);
 
   // new location object
   location = clone_object(BASE_LOCATION_OBJ);
@@ -895,6 +927,8 @@ object convert_room_to_location(object room)
   area = location->query_area();
   if (area)
     area->set_location_original_sources(location->query_file_name(), npc_clones);
+
+  _replace_live_location(old, location);
 
   return location;
 }
