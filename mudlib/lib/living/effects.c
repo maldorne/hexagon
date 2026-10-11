@@ -146,10 +146,12 @@ int do_active_effects(object attacker)
         {
           // Anunque hemos fallado la ejecucion, lo hemos intentado, por lo que
           // ponemos el lock igualmente, neverbot 06/12
-          this_object()->add_timed_property("LOCK " + 
-            base_name(effects[i+1][j+1][SP_OBJECT]), 
-            1, 
-            (effects[i+1][j+1][SP_OBJECT])->query_lockout_time() / 2 );
+          // (unless the effect's object is gone, and there is nothing to lock)
+          if (effects[i+1][j+1][SP_OBJECT])
+            this_object()->add_timed_property("LOCK " + 
+              base_name(effects[i+1][j+1][SP_OBJECT]), 
+              1, 
+              (effects[i+1][j+1][SP_OBJECT])->query_lockout_time() / 2 );
   
           remove_active_effect(effects[i+1][j]);
 
@@ -194,6 +196,11 @@ int do_call_out_effect(mixed *params)
   mapping types;
 
   aux_xp = 0;
+
+  // the effect's object was destructed halfway (updated, say): nothing to run
+  if (!params[0][SP_OBJECT])
+    return 0;
+
   res = call_other(params[0][SP_OBJECT],
     params[0][SP_FUNC],
     this_object(),
