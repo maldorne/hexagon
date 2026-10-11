@@ -340,6 +340,38 @@
 #define _LANG_PROP_BUNK_RISE_OTHERS     "$mcname$ se levanta del camastro."
 
 // ------------------------------------------------------------
+//  cama
+// ------------------------------------------------------------
+#define _LANG_PROP_BED_ID               "cama"
+#define _LANG_PROP_BED_NOUN             "cama"
+#define _LANG_PROP_BED_NOUN_PLURAL      "camas"
+#define _LANG_PROP_BED_SHORT            "una cama $material_phrase$"
+#define _LANG_PROP_BED_LONG             "Una cama $material_phrase$, ancha y bien hecha."
+
+#define _LANG_PROP_BED_SUFFIX_OCCUPIED  " (%s está tumbado en ella)"
+#define _LANG_PROP_BED_LONG_OCCUPIED    " %s descansa en ella."
+
+#define _LANG_PROP_BED_LIE_VERBS        ({ "tumbarse", "tumbarme", "acostarse", "acostarme", "echarse", "echarme" })
+#define _LANG_PROP_BED_RISE_VERBS       ({ "levantarse", "levantarme", "incorporarse", "incorporarme" })
+
+#define _LANG_PROP_BED_OCCUPIED_BY      "Ya hay alguien tumbado ahí."
+#define _LANG_PROP_BED_ALREADY_LYING    "Ya estás tumbado en esa cama."
+#define _LANG_PROP_BED_NOT_LYING        "No estás tumbado en la cama."
+#define _LANG_PROP_BED_LIE_ME           "Te tumbas en la cama."
+#define _LANG_PROP_BED_LIE_OTHERS       "$mcname$ se tumba en la cama."
+#define _LANG_PROP_BED_RISE_ME          "Te levantas de la cama."
+#define _LANG_PROP_BED_RISE_OTHERS      "$mcname$ se levanta de la cama."
+
+// ------------------------------------------------------------
+//  tapiz
+// ------------------------------------------------------------
+#define _LANG_PROP_TAPESTRY_ID          "tapiz"
+#define _LANG_PROP_TAPESTRY_NOUN        "tapiz"
+#define _LANG_PROP_TAPESTRY_NOUN_PLURAL "tapices"
+#define _LANG_PROP_TAPESTRY_SHORT       "un tapiz"
+#define _LANG_PROP_TAPESTRY_LONG        "Un tapiz cuelga de la pared, tejido con hilos de colores ya algo desvaídos."
+
+// ------------------------------------------------------------
 //  perchero
 // ------------------------------------------------------------
 #define _LANG_PROP_RACK_ID              "perchero"

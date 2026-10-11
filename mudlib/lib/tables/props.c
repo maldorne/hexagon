@@ -634,6 +634,87 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  bed — lie/rise, like the bunk, for a proper bed
+    // ------------------------------------------------------------
+    "bed": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_BED_ID,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_BED_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_BED_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_FEMALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WOOD,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_BED_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_BED_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_WOOD, MAT_METAL, MAT_STONE }),
+
+      PROP_TYPE_DEFAULT_STATE: ([
+        "occupant": nil,
+      ]),
+
+      PROP_TYPE_STATE_SUFFIXES: ([
+        "occupant": _LANG_PROP_BED_SUFFIX_OCCUPIED,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES: ([
+        "occupant": _LANG_PROP_BED_LONG_OCCUPIED,
+      ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "lie": ([
+          PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_BED_LIE_VERBS,
+          PROP_SPEC_REQUIRES_STATE_UNSET: ({ "occupant" }),
+          PROP_SPEC_ALREADY_SET_MSG:      _LANG_PROP_BED_OCCUPIED_BY,
+          PROP_SPEC_ALREADY_SELF_MSG:     _LANG_PROP_BED_ALREADY_LYING,
+          PROP_SPEC_SET_STATE:            ([ "occupant": PROP_VALUE_PLAYER_NAME ]),
+          PROP_SPEC_MSG_ME:               _LANG_PROP_BED_LIE_ME,
+          PROP_SPEC_MSG_OTHERS:           _LANG_PROP_BED_LIE_OTHERS,
+        ]),
+
+        "rise": ([
+          PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_BED_RISE_VERBS,
+          PROP_SPEC_REQUIRES_STATE_MATCH: ([ "occupant": PROP_VALUE_PLAYER_NAME ]),
+          PROP_SPEC_MISSING_MATCH_MSG:    _LANG_PROP_BED_NOT_LYING,
+          PROP_SPEC_CLEAR_STATE:          ({ "occupant" }),
+          PROP_SPEC_MSG_ME:               _LANG_PROP_BED_RISE_ME,
+          PROP_SPEC_MSG_OTHERS:           _LANG_PROP_BED_RISE_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  tapestry — a hanging only to be looked at. What it depicts is
+    //  each instance's own: give it a description override.
+    // ------------------------------------------------------------
+    "tapestry": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_TAPESTRY_ID,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_TAPESTRY_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_TAPESTRY_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_CLOTH,
+      PROP_TYPE_HIDE_MATERIAL:    1,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_TAPESTRY_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_TAPESTRY_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_CLOTH, MAT_SILK }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([ ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  rack — pegs on a wall, no state
     // ------------------------------------------------------------
     "rack": ([

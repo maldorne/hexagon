@@ -339,6 +339,38 @@
 #define _LANG_PROP_BUNK_RISE_OTHERS     "$mcname$ gets up from the bunk."
 
 // ------------------------------------------------------------
+//  bed
+// ------------------------------------------------------------
+#define _LANG_PROP_BED_ID               "bed"
+#define _LANG_PROP_BED_NOUN             "bed"
+#define _LANG_PROP_BED_NOUN_PLURAL      "beds"
+#define _LANG_PROP_BED_SHORT            "a $material_phrase$ bed"
+#define _LANG_PROP_BED_LONG             "A wide, neatly made $material_phrase$ bed."
+
+#define _LANG_PROP_BED_SUFFIX_OCCUPIED  " (%s is lying on it)"
+#define _LANG_PROP_BED_LONG_OCCUPIED    " %s is resting on it."
+
+#define _LANG_PROP_BED_LIE_VERBS        ({ "lie", "liedown" })
+#define _LANG_PROP_BED_RISE_VERBS       ({ "rise", "getup" })
+
+#define _LANG_PROP_BED_OCCUPIED_BY      "Somebody is already lying there."
+#define _LANG_PROP_BED_ALREADY_LYING    "You are already lying on that bed."
+#define _LANG_PROP_BED_NOT_LYING        "You are not lying on the bed."
+#define _LANG_PROP_BED_LIE_ME           "You lie down on the bed."
+#define _LANG_PROP_BED_LIE_OTHERS       "$mcname$ lies down on the bed."
+#define _LANG_PROP_BED_RISE_ME          "You get up from the bed."
+#define _LANG_PROP_BED_RISE_OTHERS      "$mcname$ gets up from the bed."
+
+// ------------------------------------------------------------
+//  tapestry
+// ------------------------------------------------------------
+#define _LANG_PROP_TAPESTRY_ID          "tapestry"
+#define _LANG_PROP_TAPESTRY_NOUN        "tapestry"
+#define _LANG_PROP_TAPESTRY_NOUN_PLURAL "tapestries"
+#define _LANG_PROP_TAPESTRY_SHORT       "a tapestry"
+#define _LANG_PROP_TAPESTRY_LONG        "A tapestry hangs on the wall, woven in coloured threads that have faded a little."
+
+// ------------------------------------------------------------
 //  rack
 // ------------------------------------------------------------
 #define _LANG_PROP_RACK_ID              "rack"
