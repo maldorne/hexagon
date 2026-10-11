@@ -37,7 +37,7 @@
 #define _LANG_NEW_MANDATORY_ITEM "Por algún error has debido perder tu " + ob->query_name() + ". " + \
               "Otr" + ob->query_vowel() + " nuev" + ob->query_vowel() + " te es concedid" + ob->query_vowel() + ".\n"
 #define _LANG_START_CONNECTING_GAME "Estás entrando en " + master->query_game_name() + "...\n"
-#define _LANG_START_WELCOME_TITLE "Te conectas al juego:"
+#define _LANG_START_WELCOME_TITLE "Te conectas al juego"
 
 #define _LANG_START_MAIL_AGED (aged_mail == 1 ? "Una carta muy antigua de tu buzón se ha perdido.\n" : \
   "" + aged_mail + " cartas muy antiguas de tu buzón se han perdido.\n")

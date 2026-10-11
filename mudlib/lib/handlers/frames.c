@@ -257,10 +257,11 @@ private string _edge_row(mixed * spec, int body_inner_width, int margin_x)
 // Render an edge row that has a title injected in the middle. The
 // title sits between `style[title_left]` and `style[title_right]`,
 // surrounded by fill chars on both sides so the row reaches the same
-// total width as a plain edge row.
+// total width as a plain edge row. A centred title splits the fill evenly.
 private string _edge_row_with_title(mixed * spec, string title,
                                     string title_left, string title_right,
-                                    int body_inner_width, int margin_x)
+                                    int body_inner_width, int margin_x,
+                                    int centre_title)
 {
   int fill_count, left_fill, right_fill;
   string fill_unit, decorated;
@@ -278,9 +279,9 @@ private string _edge_row_with_title(mixed * spec, string title,
     return _edge_row(spec, body_inner_width, margin_x);
 
   // distribute the remaining fill: a touch on the left, the rest on
-  // the right (matches the legacy `_header` look)
+  // the right (matches the legacy `_header` look), or half on each side
   fill_unit = spec[1];
-  left_fill  = 1;
+  left_fill  = centre_title ? (fill_count - title_visible) / 2 : 1;
   right_fill = fill_count - title_visible - left_fill;
   if (right_fill < 0) { left_fill = 0; right_fill = fill_count - title_visible; }
 
@@ -342,7 +343,7 @@ private int _frame_overhead(mapping style)
 }
 
 string frame(string content, varargs string title, int width,
-             int height, string style_name)
+             int height, string style_name, int centre_title)
 {
   mapping style;
   string * lines;
@@ -474,7 +475,7 @@ string frame(string content, varargs string title, int width,
     if (i == sizeof(top_rows) - 1 && strlen(title))
       out += _edge_row_with_title(top_rows[i], title,
                                   title_left, title_right,
-                                  body_inner_width, margin_x);
+                                  body_inner_width, margin_x, centre_title);
     else
       out += _edge_row(top_rows[i], body_inner_width, margin_x);
   }
@@ -511,10 +512,13 @@ string frame(string content, varargs string title, int width,
  * @param content the drawing, as read from its file
  * @param title an optional title for the top border
  * @param style_name the frame style, the default one when omitted
+ * @param centre_title centre the title on the border instead of starting it
+ *        at the left
  * @return the framed drawing, or the drawing as it came when the frame would
  *         not fit in the reader's columns
  */
-string centred_frame(string content, varargs string title, string style_name)
+string centred_frame(string content, varargs string title, string style_name,
+                     int centre_title)
 {
   mapping style;
   string * lines, * rows;
@@ -599,7 +603,8 @@ string centred_frame(string content, varargs string title, string style_name)
     if (!strlen(lines[i]))
       lines[i] = " ";
 
-  rows = explode(frame(implode(lines, "\n"), title, 0, 0, style_name), "\n");
+  rows = explode(frame(implode(lines, "\n"), title, 0, 0, style_name,
+                       centre_title), "\n");
   out = "";
   for (i = 0; i < sizeof(rows); i++)
     out += margin + rows[i] + "\n";
