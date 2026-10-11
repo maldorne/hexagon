@@ -44,16 +44,18 @@ so. In water there are no exit lines: one sees where the shore is ("Puedes ver
 la orilla hacia el oeste") and swims with `nadar <dir>`; `nadar` alone says
 where the shore is again.
 
-Going in from a coast always works. Every stroke inside water is rolled: the
-swimmer's ability, plus a bonus with the current, minus a malus across or
-against it by its strength (more when upstream is `hard`; impossible when it
-is `block`), minus deep water, minus whatever they carry beyond half of what
-they can. A chance of 100 or more is not rolled.
+Going in from a coast always works. Every stroke inside water is rolled: a
+base of 50 plus the swimmer's ability, plus 20 with the current, minus 5 per
+point of strength across it, and minus 10 per point of strength plus one
+against it (straight back where it comes from) when upstream is `hard`;
+against a `block` current nobody swims at all. Deep water takes 10 more, and
+so does whatever they carry beyond half of what they can, point by point. A
+chance of 100 or more is not rolled.
 
 Whoever fails swallows water, a bite of life that never takes the last of it,
 and the current carries them out by `swept_to`; in still water they stay.
 Whoever stays in moving water without swimming is carried off the same way
-after a few seconds.
+after twenty seconds.
 
 ## Creatures
 

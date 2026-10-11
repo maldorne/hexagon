@@ -106,23 +106,26 @@ string * query_swim_directions(object who)
   return ret;
 }
 
-// What a swimmer adds to their ability for one stroke: easy with the current,
-// harder across or against it the stronger it pulls, harder in deep water and
-// with a heavy load. A chance of 100 or more is not rolled.
+// The chance of one stroke: a base plus the swimmer's ability, easy with the
+// current, harder across it and harder still against it (straight back where
+// it comes from) the stronger it pulls, harder in deep water and with a heavy
+// load. A chance of 100 or more is not rolled.
 int query_swim_chance(object who, string dir)
 {
   int chance, max, load;
 
-  chance = who->query_skill_ability(SKILL_SWIM);
+  chance = WATER_BASE_CHANCE + who->query_skill_ability(SKILL_SWIM);
 
   if (water_current)
   {
     if (dir == water_current)
       chance += WATER_DOWNSTREAM_BONUS;
-    else if (query_water_upstream() == WATER_UPSTREAM_HARD)
-      chance -= WATER_UPSTREAM_MALUS * (water_strength + 1);
+    else if (dir == ROOM_HAND->query_opposite(water_current))
+      chance -= (query_water_upstream() == WATER_UPSTREAM_HARD) ?
+                WATER_UPSTREAM_MALUS * (water_strength + 1) :
+                WATER_ACROSS_MALUS * water_strength;
     else
-      chance -= WATER_UPSTREAM_MALUS * water_strength / 2;
+      chance -= WATER_ACROSS_MALUS * water_strength;
   }
 
   if (query_water_depth() >= 2)
