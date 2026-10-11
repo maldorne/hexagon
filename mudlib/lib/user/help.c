@@ -319,13 +319,14 @@ private int show_topic(mixed * topic, string str)
 private int show_item_help(string str)
 {
   object * objs;
-  string text;
+  mixed text;
   int loop, found;
 
   objs = find_match(str, this_player());
 
+  // what has no help of its own answers nil, and leaves the documents to speak
   for (loop = 0; loop < sizeof(objs); loop++)
-    if (text = (string)objs[loop]->query_help())
+    if (stringp(text = objs[loop]->query_help()) && strlen(text))
     {
       write(_LANG_HELP_HELP_ABOUT);
       found = 1;

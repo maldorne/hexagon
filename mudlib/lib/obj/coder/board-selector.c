@@ -39,6 +39,15 @@ void init()
   add_action("do_boards", "boards");
 }
 
+string query_help(varargs string str)
+{
+  return "A board that reads any board of the mud. Besides the usual board " +
+         "commands:\n" +
+         "  board <name>        read that board\n" +
+         "  board next | prev   the next or the previous board\n" +
+         "  boards              every board registered, with its notes\n";
+}
+
 // Only a coder carries one: anybody else gets nothing from it.
 int test_coder()
 {
@@ -91,14 +100,14 @@ int do_boards(string str)
   string * boards;
   string ret;
   mixed * notes;
-  mapping news_rc;
+  mixed news_rc;
   int i, j, unread;
 
   if (!test_coder())
     return 0;
 
   boards = sort_array((string *)BOARD_HAND->list_of_boards());
-  news_rc = (mapping)this_player()->query_property(NEWS_RC);
+  news_rc = this_player()->query_property(NEWS_RC);
   if (!mappingp(news_rc))
     news_rc = ([ ]);
 
@@ -108,7 +117,7 @@ int do_boards(string str)
     notes = (mixed *)BOARD_HAND->get_subjects(boards[i]);
     unread = 0;
     for (j = 0; j < sizeof(notes); j++)
-      if (notes[j][B_TIME] > news_rc[boards[i]])
+      if (notes[j][B_TIME] > (intp(news_rc[boards[i]]) ? news_rc[boards[i]] : 0))
         unread++;
 
     ret += sprintf("  %s %-30s %3d note%s%s\n",

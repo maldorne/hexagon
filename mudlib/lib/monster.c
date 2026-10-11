@@ -573,12 +573,17 @@ void do_move_after(int bing)
   direcstemp = (string *)environment()->query_dest_dir();
   direcs = ({ });
 
+  // the ways out that lead somewhere: a location is its .o, which only the
+  // location handler loads
   for (dd = 0; dd < sizeof(direcstemp); dd += 2)
   {
-    if (load_object(direcstemp[dd + 1]))
-    {
+    string dest;
+
+    dest = direcstemp[dd + 1];
+    if ((strlen(dest) > 2 && dest[strlen(dest) - 2..] == ".o" &&
+         load_object(LOCATION_HANDLER)->load_location(dest)) ||
+        load_object(dest))
       direcs += direcstemp[dd..dd + 1];
-    }
   }
 
   while (!bong && sizeof(direcs))
