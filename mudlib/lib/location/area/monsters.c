@@ -44,6 +44,17 @@ private int _is_monster_source(string source)
   return !(t && t["sentient"]);
 }
 
+// Whether the type of `source` lives in water.
+private int _swims(string source)
+{
+  mapping t;
+
+  t = BESTIARY_HANDLER->query_template(
+        game_from_path((string)this_object()->query_area_path()), source);
+
+  return t && t["swims"];
+}
+
 int assign_monster(string source, string location_file)
 {
   mapping bucket;
@@ -327,6 +338,10 @@ void restore_location_monsters(object loc, string file)
       this_object()->save_me();
       continue;
     }
+
+    // nothing that cannot swim is put in water, whatever a room declared
+    if (loc->query_water_environment() && !_swims(sources[i]))
+      continue;
 
     want = bucket[sources[i]];
     have = _live_monster_count(loc, sources[i]);

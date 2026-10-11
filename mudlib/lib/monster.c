@@ -40,6 +40,7 @@ string *move_zones,    /* zones that i may wander into */
 
 static int hbcheck;    /* a little patch to avoid slaughtering cowards */
 static int only_one;   /* can be cloned only once */
+int swims;             /* moves through water with ordinary exits */
 
 static int _follow_move_handle;
 
@@ -119,6 +120,12 @@ void create()
 
 // only one copy of this npc at the same time
 int query_only_one(){ return only_one; }
+
+// A creature of the water (a fish) moves through it walking its exits, and
+// is the only kind placed in a water location.
+int query_swims() { return swims; }
+void set_swims(int value) { swims = value; }
+
 void set_only_one(int value)
 {
   if (value != 0)
