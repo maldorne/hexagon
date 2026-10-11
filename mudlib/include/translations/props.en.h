@@ -370,6 +370,18 @@
 #define _LANG_PROP_TAPESTRY_SHORT       "a tapestry"
 #define _LANG_PROP_TAPESTRY_LONG        "A tapestry hangs on the wall, woven in coloured threads that have faded a little."
 
+#define _LANG_PROP_PAINTING_ID          "painting"
+#define _LANG_PROP_PAINTING_ID_ALIAS_1  "canvas"
+#define _LANG_PROP_PAINTING_ID_ALIAS_2  "plaque"
+#define _LANG_PROP_PAINTING_NOUN        "painting"
+#define _LANG_PROP_PAINTING_NOUN_PLURAL "paintings"
+#define _LANG_PROP_PAINTING_SHORT       "a painting"
+#define _LANG_PROP_PAINTING_LONG        "A painting hangs on the wall: a canvas in oils in a wooden frame, with a small engraved plaque at the foot."
+#define _LANG_PROP_PAINTING_READ_VERBS  ({ "read" })
+#define _LANG_PROP_PAINTING_READ_ME     "You step up to the painting and read the plaque engraved at the foot of the frame."
+#define _LANG_PROP_PAINTING_READ_OTHERS "$mcname$ steps up to the painting and reads the plaque on its frame."
+#define _LANG_PROP_PAINTING_READ_NOTHING "Nothing is engraved on the frame of the painting."
+
 // ------------------------------------------------------------
 //  rack
 // ------------------------------------------------------------

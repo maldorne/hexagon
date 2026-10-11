@@ -715,6 +715,45 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  painting — a canvas in a frame on the wall. What the small
+    //  plaque on its frame says is the instance's inscription
+    //  override.
+    // ------------------------------------------------------------
+    "painting": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_PAINTING_ID,
+        _LANG_PROP_PAINTING_ID_ALIAS_1,
+        _LANG_PROP_PAINTING_ID_ALIAS_2,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_PAINTING_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_PAINTING_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WOOD,
+      PROP_TYPE_HIDE_MATERIAL:    1,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_PAINTING_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_PAINTING_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_WOOD }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "read": ([
+          PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:        _LANG_PROP_PAINTING_READ_VERBS,
+          PROP_SPEC_SHOW_TEXT:    PROP_OVERRIDE_INSCRIPTION,
+          PROP_SPEC_MSG_ME:       _LANG_PROP_PAINTING_READ_ME,
+          PROP_SPEC_MSG_OTHERS:   _LANG_PROP_PAINTING_READ_OTHERS,
+          PROP_SPEC_MISSING_MSG:  _LANG_PROP_PAINTING_READ_NOTHING,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  rack — pegs on a wall, no state
     // ------------------------------------------------------------
     "rack": ([

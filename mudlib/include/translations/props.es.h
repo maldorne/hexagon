@@ -371,6 +371,18 @@
 #define _LANG_PROP_TAPESTRY_SHORT       "un tapiz"
 #define _LANG_PROP_TAPESTRY_LONG        "Un tapiz cuelga de la pared, tejido con hilos de colores ya algo desvaídos."
 
+#define _LANG_PROP_PAINTING_ID          "cuadro"
+#define _LANG_PROP_PAINTING_ID_ALIAS_1  "lienzo"
+#define _LANG_PROP_PAINTING_ID_ALIAS_2  "placa"
+#define _LANG_PROP_PAINTING_NOUN        "cuadro"
+#define _LANG_PROP_PAINTING_NOUN_PLURAL "cuadros"
+#define _LANG_PROP_PAINTING_SHORT       "un cuadro"
+#define _LANG_PROP_PAINTING_LONG        "Un cuadro cuelga de la pared: un lienzo pintado al óleo en un marco de madera, con una pequeña placa grabada al pie."
+#define _LANG_PROP_PAINTING_READ_VERBS  ({ "leer" })
+#define _LANG_PROP_PAINTING_READ_ME     "Te acercas al cuadro y lees la placa grabada al pie del marco."
+#define _LANG_PROP_PAINTING_READ_OTHERS "$mcname$ se acerca al cuadro y lee la placa del marco."
+#define _LANG_PROP_PAINTING_READ_NOTHING "No hay nada grabado en el marco del cuadro."
+
 // ------------------------------------------------------------
 //  perchero
 // ------------------------------------------------------------

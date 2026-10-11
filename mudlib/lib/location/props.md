@@ -131,8 +131,8 @@ appended to the long only when the instance sets that override: the rune's
 keeps it whole, without those sentences, but the state suffixes still follow it,
 so a described prop still says whether it is lit or tipped over.
 
-An action whose spec carries `PROP_SPEC_SHOW_TEXT` (the `read` of a `statue`
-or a `ruined_statue`) prints `MSG_ME`, then the override it names, read the
+An action whose spec carries `PROP_SPEC_SHOW_TEXT` (the `read` of a `statue`,
+a `ruined_statue` or the plaque of a `painting`) prints `MSG_ME`, then the override it names, read the
 way any written text is read (`read_message` on the player): in a frame, in the
 instance's `language` (the common tongue when unset), and garbled for a reader
 who does not know it.
