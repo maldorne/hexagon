@@ -54,7 +54,9 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
       else
         msg = replace_string(msg, ob->query_cap_name(), new_name);
 
-      tell_object(this_object(), msg);
+      // wrapped to the screen: a long message would go out as one line
+      tell_object(this_object(), wrap(msg, this_object()->user() ?
+                  this_object()->user()->query_cols() : 0));
     }
     else
       tell_object(this_object(), _LANG_EVENTS_SOMEBODY_ARRIVES);
@@ -96,7 +98,9 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
       else
         msg = replace_string(msg, ob->query_cap_name(), new_name);
 
-      tell_object(this_object(), msg);
+      // wrapped to the screen: a long message would go out as one line
+      tell_object(this_object(), wrap(msg, this_object()->user() ?
+                  this_object()->user()->query_cols() : 0));
     }
     else
       tell_object(this_object(), _LANG_EVENTS_SOMEBODY_LEAVES);
