@@ -30,6 +30,9 @@ void create()
   set_long(_LANG_BOARD_SELECTOR_LONG);
   set_get();
   set_weight(5);
+
+  // it starts on a board that exists, the common board of the coders' game
+  board_name = "hexagon-common";
 }
 
 void init()
