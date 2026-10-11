@@ -258,3 +258,23 @@
       "%^RESET%^\n  " + objectives[j][OBJ_TEXT] + ": " + after + " de " + \
       objectives[j][OBJ_COUNT] + "."
 #define _LANG_QUEST_OBJECTIVES_MET "\n  Ya puedes entregarla ('misiones entregar')."
+
+// books. `page` and `pages` are the page shown and how many there are, `book`
+// the title of the book and `reader` who is reading it
+
+#define _LANG_BOOKS_FOOTER "[Página " + (page + 1) + " de " + pages + \
+        ": Intro sigue, - vuelve, <número> va a una página, h ayuda, q cierra]"
+#define _LANG_BOOKS_OPEN "Abres el libro.\n"
+#define _LANG_BOOKS_OPEN_OTHERS reader->query_cap_name() + " abre un libro y empieza a leer.\n"
+#define _LANG_BOOKS_CLOSE "Cierras el libro.\n"
+#define _LANG_BOOKS_UNREADABLE "Las páginas de este libro están en blanco, o tan estropeadas que no se pueden leer.\n"
+#define _LANG_BOOKS_NO_SUCH_PAGE "El libro no tiene esa página.\n"
+#define _LANG_BOOKS_HELP_KEYS ({ "h", "ayuda", "?" })
+#define _LANG_BOOKS_HELP "Mientras lees un libro:\n" + \
+        "  Intro o +  : pasas a la página siguiente.\n" + \
+        "  -          : vuelves a la anterior.\n" + \
+        "  <número>   : vas a esa página.\n" + \
+        "  h          : muestra esta ayuda.\n" + \
+        "  q          : cierras el libro (cualquier otra cosa también).\n"
+#define _LANG_BOOKS_FILED "%^BOLD%^Anotas este libro en la enciclopedia de tu diario " + \
+        "('enciclopedia' para volver a leerlo).%^RESET%^\n"

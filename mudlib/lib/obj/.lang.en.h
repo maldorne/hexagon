@@ -80,16 +80,18 @@
 
 #define _LANG_DIARY_NAME "diary"
 #define _LANG_DIARY_SHORT "Diary"
-#define _LANG_DIARY_ALIAS ({ "diary", "book" })
+#define _LANG_DIARY_ALIAS ({ "diary" })
 #define _LANG_DIARY_PLURAL "Diaries"
 #define _LANG_DIARY_PLURALS ({ "diaries" })
 #define _LANG_DIARY_LONG "A worn book where you jot down your adventures and travels. " + \
     "Type '%^BOLD%^diary explorer%^RESET%^' to see the places you have discovered.\n"
 #define _LANG_DIARY_VERBS ({ "diary" })
 #define _LANG_DIARY_EXPLORER_SUBVERBS ({ "explorer", "exploration", "places" })
-#define _LANG_DIARY_PENDING_SUBVERBS ({ "travels", "encyclopedia" })
+#define _LANG_DIARY_PENDING_SUBVERBS ({ "travels" })
 #define _LANG_DIARY_HELP "The diary keeps track of your wanderings. Commands:\n" + \
-    "\tdiary explorer  - lists the places you have discovered.\n"
+    "\tdiary explorer  - lists the places you have discovered.\n" + \
+    "\tencyclopedia       - lists the books you have read.\n" + \
+    "\tencyclopedia <num> - reads one of them again.\n"
 #define _LANG_DIARY_DEAD "You cannot do that while dead.\n"
 #define _LANG_DIARY_WHAT "What do you want to check in the diary? Try 'diary explorer'.\n"
 #define _LANG_DIARY_NOT_YET "That section of the diary is still blank.\n"
@@ -98,6 +100,12 @@
 #define _LANG_DIARY_EXPLORER_COUNT_PRE "\nIn total, you have visited "
 #define _LANG_DIARY_PLACE_SG "place"
 #define _LANG_DIARY_PLACE_PL "places"
+#define _LANG_DIARY_ENCYCLOPEDIA_VERBS ({ "encyclopedia" })
+#define _LANG_DIARY_ENCYCLOPEDIA_EMPTY "Your diary's encyclopedia is still blank: every book you read to the end is noted down in it.\n"
+#define _LANG_DIARY_ENCYCLOPEDIA_HEADER "You have noted down these books in your encyclopedia:\n\n"
+#define _LANG_DIARY_ENCYCLOPEDIA_FOOTER "\nUse 'encyclopedia <number>' to read one again.\n"
+#define _LANG_DIARY_ENCYCLOPEDIA_LOST "A book you no longer remember anything of"
+#define _LANG_DIARY_ENCYCLOPEDIA_NO_SUCH "That book is not in your encyclopedia. Use 'encyclopedia' to see the list.\n"
 
 // mailer.c
 
@@ -350,3 +358,15 @@
 #define _LANG_MOVABLE_ALREADY "There is nothing more to shift; the passage is still in sight.\n"
 #define _LANG_MOVABLE_MOVED_ME "You shift it aside and uncover a passage.\n"
 #define _LANG_MOVABLE_MOVED_ROOM "shifts something aside and uncovers a passage.\n"
+
+// book. `title` is the title of its text
+
+#define _LANG_BOOK_NAME "book"
+#define _LANG_BOOK_ALIASES ({ "book", "tome" })
+#define _LANG_BOOK_PLURAL "books"
+#define _LANG_BOOK_PLURALS ({ "books", "tomes" })
+#define _LANG_BOOK_SHORT "book"
+#define _LANG_BOOK_LONG "A book with worn covers. You can 'read book'.\n"
+#define _LANG_BOOK_SHORT_TITLED "book \"" + title + "\""
+#define _LANG_BOOK_LONG_TITLED "A book with worn covers. Its cover reads: \"" + \
+        title + "\". You can 'read book'.\n"

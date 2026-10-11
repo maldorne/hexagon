@@ -2,8 +2,9 @@
 // read-only front-end over the exploration component:
 //
 //   diario explorador  - the places the player has discovered (this game)
+//   enciclopedia [<n>] - the books the player has read, and reading one again
 //
-// Travel points (diario viajes) and the encyclopedia are follow-ups.
+// Travel points (diario viajes) are a follow-up.
 // Ported from the CcMud diary, Folken 04/2009.
 
 #include <areas/area.h>
@@ -32,6 +33,7 @@ void init()
 {
   ::init();
   add_action("do_diary", _LANG_DIARY_VERBS);
+  add_action("do_encyclopedia", _LANG_DIARY_ENCYCLOPEDIA_VERBS);
 }
 
 string query_help(varargs string str) { return _LANG_DIARY_HELP; }
@@ -67,9 +69,12 @@ static int do_explorer()
   n = sizeof(names);
   if (!n)
   {
-    tell_player(this_player(), _LANG_DIARY_EXPLORER_EMPTY);
+    tell_object(this_player(), _LANG_DIARY_EXPLORER_EMPTY);
     return 1;
   }
+
+  // in alphabetical order, not in the order they were found
+  names = sort_array(names);
 
   ret = _LANG_DIARY_EXPLORER_HEADER;
   for (i = 0; i < n; i++)
@@ -77,7 +82,54 @@ static int do_explorer()
   ret += _LANG_DIARY_EXPLORER_COUNT_PRE + number_as_string(n) + " " +
          (n == 1 ? _LANG_DIARY_PLACE_SG : _LANG_DIARY_PLACE_PL) + ".\n";
 
-  tell_player(this_player(), ret);
+  tell_object(this_player(), ret);
+  return 1;
+}
+
+// enciclopedia: the books the player has read in this game, in the order they
+// read them; enciclopedia <n> opens one of them again.
+int do_encyclopedia(string str)
+{
+  string * paths;
+  string game, ret, title;
+  int i, num;
+
+  if (this_player()->query_dead())
+  {
+    notify_fail(_LANG_DIARY_DEAD);
+    return 0;
+  }
+
+  game = game_name(this_player());
+  paths = this_player()->query_encyclopedia_articles(game);
+
+  if (!sizeof(paths))
+  {
+    tell_object(this_player(), _LANG_DIARY_ENCYCLOPEDIA_EMPTY);
+    return 1;
+  }
+
+  if (str && strlen(str))
+  {
+    if (sscanf(str, "%d", num) != 1 || num < 1 || num > sizeof(paths))
+    {
+      notify_fail(_LANG_DIARY_ENCYCLOPEDIA_NO_SUCH);
+      return 0;
+    }
+    handler("books")->start_reading(this_player(), paths[num - 1]);
+    return 1;
+  }
+
+  ret = _LANG_DIARY_ENCYCLOPEDIA_HEADER;
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    title = handler("books")->query_title(paths[i]);
+    ret += "\t" + (i + 1) + ") " +
+           ((title && strlen(title)) ? title : _LANG_DIARY_ENCYCLOPEDIA_LOST) + "\n";
+  }
+  ret += _LANG_DIARY_ENCYCLOPEDIA_FOOTER;
+
+  tell_object(this_player(), ret);
   return 1;
 }
 
@@ -98,10 +150,13 @@ int do_diary(string str)
   if (member_array(str, _LANG_DIARY_EXPLORER_SUBVERBS) != -1)
     return do_explorer();
 
-  // Sections not implemented yet (travel anchors, encyclopedia).
+  if (member_array(str, _LANG_DIARY_ENCYCLOPEDIA_VERBS) != -1)
+    return do_encyclopedia("");
+
+  // Sections not implemented yet (travel anchors).
   if (member_array(str, _LANG_DIARY_PENDING_SUBVERBS) != -1)
   {
-    tell_player(this_player(), _LANG_DIARY_NOT_YET);
+    tell_object(this_player(), _LANG_DIARY_NOT_YET);
     return 1;
   }
 

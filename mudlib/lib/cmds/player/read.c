@@ -31,6 +31,18 @@ static int cmd(string str, object me, string verb)
     return 0;
   }
 
+  // a number is a book of the library where you stand: the place itself, or
+  // one of its components
+  if (sscanf(str, "%d", i) == 1 && environment(me))
+  {
+    obs = ({ environment(me) }) +
+          (environment(me)->query_location() ?
+           environment(me)->query_components() : ({ }));
+    for (i = 0; i < sizeof(obs); i++)
+      if (obs[i]->query_library() && obs[i]->do_read_book(str))
+        return 1;
+  }
+
   // what you carry and what is here, the way every other verb looks
   obs = find_match(str, ({ me, environment(me) }));
 
@@ -43,6 +55,14 @@ static int cmd(string str, object me, string verb)
   for (i = 0; i < sizeof(obs); i++)
   {
     ob = obs[i];
+
+    // a book is read page by page, and only one at a time
+    if (ob->query_book())
+    {
+      handler("books")->start_reading(me, ob->query_text_file());
+      return 1;
+    }
+
     // not everything answers with a string: what has nothing written says so
     // in its own way, or not at all
     written = ob->query_read_text();

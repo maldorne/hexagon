@@ -249,3 +249,23 @@
       "%^RESET%^\n  " + objectives[j][OBJ_TEXT] + ": " + after + " of " + \
       objectives[j][OBJ_COUNT] + "."
 #define _LANG_QUEST_OBJECTIVES_MET "\n  You can hand it in now ('quests deliver')."
+
+// books. `page` and `pages` are the page shown and how many there are, `book`
+// the title of the book and `reader` who is reading it
+
+#define _LANG_BOOKS_FOOTER "[Page " + (page + 1) + " of " + pages + \
+        ": Enter goes on, - goes back, <number> goes to a page, h help, q closes]"
+#define _LANG_BOOKS_OPEN "You open the book.\n"
+#define _LANG_BOOKS_OPEN_OTHERS reader->query_cap_name() + " opens a book and starts reading.\n"
+#define _LANG_BOOKS_CLOSE "You close the book.\n"
+#define _LANG_BOOKS_UNREADABLE "The pages of this book are blank, or too damaged to read.\n"
+#define _LANG_BOOKS_NO_SUCH_PAGE "The book has no such page.\n"
+#define _LANG_BOOKS_HELP_KEYS ({ "h", "help", "?" })
+#define _LANG_BOOKS_HELP "While reading a book:\n" + \
+        "  Enter or + : turn to the next page.\n" + \
+        "  -          : go back to the previous one.\n" + \
+        "  <number>   : go to that page.\n" + \
+        "  h          : show this help.\n" + \
+        "  q          : close the book (anything else does too).\n"
+#define _LANG_BOOKS_FILED "%^BOLD%^You note this book down in your diary's encyclopedia " + \
+        "('encyclopedia' to read it again).%^RESET%^\n"

@@ -80,16 +80,18 @@
 
 #define _LANG_DIARY_NAME "diario"
 #define _LANG_DIARY_SHORT "Diario"
-#define _LANG_DIARY_ALIAS ({ "diario", "libro" })
+#define _LANG_DIARY_ALIAS ({ "diario" })
 #define _LANG_DIARY_PLURAL "Diarios"
 #define _LANG_DIARY_PLURALS ({ "diarios" })
 #define _LANG_DIARY_LONG "Un libro gastado donde anotas tus aventuras y viajes. " + \
     "Escribe '%^BOLD%^diario explorador%^RESET%^' para ver los lugares que has descubierto.\n"
 #define _LANG_DIARY_VERBS ({ "diario" })
 #define _LANG_DIARY_EXPLORER_SUBVERBS ({ "explorador", "exploracion", "exploración", "lugares" })
-#define _LANG_DIARY_PENDING_SUBVERBS ({ "viajes", "enciclopedia" })
+#define _LANG_DIARY_PENDING_SUBVERBS ({ "viajes" })
 #define _LANG_DIARY_HELP "El diario recoge tus andanzas. Comandos:\n" + \
-    "\tdiario explorador  - lista los lugares que has descubierto.\n"
+    "\tdiario explorador  - lista los lugares que has descubierto.\n" + \
+    "\tenciclopedia       - lista los libros que has leído.\n" + \
+    "\tenciclopedia <num> - vuelve a leer uno de ellos.\n"
 #define _LANG_DIARY_DEAD "Estando muerto no puedes hacer eso.\n"
 #define _LANG_DIARY_WHAT "¿Qué quieres consultar en el diario? Prueba 'diario explorador'.\n"
 #define _LANG_DIARY_NOT_YET "Esa sección del diario aún está en blanco.\n"
@@ -98,6 +100,12 @@
 #define _LANG_DIARY_EXPLORER_COUNT_PRE "\nEn total, has visitado "
 #define _LANG_DIARY_PLACE_SG "lugar"
 #define _LANG_DIARY_PLACE_PL "lugares"
+#define _LANG_DIARY_ENCYCLOPEDIA_VERBS ({ "enciclopedia" })
+#define _LANG_DIARY_ENCYCLOPEDIA_EMPTY "La enciclopedia de tu diario aún está en blanco: anota en ella cada libro que leas hasta el final.\n"
+#define _LANG_DIARY_ENCYCLOPEDIA_HEADER "Has anotado en tu enciclopedia los siguientes libros:\n\n"
+#define _LANG_DIARY_ENCYCLOPEDIA_FOOTER "\nUsa 'enciclopedia <número>' para volver a leer uno.\n"
+#define _LANG_DIARY_ENCYCLOPEDIA_LOST "Un libro del que ya no recuerdas nada"
+#define _LANG_DIARY_ENCYCLOPEDIA_NO_SUCH "No tienes ese libro en la enciclopedia. Usa 'enciclopedia' para ver la lista.\n"
 
 // mailer.c
 
@@ -350,3 +358,15 @@
 #define _LANG_MOVABLE_ALREADY "No hay nada más que apartar; el paso sigue a la vista.\n"
 #define _LANG_MOVABLE_MOVED_ME "Lo apartas y dejas al descubierto un paso.\n"
 #define _LANG_MOVABLE_MOVED_ROOM "aparta algo y deja al descubierto un paso.\n"
+
+// book. `title` is the title of its text
+
+#define _LANG_BOOK_NAME "libro"
+#define _LANG_BOOK_ALIASES ({ "libro", "tomo" })
+#define _LANG_BOOK_PLURAL "libros"
+#define _LANG_BOOK_PLURALS ({ "libros", "tomos" })
+#define _LANG_BOOK_SHORT "libro"
+#define _LANG_BOOK_LONG "Un libro de tapas gastadas. Puedes 'leer libro'.\n"
+#define _LANG_BOOK_SHORT_TITLED "libro «" + title + "»"
+#define _LANG_BOOK_LONG_TITLED "Un libro de tapas gastadas. En la cubierta se lee: «" + \
+        title + "». Puedes 'leer libro'.\n"

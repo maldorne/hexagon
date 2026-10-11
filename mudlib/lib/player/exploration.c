@@ -7,7 +7,7 @@
 //
 //   exploration_data = ([ game : ([ EXP_AREAS    : ({ area paths }),
 //                                    EXP_ANCHORS  : ([ name : destination ]),
-//                                    EXP_ARTICLES : ({ article ids }) ]) ])
+//                                    EXP_ARTICLES : ({ book text paths }) ]) ])
 //
 // Redesigned from the CcMud explorers handler (Folken 2009): Hexagon stores the
 // stable area path (not a narrative name), so no global name->id registry is
@@ -212,26 +212,27 @@ string query_travel_destination(string game, string name)
 
 // --- Encyclopedia articles ------------------------------------------------
 
-// Record that the player has collected an encyclopedia article (by id) in a
-// game. Returns 1 only when newly recorded.
-int add_wiki_article(string game, int id)
+// Record that the player has read a book in a game, by the path of its text
+// (see /lib/handlers/books.c), in the order they read them. Returns 1 only
+// when newly recorded.
+int add_encyclopedia_article(string game, string path)
 {
   mapping g;
 
-  if (!game || id <= 0)
+  if (!game || !path || !strlen(path))
     return 0;
 
   g = game_data(game);
 
-  if (member_array(id, g[EXP_ARTICLES]) != -1)
+  if (member_array(path, g[EXP_ARTICLES]) != -1)
     return 0;
 
-  g[EXP_ARTICLES] += ({ id });
+  g[EXP_ARTICLES] += ({ path });
   save_exploration();
   return 1;
 }
 
-int * query_wiki_articles(string game)
+string * query_encyclopedia_articles(string game)
 {
   load_exploration();
 
