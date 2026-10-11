@@ -61,12 +61,16 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
     master = load_object("/games/" + game + "/master.c");
 
     // the welcome is a drawing of the game's name, framed and centred, with
-    // a blank line on each side; without one, a line names the game
-    if (file_exists(welcome))
-      write("\n" + handler("frames")->centred_frame(read_file(welcome),
-              _LANG_START_WELCOME_TITLE, "default", 1) + "\n");
-    else if (master)
-      write(_LANG_START_CONNECTING_GAME);
+    // a blank line on each side; without one, a line names the game. Test
+    // characters, driven by tools, skip it.
+    if (!name || strlen(name) < 4 || name[0..3] != "test")
+    {
+      if (file_exists(welcome))
+        write("\n" + handler("frames")->centred_frame(read_file(welcome),
+                _LANG_START_WELCOME_TITLE, "default", 1) + "\n");
+      else if (master)
+        write(_LANG_START_CONNECTING_GAME);
+    }
   }
   
   start_player(reconnected);
