@@ -361,6 +361,8 @@ void add_location(string location_file_name, mapping location_data)
 void remove_location(string location_file_name)
 {
   map_delete(locations, location_file_name);
+  // the NPCs its room declared go with it, or the caps would go on counting them
+  this_object()->set_location_original_sources(location_file_name, ([ ]));
   save_me();
 }
 
