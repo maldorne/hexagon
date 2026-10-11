@@ -238,6 +238,7 @@ int set_in_use(int i)
   int count;
 
   count = 0;
+  // every refusal below puts it back
   in_use = i;
 
   // Taniwha, see if there is any cute stuff
@@ -255,6 +256,7 @@ int set_in_use(int i)
       tell_object(environment(this_object()),"Sientes un extraño remordimiento al coger "+
                  (this_object()->query_gender()?(this_object()->query_article()+" "):"tu")+
                  this_object()->short()+". Te ves obligado a soltarlo.\n");
+      in_use = 0;
       return 0;
     }
   }
@@ -268,6 +270,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de una raza "+
                     "concreta para que puedas usarlo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -279,6 +282,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de una clase "+
                     "concreta para que puedas usarlo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -290,6 +294,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de un gremio "+
                     "concreto para que puedas usarlo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -301,6 +306,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de un oficio "+
                     "concreto para que puedas usarlo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -312,6 +318,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de un grupo "+
                     "racial concreto para que puedas usarlo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -323,6 +330,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de un grupo "+
                     "concreto para que puedas usarlo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -334,6 +342,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto requiere que adores a una deidad "+
                     "concreta para que puedas usarlo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -345,6 +354,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto requiere que tengas una ciudadanía "+
                     "concreta para que puedas usarlo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -356,6 +366,7 @@ int set_in_use(int i)
       {
         tell_object(environment(this_object()), "Este objeto esta diseñado para alguien "+
                      "de otro sexo.\n");
+        in_use = 0;
         return 0;
       }
     }
@@ -417,6 +428,8 @@ int set_in_use(int i)
 
       tell_object(environment(this_object()),"Lo siento, "+
            (string)this_object()->short()+ " está maldito.\n");
+      // a cursed item stays on
+      in_use = 1;
       return 1;
     }
 
