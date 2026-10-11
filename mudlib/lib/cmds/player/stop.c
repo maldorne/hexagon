@@ -18,9 +18,8 @@ void setup()
 
 int stop_following(object me)
 {
-  me->add_static_property(STOP_FOLLOWING_PROP, 1);
-  // the message is shown by the follow skill
-  // tell_object(me, "Ok, you stop following...\n");
+  // the living itself tells both ends
+  me->stop_following();
   return 1;
 }
 
@@ -79,7 +78,7 @@ static int cmd(string str, object me, string verb)
 
   if (member_array(str, _LANG_CMD_STOP_FOLLOW_OPTIONS) != -1)
   {
-    if (!me->query_property(FOLLOWING_PROP))
+    if (!me->query_following())
     {
       notify_fail(_LANG_CMD_STOP_NOT_FOLLOWING);
       return 0;

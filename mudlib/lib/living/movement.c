@@ -188,6 +188,9 @@ int move_living(string dir, mixed dest, varargs mixed message, mixed enter)
 
   if (!dir || dir == "X")
     return 1;
+
+  // whoever follows this living goes the same way
+  this_object()->drag_followers(dir, last);
   // else if (no_see)
   //   return ({ });
 

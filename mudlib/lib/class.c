@@ -29,6 +29,8 @@ int combat_bonus;
 // Defines xp_type:percentage
 // xp_types = ([ "combat":"100", "magic":"20", ]), ...
 mapping xp_types;
+// skill id -> the ability a character of this class has in it at least
+mapping starting_skills;
 
 // what a level costs: level_xp_cost x level x level_xp_growth ^ (level - 5)
 int level_xp_cost;
@@ -56,6 +58,7 @@ void create(){
   class_commands = ({ });
   legal_races = ({ });
   xp_types = ([ ]);
+  starting_skills = ([ ]);
   level_xp_cost = DEFAULT_LEVEL_XP_COST;
   level_xp_growth = DEFAULT_LEVEL_XP_GROWTH;
   hp_bonus = 0;
@@ -94,11 +97,22 @@ int add_class_command(string name, int add_if_player)
 void start_player(object pl) 
 {
    int i;
+   string * ids;
    if (!pointerp(class_commands))
       class_commands = ({ });
    for (i = 0; i < sizeof(class_commands);i+=2)
       if (class_commands[i+1][0] || !interactive(pl))
          pl->add_known_command(class_commands[i]);
+
+   // the skills the class starts its members with, at least at that ability
+   ids = map_indices(starting_skills);
+   for (i = 0; i < sizeof(ids); i++)
+   {
+      pl->add_known_skill(ids[i], 1);
+      if (pl->query_skill_ability(ids[i]) < starting_skills[ids[i]])
+         pl->adjust_skill_ability(ids[i],
+            starting_skills[ids[i]] - pl->query_skill_ability(ids[i]), 1);
+   }
 }
 
 void on_death(object player, varargs object killer)
@@ -160,6 +174,11 @@ int query_max_level(){
 
 // Xp types system, neverbot 07/04
 mapping query_xp_types(){ return xp_types; }
+
+// The ability a character of this class starts with in a skill: start_player
+// teaches it and raises a lower ability to this one.
+void set_starting_skill(string id, int ability) { starting_skills[id] = ability; }
+mapping query_starting_skills() { return ([ ]) + starting_skills; }
 void set_xp_types(mapping types){
    xp_types += types;
 }

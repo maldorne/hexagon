@@ -209,8 +209,8 @@
 // stop
 
 #define _LANG_CMD_STOP_ALIAS ({ "stop" })
-#define _LANG_CMD_STOP_SYNTAX "stop <fights | follows>"
-#define _LANG_CMD_STOP_HELP "Stops your pending fights or chases."
+#define _LANG_CMD_STOP_SYNTAX "stop <fights | following>"
+#define _LANG_CMD_STOP_HELP "Stops your pending fights, or stops following whoever you follow."
 #define _LANG_CMD_STOP_NOT_FIGHTING "You are not fighting with anyone.\n"
 #define _LANG_CMD_STOP_MSG "You stop fighting with " + query_multiple_short(obs)+".\n"
 #define _LANG_CMD_STOP_FOLLOW_OPTIONS ({ "follow", "follows", "following", "followings", "chase", "chases", "chasings" })

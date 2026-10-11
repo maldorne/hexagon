@@ -208,11 +208,11 @@
 // stop
 
 #define _LANG_CMD_STOP_ALIAS ({ "detener", "stop" })
-#define _LANG_CMD_STOP_SYNTAX "detener <combates | persecuciones>"
-#define _LANG_CMD_STOP_HELP "Detiene tus combates pendientes o persecuciones en marcha."
+#define _LANG_CMD_STOP_SYNTAX "detener <combates | seguimiento>"
+#define _LANG_CMD_STOP_HELP "Detiene tus combates pendientes, o deja de seguir a quien sigues."
 #define _LANG_CMD_STOP_NOT_FIGHTING "No estás luchando con nadie.\n"
 #define _LANG_CMD_STOP_MSG "Has dejado de luchar con " + query_multiple_short(obs)+".\n"
-#define _LANG_CMD_STOP_FOLLOW_OPTIONS ({ "persecuciones", "persecución", "persecucion", "seguir" })
+#define _LANG_CMD_STOP_FOLLOW_OPTIONS ({ "seguimiento", "seguimientos", "seguir", "persecuciones", "persecución", "persecucion" })
 #define _LANG_CMD_STOP_NOT_FOLLOWING "No estás siguiendo a nadie en estos momentos.\n"
 #define _LANG_CMD_STOP_FIGHT_OPTIONS ({ "combates", "peleas" })
 #define _LANG_CMD_STOP_FIGHTS_OK "Ok. Deteniendo combates, tardará un poco...\n"

@@ -50,6 +50,13 @@ void create()
     // reaches water or a coast picks it up, then it climbs with use.
     SKILL_SWIM :
       ({ SKILLS_PATH + SKILL_SWIM, 10, 0, ACTIVE_SKILL, }),
+
+    // active skills: 'follow <somebody>' and 'evade [somebody]', rolled one
+    // against the other. Every player has both from the start.
+    SKILL_FOLLOW :
+      ({ SKILLS_PATH + SKILL_FOLLOW, 10, 0, ACTIVE_SKILL, }),
+    SKILL_EVADE :
+      ({ SKILLS_PATH + SKILL_EVADE, 10, 0, ACTIVE_SKILL, }),
   ]);
 }
 

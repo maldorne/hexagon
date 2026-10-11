@@ -42,6 +42,7 @@ inherit spells    "/lib/living/spells";
 inherit consent   "/lib/living/consent";
 inherit party     "/lib/living/party";
 inherit visited   "/lib/living/visited";
+inherit follow    "/lib/living/follow";
 inherit comm      "/lib/living/communicate";
 
 int hb_counter;
@@ -412,6 +413,7 @@ mixed * stats()
          spells::stats() +
          consent::stats() +
          visited::stats() +
+         follow::follow_stats() +
          comm::stats() +
          movement::stats();
 }

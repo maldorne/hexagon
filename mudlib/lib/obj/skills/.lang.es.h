@@ -115,3 +115,34 @@
 #define _LANG_SKILL_SWIM_NOT_THERE "No puedes nadar hacia ahí.\n"
 #define _LANG_SKILL_SWIM_WHICH_WAY "Hay agua hacia más de un lado: nadar <dirección>.\n"
 #define _LANG_SKILL_SWIM_ROUND1 "Coges aire y das las primeras brazadas.\n"
+
+#define _LANG_SKILL_FOLLOW_NAME "seguir"
+#define _LANG_SKILL_FOLLOW_ALIASES ({ })
+#define _LANG_SKILL_FOLLOW_HELP "Con 'seguir <alguien>' vas a donde vaya esa persona, " + \
+      "por la misma salida y justo detrás, pase lo que pase. Si tiene activado el " + \
+      "permiso de que la sigan, la sigues sin más; si no, tu habilidad se mide " + \
+      "contra la suya de despistar, y si fallas te da esquinazo. A quien está " + \
+      "escondido no se le puede seguir: primero hay que encontrarle. Dejas de " + \
+      "seguir con 'detener seguimiento'.\n"
+#define _LANG_SKILL_FOLLOW_NOBODY "No ves a nadie así a quien seguir.\n"
+#define _LANG_SKILL_FOLLOW_ALREADY "Ya le estás siguiendo.\n"
+#define _LANG_SKILL_FOLLOW_CIRCLE "No puedes seguir a quien ya te va siguiendo.\n"
+#define _LANG_SKILL_FOLLOW_ME "Empiezas a seguir a " + target->query_cap_name() + ".\n"
+#define _LANG_SKILL_FOLLOW_TARGET caster->query_cap_name() + " empieza a seguirte.\n"
+#define _LANG_SKILL_FOLLOW_ROOM caster->query_cap_name() + " empieza a seguir a " + \
+      target->query_cap_name() + ".\n"
+#define _LANG_SKILL_FOLLOW_FAIL_ME target->query_cap_name() + " te da esquinazo.\n"
+#define _LANG_SKILL_FOLLOW_FAIL_TARGET caster->query_cap_name() + \
+      " intenta seguirte, pero le das esquinazo.\n"
+
+#define _LANG_SKILL_EVADE_NAME "despistar"
+#define _LANG_SKILL_EVADE_ALIASES ({ "perder" })
+#define _LANG_SKILL_EVADE_HELP "Con 'despistar' intentas quitarte de encima a quienes " + \
+      "te siguen y están contigo, y con 'despistar <alguien>' solo a esa persona. " + \
+      "Tu habilidad se mide contra la suya de seguir. Cuanto mejor despistas, más " + \
+      "difícil es seguirte.\n"
+#define _LANG_SKILL_EVADE_NOBODY "Nadie de los que están aquí te va siguiendo.\n"
+#define _LANG_SKILL_EVADE_ME "Das esquinazo a " + follower->query_cap_name() + ".\n"
+#define _LANG_SKILL_EVADE_FOLLOWER caster->query_cap_name() + \
+      " te da esquinazo y le pierdes la pista.\n"
+#define _LANG_SKILL_EVADE_FAIL_ME follower->query_cap_name() + " no te pierde de vista.\n"

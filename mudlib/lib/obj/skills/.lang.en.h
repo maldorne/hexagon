@@ -114,3 +114,34 @@
 #define _LANG_SKILL_SWIM_NOT_THERE "You cannot swim that way.\n"
 #define _LANG_SKILL_SWIM_WHICH_WAY "There is water more than one way: swim <direction>.\n"
 #define _LANG_SKILL_SWIM_ROUND1 "You take a breath and start swimming.\n"
+
+#define _LANG_SKILL_FOLLOW_NAME "follow"
+#define _LANG_SKILL_FOLLOW_ALIASES ({ })
+#define _LANG_SKILL_FOLLOW_HELP "With 'follow <somebody>' you go wherever they go, " + \
+      "by the same exit and right behind, whatever happens. If they let anybody " + \
+      "follow them, you just do; if not, your skill is rolled against their evade " + \
+      "skill, and on a failure they shake you off. Somebody hidden cannot be " + \
+      "followed: they have to be found first. You stop following with 'stop " + \
+      "following'.\n"
+#define _LANG_SKILL_FOLLOW_NOBODY "You see nobody like that to follow.\n"
+#define _LANG_SKILL_FOLLOW_ALREADY "You are already following them.\n"
+#define _LANG_SKILL_FOLLOW_CIRCLE "You cannot follow somebody who is already following you.\n"
+#define _LANG_SKILL_FOLLOW_ME "You start following " + target->query_cap_name() + ".\n"
+#define _LANG_SKILL_FOLLOW_TARGET caster->query_cap_name() + " starts following you.\n"
+#define _LANG_SKILL_FOLLOW_ROOM caster->query_cap_name() + " starts following " + \
+      target->query_cap_name() + ".\n"
+#define _LANG_SKILL_FOLLOW_FAIL_ME target->query_cap_name() + " shakes you off.\n"
+#define _LANG_SKILL_FOLLOW_FAIL_TARGET caster->query_cap_name() + \
+      " tries to follow you, but you shake them off.\n"
+
+#define _LANG_SKILL_EVADE_NAME "evade"
+#define _LANG_SKILL_EVADE_ALIASES ({ "lose" })
+#define _LANG_SKILL_EVADE_HELP "With 'evade' you try to shake off those who follow you " + \
+      "and are with you, and with 'evade <somebody>' only that one. Your skill is " + \
+      "rolled against their follow skill. The better you evade, the harder you are " + \
+      "to follow.\n"
+#define _LANG_SKILL_EVADE_NOBODY "Nobody here is following you.\n"
+#define _LANG_SKILL_EVADE_ME "You shake off " + follower->query_cap_name() + ".\n"
+#define _LANG_SKILL_EVADE_FOLLOWER caster->query_cap_name() + \
+      " shakes you off and you lose their trail.\n"
+#define _LANG_SKILL_EVADE_FAIL_ME follower->query_cap_name() + " does not lose sight of you.\n"

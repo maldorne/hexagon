@@ -1,5 +1,6 @@
 // files for classes, neverbot 6/03
 
+#include <living/skills.h>
 #include <user/xp.h>
 #include <language.h>
 #include <living/classes.h>
@@ -8,6 +9,10 @@ inherit "/lib/class.c";
 
 void setup()
 {
+   // following and shaking off a follower come with the trade
+   set_starting_skill(SKILL_FOLLOW, 40);
+   set_starting_skill(SKILL_EVADE, 40);
+
    set_name(_LANG_EXPLORER_CLASS_NAME);
    set_class_id(CLASS_EXPLORER);
    set_short(capitalize(_LANG_EXPLORER_CLASS_NAME));
