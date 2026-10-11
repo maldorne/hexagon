@@ -81,6 +81,12 @@ static int cmd(string str, object me, string verb)
   {
     str = filenames[loop];
 
+    // a wildcard also matches what cannot be cloned (directories, headers such
+    // as the .lang files): only LPC sources are cloned
+    if (sizeof(filenames) > 1 &&
+        (strlen(str) < 3 || str[strlen(str) - 2 ..] != ".c"))
+      continue;
+
     if (file_size(str) < 0)
     {
       notify_fail("There are no files with that name.\n");
