@@ -112,8 +112,9 @@ void pile_in(object ob, object ob1)
 }
 
 // Whether somebody fits a description of livings, the shape both the loved and
-// the hated lists are written in: a race, a guild, a member of a guild other
-// than the ones named (other_guild: somebody with no guild does not match), a
+// the hated lists are written in: a race, any race but the ones named
+// (other_race), a guild, a member of a guild other than the ones named
+// (other_guild: somebody with no guild does not match), a
 // group, a race group, a name, a deity, a citizenship, or simply a property
 // they carry. Each key holds one value or a list of them, and any match is
 // enough.
@@ -130,6 +131,14 @@ int matches_group(mapping description, object who)
     return 1;
   if (stringp(list) && (string)list == (string)who->query_race_id()) return 1;
   if (stringp(list) && (string)list == (string)who->query_base_race_id()) return 1;
+
+  list = description["other_race"];
+  if (stringp(list))
+    list = ({ list });
+  if (pointerp(list) &&
+      (member_array(who->query_race_id(), list) == -1) &&
+      (member_array(who->query_base_race_id(), list) == -1))
+    return 1;
 
   list = description["guild"];
   if (pointerp(list) && member_array(who->query_guild_name(), list) != -1) return 1;
