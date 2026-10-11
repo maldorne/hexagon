@@ -19,6 +19,17 @@ void create()
   events::create();
 }
 
+// A name as this player sees it, coloured.
+private string leader_as_seen(object leader)
+{
+  string color, name;
+
+  // change player appereance from /handler/pov.c, neverbot 10/04
+  color = (string)POV->query_color(this_object(), leader);
+  name = (string)POV->query_name_changed(this_object(), leader);
+  return strlen(color) ? color + name + "%^RESET%^" : name;
+}
+
 // The mover's name in a movement message, seen as this player sees them: only
 // its first appearance, which is the mover, since the message may name
 // somebody else whose name contains it.
@@ -71,6 +82,10 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
       else
         msg = replace_mover_name(msg, ob->query_cap_name(), new_name);
 
+      // $L, in the message of somebody following another, is that other one
+      if (ob->query_following())
+        msg = replace_string(msg, "$L", leader_as_seen(ob->query_following()));
+
       // wrapped to the screen: a long message would go out as one line.
       // Colour tags become escapes first, so they take no width
       tell_object(this_object(), wrap(fix_string(msg), this_object()->user() ?
@@ -119,6 +134,10 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
           color + new_name + "%^RESET%^");
       else
         msg = replace_mover_name(msg, ob->query_cap_name(), new_name);
+
+      // $L, in the message of somebody following another, is that other one
+      if (ob->query_following())
+        msg = replace_string(msg, "$L", leader_as_seen(ob->query_following()));
 
       // wrapped to the screen: a long message would go out as one line.
       // Colour tags become escapes first, so they take no width

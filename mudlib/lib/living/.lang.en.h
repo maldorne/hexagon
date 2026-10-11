@@ -433,6 +433,6 @@
 #define _LANG_FOLLOW_STOP_LEADER this_object()->query_cap_name() + " stops following you.\n"
 #define _LANG_FOLLOW_LOST_ME "You have lost the trail of " + name + ".\n"
 #define _LANG_FOLLOW_GO_ME "You follow " + name + " towards " + ROOM_HAND->query_exit_dir(dir) + ".\n"
-#define _LANG_FOLLOW_GO_LEAVE "$N follows " + name + " towards $T."
-#define _LANG_FOLLOW_GO_ARRIVE "$N arrives following " + name + "."
+#define _LANG_FOLLOW_GO_LEAVE "$N follows $L towards $T."
+#define _LANG_FOLLOW_GO_ARRIVE "$N arrives following $L."
 #define _LANG_FOLLOW_GO_FAILED "You cannot follow " + name + ".\n"
