@@ -49,8 +49,10 @@ private string help_page(string name, string kind, string subtitle,
   string title, out;
 
   title = name + " (" + kind + ")";
+  body = body_of(body);
 
-  out = "\n" + fix_string(_LANG_HELP_TITLE(name, kind)) + "\n" +
+  // two newlines: the pager drops the first, the second leaves a blank line
+  out = "\n\n" + fix_string(_LANG_HELP_TITLE(name, kind)) + "\n" +
         sprintf("%p%*s", '=', strlen(title, TRUE), "") + "\n";
 
   if (strlen(subtitle))
@@ -69,6 +71,10 @@ private string help_page(string name, string kind, string subtitle,
   }
   else
     out += body + "\n";
+
+  // never two blank lines in a row
+  while (sizeof(explode("x" + out + "x", "\n\n\n")) > 1)
+    out = replace_string(out, "\n\n\n", "\n\n");
 
   return out;
 }
