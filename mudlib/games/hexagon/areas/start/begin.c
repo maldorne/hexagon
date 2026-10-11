@@ -86,6 +86,16 @@ int do_play(string str)
   handler("games")->start_demo(this_player(), games[i]);
 
   write("\n" + _LANG_PLAY_START + "\n");
+
+  // a character that already has a class is carried through the start rooms
+  // unseen, as a transfer is, and shown only the room where it stops
+  if (this_player()->query_class_ob())
+  {
+    this_player()->add_timed_property(PASSING_THROUGH_PROP, 1, 60);
+    this_player()->move(path);
+    return 1;
+  }
+
   this_player()->move(path);
   this_player()->do_look();
   return 1;
