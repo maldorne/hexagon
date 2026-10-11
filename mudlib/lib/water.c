@@ -51,6 +51,18 @@ string query_dirs_string()
 string query_short_exit_string() { return ""; }
 string query_glance_string() { return query_water_look(this_player()); }
 
+// Above what is here, how to swim on: a look asks with "", a glance with
+// nothing, and a glance has its own line.
+string query_contents(varargs string str, object * obs)
+{
+  string ret;
+
+  ret = room::query_contents(str, obs);
+  if (!stringp(str) || strlen(str))
+    return ret;
+  return query_water_hint(this_player()) + ret;
+}
+
 mixed * stats()
 {
   return room::stats() + water_stats();

@@ -220,6 +220,12 @@ string query_water_look(object who)
   return _LANG_WATER_SHORE + query_multiple_short(shores) + ".\n";
 }
 
+// A line under the description: that one is in the water, and how to swim.
+string query_water_hint(object who)
+{
+  return _LANG_WATER_LOOK;
+}
+
 // Whoever comes into moving water and does not swim on is carried off by it
 // after a while. Anybody who reaches water knows from then on how to swim.
 void water_event_enter(object ob)

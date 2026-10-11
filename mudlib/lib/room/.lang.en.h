@@ -20,3 +20,4 @@
 #define _LANG_COAST_SWIM_MESS "$N wades into the water and swims towards $T."
 #define _LANG_COAST_LOOK "You are on the shore. Type 'swim' to get into the water.\n"
 #define _LANG_COAST_GLANCE "You are on the shore.\n"
+#define _LANG_WATER_LOOK "You are in the water. Type 'swim <direction>' to move on.\n"
