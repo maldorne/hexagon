@@ -365,8 +365,9 @@
 #define _LANG_BOOK_ALIASES ({ "book", "tome" })
 #define _LANG_BOOK_PLURAL "books"
 #define _LANG_BOOK_PLURALS ({ "books", "tomes" })
-#define _LANG_BOOK_SHORT "book"
-#define _LANG_BOOK_LONG "A book with worn covers. You can 'read book'.\n"
-#define _LANG_BOOK_SHORT_TITLED "book \"" + title + "\""
+#define _LANG_BOOK_SHORT "Book"
+#define _LANG_BOOK_LONG "A book with worn covers.\n"
+#define _LANG_BOOK_SHORT_TITLED "Book \"" + title + "\""
 #define _LANG_BOOK_LONG_TITLED "A book with worn covers. Its cover reads: \"" + \
-        title + "\". You can 'read book'.\n"
+        title + "\".\n"
+#define _LANG_BOOK_HAS_TEXT "It seems to have something written on it.\n"

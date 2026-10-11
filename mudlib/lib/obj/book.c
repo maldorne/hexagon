@@ -8,7 +8,7 @@
 
 inherit "/lib/item.c";
 
-private string text_file;
+private string text_file, title;
 
 int query_book() { return 1; }
 
@@ -28,8 +28,6 @@ void create()
 // The text of this book: its short and its cover come from the title.
 void set_text_file(string path)
 {
-  string title;
-
   text_file = path;
   title = handler("books")->query_title(path);
 
@@ -41,6 +39,13 @@ void set_text_file(string path)
 }
 
 string query_text_file() { return text_file; }
+string query_title() { return title; }
+
+// A book says it has something written, the way anything with writing does.
+string long(varargs string str, int dark)
+{
+  return ::long(str, dark) + _LANG_BOOK_HAS_TEXT;
+}
 
 mapping query_auto_load_attributes()
 {

@@ -365,8 +365,9 @@
 #define _LANG_BOOK_ALIASES ({ "libro", "tomo" })
 #define _LANG_BOOK_PLURAL "libros"
 #define _LANG_BOOK_PLURALS ({ "libros", "tomos" })
-#define _LANG_BOOK_SHORT "libro"
-#define _LANG_BOOK_LONG "Un libro de tapas gastadas. Puedes 'leer libro'.\n"
-#define _LANG_BOOK_SHORT_TITLED "libro «" + title + "»"
+#define _LANG_BOOK_SHORT "Libro"
+#define _LANG_BOOK_LONG "Un libro de tapas gastadas.\n"
+#define _LANG_BOOK_SHORT_TITLED "Libro «" + title + "»"
 #define _LANG_BOOK_LONG_TITLED "Un libro de tapas gastadas. En la cubierta se lee: «" + \
-        title + "». Puedes 'leer libro'.\n"
+        title + "».\n"
+#define _LANG_BOOK_HAS_TEXT "Parece que tiene algo escrito.\n"
