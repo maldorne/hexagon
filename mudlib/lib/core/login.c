@@ -102,6 +102,8 @@ nomask void time_out()
 nomask void logon(object u)
 {
   // int tim;
+  string address;
+
   _user = u;
   // objects cannot change name once is set, so DONT do this
   // _user->set_name("login");
@@ -125,7 +127,10 @@ nomask void logon(object u)
 
   call_out("time_out", LOGIN_TIMEOUT);
 
-  cat(doc(WELCOME_MESSAGE));
+  // local connections can skip the banner, the options are still shown below
+  address = query_ip_number(_user);
+  if (LOCAL_LOGIN_BANNER || (address != "127.0.0.1" && address != "::1"))
+    cat(doc(WELCOME_MESSAGE));
 
   // TODO check shut object to avoid login near a shutdown
   // if (find_object("/obj/shut"))

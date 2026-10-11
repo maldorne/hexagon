@@ -10,5 +10,9 @@
 
 #define DEFAULT ACCESS
 
+// whether connections from the local machine (127.0.0.1 / ::1) get the login
+// banner; with 0 they skip it but still get the options menu
+#define LOCAL_LOGIN_BANNER 0
+
 // to avoid player login
 // #define PLAYER_LOCKOUT
