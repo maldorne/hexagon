@@ -6,7 +6,7 @@
 // A bag names its base in setup(), set_base_armour(BAGPACK) or QUIVER, and its
 // capacity with set_max_weight().
 //
-// From the CcMud wearable bag (std/wearable_bag.c), Folken.
+// 10/2026 - Ported to Hexagon, neverbot (from the CcMud std/wearable_bag.c).
 
 #include <basic/condition.h>
 #include <translations/armour.h>
