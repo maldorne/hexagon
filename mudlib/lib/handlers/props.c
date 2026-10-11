@@ -708,6 +708,48 @@ string * query_id_list(string type)
   return ({ });
 }
 
+// Whether an action would do something for this_player() on an instance with
+// these overrides and this state, by the checks the generic dispatcher makes
+// before acting: the text it shows, its blocking flags and the state it
+// requires set, unset or matching.
+private int _action_available(mapping spec, mapping overrides, mapping state)
+{
+  mapping ov_props, match;
+  string * flags, * keys;
+  int i;
+
+  if (spec[PROP_SPEC_SHOW_TEXT] &&
+      (!overrides || !stringp(overrides[spec[PROP_SPEC_SHOW_TEXT]]) ||
+       !strlen(overrides[spec[PROP_SPEC_SHOW_TEXT]])))
+    return 0;
+
+  ov_props = overrides ? overrides[PROP_OVERRIDE_PROPS] : nil;
+  flags = spec[PROP_SPEC_BLOCKED_BY];
+  for (i = 0; flags && i < sizeof(flags); i++)
+    if (state[flags[i]] || (ov_props && ov_props[flags[i]]))
+      return 0;
+
+  flags = spec[PROP_SPEC_REQUIRES_STATE];
+  for (i = 0; flags && i < sizeof(flags); i++)
+    if (!state[flags[i]])
+      return 0;
+
+  flags = spec[PROP_SPEC_REQUIRES_STATE_UNSET];
+  for (i = 0; flags && i < sizeof(flags); i++)
+    if (state[flags[i]])
+      return 0;
+
+  match = spec[PROP_SPEC_REQUIRES_STATE_MATCH];
+  keys = match ? map_indices(match) : ({ });
+  for (i = 0; i < sizeof(keys); i++)
+    if (state[keys[i]] != (match[keys[i]] == PROP_VALUE_PLAYER_NAME ?
+                           (this_player() ? this_player()->query_name() : nil) :
+                           match[keys[i]]))
+      return 0;
+
+  return 1;
+}
+
 /*
  * The verbs this type supports given the instance overrides. By
  * default returns the union of every action's PROP_SPEC_VERBS array
@@ -725,9 +767,14 @@ string * query_id_list(string type)
  * Custom blueprint may take over by returning its own list from
  * query_supported_verbs(overrides) — the primary_only mode is ignored
  * in that path; the blueprint is authoritative.
+ *
+ * With a `state` (the instance's), only the actions that would do
+ * something right now are listed, judged as the dispatcher judges them
+ * (see _action_available): the "you can" line of a lit rune offers to
+ * put it out, not to light it. The verbs still work either way.
  */
 string * query_supported_verbs(string type, mapping overrides,
-                               varargs int primary_only)
+                               varargs int primary_only, mapping state)
 {
   mapping entry;
   mapping spec;
@@ -774,6 +821,8 @@ string * query_supported_verbs(string type, mapping overrides,
       continue;
 
     action_spec = actions[canonical];
+    if (state && action_spec && !_action_available(action_spec, overrides, state))
+      continue;
     verbs = action_spec ? action_spec[PROP_SPEC_VERBS] : nil;
 
     // Backwards-compat: if the action doesn't declare an explicit

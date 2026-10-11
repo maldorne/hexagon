@@ -602,8 +602,10 @@ mapping query_hooks()
  *
  * Raw data shape; callers that need the player-facing hint wrap it
  * via query_actions_hint(), coder cmds consume this directly.
+ * `available_only` lists only the actions that would do something
+ * right now, for the player's "you can" line; coders see them all.
  */
-string query_action_verbs(mapping inst)
+string query_action_verbs(mapping inst, varargs int available_only)
 {
   string * verbs;
 
@@ -616,7 +618,9 @@ string query_action_verbs(mapping inst)
   verbs = handler("props")->query_supported_verbs(
             inst[PROP_FIELD_TYPE],
             inst[PROP_FIELD_OVERRIDES],
-            1);
+            1,
+            available_only ?
+              (inst[PROP_FIELD_STATE] ? inst[PROP_FIELD_STATE] : ([ ])) : nil);
 
   if (!verbs || !sizeof(verbs)) return "";
 
@@ -632,7 +636,7 @@ string query_actions_hint(mapping inst)
 {
   string verbs;
 
-  verbs = query_action_verbs(inst);
+  verbs = query_action_verbs(inst, 1);
   if (!strlen(verbs))
     return _LANG_PROPS_NO_ACTIONS;
 
