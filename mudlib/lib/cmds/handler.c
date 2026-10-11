@@ -413,6 +413,22 @@ int cmd(string verb, string tail, object thisob)
   return ret;
 }
 
+// The first sentence of a help text in one line, for a listing: a help often
+// breaks it across lines.
+private string first_sentence(string help)
+{
+  string * paragraphs;
+  string line, first, rest;
+
+  paragraphs = explode(help, "\n\n");
+  line = sizeof(paragraphs) ? paragraphs[0] : help;
+  line = implode(explode(line, "\n"), " ");
+
+  if (sscanf(line, "%s. %s", first, rest) == 2)
+    return first + ".";
+  return line;
+}
+
 int cmd_make_hash(int verbose)
 {
   // This goes and finds _all_ the valid commands in the listed
@@ -483,7 +499,7 @@ int cmd_make_hash(int verbose)
       help = nil;
       catch(help = cmd->query_help());
       cmd_hash[s]["help"] =
-        (stringp(help) && strlen(help)) ? explode(help, "\n")[0] : nil;
+        (stringp(help) && strlen(help)) ? first_sentence(help) : nil;
 
       for (k = 0; k < sizeof(aliases); k++)
       {
@@ -570,7 +586,7 @@ int cmd_make_hash(int verbose)
         help = nil;
         catch(help = cmd->query_help());
         cmd_hash[s]["help"] =
-          (stringp(help) && strlen(help)) ? explode(help, "\n")[0] : nil;
+          (stringp(help) && strlen(help)) ? first_sentence(help) : nil;
 
         for (l = 0; l < sizeof(aliases); l++)
         {

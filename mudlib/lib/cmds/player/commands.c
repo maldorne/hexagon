@@ -60,8 +60,17 @@ static int cmd(string str, object me, string verb)
       if (list_mode)
       {
         help = entry["help"] ? entry["help"] : "";
+        // the help wrapped in a column of its own, its lines under the first
         if (help != "")
-          result += sprintf("  %13s: %s\n", name, help);
+        {
+          string * lines;
+          int k;
+
+          lines = explode(wrap(help, me->user()->query_cols() - 17), "\n");
+          result += sprintf("  %13s: %s\n", name, sizeof(lines) ? lines[0] : "");
+          for (k = 1; k < sizeof(lines); k++)
+            result += sprintf("%17s%s\n", "", lines[k]);
+        }
         else
           result += sprintf("  %13s\n", name);
       }
