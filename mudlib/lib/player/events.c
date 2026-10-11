@@ -19,6 +19,19 @@ void create()
   events::create();
 }
 
+// The mover's name in a movement message, seen as this player sees them: only
+// its first appearance, which is the mover, since the message may name
+// somebody else whose name contains it.
+private string replace_mover_name(string msg, string name, string seen)
+{
+  string before, after;
+
+  if (!name || !strlen(name) || sscanf(msg, "%s" + name + "%s", before, after) != 2)
+    return msg;
+
+  return before + seen + after;
+}
+
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
   ::event_enter(ob, msg, from, avoid);
@@ -28,6 +41,10 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
 
   // items added to our inventory also trigger event_enter
   if (environment(ob) == this_object())
+    return;
+
+  // those following us come and go with us: we need not be told
+  if (ob->query_following() == this_object())
     return;
 
   if (avoid)
@@ -49,10 +66,10 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
       new_name = (string)POV->query_name_changed(this_object(), ob);
 
       if (strlen(color))
-        msg = replace_string(msg, ob->query_cap_name(), 
+        msg = replace_mover_name(msg, ob->query_cap_name(),
           color + new_name + "%^RESET%^");
       else
-        msg = replace_string(msg, ob->query_cap_name(), new_name);
+        msg = replace_mover_name(msg, ob->query_cap_name(), new_name);
 
       // wrapped to the screen: a long message would go out as one line.
       // Colour tags become escapes first, so they take no width
@@ -75,6 +92,10 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
   if (environment(ob) == this_object())
     return;
 
+  // those following us come and go with us: we need not be told
+  if (ob->query_following() == this_object())
+    return;
+
   if (avoid)
   {
     if (pointerp(avoid) && (member_array(this_object(), avoid) != -1))
@@ -94,10 +115,10 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
       new_name = (string)POV->query_name_changed(this_object(), ob);
 
       if (strlen(color))
-        msg = replace_string(msg, ob->query_cap_name(), 
+        msg = replace_mover_name(msg, ob->query_cap_name(),
           color + new_name + "%^RESET%^");
       else
-        msg = replace_string(msg, ob->query_cap_name(), new_name);
+        msg = replace_mover_name(msg, ob->query_cap_name(), new_name);
 
       // wrapped to the screen: a long message would go out as one line.
       // Colour tags become escapes first, so they take no width
