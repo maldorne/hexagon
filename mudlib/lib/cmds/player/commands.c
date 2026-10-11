@@ -67,12 +67,14 @@ static int cmd(string str, object me, string verb)
           int k;
 
           lines = explode(wrap(help, me->user()->query_cols() - 17), "\n");
-          result += sprintf("  %13s: %s\n", name, sizeof(lines) ? lines[0] : "");
+          // padded before the colour goes on, so the tags take no width
+          result += "  %^BOLD%^CYAN%^" + sprintf("%13s", name) + "%^RESET%^: " +
+                    (sizeof(lines) ? lines[0] : "") + "\n";
           for (k = 1; k < sizeof(lines); k++)
             result += sprintf("%17s%s\n", "", lines[k]);
         }
         else
-          result += sprintf("  %13s\n", name);
+          result += "  %^BOLD%^CYAN%^" + sprintf("%13s", name) + "%^RESET%^\n";
       }
       else
       {
