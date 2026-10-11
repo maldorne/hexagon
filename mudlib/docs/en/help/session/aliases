@@ -13,8 +13,9 @@ you press enter.
 Inside the command you can leave gaps for whatever you type after
 the alias:
 
-  $*$              everything you wrote after it.
-  $1$              the first word, $2$ the second, and so on.
+  $*$ or $arg$     everything you wrote after it.
+  $1$ or $arg1$    the first word, $2$ or $arg2$ the second, and so on.
+  $arg:something$  everything you wrote, or 'something' if you gave none.
   $arg1:something$ the first word, or 'something' if you gave none.
 
 And a semicolon chains several commands into one:
