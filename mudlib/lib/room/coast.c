@@ -50,6 +50,7 @@ string * query_swim_directions(object who)
 // Going into the water is not rolled: the strokes that count come after.
 int swim(object who, string dir)
 {
+  tell_object(who, _LANG_COAST_SWIM_ME);
   return query_coast_place()->force_exit(dir, who, _LANG_COAST_SWIM_MESS,
                                          _LANG_WATER_ARRIVE_MESS);
 }

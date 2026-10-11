@@ -21,3 +21,5 @@
 #define _LANG_COAST_LOOK "Estás en la orilla. Escribe 'nadar' para meterte en el agua.\n"
 #define _LANG_COAST_GLANCE "Estás en la orilla.\n"
 #define _LANG_WATER_LOOK "Estás en el agua. Escribe 'nadar <dirección>' para avanzar.\n"
+#define _LANG_WATER_SWIM_ME "Consigues nadar hacia " + ROOM_HAND->query_exit_dir(dir) + ".\n"
+#define _LANG_COAST_SWIM_ME "Te metes en el agua y nadas hacia " + ROOM_HAND->query_exit_dir(dir) + ".\n"

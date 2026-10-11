@@ -180,6 +180,7 @@ int swim(object who, string dir)
 
   if (chance >= 100 || random(100) + 1 <= chance)
   {
+    tell_object(who, _LANG_WATER_SWIM_ME);
     move_swimmer(who, dir, _LANG_WATER_SWIM_MESS);
     return 1;
   }
