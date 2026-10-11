@@ -15,6 +15,7 @@
 // name is resolved from the area, per instance, only when shown).
 
 #include <user/exploration.h>
+#include <areas/area.h>
 #include <user/player.h>
 #include <language.h>
 
@@ -122,6 +123,7 @@ void check_area_exploration(object location)
 {
   object area;
   string apath, game, area_display;
+  int steps;
 
   if (!location || !location->query_location())
   {
@@ -141,7 +143,13 @@ void check_area_exploration(object location)
     return;
   current_area_path = apath;
 
-  if (!area->query_gives_exploration())
+  // the nearest area up the parent chain that grants it: entering a part of a
+  // place (its farms, its tunnels) discovers the place
+  for (steps = 0; area && !area->query_gives_exploration() &&
+                  steps < AREA_MAX_ANCESTRY; steps++)
+    area = area->query_parent_area();
+
+  if (!area || !area->query_gives_exploration())
     return;
 
   area_display = area->query_exploration_name();
