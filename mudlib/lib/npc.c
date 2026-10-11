@@ -45,6 +45,8 @@ string npc_given_name;   // a generated citizen's proper name (lowercase).
                          // derived lives here, in the npc.o. Language-neutral (a
                          // proper noun does not translate). Nil for template NPCs,
                          // whose name comes from apply_template.
+// whether its template gives it a name of its own (see has_proper_name)
+static int proper_name;
 
 // Component host state. component_info (type -> persisted attrs) rides in the
 // npc.o savefile; the live instances are static and re-cloned on restore.
@@ -362,6 +364,10 @@ void set_given_name(string s)
 
 string query_given_name() { return npc_given_name; }
 
+// One particular person, from a template with a proper name: such an NPC is
+// weighed in the ranking as a player is.
+int has_proper_name() { return proper_name; }
+
 // A generated citizen is shown by its kind, not its proper name, wherever
 // query_cap_name drives the display -- room / glance lists, combat and death
 // messages, emotes -- so it never reads like a player. Its proper name
@@ -629,6 +635,8 @@ void apply_template(mapping t, varargs int born)
   if (t["gender"] && !npc_given_name)
     set_gender(t["gender"]);
   g = query_gender();
+
+  proper_name = t["proper_name"] ? 1 : 0;
 
   if (t["name"])
     set_name(gender_value(t["name"], g));

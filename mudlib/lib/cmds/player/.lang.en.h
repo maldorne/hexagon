@@ -721,3 +721,17 @@
 #define _LANG_CMD_FEEL_HELP "You touch something in the place you are in or carried, or feel the place itself."
 #define _LANG_CMD_FEEL_NOTHING_HERE "You feel nothing in particular.\n"
 #define _LANG_CMD_FEEL_NOTHING_IN "You feel nothing in particular about it.\n"
+
+// ranking
+#define _LANG_CMD_RANKING_ALIAS ({ "ranking" })
+#define _LANG_CMD_RANKING_SYNTAX "ranking"
+#define _LANG_CMD_RANKING_HELP "Shows the highest levels reached in your class, your guild and your job, by players and by the characters with a name of their own."
+#define _LANG_RANKING_LEVEL "Level"
+#define _LANG_RANKING_BROKEN "Something is wrong with the ranking.\n"
+#define _LANG_RANKING_REMOVE "remove"
+#define _LANG_RANKING_ALL "all"
+#define _LANG_RANKING_REMOVED "Removed from the ranking.\n"
+#define _LANG_RANKING_NOT_FOUND "That name is not in the ranking.\n"
+#define _LANG_RANKING_EMPTY "There is nobody in the ranking of your groups yet.\n"
+#define _LANG_RANKING_HEADER "The highest levels of your groups:\n\n"
+#define _LANG_RANKING_CODER_HINTS "Coders: 'ranking all' shows every group, 'ranking remove <name>' takes a name off all of them.\n"

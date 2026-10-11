@@ -466,8 +466,8 @@ void check_ranking()
 {
   object ranking;
 
-  // only unique npcs
-  if (!query_only_one())
+  // only unique npcs, and those that are one particular person
+  if (!query_only_one() && !this_object()->has_proper_name())
     return;
 
   // only cloned objects

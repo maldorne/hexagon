@@ -726,3 +726,17 @@
       "notas el tacto del sitio en el que estás."
 #define _LANG_CMD_FEEL_NOTHING_HERE "No notas nada especial al tacto.\n"
 #define _LANG_CMD_FEEL_NOTHING_IN "No le notas nada especial al tacto.\n"
+
+// ranking
+#define _LANG_CMD_RANKING_ALIAS ({ "ranking", "clasificacion" })
+#define _LANG_CMD_RANKING_SYNTAX "ranking"
+#define _LANG_CMD_RANKING_HELP "Muestra los niveles más altos alcanzados en tu clase, tu gremio y tu oficio, por jugadores y por los personajes con nombre propio."
+#define _LANG_RANKING_LEVEL "Nivel"
+#define _LANG_RANKING_BROKEN "Hay algún error con la clasificación.\n"
+#define _LANG_RANKING_REMOVE "quitar"
+#define _LANG_RANKING_ALL "todos"
+#define _LANG_RANKING_REMOVED "Quitado de la clasificación.\n"
+#define _LANG_RANKING_NOT_FOUND "Ese nombre no está en la clasificación.\n"
+#define _LANG_RANKING_EMPTY "Todavía no hay nadie en la clasificación de tus grupos.\n"
+#define _LANG_RANKING_HEADER "Los niveles más altos de tus grupos:\n\n"
+#define _LANG_RANKING_CODER_HINTS "Programadores: 'ranking todos' muestra todos los grupos, 'ranking quitar <nombre>' quita un nombre de todos.\n"
