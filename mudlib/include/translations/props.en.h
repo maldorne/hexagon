@@ -35,7 +35,6 @@
 // Appended under the long description on `look <prop>`. Followed by
 // the comma-separated verb list. "You can: light, extinguish."
 #define _LANG_PROPS_YOU_CAN           "You can: "
-#define _LANG_PROPS_NO_ACTIONS        "Nothing to do with this one."
 
 // ************************************************************
 //  scenery: whatever each instance says it is (short, ids, description)

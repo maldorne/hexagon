@@ -40,7 +40,6 @@
 // Se añade bajo la descripción larga en `look <prop>`. Seguido por
 // la lista de verbos separada por comas. "Puedes: encender, apagar."
 #define _LANG_PROPS_YOU_CAN           "Puedes: "
-#define _LANG_PROPS_NO_ACTIONS        "No hay nada que hacer con esto."
 
 // ************************************************************
 //  decorado: lo que cada instancia diga ser (short, ids, description)

@@ -638,8 +638,8 @@ string query_action_verbs(mapping inst, varargs int available_only)
 
 /*
  * Player-facing hint line shown under `look <prop>`:
- * `"You can: climb, lean, smell."` or the localized
- * `_LANG_PROPS_NO_ACTIONS` when nothing is available.
+ * `"You can: climb, lean, smell."`, or nothing when there is nothing
+ * to do with it right now.
  */
 string query_actions_hint(mapping inst)
 {
@@ -647,7 +647,7 @@ string query_actions_hint(mapping inst)
 
   verbs = query_action_verbs(inst, 1);
   if (!strlen(verbs))
-    return _LANG_PROPS_NO_ACTIONS;
+    return "";
 
   return _LANG_PROPS_YOU_CAN + verbs + _LANG_PROPS_LIST_TERMINATOR;
 }
