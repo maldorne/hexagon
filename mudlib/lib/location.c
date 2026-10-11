@@ -105,6 +105,9 @@ nomask int query_location() { return 1; }
 nomask int query_room() { return 1; }
 nomask int query_outside() { return !undefinedp(component_info[LOCATION_COMPONENT_OUTSIDE]); }
 nomask int query_maze() { return !undefinedp(component_info[LOCATION_COMPONENT_MAZE]); }
+nomask int query_water_environment() { return !undefinedp(component_info[LOCATION_COMPONENT_WATER]); }
+nomask int query_water() { return query_water_environment(); }
+nomask int query_coast() { return !undefinedp(component_info[LOCATION_COMPONENT_COAST]); }
 
 // allow adding and removing objects from the inventory (is a room)
 int add_weight(int n) { return 1; }
@@ -204,7 +207,33 @@ int do_exit_command(string str, varargs mixed verb, object ob)
   if (!verb) verb = query_verb();
   if (!ob) ob = this_player();
   args = run_pipeline("do_exit_command", ({ str, verb, ob }));
+  // a gate aborted the move: the dispatcher would read a missing verb as the
+  // typed one again
+  if (!args[1])
+    return 0;
   return exits::do_exit_command(args[0], args[1], args[2]);
+}
+
+// The exit lines, unless a component says them its own way (water lists where
+// one can swim instead).
+string query_dirs_string()
+{
+  string ret;
+
+  ret = (string)run_reduce("dirs_string", ({ }), "", "_concat_string");
+  if (ret && strlen(ret))
+    return ret;
+  return exits::query_dirs_string();
+}
+
+string query_short_exit_string()
+{
+  string ret;
+
+  ret = (string)run_reduce("short_exit_string", ({ }), "", "_concat_string");
+  if (ret && strlen(ret))
+    return ret;
+  return exits::query_short_exit_string();
 }
 
 string query_original_room_file_name() { return _original_room_file_name; }

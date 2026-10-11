@@ -102,3 +102,15 @@
 #define _LANG_SKILL_SLICE_ROOM caster->query_cap_name() + " hace girar sus armas y " + \
       "rebana a " + target->query_cap_name() + " con una serie de cortes rápidos " + \
       "como el rayo.\n"
+
+#define _LANG_SKILL_SWIM_NAME "nadar"
+#define _LANG_SKILL_SWIM_ALIASES ({ "bucear" })
+#define _LANG_SKILL_SWIM_HELP "Con 'nadar <dirección>' te mueves por el agua, o te " + \
+      "metes en ella desde la orilla; con 'nadar' a secas ves hacia dónde puedes " + \
+      "nadar. En el agua no se camina: cada brazada se tira contra tu habilidad, " + \
+      "y es más fácil a favor de la corriente que contra ella o en aguas " + \
+      "profundas, y más difícil cuanto más peso llevas. Si fallas tragas agua, y " + \
+      "si hay corriente te arrastra. Aprendes a nadar al llegar al agua.\n"
+#define _LANG_SKILL_SWIM_NO_WATER "Aquí no hay agua en la que nadar.\n"
+#define _LANG_SKILL_SWIM_NOT_THERE "No puedes nadar hacia ahí.\n"
+#define _LANG_SKILL_SWIM_ROUND1 "Coges aire y das las primeras brazadas.\n"

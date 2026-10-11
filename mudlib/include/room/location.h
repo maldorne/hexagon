@@ -36,6 +36,9 @@
 #define LOCATION_COMPONENT_ROAD        "road"
 #define LOCATION_COMPONENT_FOREST      "forest"
 #define LOCATION_COMPONENT_COAST       "coast"
+// A place where one swims instead of walking. See
+// /lib/location/components/water.c.
+#define LOCATION_COMPONENT_WATER       "water"
 #define LOCATION_COMPONENT_UNDERGROUND "underground"
 #define LOCATION_COMPONENT_FARM        "farm"
 // A buildable empty lot, and a dwelling raised on one. See

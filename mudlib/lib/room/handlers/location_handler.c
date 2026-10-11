@@ -833,6 +833,33 @@ object convert_room_to_location(object room)
     ret += "   Removing underground component (room is not below the surface).\n";
   }
 
+  // A room built on /lib/water.c is swum, not walked: the water component
+  // takes its settings, and a reconversion always matches the room's current
+  // ones. A room built on /lib/coast.c becomes a coast component of its kind;
+  // a coast a builder attached by hand to a plain room is left alone.
+  if (room->query_water_environment())
+  {
+    if (location->has_component(LOCATION_COMPONENT_WATER))
+      location->remove_component(LOCATION_COMPONENT_WATER);
+    location->add_component(LOCATION_COMPONENT_WATER,
+                            room->query_water_settings());
+    ret += "   Adding component water.\n";
+  }
+  else if (location->has_component(LOCATION_COMPONENT_WATER))
+  {
+    location->remove_component(LOCATION_COMPONENT_WATER);
+    ret += "   Removing water component (room is not water).\n";
+  }
+
+  if (room->query_coast())
+  {
+    if (location->has_component(LOCATION_COMPONENT_COAST))
+      location->remove_component(LOCATION_COMPONENT_COAST);
+    location->add_component(LOCATION_COMPONENT_COAST,
+                            ([ "kind": room->query_coast_kind() ]));
+    ret += "   Adding component coast.\n";
+  }
+
   // Entry triggers the room declares (add_entry_trigger) become a trigger
   // component; the room's list is the source, so a reload replaces it.
   if (sizeof(room->query_entry_triggers()))

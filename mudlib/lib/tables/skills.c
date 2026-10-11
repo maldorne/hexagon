@@ -45,6 +45,11 @@ void create()
     // weapons. A warrior's trade: taught, not picked up.
     SKILL_SLICE :
       ({ SKILLS_PATH + SKILL_SLICE, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: 'swim <direction>' in water. Nobody teaches it: whoever
+    // reaches water or a coast picks it up, then it climbs with use.
+    SKILL_SWIM :
+      ({ SKILLS_PATH + SKILL_SWIM, 10, 0, ACTIVE_SKILL, }),
   ]);
 }
 
