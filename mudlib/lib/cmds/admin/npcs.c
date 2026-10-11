@@ -23,8 +23,8 @@ private string seen_from(object area);
 void setup()
 {
   set_aliases(({ "npcs" }));
-  set_usage("npcs [ list [type] | roster | live | populate | orphans [apply] |\n" +
-            "            verify [apply] | retemplate [apply] |\n" +
+  set_usage("npcs [ list [type] | roster | live | populate | rekit [type] |\n" +
+            "            orphans [apply] | verify [apply] | retemplate [apply] |\n" +
             "            template check [type] ]");
   set_help(
     "Report on the people of the area you are standing in.\n" +
@@ -37,6 +37,11 @@ void setup()
     "  npcs populate        top the area up to its caps now, without waiting\n" +
     "                       for the sweep, and bring the new arrivals into the\n" +
     "                       locations already loaded\n" +
+    "  npcs rekit [type]    give the people of the census (or of one type) the\n" +
+    "                       weapons and armour their template, or their job,\n" +
+    "                       gives now; the old ones are taken away. Anonymous\n" +
+    "                       monsters need none: they take the template on every\n" +
+    "                       load\n" +
     "  npcs orphans [apply] people the area no longer accounts for\n" +
     "  npcs verify [apply]  audit the game's NPC savefiles against the census\n" +
     "  npcs template check [type]\n" +
@@ -777,6 +782,47 @@ private int do_populate(object area, object me)
   return 1;
 }
 
+// Re-roll the kit of everybody on the books, or of one type. The work is the
+// area's; this only walks the census and reports.
+private int do_rekit(object area, object me, string want)
+{
+  mapping census, e;
+  string * ids, * kit, * shorts;
+  string kind, name;
+  int i, j, done;
+
+  census = (mapping)area->query_npc_census();
+  ids = map_indices(census);
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    e = census[ids[i]];
+    kind = e["source"] ? get_path_file_name(e["source"]) : "-";
+    if (strlen(want) && kind != want)
+      continue;
+
+    kit = (string *)area->rekit_npc(ids[i]);
+    name = e["name"] ? e["name"] : kind_of(area, e["source"]);
+    if (!kit)
+    {
+      write(name + " (" + kind + "): could not be loaded, left as is.\n");
+      continue;
+    }
+
+    shorts = allocate(sizeof(kit));
+    for (j = 0; j < sizeof(kit); j++)
+      shorts[j] = get_path_file_name(kit[j]);
+
+    done++;
+    write(name + " (" + kind + "): " +
+          (sizeof(kit) ? implode(shorts, ", ") : "nothing") + "\n");
+  }
+
+  write("" + done + " person(s) re-kitted" +
+        (strlen(want) ? " of type '" + want + "'" : "") + ".\n");
+  return 1;
+}
+
 private int do_verify(object me, string * args)
 {
   object env;
@@ -839,6 +885,8 @@ static int cmd(string str, object me, string verb)
   if (args[0] == "list")
     return do_list(area, me,
                    sizeof(args) > 1 ? args[1] : "");
+  if (args[0] == "rekit")
+    return do_rekit(area, me, sizeof(args) > 1 ? args[1] : "");
 
   // every report is about the area under our feet, so none of them takes one
   // as an argument; a stray word means the caller expected otherwise and
@@ -873,6 +921,7 @@ static int cmd(string str, object me, string verb)
     return do_template_check(area, me, args);
 
   notify_fail("Usage: npcs [ list [type] | roster | live | populate | " +
+              "rekit [type] | " +
               "template check [type] | orphans [apply] | verify [apply] | " +
               "retemplate [apply] ]\n");
   return 0;

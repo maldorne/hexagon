@@ -477,6 +477,76 @@ void unload_npc(object npc)
     npc->dest_me();
 }
 
+// Give a person the kit their template (or their job, by the same rule as at
+// birth) gives now. A kit is rolled once and carried for life, so a change to a
+// template's equipment never reaches people already born; this replaces what
+// they carry of it. Weapons, armour and shields are taken to be the old kit and
+// are unequipped and destroyed; money and anything else they carry stays. A
+// person in the world is dressed at once; one out of it is read from disk,
+// changed, saved and let go, and is dressed when they are placed. Returns the
+// paths of the new kit, or nil for somebody who cannot be loaded.
+string * rekit_npc(string id)
+{
+  mapping entry, job, t;
+  mixed * equipment;
+  object npc, * carried;
+  string * kit;
+  int i, loaded;
+
+  entry = query_npc_census()[id];
+  if (!entry)
+    return nil;
+
+  loaded = (find_living(id) != nil);
+  npc = load_npc(id);
+  if (!npc)
+    return nil;
+
+  // take away the old kit, unequipping it first so nothing keeps counting it
+  carried = all_inventory(npc);
+  for (i = 0; i < sizeof(carried); i++)
+  {
+    if (!carried[i])
+      continue;
+    if (!carried[i]->query_weapon() && !carried[i]->query_armour() &&
+        !carried[i]->query_shield())
+      continue;
+
+    if (member_array(carried[i], (object *)npc->query_held_ob()) != -1)
+      npc->unhold_ob(carried[i]);
+    if (member_array(carried[i], (object *)npc->query_worn_ob()) != -1)
+      npc->unwear_ob(carried[i]);
+    carried[i]->dest_me();
+  }
+
+  // the same choice _build_npc makes: the job's kit if there is a job
+  job = entry[CENSUS_VACANCY]
+          ? (mapping)this_object()->query_vacancy(entry[CENSUS_VACANCY])
+          : nil;
+  t = (mapping)this_object()->query_area_template(
+        (string)npc->query_npc_game(), entry["source"]);
+  equipment = (job && pointerp(job[VACANCY_EQUIPMENT]))
+                ? job[VACANCY_EQUIPMENT] : (t ? t["equipment"] : nil);
+
+  kit = ({ });
+  if (pointerp(equipment) && sizeof(equipment))
+    kit = (string *)this_object()->resolve_equipment(equipment);
+
+  for (i = 0; i < sizeof(kit); i++)
+    npc->add_clone(kit[i], 1);
+
+  if (loaded)
+  {
+    // in the world already: wear and wield it now, placement will not run again
+    npc->do_equip("");
+    npc->save_npc();
+  }
+  else
+    unload_npc(npc);
+
+  return kit;
+}
+
 // Put a census person into `loc`, the location the census says they are in:
 // read them from disk, dress them, move them in and set them going. Nobody is
 // placed twice, and a stale position (the census no longer puts them here) is
