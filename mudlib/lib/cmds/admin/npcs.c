@@ -23,7 +23,7 @@ private string seen_from(object area);
 void setup()
 {
   set_aliases(({ "npcs" }));
-  set_usage("npcs [ list [type] | roster | live | orphans [apply] |\n" +
+  set_usage("npcs [ list [type] | roster | live | populate | orphans [apply] |\n" +
             "            verify [apply] | retemplate [apply] |\n" +
             "            template check [type] ]");
   set_help(
@@ -34,6 +34,9 @@ void setup()
     "  npcs retemplate      repair template ids saved under the old rule\n" +
     "  npcs roster          the types it spawns statistically, and their caps\n" +
     "  npcs live            only the people materialized right now\n" +
+    "  npcs populate        top the area up to its caps now, without waiting\n" +
+    "                       for the sweep, and bring the new arrivals into the\n" +
+    "                       locations already loaded\n" +
     "  npcs orphans [apply] people the area no longer accounts for\n" +
     "  npcs verify [apply]  audit the game's NPC savefiles against the census\n" +
     "  npcs template check [type]\n" +
@@ -748,6 +751,32 @@ private int do_retemplate(object area, object me, string * args)
   return 1;
 }
 
+// Top the area under our feet up to its caps now instead of waiting for the
+// sweep to come round to it. The sweep only fills the books, and a location
+// brings its people in when it loads, so the ones already loaded are populated
+// here as well.
+private int do_populate(object area, object me)
+{
+  object * locs;
+  int assigned, i;
+
+  assigned = (int)handler("population", me)->populate_area(area, 0);
+  if (assigned < 0)
+  {
+    write("This area has no caps to fill.\n");
+    return 1;
+  }
+
+  locs = (object *)area->query_loaded_locations();
+  for (i = 0; i < sizeof(locs); i++)
+    if (locs[i])
+      area->populate_location(locs[i]);
+
+  write("" + assigned + " NPC(s) assigned; " + sizeof(locs) +
+        " loaded location(s) populated.\n");
+  return 1;
+}
+
 private int do_verify(object me, string * args)
 {
   object env;
@@ -814,7 +843,8 @@ static int cmd(string str, object me, string verb)
   // every report is about the area under our feet, so none of them takes one
   // as an argument; a stray word means the caller expected otherwise and
   // deserves to be told rather than shown a report of somewhere else
-  if ((args[0] == "roster" || args[0] == "live") && sizeof(args) > 1)
+  if ((args[0] == "roster" || args[0] == "live" || args[0] == "populate") &&
+      sizeof(args) > 1)
   {
     notify_fail("'npcs " + args[0] + "' reports on the area you are standing " +
                 "in and takes no argument.\n");
@@ -833,6 +863,8 @@ static int cmd(string str, object me, string verb)
     return do_roster(area, me);
   if (args[0] == "live")
     return do_live(area, me);
+  if (args[0] == "populate")
+    return do_populate(area, me);
   if (args[0] == "orphans")
     return do_orphans(area, me, args);
   if (args[0] == "retemplate")
@@ -840,7 +872,7 @@ static int cmd(string str, object me, string verb)
   if (args[0] == "template" && sizeof(args) > 1 && args[1] == "check")
     return do_template_check(area, me, args);
 
-  notify_fail("Usage: npcs [ list [type] | roster | live | " +
+  notify_fail("Usage: npcs [ list [type] | roster | live | populate | " +
               "template check [type] | orphans [apply] | verify [apply] | " +
               "retemplate [apply] ]\n");
   return 0;

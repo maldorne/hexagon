@@ -91,15 +91,15 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   ::move(HANDLERS_HOME, messin, messout);
 }
 
+int populate_area(object area, int limit);
+
 // One sweep: top up the next area of this game toward its caps. One area per
 // call, taking them in turn.
 int update_population()
 {
   object area;
   string area_path;
-  string * areas, * sources, * locs;
-  mapping caps;
-  int i, assigned;
+  string * areas;
 
   areas = query_areas();
   if (!sizeof(areas))
@@ -117,17 +117,36 @@ int update_population()
   if (!area)
     return 0;
 
+  return populate_area(area, ASSIGN_PER_TICK) >= 0;
+}
+
+// Top one area up toward its caps: assigns what is missing to the buckets and
+// the census, without loading anything. At most `limit` NPCs, or every one
+// missing with a limit of 0. Returns how many were assigned, -1 for an area
+// with nothing to count.
+int populate_area(object area, int limit)
+{
+  string * sources, * locs;
+  mapping caps;
+  int i, assigned;
+
+  if (!area)
+    return -1;
+
+  if (limit <= 0)
+    limit = 1 << 30;
+
   caps = area->query_npc_caps();
   locs = map_indices(area->query_locations());
   if (!map_sizeof(caps) || !sizeof(locs))
-    return 0;
+    return -1;
 
   // the anonymous half of the population first; the people with a post or a
   // house come from their settlement, never from a statistical topup
   sources = area->query_monster_sources();
   assigned = 0;
 
-  for (i = 0; i < sizeof(sources) && assigned < ASSIGN_PER_TICK; i++)
+  for (i = 0; i < sizeof(sources) && assigned < limit; i++)
   {
     mapping clones_here;
     string * files;
@@ -150,7 +169,7 @@ int update_population()
 
     deficit = cap - area->query_monster_live_count(sources[i]);
 
-    for (j = 0; j < deficit && assigned < ASSIGN_PER_TICK; j++)
+    for (j = 0; j < deficit && assigned < limit; j++)
     {
       area->assign_monster(sources[i], files[random(sizeof(files))]);
       assigned++;
@@ -162,7 +181,7 @@ int update_population()
   // shares one census, so one who has walked out of the area is replaced here.
   sources = area->query_unplaced_people_sources();
 
-  for (i = 0; i < sizeof(sources) && assigned < ASSIGN_PER_TICK; i++)
+  for (i = 0; i < sizeof(sources) && assigned < limit; i++)
   {
     mapping clones_here;
     string * files;
@@ -179,7 +198,7 @@ int update_population()
 
     deficit = cap - area->query_npc_count_at(sources[i], locs);
 
-    for (j = 0; j < deficit && assigned < ASSIGN_PER_TICK; j++)
+    for (j = 0; j < deficit && assigned < limit; j++)
     {
       area->create_npc(sources[i],
                        ([ CENSUS_LOCATION : files[random(sizeof(files))] ]));
@@ -187,5 +206,5 @@ int update_population()
     }
   }
 
-  return 1;
+  return assigned;
 }
