@@ -95,7 +95,7 @@ mixed * _compile_alias(string str)
         space = 0;
         gumby = 1;
       }
-      else if (frog[i][5] == ':')
+      else if (strlen(frog[i]) > 5 && frog[i][5] == ':')
       {
         ret += ({ ALL_IFARG, 0, "" });
         // Needed to be separated.. not sure why. Flode - 040398
@@ -128,9 +128,25 @@ mixed * _compile_alias(string str)
         ret += ({ ARG_THING+ tmp, s1 });
         nodollar = 1;
       }
-      else if (frog[i][3] == ':')
+      else if (strlen(frog[i]) > 3 && frog[i][3] == ':')
       {
         ret += ({ ALL_ARG, frog[i][4..] });
+        nodollar = 1;
+      }
+      // $arg$ alone is every argument, as $*$; $argN$ alone the Nth, as $N$
+      else if (frog[i] == "arg")
+      {
+        ret += ({ ALL_ARGS });
+        nodollar = 1;
+      }
+      else if (sscanf(frog[i], "arg%d", tmp) == 1 &&
+               frog[i] == "arg" + tmp)
+      {
+        if (tmp < 0)
+          tmp = 0;
+        if (tmp > ALIAS_MASK)
+          tmp = ALIAS_MASK;
+        ret += ({ ONE_ARG + tmp });
         nodollar = 1;
       }
       else if (sizeof(ret) && stringp(ret[sizeof(ret)-1]) && !space)
