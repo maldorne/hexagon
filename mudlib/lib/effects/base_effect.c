@@ -31,6 +31,7 @@ int lockout_time;         // minimum time between two runs of the same effect
 
 string help_desc;         // the help text
 string help_extras;       // extra help fields (shown before the description)
+string * help_see_also;   // other skills or spells the help points at
 string target_type;       // target type the effect can have
                           //   possible: TARGET_TYPE_NONE, TARGET_TYPE_ONE, TARGET_TYPE_MANY,
                           //             TARGET_TYPE_ALL, TARGET_TYPE_ITEM,
@@ -125,6 +126,7 @@ void create()
   
   help_desc = "Help";
   help_extras = "";
+  help_see_also = ({ });
   target_type = TARGET_TYPE_NONE;
   property_checks = 
     ({ 
@@ -178,6 +180,9 @@ string query_help_desc() { return help_desc; }
 
 void set_help_extras(string str) { help_extras = str; }
 string query_help_extras() { return help_extras; }
+
+void set_help_see_also(string * words) { help_see_also = words ? words : ({ }); }
+string * query_help_see_also() { return help_see_also; }
 
 void set_target_type(string str) { target_type = str; }
 string query_target_type() { return target_type; }
@@ -374,6 +379,9 @@ string help()
     if ( help_extras )
         ret += help_extras + "\n";
     ret += sprintf("  %-=*s\n", (this_user() ? this_user()->query_cols() - 2 : 77), query_help_desc());
+
+    if (sizeof(help_see_also))
+        ret += "\n" + _LANG_EFFECT_HELP_SEE_ALSO;
 
     ret += "\n";
     return ret;

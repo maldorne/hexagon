@@ -48,6 +48,7 @@
 #define _LANG_EFFECT_HELP_COST "\tCost: "
 #define _LANG_EFFECT_HELP_ROLE_NEEDED "\nRequired combat role: "
 #define _LANG_EFFECT_HELP_DESC "\nDescription:\n"
+#define _LANG_EFFECT_HELP_SEE_ALSO "See also: " + implode(help_see_also, ", ") + ".\n"
 
 // --- base_effect: messages shared by all effects. The ones that embed a
 // name expand where caster/target are in scope at the call site. ---

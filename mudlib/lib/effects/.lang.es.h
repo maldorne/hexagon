@@ -48,6 +48,7 @@
 #define _LANG_EFFECT_HELP_COST "\tCoste: "
 #define _LANG_EFFECT_HELP_ROLE_NEEDED "\nActitud de combate requerida: "
 #define _LANG_EFFECT_HELP_DESC "\nDescripción:\n"
+#define _LANG_EFFECT_HELP_SEE_ALSO "Ver también: " + implode(help_see_also, ", ") + ".\n"
 
 // --- base_effect: mensajes iguales para todos los efectos. Los que llevan un
 // nombre se expanden donde caster/target están en scope en la llamada. ---

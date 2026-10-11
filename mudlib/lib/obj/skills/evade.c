@@ -27,6 +27,7 @@ void setup()
   allow_in_combat = 1;
 
   set_help_desc(_LANG_SKILL_EVADE_HELP);
+  set_help_see_also(({ _LANG_SKILL_FOLLOW_NAME }));
 
   set_start_phrases("", "");
   set_fast_casting(1);
