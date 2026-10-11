@@ -10,7 +10,7 @@ void reset()
   if(!board) 
   {
     board = clone_object("/lib/obj/board");
-    board->set_datafile("coders-development");
+    board->set_datafile("hexagon-coders-development");
     board->move(this_object());
   }
 }

@@ -29,8 +29,8 @@ void create()
 {
   ::create();
 
-  readonly = ({ "informacion" });
-  board_name = "informacion";
+  readonly = ({ "information" });
+  board_name = "information";
   being_written = ([ ]);
   reset_get();
 
@@ -127,7 +127,11 @@ private mapping query_news_rc()
 
 private int can_write()
 {
-  if ((member_array(board_name, readonly) != -1) && !this_player()->query_coder())
+  // the information boards, a game's own (<game>-information) as well as the
+  // shared one, are the staff's to write on
+  if ((member_array(board_name, readonly) != -1 ||
+       (strlen(board_name) > 12 && board_name[strlen(board_name) - 12 ..] == "-information")) &&
+      !this_player()->query_coder())
   {
     write(_LANG_BOARD_READONLY);
     return 0;

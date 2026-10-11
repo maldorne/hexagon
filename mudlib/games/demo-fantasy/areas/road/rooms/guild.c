@@ -28,7 +28,7 @@ void reset()
   if (!board)
   {
     board = clone_object("/lib/obj/board");
-    board->set_datafile("player-info");
+    board->set_datafile("demo-fantasy-information");
     board->move(this_object());
   }   
   ::reset();

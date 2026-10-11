@@ -120,11 +120,13 @@ int do_boards(string str)
       if (notes[j][B_TIME] > (intp(news_rc[boards[i]]) ? news_rc[boards[i]] : 0))
         unread++;
 
-    ret += sprintf("  %s %-30s %3d note%s%s\n",
+    ret += sprintf("  %s %-40s %3d note%s%s\n",
                    (boards[i] == board_name ? "*" : " "), boards[i],
                    sizeof(notes), (sizeof(notes) == 1 ? " " : "s"),
                    (unread ? ", " + unread + " new" : ""));
   }
+
+  ret += "* the board this one is reading now ('board <name>' to change it)\n";
 
   write(ret);
   return 1;
