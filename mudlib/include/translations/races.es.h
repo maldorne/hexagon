@@ -10,6 +10,10 @@
 
 #define _LANG_RACES_MSG_IN_SLITHER "@$N llega reptando desde $F."
 #define _LANG_RACES_MSG_OUT_SLITHER "@$N repta hacia $T."
+#define _LANG_RACES_MSG_IN_SCUTTLE "@$N llega correteando desde $F."
+#define _LANG_RACES_MSG_OUT_SCUTTLE "@$N se escabulle hacia $T."
+#define _LANG_RACES_MSG_IN_SWIM "@$N llega nadando desde $F."
+#define _LANG_RACES_MSG_OUT_SWIM "@$N se aleja nadando hacia $T."
 
 // body locations
 

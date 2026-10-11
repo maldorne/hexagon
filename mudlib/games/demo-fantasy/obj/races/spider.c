@@ -27,8 +27,8 @@ string query_desc(object ob)
 
 void start_player(object ob) 
 { 
-  ob->set_min(_LANG_RACES_MSG_IN_SLITHER);
-  ob->set_mout(_LANG_RACES_MSG_OUT_SLITHER);
+  ob->set_min(_LANG_RACES_MSG_IN_SCUTTLE);
+  ob->set_mout(_LANG_RACES_MSG_OUT_SCUTTLE);
 }
 
 void set_racial_bonuses(object ob)
