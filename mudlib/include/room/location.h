@@ -17,6 +17,9 @@
 #define LOCATION_COMPONENT_BOARD       "board"
 #define LOCATION_COMPONENT_QUEST_GIVER "quest-giver"
 #define LOCATION_COMPONENT_VAULT       "vault"
+// Something that happens to whoever enters carrying a given mark. See
+// /lib/location/components/trigger.c.
+#define LOCATION_COMPONENT_TRIGGER     "trigger"
 
 // Cartography-contributing components. A location that carries any of
 // these tells the sector storage what kind of terrain it occupies, so

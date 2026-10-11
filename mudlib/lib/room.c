@@ -28,6 +28,7 @@ inherit guard      "/lib/room/room_guards.c";
 inherit navigation "/lib/room/navigation.c";
 inherit sign       "/lib/room/sign.c";
 inherit dark       "/lib/room/dark.c";
+inherit trigger    "/lib/room/trigger.c";
 
 static mixed * room_clones;
 static mapping items;
@@ -69,6 +70,7 @@ void create()
   zone::create();
   navigation::create();
   guard::create();
+  trigger::create();
 
   // default light value for every room, will be changed
   // in the setup() if needed

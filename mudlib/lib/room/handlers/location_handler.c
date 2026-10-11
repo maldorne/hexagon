@@ -737,6 +737,22 @@ object convert_room_to_location(object room)
     ret += "   Removing underground component (room is not below the surface).\n";
   }
 
+  // Entry triggers the room declares (add_entry_trigger) become a trigger
+  // component; the room's list is the source, so a reload replaces it.
+  if (sizeof(room->query_entry_triggers()))
+  {
+    if (location->has_component(LOCATION_COMPONENT_TRIGGER))
+      location->remove_component(LOCATION_COMPONENT_TRIGGER);
+    location->add_component(LOCATION_COMPONENT_TRIGGER,
+                            ([ "trigger_list": room->query_entry_triggers() ]));
+    ret += "   Adding component trigger.\n";
+  }
+  else if (location->has_component(LOCATION_COMPONENT_TRIGGER))
+  {
+    location->remove_component(LOCATION_COMPONENT_TRIGGER);
+    ret += "   Removing trigger component (the room declares none).\n";
+  }
+
   if (room->query_property(MAZE_PROP))
   {
     location->add_component(LOCATION_COMPONENT_MAZE, ([ ]));
