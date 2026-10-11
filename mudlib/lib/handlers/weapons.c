@@ -58,7 +58,6 @@ mixed query_message(int damage,
         msg_me  += _LANG_WEAPONS_ELEMENTAL_MSG_ME;
         msg_him += _LANG_WEAPONS_ELEMENTAL_MSG_HIM;
         msg_env += _LANG_WEAPONS_ELEMENTAL_MSG_ENV;
-        relative = 0;
       }
       else
       {
@@ -200,3 +199,17 @@ void write_message(int damage,           // damage from the hit
 
   return;
 } /* _write_message */
+
+// extra line after a hit, for the elemental damage a weapon adds to it
+void write_extra_damage_message(int attack_type,      // elemental type of the extra damage
+                         object attacker,
+                         object defender)
+{
+  string element;
+
+  element = RESISTANCES[attack_type - sizeof(AC_TYPES)];
+
+  tell_room(environment(attacker), _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ENV, ({attacker,defender}));
+  tell_object(attacker, _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ME);
+  tell_object(defender, _LANG_WEAPONS_EXTRA_DAMAGE_MSG_HIM);
+}

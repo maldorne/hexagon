@@ -103,6 +103,11 @@
 #define _LANG_WEAPONS_ELEMENTAL_MSG_HIM " harms you"
 #define _LANG_WEAPONS_ELEMENTAL_MSG_ENV " harms"
 
+// extra elemental damage a weapon adds to a hit (element is the name of the element)
+#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ME "Your weapon harms "+defender->query_cap_name()+" with "+element+".\n"
+#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_HIM attacker->query_cap_name()+"'s weapon harms you with "+element+".\n"
+#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ENV attacker->query_cap_name()+"'s weapon harms "+defender->query_cap_name()+" with "+element+".\n"
+
 #define _LANG_WEAPONS_NO_EFFECT " without effect"
 #define _LANG_WEAPONS_WEAKLY " weakly"
 #define _LANG_WEAPONS_WITH_LITTLE_FORCE " with little force"

@@ -104,6 +104,11 @@
 #define _LANG_WEAPONS_ELEMENTAL_MSG_HIM " te daña"
 #define _LANG_WEAPONS_ELEMENTAL_MSG_ENV " daña"
 
+// daño elemental extra que un arma añade a un golpe (element es el nombre del elemento)
+#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ME "Tu arma daña a "+defender->query_cap_name()+" con "+element+".\n"
+#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_HIM "El arma de "+attacker->query_cap_name()+" te daña con "+element+".\n"
+#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ENV "El arma de "+attacker->query_cap_name()+" daña a "+defender->query_cap_name()+" con "+element+".\n"
+
 #define _LANG_WEAPONS_NO_EFFECT " sin efecto"
 #define _LANG_WEAPONS_WEAKLY " débilmente"
 #define _LANG_WEAPONS_WITH_LITTLE_FORCE " con poca fuerza"

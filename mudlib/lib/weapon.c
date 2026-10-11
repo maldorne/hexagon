@@ -43,6 +43,8 @@ static string weapon_name,   // weapon name
 
 static object attacker, defender;
 mapping attacks;
+// elemental damage that only lands when a physical attack hits, by id
+mapping extra_damage;
 
 
 void create() 
@@ -50,6 +52,7 @@ void create()
   hands_needed = 1;
   enchant = 0;
   attacks = ([]);
+  extra_damage = ([]);
   item::create();
   set_holdable(1);
 } 
@@ -165,19 +168,22 @@ mixed * stats()
               ({ "Weapon Family (nosave)", weapon_family, }),
               ({ "Attack Type (nosave)", attack_type, }),
               ({ "Attacks", attacks, }),
+              ({ "Extra Damage", extra_damage, }),
           }); 
 } 
 
 mapping query_auto_load_attributes() 
 {
-  if (enchant == 0)
-    return item::query_auto_load_attributes() +
-           ([ "attacks" : attacks, ]);
-  else
-    return item::query_auto_load_attributes() +
-           ([ "enchant" : enchant,
-              "attacks" : attacks,
-            ]);
+  mapping ret;
+
+  ret = item::query_auto_load_attributes() + ([ "attacks" : attacks, ]);
+
+  if (enchant != 0)
+    ret["enchant"] = enchant;
+  if (map_sizeof(extra_damage))
+    ret["extra damage"] = extra_damage;
+
+  return ret;
 }
 
 void init_auto_load_attributes(mapping args) 
@@ -186,6 +192,8 @@ void init_auto_load_attributes(mapping args)
     enchant = args["enchant"];
   if (!undefinedp(args["attacks"]))
     attacks = args["attacks"];
+  if (!undefinedp(args["extra damage"]))
+    extra_damage = args["extra damage"];
 
   item::init_auto_load_attributes(args);
 }
@@ -194,7 +202,11 @@ void init_auto_load_attributes(mapping args)
 //   old weapon_logic.c
 // *************************************************
 
-mapping remove_attack(string name) { return attacks = m_delete(attacks, name); }
+mapping remove_attack(string name)
+{
+  extra_damage = m_delete(extra_damage, name);
+  return attacks = m_delete(attacks, name);
+}
 mapping query_attacks() { return attacks; }
 
 void add_attack(string name,   // to index
@@ -206,6 +218,60 @@ void add_attack(string name,   // to index
 {
   attacks[name] = ({ type, num_dice, type_dice, bonus });
 }       
+
+// The extra damage of one attack goes with it.
+mapping remove_extra_damage(string attack)
+{
+  return extra_damage = m_delete(extra_damage, attack);
+}
+mapping query_extra_damage() { return extra_damage; }
+
+// Extra damage is elemental damage added to every hit of one physical attack of
+// this weapon, the one named (BASIC_ATTACK_NAME for the attack the weapon comes
+// with, or any added with add_attack). It does not roll to hit by itself, unlike
+// an elemental attack added with add_attack. An attack may carry several.
+// Format: 2D6+6, with an element type (see translations/combat.h).
+void add_extra_damage(string attack,   // name of the attack it goes with
+                      int type,        // elemental type
+                      int num_dice,    // num of dice
+                      int type_dice,   // num of faces of the dice
+                      int bonus)       // bonus to add
+{
+  // physical types have no extra damage, use add_attack for them
+  if (type < sizeof(AC_TYPES) || (type - sizeof(AC_TYPES)) >= sizeof(RESISTANCES))
+    return;
+
+  if (!extra_damage[attack])
+    extra_damage[attack] = ({ });
+  extra_damage[attack] += ({ ({ type, num_dice, type_dice, bonus }) });
+}
+
+// Armour absorption of elemental damage: the piece absorbs by its base ac,
+// modified by its own resistance to the element (negative means a weakness,
+// and the damage grows). The wearer's global resistance is not applied here,
+// since wearing the piece already adds its resistance to it.
+int query_elemental_absorbed(object piece, int type, int damage)
+{
+  mixed piece_resistance;
+  int percent;
+
+  percent = piece->query_ac_against(type) * 10;
+  if (percent > 100)
+    percent = 100;
+  if (percent < 0)
+    percent = 0;
+
+  piece_resistance = piece->query_property(RESISTANCES[type - sizeof(AC_TYPES)]);
+  if (intp(piece_resistance))
+    percent += piece_resistance;
+
+  if (percent > 100)
+    percent = 100;
+  if (percent < -100)
+    percent = -100;
+
+  return damage * percent / 100;
+}
 
 // workout_attack taken from unarmed_combat to make them similar, neverbot 6/03
 mixed * workout_attack(int type, int rolls, int dice, int roll_add)
@@ -333,11 +399,12 @@ mixed * recalc_damage(int i)
 int weapon_attack(object def, object att)
 {
   mixed *att_val;
-  mixed damage, piece_resistance;
-  int absorbed_damage;
+  mixed damage, extra_hits;
+  int absorbed_damage, extra_absorbed, extra_total;
+  mixed * extras;
   object * obs;
   object where;
-  int i, j, k, ret, percent;
+  int i, j, k, m, ret, percent;
   string * attack_names;
 
   attack_names = keys(attacks);
@@ -362,6 +429,27 @@ int weapon_attack(object def, object att)
     {
       damage = recalc_damage(att_val[1]);
       absorbed_damage = 0;
+      extra_absorbed = 0;
+      extra_total = 0;
+      where = nil;
+
+      // The extra damage adds its elemental damage to this hit, each rolled once per
+      // hit and are not multiplied by the critical hit or the localization,
+      // only the physical damage is.
+      extra_hits = ({ });
+      if (attacks[attack_names[i]][0] < sizeof(AC_TYPES) &&
+          extra_damage[attack_names[i]])
+      {
+        extras = extra_damage[attack_names[i]];
+        for (m = 0; m < sizeof(extras); m++)
+        {
+          extra_hits += ({ ({ extras[m][0],
+                              roll(extras[m][1], extras[m][2]) + extras[m][3] }) });
+          if (extra_hits[m][1] < 0)
+            extra_hits[m][1] = 0;
+          extra_total += extra_hits[m][1];
+        }
+      }
 
       // look for the protection item to ruin it
       if (damage[1] != "")
@@ -375,30 +463,10 @@ int weapon_attack(object def, object att)
             // if we did not found the armour, do not ruin the weapon
             where = obs[j];
 
-            // elemental attacks: the armour absorbs by its base ac, modified by
-            // its own resistance to the element (negative means a weakness, and
-            // the damage grows). The wearer's global resistance is not applied
-            // here, since wearing the piece already adds its resistance to it.
+            // elemental attacks use the elemental rule of the armour
             if (attacks[attack_names[i]][0] >= sizeof(AC_TYPES))
-            {
-              percent = obs[j]->query_ac_against(attacks[attack_names[i]][0]) * 10;
-              if (percent > 100)
-                percent = 100;
-              if (percent < 0)
-                percent = 0;
-
-              piece_resistance = obs[j]->query_property(
-                  RESISTANCES[attacks[attack_names[i]][0] - sizeof(AC_TYPES)]);
-              if (intp(piece_resistance))
-                percent += piece_resistance;
-
-              if (percent > 100)
-                percent = 100;
-              if (percent < -100)
-                percent = -100;
-
-              absorbed_damage = damage[0] * percent / 100;
-            }
+              absorbed_damage = query_elemental_absorbed(obs[j],
+                                  attacks[attack_names[i]][0], damage[0]);
             // calculate damage percentage absorbed by the armour
             else if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 0) 
             {
@@ -410,6 +478,11 @@ int weapon_attack(object def, object att)
               absorbed_damage = damage[0] * percent / 100;
             }
             
+            // the extra_damage of a physical hit are absorbed by the same piece
+            for (m = 0; m < sizeof(extra_hits); m++)
+              extra_absorbed += query_elemental_absorbed(obs[j], extra_hits[m][0],
+                                                         extra_hits[m][1]);
+
             // if the armour did not absorbed anything (equiment without ac)
             // we make full damage AND ruin the armour
             where->hit_item((absorbed_damage > 0) ? absorbed_damage : 1);
@@ -422,7 +495,10 @@ int weapon_attack(object def, object att)
       // tell_object(find_living("neverbot"), "@@ "+attacker->query_cap_name()+": "+
       //                                         absorbed_damage+"/"+damage[0]+"\n");
       // apply final damage
-      defender->adjust_hp(-(damage[0] - absorbed_damage), attacker);
+      // the extra_damage do their (possibly absorbed) damage on top of the hit,
+      // in a single adjustment so the defender dies only once
+      defender->adjust_hp(-((damage[0] - absorbed_damage) +
+                            (extra_total - extra_absorbed)), attacker);
 
       if (where)
         handler("weapons")->write_message(damage[0], attacks[attack_names[i]][0], 
@@ -430,7 +506,12 @@ int weapon_attack(object def, object att)
       else
         handler("weapons")->write_message(damage[0], attacks[attack_names[i]][0], 
                        damage[1], attacker, defender);
-      ret += damage[0];
+      // one line for each extra damage, after the hit message
+      for (m = 0; m < sizeof(extra_hits); m++)
+        if (extra_hits[m][1] > 0)
+          handler("weapons")->write_extra_damage_message(extra_hits[m][0], attacker, defender);
+
+      ret += damage[0] + extra_total - extra_absorbed;
     }
     else 
     {
