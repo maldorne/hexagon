@@ -21,6 +21,8 @@ inherit armed_combat   "/lib/living/armed_combat.c";
 
 static object attackee;
 static object *attacker_list, *call_outed, protector;
+// new attackers not told about yet: the notice waits for the first blow
+static object *unannounced;
 
 static object concentrate;
 static int dodging;
@@ -84,6 +86,7 @@ void create()
 {
   attacker_list = ({ });
   call_outed = ({ });
+  unannounced = ({ });
   protector = nil;
   attackee = nil;
   concentrate = nil;
@@ -100,6 +103,7 @@ void create()
 }
 
 void attack();
+void announce_attackers();
 
 /**
  * heart_beat features related to combat
@@ -203,6 +207,9 @@ void attack()
 
   if (!attacker_list)
     attacker_list = ({ });
+
+  // whoever started on us is told of before our own blow, as before theirs
+  announce_attackers();
 
   while (i < sizeof(attacker_list)) 
   {
@@ -321,6 +328,7 @@ void attack()
   his_name = (string)attackee->query_name();
 
   attackee->attack_by(this_object());
+  attackee->announce_attackers();
 
   dam = 0;
   ww = (object *)this_object()->query_weapons_wielded();
@@ -396,21 +404,64 @@ void attack_by(object ob)
   if (member_array(ob, attacker_list) == -1 &&
       member_array(ob, call_outed) == -1) 
   {
-    string color, name;
-    name = ob->query_short();
-
-    // change player appereance from /handler/pov.c, neverbot 01/2020
-    color = (string)POV->query_color(this_object(), ob);
-
-    name = strlen(color) ? color + name  + "%^RESET%^" : name;
-
-    tell_object(this_object(), _LANG_COMBAT_BEING_ATTACKED);
+    // told at the first blow, together with whoever else started at once
+    if (!unannounced)
+      unannounced = ({ });
+    unannounced += ({ ob });
 
     attacker_list += ({ ob });
   }
 
   if (!query_heart_beat())
     set_heart_beat(1);
+}
+
+// Tell this living who has started attacking it since the last notice, in
+// one line, grouping the alike: called by an attacker right before its blow.
+// Those already dead or gone are left out.
+void announce_attackers()
+{
+  object * here, * group;
+  string * names, * shorts;
+  string name, color;
+  int i, j;
+
+  if (!unannounced || !sizeof(unannounced))
+    return;
+
+  here = ({ });
+  for (i = 0; i < sizeof(unannounced); i++)
+    if (unannounced[i] && !unannounced[i]->query_dead() &&
+        environment(unannounced[i]) == environment(this_object()))
+      here += ({ unannounced[i] });
+  unannounced = ({ });
+
+  if (!sizeof(here))
+    return;
+
+  // the alike together, each group in the colour the viewer sees it in
+  names = ({ });
+  shorts = ({ });
+  for (i = 0; i < sizeof(here); i++)
+  {
+    if (member_array(here[i]->query_short(), shorts) != -1)
+      continue;
+    shorts += ({ here[i]->query_short() });
+
+    group = ({ });
+    for (j = i; j < sizeof(here); j++)
+      if (here[j]->query_short() == here[i]->query_short())
+        group += ({ here[j] });
+
+    // change player appereance from /handler/pov.c, neverbot 01/2020
+    color = (string)POV->query_color(this_object(), here[i]);
+    name = (sizeof(group) == 1) ? here[i]->query_short() :
+           query_num(sizeof(group), 20) + " " + here[i]->query_plural();
+    names += ({ strlen(color) ? color + name + "%^RESET%^" : name });
+  }
+
+  name = query_multiple_short(names);
+  tell_object(this_object(), _LANG_COMBAT_BEING_ATTACKED);
 }
 
 // Hmm, this is called by the attacker, object ob is the victim 
