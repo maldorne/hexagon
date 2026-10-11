@@ -18,7 +18,7 @@ void setup()
   set_effect_name(_LANG_SKILL_FOLLOW_NAME);
   set_aliases(_LANG_SKILL_FOLLOW_ALIASES);
 
-  set_gp_cost(1);
+  set_gp_cost(2);
   set_lockout_time(5);
 
   set_target_type(TARGET_TYPE_ONE);
