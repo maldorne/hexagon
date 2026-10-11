@@ -87,7 +87,7 @@ void set_kill_xp(int bing);
 int query_kill_xp();
 void update_tmps();
 int query_stat_bonus_to_con();
-private int query_stat_bonus(int num); 
+int query_stat_bonus(int num);
 int query_gp_main_stat();
 
 /* Cambio mas importante del archivo, neverbot Abril'04
@@ -935,7 +935,9 @@ void calc()
 }
 
 // Sistema de bonificaciones por caracteristica añadido, neverbot 6/03
-private int query_stat_bonus(int num)
+// The bonus a stat of value `num` gives; a guild uses it when its members
+// rise a level.
+int query_stat_bonus(int num)
 {
   switch(num)
   {

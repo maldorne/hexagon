@@ -205,7 +205,8 @@ void new_levels(int lvl, object ob)
   int e, gp_bonus, gps;
   object class_ob;
 
-  class_ob = ob->query_class_ob();
+  // the class is kept as a path, like every social object
+  class_ob = ob->query_class_ob() ? load_object(ob->query_class_ob()) : nil;
 
   ob->reset_all();
 
