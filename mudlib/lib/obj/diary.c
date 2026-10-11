@@ -2,7 +2,7 @@
 // read-only front-end over the exploration component:
 //
 //   diario explorador  - the places the player has discovered (this game)
-//   enciclopedia [<n>] - the books the player has read, and reading one again
+//   diario enciclopedia [<n>] - the books the player has read, and reading one again
 //
 // Travel points (diario viajes) are a follow-up.
 // Ported from the CcMud diary, Folken 04/2009.
@@ -33,7 +33,6 @@ void init()
 {
   ::init();
   add_action("do_diary", _LANG_DIARY_VERBS);
-  add_action("do_encyclopedia", _LANG_DIARY_ENCYCLOPEDIA_VERBS);
 }
 
 string query_help(varargs string str) { return _LANG_DIARY_HELP; }
@@ -86,8 +85,8 @@ static int do_explorer()
   return 1;
 }
 
-// enciclopedia: the books the player has read in this game, in the order they
-// read them; enciclopedia <n> opens one of them again.
+// diario enciclopedia: the books the player has read in this game, in the
+// order they read them; diario enciclopedia <n> opens one of them again.
 int do_encyclopedia(string str)
 {
   string * paths;
@@ -150,8 +149,9 @@ int do_diary(string str)
   if (member_array(str, _LANG_DIARY_EXPLORER_SUBVERBS) != -1)
     return do_explorer();
 
-  if (member_array(str, _LANG_DIARY_ENCYCLOPEDIA_VERBS) != -1)
-    return do_encyclopedia("");
+  // the section, or the section and the number of a book in it
+  if (member_array(explode(str, " ")[0], _LANG_DIARY_ENCYCLOPEDIA_VERBS) != -1)
+    return do_encyclopedia(implode(explode(str, " ")[1..], " "));
 
   // Sections not implemented yet (travel anchors).
   if (member_array(str, _LANG_DIARY_PENDING_SUBVERBS) != -1)

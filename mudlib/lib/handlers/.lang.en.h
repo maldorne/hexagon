@@ -268,4 +268,4 @@
         "  h          : show this help.\n" + \
         "  q          : close the book (anything else does too).\n"
 #define _LANG_BOOKS_FILED "%^BOLD%^You note this book down in your diary's encyclopedia " + \
-        "('encyclopedia' to read it again).%^RESET%^\n"
+        "('diary encyclopedia' to read it again).%^RESET%^\n"

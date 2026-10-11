@@ -90,8 +90,8 @@
 #define _LANG_DIARY_PENDING_SUBVERBS ({ "travels" })
 #define _LANG_DIARY_HELP "The diary keeps track of your wanderings. Commands:\n" + \
     "\tdiary explorer  - lists the places you have discovered.\n" + \
-    "\tencyclopedia       - lists the books you have read.\n" + \
-    "\tencyclopedia <num> - reads one of them again.\n"
+    "\tdiary encyclopedia       - lists the books you have read.\n" + \
+    "\tdiary encyclopedia <num> - reads one of them again.\n"
 #define _LANG_DIARY_DEAD "You cannot do that while dead.\n"
 #define _LANG_DIARY_WHAT "What do you want to check in the diary? Try 'diary explorer'.\n"
 #define _LANG_DIARY_NOT_YET "That section of the diary is still blank.\n"
@@ -103,9 +103,9 @@
 #define _LANG_DIARY_ENCYCLOPEDIA_VERBS ({ "encyclopedia" })
 #define _LANG_DIARY_ENCYCLOPEDIA_EMPTY "Your diary's encyclopedia is still blank: every book you read to the end is noted down in it.\n"
 #define _LANG_DIARY_ENCYCLOPEDIA_HEADER "You have noted down these books in your encyclopedia:\n\n"
-#define _LANG_DIARY_ENCYCLOPEDIA_FOOTER "\nUse 'encyclopedia <number>' to read one again.\n"
+#define _LANG_DIARY_ENCYCLOPEDIA_FOOTER "\nUse 'diary encyclopedia <number>' to read one again.\n"
 #define _LANG_DIARY_ENCYCLOPEDIA_LOST "A book you no longer remember anything of"
-#define _LANG_DIARY_ENCYCLOPEDIA_NO_SUCH "That book is not in your encyclopedia. Use 'encyclopedia' to see the list.\n"
+#define _LANG_DIARY_ENCYCLOPEDIA_NO_SUCH "That book is not in your encyclopedia. Use 'diary encyclopedia' to see the list.\n"
 
 // mailer.c
 

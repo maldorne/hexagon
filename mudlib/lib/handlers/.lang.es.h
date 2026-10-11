@@ -277,4 +277,4 @@
         "  h          : muestra esta ayuda.\n" + \
         "  q          : cierras el libro (cualquier otra cosa también).\n"
 #define _LANG_BOOKS_FILED "%^BOLD%^Anotas este libro en la enciclopedia de tu diario " + \
-        "('enciclopedia' para volver a leerlo).%^RESET%^\n"
+        "('diario enciclopedia' para volver a leerlo).%^RESET%^\n"
