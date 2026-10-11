@@ -772,6 +772,11 @@ void apply_template(mapping t, varargs int born)
                    undefinedp(t["move_after"]["rand"]) ?
                      0 : t["move_after"]["rand"]);
 
+  // one particular person is weighed in the ranking whenever it comes into
+  // the world, not only when it is born and its level set
+  if (proper_name && !born)
+    call_out("check_ranking", 5);
+
   if (!born)
     return;
 
