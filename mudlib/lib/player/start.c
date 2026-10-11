@@ -139,8 +139,43 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
   //  IDENTD->do_ident(this_object(), this_object());
 } /* start() */
 
+// The place a path names, a location (.o) or a room, or nil when it is gone.
+private object _load_place(string path)
+{
+  object place;
+
+  if (!path || !strlen(path))
+    return nil;
+
+  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".o")
+    return load_object(LOCATION_HANDLER)->load_location(path);
+
+  place = nil;
+  catch(place = load_object(path));
+  return place;
+}
+
+// Where a player goes when the place they last stood in is gone: the start of
+// the game that place belonged to, or the mud's own start when it belonged to
+// none, or that game's start does not load either.
+private object _start_of_last_game()
+{
+  object master, place;
+  string game;
+
+  game = game_from_path(last_pos);
+  master = nil;
+  if (game && strlen(game))
+    catch(master = load_object("/games/" + game + "/master.c"));
+
+  place = master ? _load_place(master->query_start_location()) : nil;
+  return place ? place : load_object(START_POS);
+}
+
 nomask void move_to_last_pos()
 {
+  object last;
+
   if (!SECURE->valid_progname("/lib/core/login"))
     return;
 
@@ -157,20 +192,12 @@ nomask void move_to_last_pos()
       move_living("X", START_POS);
     // }
   }
-  // if the last_pos ends in .o, it was a location
-  else if (last_pos[strlen(last_pos)-2..strlen(last_pos)-1] == ".o")
-  {
-    object last;
-    last = load_object(LOCATION_HANDLER)->load_location(last_pos);
-    
-    if (last)
-      move_living("X", last);
-    else
-      move_living("X", START_POS);
-  }
   else
   {
-    move_living("X", last_pos);
+    // a location (.o) or a room; one that is gone sends the player to the start
+    // of the game it belonged to
+    last = _load_place(last_pos);
+    move_living("X", last ? last : _start_of_last_game());
   }
 }
 

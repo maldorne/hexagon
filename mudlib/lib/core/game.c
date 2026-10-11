@@ -27,6 +27,8 @@ int open;
 // what every player of this game must carry (see check_mandatory_inventory in
 // /lib/player/start.c)
 static string * mandatory_items;
+// where a player of this game is put when the place they last stood in is gone
+static string start_location;
 
 // permissions for coders
 int open_read, open_write;
@@ -44,6 +46,16 @@ void set_game_long_description(string desc) { game_long_desc = desc; }
 string query_game_long_description() { return game_long_desc; }
 
 void set_mandatory_items(string * paths) { mandatory_items = paths; }
+
+// The game's own first room unless the game names another place, a room or a
+// location (.o).
+void set_start_location(string path) { start_location = path; }
+string query_start_location()
+{
+  if (start_location && strlen(start_location))
+    return start_location;
+  return game_root(this_object()) + GAME_START_ROOM;
+}
 string * query_mandatory_items() { return mandatory_items; }
 
 void set_demo(int value) { demo = value; }
@@ -89,6 +101,7 @@ void create()
   demo = 0;
   genre = "";
   mandatory_items = MUST_HAVE;
+  start_location = "";
 
   members = ([ ]);
   read_perms = ([ ]);
