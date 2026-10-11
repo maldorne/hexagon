@@ -20,6 +20,10 @@
 // Shelves of books to read, copy or add to. See
 // /lib/location/components/library.c.
 #define LOCATION_COMPONENT_LIBRARY     "library"
+// The entrance of a guild's house, and its main hall. See
+// /lib/location/components/guild-entrance.c and guild-room.c.
+#define LOCATION_COMPONENT_GUILD_ENTRANCE "guild-entrance"
+#define LOCATION_COMPONENT_GUILD_ROOM     "guild-room"
 // Something that happens to whoever enters carrying a given mark. See
 // /lib/location/components/trigger.c.
 #define LOCATION_COMPONENT_TRIGGER     "trigger"

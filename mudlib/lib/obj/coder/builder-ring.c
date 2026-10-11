@@ -21,7 +21,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "library", "desc", "temple", "venture", "family", "fixture" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "library", "guild", "desc", "temple", "venture", "family", "fixture" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -46,6 +46,8 @@ inherit "/lib/armour.c";
   "build family < found [surname] | join <surname> <who> | leave <who>\n" + \
   "             | marry <who> <to whom> | parents <who> <a> [b]\n" + \
   "             | show <surname> | list >"
+#define BUILDER_RING_GUILD_SYNTAX \
+  "build guild < entrance | room > < <guild path> | none >"
 #define BUILDER_RING_TEMPLE_SYNTAX \
   "build temple < <deity path> | none >  (consecrate this location, or unconsecrate it)"
 #define BUILDER_RING_LOCATION_SYNTAX \
@@ -68,6 +70,8 @@ inherit "/lib/armour.c";
   "  build exit [<dir> <type> [material] [closed|locked]]\n" + \
   "                                       how a way through reads, both sides\n" + \
   "  build temple <deity|none>            consecrate this location\n" + \
+  "  build guild entrance <guild|none>    the entrance of a guild's house\n" + \
+  "  build guild room <guild|none>        the main hall of a guild's house\n" + \
   "  build venture                        this shop or tavern's open conditions\n" + \
   "  build venture condition add <name> [key=value ...]\n" + \
   "  build venture condition remove <name>\n" + \
@@ -172,6 +176,7 @@ int do_home_communal(int flag);
 int do_home_describe(string what, string str);
 int do_sign(string str);
 int do_library(string str);
+int do_guild(string str);
 int do_fixture(string str);
 int do_desc(string str);
 int do_temple(string str);
@@ -402,6 +407,8 @@ int do_build(string str)
     return do_sign(implode(args[1..], " "));
   if (verb == "library")
     return do_library(implode(args[1..], " "));
+  if (verb == "guild")
+    return do_guild(implode(args[1..], " "));
 
   if (verb == "fixture")
     return do_fixture(implode(args[1..], " "));
@@ -2655,6 +2662,75 @@ int do_library(string str)
   }
   loc->save_me();
   write("Removed " + path + " from the shelves.\n");
+  return 1;
+}
+
+// Make this location the entrance or the main hall of a guild's house, or stop
+// it being one.
+int do_guild(string str)
+{
+  object loc, comp;
+  string kind, path, type;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to manage a guild.\n");
+    return 0;
+  }
+
+  if (!str || sscanf(str, "%s %s", kind, path) != 2 ||
+      (kind != "entrance" && kind != "room"))
+  {
+    notify_fail("Usage: " + BUILDER_RING_GUILD_SYNTAX + "\n");
+    return 0;
+  }
+
+  type = (kind == "entrance") ? LOCATION_COMPONENT_GUILD_ENTRANCE
+                              : LOCATION_COMPONENT_GUILD_ROOM;
+  comp = loc->query_component_by_type(type);
+
+  if (path == "none")
+  {
+    if (!comp)
+    {
+      notify_fail("This location is not a guild " + kind + ".\n");
+      return 0;
+    }
+    comp->take_down();
+    loc->remove_component(type);
+    loc->save_me();
+    write("This location is no longer a guild " + kind + ".\n");
+    return 1;
+  }
+
+  path = get_path(path);
+  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
+    path = path[0 .. strlen(path) - 3];
+  if (!load_object(path) || !load_object(path)->query_is_guild())
+  {
+    notify_fail("No guild loads at " + path + ".\n");
+    return 0;
+  }
+
+  if (!comp)
+  {
+    loc->add_component(type, ([ ]));
+    comp = loc->query_component_by_type(type);
+  }
+  if (!comp)
+  {
+    notify_fail("The guild " + kind + " component would not attach here.\n");
+    return 0;
+  }
+
+  if (kind == "entrance")
+    comp->set_entrance_guild(path);
+  else
+    comp->set_room_guild(path);
+  loc->save_me();
+
+  write("This location is now the guild " + kind + " of " + path + ".\n");
   return 1;
 }
 

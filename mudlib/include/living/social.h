@@ -16,6 +16,10 @@
 
 #define NULL_SOCIAL_VALUE "none"
 
+// How many seconds of play a character waits, after joining a guild, before it
+// may join another (10 hours), so nobody hops between guilds to get inside one.
+#define GUILD_JOIN_WAIT 36000
+
 #define LOG_ADJUST_LEVEL "adjust_level"
 #define LOG_ADJUST_GUILD_LEVEL "adjust_guild_level"
 

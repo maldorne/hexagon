@@ -43,6 +43,8 @@ mapping job_joined;
 
 int class_level;
 int guild_level;
+// the played age, in seconds, at which this living last joined a guild
+int guild_join_age;
 
 // we have too many global variables, so I put all the xx_ob in a single array
 // neverbot 3/2002
@@ -371,6 +373,16 @@ void set_guild_joined(mapping map)
   guild_joined = map;
 }
 
+// The seconds this living has been played, or 0 for one that does not count
+// them (only a player does: query_time_on counts back from now).
+private int _played_age()
+{
+  mixed time_on;
+
+  time_on = this_object()->query_time_on();
+  return intp(time_on) ? -time_on : 0;
+}
+
 void set_guild_ob(string str)
 {
   mixed * values;
@@ -407,6 +419,8 @@ void set_guild_ob(string str)
 
   // Asignamos el gremio nuevo
   social_object_list[GUILD_OB] = str;
+  // when it was joined, in played time, which starts the wait before the next
+  guild_join_age = _played_age();
   // this_object()->set_xp(0); // NO!, la experiencia de clase y gremio es la misma
 
   // Si es uno en el que no hemos estado nunca
@@ -432,6 +446,26 @@ void set_guild_ob(string str)
   social_object_list[GUILD_OB]->start_player(this_object());
 
 } /* set_guild_ob() */
+
+int query_guild_join_age() { return guild_join_age; }
+
+// The seconds of play left before this living may join a guild again: joining
+// one starts a wait of GUILD_JOIN_WAIT. Nothing to wait for somebody who never
+// joined one, nor for a living that does not count its play (an NPC).
+int query_guild_join_wait()
+{
+  int age, wait;
+
+  if (!map_sizeof(guild_joined))
+    return 0;
+
+  age = _played_age();
+  if (age <= 0)
+    return 0;
+
+  wait = guild_join_age + GUILD_JOIN_WAIT - age;
+  return wait > 0 ? wait : 0;
+}
 
 void set_guild(string str)
 {

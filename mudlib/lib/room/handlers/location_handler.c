@@ -621,7 +621,13 @@ private void _replace_live_location(object old, object location)
     // forbids it)
     if (living(contents[i]) ||
         (function_exists("get", contents[i]) && !contents[i]->get()))
+    {
       contents[i]->move(location);
+      // an NPC's components hold on to the place it stood in (a guard is
+      // registered on the old one's exit), so they are told about the new one
+      if (function_exists("components_placed", contents[i]))
+        contents[i]->components_placed();
+    }
   }
 
   old->dest_me();
@@ -741,6 +747,25 @@ object convert_room_to_location(object room)
     ret += "   Adding component library.\n";
   }
 
+  // The entrance of a guild's house and its main hall become their components,
+  // with the guild they name.
+  if (room->query_guild_entrance() &&
+      !location->has_component(LOCATION_COMPONENT_GUILD_ENTRANCE))
+  {
+    location->add_component(LOCATION_COMPONENT_GUILD_ENTRANCE, ([
+      "entrance_guild" : room->query_entrance_guild(),
+        ]));
+    ret += "   Adding component guild entrance.\n";
+  }
+  if (room->query_guild_room() &&
+      !location->has_component(LOCATION_COMPONENT_GUILD_ROOM))
+  {
+    location->add_component(LOCATION_COMPONENT_GUILD_ROOM, ([
+      "room_guild" : room->query_room_guild(),
+        ]));
+    ret += "   Adding component guild room.\n";
+  }
+
   // A room built on /lib/outside.c is open-air: attach the outside component
   // so the location gets weather / day-night / darkness behaviour (the
   // component drives those through the weather handler). Interiors built on
@@ -803,13 +828,15 @@ object convert_room_to_location(object room)
 
   // A sign posted in the room (add_sign) becomes a sign component on the
   // location, which re-materialises the read-able item on every load.
-  // Ventures (pub, shop), post offices and vaults create and manage their own
-  // sign (the menu, the price board, the mail instructions, the vault help)
+  // Ventures (pub, shop), post offices, vaults, libraries and the entrances and
+  // halls of guilds create and manage their own sign (the menu, the price
+  // board, the mail instructions, the vault help, the guild's information)
   // through their component, and that item also carries a read message -- so
   // skip auto-detection here for them, or the sign would be duplicated (its
   // own copy plus a captured sign-component copy).
   if (!room->query_pub() && !room->query_shop() && !room->query_post_office() &&
-      !room->query_vault_room())
+      !room->query_vault_room() && !room->query_library() &&
+      !room->query_guild_entrance() && !room->query_guild_room())
   {
     mapping sign;
 
@@ -822,12 +849,13 @@ object convert_room_to_location(object room)
   }
   else
   {
-    // Venture: drop any sign component a prior conversion mistakenly
-    // captured from the venture's own board, so it stops duplicating.
+    // Drop any sign component a prior conversion mistakenly captured from the
+    // place's own sign, and the sign it put up, so it stops duplicating.
     if (location->has_component(LOCATION_COMPONENT_SIGN))
     {
+      location->query_component_by_type(LOCATION_COMPONENT_SIGN)->take_down();
       location->remove_component(LOCATION_COMPONENT_SIGN);
-      ret += "   Removing stray sign component (venture manages its own).\n";
+      ret += "   Removing stray sign component (the place manages its own).\n";
     }
   }
 
