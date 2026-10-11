@@ -383,13 +383,6 @@ mapping query_way_exits()
   return way_exits;
 }
 
-// Sector index for a single coordinate axis, matching the convention in
-// maps.c: sector n = n / 10 - (n < 0), so -1 lands in sector -1.
-private int _sector_index(int n)
-{
-  return n / 10 - (n < 0);
-}
-
 private void _record_border(mapping acc, string border, string type)
 {
   if (!acc[border])
@@ -440,19 +433,19 @@ mapping query_border_ways()
       switch (dirs[j])
       {
         case SECTOR_DIR_NORTH:
-          if (_sector_index(y + 1) != _sector_index(y))
+          if (SECTOR_INDEX(y + 1) != SECTOR_INDEX(y))
             _record_border(result, SECTOR_BORDER_N, type);
           break;
         case SECTOR_DIR_SOUTH:
-          if (_sector_index(y - 1) != _sector_index(y))
+          if (SECTOR_INDEX(y - 1) != SECTOR_INDEX(y))
             _record_border(result, SECTOR_BORDER_S, type);
           break;
         case SECTOR_DIR_EAST:
-          if (_sector_index(x + 1) != _sector_index(x))
+          if (SECTOR_INDEX(x + 1) != SECTOR_INDEX(x))
             _record_border(result, SECTOR_BORDER_E, type);
           break;
         case SECTOR_DIR_WEST:
-          if (_sector_index(x - 1) != _sector_index(x))
+          if (SECTOR_INDEX(x - 1) != SECTOR_INDEX(x))
             _record_border(result, SECTOR_BORDER_W, type);
           break;
 
@@ -467,8 +460,8 @@ mapping query_border_ways()
         case SECTOR_DIR_NORTHEAST:
         {
           int xc, yc;
-          xc = (_sector_index(x + 1) != _sector_index(x));
-          yc = (_sector_index(y + 1) != _sector_index(y));
+          xc = (SECTOR_INDEX(x + 1) != SECTOR_INDEX(x));
+          yc = (SECTOR_INDEX(y + 1) != SECTOR_INDEX(y));
           if (xc && !yc) _record_border(result, SECTOR_BORDER_E, type);
           if (yc && !xc) _record_border(result, SECTOR_BORDER_N, type);
           break;
@@ -476,8 +469,8 @@ mapping query_border_ways()
         case SECTOR_DIR_NORTHWEST:
         {
           int xc, yc;
-          xc = (_sector_index(x - 1) != _sector_index(x));
-          yc = (_sector_index(y + 1) != _sector_index(y));
+          xc = (SECTOR_INDEX(x - 1) != SECTOR_INDEX(x));
+          yc = (SECTOR_INDEX(y + 1) != SECTOR_INDEX(y));
           if (xc && !yc) _record_border(result, SECTOR_BORDER_W, type);
           if (yc && !xc) _record_border(result, SECTOR_BORDER_N, type);
           break;
@@ -485,8 +478,8 @@ mapping query_border_ways()
         case SECTOR_DIR_SOUTHEAST:
         {
           int xc, yc;
-          xc = (_sector_index(x + 1) != _sector_index(x));
-          yc = (_sector_index(y - 1) != _sector_index(y));
+          xc = (SECTOR_INDEX(x + 1) != SECTOR_INDEX(x));
+          yc = (SECTOR_INDEX(y - 1) != SECTOR_INDEX(y));
           if (xc && !yc) _record_border(result, SECTOR_BORDER_E, type);
           if (yc && !xc) _record_border(result, SECTOR_BORDER_S, type);
           break;
@@ -494,8 +487,8 @@ mapping query_border_ways()
         case SECTOR_DIR_SOUTHWEST:
         {
           int xc, yc;
-          xc = (_sector_index(x - 1) != _sector_index(x));
-          yc = (_sector_index(y - 1) != _sector_index(y));
+          xc = (SECTOR_INDEX(x - 1) != SECTOR_INDEX(x));
+          yc = (SECTOR_INDEX(y - 1) != SECTOR_INDEX(y));
           if (xc && !yc) _record_border(result, SECTOR_BORDER_W, type);
           if (yc && !xc) _record_border(result, SECTOR_BORDER_S, type);
           break;
@@ -539,8 +532,8 @@ string * query_sector_neighbours()
 
       if (sscanf(tos[j], "%d_%d_%d", tx, ty, tz) != 3)
         continue;
-      nkey = _sector_index(tx) + "_" + _sector_index(ty) + "_" +
-             _sector_index(tz);
+      nkey = SECTOR_INDEX(tx) + "_" + SECTOR_INDEX(ty) + "_" +
+             SECTOR_INDEX(tz);
       if (member_array(nkey, result) == -1)
         result += ({ nkey });
     }

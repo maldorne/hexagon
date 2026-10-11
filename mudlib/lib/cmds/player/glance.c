@@ -1,6 +1,7 @@
 // glance cmd from player.c, now external. Morgoth 2/Mar/95
 
 #include <mud/cmd.h>
+#include <sector/sector.h>
 
 #include <common/properties.h>
 #include <areas/weather.h>
@@ -62,9 +63,9 @@ static int cmd (string arg, object me, string verb)
         c = here->query_coordinates();
         ret += "[loc (" + c[0] + "," + c[1] + "," + c[2] + ")  map " +
                here->query_map_name() + "  sector (" +
-               (c[0] / 10 - (c[0] < 0)) + "," +
-               (c[1] / 10 - (c[1] < 0)) + "," +
-               (c[2] / 10 - (c[2] < 0)) + ")";
+               SECTOR_INDEX(c[0]) + "," +
+               SECTOR_INDEX(c[1]) + "," +
+               SECTOR_INDEX(c[2]) + ")";
         poi_mark = here->query_poi_marker();
         if (strlen(poi_mark))
           ret += "  " + poi_mark;

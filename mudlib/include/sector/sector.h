@@ -8,6 +8,14 @@
 #define SECTORS_HANDLER "/lib/handlers/sectors"
 // The per-sector storage object the handler clones, one per occupied bucket.
 #define SECTOR_STORAGE_OBJECT "/lib/location/sector"
+
+// A sector is a cube of SECTOR_SIZE locations a side. SECTOR_INDEX gives the
+// sector of one coordinate axis, rounding down: 0..9 is sector 0 and -10..-1
+// is sector -1. Integer division truncates toward zero, hence the negative
+// branch.
+#define SECTOR_SIZE 10
+#define SECTOR_INDEX(n) ((n) >= 0 ? (n) / SECTOR_SIZE : \
+                         -((-(n) + SECTOR_SIZE - 1) / SECTOR_SIZE))
 // Fine (room-to-room) pathfinder: A* over the node/edge graph the sectors
 // index. See /lib/handlers/pathfinding.
 #define PATHFIND_HANDLER "/lib/handlers/pathfinding"

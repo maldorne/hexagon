@@ -16,16 +16,20 @@ void setup()
             "sectors settype <type>\n" +
             "sectors settype <sx> <sy> <sz> <type> [<map>]\n" +
             "sectors verify <sx> <sy> <sz> [<map>]\n" +
-            "sectors purge [<map>]");
+            "sectors purge [<map>]\n" +
+            "sectors reindex [<map>]");
   set_help(
     "List the sectors loaded in the map system, set a sector's manual\n" +
-    "type, audit a sector, or purge stale index entries.\n" +
+    "type, audit a sector, purge stale index entries or index a whole map\n" +
+    "again.\n" +
     "\n" +
     "  sectors                             list loaded sectors\n" +
     "  sectors settype <type>              set the type of the sector you are in\n" +
     "  sectors settype <sx> <sy> <sz> <t>  set the sector at index (sx, sy, sz)\n" +
     "  sectors verify <sx> <sy> <sz>       report drift in one sector (read-only)\n" +
     "  sectors purge                       drop the ghost positions it finds\n" +
+    "  sectors reindex                     index every location of the map\n" +
+    "                                      again, in the background\n" +
     "\n" +
     "Coordinates are SECTOR indices (the ones shown by look / glance), not\n" +
     "location coordinates. The map defaults to the one you are standing in;\n" +
@@ -172,9 +176,9 @@ static int cmd(string str, object me, string verb)
         return 0;
       }
       coords = env->query_coordinates();
-      x = coords[0] / 10 - (coords[0] < 0);
-      y = coords[1] / 10 - (coords[1] < 0);
-      z = coords[2] / 10 - (coords[2] < 0);
+      x = SECTOR_INDEX(coords[0]);
+      y = SECTOR_INDEX(coords[1]);
+      z = SECTOR_INDEX(coords[2]);
       map_name = env->query_map_name();
       type = tokens[1];
     }
@@ -238,6 +242,28 @@ static int cmd(string str, object me, string verb)
     removed = load_object(SECTORS_HANDLER)->purge_drift(game, map_name);
     write("Purged " + removed + " stale position" +
           (removed == 1 ? "" : "s") + " from map '" + map_name + "'.\n");
+    return 1;
+  }
+
+  // ===== reindex (every location of the map, added again) =====
+  if (sizeof(tokens) && tokens[0] == "reindex")
+  {
+    string game, map_name;
+    int count;
+
+    game = game_name(me);
+    if (!strlen(game))
+    {
+      notify_fail("Cannot infer game from your current environment. " +
+                  "Stand inside a game first.\n");
+      return 0;
+    }
+
+    map_name = _resolve_map(me, sizeof(tokens) >= 2 ? tokens[1] : nil);
+
+    count = load_object(SECTORS_HANDLER)->reindex_map(game, map_name, me);
+    write("Indexing " + count + " location" + (count == 1 ? "" : "s") +
+          " again in map '" + map_name + "', in the background.\n");
     return 1;
   }
 

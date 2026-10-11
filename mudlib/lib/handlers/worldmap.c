@@ -82,13 +82,6 @@ void create()
   way_table = BOX_GLYPHS_INDEXED;
 }
 
-// Match maps.c's sector-index convention: sector n = n / 10 - (n < 0),
-// so a coord of -1 lands in sector -1, not sector 0.
-private int sector_index(int n)
-{
-  return n / 10 - (n < 0);
-}
-
 // Load the sector at (sx, sy, sz), or nil if no sector.o exists.
 // Memoised for the current render pass — the same neighbour sector is
 // consulted by the four wall/road decisions around it.
@@ -658,9 +651,9 @@ string render(int center_x, int center_y, int center_z,
 
   sector_cache = ([ ]);
 
-  sx0 = sector_index(center_x);
-  sy0 = sector_index(center_y);
-  sz0 = sector_index(center_z);
+  sx0 = SECTOR_INDEX(center_x);
+  sy0 = SECTOR_INDEX(center_y);
+  sz0 = SECTOR_INDEX(center_z);
 
   // top-left of the viewport, expressed in sector indices. `row_top`
   // is the highest y in the viewport because on screen y grows downward.

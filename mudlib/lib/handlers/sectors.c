@@ -76,9 +76,9 @@ object query_sector_for_coord(string game_slug, string map_name,
   int sector_x, sector_y, sector_z;
   string path;
 
-  sector_x = x / 10 - (x < 0);
-  sector_y = y / 10 - (y < 0);
-  sector_z = z / 10 - (z < 0);
+  sector_x = SECTOR_INDEX(x);
+  sector_y = SECTOR_INDEX(y);
+  sector_z = SECTOR_INDEX(z);
 
   path = "/save/games/" + game_slug + "/maps/" + map_name + "/" +
          sector_x + "/" + sector_y + "/" + sector_z + "/";
@@ -196,13 +196,13 @@ string add_location(object location)
   y = location->query_coordinates()[1];
   z = location->query_coordinates()[2];
 
-  // every sector could store 10x10x10 locations. The -(n < 0) term is what
-  // keeps negative coordinates in the sector a reader expects: integer division
-  // truncates toward zero, so -1 / 10 is 0, and without the correction the
-  // whole strip from -9 to 9 would collapse into sector 0.
-  sector_x = x / 10 - (x < 0);
-  sector_y = y / 10 - (y < 0);
-  sector_z = z / 10 - (z < 0);
+  // every sector could store 10x10x10 locations. SECTOR_INDEX rounds down, so
+  // negative coordinates land in the sector a reader expects: integer division
+  // truncates toward zero, so -1 / 10 is 0, and without the rounding the whole
+  // strip from -9 to 9 would collapse into sector 0.
+  sector_x = SECTOR_INDEX(x);
+  sector_y = SECTOR_INDEX(y);
+  sector_z = SECTOR_INDEX(z);
 
   // Ghost prevention: if this location is already indexed at a different
   // coordinate (its coords were re-guessed on a reload, or it was moved),
@@ -323,9 +323,9 @@ string add_location(object location)
               exit_map[dirs[i]][3]["sealed"])
             sealed += ({ cdir });
 
-          if (tx / 10 - (tx < 0) != sector_x ||
-              ty / 10 - (ty < 0) != sector_y ||
-              tz / 10 - (tz < 0) != sector_z)
+          if (SECTOR_INDEX(tx) != sector_x ||
+              SECTOR_INDEX(ty) != sector_y ||
+              SECTOR_INDEX(tz) != sector_z)
             boundary += ({ to });
         }
       }
@@ -394,9 +394,9 @@ int remove_location_from_map(string location_file_name, string map_name,
   string sector_path, coord_file;
   object sector;
 
-  sector_x = x / 10 - (x < 0);
-  sector_y = y / 10 - (y < 0);
-  sector_z = z / 10 - (z < 0);
+  sector_x = SECTOR_INDEX(x);
+  sector_y = SECTOR_INDEX(y);
+  sector_z = SECTOR_INDEX(z);
 
   sector_path = "/save/games/" + game_from_path(location_file_name) +
                 "/maps/" + map_name + "/" +
@@ -448,8 +448,10 @@ private int * _location_coords(string file, mapping cache)
 /**
  * Sweep every sector.o under a map and drop "ghost" position entries: a
  * coordinate that points at a location whose real coordinates sit elsewhere
- * (or at a location that no longer loads). These are left behind by reloads
- * that re-guessed coordinates before add_location's ghost-prevention existed.
+ * (or at a location that no longer loads), and a coordinate that does not
+ * belong to the sector holding it. These are left behind by reloads that
+ * re-guessed coordinates before add_location's ghost-prevention existed, and
+ * by an older sector index that rounded negative multiples of ten wrongly.
  *
  * Only the stale coordinate is removed, so a location that legitimately keeps
  * another entry in the same sector is untouched (see sector.c::remove_position).
@@ -490,13 +492,15 @@ int purge_drift(string game, string map_name)
         object sector;
         mapping positions;
         string * keys;
-        int ki;
+        int ki, sx, sy, sz;
 
         if (file_size(zs[zi]) != -2)
           continue;
 
         sector_path = zs[zi] + "/";
         if (file_size(sector_path + "sector.o") < 0)
+          continue;
+        if (sscanf(sector_path, base + "/%d/%d/%d/", sx, sy, sz) != 3)
           continue;
 
         sector = create_sector(sector_path);
@@ -516,7 +520,9 @@ int purge_drift(string game, string map_name)
 
           rc = _location_coords(file, coord_cache);
 
-          if (sizeof(rc) != 3 || rc[0] != kx || rc[1] != ky || rc[2] != kz)
+          if (sizeof(rc) != 3 || rc[0] != kx || rc[1] != ky || rc[2] != kz ||
+              SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
+              SECTOR_INDEX(kz) != sz)
           {
             remove_file(sector_path + key + ".o");
             sector->remove_position(key);
@@ -570,7 +576,8 @@ int purge_drift(string game, string map_name)
  *   ([ "total"   : int,                                positions in the index
  *      "stale"   : ({ ({ coord_key, file, reason }), ... }),
  *      "orphans" : ({ coord_key, ... }) ])             pointer files, no entry
- * reason is one of "moved", "unloadable", "no_pointer", "pointer_mismatch".
+ * reason is one of "moved", "unloadable", "wrong_sector", "no_pointer",
+ * "pointer_mismatch".
  */
 mapping verify_sector(string game, string map_name, int sx, int sy, int sz)
 {
@@ -610,6 +617,9 @@ mapping verify_sector(string game, string map_name, int sx, int sy, int sz)
       reason = "unloadable";
     else if (rc[0] != kx || rc[1] != ky || rc[2] != kz)
       reason = "moved";
+    else if (SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
+             SECTOR_INDEX(kz) != sz)
+      reason = "wrong_sector";
     else if (file_size(sector_path + key + ".o") < 0)
       reason = "no_pointer";
     else if (read_file(sector_path + key + ".o") != file)
@@ -634,4 +644,131 @@ mapping verify_sector(string game, string map_name, int sx, int sy, int sz)
   }
 
   return ([ "total": sizeof(keys), "stale": stale, "orphans": orphans ]);
+}
+
+// Locations a reindex still has to add, and who asked for it, per run.
+static mapping reindex_queue;
+
+/**
+ * Index every location of a map again, so each one lands in the sector its
+ * coordinate belongs to and the border data of every sector is rebuilt.
+ * First, without loading any location, every entry whose coordinate does not
+ * belong to the sector holding it is dropped; then the locations are added
+ * again in batches of REINDEX_BATCH, one call_out each, since loading them
+ * all at once runs out of ticks. Manual types stay. `who` is told when it
+ * ends. Returns the number of locations queued.
+ */
+#define REINDEX_BATCH 10
+
+int reindex_map(string game, string map_name, varargs object who)
+{
+  string base, * xs;
+  mapping seen;
+  int xi, yi, zi;
+
+  base = "/save/games/" + game + "/maps/" + map_name;
+  seen = ([ ]);
+
+  xs = get_files(base + "/*");
+  for (xi = 0; xi < sizeof(xs); xi++)
+  {
+    string * ys;
+
+    if (file_size(xs[xi]) != -2)
+      continue;
+
+    ys = get_files(xs[xi] + "/*");
+    for (yi = 0; yi < sizeof(ys); yi++)
+    {
+      string * zs;
+
+      if (file_size(ys[yi]) != -2)
+        continue;
+
+      zs = get_files(ys[yi] + "/*");
+      for (zi = 0; zi < sizeof(zs); zi++)
+      {
+        string sector_path;
+        object sector;
+        mapping positions;
+        string * keys;
+        int ki, sx, sy, sz;
+
+        sector_path = zs[zi] + "/";
+        if (file_size(sector_path + "sector.o") < 0)
+          continue;
+        if (sscanf(sector_path, base + "/%d/%d/%d/", sx, sy, sz) != 3)
+          continue;
+
+        sector = create_sector(sector_path);
+        positions = sector->query_positions();
+        keys = map_indices(positions);
+        for (ki = 0; ki < sizeof(keys); ki++)
+        {
+          int kx, ky, kz;
+
+          seen[positions[keys[ki]]] = 1;
+          if (sscanf(keys[ki], "%d_%d_%d", kx, ky, kz) != 3)
+            continue;
+          if (SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
+              SECTOR_INDEX(kz) != sz)
+          {
+            remove_file(sector_path + keys[ki] + ".o");
+            sector->remove_position(keys[ki]);
+          }
+        }
+
+        if (!map_sizeof(sector->query_positions()) &&
+            !strlen(sector->query_manual_type()))
+          sector->set_manual_type(SECTOR_TYPE_EMPTY);
+      }
+    }
+  }
+
+  if (!reindex_queue)
+    reindex_queue = ([ ]);
+  reindex_queue[base] = ({ map_indices(seen), who, 0 });
+  call_out("reindex_batch", 0, base);
+
+  return map_sizeof(seen);
+}
+
+// One batch of a reindex run: add the next REINDEX_BATCH locations, then
+// schedule the next batch or tell whoever asked that it is done.
+void reindex_batch(string base)
+{
+  string * files;
+  object who;
+  int i, done;
+
+  if (!reindex_queue || undefinedp(reindex_queue[base]))
+    return;
+
+  files = reindex_queue[base][0];
+  who = reindex_queue[base][1];
+  done = reindex_queue[base][2];
+
+  for (i = 0; i < REINDEX_BATCH && sizeof(files); i++)
+  {
+    object loc;
+
+    loc = load_object(LOCATION_HANDLER)->load_location(files[0]);
+    files = files[1..];
+    if (!loc || loc->query_coordinates() == nil)
+      continue;
+    add_location(loc);
+    done++;
+  }
+
+  if (sizeof(files))
+  {
+    reindex_queue[base] = ({ files, who, done });
+    call_out("reindex_batch", 0, base);
+    return;
+  }
+
+  map_delete(reindex_queue, base);
+  if (who)
+    tell_object(who, "Reindex of " + base + " finished: " + done +
+                " location" + (done == 1 ? "" : "s") + " indexed.\n");
 }

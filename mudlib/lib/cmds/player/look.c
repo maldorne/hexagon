@@ -2,6 +2,7 @@
 // reviewed for ccmud, neverbot 4/03
 
 #include <mud/cmd.h>
+#include <sector/sector.h>
 
 #include <common/properties.h>
 #include <areas/weather.h>
@@ -107,7 +108,7 @@ static int cmd(string arg, object me, string verb)
       // second coder line: only in a coordinated location. Shows the
       // location's world coords and the 10x10 sector it falls in, so a
       // coder walking the world can see exactly where sector borders are
-      // crossed. sector index matches maps.c: n / 10 - (n < 0).
+      // crossed.
       if (here->query_location() && here->query_coordinates())
       {
         int * c;
@@ -115,9 +116,9 @@ static int cmd(string arg, object me, string verb)
         c = here->query_coordinates();
         ret += "[loc (" + c[0] + "," + c[1] + "," + c[2] + ")  map " +
                here->query_map_name() + "  sector (" +
-               (c[0] / 10 - (c[0] < 0)) + "," +
-               (c[1] / 10 - (c[1] < 0)) + "," +
-               (c[2] / 10 - (c[2] < 0)) + ")";
+               SECTOR_INDEX(c[0]) + "," +
+               SECTOR_INDEX(c[1]) + "," +
+               SECTOR_INDEX(c[2]) + ")";
         poi_mark = here->query_poi_marker();
         if (strlen(poi_mark))
           ret += "  " + poi_mark;

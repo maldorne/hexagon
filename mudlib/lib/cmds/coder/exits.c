@@ -222,9 +222,9 @@ private string render_table(object env, mixed * checks, varargs int full)
     {
       int sx, sy, sz;
 
-      sx = coords[0] / 10 - (coords[0] < 0);
-      sy = coords[1] / 10 - (coords[1] < 0);
-      sz = coords[2] / 10 - (coords[2] < 0);
+      sx = SECTOR_INDEX(coords[0]);
+      sy = SECTOR_INDEX(coords[1]);
+      sz = SECTOR_INDEX(coords[2]);
       ret += sprintf(" %-9s %-20s %-7s %-14s %-7s %s\n", "Map",
                      env->query_map_name(), "Coords",
                      "(" + coords[0] + "," + coords[1] + "," + coords[2] + ")",
@@ -478,9 +478,9 @@ private int do_sector(object me, string * tokens, int verbose)
     return 1;
   }
 
-  sx = x / 10 - (x < 0);
-  sy = y / 10 - (y < 0);
-  sz = z / 10 - (z < 0);
+  sx = SECTOR_INDEX(x);
+  sy = SECTOR_INDEX(y);
+  sz = SECTOR_INDEX(z);
 
   sector_path = "/save/games/" + game + "/maps/" + map_name + "/" +
                 sx + "/" + sy + "/" + sz + "/";
