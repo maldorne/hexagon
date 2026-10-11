@@ -238,6 +238,17 @@ string query_short_exit_string()
   return exits::query_short_exit_string();
 }
 
+// A line of the place's own under the short line of a glance, from its
+// components: where the water is, for a coast. Empty for most places.
+string query_glance_string()
+{
+  mixed ret;
+
+  // no cast: with no component answering, the reduce gives back nil
+  ret = run_reduce("glance_string", ({ }), nil, "_concat_string");
+  return ret ? ret : "";
+}
+
 string query_original_room_file_name() { return _original_room_file_name; }
 void set_original_room_file_name(string str) { _original_room_file_name = str; }
 string query_original_short() { return _original_short; }

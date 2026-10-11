@@ -19,3 +19,4 @@
 #define _LANG_WATER_NO_SHORE "No ves la orilla por ninguna parte.\n"
 #define _LANG_COAST_SWIM_MESS "$N se mete en el agua y nada hacia $T."
 #define _LANG_COAST_LOOK "Estás en la orilla. Escribe 'nadar' para meterte en el agua.\n"
+#define _LANG_COAST_GLANCE "Estás en la orilla.\n"

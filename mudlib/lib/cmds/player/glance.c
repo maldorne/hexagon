@@ -90,6 +90,9 @@ static int cmd (string arg, object me, string verb)
           ret += (string)here->query_dark_mess(dark);
         ret += (string)here->short() +
                (string)here->query_short_exit_string() + ".\n";
+        // a line the place adds to a glance: the shore you stand on
+        if (function_exists("query_glance_string", here))
+          ret += (string)here->query_glance_string();
         // Props section between exits and inventory, matching the
         // slot it occupies in `look`. Returns "" when no props
         // component is attached.

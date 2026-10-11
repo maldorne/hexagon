@@ -62,6 +62,14 @@ string query_coast_look(object who)
   return _LANG_COAST_LOOK;
 }
 
+// The same, shorter, under the short line of a glance.
+string query_coast_glance(object who)
+{
+  if (!sizeof(query_swim_directions(who)))
+    return "";
+  return _LANG_COAST_GLANCE;
+}
+
 void coast_event_enter(object ob)
 {
   if (ob && interactive(ob) && !ob->query_known_skill(SKILL_SWIM))

@@ -49,6 +49,7 @@ string query_dirs_string()
 }
 
 string query_short_exit_string() { return ""; }
+string query_glance_string() { return query_water_look(this_player()); }
 
 mixed * stats()
 {

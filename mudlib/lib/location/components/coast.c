@@ -38,13 +38,19 @@ void set_kind(string s) { set_coast_kind(s); }
 mapping query_hooks()
 {
   return ([
-    "extra_look": HOOK_PRIORITY_STRUCTURE,
+    "extra_look":    HOOK_PRIORITY_STRUCTURE,
+    "glance_string": HOOK_PRIORITY_STRUCTURE,
   ]);
 }
 
 string hook_extra_look(mixed * args)
 {
   return query_coast_look(this_player());
+}
+
+string hook_glance_string(mixed * args)
+{
+  return query_coast_glance(this_player());
 }
 
 void event_enter(object ob, varargs string msg, object from, mixed avoid)

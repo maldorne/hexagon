@@ -31,6 +31,7 @@ mapping query_hooks()
   return ([
     "dirs_string":       HOOK_PRIORITY_STRUCTURE,
     "short_exit_string": HOOK_PRIORITY_STRUCTURE,
+    "glance_string":     HOOK_PRIORITY_STRUCTURE,
   ]);
 }
 
@@ -46,6 +47,11 @@ mixed hook_dirs_string(mixed * args)
 mixed hook_short_exit_string(mixed * args)
 {
   return ({ HOOK_EXCLUSIVE, "" });
+}
+
+string hook_glance_string(mixed * args)
+{
+  return query_water_look(this_player());
 }
 
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
