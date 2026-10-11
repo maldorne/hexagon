@@ -261,6 +261,9 @@ private object spawn_monster(string source, object loc)
 {
   object npc;
   string game, area_path;
+  mapping t;
+  string * kit;
+  int i;
 
   area_path = (string)this_object()->query_area_path();
   game = game_from_path(area_path);
@@ -277,11 +280,20 @@ private object spawn_monster(string source, object loc)
   // gender before the template, so apply_template picks the matching
   // per-gender name / short / long
   npc->set_gender((int)this_object()->decide_gender(game, source));
-  npc->apply_template(
-    (mapping)this_object()->query_area_template(game, source), 1);
+  t = (mapping)this_object()->query_area_template(game, source);
+  npc->apply_template(t, 1);
   npc->set_level((int)this_object()->decide_level(game, source));
 
+  // the type's kit, rolled anew each time like the rest of an anonymous monster
+  kit = ({ });
+  if (t && pointerp(t["equipment"]) && sizeof(t["equipment"]))
+    kit = (string *)this_object()->resolve_equipment(t["equipment"]);
+  for (i = 0; i < sizeof(kit); i++)
+    npc->add_clone(kit[i], 1);
+
   npc->move(loc);
+  if (sizeof(kit))
+    npc->do_equip("");
   // its components may need to see the world it now stands in: a guard
   // registers on the exit it watches
   npc->components_placed();
