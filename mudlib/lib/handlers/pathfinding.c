@@ -56,7 +56,7 @@ private int heuristic(string a_key, string b_key)
 // The edges leaving a coordinate ([ dir : neighbour-coord ]), fetched from
 // whatever sector owns that coordinate. Empty when the coord is unindexed.
 private mapping edges_at(string game_slug, string map_name, string key,
-                         int through_sealed)
+                         int through_sealed, int through_swim)
 {
   int * c;
   object sector;
@@ -79,6 +79,10 @@ private mapping edges_at(string game_slug, string map_name, string key,
   node = sector->query_nodes()[key];
   if (!through_sealed && mappingp(node) && pointerp(node["sealed"]))
     e = e - node["sealed"];
+
+  // and one that is swum only by a swimmer
+  if (!through_swim && mappingp(node) && pointerp(node["swim"]))
+    e = e - node["swim"];
 
   return e;
 }
@@ -145,10 +149,11 @@ private string * reconstruct(mapping came_from, string goal_key)
 // start_key to goal_key, ({ }) when they are the same node, or nil when no
 // path exists (or the search hits its expansion cap).
 // A sealed exit (one only an action can take) is left out of the search
-// unless `through_sealed` is set.
+// unless `through_sealed` is set, and an exit that is swum unless
+// `through_swim` is.
 string * find_path_coords(string game_slug, string map_name,
                           string start_key, string goal_key,
-                          varargs int through_sealed)
+                          varargs int through_sealed, int through_swim)
 {
   string * open;
   mapping g_score, f_score, came_from, closed;
@@ -182,7 +187,8 @@ string * find_path_coords(string game_slug, string map_name,
     closed[current] = 1;
     current_g = g_score[current];
 
-    neighbours = edges_at(game_slug, map_name, current, through_sealed);
+    neighbours = edges_at(game_slug, map_name, current, through_sealed,
+                          through_swim);
     dirs = map_indices(neighbours);
     for (i = 0; i < sizeof(dirs); i++)
     {
@@ -281,7 +287,8 @@ int query_distance(object from, object to)
 // another. Both must sit in the same game and map (the coordinate graph is
 // per-map); returns ({ }) when they are the same coordinate and nil when there
 // is no route or the endpoints are not indexed.
-string * find_path(object from, object to, varargs int through_sealed)
+string * find_path(object from, object to, varargs int through_sealed,
+                   int through_swim)
 {
   mixed * keys;
 
@@ -289,5 +296,6 @@ string * find_path(object from, object to, varargs int through_sealed)
   if (!keys)
     return nil;
 
-  return find_path_coords(keys[0], keys[1], keys[2], keys[3], through_sealed);
+  return find_path_coords(keys[0], keys[1], keys[2], keys[3], through_sealed,
+                          through_swim);
 }

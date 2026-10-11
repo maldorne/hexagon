@@ -121,6 +121,8 @@ private string _build_inner(string grid, mapping flags)
     out += "                       %^BOLD%^YELLOW%^?%^RESET%^   : " + _format(_LANG_CMD_MAP_FINISHED_QUESTS) + "\n";
   if (flags[CART_COAST_ROOM])
     out += "                       %^BLUE%^[ ]%^RESET%^ : " + _format(_LANG_CMD_MAP_COAST) + "\n";
+  if (flags[CART_WATER_ROOM])
+    out += "                       %^BLUE%^[~]%^RESET%^ : " + _format(_LANG_CMD_MAP_WATER) + "\n";
 
   return out;
 }

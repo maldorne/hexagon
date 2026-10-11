@@ -157,6 +157,10 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   if (location_data && location_data["sealed"] && sizeof(location_data["sealed"]))
     nodes[key]["sealed"] = location_data["sealed"];
 
+  // and the ones that are swum, the way into, out of or across water
+  if (location_data && location_data["swim"] && sizeof(location_data["swim"]))
+    nodes[key]["swim"] = location_data["swim"];
+
   // location_data may carry an "edges" mapping ([ direction : "tx_ty_tz" ]) --
   // every traversable exit of this coordinate and the neighbouring coordinate
   // it leads to (the full movement graph). Store it, or clear a stale entry.

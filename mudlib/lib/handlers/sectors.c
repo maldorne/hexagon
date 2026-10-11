@@ -291,12 +291,13 @@ string add_location(object location)
     // coarse pathfinder (sector to sector) and to stitch a path across a border.
     {
       mapping exit_map, edge_map;
-      string * dirs, * boundary, * sealed;
+      string * dirs, * boundary, * sealed, * swim;
 
       exit_map = location->query_exit_map();
       edge_map = ([ ]);
       boundary = ({ });
       sealed = ({ });
+      swim = ({ });
 
       if (mappingp(exit_map))
       {
@@ -323,6 +324,11 @@ string add_location(object location)
               exit_map[dirs[i]][3]["sealed"])
             sealed += ({ cdir });
 
+          // so is one that is swum: only a swimmer goes that way
+          if (sizeof(exit_map[dirs[i]]) > 3 && mappingp(exit_map[dirs[i]][3]) &&
+              exit_map[dirs[i]][3]["swim"])
+            swim += ({ cdir });
+
           if (SECTOR_INDEX(tx) != sector_x ||
               SECTOR_INDEX(ty) != sector_y ||
               SECTOR_INDEX(tz) != sector_z)
@@ -336,6 +342,8 @@ string add_location(object location)
         location_data["boundary"] = boundary;
       if (sizeof(sealed))
         location_data["sealed"] = sealed;
+      if (sizeof(swim))
+        location_data["swim"] = swim;
     }
 
     sector_storage->add_location(location->query_file_name(),

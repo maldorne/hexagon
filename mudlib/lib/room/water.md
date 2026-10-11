@@ -23,16 +23,26 @@ A water place declares:
     set_water_depth(2);                      // 1 surface, 2 deep
 
 A coast declares its kind: `set_coast_kind("bank")` (beach, cliff, port,
-harbor, bank). Its exits into water are found by looking at where they lead.
+harbor, bank).
+
+## Swum exits
+
+The ways into, out of and across water are swum exits, declared with the
+`swim` exit option: `add_exit(DIR_EAST, <water>, "standard", nil,
+([ "swim": 1 ]))` on a coast, while every exit of a water room is swum by
+itself. A swum exit is part of the map and of the coordinate graph, and the
+map draws water as `[~]`, but it is not listed and typing its direction does
+nothing; the path finder leaves it out unless the walker swims. Unlike a sealed
+exit, nothing ever reveals it.
 
 ## Swimming
 
-The exits of a water place stay real, for the map and the paths, but nobody
-walks them, and nobody walks from a coast into water: the move is refused and
-one swims instead, with the `swim` skill (`nadar <dirección>`). Whoever reaches
-water or a coast learns it. In water the exit line lists where one can swim
-(`[nadar: ne,o,se]`); on a coast a line under the description says it, and
-`nadar` alone says it anywhere.
+The `swim` skill (`nadar`) takes the swum exits, and whoever reaches water or a
+coast learns it. On a coast, `nadar` alone goes into the water (`nadar <dir>`
+when there is water more than one way), and a line under the description says
+so. In water there are no exit lines: one sees where the shore is ("Puedes ver
+la orilla hacia el oeste") and swims with `nadar <dir>`; `nadar` alone says
+where the shore is again.
 
 Going in from a coast always works. Every stroke inside water is rolled: the
 swimmer's ability, plus a bonus with the current, minus a malus across or
@@ -47,6 +57,7 @@ after a few seconds.
 
 ## Creatures
 
-An NPC template with `swims` (a fish) walks water with ordinary exits, and is
-the only kind the area materializes in a water location, whatever the rooms
-declared. Every other NPC is refused at a coast like a player.
+An NPC template with `swims` (a fish) walks swum exits like ordinary ones and
+finds paths through them, and is the only kind the area materializes in a
+water location, whatever the rooms declared. Every other NPC stays out of the
+water.

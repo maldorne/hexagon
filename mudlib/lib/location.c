@@ -214,24 +214,26 @@ int do_exit_command(string str, varargs mixed verb, object ob)
   return exits::do_exit_command(args[0], args[1], args[2]);
 }
 
-// The exit lines, unless a component says them its own way (water lists where
-// one can swim instead).
+// The exit lines, unless a component says them its own way (water shows where
+// the shore is instead).
 string query_dirs_string()
 {
-  string ret;
+  mixed ret;
 
-  ret = (string)run_reduce("dirs_string", ({ }), "", "_concat_string");
-  if (ret && strlen(ret))
+  // no cast: with no component answering, the reduce gives back nil
+  ret = run_reduce("dirs_string", ({ }), nil, "_concat_string");
+  if (ret)
     return ret;
   return exits::query_dirs_string();
 }
 
 string query_short_exit_string()
 {
-  string ret;
+  mixed ret;
 
-  ret = (string)run_reduce("short_exit_string", ({ }), "", "_concat_string");
-  if (ret && strlen(ret))
+  // no cast: with no component answering, the reduce gives back nil
+  ret = run_reduce("short_exit_string", ({ }), nil, "_concat_string");
+  if (ret)
     return ret;
   return exits::query_short_exit_string();
 }

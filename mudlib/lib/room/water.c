@@ -6,9 +6,10 @@
 // and the water location component, which answer query_water_place() with
 // the place itself.
 //
-// The exits stay real, the map and the paths know them, but nobody walks
-// them: they are swum with the swim skill, and the exit line lists where one
-// can swim. What a place declares:
+// Every exit of water is swum (the "swim" exit option): it is there for the
+// map and the paths, but it is not listed and its direction does nothing. One
+// crosses it with the swim skill, and what one sees from the water is where
+// the shore is. What a place declares:
 //   depth     1 swimming at the surface, 2 deep water, harder to cross
 //   current   the exit the water flows out by, nil for still water
 //   strength  0 still .. 3 rapids, how hard the current pulls
@@ -151,20 +152,16 @@ void lose_breath(object who)
     who->adjust_hp(-damage);
 }
 
-// Take somebody out of the water place by an exit, swimming or carried.
-int move_swimmer(object who, string dir, string mess)
+// Take somebody out of the water place through a swum exit.
+int move_swimmer(object who, string dir, string leave)
 {
-  object place, dest;
+  object place;
 
   place = query_water_place();
   if (!place || !dir)
     return 0;
 
-  dest = place->query_dest_object(dir);
-  if (!dest)
-    return 0;
-
-  return who->move_living(dir, dest, mess);
+  return place->force_exit(dir, who, leave, _LANG_WATER_ARRIVE_MESS);
 }
 
 // One stroke towards `dir`, rolled. Whoever fails is carried off by the
@@ -198,49 +195,26 @@ int swim(object who, string dir)
   return 0;
 }
 
-// Nobody walks through water but those who swim by nature.
-string query_walk_refusal(object who, string dir)
+// What one sees from the water: where the shore is, never the exits.
+string query_water_look(object who)
 {
-  if (!who || who->query_swims() || !dir)
-    return nil;
-  if (member_array(dir, query_water_place()->query_direc()) == -1)
-    return nil;
-  return _LANG_WATER_MUST_SWIM;
-}
-
-// Where one can swim from here, said in words and in the short exit line.
-string query_water_dirs_string(object who)
-{
-  string * dirs, * names;
+  string * dirs, * shores;
+  object dest;
   int i;
 
   dirs = query_swim_directions(who);
-  if (!sizeof(dirs))
-    return _LANG_WATER_NOWHERE_TO_SWIM;
-
-  names = ({ });
-  for (i = 0; i < sizeof(dirs); i++)
-    names += ({ ROOM_HAND->query_exit_dir(dirs[i]) });
-
-  return _LANG_WATER_CAN_SWIM + query_multiple_short(names) + ".";
-}
-
-string query_water_short_exit_string(object who)
-{
-  string * dirs, * shown;
-  string short;
-  int i;
-
-  dirs = query_swim_directions(who);
-  shown = ({ });
+  shores = ({ });
   for (i = 0; i < sizeof(dirs); i++)
   {
-    short = EXIT_HAND->query_shorten(dirs[i]);
-    shown += ({ short ? short : dirs[i] });
+    dest = query_water_place()->query_dest_object(dirs[i]);
+    if (dest && dest->query_coast())
+      shores += ({ ROOM_HAND->query_exit_dir(dirs[i]) });
   }
 
-  return "%^BOLD%^CYAN%^ [" + _LANG_WATER_SHORT_LABEL +
-         (sizeof(shown) ? ": " + implode(shown, ",") : "") + "]%^RESET%^";
+  if (!sizeof(shores))
+    return _LANG_WATER_NO_SHORE;
+
+  return _LANG_WATER_SHORE + query_multiple_short(shores) + ".\n";
 }
 
 // Whoever comes into moving water and does not swim on is carried off by it

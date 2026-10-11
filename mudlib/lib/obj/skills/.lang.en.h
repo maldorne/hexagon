@@ -104,12 +104,13 @@
 
 #define _LANG_SKILL_SWIM_NAME "swim"
 #define _LANG_SKILL_SWIM_ALIASES ({ "dive" })
-#define _LANG_SKILL_SWIM_HELP "With 'swim <direction>' you move through water, or " + \
-      "get into it from the shore; 'swim' alone shows where you can swim. Nobody " + \
-      "walks in water: every stroke is rolled against your skill, easier with the " + \
+#define _LANG_SKILL_SWIM_HELP "With 'swim' alone you get into the water from the " + \
+      "shore, and with 'swim <direction>' you move through it; in the water, " + \
+      "'swim' alone tells you where you see the shore. Nobody walks in water: every stroke is rolled against your skill, easier with the " + \
       "current than against it or in deep water, and harder the more you carry. " + \
       "If you fail you swallow water, and a current sweeps you away. You learn to " + \
       "swim when you reach the water.\n"
 #define _LANG_SKILL_SWIM_NO_WATER "There is no water here to swim in.\n"
 #define _LANG_SKILL_SWIM_NOT_THERE "You cannot swim that way.\n"
+#define _LANG_SKILL_SWIM_WHICH_WAY "There is water more than one way: swim <direction>.\n"
 #define _LANG_SKILL_SWIM_ROUND1 "You take a breath and start swimming.\n"

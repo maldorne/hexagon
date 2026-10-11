@@ -21,33 +21,34 @@ void set_underground_kind(string kind)
   room::set_underground_kind(kind);
 }
 
+// Every exit of water is swum.
+mixed add_exit(string direc, mixed dest, string type,
+               varargs string material, mapping options)
+{
+  return room::add_exit(direc, dest, type, material,
+                        (options ? options : ([ ])) + ([ "swim": 1 ]));
+}
+
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
   room::event_enter(ob, msg, from, avoid);
   water::water_event_enter(ob);
 }
 
-int do_exit_command(string str, varargs mixed verb, object ob)
+// No exit lines in water: in their place, where the shore is. Worked out only
+// for somebody looking from here, never while the exits are being set up.
+string query_dirs_string()
 {
-  string refusal;
+  string look;
 
-  if (!verb)
-    verb = query_verb();
-  if (!ob)
-    ob = this_player();
+  if (!this_player() || environment(this_player()) != this_object())
+    return "";
 
-  refusal = query_walk_refusal(ob, query_verb_exit(verb));
-  if (refusal)
-  {
-    notify_fail(refusal);
-    return 0;
-  }
-
-  return room::do_exit_command(str, verb, ob);
+  look = query_water_look(this_player());
+  return look[0 .. strlen(look) - 2];
 }
 
-string query_dirs_string() { return query_water_dirs_string(this_player()); }
-string query_short_exit_string() { return query_water_short_exit_string(this_player()); }
+string query_short_exit_string() { return ""; }
 
 mixed * stats()
 {

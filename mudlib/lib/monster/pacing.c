@@ -131,7 +131,8 @@ int travel_to(mixed dest)
       (travelling() || this_object()->query_action_pending()))
     return sizeof(travel_path);
 
-  dirs = PATHFIND_HANDLER->find_path(environment(), destination);
+  dirs = PATHFIND_HANDLER->find_path(environment(), destination, 0,
+                                     this_object()->query_swims());
   if (!dirs)
     return 0;
 

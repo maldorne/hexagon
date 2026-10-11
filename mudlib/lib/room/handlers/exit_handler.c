@@ -476,8 +476,9 @@ string query_dirs_string(mixed *dest_direc, mixed *dest_other,
 
   for (i = 0; i < size; i+=2)
   {
-    // a sealed exit is never listed, door or not
-    if (room_ob->query_sealed_exit(dest_other[i]))
+    // a sealed exit is never listed, door or not, nor one that is swum
+    if (room_ob->query_sealed_exit(dest_other[i]) ||
+        room_ob->query_swim_exit(dest_other[i]))
       continue;
 
     // same look as with the short_exit_string, neverbot 6/03

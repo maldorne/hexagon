@@ -1,7 +1,8 @@
-// Swim — active skill: 'swim <direction>' in water, or from a coast into it.
-// The place decides everything: where one can swim, how hard each stroke is
-// and what happens to whoever fails (see /lib/room/water.c and
-// /lib/room/coast.c). 'swim' alone says where one can swim from here.
+// Swim — active skill: 'swim' alone from a coast into the water, 'swim
+// <direction>' through it. The place decides everything: where one can swim,
+// how hard each stroke is and what happens to whoever fails (see
+// /lib/room/water.c and /lib/room/coast.c). In water, 'swim' alone says where
+// the shore is.
 //
 // Nobody is taught it: whoever reaches water or a coast picks it up.
 
@@ -62,7 +63,9 @@ object query_swim_place(object env)
   return nil;
 }
 
-// The exit a typed direction stands for, if one can swim out by it.
+// The exit a stroke goes out by: the typed direction if one can swim that way,
+// or, from a coast with a single way into the water, that one with nothing
+// typed.
 string query_swim_exit(object caster, string str)
 {
   object env, place;
@@ -71,17 +74,24 @@ string query_swim_exit(object caster, string str)
 
   env = environment(caster);
   place = query_swim_place(env);
-  if (!place || !str)
+  if (!place)
     return nil;
 
-  str = trim(str);
   dirs = place->query_swim_directions(caster);
 
+  if (!str || !strlen(trim(str)))
+  {
+    if (!env->query_water_environment() && sizeof(dirs) == 1)
+      return dirs[0];
+    return nil;
+  }
+
+  str = trim(str);
   dir = env->query_verb_exit(str);
   if (dir && member_array(dir, dirs) != -1)
     return dir;
 
-  // a direction typed short, as the exit line shows it
+  // a direction typed short, as the exits are shown
   for (i = 0; i < sizeof(dirs); i++)
     if (EXIT_HAND->query_shorten(dirs[i]) == str)
       return dirs[i];
@@ -92,29 +102,25 @@ string query_swim_exit(object caster, string str)
 mixed extra_checks(string str, object caster)
 {
   object env, place;
-  string line;
 
   env = environment(caster);
   place = query_swim_place(env);
 
-  if (!place || (!env->query_water_environment() &&
-                 !sizeof(place->query_swim_directions(caster))))
+  if (!place || !sizeof(place->query_swim_directions(caster)))
     return _LANG_SKILL_SWIM_NO_WATER;
 
-  // nothing typed: where one can swim from here
+  if (query_swim_exit(caster, str))
+    return 0;
+
+  // nothing typed in the water: where the shore is
   if (!str || !strlen(trim(str)))
   {
     if (env->query_water_environment())
-      line = place->query_water_dirs_string(caster) + "\n";
-    else
-      line = place->query_coast_look(caster);
-    return line;
+      return place->query_water_look(caster);
+    return _LANG_SKILL_SWIM_WHICH_WAY;
   }
 
-  if (!query_swim_exit(caster, str))
-    return _LANG_SKILL_SWIM_NOT_THERE;
-
-  return 0;
+  return _LANG_SKILL_SWIM_NOT_THERE;
 }
 
 int start_swim(object caster, mixed target, mixed out_range, int time, int quiet)

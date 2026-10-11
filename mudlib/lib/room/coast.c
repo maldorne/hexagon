@@ -6,8 +6,9 @@
 // (/lib/coast.c) and the coast location component, which answer
 // query_coast_place() with the place itself.
 //
-// Exits into water are not walked: one swims into the water from here, with
-// the swim skill, and whoever reaches a coast knows from then on how to.
+// Its way into the water is a swum exit (the "swim" exit option): the map
+// shows it, but it is not listed and its direction does nothing. 'swim' alone
+// takes one in, and whoever reaches a coast knows from then on how to.
 //   kind   beach | cliff | port | harbor | bank
 
 #include <living/skills.h>
@@ -23,10 +24,10 @@ int query_coast() { return 1; }
 string query_coast_kind() { return coast_kind ? coast_kind : "beach"; }
 void set_coast_kind(string kind) { coast_kind = kind; }
 
-// The exits that go into water.
+// The swum exits, the ways into the water.
 string * query_swim_directions(object who)
 {
-  object place, dest;
+  object place;
   string * dirs, * ret;
   int i;
 
@@ -40,13 +41,8 @@ string * query_swim_directions(object who)
 
   ret = ({ });
   for (i = 0; i < sizeof(dirs); i++)
-  {
-    if (place->query_sealed_exit(dirs[i]))
-      continue;
-    dest = place->query_dest_object(dirs[i]);
-    if (dest && dest->query_water_environment())
+    if (place->query_swim_exit(dirs[i]))
       ret += ({ dirs[i] });
-  }
 
   return ret;
 }
@@ -54,40 +50,16 @@ string * query_swim_directions(object who)
 // Going into the water is not rolled: the strokes that count come after.
 int swim(object who, string dir)
 {
-  object dest;
-
-  dest = query_coast_place()->query_dest_object(dir);
-  if (!dest)
-    return 0;
-
-  return who->move_living(dir, dest, _LANG_COAST_SWIM_MESS);
+  return query_coast_place()->force_exit(dir, who, _LANG_COAST_SWIM_MESS,
+                                         _LANG_WATER_ARRIVE_MESS);
 }
 
-// Nobody walks into the water but those who swim by nature.
-string query_walk_refusal(object who, string dir)
-{
-  if (!who || who->query_swims() || !dir)
-    return nil;
-  if (member_array(dir, query_swim_directions(who)) == -1)
-    return nil;
-  return _LANG_COAST_MUST_SWIM;
-}
-
-// A line under the description: where one can swim from here.
+// A line under the description, when there is water to go into.
 string query_coast_look(object who)
 {
-  string * dirs, * names;
-  int i;
-
-  dirs = query_swim_directions(who);
-  if (!sizeof(dirs))
+  if (!sizeof(query_swim_directions(who)))
     return "";
-
-  names = ({ });
-  for (i = 0; i < sizeof(dirs); i++)
-    names += ({ ROOM_HAND->query_exit_dir(dirs[i]) });
-
-  return _LANG_COAST_CAN_SWIM + query_multiple_short(names) + ".\n";
+  return _LANG_COAST_LOOK;
 }
 
 void coast_event_enter(object ob)

@@ -394,6 +394,7 @@
 #define _LANG_CMD_MAP_NEW_QUESTS "New quests"
 #define _LANG_CMD_MAP_FINISHED_QUESTS "Finished quests"
 #define _LANG_CMD_MAP_COAST "Shore"
+#define _LANG_CMD_MAP_WATER "Water (swum across)"
 
 #define _LANG_CMD_MAP_OPT_COMPACT ({ "compact" })
 #define _LANG_CMD_MAP_OPT_UNICODE ({ "unicode" })

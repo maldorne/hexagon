@@ -29,38 +29,23 @@ object query_water_place() { return query_my_location(); }
 mapping query_hooks()
 {
   return ([
-    "do_exit_command":   HOOK_PRIORITY_GATE,
     "dirs_string":       HOOK_PRIORITY_STRUCTURE,
     "short_exit_string": HOOK_PRIORITY_STRUCTURE,
   ]);
 }
 
-// Pipeline contract for do_exit_command: args = ({ str, verb, ob }). Nobody
-// walks out of the water: the move is aborted (verb 0) with the reason.
-mixed * hook_do_exit_command(mixed * args)
-{
-  string refusal;
-
-  refusal = query_walk_refusal(args[2],
-              query_my_location()->query_verb_exit(args[1]));
-  if (refusal)
-  {
-    notify_fail(refusal);
-    args[1] = 0;
-  }
-
-  return args;
-}
-
-// The exit lines list where one can swim instead of the exits.
+// No exit lines in water: in their place, where the shore is.
 mixed hook_dirs_string(mixed * args)
 {
-  return ({ HOOK_EXCLUSIVE, query_water_dirs_string(this_player()) });
+  string look;
+
+  look = query_water_look(this_player());
+  return ({ HOOK_EXCLUSIVE, look[0 .. strlen(look) - 2] });
 }
 
 mixed hook_short_exit_string(mixed * args)
 {
-  return ({ HOOK_EXCLUSIVE, query_water_short_exit_string(this_player()) });
+  return ({ HOOK_EXCLUSIVE, "" });
 }
 
 void event_enter(object ob, varargs string msg, object from, mixed avoid)

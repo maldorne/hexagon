@@ -98,6 +98,8 @@ private int _classify_room(object room, object viewer, int deep)
       return CART_DOWN_ROOM;
   }
 
+  if (room->query_water_environment())
+    return CART_WATER_ROOM;
   if (room->query_coast())
     return CART_COAST_ROOM;
 
@@ -522,6 +524,7 @@ string render_ascii(mapping view)
         case CART_ROOM:               line += "[ ]";                                 break;
         case CART_HOME_ROOM:          line += "[" + CART_HOME_GLYPH + "]";           break;
         case CART_COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^";                break;
+        case CART_WATER_ROOM:         line += "%^BLUE%^[~]%^RESET%^";                break;
         case CART_DOOR_ROOM:          line += "[D]";                                 break;
         case CART_UP_ROOM:            line += "[^]";                                 break;
         case CART_DOWN_ROOM:          line += "[v]";                                 break;
@@ -595,6 +598,7 @@ string render_compact(mapping view)
         case CART_ROOM:               line += "#";                                   break;
         case CART_HOME_ROOM:          line += CART_HOME_GLYPH;                        break;
         case CART_COAST_ROOM:         line += "%^BLUE%^~%^RESET%^";                  break;
+        case CART_WATER_ROOM:         line += "%^BOLD%^BLUE%^~%^RESET%^";            break;
         case CART_DOOR_ROOM:          line += "D";                                   break;
         case CART_UP_ROOM:            line += "^";                                   break;
         case CART_DOWN_ROOM:          line += "v";                                   break;
@@ -747,6 +751,9 @@ string render_unicode(mapping view)
         case CART_COAST_ROOM:
           // ◯ U+25EF large circle
           line += "%^BLUE%^" + chr(226) + chr(151) + chr(175) + "%^RESET%^";          break;
+        case CART_WATER_ROOM:
+          // ≈ U+2248 almost equal to, waves
+          line += "%^BLUE%^" + chr(226) + chr(137) + chr(136) + "%^RESET%^";          break;
         case CART_DOOR_ROOM:
           // ▦ U+25A6 square with horizontal fill
           line += chr(226) + chr(150) + chr(166);                                     break;
@@ -893,6 +900,9 @@ string render_color_by_area(mapping view)
           break;
         case CART_COAST_ROOM:
           line += "%^BLUE%^[ ]%^RESET%^";
+          break;
+        case CART_WATER_ROOM:
+          line += "%^BLUE%^[~]%^RESET%^";
           break;
         case CART_DOOR_ROOM:
           line += (strlen(tint) ? tint + "[D]%^RESET%^" : "[D]");

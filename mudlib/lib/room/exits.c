@@ -26,6 +26,7 @@ static string forced_exit;
 object query_door_ob(string dir);
 object add_door(string dir);
 int query_sealed_exit(string direc);
+int query_swim_exit(string direc);
 string query_verb_exit(mixed verb);
 private void show_exit(string direc, int shown);
 
@@ -169,8 +170,8 @@ string query_short_exit_string()
 
   for (i = 0; i < sizeof(dest_other); i += 2)
   {
-    // a sealed exit is never listed, door or not
-    if (query_sealed_exit(dest_other[i]))
+    // a sealed exit is never listed, door or not, nor one that is swum
+    if (query_sealed_exit(dest_other[i]) || query_swim_exit(dest_other[i]))
       continue;
 
     door = query_door_ob(dest_other[i]);
@@ -274,8 +275,9 @@ mixed add_exit(string direc, mixed dest, string type,
     if (options)
       exit_map[direc] = exit_map[direc] + ({ options });
 
-    // a sealed exit is real but nobody sees it until it is revealed
-    if (query_sealed_exit(direc))
+    // a sealed exit is real but nobody sees it until it is revealed, and one
+    // that is swum is never seen
+    if (query_sealed_exit(direc) || query_swim_exit(direc))
       show_exit(direc, 0);
 
     exit_string = query_dirs_string();
@@ -303,8 +305,9 @@ mixed add_exit(string direc, mixed dest, string type,
     if (options)
       exit_map[direc] = exit_map[direc] + ({ options });
 
-    // a sealed exit is real but nobody sees it until it is revealed
-    if (query_sealed_exit(direc))
+    // a sealed exit is real but nobody sees it until it is revealed, and one
+    // that is swum is never seen
+    if (query_sealed_exit(direc) || query_swim_exit(direc))
       show_exit(direc, 0);
 
     exit_string = query_dirs_string();
@@ -450,6 +453,12 @@ int do_exit_command(string str, varargs mixed verb, object ob)
   if (query_sealed_exit(query_verb_exit(verb)) && forced_exit != query_verb_exit(verb))
     return 0;
 
+  // nor one that is swum: the swim skill takes it, and whoever swims by
+  // nature walks it
+  if (query_swim_exit(query_verb_exit(verb)) && forced_exit != query_verb_exit(verb) &&
+      !(ob && ob->query_swims()))
+    return 0;
+
   zip = EXIT_HAND->do_exit_command(door_control,
     exit_map, dest_direc, dest_other,
     aliases, str, verb, ob, room_ob);
@@ -501,6 +510,20 @@ int query_sealed_exit(string direc)
     return 0;
 
   return !revealed_exits[direc];
+}
+
+// Whether an exit is swum: declared with the "swim" option, the way into, out
+// of or across water. Like a sealed exit it is not listed and its direction
+// does nothing, but the map shows it and nothing ever reveals it: the swim
+// skill takes it with force_exit.
+int query_swim_exit(string direc)
+{
+  mixed * tuple;
+
+  if (!direc || !exit_map || !(tuple = exit_map[direc]))
+    return 0;
+
+  return sizeof(tuple) >= 4 && mappingp(tuple[3]) && tuple[3]["swim"];
 }
 
 // List an exit among the visible ones, or take it off the list, as its type

@@ -393,6 +393,7 @@
 #define _LANG_CMD_MAP_NEW_QUESTS "Nuevas misiones"
 #define _LANG_CMD_MAP_FINISHED_QUESTS "Misiones terminadas"
 #define _LANG_CMD_MAP_COAST "Orilla"
+#define _LANG_CMD_MAP_WATER "Agua (se cruza nadando)"
 
 #define _LANG_CMD_MAP_OPT_COMPACT ({ "compacto", "compact" })
 #define _LANG_CMD_MAP_OPT_UNICODE ({ "unicode" })

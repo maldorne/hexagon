@@ -27,33 +27,15 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
   coast::coast_event_enter(ob);
 }
 
-int do_exit_command(string str, varargs mixed verb, object ob)
-{
-  string refusal;
-
-  if (!verb)
-    verb = query_verb();
-  if (!ob)
-    ob = this_player();
-
-  refusal = query_walk_refusal(ob, query_verb_exit(verb));
-  if (refusal)
-  {
-    notify_fail(refusal);
-    return 0;
-  }
-
-  return room::do_exit_command(str, verb, ob);
-}
-
-string long(string str, int dark)
+// Above what is here, the way into the water.
+string query_contents(varargs string str, object * obs)
 {
   string ret;
 
-  ret = room::long(str, dark);
-  if ((str && strlen(str)) || dark)
+  ret = room::query_contents(str, obs);
+  if (str && strlen(str))
     return ret;
-  return ret + query_coast_look(this_player());
+  return query_coast_look(this_player()) + ret;
 }
 
 mixed * stats()
