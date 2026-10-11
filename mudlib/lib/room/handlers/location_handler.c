@@ -699,6 +699,16 @@ object convert_room_to_location(object room)
     ret += "   Adding component vault.\n";
   }
 
+  // A library room becomes a library component, with the books it declares.
+  if (room->query_library() &&
+      !location->has_component(LOCATION_COMPONENT_LIBRARY))
+  {
+    location->add_component(LOCATION_COMPONENT_LIBRARY, ([
+      "library_books" : room->query_library_books(),
+        ]));
+    ret += "   Adding component library.\n";
+  }
+
   // A room built on /lib/outside.c is open-air: attach the outside component
   // so the location gets weather / day-night / darkness behaviour (the
   // component drives those through the weather handler). Interiors built on

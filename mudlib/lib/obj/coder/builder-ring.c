@@ -21,7 +21,7 @@ inherit "/lib/armour.c";
 #define COMPONENTS_DIR "/lib/location/components/"
 
 #define BUILDER_RING_BUILD_VERB ({ "build" })
-#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "desc", "temple", "venture", "family", "fixture" })
+#define BUILDER_RING_OPTIONS ({ "selection", "convert", "component", "area", "poi", "vacancy", "npc", "location", "exit", "plot", "homes", "home", "sign", "library", "desc", "temple", "venture", "family", "fixture" })
 #define BUILDER_RING_SELECTION_SYNTAX "build selection < add | remove | list >"
 #define BUILDER_RING_CONVERT_SYNTAX "build convert [< selection | filename | dirname | here >]"
 #define BUILDER_RING_COMPONENT_SYNTAX "build component < add | remove > <type>"
@@ -108,6 +108,7 @@ inherit "/lib/armour.c";
   "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
   "  build sign <text>                    post a sign here (remove: take it down)\n" + \
+  "  build library [add|remove <text>]    the books on this library's shelves\n" + \
   "  build fixture [list]                 fixed objects this location clones\n" + \
   "  build fixture add <file.c> [count]   add one (a tree, a stone...)\n" + \
   "  build fixture remove <file.c>        take it off the list and out\n" + \
@@ -170,6 +171,7 @@ int do_home_make();
 int do_home_communal(int flag);
 int do_home_describe(string what, string str);
 int do_sign(string str);
+int do_library(string str);
 int do_fixture(string str);
 int do_desc(string str);
 int do_temple(string str);
@@ -398,6 +400,8 @@ int do_build(string str)
 
   if (verb == "sign")
     return do_sign(implode(args[1..], " "));
+  if (verb == "library")
+    return do_library(implode(args[1..], " "));
 
   if (verb == "fixture")
     return do_fixture(implode(args[1..], " "));
@@ -2576,6 +2580,81 @@ int do_fixture(string str)
   loc->add_fixture(path, count);
   loc->save_me();
   write("Added fixture " + base_name(bp) + " x" + count + ".\n");
+  return 1;
+}
+
+// build library                      list the books on this library's shelves
+// build library add <text path>      put a book on them (makes it a library)
+// build library remove <text path>   take one off
+int do_library(string str)
+{
+  object loc, library;
+  string verb, path, * books;
+  int i;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location())
+  {
+    notify_fail("Stand in a location (not a plain room) to manage a library.\n");
+    return 0;
+  }
+
+  library = loc->query_component_by_type(LOCATION_COMPONENT_LIBRARY);
+
+  if (!strlen(str))
+  {
+    if (!library)
+    {
+      notify_fail("This location is not a library.\n");
+      return 0;
+    }
+    books = library->query_library_books();
+    write("Books on the shelves (" + sizeof(books) + "):\n");
+    for (i = 0; i < sizeof(books); i++)
+      write("  " + (i + 1) + ") " + books[i] + "  [" +
+            handler("books")->query_title(books[i]) + "]\n");
+    return 1;
+  }
+
+  if (sscanf(str, "%s %s", verb, path) != 2 ||
+      (verb != "add" && verb != "remove"))
+  {
+    notify_fail("Usage: build library [add|remove <text path>]\n");
+    return 0;
+  }
+
+  path = get_path(path);
+
+  if (verb == "add")
+  {
+    if (!handler("books")->query_page_count(path))
+    {
+      notify_fail("No readable book text at " + path + ".\n");
+      return 0;
+    }
+    if (!library)
+    {
+      loc->add_component(LOCATION_COMPONENT_LIBRARY, ([ ]));
+      library = loc->query_component_by_type(LOCATION_COMPONENT_LIBRARY);
+    }
+    if (!library->add_library_book(path))
+    {
+      notify_fail("That book is already on the shelves.\n");
+      return 0;
+    }
+    loc->save_me();
+    write("Added " + path + " [" + handler("books")->query_title(path) +
+          "] to the shelves.\n");
+    return 1;
+  }
+
+  if (!library || !library->remove_library_book(path))
+  {
+    notify_fail("That book is not on these shelves.\n");
+    return 0;
+  }
+  loc->save_me();
+  write("Removed " + path + " from the shelves.\n");
   return 1;
 }
 

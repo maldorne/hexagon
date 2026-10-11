@@ -17,6 +17,9 @@
 #define LOCATION_COMPONENT_BOARD       "board"
 #define LOCATION_COMPONENT_QUEST_GIVER "quest-giver"
 #define LOCATION_COMPONENT_VAULT       "vault"
+// Shelves of books to read, copy or add to. See
+// /lib/location/components/library.c.
+#define LOCATION_COMPONENT_LIBRARY     "library"
 // Something that happens to whoever enters carrying a given mark. See
 // /lib/location/components/trigger.c.
 #define LOCATION_COMPONENT_TRIGGER     "trigger"
