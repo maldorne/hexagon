@@ -231,11 +231,15 @@ mapping query_extra_damage() { return extra_damage; }
 // with, or any added with add_attack). It does not roll to hit by itself, unlike
 // an elemental attack added with add_attack. An attack may carry several.
 // Format: 2D6+6, with an element type (see translations/combat.h).
+// Each one prints a line after the hit, by element. A weapon may give its own
+// messages instead: ({ for the attacker, for the defender, for the room }), with the
+// tokens $weapon$ (the weapon, already with its owner), $attacker$ and $defender$.
 void add_extra_damage(string attack,   // name of the attack it goes with
                       int type,        // elemental type
                       int num_dice,    // num of dice
                       int type_dice,   // num of faces of the dice
-                      int bonus)       // bonus to add
+                      int bonus,       // bonus to add
+                      varargs mixed * messages) // optional own messages
 {
   // physical types have no extra damage, use add_attack for them
   if (type < sizeof(AC_TYPES) || (type - sizeof(AC_TYPES)) >= sizeof(RESISTANCES))
@@ -243,7 +247,8 @@ void add_extra_damage(string attack,   // name of the attack it goes with
 
   if (!extra_damage[attack])
     extra_damage[attack] = ({ });
-  extra_damage[attack] += ({ ({ type, num_dice, type_dice, bonus }) });
+  // entries saved before the messages existed have four elements
+  extra_damage[attack] += ({ ({ type, num_dice, type_dice, bonus, messages }) });
 }
 
 // Armour absorption of elemental damage: the piece absorbs by its base ac,
@@ -444,7 +449,8 @@ int weapon_attack(object def, object att)
         for (m = 0; m < sizeof(extras); m++)
         {
           extra_hits += ({ ({ extras[m][0],
-                              roll(extras[m][1], extras[m][2]) + extras[m][3] }) });
+                              roll(extras[m][1], extras[m][2]) + extras[m][3],
+                              (sizeof(extras[m]) > 4) ? extras[m][4] : nil }) });
           if (extra_hits[m][1] < 0)
             extra_hits[m][1] = 0;
           extra_total += extra_hits[m][1];
@@ -509,7 +515,9 @@ int weapon_attack(object def, object att)
       // one line for each extra damage, after the hit message
       for (m = 0; m < sizeof(extra_hits); m++)
         if (extra_hits[m][1] > 0)
-          handler("weapons")->write_extra_damage_message(extra_hits[m][0], attacker, defender);
+          handler("weapons")->write_extra_damage_message(extra_hits[m][0], attacker,
+                                                      defender, this_object(),
+                                                      extra_hits[m][2]);
 
       ret += damage[0] + extra_total - extra_absorbed;
     }

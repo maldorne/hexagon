@@ -105,9 +105,31 @@
 #define _LANG_WEAPONS_ELEMENTAL_MSG_ENV " daña"
 
 // daño elemental extra que un arma añade a un golpe (element es el nombre del elemento)
-#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ME "Tu arma daña a "+defender->query_cap_name()+" con "+element+".\n"
-#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_HIM "El arma de "+attacker->query_cap_name()+" te daña con "+element+".\n"
-#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ENV "El arma de "+attacker->query_cap_name()+" daña a "+defender->query_cap_name()+" con "+element+".\n"
+// Elemental damage of a weapon, one line per hit. The weapon is named by its short:
+// "Tu <short>" for its owner, "<article> <short> de <owner>" for the rest.
+// One entry per element, in the order of RESISTANCES: the text for the others
+// and the text for the defender. The tokens are the ones weapons can use in
+// their own messages: $weapon$, $attacker$ and $defender$.
+#define _LANG_WEAPONS_EXTRA_DAMAGE_WEAPON_ME "Tu "+weapon->query_short()
+#define _LANG_WEAPONS_EXTRA_DAMAGE_WEAPON_OTHER capitalize(weapon->query_article())+" "+weapon->query_short()+" de "+attacker->query_cap_name()
+#define _LANG_WEAPONS_EXTRA_DAMAGE_VERBS ({ \
+  ({ "corroe a $defender$", "te corroe" }), \
+  ({ "azota con un golpe de viento a $defender$", "te azota con un golpe de viento" }), \
+  ({ "sacude con una descarga a $defender$", "te sacude con una descarga" }), \
+  ({ "hiela a $defender$", "te hiela" }), \
+  ({ "golpea con su magia a $defender$", "te golpea con su magia" }), \
+  ({ "hiere la mente de $defender$", "te hiere la mente" }), \
+  ({ "descarga una lluvia de proyectiles sobre $defender$", "descarga una lluvia de proyectiles sobre ti" }), \
+  ({ "envenena a $defender$", "te envenena" }), \
+  ({ "castiga con la fuerza de la ley a $defender$", "te castiga con la fuerza de la ley" }), \
+  ({ "azota con una oleada de agua a $defender$", "te azota con una oleada de agua" }), \
+  ({ "abrasa con luz sagrada a $defender$", "te abrasa con luz sagrada" }), \
+  ({ "infecta a $defender$", "te infecta" }), \
+  ({ "quema a $defender$", "te quema" }), \
+  ({ "corrompe con su maldad a $defender$", "te corrompe con su maldad" }), \
+  ({ "drena la vida de $defender$", "te drena la vida" }), \
+  ({ "aplasta con su peso de roca a $defender$", "te aplasta con su peso de roca" }), \
+  ({ "desgarra con el caos a $defender$", "te desgarra con el caos" }), })
 
 #define _LANG_WEAPONS_NO_EFFECT " sin efecto"
 #define _LANG_WEAPONS_WEAKLY " débilmente"

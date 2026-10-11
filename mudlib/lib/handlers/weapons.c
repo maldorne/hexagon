@@ -200,16 +200,39 @@ void write_message(int damage,           // damage from the hit
   return;
 } /* _write_message */
 
-// extra line after a hit, for the elemental damage a weapon adds to it
+// extra line after a hit, for the elemental damage a weapon adds to it.
+// messages is the optional ({ for the attacker, for the defender, for the room })
+// of the weapon, with the tokens $weapon$ (the weapon, already with its owner),
+// $attacker$ and $defender$; without it the line depends on the element.
 void write_extra_damage_message(int attack_type,      // elemental type of the extra damage
                          object attacker,
-                         object defender)
+                         object defender,
+                         object weapon,
+                         varargs mixed * messages)
 {
-  string element;
+  string * verbs, * texts, mine, others;
+  int i;
 
-  element = RESISTANCES[attack_type - sizeof(AC_TYPES)];
+  if (!messages || sizeof(messages) < 3)
+  {
+    verbs = _LANG_WEAPONS_EXTRA_DAMAGE_VERBS[attack_type - sizeof(AC_TYPES)];
+    messages = ({ "$weapon$ " + verbs[0] + ".", "$weapon$ " + verbs[1] + ".",
+                  "$weapon$ " + verbs[0] + "." });
+  }
 
-  tell_room(environment(attacker), _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ENV, ({attacker,defender}));
-  tell_object(attacker, _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ME);
-  tell_object(defender, _LANG_WEAPONS_EXTRA_DAMAGE_MSG_HIM);
+  mine = _LANG_WEAPONS_EXTRA_DAMAGE_WEAPON_ME;
+  others = _LANG_WEAPONS_EXTRA_DAMAGE_WEAPON_OTHER;
+
+  texts = allocate(3);
+  for (i = 0; i < 3; i++)
+  {
+    texts[i] = replace(messages[i], ({ "$attacker$", attacker->query_cap_name(),
+                                      "$defender$", defender->query_cap_name(),
+                                      "$weapon$", (i == 0) ? mine : others }));
+    texts[i] += "\n";
+  }
+
+  tell_room(environment(attacker), texts[2], ({attacker,defender}));
+  tell_object(attacker, texts[0]);
+  tell_object(defender, texts[1]);
 }

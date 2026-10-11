@@ -104,9 +104,31 @@
 #define _LANG_WEAPONS_ELEMENTAL_MSG_ENV " harms"
 
 // extra elemental damage a weapon adds to a hit (element is the name of the element)
-#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ME "Your weapon harms "+defender->query_cap_name()+" with "+element+".\n"
-#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_HIM attacker->query_cap_name()+"'s weapon harms you with "+element+".\n"
-#define _LANG_WEAPONS_EXTRA_DAMAGE_MSG_ENV attacker->query_cap_name()+"'s weapon harms "+defender->query_cap_name()+" with "+element+".\n"
+// Elemental damage of a weapon, one line per hit. The weapon is named by its short:
+// "Your <short>" for its owner, "<owner>'s <short>" for the rest.
+// One entry per element, in the order of RESISTANCES: the text for the others
+// and the text for the defender. The tokens are the ones weapons can use in
+// their own messages: $weapon$, $attacker$ and $defender$.
+#define _LANG_WEAPONS_EXTRA_DAMAGE_WEAPON_ME "Your "+weapon->query_short()
+#define _LANG_WEAPONS_EXTRA_DAMAGE_WEAPON_OTHER attacker->query_cap_name()+"'s "+weapon->query_short()
+#define _LANG_WEAPONS_EXTRA_DAMAGE_VERBS ({ \
+  ({ "corrodes $defender$", "corrodes you" }), \
+  ({ "lashes $defender$ with a gust of wind", "lashes you with a gust of wind" }), \
+  ({ "shocks $defender$ with a discharge", "shocks you with a discharge" }), \
+  ({ "freezes $defender$", "freezes you" }), \
+  ({ "strikes $defender$ with its magic", "strikes you with its magic" }), \
+  ({ "wounds the mind of $defender$", "wounds your mind" }), \
+  ({ "looses a rain of missiles on $defender$", "looses a rain of missiles on you" }), \
+  ({ "poisons $defender$", "poisons you" }), \
+  ({ "punishes $defender$ with the force of law", "punishes you with the force of law" }), \
+  ({ "batters $defender$ with a surge of water", "batters you with a surge of water" }), \
+  ({ "sears $defender$ with holy light", "sears you with holy light" }), \
+  ({ "infects $defender$", "infects you" }), \
+  ({ "burns $defender$", "burns you" }), \
+  ({ "corrupts $defender$ with its malice", "corrupts you with its malice" }), \
+  ({ "drains the life of $defender$", "drains your life" }), \
+  ({ "crushes $defender$ with the weight of stone", "crushes you with the weight of stone" }), \
+  ({ "rends $defender$ with chaos", "rends you with chaos" }), })
 
 #define _LANG_WEAPONS_NO_EFFECT " without effect"
 #define _LANG_WEAPONS_WEAKLY " weakly"

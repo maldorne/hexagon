@@ -46,7 +46,11 @@ does not exist yet.
   (`BASIC_ATTACK_NAME` for the one it comes with); an attack may carry several.
   It does not roll to hit: it lands only with that attack's hit, is not
   multiplied by the critical or the location, is absorbed by the same armour
-  piece with the elemental rule, and adds one line to the hit message.
+  piece with the elemental rule, and adds one line to the hit message. The line
+  names the weapon by its short and has its own verb for each element. A last
+  optional argument gives the weapon its own lines, `({ attacker, defender, room })`,
+  with the tokens `$weapon$` (already "Tu <short>" or "<article> <short> de <owner>"),
+  `$attacker$` and `$defender$`.
 
 ## Tuning
 
