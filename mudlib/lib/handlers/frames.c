@@ -504,8 +504,9 @@ string frame(string content, varargs string title, int width,
 /**
  * Frames a drawing at its own width and centres the frame in the reader's
  * columns, so ASCII art keeps every line intact. The drawing loses its blank
- * lines at both ends, the spaces that close each line and the indentation all
- * its lines share; its width is then its widest line.
+ * lines at the top, the spaces that close each line and the indentation all
+ * its lines share, and keeps the blank lines at its foot, which separate it
+ * from what follows; its width is then its widest line.
  *
  * @param content the drawing, as read from its file
  * @param title an optional title for the top border
@@ -542,11 +543,9 @@ string centred_frame(string content, varargs string title, string style_name)
     lines[i] = lines[i][0 .. j - 1];
   }
 
-  // no blank lines at either end
+  // no blank lines at the top
   while (sizeof(lines) && !strlen(lines[0]))
     lines = lines[1 ..];
-  while (sizeof(lines) && !strlen(lines[sizeof(lines) - 1]))
-    lines = lines[0 .. sizeof(lines) - 2];
   if (!sizeof(lines))
     return "";
 
@@ -593,6 +592,12 @@ string centred_frame(string content, varargs string title, string style_name)
   margin = "";
   for (i = 0; i < (cols - width) / 2; i++)
     margin += " ";
+
+  // frame() drops the blank lines a text ends with, so each blank line goes
+  // in as a space
+  for (i = 0; i < sizeof(lines); i++)
+    if (!strlen(lines[i]))
+      lines[i] = " ";
 
   rows = explode(frame(implode(lines, "\n"), title, 0, 0, style_name), "\n");
   out = "";
