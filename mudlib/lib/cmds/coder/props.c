@@ -385,6 +385,14 @@ static int do_remove(string handle, object me)
     return 0;
   }
 
+  // the last one gone, the component goes with it
+  if (!sizeof(comp->query_prop_instances()))
+  {
+    loc->remove_component(LOCATION_COMPONENT_PROPS);
+    write("Removed, and the props component with it.\n");
+    return 1;
+  }
+
   loc->save_me();
   comp->refresh_actions();
   write("Removed.\n");
