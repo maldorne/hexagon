@@ -97,7 +97,7 @@ static int cmd(string arg, object me, string verb)
     {
       ret += file_name(here);
       if (here->query_location())
-        ret += " (location " + here->query_file_name() + ")";
+        ret += " (location " + shorten_path(here->query_file_name(), 3) + ")";
       else if (here->query_outside())
         ret += " (room/outside)";
       else if (here->query_room())

@@ -39,7 +39,7 @@
             seconds_to_time_string(ob->user()->query_idle()) + \
             " ago%^RESET%^.\n"
 #define _LANG_FINGER_LAST_CONNECTION_FROM "   Last connection from: " + last_on_from + "\n"
-#define _LANG_FINGER_LAST_POSITION "   Last position:\n     " + last_pos + "\n"
+#define _LANG_FINGER_LAST_POSITION "   Last position:\n     " + shorten_path(last_pos, 5) + "\n"
 #define _LANG_FINGER_MAIL_NO_MAIL "   Has no mud-mails.\n"
 #define _LANG_FINGER_MAIL_NUM_MAILS "   Has "+mail_stat["total"]+" mud-mail"+ \
             ((mail_stat["total"]==1)?"":"s")

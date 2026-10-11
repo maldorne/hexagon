@@ -45,6 +45,27 @@ static string get_path_file_name(string path)
 }
 
 /**
+ * Shortens `path` to its last `segments` segments, behind "...", for showing
+ * a long path where it does not fit.
+ *
+ * shorten_path("/save/games/x/ruins/ruin15.o", 3) -> ".../x/ruins/ruin15.o".
+ * A path with that many segments or fewer comes back as it is.
+ */
+static string shorten_path(string path, int segments)
+{
+  string * words;
+
+  if (!path)
+    return "";
+
+  words = explode(path, "/") - ({ "" });
+  if (segments < 1 || sizeof(words) <= segments)
+    return path;
+
+  return ".../" + implode(words[sizeof(words) - segments ..], "/");
+}
+
+/**
  * Expands one or more space-separated file/glob patterns into a list of
  * absolute file paths.
  *
