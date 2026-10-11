@@ -238,7 +238,28 @@ int batch_remove_component(string * files, string type)
   return sizeof(files);
 }
 
-int do_guess_coordinates(object * locations)
+// One line per location with its file and coordinates, "no coords" when the
+// inference could not place it.
+private void _print_coordinates(object * locations)
+{
+  int i;
+
+  for (i = 0; i < sizeof(locations); i++)
+  {
+    int * coords;
+
+    if (!locations[i])
+      continue;
+    coords = locations[i]->query_coordinates();
+    write("  " + get_path_file_name(locations[i]->query_file_name()) + " -> " +
+          (coords ? "(" + coords[0] + "," + coords[1] + "," + coords[2] + ")" :
+                    "no coords") + "\n");
+  }
+}
+
+// Without `verbose` only the final coordinates of each location are printed;
+// with it, every connection and every exit checked along the way is too.
+int do_guess_coordinates(object * locations, varargs int verbose)
 {
   string * exits;
   object current;       // location currently checking
@@ -334,13 +355,15 @@ int do_guess_coordinates(object * locations)
       ret += "    " + connected[aux[i]][j] + " -> " + get_path_file_name(connected[aux[i]][j+1]) + "\n";
   }
 
-  write(ret);
+  if (verbose)
+    write(ret);
   ret = "";
   // write("Connections (" + map_sizeof(connected) + "): " + to_string(connected));
 
   if (!sizeof(pending))
   {
     write("\n  No locations with coordinates found.\n");
+    _print_coordinates(locations);
     return 1;
   }
 
@@ -350,7 +373,8 @@ int do_guess_coordinates(object * locations)
   for (i = 0; i < sizeof(pending); i++)
     ret += "   - " + pending[i]->query_file_name() + "\n";
 
-  write(ret);
+  if (verbose)
+    write(ret);
 
   while (sizeof(pending))
   {
@@ -426,8 +450,13 @@ int do_guess_coordinates(object * locations)
     // location done
     pending -= ({ current });
     done += ({ current });
-    write(ret);
+    if (verbose)
+      write(ret);
   }
+
+  // the quiet report: one line per location with the coordinates it ended with
+  if (!verbose)
+    _print_coordinates(locations);
 
   return 1;
 }
@@ -1039,7 +1068,7 @@ private string * _neighbour_sources(object * locations, string * converted)
 // `restore` (1 for a user-initiated convert, 0 for the neighbour pass) drives
 // the auto-restore of neighbouring areas' border rooms once the batch ends.
 void convert_step(string * files, int idx, int reload, object initiator,
-                  object * locations, int restore)
+                  object * locations, int restore, varargs int verbose)
 {
   int end, i;
 
@@ -1052,7 +1081,7 @@ void convert_step(string * files, int idx, int reload, object initiator,
     // coordinate inference over the whole set, on its own tick for a fresh
     // budget (it walks the connectivity graph and honours existing anchors)
     if (sizeof(locations))
-      call_out("do_guess_coordinates", 0, locations);
+      call_out("do_guess_coordinates", 0, locations, verbose);
 
     // auto-restore: reconvert the neighbouring areas' border rooms so the
     // return exits a preceding clean trimmed come back. `restore == 0` on the
@@ -1063,11 +1092,12 @@ void convert_step(string * files, int idx, int reload, object initiator,
       neighbours = _neighbour_sources(locations, files);
       if (sizeof(neighbours))
       {
-        if (initiator)
+        if (initiator && verbose)
           tell_object(initiator, "Restoring " + sizeof(neighbours) +
                       " neighbour border room" +
                       (sizeof(neighbours) == 1 ? "" : "s") + " ...\n");
-        call_out("convert_step", 0, neighbours, 0, 1, initiator, ({ }), 0);
+        call_out("convert_step", 0, neighbours, 0, 1, initiator, ({ }), 0,
+                 verbose);
       }
     }
     return;
@@ -1116,7 +1146,10 @@ void convert_step(string * files, int idx, int reload, object initiator,
       continue;
 
     locations += ({ location });
-    if (initiator)
+
+    // the quiet report prints each location once, with its final coordinates,
+    // when the inference pass ends
+    if (initiator && verbose)
       tell_object(initiator, "  " + base_name(room) + " -> " +
                   (location->query_coordinates() ?
                      "(" + location->query_coordinates()[0] + "," +
@@ -1125,15 +1158,17 @@ void convert_step(string * files, int idx, int reload, object initiator,
                   "\n");
   }
 
-  call_out("convert_step", 0, files, end, reload, initiator, locations, restore);
+  call_out("convert_step", 0, files, end, reload, initiator, locations, restore,
+           verbose);
 }
 
 // Convert a batch of room files to locations, chunked across ticks so a
 // whole directory converts reliably without hitting the driver's tick
 // budget. Progress and errors are reported to the initiating player as the
 // background run proceeds; a coordinate-inference pass runs once the whole
-// batch is done.
-int batch_convert(string * files, varargs int reload)
+// batch is done. The report is short by default (what changed, warnings and
+// errors, one line per location); `verbose` prints the full step-by-step one.
+int batch_convert(string * files, varargs int reload, int verbose)
 {
   object initiator;
 
@@ -1144,11 +1179,12 @@ int batch_convert(string * files, varargs int reload)
   }
 
   initiator = this_player();
-  write("Converting " + sizeof(files) + " file" +
-        (sizeof(files) == 1 ? "" : "s") + " to locations" +
-        (reload ? " (reload mode)" : "") + " in the background ...\n");
+  if (verbose)
+    write("Converting " + sizeof(files) + " file" +
+          (sizeof(files) == 1 ? "" : "s") + " to locations" +
+          (reload ? " (reload mode)" : "") + " in the background ...\n");
 
-  call_out("convert_step", 0, files, 0, reload, initiator, ({ }), 1);
+  call_out("convert_step", 0, files, 0, reload, initiator, ({ }), 1, verbose);
   return 1;
 }
 

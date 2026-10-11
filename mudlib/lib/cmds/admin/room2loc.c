@@ -8,8 +8,8 @@ inherit CMD_BASE;
 void setup()
 {
   set_aliases(({ "room2loc" }));
-  set_usage("room2loc < filename | dirname | here >\n" +
-            "room2loc reload < filename | dirname | here >\n" +
+  set_usage("room2loc [-v] < filename | dirname | here >\n" +
+            "room2loc reload [-v] < filename | dirname | here >\n" +
             "room2loc coords <location.o> <x> <y> <z>\n" +
             "room2loc clean [all] [apply] <path>");
   set_help("Convert one or more legacy .c rooms into .o locations.\n" +
@@ -17,6 +17,12 @@ void setup()
            "relative to your coder path, or 'here' for your current\n" +
            "room. Coordinates are guessed from the exit graph after\n" +
            "the batch finishes.\n" +
+           "\n" +
+           "The report is short by default: the components and props the\n" +
+           "conversion changed, warnings and errors, one line per location\n" +
+           "with its coordinates and a final count. Add -v (verbose) right\n" +
+           "after the command or after 'reload' for the full step-by-step\n" +
+           "report (every connection and exit checked).\n" +
            "\n" +
            "Subverb 'reload' does the same conversion but first destructs\n" +
            "any already-loaded blueprint for each target so the driver\n" +
@@ -111,7 +117,7 @@ static int do_coords(string str)
 
   // propagate to neighbours that have no coordinates yet — map topology
   // wins over the seed if a connected neighbour is already coordinated
-  load_object(LOCATION_HANDLER)->do_guess_coordinates(({ location }));
+  load_object(LOCATION_HANDLER)->do_guess_coordinates(({ location }), 1);
 
   // re-load and report what actually stuck
   location = load_object(LOCATION_HANDLER)->load_location(file);
@@ -235,7 +241,7 @@ static int cmd(string str, object me, string verb)
   string * args;
   string * files;
   string target;
-  int reload;
+  int reload, verbose;
 
   if (!str || !strlen(str))
   {
@@ -261,18 +267,26 @@ static int cmd(string str, object me, string verb)
   }
 
   reload = 0;
+  verbose = 0;
   if (args[0] == "reload")
   {
-    if (sizeof(args) < 2)
-    {
-      notify_fail("Usage: room2loc reload < filename | dirname | here >\n");
-      return 0;
-    }
     reload = 1;
-    target = implode(args[1..], " ");
+    args = args[1..];
   }
-  else
-    target = str;
+
+  // -v asks for the full report
+  if (sizeof(args) && (args[0] == "-v" || args[0] == "verbose"))
+  {
+    verbose = 1;
+    args = args[1..];
+  }
+
+  if (!sizeof(args))
+  {
+    notify_fail("Usage: room2loc [reload] [-v] < filename | dirname | here >\n");
+    return 0;
+  }
+  target = implode(args, " ");
 
   if (target == "here")
   {
@@ -302,7 +316,7 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  load_object(LOCATION_HANDLER)->batch_convert(files, reload);
+  load_object(LOCATION_HANDLER)->batch_convert(files, reload, verbose);
 
   return 1;
 }
