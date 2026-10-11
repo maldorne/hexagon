@@ -282,6 +282,9 @@ private object spawn_monster(string source, object loc)
   npc->set_level((int)this_object()->decide_level(game, source));
 
   npc->move(loc);
+  // its components may need to see the world it now stands in: a guard
+  // registers on the exit it watches
+  npc->components_placed();
 
   return npc;
 }
