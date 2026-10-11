@@ -42,15 +42,6 @@
 #define _LANG_GUILD_ENTRANCE_LEFT "You leave your guild: from now on you belong " + \
         "to none.\n"
 
-#define _LANG_GUILD_ROOM_CMDS_MEMBERS ({ "members" })
 #define _LANG_GUILD_ROOM_SIGN_LONG "A sign on the wall says what can be done here.\n"
 #define _LANG_GUILD_ROOM_SIGN_TEXT "Guild hall\n\n" + \
-        "  members    the most famous members of the guild"
-#define _LANG_GUILD_ROOM_NOW_FAMOUS "You are now on the list of the most famous " + \
-        "members of your guild.\n"
-#define _LANG_GUILD_ROOM_NOW_FAMOUS_OVER "You are now on the list of the most " + \
-        "famous members of your guild: you have overtaken " + lowest + ".\n"
-#define _LANG_GUILD_ROOM_NO_FAMOUS "There is nobody on the list of the most " + \
-        "famous members of this guild yet.\n"
-#define _LANG_GUILD_ROOM_FAMOUS_HEADER "The most famous members of the guild:\n\n"
-#define _LANG_GUILD_ROOM_LEVEL "level"
+        "  ranking    the highest levels of your guild, your class and your job"

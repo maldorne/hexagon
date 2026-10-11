@@ -43,15 +43,6 @@
 #define _LANG_GUILD_ENTRANCE_LEFT "Renuncias a tu gremio: a partir de ahora no " + \
         "perteneces a ninguno.\n"
 
-#define _LANG_GUILD_ROOM_CMDS_MEMBERS ({ "miembros" })
 #define _LANG_GUILD_ROOM_SIGN_LONG "Un cartel cuelga de la pared con lo que se puede hacer aquí.\n"
 #define _LANG_GUILD_ROOM_SIGN_TEXT "Salón del gremio\n\n" + \
-        "  miembros    los miembros más famosos del gremio"
-#define _LANG_GUILD_ROOM_NOW_FAMOUS "Ahora formas parte de la lista de los " + \
-        "miembros más famosos de tu gremio.\n"
-#define _LANG_GUILD_ROOM_NOW_FAMOUS_OVER "Ahora formas parte de la lista de los " + \
-        "miembros más famosos de tu gremio: has superado a " + lowest + ".\n"
-#define _LANG_GUILD_ROOM_NO_FAMOUS "Aún no hay nadie en la lista de los miembros " + \
-        "más famosos de este gremio.\n"
-#define _LANG_GUILD_ROOM_FAMOUS_HEADER "Los miembros más famosos del gremio:\n\n"
-#define _LANG_GUILD_ROOM_LEVEL "nivel"
+        "  ranking    los niveles más altos de tu gremio, tu clase y tu oficio"
