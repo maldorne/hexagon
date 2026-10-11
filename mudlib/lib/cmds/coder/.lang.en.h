@@ -9,14 +9,12 @@
 
 // heal
 
-#define _LANG_HEAL_ALIASES ({ "heal" })
 #define _LANG_HEAL_MESSAGE_MINE "%^YELLOW%^Your life and energy come back.%^RESET%^\n"
 #define _LANG_HEAL_MESSAGE_OTHERS "%^YELLOW%^The life and energy of " + me->query_cap_name() + \
   " come back.%^RESET%^\n"
 
 // peace
 
-#define _LANG_PEACE_ALIASES ({ "peace" })
 #define _LANG_PEACE_MESSAGES_MINE "You raise your hand and exclaim: " + \
         "%^YELLOW%^Stop fighting, mortals!%^RESET%^\n"
 #define _LANG_PEACE_MESSAGES_OTHERS this_player()->query_cap_name() + \

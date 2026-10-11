@@ -8,8 +8,8 @@ inherit CMD_BASE;
 
 void setup()
 {
-  set_aliases(_LANG_HEAL_ALIASES);
-  set_usage(_LANG_HEAL_ALIASES[0]);
+  set_aliases(({ "heal" }));
+  set_usage("heal");
   set_help("Restores your life, energy and social points to their maximum.");
 }
 
