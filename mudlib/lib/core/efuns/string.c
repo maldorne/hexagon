@@ -248,7 +248,17 @@ static string wrap(string str, varargs int width, int prettify)
 
   for (i = 0; i < sizeof(lines); i++)
   {
-    if (strlen(lines[i]) <= w)
+    // a trailing run of escapes, like the reset fix_string adds after the last
+    // line break, takes no row of its own
+    if (i > 0 && i == sizeof(lines) - 1 && strlen(lines[i]) &&
+        !strlen(lines[i], true))
+    {
+      out += lines[i];
+      continue;
+    }
+
+    // visible width, as sprintf measures it below
+    if (strlen(lines[i], true) <= w)
       out += lines[i] + "\n";
     else
       // %- reflows a long line into several rows but adds no trailing break;

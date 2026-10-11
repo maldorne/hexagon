@@ -54,8 +54,9 @@ void event_enter(object ob, varargs string msg, object from, mixed avoid)
       else
         msg = replace_string(msg, ob->query_cap_name(), new_name);
 
-      // wrapped to the screen: a long message would go out as one line
-      tell_object(this_object(), wrap(msg, this_object()->user() ?
+      // wrapped to the screen: a long message would go out as one line.
+      // Colour tags become escapes first, so they take no width
+      tell_object(this_object(), wrap(fix_string(msg), this_object()->user() ?
                   this_object()->user()->query_cols() : 0));
     }
     else
@@ -98,8 +99,9 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
       else
         msg = replace_string(msg, ob->query_cap_name(), new_name);
 
-      // wrapped to the screen: a long message would go out as one line
-      tell_object(this_object(), wrap(msg, this_object()->user() ?
+      // wrapped to the screen: a long message would go out as one line.
+      // Colour tags become escapes first, so they take no width
+      tell_object(this_object(), wrap(fix_string(msg), this_object()->user() ?
                   this_object()->user()->query_cols() : 0));
     }
     else
