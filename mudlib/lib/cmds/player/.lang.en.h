@@ -734,4 +734,6 @@
 #define _LANG_RANKING_NOT_FOUND "That name is not in the ranking.\n"
 #define _LANG_RANKING_EMPTY "There is nobody in the ranking of your groups yet.\n"
 #define _LANG_RANKING_HEADER "The highest levels of your groups:\n\n"
+#define _LANG_RANKING_ALL_HEADER "The highest levels of every group:\n\n"
+#define _LANG_RANKING_ALL_EMPTY "There is nobody in the ranking yet.\n"
 #define _LANG_RANKING_CODER_HINTS "Coders: 'ranking all' shows every group, 'ranking remove <name>' takes a name off all of them.\n"

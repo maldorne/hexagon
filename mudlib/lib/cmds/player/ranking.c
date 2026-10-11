@@ -68,7 +68,7 @@ static int cmd(string str, object me, string verb)
   object handler;
   string * groups;
   string ret, name;
-  int i;
+  int i, all;
 
   handler = load_object(RANKING_OB);
   if (!handler)
@@ -84,7 +84,8 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  if (str == _LANG_RANKING_ALL && me->query_coder())
+  all = (str == _LANG_RANKING_ALL && me->query_coder());
+  if (all)
     groups = sort_array(handler->query_groups());
   else
     groups = ({ me->query_class_ob(), me->query_guild_ob(), me->query_job_ob() }) -
@@ -95,9 +96,9 @@ static int cmd(string str, object me, string verb)
     ret += _group_text(handler, groups[i]);
 
   if (!strlen(ret))
-    ret = _LANG_RANKING_EMPTY;
+    ret = all ? _LANG_RANKING_ALL_EMPTY : _LANG_RANKING_EMPTY;
   else
-    ret = _LANG_RANKING_HEADER + ret;
+    ret = (all ? _LANG_RANKING_ALL_HEADER : _LANG_RANKING_HEADER) + ret;
 
   if (me->query_coder())
     ret += wrap(_LANG_RANKING_CODER_HINTS,

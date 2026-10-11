@@ -739,4 +739,6 @@
 #define _LANG_RANKING_NOT_FOUND "Ese nombre no está en la clasificación.\n"
 #define _LANG_RANKING_EMPTY "Todavía no hay nadie en la clasificación de tus grupos.\n"
 #define _LANG_RANKING_HEADER "Los niveles más altos de tus grupos:\n\n"
+#define _LANG_RANKING_ALL_HEADER "Los niveles más altos de todos los grupos:\n\n"
+#define _LANG_RANKING_ALL_EMPTY "Todavía no hay nadie en la clasificación.\n"
 #define _LANG_RANKING_CODER_HINTS "Programadores: 'ranking todos' muestra todos los grupos, 'ranking quitar <nombre>' quita un nombre de todos.\n"
