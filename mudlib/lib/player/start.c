@@ -53,14 +53,20 @@ nomask void start(varargs int going_invis, int is_new_player, int reconnected, o
 
     lang = GLOBAL_COMPILE_LANG;
     game = game_from_path(last_pos);
+    // a bilingual game keeps one welcome per language, a game in one
+    // language keeps it in its docs directory
     welcome = "/games/" + game + "/docs/" + lang + "/welcome.txt";
+    if (!file_exists(welcome))
+      welcome = "/games/" + game + "/docs/welcome.txt";
     master = load_object("/games/" + game + "/master.c");
 
-    if (master)
-      write(_LANG_START_CONNECTING_GAME);
-
+    // the welcome is a drawing of the game's name, framed and centred;
+    // without one, a line names the game
     if (file_exists(welcome))
-      cat(welcome);
+      write(handler("frames")->centred_frame(read_file(welcome),
+              _LANG_START_WELCOME_TITLE, "simple"));
+    else if (master)
+      write(_LANG_START_CONNECTING_GAME);
   }
   
   start_player(reconnected);

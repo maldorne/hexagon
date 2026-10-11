@@ -316,13 +316,38 @@ private string _spacer_row(string left, string right,
   return _body_row(left, right, "", padding_x, margin_x, content_width);
 }
 
+// The columns a style adds to its content: margins, padding and borders.
+private int _frame_overhead(mapping style)
+{
+  mixed ** rows;
+  int sides, len, i;
+
+  // What the frame costs beyond its content. Not every row is as wide as the
+  // body: a border corner can be several characters, and a style may push an
+  // edge row further out on purpose -- the scroll's diagonal does exactly that.
+  // So take the widest row there is, body or edge, and let that decide.
+  sides = strlen(style["body_left"] ? style["body_left"] : "", true) +
+          strlen(style["body_right"] ? style["body_right"] : "", true);
+
+  rows = (style["top"] ? style["top"] : ({ })) +
+         (style["bottom"] ? style["bottom"] : ({ }));
+  for (i = 0; i < sizeof(rows); i++)
+  {
+    len = strlen(rows[i][0], true) + strlen(rows[i][2], true) + rows[i][3];
+    if (len > sides)
+      sides = len;
+  }
+
+  return 2 * style["margin_x"] + 2 * style["padding_x"] + sides;
+}
+
 string frame(string content, varargs string title, int width,
              int height, string style_name)
 {
   mapping style;
   string * lines;
   mixed ** top_rows, ** bottom_rows;
-  int padding_x, padding_y, margin_x, overhead, cols, sides;
+  int padding_x, padding_y, margin_x, overhead, cols;
   int content_width, body_inner_width;
   int i, len, max_len;
   string body_left, body_right;
@@ -365,31 +390,10 @@ string frame(string content, varargs string title, int width,
   top_rows    = style["top"]    ? style["top"]    : ({ });
   bottom_rows = style["bottom"] ? style["bottom"] : ({ });
 
-  // What the frame costs beyond its content. Not every row is as wide as the
-  // body: a border corner can be several characters, and a style may push an
-  // edge row further out on purpose -- the scroll's diagonal does exactly that.
-  // So take the widest row there is, body or edge, and let that decide.
-  sides = strlen(body_left, true) + strlen(body_right, true);
-
-  for (i = 0; i < sizeof(top_rows); i++)
-  {
-    len = strlen(top_rows[i][0], true) + strlen(top_rows[i][2], true) +
-          top_rows[i][3];
-    if (len > sides)
-      sides = len;
-  }
-  for (i = 0; i < sizeof(bottom_rows); i++)
-  {
-    len = strlen(bottom_rows[i][0], true) + strlen(bottom_rows[i][2], true) +
-          bottom_rows[i][3];
-    if (len > sides)
-      sides = len;
-  }
-
   // A caller asking for a width means the width of the whole thing: it is
   // fitting the frame into a terminal, not sizing the text, so the overhead
   // comes out of that width, never on top of it.
-  overhead = 2 * margin_x + 2 * padding_x + sides;
+  overhead = _frame_overhead(style);
 
   if (width > 0)
   {
@@ -493,6 +497,107 @@ string frame(string content, varargs string title, int width,
   // bottom edge
   for (i = 0; i < sizeof(bottom_rows); i++)
     out += _edge_row(bottom_rows[i], body_inner_width, margin_x);
+
+  return out;
+}
+
+/**
+ * Frames a drawing at its own width and centres the frame in the reader's
+ * columns, so ASCII art keeps every line intact. The drawing loses its blank
+ * lines at both ends, the spaces that close each line and the indentation all
+ * its lines share; its width is then its widest line.
+ *
+ * @param content the drawing, as read from its file
+ * @param title an optional title for the top border
+ * @param style_name the frame style, the default one when omitted
+ * @return the framed drawing, or the drawing as it came when the frame would
+ *         not fit in the reader's columns
+ */
+string centred_frame(string content, varargs string title, string style_name)
+{
+  mapping style;
+  string * lines, * rows;
+  string margin, out;
+  int i, j, indent, width, cols;
+
+  if (!content || !strlen(content))
+    return "";
+
+  if (!style_name)
+    style_name = DEFAULT_FRAME_STYLE;
+  if (handler("terminal")->is_dumb_terminal(this_user()))
+    style_name = "simple";
+  style = styles[style_name];
+  if (!style)
+    return content;
+
+  lines = explode(content, "\n");
+
+  // close each line at its last visible character
+  for (i = 0; i < sizeof(lines); i++)
+  {
+    j = strlen(lines[i]);
+    while (j > 0 && (lines[i][j - 1] == ' ' || lines[i][j - 1] == '\r'))
+      j--;
+    lines[i] = lines[i][0 .. j - 1];
+  }
+
+  // no blank lines at either end
+  while (sizeof(lines) && !strlen(lines[0]))
+    lines = lines[1 ..];
+  while (sizeof(lines) && !strlen(lines[sizeof(lines) - 1]))
+    lines = lines[0 .. sizeof(lines) - 2];
+  if (!sizeof(lines))
+    return "";
+
+  // the indentation every line shares is not part of the drawing
+  indent = -1;
+  for (i = 0; i < sizeof(lines); i++)
+  {
+    if (!strlen(lines[i]))
+      continue;
+    j = 0;
+    while (j < strlen(lines[i]) && lines[i][j] == ' ')
+      j++;
+    if (indent == -1 || j < indent)
+      indent = j;
+  }
+  width = 0;
+  for (i = 0; i < sizeof(lines); i++)
+  {
+    if (strlen(lines[i]))
+      lines[i] = lines[i][indent ..];
+    if (strlen(lines[i], true) > width)
+      width = strlen(lines[i], true);
+  }
+
+  // a drawing the frame cannot hold whole is shown as it is: frame() would
+  // reflow it, and a drawing broken into pieces is worse than one unframed
+  cols = this_user() ? (int)this_user()->query_cols() : DEFAULT_WIDTH;
+  if (cols <= 0)
+    cols = DEFAULT_WIDTH;
+  // the frame is as wide as the drawing or its decorated title, whichever is
+  // wider, plus what the style adds
+  if (title && strlen(title))
+  {
+    j = strlen(title, true) +
+        strlen(style["title_left"] ? style["title_left"] : "", true) +
+        strlen(style["title_right"] ? style["title_right"] : "", true);
+    if (j > width)
+      width = j;
+  }
+  width += _frame_overhead(style);
+  if (width > cols)
+    return content;
+
+  margin = "";
+  for (i = 0; i < (cols - width) / 2; i++)
+    margin += " ";
+
+  rows = explode(frame(implode(lines, "\n"), title, 0, 0, style_name), "\n");
+  out = "";
+  for (i = 0; i < sizeof(rows); i++)
+    out += margin + rows[i] + "\n";
 
   return out;
 }
