@@ -143,11 +143,13 @@ void bridge_event_exit(object ob)
   put_on_bridge(ob);
 }
 
-// Whether an exit of this type is walked on the bridge: the bridge's own, and
-// a door or a gate across it. Every other exit of the cell is swum.
+// Whether an exit of this type is walked on the bridge: the bridge's own, a
+// door or a gate across it, and a road or a path (the deck). Every other exit
+// of the cell is swum.
 int query_bridge_exit_type(string type)
 {
-  return type == BRIDGE_EXIT_TYPE || type == "door" || type == "gate";
+  return type == BRIDGE_EXIT_TYPE || type == "door" || type == "gate" ||
+         type == "road" || type == "path";
 }
 
 // The bridge exits are walked, so the swum ones are the rest; and only from
