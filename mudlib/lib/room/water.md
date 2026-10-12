@@ -184,8 +184,8 @@ then river, then the rest of the terrain, so a river is drawn over farmland but
 a forest keeps its size.
 
 Where a road and a river share a sector, `WORLDMAP_BRIDGE_STYLE` picks how it
-shows: 0 the road glyph, 1 (the default) a crossing glyph for a straight road
-across a straight river and the road glyph otherwise, 2 the road glyph in blue,
+shows: 0 the road glyph, 1 (the default) a crossing glyph in blue for a
+straight road across a straight river and the road glyph otherwise, 2 the road glyph in blue,
 3 as 1 but only where
 both the road and the river go through the sector from one side to another and
 cross (each leaves by a side the other does not; side by side they are just a

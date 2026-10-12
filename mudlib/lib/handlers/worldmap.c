@@ -76,9 +76,10 @@ inherit "/lib/core/object.c";
 // How a sector crossed by a road and a river is drawn (the road keeps its
 // glyph in every style, the styles only differ in how the bridge shows):
 //   0  the road glyph, uncoloured: the road simply wins
-//   1  a straight road across a straight river gets a crossing glyph (single
-//      road over double river: a mixed line crossing; single over single:
-//      the plus), any other shape falls back to the road glyph
+//   1  a straight road across a straight river gets a crossing glyph in the
+//      river's blue (single road over double river: a mixed line crossing;
+//      single over single: the plus), any other shape falls back to the road
+//      glyph
 //   2  the road glyph in the river's blue, so a bridge stands out whatever
 //      its shape
 //   3  as 1, but only where both the road and the river go through the
@@ -327,8 +328,9 @@ private string bridge_glyph(object sect, int * road, int * river)
   else if (road_v && river_h)
     cross = WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_H : GLYPH_BOX_1111;
 
+  // the crossing is drawn in the river's blue, so the river reads unbroken
   if (cross)
-    glyph = cross;
+    return COLOUR_RIVER + cross + "%^RESET%^";
 
   if (WORLDMAP_BRIDGE_STYLE == 3)
     return COLOUR_BRIDGE + glyph + "%^RESET%^";
