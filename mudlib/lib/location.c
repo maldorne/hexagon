@@ -125,6 +125,29 @@ int query_in_water(object who)
   return bridge ? bridge->query_in_water(who) : query_water_environment();
 }
 
+// The current of a water or bridge cell: whether it would drag `who` (in the
+// water here), and a thing it is to carry off. Dry land answers nobody.
+int query_water_drags(object who)
+{
+  object water;
+
+  water = query_component_by_type(LOCATION_COMPONENT_WATER);
+  if (!water)
+    water = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  return water ? water->query_water_drags(who) : 0;
+}
+
+void water_carry(object ob)
+{
+  object water;
+
+  water = query_component_by_type(LOCATION_COMPONENT_WATER);
+  if (!water)
+    water = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  if (water)
+    water->water_carry(ob);
+}
+
 void drop_into_water(object who, varargs string message, string room_message)
 {
   object bridge;

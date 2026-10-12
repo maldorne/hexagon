@@ -236,14 +236,6 @@ void event_climb_failed(object who)
   tell_object(who, _LANG_BRIDGE_CLIMB_FAIL);
 }
 
-// The drift only takes whoever is in the water.
-void water_drift(object ob)
-{
-  if (!query_in_water(ob))
-    return;
-  water::water_drift(ob);
-}
-
 // A line under the description: where one is.
 string query_bridge_hint(object who)
 {

@@ -478,9 +478,10 @@ int do_exit_command(string str, varargs mixed verb, object ob)
     return 1;
   }
 
-  // nor one that is swum: the swim skill takes it, and whoever swims by
-  // nature walks it, as long as it stays in the water
+  // nor one that is swum: the swim skill takes it, whoever swims by nature
+  // walks it as long as it stays in the water, and a ghost walks it anywhere
   if (query_swim_exit(query_verb_exit(verb)) && forced_exit != query_verb_exit(verb) &&
+      !(ob && ob->query_dead()) &&
       !(ob && ob->query_swims() &&
         query_dest_object(query_verb_exit(verb))->query_water_environment()))
     return 0;

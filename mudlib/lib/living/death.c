@@ -295,9 +295,11 @@ object make_corpse()
   object corpse;
   object money;
   mixed *usedstuff;
+  object * dropped;
   string my_mess, room_mess;
-  int i;
+  int i, carried;
 
+  dropped = ({ });
   my_mess = "";
   room_mess = "";
 
@@ -333,6 +335,7 @@ object make_corpse()
       ok = usedstuff[i];
       this_object()->unhold_ob(ok);
       ok->move(environment(this_object()));
+      dropped += ({ ok });
     }
   } 
 
@@ -388,17 +391,34 @@ object make_corpse()
     money->dest_me();
   }
 
-  // as for now, the corpse contains the remaining stuff.
+  // as for now, the corpse contains the remaining stuff, unless a current
+  // drags the dead one: then every piece goes into the water on its own and
+  // is carried off separately
   // all_inventory(this_object())->move(corpse);
   {
     object * inv;
     inv = all_inventory(this_object());
+    carried = environment() && environment()->query_water_drags(this_object());
 
     for (i = 0; i < sizeof(inv); i++)
-      inv[i]->move(corpse);
+      inv[i]->move(carried ? environment() : corpse);
+
+    if (carried)
+      dropped += inv;
   }
 
   corpse->move(environment());
+
+  // the weapons let go above and the gear are queued by a place that does not
+  // queue what lands on it (a bridge cell); the others queued themselves
+  if (carried)
+  {
+    dropped += ({ corpse });
+    for (i = 0; i < sizeof(dropped); i++)
+      if (dropped[i] && environment(dropped[i]) == environment())
+        environment()->water_carry(dropped[i]);
+  }
+
   return corpse;
 } /* Make corpse */
 

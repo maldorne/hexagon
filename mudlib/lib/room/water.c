@@ -20,10 +20,17 @@
 #include <living/skills.h>
 #include <room/water.h>
 #include <room/room.h>
+#include <basic/move.h>
 #include <language.h>
 
 private int water_depth, water_strength;
 private string water_current, water_upstream, water_swept_to;
+
+// who has a drift pending, and the things the current is about to carry
+// (never saved)
+static mapping drifting;
+static object * drift_objects;
+static int drift_objects_due;
 
 object query_water_place() { return this_object(); }
 
@@ -264,12 +271,92 @@ string query_water_hint(object who)
   return _LANG_WATER_LOOK;
 }
 
+// Whether the current here carries things off: it moves, and the exit it
+// flows out by exists.
+int query_water_flows()
+{
+  string * dirs;
+
+  if (!water_current || water_strength <= 0 || !query_water_place())
+    return 0;
+
+  dirs = query_water_place()->query_direc();
+  return dirs && member_array(water_current, dirs) != -1;
+}
+
+// Whether the current would drag `who` if they were here and in the water.
+int query_water_drags(object who)
+{
+  return who && query_in_water(who) && query_water_flows();
+}
+
+// One drift pending per living: coming back in before it falls due does not
+// add another.
+private void queue_drift(object ob)
+{
+  if (!drifting)
+    drifting = ([ ]);
+  if (drifting[ob])
+    return;
+
+  drifting[ob] = 1;
+  call_out("water_drift", WATER_DRIFT_TIME, ob);
+}
+
+// Whether `ob`, or anything inside it, is a unique object.
+private int holds_unique(object ob)
+{
+  object * inv;
+  int i;
+
+  if (ob->query_unique_object())
+    return 1;
+
+  inv = all_inventory(ob);
+  for (i = 0; i < sizeof(inv); i++)
+    if (holds_unique(inv[i]))
+      return 1;
+
+  return 0;
+}
+
+// Put a thing that is not a living in the queue of what the current carries
+// off. Things that arrive in a cell with a current queue themselves; a place
+// that does not tell them apart (a bridge cell) is asked for the ones in the
+// water.
+void water_carry(object ob)
+{
+  if (!ob || living(ob) || ob->get() || !query_water_flows())
+    return;
+
+  if (!drift_objects)
+    drift_objects = ({ });
+  if (member_array(ob, drift_objects) != -1)
+    return;
+
+  drift_objects += ({ ob });
+
+  // a single call_out for every thing waiting here
+  if (!drift_objects_due)
+  {
+    drift_objects_due = 1;
+    call_out("water_drift_objects", WATER_DRIFT_TIME);
+  }
+}
+
 // Whoever comes into moving water and does not swim on is carried off by it
 // after a while. Anybody who reaches water knows from then on how to swim.
+// Anything else that comes in is carried off too.
 void water_event_enter(object ob)
 {
-  if (!ob || !living(ob))
+  if (!ob)
     return;
+
+  if (!living(ob))
+  {
+    water_carry(ob);
+    return;
+  }
 
   if (interactive(ob) && !ob->query_known_skill(SKILL_SWIM))
     ob->add_known_skill(SKILL_SWIM);
@@ -279,23 +366,137 @@ void water_event_enter(object ob)
   if (ob->query_swims() || water_strength <= 0 || !query_water_swept_to())
     return;
 
-  call_out("water_drift", WATER_DRIFT_TIME, ob);
+  queue_drift(ob);
+}
+
+// The current drags somebody who is not swimming: it may hurt them, more the
+// stronger it is and less the better they swim. Returns whether it killed.
+private int hurt_by_current(object who)
+{
+  int chance, damage, i;
+
+  if (who->query_dead())
+    return 0;
+
+  chance = WATER_HURT_BASE_CHANCE + WATER_HURT_STRENGTH_CHANCE * water_strength -
+           who->query_skill_ability(SKILL_SWIM) / WATER_HURT_SKILL_DIVISOR;
+  if (random(100) + 1 > chance)
+    return 0;
+
+  damage = who->query_max_hp() * water_strength * WATER_HURT_HP_PERCENT / 100;
+  for (i = 0; i < water_strength; i++)
+    damage += 1 + random(WATER_HURT_DIE);
+
+  tell_object(who, _LANG_WATER_HURT_ME);
+  tell_room(query_water_place(), replace_string(_LANG_WATER_HURT_ROOM, "$N",
+            who->query_cap_name()) + "\n", who);
+
+  who->adjust_hp(-damage);
+  return who->query_hp() < 0;
 }
 
 void water_drift(object ob)
 {
-  if (!ob || environment(ob) != query_water_place())
+  if (ob && drifting)
+    map_delete(drifting, ob);
+
+  // only whoever is in the water drifts (not who is on a bridge above it)
+  if (!ob || environment(ob) != query_water_place() || !query_in_water(ob))
     return;
 
   // a stroke already on its way decides where they go
   if (ob->query_active_effect("effect"))
   {
-    call_out("water_drift", WATER_DRIFT_TIME, ob);
+    queue_drift(ob);
     return;
   }
 
+  // a death happens here, in the water
+  if (hurt_by_current(ob))
+    return;
+
   tell_object(ob, _LANG_WATER_DRIFT_ME);
   move_swimmer(ob, query_water_swept_to(), _LANG_WATER_SWEPT_MESS);
+}
+
+// The exit of this place that leads to a coast by swimming, one of them at
+// random, or nil.
+private string query_shore_exit()
+{
+  object place, dest;
+  string * dirs, * shores;
+  int i;
+
+  place = query_water_place();
+  dirs = place->query_direc();
+  shores = ({ });
+  for (i = 0; i < sizeof(dirs); i++)
+  {
+    if (!place->query_swim_exit(dirs[i]) || place->query_sealed_exit(dirs[i]))
+      continue;
+    dest = place->query_dest_object(dirs[i]);
+    if (dest && dest->query_coast())
+      shores += ({ dirs[i] });
+  }
+
+  return sizeof(shores) ? shores[random(sizeof(shores))] : nil;
+}
+
+// One drag of the current on a thing: lost for good, washed onto the shore of
+// this place if it has one, or carried on downstream.
+private void carry_object(object ob)
+{
+  object place, dest;
+  string shore, dir, name;
+  int roll, shored;
+
+  place = query_water_place();
+  name = ob->query_short();
+  if (!name)
+    name = "";
+
+  shore = query_shore_exit();
+  roll = random(100);
+
+  if (roll < WATER_OBJECT_LOST_CHANCE && !holds_unique(ob))
+  {
+    tell_room(place, replace_string(_LANG_WATER_OBJECT_LOST, "$O", name) + "\n");
+    ob->dest_me();
+    return;
+  }
+
+  shored = shore && roll < WATER_OBJECT_LOST_CHANCE + WATER_OBJECT_SHORE_CHANCE;
+  dir = shored ? shore : water_current;
+
+  dest = place->query_dest_object(dir);
+  if (!dest)
+    return;
+
+  tell_room(place, replace_string(replace_string(shored ?
+            _LANG_WATER_OBJECT_SHORE_FROM : _LANG_WATER_OBJECT_DRIFT_FROM, "$O",
+            name), "$T", ROOM_HAND->query_exit_dir(dir)) + "\n");
+
+  if (ob->move(dest) != MOVE_OK)
+    return;
+
+  tell_room(dest, replace_string(shored ? _LANG_WATER_OBJECT_SHORE_TO :
+            _LANG_WATER_OBJECT_DRIFT_TO, "$O", name) + "\n");
+}
+
+// Every thing waiting in this place is dragged once. What the current carries
+// into the next cell is queued there, with its own time.
+void water_drift_objects()
+{
+  object * obs;
+  int i;
+
+  obs = drift_objects ? drift_objects : ({ });
+  drift_objects = ({ });
+  drift_objects_due = 0;
+
+  for (i = 0; i < sizeof(obs); i++)
+    if (obs[i] && environment(obs[i]) == query_water_place() && query_water_flows())
+      carry_object(obs[i]);
 }
 
 mixed * water_stats()
