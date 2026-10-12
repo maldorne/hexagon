@@ -36,6 +36,8 @@ mapping region_warmed;
 // L2 fine cache: ([ file : expiry_time ]). A fresh file is not re-loaded or
 // re-enqueued while its stamp holds.
 mapping warmed;
+// Same shape, for files whose load failed.
+mapping failed;
 
 // Prewarm queue: ({ ({ file, steps, centre }), ... }), drained from `head` (FIFO
 // without O(n) shifts). `queued` dedupes files already in flight.
@@ -55,6 +57,7 @@ void create()
   ob_game       = ([ ]);
   region_warmed = ([ ]);
   warmed        = ([ ]);
+  failed        = ([ ]);
   queue         = ({ });
   head          = 0;
   queued        = ([ ]);
@@ -104,11 +107,29 @@ void deregister_object(object ob)
 // Prewarm — walk the graph around a player and load it, chunked across ticks.
 // ---------------------------------------------------------------------------
 
-// A file is "fresh" while its load stamp holds; fresh files are neither
-// re-enqueued nor reloaded.
+// The loaded object an exit leads to, without loading anything: retention
+// only decides what to keep of what is already in memory.
+private object _loaded_destination(string dest)
+{
+  if (!dest || !strlen(dest))
+    return nil;
+
+  if (dest[strlen(dest) - 2 ..] == ".o")
+    return load_object(LOCATION_HANDLER)->query_loaded_location(dest);
+
+  return find_object(dest);
+}
+
+// A file is "fresh" while its stamp holds and the location is still in memory
+// (one unloaded meanwhile is warmed again), or while the stamp of a failed load
+// holds, so a broken file is not retried on every walk.
 private int _fresh(string file)
 {
-  return warmed[file] != nil && warmed[file] > time();
+  if (failed[file] != nil && failed[file] > time())
+    return 1;
+
+  return warmed[file] != nil && warmed[file] > time() &&
+         _loaded_destination(file) != nil;
 }
 
 // Resolve a destination file to its live object, loading on demand — this
@@ -271,15 +292,16 @@ void _prewarm_step()
 
     ob = _ensure_loaded(file);
 
-    // A file that could not be loaded is stamped like a loaded one, so a
-    // broken location is retried when its stamp ages out instead of on every
-    // walk through the neighbourhood.
+    // A file that could not be loaded is stamped apart, so a broken location
+    // is retried when its stamp ages out instead of on every walk through the
+    // neighbourhood.
     if (!ob)
     {
-      warmed[file] = time() + CLEANER_FILE_TTL;
+      failed[file] = time() + CLEANER_FILE_TTL;
       continue;
     }
 
+    map_delete(failed, file);
     warmed[file] = time() + CLEANER_FILE_TTL;
 
     _seed(ob, steps + 1, centre);
@@ -330,19 +352,6 @@ void player_moved(object player)
 // ---------------------------------------------------------------------------
 // Evict — reclaim objects out of every player's range, past the grace period.
 // ---------------------------------------------------------------------------
-
-// The loaded object an exit leads to, without loading anything: retention
-// only decides what to keep of what is already in memory.
-private object _loaded_destination(string dest)
-{
-  if (!dest || !strlen(dest))
-    return nil;
-
-  if (dest[strlen(dest) - 2 ..] == ".o")
-    return load_object(LOCATION_HANDLER)->query_loaded_location(dest);
-
-  return find_object(dest);
-}
 
 // Walk the same window the prewarm fills, over what is already in memory, and
 // mark every object met as retained. Anything inside the window that is not

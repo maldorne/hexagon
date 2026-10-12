@@ -74,20 +74,105 @@ int has_template(string game, string source)
   return file_size(query_template_file(game, source)) >= 0;
 }
 
-// The template mapping for a source, or nil if none.
+// Decoded templates, keyed by template file: ([ file : ({ mtime, size, mapping,
+// last_use }) ]). Decoding JSON in LPC is the expensive part of a spawn, so a
+// file is decoded once and again only when its modification time or size changes.
+// Capped: past TEMPLATE_CACHE_MAX the least recently used entry is dropped.
+#define TEMPLATE_CACHE_MAX 256
+
+private mapping template_cache;
+private int template_clock;
+
+// Recursive copy, so a caller can change what it gets without touching the cache.
+private mixed _deep_copy(mixed v)
+{
+  mixed * keys;
+  int i;
+
+  if (mappingp(v))
+  {
+    mapping out;
+
+    out = ([ ]);
+    keys = map_indices(v);
+    for (i = 0; i < sizeof(keys); i++)
+      out[keys[i]] = _deep_copy(v[keys[i]]);
+    return out;
+  }
+
+  if (pointerp(v))
+  {
+    mixed * out;
+
+    out = allocate(sizeof(v));
+    for (i = 0; i < sizeof(v); i++)
+      out[i] = _deep_copy(v[i]);
+    return out;
+  }
+
+  return v;
+}
+
+// Drop every cached template (or only the one for a template file).
+void flush_template_cache(varargs string tfile)
+{
+  if (tfile && template_cache)
+    map_delete(template_cache, tfile);
+  else
+    template_cache = ([ ]);
+}
+
+// Drop the least recently used entry.
+private void _evict_template()
+{
+  string * files;
+  string oldest;
+  int i;
+
+  files = map_indices(template_cache);
+  oldest = files[0];
+  for (i = 1; i < sizeof(files); i++)
+    if (template_cache[files[i]][3] < template_cache[oldest][3])
+      oldest = files[i];
+
+  map_delete(template_cache, oldest);
+}
+
+// The template mapping for a source, or nil if none. The caller gets its own
+// copy of the cached mapping, free to change it.
 mapping query_template(string game, string source)
 {
   string tfile, data;
+  mixed * info;
+  mixed * entry;
+  mapping t;
 
   tfile = query_template_file(game, source);
-  if (file_size(tfile) < 0)
+  info = get_dir(tfile, -1);
+  if (!info || !sizeof(info) || info[0][1] < 0)
     return nil;
+
+  if (!template_cache)
+    template_cache = ([ ]);
+
+  entry = template_cache[tfile];
+  if (entry && entry[0] == info[0][2] && entry[1] == info[0][1])
+  {
+    entry[3] = ++template_clock;
+    return _deep_copy(entry[2]);
+  }
 
   data = read_file(tfile);
   if (!data)
     return nil;
 
-  return json_decode(data);
+  t = json_decode(data);
+
+  if (!entry && map_sizeof(template_cache) >= TEMPLATE_CACHE_MAX)
+    _evict_template();
+  template_cache[tfile] = ({ info[0][2], info[0][1], t, ++template_clock });
+
+  return _deep_copy(t);
 }
 
 // The gender to give a fresh NPC of this template. A fixed template ("gender")
