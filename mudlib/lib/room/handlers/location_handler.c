@@ -666,10 +666,10 @@ object convert_room_to_location(object room)
 {
   object location, area, old;
   string file_name, * exits, ret, board_name;
-  string * inferred, * venture_kinds, * blueprints, * missing;
+  string * inferred, * added, * suggested, * venture_kinds, * blueprints, * missing;
   string game;
   mapping exit_map, clones, npc_clones, fixtures;
-  int i, c;
+  int i, c, k;
 
   if (!room)
     return nil;
@@ -932,34 +932,47 @@ object convert_room_to_location(object room)
     }
   }
 
-  // Props inferred from the room's items and description: the props
-  // handler matches each prop type's keywords against them and returns
-  // the types to attach. One instance of each is added to the location's
-  // props component.
-  inferred = handler("props")->infer_types_from_room(
-               location->query_original_items(),
-               location->query_original_long());
-
-  if (sizeof(inferred))
+  // Props from the room's add_items named like a catalogue prop: the room
+  // declares the thing, so it becomes a prop. Each type is given once per
+  // location: one removed by hand stays removed on a later conversion, and
+  // one already there (added by hand) is never duplicated.
+  inferred = handler("props")->infer_types_from_items(
+               location->query_original_items());
+  added = ({ });
+  for (k = 0; k < sizeof(inferred); k++)
   {
     object comp;
-    int k;
+
+    if (member_array(inferred[k], location->query_inferred_props()) != -1)
+      continue;
+    location->add_inferred_prop(inferred[k]);
 
     if (!location->has_component(LOCATION_COMPONENT_PROPS))
       location->add_component(LOCATION_COMPONENT_PROPS,
                               ([ "props_instances": ({ }) ]));
-
     comp = location->query_component_by_type(LOCATION_COMPONENT_PROPS);
-    if (comp)
-      // idempotent: only add a type not already present, so re-running
-      // the conversion never duplicates inferred props and never stomps
-      // a prop of that type added by hand.
-      for (k = 0; k < sizeof(inferred); k++)
-        if (!sizeof(comp->query_instances_by_type(inferred[k])))
-          comp->add_prop_instance(inferred[k], inferred[k] + "_1", ([ ]));
-
-    ret += "   Inferred props: " + implode(inferred, ", ") + ".\n";
+    if (comp && !sizeof(comp->query_instances_by_type(inferred[k])))
+    {
+      comp->add_prop_instance(inferred[k], inferred[k] + "_1", ([ ]));
+      added += ({ inferred[k] });
+    }
   }
+  if (sizeof(added))
+    ret += "   Inferred props: " + implode(added, ", ") + ".\n";
+
+  // What the description mentions is only suggested: prose names things in
+  // passing, and a prop hides the room's long
+  suggested = handler("props")->infer_types_from_text(
+                location->query_original_long()) - inferred;
+  if (location->has_component(LOCATION_COMPONENT_PROPS))
+    for (k = 0; k < sizeof(suggested); k++)
+      if (sizeof(location->query_component_by_type(LOCATION_COMPONENT_PROPS)
+                   ->query_instances_by_type(suggested[k])))
+        suggested[k] = nil;
+  suggested -= ({ nil });
+  if (sizeof(suggested))
+    ret += "   Possible props (from the description): " +
+           implode(suggested, ", ") + ".\n";
 
   // A venture component (pub, shop) makes this location a point of interest
   // of the matching kind, so the vacancy system and the world map can find

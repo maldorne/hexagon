@@ -926,45 +926,18 @@ string * query_known_types()
   return sort_array(ret);
 }
 
-// First-pass heuristic for the room-to-location conversion: suggest which
-// prop types a room should carry, by matching each type's id keywords
-// against the room's item ids (structured, reliable) and the words of its
-// description (fuzzy). Returns the matching types, one entry each. Word
-// occurrence only — deliberately simple; refine later.
-string * infer_types_from_room(mixed * items, string long)
+// The prop types whose id keywords (or catalogue noun and plural) are among
+// the words in `seen`, one entry each. Word occurrence only.
+private string * _match_types(mapping seen)
 {
-  string * known, * result, * words;
-  mapping seen, matched, nouns;
+  string * known, * result;
+  mapping matched, nouns;
   int i, j;
 
   _ensure_loaded();
   result = ({ });
-  seen = ([ ]);
   matched = ([ ]);
   nouns = ([ ]);
-
-  // item id keywords: items = ({ ({ id_or_id_array, desc }), ... })
-  if (pointerp(items))
-    for (i = 0; i < sizeof(items); i++)
-    {
-      mixed ids;
-      if (!pointerp(items[i]) || !sizeof(items[i])) continue;
-      ids = items[i][0];
-      if (stringp(ids)) ids = ({ ids });
-      if (pointerp(ids))
-        for (j = 0; j < sizeof(ids); j++)
-          if (stringp(ids[j]) && strlen(ids[j]))
-            seen[lower_case(ids[j])] = 1;
-    }
-
-  // words from the description prose. lower_case only lowers a string's
-  // first character, so apply it per word to fold each token's case.
-  if (stringp(long) && strlen(long))
-  {
-    words = split(long);
-    for (i = 0; i < sizeof(words); i++)
-      seen[lower_case(words[i])] = 1;
-  }
 
   known = query_known_types();
   for (i = 0; i < sizeof(known); i++)
@@ -1037,6 +1010,55 @@ string * infer_types_from_room(mixed * items, string long)
   }
 
   return result;
+}
+
+// The prop types a room declares through its add_items, for the
+// room-to-location conversion: an item named like a catalogue prop is that
+// prop. `items` is ({ ({ id_or_id_array, desc }), ... }).
+string * infer_types_from_items(mixed * items)
+{
+  mapping seen;
+  mixed ids;
+  int i, j;
+
+  seen = ([ ]);
+  if (pointerp(items))
+    for (i = 0; i < sizeof(items); i++)
+    {
+      if (!pointerp(items[i]) || !sizeof(items[i]))
+        continue;
+      ids = items[i][0];
+      if (stringp(ids))
+        ids = ({ ids });
+      if (pointerp(ids))
+        for (j = 0; j < sizeof(ids); j++)
+          if (stringp(ids[j]) && strlen(ids[j]))
+            seen[lower_case(ids[j])] = 1;
+    }
+
+  return _match_types(seen);
+}
+
+// The prop types a description mentions. Prose names things in passing (the
+// smoke of distant chimneys), so these are only suggestions for whoever
+// converts the room, never props by themselves.
+string * infer_types_from_text(string long)
+{
+  mapping seen;
+  string * words;
+  int i;
+
+  seen = ([ ]);
+  // lower_case only lowers a string's first character, so apply it per word
+  // to fold each token's case
+  if (stringp(long) && strlen(long))
+  {
+    words = split(long);
+    for (i = 0; i < sizeof(words); i++)
+      seen[lower_case(words[i])] = 1;
+  }
+
+  return _match_types(seen);
 }
 
 /*

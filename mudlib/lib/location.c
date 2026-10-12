@@ -43,6 +43,9 @@ string _original_long;
 string _original_short;
 mapping _original_add_clones;   // path -> count for each add_clone in the source room
 mixed * _original_items;         // ordered ({ id_or_id_array, desc }) from add_item
+// the prop types the conversion has already given this location, so one
+// removed by hand is not given again on a later conversion
+string * _inferred_props;
 // the fixed objects this location clones on every load (a tree to climb, a
 // stone to move), as blueprint -> how many
 mapping _fixtures;
@@ -251,6 +254,7 @@ void create()
   _original_short = "";
   _original_add_clones = ([ ]);
   _original_items = ({ });
+  _inferred_props = ({ });
   _fixtures = ([ ]);
   _senses = ([ ]);
   _specific_long = "";
@@ -386,6 +390,15 @@ mapping query_original_add_clones() { return _original_add_clones; }
 void set_original_add_clones(mapping m) { _original_add_clones = m; }
 mixed * query_original_items() { return _original_items; }
 void set_original_items(mixed * a) { _original_items = a; }
+string * query_inferred_props() { return ({ }) + (_inferred_props ? _inferred_props : ({ })); }
+
+void add_inferred_prop(string type)
+{
+  if (!_inferred_props)
+    _inferred_props = ({ });
+  if (member_array(type, _inferred_props) == -1)
+    _inferred_props += ({ type });
+}
 
 // The fixed objects of this location, as blueprint (no .c) -> how many.
 mapping query_fixtures() { return ([ ]) + (_fixtures ? _fixtures : ([ ])); }
