@@ -86,7 +86,7 @@ inherit "/lib/core/object.c";
 //      each leaving by a side the other does not, whatever lies inside it,
 //      and in yellow, the colour of a timber deck, which
 //      neither road nor river use; elsewhere the road glyph, uncoloured
-#define WORLDMAP_BRIDGE_STYLE 3
+#define WORLDMAP_BRIDGE_STYLE 1
 
 // Colour of the river line, and of a bridge in the styles that colour it.
 #define COLOUR_RIVER  "%^BLUE%^"
