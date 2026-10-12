@@ -65,6 +65,31 @@
 #define _LANG_PROPS_ID_WITH_MATERIAL        material_phrase + " " + id
 
 // ************************************************************
+//  milestone
+// ************************************************************
+#define _LANG_PROP_MILESTONE_ID           "milestone"
+#define _LANG_PROP_MILESTONE_ID_ALIAS_1   "marker"
+#define _LANG_PROP_MILESTONE_ID_ALIAS_2   "waymarker"
+
+#define _LANG_PROP_MILESTONE_NOUN         "milestone"
+#define _LANG_PROP_MILESTONE_NOUN_PLURAL  "milestones"
+
+#define _LANG_PROP_MILESTONE_SHORT        "a $material_phrase$ milestone"
+#define _LANG_PROP_MILESTONE_LONG         "A $material_phrase$ milestone marks the edge of the road."
+
+// ************************************************************
+//  arch
+// ************************************************************
+#define _LANG_PROP_ARCH_ID                "arch"
+#define _LANG_PROP_ARCH_ID_ALIAS_1        "archway"
+
+#define _LANG_PROP_ARCH_NOUN              "arch"
+#define _LANG_PROP_ARCH_NOUN_PLURAL       "arches"
+
+#define _LANG_PROP_ARCH_SHORT             "a $material_phrase$ arch"
+#define _LANG_PROP_ARCH_LONG              "A $material_phrase$ arch stands over the passage."
+
+// ************************************************************
 //  chair
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "chair"

@@ -122,6 +122,11 @@ it is with `short`, `ids` and `description` (a heap of rubble, broken tiles),
 and the conversion never infers it. In `props set` a list is written
 `({ stones, heaps })`.
 
+Two more types are plain things to look at: `milestone` and `arch`, with no
+actions of their own. A milestone may carry an `inscription` override, and then
+the generic `read` shows it; without one it is only looked at. An arch takes its
+description from the instance when it is a particular one.
+
 A colour is also named in the room's list of props ("You see a red stone
 rune") and in the header of `look <prop>`, through `_LANG_PROPS_NOUN_WITH_COLOUR`;
 instances of different colours are listed apart. A type can add a sentence for

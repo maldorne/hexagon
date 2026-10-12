@@ -62,6 +62,58 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  milestone — a stone marker beside a road. It may carry an
+    //  inscription (the instance's inscription override), which
+    //  `read` shows; without one it is only looked at.
+    // ------------------------------------------------------------
+    "milestone": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_MILESTONE_ID,
+        _LANG_PROP_MILESTONE_ID_ALIAS_1,
+        _LANG_PROP_MILESTONE_ID_ALIAS_2,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_MILESTONE_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_MILESTONE_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_MILESTONE_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_MILESTONE_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([ ]),
+    ]),
+
+    // ------------------------------------------------------------
+    //  arch — an arch standing over a road or a gate. Stateless,
+    //  only looked at.
+    // ------------------------------------------------------------
+    "arch": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_ARCH_ID,
+        _LANG_PROP_ARCH_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_ARCH_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_ARCH_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_ARCH_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_ARCH_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE, MAT_WOOD, MAT_METAL }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([ ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  chair — full state cycle: sit/stand, tip/right
     // ------------------------------------------------------------
     "chair": ([

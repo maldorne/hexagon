@@ -70,6 +70,31 @@
 #define _LANG_PROPS_ID_WITH_MATERIAL        id + " " + material_phrase
 
 // ************************************************************
+//  hito (piedra miliar)
+// ************************************************************
+#define _LANG_PROP_MILESTONE_ID           "hito"
+#define _LANG_PROP_MILESTONE_ID_ALIAS_1   "piedra miliar"
+#define _LANG_PROP_MILESTONE_ID_ALIAS_2   "miliario"
+
+#define _LANG_PROP_MILESTONE_NOUN         "hito"
+#define _LANG_PROP_MILESTONE_NOUN_PLURAL  "hitos"
+
+#define _LANG_PROP_MILESTONE_SHORT        "un hito $material_phrase$"
+#define _LANG_PROP_MILESTONE_LONG         "Un hito $material_phrase$ marca el borde del camino."
+
+// ************************************************************
+//  arco
+// ************************************************************
+#define _LANG_PROP_ARCH_ID                "arco"
+#define _LANG_PROP_ARCH_ID_ALIAS_1        "arcada"
+
+#define _LANG_PROP_ARCH_NOUN              "arco"
+#define _LANG_PROP_ARCH_NOUN_PLURAL       "arcos"
+
+#define _LANG_PROP_ARCH_SHORT             "un arco $material_phrase$"
+#define _LANG_PROP_ARCH_LONG              "Un arco $material_phrase$ se alza sobre el paso."
+
+// ************************************************************
 //  silla
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "silla"
