@@ -373,6 +373,10 @@ nomask int valid_write(string path, mixed euid, string func)
 {
   string *bing;
   mixed master;
+  object writer;
+
+  // the object doing the writing, before it is turned into its euid
+  writer = objectp(euid) ? euid : nil;
 
   if (objectp(euid))
     euid = geteuid(euid);
@@ -405,6 +409,11 @@ nomask int valid_write(string path, mixed euid, string func)
     // check the action was started by a player object
     if (initial_object() &&
         member_array(base_name(initial_object()), PLAYEROBS) != -1)
+      return 1;
+    // or the writer is one: save_object only ever saves the object calling it,
+    // so a player or user saving itself from a heart_beat or a call_out that
+    // somebody else started is still the player or user writing its own file
+    if (writer && member_array(base_name(writer), PLAYEROBS) != -1)
       return 1;
     return 0;
   }
