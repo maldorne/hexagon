@@ -469,7 +469,7 @@ string query_house_owner(string file)
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (string)owner->query_house_owner(file);
+    return owner->query_house_owner(file);
 
   if (!house_records)
     house_records = ([ ]);
