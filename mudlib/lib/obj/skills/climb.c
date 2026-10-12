@@ -13,7 +13,8 @@
 //   string query_climb_refusal(object who) -- why the climber cannot now
 //
 // 'climb' alone climbs the place one stands in, if it answers the above (the
-// way back up onto a bridge from the water).
+// way back up onto a bridge from the water), or else the only climbable thing
+// there.
 
 #include <living/effects.h>
 #include <living/skills.h>
@@ -52,14 +53,27 @@ void setup()
   set_rounds(({ "start_climb", "do_climb" }));
 }
 
-// What is climbed: the item named, or the place when nothing is named.
+// What is climbed: the item named; when nothing is named, the place, or else
+// the only climbable thing in it.
 object query_climb_target(object caster, mixed str)
 {
-  object ob;
+  object ob, * climbables;
   mixed found;
+  int i;
 
   if (!stringp(str) || !strlen(trim(str)))
-    return environment(caster)->query_climbable() ? environment(caster) : nil;
+  {
+    if (environment(caster)->query_climbable())
+      return environment(caster);
+
+    climbables = ({ });
+    found = all_inventory(environment(caster));
+    for (i = 0; i < sizeof(found); i++)
+      if (found[i]->query_climbable() && !living(found[i]))
+        climbables += ({ found[i] });
+
+    return sizeof(climbables) == 1 ? climbables[0] : nil;
+  }
 
   // not on anybody else's inventory, only on the caster's or the place's;
   // find_one_match answers 0, not nil, when nothing matches
@@ -76,26 +90,39 @@ object query_climb_target(object caster, mixed str)
   return ob;
 }
 
-int start_climb(object caster, mixed target, mixed out_range, int time, int quiet)
+// Why the climb cannot start, before anything is said or spent: nothing to
+// climb, or the thing climbed refuses.
+mixed extra_checks(string str, object caster)
 {
   object ob;
   string refusal;
 
-  ob = query_climb_target(caster, target);
+  ob = query_climb_target(caster, str);
   if (!ob || !ob->query_climbable())
-  {
-    tell_object(caster, (!stringp(target) || !strlen(trim(target))) ?
-                _LANG_SKILL_CLIMB_WHAT : _LANG_SKILL_CLIMB_NOT_CLIMBABLE);
-    return 0;
-  }
+    return (!stringp(str) || !strlen(trim(str))) ?
+           _LANG_SKILL_CLIMB_WHAT : _LANG_SKILL_CLIMB_NOT_CLIMBABLE;
 
   refusal = ob->query_climb_refusal(caster);
+  if (stringp(refusal))
+    return refusal;
+
+  return 0;
+}
+
+int start_climb(object caster, mixed target, mixed out_range, int time, int quiet)
+{
+  object ob;
+  mixed refusal;
+
+  // checked again: things may have changed since the climb was started
+  refusal = extra_checks(target, caster);
   if (stringp(refusal))
   {
     tell_object(caster, refusal);
     return 0;
   }
 
+  ob = query_climb_target(caster, target);
   tell_object(caster, _LANG_SKILL_CLIMB_ROUND1);
   if (ob != environment(caster))
     tell_room(environment(caster), _LANG_SKILL_CLIMB_ROUND1_ROOM, caster);
