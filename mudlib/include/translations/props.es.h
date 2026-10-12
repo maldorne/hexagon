@@ -150,7 +150,6 @@
 #define _LANG_PROP_STATUE_READ_VERBS    ({ "leer" })
 #define _LANG_PROP_STATUE_READ_ME       "Te acercas al pedestal de la estatua y lees lo que tiene grabado."
 #define _LANG_PROP_STATUE_READ_OTHERS   "$mcname$ se acerca al pedestal de la estatua y lee algo."
-#define _LANG_PROP_STATUE_READ_NOTHING  "La estatua no tiene nada escrito."
 
 
 // ************************************************************
@@ -171,7 +170,6 @@
 #define _LANG_PROP_RUINED_STATUE_READ_VERBS  ({ "leer" })
 #define _LANG_PROP_RUINED_STATUE_READ_ME     "Apartas las enredaderas que cubren el pedestal y descubres la placa."
 #define _LANG_PROP_RUINED_STATUE_READ_OTHERS "$mcname$ aparta las enredaderas del pie de la estatua y lee algo."
-#define _LANG_PROP_RUINED_STATUE_READ_NOTHING "Si alguna vez hubo algo escrito en la placa, el tiempo lo ha borrado."
 
 // ************************************************************
 //  runa
@@ -207,7 +205,6 @@
 #define _LANG_PROP_RUNE_READ_VERBS      ({ "leer" })
 #define _LANG_PROP_RUNE_READ_ME         "Te acercas a la runa y lees lo que tiene grabado."
 #define _LANG_PROP_RUNE_READ_OTHERS     "$mcname$ se acerca a una runa y la lee."
-#define _LANG_PROP_RUNE_READ_NOTHING    "La runa es solo un símbolo; no dice nada que se pueda leer."
 
 #define _LANG_PROP_RUINED_STATUE_PRAY_VERBS  ({ "rezar", "orar" })
 #define _LANG_PROP_RUINED_STATUE_PRAY_ME     "Te arrodillas ante la estatua abandonada. Nadie parece haberlo hecho en mucho tiempo."
@@ -387,7 +384,6 @@
 #define _LANG_PROP_PAINTING_READ_VERBS  ({ "leer" })
 #define _LANG_PROP_PAINTING_READ_ME     "Te acercas al cuadro y lees la placa grabada al pie del marco."
 #define _LANG_PROP_PAINTING_READ_OTHERS "$mcname$ se acerca al cuadro y lee la placa del marco."
-#define _LANG_PROP_PAINTING_READ_NOTHING "No hay nada grabado en el marco del cuadro."
 
 // ------------------------------------------------------------
 //  perchero

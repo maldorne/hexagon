@@ -145,7 +145,6 @@
 #define _LANG_PROP_STATUE_READ_VERBS    ({ "read" })
 #define _LANG_PROP_STATUE_READ_ME       "You step up to the pedestal of the statue and read what is carved on it."
 #define _LANG_PROP_STATUE_READ_OTHERS   "$mcname$ steps up to the pedestal of the statue and reads something."
-#define _LANG_PROP_STATUE_READ_NOTHING  "Nothing is written on the statue."
 
 
 // ************************************************************
@@ -166,7 +165,6 @@
 #define _LANG_PROP_RUINED_STATUE_READ_VERBS  ({ "read" })
 #define _LANG_PROP_RUINED_STATUE_READ_ME     "You push aside the creepers covering the pedestal and uncover the plaque."
 #define _LANG_PROP_RUINED_STATUE_READ_OTHERS "$mcname$ pushes the creepers away from the foot of the statue and reads something."
-#define _LANG_PROP_RUINED_STATUE_READ_NOTHING "If anything was ever written on the plaque, time has worn it away."
 
 // ************************************************************
 //  rune
@@ -202,7 +200,6 @@
 #define _LANG_PROP_RUNE_READ_VERBS      ({ "read" })
 #define _LANG_PROP_RUNE_READ_ME         "You step up to the rune and read what is carved on it."
 #define _LANG_PROP_RUNE_READ_OTHERS     "$mcname$ steps up to a rune and reads it."
-#define _LANG_PROP_RUNE_READ_NOTHING    "The rune is only a symbol; there is nothing on it to read."
 
 #define _LANG_PROP_RUINED_STATUE_PRAY_VERBS  ({ "pray" })
 #define _LANG_PROP_RUINED_STATUE_PRAY_ME     "You kneel before the abandoned statue. Nobody seems to have done so in a long time."
@@ -386,7 +383,6 @@
 #define _LANG_PROP_PAINTING_READ_VERBS  ({ "read" })
 #define _LANG_PROP_PAINTING_READ_ME     "You step up to the painting and read the plaque engraved at the foot of the frame."
 #define _LANG_PROP_PAINTING_READ_OTHERS "$mcname$ steps up to the painting and reads the plaque on its frame."
-#define _LANG_PROP_PAINTING_READ_NOTHING "Nothing is engraved on the frame of the painting."
 
 // ------------------------------------------------------------
 //  rack
