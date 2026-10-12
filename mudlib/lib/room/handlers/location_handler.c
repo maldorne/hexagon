@@ -737,6 +737,7 @@ object convert_room_to_location(object room)
   {
     location->add_component(LOCATION_COMPONENT_PUB, ([
       "pub_menu_items" : room->query_menu_items(),
+      "pub_menu_aliases" : room->query_menu_aliases(),
         ]));
     ret += "   Adding component pub.\n";
   }
