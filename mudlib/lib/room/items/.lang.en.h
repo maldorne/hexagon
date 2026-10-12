@@ -36,6 +36,7 @@
 
 #define _LANG_DOOR_BROKEN _LANG_DOOR_THE(dest) + " " + _LANG_DOOR_IS + " broken.\n"
 
+#define _LANG_DOOR_LOCK_WORDS 0
 #define _LANG_DOOR_VERB_TO_LOCK_USED FALSE
 
 #define _LANG_DOOR_LOCK_ALREADY _LANG_DOOR_THE(dest) + " " + _LANG_DOOR_IS + " already locked.\n"

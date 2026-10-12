@@ -314,6 +314,7 @@ int do_unlock(varargs string str)
 {
   int find, i, aux;
   object * obs;
+  object other_door;
   string key;
 
   if (this_player()->query_dead())
@@ -368,7 +369,14 @@ int do_unlock(varargs string str)
     return 0;
   } 
 
+  set_lock_status(1);
   tell_object(this_player(), _LANG_DOOR_USE_TO_UNLOCK);
+
+  // the other side of the door is unlocked with it
+  other_door = query_other_side_door(1);
+  if (other_door)
+    other_door->set_lock_status(1);
+
   return 1;
 }
 
@@ -500,7 +508,7 @@ int do_close(varargs string str)
 { 
   object other_door;
   string * list;
-  int i, find, aux;
+  int i, find, aux, with_key;
   string key;
   object * obs;
   string ex;
@@ -510,6 +518,13 @@ int do_close(varargs string str)
     notify_fail(_LANG_DOOR_NOT_DEAD);
     return 0;
   }
+
+  // the door may be followed by the words that ask for the key to be used
+  // ("close north with key"): the door is what is left without them
+  list = strlen(str) ? explode(str, " ") : ({ });
+  with_key = _LANG_DOOR_VERB_TO_LOCK_USED;
+  if (with_key)
+    str = implode(list[0 .. sizeof(list) - 1 - _LANG_DOOR_LOCK_WORDS], " ");
 
   // if we are not closing THIS door
   if (!query_door_called(str))
@@ -542,10 +557,7 @@ int do_close(varargs string str)
     }
   }
 
-  list = explode(str, " ");
-  str = list[0];
-
-  if (_LANG_DOOR_VERB_TO_LOCK_USED)
+  if (with_key)
   {
     if (!do_lock(dest))
       return 0;

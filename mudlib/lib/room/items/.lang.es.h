@@ -40,7 +40,11 @@
 
 #define _LANG_DOOR_BROKEN _LANG_DOOR_THE(dest) + " " + _LANG_DOOR_IS + " rot" + _LANG_DOOR_AGREE + ".\n"
 
-#define _LANG_DOOR_VERB_TO_LOCK_USED ((sizeof(list) >= 3) && (list[1] == "con") && (list[2] == "llave"))
+// "close <door> with key": the last words of the argument, and how many they are
+#define _LANG_DOOR_LOCK_WORDS 2
+#define _LANG_DOOR_VERB_TO_LOCK_USED ((sizeof(list) > _LANG_DOOR_LOCK_WORDS) && \
+                                      (list[sizeof(list) - 2] == "con") && \
+                                      (list[sizeof(list) - 1] == "llave"))
 
 #define _LANG_DOOR_LOCK_ALREADY _LANG_DOOR_THE(dest) + " ya " + _LANG_DOOR_IS + " cerrad" + _LANG_DOOR_AGREE + " con llave.\n"
 
