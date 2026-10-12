@@ -540,7 +540,8 @@ private string * known_template_fields()
             "max_hp", "max_gp", "random_stats", "social_obs", "equipment",
             "money", "components", "timetable", "skills", "spells",
             "extracted_from", "citizenship", "proper_name", "guild_level",
-            "swims" });
+            "swims", "loved", "hated", "liked", "disliked", "liked_message",
+            "disliked_message", "attack_skills" });
 }
 
 // The six fields that may be written once or once per gender.
