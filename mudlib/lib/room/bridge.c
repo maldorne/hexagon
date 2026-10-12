@@ -91,6 +91,10 @@ void drop_into_water(object who, varargs string message, string room_message)
   tell_room(place, replace_string(room_message ? room_message :
             _LANG_BRIDGE_FALL_ROOM, "$N", who->query_cap_name()) + "\n", who);
   put_in_water(who);
+
+  // the cell is the same, but what one sees from it is not
+  if (interactive(who))
+    who->do_look();
 }
 
 // Jump from the bridge into the water: what 'jump' does.
@@ -230,6 +234,9 @@ void event_climbed(object who)
   tell_object(who, _LANG_BRIDGE_CLIMB_ME);
   tell_room(query_water_place(), replace_string(_LANG_BRIDGE_CLIMB_ROOM, "$N",
             who->query_cap_name()) + "\n", who);
+
+  if (interactive(who))
+    who->do_look();
 }
 
 void event_climb_failed(object who)
