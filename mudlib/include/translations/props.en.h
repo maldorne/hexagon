@@ -37,7 +37,6 @@
 #define _LANG_PROPS_READ_VERBS        ({ "read" })
 #define _LANG_PROPS_READ_ME           "You step closer and read what is written."
 #define _LANG_PROPS_READ_OTHERS       "$mcname$ steps closer and reads something."
-#define _LANG_PROPS_READ_NOTHING      "Nothing is written there."
 
 // Appended under the long description on `look <prop>`. Followed by
 // the comma-separated verb list. "You can: light, extinguish."

@@ -155,7 +155,8 @@ read plaque
   -> "You read:" and the text in a frame
 ```
 
-An instance without that override gets `MISSING_MSG` and nothing else.
+An instance without that override gets `MISSING_MSG` when the action has one; the generic
+`read` has none, so the verb falls through to the ordinary `read` command.
 The verb is left out of the "You can" line of an instance with no inscription.
 A prop whose description mentions writing must carry the `inscription`;; a
 `language` the game's languages handler does not register cannot be read by anyone,

@@ -150,7 +150,6 @@ private void _load_table()
             PROP_SPEC_SHOW_TEXT:    PROP_OVERRIDE_INSCRIPTION,
             PROP_SPEC_MSG_ME:       _LANG_PROPS_READ_ME,
             PROP_SPEC_MSG_OTHERS:   _LANG_PROPS_READ_OTHERS,
-            PROP_SPEC_MISSING_MSG:  _LANG_PROPS_READ_NOTHING,
           ]),
         ]) + actions,
       ]);

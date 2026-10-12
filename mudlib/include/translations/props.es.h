@@ -42,7 +42,6 @@
 #define _LANG_PROPS_READ_VERBS        ({ "leer" })
 #define _LANG_PROPS_READ_ME           "Te acercas y lees lo que hay escrito."
 #define _LANG_PROPS_READ_OTHERS       "$mcname$ se acerca y lee algo."
-#define _LANG_PROPS_READ_NOTHING      "No hay nada escrito."
 
 // Se añade bajo la descripción larga en `look <prop>`. Seguido por
 // la lista de verbos separada por comas. "Puedes: encender, apagar."

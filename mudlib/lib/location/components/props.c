@@ -1258,8 +1258,10 @@ private int _execute_generic(mapping spec, mapping inst, string args)
       (!ov || !stringp(ov[spec[PROP_SPEC_SHOW_TEXT]]) ||
        !strlen(ov[spec[PROP_SPEC_SHOW_TEXT]])))
   {
-    if (spec[PROP_SPEC_MISSING_MSG])
-      write(_render_msg(spec[PROP_SPEC_MISSING_MSG], "") + "\n");
+    // no message of its own: let the verb fall through to the generic one
+    if (!spec[PROP_SPEC_MISSING_MSG])
+      return 0;
+    write(_render_msg(spec[PROP_SPEC_MISSING_MSG], "") + "\n");
     return 1;
   }
 
