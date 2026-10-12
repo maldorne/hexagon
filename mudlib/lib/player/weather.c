@@ -150,7 +150,7 @@ void event_weather(object who, varargs int flag, int * values)
   difs[2] = values[2] - values[5];
   
   // HUMEDAD:
-  if (!this_object()->query_dead() && !environment(this_object())->query_water_environment())
+  if (!this_object()->query_dead() && !environment(this_object())->query_in_water(this_object()))
   {
     if (values[3] >= 50)
     {
@@ -267,7 +267,7 @@ int make(string str)
   }
 
   if (environment(this_object()) && 
-    environment(this_object())->query_water_environment() )
+    environment(this_object())->query_in_water(this_object()) )
   {
     notify_fail("No puedes hacer eso en el agua.\n");
     return 0;
@@ -319,7 +319,7 @@ int splash(string str)
   }
 
   if (environment(this_object()) && 
-    environment(this_object())->query_water_environment() )
+    environment(this_object())->query_in_water(this_object()) )
   {
     notify_fail("No puedes hacer eso en el agua.\n");
     return 0;

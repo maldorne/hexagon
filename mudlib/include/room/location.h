@@ -39,6 +39,8 @@
 // A place where one swims instead of walking. See
 // /lib/location/components/water.c.
 #define LOCATION_COMPONENT_WATER       "water"
+// A cell that is a bridge and water at once. See /lib/location/components/bridge.c.
+#define LOCATION_COMPONENT_BRIDGE      "bridge"
 #define LOCATION_COMPONENT_UNDERGROUND "underground"
 #define LOCATION_COMPONENT_FARM        "farm"
 // A buildable empty lot, and a dwelling raised on one. See

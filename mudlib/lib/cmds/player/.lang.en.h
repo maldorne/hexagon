@@ -395,6 +395,7 @@
 #define _LANG_CMD_MAP_FINISHED_QUESTS "Finished quests"
 #define _LANG_CMD_MAP_COAST "Shore"
 #define _LANG_CMD_MAP_WATER "Water (swum across)"
+#define _LANG_CMD_MAP_BRIDGE "Bridge (water below)"
 
 #define _LANG_CMD_MAP_OPT_COMPACT ({ "compact" })
 #define _LANG_CMD_MAP_OPT_UNICODE ({ "unicode" })
@@ -738,3 +739,13 @@
 #define _LANG_RANKING_ALL_HEADER "The highest levels of every group:\n\n"
 #define _LANG_RANKING_ALL_EMPTY "There is nobody in the ranking yet.\n"
 #define _LANG_RANKING_CODER_HINTS "Coders: 'ranking all' shows every group, 'ranking remove <name>' takes a name off all of them.\n"
+
+// jump
+
+#define _LANG_CMD_JUMP_ALIAS ({ "jump" })
+#define _LANG_CMD_JUMP_SYNTAX "jump [into the water]"
+#define _LANG_CMD_JUMP_HELP "From a bridge, you jump into the water running below."
+#define _LANG_CMD_JUMP_TARGETS ({ "into the water", "into the river", "in", "water", "river", "to the water", "to the river" })
+#define _LANG_CMD_JUMP_DEAD "You, a spirit, have nowhere to jump from.\n"
+#define _LANG_CMD_JUMP_NOWHERE "There is no water to jump into from here.\n"
+#define _LANG_CMD_JUMP_WHERE "Jump where? From here you can only jump into the water.\n"

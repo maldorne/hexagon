@@ -394,6 +394,7 @@
 #define _LANG_CMD_MAP_FINISHED_QUESTS "Misiones terminadas"
 #define _LANG_CMD_MAP_COAST "Orilla"
 #define _LANG_CMD_MAP_WATER "Agua (se cruza nadando)"
+#define _LANG_CMD_MAP_BRIDGE "Puente (con agua debajo)"
 
 #define _LANG_CMD_MAP_OPT_COMPACT ({ "compacto", "compact" })
 #define _LANG_CMD_MAP_OPT_UNICODE ({ "unicode" })
@@ -743,3 +744,13 @@
 #define _LANG_RANKING_ALL_HEADER "Los niveles más altos de todos los grupos:\n\n"
 #define _LANG_RANKING_ALL_EMPTY "Todavía no hay nadie en la clasificación.\n"
 #define _LANG_RANKING_CODER_HINTS "Programadores: 'ranking todos' muestra todos los grupos, 'ranking quitar <nombre>' quita un nombre de todos.\n"
+
+// jump
+
+#define _LANG_CMD_JUMP_ALIAS ({ "saltar" })
+#define _LANG_CMD_JUMP_SYNTAX "saltar [al agua]"
+#define _LANG_CMD_JUMP_HELP "Desde un puente, saltas al agua que corre por debajo."
+#define _LANG_CMD_JUMP_TARGETS ({ "al rio", "al río", "al agua", "rio", "río", "agua" })
+#define _LANG_CMD_JUMP_DEAD "Tú, un espíritu, no tienes de dónde saltar.\n"
+#define _LANG_CMD_JUMP_NOWHERE "No hay agua a la que saltar desde aquí.\n"
+#define _LANG_CMD_JUMP_WHERE "¿Saltar adónde? Desde aquí sólo puedes saltar al agua.\n"

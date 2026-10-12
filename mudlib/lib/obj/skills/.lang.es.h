@@ -44,7 +44,7 @@
 #define _LANG_SKILL_CLIMB_NOT_CLIMBABLE "Ahí no hay por dónde trepar.\n"
 #define _LANG_SKILL_CLIMB_ROUND1 "Te agarras bien y empiezas a subir.\n"
 #define _LANG_SKILL_CLIMB_ROUND1_ROOM caster->query_cap_name() + \
-      " empieza a trepar por " + target->query_short() + ".\n"
+      " empieza a trepar por " + ob->query_short() + ".\n"
 #define _LANG_SKILL_CLIMB_SUCCESS "Llegas arriba sin problemas, echas un vistazo " + \
       "y vuelves a bajar.\n"
 #define _LANG_SKILL_CLIMB_FAIL "Resbalas y vuelves al suelo sin haber llegado " + \
@@ -147,3 +147,6 @@
 #define _LANG_SKILL_EVADE_FOLLOWER caster->query_cap_name() + \
       " te da esquinazo y le pierdes la pista.\n"
 #define _LANG_SKILL_EVADE_FAIL_ME follower->query_cap_name() + " no te pierde de vista.\n"
+
+#define _LANG_SKILL_SWIM_ON_BRIDGE "Estás sobre el puente; si quieres ir al agua, salta.\n"
+#define _LANG_SKILL_CLIMB_WHAT "¿Trepar a qué?\n"

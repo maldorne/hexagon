@@ -340,7 +340,8 @@ void restore_location_monsters(object loc, string file)
     }
 
     // nothing that cannot swim is put in water, whatever a room declared
-    if (loc->query_water_environment() && !_swims(sources[i]))
+    if (loc->query_water_environment() && !loc->query_bridge() &&
+        !_swims(sources[i]))
       continue;
 
     want = bucket[sources[i]];

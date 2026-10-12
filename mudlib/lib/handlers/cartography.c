@@ -98,6 +98,8 @@ private int _classify_room(object room, object viewer, int deep)
       return CART_DOWN_ROOM;
   }
 
+  if (room->query_bridge())
+    return CART_BRIDGE_ROOM;
   if (room->query_water_environment())
     return CART_WATER_ROOM;
   if (room->query_coast())
@@ -195,7 +197,10 @@ mapping query_map_view(object viewer, varargs mapping options)
   if (!env)
     return nil;
 
-  if (env->query_dungeon_room() || env->query_water_environment())
+  // swimming in open water shows no map; a bridge cell does, from the bridge
+  // and from the water below it
+  if (env->query_dungeon_room() ||
+      (env->query_water_environment() && !env->query_bridge()))
     return nil;
 
   if (!options)
@@ -395,6 +400,7 @@ mapping query_map_view(object viewer, varargs mapping options)
     "height":   height,
     "viewer_x": viewer_x,
     "viewer_y": viewer_y,
+    "viewer_in_water": env->query_bridge() && env->query_in_water(viewer),
     "locations":    locations,
     "rooms":    rooms,
   ]);
@@ -512,7 +518,8 @@ string render_ascii(mapping view)
 
       if (i == vy && j == vx)
       {
-        if (type == CART_COAST_ROOM || type == CART_WATER_ROOM)
+        if (type == CART_COAST_ROOM || type == CART_WATER_ROOM ||
+            view["viewer_in_water"])
           line += "%^BLUE%^[%^ORANGE%^*%^BLUE%^]%^RESET%^";
         else
           line += "[%^ORANGE%^*%^RESET%^]";
@@ -525,6 +532,7 @@ string render_ascii(mapping view)
         case CART_HOME_ROOM:          line += "[" + CART_HOME_GLYPH + "]";           break;
         case CART_COAST_ROOM:         line += "%^BLUE%^[ ]%^RESET%^";                break;
         case CART_WATER_ROOM:         line += "%^BLUE%^[~]%^RESET%^";                break;
+        case CART_BRIDGE_ROOM:        line += "%^YELLOW%^[=]%^RESET%^";              break;
         case CART_DOOR_ROOM:          line += "[D]";                                 break;
         case CART_UP_ROOM:            line += "[^]";                                 break;
         case CART_DOWN_ROOM:          line += "[v]";                                 break;
@@ -599,6 +607,7 @@ string render_compact(mapping view)
         case CART_HOME_ROOM:          line += CART_HOME_GLYPH;                        break;
         case CART_COAST_ROOM:         line += "%^BLUE%^~%^RESET%^";                  break;
         case CART_WATER_ROOM:         line += "%^BOLD%^BLUE%^~%^RESET%^";            break;
+        case CART_BRIDGE_ROOM:        line += "%^YELLOW%^=%^RESET%^";                break;
         case CART_DOOR_ROOM:          line += "D";                                   break;
         case CART_UP_ROOM:            line += "^";                                   break;
         case CART_DOWN_ROOM:          line += "v";                                   break;
@@ -754,6 +763,9 @@ string render_unicode(mapping view)
         case CART_WATER_ROOM:
           // ≈ U+2248 almost equal to, waves
           line += "%^BLUE%^" + chr(226) + chr(137) + chr(136) + "%^RESET%^";          break;
+        case CART_BRIDGE_ROOM:
+          // ≡ U+2261 identical to, planks
+          line += "%^YELLOW%^" + chr(226) + chr(137) + chr(161) + "%^RESET%^";        break;
         case CART_DOOR_ROOM:
           // ▦ U+25A6 square with horizontal fill
           line += chr(226) + chr(150) + chr(166);                                     break;
@@ -882,7 +894,8 @@ string render_color_by_area(mapping view)
       {
         // the viewer keeps its orange asterisk on top of the area tint, or of
         // the blue of a shore or of the water
-        if (type == CART_COAST_ROOM || type == CART_WATER_ROOM)
+        if (type == CART_COAST_ROOM || type == CART_WATER_ROOM ||
+            view["viewer_in_water"])
           tint = "%^BLUE%^";
         if (strlen(tint))
           line += tint + "[%^RESET%^%^ORANGE%^*%^RESET%^" + tint + "]%^RESET%^";
@@ -906,6 +919,9 @@ string render_color_by_area(mapping view)
           break;
         case CART_WATER_ROOM:
           line += "%^BLUE%^[~]%^RESET%^";
+          break;
+        case CART_BRIDGE_ROOM:
+          line += "%^YELLOW%^[=]%^RESET%^";
           break;
         case CART_DOOR_ROOM:
           line += (strlen(tint) ? tint + "[D]%^RESET%^" : "[D]");

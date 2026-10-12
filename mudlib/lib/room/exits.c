@@ -22,6 +22,10 @@ static mapping exit_map,
 // the sealed exit force_exit is moving somebody through, if any
 static string forced_exit;
 
+// who is going through which exit right now, for the place they arrive in
+static object moving_ob;
+static string moving_dir;
+
 // function prototypes
 object query_door_ob(string dir);
 object add_door(string dir);
@@ -421,6 +425,17 @@ int remove_exit(string direc)
   return 1;
 }
 
+// Why somebody cannot take an exit by typing it, or nil; places that restrict
+// their exits by who is asking answer it.
+string query_exit_refusal(string direc, object who) { return nil; }
+
+// The exit `who` is going through right now, or nil: a place they arrive in
+// asks it of the one they come from, to tell a walk from a teleport.
+string query_exit_taken_by(object who)
+{
+  return (who && who == moving_ob) ? moving_dir : nil;
+}
+
 int query_exit(string direc)
 {
   return (member_array(direc, dest_other) != -1);
@@ -440,6 +455,7 @@ int do_exit_command(string str, varargs mixed verb, object ob)
 {
   int zip;
   object room_ob;
+  string refusal;
 
   room_ob = this_object();
 
@@ -454,6 +470,14 @@ int do_exit_command(string str, varargs mixed verb, object ob)
   if (query_sealed_exit(query_verb_exit(verb)) && forced_exit != query_verb_exit(verb))
     return 0;
 
+  // a place may refuse an exit its own way (a bridge cell, by position)
+  if (forced_exit != query_verb_exit(verb) && ob &&
+      stringp(refusal = this_object()->query_exit_refusal(query_verb_exit(verb), ob)))
+  {
+    tell_object(ob, refusal);
+    return 1;
+  }
+
   // nor one that is swum: the swim skill takes it, and whoever swims by
   // nature walks it, as long as it stays in the water
   if (query_swim_exit(query_verb_exit(verb)) && forced_exit != query_verb_exit(verb) &&
@@ -461,9 +485,13 @@ int do_exit_command(string str, varargs mixed verb, object ob)
         query_dest_object(query_verb_exit(verb))->query_water_environment()))
     return 0;
 
+  moving_ob = ob;
+  moving_dir = query_verb_exit(verb);
   zip = EXIT_HAND->do_exit_command(door_control,
     exit_map, dest_direc, dest_other,
     aliases, str, verb, ob, room_ob);
+  moving_ob = nil;
+  moving_dir = nil;
 
   // update clean_up handle
   this_object()->update_clean_up();

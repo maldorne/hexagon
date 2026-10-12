@@ -254,6 +254,10 @@ void do_aggressive_check(object ob)
 {
   say_feelings(ob);
 
+  // nor across a bridge and the water below it, out of reach
+  if (environment() && environment()->query_out_of_reach(this_object(), ob))
+    return;
+
   if (would_attack(ob))
   {
     if (stringp(join_fight_mess) && (join_fight_mess != "") && !this_object()->query_timed_property(NO_SPAM))

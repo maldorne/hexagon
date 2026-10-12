@@ -837,7 +837,7 @@ object convert_room_to_location(object room)
   // takes its settings, and a reconversion always matches the room's current
   // ones. A room built on /lib/coast.c becomes a coast component of its kind;
   // a coast a builder attached by hand to a plain room is left alone.
-  if (room->query_water_environment())
+  if (room->query_water_environment() && !room->query_bridge())
   {
     if (location->has_component(LOCATION_COMPONENT_WATER))
       location->remove_component(LOCATION_COMPONENT_WATER);
@@ -849,6 +849,22 @@ object convert_room_to_location(object room)
   {
     location->remove_component(LOCATION_COMPONENT_WATER);
     ret += "   Removing water component (room is not water).\n";
+  }
+
+  // A bridge cell is water too, but its one component carries both the water
+  // settings and the bridge's.
+  if (room->query_bridge())
+  {
+    if (location->has_component(LOCATION_COMPONENT_BRIDGE))
+      location->remove_component(LOCATION_COMPONENT_BRIDGE);
+    location->add_component(LOCATION_COMPONENT_BRIDGE,
+                            room->query_bridge_settings());
+    ret += "   Adding component bridge.\n";
+  }
+  else if (location->has_component(LOCATION_COMPONENT_BRIDGE))
+  {
+    location->remove_component(LOCATION_COMPONENT_BRIDGE);
+    ret += "   Removing bridge component (room is not a bridge).\n";
   }
 
   if (room->query_coast())

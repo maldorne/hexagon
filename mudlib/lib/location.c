@@ -105,9 +105,112 @@ nomask int query_location() { return 1; }
 nomask int query_room() { return 1; }
 nomask int query_outside() { return !undefinedp(component_info[LOCATION_COMPONENT_OUTSIDE]); }
 nomask int query_maze() { return !undefinedp(component_info[LOCATION_COMPONENT_MAZE]); }
-nomask int query_water_environment() { return !undefinedp(component_info[LOCATION_COMPONENT_WATER]); }
+nomask int query_water_environment()
+{
+  return !undefinedp(component_info[LOCATION_COMPONENT_WATER]) ||
+         !undefinedp(component_info[LOCATION_COMPONENT_BRIDGE]);
+}
 nomask int query_water() { return query_water_environment(); }
+nomask int query_bridge() { return !undefinedp(component_info[LOCATION_COMPONENT_BRIDGE]); }
 nomask int query_coast() { return !undefinedp(component_info[LOCATION_COMPONENT_COAST]); }
+
+// What a bridge cell answers, through its component: where each living is
+// (on the bridge or in the water), and the climb back. In any other place
+// the water answers for everybody, and dry land for nobody.
+int query_in_water(object who)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  return bridge ? bridge->query_in_water(who) : query_water_environment();
+}
+
+void drop_into_water(object who, varargs string message, string room_message)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  if (bridge)
+    bridge->drop_into_water(who, message, room_message);
+}
+
+int jump_into_water(object who)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  return bridge ? bridge->jump_into_water(who) : 0;
+}
+
+int query_bridge_reachable()
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  return bridge ? bridge->query_bridge_reachable() : 0;
+}
+
+void set_bridge_reachable(int i)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  if (bridge)
+    bridge->set_bridge_reachable(i);
+}
+
+string query_exit_refusal(string dir, object who)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  return bridge ? bridge->query_exit_refusal(dir, who) : nil;
+}
+
+string query_out_of_reach(object attacker, object victim)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  return bridge ? bridge->query_out_of_reach(attacker, victim) : nil;
+}
+
+// The climb skill asks these of whatever is climbed.
+int query_climbable() { return query_bridge(); }
+
+string query_climb_refusal(object who)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  return bridge ? bridge->query_climb_refusal(who) : nil;
+}
+
+int query_climb_modifier(object who)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  return bridge ? bridge->query_climb_modifier(who) : 0;
+}
+
+void event_climbed(object who)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  if (bridge)
+    bridge->event_climbed(who);
+}
+
+void event_climb_failed(object who)
+{
+  object bridge;
+
+  bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+  if (bridge)
+    bridge->event_climb_failed(who);
+}
 
 // allow adding and removing objects from the inventory (is a room)
 int add_weight(int n) { return 1; }

@@ -451,7 +451,7 @@ int cast_effect(string str, object who, int quiet)
     }
     */
         
-    if ( (!allow_on_water && environment(caster)->query_water()) ||
+    if ( (!allow_on_water && environment(caster)->query_in_water(caster)) ||
          (!allow_on_underground && environment(caster)->query_underground()) ||
          (!allow_on_inside && !environment(caster)->query_outside()) ||
          (!allow_on_outside && environment(caster)->query_outside()) )

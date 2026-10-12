@@ -44,7 +44,7 @@
 #define _LANG_SKILL_CLIMB_NOT_CLIMBABLE "There is nothing there to climb.\n"
 #define _LANG_SKILL_CLIMB_ROUND1 "You get a good grip and start up.\n"
 #define _LANG_SKILL_CLIMB_ROUND1_ROOM caster->query_cap_name() + \
-      " starts climbing " + target->query_short() + ".\n"
+      " starts climbing " + ob->query_short() + ".\n"
 #define _LANG_SKILL_CLIMB_SUCCESS "You get to the top with no trouble, have a look " + \
       "around and climb back down.\n"
 #define _LANG_SKILL_CLIMB_FAIL "You slip and are back on the ground before " + \
@@ -146,3 +146,6 @@
 #define _LANG_SKILL_EVADE_FOLLOWER caster->query_cap_name() + \
       " shakes you off and you lose their trail.\n"
 #define _LANG_SKILL_EVADE_FAIL_ME follower->query_cap_name() + " does not lose sight of you.\n"
+
+#define _LANG_SKILL_SWIM_ON_BRIDGE "You are on the bridge; if you want to get into the water, jump.\n"
+#define _LANG_SKILL_CLIMB_WHAT "Climb what?\n"

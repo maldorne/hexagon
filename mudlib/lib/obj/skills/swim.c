@@ -56,6 +56,8 @@ object query_swim_place(object env)
   {
     place = env->query_component_by_type(LOCATION_COMPONENT_WATER);
     if (!place)
+      place = env->query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+    if (!place)
       place = env->query_component_by_type(LOCATION_COMPONENT_COAST);
     return place;
   }
@@ -108,6 +110,10 @@ mixed extra_checks(string str, object caster)
 
   env = environment(caster);
   place = query_swim_place(env);
+
+  // on a bridge one does not swim: one jumps first
+  if (place && env->query_bridge() && !env->query_in_water(caster))
+    return _LANG_SKILL_SWIM_ON_BRIDGE;
 
   if (!place || !sizeof(place->query_swim_directions(caster)))
     return _LANG_SKILL_SWIM_NO_WATER;

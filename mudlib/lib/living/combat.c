@@ -390,6 +390,11 @@ void attack_by(object ob)
   if (ob == this_object())
     return;
 
+  // a place may keep two of its inhabitants out of each other's reach
+  if (ob && environment() && environment() == environment(ob) &&
+      environment()->query_out_of_reach(ob, this_object()))
+    return;
+
   if (this_object()->query_hidden())
     return;
 
@@ -470,6 +475,11 @@ void attack_ob(object ob)
   if (ob == this_object())
     return;
   if (ob->query_dead())
+    return;
+
+  // a place may keep two of its inhabitants out of each other's reach
+  if (environment() && environment() == environment(ob) &&
+      environment()->query_out_of_reach(this_object(), ob))
     return;
     
   // Should use the one used by death.c before.

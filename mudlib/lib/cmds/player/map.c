@@ -123,6 +123,8 @@ private string _build_inner(string grid, mapping flags)
     out += "                       %^BLUE%^[ ]%^RESET%^ : " + _format(_LANG_CMD_MAP_COAST) + "\n";
   if (flags[CART_WATER_ROOM])
     out += "                       %^BLUE%^[~]%^RESET%^ : " + _format(_LANG_CMD_MAP_WATER) + "\n";
+  if (flags[CART_BRIDGE_ROOM])
+    out += "                       %^YELLOW%^[=]%^RESET%^ : " + _format(_LANG_CMD_MAP_BRIDGE) + "\n";
 
   return out;
 }

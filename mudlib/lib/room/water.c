@@ -30,6 +30,9 @@ object query_water_place() { return this_object(); }
 int query_water_environment() { return 1; }
 int query_water() { return 1; }
 
+// Whether `who` is in the water here: everybody is, in a plain water place.
+int query_in_water(object who) { return 1; }
+
 int query_water_depth() { return water_depth ? water_depth : 1; }
 void set_water_depth(int i) { water_depth = i; }
 
@@ -199,8 +202,8 @@ int swim(object who, string dir)
   return 0;
 }
 
-// What one sees from the water: where the shore is, never the exits.
-string query_water_look(object who)
+// Where the shore is, from the water: nothing when no swum exit leads to one.
+string query_water_shore(object who)
 {
   string * dirs, * shores;
   object dest;
@@ -216,9 +219,43 @@ string query_water_look(object who)
   }
 
   if (!sizeof(shores))
-    return _LANG_WATER_NO_SHORE;
+    return "";
 
   return _LANG_WATER_SHORE + query_multiple_short(shores) + ".\n";
+}
+
+// What one sees from the water: where the shore is, never the exits.
+string query_water_look(object who)
+{
+  string shore;
+
+  shore = query_water_shore(who);
+  return strlen(shore) ? shore : _LANG_WATER_NO_SHORE;
+}
+
+// What is worth telling somebody who has just arrived in the water, each
+// hint only while it applies. Places add theirs.
+string * query_water_arrival_hints(object who)
+{
+  string shore;
+
+  shore = query_water_shore(who);
+  if (!strlen(shore))
+    return ({ });
+  return ({ shore[0 .. strlen(shore) - 2] });
+}
+
+// Bold, between blank lines, so it is not lost among the movement messages.
+void tell_water_arrival_hints(object who)
+{
+  string * hints;
+
+  if (!interactive(who))
+    return;
+
+  hints = query_water_arrival_hints(who);
+  if (sizeof(hints))
+    tell_object(who, "\n%^BOLD%^" + implode(hints, " ") + "%^RESET%^\n\n");
 }
 
 // A line under the description: that one is in the water, and how to swim.
@@ -236,6 +273,8 @@ void water_event_enter(object ob)
 
   if (interactive(ob) && !ob->query_known_skill(SKILL_SWIM))
     ob->add_known_skill(SKILL_SWIM);
+
+  tell_water_arrival_hints(ob);
 
   if (ob->query_swims() || water_strength <= 0 || !query_water_swept_to())
     return;

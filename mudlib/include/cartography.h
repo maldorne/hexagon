@@ -28,6 +28,7 @@
 #define CART_DOWN_ROOM          4   // has a `down` exit
 #define CART_COAST_ROOM         5   // borders water / sea
 #define CART_WATER_ROOM        13   // water itself, swum, not walked
+#define CART_BRIDGE_ROOM       14   // a bridge over water, walked and swum
 #define CART_QUEST_ROOM         6   // open quest available here
 #define CART_FINISH_QUEST_ROOM  7   // quest waiting to be turned in here
 #define CART_ADVENTURER_ROOM    8   // a friendly group member is here

@@ -52,6 +52,11 @@ against a `block` current nobody swims at all. Deep water takes 10 more, and
 so does whatever they carry beyond half of what they can, point by point. A
 chance of 100 or more is not rolled.
 
+Whoever arrives in water, swimming or carried by the current, is told in bold,
+between blank lines, what applies right now: where the shore is ("Puedes ver
+la orilla hacia el este.", when a swum exit leads to a coast), and in a
+reachable bridge cell that it may climb.
+
 Whoever fails swallows water, a bite of life that never takes the last of it,
 and the current carries them out by `swept_to`; in still water they stay.
 Whoever stays in moving water without swimming is carried off the same way
@@ -63,3 +68,58 @@ An NPC template with `swims` (a fish) walks swum exits like ordinary ones and
 finds paths through them, and is the only kind the area materializes in a
 water location, whatever the rooms declared. Every other NPC stays out of the
 water.
+
+## Bridges
+
+A bridge cell is one location at one coordinate that is a bridge and water at
+once: the water rules above (current, strength, upstream, swept_to, depth,
+drift) plus exits of type `bridge`, which are walked. Every other exit of the
+cell is swum, as in water. The rules live in `/lib/room/bridge.c`, the room
+base is `/lib/bridge.c` and a location gets a `bridge` component from
+`room2loc` in place of the water one, with the same water settings.
+
+Each living in the cell is on the bridge or in the water. It arrives on the
+bridge unless it comes through a swum exit (swimming, carried by the current),
+or is put in the water by a jump or a fall; a login, a teleport or a room load
+leave it on the bridge.
+
+- On the bridge there is no drift, the exit lines are the ordinary ones and
+  only the bridge exits work; a swum direction or `nadar` answers that one is
+  on the bridge and must jump.
+- In the water the cell reads as water (shore line instead of exits, drift),
+  `nadar <dir>` takes the swum exits, and a bridge exit answers that one
+  cannot get up onto the bridge from the water.
+- `saltar` (`saltar al río`, `saltar al agua`, `jump`) goes from the bridge
+  into the water of the same cell and starts the drift timer.
+- `reachable` (default 1; `set_bridge_reachable(0)` for a high bridge): when
+  set, `trepar` (`climb`) from the water gets back onto the bridge, rolled as
+  the climb skill (ability plus `BRIDGE_CLIMB_MODIFIER`, minus
+  `WATER_ACROSS_MALUS` per point of the current's strength; a failure swallows
+  water), and livings on the bridge and in the water can fight each other.
+  When not set there is no climbing ("El puente está demasiado alto.") and
+  combat does not start across the two positions, neither by the attack
+  command nor by an aggressive NPC: `attack_ob` and `attack_by` ask the place
+  `query_out_of_reach(attacker, victim)`, which answers why not or nil.
+  Fights already under way are not stopped.
+
+Other code asks `query_in_water(who)` of the place (true everywhere in a plain
+water place, per position in a bridge cell, false on dry land), and forces
+somebody into the water, a breaking plank, with
+`drop_into_water(who, message, room_message)`: `message` is read by the one who
+falls, `room_message` by the others (`$N` is the one who falls); both are
+optional.
+
+A room declares it like a water room, with its bridge exits of type `bridge`:
+
+    inherit "/lib/bridge.c";
+
+    set_water_current(DIR_SOUTH);
+    set_water_strength(1);
+    set_bridge_reachable(0);                  // optional, a high bridge
+    add_exit(DIR_EAST, <bank>, "bridge");     // walked
+    add_exit(DIR_NORTH, <water>, "standard"); // swum, as in any water place
+
+and a location needs only the `bridge` component (`LOCATION_COMPONENT_BRIDGE`)
+with the water settings and `bridge_unreachable`; `room2loc` attaches it from a
+room built on `/lib/bridge.c`. The map draws the cell as `[=]` (yellow), and
+the viewer's brackets turn blue while in the water.
