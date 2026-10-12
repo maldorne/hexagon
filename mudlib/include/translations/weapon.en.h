@@ -31,6 +31,7 @@
 #define TRIDENT "trident"
 
 #define HALBERD "halberd"
+#define GLAIVE "glaive"
 #define CUTLASS "cutlass"
 #define BROADSWORD "broadsword"
 #define HEAVY_AXE "heavy axe"

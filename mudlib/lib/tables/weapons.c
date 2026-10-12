@@ -113,6 +113,8 @@ mixed * lookup_weapon_data(string name)
     // big martial weapons
     case HALBERD:
       weapon_data = ({ 100, 1000, 150, 15,  SLASHING, 1, 10, 0,  2, 1, 6, 3, SPEAR_MASTERY,      2 ,1 }); break;
+    case GLAIVE:  // guja
+      weapon_data = ({ 80, 800, 150, 13,    SLASHING, 1, 10, 0,  2, 1, 6, 3, SPEAR_MASTERY,      2 ,1 }); break;
     case CUTLASS:  // alfanje, cimitarra grande
       weapon_data = ({ 200, 2000, 160, 13,  SLASHING, 2, 4, 0,   2, 1, 6, 2, TWO_HANDED_SWORD_MASTERY, 2 ,1 }); break;
     case BROADSWORD:

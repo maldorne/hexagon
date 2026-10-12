@@ -31,6 +31,7 @@
 #define TRIDENT "tridente"
 
 #define HALBERD "alabarda"
+#define GLAIVE "guja"
 #define CUTLASS "alfanje"
 #define BROADSWORD "espadón"
 #define HEAVY_AXE "gran hacha"
