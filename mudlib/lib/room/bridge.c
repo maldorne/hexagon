@@ -143,6 +143,13 @@ void bridge_event_exit(object ob)
   put_on_bridge(ob);
 }
 
+// Whether an exit of this type is walked on the bridge: the bridge's own, and
+// a door or a gate across it. Every other exit of the cell is swum.
+int query_bridge_exit_type(string type)
+{
+  return type == BRIDGE_EXIT_TYPE || type == "door" || type == "gate";
+}
+
 // The bridge exits are walked, so the swum ones are the rest; and only from
 // the water.
 string * query_swim_directions(object who)
@@ -156,7 +163,7 @@ string * query_swim_directions(object who)
   dirs = water::query_swim_directions(who);
   ret = ({ });
   for (i = 0; i < sizeof(dirs); i++)
-    if (query_water_place()->query_ex_type(dirs[i]) != BRIDGE_EXIT_TYPE)
+    if (!query_bridge_exit_type(query_water_place()->query_ex_type(dirs[i])))
       ret += ({ dirs[i] });
 
   return ret;
@@ -171,7 +178,7 @@ string query_exit_refusal(string dir, object who)
   place = query_water_place();
   if (query_in_water(who))
   {
-    if (place->query_ex_type(dir) == BRIDGE_EXIT_TYPE)
+    if (query_bridge_exit_type(place->query_ex_type(dir)))
       return _LANG_BRIDGE_FROM_WATER;
     return nil;
   }

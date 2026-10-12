@@ -21,11 +21,11 @@ void set_underground_kind(string kind)
   room::set_underground_kind(kind);
 }
 
-// Every exit is swum but the bridge ones.
+// Every exit is swum but the bridge ones (and a door or a gate across it).
 mixed add_exit(string direc, mixed dest, string type,
                varargs string material, mapping options)
 {
-  if (type == BRIDGE_EXIT_TYPE)
+  if (query_bridge_exit_type(type))
     return room::add_exit(direc, dest, type, material, options);
 
   return room::add_exit(direc, dest, type, material,

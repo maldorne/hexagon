@@ -74,7 +74,8 @@ water.
 A bridge cell is one location at one coordinate that is a bridge and water at
 once: the water rules above (current, strength, upstream, swept_to, depth,
 drift) plus exits of type `bridge`, which are walked. Every other exit of the
-cell is swum, as in water. The rules live in `/lib/room/bridge.c`, the room
+cell is swum, as in water, except a door or a gate across the bridge, which is
+walked. The rules live in `/lib/room/bridge.c`, the room
 base is `/lib/bridge.c` and a location gets a `bridge` component from
 `room2loc` in place of the water one, with the same water settings.
 
