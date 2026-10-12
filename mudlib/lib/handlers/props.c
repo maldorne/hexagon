@@ -29,6 +29,7 @@
 
 #include <mud/config.h>
 #include <room/prop.h>
+#include <translations/props.h>
 
 inherit "/lib/core/object.c";
 
@@ -130,6 +131,29 @@ private void _load_table()
       if (game_table)
         table_data = table_data + game_table->query_types();
     }
+  }
+
+  // any type without a read action of its own can read its instances'
+  // inscription; the action is hidden and inert on one that has none
+  type_ids = map_indices(table_data);
+  for (i = 0; i < sizeof(type_ids); i++)
+  {
+    mapping actions;
+
+    actions = table_data[type_ids[i]][PROP_TYPE_ACTIONS];
+    if (mappingp(actions) && !actions["read"])
+      table_data[type_ids[i]] = table_data[type_ids[i]] + ([
+        PROP_TYPE_ACTIONS: ([
+          "read": ([
+            PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
+            PROP_SPEC_VERBS:        _LANG_PROPS_READ_VERBS,
+            PROP_SPEC_SHOW_TEXT:    PROP_OVERRIDE_INSCRIPTION,
+            PROP_SPEC_MSG_ME:       _LANG_PROPS_READ_ME,
+            PROP_SPEC_MSG_OTHERS:   _LANG_PROPS_READ_OTHERS,
+            PROP_SPEC_MISSING_MSG:  _LANG_PROPS_READ_NOTHING,
+          ]),
+        ]) + actions,
+      ]);
   }
 
   type_ids = map_indices(table_data);

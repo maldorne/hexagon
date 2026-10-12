@@ -132,7 +132,9 @@ keeps it whole, without those sentences, but the state suffixes still follow it,
 so a described prop still says whether it is lit or tipped over.
 
 An action whose spec carries `PROP_SPEC_SHOW_TEXT` (the `read` of a `statue`,
-a `ruined_statue` or the plaque of a `painting`) prints `MSG_ME`, then the override it names, read the
+a `ruined_statue` or the plaque of a `painting`; every other type without a
+`read` of its own is given a generic one when the catalogue loads, so any prop
+with an `inscription` can be read, `scenery` included) prints `MSG_ME`, then the override it names, read the
 way any written text is read (`read_message` on the player): in a frame, in the
 instance's `language` (the common tongue when unset), and garbled for a reader
 who does not know it.
@@ -154,6 +156,10 @@ read plaque
 ```
 
 An instance without that override gets `MISSING_MSG` and nothing else.
+The verb is left out of the "You can" line of an instance with no inscription.
+A prop whose description mentions writing must carry the `inscription`;; a
+`language` the game's languages handler does not register cannot be read by anyone,
+so register it there first.
 
 ## 7. End-to-end example
 

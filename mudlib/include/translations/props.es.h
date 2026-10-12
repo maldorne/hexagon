@@ -37,6 +37,13 @@
 #define _LANG_PROPS_REMOVED_ACTION    "No puedes hacer eso con esto."
 #define _LANG_PROPS_NO_HANDLER        "No ocurre nada."
 
+// La acción de leer que recibe todo tipo sin una propia: lo escrito en una
+// instancia (su overrides.inscription).
+#define _LANG_PROPS_READ_VERBS        ({ "leer" })
+#define _LANG_PROPS_READ_ME           "Te acercas y lees lo que hay escrito."
+#define _LANG_PROPS_READ_OTHERS       "$mcname$ se acerca y lee algo."
+#define _LANG_PROPS_READ_NOTHING      "No hay nada escrito."
+
 // Se añade bajo la descripción larga en `look <prop>`. Seguido por
 // la lista de verbos separada por comas. "Puedes: encender, apagar."
 #define _LANG_PROPS_YOU_CAN           "Puedes: "

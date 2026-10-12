@@ -32,6 +32,13 @@
 #define _LANG_PROPS_REMOVED_ACTION    "You cannot do that with this one."
 #define _LANG_PROPS_NO_HANDLER        "Nothing happens."
 
+// The read action given to every type without one of its own: what is
+// written on an instance (its overrides.inscription).
+#define _LANG_PROPS_READ_VERBS        ({ "read" })
+#define _LANG_PROPS_READ_ME           "You step closer and read what is written."
+#define _LANG_PROPS_READ_OTHERS       "$mcname$ steps closer and reads something."
+#define _LANG_PROPS_READ_NOTHING      "Nothing is written there."
+
 // Appended under the long description on `look <prop>`. Followed by
 // the comma-separated verb list. "You can: light, extinguish."
 #define _LANG_PROPS_YOU_CAN           "You can: "
