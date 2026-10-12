@@ -16,8 +16,9 @@ int query_inform(string what)
 {
   string * on;
 
+  // health is on until the player turns it off, which is saved as FALSE
   if (undefinedp(informs[what]))
-    return 0;
+    return (what == INFORM_EVENT_HEALTH);
 
   return (informs[what] == TRUE);
 }
@@ -33,11 +34,10 @@ void set_inform(string what, int value)
   else
     types = INFORM_EVENTS_PLAYERS;
 
-  // off 
+  // off
   if ((value == 0) && (member_array(what, types) != -1))
   {
-    // inform[what] = FALSE;
-    m_delete(informs, what);
+    informs[what] = FALSE;
     return;
   }
 
