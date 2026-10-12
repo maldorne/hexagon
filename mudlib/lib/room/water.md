@@ -168,3 +168,24 @@ and a location needs only the `bridge` component (`LOCATION_COMPONENT_BRIDGE`)
 with the water settings and `bridge_unreachable`; `room2loc` attaches it from a
 room built on `/lib/bridge.c`. The map draws the cell as `[=]` (yellow), and
 the viewer's brackets turn blue while in the water.
+
+## On the world map
+
+Rivers are drawn per sector, like roads, in blue box lines (double lines by
+default). The sector records, for every water cell with a flowing current (a
+bridge cell counts), its swum exits (`river_exits`, beside `way_exits`), and
+flags each water and bridge cell in its nodes. An exit is a river line only when
+it joins two water cells; still water (no current) is a zone and draws nothing.
+`query_border_rivers()` gives the borders of the sector a river crosses, by the
+same rules as `query_border_ways()` except that a diagonal that changes sector
+on both axes is recorded on both borders. The renderer
+(`/lib/handlers/worldmap.c`) ranks a sector: city, then road, then river, then
+terrain, so a river is drawn over forest and farmland.
+
+Where a road and a river share a sector, `WORLDMAP_BRIDGE_STYLE` picks how it
+shows: 0 the road glyph, 1 a crossing glyph for a straight road across a
+straight river, 2 the road glyph in blue, 3 (the default) as 1 but only in a
+sector that holds a bridge cell, in yellow, with its own legend entry.
+`WORLDMAP_RIVER_DOUBLE` switches rivers between double and single lines.
+The data is lifted when a location is indexed, so run `sectors reindex` after
+changing it.

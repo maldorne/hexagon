@@ -15,6 +15,10 @@
 //      box-drawing joins, drawn per-arm in a light line for paths and a
 //      heavy line for roads (see way_glyph). Which ways are drawn at all is
 //      set by WORLDMAP_DRAW_PATHS below.
+//      Rivers (the swum exits of flowing water, see sector.c query_border_rivers)
+//      are drawn the same way in blue, over forest and farmland but under
+//      cities and roads; where a road and a river share a sector it is a
+//      bridge, drawn as WORLDMAP_BRIDGE_STYLE says.
 //   4. Where a city wall meets a road, the wall glyph swaps to a wall/road
 //      hybrid so the road visibly enters the settlement.
 //   5. Overwrite the viewer's own sector with '@'.
@@ -65,6 +69,31 @@ inherit "/lib/core/object.c";
 // them out.
 #define WORLDMAP_DRAW_PATHS 1
 
+// Toggle for the river line: 1 draws rivers with double box lines, 0 with
+// single ones. Either way they are blue.
+#define WORLDMAP_RIVER_DOUBLE 1
+
+// How a sector crossed by a road and a river is drawn (the road keeps its
+// glyph in every style, the styles only differ in how the bridge shows):
+//   0  the road glyph, uncoloured: the road simply wins
+//   1  a straight road across a straight river gets a crossing glyph (single
+//      road over double river: a mixed line crossing; single over single:
+//      the plus), any other shape falls back to the road glyph
+//   2  the road glyph in the river's blue, so a bridge stands out whatever
+//      its shape
+//   3  as 1, but only in a sector that holds a bridge cell (a road running
+//      beside a river is not a bridge), and in yellow, the colour of a
+//      timber deck, which neither road nor river use; elsewhere the road
+//      glyph, uncoloured
+#define WORLDMAP_BRIDGE_STYLE 3
+
+// Colour of the river line, and of a bridge in the styles that colour it.
+#define COLOUR_RIVER  "%^BLUE%^"
+#define COLOUR_BRIDGE "%^YELLOW%^"
+
+// A river that never reaches a border of its sector (it starts and ends in it).
+#define GLYPH_RIVER_SPOT (chr(194) + chr(176))     // U+00B0 degree sign
+
 // per-render sector cache. Reset at the top of every render(); safe
 // because DGD executes each mudlib call chain atomically — there is no
 // interleaving of two renders on the same handler.
@@ -74,12 +103,15 @@ private mapping sector_cache;
 // weight is 0 (none), 1 (path/light) or 2 (road/heavy). Built once from the
 // shared glyph header so the chr() sequences are evaluated a single time.
 private string * way_table;
+// Same for rivers: the double-line table indexed n*8 + s*4 + e*2 + w.
+private string * river_table;
 
 void create()
 {
   ::create();
   sector_cache = ([ ]);
   way_table = BOX_GLYPHS_INDEXED;
+  river_table = BOX_GLYPHS_DOUBLE;
 }
 
 // Load the sector at (sx, sy, sz), or nil if no sector.o exists.
@@ -166,30 +198,129 @@ private int _arm_weight(mapping borders, string own_border,
   return (nb > own) ? nb : own;
 }
 
+// The arm weights of a road/path sector as ({ n, s, e, w }), each 0 (none),
+// 1 (path/light) or 2 (road/heavy), taken from this sector's border crossings
+// and reconciled with its neighbours.
+private int * way_arms(object sect, string game, string map_name,
+                       int sx, int sy, int sz)
+{
+  mapping borders;
+
+  borders = sect->query_border_ways();
+  if (!mappingp(borders)) borders = ([ ]);
+
+  return ({
+    _arm_weight(borders, SECTOR_BORDER_N, game, map_name, sx, sy + 1, sz, SECTOR_BORDER_S),
+    _arm_weight(borders, SECTOR_BORDER_S, game, map_name, sx, sy - 1, sz, SECTOR_BORDER_N),
+    _arm_weight(borders, SECTOR_BORDER_E, game, map_name, sx + 1, sy, sz, SECTOR_BORDER_W),
+    _arm_weight(borders, SECTOR_BORDER_W, game, map_name, sx - 1, sy, sz, SECTOR_BORDER_E)
+  });
+}
+
 // Box-drawing glyph for a road/path sector. Each of the four arms carries an
-// independent weight (none / path = light / road = heavy) taken from this
-// sector's border crossings and reconciled with its neighbours, so paths and
+// independent weight (none / path = light / road = heavy), so paths and
 // roads keep their own line weight even where they meet at a junction, and
 // three- and four-way junctions get their proper glyph. A single-arm sector
 // renders as a half-line stub (a dead-end) rather than a full through-line.
 //
 // Neighbour convention (from guess_coordinates): north = larger y, south =
 // smaller y, east = larger x, west = smaller x.
-private string way_glyph(object sect, string game, string map_name,
+private string way_glyph(int * arms)
+{
+  return way_table[arms[0] * 27 + arms[1] * 9 + arms[2] * 3 + arms[3]];
+}
+
+// Whether the sector at (nsx, nsy, nsz) records a river on its `opp_border`.
+private int _neighbour_river(string game, string map_name,
+                             int nsx, int nsy, int nsz, string opp_border)
+{
+  object neigh;
+  mapping nb;
+
+  neigh = cached_sector(game, map_name, nsx, nsy, nsz);
+  if (!neigh)
+    return 0;
+  nb = neigh->query_border_rivers();
+  return mappingp(nb) && arrayp(nb[opp_border]) && sizeof(nb[opp_border]);
+}
+
+// The arms of a river sector as ({ n, s, e, w }), each 0 or 1. An arm is
+// drawn if either this sector or the neighbour across it records the river on
+// the shared border, so a river never breaks at a sector seam.
+private int * river_arms(object sect, string game, string map_name,
                          int sx, int sy, int sz)
 {
   mapping borders;
   int n, s, e, w;
 
-  borders = sect->query_border_ways();
+  borders = sect->query_border_rivers();
   if (!mappingp(borders)) borders = ([ ]);
 
-  n = _arm_weight(borders, SECTOR_BORDER_N, game, map_name, sx, sy + 1, sz, SECTOR_BORDER_S);
-  s = _arm_weight(borders, SECTOR_BORDER_S, game, map_name, sx, sy - 1, sz, SECTOR_BORDER_N);
-  e = _arm_weight(borders, SECTOR_BORDER_E, game, map_name, sx + 1, sy, sz, SECTOR_BORDER_W);
-  w = _arm_weight(borders, SECTOR_BORDER_W, game, map_name, sx - 1, sy, sz, SECTOR_BORDER_E);
+  n = (arrayp(borders[SECTOR_BORDER_N]) && sizeof(borders[SECTOR_BORDER_N])) ||
+      _neighbour_river(game, map_name, sx, sy + 1, sz, SECTOR_BORDER_S);
+  s = (arrayp(borders[SECTOR_BORDER_S]) && sizeof(borders[SECTOR_BORDER_S])) ||
+      _neighbour_river(game, map_name, sx, sy - 1, sz, SECTOR_BORDER_N);
+  e = (arrayp(borders[SECTOR_BORDER_E]) && sizeof(borders[SECTOR_BORDER_E])) ||
+      _neighbour_river(game, map_name, sx + 1, sy, sz, SECTOR_BORDER_W);
+  w = (arrayp(borders[SECTOR_BORDER_W]) && sizeof(borders[SECTOR_BORDER_W])) ||
+      _neighbour_river(game, map_name, sx - 1, sy, sz, SECTOR_BORDER_E);
 
-  return way_table[n * 27 + s * 9 + e * 3 + w];
+  return ({ n, s, e, w });
+}
+
+// The river glyph for those arms, without colour. One arm alone is drawn as
+// the full line of its axis (there is no half-line in the double set).
+private string river_glyph(int * arms)
+{
+  if (!arms[0] && !arms[1] && !arms[2] && !arms[3])
+    return GLYPH_RIVER_SPOT;
+
+  if (WORLDMAP_RIVER_DOUBLE)
+    return river_table[arms[0] * 8 + arms[1] * 4 + arms[2] * 2 + arms[3]];
+
+  return way_table[arms[0] * 27 + arms[1] * 9 + arms[2] * 3 + arms[3]];
+}
+
+// The glyph of a sector a road and a river both cross, a bridge. `road` and
+// `river` are the arms of each; see WORLDMAP_BRIDGE_STYLE for the styles.
+private string bridge_glyph(object sect, int * road, int * river)
+{
+  string glyph, cross;
+  int road_h, road_v, river_h, river_v;
+
+  glyph = way_glyph(road);
+
+  switch (WORLDMAP_BRIDGE_STYLE)
+  {
+    case 0:
+      return glyph;
+    case 2:
+      return COLOUR_RIVER + glyph + "%^RESET%^";
+  }
+
+  // style 3 marks real bridges only
+  if (WORLDMAP_BRIDGE_STYLE == 3 && !sect->has_bridge())
+    return glyph;
+
+  // styles 1 and 3: a crossing glyph where the road and the river are
+  // straight and perpendicular, the road glyph otherwise
+  road_h = road[2] && road[3] && !road[0] && !road[1];
+  road_v = road[0] && road[1] && !road[2] && !road[3];
+  river_h = river[2] && river[3] && !river[0] && !river[1];
+  river_v = river[0] && river[1] && !river[2] && !river[3];
+
+  cross = nil;
+  if (road_h && river_v)
+    cross = WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_V : GLYPH_BOX_1111;
+  else if (road_v && river_h)
+    cross = WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_H : GLYPH_BOX_1111;
+
+  if (cross)
+    glyph = cross;
+
+  if (WORLDMAP_BRIDGE_STYLE == 3)
+    return COLOUR_BRIDGE + glyph + "%^RESET%^";
+  return glyph;
 }
 
 
@@ -197,14 +328,18 @@ private string way_glyph(object sect, string game, string map_name,
 //   1. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls
 //   2. road / path — if the sector has road/path exits the map draws (see
-//                    WORLDMAP_DRAW_PATHS), draw the way glyph
-//   3. majority    — otherwise the dominant remaining terrain type
+//                    WORLDMAP_DRAW_PATHS), draw the way glyph; with a river
+//                    through it as well it is a bridge (bridge_glyph)
+//   3. river       — blue line, over any terrain (farmland and forest too)
+//   4. majority    — otherwise the dominant remaining terrain type
 private string render_sector(string game, string map_name,
                            int sx, int sy, int sz)
 {
   object sect;
   string type;
   mapping borders;
+  int * road_arms, * river_arms_here;
+  int river;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
   if (!sect) return GLYPH_EMPTY;
@@ -218,18 +353,35 @@ private string render_sector(string game, string map_name,
   // manual type for a sector with no locations of its own
   type = sect->query_sector_type();
 
+  river = sect->has_river();
+  if (river)
+    river_arms_here = river_arms(sect, game, map_name, sx, sy, sz);
+
   // Farmland is a landcover that shows THROUGH a track: a field sector is
   // only ever reached by a path from the settlement, which would otherwise
   // stamp the sector with a border way and hide the fields under a road
   // glyph. So a sector whose dominant component is farm renders as cultivated
   // land even when a path clips its edge -- ranked above the way glyph but
   // still below city, which always wins.
+  // A river is drawn over it: it is water, not a track.
   if (type == SECTOR_TYPE_FARM)
+  {
+    if (river)
+      return COLOUR_RIVER + river_glyph(river_arms_here) + "%^RESET%^";
     return "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^";
+  }
 
   borders = sect->query_border_ways();
   if (_has_drawn_way(borders))
-    return way_glyph(sect, game, map_name, sx, sy, sz);
+  {
+    road_arms = way_arms(sect, game, map_name, sx, sy, sz);
+    if (river)
+      return bridge_glyph(sect, road_arms, river_arms_here);
+    return way_glyph(road_arms);
+  }
+
+  if (river)
+    return COLOUR_RIVER + river_glyph(river_arms_here) + "%^RESET%^";
 
   if (type == SECTOR_TYPE_CITY)        return GLYPH_MAP_CITY;
   if (type == SECTOR_TYPE_FOREST)      return "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^";
@@ -723,14 +875,26 @@ string render(int center_x, int center_y, int center_z,
 // out: a line reads as a road without being told.
 mapping query_legend_glyphs()
 {
-  return ([
+  mapping glyphs;
+
+  glyphs = ([
     "player":      ({ GLYPH_PLAYER, GLYPH_PLAYER }),
     "city":        ({ GLYPH_MAP_CITY, GLYPH_MAP_CITY }),
     "forest":      ({ GLYPH_MAP_FOREST, "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^" }),
     "farm":        ({ GLYPH_MAP_FARM, "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^" }),
+    "river":       ({ COLOUR_RIVER, COLOUR_RIVER + (WORLDMAP_RIVER_DOUBLE ? GLYPH_DBL_V : GLYPH_BOX_1100) + "%^RESET%^" }),
     "coast":       ({ GLYPH_COAST, GLYPH_COAST }),
     "underground": ({ GLYPH_UNDERGROUND, GLYPH_UNDERGROUND }),
   ]);
+
+  // only the style that colours bridges needs an entry of its own: the road
+  // glyphs it uses are all light box lines, whole or half (U+2500..U+257F)
+  if (WORLDMAP_BRIDGE_STYLE == 3)
+    glyphs["bridge"] = ({ ({ COLOUR_BRIDGE + chr(226) + chr(148),
+                             COLOUR_BRIDGE + chr(226) + chr(149) }),
+                          COLOUR_BRIDGE + GLYPH_BOX_0011 + "%^RESET%^" });
+
+  return glyphs;
 }
 
 // Convenience: pull the world coord + map + game out of the viewer's

@@ -431,6 +431,8 @@
 #define _LANG_CMD_WORLDMAP_CITY        "Ciudad o pueblo"
 #define _LANG_CMD_WORLDMAP_FOREST      "Bosque"
 #define _LANG_CMD_WORLDMAP_FARM        "Tierras de cultivo"
+#define _LANG_CMD_WORLDMAP_RIVER       "Río"
+#define _LANG_CMD_WORLDMAP_BRIDGE      "Puente"
 #define _LANG_CMD_WORLDMAP_COAST       "Costa"
 #define _LANG_CMD_WORLDMAP_UNDERGROUND "Subterráneo"
 

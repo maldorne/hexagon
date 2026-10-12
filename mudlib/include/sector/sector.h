@@ -72,6 +72,11 @@
 #define SECTOR_WAY_ROAD  "road"
 #define SECTOR_WAY_TYPES ({ SECTOR_WAY_ROAD, SECTOR_WAY_PATH })
 
+// The type under which query_border_rivers() records a river crossing a
+// border. Rivers are not exit types: they are the swum exits of flowing
+// water cells (sector.c `river_exits`).
+#define SECTOR_WAY_RIVER "river"
+
 // Cardinal border keys returned by query_border_ways(). Screen y grows
 // downward, the world coordinates do not: +y is north.
 #define SECTOR_BORDER_N  "n"

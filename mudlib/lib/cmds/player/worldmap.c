@@ -28,6 +28,7 @@ private string * legend_labels()
 {
   return ({ _LANG_CMD_WORLDMAP_YOUR_POS, _LANG_CMD_WORLDMAP_CITY,
             _LANG_CMD_WORLDMAP_FOREST, _LANG_CMD_WORLDMAP_FARM,
+            _LANG_CMD_WORLDMAP_RIVER, _LANG_CMD_WORLDMAP_BRIDGE,
             _LANG_CMD_WORLDMAP_COAST, _LANG_CMD_WORLDMAP_UNDERGROUND });
 }
 
@@ -55,13 +56,31 @@ private string legend(string map)
   int i;
 
   glyphs = handler("worldmap")->query_legend_glyphs();
-  kinds = ({ "player", "city", "forest", "farm", "coast", "underground" });
+  kinds = ({ "player", "city", "forest", "farm", "river", "bridge", "coast", "underground" });
   labels = legend_labels();
 
   out = "\n" + _LANG_CMD_WORLDMAP_LEGEND + ":\n";
   for (i = 0; i < sizeof(kinds); i++)
-    if (kinds[i] == "player" || sizeof(explode("#" + map + "#", glyphs[kinds[i]][0])) > 1)
+  {
+    mixed seen;
+    int shown, j;
+
+    // a kind the renderer does not draw (no entry) has no legend line; an
+    // entry's search glyph may be a list of alternatives
+    if (!glyphs[kinds[i]])
+      continue;
+
+    seen = glyphs[kinds[i]][0];
+    if (!arrayp(seen))
+      seen = ({ seen });
+
+    shown = (kinds[i] == "player");
+    for (j = 0; j < sizeof(seen) && !shown; j++)
+      shown = sizeof(explode("#" + map + "#", seen[j])) > 1;
+
+    if (shown)
       out += "  " + glyphs[kinds[i]][1] + " : " + labels[i] + "\n";
+  }
 
   return out;
 }

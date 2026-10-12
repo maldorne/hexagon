@@ -188,4 +188,30 @@
 #define GLYPH_WALL_S_ROAD  (chr(226) + chr(149) + chr(165))         // U+2565 down double, horiz single
 #define GLYPH_WALL_W_ROAD  (chr(226) + chr(149) + chr(161))         // U+2561 vert single, left double
 
+// Double-line box glyphs, for rivers. Indexed by the arms present as a mask,
+// N=8 S=4 E=2 W=1 (BOX_GLYPHS_DOUBLE[n*8 + s*4 + e*2 + w]); a single arm has
+// no half-line in the double set, so it uses the full line of its axis.
+#define GLYPH_DBL_H        (chr(226) + chr(149) + chr(144))         // U+2550 horizontal
+#define GLYPH_DBL_V        (chr(226) + chr(149) + chr(145))         // U+2551 vertical
+#define GLYPH_DBL_SE       (chr(226) + chr(149) + chr(148))         // U+2554 down and right
+#define GLYPH_DBL_SW       (chr(226) + chr(149) + chr(151))         // U+2557 down and left
+#define GLYPH_DBL_NE       (chr(226) + chr(149) + chr(154))         // U+255A up and right
+#define GLYPH_DBL_NW       (chr(226) + chr(149) + chr(157))         // U+255D up and left
+#define GLYPH_DBL_NSE      (chr(226) + chr(149) + chr(160))         // U+2560 vertical and right
+#define GLYPH_DBL_NSW      (chr(226) + chr(149) + chr(163))         // U+2563 vertical and left
+#define GLYPH_DBL_SEW      (chr(226) + chr(149) + chr(166))         // U+2566 down and horizontal
+#define GLYPH_DBL_NEW      (chr(226) + chr(149) + chr(169))         // U+2569 up and horizontal
+#define GLYPH_DBL_NSEW     (chr(226) + chr(149) + chr(172))         // U+256C vertical and horizontal
+
+#define BOX_GLYPHS_DOUBLE ({ \
+  " ", GLYPH_DBL_H, GLYPH_DBL_H, GLYPH_DBL_H, \
+  GLYPH_DBL_V, GLYPH_DBL_SW, GLYPH_DBL_SE, GLYPH_DBL_SEW, \
+  GLYPH_DBL_V, GLYPH_DBL_NW, GLYPH_DBL_NE, GLYPH_DBL_NEW, \
+  GLYPH_DBL_V, GLYPH_DBL_NSW, GLYPH_DBL_NSE, GLYPH_DBL_NSEW \
+})
+
+// A road crossing a river in one sector.
+#define GLYPH_CROSS_DBL_V  (chr(226) + chr(149) + chr(171))         // U+256B vertical double, horizontal single
+#define GLYPH_CROSS_DBL_H  (chr(226) + chr(149) + chr(170))         // U+256A horizontal double, vertical single
+
 #endif

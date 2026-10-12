@@ -292,12 +292,27 @@ string add_location(object location)
     {
       mapping exit_map, edge_map;
       string * dirs, * boundary, * sealed, * swim;
+      mapping rivers;
+      object water;
 
       exit_map = location->query_exit_map();
       edge_map = ([ ]);
       boundary = ({ });
       sealed = ({ });
       swim = ({ });
+      rivers = ([ ]);
+
+      // a water cell (a bridge cell is one too); its swum exits are the line
+      // of a river when the water flows
+      water = location->query_component_by_type(LOCATION_COMPONENT_WATER);
+      if (!water)
+      {
+        water = location->query_component_by_type(LOCATION_COMPONENT_BRIDGE);
+        if (water)
+          location_data["bridge"] = 1;
+      }
+      if (water)
+        location_data["water"] = 1;
 
       if (mappingp(exit_map))
       {
@@ -329,6 +344,11 @@ string add_location(object location)
               exit_map[dirs[i]][3]["swim"])
             swim += ({ cdir });
 
+          if (water && water->query_water_flows() &&
+              sizeof(exit_map[dirs[i]]) > 3 && mappingp(exit_map[dirs[i]][3]) &&
+              exit_map[dirs[i]][3]["swim"])
+            rivers[cdir] = to;
+
           if (SECTOR_INDEX(tx) != sector_x ||
               SECTOR_INDEX(ty) != sector_y ||
               SECTOR_INDEX(tz) != sector_z)
@@ -344,6 +364,8 @@ string add_location(object location)
         location_data["sealed"] = sealed;
       if (sizeof(swim))
         location_data["swim"] = swim;
+      if (map_sizeof(rivers))
+        location_data["rivers"] = rivers;
     }
 
     sector_storage->add_location(location->query_file_name(),

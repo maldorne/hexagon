@@ -34,6 +34,13 @@ mapping type_counts;
 // (pathfinding), or the sector-border summary via query_border_ways()
 // (world map rendering). See include/maps/sector.h.
 mapping way_exits;
+// mapping in the form ([ x_y_z : ([ direction : "tx_ty_tz" ]) ]) -- the swum
+// exits leaving each coordinate that is a water cell with a current (a bridge
+// cell counts), with the coordinate each leads to. Only flowing water is a
+// river; still water is a zone and records none. Consumers read the exits that
+// really join two water cells via query_river_exits(), or the sector-border
+// summary via query_border_rivers() (world map rendering).
+mapping river_exits;
 // mapping in the form ([ x_y_z : ({ to_x_to_y_to_z, ... }) ]) — for each
 // coordinate whose exits cross this sector's border, the neighbouring
 // coordinates (in an adjacent sector) they lead to. These are the sector's
@@ -56,6 +63,7 @@ void create() {
   edges = ([ ]);
   type_counts = ([ ]);
   way_exits = ([ ]);
+  river_exits = ([ ]);
   boundary_exits = ([ ]);
   manual_type = SECTOR_TYPE_NONE;
   ::create();
@@ -140,6 +148,7 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   if (!edges) edges = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
+  if (!river_exits) river_exits = ([ ]);
   if (!boundary_exits) boundary_exits = ([ ]);
 
   key = "" + x + "_" + y + "_" + z;
@@ -156,6 +165,15 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
   // edges of the graph, but a walker has to be told it may use them
   if (location_data && location_data["sealed"] && sizeof(location_data["sealed"]))
     nodes[key]["sealed"] = location_data["sealed"];
+
+  // a water cell (bridge cells included), whatever its current: a river exit
+  // only counts when the cell it leads to is one too
+  if (location_data && location_data["water"])
+    nodes[key]["water"] = 1;
+
+  // a bridge cell: a road or path over water
+  if (location_data && location_data["bridge"])
+    nodes[key]["bridge"] = 1;
 
   // and the ones that are swum, the way into, out of or across water
   if (location_data && location_data["swim"] && sizeof(location_data["swim"]))
@@ -179,6 +197,15 @@ void add_location(string location_file_name, int x, int y, int z, mapping locati
     way_exits[key] = map_copy(location_data["ways"]);
   else
     map_delete(way_exits, key);
+
+  // the swum exits of a flowing-water cell ("rivers": direction -> the
+  // neighbouring coordinate), kept apart from the ways so the map can draw
+  // them as a river
+  if (location_data && location_data["rivers"] &&
+      map_sizeof(location_data["rivers"]))
+    river_exits[key] = map_copy(location_data["rivers"]);
+  else
+    map_delete(river_exits, key);
 
   // location_data may carry a "boundary" array of neighbouring coordinates
   // this coord's exits cross into — the sector's A* ports. Store it keyed by
@@ -228,6 +255,7 @@ void remove_location(string location_file_name)
   if (!edges) edges = ([ ]);
   if (!type_counts) type_counts = ([ ]);
   if (!way_exits) way_exits = ([ ]);
+  if (!river_exits) river_exits = ([ ]);
   if (!boundary_exits) boundary_exits = ([ ]);
 
   // Roll back this file's contribution to the sector-type tally BEFORE
@@ -256,6 +284,7 @@ void remove_location(string location_file_name)
       map_delete(nodes, pos_keys[i]);
       map_delete(edges, pos_keys[i]);
       map_delete(way_exits, pos_keys[i]);
+      map_delete(river_exits, pos_keys[i]);
       map_delete(boundary_exits, pos_keys[i]);
     }
   }
@@ -395,25 +424,19 @@ private void _record_border(mapping acc, string border, string type)
     acc[border] += ({ type });
 }
 
-// Which cardinal borders of this sector are crossed by a path or road,
-// and of which type(s). Returns
-//   ([ "n": ({ "road" }), "e": ({ "path", "road" }), ... ])
-// including only borders that actually carry a crossing. A way crosses a
-// border when its destination coordinate (source + one step in the exit
-// direction) falls in the neighbouring sector along that axis. Diagonal
-// and vertical exits are kept in way_exits but ignored here — the border
-// glyphs are cardinal. When a border carries both types the renderer is
-// free to pick the heavier road (SECTOR_WAY_TYPES lists road first).
-mapping query_border_ways()
+// The border crossings of a per-coordinate exit map ([ "x_y_z" : ([ direction :
+// type ]) ]), as ([ border : ({ type, ... }) ]). With `corners` set, a diagonal
+// that changes sector on both axes is recorded on both borders instead of
+// being dropped. The conventions are described at query_border_ways.
+private mapping _borders_of(mapping source, int corners)
 {
   mapping result;
   string * coord_keys;
   int i;
 
-  if (!way_exits) way_exits = ([ ]);
   result = ([ ]);
 
-  coord_keys = map_indices(way_exits);
+  coord_keys = map_indices(source);
   for (i = 0; i < sizeof(coord_keys); i++)
   {
     int x, y, z;
@@ -424,7 +447,7 @@ mapping query_border_ways()
     if (sscanf(coord_keys[i], "%d_%d_%d", x, y, z) != 3)
       continue;
 
-    ways = way_exits[coord_keys[i]];
+    ways = source[coord_keys[i]];
     dirs = map_indices(ways);
 
     for (j = 0; j < sizeof(dirs); j++)
@@ -466,8 +489,8 @@ mapping query_border_ways()
           int xc, yc;
           xc = (SECTOR_INDEX(x + 1) != SECTOR_INDEX(x));
           yc = (SECTOR_INDEX(y + 1) != SECTOR_INDEX(y));
-          if (xc && !yc) _record_border(result, SECTOR_BORDER_E, type);
-          if (yc && !xc) _record_border(result, SECTOR_BORDER_N, type);
+          if (xc && (!yc || corners)) _record_border(result, SECTOR_BORDER_E, type);
+          if (yc && (!xc || corners)) _record_border(result, SECTOR_BORDER_N, type);
           break;
         }
         case SECTOR_DIR_NORTHWEST:
@@ -475,8 +498,8 @@ mapping query_border_ways()
           int xc, yc;
           xc = (SECTOR_INDEX(x - 1) != SECTOR_INDEX(x));
           yc = (SECTOR_INDEX(y + 1) != SECTOR_INDEX(y));
-          if (xc && !yc) _record_border(result, SECTOR_BORDER_W, type);
-          if (yc && !xc) _record_border(result, SECTOR_BORDER_N, type);
+          if (xc && (!yc || corners)) _record_border(result, SECTOR_BORDER_W, type);
+          if (yc && (!xc || corners)) _record_border(result, SECTOR_BORDER_N, type);
           break;
         }
         case SECTOR_DIR_SOUTHEAST:
@@ -484,8 +507,8 @@ mapping query_border_ways()
           int xc, yc;
           xc = (SECTOR_INDEX(x + 1) != SECTOR_INDEX(x));
           yc = (SECTOR_INDEX(y - 1) != SECTOR_INDEX(y));
-          if (xc && !yc) _record_border(result, SECTOR_BORDER_E, type);
-          if (yc && !xc) _record_border(result, SECTOR_BORDER_S, type);
+          if (xc && (!yc || corners)) _record_border(result, SECTOR_BORDER_E, type);
+          if (yc && (!xc || corners)) _record_border(result, SECTOR_BORDER_S, type);
           break;
         }
         case SECTOR_DIR_SOUTHWEST:
@@ -493,8 +516,8 @@ mapping query_border_ways()
           int xc, yc;
           xc = (SECTOR_INDEX(x - 1) != SECTOR_INDEX(x));
           yc = (SECTOR_INDEX(y - 1) != SECTOR_INDEX(y));
-          if (xc && !yc) _record_border(result, SECTOR_BORDER_W, type);
-          if (yc && !xc) _record_border(result, SECTOR_BORDER_S, type);
+          if (xc && (!yc || corners)) _record_border(result, SECTOR_BORDER_W, type);
+          if (yc && (!xc || corners)) _record_border(result, SECTOR_BORDER_S, type);
           break;
         }
       }
@@ -502,6 +525,110 @@ mapping query_border_ways()
   }
 
   return result;
+}
+
+// Which cardinal borders of this sector are crossed by a path or road,
+// and of which type(s). Returns
+//   ([ "n": ({ "road" }), "e": ({ "path", "road" }), ... ])
+// including only borders that actually carry a crossing. A way crosses a
+// border when its destination coordinate (source + one step in the exit
+// direction) falls in the neighbouring sector along that axis. Diagonal
+// and vertical exits are kept in way_exits but ignored here — the border
+// glyphs are cardinal. When a border carries both types the renderer is
+// free to pick the heavier road (SECTOR_WAY_TYPES lists road first).
+mapping query_border_ways()
+{
+  if (!way_exits) way_exits = ([ ]);
+  return _borders_of(way_exits, 0);
+}
+
+// Raw river exit graph: ([ "x_y_z" : ([ direction : "tx_ty_tz" ]) ]), only the
+// exits that join this cell to another water cell. One whose destination is in
+// this sector is kept when that coordinate is a water cell here; one that
+// leaves the sector is kept (the far side is the neighbour's to confirm).
+mapping query_river_exits()
+{
+  mapping result, exits;
+  string * coord_keys, * dirs;
+  int i, j;
+
+  if (!river_exits) river_exits = ([ ]);
+  if (!nodes) nodes = ([ ]);
+  result = ([ ]);
+
+  coord_keys = map_indices(river_exits);
+  for (i = 0; i < sizeof(coord_keys); i++)
+  {
+    int x, y, z, tx, ty, tz;
+
+    if (sscanf(coord_keys[i], "%d_%d_%d", x, y, z) != 3)
+      continue;
+
+    exits = ([ ]);
+    dirs = map_indices(river_exits[coord_keys[i]]);
+    for (j = 0; j < sizeof(dirs); j++)
+    {
+      string to;
+
+      to = river_exits[coord_keys[i]][dirs[j]];
+      if (sscanf(to, "%d_%d_%d", tx, ty, tz) != 3)
+        continue;
+      if (SECTOR_INDEX(tx) == SECTOR_INDEX(x) &&
+          SECTOR_INDEX(ty) == SECTOR_INDEX(y) &&
+          SECTOR_INDEX(tz) == SECTOR_INDEX(z) &&
+          (!nodes[to] || !nodes[to]["water"]))
+        continue;
+      exits[dirs[j]] = to;
+    }
+    if (map_sizeof(exits))
+      result[coord_keys[i]] = exits;
+  }
+
+  return result;
+}
+
+// Which cardinal borders of this sector are crossed by a river, as
+//   ([ "n": ({ "river" }), ... ])
+// A diagonal exit that changes sector on both axes is recorded on both
+// borders (a river crossing a corner still has to be drawn, unlike a road).
+mapping query_border_rivers()
+{
+  mapping exits, typed;
+  string * coord_keys, * dirs;
+  int i, j;
+
+  exits = query_river_exits();
+  typed = ([ ]);
+  coord_keys = map_indices(exits);
+  for (i = 0; i < sizeof(coord_keys); i++)
+  {
+    typed[coord_keys[i]] = ([ ]);
+    dirs = map_indices(exits[coord_keys[i]]);
+    for (j = 0; j < sizeof(dirs); j++)
+      typed[coord_keys[i]][dirs[j]] = SECTOR_WAY_RIVER;
+  }
+
+  return _borders_of(typed, 1);
+}
+
+// Whether this sector holds a bridge cell.
+int has_bridge()
+{
+  string * keys;
+  int i;
+
+  if (!nodes) nodes = ([ ]);
+  keys = map_indices(nodes);
+  for (i = 0; i < sizeof(keys); i++)
+    if (nodes[keys[i]]["bridge"])
+      return 1;
+  return 0;
+}
+
+// Whether this sector holds any river cell at all.
+int has_river()
+{
+  return map_sizeof(query_river_exits()) > 0;
 }
 
 mapping query_boundary_exits()
