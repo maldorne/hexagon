@@ -81,10 +81,11 @@ inherit "/lib/core/object.c";
 //      the plus), any other shape falls back to the road glyph
 //   2  the road glyph in the river's blue, so a bridge stands out whatever
 //      its shape
-//   3  as 1, but only in a sector that holds a bridge cell (a road running
-//      beside a river is not a bridge), and in yellow, the colour of a
-//      timber deck, which neither road nor river use; elsewhere the road
-//      glyph, uncoloured
+//   3  as 1, but only where both the road and the river go through the
+//      sector from one side to another (two arms or more each) and cross,
+//      each leaving by a side the other does not, whatever lies inside it,
+//      and in yellow, the colour of a timber deck, which
+//      neither road nor river use; elsewhere the road glyph, uncoloured
 #define WORLDMAP_BRIDGE_STYLE 3
 
 // Colour of the river line, and of a bridge in the styles that colour it.
@@ -286,7 +287,8 @@ private string river_glyph(int * arms)
 private string bridge_glyph(object sect, int * road, int * river)
 {
   string glyph, cross;
-  int road_h, road_v, river_h, river_v;
+  int road_h, road_v, river_h, river_v, road_n, river_n, road_own, river_own;
+  int i;
 
   glyph = way_glyph(road);
 
@@ -298,8 +300,18 @@ private string bridge_glyph(object sect, int * road, int * river)
       return COLOUR_RIVER + glyph + "%^RESET%^";
   }
 
-  // style 3 marks real bridges only
-  if (WORLDMAP_BRIDGE_STYLE == 3 && !sect->has_bridge())
+  // style 3: only a road and a river that both cross the sector, side to side,
+  // and cross each other: each leaves by a side the other does not, so a road
+  // running beside a river is just a road
+  for (i = 0; i < 4; i++)
+  {
+    road_n += road[i] ? 1 : 0;
+    river_n += river[i] ? 1 : 0;
+    road_own += (road[i] && !river[i]) ? 1 : 0;
+    river_own += (river[i] && !road[i]) ? 1 : 0;
+  }
+  if (WORLDMAP_BRIDGE_STYLE == 3 &&
+      (road_n < 2 || river_n < 2 || !road_own || !river_own))
     return glyph;
 
   // styles 1 and 3: a crossing glyph where the road and the river are
@@ -330,8 +342,9 @@ private string bridge_glyph(object sect, int * road, int * river)
 //   2. road / path — if the sector has road/path exits the map draws (see
 //                    WORLDMAP_DRAW_PATHS), draw the way glyph; with a river
 //                    through it as well it is a bridge (bridge_glyph)
-//   3. river       — blue line, over any terrain (farmland and forest too)
-//   4. majority    — otherwise the dominant remaining terrain type
+//   3. forest      — wins over a river, so the woods keep their size
+//   4. river       — blue line, over farmland and any other terrain
+//   5. majority    — otherwise the dominant remaining terrain type
 private string render_sector(string game, string map_name,
                            int sx, int sy, int sz)
 {
@@ -380,11 +393,14 @@ private string render_sector(string game, string map_name,
     return way_glyph(road_arms);
   }
 
+  // a forest wins over a river running through it: the woods read as their
+  // true size
+  if (type == SECTOR_TYPE_FOREST)      return "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^";
+
   if (river)
     return COLOUR_RIVER + river_glyph(river_arms_here) + "%^RESET%^";
 
   if (type == SECTOR_TYPE_CITY)        return GLYPH_MAP_CITY;
-  if (type == SECTOR_TYPE_FOREST)      return "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^";
   if (type == SECTOR_TYPE_COAST)       return GLYPH_COAST;
   if (type == SECTOR_TYPE_UNDERGROUND) return GLYPH_UNDERGROUND;
 
@@ -642,23 +658,21 @@ private int * _spot_above_or_below(string ** grid, int w, int h, int above,
   return nil;
 }
 
-// Last resort for a label of `n` cells: any row and column where it fits whose
-// first cell is at most two cells from one of the city's (corners count), the
-// one nearest the city's centre. `cells` lists the city's cells as ({ r, c }).
+// Last resort for a label of `n` cells: any row and column where it fits with
+// some cell of it at most two cells from one of the city's (corners count),
+// the one nearest the city's centre. `cells` lists the city's cells as
+// ({ r, c }).
 private int * _spot_near(string ** grid, int w, int h, mixed * cells, int n,
                          int crow, int ccol)
 {
   int * best;
-  int r, c, i, near, dist, best_dist;
+  int r, c, dist, best_dist;
 
   for (r = 0; r < h; r++)
     for (c = 0; c < w; c++)
     {
-      near = 0;
-      for (i = 0; i < sizeof(cells) && !near; i++)
-        if (abs(cells[i][0] - r) <= 2 && abs(cells[i][1] - c) <= 2)
-          near = 1;
-      if (!near || !_label_fits(grid, w, h, r, c, n))
+      if (_label_distance(cells, r, c, n) > 2 ||
+          !_label_fits(grid, w, h, r, c, n))
         continue;
 
       // distance from the label's middle to the city's
@@ -789,14 +803,14 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
 }
 
 // `labels` names the cities; `label_room` is how many blank columns the caller
-// has beside the map, to the right, where a name may also go.
+// has beside the map, where a name may also go: half go to each side.
 string render(int center_x, int center_y, int center_z,
               string game, string map_name, int width, int height,
               varargs int marker, int labels, int label_room)
 {
   int sx0, sy0, sz0;
   int col0, row_top;
-  int row_i, col;
+  int row_i, col, left;
   string ** grid;
   int ** is_city;
   string result;
@@ -848,19 +862,27 @@ string render(int center_x, int center_y, int center_z,
     _overlay_city_walls(grid, is_city, width, height);
 
   // names last, so they only take cells nothing else has drawn on, in the map
-  // or in the blank columns the caller has to the right of it
+  // or in the blank columns the caller has beside it
+  // half the blank columns go to the left of the map and half to the right,
+  // so the map sits centred and a city at either edge has room for its name
   if (labels)
   {
     if (label_room > 0)
+    {
+      left = label_room / 2;
       for (row_i = 0; row_i < height; row_i++)
       {
-        grid[row_i] += allocate(label_room);
-        is_city[row_i] += allocate_int(label_room);
-        for (col = width; col < width + label_room; col++)
-          grid[row_i][col] = GLYPH_EMPTY;
+        grid[row_i] = allocate(left) + grid[row_i] +
+                      allocate(label_room - left);
+        is_city[row_i] = allocate_int(left) + is_city[row_i] +
+                         allocate_int(label_room - left);
+        for (col = 0; col < width + label_room; col++)
+          if (col < left || col >= left + width)
+            grid[row_i][col] = GLYPH_EMPTY;
       }
+    }
     _overlay_city_names(grid, is_city, width + (label_room > 0 ? label_room : 0),
-                        height, game, map_name, col0, row_top, sz0);
+                        height, game, map_name, col0 - left, row_top, sz0);
   }
 
   result = "";

@@ -179,13 +179,16 @@ it joins two water cells; still water (no current) is a zone and draws nothing.
 `query_border_rivers()` gives the borders of the sector a river crosses, by the
 same rules as `query_border_ways()` except that a diagonal that changes sector
 on both axes is recorded on both borders. The renderer
-(`/lib/handlers/worldmap.c`) ranks a sector: city, then road, then river, then
-terrain, so a river is drawn over forest and farmland.
+(`/lib/handlers/worldmap.c`) ranks a sector: city, then road, then forest,
+then river, then the rest of the terrain, so a river is drawn over farmland but
+a forest keeps its size.
 
 Where a road and a river share a sector, `WORLDMAP_BRIDGE_STYLE` picks how it
 shows: 0 the road glyph, 1 a crossing glyph for a straight road across a
-straight river, 2 the road glyph in blue, 3 (the default) as 1 but only in a
-sector that holds a bridge cell, in yellow, with its own legend entry.
+straight river, 2 the road glyph in blue, 3 (the default) as 1 but only where
+both the road and the river go through the sector from one side to another and
+cross (each leaves by a side the other does not; side by side they are just a
+road), whatever lies inside it, in yellow, with its own legend entry.
 `WORLDMAP_RIVER_DOUBLE` switches rivers between double and single lines.
 The data is lifted when a location is indexed, so run `sectors reindex` after
 changing it.
