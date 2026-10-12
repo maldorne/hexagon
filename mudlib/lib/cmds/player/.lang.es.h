@@ -6,7 +6,7 @@
 
 // calendar.c
 
-#define _LANG_CMD_CALENDAR_ALIAS       ({ "calendario", "calendar" })
+#define _LANG_CMD_CALENDAR_ALIAS       ({ "calendario" })
 #define _LANG_CMD_CALENDAR_SYNTAX      "calendario [años]"
 #define _LANG_CMD_CALENDAR_HELP        "Muestra el calendario del mes actual. Con el argumento " + \
                                        "'años' lista los nombres de los años transcurridos."
