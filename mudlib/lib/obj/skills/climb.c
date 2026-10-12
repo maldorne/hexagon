@@ -56,15 +56,21 @@ void setup()
 object query_climb_target(object caster, mixed str)
 {
   object ob;
+  mixed found;
 
   if (!stringp(str) || !strlen(trim(str)))
     return environment(caster)->query_climbable() ? environment(caster) : nil;
 
-  // not on anybody else's inventory, only on the caster's or the place's
-  ob = find_one_match(str, caster);
-  if (!ob)
-    ob = find_one_match(str, environment(caster), !allow_on_dead);
-  if (ob && (ob->query_npc() || ob->query_player()))
+  // not on anybody else's inventory, only on the caster's or the place's;
+  // find_one_match answers 0, not nil, when nothing matches
+  found = find_one_match(str, caster);
+  if (!found)
+    found = find_one_match(str, environment(caster), !allow_on_dead);
+  if (!objectp(found))
+    return nil;
+
+  ob = found;
+  if (ob->query_npc() || ob->query_player())
     return nil;
 
   return ob;
