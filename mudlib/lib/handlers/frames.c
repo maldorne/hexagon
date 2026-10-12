@@ -156,7 +156,7 @@ void create()
   // whitespace. So margin_x stays at 0 and every row spec bakes in
   // its own leading spaces.
   styles["scroll"] = ([
-    "padding_x":   8,
+    "padding_x":   3,
     "padding_y":   0,
     "margin_x":    0,
     "body_left":   "     |",
@@ -340,6 +340,15 @@ private int _frame_overhead(mapping style)
   }
 
   return 2 * style["margin_x"] + 2 * style["padding_x"] + sides;
+}
+
+// The columns a style adds around its content, for a caller sizing what it
+// frames to a terminal.
+int query_frame_overhead(string style_name)
+{
+  if (!style_name)
+    style_name = DEFAULT_FRAME_STYLE;
+  return styles[style_name] ? _frame_overhead(styles[style_name]) : 0;
 }
 
 string frame(string content, varargs string title, int width,

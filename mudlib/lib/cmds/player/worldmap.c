@@ -87,11 +87,18 @@ private string legend(string map)
 
 static int cmd(string str, object me, string verb)
 {
-  int width, height;
+  int width, height, cols;
   string map;
 
-  // players always get the default viewport; resizing it is a coder tool
-  width = 20;
+  // players always get the default viewport, as wide as their terminal lets
+  // the framed map be; resizing it is a coder tool
+  cols = me->user() ? (int)me->user()->query_cols() : 0;
+  width = (cols > 0 ? cols : 80) -
+          handler("frames")->query_frame_overhead("scroll");
+  if (width > 80)
+    width = 80;
+  if (width < 20)
+    width = 20;
   height = 20;
 
   if (str && strlen(str))
