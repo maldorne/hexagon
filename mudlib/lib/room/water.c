@@ -231,25 +231,50 @@ string query_water_shore(object who)
   return _LANG_WATER_SHORE + query_multiple_short(shores) + ".\n";
 }
 
-// What one sees from the water: where the shore is, never the exits.
+// Where one can swim from here, every swum exit, shores included. Nothing when
+// there are none.
+string query_water_swim_ways(object who)
+{
+  string * dirs, * ways;
+  int i;
+
+  dirs = query_swim_directions(who);
+  ways = ({ });
+  for (i = 0; i < sizeof(dirs); i++)
+    ways += ({ ROOM_HAND->query_exit_dir(dirs[i]) });
+
+  if (!sizeof(ways))
+    return "";
+
+  return _LANG_WATER_SWIM_WAYS + query_multiple_short(ways) + ".\n";
+}
+
+// What one sees from the water: where the shore is and where one can swim,
+// never the exits.
 string query_water_look(object who)
 {
   string shore;
 
   shore = query_water_shore(who);
-  return strlen(shore) ? shore : _LANG_WATER_NO_SHORE;
+  return (strlen(shore) ? shore : _LANG_WATER_NO_SHORE) +
+         query_water_swim_ways(who);
 }
 
 // What is worth telling somebody who has just arrived in the water, each
 // hint only while it applies. Places add theirs.
 string * query_water_arrival_hints(object who)
 {
-  string shore;
+  string * hints;
+  string line;
 
-  shore = query_water_shore(who);
-  if (!strlen(shore))
-    return ({ });
-  return ({ shore[0 .. strlen(shore) - 2] });
+  hints = ({ });
+  line = query_water_shore(who);
+  if (strlen(line))
+    hints += ({ line[0 .. strlen(line) - 2] });
+  line = query_water_swim_ways(who);
+  if (strlen(line))
+    hints += ({ line[0 .. strlen(line) - 2] });
+  return hints;
 }
 
 // Bold, between blank lines, so it is not lost among the movement messages.

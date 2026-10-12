@@ -24,6 +24,7 @@
 #define _LANG_WATER_OBJECT_DRIFT_TO "La corriente trae $O."
 #define _LANG_WATER_SHORE "Puedes ver la orilla hacia "
 #define _LANG_WATER_NO_SHORE "No ves la orilla por ninguna parte.\n"
+#define _LANG_WATER_SWIM_WAYS "Puedes nadar hacia "
 #define _LANG_COAST_SWIM_MESS "$N se mete en el agua y nada hacia $T."
 #define _LANG_COAST_LOOK "Estás en la orilla. Escribe 'nadar' para meterte en el agua.\n"
 #define _LANG_COAST_GLANCE "Estás en la orilla.\n"

@@ -41,8 +41,9 @@ The `swim` skill (`nadar`) takes the swum exits, and whoever reaches water or a
 coast learns it. On a coast, `nadar` alone goes into the water (`nadar <dir>`
 when there is water more than one way), and a line under the description says
 so. In water there are no exit lines: one sees where the shore is ("Puedes ver
-la orilla hacia el oeste") and swims with `nadar <dir>`; `nadar` alone says
-where the shore is again.
+la orilla hacia el oeste", or that it is nowhere in sight) and every way one can
+swim ("Puedes nadar hacia el norte y el oeste"), and swims with `nadar <dir>`;
+`nadar` alone says both again.
 
 Going in from a coast always works. Every stroke inside water is rolled: a
 base of 50 plus the swimmer's ability, plus 20 with the current, minus 5 per
@@ -54,8 +55,8 @@ chance of 100 or more is not rolled.
 
 Whoever arrives in water, swimming or carried by the current, is told in bold,
 between blank lines, what applies right now: where the shore is ("Puedes ver
-la orilla hacia el este.", when a swum exit leads to a coast), and in a
-reachable bridge cell that it may climb.
+la orilla hacia el este.", when a swum exit leads to a coast), where one can
+swim, and in a reachable bridge cell that it may climb.
 
 Whoever fails swallows water, a bite of life that never takes the last of it,
 and the current carries them out by `swept_to`; in still water they stay.
