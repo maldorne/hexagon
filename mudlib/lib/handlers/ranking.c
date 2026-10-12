@@ -76,6 +76,27 @@ private string _group_path(string path)
   return path;
 }
 
+// The class somebody is ranked under: a game's own class with the same id
+// stands for the mudlib's generic one, so the NPCs of a game built on the
+// generic classes rank beside the players, who take the game's.
+private string _class_group(object who)
+{
+  string path, game, file;
+  object class_ob;
+
+  path = _group_path(who->query_class_ob());
+  if (!strlen(path) || path[0 .. 16] != "/lib/obj/classes/")
+    return path;
+
+  game = game_name(who);
+  class_ob = load_object(path);
+  if (!game || !strlen(game) || !class_ob)
+    return path;
+
+  file = handler("games")->query_class_file(game, class_ob->query_class_id());
+  return strlen(file) ? _group_path(file) : path;
+}
+
 // The levels of a group, lowest first.
 private int * _levels_ascending(mapping levels)
 {
@@ -171,7 +192,7 @@ void update(object who)
   if (!name || !strlen(name))
     return;
 
-  changed = _place(_group_path(who->query_class_ob()), name,
+  changed = _place(_class_group(who), name,
                    (int)who->query_class_level());
   changed += _place(_group_path(who->query_guild_ob()), name,
                     (int)who->query_guild_level());
