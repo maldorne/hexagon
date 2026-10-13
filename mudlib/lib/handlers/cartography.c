@@ -185,10 +185,10 @@ mapping query_map_view(object viewer, varargs mapping options)
   int ** locations;
   object ** rooms;
   mixed * pending;
-  mixed * revised;
+  mapping placed;
   mixed current;
   int viewer_x, viewer_y;
-  int i, j, repeated, viewer_z;
+  int i, head, viewer_z;
 
   if (!viewer)
     return nil;
@@ -229,19 +229,21 @@ mapping query_map_view(object viewer, varargs mapping options)
   viewer_z = _z_of(env);
 
   // BFS from the viewer's environment outward through exits
-  pending = ({ });
-  revised = ({ });
+  // a room is placed once, when it is first met: rooms met again through
+  // other exits are never queued twice, so a dense knot of exits (rooms that
+  // all lead to each other) costs one visit per room
+  pending = ({ ({ viewer_x, viewer_y, env }) });
+  placed = ([ env : 1 ]);
+  head = 0;
 
-  current = ({ viewer_x, viewer_y, env });
-  pending += ({ current });
   locations[viewer_y][viewer_x] = _classify_room(env, viewer, deep);
   rooms[viewer_y][viewer_x] = env;
 
-  while (sizeof(pending))
+  while (head < sizeof(pending))
   {
     string * dest_dir;
 
-    current = pending[0];
+    current = pending[head++];
     dest_dir = current[2]->query_dest_dir();
 
     for (i = 0; i < sizeof(dest_dir); i += 2)
@@ -356,12 +358,15 @@ mapping query_map_view(object viewer, varargs mapping options)
           continue;
       }
 
-      // skip rooms we already placed
-      repeated = 0;
-      for (j = 0; j < sizeof(revised); j++)
-        if (revised[j][2] == new_room) { repeated = 1; break; }
-      if (repeated)
+      // a room already placed is not placed again; the link to it is drawn
+      // only when it sits where this exit points and no link is there yet
+      if (placed[new_room])
+      {
+        if (has_segment && has_dest && rooms[dest_y][dest_x] == new_room &&
+            locations[seg_y][seg_x] == CART_EMPTY)
+          locations[seg_y][seg_x] = seg_type;
         continue;
+      }
 
       if (has_segment)
         locations[seg_y][seg_x] = seg_type;
@@ -379,6 +384,7 @@ mapping query_map_view(object viewer, varargs mapping options)
         {
           locations[dest_y][dest_x] = CART_MAZE_ROOM;
           rooms[dest_y][dest_x] = new_room;
+          placed[new_room] = 1;
         }
         continue;
       }
@@ -387,12 +393,11 @@ mapping query_map_view(object viewer, varargs mapping options)
       {
         locations[dest_y][dest_x] = _classify_room(new_room, viewer, deep);
         rooms[dest_y][dest_x] = new_room;
+        placed[new_room] = 1;
         pending += ({ ({ dest_x, dest_y, new_room }) });
       }
     }
 
-    revised += ({ current });
-    pending -= ({ current });
   }
 
   return ([
