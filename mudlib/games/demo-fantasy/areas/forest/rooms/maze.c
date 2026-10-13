@@ -57,3 +57,7 @@ int do_exit_command(string str, varargs mixed verb, object ob)
 
   return room::do_exit_command(str, verb, ob);
 }
+
+// Cartography draws a maze as a '?' and does not map past it; locations say so
+// through their maze component, these rooms say it here.
+int query_maze() { return 1; }
