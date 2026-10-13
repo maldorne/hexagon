@@ -22,7 +22,8 @@ inherit "/lib/core/object";
  
 // #define REBOOT_TIME 23 * 60 * 60 * 2  // every 23 hours * 2, so its not always
 //                                       // the same time 
-#define REBOOT_MEMORY 42 * 1024 * 1024
+// memory in use, in bytes (128 MB), above which the mud reboots itself
+#define REBOOT_MEMORY 128 * 1024 * 1024
 
 int shutdown_in_progress;
 int time_of_crash;
