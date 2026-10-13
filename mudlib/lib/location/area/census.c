@@ -287,9 +287,9 @@ private int _build_npc(string id)
   // on the NPC itself (npc_given_name -> npc.o) because id.c's `name` is static
   // and never saved. Before the template: monster::set_name takes only the
   // first name, so ours wins and the template's generic one becomes an alias.
-  // A template with "proper_name" is one particular person: it keeps the name
-  // it gives, and the race below.
-  if (t && t["sentient"] && !t["proper_name"])
+  // A template with "proper_name" or "unique" is one particular person: it
+  // keeps the name it gives, and the race below.
+  if (t && t["sentient"] && !t["proper_name"] && !t["unique"])
   {
     mixed gname;
 
@@ -344,7 +344,7 @@ private int _build_npc(string id)
   //
   // set_race_ob unwinds the previous race's bonuses, languages and aliases
   // before applying the new one, so it is safe on top of what the template set.
-  if (t && t["sentient"] && !t["proper_name"])
+  if (t && t["sentient"] && !t["proper_name"] && !t["unique"])
   {
     cpath = origin[1];
     if (stringp(cpath) && strlen(cpath))

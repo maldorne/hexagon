@@ -729,9 +729,12 @@
 
 // ranking
 #define _LANG_CMD_RANKING_ALIAS ({ "ranking" })
-#define _LANG_CMD_RANKING_SYNTAX "ranking"
-#define _LANG_CMD_RANKING_HELP "Shows the highest levels reached in your class, your guild and your job, by players and by the characters with a name of their own."
+#define _LANG_CMD_RANKING_SYNTAX "ranking [all]"
+#define _LANG_CMD_RANKING_HELP "Shows the highest levels reached in your class, your guild and your job, by players and by the characters with a name of their own. With 'all' it shows every group of your game."
 #define _LANG_RANKING_LEVEL "Level"
+#define _LANG_RANKING_KIND_CLASS "Class"
+#define _LANG_RANKING_KIND_GUILD "Guild"
+#define _LANG_RANKING_KIND_JOB "Job"
 #define _LANG_RANKING_BROKEN "Something is wrong with the ranking.\n"
 #define _LANG_RANKING_REMOVE "remove"
 #define _LANG_RANKING_ALL "all"
@@ -741,7 +744,7 @@
 #define _LANG_RANKING_HEADER "The highest levels of your groups:\n\n"
 #define _LANG_RANKING_ALL_HEADER "The highest levels of every group:\n\n"
 #define _LANG_RANKING_ALL_EMPTY "There is nobody in the ranking yet.\n"
-#define _LANG_RANKING_CODER_HINTS "Coders: 'ranking all' shows every group, 'ranking remove <name>' takes a name off all of them.\n"
+#define _LANG_RANKING_CODER_HINTS "Coders: 'ranking all' shows the groups of every game, 'ranking remove <name>' takes a name off all of them.\n"
 
 // jump
 

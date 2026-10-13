@@ -539,8 +539,8 @@ private string * known_template_fields()
             "level", "level_area_modifier", "stat_modifiers", "stats",
             "max_hp", "max_gp", "random_stats", "social_obs", "equipment",
             "money", "components", "timetable", "skills", "spells",
-            "extracted_from", "citizenship", "proper_name", "guild_level",
-            "swims", "loved", "hated", "liked", "disliked", "liked_message",
+            "extracted_from", "citizenship", "proper_name", "unique",
+            "guild_level", "swims", "loved", "hated", "liked", "disliked", "liked_message",
             "disliked_message", "attack_skills" });
 }
 
@@ -623,19 +623,21 @@ private string * template_complaints(string game, string id)
 
   // A person's race is drawn from the citizenship that holds the area, so a
   // template naming one takes that decision away from the culture. One
-  // particular person (proper_name) keeps the race their template gives.
-  if (t["sentient"] && social["race"] && !t["proper_name"])
+  // particular person (proper_name or unique) keeps the race their template
+  // gives.
+  if (t["sentient"] && social["race"] && !t["proper_name"] && !t["unique"])
     out += ({ "names a race, but its people belong to a citizenship" });
 
   // The area says how strong its people are, so a person's template must not.
   // A creature is the other way round: it carries its own body wherever it
   // turns up, and its range is what the area defers to. One particular person
-  // (proper_name) is exactly as strong as their template says, wherever they
-  // are.
+  // (proper_name or unique) is exactly as strong as their template says,
+  // wherever they are.
   if (t["sentient"] && !undefinedp(t["random_stats"]))
     out += ({ "pins a stat range: the area's band owns it, " +
               "use stat_modifiers" });
-  if (t["sentient"] && !undefinedp(t["level"]) && !t["proper_name"])
+  if (t["sentient"] && !undefinedp(t["level"]) &&
+      !t["proper_name"] && !t["unique"])
     out += ({ "pins a level: the area's band owns it, " +
               "use level_area_modifier" });
 
