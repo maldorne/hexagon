@@ -239,28 +239,144 @@ int batch_remove_component(string * files, string type)
 }
 
 // One line per location with its file and coordinates, "no coords" when the
-// inference could not place it.
-private void _print_coordinates(object * locations)
+// inference could not place it. `old` (file name -> previous coordinates)
+// marks the locations a recompute moved and ends with a count of them.
+private void _print_coordinates(object * locations, varargs mapping old)
 {
-  int i;
+  int i, moved;
 
   for (i = 0; i < sizeof(locations); i++)
   {
-    int * coords;
+    int * coords, * before;
 
     if (!locations[i])
       continue;
     coords = locations[i]->query_coordinates();
+    before = old ? old[locations[i]->query_file_name()] : nil;
     write("  " + get_path_file_name(locations[i]->query_file_name()) + " -> " +
           (coords ? "(" + coords[0] + "," + coords[1] + "," + coords[2] + ")" :
-                    "no coords") + "\n");
+                    "no coords"));
+    if (before && (!coords || coords[0] != before[0] ||
+                   coords[1] != before[1] || coords[2] != before[2]))
+    {
+      write(" (was " + before[0] + "," + before[1] + "," + before[2] + ")");
+      moved++;
+    }
+    write("\n");
   }
+
+  if (old)
+    write("  " + moved + " location" + (moved == 1 ? "" : "s") + " moved.\n");
+}
+
+// Forget the coordinates of every location whose connected group (over grid
+// exits, counting only links between members of `locations`) touches a
+// coordinated location outside the set, so inference places the group again
+// from that anchor. Groups with no outside anchor keep their coordinates:
+// they were seeded by hand. Returns file name -> previous coordinates for
+// every location that had some.
+private mapping _clear_anchored_components(object * locations)
+{
+  string * grid, * file_names, * stack;
+  mapping old, links, group, anchored;
+  int i, j, g;
+
+  grid = ({ DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST, DIR_NORTHWEST,
+            DIR_NORTHEAST, DIR_SOUTHWEST, DIR_SOUTHEAST, DIR_UP, DIR_DOWN });
+  file_names = ({ });
+  old = ([ ]);
+  links = ([ ]);
+  anchored = ([ ]);
+
+  for (i = 0; i < sizeof(locations); i++)
+  {
+    file_names += ({ locations[i]->query_file_name() });
+    links[locations[i]->query_file_name()] = ({ });
+  }
+
+  for (i = 0; i < sizeof(locations); i++)
+  {
+    string * exits, name;
+
+    name = locations[i]->query_file_name();
+    if (locations[i]->query_coordinates())
+      old[name] = locations[i]->query_coordinates();
+
+    exits = locations[i]->query_dest_dir();
+    for (j = 0; j < sizeof(exits); j += 2)
+    {
+      object dest;
+
+      if (member_array(exits[j], grid) == -1)
+        continue;
+
+      if (member_array(exits[j + 1], file_names) != -1)
+      {
+        // links count in both directions, exits may be one-way
+        links[name] += ({ exits[j + 1] });
+        links[exits[j + 1]] += ({ name });
+        continue;
+      }
+
+      dest = load_object(LOCATION_HANDLER)->load_location(exits[j + 1]);
+      if (dest && dest->query_coordinates())
+        anchored[name] = 1;
+    }
+  }
+
+  // walk each group; clear it when any member is anchored
+  group = ([ ]);
+  for (i = 0; i < sizeof(file_names); i++)
+  {
+    string * members;
+    int anchor;
+
+    if (group[file_names[i]])
+      continue;
+
+    g = i + 1;
+    members = ({ });
+    anchor = 0;
+    stack = ({ file_names[i] });
+    group[file_names[i]] = g;
+
+    while (sizeof(stack))
+    {
+      string current;
+
+      current = stack[0];
+      stack = stack[1..];
+      members += ({ current });
+      if (anchored[current])
+        anchor = 1;
+
+      for (j = 0; j < sizeof(links[current]); j++)
+      {
+        if (group[links[current][j]])
+          continue;
+        group[links[current][j]] = g;
+        stack += ({ links[current][j] });
+      }
+    }
+
+    if (!anchor)
+      continue;
+
+    for (j = 0; j < sizeof(locations); j++)
+      if (member_array(locations[j]->query_file_name(), members) != -1)
+        locations[j]->clear_coordinates();
+  }
+
+  return old;
 }
 
 // Without `verbose` only the final coordinates of each location are printed;
 // with it, every connection and every exit checked along the way is too.
-int do_guess_coordinates(object * locations, varargs int verbose)
+// With `recompute`, the locations linked to a coordinated location outside the
+// set are placed again from it instead of keeping their coordinates.
+int do_guess_coordinates(object * locations, varargs int verbose, int recompute)
 {
+  mapping old_coords;
   string * exits;
   object current;       // location currently checking
   object * pending;     // locations pending to guess coordinates
@@ -278,7 +394,16 @@ int do_guess_coordinates(object * locations, varargs int verbose)
   connected = ([ ]);
   file_names = ({ });
   ret = "";
-  
+  old_coords = nil;
+
+  if (recompute)
+  {
+    // exits must point at locations before the grid links can be followed
+    for (i = 0; i < sizeof(locations); i++)
+      locations[i]->update_exits_to_locations();
+    old_coords = _clear_anchored_components(locations);
+  }
+
   // find locations in the list with coordinates as starting points,
   // and update every exit to the locations instead of the rooms
   for (i = 0; i < sizeof(locations); i++)
@@ -363,7 +488,7 @@ int do_guess_coordinates(object * locations, varargs int verbose)
   if (!sizeof(pending))
   {
     write("\n  No locations with coordinates found.\n");
-    _print_coordinates(locations);
+    _print_coordinates(locations, old_coords);
     return 1;
   }
 
@@ -455,8 +580,8 @@ int do_guess_coordinates(object * locations, varargs int verbose)
   }
 
   // the quiet report: one line per location with the coordinates it ended with
-  if (!verbose)
-    _print_coordinates(locations);
+  if (!verbose || recompute)
+    _print_coordinates(locations, old_coords);
 
   return 1;
 }
@@ -1136,9 +1261,12 @@ void convert_step(string * files, int idx, int reload, object initiator,
                   " location" + (sizeof(locations) == 1 ? "" : "s") +
                   " converted.\n");
     // coordinate inference over the whole set, on its own tick for a fresh
-    // budget (it walks the connectivity graph and honours existing anchors)
+    // budget (it walks the connectivity graph and honours existing anchors).
+    // A reload places the set again from its outside anchors; the neighbour
+    // pass (restore == 0) never does, those locations are not being reworked.
     if (sizeof(locations))
-      call_out("do_guess_coordinates", 0, locations, verbose);
+      call_out("do_guess_coordinates", 0, locations, verbose,
+               reload && restore);
 
     // auto-restore: reconvert the neighbouring areas' border rooms so the
     // return exits a preceding clean trimmed come back. `restore == 0` on the

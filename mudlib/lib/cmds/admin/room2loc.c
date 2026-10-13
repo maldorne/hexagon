@@ -29,6 +29,12 @@ void setup()
            "re-reads the .c from disk. Use it when you have edited the\n" +
            "room source with the mud running and the plain 'room2loc'\n" +
            "would otherwise convert the cached (stale) blueprint.\n" +
+           "A 'reload' also places the area again: locations linked by grid\n" +
+           "exits to a coordinated location outside the area forget their\n" +
+           "coordinates and are inferred again from it, so an area whose\n" +
+           "exits were re-laid does not keep stale positions. The report\n" +
+           "marks the ones that moved. A cluster with no link to the outside\n" +
+           "keeps the coordinates seeded by 'room2loc coords'.\n" +
            "\n" +
            "WARNING: 'reload' destructs the room object. If a player is\n" +
            "standing in the room, they lose their environment and get\n" +

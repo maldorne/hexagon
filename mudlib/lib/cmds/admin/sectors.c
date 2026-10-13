@@ -227,7 +227,7 @@ static int cmd(string str, object me, string verb)
   if (sizeof(tokens) && tokens[0] == "purge")
   {
     string game, map_name;
-    int removed;
+    int count;
 
     game = game_name(me);
     if (!strlen(game))
@@ -239,9 +239,10 @@ static int cmd(string str, object me, string verb)
 
     map_name = _resolve_map(me, sizeof(tokens) >= 2 ? tokens[1] : nil);
 
-    removed = load_object(SECTORS_HANDLER)->purge_drift(game, map_name);
-    write("Purged " + removed + " stale position" +
-          (removed == 1 ? "" : "s") + " from map '" + map_name + "'.\n");
+    count = load_object(SECTORS_HANDLER)->purge_drift(game, map_name, me);
+    write("Checking " + count + " sector" + (count == 1 ? "" : "s") +
+          " of map '" + map_name + "' for stale positions, in the " +
+          "background.\n");
     return 1;
   }
 

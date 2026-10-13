@@ -475,6 +475,13 @@ private int * _location_coords(string file, mapping cache)
   return cache[file];
 }
 
+// Per run of a purge: sector paths still to sweep, the shared coordinate
+// cache, stale entries removed so far, who asked, and the position keys left
+// in the sector being swept (nil when none has been started).
+static mapping purge_queue;
+
+#define PURGE_BATCH 25
+
 /**
  * Sweep every sector.o under a map and drop "ghost" position entries: a
  * coordinate that points at a location whose real coordinates sit elsewhere
@@ -486,18 +493,20 @@ private int * _location_coords(string file, mapping cache)
  * Only the stale coordinate is removed, so a location that legitimately keeps
  * another entry in the same sector is untouched (see sector.c::remove_position).
  * A sector emptied by the sweep and not manually painted is marked "empty".
- * Returns the number of stale entries removed.
+ *
+ * Loading every location at once runs out of ticks, so the sectors are
+ * collected here and swept by purge_step, PURGE_BATCH positions per call_out.
+ * `who` is told the number of stale entries removed when it ends.
+ * Returns the number of sectors queued.
  */
-int purge_drift(string game, string map_name)
+int purge_drift(string game, string map_name, varargs object who)
 {
   string base;
-  string * xs;
-  mapping coord_cache;
-  int removed, xi, yi, zi;
+  string * xs, * sector_paths;
+  int xi, yi, zi;
 
   base = "/save/games/" + game + "/maps/" + map_name;
-  coord_cache = ([ ]);
-  removed = 0;
+  sector_paths = ({ });
 
   xs = get_files(base + "/*");
   for (xi = 0; xi < sizeof(xs); xi++)
@@ -518,81 +527,123 @@ int purge_drift(string game, string map_name)
       zs = get_files(ys[yi] + "/*");
       for (zi = 0; zi < sizeof(zs); zi++)
       {
-        string sector_path;
-        object sector;
-        mapping positions;
-        string * keys;
-        int ki, sx, sy, sz;
-
         if (file_size(zs[zi]) != -2)
           continue;
-
-        sector_path = zs[zi] + "/";
-        if (file_size(sector_path + "sector.o") < 0)
+        if (file_size(zs[zi] + "/sector.o") < 0)
           continue;
-        if (sscanf(sector_path, base + "/%d/%d/%d/", sx, sy, sz) != 3)
-          continue;
-
-        sector = create_sector(sector_path);
-        positions = sector->query_positions();
-        keys = map_indices(positions);
-
-        for (ki = 0; ki < sizeof(keys); ki++)
-        {
-          string file, key;
-          int kx, ky, kz;
-          int * rc;
-
-          key = keys[ki];
-          file = positions[key];
-          if (sscanf(key, "%d_%d_%d", kx, ky, kz) != 3)
-            continue;
-
-          rc = _location_coords(file, coord_cache);
-
-          if (sizeof(rc) != 3 || rc[0] != kx || rc[1] != ky || rc[2] != kz ||
-              SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
-              SECTOR_INDEX(kz) != sz)
-          {
-            remove_file(sector_path + key + ".o");
-            sector->remove_position(key);
-            removed++;
-          }
-        }
-
-        // orphan pointer files: <k>.o on disk with no index entry (never
-        // added, or left behind by an older writer). Nothing reads them from
-        // the aggregate index, but direct coordinate access would; drop them.
-        {
-          string * disk_files;
-          mapping live;
-          int fi;
-
-          live = sector->query_positions();
-          disk_files = get_files(sector_path + "*_*_*.o");
-          for (fi = 0; fi < sizeof(disk_files); fi++)
-          {
-            string base;
-            base = disk_files[fi];
-            if (strlen(base) < 2 || base[strlen(base) - 2 ..] != ".o")
-              continue;
-            base = base[strlen(sector_path) .. strlen(base) - 3];
-            if (undefinedp(live[base]))
-            {
-              remove_file(disk_files[fi]);
-              removed++;
-            }
-          }
-        }
-
-        if (!map_sizeof(sector->query_positions()) &&
-            !strlen(sector->query_manual_type()))
-          sector->set_manual_type(SECTOR_TYPE_EMPTY);
+        sector_paths += ({ zs[zi] + "/" });
       }
     }
   }
 
-  return removed;
+  if (!purge_queue)
+    purge_queue = ([ ]);
+  purge_queue[base] = ({ sector_paths, ([ ]), 0, who, nil });
+  call_out("purge_step", 0, base);
+
+  return sizeof(sector_paths);
+}
+
+// One step of a purge run: check up to PURGE_BATCH positions of the sector at
+// the head of the queue, then schedule the next step or report the total.
+void purge_step(string base)
+{
+  string * sector_paths, * keys, * disk_files;
+  string sector_path, map_name;
+  mapping coord_cache, positions, live;
+  object who, sector;
+  int removed, ki, fi, checked, sx, sy, sz;
+
+  if (!purge_queue || undefinedp(purge_queue[base]))
+    return;
+
+  sector_paths = purge_queue[base][0];
+  coord_cache = purge_queue[base][1];
+  removed = purge_queue[base][2];
+  who = purge_queue[base][3];
+  keys = purge_queue[base][4];
+
+  if (sizeof(sector_paths))
+  {
+    sector_path = sector_paths[0];
+    if (sscanf(sector_path, base + "/%d/%d/%d/", sx, sy, sz) != 3)
+    {
+      // not a sector directory of this map: skip it
+      purge_queue[base] = ({ sector_paths[1..], coord_cache, removed, who, nil });
+      call_out("purge_step", 0, base);
+      return;
+    }
+
+    sector = create_sector(sector_path);
+    positions = sector->query_positions();
+    if (!keys)
+      keys = map_indices(positions);
+
+    for (checked = 0; checked < PURGE_BATCH && sizeof(keys); checked++)
+    {
+      string file, key;
+      int kx, ky, kz;
+      int * rc;
+
+      key = keys[0];
+      keys = keys[1..];
+      file = positions[key];
+      if (undefinedp(file) || sscanf(key, "%d_%d_%d", kx, ky, kz) != 3)
+        continue;
+
+      rc = _location_coords(file, coord_cache);
+
+      if (sizeof(rc) != 3 || rc[0] != kx || rc[1] != ky || rc[2] != kz ||
+          SECTOR_INDEX(kx) != sx || SECTOR_INDEX(ky) != sy ||
+          SECTOR_INDEX(kz) != sz)
+      {
+        remove_file(sector_path + key + ".o");
+        sector->remove_position(key);
+        removed++;
+      }
+    }
+
+    if (sizeof(keys))
+    {
+      purge_queue[base] = ({ sector_paths, coord_cache, removed, who, keys });
+      call_out("purge_step", 0, base);
+      return;
+    }
+
+    // orphan pointer files: <k>.o on disk with no index entry (never
+    // added, or left behind by an older writer). Nothing reads them from
+    // the aggregate index, but direct coordinate access would; drop them.
+    live = sector->query_positions();
+    disk_files = get_files(sector_path + "*_*_*.o");
+    for (fi = 0; fi < sizeof(disk_files); fi++)
+    {
+      string file_base;
+
+      file_base = disk_files[fi];
+      if (strlen(file_base) < 2 || file_base[strlen(file_base) - 2 ..] != ".o")
+        continue;
+      file_base = file_base[strlen(sector_path) .. strlen(file_base) - 3];
+      if (undefinedp(live[file_base]))
+      {
+        remove_file(disk_files[fi]);
+        removed++;
+      }
+    }
+
+    if (!map_sizeof(live) && !strlen(sector->query_manual_type()))
+      sector->set_manual_type(SECTOR_TYPE_EMPTY);
+
+    purge_queue[base] = ({ sector_paths[1..], coord_cache, removed, who, nil });
+    call_out("purge_step", 0, base);
+    return;
+  }
+
+  map_delete(purge_queue, base);
+  sscanf(base, "%*s/maps/%s", map_name);
+  if (who)
+    tell_object(who, "Purged " + removed + " stale position" +
+                (removed == 1 ? "" : "s") + " from map '" +
+                map_name + "'.\n");
 }
 
 /**

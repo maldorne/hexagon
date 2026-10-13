@@ -43,7 +43,11 @@ void setup()
     "                                       in the named map (x, y, z signed;\n" +
     "                                       z defaults to 0). Also reports drift\n" +
     "                                       between sector.o and on-disk coord files.\n" +
-    "  exits area <name>                    scan every location of the area.\n" +
+    "  exits area <name>                    scan every location of the area\n" +
+    "                                       (<name> or <name>/rooms).\n" +
+    "\n" +
+    "  Scans of files, sectors and areas run in the background and report\n" +
+    "  when they finish.\n" +
     "\n" +
     "  A scan prints only the files with problems and the totals.\n" +
     "  -v   one line per scanned file, the good ones too; on the current\n" +
@@ -440,6 +444,56 @@ private string render_summary(mixed * totals, string extra_lines)
   return ret;
 }
 
+#define SCAN_CHUNK 20
+
+// Scan `files` SCAN_CHUNK at a time, one call_out each: checking exits loads
+// every destination, so a big batch in one task runs out of ticks. `acc` is
+// the running ({ text, counters ... }) of scan_files; when the files run out
+// `who` gets `header`, the text, the summary (with `extra`) or `empty` when no
+// .c / .o file was scanned at all.
+void scan_step(string * files, int idx, int verbose, mixed * acc,
+                      object who, string header, string extra, string empty)
+{
+  mixed * part;
+  int i, end;
+
+  if (idx < sizeof(files))
+  {
+    end = idx + SCAN_CHUNK;
+    if (end > sizeof(files))
+      end = sizeof(files);
+
+    part = scan_files(files[idx .. end - 1], verbose);
+    acc[0] += part[0];
+    for (i = 1; i < sizeof(acc); i++)
+      acc[i] += part[i];
+    call_out("scan_step", 0, files, idx + SCAN_CHUNK, verbose, acc, who,
+             header, extra, empty);
+    return;
+  }
+
+  if (!who)
+    return;
+
+  if (acc[1] == 0 && strlen(empty))
+  {
+    tell_object(who, empty);
+    return;
+  }
+
+  tell_object(who, header + acc[0] + render_summary(acc, extra));
+}
+
+// Start a chunked scan; the result goes to `who` when it ends.
+private void scan_in_background(object who, string * files, int verbose,
+                                string header, string extra, string empty)
+{
+  call_out("scan_step", 0, files, 0, verbose,
+           ({ "", 0, 0, 0, 0, 0, 0, 0 }), who, header, extra, empty);
+  write("Scanning " + sizeof(files) + " file" + (sizeof(files) == 1 ? "" : "s") +
+        " in the background ...\n");
+}
+
 // "exits sector <map> <x> <y> [z]" — scan every location of the sector
 // containing (x, y, z) in the given map, plus a drift cross-check
 // between the sector.o positions and the on-disk per-coord files.
@@ -449,7 +503,6 @@ private int do_sector(object me, string * tokens, int verbose)
   mapping positions;
   string game, map_name, sector_path, sector_file, coord_file_pattern, extra;
   string * files, * disk_files, * disk_only, * idx_only, * pos_files;
-  mixed * totals;
   int x, y, z, sx, sy, sz, k;
 
   if (sizeof(tokens) < 4 || sizeof(tokens) > 5)
@@ -528,16 +581,6 @@ private int do_sector(object me, string * tokens, int verbose)
     disk_only = disk_keys - idx_keys;
   }
 
-  // scan all locations the sector knows about
-  files = pos_files;
-  totals = scan_files(files, verbose);
-
-  // header
-  write(" Sector " + map_name + " (" + sx + "," + sy + "," + sz +
-        ") in " + game + ": " + sizeof(pos_files) + " indexed location" +
-        (sizeof(pos_files) == 1 ? "" : "s") + ".\n");
-  write(totals[0]);
-
   // drift extra-lines for the summary
   extra = "";
   if (sizeof(idx_only) || sizeof(disk_only))
@@ -550,7 +593,13 @@ private int do_sector(object me, string * tokens, int verbose)
             ".\n";
   }
 
-  write(render_summary(totals, extra));
+  // scan all locations the sector knows about, in the background
+  files = pos_files;
+  scan_in_background(me, files, verbose,
+                     " Sector " + map_name + " (" + sx + "," + sy + "," + sz +
+                     ") in " + game + ": " + sizeof(pos_files) +
+                     " indexed location" + (sizeof(pos_files) == 1 ? "" : "s") +
+                     ".\n", extra, "");
   return 1;
 }
 
@@ -562,7 +611,6 @@ private int do_area(object me, string * tokens, int verbose)
   mapping locations;
   string game, name, area_path;
   string * files;
-  mixed * totals;
 
   if (sizeof(tokens) != 2)
   {
@@ -579,7 +627,17 @@ private int do_area(object me, string * tokens, int verbose)
     return 1;
   }
 
-  area_path = "/save/games/" + game + "/locations/areas/" + name + "/rooms/";
+  // the name may carry a trailing slash and the /rooms folder
+  while (strlen(name) > 1 && name[strlen(name) - 1] == '/')
+    name = name[0 .. strlen(name) - 2];
+  if (strlen(name) > 6 && name[strlen(name) - 6 ..] == "/rooms")
+    name = name[0 .. strlen(name) - 7];
+
+  // an area is the folder holding area.o: <name>/rooms/ when it exists,
+  // <name>/ otherwise
+  area_path = "/save/games/" + game + "/locations/areas/" + name + "/";
+  if (file_size(area_path + "rooms") == -2)
+    area_path += "rooms/";
 
   if (file_size(area_path) != -2)
   {
@@ -591,12 +649,10 @@ private int do_area(object me, string * tokens, int verbose)
   locations = area->query_locations();
   files = map_indices(locations);
 
-  totals = scan_files(files, verbose);
-
-  write(" Area " + name + " in " + game + ": " + sizeof(files) +
-        " location" + (sizeof(files) == 1 ? "" : "s") + ".\n");
-  write(totals[0]);
-  write(render_summary(totals, ""));
+  scan_in_background(me, files, verbose,
+                     " Area " + name + " in " + game + ": " + sizeof(files) +
+                     " location" + (sizeof(files) == 1 ? "" : "s") + ".\n",
+                     "", "");
   return 1;
 }
 
@@ -605,7 +661,6 @@ static int cmd(string str, object me, string verb)
   object env;
   string * files, * tokens;
   string args;
-  mixed * totals;
   int verbose;
 
   env  = environment(me);
@@ -676,15 +731,7 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  totals = scan_files(files, verbose);
-
-  if (totals[1] == 0)
-  {
-    write("No .c / .o files matched '" + args + "'.\n");
-    return 1;
-  }
-
-  write(totals[0]);
-  write(render_summary(totals, ""));
+  scan_in_background(me, files, verbose, "", "",
+                     "No .c / .o files matched '" + args + "'.\n");
   return 1;
 }
