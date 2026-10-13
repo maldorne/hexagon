@@ -1,7 +1,10 @@
 // Forest component. Attach to any location dominated by trees, from
 // a walled garden with a couple of ornamental oaks to the darkest
 // heart of an equatorial jungle. Contributes to the sector-level
-// "forest" tally so the world map can render the sector as woodland.
+// "forest" tally so the world map can render the sector as woodland. A
+// location that is also a city counts toward the sector's forest-city tally:
+// when half or more of its city locations are forest, the map draws the
+// sector as a forest city (bold green woods glyph).
 //
 // Classifier `depth` grades canopy density and how easy it is to
 // travel through, smallest -> densest:

@@ -11,7 +11,8 @@
 //      a base glyph from its dominant type (query_sector_type).
 //   3. For city and road sectors, replace the base glyph with a shape
 //      chosen from the sector's own border crossings: city sectors become a
-//      solid block (with an optional wall overlay); road/path sectors become
+//      solid block (with an optional wall overlay), or the bold green forest
+//      glyph when half or more of their city locations are forest; road/path sectors become
 //      box-drawing joins, drawn per-arm in a light line for paths and a
 //      heavy line for roads (see way_glyph). Which ways are drawn at all is
 //      set by WORLDMAP_DRAW_PATHS below.
@@ -88,6 +89,11 @@ inherit "/lib/core/object.c";
 //      and in yellow, the colour of a timber deck, which
 //      neither road nor river use; elsewhere the road glyph, uncoloured
 #define WORLDMAP_BRIDGE_STYLE 1
+
+// A city whose locations are mostly forest: the woods glyph in bold green.
+// BOLD goes after GREEN so a plain forest cell ("%^GREEN%^" + glyph) never
+// matches inside it when the legend looks for one.
+#define GLYPH_FOREST_CITY ("%^GREEN%^%^BOLD%^" + GLYPH_MAP_FOREST + "%^RESET%^")
 
 // Colour of the river line, and of a bridge in the styles that colour it.
 #define COLOUR_RIVER  "%^BLUE%^"
@@ -340,7 +346,10 @@ private string bridge_glyph(object sect, int * road, int * river)
 
 // Display priority for a sector (highest first):
 //   1. city        — any city presence wins; drawn as a solid block, the
-//                    surrounding wall added later by _overlay_city_walls
+//                    surrounding wall added later by _overlay_city_walls.
+//                    A forest city (half or more of its city locations are
+//                    also forest) shows the bold green forest glyph instead
+//                    and is a city for the wall and the name
 //   2. road / path — if the sector has road/path exits the map draws (see
 //                    WORLDMAP_DRAW_PATHS), draw the way glyph; with a river
 //                    through it as well it is a bridge (bridge_glyph)
@@ -361,8 +370,10 @@ private string render_sector(string game, string map_name,
 
   // a single city location paints the whole sector (present-wins), so two
   // neighbouring cities never merge through the terrain between them
+  // unless half or more of its city locations are forest: then the woods glyph
+  // in bold green (the sector is still a city for walls and labels)
   if (sect->has_locations_of_type(SECTOR_TYPE_CITY))
-    return GLYPH_MAP_CITY;
+    return sect->is_forest_city() ? GLYPH_FOREST_CITY : GLYPH_MAP_CITY;
 
   // query_sector_type is the majority component, or the programmer-set
   // manual type for a sector with no locations of its own
@@ -844,9 +855,11 @@ string render(int center_x, int center_y, int center_z,
       int sector_x;
       sector_x = col0 + col;
       grid[row_i][col] = render_sector(game, map_name, sector_x, sector_y, sz0);
-      // city mask for the wall overlay, read off the freshly painted
-      // glyph — still before the player marker overwrites it below.
-      is_city[row_i][col] = grid[row_i][col] == GLYPH_MAP_CITY;
+      // city mask for the wall overlay and the labels, read off the freshly
+      // painted glyph (a forest city is a city too) — still before the player
+      // marker overwrites it below.
+      is_city[row_i][col] = grid[row_i][col] == GLYPH_MAP_CITY ||
+                            grid[row_i][col] == GLYPH_FOREST_CITY;
     }
   }
 
@@ -904,7 +917,8 @@ mapping query_legend_glyphs()
   glyphs = ([
     "player":      ({ GLYPH_PLAYER, GLYPH_PLAYER }),
     "city":        ({ GLYPH_MAP_CITY, GLYPH_MAP_CITY }),
-    "forest":      ({ GLYPH_MAP_FOREST, "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^" }),
+    "forest":      ({ "%^GREEN%^" + GLYPH_MAP_FOREST, "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^" }),
+    "forest-city": ({ GLYPH_FOREST_CITY, GLYPH_FOREST_CITY }),
     "farm":        ({ GLYPH_MAP_FARM, "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^" }),
     "river":       ({ COLOUR_RIVER, COLOUR_RIVER + (WORLDMAP_RIVER_DOUBLE ? GLYPH_DBL_V : GLYPH_BOX_1100) + "%^RESET%^" }),
     "coast":       ({ GLYPH_COAST, GLYPH_COAST }),

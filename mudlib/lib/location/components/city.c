@@ -1,7 +1,8 @@
 // City component. Attach to any location that belongs to inhabited
 // built-up terrain: streets, squares, courtyards, indoor rooms of a
 // settlement building. Contributes to the sector-level "city" tally
-// so the world map can render the sector as urban.
+// so the world map can render the sector as urban (a forest glyph in bold
+// green instead when half or more of its city locations are also forest).
 //
 // Classifier `size` grades the settlement scale:
 //   village < town < city < metropolis

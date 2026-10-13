@@ -430,6 +430,7 @@
 #define _LANG_CMD_WORLDMAP_YOUR_POS    "Tu posición"
 #define _LANG_CMD_WORLDMAP_CITY        "Ciudad o pueblo"
 #define _LANG_CMD_WORLDMAP_FOREST      "Bosque"
+#define _LANG_CMD_WORLDMAP_FOREST_CITY "Ciudad en el bosque"
 #define _LANG_CMD_WORLDMAP_FARM        "Tierras de cultivo"
 #define _LANG_CMD_WORLDMAP_RIVER       "Río"
 #define _LANG_CMD_WORLDMAP_BRIDGE      "Puente"

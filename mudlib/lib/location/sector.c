@@ -57,6 +57,18 @@ string file_name;
 
 void save_me();
 
+// Is this location data both a city and a forest location.
+private int _is_forest_city(mapping data)
+{
+  string * types;
+
+  if (!data || !arrayp(data["types"]))
+    return 0;
+  types = data["types"];
+  return member_array(SECTOR_TYPE_CITY, types) != -1 &&
+         member_array(SECTOR_TYPE_FOREST, types) != -1;
+}
+
 void create() {
   locations = ([ ]);
   nodes = ([ ]);
@@ -363,6 +375,34 @@ int count_locations_of_type(string type)
 {
   if (!type_counts) type_counts = ([ ]);
   return undefinedp(type_counts[type]) ? 0 : type_counts[type];
+}
+
+// How many locations in this sector are both city and forest, counted from
+// the location records themselves so it needs no tally of its own.
+int query_forest_city_count()
+{
+  mixed * records;
+  int i, n;
+
+  if (!locations)
+    return 0;
+
+  records = map_values(locations);
+  for (i = 0; i < sizeof(records); i++)
+    if (_is_forest_city(records[i]))
+      n++;
+
+  return n;
+}
+
+// Is this sector a forest city: it has city locations and at least half of
+// them also carry the forest component (plain forest locations do not count).
+int is_forest_city()
+{
+  int cities;
+
+  cities = count_locations_of_type(SECTOR_TYPE_CITY);
+  return cities > 0 && query_forest_city_count() * 2 >= cities;
 }
 
 // Does at least one location in this sector carry the given component.
