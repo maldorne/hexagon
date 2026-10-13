@@ -14,6 +14,7 @@
 #define _LANG_CODER_OBJECT_NAME_BROKEN "Ups. Tu "+itemname+" acaba de romperse.\n"
 #define _LANG_CODER_OBJECT_BROKEN "Ups. Algo que tenías acaba de romperse.\n"
 #define _LANG_CODER_OBJECT_UPDATED "Actualizado: "
+#define _LANG_CODER_OBJECT_UPDATED_COUNT "Actualizados " + updated + " objetos.\n"
 #define _LANG_CODER_DESTROYS (string)this_player()->query_cap_name() + " destruye " + \
           (shrt ? shrt : "algo") + ".\n"
 #define _LANG_CODER_TRANS_THEY "\nEres transferido a algún lugar.\n\n"

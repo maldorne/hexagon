@@ -13,6 +13,8 @@ string desc_f_object(object o);
 
 private static object *dest_obj;
 private static int objn, majd;
+// update -v: one line per object updated; without it a batch prints only a count
+private static int update_verbose;
 
 void create()
 {
@@ -52,6 +54,7 @@ private int _update_objects(object * ov)
   mapping load_junk, attributes;
   string itemname;
   object thing;
+  int updated;
 
   if (this_player(1) != this_user())
     return 0;
@@ -203,8 +206,13 @@ private int _update_objects(object * ov)
     if (env)
       ov[i]->move(env);
 
-    write(_LANG_CODER_OBJECT_UPDATED + desc_f_object(ov[i]) + ".\n");
+    updated++;
+    if (update_verbose || sizeof(ov) == 1)
+      write(_LANG_CODER_OBJECT_UPDATED + desc_f_object(ov[i]) + ".\n");
   }
+
+  if (!update_verbose && sizeof(ov) > 1)
+    write(_LANG_CODER_OBJECT_UPDATED_COUNT);
 
   return 1;
 } /* _update_objects() */
@@ -216,6 +224,13 @@ int do_update(string str)
   int loop;
 
   notify_fail(_LANG_CODER_OBJECT_DONT_EXIST);
+
+  update_verbose = 0;
+  if (str && (str == "-v" || (strlen(str) > 3 && str[0..2] == "-v ")))
+  {
+    update_verbose = 1;
+    str = (str == "-v") ? "" : str[3..];
+  }
   tring = str;
 
   obs = ({ });

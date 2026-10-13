@@ -32,7 +32,7 @@ inherit CMD_BASE;
 void setup()
 {
   set_aliases(({ "exits" }));
-  set_usage("exits [-v] [files|globs | sector <map> <x> <y> [z] | area <name>]");
+  set_usage("exits [-v|-vv] [files|globs | sector <map> <x> <y> [z] | area <name>]");
   set_help(
     "Checks exits in the current room/location, in every room matching\n" +
     "a file/glob list, or in every location of a given sector or area.\n" +
@@ -45,8 +45,10 @@ void setup()
     "                                       between sector.o and on-disk coord files.\n" +
     "  exits area <name>                    scan every location of the area.\n" +
     "\n" +
-    "  -v   verbose: dump the full per-exit table for every scanned file;\n" +
-    "       on the current environment, show every destination in full.\n" +
+    "  A scan prints only the files with problems and the totals.\n" +
+    "  -v   one line per scanned file, the good ones too; on the current\n" +
+    "       environment, show every destination in full.\n" +
+    "  -vv  the full per-exit table for every scanned file.\n" +
     "\n" +
     "Each exit is checked for a destination that loads, a way back in the\n" +
     "opposite direction, and a way back of the same exit type.\n" +
@@ -361,7 +363,7 @@ private mixed * scan_files(string * files, int verbose)
 
     checks = check_exits_of(ob);
 
-    if (verbose)
+    if (verbose >= 2)
       ret += render_table(ob, checks);
 
     file_ok = file_bad = 0;
@@ -376,14 +378,14 @@ private mixed * scan_files(string * files, int verbose)
     if (file_bad == 0)
     {
       ok_files++;
-      if (!verbose)
+      if (verbose == 1)
         ret += " " + file_tag(G, "ok") + " " + path + "   " +
                file_ok + "/" + sizeof(checks) + ".\n";
     }
     else
     {
       bad_files++;
-      if (!verbose)
+      if (verbose < 2)
       {
         string first;
         first = "";
@@ -610,13 +612,13 @@ static int cmd(string str, object me, string verb)
   args = str ? str : "";
   verbose = 0;
 
-  // strip -v from anywhere in the arg list
+  // strip -v / -vv from anywhere in the arg list
   tokens = explode(args, " ") - ({ "" });
-  if (sizeof(tokens) && member_array("-v", tokens) != -1)
-  {
+  if (member_array("-vv", tokens) != -1)
+    verbose = 2;
+  else if (member_array("-v", tokens) != -1)
     verbose = 1;
-    tokens -= ({ "-v" });
-  }
+  tokens -= ({ "-v", "-vv" });
   args = implode(tokens, " ");
 
   // ===== no args: detailed check of current environment =====
