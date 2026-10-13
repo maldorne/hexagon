@@ -136,6 +136,34 @@
 #define _LANG_PROP_CHAIR_NOT_TIPPED         "La silla no está tirada en el suelo."
 
 // ************************************************************
+//  trono
+// ************************************************************
+#define _LANG_PROP_THRONE_ID            "trono"
+#define _LANG_PROP_THRONE_ID_ALIAS_1    "sitial"
+
+#define _LANG_PROP_THRONE_NOUN          "trono"
+#define _LANG_PROP_THRONE_NOUN_PLURAL   "tronos"
+
+#define _LANG_PROP_THRONE_SHORT         "un trono $material_phrase$"
+#define _LANG_PROP_THRONE_LONG          "Un trono $material_phrase$, grande y solemne, de respaldo alto, hecho para que un soberano presida desde él."
+
+#define _LANG_PROP_THRONE_SUFFIX_OCCUPIED   " (%s está sentado en él)"
+#define _LANG_PROP_THRONE_LONG_OCCUPIED     " %s está sentado en él."
+
+#define _LANG_PROP_THRONE_SIT_VERBS         ({ "sentar", "sentarse", "sentarme" })
+#define _LANG_PROP_THRONE_STAND_VERBS       ({ "levantar", "levantarse", "levantarme" })
+
+#define _LANG_PROP_THRONE_SIT_ME            "Te sientas en el trono."
+#define _LANG_PROP_THRONE_SIT_OTHERS        "$mcname$ se sienta en el trono."
+#define _LANG_PROP_THRONE_STAND_ME          "Te levantas."
+#define _LANG_PROP_THRONE_STAND_OTHERS      "$mcname$ se levanta."
+
+#define _LANG_PROP_THRONE_CANT_SIT          "No puedes sentarte en este trono ahora mismo."
+#define _LANG_PROP_THRONE_ALREADY_SITTING   "Ya estás sentado en ese trono."
+#define _LANG_PROP_THRONE_OCCUPIED_BY       "$lastarg$ ya está sentado en él."
+#define _LANG_PROP_THRONE_NOT_SITTING       "No estás sentado en este trono."
+
+// ************************************************************
 //  mesa
 // ************************************************************
 #define _LANG_PROP_TABLE_ID             "mesa"

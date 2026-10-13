@@ -131,6 +131,34 @@
 #define _LANG_PROP_CHAIR_NOT_TIPPED         "The chair is not tipped over."
 
 // ************************************************************
+//  throne
+// ************************************************************
+#define _LANG_PROP_THRONE_ID            "throne"
+#define _LANG_PROP_THRONE_ID_ALIAS_1    "seat of state"
+
+#define _LANG_PROP_THRONE_NOUN          "throne"
+#define _LANG_PROP_THRONE_NOUN_PLURAL   "thrones"
+
+#define _LANG_PROP_THRONE_SHORT         "a $material_phrase$ throne"
+#define _LANG_PROP_THRONE_LONG          "A grand, solemn $material_phrase$ throne with a tall back, made for a sovereign to preside from."
+
+#define _LANG_PROP_THRONE_SUFFIX_OCCUPIED   " (%s is sitting on it)"
+#define _LANG_PROP_THRONE_LONG_OCCUPIED     " %s is sitting on it."
+
+#define _LANG_PROP_THRONE_SIT_VERBS         ({ "sit" })
+#define _LANG_PROP_THRONE_STAND_VERBS       ({ "stand", "rise" })
+
+#define _LANG_PROP_THRONE_SIT_ME            "You sit on the throne."
+#define _LANG_PROP_THRONE_SIT_OTHERS        "$mcname$ sits on the throne."
+#define _LANG_PROP_THRONE_STAND_ME          "You stand up."
+#define _LANG_PROP_THRONE_STAND_OTHERS      "$mcname$ stands up."
+
+#define _LANG_PROP_THRONE_CANT_SIT          "You can't sit on this throne right now."
+#define _LANG_PROP_THRONE_ALREADY_SITTING   "You are already sitting on that throne."
+#define _LANG_PROP_THRONE_OCCUPIED_BY       "$lastarg$ is already sitting on it."
+#define _LANG_PROP_THRONE_NOT_SITTING       "You are not sitting on this throne."
+
+// ************************************************************
 //  table
 // ************************************************************
 #define _LANG_PROP_TABLE_ID             "table"

@@ -212,6 +212,65 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  throne — sit/stand, cannot be tipped
+    // ------------------------------------------------------------
+    "throne": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_THRONE_ID,
+        _LANG_PROP_THRONE_ID_ALIAS_1,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_THRONE_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_THRONE_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_MALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_WOOD,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_THRONE_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_THRONE_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_WOOD, MAT_METAL, MAT_STONE }),
+
+      PROP_TYPE_DEFAULT_STATE: ([
+        "occupant":  nil,
+      ]),
+
+      PROP_TYPE_STATE_SUFFIXES: ([
+        "occupant":  _LANG_PROP_THRONE_SUFFIX_OCCUPIED,
+      ]),
+
+      PROP_TYPE_LONG_SUFFIXES: ([
+        "occupant":  _LANG_PROP_THRONE_LONG_OCCUPIED,
+      ]),
+
+      PROP_TYPE_ACTIONS: ([
+
+        "sit": ([
+          PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_THRONE_SIT_VERBS,
+          PROP_SPEC_BLOCKED_BY:           ({ "broken" }),
+          PROP_SPEC_BLOCKED_MSG:          _LANG_PROP_THRONE_CANT_SIT,
+          PROP_SPEC_REQUIRES_STATE_UNSET: ({ "occupant" }),
+          PROP_SPEC_ALREADY_SET_MSG:      _LANG_PROP_THRONE_OCCUPIED_BY,
+          PROP_SPEC_ALREADY_SELF_MSG:     _LANG_PROP_THRONE_ALREADY_SITTING,
+          PROP_SPEC_SET_STATE:            ([ "occupant": PROP_VALUE_PLAYER_NAME ]),
+          PROP_SPEC_MSG_ME:               _LANG_PROP_THRONE_SIT_ME,
+          PROP_SPEC_MSG_OTHERS:           _LANG_PROP_THRONE_SIT_OTHERS,
+        ]),
+
+        "stand": ([
+          PROP_SPEC_KIND:                 PROP_PLAN_GENERIC,
+          PROP_SPEC_VERBS:                _LANG_PROP_THRONE_STAND_VERBS,
+          PROP_SPEC_REQUIRES_STATE_MATCH: ([ "occupant": PROP_VALUE_PLAYER_NAME ]),
+          PROP_SPEC_MISSING_MATCH_MSG:    _LANG_PROP_THRONE_NOT_SITTING,
+          PROP_SPEC_CLEAR_STATE:          ({ "occupant" }),
+          PROP_SPEC_MSG_ME:               _LANG_PROP_THRONE_STAND_ME,
+          PROP_SPEC_MSG_OTHERS:           _LANG_PROP_THRONE_STAND_OTHERS,
+        ]),
+
+      ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  table — no state
     // ------------------------------------------------------------
     "table": ([
