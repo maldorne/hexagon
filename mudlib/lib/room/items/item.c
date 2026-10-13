@@ -14,6 +14,9 @@ int * cur_desc;
 
 int is_room_item() { return 1; }
 
+// the room that owns this item takes it down with it
+void dest_me() { destruct(this_object()); }
+
 void create()
 {
   adjs = ({ });

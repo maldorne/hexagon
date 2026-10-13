@@ -557,6 +557,17 @@ void dest_me()
     }
   }
 
+  // components are owned objects of their own: they go with the NPC
+  if (components)
+  {
+    int i;
+
+    for (i = 0; i < sizeof(components); i++)
+      if (components[i])
+        destruct(components[i]);
+    components = ({ });
+  }
+
   ::dest_me();
 }
 
