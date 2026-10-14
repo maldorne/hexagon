@@ -893,6 +893,8 @@ object convert_room_to_location(object room)
   }
 
   // A library room becomes a library component, with the books it declares.
+  // On a reconversion the books the room declares now are added to the ones
+  // the library already holds, so those deposited in it are kept.
   if (room->query_library() &&
       !location->has_component(LOCATION_COMPONENT_LIBRARY))
   {
@@ -900,6 +902,17 @@ object convert_room_to_location(object room)
       "library_books" : room->query_library_books(),
         ]));
     ret += "   Adding component library.\n";
+  }
+  else if (room->query_library())
+  {
+    string * declared;
+    object library;
+
+    declared = room->query_library_books();
+    library = location->query_component_by_type(LOCATION_COMPONENT_LIBRARY);
+    for (i = 0; library && i < sizeof(declared); i++)
+      if (library->add_library_book(declared[i]))
+        ret += "   Adding library book " + declared[i] + ".\n";
   }
 
   // The entrance of a guild's house and its main hall become their components,
