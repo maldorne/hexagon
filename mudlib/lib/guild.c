@@ -116,8 +116,10 @@ int query_legal_player(object player)
 {  
   if (!objectp(player) || !player)
     return 0;
-  // We check race, class and external alignment
-  if (!query_legal_race(player->query_race_id()))
+  // We check race, class and external alignment. A race named in the list
+  // admits all of its lineages, a lineage named admits only that lineage.
+  if (!query_legal_race(player->query_race_id()) &&
+      !query_legal_race(player->query_base_race_id()))
     return 0;
   if (!query_legal_class(player->query_class_id()))
     return 0;
