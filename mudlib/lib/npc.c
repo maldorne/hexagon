@@ -798,6 +798,24 @@ void apply_template(mapping t, varargs int born)
   if (proper_name && !born)
     call_out("check_ranking", 5);
 
+  // Idle chatter and the addressed variant. Each block is a chance plus the
+  // flat weight/message list load_chat itself takes; the chance is per type and
+  // really does vary, so it is stored rather than assumed. The chatter is the
+  // type's words, not the person's: it is loaded afresh from the template every
+  // time, over whatever the save kept, so a changed template reaches everyone.
+  if (mappingp(t["chat"]) && pointerp(t["chat"]["lines"]) &&
+      sizeof(t["chat"]["lines"]))
+  {
+    clear_chat();
+    load_chat(t["chat"]["chance"], t["chat"]["lines"]);
+  }
+  if (mappingp(t["a_chat"]) && pointerp(t["a_chat"]["lines"]) &&
+      sizeof(t["a_chat"]["lines"]))
+  {
+    clear_achat();
+    load_a_chat(t["a_chat"]["chance"], t["a_chat"]["lines"]);
+  }
+
   if (!born)
     return;
 
@@ -914,14 +932,5 @@ void apply_template(mapping t, varargs int born)
   if (!undefinedp(t["aggressive"]))
     set_aggressive(t["aggressive"]);
 
-  // Idle chatter and the addressed variant. Each block is a chance plus the
-  // flat weight/message list load_chat itself takes; the chance is per type and
-  // really does vary, so it is stored rather than assumed.
-  if (mappingp(t["chat"]) && pointerp(t["chat"]["lines"]) &&
-      sizeof(t["chat"]["lines"]))
-    load_chat(t["chat"]["chance"], t["chat"]["lines"]);
-  if (mappingp(t["a_chat"]) && pointerp(t["a_chat"]["lines"]) &&
-      sizeof(t["a_chat"]["lines"]))
-    load_a_chat(t["a_chat"]["chance"], t["a_chat"]["lines"]);
 
 }

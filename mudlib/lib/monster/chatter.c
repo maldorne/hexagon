@@ -37,6 +37,10 @@ void load_chat(int chance, mixed * c_s)
   chat_chance = chance;
 }
 
+// Forget every chat line, before loading a new set over an old one.
+void clear_chat() { chat_string = ({ 0, ({ }) }); }
+void clear_achat() { achat_string = ({ 0, ({ }) }); }
+
 void set_chat_chance(int i) { chat_chance = i; }
 int query_chat_chance() { return chat_chance; }
 void set_chat_string(string *chat) { chat_string = chat; }
