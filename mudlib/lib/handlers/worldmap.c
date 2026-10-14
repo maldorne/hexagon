@@ -106,6 +106,13 @@ inherit "/lib/core/object.c";
 // because DGD executes each mudlib call chain atomically — there is no
 // interleaving of two renders on the same handler.
 private mapping sector_cache;
+// Same lifetime: the border summaries and the river flag of each sector, which
+// cost a walk over the whole exit graph and are asked for several times.
+private mapping border_cache;
+// The sectors handler, looked up once per render (load_object is costly).
+private object sectors;
+// Same for the areas handler.
+private object areas;
 
 // Box-drawing glyph lookup indexed by n*27 + s*9 + e*3 + w, where each arm
 // weight is 0 (none), 1 (path/light) or 2 (road/heavy). Built once from the
@@ -118,8 +125,34 @@ void create()
 {
   ::create();
   sector_cache = ([ ]);
+  border_cache = ([ ]);
   way_table = BOX_GLYPHS_INDEXED;
   river_table = BOX_GLYPHS_DOUBLE;
+}
+
+// Memoised sect->query_border_ways() / query_border_rivers() / has_river() for
+// the sector at (sx, sy, sz), keyed by `kind` and the coordinates.
+private mixed _memo(string kind, object sect, int sx, int sy, int sz)
+{
+  string key;
+  mixed value;
+
+  key = kind + sx + "_" + sy + "_" + sz;
+  if (!undefinedp(border_cache[key]))
+    return border_cache[key];
+
+  switch (kind)
+  {
+    case "w": value = sect->query_border_ways(); break;
+    case "r": value = sect->query_border_rivers(); break;
+    default:  value = sect->has_river(); break;
+  }
+
+  // a nil result is stored as an empty mapping (callers treat both alike)
+  if (value == nil)
+    value = ([ ]);
+  border_cache[key] = value;
+  return value;
 }
 
 // Load the sector at (sx, sy, sz), or nil if no sector.o exists.
@@ -128,25 +161,27 @@ void create()
 private object cached_sector(string game, string map_name,
                              int sx, int sy, int sz)
 {
-  string key, path;
+  string key;
   object sect;
 
   key = sx + "_" + sy + "_" + sz;
   if (!undefinedp(sector_cache[key]))
     return sector_cache[key];
+  if (sector_cache["none" + key])
+    return nil;
 
-  path = "/save/games/" + game + "/maps/" + map_name + "/" +
-         sx + "/" + sy + "/" + sz + "/";
+  // nil when the sector.o does not exist: a coordinate nobody ever wrote is
+  // drawn as empty space, not materialised on disk. A sector already in memory
+  // is returned without asking the file system, the costly part of a render.
+  sect = sectors->query_sector_for_coord(
+           game, map_name, sx * SECTOR_SIZE, sy * SECTOR_SIZE, sz * SECTOR_SIZE);
 
-  // create_sector() would persist an empty sector.o for coords that
-  // have never been populated; skip the call if the file is missing
-  // so we render "no sector" as empty space instead of writing junk.
-  if (file_size(path + "sector.o") < 0)
-    sect = nil;
+  // storing nil in a mapping deletes the key, so a missing sector is
+  // remembered under its own key
+  if (sect)
+    sector_cache[key] = sect;
   else
-    sect = load_object(SECTORS_HANDLER)->create_sector(path);
-
-  sector_cache[key] = sect;
+    sector_cache["none" + key] = 1;
   return sect;
 }
 
@@ -202,7 +237,7 @@ private int _arm_weight(mapping borders, string own_border,
 
   own = _border_weight(borders, own_border);
   neigh = cached_sector(game, map_name, nsx, nsy, nsz);
-  nb = neigh ? _border_weight(neigh->query_border_ways(), opp_border) : 0;
+  nb = neigh ? _border_weight(_memo("w", neigh, nsx, nsy, nsz), opp_border) : 0;
   return (nb > own) ? nb : own;
 }
 
@@ -214,7 +249,7 @@ private int * way_arms(object sect, string game, string map_name,
 {
   mapping borders;
 
-  borders = sect->query_border_ways();
+  borders = _memo("w", sect, sx, sy, sz);
   if (!mappingp(borders)) borders = ([ ]);
 
   return ({
@@ -248,7 +283,7 @@ private int _neighbour_river(string game, string map_name,
   neigh = cached_sector(game, map_name, nsx, nsy, nsz);
   if (!neigh)
     return 0;
-  nb = neigh->query_border_rivers();
+  nb = _memo("r", neigh, nsx, nsy, nsz);
   return mappingp(nb) && arrayp(nb[opp_border]) && sizeof(nb[opp_border]);
 }
 
@@ -261,7 +296,7 @@ private int * river_arms(object sect, string game, string map_name,
   mapping borders;
   int n, s, e, w;
 
-  borders = sect->query_border_rivers();
+  borders = _memo("r", sect, sx, sy, sz);
   if (!mappingp(borders)) borders = ([ ]);
 
   n = (arrayp(borders[SECTOR_BORDER_N]) && sizeof(borders[SECTOR_BORDER_N])) ||
@@ -379,7 +414,7 @@ private string render_sector(string game, string map_name,
   // manual type for a sector with no locations of its own
   type = sect->query_sector_type();
 
-  river = sect->has_river();
+  river = _memo("h", sect, sx, sy, sz);
   if (river)
     river_arms_here = river_arms(sect, game, map_name, sx, sy, sz);
 
@@ -397,7 +432,7 @@ private string render_sector(string game, string map_name,
     return "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^";
   }
 
-  borders = sect->query_border_ways();
+  borders = _memo("w", sect, sx, sy, sz);
   if (_has_drawn_way(borders))
   {
     road_arms = way_arms(sect, game, map_name, sx, sy, sz);
@@ -531,7 +566,7 @@ private void _count_city_names(string game, string map_name, int sx, int sy,
 {
   object sect, area;
   mapping locs;
-  string * files, * pieces, name;
+  string * files, * pieces, name, dir;
   int i;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
@@ -549,16 +584,23 @@ private void _count_city_names(string game, string map_name, int sx, int sy,
         member_array(SECTOR_TYPE_CITY, locs[files[i]]["types"]) == -1)
       continue;
 
-    // the area is the directory the location is saved in
+    // the area is the directory the location is saved in; its name is asked
+    // once per directory in a render
     pieces = explode(files[i], "/");
-    area = load_object(AREA_HANDLER)->query_area(
-             "/" + implode(pieces[0..sizeof(pieces) - 2], "/"));
-    if (!area)
-      continue;
-
-    name = area->query_exploration_name();
-    if ((!name || !strlen(name)) && area->query_root_area())
-      name = area->query_root_area()->query_exploration_name();
+    dir = "/" + implode(pieces[0..sizeof(pieces) - 2], "/");
+    if (undefinedp(border_cache["a" + dir]))
+    {
+      area = areas->query_area(dir);
+      name = nil;
+      if (area)
+      {
+        name = area->query_exploration_name();
+        if ((!name || !strlen(name)) && area->query_root_area())
+          name = area->query_root_area()->query_exploration_name();
+      }
+      border_cache["a" + dir] = name ? name : "";
+    }
+    name = border_cache["a" + dir];
     if (name && strlen(name))
       votes[name] = (votes[name] ? votes[name] : 0) + 1;
   }
@@ -829,6 +871,9 @@ string render(int center_x, int center_y, int center_z,
   string result;
 
   sector_cache = ([ ]);
+  border_cache = ([ ]);
+  sectors = load_object(SECTORS_HANDLER);
+  areas = load_object(AREA_HANDLER);
 
   sx0 = SECTOR_INDEX(center_x);
   sy0 = SECTOR_INDEX(center_y);

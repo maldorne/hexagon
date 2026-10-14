@@ -20,12 +20,19 @@
 
 mapping loaded_sectors;
 
+// Sector directories found without a sector.o, so a map view probing the same
+// empty coordinates over and over asks the file system only once. Dropped by
+// create_sector for the path it creates; emptied when it grows too large.
+private mapping missing_sectors;
+private int missing_count;
+
 // prototypes
 int remove_location_from_map(string location_file_name, string map_name,
                              int x, int y, int z);
 
 void create() {
   loaded_sectors = ([ ]);
+  missing_sectors = ([ ]);
   // ::create();
 }
 
@@ -45,6 +52,9 @@ object create_sector(string path)
   // neighbourhood would pay over and over.
   if (loaded_sectors[path])
     return loaded_sectors[path];
+
+  if (missing_sectors)
+    missing_sectors[path] = nil;
 
   // mkdir efun (lib/core/efuns/file.c) creates every missing level along
   // the path, so a virgin sector deep in maps/<map>/<x>/<y>/<z>/ works.
@@ -83,8 +93,22 @@ object query_sector_for_coord(string game_slug, string map_name,
   path = "/save/games/" + game_slug + "/maps/" + map_name + "/" +
          sector_x + "/" + sector_y + "/" + sector_z + "/";
 
-  if (!loaded_sectors[path] && file_size(path + "sector.o") < 0)
-    return nil;
+  if (!loaded_sectors[path])
+  {
+    if (!missing_sectors || missing_count > 20000)
+    {
+      missing_sectors = ([ ]);
+      missing_count = 0;
+    }
+    if (missing_sectors[path])
+      return nil;
+    if (file_size(path + "sector.o") < 0)
+    {
+      missing_sectors[path] = 1;
+      missing_count++;
+      return nil;
+    }
+  }
 
   return create_sector(path);
 }
