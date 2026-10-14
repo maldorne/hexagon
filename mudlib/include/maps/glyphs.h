@@ -183,6 +183,41 @@
 #define GLYPH_MAP_FOREST   (chr(226) + chr(153) + chr(163))         // U+2663 black club suit
 #define GLYPH_MAP_CITY     (chr(226) + chr(150) + chr(147))         // U+2593 dark shade block
 #define GLYPH_MAP_FARM     (chr(226) + chr(137) + chr(161))         // U+2261 identical-to: plowed crop rows
+// A city whose locations are mostly forest: the woods glyph in bold green.
+// BOLD goes after GREEN so a plain forest cell ("%^GREEN%^" + glyph) never
+// matches inside it when the legend looks for one.
+#define GLYPH_FOREST_CITY  ("%^GREEN%^%^BOLD%^" + GLYPH_MAP_FOREST + "%^RESET%^")
+#define GLYPH_MAP_COAST       "~"
+#define GLYPH_MAP_UNDERGROUND "."
+
+// What a sector shows on the world map is one of these codes (a sector keeps
+// its code, see /lib/location/sector.c). The fixed glyphs come first, in
+// MAP_GLYPHS order; then the two bridge crossings, the sixteen ways and the
+// sixteen rivers, which /lib/handlers/worldmap.c builds from the box tables.
+// A way or river code adds n*8 + s*4 + e*2 + w for the arms it draws.
+#define MAP_GLYPH_EMPTY        0
+#define MAP_GLYPH_CITY         1
+#define MAP_GLYPH_FOREST_CITY  2
+#define MAP_GLYPH_FOREST       3
+#define MAP_GLYPH_FARM         4
+#define MAP_GLYPH_COAST        5
+#define MAP_GLYPH_UNDERGROUND  6
+#define MAP_GLYPH_BRIDGE_V     7   // a road east-west over a river north-south
+#define MAP_GLYPH_BRIDGE_H     8   // a road north-south over a river east-west
+#define MAP_GLYPH_WAYS         9
+#define MAP_GLYPH_RIVERS       25
+#define MAP_GLYPH_COUNT        41
+
+// The fixed glyphs as they are drawn, colour included.
+#define MAP_GLYPHS ({ \
+  " ", \
+  GLYPH_MAP_CITY, \
+  GLYPH_FOREST_CITY, \
+  "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^", \
+  "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^", \
+  GLYPH_MAP_COAST, \
+  GLYPH_MAP_UNDERGROUND, \
+})
 #define GLYPH_WALL_N_ROAD  (chr(226) + chr(149) + chr(168))         // U+2568 up double, horiz single
 #define GLYPH_WALL_E_ROAD  (chr(226) + chr(149) + chr(158))         // U+255E vert single, right double
 #define GLYPH_WALL_S_ROAD  (chr(226) + chr(149) + chr(165))         // U+2565 down double, horiz single

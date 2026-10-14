@@ -433,7 +433,6 @@
 #define _LANG_CMD_WORLDMAP_FOREST_CITY "Forest city"
 #define _LANG_CMD_WORLDMAP_FARM        "Farmland"
 #define _LANG_CMD_WORLDMAP_RIVER       "River"
-#define _LANG_CMD_WORLDMAP_BRIDGE      "Bridge"
 #define _LANG_CMD_WORLDMAP_COAST       "Coast"
 #define _LANG_CMD_WORLDMAP_UNDERGROUND "Underground"
 

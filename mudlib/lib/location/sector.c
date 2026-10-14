@@ -96,8 +96,92 @@ void restore_me() {
   restore_object(file_name);
 }
 
+void refresh_glyph();
+mixed * query_map_place();
+
+// Every change to the sector ends here. What changed can change its world map
+// glyph and its four neighbours': a way or a river is drawn when either side
+// of a border records it.
 void save_me() {
+  mixed * place;
+  object neigh;
+  int * dx, * dy;
+  int i;
+
   save_object(file_name);
+  refresh_glyph();
+
+  place = query_map_place();
+  if (!place)
+    return;
+
+  dx = ({ 0, 0, 1, -1 });
+  dy = ({ 1, -1, 0, 0 });
+  for (i = 0; i < 4; i++)
+  {
+    neigh = load_object(SECTORS_HANDLER)->query_sector_for_coord(place[0],
+              place[1], (place[2] + dx[i]) * SECTOR_SIZE,
+              (place[3] + dy[i]) * SECTOR_SIZE, place[4] * SECTOR_SIZE);
+    if (neigh)
+      neigh->refresh_glyph();
+  }
+}
+
+// The game, map and sector index of this sector, ({ game, map, sx, sy, sz }),
+// read off its file name; nil if it is not a map sector.
+mixed * query_map_place()
+{
+  string game, map_name;
+  int sx, sy, sz;
+
+  if (!file_name || sscanf(file_name, "/save/games/%s/maps/%s/%d/%d/%d/sector.o",
+                           game, map_name, sx, sy, sz) != 5)
+    return nil;
+
+  return ({ game, map_name, sx, sy, sz });
+}
+
+// The directory holding most of this sector's city locations, or "".
+private string _main_city_directory()
+{
+  mapping counts;
+  string * files, * pieces, dir, best;
+  int i;
+
+  counts = ([ ]);
+  best = "";
+  files = locations ? map_indices(locations) : ({ });
+  for (i = 0; i < sizeof(files); i++)
+  {
+    if (!mappingp(locations[files[i]]) || !arrayp(locations[files[i]]["types"]) ||
+        member_array(SECTOR_TYPE_CITY, locations[files[i]]["types"]) == -1)
+      continue;
+
+    pieces = explode(files[i], "/");
+    dir = "/" + implode(pieces[0..sizeof(pieces) - 2], "/");
+    counts[dir] = (counts[dir] ? counts[dir] : 0) + 1;
+    if (best == "" || counts[dir] > counts[best])
+      best = dir;
+  }
+
+  return best;
+}
+
+// Ask the world map for the code of this sector's glyph and write it, with
+// the directory of its city locations, in the index of its map (see
+// /lib/location/map-index.c).
+void refresh_glyph()
+{
+  mixed * place;
+
+  place = query_map_place();
+  if (!place)
+    return;
+
+  load_object(SECTORS_HANDLER)->query_map_index(place[0], place[1])->set_cell(
+    place[2], place[3], place[4],
+    load_object(WORLDMAP_HANDLER)->sector_glyph(this_object()),
+    _main_city_directory());
 }
 
 mapping query_nodes() { if (!nodes) nodes = ([ ]); return nodes; }

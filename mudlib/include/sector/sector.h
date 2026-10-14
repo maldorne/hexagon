@@ -6,8 +6,10 @@
 
 // The handler that owns the on-disk sector index.
 #define SECTORS_HANDLER "/lib/handlers/sectors"
+#define WORLDMAP_HANDLER "/lib/handlers/worldmap"
 // The per-sector storage object the handler clones, one per occupied bucket.
 #define SECTOR_STORAGE_OBJECT "/lib/location/sector"
+#define MAP_INDEX_OBJECT "/lib/location/map-index"
 
 // A sector is a cube of SECTOR_SIZE locations a side. SECTOR_INDEX gives the
 // sector of one coordinate axis, rounding down: 0..9 is sector 0 and -10..-1

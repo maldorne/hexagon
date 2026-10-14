@@ -29,7 +29,7 @@ private string * legend_labels()
   return ({ _LANG_CMD_WORLDMAP_YOUR_POS, _LANG_CMD_WORLDMAP_CITY,
             _LANG_CMD_WORLDMAP_FOREST, _LANG_CMD_WORLDMAP_FOREST_CITY,
             _LANG_CMD_WORLDMAP_FARM,
-            _LANG_CMD_WORLDMAP_RIVER, _LANG_CMD_WORLDMAP_BRIDGE,
+            _LANG_CMD_WORLDMAP_RIVER,
             _LANG_CMD_WORLDMAP_COAST, _LANG_CMD_WORLDMAP_UNDERGROUND });
 }
 
@@ -57,7 +57,7 @@ private string legend(string map)
   int i;
 
   glyphs = handler("worldmap")->query_legend_glyphs();
-  kinds = ({ "player", "city", "forest", "forest-city", "farm", "river", "bridge", "coast", "underground" });
+  kinds = ({ "player", "city", "forest", "forest-city", "farm", "river", "coast", "underground" });
   labels = legend_labels();
 
   out = "\n" + _LANG_CMD_WORLDMAP_LEGEND + ":\n";

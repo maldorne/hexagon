@@ -26,6 +26,10 @@ mapping loaded_sectors;
 private mapping missing_sectors;
 private int missing_count;
 
+// The world map index of each game and map, by "<game>/<map>" (see
+// /lib/location/map-index.c).
+private mapping map_indexes;
+
 // prototypes
 int remove_location_from_map(string location_file_name, string map_name,
                              int x, int y, int z);
@@ -38,6 +42,26 @@ void create() {
 
 mapping query_loaded_sectors() {
   return loaded_sectors;
+}
+
+// The world map index of a game's map, loaded the first time it is asked for.
+object query_map_index(string game, string map_name)
+{
+  string key;
+  object index;
+
+  if (!map_indexes)
+    map_indexes = ([ ]);
+
+  key = game + "/" + map_name;
+  if (map_indexes[key])
+    return map_indexes[key];
+
+  index = clone_object(MAP_INDEX_OBJECT);
+  index->restore_from_file_name("/save/games/" + game + "/maps/" + map_name +
+                                "/glyphs.o");
+  map_indexes[key] = index;
+  return index;
 }
 
 // will create an sector storage in the destination directory
@@ -836,6 +860,87 @@ int reindex_map(string game, string map_name, varargs object who)
   call_out("reindex_batch", 0, base);
 
   return map_sizeof(seen);
+}
+
+// Sectors whose glyph a glyphs run still has to work out, and who asked.
+static mapping glyph_queue;
+
+#define GLYPH_BATCH 20
+
+/**
+ * Ask every sector of a map for its world map glyph again, in batches of
+ * GLYPH_BATCH, one call_out each. A sector works its glyph out whenever it
+ * changes; this is for sectors saved before that, or for a change in how the
+ * map is drawn. `who` is told when it ends. Returns the number of sectors.
+ */
+int refresh_glyphs(string game, string map_name, varargs object who)
+{
+  string base, * xs, * paths;
+  int xi, yi, zi;
+
+  base = "/save/games/" + game + "/maps/" + map_name;
+  paths = ({ });
+
+  xs = get_files(base + "/*");
+  for (xi = 0; xi < sizeof(xs); xi++)
+  {
+    string * ys;
+
+    if (file_size(xs[xi]) != -2)
+      continue;
+
+    ys = get_files(xs[xi] + "/*");
+    for (yi = 0; yi < sizeof(ys); yi++)
+    {
+      string * zs;
+
+      if (file_size(ys[yi]) != -2)
+        continue;
+
+      zs = get_files(ys[yi] + "/*");
+      for (zi = 0; zi < sizeof(zs); zi++)
+        if (file_size(zs[zi] + "/sector.o") >= 0)
+          paths += ({ zs[zi] + "/" });
+    }
+  }
+
+  if (!glyph_queue)
+    glyph_queue = ([ ]);
+  glyph_queue[base] = ({ paths, who });
+  call_out("refresh_glyphs_batch", 0, base);
+
+  return sizeof(paths);
+}
+
+// One batch of a glyphs run.
+void refresh_glyphs_batch(string base)
+{
+  string * paths;
+  object who;
+  int i;
+
+  if (!glyph_queue || undefinedp(glyph_queue[base]))
+    return;
+
+  paths = glyph_queue[base][0];
+  who = glyph_queue[base][1];
+
+  for (i = 0; i < GLYPH_BATCH && sizeof(paths); i++)
+  {
+    create_sector(paths[0])->refresh_glyph();
+    paths = paths[1..];
+  }
+
+  if (sizeof(paths))
+  {
+    glyph_queue[base] = ({ paths, who });
+    call_out("refresh_glyphs_batch", 0, base);
+    return;
+  }
+
+  map_delete(glyph_queue, base);
+  if (who)
+    tell_object(who, "Glyphs of " + base + " worked out again.\n");
 }
 
 // One batch of a reindex run: add the next REINDEX_BATCH locations, then

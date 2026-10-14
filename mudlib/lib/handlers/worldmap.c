@@ -7,19 +7,19 @@
 // Layers:
 //   1. Compute the sector index for the target coord and clip a
 //      viewport of `width x height` sectors centred on it.
-//   2. For each sector in the viewport, load it (if it exists) and pick
-//      a base glyph from its dominant type (query_sector_type).
-//   3. For city and road sectors, replace the base glyph with a shape
-//      chosen from the sector's own border crossings: city sectors become a
-//      solid block (with an optional wall overlay), or the bold green forest
-//      glyph when half or more of their city locations are forest; road/path sectors become
-//      box-drawing joins, drawn per-arm in a light line for paths and a
-//      heavy line for roads (see way_glyph). Which ways are drawn at all is
-//      set by WORLDMAP_DRAW_PATHS below.
+//   2. For each sector in the viewport, take the glyph code its map's index
+//      holds (/lib/location/map-index.c), written whenever the sector changes
+//      (see sector_glyph here and save_me() of /lib/location/sector.c):
+//      drawing a map loads no sector and works no glyph out.
+//   3. A sector's glyph comes from its dominant type (query_sector_type) and
+//      its border crossings: city sectors are a solid block (with an optional
+//      wall overlay), or the bold green forest glyph when half or more of
+//      their city locations are forest; road/path sectors are box-drawing
+//      joins, one light line for both (see _arms_code).
 //      Rivers (the swum exits of flowing water, see sector.c query_border_rivers)
 //      are drawn the same way in blue, over forest and farmland but under
 //      cities and roads; where a road and a river share a sector it is a
-//      bridge, drawn as WORLDMAP_BRIDGE_STYLE says.
+//      bridge (see bridge_glyph).
 //   4. Where a city wall meets a road, the wall glyph swaps to a wall/road
 //      hybrid so the road visibly enters the settlement.
 //   5. Overwrite the viewer's own sector with '@'.
@@ -44,9 +44,6 @@ inherit "/lib/core/object.c";
 #define GLYPH_EMPTY       " "
 #define GLYPH_PLAYER      "@"
 
-#define GLYPH_COAST       "~"
-#define GLYPH_UNDERGROUND "."
-
 // Toggle for the decorative city-wall overlay (see _overlay_city_walls).
 // Walls are a post-processing pass drawn AROUND contiguous city regions
 // to highlight where a settlement is; they do not correspond one-to-one
@@ -57,47 +54,12 @@ inherit "/lib/core/object.c";
 // back to 1 to re-enable the wall overlay; the overlay code is left intact.
 #define WORLDMAP_CITY_WALLS 0
 
-// Toggle for drawing roads with a heavier line than paths. Set to 0 to draw
-// roads and paths with the same (light) line; the per-arm weight code that
-// picks heavy glyphs stays intact, roads are just reported as light.
-//
-// Temporarily disabled (0): roads and paths share one line style for now.
-#define WORLDMAP_HEAVY_ROADS 0
-
-// Toggle for drawing paths. Set to 0 to draw only roads: a border crossed by
-// paths alone counts as no way at all, so a sector with nothing but paths
-// shows its terrain. The sectors still record every path, only the map leaves
-// them out.
-#define WORLDMAP_DRAW_PATHS 1
-
 // Toggle for the river line: 1 draws rivers with double box lines, 0 with
 // single ones. Either way they are blue.
 #define WORLDMAP_RIVER_DOUBLE 1
 
-// How a sector crossed by a road and a river is drawn (the road keeps its
-// glyph in every style, the styles only differ in how the bridge shows):
-//   0  the road glyph, uncoloured: the road simply wins
-//   1  a straight road across a straight river gets a crossing glyph in the
-//      river's blue (single road over double river: a mixed line crossing;
-//      single over single: the plus), any other shape falls back to the road
-//      glyph
-//   2  the road glyph in the river's blue, so a bridge stands out whatever
-//      its shape
-//   3  as 1, but only where both the road and the river go through the
-//      sector from one side to another (two arms or more each) and cross,
-//      each leaving by a side the other does not, whatever lies inside it,
-//      and in yellow, the colour of a timber deck, which
-//      neither road nor river use; elsewhere the road glyph, uncoloured
-#define WORLDMAP_BRIDGE_STYLE 1
-
-// A city whose locations are mostly forest: the woods glyph in bold green.
-// BOLD goes after GREEN so a plain forest cell ("%^GREEN%^" + glyph) never
-// matches inside it when the legend looks for one.
-#define GLYPH_FOREST_CITY ("%^GREEN%^%^BOLD%^" + GLYPH_MAP_FOREST + "%^RESET%^")
-
-// Colour of the river line, and of a bridge in the styles that colour it.
+// Colour of the river line, and of a bridge crossing it.
 #define COLOUR_RIVER  "%^BLUE%^"
-#define COLOUR_BRIDGE "%^YELLOW%^"
 
 // A river that never reaches a border of its sector (it starts and ends in it).
 #define GLYPH_RIVER_SPOT (chr(194) + chr(176))     // U+00B0 degree sign
@@ -113,21 +75,51 @@ private mapping border_cache;
 private object sectors;
 // Same for the areas handler.
 private object areas;
+// The level of the map being drawn, from its world map index:
+// ([ sy : ([ sx : ({ glyph code, city directory }) ]) ]).
+private mapping index_level;
 
-// Box-drawing glyph lookup indexed by n*27 + s*9 + e*3 + w, where each arm
-// weight is 0 (none), 1 (path/light) or 2 (road/heavy). Built once from the
-// shared glyph header so the chr() sequences are evaluated a single time.
-private string * way_table;
-// Same for rivers: the double-line table indexed n*8 + s*4 + e*2 + w.
-private string * river_table;
+// Every glyph a sector can show, as it is drawn, indexed by its code (see
+// MAP_GLYPH_* in include/maps/glyphs.h). Built once, so the chr() sequences
+// of the glyph header are evaluated a single time.
+private string * glyphs;
 
 void create()
 {
+  string * way_table, * river_table;
+  int i, n, s, e, w;
+
   ::create();
   sector_cache = ([ ]);
   border_cache = ([ ]);
+
+  // the box tables are indexed n*27 + s*9 + e*3 + w (an arm weighs 0, 1 or
+  // 2) and n*8 + s*4 + e*2 + w; the map draws every way with a light line
   way_table = BOX_GLYPHS_INDEXED;
   river_table = BOX_GLYPHS_DOUBLE;
+
+  glyphs = MAP_GLYPHS + allocate(MAP_GLYPH_COUNT - sizeof(MAP_GLYPHS));
+
+  // a bridge crossing is drawn in the river's blue, so the river reads unbroken
+  glyphs[MAP_GLYPH_BRIDGE_V] = COLOUR_RIVER +
+    (WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_V : GLYPH_BOX_1111) + "%^RESET%^";
+  glyphs[MAP_GLYPH_BRIDGE_H] = COLOUR_RIVER +
+    (WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_H : GLYPH_BOX_1111) + "%^RESET%^";
+
+  for (i = 0; i < 16; i++)
+  {
+    n = (i >> 3) & 1;
+    s = (i >> 2) & 1;
+    e = (i >> 1) & 1;
+    w = i & 1;
+    glyphs[MAP_GLYPH_WAYS + i] = way_table[n * 27 + s * 9 + e * 3 + w];
+    // a river with no arm starts and ends in its sector; one arm alone is the
+    // full line of its axis (there is no half-line in the double set)
+    glyphs[MAP_GLYPH_RIVERS + i] = COLOUR_RIVER +
+      (!i ? GLYPH_RIVER_SPOT :
+       (WORLDMAP_RIVER_DOUBLE ? river_table[i] :
+        way_table[n * 27 + s * 9 + e * 3 + w])) + "%^RESET%^";
+  }
 }
 
 // Memoised sect->query_border_ways() / query_border_rivers() / has_river() for
@@ -194,24 +186,11 @@ private string neighbour_type(string game, string map_name,
   return sect->query_sector_type();
 }
 
-// Weight of the way crossing border `b`: 0 none, 1 path (light line),
-// 2 road (heavy line). A road on the border outranks a path.
+// Weight of the way crossing border `b`: 1 if a path or a road crosses it
+// (both are drawn with one light line), else 0.
 private int _border_weight(mapping borders, string b)
 {
-  int road;
-
-  if (!mappingp(borders) || !arrayp(borders[b]) || !sizeof(borders[b]))
-    return 0;
-
-  road = member_array(SECTOR_WAY_ROAD, borders[b]) != -1;
-
-  // a border with paths only is no way at all when paths are not drawn
-  if (!WORLDMAP_DRAW_PATHS && !road)
-    return 0;
-
-  if (WORLDMAP_HEAVY_ROADS && road)
-    return 2;
-  return 1;
+  return (mappingp(borders) && arrayp(borders[b]) && sizeof(borders[b])) ? 1 : 0;
 }
 
 // Whether any border of this sector carries a way the map draws.
@@ -225,9 +204,8 @@ private int _has_drawn_way(mapping borders)
 
 // Weight of one arm, reconciled with the neighbour across that border. The
 // arm is drawn if EITHER this sector or the neighbour records a way on the
-// shared border, taking the heavier of the two -- so a road never thins to a
-// path across a sector seam, and asymmetric border data still joins up
-// instead of leaving a broken line.
+// shared border, so asymmetric border data still joins up instead of leaving
+// a broken line.
 private int _arm_weight(mapping borders, string own_border,
                         string game, string map_name,
                         int nsx, int nsy, int nsz, string opp_border)
@@ -241,9 +219,9 @@ private int _arm_weight(mapping borders, string own_border,
   return (nb > own) ? nb : own;
 }
 
-// The arm weights of a road/path sector as ({ n, s, e, w }), each 0 (none),
-// 1 (path/light) or 2 (road/heavy), taken from this sector's border crossings
-// and reconciled with its neighbours.
+// The arm weights of a road/path sector as ({ n, s, e, w }), each 0 (none) or
+// 1 (a way), taken from this sector's border crossings and reconciled with
+// its neighbours.
 private int * way_arms(object sect, string game, string map_name,
                        int sx, int sy, int sz)
 {
@@ -260,17 +238,15 @@ private int * way_arms(object sect, string game, string map_name,
   });
 }
 
-// Box-drawing glyph for a road/path sector. Each of the four arms carries an
-// independent weight (none / path = light / road = heavy), so paths and
-// roads keep their own line weight even where they meet at a junction, and
-// three- and four-way junctions get their proper glyph. A single-arm sector
-// renders as a half-line stub (a dead-end) rather than a full through-line.
+// The part of a way or river code that says which arms ({ n, s, e, w }) it
+// draws. A way with a single arm is a half-line stub (a dead-end).
 //
 // Neighbour convention (from guess_coordinates): north = larger y, south =
 // smaller y, east = larger x, west = smaller x.
-private string way_glyph(int * arms)
+private int _arms_code(int * arms)
 {
-  return way_table[arms[0] * 27 + arms[1] * 9 + arms[2] * 3 + arms[3]];
+  return (arms[0] ? 8 : 0) + (arms[1] ? 4 : 0) + (arms[2] ? 2 : 0) +
+         (arms[3] ? 1 : 0);
 }
 
 // Whether the sector at (nsx, nsy, nsz) records a river on its `opp_border`.
@@ -311,71 +287,24 @@ private int * river_arms(object sect, string game, string map_name,
   return ({ n, s, e, w });
 }
 
-// The river glyph for those arms, without colour. One arm alone is drawn as
-// the full line of its axis (there is no half-line in the double set).
-private string river_glyph(int * arms)
+// The code of a sector a road and a river both cross, a bridge. `road` and
+// `river` are the arms of each: a straight road across a straight river is a
+// crossing; any other shape keeps the road glyph.
+private int bridge_code(int * road, int * river)
 {
-  if (!arms[0] && !arms[1] && !arms[2] && !arms[3])
-    return GLYPH_RIVER_SPOT;
+  int road_h, road_v, river_h, river_v;
 
-  if (WORLDMAP_RIVER_DOUBLE)
-    return river_table[arms[0] * 8 + arms[1] * 4 + arms[2] * 2 + arms[3]];
-
-  return way_table[arms[0] * 27 + arms[1] * 9 + arms[2] * 3 + arms[3]];
-}
-
-// The glyph of a sector a road and a river both cross, a bridge. `road` and
-// `river` are the arms of each; see WORLDMAP_BRIDGE_STYLE for the styles.
-private string bridge_glyph(object sect, int * road, int * river)
-{
-  string glyph, cross;
-  int road_h, road_v, river_h, river_v, road_n, river_n, road_own, river_own;
-  int i;
-
-  glyph = way_glyph(road);
-
-  switch (WORLDMAP_BRIDGE_STYLE)
-  {
-    case 0:
-      return glyph;
-    case 2:
-      return COLOUR_RIVER + glyph + "%^RESET%^";
-  }
-
-  // style 3: only a road and a river that both cross the sector, side to side,
-  // and cross each other: each leaves by a side the other does not, so a road
-  // running beside a river is just a road
-  for (i = 0; i < 4; i++)
-  {
-    road_n += road[i] ? 1 : 0;
-    river_n += river[i] ? 1 : 0;
-    road_own += (road[i] && !river[i]) ? 1 : 0;
-    river_own += (river[i] && !road[i]) ? 1 : 0;
-  }
-  if (WORLDMAP_BRIDGE_STYLE == 3 &&
-      (road_n < 2 || river_n < 2 || !road_own || !river_own))
-    return glyph;
-
-  // styles 1 and 3: a crossing glyph where the road and the river are
-  // straight and perpendicular, the road glyph otherwise
   road_h = road[2] && road[3] && !road[0] && !road[1];
   road_v = road[0] && road[1] && !road[2] && !road[3];
   river_h = river[2] && river[3] && !river[0] && !river[1];
   river_v = river[0] && river[1] && !river[2] && !river[3];
 
-  cross = nil;
   if (road_h && river_v)
-    cross = WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_V : GLYPH_BOX_1111;
-  else if (road_v && river_h)
-    cross = WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_H : GLYPH_BOX_1111;
+    return MAP_GLYPH_BRIDGE_V;
+  if (road_v && river_h)
+    return MAP_GLYPH_BRIDGE_H;
 
-  // the crossing is drawn in the river's blue, so the river reads unbroken
-  if (cross)
-    return COLOUR_RIVER + cross + "%^RESET%^";
-
-  if (WORLDMAP_BRIDGE_STYLE == 3)
-    return COLOUR_BRIDGE + glyph + "%^RESET%^";
-  return glyph;
+  return MAP_GLYPH_WAYS + _arms_code(road);
 }
 
 
@@ -385,14 +314,13 @@ private string bridge_glyph(object sect, int * road, int * river)
 //                    A forest city (half or more of its city locations are
 //                    also forest) shows the bold green forest glyph instead
 //                    and is a city for the wall and the name
-//   2. road / path — if the sector has road/path exits the map draws (see
-//                    WORLDMAP_DRAW_PATHS), draw the way glyph; with a river
-//                    through it as well it is a bridge (bridge_glyph)
+//   2. road / path — if the sector has road/path exits, draw the way glyph;
+//                    with a river through it as well it is a bridge
+//                    (bridge_code)
 //   3. forest      — wins over a river, so the woods keep their size
 //   4. river       — blue line, over farmland and any other terrain
 //   5. majority    — otherwise the dominant remaining terrain type
-private string render_sector(string game, string map_name,
-                           int sx, int sy, int sz)
+private int sector_code(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
   string type;
@@ -401,14 +329,14 @@ private string render_sector(string game, string map_name,
   int river;
 
   sect = cached_sector(game, map_name, sx, sy, sz);
-  if (!sect) return GLYPH_EMPTY;
+  if (!sect) return MAP_GLYPH_EMPTY;
 
   // a single city location paints the whole sector (present-wins), so two
   // neighbouring cities never merge through the terrain between them
   // unless half or more of its city locations are forest: then the woods glyph
   // in bold green (the sector is still a city for walls and labels)
   if (sect->has_locations_of_type(SECTOR_TYPE_CITY))
-    return sect->is_forest_city() ? GLYPH_FOREST_CITY : GLYPH_MAP_CITY;
+    return sect->is_forest_city() ? MAP_GLYPH_FOREST_CITY : MAP_GLYPH_CITY;
 
   // query_sector_type is the majority component, or the programmer-set
   // manual type for a sector with no locations of its own
@@ -428,8 +356,8 @@ private string render_sector(string game, string map_name,
   if (type == SECTOR_TYPE_FARM)
   {
     if (river)
-      return COLOUR_RIVER + river_glyph(river_arms_here) + "%^RESET%^";
-    return "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^";
+      return MAP_GLYPH_RIVERS + _arms_code(river_arms_here);
+    return MAP_GLYPH_FARM;
   }
 
   borders = _memo("w", sect, sx, sy, sz);
@@ -437,22 +365,22 @@ private string render_sector(string game, string map_name,
   {
     road_arms = way_arms(sect, game, map_name, sx, sy, sz);
     if (river)
-      return bridge_glyph(sect, road_arms, river_arms_here);
-    return way_glyph(road_arms);
+      return bridge_code(road_arms, river_arms_here);
+    return MAP_GLYPH_WAYS + _arms_code(road_arms);
   }
 
   // a forest wins over a river running through it: the woods read as their
   // true size
-  if (type == SECTOR_TYPE_FOREST)      return "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^";
+  if (type == SECTOR_TYPE_FOREST)      return MAP_GLYPH_FOREST;
 
   if (river)
-    return COLOUR_RIVER + river_glyph(river_arms_here) + "%^RESET%^";
+    return MAP_GLYPH_RIVERS + _arms_code(river_arms_here);
 
-  if (type == SECTOR_TYPE_CITY)        return GLYPH_MAP_CITY;
-  if (type == SECTOR_TYPE_COAST)       return GLYPH_COAST;
-  if (type == SECTOR_TYPE_UNDERGROUND) return GLYPH_UNDERGROUND;
+  if (type == SECTOR_TYPE_CITY)        return MAP_GLYPH_CITY;
+  if (type == SECTOR_TYPE_COAST)       return MAP_GLYPH_COAST;
+  if (type == SECTOR_TYPE_UNDERGROUND) return MAP_GLYPH_UNDERGROUND;
 
-  return GLYPH_EMPTY;
+  return MAP_GLYPH_EMPTY;
 }
 
 // Write a wall glyph into the grid, clamped to bounds. Only blank sectors
@@ -551,79 +479,62 @@ private void _overlay_city_walls(string ** grid, int ** is_city,
     }
 }
 
-// Render a `width x height` sector viewport centred on the given world
-// coord. The viewer's sector is overlaid with '@' regardless of what
-// terrain occupies it.
-// Draw a map of anywhere. Give it a world coordinate to centre on, the game
-// and map to read, and a viewport size; no player is needed. `marker`
-// (default 0) stamps a '@' on the centre sector when set, for a "you are here"
-// focus point.
-// Count, in `votes`, the names of the areas the city locations of one sector
-// belong to: an area's exploration name, or its root area's for a part of a
-// town that has none of its own. The city is named after the most counted.
-private void _count_city_names(string game, string map_name, int sx, int sy,
-                               int sz, mapping votes)
+// The code of the glyph a sector shows on the world map (MAP_GLYPH_* in
+// include/maps/glyphs.h), worked out from its own records and its four
+// neighbours' border crossings. A sector asks for it whenever it changes and
+// keeps it (see save_me() of /lib/location/sector.c), so drawing a map only
+// reads the stored codes.
+int sector_glyph(object sect)
 {
-  object sect, area;
-  mapping locs;
-  string * files, * pieces, name, dir;
-  int i;
+  mixed * place;
 
-  sect = cached_sector(game, map_name, sx, sy, sz);
-  if (!sect)
-    return;
+  place = sect ? sect->query_map_place() : nil;
+  if (!place)
+    return MAP_GLYPH_EMPTY;
 
-  locs = sect->query_locations();
-  if (!mappingp(locs))
-    return;
+  sector_cache = ([ ]);
+  border_cache = ([ ]);
+  sectors = load_object(SECTORS_HANDLER);
+  areas = load_object(AREA_HANDLER);
+  // the sector asking may be one the handler has not cached yet
+  sector_cache[place[2] + "_" + place[3] + "_" + place[4]] = sect;
 
-  files = map_indices(locs);
-  for (i = 0; i < sizeof(files); i++)
-  {
-    if (!mappingp(locs[files[i]]) || !arrayp(locs[files[i]]["types"]) ||
-        member_array(SECTOR_TYPE_CITY, locs[files[i]]["types"]) == -1)
-      continue;
-
-    // the area is the directory the location is saved in; its name is asked
-    // once per directory in a render
-    pieces = explode(files[i], "/");
-    dir = "/" + implode(pieces[0..sizeof(pieces) - 2], "/");
-    if (undefinedp(border_cache["a" + dir]))
-    {
-      area = areas->query_area(dir);
-      name = nil;
-      if (area)
-      {
-        name = area->query_exploration_name();
-        if ((!name || !strlen(name)) && area->query_root_area())
-          name = area->query_root_area()->query_exploration_name();
-      }
-      border_cache["a" + dir] = name ? name : "";
-    }
-    name = border_cache["a" + dir];
-    if (name && strlen(name))
-      votes[name] = (votes[name] ? votes[name] : 0) + 1;
-  }
+  return sector_code(place[0], place[1], place[2], place[3], place[4]);
 }
 
-// The name most counted among the city locations of one sector, or "".
-private string _sector_city_name(string game, string map_name, int sx, int sy,
-                                 int sz)
+// The name of the area a directory of city locations belongs to, asked once
+// per directory in a render: its exploration name, or its root area's for a
+// part of a town that has none of its own. "" when it has none.
+private string _area_name(string dir)
 {
-  mapping votes;
-  string * names, name;
-  int i;
+  object area;
+  string name;
 
-  votes = ([ ]);
-  _count_city_names(game, map_name, sx, sy, sz, votes);
+  if (!undefinedp(border_cache["a" + dir]))
+    return border_cache["a" + dir];
 
-  names = map_indices(votes);
-  name = "";
-  for (i = 0; i < sizeof(names); i++)
-    if (name == "" || votes[names[i]] > votes[name])
-      name = names[i];
+  name = nil;
+  area = areas->query_area(dir);
+  if (area)
+  {
+    name = area->query_exploration_name();
+    if ((!name || !strlen(name)) && area->query_root_area())
+      name = area->query_root_area()->query_exploration_name();
+  }
 
-  return name;
+  border_cache["a" + dir] = name ? name : "";
+  return border_cache["a" + dir];
+}
+
+// What a city sector is named after: the area of the directory holding most
+// of its city locations, from the map's index, or "".
+private string _cell_city_name(int sx, int sy)
+{
+  mixed * cell;
+
+  if (!index_level[sy] || !(cell = index_level[sy][sx]) || !strlen(cell[1]))
+    return "";
+  return _area_name(cell[1]);
 }
 
 // A label's characters, one per map cell: a UTF-8 sequence stays whole.
@@ -649,34 +560,30 @@ private string * _cells_of(string text)
 private static mixed * label_cities;
 private static int label_own;
 
-// How far a label of `n` cells on row `r` from column `c` is from a city
-// (`members`, its cells as ({ r, c })): the fewest steps, corners counting as
-// one, from any of its letters to any of the city's cells.
-private int _label_distance(mixed * members, int r, int c, int n)
+// How far a label of `n` cells on row `r` from column `c` is from a city's
+// box (`city` as _overlay_city_names builds it): the fewest steps, corners
+// counting as one, from any of its letters to the box.
+private int _box_distance(mixed * city, int r, int c, int n)
 {
-  int i, d, dr, dc, best;
+  int dr, dc;
 
-  best = -1;
-  for (i = 0; i < sizeof(members); i++)
-  {
-    dr = abs(members[i][0] - r);
-    if (members[i][1] < c)
-      dc = c - members[i][1];
-    else if (members[i][1] > c + n - 1)
-      dc = members[i][1] - (c + n - 1);
-    else
-      dc = 0;
-    d = dr > dc ? dr : dc;
-    if (best < 0 || d < best)
-      best = d;
-  }
-  return best;
+  if (r < city[1])
+    dr = city[1] - r;
+  else if (r > city[2])
+    dr = r - city[2];
+
+  if (c + n - 1 < city[3])
+    dc = city[3] - (c + n - 1);
+  else if (c > city[4])
+    dc = c - city[4];
+
+  return dr > dc ? dr : dc;
 }
 
 // Whether a label of `n` cells fits on row `r` from column `c`: every cell it
 // would take is blank, and so is the one at each end, unless that end is the
 // edge of the map, so it neither covers nor touches anything already drawn;
-// and, while labels are being placed, it is nearer its own city than any other.
+// and it is nearer the city it names than any other one on the map.
 private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
 {
   int i, k, own;
@@ -691,15 +598,10 @@ private int _label_fits(string ** grid, int w, int h, int r, int c, int n)
       return 0;
   }
 
-  // nearer the city it names than any other one on the map
-  if (label_cities)
-  {
-    own = _label_distance(label_cities[label_own][0], r, c, n);
-    for (k = 0; k < sizeof(label_cities); k++)
-      if (k != label_own &&
-          _label_distance(label_cities[k][0], r, c, n) <= own)
-        return 0;
-  }
+  own = _box_distance(label_cities[label_own], r, c, n);
+  for (k = 0; k < sizeof(label_cities); k++)
+    if (k != label_own && _box_distance(label_cities[k], r, c, n) <= own)
+      return 0;
 
   return 1;
 }
@@ -733,21 +635,21 @@ private int * _spot_above_or_below(string ** grid, int w, int h, int above,
   return nil;
 }
 
-// Last resort for a label of `n` cells: any row and column where it fits with
-// some cell of it at most two cells from one of the city's (corners count),
-// the one nearest the city's centre. `cells` lists the city's cells as
-// ({ r, c }).
-private int * _spot_near(string ** grid, int w, int h, mixed * cells, int n,
-                         int crow, int ccol)
+// Last resort for a label of `n` cells: the spot nearest the city's centre
+// with some letter at most two cells from its box. Only the rows and columns
+// that close to the city are tried.
+private int * _spot_near(string ** grid, int w, int h, mixed * city, int n)
 {
   int * best;
-  int r, c, dist, best_dist;
+  int r, c, dist, best_dist, crow, ccol;
 
-  for (r = 0; r < h; r++)
-    for (c = 0; c < w; c++)
+  crow = (city[1] + city[2]) / 2;
+  ccol = (city[3] + city[4]) / 2;
+
+  for (r = city[1] - 2; r <= city[2] + 2; r++)
+    for (c = city[3] - 1 - n; c <= city[4] + 2; c++)
     {
-      if (_label_distance(cells, r, c, n) > 2 ||
-          !_label_fits(grid, w, h, r, c, n))
+      if (!_label_fits(grid, w, h, r, c, n))
         continue;
 
       // distance from the label's middle to the city's
@@ -776,6 +678,7 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
   mixed * cities;
   int r, c, k;
 
+  // the name each city cell is after, read once
   seen = allocate(h);
   cell_names = allocate(h);
   for (r = 0; r < h; r++)
@@ -784,8 +687,7 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
     cell_names[r] = allocate(w);
     for (c = 0; c < w; c++)
       if (is_city[r][c])
-        cell_names[r][c] = _sector_city_name(game, map_name, col0 + c,
-                                             row_top - r, sz);
+        cell_names[r][c] = _cell_city_name(col0 + c, row_top - r);
   }
 
   // every city first, so a label can be kept nearer its own than any other:
@@ -824,7 +726,9 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
         if (cr > rmax) rmax = cr;
         if (cc < cmin) cmin = cc;
         if (cc > cmax) cmax = cc;
-        _count_city_names(game, map_name, col0 + cc, row_top - cr, sz, votes);
+        if (strlen(cell_names[cr][cc]))
+          votes[cell_names[cr][cc]] = (votes[cell_names[cr][cc]] ?
+                                       votes[cell_names[cr][cc]] : 0) + 1;
 
         for (dr = -1; dr <= 1; dr++)
           for (dc = -1; dc <= 1; dc++)
@@ -853,6 +757,10 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
       cities += ({ ({ members, rmin, rmax, cmin, cmax, name }) });
     }
 
+
+  // the fit test keeps each label nearer its city than any other
+  label_cities = cities;
+
   for (k = 0; k < sizeof(cities); k++)
   {
     string * cells;
@@ -869,9 +777,6 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
     cells = _cells_of(cities[k][5]);
     n = sizeof(cells);
     mid = (rmin + rmax) / 2;
-
-    // the fit test now also keeps the label nearer this city than any other
-    label_cities = cities;
     label_own = k;
 
     if (_label_fits(grid, w, h, mid, cmax + 2, n))
@@ -882,17 +787,25 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
       spot = _spot_above_or_below(grid, w, h, rmin - 1, rmax + 1,
                                   cmin, cmax, n);
     if (!spot)
-      spot = _spot_near(grid, w, h, cities[k][0], n, mid, (cmin + cmax) / 2);
+      spot = _spot_near(grid, w, h, cities[k], n);
 
-    label_cities = nil;
 
     if (!spot)
       continue;
     for (i = 0; i < n; i++)
       grid[spot[0]][spot[1] + i] = cells[i];
   }
+
+  label_cities = nil;
 }
 
+// Render a `width x height` sector viewport centred on the given world
+// coord. The viewer's sector is overlaid with '@' regardless of what
+// terrain occupies it.
+// Draw a map of anywhere. Give it a world coordinate to centre on, the game
+// and map to read, and a viewport size; no player is needed. `marker`
+// (default 0) stamps a '@' on the centre sector when set, for a "you are here"
+// focus point.
 // `labels` names the cities; `label_room` is how many blank columns the caller
 // has beside the map, where a name may also go: half go to each side.
 string render(int center_x, int center_y, int center_z,
@@ -901,7 +814,7 @@ string render(int center_x, int center_y, int center_z,
 {
   int sx0, sy0, sz0;
   int col0, row_top;
-  int row_i, col, left;
+  int row_i, col, left, code;
   string ** grid;
   int ** is_city;
   string result;
@@ -920,27 +833,28 @@ string render(int center_x, int center_y, int center_z,
   col0    = sx0 - width / 2;
   row_top = sy0 + height / 2;
 
-  // base fill: one glyph per sector, plus a parallel city mask the wall
-  // overlay reads. The mask is captured here, before the player marker is
-  // stamped in, so a marker sitting on a city sector never breaks the wall.
+  // base fill: one glyph per sector, read off the map's index (no sector is
+  // loaded), plus a parallel city mask the wall overlay reads. The mask is
+  // captured here, before the player marker is stamped in, so a marker sitting
+  // on a city sector never breaks the wall.
+  index_level = sectors->query_map_index(game, map_name)->query_level(sz0);
   grid = allocate(height);
   is_city = allocate(height);
   for (row_i = 0; row_i < height; row_i++)
   {
-    int sector_y;
+    mapping row;
+
     grid[row_i] = allocate(width);
     is_city[row_i] = allocate_int(width);
-    sector_y = row_top - row_i;
+    row = index_level[row_top - row_i];
     for (col = 0; col < width; col++)
     {
-      int sector_x;
-      sector_x = col0 + col;
-      grid[row_i][col] = render_sector(game, map_name, sector_x, sector_y, sz0);
-      // city mask for the wall overlay and the labels, read off the freshly
-      // painted glyph (a forest city is a city too) — still before the player
-      // marker overwrites it below.
-      is_city[row_i][col] = grid[row_i][col] == GLYPH_MAP_CITY ||
-                            grid[row_i][col] == GLYPH_FOREST_CITY;
+      code = (row && row[col0 + col]) ? row[col0 + col][0] : MAP_GLYPH_EMPTY;
+      grid[row_i][col] = glyphs[code];
+      // city mask for the wall overlay and the labels, read off the code (a
+      // forest city is a city too) — still before the player marker
+      // overwrites it below.
+      is_city[row_i][col] = code == MAP_GLYPH_CITY || code == MAP_GLYPH_FOREST_CITY;
     }
   }
 
@@ -993,27 +907,16 @@ string render(int center_x, int center_y, int center_z,
 // out: a line reads as a road without being told.
 mapping query_legend_glyphs()
 {
-  mapping glyphs;
-
-  glyphs = ([
+  return ([
     "player":      ({ GLYPH_PLAYER, GLYPH_PLAYER }),
-    "city":        ({ GLYPH_MAP_CITY, GLYPH_MAP_CITY }),
-    "forest":      ({ "%^GREEN%^" + GLYPH_MAP_FOREST, "%^GREEN%^" + GLYPH_MAP_FOREST + "%^RESET%^" }),
-    "forest-city": ({ GLYPH_FOREST_CITY, GLYPH_FOREST_CITY }),
-    "farm":        ({ GLYPH_MAP_FARM, "%^YELLOW%^" + GLYPH_MAP_FARM + "%^RESET%^" }),
-    "river":       ({ COLOUR_RIVER, COLOUR_RIVER + (WORLDMAP_RIVER_DOUBLE ? GLYPH_DBL_V : GLYPH_BOX_1100) + "%^RESET%^" }),
-    "coast":       ({ GLYPH_COAST, GLYPH_COAST }),
-    "underground": ({ GLYPH_UNDERGROUND, GLYPH_UNDERGROUND }),
+    "city":        ({ glyphs[MAP_GLYPH_CITY], glyphs[MAP_GLYPH_CITY] }),
+    "forest":      ({ "%^GREEN%^" + GLYPH_MAP_FOREST, glyphs[MAP_GLYPH_FOREST] }),
+    "forest-city": ({ glyphs[MAP_GLYPH_FOREST_CITY], glyphs[MAP_GLYPH_FOREST_CITY] }),
+    "farm":        ({ GLYPH_MAP_FARM, glyphs[MAP_GLYPH_FARM] }),
+    "river":       ({ COLOUR_RIVER, glyphs[MAP_GLYPH_RIVERS + 12] }),
+    "coast":       ({ glyphs[MAP_GLYPH_COAST], glyphs[MAP_GLYPH_COAST] }),
+    "underground": ({ glyphs[MAP_GLYPH_UNDERGROUND], glyphs[MAP_GLYPH_UNDERGROUND] }),
   ]);
-
-  // only the style that colours bridges needs an entry of its own: the road
-  // glyphs it uses are all light box lines, whole or half (U+2500..U+257F)
-  if (WORLDMAP_BRIDGE_STYLE == 3)
-    glyphs["bridge"] = ({ ({ COLOUR_BRIDGE + chr(226) + chr(148),
-                             COLOUR_BRIDGE + chr(226) + chr(149) }),
-                          COLOUR_BRIDGE + GLYPH_BOX_0011 + "%^RESET%^" });
-
-  return glyphs;
 }
 
 // Convenience: pull the world coord + map + game out of the viewer's

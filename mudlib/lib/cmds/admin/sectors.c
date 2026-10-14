@@ -17,7 +17,8 @@ void setup()
             "sectors settype <sx> <sy> <sz> <type> [<map>]\n" +
             "sectors verify <sx> <sy> <sz> [<map>]\n" +
             "sectors purge [<map>]\n" +
-            "sectors reindex [<map>]");
+            "sectors reindex [<map>]\n" +
+            "sectors glyphs [<map>]");
   set_help(
     "List the sectors loaded in the map system, set a sector's manual\n" +
     "type, audit a sector, purge stale index entries or index a whole map\n" +
@@ -30,6 +31,8 @@ void setup()
     "  sectors purge                       drop the ghost positions it finds\n" +
     "  sectors reindex                     index every location of the map\n" +
     "                                      again, in the background\n" +
+    "  sectors glyphs                      work out the world map glyph of\n" +
+    "                                      every sector again, in the background\n" +
     "\n" +
     "Coordinates are SECTOR indices (the ones shown by look / glance), not\n" +
     "location coordinates. The map defaults to the one you are standing in;\n" +
@@ -265,6 +268,29 @@ static int cmd(string str, object me, string verb)
     count = load_object(SECTORS_HANDLER)->reindex_map(game, map_name, me);
     write("Indexing " + count + " location" + (count == 1 ? "" : "s") +
           " again in map '" + map_name + "', in the background.\n");
+    return 1;
+  }
+
+  // ===== glyphs (every sector's world map glyph, worked out again) =====
+  if (sizeof(tokens) && tokens[0] == "glyphs")
+  {
+    string game, map_name;
+    int count;
+
+    game = game_name(me);
+    if (!strlen(game))
+    {
+      notify_fail("Cannot infer game from your current environment. " +
+                  "Stand inside a game first.\n");
+      return 0;
+    }
+
+    map_name = _resolve_map(me, sizeof(tokens) >= 2 ? tokens[1] : nil);
+
+    count = load_object(SECTORS_HANDLER)->refresh_glyphs(game, map_name, me);
+    write("Working out the glyph of " + count + " sector" +
+          (count == 1 ? "" : "s") + " of map '" + map_name +
+          "', in the background.\n");
     return 1;
   }
 
