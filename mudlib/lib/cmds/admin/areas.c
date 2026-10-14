@@ -118,6 +118,29 @@ private int do_reindex(object me, string * tokens)
   return 1;
 }
 
+// Width of the level band column; the band is centred in it.
+#define BAND_WIDTH 12
+
+// `text` centred in `width` columns.
+private string centre(string text, int width)
+{
+  int left;
+
+  left = (width - strlen(text)) / 2;
+  if (left < 0)
+    left = 0;
+  return pad("", left) + text + pad("", width - left - strlen(text));
+}
+
+// The header of the listing: one column for the area, one for its band.
+private string header(int width)
+{
+  string line;
+
+  line = " Area" + pad("", width - 2) + centre("Level band", BAND_WIDTH) + "\n";
+  return line + " " + pad("", width + BAND_WIDTH + 1, "-") + "\n";
+}
+
 // One area's entry and, indented below it, its child areas.
 private string describe_tree(mapping areas, mapping children, string key,
                              int depth, int width, int show_locations,
@@ -141,7 +164,7 @@ private string describe_tree(mapping areas, mapping children, string key,
 
   gap = width - strlen(key) - strlen(indent);
   ret = indent + " - %^GREEN%^" + key + "%^RESET%^" +
-        pad("", gap < 1 ? 1 : gap) + level + "\n";
+        pad("", gap < 1 ? 1 : gap) + centre(level, BAND_WIDTH) + "\n";
 
   if (show_locations)
   {
@@ -240,7 +263,7 @@ static int cmd(string str, object me, string verb)
       width = strlen(keys[i]) + 12;
   }
 
-  ret = "Areas loaded (level band; in parentheses: inherited):\n";
+  ret = header(width);
 
   for (i = 0; i < sizeof(roots); i++)
   {
@@ -252,7 +275,7 @@ static int cmd(string str, object me, string verb)
   {
     // the registry is keyed by area path, so compare the objects: the current
     // area's display name never matches a key
-    ret = "Areas loaded (level band; in parentheses: inherited):\n";
+    ret = header(width);
     keys = keys(areas);
     for (i = 0; i < sizeof(keys); i++)
       if (areas[keys[i]] == current_area)
@@ -260,6 +283,6 @@ static int cmd(string str, object me, string verb)
                              show_connections);
   }
 
-  write(ret);
+  write(ret + " (a band in parentheses is inherited from a parent area)\n");
   return 1;
 }
