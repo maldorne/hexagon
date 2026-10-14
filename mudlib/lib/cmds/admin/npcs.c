@@ -265,7 +265,8 @@ private int do_summary(object area, object me)
 
   out += "  citizenship  " + (string)area->query_citizenship_description() + "\n" +
          "  level band   " + area->query_area_level() + " +/- " +
-         area->query_area_spread() + "\n" +
+         area->query_area_spread() +
+         ((int)area->query_own_area_level() ? "" : " (inherited)") + "\n" +
          "  stat band    " +
          (band[0] ? band[0] + "-" + band[1] : "(the type's own)") + "\n" +
          "\n" +

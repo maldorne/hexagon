@@ -47,8 +47,10 @@ mapping npc_caps;
 mapping original_npc_sources;
 // Average level of the area's NPCs and how far individual NPCs may deviate
 // from it. An NPC's level is decided once, at census assignment, as
-//   npc_default_level + template level_area_modifier  ±  random(npc_default_level_spread + 1)
-// (a template that carries a concrete "level" overrides all of this). The
+//   area level + template level_area_modifier  ±  random(area spread + 1)
+// (a template that carries a concrete "level" overrides all of this). A level
+// of 0 means the area sets none and takes its parent's band (see
+// query_area_level). The
 // deviation uses random(spread + 1) because random(2) yields only 0 or 1, so
 // a spread of 2 gives a swing of 0..2. Stored per NPC in the census, so each
 // NPC keeps the level it was created with.
@@ -68,7 +70,7 @@ void create()
 {
   npc_caps = ([ ]);
   original_npc_sources = ([ ]);
-  npc_default_level = 1;
+  npc_default_level = 0;
   npc_default_level_spread = 0;
   npc_stat_low = 0;
   npc_stat_high = 0;
@@ -338,8 +340,50 @@ int decide_gender(string game, string source)
            BESTIARY_HANDLER->query_template(game, source));
 }
 
-int query_area_level() { return npc_default_level; }
-int query_area_spread() { return npc_default_level_spread; }
+// The area's own setting, 0 when it sets none.
+int query_own_area_level() { return npc_default_level; }
+int query_own_area_spread() { return npc_default_level_spread; }
+
+// The nearest area up the chain (this one first) that sets a level, or nil.
+// The walk is bounded so areas pointed at each other cannot hang the driver.
+object query_area_level_source()
+{
+  object area, up;
+  int steps;
+
+  area = this_object();
+
+  for (steps = 0; area && steps <= AREA_MAX_ANCESTRY; steps++)
+  {
+    if ((int)area->query_own_area_level() > 0)
+      return area;
+
+    up = (object)area->query_parent_area();
+    if (up == area)
+      break;
+    area = up;
+  }
+
+  return nil;
+}
+
+// The band this area hands out: its own when set, else the nearest parent's
+// (spread goes with the level it belongs to), else level 1 and spread 0.
+int query_area_level()
+{
+  object source;
+
+  source = (object)this_object()->query_area_level_source();
+  return source ? (int)source->query_own_area_level() : 1;
+}
+
+int query_area_spread()
+{
+  object source;
+
+  source = (object)this_object()->query_area_level_source();
+  return source ? (int)source->query_own_area_spread() : 0;
+}
 int * query_area_stats() { return ({ npc_stat_low, npc_stat_high }); }
 
 // Set the range this area rolls its people's stats in, or clear it with a low
@@ -382,7 +426,8 @@ mapping query_area_template(string game, string source)
 
 void set_area_level(int n)
 {
-  npc_default_level = n < 1 ? 1 : n;
+  // 0 (or less) clears the level back to inherited
+  npc_default_level = n < 1 ? 0 : n;
   this_object()->save_me();
 }
 
@@ -445,7 +490,7 @@ int relevel_census()
 // The level a census NPC is born with, decided once at assignment so it stays
 // stable for the life of that NPC (like its gender). A template with a
 // concrete "level" dictates it outright; otherwise the level derives from the
-// area: npc_default_level + the template's level_area_modifier, swung by up to the
+// area: the area's level + the template's level_area_modifier, swung by up to the
 // area spread (random(spread + 1), sign random). Never below 1.
 int decide_level(string game, string source)
 {
@@ -458,11 +503,11 @@ int decide_level(string game, string source)
   if (t && t["level"])
     return t["level"];
 
-  base = npc_default_level + (t && t["level_area_modifier"] ? t["level_area_modifier"] : 0);
+  base = (int)this_object()->query_area_level() + (t && t["level_area_modifier"] ? t["level_area_modifier"] : 0);
 
   // random(spread + 1) gives 0..spread (random(2) is only 0 or 1), applied up
   // or down at random
-  dev = random(npc_default_level_spread + 1);
+  dev = random((int)this_object()->query_area_spread() + 1);
   if (random(2))
     base += dev;
   else

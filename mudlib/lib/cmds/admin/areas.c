@@ -6,6 +6,9 @@
 inherit CMD_BASE;
 
 private int do_reindex(object me, string * tokens);
+private string describe_tree(mapping areas, mapping children, string key,
+                             int depth, int width, int show_locations,
+                             int show_connections);
 
 void setup()
 {
@@ -13,6 +16,10 @@ void setup()
   set_usage("areas [-c] [locations] [connections]\n" +
             "      areas reindex [ <area> | game ] [save]");
   set_help("List areas loaded in the location system.\n" +
+           "Areas are listed as a tree: every area that stands on its own, with\n" +
+           "the areas that are part of it indented below. The last column is the\n" +
+           "NPC level band (level+/-spread); one in parentheses is inherited from\n" +
+           "a parent area instead of set on the area itself.\n" +
            "If '-c' is specified, it will only show your current area.\n" +
            "If 'locations' is specified, it will also list the locations of every area.\n" +
            "If 'connections' is specified, it will also list their connections to other areas.\n" +
@@ -111,11 +118,72 @@ private int do_reindex(object me, string * tokens)
   return 1;
 }
 
+// One area's entry and, indented below it, its child areas.
+private string describe_tree(mapping areas, mapping children, string key,
+                             int depth, int width, int show_locations,
+                             int show_connections)
+{
+  object area, source;
+  mapping connections;
+  object * locations;
+  string * connections_keys, * kids;
+  string ret, indent, level;
+  int i, gap;
+
+  area = areas[key];
+  indent = depth ? pad("", depth * 3) : "";
+
+  // the band, in parentheses when it comes from a parent
+  source = (object)area->query_area_level_source();
+  level = area->query_area_level() + "+/-" + area->query_area_spread();
+  if (source != area)
+    level = "(" + level + ")";
+
+  gap = width - strlen(key) - strlen(indent);
+  ret = indent + " - %^GREEN%^" + key + "%^RESET%^" +
+        pad("", gap < 1 ? 1 : gap) + level + "\n";
+
+  if (show_locations)
+  {
+    ret += "\n" + indent + "  Locations:\n\n";
+    locations = area->query_loaded_locations();
+
+    for (i = 0; i < sizeof(locations); i++)
+      ret += indent + "   - " + locations[i]->query_file_name() + "\n";
+
+    ret += "\n";
+  }
+
+  if (show_connections)
+  {
+    ret += "\n" + indent + "  Connections:\n\n";
+
+    connections = area->query_connections();
+    connections_keys = keys(connections);
+
+    for (i = 0; i < sizeof(connections_keys); i++)
+      ret += indent + "   - " + connections_keys[i] + "\n" + indent +
+             "     %^CYAN%^" + connections[connections_keys[i]][0] +
+             "%^RESET%^ : " + connections[connections_keys[i]][1] + "\n";
+
+    ret += "\n";
+  }
+
+  kids = children[key];
+  for (i = 0; kids && i < sizeof(kids); i++)
+    ret += describe_tree(areas, children, kids[i], depth + 1, width,
+                         show_locations, show_connections);
+
+  return ret;
+}
+
 static int cmd(string str, object me, string verb) 
 {
-  mapping areas;
-  string * keys;
-  int i, j;
+  mapping areas, children;
+  string * keys, * roots;
+  string parent_key;
+  object parent;
+  int i, width;
   string * pieces;
   int show_locations, show_connections, only_current;
   object current_area;
@@ -148,59 +216,48 @@ static int cmd(string str, object me, string verb)
     only_current = TRUE;
   }
 
-  ret = "Areas loaded:\n";
-  keys = keys(areas);
+  keys = sort_array(keys(areas));
+  children = ([ ]);
+  roots = ({ });
+  width = 0;
 
+  // an area whose parent is not loaded is listed as a root
   for (i = 0; i < sizeof(keys); i++)
   {
-    object * locations;
-    object parent;
-    mapping connections;
-    string * connections_keys;
+    parent = (object)areas[keys[i]]->query_parent_area();
+    parent_key = parent ? (string)parent->query_area_path() : nil;
 
+    if (parent_key && parent_key != keys[i] && areas[parent_key])
+    {
+      if (!children[parent_key])
+        children[parent_key] = ({ });
+      children[parent_key] += ({ keys[i] });
+    }
+    else
+      roots += ({ keys[i] });
+
+    if (strlen(keys[i]) + 12 > width)
+      width = strlen(keys[i]) + 12;
+  }
+
+  ret = "Areas loaded (level band; in parentheses: inherited):\n";
+
+  for (i = 0; i < sizeof(roots); i++)
+  {
+    ret += describe_tree(areas, children, roots[i], 0, width, show_locations,
+                         show_connections);
+  }
+
+  if (only_current)
+  {
     // the registry is keyed by area path, so compare the objects: the current
     // area's display name never matches a key
-    if (only_current && areas[keys[i]] != current_area)
-      continue;
-
-    ret += " - %^GREEN%^" + keys[i] + "%^RESET%^\n";
-
-    // the area this one is part of, if any: the link the community (roster,
-    // census, jobs, houses) and everything else shared is resolved through
-    parent = areas[keys[i]]->query_parent_area();
-    if (parent)
-      ret += "   part of %^CYAN%^" + parent->query_area_name() +
-             "%^RESET%^\n";
-
-    if (show_locations)
-    {
-      ret += "\n  Locations:\n\n";
-      locations = areas[keys[i]]->query_loaded_locations();
-
-      for (j = 0; j < sizeof(locations); j++)
-      {
-        ret += "   - " + locations[j]->query_file_name() + "\n";
-      }
-
-      ret += "\n";
-    }
-
-    if (show_connections)
-    {
-      ret += "\n  Connections:\n\n";
-
-      connections = areas[keys[i]]->query_connections();
-      connections_keys = keys(connections);
-
-      for (j = 0; j < sizeof(connections_keys); j++)
-      {
-        ret += "   - " + connections_keys[j] + "\n     %^CYAN%^" + 
-              connections[connections_keys[j]][0] + "%^RESET%^ : " + 
-              connections[connections_keys[j]][1] + "\n";
-      }
-
-      ret += "\n";
-    }
+    ret = "Areas loaded (level band; in parentheses: inherited):\n";
+    keys = keys(areas);
+    for (i = 0; i < sizeof(keys); i++)
+      if (areas[keys[i]] == current_area)
+        ret += describe_tree(areas, ([ ]), keys[i], 0, width, show_locations,
+                             show_connections);
   }
 
   write(ret);

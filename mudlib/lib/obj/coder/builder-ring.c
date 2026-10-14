@@ -78,7 +78,7 @@ inherit "/lib/armour.c";
   "\n" + \
   "  build area exploration <name>        entering here is a diary event\n" + \
   "  build area noexploration\n" + \
-  "  build area level <n> [<spread>]      NPC level band\n" + \
+  "  build area level <n> [<spread>]      NPC level band (none: inherit)\n" + \
   "  build area stats <low> <high>        how strong its people are\n" + \
   "  build area diplomacy <name|none>     citizenship; guards use it\n" + \
   "  build area parent <area path|none>   what this place is part of\n" + \
@@ -852,21 +852,35 @@ int do_area(string str)
     int lvl, spread;
 
     // level is required; spread is optional and left unchanged when omitted
+    if (sizeof(args) >= 2 && (args[1] == "none" || args[1] == "inherit"))
+      args[1] = "0";
+
     if (sizeof(args) < 2 || sscanf(args[1], "%d", lvl) != 1)
     {
-      notify_fail("Usage: build area level <n> [<spread>]\n");
+      notify_fail("Usage: build area level <n> [<spread>] | none\n");
       return 0;
     }
 
-    spread = area->query_area_spread();
+    // 0 clears the area's own band so it takes its parent's
+    if (lvl < 1)
+    {
+      area->set_area_level(0);
+      area->set_area_spread(0);
+      write("Area '" + area->query_area_name() + "' has no level of its own; " +
+            "it takes " + area->query_area_level() + " (spread " +
+            area->query_area_spread() + ") from its parents.\n");
+      return 1;
+    }
+
+    spread = area->query_own_area_spread();
     if (sizeof(args) > 2)
       sscanf(args[2], "%d", spread);
 
     area->set_area_level(lvl);
     area->set_area_spread(spread);
     write("Area '" + area->query_area_name() + "' average level set to " +
-          area->query_area_level() + " (spread " + area->query_area_spread() +
-          ").\n");
+          area->query_own_area_level() + " (spread " +
+          area->query_own_area_spread() + ").\n");
     return 1;
   }
   else if (verb == "stats")
