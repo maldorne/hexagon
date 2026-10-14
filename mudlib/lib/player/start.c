@@ -334,6 +334,6 @@ void do_auto_equip()
 {
   // if(this_object()->query_property(AUTOEQUIP_PROP))
   if (this_object()->query_consent(AUTOEQUIP_CONS))
-      this_object()->do_equip();
+      this_object()->do_equip("");
 }
 
