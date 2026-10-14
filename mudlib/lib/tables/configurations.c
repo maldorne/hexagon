@@ -130,6 +130,9 @@ mapping query_config_data(object player)
   e[CONFIG_MAX] = 99;
   topics[_LANG_CONFIG_TOPIC_WIMPY] = e;
 
+  topics[_LANG_CONFIG_TOPIC_AUTO_EQUIP] = entry(CONFIG_BOOL, CONFIG_ON_PLAYER,
+    "query_auto_equip", "set_auto_equip", nil, _LANG_CONFIG_CMD_AUTO_EQUIP);
+
   names = ({ });
   list = player->query_languages();
   for (i = 0; i < sizeof(list); i++)

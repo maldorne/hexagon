@@ -40,6 +40,7 @@ mapping auto_load;        // inventory
 int time_on;              // total time connected
 int ontime;               // session time
 int last_log_on;          // time of last log on
+int auto_equip;           // equips everything carried on entering the game
 
 static int save_counter;  // each reset counter
 static int last_command;  // time of last command

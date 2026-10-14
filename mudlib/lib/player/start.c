@@ -330,10 +330,12 @@ int do_load_auto()
   }
 }
 
+int query_auto_equip() { return auto_equip; }
+void set_auto_equip(int value) { auto_equip = value ? 1 : 0; }
+
 void do_auto_equip()
 {
-  // if(this_object()->query_property(AUTOEQUIP_PROP))
-  if (this_object()->query_consent(AUTOEQUIP_CONS))
-      this_object()->do_equip("");
+  if (auto_equip)
+    this_object()->do_equip("");
 }
 

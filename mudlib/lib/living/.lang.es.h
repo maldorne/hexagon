@@ -278,8 +278,11 @@
 // equip.c
 
 #define _LANG_EQUIP_VERBS ({ "equipar", "equiparse" })
-#define _LANG_EQUIP_SYNTAX "Sintaxis: equipar o equiparse.\n" + \
-              "Para equiparse automáticamente al conectar, utiliza 'configuración'.\n"
+#define _LANG_EQUIP_SYNTAX "Sintaxis: equipar\n" + \
+              "          equipar auto [sí|no]   equiparte solo al entrar en el juego.\n"
+#define _LANG_EQUIP_AUTO "auto"
+#define _LANG_EQUIP_AUTO_ON "Al entrar en el juego te equiparás automáticamente.\n"
+#define _LANG_EQUIP_AUTO_OFF "Al entrar en el juego no te equiparás automáticamente.\n"
 #define _LANG_EQUIP_WIELDING "Empuñando"
 #define _LANG_EQUIP_HOLDING "Sosteniendo"
 #define _LANG_EQUIP_WEARING "Llevando"
@@ -421,7 +424,6 @@
   "follow"    : "seguir", \
   "drinks"    : "invitaciones", \
   "protect"   : "proteger", \
-  "autoequip" : "autoequiparse", \
   "groups"    : "grupos", \
 ])
 

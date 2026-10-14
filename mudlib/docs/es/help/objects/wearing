@@ -19,9 +19,11 @@ tengas libres. Y sólo se empuña lo que esté hecho para empuñarse.
 'soltar'.
 
   equipar
+  equipar auto [sí|no]
 
 Sin argumentos: recorre lo que llevas encima y se pone todo lo que
-se pueda poner y empuñar. Es lo mismo que el juego hace por ti al
-entrar si tienes a sí el consentimiento 'autoequiparse'.
+se pueda poner y empuñar. Con 'auto sí', el juego lo hace por ti
+cada vez que entras; 'auto no' lo deja de hacer y 'auto' solo dice
+cómo lo tienes. También se cambia en 'configuración', en personaje.
 
 Para ver qué llevas puesto y en qué estado está, usa 'equipo'.

@@ -275,7 +275,10 @@
 
 #define _LANG_EQUIP_VERBS ({ "equip" })
 #define _LANG_EQUIP_SYNTAX "Syntax: equip\n" + \
-              "To equip automatically at login, use 'configuration'.\n"
+              "        equip auto [yes|no]   equip yourself on entering the game.\n"
+#define _LANG_EQUIP_AUTO "auto"
+#define _LANG_EQUIP_AUTO_ON "You will equip yourself automatically on entering the game.\n"
+#define _LANG_EQUIP_AUTO_OFF "You will not equip yourself automatically on entering the game.\n"
 #define _LANG_EQUIP_WIELDING "Wielding"
 #define _LANG_EQUIP_HOLDING "Holding"
 #define _LANG_EQUIP_WEARING "Wearing"

@@ -69,6 +69,7 @@
 #define _LANG_CONFIG_TOPIC_COMBAT "combate"
 #define _LANG_CONFIG_TOPIC_ATTITUDE "actitud"
 #define _LANG_CONFIG_TOPIC_WIMPY "cobardía"
+#define _LANG_CONFIG_TOPIC_AUTO_EQUIP "autoequiparse"
 #define _LANG_CONFIG_TOPIC_LANGUAGE "idioma"
 
 #define _LANG_CONFIG_CMD_TERM "terminal"
@@ -81,6 +82,7 @@
 #define _LANG_CONFIG_CMD_POV "pov"
 #define _LANG_CONFIG_CMD_PROMPT "prompt"
 #define _LANG_CONFIG_CMD_WIMPY "cobardía"
+#define _LANG_CONFIG_CMD_AUTO_EQUIP "equipar auto"
 #define _LANG_CONFIG_CMD_ATTITUDE "actitud"
 #define _LANG_CONFIG_CMD_COMBAT "combate"
 #define _LANG_CONFIG_CMD_SPEAK "hablar"

@@ -15,11 +15,13 @@ in until both are free. And only what was made to be held is held.
 'wield' does the same as 'hold'.
 
   equip
+  equip auto [yes|no]
 
 With no argument: it walks what you are carrying and puts on and
-holds everything that can be put on and held. It is the same thing
-the game does for you on entering if your 'autoequiparse' consent
-is set to yes.
+holds everything that can be put on and held. With 'auto yes', the
+game does it for you every time you enter; 'auto no' stops it and
+'auto' alone tells you how it is set. It can also be changed in
+'configuration', under character.
 
 To see what you are wearing and the state it is in, use
 'equipment'.

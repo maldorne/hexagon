@@ -101,6 +101,7 @@ int query_equip_ac(int tipo) { return query_held_ac(tipo) + query_worn_ac(tipo);
 int do_equip(string str)
 {
   object *obs, *holds, *wears;
+  string * words;
   int i, j;
 
   if (this_object()->query_dead())
@@ -109,13 +110,34 @@ int do_equip(string str)
     return 0;
   }
 
-  // Assum going to tell us something about the autoequip
+  // 'equip auto [yes|no]': whether a player equips on entering the game
   if (strlen(str))
   {
-     // Now in configuration
-     // if (str == "off") ...
-     tell_object(this_object(), _LANG_EQUIP_SYNTAX);
-     return 1;
+    words = explode(lower_case(str), " ") - ({ "" });
+
+    if (sizeof(words) && sizeof(words) <= 2 && words[0] == _LANG_EQUIP_AUTO &&
+        function_exists("set_auto_equip", this_object()))
+    {
+      if (sizeof(words) == 2)
+      {
+        if (affirmative(words[1]))
+          this_object()->set_auto_equip(1);
+        else if (negative(words[1]))
+          this_object()->set_auto_equip(0);
+        else
+        {
+          tell_object(this_object(), _LANG_EQUIP_SYNTAX);
+          return 1;
+        }
+      }
+
+      tell_object(this_object(), this_object()->query_auto_equip() ?
+        _LANG_EQUIP_AUTO_ON : _LANG_EQUIP_AUTO_OFF);
+      return 1;
+    }
+
+    tell_object(this_object(), _LANG_EQUIP_SYNTAX);
+    return 1;
   }
 
   if (this_object()->query_timed_property_exists(PASSED_OUT_PROP))
