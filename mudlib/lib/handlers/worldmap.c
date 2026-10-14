@@ -606,6 +606,26 @@ private void _count_city_names(string game, string map_name, int sx, int sy,
   }
 }
 
+// The name most counted among the city locations of one sector, or "".
+private string _sector_city_name(string game, string map_name, int sx, int sy,
+                                 int sz)
+{
+  mapping votes;
+  string * names, name;
+  int i;
+
+  votes = ([ ]);
+  _count_city_names(game, map_name, sx, sy, sz, votes);
+
+  names = map_indices(votes);
+  name = "";
+  for (i = 0; i < sizeof(names); i++)
+    if (name == "" || votes[names[i]] > votes[name])
+      name = names[i];
+
+  return name;
+}
+
 // A label's characters, one per map cell: a UTF-8 sequence stays whole.
 private string * _cells_of(string text)
 {
@@ -752,12 +772,21 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
                                  int col0, int row_top, int sz)
 {
   int ** seen;
+  string ** cell_names;
   mixed * cities;
   int r, c, k;
 
   seen = allocate(h);
+  cell_names = allocate(h);
   for (r = 0; r < h; r++)
+  {
     seen[r] = allocate_int(w);
+    cell_names[r] = allocate(w);
+    for (c = 0; c < w; c++)
+      if (is_city[r][c])
+        cell_names[r][c] = _sector_city_name(game, map_name, col0 + c,
+                                             row_top - r, sz);
+  }
 
   // every city first, so a label can be kept nearer its own than any other:
   // each is ({ members, rmin, rmax, cmin, cmax, name })
@@ -767,13 +796,16 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
     {
       mixed * stack, * members;
       mapping votes;
-      string name, * names;
+      string name, * names, own;
       int rmin, rmax, cmin, cmax, best, i;
 
       if (!is_city[r][c] || seen[r][c])
         continue;
 
-      // the city: every city cell joined to this one, corners included
+      // the city: every city cell joined to this one, corners included, but
+      // two towns side by side stay apart: a cell named after another place
+      // than the city's does not join it
+      own = cell_names[r][c];
       votes = ([ ]);
       rmin = rmax = r;
       cmin = cmax = c;
@@ -797,8 +829,12 @@ private void _overlay_city_names(string ** grid, int ** is_city, int w, int h,
         for (dr = -1; dr <= 1; dr++)
           for (dc = -1; dc <= 1; dc++)
             if (cr + dr >= 0 && cr + dr < h && cc + dc >= 0 && cc + dc < w &&
-                is_city[cr + dr][cc + dc] && !seen[cr + dr][cc + dc])
+                is_city[cr + dr][cc + dc] && !seen[cr + dr][cc + dc] &&
+                (own == "" || cell_names[cr + dr][cc + dc] == "" ||
+                 cell_names[cr + dr][cc + dc] == own))
             {
+              if (own == "")
+                own = cell_names[cr + dr][cc + dc];
               seen[cr + dr][cc + dc] = 1;
               stack += ({ ({ cr + dr, cc + dc }) });
             }
