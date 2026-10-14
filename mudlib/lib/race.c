@@ -91,6 +91,9 @@ int query_light_limitl() { return min_light_limit; }
 void set_body_size(int i) { body_size = i; }
 int query_body_size() { return body_size; }
 
+// How the race reads in a character's sheet. A race may override it.
+string query_sheet_name() { return this_object()->query_short(); }
+
 string * query_lineages(){ return lineages; }
 void set_lineages(string * list){ lineages = list; }
 

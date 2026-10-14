@@ -46,7 +46,7 @@ static int cmd(string name, object me, string verb)
   // social objects
   object guild, job, guild_class, 
          group, race, race_group, 
-         deity, citizenship, base_race;
+         deity, citizenship;
   string family, race_name;
   object target;
 
@@ -96,13 +96,7 @@ static int cmd(string name, object me, string verb)
   citizenship = load_object(target->query_city_ob());
   family = target->query_family();
 
-  race_name = race ? race->query_short() : capitalize(_LANG_STATS_NO_RACE);
-
-  // a lineage reads as its base race with the lineage beside it
-  if (race && race->query_lineage() &&
-      (base_race = load_object(race->query_base_race())))
-    race_name = base_race->query_short() + " (" +
-                capitalize(race->query_name()) + ")";
+  race_name = race ? race->query_sheet_name() : capitalize(_LANG_STATS_NO_RACE);
 
   info += sprintf("%-32s", _LANG_CMD_SHEET_BASIC_CHARACTERISTICS + ":");
   info += sprintf("%-15s %s", capitalize(_LANG_STATS_RACE) + ":", race_name);
