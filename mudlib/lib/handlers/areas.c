@@ -576,6 +576,16 @@ private void _delete_npc_folder(string dir)
   catch(rmdir(dir));
 }
 
+/**
+ * Deletes the save folder of one NPC of `game`, for a person taken off the
+ * census without dying (whose own delete_npc_save never runs).
+ */
+void delete_npc_saves(string game, string uuid)
+{
+  if (game && uuid)
+    _delete_npc_folder(npc_save_dir(game, uuid));
+}
+
 // Delete the save folders of every NPC in this area's census. Called when the
 // area is being removed (a clean) so its NPCs leave no orphan folder behind.
 // Scoped to the area -- O(area's NPCs), unlike a game-wide verify. Returns the

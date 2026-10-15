@@ -781,6 +781,29 @@ void drop_census_entry(string uuid)
   }
 }
 
+/**
+ * Takes a person out of the world for good without a death: the live body
+ * goes, the census row goes and so does their save folder. For a piece that
+ * retires whoever fills something it owns (a closed job).
+ */
+void retire_npc(string uuid)
+{
+  object npc;
+
+  if (!uuid)
+    return;
+
+  npc = find_living(uuid);
+  if (npc)
+    npc->dest_me();
+
+  drop_census_entry(uuid);
+
+  // after the body has gone, so nothing writes the npc.o back
+  AREA_HANDLER->delete_npc_saves(
+    game_from_path((string)this_object()->query_area_path()), uuid);
+}
+
 // Called by a persisted NPC (via monster::do_death) when it dies: drop its
 // census slot so the population frees up and a replacement may spawn later.
 // The savefile itself is removed by the NPC's own delete_npc_save().

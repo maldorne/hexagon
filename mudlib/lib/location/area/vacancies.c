@@ -250,17 +250,12 @@ void close_vacancy(string job)
   for (i = 0; i < sizeof(ids); i++)
   {
     mapping e;
-    object npc;
 
     e = ((mapping)this_object()->query_npc_census())[ids[i]];
     if (e[CENSUS_VACANCY] != job)
       continue;
 
-    npc = find_living(ids[i]);
-    if (npc)
-      npc->dest_me();
-
-    this_object()->drop_census_entry(ids[i]);
+    this_object()->retire_npc(ids[i]);
   }
 
   vacancies -= ({ vacancy });

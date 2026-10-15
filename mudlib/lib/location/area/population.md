@@ -145,8 +145,8 @@ The record says what the job is, never who does it. Who holds a seat is read
 from the census (`query_vacancy_holders()` counts the rows whose `vacancy` is the
 job), so a seat cannot go stale: when the holder dies the seat is open by
 arithmetic. `open_vacancy()` restating a job keeps every part not restated;
-`close_vacancy()` culls its holders, destroying live ones and dropping their
-census rows.
+`close_vacancy()` retires its holders (`retire_npc()`): live ones are destroyed,
+their census rows dropped and their savefile folders deleted.
 
 A job is named after its type (`barman` from `areas/<area>/npcs/barman`). Two
 pubs are one `barman` job with two seats and two spots.
