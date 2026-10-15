@@ -824,6 +824,14 @@ void apply_template(mapping t, varargs int born)
     load_a_chat(t["a_chat"]["chance"], t["a_chat"]["lines"]);
   }
 
+  // How the world reads this type: its own value, or else its race's. Set
+  // outright here, since perceived alignment is not saved and a restored body
+  // gets its race back without the race's share being added again.
+  if (!undefinedp(t["ext_align"]))
+    set_ext_align(t["ext_align"]);
+  else if (query_race_ob())
+    set_ext_align(load_object(query_race_ob())->query_ext_align());
+
   if (!born)
     return;
 
