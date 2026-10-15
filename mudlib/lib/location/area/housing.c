@@ -112,9 +112,8 @@ void set_principal(string file)
   this_object()->save_me();
 }
 
-// A house is part of what surrounds it: a house in a town is town, one in the
-// woods is woods. It takes the city and forest components of the locations
-// its exits lead to, with their settings, unless it has its own.
+// A house in a town is part of the town: it takes the city component of the
+// locations its exits lead to, with its settings, unless it has its own.
 void take_setting(object house)
 {
   mapping exits;
@@ -125,7 +124,7 @@ void take_setting(object house)
   if (!house)
     return;
 
-  types = ({ LOCATION_COMPONENT_CITY, LOCATION_COMPONENT_FOREST });
+  types = ({ LOCATION_COMPONENT_CITY });
   exits = house->query_exit_map();
   dirs = exits ? map_indices(exits) : ({ });
 
@@ -671,7 +670,8 @@ int demote_house(string file)
   house = (object)this_object()->load_location(file);
   if (house)
   {
-    // a bare plot again: the setting the house took goes with it
+    // a bare plot again: the setting the house took goes with it, and any
+    // forest it was given by hand
     house->remove_component(LOCATION_COMPONENT_HOME);
     house->remove_component(LOCATION_COMPONENT_CITY);
     house->remove_component(LOCATION_COMPONENT_FOREST);
