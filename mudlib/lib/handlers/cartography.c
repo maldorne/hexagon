@@ -494,9 +494,9 @@ object * walk_reachable(object start, int max_depth, varargs int deep)
 // ---------------------------------------------------------------------------
 
 /**
- * Default renderer: the chunky `[ ]` boxes with `---`, `|`, `/`, `\`
- * exit segments. This is the look the original `map` command had and
- * what the player sees today.
+ * Plain renderer: the chunky `[ ]` boxes with `---`, `|`, `/`, `\`
+ * exit segments, without colour. The `map` command uses
+ * render_color_by_area instead.
  */
 string render_ascii(mapping view)
 {
@@ -821,9 +821,9 @@ string render_unicode(mapping view)
 }
 
 /**
- * Color-by-area renderer: same chunky `[ ]` glyphs as render_ascii,
- * but each location is tinted with a palette colour assigned to its
- * `query_area_name()`. Lets the player see at a glance the boundary
+ * Color-by-area renderer, the `map` command's default: the chunky `[ ]`
+ * glyphs of render_ascii, with each location tinted with a palette
+ * colour assigned to its `query_area_name()`. Lets the player see at a glance the boundary
  * between areas without losing any of the marker information.
  *
  * The palette is fixed (8 colours); if more areas appear in the same

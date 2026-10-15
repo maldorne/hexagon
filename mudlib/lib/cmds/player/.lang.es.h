@@ -374,7 +374,7 @@
 // map
 
 #define _LANG_CMD_MAP_ALIAS ({ "mapa" })
-#define _LANG_CMD_MAP_SYNTAX "mapa [compacto | unicode | color | coordenadas]"
+#define _LANG_CMD_MAP_SYNTAX "mapa [compacto | unicode | coordenadas]"
 #define _LANG_CMD_MAP_HELP "Muestra un mapa de tu entorno."
 #define _LANG_CMD_MAP_NO_ENV "¡Sin entorno no puedes hacer eso!\n"
 #define _LANG_CMD_MAP_INVALID "Por alguna razón el mapa no funciona en un lugar como este.\n"
@@ -398,18 +398,15 @@
 
 #define _LANG_CMD_MAP_OPT_COMPACT ({ "compacto", "compact" })
 #define _LANG_CMD_MAP_OPT_UNICODE ({ "unicode" })
-#define _LANG_CMD_MAP_OPT_COLOR   ({ "color", "colour" })
 #define _LANG_CMD_MAP_OPT_COORDS  ({ "coordenadas", "coords" })
 
 #define _LANG_CMD_MAP_VARIANTS_HELP \
         "\nVariantes:\n" + \
-        "  mapa              el mapa estándar.\n" + \
+        "  mapa              el mapa estándar, coloreado por área.\n" + \
         "  mapa compacto     una vista densa de un carácter por lugar.\n" + \
         "  mapa unicode      la misma densidad que compacto pero con\n" + \
         "                    glifos reales de dibujo de cajas (necesita\n" + \
-        "                    un cliente UTF-8).\n" + \
-        "  mapa color        cajas estándar, con cada habitación coloreada\n" + \
-        "                    según el área a la que pertenece.\n"
+        "                    un cliente UTF-8).\n"
 #define _LANG_CMD_MAP_VARIANTS_HELP_CODER \
         "  mapa coordenadas  superposición de coordenadas (sólo coders).\n"
 

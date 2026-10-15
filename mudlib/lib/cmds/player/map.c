@@ -2,7 +2,7 @@
 // player `map` cmd: thin facade over CARTOGRAPHY_HANDLER.
 //
 // `map`            — default chunky ASCII (`[ ]`, `---`, `|`, `/`, `\`)
-//                    inside the parchment frame, with legend.
+//                    coloured by area, inside the parchment frame, with legend.
 // `map compact`    — single-character-per-location roguelike style. Three
 //                    times denser, fits a much larger viewport.
 // `map coords`     — coder-only debug view: `(x,y)` of each location.
@@ -22,7 +22,6 @@ inherit CMD_BASE;
 #define MAP_STYLE_DEFAULT  0
 #define MAP_STYLE_COMPACT  1
 #define MAP_STYLE_UNICODE  2
-#define MAP_STYLE_COLOR    3
 #define MAP_STYLE_COORDS   4
 
 // Seconds after connecting (or reconnecting) before the map answers: what it
@@ -163,8 +162,6 @@ static int cmd(string str, object me, string verb)
       style = MAP_STYLE_COMPACT;
     else if (member_array(str, _LANG_CMD_MAP_OPT_UNICODE) != -1)
       style = MAP_STYLE_UNICODE;
-    else if (member_array(str, _LANG_CMD_MAP_OPT_COLOR) != -1)
-      style = MAP_STYLE_COLOR;
     else if (member_array(str, _LANG_CMD_MAP_OPT_COORDS) != -1)
     {
       if (!me->query_coder())
@@ -213,14 +210,6 @@ static int cmd(string str, object me, string verb)
     case MAP_STYLE_UNICODE:
       write("\n" + cart->render_unicode(view) + "\n");
       break;
-    case MAP_STYLE_COLOR:
-      write("\n" +
-            handler("frames")->frame(
-              _build_inner(cart->render_color_by_area(view),
-                           _scan_legend(view)),
-              "", 0, 0, "scroll") +
-            "\n");
-      break;
     case MAP_STYLE_COORDS:
       // each (x,y) tag is 8 chars wide — wraps past the parchment width
       write("\n" + cart->render_coords(view) + "\n");
@@ -228,7 +217,8 @@ static int cmd(string str, object me, string verb)
     default:
       write("\n" +
             handler("frames")->frame(
-              _build_inner(cart->render_ascii(view), _scan_legend(view)),
+              _build_inner(cart->render_color_by_area(view),
+                           _scan_legend(view)),
               "", 0, 0, "scroll") +
             "\n");
       break;
