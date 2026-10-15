@@ -196,7 +196,7 @@ string build_house_on_plot(string * residents)
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (string)owner->build_house_on_plot(residents);
+    return owner->build_house_on_plot(residents);
 
   residents = residents ? residents : ({ });
 
@@ -224,7 +224,7 @@ string build_house_at(string file, string * residents, varargs int kept)
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (string)owner->build_house_at(file, residents, kept);
+    return owner->build_house_at(file, residents, kept);
 
   if (member_array(file, query_plots()) < 0)
     return nil;
@@ -244,7 +244,7 @@ string furnish_house(string file)
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (string)owner->furnish_house(file);
+    return owner->furnish_house(file);
 
   if (member_array(file, query_plots()) >= 0)
     return nil;
@@ -483,7 +483,7 @@ string query_house_of(string uuid)
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (string)owner->query_house_of(uuid);
+    return owner->query_house_of(uuid);
 
   if (!house_records)
     house_records = ([ ]);
@@ -886,7 +886,7 @@ string found_family_for(string uuid)
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
-    return (string)owner->found_family_for(uuid);
+    return owner->found_family_for(uuid);
 
   return _family_for(({ uuid }));
 }
