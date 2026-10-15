@@ -24,10 +24,12 @@
 // In lazy mode (`deep == 0`) the inventory pass is skipped on rooms with
 // no live contents, so markers only show for rooms already populated;
 // topology and door/up/down/coast still resolve.
-private int _classify_room(object room, object viewer, int deep)
+// `quests` is the viewer's quest handler and `enemies` the viewer's foes,
+// worked out once per view by the caller.
+private int _classify_room(object room, object viewer, int deep,
+                           object quests, object * enemies)
 {
   object * inv;
-  object * enemies;
   object giver;
   string * exits;
   int i;
@@ -44,7 +46,7 @@ private int _classify_room(object room, object viewer, int deep)
 
   // the room itself can deal in quests too, through its own component or by
   // carrying /lib/quests/giver.c
-  giver = handler(QUESTS_HANDLER, viewer)->giver_of(room);
+  giver = quests->giver_of(room);
   if (giver && giver->check_player_can_complete(viewer))
     return CART_FINISH_QUEST_ROOM;
   if (giver && giver->check_player(viewer))
@@ -52,15 +54,13 @@ private int _classify_room(object room, object viewer, int deep)
 
   if (deep || sizeof(inv))
   {
-    enemies = viewer->query_attacker_list() + viewer->query_call_outed();
-
     for (i = 0; i < sizeof(inv); i++)
     {
       if ((member_array(inv[i], enemies) != -1) && !inv[i]->query_hidden())
         return CART_ENEMY_ROOM;
       // the quest handler says what answers for whatever is here -- a creature,
       // an item, or the component one of them carries
-      giver = handler(QUESTS_HANDLER, viewer)->giver_of(inv[i]);
+      giver = quests->giver_of(inv[i]);
       if (giver && giver->check_player_can_complete(viewer))
         return CART_FINISH_QUEST_ROOM;
       if (giver && giver->check_player(viewer))
@@ -180,12 +180,13 @@ private int _z_of(object room)
  */
 mapping query_map_view(object viewer, varargs mapping options)
 {
-  object env;
+  object env, quests;
+  object * enemies;
   int deep, width, height;
   int ** locations;
   object ** rooms;
   mixed * pending;
-  mapping placed;
+  mapping placed, placed_paths;
   mixed current;
   int viewer_x, viewer_y;
   int i, head, viewer_z;
@@ -228,15 +229,23 @@ mapping query_map_view(object viewer, varargs mapping options)
   // levels (best effort with no information).
   viewer_z = _z_of(env);
 
+  // what the viewer's markers depend on, the same for every room in the view
+  quests = handler(QUESTS_HANDLER, viewer);
+  enemies = viewer->query_attacker_list() + viewer->query_call_outed();
+
   // BFS from the viewer's environment outward through exits
   // a room is placed once, when it is first met: rooms met again through
   // other exits are never queued twice, so a dense knot of exits (rooms that
   // all lead to each other) costs one visit per room
   pending = ({ ({ viewer_x, viewer_y, env }) });
   placed = ([ env : 1 ]);
+  // exit destination -> the room placed for it, so a destination met again
+  // is not resolved again
+  placed_paths = ([ ]);
   head = 0;
 
-  locations[viewer_y][viewer_x] = _classify_room(env, viewer, deep);
+  locations[viewer_y][viewer_x] = _classify_room(env, viewer, deep,
+                                                 quests, enemies);
   rooms[viewer_y][viewer_x] = env;
 
   while (head < sizeof(pending))
@@ -331,6 +340,10 @@ mapping query_map_view(object viewer, varargs mapping options)
           continue;
       }
 
+      // nothing of this exit falls inside the viewport
+      if (!has_segment && !has_dest)
+        continue;
+
       // a door / gate on this exit crosses its segment glyph instead of
       // marking the room: upgrade the plain segment to its door variant
       if (member_array(current[2]->query_ex_type(dest_dir[i]),
@@ -346,22 +359,28 @@ mapping query_map_view(object viewer, varargs mapping options)
       // we draw nothing (no segment, no destination). The source
       // room still carries its CART_UP_ROOM / CART_DOWN_ROOM marker
       // for any vertical exit, which is the level-transition hint.
-      new_room = _resolve_destination(dest_dir[i + 1], deep);
+      // A destination already placed was resolved and on this plane.
+      new_room = placed_paths[dest_dir[i + 1]];
       if (!new_room)
-        continue;
-
-      if (viewer_z != CART_NO_Z)
       {
-        int dest_z;
-        dest_z = _z_of(new_room);
-        if (dest_z != CART_NO_Z && dest_z != viewer_z)
+        new_room = _resolve_destination(dest_dir[i + 1], deep);
+        if (!new_room)
           continue;
+
+        if (viewer_z != CART_NO_Z)
+        {
+          int dest_z;
+          dest_z = _z_of(new_room);
+          if (dest_z != CART_NO_Z && dest_z != viewer_z)
+            continue;
+        }
       }
 
       // a room already placed is not placed again; the link to it is drawn
       // only when it sits where this exit points and no link is there yet
       if (placed[new_room])
       {
+        placed_paths[dest_dir[i + 1]] = new_room;
         if (has_segment && has_dest && rooms[dest_y][dest_x] == new_room &&
             locations[seg_y][seg_x] == CART_EMPTY)
           locations[seg_y][seg_x] = seg_type;
@@ -385,15 +404,18 @@ mapping query_map_view(object viewer, varargs mapping options)
           locations[dest_y][dest_x] = CART_MAZE_ROOM;
           rooms[dest_y][dest_x] = new_room;
           placed[new_room] = 1;
+          placed_paths[dest_dir[i + 1]] = new_room;
         }
         continue;
       }
 
       if (has_dest)
       {
-        locations[dest_y][dest_x] = _classify_room(new_room, viewer, deep);
+        locations[dest_y][dest_x] = _classify_room(new_room, viewer, deep,
+                                                   quests, enemies);
         rooms[dest_y][dest_x] = new_room;
         placed[new_room] = 1;
+        placed_paths[dest_dir[i + 1]] = new_room;
         pending += ({ ({ dest_x, dest_y, new_room }) });
       }
     }

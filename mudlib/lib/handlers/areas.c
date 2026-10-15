@@ -358,11 +358,12 @@ object create_area(string path)
   if (this_object() != _global())
     return (object)_global()->create_area(path);
 
-  if (file_size(path) != -2)
-    mkdir(path);
-
+  // a cached area needs no disk access
   if (loaded_areas[path])
     return loaded_areas[path];
+
+  if (file_size(path) != -2)
+    mkdir(path);
 
   area = clone_object(AREA_STORAGE_OBJECT);
   area->set_area_path(path);

@@ -58,10 +58,11 @@ string get_location_file_name_from_room(object ob)
   return base_dir + "locations/" + implode(pieces[2..], "/") + ".o";  
 }
 
-object query_area_from_location_file_name(string file_name)
+// The directory of the area that holds a location file, or nil when the path
+// is too short to name one.
+private string _area_path_from_location_file_name(string file_name)
 {
   string * pieces;
-  string area_name;
 
   pieces = explode(file_name, "/");
 
@@ -69,7 +70,16 @@ object query_area_from_location_file_name(string file_name)
   if (sizeof(pieces) < 3)
     return nil;
 
-  area_name = "/" + implode(pieces[0..sizeof(pieces)-2], "/") + "/";
+  return "/" + implode(pieces[0..sizeof(pieces)-2], "/") + "/";
+}
+
+object query_area_from_location_file_name(string file_name)
+{
+  string area_name;
+
+  area_name = _area_path_from_location_file_name(file_name);
+  if (!area_name)
+    return nil;
 
   return load_object(AREA_HANDLER)->create_area(area_name);
 }
@@ -93,6 +103,7 @@ object query_sector_from_location_file_name(string file_name)
 object query_loaded_location(string file_name)
 {
   object area;
+  string area_name;
 
   if (!strlen(file_name))
     return nil;
@@ -100,7 +111,13 @@ object query_loaded_location(string file_name)
   if (file_name[strlen(file_name) - 2 ..] != ".o")
     return nil;
 
-  area = query_area_from_location_file_name(file_name);
+  // only an area already in memory can hold a loaded location, so the area is
+  // looked up, never created
+  area_name = _area_path_from_location_file_name(file_name);
+  if (!area_name)
+    return nil;
+
+  area = ((mapping)load_object(AREA_HANDLER)->query_loaded_areas())[area_name];
 
   return area ? (object)area->query_loaded_location(file_name) : nil;
 }
@@ -112,19 +129,26 @@ object load_location(string file_name)
   if (!strlen(file_name))
     return nil;
 
-  if (file_size(file_name) < 0)
-    return nil;
-
   // if the filename does not end in .o, this is not a location
   if (file_name[strlen(file_name) - 2..strlen(file_name) - 1] != ".o")
     return nil;
 
-  // load the location from the area system
-  area = query_area_from_location_file_name(file_name);
-  location = area->load_location(file_name);
+  // a location in memory needs no disk access; only an actual load checks
+  // that the file exists
+  location = query_loaded_location(file_name);
 
   if (!location)
-    return nil;
+  {
+    if (file_size(file_name) < 0)
+      return nil;
+
+    // load the location from the area system
+    area = query_area_from_location_file_name(file_name);
+    location = area->load_location(file_name);
+
+    if (!location)
+      return nil;
+  }
 
   // Index the location into the sector system, but only when it is not already
   // there: sector::add_location rewrites the whole sector .o (save_object) on
