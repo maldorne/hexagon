@@ -17,7 +17,7 @@ private string books_of(object area);
 private string seen_from(object area);
 private string leaf(string path);
 private string where(object area, string file);
-private string kit_of(mapping job);
+private string kit_of(mixed spec);
 private string hours_of(mapping job);
 private string type_note(object area, mapping job);
 private string * holder_rows(object area, mapping job);
@@ -147,14 +147,12 @@ private string where(object area, string file)
          (area->query_loaded_location(file) ? " (loaded)" : "");
 }
 
-// The kit the job hands a new holder, one line per slot.
-private string kit_of(mapping job)
+// A kit as one line: its slots, with the alternatives of each joined by '|'.
+private string kit_of(mixed spec)
 {
-  mixed spec;
   string out;
   int i, j;
 
-  spec = job[VACANCY_EQUIPMENT];
   if (!pointerp(spec) || !sizeof(spec))
     return "-";
 
@@ -489,7 +487,17 @@ private int do_job(object area, string name)
                  : "-  (its holders are never housed)")) + "\n";
   out += "  class      " +
          (job[VACANCY_CLASS] ? job[VACANCY_CLASS] : "-") + "\n";
-  out += "  kit        " + kit_of(job) + "\n";
+  out += "  kit        " + kit_of(job[VACANCY_EQUIPMENT]) + "\n";
+  if (mappingp(job[VACANCY_KITS]))
+  {
+    string * types;
+    int k;
+
+    types = map_indices(job[VACANCY_KITS]);
+    for (k = 0; k < sizeof(types); k++)
+      out += "    for " + leaf(types[k]) + ": " +
+             kit_of(job[VACANCY_KITS][types[k]]) + "\n";
+  }
   out += "  hours      " + hours_of(job) + "\n";
   out += "  post       " +
          (job[VACANCY_FIXED] ? "fixed: one place, refilled there"

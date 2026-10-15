@@ -37,7 +37,7 @@ inherit "/lib/armour.c";
   "          | admit <citizens|all> >"
 #define BUILDER_RING_VACANCY_SYNTAX \
   "build vacancy < add <name> <count> <source.c>[*w,...] [fixed]\n" + \
-  "               | equip <name> <item.c[|alt.c...]>...\n" + \
+  "               | equip <name> [for <type>] <item.c[|alt.c...]>...\n" + \
   "               | timetable <name> [<hour> <work|home|clear> [message]]\n" + \
   "               | class <name> <class.c|none> | home <name>\n" + \
   "               | remove <name> | list >"
@@ -95,7 +95,7 @@ inherit "/lib/armour.c";
   "\n" + \
   "  build vacancy add <name> <count> <source.c>[*w,...] [fixed]\n" + \
   "                                  several types, drawn by weight\n" + \
-  "  build vacancy equip <name> <item.c[|alt.c]>...\n" + \
+  "  build vacancy equip <name> [for <type>] <item.c[|alt.c]>...\n" + \
   "  build vacancy class <name> <class.c|none>  what the job trains in\n" + \
   "  build vacancy home <name>                  bind a house to the job\n" + \
   "  build vacancy resident <name> [none]       its holders live in town\n" + \
@@ -1380,13 +1380,16 @@ int do_vacancy(string str)
   {
     mixed * spec;
     string * tokens;
+    string source;
     int t;
 
     if (sizeof(args) < 3)
     {
-      notify_fail("Usage: build vacancy equip <name> <item.c[|alt.c...]> ...\n" +
+      notify_fail("Usage: build vacancy equip <name> [for <type>] <item.c[|alt.c...]> ...\n" +
                   "  Each argument is one slot; join alternatives with '|' and " +
-                  "each NPC rolls one (e.g. weapons/club|weapons/sickle).\n");
+                  "each NPC rolls one (e.g. weapons/club|weapons/sickle).\n" +
+                  "  'for <type>' gives the holders drawn from that type their " +
+                  "own kit; 'none' as the only item clears a kit.\n");
       return 0;
     }
     if (!area->query_vacancy(args[1]))
@@ -1395,9 +1398,19 @@ int do_vacancy(string str)
       return 0;
     }
 
+    // a kit for one of the job's types rather than for the whole job
+    if (sizeof(args) > 4 && args[2] == "for")
+    {
+      source = args[3];
+      tokens = args[4 ..];
+    }
+    else
+      tokens = args[2 ..];
+    if (sizeof(tokens) == 1 && tokens[0] == "none")
+      tokens = ({ });
+
     // one slot per argument; '|' inside a slot lists interchangeable items.
     // Validate every blueprint exists before storing the kit.
-    tokens = args[2 ..];
     spec = ({ });
     for (t = 0; t < sizeof(tokens); t++)
     {
@@ -1420,6 +1433,14 @@ int do_vacancy(string str)
     // trade is armed differently from one town to the next. Whoever holds the
     // post now keeps what they were given at birth, the way a player keeps what
     // they own; the kit takes effect on the next person to fill it.
+    if (source)
+    {
+      area->set_vacancy_kit(args[1], source, spec);
+      write("Job '" + args[1] + "' kit for " + source + " set: " + sizeof(spec) +
+            " slot" + (sizeof(spec) == 1 ? "" : "s") +
+            ". Whoever of that type fills it next rolls their gear.\n");
+      return 1;
+    }
     area->set_vacancy_equipment(args[1], spec);
     write("Job '" + args[1] + "' kit set: " + sizeof(spec) +
           " slot" + (sizeof(spec) == 1 ? "" : "s") +

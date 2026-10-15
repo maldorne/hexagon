@@ -46,6 +46,10 @@
 // slot. The job's, not the type's -- one town may arm its watch with spears and
 // the next with swords out of the same people.
 #define VACANCY_EQUIPMENT "equipment"
+// a kit per type the job draws from, ([ template id : kit ]): a holder of a
+// listed type is given that kit instead of the job's, so one post can arm its
+// soldiers, knights and captains each their own way
+#define VACANCY_KITS      "kits"
 // the hours the job keeps: ([ "<hour>": ([ "goto": "work"|"home"|<file>,
 // "msg": <souls template> ]) ]). Hour keys are strings, as JSON leaves them.
 #define VACANCY_TIMETABLE "timetable"

@@ -362,11 +362,10 @@ private int _build_npc(string id)
     npc->set_work(entry[CENSUS_WORKS_AT]);
 
   // The kit is rolled once and carried for life. It is the job's where there is
-  // one -- the same trade is armed differently from town to town -- and the
-  // type's for somebody who holds no post. Worn and wielded when the person is
-  // placed in the world, not here.
-  equipment = (job && pointerp(job[VACANCY_EQUIPMENT]))
-                ? job[VACANCY_EQUIPMENT] : (t ? t["equipment"] : nil);
+  // one -- the same trade is armed differently from town to town; the job may
+  // arm each of its types its own way -- and the type's for somebody who holds
+  // no post. Worn and wielded when the person is placed in the world, not here.
+  equipment = (mixed *)this_object()->query_kit_for(job, entry["source"], t);
   if (pointerp(equipment) && sizeof(equipment))
   {
     string * kit;
@@ -525,8 +524,7 @@ string * rekit_npc(string id)
           : nil;
   t = (mapping)this_object()->query_area_template(
         (string)npc->query_npc_game(), entry["source"]);
-  equipment = (job && pointerp(job[VACANCY_EQUIPMENT]))
-                ? job[VACANCY_EQUIPMENT] : (t ? t["equipment"] : nil);
+  equipment = (mixed *)this_object()->query_kit_for(job, entry["source"], t);
 
   kit = ({ });
   if (pointerp(equipment) && sizeof(equipment))

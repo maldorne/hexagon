@@ -321,6 +321,47 @@ int set_vacancy_equipment(string job, mixed * spec)
   return 1;
 }
 
+// The kit this job hands a new holder drawn from one of its types, in place of
+// the job's own kit. An empty spec clears it. Returns 0 if the job is not open.
+int set_vacancy_kit(string job, string source, mixed * spec)
+{
+  mapping vacancy;
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_vacancy_kit(job, source, spec);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy)
+    return 0;
+
+  if (!mappingp(vacancy[VACANCY_KITS]))
+    vacancy[VACANCY_KITS] = ([ ]);
+  if (pointerp(spec) && sizeof(spec))
+    vacancy[VACANCY_KITS][source] = spec;
+  else
+    map_delete(vacancy[VACANCY_KITS], source);
+  if (!map_sizeof(vacancy[VACANCY_KITS]))
+    map_delete(vacancy, VACANCY_KITS);
+
+  this_object()->save_me();
+  return 1;
+}
+
+// The kit a holder of `job` drawn from `source` is given: the type's own kit in
+// the job if it has one, else the job's, else, for somebody with no post, the
+// type template's.
+mixed * query_kit_for(mapping job, string source, mapping t)
+{
+  if (job && mappingp(job[VACANCY_KITS]) &&
+      pointerp(job[VACANCY_KITS][source]))
+    return job[VACANCY_KITS][source];
+  if (job && pointerp(job[VACANCY_EQUIPMENT]))
+    return job[VACANCY_EQUIPMENT];
+  return t ? t["equipment"] : nil;
+}
+
 // The hours this job keeps, keyed by game hour as a string. Also the post's:
 // a night watch and a day watch are the same people on different shifts. An
 // empty mapping clears it. Returns 0 if the job is not open.
