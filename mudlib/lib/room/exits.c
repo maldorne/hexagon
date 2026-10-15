@@ -328,6 +328,11 @@ mixed add_exit(string direc, mixed dest, string type,
       return door;
     }
 
+    // an exit that stops being a door loses its door object
+    door = query_door_ob(direc);
+    if (door)
+      door->dest_me();
+
     // return the door object if it already existed
     if (door = query_door_ob(direc))
       return door;
