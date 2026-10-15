@@ -5,7 +5,8 @@
 // the area is the dispatcher ("your turn"), the NPC decides what to do and how.
 //
 //   timetable: ([ hour(0-23) : ([ "goto": "work" | "home" | "out" |
-//                                         <location file> ]) ])
+//                                         <location file>,
+//                                 "leave": <text>, "arrive": <text> ]) ])
 //
 // "work" resolves to this NPC's work location, "home" to its home (read live, a
 // family shares it and it can change), "out" to one of its area's points of
@@ -14,6 +15,12 @@
 // and the NPC is there, it does not wander out of it.
 // The walk is the NPC's paced, interruptible travel (travel_to) -- combat or
 // conversation abandons the trip, and the next matching hour re-issues it.
+//
+// `leave` is told to the room the NPC sets off from, `arrive` to the one it
+// reaches, once it has closed any door behind it. Both are optional souls
+// templates written in the mud's language ($mcname$ = this NPC's kind/name,
+// $mpronoun$/$mposs$/$mobj$, $mvocal$ = the o/a vowel for gender agreement),
+// so a day of work and home carries four lines at most.
 
 #include <areas/area.h>
 
@@ -26,6 +33,11 @@ string work;
 mapping timetable;
 // what the last entry acted on said to do ("home" keeps the NPC in)
 static string current_goto;
+// the trip under way: where it ends and the line to tell when it does
+static string trip_dest, trip_arrive;
+// the arrival line waiting for the queued steps to run, and checks left
+static string arrival_line;
+static int arrive_tries;
 
 void create()
 {
@@ -64,6 +76,17 @@ private string _somewhere_out(object npc)
 
   places = map_indices((mapping)area->query_pois());
   return sizeof(places) ? places[random(sizeof(places))] : nil;
+}
+
+/**
+ * Renders a timetable line against the NPC, capitalised, as a leading $mcname$
+ * expands lowercase. Nil when the entry carries no such line.
+ */
+private string _line(object npc, mixed text)
+{
+  if (!stringp(text) || !strlen(text))
+    return nil;
+  return capitalize(personalize_string(text, npc)) + "\n";
 }
 
 private string _resolve(object npc, string dest)
@@ -161,9 +184,11 @@ void resume_schedule(mixed * args)
   if (here && here->query_file_name() == dest)
     return;
 
-  // silent, and no message even when the entry carries one: this is not the
-  // hour's departure that a room witnesses, it is somebody quietly finishing a
-  // walk that was cut short
+  // no leaving line: this is not the hour's departure that a room witnesses,
+  // it is somebody quietly finishing a walk that was cut short. The arrival is
+  // still seen where the walk ends.
+  trip_dest = dest;
+  trip_arrive = entry["arrive"];
   npc->travel_to(dest);
 }
 
@@ -196,20 +221,58 @@ void do_schedule(mixed * args)
   if (here && here->query_file_name() == dest)
     return;
 
-  // Optional flavour line: a builder-authored message on the entry, written in
-  // the mud's language (like a POI label -- no lang file), announced to the room
-  // as the NPC sets off. Absent on most entries; the departure is silent then.
-  //
-  // The message may carry personalization wildcards ($mcname$ = this NPC's
-  // kind/name, $mpronoun$/$mposs$/$mobj$, $mvocal$ = the o/a vowel for gender
-  // agreement, ...), resolved against THIS npc by the personalize_string efun --
-  // so one generic message reads correctly for a male or a female citizen
-  // instead of a fixed, possibly mis-gendered line. Capitalise the result, as a
-  // leading $mcname$ expands lowercase.
-  if (here && stringp(entry["msg"]) && strlen(entry["msg"]))
-    tell_room(here, capitalize(personalize_string(entry["msg"], npc)) + "\n");
+  if (here && _line(npc, entry["leave"]))
+    tell_room(here, _line(npc, entry["leave"]));
 
+  trip_dest = dest;
+  trip_arrive = entry["arrive"];
   npc->travel_to(dest);
+}
+
+/**
+ * The NPC has moved (forwarded by npc.c). Reaching the end of the trip tells
+ * its arrival line, once the steps still queued behind the move (closing the
+ * door) have run. args = ({ ob, from, dest }).
+ */
+void event_moved(mixed * args)
+{
+  object npc, here;
+
+  npc = query_owner();
+  here = npc ? environment(npc) : nil;
+  if (!here || !trip_dest || here->query_file_name() != trip_dest)
+    return;
+
+  trip_dest = nil;
+  arrival_line = trip_arrive;
+  trip_arrive = nil;
+  if (!arrival_line)
+    return;
+
+  arrive_tries = 5;
+  call_out("announce_arrival", 1, here);
+}
+
+/**
+ * Tells the arrival line in `where`, waiting a few beats for the NPC's queued
+ * actions to run first. Dropped if the NPC has moved on meanwhile.
+ */
+void announce_arrival(object where)
+{
+  object npc;
+
+  npc = query_owner();
+  if (!npc || !where || environment(npc) != where || !arrival_line)
+    return;
+
+  if (npc->query_action_pending() && --arrive_tries > 0)
+  {
+    call_out("announce_arrival", 1, where);
+    return;
+  }
+
+  tell_room(where, _line(npc, arrival_line));
+  arrival_line = nil;
 }
 
 // Persistence: work + timetable ride in the npc.o.

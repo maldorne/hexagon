@@ -50,8 +50,9 @@
 // listed type is given that kit instead of the job's, so one post can arm its
 // soldiers, knights and captains each their own way
 #define VACANCY_KITS      "kits"
-// the hours the job keeps: ([ "<hour>": ([ "goto": "work"|"home"|<file>,
-// "msg": <souls template> ]) ]). Hour keys are strings, as JSON leaves them.
+// the hours the job keeps: ([ "<hour>": ([ "goto": "work"|"home"|"out"|<file>,
+// "leave": <souls template>, "arrive": <souls template> ]) ]). Hour keys are
+// strings, as JSON leaves them.
 #define VACANCY_TIMETABLE "timetable"
 // the house that comes with the job, if it comes with one
 #define VACANCY_HOME      "home"

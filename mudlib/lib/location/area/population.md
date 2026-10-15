@@ -161,9 +161,11 @@ with one type drops the others.
 ### Timetables
 
 A job's `timetable` maps a game hour (0 to 23, a string key in the stored job)
-to `([ "goto": "work" | "home" | <location file>, "msg": <text> ])`. `msg` is a
-souls template resolved against the person leaving, announced to the room as
-they set off; without it the departure is silent. Timetables belong to the job:
+to `([ "goto": "work" | "home" | "out" | <location file>, "leave": <text>,
+"arrive": <text> ])`. Both lines are optional souls templates resolved against
+the person: `leave` is told to the room they set off from, `arrive` to the one
+they reach once any door is closed behind them, so a day of work and home has
+four at most. Somebody finishing a walk cut short says no `leave`. Timetables belong to the job:
 day and night watches are two jobs. For somebody holding no post the type's own
 `timetable` is used, and with no workplace it can only send them `home` or `out`
 (a random POI). A type or job that names no hours keeps its people where they
@@ -398,7 +400,8 @@ With the builder ring, standing in the right location each time. The templates
    `build poi guard_dir <dir>` and `build poi admit <citizens|all>`.
 4. Declare the jobs, standing where each is worked: `build vacancy add <name>
    <count> <template>[*<weight>],... [fixed]`, then `build vacancy equip`,
-   `timetable <name> <hour> <work|home|clear> [message]`, `class`, `spot`
+   `timetable <name> <hour> <work|home|out|clear>`, `timetable <name> <hour>
+   <leave|arrive> [message]`, `class`, `spot`
    (once per extra place), and `home <name>` or `resident <name>`.
 5. Carve plots (`build plot <dir>`) and raise special houses by hand
    (`build home make`, `build home short|long`, `build home communal`,

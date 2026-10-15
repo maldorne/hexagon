@@ -102,6 +102,17 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
   stderr(" * event_exit " + object_name(this_object()) + "\n");
 }
 
+/**
+ * This object has just moved from one container to another. Told to the object
+ * itself, the one event_enter and event_exit leave out.
+ * @param ob    the object that moved (this object)
+ * @param from  where it was, nil if nowhere
+ * @param dest  where it is now
+ */
+void event_moved(object ob, object from, object dest)
+{
+}
+
 void event_login(object ob, varargs mixed avoid)
 {
   if (!interactive(this_object()))

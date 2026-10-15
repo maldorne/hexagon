@@ -70,6 +70,10 @@ int move(mixed dest, varargs mixed messin, mixed messout)
   // event_enter
   event(dest, "enter", messin, previous, this_object());
 
+  // told to the object itself, not through event(): event() would tell its
+  // whole inventory too, and leaves out the one who moves
+  this_object()->event_moved(this_object(), previous, dest);
+
   return MOVE_OK;
 }
 

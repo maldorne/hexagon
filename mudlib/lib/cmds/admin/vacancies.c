@@ -210,7 +210,8 @@ private string hours_of(mapping job)
       continue;
     out += (strlen(out) ? ", " : "") + sorted[i] + "h " +
            (entry["goto"] ? entry["goto"] : "?") +
-           (entry["msg"] ? " (says so)" : "");
+           (entry["leave"] ? " (leave)" : "") +
+           (entry["arrive"] ? " (arrive)" : "");
   }
 
   return strlen(out) ? out : "-";

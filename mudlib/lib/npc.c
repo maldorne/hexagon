@@ -315,6 +315,14 @@ void run_on_components(string func, mixed * args)
     call_other(components[i], func, args);
 }
 
+/**
+ * The NPC has moved: pass it on to the components.
+ */
+void event_moved(object ob, object from, object dest)
+{
+  run_on_components("event_moved", ({ ob, from, dest }));
+}
+
 // Guard proxy. The room's exit handler consults a posted guard through
 // guardian_check / guardian_message on the NPC object; delegate to the guard
 // component when this NPC carries one, or to the toll component of one who

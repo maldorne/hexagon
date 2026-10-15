@@ -38,7 +38,8 @@ inherit "/lib/armour.c";
 #define BUILDER_RING_VACANCY_SYNTAX \
   "build vacancy < add <name> <count> <source.c>[*w,...] [fixed]\n" + \
   "               | equip <name> [for <type>] <item.c[|alt.c...]>...\n" + \
-  "               | timetable <name> [<hour> <work|home|clear> [message]]\n" + \
+  "               | timetable <name> [<hour> <work|home|out|clear>]\n" + \
+  "               | timetable <name> <hour> <leave|arrive> [message]\n" + \
   "               | class <name> <class.c|none> | home <name>\n" + \
   "               | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX \
@@ -1464,7 +1465,7 @@ int do_vacancy(string str)
     if (sizeof(args) < 2)
     {
       notify_fail("Usage: build vacancy timetable <name> <hour> " +
-                  "<work|home|clear> [message]\n");
+                  "<work|home|out|clear> | <leave|arrive> [message]\n");
       return 0;
     }
 
@@ -1492,7 +1493,7 @@ int do_vacancy(string str)
         hour < 0 || hour > 23)
     {
       notify_fail("Usage: build vacancy timetable <name> <hour 0-23> " +
-                  "<work|home|clear> [message]\n");
+                  "<work|home|out|clear> | <leave|arrive> [message]\n");
       return 0;
     }
 
@@ -1507,20 +1508,46 @@ int do_vacancy(string str)
       return 1;
     }
 
-    if (args[3] != "work" && args[3] != "home" && file_size(args[3]) < 0)
+    // the line told as the holder sets off or as they arrive, a souls
+    // template rendered against them; no text clears it
+    if (args[3] == "leave" || args[3] == "arrive")
     {
-      notify_fail("A destination is 'work', 'home' or a location file.\n");
+      mapping entry;
+
+      if (!mappingp(hours["" + hour]))
+      {
+        notify_fail("Job '" + args[1] + "' does nothing at " + hour +
+                    "; give the hour a destination first.\n");
+        return 0;
+      }
+
+      entry = ([ ]) + hours["" + hour];
+      msg = sizeof(args) > 4 ? implode(args[4 ..], " ") : nil;
+      if (msg)
+        entry[args[3]] = msg;
+      else
+        map_delete(entry, args[3]);
+      hours["" + hour] = entry;
+      area->set_vacancy_timetable(args[1], hours);
+      write("Job '" + args[1] + "' at " + hour + ": " +
+            (msg ? args[3] + " line set." : "no " + args[3] + " line.") + "\n");
+      return 1;
+    }
+
+    if (args[3] != "work" && args[3] != "home" && args[3] != "out" &&
+        file_size(args[3]) < 0)
+    {
+      notify_fail("A destination is 'work', 'home', 'out' or a location " +
+                  "file.\n");
       return 0;
     }
 
-    // the rest of the line is the departure message, a souls template rendered
-    // against whoever is leaving
-    msg = sizeof(args) > 4 ? implode(args[4 ..], " ") : nil;
-    hours["" + hour] = msg ? ([ "goto": args[3], "msg": msg ])
-                           : ([ "goto": args[3] ]);
+    // a new destination keeps the lines the hour already had
+    hours["" + hour] = (mappingp(hours["" + hour]) ? ([ ]) + hours["" + hour]
+                                                   : ([ ])) +
+                       ([ "goto": args[3] ]);
     area->set_vacancy_timetable(args[1], hours);
-    write("Job '" + args[1] + "' goes to " + args[3] + " at " + hour +
-          (msg ? ", saying so." : ", silently.") + "\n");
+    write("Job '" + args[1] + "' goes to " + args[3] + " at " + hour + ".\n");
     return 1;
   }
 
