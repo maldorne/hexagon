@@ -255,6 +255,13 @@ raising a house loads its location.
 - **Built locations.** `furnish_house(file)` makes a location that already
   exists (a barracks, a room over a shop) a kept house as it stands, keeping its
   exits, short and long.
+- **Shared houses** (a tenement, a courtyard house): `build home shared <n>`
+  gives the house room for `n` households, each its own record on the books
+  (the location file, then `<file>#2` ... `<file>#n`) with its own residents and
+  family; `query_house_file` maps a household back to its location,
+  `query_house_units` lists them. To `assign_homes()` each household is one
+  ordinary house, so a few buildings hold a street's families. A shared house
+  is never kept nor communal; the door opens for every family in it.
 - **Kept houses** (raised by hand, or a job's `home`) are never handed to
   whoever is homeless. A **communal** house (a barracks) is shared by whoever
   holds its job; nobody living there founds a family or marries anyone in.
@@ -391,7 +398,8 @@ With the builder ring, standing in the right location each time. The templates
    `timetable <name> <hour> <work|home|clear> [message]`, `class`, `spot`
    (once per extra place), and `home <name>` or `resident <name>`.
 5. Carve plots (`build plot <dir>`) and raise special houses by hand
-   (`build home make`, `build home short|long`, `build home communal`).
+   (`build home make`, `build home short|long`, `build home communal`,
+   `build home shared <n>`).
 6. Flag the sentient roster types that live in ordinary houses: `build npc
    resident <template>`.
 7. Mark the area `build area state settled` when the map is final (families are

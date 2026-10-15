@@ -18,3 +18,7 @@
 // Se añade a la descripción del interior cuando la casa pertenece a una familia.
 #define _LANG_HOME_FAMILY(name) \
     "\nEsta es la casa de la familia " + (name) + ".\n"
+
+// Se añade cuando en la casa viven varias familias (una casa de vecinos).
+#define _LANG_HOME_FAMILIES(names) \
+    "\nEn esta casa viven las familias " + (names) + ".\n"

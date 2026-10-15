@@ -279,8 +279,8 @@ private int _of_the_house(object who)
 {
   object area;
   mixed owner;
-  int i;
-  string * sides;
+  int i, j;
+  string * sides, * units;
 
   if (!who)
     return 0;
@@ -302,9 +302,14 @@ private int _of_the_house(object who)
     if (!area)
       continue;
 
-    owner = area->query_house_owner(sides[i]);
-    if (stringp(owner) && strlen(owner) && who->is_family_member(owner))
-      return 1;
+    // any family of a shared house has the key to its door
+    units = area->query_house_units(sides[i]);
+    for (j = 0; j < sizeof(units); j++)
+    {
+      owner = area->query_house_owner(units[j]);
+      if (stringp(owner) && strlen(owner) && who->is_family_member(owner))
+        return 1;
+    }
   }
 
   return 0;

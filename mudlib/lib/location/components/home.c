@@ -42,18 +42,31 @@ void set_home_long(string s) { home_long = (s && strlen(s)) ? s : nil; }
 string query_info()
 {
   object area;
-  string * living;
+  string * living, * units, * owners;
   mixed owner;
   string file, s;
+  int i;
 
   area = query_my_location() ? query_my_location()->query_area() : nil;
   file = query_my_location() ? query_my_location()->query_file_name() : nil;
-  living = (area && file) ? (string *)area->query_house_residents(file) : ({ });
-  owner = (area && file) ? area->query_house_owner(file) : nil;
+  units = (area && file) ? area->query_house_units(file) : ({ });
+
+  // a shared house answers for every household in it
+  living = ({ });
+  owners = ({ });
+  for (i = 0; i < sizeof(units); i++)
+  {
+    living += (string *)area->query_house_residents(units[i]);
+    owner = area->query_house_owner(units[i]);
+    if (stringp(owner))
+      owners += ({ owner });
+  }
 
   s = "residents: " + (sizeof(living) ? implode(living, ", ") : "none");
-  if (stringp(owner))
-    s += "; owner: " + owner;
+  if (sizeof(owners))
+    s += "; owner" + (sizeof(owners) > 1 ? "s" : "") + ": " + implode(owners, ", ");
+  if (sizeof(units) > 1)
+    s += "; households: " + sizeof(units);
   return s;
 }
 
@@ -76,7 +89,10 @@ mixed hook_short(mixed * args)
 mixed hook_long(mixed * args)
 {
   string text;
+  string * units, * owners;
   mixed owner;
+  object area;
+  int i;
 
   if (args[0] && strlen(args[0]))
     return "";
@@ -84,13 +100,22 @@ mixed hook_long(mixed * args)
   text = home_long ? home_long : _LANG_HOME_LONG;
 
   // A house that belongs to a family says whose it is, as the area's books have
-  // it; a family that has died out owns nothing.
-  owner = query_my_location()->query_area()
-            ? query_my_location()->query_area()->query_house_owner(
-                query_my_location()->query_file_name())
-            : nil;
-  if (stringp(owner) && strlen(owner))
-    text += _LANG_HOME_FAMILY(owner);
+  // it; a family that has died out owns nothing. A shared house names every
+  // family living in it.
+  area = query_my_location()->query_area();
+  units = area ? area->query_house_units(query_my_location()->query_file_name())
+               : ({ });
+  owners = ({ });
+  for (i = 0; i < sizeof(units); i++)
+  {
+    owner = area->query_house_owner(units[i]);
+    if (stringp(owner) && strlen(owner) && member_array(owner, owners) == -1)
+      owners += ({ owner });
+  }
+  if (sizeof(owners) == 1)
+    text += _LANG_HOME_FAMILY(owners[0]);
+  else if (sizeof(owners) > 1)
+    text += _LANG_HOME_FAMILIES(query_multiple_short(owners));
 
   return ({ HOOK_EXCLUSIVE, text });
 }

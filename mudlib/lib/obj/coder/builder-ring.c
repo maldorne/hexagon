@@ -112,6 +112,7 @@ inherit "/lib/armour.c";
   "  build homes                          house the homeless citizens\n" + \
   "  build home make                      a house on this plot, or of this room\n" + \
   "  build home communal [off]            a barracks: no families live by it\n" + \
+  "  build home shared <n|off>            room for n households (a tenement)\n" + \
   "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
   "  build sign <text>                    post a sign here (remove: take it down)\n" + \
@@ -176,6 +177,7 @@ int do_homes();
 int do_home_remove();
 int do_home_make();
 int do_home_communal(int flag);
+int do_home_shared(int households);
 int do_home_describe(string what, string str);
 int do_sign(string str);
 int do_library(string str);
@@ -393,10 +395,12 @@ int do_build(string str)
       return do_home_make();
     if (sizeof(args) > 1 && args[1] == "communal")
       return do_home_communal(!(sizeof(args) > 2 && args[2] == "off"));
+    if (sizeof(args) > 2 && args[1] == "shared")
+      return do_home_shared(args[2] == "off" ? 1 : to_int(args[2]));
     if (sizeof(args) > 2 && (args[1] == "short" || args[1] == "long"))
       return do_home_describe(args[1], implode(args[2..], " "));
-    notify_fail("Usage: build home < make | communal [off] | short <text> | " +
-                "long <text> | remove >\n");
+    notify_fail("Usage: build home < make | communal [off] | shared <n|off> | " +
+                "short <text> | long <text> | remove >\n");
     return 0;
   }
 
@@ -2573,6 +2577,48 @@ int do_venture(string str)
   venture->add_open_condition(path, cargs);
   loc->save_me();
   write("Added " + path + ": " + (string)path->query_description(cargs) + ".\n");
+  return 1;
+}
+
+/**
+ * `build home shared <n|off>`: makes the house you stand in a shared house with
+ * room for `households` families, each housed and named on its own, or an
+ * ordinary house again with 1.
+ */
+int do_home_shared(int households)
+{
+  object loc, area;
+  string file;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location() || !(area = loc->query_area()))
+  {
+    notify_fail("Stand in the house you want to share.\n");
+    return 0;
+  }
+
+  file = loc->query_file_name();
+  if (!area->is_house(file))
+  {
+    notify_fail("This is not a house.\n");
+    return 0;
+  }
+  if (households < 1)
+  {
+    notify_fail("Usage: build home shared <n|off>\n");
+    return 0;
+  }
+  if (!area->set_shared_house(file, households))
+  {
+    notify_fail("Could not: a communal house cannot be shared, and a household " +
+                "that would go still has people in it.\n");
+    return 0;
+  }
+
+  write(households > 1
+          ? "This house now has room for " + households + " households; " +
+            "'build homes' fills them.\n"
+          : "This house is an ordinary house again.\n");
   return 1;
 }
 

@@ -229,7 +229,7 @@ private int do_plots(object area, object me)
     string * dirs;
     string from;
 
-    loc = (object)area->load_location(files[i]);
+    loc = (object)area->load_location(area->query_house_file(files[i]));
     exits = loc ? loc->query_exit_map() : nil;
     dirs = exits ? map_indices(exits) : ({ });
 

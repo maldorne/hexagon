@@ -386,6 +386,110 @@ int is_house(string file)
   return member_array(file, query_houses()) != -1;
 }
 
+/**
+ * Returns the location a house stands in: a household of a shared house is
+ * kept under its location file plus a number, everything else under the file.
+ */
+string query_house_file(string house)
+{
+  string file;
+
+  if (!house)
+    return nil;
+  if (sscanf(house, "%s" + HOUSE_UNIT_MARK + "%*s", file) == 2)
+    return file;
+  return house;
+}
+
+/**
+ * Returns the households on the books for the location `file`: just `file` for
+ * an ordinary house, every household's key for a shared one, none if it is not
+ * a house.
+ */
+string * query_house_units(string file)
+{
+  object owner;
+  string * out;
+  int i, n;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return owner->query_house_units(file);
+
+  if (!house_records || !house_records[file])
+    return ({ });
+
+  out = ({ file });
+  n = house_records[file][HOUSE_SHARED] ? house_records[file][HOUSE_SHARED] : 1;
+  for (i = 2; i <= n; i++)
+    if (house_records[file + HOUSE_UNIT_MARK + i])
+      out += ({ file + HOUSE_UNIT_MARK + i });
+
+  return out;
+}
+
+/**
+ * Makes the house at `file` a shared house with room for `households`
+ * families, or an ordinary one again with 1. A shared house is ordinary
+ * housing, handed to whoever is homeless, so it stops being kept.
+ *
+ * @return  0 if it is not a house, is communal, or a household that would go
+ *          still has people in it
+ */
+int set_shared_house(string file, int households)
+{
+  object owner;
+  int i, n;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return owner->set_shared_house(file, households);
+
+  if (!house_records || !house_records[file] || households < 1 ||
+      house_records[file][HOUSE_COMMUNAL])
+    return 0;
+
+  n = house_records[file][HOUSE_SHARED] ? house_records[file][HOUSE_SHARED] : 1;
+  for (i = households + 1; i <= n; i++)
+    if (house_records[file + HOUSE_UNIT_MARK + i] &&
+        sizeof(house_records[file + HOUSE_UNIT_MARK + i][HOUSE_RESIDENTS]))
+      return 0;
+
+  for (i = households + 1; i <= n; i++)
+    map_delete(house_records, file + HOUSE_UNIT_MARK + i);
+  for (i = 2; i <= households; i++)
+    if (!house_records[file + HOUSE_UNIT_MARK + i])
+      house_records[file + HOUSE_UNIT_MARK + i] = ([ HOUSE_RESIDENTS: ({ }) ]);
+
+  if (households > 1)
+  {
+    house_records[file][HOUSE_SHARED] = households;
+    map_delete(house_records[file], HOUSE_KEPT);
+  }
+  else
+    map_delete(house_records[file], HOUSE_SHARED);
+
+  this_object()->save_me();
+  return 1;
+}
+
+/**
+ * Returns how many households the house at `file` has room for: 1 for an
+ * ordinary house, 0 if it is not a house.
+ */
+int query_shared_house(string file)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return owner->query_shared_house(file);
+
+  if (!house_records || !house_records[file])
+    return 0;
+  return house_records[file][HOUSE_SHARED] ? house_records[file][HOUSE_SHARED] : 1;
+}
+
 // Put a location on the books as a house, with nobody in it yet.
 void add_house(string file, varargs int kept)
 {
@@ -657,7 +761,8 @@ void vacate_houses_of(string surname)
 int demote_house(string file)
 {
   object house, owner;
-  int evicted;
+  string * units;
+  int evicted, i;
 
   owner = (object)this_object()->query_root_area();
   if (owner != this_object())
@@ -669,8 +774,13 @@ int demote_house(string file)
   if (!file || !house_records[file])
     return -1;
 
-  evicted = sizeof(house_records[file][HOUSE_RESIDENTS]);
-  map_delete(house_records, file);
+  // every household of a shared house goes with it
+  units = query_house_units(file);
+  for (i = 0; i < sizeof(units); i++)
+  {
+    evicted += sizeof(house_records[units[i]][HOUSE_RESIDENTS]);
+    map_delete(house_records, units[i]);
+  }
 
   house = (object)this_object()->load_location(file);
   if (house)

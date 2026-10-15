@@ -103,7 +103,8 @@ string query_home()
 
   area = AREA_HANDLER->query_area(npc_area_path);
   house = area ? area->query_house_of(npc_uuid) : nil;
-  return (stringp(house) && strlen(house)) ? house : nil;
+  // a household of a shared house lives in that house's location
+  return (stringp(house) && strlen(house)) ? area->query_house_file(house) : nil;
 }
 
 string query_monster_location() { return npc_monster_location; }

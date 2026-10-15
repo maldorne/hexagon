@@ -26,3 +26,9 @@
 #define HOUSE_OWNER     "owner"
 #define HOUSE_KEPT      "kept"
 #define HOUSE_COMMUNAL  "communal"
+// A shared house (a tenement, a courtyard house) holds several households, each
+// a record of its own: the first keyed by the location file, the rest by the
+// file with HOUSE_UNIT_MARK and a number ("<file>#2"). HOUSE_SHARED on the first
+// says how many there are.
+#define HOUSE_SHARED    "shared"
+#define HOUSE_UNIT_MARK "#"
