@@ -491,6 +491,9 @@ int restore_npc()
   ok = restore_object(npc_save_dir(npc_game, npc_uuid) + NPC_SAVE_FILE, 1);
   if (ok)
   {
+    // what it can carry follows its strength, not the figure saved with it
+    reset_carry_cap();
+
     // rebuild the saved inventory (each item cloned and its attributes applied)
     // inside us, so a restored NPC carries exactly what it was saved with
     load_auto_load(npc_auto_load, this_object());
