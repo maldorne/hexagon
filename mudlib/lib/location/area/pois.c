@@ -84,6 +84,20 @@ void set_poi_guard_dir(string location_file, string dir)
   pois[location_file][POI_FIELD_GUARD_DIR] = dir;
   this_object()->save_me();
 }
+// Who a town_entrance POI's guards let through: POI_ADMIT_CITIZENS, or nil
+// (or "") for everybody not at war with them.
+void set_poi_admit(string location_file, string admit)
+{
+  _ensure_pois();
+  if (!pois[location_file])
+    return;
+  if (admit && strlen(admit))
+    pois[location_file][POI_FIELD_ADMIT] = admit;
+  else
+    map_delete(pois[location_file], POI_FIELD_ADMIT);
+  this_object()->save_me();
+}
+
 string query_poi_guard_dir(string location_file)
 {
   _ensure_pois();

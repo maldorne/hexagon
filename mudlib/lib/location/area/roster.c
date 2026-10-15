@@ -642,6 +642,20 @@ int repair_template_ids(int apply)
   for (i = 0; i < sizeof(jobs); i++)
   {
     string better;
+    int j;
+
+    // and each of the several types a job draws from, when it has them
+    if (pointerp(jobs[i][VACANCY_SOURCES]))
+      for (j = 0; j < sizeof(jobs[i][VACANCY_SOURCES]); j++)
+      {
+        better = _repaired_id(game, jobs[i][VACANCY_SOURCES][j][0]);
+        if (!better)
+          continue;
+
+        fixed++;
+        if (apply)
+          jobs[i][VACANCY_SOURCES][j][0] = better;
+      }
 
     better = _repaired_id(game, jobs[i][VACANCY_SOURCE]);
     if (!better)

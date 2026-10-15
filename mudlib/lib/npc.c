@@ -346,6 +346,14 @@ void resume_schedule(int hour)
   run_on_components("resume_schedule", ({ hour }));
 }
 
+// A fight in this NPC's room: join it the way any monster does, and let the
+// components react (a bodyguard defends whoever it stands by).
+void event_fight_in_progress(object ob, object * fighters)
+{
+  monster::event_fight_in_progress(ob, fighters);
+  run_on_components("fight_in_progress", ({ ob, fighters }));
+}
+
 // The hide shadow tells whoever it hid that a search found them.
 void event_revealed(object finder)
 {

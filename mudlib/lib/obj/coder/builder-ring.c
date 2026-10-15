@@ -33,9 +33,10 @@ inherit "/lib/armour.c";
   "           | state [draft|settled]\n" + \
   "           | relevel >"
 #define BUILDER_RING_POI_SYNTAX \
-  "build poi < add <kind> [label] | remove | list | guard_dir <dir> >"
+  "build poi < add <kind> [label] | remove | list | guard_dir <dir>\n" + \
+  "          | admit <citizens|all> >"
 #define BUILDER_RING_VACANCY_SYNTAX \
-  "build vacancy < add <name> <count> <source.c> [fixed]\n" + \
+  "build vacancy < add <name> <count> <source.c>[*w,...] [fixed]\n" + \
   "               | equip <name> <item.c[|alt.c...]>...\n" + \
   "               | timetable <name> [<hour> <work|home|clear> [message]]\n" + \
   "               | class <name> <class.c|none> | home <name>\n" + \
@@ -90,8 +91,10 @@ inherit "/lib/armour.c";
   "  build poi remove\n" + \
   "  build poi list\n" + \
   "  build poi guard_dir <dir>            on a town_entrance: the way in\n" + \
+  "  build poi admit <citizens|all>       on a town_entrance: who passes\n" + \
   "\n" + \
-  "  build vacancy add <name> <count> <source.c> [fixed]\n" + \
+  "  build vacancy add <name> <count> <source.c>[*w,...] [fixed]\n" + \
+  "                                  several types, drawn by weight\n" + \
   "  build vacancy equip <name> <item.c[|alt.c]>...\n" + \
   "  build vacancy class <name> <class.c|none>  what the job trains in\n" + \
   "  build vacancy home <name>                  bind a house to the job\n" + \
@@ -107,7 +110,7 @@ inherit "/lib/armour.c";
   "  build plot <dir>                     carve an empty buildable lot\n" + \
   "  build plot remove <dir>              delete one, if still bare\n" + \
   "  build homes                          house the homeless citizens\n" + \
-  "  build home make                      raise an empty house on this plot\n" + \
+  "  build home make                      a house on this plot, or of this room\n" + \
   "  build home communal [off]            a barracks: no families live by it\n" + \
   "  build home short|long <text>         what this house is, if not a house\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
@@ -1136,6 +1139,8 @@ int do_poi(string str)
       label = p[POI_FIELD_LABEL] ? "  \"" + p[POI_FIELD_LABEL] + "\"" : "";
       guard = p[POI_FIELD_GUARD_DIR]
               ? "  guard:" + p[POI_FIELD_GUARD_DIR] : "";
+      if (p[POI_FIELD_ADMIT])
+        guard += "  admit:" + p[POI_FIELD_ADMIT];
       here  = keys[i] == file ? "  <- here" : "";
 
       out += sprintf("  %-*s  %-*s%s%s%s\n",
@@ -1174,6 +1179,28 @@ int do_poi(string str)
     return 1;
   }
 
+  if (verb == "admit")
+  {
+    if (!area->is_poi(file) ||
+        area->query_pois()[file][POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE)
+    {
+      notify_fail("admit only applies to a town_entrance POI.\n");
+      return 0;
+    }
+    if (sizeof(args) < 2 ||
+        (args[1] != POI_ADMIT_CITIZENS && args[1] != "all"))
+    {
+      notify_fail("Usage: build poi admit <" + POI_ADMIT_CITIZENS + "|all>\n");
+      return 0;
+    }
+
+    area->set_poi_admit(file, args[1] == "all" ? "" : args[1]);
+    write(args[1] == "all"
+      ? "Entrance guards here let through everybody not at war with them.\n"
+      : "Entrance guards here let through only their own citizens.\n");
+    return 1;
+  }
+
   notify_fail("Usage: " + BUILDER_RING_POI_SYNTAX + "\n");
   return 0;
 }
@@ -1184,6 +1211,22 @@ int do_poi(string str)
 // what the post carries (kit, hours, class, house, places); `list` shows them
 // with their live count; `remove` drops one and culls its holders. A seat
 // freed by a death stays empty until somebody asks for it to be filled.
+// The types a job draws from, by leaf, with their weights when it has several.
+private string _vacancy_sources_note(mapping vacancy)
+{
+  string * out;
+  int i;
+
+  if (!pointerp(vacancy[VACANCY_SOURCES]))
+    return get_path_file_name(vacancy[VACANCY_SOURCE]);
+
+  out = ({ });
+  for (i = 0; i < sizeof(vacancy[VACANCY_SOURCES]); i++)
+    out += ({ get_path_file_name(vacancy[VACANCY_SOURCES][i][0]) + "*" +
+              vacancy[VACANCY_SOURCES][i][1] });
+  return implode(out, ",");
+}
+
 int do_vacancy(string str)
 {
   string * args, verb;
@@ -1214,7 +1257,8 @@ int do_vacancy(string str)
   if (verb == "add")
   {
     string name, source;
-    int count, fixed, templated;
+    int count, fixed, templated, i;
+    mapping extra;
 
     if (sizeof(args) < 4 || sscanf(args[2], "%d", count) != 1)
     {
@@ -1226,12 +1270,52 @@ int do_vacancy(string str)
     // a fixed job is one post: it stays where it is and its holder is replaced
     // there promptly; the rest spread over the area's like places
     fixed = (sizeof(args) > 4 && args[4] == "fixed");
+    extra = fixed ? ([ VACANCY_FIXED: 1 ]) : ([ ]);
+    // several types, each holder drawn from one by weight: <src>*<weight>,...
+    // with a weight of 1 for any that names none
+    if (sizeof(explode(source, ",")) > 1 || sizeof(explode(source, "*")) > 1)
+    {
+      string * parts;
+      mixed * sources;
+      int weight;
+
+      parts = explode(source, ",");
+      sources = ({ });
+      for (i = 0; i < sizeof(parts); i++)
+      {
+        string path;
+
+        if (sscanf(parts[i], "%s*%d", path, weight) != 2)
+        {
+          path = parts[i];
+          weight = 1;
+        }
+        if (!strlen(path) || weight <= 0)
+        {
+          notify_fail("Each type is <source>[*<weight>], the weight above 0.\n");
+          return 0;
+        }
+        sources += ({ ({ path, weight }) });
+      }
+      extra[VACANCY_SOURCES] = sources;
+      source = sources[0][0];
+    }
     // A job is filled from an authored template, so what is named here is a
     // template id ("areas/<area>/npcs/<type>"). A path still works -- it
     // normalises to the same id. The job may be declared before its type is
     // written; nobody can be taken on until it is, so say so.
-    templated = (int)BESTIARY_HANDLER->has_template(
-                  game_name(area), (string)area->query_template_from_source(source));
+    templated = 1;
+    if (extra[VACANCY_SOURCES])
+    {
+      for (i = 0; i < sizeof(extra[VACANCY_SOURCES]); i++)
+        if (!BESTIARY_HANDLER->has_template(game_name(area),
+              (string)area->query_template_from_source(
+                extra[VACANCY_SOURCES][i][0])))
+          templated = 0;
+    }
+    else
+      templated = (int)BESTIARY_HANDLER->has_template(
+                    game_name(area), (string)area->query_template_from_source(source));
     // The area stores the job: how many, where (wherever the coder stands), and
     // the type its holders are drawn from. Behaviour is the type's: the template
     // is marked sentient in its template, so a holder is a named citizen.
@@ -1239,12 +1323,11 @@ int do_vacancy(string str)
     // Opening a job does not staff it. Declaring that a settlement wants a
     // barman and deciding that somebody walks into the bar are two different
     // acts, and only the first belongs to a builder.
-    area->open_vacancy(name, count, loc->query_file_name(), source,
-                       fixed ? ([ VACANCY_FIXED: 1 ]) : ([ ]));
-    write("Vacancy '" + name + "' x" + count + " <- " + source +
+    area->open_vacancy(name, count, loc->query_file_name(), source, extra);
+    write("Vacancy '" + name + "' x" + count + " <- " + args[3] +
           ", held here. Nobody taken on.\n");
     if (!templated)
-      write("There is no template for '" + source + "' yet: write one before " +
+      write("There is no template for '" + args[3] + "' yet: write one before " +
             "staffing it.\n");
     return 1;
   }
@@ -1576,7 +1659,7 @@ int do_vacancy(string str)
                      "x" + all[i][VACANCY_COUNT],
                      "" + sizeof(area->query_vacancy_holders(all[i])),
                      get_path_file_name(all[i][VACANCY_WORKS_AT]),
-                     get_path_file_name(all[i][VACANCY_SOURCE]));
+                     _vacancy_sources_note(all[i]));
     write(out);
     return 1;
   }
@@ -1704,7 +1787,7 @@ int do_npc(string str)
                        "x" + all[i][VACANCY_COUNT],
                        "" + sizeof(area->query_vacancy_holders(all[i])),
                        get_path_file_name(all[i][VACANCY_WORKS_AT]),
-                       get_path_file_name(all[i][VACANCY_SOURCE]));
+                       _vacancy_sources_note(all[i]));
     }
   }
 
@@ -2326,14 +2409,27 @@ int do_home_make()
     return 0;
   }
 
+  // a location already built is made a house as it stands; a plot gets one
+  // raised on it. Either is raised by hand for something in particular, so
+  // never handed out
   if (!loc->has_component(LOCATION_COMPONENT_PLOT))
   {
-    notify_fail("This is not a bare plot. Carve one with " +
-                "'build plot <dir>' first.\n");
-    return 0;
+    if (loc->has_component(LOCATION_COMPONENT_HOME))
+    {
+      notify_fail("This is a house already.\n");
+      return 0;
+    }
+    file = area->furnish_house(loc->query_file_name());
+    if (!stringp(file))
+    {
+      notify_fail("Could not make this location a house.\n");
+      return 0;
+    }
+    write("Made this location a house. It is kept out of 'build homes'; " +
+          "make it a job's house with 'build vacancy home <job>'.\n");
+    return 1;
   }
 
-  // raised by hand for something in particular, so never handed out
   file = area->build_house_at(loc->query_file_name(), ({ }), 1);
   if (!stringp(file))
   {

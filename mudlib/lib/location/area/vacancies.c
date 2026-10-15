@@ -78,6 +78,50 @@ mapping * query_vacancies_at(string at)
   return out;
 }
 
+// Every type one job draws from, its main one first.
+string * query_vacancy_source_list(mapping vacancy)
+{
+  string * out;
+  int i;
+
+  out = ({ });
+  if (pointerp(vacancy[VACANCY_SOURCES]))
+    for (i = 0; i < sizeof(vacancy[VACANCY_SOURCES]); i++)
+      out += ({ vacancy[VACANCY_SOURCES][i][0] });
+  else if (stringp(vacancy[VACANCY_SOURCE]) && strlen(vacancy[VACANCY_SOURCE]))
+    out = ({ vacancy[VACANCY_SOURCE] });
+
+  return out;
+}
+
+// The type a new holder of the job is drawn from: its one type, or one of its
+// several rolled by weight.
+private string _draw_vacancy_source(mapping vacancy)
+{
+  mixed * sources;
+  int i, total, roll;
+
+  sources = vacancy[VACANCY_SOURCES];
+  if (!pointerp(sources) || !sizeof(sources))
+    return vacancy[VACANCY_SOURCE];
+
+  total = 0;
+  for (i = 0; i < sizeof(sources); i++)
+    total += sources[i][1];
+  if (total <= 0)
+    return sources[0][0];
+
+  roll = random(total);
+  for (i = 0; i < sizeof(sources); i++)
+  {
+    roll -= sources[i][1];
+    if (roll < 0)
+      return sources[i][0];
+  }
+
+  return sources[0][0];
+}
+
 // Every type the settlement staffs. The population sweep scatters fauna, never
 // people who hold a job, so these sources are not its business.
 mapping query_vacancy_sources()
@@ -89,8 +133,14 @@ mapping query_vacancy_sources()
   all = query_vacancies();
   out = ([ ]);
   for (i = 0; i < sizeof(all); i++)
-    if (all[i][VACANCY_SOURCE])
-      out[all[i][VACANCY_SOURCE]] = 1;
+  {
+    string * ids;
+    int j;
+
+    ids = query_vacancy_source_list(all[i]);
+    for (j = 0; j < sizeof(ids); j++)
+      out[ids[j]] = 1;
+  }
 
   return out;
 }
@@ -135,6 +185,8 @@ void open_vacancy(string job, int count, string at, string source,
   vacancy[VACANCY_COUNT] = count;
   vacancy[VACANCY_WORKS_AT] = at;
   vacancy[VACANCY_SOURCE] = source;
+  // a job restated with one type draws from that one alone
+  map_delete(vacancy, VACANCY_SOURCES);
 
   if (mappingp(extra))
   {
@@ -142,6 +194,26 @@ void open_vacancy(string job, int count, string at, string source,
     keys = map_indices(extra);
     for (i = 0; i < sizeof(keys); i++)
       vacancy[keys[i]] = extra[keys[i]];
+  }
+
+  // several types are kept by template id too, and the first is the main one
+  if (pointerp(vacancy[VACANCY_SOURCES]))
+  {
+    mixed * sources;
+
+    sources = ({ });
+    for (i = 0; i < sizeof(vacancy[VACANCY_SOURCES]); i++)
+      sources += ({ ({
+        (string)this_object()->query_template_from_source(
+          vacancy[VACANCY_SOURCES][i][0]),
+        vacancy[VACANCY_SOURCES][i][1] }) });
+    if (sizeof(sources))
+    {
+      vacancy[VACANCY_SOURCES] = sources;
+      vacancy[VACANCY_SOURCE] = sources[0][0];
+    }
+    else
+      map_delete(vacancy, VACANCY_SOURCES);
   }
 
   if (previous)
@@ -506,7 +578,7 @@ private string assign_npc_to_vacancy(mapping vacancy, string where)
   string source, at, id;
   object owner;
 
-  source = vacancy[VACANCY_SOURCE];
+  source = _draw_vacancy_source(vacancy);
   at = vacancy[VACANCY_WORKS_AT];
   if (!source || !strlen(source) || !at || !strlen(at))
     return nil;

@@ -27,6 +27,10 @@
 #define VACANCY_WORKS_AT  "works_at"
 // the type its holders are drawn from, by template id
 #define VACANCY_SOURCE    "source"
+// Several types to draw from, each with its weight, rolled per hire:
+// ({ ({ template_id, weight }), ... }). The first is also VACANCY_SOURCE, so
+// whatever reads one type of a job reads its main one.
+#define VACANCY_SOURCES   "sources"
 // the job is one post held at one place: its holder is replaced there shortly
 // after dying rather than waiting for the settlement pass. The opposite of
 // VACANCY_SPREAD. Nothing to do with the place being a point of interest -- it

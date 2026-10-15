@@ -26,6 +26,10 @@
 //   "min_guild_level" - the guild level a member needs to pass
 //   "min_class_level" - the class level anybody needs to pass
 //   "message"         - what whoever it stops is told
+//
+// The POI of its post adds two more: a town_entrance that admits only citizens
+// (POI_FIELD_ADMIT) lets nobody else through, and at a bodyguard POI the guard
+// attacks whoever attacks one of its citizens there.
 
 #include <areas/diplomacy.h>
 #include <areas/poi.h>
@@ -62,6 +66,24 @@ private string _guild_path(string path)
   return path;
 }
 
+// The POI of the post this guard works at, or nil.
+private mapping _post_poi()
+{
+  object me, post;
+  mixed work;
+
+  me = query_owner();
+  work = me ? me->query_work() : nil;
+  if (!stringp(work) || !strlen(work))
+    return nil;
+
+  post = (object)load_object(LOCATION_HANDLER)->load_location(work);
+  if (!post || !post->query_area())
+    return nil;
+
+  return ((mapping)post->query_area()->query_pois())[work];
+}
+
 // The exit this guard watches: its own "direction" when it has one, otherwise
 // read off the post it works at rather than stored: a town_entrance POI names
 // the way in, and a guard is posted to a place before it is posted to a
@@ -69,23 +91,12 @@ private string _guild_path(string path)
 // stopped.
 private string _watched_direction()
 {
-  object me, post;
   mapping poi;
-  mixed work;
 
   if (guard_direction && strlen(guard_direction))
     return guard_direction;
 
-  me = query_owner();
-  work = me ? me->query_work() : nil;
-  if (!stringp(work) || !strlen(work))
-    return "";
-
-  post = (object)load_object(LOCATION_HANDLER)->load_location(work);
-  if (!post || !post->query_area())
-    return "";
-
-  poi = ((mapping)post->query_area()->query_pois())[work];
+  poi = _post_poi();
   if (!poi || poi[POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE)
     return "";
 
@@ -176,6 +187,89 @@ private int _passes_citizenship(object mover)
              mover_citizenship->query_name());
 }
 
+// Is `who` of the guard's citizenship or of one under it? Somebody with no
+// citizenship is not.
+private int _is_fellow_citizen(object who)
+{
+  object me, diplomacy, citizenship;
+  string my_city_ob, their_city_ob, mine, name;
+
+  me = query_owner();
+  my_city_ob = me ? me->query_city_ob() : nil;
+  their_city_ob = who->query_city_ob();
+  if (!my_city_ob || !their_city_ob)
+    return 0;
+
+  citizenship = load_object(my_city_ob);
+  if (!citizenship || !load_object(their_city_ob))
+    return 0;
+  mine = citizenship->query_name();
+  diplomacy = handler("diplomacy", citizenship);
+  name = load_object(their_city_ob)->query_name();
+
+  // walk up from their citizenship to the top
+  while (name && strlen(name))
+  {
+    if (name == mine)
+      return 1;
+    name = diplomacy->query_parent(name);
+  }
+
+  return 0;
+}
+
+// A post that admits only citizens lets through the guard's citizenship and
+// those under it; a mover with no citizenship is a stranger there.
+private int _passes_admission(object mover)
+{
+  mapping poi;
+
+  poi = _post_poi();
+  if (!poi || poi[POI_FIELD_ADMIT] != POI_ADMIT_CITIZENS)
+    return 1;
+  if (!query_owner()->query_city_ob())
+    return 1;
+
+  return _is_fellow_citizen(mover);
+}
+
+// A fight in the guard's room, ({ caller, ({ victim, attacker }) }). At a
+// bodyguard post, standing at it, the guard attacks whoever attacks one of its
+// citizens -- unless the attacker is an NPC of the city itself, which is how
+// the guards' own blows on a citizen are not taken for an attack to answer.
+void fight_in_progress(mixed * args)
+{
+  object me, victim, attacker, here;
+  mapping poi;
+
+  me = query_owner();
+  if (!me || sizeof(args) < 2 || !pointerp(args[1]) || sizeof(args[1]) < 2)
+    return;
+
+  victim = args[1][0];
+  attacker = args[1][1];
+  if (!victim || !attacker || attacker == me || victim == attacker)
+    return;
+
+  poi = _post_poi();
+  if (!poi || poi[POI_FIELD_KIND] != POI_KIND_BODYGUARD)
+    return;
+
+  here = environment(me);
+  if (!here || here != environment(attacker) ||
+      here->query_file_name() != me->query_work())
+    return;
+
+  if (!_is_fellow_citizen(victim))
+    return;
+  if (!interactive(attacker) && _is_fellow_citizen(attacker))
+    return;
+  if (member_array(attacker, me->query_attacker_list()) >= 0)
+    return;
+
+  me->attack_ob(attacker);
+}
+
 // Let `mover` through the watched exit? Only if every rule lets them. With no
 // direction posted, the mover passes.
 int check(object mover)
@@ -187,7 +281,8 @@ int check(object mover)
       (int)mover->query_class_level() < guard_min_class_level)
     return 0;
 
-  return _passes_guild(mover) && _passes_citizenship(mover);
+  return _passes_guild(mover) && _passes_citizenship(mover) &&
+         _passes_admission(mover);
 }
 
 // Message shown when the guard stops someone, as written: a guard that speaks

@@ -228,6 +228,19 @@ private string type_note(object area, mapping job)
   if (!stringp(source) || !strlen(source))
     return "(no type)";
 
+  // several types: name them all with their weights; `vacancies types` checks
+  // each of them
+  if (pointerp(job[VACANCY_SOURCES]) && sizeof(job[VACANCY_SOURCES]) > 1)
+  {
+    string * parts;
+    int i;
+
+    parts = ({ });
+    for (i = 0; i < sizeof(job[VACANCY_SOURCES]); i++)
+      parts += ({ job[VACANCY_SOURCES][i][0] + " *" + job[VACANCY_SOURCES][i][1] });
+    return implode(parts, ", ");
+  }
+
   game = game_from_path((string)area->query_area_path());
   t = BESTIARY_HANDLER->query_template(game, source);
 
@@ -395,20 +408,29 @@ private int do_types(object area)
   rows = ({ ({ "job", "type", "template", "sentient" }) });
   for (i = 0; i < sizeof(jobs); i++)
   {
-    mapping t;
-    string game, source;
+    string * sources;
+    string game;
+    int j;
 
-    source = jobs[i][VACANCY_SOURCE];
+    // one row per type: a job may draw from several
+    sources = (string *)area->query_vacancy_source_list(jobs[i]);
+    if (!sizeof(sources))
+      sources = ({ nil });
     game = game_from_path((string)area->query_area_path());
-    t = (stringp(source) && strlen(source))
-          ? BESTIARY_HANDLER->query_template(game, source) : nil;
+    for (j = 0; j < sizeof(sources); j++)
+    {
+      mapping t;
 
-    rows += ({ ({
-      jobs[i][VACANCY_JOB],
-      stringp(source) ? source : "-",
-      t ? "yes" : "MISSING",
-      (t && t["sentient"]) ? "yes" : "NO"
-    }) });
+      t = (stringp(sources[j]) && strlen(sources[j]))
+            ? BESTIARY_HANDLER->query_template(game, sources[j]) : nil;
+
+      rows += ({ ({
+        j ? "" : jobs[i][VACANCY_JOB],
+        stringp(sources[j]) ? sources[j] : "-",
+        t ? "yes" : "MISSING",
+        (t && t["sentient"]) ? "yes" : "NO"
+      }) });
+    }
   }
 
   write("What the jobs of " + books_of(area) + " draw from:\n" +

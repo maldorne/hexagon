@@ -194,6 +194,49 @@ string build_house_at(string file, string * residents, varargs int kept)
   return is_house(file) ? file : nil;
 }
 
+// Make a location that is already built -- a barracks, a room over a shop --
+// a house kept for whoever is given it. Its exits stay as they are: it was
+// built with the doors it needs. Returns the file, or nil if it is not a
+// location of this community or is a plot.
+string furnish_house(string file)
+{
+  object owner, house, home;
+  string short_text, long_text;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (string)owner->furnish_house(file);
+
+  if (member_array(file, query_plots()) >= 0)
+    return nil;
+  if (is_house(file))
+    return file;
+
+  house = load_object(LOCATION_HANDLER)->load_location(file);
+  if (!house)
+    return nil;
+
+  // it keeps what it is called and looks like: the home component speaks for
+  // a house's short and long, so it is handed the location's own
+  short_text = (string)house->short();
+  long_text = (string)house->query_specific_long();
+  if (!long_text || !strlen(long_text))
+    long_text = (string)house->query_original_long();
+
+  house->add_component(LOCATION_COMPONENT_HOME, ([ ]));
+  home = house->query_component_by_type(LOCATION_COMPONENT_HOME);
+  if (home)
+  {
+    home->set_home_short(short_text);
+    home->set_home_long(long_text);
+  }
+  house->save_me();
+  add_house(file, 1);
+
+  this_object()->log_event("Made " + file + " a house.");
+  return file;
+}
+
 // Re-type a raised house's exits to "door": the exit(s) the house carries (a
 // plot-derived house has one, back to the location it was carved from) and each
 // neighbour's reciprocal exit. A plot is carved with plain "open" passages; once
