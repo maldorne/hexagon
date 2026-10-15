@@ -1155,7 +1155,7 @@ int do_prop_action(string str)
                          inst[PROP_FIELD_STATE],
                          inst[PROP_FIELD_OVERRIDES],
                          this_player(),
-                         query_my_location());
+                         query_entity());
 }
 
 // ************************************************************
@@ -1377,7 +1377,7 @@ private int _execute_generic(mapping spec, mapping inst, string args)
   if (spec[PROP_SPEC_MSG_OTHERS])
   {
     object loc;
-    loc = query_my_location();
+    loc = query_entity();
     if (loc)
       tell_room(loc,
                 _render_msg(spec[PROP_SPEC_MSG_OTHERS],

@@ -52,10 +52,10 @@ private string _holding_citizenship()
 {
   object area;
 
-  if (!query_my_location())
+  if (!query_entity())
     return "";
 
-  area = (object)query_my_location()->query_area();
+  area = (object)query_entity()->query_area();
   return area ? (string)area->query_effective_citizenship() : "";
 }
 
@@ -65,14 +65,14 @@ int query_closed()
 {
   string held, game;
 
-  if (!strlen(deity) || !query_my_location())
+  if (!strlen(deity) || !query_entity())
     return 0;
 
   held = _holding_citizenship();
   if (!strlen(held))
     return 0;
 
-  return !handler("diplomacy", query_my_location())->accepts_deity(held, deity);
+  return !handler("diplomacy", query_entity())->accepts_deity(held, deity);
 }
 
 string query_info()

@@ -89,7 +89,7 @@ string query_save_file_name()
 {
   string file_name, game;
 
-  file_name = query_my_location()->query_file_name();
+  file_name = query_entity()->query_file_name();
   game = game_from_path(file_name);
 
   file_name = replace_string(file_name, "/save/games/" + game + "/locations", "");
@@ -103,7 +103,7 @@ string query_log_file_name()
 {
   string file_name, game;
 
-  file_name = query_my_location()->query_file_name();
+  file_name = query_entity()->query_file_name();
   game = game_from_path(file_name);
 
   file_name = replace_string(file_name, "/save/games/" + game + "/locations", "");

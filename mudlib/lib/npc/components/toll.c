@@ -37,7 +37,7 @@ void placed()
 {
   object npc, env;
 
-  npc = query_owner();
+  npc = query_entity();
   if (!npc || !toll_direction || !(env = environment(npc)))
     return;
 
@@ -47,7 +47,7 @@ void placed()
 // The timed property a payment leaves on the payer, one per toll keeper.
 private string paid_property()
 {
-  return "toll_" + query_owner()->query_name();
+  return "toll_" + query_entity()->query_name();
 }
 
 private int is_exempt(object who)
@@ -65,7 +65,7 @@ private int is_exempt(object who)
 // Let `mover` through the kept exit? Only people are charged.
 int check(object mover)
 {
-  if (!mover || !query_owner() || !interactive(mover))
+  if (!mover || !query_entity() || !interactive(mover))
     return 1;
 
   return mover->query_timed_property(paid_property()) || is_exempt(mover);
@@ -80,7 +80,7 @@ string message()
   if (!who)
     return nil;
 
-  return query_owner()->query_cap_name() + ": " + _LANG_TOLL_BLOCKED + "\n";
+  return query_entity()->query_cap_name() + ": " + _LANG_TOLL_BLOCKED + "\n";
 }
 
 // A closed gate on the kept exit is opened for whoever may go through.
@@ -88,7 +88,7 @@ private void open_gate()
 {
   object npc, env, gate;
 
-  npc = query_owner();
+  npc = query_entity();
   env = npc ? environment(npc) : nil;
   gate = env ? env->query_door_ob(toll_direction) : nil;
   if (gate && !gate->is_open())
@@ -114,7 +114,7 @@ int do_pay(string str)
   object who, npc;
 
   who = this_player();
-  npc = query_owner();
+  npc = query_entity();
   if (!who || !npc)
     return 0;
 

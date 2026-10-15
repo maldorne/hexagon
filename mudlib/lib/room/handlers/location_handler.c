@@ -792,7 +792,7 @@ private void _replace_live_location(object old, object location)
   contents = all_inventory(old);
   for (i = 0; i < sizeof(contents); i++)
   {
-    if (!contents[i] || contents[i]->query_location_component() ||
+    if (!contents[i] || contents[i]->is_component() ||
         contents[i]->query_fixture())
       continue;
     // a living, or something that can be picked up (get() is the flag that

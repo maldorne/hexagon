@@ -13,6 +13,8 @@ inherit sign     "/lib/room/sign.c";
 // diplomacy / POI system and registered here (see /lib/room/guarded_exits.c)
 inherit guarded  "/lib/room/guarded_exits.c";
 inherit dark     "/lib/room/dark.c";
+// the location is the entity of its components (shop, props, maze, ...)
+inherit entity   "/lib/core/ecs/entity.c";
 
 #include <basic/light.h>
 #include <language.h>
@@ -24,19 +26,6 @@ inherit dark     "/lib/room/dark.c";
 #include <areas/common.h>
 #include <sector/sector.h>
 #include <translations/exits.h>
-
-// The live component instances attached to this location (runtime only).
-static object * components;
-// Persisted component state: component_type -> saved attributes. Written
-// from the live components on save (_sync_component_info) and replayed
-// into fresh instances on restore (init_components).
-mapping component_info;
-
-// Derived from components on init_components(). Maps a hookable
-// public function name to the ordered list of components that
-// registered for it (sorted by HOOK_PRIORITY_*, ties broken by load
-// order). Never persisted. See location-hook-system.md.
-static mapping hook_chains;
 
 string _original_room_file_name;
 string _original_long;
@@ -93,15 +82,7 @@ object query_area();
 void set_exits_from_exit_map(mapping m);
 private mapping _exit_map_to_canonical(mapping m);
 private mapping _exit_map_to_local(mapping m);
-mixed * run_pipeline(string func, mixed * args);
-mixed run_reduce(string func, mixed * args, mixed acc, string combinator);
-string _concat_string(mixed acc, mixed piece);
-int _sum_int(mixed acc, mixed piece);
-int _any_true(mixed acc, mixed piece);
-object query_component_by_type(string type);
 string query_props_string();
-private void rebuild_hook_chains();
-private void _sync_component_info();
 // void init_original_info();
 
 nomask int query_location() { return 1; }
@@ -245,9 +226,7 @@ int test_remove(object ob, int flag) { return 1; }
 
 void create() 
 {
-  components = ({ });
-  component_info = ([ ]);
-  hook_chains = ([ ]);
+  entity::create();
 
   _original_room_file_name = "";
   _original_long = "";
@@ -300,17 +279,14 @@ void create()
 
 void init()
 {
-  int i;
-
   contents::init();
   exits::init();
 
   // The props component lives in this location's _inventory so the
-  // standard `components[i]->init()` call below reaches it through
-  // the canonical move/init pass — no manual verb registration or
-  // forwarder needed on the location side.
-  for (i = 0; i < sizeof(components); i++)
-    components[i]->init();
+  // standard init() call below reaches it through the canonical move/init
+  // pass — no manual verb registration or forwarder needed on the location
+  // side.
+  run_on_components("init");
 }
 
 int id(string str)
@@ -520,275 +496,24 @@ int query_base_light()
 string query_map_name() { return map_name; }
 void set_map_name(string name) { map_name = name; }
 
-object * query_components() { return components; }
+string query_component_dir() { return "/lib/location/components/"; }
+
+// a location keeps its components in its own savefile, so any change to them is
+// saved at once
+void components_changed() { save_me(); }
 
 // Components are not in the location's inventory, so they would never hear of
 // anybody coming or going: the location passes both events on to them.
 void event_enter(object ob, varargs string msg, object from, mixed avoid)
 {
-  int i;
-
   obj::event_enter(ob, msg, from, avoid);
-  for (i = 0; i < sizeof(components); i++)
-    if (components[i] && function_exists("event_enter", components[i]))
-      components[i]->event_enter(ob, msg, from, avoid);
+  run_on_components("event_enter", ob, msg, from, avoid);
 }
 
 void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 {
-  int i;
-
   obj::event_exit(ob, msg, dest, avoid);
-  for (i = 0; i < sizeof(components); i++)
-    if (components[i] && function_exists("event_exit", components[i]))
-      components[i]->event_exit(ob, msg, dest, avoid);
-}
-object query_component_by_type(string type)
-{
-  int i;
-
-  for (i = 0; i < sizeof(components); i++)
-    if (components[i]->query_type() == type)
-      return components[i];
-
-  return nil;
-}
-
-int has_component(string type) { return query_component_by_type(type) != nil; }
-
-// Seed (or reseed) a component's persisted attributes.
-//
-// Two callers: (a) the conversion path, which seeds state from a
-// legacy room into the location, and (b) builder cmds like `props add`
-// that attach a new component on demand. In both cases the live
-// instance must be brought up to date so subsequent reads observe the
-// seed instead of stale (or missing) data.
-//
-// If a live component of that type already exists, push the attrs
-// into it. Otherwise clone the matching blueprint, initialise it with
-// the attrs, register it on the location, and rebuild the hook chains
-// so render/dispatch sees it immediately.
-void add_component(string component_type, mapping properties)
-{
-  object live;
-
-  component_info[component_type] = properties;
-
-  live = query_component_by_type(component_type);
-  if (live)
-  {
-    live->init_auto_load_attributes(properties);
-    save_me();
-    return;
-  }
-
-  live = clone_object("/lib/location/components/" + component_type + ".c");
-  if (!live) return;
-
-  live->init_auto_load_attributes(properties);
-  live->initialize(this_object());
-  components += ({ live });
-  rebuild_hook_chains();
-  if (function_exists("components_ready", live))
-    live->components_ready();
-  save_me();
-}
-
-void remove_component(string component_type)
-{
-  object live;
-
-  map_delete(component_info, component_type);
-
-  // Mirror add_component: also drop the live instance and refresh the
-  // hook chains. Without this, _sync_component_info() would pull the
-  // still-live component straight back into component_info on save.
-  live = query_component_by_type(component_type);
-  if (live)
-  {
-    components -= ({ live });
-    destruct(live);
-  }
-
-  rebuild_hook_chains();
-  save_me();
-}
-
-void init_components(mapping info)
-{
-  string * component_paths;
-  object * loaded;
-  int i;
-
-  component_paths = keys(info);
-
-  for (i = 0; i < sizeof(component_paths); i++)
-  {
-    object component;
-    component = clone_object("/lib/location/components/" + component_paths[i] + ".c");
-
-    if (!component)
-      continue;
-
-    // initialize variable values
-    component->init_auto_load_attributes(info[component_paths[i]]);
-    component->initialize(this_object());
-    components += ({ component });
-  }
-
-  rebuild_hook_chains();
-
-  // A component that depends on another can only reach it once all of them
-  // exist. The list is copied: one may attach another component here.
-  loaded = ({ }) + components;
-  for (i = 0; i < sizeof(loaded); i++)
-    if (loaded[i] && function_exists("components_ready", loaded[i]))
-      loaded[i]->components_ready();
-}
-
-// Walk the current components, ask each which functions it hooks and
-// at what priority, group by function name, sort by priority (lower
-// first). Ties keep load order — the iteration above is already in
-// component_info insertion order.
-private void rebuild_hook_chains()
-{
-  mapping by_func;  // func_name -> ({ ({ priority, component }), ... })
-  string * funcs;
-  int i, j, k;
-
-  hook_chains = ([ ]);
-  by_func = ([ ]);
-
-  for (i = 0; i < sizeof(components); i++)
-  {
-    mapping hooks;
-    string * hook_funcs;
-
-    hooks = components[i]->query_hooks();
-    if (!hooks)
-      continue;
-
-    hook_funcs = map_indices(hooks);
-    for (j = 0; j < sizeof(hook_funcs); j++)
-    {
-      if (undefinedp(by_func[hook_funcs[j]]))
-        by_func[hook_funcs[j]] = ({ });
-      by_func[hook_funcs[j]] += ({ ({ hooks[hook_funcs[j]], components[i] }) });
-    }
-  }
-
-  funcs = map_indices(by_func);
-  for (i = 0; i < sizeof(funcs); i++)
-  {
-    mixed * pairs;
-    object * chain;
-
-    // small insertion sort by priority, stable
-    pairs = by_func[funcs[i]];
-    for (j = 1; j < sizeof(pairs); j++)
-    {
-      mixed * cur;
-      cur = pairs[j];
-      k = j - 1;
-      while (k >= 0 && pairs[k][0] > cur[0])
-      {
-        pairs[k + 1] = pairs[k];
-        k -= 1;
-      }
-      pairs[k + 1] = cur;
-    }
-
-    chain = ({ });
-    for (j = 0; j < sizeof(pairs); j++)
-      chain += ({ pairs[j][1] });
-    hook_chains[funcs[i]] = chain;
-  }
-}
-
-// Pipeline dispatcher. Threads args through each registered hook in
-// priority order; every hook returns the (possibly transformed) args
-// for the next link. Returns the final args; caller is responsible
-// for invoking the inherited implementation with them.
-mixed * run_pipeline(string func, mixed * args)
-{
-  object * chain;
-  int i;
-
-  if (!hook_chains || undefinedp(hook_chains[func]))
-    return args;
-
-  chain = hook_chains[func];
-  for (i = 0; i < sizeof(chain); i++)
-    args = chain[i]->call_hook(func, args);
-
-  return args;
-}
-
-// Reduce dispatcher. Walks the chain in priority order, asks each
-// component for its piece (via call_hook), and folds it into the
-// accumulator with the named combinator. The accumulator is seeded
-// by the caller (typically with the inherited base value).
-//
-// A component can claim authority by returning ({ HOOK_EXCLUSIVE,
-// value }); the combinator detects the tag, discards everything it
-// had built so far, and replaces it with the tagged value. Later
-// components still run (their side effects fire) but subsequent
-// pieces are appended on top of the exclusive value following the
-// same combinator rule. If multiple components return exclusive on
-// the same call, the first one (lowest priority) wins as a baseline
-// and subsequent ones augment it — predictable, matches the old
-// "first authoritative component takes the long" behaviour.
-//
-// Combinator signature: combinator(mixed acc, mixed piece) -> mixed.
-// Combinators live as helpers in location.c so the set is small and
-// known.
-mixed run_reduce(string func, mixed * args, mixed acc, string combinator)
-{
-  object * chain;
-  int i;
-
-  if (!hook_chains || undefinedp(hook_chains[func]))
-    return acc;
-
-  chain = hook_chains[func];
-  for (i = 0; i < sizeof(chain); i++)
-  {
-    mixed piece;
-    piece = chain[i]->call_hook(func, args);
-    acc = call_other(this_object(), combinator, acc, piece);
-  }
-
-  return acc;
-}
-
-// Combinator: any component saying yes settles it. For the gates where one
-// objection is enough and the rest of the chain cannot overrule it.
-int _any_true(mixed acc, mixed piece)
-{
-  return acc || (piece ? 1 : 0);
-}
-
-// Combinator: string concatenation. Treats nil/0 pieces as no
-// contribution. Honours HOOK_EXCLUSIVE by replacing the accumulator.
-string _concat_string(mixed acc, mixed piece)
-{
-  if (pointerp(piece) && sizeof(piece) == 2 && piece[0] == HOOK_EXCLUSIVE)
-    return piece[1];
-  if (!piece || !stringp(piece) || !strlen(piece))
-    return acc;
-  if (!acc) acc = "";
-  return acc + piece;
-}
-
-// Combinator: integer sum. HOOK_EXCLUSIVE replaces the running total
-// with the tagged integer.
-int _sum_int(mixed acc, mixed piece)
-{
-  if (pointerp(piece) && sizeof(piece) == 2 && piece[0] == HOOK_EXCLUSIVE)
-    return piece[1];
-  if (!intp(piece))
-    return acc;
-  return acc + piece;
+  run_on_components("event_exit", ob, msg, dest, avoid);
 }
 
 // void init_original_info()
@@ -1354,18 +1079,6 @@ object * find_inv_match(string str)
   return inv;
 }
 
-// Refresh component_info from the live components before serialising.
-// Pull-on-save closes the symmetric loop with init_components -> push
-// via init_auto_load_attributes on restore. See the header comment of
-// /lib/location/component.c for the full persistence contract.
-private void _sync_component_info()
-{
-  int i;
-  for (i = 0; i < sizeof(components); i++)
-    component_info[components[i]->query_type()] =
-      components[i]->query_auto_load_attributes();
-}
-
 void save_me()
 {
   // stamp the original-creation timestamp the first time this location
@@ -1378,8 +1091,10 @@ void save_me()
 
   // pull each component's current autoload state into component_info
   // so the next restore sees what the live objects looked like, not
-  // just the seed values from conversion.
-  _sync_component_info();
+  // just the seed values from conversion. Pull-on-save closes the loop with
+  // init_components, which pushes them back on restore (see the header of
+  // /lib/location/component.c for the persistence contract).
+  sync_component_info();
 
   // save in the map system every location with coordinates
   if (query_coordinates() != nil)
@@ -1460,12 +1175,8 @@ void dest_me()
         arr[i]->dest_me();
   }
 
-  // tear down our own live components (remove_component destructs them the
-  // same way); dest_me previously leaked these
-  for (i = 0; i < sizeof(components); i++)
-    if (components[i])
-      destruct(components[i]);
-  components = ({ });
+  // tear down our own live components, the same way remove_component does
+  destruct_components();
 
   // forget the guard registry (the guards themselves are area-managed NPCs,
   // drained above)

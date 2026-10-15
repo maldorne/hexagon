@@ -16,7 +16,7 @@ void create()
   set_type(LOCATION_COMPONENT_GUILD_ROOM);
 }
 
-object query_guild_room_place() { return query_my_location(); }
+object query_guild_room_place() { return query_entity(); }
 
 void init()
 {

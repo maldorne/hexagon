@@ -107,7 +107,7 @@ int query_staying_put()
   object npc, here;
   string home;
 
-  npc = query_owner();
+  npc = query_entity();
   if (!npc || current_goto != "home")
     return 0;
   here = environment(npc);
@@ -160,18 +160,17 @@ private mapping _entry_in_effect(int hour)
 // it got to, with no route and no goal, and the timetable would not speak to it
 // again until the next hour it names -- half a day of standing in a field path.
 // So on materialization ask which entry governs this hour and walk there.
-// args = ({ hour }).
-void resume_schedule(mixed * args)
+void resume_schedule(int hour)
 {
   object npc, here;
   mapping entry;
   string dest;
 
-  npc = query_owner();
-  if (!npc || !args || !sizeof(args))
+  npc = query_entity();
+  if (!npc)
     return;
 
-  entry = _entry_in_effect(args[0]);
+  entry = _entry_in_effect(hour);
   if (!entry)
     return;
 
@@ -194,19 +193,17 @@ void resume_schedule(mixed * args)
 
 // The areas handler calls this on the NPC at hour H (forwarded here through
 // npc.c::do_schedule). Look H up in the timetable and, if there is an entry,
-// head to its destination unless already there. args = ({ hour }).
-void do_schedule(mixed * args)
+// head to its destination unless already there.
+void do_schedule(int hour)
 {
   object npc, here;
-  int hour;
   mapping entry;
   string dest;
 
-  npc = query_owner();
-  if (!npc || !args || !sizeof(args))
+  npc = query_entity();
+  if (!npc)
     return;
 
-  hour = args[0];
   entry = timetable[hour];
   if (!entry)
     return;
@@ -232,13 +229,13 @@ void do_schedule(mixed * args)
 /**
  * The NPC has moved (forwarded by npc.c). Reaching the end of the trip tells
  * its arrival line, once the steps still queued behind the move (closing the
- * door) have run. args = ({ ob, from, dest }).
+ * door) have run.
  */
-void event_moved(mixed * args)
+void event_moved(object ob, object from, object dest)
 {
   object npc, here;
 
-  npc = query_owner();
+  npc = query_entity();
   here = npc ? environment(npc) : nil;
   if (!here || !trip_dest || here->query_file_name() != trip_dest)
     return;
@@ -261,7 +258,7 @@ void announce_arrival(object where)
 {
   object npc;
 
-  npc = query_owner();
+  npc = query_entity();
   if (!npc || !where || environment(npc) != where || !arrival_line)
     return;
 

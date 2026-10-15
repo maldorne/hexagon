@@ -28,12 +28,12 @@ void create()
 }
 
 // The NPC is dying: its body is still in the room.
-void died(mixed * args)
+void died(object killer)
 {
   object npc, env, ob;
   int i;
 
-  npc = query_owner();
+  npc = query_entity();
   if (!npc || !(env = environment(npc)))
     return;
 

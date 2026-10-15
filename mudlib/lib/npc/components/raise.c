@@ -42,10 +42,10 @@ mapping query_component_actions()
 
 int do_info(string str)
 {
-  if (!query_owner())
+  if (!query_entity())
     return 0;
 
-  query_owner()->do_say(_LANG_RAISE_INFO);
+  query_entity()->do_say(_LANG_RAISE_INFO);
   return 1;
 }
 
@@ -54,18 +54,18 @@ int do_raise(string str)
   object who;
 
   who = this_player();
-  if (!who || !query_owner())
+  if (!who || !query_entity())
     return 0;
 
   if (who->query_timed_property(RAISE_COOLDOWN_PROP))
   {
-    query_owner()->do_say(_LANG_RAISE_TOO_SOON);
+    query_entity()->do_say(_LANG_RAISE_TOO_SOON);
     return 1;
   }
 
   if (!who->query_dead())
   {
-    query_owner()->do_say(_LANG_RAISE_NOT_DEAD);
+    query_entity()->do_say(_LANG_RAISE_NOT_DEAD);
     return 1;
   }
 

@@ -30,7 +30,7 @@ void initialize(object loc)
   component::initialize(loc);
 }
 
-object query_coast_place() { return query_my_location(); }
+object query_coast_place() { return query_entity(); }
 
 string query_kind() { return query_coast_kind(); }
 void set_kind(string s) { set_coast_kind(s); }

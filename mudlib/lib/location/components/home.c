@@ -47,8 +47,8 @@ string query_info()
   string file, s;
   int i;
 
-  area = query_my_location() ? query_my_location()->query_area() : nil;
-  file = query_my_location() ? query_my_location()->query_file_name() : nil;
+  area = query_entity() ? query_entity()->query_area() : nil;
+  file = query_entity() ? query_entity()->query_file_name() : nil;
   units = (area && file) ? area->query_house_units(file) : ({ });
 
   // a shared house answers for every household in it
@@ -102,8 +102,8 @@ mixed hook_long(mixed * args)
   // A house that belongs to a family says whose it is, as the area's books have
   // it; a family that has died out owns nothing. A shared house names every
   // family living in it.
-  area = query_my_location()->query_area();
-  units = area ? area->query_house_units(query_my_location()->query_file_name())
+  area = query_entity()->query_area();
+  units = area ? area->query_house_units(query_entity()->query_file_name())
                : ({ });
   owners = ({ });
   for (i = 0; i < sizeof(units); i++)

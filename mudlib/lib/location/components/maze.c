@@ -66,7 +66,7 @@ mixed * hook_do_exit_command(mixed * args)
   if (random(100) < ability)
     return args;
 
-  dirs = location->query_direc();
+  dirs = query_entity()->query_direc();
   if (dirs && sizeof(dirs) > 1)
   {
     chosen = dirs[random(sizeof(dirs))];

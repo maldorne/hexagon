@@ -20,12 +20,12 @@ void create()
   set_type(LOCATION_COMPONENT_LIBRARY);
 }
 
-object query_library_place() { return query_my_location(); }
+object query_library_place() { return query_entity(); }
 
 void save_library()
 {
-  if (query_my_location())
-    query_my_location()->save_me();
+  if (query_entity())
+    query_entity()->save_me();
 }
 
 void init()
@@ -62,7 +62,7 @@ void add_library_props()
 {
   object loc, props;
 
-  loc = query_my_location();
+  loc = query_entity();
   if (!loc)
     return;
 
@@ -90,8 +90,8 @@ void add_library_props()
 
 void save_location()
 {
-  if (query_my_location())
-    query_my_location()->save_me();
+  if (query_entity())
+    query_entity()->save_me();
 }
 
 string query_info()

@@ -31,7 +31,7 @@ private void hide_owner()
 {
   object npc;
 
-  npc = query_owner();
+  npc = query_entity();
   if (!npc || npc->query_dead() || npc->query_hide_shadow())
     return;
   if (sizeof(npc->query_attacker_list()))
@@ -46,14 +46,13 @@ void placed()
 }
 
 // Somebody's search found the owner: go for them.
-void revealed(mixed * args)
+void event_revealed(object finder)
 {
-  object npc, finder;
+  object npc;
   mixed data;
   int opened;
 
-  npc = query_owner();
-  finder = sizeof(args) ? args[0] : nil;
+  npc = query_entity();
 
   if (npc && finder && !finder->query_dead() &&
       environment(finder) == environment(npc))
@@ -82,7 +81,7 @@ void try_to_hide()
   object npc;
 
   rehide_handle = 0;
-  npc = query_owner();
+  npc = query_entity();
   if (!npc || npc->query_hide_shadow())
     return;
 

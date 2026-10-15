@@ -55,7 +55,7 @@ mixed hook_long(mixed * args)
     return "";
 
   if (this_object()->query_night_long() &&
-      !handler("weather", query_my_location())->query_day())
+      !handler("weather", query_entity())->query_day())
     return ({ HOOK_EXCLUSIVE, this_object()->query_night_long() });
   return "";
 }
@@ -68,7 +68,7 @@ mixed hook_query_light(mixed * args)
   object loc;
   int percent;
 
-  loc = query_my_location();
+  loc = query_entity();
   if (!loc)
     return 0;
 
@@ -83,7 +83,7 @@ string hook_extra_look(mixed * args)
 {
   // weather_string already ends in a newline, so do not add another or the
   // description gains a blank line under the weather report.
-  return (string)handler("weather", query_my_location())->weather_string(query_my_location());
+  return (string)handler("weather", query_entity())->weather_string(query_entity());
 }
 
 mixed * stats()

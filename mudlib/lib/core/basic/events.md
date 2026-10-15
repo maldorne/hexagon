@@ -55,17 +55,14 @@ leaves out the speaker and the target.
 
 ### Forwarding to components
 
-Components are not in the inventory of their owner, so `event()` never reaches
-them. The owner forwards what its components need:
+Components are not in the inventory of their entity, so `event()` never
+reaches them. The entity forwards what its components need with
+`run_on_components(func, args...)` (`/lib/core/ecs/entity.c`), which calls the
+function, with the event's own arguments, on every component that defines it:
 
-- `/lib/location.c` passes `event_enter` and `event_exit` to each component that
-  defines them, with the same arguments, and `event_climbed` / `event_climb_failed`
-  to its bridge component.
-- `/lib/npc.c` forwards with `run_on_components(func, args)`, which calls the
-  function on every component with one array argument. Components implement
-  only the ones they care about, and take an argument array instead of the
-  usual signature. NPC forwards: `moved`, `weather`, `fight_in_progress`,
-  `revealed`.
+- `/lib/location.c` forwards `enter` and `exit`, and passes `event_climbed` /
+  `event_climb_failed` to its bridge component.
+- `/lib/npc.c` forwards `moved`, `weather`, `fight_in_progress` and `revealed`.
 
 ## Movement
 

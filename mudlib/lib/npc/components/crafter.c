@@ -22,7 +22,7 @@ void initialize(object npc)
     npc->add_extra_look(this_object());
 }
 
-object query_crafter_owner() { return query_owner(); }
+object query_crafter_owner() { return query_entity(); }
 
 mapping query_auto_load_attributes()
 {

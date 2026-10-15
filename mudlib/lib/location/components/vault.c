@@ -19,7 +19,7 @@ void create()
   set_type(LOCATION_COMPONENT_VAULT);
 }
 
-object query_vault_place() { return query_my_location(); }
+object query_vault_place() { return query_entity(); }
 
 void init()
 {

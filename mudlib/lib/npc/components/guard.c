@@ -9,7 +9,7 @@
 // The room side is unchanged -- the exit handler still calls
 // guard_npc->guardian_check(mover) / guardian_message(); npc.c proxies those to
 // this component. The composing NPC supplies query_city_ob() (its citizenship),
-// which this component reads through query_owner().
+// which this component reads through query_entity().
 //
 // Who is stopped is a set of rules in the attributes; a mover goes through only
 // if every rule the guard has lets them. Without attributes it stops the
@@ -72,7 +72,7 @@ private mapping _post_poi()
   object me, post;
   mixed work;
 
-  me = query_owner();
+  me = query_entity();
   work = me ? me->query_work() : nil;
   if (!stringp(work) || !strlen(work))
     return nil;
@@ -116,7 +116,7 @@ void placed()
   string dir;
 
   dir = _watched_direction();
-  me = query_owner();
+  me = query_entity();
   if (!strlen(dir) || !me)
     return;
 
@@ -165,7 +165,7 @@ private int _passes_citizenship(object mover)
   string my_city_ob, mover_city_ob;
   object me, my_citizenship, mover_citizenship;
 
-  me = query_owner();
+  me = query_entity();
   if (!guard_enemies)
     return 1;
 
@@ -194,7 +194,7 @@ private int _is_fellow_citizen(object who)
   object me, diplomacy, citizenship;
   string my_city_ob, their_city_ob, mine, name;
 
-  me = query_owner();
+  me = query_entity();
   my_city_ob = me ? me->query_city_ob() : nil;
   their_city_ob = who->query_city_ob();
   if (!my_city_ob || !their_city_ob)
@@ -227,27 +227,27 @@ private int _passes_admission(object mover)
   poi = _post_poi();
   if (!poi || poi[POI_FIELD_ADMIT] != POI_ADMIT_CITIZENS)
     return 1;
-  if (!query_owner()->query_city_ob())
+  if (!query_entity()->query_city_ob())
     return 1;
 
   return _is_fellow_citizen(mover);
 }
 
-// A fight in the guard's room, ({ caller, ({ victim, attacker }) }). At a
+// A fight in the guard's room, `fighters` being ({ victim, attacker }). At a
 // bodyguard post, standing at it, the guard attacks whoever attacks one of its
 // citizens -- unless the attacker is an NPC of the city itself, which is how
 // the guards' own blows on a citizen are not taken for an attack to answer.
-void fight_in_progress(mixed * args)
+void event_fight_in_progress(object ob, object * fighters)
 {
   object me, victim, attacker, here;
   mapping poi;
 
-  me = query_owner();
-  if (!me || sizeof(args) < 2 || !pointerp(args[1]) || sizeof(args[1]) < 2)
+  me = query_entity();
+  if (!me || !pointerp(fighters) || sizeof(fighters) < 2)
     return;
 
-  victim = args[1][0];
-  attacker = args[1][1];
+  victim = fighters[0];
+  attacker = fighters[1];
   if (!victim || !attacker || attacker == me || victim == attacker)
     return;
 
@@ -274,7 +274,7 @@ void fight_in_progress(mixed * args)
 // direction posted, the mover passes.
 int check(object mover)
 {
-  if (!strlen(_watched_direction()) || !mover || !query_owner())
+  if (!strlen(_watched_direction()) || !mover || !query_entity())
     return 1;
 
   if (guard_min_class_level &&

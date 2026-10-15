@@ -38,8 +38,8 @@ object query_venue()
 {
   object loc;
 
-  loc = function_exists("query_my_location", this_object())
-          ? (object)this_object()->query_my_location() : nil;
+  loc = function_exists("query_entity", this_object())
+          ? (object)this_object()->query_entity() : nil;
   return loc ? loc : this_object();
 }
 

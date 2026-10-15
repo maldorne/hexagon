@@ -423,8 +423,8 @@ private string query_placing_game()
   ob = previous_object();
   if (!ob)
     return "";
-  if (ob->query_my_location())
-    ob = ob->query_my_location();
+  if (ob->query_entity())
+    ob = ob->query_entity();
 
   return game_name(ob);
 }

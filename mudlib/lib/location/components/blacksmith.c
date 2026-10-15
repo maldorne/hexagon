@@ -42,7 +42,7 @@ int query_forge_lit()
 {
   object loc;
 
-  loc = query_my_location();
+  loc = query_entity();
   if (!loc)
     return 0;
 
@@ -63,7 +63,7 @@ void add_smithy_props()
   object loc, props;
   int i, added;
 
-  loc = query_my_location();
+  loc = query_entity();
   if (!loc)
     return;
 
@@ -96,8 +96,8 @@ void add_smithy_props()
 
 void save_location()
 {
-  if (query_my_location())
-    query_my_location()->save_me();
+  if (query_entity())
+    query_entity()->save_me();
 }
 
 // Sets the lit state of every forge prop from who is at work.
@@ -107,7 +107,7 @@ void update_forge_props()
   mapping * forges;
   int lit, i;
 
-  loc = query_my_location();
+  loc = query_entity();
   if (!loc)
     return;
 

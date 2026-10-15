@@ -43,7 +43,7 @@ void fire(object who, mapping trigger)
 {
   object place;
 
-  place = query_my_location();
+  place = query_entity();
   if (!who || !place || environment(who) != place)
     return;
 

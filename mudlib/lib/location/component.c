@@ -1,4 +1,7 @@
-// Base class every location component inherits from.
+// Base class every location component inherits from: a component as
+// /lib/core/ecs/component.c defines it, plus the container half, so a component
+// can hold things for its location (the props, a shop's vault). Its entity is
+// the location (query_entity).
 //
 // PERSISTENCE CONTRACT
 // --------------------
@@ -32,17 +35,12 @@
 //   example.
 // * State that doesn't fit a flat mapping (large inventories, logs)
 //   should live in side files whose paths derive from
-//   `query_my_location()->query_file_name()` — never accept a path
+//   `query_entity()->query_file_name()` — never accept a path
 //   from a setter. See `shop-inventory.c::query_save_file_name()` for
 //   the pattern.
 
-// inherit obj "/lib/core/object.c";
 inherit container "/lib/core/basic/container.c";
-
-private string type;  // type of component (outside, shop, swamp, whatever)
-static object location;
-
-int query_location_component() { return 1; }
+inherit ecs       "/lib/core/ecs/component.c";
 
 // do not allow by default adding and removing objects from the inventory
 // if you need a particular component to allow this, override these functions
@@ -54,72 +52,23 @@ int test_remove(object ob, int flag) { return 0; }
 void create()
 {
   container::create();
-  type = "base";
-  location = nil;
-}
-
-object query_my_location() { return location; }
-
-// will be called after creation + init_auto_load_attributes,
-// providing de parent location object
-void initialize(object loc)
-{
-  location = loc;
-}
-
-// basic component functions
-string query_type() { return type; }
-void set_type(string t) { type = t; }
-
-// A one-line summary of this component's essential state, for programmers (the
-// `components` command shows it next to the type). Empty by default; a component
-// with meaningful state overrides it -- e.g. home lists its residents.
-string query_info() { return ""; }
-
-// Hook registration. A component declares which of the location's
-// public functions it wants to participate in, and at what priority
-// bucket (see include/room/location.h). The location reads this
-// at init_components time, builds an ordered chain per function, and
-// dispatches calls through it.
-//
-// Override in subclasses. Example:
-//   mapping query_hooks() {
-//     return ([ "do_exit_command": HOOK_PRIORITY_TRANSFORM ]);
-//   }
-//
-// Then implement the matching `hook_<func>(mixed * args)` function.
-// The contract (transform args / return a piece) is documented per
-// hook in location.c.
-mapping query_hooks() { return ([ ]); }
-
-// Dispatcher entry point used by the location. Resolves to this
-// component's hook_<func> implementation. Kept here so the location
-// has a single uniform call site regardless of which component it is
-// invoking.
-mixed call_hook(string func, mixed * args)
-{
-  return call_other(this_object(), "hook_" + func, args);
+  ecs::create();
 }
 
 mapping query_auto_load_attributes() 
 {
-  // return container::query_auto_load_attributes() +
-  return ([ "type" : type, ]);
+  // the container's own attributes are not kept: a component's inventory is
+  // rebuilt by the component itself
+  return ecs::query_auto_load_attributes();
 }
 
 void init_auto_load_attributes(mapping args) 
 {
-  if (!undefinedp(args["type"]))
-    type = args["type"];
-
-  // container::init_auto_load_attributes(args);
+  ecs::init_auto_load_attributes(args);
 }
 
 mixed * stats()
 {
   // for the components stats, give just the essential info
-  // return container::stats() +
-  return ({
-    ({ "Component Type", type, }),
-         });
+  return ecs::stats();
 }

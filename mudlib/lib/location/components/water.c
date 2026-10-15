@@ -24,7 +24,7 @@ void initialize(object loc)
   component::initialize(loc);
 }
 
-object query_water_place() { return query_my_location(); }
+object query_water_place() { return query_entity(); }
 
 mapping query_hooks()
 {

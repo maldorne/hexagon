@@ -22,11 +22,10 @@ inherit monster   "/lib/monster.c";
 // the carried items into a saveable map, load_auto_load rebuilds them. This is
 // what lets an NPC keep its own equipment on its npc.o across reboots.
 inherit autoload  "/lib/core/basic/auto_load.c";
+// Behaviour components (schedule, guard, toll, ...) attached per NPC: the NPC
+// is their entity. Each inherits /lib/npc/component.c and sits under here:
+inherit entity    "/lib/core/ecs/entity.c";
 
-// Behaviour components (schedule, shop, patrol, ...) are attached per NPC. The
-// host machinery lives inline below, exactly as the location component host
-// lives inline in location.c -- the only component *file* is the base every
-// component inherits, /lib/npc/component.c. Concrete components sit under here:
 #define NPC_COMPONENT_DIR "/lib/npc/components/"
 
 // Persisted into the NPC's own savefile so a restored NPC knows who it is.
@@ -50,14 +49,6 @@ static int proper_name;
 // whether its template makes it one particular person without a name of its
 // own (see is_unique)
 static int unique_person;
-
-// Component host state. component_info (type -> persisted attrs) rides in the
-// npc.o savefile; the live instances are static and re-cloned on restore.
-mapping component_info;
-static object * components;
-// verb -> ({ component, function }), for the verbs components asked for. Static:
-// it holds live object references, which mean nothing across a save.
-static mapping component_actions;
 
 // For an anonymous monster (no uuid): the location whose bucket counts it, set
 // when it is cloned. It is bookkeeping, not identity -- the animal may wander
@@ -85,8 +76,7 @@ void create()
   npc_given_name = nil;
   npc_work = nil;
   npc_monster_location = nil;
-  component_info = ([ ]);
-  components = ({ });
+  entity::create();
 }
 
 int query_persisted();
@@ -114,33 +104,10 @@ string query_work() { return npc_work; }
 void set_work(string file) { npc_work = file; }
 
 // ---------------------------------------------------------------------------
-// Component host
+// Components (the entity half is /lib/core/ecs/entity.c)
 // ---------------------------------------------------------------------------
-//
-// Attach behaviour components (schedule, shop, patrol, ...) to this NPC.
-// Mirrors the location component host (inline in location.c), pared down: NPC
-// components react to events with side effects, so this provides attach /
-// detach / query and a plain broadcast (run_on_components). It omits the
-// location system's hook-chain / pipeline / reduce machinery, which exists to
-// transform a location's return values -- nothing an NPC component needs yet.
-// Persistence is driven by save_npc / restore_npc below. Per-component half:
-// /lib/npc/component.c.
 
-object * query_components() { return components ? components : ({ }); }
-
-object query_component_by_type(string type)
-{
-  int i;
-
-  if (!components)
-    return nil;
-  for (i = 0; i < sizeof(components); i++)
-    if (components[i]->query_type() == type)
-      return components[i];
-  return nil;
-}
-
-int has_component(string type) { return query_component_by_type(type) != nil; }
+string query_component_dir() { return NPC_COMPONENT_DIR; }
 
 // Whether this NPC's routine keeps it where it is (at home for the night), so
 // it does not wander off.
@@ -164,163 +131,12 @@ int query_resting()
   return sched ? (int)sched->query_resting() : 0;
 }
 
-// Tell every component the NPC is now standing in the world.
-void components_placed()
-{
-  int i;
-
-  for (i = 0; components && i < sizeof(components); i++)
-    if (components[i])
-      components[i]->placed();
-}
-
-// Clone a component blueprint, stamp its type, seed its attrs, and bind it to
-// this NPC. Shared by add_component and init_components.
-private void _register_component_actions(object c);
-
-private object _spawn_component(string type, mapping attrs)
-{
-  object c;
-
-  c = clone_object(NPC_COMPONENT_DIR + type + ".c");
-  if (!c)
-    return nil;
-
-  c->set_type(type);
-  c->init_auto_load_attributes(attrs ? attrs : ([ ]));
-  c->initialize(this_object());
-  components += ({ c });
-  _register_component_actions(c);
-  return c;
-}
-
-// A component stands in no room, so it cannot carry a verb. The NPC registers
-// what it asked for and forwards the call back.
-private void _register_component_actions(object c)
-{
-  mapping wanted;
-  string * verbs;
-  int i;
-
-  wanted = (mapping)c->query_component_actions();
-  if (!mappingp(wanted) || !map_sizeof(wanted))
-    return;
-
-  if (!component_actions)
-    component_actions = ([ ]);
-
-  verbs = map_indices(wanted);
-  for (i = 0; i < sizeof(verbs); i++)
-  {
-    component_actions[verbs[i]] = ({ c, wanted[verbs[i]] });
-    add_action("_component_action", verbs[i]);
-  }
-}
-
-// Where every component verb lands. The verb that was typed says which
-// component asked for it and what to call there.
-int _component_action(string str)
-{
-  mixed * bound;
-
-  bound = component_actions ? component_actions[query_verb()] : nil;
-  if (!bound || !bound[0])
-    return 0;
-
-  return (int)call_other(bound[0], bound[1], str);
-}
-
-// Re-clone every component named in a restored component_info (from restore_npc).
-void init_components(mapping info)
-{
-  string * types;
-  int i;
-
-  if (!components)
-    components = ({ });
-  if (!info)
-    return;
-
-  types = map_indices(info);
-  for (i = 0; i < sizeof(types); i++)
-    _spawn_component(types[i], info[types[i]]);
-}
-
-// Attach a component of `type` with the given attrs, or reseed a live one. This
-// is how a job stamps behaviour on a freshly materialised NPC.
-void add_component(string type, mapping attrs)
-{
-  object live;
-
-  if (!components)
-    components = ({ });
-  if (!component_info)
-    component_info = ([ ]);
-  if (!attrs)
-    attrs = ([ ]);
-
-  component_info[type] = attrs;
-
-  live = query_component_by_type(type);
-  if (live)
-  {
-    live->init_auto_load_attributes(attrs);
-    return;
-  }
-
-  _spawn_component(type, attrs);
-}
-
-void remove_component(string type)
-{
-  object live;
-
-  if (component_info)
-    map_delete(component_info, type);
-
-  live = query_component_by_type(type);
-  if (live)
-  {
-    components -= ({ live });
-    destruct(live);
-  }
-}
-
-// Pull each live component's current attrs back into component_info so
-// save_object persists up-to-date state. Called from save_npc before saving.
-void sync_component_info()
-{
-  int i;
-
-  if (!components)
-    return;
-  if (!component_info)
-    component_info = ([ ]);
-
-  for (i = 0; i < sizeof(components); i++)
-    component_info[components[i]->query_type()] =
-      components[i]->query_auto_load_attributes();
-}
-
-// Broadcast an event to every component. Each component implements only the
-// event_<name> methods it cares about; an undefined one returns nil harmlessly.
-// Side effects only -- no return folding.
-void run_on_components(string func, mixed * args)
-{
-  int i;
-
-  if (!components)
-    return;
-  for (i = 0; i < sizeof(components); i++)
-    call_other(components[i], func, args);
-}
-
 /**
  * The NPC has moved: pass it on to the components.
  */
 void event_moved(object ob, object from, object dest)
 {
-  run_on_components("event_moved", ({ ob, from, dest }));
+  run_on_components("event_moved", ob, from, dest);
 }
 
 // Guard proxy. The room's exit handler consults a posted guard through
@@ -350,21 +166,21 @@ string guardian_message()
 // can react to rain, cold, etc.).
 void event_weather(object who, varargs int flag, int * values)
 {
-  run_on_components("event_weather", ({ who, flag }));
+  run_on_components("event_weather", who, flag, values);
 }
 
 // The areas handler calls this at a schedule hour: hand it to the schedule
 // component (if any), which walks the NPC to where it should be this hour.
 void do_schedule(int hour)
 {
-  run_on_components("do_schedule", ({ hour }));
+  run_on_components("do_schedule", hour);
 }
 
 // Materialization counterpart of do_schedule: walk to where the hour's entry
 // puts this NPC, for one that came back mid-errand with its route gone.
 void resume_schedule(int hour)
 {
-  run_on_components("resume_schedule", ({ hour }));
+  run_on_components("resume_schedule", hour);
 }
 
 // A fight in this NPC's room: join it the way any monster does, and let the
@@ -372,13 +188,13 @@ void resume_schedule(int hour)
 void event_fight_in_progress(object ob, object * fighters)
 {
   monster::event_fight_in_progress(ob, fighters);
-  run_on_components("fight_in_progress", ({ ob, fighters }));
+  run_on_components("event_fight_in_progress", ob, fighters);
 }
 
 // The hide shadow tells whoever it hid that a search found them.
 void event_revealed(object finder)
 {
-  run_on_components("revealed", ({ finder }));
+  run_on_components("event_revealed", finder);
 }
 
 // Give this NPC a generated proper name: store it (persisted in npc.o) and set
@@ -570,7 +386,7 @@ void delete_npc_save()
 int do_death(varargs object killer)
 {
   if (!query_dead())
-    run_on_components("died", ({ killer }));
+    run_on_components("died", killer);
   return monster::do_death(killer);
 }
 
@@ -596,16 +412,8 @@ void dest_me()
     }
   }
 
-  // components are owned objects of their own: they go with the NPC
-  if (components)
-  {
-    int i;
-
-    for (i = 0; i < sizeof(components); i++)
-      if (components[i])
-        destruct(components[i]);
-    components = ({ });
-  }
+  // components are objects of their own: they go with the NPC
+  destruct_components();
 
   ::dest_me();
 }

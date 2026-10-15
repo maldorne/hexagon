@@ -16,7 +16,7 @@ void create()
   set_type(LOCATION_COMPONENT_GUILD_ENTRANCE);
 }
 
-object query_entrance_place() { return query_my_location(); }
+object query_entrance_place() { return query_entity(); }
 
 void init()
 {
@@ -37,8 +37,8 @@ void initialize(object loc)
 void set_entrance_guild(string path)
 {
   actions::set_entrance_guild(path);
-  if (query_my_location())
-    create_entrance_sign(query_my_location());
+  if (query_entity())
+    create_entrance_sign(query_entity());
 }
 
 // Take the sign out of the location. The location destructs a component it
