@@ -112,6 +112,40 @@ void set_principal(string file)
   this_object()->save_me();
 }
 
+// A house is part of what surrounds it: a house in a town is town, one in the
+// woods is woods. It takes the city and forest components of the locations
+// its exits lead to, with their settings, unless it has its own.
+void take_setting(object house)
+{
+  mapping exits;
+  string * dirs, * types;
+  object neighbour, comp;
+  int i, j;
+
+  if (!house)
+    return;
+
+  types = ({ LOCATION_COMPONENT_CITY, LOCATION_COMPONENT_FOREST });
+  exits = house->query_exit_map();
+  dirs = exits ? map_indices(exits) : ({ });
+
+  for (i = 0; i < sizeof(dirs); i++)
+  {
+    neighbour = load_object(LOCATION_HANDLER)->load_location(exits[dirs[i]][0]);
+    if (!neighbour)
+      continue;
+
+    for (j = 0; j < sizeof(types); j++)
+    {
+      if (house->has_component(types[j]))
+        continue;
+      comp = neighbour->query_component_by_type(types[j]);
+      if (comp)
+        house->add_component(types[j], comp->query_auto_load_attributes());
+    }
+  }
+}
+
 // Turn the plot at `file` into a house and put it on the books: the `plot`
 // component goes, a `home` component comes, the plot's open passages become
 // doors, and `residents` move in. The location itself has to be loaded for
@@ -127,6 +161,7 @@ private void _raise_house(string file, string * residents, int kept)
 
   house->remove_component(LOCATION_COMPONENT_PLOT);
   house->add_component(LOCATION_COMPONENT_HOME, ([ ]));
+  take_setting(house);
   house->save_me();
 
   // a raised house has a real front door: re-type the plot's open exits (both
@@ -636,7 +671,10 @@ int demote_house(string file)
   house = (object)this_object()->load_location(file);
   if (house)
   {
+    // a bare plot again: the setting the house took goes with it
     house->remove_component(LOCATION_COMPONENT_HOME);
+    house->remove_component(LOCATION_COMPONENT_CITY);
+    house->remove_component(LOCATION_COMPONENT_FOREST);
     house->add_component(LOCATION_COMPONENT_PLOT, ([ ]));
     house->save_me();
 

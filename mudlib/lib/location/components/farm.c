@@ -9,7 +9,7 @@
 //
 // Classifier `crop` names what grows there. No implicit ordering -- pick
 // whichever fits:
-//   wheat | barley | vegetables | orchard | vineyard
+//   wheat | barley | vegetables | orchard | vineyard | pasture
 //
 // The stub adds no runtime behaviour yet -- no hooks, no exit-graph
 // transforms -- it exists so authors can start tagging fields while the
@@ -19,7 +19,7 @@
 
 inherit component "/lib/location/component.c";
 
-// wheat | barley | vegetables | orchard | vineyard
+// wheat | barley | vegetables | orchard | vineyard | pasture
 private string crop;
 
 void create()

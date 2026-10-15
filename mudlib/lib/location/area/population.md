@@ -248,8 +248,9 @@ raising a house loads its location.
   `plot` component. `add_plot`, `remove_plot`, `query_plots`.
 - **Homes.** A house is a location with the `home` component. `build_house_on_plot()`
   or `build_house_at()` swaps `plot` for `home` and turns the open passages into
-  doors that start closed. `demote_house()` is the inverse and leaves residents
-  homeless.
+  doors that start closed, and the house takes the `city` and `forest`
+  components of the locations it opens onto (`take_setting`). `demote_house()`
+  is the inverse, drops those again and leaves residents homeless.
 - **Built locations.** `furnish_house(file)` makes a location that already
   exists (a barracks, a room over a shop) a kept house as it stands, keeping its
   exits, short and long.
