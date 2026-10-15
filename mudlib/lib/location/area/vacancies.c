@@ -321,8 +321,14 @@ int set_vacancy_equipment(string job, mixed * spec)
   return 1;
 }
 
-// The kit this job hands a new holder drawn from one of its types, in place of
-// the job's own kit. An empty spec clears it. Returns 0 if the job is not open.
+/**
+ * Sets the kit this job hands a new holder drawn from one of its types, in
+ * place of the job's own kit (`set_vacancy_equipment`). An empty spec clears it.
+ *
+ * @param  source  the template id of the type
+ * @param  spec    one list of interchangeable items per slot
+ * @return         0 if the job is not open
+ */
 int set_vacancy_kit(string job, string source, mixed * spec)
 {
   mapping vacancy;
@@ -349,9 +355,14 @@ int set_vacancy_kit(string job, string source, mixed * spec)
   return 1;
 }
 
-// The kit a holder of `job` drawn from `source` is given: the type's own kit in
-// the job if it has one, else the job's, else, for somebody with no post, the
-// type template's.
+/**
+ * Returns the kit a person is given: the kit the job keeps for their type if
+ * it has one, else the job's, else, for somebody with no post, the template's.
+ *
+ * @param  job     the vacancy record, or nil for somebody with no post
+ * @param  source  the template id the person is drawn from
+ * @param  t       that template
+ */
 mixed * query_kit_for(mapping job, string source, mapping t)
 {
   if (job && mappingp(job[VACANCY_KITS]) &&

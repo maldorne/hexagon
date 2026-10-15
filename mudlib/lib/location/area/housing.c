@@ -112,8 +112,13 @@ void set_principal(string file)
   this_object()->save_me();
 }
 
-// A house in a town is part of the town: it takes the city component of the
-// locations its exits lead to, with its settings, unless it has its own.
+/**
+ * Gives a house the city component of the locations its exits lead to, with
+ * their settings, unless it has its own: a house in a town is part of the town.
+ * Raising a house calls it; `demote_house` takes the component away again.
+ *
+ * @param  house  the loaded house location
+ */
 void take_setting(object house)
 {
   mapping exits;
