@@ -169,6 +169,9 @@ day and night watches are two jobs. For somebody holding no post the type's own
 (a random POI). A type or job that names no hours keeps its people where they
 are put.
 
+While the entry in effect is `home`, at home or on the way there, the person
+is resting and says none of their chats: those are written for the working day.
+
 ### Equipment, spots, homes
 
 The kit is rolled once at creation and carried for life on the `npc.o`, so a

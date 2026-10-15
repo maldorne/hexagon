@@ -92,6 +92,15 @@ int query_staying_put()
   return here && home && here->query_file_name() == home;
 }
 
+/**
+ * Whether the NPC is on its rest shift: the entry in effect sends it home,
+ * whether it is there yet or still on the way.
+ */
+int query_resting()
+{
+  return current_goto == "home";
+}
+
 // The entry governing `hour`: the latest one at or before it, wrapping past
 // midnight, so an hour the timetable does not name is still covered by the one
 // that last took effect. A routine of 6 -> work and 20 -> home therefore answers

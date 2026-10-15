@@ -152,6 +152,18 @@ int query_staying_put()
   return sched ? (int)sched->query_staying_put() : 0;
 }
 
+/**
+ * Whether this NPC's routine has it off work, resting at home or on its way
+ * there.
+ */
+int query_resting()
+{
+  object sched;
+
+  sched = query_component_by_type("schedule");
+  return sched ? (int)sched->query_resting() : 0;
+}
+
 // Tell every component the NPC is now standing in the world.
 void components_placed()
 {

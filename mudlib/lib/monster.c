@@ -399,7 +399,8 @@ void heart_beat()
   {
     chatter(achat_chance, achat_string);
   }
-  else
+  // chats are written for the working day: off work, the NPC keeps quiet
+  else if (!this_object()->query_resting())
   {
     chatter(chat_chance, chat_string);
   }
