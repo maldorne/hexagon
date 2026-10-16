@@ -7,9 +7,15 @@
 // calls renews it every heartbeat until the time (two heartbeats per level)
 // runs out, the target leaves the fight or the place, or the character is too
 // tired to pay the point of energy each combat round costs.
+//
+// Each renewal also draws the target's attention: its aggro against the
+// character (see adjust_aggro in /lib/living/health.c, which decides whom a
+// living attacks) grows by the character's level, twice that in the defensive
+// attitude (TANK_ROLE) and nothing in the supportive one (HEALER_ROLE).
 
 #include <living/effects.h>
 #include <living/skills.h>
+#include <living/combat.h>
 #include <language.h>
 
 inherit BASE_EFFECT;
@@ -23,6 +29,10 @@ inherit BASE_EFFECT;
 #define FOCUS_TICKS_PER_LEVEL 2
 // a renewal in every this many costs a point of energy (one per combat round)
 #define FOCUS_COST_EVERY 2
+// aggro drawn by each renewal, for each level of the character; the defensive
+// attitude multiplies it
+#define FOCUS_AGGRO_PER_LEVEL 1
+#define FOCUS_AGGRO_TANK_FACTOR 2
 
 static int serial;
 
@@ -44,7 +54,6 @@ void setup()
   allow_while_hidden = 1;
 
   set_help_desc(_LANG_SKILL_FOCUS_HELP);
-  set_help_see_also(({ _LANG_SKILL_CHARGE_NAME }));
 
   set_start_phrases("", "");
   set_fast_casting(1);
@@ -80,6 +89,30 @@ mixed extra_checks(string str, object caster)
     return _LANG_SKILL_FOCUS_NOT_FIGHTING;
 
   return nil;
+}
+
+/**
+ * Makes the target keener on the caster, as far as their attitude allows.
+ */
+private void draw_attention(object caster, object target)
+{
+  int amount;
+
+  amount = caster->query_level() * FOCUS_AGGRO_PER_LEVEL;
+  if (amount < FOCUS_AGGRO_PER_LEVEL)
+    amount = FOCUS_AGGRO_PER_LEVEL;
+
+  switch (caster->query_combat_role())
+  {
+    case HEALER_ROLE:
+      return;
+    case TANK_ROLE:
+      amount *= FOCUS_AGGRO_TANK_FACTOR;
+      break;
+  }
+
+  // aggro is kept negative: the most negative one is the one attacked
+  target->adjust_aggro(-amount, caster);
 }
 
 /**
@@ -125,6 +158,7 @@ void renew_focus(object caster, object target, int id, int left)
   }
 
   caster->set_concentrate(target);
+  draw_attention(caster, target);
   call_out("renew_focus", FOCUS_TICK, caster, target, id, left - 1);
 }
 
@@ -146,6 +180,8 @@ int do_focus(object caster, mixed target, mixed out_range, int time, int quiet)
     tell_object(caster, _LANG_SKILL_FOCUS_NOT_FIGHTING);
     return 0;
   }
+
+  draw_attention(caster, ob);
 
   // a new focus replaces whatever chain was running
   serial++;

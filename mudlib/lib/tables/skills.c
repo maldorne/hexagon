@@ -67,13 +67,9 @@ void create()
     SKILL_STEAL :
       ({ SKILLS_PATH + SKILL_STEAL, 10, 0, ACTIVE_SKILL, }),
 
-    // active skill: 'charge <someone>', a shield rush at one opponent. A
-    // fighter's trade: taught (a guild grants it), then it climbs with use.
-    SKILL_CHARGE :
-      ({ SKILLS_PATH + SKILL_CHARGE, 10, 0, ACTIVE_SKILL, }),
-
     // active skill: 'focus <someone>', keeps every blow on one opponent for
-    // a while. Taught like charge.
+    // a while and draws its attention. Taught by a guild (it grants it), then it
+    // climbs with use.
     SKILL_FOCUS :
       ({ SKILLS_PATH + SKILL_FOCUS, 10, 0, ACTIVE_SKILL, }),
 

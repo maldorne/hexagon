@@ -36,6 +36,12 @@ How a level rises or falls is not the mudlib's business: no learn command, train
 
 Old saves are not migrated: the kind comes from the table, and a stored value out of range (a skill that changed kind or lost levels) is clamped when read.
 
+## Guild skills
+
+A guild teaches skills with `add_guild_skill(id, guild_level [, value])` in its `setup` (`lib/guild.c`); `grant_guild_skills` gives them on joining, on reaching the level and at login. Leaving a guild takes nothing back: a player may join another and keeps what they learned.
+
+A skill that only the members of one guild may use (a paladin's faith) checks it in `extra_checks`: `query_guild_refusal(caster, <guild path>)` (`lib/effects/guild_fixes.c`, inherited by every effect). For someone outside that guild it returns the guild's `query_non_member_refusal` (nil by default, so the skill stays free; a guild masks it with a message in character). For a member, or when no path is given, it returns the guild's `query_powers_refusal` (a message while the guild withholds its gifts, nil otherwise).
+
 ## Listing
 
 The `skills` command draws a bar for percentage skills, one slot per level for levelled ones and a single slot for fixed ones; passives keep `(*)`:

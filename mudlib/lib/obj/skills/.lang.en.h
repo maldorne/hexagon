@@ -196,61 +196,16 @@
 #define _LANG_SKILL_STEAL_CAUGHT_VICTIM "You catch $mcname$ trying to rob you!\n"
 #define _LANG_SKILL_STEAL_CAUGHT_ROOM "$mcname$ tries to rob $hcname$, but is caught.\n"
 
-#define _LANG_SKILL_CHARGE_NAME "charge"
-#define _LANG_SKILL_CHARGE_ALIASES ({ })
-#define _LANG_SKILL_CHARGE_HELP "With 'charge <someone>' you throw yourself at a " + \
-      "single opponent, shield first if you carry one, to knock them down in one " + \
-      "blow. You challenge your rival and the charge lands an instant later: the " + \
-      "higher your level the harder it hits, a shield gives weight to the blow " + \
-      "and your rival's armour cushions it. If they dodge, the momentum hurts " + \
-      "you and you may be left stunned for a moment. You cannot charge a fellow " + \
-      "member of your guild.\n"
-#define _LANG_SKILL_CHARGE_NOTHING "Charge at nothing? Find a worthy target.\n"
-#define _LANG_SKILL_CHARGE_COMRADE "It would not be honourable to charge a comrade in arms.\n"
-#define _LANG_SKILL_CHARGE_NO_TARGET "Your opponent seems to have disappeared.\n"
-#define _LANG_SKILL_CHARGE_CHALLENGE_ME "You fervently insult " + \
-      target->query_cap_name() + "'s family as a challenge.\n"
-#define _LANG_SKILL_CHARGE_CHALLENGE_TARGET caster->query_cap_name() + " fervently " + \
-      "insults your family, it seems you are being challenged.\n"
-#define _LANG_SKILL_CHARGE_CHALLENGE_ROOM caster->query_cap_name() + " challenges " + \
-      target->query_cap_name() + " by fervently insulting their family.\n"
-#define _LANG_SKILL_CHARGE_FLED_ME "Your target has fled like a coward, and you " + \
-      "keep shouting war cries after " + target->query_objective() + ".\n"
-#define _LANG_SKILL_CHARGE_FLED_TARGET caster->query_cap_name() + " keeps " + \
-      "shouting war cries behind you.\n"
-#define _LANG_SKILL_CHARGE_RUSH_ME "You shout war cries and start your charge.\n"
-#define _LANG_SKILL_CHARGE_RUSH_TARGET caster->query_cap_name() + " shouts war " + \
-      "cries and charges at you.\n"
-#define _LANG_SKILL_CHARGE_RUSH_ROOM caster->query_cap_name() + " shouts war cries " + \
-      "and charges at " + target->query_cap_name() + ".\n"
-#define _LANG_SKILL_CHARGE_HIT_ME "You crash into " + target->query_cap_name() + \
-      " with a tremendous blow!\n"
-#define _LANG_SKILL_CHARGE_HIT_TARGET caster->query_cap_name() + " crashes into " + \
-      "you with a tremendous blow!\n"
-#define _LANG_SKILL_CHARGE_HIT_ROOM caster->query_cap_name() + " crashes into " + \
-      target->query_cap_name() + " with a tremendous blow.\n"
-#define _LANG_SKILL_CHARGE_DODGED_ME target->query_cap_name() + " manages to " + \
-      "avoid your charge!\n"
-#define _LANG_SKILL_CHARGE_DODGED_TARGET "You manage to dodge the charge of " + \
-      caster->query_cap_name() + ".\n"
-#define _LANG_SKILL_CHARGE_DODGED_ROOM caster->query_cap_name() + " charges at " + \
-      target->query_cap_name() + ", but is dodged.\n"
-#define _LANG_SKILL_CHARGE_STUMBLE_ME "Your speed makes you lose your balance and " + \
-      "you are stunned for a moment.\n"
-#define _LANG_SKILL_CHARGE_STUMBLE_TARGET caster->query_cap_name() + " loses " + \
-      "balance as you dodge and is stunned for a moment.\n"
-#define _LANG_SKILL_CHARGE_STUMBLE_ROOM caster->query_cap_name() + " loses balance " + \
-      "and is stunned for a moment.\n"
-#define _LANG_SKILL_CHARGE_STUMBLE_REASON "You are stunned after your failed charge."
-
 #define _LANG_SKILL_FOCUS_NAME "focus"
 #define _LANG_SKILL_FOCUS_ALIASES ({ })
 #define _LANG_SKILL_FOCUS_OFF_WORDS ({ "off", "stop" })
 #define _LANG_SKILL_FOCUS_HELP "With 'focus <someone>' you put all your blows on a " + \
       "single one of your opponents, even if the fight would take you to another. " + \
       "If somebody protects them, you will have to strike the protector first. " + \
-      "With 'focus off' you stop. It costs a point of energy for each round, and " + \
-      "you lose your concentration after two turns for each of your levels.\n"
+      "With 'focus off' you stop. Your opponent grows more intent on you: twice " + \
+      "as much if your combat stance is defensive, and not at all if it is " + \
+      "supportive. It costs a point of energy for each round, and you lose your " + \
+      "concentration after two turns for each of your levels.\n"
 #define _LANG_SKILL_FOCUS_SYNTAX "Syntax: focus <target>, focus off\n"
 #define _LANG_SKILL_FOCUS_NOT_FOCUSED "You are not focusing your blows on anybody.\n"
 #define _LANG_SKILL_FOCUS_NOT_FIGHTING "You are not fighting that.\n"

@@ -17,16 +17,51 @@
 inherit "/lib/effects/environment_fixes.c";
 
 /**
- * Why the caster's own guild withholds its powers from them, if it does.
+ * Whether the caster belongs to the guild at a path (with or without ".c").
+ */
+private int is_member_of(object caster, string guild_path)
+{
+  string current;
+
+  current = caster->query_guild_ob();
+  if (!current)
+    return 0;
+
+  if (strlen(current) > 2 && current[strlen(current) - 2 ..] == ".c")
+    current = current[.. strlen(current) - 3];
+  if (strlen(guild_path) > 2 && guild_path[strlen(guild_path) - 2 ..] == ".c")
+    guild_path = guild_path[.. strlen(guild_path) - 3];
+
+  return current == guild_path;
+}
+
+/**
+ * Why a guild withholds its powers from the caster, if it does.
  *
- * The skills a guild teaches call it from extra_checks.
+ * The skills a guild teaches call it from extra_checks. A skill that only the
+ * members of one guild may use (the guild's skills stay with whoever leaves it)
+ * passes the guild's path: a caster outside it gets the guild's non-member
+ * message. Then, or without a path, the caster's own guild may still withhold
+ * its powers (a paladin who turned evil).
  *
+ * @param   caster      who uses the skill
+ * @param   guild_path  guild whose members only may use it, if any
  * @return  the message to show, or nil when nothing is withheld
  */
-string query_guild_refusal(object caster)
+string query_guild_refusal(object caster, varargs string guild_path)
 {
   string path;
   object guild;
+
+  // an outsider gets the message of the guild the skill belongs to
+  if (guild_path && !is_member_of(caster, guild_path))
+  {
+    guild = load_object(guild_path);
+    if (!guild)
+      return nil;
+
+    return guild->query_non_member_refusal(caster);
+  }
 
   path = caster->query_guild_ob();
   if (!path)

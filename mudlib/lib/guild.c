@@ -183,7 +183,9 @@ int remove_guild_command(string name) {
  * Teaches a skill to the members of the guild, from a guild level on.
  *
  * Call it from the guild's setup. Members get it when they join or reach the
- * level (see grant_guild_skills) and lose it when they leave.
+ * level (see grant_guild_skills) and keep it when they leave: a skill that only
+ * a member may use checks it when used (see query_guild_refusal in
+ * /lib/effects/guild_fixes.c).
  *
  * @param  id       the skill id, see <living/skills.h>
  * @param  level    guild level needed to know it
@@ -226,20 +228,6 @@ void grant_guild_skills(object player)
 }
 
 /**
- * Takes the skills of the guild away from a member who leaves it.
- */
-void remove_guild_skills(object player)
-{
-  string * ids;
-  int i;
-
-  ids = map_indices(guild_skills);
-
-  for (i = 0; i < sizeof(ids); i++)
-    player->remove_known_skill(ids[i]);
-}
-
-/**
  * Why the guild withholds its powers from a member right now.
  *
  * A guild whose members lose their gifts under some condition (a paladin who
@@ -248,6 +236,19 @@ void remove_guild_skills(object player)
  * @return  the message for the member, or nil when nothing is withheld
  */
 string query_powers_refusal(object player)
+{
+  return nil;
+}
+
+/**
+ * What a skill of the guild answers to someone who is not a member.
+ *
+ * A guild with skills only its members may use masks this with a message in
+ * character; nil leaves the skill free for anyone who learned it.
+ *
+ * @return  the message for the non-member, or nil
+ */
+string query_non_member_refusal(object player)
 {
   return nil;
 }
@@ -366,8 +367,6 @@ int can_abandon(object player)
 // Called when the guild is actually abandoned
 int guild_abandon(object player)
 {
-  remove_guild_skills(player);
-
   // if (player->query_player())
   // {
   //   string * quests = player->query_quests();

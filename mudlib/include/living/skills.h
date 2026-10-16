@@ -38,7 +38,6 @@
 #define SKILL_FOLLOW      "follow"
 #define SKILL_EVADE       "evade"
 #define SKILL_STEAL       "steal"
-#define SKILL_CHARGE      "charge"
 #define SKILL_FOCUS       "focus"
 #define SKILL_JUDGE       "judge"
 
