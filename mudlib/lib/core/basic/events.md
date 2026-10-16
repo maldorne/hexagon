@@ -62,7 +62,7 @@ function, with the event's own arguments, on every component that defines it:
 
 - `/lib/location.c` forwards `enter` and `exit`, and passes `event_climbed` /
   `event_climb_failed` to its bridge component.
-- `/lib/npc.c` forwards `moved`, `weather`, `fight_in_progress` and `revealed`.
+- `/lib/npc.c` forwards `enter`, `exit`, `moved`, `weather`, `fight_in_progress` and `revealed`.
 
 ## Movement
 
@@ -86,6 +86,8 @@ it, or a generic arrival text if the place is dark. `/lib/monster.c` reacts to
 arrivals (aggression check, revenge on a player who attacked it and left).
 `/lib/location.c` forwards it to its components; bridges, coasts, water,
 triggers and the blacksmith component use it.
+`/lib/npc.c` forwards it to its components too (the thief component
+schedules its attempt from it, never acting inside the event).
 
 ### exit
 
@@ -97,7 +99,8 @@ void event_exit(object ob, varargs string msg, object dest, mixed avoid)
 Fired by `move()` before the move, to the place being left and its inventory:
 `event(previous, "exit", messout, dest, this_object())`. Same implementers as
 `enter` (players print the text; `/lib/monster.c` follows a fleeing enemy;
-location components get it through `/lib/location.c`).
+location components get it through `/lib/location.c`, NPC components through
+`/lib/npc.c`).
 
 ### moved
 

@@ -139,6 +139,26 @@ void event_moved(object ob, object from, object dest)
   run_on_components("event_moved", ob, from, dest);
 }
 
+/**
+ * Something arrived where this NPC stands: the monster reacts, then the
+ * components do.
+ */
+void event_enter(object ob, varargs string mess, object from, mixed avoid)
+{
+  monster::event_enter(ob, mess, from, avoid);
+  run_on_components("event_enter", ob, mess, from, avoid);
+}
+
+/**
+ * Something left the place where this NPC stands: the monster reacts, then
+ * the components do.
+ */
+void event_exit(object ob, varargs string mess, object dest, mixed avoid)
+{
+  monster::event_exit(ob, mess, dest, avoid);
+  run_on_components("event_exit", ob, mess, dest, avoid);
+}
+
 // Guard proxy. The room's exit handler consults a posted guard through
 // guardian_check / guardian_message on the NPC object; delegate to the guard
 // component when this NPC carries one, or to the toll component of one who
