@@ -26,6 +26,9 @@ inherit item "/lib/item.c";
 
 int enchant;
 
+// whether the last attack worked out was a critical hit, for its message
+static int critical_hit;
+
 static int basic_cost, // cost of a basic weapon of this type
   ench_basic_cost,     // cost of a basic weapon of this type with enchant
 
@@ -289,6 +292,7 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
      return ({ MISS, 0 });
 
   damage_done = 0;
+  critical_hit = 0;
 
   // luck factor
   if (roll(1, 200) < 10)
@@ -344,6 +348,7 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
       // critical hit message added
       tell_object(this_object(), _LANG_WEAPON_CRITICAL_MSG);
       damage_done *= multiplier;
+      critical_hit = 1;
     }
 
     // masteries auto-learning system, neverbot 08/05, modified 09/2012
@@ -506,12 +511,8 @@ int weapon_attack(object def, object att)
       defender->adjust_hp(-((damage[0] - absorbed_damage) +
                             (extra_total - extra_absorbed)), attacker);
 
-      if (where)
-        handler("weapons")->write_message(damage[0], attacks[attack_names[i]][0], 
-                       damage[1], attacker, defender, where);
-      else
-        handler("weapons")->write_message(damage[0], attacks[attack_names[i]][0], 
-                       damage[1], attacker, defender);
+      handler("weapons")->write_message(damage[0], attacks[attack_names[i]][0],
+                     damage[1], attacker, defender, where, critical_hit);
       // one line for each extra damage, after the hit message
       for (m = 0; m < sizeof(extra_hits); m++)
         if (extra_hits[m][1] > 0)

@@ -6,12 +6,18 @@
 #include <translations/combat.h>
 #include <language.h>
 
-mixed query_message(int damage, 
+// the share of the victim's hit points (percent) from which a hit always says
+// what wound it made
+#define WOUND_ALWAYS_SHARE 25
+// a smaller hit says it one time in this many
+#define WOUND_SMALL_ODDS   3
+
+mixed query_message(int damage,
                     int attack_type,
-                    string localization, 
-                    object attacker, 
+                    string localization,
+                    object attacker,
                     object defender,
-                    varargs object where)
+                    varargs object where, int critical)
 {
   string msg_me, msg_him, msg_env, aux;
   int relative, i;
@@ -141,7 +147,13 @@ mixed query_message(int damage,
   // this is called, so the victim's hit points are those it is left with.
   i = defender->query_max_hp() > 0 ? (100 * damage) / defender->query_max_hp() : 0;
 
-  if (damage <= 0) 
+  // The wound always shows on a hit that matters (a critical, a killing blow or
+  // a quarter or more of the victim's hit points); on the small ones, only now
+  // and then, so the same tail does not close every line of a fight.
+  if (damage <= 0)
+    aux = "";
+  else if (!critical && defender->query_hp() >= 0 &&
+           i < WOUND_ALWAYS_SHARE && random(WOUND_SMALL_ODDS))
     aux = "";
   else if (defender->query_hp() < 0)
     aux = (attack_type == SLASHING) ? _LANG_WEAPONS_SLASHING_MSG_7 :
@@ -183,15 +195,15 @@ mixed query_message(int damage,
 void write_message(int damage,           // damage from the hit
                    int attack_type,      // attack type (slashing, etc)
                    string localization,  // localization in the body
-                   object attacker,      // 
-                   object defender,      // 
-                   varargs object where) // armour piece that receives the hit
+                   object attacker,      //
+                   object defender,      //
+                   varargs object where, // armour piece that receives the hit
+                   int critical)         // whether it was a critical hit
 {
   mixed *messages;
-  if (where)
-    messages = query_message(damage, attack_type, localization, attacker, defender, where);
-  else
-    messages = query_message(damage, attack_type, localization, attacker, defender);  
+
+  messages = query_message(damage, attack_type, localization, attacker, defender,
+                           where, critical);
 
   tell_room(environment(attacker), messages[2], ({attacker,defender}));
   tell_object(attacker, ATT + messages[0]);

@@ -18,6 +18,9 @@ Every attack of a weapon (`weapon_attack` in `weapon.c`; unarmed combat in
 3. **Damage** (on a hit): `dice + weapon enchant + query_damage_bonus + strength
    bonus`, at least 1. A critical (`1d200 < 10`) multiplies it by the weapon's
    `multiplier`. The location hit scales it (`recalc_damage`).
+   The hit message ends with the wound it made (`lib/handlers/weapons.c`):
+   always on a critical, a killing blow or a quarter or more of the victim's
+   hit points; on smaller hits only one time in three.
 4. **Armour absorption**: the piece worn on the hit location absorbs a
    percentage of the damage and loses condition.
    - Physical: `query_ac_against(type) * 10` percent (cap 100), where the value is
