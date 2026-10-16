@@ -117,12 +117,10 @@ int do_death(varargs object killed_by)
   if (this_object()->query_city_ob())
     catch(load_object(this_object()->query_city_ob())->on_death(this_object(), killed_by));
 
-  // added by neverbot 3/2002, for the system of wars between cities
-  if (killed_by)
-    if ( (killed_by->query_player() && this_object()->query_player()) &&
-       (killed_by->query_citizen() && this_object()->query_citizen()) && 
-       (killed_by->query_citizenship() != this_object()->query_citizenship()) )
-    catch(WAR_HANDLER->war_death(this_object(), killed_by));
+  // killing someone the law protects is murder (the old war handler call that
+  // stood here pointed at a handler that no longer exists)
+  if (killed_by && environment(this_object()))
+    catch(handler("crimes", this_object())->report_death(killed_by, this_object()));
    
   attacker_list = this_object()->query_attacker_list();
   call_outed = this_object()->query_call_outed();

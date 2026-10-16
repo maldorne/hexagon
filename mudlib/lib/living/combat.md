@@ -67,3 +67,11 @@ does not exist yet.
 - **Resist an element**: put the element's name as a property on the armour
   piece (`add_property(<element name>, n)` with `n` up to 100; negative for a
   weakness), and give the piece base ac.
+
+## Fights and the law
+
+`attack_ob` (the attacker's side) calls `report_attack(attacker, victim)` of the
+crimes handler the first time the victim enters the attacker's list, so one
+report per fight start, not per round. `do_death` calls `report_death`. Both
+are in a `catch`; see `lib/handlers/crimes.md` for what counts as assault,
+guard assault and murder, and for self-defence.

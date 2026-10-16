@@ -19,7 +19,8 @@ int report_crime(object criminal, string type, object victim, object place,
 ```
 
 `type` is one of `CRIME_THEFT`, `CRIME_ASSAULT`, `CRIME_MURDER`,
-`CRIME_TRESPASS`, `CRIME_GUARD_ASSAULT`. Only theft is reported so far. In
+`CRIME_TRESPASS`, `CRIME_GUARD_ASSAULT`. `report_crime` is the general entry;
+assault, murder and trespass reach it as described in "Offences" below. In
 order:
 
 1. **Jurisdiction.** `query_jurisdiction(place)` is the effective citizenship of
@@ -83,7 +84,8 @@ Every default number is in `include/crimes.h` and reaches the handler through a
 `query_*` function; a game's handler overrides the function to change it:
 `query_threshold`, `query_default_law`, `query_default_lethal`,
 `query_decay_points`, `query_decay_period`, `query_recent_max`,
-`query_records_npcs`, `query_witness_min_light`, and, for the guards of later
+`query_records_npcs`, `query_witness_min_light`, `query_fight_window`,
+`query_fight_memory`, and, for the guards of later
 phases, `query_death_keep_percent`, `query_pursuit_give_up` (seconds a responder pursues),
 `query_responders` (guards sent), `query_fine_per_point`, `query_jail_seconds_per_point`.
 
@@ -133,8 +135,44 @@ the time is up, it stands down: back to its schedule (`resume_schedule`), or to
 the place it was sent from, and the component removes itself. A responder is
 never saved: one found in a restored npc.o removes itself.
 
+## Offences
+
+- **Theft**: reported by the steal skill.
+- **Assault**: `report_attack(aggressor, victim)`, called by `attack_ob`
+  (`lib/living/combat.c`) the first time a living starts attacking another (not
+  every round, and not when the victim already attacks the aggressor). Called
+  with a short `catch`, so a failure never breaks combat.
+- **Guard assault**: the same, when the victim has the `guard` component; it
+  replaces assault.
+- **Murder**: `report_death(killer, victim)`, called by `do_death`
+  (`lib/living/death.c`) before the victim leaves the place; the place is where
+  it died. The witness rule is the usual one.
+- **Trespass**: `lib/room/handlers/exit_handler.c`, when the guard of an exit
+  refuses a mover who then slips past by luck ("te cuelas"); the guard is the
+  victim. Only locations have law, so a static room reports nothing.
+
+Who is **protected**: any player, and any NPC with a citizenship that is not an
+enemy (diplomacy `is_enemy`) of the place's jurisdiction. Fauna and monsters
+without a citizenship are not. Never protected: a player who is `wanted` or
+`outlaw` there, nor anyone the guards are already attacking (a criminal being
+pursued).
+
+**Self-defence**, none of these is a crime:
+
+- The victim was already attacking the aggressor (the aggressor is in the
+  victim's attacker list).
+- The aggressor is a guard or a responder (it enforces the law).
+- The victim is not protected, as above.
+- For murder, the victim started the fight against the killer. The handler
+  remembers who started each fight (`fights`, not saved) for
+  `query_fight_memory()` seconds; an unknown start counts as murder.
+
+The same aggressor against the same victim is reported once per
+`query_fight_window()` seconds. Whoever the aggressor is (player or NPC) the
+event fires, the present guards attack it and the dispatch sends help; NPC
+records are not stored unless `query_records_npcs()`.
+
 ## Later phases
 
-Arrest, fines and jail using `lethal` and `prison`, `reduce` when a guard kills a
-player, and reporting the other offences (assault, murder, trespass, guard
-assault) from combat and the guarded exits.
+Arrest, fines and jail using `lethal` and `prison`, and `reduce` when a guard
+kills a player.

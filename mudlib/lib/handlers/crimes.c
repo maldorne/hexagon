@@ -24,6 +24,9 @@
  *
  * A recorded crime where no guard stands sends the nearest free guards of the
  * place's community after the culprit (see dispatch_guards).
+ *
+ * Combat reports fights (report_attack) and deaths (report_death), and the
+ * exit handler reports a guard slipped past (report_crime with trespass).
  */
 
 #include <mud/config.h>
@@ -48,11 +51,16 @@ inherit "/lib/core/object.c";
 // ]) ])
 mapping records;
 
+// Who started each fight, not saved: victim -> ([ aggressor : time ]). Lets a
+// repeated attack go unreported and a death be told from self-defence.
+static mapping fights;
+
 string query_save_file();
 
 void create()
 {
   records = ([ ]);
+  fights = ([ ]);
   ::create();
   restore_object(query_save_file(), 1);
 }
@@ -121,6 +129,12 @@ int query_records_npcs() { return CRIME_RECORD_NPCS; }
 
 /** Minimum light for a witness with no race to judge it to see. */
 int query_witness_min_light() { return CRIME_WITNESS_MIN_LIGHT; }
+
+/** Seconds in which the same attack is not reported twice. */
+int query_fight_window() { return CRIME_FIGHT_WINDOW; }
+
+/** Seconds a fight start is remembered. */
+int query_fight_memory() { return CRIME_FIGHT_MEMORY; }
 
 /** Percentage of the points that survive a death at the hands of a guard. */
 int query_death_keep_percent() { return CRIME_DEATH_KEEP_PERCENT; }
@@ -811,4 +825,167 @@ int report_crime(object criminal, string type, object victim, object place,
                                        criminal->query_cap_name()));
 
   return points;
+}
+
+// --- Offences found in combat -------------------------------------------------
+
+// The name of a living's citizenship in the diplomacy graph, "" if it has none.
+private string citizenship_of(object who)
+{
+  mixed city, name;
+  object citizenship;
+
+  city = who->query_city_ob();
+  if (!stringp(city) || !strlen(city))
+    return "";
+
+  citizenship = load_object(city);
+  name = citizenship ? citizenship->query_name() : nil;
+  return stringp(name) ? name : "";
+}
+
+// Whether a living enforces the law: a guard, or one sent after a criminal.
+private int is_enforcer(object who)
+{
+  return who->has_component("guard") || who->has_component("responder");
+}
+
+// Whether any of the living's attackers is an enforcer: a criminal being
+// pursued.
+private int is_pursued(object victim)
+{
+  mixed * attackers;
+  int i;
+
+  attackers = victim->query_attacker_list();
+  for (i = 0; i < sizeof(attackers); i++)
+    if (attackers[i] && is_enforcer(attackers[i]))
+      return 1;
+
+  return 0;
+}
+
+// Whether the law of a jurisdiction protects a living: any player, and any
+// NPC with a citizenship that is not an enemy of the jurisdiction. Not the
+// wanted and outlaws, nor a criminal the guards are already after.
+private int is_protected(object victim, string jurisdiction)
+{
+  string status, citizenship;
+
+  if (victim->query_player())
+  {
+    status = query_status(victim, jurisdiction);
+    if (status == CRIME_STATUS_WANTED || status == CRIME_STATUS_OUTLAW)
+      return 0;
+  }
+
+  if (is_pursued(victim))
+    return 0;
+
+  if (victim->query_player())
+    return 1;
+
+  citizenship = citizenship_of(victim);
+  return strlen(citizenship) &&
+         !diplomacy()->is_enemy(jurisdiction, citizenship);
+}
+
+// Whether `aggressor` was recorded starting a fight against `victim` recently.
+private int started(object aggressor, object victim)
+{
+  mapping mine;
+
+  mine = fights[victim];
+  return mine && intp(mine[aggressor]) &&
+         mine[aggressor] + query_fight_memory() > time();
+}
+
+/**
+ * A living has started attacking another. Called by the combat code the first
+ * time it happens between the two.
+ *
+ * It is assault (guard assault when the victim is a guard) if the law of the
+ * place protects the victim. It is not if the victim was already attacking the
+ * aggressor, if the aggressor is a guard or a responder, or if the victim is
+ * wanted, an outlaw or already being pursued by the guards. The same pair is
+ * reported only once per query_fight_window() seconds. Whoever the aggressor
+ * is, the event fires and the guards answer; only players are recorded.
+ *
+ * @param aggressor who attacks
+ * @param victim who is attacked
+ */
+void report_attack(object aggressor, object victim)
+{
+  object place;
+  string jurisdiction, type;
+  mapping mine;
+  mixed * names;
+  int i;
+
+  if (!aggressor || !victim || aggressor == victim || !living(victim))
+    return;
+
+  // remember who started, dropping what is too old to matter
+  mine = fights[victim];
+  if (!mine)
+    mine = ([ ]);
+  else if (intp(mine[aggressor]) &&
+           mine[aggressor] + query_fight_window() > time())
+    return;
+
+  names = map_indices(mine);
+  for (i = 0; i < sizeof(names); i++)
+    if (mine[names[i]] + query_fight_memory() <= time())
+      mine[names[i]] = nil;
+
+  mine[aggressor] = time();
+  fights[victim] = mine;
+
+  // the victim was already fighting the aggressor: self-defence
+  if (member_array(aggressor, victim->query_attacker_list()) != -1)
+    return;
+
+  place = environment(victim);
+  if (!place || is_enforcer(aggressor))
+    return;
+
+  jurisdiction = query_jurisdiction(place);
+  if (!strlen(jurisdiction) || !is_protected(victim, jurisdiction))
+    return;
+
+  type = victim->has_component("guard") ? CRIME_GUARD_ASSAULT : CRIME_ASSAULT;
+  report_crime(aggressor, type, victim, place, sees(victim, place));
+}
+
+/**
+ * A living has been killed by another. Called by the death code before the
+ * victim leaves the place.
+ *
+ * It is murder if the law of the place protects the victim, with the same
+ * exceptions as report_attack, and the victim did not start the fight (a
+ * victim who attacked the killer first died in self-defence).
+ *
+ * @param killer who dealt the last blow
+ * @param victim who died
+ */
+void report_death(object killer, object victim)
+{
+  object place;
+  string jurisdiction;
+
+  if (!killer || !victim || killer == victim)
+    return;
+
+  place = environment(victim);
+  if (!place || is_enforcer(killer))
+    return;
+
+  if (started(victim, killer) && !started(killer, victim))
+    return;
+
+  jurisdiction = query_jurisdiction(place);
+  if (!strlen(jurisdiction) || !is_protected(victim, jurisdiction))
+    return;
+
+  report_crime(killer, CRIME_MURDER, victim, place);
 }

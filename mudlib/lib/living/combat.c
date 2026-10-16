@@ -495,6 +495,10 @@ void attack_ob(object ob)
   if (member_array(ob, attacker_list) == -1 &&
     member_array(ob, call_outed) == -1) 
   {
+    // a new quarrel may be an offence against the law of the place
+    if (environment(ob))
+      catch(handler("crimes", environment(ob))->report_attack(this_object(), ob));
+
     attacker_list += ({ ob });
   }
 

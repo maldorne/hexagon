@@ -65,6 +65,16 @@
 // minimum light for a witness without a race to judge it (an NPC) to see
 #define CRIME_WITNESS_MIN_LIGHT 25
 
+// --- fights -----------------------------------------------------------------
+
+// seconds during which the same aggressor attacking the same victim again is
+// not reported twice
+#define CRIME_FIGHT_WINDOW 60
+
+// seconds a fight start is remembered, to tell a murder from a death in
+// self-defence
+#define CRIME_FIGHT_MEMORY 1800
+
 // --- consequences (used by the guards, later phases) ------------------------
 
 // percentage of the points that survive being killed by a guard

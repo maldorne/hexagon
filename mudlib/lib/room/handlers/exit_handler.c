@@ -9,6 +9,7 @@
 #include <item/material.h>
 #include <common/properties.h>
 #include <translations/exits.h>
+#include <crimes.h>
 
 mapping shorten;
 mapping nearest_exits;
@@ -400,6 +401,10 @@ int do_exit_command(mapping door_control,
               tell_object(ob, list[k]->query_short() + " está vigilando esa dirección, " +
                   "pero en un descuido te cuelas sin que se dé cuenta.\n");
               sneak = 1;
+
+              // forcing the way past a guard is trespass
+              catch(handler("crimes", room_ob)->report_crime(ob, CRIME_TRESPASS,
+                                                             list[k], room_ob));
               break;
             }
           }
