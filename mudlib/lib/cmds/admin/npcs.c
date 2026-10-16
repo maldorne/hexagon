@@ -25,7 +25,7 @@ void setup()
   set_aliases(({ "npcs" }));
   set_usage("npcs [ list [type] | roster | live | populate | rekit [type] |\n" +
             "            orphans [apply] | verify [apply] | retemplate [apply] |\n" +
-            "            template check [type] ]");
+            "            template check [type] | rehouse <uuid> ]");
   set_help(
     "Report on the people of the area you are standing in.\n" +
     "\n" +
@@ -44,6 +44,9 @@ void setup()
     "                       load\n" +
     "  npcs orphans [apply] people the area no longer accounts for\n" +
     "  npcs verify [apply]  audit the game's NPC savefiles against the census\n" +
+    "  npcs rehouse <uuid>  take somebody out of their house, to be housed\n" +
+    "                       again by 'build homes' (or when their area leaves\n" +
+    "                       its parent, on their side)\n" +
     "  npcs template check [type]\n" +
     "                       read the templates this area spawns from and say\n" +
     "                       what is wrong with them\n" +
@@ -859,6 +862,43 @@ private int do_verify(object me, string * args)
   return 1;
 }
 
+// ===== npcs rehouse =====
+
+/**
+ * Takes somebody of the census out of their house. The housing pass gives them
+ * one again -- a builder's 'build homes', or the one run on each side when an
+ * area leaves its parent -- which is how a person whose job and house would
+ * end up in two communities is settled.
+ */
+private int do_rehouse(object area, object me, string uuid)
+{
+  mapping row;
+  string house;
+
+  row = area->query_npc_census()[uuid];
+  if (!row)
+  {
+    notify_fail("Nobody with the uuid '" + uuid + "' is in this area's " +
+                "census.\n");
+    return 0;
+  }
+
+  house = area->query_house_of(uuid);
+  if (!house || !strlen(house))
+  {
+    notify_fail((row["name"] ? capitalize(row["name"]) : uuid) +
+                " has no house.\n");
+    return 0;
+  }
+
+  area->set_house_of(uuid, nil);
+  area->log_event((row["name"] ? capitalize(row["name"]) : uuid) +
+                  " leaves " + house + ", to be housed again.");
+  tell_object(me, (row["name"] ? capitalize(row["name"]) : uuid) +
+              " no longer lives in " + house + ".\n");
+  return 1;
+}
+
 static int cmd(string str, object me, string verb)
 {
   string * args;
@@ -892,6 +932,15 @@ static int cmd(string str, object me, string verb)
                    sizeof(args) > 1 ? args[1] : "");
   if (args[0] == "rekit")
     return do_rekit(area, me, sizeof(args) > 1 ? args[1] : "");
+  if (args[0] == "rehouse")
+  {
+    if (sizeof(args) != 2)
+    {
+      notify_fail("'npcs rehouse' takes the uuid of somebody in the census.\n");
+      return 0;
+    }
+    return do_rehouse(area, me, args[1]);
+  }
 
   // every report is about the area under our feet, so none of them takes one
   // as an argument; a stray word means the caller expected otherwise and
@@ -928,6 +977,6 @@ static int cmd(string str, object me, string verb)
   notify_fail("Usage: npcs [ list [type] | roster | live | populate | " +
               "rekit [type] | " +
               "template check [type] | orphans [apply] | verify [apply] | " +
-              "retemplate [apply] ]\n");
+              "retemplate [apply] | rehouse <uuid> ]\n");
   return 0;
 }

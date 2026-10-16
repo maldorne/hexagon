@@ -331,9 +331,36 @@ the census still puts the person there.
 people. An area can name the area it is part of (`build area parent`); the link
 is set by hand, never derived from the tree. `query_root_area()` walks it (at
 most `AREA_MAX_ANCESTRY` steps) and every population accessor of a delegating
-area answers from the root: caps, census, vacancies, plots, houses, families.
-Writes are forwarded and saved on the root. The area keeps its own locations,
-exits, POIs, monster buckets and conversion provenance.
+area answers from the root: caps and the conversion provenance they are summed
+from, census, vacancies, plots, houses, families. Writes are forwarded and saved
+on the root. The area keeps its own locations, exits, POIs, monster buckets and
+schedule index.
+
+Setting or clearing a parent moves those books between the two roots
+(`lib/location/area/community.c`), so nobody is lost or duplicated:
+
+- `build area parent <path> check` reports what it would do; without `check` it
+  is done, or refused while any conflict remains, each one named with the
+  command that settles it.
+- **Joining** a community moves the area's census, jobs, houses, plots and
+  provenance onto the new root. Two jobs with the same name conflict:
+  `build vacancy rename <name> <new name>` on either side.
+- **Leaving** splits the books: a job goes where it is held; a person follows
+  their job, else their house, else where they stand; a house goes where it
+  stands, or with the area it is booked with (`build home books <area> [house]`);
+  plots and provenance go where they stand. A holder whose house would end up
+  on the other side of their job conflicts: book the house with their side
+  (only when nobody else in it works on the side it stands on), or take them
+  out of it with `npcs rehouse <uuid>`, and the housing pass run on each side
+  after the split houses them again. A job whose own house would end up on the
+  other side conflicts the same way.
+- People standing on the other side of their community are re-indexed as
+  roamers of it, and their hours move to the area that places them.
+- **Warnings**, which do not stop it: a type that ends up above its cap (the
+  sweep and the staffing only add, so the excess fades as they die), and, on
+  leaving, a citizenship or a level band the area took from its parent.
+- Naming the parent an area already has adopts whatever its own books still
+  hold (books written before the link existed) into its community.
 
 The level band stays per area: `query_area_level()` and the spread come from the
 nearest area up the chain that sets one, else 1 and 0, and the stat range is the
@@ -380,6 +407,7 @@ place a guard. The barracks is the job's `home`, and shifts are two jobs.
 | `npcs verify [apply]` | audit the game's NPC savefiles against the census |
 | `npcs retemplate [apply]` | repair stored template ids that name no template |
 | `npcs template check [type]` | what is wrong with the templates the area uses |
+| `npcs rehouse <uuid>` | take somebody out of their house, to be housed again |
 | `vacancies [<job>\|free\|holders\|types]` | the jobs, their holders and whether each type can staff them |
 | `pois [<kind>\|here]` | the places the area marks and what is worked at each |
 | `houses [plots\|free\|audit]` | houses and who lives in them |

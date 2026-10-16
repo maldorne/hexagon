@@ -225,6 +225,40 @@ void open_vacancy(string job, int count, string at, string source,
   this_object()->save_me();
 }
 
+/**
+ * Gives the job `job` the name `name`, and its holders with it. A name is the
+ * job's identity, so two jobs never share one: this is how a clash between two
+ * communities about to join is settled.
+ *
+ * @return  0 if `job` is not open or `name` is taken
+ */
+int rename_vacancy(string job, string name)
+{
+  mapping vacancy, census;
+  string * ids;
+  object owner;
+  int i;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->rename_vacancy(job, name);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy || !name || !strlen(name) || query_vacancy(name))
+    return 0;
+
+  vacancy[VACANCY_JOB] = name;
+
+  census = (mapping)this_object()->query_npc_census();
+  ids = map_indices(census);
+  for (i = 0; i < sizeof(ids); i++)
+    if (census[ids[i]][CENSUS_VACANCY] == job)
+      census[ids[i]][CENSUS_VACANCY] = name;
+
+  this_object()->save_me();
+  return 1;
+}
+
 // Close a job and let go of whoever held it: its census people are culled
 // (destroying any that are live and deleting their savefiles), so closing a
 // post never leaves an orphan behind.

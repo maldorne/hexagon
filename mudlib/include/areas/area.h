@@ -31,4 +31,8 @@
 // file with HOUSE_UNIT_MARK and a number ("<file>#2"). HOUSE_SHARED on the first
 // says how many there are.
 #define HOUSE_SHARED    "shared"
+// The area whose community keeps a house's books when that differs from where
+// the house stands (a cottage on the farms booked with the farms, standing in
+// town). Read when an area leaves its parent, to tell which side a house goes.
+#define HOUSE_BOOKS     "books"
 #define HOUSE_UNIT_MARK "#"

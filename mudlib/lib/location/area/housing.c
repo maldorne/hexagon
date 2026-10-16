@@ -646,6 +646,33 @@ void set_house_of(string uuid, string file)
     this_object()->save_me();
 }
 
+/**
+ * Books the house at `file` (every household of it) with the community of the
+ * area at `area_path`, for when it should follow that area rather than the one
+ * it stands in if the two ever part. nil or "" clears it.
+ *
+ * @return  0 if `file` is not a house
+ */
+int set_house_books(string file, string area_path)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_house_books(file, area_path);
+
+  if (!house_records || !house_records[file])
+    return 0;
+
+  if (area_path && strlen(area_path))
+    house_records[file][HOUSE_BOOKS] = area_path;
+  else
+    map_delete(house_records[file], HOUSE_BOOKS);
+
+  this_object()->save_me();
+  return 1;
+}
+
 // The family a house belongs to, or nil. A house whose family has died out
 // belongs to nobody.
 string query_house_owner(string file)

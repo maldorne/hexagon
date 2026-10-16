@@ -79,6 +79,27 @@ void index_schedule_hours(string uuid, int * hours)
   }
 }
 
+/**
+ * The hours this area's index wakes `uuid` at. Empty when it indexes them at
+ * none.
+ */
+int * query_schedule_hours_of(string uuid)
+{
+  int * hours, * out;
+  int i;
+
+  out = ({ });
+  if (!schedule_index || !uuid)
+    return out;
+
+  hours = map_indices(schedule_index);
+  for (i = 0; i < sizeof(hours); i++)
+    if (member_array(uuid, schedule_index[hours[i]]) != -1)
+      out += ({ hours[i] });
+
+  return out;
+}
+
 // The current game hour for this area, read from its game's weather handler:
 // each game keeps its own clock, and a game with no handler of its own falls
 // back to the base weather.

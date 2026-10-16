@@ -29,7 +29,7 @@ inherit "/lib/armour.c";
   "build area < exploration <display name> | noexploration\n" + \
   "           | level <n> [<spread>] | stats <low> <high> | stats none\n" + \
   "           | diplomacy <citizenship|none>\n" + \
-  "           | parent <area path|none> | principal\n" + \
+  "           | parent <area path|none> [check] | principal\n" + \
   "           | state [draft|settled]\n" + \
   "           | relevel >"
 #define BUILDER_RING_POI_SYNTAX \
@@ -41,7 +41,7 @@ inherit "/lib/armour.c";
   "               | timetable <name> [<hour> <work|home|out|clear>]\n" + \
   "               | timetable <name> <hour> <leave|arrive> [message]\n" + \
   "               | class <name> <class.c|none> | home <name>\n" + \
-  "               | remove <name> | list >"
+  "               | rename <name> <new name> | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX \
   "build npc < (report) | resident <source> [off] >"
 #define BUILDER_RING_FAMILY_SYNTAX \
@@ -83,7 +83,8 @@ inherit "/lib/armour.c";
   "  build area level <n> [<spread>]      NPC level band (none: inherit)\n" + \
   "  build area stats <low> <high>        how strong its people are\n" + \
   "  build area diplomacy <name|none>     citizenship; guards use it\n" + \
-  "  build area parent <area path|none>   what this place is part of\n" + \
+  "  build area parent <area path|none> [check]\n" + \
+  "                                       what this place is part of\n" + \
   "  build area principal                 fallback location for occupants\n" + \
   "  build area state [draft|settled]     how far along it is\n" + \
   "  build area relevel                   raise NPCs to the current band\n" + \
@@ -103,6 +104,7 @@ inherit "/lib/armour.c";
   "  build vacancy spot <name> [remove]         a place this job is worked\n" + \
   "  build vacancy spots <name>                 list them\n" + \
   "  build vacancy reseat <name>                seat its holders again\n" + \
+  "  build vacancy rename <name> <new name>     its holders keep it\n" + \
   "  build vacancy remove <name>\n" + \
   "  build vacancy list\n" + \
   "\n" + \
@@ -115,6 +117,7 @@ inherit "/lib/armour.c";
   "  build home communal [off]            a barracks: no families live by it\n" + \
   "  build home shared <n|off>            room for n households (a tenement)\n" + \
   "  build home short|long <text>         what this house is, if not a house\n" + \
+  "  build home books <area|none> [house] whose books it follows if they part\n" + \
   "  build home remove                    turn this house back into a plot\n" + \
   "  build sign <text>                    post a sign here (remove: take it down)\n" + \
   "  build library [add|remove <text>]    the books on this library's shelves\n" + \
@@ -180,6 +183,7 @@ int do_home_make();
 int do_home_communal(int flag);
 int do_home_shared(int households);
 int do_home_describe(string what, string str);
+int do_home_books(string area_path, string file);
 int do_sign(string str);
 int do_library(string str);
 int do_guild(string str);
@@ -400,8 +404,11 @@ int do_build(string str)
       return do_home_shared(args[2] == "off" ? 1 : to_int(args[2]));
     if (sizeof(args) > 2 && (args[1] == "short" || args[1] == "long"))
       return do_home_describe(args[1], implode(args[2..], " "));
+    if (sizeof(args) > 2 && args[1] == "books")
+      return do_home_books(args[2], sizeof(args) > 3 ? args[3] : nil);
     notify_fail("Usage: build home < make | communal [off] | shared <n|off> | " +
-                "short <text> | long <text> | remove >\n");
+                "short <text> | long <text> | books <area path|none> [house] " +
+                "| remove >\n");
     return 0;
   }
 
@@ -973,38 +980,43 @@ int do_area(string str)
     // through the link -- today the community (roster, census, jobs, houses),
     // whatever comes next tomorrow. "none" detaches it. Always set by hand: a
     // wilderness that happens to sit under a town's folder is not its suburb.
-    object parent;
+    // Changing it moves the community's books between the two roots, so it is
+    // refused while anything would break or be lost; "check" only reports.
+    mapping plan;
+    string path, out;
+    int check, i;
 
     if (sizeof(args) < 2)
     {
-      notify_fail("Usage: build area parent <area path|none>\n");
+      notify_fail("Usage: build area parent <area path|none> [check]\n");
       return 0;
     }
 
-    if (args[1] == "none")
-    {
-      area->set_parent_area("");
-      write("Area '" + area->query_area_name() + "' stands on its own.\n");
-      return 1;
-    }
+    path = (args[1] == "none") ? "" : args[1];
+    check = sizeof(args) > 2 && args[2] == "check";
 
-    parent = AREA_HANDLER->query_area(args[1]);
-    if (!parent)
-    {
-      notify_fail("No area known at '" + args[1] + "'.\n");
-      return 0;
-    }
+    plan = check ? area->plan_parent_change(path) : area->change_parent(path);
 
-    if (parent == area || parent->query_root_area() == area)
-    {
-      notify_fail("An area cannot be its own parent, nor be placed under one " +
-                  "of its own descendants.\n");
-      return 0;
-    }
+    out = "";
+    for (i = 0; i < sizeof(plan["conflicts"]); i++)
+      out += "  - " + plan["conflicts"][i] + "\n";
+    if (strlen(out))
+      out = "It cannot be done yet:\n" + out;
+    for (i = 0; i < sizeof(plan["warnings"]); i++)
+      out += (i ? "" : "Warnings:\n") + "  - " + plan["warnings"][i] + "\n";
 
-    area->set_parent_area(args[1]);
-    write("Area '" + area->query_area_name() + "' is now part of '" +
-          parent->query_area_name() + "'.\n");
+    if (plan["done"])
+      out = (strlen(path)
+              ? "Area '" + area->query_area_name() + "' is now part of '" +
+                AREA_HANDLER->query_area(path)->query_area_name() + "'.\n"
+              : "Area '" + area->query_area_name() + "' stands on its own.\n") +
+            out;
+    else if (!sizeof(plan["conflicts"]))
+      out = (check ? (plan["mode"] == "none" ? "Nothing to change.\n"
+                                             : "It can be done.\n")
+                   : "Nothing to change.\n") + out;
+
+    write(out);
     return 1;
   }
   else if (verb == "principal")
@@ -1660,6 +1672,33 @@ int do_vacancy(string str)
     write("'" + args[1] + "' is worked in " + sizeof(spots) + " place" +
           (sizeof(spots) == 1 ? "" : "s") + ":\n  " +
           implode(spots, "\n  ") + "\n");
+    return 1;
+  }
+
+  if (verb == "rename")
+  {
+    // a name is the job's identity, so two jobs never share one: this settles
+    // a clash before two communities join
+    if (sizeof(args) < 3)
+    {
+      notify_fail("Usage: build vacancy rename <name> <new name>\n");
+      return 0;
+    }
+
+    if (!area->query_vacancy(args[1]))
+    {
+      notify_fail("No vacancy '" + args[1] + "' in this area.\n");
+      return 0;
+    }
+
+    if (!area->rename_vacancy(args[1], args[2]))
+    {
+      notify_fail("There is a vacancy '" + args[2] + "' already.\n");
+      return 0;
+    }
+
+    write("The '" + args[1] + "' vacancy, and whoever holds it, is now '" +
+          args[2] + "'.\n");
     return 1;
   }
 
@@ -3050,6 +3089,52 @@ int do_desc(string str)
 
   loc->save_me();
   write(title ? "Titled.\n" : "Described.\n");
+  return 1;
+}
+
+/**
+ * Books a house with the community of another area, for when the two part:
+ * `file` names it, or the house the builder stands in. "none" books it where it
+ * stands again.
+ */
+int do_home_books(string area_path, string file)
+{
+  object loc, area, other;
+
+  loc = environment(this_player());
+  if (!loc || !loc->query_location() || !(area = loc->query_area()))
+  {
+    notify_fail("Stand in a location of the house's community.\n");
+    return 0;
+  }
+
+  if (!file)
+    file = loc->query_file_name();
+
+  if (area_path != "none")
+  {
+    other = AREA_HANDLER->query_area(area_path);
+    if (!other)
+    {
+      notify_fail("No area known at '" + area_path + "'.\n");
+      return 0;
+    }
+    if (other->query_root_area() != area->query_root_area())
+    {
+      notify_fail("'" + area_path + "' is not part of this community.\n");
+      return 0;
+    }
+  }
+
+  if (!area->set_house_books(file, area_path == "none" ? nil : area_path))
+  {
+    notify_fail(file + " is not a house of this community.\n");
+    return 0;
+  }
+
+  write(file + (area_path == "none"
+                  ? " follows where it stands again.\n"
+                  : " follows '" + other->query_area_name() + "' if they part.\n"));
   return 1;
 }
 

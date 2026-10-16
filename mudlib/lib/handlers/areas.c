@@ -154,6 +154,21 @@ void set_foreign_position(string uuid, string roster, string loc)
     map_delete(npc_at, uuid);
 }
 
+/**
+ * The area that rosters `uuid` while they rest in another area's location, or
+ * nil when they are not indexed as a roamer anywhere.
+ */
+string query_foreign_roster(string uuid)
+{
+  string loc;
+
+  if (this_object() != _global())
+    return (string)_global()->query_foreign_roster(uuid);
+
+  loc = uuid ? npc_at[uuid] : nil;
+  return (loc && npc_positions[loc]) ? npc_positions[loc][uuid] : nil;
+}
+
 // The roamers indexed at `location_file`: ([ uuid : roster_area_path ]). Empty
 // when no roamer is resting there.
 mapping foreign_positions_at(string location_file)

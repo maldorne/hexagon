@@ -8,6 +8,7 @@ inherit citizen   "/lib/location/area/citizenship.c";
 inherit census    "/lib/location/area/census.c";
 inherit vacancies "/lib/location/area/vacancies.c";
 inherit roster    "/lib/location/area/roster.c";
+inherit community "/lib/location/area/community.c";
 
 #include <room/location.h>
 #include <living/persisted.h>
@@ -77,6 +78,7 @@ void create() {
   census::create();
   vacancies::create();
   roster::create();
+  community::create();
   obj::create();
 }
 
@@ -306,21 +308,48 @@ object load_location(string location_file_name)
   return location;
 }
 
+// The community's books as this area holds them itself, without asking its
+// root: what moves between two roots when a parent is set or cleared (see
+// community.c). An area with a parent should hold none of them.
+
+mapping query_own_census() { return npc_census ? npc_census : ([ ]); }
+void set_own_census(mapping m) { npc_census = m ? m : ([ ]); }
+
+mapping * query_own_vacancies() { return vacancies ? vacancies : ({ }); }
+void set_own_vacancies(mapping * m) { vacancies = m ? m : ({ }); }
+
+mapping query_own_houses() { return house_records ? house_records : ([ ]); }
+void set_own_houses(mapping m) { house_records = m ? m : ([ ]); }
+
+string * query_own_plots() { return plots ? plots : ({ }); }
+void set_own_plots(string * m) { plots = m ? m : ({ }); }
+
+mapping query_own_npc_sources()
+{
+  return original_npc_sources ? original_npc_sources : ([ ]);
+}
+void set_own_npc_sources(mapping m) { original_npc_sources = m ? m : ([ ]); }
+
+mapping query_own_npc_caps() { return npc_caps ? npc_caps : ([ ]); }
+void set_own_npc_caps(mapping m) { npc_caps = m ? m : ([ ]); }
+
+/**
+ * Attaches this area to another, or brings it back to standing on its own (""
+ * clears the link), moving nothing. Both directions are deliberate acts, the
+ * tree is never guessed: the builder goes through change_parent (community.c),
+ * which moves the community's books first.
+ */
+void set_parent_link(string path)
+{
+  parent_area = path ? path : "";
+}
+
 string query_parent_area_path() { return parent_area; }
 
 // The area directly above this one, or nil when it stands on its own.
 object query_parent_area()
 {
   return strlen(parent_area) ? AREA_HANDLER->query_area(parent_area) : nil;
-}
-
-// Attach this area to another, or bring it back to standing on its own (""
-// clears the link). Both directions are deliberate acts: the tree is never
-// guessed.
-void set_parent_area(string path)
-{
-  parent_area = path ? path : "";
-  save_me();
 }
 
 // The top of this area's chain: the one that holds whatever is shared down it,
