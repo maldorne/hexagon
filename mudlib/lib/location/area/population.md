@@ -31,7 +31,9 @@ Everything an area stores about a type is keyed by that template id. A template
 can say `sentient` (an individual, tracked one by one) or not (a creature,
 counted). A `sentient` type that also states `proper_name` or `unique` is one
 particular person: it keeps its template's name, race and level instead of being
-generated.
+generated. Its template `level`, `guild` and `guild_level` are re-applied every
+time it materializes (the guild without the join checks, which are a player's),
+so editing them reaches the person already living.
 
 ## Two halves of the population
 

@@ -709,6 +709,23 @@ void apply_template(mapping t, varargs int born)
   else if (query_race_ob())
     set_ext_align(load_object(query_race_ob())->query_ext_align());
 
+  // One particular person is exactly what its template says, so the pinned
+  // level and guild follow the template on every materialization, not only
+  // at birth. A guild is placed without the join checks, which are a player's.
+  if (!born && is_unique())
+  {
+    mapping social;
+
+    social = mappingp(t["social_obs"]) ? t["social_obs"] : ([ ]);
+    if (t["level"] && query_class_ob() && query_class_level() != t["level"])
+      set_level(t["level"]);
+    if (social["guild"] && query_guild_ob() != social["guild"])
+      set_guild_ob(social["guild"], 1);
+    if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
+        t["guild_level"] != query_guild_level())
+      adjust_guild_level(t["guild_level"] - query_guild_level());
+  }
+
   if (!born)
     return;
 
@@ -723,7 +740,7 @@ void apply_template(mapping t, varargs int born)
     social = t["social_obs"];
     if (social["race"])       set_race_ob(social["race"]);
     if (social["class"])      set_class_ob(social["class"]);
-    if (social["guild"])      set_guild_ob(social["guild"]);
+    if (social["guild"])      set_guild_ob(social["guild"], 1);
     if (social["race_group"]) set_race_group_ob(social["race_group"]);
     if (social["group"])      set_group_ob(social["group"]);
     if (social["job"])        set_job_ob(social["job"]);
@@ -733,7 +750,7 @@ void apply_template(mapping t, varargs int born)
   // How far up its guild the type has risen. Joining a guild starts at level
   // one, so this comes after the social objects.
   if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
-      t["guild_level"] > query_guild_level())
+      t["guild_level"] != query_guild_level())
     adjust_guild_level(t["guild_level"] - query_guild_level());
 
   // How the world reads this type. Perceived alignment accumulates from the
