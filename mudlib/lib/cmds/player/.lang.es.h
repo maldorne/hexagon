@@ -731,13 +731,15 @@
 // ranking
 #define _LANG_CMD_RANKING_ALIAS ({ "ranking", "clasificacion" })
 #define _LANG_CMD_RANKING_SYNTAX "ranking [todos]"
-#define _LANG_CMD_RANKING_HELP "Muestra los niveles más altos alcanzados en tu clase, tu gremio y tu oficio, por jugadores y por los personajes con nombre propio. Con 'todos' muestra todos los grupos de tu juego."
+#define _LANG_CMD_RANKING_HELP "Muestra los niveles más altos alcanzados en tu clase, tu gremio y tu oficio, por jugadores y por los personajes con nombre propio. Con 'todos' muestra todos los grupos de tu juego. Las entradas de personajes que ya no existen se quitan solas."
 #define _LANG_RANKING_LEVEL "Nivel"
 #define _LANG_RANKING_KIND_CLASS "Clase"
 #define _LANG_RANKING_KIND_GUILD "Gremio"
 #define _LANG_RANKING_KIND_JOB "Oficio"
 #define _LANG_RANKING_BROKEN "Hay algún error con la clasificación.\n"
 #define _LANG_RANKING_REMOVE "quitar"
+#define _LANG_RANKING_PRUNE "depurar"
+#define _LANG_RANKING_PRUNED "Depurada la clasificación: %d entradas quitadas.\n"
 #define _LANG_RANKING_ALL "todos"
 #define _LANG_RANKING_REMOVED "Quitado de la clasificación.\n"
 #define _LANG_RANKING_NOT_FOUND "Ese nombre no está en la clasificación.\n"
@@ -745,7 +747,7 @@
 #define _LANG_RANKING_HEADER "Los niveles más altos de tus grupos:\n\n"
 #define _LANG_RANKING_ALL_HEADER "Los niveles más altos de todos los grupos:\n\n"
 #define _LANG_RANKING_ALL_EMPTY "Todavía no hay nadie en la clasificación.\n"
-#define _LANG_RANKING_CODER_HINTS "Programadores: 'ranking todos' muestra los grupos de todos los juegos, 'ranking quitar <nombre>' quita un nombre de todos.\n"
+#define _LANG_RANKING_CODER_HINTS "Programadores: 'ranking todos' muestra los grupos de todos los juegos, 'ranking quitar <nombre>' quita un nombre de todos, 'ranking depurar' quita las entradas de personajes que ya no existen.\n"
 
 // jump
 

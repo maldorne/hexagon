@@ -726,13 +726,15 @@
 // ranking
 #define _LANG_CMD_RANKING_ALIAS ({ "ranking" })
 #define _LANG_CMD_RANKING_SYNTAX "ranking [all]"
-#define _LANG_CMD_RANKING_HELP "Shows the highest levels reached in your class, your guild and your job, by players and by the characters with a name of their own. With 'all' it shows every group of your game."
+#define _LANG_CMD_RANKING_HELP "Shows the highest levels reached in your class, your guild and your job, by players and by the characters with a name of their own. With 'all' it shows every group of your game. Entries of characters that no longer exist are dropped automatically."
 #define _LANG_RANKING_LEVEL "Level"
 #define _LANG_RANKING_KIND_CLASS "Class"
 #define _LANG_RANKING_KIND_GUILD "Guild"
 #define _LANG_RANKING_KIND_JOB "Job"
 #define _LANG_RANKING_BROKEN "Something is wrong with the ranking.\n"
 #define _LANG_RANKING_REMOVE "remove"
+#define _LANG_RANKING_PRUNE "prune"
+#define _LANG_RANKING_PRUNED "Ranking pruned: %d entries removed.\n"
 #define _LANG_RANKING_ALL "all"
 #define _LANG_RANKING_REMOVED "Removed from the ranking.\n"
 #define _LANG_RANKING_NOT_FOUND "That name is not in the ranking.\n"
@@ -740,7 +742,7 @@
 #define _LANG_RANKING_HEADER "The highest levels of your groups:\n\n"
 #define _LANG_RANKING_ALL_HEADER "The highest levels of every group:\n\n"
 #define _LANG_RANKING_ALL_EMPTY "There is nobody in the ranking yet.\n"
-#define _LANG_RANKING_CODER_HINTS "Coders: 'ranking all' shows the groups of every game, 'ranking remove <name>' takes a name off all of them.\n"
+#define _LANG_RANKING_CODER_HINTS "Coders: 'ranking all' shows the groups of every game, 'ranking remove <name>' takes a name off all of them, 'ranking prune' drops the entries of characters that no longer exist.\n"
 
 // jump
 

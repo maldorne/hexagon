@@ -11,6 +11,13 @@
  * Updated when a level changes and when a player logs in (RANKING_OB->update);
  * shown by the ranking command.
  *
+ * prune() drops the entries of characters that no longer exist: a player whose
+ * save is gone, an NPC whose template is gone, is no longer a named one or no
+ * longer has that name, a source .c file that is gone, and the old "name:"
+ * entries nobody (player or named template) answers to. The ranking command
+ * runs it at most once every RANKING_PRUNE_EVERY seconds; 'ranking prune'
+ * forces it.
+ *
  * From the CcMud ranking (obj/handlers/ranking.c), neverbot 06/2010.
  */
 
@@ -22,10 +29,15 @@ inherit "/lib/core/object.c";
 #define RANKING_SAVE "/save/ranking"
 // how many different levels of each group are kept
 #define RANKING_LEVELS 11
+// seconds between two prunes asked for by the ranking command
+#define RANKING_PRUNE_EVERY 300
 
 // group path -> ([ level : ([ key : name ]) ]). The key says who it is (see
 // _identity_key), so two with the same name do not collide.
 mapping ranking;
+
+// when the last prune ran
+private int last_prune;
 
 // Names that were ranked by mistake before entries had a key, dropped when the
 // old format is read.
@@ -348,6 +360,168 @@ int remove_name(string name)
   if (found)
     save_handler();
   return found;
+}
+
+// The lowercase names a template gives its NPC (one, or one per gender), only
+// when it is a named one; an empty list otherwise.
+private string * _template_names(mapping t)
+{
+  mixed name;
+
+  if (!mappingp(t) || (!t["proper_name"] && !t["unique"]))
+    return ({ });
+
+  name = t["name"];
+  if (stringp(name))
+    return ({ lower_case(name) });
+  if (mappingp(name))
+  {
+    string * names;
+    mixed * values;
+    int i;
+
+    names = ({ });
+    values = map_values(name);
+    for (i = 0; i < sizeof(values); i++)
+      if (stringp(values[i]))
+        names += ({ lower_case(values[i]) });
+    return names;
+  }
+
+  return ({ });
+}
+
+// Every lowercase name given by the named templates of a game, found by
+// walking its tree. Costly, so it is only asked for when a "name:" entry
+// needs it.
+private mapping _game_template_names(string game)
+{
+  mapping found;
+  string * queue, * names, suffix, dir, source;
+  mixed * entries;
+  int i, j, len;
+
+  found = ([ ]);
+  suffix = "." + mud_language() + ".json";
+  len = strlen(suffix);
+  queue = ({ "/games/" + game + "/" });
+
+  while (sizeof(queue))
+  {
+    dir = queue[0];
+    queue = queue[1 ..];
+
+    entries = get_dir(dir + "*", -1);
+    for (i = 0; i < sizeof(entries); i++)
+    {
+      if (entries[i][1] == -2)
+      {
+        queue += ({ dir + entries[i][0] + "/" });
+        continue;
+      }
+
+      if (strlen(entries[i][0]) <= len ||
+          entries[i][0][strlen(entries[i][0]) - len ..] != suffix)
+        continue;
+
+      source = dir + entries[i][0][0 .. strlen(entries[i][0]) - len - 1];
+      names = _template_names(("/lib/handlers/bestiary")->query_template(game, source));
+      for (j = 0; j < sizeof(names); j++)
+        found[names[j]] = 1;
+    }
+  }
+
+  return found;
+}
+
+// Whether the NPC ranked under this source and displayed name still exists:
+// by its template when it has one (still a named one with that name), else by
+// its source file.
+private int _npc_exists(string game, string source, string name)
+{
+  mapping t;
+
+  t = ("/lib/handlers/bestiary")->query_template(game, source);
+  if (t)
+    return member_array(lower_case(name), _template_names(t)) != -1;
+
+  // no template: a legacy source file is enough while it is there
+  return strlen(source) > 2 && source[strlen(source) - 2 ..] == ".c" &&
+         file_size(source) >= 0;
+}
+
+// Take out of every group the entries of characters that no longer exist (see
+// the header). Unless forced, it does nothing when it ran less than
+// RANKING_PRUNE_EVERY seconds ago. Saves if anything went; returns how many
+// entries were removed.
+int prune(varargs int force)
+{
+  mapping levels, game_names, cache;
+  string * groups, * entries;
+  string game, key, name, source, who;
+  int * keys;
+  int i, j, k, removed, keep;
+
+  if (!force && last_prune && time() - last_prune < RANKING_PRUNE_EVERY)
+    return 0;
+  last_prune = time();
+
+  game_names = ([ ]);
+  cache = ([ ]);
+  groups = map_indices(ranking);
+  for (i = 0; i < sizeof(groups); i++)
+  {
+    if (sscanf(groups[i], "/games/%s/%*s", game) != 2)
+      continue;
+
+    levels = ranking[groups[i]];
+    keys = map_indices(levels);
+    for (j = 0; j < sizeof(keys); j++)
+    {
+      entries = map_indices(levels[keys[j]]);
+      for (k = 0; k < sizeof(entries); k++)
+      {
+        key = entries[k];
+        name = levels[keys[j]][key];
+
+        // one verdict per game, key and name
+        who = game + "|" + key + "|" + name;
+        if (cache[who] == nil)
+        {
+          if (sscanf(key, "player:%s", source))
+            keep = player_exists(source);
+          else if (sscanf(key, "npc:%s", source))
+            keep = _npc_exists(game, source, name);
+          else if (sscanf(key, "name:%s", source))
+          {
+            if (!game_names[game])
+              game_names[game] = _game_template_names(game);
+            keep = player_exists(lower_case(source)) ||
+                   game_names[game][lower_case(source)];
+          }
+          else
+            keep = 1;
+          cache[who] = keep ? 1 : 0;
+        }
+
+        if (!cache[who])
+        {
+          map_delete(levels[keys[j]], key);
+          removed++;
+        }
+      }
+
+      if (!map_sizeof(levels[keys[j]]))
+        map_delete(levels, keys[j]);
+    }
+
+    if (!map_sizeof(levels))
+      map_delete(ranking, groups[i]);
+  }
+
+  if (removed)
+    save_handler();
+  return removed;
 }
 
 void dest_me()

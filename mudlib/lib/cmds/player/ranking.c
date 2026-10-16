@@ -2,7 +2,9 @@
  * ranking command: the highest levels reached in the groups you belong to
  * (your class, your guild, your job), players and NPCs alike, from the ranking
  * handler (/lib/handlers/ranking.c). 'ranking all' shows every group of your
- * game (coders: of every game) and coders may take a name off them.
+ * game (coders: of every game) and coders may take a name off them. Before
+ * showing, the handler drops the entries of characters that no longer exist
+ * (at most once every few minutes); coders can force it with 'ranking prune'.
  *
  * From the CcMud ranking command, neverbot 06/2010.
  */
@@ -118,6 +120,15 @@ static int cmd(string str, object me, string verb)
                                                    _LANG_RANKING_NOT_FOUND);
     return 1;
   }
+
+  if (str == _LANG_RANKING_PRUNE && me->query_coder())
+  {
+    write(sprintf(_LANG_RANKING_PRUNED, handler->prune(1)));
+    return 1;
+  }
+
+  // entries of characters that no longer exist go first
+  handler->prune();
 
   all = (str == _LANG_RANKING_ALL);
   prefix = "/games/" + game_name(me) + "/";
