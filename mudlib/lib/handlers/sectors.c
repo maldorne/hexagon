@@ -220,8 +220,8 @@ private int * _dir_delta(string dir)
 
 // Public wrapper over _dir_delta: the unit coordinate step for a canonical
 // direction ("north" -> ({0,1,0})), or nil for a non-directional exit. Callers
-// that need the neighbouring coordinate in a direction (the builder-ring plot
-// command) use this instead of duplicating the table.
+// that need the neighbouring coordinate in a direction (carving a location
+// next to another) use this instead of duplicating the table.
 int * query_dir_delta(string canonical_dir)
 {
   return _dir_delta(canonical_dir);

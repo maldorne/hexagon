@@ -171,7 +171,7 @@ void open_vacancy(string job, int count, string at, string source,
   // but that is a fact about the type and the type is authored: the template
   // says `sentient` or the job draws from the wrong kind. Nothing writes it
   // here -- templates are read-only -- so the mistake is reported instead, by
-  // `build vacancy add` and by `npcs template check`.
+  // `vacancies add` and by `npcs template check`.
   if (source && strlen(source))
     source = (string)this_object()->query_template_from_source(source);
 
@@ -425,6 +425,94 @@ int set_vacancy_timetable(string job, mapping hours)
 
   this_object()->save_me();
   return 1;
+}
+
+/**
+ * Reads the types of a job from the words a builder typed: `<source>[*<weight>]`
+ * entries joined by commas, a weight of 1 for any that names none.
+ *
+ * @return  the ({ path, weight }) pairs, or nil when an entry has no path or a
+ *          weight that is not above 0
+ */
+mixed * parse_vacancy_sources(string spec)
+{
+  string * parts;
+  mixed * sources;
+  int i, weight;
+
+  parts = explode(spec, ",");
+  sources = ({ });
+  for (i = 0; i < sizeof(parts); i++)
+  {
+    string path;
+
+    if (sscanf(parts[i], "%s*%d", path, weight) != 2)
+    {
+      path = parts[i];
+      weight = 1;
+    }
+    if (!strlen(path) || weight <= 0)
+      return nil;
+    sources += ({ ({ path, weight }) });
+  }
+
+  return sources;
+}
+
+/**
+ * Edits one hour of the timetable of `job`. `what` is a destination (`work`,
+ * `home`, `out` or a location file, which keeps the lines the hour already had),
+ * `clear` to drop the hour, or `leave` / `arrive` to set the line told as the
+ * holder sets off or arrives (a souls template rendered against them; no
+ * `message` clears it). Hour keys are strings, the way JSON leaves them and the
+ * way the census reads them back.
+ *
+ * @return  nil when done, otherwise what went wrong
+ */
+string edit_vacancy_hour(string job, int hour, string what, varargs string message)
+{
+  mapping vacancy, hours, entry;
+
+  vacancy = query_vacancy(job);
+  if (!vacancy)
+    return "No vacancy '" + job + "' in this area.\n";
+
+  hours = mappingp(vacancy[VACANCY_TIMETABLE]) ? vacancy[VACANCY_TIMETABLE]
+                                               : ([ ]);
+  hours = ([ ]) + hours;
+
+  if (what == "clear")
+  {
+    map_delete(hours, "" + hour);
+    set_vacancy_timetable(job, hours);
+    return nil;
+  }
+
+  if (what == "leave" || what == "arrive")
+  {
+    if (!mappingp(hours["" + hour]))
+      return "Job '" + job + "' does nothing at " + hour +
+             "; give the hour a destination first.\n";
+
+    entry = ([ ]) + hours["" + hour];
+    if (message && strlen(message))
+      entry[what] = message;
+    else
+      map_delete(entry, what);
+    hours["" + hour] = entry;
+    set_vacancy_timetable(job, hours);
+    return nil;
+  }
+
+  if (what != "work" && what != "home" && what != "out" && file_size(what) < 0)
+    return "A destination is 'work', 'home', 'out' or a location file.\n";
+
+  // a new destination keeps the lines the hour already had
+  hours["" + hour] = (mappingp(hours["" + hour]) ? ([ ]) + hours["" + hour]
+                                                 : ([ ])) +
+                     ([ "goto": what ]);
+  set_vacancy_timetable(job, hours);
+  return nil;
 }
 
 // Whether the job's holders are housed among the settlement's own. A trade whose

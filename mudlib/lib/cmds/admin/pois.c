@@ -1,7 +1,10 @@
 
 // Report on the points of interest of an area: the places the world cares
-// about, what marks each one, and what is worked there. Reading only -- the
-// builder ring is what attaches and edits a POI.
+// about, what marks each one, and what is worked there; and declare them on the
+// location the admin stands in. Ventures (pub, shop) get theirs automatically
+// at conversion; the rest (town entrance, square, crossroads, shrine) are
+// attached here, and vacancy NPCs can be bound to any POI. A location holds at
+// most one POI.
 
 #include <mud/cmd.h>
 #include <areas/area.h>
@@ -20,19 +23,38 @@ private string jobs_at(object area, string file);
 private int do_list(object area, object me, string kind);
 private int do_here(object area, object me);
 private int do_place(object area, object me, string file);
+private int do_add(object area, object me, string kind, string label);
+private int do_remove(object area, object me);
+private int do_guard_dir(object area, object me, string * args);
+private int do_admit(object area, object me, string * args);
 
 void setup()
 {
   set_aliases(({ "pois" }));
-  set_usage("pois [ <kind> | here ]");
+  set_usage("pois [ <kind> | here ]\n" +
+            "     pois add <kind> [label]\n" +
+            "     pois remove\n" +
+            "     pois guard_dir <dir>\n" +
+            "     pois admit <citizens|all>");
   set_help(
-    "Report on the points of interest of the area you are standing in.\n" +
+    "Report on the points of interest of the area you are standing in, and " +
+    "declare them on the location you stand in.\n" +
     "\n" +
-    "  pois           every one it holds, one line each\n" +
-    "  pois <kind>    only the ones of that kind\n" +
-    "  pois here      everything about the one under your feet\n" +
+    "  pois                   every one it holds, one line each\n" +
+    "  pois <kind>            only the ones of that kind\n" +
+    "  pois here              everything about the one under your feet\n" +
+    "  pois add <kind> [label]\n" +
+    "                         make this location a POI of that kind, with\n" +
+    "                         that label if given (replaces the one it had)\n" +
+    "  pois remove            this location stops being a POI\n" +
+    "  pois guard_dir <dir>   town_entrance only: the exit into town its\n" +
+    "                         guards watch; live guards are re-posted\n" +
+    "  pois admit <citizens|all>\n" +
+    "                         town_entrance only: its guards let through only\n" +
+    "                         their own citizens, or everybody not at war\n" +
+    "                         with them\n" +
     "\n" +
-    "Kinds: pub, shop, town_entrance, town_square, crossroads, shrine. A " +
+    "Kinds: " + implode(POI_KINDS, ", ") + ". A " +
     "location carries at most one, and ventures (pub, shop) get theirs from " +
     "the conversion; the rest are attached by hand.\n" +
     "\n" +
@@ -233,8 +255,8 @@ private int do_place(object area, object me, string file)
   poi = (mapping)area->query_poi(file);
   if (!poi)
   {
-    notify_fail("This location is not a point of interest. The builder ring " +
-                "attaches one: 'build poi add <kind> [label]'.\n");
+    notify_fail("This location is not a point of interest. Attach one: " +
+                "'pois add <kind> [label]'.\n");
     return 0;
   }
 
@@ -248,7 +270,11 @@ private int do_place(object area, object me, string file)
     out += "  guards     " +
            (poi[POI_FIELD_GUARD_DIR]
               ? "watch '" + poi[POI_FIELD_GUARD_DIR] + "', the way in"
-              : "no direction set: nobody is stopped here") + "\n";
+              : "no direction set: nobody is stopped here") + "\n" +
+           "  admits     " +
+           (poi[POI_FIELD_ADMIT] == POI_ADMIT_CITIZENS
+              ? "its own citizens only" : "everybody not at war with them") +
+           "\n";
 
   out += "  worked by  " + jobs_at(area, file) + "\n";
 
@@ -275,15 +301,106 @@ private int do_place(object area, object me, string file)
     {
       string deity;
 
-      deity = (string)temple->query_deity();
+      deity = temple->query_deity();
       out += "  deity      " +
-             (strlen(deity) ? deity : "unconsecrated") + "\n";
+             ((deity && strlen(deity)) ? deity : "unconsecrated") + "\n";
     }
   }
   else
     out += "  loaded     no  (nobody is there right now)\n";
 
   write(out);
+  return 1;
+}
+
+// ===== pois add <kind> [label] =====
+private int do_add(object area, object me, string kind, string label)
+{
+  area->add_poi((string)environment(me)->query_file_name(), kind, label);
+  write("POI '" + kind + "'" + (label ? " (\"" + label + "\")" : "") +
+        " set on this location.\n");
+  return 1;
+}
+
+// ===== pois remove =====
+private int do_remove(object area, object me)
+{
+  string file;
+
+  file = (string)environment(me)->query_file_name();
+  if (!area->is_poi(file))
+  {
+    notify_fail("This location is not a POI.\n");
+    return 0;
+  }
+
+  area->remove_poi(file);
+  write("POI removed from this location.\n");
+  return 1;
+}
+
+// ===== pois guard_dir <dir> =====
+private int do_guard_dir(object area, object me, string * args)
+{
+  string file;
+  mapping exits;
+
+  file = (string)environment(me)->query_file_name();
+  if (!area->is_poi(file))
+  {
+    notify_fail("This location is not a POI. Add one first with " +
+                "'pois add town_entrance'.\n");
+    return 0;
+  }
+  if (area->query_pois()[file][POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE)
+  {
+    notify_fail("guard_dir only applies to a town_entrance POI.\n");
+    return 0;
+  }
+  if (sizeof(args) != 2)
+  {
+    notify_fail("Usage: pois guard_dir <direction into the town>\n");
+    return 0;
+  }
+
+  // the guards watch one of this location's exits, so it has to be one
+  exits = (mapping)environment(me)->query_exit_map();
+  if (!exits || !exits[args[1]])
+  {
+    notify_fail("This location has no exit '" + args[1] + "'.\n");
+    return 0;
+  }
+
+  // the exit into town its guards watch; re-post so live guards pick it up
+  area->set_poi_guard_dir(file, args[1]);
+  area->repost_guards(file);
+  write("Entrance guards here now watch '" + args[1] + "'.\n");
+  return 1;
+}
+
+// ===== pois admit <citizens|all> =====
+private int do_admit(object area, object me, string * args)
+{
+  string file;
+
+  file = (string)environment(me)->query_file_name();
+  if (!area->is_poi(file) ||
+      area->query_pois()[file][POI_FIELD_KIND] != POI_KIND_TOWN_ENTRANCE)
+  {
+    notify_fail("admit only applies to a town_entrance POI.\n");
+    return 0;
+  }
+  if (sizeof(args) != 2 ||
+      (args[1] != POI_ADMIT_CITIZENS && args[1] != "all"))
+  {
+    notify_fail("Usage: pois admit <" + POI_ADMIT_CITIZENS + "|all>\n");
+    return 0;
+  }
+
+  area->set_poi_admit(file, args[1] == "all" ? "" : args[1]);
+  write(args[1] == "all"
+    ? "Entrance guards here let through everybody not at war with them.\n"
+    : "Entrance guards here let through only their own citizens.\n");
   return 1;
 }
 
@@ -304,9 +421,38 @@ static int cmd(string str, object me, string verb)
 
   if (!sizeof(args))
     return do_list(area, me, nil);
+
+  if (args[0] == "remove" && sizeof(args) == 1)
+    return do_remove(area, me);
+  if (args[0] == "guard_dir")
+    return do_guard_dir(area, me, args);
+  if (args[0] == "admit")
+    return do_admit(area, me, args);
+
+  if (args[0] == "add")
+  {
+    if (sizeof(args) < 2)
+    {
+      notify_fail("Usage: pois add <kind> [label]\n");
+      return 0;
+    }
+    if (member_array(args[1], POI_KINDS) < 0)
+    {
+      notify_fail("Unknown POI kind '" + args[1] + "'. Kinds: " +
+                  implode(POI_KINDS, ", ") + ".\n");
+      return 0;
+    }
+    return do_add(area, me, args[1],
+                  sizeof(args) > 2 ? implode(args[2..], " ") : nil);
+  }
+
   if (sizeof(args) > 1)
   {
-    notify_fail("Usage: pois [ <kind> | here ]\n");
+    notify_fail("Usage: pois [ <kind> | here ]\n" +
+                "       pois add <kind> [label]\n" +
+                "       pois remove\n" +
+                "       pois guard_dir <dir>\n" +
+                "       pois admit <citizens|all>\n");
     return 0;
   }
 

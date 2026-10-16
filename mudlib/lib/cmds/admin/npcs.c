@@ -14,6 +14,7 @@ inherit CMD_BASE;
 
 private object area_of(object me);
 private int do_orphans(object area, object me, string * args);
+private int do_resident(object area, object me, string * args);
 private string kind_of(object area, string source);
 private string columns(string * * rows);
 private string hours_of(object area, mapping e);
@@ -25,7 +26,8 @@ void setup()
   set_aliases(({ "npcs" }));
   set_usage("npcs [ list [type] | roster | live | populate | rekit [type] |\n" +
             "            orphans [apply] | verify [apply] | retemplate [apply] |\n" +
-            "            template check [type] | rehouse <uuid> ]");
+            "            template check [type] | rehouse <uuid> |\n" +
+            "            resident <source> [off] ]");
   set_help(
     "Report on the people of the area you are standing in.\n" +
     "\n" +
@@ -45,11 +47,16 @@ void setup()
     "  npcs orphans [apply] people the area no longer accounts for\n" +
     "  npcs verify [apply]  audit the game's NPC savefiles against the census\n" +
     "  npcs rehouse <uuid>  take somebody out of their house, to be housed\n" +
-    "                       again by 'build homes' (or when their area leaves\n" +
+    "                       again by 'houses assign' (or when their area leaves\n" +
     "                       its parent, on their side)\n" +
     "  npcs template check [type]\n" +
     "                       read the templates this area spawns from and say\n" +
     "                       what is wrong with them\n" +
+    "  npcs resident <source> [off]\n" +
+    "                       flag a roster type as a resident one, so that\n" +
+    "                       'houses assign' gives its people a house; 'off'\n" +
+    "                       takes the flag away. The source is the id shown\n" +
+    "                       by 'npcs roster'\n" +
     "\n" +
     "The census is the area's record of its individuals: each has a uuid and " +
     "a savefile, and only exists in the world while its location is loaded. " +
@@ -289,7 +296,7 @@ private int do_roster(object area, object me)
   mapping caps;
   string * sources;
   string out;
-  int i;
+  int i, width;
 
   caps = (mapping)area->query_npc_caps();
   sources = map_indices(caps);
@@ -300,11 +307,17 @@ private int do_roster(object area, object me)
     return 1;
   }
 
+  // as wide as the longest id: the id is what 'npcs resident' takes
+  width = 0;
+  for (i = 0; i < sizeof(sources); i++)
+    if (strlen(sources[i]) > width)
+      width = strlen(sources[i]);
+
   out = "Types spawned by " + books_of(area) + ", and their caps" +
         seen_from(area) + ":\n";
   for (i = 0; i < sizeof(sources); i++)
-    out += sprintf("  %-28s live %-3s cap %-3s%s\n",
-                   sources[i],
+    out += sprintf("  %-*s live %-3s cap %-3s%s\n",
+                   width, sources[i],
                    "" + (int)area->query_total_live_count(sources[i]),
                    "" + caps[sources[i]]["max"],
                    caps[sources[i]]["resident"] ? " resident" : "");
@@ -866,7 +879,7 @@ private int do_verify(object me, string * args)
 
 /**
  * Takes somebody of the census out of their house. The housing pass gives them
- * one again -- a builder's 'build homes', or the one run on each side when an
+ * one again -- an admin's 'houses assign', or the one run on each side when an
  * area leaves its parent -- which is how a person whose job and house would
  * end up in two communities is settled.
  */
@@ -896,6 +909,36 @@ private int do_rehouse(object area, object me, string uuid)
                   " leaves " + house + ", to be housed again.");
   tell_object(me, (row["name"] ? capitalize(row["name"]) : uuid) +
               " no longer lives in " + house + ".\n");
+  return 1;
+}
+
+// ===== npcs resident <source> [off] =====
+// The design-time switch for who gets a house: only the sources flagged here
+// are housed by 'houses assign'.
+private int do_resident(object area, object me, string * args)
+{
+  string source;
+  int flag;
+
+  if (sizeof(args) < 2 || sizeof(args) > 3 ||
+      (sizeof(args) == 3 && args[2] != "off" && args[2] != "no" &&
+       args[2] != "0"))
+  {
+    notify_fail("Usage: npcs resident <source> [off]\n");
+    return 0;
+  }
+
+  source = args[1];
+  flag = (sizeof(args) < 3);
+  if (!area->set_npc_resident(source, flag))
+  {
+    notify_fail("No intended NPC source '" + source + "' in this area.\n");
+    return 0;
+  }
+
+  write("Source '" + source + "' is " +
+        (flag ? "now a resident source; 'houses assign' will house it."
+              : "no longer a resident source.") + "\n");
   return 1;
 }
 
@@ -932,6 +975,8 @@ static int cmd(string str, object me, string verb)
                    sizeof(args) > 1 ? args[1] : "");
   if (args[0] == "rekit")
     return do_rekit(area, me, sizeof(args) > 1 ? args[1] : "");
+  if (args[0] == "resident")
+    return do_resident(area, me, args);
   if (args[0] == "rehouse")
   {
     if (sizeof(args) != 2)
@@ -977,6 +1022,6 @@ static int cmd(string str, object me, string verb)
   notify_fail("Usage: npcs [ list [type] | roster | live | populate | " +
               "rekit [type] | " +
               "template check [type] | orphans [apply] | verify [apply] | " +
-              "retemplate [apply] | rehouse <uuid> ]\n");
+              "retemplate [apply] | rehouse <uuid> | resident <source> [off] ]\n");
   return 0;
 }

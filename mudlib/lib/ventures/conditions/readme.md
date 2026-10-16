@@ -21,7 +21,7 @@ A condition object answers:
 - `check_open` returns `1` when the venture may serve, or a string: the reason,
   which is exactly what the customer reads ("There is nobody serving."). A `0`
   closes it with the generic message.
-- `query_description` is one line for `build venture`.
+- `query_description` is one line for `ventures here`.
 
 The venture checks the conditions in order, every time a customer buys, sells or
 asks for a value; the first one that does not hold gives the answer. Listing the
@@ -41,13 +41,13 @@ is at work.
 
 ## Using it
 
-Standing in the shop or tavern, with the builder ring:
+Standing in the shop or tavern:
 
-    build venture                                    # list, and whether it is open now
-    build venture condition add hours from=8 to=14   # mornings only
-    build venture condition add date day=200 days=3  # a fair, three days a year
-    build venture condition remove attended          # nobody needs to be at the counter
-    build venture condition add attended             # put it back
+    ventures here                                    # list, and whether it is open now
+    ventures condition add hours from=8 to=14   # mornings only
+    ventures condition add date day=200 days=3  # a fair, three days a year
+    ventures condition remove attended          # nobody needs to be at the counter
+    ventures condition add attended             # put it back
 
 A bare name is looked up in `/games/<game>/ventures/conditions/` first and here
 after, so a game can add conditions of its own or replace one of these; a full
@@ -71,4 +71,4 @@ A tavern that only serves the citizens of its own realm:
       return "serves only citizens of " + args["of"];
     }
 
-    build venture condition add citizens of=/games/<game>/obj/citizenships/<realm>
+    ventures condition add citizens of=/games/<game>/obj/citizenships/<realm>

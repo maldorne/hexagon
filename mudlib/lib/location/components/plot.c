@@ -1,5 +1,5 @@
 // Plot component. Marks a buildable empty lot -- a location carved out by a
-// programmer (the builder-ring `build plot <dir>` command) and registered with
+// builder (the admin command `houses plot <dir>`) and registered with
 // its area, waiting for a house to be raised on it. It provides the location's
 // default title and description (a vacant lot); building a house adds the `home`
 // component, which takes over the description.

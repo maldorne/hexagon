@@ -139,7 +139,7 @@ community's root area:
 | `spots` | places worked, one holder seated in each in turn; without it every holder stands at `works_at` |
 | `class` | the class the job trains its holders in |
 | `equipment` | the kit: one list of interchangeable items per slot, each holder rolls one |
-| `kits` | `([ template_id : kit ])`: a holder drawn from a listed type gets that kit instead of the job's (`build vacancy equip <job> for <type> ...`) |
+| `kits` | `([ template_id : kit ])`: a holder drawn from a listed type gets that kit instead of the job's (`vacancies equip <job> for <type> ...`) |
 | `timetable` | the hours the job keeps (below) |
 | `home` | a house bound to the post |
 | `resident` | holders are housed among the settlement's own |
@@ -156,7 +156,7 @@ pubs are one `barman` job with two seats and two spots.
 
 ### Weighted types
 
-A job may draw from several types: `build vacancy add guard_day 4
+A job may draw from several types: `vacancies add guard_day 4
 <a>*6,<b>*3,<c>`. A type with no weight weighs 1. `_draw_vacancy_source()`
 rolls one per hire, so the same post is filled with a mix. Restating the job
 with one type drops the others.
@@ -218,13 +218,13 @@ but has no effect on hiring.
 - **Level**: a template `level` wins; otherwise the area's level plus the
   template's `level_area_modifier`, swung by up to the area's spread
   (`random(spread + 1)`, either sign), never below 1.
-- **Stats**: rolled in the area's `build area stats` range (the template's own
+- **Stats**: rolled in the area's `areas stats` range (the template's own
   `random_stats` or pinned `stats` win), then the template's `stat_modifiers`.
 - **Kit** from the job, or from the type for somebody with no post; starting
   coin from the template's `money`.
 
 A level changed on the area reaches existing people only through
-`relevel_census()` (`build area relevel`).
+`relevel_census()` (`areas relevel`).
 
 ## Materialize and drain
 
@@ -263,7 +263,7 @@ raising a house loads its location.
 - **Built locations.** `furnish_house(file)` makes a location that already
   exists (a barracks, a room over a shop) a kept house as it stands, keeping its
   exits, short and long.
-- **Shared houses** (a tenement, a courtyard house): `build home shared <n>`
+- **Shared houses** (a tenement, a courtyard house): `houses shared <n>`
   gives the house room for `n` households, each its own record on the books
   (the location file, then `<file>#2` ... `<file>#n`) with its own residents and
   family; `query_house_file` maps a household back to its location,
@@ -274,10 +274,10 @@ raising a house loads its location.
   whoever is homeless. A **communal** house (a barracks) is shared by whoever
   holds its job; nobody living there founds a family or marries anyone in.
 - **Who is entitled.** A design-time fact: a roster source flagged `resident`
-  (`build npc resident`), or a job flagged `resident` and with no `home`. A job
+  (`npcs resident`), or a job flagged `resident` and with no `home`. A job
   with a `home` houses its holders there, whoever they are; the house follows the
   post, and when the holder dies whoever lived with them is housed again.
-- **`assign_homes()`** (`build homes`) houses every homeless resident of the
+- **`assign_homes()`** (`houses assign`) houses every homeless resident of the
   whole community, in turn: join a spouse who has a house; otherwise, if never
   married, marry a never-married person of the other sex living alone in a
   non-communal house; otherwise pair with another homeless resident and found a
@@ -331,7 +331,7 @@ the census still puts the person there.
 ## Parent areas and the community
 
 `room2loc` makes one area per directory, which is right for places and wrong for
-people. An area can name the area it is part of (`build area parent`); the link
+people. An area can name the area it is part of (`areas parent`); the link
 is set by hand, never derived from the tree. `query_root_area()` walks it (at
 most `AREA_MAX_ANCESTRY` steps) and every population accessor of a delegating
 area answers from the root: caps and the conversion provenance they are summed
@@ -342,15 +342,15 @@ schedule index.
 Setting or clearing a parent moves those books between the two roots
 (`lib/location/area/community.c`), so nobody is lost or duplicated:
 
-- `build area parent <path> check` reports what it would do; without `check` it
+- `areas parent <path> check` reports what it would do; without `check` it
   is done, or refused while any conflict remains, each one named with the
   command that settles it.
 - **Joining** a community moves the area's census, jobs, houses, plots and
   provenance onto the new root. Two jobs with the same name conflict:
-  `build vacancy rename <name> <new name>` on either side.
+  `vacancies rename <name> <new name>` on either side.
 - **Leaving** splits the books: a job goes where it is held; a person follows
   their job, else their house, else where they stand; a house goes where it
-  stands, or with the area it is booked with (`build home books <area> [house]`);
+  stands, or with the area it is booked with (`houses books <area> [house]`);
   plots and provenance go where they stand. A holder whose house would end up
   on the other side of their job conflicts: book the house with their side
   (only when nobody else in it works on the side it stands on), or take them
@@ -371,7 +371,7 @@ area's own.
 
 ## Citizenship and guards
 
-An area names the citizenship that holds it (`build area diplomacy`); without one
+An area names the citizenship that holds it (`areas diplomacy`); without one
 it takes its parent's, and `none` marks it stateless, inheriting nothing. The
 diplomacy graph (`/lib/handlers/diplomacy.c`, one per game, built by hand) owns
 parents and the ally and enemy pairs.
@@ -419,29 +419,29 @@ All report on the area you stand in.
 
 ## Setting up an area
 
-With the builder ring, standing in the right location each time. The templates
+Standing in the right location each time. The templates
 (`areas/<area>/npcs/<type>.<lang>.json`) must exist first.
 
-1. Convert the rooms (`build convert`), which seeds the caps from the rooms'
+1. Convert the rooms (`room2loc`), which seeds the caps from the rooms'
    NPC counts; `npcs roster` shows them.
-2. Set the place: `build area level <n> [<spread>]`, `build area stats <low>
-   <high>`, `build area diplomacy <citizenship|none|inherit>`, and
-   `build area parent <area path>` for a town's fields and roads.
-3. Mark points of interest: `build poi add <kind> [label]`; on an entrance
-   `build poi guard_dir <dir>` and `build poi admit <citizens|all>`.
-4. Declare the jobs, standing where each is worked: `build vacancy add <name>
-   <count> <template>[*<weight>],... [fixed]`, then `build vacancy equip`,
+2. Set the place: `areas level <n> [<spread>]`, `areas stats <low>
+   <high>`, `areas diplomacy <citizenship|none|inherit>`, and
+   `areas parent <area path>` for a town's fields and roads.
+3. Mark points of interest: `pois add <kind> [label]`; on an entrance
+   `pois guard_dir <dir>` and `pois admit <citizens|all>`.
+4. Declare the jobs, standing where each is worked: `vacancies add <name>
+   <count> <template>[*<weight>],... [fixed]`, then `vacancies equip`,
    `timetable <name> <hour> <work|home|out|clear>`, `timetable <name> <hour>
    <leave|arrive> [message]`, `class`, `spot`
    (once per extra place), and `home <name>` or `resident <name>`.
-5. Carve plots (`build plot <dir>`) and raise special houses by hand
-   (`build home make`, `build home short|long`, `build home communal`,
-   `build home shared <n>`).
-6. Flag the sentient roster types that live in ordinary houses: `build npc
+5. Carve plots (`houses plot <dir>`) and raise special houses by hand
+   (`houses make`, `houses short|long`, `houses communal`,
+   `houses shared <n>`).
+6. Flag the sentient roster types that live in ordinary houses: `npcs
    resident <template>`.
-7. Mark the area `build area state settled` when the map is final (families are
+7. Mark the area `areas state settled` when the map is final (families are
    founded only then).
 8. Staff the jobs (`staff_vacancies()` through `exec`), then house everybody with
-   `build homes`. Stand in a loaded location and run `populate_location` on its
+   `houses assign`. Stand in a loaded location and run `populate_location` on its
    area to bring newly created people in at once.
 9. Check with `vacancies`, `pois`, `houses`, `npcs` and `npcs template check`.

@@ -34,7 +34,7 @@ nothing and answers `query_fixture()`. Every fixture inherits
 A location keeps the list of its fixtures (`query_fixtures`, blueprint ->
 count) and clones them again every time it loads. `room2loc` fills the list
 from the room's `add_clone` of anything that is a fixture, so a room that
-clones its tree converts into a location that has it. `build fixture` lists,
+clones its tree converts into a location that has it. `locations fixture` lists,
 adds and removes them by hand.
 
 A fixture declares the actions it answers to with

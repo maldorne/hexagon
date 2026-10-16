@@ -41,7 +41,7 @@
   POI_KIND_BODYGUARD })
 
 // Venture kinds are inferred from a matching location component during
-// room2loc conversion; the rest are declared by hand with the builder ring.
+// room2loc conversion; the rest are declared by hand with the admin commands (pois).
 // Each entry pairs the POI kind with the component type that implies it.
 #define POI_VENTURE_KINDS ({ POI_KIND_PUB, POI_KIND_SHOP })
 

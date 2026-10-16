@@ -5,6 +5,9 @@
 #include <ecs/ecs.h>
 
 #define BASE_LOCATION_OBJ "/lib/location.c"
+// why uncarve_location refuses a location with something in it and nowhere to
+// move it, so a caller can say where that somewhere should come from
+#define LOCATION_NOT_EMPTY "That location is not empty."
 #define LOCATION_HANDLER "/lib/room/handlers/location_handler.c"
 
 // location component types

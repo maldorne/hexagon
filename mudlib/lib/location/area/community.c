@@ -48,7 +48,7 @@ private int _within(object area, string top)
   if (!area)
     return 0;
 
-  path = (string)area->query_area_path();
+  path = area->query_area_path();
   for (steps = 0; steps <= AREA_MAX_ANCESTRY && path && strlen(path); steps++)
   {
     object up;
@@ -58,7 +58,7 @@ private int _within(object area, string top)
     up = AREA_HANDLER->query_area(path);
     if (!up)
       return 0;
-    path = (string)up->query_parent_area_path();
+    path = up->query_parent_area_path();
   }
 
   return 0;
@@ -217,7 +217,7 @@ private void _plan_join(object root, mapping plan)
       plan["conflicts"] += ({
         "The job '" + mine[i][VACANCY_JOB] + "' is offered on both sides. " +
         "Rename one of them first, standing in an area of that side: " +
-        "build vacancy rename " + mine[i][VACANCY_JOB] + " <new name>" });
+        "vacancies rename " + mine[i][VACANCY_JOB] + " <new name>" });
 
   theirs = (mapping *)root->query_own_vacancies();
   provenance = ([ ]) + (mapping)root->query_own_npc_sources() +
@@ -322,7 +322,7 @@ private void _plan_leave(object root, mapping plan)
       (target == SIDE_CHILD ? child_name : root_name) + " side but lives in " +
       base + ", on the other." +
       (movable
-        ? " To book the house with their side: build home books " +
+        ? " To book the house with their side: houses books " +
           (target == SIDE_CHILD ? top : (string)root->query_area_path()) +
           " " + base + "."
         : " The house cannot follow them: others in it work on its side.") +
@@ -342,7 +342,7 @@ private void _plan_leave(object root, mapping plan)
 
     plan["conflicts"] += ({
       "The job '" + jobs[i][VACANCY_JOB] + "' has its house " + home +
-      " on the other side. Book the house with the job's side: build home " +
+      " on the other side. Book the house with the job's side: houses " +
       "books " + (job_side[jobs[i][VACANCY_JOB]] == SIDE_CHILD
                     ? top : (string)root->query_area_path()) +
       " " + home + "." });
@@ -356,13 +356,13 @@ private void _plan_leave(object root, mapping plan)
     plan["warnings"] += ({
       "It takes its citizenship ('" +
       this_object()->query_effective_citizenship() + "') from its parent and " +
-      "will have none: build area diplomacy " +
+      "will have none: areas diplomacy " +
       this_object()->query_effective_citizenship() + " keeps it." });
   if (!this_object()->query_own_area_level() &&
       this_object()->query_area_level())
     plan["warnings"] += ({
       "It takes its NPC level (" + this_object()->query_area_level() +
-      ") from its parent: build area level " +
+      ") from its parent: areas level " +
       this_object()->query_area_level() + " keeps it." });
 
   // the excess on each side, with everything split the same way
@@ -423,7 +423,7 @@ mapping plan_parent_change(string path)
     if (current && strlen(current) && current != path)
     {
       plan["conflicts"] += ({ "It is part of '" + current + "' already. " +
-                              "Take it out first: build area parent none" });
+                              "Take it out first: areas parent none" });
       return plan;
     }
 
@@ -468,7 +468,7 @@ mapping plan_parent_change(string path)
   {
     plan["conflicts"] += ({ "Its own books still hold " + books + " nobody " +
                             "reads. Join them to its community first: " +
-                            "build area parent " + current });
+                            "areas parent " + current });
     return plan;
   }
 

@@ -50,7 +50,7 @@ void create()
   principal = "";
 }
 
-// Buildable-plot registry. The builder ring registers a freshly carved empty lot
+// Buildable-plot registry. `houses plot` registers a freshly carved empty lot
 // with add_plot; the housing system consumes one (and calls remove_plot) when it
 // raises a house on it.
 // A delegated area owns no building land of its own: the community's pool is
@@ -808,7 +808,7 @@ void vacate_houses_of(string surname)
 // in the wrong place can be undone -- plot removal refuses anything that is not
 // a bare plot, so without this a misplaced house is permanent. Residents are
 // left homeless on purpose: the caller decides where they go next, and a plain
-// `build homes` will re-house them on any free plot.
+// `houses assign` will re-house them on any free plot.
 //
 // Returns the number of residents evicted, or -1 if `file` is not a house here.
 int demote_house(string file)

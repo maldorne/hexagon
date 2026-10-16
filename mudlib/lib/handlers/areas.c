@@ -163,7 +163,7 @@ string query_foreign_roster(string uuid)
   string loc;
 
   if (this_object() != _global())
-    return (string)_global()->query_foreign_roster(uuid);
+    return _global()->query_foreign_roster(uuid);
 
   loc = uuid ? npc_at[uuid] : nil;
   return (loc && npc_positions[loc]) ? npc_positions[loc][uuid] : nil;

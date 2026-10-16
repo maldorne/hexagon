@@ -58,9 +58,9 @@ void setup()
     "  enemy <cit>, unenemy <cit> mark or drop an enemy (guards block them)\n" +
     "\n" +
     "Which citizenship an area belongs to is set on the area, with the builder\n" +
-    "ring: 'build area diplomacy <cit>'. An area without one of its own belongs\n" +
-    "to its parent area's; 'build area diplomacy none' says it belongs to\n" +
-    "nobody, and 'build area diplomacy inherit' goes back to the parent's.\n" +
+    "ring: 'areas diplomacy <cit>'. An area without one of its own belongs\n" +
+    "to its parent area's; 'areas diplomacy none' says it belongs to\n" +
+    "nobody, and 'areas diplomacy inherit' goes back to the parent's.\n" +
     "\n" +
     "The graph is saved as you change it.");
 }

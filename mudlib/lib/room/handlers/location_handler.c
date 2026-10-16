@@ -262,6 +262,172 @@ int batch_remove_component(string * files, string type)
   return sizeof(files);
 }
 
+// Where carving from `loc` towards `dir` lands: ([ "ldir", "rdir" (the
+// localized way there and back, as exits store them), "x", "y", "z", "key",
+// "sector", "dir_part" (the directory of loc's .o) ]), or an error string. The
+// canonical direction gives the coordinate step; the localized word is what the
+// exits store, since exits are kept in the mud's language.
+private mixed _carve_target(object loc, string dir)
+{
+  string canon, loc_file;
+  int * c, * d;
+  mapping t;
+
+  if (!loc || !loc->query_location())
+    return "Stand in a location.";
+
+  c = loc->query_coordinates();
+  if (!c || sizeof(c) != 3)
+    return "This location has no coordinates.";
+
+  canon = ROOM_HAND->canonical_dir(dir);
+  d = canon ? load_object(SECTORS_HANDLER)->query_dir_delta(canon) : nil;
+  if (!d)
+    return "'" + dir + "' is not a compass direction.";
+
+  loc_file = loc->query_file_name();
+  t = ([ ]);
+  t["ldir"] = ROOM_HAND->localize_dir(canon);
+  t["rdir"] = ROOM_HAND->query_opposite(t["ldir"]);
+  t["x"] = c[0] + d[0];
+  t["y"] = c[1] + d[1];
+  t["z"] = c[2] + d[2];
+  t["key"] = "" + t["x"] + "_" + t["y"] + "_" + t["z"];
+  t["dir_part"] = loc_file[0 .. strsrch(loc_file, "/", -1)];
+  t["sector"] = load_object(SECTORS_HANDLER)->query_sector_for_coord(
+                  game_from_path(loc_file), loc->query_map_name(),
+                  t["x"], t["y"], t["z"]);
+  return t;
+}
+
+/**
+ * Carves a new location next to `loc`, towards `dir`: one step on the map,
+ * saved in the same directory under `name` (a plain file name, no extension),
+ * joined to `loc` by plain open exits both ways and indexed in its sector.
+ * `title` is its short, if any; `component` is attached to it (a plot), if
+ * given. The new location is not a converted room and carries nothing else:
+ * what it is comes from what is added to it afterwards.
+ *
+ * @return  the new location, or a string saying why it could not be carved
+ */
+mixed carve_location(object loc, string dir, string name, string title,
+                     string component)
+{
+  mixed t;
+  object made;
+  string file;
+  int i;
+
+  t = _carve_target(loc, dir);
+  if (stringp(t))
+    return t;
+
+  // a plain file name: no path, no extension, nothing a directory listing
+  // would not take
+  if (!name || !strlen(name))
+    return "The new location needs a name.";
+  for (i = 0; i < strlen(name); i++)
+    if (!((name[i] >= 'a' && name[i] <= 'z') ||
+          (name[i] >= 'A' && name[i] <= 'Z') ||
+          (name[i] >= '0' && name[i] <= '9') ||
+          name[i] == '_' || name[i] == '-'))
+      return "'" + name + "' is not a plain name (letters, digits, dash and " +
+             "underscore).";
+
+  file = t["dir_part"] + name + ".o";
+
+  if (t["sector"] && t["sector"]->query_nodes()[t["key"]])
+    return "(" + t["key"] + ") is already occupied by a location.";
+  if (file_size(file) >= 0)
+    return "A file already exists at " + file + ".";
+
+  made = clone_object(BASE_LOCATION_OBJ);
+  if (!made)
+    return "Could not clone a location.";
+
+  made->set_file_name(file);
+  made->set_map_name(loc->query_map_name());
+  made->set_coordinates(t["x"], t["y"], t["z"]);
+  if (title && strlen(title))
+    made->set_specific_short(title);
+  if (component)
+    made->add_component(component, ([ ]));
+
+  // reciprocal open exits: a plain way through, not a road on the map
+  loc->add_exit(t["ldir"], file, "open");
+  made->add_exit(t["rdir"], loc->query_file_name(), "open");
+  made->save_me();
+  loc->save_me();
+
+  // index the new location and re-index this one so both exit graphs update
+  load_object(SECTORS_HANDLER)->add_location(made);
+  load_object(SECTORS_HANDLER)->add_location(loc);
+
+  // whoever stands here learns the new way at once, not on their next visit
+  loc->renew_exits();
+  return made;
+}
+
+/**
+ * Deletes the location next to `loc` towards `dir`, which must be bare: it
+ * carries no component but `allowed` (the plot component for a plot, nil for
+ * none at all), it is not a converted room, and nothing is in it -- unless
+ * `occupants_to` is given, where whatever is in it is moved first. The exit to
+ * it is severed, it leaves the sector index and its file is deleted.
+ *
+ * @return  ({ the file it deleted }), or a string saying why it would not
+ */
+mixed uncarve_location(object loc, string dir, string allowed,
+                       object occupants_to)
+{
+  mixed t;
+  object made;
+  object * comps, * occ;
+  string file;
+  int i;
+
+  t = _carve_target(loc, dir);
+  if (stringp(t))
+    return t;
+
+  if (!t["sector"] || !t["sector"]->query_nodes()[t["key"]])
+    return "There is no location to the " + t["ldir"] + ".";
+
+  file = t["sector"]->query_nodes()[t["key"]]["file"];
+  made = load_location(file);
+  if (!made)
+    return "Could not load the location to the " + t["ldir"] + ".";
+
+  comps = made->query_components();
+  for (i = 0; i < sizeof(comps); i++)
+    if (comps[i]->query_type() != allowed)
+      return "That location carries other components (" +
+             comps[i]->query_type() + "); take them off first.";
+  if (allowed && !made->has_component(allowed))
+    return "That location is not a bare " + allowed + ".";
+  if (strlen(made->query_original_room_file_name()))
+    return "That location was converted from a room; refusing to delete it.";
+
+  // whatever wandered in goes somewhere before the place stops existing
+  occ = all_inventory(made);
+  if (sizeof(occ) && !occupants_to)
+    return LOCATION_NOT_EMPTY;
+  for (i = 0; i < sizeof(occ); i++)
+    catch(occ[i]->move(occupants_to));
+
+  // sever the exit, re-index this location, unindex the other, destroy the
+  // object and delete its file
+  loc->remove_exit(t["ldir"]);
+  loc->save_me();
+  loc->renew_exits();
+  load_object(SECTORS_HANDLER)->add_location(loc);
+  load_object(SECTORS_HANDLER)->remove_location_from_map(file,
+    loc->query_map_name(), t["x"], t["y"], t["z"]);
+  destruct(made);
+  remove_file(file);
+  return ({ file });
+}
+
 // One line per location with its file and coordinates, "no coords" when the
 // inference could not place it. `old` (file name -> previous coordinates)
 // marks the locations a recompute moved and ends with a count of them.
@@ -1139,7 +1305,7 @@ object convert_room_to_location(object room)
   // A venture component (pub, shop) makes this location a point of interest
   // of the matching kind, so the vacancy system and the world map can find
   // it. Only ventures are inferred here; the other POI kinds (town entrance,
-  // square, crossroads, shrine) are declared by hand with the builder ring.
+  // square, crossroads, shrine) are declared by hand with the admin commands (pois).
   // A location holds at most one POI, so stop at the first venture found.
   area = location->query_area();
   venture_kinds = POI_VENTURE_KINDS;

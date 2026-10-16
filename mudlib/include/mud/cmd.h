@@ -6,6 +6,8 @@
 
 #define CMD_HANDLER "/lib/cmds/handler"
 #define CMD_BASE    "/lib/cmds/cmd"
+// base of the admin commands that work on the location stood in and its area
+#define LOCATION_CMD "/lib/cmds/location-cmd"
 
 // command positions
 #define USER_CMD 1

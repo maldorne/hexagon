@@ -46,7 +46,7 @@ string parent_area;
 // AREA_DRAFT: the map is being shaped, so a full wipe is allowed and no family
 // may be founded here. AREA_SETTLED: it has people, houses and families, and a
 // wipe would leave their records naming things that no longer exist -- so it is
-// refused. Declared by hand (build area state), never inferred from what the
+// refused. Declared by hand (areas state), never inferred from what the
 // area happens to hold at the moment.
 string area_state;
 
@@ -135,7 +135,7 @@ void log_event(string msg)
 }
 
 // Every NPC currently materialized across the area's loaded locations. Used by
-// the builder's `build npc` report to list each roster template's live members
+// the builder's `npcs` report to list each roster template's live members
 // with their position, work and home.
 object * query_live_npcs()
 {

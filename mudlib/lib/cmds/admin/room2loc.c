@@ -188,7 +188,7 @@ static int do_clean(string path, int apply, varargs int all)
   // A full wipe is a tool for shaping a map, not for a place people live in:
   // it takes the converted locations and leaves behind the houses raised on
   // top of them, owned by families whose members it just pruned. An area says
-  // for itself when that is over (build area state settled), and from then on
+  // for itself when that is over (areas state settled), and from then on
   // the answer is no. Removing stale orphans stays allowed -- it never touches
   // a location without a source .c, which is every plot and every house.
   if (all)
@@ -202,7 +202,7 @@ static int do_clean(string path, int apply, varargs int all)
     {
       notify_fail("'" + area->query_area_name() + "' is settled: it has " +
                   "people, houses and families whose records name these " +
-                  "locations. Move it back to draft first (build area state " +
+                  "locations. Move it back to draft first (areas state " +
                   AREA_DRAFT + ") if you really mean to wipe it.\n");
       return 0;
     }
