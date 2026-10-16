@@ -6,10 +6,14 @@
  * Added subraces (or cultures) for each 'generic' race, neverbot 6/2003
  * Subraces are now called lineages
  * Now the health and gp regeneration system relies on the races, neverbot 7/2003
+ * 10/2026 - A race says the kind of body it has and the parts a corpse of it
+ *           yields (see /lib/obj/death/body-parts.md)
  *
  */
 
 #include <living/races.h>
+#include <living/body-parts.h>
+#include <living/skills.h>
 #include <translations/races.h>
 
 inherit "/lib/core/object";
@@ -30,6 +34,10 @@ string init_room;
 // What code compares this race by: English, never translated, one of the
 // RACE_* ids. The name and the short are what players read.
 string race_id;
+// The kind of body, "" to follow from the race id; and what the race changes
+// of that kind's parts: part id -> spec, or 0 for a part it lacks.
+string body_kind;
+mapping body_part_changes;
 
 // New, to add races for NPCs (they are not playable)
 // Any race in /obj/races becomes playable automatically unless it has this set to 0
@@ -50,6 +58,8 @@ void create()
   lineages = ({ });
   init_room = "";
   race_id = "";
+  body_kind = "";
+  body_part_changes = ([ ]);
   // Neutral alignment by default
   ext_align = random(100);
 
@@ -268,3 +278,156 @@ string query_race_gender_string(object player, varargs int flag)
 
 int query_regen_hp(object player) { return 1; }
 int query_regen_gp(object player) { return 1; }
+
+// --- Body parts --------------------------------------------------------------
+
+/** Sets the kind of body (BODY_* in <living/body-parts.h>). */
+void set_body_kind(string kind) { body_kind = kind ? kind : ""; }
+
+/**
+ * The kind of body: the one set, or the one the race id stands for; any other
+ * race is humanoid.
+ */
+string query_body_kind()
+{
+  if (body_kind && strlen(body_kind))
+    return body_kind;
+  if (!race_id)
+    return BODY_HUMANOID;
+
+  switch (race_id)
+  {
+    case RACE_ANIMAL:  return BODY_BEAST;
+    case RACE_BIRD:    return BODY_BIRD;
+    case RACE_CRITTER: return BODY_CRITTER;
+    case RACE_INSECT:  return BODY_INSECT;
+    case RACE_REPTILE: return BODY_REPTILE;
+    case RACE_UNDEAD:  return BODY_UNDEAD;
+    case RACE_UNKNOWN: return BODY_NONE;
+  }
+  return BODY_HUMANOID;
+}
+
+// One spec, as the defaults write it.
+private mapping part_spec(string skill, int min, int weight, int value,
+                          int count, int perishable)
+{
+  return ([ BODY_PART_SKILL : skill, BODY_PART_MIN : min,
+            BODY_PART_WEIGHT : weight, BODY_PART_VALUE : value,
+            BODY_PART_COUNT : count, BODY_PART_PERISHABLE : perishable ]);
+}
+
+/**
+ * The parts every body of a kind has, before the race changes them.
+ *
+ * @param kind a BODY_* kind
+ * @return part id -> spec
+ */
+mapping query_kind_body_parts(string kind)
+{
+  switch (kind)
+  {
+    case BODY_HUMANOID:
+      return ([
+        PART_HEAD  : part_spec(SKILL_DISMEMBERING, 20, 40, 30, 1, 1),
+        PART_HAND  : part_spec(SKILL_DISMEMBERING, 10, 15, 10, 2, 1),
+        PART_HEART : part_spec(SKILL_GUTTING,      20, 10, 25, 1, 1),
+        PART_TEETH : part_spec(SKILL_PULLING,      10,  2,  5, 1, 0),
+      ]);
+    case BODY_BEAST:
+      return ([
+        PART_SKIN  : part_spec(SKILL_SKINNING,     10, 15, 20, 1, 0),
+        PART_HEAD  : part_spec(SKILL_DISMEMBERING, 20, 30, 10, 1, 1),
+        PART_HEART : part_spec(SKILL_GUTTING,      20,  8, 15, 1, 1),
+        PART_FANGS : part_spec(SKILL_PULLING,      10,  2, 10, 1, 0),
+        PART_CLAWS : part_spec(SKILL_PULLING,      10,  2,  5, 1, 0),
+      ]);
+    case BODY_BIRD:
+      return ([
+        PART_PLUMAGE : part_spec(SKILL_SKINNING,     20, 10, 15, 1, 0),
+        PART_HEAD    : part_spec(SKILL_DISMEMBERING, 10,  5,  3, 1, 1),
+        PART_HEART   : part_spec(SKILL_GUTTING,      20,  2,  5, 1, 1),
+        PART_CLAWS   : part_spec(SKILL_PULLING,      10,  1,  5, 1, 0),
+      ]);
+    case BODY_REPTILE:
+      return ([
+        PART_SCALES : part_spec(SKILL_SKINNING,     30, 20, 25, 1, 0),
+        PART_HEAD   : part_spec(SKILL_DISMEMBERING, 20, 20, 10, 1, 1),
+        PART_HEART  : part_spec(SKILL_GUTTING,      20,  5, 10, 1, 1),
+        PART_FANGS  : part_spec(SKILL_PULLING,      10,  2, 10, 1, 0),
+      ]);
+    case BODY_INSECT:
+      return ([
+        PART_MANDIBLES : part_spec(SKILL_PULLING, 20, 3, 10, 1, 0),
+      ]);
+    case BODY_CRITTER:
+      return ([
+        PART_SKIN : part_spec(SKILL_SKINNING,     5, 3, 2, 1, 0),
+        PART_TAIL : part_spec(SKILL_DISMEMBERING, 5, 1, 1, 1, 1),
+      ]);
+    case BODY_UNDEAD:
+      return ([
+        PART_HEAD  : part_spec(SKILL_DISMEMBERING, 20, 30, 10, 1, 1),
+        PART_TEETH : part_spec(SKILL_PULLING,      10,  2,  3, 1, 0),
+      ]);
+  }
+  return ([ ]);
+}
+
+/** The parts the race starts from: those of its kind of body. */
+mapping query_default_body_parts()
+{
+  return query_kind_body_parts(query_body_kind());
+}
+
+/**
+ * Adds a part, or replaces the spec of one the race has.
+ *
+ * @param id a PART_* id, or a new one that names itself in the spec
+ * @param spec the BODY_PART_* keys; a part that has one keeps the keys left out
+ */
+void add_body_part(string id, mapping spec)
+{
+  if (stringp(id) && mappingp(spec))
+    body_part_changes[id] = spec;
+}
+
+/** The race lacks a part its kind of body has. */
+void remove_body_part(string id)
+{
+  if (stringp(id))
+    body_part_changes[id] = 0;
+}
+
+/**
+ * The parts a body of this race has: the defaults with the race's changes.
+ *
+ * @return part id -> spec, a copy
+ */
+mapping query_body_parts()
+{
+  mapping parts;
+  string * ids;
+  int i;
+
+  parts = ([ ]) + query_default_body_parts();
+  ids = map_indices(body_part_changes);
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    if (!mappingp(body_part_changes[ids[i]]))
+      parts[ids[i]] = nil;
+    else if (mappingp(parts[ids[i]]))
+      parts[ids[i]] = parts[ids[i]] + body_part_changes[ids[i]];
+    else
+      parts[ids[i]] = ([ ]) + body_part_changes[ids[i]];
+  }
+
+  return parts;
+}
+
+/** The spec of one part, nil when the race has none. */
+mapping query_body_part(string id)
+{
+  return query_body_parts()[id];
+}

@@ -109,5 +109,30 @@ string query_id_from_phrase(string phrase)
   return nil;
 }
 
+/**
+ * The material id of what an object answers to query_material: weapons,
+ * armours and shields keep a number from their tables (1 wood, 2 metal,
+ * 3 leather, 4 cloth); anything else already has its id.
+ *
+ * @param material the id, or one of those numbers
+ * @return the id, nil when there is none
+ */
+string query_material_id(mixed material)
+{
+  if (stringp(material))
+    return material;
+
+  if (material == 1)
+    return MAT_WOOD;
+  if (material == 2)
+    return MAT_METAL;
+  if (material == 3)
+    return MAT_LEATHER;
+  if (material == 4)
+    return MAT_CLOTH;
+
+  return nil;
+}
+
 mapping query_phrases() { return phrases; }
 mapping query_names()   { return names; }

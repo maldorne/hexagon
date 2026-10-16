@@ -5,7 +5,9 @@
 // (/lib/obj/skills/pray.c), which works in a temple of one's own deity.
 //
 // Commands (Spanish and English): adorar / worship (take the temple's deity,
-// after a yes/no confirmation), ofrecer / offer <item | n coins>.
+// after a yes/no confirmation), ofrecer / offer <item | corpse | n coins>. A
+// corpse may be offered where it lies, in the temple; everything else has to
+// be carried.
 //
 // Who may worship and what a deity takes are the deity's (/lib/deity.c); the
 // accounts are kept by the game's deities handler. See temple.md.
@@ -281,14 +283,33 @@ private int offer_coins(object me, object god, int amount)
   return 1;
 }
 
-/** Makes an offering to the temple's deity: an item carried, or coins. */
+// What the words name: something carried, or a corpse lying in the temple.
+private object offering_named(string str, object me)
+{
+  mixed found;
+  int i;
+
+  found = find_match(str, me);
+  if (arrayp(found) && sizeof(found))
+    return found[0];
+
+  found = query_temple_place() ? find_match(str, query_temple_place()) : nil;
+  if (arrayp(found))
+    for (i = 0; i < sizeof(found); i++)
+      if (objectp(found[i]) && found[i]->query_corpse())
+        return found[i];
+
+  return nil;
+}
+
+/** Makes an offering to the temple's deity: an item carried, a corpse, or coins. */
 int do_offer(string str)
 {
   object me, god, item, place;
-  object * found;
+  object * inv;
   mapping rule;
   string refusal, short;
-  int worth;
+  int worth, i;
 
   me = this_player();
   if (!me)
@@ -313,14 +334,13 @@ int do_offer(string str)
   if (coins_named(str) > 0)
     return offer_coins(me, god, coins_named(str));
 
-  found = find_match(str, me);
-  if (!sizeof(found))
+  item = offering_named(str, me);
+  if (!item)
   {
     write(_LANG_TEMPLE_OFFER_NOTHING);
     return 1;
   }
 
-  item = found[0];
   if (item->query_property("money"))
   {
     write(_LANG_TEMPLE_OFFER_USAGE);
@@ -337,11 +357,21 @@ int do_offer(string str)
   rule = god->query_offering_rule(item);
   if (!rule)
   {
-    write(god->fill_text(_LANG_TEMPLE_OFFER_REFUSED));
+    write(god->fill_text(environment(item) == me ? _LANG_TEMPLE_OFFER_REFUSED :
+                         _LANG_TEMPLE_OFFER_REFUSED_HERE));
     return 1;
   }
 
   place = query_temple_place();
+
+  // what a corpse still holds is not part of the offering: it stays behind
+  if (item->query_corpse())
+  {
+    inv = all_inventory(item);
+    for (i = 0; i < sizeof(inv); i++)
+      inv[i]->move(place);
+  }
+
   worth = god->query_offering_worth(rule, god->value_of(item));
   short = item->query_short();
   handler("deities", place)->record_offering(me, query_temple_deity(), worth);

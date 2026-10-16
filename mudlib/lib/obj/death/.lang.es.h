@@ -41,3 +41,20 @@
 #define _LANG_LICH_NAME "lich"
 #define _LANG_LICH_DESC "No puedes ver nada más que una oscura capa con unos brillantes ojos  " + \
        " que te siguen mientras te mueves.\n"
+
+// body-part.c
+
+#define _LANG_BODY_PART_UNKNOWN_SOURCE "un ser desconocido"
+#define _LANG_BODY_PART_SHORT capitalize(name) + " de " + source
+#define _LANG_BODY_PART_PLURAL_SHORT capitalize(plural) + " de " + source
+#define _LANG_BODY_PART_LONG (query_plural_noun() ? "Son " : "Es ") + \
+      query_article() + " " + name + " de " + source + ", separad" + \
+      (query_gender() == GENDER_FEMALE ? "a" : "o") + \
+      (query_plural_noun() ? "s" : "") + " de su cuerpo.\n"
+#define _LANG_BODY_PART_STATE_VERB (plural ? "Están" : "Está")
+#define _LANG_BODY_PART_STATE_ENDING ((feminine ? "a" : "o") + (plural ? "s" : ""))
+#define _LANG_BODY_PART_STATE_FRESH _LANG_BODY_PART_STATE_VERB + " fresc" + \
+      _LANG_BODY_PART_STATE_ENDING + ".\n"
+#define _LANG_BODY_PART_STATE_STALE "Empieza" + (plural ? "n" : "") + " a oler mal.\n"
+#define _LANG_BODY_PART_STATE_ROTTEN _LANG_BODY_PART_STATE_VERB + " podrid" + \
+      _LANG_BODY_PART_STATE_ENDING + ".\n"

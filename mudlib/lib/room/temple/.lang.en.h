@@ -21,10 +21,11 @@
       "From today you belong to them, and may pray to them where they are worshipped.\n"
 #define _LANG_TEMPLE_WORSHIP_ROOM "$who$ kneels before the altar and gives their life to $god$.\n"
 
-#define _LANG_TEMPLE_OFFER_USAGE "Syntax: offer <item> | offer <amount> coins\n"
-#define _LANG_TEMPLE_OFFER_NOTHING "You carry nothing like that.\n"
+#define _LANG_TEMPLE_OFFER_USAGE "Syntax: offer <item | corpse> | offer <amount> coins\n"
+#define _LANG_TEMPLE_OFFER_NOTHING "You carry nothing like that, and there is no such body here.\n"
 #define _LANG_TEMPLE_OFFER_IN_USE "You will have to stop using it before offering it.\n"
 #define _LANG_TEMPLE_OFFER_REFUSED "$god$ does not want that. You keep it.\n"
+#define _LANG_TEMPLE_OFFER_REFUSED_HERE "$god$ does not want that.\n"
 #define _LANG_TEMPLE_OFFER_NO_COINS "$god$ does not want your coins.\n"
 #define _LANG_TEMPLE_OFFER_NO_MONEY "You do not carry that much money.\n"
 #define _LANG_TEMPLE_OFFER_COINS_ROOM "$who$ leaves some coins on the altar, and they vanish.\n"

@@ -24,12 +24,21 @@
 #define DEITY_OFFER_MIN      "min_value" // the least value the thing must have
 #define DEITY_OFFER_WORTH    "worth"     // percent of the value it counts for
 #define DEITY_OFFER_REPLY    "reply"     // what the deity answers, optional
+// for corpses and body parts: whose body it was
+#define DEITY_OFFER_PART      "part"      // part ids taken ({ "heart" }), kind part only
+#define DEITY_OFFER_RACES     "races"     // race ids; a race takes its lineages too
+#define DEITY_OFFER_ALIGN_MIN "align_min" // the real alignment of the dead, both ends in
+#define DEITY_OFFER_ALIGN_MAX "align_max"
+#define DEITY_OFFER_LEVEL_MIN "level_min" // the least level of the dead
+#define DEITY_OFFER_PLAYERS   "players"   // 0 refuses the bodies of players (taken by default)
 
 #define DEITY_OFFER_COINS  "coins"
 #define DEITY_OFFER_ITEM   "item"    // any item
 #define DEITY_OFFER_WEAPON "weapon"
 #define DEITY_OFFER_ARMOUR "armour"
 #define DEITY_OFFER_SHIELD "shield"
+#define DEITY_OFFER_CORPSE "corpse"  // a whole body, carried or lying in the temple
+#define DEITY_OFFER_BODY_PART "part" // a part taken from one (/lib/obj/death/body-part.c)
 
 // the least value an item needs to be taken by the default rule
 #define DEITY_VALUABLE_MIN 100

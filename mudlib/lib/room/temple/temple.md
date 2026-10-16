@@ -8,7 +8,7 @@ A temple is a room built on `lib/room/temple/temple-room.c` (`set_temple_deity("
 
 - a sign with the instructions, put up on every load from the help document `help/world/temples` (editing it changes every temple);
 - `adorar` / `worship`: takes the temple's deity, after a yes/no confirmation; asked again on the answer;
-- `ofrecer` / `offer <item | n coins | n <coin type>>`: an offering, followers only.
+- `ofrecer` / `offer <item | n coins | n <coin type>>`: an offering, followers only. What is offered is carried, except a corpse, which may lie in the temple; what the corpse holds stays on the floor.
 
 Who is refused, in order: no deity in the temple; a closed temple (location only: the citizenship holding the ground does not accept the deity, see the component); a player who already has one (their own: "you already belong"; another: "your god would be furious"); then the deity's own rules. Offering at another god's temple gets the same "furious" answer.
 
@@ -34,12 +34,22 @@ Gender: `query_gender()` is male unless the deity's setup calls `set_gender(GEND
 
 Rules, first match wins: `add_offering(([ DEITY_OFFER_KIND: ..., ... ]))`, `clear_offerings()`.
 
-- `DEITY_OFFER_KIND`: `coins`, `item` (anything), `weapon`, `armour`, `shield`;
-- `DEITY_OFFER_MATERIAL`: a material id, its subtypes included (`metal` takes `metal:steel`);
+- `DEITY_OFFER_KIND`: `coins`, `item` (anything but corpses and body parts), `weapon`, `armour`, `shield`, `corpse`, `part` (a body part, `/lib/obj/death/body-parts.md`);
+- `DEITY_OFFER_MATERIAL`: a material id, its subtypes included (`metal` takes `metal:steel`); the numbers weapons, armours and shields keep are read through the materials table (`query_material_id`);
 - `DEITY_OFFER_BASE`: the base file of one item, with `.c`;
 - `DEITY_OFFER_MIN`: the least value;
 - `DEITY_OFFER_WORTH`: percent of the value it counts for (100 by default);
 - `DEITY_OFFER_REPLY`: the answer, filled with `fill_text`.
+
+For `corpse` and `part`, on whose body it was:
+
+- `DEITY_OFFER_PART`: part ids (`({ PART_HEART })`), `part` only;
+- `DEITY_OFFER_RACES`: race ids, a race takes its lineages;
+- `DEITY_OFFER_ALIGN_MIN`, `DEITY_OFFER_ALIGN_MAX`: the real alignment of the dead, both ends included (a good god taking only evil bodies: `DEITY_OFFER_ALIGN_MAX : -1`);
+- `DEITY_OFFER_LEVEL_MIN`: the least level of the dead;
+- `DEITY_OFFER_PLAYERS`: 0 refuses players' bodies, taken otherwise.
+
+A corpse is worth its `query_offering_value()` and a part its value: both grow with the level of the dead and fall as they rot.
 
 The base takes coins and any item worth at least `DEITY_VALUABLE_MIN`. What no rule takes is refused and stays with the player; an item in use, a living or a pile of coins named as an item is refused too. An accepted item is destructed.
 

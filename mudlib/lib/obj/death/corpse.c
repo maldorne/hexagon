@@ -2,6 +2,7 @@
 #include <common/properties.h>
 #include <living/death.h>
 #include <living/races.h>
+#include <living/body-parts.h>
 #include <translations/common.h>
 #include <language.h>
 
@@ -18,6 +19,14 @@ string owner, race_ob, race_name, filename;
 // The name of whoever this was, kept rather than shown: the corpse reads as
 // what the world saw of them.
 string given_name;
+// Who they were, for what is done with the body afterwards (its parts, an
+// offering): race and base race (path with ".c" and id), level, real
+// alignment, who killed them and when they died; and the parts already taken,
+// part id -> how many.
+string race_id, base_race_ob, base_race_id;
+int dead_level, dead_align, died_at;
+string killer_name, killer_file;
+mapping parts_taken;
 static int decay;
 static object original;
 
@@ -43,6 +52,15 @@ void create()
   race_name = "";
   race_ob = "";
   filename = "";
+  race_id = "";
+  base_race_ob = "";
+  base_race_id = "";
+  dead_level = 0;
+  dead_align = 0;
+  died_at = time();
+  killer_name = "";
+  killer_file = "";
+  parts_taken = ([ ]);
   decay = 10;
   wasplayer = 0;
   original = nil;
@@ -136,6 +154,9 @@ void set_owner(string n, object ob)
        (ob->query_race_ob() != DEFAULT_RACE_OB))
     {
       set_race_ob(ob->query_race_ob());
+      race_id = ob->query_race_id() ? ob->query_race_id() : "";
+      base_race_ob = ob->query_base_race_ob() ? ob->query_base_race_ob() : "";
+      base_race_id = ob->query_base_race_id() ? ob->query_base_race_id() : "";
       if (ob->query_base_race_name() != "")
         set_race_name(ob->query_base_race_name());
       else
@@ -143,14 +164,14 @@ void set_owner(string n, object ob)
     }
 
     set_file_name(base_name(ob));
+    dead_level = ob->query_level();
+    dead_align = ob->query_real_align();
   }
 
   if (ob && ob->query_weight()) 
     set_weight(ob->query_weight());
   else 
     set_weight(STD_CORPSE_WEIGHT);
-  
-  set_heart_beat(DECAY_TIME);
 
   // Taniwha 1996, supress clean up if a player pegs out in a room
   if (ob && interactive(ob))
@@ -158,6 +179,119 @@ void set_owner(string n, object ob)
     wasplayer = 1;
     environment(ob)->add_timed_property("no_clean_up", 1, 30000);
   }
+}
+
+/** Who killed them: kept by name and file, the killer may be gone soon. */
+void set_killer(object killer)
+{
+  if (!killer)
+    return;
+  killer_name = killer->query_name() ? killer->query_name() : "";
+  killer_file = base_name(killer);
+}
+
+/** The body starts to rot from the moment of death. */
+void start_decay()
+{
+  died_at = time();
+  set_heart_beat(DECAY_TIME);
+}
+
+string query_race_id() { return race_id; }
+string query_base_race_ob() { return base_race_ob; }
+string query_base_race_id() { return base_race_id; }
+int query_dead_level() { return dead_level; }
+int query_dead_align() { return dead_align; }
+int query_was_player() { return wasplayer; }
+int query_died_at() { return died_at; }
+string query_killer_name() { return killer_name; }
+string query_killer_file() { return killer_file; }
+
+/** How fresh the body is, 0-100: it falls a tenth with every stage of decay. */
+int query_freshness()
+{
+  if (decay >= 10)
+    return 100;
+  if (decay <= 0)
+    return 0;
+  return decay * 10;
+}
+
+// --- Body parts ----------------------------------------------------------------
+
+/** The parts a body of its race has (part id -> spec); none for an unknown race. */
+mapping query_body_parts()
+{
+  object race;
+
+  race = (race_ob && strlen(race_ob)) ? load_object(race_ob) : nil;
+  return race ? race->query_body_parts() : ([ ]);
+}
+
+mapping query_parts_taken() { return ([ ]) + parts_taken; }
+int query_part_taken(string id) { return parts_taken[id] ? parts_taken[id] : 0; }
+
+/**
+ * How many of a part are still on the body.
+ *
+ * @param id the part id
+ * @return what its race has, less what was taken; 0 for a part it lacks
+ */
+int query_parts_left(string id)
+{
+  mapping spec;
+  int count;
+
+  spec = query_body_parts()[id];
+  if (!spec)
+    return 0;
+
+  count = intp(spec[BODY_PART_COUNT]) && spec[BODY_PART_COUNT] > 0 ?
+          spec[BODY_PART_COUNT] : 1;
+  count -= query_part_taken(id);
+  return count > 0 ? count : 0;
+}
+
+/** One more of a part is gone from the body, taken or ruined. */
+void add_part_taken(string id)
+{
+  if (stringp(id))
+    parts_taken[id] = query_part_taken(id) + 1;
+}
+
+/**
+ * What the body is worth as an offering: its race's size, grown with the
+ * level of the dead, cut by its decay and by every part taken from it.
+ */
+int query_offering_value()
+{
+  object race;
+  int size, value, fresh, taken, share, i;
+  mixed * counts;
+
+  race = (race_ob && strlen(race_ob)) ? load_object(race_ob) : nil;
+  size = race ? race->query_body_size() : 5;
+  if (size <= 0)
+    size = 1;
+
+  value = BODY_LEVEL_WORTH(CORPSE_WORTH_PER_SIZE * size, dead_level);
+
+  fresh = query_freshness();
+  if (fresh < BODY_PART_ROTTEN_WORTH)
+    fresh = BODY_PART_ROTTEN_WORTH;
+  value = value * fresh / 100;
+
+  taken = 0;
+  counts = map_values(parts_taken);
+  for (i = 0; i < sizeof(counts); i++)
+    taken += (int)counts[i];
+
+  share = 100 - taken * CORPSE_PART_TAKEN_COST;
+  if (share < CORPSE_LEAST_WORTH)
+    share = CORPSE_LEAST_WORTH;
+
+  value = value * share / 100;
+  return value > 0 ? value : 1;
 }
 
 // Next function is Hamlet's. Decides whether undead are allowed
@@ -290,6 +424,17 @@ void decay()
 }
 
 mixed * stats(){
-  return container::stats() + equip::stats();
+  return container::stats() + equip::stats() + ({
+    ({ "Race Ob", race_ob }),
+    ({ "Race Id", race_id }),
+    ({ "Base Race Ob", base_race_ob }),
+    ({ "Dead Level", dead_level }),
+    ({ "Dead Align", dead_align }),
+    ({ "Was Player", wasplayer }),
+    ({ "Killer", killer_name + " (" + killer_file + ")" }),
+    ({ "Died At", ctime(died_at) }),
+    ({ "Freshness (nosave)", query_freshness() }),
+    ({ "Parts Taken", implode(map_indices(parts_taken), ", ") }),
+  });
 }
 

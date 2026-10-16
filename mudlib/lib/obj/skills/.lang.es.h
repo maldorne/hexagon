@@ -260,3 +260,64 @@
       "$prayers$.\nSintaxis: rezar <plegaria>\n"
 #define _LANG_SKILL_PRAY_CURSED "Estás maldito y no puedes rezar.\n"
 #define _LANG_SKILL_PRAY_REFUSED "$god$ rehúye escuchar una plegaria así.\n"
+
+// base-extraction.c, shared by skinning.c, gutting.c, dismembering.c, pulling.c
+
+#define _LANG_SKILL_EXTRACT_SEPARATORS ({ " de ", " del " })
+#define _LANG_SKILL_EXTRACT_START "Te inclinas sobre el cuerpo con la hoja en la mano."
+#define _LANG_SKILL_EXTRACT_START_ROOM "se inclina sobre un cuerpo con una hoja en la mano."
+#define _LANG_SKILL_EXTRACT_SYNTAX "Sintaxis: " + query_effect_name() + " <cuerpo> | " + \
+      query_effect_name() + " <parte> de <cuerpo>\n"
+#define _LANG_SKILL_EXTRACT_NO_BLADE "Necesitas empuñar un cuchillo o una daga para poder hacer eso.\n"
+#define _LANG_SKILL_EXTRACT_NO_CORPSE "No ves ningún cuerpo así por aquí.\n"
+#define _LANG_SKILL_EXTRACT_UNKNOWN_RACE "No sabes reconocer qué ser era este, así que no " + \
+      "sabrías por dónde empezar.\n"
+#define _LANG_SKILL_EXTRACT_NOTHING "No hay nada en este cuerpo que sepas sacar así.\n"
+#define _LANG_SKILL_EXTRACT_NO_SUCH_PART "Este cuerpo no tiene nada así.\n"
+#define _LANG_SKILL_EXTRACT_WRONG_SKILL "No es así como se saca eso.\n"
+#define _LANG_SKILL_EXTRACT_TAKEN "A este cuerpo ya le han sacado eso.\n"
+#define _LANG_SKILL_EXTRACT_NOT_SKILLED "Aún no dominas lo suficiente este arte como para " + \
+      "intentarlo con este cuerpo.\n"
+#define _LANG_SKILL_EXTRACT_BROKEN "Algo falla y no consigues nada.\n"
+#define _LANG_SKILL_EXTRACT_DONE "Trabajas el " + corpse_name + " con la hoja y consigues " + \
+      part->query_article() + " " + part_name + ".\n"
+#define _LANG_SKILL_EXTRACT_DONE_ROOM caster->query_cap_name() + " trabaja el " + corpse_name + \
+      " con una hoja y consigue " + part->query_article() + " " + part_name + ".\n"
+#define _LANG_SKILL_EXTRACT_RUINED "Se te va la mano y estropeas lo que intentabas sacar del " + \
+      corpse_name + ".\n"
+#define _LANG_SKILL_EXTRACT_RUINED_ROOM caster->query_cap_name() + " trabaja el " + corpse_name + \
+      " con una hoja, pero lo estropea.\n"
+
+// skinning.c
+
+#define _LANG_SKILL_SKINNING_NAME "despellejar"
+#define _LANG_SKILL_SKINNING_ALIASES ({ "desollar" })
+#define _LANG_SKILL_SKINNING_HELP "Con 'despellejar <cuerpo>', empuñando un cuchillo o una " + \
+      "daga, separas la piel, el plumaje o las escamas de un cuerpo, para venderlos o " + \
+      "trabajarlos después. Cada clase de ser pide su destreza: un animal es más fácil " + \
+      "que un ave, y un ave más que un reptil. Mejora con la práctica.\n"
+
+// gutting.c
+
+#define _LANG_SKILL_GUTTING_NAME "destripar"
+#define _LANG_SKILL_GUTTING_ALIASES ({ "eviscerar" })
+#define _LANG_SKILL_GUTTING_HELP "Con 'destripar <cuerpo>', empuñando un cuchillo o una " + \
+      "daga, abres un cuerpo y le sacas el corazón. Un corazón se pudre con el tiempo y " + \
+      "pierde su valor. Mejora con la práctica.\n"
+
+// dismembering.c
+
+#define _LANG_SKILL_DISMEMBERING_NAME "desmembrar"
+#define _LANG_SKILL_DISMEMBERING_ALIASES ({ "cercenar" })
+#define _LANG_SKILL_DISMEMBERING_HELP "Con 'desmembrar <cuerpo>' o 'desmembrar <parte> de " + \
+      "<cuerpo>', empuñando un cuchillo o una daga, separas la cabeza, las manos o la cola " + \
+      "de un cuerpo. Lo que se corta se pudre con el tiempo y pierde su valor. Mejora con " + \
+      "la práctica.\n"
+
+// pulling.c
+
+#define _LANG_SKILL_PULLING_NAME "arrancar"
+#define _LANG_SKILL_PULLING_ALIASES ({ })
+#define _LANG_SKILL_PULLING_HELP "Con 'arrancar <cuerpo>' o 'arrancar <parte> de <cuerpo>', " + \
+      "empuñando un cuchillo o una daga, le sacas a un cuerpo los dientes, los colmillos, " + \
+      "las garras o los cuernos. No se pudren. Mejora con la práctica.\n"

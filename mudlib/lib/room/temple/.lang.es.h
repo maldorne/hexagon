@@ -21,10 +21,11 @@
       "Desde hoy le perteneces, y puedes rezarle donde se le rinde culto.\n"
 #define _LANG_TEMPLE_WORSHIP_ROOM "$who$ se postra ante el altar y consagra su vida a $god$.\n"
 
-#define _LANG_TEMPLE_OFFER_USAGE "Sintaxis: ofrecer <objeto> | ofrecer <cantidad> monedas\n"
-#define _LANG_TEMPLE_OFFER_NOTHING "No llevas nada parecido.\n"
+#define _LANG_TEMPLE_OFFER_USAGE "Sintaxis: ofrecer <objeto | cuerpo> | ofrecer <cantidad> monedas\n"
+#define _LANG_TEMPLE_OFFER_NOTHING "No llevas nada parecido, ni hay aquí un cuerpo así.\n"
 #define _LANG_TEMPLE_OFFER_IN_USE "Tendrás que dejar de usarlo antes de ofrecerlo.\n"
 #define _LANG_TEMPLE_OFFER_REFUSED "$god$ no quiere eso. Te lo guardas.\n"
+#define _LANG_TEMPLE_OFFER_REFUSED_HERE "$god$ no quiere eso.\n"
 #define _LANG_TEMPLE_OFFER_NO_COINS "$god$ no quiere tus monedas.\n"
 #define _LANG_TEMPLE_OFFER_NO_MONEY "No llevas tanto dinero encima.\n"
 #define _LANG_TEMPLE_OFFER_COINS_ROOM "$who$ deja unas monedas sobre el altar, que desaparecen.\n"

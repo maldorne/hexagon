@@ -41,3 +41,15 @@
 #define _LANG_LICH_NAME "lich"
 #define _LANG_LICH_DESC "You can see nothing but a dark cloak like area with  " + \
        "glowing eyes that follow you as you move.\n"
+
+// body-part.c
+
+#define _LANG_BODY_PART_UNKNOWN_SOURCE "an unknown being"
+#define _LANG_BODY_PART_SHORT capitalize(name) + " of " + source
+#define _LANG_BODY_PART_PLURAL_SHORT capitalize(plural) + " of " + source
+#define _LANG_BODY_PART_LONG (query_plural_noun() ? "These are " : "This is ") + \
+      query_article() + " " + name + " of " + source + ", cut from the body.\n"
+#define _LANG_BODY_PART_STATE_VERB (plural ? "They are" : "It is")
+#define _LANG_BODY_PART_STATE_FRESH _LANG_BODY_PART_STATE_VERB + " fresh.\n"
+#define _LANG_BODY_PART_STATE_STALE (plural ? "They begin" : "It begins") + " to smell.\n"
+#define _LANG_BODY_PART_STATE_ROTTEN _LANG_BODY_PART_STATE_VERB + " rotten.\n"

@@ -41,6 +41,11 @@
 #define SKILL_FOCUS       "focus"
 #define SKILL_JUDGE       "judge"
 #define SKILL_PRAY        "pray"
+// taking body parts from a corpse, one skill per kind of part
+#define SKILL_SKINNING     "skinning"
+#define SKILL_GUTTING      "gutting"
+#define SKILL_DISMEMBERING "dismembering"
+#define SKILL_PULLING      "pulling"
 
 // Skills every player must always have. Granted silently and idempotently
 // on each login (grant_default_skills, called from living::start_player):

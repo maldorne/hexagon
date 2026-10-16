@@ -288,7 +288,7 @@ int do_death(varargs object killed_by)
   return 0;
 }
 
-object make_corpse()
+object make_corpse(varargs object killer)
 {
   object corpse;
   object money;
@@ -305,6 +305,7 @@ object make_corpse()
   // What the world saw, not who they were: a citizen goes by their trade in
   // every room list, and their corpse reads the same. The name is kept on it.
   corpse->set_owner(this_object()->query_cap_name(), this_object());
+  corpse->set_killer(killer);
 
   corpse->start_decay();
 
@@ -431,7 +432,7 @@ static void actual_death(object initiator)
   // so creators could mask this in their NPCs
   // Feb. 28, 1996
   object corp;
-  corp = make_corpse();
+  corp = make_corpse(initiator != this_object() ? initiator : nil);
 
   // dw if second_life returns false... do stupid things... 
   if (!((int)this_object()->second_life(corp, initiator))) 

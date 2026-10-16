@@ -81,6 +81,18 @@ void create()
     // not: every worshipper is given it when they take a deity.
     SKILL_PRAY :
       ({ SKILLS_PATH + SKILL_PRAY, 1, 0, ACTIVE_SKILL, SKILL_KIND_FIXED, }),
+
+    // active skills: taking body parts from a corpse, each kind of part by its
+    // own skill (the race says which). Taught by whoever teaches them, then
+    // they climb with use.
+    SKILL_SKINNING :
+      ({ SKILLS_PATH + SKILL_SKINNING, 10, 0, ACTIVE_SKILL, }),
+    SKILL_GUTTING :
+      ({ SKILLS_PATH + SKILL_GUTTING, 10, 0, ACTIVE_SKILL, }),
+    SKILL_DISMEMBERING :
+      ({ SKILLS_PATH + SKILL_DISMEMBERING, 10, 0, ACTIVE_SKILL, }),
+    SKILL_PULLING :
+      ({ SKILLS_PATH + SKILL_PULLING, 10, 0, ACTIVE_SKILL, }),
   ]);
 }
 

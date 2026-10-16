@@ -25,6 +25,36 @@ string query_sheet_name()
   return base->query_short() + " (" + capitalize(query_name()) + ")";
 }
 
+/**
+ * A lineage has the body of its base race: its kind, unless the lineage sets
+ * its own.
+ */
+string query_body_kind()
+{
+  object base;
+
+  if (body_kind && strlen(body_kind))
+    return body_kind;
+
+  base = base_race ? load_object(base_race) : nil;
+  return base ? base->query_body_kind() : ::query_body_kind();
+}
+
+/**
+ * The parts a lineage starts from are its base race's, with the base race's
+ * changes; add_body_part and remove_body_part change them for the lineage.
+ */
+mapping query_default_body_parts()
+{
+  object base;
+
+  if (body_kind && strlen(body_kind))
+    return ::query_default_body_parts();
+
+  base = base_race ? load_object(base_race) : nil;
+  return base ? base->query_body_parts() : ::query_default_body_parts();
+}
+
 void start_player(object ob) 
 { 
   ::start_player(ob);

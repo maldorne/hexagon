@@ -13,7 +13,8 @@
 //   - alignment: a band of the real alignment
 //   - guilds: required (any of them) and forbidden guild paths
 //   - citizenship: the worshipper's own citizenship must accept the deity
-// Offerings are rules, first match wins (add_offering); prayers are ids with
+// Offerings are rules, first match wins (add_offering): coins, items, and
+// corpses and body parts filtered by whose body it was; prayers are ids with
 // the words that ask for them (add_prayer). A deity changes the defaults in its
 // setup, and masks grant_prayer for a prayer of its own.
 
@@ -298,8 +299,11 @@ void clear_offerings() { offerings = ({ }); }
 mapping * query_offerings() { return offerings; }
 
 // Whether a material id is the one named or below it ("metal:steel" is metal).
+// Weapons, armours and shields keep their material as a number: the materials
+// table turns it into its id.
 private int material_matches(mixed material, string wanted)
 {
+  material = table("materials")->query_material_id(material);
   if (!stringp(material))
     return 0;
   return material == wanted ||
@@ -307,13 +311,67 @@ private int material_matches(mixed material, string wanted)
           material[0 .. strlen(wanted)] == wanted + ":");
 }
 
-/** The value of an item, 0 when it has none. */
+/**
+ * The value of an item, 0 when it has none. A corpse has no value of its own
+ * and says what it is worth as an offering.
+ */
 int value_of(object item)
 {
   mixed value;
 
-  value = item ? item->query_value() : 0;
+  if (!item)
+    return 0;
+
+  value = item->query_corpse() ? item->query_offering_value() : item->query_value();
   return intp(value) ? value : 0;
+}
+
+// Whether a rule's filters on the dead (race, alignment, level, players) let a
+// corpse or a body part through. A body part answers query_source_*.
+private int body_matches(mapping rule, object item)
+{
+  mixed races, parts;
+  string race, base;
+  int align, level, player;
+
+  if (item->query_body_part())
+  {
+    race = item->query_source_race_id();
+    base = item->query_source_base_race_id();
+    align = item->query_source_align();
+    level = item->query_source_level();
+    player = item->query_source_was_player();
+
+    parts = rule[DEITY_OFFER_PART];
+    if (stringp(parts))
+      parts = ({ parts });
+    if (arrayp(parts) && member_array(item->query_part_id(), parts) == -1)
+      return 0;
+  }
+  else
+  {
+    race = item->query_race_id();
+    base = item->query_base_race_id();
+    align = item->query_dead_align();
+    level = item->query_dead_level();
+    player = item->query_was_player();
+  }
+
+  races = rule[DEITY_OFFER_RACES];
+  if (arrayp(races) && member_array(race, races) == -1 &&
+      (!base || !strlen(base) || member_array(base, races) == -1))
+    return 0;
+
+  if (intp(rule[DEITY_OFFER_ALIGN_MIN]) && align < rule[DEITY_OFFER_ALIGN_MIN])
+    return 0;
+  if (intp(rule[DEITY_OFFER_ALIGN_MAX]) && align > rule[DEITY_OFFER_ALIGN_MAX])
+    return 0;
+  if (intp(rule[DEITY_OFFER_LEVEL_MIN]) && level < rule[DEITY_OFFER_LEVEL_MIN])
+    return 0;
+  if (player && !undefinedp(rule[DEITY_OFFER_PLAYERS]) && !rule[DEITY_OFFER_PLAYERS])
+    return 0;
+
+  return 1;
 }
 
 /**
@@ -347,7 +405,18 @@ mapping query_offering_rule(object item)
 
     switch (rule[DEITY_OFFER_KIND])
     {
+      // bodies and their parts are taken only by the rules made for them
       case DEITY_OFFER_ITEM:
+        if (item->query_corpse() || item->query_body_part())
+          continue;
+        break;
+      case DEITY_OFFER_CORPSE:
+        if (!item->query_corpse() || !body_matches(rule, item))
+          continue;
+        break;
+      case DEITY_OFFER_BODY_PART:
+        if (!item->query_body_part() || !body_matches(rule, item))
+          continue;
         break;
       case DEITY_OFFER_WEAPON:
         if (!item->query_weapon())

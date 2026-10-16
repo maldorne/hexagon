@@ -42,6 +42,10 @@ A guild teaches skills with `add_guild_skill(id, guild_level [, value])` in its 
 
 A skill that only the members of one guild may use (a paladin's faith) checks it in `extra_checks`: `query_guild_refusal(caster, <guild path>)` (`lib/effects/guild_fixes.c`, inherited by every effect). For someone outside that guild it returns the guild's `query_non_member_refusal` (nil by default, so the skill stays free; a guild masks it with a message in character). For a member, or when no path is given, it returns the guild's `query_powers_refusal` (a message while the guild withholds its gifts, nil otherwise).
 
+## Body parts
+
+`skinning`, `gutting`, `dismembering` and `pulling` take parts from a corpse, each the parts its race gives that skill; they share `base-extraction.c`. See `/lib/obj/death/body-parts.md`.
+
 ## Listing
 
 The `skills` command draws a bar for percentage skills, one slot per level for levelled ones and a single slot for fixed ones; passives keep `(*)`:
