@@ -563,7 +563,7 @@ private string * known_template_fields()
             "max_hp", "max_gp", "random_stats", "social_obs", "equipment",
             "money", "components", "timetable", "skills", "spells",
             "extracted_from", "citizenship", "proper_name", "unique",
-            "guild_level", "swims", "loved", "hated", "liked", "disliked", "liked_message",
+            "guild_level", "job_level", "swims", "loved", "hated", "liked", "disliked", "liked_message",
             "disliked_message", "attack_skills" });
 }
 
