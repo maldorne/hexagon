@@ -122,7 +122,7 @@ it is with `short`, `ids` and `description` (a heap of rubble, broken tiles),
 and the conversion never infers it. In `props set` a list is written
 `({ stones, heaps })`.
 
-Two more types are plain things to look at: `milestone` and `arch`, with no
+Three more types are plain things to look at: `milestone`, `arch` and `pergola`, with no
 actions of their own. A milestone may carry an `inscription` override, and then
 the generic `read` shows it; without one it is only looked at. An arch takes its
 description from the instance when it is a particular one.

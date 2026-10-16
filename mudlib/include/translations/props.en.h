@@ -90,6 +90,19 @@
 #define _LANG_PROP_ARCH_LONG              "A $material_phrase$ arch stands over the passage."
 
 // ************************************************************
+//  pergola
+// ************************************************************
+#define _LANG_PROP_PERGOLA_ID                "pergola"
+#define _LANG_PROP_PERGOLA_ID_ALIAS_1        "arbour"
+#define _LANG_PROP_PERGOLA_ID_ALIAS_2        "arbor"
+
+#define _LANG_PROP_PERGOLA_NOUN              "pergola"
+#define _LANG_PROP_PERGOLA_NOUN_PLURAL       "pergolas"
+
+#define _LANG_PROP_PERGOLA_SHORT             "a $material_phrase$ pergola"
+#define _LANG_PROP_PERGOLA_LONG              "A $material_phrase$ pergola on carved pillars shades the ground, climbing plants twisting around the pillars and up to the top."
+
+// ************************************************************
 //  chair
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "chair"

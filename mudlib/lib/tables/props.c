@@ -114,6 +114,32 @@ void create()
     ]),
 
     // ------------------------------------------------------------
+    //  pergola — a pergola over a path or a yard. Stateless, only
+    //  looked at.
+    // ------------------------------------------------------------
+    "pergola": ([
+
+      PROP_TYPE_ID_LIST: ({
+        _LANG_PROP_PERGOLA_ID,
+        _LANG_PROP_PERGOLA_ID_ALIAS_1,
+        _LANG_PROP_PERGOLA_ID_ALIAS_2,
+      }),
+
+      PROP_TYPE_NOUN:             _LANG_PROP_PERGOLA_NOUN,
+      PROP_TYPE_NOUN_PLURAL:      _LANG_PROP_PERGOLA_NOUN_PLURAL,
+      PROP_TYPE_GENDER:           GENDER_FEMALE,
+      PROP_TYPE_DEFAULT_MATERIAL: MAT_STONE,
+
+      PROP_TYPE_SHORT_KEY:  _LANG_PROP_PERGOLA_SHORT,
+      PROP_TYPE_LONG_KEY:   _LANG_PROP_PERGOLA_LONG,
+      PROP_TYPE_MATERIALS:  ({ MAT_STONE, MAT_WOOD, MAT_METAL }),
+
+      PROP_TYPE_DEFAULT_STATE: ([ ]),
+
+      PROP_TYPE_ACTIONS: ([ ]),
+    ]),
+
+    // ------------------------------------------------------------
     //  chair — full state cycle: sit/stand, tip/right
     // ------------------------------------------------------------
     "chair": ([

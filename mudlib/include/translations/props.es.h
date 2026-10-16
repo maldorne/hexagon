@@ -95,6 +95,19 @@
 #define _LANG_PROP_ARCH_LONG              "Un arco $material_phrase$ se alza sobre el paso."
 
 // ************************************************************
+//  pérgola
+// ************************************************************
+#define _LANG_PROP_PERGOLA_ID                "pérgola"
+#define _LANG_PROP_PERGOLA_ID_ALIAS_1        "pergola"
+#define _LANG_PROP_PERGOLA_ID_ALIAS_2        "pergolado"
+
+#define _LANG_PROP_PERGOLA_NOUN              "pérgola"
+#define _LANG_PROP_PERGOLA_NOUN_PLURAL       "pérgolas"
+
+#define _LANG_PROP_PERGOLA_SHORT             "una pérgola $material_phrase$"
+#define _LANG_PROP_PERGOLA_LONG              "Una pérgola $material_phrase$ sobre pilares tallados da sombra al suelo, con plantas trepadoras enredadas en los pilares hasta lo alto."
+
+// ************************************************************
 //  silla
 // ************************************************************
 #define _LANG_PROP_CHAIR_ID             "silla"
