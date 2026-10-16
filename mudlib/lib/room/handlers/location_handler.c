@@ -1082,6 +1082,31 @@ object convert_room_to_location(object room)
     ret += "   Adding component vault.\n";
   }
 
+  // A fines office room becomes a fines component, which puts its own sign up
+  // from the fines help document on every load; the law the room names, if
+  // any, is kept (otherwise the area's rules).
+  if (room->query_fines_office() &&
+      !location->has_component(LOCATION_COMPONENT_FINES))
+  {
+    mapping fines_attrs;
+
+    fines_attrs = ([ ]);
+    if (stringp(room->query_fines_law()))
+      fines_attrs["fines_law"] = room->query_fines_law();
+
+    location->add_component(LOCATION_COMPONENT_FINES, fines_attrs);
+    ret += "   Adding component fines.\n";
+  }
+
+  // A jail cell room becomes a jail component: the same refusal of exits to
+  // a prisoner and the same bribe command.
+  if (room->query_jail_cell() &&
+      !location->has_component(LOCATION_COMPONENT_JAIL))
+  {
+    location->add_component(LOCATION_COMPONENT_JAIL, ([ ]));
+    ret += "   Adding component jail.\n";
+  }
+
   // A library room becomes a library component, with the books it declares.
   // On a reconversion the books the room declares now are added to the ones
   // the library already holds, so those deposited in it are kept.
@@ -1229,14 +1254,15 @@ object convert_room_to_location(object room)
 
   // A sign posted in the room (add_sign) becomes a sign component on the
   // location, which re-materialises the read-able item on every load.
-  // Ventures (pub, shop), post offices, vaults, libraries and the entrances and
+  // Ventures (pub, shop), post offices, vaults, fines offices, libraries and the entrances and
   // halls of guilds create and manage their own sign (the menu, the price
-  // board, the mail instructions, the vault help, the guild's information)
+  // board, the mail instructions, the vault help, the fines help, the guild's information)
   // through their component, and that item also carries a read message -- so
   // skip auto-detection here for them, or the sign would be duplicated (its
   // own copy plus a captured sign-component copy).
   if (!room->query_pub() && !room->query_shop() && !room->query_post_office() &&
       !room->query_vault_room() && !room->query_library() &&
+      !room->query_fines_office() &&
       !room->query_guild_entrance() && !room->query_guild_room())
   {
     mapping sign;

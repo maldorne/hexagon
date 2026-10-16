@@ -220,11 +220,15 @@ lying. Otherwise:
 A prisoner is never attacked by guards or responders while serving (`guard`
 checks `query_jail_left`).
 
-### Serving the sentence: the `jail` component
+### Serving the sentence: the jail cell
 
-`lib/location/components/jail.c` goes on the prison location where prisoners
-land. Its location refuses any typed exit (`query_exit_refusal`) to a living
-whose sentence has not ended and says how long is left. There is no heart beat:
+The cell is `lib/room/justice/jail-cell.c` for a room (inherit it), or the `jail`
+component (`lib/location/components/jail.c`) for a location; both are thin
+wrappers over `lib/room/justice/jail-actions.c`, which holds the commands and
+checks, so they behave the same. The cell goes where prisoners land (the
+citizenship's `prison`). It refuses any typed exit (`query_exit_refusal`: the
+room hook of `lib/room/exits.c`, the location's own) to a living whose sentence
+has not ended and says how long is left. There is no heart beat:
 
 - the clock is checked lazily by `query_jail_left(who)` -- on every exit attempt
   and when a player logs in (`watch_login`, from `start_player`);
@@ -235,16 +239,20 @@ whose sentence has not ended and says how long is left. There is no heart beat:
 
 Only typed exits are blocked: teleports and forced moves are not.
 
-The component adds `sobornar` / `bribe`: the price is `query_bribe_cost()`
+The cell adds `sobornar` / `bribe`: the price is `query_bribe_cost()`
 (`query_bribe_cost_per_point()` for each point owed, paid win or lose); with
 `query_bribe_chance()` percent the prisoner is released as if the time were
 served, otherwise `query_bribe_fail_points()` points and the time they are worth
 (within the maximum) are added.
 
-### Paying: the `fines` component
+### Paying: the fines office
 
-`lib/location/components/fines.c` goes on the place where fines are paid. The law
-is the place's jurisdiction. Commands (Spanish and English):
+The office is `lib/room/justice/fines-office.c` for a room (inherit it), or the
+`fines` component (`lib/location/components/fines.c`) for a location; both are
+thin wrappers over `lib/room/justice/fines-actions.c`. The law is the place's
+jurisdiction; a room is not a location and has none, so a room office names its
+citizenship with `set_fines_law("<citizenship>")` (a location takes its area's,
+unless the converted room named one). Commands (Spanish and English):
 
 - `perdon` / `owe`: points and fine. The fine is `points *
   query_fine_per_point()`, plus `query_fine_level_percent()` per level of the one
@@ -253,6 +261,18 @@ is the place's jurisdiction. Commands (Spanish and English):
   wiped (logged in the `crimes` log) and the sentence for it ends.
 - `fianza <player>` / `bail`: the same for a prisoner who is online, paid by
   the one who types it (`bail`); the prisoner is freed at once.
+
+The office puts up a sign with these instructions (help document
+`help/world/fines`, read on every load).
+
+**Place the office outside the city walls.** The guards bar the wanted from the
+gates (see "At a door"), so somebody wanted cannot walk in to pay; the office
+stands beyond the walls, in an area whose law is the city's, or names it with
+`set_fines_law`.
+
+Conversion (`room2loc`) gives a room that inherits `fines-office.c` the `fines`
+component (keeping the law it named) and one that inherits `jail-cell.c` the
+`jail` component.
 
 ### Handler API
 

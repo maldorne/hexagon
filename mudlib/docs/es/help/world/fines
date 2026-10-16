@@ -1,0 +1,10 @@
+@verbs multas fines
+@tier player
+@title cómo saldar una multa o pagar la fianza de un preso
+
+               Oficina de multas                      
+                                                      
+    - 'perdon' o 'multas' para ver lo que debes.        
+    - 'pagar' para saldar la multa y limpiar tu nombre. 
+    - 'fianza <jugador>' para pagar la de un preso.    
+                                                      

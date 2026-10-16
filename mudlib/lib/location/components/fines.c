@@ -1,17 +1,16 @@
 // Fines component. The location is the office where what a record owes is
-// paid, and where somebody else's bail is posted. The law is the one of the
-// place's area (the crimes handler's jurisdiction); the fine is the points the
-// player has in that country times the fine per point, grown by the player's
-// level (see /lib/handlers/crimes.md).
+// paid, and where somebody else's bail is posted: the same behaviour as the
+// fines office room (/lib/room/justice/fines-office.c), both from
+// fines-actions.c. The law is the one of the place's area, unless the room it
+// was converted from named its own.
 //
-// Commands (Spanish and English): perdon / owe (what you owe), pagar / pay
-// (settle it: the points are wiped), fianza / bail <player> (pay the fine of a
-// prisoner and free them).
+// Nothing of the sign is stored: it is put up on every load from the fines
+// help document, so changing that document changes every office.
 
 #include <room/location.h>
-#include <language.h>
 
 inherit component "/lib/location/component.c";
+inherit actions   "/lib/room/justice/fines-actions.c";
 
 void create()
 {
@@ -21,173 +20,51 @@ void create()
 
 void dest_me() {}
 
+object query_fines_place() { return query_entity(); }
+
 void init()
 {
-  string * verbs;
-  int i;
-
-  verbs = _LANG_FINES_CMDS_OWED;
-  for (i = 0; i < sizeof(verbs); i++)
-    add_action("do_owed", verbs[i]);
-
-  verbs = _LANG_FINES_CMDS_PAY;
-  for (i = 0; i < sizeof(verbs); i++)
-    add_action("do_pay", verbs[i]);
-
-  verbs = _LANG_FINES_CMDS_BAIL;
-  for (i = 0; i < sizeof(verbs); i++)
-    add_action("do_bail", verbs[i]);
+  actions::init();
 }
 
-// The citizenship whose law rules the office, "" when none does.
-private string _jurisdiction()
+void initialize(object loc)
 {
-  if (!query_entity())
-    return "";
+  component::initialize(loc);
 
-  return (string)handler("crimes", query_entity())->query_jurisdiction(
-           query_entity());
+  if (loc)
+    create_fines_sign(loc);
 }
 
-// "$tag$" -> value, for each pair of a mapping.
-private string _fill(string text, mapping values)
+// Take the sign out of the location. The location destructs a component it
+// drops without calling it, so whoever removes this one calls this first.
+void take_down()
 {
-  string * tags;
-  int i;
-
-  tags = map_indices(values);
-  for (i = 0; i < sizeof(tags); i++)
-    text = replace_string(text, "$" + tags[i] + "$", "" + values[tags[i]]);
-
-  return text;
+  take_down_fines_sign();
 }
 
-/** What the player owes. */
-int do_owed(string str)
+mapping query_auto_load_attributes()
 {
-  object who, crimes;
-  string law;
-  int fine;
-
-  who = this_player();
-  law = _jurisdiction();
-  if (!who)
-    return 0;
-
-  if (!strlen(law))
-  {
-    write(_LANG_FINES_NO_LAW);
-    return 1;
-  }
-
-  crimes = handler("crimes", query_entity());
-  fine = (int)crimes->query_fine_of(who, law);
-  if (fine <= 0)
-  {
-    write(_LANG_FINES_OWE_NOTHING);
-    return 1;
-  }
-
-  write(_fill(_LANG_FINES_OWE, ([
-    "points" : (int)crimes->query_points(who->query_name(), law),
-    "fine"   : fine ])));
-  return 1;
+  return component::query_auto_load_attributes() +
+         (fines_law && strlen(fines_law) ? ([ "fines_law" : fines_law ]) : ([ ]));
 }
 
-/** Settles the fine: all of it, or nothing. */
-int do_pay(string str)
+void init_auto_load_attributes(mapping args)
 {
-  object who, crimes;
-  string law;
-  int fine, paid;
+  component::init_auto_load_attributes(args);
 
-  who = this_player();
-  law = _jurisdiction();
-  if (!who)
-    return 0;
-
-  if (!strlen(law))
-  {
-    write(_LANG_FINES_NO_LAW);
-    return 1;
-  }
-
-  crimes = handler("crimes", query_entity());
-  fine = (int)crimes->query_fine_of(who, law);
-  if (fine <= 0)
-  {
-    write(_LANG_FINES_OWE_NOTHING);
-    return 1;
-  }
-
-  paid = (int)crimes->pay_fine(who, who, law);
-  if (paid <= 0)
-    write(_fill(_LANG_FINES_NO_MONEY, ([ "fine" : fine ])));
-  else
-    write(_fill(_LANG_FINES_PAID, ([ "fine" : paid ])));
-
-  return 1;
-}
-
-/** Pays the fine of a prisoner, who is freed. */
-int do_bail(string str)
-{
-  object who, prisoner, crimes;
-  string law;
-  int fine, paid;
-
-  who = this_player();
-  law = _jurisdiction();
-  if (!who)
-    return 0;
-
-  if (!strlen(law))
-  {
-    write(_LANG_FINES_NO_LAW);
-    return 1;
-  }
-
-  if (!str || !strlen(str))
-  {
-    notify_fail(_LANG_FINES_BAIL_USAGE);
-    return 0;
-  }
-
-  prisoner = find_player(lower_case(str));
-  if (!prisoner)
-  {
-    write(_LANG_FINES_BAIL_NOBODY);
-    return 1;
-  }
-
-  crimes = handler("crimes", query_entity());
-  fine = (int)crimes->query_fine_of(prisoner, law);
-  paid = (int)crimes->bail(who, prisoner, law);
-
-  switch (paid)
-  {
-    case -2:
-      write(_LANG_FINES_BAIL_NOT_JAILED);
-      break;
-    case -1:
-      write(_LANG_FINES_BAIL_NOTHING);
-      break;
-    case 0:
-      write(_fill(_LANG_FINES_BAIL_NO_MONEY, ([ "fine" : fine ])));
-      break;
-    default:
-      write(_fill(_LANG_FINES_BAIL_PAID, ([
-        "fine" : paid, "who" : prisoner->query_cap_name() ])));
-      break;
-  }
-
-  return 1;
+  if (!undefinedp(args["fines_law"]))
+    set_fines_law(args["fines_law"]);
 }
 
 string query_info()
 {
   string law;
 
-  law = _jurisdiction();
+  law = query_fines_jurisdiction();
   return strlen(law) ? "law of " + law : "no law";
+}
+
+mixed * stats()
+{
+  return component::stats() + actions::stats();
 }
