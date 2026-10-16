@@ -385,7 +385,16 @@ private void pay_reward(object who, mapping reward)
       break;
 
     case REWARD_SKILL:
-      who->add_known_skill(value);
+      // a skill id, or ({ id, value }) with the value by the skill's kind
+      // (ability, level); a value never lowers what the player already has
+      if (pointerp(value))
+      {
+        who->add_known_skill(value[0]);
+        if (who->query_skill_value(value[0]) < value[1])
+          who->set_skill_value(value[0], value[1]);
+      }
+      else
+        who->add_known_skill(value);
       break;
   }
 }

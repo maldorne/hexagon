@@ -362,6 +362,10 @@
 #define _LANG_SKILL_GAINED_POST "!\n"
 #define _LANG_SKILL_IMPROVED_PRE "¡Has mejorado tus habilidades en "
 #define _LANG_SKILL_IMPROVED_POST "!\n"
+#define _LANG_SKILL_LEVEL_UP_PRE "Tu habilidad en "
+#define _LANG_SKILL_LEVEL_UP_MID " ha subido al nivel "
+#define _LANG_SKILL_LEVEL_UP_POST ".\n"
+#define _LANG_SKILL_FIXED_TEXT "conocida"
 #define _LANG_SKILL_DEAD_USE "Eres un espíritu, por lo que no puedes hacer uso de tus habilidades.\n"
 // Ids de categoría de habilidad (de <living/skills.h>) a su nombre visible.
 #define _LANG_SKILL_CATEGORIES ([ \

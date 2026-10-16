@@ -17,7 +17,9 @@ mapping skill_list;            // skill_list[name] = ({ row })
                               //    keyed by the names in known_skills
                               // A subset of the skills table, holding only
                               // the skills the player actually knows
-                              //    row == ({ skill filename, percentage, times_used, passive })
+                              //    row == ({ skill filename, value, times_used, passive [, kind [, levels]] })
+                              //    the value means the skill's kind: a percentage, a
+                              //    level or 1 for known (see <living/skills.h>)
                               //    a passive skill has no associated action to run
 
 void create()
@@ -56,9 +58,11 @@ int query_known_skill(string name)
 }
 
 int query_skill_ability(string str);
+int query_skill_kind(string str);
 int adjust_skill_ability(string str, int value, varargs int silence);
 int update_skill_used_times(string str);
 int query_skill_used_times(string str);
+int query_skill_level(string str);
 
 // HACK
 /*
@@ -95,6 +99,87 @@ private int skill_type(string id)
   return skill_list[id][3];
 }
 
+/**
+ * The row of a skill as the catalogue has it now, or the one stored when it
+ * was learnt if the catalogue no longer lists it.
+ * @param id the skill id
+ * @return the row, or ({ }) when the skill is not known and not listed
+ */
+private mixed * skill_row(string id)
+{
+  mixed * data;
+
+  data = table("skills")->query_skill_data(id);
+
+  if (arrayp(data) && sizeof(data))
+    return data;
+
+  if (mappingp(skill_list) && arrayp(skill_list[id]))
+    return skill_list[id];
+
+  return ({ });
+}
+
+/**
+ * Number of levels of a levelled skill, as the catalogue says now.
+ * @param id the skill id
+ * @return the level count, at least 1; 0 if the skill is not levelled
+ */
+private int skill_levels(string id)
+{
+  mixed * row;
+
+  if (query_skill_kind(id) != SKILL_KIND_LEVELLED)
+    return 0;
+
+  row = skill_row(id);
+
+  if (sizeof(row) > SKILL_DATA_LEVELS && intp(row[SKILL_DATA_LEVELS]) &&
+      row[SKILL_DATA_LEVELS] > 1)
+    return row[SKILL_DATA_LEVELS];
+
+  return 1;
+}
+
+/**
+ * The stored value of a known skill, clamped to what its kind allows now
+ * (a skill may have changed kind or levels since it was saved). The stored
+ * value is corrected when it was out of range.
+ * @param id the skill id
+ * @return the value, 0 if the skill is not known
+ */
+private int clamped_value(string id)
+{
+  int value, max;
+
+  if (member_array(id, known_skills) == -1)
+    return 0;
+
+  value = skill_list[id][SKILL_DATA_VALUE];
+
+  switch (query_skill_kind(id))
+  {
+    case SKILL_KIND_FIXED:
+      max = 1;
+      break;
+    case SKILL_KIND_LEVELLED:
+      max = skill_levels(id);
+      break;
+    default:
+      max = 100;
+      break;
+  }
+
+  if (value < 1)
+    value = 1;
+  if (value > max)
+    value = max;
+
+  skill_list[id][SKILL_DATA_VALUE] = value;
+
+  return value;
+}
+
 // One action per skill this living actually knows. Kept apart from the verbs
 // above because it can only run once the skills are known: a player's are
 // restored from its savefile long after create, and until then there is
@@ -125,6 +210,69 @@ private void known_skill_commands()
     for (w = 0; w < sizeof(words); w++)
       add_private_action("do_skill", explode(words[w], " ")[0]);
   }
+}
+
+/**
+ * The graphic of a skill in the listing, 22 columns wide like the bar of a
+ * percentage skill: the bar itself, one slot per level with the known ones
+ * filled ([#][#][ ]), or a single filled slot for a fixed skill.
+ * @param id the skill id of a known skill
+ * @return the cell, with colour codes
+ */
+private string skill_value_cell(string id)
+{
+  string cell;
+  int i, level, levels, width;
+
+  switch (query_skill_kind(id))
+  {
+    case SKILL_KIND_LEVELLED:
+      level = query_skill_level(id);
+      levels = skill_levels(id);
+      cell = "";
+      for (i = 1; i <= levels; i++)
+      {
+        if (i <= level)
+          cell += "[%^BOLD%^GREEN%^#%^RESET%^]";
+        else
+          cell += "[ ]";
+      }
+      width = 3 * levels;
+      break;
+
+    case SKILL_KIND_FIXED:
+      cell = "[%^BOLD%^GREEN%^#%^RESET%^]";
+      width = 3;
+      break;
+
+    default:
+      return "[" + percentage_bar(query_skill_ability(id)) + "]";
+  }
+
+  // pad to the width of a percentage bar, so the text that follows lines up
+  for (; width < 22; width++)
+    cell += " ";
+
+  return cell;
+}
+
+/**
+ * The text after the graphic of a skill in the listing: 45%, 2/3, or the
+ * word for a fixed skill.
+ * @param id the skill id of a known skill
+ * @return the text
+ */
+private string skill_value_text(string id)
+{
+  switch (query_skill_kind(id))
+  {
+    case SKILL_KIND_LEVELLED:
+      return "" + query_skill_level(id) + "/" + skill_levels(id);
+    case SKILL_KIND_FIXED:
+      return _LANG_SKILL_FIXED_TEXT;
+  }
+
+  return "" + query_skill_ability(id) + "%";
 }
 
 int list_skills(varargs string str)
@@ -209,9 +357,9 @@ int list_skills(varargs string str)
         passive_skills_found = 1;
       }
       
-      ret += sprintf("\t%-35s %|25s (%s)\n", skill_name,
-                "["+percentage_bar(query_skill_ability(known_skills[i]))+"]",
-                ""+query_skill_ability(known_skills[i])+"%");
+      ret += sprintf("\t%-35s %s (%s)\n", skill_name,
+                skill_value_cell(known_skills[i]),
+                skill_value_text(known_skills[i]));
     }
   }
     
@@ -306,71 +454,247 @@ int remove_known_skill(string str)
     
 } /* remove_known_skill() */
 
-// Percentage mastery of a skill
-int query_skill_ability(string str)
+/**
+ * The kind of a skill, read from the catalogue now and, if the catalogue no
+ * longer lists it, from the row stored when it was learnt. A row without a
+ * kind entry is a percentage skill.
+ * @param str the skill id
+ * @return SKILL_KIND_PERCENTAGE, SKILL_KIND_LEVELLED or SKILL_KIND_FIXED
+ */
+int query_skill_kind(string str)
 {
-  int i;
+  mixed * row;
 
-  // Not known
-  if ((i = member_array(str, known_skills)) == -1)
-    return 0;
+  row = skill_row(str);
 
-  return skill_list[str][1];
+  if (sizeof(row) > SKILL_DATA_KIND && intp(row[SKILL_DATA_KIND]))
+    return row[SKILL_DATA_KIND];
+
+  return SKILL_KIND_PERCENTAGE;
 }
 
+/**
+ * Percentage mastery of a percentage skill (1-100).
+ * @param str the skill id
+ * @return the ability; 0 if the skill is not known or is of another kind
+ *         (use query_skill_level or query_known_skill for those)
+ */
+int query_skill_ability(string str)
+{
+  if (query_skill_kind(str) != SKILL_KIND_PERCENTAGE)
+    return 0;
+
+  return clamped_value(str);
+}
+
+/**
+ * Level of a levelled skill.
+ * @param str the skill id
+ * @return the level (1..max); 0 if the skill is not known or not levelled
+ */
+int query_skill_level(string str)
+{
+  if (query_skill_kind(str) != SKILL_KIND_LEVELLED)
+    return 0;
+
+  return clamped_value(str);
+}
+
+/**
+ * Number of levels of a levelled skill, whether or not it is known.
+ * @param str the skill id
+ * @return the maximum level; 0 if the skill is not levelled
+ */
+int query_skill_max_level(string str)
+{
+  return skill_levels(str);
+}
+
+/**
+ * The stored value of a known skill, whatever its kind: the percentage, the
+ * level, or 1 if fixed.
+ * @param str the skill id
+ * @return the value; 0 if the skill is not known
+ */
+int query_skill_value(string str)
+{
+  return clamped_value(str);
+}
+
+/**
+ * Raises or lowers the ability of a percentage skill, within 1-100.
+ * @param str the skill id
+ * @param value what to add (negative to lower)
+ * @param silence 1 to skip the message when it improves
+ * @return the new ability; 0 if the skill is not known or not a percentage one
+ */
 int adjust_skill_ability(string str, int value, varargs int silence)
 {
-  int i;
+  int current;
   object f;
 
   if (!silence)
     silence = 0;
 
-  // Not known
-  if ((i = member_array(str, known_skills)) == -1)
+  // Not known, or not a percentage skill
+  if ((member_array(str, known_skills) == -1) ||
+      (query_skill_kind(str) != SKILL_KIND_PERCENTAGE))
     return 0;
 
-  skill_list[str][1] += value;
+  current = clamped_value(str) + value;
 
-  if (skill_list[str][1] <= 1)
-      skill_list[str][1] = 1;
+  if (current < 1)
+    current = 1;
+  if (current > 100)
+    current = 100;
+
+  skill_list[str][SKILL_DATA_VALUE] = current;
 
   // Reset the times-used counter
-  skill_list[str][2] = 0;
+  skill_list[str][SKILL_DATA_USES] = 0;
 
   // Message uses the skill's translated display name, not the English id.
-  f = load_object(skill_list[str][0]);
+  f = load_object(skill_list[str][SKILL_DATA_PATH]);
 
   if ((value > 0) && !silence)
     tell_player(this_object(),
       _LANG_SKILL_IMPROVED_PRE + (f ? f->query_effect_name() : str) +
       _LANG_SKILL_IMPROVED_POST);
 
-  return skill_list[str][1];
+  return current;
 }
 
+/**
+ * Sets the level of a known levelled skill, within 1..max. No message.
+ * @param str the skill id
+ * @param level the new level
+ * @return the level now; 0 if the skill is not known or not levelled
+ */
+int set_skill_level(string str, int level)
+{
+  int max;
+
+  if ((member_array(str, known_skills) == -1) ||
+      (query_skill_kind(str) != SKILL_KIND_LEVELLED))
+    return 0;
+
+  max = skill_levels(str);
+
+  if (level < 1)
+    level = 1;
+  if (level > max)
+    level = max;
+
+  skill_list[str][SKILL_DATA_VALUE] = level;
+  skill_list[str][SKILL_DATA_USES] = 0;
+
+  return level;
+}
+
+/**
+ * Raises or lowers the level of a known levelled skill, within 1..max. The
+ * player is told when it rises.
+ * @param str the skill id
+ * @param delta levels to add (negative to lower)
+ * @param silence 1 to skip the message
+ * @return the level now; 0 if the skill is not known or not levelled
+ */
+int adjust_skill_level(string str, int delta, varargs int silence)
+{
+  int before, after;
+  object f;
+
+  before = query_skill_level(str);
+
+  if (!before)
+    return 0;
+
+  after = set_skill_level(str, before + delta);
+
+  if ((after > before) && !silence)
+  {
+    f = load_object(skill_list[str][SKILL_DATA_PATH]);
+
+    tell_player(this_object(),
+      _LANG_SKILL_LEVEL_UP_PRE + (f ? f->query_effect_name() : str) +
+      _LANG_SKILL_LEVEL_UP_MID + after + "/" + skill_levels(str) +
+      _LANG_SKILL_LEVEL_UP_POST);
+  }
+
+  return after;
+}
+
+/**
+ * Teaches a skill (if not known yet) and sets its value, which means what its
+ * kind says: percentage -> ability, levelled -> level, fixed -> known. Out of
+ * range values are clamped; a value below 1 leaves the one the skill starts
+ * with. Used by templates, classes and quests.
+ * @param str the skill id
+ * @param value the ability or level
+ * @param silence 1 to skip the messages
+ * @return the value now; 0 if the skill could not be added
+ */
+int set_skill_value(string str, int value, varargs int silence)
+{
+  int added, current;
+
+  if (!silence)
+    silence = 0;
+
+  added = add_known_skill(str, silence);
+
+  if (!query_known_skill(str))
+    return 0;
+
+  current = clamped_value(str);
+
+  // a skill just learnt does not announce its starting value as a change
+  if (added)
+    silence = 1;
+
+  if (value < 1 || value == current)
+    return current;
+
+  switch (query_skill_kind(str))
+  {
+    case SKILL_KIND_PERCENTAGE:
+      adjust_skill_ability(str, value - current, silence);
+      break;
+    case SKILL_KIND_LEVELLED:
+      adjust_skill_level(str, value - current, silence);
+      break;
+  }
+
+  return clamped_value(str);
+}
+
+/**
+ * Counts one use of a percentage skill and, every 50 uses, rolls to raise it
+ * by 1%. Levelled and fixed skills never improve with use.
+ * @param str the skill id
+ * @return the times used; 0 if the skill is not known or not a percentage one
+ */
 int update_skill_used_times(string str)
 {
-  int i;
-
-  // Not known
-  if ((i = member_array(str, known_skills)) == -1)
+  // Not known, or not a percentage skill
+  if ((member_array(str, known_skills) == -1) ||
+      (query_skill_kind(str) != SKILL_KIND_PERCENTAGE))
     return 0;
 
   // Stop updating once at the maximum
-  if (skill_list[str][1] < 100)
+  if (clamped_value(str) < 100)
   {
-    skill_list[str][2] += 1;
+    skill_list[str][SKILL_DATA_USES] += 1;
 
     // Every 50 uses, roll to see whether the ability goes up
-    if (skill_list[str][2] % 50 == 0)
+    if (skill_list[str][SKILL_DATA_USES] % 50 == 0)
     {
-        if (random(100) > skill_list[str][1])
+        if (random(100) > skill_list[str][SKILL_DATA_VALUE])
           adjust_skill_ability(str, 1);
     }
   }
 
-  return skill_list[str][2];
+  return skill_list[str][SKILL_DATA_USES];
 }
 
 int query_skill_used_times(string str)

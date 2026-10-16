@@ -25,6 +25,8 @@
  *
  *   ([ REWARD_KIND: REWARD_SKILL, REWARD_VALUE: SKILL_CLIMB ])
  *
+ * A skill reward may also be ({ id, value }), the value by the skill's kind.
+ *
  * A quest that needs more than a level or a finished quest to be taken, or more
  * than its objectives to be completed, overrides can_take() or can_complete().
  */

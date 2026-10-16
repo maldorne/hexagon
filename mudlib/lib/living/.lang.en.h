@@ -362,6 +362,10 @@
 #define _LANG_SKILL_GAINED_POST "!\n"
 #define _LANG_SKILL_IMPROVED_PRE "You have improved your skill in "
 #define _LANG_SKILL_IMPROVED_POST "!\n"
+#define _LANG_SKILL_LEVEL_UP_PRE "Your skill in "
+#define _LANG_SKILL_LEVEL_UP_MID " has risen to level "
+#define _LANG_SKILL_LEVEL_UP_POST ".\n"
+#define _LANG_SKILL_FIXED_TEXT "known"
 #define _LANG_SKILL_DEAD_USE "You are a spirit, so you cannot use your skills.\n"
 // Skill category ids (from <living/skills.h>) mapped to their display names.
 #define _LANG_SKILL_CATEGORIES ([ \

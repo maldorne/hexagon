@@ -4,8 +4,25 @@
 #define ACTIVE_SKILL 0
 #define PASSIVE_SKILL 1
 
-// Data returned by query_skill_data from the skills table
-#define SKILL_DATA_PATH 0
+// Data returned by query_skill_data from the skills table:
+//   ({ path, initial value, times used, ACTIVE_SKILL | PASSIVE_SKILL,
+//      [kind, [number of levels]] })
+// The last two entries are optional; a row without them is a percentage skill.
+#define SKILL_DATA_PATH   0
+#define SKILL_DATA_VALUE  1
+#define SKILL_DATA_USES   2
+#define SKILL_DATA_TYPE   3
+#define SKILL_DATA_KIND   4
+#define SKILL_DATA_LEVELS 5
+
+// What the stored value of a skill means. There is no conversion between
+// kinds: a skill's own code asks for the kind it was written for.
+//   percentage: ability 1-100, improves with use (the default)
+//   levelled:   discrete level 1..N, N given by SKILL_DATA_LEVELS
+//   fixed:      known or not (stored as 1), never improves
+#define SKILL_KIND_PERCENTAGE 0
+#define SKILL_KIND_LEVELLED   1
+#define SKILL_KIND_FIXED      2
 
 // Skill ids: stable English keys, the same word as the skill object's
 // filename. Used as the skills table key, stored in known_skills, and
@@ -21,6 +38,9 @@
 #define SKILL_FOLLOW      "follow"
 #define SKILL_EVADE       "evade"
 #define SKILL_STEAL       "steal"
+#define SKILL_CHARGE      "charge"
+#define SKILL_FOCUS       "focus"
+#define SKILL_JUDGE       "judge"
 
 // Skills every player must always have. Granted silently and idempotently
 // on each login (grant_default_skills, called from living::start_player):
