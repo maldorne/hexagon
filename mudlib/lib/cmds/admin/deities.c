@@ -101,22 +101,6 @@ private string game_title(object me)
   return (stringp(name) && strlen(name)) ? name : game_root(me);
 }
 
-// The names of a list of social objects (races, guilds...), or "-".
-private string titles_of(string * paths)
-{
-  string * out;
-  int i;
-
-  if (!sizeof(paths))
-    return "-";
-
-  out = ({ });
-  for (i = 0; i < sizeof(paths); i++)
-    out += ({ deity_title(paths[i]) });
-
-  return implode(out, ", ");
-}
-
 // A value as text, whatever it is.
 string to_text(mixed value)
 {
@@ -141,15 +125,87 @@ private string rule_text(mapping rule)
     value = rule[keys[i]];
     if (pointerp(value))
       value = implode(map_array(value, "to_text", this_object()), "|");
-    out += ({ keys[i] + "=" + to_text(value) });
+    out += ({ keys[i] + " = " + to_text(value) });
   }
 
-  return implode(out, " ");
+  return implode(out, ", ");
+}
+
+// The name of every race and lineage the game (and the mudlib) has, by its id:
+// the deity lists name races by id, not by file.
+private mapping race_names(object me)
+{
+  string * dirs, * files, * subdirs;
+  mapping names;
+  object race;
+  mixed id, name;
+  int i, j;
+
+  names = ([ ]);
+  dirs = ({ "/lib/obj/races/", game_root(me) + "obj/races/" });
+
+  // the lineages sit in a directory per parent race
+  subdirs = get_dir(game_root(me) + "obj/races/*");
+  for (i = 0; i < sizeof(subdirs); i++)
+    if (file_size(game_root(me) + "obj/races/" + subdirs[i]) == -2)
+      dirs += ({ game_root(me) + "obj/races/" + subdirs[i] + "/" });
+
+  for (i = 0; i < sizeof(dirs); i++)
+  {
+    files = get_dir(dirs[i] + "*.c");
+    for (j = 0; j < sizeof(files); j++)
+    {
+      race = nil;
+      catch(race = load_object(dirs[i] + files[j]));
+      if (!race || !race->query_is_race_ob())
+        continue;
+      id = race->query_race_id();
+      name = race->query_short();
+      if (stringp(id) && stringp(name) && strlen(name))
+        names[id] = capitalize(name);
+    }
+  }
+
+  return names;
+}
+
+// One row of a list of names: the label columns, then the names, wrapped to
+// the width and indented under the first one.
+private string list_row(string label, string sublabel, string * paths, int width,
+                        varargs mapping ids)
+{
+  string * words, * lines;
+  string line, indent, item;
+  int i;
+
+  indent = sprintf("  %-16s %-10s ", "", "");
+  line = sprintf("  %-16s %-10s ", label, sublabel);
+  if (!sizeof(paths))
+    return line + "-\n";
+
+  lines = ({ });
+  words = ({ });
+  for (i = 0; i < sizeof(paths); i++)
+    words += ({ (ids && ids[paths[i]] ? ids[paths[i]] : deity_title(paths[i])) +
+                (i < sizeof(paths) - 1 ? "," : "") });
+
+  for (i = 0; i < sizeof(words); i++)
+  {
+    item = words[i];
+    if (strlen(line) + strlen(item) + 1 > width && strlen(line) > strlen(indent))
+    {
+      lines += ({ line });
+      line = indent;
+    }
+    line += (line == indent || line[strlen(line) - 1] == ' ' ? "" : " ") + item;
+  }
+
+  return implode(lines + ({ line }), "\n") + "\n";
 }
 
 // What the deity object says about itself: who may worship it, what it takes,
 // what it can be prayed for, in aligned columns.
-private string deity_sheet(object deity)
+private string deity_sheet(object deity, int width, mapping ids)
 {
   string ret;
   mapping * offerings;
@@ -165,17 +221,13 @@ private string deity_sheet(object deity)
           deity->query_gender() == GENDER_FEMALE ? "female" : "male") +
         sprintf("  %-16s %d to %d\n\n", "Real alignment", range[0], range[1]);
 
-  // who may come, and who may not
-  ret += sprintf("  %-16s %-30s %s\n", "", "Allowed", "Forbidden") +
-         sprintf("  %-16s %-30s %s\n", "Races",
-           titles_of(deity->query_races()),
-           titles_of(deity->query_forbidden_races())) +
-         sprintf("  %-16s %-30s %s\n", "Lineages",
-           titles_of(deity->query_lineages()),
-           titles_of(deity->query_forbidden_lineages())) +
-         sprintf("  %-16s %-30s %s\n\n", "Guilds",
-           titles_of(deity->query_guilds()),
-           titles_of(deity->query_forbidden_guilds()));
+  // who may come, and who may not, each list on its own rows
+  ret += list_row("Races", "allowed", deity->query_races(), width, ids) +
+         list_row("", "forbidden", deity->query_forbidden_races(), width, ids) +
+         list_row("Lineages", "allowed", deity->query_lineages(), width, ids) +
+         list_row("", "forbidden", deity->query_forbidden_lineages(), width, ids) +
+         list_row("Guilds", "allowed", deity->query_guilds(), width) +
+         list_row("", "forbidden", deity->query_forbidden_guilds(), width) + "\n";
 
   ret += "  Offerings\n";
   offerings = deity->query_offerings();
@@ -274,7 +326,8 @@ static int cmd(string str, object me, string verb)
     return 1;
   }
 
-  ret = deity_sheet(god);
+  ret = deity_sheet(god, me->user() ? me->user()->query_cols() : 80,
+                    race_names(me));
   followers = deities->query_followers(path);
   if (!map_sizeof(followers))
   {
