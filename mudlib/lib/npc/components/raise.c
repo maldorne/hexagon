@@ -3,7 +3,17 @@
 // A service somebody offers, not a fact about their race or trade, so it is a
 // component rather than a base class -- the same shape as the guard role. It
 // asks the NPC for two verbs: one to explain the service, one to request it.
-// Being dead is the only condition, plus a cooldown.
+// Being dead is the only condition, plus a cooldown, and optionally a
+// restriction on who is raised.
+//
+// Attributes, every one optional (store only what differs from the default):
+//   "only"    - who is raised; without it, anybody. A mapping whose keys all
+//               have to hold:
+//                 "guild"     - guild objects whose members are raised
+//                 "race"      - race objects whose members are raised
+//                 "align_min" - the lowest real alignment raised
+//                 "property"  - a property the player must have set
+//   "refusal" - what somebody left out is told; defaults to the stock text
 
 #include <language.h>
 
@@ -14,9 +24,62 @@ inherit component "/lib/npc/component.c";
 // The timed property stamped on the player for that long.
 #define RAISE_COOLDOWN_PROP "raise_cooldown"
 
+private mapping raise_only;
+private string raise_refusal;
+
 void create()
 {
   component::create();
+  raise_only = ([ ]);
+  raise_refusal = nil;
+}
+
+// An object named with or without its extension is the same object.
+private string _object_path(string path)
+{
+  if (!path || !strlen(path))
+    return "";
+  if (path[0] != '/')
+    path = "/" + path;
+  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
+    path = path[0 .. strlen(path) - 3];
+  return path;
+}
+
+// Whether `path` is one of the `allowed` objects.
+private int _is_listed(string path, string * allowed)
+{
+  int i;
+
+  path = _object_path(path);
+  if (!strlen(path))
+    return 0;
+  for (i = 0; i < sizeof(allowed); i++)
+    if (_object_path(allowed[i]) == path)
+      return 1;
+  return 0;
+}
+
+/**
+ * Whether `who` meets every rule of the "only" attribute.
+ *
+ * @param who the player asking to be raised
+ * @return 1 when they are raised, 0 when left out
+ */
+private int _is_eligible(object who)
+{
+  if (pointerp(raise_only["guild"]) &&
+      !_is_listed(who->query_guild_ob(), raise_only["guild"]))
+    return 0;
+  if (pointerp(raise_only["race"]) &&
+      !_is_listed(who->query_race_ob(), raise_only["race"]))
+    return 0;
+  if (intp(raise_only["align_min"]) &&
+      who->query_real_align() < raise_only["align_min"])
+    return 0;
+  if (stringp(raise_only["property"]) && !who->query_property(raise_only["property"]))
+    return 0;
+  return 1;
 }
 
 // The service is a fact about the component, not state to carry: nothing here
@@ -69,6 +132,12 @@ int do_raise(string str)
     return 1;
   }
 
+  if (!_is_eligible(who))
+  {
+    query_entity()->do_say(raise_refusal ? raise_refusal : _LANG_RAISE_REFUSED);
+    return 1;
+  }
+
   // Everybody present sees the gesture, the raised player included -- it is the
   // one thing here that remove_ghost cannot know about. It then tells the player
   // they are back and tells the room, each in their own words, so saying either
@@ -78,4 +147,27 @@ int do_raise(string str)
   who->remove_ghost();
   who->add_timed_property(RAISE_COOLDOWN_PROP, 1, RAISE_COOLDOWN);
   return 1;
+}
+
+mapping query_auto_load_attributes()
+{
+  mapping out;
+
+  out = component::query_auto_load_attributes();
+  if (map_sizeof(raise_only))
+    out["only"] = raise_only;
+  if (raise_refusal)
+    out["refusal"] = raise_refusal;
+  return out;
+}
+
+void init_auto_load_attributes(mapping args)
+{
+  component::init_auto_load_attributes(args);
+  if (!args)
+    return;
+  if (mappingp(args["only"]))
+    raise_only = ([ ]) + args["only"];
+  if (stringp(args["refusal"]))
+    raise_refusal = args["refusal"];
 }
