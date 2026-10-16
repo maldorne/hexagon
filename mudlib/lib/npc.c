@@ -542,6 +542,8 @@ void apply_template(mapping t, varargs int born)
 
   // What the type knows how to do and how to be. Re-applied every
   // materialization: none of it rides in the npc.o, and repeating is a no-op.
+  // Either a list of ids, at the ability the skills table starts them at, or
+  // ([ "<id>": <ability> ]) to set how good the type is at each.
   if (pointerp(t["skills"]))
   {
     mixed skills;
@@ -551,6 +553,23 @@ void apply_template(mapping t, varargs int born)
     for (i = 0; i < sizeof(skills); i++)
       if (stringp(skills[i]))
         add_known_skill(skills[i], 1);
+  }
+  else if (mappingp(t["skills"]))
+  {
+    string * ids;
+    int i, ability;
+
+    ids = map_indices(t["skills"]);
+    for (i = 0; i < sizeof(ids); i++)
+    {
+      add_known_skill(ids[i], 1);
+      if (intp(t["skills"][ids[i]]) && t["skills"][ids[i]] > 0)
+      {
+        ability = query_skill_ability(ids[i]);
+        if (ability > 0 && ability != t["skills"][ids[i]])
+          adjust_skill_ability(ids[i], t["skills"][ids[i]] - ability, 1);
+      }
+    }
   }
 
   // Spells are named to their casting object, so this one is a mapping rather
