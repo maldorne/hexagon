@@ -204,6 +204,27 @@ to 2 references, `find_match` counts down `--num` and returns the
 same object, `component.long("chair 2")` strips the trailing `2`,
 filters matching instances, and picks the 2nd one.
 
+## Verbs, prepositions and missing targets
+
+A prop verb's argument is trimmed of leading filler words
+(`_LANG_PROPS_FILLER_WORDS`: `en`, `ante`, `frente`, `a`, `el`... /
+`at`, `before`, `front`, `of`, `the`...) before it is matched, so
+`rezar ante el altar`, `rezar frente al altar`, `pray before the statue`
+and `tumbarse en la cama` all reach the prop. To accept a new
+preposition, add it to that list in both languages.
+
+A prop verb typed with no target, when some prop here answers to it, asks
+for one: `_LANG_PROPS_VERB_PROMPTS` maps the verb to its question
+(`rezar` -> `¿Rezar ante qué?`), and a verb with no entry uses
+`_LANG_PROPS_VERB_PROMPT_DEFAULT`. A bare verb where no prop knows it, or a
+target that matches nothing, answers `_LANG_PROPS_NO_TARGET`. A bare verb
+still resolves first through the state-based auto-target (`stand`).
+
+The read verbs (`_LANG_PROPS_READ_VERBS`) never set a failure message when
+nothing matches: the generic `read` command (`lib/cmds/player/read.c`)
+answers with its own. A skill-backed verb (`PROP_SPEC_YIELDS_TO_SKILL`)
+returns before any of this when the player knows the skill.
+
 ## 8. Files
 
 - `lib/location/components/props.c` — component: parser, prose, section, dispatch.

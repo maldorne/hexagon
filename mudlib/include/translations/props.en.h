@@ -598,6 +598,13 @@
 // "lie ON THE bunk". Peeled off the front of the argument before looking up
 // which prop is meant.
 #define _LANG_PROPS_FILLER_WORDS ({ "in", "on", "onto", "into", "at", "to", \
-                                    "the", "a", "an" })
+                                    "the", "a", "an", "before", "front", \
+                                    "of", "toward", "towards" })
+
+// Question asked when a prop verb arrives with no object ("pray"). A verb
+// with no entry uses the generic one, with the verb as the player typed it.
+#define _LANG_PROPS_VERB_PROMPT_DEFAULT "%s what?"
+#define _LANG_PROPS_VERB_PROMPTS ([ \
+  "pray": "Pray before what?" ])
 
 #endif // _LANG_PROPS_H_EN

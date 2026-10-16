@@ -40,6 +40,8 @@ private mapping * _find_matching_instances(string str);
 private string   _strip_filler(string str);
 private mapping * _auto_target_instances(string verb);
 private mapping * _instances_with_verb(string verb);
+private int      _verb_known_here(string verb);
+private string   _missing_target_message(string verb);
 private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
 private int      _execute_generic(mapping spec, mapping inst, string args);
@@ -1103,7 +1105,16 @@ int do_prop_action(string str)
 
   if (!sizeof(matches))
   {
-    notify_fail(_LANG_PROPS_NO_TARGET + "\n");
+    // reading has its own command, with its own messages for a missing or
+    // unknown target: stay out of its way
+    if (member_array(verb, _LANG_PROPS_READ_VERBS) != -1)
+      return 0;
+
+    // bare verb that some prop here answers to: ask for the target
+    if ((!str || !strlen(str)) && _verb_known_here(verb))
+      notify_fail(_missing_target_message(verb) + "\n");
+    else
+      notify_fail(_LANG_PROPS_NO_TARGET + "\n");
     return 0;
   }
 
@@ -1661,6 +1672,38 @@ private mapping * _auto_target_instances(string verb)
   }
 
   return ret;
+}
+
+/**
+ * Whether any prop here has an action answering to the verb.
+ */
+private int _verb_known_here(string verb)
+{
+  int i;
+
+  if (!verb || !strlen(verb)) return 0;
+
+  for (i = 0; i < sizeof(props_instances); i++)
+    if (stringp(handler("props")->query_canonical_action(
+          props_instances[i][PROP_FIELD_TYPE], verb)))
+      return 1;
+
+  return 0;
+}
+
+/**
+ * The question asked when a verb comes without a target: the verb's own entry
+ * in _LANG_PROPS_VERB_PROMPTS, or the generic one built around the verb.
+ */
+private string _missing_target_message(string verb)
+{
+  mapping prompts;
+
+  prompts = _LANG_PROPS_VERB_PROMPTS;
+  if (prompts[verb])
+    return prompts[verb];
+
+  return sprintf(_LANG_PROPS_VERB_PROMPT_DEFAULT, capitalize(verb));
 }
 
 // Every instance whose type has an action answering to `verb` that depends on

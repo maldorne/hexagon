@@ -600,6 +600,13 @@
 // antes de buscar a qué prop se refiere.
 #define _LANG_PROPS_FILLER_WORDS ({ "en", "sobre", "encima", "dentro", "a", \
                                     "al", "de", "del", "la", "el", "los", \
-                                    "las", "un", "una", "unos", "unas" })
+                                    "las", "un", "una", "unos", "unas", \
+                                    "ante", "frente", "delante", "hacia" })
+
+// Pregunta cuando un verbo de prop llega sin objeto ("rezar"). Un verbo sin
+// entrada usa la genérica, con el verbo tal cual lo escribió el jugador.
+#define _LANG_PROPS_VERB_PROMPT_DEFAULT "¿%s qué?"
+#define _LANG_PROPS_VERB_PROMPTS ([ \
+  "rezar": "¿Rezar ante qué?", "orar": "¿Orar ante qué?" ])
 
 #endif // _LANG_PROPS_H_ES
