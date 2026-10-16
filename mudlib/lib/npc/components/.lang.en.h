@@ -19,3 +19,7 @@
 #define _LANG_TOLL_ALREADY_PAID "Thank you, but you have already paid."
 #define _LANG_TOLL_NO_MONEY "Hey, you! Are you trying to make a fool of me? You do not have enough money."
 #define _LANG_TOLL_PAID "Thank you very much, the way is open for you."
+
+// guard
+#define _LANG_GUARD_WANTED_BLOCKED "Halt! You are wanted by the law, you will not pass."
+#define _LANG_GUARD_WANTED_SHOUT "Halt, in the name of the law!"

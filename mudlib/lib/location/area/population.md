@@ -402,6 +402,16 @@ citizen itself. A guard is a `GENERIC_NPC` plus this component; the diplomacy
 graph's `security` count and `guard` source are stored but nothing reads them to
 place a guard. The barracks is the job's `home`, and shifts are two jobs.
 
+Under a law a guard also attacks on sight the wanted and outlaws of its
+citizenship, and when a crime is recorded where no guard stands the crimes
+handler picks guards from the community's census (every row whose template has
+the `guard` component, except those posted on a door: a `direction` or a
+`town_entrance` POI with `guard_dir`; square guards do answer), the nearest
+loaded ones first, then ones in unloaded locations, which it loads. Each gets the
+`responder` component, walks to the criminal, follows them inside the community
+for `query_pursuit_give_up()` seconds and goes back to its schedule. See
+`lib/handlers/crimes.md`.
+
 ## Reading the population
 
 | command | shows |

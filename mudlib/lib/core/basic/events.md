@@ -289,7 +289,9 @@ When nobody can name the culprit (no victim who knows, no witness who sees)
 `criminal` is nil and `points` is 0: an alert, nothing is recorded. Places
 with no law, and offences that are legal there, fire nothing.
 
-`/lib/npc.c` forwards it to its components. No component reacts yet.
+`/lib/npc.c` forwards it to its components. The `guard` component reacts: with a
+known culprit and points under the law of its own country it attacks the
+culprit (see `lib/handlers/crimes.md`).
 
 ## Skills
 

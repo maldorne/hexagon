@@ -30,10 +30,18 @@
 // The POI of its post adds two more: a town_entrance that admits only citizens
 // (POI_FIELD_ADMIT) lets nobody else through, and at a bodyguard POI the guard
 // attacks whoever attacks one of its citizens there.
+//
+// The law: where the place has law, the guard attacks on sight whoever the
+// crimes handler holds wanted or outlaw in its citizenship (when it or the
+// culprit arrives, or when it is placed), and whoever commits a crime in front
+// of it. A post that watches an exit also refuses that exit to the wanted. A
+// guard sent to a crime elsewhere is driven by the responder component.
 
 #include <areas/diplomacy.h>
 #include <areas/poi.h>
 #include <room/location.h>
+#include <crimes.h>
+#include <language.h>
 
 inherit component "/lib/npc/component.c";
 
@@ -41,6 +49,9 @@ private string guard_direction, guard_message;
 private int guard_enemies, guard_guildless, guard_min_guild_level,
             guard_min_class_level;
 private string * guard_guilds;
+// what the last refused mover is told; scan_pending: a scan is already queued
+static string refusal;
+static int scan_pending;
 
 void create()
 {
@@ -52,6 +63,8 @@ void create()
   guard_min_guild_level = 0;
   guard_min_class_level = 0;
   guard_guilds = ({ });
+  refusal = nil;
+  scan_pending = 0;
 }
 
 // A guild object named with or without its extension is the same guild.
@@ -105,6 +118,161 @@ private string _watched_direction()
 
 string query_direction() { return _watched_direction(); }
 
+// The name of the guard's own citizenship in the diplomacy graph, "" when it
+// has none.
+private string _citizenship_name()
+{
+  object me, citizenship;
+  string city_ob;
+
+  me = query_entity();
+  city_ob = me ? me->query_city_ob() : nil;
+  if (!city_ob || !strlen(city_ob))
+    return "";
+
+  citizenship = load_object(city_ob);
+  return citizenship ? citizenship->query_name() : "";
+}
+
+// Whether `who` is somebody the law of the guard's place wants: wanted or
+// outlaw in the guard's citizenship, where the place has law at all.
+private int _is_wanted(object who)
+{
+  object me, crimes;
+  string citizenship, status;
+
+  me = query_entity();
+  if (!me || !who || who == me || !living(who) || who->query_dead())
+    return 0;
+  if (!environment(me))
+    return 0;
+
+  citizenship = _citizenship_name();
+  if (!strlen(citizenship))
+    return 0;
+
+  crimes = handler("crimes", environment(me));
+  if (!crimes || !strlen((string)crimes->query_jurisdiction(environment(me))))
+    return 0;
+
+  status = (string)crimes->query_status(who, citizenship);
+  return status == CRIME_STATUS_WANTED || status == CRIME_STATUS_OUTLAW;
+}
+
+// Attacks `who` if they are still here, unhidden, not already being fought
+// and still wanted (or `known`, a culprit seen committing a crime just now).
+private void _arrest(object who, int known)
+{
+  object me;
+
+  me = query_entity();
+  if (!me || !who || me->query_dead() || !environment(me) ||
+      environment(who) != environment(me))
+    return;
+  if (who->query_hidden() || who->query_dead())
+    return;
+  if (member_array(who, me->query_attacker_list()) >= 0)
+    return;
+  if (!known && !_is_wanted(who))
+    return;
+
+  if (!me->query_timed_property("guard_halt"))
+  {
+    me->do_say(_LANG_GUARD_WANTED_SHOUT);
+    me->add_timed_property("guard_halt", 1, 20);
+  }
+  me->attack_ob(who);
+}
+
+// Queued from the events, which never act inside themselves.
+static void react(object who)
+{
+  _arrest(who, 0);
+}
+
+// A culprit seen committing a crime: attacked wanted yet or not.
+static void react_known(object criminal)
+{
+  _arrest(criminal, 1);
+}
+
+// Looks over everybody in the guard's place and attacks the wanted.
+static void scan()
+{
+  object me;
+  object * inv;
+  int i;
+
+  scan_pending = 0;
+  me = query_entity();
+  if (!me || !environment(me))
+    return;
+
+  inv = all_inventory(environment(me)) - ({ me });
+  for (i = 0; i < sizeof(inv); i++)
+    if (inv[i] && living(inv[i]) && _is_wanted(inv[i]))
+      _arrest(inv[i], 0);
+}
+
+// Queues a scan unless one is already waiting.
+private void _queue_scan()
+{
+  if (scan_pending)
+    return;
+
+  scan_pending = 1;
+  call_out("scan", 1);
+}
+
+/**
+ * Somebody has arrived: if the law wants them, the guard goes for them.
+ */
+void event_enter(object ob, varargs string mess, object from, mixed avoid)
+{
+  if (ob && living(ob) && _is_wanted(ob))
+    call_out("react", 1, ob);
+}
+
+/**
+ * The guard itself has moved: whoever it finds in the new place is looked over.
+ */
+void event_moved(object ob, object from, object dest)
+{
+  _queue_scan();
+}
+
+/**
+ * A crime was committed in the guard's place. With a known culprit and points
+ * under the law of the guard's own country, the guard attacks the culprit.
+ */
+void event_crime(object who, object criminal, string type, object victim,
+                 int points)
+{
+  object me, diplomacy;
+  string mine, law;
+
+  me = query_entity();
+  if (!me || !criminal || points <= 0 || criminal == me || !environment(me))
+    return;
+
+  mine = _citizenship_name();
+  if (!strlen(mine))
+    return;
+
+  law = (string)handler("crimes", environment(me))->query_jurisdiction(
+          environment(me));
+  if (!strlen(law))
+    return;
+
+  // only the guards of the country whose law was broken
+  diplomacy = handler("diplomacy", environment(me));
+  if (diplomacy->query_root_citizenship(mine) !=
+      diplomacy->query_root_citizenship(law))
+    return;
+
+  call_out("react_known", 1, criminal);
+}
+
 // Called once the NPC is standing in the world. Register on the exit so the
 // exit handler consults us; it checks we are present before asking, so this
 // holds across the walk to the barracks and back. A guard with its own
@@ -115,8 +283,11 @@ void placed()
   object me, post;
   string dir;
 
-  dir = _watched_direction();
   me = query_entity();
+  if (me)
+    _queue_scan();
+
+  dir = _watched_direction();
   if (!strlen(dir) || !me)
     return;
 
@@ -274,8 +445,18 @@ void event_fight_in_progress(object ob, object * fighters)
 // direction posted, the mover passes.
 int check(object mover)
 {
+  refusal = nil;
+
   if (!strlen(_watched_direction()) || !mover || !query_entity())
     return 1;
+
+  // the wanted do not pass the gate
+  if (_is_wanted(mover))
+  {
+    refusal = query_entity()->query_cap_name() + ": " +
+              _LANG_GUARD_WANTED_BLOCKED + "\n";
+    return 0;
+  }
 
   if (guard_min_class_level &&
       (int)mover->query_class_level() < guard_min_class_level)
@@ -289,6 +470,9 @@ int check(object mover)
 // says so in it. nil falls back to the exit handler's default.
 string message()
 {
+  if (refusal)
+    return refusal;
+
   if (!guard_message || !strlen(guard_message))
     return nil;
   return guard_message + "\n";

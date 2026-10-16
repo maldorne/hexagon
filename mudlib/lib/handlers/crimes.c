@@ -21,11 +21,19 @@
  *
  * Points decay in real time, lazily: they are brought up to date from a stored
  * timestamp whenever a record is read or written, never by a heart beat.
+ *
+ * A recorded crime where no guard stands sends the nearest free guards of the
+ * place's community after the culprit (see dispatch_guards).
  */
 
 #include <mud/config.h>
 #include <common/properties.h>
 #include <areas/diplomacy.h>
+#include <areas/area.h>
+#include <areas/poi.h>
+#include <areas/vacancy.h>
+#include <room/location.h>
+#include <sector/sector.h>
 #include <crimes.h>
 #include <language.h>
 
@@ -401,6 +409,52 @@ int reduce(string name, string citizenship, int percent)
   return entry["points"];
 }
 
+// location file -> ({ x, y, z }) of it, or ({ }) when it has none; a
+// location's coordinates do not change, so loading one to read them happens
+// once per file
+static mapping coordinates_cache;
+
+/**
+ * The coordinates of a place, from the place itself when it is loaded, or
+ * from its file (loading it once and remembering them).
+ *
+ * @param loc the location, if it is loaded
+ * @param file its file
+ * @return ({ x, y, z }), or ({ }) when it has none
+ */
+private int * place_coordinates(object loc, string file)
+{
+  mixed coords;
+
+  if (!coordinates_cache)
+    coordinates_cache = ([ ]);
+  if (!undefinedp(coordinates_cache[file]))
+    return coordinates_cache[file];
+
+  if (!loc)
+    loc = load_object(LOCATION_HANDLER)->load_location(file);
+  coords = loc ? loc->query_coordinates() : nil;
+  coordinates_cache[file] = (pointerp(coords) && sizeof(coords) == 3) ? coords
+                                                                     : ({ });
+  return coordinates_cache[file];
+}
+
+// The fewest steps between two coordinates (as the pathfinding handler
+// counts them), or a large number when either has none.
+private int coord_distance(int * a, int * b)
+{
+  int dx, dy, dz;
+
+  if (sizeof(a) != 3 || sizeof(b) != 3)
+    return 1000000;
+
+  dx = a[0] - b[0]; if (dx < 0) dx = -dx;
+  dy = a[1] - b[1]; if (dy < 0) dy = -dy;
+  dz = a[2] - b[2]; if (dz < 0) dz = -dz;
+
+  return (dx > dy ? dx : dy) + dz;
+}
+
 /**
  * A player's whole record.
  *
@@ -507,6 +561,194 @@ private void record_offence(string name, string root, string type, int points,
   save_handler();
 }
 
+// --- Sending guards ---------------------------------------------------------
+
+// The place's community: the root of its area's parent chain, whose books hold
+// the census.
+private object community_of(object place)
+{
+  object area, owner;
+
+  area = (object)place->query_area();
+  if (!area)
+    return nil;
+
+  owner = (object)area->query_root_area();
+  return owner ? owner : area;
+}
+
+// Whether a guard is standing in the place.
+private int guard_in(object place)
+{
+  object * inv;
+  int i;
+
+  inv = all_inventory(place);
+  for (i = 0; i < sizeof(inv); i++)
+    if (inv[i] && living(inv[i]) && !inv[i]->query_dead() &&
+        inv[i]->has_component("guard"))
+      return 1;
+
+  return 0;
+}
+
+// The attributes of the guard component in the template of a census source, nil
+// when the type is not a guard. `cache` keeps what was read for each source.
+private mapping guard_attrs(object community, string game, string source,
+                            mapping cache)
+{
+  mapping t;
+  mixed attrs;
+
+  if (undefinedp(cache[source]))
+  {
+    t = (mapping)community->query_area_template(game, source);
+    attrs = (t && mappingp(t["components"])) ? t["components"]["guard"] : nil;
+    cache[source] = mappingp(attrs) ? attrs : 0;
+  }
+
+  return mappingp(cache[source]) ? (mapping)cache[source] : nil;
+}
+
+// Whether a guard of the census is posted on a door: its template names a
+// direction, or its work is a town entrance with a direction. Those stay.
+private int posted_on_door(object community, mapping attrs, mapping row)
+{
+  object area;
+  mapping poi, job;
+  string works_at;
+
+  if (stringp(attrs["direction"]) && strlen(attrs["direction"]))
+    return 1;
+
+  works_at = row[CENSUS_WORKS_AT];
+  if ((!stringp(works_at) || !strlen(works_at)) && row[CENSUS_VACANCY])
+  {
+    job = (mapping)community->query_vacancy(row[CENSUS_VACANCY]);
+    works_at = job ? job[VACANCY_WORKS_AT] : nil;
+  }
+  if (!stringp(works_at) || !strlen(works_at))
+    return 0;
+
+  area = (object)load_object(LOCATION_HANDLER)->
+           query_area_from_location_file_name(works_at);
+  poi = area ? (mapping)area->query_poi(works_at) : nil;
+
+  return poi && poi[POI_FIELD_KIND] == POI_KIND_TOWN_ENTRANCE &&
+         stringp(poi[POI_FIELD_GUARD_DIR]) && strlen(poi[POI_FIELD_GUARD_DIR]);
+}
+
+// Whether a loaded guard can be sent: alive, standing somewhere, not fighting
+// and not already on an errand.
+private int is_free(object npc)
+{
+  return npc && !npc->query_dead() && environment(npc) &&
+         !sizeof(npc->query_attacker_list()) &&
+         !npc->has_component("responder");
+}
+
+// The guards to send: every free guard of the community, loaded or not, the
+// nearest to the place first by coordinates. A guard out of the world is
+// brought in by loading its location.
+private object * pick_guards(object community, object place, int wanted)
+{
+  mapping rows, row, attrs, cache;
+  string * uuids, * candidates;
+  object * chosen;
+  object npc;
+  string game, file;
+  int * here, * there, * dist;
+  int i, best;
+
+  rows = (mapping)community->query_npc_census();
+  game = game_from_path((string)community->query_area_path());
+  cache = ([ ]);
+  uuids = map_indices(rows);
+  here = place_coordinates(place, (string)place->query_file_name());
+  candidates = ({ });
+  dist = ({ });
+
+  // every guard of the community, loaded or not, measured from where it is
+  for (i = 0; i < sizeof(uuids); i++)
+  {
+    row = rows[uuids[i]];
+    attrs = guard_attrs(community, game, row["source"], cache);
+    if (!attrs || posted_on_door(community, attrs, row))
+      continue;
+
+    npc = find_living(uuids[i]);
+    if (npc && !is_free(npc))
+      continue;
+
+    file = npc && environment(npc) ? (string)environment(npc)->query_file_name()
+                                   : row[CENSUS_LOCATION];
+    if (!stringp(file) || !strlen(file))
+      continue;
+
+    there = place_coordinates(npc ? environment(npc) : nil, file);
+    candidates += ({ uuids[i] });
+    dist += ({ coord_distance(here, there) });
+  }
+
+  // the nearest first; a guard out of the world is brought in by loading its
+  // location before it is sent
+  chosen = ({ });
+  while (sizeof(chosen) < wanted)
+  {
+    best = -1;
+    for (i = 0; i < sizeof(candidates); i++)
+      if (dist[i] >= 0 && (best < 0 || dist[i] < dist[best]))
+        best = i;
+
+    if (best < 0)
+      break;
+    dist[best] = -1;
+
+    npc = find_living(candidates[best]);
+    if (!npc)
+    {
+      file = rows[candidates[best]][CENSUS_LOCATION];
+      load_object(LOCATION_HANDLER)->load_location(file);
+      npc = find_living(candidates[best]);
+    }
+
+    if (is_free(npc))
+      chosen += ({ npc });
+  }
+
+  return chosen;
+}
+
+// Sends the guards of the place's community after a culprit. Called out after
+// the report, so loading locations never happens inside the reporting skill.
+// Nothing happens when a guard is already in the place (it answers the event
+// itself) or the place belongs to no community.
+static void dispatch_guards(object criminal, object place)
+{
+  object community, comp;
+  object * guards;
+  int i;
+
+  if (!criminal || !place || query_responders() < 1)
+    return;
+
+  if (guard_in(place))
+    return;
+
+  community = community_of(place);
+  if (!community)
+    return;
+
+  guards = pick_guards(community, place, query_responders());
+  for (i = 0; i < sizeof(guards); i++)
+  {
+    guards[i]->add_component("responder", ([ ]));
+    comp = (object)guards[i]->query_component_by_type("responder");
+    if (comp)
+      comp->respond(criminal, place, query_pursuit_give_up());
+  }
+}
+
 /**
  * Reports an offence.
  *
@@ -519,7 +761,9 @@ private void record_offence(string name, string root, string type, int points,
  *
  * Fires event_crime(emitter, criminal, type, victim, points) in the place: this
  * handler is the emitter; criminal is nil and points 0 when nobody can name the
- * culprit.
+ * culprit. A known crime in a place with no guard also sends the community's
+ * guards after the culprit (query_responders() of them), whether it is a player
+ * or an NPC.
  *
  * @param criminal who did it
  * @param type one of the CRIME_* offence types
@@ -552,6 +796,7 @@ int report_crime(object criminal, string type, object victim, object place,
   }
 
   event(place, "crime", criminal, type, victim, points);
+  call_out("dispatch_guards", 0, criminal, place);
 
   if (!criminal->query_player() && !query_records_npcs())
     return 0;
