@@ -76,6 +76,28 @@ private string _group_text(object handler, string group)
   return ret + "\n";
 }
 
+// The name a game shows, from its master object; its directory when it has
+// none.
+private string _game_title(string game)
+{
+  object master;
+  mixed name;
+
+  master = nil;
+  catch(master = load_object("/games/" + game + "/master.c"));
+  name = master ? master->query_game_name() : nil;
+
+  return (stringp(name) && strlen(name)) ? name : game;
+}
+
+// A line across the screen with the game's name in the middle.
+private string _game_header(string game, int width)
+{
+  return sprintf("%p%|*s\n", '-', width,
+                 fix_string("] %^BOLD%^GREEN%^" + _game_title(game) +
+                            "%^RESET%^ ["));
+}
+
 static int cmd(string str, object me, string verb)
 {
   object handler;
@@ -127,7 +149,7 @@ static int cmd(string str, object me, string verb)
     if (all && me->query_coder() && strlen(text) && sscanf(groups[i], "/games/%s/%*s", game) == 2 &&
         game != last_game)
     {
-      ret += game + "\n";
+      ret += _game_header(game, this_user() ? this_user()->query_cols() : 80);
       last_game = game;
     }
     ret += text;
