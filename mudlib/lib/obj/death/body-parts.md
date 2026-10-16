@@ -14,6 +14,7 @@ A living that dies leaves a corpse (`corpse.c`); with the right skill and a knif
 | `query_dead_level()`, `query_dead_align()` | level and real alignment |
 | `query_was_player()` | whether it was a player |
 | `query_killer_name()`, `query_killer_file()` | who killed them, `""` when nobody did |
+| `query_npc_source()` | the source an NPC was spawned from (its template), `""` for anybody else |
 | `query_died_at()` | time of death |
 | `query_parts_taken()`, `query_parts_left(id)` | what was taken (or ruined), what is still on it |
 
@@ -40,12 +41,12 @@ A race changes them in its setup: `add_body_part(id, spec)` adds a part or merge
 
 ## The skills
 
-One skill per kind of part, any of them percentage, all on `lib/obj/skills/base-extraction.c`: `skinning` (despellejar / skin), `gutting` (destripar / gut), `dismembering` (desmembrar / dismember), `pulling` (arrancar / pull). Nothing asks where the skill came from.
+One skill per kind of part, any of them percentage, all on `lib/obj/skills/base-extraction.c`: `skinning` (despellejar / skin), `gutting` (destripar / gut), `dismembering` (desmembrar / dismember), `pulling` (arrancar / pull). Nothing asks where the skill came from. Once a part is taken, the job of whoever took it is told (`on_body_part_taken(player, part, corpse)` in `lib/job.c`), so a trade can reward it.
 
 `<verb> <corpse>` takes the first of the skill's parts still on the body, `<verb> <part> de <corpse>` (`from` in English) a given one. The corpse may be carried or in the room; a knife or a dagger must be wielded; the race must be known; the ability must reach the part's minimum. The chance is 50% plus what the ability passes the minimum (10-95%); a failure ruins the part, and it counts as taken all the same. Not in combat.
 
 ## The body part
 
-`body-part.c` (`BODY_PART_OB`): `set_part(id, spec)`, `set_source(corpse)`, `set_freshness(percent)`; it keeps the part id, its names, base value and weight, and the source (name, race and base race with path and id, level, alignment, whether a player, file) with `taken_at`, across saves (`query_source_*`, `query_part_id`). Short: «Corazón de Lobo».
+`body-part.c` (`BODY_PART_OB`): `set_part(id, spec)`, `set_source(corpse)`, `set_freshness(percent)`; it keeps the part id, its names, base value and weight, and the source (name, race and base race with path and id, level, alignment, whether a player, file) with `taken_at`, across saves (`query_source_*`, `query_part_id`; `query_source_npc()` is the dead NPC's source, so a quest can ask for the skin of one kind of creature). Short: «Corazón de Lobo».
 
 A perishable part (heads, hands, hearts, tails) rots in `BODY_PART_FRESH_TIME` seconds of play, charged when its state is read, like food: offline hours do not count. A part off a rotting corpse starts as fresh as the corpse was. `query_freshness()`, `query_rotten()`; the long says fresh, smelling or rotten. Rotten parts stay. `query_value()` is the base value grown with the level of the dead, cut by freshness (never below `BODY_PART_ROTTEN_WORTH` percent, never below 1). Skins, teeth, fangs, claws, horns and mandibles never rot.

@@ -29,6 +29,9 @@
 // /lib/location/components/guild-entrance.c and guild-room.c.
 #define LOCATION_COMPONENT_GUILD_ENTRANCE "guild-entrance"
 #define LOCATION_COMPONENT_GUILD_ROOM     "guild-room"
+// Where a job is taught: one takes it up or gives it up there. See
+// /lib/location/components/job-entrance.c.
+#define LOCATION_COMPONENT_JOB_ENTRANCE   "job-entrance"
 // Something that happens to whoever enters carrying a given mark. See
 // /lib/location/components/trigger.c.
 #define LOCATION_COMPONENT_TRIGGER     "trigger"

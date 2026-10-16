@@ -41,6 +41,8 @@ int query_gp_dice() { return 5; }
 
 int query_channel() { return 0; }
 
+nomask int query_is_job() { return 1; }
+
 /*
 int add_job_command(string name, int add_if_player) 
 {
@@ -68,6 +70,18 @@ void on_death(object player, varargs object killer)
 }
 
 void on_kill(object player, object victim)
+{
+}
+
+/**
+ * Called when somebody who has this job takes a part from a corpse with one
+ * of the extraction skills (/lib/obj/skills/base-extraction.c).
+ *
+ * @param player who took it
+ * @param part the body part taken
+ * @param corpse the corpse it came from
+ */
+void on_body_part_taken(object player, object part, object corpse)
 {
 }
 
@@ -106,6 +120,13 @@ void new_levels(int lvl, object ob)
 					"(a nivel "+(ob->query_job_level()+lvl)+").\n");
         }
     }
+}
+
+// Whether a player may give up this job now; asked before they are asked to
+// confirm it. job_abandon is called once they have.
+int can_abandon(object player)
+{
+  return 1;
 }
 
 // Will be called when a player tries to leave the job

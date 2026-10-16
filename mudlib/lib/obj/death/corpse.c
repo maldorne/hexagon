@@ -26,6 +26,8 @@ string given_name;
 string race_id, base_race_ob, base_race_id;
 int dead_level, dead_align, died_at;
 string killer_name, killer_file;
+// the source an NPC was spawned from (its template), "" for anybody else
+string npc_source;
 mapping parts_taken;
 static int decay;
 static object original;
@@ -60,6 +62,7 @@ void create()
   died_at = time();
   killer_name = "";
   killer_file = "";
+  npc_source = "";
   parts_taken = ([ ]);
   decay = 10;
   wasplayer = 0;
@@ -164,6 +167,7 @@ void set_owner(string n, object ob)
     }
 
     set_file_name(base_name(ob));
+    npc_source = ob->query_npc_source() ? (string)ob->query_npc_source() : "";
     dead_level = ob->query_level();
     dead_align = ob->query_real_align();
   }
@@ -201,6 +205,7 @@ string query_race_id() { return race_id; }
 string query_base_race_ob() { return base_race_ob; }
 string query_base_race_id() { return base_race_id; }
 int query_dead_level() { return dead_level; }
+string query_npc_source() { return npc_source; }
 int query_dead_align() { return dead_align; }
 int query_was_player() { return wasplayer; }
 int query_died_at() { return died_at; }
@@ -429,6 +434,7 @@ mixed * stats(){
     ({ "Race Id", race_id }),
     ({ "Base Race Ob", base_race_ob }),
     ({ "Dead Level", dead_level }),
+    ({ "Npc Source", npc_source }),
     ({ "Dead Align", dead_align }),
     ({ "Was Player", wasplayer }),
     ({ "Killer", killer_name + " (" + killer_file + ")" }),

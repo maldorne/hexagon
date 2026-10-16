@@ -264,5 +264,9 @@ int round_extract(object caster, mixed target, mixed out_range, int time, int qu
 
   tell_object(caster, _LANG_SKILL_EXTRACT_DONE);
   tell_room(environment(caster), _LANG_SKILL_EXTRACT_DONE_ROOM, ({ caster }));
+
+  // a job may reward its trade (a hunter's skins)
+  if (caster->query_job_ob())
+    catch(load_object(caster->query_job_ob())->on_body_part_taken(caster, part, corpse));
   return 1;
 }

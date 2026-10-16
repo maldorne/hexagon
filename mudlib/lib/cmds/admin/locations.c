@@ -1,6 +1,6 @@
 // Everything about the location the admin stands in: carving its neighbours,
 // its title and prose, its sign, fixtures, exits, and the temple, guild and
-// library roles it can play.
+// library roles it can play, and the job taught there.
 
 #include <mud/cmd.h>
 #include <room/location.h>
@@ -16,6 +16,7 @@ private int do_fixture(object loc, string * args);
 private int do_exit(object loc, string * args);
 private int do_temple(object loc, string * args);
 private int do_guild(object loc, string * args);
+private int do_job(object loc, string * args);
 private int do_library(object loc, string * args);
 
 void setup()
@@ -29,6 +30,7 @@ void setup()
     "locations exit <dir> <type> [material] [closed|locked|open]\n" +
     "locations temple < <deity path> | none >\n" +
     "locations guild < entrance | room > < <guild path> | none >\n" +
+    "locations job < <job path> | none >\n" +
     "locations library [ add <text path> | remove <text path> ]");
   set_help(
     "Build the location you are standing in.\n" +
@@ -50,6 +52,8 @@ void setup()
     "  locations guild entrance|room <guild path>   make it the entrance or the\n" +
     "                                    main hall of a guild's house\n" +
     "  locations guild entrance|room none   stop it being one\n" +
+    "  locations job <job path>          make it the place where a job is taught\n" +
+    "  locations job none                stop it being one\n" +
     "  locations library                 list the books on its shelves\n" +
     "  locations library add <text path>    put a book on them (makes it a library)\n" +
     "  locations library remove <text path> take one off\n" +
@@ -108,6 +112,8 @@ static int cmd(string str, object me, string verb)
       return do_temple(loc, args);
     case "guild":
       return do_guild(loc, args);
+    case "job":
+      return do_job(loc, args);
     case "library":
       return do_library(loc, args);
   }
@@ -547,6 +553,65 @@ private int do_guild(object loc, string * args)
   loc->save_me();
 
   write("This location is now the guild " + kind + " of " + path + ".\n");
+  return 1;
+}
+
+/**
+ * locations job <job path> | none: makes the location the place where a job is
+ * taught (joined and left), or stops it being one.
+ */
+private int do_job(object loc, string * args)
+{
+  object comp;
+  string path;
+
+  if (sizeof(args) < 2)
+  {
+    notify_fail("Usage: locations job < <job path> | none >\n");
+    return 0;
+  }
+
+  path = rest_of(args, 1);
+  comp = loc->query_component_by_type(LOCATION_COMPONENT_JOB_ENTRANCE);
+
+  if (path == "none")
+  {
+    if (!comp)
+    {
+      notify_fail("This location is not a job entrance.\n");
+      return 0;
+    }
+    comp->take_down();
+    loc->remove_component(LOCATION_COMPONENT_JOB_ENTRANCE);
+    loc->save_me();
+    write("This location is no longer a job entrance.\n");
+    return 1;
+  }
+
+  path = get_path(path);
+  if (strlen(path) < 3 || path[strlen(path) - 2 ..] != ".c")
+    path += ".c";
+  if (!load_object(path) || !load_object(path)->query_is_job())
+  {
+    notify_fail("No job loads at " + path + ".\n");
+    return 0;
+  }
+
+  if (!comp)
+  {
+    loc->add_component(LOCATION_COMPONENT_JOB_ENTRANCE, ([ ]));
+    comp = loc->query_component_by_type(LOCATION_COMPONENT_JOB_ENTRANCE);
+  }
+  if (!comp)
+  {
+    notify_fail("The job entrance component would not attach here.\n");
+    return 0;
+  }
+
+  comp->set_entrance_job(path);
+  loc->save_me();
+
+  write("This location is now the job entrance of " + path + ".\n");
   return 1;
 }
 

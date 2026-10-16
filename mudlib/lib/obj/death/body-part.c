@@ -25,7 +25,7 @@ private int fresh_left;
 static int charged_at;
 
 // who it came from, as the corpse knew them
-private string source_name, source_given_name, source_file;
+private string source_name, source_given_name, source_file, source_npc;
 private string source_race_ob, source_race_id;
 private string source_base_race_ob, source_base_race_id;
 private int source_level, source_align, source_was_player;
@@ -46,6 +46,7 @@ void create()
   source_name = "";
   source_given_name = "";
   source_file = "";
+  source_npc = "";
   source_race_ob = "";
   source_race_id = "";
   source_base_race_ob = "";
@@ -170,6 +171,7 @@ void set_source(object corpse)
   source_name = corpse->query_owner() ? corpse->query_owner() : "";
   source_given_name = corpse->query_given_name() ? corpse->query_given_name() : "";
   source_file = corpse->query_file_name() ? corpse->query_file_name() : "";
+  source_npc = corpse->query_npc_source() ? corpse->query_npc_source() : "";
   source_race_ob = corpse->query_race_ob() ? corpse->query_race_ob() : "";
   source_race_id = corpse->query_race_id() ? corpse->query_race_id() : "";
   source_base_race_ob = corpse->query_base_race_ob() ? corpse->query_base_race_ob() : "";
@@ -197,6 +199,8 @@ void set_freshness(int percent)
 string query_source_name() { return source_name; }
 string query_source_given_name() { return source_given_name; }
 string query_source_file() { return source_file; }
+// the source the dead NPC was spawned from, "" when it was not one
+string query_source_npc() { return source_npc; }
 string query_source_race_ob() { return source_race_ob; }
 string query_source_race_id() { return source_race_id; }
 string query_source_base_race_ob() { return source_base_race_ob; }
@@ -326,6 +330,7 @@ mapping query_auto_load_attributes()
        "source_name" : source_name,
        "source_given_name" : source_given_name,
        "source_file" : source_file,
+       "source_npc" : source_npc,
        "source_race_ob" : source_race_ob,
        "source_race_id" : source_race_id,
        "source_base_race_ob" : source_base_race_ob,
@@ -359,6 +364,8 @@ void init_auto_load_attributes(mapping args)
     source_given_name = args["source_given_name"];
   if (stringp(args["source_file"]))
     source_file = args["source_file"];
+  if (stringp(args["source_npc"]))
+    source_npc = args["source_npc"];
   if (stringp(args["source_race_ob"]))
     source_race_ob = args["source_race_ob"];
   if (stringp(args["source_race_id"]))

@@ -1161,6 +1161,16 @@ object convert_room_to_location(object room)
     ret += "   Adding component guild room.\n";
   }
 
+  // The place where a job is taught becomes its component, with the job.
+  if (room->query_job_entrance() &&
+      !location->has_component(LOCATION_COMPONENT_JOB_ENTRANCE))
+  {
+    location->add_component(LOCATION_COMPONENT_JOB_ENTRANCE, ([
+      "entrance_job" : room->query_entrance_job(),
+        ]));
+    ret += "   Adding component job entrance.\n";
+  }
+
   // A room built on /lib/outside.c is open-air: attach the outside component
   // so the location gets weather / day-night / darkness behaviour (the
   // component drives those through the weather handler). Interiors built on
@@ -1276,7 +1286,8 @@ object convert_room_to_location(object room)
   if (!room->query_pub() && !room->query_shop() && !room->query_post_office() &&
       !room->query_vault_room() && !room->query_library() &&
       !room->query_fines_office() && !room->query_temple() &&
-      !room->query_guild_entrance() && !room->query_guild_room())
+      !room->query_guild_entrance() && !room->query_guild_room() &&
+      !room->query_job_entrance())
   {
     mapping sign;
 
