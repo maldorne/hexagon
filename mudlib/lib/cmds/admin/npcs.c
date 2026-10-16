@@ -15,6 +15,7 @@ inherit CMD_BASE;
 private object area_of(object me);
 private int do_orphans(object area, object me, string * args);
 private int do_resident(object area, object me, string * args);
+private int do_limit(object area, object me, string * args);
 private string kind_of(object area, string source);
 private string columns(string * * rows);
 private string hours_of(object area, mapping e);
@@ -27,7 +28,7 @@ void setup()
   set_usage("npcs [ list [type] | roster | live | populate | rekit [type] |\n" +
             "            orphans [apply] | verify [apply] | retemplate [apply] |\n" +
             "            template check [type] | rehouse <uuid> |\n" +
-            "            resident <source> [off] ]");
+            "            resident <source> [off] | limit <source> <n|none> ]");
   set_help(
     "Report on the people of the area you are standing in.\n" +
     "\n" +
@@ -57,6 +58,10 @@ void setup()
     "                       'houses assign' gives its people a house; 'off'\n" +
     "                       takes the flag away. The source is the id shown\n" +
     "                       by 'npcs roster'\n" +
+    "  npcs limit <source> <n|none>\n" +
+    "                       field at most <n> of that type at once, however\n" +
+    "                       many rooms clone it: the rooms become the spots it\n" +
+    "                       may be put in. 'none' lifts the limit\n" +
     "\n" +
     "The census is the area's record of its individuals: each has a uuid and " +
     "a savefile, and only exists in the world while its location is loaded. " +
@@ -316,11 +321,12 @@ private int do_roster(object area, object me)
   out = "Types spawned by " + books_of(area) + ", and their caps" +
         seen_from(area) + ":\n";
   for (i = 0; i < sizeof(sources); i++)
-    out += sprintf("  %-*s live %-3s cap %-3s%s\n",
+    out += sprintf("  %-*s live %-3s cap %-3s%s%s\n",
                    width, sources[i],
                    "" + (int)area->query_total_live_count(sources[i]),
                    "" + caps[sources[i]]["max"],
-                   caps[sources[i]]["resident"] ? " resident" : "");
+                   caps[sources[i]]["resident"] ? " resident" : "",
+                   caps[sources[i]]["limit"] ? " limited" : "");
 
   write(out);
   return 1;
@@ -942,6 +948,36 @@ private int do_resident(object area, object me, string * args)
   return 1;
 }
 
+// ===== npcs limit <source> <n|none> =====
+// Fewer people than spots: the rooms that clone a type say where it may
+// appear, the limit how many of it are alive at once.
+private int do_limit(object area, object me, string * args)
+{
+  string source;
+  int limit;
+
+  if (sizeof(args) != 3 ||
+      (args[2] != "none" && (sscanf(args[2], "%d", limit) != 1 || limit < 1)))
+  {
+    notify_fail("Usage: npcs limit <source> <n|none>\n");
+    return 0;
+  }
+
+  source = args[1];
+  if (args[2] == "none")
+    limit = 0;
+  if (!area->set_npc_limit(source, limit))
+  {
+    notify_fail("No intended NPC source '" + source + "' in this area.\n");
+    return 0;
+  }
+
+  write("Source '" + source + "' " +
+        (limit ? "is limited to " + limit + " at once."
+               : "has no limit any more: its cap is the rooms' sum.") + "\n");
+  return 1;
+}
+
 static int cmd(string str, object me, string verb)
 {
   string * args;
@@ -977,6 +1013,8 @@ static int cmd(string str, object me, string verb)
     return do_rekit(area, me, sizeof(args) > 1 ? args[1] : "");
   if (args[0] == "resident")
     return do_resident(area, me, args);
+  if (args[0] == "limit")
+    return do_limit(area, me, args);
   if (args[0] == "rehouse")
   {
     if (sizeof(args) != 2)
@@ -1022,6 +1060,7 @@ static int cmd(string str, object me, string verb)
   notify_fail("Usage: npcs [ list [type] | roster | live | populate | " +
               "rekit [type] | " +
               "template check [type] | orphans [apply] | verify [apply] | " +
-              "retemplate [apply] | rehouse <uuid> | resident <source> [off] ]\n");
+              "retemplate [apply] | rehouse <uuid> | resident <source> [off] |\n" +
+              "limit <source> <n|none> ]\n");
   return 0;
 }

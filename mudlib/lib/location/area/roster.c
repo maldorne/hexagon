@@ -24,9 +24,12 @@
 // Dynamic NPC population. Both are keyed by the NPC's source path (the
 // hand-authored .c it is cloned from).
 //   npc_caps: configuration -- what may spawn here and how many.
-//     ([ npc_path : ([ "max": int, "resident": 1 (optional) ]) ])
+//     ([ npc_path : ([ "max": int, "resident": 1 (optional),
+//                      "limit": int (optional) ]) ])
 //   ("resident" is the design-time flag that lets the housing system give this
-//    source's NPCs a home; unflagged sources are never housed.)
+//    source's NPCs a home; unflagged sources are never housed. "limit" caps
+//    "max" below the rooms' sum, so a type can be offered several spots and
+//    still field fewer people than spots.)
 //   (Fine-grained placement -- which location/POI, sector-type weighting --
 //    is layered on in F2; F1 spawns anywhere in the area up to the cap.)
 //   npc_census:   live state -- which concrete NPCs exist and where.
@@ -95,6 +98,35 @@ int set_npc_resident(string source, int flag)
   else
     map_delete(npc_caps[source], "resident");
 
+  this_object()->save_me();
+  return 1;
+}
+
+/**
+ * Cap a roster type below the sum of the rooms that clone it, or lift that
+ * limit, then recompute the caps.
+ *
+ * @param source the template id, as 'npcs roster' prints it
+ * @param limit  the most people of that type alive at once; 0 lifts it
+ * @return 0 if the source is not on this area's roster, 1 otherwise
+ */
+int set_npc_limit(string source, int limit)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_npc_limit(source, limit);
+
+  if (!npc_caps[source])
+    return 0;
+
+  if (limit > 0)
+    npc_caps[source]["limit"] = limit;
+  else
+    map_delete(npc_caps[source], "limit");
+
+  this_object()->rebuild_npc_caps();
   this_object()->save_me();
   return 1;
 }
@@ -253,6 +285,12 @@ void rebuild_npc_caps()
     // carry forward design-time flags recompute must not clobber
     if (previous[npc_paths[i]] && previous[npc_paths[i]]["resident"])
       npc_caps[npc_paths[i]]["resident"] = 1;
+    if (previous[npc_paths[i]] && previous[npc_paths[i]]["limit"])
+    {
+      npc_caps[npc_paths[i]]["limit"] = previous[npc_paths[i]]["limit"];
+      if (npc_caps[npc_paths[i]]["max"] > npc_caps[npc_paths[i]]["limit"])
+        npc_caps[npc_paths[i]]["max"] = npc_caps[npc_paths[i]]["limit"];
+    }
   }
 }
 

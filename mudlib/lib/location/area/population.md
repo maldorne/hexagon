@@ -98,6 +98,12 @@ sweeps one area of that game, taking them in turn, and assigns at most ten
    before shares existed takes the share of the area it stands in, once.
 
 A death frees a slot at once; the next sweep refills it, usually elsewhere.
+
+**Fewer people than spots.** In both passes the declared share is cut to the
+type's `limit` on the roster, when it has one (`npcs limit <source> <n|none>`,
+kept in `npc_caps` beside `resident` and carried over every recompute). The
+rooms that clone the type then say only where it may appear: a lone thief
+declared in six stalls is born in one of them, and only one is alive at once.
 Because the caps are shared by a community (see parent areas) but the share is
 read from the area's own provenance, a road keeps topping up its own travellers
 and does not scatter them through the town. `npcs populate` runs the same pass

@@ -120,6 +120,26 @@ int update_population()
   return populate_area(area, ASSIGN_PER_TICK) >= 0;
 }
 
+/**
+ * The count an area tops a source up to: what its rooms declared, unless the
+ * roster limits the type to fewer (the rooms are then only where it may go).
+ *
+ * @param caps     the community's roster caps
+ * @param source   the template id
+ * @param declared the sum of the area's rooms' counts for it
+ * @return the count to fill
+ */
+private int limited_cap(mapping caps, string source, int declared)
+{
+  int limit;
+
+  if (!caps[source] || !caps[source]["limit"])
+    return declared;
+
+  limit = caps[source]["limit"];
+  return declared > limit ? limit : declared;
+}
+
 // Top one area up toward its caps: assigns what is missing to the buckets and
 // the census, without loading anything. At most `limit` NPCs, or every one
 // missing with a limit of 0. Returns how many were assigned, -1 for an area
@@ -166,6 +186,7 @@ int populate_area(object area, int limit)
     cap = 0;
     for (j = 0; j < sizeof(files); j++)
       cap += clones_here[files[j]];
+    cap = limited_cap(caps, sources[i], cap);
 
     deficit = cap - area->query_monster_live_count(sources[i]);
 
@@ -196,6 +217,7 @@ int populate_area(object area, int limit)
     cap = 0;
     for (j = 0; j < sizeof(files); j++)
       cap += clones_here[files[j]];
+    cap = limited_cap(caps, sources[i], cap);
 
     deficit = cap - area->query_npc_share_count(sources[i]);
 
