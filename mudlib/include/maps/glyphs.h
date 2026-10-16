@@ -187,6 +187,12 @@
 // BOLD goes after GREEN so a plain forest cell ("%^GREEN%^" + glyph) never
 // matches inside it when the legend looks for one.
 #define GLYPH_FOREST_CITY  ("%^GREEN%^%^BOLD%^" + GLYPH_MAP_FOREST + "%^RESET%^")
+#define GLYPH_MAP_PLAINS_A (chr(226) + chr(139) + chr(176))         // U+22F0 up right diagonal ellipsis
+#define GLYPH_MAP_PLAINS_B (chr(226) + chr(139) + chr(177))         // U+22F1 down right diagonal ellipsis
+#define GLYPH_MAP_SWAMP    (chr(226) + chr(137) + chr(136))         // U+2248 almost equal to
+#define GLYPH_MAP_MOUNTAIN (chr(226) + chr(150) + chr(178))         // U+25B2 black up-pointing triangle
+#define GLYPH_MAP_WOODLAND (chr(226) + chr(153) + chr(167))         // U+2667 white club suit
+#define GLYPH_MAP_RUINS    (chr(226) + chr(136) + chr(180))         // U+2234 therefore
 #define GLYPH_MAP_COAST       "~"
 #define GLYPH_MAP_UNDERGROUND "."
 
@@ -206,7 +212,15 @@
 #define MAP_GLYPH_BRIDGE_H     8   // a road north-south over a river east-west
 #define MAP_GLYPH_WAYS         9
 #define MAP_GLYPH_RIVERS       25
-#define MAP_GLYPH_COUNT        41
+// Terrain kinds added after the ways and the rivers; they come last so the
+// codes already stored in the map indexes keep their meaning.
+#define MAP_GLYPH_PLAINS_A     41  // plains are drawn with one of the two, by sector
+#define MAP_GLYPH_PLAINS_B     42
+#define MAP_GLYPH_SWAMP        43
+#define MAP_GLYPH_MOUNTAIN     44
+#define MAP_GLYPH_WOODLAND     45
+#define MAP_GLYPH_RUINS        46
+#define MAP_GLYPH_COUNT        47
 
 // The fixed glyphs as they are drawn, colour included.
 #define MAP_GLYPHS ({ \

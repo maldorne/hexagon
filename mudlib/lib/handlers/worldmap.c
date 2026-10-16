@@ -100,6 +100,15 @@ void create()
 
   glyphs = MAP_GLYPHS + allocate(MAP_GLYPH_COUNT - sizeof(MAP_GLYPHS));
 
+  // terrain kinds; ORANGE is the dark yellow of the ANSI palette, the closest
+  // thing to brown (see /lib/handlers/terminal.c)
+  glyphs[MAP_GLYPH_PLAINS_A] = GLYPH_MAP_PLAINS_A;
+  glyphs[MAP_GLYPH_PLAINS_B] = GLYPH_MAP_PLAINS_B;
+  glyphs[MAP_GLYPH_SWAMP]    = "%^GREEN%^" + GLYPH_MAP_SWAMP + "%^RESET%^";
+  glyphs[MAP_GLYPH_MOUNTAIN] = "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN + "%^RESET%^";
+  glyphs[MAP_GLYPH_WOODLAND] = "%^GREEN%^" + GLYPH_MAP_WOODLAND + "%^RESET%^";
+  glyphs[MAP_GLYPH_RUINS]    = GLYPH_MAP_RUINS;
+
   // a bridge crossing is drawn in the river's blue, so the river reads unbroken
   glyphs[MAP_GLYPH_BRIDGE_V] = COLOUR_RIVER +
     (WORLDMAP_RIVER_DOUBLE ? GLYPH_CROSS_DBL_V : GLYPH_BOX_1111) + "%^RESET%^";
@@ -308,6 +317,21 @@ private int bridge_code(int * road, int * river)
 }
 
 
+/**
+ * Which of the two plains glyphs a sector shows: a hash of its coordinates, so
+ * the choice looks random but is the same on every redraw.
+ */
+private int _plains_code(int sx, int sy, int sz)
+{
+  int h;
+
+  h = sx * 374761393 + sy * 668265263 + sz * 1274126177;
+  h = h ^ (h >> 13);
+  h = h * 1103515245 + 12345;
+  h = h ^ (h >> 16);
+  return (h & 1) ? MAP_GLYPH_PLAINS_B : MAP_GLYPH_PLAINS_A;
+}
+
 // Display priority for a sector (highest first):
 //   1. city        — any city presence wins; drawn as a solid block, the
 //                    surrounding wall added later by _overlay_city_walls.
@@ -317,9 +341,11 @@ private int bridge_code(int * road, int * river)
 //   2. road / path — if the sector has road/path exits, draw the way glyph;
 //                    with a river through it as well it is a bridge
 //                    (bridge_code)
-//   3. forest      — wins over a river, so the woods keep their size
+//   3. forest, woodland, mountain, swamp — win over a river, so they keep
+//                    their size
 //   4. river       — blue line, over farmland and any other terrain
-//   5. majority    — otherwise the dominant remaining terrain type
+//   5. ruins, plains — below the river
+//   6. majority    — otherwise the dominant remaining terrain type
 private int sector_code(string game, string map_name, int sx, int sy, int sz)
 {
   object sect;
@@ -370,11 +396,17 @@ private int sector_code(string game, string map_name, int sx, int sy, int sz)
   }
 
   // a forest wins over a river running through it: the woods read as their
-  // true size
+  // true size; so do the other terrain with a shape of its own
   if (type == SECTOR_TYPE_FOREST)      return MAP_GLYPH_FOREST;
+  if (type == SECTOR_TYPE_WOODLAND)    return MAP_GLYPH_WOODLAND;
+  if (type == SECTOR_TYPE_MOUNTAIN)    return MAP_GLYPH_MOUNTAIN;
+  if (type == SECTOR_TYPE_SWAMP)       return MAP_GLYPH_SWAMP;
 
   if (river)
     return MAP_GLYPH_RIVERS + _arms_code(river_arms_here);
+
+  if (type == SECTOR_TYPE_RUINS)       return MAP_GLYPH_RUINS;
+  if (type == SECTOR_TYPE_PLAINS)      return _plains_code(sx, sy, sz);
 
   if (type == SECTOR_TYPE_CITY)        return MAP_GLYPH_CITY;
   if (type == SECTOR_TYPE_COAST)       return MAP_GLYPH_COAST;
@@ -913,6 +945,11 @@ mapping query_legend_glyphs()
     "forest":      ({ "%^GREEN%^" + GLYPH_MAP_FOREST, glyphs[MAP_GLYPH_FOREST] }),
     "forest-city": ({ glyphs[MAP_GLYPH_FOREST_CITY], glyphs[MAP_GLYPH_FOREST_CITY] }),
     "farm":        ({ GLYPH_MAP_FARM, glyphs[MAP_GLYPH_FARM] }),
+    "plains":      ({ ({ GLYPH_MAP_PLAINS_A, GLYPH_MAP_PLAINS_B }), glyphs[MAP_GLYPH_PLAINS_A] }),
+    "swamp":       ({ "%^GREEN%^" + GLYPH_MAP_SWAMP, glyphs[MAP_GLYPH_SWAMP] }),
+    "mountain":    ({ "%^ORANGE%^" + GLYPH_MAP_MOUNTAIN, glyphs[MAP_GLYPH_MOUNTAIN] }),
+    "woodland":    ({ "%^GREEN%^" + GLYPH_MAP_WOODLAND, glyphs[MAP_GLYPH_WOODLAND] }),
+    "ruins":       ({ GLYPH_MAP_RUINS, glyphs[MAP_GLYPH_RUINS] }),
     "river":       ({ COLOUR_RIVER, glyphs[MAP_GLYPH_RIVERS + 12] }),
     "coast":       ({ glyphs[MAP_GLYPH_COAST], glyphs[MAP_GLYPH_COAST] }),
     "underground": ({ glyphs[MAP_GLYPH_UNDERGROUND], glyphs[MAP_GLYPH_UNDERGROUND] }),
