@@ -74,6 +74,32 @@ private string header()
                  "offerings(worth)", "heard/pr", "cur");
 }
 
+// How a deity is called, from its object; its path when it does not load.
+private string deity_title(string path)
+{
+  object deity;
+  mixed name;
+
+  deity = nil;
+  catch(deity = load_object(path));
+  name = deity ? deity->query_short() : nil;
+
+  return (stringp(name) && strlen(name)) ? capitalize(name) : path;
+}
+
+// The name a game shows, from its master object; its directory otherwise.
+private string game_title(object me)
+{
+  object master;
+  mixed name;
+
+  master = nil;
+  catch(master = load_object(game_root(me) + "master.c"));
+  name = master ? master->query_game_name() : nil;
+
+  return (stringp(name) && strlen(name)) ? name : game_root(me);
+}
+
 static int cmd(string str, object me, string verb)
 {
   object deities;
@@ -104,9 +130,9 @@ static int cmd(string str, object me, string verb)
       return 1;
     }
 
-    ret = "Deities of " + game_root(me) + "\n";
+    ret = "Deities of " + game_title(me) + "\n";
     for (i = 0; i < sizeof(paths); i++)
-      ret += sprintf("  %-50s %4d followers\n", paths[i],
+      ret += sprintf("  %-20s %4d followers\n", deity_title(paths[i]),
                      map_sizeof(deities->query_followers(paths[i])));
     write(ret);
     return 1;
@@ -122,7 +148,7 @@ static int cmd(string str, object me, string verb)
     {
       rec = deities->query_follower(path, names[i]);
       if (rec)
-        ret += "  " + names[i] + "\n" + account_line(path, rec);
+        ret += "  " + deity_title(names[i]) + "\n" + account_line(path, rec);
     }
 
     if (!strlen(ret))
@@ -140,16 +166,16 @@ static int cmd(string str, object me, string verb)
   followers = deities->query_followers(path);
   if (!map_sizeof(followers))
   {
-    write((load_object(path) ? path : "No deity loads at " + path) +
+    write((load_object(path) ? deity_title(path) : "No deity loads at " + path) +
           ": no followers on the books.\n");
     return 1;
   }
 
   names = sort_array(map_indices(followers));
-  ret = "Followers of " + path + "\n" + header();
+  ret = "Followers of " + deity_title(path) + "\n" + header();
   for (i = 0; i < sizeof(names); i++)
     ret += account_line(names[i], followers[names[i]]);
 
-  me->more_string(ret);
+  me->user()->more_string(ret);
   return 1;
 }
