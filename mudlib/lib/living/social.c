@@ -82,6 +82,16 @@ void set_social_object_list(string * list)
   social_object_list = list;
 }
 
+// A refused social object path, written down for the coders. Nobody is told
+// on the spot: whoever this_player() is may only have walked into the room
+// that built this living.
+private void _log_social_path(string str, string setter, string why)
+{
+  log_file("social_paths", "[" + ctime(time(), 4) + "] " + setter + "(\"" +
+    str + "\") on " + file_name(this_object()) + " (" +
+    this_object()->query_cap_name() + "): " + why + "\n");
+}
+
 // A social object is named by its full path, ".c" included: any other form
 // is a bug in whoever passes it, so it is reported and refused.
 private int _full_social_path(string str, string setter)
@@ -89,14 +99,7 @@ private int _full_social_path(string str, string setter)
   if (strlen(str) > 2 && str[strlen(str) - 2 ..] == ".c")
     return TRUE;
 
-  log_file("social_paths", "[" + ctime(time(), 4) + "] " + setter + "(\"" +
-    str + "\") on " + file_name(this_object()) + " (" +
-    this_object()->query_cap_name() + "): not a path ending in \".c\"\n");
-
-  if (this_player() && this_player()->query_coder())
-    tell_object(this_player(), "Illegal path for " + setter +
-      " (it must end in \".c\"): " + str + "\n");
-
+  _log_social_path(str, setter, "not a path ending in \".c\"");
   return FALSE;
 }
 
@@ -191,8 +194,7 @@ void set_race_ob(string str)
   // for any object, the valid directories are the common one, and the specific for its game
   if (!_in_social_dirs(str, DEFAULT_RACE_DIR, "obj/races/"))
   {
-    if (this_player() && this_player()->query_coder())
-      tell_object(this_player(), "Illegal path for set_race_ob: " + str + "\n");
+    _log_social_path(str, "set_race_ob", "not in a races directory");
     return;
   }
 
@@ -671,8 +673,7 @@ void set_job_ob(string str)
   // for its game
   if (!_in_social_dirs(str, DEFAULT_JOB_DIR, "obj/jobs/"))
   {
-    if (this_player() && this_player()->query_coder())
-      tell_object(this_player(), "Illegal path for set_job_ob: " + str + "\n");
+    _log_social_path(str, "set_job_ob", "not in a jobs directory");
     return;
   }
 
