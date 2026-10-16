@@ -87,3 +87,34 @@
 
 // wearable bags: what one holds
 #define _LANG_WEARABLE_BAG_CONTAINS " contains:\n"
+
+// deity.c -- $god$ is the deity's name, $noun$ god or goddess
+
+#define _LANG_DEITY_NOUN_MALE "god"
+#define _LANG_DEITY_NOUN_FEMALE "goddess"
+#define _LANG_DEITY_REFUSE_RACE "$god$ does not take your people among the faithful.\n"
+#define _LANG_DEITY_REFUSE_LINEAGE "$god$ does not take those of your lineage among the faithful.\n"
+#define _LANG_DEITY_REFUSE_TOO_EVIL "There is too much evil in your soul for $god$ to take you.\n"
+#define _LANG_DEITY_REFUSE_TOO_GOOD "There is too much good in your soul for $god$ to take you.\n"
+#define _LANG_DEITY_REFUSE_GUILD_REQUIRED "$god$ only takes those of certain guilds, and yours is not one of them.\n"
+#define _LANG_DEITY_REFUSE_GUILD_FORBIDDEN "$god$ takes nobody of your guild among the faithful.\n"
+#define _LANG_DEITY_REFUSE_CITIZENSHIP "Your people do not allow the worship of $god$: you cannot worship that $noun$.\n"
+#define _LANG_DEITY_OFFERING_ACCEPTED "Your offering vanishes. You feel that $god$ has accepted it.\n"
+#define _LANG_DEITY_PRAYER_WORDS ([ \
+      "heal"     : ({ "healing", "heal", "cure" }), \
+      "power"    : ({ "power" }), \
+      "blessing" : ({ "blessing", "bless" }), \
+      "strength" : ({ "strength" }), \
+      "wisdom"   : ({ "wisdom" }), \
+    ])
+#define _LANG_DEITY_PRAYER_SCOLDED "$god$ tells you: Stop bothering me, or you will feel my wrath!\n"
+#define _LANG_DEITY_PRAYER_CURSE "$god$ tells you: I have had enough of your nuisance. Do not " + \
+      "bother me again. You are now cursed in my eyes.\n"
+#define _LANG_DEITY_PRAYER_HEARD "Your prayers are heard!\n"
+#define _LANG_DEITY_PRAYER_UNANSWERED "Your prayers were not answered.\n"
+#define _LANG_DEITY_PRAYER_HEALED "Your wounds close: you heal " + amount + " hit points.\n"
+#define _LANG_DEITY_PRAYER_POWERED "You feel more powerful as you recover " + amount + \
+      " energy points.\n"
+#define _LANG_DEITY_PRAYER_BLESSED "You have been blessed!\n"
+#define _LANG_DEITY_PRAYER_STRONG "A divine strength runs through your veins.\n"
+#define _LANG_DEITY_PRAYER_WISE "You feel a great wisdom.\n"

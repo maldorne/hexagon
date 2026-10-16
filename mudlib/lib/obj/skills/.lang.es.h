@@ -238,3 +238,25 @@
       word + ".\n"
 #define _LANG_SKILL_JUDGE_USELESS capitalize(target->query_short()) + " te parece " + \
       "bastante inútil.\n"
+
+// pray.c
+
+#define _LANG_SKILL_PRAY_NAME "rezar"
+#define _LANG_SKILL_PRAY_ALIASES ({ "orar" })
+#define _LANG_SKILL_PRAY_HELP "Con 'rezar <plegaria>' pides un favor a tu dios, " + \
+      "y solo donde se le rinde culto: en uno de sus templos, o ante un altar o " + \
+      "una estatua dedicados a él. Las plegarias que escucha dependen de cada " + \
+      "dios; las más comunes son curación (recuperas vida), poder (recuperas " + \
+      "energía), bendición (más constitución por un tiempo), fuerza (más fuerza " + \
+      "por un tiempo) y sabiduría (más sabiduría e inteligencia por un tiempo). " + \
+      "Los dioses no siempre escuchan, y menos cuanto más se les molesta: si " + \
+      "rezas demasiado se enfadarán y acabarán por maldecirte. Quien no adora a " + \
+      "ningún dios no sabe rezar.\n"
+#define _LANG_SKILL_PRAY_START "Elevas una plegaria."
+#define _LANG_SKILL_PRAY_START_ROOM "reza en silencio."
+#define _LANG_SKILL_PRAY_NO_DEITY "No adoras a ningún dios: no tienes a quién rezar.\n"
+#define _LANG_SKILL_PRAY_WRONG_PLACE "No te atreves a rezar aquí: tu $noun$ podría enfadarse.\n"
+#define _LANG_SKILL_PRAY_SYNTAX "¿Rezar por qué? Las plegarias que $god$ escucha son: " + \
+      "$prayers$.\nSintaxis: rezar <plegaria>\n"
+#define _LANG_SKILL_PRAY_CURSED "Estás maldito y no puedes rezar.\n"
+#define _LANG_SKILL_PRAY_REFUSED "$god$ rehúye escuchar una plegaria así.\n"

@@ -121,6 +121,20 @@ private mixed * skill_row(string id)
 }
 
 /**
+ * The object of a skill, where the catalogue says it is now: a skill may have
+ * moved since it was learnt.
+ * @param id the skill id
+ * @return the path, "" when the skill is not known and not listed
+ */
+private string skill_path(string id)
+{
+  mixed * row;
+
+  row = skill_row(id);
+  return sizeof(row) ? row[SKILL_DATA_PATH] : "";
+}
+
+/**
  * Number of levels of a levelled skill, as the catalogue says now.
  * @param id the skill id
  * @return the level count, at least 1; 0 if the skill is not levelled
@@ -196,7 +210,7 @@ private void known_skill_commands()
     if (skill_type(known_skills[i]) == PASSIVE_SKILL)
       continue;
 
-    catch(skill_ob = load_object(skill_list[known_skills[i]][SKILL_DATA_PATH]));
+    catch(skill_ob = load_object(skill_path(known_skills[i])));
 
     // If the skill object fails to load, do not add the action
     if (!objectp(skill_ob))
@@ -307,7 +321,7 @@ int list_skills(varargs string str)
     object f;
     string cat;
 
-    f = load_object(skill_list[known_skills[i]][0]);
+    f = load_object(skill_path(known_skills[i]));
 
     if (!f)
       continue;
@@ -338,7 +352,7 @@ int list_skills(varargs string str)
       object f;
       string cat;
 
-      f = load_object(skill_list[known_skills[i]][0]);
+      f = load_object(skill_path(known_skills[i]));
 
       if (!f)
         continue;
@@ -754,7 +768,7 @@ int do_skill(string str)
     string * cands;
     int c;
 
-    f = load_object(skill_list[known_skills[i]][SKILL_DATA_PATH]);
+    f = load_object(skill_path(known_skills[i]));
     if (!f)
       continue;
 
@@ -812,7 +826,7 @@ int do_skill(string str)
 
   // Call the skill's cast_effect, passing the string (targets to search),
   // the effect initiator, and quiet as false
-  result = (int)call_other( skill_list[known_skills[found]][0],
+  result = (int)call_other( skill_path(known_skills[found]),
                           "cast_effect", 
                           str, 
                           this_object(), 

@@ -76,6 +76,11 @@ void create()
     // active skill: 'judge <item>', rates a weapon or an armour carried.
     SKILL_JUDGE :
       ({ SKILLS_PATH + SKILL_JUDGE, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: 'pray <prayer>', asking one's deity for a favour. Known or
+    // not: every worshipper is given it when they take a deity.
+    SKILL_PRAY :
+      ({ SKILLS_PATH + SKILL_PRAY, 1, 0, ACTIVE_SKILL, SKILL_KIND_FIXED, }),
   ]);
 }
 

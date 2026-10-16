@@ -88,3 +88,34 @@
 
 // wearable bags: what one holds
 #define _LANG_WEARABLE_BAG_CONTAINS " contiene:\n"
+
+// deity.c -- $god$ is the deity's name, $noun$ dios or diosa
+
+#define _LANG_DEITY_NOUN_MALE "dios"
+#define _LANG_DEITY_NOUN_FEMALE "diosa"
+#define _LANG_DEITY_REFUSE_RACE "$god$ no acepta a los tuyos entre sus fieles.\n"
+#define _LANG_DEITY_REFUSE_LINEAGE "$god$ no acepta a los de tu linaje entre sus fieles.\n"
+#define _LANG_DEITY_REFUSE_TOO_EVIL "Hay demasiada maldad en tu alma para que $god$ te acepte.\n"
+#define _LANG_DEITY_REFUSE_TOO_GOOD "Hay demasiada bondad en tu alma para que $god$ te acepte.\n"
+#define _LANG_DEITY_REFUSE_GUILD_REQUIRED "$god$ solo acepta a los de ciertos gremios, y el tuyo no es uno de ellos.\n"
+#define _LANG_DEITY_REFUSE_GUILD_FORBIDDEN "$god$ no acepta a nadie de tu gremio entre sus fieles.\n"
+#define _LANG_DEITY_REFUSE_CITIZENSHIP "Los tuyos no consienten el culto a $god$: no puedes adorar a ese $noun$.\n"
+#define _LANG_DEITY_OFFERING_ACCEPTED "Tu ofrenda desaparece. Sientes que $god$ la ha aceptado.\n"
+#define _LANG_DEITY_PRAYER_WORDS ([ \
+      "heal"     : ({ "curacion", "curación", "curar" }), \
+      "power"    : ({ "poder" }), \
+      "blessing" : ({ "bendicion", "bendición", "bendecir" }), \
+      "strength" : ({ "fuerza" }), \
+      "wisdom"   : ({ "sabiduria", "sabiduría" }), \
+    ])
+#define _LANG_DEITY_PRAYER_SCOLDED "$god$ te dice: ¡Para de molestarme, o sentirás mi ira!\n"
+#define _LANG_DEITY_PRAYER_CURSE "$god$ te dice: Ya he tenido suficientes estorbos por " + \
+      "tu parte. No me molestes más. Ahora estás maldito ante mis ojos.\n"
+#define _LANG_DEITY_PRAYER_HEARD "¡Tus plegarias son escuchadas!\n"
+#define _LANG_DEITY_PRAYER_UNANSWERED "Tus plegarias no obtuvieron respuesta.\n"
+#define _LANG_DEITY_PRAYER_HEALED "Tus heridas se cierran: te curan " + amount + " puntos de vida.\n"
+#define _LANG_DEITY_PRAYER_POWERED "Te sientes más poderoso al recuperar " + amount + \
+      " puntos de energía.\n"
+#define _LANG_DEITY_PRAYER_BLESSED "¡Has sido bendecido!\n"
+#define _LANG_DEITY_PRAYER_STRONG "Una fuerza divina corre por tus venas.\n"
+#define _LANG_DEITY_PRAYER_WISE "Notas una gran sabiduría.\n"

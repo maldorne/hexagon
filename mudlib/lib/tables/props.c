@@ -27,6 +27,7 @@
 #include <room/prop.h>
 #include <basic/gender.h>
 #include <item/material.h>
+#include <living/skills.h>
 #include <translations/props.h>
 
 private mapping types;
@@ -339,7 +340,8 @@ void create()
     ]),
 
     // ------------------------------------------------------------
-    //  statue — decorative, stateless. Pray action for flavour;
+    //  statue — decorative, stateless. Pray action for flavour, left to
+    //  the pray skill for whoever has a deity (overrides.deity dedicates it);
     //  what is carved on its pedestal is the instance's inscription
     //  override.
     // ------------------------------------------------------------
@@ -374,6 +376,7 @@ void create()
         "pray": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
           PROP_SPEC_VERBS:        _LANG_PROP_STATUE_PRAY_VERBS,
+          PROP_SPEC_YIELDS_TO_SKILL: SKILL_PRAY,
           PROP_SPEC_MSG_ME:       _LANG_PROP_STATUE_PRAY_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_STATUE_PRAY_OTHERS,
         ]),
@@ -422,6 +425,7 @@ void create()
         "pray": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
           PROP_SPEC_VERBS:        _LANG_PROP_RUINED_STATUE_PRAY_VERBS,
+          PROP_SPEC_YIELDS_TO_SKILL: SKILL_PRAY,
           PROP_SPEC_MSG_ME:       _LANG_PROP_RUINED_STATUE_PRAY_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_RUINED_STATUE_PRAY_OTHERS,
         ]),
@@ -518,7 +522,8 @@ void create()
     ]),
 
     // ------------------------------------------------------------
-    //  altar — decorative, stateless. Pray action for flavour.
+    //  altar — decorative, stateless. Pray action for flavour, left to the
+    //  pray skill for whoever has a deity (overrides.deity dedicates it).
     // ------------------------------------------------------------
     "altar": ([
 
@@ -542,6 +547,7 @@ void create()
         "pray": ([
           PROP_SPEC_KIND:         PROP_PLAN_GENERIC,
           PROP_SPEC_VERBS:        _LANG_PROP_ALTAR_PRAY_VERBS,
+          PROP_SPEC_YIELDS_TO_SKILL: SKILL_PRAY,
           PROP_SPEC_MSG_ME:       _LANG_PROP_ALTAR_PRAY_ME,
           PROP_SPEC_MSG_OTHERS:   _LANG_PROP_ALTAR_PRAY_OTHERS,
         ]),

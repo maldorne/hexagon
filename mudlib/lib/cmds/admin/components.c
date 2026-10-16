@@ -111,11 +111,19 @@ private int do_list(object env)
  */
 private int do_remove(object env, string type)
 {
+  object comp;
+
   if (!env->has_component(type))
   {
     notify_fail("This location has no '" + type + "' component.\n");
     return 0;
   }
+  // the location destructs a component it drops without calling it, so what
+  // the component put up (a sign) is taken down first
+  comp = env->query_component_by_type(type);
+  if (comp && function_exists("take_down", comp))
+    comp->take_down();
+
   env->remove_component(type);
   write("Removed component '" + type + "'.\n");
   return 1;

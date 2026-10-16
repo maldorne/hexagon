@@ -235,3 +235,25 @@
       word + ".\n"
 #define _LANG_SKILL_JUDGE_USELESS capitalize(target->query_short()) + " looks " + \
       "rather useless to you.\n"
+
+// pray.c
+
+#define _LANG_SKILL_PRAY_NAME "pray"
+#define _LANG_SKILL_PRAY_ALIASES ({ })
+#define _LANG_SKILL_PRAY_HELP "With 'pray <prayer>' you ask your god for a favour, " + \
+      "and only where they are worshipped: in one of their temples, or before an " + \
+      "altar or a statue dedicated to them. Which prayers a god hears depends on " + \
+      "the god; the most common are healing (you recover hit points), power (you " + \
+      "recover energy), blessing (more constitution for a while), strength (more " + \
+      "strength for a while) and wisdom (more wisdom and intelligence for a " + \
+      "while). The gods do not always listen, and less the more they are " + \
+      "bothered: if you pray too much they will get angry and end up cursing " + \
+      "you. Whoever worships no god does not know how to pray.\n"
+#define _LANG_SKILL_PRAY_START "You raise a prayer."
+#define _LANG_SKILL_PRAY_START_ROOM "prays in silence."
+#define _LANG_SKILL_PRAY_NO_DEITY "You worship no god: there is nobody to pray to.\n"
+#define _LANG_SKILL_PRAY_WRONG_PLACE "You do not dare to pray here: your $noun$ could take offence.\n"
+#define _LANG_SKILL_PRAY_SYNTAX "Pray for what? The prayers $god$ hears are: " + \
+      "$prayers$.\nSyntax: pray <prayer>\n"
+#define _LANG_SKILL_PRAY_CURSED "You are cursed and cannot pray.\n"
+#define _LANG_SKILL_PRAY_REFUSED "$god$ shuns hearing a prayer like that.\n"

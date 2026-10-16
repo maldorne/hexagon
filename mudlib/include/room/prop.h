@@ -113,6 +113,10 @@
 // PROP_SPEC_MSG_ME (PROP_OVERRIDE_INSCRIPTION for reading). An instance
 // without that text gets PROP_SPEC_MISSING_MSG instead, and nothing changes.
 #define PROP_SPEC_SHOW_TEXT             "show_text"
+// A skill id: a player who knows that skill is left to it, and the action
+// does nothing for them. The skill answers the verb first (the player's own
+// actions come before the room's), so its message is the one that stands.
+#define PROP_SPEC_YIELDS_TO_SKILL       "yields_to_skill"
 
 // ------------------------------------------------------------
 //  Type-entry sub-keys inside /lib/tables/props.c.

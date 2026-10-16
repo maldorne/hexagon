@@ -40,6 +40,7 @@
 #define SKILL_STEAL       "steal"
 #define SKILL_FOCUS       "focus"
 #define SKILL_JUDGE       "judge"
+#define SKILL_PRAY        "pray"
 
 // Skills every player must always have. Granted silently and idempotently
 // on each login (grant_default_skills, called from living::start_player):

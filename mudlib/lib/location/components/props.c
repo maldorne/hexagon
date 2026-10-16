@@ -43,6 +43,7 @@ private mapping * _instances_with_verb(string verb);
 private mapping  _find_by_handle(string handle);
 private int      _str_matches_instance(string str, mapping inst);
 private int      _execute_generic(mapping spec, mapping inst, string args);
+private int      _yields_to_skill(string verb);
 private string   _render_msg(string template, mixed arg);
 private void     _update_light();
 private string   _instance_material(mapping inst);
@@ -1076,6 +1077,11 @@ int do_prop_action(string str)
   // actions across prop types.
   verb = query_verb();
 
+  // left to a skill the player knows: nothing here, not even a notify_fail
+  // that would hide the skill's own message
+  if (_yields_to_skill(verb))
+    return 0;
+
   matches = _find_matching_instances(str);
 
   // Bare-verb auto-resolve: when the player types `stand` with no
@@ -1688,6 +1694,40 @@ private mapping * _instances_with_verb(string verb)
   }
 
   return ret;
+}
+
+/**
+ * Whether the verb belongs, on some prop here, to an action left to a skill
+ * this_player() knows (PROP_SPEC_YIELDS_TO_SKILL).
+ */
+private int _yields_to_skill(string verb)
+{
+  object me;
+  int i;
+
+  me = this_player();
+  if (!me || !verb || !strlen(verb)) return 0;
+
+  for (i = 0; i < sizeof(props_instances); i++)
+  {
+    string type;
+    mixed canonical, plan;
+
+    type = props_instances[i][PROP_FIELD_TYPE];
+    if (!type || !strlen(type)) continue;
+
+    canonical = handler("props")->query_canonical_action(type, verb);
+    if (!stringp(canonical)) continue;
+
+    plan = handler("props")->query_action_plan(type, canonical);
+    if (!pointerp(plan) || sizeof(plan) < 2 || !mappingp(plan[1])) continue;
+
+    if (stringp(plan[1][PROP_SPEC_YIELDS_TO_SKILL]) &&
+        me->query_known_skill(plan[1][PROP_SPEC_YIELDS_TO_SKILL]))
+      return 1;
+  }
+
+  return 0;
 }
 
 /*

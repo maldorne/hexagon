@@ -1107,6 +1107,18 @@ object convert_room_to_location(object room)
     ret += "   Adding component jail.\n";
   }
 
+  // A temple room becomes a temple component, given to the deity the room
+  // names; it puts its own sign up from the temples help document on every
+  // load.
+  if (room->query_temple() &&
+      !location->has_component(LOCATION_COMPONENT_TEMPLE))
+  {
+    location->add_component(LOCATION_COMPONENT_TEMPLE, ([
+      "deity" : room->query_temple_deity(),
+        ]));
+    ret += "   Adding component temple.\n";
+  }
+
   // A library room becomes a library component, with the books it declares.
   // On a reconversion the books the room declares now are added to the ones
   // the library already holds, so those deposited in it are kept.
@@ -1254,15 +1266,16 @@ object convert_room_to_location(object room)
 
   // A sign posted in the room (add_sign) becomes a sign component on the
   // location, which re-materialises the read-able item on every load.
-  // Ventures (pub, shop), post offices, vaults, fines offices, libraries and the entrances and
-  // halls of guilds create and manage their own sign (the menu, the price
-  // board, the mail instructions, the vault help, the fines help, the guild's information)
+  // Ventures (pub, shop), post offices, vaults, fines offices, temples, libraries and the
+  // entrances and halls of guilds create and manage their own sign (the menu, the price
+  // board, the mail instructions, the vault help, the fines help, the temples help, the
+  // guild's information)
   // through their component, and that item also carries a read message -- so
   // skip auto-detection here for them, or the sign would be duplicated (its
   // own copy plus a captured sign-component copy).
   if (!room->query_pub() && !room->query_shop() && !room->query_post_office() &&
       !room->query_vault_room() && !room->query_library() &&
-      !room->query_fines_office() &&
+      !room->query_fines_office() && !room->query_temple() &&
       !room->query_guild_entrance() && !room->query_guild_room())
   {
     mapping sign;

@@ -1,0 +1,14 @@
+@verbs templo templos temples
+@tier player
+@title cómo adorar a un dios, hacerle ofrendas y rezarle
+@see rezar
+
+                     Templo                              
+                                                         
+    - 'adorar' para consagrarte al dios de este templo.   
+      Es para siempre: nunca podrás cambiar de dios.      
+    - 'ofrecer <objeto>' o 'ofrecer <cantidad> monedas'   
+      para hacer una ofrenda, si eres uno de sus fieles.  
+    - 'rezar <plegaria>' para pedirle un favor, aquí o    
+      ante un altar o una estatua dedicados a él.         
+                                                         

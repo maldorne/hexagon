@@ -1,0 +1,14 @@
+@verbs temple temples
+@tier player
+@title how to worship a god, make offerings and pray
+@see pray
+
+                     Temple                              
+                                                         
+    - 'worship' to give yourself to this temple's god.    
+      It is forever: you can never change your god.       
+    - 'offer <item>' or 'offer <amount> coins' to make    
+      an offering, if you are one of the faithful.        
+    - 'pray <prayer>' to ask a favour, here or before     
+      an altar or a statue dedicated to them.             
+                                                         

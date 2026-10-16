@@ -144,6 +144,14 @@ way any written text is read (`read_message` on the player): in a frame, in the
 instance's `language` (the common tongue when unset), and garbled for a reader
 who does not know it.
 
+An altar, a statue or a ruined statue may be dedicated to a deity with a
+`deity` override, the deity's full path with `.c`
+(`props set altar_1 overrides.deity /games/<game>/obj/deities/<deity>.c`):
+there its followers can pray. Their `pray` action carries
+`PROP_SPEC_YIELDS_TO_SKILL` (a skill id): for a player who knows that skill the
+action does nothing and sets no message, so the skill's answer stands. See
+`lib/room/temple/temple.md`.
+
 ## Light
 
 A type gives light with `PROP_TYPE_LIGHT` (`state_field -> light`): each
