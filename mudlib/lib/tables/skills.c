@@ -1,5 +1,9 @@
-// Skills catalogue: skill_id -> ({ object_path, initial_ability_percent,
-// times_used, ACTIVE_SKILL | PASSIVE_SKILL }). Consumed by lib/living/skills.c
+// Skills catalogue: skill_id -> ({ object_path, initial_value, times_used,
+// ACTIVE_SKILL | PASSIVE_SKILL [, kind [, levels]] }). The optional kind is
+// SKILL_KIND_PERCENTAGE (the default when absent), SKILL_KIND_LEVELLED (with
+// its number of levels) or SKILL_KIND_FIXED; the initial value means whatever
+// the kind says (a percentage, a level, 1 for known).
+// Consumed by lib/living/skills.c
 // (query_skill_data / add_known_skill). Skill objects live under SKILLS_PATH.
 // The key is a stable English id (= the skill object's filename), defined in
 // <living/skills.h>; the player-visible name is translated per-skill in
@@ -62,7 +66,32 @@ void create()
     // taught, not picked up, then it climbs with use.
     SKILL_STEAL :
       ({ SKILLS_PATH + SKILL_STEAL, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: 'charge <someone>', a shield rush at one opponent. A
+    // fighter's trade: taught (a guild grants it), then it climbs with use.
+    SKILL_CHARGE :
+      ({ SKILLS_PATH + SKILL_CHARGE, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: 'focus <someone>', keeps every blow on one opponent for
+    // a while. Taught like charge.
+    SKILL_FOCUS :
+      ({ SKILLS_PATH + SKILL_FOCUS, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: 'judge <item>', rates a weapon or an armour carried.
+    SKILL_JUDGE :
+      ({ SKILLS_PATH + SKILL_JUDGE, 10, 0, ACTIVE_SKILL, }),
   ]);
+}
+
+/**
+ * Adds a skill to the catalogue; a game's own table calls it from create to
+ * list the skills it ships under its own tree.
+ * @param id the skill id, the same word as the skill object's filename
+ * @param data ({ object_path, initial_value, times_used, ACTIVE_SKILL | PASSIVE_SKILL [, kind [, levels]] })
+ */
+void add_skill(string id, mixed * data)
+{
+  list[id] = data;
 }
 
 mapping query_skills() { return list; }

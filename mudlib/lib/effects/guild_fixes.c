@@ -16,6 +16,29 @@
 
 inherit "/lib/effects/environment_fixes.c";
 
+/**
+ * Why the caster's own guild withholds its powers from them, if it does.
+ *
+ * The skills a guild teaches call it from extra_checks.
+ *
+ * @return  the message to show, or nil when nothing is withheld
+ */
+string query_guild_refusal(object caster)
+{
+  string path;
+  object guild;
+
+  path = caster->query_guild_ob();
+  if (!path)
+    return nil;
+
+  guild = load_object(path);
+  if (!guild)
+    return nil;
+
+  return guild->query_powers_refusal(caster);
+}
+
 int warrior_fix_damage(object caster, object victim, int damage, string type)
 {
   // Strength-based damage modifier (disabled):

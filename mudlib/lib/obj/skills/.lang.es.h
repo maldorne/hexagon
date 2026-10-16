@@ -198,3 +198,88 @@
 #define _LANG_SKILL_STEAL_CAUGHT_ME "$hcname$ te pilla con la mano en el bolsillo.\n"
 #define _LANG_SKILL_STEAL_CAUGHT_VICTIM "¡Pillas a $mcname$ intentando robarte!\n"
 #define _LANG_SKILL_STEAL_CAUGHT_ROOM "$mcname$ intenta robar a $hcname$, pero lo pillan.\n"
+
+#define _LANG_SKILL_CHARGE_NAME "cargar"
+#define _LANG_SKILL_CHARGE_ALIASES ({ })
+#define _LANG_SKILL_CHARGE_HELP "Con 'cargar <alguien>' te lanzas contra un único " + \
+      "oponente, apoyándote en tu escudo si llevas uno, para derribarlo de un " + \
+      "golpe. Retas a tu rival y la carga llega un instante después: cuanto más " + \
+      "alto es tu nivel, más daño haces, el escudo le da peso al golpe y la " + \
+      "armadura de tu rival lo amortigua. Si lo esquiva, el impulso te hace daño " + \
+      "y puedes quedar aturdido un momento. No puedes cargar contra un compañero " + \
+      "de gremio.\n"
+#define _LANG_SKILL_CHARGE_NOTHING "¿Cargar contra la nada? Busca un objetivo digno.\n"
+#define _LANG_SKILL_CHARGE_COMRADE "No sería honroso cargar contra un compañero de armas.\n"
+#define _LANG_SKILL_CHARGE_NO_TARGET "Parece que tu oponente ha desaparecido.\n"
+#define _LANG_SKILL_CHARGE_CHALLENGE_ME "Insultas con fervor a la familia de " + \
+      target->query_cap_name() + " a modo de reto.\n"
+#define _LANG_SKILL_CHARGE_CHALLENGE_TARGET caster->query_cap_name() + " insulta con " + \
+      "fervor a tu familia, parece que te está retando.\n"
+#define _LANG_SKILL_CHARGE_CHALLENGE_ROOM caster->query_cap_name() + " reta a " + \
+      target->query_cap_name() + " insultando con fervor a su familia.\n"
+#define _LANG_SKILL_CHARGE_FLED_ME "Tu objetivo ha huido como un cobarde, y aún " + \
+      "sigues vociferando gritos de guerra tras " + target->query_objective() + ".\n"
+#define _LANG_SKILL_CHARGE_FLED_TARGET caster->query_cap_name() + " continúa " + \
+      "vociferando gritos de guerra tras de ti.\n"
+#define _LANG_SKILL_CHARGE_RUSH_ME "Vociferas gritos de guerra y empiezas tu carga.\n"
+#define _LANG_SKILL_CHARGE_RUSH_TARGET caster->query_cap_name() + " vocifera gritos " + \
+      "de guerra y carga contra ti.\n"
+#define _LANG_SKILL_CHARGE_RUSH_ROOM caster->query_cap_name() + " vocifera gritos " + \
+      "de guerra y carga contra " + target->query_cap_name() + ".\n"
+#define _LANG_SKILL_CHARGE_HIT_ME "¡Chocas contra " + target->query_cap_name() + \
+      " con un descomunal golpe!\n"
+#define _LANG_SKILL_CHARGE_HIT_TARGET "¡" + caster->query_cap_name() + " choca " + \
+      "contra ti con un descomunal golpe!\n"
+#define _LANG_SKILL_CHARGE_HIT_ROOM caster->query_cap_name() + " choca contra " + \
+      target->query_cap_name() + " con un descomunal golpe.\n"
+#define _LANG_SKILL_CHARGE_DODGED_ME "¡" + target->query_cap_name() + " consigue " + \
+      "evitar tu carga!\n"
+#define _LANG_SKILL_CHARGE_DODGED_TARGET "Consigues esquivar la carga de " + \
+      caster->query_cap_name() + ".\n"
+#define _LANG_SKILL_CHARGE_DODGED_ROOM caster->query_cap_name() + " carga contra " + \
+      target->query_cap_name() + ", pero este lo esquiva.\n"
+#define _LANG_SKILL_CHARGE_STUMBLE_ME "Tu velocidad te hace perder el equilibrio " + \
+      "y quedas aturdido un momento.\n"
+#define _LANG_SKILL_CHARGE_STUMBLE_TARGET caster->query_cap_name() + " pierde el " + \
+      "equilibrio cuando lo esquivas y queda aturdido un momento.\n"
+#define _LANG_SKILL_CHARGE_STUMBLE_ROOM caster->query_cap_name() + " pierde el " + \
+      "equilibrio y queda aturdido un momento.\n"
+#define _LANG_SKILL_CHARGE_STUMBLE_REASON "Estás aturdido tras tu carga fallida."
+
+#define _LANG_SKILL_FOCUS_NAME "centrar"
+#define _LANG_SKILL_FOCUS_ALIASES ({ })
+#define _LANG_SKILL_FOCUS_OFF_WORDS ({ "off", "no", "parar", "fin" })
+#define _LANG_SKILL_FOCUS_HELP "Con 'centrar <alguien>' concentras todos tus golpes " + \
+      "en uno solo de tus oponentes, aunque la pelea te llevara a otro. Si alguien " + \
+      "lo protege, tendrás que golpear antes a su protector. Con 'centrar off' " + \
+      "dejas de hacerlo. Cuesta un punto de energía por cada asalto, y pierdes la " + \
+      "concentración pasados dos turnos por cada nivel tuyo.\n"
+#define _LANG_SKILL_FOCUS_SYNTAX "Sintaxis: centrar <objetivo>, centrar off\n"
+#define _LANG_SKILL_FOCUS_NOT_FOCUSED "No estás centrando tus golpes en nadie.\n"
+#define _LANG_SKILL_FOCUS_NOT_FIGHTING "No estás luchando contra eso.\n"
+#define _LANG_SKILL_FOCUS_OFF "Dejas de centrar tus golpes.\n"
+#define _LANG_SKILL_FOCUS_START_ME "Empiezas a centrar tus golpes contra " + \
+      ob->query_cap_name() + ".\n"
+#define _LANG_SKILL_FOCUS_START_ROOM caster->query_cap_name() + " concentra sus " + \
+      "golpes contra " + ob->query_cap_name() + ".\n"
+#define _LANG_SKILL_FOCUS_TARGET_GONE "Tu objetivo ya no está en la pelea, y dejas " + \
+      "de centrar tus golpes.\n"
+#define _LANG_SKILL_FOCUS_LOST "Pierdes tu concentración mental.\n"
+#define _LANG_SKILL_FOCUS_TIRED "Estás demasiado cansado para seguir centrando tus golpes.\n"
+
+#define _LANG_SKILL_JUDGE_NAME "juzgar"
+#define _LANG_SKILL_JUDGE_ALIASES ({ })
+#define _LANG_SKILL_JUDGE_HELP "Con 'juzgar <objeto>' te dices a ti mismo cuánto " + \
+      "daño hace un arma que llevas o cuánto protege una armadura o un escudo. " + \
+      "No cuesta energía. Tu valoración no siempre es exacta, y mejora con la " + \
+      "práctica.\n"
+#define _LANG_SKILL_JUDGE_NOT_CARRIED "Solo puedes juzgar lo que llevas contigo.\n"
+#define _LANG_SKILL_JUDGE_WORDS ({ "muy mala", "mala", "pobre", "inferior a la media", \
+      "mediana", "superior a la media", "buena", "grande", "maravillosa", \
+      "increíble", "invencible", "insuperable" })
+#define _LANG_SKILL_JUDGE_WEAPON "La capacidad de daño de " + item->query_short() + \
+      " es " + word + " (daño de tipo " + type_name + ").\n"
+#define _LANG_SKILL_JUDGE_ARMOUR "La protección de " + item->query_short() + " es " + \
+      word + ".\n"
+#define _LANG_SKILL_JUDGE_USELESS capitalize(target->query_short()) + " te parece " + \
+      "bastante inútil.\n"

@@ -24,6 +24,9 @@ string *legal_races, *legal_classes;
 string requirements_func;
 int needed_ext_align;
 string *specs_available;
+// the skills the guild teaches its members: skill id -> ({ guild level
+// needed, least ability the member starts with })
+mapping guild_skills;
 
 nomask int query_is_guild() { return 1; }
 
@@ -33,6 +36,7 @@ void create()
   legal_races = ({ });
   legal_classes = ({ });
   specs_available = ({ });
+  guild_skills = ([ ]);
   needed_ext_align = 0;
   requirements_func = "";
   // quests::create(); // before object, or setup will give errors due to uninitialized mappings!!
@@ -175,8 +179,83 @@ int remove_guild_command(string name) {
 }
 */
 
+/**
+ * Teaches a skill to the members of the guild, from a guild level on.
+ *
+ * Call it from the guild's setup. Members get it when they join or reach the
+ * level (see grant_guild_skills) and lose it when they leave.
+ *
+ * @param  id       the skill id, see <living/skills.h>
+ * @param  level    guild level needed to know it
+ * @param  ability  least value the member has in it when taught (an ability
+ *                  for a percentage skill, a level for a levelled one)
+ */
+void add_guild_skill(string id, int level, varargs int ability)
+{
+  guild_skills[id] = ({ level, ability });
+}
+
+mapping query_guild_skills() { return guild_skills; }
+
+/**
+ * Gives a member every skill of the guild their guild level allows.
+ *
+ * Idempotent: a skill already known is left as it is, only raised to the
+ * least value the guild promises.
+ */
+void grant_guild_skills(object player)
+{
+  string * ids;
+  int i, level, ability;
+
+  ids = map_indices(guild_skills);
+  level = player->query_guild_level();
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    if (guild_skills[ids[i]][0] > level)
+      continue;
+
+    player->add_known_skill(ids[i]);
+
+    ability = guild_skills[ids[i]][1];
+    if (player->query_known_skill(ids[i]) &&
+        player->query_skill_value(ids[i]) < ability)
+      player->set_skill_value(ids[i], ability, 1);
+  }
+}
+
+/**
+ * Takes the skills of the guild away from a member who leaves it.
+ */
+void remove_guild_skills(object player)
+{
+  string * ids;
+  int i;
+
+  ids = map_indices(guild_skills);
+
+  for (i = 0; i < sizeof(ids); i++)
+    player->remove_known_skill(ids[i]);
+}
+
+/**
+ * Why the guild withholds its powers from a member right now.
+ *
+ * A guild whose members lose their gifts under some condition (a paladin who
+ * turns evil) masks this; its skills ask for it before they run.
+ *
+ * @return  the message for the member, or nil when nothing is withheld
+ */
+string query_powers_refusal(object player)
+{
+  return nil;
+}
+
 void start_player(object pl) 
 {
+  grant_guild_skills(pl);
+
   /*
   int i;
 
@@ -287,6 +366,8 @@ int can_abandon(object player)
 // Called when the guild is actually abandoned
 int guild_abandon(object player)
 {
+  remove_guild_skills(player);
+
   // if (player->query_player())
   // {
   //   string * quests = player->query_quests();

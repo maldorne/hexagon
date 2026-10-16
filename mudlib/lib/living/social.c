@@ -1017,6 +1017,10 @@ int adjust_guild_level(int i)
 
   guild_level += i;
 
+  // the new level may teach a skill of the guild
+  if (i > 0 && query_guild_ob())
+    catch(query_guild_ob()->grant_guild_skills(this_object()));
+
   // the new rank may carry a title with it
   this_object()->check_new_titles();
 
