@@ -40,7 +40,7 @@ inherit "/lib/armour.c";
   "               | equip <name> [for <type>] <item.c[|alt.c...]>...\n" + \
   "               | timetable <name> [<hour> <work|home|out|clear>]\n" + \
   "               | timetable <name> <hour> <leave|arrive> [message]\n" + \
-  "               | class <name> <class.c|none> | home <name>\n" + \
+  "               | class <name> <class.c|none> | home <name> [none]\n" + \
   "               | rename <name> <new name> | remove <name> | list >"
 #define BUILDER_RING_NPC_SYNTAX \
   "build npc < (report) | resident <source> [off] >"
@@ -99,7 +99,7 @@ inherit "/lib/armour.c";
   "                                  several types, drawn by weight\n" + \
   "  build vacancy equip <name> [for <type>] <item.c[|alt.c]>...\n" + \
   "  build vacancy class <name> <class.c|none>  what the job trains in\n" + \
-  "  build vacancy home <name>                  bind a house to the job\n" + \
+  "  build vacancy home <name> [none]           bind a house to the job, or not\n" + \
   "  build vacancy resident <name> [none]       its holders live in town\n" + \
   "  build vacancy spot <name> [remove]         a place this job is worked\n" + \
   "  build vacancy spots <name>                 list them\n" + \
@@ -1572,7 +1572,7 @@ int do_vacancy(string str)
 
     if (sizeof(args) < 2)
     {
-      notify_fail("Usage: build vacancy home <name>\n");
+      notify_fail("Usage: build vacancy home <name> [none]\n");
       return 0;
     }
 
@@ -1581,6 +1581,19 @@ int do_vacancy(string str)
     {
       notify_fail("No vacancy '" + args[1] + "' in this area.\n");
       return 0;
+    }
+
+    // a job that needs no particular roof: its people are housed like anyone
+    if (sizeof(args) > 2 && args[2] == "none")
+    {
+      if (!area->clear_vacancy_home(args[1]))
+      {
+        notify_fail("The '" + args[1] + "' vacancy has no house of its own.\n");
+        return 0;
+      }
+      write("The '" + args[1] + "' vacancy has no house of its own any more; " +
+            "its holders left it, to be housed again by 'build homes'.\n");
+      return 1;
     }
 
     // a job's house is kept for it: set_vacancy_home moves its holders in

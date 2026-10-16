@@ -528,6 +528,32 @@ int is_kept_house(string file)
   return house_records[file] && house_records[file][HOUSE_KEPT];
 }
 
+/**
+ * Says whether the house at `file` is kept for something in particular (a
+ * post, a barracks), and so never handed to whoever is homeless.
+ *
+ * @return  0 if `file` is not a house
+ */
+int set_kept_house(string file, int flag)
+{
+  object owner;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->set_kept_house(file, flag);
+
+  if (!house_records || !house_records[file])
+    return 0;
+
+  if (flag)
+    house_records[file][HOUSE_KEPT] = 1;
+  else
+    map_delete(house_records[file], HOUSE_KEPT);
+
+  this_object()->save_me();
+  return 1;
+}
+
 int is_communal_house(string file)
 {
   object owner;

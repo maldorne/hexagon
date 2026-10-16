@@ -490,6 +490,49 @@ int set_vacancy_home(string job, string home)
   return found;
 }
 
+/**
+ * Lets the job `job` go without a house of its own. Its holders leave the one
+ * it had, to be housed again like anybody else by the next housing pass, and
+ * the house stops being kept unless another job still has it.
+ *
+ * @return  0 if the job is not open or has no house
+ */
+int clear_vacancy_home(string job)
+{
+  mapping vacancy;
+  mapping * all;
+  string home, * holders;
+  object owner;
+  int i, still;
+
+  owner = (object)this_object()->query_root_area();
+  if (owner != this_object())
+    return (int)owner->clear_vacancy_home(job);
+
+  vacancy = query_vacancy(job);
+  if (!vacancy || !stringp(vacancy[VACANCY_HOME]) ||
+      !strlen(vacancy[VACANCY_HOME]))
+    return 0;
+
+  home = vacancy[VACANCY_HOME];
+  map_delete(vacancy, VACANCY_HOME);
+
+  holders = query_vacancy_holders(vacancy);
+  for (i = 0; i < sizeof(holders); i++)
+    if (this_object()->query_house_of(holders[i]) == home)
+      this_object()->set_house_of(holders[i], nil);
+
+  all = query_vacancies();
+  for (i = 0; i < sizeof(all); i++)
+    if (all[i][VACANCY_HOME] == home)
+      still = 1;
+  if (!still)
+    this_object()->set_kept_house(home, 0);
+
+  this_object()->save_me();
+  return 1;
+}
+
 // ---------------------------------------------------------------------------
 // Who holds what
 // ---------------------------------------------------------------------------
