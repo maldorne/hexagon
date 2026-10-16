@@ -30,5 +30,6 @@
 
 // subtypes
 #define MAT_SILK     "cloth:silk"
+#define MAT_GRANITE  "stone:granite"
 
 #define MAT_UNKNOWN  "unknown"

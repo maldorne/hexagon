@@ -23,6 +23,9 @@
 #define _LANG_MATERIAL_STONE_PHRASE     "stone"
 #define _LANG_MATERIAL_STONE_NAME       "stone"
 
+#define _LANG_MATERIAL_GRANITE_PHRASE   "granite"
+#define _LANG_MATERIAL_GRANITE_NAME     "granite"
+
 #define _LANG_MATERIAL_LEATHER_PHRASE   "leather"
 #define _LANG_MATERIAL_LEATHER_NAME     "leather"
 

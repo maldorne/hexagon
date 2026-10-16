@@ -23,6 +23,9 @@
 #define _LANG_MATERIAL_STONE_PHRASE     "de piedra"
 #define _LANG_MATERIAL_STONE_NAME       "piedra"
 
+#define _LANG_MATERIAL_GRANITE_PHRASE   "de granito"
+#define _LANG_MATERIAL_GRANITE_NAME     "granito"
+
 #define _LANG_MATERIAL_LEATHER_PHRASE   "de cuero"
 #define _LANG_MATERIAL_LEATHER_NAME     "cuero"
 
