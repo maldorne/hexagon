@@ -208,7 +208,7 @@
 #define _LANG_PROP_STATUE_SHORT         "una estatua $material_phrase$"
 #define _LANG_PROP_STATUE_LONG          "Una estatua $material_phrase$ se alza en este lugar, representando a una figura desconocida."
 
-#define _LANG_PROP_STATUE_PRAY_VERBS    ({ "rezar", "orar" })
+#define _LANG_PROP_STATUE_PRAY_VERBS    ({ "rezar" })
 
 #define _LANG_PROP_STATUE_PRAY_ME       "Te arrodillas ante la estatua y ofreces una oración en silencio."
 #define _LANG_PROP_STATUE_PRAY_OTHERS   "$mcname$ se arrodilla ante la estatua y reza en silencio."
@@ -272,7 +272,7 @@
 #define _LANG_PROP_RUNE_READ_ME         "Te acercas a la runa y lees lo que tiene grabado."
 #define _LANG_PROP_RUNE_READ_OTHERS     "$mcname$ se acerca a una runa y la lee."
 
-#define _LANG_PROP_RUINED_STATUE_PRAY_VERBS  ({ "rezar", "orar" })
+#define _LANG_PROP_RUINED_STATUE_PRAY_VERBS  ({ "rezar" })
 #define _LANG_PROP_RUINED_STATUE_PRAY_ME     "Te arrodillas ante la estatua abandonada. Nadie parece haberlo hecho en mucho tiempo."
 #define _LANG_PROP_RUINED_STATUE_PRAY_OTHERS "$mcname$ se arrodilla ante la estatua abandonada y reza en silencio."
 
@@ -304,7 +304,7 @@
 #define _LANG_PROP_ALTAR_SHORT          "un altar de piedra"
 #define _LANG_PROP_ALTAR_LONG           "Un modesto altar de piedra pulida."
 
-#define _LANG_PROP_ALTAR_PRAY_VERBS     ({ "rezar", "orar" })
+#define _LANG_PROP_ALTAR_PRAY_VERBS     ({ "rezar" })
 
 #define _LANG_PROP_ALTAR_PRAY_ME        "Inclinas la cabeza ante el altar."
 #define _LANG_PROP_ALTAR_PRAY_OTHERS    "$mcname$ inclina la cabeza ante el altar."
@@ -607,6 +607,6 @@
 // entrada usa la genérica, con el verbo tal cual lo escribió el jugador.
 #define _LANG_PROPS_VERB_PROMPT_DEFAULT "¿%s qué?"
 #define _LANG_PROPS_VERB_PROMPTS ([ \
-  "rezar": "¿Rezar ante qué?", "orar": "¿Orar ante qué?" ])
+  "rezar": "¿Rezar ante qué?" ])
 
 #endif // _LANG_PROPS_H_ES

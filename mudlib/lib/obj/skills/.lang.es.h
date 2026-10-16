@@ -242,7 +242,7 @@
 // pray.c
 
 #define _LANG_SKILL_PRAY_NAME "rezar"
-#define _LANG_SKILL_PRAY_ALIASES ({ "orar" })
+#define _LANG_SKILL_PRAY_ALIASES ({ })
 #define _LANG_SKILL_PRAY_HELP "Con 'rezar <plegaria>' pides un favor a tu dios, " + \
       "y solo donde se le rinde culto: en uno de sus templos, o ante un altar o " + \
       "una estatua dedicados a él. Las plegarias que escucha dependen de cada " + \

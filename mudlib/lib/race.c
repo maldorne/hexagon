@@ -308,8 +308,9 @@ string query_body_kind()
   return BODY_HUMANOID;
 }
 
-// One spec, as the defaults write it.
-private mapping part_spec(string skill, int min, int weight, int value,
+// One spec, as the defaults write it; a race adding a part of its own may
+// build it the same way.
+static mapping part_spec(string skill, int min, int weight, int value,
                           int count, int perishable)
 {
   return ([ BODY_PART_SKILL : skill, BODY_PART_MIN : min,
