@@ -30,7 +30,7 @@
                              CRIME_GUARD_ASSAULT : 40 ])
 
 // whether the guards of a citizenship kill instead of arresting (1 or 0)
-#define CRIME_DEFAULT_LETHAL 0
+#define CRIME_DEFAULT_LETHAL 1
 
 // --- status -----------------------------------------------------------------
 
@@ -91,5 +91,28 @@
 
 // seconds of jail for each point
 #define CRIME_JAIL_SECONDS_PER_POINT 30
+
+// --- justice: beaten, arrested, fined (phase 4) -----------------------------
+
+// seconds a living beaten by a non-lethal guard stays passed out
+#define CRIME_PASSED_OUT_SECONDS 30
+
+// longest sentence, in seconds, whatever the points
+#define CRIME_JAIL_MAX_SECONDS 1800
+
+// percentage of the points that remain once a sentence is served
+#define CRIME_RELEASE_KEEP_PERCENT 25
+
+// points a sentence is counted from for an NPC that has no record
+#define CRIME_NPC_ARREST_POINTS 10
+
+// the fine grows by this percentage for each level of whoever pays it
+#define CRIME_FINE_LEVEL_PERCENT 5
+
+// bribing a jailer: base coins for each point owed, chance of success in
+// percent, and the points a failed attempt adds
+#define CRIME_BRIBE_COST_PER_POINT 10
+#define CRIME_BRIBE_CHANCE         40
+#define CRIME_BRIBE_FAIL_POINTS    10
 
 #endif

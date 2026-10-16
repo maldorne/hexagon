@@ -304,3 +304,16 @@
 
 #define _LANG_CRIMES_SEEN_CRIMINAL "Somebody saw what you did, and the law of this place will remember it.\n"
 #define _LANG_CRIMES_SEEN_VICTIM "The law of this place will know that $criminal$ is to blame.\n"
+
+// crimes: justice
+
+#define _LANG_CRIMES_PASSED_OUT_PROP "You are unconscious after the guards' beating.\n"
+#define _LANG_CRIMES_BEATEN "The guards beat you until you lie on the ground, senseless.\n"
+#define _LANG_CRIMES_BEATEN_ROOM "$who$ falls to the ground, beaten by the guards.\n"
+#define _LANG_CRIMES_ARRESTED "The guards drag you to the prison.\n"
+#define _LANG_CRIMES_ARRESTED_ROOM "The guards drag $who$ away.\n"
+#define _LANG_CRIMES_FINED_ON_SPOT "The guards search your purse and take the fine: $amount$ coins.\n"
+#define _LANG_CRIMES_LET_GO "The guards leave you lying where you fell.\n"
+#define _LANG_CRIMES_RELEASED "You have served your sentence. You may leave.\n"
+#define _LANG_CRIMES_BAILED "Somebody has paid your bail: you are free.\n"
+#define _LANG_CRIMES_PUT_BACK "The guards take you back to your cell: you have not served your sentence yet.\n"

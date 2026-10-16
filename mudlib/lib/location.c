@@ -168,10 +168,17 @@ void set_bridge_reachable(int i)
 
 string query_exit_refusal(string dir, object who)
 {
-  object bridge;
+  object bridge, jail;
+  string refusal;
 
   bridge = query_component_by_type(LOCATION_COMPONENT_BRIDGE);
-  return bridge ? bridge->query_exit_refusal(dir, who) : nil;
+  refusal = bridge ? bridge->query_exit_refusal(dir, who) : nil;
+  if (refusal)
+    return refusal;
+
+  // a prisoner serving a sentence does not leave a cell
+  jail = query_component_by_type(LOCATION_COMPONENT_JAIL);
+  return jail ? jail->query_exit_refusal(dir, who) : nil;
 }
 
 string query_out_of_reach(object attacker, object victim)

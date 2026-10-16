@@ -85,15 +85,16 @@ Every default number is in `include/crimes.h` and reaches the handler through a
 `query_threshold`, `query_default_law`, `query_default_lethal`,
 `query_decay_points`, `query_decay_period`, `query_recent_max`,
 `query_records_npcs`, `query_witness_min_light`, `query_fight_window`,
-`query_fight_memory`, and, for the guards of later
-phases, `query_death_keep_percent`, `query_pursuit_give_up` (seconds a responder pursues),
-`query_responders` (guards sent), `query_fine_per_point`, `query_jail_seconds_per_point`.
+`query_fight_memory`, `query_death_keep_percent`, `query_pursuit_give_up`
+(seconds a responder pursues), `query_responders` (guards sent),
+`query_fine_per_point`, `query_jail_seconds_per_point`, and the ones of
+"Justice" below.
 
 ## The guards' response
 
 Where the place has law, the `guard` component (`lib/npc/components/guard.c`)
-reacts in three ways. For now every reaction is an attack; whether a guard
-arrests or kills (`lethal`) is a later phase.
+reacts in three ways. Every reaction is an attack; whether the fight ends in an
+arrest or in a death is decided by `lethal` (see "Justice").
 
 - **On sight.** A guard attacks whoever `query_status` says is `wanted` or
   `outlaw` in the guard's citizenship: when that person arrives
@@ -172,7 +173,95 @@ The same aggressor against the same victim is reported once per
 event fires, the present guards attack it and the dispatch sends help; NPC
 records are not stored unless `query_records_npcs()`.
 
-## Later phases
+## Justice: beating, arrest, fines
 
-Arrest, fines and jail using `lethal` and `prison`, and `reduce` when a guard
-kills a player.
+What follows a fight with the law depends on the guard's citizenship
+(`query_lethal`, inherited up the parent chain; `CRIME_DEFAULT_LETHAL` is 1: a citizenship has to choose non-lethal guards).
+
+### Lethal citizenships
+
+Their guards kill as any other monster. When a guard (or a responder) kills a
+player, `report_death` is never murder and keeps only
+`query_death_keep_percent()` of the victim's points in the guard's country
+(`reduce`). Any death also ends a sentence being served.
+
+### Non-lethal citizenships: the beating
+
+`adjust_hp` (`lib/living/health.c`) asks the crimes handler, only when a blow
+leaves a living at 0 hp or less and its dealer is an NPC, `spare_blow(guard,
+victim)`. It answers 1, and the living is left at 1 hp, when all of these hold:
+
+- the dealer is a guard or a responder (`guard`/`responder` component) whose
+  citizenship is not lethal;
+- the victim is a player, or an NPC with a citizenship that is not an enemy
+  (diplomacy `is_enemy`) of the guard's. Fauna, monsters and the guard's
+  enemies in war die as always.
+
+Then every guard fighting the victim stops, on both sides, the victim is passed
+out for `query_passed_out_seconds()` (`PASSED_OUT_PROP`) and a second later
+`arrest` runs. Nobody else's blows change: any other dealer, safe combat and
+non-guards go through the usual death path.
+
+### Arrest
+
+`arrest` counts the victim's points in the guard's country (an NPC with no record
+counts `query_npc_arrest_points()`). With no points the guards leave the victim
+lying. Otherwise:
+
+- **The citizenship has a prison** (`query_prison`, inherited): the victim is
+  moved there (`move_living("X", prison)`; player or NPC). The sentence is
+  `points * query_jail_seconds_per_point()` seconds, at most
+  `query_jail_max_seconds()`, in real time. It is kept in the handler: players'
+  by name and saved in the crimes file, NPCs' in memory only.
+- **No prison**: the guards take the fine on the spot (`query_fine_of`) if the
+  victim is a player who carries it, and the points are wiped. If not, they leave
+  the victim lying after the beating; the points stay.
+
+A prisoner is never attacked by guards or responders while serving (`guard`
+checks `query_jail_left`).
+
+### Serving the sentence: the `jail` component
+
+`lib/location/components/jail.c` goes on the prison location where prisoners
+land. Its location refuses any typed exit (`query_exit_refusal`) to a living
+whose sentence has not ended and says how long is left. There is no heart beat:
+
+- the clock is checked lazily by `query_jail_left(who)` -- on every exit attempt
+  and when a player logs in (`watch_login`, from `start_player`);
+- a sentence that has run out is ended there by `release`: the points drop to
+  `query_release_keep_percent()` of what they were and the prisoner is told;
+- a player who logs in while still serving anywhere but in the prison is put
+  back in it.
+
+Only typed exits are blocked: teleports and forced moves are not.
+
+The component adds `sobornar` / `bribe`: the price is `query_bribe_cost()`
+(`query_bribe_cost_per_point()` for each point owed, paid win or lose); with
+`query_bribe_chance()` percent the prisoner is released as if the time were
+served, otherwise `query_bribe_fail_points()` points and the time they are worth
+(within the maximum) are added.
+
+### Paying: the `fines` component
+
+`lib/location/components/fines.c` goes on the place where fines are paid. The law
+is the place's jurisdiction. Commands (Spanish and English):
+
+- `perdon` / `owe`: points and fine. The fine is `points *
+  query_fine_per_point()`, plus `query_fine_level_percent()` per level of the one
+  who owes.
+- `pagar` / `pay`: pays all of it (`pay_fine`): the points of that country are
+  wiped (logged in the `crimes` log) and the sentence for it ends.
+- `fianza <player>` / `bail`: the same for a prisoner who is online, paid by
+  the one who types it (`bail`); the prisoner is freed at once.
+
+### Handler API
+
+`spare_blow(guard, victim)`, `query_fine_of(who, cit)`, `pay_fine(payer, who,
+cit)`, `bail(payer, prisoner, cit)`, `bribe(who)`, `query_bribe_cost(who)`,
+`query_jail_left(who)`, `query_jail_prison(who)`, `release(who)`,
+`watch_login(who)`. Tunables, in `include/crimes.h` and overridable per game:
+`query_passed_out_seconds`, `query_jail_max_seconds`,
+`query_release_keep_percent`, `query_npc_arrest_points`,
+`query_fine_level_percent`, `query_bribe_cost_per_point`, `query_bribe_chance`,
+`query_bribe_fail_points`, plus the earlier `query_fine_per_point`,
+`query_jail_seconds_per_point`, `query_death_keep_percent`.

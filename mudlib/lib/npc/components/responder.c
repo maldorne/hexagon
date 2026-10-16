@@ -133,7 +133,9 @@ static void tick()
   if (!me)
     return;
 
-  if (!target || target->query_dead() || time() >= deadline)
+  // the criminal is gone, dead or already serving a sentence
+  if (!target || target->query_dead() || time() >= deadline ||
+      (int)handler("crimes", me)->query_jail_left(target) > 0)
   {
     _stand_down();
     return;

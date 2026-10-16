@@ -155,6 +155,10 @@ private int _is_wanted(object who)
   if (!crimes || !strlen((string)crimes->query_jurisdiction(environment(me))))
     return 0;
 
+  // a prisoner serving a sentence has already been dealt with
+  if ((int)crimes->query_jail_left(who) > 0)
+    return 0;
+
   status = (string)crimes->query_status(who, citizenship);
   return status == CRIME_STATUS_WANTED || status == CRIME_STATUS_OUTLAW;
 }

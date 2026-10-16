@@ -27,6 +27,13 @@
  *
  * Combat reports fights (report_attack) and deaths (report_death), and the
  * exit handler reports a guard slipped past (report_crime with trespass).
+ *
+ * Justice (see crimes.md): a guard of a citizenship that does not kill
+ * (query_lethal) never lands the blow that would kill (spare_blow, asked by
+ * the health code); the loser is passed out and arrested -- taken to the
+ * citizenship's prison for a sentence, or fined on the spot where there is none.
+ * A sentence is kept here and served in a location with the jail component;
+ * the fines office (fines component) charges what a record owes.
  */
 
 #include <mud/config.h>
@@ -51,15 +58,26 @@ inherit "/lib/core/object.c";
 // ]) ])
 mapping records;
 
+// Sentences being served, by player name: ([ name : ([
+//   "prison" : the location file the prisoner was taken to,
+//   "until"  : the time the sentence ends,
+//   "root"   : the root citizenship that sentenced them
+// ]) ]). The sentences of NPCs are kept apart and never saved.
+mapping jailed;
+static mapping jailed_npcs;
+
 // Who started each fight, not saved: victim -> ([ aggressor : time ]). Lets a
 // repeated attack go unreported and a death be told from self-defence.
 static mapping fights;
 
 string query_save_file();
+void release(object who);
 
 void create()
 {
   records = ([ ]);
+  jailed = ([ ]);
+  jailed_npcs = ([ ]);
   fights = ([ ]);
   ::create();
   restore_object(query_save_file(), 1);
@@ -150,6 +168,30 @@ int query_fine_per_point() { return CRIME_FINE_PER_POINT; }
 
 /** Seconds of jail for each point. */
 int query_jail_seconds_per_point() { return CRIME_JAIL_SECONDS_PER_POINT; }
+
+/** Seconds a living beaten by a non-lethal guard stays passed out. */
+int query_passed_out_seconds() { return CRIME_PASSED_OUT_SECONDS; }
+
+/** Longest sentence, in seconds. */
+int query_jail_max_seconds() { return CRIME_JAIL_MAX_SECONDS; }
+
+/** Percentage of the points that remain once a sentence is served. */
+int query_release_keep_percent() { return CRIME_RELEASE_KEEP_PERCENT; }
+
+/** Points a sentence is counted from for an NPC with no record. */
+int query_npc_arrest_points() { return CRIME_NPC_ARREST_POINTS; }
+
+/** Percentage the fine grows by for each level of whoever pays it. */
+int query_fine_level_percent() { return CRIME_FINE_LEVEL_PERCENT; }
+
+/** Base coins a bribe costs for each point owed. */
+int query_bribe_cost_per_point() { return CRIME_BRIBE_COST_PER_POINT; }
+
+/** Chance, in percent, that a bribe works. */
+int query_bribe_chance() { return CRIME_BRIBE_CHANCE; }
+
+/** Points a failed bribe adds. */
+int query_bribe_fail_points() { return CRIME_BRIBE_FAIL_POINTS; }
 
 // --- The law ----------------------------------------------------------------
 
@@ -498,6 +540,46 @@ mapping query_record(string name)
   }
 
   return record;
+}
+
+// --- Sentences ----------------------------------------------------------------
+
+// The sentence a living is serving, nil when none. Players' are saved by name,
+// NPCs' are kept in memory.
+private mapping find_sentence(object who)
+{
+  if (!who)
+    return nil;
+
+  return who->query_player() ? jailed[who->query_name()] : jailed_npcs[who];
+}
+
+private void set_sentence(object who, mapping sentence)
+{
+  if (who->query_player())
+  {
+    jailed[who->query_name()] = sentence;
+    save_handler();
+  }
+  else
+    jailed_npcs[who] = sentence;
+}
+
+private void clear_sentence(object who)
+{
+  if (!who)
+    return;
+
+  if (who->query_player())
+  {
+    if (jailed[who->query_name()])
+    {
+      jailed[who->query_name()] = nil;
+      save_handler();
+    }
+  }
+  else if (jailed_npcs[who])
+    jailed_npcs[who] = nil;
 }
 
 // --- Reporting a crime ------------------------------------------------------
@@ -965,19 +1047,35 @@ void report_attack(object aggressor, object victim)
  * exceptions as report_attack, and the victim did not start the fight (a
  * victim who attacked the killer first died in self-defence).
  *
+ * A death at the hands of a guard (or of a guard sent after the victim) is
+ * never murder: it keeps only query_death_keep_percent() of the victim's points
+ * in the guard's country. Any death ends a sentence being served.
+ *
  * @param killer who dealt the last blow
  * @param victim who died
  */
 void report_death(object killer, object victim)
 {
   object place;
-  string jurisdiction;
+  string jurisdiction, citizenship;
 
   if (!killer || !victim || killer == victim)
     return;
 
+  // a death ends any sentence being served
+  clear_sentence(victim);
+
+  // dying at the hands of the law pays part of the debt
+  if (is_enforcer(killer))
+  {
+    citizenship = citizenship_of(killer);
+    if (victim->query_player() && strlen(citizenship))
+      reduce(victim->query_name(), citizenship, query_death_keep_percent());
+    return;
+  }
+
   place = environment(victim);
-  if (!place || is_enforcer(killer))
+  if (!place)
     return;
 
   if (started(victim, killer) && !started(killer, victim))
@@ -988,4 +1086,398 @@ void report_death(object killer, object victim)
     return;
 
   report_crime(killer, CRIME_MURDER, victim, place);
+}
+
+// --- Justice: beating, arrest, sentence, fines ----------------------------------
+
+// The prison as a place: a location file (.o) or a plain room; nil when it
+// cannot be loaded.
+private object prison_place(string file)
+{
+  object place;
+
+  place = nil;
+  if (!strlen(file))
+    return nil;
+
+  catch(place = load_object(LOCATION_HANDLER)->resolve_to_location(file));
+  if (!place)
+    catch(place = load_object(file));
+
+  return place;
+}
+
+/**
+ * The fine a living owes in a citizenship: its points times
+ * query_fine_per_point(), grown by query_fine_level_percent() for each level.
+ *
+ * @param who the culprit
+ * @param citizenship a diplomacy-graph name (its root is used)
+ * @return the fine in base coins, 0 when nothing is owed
+ */
+int query_fine_of(object who, string citizenship)
+{
+  int points;
+
+  if (!who)
+    return 0;
+
+  points = query_points(who->query_name(), citizenship);
+  if (points <= 0)
+    return 0;
+
+  return points * query_fine_per_point() *
+         (100 + query_fine_level_percent() * (int)who->query_level()) / 100;
+}
+
+// Takes `amount` base coins from a living that has them.
+private void take_money(object who, int amount)
+{
+  who->pay_money(handler("money", this_object())->create_money_array(amount));
+}
+
+/**
+ * How long a living still has to serve. A sentence that has run out is ended
+ * here, the points reduced and the prisoner told (see release), so nobody has
+ * to watch the clock: whoever needs to know asks.
+ *
+ * @param who the living
+ * @return the seconds left, 0 when free
+ */
+int query_jail_left(object who)
+{
+  mapping sentence;
+  int left;
+
+  sentence = find_sentence(who);
+  if (!sentence)
+    return 0;
+
+  left = sentence["until"] - time();
+  if (left > 0)
+    return left;
+
+  release(who);
+  return 0;
+}
+
+/**
+ * The location a prisoner serves in.
+ *
+ * @param who the living
+ * @return the location file, "" when it is not serving a sentence
+ */
+string query_jail_prison(object who)
+{
+  mapping sentence;
+
+  sentence = find_sentence(who);
+  return sentence ? sentence["prison"] : "";
+}
+
+/**
+ * Ends a sentence: the prisoner keeps query_release_keep_percent() of the
+ * points and is told it is free to go. Does not move it.
+ *
+ * @param who the prisoner
+ */
+void release(object who)
+{
+  mapping sentence;
+
+  sentence = find_sentence(who);
+  if (!sentence)
+    return;
+
+  if (who->query_player())
+    reduce(who->query_name(), sentence["root"], query_release_keep_percent());
+
+  clear_sentence(who);
+  tell_object(who, _LANG_CRIMES_RELEASED);
+}
+
+/**
+ * Pays what a living owes in a citizenship: the record is wiped, and the
+ * sentence ends if it was for that country.
+ *
+ * @param payer who pays (the culprit or somebody else)
+ * @param who the culprit
+ * @param citizenship a diplomacy-graph name (its root is used)
+ * @return the fine paid, 0 if the payer cannot afford it, -1 if nothing is owed
+ */
+int pay_fine(object payer, object who, string citizenship)
+{
+  mapping sentence;
+  int fine;
+
+  fine = query_fine_of(who, citizenship);
+  if (fine <= 0)
+    return -1;
+
+  if (!payer || (int)payer->query_value() < fine)
+    return 0;
+
+  take_money(payer, fine);
+  pardon(who->query_name(), citizenship);
+
+  sentence = find_sentence(who);
+  if (sentence && sentence["root"] == root_of(citizenship))
+    clear_sentence(who);
+
+  log_file("crimes", "[" + ctime(time(), 4) + "] " + payer->query_name() +
+           " paid " + fine + " for " + who->query_name() + " in " +
+           root_of(citizenship) + "\n");
+  return fine;
+}
+
+/**
+ * Pays the fine of a prisoner and frees them.
+ *
+ * @param payer who pays
+ * @param prisoner the jailed living
+ * @param citizenship the citizenship whose fine is paid
+ * @return as pay_fine, or -2 if the living is not serving a sentence for that
+ *         country
+ */
+int bail(object payer, object prisoner, string citizenship)
+{
+  mapping sentence;
+  int fine;
+
+  sentence = find_sentence(prisoner);
+  if (!sentence || sentence["root"] != root_of(citizenship))
+    return -2;
+
+  fine = pay_fine(payer, prisoner, citizenship);
+  if (fine > 0)
+    tell_object(prisoner, _LANG_CRIMES_BAILED);
+  else if (fine == -1)
+    release(prisoner);
+
+  return fine;
+}
+
+/**
+ * What bribing the jailer costs a prisoner.
+ *
+ * @param who the prisoner
+ * @return base coins: query_bribe_cost_per_point() for each point owed, at least
+ *         one point's worth
+ */
+int query_bribe_cost(object who)
+{
+  mapping sentence;
+  int cost;
+
+  sentence = find_sentence(who);
+  cost = sentence ? query_points(who->query_name(), sentence["root"]) *
+                    query_bribe_cost_per_point() : 0;
+
+  return (cost < query_bribe_cost_per_point()) ? query_bribe_cost_per_point()
+                                               : cost;
+}
+
+/**
+ * A prisoner bribes the jailer. The price is query_bribe_cost_per_point() for
+ * each point owed, paid win or lose; with query_bribe_chance() percent the
+ * sentence ends as if served, otherwise it adds query_bribe_fail_points()
+ * points and the time they are worth.
+ *
+ * @param who the prisoner (a player)
+ * @return 1 it worked, 0 it failed, -1 not serving a sentence, -2 cannot pay
+ */
+int bribe(object who)
+{
+  mapping sentence;
+  int cost, extra, ends;
+
+  sentence = find_sentence(who);
+  if (!sentence || !who->query_player())
+    return -1;
+
+  cost = query_bribe_cost(who);
+  if ((int)who->query_value() < cost)
+    return -2;
+
+  take_money(who, cost);
+
+  if (random(100) < query_bribe_chance())
+  {
+    release(who);
+    return 1;
+  }
+
+  // caught: more points, and the time they are worth, within the longest
+  // sentence
+  record_offence(who->query_name(), sentence["root"], "bribe",
+                 query_bribe_fail_points(), nil, environment(who));
+  extra = query_bribe_fail_points() * query_jail_seconds_per_point();
+  ends = sentence["until"] + extra;
+  if (ends > time() + query_jail_max_seconds())
+    ends = time() + query_jail_max_seconds();
+  sentence["until"] = ends;
+  set_sentence(who, sentence);
+
+  return 0;
+}
+
+// Ends a pending beating that did not end in an arrest.
+private void let_go(object victim)
+{
+  tell_object(victim, _LANG_CRIMES_LET_GO);
+}
+
+// What follows the beating: a sentence in the prison of the citizenship, or,
+// where it has none, the fine on the spot if the culprit can pay. Called out so
+// the blow that caused it has finished.
+static void arrest(string citizenship, object victim)
+{
+  mapping sentence;
+  object place, cell;
+  string root, name, prison;
+  int points, seconds, fine;
+
+  if (!victim || victim->query_dead())
+    return;
+
+  place = environment(victim);
+  root = root_of(citizenship);
+  name = victim->query_name();
+
+  // an NPC has no record unless they are kept: it is sentenced all the same
+  points = query_points(name, root);
+  if (points <= 0 && !victim->query_player())
+    points = query_npc_arrest_points();
+
+  // nothing owed: the guards just leave them lying where they fell
+  if (points <= 0)
+  {
+    let_go(victim);
+    return;
+  }
+
+  prison = query_prison(citizenship);
+  cell = strlen(prison) ? prison_place(prison) : nil;
+
+  if (cell)
+  {
+    seconds = points * query_jail_seconds_per_point();
+    if (seconds > query_jail_max_seconds())
+      seconds = query_jail_max_seconds();
+
+    sentence = ([ "prison" : prison, "until" : time() + seconds,
+                  "root" : root ]);
+    set_sentence(victim, sentence);
+
+    tell_object(victim, _LANG_CRIMES_ARRESTED);
+    if (place)
+      tell_room(place, replace_string(_LANG_CRIMES_ARRESTED_ROOM, "$who$",
+                                      victim->query_cap_name()), ({ victim }));
+    victim->move_living("X", prison);
+    return;
+  }
+
+  // no prison: the money, if there is any, else they go free after the beating
+  fine = query_fine_of(victim, citizenship);
+  if (fine > 0 && victim->query_player() &&
+      (int)victim->query_value() >= fine)
+  {
+    take_money(victim, fine);
+    pardon(name, citizenship);
+    tell_object(victim, replace_string(_LANG_CRIMES_FINED_ON_SPOT, "$amount$",
+                                       "" + fine));
+    return;
+  }
+
+  let_go(victim);
+}
+
+/**
+ * The health code asks this when a blow of `guard` would bring `victim` to 0
+ * hp or less. If the guard belongs to a citizenship whose guards do not kill
+ * (query_lethal), the blow is turned into a beating: the fight stops between the
+ * victim and every guard fighting it, the victim is passed out for
+ * query_passed_out_seconds() and, a moment later, arrested (see arrest).
+ *
+ * Only players and NPCs with a citizenship that is not an enemy of the guard's
+ * are spared; fauna, monsters and the guards' enemies in war die as always. The
+ * caller leaves the victim at 1 hp when this answers 1.
+ *
+ * @param guard who dealt the blow
+ * @param victim who would die
+ * @return 1 if the blow does not kill, 0 if combat goes on as usual
+ */
+int spare_blow(object guard, object victim)
+{
+  mixed * attackers;
+  string citizenship, theirs;
+  int i;
+
+  if (!guard || !victim || guard == victim || !is_enforcer(guard))
+    return 0;
+
+  citizenship = citizenship_of(guard);
+  if (!strlen(citizenship) || query_lethal(citizenship))
+    return 0;
+
+  if (!victim->query_player())
+  {
+    theirs = citizenship_of(victim);
+    if (!strlen(theirs) || diplomacy()->is_enemy(citizenship, theirs))
+      return 0;
+  }
+
+  // the fight is over on both sides, for every guard that was after them
+  attackers = ({ guard }) + victim->query_attacker_list();
+  for (i = 0; i < sizeof(attackers); i++)
+    if (attackers[i] && is_enforcer(attackers[i]))
+    {
+      attackers[i]->stop_fight(victim, 1);
+      victim->stop_fight(attackers[i], 1);
+    }
+
+  victim->add_timed_property(PASSED_OUT_PROP, _LANG_CRIMES_PASSED_OUT_PROP,
+                             query_passed_out_seconds() / 2);
+  tell_object(victim, _LANG_CRIMES_BEATEN);
+  if (environment(victim))
+    tell_room(environment(victim), replace_string(_LANG_CRIMES_BEATEN_ROOM,
+                "$who$", victim->query_cap_name()), ({ victim }));
+
+  call_out("arrest", 1, citizenship, victim);
+  return 1;
+}
+
+// A prisoner who logs in is checked a moment later, once it stands somewhere.
+static void check_prisoner(object who)
+{
+  mapping sentence;
+  object cell;
+
+  if (!who || !environment(who))
+    return;
+
+  // frees the ones whose time is up
+  if (query_jail_left(who) <= 0)
+    return;
+
+  // still serving but somewhere else: back to the cell
+  sentence = find_sentence(who);
+  cell = prison_place(sentence["prison"]);
+  if (cell && environment(who) != cell)
+  {
+    tell_object(who, _LANG_CRIMES_PUT_BACK);
+    who->move_living("X", sentence["prison"]);
+  }
+}
+
+/**
+ * Called when a player enters the game: ends a sentence that ran out while they
+ * were away, or puts back in the prison one who is still serving.
+ *
+ * @param who the player
+ */
+void watch_login(object who)
+{
+  if (who && find_sentence(who))
+    call_out("check_prisoner", 2, who);
 }

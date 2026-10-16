@@ -313,3 +313,16 @@
 
 #define _LANG_CRIMES_SEEN_CRIMINAL "Alguien ha visto lo que has hecho, y la ley de este lugar lo recordará.\n"
 #define _LANG_CRIMES_SEEN_VICTIM "La ley de este lugar sabrá que $criminal$ ha sido el culpable.\n"
+
+// crimes: justice
+
+#define _LANG_CRIMES_PASSED_OUT_PROP "Estás inconsciente tras la paliza de los guardias.\n"
+#define _LANG_CRIMES_BEATEN "Los guardias te golpean hasta dejarte tendido en el suelo, sin sentido.\n"
+#define _LANG_CRIMES_BEATEN_ROOM "$who$ cae al suelo, vencido por los guardias.\n"
+#define _LANG_CRIMES_ARRESTED "Los guardias te arrastran hasta la prisión.\n"
+#define _LANG_CRIMES_ARRESTED_ROOM "Los guardias se llevan a rastras a $who$.\n"
+#define _LANG_CRIMES_FINED_ON_SPOT "Los guardias te registran la bolsa y se cobran la multa: $amount$ monedas.\n"
+#define _LANG_CRIMES_LET_GO "Los guardias te dejan tirado donde has caído.\n"
+#define _LANG_CRIMES_RELEASED "Has cumplido tu condena. Ya puedes marcharte.\n"
+#define _LANG_CRIMES_BAILED "Alguien ha pagado tu fianza: eres libre.\n"
+#define _LANG_CRIMES_PUT_BACK "Los guardias te devuelven a tu celda: aún no has cumplido tu condena.\n"

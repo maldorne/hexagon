@@ -289,6 +289,9 @@ nomask void start_player(varargs int reconnected)
   // old NOCAST and NOGUILD
   add_timed_property(NOSKILL_PROP, 1, lockout);
 
+  // a sentence that ran out while away is ended, one still running is served
+  catch(handler("crimes", this_object())->watch_login(this_object()));
+
   /* Vamos a olvidarnos de estas cosas por ahora, neverbot 4/2003
   // birthday_gifts(); // check if birthday today and give gifts
   */

@@ -56,5 +56,10 @@
 // A smithy: a forge where metal is worked and the repair skill is used. See
 // /lib/location/components/blacksmith.c.
 #define LOCATION_COMPONENT_BLACKSMITH  "blacksmith"
+// A cell: whoever serves a sentence cannot leave it before the time is up, and
+// may try a bribe. The office where fines are paid and bail posted. See
+// /lib/location/components/jail.c and fines.c.
+#define LOCATION_COMPONENT_JAIL        "jail"
+#define LOCATION_COMPONENT_FINES       "fines"
 
 #endif // LOCATION_H

@@ -75,3 +75,14 @@ crimes handler the first time the victim enters the attacker's list, so one
 report per fight start, not per round. `do_death` calls `report_death`. Both
 are in a `catch`; see `lib/handlers/crimes.md` for what counts as assault,
 guard assault and murder, and for self-defence.
+
+## Non-lethal guards
+
+`adjust_hp` (`living/health.c`) asks `spare_blow(guard, victim)` of the crimes
+handler when a blow leaves a living at 0 hp or less and its dealer is an NPC that
+is not in safe combat. Only a guard or responder of a citizenship whose guards do
+not kill (`lethal` 0) takes the answer 1, and only against a player or an NPC
+citizen that is not its enemy in war. Then the victim stays at 1 hp, the fight
+stops on both sides with every guard fighting it, and the victim is passed out
+and arrested instead of dying. Every other attacker, and every other victim,
+goes through the usual death. See `lib/handlers/crimes.md`.

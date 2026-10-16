@@ -164,7 +164,7 @@ object query_main_aggro_doer()
 
 int adjust_hp(int i, varargs object hp_remover)
 {
-  int color;
+  int color, spared;
   hp += i;
 
   color = 1; // for color on hp monitor - Radix
@@ -185,7 +185,21 @@ int adjust_hp(int i, varargs object hp_remover)
   if (hp > max_hp)
     hp = max_hp;
 
-  if (hp < 0) /* eeek we died! */
+  // a guard of a citizenship whose guards do not kill never lands the killing
+  // blow: the crimes handler passes the loser out and arrests them
+  spared = 0;
+  if (hp < 1 && hp_remover && hp_remover != this_object() &&
+      !hp_remover->query_player() &&
+      hp_remover->query_combat_mode() != SAFE_COMBAT)
+  {
+    if (catch(spared = (int)handler("crimes", this_object())->
+                         spare_blow(hp_remover, this_object())))
+      spared = 0;
+  }
+
+  if (spared)
+    hp = 1;
+  else if (hp < 0) /* eeek we died! */
   {
     // safe combat, we finish the practice
     if ( // (sizeof(this_object()->query_attacker_list()) == 1) &&  
