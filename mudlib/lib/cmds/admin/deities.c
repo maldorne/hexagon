@@ -7,6 +7,7 @@
 
 #include <mud/cmd.h>
 #include <deities.h>
+#include <basic/gender.h>
 
 inherit CMD_BASE;
 
@@ -100,9 +101,104 @@ private string game_title(object me)
   return (stringp(name) && strlen(name)) ? name : game_root(me);
 }
 
+// The names of a list of social objects (races, guilds...), or "-".
+private string titles_of(string * paths)
+{
+  string * out;
+  int i;
+
+  if (!sizeof(paths))
+    return "-";
+
+  out = ({ });
+  for (i = 0; i < sizeof(paths); i++)
+    out += ({ deity_title(paths[i]) });
+
+  return implode(out, ", ");
+}
+
+// A value as text, whatever it is.
+string to_text(mixed value)
+{
+  if (stringp(value))
+    return value;
+  if (intp(value) || floatp(value))
+    return "" + value;
+  return "?";
+}
+
+// One offering rule, every key it sets, as key=value.
+private string rule_text(mapping rule)
+{
+  string * keys, * out;
+  mixed value;
+  int i;
+
+  keys = sort_array(map_indices(rule));
+  out = ({ });
+  for (i = 0; i < sizeof(keys); i++)
+  {
+    value = rule[keys[i]];
+    if (pointerp(value))
+      value = implode(map_array(value, "to_text", this_object()), "|");
+    out += ({ keys[i] + "=" + to_text(value) });
+  }
+
+  return implode(out, " ");
+}
+
+// What the deity object says about itself: who may worship it, what it takes,
+// what it can be prayed for.
+private string deity_sheet(object deity)
+{
+  string ret;
+  mapping * offerings;
+  string * prayers;
+  mapping table;
+  int * range;
+  int i, luck;
+
+  range = deity->query_alignment_range();
+  ret = deity_title(deity->query_deity_path()) + "  (" +
+        deity->query_deity_path() + ")\n" +
+        "  gender: " + (deity->query_gender() == GENDER_FEMALE ? "female" : "male") + "\n" +
+        "  races: " + titles_of(deity->query_races()) +
+        "   forbidden: " + titles_of(deity->query_forbidden_races()) + "\n" +
+        "  lineages: " + titles_of(deity->query_lineages()) +
+        "   forbidden: " + titles_of(deity->query_forbidden_lineages()) + "\n" +
+        "  guilds: " + titles_of(deity->query_guilds()) +
+        "   forbidden: " + titles_of(deity->query_forbidden_guilds()) + "\n" +
+        "  real alignment: " + range[0] + " to " + range[1] + "\n";
+
+  ret += "  offerings:\n";
+  offerings = deity->query_offerings();
+  if (!sizeof(offerings))
+    ret += "    none\n";
+  for (i = 0; i < sizeof(offerings); i++)
+    ret += "    " + rule_text(offerings[i]) + "\n";
+
+  // each prayer by its id, the first word that asks for it and its luck (the
+  // default luck when the deity sets none)
+  ret += "  prayers:";
+  table = deity->query_prayers();
+  prayers = map_indices(table);
+  if (!sizeof(prayers))
+    ret += " none";
+  for (i = 0; i < sizeof(prayers); i++)
+  {
+    luck = deity->query_prayer_luck(prayers[i]);
+    ret += " " + prayers[i] +
+           (sizeof(table[prayers[i]][DEITY_PRAYER_WORDS]) ?
+              " '" + table[prayers[i]][DEITY_PRAYER_WORDS][0] + "'" : "") +
+           " (luck " + (luck ? luck : DEITY_PRAY_LUCK) + ")";
+  }
+
+  return ret + "\n\n";
+}
+
 static int cmd(string str, object me, string verb)
 {
-  object deities;
+  object deities, god;
   mapping followers, rec;
   string * paths, * names;
   string ret, path;
@@ -163,16 +259,24 @@ static int cmd(string str, object me, string verb)
 
   // --- one deity ------------------------------------------------------------
   path = resolve_deity(me, trim(str));
+  god = nil;
+  catch(god = load_object(path));
+  if (!god)
+  {
+    write("No deity loads at " + path + ".\n");
+    return 1;
+  }
+
+  ret = deity_sheet(god);
   followers = deities->query_followers(path);
   if (!map_sizeof(followers))
   {
-    write((load_object(path) ? deity_title(path) : "No deity loads at " + path) +
-          ": no followers on the books.\n");
+    me->user()->more_string(ret + "No followers on the books.\n");
     return 1;
   }
 
   names = sort_array(map_indices(followers));
-  ret = "Followers of " + deity_title(path) + "\n" + header();
+  ret += "Followers\n" + header();
   for (i = 0; i < sizeof(names); i++)
     ret += account_line(names[i], followers[names[i]]);
 
