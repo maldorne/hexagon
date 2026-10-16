@@ -144,12 +144,14 @@ void check_area_exploration(object location)
   current_area_path = apath;
 
   // the nearest area up the parent chain that grants it: entering a part of a
-  // place (its farms, its tunnels) discovers the place
+  // place (its streets, its castle) discovers the place, but only a part that
+  // lies under one of the directories it names (not the road out of town)
   for (steps = 0; area && !area->query_gives_exploration() &&
                   steps < AREA_MAX_ANCESTRY; steps++)
     area = area->query_parent_area();
 
-  if (!area || !area->query_gives_exploration())
+  if (!area || !area->query_gives_exploration() ||
+      !area->is_in_exploration_scope(apath))
     return;
 
   area_display = area->query_exploration_name();

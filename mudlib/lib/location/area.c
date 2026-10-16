@@ -33,6 +33,11 @@ string area_path;
 // and the display name recorded in the player's diary when it does.
 int gives_exploration;
 string exploration_name;
+// the areas that discover this one, by path: its own path when empty. An entry
+// ending in "*" stands for every area under that directory. A part of the place
+// (its farms, its roads) discovers it only if listed, so a road out of a town
+// does not discover the town.
+string * exploration_scope;
 // The area this one belongs to, or "" when it answers to nobody. An area is a
 // place -- locations, coordinates, components -- and the two need not coincide
 // with what the place is part of: a town's fields are their own place but the
@@ -70,6 +75,7 @@ void create() {
   area_state = AREA_DRAFT;
   gives_exploration = 0;
   exploration_name = "";
+  exploration_scope = ({ });
   monsters::create();
   schedules::create();
   housing::create();
@@ -172,6 +178,46 @@ void set_gives_exploration(int flag)
   save_me();
 }
 string query_exploration_name() { return exploration_name; }
+
+/** The directories whose areas discover this one, its own path by default. */
+string * query_exploration_scope()
+{
+  if (!exploration_scope || !sizeof(exploration_scope))
+    return ({ area_path });
+  return exploration_scope;
+}
+
+void set_exploration_scope(string * dirs)
+{
+  exploration_scope = dirs ? dirs : ({ });
+  save_me();
+}
+
+/** Whether entering an area at that path discovers this one. */
+int is_in_exploration_scope(string path)
+{
+  string * dirs;
+  string dir;
+  int i;
+
+  if (!stringp(path))
+    return 0;
+
+  dirs = query_exploration_scope();
+  for (i = 0; i < sizeof(dirs); i++)
+  {
+    dir = dirs[i];
+    if (strlen(dir) && dir[strlen(dir) - 1] == '*')
+    {
+      if (strsrch(path, dir[.. strlen(dir) - 2]) == 0)
+        return 1;
+    }
+    else if (path == dir)
+      return 1;
+  }
+
+  return 0;
+}
 void set_exploration_name(string name)
 {
   exploration_name = name;

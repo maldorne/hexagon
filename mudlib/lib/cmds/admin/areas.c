@@ -59,6 +59,11 @@ void setup()
            "location, not a plain room):\n" +
            "\n" +
            "  areas exploration <name>    walking in it grants exploration, under that name\n" +
+           "  areas exploration scope [<area path> ...|none]\n" +
+           "                              the areas that discover it (its own by default);\n" +
+           "                              a path ending in * stands for every area under it.\n" +
+           "                              A part of the place not listed, such as a road\n" +
+           "                              out of town, does not discover it\n" +
            "  areas noexploration         it grants none any more\n" +
            "  areas level <n> [<spread>]  the average level of its NPCs; the spread is\n" +
            "                              left as it was when omitted\n" +
@@ -298,6 +303,30 @@ private int do_exploration(object area, string * args)
   {
     notify_fail("Usage: areas exploration <display name>\n");
     return 0;
+  }
+
+  // the directories whose areas discover it
+  if (args[1] == "scope")
+  {
+    string * dirs;
+    int i;
+
+    if (sizeof(args) < 3)
+    {
+      write("Area '" + area->query_area_name() + "' is discovered from: " +
+            implode(area->query_exploration_scope(), ", ") + "\n");
+      return 1;
+    }
+
+    dirs = (args[2] == "none") ? ({ }) : args[2 ..];
+    for (i = 0; i < sizeof(dirs); i++)
+      if (dirs[i][strlen(dirs[i]) - 1] != '/' && dirs[i][strlen(dirs[i]) - 1] != '*')
+        dirs[i] += "/";
+
+    area->set_exploration_scope(dirs);
+    write("Area '" + area->query_area_name() + "' is discovered from: " +
+          implode(area->query_exploration_scope(), ", ") + "\n");
+    return 1;
   }
 
   name = rest_of(args, 1);
