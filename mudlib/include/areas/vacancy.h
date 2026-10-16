@@ -79,6 +79,10 @@
 #define CENSUS_WORKS_AT       "works_at"
 // where the person is right now
 #define CENSUS_LOCATION       "current_location"
+// the area whose share of its type the person was created to fill: they count
+// against that area wherever they wander, so walking into a sibling area of
+// the community does not make room for another
+#define CENSUS_SHARE          "share"
 
 // Seconds before the holder of a fixed post is replaced at its workplace.
 #define VACANCY_RESPAWN_DELAY 300

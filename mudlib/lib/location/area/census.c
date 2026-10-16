@@ -88,21 +88,51 @@ int query_npc_live_count(string source)
   return n;
 }
 
-// How many people of `source` the census has standing in one of
-// `location_files`, materialized or not. What the population sweep measures an
-// area's own share of a type against, since a community shares one census.
-int query_npc_count_at(string source, string * location_files)
+/**
+ * How many people of `source` the census holds as this area's share of the
+ * type, wherever they are now: what the population sweep measures the share
+ * against, since a community shares one census and its people wander. Somebody
+ * written before shares were recorded is given, once, the share of the area
+ * they stand in.
+ */
+int query_npc_share_count(string source)
 {
   string * ids;
   mapping census;
-  int i, n;
+  string mine;
+  int i, n, changed;
 
+  mine = (string)this_object()->query_area_path();
   census = query_npc_census();
   ids = map_indices(census);
   for (i = 0; i < sizeof(ids); i++)
-    if (census[ids[i]]["source"] == source &&
-        member_array(census[ids[i]][CENSUS_LOCATION], location_files) != -1)
+  {
+    mapping row;
+
+    row = census[ids[i]];
+    if (row["source"] != source || row[CENSUS_VACANCY])
+      continue;
+
+    if (!stringp(row[CENSUS_SHARE]))
+    {
+      object owner;
+
+      owner = stringp(row[CENSUS_LOCATION])
+        ? load_object(LOCATION_HANDLER)->
+            query_area_from_location_file_name(row[CENSUS_LOCATION])
+        : nil;
+      if (!owner)
+        continue;
+      row[CENSUS_SHARE] = (string)owner->query_area_path();
+      changed = 1;
+    }
+
+    if (row[CENSUS_SHARE] == mine)
       n++;
+  }
+
+  if (changed)
+    this_object()->save_me();
 
   return n;
 }

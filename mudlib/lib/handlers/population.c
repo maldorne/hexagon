@@ -176,9 +176,10 @@ int populate_area(object area, int limit)
     }
   }
 
-  // then the people nothing else places, from the same provenance. They are
-  // counted where they stand in this area's own locations, as a community
-  // shares one census, so one who has walked out of the area is replaced here.
+  // then the people nothing else places, from the same provenance. Each counts
+  // against the area whose share they were created for, wherever they have
+  // wandered, so the people of a community moving between its areas never make
+  // room for more.
   sources = area->query_unplaced_people_sources();
 
   for (i = 0; i < sizeof(sources) && assigned < limit; i++)
@@ -196,12 +197,13 @@ int populate_area(object area, int limit)
     for (j = 0; j < sizeof(files); j++)
       cap += clones_here[files[j]];
 
-    deficit = cap - area->query_npc_count_at(sources[i], locs);
+    deficit = cap - area->query_npc_share_count(sources[i]);
 
     for (j = 0; j < deficit && assigned < limit; j++)
     {
       area->create_npc(sources[i],
-                       ([ CENSUS_LOCATION : files[random(sizeof(files))] ]));
+                       ([ CENSUS_LOCATION : files[random(sizeof(files))],
+                          CENSUS_SHARE : area->query_area_path() ]));
       assigned++;
     }
   }

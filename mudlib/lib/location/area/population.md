@@ -90,13 +90,16 @@ sweeps one area of that game, taking them in turn, and assigns at most ten
 2. **Unplaced people.** For each source in `query_unplaced_people_sources()`
    (sentient roster types that no vacancy draws from and that are not
    `resident`: travellers, pilgrims), the deficit is the declared share minus
-   the census people standing in this area's locations. Each missing one is
-   created with `create_npc()` at a random declaring location, with a name and a
-   savefile like any other individual.
+   the census people of this area's share (`query_npc_share_count()`). Each
+   missing one is created with `create_npc()` at a random declaring location,
+   with a name, a savefile and the area's path as its share (`CENSUS_SHARE`).
+   They count against that area wherever they wander, so somebody walking into a
+   sibling area of the community does not make room for another. A row written
+   before shares existed takes the share of the area it stands in, once.
 
 A death frees a slot at once; the next sweep refills it, usually elsewhere.
 Because the caps are shared by a community (see parent areas) but the share is
-read from the area's own locations, a road keeps topping up its own travellers
+read from the area's own provenance, a road keeps topping up its own travellers
 and does not scatter them through the town. `npcs populate` runs the same pass
 for the area you stand in and brings the new arrivals into locations already
 loaded.
