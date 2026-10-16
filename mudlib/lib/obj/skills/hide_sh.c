@@ -132,8 +132,10 @@ int event_player_search(varargs mixed args)
   if (!searcher || searcher == player)
     return 0;
 
+  // each side adds its own skill: the searcher's search, the hider's hide
   him = player->query_int() + player->query_dex() +
-        player->query_level() + player->query_per();
+        player->query_level() + player->query_per() +
+        player->query_skill_ability(SKILL_HIDE);
   me  = searcher->query_int() + searcher->query_dex() +
         searcher->query_level() + searcher->query_per() +
         searcher->query_skill_ability(SKILL_SEARCH);
