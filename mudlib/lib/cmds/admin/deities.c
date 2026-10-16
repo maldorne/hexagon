@@ -1,9 +1,10 @@
-// deities -- admin tool to read the accounts the deities handler keeps for the
-// followers of every deity. Everything here acts on the game you are in.
+// deities -- admin tool to read the devotion the deities handler keeps for the
+// devotees of every deity. Everything here acts on the game you are in.
 //
-//   deities                  the game's deities and how many follow each
-//   deities <deity>          a deity's followers and their counts
-//   deities player <name>    the accounts of one player
+//   deities                  the game's deities and how many devotees each has
+//   deities <deity>          a deity's devotees, the most devoted first
+//   deities player <name>    one player: devotion in each deity and, if they
+//                            are connected, their lifetime totals
 
 #include <mud/cmd.h>
 #include <deities.h>
@@ -16,17 +17,22 @@ void setup()
   set_aliases(({ "deities", "deidades" }));
   set_usage("deities [<deity> | player <name>]");
   set_help(
-    "Read the accounts of the followers of the deities of the game you are in.\n" +
+    "Read the devotion of the followers of the deities of the game you are in.\n" +
     "\n" +
     "  deities                 every deity of the game (its obj/deities/) and\n" +
-    "                          how many followers each has on the books\n" +
-    "  deities <deity>         a deity's followers: when they took it, their\n" +
-    "                          offerings (how many and their worth), prayers\n" +
-    "                          made and heard, times cursed. <deity> is the\n" +
-    "                          file name under obj/deities/ or a full path\n" +
-    "  deities player <name>   the accounts of one player\n" +
+    "                          how many active devotees each has\n" +
+    "  deities <deity>         the deity's sheet and its devotees, the most\n" +
+    "                          devoted first. <deity> is the file name under\n" +
+    "                          obj/deities/ or a full path\n" +
+    "  deities player <name>   the devotion of one player in each deity, and\n" +
+    "                          their lifetime totals (worship, prayers made and\n" +
+    "                          heard, curses, offerings and their worth) only\n" +
+    "                          while they are connected: the totals live in the\n" +
+    "                          player and a save file is never read\n" +
     "\n" +
-    "Only the accounts: the deities handler decides nothing yet.");
+    "Devotion rises with prayers and offerings and falls with time; a player\n" +
+    "who stops praying and offering leaves the list. Only the book: the deities\n" +
+    "handler decides nothing yet.");
 }
 
 private string when(int t)
@@ -61,18 +67,21 @@ private string resolve_deity(object me, string str)
   return game_root(me) + "obj/deities/" + str + ".c";
 }
 
-private string account_line(string name, mapping rec)
+// The lifetime totals of a connected player.
+private string totals_text(object player)
 {
-  return sprintf("  %-14s %-18s %4d (%7d)  %4d/%-4d  %3d\n", capitalize(name),
-                 when(rec[DEITY_REC_WORSHIPPED]), rec[DEITY_REC_OFFERINGS],
-                 rec[DEITY_REC_OFFERED], rec[DEITY_REC_ANSWERED],
-                 rec[DEITY_REC_PRAYERS], rec[DEITY_REC_CURSED]);
-}
+  mapping totals;
+  int since;
 
-private string header()
-{
-  return sprintf("  %-14s %-18s %15s  %9s  %3s\n", "follower", "worshipped",
-                 "offerings(worth)", "heard/pr", "cur");
+  totals = player->query_deity_totals();
+  since = totals[DEITY_TOT_WORSHIPPED];
+
+  return "  Worshipping    " + (since ? "since " + when(since) : "-") + "\n" +
+         "  Prayers        " + (int)totals[DEITY_TOT_PRAYERS] + " made, " +
+           (int)totals[DEITY_TOT_ANSWERED] + " heard, " +
+           (int)totals[DEITY_TOT_CURSED] + " curses\n" +
+         "  Offerings      " + (int)totals[DEITY_TOT_OFFERINGS] + ", worth " +
+           (int)totals[DEITY_TOT_OFFERED] + "\n";
 }
 
 // How a deity is called, from its object; its path when it does not load.
@@ -257,11 +266,11 @@ private string deity_sheet(object deity, int width, mapping ids)
 
 static int cmd(string str, object me, string verb)
 {
-  object deities, god;
-  mapping followers, rec;
+  object deities, god, player;
+  mixed * devotees;
   string * paths, * names;
   string ret, path;
-  int i;
+  int i, points;
 
   deities = handler("deities", me);
   if (!deities)
@@ -287,8 +296,8 @@ static int cmd(string str, object me, string verb)
 
     ret = "Deities of " + game_title(me) + "\n";
     for (i = 0; i < sizeof(paths); i++)
-      ret += sprintf("  %-20s %4d followers\n", deity_title(paths[i]),
-                     map_sizeof(deities->query_followers(paths[i])));
+      ret += sprintf("  %-20s %4d devotees\n", deity_title(paths[i]),
+                     sizeof(deities->query_devotees(paths[i])));
     write(ret);
     return 1;
   }
@@ -301,18 +310,24 @@ static int cmd(string str, object me, string verb)
     ret = "";
     for (i = 0; i < sizeof(names); i++)
     {
-      rec = deities->query_follower(path, names[i]);
-      if (rec)
-        ret += "  " + deity_title(names[i]) + "\n" + account_line(path, rec);
+      points = deities->query_devotion(path, names[i]);
+      if (points)
+        ret += sprintf("  %-20s %5d\n", deity_title(names[i]), points);
     }
 
     if (!strlen(ret))
-    {
-      write(capitalize(path) + " is on no deity's books.\n");
-      return 1;
-    }
+      ret = "  on no deity's book\n";
 
-    write("Accounts of " + capitalize(path) + "\n" + header() + ret);
+    ret = "Devotion of " + capitalize(path) + "\n" + ret + "\n";
+
+    // the totals live in the player: only readable while connected
+    player = find_player(path);
+    if (player)
+      ret += "Lifetime totals\n" + totals_text(player);
+    else
+      ret += "Not connected: their lifetime totals cannot be read.\n";
+
+    write(ret);
     return 1;
   }
 
@@ -328,17 +343,16 @@ static int cmd(string str, object me, string verb)
 
   ret = deity_sheet(god, me->user() ? me->user()->query_cols() : 80,
                     race_names(me));
-  followers = deities->query_followers(path);
-  if (!map_sizeof(followers))
+  devotees = deities->query_devotees(path);
+  if (!sizeof(devotees))
   {
-    me->user()->more_string(ret + "No followers on the books.\n");
+    me->user()->more_string(ret + "No active devotees.\n");
     return 1;
   }
 
-  names = sort_array(map_indices(followers));
-  ret += "Followers\n" + header();
-  for (i = 0; i < sizeof(names); i++)
-    ret += account_line(names[i], followers[names[i]]);
+  ret += "Devotees\n";
+  for (i = 0; i < sizeof(devotees); i++)
+    ret += sprintf("  %-20s %5d\n", capitalize(devotees[i][0]), devotees[i][1]);
 
   me->user()->more_string(ret);
   return 1;

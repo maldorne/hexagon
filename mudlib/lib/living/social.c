@@ -49,6 +49,10 @@ int guild_join_age;
 // we have too many global variables, so I put all the xx_ob in a single array
 // neverbot 3/2002
 string * social_object_list;
+
+// lifetime totals of the worship (DEITY_TOT_* keys in <deities.h>), saved with
+// the living; the deities handler only keeps a devotion that decays
+mapping deity_totals;
 // string race_ob, guild_ob;
 // string group_ob, race_group_ob;
 // string job_ob, deity_ob;
@@ -60,6 +64,7 @@ int job_level;
 void create()
 {
   social_object_list = allocate(NUM_SOCIAL_OBJECTS);
+  deity_totals = ([ ]);
   guild_joined = ([ ]);
   job_joined = ([ ]);
   guild_level = 0;
@@ -887,6 +892,30 @@ void set_deity_ob(string str)
   return;
 }
 
+/** The lifetime worship totals, a copy. */
+mapping query_deity_totals()
+{
+  if (!mappingp(deity_totals))
+    deity_totals = ([ ]);
+  return ([ ]) + deity_totals;
+}
+
+/** Adds to a lifetime worship total. */
+void add_deity_total(string key, int amount)
+{
+  if (!mappingp(deity_totals))
+    deity_totals = ([ ]);
+  deity_totals[key] = (deity_totals[key] ? (int)deity_totals[key] : 0) + amount;
+}
+
+/** Sets a lifetime worship total. */
+void set_deity_total(string key, int value)
+{
+  if (!mappingp(deity_totals))
+    deity_totals = ([ ]);
+  deity_totals[key] = value;
+}
+
 string query_deity_ob() { return social_object_list[DEITY_OB]; }
 
 string query_deity_name()
@@ -1094,6 +1123,7 @@ mixed * stats()
   mixed * ret;
   ret = ({
     ({"Social Object List", social_object_list, }),
+    ({"Deity Totals", deity_totals, }),
     ({"Guild Joined", guild_joined, }),
     ({"Job Joined", job_joined, }),
     ({"Guild Level", guild_level, }),

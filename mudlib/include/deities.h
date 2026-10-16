@@ -74,12 +74,21 @@
 #define DEITY_PROP_OVERRIDE "deity"
 #define DEITY_PROP_TYPES    ({ "altar", "statue", "ruined_statue" })
 
-// The counters the deities handler keeps per follower.
-#define DEITY_REC_WORSHIPPED "worshipped" // time of worship
-#define DEITY_REC_OFFERINGS  "offerings"  // number of offerings
-#define DEITY_REC_OFFERED    "offered"    // their total value
-#define DEITY_REC_PRAYERS    "prayers"    // prayers made
-#define DEITY_REC_ANSWERED   "answered"   // prayers heard
-#define DEITY_REC_CURSED     "cursed"     // times cursed
+// The lifetime totals every living keeps about its worship (add_deity_total).
+#define DEITY_TOT_WORSHIPPED "worshipped" // time of worship
+#define DEITY_TOT_PRAYERS    "prayers"    // prayers made
+#define DEITY_TOT_ANSWERED   "answered"   // prayers heard
+#define DEITY_TOT_CURSED     "cursed"     // times cursed
+#define DEITY_TOT_OFFERINGS  "offerings"  // number of offerings
+#define DEITY_TOT_OFFERED    "offered"    // their total worth
+
+// The devotion the deities handler keeps per deity and player: points raised
+// by prayers and offerings that fall with the time, an entry at zero is gone.
+// A game's handler masks the query_devotion_* functions to change them.
+#define DEITY_DEVOTION_PRAYER 1      // points a prayer gives
+#define DEITY_DEVOTION_WORTH  100    // worth of an offering for each point it gives
+#define DEITY_DEVOTION_MAX    1000   // the most points a player can have in a deity
+#define DEITY_DEVOTION_DECAY  1      // points lost every decay period
+#define DEITY_DEVOTION_PERIOD 86400  // length of the decay period, in seconds
 
 #endif

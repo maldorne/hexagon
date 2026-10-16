@@ -69,6 +69,14 @@ The props' own `pray` action yields to the skill: its spec carries `PROP_SPEC_YI
 
 ## The deities handler
 
-`lib/handlers/deities.c` keeps the accounts, per deity per player: worship date, offerings (count and total worth), prayers made and heard, times cursed. Every game with deities has its own (`/games/<game>/handlers/deities.c`, inheriting the shared one, saving to `/save/games/<game>/deities.o`); the shared copy saves nothing. Reach it with `handler("deities", ob)`.
+`lib/handlers/deities.c` keeps, per deity, one number per player: a **devotion** score. Prayers raise it (`DEITY_DEVOTION_PRAYER`, 1 each) and offerings raise it by their worth (one point per `DEITY_DEVOTION_WORTH`, at least 1), up to `DEITY_DEVOTION_MAX`. It falls in real time, `DEITY_DEVOTION_DECAY` points every `DEITY_DEVOTION_PERIOD` seconds, computed lazily from a stored timestamp whenever it is read or written (the way `lib/handlers/crimes.c` decays points); an entry that reaches zero is deleted, so the book holds only the active devotees and a player who stops praying and offering drops out. A game's handler masks `query_devotion_prayer`, `query_devotion_worth`, `query_devotion_max`, `query_devotion_decay` and `query_devotion_period` to change the numbers.
 
-API: `record_worship`, `record_offering`, `record_prayer`, `record_curse`, `query_deities()`, `query_followers(deity)`, `query_follower(name, deity)`. The admin command `deities` reads them.
+Every game with deities has its own handler (`/games/<game>/handlers/deities.c`, inheriting the shared one, saving to `/save/games/<game>/deities.o`); the shared copy saves nothing. Reach it with `handler("deities", ob)`. An older save with per-follower accounts is ignored on load (a different variable) and replaced on the next save.
+
+API: `record_worship`, `record_offering`, `record_prayer`, `record_curse`, `query_deities()` (deities with an active devotee), `query_devotion(name, deity)`, `query_devotees(deity)` (`({ ({ name, devotion }), ... })`, the most devoted first).
+
+### Lifetime totals
+
+The totals live in the player, not in the handler, and are saved with it (`deity_totals` in `lib/living/social.c`): worship date, prayers made, prayers heard, curses, offerings made and their total worth (`DEITY_TOT_*`). The `record_*` functions of the handler update them through `add_deity_total` / `set_deity_total`; `query_deity_totals()` reads them. They are only reachable while the player is connected, since a save file is never parsed to read them.
+
+The admin command `deities` reads the book: `deities` lists the game's deities and their active devotees, `deities <deity>` shows the deity and its devotees by devotion, `deities player <name>` gives the player's devotion in each deity and, only if they are connected, their lifetime totals.
