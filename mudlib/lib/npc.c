@@ -711,7 +711,7 @@ void apply_template(mapping t, varargs int born)
 
   // One particular person is exactly what its template says, so the pinned
   // level and guild follow the template on every materialization, not only
-  // at birth. A guild is placed without the join checks, which are a player's.
+  // at birth. The guild takes them only if they meet its rules, as a player.
   if (!born && is_unique())
   {
     mapping social;
@@ -720,7 +720,7 @@ void apply_template(mapping t, varargs int born)
     if (t["level"] && query_class_ob() && query_class_level() != t["level"])
       set_level(t["level"]);
     if (social["guild"] && query_guild_ob() != social["guild"])
-      set_guild_ob(social["guild"], 1);
+      set_guild_ob(social["guild"]);
     if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
         t["guild_level"] != query_guild_level())
       adjust_guild_level(t["guild_level"] - query_guild_level());
@@ -740,23 +740,11 @@ void apply_template(mapping t, varargs int born)
     social = t["social_obs"];
     if (social["race"])       set_race_ob(social["race"]);
     if (social["class"])      set_class_ob(social["class"]);
-    if (social["guild"])      set_guild_ob(social["guild"], 1);
     if (social["race_group"]) set_race_group_ob(social["race_group"]);
     if (social["group"])      set_group_ob(social["group"]);
     if (social["job"])        set_job_ob(social["job"]);
     if (social["deity"])      set_deity_ob(social["deity"]);
   }
-
-  // How far up its guild the type has risen. Joining a guild starts at level
-  // one, so this comes after the social objects.
-  if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
-      t["guild_level"] != query_guild_level())
-    adjust_guild_level(t["guild_level"] - query_guild_level());
-
-  // How the world reads this type. Perceived alignment accumulates from the
-  // social objects, so this comes after them to have the last word.
-  if (!undefinedp(t["ext_align"]))
-    set_ext_align(t["ext_align"]);
 
   // Roll the eight stats in the type's range, so two NPCs of a type are not the
   // same creature, then let any individually pinned stat override its roll.
@@ -822,6 +810,21 @@ void apply_template(mapping t, varargs int born)
 
   if (t["level"])
     set_level(t["level"]);
+
+  // The guild comes last among the body: it judges the NPC as it would a
+  // player joining (race, class, stats, alignment), so it needs them set.
+  // Joining starts at guild level one, hence the level after it.
+  if (mappingp(t["social_obs"]) && t["social_obs"]["guild"])
+    set_guild_ob(t["social_obs"]["guild"]);
+  if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
+      t["guild_level"] != query_guild_level())
+    adjust_guild_level(t["guild_level"] - query_guild_level());
+
+  // How the world reads this type. Perceived alignment accumulates from the
+  // social objects, so this comes after them to have the last word.
+  if (!undefinedp(t["ext_align"]))
+    set_ext_align(t["ext_align"]);
+
   // weight is not applied here: set_race_ob above already set the body weight
   // from the race, which is where it belongs
 

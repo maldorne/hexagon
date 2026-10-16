@@ -383,9 +383,7 @@ private int _played_age()
   return intp(time_on) ? -time_on : 0;
 }
 
-// `force` skips the join checks (race, class, alignment, requirements): they
-// are for a player choosing to join, not for a template placing an NPC.
-void set_guild_ob(string str, varargs int force)
+void set_guild_ob(string str)
 {
   mixed * values;
   string old_guild;
@@ -416,8 +414,7 @@ void set_guild_ob(string str, varargs int force)
     return;
   }
 
-  if (!load_object(str) ||
-      (!force && !load_object(str)->query_legal_player(this_object())))
+  if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
 
   // Asignamos el gremio nuevo

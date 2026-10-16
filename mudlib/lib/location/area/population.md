@@ -32,7 +32,7 @@ can say `sentient` (an individual, tracked one by one) or not (a creature,
 counted). A `sentient` type that also states `proper_name` or `unique` is one
 particular person: it keeps its template's name, race and level instead of being
 generated. Its template `level`, `guild` and `guild_level` are re-applied every
-time it materializes (the guild without the join checks, which are a player's),
+time it materializes (the guild only takes them if they meet its rules, like a player: race, class, stats, alignment),
 so editing them reaches the person already living.
 
 ## Two halves of the population
