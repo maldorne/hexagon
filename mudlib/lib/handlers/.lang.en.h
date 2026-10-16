@@ -299,3 +299,8 @@
         "  q          : close the book (anything else does too).\n"
 #define _LANG_BOOKS_FILED "%^BOLD%^You note this book down in your diary's encyclopedia " + \
         "('diary encyclopedia' to read it again).%^RESET%^\n"
+
+// crimes
+
+#define _LANG_CRIMES_SEEN_CRIMINAL "Somebody saw what you did, and the law of this place will remember it.\n"
+#define _LANG_CRIMES_SEEN_VICTIM "The law of this place will know that $criminal$ is to blame.\n"

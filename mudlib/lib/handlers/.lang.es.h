@@ -308,3 +308,8 @@
         "  q          : cierras el libro (cualquier otra cosa también).\n"
 #define _LANG_BOOKS_FILED "%^BOLD%^Anotas este libro en la enciclopedia de tu diario " + \
         "('diario enciclopedia' para volver a leerlo).%^RESET%^\n"
+
+// crimes
+
+#define _LANG_CRIMES_SEEN_CRIMINAL "Alguien ha visto lo que has hecho, y la ley de este lugar lo recordará.\n"
+#define _LANG_CRIMES_SEEN_VICTIM "La ley de este lugar sabrá que $criminal$ ha sido el culpable.\n"

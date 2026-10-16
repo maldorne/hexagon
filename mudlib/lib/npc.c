@@ -211,6 +211,14 @@ void event_fight_in_progress(object ob, object * fighters)
   run_on_components("event_fight_in_progress", ob, fighters);
 }
 
+// A crime in this NPC's place (crimes handler): the components react to it.
+// criminal is nil when nobody could name the culprit.
+void event_crime(object who, object criminal, string type, object victim,
+                 int points)
+{
+  run_on_components("event_crime", who, criminal, type, victim, points);
+}
+
 // The hide shadow tells whoever it hid that a search found them.
 void event_revealed(object finder)
 {

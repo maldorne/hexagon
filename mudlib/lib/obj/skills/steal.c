@@ -10,6 +10,9 @@
 // the thief, a noticed one to the victim and the room, and a caught thief
 // gets nothing, loses any hiding and, against a monster, is attacked.
 //
+// A caught or noticed theft is reported to the crimes handler as a crime the
+// victim knows the culprit of; a clean one is not.
+//
 // Anything can refuse to be stolen with the "nosteal" property (NOSTEAL_PROP),
 // on the item, its container, the victim or the place.
 
@@ -18,6 +21,7 @@
 #include <common/properties.h>
 #include <basic/move.h>
 #include <basic/money.h>
+#include <crimes.h>
 #include <language.h>
 
 inherit BASE_EFFECT;
@@ -436,6 +440,9 @@ int do_steal(object caster, mixed target, mixed out_range, int time, int quiet)
     if (victim->query_npc())
       victim->attack_ob(caster);
 
+    // the victim knows who did it
+    catch(handler("crimes", caster)->report_crime(caster, CRIME_THEFT, victim, env, 1));
+
     log_theft(caster, victim, logged, "caught");
     return 1;
   }
@@ -488,6 +495,8 @@ int do_steal(object caster, mixed target, mixed out_range, int time, int quiet)
     ({ caster, victim }));
 
   victim->add_timed_property(STEAL_ALERT_PROP, 1, STEAL_ALERT_TICKS);
+
+  catch(handler("crimes", caster)->report_crime(caster, CRIME_THEFT, victim, env, 1));
 
   log_theft(caster, victim, what, "noticed");
   return 1;

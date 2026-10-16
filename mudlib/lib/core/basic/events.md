@@ -62,7 +62,7 @@ function, with the event's own arguments, on every component that defines it:
 
 - `/lib/location.c` forwards `enter` and `exit`, and passes `event_climbed` /
   `event_climb_failed` to its bridge component.
-- `/lib/npc.c` forwards `enter`, `exit`, `moved`, `weather`, `fight_in_progress` and `revealed`.
+- `/lib/npc.c` forwards `enter`, `exit`, `moved`, `weather`, `fight_in_progress`, `revealed` and `crime`.
 
 ## Movement
 
@@ -271,6 +271,26 @@ A living died. Fired by `/lib/living/death.c` on the place where it died:
 nil), `attackers` everyone who was fighting it. The default only logs.
 `/lib/monster.c` stops protecting anybody when somebody else dies.
 
+## Crimes
+
+### crime
+
+```c
+void event_crime(object who, object criminal, string type, object victim, int points)
+```
+
+An offence was detected in a place with law. Fired by `report_crime()` in
+`/lib/handlers/crimes.c` on the place: `event(place, "crime", criminal, type,
+victim, points)`, so `who` is the crimes handler. `type` is one of the
+`CRIME_*` values of `<crimes.h>`, `victim` may be nil and `points` is what the
+offence is worth under the local law.
+
+When nobody can name the culprit (no victim who knows, no witness who sees)
+`criminal` is nil and `points` is 0: an alert, nothing is recorded. Places
+with no law, and offences that are legal there, fire nothing.
+
+`/lib/npc.c` forwards it to its components. No component reacts yet.
+
 ## Skills
 
 ### player_search
@@ -375,6 +395,7 @@ the game object to keep its player records accurate. Nothing fires it.
 | `fight_in_progress` | `living/combat.c` | `event()` on room | room + inventory |
 | `pub_brawl` | `ventures/pub.c` | `event()` on neighbours | nobody implements it |
 | `death` | `living/death.c` | `event()` on room | room + inventory |
+| `crime` | `handlers/crimes.c` | `event()` on room | room + inventory |
 | `player_search` | search skill | `event()` on room | hide shadows |
 | `revealed` | `hide_sh.c` | direct | the hidden one |
 | `climbed`, `climb_failed` | climb skill | direct | the thing climbed |

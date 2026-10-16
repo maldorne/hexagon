@@ -26,6 +26,8 @@
 #define NOSTEAL_PROP "nosteal"
 // a victim who caught or noticed a thief stays alert for a while
 #define STEAL_ALERT_PROP "steal alert"
+// the place has no law: nothing done there is a crime (crimes handler)
+#define LAWLESS_PROP "lawless"
 // #define NOCAST_PROP "nocast"
 // #define NOGUILD_PROP "noguild"
 #define CURSED_PROP "cursed"

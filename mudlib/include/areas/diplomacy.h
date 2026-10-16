@@ -20,6 +20,14 @@
 // ancestor that declares any accepts everything.
 #define DIPLOMACY_DEITIES "deities"
 
+// The law of a citizenship: its own law code (offence -> points, 0 = legal
+// there), whether its guards kill, and the location its prisoners are taken to.
+// A key a citizenship does not carry is inherited from its parent chain; what
+// nobody up the chain sets falls back to the defaults in <crimes.h>.
+#define DIPLOMACY_LAW    "law"
+#define DIPLOMACY_LETHAL "lethal"
+#define DIPLOMACY_PRISON "prison"
+
 #define DIPLOMACY_RELATION_ALLY  "ally"
 #define DIPLOMACY_RELATION_ENEMY "enemy"
 

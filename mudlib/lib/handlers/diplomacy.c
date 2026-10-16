@@ -42,7 +42,11 @@ inherit "/lib/core/object.c";
 //   citizenships[name] == ([ "parent"   : parent_name (or ""),
 //                            "security" : guard_count,
 //                            "guard"    : guard_npc_path (or ""),
-//                            "deities"  : ({ deity paths }) ])
+//                            "deities"  : ({ deity paths }),
+//                            "law"      : ([ offence : points ]),
+//                            "lethal"   : 0 or 1,
+//                            "prison"   : location file ])
+// The last four are optional: absent until someone sets them.
 mapping citizenships;
 
 // The two relationship lists, each a list of unordered name pairs (every
@@ -340,6 +344,121 @@ int remove_deity(string citizenship_name, string deity)
   return 1;
 }
 
+// The nearest citizenship up the parent chain (the first being citizenship_name
+// itself) whose data holds `key`, or "" when none does. The walk is bounded so
+// a graph edited into a cycle cannot hang the driver.
+private string query_key_holder(string citizenship_name, string key)
+{
+  string current, parent;
+  mapping citizenship;
+  int steps;
+
+  current = citizenship_name;
+
+  for (steps = 0; steps < DIPLOMACY_MAX_DEPTH; steps++)
+  {
+    citizenship = citizenship_map()[current];
+
+    if (citizenship && citizenship[key] != nil)
+      return current;
+
+    parent = query_parent(current);
+    if (!strlen(parent) || parent == current)
+      break;
+    current = parent;
+  }
+
+  return "";
+}
+
+/**
+ * The law code a citizenship sets by itself, without what it inherits.
+ *
+ * @param citizenship_name the citizenship
+ * @return a copy of ([ offence : points ]), empty when it sets none
+ */
+mapping query_own_law(string citizenship_name)
+{
+  mapping citizenship;
+
+  citizenship = citizenship_map()[citizenship_name];
+  if (!citizenship || !mappingp(citizenship[DIPLOMACY_LAW]))
+    return ([ ]);
+
+  return ([ ]) + citizenship[DIPLOMACY_LAW];
+}
+
+/**
+ * The points an offence is worth under a citizenship's law: its own entry, or
+ * the nearest one up its parent chain. 0 means the offence is legal there.
+ *
+ * @param citizenship_name the citizenship
+ * @param offence the offence type
+ * @return the points, or -1 when nobody up the chain says (the caller applies
+ *         its default)
+ */
+int query_law_points(string citizenship_name, string offence)
+{
+  string current, parent;
+  mapping law;
+  int steps;
+
+  current = citizenship_name;
+
+  for (steps = 0; steps < DIPLOMACY_MAX_DEPTH; steps++)
+  {
+    law = nil;
+    if (citizenship_map()[current])
+      law = citizenship_map()[current][DIPLOMACY_LAW];
+
+    if (mappingp(law) && intp(law[offence]))
+      return law[offence];
+
+    parent = query_parent(current);
+    if (!strlen(parent) || parent == current)
+      break;
+    current = parent;
+  }
+
+  return -1;
+}
+
+/**
+ * Whether the guards of a citizenship kill instead of arresting, inherited
+ * from the parent chain.
+ *
+ * @param citizenship_name the citizenship
+ * @return 1 or 0, or -1 when nobody up the chain says
+ */
+int query_lethal(string citizenship_name)
+{
+  string holder;
+
+  holder = query_key_holder(citizenship_name, DIPLOMACY_LETHAL);
+  if (!strlen(holder))
+    return -1;
+
+  return citizenship_map()[holder][DIPLOMACY_LETHAL] ? 1 : 0;
+}
+
+/**
+ * The location prisoners of a citizenship are taken to, inherited from the
+ * parent chain.
+ *
+ * @param citizenship_name the citizenship
+ * @return the file name, or "" when nobody up the chain says
+ */
+string query_prison(string citizenship_name)
+{
+  string holder;
+
+  holder = query_key_holder(citizenship_name, DIPLOMACY_PRISON);
+  if (!strlen(holder))
+    return "";
+
+  return citizenship_map()[holder][DIPLOMACY_PRISON];
+}
+
 // The citizenships this one is directly allied with / at war with (direct relationships
 // only; parent-inherited relations are resolved by is_ally / is_enemy).
 string * query_allies(string citizenship_name)
@@ -372,6 +491,9 @@ mapping query_relations()
                     "security" : citizenship_map[name]["security"],
                     "guard"    : citizenship_map[name]["guard"],
                     DIPLOMACY_DEITIES : citizenship_map[name][DIPLOMACY_DEITIES],
+                    DIPLOMACY_LAW     : query_own_law(name),
+                    DIPLOMACY_LETHAL  : citizenship_map[name][DIPLOMACY_LETHAL],
+                    DIPLOMACY_PRISON  : citizenship_map[name][DIPLOMACY_PRISON],
                     "allies"   : query_linked_names(DIPLOMACY_RELATION_ALLY, name),
                     "enemies"  : query_linked_names(DIPLOMACY_RELATION_ENEMY, name) ]);
   }
@@ -487,6 +609,81 @@ int set_guard(string citizenship_name, string guard_npc_path)
   if (!citizenship)
     return 0;
   citizenship["guard"] = guard_npc_path ? guard_npc_path : "";
+  save_handler();
+  return 1;
+}
+
+/**
+ * Sets what an offence is worth under a citizenship's own law.
+ *
+ * @param citizenship_name an existing citizenship
+ * @param offence the offence type
+ * @param points the points (0 makes it legal there); negative drops the entry,
+ *        so the citizenship inherits it again
+ * @return 1 on success
+ */
+int set_law_points(string citizenship_name, string offence, int points)
+{
+  mapping citizenship;
+
+  citizenship = query_citizenship(citizenship_name);
+  if (!citizenship || !offence || !strlen(offence))
+    return 0;
+
+  if (!mappingp(citizenship[DIPLOMACY_LAW]))
+    citizenship[DIPLOMACY_LAW] = ([ ]);
+
+  if (points < 0)
+    citizenship[DIPLOMACY_LAW][offence] = nil;
+  else
+    citizenship[DIPLOMACY_LAW][offence] = points;
+
+  save_handler();
+  return 1;
+}
+
+/**
+ * Sets whether a citizenship's guards kill.
+ *
+ * @param citizenship_name an existing citizenship
+ * @param lethal 1 or 0; negative drops the setting, so it is inherited again
+ * @return 1 on success
+ */
+int set_lethal(string citizenship_name, int lethal)
+{
+  mapping citizenship;
+
+  citizenship = query_citizenship(citizenship_name);
+  if (!citizenship)
+    return 0;
+
+  if (lethal < 0)
+    citizenship[DIPLOMACY_LETHAL] = nil;
+  else
+    citizenship[DIPLOMACY_LETHAL] = lethal ? 1 : 0;
+  save_handler();
+  return 1;
+}
+
+/**
+ * Sets the location a citizenship takes its prisoners to.
+ *
+ * @param citizenship_name an existing citizenship
+ * @param prison a location file; "" or nil drops it, so it is inherited again
+ * @return 1 on success
+ */
+int set_prison(string citizenship_name, string prison)
+{
+  mapping citizenship;
+
+  citizenship = query_citizenship(citizenship_name);
+  if (!citizenship)
+    return 0;
+
+  if (prison && strlen(prison))
+    citizenship[DIPLOMACY_PRISON] = prison;
+  else
+    citizenship[DIPLOMACY_PRISON] = nil;
   save_handler();
   return 1;
 }

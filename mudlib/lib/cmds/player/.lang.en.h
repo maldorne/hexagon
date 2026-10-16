@@ -751,3 +751,17 @@
 #define _LANG_CMD_JUMP_DEAD "You, a spirit, have nowhere to jump from.\n"
 #define _LANG_CMD_JUMP_NOWHERE "There is no water to jump into from here.\n"
 #define _LANG_CMD_JUMP_WHERE "Jump where? From here you can only jump into the water.\n"
+
+// record
+
+#define _LANG_CMD_RECORD_ALIAS ({ "record" })
+#define _LANG_CMD_RECORD_SYNTAX "record"
+#define _LANG_CMD_RECORD_HELP "Shows your criminal record: in every place where the law has noted an offence against you, how it regards you (suspect, wanted or outlaw), the points you have and your latest offences. Points fade with time."
+#define _LANG_RECORD_HEADER "Your record:\n\n"
+#define _LANG_RECORD_CLEAN "You have no criminal record.\n"
+#define _LANG_RECORD_LINE "%s: %s (%d points)\n"
+#define _LANG_RECORD_OFFENCE "  %s, %s, against %s, in %s.\n"
+#define _LANG_RECORD_NOBODY "nobody"
+#define _LANG_RECORD_NOWHERE "an unknown place"
+#define _LANG_RECORD_STATUS_NAMES ({ "clean", "suspect", "wanted", "outlaw" })
+#define _LANG_RECORD_OFFENCE_NAMES ({ "theft", "assault", "murder", "trespass", "assault on a guard" })

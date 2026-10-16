@@ -756,3 +756,17 @@
 #define _LANG_CMD_JUMP_DEAD "Tú, un espíritu, no tienes de dónde saltar.\n"
 #define _LANG_CMD_JUMP_NOWHERE "No hay agua a la que saltar desde aquí.\n"
 #define _LANG_CMD_JUMP_WHERE "¿Saltar adónde? Desde aquí sólo puedes saltar al agua.\n"
+
+// record
+
+#define _LANG_CMD_RECORD_ALIAS ({ "antecedentes", "record" })
+#define _LANG_CMD_RECORD_SYNTAX "antecedentes"
+#define _LANG_CMD_RECORD_HELP "Muestra tus antecedentes penales: en cada lugar donde la ley te ha apuntado un delito, cómo te considera (sospechoso, buscado o proscrito), los puntos que acumulas y tus últimos delitos. Los puntos se pierden con el tiempo."
+#define _LANG_RECORD_HEADER "Tus antecedentes:\n\n"
+#define _LANG_RECORD_CLEAN "No tienes antecedentes.\n"
+#define _LANG_RECORD_LINE "%s: %s (%d puntos)\n"
+#define _LANG_RECORD_OFFENCE "  %s, %s, contra %s, en %s.\n"
+#define _LANG_RECORD_NOBODY "nadie"
+#define _LANG_RECORD_NOWHERE "un lugar desconocido"
+#define _LANG_RECORD_STATUS_NAMES ({ "limpio", "sospechoso", "buscado", "proscrito" })
+#define _LANG_RECORD_OFFENCE_NAMES ({ "robo", "agresión", "asesinato", "allanamiento", "agresión a un guardia" })
