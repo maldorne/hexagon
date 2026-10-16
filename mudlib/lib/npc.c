@@ -507,6 +507,37 @@ private mixed gender_value(mixed v, int g)
  * set_class_ob resets the level, the experience and the strength cap, which is
  * right when a living changes class and wrong when it is merely waking up.
  */
+/**
+ * Joins the guild a template names, under the same rules as a player. When
+ * the guild refuses the NPC (race, class, stats, alignment), it stays out of
+ * it and the refusal is written to the npc_guild log, so a template that
+ * cannot qualify is noticed.
+ *
+ * @param guild the guild path from the template's social objects
+ */
+private void join_template_guild(string guild)
+{
+  mixed joined;
+
+  set_guild_ob(guild);
+
+  // the same guild, whether or not its path was written with the extension
+  joined = query_guild_ob();
+  if (stringp(joined) && (joined == guild || joined + ".c" == guild ||
+                          joined == guild + ".c"))
+    return;
+
+  log_file("npc_guild", "[" + ctime(time(), 4) + "] " +
+    (query_npc_source() ? query_npc_source() : base_name(this_object())) +
+    " (" + query_cap_name() + ") refused by " + guild +
+    ": race " + (query_race_ob() ? query_race_ob() : "-") +
+    ", class " + (query_class_ob() ? query_class_ob() : "-") +
+    ", level " + query_level() + ", real align " + query_real_align() +
+    ", str " + query_str() + " con " + query_con() + " dex " + query_dex() +
+    " int " + query_int() + " wis " + query_wis() + " cha " + query_cha() +
+    "\n");
+}
+
 void apply_template(mapping t, varargs int born)
 {
   int g;
@@ -720,7 +751,7 @@ void apply_template(mapping t, varargs int born)
     if (t["level"] && query_class_ob() && query_class_level() != t["level"])
       set_level(t["level"]);
     if (social["guild"] && query_guild_ob() != social["guild"])
-      set_guild_ob(social["guild"]);
+      join_template_guild(social["guild"]);
     if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
         t["guild_level"] != query_guild_level())
       adjust_guild_level(t["guild_level"] - query_guild_level());
@@ -815,7 +846,7 @@ void apply_template(mapping t, varargs int born)
   // player joining (race, class, stats, alignment), so it needs them set.
   // Joining starts at guild level one, hence the level after it.
   if (mappingp(t["social_obs"]) && t["social_obs"]["guild"])
-    set_guild_ob(t["social_obs"]["guild"]);
+    join_template_guild(t["social_obs"]["guild"]);
   if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
       t["guild_level"] != query_guild_level())
     adjust_guild_level(t["guild_level"] - query_guild_level());

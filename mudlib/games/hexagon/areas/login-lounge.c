@@ -6,7 +6,7 @@ inherit "/games/hexagon/base/forbidden-room";
 
 void setup()
 {
-  set_log_filename("login-lounge");
+  set_log_filename("login_lounge");
   set_short("Login lounge");
   set_long("This is a the login lounge, here the connection objects rest until " +
     "the user chooses a character. Don't touch anything. Your presence here has " +
