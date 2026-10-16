@@ -200,7 +200,7 @@ void weather_inform(int flag, varargs string zone, int * values)
     if (!objectp(obs[i]))
     {
       my_obs = m_delete(my_obs, obs[i]);
-      break;
+      continue;
     }
 
     // A room-level observer has no environment.
@@ -269,16 +269,16 @@ void advance()
   }
 
   // Dawn and nightfall reach climate observers (outside rooms and the players in
-  // them).
+  // them). A failing observer must not keep the new hour from being saved.
   if (hour_of_day == query_dawn_time())
-    weather_inform(FLAG_DAWN);
+    catch(weather_inform(FLAG_DAWN));
   else if (hour_of_day == query_nightfall_time())
-    weather_inform(FLAG_NIGHTFALL);
+    catch(weather_inform(FLAG_NIGHTFALL));
 
   // Refresh climate every four in-game hours. The interval is arbitrary but
   // avoids updating too aggressively.
   if ((hour_of_day % 4) == 0)
-    update_weather(0);
+    catch(update_weather(0));
 
   // End of the mud-time update.
   save_weather();

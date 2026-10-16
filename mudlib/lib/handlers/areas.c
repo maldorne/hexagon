@@ -531,8 +531,9 @@ void _dispatch_schedule()
   {
     item = pending_schedule[0];
     pending_schedule = pending_schedule[1..];
+    // one NPC that fails must not cut the rest of the round
     if (item[0])
-      item[0]->wake_and_schedule(item[1], item[2]);
+      catch(item[0]->wake_and_schedule(item[1], item[2]));
   }
 
   if (sizeof(pending_schedule))
