@@ -148,7 +148,7 @@ private string rule_text(mapping rule)
 }
 
 // What the deity object says about itself: who may worship it, what it takes,
-// what it can be prayed for.
+// what it can be prayed for, in aligned columns.
 private string deity_sheet(object deity)
 {
   string ret;
@@ -160,17 +160,24 @@ private string deity_sheet(object deity)
 
   range = deity->query_alignment_range();
   ret = deity_title(deity->query_deity_path()) + "  (" +
-        deity->query_deity_path() + ")\n" +
-        "  gender: " + (deity->query_gender() == GENDER_FEMALE ? "female" : "male") + "\n" +
-        "  races: " + titles_of(deity->query_races()) +
-        "   forbidden: " + titles_of(deity->query_forbidden_races()) + "\n" +
-        "  lineages: " + titles_of(deity->query_lineages()) +
-        "   forbidden: " + titles_of(deity->query_forbidden_lineages()) + "\n" +
-        "  guilds: " + titles_of(deity->query_guilds()) +
-        "   forbidden: " + titles_of(deity->query_forbidden_guilds()) + "\n" +
-        "  real alignment: " + range[0] + " to " + range[1] + "\n";
+        deity->query_deity_path() + ")\n\n" +
+        sprintf("  %-16s %s\n", "Gender",
+          deity->query_gender() == GENDER_FEMALE ? "female" : "male") +
+        sprintf("  %-16s %d to %d\n\n", "Real alignment", range[0], range[1]);
 
-  ret += "  offerings:\n";
+  // who may come, and who may not
+  ret += sprintf("  %-16s %-30s %s\n", "", "Allowed", "Forbidden") +
+         sprintf("  %-16s %-30s %s\n", "Races",
+           titles_of(deity->query_races()),
+           titles_of(deity->query_forbidden_races())) +
+         sprintf("  %-16s %-30s %s\n", "Lineages",
+           titles_of(deity->query_lineages()),
+           titles_of(deity->query_forbidden_lineages())) +
+         sprintf("  %-16s %-30s %s\n\n", "Guilds",
+           titles_of(deity->query_guilds()),
+           titles_of(deity->query_forbidden_guilds()));
+
+  ret += "  Offerings\n";
   offerings = deity->query_offerings();
   if (!sizeof(offerings))
     ret += "    none\n";
@@ -179,21 +186,21 @@ private string deity_sheet(object deity)
 
   // each prayer by its id, the first word that asks for it and its luck (the
   // default luck when the deity sets none)
-  ret += "  prayers:";
+  ret += "\n" + sprintf("  %-16s %-16s %s\n", "Prayers", "Word", "Luck");
   table = deity->query_prayers();
   prayers = map_indices(table);
   if (!sizeof(prayers))
-    ret += " none";
+    ret += "    none\n";
   for (i = 0; i < sizeof(prayers); i++)
   {
     luck = deity->query_prayer_luck(prayers[i]);
-    ret += " " + prayers[i] +
-           (sizeof(table[prayers[i]][DEITY_PRAYER_WORDS]) ?
-              " '" + table[prayers[i]][DEITY_PRAYER_WORDS][0] + "'" : "") +
-           " (luck " + (luck ? luck : DEITY_PRAY_LUCK) + ")";
+    ret += sprintf("    %-14s %-16s %4d\n", prayers[i],
+             sizeof(table[prayers[i]][DEITY_PRAYER_WORDS]) ?
+               table[prayers[i]][DEITY_PRAYER_WORDS][0] : "-",
+             luck ? luck : DEITY_PRAY_LUCK);
   }
 
-  return ret + "\n\n";
+  return ret + "\n";
 }
 
 static int cmd(string str, object me, string verb)
