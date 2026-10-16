@@ -191,7 +191,7 @@
 #define GLYPH_MAP_PLAINS_B (chr(226) + chr(139) + chr(177))         // U+22F1 down right diagonal ellipsis
 #define GLYPH_MAP_SWAMP    (chr(226) + chr(137) + chr(136))         // U+2248 almost equal to
 #define GLYPH_MAP_MOUNTAIN (chr(226) + chr(150) + chr(178))         // U+25B2 black up-pointing triangle
-#define GLYPH_MAP_WOODLAND (chr(226) + chr(153) + chr(167))         // U+2667 white club suit
+#define GLYPH_MAP_TAIGA    (chr(226) + chr(153) + chr(167))         // U+2667 white club suit
 #define GLYPH_MAP_RUINS    (chr(226) + chr(136) + chr(180))         // U+2234 therefore
 #define GLYPH_MAP_COAST       "~"
 #define GLYPH_MAP_UNDERGROUND "."
@@ -218,7 +218,7 @@
 #define MAP_GLYPH_PLAINS_B     42
 #define MAP_GLYPH_SWAMP        43
 #define MAP_GLYPH_MOUNTAIN     44
-#define MAP_GLYPH_WOODLAND     45
+#define MAP_GLYPH_TAIGA        45
 #define MAP_GLYPH_RUINS        46
 #define MAP_GLYPH_COUNT        47
 

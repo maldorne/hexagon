@@ -431,7 +431,7 @@
 #define _LANG_CMD_WORLDMAP_PLAINS      "Llanura"
 #define _LANG_CMD_WORLDMAP_SWAMP       "Pantano"
 #define _LANG_CMD_WORLDMAP_MOUNTAIN    "Montañas"
-#define _LANG_CMD_WORLDMAP_WOODLAND    "Arboleda"
+#define _LANG_CMD_WORLDMAP_TAIGA       "Taiga"
 #define _LANG_CMD_WORLDMAP_RUINS       "Ruinas"
 #define _LANG_CMD_WORLDMAP_FARM        "Tierras de cultivo"
 #define _LANG_CMD_WORLDMAP_RIVER       "Río"

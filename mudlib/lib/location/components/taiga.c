@@ -1,7 +1,7 @@
-// Woodland component. A second kind of woods, drawn with its own outlined
+// Taiga component. Cold conifer woods, drawn with their own outlined
 // glyph beside the forest one. What sets it apart from the forest component is
 // still to be decided; until then it only names the terrain. Contributes to
-// the sector-level "woodland" tally.
+// the sector-level "taiga" tally.
 //
 // It adds no behaviour yet: it only marks the terrain.
 
@@ -12,7 +12,7 @@ inherit component "/lib/location/component.c";
 void create()
 {
   component::create();
-  set_type(LOCATION_COMPONENT_WOODLAND);
+  set_type(LOCATION_COMPONENT_TAIGA);
 }
 
 void init() {}

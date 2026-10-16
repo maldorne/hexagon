@@ -49,11 +49,11 @@
 #define LOCATION_COMPONENT_UNDERGROUND "underground"
 #define LOCATION_COMPONENT_FARM        "farm"
 // Terrain kinds that only name the ground, for the world map. See
-// /lib/location/components/plains.c, swamp.c, mountain.c, woodland.c and ruins.c.
+// /lib/location/components/plains.c, swamp.c, mountain.c, taiga.c and ruins.c.
 #define LOCATION_COMPONENT_PLAINS      "plains"
 #define LOCATION_COMPONENT_SWAMP       "swamp"
 #define LOCATION_COMPONENT_MOUNTAIN    "mountain"
-#define LOCATION_COMPONENT_WOODLAND    "woodland"
+#define LOCATION_COMPONENT_TAIGA       "taiga"
 #define LOCATION_COMPONENT_RUINS       "ruins"
 // A buildable empty lot, and a dwelling raised on one. See
 // /lib/location/components/plot.c and home.c.

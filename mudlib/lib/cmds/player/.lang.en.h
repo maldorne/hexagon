@@ -431,7 +431,7 @@
 #define _LANG_CMD_WORLDMAP_PLAINS      "Plains"
 #define _LANG_CMD_WORLDMAP_SWAMP       "Swamp"
 #define _LANG_CMD_WORLDMAP_MOUNTAIN    "Mountains"
-#define _LANG_CMD_WORLDMAP_WOODLAND    "Woodland"
+#define _LANG_CMD_WORLDMAP_TAIGA       "Taiga"
 #define _LANG_CMD_WORLDMAP_RUINS       "Ruins"
 #define _LANG_CMD_WORLDMAP_FARM        "Farmland"
 #define _LANG_CMD_WORLDMAP_RIVER       "River"

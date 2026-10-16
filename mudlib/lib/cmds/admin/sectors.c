@@ -208,7 +208,7 @@ static int cmd(string str, object me, string verb)
     {
       notify_fail("Unknown type '" + type + "'. One of: city, forest, " +
                   "coast, underground, farm, plains, swamp, mountain, " +
-                  "woodland, ruins, empty, none.\n");
+                  "taiga, ruins, empty, none.\n");
       return 0;
     }
 
