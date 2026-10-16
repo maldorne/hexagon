@@ -211,6 +211,22 @@ private mixed parse_request(string str, object caster)
   return ({ victim, item, container, 0 });
 }
 
+/**
+ * Writes the argument this skill parses, in the current language, for a caller
+ * that fires the effect itself (an NPC thief).
+ *
+ * @param item the item name to take, nil for coins
+ * @param victim_name the name of whoever is robbed
+ * @return the text after the verb, as a player would type it
+ */
+string build_request(string item, string victim_name)
+{
+  if (!item)
+    item = _LANG_SKILL_STEAL_COIN_WORDS[0];
+
+  return item + _LANG_SKILL_STEAL_VICTIM_WORD + victim_name;
+}
+
 // Why the theft cannot start, before anything is said or spent.
 mixed extra_checks(string str, object caster)
 {
