@@ -45,7 +45,7 @@ The word "object" is overloaded here: a JSON _object_ is a key-value map (which 
 
 Concretely, if `json_encode` finds a value of LPC type `object` anywhere in the structure — at the top level, inside an array, or as a value in a mapping — it raises. There is no generic answer to "how should a player object be turned into JSON?" — its name? its id? a snapshot of its properties? — and that decision belongs to the caller, not to the encoder. Flatten objects to a stringifiable identifier (name, id, file path…) before calling.
 
-This mirrors the limitation documented at `notes/lpc/dgd/writing-dgd-extensions.md §7.2`: even a C kfun built against the DGD extension API could not solve this on its own, because there is no `lpc_object_getval` to read object internals from outside.
+Even a C kfun built against the DGD extension API could not solve this on its own, because that API has no `lpc_object_getval` to read an object's internals from outside.
 
 ## Tests
 

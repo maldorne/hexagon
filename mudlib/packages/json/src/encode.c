@@ -143,9 +143,8 @@ private string _json_encode_value(mixed value, int pretty, int depth)
     }
 
     case T_OBJECT:
-      // matches the documented limitation in
-      // notes/lpc/dgd/writing-dgd-extensions.md §7.2: the mudlib must
-      // flatten objects to a public identifier before encoding.
+      // the mudlib must flatten objects to a public identifier before
+      // encoding: there is no generic JSON form for a mud object.
       error("json_encode: cannot encode object value; " +
             "flatten to a string id first");
 

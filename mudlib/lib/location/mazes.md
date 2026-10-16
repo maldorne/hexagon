@@ -24,7 +24,7 @@ void setup()
 `MAZE_PROP` lives in `include/room/room.h`. Exits stay
 geographically coherent — the maze **is not** randomised at runtime;
 disorientation is achieved through the intentionally contradictory
-exit graph the builder declares (see `dev/maze-orientation.md`).
+exit graph the builder declares.
 
 ## 2. Conversion to a location
 
@@ -122,4 +122,3 @@ specific maze) opt in explicitly by removing the maze filter.
 - `lib/location/area.c::query_maze_locations` — area-side derived accessor.
 - `lib/handlers/sectors.c::add_location` — lifts flag, forwards to sector, collision warning.
 - `lib/location/sector.c` — `maze_positions` mapping, `is_maze_at`, accessors.
-- `dev/maze-orientation.md` — future skill mechanics (not yet implemented).
