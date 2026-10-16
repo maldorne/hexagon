@@ -89,35 +89,30 @@ string query_title_from(string id)
   return titles[id]["from"];
 }
 
-// The name a class, guild or job is known by inside a title's conditions: the
-// file it lives in, with no directory and no extension.
-private string source_name(string path)
+// Whether a class, guild or job path is the one a title's conditions name: they
+// name it by its file, with no directory and no extension.
+private int is_source(string path, string name)
 {
   string * parts;
 
   if (!stringp(path) || !strlen(path))
-    return "";
+    return 0;
 
   parts = explode(path, "/");
-  path = parts[sizeof(parts) - 1];
-
-  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
-    path = path[0 .. strlen(path) - 3];
-
-  return path;
+  return parts[sizeof(parts) - 1] == name + ".c";
 }
 
 // Whether somebody meets what a title asks for. A level is a floor, so the
 // titles of every rank already passed are granted and kept.
 private int meets(object who, mapping needs)
 {
-  if (needs["class"] && source_name(who->query_class_ob()) != needs["class"])
+  if (needs["class"] && !is_source(who->query_class_ob(), needs["class"]))
     return 0;
 
-  if (needs["guild"] && source_name(who->query_guild_ob()) != needs["guild"])
+  if (needs["guild"] && !is_source(who->query_guild_ob(), needs["guild"]))
     return 0;
 
-  if (needs["job"] && source_name(who->query_job_ob()) != needs["job"])
+  if (needs["job"] && !is_source(who->query_job_ob(), needs["job"]))
     return 0;
 
   if (needs["level"] && who->query_level() < needs["level"])

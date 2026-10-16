@@ -268,7 +268,7 @@ private string * query_birth_citizenships(mapping t)
   if (!root || !strlen(root))
     root = choice;
 
-  root = "/games/" + game + "/obj/citizenships/" + root;
+  root = "/games/" + game + "/obj/citizenships/" + root + ".c";
   return ({ root, root });
 }
 

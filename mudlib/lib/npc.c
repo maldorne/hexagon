@@ -521,10 +521,8 @@ private void join_template_guild(string guild)
 
   set_guild_ob(guild);
 
-  // the same guild, whether or not its path was written with the extension
   joined = query_guild_ob();
-  if (stringp(joined) && (joined == guild || joined + ".c" == guild ||
-                          joined == guild + ".c"))
+  if (stringp(joined) && joined == guild)
     return;
 
   log_file("npc_guild", "[" + ctime(time(), 4) + "] " +

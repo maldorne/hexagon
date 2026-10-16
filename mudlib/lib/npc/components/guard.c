@@ -67,18 +67,6 @@ void create()
   scan_pending = 0;
 }
 
-// A guild object named with or without its extension is the same guild.
-private string _guild_path(string path)
-{
-  if (!path || !strlen(path))
-    return "";
-  if (path[0] != '/')
-    path = "/" + path;
-  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
-    path = path[0 .. strlen(path) - 3];
-  return path;
-}
-
 // The POI of the post this guard works at, or nil.
 private mapping _post_poi()
 {
@@ -315,19 +303,12 @@ private int _passes_guild(object mover)
   if (!sizeof(guard_guilds) && !guard_min_guild_level)
     return 1;
 
-  guild = _guild_path(mover->query_guild_ob());
-  if (!strlen(guild))
+  guild = mover->query_guild_ob();
+  if (!guild || !strlen(guild))
     return guard_guildless;
 
-  if (sizeof(guard_guilds))
-  {
-    member = 0;
-    for (i = 0; i < sizeof(guard_guilds); i++)
-      if (_guild_path(guard_guilds[i]) == guild)
-        member = 1;
-    if (!member)
-      return 0;
-  }
+  if (sizeof(guard_guilds) && member_array(guild, guard_guilds) == -1)
+    return 0;
 
   return (int)mover->query_guild_level() >= guard_min_guild_level;
 }

@@ -213,8 +213,7 @@ string finger_info(string name, varargs object me)
 
     if (social_object_list[1] && me && me->query_coder())
     {
-      if ( (file_size(social_object_list[1]) > 0) ||
-           (file_size(social_object_list[1]+".c") > 0) )
+      if (file_size(social_object_list[1]) > 0)
         retval += _LANG_FINGER_GUILD;
       else
         retval += _LANG_FINGER_WRONG_GUILD;

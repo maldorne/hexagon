@@ -151,16 +151,6 @@ void save_handler()
   save_object(RANKING_SAVE, 1);
 }
 
-// A group object named with or without its extension is the same group.
-private string _group_path(string path)
-{
-  if (!path || !strlen(path))
-    return "";
-  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
-    path = path[0 .. strlen(path) - 3];
-  return path;
-}
-
 // The class somebody is ranked under: a game's own class with the same id
 // stands for the mudlib's generic one, so the NPCs of a game built on the
 // generic classes rank beside the players, who take the game's.
@@ -169,8 +159,8 @@ private string _class_group(object who)
   string path, game, file;
   object class_ob;
 
-  path = _group_path(who->query_class_ob());
-  if (!strlen(path) || path[0 .. 16] != "/lib/obj/classes/")
+  path = who->query_class_ob();
+  if (!path || !strlen(path) || path[0 .. 16] != "/lib/obj/classes/")
     return path;
 
   game = game_name(who);
@@ -179,7 +169,7 @@ private string _class_group(object who)
     return path;
 
   file = handler("games")->query_class_file(game, class_ob->query_class_id());
-  return strlen(file) ? _group_path(file) : path;
+  return strlen(file) ? file : path;
 }
 
 // The levels of a group, lowest first.
@@ -234,7 +224,7 @@ private int _place(string group, string key, string name, int level)
   int * keys;
   int changed;
 
-  if (!strlen(group) || level <= 0)
+  if (!group || !strlen(group) || level <= 0)
     return 0;
 
   levels = ranking[group];
@@ -316,9 +306,9 @@ void update(object who)
 
   changed = _place(_class_group(who), key, name,
                    (int)who->query_class_level());
-  changed += _place(_group_path(who->query_guild_ob()), key, name,
+  changed += _place(who->query_guild_ob(), key, name,
                     (int)who->query_guild_level());
-  changed += _place(_group_path(who->query_job_ob()), key, name,
+  changed += _place(who->query_job_ob(), key, name,
                     (int)who->query_job_level());
 
   if (changed)
@@ -332,7 +322,7 @@ mapping query_group_ranking(string group)
   int * keys;
   int i;
 
-  levels = ranking[_group_path(group)];
+  levels = ranking[group];
   if (!levels)
     return nil;
 

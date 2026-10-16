@@ -26,16 +26,6 @@ void create()
 string query_room_guild() { return room_guild; }
 void set_room_guild(string path) { room_guild = path ? path : ""; }
 
-// A guild object named with or without its extension is the same guild.
-private string _guild_path(string path)
-{
-  if (!path || !strlen(path))
-    return "";
-  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
-    path = path[0 .. strlen(path) - 3];
-  return path;
-}
-
 // Put up the sign that says what can be done in the hall, replacing any earlier
 // one, so a place never has two.
 object create_guild_room_sign(object where)
@@ -71,7 +61,7 @@ int do_cost(string str)
 
   me = this_player();
   if (!me || !strlen(room_guild) ||
-      _guild_path(me->query_guild_ob()) != _guild_path(room_guild) ||
+      me->query_guild_ob() != room_guild ||
       !(guild = load_object(room_guild)))
     return 0;
 
@@ -97,7 +87,7 @@ int do_advance(string str)
 
   me = this_player();
   if (!me || !strlen(room_guild) ||
-      _guild_path(me->query_guild_ob()) != _guild_path(room_guild))
+      me->query_guild_ob() != room_guild)
   {
     notify_fail(_LANG_GUILD_ROOM_NOT_MEMBER);
     return 0;

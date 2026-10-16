@@ -1,6 +1,7 @@
 
 #include <common/properties.h>
 #include <living/death.h>
+#include <living/races.h>
 #include <translations/common.h>
 #include <language.h>
 
@@ -99,7 +100,7 @@ void setup()
   set_long(_LANG_CORPSE_DESC);
 
   set_weight(STD_CORPSE_WEIGHT);
-  // set_race_ob("/lib/obj/races/unknown");
+  // set_race_ob(DEFAULT_RACE_OB);
 }
 
 string query_given_name() { return given_name; }
@@ -132,7 +133,7 @@ void set_owner(string n, object ob)
   if (ob)
   {
     if (ob->query_race_ob() && 
-       (ob->query_race_ob() != "/lib/obj/races/unknown"))
+       (ob->query_race_ob() != DEFAULT_RACE_OB))
     {
       set_race_ob(ob->query_race_ob());
       if (ob->query_base_race_name() != "")

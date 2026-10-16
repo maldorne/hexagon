@@ -17,22 +17,14 @@
 inherit "/lib/effects/environment_fixes.c";
 
 /**
- * Whether the caster belongs to the guild at a path (with or without ".c").
+ * Whether the caster belongs to the guild at a path.
  */
 private int is_member_of(object caster, string guild_path)
 {
   string current;
 
   current = caster->query_guild_ob();
-  if (!current)
-    return 0;
-
-  if (strlen(current) > 2 && current[strlen(current) - 2 ..] == ".c")
-    current = current[.. strlen(current) - 3];
-  if (strlen(guild_path) > 2 && guild_path[strlen(guild_path) - 2 ..] == ".c")
-    guild_path = guild_path[.. strlen(guild_path) - 3];
-
-  return current == guild_path;
+  return current && current == guild_path;
 }
 
 /**

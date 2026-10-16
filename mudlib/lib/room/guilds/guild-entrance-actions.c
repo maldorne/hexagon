@@ -30,16 +30,6 @@ void create()
 string query_entrance_guild() { return entrance_guild; }
 void set_entrance_guild(string path) { entrance_guild = path ? path : ""; }
 
-// A guild object named with or without its extension is the same guild.
-private string _guild_path(string path)
-{
-  if (!path || !strlen(path))
-    return "";
-  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
-    path = path[0 .. strlen(path) - 3];
-  return path;
-}
-
 private object _guild()
 {
   if (!strlen(entrance_guild))
@@ -59,7 +49,7 @@ private string _names_of(string * ids, string dir)
   for (i = 0; i < sizeof(ids); i++)
   {
     ob = nil;
-    catch(ob = load_object(dir + ids[i]));
+    catch(ob = load_object(dir + ids[i] + ".c"));
     names += ({ (ob && ob->query_name()) ? (string)ob->query_name() : ids[i] });
   }
 
@@ -131,7 +121,7 @@ int do_join(string str)
     return 0;
   }
 
-  if (_guild_path(me->query_guild_ob()) == _guild_path(entrance_guild))
+  if (me->query_guild_ob() == entrance_guild)
   {
     notify_fail(_LANG_GUILD_ENTRANCE_ALREADY_MEMBER);
     return 0;

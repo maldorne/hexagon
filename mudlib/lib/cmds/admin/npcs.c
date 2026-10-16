@@ -573,13 +573,13 @@ private string * gendered_template_fields()
   return ({ "name", "short", "long", "main_plural", "aliases", "plurals" });
 }
 
-// Does this path name an object that can be loaded? Templates store social
-// objects with and without the .c, so both spellings are accepted.
+// Does this path name an object that can be loaded? A social object is named
+// by its full path, ".c" included.
 private int loadable(string path)
 {
-  if (!stringp(path) || !strlen(path))
+  if (!stringp(path) || strlen(path) < 3 || path[strlen(path) - 2 ..] != ".c")
     return 0;
-  return file_size(path) >= 0 || file_size(path + ".c") >= 0;
+  return file_size(path) >= 0;
 }
 
 // What is wrong with one type's template, as a list of complaints. An empty
@@ -679,7 +679,8 @@ private string * template_complaints(string game, string id)
       if (!stringp(named[i]))
         out += ({ "citizenship holds something that is not a name" });
       else if (strlen(named[i]) &&
-               !loadable("/games/" + game + "/obj/citizenships/" + named[i]))
+               !loadable("/games/" + game + "/obj/citizenships/" + named[i] +
+                         ".c"))
         out += ({ "citizenship '" + named[i] + "' does not exist" });
   }
 

@@ -680,8 +680,9 @@ private int do_class(object area, string * args)
     return 0;
   }
 
-  if (args[2] != "none" && file_size(args[2]) < 0 &&
-      file_size(args[2] + ".c") < 0)
+  if (args[2] != "none" &&
+      (strlen(args[2]) < 3 || args[2][strlen(args[2]) - 2 ..] != ".c" ||
+       file_size(args[2]) < 0))
   {
     notify_fail("No class object at '" + args[2] + "'.\n");
     return 0;

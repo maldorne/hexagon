@@ -121,7 +121,7 @@ string query_root_citizenship_path()
   if (!root || !strlen(root))
     root = held;
 
-  return "/games/" + game + "/obj/citizenships/" + root;
+  return "/games/" + game + "/obj/citizenships/" + root + ".c";
 }
 
 // The citizenship whose naming pool applies to an NPC born in this area.

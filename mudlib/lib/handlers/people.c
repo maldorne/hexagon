@@ -105,7 +105,7 @@ private string guild_of(object user)
   if (!stringp(path) || !strlen(path))
     return "-";
 
-  if (file_size(path) >= 0 || file_size(path + ".c") >= 0)
+  if (file_size(path) >= 0)
     return (string)load_object(path)->query_short();
 
   return path;

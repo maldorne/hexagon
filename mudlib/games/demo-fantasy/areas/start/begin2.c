@@ -53,13 +53,13 @@ int show_hints(object who)
 }
 
 // Whether somebody still has to choose a race: they have none yet, or only
-// the placeholder, which is stored with or without its extension.
+// the placeholder.
 private int has_no_race(object who)
 {
   string race;
 
   race = who->query_race_ob();
-  return !race || race == DEFAULT_RACE_OB || race + ".c" == DEFAULT_RACE_OB;
+  return !race || race == DEFAULT_RACE_OB;
 }
 
 // Somebody who already has a race does not choose again: with a race of this

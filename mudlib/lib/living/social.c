@@ -82,6 +82,40 @@ void set_social_object_list(string * list)
   social_object_list = list;
 }
 
+// A social object is named by its full path, ".c" included: any other form
+// is a bug in whoever passes it, so it is reported and refused.
+private int _full_social_path(string str, string setter)
+{
+  if (strlen(str) > 2 && str[strlen(str) - 2 ..] == ".c")
+    return TRUE;
+
+  log_file("social_paths", "[" + ctime(time(), 4) + "] " + setter + "(\"" +
+    str + "\") on " + file_name(this_object()) + " (" +
+    this_object()->query_cap_name() + "): not a path ending in \".c\"\n");
+
+  if (this_player() && this_player()->query_coder())
+    tell_object(this_player(), "Illegal path for " + setter +
+      " (it must end in \".c\"): " + str + "\n");
+
+  return FALSE;
+}
+
+// Whether a path lies in the shared directory of a social object or in the
+// same directory of the game the living belongs to.
+private int _in_social_dirs(string str, string lib_dir, string game_subdir)
+{
+  string * dirs;
+  int i;
+
+  dirs = ({ lib_dir, game_root(this_object()) + game_subdir });
+
+  for (i = 0; i < sizeof(dirs); i++)
+    if (extract(str, 0, strlen(dirs[i]) - 1) == dirs[i])
+      return TRUE;
+
+  return FALSE;
+}
+
 void social_commands()
 {
   skills_commands();
@@ -148,33 +182,24 @@ void start_race()
 
 void set_race_ob(string str)
 {
-  string * valid_races_dirs, * old_aliases;
-  int i, valid;
+  string * old_aliases;
+  int i;
 
   if (undefinedp(str) || !strlen(str))
-    str = DEFAULT_RACE_DIR + "unknown";
+    str = DEFAULT_RACE_OB;
 
   // for any object, the valid directories are the common one, and the specific for its game
-  valid_races_dirs = ({ DEFAULT_RACE_DIR, game_root(this_object()) + "obj/races/" });
-  valid = FALSE;
-
-  for (i = 0; i < sizeof(valid_races_dirs); i++)
-  {
-    if (extract(str, 0, strlen(valid_races_dirs[i]) - 1) == valid_races_dirs[i])
-    {
-      valid = TRUE;
-      break;
-    }
-  }
-
-  if (!valid)
+  if (!_in_social_dirs(str, DEFAULT_RACE_DIR, "obj/races/"))
   {
     if (this_player() && this_player()->query_coder())
-      tell_object(this_player(), "Illegal path for set_race_ob.\n");
+      tell_object(this_player(), "Illegal path for set_race_ob: " + str + "\n");
     return;
   }
 
-  if ((file_size(str) < 0) && (file_size(str + ".c") < 0))
+  if (!_full_social_path(str, "set_race_ob"))
+    return;
+
+  if (file_size(str) < 0)
   {
     tell_object(this_object(),"El intento de set_race_ob no ha funcionado. "+
       "Díselo a alguien que pueda arreglarlo.\n");
@@ -235,7 +260,7 @@ void set_race_ob(string str)
 
 } /* set_race_ob() */
 
-void set_race(string str) { set_race_ob(DEFAULT_RACE_DIR + str); }
+void set_race(string str) { set_race_ob(DEFAULT_RACE_DIR + str + ".c"); }
 
 
 string query_race_ob() { return social_object_list[RACE_OB]; }
@@ -311,9 +336,8 @@ int query_body_size()
 
 void set_class_ob(string str)
 {
-  // if str has a trailing .c, let's get rid of it.
-  if (strlen(str) > 2 && str[strlen(str)-2..strlen(str)-1] == ".c")
-    str = str[0..strlen(str)-3];
+  if (!_full_social_path(str, "set_class_ob"))
+    return;
 
   if (!load_object(str))
   {
@@ -329,7 +353,7 @@ void set_class_ob(string str)
 
 void set_class(string str)
 {
-  set_class_ob("/lib/obj/classes/"+str);
+  set_class_ob("/lib/obj/classes/" + str + ".c");
 }
 
 string query_class_ob() { return social_object_list[CLASS_OB]; }
@@ -414,6 +438,9 @@ void set_guild_ob(string str)
     return;
   }
 
+  if (!_full_social_path(str, "set_guild_ob"))
+    return;
+
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
 
@@ -469,7 +496,7 @@ int query_guild_join_wait()
 
 void set_guild(string str)
 {
-  set_guild_ob("/lib/obj/guilds/"+str);
+  set_guild_ob("/lib/obj/guilds/" + str + ".c");
 }
 
 string query_guild_ob() { return social_object_list[GUILD_OB]; }
@@ -505,12 +532,14 @@ void set_group_ob(string str)
   // if (sscanf(str,"/%s", tmp) == 1)
   //   str = extract(str,1);
 
-  if ((str[0..strlen("/lib/obj/groups")-1] != "/lib/obj/groups") &&
-      (str[0..strlen("/game/obj/groups")-1] != "/game/obj/groups"))
+  if (!_in_social_dirs(str, "/lib/obj/groups/", "obj/groups/"))
   {
     write("Illegal path for set_group_ob.\n");
     return;
   }
+
+  if (!_full_social_path(str, "set_group_ob"))
+    return;
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
@@ -524,7 +553,7 @@ void set_group_ob(string str)
 string query_group_ob()
 {
   if (social_object_list[GROUP_OB])
-    if (file_size("/"+social_object_list[GROUP_OB]+".c") < 1)
+    if (file_size(social_object_list[GROUP_OB]) < 1)
       social_object_list[GROUP_OB] = nil;
   return social_object_list[GROUP_OB];
 }
@@ -551,12 +580,14 @@ void set_race_group_ob(string str)
   // if (sscanf(str,"/%s", tmp) == 1)
   //   str = extract(str,1);
 
-  if ((str[0..strlen("/lib/obj/race_groups")-1] != "/lib/obj/race_groups") &&
-      (str[0..strlen("/game/obj/race_groups")-1] != "/game/obj/race_groups"))
+  if (!_in_social_dirs(str, "/lib/obj/race_groups/", "obj/race_groups/"))
   {
     write("Illegal path in set_race_group_ob.\n");
     return;
   }
+
+  if (!_full_social_path(str, "set_race_group_ob"))
+    return;
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
@@ -608,9 +639,7 @@ void set_job_ob(string str)
 {
   // string tmp;
   string old_job;
-  string * valid_jobs_dirs;
   mixed * values;
-  int i, valid;
 
   old_job = social_object_list[JOB_OB];
 
@@ -640,25 +669,15 @@ void set_job_ob(string str)
 
   // for any object, the valid directories are the common one, and the specific
   // for its game
-  valid_jobs_dirs = ({ DEFAULT_JOB_DIR,
-                       game_root(this_object()) + "obj/jobs/" });
-  valid = FALSE;
-
-  for (i = 0; i < sizeof(valid_jobs_dirs); i++)
-  {
-    if (extract(str, 0, strlen(valid_jobs_dirs[i]) - 1) == valid_jobs_dirs[i])
-    {
-      valid = TRUE;
-      break;
-    }
-  }
-
-  if (!valid)
+  if (!_in_social_dirs(str, DEFAULT_JOB_DIR, "obj/jobs/"))
   {
     if (this_player() && this_player()->query_coder())
-      tell_object(this_player(), "Illegal path for set_job_ob.\n");
+      tell_object(this_player(), "Illegal path for set_job_ob: " + str + "\n");
     return;
   }
+
+  if (!_full_social_path(str, "set_job_ob"))
+    return;
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
@@ -856,6 +875,9 @@ void set_deity_ob(string str)
     return;
   }
 
+  if (!_full_social_path(str, "set_deity_ob"))
+    return;
+
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;
 
@@ -899,6 +921,9 @@ void set_city_ob(string str)
     write("Illegal path in set_city_ob.\n");
     return;
   }
+
+  if (!_full_social_path(str, "set_city_ob"))
+    return;
 
   if ( !load_object(str) || (!load_object(str)->query_legal_player(this_object()) ) )
     return;

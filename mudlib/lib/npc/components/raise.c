@@ -34,30 +34,12 @@ void create()
   raise_refusal = nil;
 }
 
-// An object named with or without its extension is the same object.
-private string _object_path(string path)
-{
-  if (!path || !strlen(path))
-    return "";
-  if (path[0] != '/')
-    path = "/" + path;
-  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
-    path = path[0 .. strlen(path) - 3];
-  return path;
-}
-
 // Whether `path` is one of the `allowed` objects.
 private int _is_listed(string path, string * allowed)
 {
-  int i;
-
-  path = _object_path(path);
-  if (!strlen(path))
+  if (!path || !strlen(path))
     return 0;
-  for (i = 0; i < sizeof(allowed); i++)
-    if (_object_path(allowed[i]) == path)
-      return 1;
-  return 0;
+  return member_array(path, allowed) != -1;
 }
 
 /**
