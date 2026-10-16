@@ -6,12 +6,6 @@
 #include <translations/combat.h>
 #include <language.h>
 
-// the share of the victim's hit points (percent) from which a hit always says
-// what wound it made
-#define WOUND_ALWAYS_SHARE 25
-// a smaller hit says it one time in this many
-#define WOUND_SMALL_ODDS   3
-
 mixed query_message(int damage,
                     int attack_type,
                     string localization,
@@ -153,7 +147,8 @@ mixed query_message(int damage,
   if (damage <= 0)
     aux = "";
   else if (!critical && defender->query_hp() >= 0 &&
-           i < WOUND_ALWAYS_SHARE && random(WOUND_SMALL_ODDS))
+           i < HIT_MESSAGE_WOUND_ALWAYS_PERCENT &&
+           random(HIT_MESSAGE_WOUND_SMALL_ODDS))
     aux = "";
   else if (defender->query_hp() < 0)
     aux = (attack_type == SLASHING) ? _LANG_WEAPONS_SLASHING_MSG_7 :

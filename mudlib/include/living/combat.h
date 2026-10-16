@@ -12,6 +12,12 @@
 #define SPE_FAIL "%^BOLD%^YELLOW%^~ ~ %^RESET%^"
 #define SPE_INFO "%^BOLD%^YELLOW%^~ %^RESET%^"
 
+// The hit message ends with the wound the hit made. It always does when the
+// hit took this percent or more of the victim's hit points (or was a critical,
+// or killed); a smaller hit tells its wound one time in HIT_MESSAGE_WOUND_SMALL_ODDS.
+#define HIT_MESSAGE_WOUND_ALWAYS_PERCENT 25
+#define HIT_MESSAGE_WOUND_SMALL_ODDS     3
+
 // combat types
 #define MORTAL_COMBAT 0
 #define SAFE_COMBAT 1
