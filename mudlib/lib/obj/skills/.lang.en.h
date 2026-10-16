@@ -149,3 +149,49 @@
 
 #define _LANG_SKILL_SWIM_ON_BRIDGE "You are on the bridge; if you want to get into the water, jump.\n"
 #define _LANG_SKILL_CLIMB_WHAT "Climb what?\n"
+
+#define _LANG_SKILL_STEAL_NAME "steal"
+#define _LANG_SKILL_STEAL_ALIASES ({ })
+#define _LANG_SKILL_STEAL_HELP "With 'steal <item> from <someone>' you try to take " + \
+      "something from another person without them noticing; with 'steal coins " + \
+      "from <someone>' (or 'money') you take a few coins, and with 'steal <item> " + \
+      "in <container> from <someone>' you take something out of an open " + \
+      "container they carry. Your dexterity, level and skill are rolled against " + \
+      "the victim's attention: heavy things are harder, being hidden helps, and " + \
+      "someone alert or fighting is harder to fool. If you are noticed you keep " + \
+      "what you took but they know; if you are caught you get nothing, stop " + \
+      "being hidden and monsters will attack you. You cannot steal what someone " + \
+      "wears or wields, nor from low level players, nor where fighting is " + \
+      "forbidden, nor while you fight.\n"
+#define _LANG_SKILL_STEAL_START "You edge closer, keeping your eyes on your mark."
+#define _LANG_SKILL_STEAL_ROUND1 "You reach out very carefully...\n"
+#define _LANG_SKILL_STEAL_SYNTAX "Syntax: steal <item> from <someone>, steal coins from <someone> " + \
+      "or steal <item> in <container> from <someone>.\n"
+#define _LANG_SKILL_STEAL_VICTIM_WORD " from "
+#define _LANG_SKILL_STEAL_CONTAINER_WORD " in "
+#define _LANG_SKILL_STEAL_COIN_WORDS ({ "coins", "coin", "money" })
+#define _LANG_SKILL_STEAL_NO_VICTIM "You see nobody like that here.\n"
+#define _LANG_SKILL_STEAL_SELF "Stealing from yourself is no fun.\n"
+#define _LANG_SKILL_STEAL_NOT_LIVING "That has no pockets to empty.\n"
+#define _LANG_SKILL_STEAL_DEAD "The dead have nothing left to steal.\n"
+#define _LANG_SKILL_STEAL_IMMORTAL "Better not pick the pockets of those you should not.\n"
+#define _LANG_SKILL_STEAL_NOSTEAL "You cannot steal that.\n"
+#define _LANG_SKILL_STEAL_PROTECTED "They are still too young for you to prey on their pockets.\n"
+#define _LANG_SKILL_STEAL_SAFE_PLACE "Such things are not allowed here.\n"
+#define _LANG_SKILL_STEAL_DARK "You cannot see well enough to reach into a pocket.\n"
+#define _LANG_SKILL_STEAL_NO_ITEM "You cannot find that on them.\n"
+#define _LANG_SKILL_STEAL_NO_CONTAINER "You cannot find a container like that on them.\n"
+#define _LANG_SKILL_STEAL_CLOSED "That container is closed.\n"
+#define _LANG_SKILL_STEAL_NO_ITEM_IN "You cannot find that inside the container.\n"
+#define _LANG_SKILL_STEAL_IN_USE "They wear or wield that, you cannot steal it.\n"
+#define _LANG_SKILL_STEAL_MONEY_ITEM "To take coins, say 'steal coins from <someone>'.\n"
+#define _LANG_SKILL_STEAL_NO_COINS "They carry not a single coin.\n"
+#define _LANG_SKILL_STEAL_GONE "It is no longer where it was.\n"
+#define _LANG_SKILL_STEAL_CANNOT_CARRY "You cannot hold on to $item$.\n"
+#define _LANG_SKILL_STEAL_CLEAN_ME "You lift $item$ from $hcname$ without being noticed.\n"
+#define _LANG_SKILL_STEAL_NOTICED_ME "You lift $item$ from $hcname$, but they notice.\n"
+#define _LANG_SKILL_STEAL_NOTICED_VICTIM "$mcname$ has just stolen $item$ from you!\n"
+#define _LANG_SKILL_STEAL_NOTICED_ROOM "$mcname$ steals $item$ from $hcname$.\n"
+#define _LANG_SKILL_STEAL_CAUGHT_ME "$hcname$ catches you with your hand in their pocket.\n"
+#define _LANG_SKILL_STEAL_CAUGHT_VICTIM "You catch $mcname$ trying to rob you!\n"
+#define _LANG_SKILL_STEAL_CAUGHT_ROOM "$mcname$ tries to rob $hcname$, but is caught.\n"

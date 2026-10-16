@@ -57,6 +57,11 @@ void create()
       ({ SKILLS_PATH + SKILL_FOLLOW, 10, 0, ACTIVE_SKILL, }),
     SKILL_EVADE :
       ({ SKILLS_PATH + SKILL_EVADE, 10, 0, ACTIVE_SKILL, }),
+
+    // active skill: 'steal <item> from <someone>', or coins. A thief's trade:
+    // taught, not picked up, then it climbs with use.
+    SKILL_STEAL :
+      ({ SKILLS_PATH + SKILL_STEAL, 10, 0, ACTIVE_SKILL, }),
   ]);
 }
 

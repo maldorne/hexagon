@@ -150,3 +150,51 @@
 
 #define _LANG_SKILL_SWIM_ON_BRIDGE "Estás sobre el puente; si quieres ir al agua, salta.\n"
 #define _LANG_SKILL_CLIMB_WHAT "¿Trepar a qué?\n"
+
+#define _LANG_SKILL_STEAL_NAME "robar"
+#define _LANG_SKILL_STEAL_ALIASES ({ "hurtar" })
+#define _LANG_SKILL_STEAL_HELP "Con 'robar <objeto> a <alguien>' intentas quitarle algo " + \
+      "a otra persona sin que se dé cuenta; con 'robar monedas a <alguien>' (o " + \
+      "'dinero') te llevas unas pocas monedas, y con 'robar <objeto> de " + \
+      "<contenedor> a <alguien>' sacas algo de un contenedor abierto que lleve " + \
+      "encima. Tu destreza, tu nivel y tu habilidad se miden contra la atención " + \
+      "de la víctima: lo pesado es más difícil, ir escondido ayuda, y quien está " + \
+      "alerta o peleando es más difícil de engañar. Si te notan, te llevas lo " + \
+      "robado pero lo saben; si te " + \
+      "descubren, no te llevas nada, dejas de estar escondido y los monstruos te " + \
+      "atacarán. No puedes robar lo que alguien lleva puesto o empuñado, ni a " + \
+      "los jugadores de nivel bajo, ni en lugares donde está prohibido pelear, " + \
+      "ni mientras luchas.\n"
+#define _LANG_SKILL_STEAL_START "Te acercas con disimulo, sin quitar ojo a tu presa."
+#define _LANG_SKILL_STEAL_ROUND1 "Estiras la mano con mucho cuidado...\n"
+#define _LANG_SKILL_STEAL_SYNTAX "Sintaxis: robar <objeto> a <alguien>, robar monedas a <alguien> " + \
+      "o robar <objeto> de <contenedor> a <alguien>.\n"
+#define _LANG_SKILL_STEAL_VICTIM_WORD " a "
+#define _LANG_SKILL_STEAL_CONTAINER_WORD " de "
+#define _LANG_SKILL_STEAL_COIN_WORDS ({ "monedas", "moneda", "dinero" })
+#define _LANG_SKILL_STEAL_NO_VICTIM "No ves a nadie así por aquí.\n"
+#define _LANG_SKILL_STEAL_SELF "Robarte a ti mismo no tiene mucha gracia.\n"
+#define _LANG_SKILL_STEAL_NOT_LIVING "Eso no tiene bolsillos que vaciar.\n"
+#define _LANG_SKILL_STEAL_DEAD "A los muertos ya no les queda nada que robar.\n"
+#define _LANG_SKILL_STEAL_IMMORTAL "Mejor no te metas a robar a quien no debes.\n"
+#define _LANG_SKILL_STEAL_NOSTEAL "No consigues robar eso.\n"
+#define _LANG_SKILL_STEAL_PROTECTED "Todavía es demasiado joven para que te ensañes con " + \
+      "sus bolsillos.\n"
+#define _LANG_SKILL_STEAL_SAFE_PLACE "Aquí no se permiten esas cosas.\n"
+#define _LANG_SKILL_STEAL_DARK "No ves lo bastante bien para meter la mano en un bolsillo.\n"
+#define _LANG_SKILL_STEAL_NO_ITEM "No encuentras eso encima de esa persona.\n"
+#define _LANG_SKILL_STEAL_NO_CONTAINER "No encuentras ningún contenedor así encima de esa persona.\n"
+#define _LANG_SKILL_STEAL_CLOSED "Ese contenedor está cerrado.\n"
+#define _LANG_SKILL_STEAL_NO_ITEM_IN "No encuentras eso dentro del contenedor.\n"
+#define _LANG_SKILL_STEAL_IN_USE "Eso lo lleva puesto o empuñado, no puedes robárselo.\n"
+#define _LANG_SKILL_STEAL_MONEY_ITEM "Para llevarte monedas, di 'robar monedas a <alguien>'.\n"
+#define _LANG_SKILL_STEAL_NO_COINS "No lleva ni una moneda encima.\n"
+#define _LANG_SKILL_STEAL_GONE "Ya no está donde estaba.\n"
+#define _LANG_SKILL_STEAL_CANNOT_CARRY "No consigues quedarte con $item$.\n"
+#define _LANG_SKILL_STEAL_CLEAN_ME "Le quitas $item$ a $hcname$ sin que se dé cuenta.\n"
+#define _LANG_SKILL_STEAL_NOTICED_ME "Le quitas $item$ a $hcname$, pero se da cuenta.\n"
+#define _LANG_SKILL_STEAL_NOTICED_VICTIM "¡$mcname$ te acaba de robar $item$!\n"
+#define _LANG_SKILL_STEAL_NOTICED_ROOM "$mcname$ le roba $item$ a $hcname$.\n"
+#define _LANG_SKILL_STEAL_CAUGHT_ME "$hcname$ te pilla con la mano en el bolsillo.\n"
+#define _LANG_SKILL_STEAL_CAUGHT_VICTIM "¡Pillas a $mcname$ intentando robarte!\n"
+#define _LANG_SKILL_STEAL_CAUGHT_ROOM "$mcname$ intenta robar a $hcname$, pero lo pillan.\n"

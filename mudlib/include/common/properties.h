@@ -22,6 +22,10 @@
 #define PACIFY_PROP "pacify_on"
 #define NOSKILL_PROP "noskill"
 #define NOKILL_PROP "nokill"
+// nothing can be stolen from this item, living or place (steal skill)
+#define NOSTEAL_PROP "nosteal"
+// a victim who caught or noticed a thief stays alert for a while
+#define STEAL_ALERT_PROP "steal alert"
 // #define NOCAST_PROP "nocast"
 // #define NOGUILD_PROP "noguild"
 #define CURSED_PROP "cursed"
