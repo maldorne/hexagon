@@ -1,5 +1,6 @@
 
 #include <living/races.h>
+#include <living/body-parts.h>
 #include <language.h>
 #include <translations/races.h>
 #include "/games/demo-fantasy/include/races.h"
@@ -13,6 +14,7 @@ void setup()
   set_body_size(2);
   set_name(_LANG_RACES_SPIDER_NAME);
   set_race_id(RACE_SPIDER);
+  set_body_kind(BODY_INSECT);
   set_short(capitalize(_LANG_RACES_SPIDER_NAME));  
   set_light_limits(LIGHT_STD_LOW, LIGHT_STD_HIGH);
 
