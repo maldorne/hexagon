@@ -231,10 +231,22 @@ int adjust_hp(int i, varargs object hp_remover)
   {
     if (display_monitor_handle)
       remove_call_out(display_monitor_handle);
-    display_monitor_handle = call_out("display_monitor", 0, color);
+    display_monitor_handle = call_out("show_monitor", 0, color);
   }
-  
+
   return hp;
+}
+
+/**
+ * Shows the hp monitor and forgets its call out: the driver reuses a handle
+ * once its call out has run, so a stale one could cancel another (do_death).
+ *
+ * @param color 0 to show the monitor in the low-health colour
+ */
+void show_monitor(int color)
+{
+  display_monitor_handle = 0;
+  this_object()->display_monitor(color);
 }
 
 int set_max_gp(int i) 
