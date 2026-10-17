@@ -131,7 +131,7 @@
 #define _LANG_COMBAT_BEING_ATTACKED "\n" + DFF + "%^BOLD%^You are being attacked by %^RESET%^" + \
                         name + "%^BOLD%^.%^RESET%^\n\n"
 #define _LANG_COMBAT_PASSED_OUT_MSG "You are too stunned to fight back.\n"
-#define _LANG_COMBAT_CHASING "You are chasing "
+#define _LANG_COMBAT_CHASING "You are still fighting "
 
 #define _LANG_COMBAT_PROTECT_VERBS ({ "protect" })
 #define _LANG_COMBAT_UNPROTECT_VERBS ({ "unprotect" })
@@ -168,7 +168,7 @@
 #define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ME "You have killed "+his_name+".\n"
 #define _LANG_COMBAT_KILL_NO_ATTACKEE_MSG_ROOM this_object()->query_cap_name() + \
             " has killed "+his_name+".\n"
-#define _LANG_COMBAT_STOP_CHASING "You stop chasing "
+#define _LANG_COMBAT_STOP_CHASING "You are no longer fighting "
 
 #define _LANG_COMBAT_MODE_VERBS ({ "combat" })
 #define _LANG_COMBAT_MODE_CURRENT "Your current combat mode is " + \
