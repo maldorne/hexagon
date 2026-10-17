@@ -4,6 +4,7 @@
 #define _LANG_GUILD_ENTRANCE_CMDS_JOIN ({ "join" })
 #define _LANG_GUILD_ENTRANCE_CMDS_LEAVE ({ "leave" })
 #define _LANG_GUILD_ENTRANCE_YES ({ "y", "yes" })
+#define _LANG_GUILD_CMDS_RULES ({ "rules" })
 
 #define _LANG_GUILD_ENTRANCE_SIGN_LONG "A sign hangs on the wall, by the entrance.\n"
 #define _LANG_GUILD_ENTRANCE_SIGN_NO_GUILD "This guild admits nobody right now."
@@ -12,7 +13,8 @@
 #define _LANG_GUILD_ENTRANCE_SIGN_CLASSES "Classes: "
 #define _LANG_GUILD_ENTRANCE_SIGN_COMMANDS \
         "  join     become a member of the guild\n" + \
-        "  leave    leave the guild you belong to\n\n" + \
+        "  leave    leave the guild you belong to\n" + \
+        "  rules    who may join, what is learned and the rules of the guild\n\n" + \
         "After joining a guild you will have to wait " + \
         (GUILD_JOIN_WAIT / 3600) + " hours of play before you may join another."
 
@@ -27,7 +29,7 @@
         "another.\n"
 #define _LANG_GUILD_ENTRANCE_JOINED "You join the guild. For the next " + \
         (GUILD_JOIN_WAIT / 3600) + " hours of play you will not be able to join " + \
-        "any other.\n"
+        "any other. Type 'rules' to read the rules of the guild.\n"
 #define _LANG_GUILD_ENTRANCE_JOINED_OTHERS me->query_cap_name() + " joins the " + \
         "guild.\n"
 #define _LANG_GUILD_ENTRANCE_NO_GUILD_TO_LEAVE "You do not belong to any guild.\n"
@@ -47,8 +49,10 @@
 #define _LANG_GUILD_ROOM_SIGN_LONG "A sign on the wall says what can be done here.\n"
 #define _LANG_GUILD_ROOM_SIGN_TEXT "Guild hall\n\n" + \
         "  cost       what your next guild level costs\n" + \
-        "  advance    go up a level of the guild, if you have that experience\n\n" + \
+        "  advance    go up a level of the guild, if you have that experience\n" + \
+        "  rules      the rules of the guild\n\n" + \
         "Only members of the guild may advance here."
+#define _LANG_GUILD_ROOM_NO_GUILD "This hall belongs to no guild right now.\n"
 #define _LANG_GUILD_ROOM_NOT_MEMBER "Only members of this guild may advance here.\n"
 #define _LANG_GUILD_ROOM_MAX_LEVEL "You have already reached the highest level of your guild.\n"
 #define _LANG_GUILD_ROOM_NOT_ENOUGH_XP "You do not have experience enough to advance yet: " + \

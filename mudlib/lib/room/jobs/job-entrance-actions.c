@@ -87,6 +87,26 @@ void init()
 {
   add_action("do_join_job", _LANG_JOB_ENTRANCE_CMDS_JOIN);
   add_action("do_leave_job", _LANG_JOB_ENTRANCE_CMDS_LEAVE);
+  add_action("do_rules", _LANG_JOB_ENTRANCE_CMDS_RULES);
+}
+
+// normas: the rules of the job, read from its object and its rules book.
+int do_rules(string str)
+{
+  string text;
+
+  if (!this_player())
+    return 0;
+
+  text = handler("rules")->query_rules(entrance_job, this_player(), query_job_entrance_place());
+  if (!text)
+  {
+    notify_fail(_LANG_JOB_ENTRANCE_NO_JOB);
+    return 0;
+  }
+
+  tell_object(this_player(), text);
+  return 1;
 }
 
 int do_join_job(string str)

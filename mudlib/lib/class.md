@@ -129,3 +129,23 @@ level x 4500 by default), which `coste` shows there.
 So nobody climbs high in a guild without their class climbing about as fast:
 the class takes the xp first whenever it reaches its figure, and only what is
 saved between class levels pays for the guild. That is deliberate.
+
+## Rules of a guild or a job
+
+`normas` (`rules` in English), in a guild entrance, a guild room and a job
+entrance, prints the rules of that guild or job (`/lib/handlers/rules.c`):
+
+1. What the object says of itself: the races and classes it admits
+   (`query_legal_races`, `query_legal_classes`; an empty list admits any), the
+   alignment a guild asks (`query_needed_ext_align`), whatever else its check
+   asks in words (`query_requirements_text`, masked beside the requirements
+   function of a guild or the `query_legal_player` of a job), whether the reader
+   meets it all, the skills a guild teaches by guild level (`add_guild_skill`)
+   and what the reader's next level costs when they belong.
+2. The text of its rules book (`set_rules_book(<path of a markdown text>)` in
+   the guild's or job's `setup`), rendered by the books handler
+   (`query_rendered_text`) exactly as a library shows it. Put the same text on
+   the shelves of the house's library (`locations library add <path>`), so the
+   book and `normas` are one text.
+
+Joining a guild or a job says that `normas` exists.

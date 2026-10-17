@@ -3,13 +3,15 @@
 #define _LANG_JOB_ENTRANCE_CMDS_JOIN ({ "join" })
 #define _LANG_JOB_ENTRANCE_CMDS_LEAVE ({ "leave" })
 #define _LANG_JOB_ENTRANCE_YES ({ "y", "yes" })
+#define _LANG_JOB_ENTRANCE_CMDS_RULES ({ "rules" })
 
 #define _LANG_JOB_ENTRANCE_SIGN_LONG "A sign hangs on the wall, by the entrance.\n"
 #define _LANG_JOB_ENTRANCE_SIGN_NO_JOB "No job is taught here right now."
 #define _LANG_JOB_ENTRANCE_SIGN_TITLE "Job: "
 #define _LANG_JOB_ENTRANCE_SIGN_COMMANDS \
         "  join     take up this job\n" + \
-        "  leave    give up the job you have\n\n" + \
+        "  leave    give up the job you have\n" + \
+        "  rules    who may take it up and the rules of the job\n\n" + \
         "Only one job may be held at a time. Whoever comes back to a job they " + \
         "left gets back the level they had, but not the experience they had " + \
         "towards the next one."
@@ -21,7 +23,8 @@
 #define _LANG_JOB_ENTRANCE_NOT_LEGAL "You do not meet the conditions to take up " + \
         "this job.\n"
 #define _LANG_JOB_ENTRANCE_JOINED "You join: from today your job is " + \
-        lower_case((string)job->query_short()) + ".\n"
+        lower_case((string)job->query_short()) + ". Type 'rules' to read " + \
+        "the rules of the job.\n"
 #define _LANG_JOB_ENTRANCE_JOINED_OTHERS me->query_cap_name() + " joins to " + \
         "learn the job.\n"
 #define _LANG_JOB_ENTRANCE_NO_JOB_TO_LEAVE "You have no job.\n"

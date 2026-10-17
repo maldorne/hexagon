@@ -3,13 +3,15 @@
 #define _LANG_JOB_ENTRANCE_CMDS_JOIN ({ "alistarse", "alistar", "alistarme" })
 #define _LANG_JOB_ENTRANCE_CMDS_LEAVE ({ "renunciar" })
 #define _LANG_JOB_ENTRANCE_YES ({ "s", "si", "sí" })
+#define _LANG_JOB_ENTRANCE_CMDS_RULES ({ "normas" })
 
 #define _LANG_JOB_ENTRANCE_SIGN_LONG "Un cartel cuelga de la pared, junto a la entrada.\n"
 #define _LANG_JOB_ENTRANCE_SIGN_NO_JOB "Aquí no se enseña ningún oficio ahora mismo."
 #define _LANG_JOB_ENTRANCE_SIGN_TITLE "Oficio: "
 #define _LANG_JOB_ENTRANCE_SIGN_COMMANDS \
         "  alistarse    aprendes este oficio\n" + \
-        "  renunciar    abandonas el oficio que tienes\n\n" + \
+        "  renunciar    abandonas el oficio que tienes\n" + \
+        "  normas       quién puede aprenderlo y las normas del oficio\n\n" + \
         "Solo se puede tener un oficio a la vez. Quien vuelve a un oficio que " + \
         "dejó recupera el nivel que tenía, pero no la experiencia que le faltaba " + \
         "para el siguiente."
@@ -21,7 +23,8 @@
 #define _LANG_JOB_ENTRANCE_NOT_LEGAL "No reúnes las condiciones para aprender " + \
         "este oficio.\n"
 #define _LANG_JOB_ENTRANCE_JOINED "Te alistas: desde hoy tu oficio es " + \
-        lower_case((string)job->query_short()) + ".\n"
+        lower_case((string)job->query_short()) + ". Escribe 'normas' para " + \
+        "leer las normas del oficio.\n"
 #define _LANG_JOB_ENTRANCE_JOINED_OTHERS me->query_cap_name() + " se alista " + \
         "para aprender el oficio.\n"
 #define _LANG_JOB_ENTRANCE_NO_JOB_TO_LEAVE "No tienes ningún oficio.\n"

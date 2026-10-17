@@ -27,6 +27,8 @@ string *specs_available;
 // the skills the guild teaches its members: skill id -> ({ guild level
 // needed, least ability the member starts with })
 mapping guild_skills;
+// the markdown text of the guild's rules, see set_rules_book
+string rules_book;
 
 nomask int query_is_guild() { return 1; }
 
@@ -39,12 +41,30 @@ void create()
   guild_skills = ([ ]);
   needed_ext_align = 0;
   requirements_func = "";
+  rules_book = "";
   // quests::create(); // before object, or setup will give errors due to uninitialized mappings!!
   ::create();
 }
 
 string query_requirements_func() { return requirements_func; }
 void set_requirements_func(string func) { requirements_func = func; }
+
+/**
+ * What the requirements function checks, in words, for the normas of the
+ * guild (/lib/handlers/rules.c).
+ *
+ * A guild that names a requirements function masks this beside it, so the
+ * check and its description are read together; nil says nothing more.
+ */
+string query_requirements_text() { return nil; }
+
+/**
+ * Names the book of the guild's rules: the full path of a markdown text, as a
+ * library shelves it (see /lib/handlers/books.c). normas shows it after what
+ * the guild object says of itself, so the book and normas never disagree.
+ */
+void set_rules_book(string path) { rules_book = path ? path : ""; }
+string query_rules_book() { return rules_book; }
 
 // To check alignments
 // 0 does not mean neutral, it means the alignment does not matter!!!!

@@ -106,6 +106,26 @@ void init()
 {
   add_action("do_join", _LANG_GUILD_ENTRANCE_CMDS_JOIN);
   add_action("do_leave", _LANG_GUILD_ENTRANCE_CMDS_LEAVE);
+  add_action("do_rules", _LANG_GUILD_CMDS_RULES);
+}
+
+// normas: the rules of the guild, read from its object and its rules book.
+int do_rules(string str)
+{
+  string text;
+
+  if (!this_player())
+    return 0;
+
+  text = handler("rules")->query_rules(entrance_guild, this_player(), query_entrance_place());
+  if (!text)
+  {
+    notify_fail(_LANG_GUILD_ENTRANCE_NO_GUILD);
+    return 0;
+  }
+
+  tell_object(this_player(), text);
+  return 1;
 }
 
 int do_join(string str)

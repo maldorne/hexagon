@@ -326,3 +326,32 @@
 #define _LANG_CRIMES_RELEASED "Has cumplido tu condena. Ya puedes marcharte.\n"
 #define _LANG_CRIMES_BAILED "Alguien ha pagado tu fianza: eres libre.\n"
 #define _LANG_CRIMES_PUT_BACK "Los guardias te devuelven a tu celda: aún no has cumplido tu condena.\n"
+
+// rules (the normas of a guild or a job). `level` is the guild level a skill
+// is taught from; `next`, `cost` and `have` the reader's next level, what it
+// costs and the experience they have
+
+#define _LANG_RULES_TITLE_GUILD "Normas del gremio: "
+#define _LANG_RULES_TITLE_JOB "Normas del oficio: "
+#define _LANG_RULES_WHO_HEADER "%^BOLD%^Quién puede entrar%^RESET%^\n"
+#define _LANG_RULES_RACES "  Razas: "
+#define _LANG_RULES_CLASSES "  Clases: "
+#define _LANG_RULES_ANY "cualquiera"
+#define _LANG_RULES_ALIGNMENT "  Alineamiento: "
+#define _LANG_RULES_ALIGN_NEUTRAL "neutral"
+#define _LANG_RULES_ALIGN_GOOD "bueno"
+#define _LANG_RULES_ALIGN_EVIL "malvado"
+#define _LANG_RULES_ALSO "  Además: "
+#define _LANG_RULES_YOU_MEET "  Tú reúnes estas condiciones.\n"
+#define _LANG_RULES_YOU_DO_NOT_MEET "  Tú no reúnes estas condiciones.\n"
+#define _LANG_RULES_SKILLS_HEADER "%^BOLD%^Habilidades que enseña%^RESET%^\n"
+#define _LANG_RULES_SKILL_FROM_LEVEL "desde el nivel " + level
+#define _LANG_RULES_LEVEL_HEADER "%^BOLD%^Tu siguiente nivel%^RESET%^\n"
+#define _LANG_RULES_NOT_MEMBER_GUILD "  No eres miembro de este gremio.\n"
+#define _LANG_RULES_NOT_MEMBER_JOB "  Este no es tu oficio.\n"
+#define _LANG_RULES_MAX_LEVEL "  Ya has alcanzado el nivel más alto.\n"
+#define _LANG_RULES_GUILD_COST "  Para avanzar al nivel " + next + " necesitas " + \
+        cost + " puntos de experiencia (tienes " + have + ").\n"
+#define _LANG_RULES_JOB_COST "  Llegarás al nivel " + next + " de oficio al pasar de " + \
+        cost + " puntos de experiencia de oficio (llevas " + have + ").\n"
+#define _LANG_RULES_NO_BOOK "No hay más normas escritas.\n"

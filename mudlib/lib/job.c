@@ -12,15 +12,58 @@ inherit "/lib/core/object.c";
 
 // mixed *job_commands = ({ });
 
-int query_legal_race(string race) { return(1); }
-int query_legal_base_race(string race) { return(1); }
-int query_legal_class(string my_class) { return(1); }
+// race and class ids the job admits, see <living/races.h> and
+// <living/classes.h>; an empty list admits every one
+private string * legal_races, * legal_classes;
+// the markdown text of the job's rules, see set_rules_book
+private string rules_book;
 
+void create()
+{
+  legal_races = ({ });
+  legal_classes = ({ });
+  rules_book = "";
+  ::create();
+}
+
+string * query_legal_races() { return legal_races + ({ }); }
+void set_legal_races(string * list) { legal_races = list ? list + ({ }) : ({ }); }
+string * query_legal_classes() { return legal_classes + ({ }); }
+void set_legal_classes(string * list) { legal_classes = list ? list + ({ }) : ({ }); }
+
+int query_legal_race(string race)
+{
+  return !sizeof(legal_races) || member_array(race, legal_races) != -1;
+}
+int query_legal_base_race(string race) { return(1); }
+int query_legal_class(string my_class)
+{
+  return !sizeof(legal_classes) || member_array(my_class, legal_classes) != -1;
+}
+
+// A race named in the list admits all of its lineages, a lineage named admits
+// only that lineage.
 int query_legal_player(object player){
-   return (query_legal_race(player->query_race_id()) &&
+   return ((query_legal_race(player->query_race_id()) ||
+            query_legal_race(player->query_base_race_id())) &&
            query_legal_base_race(player->query_base_race_id()) &&
            query_legal_class(player->query_class_id()) );
 }
+
+/**
+ * What else query_legal_player checks, in words, for the normas of the job
+ * (/lib/handlers/rules.c). A job that checks more than its lists masks this
+ * beside the check; nil says nothing more.
+ */
+string query_requirements_text() { return nil; }
+
+/**
+ * Names the book of the job's rules: the full path of a markdown text, as a
+ * library shelves it (see /lib/handlers/books.c). normas shows it after what
+ * the job object says of itself, so the book and normas never disagree.
+ */
+void set_rules_book(string path) { rules_book = path ? path : ""; }
+string query_rules_book() { return rules_book; }
 
 // neverbot 07/12/06
 int query_next_level_xp(object player)

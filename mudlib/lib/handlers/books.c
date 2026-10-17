@@ -224,6 +224,34 @@ private int _reader_width()
   return (cols > 20) ? cols - 2 : 78;
 }
 
+/**
+ * The whole text of a book at once, rendered as its pages are when read:
+ * the title in bold, then every page, one after the other.
+ *
+ * Whoever shows a book's text outside the reader (the normas of a guild or
+ * a job) goes through this, so the text is rendered in one place.
+ *
+ * @return  the rendered text, or nil when the book cannot be read
+ */
+string query_rendered_text(string path)
+{
+  mixed * book;
+  string * pages;
+  int i, width;
+
+  book = _load(path);
+  if (!book || !sizeof(book[1]))
+    return nil;
+
+  width = _reader_width();
+  pages = ({ });
+  for (i = 0; i < sizeof(book[1]); i++)
+    pages += ({ _render(book[1][i], width) });
+
+  return (strlen(book[0]) ? "%^BOLD%^" + _inline(book[0]) + "%^RESET%^\n\n" : "") +
+         implode(pages, "\n");
+}
+
 // The line under every page: where the reader is and what they can type.
 private string _footer(int page, int pages)
 {
