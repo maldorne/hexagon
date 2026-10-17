@@ -639,7 +639,7 @@ private void record_offence(string name, string root, string type, int points,
   int limit;
 
   entry = find_entry(name, root, 1);
-  short = place->query_short();
+  short = place->short();
 
   entry["points"] += points;
   entry["stamp"] = time();
@@ -819,7 +819,7 @@ private object * pick_guards(object community, object place, int wanted)
 // the report, so loading locations never happens inside the reporting skill.
 // Nothing happens when a guard is already in the place (it answers the event
 // itself) or the place belongs to no community.
-static void dispatch_guards(object criminal, object place)
+void dispatch_guards(object criminal, object place)
 {
   object community, comp;
   object * guards;
@@ -1330,7 +1330,7 @@ private void let_go(object victim)
 // What follows the beating: a sentence in the prison of the citizenship, or,
 // where it has none, the fine on the spot if the culprit can pay. Called out so
 // the blow that caused it has finished.
-static void arrest(string citizenship, object victim)
+void arrest(string citizenship, object victim)
 {
   mapping sentence;
   object place, cell;
@@ -1448,7 +1448,7 @@ int spare_blow(object guard, object victim)
 }
 
 // A prisoner who logs in is checked a moment later, once it stands somewhere.
-static void check_prisoner(object who)
+void check_prisoner(object who)
 {
   mapping sentence;
   object cell;

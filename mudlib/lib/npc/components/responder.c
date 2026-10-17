@@ -36,7 +36,7 @@ void create()
 }
 
 // A responder that is nobody's errand (restored from a save) goes away.
-static void check_task()
+void check_task()
 {
   object me;
 
@@ -125,7 +125,7 @@ void respond(object criminal, object place, int seconds)
 }
 
 // One look: attack if the criminal is here, otherwise go to where they are.
-static void tick()
+void tick()
 {
   object me, here, there;
 

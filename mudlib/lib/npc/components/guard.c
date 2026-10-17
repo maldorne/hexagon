@@ -177,19 +177,19 @@ private void _arrest(object who, int known)
 }
 
 // Queued from the events, which never act inside themselves.
-static void react(object who)
+void react(object who)
 {
   _arrest(who, 0);
 }
 
 // A culprit seen committing a crime: attacked wanted yet or not.
-static void react_known(object criminal)
+void react_known(object criminal)
 {
   _arrest(criminal, 1);
 }
 
 // Looks over everybody in the guard's place and attacks the wanted.
-static void scan()
+void scan()
 {
   object me;
   object * inv;
