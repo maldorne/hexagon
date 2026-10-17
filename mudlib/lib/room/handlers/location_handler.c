@@ -1044,6 +1044,7 @@ object convert_room_to_location(object room)
   {
     location->add_component(LOCATION_COMPONENT_SHOP, ([
       "shop_permanent_goods" : room->query_permanent_goods(),
+      "attendable_only_sell" : room->query_only_sell(),
         ]));
     ret += "   Adding component shop.\n";
   }
