@@ -2,6 +2,7 @@
 // user.c
 
 #define _LANG_DISCONNECTED "Disconnected.\n"
+#define _LANG_USER_TAKEN_OVER "You have logged in with your character from another connection; this one closes.\n"
 #define _LANG_IDLE_KICKED "You have been idle too long; disconnecting.\n"
 #define _LANG_LAST_CONNECTION "Your last connection was from '"+last_on_from+"'.\n"
 #define _LANG_USER_COMMAND_TOO_LONG "Command too long - processing anyway.\n"

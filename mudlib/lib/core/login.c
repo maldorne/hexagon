@@ -811,6 +811,23 @@ nomask void try_throw_out(string str)
 
   env = environment(other_copy);
 
+  // The body already in the world goes on as it is, with the new connection:
+  // the other session is closed and the fresh clone restore_player() made is
+  // thrown away, as on a linkdead reconnect.
+  if (_user->reattach_from(other_copy->user(), 1))
+  {
+    if (_player && _player != other_copy)
+      catch(_player->dest_me());
+    _player = other_copy;
+    tell_room(env, _LANG_HAS_RECONNECTED, ({ _user, _player }));
+    event(users() - ({ _player, 0 }), "inform",
+      _player->query_cap_name() + " reconnected", "link-death");
+    begin(0, TRUE, env);
+    return;
+  }
+
+  // no session to take the body from: the old body quits and the fresh one
+  // starts as a new entry, with its inventory and its hands
   if (catch(other_copy->quit()))
     if (catch(other_copy->dest_me()))
       destruct(other_copy);
@@ -819,11 +836,7 @@ nomask void try_throw_out(string str)
   event(users() - ({ other_copy, 0 }), "inform",
     _player->query_cap_name() + " reconnected", "link-death");
 
-  // _player is the body restore_player just cloned, not the old one: started
-  // as a reconnect it skips do_load_auto, so its hands are set up here
-  _player->reset_hands();
-
-  begin(0, TRUE, env);
+  begin(0, FALSE, env);
 }
 
 // *******************************************************

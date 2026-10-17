@@ -384,17 +384,22 @@ nomask void linkdead_timeout()
 }
 
 // Called by the login flow on the NEW user object after it detected an
-// existing linkdead player. Transfers ownership of the old player from
-// old_user to this new user and destructs old_user cleanly.
-nomask int reattach_from(object old_user)
+// existing player of the same name: a linkdead one, or, with takeover, one
+// whose session is still connected and is thrown out. Transfers ownership of
+// the old player from old_user to this new user and destructs old_user
+// cleanly, which closes its connection.
+nomask int reattach_from(object old_user, varargs int takeover)
 {
   object old_player;
 
   if (!SECURE->valid_progname("/lib/core/login"))
     return 0;
 
-  if (!old_user || !old_user->query_linkdead())
+  if (!old_user || (!takeover && !old_user->query_linkdead()))
     return 0;
+
+  if (takeover)
+    catch(old_user->catch_tell(_LANG_USER_TAKEN_OVER));
 
   old_player = old_user->player();
   if (!old_player)
