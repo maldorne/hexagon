@@ -739,8 +739,8 @@ void apply_template(mapping t, varargs int born)
     set_ext_align(load_object(query_race_ob())->query_ext_align());
 
   // One particular person is exactly what its template says, so the pinned
-  // level, guild and job follow the template on every materialization, not
-  // only at birth. Guild and job take them only if they meet their rules.
+  // level, deity, guild and job follow the template on every materialization,
+  // not only at birth. Guild and job take them only if they meet their rules.
   if (!born && is_unique())
   {
     mapping social;
@@ -748,6 +748,9 @@ void apply_template(mapping t, varargs int born)
     social = mappingp(t["social_obs"]) ? t["social_obs"] : ([ ]);
     if (t["level"] && query_class_ob() && query_class_level() != t["level"])
       set_level(t["level"]);
+    // the deity before the guild, which may ask for one
+    if (social["deity"] && query_deity_ob() != social["deity"])
+      set_deity_ob(social["deity"]);
     if (social["guild"] && query_guild_ob() != social["guild"])
       join_template_guild(social["guild"]);
     if (!undefinedp(t["guild_level"]) && query_guild_ob() &&
