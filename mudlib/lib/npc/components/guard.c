@@ -284,10 +284,34 @@ void placed()
     return;
 
   if (guard_direction && strlen(guard_direction))
+  {
     post = environment(me);
-  else
-    post = (object)load_object(LOCATION_HANDLER)->load_location(
-             (string)me->query_work());
+    if (post)
+      post->register_guard(me, dir);
+    return;
+  }
+
+  // the post may not be loaded, and loading it places more people: leave it
+  // to an execution of its own
+  call_out("register_at_post", 0);
+}
+
+/**
+ * Registers the guard on the exit it watches at its town entrance post,
+ * loading the post if needed.
+ */
+void register_at_post()
+{
+  object me, post;
+  string dir;
+
+  me = query_entity();
+  dir = _watched_direction();
+  if (!me || !strlen(dir))
+    return;
+
+  post = (object)load_object(LOCATION_HANDLER)->load_location(
+           (string)me->query_work());
   if (post)
     post->register_guard(me, dir);
 }

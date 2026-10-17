@@ -242,7 +242,11 @@ read the `npc.o`, reapply the template (presentation is not saved), wear the
 kit, move in, let the components see the world, and attach the `schedule`
 component when the post (or the type) has hours. It then asks which timetable
 entry governs the current hour and walks the person there, so somebody who was
-mid-trip when the location unloaded resumes. Monsters of the location's bucket
+mid-trip when the location unloaded resumes. That walk starts from a
+`call_out` (`resume_placed_npc()`), never inside the load: planning it loads the
+destination, which places its own people, and each load must run in an
+execution of its own. A guard posted to a town entrance registers at its post
+the same way. Monsters of the location's bucket
 are cloned too, and so are roamers indexed there from other areas. Nobody is
 placed twice.
 

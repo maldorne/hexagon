@@ -649,7 +649,9 @@ object place_npc(string id, object loc)
     // last unloaded is standing halfway with no route left. The timetable only
     // speaks at the hours it names, so without this it would wait there until
     // the next one; ask where this hour puts it and let it walk the rest.
-    npc->resume_schedule((int)this_object()->query_game_hour());
+    // Deferred: the walk loads its destination, which places more people who
+    // walk on, so each resumed trip runs in an execution of its own.
+    call_out("resume_placed_npc", 0, npc);
   }
   else
   {
@@ -668,6 +670,20 @@ object place_npc(string id, object loc)
   update_npc_info(id, npc);
 
   return npc;
+}
+
+/**
+ * Sets a person placed by place_npc back on their routine for the hour now.
+ * Runs from a call_out, outside the location load that placed them.
+ *
+ * @param npc the person placed
+ */
+void resume_placed_npc(object npc)
+{
+  if (!npc || !environment(npc))
+    return;
+
+  npc->resume_schedule((int)this_object()->query_game_hour());
 }
 
 // Called when a location loads (prewarm / movement): bring back exactly the
