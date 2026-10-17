@@ -138,6 +138,15 @@ void read_crontab()
 void cron_step() 
 {
   int i, size;
+  int * times;
+
+  // one reading of the clock for the whole step, so every line judges the same
+  // minute however long the ones before it take
+  times = localtime(time());
+
+  // the next step lands one second into the next minute: a fixed 60 would add
+  // the run time to every step until a whole minute is skipped
+  call_out("cron_step", 61 - times[LT_SEC]);
 
   if (CONFIG_LOG_CRONTAB)
     debug("cron", "cron_step " + file_name(this_object()) + "\n");
@@ -162,12 +171,15 @@ void cron_step()
     //    last_minute_executed, last_hour_executed
     // })
     string * pieces;
-    int * times;
     int run_minutes, run_hours;
+
+    // a step that comes early must not run a line twice in one minute
+    if (crontab[i][CRONTAB_LAST_MINUTE] == times[LT_MIN] &&
+        crontab[i][CRONTAB_LAST_HOUR] == times[LT_HOUR])
+      continue;
 
     run_minutes = false;
     run_hours = false;
-    times = localtime(time());
     pieces = explode(crontab[i][CRONTAB_MINUTES], "/");
 
     // check minutes
@@ -214,8 +226,6 @@ void cron_step()
       crontab[i][CRONTAB_LAST_HOUR] = times[LT_HOUR];
     }
   }
-
-  call_out("cron_step", 60);
 }
 
 // void dest_me() 
