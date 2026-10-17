@@ -32,6 +32,9 @@
 // Where a job is taught: one takes it up or gives it up there. See
 // /lib/location/components/job-entrance.c.
 #define LOCATION_COMPONENT_JOB_ENTRANCE   "job-entrance"
+// The main hall of the house where a job is taught. See
+// /lib/location/components/job-room.c.
+#define LOCATION_COMPONENT_JOB_ROOM       "job-room"
 // Something that happens to whoever enters carrying a given mark. See
 // /lib/location/components/trigger.c.
 #define LOCATION_COMPONENT_TRIGGER     "trigger"

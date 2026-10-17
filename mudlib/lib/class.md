@@ -132,8 +132,10 @@ saved between class levels pays for the guild. That is deliberate.
 
 ## Rules of a guild or a job
 
-`normas` (`rules` in English), in a guild entrance, a guild room and a job
-entrance, prints the rules of that guild or job (`/lib/handlers/rules.c`):
+`normas` (`rules` in English), in a guild room or a job room, prints the rules
+of that guild or job (`/lib/handlers/rules.c`), and only to its members: a member
+of the guild, or one who holds the job. The entrances, where one joins or leaves,
+do not offer it.
 
 1. What the object says of itself: the races and classes it admits
    (`query_legal_races`, `query_legal_classes`; an empty list admits any), the
@@ -148,4 +150,11 @@ entrance, prints the rules of that guild or job (`/lib/handlers/rules.c`):
    the shelves of the house's library (`locations library add <path>`), so the
    book and `normas` are one text.
 
-Joining a guild or a job says that `normas` exists.
+Joining a guild or a job says that `normas` exists and where. The hall's sign
+lists its commands: the guild room `coste`, `avanzar` and `normas`
+(`/lib/room/guilds/guild-room-actions.c`); the job room `normas` and `coste`
+(`/lib/room/jobs/job-room-actions.c`; a job levels by itself, so there is no
+`avanzar`). A room becomes a job room by inheriting `job-room-actions.c` beside
+its base and naming the job in `setup()` with `set_room_job(<path>)`; the
+conversion gives the location the `job-room` component, or set it by hand with
+`locations job room <job path>`.

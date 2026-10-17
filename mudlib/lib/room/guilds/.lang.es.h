@@ -13,8 +13,7 @@
 #define _LANG_GUILD_ENTRANCE_SIGN_CLASSES "Clases: "
 #define _LANG_GUILD_ENTRANCE_SIGN_COMMANDS \
         "  alistarse    te conviertes en miembro del gremio\n" + \
-        "  renunciar    abandonas el gremio al que perteneces\n" + \
-        "  normas       quién puede entrar, qué se aprende y las normas del gremio\n\n" + \
+        "  renunciar    abandonas el gremio al que perteneces\n\n" + \
         "Después de alistarte en un gremio tendrás que esperar " + \
         (GUILD_JOIN_WAIT / 3600) + " horas de juego antes de poder alistarte " + \
         "en otro."
@@ -30,8 +29,8 @@
         "de alistarte en otro.\n"
 #define _LANG_GUILD_ENTRANCE_JOINED "Te alistas en el gremio. Durante las " + \
         "próximas " + (GUILD_JOIN_WAIT / 3600) + " horas de juego no podrás " + \
-        "alistarte en ningún otro. Escribe 'normas' para leer las normas del " + \
-        "gremio.\n"
+        "alistarte en ningún otro. En el salón del gremio, escribe 'normas' " + \
+        "para leer sus normas.\n"
 #define _LANG_GUILD_ENTRANCE_JOINED_OTHERS me->query_cap_name() + " se alista " + \
         "en el gremio.\n"
 #define _LANG_GUILD_ENTRANCE_NO_GUILD_TO_LEAVE "No perteneces a ningún gremio.\n"
@@ -52,10 +51,12 @@
 #define _LANG_GUILD_ROOM_SIGN_TEXT "Salón del gremio\n\n" + \
         "  coste      lo que te falta para tu siguiente nivel de gremio\n" + \
         "  avanzar    subes un nivel de gremio, si tienes esa experiencia\n" + \
-        "  normas     las normas del gremio\n\n" + \
-        "Solo los miembros del gremio pueden avanzar aquí."
+        "  normas     quién puede entrar, qué se aprende y las normas del gremio\n\n" + \
+        "Solo los miembros del gremio pueden avanzar y leer sus normas aquí."
 #define _LANG_GUILD_ROOM_NO_GUILD "Este salón no pertenece a ningún gremio ahora mismo.\n"
 #define _LANG_GUILD_ROOM_NOT_MEMBER "Solo los miembros de este gremio pueden avanzar aquí.\n"
+#define _LANG_GUILD_ROOM_RULES_NOT_MEMBER "Solo los miembros de este gremio pueden " + \
+        "leer aquí sus normas.\n"
 #define _LANG_GUILD_ROOM_MAX_LEVEL "Ya has alcanzado el nivel más alto de tu gremio.\n"
 #define _LANG_GUILD_ROOM_NOT_ENOUGH_XP "Aún no tienes experiencia suficiente para avanzar: " + \
         "tienes " + have + " y necesitas " + cost + ".\n"

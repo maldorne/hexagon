@@ -3,7 +3,7 @@
 // location component (/lib/location/components/guild-room.c). Its members
 // advance a level of the guild here (avanzar), spending the experience the
 // guild asks for it, which coste shows them here (the general coste command,
-// elsewhere, shows every kind of level).
+// elsewhere, shows every kind of level), and read its rules (normas).
 //
 // Ported from the CcMud guild room, neverbot 12/2006 and 07/2010.
 
@@ -53,13 +53,21 @@ void init()
   add_action("do_rules", _LANG_GUILD_CMDS_RULES);
 }
 
-// normas: the rules of the guild, read from its object and its rules book.
+// normas: the rules of the guild, read from its object and its rules book, for
+// its members.
 int do_rules(string str)
 {
   string text;
 
   if (!this_player())
     return 0;
+
+  if (!strlen(room_guild) || this_player()->query_guild_ob() != room_guild)
+  {
+    notify_fail(strlen(room_guild) ? _LANG_GUILD_ROOM_RULES_NOT_MEMBER
+                                   : _LANG_GUILD_ROOM_NO_GUILD);
+    return 0;
+  }
 
   text = handler("rules")->query_rules(room_guild, this_player(), query_guild_room_place());
   if (!text)

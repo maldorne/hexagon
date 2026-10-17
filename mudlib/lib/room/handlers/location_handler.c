@@ -1162,7 +1162,8 @@ object convert_room_to_location(object room)
     ret += "   Adding component guild room.\n";
   }
 
-  // The place where a job is taught becomes its component, with the job.
+  // The place where a job is taught and the main hall of its house become
+  // their components, with the job.
   if (room->query_job_entrance() &&
       !location->has_component(LOCATION_COMPONENT_JOB_ENTRANCE))
   {
@@ -1170,6 +1171,14 @@ object convert_room_to_location(object room)
       "entrance_job" : room->query_entrance_job(),
         ]));
     ret += "   Adding component job entrance.\n";
+  }
+  if (room->query_job_room() &&
+      !location->has_component(LOCATION_COMPONENT_JOB_ROOM))
+  {
+    location->add_component(LOCATION_COMPONENT_JOB_ROOM, ([
+      "room_job" : room->query_room_job(),
+        ]));
+    ret += "   Adding component job room.\n";
   }
 
   // A room built on /lib/outside.c is open-air: attach the outside component
@@ -1280,7 +1289,7 @@ object convert_room_to_location(object room)
   // Ventures (pub, shop), post offices, vaults, fines offices, temples, libraries and the
   // entrances and halls of guilds create and manage their own sign (the menu, the price
   // board, the mail instructions, the vault help, the fines help, the temples help, the
-  // guild's information)
+  // guild's or job's information)
   // through their component, and that item also carries a read message -- so
   // skip auto-detection here for them, or the sign would be duplicated (its
   // own copy plus a captured sign-component copy).
@@ -1288,7 +1297,7 @@ object convert_room_to_location(object room)
       !room->query_vault_room() && !room->query_library() &&
       !room->query_fines_office() && !room->query_temple() &&
       !room->query_guild_entrance() && !room->query_guild_room() &&
-      !room->query_job_entrance())
+      !room->query_job_entrance() && !room->query_job_room())
   {
     mapping sign;
 

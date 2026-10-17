@@ -4,8 +4,8 @@
 // book, rendered by the books handler as a library renders it, so the book
 // on the shelves and normas say the same thing.
 //
-// Shared by the guild entrance, the guild room and the job entrance
-// (/lib/room/guilds/, /lib/room/jobs/).
+// Shared by the guild room and the job room (/lib/room/guilds/,
+// /lib/room/jobs/), where members read it.
 
 #include <living/skills.h>
 #include <language.h>

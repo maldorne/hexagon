@@ -1,5 +1,6 @@
 // Guild entrance: the way into a guild's house, where the guild is explained
-// and where one joins it or leaves the guild one belongs to. Shared by the
+// and where one joins it or leaves the guild one belongs to. Its rules
+// (normas) are read in the guild room, by its members. Shared by the
 // guild entrance room (/lib/room/guilds/guild-entrance-room.c) and the guild
 // entrance location component (/lib/location/components/guild-entrance.c).
 // Who may go further in is decided by the guards of the house, not here.
@@ -106,26 +107,6 @@ void init()
 {
   add_action("do_join", _LANG_GUILD_ENTRANCE_CMDS_JOIN);
   add_action("do_leave", _LANG_GUILD_ENTRANCE_CMDS_LEAVE);
-  add_action("do_rules", _LANG_GUILD_CMDS_RULES);
-}
-
-// normas: the rules of the guild, read from its object and its rules book.
-int do_rules(string str)
-{
-  string text;
-
-  if (!this_player())
-    return 0;
-
-  text = handler("rules")->query_rules(entrance_guild, this_player(), query_entrance_place());
-  if (!text)
-  {
-    notify_fail(_LANG_GUILD_ENTRANCE_NO_GUILD);
-    return 0;
-  }
-
-  tell_object(this_player(), text);
-  return 1;
 }
 
 int do_join(string str)

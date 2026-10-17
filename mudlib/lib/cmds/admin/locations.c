@@ -30,7 +30,7 @@ void setup()
     "locations exit <dir> <type> [material] [closed|locked|open]\n" +
     "locations temple < <deity path> | none >\n" +
     "locations guild < entrance | room > < <guild path> | none >\n" +
-    "locations job < <job path> | none >\n" +
+    "locations job [ room ] < <job path> | none >\n" +
     "locations library [ add <text path> | remove <text path> ]");
   set_help(
     "Build the location you are standing in.\n" +
@@ -54,6 +54,9 @@ void setup()
     "  locations guild entrance|room none   stop it being one\n" +
     "  locations job <job path>          make it the place where a job is taught\n" +
     "  locations job none                stop it being one\n" +
+    "  locations job room <job path>     make it the main hall of the house\n" +
+    "                                    where a job is taught\n" +
+    "  locations job room none           stop it being one\n" +
     "  locations library                 list the books on its shelves\n" +
     "  locations library add <text path>    put a book on them (makes it a library)\n" +
     "  locations library remove <text path> take one off\n" +
@@ -526,9 +529,10 @@ private int do_guild(object loc, string * args)
     return 1;
   }
 
+  // a guild is joined by its full path ending in .c, as every social object
   path = get_path(path);
-  if (strlen(path) > 2 && path[strlen(path) - 2 ..] == ".c")
-    path = path[0 .. strlen(path) - 3];
+  if (strlen(path) < 2 || path[strlen(path) - 2 ..] != ".c")
+    path += ".c";
   if (!load_object(path) || !load_object(path)->query_is_guild())
   {
     notify_fail("No guild loads at " + path + ".\n");
@@ -557,34 +561,41 @@ private int do_guild(object loc, string * args)
 }
 
 /**
- * locations job <job path> | none: makes the location the place where a job is
- * taught (joined and left), or stops it being one.
+ * locations job [room] <job path> | none: makes the location the place where a
+ * job is taught (joined and left), or the main hall of its house with room, or
+ * stops it being one.
  */
 private int do_job(object loc, string * args)
 {
   object comp;
-  string path;
+  string path, kind, type;
 
-  if (sizeof(args) < 2)
+  kind = "entrance";
+  if (sizeof(args) > 2 && args[1] == "room")
+    kind = "room";
+
+  if (sizeof(args) < 2 || (kind == "room" && sizeof(args) < 3))
   {
-    notify_fail("Usage: locations job < <job path> | none >\n");
+    notify_fail("Usage: locations job [ room ] < <job path> | none >\n");
     return 0;
   }
 
-  path = rest_of(args, 1);
-  comp = loc->query_component_by_type(LOCATION_COMPONENT_JOB_ENTRANCE);
+  path = rest_of(args, kind == "room" ? 2 : 1);
+  type = (kind == "room") ? LOCATION_COMPONENT_JOB_ROOM
+                          : LOCATION_COMPONENT_JOB_ENTRANCE;
+  comp = loc->query_component_by_type(type);
 
   if (path == "none")
   {
     if (!comp)
     {
-      notify_fail("This location is not a job entrance.\n");
+      notify_fail("This location is not a job " + kind + ".\n");
       return 0;
     }
     comp->take_down();
-    loc->remove_component(LOCATION_COMPONENT_JOB_ENTRANCE);
+    loc->remove_component(type);
     loc->save_me();
-    write("This location is no longer a job entrance.\n");
+    write("This location is no longer a job " + kind + ".\n");
     return 1;
   }
 
@@ -599,19 +610,22 @@ private int do_job(object loc, string * args)
 
   if (!comp)
   {
-    loc->add_component(LOCATION_COMPONENT_JOB_ENTRANCE, ([ ]));
-    comp = loc->query_component_by_type(LOCATION_COMPONENT_JOB_ENTRANCE);
+    loc->add_component(type, ([ ]));
+    comp = loc->query_component_by_type(type);
   }
   if (!comp)
   {
-    notify_fail("The job entrance component would not attach here.\n");
+    notify_fail("The job " + kind + " component would not attach here.\n");
     return 0;
   }
 
-  comp->set_entrance_job(path);
+  if (kind == "entrance")
+    comp->set_entrance_job(path);
+  else
+    comp->set_room_job(path);
   loc->save_me();
 
-  write("This location is now the job entrance of " + path + ".\n");
+  write("This location is now the job " + kind + " of " + path + ".\n");
   return 1;
 }
 
