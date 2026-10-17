@@ -1082,3 +1082,53 @@ void end_effect_now(object ob)
         ob = this_player();
     ob->remove_active_effect(effect_name);
 }
+
+/**
+ * The id of this effect's lasting effect on a living: its file, the same in
+ * every language.
+ */
+string query_lasting_id() { return base_name(this_object()); }
+
+/**
+ * Starts this effect's lasting effect on the caster: lasting_tick runs every
+ * heart_beat for ticks heart_beats, then lasting_end. Starting it again
+ * replaces the one in force.
+ *
+ * @param  data  whatever the ticks need (a target, a bonus); shared by
+ *               reference with every tick
+ */
+int start_lasting(object caster, int ticks, mixed data)
+{
+  return caster->add_lasting_effect(query_lasting_id(), this_object(),
+    LASTING_TICK_FUNC, ticks, data);
+}
+
+/**
+ * Ends this effect's lasting effect on the caster (LASTING_END_REMOVED).
+ */
+int stop_lasting(object caster)
+{
+  return caster->remove_lasting_effect(query_lasting_id());
+}
+
+/**
+ * Whether this effect's lasting effect is in force on the caster.
+ */
+int query_lasting(object caster)
+{
+  return caster->query_lasting_effect(query_lasting_id()) != nil;
+}
+
+/**
+ * One tick of the lasting effect; an effect masks it. Returning 0 ends it.
+ *
+ * The default does nothing until the ticks run out, enough for an effect that
+ * only lasts and undoes itself in lasting_end.
+ */
+int lasting_tick(object caster, mixed data, int ticks_left) { return 1; }
+
+/**
+ * Called when the lasting effect ends, reason being one of LASTING_END_*; an
+ * effect masks it to give its own message and undo what it did.
+ */
+void lasting_end(object caster, string id, mixed data, string reason) { }

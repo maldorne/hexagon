@@ -127,8 +127,22 @@ nomask void _heart_beat()
       // _hb_object_list -= ({ ob });
       _hb_object_list = delete(_hb_object_list, i, 1);
       i--;
+
+      // a living drops what it was running (effects, queue), so the same
+      // error does not come back when it restarts; before turning the
+      // heart_beat off, so nothing the cleanup starts leaves it running
+      rlimits(MAX_HB_DEPTH ; MAX_HB_TICKS)
+      {
+        result = catch(call_other(ob, "heart_beat_failed"));
+      }
+
+      if (ob && result)
+        debug("hbs", "  └─> heart_beat_failed error in " + object_name(ob) +
+                                          ":\n      " + result + "\n");
+
       // will try to remove the object from _hb_object_list, better safe than sorry
-      call_other(ob, "set_heart_beat", 0);
+      if (ob)
+        call_other(ob, "set_heart_beat", 0);
     }
   }
 }

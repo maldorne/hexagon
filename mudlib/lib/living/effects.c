@@ -6,10 +6,14 @@ int do_call_out_effect(mixed *params);
 
 static int effect_hp;
 static mixed *effects;
+// effects that keep acting after their skill or spell ran:
+// id -> ({ source, func, ticks left, data }), indices LASTING_*
+static mapping lasting;
 
 void create() 
 {
   effects = ({ });
+  lasting = ([ ]);
 } /* create() */
 
 // Para saber si está ejecutando algo o no
@@ -226,7 +230,209 @@ int do_call_out_effect(mixed *params)
       
 } /* do_effect() */
 
+/**
+ * Drops every effect in execution, as if each had been interrupted.
+ */
+void clear_active_effects()
+{
+  int i, j;
+  string * names;
+
+  names = ({ });
+
+  for (i = 0; i < sizeof(effects); i += 2)
+    for (j = 0; j < sizeof(effects[i+1]); j += 2)
+      names += ({ effects[i+1][j] });
+
+  for (i = 0; i < sizeof(names); i++)
+    remove_active_effect(names[i]);
+
+  this_object()->remove_timed_property(PROPERTY_IS_CASTING);
+}
+
+/**
+ * Ends one lasting effect and tells its source why.
+ *
+ * The entry leaves the list before the hook runs, so the hook may start a new
+ * effect with the same id.
+ */
+private void end_lasting_effect(string id, string reason)
+{
+  mixed * entry;
+  string err;
+
+  entry = lasting[id];
+
+  if (!entry)
+    return;
+
+  lasting[id] = nil;
+
+  // a source that is gone has nobody left to clean up
+  if (!entry[LASTING_SOURCE])
+    return;
+
+  err = catch(call_other(entry[LASTING_SOURCE], LASTING_END_FUNC,
+    this_object(), id, entry[LASTING_DATA], reason));
+
+  if (err)
+    debug("effects", "lasting end of " + id + " in " +
+      object_name(this_object()) + ": " + err + "\n");
+}
+
+/**
+ * Starts a lasting effect: something a skill or spell keeps doing every
+ * heart_beat for a while after it finished running.
+ *
+ * Every tick calls source->func(this living, data, ticks left) (ticks down to
+ * 1); the effect ends when the ticks run out, when func returns 0, when the
+ * call errors or when the source is gone. On end, source->lasting_end(this
+ * living, id, data, reason) runs, reason being one of LASTING_END_*. An
+ * effect with the same id is ended first (LASTING_END_REPLACED). Lasting
+ * effects do not keep other skills or spells from running.
+ *
+ * @return 1 if it started, 0 if an argument is missing
+ */
+int add_lasting_effect(string id, object source, string func, int ticks,
+  mixed data)
+{
+  if (!strlen(id) || !source || !strlen(func) || ticks <= 0)
+    return 0;
+
+  if (lasting[id])
+    end_lasting_effect(id, LASTING_END_REPLACED);
+
+  lasting[id] = ({ source, func, ticks, data });
+
+  // a resting npc has its heart_beat off, and nothing would tick
+  if (!query_heart_beat())
+    set_heart_beat(1);
+
+  return 1;
+}
+
+/**
+ * Ends the lasting effect with this id (LASTING_END_REMOVED).
+ *
+ * @return 1 if there was one
+ */
+int remove_lasting_effect(string id)
+{
+  if (!lasting[id])
+    return 0;
+
+  end_lasting_effect(id, LASTING_END_REMOVED);
+  return 1;
+}
+
+/**
+ * The lasting effect with this id, a copy of ({ source, func, ticks left,
+ * data }) (indices LASTING_*), or nil.
+ */
+mixed * query_lasting_effect(string id)
+{
+  if (!lasting[id])
+    return nil;
+
+  return ({ }) + lasting[id];
+}
+
+/**
+ * The ids of every lasting effect in force.
+ */
+string * query_lasting_effects()
+{
+  return map_indices(lasting);
+}
+
+/**
+ * Ends every lasting effect, telling each source the reason (default
+ * LASTING_END_CLEARED).
+ */
+void clear_lasting_effects(varargs string reason)
+{
+  string * ids;
+  int i;
+
+  if (!reason)
+    reason = LASTING_END_CLEARED;
+
+  ids = map_indices(lasting);
+
+  for (i = 0; i < sizeof(ids); i++)
+    end_lasting_effect(ids[i], reason);
+}
+
+/**
+ * One tick of every lasting effect; the living's heart_beat calls it.
+ */
+void tick_lasting_effects()
+{
+  string * ids;
+  mixed * entry;
+  mixed result;
+  string err;
+  int i;
+
+  if (!map_sizeof(lasting))
+    return;
+
+  ids = map_indices(lasting);
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    // an earlier tick may have ended this one
+    entry = lasting[ids[i]];
+
+    if (!entry)
+      continue;
+
+    if (!entry[LASTING_SOURCE])
+    {
+      end_lasting_effect(ids[i], LASTING_END_ERROR);
+      continue;
+    }
+
+    result = nil;
+    err = catch(result = call_other(entry[LASTING_SOURCE], entry[LASTING_FUNC],
+      this_object(), entry[LASTING_DATA], entry[LASTING_TICKS]));
+
+    // the tick may have destructed this living
+    if (!this_object())
+      return;
+
+    // the tick ended or replaced its own effect, and that call decided
+    if (lasting[ids[i]] != entry)
+      continue;
+
+    if (err)
+    {
+      debug("effects", "lasting tick of " + ids[i] + " in " +
+        object_name(this_object()) + ": " + err + "\n");
+      end_lasting_effect(ids[i], LASTING_END_ERROR);
+    }
+    else if (!result)
+      end_lasting_effect(ids[i], LASTING_END_DONE);
+    else if (--entry[LASTING_TICKS] <= 0)
+      end_lasting_effect(ids[i], LASTING_END_EXPIRED);
+  }
+}
+
 mixed * stats()
 {
-  return ({ });
+  mixed * ret;
+  string * ids;
+  int i;
+
+  ret = ({ });
+  ids = map_indices(lasting);
+
+  for (i = 0; i < sizeof(ids); i++)
+    ret += ({ ({ "Lasting effect " + ids[i] + " (nosave)",
+      (lasting[ids[i]][LASTING_SOURCE] ?
+        object_name(lasting[ids[i]][LASTING_SOURCE]) : "gone") + "->" +
+      lasting[ids[i]][LASTING_FUNC] + ", " +
+      lasting[ids[i]][LASTING_TICKS] + " ticks left", }) });
+
+  return ret;
 }

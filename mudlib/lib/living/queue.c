@@ -732,15 +732,11 @@ nomask int action_check(string str)
 
   if (member_array(str, _LANG_QUEUE_RESTART_OPTIONS) != -1)
   {
-    if (query_heart_beat())
-      tell_object(this_object(), _LANG_QUEUE_DONT_NEED_RESET);
-    else
-    {
-      tell_object(this_object(), _LANG_QUEUE_RESET_MSG);
-      actionq = ({ }); // will get cascading failure without this
-      set_heart_beat(1);
-      catch(this_object()->flush_spell_effects());
-    }
+    // always: a heart_beat that still runs may be stuck on a broken effect.
+    // The queue goes too, or it would fail again in cascade.
+    tell_object(this_object(), _LANG_QUEUE_RESET_MSG);
+    catch(this_object()->heart_beat_failed());
+    set_heart_beat(1);
 
     this_user()->show_prompt();
     this_user()->write_prompt();

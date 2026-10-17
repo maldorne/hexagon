@@ -50,7 +50,6 @@
 #define _LANG_QUEUE_RESTART_OPTIONS ({ "restart" })
 #define _LANG_QUEUE_HALT_OPTIONS ({ "halt" })
 #define _LANG_QUEUE_ABORT_OPTIONS ({ "abort" })
-#define _LANG_QUEUE_DONT_NEED_RESET "You don't need to restart your character at this moment.\n"
 #define _LANG_QUEUE_RESET_MSG "Trying to restart your character...\n"
 #define _LANG_QUEUE_HALT_MSG "Command queue deleted.\n"
 #define _LANG_QUEUE_NO_ABORT "You are not in the middle of an action that can be aborted.\n"

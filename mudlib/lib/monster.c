@@ -345,6 +345,7 @@ int check_heart_beat()
     !sizeof(query_attacker_list()) &&
     !this_object()->query_action_pending() &&
     !check_anyone_here() && !sizeof(query_effects()) &&
+    !sizeof(query_lasting_effects()) &&
     !this_object()->ai_actions_pending() &&
     !travelling())
   {

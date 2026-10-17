@@ -317,6 +317,12 @@ void heart_beat()
   regen_gp = regen_hp = 0;
   race_regen_gp = race_regen_hp = 0;
 
+  // before combat, so whatever a lasting effect sets holds for this round
+  effects::tick_lasting_effects();
+
+  if (!this_object())
+    return;
+
   combat::heart_beat();
 
   // Both of these can destruct us and everything below would then run on an
@@ -391,6 +397,22 @@ void heart_beat()
   health::heart_beat();
   drunk::heart_beat();
   comm::heart_beat();
+}
+
+/**
+ * Drops everything the living was running: every effect in execution, every
+ * lasting effect and the action queue.
+ *
+ * The heart_beat handler calls it when the heart_beat errors, and the restart
+ * command before turning the heart_beat back on, so a broken effect cannot
+ * fail again on the next beat.
+ */
+void heart_beat_failed()
+{
+  // each on its own, so one failing does not keep the others
+  catch(effects::clear_active_effects());
+  catch(effects::clear_lasting_effects());
+  catch(queue::flush_actions());
 }
 
 mixed * stats() 

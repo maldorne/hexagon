@@ -49,7 +49,6 @@
 #define _LANG_QUEUE_RESTART_OPTIONS ({ "restart", "reiniciar" })
 #define _LANG_QUEUE_HALT_OPTIONS ({ "halt", "parar" })
 #define _LANG_QUEUE_ABORT_OPTIONS ({ "abort", "abortar" })
-#define _LANG_QUEUE_DONT_NEED_RESET "No necesitas reiniciar tu personaje en estos momentos.\n"
 #define _LANG_QUEUE_RESET_MSG "Intentando reiniciar tu personaje...\n"
 #define _LANG_QUEUE_HALT_MSG "Cola de comandos borrada.\n"
 #define _LANG_QUEUE_NO_ABORT "No estás en medio de una acción que pueda ser abortada.\n"

@@ -40,3 +40,21 @@
 #define SP_NO_RNDS 0
 #define SP_DIV 5
 #define SP_GP_COST 3
+
+// Lasting effects (lib/living/effects.c): what each entry holds, the hook
+// called on the source when one ends, and why it ended
+#define LASTING_SOURCE 0
+#define LASTING_FUNC 1
+#define LASTING_TICKS 2
+#define LASTING_DATA 3
+
+#define LASTING_TICK_FUNC "lasting_tick"
+#define LASTING_END_FUNC "lasting_end"
+
+#define LASTING_END_EXPIRED "expired"
+#define LASTING_END_DONE "done"
+#define LASTING_END_ERROR "error"
+#define LASTING_END_REMOVED "removed"
+#define LASTING_END_REPLACED "replaced"
+#define LASTING_END_CLEARED "cleared"
+#define LASTING_END_DEATH "death"
