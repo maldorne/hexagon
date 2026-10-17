@@ -267,13 +267,14 @@ private int _place(string group, string key, string name, int level)
 // the template or file it comes from.
 private string _identity_key(object who)
 {
-  string source;
+  mixed source;
 
   if (who->query_player())
     return "player:" + lower_case((string)who->query_name());
 
-  source = (string)who->query_npc_source();
-  if (!source || !strlen(source))
+  // a plain monster has no npc source at all, only its file
+  source = who->query_npc_source();
+  if (!stringp(source) || !strlen(source))
     source = base_name(who);
 
   return "npc:" + source;

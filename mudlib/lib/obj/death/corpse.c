@@ -345,7 +345,7 @@ void raise_me(object ob)
   else if (i <= 90)
     cow = clone_object(UNDEAD_OBS_PATH + "wraith.c");
   else if (i <= 98)
-    cow = clone_object(UNDEAD_OBS_PATH + "specter.c");
+    cow = clone_object(UNDEAD_OBS_PATH + "spectre.c");
   else
     cow = clone_object(UNDEAD_OBS_PATH + "lich.c");
 
