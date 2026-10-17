@@ -819,6 +819,10 @@ nomask void try_throw_out(string str)
   event(users() - ({ other_copy, 0 }), "inform",
     _player->query_cap_name() + " reconnected", "link-death");
 
+  // _player is the body restore_player just cloned, not the old one: started
+  // as a reconnect it skips do_load_auto, so its hands are set up here
+  _player->reset_hands();
+
   begin(0, TRUE, env);
 }
 

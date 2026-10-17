@@ -134,10 +134,9 @@ mixed * query_shields_held()
 
   result = ({ });
 
-  held_ob -= ({ nil });
-
+  // empty slots are hands, held_ob keeps its size
   for (i = 0; i < sizeof(held_ob); i++)
-    if (held_ob[i]->query_shield())
+    if (held_ob[i] && held_ob[i]->query_shield())
       result += ({ held_ob[i] });
 
   return result;
@@ -160,24 +159,32 @@ int query_limbs()
   return 0;
 }
 
+/**
+ * Empties every hand and sizes the hands to the race's limbs. held_ob is only
+ * replaced at the end, so an error halfway leaves the old bookkeeping intact.
+ */
 void reset_hands()
 {
-  int i;
+  int i, limbs;
+  mixed * held;
 
-  held_ob -= ({ nil });
+  held = held_ob - ({ nil });
 
   // Unhold everything
-  for (i = 0; i < sizeof(held_ob); i++)
-    this_object()->unhold_ob(held_ob[i]);
+  for (i = 0; i < sizeof(held); i++)
+    this_object()->unhold_ob(held[i]);
 
-  free_hands_left = query_limbs();
+  limbs = query_limbs();
 
   // Si no tiene raza, o su raza no tiene brazos (ej: animales)
   // Le asignamos un brazo para que pueda realizar ataques.
-  if (free_hands_left == 0)
-    free_hands_left = 1;
+  if (limbs == 0)
+    limbs = 1;
 
-  held_ob = allocate(free_hands_left);
+  // unhold_ob refuses while dead, so the counts are rebuilt, not trusted
+  held_ob = allocate(limbs);
+  free_hands_left = limbs;
+  held_ac = allocate_int(sizeof(AC_TYPES));
 }
 
 // The free_hand_left is a quickie, easier to have an int than go through

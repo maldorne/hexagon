@@ -338,6 +338,9 @@ object make_corpse(varargs object killer)
     }
   } 
 
+  // unhold_ob refuses once dead, so the hands are emptied by hand
+  this_object()->reset_hands();
+
   // Reset the array (to be sure)
   usedstuff = ({ });
 
