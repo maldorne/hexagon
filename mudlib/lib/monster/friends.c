@@ -115,13 +115,16 @@ void pile_in(object ob, object ob1)
 // the hated lists are written in: a race, any race but the ones named
 // (other_race), a guild, a member of a guild other than the ones named
 // (other_guild: somebody with no guild does not match), a
-// group, a race group, a name, a deity, a citizenship, or simply a property
-// they carry. Each key holds one value or a list of them, and any match is
-// enough.
+// group, a race group, a name, a deity, a citizenship, a citizenship at war
+// with one of the ones named (enemy_of, read live from the diplomacy graph), or
+// simply a property they carry. Each key holds one value or a list of them, and
+// any match is enough.
 // Taniwha, util routine for "membership"
 int matches_group(mapping description, object who)
 {
   mixed list;
+  object citizenship;
+  string city_ob;
   int i;
 
   list = description["race"];
@@ -170,6 +173,20 @@ int matches_group(mapping description, object who)
   list = description["city"];
   if (pointerp(list) && member_array(who->query_city_name(), list) != -1) return 1;
   if (stringp(list) && (string)list == (string)who->query_city_name()) return 1;
+
+  list = description["enemy_of"];
+  if (stringp(list))
+    list = ({ list });
+  city_ob = pointerp(list) ? who->query_city_ob() : nil;
+  if (city_ob && strlen(city_ob))
+  {
+    citizenship = load_object(city_ob);
+    for (i = 0; citizenship && i < sizeof(list); i++)
+      if (stringp(list[i]) &&
+          handler("diplomacy", citizenship)->is_enemy(list[i],
+                                                      citizenship->query_name()))
+        return 1;
+  }
 
   list = description["property"];
   if (pointerp(list))
