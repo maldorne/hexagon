@@ -1058,7 +1058,9 @@ int adjust_guild_level(int i)
 
   /* Those over lvl 100 is either immortals or cheat.. Noone needa it anyway.
    * Baldrick.     */
-  if ((guild_level + i) > 100)
+  // and never past the top level of the guild itself
+  if ((guild_level + i) > 100 ||
+      (query_guild_ob() && (guild_level + i) > query_guild_ob()->query_max_level()))
   {
     notify_fail("Olvídalo.\n");
     return 0;

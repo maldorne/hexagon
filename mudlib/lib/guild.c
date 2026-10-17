@@ -176,7 +176,7 @@ int query_next_level_xp(object player)
 int query_advance_cost() { return DEFAULT_COST; }
 /* Seems we won't use this one, but check *bits of skills instead */
 // int query_xp_cost() { return DEFAULT_XP_COST; }
-int query_max_level() { return 30; }
+int query_max_level() { return 20; }
 int query_extra_gp_bonus() { return 0; }
 
 /*

@@ -31,7 +31,8 @@ inherit "/lib/core/object.c";
 
 #define BOOK_PAGE_BREAK "---"
 
-// path -> ({ title, ({ page, page... }) }), each page its raw markdown
+// path -> ({ title, ({ page, page... }), time the file was written }), each
+// page its raw markdown
 static mapping books;
 
 void create()
@@ -40,19 +41,31 @@ void create()
   books = ([ ]);
 }
 
-// Read and split a book's text, once; nil when the file is missing or empty.
+// When a file was last written, 0 when it is not there.
+private int _written_at(string path)
+{
+  mixed * info;
+
+  info = get_dir(path, -1);
+  return sizeof(info) ? info[0][2] : 0;
+}
+
+// Read and split a book's text, again only when the file has changed since;
+// nil when the file is missing or empty.
 private mixed * _load(string path)
 {
   string text, title, page;
   string * lines, * pages;
-  int i;
+  int i, written;
 
   if (!path || !strlen(path))
     return nil;
-  if (books[path])
-    return books[path];
   if (!file_exists(path))
     return nil;
+
+  written = _written_at(path);
+  if (books[path] && books[path][2] == written)
+    return books[path];
 
   text = read_file(path);
   if (!text || !strlen(text))
@@ -83,7 +96,7 @@ private mixed * _load(string path)
   }
   pages += ({ page });
 
-  books[path] = ({ title, pages });
+  books[path] = ({ title, pages, written });
   return books[path];
 }
 
