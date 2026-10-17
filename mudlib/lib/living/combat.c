@@ -60,7 +60,9 @@ int set_concentrate(object ob)
   return 1;
 }
 object query_concentrate() { return concentrate; }
-int query_concentrate_valid() { return 0; }
+// Whether a concentrate target holds past this round: a player's is forgotten
+// after one, so whatever keeps it (the focus skill) renews it every round.
+int query_concentrate_valid(object ob, object * attackers) { return 0; }
 
 // Radix, added for unprotect add_action
 void remove_protector(object ob) { protector = nil; }

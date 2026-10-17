@@ -46,7 +46,7 @@ static int _follow_move_handle;
 
 
 nomask int query_player() { return 0; }
-int query_concentrate_valid() { return 1; }
+int query_concentrate_valid(object ob, object * attackers) { return 1; }
 int query_npc() { return 1; }
 int query_monster() { return 1; }
 nomask int query_coder() { return 0; }
