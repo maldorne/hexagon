@@ -78,7 +78,7 @@ int query_next_level_xp(object player)
 
 // Change to another number to set a maximum limit
 // for this job
-int query_max_level() { return 100; }
+int query_max_level() { return 20; }
 
 int query_gp_dice() { return 5; }
 

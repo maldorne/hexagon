@@ -746,7 +746,9 @@ int adjust_job_level(int i)
 
   /* Those over lvl 100 is either immortals or cheat.. Noone needa it anyway.
    * Baldrick.     */
-  if ((job_level + i) > 100)
+  // and never past the top level of the job itself
+  if ((job_level + i) > 100 ||
+      (query_job_ob() && (job_level + i) > query_job_ob()->query_max_level()))
   {
     notify_fail("Olvídalo.\n");
     return 0;
