@@ -8,8 +8,8 @@
 // crimes handler, and a sentence that has run out is ended the first time
 // somebody asks about it -- when the prisoner tries an exit, or logs in -- so
 // there is no heart beat. The citizenship's prison (`crimes set <citizenship>
-// prison <file>`) is the place prisoners are taken to; this is what keeps them
-// there.
+// prison <file> [<file> ...]`) lists the cells prisoners are taken to, one at
+// random; this is what keeps them there.
 //
 // Whoever inherits it says where the cell stands (query_jail_place) and
 // answers query_exit_refusal with query_jail_refusal.

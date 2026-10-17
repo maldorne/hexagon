@@ -45,7 +45,8 @@ inherit "/lib/core/object.c";
 //                            "deities"  : ({ deity paths }),
 //                            "law"      : ([ offence : points ]),
 //                            "lethal"   : 0 or 1,
-//                            "prison"   : location file ])
+//                            "prison"   : ({ location files }) ])
+// A prison saved as a single location file is read as a list of one.
 // The last four are optional: absent until someone sets them.
 mapping citizenships;
 
@@ -441,22 +442,51 @@ int query_lethal(string citizenship_name)
   return citizenship_map()[holder][DIPLOMACY_LETHAL] ? 1 : 0;
 }
 
+// A stored prison as a list of cells: an older save holds a single file.
+private string * prison_list(mixed stored)
+{
+  if (stringp(stored))
+    return strlen(stored) ? ({ stored }) : ({ });
+  if (arrayp(stored))
+    return ({ }) + stored;
+  return ({ });
+}
+
 /**
- * The location prisoners of a citizenship are taken to, inherited from the
+ * The cells a citizenship sets by itself for its prisoners, without what it
+ * inherits.
+ *
+ * @param citizenship_name the citizenship
+ * @return a copy of the list of location files, empty when it sets none
+ */
+string * query_own_prisons(string citizenship_name)
+{
+  mapping citizenship;
+
+  citizenship = citizenship_map()[citizenship_name];
+  if (!citizenship)
+    return ({ });
+
+  return prison_list(citizenship[DIPLOMACY_PRISON]);
+}
+
+/**
+ * The cells prisoners of a citizenship are taken to, inherited from the
  * parent chain.
  *
  * @param citizenship_name the citizenship
- * @return the file name, or "" when nobody up the chain says
+ * @return a copy of the list of location files, empty when nobody up the
+ *         chain says
  */
-string query_prison(string citizenship_name)
+string * query_prisons(string citizenship_name)
 {
   string holder;
 
   holder = query_key_holder(citizenship_name, DIPLOMACY_PRISON);
   if (!strlen(holder))
-    return "";
+    return ({ });
 
-  return citizenship_map()[holder][DIPLOMACY_PRISON];
+  return prison_list(citizenship_map()[holder][DIPLOMACY_PRISON]);
 }
 
 // The citizenships this one is directly allied with / at war with (direct relationships
@@ -493,7 +523,7 @@ mapping query_relations()
                     DIPLOMACY_DEITIES : citizenship_map[name][DIPLOMACY_DEITIES],
                     DIPLOMACY_LAW     : query_own_law(name),
                     DIPLOMACY_LETHAL  : citizenship_map[name][DIPLOMACY_LETHAL],
-                    DIPLOMACY_PRISON  : citizenship_map[name][DIPLOMACY_PRISON],
+                    DIPLOMACY_PRISON  : query_own_prisons(name),
                     "allies"   : query_linked_names(DIPLOMACY_RELATION_ALLY, name),
                     "enemies"  : query_linked_names(DIPLOMACY_RELATION_ENEMY, name) ]);
   }
@@ -666,22 +696,33 @@ int set_lethal(string citizenship_name, int lethal)
 }
 
 /**
- * Sets the location a citizenship takes its prisoners to.
+ * Sets the cells a citizenship takes its prisoners to; each prisoner goes to
+ * one of them at random.
  *
  * @param citizenship_name an existing citizenship
- * @param prison a location file; "" or nil drops it, so it is inherited again
+ * @param prisons location files; empty or nil drops them, so they are
+ *        inherited again
  * @return 1 on success
  */
-int set_prison(string citizenship_name, string prison)
+int set_prisons(string citizenship_name, string * prisons)
 {
   mapping citizenship;
+  string * cells;
+  int i;
 
   citizenship = query_citizenship(citizenship_name);
   if (!citizenship)
     return 0;
 
-  if (prison && strlen(prison))
-    citizenship[DIPLOMACY_PRISON] = prison;
+  // no empty names, no file twice
+  cells = ({ });
+  for (i = 0; prisons && i < sizeof(prisons); i++)
+    if (stringp(prisons[i]) && strlen(prisons[i]) &&
+        member_array(prisons[i], cells) == -1)
+      cells += ({ prisons[i] });
+
+  if (sizeof(cells))
+    citizenship[DIPLOMACY_PRISON] = cells;
   else
     citizenship[DIPLOMACY_PRISON] = nil;
   save_handler();

@@ -30,8 +30,9 @@
  *
  * Justice (see crimes.md): a guard of a citizenship that does not kill
  * (query_lethal) never lands the blow that would kill (spare_blow, asked by
- * the health code); the loser is passed out and arrested -- taken to the
- * citizenship's prison for a sentence, or fined on the spot where there is none.
+ * the health code); the loser is passed out and arrested -- taken to one of the
+ * citizenship's cells, at random, for a sentence, or fined on the spot where
+ * there is none.
  * A sentence is kept here and served in a location with the jail component;
  * the fines office (fines component) charges what a record owes.
  */
@@ -283,10 +284,10 @@ int query_lethal(string citizenship)
   return (lethal < 0) ? query_default_lethal() : lethal;
 }
 
-/** The location a citizenship takes its prisoners to, "" when none. */
-string query_prison(string citizenship)
+/** The cells a citizenship takes its prisoners to, empty when none. */
+string * query_prisons(string citizenship)
 {
-  return diplomacy()->query_prison(citizenship);
+  return diplomacy()->query_prisons(citizenship);
 }
 
 // --- Records ----------------------------------------------------------------
@@ -1335,6 +1336,7 @@ void arrest(string citizenship, object victim)
   mapping sentence;
   object place, cell;
   string root, name, prison;
+  string * prisons;
   int points, seconds, fine;
 
   if (!victim || victim->query_dead())
@@ -1356,7 +1358,9 @@ void arrest(string citizenship, object victim)
     return;
   }
 
-  prison = query_prison(citizenship);
+  // one of the cells at random; one that does not load counts as none
+  prisons = query_prisons(citizenship);
+  prison = sizeof(prisons) ? prisons[random(sizeof(prisons))] : "";
   cell = strlen(prison) ? prison_place(prison) : nil;
 
   if (cell)

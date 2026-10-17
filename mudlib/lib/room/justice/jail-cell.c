@@ -1,7 +1,7 @@
 // A room that is a jail cell. What the cell does lives in jail-actions.c; this
 // file only makes it a room and refuses its exits to a prisoner. The
-// citizenship's prison (`crimes set <citizenship> prison <file>`) should name
-// this room.
+// citizenship's prison (`crimes set <citizenship> prison <file> [<file> ...]`)
+// should name this room among its cells.
 
 inherit room    "/lib/room.c";
 inherit actions "/lib/room/justice/jail-actions.c";

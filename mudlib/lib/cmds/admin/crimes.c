@@ -10,7 +10,8 @@
 //   crimes law <citizenship>                 the code in force there
 //   crimes law <citizenship> <offence> <points|none>
 //   crimes set <citizenship> lethal <0|1|none>
-//   crimes set <citizenship> prison <file|none>
+//   crimes set <citizenship> prison <file> [<file> ...] | none
+//   crimes set <citizenship> prison add|remove <file>
 
 #include <mud/cmd.h>
 #include <crimes.h>
@@ -38,8 +39,13 @@ void setup()
     "  crimes law <cit> <offence> <n>  set what an offence costs in <cit>;\n" +
     "                                  'none' drops it, so it is inherited\n" +
     "  crimes set <cit> lethal <0|1>   whether its guards kill ('none' inherits)\n" +
-    "  crimes set <cit> prison <file>  the location its prisoners go to\n" +
+    "  crimes set <cit> prison <file> [<file> ...]\n" +
+    "                                  the cells its prisoners go to, each\n" +
+    "                                  prisoner to one of them at random\n" +
     "                                  ('none' inherits)\n" +
+    "  crimes set <cit> prison add|remove <file>\n" +
+    "                                  add a cell to its own list, or take one\n" +
+    "                                  out\n" +
     "\n" +
     "Offences: " + implode(CRIME_TYPES, ", ") + ".\n" +
     "Points are kept per root citizenship, the one at the top of the parent\n" +
@@ -91,7 +97,8 @@ private string show_law(object crimes, object diplomacy, string cit)
 {
   mapping own, law;
   string * types;
-  string ret, source, prison;
+  string ret, source;
+  string * prisons;
   int i, lethal;
 
   own = diplomacy->query_own_law(cit);
@@ -116,8 +123,13 @@ private string show_law(object crimes, object diplomacy, string cit)
   ret += sprintf("  %-14s %4d%s\n", "lethal", crimes->query_lethal(cit),
                  lethal < 0 ? "  (default)" : "");
 
-  prison = crimes->query_prison(cit);
-  ret += sprintf("  %-14s %s\n", "prison", strlen(prison) ? prison : "-");
+  prisons = crimes->query_prisons(cit);
+  if (!sizeof(prisons))
+    ret += sprintf("  %-14s %s\n", "prison", "-");
+  for (i = 0; i < sizeof(prisons); i++)
+    ret += sprintf("  %-14s %s%s\n", i ? "" : "prison", prisons[i],
+                   (!i && !sizeof(diplomacy->query_own_prisons(cit))) ?
+                     "  (inherited)" : "");
 
   return ret;
 }
@@ -127,6 +139,7 @@ static int cmd(string str, object me, string verb)
   object crimes, diplomacy;
   string * words;
   string cit, field, value;
+  string * cells;
   int points;
 
   if (!str || !strlen(str))
@@ -227,7 +240,23 @@ static int cmd(string str, object me, string verb)
       diplomacy->set_lethal(cit, points);
     }
     else if (field == "prison")
-      diplomacy->set_prison(cit, (value == "none") ? "" : value);
+    {
+      // add and remove edit the citizenship's own list; anything else replaces it
+      cells = diplomacy->query_own_prisons(cit);
+      if ((words[3] == "add" || words[3] == "remove") && sizeof(words) == 5)
+      {
+        if (words[3] == "add")
+          cells = (cells - ({ words[4] })) + ({ words[4] });
+        else
+          cells -= ({ words[4] });
+      }
+      else if (value == "none")
+        cells = ({ });
+      else
+        cells = words[3..];
+
+      diplomacy->set_prisons(cit, cells);
+    }
     else
     {
       notify_fail("Unknown field '" + field + "': use lethal or prison.\n");

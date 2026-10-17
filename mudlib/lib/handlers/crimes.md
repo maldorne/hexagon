@@ -49,13 +49,20 @@ so (`CRIME_RECORD_NPCS`, off by default).
 
 Stored per citizenship in the diplomacy graph, next to its parent, security and
 guard: `law` (offence -> points), `lethal` (1 if its guards kill) and `prison`
-(the location prisoners are taken to). A key a citizenship does not set is
+(the list of cells prisoners are taken to; a save that holds a single location
+file is read as a list of one). A key a citizenship does not set is
 inherited from its parent chain; if nobody up the chain sets it, the crimes
 handler falls back to `CRIME_DEFAULT_LAW`, `CRIME_DEFAULT_LETHAL` and no
-prison. Edit it with the admin `crimes law` and `crimes set` commands.
+prison. Edit it with the admin `crimes law` and `crimes set` commands:
+
+    crimes set <cit> prison <file> [<file> ...]   replace the list of cells
+    crimes set <cit> prison add|remove <file>     add a cell, or take one out
+    crimes set <cit> prison none                  drop them, so they are inherited
 
 Handler API: `query_law(cit)` (the whole code in force), `query_law_points(cit,
-offence)`, `query_lethal(cit)`, `query_prison(cit)`.
+offence)`, `query_lethal(cit)`, `query_prisons(cit)`. In the diplomacy handler,
+`query_prisons(cit)` (inherited), `query_own_prisons(cit)` and
+`set_prisons(cit, files)`.
 
 ## Records
 
@@ -208,8 +215,10 @@ non-guards go through the usual death path.
 counts `query_npc_arrest_points()`). With no points the guards leave the victim
 lying. Otherwise:
 
-- **The citizenship has a prison** (`query_prison`, inherited): the victim is
-  moved there (`move_living("X", prison)`; player or NPC). The sentence is
+- **The citizenship has a prison** (`query_prisons`, inherited): the victim is
+  moved to one of its cells, picked at random (`move_living("X", cell)`; player
+  or NPC), and the sentence remembers which. A cell that does not load counts
+  as no prison. The sentence is
   `points * query_jail_seconds_per_point()` seconds, at most
   `query_jail_max_seconds()`, in real time. It is kept in the handler: players'
   by name and saved in the crimes file, NPCs' in memory only.
@@ -225,8 +234,8 @@ checks `query_jail_left`).
 The cell is `lib/room/justice/jail-cell.c` for a room (inherit it), or the `jail`
 component (`lib/location/components/jail.c`) for a location; both are thin
 wrappers over `lib/room/justice/jail-actions.c`, which holds the commands and
-checks, so they behave the same. The cell goes where prisoners land (the
-citizenship's `prison`). It refuses any typed exit (`query_exit_refusal`: the
+checks, so they behave the same. Every cell where prisoners land (each file in
+the citizenship's `prison`) carries it. It refuses any typed exit (`query_exit_refusal`: the
 room hook of `lib/room/exits.c`, the location's own) to a living whose sentence
 has not ended and says how long is left. There is no heart beat:
 
@@ -234,8 +243,8 @@ has not ended and says how long is left. There is no heart beat:
   and when a player logs in (`watch_login`, from `start_player`);
 - a sentence that has run out is ended there by `release`: the points drop to
   `query_release_keep_percent()` of what they were and the prisoner is told;
-- a player who logs in while still serving anywhere but in the prison is put
-  back in it.
+- a player who logs in while still serving anywhere but in their cell is put
+  back in it (the cell the sentence remembers).
 
 Only typed exits are blocked: teleports and forced moves are not.
 
