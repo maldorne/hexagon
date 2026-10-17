@@ -198,11 +198,11 @@ void attack_by(object ob)
   ::attack_by(ob);
 }
 
-void stop_fight(object ob)
+int stop_fight(object ob, varargs int silent)
 {
   if ( ob && interactive(ob) )
     p_attack_list -= ({ (string)ob->query_name() });
-  ::stop_fight(ob);
+  return ::stop_fight(ob, silent);
 }
 
 int query_player_memory() { return p_memory; }
