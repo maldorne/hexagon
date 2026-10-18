@@ -40,6 +40,18 @@
 #define EFFECT_REACH_AREA   "area"     // everyone in the place
 #define EFFECT_REACH_WIDE   "wide"     // everyone in several places
 
+// Whom an effect is meant for, see query_effect_intent in base_effect.c: it
+// helps its target (a cure, a blessing, a ward), harms it (damage, a curse, a
+// hold), or has no target to judge (hide, climb, a light). An NPC picks its
+// targets by it, allies for a help and enemies for a harm.
+#define EFFECT_INTENT_NONE "none"
+#define EFFECT_INTENT_HELP "help"
+#define EFFECT_INTENT_HARM "harm"
+
+// How many targets a TARGET_TYPE_MANY effect takes unless it says otherwise,
+// see set_max_targets in base_effect.c
+#define EFFECT_DEFAULT_MAX_TARGETS 3
+
 #define PROPERTY_IS_CASTING "casting"
 #define PROP_EFECTO_INAUDIBLE "inaudible"
 #define PROP_EFFECT_TESTER "TEST"

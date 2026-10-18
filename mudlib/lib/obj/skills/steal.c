@@ -61,6 +61,7 @@ void setup()
 
   // the argument is parsed here, not looked up by the effect system
   set_target_type(TARGET_TYPE_PASS);
+  set_effect_intent(EFFECT_INTENT_HARM);
   set_range(0);
 
   add_category(SKILL_TYPE_EXPLORATION, 1);

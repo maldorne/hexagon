@@ -29,6 +29,15 @@
 #define _LANG_EFFECT_PROTECTED_TARGET_POST ".\n"
 #define _LANG_EFFECT_CANT_ON_PRE "You cannot do that to "
 #define _LANG_EFFECT_CANT_ON_POST ".\n"
+// many-target effects: a name that is not here, more names than the effect
+// takes, a target that went away
+#define _LANG_EFFECT_MANY_MISSING_PRE "You do not see '"
+#define _LANG_EFFECT_MANY_MISSING_POST "' here.\n"
+#define _LANG_EFFECT_MANY_TOO_MANY_PRE "You can only choose up to "
+#define _LANG_EFFECT_MANY_TOO_MANY_POST " targets, the rest are ignored.\n"
+#define _LANG_EFFECT_MANY_GONE_PRE "Your target "
+#define _LANG_EFFECT_MANY_GONE_POST " is too far away.\n"
+#define _LANG_EFFECT_HELP_MAX_TARGETS "\tTargets: up to "
 #define _LANG_EFFECT_ROLE_BLOCKS "Your current combat role does not let you do that.\n"
 
 // --- base_effect: start messages ---

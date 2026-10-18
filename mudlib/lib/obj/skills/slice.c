@@ -35,6 +35,7 @@ void setup()
   set_lockout_time(10);
 
   set_target_type(TARGET_TYPE_ONE);
+  set_effect_intent(EFFECT_INTENT_HARM);
   set_range(0);
 
   add_category(SKILL_TYPE_ARMED, 1);

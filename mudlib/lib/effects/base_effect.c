@@ -12,6 +12,7 @@
 #include <living/skills.h>
 #include <living/combat.h>
 #include <translations/combat.h>
+#include <translations/common.h>
 #include <language.h>
 
 inherit "/lib/effects/combat_fixes.c";
@@ -36,6 +37,10 @@ string target_type;       // target type the effect can have
                           //   possible: TARGET_TYPE_NONE, TARGET_TYPE_ONE, TARGET_TYPE_MANY,
                           //             TARGET_TYPE_ALL, TARGET_TYPE_ITEM,
                           //             TARGET_TYPE_PASS, TARGET_TYPE_SELF, TARGET_TYPE_TOUCH
+string effect_intent;     // whether the effect helps or harms its target
+                          //   possible: EFFECT_INTENT_NONE, EFFECT_INTENT_HELP,
+                          //             EFFECT_INTENT_HARM
+int max_targets;          // how many targets a TARGET_TYPE_MANY effect takes
 string* property_checks;  // properties that prevent the effect from running
 // string* shadow_checks;    // functions checked to know if it has shadows
 int effect_range;         // how many exits away a target that moves is still
@@ -131,6 +136,8 @@ void create()
   help_extras = "";
   help_see_also = ({ });
   target_type = TARGET_TYPE_NONE;
+  effect_intent = EFFECT_INTENT_NONE;
+  max_targets = EFFECT_DEFAULT_MAX_TARGETS;
   property_checks = 
     ({ 
       PROPERTY_IS_CASTING, 
@@ -218,6 +225,29 @@ string * query_help_see_also() { return help_see_also; }
 
 void set_target_type(string str) { target_type = str; }
 string query_target_type() { return target_type; }
+
+/**
+ * Declares whom the effect is meant for.
+ * @param  intent  EFFECT_INTENT_HELP when it benefits its target, EFFECT_INTENT_HARM
+ *                 when it hurts it, EFFECT_INTENT_NONE (the default) when
+ *                 there is no target to judge
+ */
+void set_effect_intent(string intent) { effect_intent = intent; }
+
+/**
+ * Whether the effect helps or harms its target: whoever picks targets for it
+ * (an NPC) chooses allies for a help and enemies for a harm.
+ * @return one of the EFFECT_INTENT_* ids
+ */
+string query_effect_intent() { return effect_intent; }
+
+/**
+ * The most targets a TARGET_TYPE_MANY effect takes in one cast; the others the
+ * caster names are dropped.
+ * @param  n  at least 1
+ */
+void set_max_targets(int n) { max_targets = n < 1 ? 1 : n; }
+int query_max_targets() { return max_targets; }
 
 /*
 void add_shadow_to_check(string str) { shadow_checks += ({ str }); }
@@ -497,7 +527,7 @@ int query_needs_faith() { return 0; }
  */
 string * query_targeting_keys()
 {
-  return ({ "target_type", "reach", "start_range", "range", "lockout_time",
+  return ({ "target_type", "intent", "max_targets", "reach", "start_range", "range", "lockout_time",
     "needs_faith", "needs_sight", "touch_protectable", "allow_on_self", "allow_on_mounted", "allow_on_dead",
     "allow_on_passed_out", "allow_on_pacified", "allow_on_hidden",
     "allow_on_moving", "allow_while_mounted", "allow_while_dead",
@@ -507,9 +537,32 @@ string * query_targeting_keys()
 }
 
 /**
+ * How many targets one cast takes, for the targeting data.
+ * @return the maximum of a many-target effect, 1 for a single or touch target,
+ *         0 when it takes the whole place or no target
+ */
+private int query_targets_per_cast()
+{
+  switch (target_type)
+  {
+  case TARGET_TYPE_MANY:
+    return max_targets;
+  case TARGET_TYPE_ONE:
+  case TARGET_TYPE_TOUCH:
+    return 1;
+  }
+
+  return 0;
+}
+
+/**
  * Everything the effect declares about whom it can reach and from where, read
  * from the effect itself (keys of query_targeting_keys):
  *   target_type  the TARGET_TYPE_* the effect declares
+ *   intent       the EFFECT_INTENT_* id: whether it helps or harms its target
+ *   max_targets  how many targets one cast takes: the maximum of a many-target
+ *                effect, 1 for a single or touch target, 0 for the rest (the
+ *                whole place, or no target)
  *   reach        the EFFECT_REACH_* id, see query_effect_reach
  *   start_range  exits away a target may be when the effect starts: 0 unless
  *                the reach is ranged, as targets are looked for in the
@@ -534,13 +587,16 @@ mapping query_targeting()
 
   return ([
     "target_type":          target_type,
+    "intent":               effect_intent,
+    "max_targets":          query_targets_per_cast(),
     "reach":                reach,
     "start_range":          reach == EFFECT_REACH_RANGED ? effect_range : 0,
     "range":                effect_range,
     "lockout_time":         lockout_time,
     "needs_faith":          this_object()->query_needs_faith(),
     "needs_sight":          target_type == TARGET_TYPE_ONE ||
-                            target_type == TARGET_TYPE_TOUCH,
+                            target_type == TARGET_TYPE_TOUCH ||
+                            target_type == TARGET_TYPE_MANY,
     "touch_protectable":    target_type == TARGET_TYPE_TOUCH,
     "allow_on_self":        allow_on_self,
     "allow_on_mounted":     allow_on_mounted,
@@ -682,6 +738,8 @@ string help()
         ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
 
       ret += _LANG_EFFECT_HELP_REACH + query_effect_reach_name();
+      if (target_type == TARGET_TYPE_MANY)
+        ret += _LANG_EFFECT_HELP_MAX_TARGETS + max_targets;
       // only a single target can run away from the effect
       if (member_array(query_effect_reach(), ({ EFFECT_REACH_SINGLE, EFFECT_REACH_RANGED })) != -1)
         ret += _LANG_EFFECT_HELP_FOLLOW + query_effect_follow_name();
@@ -713,6 +771,7 @@ string help()
 }
 
 int cast_effect(string str, object who, int quiet);
+private int run_cast(string str, object * given, object who, int quiet);
 
 /**
  * The level a cast "at a given level" carries (see cast_effect_at): 0 when
@@ -862,8 +921,152 @@ int cast_effect_at(string str, object who, int level, varargs int power)
   return ok;
 }
 
-// Main function, this is where we start running the effect.
+/**
+ * Why a living cannot be the target of this effect, from the permissions the
+ * effect declares (allow_on_*). A single and a many-target effect share it.
+ *
+ * @param  ob      who would be the target
+ * @param  caster  who casts
+ * @return the message that says why, or nil when it can
+ */
+private string target_refusal(object ob, object caster)
+{
+    if (!allow_on_self && caster == ob)
+        return MSG_NO_SELF;
+
+    if (!allow_on_mounted && ob->query_riding())
+        return MSG_NO_ON_MOUNT;
+
+    if (!allow_on_pacified && ob->query_pacify_effect())
+        return _LANG_EFFECT_PROTECTED_TARGET_PRE + ob->query_cap_name() +
+            _LANG_EFFECT_PROTECTED_TARGET_POST;
+
+    if (!allow_on_passed_out && ob->query_property(PASSED_OUT_PROP))
+        return _LANG_EFFECT_CANT_ON_PRE + ob->query_cap_name() +
+            _LANG_EFFECT_CANT_ON_POST;
+
+    if (!allow_on_hidden && ob->query_hidden())
+        return MSG_NO_TARGET;
+
+    return nil;
+}
+
+/**
+ * Whom a many-target effect works on: the objects the caller hands over (an
+ * NPC that already chose them) or else the names the caster typed, separated
+ * by commas or by the word for "and" (the same reading as find_match, so "all"
+ * names everybody). The targets must be living, distinct and valid for the
+ * effect like those of a single-target one; the ones that are not, or that
+ * cannot be found, are dropped with a message to the caster, and no more than
+ * max_targets are kept (the first ones).
+ *
+ * @param  str     what the caster typed
+ * @param  given   the targets chosen by the caller, empty to read str
+ * @param  caster  who casts
+ * @return the targets, empty when none is left
+ */
+private object * find_many_targets(string str, object * given, object caster)
+{
+    object * wanted, * found, * targets;
+    string * names;
+    string name, err;
+    mixed exstr;
+    int i, j;
+
+    wanted = ({ });
+
+    if (sizeof(given))
+        wanted = given;
+    else
+    {
+        names = explode(implode(explode(str, " " + _LANG_AND + " "), ","), ",");
+
+        for (i = 0; i < sizeof(names); i++)
+        {
+            name = trim(names[i]);
+            if (!strlen(name))
+                continue;
+
+            found = find_unique_match(name, environment(caster), !allow_on_dead);
+
+            // items and exits may answer to a name too
+            for (j = sizeof(found) - 1; j >= 0; j--)
+                if (!living(found[j]))
+                    found = delete(found, j, 1);
+
+            if (!sizeof(found))
+                tell_object(caster, _LANG_EFFECT_MANY_MISSING_PRE + name +
+                    _LANG_EFFECT_MANY_MISSING_POST);
+            else
+                wanted += found;
+        }
+    }
+
+    targets = ({ });
+    for (i = 0; i < sizeof(wanted); i++)
+    {
+        // a repeated name or a nil from the caller
+        if (!wanted[i] || member_array(wanted[i], targets) != -1)
+            continue;
+
+        err = target_refusal(wanted[i], caster);
+
+        if (!err && function_exists("post_extra_checks", this_object()) &&
+            stringp(exstr = this_object()->post_extra_checks(wanted[i], caster)))
+            err = exstr;
+
+        if (err)
+            tell_object(caster, err);
+        else
+            targets += ({ wanted[i] });
+    }
+
+    if (sizeof(targets) > max_targets)
+    {
+        tell_object(caster, _LANG_EFFECT_MANY_TOO_MANY_PRE + max_targets +
+            _LANG_EFFECT_MANY_TOO_MANY_POST);
+        targets = targets[0..max_targets - 1];
+    }
+
+    return targets;
+}
+
+/**
+ * Starts the effect on the targets the caller already chose, the entry point
+ * for an NPC (a player names them in the text instead, see cast_effect).
+ * Everything else is checked as in cast_effect.
+ *
+ * @param  targets  the living targets: a many-target effect takes up to
+ *                  query_max_targets of them (the others are dropped), a single
+ *                  or touch one the first; the rest of the target types ignore
+ *                  them and look for theirs as ever
+ * @param  who      the caster
+ * @param  quiet    1 to show no begin messages
+ * @return 1 when the effect started, 0 when it was refused (notify_fail says why)
+ */
+int cast_effect_on(object * targets, object who, varargs int quiet)
+{
+    return run_cast("", targets ? targets : ({ }), who, quiet);
+}
+
+/**
+ * Starts the effect: every check, the search of the target and the rounds.
+ * Whoever types a command goes through cast_effect, an NPC with its targets
+ * already chosen through cast_effect_on.
+ *
+ * @param  str    what the caster named: the target, or the targets separated
+ *                by commas or "and" for a many-target effect
+ * @param  who    the caster
+ * @param  quiet  1 to show no begin messages
+ * @return 1 when the effect started, 0 when it was refused (notify_fail says why)
+ */
 int cast_effect(string str, object who, int quiet)
+{
+    return run_cast(str, ({ }), who, quiet);
+}
+
+// Main function, this is where we start running the effect.
+private int run_cast(string str, object * given, object who, int quiet)
 {
     mixed ob;        // effect target (find_match)
     mixed exstr;     // output of extra_checks (if it exists)
@@ -872,6 +1075,7 @@ int cast_effect(string str, object who, int quiet)
     int my_gp_cost;
     int at_level;    // started by cast_effect_at: no gp, at the given level
     string verb;     // what was typed, to ask what it was meant for
+    string refusal;  // why the named target cannot be the target
     
     if (who) 
         caster = who;
@@ -985,7 +1189,7 @@ int cast_effect(string str, object who, int quiet)
     }
 
     // nothing named for an effect that needs something to act on
-    if ((!str || !strlen(trim(str))) &&
+    if ((!str || !strlen(trim(str))) && !sizeof(given) &&
         (target_type == TARGET_TYPE_ITEM || target_type == TARGET_TYPE_ONE ||
          target_type == TARGET_TYPE_TOUCH || target_type == TARGET_TYPE_MANY))
     {
@@ -1023,39 +1227,19 @@ int cast_effect(string str, object who, int quiet)
 
     if (( target_type == TARGET_TYPE_ONE ) || ( target_type == TARGET_TYPE_TOUCH ))
     {
-        ob = find_one_match( str, environment(caster), !allow_on_dead);
+        // a caller that already chose its target hands it over
+        if (sizeof(given))
+          ob = given[0];
+        else
+          ob = find_one_match( str, environment(caster), !allow_on_dead);
         
         if (ob)
         {
-          if ( !allow_on_self && (caster == ob))
+          refusal = target_refusal(ob, caster);
+          if (refusal)
           {
-            notify_fail(MSG_NO_SELF);
+            notify_fail(refusal);
             return 0;
-          }
-  
-          if ( !allow_on_mounted && ob->query_riding() )
-          {
-            notify_fail(MSG_NO_ON_MOUNT);
-            return 0;
-          }
-
-          if (!allow_on_pacified && ob->query_pacify_effect())
-          {
-            notify_fail(_LANG_EFFECT_PROTECTED_TARGET_PRE +
-              ob->query_cap_name() + _LANG_EFFECT_PROTECTED_TARGET_POST);
-            return 0;
-          }
-
-          if (!allow_on_passed_out && ob->query_property(PASSED_OUT_PROP))
-          {
-            notify_fail(_LANG_EFFECT_CANT_ON_PRE +
-              ob->query_cap_name() + _LANG_EFFECT_CANT_ON_POST);
-            return 0;
-          }
-
-          if (!allow_on_hidden && ob->query_hidden()) 
-          {
-            ob = 0;
           }
         }
 
@@ -1071,7 +1255,7 @@ int cast_effect(string str, object who, int quiet)
         }
     }
     else if ( target_type == TARGET_TYPE_MANY )
-        ob = find_unique_match( str, environment(caster), !allow_on_dead);
+        ob = find_many_targets(str, given, caster);
 
     else if ( target_type == TARGET_TYPE_ITEM )
     {      
@@ -1103,7 +1287,10 @@ int cast_effect(string str, object who, int quiet)
         // effects cannot be run on items in other characters' inventories,
         // only on your own inventory or the caster's environment
         
-        ob = find_one_match( str, caster );
+        if (sizeof(given))
+            ob = given[0];
+        else
+            ob = find_one_match( str, caster );
 
         if (!ob)
             ob = find_one_match( str, environment(caster), !allow_on_dead);
@@ -1140,6 +1327,14 @@ int cast_effect(string str, object who, int quiet)
       (target_type == TARGET_TYPE_ONE || target_type == TARGET_TYPE_TOUCH)&& 
       // (effect_range > 0) &&
       (ob != caster) )
+    {
+        notify_fail(MSG_NO_BLIND);
+        return 0;
+    }
+
+    // the same for a many-target one: nobody but ourselves
+    if (caster->query_timed_property(PROPERTY_BLINDED) &&
+      target_type == TARGET_TYPE_MANY && sizeof(ob - ({ caster })))
     {
         notify_fail(MSG_NO_BLIND);
         return 0;
@@ -1287,6 +1482,7 @@ int hb_effect(object caster, mixed *params, int time)
     int which_round;    /* current round */
     mixed target;
     mixed out_of_range; /* where we store target when it goes out of range */
+    object * kept;      /* the targets of a many-target effect still in range */
     mixed mess;         /* message or function of the current round */
     int quiet;
     int ret;
@@ -1398,29 +1594,43 @@ int hb_effect(object caster, mixed *params, int time)
              We don't allow many-target effects; either we have single-target
              effects or we affect every character in the
              habitacion. ***/
-        /* 
-         * out_of_range = ({ });
-         * for (i = sizeof(target)-1; i >= 0; i-- )
-         *    
-         *   // Remove non-living targets
-         *   if ( !target[i] || !living(target[i]) )
-         *        target = delete(target, i, 1);
-         *
-         *    // Targets out of sight or range go into out_of_range
-         *    else if (!RANGE_HANDLER->check_in_range(caster, target[i], effect_range))
-         *    {
-         *        out_of_range += ({ target[i] });
-         *        target = delete(target, i, 1);
-         *    }
-         *
-         * // If we ran out of targets, end:
-         * if(!sizeof(target))
-         * {
-         *    tell_object(caster,"Your effect's target has vanished.\n");
-         *    return 0;
-         * }
-         * break;
-         */
+        // Restored 10/2026: an effect names up to max_targets distinct
+        // targets, each one valid and in range like a single target; the
+        // area effects (TARGET_TYPE_ALL) stay everybody in the place.
+        out_of_range = ({ });
+        kept = ({ });
+
+        for (i = 0; i < sizeof(target); i++)
+        {
+            // Remove vanished and non-living targets
+            if (!target[i] || !living(target[i]))
+                continue;
+
+            // Check each one is within range: without one, it must still be here
+            if ((effect_range <= 0 && environment(target[i]) != environment(caster)) ||
+                (effect_range > 0 && !RANGE_HANDLER->check_in_range(caster, target[i], effect_range)))
+            {
+                out_of_range += ({ target[i] });
+                tell_object(caster, _LANG_EFFECT_MANY_GONE_PRE +
+                    target[i]->query_cap_name() + _LANG_EFFECT_MANY_GONE_POST);
+            }
+            else
+                kept += ({ target[i] });
+        }
+
+        // the ones lost stay lost in the rounds that follow
+        target = kept;
+        params[0] = kept;
+
+        // If we ran out of targets, end:
+        if (!sizeof(target))
+        {
+            tell_object(caster, MSG_DISSAPPEAR);
+            tell_room(environment(caster), MSG_CANNOT_NOW_ROOM, caster);
+            call_out("end_effect_now", 0, caster);
+            return 0;
+        }
+        break;
 
     case TARGET_TYPE_ALL:
         out_of_range = ({ });
