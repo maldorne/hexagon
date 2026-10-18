@@ -87,8 +87,7 @@ int unarmed_attack(object def, object att)
 {
   mixed *att_val;
   mixed damage;
-  int absorbed_damage, j, percent;
-  object * obs;
+  int absorbed_damage;
   
   defender = def;
   attacker = att;
@@ -101,28 +100,10 @@ int unarmed_attack(object def, object att)
     absorbed_damage = 0;
 
     // look for the item you use to protect yourself
-    if (damage[1] != "")
-    {
-      obs = defender->query_worn_ob();
-      for (j = 0; j < sizeof(obs); j++)
-      {
-        if (obs[j]->query_localization() == damage[1])
-        {
-          // % of damage taken by the armour
-          if (obs[j]->query_ac() + obs[j]->query_ac_bon_against(BLUNT) > 0) 
-          {
-              if ((obs[j]->query_ac() + obs[j]->query_ac_bon_against(BLUNT)) > 10)
-                percent = 100;
-              else
-                percent = (obs[j]->query_ac() + obs[j]->query_ac_bon_against(BLUNT)) * 10;
+    // (% of damage taken by the armour)
+    if (damage[2] != nil)
+      absorbed_damage = defender->absorb_hit(damage[2], BLUNT, damage[0]);
 
-              absorbed_damage = damage[0] * percent / 100;
-          }
-          break;
-        }
-      }
-    }
- 
     // final damage
     defender->adjust_hp(-(damage[0] - absorbed_damage), attacker);
 
@@ -464,6 +445,7 @@ int do_combat_styles(string style)
 
 // This needs the attacker's object too..
 // Iolo's localization system, neverbot 4/03
+// returns ({ damage, location name, worn piece covering it or nil })
 mixed *recalc_damage(int i)
 {
   int hps;
@@ -471,15 +453,12 @@ mixed *recalc_damage(int i)
 
   hps = 0;
 
-  local = defender->obtain_location();
-  
-  if (!local) 
-    local = ({ 1, "" });
+  local = defender->pick_hit_location();
   
   // modifier by body localization
   hps = (int)((float)i * (float)local[0]);
     
-  return ({hps, local[1]});
+  return ({hps, local[1], local[2]});
 }
 
 string * parse_messages(string * messages, string local, string att_name, string def_name)

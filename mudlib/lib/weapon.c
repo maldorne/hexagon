@@ -254,33 +254,6 @@ void add_extra_damage(string attack,   // name of the attack it goes with
   extra_damage[attack] += ({ ({ type, num_dice, type_dice, bonus, messages }) });
 }
 
-// Armour absorption of elemental damage: the piece absorbs by its base ac,
-// modified by its own resistance to the element (negative means a weakness,
-// and the damage grows). The wearer's global resistance is not applied here,
-// since wearing the piece already adds its resistance to it.
-int query_elemental_absorbed(object piece, int type, int damage)
-{
-  mixed piece_resistance;
-  int percent;
-
-  percent = piece->query_ac_against(type) * 10;
-  if (percent > 100)
-    percent = 100;
-  if (percent < 0)
-    percent = 0;
-
-  piece_resistance = piece->query_property(RESISTANCES[type - sizeof(AC_TYPES)]);
-  if (intp(piece_resistance))
-    percent += piece_resistance;
-
-  if (percent > 100)
-    percent = 100;
-  if (percent < -100)
-    percent = -100;
-
-  return damage * percent / 100;
-}
-
 // workout_attack taken from unarmed_combat to make them similar, neverbot 6/03
 mixed * workout_attack(int type, int rolls, int dice, int roll_add)
 {
@@ -388,22 +361,20 @@ mixed * workout_attack(int type, int rolls, int dice, int roll_add)
 } /* workout_attack */
 
 // similar to the localization sytem Iolo used in Rl
+// returns ({ damage, location name, worn piece covering it or nil })
 mixed * recalc_damage(int i)
 {
   int hps;
   mixed local;
 
   hps = 0;
-  local = defender->obtain_location();
-
-  if (!local)
-    local = ({ 1, "" });
+  local = defender->pick_hit_location();
 
   // apply the modifications for the localization
   // (depending of the place, we'll do more or less damage with the same hit)
   hps = (int)((float)i * local[0]);
 
-  return ({ hps, local[1] });
+  return ({ hps, local[1], local[2] });
 }
 
 int weapon_attack(object def, object att)
@@ -414,7 +385,7 @@ int weapon_attack(object def, object att)
   mixed * extras;
   object * obs;
   object where;
-  int i, j, k, m, ret, percent;
+  int i, k, m, ret;
   string * attack_names;
 
   attack_names = keys(attacks);
@@ -463,44 +434,26 @@ int weapon_attack(object def, object att)
       }
 
       // look for the protection item to ruin it
-      if (damage[1] != "")
+      if (damage[2] != nil)
       {
-        obs = defender->query_worn_ob();
-        for (j = 0; j < sizeof(obs); j++)
-        {
-          if (obs[j]->query_localization() == damage[1])
-          {
-            // if we found the armour protecting the localization, ruin both objects 
-            // if we did not found the armour, do not ruin the weapon
-            where = obs[j];
+        // if we found the armour protecting the localization, ruin both objects 
+        // if we did not found the armour, do not ruin the weapon
+        where = damage[2];
 
-            // elemental attacks use the elemental rule of the armour
-            if (attacks[attack_names[i]][0] >= sizeof(AC_TYPES))
-              absorbed_damage = query_elemental_absorbed(obs[j],
-                                  attacks[attack_names[i]][0], damage[0]);
-            // calculate damage percentage absorbed by the armour
-            else if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 0) 
-            {
-              if (obs[j]->query_ac_against(attacks[attack_names[i]][0]) > 10)
-                percent = 100;
-              else
-                percent = obs[j]->query_ac_against(attacks[attack_names[i]][0]) * 10;
-               
-              absorbed_damage = damage[0] * percent / 100;
-            }
-            
-            // the extra_damage of a physical hit are absorbed by the same piece
-            for (m = 0; m < sizeof(extra_hits); m++)
-              extra_absorbed += query_elemental_absorbed(obs[j], extra_hits[m][0],
-                                                         extra_hits[m][1]);
+        // calculate damage percentage absorbed by the armour
+        // (elemental attacks use the elemental rule of the armour)
+        absorbed_damage = defender->absorb_hit(where, attacks[attack_names[i]][0],
+                                               damage[0]);
 
-            // if the armour did not absorbed anything (equiment without ac)
-            // we make full damage AND ruin the armour
-            where->hit_item((absorbed_damage > 0) ? absorbed_damage : 1);
-            this_object()->hit_item(1);
-            break;
-          }
-        }
+        // the extra_damage of a physical hit are absorbed by the same piece
+        for (m = 0; m < sizeof(extra_hits); m++)
+          extra_absorbed += defender->absorb_hit(where, extra_hits[m][0],
+                                                 extra_hits[m][1]);
+
+        // if the armour did not absorbed anything (equiment without ac)
+        // we make full damage AND ruin the armour
+        where->hit_item((absorbed_damage > 0) ? absorbed_damage : 1);
+        this_object()->hit_item(1);
       }
 
       // tell_object(find_living("neverbot"), "@@ "+attacker->query_cap_name()+": "+

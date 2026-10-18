@@ -55,6 +55,25 @@ does not exist yet.
   with the tokens `$weapon$` (already "Tu <short>" or "<article> <short> de <owner>"),
   `$attacker$` and `$defender$`.
 
+## Hit locations
+
+Aiming at a body part is an API of the defender (`living/wear.c`), shared by
+weapons, unarmed combat, spells and skills:
+
+- `pick_hit_location()` -> `({ multiplier, location, piece })`: the race's
+  `obtain_location()` (random location, damage multiplier) plus the worn piece
+  covering it, or nil. A living without locations gives `({ 1.0, "", nil })`.
+- `query_armour_at(location)`: the first worn piece whose `query_localization()`
+  is that location, or nil.
+- `absorb_hit(piece, type, damage)`: how much of `damage` of that type the piece
+  absorbs (physical or elemental rule, see Armour absorption above; elemental can
+  be negative for a weakness). It only computes: the caller wears the piece down
+  with `piece->hit_item(n)` when it wants to, after deciding the final damage.
+
+A caller scales its damage by the multiplier, subtracts `absorb_hit`, and passes
+the location name to its message. Weapons and unarmed combat get the triple
+through `recalc_damage`, which returns `({ damage, location, piece })`.
+
 ## Tuning
 
 - **Hit more**: `adjust_tmp_tohit_bon(n)` (temporary), the class

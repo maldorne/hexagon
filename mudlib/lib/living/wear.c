@@ -125,6 +125,105 @@ object * query_worn_ob(varargs int type)
   return ret;
 }
 
+/**
+ * The worn piece that covers a body location.
+ *
+ * @param location name of the location (as given by obtain_location)
+ * @return the first worn piece whose localization is that location, or nil
+ *         (also nil for an empty location)
+ */
+object query_armour_at(string location)
+{
+  int i;
+
+  if (!location || location == "")
+    return nil;
+
+  for (i = 0; i < sizeof(worn_objects); i++)
+    if (worn_objects[i] && worn_objects[i]->query_localization() == location)
+      return worn_objects[i];
+
+  return nil;
+}
+
+/**
+ * Picks a body location to hit (random, as the race decides) and the worn piece
+ * that covers it. Weapons, unarmed combat, spells and skills all aim through it.
+ *
+ * @return ({ damage multiplier, location name, covering piece or nil }). A living
+ *         without locations gives ({ 1.0, "", nil }).
+ */
+mixed * pick_hit_location()
+{
+  mixed local;
+
+  local = this_object()->obtain_location();
+
+  if (!local)
+    return ({ 1.0, "", nil });
+
+  return ({ local[0], local[1], query_armour_at(local[1]) });
+}
+
+// Armour absorption of elemental damage: the piece absorbs by its base ac,
+// modified by its own resistance to the element (negative means a weakness,
+// and the damage grows). The wearer's global resistance is not applied here,
+// since wearing the piece already adds its resistance to it.
+private int elemental_absorbed(object piece, int type, int damage)
+{
+  mixed piece_resistance;
+  int percent;
+
+  percent = piece->query_ac_against(type) * 10;
+  if (percent > 100)
+    percent = 100;
+  if (percent < 0)
+    percent = 0;
+
+  piece_resistance = piece->query_property(RESISTANCES[type - sizeof(AC_TYPES)]);
+  if (intp(piece_resistance))
+    percent += piece_resistance;
+
+  if (percent > 100)
+    percent = 100;
+  if (percent < -100)
+    percent = -100;
+
+  return damage * percent / 100;
+}
+
+/**
+ * How much of a hit a worn piece absorbs. It only computes: wearing the piece
+ * down (piece->hit_item(n)) is up to the caller.
+ *
+ * @param piece the covering piece (see pick_hit_location)
+ * @param type damage type: a physical type (AC_TYPES) or an elemental one
+ * @param damage the damage before absorption
+ * @return the absorbed damage; elemental damage may give a negative value
+ *         when the piece is weak against the element
+ */
+int absorb_hit(object piece, int type, int damage)
+{
+  int percent;
+
+  // elemental attacks use the elemental rule of the armour
+  if (type >= sizeof(AC_TYPES))
+    return elemental_absorbed(piece, type, damage);
+
+  // calculate damage percentage absorbed by the armour
+  if (piece->query_ac_against(type) > 0)
+  {
+    if (piece->query_ac_against(type) > 10)
+      percent = 100;
+    else
+      percent = piece->query_ac_against(type) * 10;
+
+    return damage * percent / 100;
+  }
+
+  return 0;
+}
+
 void reset_types()
 {
   int e;
