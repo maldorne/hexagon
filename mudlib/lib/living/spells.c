@@ -66,6 +66,27 @@ void spell_commands()
 }
 
 /**
+ * Where a known spell is now: the game's spells catalogue says it (see
+ * /lib/tables/spells.c), so a spell that moved is still found; the path kept
+ * when it was learned is the fallback.
+ * @param  id  the spell's id
+ * @return the path, or nil when the spell is not known
+ */
+private string spell_path(string id)
+{
+  object catalogue;
+  string path;
+
+  if (!mappingp(spells) || !arrayp(spells[id]) || !sizeof(spells[id]))
+    return nil;
+
+  catalogue = table("spells", this_object());
+  path = catalogue ? catalogue->query_spell_path(id) : nil;
+
+  return path ? path : spells[id][S_OBJECT];
+}
+
+/**
  * The known spell named at the start of a text, by its name or an alias,
  * whole words only. The longest name wins, so a spell whose name begins
  * another's is not taken for it.
@@ -75,7 +96,7 @@ void spell_commands()
 private mixed * match_spell(string str)
 {
   string * ids, * names;
-  string name, best_path, best_rest;
+  string name, path, best_path, best_rest;
   object ob;
   int i, n, best;
 
@@ -88,12 +109,12 @@ private mixed * match_spell(string str)
 
   for (i = 0; i < sizeof(ids); i++)
   {
-    if (!arrayp(spells[ids[i]]) || !sizeof(spells[ids[i]]) ||
-        !stringp(spells[ids[i]][S_OBJECT]))
+    path = spell_path(ids[i]);
+    if (!stringp(path))
       continue;
 
     ob = nil;
-    catch(ob = load_object(spells[ids[i]][S_OBJECT]));
+    catch(ob = load_object(path));
     if (!ob)
       continue;
 
@@ -107,14 +128,14 @@ private mixed * match_spell(string str)
       if (str == name)
       {
         best = strlen(name);
-        best_path = spells[ids[i]][S_OBJECT];
+        best_path = path;
         best_rest = "";
       }
       else if (strlen(str) > strlen(name) &&
                str[0..strlen(name)] == name + " ")
       {
         best = strlen(name);
-        best_path = spells[ids[i]][S_OBJECT];
+        best_path = path;
         best_rest = str[strlen(name) + 1..];
       }
     }
@@ -160,8 +181,8 @@ int show_spells(string str)
   for (i = 0; i < sizeof(ids); i++)
   {
     ob = nil;
-    if (arrayp(spells[ids[i]]) && sizeof(spells[ids[i]]))
-      catch(ob = load_object(spells[ids[i]][S_OBJECT]));
+    if (spell_path(ids[i]))
+      catch(ob = load_object(spell_path(ids[i])));
     names += ({ ob ? capitalize(ob->query_effect_name()) : ids[i] });
   }
 

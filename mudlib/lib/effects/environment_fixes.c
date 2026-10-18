@@ -12,12 +12,14 @@ mapping query_environment_mods() { return environment_mods; }
 // Adjust the damage according to the type of room the caster is in, using the
 // information in environment_mods.
 int implement_environment_mods(object caster, int damage) {
-  string location;
+  mixed location;
   int adj;
 
+  // a location may keep something else under this property: only a kind of
+  // place (a string) can have a modifier
   location = environment(caster)->query_property("location");
   // Nothing to adjust: return the original damage.
-  if(!location || !environment_mods ||
+  if(!stringp(location) || !environment_mods ||
     undefinedp(environment_mods[location]))
       return damage;
 

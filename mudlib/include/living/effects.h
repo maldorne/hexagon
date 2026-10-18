@@ -18,6 +18,10 @@
 #define EFFECT_CAT_NEUTRAL "neutral"
 #define EFFECT_CAT_MAJOR   "major"
 
+// Kinds of spell categories, see /lib/tables/spells.c
+#define SPELL_CATEGORY_SPHERE "sphere"
+#define SPELL_CATEGORY_SCHOOL "school"
+
 #define TARGET_TYPE_NONE "none"
 #define TARGET_TYPE_ONE "one"
 #define TARGET_TYPE_MANY "many"

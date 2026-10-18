@@ -57,7 +57,8 @@ int attack_ob(object ob)
   return 0;
 }
 
-int cast() 
+// formular, masked: the action passes what was typed after the verb
+int cast(varargs string str)
 {
   tell_object(my_player, "¿Piensas formular hechizos siendo un espíritu?\n");
   return 1;

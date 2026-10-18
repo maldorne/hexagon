@@ -161,14 +161,20 @@ string * query_categories() { return keys(categories); }
 void set_categories(mapping str) { categories = map_copy(str); }
 void add_category(string str, int level) { categories[str] = level; }
 
-// Translate a category id (English, see <living/skills.h>) to its display
-// name. Ids with no mapping (e.g. spell spheres) are shown as-is.
+// Translate a category id to its display name: a skill category (English,
+// see <living/skills.h>) from the translations, a sphere or school of spells
+// from the game's spells table (/lib/tables/spells.c).
 private string category_display(string id)
 {
   string disp;
+  object spells;
 
   disp = _LANG_SKILL_CATEGORIES[id];
-  return disp ? disp : id;
+  if (disp)
+    return disp;
+
+  spells = table("spells", this_object());
+  return spells ? spells->query_spell_category_name(id) : id;
 }
 
 int query_combat_role_needed() { return combat_role_needed; }

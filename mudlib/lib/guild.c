@@ -340,14 +340,18 @@ void set_schools(mapping map) { schools = map ? ([ ]) + map : ([ ]); }
 mapping query_schools() { return ([ ]) + schools; }
 
 /**
- * The name a player reads for a category of spells. A game whose ids are not
- * readable as they are (no accents in an id) masks this.
+ * The name a player reads for a category of spells, from the game's spells
+ * table (/lib/tables/spells.c).
  * @param  category  a sphere or school id
  * @return the display name
  */
 string query_category_name(string category)
 {
-  return capitalize(category);
+  object spells;
+
+  spells = table("spells", this_object());
+  return spells ? spells->query_spell_category_name(category) :
+                  capitalize(category);
 }
 
 /**
