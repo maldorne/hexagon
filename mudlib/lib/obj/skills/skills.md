@@ -86,17 +86,21 @@ No skill or spell keeps its own `call_out` chain to repeat something: anything p
 
 An effect that damages or heals describes one cast in `mapping query_balance(object caster)` (`BASE_EFFECT`; the default returns nil: neither). It is a pure function for the `balance` command (`lib/cmds/admin/balance.c`), which writes the numbers of a game as CSV files: no rolls, no messages, no change of state, and the numbers come from the same helpers the cast uses, so there is one formula. It reads the caster's level and power the way the cast does (`PROPERTY_CAST_LEVEL` and `PROPERTY_CAST_POWER`, see "At a level"), and the stats of the caster.
 
-`make_balance(caster, kind, targets, rounds, range, type, note)` builds the answer; the keys:
+`make_balance(caster, kind, rounds, range, type, note [, extra])` builds the answer; the keys:
 
 | key | what |
 |---|---|
 | `kind` | `"damage"` or `"heal"` |
 | `average`, `minimum`, `maximum` | hit points one target gets over the whole cast, all rounds (average is a float; the other two ints) |
-| `targets` | `"one"` or `"area"` (the amounts are per target) |
 | `rounds` | combat rounds from the start of the cast until the last of it is delivered |
 | `damage_type` | the damage type, `""` when none |
 | `cost` | the gp of the cast: a spell at its lowest category level and the caster's power, a skill its `gp_cost` |
-| `note` | short free text: `"per hit"`, `"undead only"`, what was assumed |
+| `note` | short free text: `"per hit"`, `"undead only"`, what was assumed; only what cannot be a number |
+| `extra` | optional mapping name -> int, float or string with numbers only some effects have (see below) |
+
+The targeting data are not passed: `make_balance` reads them from the effect itself with `query_targeting()` (names in `query_targeting_keys()`), so every row carries what the effect really declares: `target_type` (the `TARGET_TYPE_*`), `reach` (`EFFECT_REACH_*`), `start_range` (exits away a target may be when the effect starts: 0 unless the reach is ranged, as targets are looked for in the caster's place), `range` (`query_range`: exits away a target that moves is still followed once it has started, measured by the range handler, at most 10), `lockout_time`, `needs_faith`, `needs_sight` (a blinded caster cannot use it on another), `touch_protectable` (a protector of the target may take the touch) and every `allow_*` permission of `BASE_EFFECT`. A base that adds a targeting rule overrides `query_targeting_keys` and `query_targeting`.
+
+`extra` is for what only some effects have: the dump adds one column per name (the union over all effects, empty where an effect lacks it), after `cost`. Used so far: projectile spells `projectiles`, `fired_per_round`, `hit_penalty_per_step`; area spells `rings` (places beyond the caster's that are reached) and `ring_percent` (the damage left in each, `"100/66/44"`); the inferno `caster_burn_percent`; the disintegrate ray `hit_penalty_far`.
 
 Every projectile or touch is assumed to land and no target to resist, unless the note says otherwise. Helpers of the base: `dice_range(dice, faces, bonus)` gives `({ minimum, average, maximum })`, `scale_range(caster, range)` applies the `fix_amount` of the spell base (stat adjustment) to it and `repeat_range(range, times)` repeats it. Those with an amount that depends on the situation (hit location, armour class, the gp of the caster) answer for the plain case and say so in the note.
 

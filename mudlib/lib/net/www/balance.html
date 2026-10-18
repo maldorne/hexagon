@@ -134,6 +134,7 @@ tbody tr:hover td { background: var(--accent-soft); }
 .tip .r b { margin-left: auto; font-family: var(--mono); font-weight: 500; }
 .tip .r.hot { font-weight: 650; background: var(--accent-soft); margin: 0 -9px 3px; padding: 3px 9px; }
 .tip .r.dim { opacity: 0.55; }
+.legend span { cursor: default; }
 .legend span.hot { color: var(--ink); font-weight: 600; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 12px; color: var(--ink-soft); }
 .legend span { display: inline-flex; gap: 6px; align-items: center; }
@@ -281,7 +282,7 @@ function buildModel(data) {
       if (!a) {
         a = m.byId[source + ':' + id] = {
           key: source + ':' + id, id, source, name: r.name || id, file: r.file, base: r.base || '',
-          categories: r.categories || '', kind: r.kind, targets: r.targets, damage_type: r.damage_type || '',
+          categories: r.categories || '', kind: r.kind, target_type: r.target_type || '', reach: r.reach || '', range: isNum(r.range) ? num(r.range) : '', damage_type: r.damage_type || '',
           note: r.note || '', gained: gained[id] ? gained[id].level : NaN,
           guilds: gained[id] ? gained[id].guilds : [], cells: {},
         };
@@ -481,12 +482,9 @@ function lineChart(series, opts) {
     legend.querySelectorAll('span[data-i]').forEach(sp => sp.classList.toggle('hot', hot && series[sp.dataset.i] === hot));
   };
 
-  svg.addEventListener('mousemove', ev => {
+  // the cursor, the dot and the tooltip at a level, with one line picked out
+  const showAt = (lv, hot) => {
     const box = svg.getBoundingClientRect();
-    const px = (ev.clientX - box.left) / box.width * W;
-    const py = (ev.clientY - box.top) / box.height * H;
-    const lv = Math.max(1, Math.min(20, Math.round((px - L) / (W - L - R) * 19 + 1)));
-    const hot = lineAt(px, py);
     setHot(hot);
     cursor.setAttribute('x1', x(lv)); cursor.setAttribute('x2', x(lv)); cursor.setAttribute('visibility', 'visible');
     const rows = series.map(se => [se, (se.points.find(p => p[0] === lv) || [])[1]]).filter(r => isFinite(r[1]))
@@ -502,11 +500,22 @@ function lineChart(series, opts) {
     const left = (x(lv) / W) * box.width;
     tip.style.left = (left > box.width * 0.6 ? left - tip.offsetWidth - 12 : left + 12) + 'px';
     tip.style.top = '8px';
-  });
-  svg.addEventListener('mouseleave', () => {
+  };
+  const hide = () => {
     tip.hidden = true; cursor.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); setHot(null);
+  };
+  svg.addEventListener('mousemove', ev => {
+    const box = svg.getBoundingClientRect();
+    const px = (ev.clientX - box.left) / box.width * W;
+    const py = (ev.clientY - box.top) / box.height * H;
+    const lv = Math.max(1, Math.min(20, Math.round((px - L) / (W - L - R) * 19 + 1)));
+    showAt(lv, lineAt(px, py));
   });
-  const legend = el('div', { class: 'legend' }, series.map((se, i) => el('span', { 'data-i': i },
+  svg.addEventListener('mouseleave', hide);
+  // a name in the legend picks its line out at the last level it reaches
+  const lastLevel = se => { const pts = se.points.filter(p => isFinite(p[1])); return pts.length ? pts[pts.length - 1][0] : 20; };
+  const legend = el('div', { class: 'legend' }, series.map((se, i) => el('span', {
+    'data-i': i, onmouseenter: () => showAt(lastLevel(se), se), onmouseleave: hide },
       el('span', { class: 'swatch', style: `background:${se.color};${se.dashed ? 'opacity:.7' : ''}` }), se.name)));
   wrap.append(svg, tip, legend);
   return wrap;
@@ -548,7 +557,7 @@ function renderOutliers() {
     const lg = isFinite(a.gained) ? a.gained : 1;
     const rg = ratio(a, lg), r20 = ratio(a, 20);
     rows.push({
-      a, name: a.name, source: a.source, kind: a.kind || '', targets: a.targets || '', gained: isFinite(a.gained) ? a.gained : '',
+      a, name: a.name, source: a.source, kind: a.kind || '', target_type: a.target_type || '', reach: a.reach || '', range: isFinite(a.range) ? a.range : '', gained: isFinite(a.gained) ? a.gained : '',
       at_gain: measure(a, lg), ratio_gain: rg, at_20: measure(a, 20), ratio_20: r20,
       worst: Math.max(Math.abs(Math.log(rg) || 0), Math.abs(Math.log(r20) || 0)),
       guilds: a.guilds.join(', '), note: a.note,
@@ -558,7 +567,9 @@ function renderOutliers() {
     { key: 'name', label: 'ability' },
     { key: 'source', label: 'is' },
     { key: 'kind' },
-    { key: 'targets' },
+    { key: 'target_type' },
+    { key: 'reach' },
+    { key: 'range', num: true },
     { key: 'gained', label: 'gained at', num: true },
     { key: 'at_gain', label: 'at gain', num: true },
     { key: 'ratio_gain', label: 'vs peers at gain', num: true, render: r => flagFor(r.ratio_gain) },

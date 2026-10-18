@@ -35,6 +35,11 @@ private string * effect_ids;
 private mapping effect_paths;
 private int cursor;
 private int running;
+// the columns of the effects file that depend on the effects: their
+// targeting data and the extra numbers some of them add; known after a first
+// pass over all of them, which comes before the rows are written
+private string * targeting_keys, * extra_keys;
+private int scanning;
 
 void setup()
 {
@@ -483,18 +488,29 @@ void step_baselines()
 // ===== spells and skills =====
 
 /**
- * The spells (or skills) to evaluate, id -> path, and the headers of their
- * file.
+ * The spells (or skills) to evaluate, id -> path. The file and its header wait
+ * for the first pass (see scan_effect), which finds the columns.
  */
-private void start_effects(string file, mapping found)
+private void start_effects(mapping found)
 {
   effect_paths = found;
   effect_ids = sort_array(map_indices(found));
   cursor = 0;
+  targeting_keys = ({ });
+  extra_keys = ({ });
+  scanning = 1;
+}
 
-  start_file(file, ({ "spell", "name", "file", "base", "categories", "kind",
-    "targets", "damage_type", "level", "power", "average", "minimum",
-    "maximum", "rounds", "cost", "note" }));
+/**
+ * Writes the header of the effects file once the first pass has found the
+ * columns: the fixed ones, the targeting data every effect declares and the
+ * extra numbers of some.
+ */
+private void start_effects_file(string file)
+{
+  start_file(file, ({ "spell", "name", "file", "base", "categories", "kind" }) +
+    targeting_keys + ({ "damage_type", "level", "power", "average", "minimum",
+    "maximum", "rounds", "cost" }) + extra_keys + ({ "note" }));
 }
 
 /**
@@ -599,6 +615,39 @@ private mapping evaluate(object effect, int level, int power)
 }
 
 /**
+ * First pass over a spell or skill: takes the names of its targeting data and
+ * of the extra numbers it adds, to make the columns of the file.
+ */
+private void scan_effect(string path, int powers)
+{
+  mapping balance;
+  object effect;
+  string * keys;
+  int i;
+
+  effect = try_load(path);
+  if (!effect || !function_object("query_balance", effect))
+    return;
+
+  balance = evaluate(effect, 1, powers ? 1 : 0);
+  if (!balance)
+    return;
+
+  if (!sizeof(targeting_keys))
+    targeting_keys = effect->query_targeting_keys();
+
+  if (!mappingp(balance["extra"]))
+    return;
+
+  keys = map_indices(balance["extra"]);
+  for (i = 0; i < sizeof(keys); i++)
+    if (member_array(keys[i], extra_keys) == -1)
+      extra_keys += ({ keys[i] });
+
+  extra_keys = sort_array(extra_keys);
+}
+
+/**
  * Writes the rows of a spell or skill, one per level and power; nothing for
  * one that neither damages nor heals.
  *
@@ -610,7 +659,8 @@ private void dump_effect(string file, string id, string path, int powers)
   mapping balance;
   object effect;
   string base;
-  int level, power, last;
+  mixed * row;
+  int level, power, last, i;
 
   effect = try_load(path);
   if (!effect || !function_object("query_balance", effect))
@@ -629,11 +679,23 @@ private void dump_effect(string file, string id, string path, int powers)
       if (!balance)
         continue;
 
-      put_row(file, ({ id, effect->query_effect_name(), path, base,
-        category_text(effect), balance["kind"], balance["targets"],
-        english_type(balance["damage_type"]), level, powers ? power : nil,
-        balance["average"], balance["minimum"], balance["maximum"],
-        balance["rounds"], balance["cost"], balance["note"] }));
+      row = ({ id, effect->query_effect_name(), path, base,
+        category_text(effect), balance["kind"] });
+
+      for (i = 0; i < sizeof(targeting_keys); i++)
+        row += ({ balance[targeting_keys[i]] });
+
+      row += ({ english_type(balance["damage_type"]), level,
+        powers ? power : nil, balance["average"], balance["minimum"],
+        balance["maximum"], balance["rounds"], balance["cost"] });
+
+      // the extra numbers this effect has, empty for the columns it lacks
+      for (i = 0; i < sizeof(extra_keys); i++)
+        row += ({ mappingp(balance["extra"]) ?
+                  balance["extra"][extra_keys[i]] : nil });
+
+      row += ({ balance["note"] });
+      put_row(file, row);
     }
 
   dummy->remove_timed_property(PROPERTY_CAST_LEVEL);
@@ -641,27 +703,34 @@ private void dump_effect(string file, string id, string path, int powers)
 }
 
 /**
- * The next spells of the game, a few each time.
+ * Goes through the next effects of the list, a few each time: first to find
+ * the columns, then to write the rows.
+ *
+ * @param  step    the function to call again for the next ones
+ * @param  powers  whether the power changes the numbers (a spell) or not
  */
-void step_spells()
+private void step_effects(string step, string file, int powers)
 {
-  string file;
   int end;
-
-  file = "effects.csv";
-
-  if (!effect_ids)
-  {
-    start_effects(file, table("spells", master)->query_spells());
-  }
 
   end = cursor + EVALUATED_PER_STEP;
   for (; cursor < end && cursor < sizeof(effect_ids); cursor++)
-    dump_effect(file, effect_ids[cursor], effect_paths[effect_ids[cursor]], 1);
+    if (scanning)
+      scan_effect(effect_paths[effect_ids[cursor]], powers);
+    else
+      dump_effect(file, effect_ids[cursor], effect_paths[effect_ids[cursor]],
+        powers);
+
+  if (scanning && cursor >= sizeof(effect_ids))
+  {
+    scanning = 0;
+    cursor = 0;
+    start_effects_file(file);
+  }
 
   if (cursor < sizeof(effect_ids))
   {
-    call_out("step_spells", 0);
+    call_out(step, 0);
     return;
   }
 
@@ -670,16 +739,24 @@ void step_spells()
 }
 
 /**
+ * The next spells of the game, a few each time.
+ */
+void step_spells()
+{
+  if (!effect_ids)
+    start_effects(table("spells", master)->query_spells());
+
+  step_effects("step_spells", "effects.csv", 1);
+}
+
+/**
  * The next skills of the game, a few each time.
  */
 void step_skills()
 {
   mapping rows, found;
-  string file;
   string * ids;
-  int i, end;
-
-  file = "skills.csv";
+  int i;
 
   if (!effect_ids)
   {
@@ -690,21 +767,10 @@ void step_skills()
       if (stringp(rows[ids[i]][0]))
         found[ids[i]] = rows[ids[i]][0] + ".c";
 
-    start_effects(file, found);
+    start_effects(found);
   }
 
-  end = cursor + EVALUATED_PER_STEP;
-  for (; cursor < end && cursor < sizeof(effect_ids); cursor++)
-    dump_effect(file, effect_ids[cursor], effect_paths[effect_ids[cursor]], 0);
-
-  if (cursor < sizeof(effect_ids))
-  {
-    call_out("step_skills", 0);
-    return;
-  }
-
-  effect_ids = nil;
-  next_step();
+  step_effects("step_skills", "skills.csv", 0);
 }
 
 // ===== the command =====

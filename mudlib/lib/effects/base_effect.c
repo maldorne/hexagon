@@ -486,21 +486,103 @@ mapping query_balance(object caster)
 }
 
 /**
+ * Whether the effect asks the god of the caster before running. A base that
+ * has the rule overrides it.
+ */
+int query_needs_faith() { return 0; }
+
+/**
+ * The names of the targeting data of the balance dump, in the order of its
+ * columns. Each is a property the effect declares (see query_targeting).
+ */
+string * query_targeting_keys()
+{
+  return ({ "target_type", "reach", "start_range", "range", "lockout_time",
+    "needs_faith", "needs_sight", "touch_protectable", "allow_on_self", "allow_on_mounted", "allow_on_dead",
+    "allow_on_passed_out", "allow_on_pacified", "allow_on_hidden",
+    "allow_on_moving", "allow_while_mounted", "allow_while_dead",
+    "allow_while_pacified", "allow_while_hidden", "allow_while_moving",
+    "allow_on_water", "allow_on_underground", "allow_on_inside",
+    "allow_on_outside", "allow_in_combat", "allow_only_in_combat" });
+}
+
+/**
+ * Everything the effect declares about whom it can reach and from where, read
+ * from the effect itself (keys of query_targeting_keys):
+ *   target_type  the TARGET_TYPE_* the effect declares
+ *   reach        the EFFECT_REACH_* id, see query_effect_reach
+ *   start_range  exits away a target may be when the effect starts: 0 unless
+ *                the reach is ranged, as targets are looked for in the
+ *                caster's place
+ *   range        exits away a target that moves is still followed once it has
+ *                started, see query_range (0: it must stay in the place)
+ *   lockout_time minimum time between two runs
+ *   needs_faith  whether the god of the caster is asked
+ *   needs_sight  whether a blinded caster cannot run it on another (the
+ *                single and touch targets)
+ *   touch_protectable  whether a protector of the target may take the touch
+ *   allow_*      the permissions on the target, on the caster, on the place
+ *                and on the combat
+ *
+ * @return key -> value
+ */
+mapping query_targeting()
+{
+  string reach;
+
+  reach = query_effect_reach();
+
+  return ([
+    "target_type":          target_type,
+    "reach":                reach,
+    "start_range":          reach == EFFECT_REACH_RANGED ? effect_range : 0,
+    "range":                effect_range,
+    "lockout_time":         lockout_time,
+    "needs_faith":          this_object()->query_needs_faith(),
+    "needs_sight":          target_type == TARGET_TYPE_ONE ||
+                            target_type == TARGET_TYPE_TOUCH,
+    "touch_protectable":    target_type == TARGET_TYPE_TOUCH,
+    "allow_on_self":        allow_on_self,
+    "allow_on_mounted":     allow_on_mounted,
+    "allow_on_dead":        allow_on_dead,
+    "allow_on_passed_out":  allow_on_passed_out,
+    "allow_on_pacified":    allow_on_pacified,
+    "allow_on_hidden":      allow_on_hidden,
+    "allow_on_moving":      allow_on_moving,
+    "allow_while_mounted":  allow_while_mounted,
+    "allow_while_dead":     allow_while_dead,
+    "allow_while_pacified": allow_while_pacified,
+    "allow_while_hidden":   allow_while_hidden,
+    "allow_while_moving":   allow_while_moving,
+    "allow_on_water":       allow_on_water,
+    "allow_on_underground": allow_on_underground,
+    "allow_on_inside":      allow_on_inside,
+    "allow_on_outside":     allow_on_outside,
+    "allow_in_combat":      allow_in_combat,
+    "allow_only_in_combat": allow_only_in_combat,
+  ]);
+}
+
+/**
  * Builds the answer of query_balance. Every cast is assumed to land: each hit
- * rolls true and no target resists, unless the note says otherwise.
+ * rolls true and no target resists, unless the note says otherwise. The
+ * targeting data (query_targeting) are added by this function, read from the
+ * effect.
  *
  * @param  caster   who casts it
  * @param  kind     "damage" or "heal"
- * @param  targets  "one" or "area" (the amounts are per target)
  * @param  cast_rounds  combat rounds from the start of the cast until the
  *                  last of the amount is delivered
  * @param  range    ({ minimum, average, maximum }) of what one target gets in
  *                  the whole cast, all rounds: ints, a float, an int
  * @param  type     the damage type, "" when none
  * @param  note     short free text ("per hit", "vs undead only")
+ * @param  extra    optional: further numbers only this kind of effect has
+ *                  (name -> int, float or string), each a column of the dump
  */
-mapping make_balance(object caster, string kind, string targets, int cast_rounds,
-                     mixed * range, string type, string note)
+mapping make_balance(object caster, string kind, int cast_rounds,
+                     mixed * range, string type, string note,
+                     varargs mapping extra)
 {
   int cost;
 
@@ -517,9 +599,8 @@ mapping make_balance(object caster, string kind, string targets, int cast_rounds
   if ((float)range[1] > (float)(int)range[2])
     range[1] = (float)(int)range[2];
 
-  return ([
+  return query_targeting() + ([
     "kind":        kind,
-    "targets":     targets,
     "rounds":      cast_rounds,
     "minimum":     (int)range[0],
     "average":     (float)range[1],
@@ -527,6 +608,7 @@ mapping make_balance(object caster, string kind, string targets, int cast_rounds
     "damage_type": type,
     "cost":        cost,
     "note":        note,
+    "extra":       extra ? extra : ([ ]),
   ]);
 }
 
