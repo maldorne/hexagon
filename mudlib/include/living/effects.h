@@ -31,6 +31,15 @@
 #define TARGET_TYPE_SELF "self"
 #define TARGET_TYPE_TOUCH "touch"
 
+// How far an effect reaches, see query_effect_reach in base_effect.c. Ids are
+// never shown to players, the help and the spell list translate them.
+#define EFFECT_REACH_SELF   "self"     // the caster only
+#define EFFECT_REACH_TOUCH  "touch"    // one target, by touch
+#define EFFECT_REACH_SINGLE "single"   // one target in the same place
+#define EFFECT_REACH_RANGED "ranged"   // one target, maybe in another place
+#define EFFECT_REACH_AREA   "area"     // everyone in the place
+#define EFFECT_REACH_WIDE   "wide"     // everyone in several places
+
 #define PROPERTY_IS_CASTING "casting"
 #define PROP_EFECTO_INAUDIBLE "inaudible"
 #define PROP_EFFECT_TESTER "TEST"

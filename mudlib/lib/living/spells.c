@@ -163,9 +163,10 @@ string help_spell(string str)
  */
 int show_spells(string str)
 {
-  string * ids, * names;
+  string * ids, * names, * reaches;
+  string list;
   object ob;
-  int i;
+  int i, width;
 
   if (!mappingp(spells))
     spells = ([ ]);
@@ -178,16 +179,25 @@ int show_spells(string str)
 
   ids = map_indices(spells);
   names = ({ });
+  reaches = ({ });
+  width = 0;
   for (i = 0; i < sizeof(ids); i++)
   {
     ob = nil;
     if (spell_path(ids[i]))
       catch(ob = load_object(spell_path(ids[i])));
     names += ({ ob ? capitalize(ob->query_effect_name()) : ids[i] });
+    reaches += ({ ob ? ob->query_effect_reach_name() : "" });
+    if (strlen(names[i]) > width)
+      width = strlen(names[i]);
   }
 
-  tell_object(this_object(), _LANG_SPELLS_KNOWN_HEADER +
-              "  " + implode(names, "\n  ") + "\n");
+  // a column of names, then the reach of each spell
+  list = "";
+  for (i = 0; i < sizeof(names); i++)
+    list += sprintf("  %-*s  %s\n", width, names[i], reaches[i]);
+
+  tell_object(this_object(), _LANG_SPELLS_KNOWN_HEADER + list);
   return 1;
 }
 

@@ -38,7 +38,8 @@ string target_type;       // target type the effect can have
                           //             TARGET_TYPE_PASS, TARGET_TYPE_SELF, TARGET_TYPE_TOUCH
 string* property_checks;  // properties that prevent the effect from running
 // string* shadow_checks;    // functions checked to know if it has shadows
-int effect_range;         // effect range
+int effect_range;         // effect range, in exits from the caster (0: same place)
+string effect_reach;      // reach id set by hand, see query_effect_reach
 int silence;              // whether messages are shown on screen (useful for
                           // silent spells and similar)
 int fast_casting;         // instant effects
@@ -137,6 +138,7 @@ void create()
   lockout_time = 5;
   
   effect_range = 0;
+  effect_reach = nil;
   silence = 0;
   fast_casting = 0;
   start_phrases = ({ });
@@ -203,6 +205,58 @@ string* query_property_checks() { return property_checks;}
 
 int query_range() { return effect_range; }
 void set_range(int i) { effect_range = i; }
+
+/**
+ * Overrides the reach the effect would get from its target type and range:
+ * a touch spell that uses TARGET_TYPE_ONE, an area one that names its targets,
+ * a spell that hits several places.
+ * @param  reach  one of the EFFECT_REACH_* ids
+ */
+void set_effect_reach(string reach) { effect_reach = reach; }
+
+/**
+ * How far the effect reaches: the id set by hand, or else the one its target
+ * type and range say (a single target is ranged when the range crosses exits).
+ * @return one of the EFFECT_REACH_* ids
+ */
+string query_effect_reach()
+{
+  if (effect_reach)
+    return effect_reach;
+
+  switch (target_type)
+  {
+  case TARGET_TYPE_TOUCH:
+    return EFFECT_REACH_TOUCH;
+  case TARGET_TYPE_ONE:
+  case TARGET_TYPE_MANY:
+    return effect_range > 0 ? EFFECT_REACH_RANGED : EFFECT_REACH_SINGLE;
+  case TARGET_TYPE_ALL:
+    return EFFECT_REACH_AREA;
+  }
+
+  return EFFECT_REACH_SELF;
+}
+
+/**
+ * The reach as the player reads it, with the range of a ranged effect.
+ * @return the translated reach name
+ */
+string query_effect_reach_name()
+{
+  string reach, name;
+
+  reach = query_effect_reach();
+  name = _LANG_EFFECT_REACH_NAMES[reach];
+  if (!name)
+    name = reach;
+
+  if (reach == EFFECT_REACH_RANGED && effect_range > 0)
+    name += (effect_range == 1 ? _LANG_EFFECT_REACH_RANGE_ONE :
+             _LANG_EFFECT_REACH_RANGE_PRE + effect_range + _LANG_EFFECT_REACH_RANGE_POST);
+
+  return name;
+}
 
 int query_silence() { return silence; }
 void set_silence(int i) { silence = i; }
@@ -363,10 +417,7 @@ string help()
       else
         ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
 
-      if (effect_range <= 1)
-          ret += _LANG_EFFECT_HELP_RANGE_NONE;
-      else
-          ret += _LANG_EFFECT_HELP_RANGE + effect_range;
+      ret += _LANG_EFFECT_HELP_REACH + query_effect_reach_name();
 
       ret += _LANG_EFFECT_HELP_COST + query_effect_gp_cost(this_player());
 

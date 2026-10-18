@@ -43,8 +43,19 @@
 #define _LANG_EFFECT_HELP_NAME "Nombre: "
 #define _LANG_EFFECT_HELP_LEVEL "\nNivel: "
 #define _LANG_EFFECT_HELP_CATEGORY "\tCategoría: "
-#define _LANG_EFFECT_HELP_RANGE_NONE "\nDistancia: no"
-#define _LANG_EFFECT_HELP_RANGE "\nDistancia: "
+#define _LANG_EFFECT_HELP_REACH "\nAlcance: "
+// reach ids (see <living/effects.h>) -> name; the range of a ranged one follows
+#define _LANG_EFFECT_REACH_NAMES ([ \
+  "self": "personal", \
+  "touch": "de toque", \
+  "single": "individual", \
+  "ranged": "a distancia", \
+  "area": "de área", \
+  "wide": "de área extensa" \
+])
+#define _LANG_EFFECT_REACH_RANGE_ONE " (1 sala)"
+#define _LANG_EFFECT_REACH_RANGE_PRE " ("
+#define _LANG_EFFECT_REACH_RANGE_POST " salas)"
 #define _LANG_EFFECT_HELP_COST "\tCoste: "
 #define _LANG_EFFECT_HELP_ROLE_NEEDED "\nActitud de combate requerida: "
 #define _LANG_EFFECT_HELP_DESC "\nDescripción:\n"
