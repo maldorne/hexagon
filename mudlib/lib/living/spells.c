@@ -501,9 +501,10 @@ mixed query_sphere_power(mixed name)
 }
 
 /**
- * How well this living knows a sphere, as the effects ask it to price a spell
- * (see query_effect_category in /lib/effects/base_effect.c). A member's guild
- * says it; the spheres added to the living itself (an NPC's) count when higher.
+ * How well this living knows a category of spells, a sphere (divine magic) or
+ * a school (arcane magic), as the effects ask it to price a spell (see
+ * query_effect_category in /lib/effects/base_effect.c). A member's guild says
+ * it; the categories added to the living itself (an NPC's) count when higher.
  * @return 0 not at all, 1 minor, 2 neutral, 3 major
  */
 int query_effect_category(string name)
@@ -515,7 +516,7 @@ int query_effect_category(string name)
   guild = this_object()->query_guild_ob() ?
           load_object(this_object()->query_guild_ob()) : nil;
   if (guild)
-    known = guild->query_sphere_knowledge(name);
+    known = guild->query_category_knowledge(name);
 
   own = query_sphere(name);
   return own > known ? own : known;
@@ -538,20 +539,19 @@ string query_effect_category_level(string name)
   return EFFECT_CAT_NONE;
 }
 
-// esferas: the spheres this living casts from and how well it knows each.
-int show_spheres(string str)
+/**
+ * The categories this living casts from, of one kind, and how well it knows
+ * each: the guild's and the living's own. The living's own lists never said
+ * which kind each was, so they show under both.
+ * @param  guild_list  the guild's sphere or school mapping
+ * @return category -> EFFECT_CAT_*
+ */
+private mapping known_categories(mapping guild_list)
 {
-  object guild;
   mapping known;
-  string * names;
-  string text;
   int i;
 
-  known = ([ ]);
-  guild = this_object()->query_guild_ob() ?
-          load_object(this_object()->query_guild_ob()) : nil;
-  if (guild)
-    known = guild->query_spheres();
+  known = mappingp(guild_list) ? ([ ]) + guild_list : ([ ]);
 
   for (i = 0; i < sizeof(minor_spheres); i++)
     known[minor_spheres[i]] = EFFECT_CAT_MINOR;
@@ -560,59 +560,55 @@ int show_spheres(string str)
   for (i = 0; i < sizeof(major_spheres); i++)
     known[major_spheres[i]] = EFFECT_CAT_MAJOR;
 
+  return known;
+}
+
+// The listing of esferas and escuelas.
+private int show_categories(mapping known, string header, string none)
+{
+  string * names;
+  string text;
+  int i;
+
   if (!map_sizeof(known))
   {
-    notify_fail(_LANG_SPELLS_NO_SPHERES);
+    notify_fail(none);
     return 0;
   }
 
   names = map_indices(known);
-  text = _LANG_SPELLS_SPHERES_HEADER;
+  text = header;
   for (i = 0; i < sizeof(names); i++)
     text += "  " + capitalize(names[i]) + " (" +
-            _LANG_SPELLS_SPHERE_LEVELS[query_effect_category(names[i])] + ")\n";
+            _LANG_SPELLS_CATEGORY_LEVELS[query_effect_category(names[i])] + ")\n";
 
   tell_object(this_object(), text);
   return 1;
 }
 
+// esferas: the spheres of divine magic this living casts from.
+int show_spheres(string str)
+{
+  object guild;
+
+  guild = this_object()->query_guild_ob() ?
+          load_object(this_object()->query_guild_ob()) : nil;
+
+  return show_categories(known_categories(guild ? guild->query_spheres() : nil),
+                         _LANG_SPELLS_SPHERES_HEADER, _LANG_SPELLS_NO_SPHERES);
+}
+
+// escuelas: the schools of arcane magic this living casts from.
 int show_schools(string str)
 {
   object guild;
-  int written, i;
 
-  // neverbot, 02/2006
-  if (!mappingp(spells))
-    spells = ([ ]);
-  if (!map_sizeof(spells))
-    return 0;
+  guild = this_object()->query_guild_ob() ?
+          load_object(this_object()->query_guild_ob()) : nil;
 
-  guild = this_player()->query_guild_ob();
-
-  // if ( (guild->query_spell_directory() != MAGE_ROOT) &&
-  //      (guild->query_spell_directory() != BARD_ROOT) )
-
-  if (!guild || (string)guild->query_spell_directory() != MAGE_ROOT)
-  {
-    notify_fail("No necesitas escuelas.\n");
-    return 0;
-  }
-
-  written = 0;
-  for ( i=0; i<sizeof(minor_spheres); i++, written++ )
-    tell_object(this_player(), minor_spheres[i]+" (Menor)\n");
-  for ( i=0; i<sizeof(neutral_spheres); i++, written++ )
-    tell_object(this_player(), neutral_spheres[i]+" (Neutral)\n");
-  for ( i=0; i<sizeof(major_spheres); i++, written++ )
-    tell_object(this_player(), major_spheres[i]+" (Mayor)\n");
-
-  if (!written)
-  {
-    notify_fail("No tienes escuelas.\n");
-    return 0;
-  }
-  return written;
-} /* int show schools..*/
+  return show_categories(known_categories(guild ? guild->query_schools() : nil),
+                         _LANG_SPELLS_SCHOOLS_HEADER, _LANG_SPELLS_NO_SCHOOLS);
+}
 
 int spell_damage(int damage, string type, varargs object caster)
 {

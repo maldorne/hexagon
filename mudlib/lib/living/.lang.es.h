@@ -465,4 +465,6 @@
 #define _LANG_SPELLS_UNKNOWN "No conoces ningún hechizo llamado así.\n"
 #define _LANG_SPELLS_NO_SPHERES "No formulas de ninguna esfera.\n"
 #define _LANG_SPELLS_SPHERES_HEADER "Formulas de estas esferas:\n"
-#define _LANG_SPELLS_SPHERE_LEVELS ({ "ninguna", "menor", "neutral", "mayor" })
+#define _LANG_SPELLS_CATEGORY_LEVELS ({ "ninguna", "menor", "neutral", "mayor" })
+#define _LANG_SPELLS_NO_SCHOOLS "No formulas de ninguna escuela.\n"
+#define _LANG_SPELLS_SCHOOLS_HEADER "Formulas de estas escuelas:\n"

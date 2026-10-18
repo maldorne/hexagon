@@ -458,4 +458,6 @@
 #define _LANG_SPELLS_UNKNOWN "You know no spell by that name.\n"
 #define _LANG_SPELLS_NO_SPHERES "You cast from no sphere.\n"
 #define _LANG_SPELLS_SPHERES_HEADER "You cast from these spheres:\n"
-#define _LANG_SPELLS_SPHERE_LEVELS ({ "none", "minor", "neutral", "major" })
+#define _LANG_SPELLS_CATEGORY_LEVELS ({ "none", "minor", "neutral", "major" })
+#define _LANG_SPELLS_NO_SCHOOLS "You cast from no school.\n"
+#define _LANG_SPELLS_SCHOOLS_HEADER "You cast from these schools:\n"

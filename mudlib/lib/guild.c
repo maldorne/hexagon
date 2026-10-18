@@ -32,9 +32,10 @@ mapping guild_skills;
 // the spells the guild teaches its members: spell object path -> guild level
 // needed; members learn them with aprender in the guild room
 mapping guild_spells;
-// the spheres its members cast from: sphere -> EFFECT_CAT_* (how well they
-// know it, which makes its spells cheaper or dearer)
-mapping spheres;
+// the categories of the spells its members cast, -> EFFECT_CAT_* (how well
+// they know each, which makes its spells cheaper or dearer): spheres of divine
+// magic (clerics, paladins) and schools of arcane magic (mages, sorcerers)
+mapping spheres, schools;
 // the markdown text of the guild's rules, see set_rules_book
 string rules_book;
 
@@ -49,6 +50,7 @@ void create()
   guild_skills = ([ ]);
   guild_spells = ([ ]);
   spheres = ([ ]);
+  schools = ([ ]);
   needed_ext_align = 0;
   requirements_func = "";
   rules_book = "";
@@ -322,19 +324,31 @@ string * teach_guild_spells(object player)
 }
 
 /**
- * The spheres the members cast from, and how well they know each.
+ * The spheres of divine magic the members cast from, and how well they know
+ * each.
  * @param  map  sphere -> EFFECT_CAT_MINOR, EFFECT_CAT_NEUTRAL or EFFECT_CAT_MAJOR
  */
 void set_spheres(mapping map) { spheres = map ? ([ ]) + map : ([ ]); }
 mapping query_spheres() { return ([ ]) + spheres; }
 
 /**
- * How well the members know a sphere.
+ * The schools of arcane magic the members cast from, and how well they know
+ * each.
+ * @param  map  school -> EFFECT_CAT_MINOR, EFFECT_CAT_NEUTRAL or EFFECT_CAT_MAJOR
+ */
+void set_schools(mapping map) { schools = map ? ([ ]) + map : ([ ]); }
+mapping query_schools() { return ([ ]) + schools; }
+
+/**
+ * How well the members know a category of spells, a sphere or a school.
  * @return 0 not at all, 1 minor, 2 neutral, 3 major
  */
-int query_sphere_knowledge(string sphere)
+int query_category_knowledge(string category)
 {
-  switch (spheres[sphere])
+  mixed known;
+
+  known = spheres[category] ? spheres[category] : schools[category];
+  switch (known)
   {
     case EFFECT_CAT_MINOR:
       return 1;
