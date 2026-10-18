@@ -119,6 +119,10 @@ tbody tr:hover td { background: var(--accent-soft); }
 .chart .axis-title { fill: var(--ink-soft); font: 12px var(--sans); }
 .chart .series path { fill: none; stroke-width: 2; stroke-linejoin: round; }
 .chart .series path.dashed { stroke-dasharray: 5 4; stroke-width: 1.5; }
+.chart .series path { transition: opacity 120ms ease-out; }
+.chart .series.has-hot path { opacity: 0.18; }
+.chart .series.has-hot path.hot { opacity: 1; stroke-width: 3.5; }
+.chart .dot { stroke: var(--bg); stroke-width: 2; }
 .chart .cursor { stroke: var(--ink-faint); stroke-dasharray: 2 3; }
 .tip {
   position: absolute; pointer-events: none; background: var(--bg); border: 1px solid var(--line);
@@ -128,6 +132,9 @@ tbody tr:hover td { background: var(--accent-soft); }
 .tip .t { font-weight: 600; margin-bottom: 3px; }
 .tip .r { display: flex; gap: 8px; align-items: center; }
 .tip .r b { margin-left: auto; font-family: var(--mono); font-weight: 500; }
+.tip .r.hot { font-weight: 650; background: var(--accent-soft); margin: 0 -9px 3px; padding: 3px 9px; }
+.tip .r.dim { opacity: 0.55; }
+.legend span.hot { color: var(--ink); font-weight: 600; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 12px; color: var(--ink-soft); }
 .legend span { display: inline-flex; gap: 6px; align-items: center; }
 .overlay-opts { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; font-size: 12.5px; color: var(--ink-soft); }
@@ -300,7 +307,7 @@ const METRICS = {
   per_gp: { label: 'points per gp', short: 'pts/gp' },
 };
 
-const state = { power: 2, metric: 'pct_hp', target: '', tab: 'outliers' };
+const state = { power: 2, metric: 'pct_hp', target: '', tab: 'outliers', lockBeforeGain: true };
 
 function cell(a, level) {
   const byLevel = a.cells[state.power] || a.cells[0] || a.cells[2] || a.cells[Object.keys(a.cells)[0]];
@@ -442,30 +449,66 @@ function lineChart(series, opts) {
       if (!isFinite(v)) { pen = false; continue; }
       d += (pen ? 'L' : 'M') + x(lv).toFixed(1) + ',' + y(v).toFixed(1); pen = true;
     }
-    if (d) g.append(s('path', { d, stroke: se.color, class: se.dashed ? 'dashed' : '' }));
+    se.path = d ? s('path', { d, stroke: se.color, class: se.dashed ? 'dashed' : '' }) : null;
+    if (se.path) g.append(se.path);
   }
   svg.append(g);
   const cursor = s('line', { class: 'cursor', y1: T, y2: H - B, visibility: 'hidden' });
-  svg.append(cursor);
+  const dot = s('circle', { class: 'dot', r: 4.5, visibility: 'hidden' });
+  svg.append(cursor, dot);
   const tip = el('div', { class: 'tip', hidden: true });
+
+  // the line under the pointer: the nearest segment, within a few pixels
+  const segDist = (px, py, x1, y1, x2, y2) => {
+    const dx = x2 - x1, dy = y2 - y1, len = dx * dx + dy * dy;
+    const t = len ? Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / len)) : 0;
+    return Math.hypot(px - x1 - t * dx, py - y1 - t * dy);
+  };
+  const lineAt = (px, py) => {
+    let best = null, bestD = 12;
+    for (const se of series) {
+      const pts = se.points.filter(p => isFinite(p[1])).map(([lv, v]) => [x(lv), y(v)]);
+      for (let i = 0; i < pts.length; i++) {
+        const dd = i ? segDist(px, py, pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]) : Math.hypot(px - pts[0][0], py - pts[0][1]);
+        if (dd < bestD) { bestD = dd; best = se; }
+      }
+    }
+    return best;
+  };
+  const setHot = hot => {
+    g.classList.toggle('has-hot', !!hot);
+    for (const se of series) if (se.path) se.path.classList.toggle('hot', se === hot);
+    legend.querySelectorAll('span[data-i]').forEach(sp => sp.classList.toggle('hot', hot && series[sp.dataset.i] === hot));
+  };
+
   svg.addEventListener('mousemove', ev => {
     const box = svg.getBoundingClientRect();
     const px = (ev.clientX - box.left) / box.width * W;
+    const py = (ev.clientY - box.top) / box.height * H;
     const lv = Math.max(1, Math.min(20, Math.round((px - L) / (W - L - R) * 19 + 1)));
+    const hot = lineAt(px, py);
+    setHot(hot);
     cursor.setAttribute('x1', x(lv)); cursor.setAttribute('x2', x(lv)); cursor.setAttribute('visibility', 'visible');
     const rows = series.map(se => [se, (se.points.find(p => p[0] === lv) || [])[1]]).filter(r => isFinite(r[1]))
-      .sort((a, b) => b[1] - a[1]);
+      .sort((a, b) => (b[0] === hot) - (a[0] === hot) || b[1] - a[1]);
+    const hotValue = hot ? (hot.points.find(p => p[0] === lv) || [])[1] : NaN;
+    if (isFinite(hotValue)) {
+      dot.setAttribute('cx', x(lv)); dot.setAttribute('cy', y(hotValue)); dot.setAttribute('fill', hot.color); dot.setAttribute('visibility', 'visible');
+    } else dot.setAttribute('visibility', 'hidden');
     tip.replaceChildren(el('div', { class: 't' }, 'Level ' + lv),
-      ...rows.slice(0, 14).map(([se, v]) => el('div', { class: 'r' }, el('span', { class: 'swatch', style: 'background:' + se.color }), se.name, el('b', null, fmt(v)))));
+      ...rows.slice(0, 14).map(([se, v]) => el('div', { class: 'r' + (se === hot ? ' hot' : hot ? ' dim' : '') },
+        el('span', { class: 'swatch', style: 'background:' + se.color }), se.name, el('b', null, fmt(v)))));
     tip.hidden = false;
     const left = (x(lv) / W) * box.width;
     tip.style.left = (left > box.width * 0.6 ? left - tip.offsetWidth - 12 : left + 12) + 'px';
     tip.style.top = '8px';
   });
-  svg.addEventListener('mouseleave', () => { tip.hidden = true; cursor.setAttribute('visibility', 'hidden'); });
-  wrap.append(svg, tip,
-    el('div', { class: 'legend' }, series.map(se => el('span', null,
-      el('span', { class: 'swatch', style: `background:${se.color};${se.dashed ? 'opacity:.7' : ''}` }), se.name))));
+  svg.addEventListener('mouseleave', () => {
+    tip.hidden = true; cursor.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); setHot(null);
+  });
+  const legend = el('div', { class: 'legend' }, series.map((se, i) => el('span', { 'data-i': i },
+      el('span', { class: 'swatch', style: `background:${se.color};${se.dashed ? 'opacity:.7' : ''}` }), se.name)));
+  wrap.append(svg, tip, legend);
   return wrap;
 }
 function niceStep(raw) {
