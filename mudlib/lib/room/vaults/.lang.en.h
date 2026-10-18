@@ -49,3 +49,12 @@
 #define _LANG_VAULTS_LIST_HEADER "There are " + number_as_string(sizeof(all)) + " item"+((sizeof(all)>1)?"s":"")+ " in the vault.\n"
 #define _LANG_VAULTS_LIST_USING "A "+capacity+"% of the vault capacity is being used.\n"
 #define _LANG_VAULTS_LIST_EMPTY "The vault is empty.\n"
+
+#define _LANG_VAULTS_NOT_ALLOWED "You are not allowed to use this vault.\n"
+#define _LANG_VAULTS_NOT_ACCEPTED "You cannot deposit your " + all[i]->query_short() + " here, this vault only accepts " + \
+         query_vault_accept_label() + ".\n"
+#define _LANG_VAULTS_TOO_MANY "You cannot deposit your " + all[i]->query_short() + ", the vault already holds " + \
+         vault_max_items + " objects, the most it can keep.\n"
+#define _LANG_VAULTS_SIGN_GUILDS "\nOnly members of the following may use it: " + guild_names() + ".\n"
+#define _LANG_VAULTS_SIGN_ACCEPT "\nIt only accepts " + query_vault_accept_label() + ".\n"
+#define _LANG_VAULTS_SIGN_MAX "\nIt holds at most " + vault_max_items + " objects.\n"

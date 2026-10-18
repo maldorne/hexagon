@@ -18,6 +18,7 @@ private int do_temple(object loc, string * args);
 private int do_guild(object loc, string * args);
 private int do_job(object loc, string * args);
 private int do_library(object loc, string * args);
+private int do_vault(object loc, string * args);
 
 void setup()
 {
@@ -31,7 +32,8 @@ void setup()
     "locations temple < <deity path> | none >\n" +
     "locations guild < entrance | room > < <guild path> | none >\n" +
     "locations job [ room ] < <job path> | none >\n" +
-    "locations library [ add <text path> | remove <text path> ]");
+    "locations library [ add <text path> | remove <text path> ]\n" +
+    "locations vault [ guild add|remove <guild path> | accept <prop> <value> [name] | max <n> | sign <text> | doc <name> | <field> none ]");
   set_help(
     "Build the location you are standing in.\n" +
     "\n" +
@@ -60,6 +62,14 @@ void setup()
     "  locations library                 list the books on its shelves\n" +
     "  locations library add <text path>    put a book on them (makes it a library)\n" +
     "  locations library remove <text path> take one off\n" +
+    "  locations vault                   its restrictions (makes it a vault)\n" +
+    "  locations vault guild add|remove <guild path>   only that guild's members\n" +
+    "  locations vault accept <prop> <value> [name]    only objects whose property\n" +
+    "                                    <prop> is <value> go in (name: what they are)\n" +
+    "  locations vault max <n>           at most n objects\n" +
+    "  locations vault sign <text>       its own sign text\n" +
+    "  locations vault doc <name>        its own sign help document\n" +
+    "  locations vault guild|accept|max|sign|doc none   lift that restriction\n" +
     "\n" +
     "Carving takes a compass direction and a plain file name (letters, digits, " +
     "dash and underscore); the new location is joined to this one by open " +
@@ -119,6 +129,8 @@ static int cmd(string str, object me, string verb)
       return do_job(loc, args);
     case "library":
       return do_library(loc, args);
+    case "vault":
+      return do_vault(loc, args);
   }
 
   return do_carve(loc, args);
@@ -695,5 +707,98 @@ private int do_library(object loc, string * args)
   }
   loc->save_me();
   write("Removed " + path + " from the shelves.\n");
+  return 1;
+}
+
+/**
+ * locations vault [guild add|remove <guild path> | accept <prop> <value> [name]
+ * | max <n> | sign <text> | doc <name> | <field> none]: reads or sets the
+ * restrictions of the vault, attaching the vault component if it is not
+ * there yet, and puts the sign up again.
+ */
+private int do_vault(object loc, string * args)
+{
+  object vault, guild;
+  string field, path, * guilds;
+  int n;
+
+  vault = loc->query_component_by_type(LOCATION_COMPONENT_VAULT);
+
+  if (sizeof(args) > 1 && !vault)
+  {
+    loc->add_component(LOCATION_COMPONENT_VAULT, ([ ]));
+    vault = loc->query_component_by_type(LOCATION_COMPONENT_VAULT);
+  }
+
+  if (!vault)
+  {
+    notify_fail("This location is not a vault.\n");
+    return 0;
+  }
+
+  if (sizeof(args) == 1)
+  {
+    write("Guilds: " + (sizeof(vault->query_vault_guilds()) ?
+          implode(vault->query_vault_guilds(), ", ") : "(everyone)") + "\n" +
+          "Accepts: " + (strlen(vault->query_vault_accept_prop()) ?
+          vault->query_vault_accept_prop() + " = " +
+          vault->query_vault_accept_value() + " (" +
+          vault->query_vault_accept_label() + ")" : "(anything)") + "\n" +
+          "Max items: " + (vault->query_vault_max_items() ?
+          "" + vault->query_vault_max_items() : "(no limit)") + "\n" +
+          "Sign text: " + (strlen(vault->query_vault_sign_text()) ?
+          vault->query_vault_sign_text() : "(shared document)") + "\n" +
+          "Sign document: " + (strlen(vault->query_vault_sign_doc()) ?
+          vault->query_vault_sign_doc() : "(shared document)") + "\n");
+    return 1;
+  }
+
+  field = args[1];
+
+  if (field == "guild" && sizeof(args) == 3 && args[2] == "none")
+    vault->set_vault_guilds(({ }));
+  else if (field == "guild" && sizeof(args) >= 4 &&
+           (args[2] == "add" || args[2] == "remove"))
+  {
+    path = get_path(rest_of(args, 3));
+    guild = nil;
+    catch(guild = load_object(path));
+    if (!guild)
+    {
+      notify_fail("No guild loads at '" + path + "'.\n");
+      return 0;
+    }
+    guilds = vault->query_vault_guilds() - ({ path });
+    if (args[2] == "add")
+      guilds += ({ path });
+    vault->set_vault_guilds(guilds);
+  }
+  else if (field == "accept" && sizeof(args) == 3 && args[2] == "none")
+    vault->set_vault_accept("", "");
+  else if (field == "accept" && sizeof(args) >= 4)
+    vault->set_vault_accept(args[2], args[3], rest_of(args, 4));
+  else if (field == "max" && sizeof(args) == 3 &&
+           (args[2] == "none" || sscanf(args[2], "%d", n) == 1))
+  {
+    if (args[2] == "none")
+      n = 0;
+    vault->set_vault_max_items(n);
+  }
+  else if (field == "sign" && sizeof(args) >= 3)
+    vault->set_vault_sign_text(rest_of(args, 2) == "none" ? "" :
+                               rest_of(args, 2) + "\n");
+  else if (field == "doc" && sizeof(args) == 3)
+    vault->set_vault_sign_doc(args[2] == "none" ? "" : args[2]);
+  else
+  {
+    notify_fail("Usage: locations vault [ guild add|remove <guild path> | " +
+                "accept <prop> <value> [name] | max <n> | sign <text> | " +
+                "doc <name> | <field> none ]\n");
+    return 0;
+  }
+
+  vault->create_vault_sign(loc);
+  loc->save_me();
+  write("Vault updated.\n");
   return 1;
 }

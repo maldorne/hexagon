@@ -49,3 +49,12 @@
 #define _LANG_VAULTS_LIST_HEADER "  Hay " + number_as_string(sizeof(all)) + " objeto"+((sizeof(all)>1)?"s":"")+ " en el baúl.\n"
 #define _LANG_VAULTS_LIST_USING "  Se está utilizando un "+capacity+"% de la capacidad del baúl.\n"
 #define _LANG_VAULTS_LIST_EMPTY "El baúl está vacío.\n"
+
+#define _LANG_VAULTS_NOT_ALLOWED "No tienes permiso para usar este baúl.\n"
+#define _LANG_VAULTS_NOT_ACCEPTED "No puedes depositar aquí tu " + all[i]->query_short() + ", este baúl solo acepta " + \
+         query_vault_accept_label() + ".\n"
+#define _LANG_VAULTS_TOO_MANY "No puedes depositar tu " + all[i]->query_short() + ", el baúl ya guarda " + \
+         vault_max_items + " objetos, el máximo que admite.\n"
+#define _LANG_VAULTS_SIGN_GUILDS "\nSolo pueden usarlo los miembros de: " + guild_names() + ".\n"
+#define _LANG_VAULTS_SIGN_ACCEPT "\nSolo acepta " + query_vault_accept_label() + ".\n"
+#define _LANG_VAULTS_SIGN_MAX "\nGuarda como máximo " + vault_max_items + " objetos.\n"

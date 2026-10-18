@@ -64,11 +64,49 @@ string vault_log;
 string * vault_admins;
 static object vault_sign;
 
+// Optional restrictions, all empty by default (everyone may use the vault, it
+// takes whatever it takes, no limit, the shared sign):
+//   vault_guilds        guild object paths; only their members (and coders) use it
+//   vault_accept_prop   the property an object must carry to be deposited...
+//   vault_accept_value  ...and the value (compared as text) it must have
+//   vault_accept_name   what is accepted, in words, for the refusal and the sign
+//   vault_max_items     most objects the vault holds
+//   vault_sign_text     own sign text instead of the vault help document
+//   vault_sign_doc      own help document (name under docs/<lang>/) instead of it
+string * vault_guilds;
+string vault_accept_prop;
+string vault_accept_value;
+string vault_accept_name;
+int vault_max_items;
+string vault_sign_text;
+string vault_sign_doc;
+
 string query_save_file() { return save_file; }
 string query_vault_log() { return vault_log; }
 
 void set_admins(string *admin) { if (sizeof(admin)) vault_admins = admin; }
 string *query_vault_admins() { return vault_admins; }
+
+string * query_vault_guilds() { return vault_guilds; }
+void set_vault_guilds(string * guilds) { vault_guilds = sizeof(guilds) ? guilds : ({ }); }
+
+string query_vault_accept_prop() { return vault_accept_prop; }
+string query_vault_accept_value() { return vault_accept_value; }
+string query_vault_accept_name() { return vault_accept_name; }
+void set_vault_accept(string prop, string value, varargs string name)
+{
+  vault_accept_prop = prop;
+  vault_accept_value = value;
+  vault_accept_name = stringp(name) ? name : "";
+}
+
+int query_vault_max_items() { return vault_max_items; }
+void set_vault_max_items(int max) { vault_max_items = max > 0 ? max : 0; }
+
+string query_vault_sign_text() { return vault_sign_text; }
+void set_vault_sign_text(string text) { vault_sign_text = text; }
+string query_vault_sign_doc() { return vault_sign_doc; }
+void set_vault_sign_doc(string name) { vault_sign_doc = name; }
 
 int query_vault_room() { return 1; }
 
@@ -81,6 +119,81 @@ void create()
   save_file = "";
   vault_log = "";
   vault_admins = ({ });
+  vault_guilds = ({ });
+  vault_accept_prop = "";
+  vault_accept_value = "";
+  vault_accept_name = "";
+  vault_sign_text = "";
+  vault_sign_doc = "";
+}
+
+// The name of what the vault accepts, for the messages and the sign.
+string query_vault_accept_label()
+{
+  if (strlen(vault_accept_name))
+    return vault_accept_name;
+  return vault_accept_prop + " " + vault_accept_value;
+}
+
+// The guilds that may use the vault, by name.
+string guild_names()
+{
+  string * names;
+  object guild;
+  int i;
+
+  names = ({ });
+  for (i = 0; i < sizeof(vault_guilds); i++)
+  {
+    guild = nil;
+    catch(guild = load_object(vault_guilds[i]));
+    names += ({ guild ? guild->query_name() : vault_guilds[i] });
+  }
+  return implode(names, ", ");
+}
+
+// Whether the object may be deposited: any object when the vault names no
+// property to accept.
+int accepts_object(object ob)
+{
+  mixed found;
+
+  if (!strlen(vault_accept_prop))
+    return 1;
+
+  found = ob->query_property(vault_accept_prop);
+  if (found == nil)
+    return 0;
+  return ("" + found) == vault_accept_value;
+}
+
+// Whether this_player() may use the vault: anybody when no guild is named,
+// else coders and the members of the guilds.
+int may_use_vault()
+{
+  string own;
+
+  if (!sizeof(vault_guilds) || this_player()->query_coder())
+    return 1;
+
+  // guilds are named by the full path of their object, .c included
+  own = this_player()->query_guild_ob();
+  return stringp(own) && member_array(own, vault_guilds) != -1;
+}
+
+// The lines that state the restrictions, added to the shared sign.
+string restrictions_text()
+{
+  string text;
+
+  text = "";
+  if (sizeof(vault_guilds))
+    text += _LANG_VAULTS_SIGN_GUILDS;
+  if (strlen(vault_accept_prop))
+    text += _LANG_VAULTS_SIGN_ACCEPT;
+  if (vault_max_items)
+    text += _LANG_VAULTS_SIGN_MAX;
+  return text;
 }
 
 // Where the contents and the log are kept, from the file the vault is written
@@ -104,15 +217,25 @@ void set_vault_storage(string source)
   vault_log = game_save_dir(query_vault_place()) + "vaults/" + name + "-log";
 }
 
-// Put up the sign explaining the vault. Its text is the vault help document,
-// read now, so changing the document changes every vault sign.
+// Put up the sign explaining the vault. Its text is its own one if it has it,
+// else the vault help document (read now, so changing the document changes
+// every vault sign) with the restrictions stated after it.
 object create_vault_sign(object where)
 {
+  string text;
+
   if (vault_sign)
     vault_sign->dest_me();
 
-  vault_sign = where->add_sign(_LANG_VAULTS_SIGN_LONG,
-    handler("help")->query_document_text(doc(VAULT_SIGN_DOC)),
+  // an own text says whatever it wants; the shared document, or one named,
+  // gets the restrictions added to it
+  if (strlen(vault_sign_text))
+    text = vault_sign_text;
+  else
+    text = handler("help")->query_document_text(doc(strlen(vault_sign_doc) ?
+             vault_sign_doc : VAULT_SIGN_DOC)) + restrictions_text();
+
+  vault_sign = where->add_sign(_LANG_VAULTS_SIGN_LONG, text,
     nil, nil, nil, STD_LANG);
   return vault_sign;
 }
@@ -137,6 +260,12 @@ int view_vault_log(string str)
 {
   string name;
   string tmp;
+
+  if (!may_use_vault())
+  {
+    notify_fail(_LANG_VAULTS_NOT_ALLOWED);
+    return 0;
+  }
  
   if (strlen(str)) 
   {
@@ -175,6 +304,12 @@ int do_deposit(string str)
   // object * checked;
   int i;
   int ret;
+
+  if (!may_use_vault())
+  {
+    notify_fail(_LANG_VAULTS_NOT_ALLOWED);
+    return 0;
+  }
 
   if (!strlen(str))
   {
@@ -225,6 +360,18 @@ int do_deposit(string str)
         continue;
       }
 
+      if (!accepts_object(all[i]))
+      {
+        tell_object(this_player(), _LANG_VAULTS_NOT_ACCEPTED);
+        continue;
+      }
+
+      if (vault_max_items && sizeof(all_inventory(vault)) >= vault_max_items)
+      {
+        tell_object(this_player(), _LANG_VAULTS_TOO_MANY);
+        continue;
+      }
+
       if (all[i]->avoid_auto_load())
       {
         tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_AVOID);
@@ -257,7 +404,8 @@ int do_deposit(string str)
       {
       */
 
-      if (!all[i]->query_value())
+      // a vault that names what it accepts takes it whatever it is worth
+      if (!strlen(vault_accept_prop) && !all[i]->query_value())
       {
         tell_object(this_player(), _LANG_VAULT_ROOM_DEPOSIT_NO_VALUE);
         // checked -= ({ all[i] });
@@ -301,6 +449,12 @@ int do_retrieve(string str)
   object vault;
   object *all;
   int i;
+
+  if (!may_use_vault())
+  {
+    notify_fail(_LANG_VAULTS_NOT_ALLOWED);
+    return 0;
+  }
 
   if (!strlen(str))
   {
@@ -375,6 +529,12 @@ int do_list(string str)
   // every mapping entry is an array with the corresponding objects
   mapping objects;
   
+  if (!may_use_vault())
+  {
+    notify_fail(_LANG_VAULTS_NOT_ALLOWED);
+    return 0;
+  }
+
   vault = clone_object(VAULT_FILES_PATH + "vault-obj.c");
   
   // set the order to show
@@ -537,5 +697,8 @@ mixed * stats()
     ({ "Vault Save File", save_file, }),
     ({ "Vault Log", vault_log, }),
     ({ "Vault Admins", vault_admins, }),
+    ({ "Vault Guilds", vault_guilds, }),
+    ({ "Vault Accepts", vault_accept_prop + " = " + vault_accept_value, }),
+    ({ "Vault Max Items", vault_max_items, }),
   });
 }
