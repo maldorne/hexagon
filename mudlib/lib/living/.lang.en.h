@@ -357,6 +357,8 @@
 #define _LANG_SKILL_NONE_YET "You have not learned any skill yet.\n"
 #define _LANG_SKILL_LIST_HEADER "> %^GREEN%^You know the following skills: %^RESET%^<"
 #define _LANG_SKILL_PASSIVE_LEGEND "\n (*) Passive skills\n"
+#define _LANG_SKILL_UNUSABLE_MARK " (!)"
+#define _LANG_SKILL_UNUSABLE_LEGEND "\n (!) Your current guild does not teach it: you cannot use it\n"
 #define _LANG_SKILL_GAINED_PRE "You have learned the skill "
 #define _LANG_SKILL_GAINED_POST "!\n"
 #define _LANG_SKILL_IMPROVED_PRE "You have improved your skill in "
@@ -450,6 +452,8 @@
 #define _LANG_SPELLS_CMDS_SCHOOLS ({ "schools" })
 #define _LANG_SPELLS_CMDS_CAST ({ "cast" })
 #define _LANG_SPELLS_NONE_KNOWN "You know no spell.\n"
+#define _LANG_SPELLS_UNUSABLE_MARK " (!)"
+#define _LANG_SPELLS_UNUSABLE_LEGEND "\n  (!) Your current guild does not teach it: you cannot cast it\n"
 #define _LANG_SPELLS_KNOWN_HEADER "You know these spells:\n"
 #define _LANG_SPELLS_STILL_CASTING "You cannot cast another spell yet.\n"
 #define _LANG_SPELLS_CAST_USAGE "Usage: cast <spell> [<target>]\n"

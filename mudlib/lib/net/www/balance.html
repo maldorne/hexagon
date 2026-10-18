@@ -254,6 +254,8 @@ const median = xs => {
 // ---------- model ----------
 
 const LEVELS = Array.from({ length: 20 }, (_, i) => i + 1);
+// what the level of an ability means: the guild that teaches it; the baselines are by class level
+const LEVEL_NOTE = 'The level of an ability is the level in the guild that teaches it. The baselines it is compared with (hit points, weapon blow) are by class level.';
 const STRONG = 1.5, WEAK = 0.5;
 let D, M;
 
@@ -439,7 +441,7 @@ function lineChart(series, opts) {
     const t = s('text', { x: x(lv), y: H - B + 16, 'text-anchor': 'middle' }); t.textContent = lv; axis.append(t);
   }
   axis.append(s('path', { d: `M${L},${T}V${H - B}H${W - R}`, fill: 'none' }));
-  const xt = s('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', class: 'axis-title' }); xt.textContent = 'level';
+  const xt = s('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', class: 'axis-title' }); xt.textContent = opts.xLabel || 'level';
   const yt = s('text', { x: 14, y: (T + H - B) / 2, 'text-anchor': 'middle', class: 'axis-title', transform: `rotate(-90 14 ${(T + H - B) / 2})` });
   yt.textContent = opts.yLabel || '';
   svg.append(grid, axis, xt, yt);
@@ -493,7 +495,7 @@ function lineChart(series, opts) {
     if (isFinite(hotValue)) {
       dot.setAttribute('cx', x(lv)); dot.setAttribute('cy', y(hotValue)); dot.setAttribute('fill', hot.color); dot.setAttribute('visibility', 'visible');
     } else dot.setAttribute('visibility', 'hidden');
-    tip.replaceChildren(el('div', { class: 't' }, 'Level ' + lv),
+    tip.replaceChildren(el('div', { class: 't' }, (opts.tipLabel || 'Level ') + lv),
       ...rows.slice(0, 14).map(([se, v]) => el('div', { class: 'r' + (se === hot ? ' hot' : hot ? ' dim' : '') },
         el('span', { class: 'swatch', style: 'background:' + se.color }), se.name, el('b', null, fmt(v)))));
     tip.hidden = false;
@@ -581,7 +583,7 @@ function renderOutliers() {
   ];
   const t = dataTable(cols, rows, { sort: 'worst', dir: -1 });
   sec.replaceChildren(
-    el('p', { class: 'lead' }, `Every ability measured in ${metricLabel()} at power ${state.power}, against the median of the abilities of the same kind (damage against damage, heal against heal) that a character of that level can already have. Strong is ×${STRONG} or more, weak ×${WEAK} or less.`),
+    el('p', { class: 'lead' }, `Every ability measured in ${metricLabel()} at power ${state.power}, against the median of the abilities of the same kind (damage against damage, heal against heal) that a character of that level can already have. Strong is ×${STRONG} or more, weak ×${WEAK} or less. ${LEVEL_NOTE}`),
     el('div', { class: 'subtabs' }, t.count), t.node);
 }
 
@@ -629,11 +631,12 @@ function renderCurves() {
   }
   const opt = (key, label) => el('label', null, el('input', { type: 'checkbox', checked: !!state[key], onchange: e => { state[key] = e.target.checked; save(); renderCurves(); } }), label);
   sec.replaceChildren(el('div', { class: 'split' }, picker, el('div', null,
+    el('p', { class: 'lead' }, LEVEL_NOTE),
     el('div', { class: 'overlay-opts' },
       opt('showMedian', 'median of the kind'),
       opt('showRefs', 'weapon blow and target hp (points only)'),
       opt('lockBeforeGain', 'hide levels before it is gained')),
-    lineChart(series, { yLabel: metricLabel() }))));
+    lineChart(series, { yLabel: metricLabel(), xLabel: 'guild level (of the guild that teaches the ability)', tipLabel: 'Guild level ' }))));
 }
 
 // --- heat map
@@ -660,7 +663,7 @@ function renderHeat() {
     })));
   sec.replaceChildren(
     el('div', { class: 'subtabs' }, kinds.map(k => el('button', { 'aria-pressed': String(k === kind), onclick: () => { state.heatKind = k; save(); renderHeat(); } }, k || 'other'))),
-    el('p', { class: 'lead' }, `${metricLabel()} at power ${state.power}. The colour is how far the cell is from the median of the ${kind} abilities available at that level. Faded cells are levels before the ability is gained.`),
+    el('p', { class: 'lead' }, `${metricLabel()} at power ${state.power}. The colour is how far the cell is from the median of the ${kind} abilities available at that level. Faded cells are levels before the ability is gained. ${LEVEL_NOTE}`),
     el('div', { class: 'scale' }, 'weak ×0.25',
       el('span', { class: 'bar', style: 'background:linear-gradient(90deg, var(--weak), transparent, var(--strong))' }), '×4 strong'),
     el('div', { class: 'table-wrap heat' }, el('table', null, el('thead', null, head), el('tbody', null, body))));

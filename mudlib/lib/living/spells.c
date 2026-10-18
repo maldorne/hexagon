@@ -167,7 +167,7 @@ int show_spells(string str)
   string * ids, * names, * reaches;
   string list;
   object ob;
-  int i, width;
+  int i, width, unusable;
 
   if (!mappingp(spells))
     spells = ([ ]);
@@ -182,6 +182,7 @@ int show_spells(string str)
   names = ({ });
   reaches = ({ });
   width = 0;
+  unusable = 0;
   for (i = 0; i < sizeof(ids); i++)
   {
     ob = nil;
@@ -189,6 +190,12 @@ int show_spells(string str)
       catch(ob = load_object(spell_path(ids[i])));
     names += ({ ob ? capitalize(ob->query_effect_name()) : ids[i] });
     reaches += ({ ob ? ob->query_effect_reach_name() : "" });
+    // a spell the current guild does not teach cannot be cast
+    if (ob && !ob->query_usable_by(this_object()))
+    {
+      reaches[i] += _LANG_SPELLS_UNUSABLE_MARK;
+      unusable = 1;
+    }
     if (strlen(names[i]) > width)
       width = strlen(names[i]);
   }
@@ -197,6 +204,9 @@ int show_spells(string str)
   list = "";
   for (i = 0; i < sizeof(names); i++)
     list += sprintf("  %-*s  %s\n", width, names[i], reaches[i]);
+
+  if (unusable)
+    list += _LANG_SPELLS_UNUSABLE_LEGEND;
 
   tell_object(this_object(), _LANG_SPELLS_KNOWN_HEADER + list);
   return 1;

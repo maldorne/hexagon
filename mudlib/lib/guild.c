@@ -231,9 +231,10 @@ int remove_guild_command(string name) {
  * Teaches a skill to the members of the guild, from a guild level on.
  *
  * Call it from the guild's setup. Members get it when they join or reach the
- * level (see grant_guild_skills) and keep it when they leave: a skill that only
- * a member may use checks it when used (see query_guild_refusal in
- * /lib/effects/guild_fixes.c).
+ * level (see grant_guild_skills) and keep it when they leave, but they cannot
+ * use it outside a guild that teaches it: the effect refuses the cast (see
+ * query_casting_level in /lib/effects/base_effect.c). Inside one it runs at
+ * the member's guild level.
  *
  * @param  id       the skill id, see <living/skills.h>
  * @param  level    guild level needed to know it
@@ -246,6 +247,17 @@ void add_guild_skill(string id, int level, varargs int ability)
 }
 
 mapping query_guild_skills() { return guild_skills; }
+
+/**
+ * Whether the guild teaches an effect, at any level.
+ * @param  key  the spell's path (with .c) or the skill's id, see
+ *              query_effect_key in /lib/effects/base_effect.c
+ * @return 1 when add_guild_spell or add_guild_skill named it
+ */
+int query_teaches(string key)
+{
+  return guild_spells[key] != nil || guild_skills[key] != nil;
+}
 
 /**
  * Gives a member every skill of the guild their guild level allows.
@@ -279,9 +291,10 @@ void grant_guild_skills(object player)
  * Teaches a spell to the members of the guild, from a guild level on.
  *
  * Call it from the guild's setup. Members learn it with aprender in the guild
- * room once they reach the level, and keep it when they leave: a spell that
- * only a member may cast checks it when cast (see query_guild_refusal in
- * /lib/effects/guild_fixes.c).
+ * room once they reach the level, and keep it when they leave, but they cannot
+ * cast it outside a guild that teaches it: the effect refuses the cast (see
+ * query_casting_level in /lib/effects/base_effect.c). Inside one it runs at
+ * the member's guild level.
  *
  * @param  path   the spell object, inheriting BASE_EFFECT as a spell
  * @param  level  guild level needed to learn it

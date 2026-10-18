@@ -91,7 +91,7 @@ private void draw_attention(object caster, object target)
 {
   int amount;
 
-  amount = caster->query_level() * FOCUS_AGGRO_PER_LEVEL;
+  amount = query_casting_level(caster) * FOCUS_AGGRO_PER_LEVEL;
   if (amount < FOCUS_AGGRO_PER_LEVEL)
     amount = FOCUS_AGGRO_PER_LEVEL;
 
@@ -174,7 +174,7 @@ int do_focus(object caster, mixed target, mixed out_range, int time, int quiet)
 
   draw_attention(caster, ob);
 
-  ticks = caster->query_level() * FOCUS_TICKS_PER_LEVEL;
+  ticks = query_casting_level(caster) * FOCUS_TICKS_PER_LEVEL;
   if (ticks < FOCUS_TICKS_PER_LEVEL)
     ticks = FOCUS_TICKS_PER_LEVEL;
 

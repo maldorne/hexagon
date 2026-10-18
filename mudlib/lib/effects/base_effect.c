@@ -732,6 +732,95 @@ int query_given_level(varargs object caster)
 }
 
 /**
+ * What guilds teach this effect by: the spell's path (with .c) or the skill's
+ * id (its file name without .c), as add_guild_spell and add_guild_skill take it.
+ */
+string query_effect_key()
+{
+  string path;
+  string * parts;
+
+  path = object_name(this_object());
+  if (strlen(path) < 2 || path[strlen(path) - 2..] != ".c")
+    path += ".c";
+
+  if (query_effect_type() == EFFECT_IS_SPELL)
+    return path;
+
+  parts = explode(path, "/");
+  path = parts[sizeof(parts) - 1];
+  return path[0..strlen(path) - 3];
+}
+
+/**
+ * Whether the guild the caster belongs to teaches this effect.
+ */
+private int is_taught_by_guild_of(object caster)
+{
+  string path;
+  object guild;
+
+  path = caster->query_guild_ob();
+  if (!path)
+    return 0;
+
+  guild = nil;
+  catch(guild = load_object(path));
+  return guild && guild->query_teaches(query_effect_key());
+}
+
+/**
+ * Whether some guild of the game teaches this effect. Those that none does
+ * (hiding, climbing, the skills of a class) are generic, open to everyone.
+ */
+int query_guild_effect(object caster)
+{
+  object guilds;
+
+  guilds = handler("guilds", caster);
+  return guilds && guilds->query_taught(query_effect_key(), caster);
+}
+
+/**
+ * Whether the caster may use the effect on its own: it is generic, or the
+ * guild the caster belongs to now teaches it. A cast at a given level (a
+ * scroll) does not ask: see cast_effect_at.
+ */
+int query_usable_by(object caster)
+{
+  if (is_taught_by_guild_of(caster))
+    return 1;
+
+  return !query_guild_effect(caster);
+}
+
+/**
+ * The one level every guild spell and skill is fed: a given level first (a
+ * scroll, an item), else the caster's level in the guild that teaches the
+ * effect, which is the guild the caster belongs to now. A generic effect
+ * (no guild teaches it) uses the guild level of the caster, or its level for
+ * a monster with no guild. At least 1: an effect the caster may not use is
+ * refused when cast (see query_usable_by) and never gets here, but one that
+ * outlives the cast may still ask.
+ * The level of a target (resist rolls) is not this one: it stays the class
+ * level.
+ * @param  caster  who uses the effect
+ * @return 1 to 20
+ */
+int query_casting_level(object caster)
+{
+  int level;
+
+  level = query_given_level(caster);
+  if (level < 1)
+    level = caster->query_guild_level();
+  if (level < 1)
+    level = caster->query_level();
+
+  return level < 1 ? 1 : level;
+}
+
+/**
  * Starts the effect for a caster at a given level, as a scroll or a wand does:
  * it spends no gp, shows no begin messages (the item tells its own) and the
  * level is held on the caster, as a timed property, for as long as the rounds
@@ -918,6 +1007,14 @@ int cast_effect(string str, object who, int quiet)
       ( stringp( exstr = this_object()->extra_checks(str, caster) ) ) )
     {
         notify_fail(exstr);
+        return 0;
+    }
+
+    // a guild effect is only usable inside a guild that teaches it; a scroll
+    // or an item casts at its own level, whoever reads it
+    if (!at_level && !query_usable_by(caster))
+    {
+        notify_fail(MSG_NOT_TAUGHT);
         return 0;
     }
 

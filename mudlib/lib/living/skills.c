@@ -292,13 +292,14 @@ private string skill_value_text(string id)
 int list_skills(varargs string str)
 {
   string ret, skill_name;
-  int passive_skills_found;
+  int passive_skills_found, unusable_skills_found;
   string * categories;
   int i, j;
 
   ret = "";
   skill_name = "";
   passive_skills_found = 0;
+  unusable_skills_found = 0;
   categories = ({ });
   i = 0;
   j = 0;
@@ -371,6 +372,14 @@ int list_skills(varargs string str)
         passive_skills_found = 1;
       }
       
+      // a skill the current guild does not teach cannot be used
+      if (function_object("query_usable_by", f) &&
+          !f->query_usable_by(this_object()))
+      {
+        skill_name += _LANG_SKILL_UNUSABLE_MARK;
+        unusable_skills_found = 1;
+      }
+
       ret += sprintf("\t%-35s %s (%s)\n", skill_name,
                 skill_value_cell(known_skills[i]),
                 skill_value_text(known_skills[i]));
@@ -379,6 +388,9 @@ int list_skills(varargs string str)
     
   if (passive_skills_found)
     ret += _LANG_SKILL_PASSIVE_LEGEND;
+
+  if (unusable_skills_found)
+    ret += _LANG_SKILL_UNUSABLE_LEGEND;
     
   ret += sprintf("\n%p%*s\n", '-', this_user()->query_cols(), "");
   tell_object(this_object(), ret);
