@@ -16,6 +16,7 @@
 #include <translations/money.h>
 #include <living/skills.h>
 #include <npc/npc.h>
+#include <living/effects.h>
 
 inherit monster   "/lib/monster.c";
 // Inventory persistence, the same mixin players use: create_auto_load snapshots
@@ -536,6 +537,67 @@ private void join_template_guild(string guild)
     "\n");
 }
 
+/**
+ * Teaches the NPC the spells of an attack_spells or self_spells entry of its
+ * template and has it cast them on its own in a fight.
+ * @param  spells  ([ "<spell id>": <chance> ]) or, for a self spell,
+ *                 ([ "<spell id>": ([ "chance": <n>, "hurt": <percent> ]) ])
+ * @param  self    1 for the spells it casts on itself
+ */
+private void apply_template_spells(mixed spells, int self)
+{
+  string * ids, path;
+  mixed entry, data;
+  int i, chance, aim;
+
+  if (!mappingp(spells))
+    return;
+
+  ids = map_indices(spells);
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    path = table("spells")->query_spell_path(ids[i]);
+    if (!path)
+      continue;
+
+    entry = spells[ids[i]];
+    chance = 0;
+    data = 0;
+    if (intp(entry))
+      chance = entry;
+    else if (mappingp(entry) && intp(entry["chance"]))
+    {
+      chance = entry["chance"];
+      data = entry["hurt"];
+    }
+    if (chance < 1)
+      continue;
+
+    // an offensive spell goes where it reaches: the whole place, or one of
+    // the attackers
+    if (self)
+      aim = ATTACK_EFFECT_TARGET_CASTER;
+    else
+      switch (path->query_target_type())
+      {
+        case TARGET_TYPE_ALL:
+        case TARGET_TYPE_NONE:
+        case TARGET_TYPE_SELF:
+          aim = ATTACK_EFFECT_TARGET_ALL;
+          break;
+        default:
+          aim = ATTACK_EFFECT_TARGET_ONE;
+          break;
+      }
+
+    add_spell(ids[i], path);
+    add_attack_effect(chance, ids[i],
+      intp(data) && data > 0 ?
+        ({ path, "cast_effect", aim, 0, data }) :
+        ({ path, "cast_effect", aim }));
+  }
+}
+
 void apply_template(mapping t, varargs int born)
 {
   int g;
@@ -675,6 +737,15 @@ void apply_template(mapping t, varargs int born)
              ATTACK_EFFECT_TARGET_ONE }));
     }
   }
+
+  // Spells the type casts unprompted, with the chance each heart beat of
+  // trying one: ([ "<spell id>" : <chance> ]), the ids of the spells catalogue.
+  // attack_spells go at whoever it is fighting (all of them when the spell
+  // reaches the whole place); self_spells are for itself, a healing or a ward,
+  // and take either the chance or ([ "chance": <n>, "hurt": <percent> ]) to
+  // cast only once its hit points are under that percentage. Each is known too.
+  apply_template_spells(t["attack_spells"], 0);
+  apply_template_spells(t["self_spells"], 1);
 
   // Behaviour the type carries: ([ "<component>" : ([ attrs ]) ]). This is how
   // a template says its people can do something a data field cannot describe --
