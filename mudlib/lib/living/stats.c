@@ -89,6 +89,8 @@ void update_tmps();
 int query_stat_bonus_to_con();
 int query_stat_bonus(int num);
 int query_gp_main_stat();
+int query_level_hp_gain();
+int query_level_gp_gain();
 
 /* Cambio mas importante del archivo, neverbot Abril'04
  * Para reducir el numero de variables, cada lista de stats
@@ -204,6 +206,56 @@ string stat_string(int i)
   return "18/"+(i-18)+"0";
 }
 
+/**
+ * The hit points one level gives this living: the hit dice of its class (a die
+ * for a living without class, random), plus the constitution bonus and the
+ * hp bonus of the class; never less than 1.
+ */
+int query_level_hp_gain()
+{
+  object class_ob;
+  int gain;
+
+  class_ob = load_object(this_object()->query_class_ob());
+
+  if (class_ob)
+    gain = class_ob->query_hit_dice();
+  else if (interactive(this_object()))
+    gain = roll(1, 6); // Newbies
+  else
+    gain = roll(1, 8); // NPCs without a class
+
+  // hp_bonus works by the stat bonuses, neverbot 7/03
+  gain += query_stat_bonus_to_con() + (class_ob ? class_ob->query_hp_bonus() : 0);
+
+  return gain <= 0 ? 1 : gain;
+}
+
+/**
+ * The gp one level gives this living: the gp dice of its class (a die for a
+ * living without class, random), plus the bonus of its main gp stat and the
+ * gp bonus of the class; never less than 1.
+ */
+int query_level_gp_gain()
+{
+  object class_ob;
+  int gain;
+
+  class_ob = load_object(this_object()->query_class_ob());
+
+  if (class_ob)
+    gain = class_ob->query_gp_dice();
+  else if (interactive(this_object()))
+    gain = roll(1, 6); // Newbies
+  else
+    gain = roll(1, 8); // NPCs without a class
+
+  gain += query_stat_bonus(query_gp_main_stat()) +
+          (class_ob ? class_ob->query_gp_bonus() : 0);
+
+  return gain <= 0 ? 1 : gain;
+}
+
 /* This is ugly.. 
  * But a test right now..
  * This does calculate the adjustments of max_gp & max_hp 
@@ -211,53 +263,14 @@ string stat_string(int i)
  */
 void recalc_stats(int i)
 {
-  object class_ob;
   int aux, aux2, e;
-  
-  int hp_bonus, gp_bonus;
-  
-  class_ob = load_object(this_object()->query_class_ob());
-  
-  // Cambiado, ahora hp_bonus y gp_bonus funcionan por los bonificadores segun
-  //  caracteristica, neverbot 7/03
-  hp_bonus = query_stat_bonus_to_con() + 
-       (class_ob?class_ob->query_hp_bonus():0);
-  gp_bonus = query_stat_bonus(query_gp_main_stat()) + 
-       (class_ob?class_ob->query_gp_bonus():0);
 
   calc();
   for (e = 0; e < i; e++)
   {
-    if(class_ob)
-    {
-      // Eliminamos el azar en los puntos de vida y gps ganados por nivel, neverbot 06/12
-  
-      // En el primer nivel se obtienen todos los dados de golpe
-      // if (this_object()->query_level() == 0)
-      // {
-        aux = class_ob->query_hit_dice();
-        aux2 = class_ob->query_gp_dice();
-      // }
-      // else 
-      // {
-      //   aux = roll(1, class_ob->query_hit_dice()/2) + class_ob->query_hit_dice()/2;
-      //   aux2 = roll(1, class_ob->query_gp_dice()/2) + class_ob->query_gp_dice()/2;
-      // }
-    }
-    else // Newbies y/o NPCs sin clase
-    {
-      if(interactive(this_object()))
-        aux = aux2 = roll(1, 6); // + 4; 
-      else
-        aux = aux2 = roll(1, 8);
-    }
-
-    aux += hp_bonus;
-    aux2 += gp_bonus;
-    if (aux <= 0) 
-      aux = 1;
-    if (aux2 <= 0) 
-      aux2 = 1;
+    // Eliminamos el azar en los puntos de vida y gps ganados por nivel, neverbot 06/12
+    aux = query_level_hp_gain();
+    aux2 = query_level_gp_gain();
 
     this_object()->set_max_hp(this_object()->query_max_hp() + aux);
     this_object()->set_max_gp(this_object()->query_max_gp() + aux2);

@@ -82,6 +82,24 @@ No skill or spell keeps its own `call_out` chain to repeat something: anything p
 
 `heart_beat_failed()` on the living drops every effect in execution, every lasting effect (`cleared`) and the action queue. The heart_beat handler (`lib/core/secure/heart_beats.c`) calls it when a heart_beat errors, then turns the heart_beat off; the `restart` command calls it and turns the heart_beat back on, whether it was off or not. Dying ends the lasting effects with `death`.
 
+## Balance: `query_balance`
+
+An effect that damages or heals describes one cast in `mapping query_balance(object caster)` (`BASE_EFFECT`; the default returns nil: neither). It is a pure function for the `balance` command (`lib/cmds/admin/balance.c`), which writes the numbers of a game as CSV files: no rolls, no messages, no change of state, and the numbers come from the same helpers the cast uses, so there is one formula. It reads the caster's level and power the way the cast does (`PROPERTY_CAST_LEVEL` and `PROPERTY_CAST_POWER`, see "At a level"), and the stats of the caster.
+
+`make_balance(caster, kind, targets, rounds, range, type, note)` builds the answer; the keys:
+
+| key | what |
+|---|---|
+| `kind` | `"damage"` or `"heal"` |
+| `average`, `minimum`, `maximum` | hit points one target gets over the whole cast, all rounds (average is a float; the other two ints) |
+| `targets` | `"one"` or `"area"` (the amounts are per target) |
+| `rounds` | combat rounds from the start of the cast until the last of it is delivered |
+| `damage_type` | the damage type, `""` when none |
+| `cost` | the gp of the cast: a spell at its lowest category level and the caster's power, a skill its `gp_cost` |
+| `note` | short free text: `"per hit"`, `"undead only"`, what was assumed |
+
+Every projectile or touch is assumed to land and no target to resist, unless the note says otherwise. Helpers of the base: `dice_range(dice, faces, bonus)` gives `({ minimum, average, maximum })`, `scale_range(caster, range)` applies the `fix_amount` of the spell base (stat adjustment) to it and `repeat_range(range, times)` repeats it. Those with an amount that depends on the situation (hit location, armour class, the gp of the caster) answer for the plain case and say so in the note.
+
 ## Guild skills
 
 A guild teaches skills with `add_guild_skill(id, guild_level [, value])` in its `setup` (`lib/guild.c`); `grant_guild_skills` gives them on joining, on reaching the level and at login. Leaving a guild takes nothing back: a player may join another and keeps what they learned.

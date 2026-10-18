@@ -14,6 +14,8 @@
 
 #include <living/food.h>
 #include <living/living.h>
+#include <living/health.h>
+#include <mud/mudos.h>
 #include <common/properties.h>
 #include <translations/combat.h>
 #include <translations/races.h>
@@ -305,6 +307,40 @@ void heal_gp(int i, int intox)
   return;
 }
 
+/**
+ * The seconds a living with a stat value (its constitution for hit points,
+ * its main stat for gp) waits on average for each point it regenerates: the
+ * exact expectation of the rule in heart_beat, E[T] = sum of P(T > n), where
+ * the counter reads n at the check of the beat n + 1.
+ *
+ * @param  stat  the constitution or main stat value
+ * @return the average seconds per point
+ */
+float query_regen_seconds(int stat)
+{
+  float waiting, beats, chance;
+  int beat;
+
+  waiting = 1.0;
+  beats = 0.0;
+
+  for (beat = 0; beat < 200 && waiting > 0.0; beat++)
+  {
+    // P(T > beat): no point yet at any of the earlier checks
+    beats += waiting;
+
+    chance = (float)(beat + stat - REGEN_THRESHOLD + 1) / (float)REGEN_RANDOM;
+    if (chance < 0.0)
+      chance = 0.0;
+    if (chance > 1.0)
+      chance = 1.0;
+
+    waiting *= 1.0 - chance;
+  }
+
+  return beats * (float)HEART_BEAT_TIME;
+}
+
 // Hamlet -- this is so noncombat rooms can keep players from healing
 void set_no_heal() { no_heal = 1; }
 void set_heal() { no_heal = 0; }
@@ -355,9 +391,9 @@ void heart_beat()
   //   this_object()->curses_heart_beat();
 
   // hp regen system updated, neverbot@Cc, 13/7/03
-  if ((hp_counter + query_con()) >= 22 + random(10))
+  if ((hp_counter + query_con()) >= REGEN_THRESHOLD + random(REGEN_RANDOM))
     regen_hp = 1;
-  if ((gp_counter + query_gp_main_stat()) >= 22 + random(10))
+  if ((gp_counter + query_gp_main_stat()) >= REGEN_THRESHOLD + random(REGEN_RANDOM))
     regen_gp = 1;
 
   if (regen_hp || regen_gp) 

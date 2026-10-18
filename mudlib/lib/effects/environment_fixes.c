@@ -15,6 +15,10 @@ int implement_environment_mods(object caster, int damage) {
   mixed location;
   int adj;
 
+  // a caster that is nowhere (a test dummy) has no place to adjust by
+  if (!environment(caster))
+    return damage;
+
   // a location may keep something else under this property: only a kind of
   // place (a string) can have a modifier
   location = environment(caster)->query_property("location");

@@ -163,6 +163,9 @@ string * query_aliases() { return aliases; }
 
 string * query_categories() { return keys(categories); }
 
+// the categories with the level the effect has in each
+mapping query_category_levels() { return ([ ]) + categories; }
+
 /**
  * The lowest level the effect has in any of its categories (1 when it has
  * none): the level it is priced by when no caster is at hand.
@@ -421,24 +424,18 @@ int query_effect_power(varargs object caster)
   return caster->query_effect_category(query_effect_category(caster));
 }
 
-// Effective gp cost of this effect for a caster. Skills cost a fixed amount;
-// spells scale with the effect level and are then surcharged or discounted
-// by how well the caster knows the effect's category. Absorbed from the old
-// effects_table, which was a single stateless formula rather than data.
-int query_effect_gp_cost(varargs object caster)
+/**
+ * The gp a spell costs at a spell level and with a power (how well the caster
+ * knows its category): the curve of the level, doubled for a minor power and
+ * halved for a major one.
+ */
+int query_gp_cost_at(int level, int power)
 {
   // Base cost per spell level (index level-1); levels beyond the curve fall
-  // back to a linear cost. Skills never reach this — they cost gp_cost.
+  // back to a linear cost. Skills never reach this -- they cost gp_cost.
   int * curve;
-  int level, base;
+  int base;
 
-  if (effect_type != EFFECT_IS_SPELL)
-    return gp_cost;
-
-  if (!caster)
-    caster = this_player();
-
-  level = query_effect_level(caster);
   curve = ({ 2, 4, 6, 9, 13, 18, 23, 29, 35 });
 
   if (level >= 1 && level <= sizeof(curve))
@@ -448,13 +445,140 @@ int query_effect_gp_cost(varargs object caster)
 
   // Adjust by the caster's knowledge of the effect's category.
   if (sizeof(query_categories()))
-    switch (query_effect_power(caster))
+    switch (power)
     {
     case 1: return 2 * base;   // knows it poorly -> costs more
     case 3: return base / 2;   // knows it well  -> costs less
     }
 
   return base;
+}
+
+// Effective gp cost of this effect for a caster. Skills cost a fixed amount;
+// spells scale with the effect level and are then surcharged or discounted
+// by how well the caster knows the effect's category. Absorbed from the old
+// effects_table, which was a single stateless formula rather than data.
+int query_effect_gp_cost(varargs object caster)
+{
+  if (effect_type != EFFECT_IS_SPELL)
+    return gp_cost;
+
+  if (!caster)
+    caster = this_player();
+
+  return query_gp_cost_at(query_effect_level(caster), query_effect_power(caster));
+}
+
+/**
+ * What the effect does to hit points, for the balance dump (the balance
+ * command): a pure description of one cast, from the same numbers the cast
+ * uses. No rolls, no messages, no change of state. An effect that neither
+ * damages nor heals answers nil (this default); one that does overrides it and
+ * builds the answer with make_balance. See lib/obj/skills/skills.md.
+ *
+ * @param  caster  who casts it; its level and power (PROPERTY_CAST_LEVEL and
+ *                 PROPERTY_CAST_POWER) and stats are the ones the numbers follow
+ * @return nil, or a mapping with the keys of make_balance
+ */
+mapping query_balance(object caster)
+{
+  return nil;
+}
+
+/**
+ * Builds the answer of query_balance. Every cast is assumed to land: each hit
+ * rolls true and no target resists, unless the note says otherwise.
+ *
+ * @param  caster   who casts it
+ * @param  kind     "damage" or "heal"
+ * @param  targets  "one" or "area" (the amounts are per target)
+ * @param  cast_rounds  combat rounds from the start of the cast until the
+ *                  last of the amount is delivered
+ * @param  range    ({ minimum, average, maximum }) of what one target gets in
+ *                  the whole cast, all rounds: ints, a float, an int
+ * @param  type     the damage type, "" when none
+ * @param  note     short free text ("per hit", "vs undead only")
+ */
+mapping make_balance(object caster, string kind, string targets, int cast_rounds,
+                     mixed * range, string type, string note)
+{
+  int cost;
+
+  // a spell is priced at its lowest category level, the one a caster who
+  // knows that category best pays; a skill costs what it costs
+  if (effect_type == EFFECT_IS_SPELL)
+    cost = query_gp_cost_at(query_lowest_level(), query_effect_power(caster));
+  else
+    cost = gp_cost;
+
+  // the rounding of each roll can push the scaled average off the bounds
+  if ((float)range[1] < (float)(int)range[0])
+    range[1] = (float)(int)range[0];
+  if ((float)range[1] > (float)(int)range[2])
+    range[1] = (float)(int)range[2];
+
+  return ([
+    "kind":        kind,
+    "targets":     targets,
+    "rounds":      cast_rounds,
+    "minimum":     (int)range[0],
+    "average":     (float)range[1],
+    "maximum":     (int)range[2],
+    "damage_type": type,
+    "cost":        cost,
+    "note":        note,
+  ]);
+}
+
+/**
+ * The minimum, average and maximum of some dice and a fixed bonus.
+ *
+ * @return ({ minimum, average, maximum }), see make_balance
+ */
+mixed * dice_range(int dice, int faces, int bonus)
+{
+  // dice without faces roll nothing
+  if (faces < 1 || dice < 1)
+    return ({ bonus, (float)bonus, bonus });
+
+  return ({ dice + bonus,
+            (float)dice * (float)(faces + 1) / 2.0 + (float)bonus,
+            dice * faces + bonus });
+}
+
+/**
+ * A range repeated some times (the same amount delivered again and again).
+ *
+ * @return ({ minimum, average, maximum }), see make_balance
+ */
+mixed * repeat_range(mixed * range, int times)
+{
+  return ({ (int)range[0] * times, (float)range[1] * (float)times,
+            (int)range[2] * times });
+}
+
+/**
+ * A range adjusted the way the cast adjusts its amount (fix_amount of the
+ * spell base, the caster's wisdom or intelligence): the bounds go through it as
+ * they are, the average by the factor it gives, so the whole-number rounding
+ * of each roll is not counted.
+ *
+ * @return ({ minimum, average, maximum }), see make_balance
+ */
+mixed * scale_range(object caster, mixed * range)
+{
+  int low, high;
+  float factor;
+
+  low = (int)this_object()->fix_amount(caster, (int)range[0]);
+  high = (int)this_object()->fix_amount(caster, (int)range[2]);
+  factor = (float)(int)this_object()->fix_amount(caster, 1000) / 1000.0;
+
+  // a fixed amount has no average to scale
+  if ((int)range[0] == (int)range[2])
+    return ({ low, (float)low, high });
+
+  return ({ low, (float)range[1] * factor, high });
 }
 
 // The effect's help text.
