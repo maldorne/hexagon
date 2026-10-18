@@ -371,3 +371,26 @@
 #define _LANG_BOOK_LONG_TITLED "Un libro de tapas gastadas. En la cubierta se lee: «" + \
         title + "».\n"
 #define _LANG_BOOK_HAS_TEXT "Parece que tiene algo escrito.\n"
+
+// scroll. `reader` lee el pergamino, `spell_name` es el nombre del hechizo, `str`
+// lo que el lector nombró, `level` el nivel con el que se escribió
+
+#define _LANG_SCROLL_NAME "pergamino"
+#define _LANG_SCROLL_ALIASES ({ "pergamino" })
+#define _LANG_SCROLL_PLURAL "pergaminos"
+#define _LANG_SCROLL_PLURALS ({ "pergaminos" })
+#define _LANG_SCROLL_SHORT "Pergamino en blanco"
+#define _LANG_SCROLL_LONG "Una hoja de buen pergamino, enrollada y atada con un hilo. No tiene nada escrito.\n"
+#define _LANG_SCROLL_SHORT_WRITTEN "Pergamino de " + spell_name
+#define _LANG_SCROLL_LONG_WRITTEN "Un pergamino enrollado y sellado, cubierto de una caligrafía cuidada.\n"
+#define _LANG_SCROLL_LONG_LEGIBLE "Puedes leerlo: contiene el hechizo " + spell_name + ", escrito con el poder del nivel " + level + ". Leerlo en voz alta liberará el hechizo, y el pergamino se deshará.\n"
+#define _LANG_SCROLL_LONG_RUNES "La escritura son runas que no logras descifrar.\n"
+#define _LANG_SCROLL_OF "de"
+#define _LANG_SCROLL_BLANK "El pergamino no tiene nada escrito.\n"
+#define _LANG_SCROLL_RUNES "El pergamino está cubierto de runas que no significan nada para ti.\n"
+#define _LANG_SCROLL_DARK "No ves lo suficiente para leer el pergamino.\n"
+#define _LANG_SCROLL_NOT_CARRIED "Tienes que llevar el pergamino contigo para leerlo en voz alta.\n"
+#define _LANG_SCROLL_BURNS_ME "Te trabas con las palabras y el pergamino estalla en llamas entre tus manos.\n"
+#define _LANG_SCROLL_BURNS_ROOM " se traba con las palabras de un pergamino, que estalla en llamas.\n"
+#define _LANG_SCROLL_CRUMBLES_ME "Lees el pergamino en voz alta y se deshace en polvo al escapar el hechizo.\n"
+#define _LANG_SCROLL_CRUMBLES_ROOM " lee un pergamino en voz alta, y este se deshace en polvo.\n"

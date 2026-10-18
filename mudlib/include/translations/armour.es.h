@@ -20,6 +20,10 @@
 // brigandine: like a vest with plates inside
 #define BRIGANDINE "brigantina"
 #define CHAIN_MAIL "cota de mallas"
+// elfin and drow chain: light metal mails, the only metal body armour that does
+// not choke the spells of the guilds that refuse metal (see query_legal_casting_armour)
+#define ELFIN_CHAIN "cota de mallas élfica"
+#define DROW_CHAIN "cota de mallas drow"
 // banded mail: chain mail reinforced with leather bands
 #define BANDED_MAIL "cota de bandas y mallas"
 #define PLATE_MAIL "cota de placas"

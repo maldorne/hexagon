@@ -31,6 +31,7 @@
 #include <living/spells.h>
 #include <living/effects.h>
 #include <language.h>
+#include <common/properties.h>
 
 // the spells this living knows: id -> ({ path of the spell object }), see
 // add_spell; every spell is an effect (BASE_EFFECT) cast with formular
@@ -245,6 +246,13 @@ int cast(string str)
     return 0;
   }
 
+  // whoever cannot cast right now (an effect that takes the spells away)
+  if (this_object()->query_property(NOCAST_PROP))
+  {
+    notify_fail(_LANG_SPELLS_NO_CAST);
+    return 0;
+  }
+
   guild = this_object()->query_guild_ob() ?
           load_object(this_object()->query_guild_ob()) : nil;
 
@@ -263,7 +271,8 @@ int cast(string str)
   {
     for (i = 0; i < sizeof(armours); i++)
     {
-      if (!guild->query_legal_armour((string)armours[i]->query_armour_type_name()))
+      // the guild judges each worn piece (its kind, its material, which one it is)
+      if (!guild->query_legal_casting_armour(armours[i]))
       {
         notify_fail(_LANG_SPELLS_ILLEGAL_ARMOUR);
         return 0;

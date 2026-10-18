@@ -21,9 +21,10 @@ void setup()
 static int cmd(string str, object me, string verb)
 {
   object * obs, ob;
-  string text, what;
+  string text, what, item, rest;
+  string * words;
   mixed written;
-  int i, found;
+  int i, j, found;
 
   if (!str || !strlen(str))
   {
@@ -43,6 +44,17 @@ static int cmd(string str, object me, string verb)
         return 1;
   }
 
+  // a scroll is read aloud at a target: "<scroll> on <target>"
+  words = _LANG_CMD_READ_SCROLL_ON;
+  for (j = 0; j < sizeof(words); j++)
+    if (sscanf(str, "%s " + words[j] + " %s", item, rest) == 2)
+    {
+      obs = find_match(item, ({ me, environment(me) }));
+      for (i = 0; i < sizeof(obs); i++)
+        if (obs[i]->query_scroll())
+          return obs[i]->read_scroll(me, rest);
+    }
+
   // what you carry and what is here, the way every other verb looks
   obs = find_match(str, ({ me, environment(me) }));
 
@@ -55,6 +67,10 @@ static int cmd(string str, object me, string verb)
   for (i = 0; i < sizeof(obs); i++)
   {
     ob = obs[i];
+
+    // a scroll is read aloud, and the spell leaves it
+    if (ob->query_scroll())
+      return ob->read_scroll(me, "");
 
     // a book is read page by page, and only one at a time
     if (ob->query_book())

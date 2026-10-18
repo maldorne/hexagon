@@ -468,10 +468,16 @@
                             "cuáles sabes.\n" + \
                             "\n" + \
                             "Leer no es lo mismo que mirar: 'mirar <objeto>' te dice cómo es la cosa, " + \
-                            "'leer <objeto>' te da lo que pone en ella."
+                            "'leer <objeto>' te da lo que pone en ella.\n" + \
+                            "\n" + \
+                            "Un pergamino se lee en voz alta, nombrando su objetivo si el hechizo lo " + \
+                            "tiene: 'leer <pergamino> sobre <objetivo>'. Solo quien conoce la magia de " + \
+                            "su hechizo puede descifrar la escritura."
 #define _LANG_CMD_READ_WHAT "¿Leer el qué?\n"
 #define _LANG_CMD_READ_CANNOT_FIND "No ves ningún '" + str + "' por aquí.\n"
 #define _LANG_CMD_READ_NOTHING_WRITTEN capitalize(what) + " no tiene nada escrito.\n"
+// the word that names the target of a scroll read aloud
+#define _LANG_CMD_READ_SCROLL_ON ({ "sobre", "on" })
 
 // group. `name` is the party's name, `who` the one being talked about, and
 // `str` what the player typed

@@ -461,6 +461,7 @@
 #define _LANG_SPELLS_STILL_CASTING "No puedes formular otro hechizo hasta que transcurra algún tiempo.\n"
 #define _LANG_SPELLS_CAST_USAGE "Uso: formular <hechizo> [<objetivo>]\n"
 #define _LANG_SPELLS_DEAD "Los espíritus no pueden formular hechizos.\n"
+#define _LANG_SPELLS_NO_CAST "No puedes formular hechizos en este momento.\n"
 #define _LANG_SPELLS_ILLEGAL_ARMOUR "No puedes formular hechizos mientras vistas esa armadura.\n"
 #define _LANG_SPELLS_UNKNOWN "No conoces ningún hechizo llamado así.\n"
 #define _LANG_SPELLS_NO_SPHERES "No formulas de ninguna esfera.\n"

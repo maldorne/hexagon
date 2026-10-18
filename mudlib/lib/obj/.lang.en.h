@@ -371,3 +371,26 @@
 #define _LANG_BOOK_LONG_TITLED "A book with worn covers. Its cover reads: \"" + \
         title + "\".\n"
 #define _LANG_BOOK_HAS_TEXT "It seems to have something written on it.\n"
+
+// scroll. `reader` reads it, `spell_name` is the spell's name, `str` what the
+// reader named, `level` the level it was written with
+
+#define _LANG_SCROLL_NAME "scroll"
+#define _LANG_SCROLL_ALIASES ({ "scroll", "parchment" })
+#define _LANG_SCROLL_PLURAL "scrolls"
+#define _LANG_SCROLL_PLURALS ({ "scrolls", "parchments" })
+#define _LANG_SCROLL_SHORT "Blank scroll"
+#define _LANG_SCROLL_LONG "A sheet of good parchment, rolled up and tied with a thread. Nothing is written on it.\n"
+#define _LANG_SCROLL_SHORT_WRITTEN "Scroll of " + spell_name
+#define _LANG_SCROLL_LONG_WRITTEN "A parchment rolled up and sealed, covered in careful handwriting.\n"
+#define _LANG_SCROLL_LONG_LEGIBLE "You can read it: it holds the spell " + spell_name + ", written with the power of level " + level + ". Reading it aloud will set the spell free, and the parchment will crumble.\n"
+#define _LANG_SCROLL_LONG_RUNES "The writing is made of runes you cannot make out.\n"
+#define _LANG_SCROLL_OF "of"
+#define _LANG_SCROLL_BLANK "There is nothing written on the scroll.\n"
+#define _LANG_SCROLL_RUNES "The scroll is covered in runes that mean nothing to you.\n"
+#define _LANG_SCROLL_DARK "You cannot see well enough to read the scroll.\n"
+#define _LANG_SCROLL_NOT_CARRIED "You must carry the scroll to read it aloud.\n"
+#define _LANG_SCROLL_BURNS_ME "You stumble over the words, and the scroll bursts into flames in your hands.\n"
+#define _LANG_SCROLL_BURNS_ROOM " stumbles over the words of a scroll, which bursts into flames.\n"
+#define _LANG_SCROLL_CRUMBLES_ME "You read the scroll aloud and it crumbles to dust as the spell leaves it.\n"
+#define _LANG_SCROLL_CRUMBLES_ROOM " reads a scroll aloud, and it crumbles to dust.\n"

@@ -41,6 +41,7 @@ string* property_checks;  // properties that prevent the effect from running
 int effect_range;         // how many exits away a target that moves is still
                           // followed once the effect has started (0: none)
 string effect_reach;      // reach id set by hand, see query_effect_reach
+static int casting_at_level;  // set while cast_effect_at starts the effect
 int silence;              // whether messages are shown on screen (useful for
                           // silent spells and similar)
 int fast_casting;         // instant effects
@@ -161,6 +162,25 @@ void set_aliases(string * a) { aliases = a ? a : ({ }); }
 string * query_aliases() { return aliases; }
 
 string * query_categories() { return keys(categories); }
+
+/**
+ * The lowest level the effect has in any of its categories (1 when it has
+ * none): the level it is priced by when no caster is at hand.
+ */
+int query_lowest_level()
+{
+  mixed * levels;
+  int i, lowest;
+
+  levels = map_values(categories);
+  lowest = 0;
+  for (i = 0; i < sizeof(levels); i++)
+    if (!lowest || (int)levels[i] < lowest)
+      lowest = (int)levels[i];
+
+  return lowest < 1 ? 1 : lowest;
+}
+
 void set_categories(mapping str) { categories = map_copy(str); }
 void add_category(string str, int level) { categories[str] = level; }
 
@@ -481,6 +501,59 @@ string help()
     return ret;
 }
 
+int cast_effect(string str, object who, int quiet);
+
+/**
+ * The level a cast "at a given level" carries (see cast_effect_at): 0 when
+ * the caster is not casting that way. A spell reads it first, in the helpers
+ * that feed its formulas the level of the caster, so the amounts and
+ * durations follow the level it was given instead of the caster's own.
+ */
+int query_given_level(varargs object caster)
+{
+  mixed given;
+
+  if (!caster)
+    caster = this_player();
+
+  given = caster->query_timed_property(PROPERTY_CAST_LEVEL);
+  return intp(given) ? given : 0;
+}
+
+/**
+ * Starts the effect for a caster at a given level, as a scroll or a wand does:
+ * it spends no gp, shows no begin messages (the item tells its own) and the
+ * level is held on the caster, as a timed property, for as long as the rounds
+ * of the effect last. A cast that does not start leaves nothing behind.
+ *
+ * @param  str    what the caster named (the target)
+ * @param  who    the caster
+ * @param  level  the guild level (1 to 20) the effect runs at
+ * @return 1 when the effect started, 0 when it was refused (notify_fail says why)
+ */
+int cast_effect_at(string str, object who, int level)
+{
+  string err;
+  int ok;
+
+  if (level < 1)
+    level = 1;
+
+  who->add_timed_property(PROPERTY_CAST_LEVEL, level, sizeof(rounds) + 3);
+
+  casting_at_level = 1;
+  err = catch(ok = cast_effect(str, who, 1));
+  casting_at_level = 0;
+
+  if (err || !ok)
+    who->remove_timed_property(PROPERTY_CAST_LEVEL);
+
+  if (err)
+    error(err);
+
+  return ok;
+}
+
 // Main function, this is where we start running the effect.
 int cast_effect(string str, object who, int quiet)
 {
@@ -489,12 +562,16 @@ int cast_effect(string str, object who, int quiet)
     object caster;   // the object casting the effect
     int i;
     int my_gp_cost;
+    int at_level;    // started by cast_effect_at: no gp, at the given level
     string verb;     // what was typed, to ask what it was meant for
     
     if (who) 
         caster = who;
     else 
         caster = this_player();
+
+    at_level = casting_at_level;
+    casting_at_level = 0;
 
     if (!environment(caster))
         return 0;
@@ -779,7 +856,7 @@ int cast_effect(string str, object who, int quiet)
             }
 
     */
-    my_gp_cost = query_effect_gp_cost(caster);
+    my_gp_cost = at_level ? 0 : query_effect_gp_cost(caster);
 
     if (caster->query_gp() < my_gp_cost)
     {
@@ -830,6 +907,10 @@ int cast_effect(string str, object who, int quiet)
      * else
      *  tell_object(caster, "This effect has a bug, report it to a God.\n");
      */
+
+    // a normal cast does not inherit the level a previous cast was given
+    if (!at_level)
+        caster->remove_timed_property(PROPERTY_CAST_LEVEL);
 
     // This prevents casting other effects at the same time, and stores in the
     // player the effect to run when it calls its do_active_effects() function.

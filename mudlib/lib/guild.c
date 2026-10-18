@@ -145,6 +145,18 @@ int query_legal_class(string name)
 
 int query_legal_weapon(string weapon_name) { return 1; }
 int query_legal_armour(string weapon_name) { return 1; }
+
+/**
+ * Whether a member may cast spells while wearing this piece (asked of every
+ * worn piece when casting). The default judges only the kind of armour, as
+ * query_legal_armour does; a guild that cares what the piece is made of, or
+ * which piece it is, masks this.
+ * @param  armour  the worn piece
+ */
+int query_legal_casting_armour(object armour)
+{
+  return query_legal_armour((string)armour->query_armour_type_name());
+}
 /*
 int query_valid_melee_weapon(object ob) { return 1;} 
 int query_number_worn(string str) { return 1; }

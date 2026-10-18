@@ -44,6 +44,8 @@
 #define PROP_EFECTO_INAUDIBLE "inaudible"
 #define PROP_EFFECT_TESTER "TEST"
 #define PROPERTY_BLINDED "BLIND"
+// the level an effect cast at a given level (a scroll) runs at, held on the caster
+#define PROPERTY_CAST_LEVEL "cast level"
 
 #define SP_OBJECT 1
 #define SP_FUNC 2

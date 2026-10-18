@@ -467,10 +467,16 @@
                             "'speak' to see the ones you know.\n" + \
                             "\n" + \
                             "Reading is not looking: 'look <object>' tells you what the thing is like, " + \
-                            "'read <object>' gives you what it says."
+                            "'read <object>' gives you what it says.\n" + \
+                            "\n" + \
+                            "A scroll is read aloud, naming its target if the spell has one: " + \
+                            "'read <scroll> on <target>'. Only someone who knows the magic of its spell " + \
+                            "can make out the writing."
 #define _LANG_CMD_READ_WHAT "Read what?\n"
 #define _LANG_CMD_READ_CANNOT_FIND "You see no '" + str + "' here.\n"
 #define _LANG_CMD_READ_NOTHING_WRITTEN capitalize(what) + " has nothing written on it.\n"
+// the word that names the target of a scroll read aloud
+#define _LANG_CMD_READ_SCROLL_ON ({ "on", "at" })
 
 // group. `name` is the party's name, `who` the one being talked about, and
 // `str` what the player typed

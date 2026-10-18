@@ -454,6 +454,7 @@
 #define _LANG_SPELLS_STILL_CASTING "You cannot cast another spell yet.\n"
 #define _LANG_SPELLS_CAST_USAGE "Usage: cast <spell> [<target>]\n"
 #define _LANG_SPELLS_DEAD "Spirits cannot cast spells.\n"
+#define _LANG_SPELLS_NO_CAST "You cannot cast spells right now.\n"
 #define _LANG_SPELLS_ILLEGAL_ARMOUR "You cannot cast spells while wearing that armour.\n"
 #define _LANG_SPELLS_UNKNOWN "You know no spell by that name.\n"
 #define _LANG_SPELLS_NO_SPHERES "You cast from no sphere.\n"

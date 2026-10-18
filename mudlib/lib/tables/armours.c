@@ -71,6 +71,10 @@ mixed * lookup_armour_data(string name)
       return ({ 600, 4000, 350, 17,    4, 3,-4, 25,    1, 0, 0,   1, 2, _LANG_RACES_LOCATIONS_CHEST, 0 });
     case CHAIN_MAIL: // mallas
       return ({ 750, 6000, 400, 17,    5, 2,-5, 30,    3, 0, -1,  1, 2, _LANG_RACES_LOCATIONS_CHEST, 0 });
+    case ELFIN_CHAIN: // malla élfica, light for a metal mail
+      return ({ 5000, 7000, 150, 17,   5, 2,-2, 10,    3, 0, -1,  1, 2, _LANG_RACES_LOCATIONS_CHEST, 0 });
+    case DROW_CHAIN: // malla drow
+      return ({ 5000, 7000, 150, 17,   5, 2,-2, 10,    3, 0, -1,  1, 2, _LANG_RACES_LOCATIONS_CHEST, 0 });
     case BANDED_MAIL: // bandas y anillas
       return ({ 2000, 7000, 350, 18,   5, 3,-4, 35,    1, -1, 0,  1, 2, _LANG_RACES_LOCATIONS_CHEST, 0 });
     case PLATE_MAIL: // placas
