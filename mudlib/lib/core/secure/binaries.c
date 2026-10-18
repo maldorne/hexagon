@@ -24,12 +24,10 @@ object new_connection(int port)
 {
   object conn;
   string id;
-  string target;
 
-  // route by port: 8080 -> HTTP, everything else -> raw binary
-  target = (port == HTTP_PORT ? HTTP_OB : BINARY_OB);
-
-  conn = clone_object(find_object(target));
+  // every binary connection starts in the front, which picks the protocol
+  // from what the client sends
+  conn = clone_object(find_object(BINARY_OB));
   id = file_name(conn);
 
   _connections += ([ id : allocate(2) ]);

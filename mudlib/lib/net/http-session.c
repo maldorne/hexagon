@@ -1,21 +1,17 @@
-
-// HTTP/1.x connection object.
+// HTTP/1.x session.
 //
-// One instance per accepted TCP connection on HTTP_PORT.  Receives raw
-// bytes via the driver's receive_message() callback, accumulates them
-// until a full request is in hand, dispatches through the router and
-// writes the response.  Connection is closed after each response
-// (no keep-alive for now).
+// One instance per HTTP connection.  It is not the driver-level
+// connection: the binary front (BINARY_OB) owns that, detects the
+// protocol and creates this session, then forwards the bytes it
+// receives.  The session accumulates them until a full request is in hand,
+// dispatches through the router and writes the response through the front.
+// The connection is closed after each response (no keep-alive for now).
 //
 // Only Content-Length-delimited request bodies are accepted; chunked
 // transfer encoding is not implemented.
 
-#include <user/login.h>
 #include <mud/secure.h>
 #include <net/http.h>
-#include <kernel.h>
-
-inherit obj "/lib/core/object.c";
 
 // connection state
 #define _STATE_HEADERS 0     // accumulating until \r\n\r\n
@@ -26,6 +22,11 @@ static int    _state;
 static string _buffer;       // raw bytes received so far
 static int    _start_time;
 static int    _timestamp;
+static object _front;        // the connection that owns this session
+static string _outgoing;     // response bytes the driver has not taken yet
+static string _file;         // file streamed as the body, nil when none
+static int    _file_offset;  // bytes of it already read
+static int    _file_size;
 
 // parsed request
 static string  _method;
@@ -45,43 +46,19 @@ private void _reset_request()
   _headers        = ([ ]);
   _content_length = 0;
   _headers_end    = 0;
+  _outgoing       = "";
+  _file           = nil;
+  _file_offset    = 0;
+  _file_size      = 0;
 }
 
 void create()
 {
-  obj::create();
-
   seteuid(NETWORK_EUID);
 
   _start_time = time();
   _timestamp  = _start_time;
   _reset_request();
-}
-
-// pin the connection in place; the obj base wants a location, so route
-// it to the same lounge the binary connection uses.
-int move(mixed dest, varargs mixed messin, mixed messout)
-{
-  return obj::move(LOGIN_LOUNGE, messin, messout);
-}
-
-nomask int query_link() { return 0; }
-nomask int query_player() { return 0; }
-nomask int query_user() { return 0; }
-nomask object user() { return this_object(); }
-nomask int query_timestamp() { return _timestamp; }
-nomask int query_start_time() { return _start_time; }
-nomask int query_idle() { return time() - _timestamp; }
-
-nomask void save_me() {}
-nomask int restore_me(varargs string whatever) { return 0; }
-
-void dest_me()
-{
-  if (clonep(this_object()))
-    find_object(BINARY_HANDLER)->remove_connection(this_object());
-
-  obj::dest_me();
 }
 
 // ---------------------------------------------------------------------
@@ -177,13 +154,45 @@ private string _status_text(int code)
   {
     case 200: return "OK";
     case 204: return "No Content";
+    case 301: return "Moved Permanently";
+    case 302: return "Found";
     case 400: return "Bad Request";
+    case 403: return "Forbidden";
     case 404: return "Not Found";
     case 405: return "Method Not Allowed";
     case 413: return "Payload Too Large";
     case 500: return "Internal Server Error";
     default:  return "Unknown";
   }
+}
+
+/**
+ * Hands the pending response bytes to the front and closes the connection
+ * when none are left.
+ */
+private void _flush_response()
+{
+  int sent;
+
+  // a file body is read in chunks, since a string cannot hold a big file
+  if (::strlen(_outgoing) == 0 && _file != nil && _file_offset < _file_size)
+  {
+    _outgoing = read_file(_file, _file_offset, HTTP_FILE_CHUNK);
+    if (_outgoing == nil)
+      _outgoing = "";
+    _file_offset += HTTP_FILE_CHUNK;
+  }
+
+  if (::strlen(_outgoing) == 0)
+  {
+    _front->end_connection();
+    return;
+  }
+
+  // send returns how many bytes the driver accepted; the front calls
+  // message_done() once the driver buffer has emptied
+  sent = _front->send(_outgoing);
+  _outgoing = (sent >= ::strlen(_outgoing) ? "" : _outgoing[sent..]);
 }
 
 private void _send_response(mapping response)
@@ -198,8 +207,16 @@ private void _send_response(mapping response)
   body    = response["body"]    != nil ? response["body"]    : "";
   headers = response["headers"] != nil ? response["headers"] : ([ ]);
 
+  // a response with "file" sends that file as its body instead of "body"
+  if (response["file"] != nil)
+  {
+    _file      = response["file"];
+    _file_size = file_size(_file);
+    body       = "";
+  }
+
   // always set Content-Length and Connection: close for HTTP/1.0-style
-  headers["Content-Length"] = (string)::strlen(body);
+  headers["Content-Length"] = (string)(_file != nil ? _file_size : ::strlen(body));
   headers["Connection"]     = "close";
 
   if (HTTP_CORS_ENABLE)
@@ -217,7 +234,12 @@ private void _send_response(mapping response)
 
   message += "\r\n" + body;
 
-  send_message(message);
+  // the whole response may not fit in the output buffer: it is written in
+  // pieces and the connection is closed once message_done() finds
+  // nothing left (Content-Length is a byte count, DGD strings are bytes)
+  _state    = _STATE_DONE;
+  _outgoing = message;
+  _flush_response();
 }
 
 private void _handle_complete_request()
@@ -244,30 +266,45 @@ private void _handle_complete_request()
   }
 
   _send_response(response);
-  _state = _STATE_DONE;
-  destruct_object(this_object());
 }
 
 // ---------------------------------------------------------------------
-// driver callbacks
+// entry points, only the front may call them
 // ---------------------------------------------------------------------
 
-static void open()
-{
-  _timestamp = time();
-}
+void receive(string str);
 
-static void close(int flag) {}
-
-void send_message(string str)
+/**
+ * Binds the session to its front and feeds it the bytes the front had
+ * already buffered.  Only the first caller becomes the front.
+ */
+void start(object front, string data)
 {
-  if (str == nil)
+  if (_front != nil || front == nil || previous_object() != front)
     return;
-  ::send_message(str);
+
+  _front     = front;
+  _timestamp = time();
+
+  receive(data);
 }
 
-static void receive_message(string str)
+/** Called by the front when the driver has emptied its output buffer. */
+void message_done()
 {
+  if (previous_object() != _front || _front == nil)
+    return;
+
+  if (_state == _STATE_DONE)
+    _flush_response();
+}
+
+/** Called by the front with every chunk of bytes the client sends. */
+void receive(string str)
+{
+  if (previous_object() != _front || _front == nil)
+    return;
+
   rlimits (HTTP_MAX_DEPTH; HTTP_MAX_TICKS)
   {
     int parsed;
@@ -284,8 +321,6 @@ static void receive_message(string str)
       _send_response(([ "status":  413,
                         "headers": ([ "Content-Type" : "text/plain" ]),
                         "body":    "request too large" ]));
-      _state = _STATE_DONE;
-      destruct_object(this_object());
       return;
     }
 
@@ -297,8 +332,6 @@ static void receive_message(string str)
         _send_response(([ "status":  400,
                           "headers": ([ "Content-Type" : "text/plain" ]),
                           "body":    "bad request" ]));
-        _state = _STATE_DONE;
-        destruct_object(this_object());
         return;
       }
       if (parsed == 0)
@@ -314,14 +347,4 @@ static void receive_message(string str)
       _handle_complete_request();
     }
   }
-}
-
-mixed * stats()
-{
-  return ({
-    ({ "State (nosave)",     _state, }),
-    ({ "Buffered (nosave)",  ::strlen(_buffer), }),
-    ({ "Method (nosave)",    _method != nil ? _method : "<unparsed>", }),
-    ({ "Path (nosave)",      _path   != nil ? _path   : "<unparsed>", }),
-  }) + obj::stats();
 }

@@ -2,13 +2,12 @@
 #ifndef _HTTP_H
 #define _HTTP_H
 
-#define HTTP_OB             "/lib/net/http_connection"
+#define HTTP_OB             "/lib/net/http-session"
 #define HTTP_ROUTER         "/lib/net/router"
-
-#define HTTP_PORT           8080
 
 // hard caps for an in-flight request
 #define HTTP_MAX_REQUEST    65536     // bytes accepted in a single request
+#define HTTP_FILE_CHUNK     32768     // bytes of a file body read at a time
 #define HTTP_REQUEST_TIMEOUT 10       // seconds before an idle connection is dropped
 
 // CORS. When HTTP_CORS_ENABLE is non-zero, the configured origin is

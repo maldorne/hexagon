@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Balance</title>
+<style>
+:root {
+  --bg: oklch(0.985 0.004 85);
+  --panel: oklch(0.965 0.005 85);
+  --line: oklch(0.88 0.008 85);
+  --line-soft: oklch(0.93 0.006 85);
+  --ink: oklch(0.24 0.012 85);
+  --ink-soft: oklch(0.48 0.012 85);
+  --ink-faint: oklch(0.64 0.01 85);
+  --accent: oklch(0.52 0.13 250);
+  --accent-soft: oklch(0.93 0.035 250);
+  --weak: oklch(0.55 0.14 250);
+  --strong: oklch(0.6 0.16 45);
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: oklch(0.19 0.008 85);
+    --panel: oklch(0.225 0.009 85);
+    --line: oklch(0.34 0.01 85);
+    --line-soft: oklch(0.28 0.01 85);
+    --ink: oklch(0.92 0.008 85);
+    --ink-soft: oklch(0.72 0.01 85);
+    --ink-faint: oklch(0.56 0.01 85);
+    --accent: oklch(0.72 0.12 250);
+    --accent-soft: oklch(0.32 0.05 250);
+    --weak: oklch(0.68 0.12 250);
+    --strong: oklch(0.72 0.14 45);
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.45 var(--sans);
+  font-variant-numeric: tabular-nums;
+}
+header {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 24px;
+  padding: 18px 24px 10px; border-bottom: 1px solid var(--line);
+}
+header h1 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+header .game { color: var(--ink-soft); font-family: var(--mono); font-size: 13px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-left: auto; align-items: center; }
+.controls label { color: var(--ink-soft); font-size: 12px; display: flex; gap: 6px; align-items: center; }
+select, input[type=search], input[type=text] {
+  font: inherit; font-size: 13px; color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px;
+}
+select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+nav { display: flex; gap: 2px; padding: 0 24px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+nav button {
+  font: inherit; font-size: 13px; background: none; border: 0; color: var(--ink-soft);
+  padding: 10px 12px 9px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap;
+}
+nav button:hover { color: var(--ink); }
+nav button[aria-selected=true] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+main { padding: 18px 24px 40px; }
+section[hidden] { display: none; }
+.lead { color: var(--ink-soft); max-width: 75ch; margin: 0 0 14px; font-size: 13px; }
+.status { padding: 40px 24px; color: var(--ink-soft); }
+.status.error { color: var(--strong); }
+
+/* tables */
+.table-wrap { overflow: auto; max-height: 72vh; border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; font-size: 12.5px; width: max-content; min-width: 100%; }
+th, td { padding: 4px 10px; border-bottom: 1px solid var(--line-soft); text-align: left; white-space: nowrap; }
+td.num, th.num { text-align: right; font-family: var(--mono); font-size: 12px; }
+thead th {
+  position: sticky; top: 0; background: var(--panel); z-index: 1;
+  font-weight: 600; color: var(--ink-soft); border-bottom: 1px solid var(--line); cursor: pointer; user-select: none;
+}
+thead tr.filters th { top: 27px; cursor: default; padding: 3px 6px; }
+thead tr.filters input { width: 100%; min-width: 60px; font-size: 12px; padding: 2px 4px; }
+thead th[data-sort=asc]::after { content: " \2191"; color: var(--accent); }
+thead th[data-sort=desc]::after { content: " \2193"; color: var(--accent); }
+tbody tr:hover td { background: var(--accent-soft); }
+.subtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; align-items: center; }
+.subtabs button {
+  font: inherit; font-size: 12.5px; border: 1px solid var(--line); background: var(--bg); color: var(--ink-soft);
+  border-radius: 5px; padding: 3px 9px; cursor: pointer; font-family: var(--mono);
+}
+.subtabs button[aria-pressed=true] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.count { color: var(--ink-faint); font-size: 12px; margin-left: 8px; }
+
+/* flags */
+.flag { font-family: var(--mono); font-size: 11.5px; padding: 1px 6px; border-radius: 4px; }
+.flag.strong { background: color-mix(in oklch, var(--strong) 18%, transparent); color: var(--strong); }
+.flag.weak { background: color-mix(in oklch, var(--weak) 18%, transparent); color: var(--weak); }
+.flag.ok { color: var(--ink-faint); }
+
+/* curves */
+.split { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+.picker { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.picker .tools { padding: 8px; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--line); }
+.picker .tools .row { display: flex; gap: 6px; }
+.picker .tools button {
+  font: inherit; font-size: 12px; background: var(--bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 4px; padding: 2px 8px; cursor: pointer;
+}
+.picker ul { list-style: none; margin: 0; padding: 4px 0; max-height: 62vh; overflow: auto; }
+.picker li label { display: flex; gap: 7px; align-items: center; padding: 2px 10px; font-size: 12.5px; cursor: pointer; }
+.picker li label:hover { background: var(--accent-soft); }
+.picker li .meta { margin-left: auto; color: var(--ink-faint); font-family: var(--mono); font-size: 11px; }
+.picker li.group { padding: 8px 10px 2px; font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; }
+.swatch { width: 10px; height: 3px; border-radius: 2px; display: inline-block; flex: none; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .axis text { fill: var(--ink-faint); font: 11px var(--mono); }
+.chart .axis line, .chart .grid line { stroke: var(--line-soft); }
+.chart .axis path { stroke: var(--line); }
+.chart .axis-title { fill: var(--ink-soft); font: 12px var(--sans); }
+.chart .series path { fill: none; stroke-width: 2; stroke-linejoin: round; }
+.chart .series path.dashed { stroke-dasharray: 5 4; stroke-width: 1.5; }
+.chart .cursor { stroke: var(--ink-faint); stroke-dasharray: 2 3; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 9px; font-size: 12px; box-shadow: 0 4px 16px oklch(0.2 0.01 85 / 0.12);
+  min-width: 160px; z-index: 5;
+}
+.tip .t { font-weight: 600; margin-bottom: 3px; }
+.tip .r { display: flex; gap: 8px; align-items: center; }
+.tip .r b { margin-left: auto; font-family: var(--mono); font-weight: 500; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 12px; color: var(--ink-soft); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.overlay-opts { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; font-size: 12.5px; color: var(--ink-soft); }
+.overlay-opts label { display: inline-flex; gap: 5px; align-items: center; }
+
+/* heat map */
+.heat td.cell { width: 46px; text-align: right; font-family: var(--mono); font-size: 11px; padding: 3px 6px; }
+.heat td.cell.locked { color: var(--ink-faint); opacity: 0.45; }
+.heat td.name { position: sticky; left: 0; background: var(--bg); z-index: 1; }
+.heat thead th.name { left: 0; z-index: 2; }
+.scale { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-soft); margin: 4px 0 12px; }
+.scale .bar { width: 220px; height: 10px; border-radius: 3px; }
+
+/* facts row */
+.facts { display: flex; flex-wrap: wrap; gap: 6px 28px; margin: 0 0 16px; font-size: 13px; color: var(--ink-soft); }
+.facts b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
+
+@media (max-width: 760px) {
+  header, nav, main { padding-left: 16px; padding-right: 16px; }
+  .split { grid-template-columns: 1fr; }
+  .picker ul { max-height: 40vh; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Balance</h1>
+  <span class="game" id="game"></span>
+  <div class="controls">
+    <label>Power <select id="power"><option value="1">1 minor</option><option value="2" selected>2 neutral</option><option value="3">3 major</option></select></label>
+    <label>Measure <select id="metric"></select></label>
+    <label>Target <select id="target"></select></label>
+  </div>
+</header>
+<nav id="tabs" role="tablist"></nav>
+<main>
+  <div class="status" id="status">Loading…</div>
+  <section id="tab-outliers" hidden></section>
+  <section id="tab-curves" hidden></section>
+  <section id="tab-heat" hidden></section>
+  <section id="tab-hp" hidden></section>
+  <section id="tab-tables" hidden></section>
+</main>
+<script>
+'use strict';
+
+// ---------- loading ----------
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [], field = '', quoted = false, i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+        quoted = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if (c === '"') { quoted = true; i++; continue; }
+    if (c === ',') { row.push(field); field = ''; i++; continue; }
+    if (c === '\r') { i++; continue; }
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+    field += c; i++;
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  const cols = rows.shift() || [];
+  return {
+    cols,
+    rows: rows.filter(r => r.length > 1 || r[0] !== '').map(r => {
+      const o = {};
+      cols.forEach((k, j) => { o[k] = r[j] === undefined ? '' : r[j]; });
+      return o;
+    }),
+  };
+}
+
+async function loadAll() {
+  const res = await fetch('files.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error('files.json: ' + res.status);
+  const names = await res.json();
+  const out = {};
+  await Promise.all(names.map(async n => {
+    const r = await fetch(n, { cache: 'no-store' });
+    if (!r.ok) throw new Error(n + ': ' + r.status);
+    out[n.replace(/\.csv$/, '')] = parseCsv(await r.text());
+  }));
+  return out;
+}
+
+const num = v => (v === '' || v === undefined || v === null) ? NaN : Number(v);
+const isNum = v => v !== '' && v !== undefined && !isNaN(Number(v));
+const fmt = (v, d) => {
+  if (!isFinite(v)) return '';
+  if (d === undefined) d = Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : 2;
+  return v.toFixed(d).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
+};
+const el = (tag, attrs, ...kids) => {
+  const e = document.createElement(tag);
+  for (const k in attrs || {}) {
+    if (k === 'class') e.className = attrs[k];
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
+    else if (attrs[k] !== false && attrs[k] !== undefined) e.setAttribute(k, attrs[k] === true ? '' : attrs[k]);
+  }
+  for (const kid of kids.flat()) if (kid !== null && kid !== undefined) e.append(kid);
+  return e;
+};
+const median = xs => {
+  const s = xs.filter(isFinite).sort((a, b) => a - b);
+  if (!s.length) return NaN;
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+
+// ---------- model ----------
+
+const LEVELS = Array.from({ length: 20 }, (_, i) => i + 1);
+const STRONG = 1.5, WEAK = 0.5;
+let D, M;
+
+function buildModel(data) {
+  const m = { abilities: [], byId: {}, baselines: {}, targets: [], hasBlow: false };
+  for (const r of (data.baselines || { rows: [] }).rows) m.baselines[num(r.level)] = r;
+  const b1 = m.baselines[1] || {};
+  m.hasBlow = isNum(b1.blow);
+  m.targets = Object.keys(b1).filter(k => /^player_hp_/.test(k) || k === 'npc_hp')
+    .map(k => ({ key: k, label: k === 'npc_hp' ? 'NPC' : k.replace(/^player_hp_/, '') + ' player' }));
+
+  // where each ability is gained, from the guilds
+  const gained = {};
+  for (const r of (data.guilds || { rows: [] }).rows) {
+    const id = r.ability, lv = num(r.level);
+    if (!id) continue;
+    if (!gained[id]) gained[id] = { level: lv, guilds: [] };
+    if (isFinite(lv) && (!isFinite(gained[id].level) || lv < gained[id].level)) gained[id].level = lv;
+    gained[id].guilds.push(r.guild + (isFinite(lv) ? ' ' + lv : ''));
+  }
+
+  const add = (rows, source) => {
+    for (const r of rows) {
+      const id = source === 'skill' ? (r.skill || r.spell || r.name) : (r.spell || r.name);
+      let a = m.byId[source + ':' + id];
+      if (!a) {
+        a = m.byId[source + ':' + id] = {
+          key: source + ':' + id, id, source, name: r.name || id, file: r.file, base: r.base || '',
+          categories: r.categories || '', kind: r.kind, targets: r.targets, damage_type: r.damage_type || '',
+          note: r.note || '', gained: gained[id] ? gained[id].level : NaN,
+          guilds: gained[id] ? gained[id].guilds : [], cells: {},
+        };
+        m.abilities.push(a);
+      }
+      const p = isNum(r.power) ? num(r.power) : 0;
+      (a.cells[p] = a.cells[p] || {})[num(r.level)] = r;
+    }
+  };
+  add((data.effects || { rows: [] }).rows, 'spell');
+  add((data.skills || { rows: [] }).rows, 'skill');
+  m.abilities.sort((x, y) => (x.kind || '').localeCompare(y.kind || '') ||
+    (isFinite(x.gained) ? x.gained : 99) - (isFinite(y.gained) ? y.gained : 99) || x.name.localeCompare(y.name));
+  return m;
+}
+
+const METRICS = {
+  points: { label: 'points per cast', short: 'pts' },
+  per_round: { label: 'points per round', short: 'pts/rd' },
+  blows: { label: 'weapon blows per round', short: 'blows', needs: 'blow' },
+  pct_hp: { label: '% of target hp', short: '% hp' },
+  regen_min: { label: 'minutes of regen', short: 'min' },
+  per_gp: { label: 'points per gp', short: 'pts/gp' },
+};
+
+const state = { power: 2, metric: 'pct_hp', target: '', tab: 'outliers' };
+
+function cell(a, level) {
+  const byLevel = a.cells[state.power] || a.cells[0] || a.cells[2] || a.cells[Object.keys(a.cells)[0]];
+  return byLevel ? byLevel[level] : undefined;
+}
+function baseline(level, key) { return num((M.baselines[level] || {})[key]); }
+function targetHp(level) { return baseline(level, state.target); }
+
+function measure(a, level, metric) {
+  const r = cell(a, level);
+  if (!r) return NaN;
+  const avg = num(r.average), rounds = Math.max(1, num(r.rounds) || 1), cost = num(r.cost);
+  switch (metric || state.metric) {
+    case 'points': return avg;
+    case 'per_round': return avg / rounds;
+    case 'blows': return avg / rounds / baseline(level, 'blow');
+    case 'pct_hp': return 100 * avg / targetHp(level);
+    case 'regen_min': return avg * baseline(level, 'regen_seconds_per_hp') / 60;
+    case 'per_gp': return cost > 0 ? avg / cost : NaN;
+  }
+  return NaN;
+}
+const available = (a, level) => !isFinite(a.gained) || a.gained <= level;
+
+// the median of the same kind of ability among those a character of that level can have
+function peerMedian(a, level, metric) {
+  return median(M.abilities.filter(b => b.kind === a.kind && available(b, level)).map(b => measure(b, level, metric)));
+}
+function ratio(a, level, metric) { return measure(a, level, metric) / peerMedian(a, level, metric); }
+
+function flagFor(r) {
+  if (!isFinite(r)) return el('span', { class: 'flag ok' }, '–');
+  if (r >= STRONG) return el('span', { class: 'flag strong' }, '×' + fmt(r, 2) + ' strong');
+  if (r <= WEAK) return el('span', { class: 'flag weak' }, '×' + fmt(r, 2) + ' weak');
+  return el('span', { class: 'flag ok' }, '×' + fmt(r, 2));
+}
+
+// ---------- sortable, filterable table ----------
+
+function dataTable(cols, rows, opts) {
+  opts = opts || {};
+  const numeric = {};
+  cols.forEach(c => { numeric[c.key] = c.num !== undefined ? c.num : rows.length > 0 && rows.every(r => r[c.key] === '' || isNum(r[c.key])); });
+  let sortKey = opts.sort || null, sortDir = opts.dir || 1;
+  const filters = {};
+  const tbody = el('tbody');
+  const count = el('span', { class: 'count' });
+  const head = el('tr');
+  const frow = el('tr', { class: 'filters' });
+
+  const matches = (r) => cols.every(c => {
+    const f = (filters[c.key] || '').trim();
+    if (!f) return true;
+    const v = c.value ? c.value(r) : r[c.key];
+    const m = f.match(/^(<=|>=|<|>|=)\s*(-?[\d.]+)$/);
+    if (m && isNum(v)) {
+      const x = Number(v), y = Number(m[2]);
+      return m[1] === '<' ? x < y : m[1] === '>' ? x > y : m[1] === '<=' ? x <= y : m[1] === '>=' ? x >= y : x === y;
+    }
+    return String(v).toLowerCase().includes(f.toLowerCase());
+  });
+  const render = () => {
+    let shown = rows.filter(matches);
+    if (sortKey) {
+      const c = cols.find(c => c.key === sortKey);
+      const val = r => c.value ? c.value(r) : r[c.key];
+      shown = shown.slice().sort((x, y) => {
+        const a = val(x), b = val(y);
+        if (numeric[sortKey] || (typeof a === 'number')) {
+          const na = isFinite(Number(a)) && a !== '' ? Number(a) : -Infinity, nb = isFinite(Number(b)) && b !== '' ? Number(b) : -Infinity;
+          return (na - nb) * sortDir;
+        }
+        return String(a).localeCompare(String(b)) * sortDir;
+      });
+    }
+    tbody.replaceChildren(...shown.slice(0, 3000).map(r => el('tr', null, cols.map(c => {
+      const v = c.render ? c.render(r) : (c.value ? c.value(r) : r[c.key]);
+      return el('td', { class: numeric[c.key] ? 'num' : '' }, typeof v === 'number' ? fmt(v) : v);
+    }))));
+    count.textContent = shown.length + ' of ' + rows.length + ' rows' + (shown.length > 3000 ? ' (first 3000 shown)' : '');
+    head.querySelectorAll('th').forEach(th => {
+      th.dataset.sort = th.dataset.key === sortKey ? (sortDir > 0 ? 'asc' : 'desc') : '';
+    });
+  };
+  cols.forEach(c => {
+    head.append(el('th', {
+      class: numeric[c.key] ? 'num' : '', 'data-key': c.key, title: 'Sort',
+      onclick: () => { if (sortKey === c.key) sortDir = -sortDir; else { sortKey = c.key; sortDir = numeric[c.key] ? -1 : 1; } render(); },
+    }, c.label || c.key));
+    frow.append(el('th', null, el('input', {
+      type: 'text', placeholder: numeric[c.key] ? '>10' : 'filter', 'aria-label': 'Filter ' + (c.label || c.key),
+      oninput: e => { filters[c.key] = e.target.value; render(); },
+    })));
+  });
+  render();
+  return { node: el('div', null, el('div', { class: 'table-wrap' }, el('table', null, el('thead', null, head, frow), tbody))), count };
+}
+
+// ---------- line chart ----------
+
+const PALETTE = [
+  'oklch(0.55 0.15 250)', 'oklch(0.62 0.17 40)', 'oklch(0.58 0.14 150)', 'oklch(0.55 0.18 330)',
+  'oklch(0.66 0.14 90)', 'oklch(0.5 0.12 200)', 'oklch(0.55 0.16 15)', 'oklch(0.5 0.13 290)',
+  'oklch(0.6 0.12 120)', 'oklch(0.45 0.08 60)',
+];
+
+function lineChart(series, opts) {
+  const W = 860, H = 420, L = 56, R = 16, T = 14, B = 42;
+  const wrap = el('div', { class: 'chart' });
+  const pts = series.flatMap(s => s.points.filter(p => isFinite(p[1])));
+  if (!pts.length) { wrap.append(el('p', { class: 'lead' }, 'Nothing to draw: pick something on the left.')); return wrap; }
+  let ymax = Math.max(...pts.map(p => p[1])), ymin = Math.min(0, ...pts.map(p => p[1]));
+  if (ymax === ymin) ymax = ymin + 1;
+  const step = niceStep((ymax - ymin) / 6);
+  ymax = Math.ceil(ymax / step) * step;
+  const x = v => L + (v - 1) / 19 * (W - L - R);
+  const y = v => T + (1 - (v - ymin) / (ymax - ymin)) * (H - T - B);
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const s = (tag, a) => { const e = document.createElementNS(ns, tag); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const grid = s('g', { class: 'grid' }), axis = s('g', { class: 'axis' });
+  for (let v = ymin; v <= ymax + 1e-9; v += step) {
+    grid.append(s('line', { x1: L, x2: W - R, y1: y(v), y2: y(v) }));
+    const t = s('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end' }); t.textContent = fmt(v); axis.append(t);
+  }
+  for (const lv of LEVELS) {
+    const t = s('text', { x: x(lv), y: H - B + 16, 'text-anchor': 'middle' }); t.textContent = lv; axis.append(t);
+  }
+  axis.append(s('path', { d: `M${L},${T}V${H - B}H${W - R}`, fill: 'none' }));
+  const xt = s('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', class: 'axis-title' }); xt.textContent = 'level';
+  const yt = s('text', { x: 14, y: (T + H - B) / 2, 'text-anchor': 'middle', class: 'axis-title', transform: `rotate(-90 14 ${(T + H - B) / 2})` });
+  yt.textContent = opts.yLabel || '';
+  svg.append(grid, axis, xt, yt);
+  const g = s('g', { class: 'series' });
+  for (const se of series) {
+    let d = '', pen = false;
+    for (const [lv, v] of se.points) {
+      if (!isFinite(v)) { pen = false; continue; }
+      d += (pen ? 'L' : 'M') + x(lv).toFixed(1) + ',' + y(v).toFixed(1); pen = true;
+    }
+    if (d) g.append(s('path', { d, stroke: se.color, class: se.dashed ? 'dashed' : '' }));
+  }
+  svg.append(g);
+  const cursor = s('line', { class: 'cursor', y1: T, y2: H - B, visibility: 'hidden' });
+  svg.append(cursor);
+  const tip = el('div', { class: 'tip', hidden: true });
+  svg.addEventListener('mousemove', ev => {
+    const box = svg.getBoundingClientRect();
+    const px = (ev.clientX - box.left) / box.width * W;
+    const lv = Math.max(1, Math.min(20, Math.round((px - L) / (W - L - R) * 19 + 1)));
+    cursor.setAttribute('x1', x(lv)); cursor.setAttribute('x2', x(lv)); cursor.setAttribute('visibility', 'visible');
+    const rows = series.map(se => [se, (se.points.find(p => p[0] === lv) || [])[1]]).filter(r => isFinite(r[1]))
+      .sort((a, b) => b[1] - a[1]);
+    tip.replaceChildren(el('div', { class: 't' }, 'Level ' + lv),
+      ...rows.slice(0, 14).map(([se, v]) => el('div', { class: 'r' }, el('span', { class: 'swatch', style: 'background:' + se.color }), se.name, el('b', null, fmt(v)))));
+    tip.hidden = false;
+    const left = (x(lv) / W) * box.width;
+    tip.style.left = (left > box.width * 0.6 ? left - tip.offsetWidth - 12 : left + 12) + 'px';
+    tip.style.top = '8px';
+  });
+  svg.addEventListener('mouseleave', () => { tip.hidden = true; cursor.setAttribute('visibility', 'hidden'); });
+  wrap.append(svg, tip,
+    el('div', { class: 'legend' }, series.map(se => el('span', null,
+      el('span', { class: 'swatch', style: `background:${se.color};${se.dashed ? 'opacity:.7' : ''}` }), se.name))));
+  return wrap;
+}
+function niceStep(raw) {
+  const p = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+  const f = raw / p;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+}
+
+// ---------- tabs ----------
+
+const TABS = [
+  ['outliers', 'Outliers'], ['curves', 'Curves'], ['heat', 'Heat map'], ['hp', 'Hit points'], ['tables', 'Tables'],
+];
+
+function renderTabs() {
+  const nav = document.getElementById('tabs');
+  nav.replaceChildren(...TABS.map(([k, label]) => el('button', {
+    role: 'tab', 'aria-selected': String(state.tab === k),
+    onclick: () => { state.tab = k; save(); renderTabs(); render(); },
+  }, label)));
+  for (const [k] of TABS) document.getElementById('tab-' + k).hidden = state.tab !== k;
+}
+
+function render() {
+  ({ outliers: renderOutliers, curves: renderCurves, heat: renderHeat, hp: renderHp, tables: renderTables })[state.tab]();
+}
+
+function metricLabel() { return METRICS[state.metric].label + (state.metric === 'pct_hp' ? ' (' + targetLabel() + ')' : ''); }
+function targetLabel() { const t = M.targets.find(t => t.key === state.target); return t ? t.label : ''; }
+
+// --- outliers
+
+function renderOutliers() {
+  const sec = document.getElementById('tab-outliers');
+  const rows = [];
+  for (const a of M.abilities) {
+    const lg = isFinite(a.gained) ? a.gained : 1;
+    const rg = ratio(a, lg), r20 = ratio(a, 20);
+    rows.push({
+      a, name: a.name, source: a.source, kind: a.kind || '', targets: a.targets || '', gained: isFinite(a.gained) ? a.gained : '',
+      at_gain: measure(a, lg), ratio_gain: rg, at_20: measure(a, 20), ratio_20: r20,
+      worst: Math.max(Math.abs(Math.log(rg) || 0), Math.abs(Math.log(r20) || 0)),
+      guilds: a.guilds.join(', '), note: a.note,
+    });
+  }
+  const cols = [
+    { key: 'name', label: 'ability' },
+    { key: 'source', label: 'is' },
+    { key: 'kind' },
+    { key: 'targets' },
+    { key: 'gained', label: 'gained at', num: true },
+    { key: 'at_gain', label: 'at gain', num: true },
+    { key: 'ratio_gain', label: 'vs peers at gain', num: true, render: r => flagFor(r.ratio_gain) },
+    { key: 'at_20', label: 'at 20', num: true },
+    { key: 'ratio_20', label: 'vs peers at 20', num: true, render: r => flagFor(r.ratio_20) },
+    { key: 'worst', label: 'off by', num: true, render: r => fmt(Math.exp(r.worst), 2) + '×' },
+    { key: 'guilds' },
+    { key: 'note' },
+  ];
+  const t = dataTable(cols, rows, { sort: 'worst', dir: -1 });
+  sec.replaceChildren(
+    el('p', { class: 'lead' }, `Every ability measured in ${metricLabel()} at power ${state.power}, against the median of the abilities of the same kind (damage against damage, heal against heal) that a character of that level can already have. Strong is ×${STRONG} or more, weak ×${WEAK} or less.`),
+    el('div', { class: 'subtabs' }, t.count), t.node);
+}
+
+// --- curves
+
+const picked = new Set();
+let pickerFilter = '';
+function renderCurves() {
+  const sec = document.getElementById('tab-curves');
+  const colorOf = {};
+  [...picked].forEach((k, i) => { colorOf[k] = PALETTE[i % PALETTE.length]; });
+  const list = el('ul');
+  let lastKind = null;
+  for (const a of M.abilities) {
+    const text = (a.name + ' ' + a.id + ' ' + a.guilds.join(' ') + ' ' + a.kind + ' ' + a.damage_type).toLowerCase();
+    if (pickerFilter && !text.includes(pickerFilter)) continue;
+    if (a.kind !== lastKind) { list.append(el('li', { class: 'group' }, a.kind || 'other')); lastKind = a.kind; }
+    list.append(el('li', null, el('label', null,
+      el('input', { type: 'checkbox', checked: picked.has(a.key), onchange: e => { e.target.checked ? picked.add(a.key) : picked.delete(a.key); save(); renderCurves(); } }),
+      colorOf[a.key] ? el('span', { class: 'swatch', style: 'background:' + colorOf[a.key] }) : null,
+      a.name, el('span', { class: 'meta' }, isFinite(a.gained) ? 'L' + a.gained : (a.source === 'skill' ? 'skill' : '')))));
+  }
+  const search = el('input', { type: 'search', placeholder: 'Search name, guild, type', value: pickerFilter,
+    oninput: e => { pickerFilter = e.target.value.toLowerCase(); const pos = e.target.selectionStart; renderCurves(); const s = document.querySelector('#tab-curves input[type=search]'); s.focus(); s.setSelectionRange(pos, pos); } });
+  const pickKind = kind => () => { M.abilities.filter(a => a.kind === kind).forEach(a => picked.add(a.key)); save(); renderCurves(); };
+  const picker = el('div', { class: 'picker' },
+    el('div', { class: 'tools' }, search, el('div', { class: 'row' },
+      el('button', { onclick: pickKind('heal') }, 'All heals'),
+      el('button', { onclick: pickKind('damage') }, 'All damage'),
+      el('button', { onclick: () => { picked.clear(); save(); renderCurves(); } }, 'Clear'))),
+    list);
+
+  const series = [...picked].map(k => M.byId[k]).filter(Boolean).map(a => ({
+    name: a.name, color: colorOf[a.key],
+    points: LEVELS.map(lv => [lv, available(a, lv) || !state.lockBeforeGain ? measure(a, lv) : NaN]),
+  }));
+  const kinds = new Set([...picked].map(k => (M.byId[k] || {}).kind));
+  if (state.showMedian) for (const kind of kinds) {
+    const probe = M.abilities.find(a => a.kind === kind);
+    if (probe) series.push({ name: 'median ' + kind, color: 'var(--ink-faint)', dashed: true, points: LEVELS.map(lv => [lv, peerMedian(probe, lv)]) });
+  }
+  if (state.showRefs && state.metric === 'points') {
+    if (M.hasBlow) series.push({ name: 'weapon blow', color: 'var(--ink-soft)', dashed: true, points: LEVELS.map(lv => [lv, baseline(lv, 'blow')]) });
+    series.push({ name: 'hp of ' + targetLabel(), color: 'var(--strong)', dashed: true, points: LEVELS.map(lv => [lv, targetHp(lv)]) });
+  }
+  const opt = (key, label) => el('label', null, el('input', { type: 'checkbox', checked: !!state[key], onchange: e => { state[key] = e.target.checked; save(); renderCurves(); } }), label);
+  sec.replaceChildren(el('div', { class: 'split' }, picker, el('div', null,
+    el('div', { class: 'overlay-opts' },
+      opt('showMedian', 'median of the kind'),
+      opt('showRefs', 'weapon blow and target hp (points only)'),
+      opt('lockBeforeGain', 'hide levels before it is gained')),
+    lineChart(series, { yLabel: metricLabel() }))));
+}
+
+// --- heat map
+
+function heatColor(r) {
+  if (!isFinite(r) || r <= 0) return 'transparent';
+  const t = Math.max(-1, Math.min(1, Math.log2(r) / 2)); // ×0.25 .. ×4
+  const c = t > 0 ? 'var(--strong)' : 'var(--weak)';
+  return `color-mix(in oklch, ${c} ${Math.round(Math.abs(t) * 70)}%, transparent)`;
+}
+function renderHeat() {
+  const sec = document.getElementById('tab-heat');
+  const kinds = [...new Set(M.abilities.map(a => a.kind))];
+  const kind = state.heatKind && kinds.includes(state.heatKind) ? state.heatKind : kinds[0];
+  const rows = M.abilities.filter(a => a.kind === kind);
+  const head = el('tr', null, el('th', { class: 'name' }, 'ability'), el('th', { class: 'num' }, 'gained'), LEVELS.map(lv => el('th', { class: 'num' }, lv)));
+  const body = rows.map(a => el('tr', null,
+    el('td', { class: 'name' }, a.name),
+    el('td', { class: 'num' }, isFinite(a.gained) ? a.gained : ''),
+    LEVELS.map(lv => {
+      const v = measure(a, lv), r = ratio(a, lv), locked = !available(a, lv);
+      return el('td', { class: 'cell' + (locked ? ' locked' : ''), style: locked ? '' : 'background:' + heatColor(r),
+        title: `${a.name}, level ${lv}: ${fmt(v)} ${METRICS[state.metric].short}, ×${fmt(r, 2)} the median` }, fmt(v));
+    })));
+  sec.replaceChildren(
+    el('div', { class: 'subtabs' }, kinds.map(k => el('button', { 'aria-pressed': String(k === kind), onclick: () => { state.heatKind = k; save(); renderHeat(); } }, k || 'other'))),
+    el('p', { class: 'lead' }, `${metricLabel()} at power ${state.power}. The colour is how far the cell is from the median of the ${kind} abilities available at that level. Faded cells are levels before the ability is gained.`),
+    el('div', { class: 'scale' }, 'weak ×0.25',
+      el('span', { class: 'bar', style: 'background:linear-gradient(90deg, var(--weak), transparent, var(--strong))' }), '×4 strong'),
+    el('div', { class: 'table-wrap heat' }, el('table', null, el('thead', null, head), el('tbody', null, body))));
+}
+
+// --- hit points
+
+function statBonus(v) {
+  const t = (D.stat_bonuses || { rows: [] }).rows;
+  const r = t.find(r => num(r.value) === v);
+  return r ? num(r.bonus) : NaN;
+}
+function renderHp() {
+  const sec = document.getElementById('tab-hp');
+  const races = (D.races || { rows: [] }).rows;
+  const race = races.find(r => r.race === state.race);
+  const baseCon = num((M.baselines[1] || {}).stat) || 13;
+  const raceCon = race ? num(race.con) || 0 : 0;
+  const bonusDelta = race ? statBonus(baseCon + raceCon) - statBonus(baseCon) : 0;
+  const hpWithRace = (key, lv) => key === 'npc_hp' ? baseline(lv, key) / baseCon * (baseCon + raceCon) : baseline(lv, key) + lv * (isFinite(bonusDelta) ? bonusDelta : 0);
+  const series = M.targets.map((t, i) => ({ name: t.label, color: PALETTE[i % PALETTE.length], points: LEVELS.map(lv => [lv, hpWithRace(t.key, lv)]) }));
+  const regen = baseline(10, 'regen_seconds_per_hp');
+  const rows = LEVELS.map(lv => {
+    const o = { level: lv };
+    for (const t of M.targets) {
+      o[t.key] = hpWithRace(t.key, lv);
+      o[t.key + '_full'] = hpWithRace(t.key, lv) * baseline(lv, 'regen_seconds_per_hp') / 60;
+    }
+    if (M.hasBlow) o.blow = baseline(lv, 'blow');
+    return o;
+  });
+  const cols = [{ key: 'level' }];
+  for (const t of M.targets) cols.push({ key: t.key, label: t.label + ' hp' }, { key: t.key + '_full', label: 'min to regen full' });
+  if (M.hasBlow) cols.push({ key: 'blow', label: 'weapon blow' });
+  const t = dataTable(cols, rows);
+  sec.replaceChildren(
+    el('div', { class: 'subtabs' },
+      el('label', { class: 'count' }, 'Race ', el('select', { onchange: e => { state.race = e.target.value; save(); renderHp(); } },
+        el('option', { value: '' }, 'none (stat ' + baseCon + ')'),
+        races.map(r => el('option', { value: r.race, selected: r.race === state.race }, r.race + (isNum(r.con) && num(r.con) ? ' (con ' + (num(r.con) > 0 ? '+' : '') + r.con + ')' : '')))))),
+    el('div', { class: 'facts' },
+      el('span', null, 'Regen: ', el('b', null, fmt(regen, 1) + ' s'), ' per hp'),
+      el('span', null, el('b', null, fmt(60 / regen, 1)), ' hp per minute'),
+      race ? el('span', null, race.race + ': ', el('b', null, (bonusDelta >= 0 ? '+' : '') + fmt(bonusDelta)), ' hp per level for players') : null),
+    lineChart(series, { yLabel: 'max hp' }),
+    el('div', { style: 'height:18px' }), t.node);
+}
+
+// --- tables
+
+function renderTables() {
+  const sec = document.getElementById('tab-tables');
+  const names = Object.keys(D).sort();
+  const name = names.includes(state.table) ? state.table : names[0];
+  const d = D[name];
+  const t = dataTable(d.cols.map(k => ({ key: k })), d.rows);
+  sec.replaceChildren(
+    el('div', { class: 'subtabs' }, names.map(n => el('button', { 'aria-pressed': String(n === name), onclick: () => { state.table = n; save(); renderTables(); } }, n + '.csv')),
+      t.count, el('a', { href: name + '.csv', class: 'count', download: name + '.csv' }, 'download')),
+    t.node);
+}
+
+// ---------- controls and state ----------
+
+function save() {
+  try { localStorage.setItem('balance:' + location.pathname, JSON.stringify({ ...state, picked: [...picked] })); } catch (e) { }
+}
+function restore() {
+  try {
+    const s = JSON.parse(localStorage.getItem('balance:' + location.pathname) || 'null');
+    if (s) { Object.assign(state, s); (s.picked || []).forEach(k => picked.add(k)); }
+  } catch (e) { }
+}
+
+function setupControls() {
+  const metric = document.getElementById('metric');
+  metric.replaceChildren(...Object.entries(METRICS).filter(([k, m]) => !m.needs || M.hasBlow)
+    .map(([k, m]) => el('option', { value: k, selected: k === state.metric }, m.label)));
+  if (!METRICS[state.metric] || (METRICS[state.metric].needs && !M.hasBlow)) state.metric = 'points';
+  metric.value = state.metric;
+  const target = document.getElementById('target');
+  target.replaceChildren(...M.targets.map(t => el('option', { value: t.key }, t.label)));
+  if (!M.targets.some(t => t.key === state.target)) state.target = (M.targets.find(t => t.key !== 'npc_hp') || M.targets[0] || {}).key || '';
+  target.value = state.target;
+  const power = document.getElementById('power');
+  power.value = String(state.power);
+  metric.onchange = () => { state.metric = metric.value; save(); render(); };
+  target.onchange = () => { state.target = target.value; save(); render(); };
+  power.onchange = () => { state.power = Number(power.value); save(); render(); };
+}
+
+(async () => {
+  const status = document.getElementById('status');
+  const game = decodeURIComponent((location.pathname.match(/\/balance\/([^/]+)\//) || [])[1] || '');
+  document.getElementById('game').textContent = game;
+  if (game) document.title = 'Balance ' + game;
+  try {
+    D = await loadAll();
+    if (!Object.keys(D).length) throw new Error('no CSV files yet: run the balance command in the mud');
+    M = buildModel(D);
+    restore();
+    if (!picked.size) M.abilities.filter(a => a.kind === 'heal').forEach(a => picked.add(a.key));
+    setupControls();
+    status.remove();
+    renderTabs();
+    render();
+  } catch (e) {
+    status.className = 'status error';
+    status.textContent = 'Could not load the data: ' + e.message;
+  }
+})();
+</script>
+</body>
+</html>
