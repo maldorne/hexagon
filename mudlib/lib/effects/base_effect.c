@@ -581,7 +581,7 @@ int cast_effect(string str, object who, int quiet)
 
         // if the effect type is touch and the victim is being protected,
         // the target may change
-        if ( target_type == TARGET_TYPE_TOUCH )
+        if ( target_type == TARGET_TYPE_TOUCH && objectp(ob) )
             ob = check_melee_protector(ob, caster);
 
         if (!ob)
