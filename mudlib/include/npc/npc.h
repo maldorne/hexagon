@@ -10,6 +10,10 @@
 #define ATTACK_EFFECT_TARGET_ALL    2   // everybody in the room
 #define ATTACK_EFFECT_TARGET_CASTER 3   // the monster itself
 
+// Chance, in percent per heart beat, that a monster in a fight tries to cast
+// one of the spells or skills it knows (see /lib/monster/casting.c)
+#define NPC_CAST_CHANCE 20
+
 // #define NO_WANDER
 #define MIN_PLAYER_LEVEL 1
 #define MIN_MONSTER_LEVEL 10

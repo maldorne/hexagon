@@ -115,13 +115,6 @@ void effect_heart_beat()
   if (this_object()->check_props(NOSKILL_PROP))
     return;
 
-  // an effect with a fifth entry waits until the monster has lost enough: its
-  // hit points under that percentage of the maximum
-  if (sizeof(effect) > 4 && intp(effect[4]) && effect[4] > 0 &&
-      this_object()->query_hp() * 100 >=
-      effect[4] * this_object()->query_max_hp())
-    return;
-
   if (!sizeof(attackers) && effect[2] != ATTACK_EFFECT_TARGET_CASTER)
     return;
 

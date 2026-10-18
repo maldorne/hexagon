@@ -108,3 +108,20 @@ citizen that is not its enemy in war. Then the victim stays at 1 hp, the fight
 stops on both sides with every guard fighting it, and the victim is passed out
 and arrested instead of dying. Every other attacker, and every other victim,
 goes through the usual death. See `lib/handlers/crimes.md`.
+
+## Monsters casting in a fight
+
+`lib/monster/casting.c` gives every monster and NPC a default: each heart beat of
+a fight, with `NPC_CAST_CHANCE` percent (`include/npc/npc.h`), and never while it
+is casting or under `noskill`, it tries one spell or skill it knows
+(`query_known_effects`: its spells and its non-passive skills). Only effects it can
+use now are drawn (`can_use_effect`: an intent other than none, taught by its guild,
+gp enough, none of the effect's lockout properties set). `choose_effect()` picks one
+at random and its targets by intent and target type: a harmful `one`/`touch` goes at
+an attacker, a harmful `many` at up to `query_max_targets()` of them, a helpful
+`one`/`touch` at itself, a helpful `many` at itself and the allies fighting the same
+attackers; `all`, `self` and `none` are cast as they are. `cast_chosen_effect()`
+runs it through `cast_effect_on` (chosen targets) or `cast_effect`, so the effect
+makes the same refusals as for a player. An AI component replaces `choose_effect()`
+and leaves the rest. The template option `guild_abilities` adds everything the
+NPC's guild teaches up to its guild level to what it knows.
