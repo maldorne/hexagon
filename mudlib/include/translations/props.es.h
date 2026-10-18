@@ -119,13 +119,13 @@
 #define _LANG_PROP_CHAIR_SHORT          "una silla $material_phrase$"
 #define _LANG_PROP_CHAIR_LONG           "Una silla robusta $material_phrase$, para una persona."
 
-#define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tirada en el suelo)"
-#define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s está sentado en ella)"
-#define _LANG_PROP_CHAIR_SUFFIX_TIPPED_PLURAL   " (tiradas en el suelo)"
+#define _LANG_PROP_CHAIR_SUFFIX_TIPPED      " (tirad{o|a} en el suelo)"
+#define _LANG_PROP_CHAIR_SUFFIX_OCCUPIED    " (%s está sentado en {él|ella})"
+#define _LANG_PROP_CHAIR_SUFFIX_TIPPED_PLURAL   " (tirad{os|as} en el suelo)"
 
-#define _LANG_PROP_CHAIR_LONG_TIPPED        " Está tirada en el suelo."
-#define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s está sentado en ella."
-#define _LANG_PROP_CHAIR_LONG_TIPPED_PLURAL " Están tiradas en el suelo."
+#define _LANG_PROP_CHAIR_LONG_TIPPED        " Está tirad{o|a} en el suelo."
+#define _LANG_PROP_CHAIR_LONG_OCCUPIED      " %s está sentado en {él|ella}."
+#define _LANG_PROP_CHAIR_LONG_TIPPED_PLURAL " Están tirad{os|as} en el suelo."
 
 #define _LANG_PROP_CHAIR_SIT_VERBS          ({ "sentar", "sentarse", "sentarme" })
 #define _LANG_PROP_CHAIR_STAND_VERBS        ({ "levantar", "levantarse", "levantarme" })
@@ -160,8 +160,8 @@
 #define _LANG_PROP_THRONE_SHORT         "un trono $material_phrase$"
 #define _LANG_PROP_THRONE_LONG          "Un trono $material_phrase$, grande y solemne, de respaldo alto, hecho para que un soberano presida desde él."
 
-#define _LANG_PROP_THRONE_SUFFIX_OCCUPIED   " (%s está sentado en él)"
-#define _LANG_PROP_THRONE_LONG_OCCUPIED     " %s está sentado en él."
+#define _LANG_PROP_THRONE_SUFFIX_OCCUPIED   " (%s está sentado en {él|ella})"
+#define _LANG_PROP_THRONE_LONG_OCCUPIED     " %s está sentado en {él|ella}."
 
 #define _LANG_PROP_THRONE_SIT_VERBS         ({ "sentar", "sentarse", "sentarme" })
 #define _LANG_PROP_THRONE_STAND_VERBS       ({ "levantar", "levantarse", "levantarme" })
@@ -173,7 +173,7 @@
 
 #define _LANG_PROP_THRONE_CANT_SIT          "No puedes sentarte en este trono ahora mismo."
 #define _LANG_PROP_THRONE_ALREADY_SITTING   "Ya estás sentado en ese trono."
-#define _LANG_PROP_THRONE_OCCUPIED_BY       "$lastarg$ ya está sentado en él."
+#define _LANG_PROP_THRONE_OCCUPIED_BY       "$lastarg$ ya está sentado en {él|ella}."
 #define _LANG_PROP_THRONE_NOT_SITTING       "No estás sentado en este trono."
 
 // ************************************************************
@@ -253,8 +253,8 @@
 #define _LANG_PROP_RUNE_SUFFIX_LIT_PLURAL   " que brillan"
 #define _LANG_PROP_RUNE_LONG_LIT            " Brilla con luz propia."
 #define _LANG_PROP_RUNE_LONG_LIT_PLURAL     " Brillan con luz propia."
-#define _LANG_PROP_RUNE_LONG_UNLIT          " Está apagada."
-#define _LANG_PROP_RUNE_LONG_UNLIT_PLURAL   " Están apagadas."
+#define _LANG_PROP_RUNE_LONG_UNLIT          " Está apagad{o|a}."
+#define _LANG_PROP_RUNE_LONG_UNLIT_PLURAL   " Están apagad{os|as}."
 
 #define _LANG_PROP_RUNE_FEEL            "La superficie de la runa está fría y lisa."
 
@@ -350,11 +350,11 @@
 #define _LANG_PROP_FIREPLACE_SHORT      "una pequeña chimenea"
 #define _LANG_PROP_FIREPLACE_LONG       "Una pequeña chimenea $material_phrase$."
 
-#define _LANG_PROP_FIREPLACE_SUFFIX_LIT " (encendida)"
+#define _LANG_PROP_FIREPLACE_SUFFIX_LIT " (encendid{o|a})"
 
 #define _LANG_PROP_FIREPLACE_LONG_LIT   " Las llamas crepitan en su interior, bañando la sala de luz cálida."
-#define _LANG_PROP_FIREPLACE_LONG_UNLIT " Las cenizas están frías; nadie la ha encendido en bastante tiempo."
-#define _LANG_PROP_FIREPLACE_LONG_UNLIT_PLURAL " Las cenizas están frías; nadie las ha encendido en bastante tiempo."
+#define _LANG_PROP_FIREPLACE_LONG_UNLIT " Las cenizas están frías; nadie {lo|la} ha encendido en bastante tiempo."
+#define _LANG_PROP_FIREPLACE_LONG_UNLIT_PLURAL " Las cenizas están frías; nadie {los|las} ha encendido en bastante tiempo."
 
 #define _LANG_PROP_FIREPLACE_LIGHT_VERBS ({ "encender", "prender" })
 #define _LANG_PROP_FIREPLACE_EXT_VERBS  ({ "apagar", "extinguir" })
@@ -394,8 +394,8 @@
 #define _LANG_PROP_BUNK_SHORT           "un camastro $material_phrase$"
 #define _LANG_PROP_BUNK_LONG            "Un camastro estrecho $material_phrase$, con la manta doblada a los pies."
 
-#define _LANG_PROP_BUNK_SUFFIX_OCCUPIED " (%s está tumbado en él)"
-#define _LANG_PROP_BUNK_LONG_OCCUPIED   " %s descansa en él."
+#define _LANG_PROP_BUNK_SUFFIX_OCCUPIED " (%s está tumbado en {él|ella})"
+#define _LANG_PROP_BUNK_LONG_OCCUPIED   " %s descansa en {él|ella}."
 
 #define _LANG_PROP_BUNK_LIE_VERBS       ({ "tumbarse", "tumbarme", "acostarse", "acostarme", "echarse", "echarme" })
 #define _LANG_PROP_BUNK_RISE_VERBS      ({ "levantarse", "levantarme", "incorporarse", "incorporarme" })
@@ -417,8 +417,8 @@
 #define _LANG_PROP_BED_SHORT            "una cama $material_phrase$"
 #define _LANG_PROP_BED_LONG             "Una cama $material_phrase$, ancha y bien hecha."
 
-#define _LANG_PROP_BED_SUFFIX_OCCUPIED  " (%s está tumbado en ella)"
-#define _LANG_PROP_BED_LONG_OCCUPIED    " %s descansa en ella."
+#define _LANG_PROP_BED_SUFFIX_OCCUPIED  " (%s está tumbado en {él|ella})"
+#define _LANG_PROP_BED_LONG_OCCUPIED    " %s descansa en {él|ella}."
 
 #define _LANG_PROP_BED_LIE_VERBS        ({ "tumbarse", "tumbarme", "acostarse", "acostarme", "echarse", "echarme" })
 #define _LANG_PROP_BED_RISE_VERBS       ({ "levantarse", "levantarme", "incorporarse", "incorporarme" })
@@ -523,10 +523,10 @@
 #define _LANG_PROP_FORGE_NOUN_PLURAL    "fraguas"
 #define _LANG_PROP_FORGE_SHORT          "una fragua"
 #define _LANG_PROP_FORGE_LONG           "Una fragua $material_phrase$, ancha y baja, con el hogar abierto bajo una campana ennegrecida por el humo."
-#define _LANG_PROP_FORGE_SUFFIX_LIT     " (encendida)"
-#define _LANG_PROP_FORGE_LONG_LIT       " En ella arde un fuego vivo, y el calor se nota desde la puerta."
-#define _LANG_PROP_FORGE_LONG_UNLIT     " Está apagada y las brasas, frías; nadie trabaja hoy el yunque."
-#define _LANG_PROP_FORGE_LONG_UNLIT_PLURAL " Están apagadas y las brasas, frías."
+#define _LANG_PROP_FORGE_SUFFIX_LIT     " (encendid{o|a})"
+#define _LANG_PROP_FORGE_LONG_LIT       " En {él|ella} arde un fuego vivo, y el calor se nota desde la puerta."
+#define _LANG_PROP_FORGE_LONG_UNLIT     " Está apagad{o|a} y las brasas, frías; nadie trabaja hoy el yunque."
+#define _LANG_PROP_FORGE_LONG_UNLIT_PLURAL " Están apagad{os|as} y las brasas, frías."
 
 #define _LANG_PROP_FORGE_WARM_VERBS     ({ "calentarse", "calentarme", "calentar" })
 #define _LANG_PROP_FORGE_WARM_ME        "Te acercas a la fragua y extiendes las manos hacia el fuego. El calor te llega hasta los huesos."

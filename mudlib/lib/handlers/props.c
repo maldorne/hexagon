@@ -29,6 +29,7 @@
 
 #include <mud/config.h>
 #include <room/prop.h>
+#include <basic/gender.h>
 #include <translations/props.h>
 
 inherit "/lib/core/object.c";
@@ -293,6 +294,45 @@ private string _state_value_string(mixed value)
   return capitalize(value);
 }
 
+/**
+ * Grammatical gender of one instance: overrides.gender ("m" / "f", or a
+ * GENDER_* value) when set, else the type's own.
+ *
+ * @param spec the type's catalogue entry
+ * @param overrides the instance's overrides
+ * @return GENDER_MALE or GENDER_FEMALE (the type's gender if neither applies)
+ */
+int query_instance_gender(mapping spec, mapping overrides)
+{
+  mixed given;
+
+  if (overrides)
+  {
+    given = overrides[PROP_OVERRIDE_GENDER];
+    if (given == GENDER_MALE || given == "m" || given == "male")
+      return GENDER_MALE;
+    if (given == GENDER_FEMALE || given == "f" || given == "female")
+      return GENDER_FEMALE;
+  }
+
+  return spec ? spec[PROP_TYPE_GENDER] : GENDER_NEUTER;
+}
+
+// Resolves the gender tokens of a language string: "{o|a}" keeps the first
+// form for a masculine instance and the second for any other. A string with
+// no token stays as it is.
+private string _agree(string str, int gender)
+{
+  string a, m, f, b;
+
+  if (!str || strsrch(str, "{") == -1) return str;
+
+  while (sscanf(str, "%s{%s|%s}%s", a, m, f, b) == 4)
+    str = a + (gender == GENDER_MALE ? m : f) + b;
+
+  return str;
+}
+
 /*
  * Single-line entry composed by the props component when rendering
  * the section. Honours overrides.short first, then the custom
@@ -309,13 +349,14 @@ string query_render_line(string type, mapping overrides, mapping state)
   mapping suffixes;
   string base;
   string * suffix_keys;
-  int i;
+  int i, gender;
 
   _ensure_loaded();
 
   entry = types[type];
   if (!entry) return nil;
   spec = entry["spec"];
+  gender = query_instance_gender(spec, overrides);
 
   // base short
   base = nil;
@@ -350,7 +391,7 @@ string query_render_line(string type, mapping overrides, mapping state)
       // characters). The `"" +` idiom coerces int/string scalars to
       // their natural string form (DGD: when one operand of `+` is a
       // string, the other is rendered without quotes).
-      base = base + sprintf(suffix, _state_value_string(value));
+      base = base + sprintf(_agree(suffix, gender), _state_value_string(value));
     }
   }
 
@@ -442,7 +483,7 @@ string query_type_long(string type, mapping overrides, mapping state,
   mapping suffixes;
   string * keys;
   string ret;
-  int i;
+  int i, gender;
 
   _ensure_loaded();
 
@@ -456,6 +497,7 @@ string query_type_long(string type, mapping overrides, mapping state,
   }
 
   spec = entry["spec"];
+  gender = query_instance_gender(spec, overrides);
 
   if (overrides && overrides[PROP_OVERRIDE_DESCRIPTION])
   {
@@ -496,7 +538,8 @@ string query_type_long(string type, mapping overrides, mapping state,
       mixed value;
       value = state[keys[i]];
       if (!value) continue;
-      ret += sprintf(suffixes[keys[i]], _state_value_string(value));
+      ret += sprintf(_agree(suffixes[keys[i]], gender),
+                     _state_value_string(value));
     }
   }
 
@@ -514,7 +557,7 @@ string query_type_long(string type, mapping overrides, mapping state,
       mixed value;
       value = state ? state[keys[i]] : nil;
       if (value) continue;
-      ret += suffixes[keys[i]];
+      ret += _agree(suffixes[keys[i]], gender);
     }
   }
 
@@ -529,7 +572,7 @@ string query_type_long(string type, mapping overrides, mapping state,
  * set, falling back to the singular one per-field.
  */
 string query_short_state_suffix(string type, mapping state,
-                                varargs int plural)
+                                varargs int plural, mapping overrides)
 {
   mapping entry;
   mapping spec;
@@ -537,7 +580,7 @@ string query_short_state_suffix(string type, mapping state,
   mapping suffixes_plural;
   string * keys;
   string ret;
-  int i;
+  int i, gender;
 
   _ensure_loaded();
 
@@ -545,6 +588,7 @@ string query_short_state_suffix(string type, mapping state,
   if (!entry) return "";
   spec = entry["spec"];
   if (!spec) return "";
+  gender = query_instance_gender(spec, overrides);
 
   ret = "";
   suffixes = spec[PROP_TYPE_STATE_SUFFIXES];
@@ -575,7 +619,7 @@ string query_short_state_suffix(string type, mapping state,
                suffixes_plural[keys[i]] :
                (suffixes ? suffixes[keys[i]] : nil);
     if (!suffix) continue;
-    ret += sprintf(suffix, _state_value_string(value));
+    ret += sprintf(_agree(suffix, gender), _state_value_string(value));
   }
 
   return ret;
@@ -590,7 +634,7 @@ string query_short_state_suffix(string type, mapping state,
  * per-field.
  */
 string query_state_suffixes(string type, mapping state,
-                            varargs int plural)
+                            varargs int plural, mapping overrides)
 {
   mapping entry;
   mapping spec;
@@ -598,7 +642,7 @@ string query_state_suffixes(string type, mapping state,
   mapping suffixes_plural;
   string * keys;
   string ret;
-  int i;
+  int i, gender;
 
   _ensure_loaded();
 
@@ -606,6 +650,7 @@ string query_state_suffixes(string type, mapping state,
   if (!entry) return "";
   spec = entry["spec"];
   if (!spec) return "";
+  gender = query_instance_gender(spec, overrides);
 
   ret = "";
 
@@ -633,7 +678,7 @@ string query_state_suffixes(string type, mapping state,
                  suffixes_plural[keys[i]] :
                  (suffixes ? suffixes[keys[i]] : nil);
       if (!suffix) continue;
-      ret += sprintf(suffix, _state_value_string(value));
+      ret += sprintf(_agree(suffix, gender), _state_value_string(value));
     }
   }
 
@@ -663,7 +708,7 @@ string query_state_suffixes(string type, mapping state,
                  suffixes_plural[keys[i]] :
                  (suffixes ? suffixes[keys[i]] : nil);
       if (!suffix) continue;
-      ret += suffix;
+      ret += _agree(suffix, gender);
     }
   }
 

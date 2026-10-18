@@ -82,6 +82,14 @@ state = { tipped: 1, occupied: "test" }
 -> look prop appends    _LANG_PROP_CHAIR_LONG_OCCUPIED   " test is sitting on it."   // %s legacy
 ```
 
+Spanish suffixes agree with the instance's gender. A gendered word is written
+in the language file as `{masculine|feminine}` (`" (encendid{o|a})"`,
+`"en {él|ella}"`, `"nadie {lo|la} ha encendido"`) and resolved when the
+suffix is composed; a string with no token stays as it is, so English files
+need none. The gender of an instance is its `overrides.gender` (`m` or `f`),
+else the type's `PROP_TYPE_GENDER`: a fireplace renamed "un gran fuego rojo"
+is given `overrides.gender m` and lists as "un gran fuego rojo (encendido)".
+
 State suffixes are compact by design; if omitted for a plural group,
 prose falls back to the noun phrase only.
 
@@ -101,6 +109,7 @@ overrides = ([
   "symbol":      "a falcon",                    // feeds $symbol$
   "ids":         ({ "stones", "heaps" }),       // more words it answers to
   "plural":      "heaps of rubble",             // a group sharing the short
+  "gender":      "m",                           // "m" or "f": gendered words of the suffixes
 ])
 ```
 

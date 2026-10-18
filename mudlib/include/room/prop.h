@@ -69,6 +69,10 @@
 // ("receptacles"); a group whose short has no plural is named by the short of
 // its first instance.
 #define PROP_OVERRIDE_PLURAL       "plural"
+// Grammatical gender of this one instance ("m" or "f"), which the gendered
+// words of the state suffixes follow. Unset, it is read from the article of an
+// overridden short, else the type's own.
+#define PROP_OVERRIDE_GENDER       "gender"
 
 // ------------------------------------------------------------
 //  Plan kinds returned by handler("props")->query_action_plan().

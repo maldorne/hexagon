@@ -602,7 +602,7 @@ string query_props_section_string()
     first = insts[0];
     suf = (string)handler("props")->query_short_state_suffix(
             first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE],
-            sizeof(insts) > 1);
+            sizeof(insts) > 1, first[PROP_FIELD_OVERRIDES]);
     if (strlen(suf))
       piece += suf;
 
@@ -933,7 +933,7 @@ private string _compose_group_sentence(mapping * insts)
   // plural suffix variant when the type defines one.
   tail = (string)handler("props")->query_state_suffixes(
            first[PROP_FIELD_TYPE], first[PROP_FIELD_STATE],
-           sizeof(insts) > 1);
+           sizeof(insts) > 1, first[PROP_FIELD_OVERRIDES]);
   if (strlen(tail))
     ret += tail;
 
