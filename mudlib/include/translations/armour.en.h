@@ -28,7 +28,7 @@
 
 #define COWL "cowl"
 #define BONNET "bonnet"
-#define HELMET "heml"
+#define HELMET "helm"
 // basinet: helm closed in the face
 #define BASINET "basinet"
 #define GREAT_HELMET "great helm"
