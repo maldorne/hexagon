@@ -563,9 +563,10 @@ private mapping known_categories(mapping guild_list)
   return known;
 }
 
-// The listing of esferas and escuelas.
+// The listing of esferas and escuelas, each by the name the guild gives it.
 private int show_categories(mapping known, string header, string none)
 {
+  object guild;
   string * names;
   string text;
   int i;
@@ -576,10 +577,14 @@ private int show_categories(mapping known, string header, string none)
     return 0;
   }
 
+  guild = this_object()->query_guild_ob() ?
+          load_object(this_object()->query_guild_ob()) : nil;
+
   names = map_indices(known);
   text = header;
   for (i = 0; i < sizeof(names); i++)
-    text += "  " + capitalize(names[i]) + " (" +
+    text += "  " + (guild ? guild->query_category_name(names[i]) :
+                            capitalize(names[i])) + " (" +
             _LANG_SPELLS_CATEGORY_LEVELS[query_effect_category(names[i])] + ")\n";
 
   tell_object(this_object(), text);
