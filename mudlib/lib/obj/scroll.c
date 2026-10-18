@@ -1,7 +1,7 @@
 // A scroll: a parchment with a spell written on it. Whoever knows enough of
 // the spell's magic reads it aloud (read <scroll> [on <target>]) and the spell
-// is cast once, at the level it was written with and for no gp; the parchment
-// crumbles. A scroll with no spell is blank.
+// is cast once, at the level and power it was written with and for no gp; the
+// parchment crumbles. A scroll with no spell is blank.
 //
 // Who can read it is decided by the spell: someone who knows at least one of
 // its categories (a sphere or a school) through their guild, and whose guild
@@ -25,16 +25,23 @@ private string spell_path;
 private int scroll_level;
 // the level of the spell in its categories, which prices the scroll
 private int spell_level;
+// the power the spell runs with (1 minor, 2 neutral, 3 major), the writer's
+// knowledge of its magic instead of the reader's
+private int scroll_power;
 
 // the chance in a hundred that a reader who knows the category only a little
 // botches the reading
 #define BOTCH_CHANCE 20
+// the power a scroll is written with unless its setup says otherwise: whoever
+// wrote it knew the magic well enough (2 neutral)
+#define DEFAULT_SCROLL_POWER 2
 // the price of a scroll for each level of the spell and of the scroll
 #define VALUE_PER_LEVEL 40
 
 void create()
 {
   scroll_level = 1;
+  scroll_power = DEFAULT_SCROLL_POWER;
   ::create();
 
   // a blank scroll, unless the setup of an item has written it already
@@ -139,6 +146,17 @@ void set_scroll_level(int level)
 int query_scroll_level() { return scroll_level; }
 
 /**
+ * The power (1 minor, 2 neutral, 3 major) the spell was written with, the one
+ * its formulas use instead of how well the reader knows its magic.
+ */
+void set_scroll_power(int power)
+{
+  scroll_power = power < 1 ? 1 : (power > 3 ? 3 : power);
+}
+
+int query_scroll_power() { return scroll_power; }
+
+/**
  * Whether a reader can make sense of the writing: they know a category of the
  * spell through their guild, and their guild does not withhold its gifts.
  *
@@ -193,7 +211,8 @@ string query_long()
 
 /**
  * The reader reads the scroll aloud: the spell is cast through its effect with
- * the scroll as the source, at the level it was written with and for no gp.
+ * the scroll as the source, at the level and power it was written with and
+ * for no gp.
  * The scroll crumbles when the cast starts, and stays when it does not (no
  * target, the guild refuses...); the reason is left for notify_fail.
  *
@@ -240,7 +259,7 @@ int read_scroll(object reader, string rest)
     return 1;
   }
 
-  if (!spell->cast_effect_at(rest, reader, scroll_level))
+  if (!spell->cast_effect_at(rest, reader, scroll_level, scroll_power))
     return 0;
 
   tell_object(reader, _LANG_SCROLL_CRUMBLES_ME);

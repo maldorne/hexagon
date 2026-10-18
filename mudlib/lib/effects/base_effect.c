@@ -405,6 +405,11 @@ int query_effect_power(varargs object caster)
   if (!caster)
     caster = this_player();
 
+  // a cast with a given power (a scroll) uses it instead of the caster's
+  given = caster->query_timed_property(PROPERTY_CAST_POWER);
+  if (intp(given) && given)
+    return given;
+
   path = object_name(this_object());
   if (strlen(path) < 2 || path[strlen(path) - 2..] != ".c")
     path += ".c";
@@ -529,9 +534,11 @@ int query_given_level(varargs object caster)
  * @param  str    what the caster named (the target)
  * @param  who    the caster
  * @param  level  the guild level (1 to 20) the effect runs at
+ * @param  power  the power it runs with (1 minor, 2 neutral, 3 major); 0 or
+ *                none leaves the caster's own
  * @return 1 when the effect started, 0 when it was refused (notify_fail says why)
  */
-int cast_effect_at(string str, object who, int level)
+int cast_effect_at(string str, object who, int level, varargs int power)
 {
   string err;
   int ok;
@@ -540,13 +547,19 @@ int cast_effect_at(string str, object who, int level)
     level = 1;
 
   who->add_timed_property(PROPERTY_CAST_LEVEL, level, sizeof(rounds) + 3);
+  if (power > 0)
+    who->add_timed_property(PROPERTY_CAST_POWER, power > 3 ? 3 : power,
+      sizeof(rounds) + 3);
 
   casting_at_level = 1;
   err = catch(ok = cast_effect(str, who, 1));
   casting_at_level = 0;
 
   if (err || !ok)
+  {
     who->remove_timed_property(PROPERTY_CAST_LEVEL);
+    who->remove_timed_property(PROPERTY_CAST_POWER);
+  }
 
   if (err)
     error(err);
@@ -910,7 +923,10 @@ int cast_effect(string str, object who, int quiet)
 
     // a normal cast does not inherit the level a previous cast was given
     if (!at_level)
+    {
         caster->remove_timed_property(PROPERTY_CAST_LEVEL);
+        caster->remove_timed_property(PROPERTY_CAST_POWER);
+    }
 
     // This prevents casting other effects at the same time, and stores in the
     // player the effect to run when it calls its do_active_effects() function.

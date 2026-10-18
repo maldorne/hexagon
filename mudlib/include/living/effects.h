@@ -46,6 +46,8 @@
 #define PROPERTY_BLINDED "BLIND"
 // the level an effect cast at a given level (a scroll) runs at, held on the caster
 #define PROPERTY_CAST_LEVEL "cast level"
+// the power (1 minor, 2 neutral, 3 major) it runs with, held the same way
+#define PROPERTY_CAST_POWER "cast power"
 
 #define SP_OBJECT 1
 #define SP_FUNC 2
