@@ -404,7 +404,9 @@ and at a `town_entrance` with `admit` set to `citizens` it lets through only its
 own citizenship and those under it. At a `town_square` it has no direction and
 stops nobody. At a `bodyguard` POI, standing at its post, it attacks whoever
 attacks a citizen of its citizenship in the room, unless the attacker is an NPC
-citizen itself. A guard is a `GENERIC_NPC` plus this component; the diplomacy
+citizen itself. Independently of any post or citizenship, the `protects`
+attribute (a list of NPC names) makes the guard defend those NPCs: it attacks
+whoever attacks one of them in its room. A guard is a `GENERIC_NPC` plus this component; the diplomacy
 graph's `security` count and `guard` source are stored but nothing reads them to
 place a guard. The barracks is the job's `home`, and shifts are two jobs.
 

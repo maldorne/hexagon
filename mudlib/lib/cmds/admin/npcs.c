@@ -564,7 +564,7 @@ private string * known_template_fields()
             "money", "components", "timetable", "skills", "spells",
             "extracted_from", "citizenship", "proper_name", "unique",
             "guild_level", "job_level", "swims", "loved", "hated", "liked", "disliked", "liked_message",
-            "disliked_message", "attack_skills" });
+            "disliked_message", "attack_skills", "join_fights" });
 }
 
 // The six fields that may be written once or once per gender.

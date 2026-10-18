@@ -647,6 +647,10 @@ void apply_template(mapping t, varargs int born)
   add_feelings("hated", t["hated"]);
   add_feelings("liked", t["liked"]);
   add_feelings("disliked", t["disliked"]);
+  // it joins any fight against a player in its room
+  if (t["join_fights"])
+    set_join_fights();
+
   if (t["liked_message"])
     set_liked_message(gender_value(t["liked_message"], g));
   if (t["disliked_message"])

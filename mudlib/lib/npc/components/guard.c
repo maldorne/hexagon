@@ -27,6 +27,9 @@
 //   "min_class_level" - the class level anybody needs to pass
 //   "min_align"       - the real alignment anybody needs to pass (0: not evil)
 //   "message"         - what whoever it stops is told
+//   "protects"        - names of NPCs it defends: it attacks whoever attacks
+//                       one of them in its room, with no citizenship or post
+//                       needed
 //
 // The POI of its post adds two more: a town_entrance that admits only citizens
 // (POI_FIELD_ADMIT) lets nobody else through, and at a bodyguard POI the guard
@@ -49,7 +52,7 @@ inherit component "/lib/npc/component.c";
 private string guard_direction, guard_message;
 private int guard_enemies, guard_guildless, guard_min_guild_level,
             guard_min_class_level;
-private string * guard_guilds;
+private string * guard_guilds, * guard_protects;
 // the least real alignment that passes, nil when the guard does not look at it
 private mixed guard_min_align;
 // what the last refused mover is told; scan_pending: a scan is already queued
@@ -66,6 +69,7 @@ void create()
   guard_min_guild_level = 0;
   guard_min_class_level = 0;
   guard_guilds = ({ });
+  guard_protects = ({ });
   guard_min_align = nil;
   refusal = nil;
   scan_pending = 0;
@@ -417,10 +421,11 @@ private int _passes_admission(object mover)
   return _is_fellow_citizen(mover);
 }
 
-// A fight in the guard's room, `fighters` being ({ victim, attacker }). At a
-// bodyguard post, standing at it, the guard attacks whoever attacks one of its
-// citizens -- unless the attacker is an NPC of the city itself, which is how
-// the guards' own blows on a citizen are not taken for an attack to answer.
+// A fight in the guard's room, `fighters` being ({ victim, attacker }). The
+// guard attacks whoever attacks one of the names it protects, wherever it
+// stands. At a bodyguard post, standing at it, it attacks whoever attacks one
+// of its citizens -- unless the attacker is an NPC of the city itself, which is
+// how the guards' own blows on a citizen are not taken for an attack to answer.
 void event_fight_in_progress(object ob, object * fighters)
 {
   object me, victim, attacker, here;
@@ -435,11 +440,22 @@ void event_fight_in_progress(object ob, object * fighters)
   if (!victim || !attacker || attacker == me || victim == attacker)
     return;
 
+  here = environment(me);
+
+  // the names it protects need neither a citizenship nor a post
+  if (here && here == environment(attacker) &&
+      member_array(victim->query_name(), guard_protects) >= 0)
+  {
+    if (member_array(attacker->query_name(), guard_protects) < 0 &&
+        member_array(attacker, me->query_attacker_list()) < 0)
+      me->attack_ob(attacker);
+    return;
+  }
+
   poi = _post_poi();
   if (!poi || poi[POI_FIELD_KIND] != POI_KIND_BODYGUARD)
     return;
 
-  here = environment(me);
   if (!here || here != environment(attacker) ||
       here->query_file_name() != me->query_work())
     return;
@@ -506,6 +522,7 @@ mapping query_auto_load_attributes()
     "min_class_level" : guard_min_class_level,
     "min_align"       : guard_min_align,
     "message"         : guard_message,
+    "protects"        : guard_protects,
   ]);
 }
 
@@ -531,6 +548,8 @@ void init_auto_load_attributes(mapping args)
     guard_min_align = args["min_align"];
   if (stringp(args["message"]))
     guard_message = args["message"];
+  if (pointerp(args["protects"]))
+    guard_protects = ({ }) + args["protects"];
 }
 
 mixed * stats()
@@ -543,5 +562,6 @@ mixed * stats()
     ({ "Min Guild Level", guard_min_guild_level }),
     ({ "Min Class Level", guard_min_class_level }),
     ({ "Min Align", intp(guard_min_align) ? "" + guard_min_align : "-" }),
+    ({ "Protects", implode(guard_protects, ", ") }),
   });
 }
