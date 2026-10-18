@@ -32,6 +32,9 @@ mapping guild_skills;
 // the spells the guild teaches its members: spell object path -> guild level
 // needed; members learn them with aprender in the guild room
 mapping guild_spells;
+// the power the guild gives its members in some of those spells, spell object
+// path -> 1 minor, 2 neutral, 3 major; see add_guild_spell
+mapping spell_powers;
 // the categories of the spells its members cast, -> EFFECT_CAT_* (how well
 // they know each, which makes its spells cheaper or dearer): spheres of divine
 // magic (clerics, paladins) and schools of arcane magic (mages, sorcerers)
@@ -49,6 +52,7 @@ void create()
   specs_available = ({ });
   guild_skills = ([ ]);
   guild_spells = ([ ]);
+  spell_powers = ([ ]);
   spheres = ([ ]);
   schools = ([ ]);
   needed_ext_align = 0;
@@ -269,13 +273,37 @@ void grant_guild_skills(object player)
  *
  * @param  path   the spell object, inheriting BASE_EFFECT as a spell
  * @param  level  guild level needed to learn it
+ * @param  power  optional EFFECT_CAT_MINOR, EFFECT_CAT_NEUTRAL or
+ *                EFFECT_CAT_MAJOR: the power the members get in this spell,
+ *                instead of the one their spheres or schools give; it also
+ *                lets them cast it without knowing any of its categories
  */
-void add_guild_spell(string path, int level)
+void add_guild_spell(string path, int level, varargs string power)
 {
   guild_spells[path] = level;
+
+  if (power == EFFECT_CAT_MINOR)
+    spell_powers[path] = 1;
+  else if (power == EFFECT_CAT_NEUTRAL)
+    spell_powers[path] = 2;
+  else if (power == EFFECT_CAT_MAJOR)
+    spell_powers[path] = 3;
+  else
+    spell_powers[path] = nil;
 }
 
 mapping query_guild_spells() { return guild_spells; }
+
+/**
+ * The power the members get in one spell when the guild sets it apart from
+ * its categories (see add_guild_spell).
+ * @param  path  the spell object
+ * @return 0 when the guild sets none, else 1 minor, 2 neutral, 3 major
+ */
+int query_guild_spell_power(string path)
+{
+  return spell_powers[path] ? spell_powers[path] : 0;
+}
 
 /**
  * The id a spell is known by: its file name without the extension.

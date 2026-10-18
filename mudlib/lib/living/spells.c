@@ -554,6 +554,21 @@ int query_effect_category(string name)
 }
 
 /**
+ * The power the guild of this living gives it in one spell, when the guild
+ * sets it apart from the spell's categories (add_guild_spell in /lib/guild.c).
+ * @param  path  the spell object
+ * @return 0 when the guild sets none, else 1 minor, 2 neutral, 3 major
+ */
+int query_guild_spell_power(string path)
+{
+  object guild;
+
+  guild = this_object()->query_guild_ob() ?
+          load_object(this_object()->query_guild_ob()) : nil;
+  return guild ? guild->query_guild_spell_power(path) : 0;
+}
+
+/**
  * The same, as one of the EFFECT_CAT_* names.
  */
 string query_effect_category_level(string name)

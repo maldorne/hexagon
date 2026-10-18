@@ -36,7 +36,7 @@
 #define EFFECT_REACH_SELF   "self"     // the caster only
 #define EFFECT_REACH_TOUCH  "touch"    // one target, by touch
 #define EFFECT_REACH_SINGLE "single"   // one target in the same place
-#define EFFECT_REACH_RANGED "ranged"   // one target, maybe in another place
+#define EFFECT_REACH_RANGED "ranged"   // one target that may be in another place at the start
 #define EFFECT_REACH_AREA   "area"     // everyone in the place
 #define EFFECT_REACH_WIDE   "wide"     // everyone in several places
 

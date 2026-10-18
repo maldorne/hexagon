@@ -44,7 +44,7 @@
 #define _LANG_EFFECT_HELP_LEVEL "\nLevel: "
 #define _LANG_EFFECT_HELP_CATEGORY "\tCategory: "
 #define _LANG_EFFECT_HELP_REACH "\nReach: "
-// reach ids (see <living/effects.h>) -> name; the range of a ranged one follows
+// reach ids (see <living/effects.h>) -> name: where the target must be at the start
 #define _LANG_EFFECT_REACH_NAMES ([ \
   "self": "personal", \
   "touch": "touch", \
@@ -53,9 +53,12 @@
   "area": "area", \
   "wide": "wide area" \
 ])
-#define _LANG_EFFECT_REACH_RANGE_ONE " (1 room)"
-#define _LANG_EFFECT_REACH_RANGE_PRE " ("
-#define _LANG_EFFECT_REACH_RANGE_POST " rooms)"
+// how far a target that moves away is still followed
+#define _LANG_EFFECT_HELP_FOLLOW "\nIf it flees: "
+#define _LANG_EFFECT_FOLLOW_NONE "not followed"
+#define _LANG_EFFECT_FOLLOW_ONE "followed 1 room away"
+#define _LANG_EFFECT_FOLLOW_PRE "followed up to "
+#define _LANG_EFFECT_FOLLOW_POST " rooms away"
 #define _LANG_EFFECT_HELP_COST "\tCost: "
 #define _LANG_EFFECT_HELP_ROLE_NEEDED "\nRequired combat role: "
 #define _LANG_EFFECT_HELP_DESC "\nDescription:\n"

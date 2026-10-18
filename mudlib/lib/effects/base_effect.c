@@ -38,7 +38,8 @@ string target_type;       // target type the effect can have
                           //             TARGET_TYPE_PASS, TARGET_TYPE_SELF, TARGET_TYPE_TOUCH
 string* property_checks;  // properties that prevent the effect from running
 // string* shadow_checks;    // functions checked to know if it has shadows
-int effect_range;         // effect range, in exits from the caster (0: same place)
+int effect_range;         // how many exits away a target that moves is still
+                          // followed once the effect has started (0: none)
 string effect_reach;      // reach id set by hand, see query_effect_reach
 int silence;              // whether messages are shown on screen (useful for
                           // silent spells and similar)
@@ -215,8 +216,9 @@ void set_range(int i) { effect_range = i; }
 void set_effect_reach(string reach) { effect_reach = reach; }
 
 /**
- * How far the effect reaches: the id set by hand, or else the one its target
- * type and range say (a single target is ranged when the range crosses exits).
+ * Where the target must be when the effect starts: the id set by hand, or
+ * else the one its target type says. A target is always looked for in the
+ * caster's place, so only an effect that finds it elsewhere declares ranged.
  * @return one of the EFFECT_REACH_* ids
  */
 string query_effect_reach()
@@ -230,7 +232,7 @@ string query_effect_reach()
     return EFFECT_REACH_TOUCH;
   case TARGET_TYPE_ONE:
   case TARGET_TYPE_MANY:
-    return effect_range > 0 ? EFFECT_REACH_RANGED : EFFECT_REACH_SINGLE;
+    return EFFECT_REACH_SINGLE;
   case TARGET_TYPE_ALL:
     return EFFECT_REACH_AREA;
   }
@@ -239,7 +241,7 @@ string query_effect_reach()
 }
 
 /**
- * The reach as the player reads it, with the range of a ranged effect.
+ * The reach as the player reads it.
  * @return the translated reach name
  */
 string query_effect_reach_name()
@@ -248,14 +250,20 @@ string query_effect_reach_name()
 
   reach = query_effect_reach();
   name = _LANG_EFFECT_REACH_NAMES[reach];
-  if (!name)
-    name = reach;
+  return name ? name : reach;
+}
 
-  if (reach == EFFECT_REACH_RANGED && effect_range > 0)
-    name += (effect_range == 1 ? _LANG_EFFECT_REACH_RANGE_ONE :
-             _LANG_EFFECT_REACH_RANGE_PRE + effect_range + _LANG_EFFECT_REACH_RANGE_POST);
-
-  return name;
+/**
+ * How far a target that moves is followed, as the player reads it.
+ * @return the translated distance, or the text for none
+ */
+string query_effect_follow_name()
+{
+  if (effect_range <= 0)
+    return _LANG_EFFECT_FOLLOW_NONE;
+  if (effect_range == 1)
+    return _LANG_EFFECT_FOLLOW_ONE;
+  return _LANG_EFFECT_FOLLOW_PRE + effect_range + _LANG_EFFECT_FOLLOW_POST;
 }
 
 int query_silence() { return silence; }
@@ -363,6 +371,31 @@ int query_effect_level(varargs object caster)
     return clvl;
 }
 
+/**
+ * How strong the caster is in this effect: what the guild gives for this
+ * spell alone (add_guild_spell) when it sets it, else how well the caster
+ * knows the best of the effect's categories.
+ * @return 0 none, 1 minor, 2 neutral, 3 major
+ */
+int query_effect_power(varargs object caster)
+{
+  string path;
+  mixed given;
+
+  if (!caster)
+    caster = this_player();
+
+  path = object_name(this_object());
+  if (strlen(path) < 2 || path[strlen(path) - 2..] != ".c")
+    path += ".c";
+
+  given = caster->query_guild_spell_power(path);
+  if (intp(given) && given)
+    return given;
+
+  return caster->query_effect_category(query_effect_category(caster));
+}
+
 // Effective gp cost of this effect for a caster. Skills cost a fixed amount;
 // spells scale with the effect level and are then surcharged or discounted
 // by how well the caster knows the effect's category. Absorbed from the old
@@ -390,10 +423,10 @@ int query_effect_gp_cost(varargs object caster)
 
   // Adjust by the caster's knowledge of the effect's category.
   if (sizeof(query_categories()))
-    switch (caster->query_effect_category_level(query_effect_category(caster)))
+    switch (query_effect_power(caster))
     {
-    case EFFECT_CAT_MINOR: return 2 * base;   // knows it poorly -> costs more
-    case EFFECT_CAT_MAJOR: return base / 2;   // knows it well  -> costs less
+    case 1: return 2 * base;   // knows it poorly -> costs more
+    case 3: return base / 2;   // knows it well  -> costs less
     }
 
   return base;
@@ -418,6 +451,9 @@ string help()
         ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
 
       ret += _LANG_EFFECT_HELP_REACH + query_effect_reach_name();
+      // only a single target can run away from the effect
+      if (member_array(query_effect_reach(), ({ EFFECT_REACH_SINGLE, EFFECT_REACH_RANGED })) != -1)
+        ret += _LANG_EFFECT_HELP_FOLLOW + query_effect_follow_name();
 
       ret += _LANG_EFFECT_HELP_COST + query_effect_gp_cost(this_player());
 
@@ -943,8 +979,9 @@ int hb_effect(object caster, mixed *params, int time)
                 call_out("end_effect_now", 0, caster);
                 return 0;
             }
-            // Check it is within range
-            else if (!RANGE_HANDLER->check_in_range( caster, target, effect_range ))
+            // Check it is within range: without one, it must still be here
+            else if ((effect_range <= 0 && environment(target) != environment(caster)) ||
+                     (effect_range > 0 && !RANGE_HANDLER->check_in_range( caster, target, effect_range )))
             {
                 out_of_range = target;
                 target = 0;
