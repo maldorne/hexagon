@@ -18,7 +18,7 @@
  * How to customize objects:
  *
  * If we need it to be for a specific race, guild, deity, etc., we just have 
- *  to set_guild("guild name"), set_race, etc., or gender with set_needed_gender(1 or 2).
+ *  to set_guild_ob("/path/of/the/guild.c"), set_race, etc., or gender with set_needed_gender(1 or 2).
  * The object can be made for a single player by using 
  *  add_property("player", name);
  * The object can be made for a quest by adding the property 
@@ -290,7 +290,7 @@ int set_in_use(int i)
     // check guild
     if (list[GUILD_OB] != NULL_SOCIAL_VALUE)
     {
-      if (list[GUILD_OB] != environment(this_object())->query_guild_name())
+      if (list[GUILD_OB] != environment(this_object())->query_guild_ob())
       {
         tell_object(environment(this_object()), "Este objeto requiere que seas de un gremio "+
                     "concreto para que puedas usarlo.\n");
@@ -464,7 +464,8 @@ void set_gender_needed(int i){ gender_needed = i; }
 
 // race and class are ids, see <living/races.h> and <living/classes.h>
 void set_class(string str){ list[CLASS_OB] = str; }
-void set_guild(string str){ list[GUILD_OB] = str; }
+// the full path of the guild object, .c included
+void set_guild_ob(string path){ list[GUILD_OB] = path; }
 void set_race(string str){ list[RACE_OB] = str; }
 void set_race_group(string str){ list[RACEG_OB] = str; }
 void set_group(string str){ list[GROUP_OB] = str; }
