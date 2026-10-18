@@ -25,6 +25,7 @@
 //   "guildless"       - 1 to let those with no guild through the guild rules
 //   "min_guild_level" - the guild level a member needs to pass
 //   "min_class_level" - the class level anybody needs to pass
+//   "min_align"       - the real alignment anybody needs to pass (0: not evil)
 //   "message"         - what whoever it stops is told
 //
 // The POI of its post adds two more: a town_entrance that admits only citizens
@@ -49,6 +50,8 @@ private string guard_direction, guard_message;
 private int guard_enemies, guard_guildless, guard_min_guild_level,
             guard_min_class_level;
 private string * guard_guilds;
+// the least real alignment that passes, nil when the guard does not look at it
+private mixed guard_min_align;
 // what the last refused mover is told; scan_pending: a scan is already queued
 static string refusal;
 static int scan_pending;
@@ -63,6 +66,7 @@ void create()
   guard_min_guild_level = 0;
   guard_min_class_level = 0;
   guard_guilds = ({ });
+  guard_min_align = nil;
   refusal = nil;
   scan_pending = 0;
 }
@@ -471,6 +475,10 @@ int check(object mover)
       (int)mover->query_class_level() < guard_min_class_level)
     return 0;
 
+  if (intp(guard_min_align) &&
+      (int)mover->query_real_align() < guard_min_align)
+    return 0;
+
   return _passes_guild(mover) && _passes_citizenship(mover) &&
          _passes_admission(mover);
 }
@@ -496,6 +504,7 @@ mapping query_auto_load_attributes()
     "guildless"       : guard_guildless,
     "min_guild_level" : guard_min_guild_level,
     "min_class_level" : guard_min_class_level,
+    "min_align"       : guard_min_align,
     "message"         : guard_message,
   ]);
 }
@@ -518,6 +527,8 @@ void init_auto_load_attributes(mapping args)
     guard_min_guild_level = args["min_guild_level"];
   if (intp(args["min_class_level"]))
     guard_min_class_level = args["min_class_level"];
+  if (intp(args["min_align"]))
+    guard_min_align = args["min_align"];
   if (stringp(args["message"]))
     guard_message = args["message"];
 }
@@ -531,5 +542,6 @@ mixed * stats()
     ({ "Guildless", guard_guildless }),
     ({ "Min Guild Level", guard_min_guild_level }),
     ({ "Min Class Level", guard_min_class_level }),
+    ({ "Min Align", intp(guard_min_align) ? "" + guard_min_align : "-" }),
   });
 }
