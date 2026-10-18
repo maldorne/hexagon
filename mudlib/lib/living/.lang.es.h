@@ -450,3 +450,19 @@
 #define _LANG_FOLLOW_SOMEBODY_ARRIVES "Notas que alguien llega a tu posición.\n"
 #define _LANG_FOLLOW_SOMEBODY_LEAVES "Notas marcharse a uno de los que estaban aquí.\n"
 #define _LANG_FOLLOW_GO_FAILED "No consigues seguir a " + name + ".\n"
+
+// spells.c
+#define _LANG_SPELLS_CMDS_LIST ({ "hechizos" })
+#define _LANG_SPELLS_CMDS_SPHERES ({ "esferas" })
+#define _LANG_SPELLS_CMDS_SCHOOLS ({ "escuelas" })
+#define _LANG_SPELLS_CMDS_CAST ({ "formular" })
+#define _LANG_SPELLS_NONE_KNOWN "No conoces ningún hechizo.\n"
+#define _LANG_SPELLS_KNOWN_HEADER "Conoces los siguientes hechizos:\n"
+#define _LANG_SPELLS_STILL_CASTING "No puedes formular otro hechizo hasta que transcurra algún tiempo.\n"
+#define _LANG_SPELLS_CAST_USAGE "Uso: formular <hechizo> [<objetivo>]\n"
+#define _LANG_SPELLS_DEAD "Los espíritus no pueden formular hechizos.\n"
+#define _LANG_SPELLS_ILLEGAL_ARMOUR "No puedes formular hechizos mientras vistas esa armadura.\n"
+#define _LANG_SPELLS_UNKNOWN "No conoces ningún hechizo llamado así.\n"
+#define _LANG_SPELLS_NO_SPHERES "No formulas de ninguna esfera.\n"
+#define _LANG_SPELLS_SPHERES_HEADER "Formulas de estas esferas:\n"
+#define _LANG_SPELLS_SPHERE_LEVELS ({ "ninguna", "menor", "neutral", "mayor" })

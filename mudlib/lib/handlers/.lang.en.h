@@ -337,6 +337,7 @@
 #define _LANG_RULES_YOU_DO_NOT_MEET "  You do not meet these conditions.\n"
 #define _LANG_RULES_SKILLS_HEADER "%^BOLD%^Skills it teaches%^RESET%^\n"
 #define _LANG_RULES_SKILL_FROM_LEVEL "from level " + level
+#define _LANG_RULES_SPELLS_HEADER "%^BOLD%^Spells it teaches (learned with «learn»)%^RESET%^\n"
 #define _LANG_RULES_LEVEL_HEADER "%^BOLD%^Your next level%^RESET%^\n"
 #define _LANG_RULES_NOT_MEMBER_GUILD "  You are not a member of this guild.\n"
 #define _LANG_RULES_NOT_MEMBER_JOB "  This is not your job.\n"

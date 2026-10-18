@@ -3,7 +3,8 @@
 // location component (/lib/location/components/guild-room.c). Its members
 // advance a level of the guild here (avanzar), spending the experience the
 // guild asks for it, which coste shows them here (the general coste command,
-// elsewhere, shows every kind of level), and read its rules (normas).
+// elsewhere, shows every kind of level), learn what their level allows
+// (aprender) and read its rules (normas).
 //
 // Ported from the CcMud guild room, neverbot 12/2006 and 07/2010.
 
@@ -50,6 +51,7 @@ void init()
 {
   add_action("do_advance", _LANG_GUILD_ROOM_CMDS_ADVANCE);
   add_action("do_cost", _LANG_GUILD_ROOM_CMDS_COST);
+  add_action("do_learn", _LANG_GUILD_ROOM_CMDS_LEARN);
   add_action("do_rules", _LANG_GUILD_CMDS_RULES);
 }
 
@@ -151,6 +153,67 @@ int do_advance(string str)
 
   tell_room(environment(me), _LANG_GUILD_ROOM_ADVANCED_OTHERS, ({ me }));
   me->save();
+  return 1;
+}
+
+// aprender: a member learns every spell and skill of the guild up to their
+// guild level that they do not know yet, so whatever moved to a lower level
+// is learned as well. With nothing new, it says what comes next.
+int do_learn(string str)
+{
+  object me, guild, ob;
+  string * learned, * names;
+  mapping spells;
+  string * paths;
+  string next_name;
+  int i, next_level;
+
+  me = this_player();
+  if (!me || !strlen(room_guild) || me->query_guild_ob() != room_guild ||
+      !(guild = load_object(room_guild)))
+  {
+    notify_fail(_LANG_GUILD_ROOM_LEARN_NOT_MEMBER);
+    return 0;
+  }
+
+  guild->grant_guild_skills(me);
+  learned = guild->teach_guild_spells(me);
+
+  if (sizeof(learned))
+  {
+    names = ({ });
+    for (i = 0; i < sizeof(learned); i++)
+    {
+      ob = nil;
+      catch(ob = load_object(learned[i]));
+      names += ({ ob ? capitalize(ob->query_effect_name()) : learned[i] });
+    }
+
+    write(_LANG_GUILD_ROOM_LEARNED);
+    tell_room(environment(me), _LANG_GUILD_ROOM_LEARNED_OTHERS, ({ me }));
+    me->save();
+    return 1;
+  }
+
+  // the lowest level above the member's that teaches a spell
+  spells = guild->query_guild_spells();
+  paths = map_indices(spells);
+  next_level = 0;
+  next_name = nil;
+  for (i = 0; i < sizeof(paths); i++)
+  {
+    if (spells[paths[i]] <= (int)me->query_guild_level())
+      continue;
+    if (next_level && spells[paths[i]] >= next_level)
+      continue;
+
+    ob = nil;
+    catch(ob = load_object(paths[i]));
+    next_level = spells[paths[i]];
+    next_name = ob ? capitalize(ob->query_effect_name()) : paths[i];
+  }
+
+  write(next_name ? _LANG_GUILD_ROOM_LEARN_NEXT : _LANG_GUILD_ROOM_LEARN_NOTHING);
   return 1;
 }
 

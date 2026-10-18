@@ -7,6 +7,8 @@
  * neverbot 29/07/2010
  */
 
+#include <living/effects.h>
+
 inherit "/lib/core/object.c";
 // Quest system, not in hexagon yet: neither /global/basic/quests.c nor
 // <quests.h> exist here, so everything below that needs a quest is kept
@@ -27,6 +29,12 @@ string *specs_available;
 // the skills the guild teaches its members: skill id -> ({ guild level
 // needed, least ability the member starts with })
 mapping guild_skills;
+// the spells the guild teaches its members: spell object path -> guild level
+// needed; members learn them with aprender in the guild room
+mapping guild_spells;
+// the spheres its members cast from: sphere -> EFFECT_CAT_* (how well they
+// know it, which makes its spells cheaper or dearer)
+mapping spheres;
 // the markdown text of the guild's rules, see set_rules_book
 string rules_book;
 
@@ -39,6 +47,8 @@ void create()
   legal_classes = ({ });
   specs_available = ({ });
   guild_skills = ([ ]);
+  guild_spells = ([ ]);
+  spheres = ([ ]);
   needed_ext_align = 0;
   requirements_func = "";
   rules_book = "";
@@ -245,6 +255,95 @@ void grant_guild_skills(object player)
         player->query_skill_value(ids[i]) < ability)
       player->set_skill_value(ids[i], ability, 1);
   }
+}
+
+/**
+ * Teaches a spell to the members of the guild, from a guild level on.
+ *
+ * Call it from the guild's setup. Members learn it with aprender in the guild
+ * room once they reach the level, and keep it when they leave: a spell that
+ * only a member may cast checks it when cast (see query_guild_refusal in
+ * /lib/effects/guild_fixes.c).
+ *
+ * @param  path   the spell object, inheriting BASE_EFFECT as a spell
+ * @param  level  guild level needed to learn it
+ */
+void add_guild_spell(string path, int level)
+{
+  guild_spells[path] = level;
+}
+
+mapping query_guild_spells() { return guild_spells; }
+
+/**
+ * The id a spell is known by: its file name without the extension.
+ * @param  path  the spell object
+ * @return the id
+ */
+string query_spell_id(string path)
+{
+  string * parts;
+
+  parts = explode(path, "/");
+  path = parts[sizeof(parts) - 1];
+  if (strlen(path) > 2 && path[strlen(path) - 2..] == ".c")
+    path = path[0..strlen(path) - 3];
+  return path;
+}
+
+/**
+ * Gives a member every spell of the guild their guild level allows and they
+ * do not know yet. Asking for the level now, not when it was reached, lets a
+ * spell moved to an earlier level reach whoever is past it already.
+ *
+ * @return the paths of the spells learned, in the order of their levels
+ */
+string * teach_guild_spells(object player)
+{
+  string * paths, * learned;
+  int i, level, top;
+
+  paths = map_indices(guild_spells);
+  learned = ({ });
+  top = player->query_guild_level();
+
+  for (level = 0; level <= top; level++)
+    for (i = 0; i < sizeof(paths); i++)
+    {
+      if (guild_spells[paths[i]] != level ||
+          player->query_spell(query_spell_id(paths[i])))
+        continue;
+
+      player->add_spell(query_spell_id(paths[i]), paths[i]);
+      learned += ({ paths[i] });
+    }
+
+  return learned;
+}
+
+/**
+ * The spheres the members cast from, and how well they know each.
+ * @param  map  sphere -> EFFECT_CAT_MINOR, EFFECT_CAT_NEUTRAL or EFFECT_CAT_MAJOR
+ */
+void set_spheres(mapping map) { spheres = map ? ([ ]) + map : ([ ]); }
+mapping query_spheres() { return ([ ]) + spheres; }
+
+/**
+ * How well the members know a sphere.
+ * @return 0 not at all, 1 minor, 2 neutral, 3 major
+ */
+int query_sphere_knowledge(string sphere)
+{
+  switch (spheres[sphere])
+  {
+    case EFFECT_CAT_MINOR:
+      return 1;
+    case EFFECT_CAT_NEUTRAL:
+      return 2;
+    case EFFECT_CAT_MAJOR:
+      return 3;
+  }
+  return 0;
 }
 
 /**

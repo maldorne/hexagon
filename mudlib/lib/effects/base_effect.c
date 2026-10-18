@@ -294,11 +294,12 @@ string query_effect_category(varargs object caster)
 int query_effect_level(varargs object caster)
 {
     int clvl;
+    mixed level;
     if(!caster) 
         caster = this_player();
-    clvl = categories[this_object()->query_effect_category(caster)];
-    if(!clvl) 
-        clvl = 1;
+    // a category the caster does not know is not in the mapping: level 1
+    level = categories[this_object()->query_effect_category(caster)];
+    clvl = intp(level) && level ? level : 1;
     return clvl;
 }
 

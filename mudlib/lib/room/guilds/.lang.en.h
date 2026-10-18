@@ -49,6 +49,7 @@
 #define _LANG_GUILD_ROOM_SIGN_TEXT "Guild hall\n\n" + \
         "  cost       what your next guild level costs\n" + \
         "  advance    go up a level of the guild, if you have that experience\n" + \
+        "  learn      learn the spells and skills your guild level allows\n" + \
         "  rules      who may join, what is learned and the rules of the guild\n\n" + \
         "Only members of the guild may advance and read its rules here."
 #define _LANG_GUILD_ROOM_NO_GUILD "This hall belongs to no guild right now.\n"
@@ -61,3 +62,10 @@
 #define _LANG_GUILD_ROOM_ADVANCED_OTHERS me->query_cap_name() + " advances a level in the guild.\n"
 #define _LANG_GUILD_ROOM_COST "To advance to level " + next + " of your guild " + \
         "you need " + cost + " experience points (you have " + have + ").\n"
+#define _LANG_GUILD_ROOM_CMDS_LEARN ({ "learn" })
+#define _LANG_GUILD_ROOM_LEARN_NOT_MEMBER "Only the members of this guild may learn here.\n"
+#define _LANG_GUILD_ROOM_LEARNED "You learn " + implode(names, ", ") + ".\n"
+#define _LANG_GUILD_ROOM_LEARNED_OTHERS me->query_cap_name() + " studies with the masters of the guild.\n"
+#define _LANG_GUILD_ROOM_LEARN_NEXT "You know everything the guild teaches at your level. Next comes " + \
+        next_name + ", at level " + next_level + ".\n"
+#define _LANG_GUILD_ROOM_LEARN_NOTHING "You know everything the guild can teach you.\n"

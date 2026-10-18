@@ -51,6 +51,7 @@
 #define _LANG_GUILD_ROOM_SIGN_TEXT "Salón del gremio\n\n" + \
         "  coste      lo que te falta para tu siguiente nivel de gremio\n" + \
         "  avanzar    subes un nivel de gremio, si tienes esa experiencia\n" + \
+        "  aprender   aprendes los hechizos y habilidades que tu nivel permite\n" + \
         "  normas     quién puede entrar, qué se aprende y las normas del gremio\n\n" + \
         "Solo los miembros del gremio pueden avanzar y leer sus normas aquí."
 #define _LANG_GUILD_ROOM_NO_GUILD "Este salón no pertenece a ningún gremio ahora mismo.\n"
@@ -63,3 +64,10 @@
 #define _LANG_GUILD_ROOM_ADVANCED_OTHERS me->query_cap_name() + " avanza un nivel en el gremio.\n"
 #define _LANG_GUILD_ROOM_COST "Para avanzar al nivel " + next + " de tu gremio " + \
         "necesitas " + cost + " puntos de experiencia (tienes " + have + ").\n"
+#define _LANG_GUILD_ROOM_CMDS_LEARN ({ "aprender" })
+#define _LANG_GUILD_ROOM_LEARN_NOT_MEMBER "Solo los miembros de este gremio pueden aprender aquí.\n"
+#define _LANG_GUILD_ROOM_LEARNED "Aprendes " + implode(names, ", ") + ".\n"
+#define _LANG_GUILD_ROOM_LEARNED_OTHERS me->query_cap_name() + " estudia con los maestros del gremio.\n"
+#define _LANG_GUILD_ROOM_LEARN_NEXT "Ya sabes todo lo que el gremio enseña a tu nivel. Lo siguiente es " + \
+        next_name + ", en el nivel " + next_level + ".\n"
+#define _LANG_GUILD_ROOM_LEARN_NOTHING "Ya sabes todo lo que el gremio puede enseñarte.\n"

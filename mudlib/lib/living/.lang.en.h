@@ -443,3 +443,19 @@
 #define _LANG_FOLLOW_SOMEBODY_ARRIVES "You notice somebody arrived here.\n"
 #define _LANG_FOLLOW_SOMEBODY_LEAVES "You notice somebody leaves.\n"
 #define _LANG_FOLLOW_GO_FAILED "You cannot follow " + name + ".\n"
+
+// spells.c
+#define _LANG_SPELLS_CMDS_LIST ({ "spells" })
+#define _LANG_SPELLS_CMDS_SPHERES ({ "spheres" })
+#define _LANG_SPELLS_CMDS_SCHOOLS ({ "schools" })
+#define _LANG_SPELLS_CMDS_CAST ({ "cast" })
+#define _LANG_SPELLS_NONE_KNOWN "You know no spell.\n"
+#define _LANG_SPELLS_KNOWN_HEADER "You know these spells:\n"
+#define _LANG_SPELLS_STILL_CASTING "You cannot cast another spell yet.\n"
+#define _LANG_SPELLS_CAST_USAGE "Usage: cast <spell> [<target>]\n"
+#define _LANG_SPELLS_DEAD "Spirits cannot cast spells.\n"
+#define _LANG_SPELLS_ILLEGAL_ARMOUR "You cannot cast spells while wearing that armour.\n"
+#define _LANG_SPELLS_UNKNOWN "You know no spell by that name.\n"
+#define _LANG_SPELLS_NO_SPHERES "You cast from no sphere.\n"
+#define _LANG_SPELLS_SPHERES_HEADER "You cast from these spheres:\n"
+#define _LANG_SPELLS_SPHERE_LEVELS ({ "none", "minor", "neutral", "major" })

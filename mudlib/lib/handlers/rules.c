@@ -121,6 +121,41 @@ private string _skills(object guild, object place)
   return text;
 }
 
+// The spells a guild teaches, by the guild level that gives each; members
+// learn them with aprender in the guild room.
+private string _spells(object guild)
+{
+  mapping spells;
+  string * paths;
+  string text;
+  object ob;
+  int i, level, top;
+
+  spells = guild->query_guild_spells();
+  if (!mappingp(spells) || !map_sizeof(spells))
+    return "";
+
+  paths = map_indices(spells);
+  top = 0;
+  for (i = 0; i < sizeof(paths); i++)
+    if (spells[paths[i]] > top)
+      top = spells[paths[i]];
+
+  text = _LANG_RULES_SPELLS_HEADER;
+  for (level = 0; level <= top; level++)
+    for (i = 0; i < sizeof(paths); i++)
+      if (spells[paths[i]] == level)
+      {
+        ob = nil;
+        catch(ob = load_object(paths[i]));
+        text += sprintf("  %-28s %s\n",
+                        ob ? capitalize(ob->query_effect_name()) : paths[i],
+                        _LANG_RULES_SKILL_FROM_LEVEL);
+      }
+
+  return text;
+}
+
 // What the reader's next level costs, when they belong.
 private string _next_level(object social, object reader, string path)
 {
@@ -183,6 +218,9 @@ string query_rules(string path, object reader, object place)
 
   if (social->query_is_guild() && strlen(_skills(social, place)))
     text += "\n" + _skills(social, place);
+
+  if (social->query_is_guild() && strlen(_spells(social)))
+    text += "\n" + _spells(social);
 
   if (strlen(_next_level(social, reader, path)))
     text += "\n" + _next_level(social, reader, path);

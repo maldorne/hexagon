@@ -29,7 +29,11 @@
  *** *******************************************************************************/
 
 #include <living/spells.h>
+#include <living/effects.h>
+#include <language.h>
 
+// the spells this living knows: id -> ({ path of the spell object }), see
+// add_spell; every spell is an effect (BASE_EFFECT) cast with formular
 mixed spells;
 mixed minor_spheres;    /* Las escuelas tb son tratadas como esferas, las diferenciamos */
 mixed major_spheres;    /* mirando cual es el spell_dir de nuestro gremio. */
@@ -40,6 +44,9 @@ mixed neutral_spheres;
  * Este archivo mantiene la lista de hechizos que cada personaje conoce,
  * y las acciones para comprobar los conocimientos de nuestras escuelas/esferas,
  * mas el util comando 'formular' :)
+ *
+ * 10/2026 - Spells are effects now, like skills: formular finds a known spell
+ *           by its name and calls its cast_effect, neverbot
  */
 
 void create()
@@ -52,10 +59,68 @@ void create()
 
 void spell_commands()
 {
-  add_private_action("show_spells",  "hechizos");
-  add_private_action("show_spheres", "esferas");
-  add_private_action("show_schools", "escuelas");
-  add_private_action("cast",         "formular");
+  add_private_action("show_spells",  _LANG_SPELLS_CMDS_LIST);
+  add_private_action("show_spheres", _LANG_SPELLS_CMDS_SPHERES);
+  add_private_action("show_schools", _LANG_SPELLS_CMDS_SCHOOLS);
+  add_private_action("cast",         _LANG_SPELLS_CMDS_CAST);
+}
+
+/**
+ * The known spell named at the start of a text, by its name or an alias,
+ * whole words only. The longest name wins, so a spell whose name begins
+ * another's is not taken for it.
+ * @param  str  what follows the verb: the spell's name, then its target
+ * @return ({ path, the rest of the text }), or nil when no known spell starts it
+ */
+private mixed * match_spell(string str)
+{
+  string * ids, * names;
+  string name, best_path, best_rest;
+  object ob;
+  int i, n, best;
+
+  if (!mappingp(spells) || !str)
+    return nil;
+
+  str = lower_case(trim(str));
+  ids = map_indices(spells);
+  best = 0;
+
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    if (!arrayp(spells[ids[i]]) || !sizeof(spells[ids[i]]) ||
+        !stringp(spells[ids[i]][S_OBJECT]))
+      continue;
+
+    ob = nil;
+    catch(ob = load_object(spells[ids[i]][S_OBJECT]));
+    if (!ob)
+      continue;
+
+    names = ({ ob->query_effect_name() }) + ob->query_aliases();
+    for (n = 0; n < sizeof(names); n++)
+    {
+      name = lower_case(names[n]);
+      if (strlen(name) <= best)
+        continue;
+
+      if (str == name)
+      {
+        best = strlen(name);
+        best_path = spells[ids[i]][S_OBJECT];
+        best_rest = "";
+      }
+      else if (strlen(str) > strlen(name) &&
+               str[0..strlen(name)] == name + " ")
+      {
+        best = strlen(name);
+        best_path = spells[ids[i]][S_OBJECT];
+        best_rest = str[strlen(name) + 1..];
+      }
+    }
+  }
+
+  return best ? ({ best_path, best_rest }) : nil;
 }
 
 /*  Si el hechizo tiene una funcion help(), imprimira el string que se
@@ -63,22 +128,13 @@ void spell_commands()
  */
 string help_spell(string str)
 {
-  object guild;
-  string spell_dir;
+  mixed * match;
 
-  if (!mappingp(spells))
-    spells = ([ ]);
-
-  if (!map_sizeof(spells))
+  match = match_spell(str);
+  if (!match)
     return "";
 
-  if (!spells[str])
-    return "";
-
-  guild = this_player()->query_guild_ob();
-  spell_dir = guild->query_spell_directory();
-
-  return ((string)(spell_dir+spells[str][S_OBJECT])->help(str));
+  return (string)match[0]->help();
 }
 
 /*
@@ -86,32 +142,41 @@ string help_spell(string str)
  */
 int show_spells(string str)
 {
-  string *lista;
+  string * ids, * names;
+  object ob;
+  int i;
 
   if (!mappingp(spells))
     spells = ([ ]);
 
   if (!map_sizeof(spells))
   {
-    tell_object(this_player(), "No conoces ningún hechizo.\n");
+    tell_object(this_object(), _LANG_SPELLS_NONE_KNOWN);
     return 1;
   }
 
-  lista = m_indices(spells);
-  tell_object(this_player(), "Conoces los siguientes hechizos:\n");
+  ids = map_indices(spells);
+  names = ({ });
+  for (i = 0; i < sizeof(ids); i++)
+  {
+    ob = nil;
+    if (arrayp(spells[ids[i]]) && sizeof(spells[ids[i]]))
+      catch(ob = load_object(spells[ids[i]][S_OBJECT]));
+    names += ({ ob ? capitalize(ob->query_effect_name()) : ids[i] });
+  }
 
-  printf("%#-*s\n", this_user()->query_cols(), implode(lista, "\n"));
+  tell_object(this_object(), _LANG_SPELLS_KNOWN_HEADER +
+              "  " + implode(names, "\n  ") + "\n");
   return 1;
 }
 
 /* Formulara el hechizo despues de un round de formulacion. */
 int cast(string str)
 {
-  int i, j;
-  string *s,s1;
+  int i;
   object guild;
   object *armours;
-  string spell_dir;
+  mixed * match;
 
   // Añadido, neverbot 02/2006
   if (!mappingp(spells))
@@ -119,54 +184,38 @@ int cast(string str)
 
   if (!map_sizeof(spells))
   {
-    tell_object(this_player(),"No conoces ningún hechizo.\n");
-    return 1;
+    notify_fail(_LANG_SPELLS_NONE_KNOWN);
+    return 0;
   }
 
   /* Comprobaremos estas propiedades en cada uno de los hb_spell del hechizo,
      asi que en el primer turno del hechizo parariamos.
      Podemos ahorrarnos estas comprobaciones.
-     neverbot 7/01
+     neverbot 7/01 */
 
-  if ( this_player()->query_property("nocast") )
+  if ( this_object()->query_property(PROPERTY_STILLCASTING) )
   {
-    tell_object(this_player(), "Parece que ahora no puedes reunir el poder "
-      "necesario para formular el hechizo.\n");
-    return 1;
-  }
-
-  if (environment(this_player())->query_property("nocast"))
-  {
-    tell_object(this_player(),"Los poderes misticos parecen ser demasiado "
-      "debiles aqui y la magia no afecta.\n");
-    return 1;
-  }
-
-  */
-
-  if ( this_player()->query_property(PROPERTY_STILLCASTING) )
-  {
-    tell_object(this_player(), "No puedes formular otro hechizo hasta que transcurra "+
-      "algún tiempo.\n");
-    return 1;
+    notify_fail(_LANG_SPELLS_STILL_CASTING);
+    return 0;
   }
 
   if (!strlen(str))
   {
-    notify_fail("Uso: formular <hechizo> [<objetivo>]\n");
+    notify_fail(_LANG_SPELLS_CAST_USAGE);
     return 0;
   }
 
   /* Dead players should not cast spells!
    * Baldrick.
    */
-  if (this_player()->query_dead())
+  if (this_object()->query_dead())
   {
-    notify_fail("Los espíritus no pueden formular hechizos.\n");
+    notify_fail(_LANG_SPELLS_DEAD);
     return 0;
   }
 
-  guild = (object)this_player()->query_guild_ob();
+  guild = this_object()->query_guild_ob() ?
+          load_object(this_object()->query_guild_ob()) : nil;
 
   /* ******************************************************************************
     Es de suponer que los gremios que pueden formular tienen limitaciones al
@@ -179,49 +228,42 @@ int cast(string str)
 
   // PENDIENTE: Actualizar con el sistema de malus a la hora de formular segun
   // el equipo puesto
-  if (armours = this_player()->query_worn_ob())
+  if (guild && (armours = this_object()->query_worn_ob()))
   {
     for (i = 0; i < sizeof(armours); i++)
     {
       if (!guild->query_legal_armour((string)armours[i]->query_armour_type_name()))
       {
-        notify_fail("No puedes formular hechizos mientras vistas esa armadura.\n");
+        notify_fail(_LANG_SPELLS_ILLEGAL_ARMOUR);
         return 0;
       }
     }
-   }
+  }
 
-  s = explode(str, " ");
-  s1 = s[0];
-  j = 1;
-  while (!spells[s1] && j < sizeof(s))
-    s1 = implode(s[0..j++], " ");
-
-  if (!spells[s1])
+  match = match_spell(str);
+  if (!match)
   {
-    notify_fail("No conoces ningún hechizo llamado '"+str+"'.\n");
+    notify_fail(_LANG_SPELLS_UNKNOWN);
     return 0;
   }
 
-  /* ok we found our spell...
-   * cast it...
-   * Or, at least try to ;)
-   */
-  /* the Spell_dir is used to reduce space in the spellarray */
-
-  spell_dir = guild->query_spell_directory();
-
   /*** Para solucion de problemas, añadido por neverbot para hacerlo igual que en el
        mud original ***/
-  if (this_player()->query_coder())
-     tell_object(this_player(),"DEBUG: El archivo es: "+spell_dir + spells[s1][S_OBJECT]+".\n");
+  if (this_object()->query_coder())
+    tell_object(this_object(), "DEBUG: " + match[0] + "\n");
 
-  return (int)call_other(spell_dir + spells[s1][S_OBJECT], "cast_spell", implode(s[j..sizeof(s)], " "));
+  // the target is whatever follows the spell's name
+  return (int)call_other(match[0], "cast_effect", match[1], this_object(), 0);
 }
 /* Cast */
 
 mixed query_spells() { return spells; }
 
+/**
+ * Teaches this living a spell.
+ * @param  name  the spell's id (its file name, see query_spell_id in /lib/guild.c)
+ * @param  ob    the full path of the spell object
+ */
 int add_spell(string name, mixed ob)
 {
   int i;
@@ -255,11 +297,12 @@ int reset_spellarray()
   return 1;
 }
 
+// whether this living knows the spell with that id
 int query_spell(string type)
 {
   if (!mappingp(spells))
     return 0;
-  return spells[type];
+  return !!spells[type];
 }
 
 /* the sphere code.. added by Baldrick october '93 to use by
@@ -457,45 +500,81 @@ mixed query_sphere_power(mixed name)
   return 0;
 }
 
+/**
+ * How well this living knows a sphere, as the effects ask it to price a spell
+ * (see query_effect_category in /lib/effects/base_effect.c). A member's guild
+ * says it; the spheres added to the living itself (an NPC's) count when higher.
+ * @return 0 not at all, 1 minor, 2 neutral, 3 major
+ */
+int query_effect_category(string name)
+{
+  object guild;
+  int known, own;
+
+  known = 0;
+  guild = this_object()->query_guild_ob() ?
+          load_object(this_object()->query_guild_ob()) : nil;
+  if (guild)
+    known = guild->query_sphere_knowledge(name);
+
+  own = query_sphere(name);
+  return own > known ? own : known;
+}
+
+/**
+ * The same, as one of the EFFECT_CAT_* names.
+ */
+string query_effect_category_level(string name)
+{
+  switch (query_effect_category(name))
+  {
+    case 1:
+      return EFFECT_CAT_MINOR;
+    case 2:
+      return EFFECT_CAT_NEUTRAL;
+    case 3:
+      return EFFECT_CAT_MAJOR;
+  }
+  return EFFECT_CAT_NONE;
+}
+
+// esferas: the spheres this living casts from and how well it knows each.
 int show_spheres(string str)
 {
   object guild;
-  int written, i;
+  mapping known;
+  string * names;
+  string text;
+  int i;
 
-  // neverbot, 02/2006
-  if (!mappingp(spells))
-    spells = ([ ]);
-  if (!map_sizeof(spells))
-    return 0;
+  known = ([ ]);
+  guild = this_object()->query_guild_ob() ?
+          load_object(this_object()->query_guild_ob()) : nil;
+  if (guild)
+    known = guild->query_spheres();
 
-  guild = this_player()->query_guild_ob();
+  for (i = 0; i < sizeof(minor_spheres); i++)
+    known[minor_spheres[i]] = EFFECT_CAT_MINOR;
+  for (i = 0; i < sizeof(neutral_spheres); i++)
+    known[neutral_spheres[i]] = EFFECT_CAT_NEUTRAL;
+  for (i = 0; i < sizeof(major_spheres); i++)
+    known[major_spheres[i]] = EFFECT_CAT_MAJOR;
 
-  written = 0;
-
-  // if ( (guild->query_spell_directory() != CLERIC_ROOT) &&
-  //      (guild->query_spell_directory() != DRUID_ROOT) )
-
-  if ((!guild) || ((string)guild->query_spell_directory() != CLERIC_ROOT))
+  if (!map_sizeof(known))
   {
-    notify_fail("No necesitas esferas.\n");
+    notify_fail(_LANG_SPELLS_NO_SPHERES);
     return 0;
   }
 
-  /* Could format it better, but I don't care. */
-  for ( i=0; i<sizeof(minor_spheres); i++, written++ )
-    tell_object(this_player(), minor_spheres[i]+" (Menor)\n");
-  for ( i=0; i<sizeof(neutral_spheres); i++, written++ )
-    tell_object(this_player(), neutral_spheres[i]+" (Neutral)\n");
-  for ( i=0; i<sizeof(major_spheres); i++, written++ )
-    tell_object(this_player(), major_spheres[i]+" (Mayor)\n");
+  names = map_indices(known);
+  text = _LANG_SPELLS_SPHERES_HEADER;
+  for (i = 0; i < sizeof(names); i++)
+    text += "  " + capitalize(names[i]) + " (" +
+            _LANG_SPELLS_SPHERE_LEVELS[query_effect_category(names[i])] + ")\n";
 
-  if (!written)
-  {
-    notify_fail("No conoces ninguna esfera.\n");
-    return 0;
-  }
-  return written;
-} /* int show spheres..*/
+  tell_object(this_object(), text);
+  return 1;
+}
 
 int show_schools(string str)
 {

@@ -88,6 +88,15 @@ A guild teaches skills with `add_guild_skill(id, guild_level [, value])` in its 
 
 A skill that only the members of one guild may use (a paladin's faith) checks it in `extra_checks`: `query_guild_refusal(caster, <guild path>)` (`lib/effects/guild_fixes.c`, inherited by every effect). For someone outside that guild it returns the guild's `query_non_member_refusal` (nil by default, so the skill stays free; a guild masks it with a message in character). For a member, or when no path is given, it returns the guild's `query_powers_refusal` (a message while the guild withholds its gifts, nil otherwise).
 
+## Spells
+
+A spell is an effect like a skill: it inherits `BASE_EFFECT` and calls `set_effect_type(EFFECT_IS_SPELL)` in `setup`, and its rounds, lasting effects and checks are the ones above. Its categories are spheres, with the spell's level in each: `add_category("<sphere>", 3)`.
+
+- **Knowing a spell.** `lib/living/spells.c` keeps `spells`, `id -> ({ path })`, saved with the player. The id is the spell's file name without `.c`. `add_spell(id, path)`, `remove_spell(id)`, `query_spell(id)`, `query_spells()`. An NPC template lists them under `spells`.
+- **Casting.** `formular <spell> [<target>]` finds the known spell whose name or alias starts the text (the longest name wins) and calls its `cast_effect` with the rest as the target. `hechizos` lists the known spells; `esferas` the spheres and how well they are known.
+- **Spheres.** The base asks the caster `query_effect_category(sphere)`: 0 unknown, 1 minor, 2 neutral, 3 major. A member's guild answers it (`set_spheres(([ "<sphere>": EFFECT_CAT_MAJOR ]))` in its `setup`); the old per-living sphere lists (`add_sphere`) count when higher. The spell's level is its level in the best known sphere it belongs to (1 when none), and the gp cost grows with that level, double for a minor sphere and half for a major one.
+- **Guild spells.** `add_guild_spell(path, guild_level)` in the guild's `setup`. A member learns them with `aprender` in the guild room: every spell of a level up to theirs that they do not know yet, so a spell moved to a lower level later reaches whoever is past it. With nothing new, `aprender` names the next spell and its level. `normas` lists them by level. Leaving the guild takes nothing back; a spell only members may cast checks `query_guild_refusal` like a skill.
+
 ## Body parts
 
 `skinning`, `gutting`, `dismembering` and `pulling` take parts from a corpse, each the parts its race gives that skill; they share `base-extraction.c`. See `/lib/obj/death/body-parts.md`.

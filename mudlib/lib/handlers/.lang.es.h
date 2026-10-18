@@ -346,6 +346,7 @@
 #define _LANG_RULES_YOU_DO_NOT_MEET "  Tú no reúnes estas condiciones.\n"
 #define _LANG_RULES_SKILLS_HEADER "%^BOLD%^Habilidades que enseña%^RESET%^\n"
 #define _LANG_RULES_SKILL_FROM_LEVEL "desde el nivel " + level
+#define _LANG_RULES_SPELLS_HEADER "%^BOLD%^Hechizos que enseña (se aprenden con «aprender»)%^RESET%^\n"
 #define _LANG_RULES_LEVEL_HEADER "%^BOLD%^Tu siguiente nivel%^RESET%^\n"
 #define _LANG_RULES_NOT_MEMBER_GUILD "  No eres miembro de este gremio.\n"
 #define _LANG_RULES_NOT_MEMBER_JOB "  Este no es tu oficio.\n"
