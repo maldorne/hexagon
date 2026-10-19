@@ -58,23 +58,23 @@ int really_quit()
   // TODO editor
   // catch(editor_check_do_quit());
 
-  // TODO social
-  // if (query_race_ob())
-  //   catch(query_race_ob()->player_quit(this_object()));
-  // if (query_guild_ob())
-  //   catch(query_guild_ob()->player_quit(this_object()));
-  // if (query_class_ob())
-  //   catch(query_class_ob()->player_quit(this_object()));
-  // if (query_deity_ob())
-  //   catch(query_deity_ob()->player_quit(this_object()));
-  // if (query_group_ob())
-  //   catch(query_group_ob()->player_quit(this_object()));
-  // if (query_race_group_ob())
-  //   catch(query_race_group_ob()->player_quit(this_object()));
-  // if (query_job_ob())
-  //   catch(query_job_ob()->player_quit(this_object()));
-  // if (query_city_ob())
-  //   catch(query_city_ob()->player_quit(this_object()));
+  // the social objects are told the player leaves
+  if (this_object()->query_race_ob())
+    catch(load_object(this_object()->query_race_ob())->player_quit(this_object()));
+  if (this_object()->query_guild_ob())
+    catch(load_object(this_object()->query_guild_ob())->player_quit(this_object()));
+  if (this_object()->query_class_ob())
+    catch(load_object(this_object()->query_class_ob())->player_quit(this_object()));
+  if (this_object()->query_deity_ob())
+    catch(load_object(this_object()->query_deity_ob())->player_quit(this_object()));
+  if (this_object()->query_group_ob())
+    catch(load_object(this_object()->query_group_ob())->player_quit(this_object()));
+  if (this_object()->query_race_group_ob())
+    catch(load_object(this_object()->query_race_group_ob())->player_quit(this_object()));
+  if (this_object()->query_job_ob())
+    catch(load_object(this_object()->query_job_ob())->player_quit(this_object()));
+  if (this_object()->query_city_ob())
+    catch(load_object(this_object()->query_city_ob())->player_quit(this_object()));
 
   // curses_quit();
 

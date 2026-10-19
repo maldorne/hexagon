@@ -436,7 +436,12 @@ int player_quit(object player)
     return 1;
 }
 
-void new_levels(int lvl, object ob) 
+/**
+ * Called when the guild level of a living changes, before the level is adjusted.
+ * @param  ob    the living
+ * @param  lvl   the change, negative when it goes down
+ */
+void on_level_change(object ob, int lvl) 
 {
   int e, gp_bonus, gps;
   object class_ob;
@@ -518,8 +523,11 @@ int can_abandon(object player)
   return 1;
 }
 
-// Called when the guild is actually abandoned
-int guild_abandon(object player)
+/**
+ * Called when a player leaves the guild, once they confirmed it.
+ * @param  player  who leaves
+ */
+int on_leave(object player)
 {
   // if (player->query_player())
   // {

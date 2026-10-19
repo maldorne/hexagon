@@ -178,7 +178,7 @@ void confirm_leave_job(string answer, object me)
 
   path = me->query_job_ob();
   job = path ? load_object(path) : nil;
-  if (job && !job->job_abandon(me))
+  if (job && !job->on_leave(me))
   {
     tell_object(me, _LANG_JOB_ENTRANCE_CANNOT_LEAVE);
     return;

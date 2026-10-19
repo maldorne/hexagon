@@ -719,7 +719,7 @@ private string social_notes(object reader)
     catch(social = load_object(paths[i]));
     note = social ? social->query_effect_note(query_effect_key(), reader) : nil;
     if (note && strlen(note))
-      text += "\n  " + note;
+      text += "\n" + sprintf("  %-=*s\n", (this_user() ? this_user()->query_cols() - 2 : 77), trim(note));
   }
 
   return text;

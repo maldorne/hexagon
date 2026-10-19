@@ -244,7 +244,12 @@ int player_quit(object player)
     return 1;
 }
 
-void new_levels(int lvl, object ob) 
+/**
+ * Called when the job level of a living changes, before the level is adjusted.
+ * @param  ob    the living
+ * @param  lvl   the change, negative when it goes down
+ */
+void on_level_change(object ob, int lvl) 
 {
     int e, gps;
     
@@ -277,16 +282,18 @@ void new_levels(int lvl, object ob)
 }
 
 // Whether a player may give up this job now; asked before they are asked to
-// confirm it. job_abandon is called once they have.
+// confirm it. on_leave is called once they have.
 int can_abandon(object player)
 {
   return 1;
 }
 
-// Will be called when a player tries to leave the job
-// If we return 1, we allow them to do it
-// If we return 0, the player cannot stop having this job
-int job_abandon(object player)
+/**
+ * Called when a player leaves the job, once they confirmed it.
+ * @param  player  who leaves
+ * @return 1 lets them leave, 0 keeps them in the job
+ */
+int on_leave(object player)
 {
   // Quest removal, waiting on a quest system: hexagon has neither
   // <quests.h> nor the query_quests / remove_quest half of the player.

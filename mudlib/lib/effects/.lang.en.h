@@ -48,7 +48,7 @@
 #define _LANG_EFFECT_CATEGORY_NONE "none"
 #define _LANG_EFFECT_HELP_NAME "Name: "
 #define _LANG_EFFECT_HELP_LEVEL "\nLevel: "
-#define _LANG_EFFECT_HELP_CATEGORY "\tCategory: "
+#define _LANG_EFFECT_HELP_CATEGORY "\nCategory: "
 #define _LANG_EFFECT_HELP_REACH "\nReach: "
 // reach ids (see <living/effects.h>) -> name: where the target must be at the start
 #define _LANG_EFFECT_REACH_NAMES ([ \
@@ -65,7 +65,7 @@
 #define _LANG_EFFECT_FOLLOW_ONE "followed 1 room away"
 #define _LANG_EFFECT_FOLLOW_PRE "followed up to "
 #define _LANG_EFFECT_FOLLOW_POST " rooms away"
-#define _LANG_EFFECT_HELP_COST "\tCost: "
+#define _LANG_EFFECT_HELP_COST "\nCost: "
 #define _LANG_EFFECT_HELP_ROLE_NEEDED "\nRequired combat role: "
 #define _LANG_EFFECT_HELP_DESC "\nDescription:\n"
 #define _LANG_EFFECT_HELP_SEE_ALSO "See also: " + implode(help_see_also, ", ") + ".\n"

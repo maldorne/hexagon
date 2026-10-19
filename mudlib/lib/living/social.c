@@ -754,9 +754,9 @@ int adjust_job_level(int i)
     return 0;
   }
 
-  // Las funciones new_levels deben llamarse antes de ajustar el nivel!!
+  // on_level_change must be called before the level is adjusted
   if (query_job_ob())
-    (query_job_ob())->new_levels(i, this_object());
+    (query_job_ob())->on_level_change(this_object(), i);
 
   if (i >= 1)
     tell_player(this_object(), "¡Subes tu nivel de oficio!\n");
@@ -1003,9 +1003,9 @@ int adjust_level(int i)
     return 0;
   }
 
-  // the new_levels functions must be called before the level is adjusted!!
+  // on_level_change must be called before the level is adjusted
   if (query_class_ob())
-    query_class_ob()->new_levels(i, this_object());
+    query_class_ob()->on_level_change(this_object(), i);
 
   // message about level up (except the first one, which is automatic)
   if (interactive(this_object()) && (class_level >= 5) && (i > 0))
@@ -1070,9 +1070,9 @@ int adjust_guild_level(int i)
     return 0;
   }
 
-  // Las funciones new_levels deben llamarse antes de ajustar el nivel!!
+  // on_level_change must be called before the level is adjusted
   if (query_guild_ob())
-    query_guild_ob()->new_levels(i, this_object());
+    query_guild_ob()->on_level_change(this_object(), i);
 
   // Mensaje de subida de nivel (excepto la primera subida que es automatica)
   if ((guild_level >= 1) && (i > 0))

@@ -209,7 +209,7 @@ void confirm_leave(string answer, object me)
 
   guild = load_object(me->query_guild_ob());
   if (guild)
-    guild->guild_abandon(me);
+    guild->on_leave(me);
 
   log_file("guilds", "[" + ctime(time(), 4) + "] " + me->query_cap_name() +
            " leaves " + me->query_guild_ob() + "\n");

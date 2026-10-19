@@ -137,8 +137,12 @@ int query_gp_main_stat(object player){
 }
 
 // Added 7/03, neverbot (same system as guilds)
-/* What happens when you advance in level */
-void new_levels(int lvls, object ob) {
+/**
+ * Called when the class level of a living changes, before the level is adjusted.
+ * @param  ob    the living
+ * @param  lvls  the change, negative when it goes down
+ */
+void on_level_change(object ob, int lvls) {
   ob->reset_all();
   ob->recalc_stats(lvls);
 }

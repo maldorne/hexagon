@@ -48,7 +48,7 @@
 #define _LANG_EFFECT_CATEGORY_NONE "ninguna"
 #define _LANG_EFFECT_HELP_NAME "Nombre: "
 #define _LANG_EFFECT_HELP_LEVEL "\nNivel: "
-#define _LANG_EFFECT_HELP_CATEGORY "\tCategoría: "
+#define _LANG_EFFECT_HELP_CATEGORY "\nCategoría: "
 #define _LANG_EFFECT_HELP_REACH "\nAlcance: "
 // reach ids (see <living/effects.h>) -> name: where the target must be at the start
 #define _LANG_EFFECT_REACH_NAMES ([ \
@@ -65,7 +65,7 @@
 #define _LANG_EFFECT_FOLLOW_ONE "le sigue a 1 sala"
 #define _LANG_EFFECT_FOLLOW_PRE "le sigue hasta "
 #define _LANG_EFFECT_FOLLOW_POST " salas"
-#define _LANG_EFFECT_HELP_COST "\tCoste: "
+#define _LANG_EFFECT_HELP_COST "\nCoste: "
 #define _LANG_EFFECT_HELP_ROLE_NEEDED "\nActitud de combate requerida: "
 #define _LANG_EFFECT_HELP_DESC "\nDescripción:\n"
 #define _LANG_EFFECT_HELP_SEE_ALSO "Ver también: " + implode(help_see_also, ", ") + ".\n"
