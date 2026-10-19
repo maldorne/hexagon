@@ -358,7 +358,7 @@
 #define _LANG_SKILL_LIST_HEADER "> %^GREEN%^Conoces las siguientes habilidades: %^RESET%^<"
 #define _LANG_SKILL_PASSIVE_LEGEND "\n (*) Habilidades pasivas\n"
 #define _LANG_SKILL_UNUSABLE_MARK " (!)"
-#define _LANG_SKILL_UNUSABLE_LEGEND "\n (!) Tu gremio actual no te la enseña: no puedes usarla\n"
+#define _LANG_SKILL_UNUSABLE_LEGEND "\n (!) Tu gremio actual no te permite usarla\n"
 #define _LANG_SKILL_GAINED_PRE "¡Has obtenido la habilidad "
 #define _LANG_SKILL_GAINED_POST "!\n"
 #define _LANG_SKILL_IMPROVED_PRE "¡Has mejorado tus habilidades en "
@@ -460,7 +460,7 @@
 #define _LANG_SPELLS_CMDS_CAST ({ "formular" })
 #define _LANG_SPELLS_NONE_KNOWN "No conoces ningún hechizo.\n"
 #define _LANG_SPELLS_UNUSABLE_MARK " (!)"
-#define _LANG_SPELLS_UNUSABLE_LEGEND "\n  (!) Tu gremio actual no te lo enseña: no puedes formularlo\n"
+#define _LANG_SPELLS_UNUSABLE_LEGEND "\n  (!) Tu gremio actual no te permite formularlo\n"
 #define _LANG_SPELLS_KNOWN_HEADER "Conoces los siguientes hechizos:\n"
 #define _LANG_SPELLS_STILL_CASTING "No puedes formular otro hechizo hasta que transcurra algún tiempo.\n"
 #define _LANG_SPELLS_CAST_USAGE "Uso: formular <hechizo> [<objetivo>]\n"

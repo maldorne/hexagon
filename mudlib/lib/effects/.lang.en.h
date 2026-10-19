@@ -78,7 +78,7 @@
 #define MSG_WHICH_TARGET capitalize(verb) + " whom?\n"
 #define MSG_DISSAPPEAR  "Your target has disappeared.\n"
 #define MSG_NO_GPS      "You are too tired to do that.\n"
-#define MSG_NOT_TAUGHT  "Your current guild does not teach you that: you cannot use it until you return to one that does.\n"
+#define MSG_NOT_TAUGHT  "Your current guild does not allow you that: you cannot use it until you are in one that does.\n"
 #define MSG_NO_COMBAT   "You cannot do that in the middle of combat.\n"
 #define MSG_ONLY_COMBAT "That only makes sense in the middle of combat.\n"
 #define MSG_ALREADY_AFFECTED    target->query_cap_name()+" is already affected by that effect.\n"

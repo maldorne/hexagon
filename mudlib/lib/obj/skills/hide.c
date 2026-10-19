@@ -14,6 +14,8 @@ inherit BASE_EFFECT;
 
 void setup()
 {
+  set_common_effect(1);
+
   // Display name + accent-less aliases; the learning key is SKILL_HIDE.
   set_effect_name(_LANG_SKILL_HIDE_NAME);
   set_aliases(_LANG_SKILL_HIDE_ALIASES);

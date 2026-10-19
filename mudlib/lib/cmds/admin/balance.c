@@ -354,7 +354,7 @@ void step_guilds()
   int i, j, level;
 
   start_file("guilds.csv", ({ "guild", "file", "class", "ability",
-    "ability_kind", "level", "power", "categories" }));
+    "ability_kind", "level", "power", "categories", "related" }));
 
   files = files_under(game_dir() + "obj/guilds/");
   for (i = 0; i < sizeof(files); i++)
@@ -379,7 +379,17 @@ void step_guilds()
 
       put_row("guilds.csv", ({ id_of(files[i]), files[i], classes,
         guild->query_spell_id(ids[j]), "spell", abilities[ids[j]], power,
-        categories }));
+        categories, 0 }));
+    }
+
+    // spells tied to the guild but not taught: no level, related = 1
+    ids = sort_array(guild->query_guild_related_spells());
+    for (j = 0; j < sizeof(ids); j++)
+    {
+      spell = try_load(ids[j]);
+      put_row("guilds.csv", ({ id_of(files[i]), files[i], classes,
+        guild->query_spell_id(ids[j]), "spell", "", "",
+        spell ? category_text(spell) : "", 1 }));
     }
 
     abilities = guild->query_guild_skills();
@@ -388,8 +398,14 @@ void step_guilds()
     {
       level = abilities[ids[j]][0];
       put_row("guilds.csv", ({ id_of(files[i]), files[i], classes, ids[j],
-        "skill", level, "", "" }));
+        "skill", level, "", "", 0 }));
     }
+
+    // skills tied to the guild but not taught: no level, related = 1
+    ids = sort_array(guild->query_guild_related_skills());
+    for (j = 0; j < sizeof(ids); j++)
+      put_row("guilds.csv", ({ id_of(files[i]), files[i], classes, ids[j],
+        "skill", "", "", "", 1 }));
   }
 
   next_step();

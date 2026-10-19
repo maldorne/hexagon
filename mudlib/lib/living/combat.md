@@ -115,7 +115,7 @@ goes through the usual death. See `lib/handlers/crimes.md`.
 a fight, with `NPC_CAST_CHANCE` percent (`include/npc/npc.h`), and never while it
 is casting or under `noskill`, it tries one spell or skill it knows
 (`query_known_effects`: its spells and its non-passive skills). Only effects it can
-use now are drawn (`can_use_effect`: an intent other than none, taught by its guild,
+use now are drawn (`can_use_effect`: an intent other than none, common or allowed by its guild,
 gp enough, none of the effect's lockout properties set). `choose_effect()` picks one
 at random and its targets by intent and target type: a harmful `one`/`touch` goes at
 an attacker, a harmful `many` at all of them, a helpful

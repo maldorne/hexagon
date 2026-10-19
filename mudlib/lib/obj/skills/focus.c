@@ -32,6 +32,8 @@ inherit BASE_EFFECT;
 
 void setup()
 {
+  set_common_effect(1);
+
   // Display name + aliases; the learning key is SKILL_FOCUS.
   set_effect_name(_LANG_SKILL_FOCUS_NAME);
   set_aliases(_LANG_SKILL_FOCUS_ALIASES);

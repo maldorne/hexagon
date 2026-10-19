@@ -10,6 +10,8 @@ inherit BASE_EFFECT;
 
 void setup()
 {
+  set_common_effect(1);
+
   // Display name + accent-less aliases (translated per language). The
   // learning key is the English id SKILL_SEARCH (= this filename).
   set_effect_name(_LANG_SKILL_SEARCH_NAME);

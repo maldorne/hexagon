@@ -32,6 +32,9 @@ mapping guild_skills;
 // the spells the guild teaches its members: spell object path -> guild level
 // needed; members learn them with aprender in the guild room
 mapping guild_spells;
+// the spells and skills tied to the guild but not taught in its room (learned
+// through quests, items...): spell object path -> 1, skill id -> 1
+mapping related_spells, related_skills;
 // the power the guild gives its members in some of those spells, spell object
 // path -> 1 minor, 2 neutral, 3 major; see add_guild_spell
 mapping spell_powers;
@@ -52,6 +55,8 @@ void create()
   specs_available = ({ });
   guild_skills = ([ ]);
   guild_spells = ([ ]);
+  related_spells = ([ ]);
+  related_skills = ([ ]);
   spell_powers = ([ ]);
   spheres = ([ ]);
   schools = ([ ]);
@@ -232,9 +237,10 @@ int remove_guild_command(string name) {
  *
  * Call it from the guild's setup. Members get it when they join or reach the
  * level (see grant_guild_skills) and keep it when they leave, but they cannot
- * use it outside a guild that teaches it: the effect refuses the cast (see
- * query_casting_level in /lib/effects/base_effect.c). Inside one it runs at
- * the member's guild level.
+ * use it outside a guild that allows it (teaches it or relates it, see
+ * add_guild_related_skill), unless it is a common effect: the effect refuses
+ * the use (see query_usable_by in /lib/effects/base_effect.c). Inside one it
+ * runs at the member's guild level.
  *
  * @param  id       the skill id, see <living/skills.h>
  * @param  level    guild level needed to know it
@@ -249,7 +255,8 @@ void add_guild_skill(string id, int level, varargs int ability)
 mapping query_guild_skills() { return guild_skills; }
 
 /**
- * Whether the guild teaches an effect, at any level.
+ * Whether the guild teaches an effect, at any level. Related effects are not
+ * taught, see query_allows.
  * @param  key  the spell's path (with .c) or the skill's id, see
  *              query_effect_key in /lib/effects/base_effect.c
  * @return 1 when add_guild_spell or add_guild_skill named it
@@ -257,6 +264,43 @@ mapping query_guild_skills() { return guild_skills; }
 int query_teaches(string key)
 {
   return guild_spells[key] != nil || guild_skills[key] != nil;
+}
+
+/**
+ * Ties a skill to the guild without teaching it: members may use it, but it
+ * is not offered by aprender, not granted on joining or levelling and not
+ * listed by query_guild_skills (it is learned through quests, items...).
+ * @param  id  the skill id, compared exactly
+ */
+void add_guild_related_skill(string id) { related_skills[id] = 1; }
+
+/**
+ * Ties a spell to the guild without teaching it, as add_guild_related_skill
+ * does for a skill.
+ * @param  path  the spell object, full path with .c, compared exactly
+ */
+void add_guild_related_spell(string path) { related_spells[path] = 1; }
+
+/**
+ * The ids of the skills tied to the guild but not taught by it.
+ */
+string * query_guild_related_skills() { return map_indices(related_skills); }
+
+/**
+ * The paths of the spells tied to the guild but not taught by it.
+ */
+string * query_guild_related_spells() { return map_indices(related_spells); }
+
+/**
+ * Whether members of the guild may use an effect that is not common: the
+ * guild teaches it or relates it.
+ * @param  key  the spell's path (with .c) or the skill's id
+ * @return 1 when taught or related
+ */
+int query_allows(string key)
+{
+  return query_teaches(key) || related_spells[key] != nil ||
+         related_skills[key] != nil;
 }
 
 /**
@@ -292,9 +336,10 @@ void grant_guild_skills(object player)
  *
  * Call it from the guild's setup. Members learn it with aprender in the guild
  * room once they reach the level, and keep it when they leave, but they cannot
- * cast it outside a guild that teaches it: the effect refuses the cast (see
- * query_casting_level in /lib/effects/base_effect.c). Inside one it runs at
- * the member's guild level.
+ * cast it outside a guild that allows it (teaches it or relates it, see
+ * add_guild_related_spell), unless it is a common effect: the effect refuses
+ * the cast (see query_usable_by in /lib/effects/base_effect.c). Inside one it
+ * runs at the member's guild level.
  *
  * @param  path   the spell object, inheriting BASE_EFFECT as a spell
  * @param  level  guild level needed to learn it

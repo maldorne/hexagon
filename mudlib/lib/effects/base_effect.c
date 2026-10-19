@@ -26,6 +26,7 @@ mapping categories;       // categories (spheres, schools, etc)
                           // ([ category_name : level_in_the_category ])
 int is_passive;           // the effect is passive (runs nothing)
 int effect_type;          // effect type (skill, spell, etc)
+private int common_effect; // open to everyone, see set_common_effect
 int combat_role_needed;   // required combat role (offensive, defensive, etc)
 int gp_cost;              // gp cost (not applied to spells)
 int lockout_time;         // minimum time between two runs of the same effect
@@ -517,7 +518,7 @@ int query_needs_faith() { return 0; }
  */
 string * query_targeting_keys()
 {
-  return ({ "target_type", "intent", "reach", "start_range", "range", "lockout_time",
+  return ({ "target_type", "intent", "reach", "common", "start_range", "range", "lockout_time",
     "needs_faith", "needs_sight", "touch_protectable", "allow_on_self", "allow_on_mounted", "allow_on_dead",
     "allow_on_passed_out", "allow_on_pacified", "allow_on_hidden",
     "allow_on_moving", "allow_while_mounted", "allow_while_dead",
@@ -532,6 +533,7 @@ string * query_targeting_keys()
  *   target_type  the TARGET_TYPE_* the effect declares
  *   intent       the EFFECT_INTENT_* id: whether it helps or harms its target
  *   reach        the EFFECT_REACH_* id, see query_effect_reach
+ *   common       1 when the effect is open to everyone, see set_common_effect
  *   start_range  exits away a target may be when the effect starts: 0 unless
  *                the reach is ranged, as targets are looked for in the
  *                caster's place
@@ -557,6 +559,7 @@ mapping query_targeting()
     "target_type":          target_type,
     "intent":               effect_intent,
     "reach":                reach,
+    "common":               common_effect,
     "start_range":          reach == EFFECT_REACH_RANGED ? effect_range : 0,
     "range":                effect_range,
     "lockout_time":         lockout_time,
@@ -756,7 +759,7 @@ int query_given_level(varargs object caster)
 }
 
 /**
- * What guilds teach this effect by: the spell's path (with .c) or the skill's
+ * What guilds allow this effect by: the spell's path (with .c) or the skill's
  * id (its file name without .c), as add_guild_spell and add_guild_skill take it.
  */
 string query_effect_key()
@@ -777,9 +780,24 @@ string query_effect_key()
 }
 
 /**
- * Whether the guild the caster belongs to teaches this effect.
+ * Marks the effect as common: open to everyone, whatever their guild, even
+ * when a guild teaches it (a job skill a member keeps using after leaving).
+ * Every other effect is a guild effect, usable only inside a guild that allows
+ * it (see query_allows in /lib/guild.c). Default 0.
+ * @param  flag  1 for a common effect
  */
-private int is_taught_by_guild_of(object caster)
+void set_common_effect(int flag) { common_effect = flag ? 1 : 0; }
+
+/**
+ * Whether the effect is common, open to everyone (see set_common_effect).
+ */
+int is_common_effect() { return common_effect; }
+
+/**
+ * Whether the guild the caster belongs to now allows this effect: teaches it
+ * or relates it to the guild without teaching it.
+ */
+private int is_allowed_by_guild_of(object caster)
 {
   string path;
   object guild;
@@ -790,42 +808,29 @@ private int is_taught_by_guild_of(object caster)
 
   guild = nil;
   catch(guild = load_object(path));
-  return guild && guild->query_teaches(query_effect_key());
+  return guild && guild->query_allows(query_effect_key());
 }
 
 /**
- * Whether some guild of the game teaches this effect. Those that none does
- * (hiding, climbing, the skills of a class) are generic, open to everyone.
- */
-int query_guild_effect(object caster)
-{
-  object guilds;
-
-  guilds = handler("guilds", caster);
-  return guilds && guilds->query_taught(query_effect_key(), caster);
-}
-
-/**
- * Whether the caster may use the effect on its own: it is generic, or the
- * guild the caster belongs to now teaches it. A cast at a given level (a
+ * Whether the caster may use the effect on its own: it is common, or the
+ * guild the caster belongs to now allows it. A cast at a given level (a
  * scroll) does not ask: see cast_effect_at.
  */
 int query_usable_by(object caster)
 {
-  if (is_taught_by_guild_of(caster))
+  if (common_effect)
     return 1;
 
-  return !query_guild_effect(caster);
+  return is_allowed_by_guild_of(caster);
 }
 
 /**
- * The one level every guild spell and skill is fed: a given level first (a
- * scroll, an item), else the caster's level in the guild that teaches the
- * effect, which is the guild the caster belongs to now. A generic effect
- * (no guild teaches it) uses the guild level of the caster, or its level for
- * a monster with no guild. At least 1: an effect the caster may not use is
- * refused when cast (see query_usable_by) and never gets here, but one that
- * outlives the cast may still ask.
+ * The one level every spell and skill is fed: a given level first (a scroll,
+ * an item); else, for a common effect, the class level of the caster; else,
+ * for a guild effect, the caster's guild level, with no fallback to the class
+ * level. At least 1: an effect the caster may not use is refused when cast
+ * (see query_usable_by) and never gets here, but one that outlives the cast
+ * may still ask.
  * The level of a target (resist rolls) is not this one: it stays the class
  * level.
  * @param  caster  who uses the effect
@@ -837,9 +842,7 @@ int query_casting_level(object caster)
 
   level = query_given_level(caster);
   if (level < 1)
-    level = caster->query_guild_level();
-  if (level < 1)
-    level = caster->query_level();
+    level = common_effect ? caster->query_level() : caster->query_guild_level();
 
   return level < 1 ? 1 : level;
 }

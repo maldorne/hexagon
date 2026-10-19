@@ -35,6 +35,8 @@ void setup_extraction(string skill)
 {
   extraction_skill = skill;
 
+  set_common_effect(1);
+
   set_gp_cost(5);
   set_lockout_time(4);
 

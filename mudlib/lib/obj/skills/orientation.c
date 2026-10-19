@@ -9,6 +9,8 @@ inherit BASE_EFFECT;
 
 void setup()
 {
+  set_common_effect(1);
+
   // Display name + accent-less aliases (both translated per language)
   set_effect_name(_LANG_SKILL_ORIENTATION_NAME);
   set_aliases(_LANG_SKILL_ORIENTATION_ALIASES);

@@ -27,6 +27,8 @@ inherit BASE_EFFECT;
 
 void setup()
 {
+  set_common_effect(1);
+
   // Display name + aliases; the learning key is SKILL_SLICE.
   set_effect_name(_LANG_SKILL_SLICE_NAME);
   set_aliases(_LANG_SKILL_SLICE_ALIASES);

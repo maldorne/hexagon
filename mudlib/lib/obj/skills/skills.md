@@ -110,27 +110,31 @@ An effect that damages or heals describes one cast in `mapping query_balance(obj
 | `note` | short free text: `"per hit"`, `"undead only"`, what was assumed; only what cannot be a number |
 | `extra` | optional mapping name -> int, float or string with numbers only some effects have (see below) |
 
-The targeting data are not passed: `make_balance` reads them from the effect itself with `query_targeting()` (names in `query_targeting_keys()`), so every row carries what the effect really declares: `target_type` (the `TARGET_TYPE_*`), `intent` (`EFFECT_INTENT_*`), `reach` (`EFFECT_REACH_*`), `start_range` (exits away a target may be when the effect starts: 0 unless the reach is ranged, as targets are looked for in the caster's place), `range` (`query_range`: exits away a target that moves is still followed once it has started, measured by the range handler, at most 10), `lockout_time`, `needs_faith`, `needs_sight` (a blinded caster cannot use it on another; single, touch and many targets), `touch_protectable` (a protector of the target may take the touch) and every `allow_*` permission of `BASE_EFFECT`. A base that adds a targeting rule overrides `query_targeting_keys` and `query_targeting`.
+The targeting data are not passed: `make_balance` reads them from the effect itself with `query_targeting()` (names in `query_targeting_keys()`), so every row carries what the effect really declares: `target_type` (the `TARGET_TYPE_*`), `intent` (`EFFECT_INTENT_*`), `reach` (`EFFECT_REACH_*`), `common` (1 when the effect is common), `start_range` (exits away a target may be when the effect starts: 0 unless the reach is ranged, as targets are looked for in the caster's place), `range` (`query_range`: exits away a target that moves is still followed once it has started, measured by the range handler, at most 10), `lockout_time`, `needs_faith`, `needs_sight` (a blinded caster cannot use it on another; single, touch and many targets), `touch_protectable` (a protector of the target may take the touch) and every `allow_*` permission of `BASE_EFFECT`. A base that adds a targeting rule overrides `query_targeting_keys` and `query_targeting`.
 
 `extra` is for what only some effects have: the dump adds one column per name (the union over all effects, empty where an effect lacks it), after `cost`. Used so far: projectile spells `projectiles`, `fired_per_round`, `hit_penalty_per_step`; area spells `rings` (places beyond the caster's that are reached) and `ring_percent` (the damage left in each, `"100/66/44"`); the inferno `caster_burn_percent`; the disintegrate ray `hit_penalty_far`.
 
 Every projectile or touch is assumed to land and no target to resist, unless the note says otherwise. Helpers of the base: `dice_range(dice, faces, bonus)` gives `({ minimum, average, maximum })`, `scale_range(caster, range)` applies the `fix_amount` of the spell base (stat adjustment) to it and `repeat_range(range, times)` repeats it. Those with an amount that depends on the situation (hit location, armour class, the gp of the caster) answer for the plain case and say so in the note.
 
-## The level of a guild spell or skill
+## Common and guild effects
 
-One number feeds every formula of a guild spell or skill (amounts, dice, durations, counts): `query_casting_level(caster)` of `BASE_EFFECT`. It is, in order:
+Every effect is a guild effect unless it is marked common with `set_common_effect(1)` in its `setup()` (`is_common_effect()`). A common effect is open to everyone, whatever their guild, even one a guild teaches (a job skill a member keeps using after leaving). The common skills are climb, dismembering, evade, focus, follow, gutting, hide, judge, orientation, pray, pulling, repair, search, skinning, slice, steal and swim; no spell is common.
+
+A guild effect can only be used inside a guild that allows it (`query_allows(key)` of the guild, with `key` = `query_effect_key()`: the spell's full path with `.c`, the skill's id, compared exactly). A guild allows what it teaches (`add_guild_spell` by path, `add_guild_skill` by id, which is the skill's file name) and what it relates (`add_guild_related_spell`, `add_guild_related_skill`: tied to the guild but not taught in its room, learned through quests or items). Related effects are not offered by `aprender`, not granted on joining or levelling, not in `query_guild_spells` / `query_guild_skills` and not given by the NPC template `guild_abilities`; read them with `query_guild_related_spells()` / `query_guild_related_skills()`.
+
+`cast_effect` refuses a guild effect with `MSG_NOT_TAUGHT` (`query_usable_by(caster)`) unless the cast carries a given level, so a scroll works for anyone who can read it. A character who leaves a guild keeps the spells and skills but cannot use them until joining a guild that allows them. An NPC follows the same rule: one that casts needs `guild` and `guild_level` in its template.
+
+## The level of a spell or skill
+
+One number feeds every formula of an effect (amounts, dice, durations, counts): `query_casting_level(caster)` of `BASE_EFFECT`. It is, in order:
 
 1. the level a cast was given (`PROPERTY_CAST_LEVEL`: a scroll or an item, see "At a level");
-2. the caster's level in the guild that teaches the effect, which is the guild the caster belongs to now (`query_guild_level()`);
-3. for an effect no guild teaches, the guild level of the caster, or its class level when it has no guild (a monster).
+2. for a common effect, the class level of the caster (`query_level()`);
+3. for a guild effect, the guild level of the caster (`query_guild_level()`), with no fallback to the class level.
 
-An effect is a guild effect when some guild of the game teaches it (`add_guild_spell` by path, `add_guild_skill` by id, which is the skill's file name; `query_effect_key()`). The guilds of a game are the files under `<game>/obj/guilds/`, read by the `guilds` handler (`lib/handlers/guilds.c`, `query_taught`). The generic effects no guild teaches (hide, climb, the starting skills of a class) stay open to everyone.
+At least 1. The level of a target (resist rolls, hold person, holy word) is not this one: it stays the class level (`query_level()`). So do the baselines of the balance tool (hit points, weapon blow).
 
-A guild effect can only be used inside a guild that teaches it: `cast_effect` refuses it with `MSG_NOT_TAUGHT` (`query_usable_by(caster)`) unless the cast carries a given level, so a scroll works for anyone who can read it. A character who leaves a guild keeps the spells and skills but cannot use them until joining a guild that teaches them. An NPC follows the same rule: one that casts needs `guild` and `guild_level` in its template.
-
-The level of a target (resist rolls, hold person, holy word) is not this one: it stays the class level (`query_level()`). So do the baselines of the balance tool (hit points, weapon blow).
-
-`hechizos` and `habilidades` mark with `(!)` the ones the current guild does not teach, with a legend line; generic skills are never marked.
+`hechizos` and `habilidades` mark with `(!)` the ones the current guild does not allow, with a legend line; common effects are never marked.
 
 ## Guild skills
 

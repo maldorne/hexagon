@@ -16,6 +16,8 @@ inherit BASE_EFFECT;
 
 void setup()
 {
+  set_common_effect(1);
+
   // Display name + aliases: the translated name is the verb itself
   set_effect_name(_LANG_SKILL_SWIM_NAME);
   set_aliases(_LANG_SKILL_SWIM_ALIASES);

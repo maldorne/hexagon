@@ -274,7 +274,7 @@ function buildModel(data) {
     if (!id) continue;
     if (!gained[id]) gained[id] = { level: lv, guilds: [] };
     if (isFinite(lv) && (!isFinite(gained[id].level) || lv < gained[id].level)) gained[id].level = lv;
-    gained[id].guilds.push(r.guild + (isFinite(lv) ? ' ' + lv : ''));
+    gained[id].guilds.push(r.guild + (isFinite(lv) ? ' ' + lv : (r.related === '1' ? ' related' : '')));
   }
 
   const add = (rows, source) => {
@@ -284,7 +284,7 @@ function buildModel(data) {
       if (!a) {
         a = m.byId[source + ':' + id] = {
           key: source + ':' + id, id, source, name: r.name || id, file: r.file, base: r.base || '',
-          categories: r.categories || '', kind: r.kind, target_type: r.target_type || '', reach: r.reach || '', range: isNum(r.range) ? num(r.range) : '', damage_type: r.damage_type || '',
+          categories: r.categories || '', kind: r.kind, target_type: r.target_type || '', reach: r.reach || '', common: r.common || '', range: isNum(r.range) ? num(r.range) : '', damage_type: r.damage_type || '',
           note: r.note || '', gained: gained[id] ? gained[id].level : NaN,
           guilds: gained[id] ? gained[id].guilds : [], cells: {},
         };
@@ -559,7 +559,7 @@ function renderOutliers() {
     const lg = isFinite(a.gained) ? a.gained : 1;
     const rg = ratio(a, lg), r20 = ratio(a, 20);
     rows.push({
-      a, name: a.name, source: a.source, kind: a.kind || '', target_type: a.target_type || '', reach: a.reach || '', range: isFinite(a.range) ? a.range : '', gained: isFinite(a.gained) ? a.gained : '',
+      a, name: a.name, source: a.source, kind: a.kind || '', target_type: a.target_type || '', reach: a.reach || '', common: a.common || '', range: isFinite(a.range) ? a.range : '', gained: isFinite(a.gained) ? a.gained : '',
       at_gain: measure(a, lg), ratio_gain: rg, at_20: measure(a, 20), ratio_20: r20,
       worst: Math.max(Math.abs(Math.log(rg) || 0), Math.abs(Math.log(r20) || 0)),
       guilds: a.guilds.join(', '), note: a.note,
@@ -571,6 +571,7 @@ function renderOutliers() {
     { key: 'kind' },
     { key: 'target_type' },
     { key: 'reach' },
+    { key: 'common' },
     { key: 'range', num: true },
     { key: 'gained', label: 'gained at', num: true },
     { key: 'at_gain', label: 'at gain', num: true },
