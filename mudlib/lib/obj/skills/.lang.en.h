@@ -290,9 +290,9 @@
 #define _LANG_SKILL_SKINNING_NAME "skin"
 #define _LANG_SKILL_SKINNING_ALIASES ({ })
 #define _LANG_SKILL_SKINNING_HELP "With 'skin <corpse>', wielding a knife or a dagger, you " + \
-      "take the skin, plumage or scales off a body, to sell or work them later. Each kind " + \
-      "of being asks for its own skill: an animal is easier than a bird, and a bird than " + \
-      "a reptile. It improves with practice.\n"
+      "take the skin, plumage or scales off a body to sell or work them later. Skinning " + \
+      "an animal is the easiest; the feathers of a bird need more skill, and the scales " + \
+      "of a reptile more still. It improves with practice.\n"
 
 // gutting.c
 

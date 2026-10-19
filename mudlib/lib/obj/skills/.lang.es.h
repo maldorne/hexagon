@@ -293,9 +293,10 @@
 #define _LANG_SKILL_SKINNING_NAME "despellejar"
 #define _LANG_SKILL_SKINNING_ALIASES ({ "desollar" })
 #define _LANG_SKILL_SKINNING_HELP "Con 'despellejar <cuerpo>', empuñando un cuchillo o una " + \
-      "daga, separas la piel, el plumaje o las escamas de un cuerpo, para venderlos o " + \
-      "trabajarlos después. Cada clase de ser pide su destreza: un animal es más fácil " + \
-      "que un ave, y un ave más que un reptil. Mejora con la práctica.\n"
+      "daga, quitas la piel, el plumaje o las escamas de un cuerpo para venderlos o " + \
+      "trabajarlos después. Quitar la piel a un animal es lo más fácil; las plumas de " + \
+      "un ave piden más destreza, y las escamas de un reptil, más todavía. Mejora con " + \
+      "la práctica.\n"
 
 // gutting.c
 
