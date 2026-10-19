@@ -15,6 +15,9 @@
 #include <translations/common.h>
 #include <language.h>
 
+// width of the first column of the help header
+#define HELP_COLUMN 32
+
 inherit "/lib/effects/combat_fixes.c";
 inherit "/lib/effects/guild_fixes.c";
 
@@ -728,39 +731,35 @@ private string social_notes(object reader)
 // The effect's help text.
 string help()
 {
-    string ret;
+    string ret, category;
 
     ret = "\n";
     ret += _LANG_EFFECT_HELP_NAME + "%^BOLD%^" + capitalize(effect_name) + "%^RESET%^";
 
+    // the effect category: a skill has no player categories, a spell does
+    if (this_object()->query_effect_type() == EFFECT_IS_SKILL)
+      category = capitalize(category_display(this_object()->query_categories()[0]));
+    else
+      category = capitalize(category_display(this_object()->query_effect_category()));
+
     if (!is_passive)
     {
-      ret += _LANG_EFFECT_HELP_LEVEL + this_object()->query_effect_level();
+      // two columns: level and category, then reach and cost
+      ret += "\n" + sprintf("%-*s%s", HELP_COLUMN, _LANG_EFFECT_HELP_LEVEL +
+        this_object()->query_effect_level(), _LANG_EFFECT_HELP_CATEGORY + category);
+      ret += "\n" + sprintf("%-*s%s", HELP_COLUMN, _LANG_EFFECT_HELP_REACH +
+        query_effect_reach_name(), _LANG_EFFECT_HELP_COST +
+        query_effect_gp_cost(this_player()));
 
-      // Effect category: a skill has no player categories, a spell does.
-      if (this_object()->query_effect_type() == EFFECT_IS_SKILL)
-          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_categories()[0]));
-      else
-        ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
-
-      ret += _LANG_EFFECT_HELP_REACH + query_effect_reach_name();
       // only a single target can run away from the effect
       if (member_array(query_effect_reach(), ({ EFFECT_REACH_SINGLE, EFFECT_REACH_RANGED })) != -1)
         ret += _LANG_EFFECT_HELP_FOLLOW + query_effect_follow_name();
-
-      ret += _LANG_EFFECT_HELP_COST + query_effect_gp_cost(this_player());
 
       if (combat_role_needed != NEUTRAL_ROLE)
         ret += _LANG_EFFECT_HELP_ROLE_NEEDED + COMBAT_ROLE_STRINGS[combat_role_needed];
     }
     else
-    {
-      // Effect category: a skill has no player categories, a spell does.
-      if (this_object()->query_effect_type() == EFFECT_IS_SKILL)
-          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_categories()[0]));
-      else
-          ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
-    }
+      ret += "\n" + _LANG_EFFECT_HELP_CATEGORY + category;
 
     ret += _LANG_EFFECT_HELP_DESC;
     if ( help_extras )
