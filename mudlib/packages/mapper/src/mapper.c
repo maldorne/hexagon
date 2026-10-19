@@ -2,6 +2,7 @@
 // them), keeps what is safe to show to players and writes it as JSON.
 
 #include <language.h>
+#include <translations/houses.h>
 
 #define READER "/packages/mapper/src/reader.c"
 // files read in each call_out, to stay within the ticks of one call
@@ -397,6 +398,13 @@ private string location_name(mapping data)
 
     if (mappingp(home) && stringp(home["home_short"]))
       name = strip_colours(home["home_short"]);
+
+    // a house or an empty plot is titled by its component at run time, with
+    // nothing saved: give the same title the location shows in the game
+    if (!strlen(name) && mappingp(home))
+      name = _LANG_HOME_SHORT;
+    if (!strlen(name) && mappingp(data["components"]["plot"]))
+      name = _LANG_PLOT_SHORT;
   }
 
   if (!strlen(name))
