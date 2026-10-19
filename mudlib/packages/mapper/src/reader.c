@@ -10,6 +10,7 @@ mapping _exit_map;
 mapping component_info;
 string _specific_short;
 string _original_short;
+string * room_zones;
 
 // area save
 string exploration_name;
@@ -34,6 +35,7 @@ mapping read(string path)
     "components": component_info,
     "specific_short": _specific_short,
     "original_short": _original_short,
+    "zones": room_zones,
     "exploration_name": exploration_name,
     "parent_area": parent_area,
   ]);

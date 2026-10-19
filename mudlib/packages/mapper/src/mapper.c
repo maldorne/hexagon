@@ -448,6 +448,28 @@ private void scan_folder(string dir)
 }
 
 /**
+ * A short hash (8 hex chars) of a location's zones, sorted and joined with
+ * commas; empty when it has none. The names themselves are never exported.
+ */
+private string zone_hash(string * zones)
+{
+  string hex;
+  int i, crc;
+
+  if (!pointerp(zones) || !sizeof(zones))
+    return "";
+
+  crc = hash_crc32(implode(sort_strings(zones), ","));
+  hex = "";
+
+  // the crc may be negative: take its 8 nibbles one by one
+  for (i = 28; i >= 0; i -= 4)
+    hex += "0123456789abcdef"[(crc >> i) & 15..(crc >> i) & 15];
+
+  return hex;
+}
+
+/**
  * Keeps one location save, when it has the data the map needs.
  */
 private void read_location(string path)
@@ -478,7 +500,8 @@ private void read_location(string path)
 
   locations[path] = ({ id, location_name(data), area_folder,
                        where[0], where[1], where[2],
-                       mappingp(data["exits"]) ? data["exits"] : ([ ]) });
+                       mappingp(data["exits"]) ? data["exits"] : ([ ]),
+                       zone_hash(data["zones"]) });
 }
 
 /**
@@ -671,6 +694,7 @@ private void finish()
     rows += ({ "{\"id\":" + quote(ids[i]) + ",\"name\":" + quote(loc[1]) +
                ",\"area\":" + quote(area_of_folder(loc[2])) +
                ",\"x\":" + loc[3] + ",\"y\":" + loc[4] + ",\"z\":" + loc[5] +
+               ",\"zone\":" + quote(loc[7]) +
                ",\"exits\":[" + line + "]}" });
   }
 
