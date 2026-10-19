@@ -653,3 +653,24 @@ static nomask string slugify(string str)
 
   return result;
 }
+
+/**
+ * The byte codes of a string, control characters included, separated by
+ * spaces: a debugging aid for colour codes and multibyte characters.
+ *
+ * @param str the string to read
+ * @return the codes, as "72 105 "
+ */
+static string char_codes(string str)
+{
+  int i, length;
+  string result;
+
+  result = "";
+  length = ::strlen(str);
+
+  for (i = 0; i < length; i++)
+    result += "" + str[i] + " ";
+
+  return result;
+}

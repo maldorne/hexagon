@@ -19,7 +19,7 @@ Common calls and operations over the basic types.
 | `arrayp`                | :white_check_mark: |  |
 | `objectp`               | :white_check_mark: |  |
 | `classp`                | :heavy_minus_sign: | nonexistent in dgd |
-| `mapp`                  | :white_check_mark: | alias for `mappingp` |
+| `mapp`                  |  | alias for `mappingp`, commented |
 | `userp`                 | :white_check_mark: | alias for `interactive` |
 | **strings**             |  |  |
 | `capitalize`            | :white_check_mark: |  |
@@ -181,8 +181,8 @@ The general idea of how the `this_player` value is being stored in a central obj
 | Function | Status | Comments |
 | -------- | :----: | -------- |
 | `eval_cost`             | :white_check_mark: | uses `status`  |
-| `reset_eval_cost`       | :white_check_mark: | dummy function, commented |
-| `set_eval_limit`        | :white_check_mark: | dummy function, commented |
+| `reset_eval_cost`       |  | dummy function, commented |
+| `set_eval_limit`        |  | dummy function, commented |
 
 ## Exceptions
 
@@ -197,19 +197,14 @@ The general idea of how the `this_player` value is being stored in a central obj
 | Function | Status | Comments |
 | -------- | :----: | -------- |
 | `crypt`                 | :white_check_mark: | provided by dgd |
-| `oldcrypt`              | :white_check_mark: | alias for `crypt`, commented to have less functions in the auto ob |
+| `oldcrypt`              | :negative_squared_cross_mark: | alias for `crypt`, not needed, commented |
 | `debug_info`            | :white_check_mark: | not same info as in mudos, returns `status(ob)` converted to a string |
-| `snoop`                 |  | dummy function for now |
-| `query_snoop`           |  |  |
-| `query_snooping`        |  |  |
 | `query_ip_number`       | :white_check_mark: | provided by dgd |
 | `query_ip_name`         | :white_check_mark: | provided by dgd |
 | `query_host_name`       |  |  |
 | `resolve`               |  |  |
 | `query_idle`            | :white_check_mark: | moved to local function in the user object |
 | `random`                | :white_check_mark: | provided by dgd |
-| `shadow`                | :white_check_mark: |  |
-| `query_shadowing`       | :white_check_mark: |  |
 | `bind`                  | :heavy_minus_sign: | nonexistent in dgd |
 | `save_variable`         |  |  |
 | `restore_variable`      |  |  |
@@ -218,7 +213,7 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `replace_program`       |  |  |
 | `regexp`                |  |  |
 | `reg_assoc`             |  |  |
-| `crc32`                 |  |  |
+| `crc32`                 | :white_check_mark: | provided by dgd as `hash_crc32` |
 | `clear_bit`             |  |  |
 | `test_bit`              |  |  |
 | `set_bit`               |  |  |
@@ -239,17 +234,32 @@ The general idea of how the `this_player` value is being stored in a central obj
 | `get_char`              |  |  |
 | `reload_object`         |  |  |
 | `flush_messages`        |  |  |
-| `ed`                    |  |  |
+| `ed`                    | :white_check_mark: | provided by dgd as `editor`, wrapped in the user object |
 | `ed_start`              |  |  |
 | `ed_cmd`                |  |  |
 | `query_ed_mode`         |  |  |
 | `dumpallobj`            |  |  |
 | `dump_file_descriptors` |  |  |
-| `set_light`             |  |  |
+| `set_light`             | :white_check_mark: | a function of every object (`/lib/core/basic/light.c`), not an efun |
 | `origin`                |  |  |
 | `reclaim_objects`       |  |  |
 | `uptime`                | :white_check_mark: | uses `status` |
 | `shutdown`              | :white_check_mark: |  |
+
+## Shadows
+
+| Function | Status | Comments |
+| -------- | :----: | -------- |
+| `shadow`                | :white_check_mark: | only clones can shadow, and the same shadow program cannot be applied twice to one object; `call_other` goes through the shadows, and `destruct` destroys them with their target |
+| `query_shadowing`       | :white_check_mark: | ignores its argument and answers whether the calling object is a shadow, not the object it shadows |
+
+## Snoop
+
+| Function | Status | Comments |
+| -------- | :----: | -------- |
+| `snoop`                 | :white_check_mark: | `set_snooping` in the user object, allowed by `valid_snoop` in the secure object; used by the `snoop` command |
+| `query_snoop`           | :white_check_mark: | `query_snooped_by` in the user object |
+| `query_snooping`        | :white_check_mark: | in the user object |
 
 ## Other optional MudOS packages
 
