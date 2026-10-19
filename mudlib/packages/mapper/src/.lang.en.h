@@ -1,0 +1,13 @@
+// mapper
+
+#define _LANG_MAPPER_BUSY       "A map dump is already running.\n"
+#define _LANG_MAPPER_BAD_DIR    "'$1' is not an area folder of a game (/games/<game>/areas/<area>).\n"
+#define _LANG_MAPPER_NO_SAVES   "There are no saved locations for '$1'.\n"
+#define _LANG_MAPPER_START      "Mapping '$1'...\n"
+#define _LANG_MAPPER_EMPTY      "No locations to map in '$1' (try 'all' for its sub-areas).\n"
+#define _LANG_MAPPER_FAILED     "The map dump failed: $1\n"
+#define _LANG_MAPPER_WRITE_FAIL "Could not write '$1'.\n"
+#define _LANG_MAPPER_DONE       "Map written to $1: $2 locations, $3 areas, $4 external exits.\n"
+#define _LANG_MAPPER_NO_GAME    "There is no game '$1'.\n"
+#define _LANG_MAPPER_NO_MAPS    "No maps written yet.\n"
+#define _LANG_MAPPER_LIST_ROW   "  $1  ($2 bytes, $3)\n"
