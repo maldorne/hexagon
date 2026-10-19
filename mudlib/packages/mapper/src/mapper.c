@@ -25,6 +25,8 @@ private mapping nearest_cache;
 private mapping area_info;
 // location save file -> ({ id, name, area save folder, x, y, z, exits })
 private mapping locations;
+// area id -> ({ kind, label }) of the areas outside the dump
+private mapping label_cache;
 
 private string message(string text, mixed * values);
 private string nearest_area(string dir);
@@ -247,6 +249,138 @@ private mixed * area_data(string folder)
 }
 
 /**
+ * The first location save of a folder that carries one of the components,
+ * as the object path it names; "" when none does. Each component is
+ * ({ component type, saved field }).
+ */
+private string named_object(string folder, mixed * kinds)
+{
+  mixed * entries, * kind;
+  mapping data, info;
+  string name;
+  int i, j;
+
+  entries = get_dir(folder + "*", -1);
+
+  for (i = 0; i < sizeof(entries); i++)
+  {
+    name = entries[i][0];
+
+    if (entries[i][1] < 0 || strlen(name) <= 2 ||
+        name[strlen(name) - 2..] != ".o" || name == "area.o")
+      continue;
+
+    data = reader->read(folder + name);
+
+    if (!data || !mappingp(data["components"]))
+      continue;
+
+    for (j = 0; j < sizeof(kinds); j++)
+    {
+      kind = kinds[j];
+      info = data["components"][kind[0]];
+
+      if (mappingp(info) && stringp(info[kind[1]]) && strlen(info[kind[1]]))
+        return info[kind[1]];
+    }
+  }
+
+  return "";
+}
+
+/**
+ * The name players see for a guild or job object: its short, no colours.
+ */
+private string object_label(string path)
+{
+  object ob;
+  string text;
+
+  if (!strlen(path) || catch(ob = load_object(path)) || !ob)
+    return "";
+
+  text = nil;
+
+  if (catch(text = ob->query_short()))
+    return "";
+
+  return strip_colours(text);
+}
+
+/**
+ * A name in capitals-first form: hyphens become spaces.
+ */
+private string capitalise(string text)
+{
+  string first;
+
+  text = replace_string(text, "-", " ");
+
+  if (!strlen(text))
+    return text;
+
+  first = text[..0];
+
+  if (first[0] >= 'a' && first[0] <= 'z')
+    first[0] -= 'a' - 'A';
+
+  return first + text[1..];
+}
+
+/**
+ * How a viewer names the area outside the dump an exit leads to: ({ kind,
+ * label }). Guild and job areas (their first path segment) are labelled with
+ * the short of the guild or job their locations name; any other area with the
+ * name of its top-level area, else its first path segment.
+ */
+private mixed * external_label(string target_id, string target_folder)
+{
+  string * parts, * result;
+  string kind, top, label;
+  mapping data;
+
+  if (label_cache[target_id])
+    return label_cache[target_id];
+
+  parts = explode(target_id, "/");
+  label = "";
+
+  if (parts[0] == "guilds")
+  {
+    kind = "guild";
+    label = object_label(named_object(target_folder,
+      ({ ({ "guild-room", "room_guild" }),
+         ({ "guild-entrance", "entrance_guild" }) })));
+  }
+  else if (parts[0] == "jobs")
+  {
+    kind = "job";
+    label = object_label(named_object(target_folder,
+      ({ ({ "job-room", "room_job" }),
+         ({ "job-entrance", "entrance_job" }) })));
+  }
+  else
+  {
+    kind = "area";
+    top = areas_dir + parts[0] + "/";
+
+    if (file_size(top + "area.o") > 0)
+    {
+      data = reader->read(top + "area.o");
+
+      if (data && stringp(data["exploration_name"]))
+        label = strip_colours(data["exploration_name"]);
+    }
+
+    if (!strlen(label))
+      label = capitalise(parts[0]);
+  }
+
+  label_cache[target_id] = ({ kind, label });
+  return label_cache[target_id];
+}
+
+/**
  * The name shown for a location: the home name, else the specific title,
  * else the original one.
  */
@@ -461,8 +595,8 @@ private void finish()
 {
   mapping by_id, area_ids, seen_levels;
   string * paths, * ids, * dirs, * rows, * ext, * areas;
-  string path, line, target_folder, dest;
-  mixed * loc, * exit;
+  string path, line, target_folder, dest, target_id;
+  mixed * loc, * exit, * tag;
   int i, j;
 
   by_id = ([ ]);
@@ -523,8 +657,13 @@ private void finish()
       if (!strlen(target_folder))
         continue;
 
+      target_id = area_of_folder(target_folder);
+      tag = external_label(target_id, target_folder);
+
       ext += ({ "{\"from\":" + quote(ids[i]) + ",\"dir\":" + quote(dirs[j]) +
-                ",\"area\":" + quote(area_of_folder(target_folder)) +
+                ",\"area\":" + quote(target_id) +
+                ",\"kind\":" + quote(tag[0]) +
+                ",\"label\":" + quote(tag[1]) +
                 ",\"to\":" +
                 quote(dest[strlen(target_folder)..strlen(dest) - 3]) + "}" });
     }
@@ -619,6 +758,7 @@ string update_map(object me, string dir, int sub_areas)
   nearest_cache = ([ ]);
   area_info = ([ ]);
   locations = ([ ]);
+  label_cache = ([ ]);
   cursor = 0;
   running = 1;
 

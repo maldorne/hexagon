@@ -38,7 +38,7 @@ skipped. Area names and parents come from the `area.o` saves.
   "levels": [ 0 ],
   "locations": [ { "id": "...", "name": "...", "area": "...", "x": 0, "y": 0, "z": 0,
                    "exits": [ { "dir": "north", "to": "..." } ] } ],
-  "external": [ { "from": "...", "dir": "...", "area": "...", "to": "..." } ] }
+  "external": [ { "from": "...", "dir": "...", "area": "...", "kind": "...", "label": "...", "to": "..." } ] }
 ```
 
 - `format`: `mapper/1`.
@@ -48,7 +48,7 @@ skipped. Area names and parents come from the `area.o` saves.
 - `areas`: every area that has locations in the dump, sorted by `id`. `id` is the path under the game's `areas/` folder; `name` is the area's display name, else its folder name (the folder above when that is `rooms`); `parent` is the parent area's id, or empty. A parent may not be listed when it has no locations in the dump.
 - `levels`: the distinct `z` values, ascending.
 - `locations`: sorted by `id`, one per line. `id` is the save path inside the dumped area without `.o`. `name` is the `home` component's `home_short`, else the specific short, else the original short, colour codes stripped. `area` is the id of the area the location belongs to. `x`, `y`, `z` are the saved coordinates (`y` grows to the north). `exits` are the visible exits to other locations of the dump: `dir` is the direction as saved (canonical English) and `to` the target `id`.
-- `external`: visible exits that leave the dump. `from` is a location `id`; `area` is the target's area id and `to` the target's id inside that area (not inside the dumped one).
+- `external`: visible exits that leave the dump. `from` is a location `id`; `area` is the target's area id and `to` the target's id inside that area (not inside the dumped one). `kind` and `label` say what the target is without showing a path: an area whose first path segment is `guilds` is `guild` and its label the guild's name as players see it (the short of the guild object named by its locations); `jobs` is `job`, the same with the job; any other is `area`, labelled with the name of its top-level area when that has one, else its first path segment capitalised with hyphens as spaces. The label is empty when no location of a guild or job area names its object.
 
 Output is sorted so that a regenerated map gives a small diff.
 
