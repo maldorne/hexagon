@@ -15,9 +15,11 @@
 // number of seconds between calls to the heart_beat function
 // do not touch this
 #define HEART_BEAT_TIME 2
-// rlimits of every heart_beat in any object
+// rlimits of every heart_beat in any object; the ticks match a user command's
+// (MAX_USER_TICKS), since queued commands run inside the heart_beat, and a
+// move into a crowded location brings everybody in it back in that execution
 #define MAX_HB_DEPTH 100
-#define MAX_HB_TICKS 1000000
+#define MAX_HB_TICKS 10000000
 
 // for the list of pending call_outs
 #define CALL_OUT_STACK_OB     0
