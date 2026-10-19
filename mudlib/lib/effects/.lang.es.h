@@ -33,11 +33,8 @@
 // admite el efecto, un objetivo que se ha ido
 #define _LANG_EFFECT_MANY_MISSING_PRE "No ves a '"
 #define _LANG_EFFECT_MANY_MISSING_POST "' por aquí.\n"
-#define _LANG_EFFECT_MANY_TOO_MANY_PRE "Sólo puedes elegir hasta "
-#define _LANG_EFFECT_MANY_TOO_MANY_POST " objetivos, el resto se ignora.\n"
 #define _LANG_EFFECT_MANY_GONE_PRE "Tu objetivo "
 #define _LANG_EFFECT_MANY_GONE_POST " está demasiado lejos.\n"
-#define _LANG_EFFECT_HELP_MAX_TARGETS "\tObjetivos: hasta "
 #define _LANG_EFFECT_ROLE_BLOCKS "Tu rol de combate actual no te permite realizar eso.\n"
 
 // --- base_effect: mensajes de comienzo ---

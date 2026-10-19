@@ -118,8 +118,8 @@ is casting or under `noskill`, it tries one spell or skill it knows
 use now are drawn (`can_use_effect`: an intent other than none, taught by its guild,
 gp enough, none of the effect's lockout properties set). `choose_effect()` picks one
 at random and its targets by intent and target type: a harmful `one`/`touch` goes at
-an attacker, a harmful `many` at up to `query_max_targets()` of them, a helpful
-`one`/`touch` at itself, a helpful `many` at itself and the allies fighting the same
+an attacker, a harmful `many` at all of them, a helpful
+`one`/`touch` at itself, a helpful `many` at itself and all the allies fighting the same
 attackers; `all`, `self` and `none` are cast as they are. `cast_chosen_effect()`
 runs it through `cast_effect_on` (chosen targets) or `cast_effect`, so the effect
 makes the same refusals as for a player. An AI component replaces `choose_effect()`

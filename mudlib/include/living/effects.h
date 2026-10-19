@@ -48,10 +48,6 @@
 #define EFFECT_INTENT_HELP "help"
 #define EFFECT_INTENT_HARM "harm"
 
-// How many targets a TARGET_TYPE_MANY effect takes unless it says otherwise,
-// see set_max_targets in base_effect.c
-#define EFFECT_DEFAULT_MAX_TARGETS 3
-
 #define PROPERTY_IS_CASTING "casting"
 #define PROP_EFECTO_INAUDIBLE "inaudible"
 #define PROP_EFFECT_TESTER "TEST"

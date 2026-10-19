@@ -204,11 +204,11 @@ mixed * choose_effect()
       break;
 
     case TARGET_TYPE_MANY:
+      // every attacker for a harm, itself and every ally for a help
       if (intent == EFFECT_INTENT_HARM)
-        targets = take_some(attackers, effect->query_max_targets());
+        targets = attackers;
       else
-        targets = take_some(present_allies(attackers),
-          effect->query_max_targets() - 1) + ({ this_object() });
+        targets = present_allies(attackers) + ({ this_object() });
       break;
 
     case TARGET_TYPE_SELF:

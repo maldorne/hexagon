@@ -40,7 +40,6 @@ string target_type;       // target type the effect can have
 string effect_intent;     // whether the effect helps or harms its target
                           //   possible: EFFECT_INTENT_NONE, EFFECT_INTENT_HELP,
                           //             EFFECT_INTENT_HARM
-int max_targets;          // how many targets a TARGET_TYPE_MANY effect takes
 string* property_checks;  // properties that prevent the effect from running
 // string* shadow_checks;    // functions checked to know if it has shadows
 int effect_range;         // how many exits away a target that moves is still
@@ -137,7 +136,6 @@ void create()
   help_see_also = ({ });
   target_type = TARGET_TYPE_NONE;
   effect_intent = EFFECT_INTENT_NONE;
-  max_targets = EFFECT_DEFAULT_MAX_TARGETS;
   property_checks = 
     ({ 
       PROPERTY_IS_CASTING, 
@@ -240,14 +238,6 @@ void set_effect_intent(string intent) { effect_intent = intent; }
  * @return one of the EFFECT_INTENT_* ids
  */
 string query_effect_intent() { return effect_intent; }
-
-/**
- * The most targets a TARGET_TYPE_MANY effect takes in one cast; the others the
- * caster names are dropped.
- * @param  n  at least 1
- */
-void set_max_targets(int n) { max_targets = n < 1 ? 1 : n; }
-int query_max_targets() { return max_targets; }
 
 /*
 void add_shadow_to_check(string str) { shadow_checks += ({ str }); }
@@ -527,7 +517,7 @@ int query_needs_faith() { return 0; }
  */
 string * query_targeting_keys()
 {
-  return ({ "target_type", "intent", "max_targets", "reach", "start_range", "range", "lockout_time",
+  return ({ "target_type", "intent", "reach", "start_range", "range", "lockout_time",
     "needs_faith", "needs_sight", "touch_protectable", "allow_on_self", "allow_on_mounted", "allow_on_dead",
     "allow_on_passed_out", "allow_on_pacified", "allow_on_hidden",
     "allow_on_moving", "allow_while_mounted", "allow_while_dead",
@@ -537,32 +527,10 @@ string * query_targeting_keys()
 }
 
 /**
- * How many targets one cast takes, for the targeting data.
- * @return the maximum of a many-target effect, 1 for a single or touch target,
- *         0 when it takes the whole place or no target
- */
-private int query_targets_per_cast()
-{
-  switch (target_type)
-  {
-  case TARGET_TYPE_MANY:
-    return max_targets;
-  case TARGET_TYPE_ONE:
-  case TARGET_TYPE_TOUCH:
-    return 1;
-  }
-
-  return 0;
-}
-
-/**
  * Everything the effect declares about whom it can reach and from where, read
  * from the effect itself (keys of query_targeting_keys):
  *   target_type  the TARGET_TYPE_* the effect declares
  *   intent       the EFFECT_INTENT_* id: whether it helps or harms its target
- *   max_targets  how many targets one cast takes: the maximum of a many-target
- *                effect, 1 for a single or touch target, 0 for the rest (the
- *                whole place, or no target)
  *   reach        the EFFECT_REACH_* id, see query_effect_reach
  *   start_range  exits away a target may be when the effect starts: 0 unless
  *                the reach is ranged, as targets are looked for in the
@@ -588,7 +556,6 @@ mapping query_targeting()
   return ([
     "target_type":          target_type,
     "intent":               effect_intent,
-    "max_targets":          query_targets_per_cast(),
     "reach":                reach,
     "start_range":          reach == EFFECT_REACH_RANGED ? effect_range : 0,
     "range":                effect_range,
@@ -738,8 +705,6 @@ string help()
         ret += _LANG_EFFECT_HELP_CATEGORY + capitalize(category_display(this_object()->query_effect_category()));
 
       ret += _LANG_EFFECT_HELP_REACH + query_effect_reach_name();
-      if (target_type == TARGET_TYPE_MANY)
-        ret += _LANG_EFFECT_HELP_MAX_TARGETS + max_targets;
       // only a single target can run away from the effect
       if (member_array(query_effect_reach(), ({ EFFECT_REACH_SINGLE, EFFECT_REACH_RANGED })) != -1)
         ret += _LANG_EFFECT_HELP_FOLLOW + query_effect_follow_name();
@@ -957,8 +922,7 @@ private string target_refusal(object ob, object caster)
  * by commas or by the word for "and" (the same reading as find_match, so "all"
  * names everybody). The targets must be living, distinct and valid for the
  * effect like those of a single-target one; the ones that are not, or that
- * cannot be found, are dropped with a message to the caster, and no more than
- * max_targets are kept (the first ones).
+ * cannot be found, are dropped with a message to the caster.
  *
  * @param  str     what the caster typed
  * @param  given   the targets chosen by the caller, empty to read str
@@ -1021,13 +985,6 @@ private object * find_many_targets(string str, object * given, object caster)
             targets += ({ wanted[i] });
     }
 
-    if (sizeof(targets) > max_targets)
-    {
-        tell_object(caster, _LANG_EFFECT_MANY_TOO_MANY_PRE + max_targets +
-            _LANG_EFFECT_MANY_TOO_MANY_POST);
-        targets = targets[0..max_targets - 1];
-    }
-
     return targets;
 }
 
@@ -1036,8 +993,8 @@ private object * find_many_targets(string str, object * given, object caster)
  * for an NPC (a player names them in the text instead, see cast_effect).
  * Everything else is checked as in cast_effect.
  *
- * @param  targets  the living targets: a many-target effect takes up to
- *                  query_max_targets of them (the others are dropped), a single
+ * @param  targets  the living targets: a many-target effect takes all of
+ *                  them, a single
  *                  or touch one the first; the rest of the target types ignore
  *                  them and look for theirs as ever
  * @param  who      the caster
@@ -1594,8 +1551,8 @@ int hb_effect(object caster, mixed *params, int time)
              We don't allow many-target effects; either we have single-target
              effects or we affect every character in the
              habitacion. ***/
-        // Restored 10/2026: an effect names up to max_targets distinct
-        // targets, each one valid and in range like a single target; the
+        // Restored 10/2026: an effect names distinct targets,
+        // each one valid and in range like a single target; the
         // area effects (TARGET_TYPE_ALL) stay everybody in the place.
         out_of_range = ({ });
         kept = ({ });
