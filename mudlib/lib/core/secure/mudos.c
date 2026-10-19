@@ -293,7 +293,18 @@ int _call_out(object ob, mixed * context, string func, varargs mixed args...)
   // restore the context when the call_out was programmed
   restore_execution_context(context);
 
-  catch(call_other(ob, func, args...));
+  // A call_out is a task of its own, and the driver starts every task with no
+  // limits, so a loop that never ends would hang the whole mud: give it limits
+  // meant only to stop that (see MAX_CALLOUT_TICKS). The heart_beat round (this
+  // object's own call_out) is left without them, since each heart_beat it runs
+  // takes its own and an outer limit would have to hold all of them at once.
+  if (ob == this_object())
+    catch(call_other(ob, func, args...));
+  else
+    rlimits (MAX_CALLOUT_DEPTH; MAX_CALLOUT_TICKS)
+    {
+      catch(call_other(ob, func, args...));
+    }
 
   // restore current context
   restore_execution_context(old_context);

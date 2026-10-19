@@ -20,6 +20,15 @@
 // move into a crowded location brings everybody in it back in that execution
 #define MAX_HB_DEPTH 100
 #define MAX_HB_TICKS 10000000
+// rlimits of every call_out. They are there only so that a loop or a recursion
+// that never ends is stopped instead of hanging the mud, never to bound real
+// work: a call_out's code runs as if it had the driver to itself, and the
+// batches that run as call_outs (evicting and prewarming locations, waking NPCs
+// on the hour) grow with the number of players. So the ticks are far above
+// anything a call_out spends (a few million at most when measured), at the cost
+// of a pause of several seconds before a runaway loop is cut.
+#define MAX_CALLOUT_DEPTH 100
+#define MAX_CALLOUT_TICKS 100000000
 
 // for the list of pending call_outs
 #define CALL_OUT_STACK_OB     0

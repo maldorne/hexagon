@@ -7,6 +7,11 @@
 // void eval_cost()
 // eval_cost() returns the number of instructions that can be executed
 // before the driver decides it is in an infinite loop.
+//
+// The ticks are those of the innermost rlimits scope. It answers -1 when that
+// scope has no tick limit: every execution the driver starts begins unlimited,
+// and only the mudlib's rlimits (user input, heart_beats, call_outs, HTTP and
+// binary connections) set one.
 
 static nomask int eval_cost()
 {
