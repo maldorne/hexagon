@@ -94,6 +94,7 @@
 #define _LANG_HELP_KIND_SEPARATOR "·"
 #define _LANG_HELP_KIND_COMMAND "comando"
 #define _LANG_HELP_KIND_SKILL "habilidad"
+#define _LANG_HELP_KIND_SPELL "hechizo"
 #define _LANG_HELP_KIND_TOPIC "tema"
 #define _LANG_HELP_KIND_CODER_TOPIC "tema para creadores"
 #define _LANG_HELP_KIND_DRIVER "manual del driver"

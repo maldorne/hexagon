@@ -413,6 +413,15 @@ int do_help(string str)
     return 1;
   }
 
+  // a spell the player knows, by its name or an alias
+  if ((text = this_object()->player()->help_spell(str)) && strlen(text))
+  {
+    this_object()->more_string(
+      help_page(str, _LANG_HELP_KIND_SPELL, "", text + "\n", FALSE),
+      capitalize(str));
+    return 1;
+  }
+
   // something in the player's hands, before anything written down
   if (show_item_help(str))
     return 1;

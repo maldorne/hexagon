@@ -94,6 +94,7 @@
 #define _LANG_HELP_KIND_SEPARATOR "·"
 #define _LANG_HELP_KIND_COMMAND "command"
 #define _LANG_HELP_KIND_SKILL "skill"
+#define _LANG_HELP_KIND_SPELL "spell"
 #define _LANG_HELP_KIND_TOPIC "topic"
 #define _LANG_HELP_KIND_CODER_TOPIC "topic for creators"
 #define _LANG_HELP_KIND_DRIVER "driver manual"
