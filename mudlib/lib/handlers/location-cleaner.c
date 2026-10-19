@@ -319,6 +319,8 @@ void _prewarm_step()
   }
 }
 
+private void _retain_around(object env, mapping retain);
+
 // Entry point for the player-enter hook. Seeds the neighbourhood walk from
 // the player's environment, subject to the L1 cache.
 void player_moved(object player)
@@ -345,7 +347,10 @@ void player_moved(object player)
     region_warmed[key] = time() + CLEANER_REGION_TTL;
   }
 
-  _seed(env, 1, (coords && sizeof(coords) >= 3) ? coords : nil);
+  // Walk what is already resident and queue what is missing. Seeding only the
+  // exits of env would stop at its neighbours, all of them still fresh, and
+  // leave the ring that has just come into the window cold until the next sweep.
+  _retain_around(env, ([ ]));
   _schedule();
 }
 
@@ -399,7 +404,7 @@ private void _retain_around(object env, mapping retain)
 
       if (!there)
       {
-        if (!queued[dest])
+        if (!queued[dest] && !_fresh(dest))
         {
           queued[dest] = 1;
           queue += ({ ({ dest, steps, centre }) });
