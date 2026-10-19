@@ -281,26 +281,24 @@ void event_crime(object who, object criminal, string type, object victim,
 void placed()
 {
   object me, post;
-  string dir;
 
   me = query_entity();
-  if (me)
-    _queue_scan();
-
-  dir = _watched_direction();
-  if (!strlen(dir) || !me)
+  if (!me)
     return;
+
+  _queue_scan();
 
   if (guard_direction && strlen(guard_direction))
   {
     post = environment(me);
     if (post)
-      post->register_guard(me, dir);
+      post->register_guard(me, guard_direction);
     return;
   }
 
-  // the post may not be loaded, and loading it places more people: leave it
-  // to an execution of its own
+  // The direction of a guard posted to a town entrance is read off its post,
+  // which may not be loaded, and loading it places more people: even asking
+  // for it is left to an execution of its own.
   call_out("register_at_post", 0);
 }
 
