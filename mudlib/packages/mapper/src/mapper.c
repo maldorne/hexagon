@@ -44,7 +44,26 @@ private string message(string text, mixed * values)
 }
 
 /**
- * The text without colour codes (%^NAME%^ pairs).
+ * Whether a piece of text between two %^ markers is a colour code: a name in
+ * capitals (BOLD, YELLOW, RESET...).
+ */
+private int is_colour_code(string part)
+{
+  int i;
+
+  if (!strlen(part))
+    return 1;
+
+  for (i = 0; i < strlen(part); i++)
+    if ((part[i] < 'A' || part[i] > 'Z') && part[i] != '_')
+      return 0;
+
+  return 1;
+}
+
+/**
+ * The text without colour codes: every capitalised name between %^ markers
+ * goes, whether codes come alone or chained (%^BOLD%^YELLOW%^).
  */
 private string strip_colours(string text)
 {
@@ -55,13 +74,13 @@ private string strip_colours(string text)
   if (!stringp(text))
     return "";
 
-  // explode drops a leading or trailing marker: a sentinel on each end keeps
-  // the text in the even parts and the codes in the odd ones
+  // a sentinel on each end, since explode drops a leading or trailing marker
   parts = explode("|" + text + "|", "%^");
   result = "";
 
-  for (i = 0; i < sizeof(parts); i += 2)
-    result += parts[i];
+  for (i = 0; i < sizeof(parts); i++)
+    if (i == 0 || i == sizeof(parts) - 1 || !is_colour_code(parts[i]))
+      result += parts[i];
 
   return result[1 .. strlen(result) - 2];
 }
